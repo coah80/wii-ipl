@@ -5,6 +5,12 @@
 
 namespace ipl {
     namespace snd {
+        struct tagSSeInfo {
+            nw4r::snd::SoundHandle handle;
+            const char* name;
+            u32 id;
+        };
+
         BOOL m_isLocked;
         extern nw4r::snd::SoundHandle _bgmBlk;
         extern nw4r::snd::SoundHandle* _mainBGMHandle;
@@ -56,6 +62,42 @@ namespace ipl {
             EGG::ArcPlayer::startSound(&_bgmBlk, bgmName);
             _mainBGMHandle = &_bgmBlk;
             return &_bgmBlk;
+        }
+
+        nw4r::snd::SoundHandle* System::startSE(const char* sndName) {
+            tagSSeInfo* block;
+
+            if (m_isLocked) {
+                return NULL;
+            }
+
+            block = FIsSEActive(sndName);
+            if (block != NULL && block->handle.GetId() == 0x39) {
+                goto return_block;
+            }
+            if (block == NULL) {
+                goto continue_block;
+            }
+            if (block->handle.GetId() != 0x35) {
+                goto continue_block;
+            }
+
+        return_block:
+            return reinterpret_cast<nw4r::snd::SoundHandle*>(block);
+
+        continue_block:
+            if (block == NULL) {
+                block = getFreeSEBlock(true);
+            }
+            if (block == NULL) {
+                return NULL;
+            }
+
+            block->handle.Stop(0);
+            EGG::ArcPlayer::startSound(&block->handle, sndName);
+            block->name = sndName;
+            block->id = block->handle.GetId();
+            return reinterpret_cast<nw4r::snd::SoundHandle*>(block);
         }
 
         long System::clipGELT_S32(long value, long lo, long hi) {

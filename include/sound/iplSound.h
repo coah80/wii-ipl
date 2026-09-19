@@ -11,6 +11,8 @@
 
 namespace ipl {
     namespace snd {
+        struct tagSSeInfo;
+
         class System : EGG::SimpleAudioMgrWithFx {
         public:
             System();
@@ -49,8 +51,9 @@ namespace ipl {
             BOOL isSEActive(const char* sndName);
             BOOL isSEActive(u32 id);
 
-            BOOL FisSEActive(const char* sndName);
-            BOOL FisSEActive(u32 id);
+            tagSSeInfo* FIsSEActive(const char* sndName);
+            tagSSeInfo* FIsSEActive(u32 id);
+            tagSSeInfo* getFreeSEBlock(bool force);
 
             void startBannerSound(void*, u32, bool ignoreSize = false);
             void stopBannerSound(int unk = 0);
