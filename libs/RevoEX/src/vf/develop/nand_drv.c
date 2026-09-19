@@ -414,6 +414,484 @@ s32 VFi_NandFlushNANDFromHandleIdx(s32 i_handleIdx, BOOL i_setLastDeviceError) {
     return NAND_RESULT_OK;
 }
 
+#ifdef __MWERKS__
+extern void _savegpr_23();
+extern void _restgpr_23();
+static asm s32 _MountPrfFile(register PDM_DISK* p_disk, register char* i_fullpath_p) {
+    nofralloc
+
+    clrlwi r11, r1, 26
+    mr r12, r1
+    subfic r11, r11, -0xc0
+    stwux r1, r1, r11
+    mflr r0
+    mr r11, r12
+    stw r0, 0x4(r12)
+    bl _savegpr_23
+    mr r26, r3
+    mr r27, r4
+    bl VFSysPDMDisk2DriveP
+    mr r23, r3
+    mr r3, r26
+    bl dCommon_getHandleIdxFromDisk
+    cmpwi r23, 0x0
+    mr r31, r3
+    bne _MountPrfFile_L_814D7C0C
+    li r3, -0x14
+    b _MountPrfFile_L_814D824C
+    _MountPrfFile_L_814D7C0C:
+    cmplwi r3, 0x1a
+    lwz r28, 0x0(r23)
+    bge _MountPrfFile_L_814D7CD8
+    lis r4, l_nandFunc@ha
+    slwi r0, r3, 4
+    addi r4, r4, l_nandFunc@l
+    add r3, r4, r0
+    lwz r12, 0x4(r3)
+    cmpwi r12, 0x0
+    beq _MountPrfFile_L_814D7C50
+    mr r3, r27
+    mr r4, r28
+    li r5, 0x1
+    mtctr r12
+    bctrl
+    mr r29, r3
+    b _MountPrfFile_L_814D7DF0
+    _MountPrfFile_L_814D7C50:
+    lis r3, 0x1062
+    lwz r30, VF_nand_retry_max(r0)
+    addi r25, r3, 0x4dd3
+    li r29, 0x0
+    lis r24, 0x8000
+    li r23, 0x0
+    b _MountPrfFile_L_814D7CC8
+    _MountPrfFile_L_814D7C6C:
+    mr r3, r27
+    mr r4, r28
+    li r5, 0x1
+    bl NANDOpen
+    cmpwi r3, -0x3
+    mr r29, r3
+    beq _MountPrfFile_L_814D7C94
+    cmpwi r3, -0x2
+    beq _MountPrfFile_L_814D7C94
+    b _MountPrfFile_L_814D7DF0
+    _MountPrfFile_L_814D7C94:
+    lwz r0, 0xf8(r24)
+    lwz r6, VF_nand_sleep_msec(r0)
+    srwi r0, r0, 2
+    mulhwu r3, r25, r0
+    srawi r0, r6, 31
+    mullw r4, r23, r6
+    srwi r5, r3, 6
+    mulhwu r3, r5, r6
+    mullw r0, r5, r0
+    add r3, r3, r4
+    mullw r4, r5, r6
+    add r3, r3, r0
+    bl OSSleepTicks
+    _MountPrfFile_L_814D7CC8:
+    cmpwi r30, 0x0
+    subi r30, r30, 0x1
+    bgt _MountPrfFile_L_814D7C6C
+    b _MountPrfFile_L_814D7DF0
+    _MountPrfFile_L_814D7CD8:
+    addis r0, r3, 0x1
+    cmplwi r0, 0xfff6
+    bne _MountPrfFile_L_814D7D6C
+    lis r3, 0x1062
+    lwz r30, VF_nand_retry_max(r0)
+    addi r25, r3, 0x4dd3
+    li r29, 0x0
+    lis r24, 0x8000
+    li r23, 0x0
+    b _MountPrfFile_L_814D7D5C
+    _MountPrfFile_L_814D7D00:
+    mr r3, r27
+    mr r4, r28
+    li r5, 0x1
+    bl NANDOpen
+    cmpwi r3, -0x3
+    mr r29, r3
+    beq _MountPrfFile_L_814D7D28
+    cmpwi r3, -0x2
+    beq _MountPrfFile_L_814D7D28
+    b _MountPrfFile_L_814D7DF0
+    _MountPrfFile_L_814D7D28:
+    lwz r0, 0xf8(r24)
+    lwz r6, VF_nand_sleep_msec(r0)
+    srwi r0, r0, 2
+    mulhwu r3, r25, r0
+    srawi r0, r6, 31
+    mullw r4, r23, r6
+    srwi r5, r3, 6
+    mulhwu r3, r5, r6
+    mullw r0, r5, r0
+    add r3, r3, r4
+    mullw r4, r5, r6
+    add r3, r3, r0
+    bl OSSleepTicks
+    _MountPrfFile_L_814D7D5C:
+    cmpwi r30, 0x0
+    subi r30, r30, 0x1
+    bgt _MountPrfFile_L_814D7D00
+    b _MountPrfFile_L_814D7DF0
+    _MountPrfFile_L_814D7D6C:
+    lis r3, 0x1062
+    lwz r30, VF_nand_retry_max(r0)
+    addi r23, r3, 0x4dd3
+    li r29, 0x0
+    lis r25, 0x8000
+    li r24, 0x0
+    b _MountPrfFile_L_814D7DE4
+    _MountPrfFile_L_814D7D88:
+    mr r3, r27
+    mr r4, r28
+    li r5, 0x1
+    bl NANDPrivateOpen
+    cmpwi r3, -0x3
+    mr r29, r3
+    beq _MountPrfFile_L_814D7DB0
+    cmpwi r3, -0x2
+    beq _MountPrfFile_L_814D7DB0
+    b _MountPrfFile_L_814D7DF0
+    _MountPrfFile_L_814D7DB0:
+    lwz r0, 0xf8(r25)
+    lwz r6, VF_nand_sleep_msec(r0)
+    srwi r0, r0, 2
+    mulhwu r3, r23, r0
+    srawi r0, r6, 31
+    mullw r4, r24, r6
+    srwi r5, r3, 6
+    mulhwu r3, r5, r6
+    mullw r0, r5, r0
+    add r3, r3, r4
+    mullw r4, r5, r6
+    add r3, r3, r0
+    bl OSSleepTicks
+    _MountPrfFile_L_814D7DE4:
+    cmpwi r30, 0x0
+    subi r30, r30, 0x1
+    bgt _MountPrfFile_L_814D7D88
+    _MountPrfFile_L_814D7DF0:
+    cmpwi r29, 0x0
+    bne _MountPrfFile_L_814D8038
+    addi r3, r1, 0x40
+    li r4, 0x0
+    li r5, 0x20
+    bl VFipf_memset
+    mr r3, r28
+    addi r4, r1, 0x40
+    li r5, 0x20
+    bl A32_NANDRead
+    cmpwi r3, 0x0
+    mr r30, r3
+    bge _MountPrfFile_L_814D7EAC
+    lis r3, 0x1062
+    lwz r29, VF_nand_retry_max(r0)
+    addi r27, r3, 0x4dd3
+    lis r25, 0x8000
+    li r24, 0x0
+    b _MountPrfFile_L_814D7E8C
+    _MountPrfFile_L_814D7E3C:
+    mr r3, r28
+    bl NANDClose
+    cmpwi r3, -0x3
+    beq _MountPrfFile_L_814D7E58
+    cmpwi r3, -0x2
+    beq _MountPrfFile_L_814D7E58
+    b _MountPrfFile_L_814D7E98
+    _MountPrfFile_L_814D7E58:
+    lwz r0, 0xf8(r25)
+    lwz r6, VF_nand_sleep_msec(r0)
+    srwi r0, r0, 2
+    mulhwu r3, r27, r0
+    srawi r0, r6, 31
+    mullw r4, r24, r6
+    srwi r5, r3, 6
+    mulhwu r3, r5, r6
+    mullw r0, r5, r0
+    add r3, r3, r4
+    mullw r4, r5, r6
+    add r3, r3, r0
+    bl OSSleepTicks
+    _MountPrfFile_L_814D7E8C:
+    cmpwi r29, 0x0
+    subi r29, r29, 0x1
+    bgt _MountPrfFile_L_814D7E3C
+    _MountPrfFile_L_814D7E98:
+    mr r3, r26
+    mr r4, r30
+    bl dCommon_setLastDeviceErrorToDisk
+    mr r3, r30
+    b _MountPrfFile_L_814D824C
+    _MountPrfFile_L_814D7EAC:
+    addi r3, r1, 0x40
+    bl dCommon_PrintSignature
+    addi r3, r1, 0x40
+    bl dCommon_IsPrfFile
+    cmpwi r3, 0x0
+    bne _MountPrfFile_L_814D7F40
+    lis r3, 0x1062
+    lwz r23, VF_nand_retry_max(r0)
+    addi r26, r3, 0x4dd3
+    lis r25, 0x8000
+    li r24, 0x0
+    b _MountPrfFile_L_814D7F2C
+    _MountPrfFile_L_814D7EDC:
+    mr r3, r28
+    bl NANDClose
+    cmpwi r3, -0x3
+    beq _MountPrfFile_L_814D7EF8
+    cmpwi r3, -0x2
+    beq _MountPrfFile_L_814D7EF8
+    b _MountPrfFile_L_814D7F38
+    _MountPrfFile_L_814D7EF8:
+    lwz r0, 0xf8(r25)
+    lwz r6, VF_nand_sleep_msec(r0)
+    srwi r0, r0, 2
+    mulhwu r3, r26, r0
+    srawi r0, r6, 31
+    mullw r4, r24, r6
+    srwi r5, r3, 6
+    mulhwu r3, r5, r6
+    mullw r0, r5, r0
+    add r3, r3, r4
+    mullw r4, r5, r6
+    add r3, r3, r0
+    bl OSSleepTicks
+    _MountPrfFile_L_814D7F2C:
+    cmpwi r23, 0x0
+    subi r23, r23, 0x1
+    bgt _MountPrfFile_L_814D7EDC
+    _MountPrfFile_L_814D7F38:
+    li r3, -0x1
+    b _MountPrfFile_L_814D824C
+    _MountPrfFile_L_814D7F40:
+    lbz r0, 0x49(r1)
+    mr r3, r26
+    lbz r6, 0x4a(r1)
+    lbz r5, 0x4b(r1)
+    slwi r0, r0, 16
+    lbz r4, 0x48(r1)
+    rlwimi r5, r6, 8, 16, 23
+    rlwimi r0, r4, 24, 0, 7
+    or r4, r5, r0
+    bl dCommon_setFileSizeToDisk
+    mr r3, r26
+    bl dCommon_getFileSizeFromDisk
+    subi r0, r3, 0x1f
+    li r3, 0x0
+    srwi r4, r0, 9
+    li r5, 0x1
+    li r6, 0x200
+    bl dCommon_GetNiceFatType
+    mr r23, r3
+    mr r3, r26
+    mr r4, r23
+    bl dCommon_setFatTypeToDisk
+    mr r3, r23
+    bl dCommon_GetReservedSecFromFatType
+    mr r4, r3
+    mr r3, r26
+    bl dCommon_setResvSecNumToDisk
+    mr r3, r23
+    bl dCommon_GetRootEntNumFromFatType
+    mr r4, r3
+    mr r3, r26
+    bl dCommon_setRootEntNumToDisk
+    lis r3, 0x1062
+    lwz r29, VF_nand_retry_max(r0)
+    addi r30, r3, 0x4dd3
+    lis r25, 0x8000
+    li r24, 0x0
+    b _MountPrfFile_L_814D8028
+    _MountPrfFile_L_814D7FD8:
+    mr r3, r28
+    bl NANDClose
+    cmpwi r3, -0x3
+    beq _MountPrfFile_L_814D7FF4
+    cmpwi r3, -0x2
+    beq _MountPrfFile_L_814D7FF4
+    b _MountPrfFile_L_814D804C
+    _MountPrfFile_L_814D7FF4:
+    lwz r0, 0xf8(r25)
+    lwz r6, VF_nand_sleep_msec(r0)
+    srwi r0, r0, 2
+    mulhwu r3, r30, r0
+    srawi r0, r6, 31
+    mullw r4, r24, r6
+    srwi r5, r3, 6
+    mulhwu r3, r5, r6
+    mullw r0, r5, r0
+    add r3, r3, r4
+    mullw r4, r5, r6
+    add r3, r3, r0
+    bl OSSleepTicks
+    _MountPrfFile_L_814D8028:
+    cmpwi r29, 0x0
+    subi r29, r29, 0x1
+    bgt _MountPrfFile_L_814D7FD8
+    b _MountPrfFile_L_814D804C
+    _MountPrfFile_L_814D8038:
+    mr r3, r26
+    mr r4, r29
+    bl dCommon_setLastDeviceErrorToDisk
+    mr r3, r29
+    b _MountPrfFile_L_814D824C
+    _MountPrfFile_L_814D804C:
+    cmplwi r31, 0x1a
+    bge _MountPrfFile_L_814D8114
+    lis r3, l_nandFunc@ha
+    slwi r0, r31, 4
+    addi r3, r3, l_nandFunc@l
+    add r3, r3, r0
+    lwz r12, 0x4(r3)
+    cmpwi r12, 0x0
+    beq _MountPrfFile_L_814D808C
+    mr r3, r27
+    mr r4, r28
+    li r5, 0x3
+    mtctr r12
+    bctrl
+    mr r30, r3
+    b _MountPrfFile_L_814D822C
+    _MountPrfFile_L_814D808C:
+    lis r3, 0x1062
+    lwz r29, VF_nand_retry_max(r0)
+    addi r31, r3, 0x4dd3
+    li r30, 0x0
+    lis r25, 0x8000
+    li r24, 0x0
+    b _MountPrfFile_L_814D8104
+    _MountPrfFile_L_814D80A8:
+    mr r3, r27
+    mr r4, r28
+    li r5, 0x3
+    bl NANDOpen
+    cmpwi r3, -0x3
+    mr r30, r3
+    beq _MountPrfFile_L_814D80D0
+    cmpwi r3, -0x2
+    beq _MountPrfFile_L_814D80D0
+    b _MountPrfFile_L_814D822C
+    _MountPrfFile_L_814D80D0:
+    lwz r0, 0xf8(r25)
+    lwz r6, VF_nand_sleep_msec(r0)
+    srwi r0, r0, 2
+    mulhwu r3, r31, r0
+    srawi r0, r6, 31
+    mullw r4, r24, r6
+    srwi r5, r3, 6
+    mulhwu r3, r5, r6
+    mullw r0, r5, r0
+    add r3, r3, r4
+    mullw r4, r5, r6
+    add r3, r3, r0
+    bl OSSleepTicks
+    _MountPrfFile_L_814D8104:
+    cmpwi r29, 0x0
+    subi r29, r29, 0x1
+    bgt _MountPrfFile_L_814D80A8
+    b _MountPrfFile_L_814D822C
+    _MountPrfFile_L_814D8114:
+    addis r0, r31, 0x1
+    cmplwi r0, 0xfff6
+    bne _MountPrfFile_L_814D81A8
+    lis r3, 0x1062
+    lwz r29, VF_nand_retry_max(r0)
+    addi r31, r3, 0x4dd3
+    li r30, 0x0
+    lis r25, 0x8000
+    li r24, 0x0
+    b _MountPrfFile_L_814D8198
+    _MountPrfFile_L_814D813C:
+    mr r3, r27
+    mr r4, r28
+    li r5, 0x3
+    bl NANDOpen
+    cmpwi r3, -0x3
+    mr r30, r3
+    beq _MountPrfFile_L_814D8164
+    cmpwi r3, -0x2
+    beq _MountPrfFile_L_814D8164
+    b _MountPrfFile_L_814D822C
+    _MountPrfFile_L_814D8164:
+    lwz r0, 0xf8(r25)
+    lwz r6, VF_nand_sleep_msec(r0)
+    srwi r0, r0, 2
+    mulhwu r3, r31, r0
+    srawi r0, r6, 31
+    mullw r4, r24, r6
+    srwi r5, r3, 6
+    mulhwu r3, r5, r6
+    mullw r0, r5, r0
+    add r3, r3, r4
+    mullw r4, r5, r6
+    add r3, r3, r0
+    bl OSSleepTicks
+    _MountPrfFile_L_814D8198:
+    cmpwi r29, 0x0
+    subi r29, r29, 0x1
+    bgt _MountPrfFile_L_814D813C
+    b _MountPrfFile_L_814D822C
+    _MountPrfFile_L_814D81A8:
+    lis r3, 0x1062
+    lwz r29, VF_nand_retry_max(r0)
+    addi r24, r3, 0x4dd3
+    li r30, 0x0
+    lis r25, 0x8000
+    li r31, 0x0
+    b _MountPrfFile_L_814D8220
+    _MountPrfFile_L_814D81C4:
+    mr r3, r27
+    mr r4, r28
+    li r5, 0x3
+    bl NANDPrivateOpen
+    cmpwi r3, -0x3
+    mr r30, r3
+    beq _MountPrfFile_L_814D81EC
+    cmpwi r3, -0x2
+    beq _MountPrfFile_L_814D81EC
+    b _MountPrfFile_L_814D822C
+    _MountPrfFile_L_814D81EC:
+    lwz r0, 0xf8(r25)
+    lwz r6, VF_nand_sleep_msec(r0)
+    srwi r0, r0, 2
+    mulhwu r3, r24, r0
+    srawi r0, r6, 31
+    mullw r4, r31, r6
+    srwi r5, r3, 6
+    mulhwu r3, r5, r6
+    mullw r0, r5, r0
+    add r3, r3, r4
+    mullw r4, r5, r6
+    add r3, r3, r0
+    bl OSSleepTicks
+    _MountPrfFile_L_814D8220:
+    cmpwi r29, 0x0
+    subi r29, r29, 0x1
+    bgt _MountPrfFile_L_814D81C4
+    _MountPrfFile_L_814D822C:
+    cmpwi r30, 0x0
+    bne _MountPrfFile_L_814D823C
+    li r3, 0x0
+    b _MountPrfFile_L_814D824C
+    _MountPrfFile_L_814D823C:
+    mr r3, r26
+    mr r4, r30
+    bl dCommon_setLastDeviceErrorToDisk
+    mr r3, r30
+    _MountPrfFile_L_814D824C:
+    lwz r10, 0x0(r1)
+    mr r11, r10
+    bl _restgpr_23
+    lwz r0, 0x4(r10)
+    mtlr r0
+    mr r1, r10
+    blr
+}
+#else
 static s32 _MountPrfFile(PDM_DISK* p_disk, char* i_fullpath_p) {
     PR_BINHEADER header ALIGN64;
     VFSys_drive* drive_p = VFSysPDMDisk2DriveP(p_disk);
@@ -468,6 +946,7 @@ static s32 _MountPrfFile(PDM_DISK* p_disk, char* i_fullpath_p) {
         return nandError;
     }
 }
+#endif
 
 static u16 _UnmountPrfFile(PDM_DISK* p_disk) {
     VFSys_drive* drive_p = VFSysPDMDisk2DriveP(p_disk);
