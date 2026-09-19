@@ -57,6 +57,8 @@ namespace ipl {
 
             BOOL checkTmpSoundFile(void*, u32);
 
+            long clipGELT_S32(long value, long lo, long hi);
+
         private:
             u32 unk_0x620[0x18];
         };

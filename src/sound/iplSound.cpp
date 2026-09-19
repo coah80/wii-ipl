@@ -27,5 +27,24 @@ namespace ipl {
         BOOL System::checkTmpSoundFile(void* data, u32 size) {
             return sBannerSoundPlayer.checkData(data, size, false);
         }
-    }  // namespace snd
+
+        long System::clipGELT_S32(long value, long lo, long hi) {
+            long range = hi - lo;
+
+            if (range < 0) {
+                long temp = lo;
+                lo = hi;
+                hi = temp;
+                range = temp - lo;
+            }
+
+            if (value < lo) {
+                value += range;
+            } else if (value >= hi) {
+                value -= range;
+            }
+
+            return value;
+        }
+}  // namespace snd
 }  // namespace ipl
