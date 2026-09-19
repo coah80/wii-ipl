@@ -41,6 +41,11 @@ namespace ipl {
             setFxReverbHi(nw4r::snd::AUX_A, &reverbHiParam);
         }
 
+        void System::calc() {
+            EGG::SimpleAudioMgr::calc();
+            sBannerSoundPlayer.calc();
+        }
+
         long System::clipGELT_S32(long value, long lo, long hi) {
             long range = hi - lo;
 
