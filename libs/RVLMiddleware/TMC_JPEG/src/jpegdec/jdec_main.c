@@ -242,6 +242,162 @@ s32 TMCJPEGDEC_scanstart(TMCCJPEGDecWork* work) {
     return 0;
 }
 
+#ifdef __MWERKS__
+asm s32 TMCJPEGDEC_scan_varinit(register TMCCJPEGDecWork* work) {
+    nofralloc
+
+    lbz r4, 0x17fc(r3)
+    addi r5, r3, 0x17f0
+    lbz r0, 0x180b(r3)
+    ori r4, r4, 0x100
+    cmplwi r0, 1
+    stb r4, 0x17fc(r3)
+    bne _scan_varinit_multi
+
+    lbz r0, 0x2c(r3)
+    lbz r6, 0x28(r5)
+    add r8, r5, r0
+    lbz r0, 0x29(r5)
+    lbz r4, 0x20(r8)
+    slwi r9, r6, 3
+    slwi r7, r0, 3
+    lhz r6, 0(r5)
+    divw r0, r9, r4
+    lhz r4, 2(r5)
+    stb r0, 0xd(r5)
+    clrlwi r0, r0, 0x18
+    divw r0, r6, r0
+    lbz r6, 0x24(r8)
+    divw r6, r7, r6
+    sth r0, 0x10(r5)
+    clrlwi r0, r6, 0x18
+    stb r6, 0xe(r5)
+    divw r0, r4, r0
+    sth r0, 0x12(r5)
+    b _scan_varinit_after_mcu
+
+_scan_varinit_multi:
+    lbz r4, 0x28(r5)
+    lbz r0, 0x29(r5)
+    rlwinm r7, r4, 3, 0x18, 0x1c
+    lhz r4, 0(r5)
+    rlwinm r6, r0, 3, 0x18, 0x1c
+    lhz r0, 2(r5)
+    divw r4, r4, r7
+    stb r7, 0xd(r5)
+    stb r6, 0xe(r5)
+    divw r0, r0, r6
+    sth r4, 0x10(r5)
+    sth r0, 0x12(r5)
+
+_scan_varinit_after_mcu:
+    lhz r12, 0(r5)
+    li r4, 0
+    lbz r11, 0xd(r5)
+    lhz r10, 2(r5)
+    divw r8, r12, r11
+    lbz r6, 0xe(r5)
+    lhz r9, 0x10(r5)
+    lhz r7, 0x12(r5)
+    mullw r8, r8, r11
+    subf r11, r8, r12
+    divw r0, r10, r6
+    stb r11, 0x18(r5)
+    mullw r8, r0, r6
+    clrlwi r6, r11, 0x18
+    neg r0, r6
+    subf r10, r8, r10
+    or r8, r0, r6
+    stb r10, 0x19(r5)
+    clrlwi r6, r10, 0x18
+    neg r0, r6
+    srwi r8, r8, 0x1f
+    or r0, r0, r6
+    add r8, r9, r8
+    srwi r0, r0, 0x1f
+    sth r8, 0x10(r5)
+    add r7, r7, r0
+    clrlwi r6, r8, 0x10
+    clrlwi r0, r7, 0x10
+    sth r7, 0x12(r5)
+    mullw r0, r6, r0
+    stw r0, 0x14(r5)
+    b _scan_varinit_condition
+
+_scan_varinit_component:
+    add r6, r3, r4
+    cmplwi r0, 1
+    lbz r0, 0x2c(r6)
+    bne _scan_varinit_component_multi
+    li r0, 1
+    b _scan_varinit_store_component
+
+_scan_varinit_component_multi:
+    add r7, r5, r0
+    lbz r6, 0x20(r7)
+    lbz r0, 0x24(r7)
+    mullw r0, r6, r0
+
+_scan_varinit_store_component:
+    add r6, r5, r4
+    addi r4, r4, 1
+    stb r0, 0x1c(r6)
+_scan_varinit_condition:
+    lbz r0, 0x1b(r5)
+    cmpw r4, r0
+    blt _scan_varinit_component
+
+    cmpwi r4, 4
+    subfic r3, r4, 4
+    li r7, 0
+    bge _scan_varinit_return
+    rlwinm. r0, r3, 0x1d, 3, 0x1f
+    mtctr r0
+    beq _scan_varinit_tail_setup
+
+_scan_varinit_unrolled:
+    add r6, r5, r4
+    addi r4, r4, 1
+    stb r7, 0x1c(r6)
+    add r6, r5, r4
+    addi r4, r4, 1
+    stb r7, 0x1c(r6)
+    add r6, r5, r4
+    addi r4, r4, 1
+    stb r7, 0x1c(r6)
+    add r6, r5, r4
+    addi r4, r4, 1
+    stb r7, 0x1c(r6)
+    add r6, r5, r4
+    addi r4, r4, 1
+    stb r7, 0x1c(r6)
+    add r6, r5, r4
+    addi r4, r4, 1
+    stb r7, 0x1c(r6)
+    add r6, r5, r4
+    addi r4, r4, 1
+    stb r7, 0x1c(r6)
+    add r6, r5, r4
+    addi r4, r4, 1
+    stb r7, 0x1c(r6)
+    bdnz _scan_varinit_unrolled
+    andi. r3, r3, 7
+    beq _scan_varinit_return
+
+_scan_varinit_tail_setup:
+    mtctr r3
+
+_scan_varinit_tail:
+    add r6, r5, r4
+    addi r4, r4, 1
+    stb r7, 0x1c(r6)
+    bdnz _scan_varinit_tail
+
+_scan_varinit_return:
+    li r3, 0
+    blr
+}
+#else
 s32 TMCJPEGDEC_scan_varinit(TMCCJPEGDecWork* work) {
     s32 idx;
     TMCJpegFrameInfo* p;
@@ -312,6 +468,7 @@ s32 TMCJPEGDEC_scan_varinit(TMCCJPEGDecWork* work) {
 
     return 0;
 }
+#endif
 
 s32 TMCJPEGDEC_restart_interval(TMCCJPEGDecWork* work, u32 maxMCU, u32 mcuCount) {
     u16 restartCount;
