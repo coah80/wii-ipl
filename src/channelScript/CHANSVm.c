@@ -4048,7 +4048,9 @@ VmMethodDefine(Blob, GetWString) {
 
     if (CHANSVm_81451348(blob, VM_STR_LENGTH(arg->value.int_v))) {
         CHANSVmErr err = CHANSVmSetU16String(VmInst, VmReturnObj, (wchar_t*)(blob->pData + blob->offset), (u32)arg->value.int_v << 1);
-        blob->offset += VM_STR_LENGTH(arg->value.int_v);
+        u32 oldOffset = blob->offset;
+        u64 length = VM_STR_LENGTH(arg->value.int_v);
+        blob->offset = length + oldOffset;
         return err == CHANS_VM_OK;
     }
 
