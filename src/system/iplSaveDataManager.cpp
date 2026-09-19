@@ -15,6 +15,9 @@
 
 #include "config.h"
 
+extern "C" void _savegpr_14();
+extern "C" void _restgpr_14();
+
 namespace ipl {
     // clang-format off
     #define DISK_CHANNEL        CHANNEL_INFO(channel::PRIMARY_TYPE_DISK,    channel::SECONARY_TYPE_SYSTEM, SCENE_DISK_CHANNEL,   0)
@@ -495,6 +498,161 @@ namespace ipl {
                 }
             }
         }
+
+#ifdef __MWERKS__
+        extern "C" int isEqualChannel__Q33ipl8savedata7ManagerFUxUx();
+        extern "C" int checkValidApp__Q33ipl8savedata7ManagerFUx();
+
+        asm void Manager::makePriorTitleIDList(register ESTitleId* titleIdsOut, register ESTitleId* titleIdsIn, register u32 titleCount) {
+            nofralloc
+            stwu r1, -0x50(r1)
+            mflr r0
+            stw r0, 0x54(r1)
+            addi r11, r1, 0x50
+            bl _savegpr_14
+            mr r15, r3
+            mr r16, r4
+            mr r17, r5
+            mr r18, r6
+            li r23, 0
+            li r31, 0
+            li r30, 0
+            lis r26, 0x4841
+            li r14, -0x100
+            li r27, 0
+        makePriorTitleIDList_L1:
+            add r25, r15, r31
+            li r22, 0
+            li r29, 0
+        makePriorTitleIDList_L2:
+            add r3, r25, r29
+            lbz r0, 0x30(r3)
+            cmplwi r0, 3
+            bne makePriorTitleIDList_L8
+            lwz r21, 0x38(r3)
+            add r24, r22, r30
+            lwz r20, 0x3c(r3)
+            li r19, 0
+            li r28, 0
+            b makePriorTitleIDList_L7C
+        makePriorTitleIDList_L3:
+            add r3, r17, r28
+            lwzx r0, r17, r28
+            lwz r3, 4(r3)
+            or. r0, r3, r0
+            beq makePriorTitleIDList_L7
+            slwi r0, r24, 3
+            add r4, r16, r0
+            lwzx r3, r16, r0
+            lwz r4, 4(r4)
+            or. r0, r4, r3
+            beq makePriorTitleIDList_L4
+            mr r21, r3
+            mr r20, r4
+            b makePriorTitleIDList_L6
+        makePriorTitleIDList_L4:
+            li r0, -1
+            lis r4, 1
+            and r3, r20, r14
+            addi r5, r26, 0x4100
+            and r0, r21, r0
+            addi r6, r4, 2
+            xor r5, r3, r5
+            xor r4, r0, r6
+            or. r4, r5, r4
+            beq makePriorTitleIDList_L5
+            addi r5, r26, 0x5900
+            xor r4, r0, r6
+            xor r5, r3, r5
+            or. r4, r5, r4
+            beq makePriorTitleIDList_L5
+            addi r5, r26, 0x5a00
+            xoris r4, r0, 1
+            xor r5, r3, r5
+            or. r4, r5, r4
+            bne makePriorTitleIDList_L6
+        makePriorTitleIDList_L5:
+            lwz r4, 0x4f8(r15)
+            lwz r5, 0x4fc(r15)
+            xor r0, r0, r4
+            xor r3, r3, r5
+            or. r0, r3, r0
+            beq makePriorTitleIDList_L6
+            ori r20, r5, 0x41
+            mr r21, r4
+        makePriorTitleIDList_L6:
+            add r4, r17, r28
+            lwzx r7, r17, r28
+            lwz r8, 4(r4)
+            mr r3, r15
+            mr r6, r20
+            mr r5, r21
+            bl isEqualChannel__Q33ipl8savedata7ManagerFUxUx
+            cmpwi r3, -2
+            beq makePriorTitleIDList_L6A
+            cmpwi r3, 0
+            bne makePriorTitleIDList_L6B
+        makePriorTitleIDList_L6A:
+            mr r3, r15
+            mr r6, r20
+            mr r5, r21
+            bl checkValidApp__Q33ipl8savedata7ManagerFUx
+            cmpwi r3, 0
+            beq makePriorTitleIDList_L6C
+            slwi r0, r24, 3
+            add r3, r16, r0
+            stw r20, 4(r3)
+            stwx r21, r16, r0
+        makePriorTitleIDList_L6C:
+            add r3, r17, r28
+            stw r27, 4(r3)
+            stwx r27, r17, r28
+            b makePriorTitleIDList_L7
+        makePriorTitleIDList_L6B:
+            cmpwi r3, 1
+            bne makePriorTitleIDList_L7
+            add r4, r17, r28
+            lwzx r5, r17, r28
+            lwz r6, 4(r4)
+            mr r3, r15
+            bl checkValidApp__Q33ipl8savedata7ManagerFUx
+            cmpwi r3, 0
+            beq makePriorTitleIDList_L6D
+            slwi r0, r24, 3
+            add r5, r17, r28
+            add r3, r16, r0
+            lwzx r4, r17, r28
+            lwz r0, 4(r5)
+            stw r0, 4(r3)
+            stw r4, 0(r3)
+        makePriorTitleIDList_L6D:
+            add r3, r17, r28
+            stw r27, 4(r3)
+            stwx r27, r17, r28
+        makePriorTitleIDList_L7:
+            addi r19, r19, 1
+            addi r28, r28, 8
+        makePriorTitleIDList_L7C:
+            cmplw r19, r18
+            blt makePriorTitleIDList_L3
+        makePriorTitleIDList_L8:
+            addi r22, r22, 1
+            addi r29, r29, 0x10
+            cmpwi r22, 0xc
+            blt makePriorTitleIDList_L2
+            addi r23, r23, 1
+            addi r30, r30, 0xc
+            cmpwi r23, 4
+            addi r31, r31, 0xc0
+            blt makePriorTitleIDList_L1
+            addi r11, r1, 0x50
+            bl _restgpr_14
+            lwz r0, 0x54(r1)
+            mtlr r0
+            addi r1, r1, 0x50
+            blr
+        }
+#endif
 
         BOOL Manager::checkValidApp(ESTitleId titleId) {
             BOOL result = TRUE;
