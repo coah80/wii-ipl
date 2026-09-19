@@ -3,6 +3,8 @@
 
 #include <revolution/ai.h>
 
+#include "system/iplSystem.h"
+
 namespace ipl {
     namespace snd {
         struct tagSSeInfo {
@@ -132,6 +134,34 @@ namespace ipl {
             block->handle.Stop(0);
             mSoundArchivePlayer.StartSound(&block->handle, sndIndex);
             block->id = sndIndex;
+            return (int)block;
+        }
+
+        int System::startSEwithPos(const char* sndName, f32 pos) {
+            tagSSeInfo* block;
+            tagSSeInfo* active;
+
+            if (m_isLocked) {
+                return 0;
+            }
+
+            active = FIsSEActive(sndName);
+            block = getFreeSEBlock(active == NULL);
+            if (block == NULL) {
+                return 0;
+            }
+
+            block->handle.Stop(0);
+            EGG::ArcPlayer::startSound(&block->handle, sndName);
+            block->name = sndName;
+            block->id = block->handle.GetId();
+            nw4r::ut::Rect rect;
+            ipl::System::getProjectionRect(&rect);
+            f32 pan = pos / rect.right;
+            nw4r::snd::detail::BasicSound* sound = block->handle.detail_GetAttachedSound();
+            if (sound != NULL) {
+                sound->SetPan(pan);
+            }
             return (int)block;
         }
 
