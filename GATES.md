@@ -12,7 +12,7 @@ Scope: raise the 43U Wii Menu code match from the current baseline toward 99 per
 - [ ] G1: the measured 43U matched-code percentage reaches 99 percent
   CHECK: /home/cole/projects/tests/.venv/bin/ninja && build/tools/objdiff-cli report generate -p . -o /tmp/wii-ipl-goal-report.json -f json >/dev/null && python3 -c "import json; x=json.load(open('/tmp/wii-ipl-goal-report.json')); p=float(x['measures']['matched_code_percent']); assert p >= 99.0, p; print('99 percent code match passed: %.6f' % p)"
   EXPECT: 99 percent code match passed
-  EVIDENCE: 57.274975 percent (2026-09-19); threshold not reached
+  EVIDENCE: 57.297146 percent (2026-09-19); threshold not reached
 
 - [x] G2: the complete 43U build succeeds after each matching change
   CHECK: python3 configure.py --version 43U && /home/cole/projects/tests/.venv/bin/ninja && test -s build/43U/main.dol && echo 'full 43U build passed'
