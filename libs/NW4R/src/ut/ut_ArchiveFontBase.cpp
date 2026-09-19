@@ -479,7 +479,28 @@ namespace nw4r {
 
                 ctx->pFontInfo->pGlyph = (FontTextureGlyph*)ctx->pWorkCurr;
 
-                reader->memcpyToBuf(ctx->pWorkCurr, sizeof(FontTextureGlyph));
+                {
+                    u32 cachedLen;
+                    u8* pBuf;
+                    u32 dataLen;
+                    u8* cachedStart;
+                    u8* cachedEnd;
+
+                    pBuf = ctx->pWorkCurr;
+                    cachedStart = reader->pCachedStart;
+                    cachedEnd = reader->pCachedEnd;
+                    cachedLen = cachedEnd - cachedStart;
+                    if (cachedLen >= sizeof(FontTextureGlyph)) {
+                        memcpy(pBuf, cachedStart, sizeof(FontTextureGlyph));
+                        reader->pCachedStart += sizeof(FontTextureGlyph);
+                    } else {
+                        dataLen = sizeof(FontTextureGlyph) - cachedLen;
+                        memcpy(pBuf, cachedStart, cachedLen);
+                        memcpy(pBuf + cachedLen, reader->pDataCurr, dataLen);
+                        reader->pCachedStart = reader->pCachedEnd;
+                        reader->pDataCurr += dataLen;
+                    }
+                }
                 ctx->pWorkCurr += sizeof(FontTextureGlyph);
 
                 origSheetFormat.formatRaw = ctx->pFontInfo->pGlyph->sheetFormat;
