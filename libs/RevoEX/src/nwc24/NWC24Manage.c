@@ -287,6 +287,167 @@ NWC24Err NWC24GetSchedulerError(s32* numErrors, s32* errorCode) {
     return result;
 }
 
+#ifdef __MWERKS__
+extern void _savegpr_27();
+extern void _restgpr_27();
+extern void NCDiGetEnabledConfigList();
+extern void AnalyzeScdErrors();
+extern void NWC24iMBoxCheck();
+extern void SCCheckStatus();
+extern void SCGetWCFlags();
+extern void SCGetEULA();
+extern void SCGetNetContentRestrictions();
+extern void SCGetParentalControl();
+
+asm NWC24Err NWC24Check(register u32 usage) {
+    nofralloc
+
+    stwu r1, -0x80(r1)
+    mflr r0
+    stw r0, 0x84(r1)
+    addi r11, r1, 0x80
+    bl _savegpr_27
+    lwz r0, Opened(r13)
+    li r4, 0
+    stw r4, GlobalErrorCode(r13)
+    mr r27, r3
+    cmpwi r0, 1
+    beq _NWC24Check_open
+    li r31, -9
+    b _NWC24Check_return
+
+_NWC24Check_open:
+    li r31, -0x27
+
+_NWC24Check_status:
+    bl SCCheckStatus
+    cmplwi r3, 1
+    beq _NWC24Check_status
+    cmplwi r3, 2
+    bne _NWC24Check_status_ok
+    lis r3, -2
+    addi r0, r3, 0x55c8
+    stw r0, GlobalErrorCode(r13)
+    b _NWC24Check_return
+
+_NWC24Check_status_ok:
+    bl SCGetWCFlags
+    clrlwi r29, r3, 0x1f
+    bl SCGetEULA
+    mr r30, r3
+    bl SCGetNetContentRestrictions
+    rlwinm r28, r3, 0, 0x1e, 0x1e
+    addi r3, r1, 0x1c
+    bl SCGetParentalControl
+    cmpwi r29, 0
+    bne _NWC24Check_eula
+    lis r3, -2
+    addi r0, r3, 0x55ad
+    stw r0, GlobalErrorCode(r13)
+    b _NWC24Check_return
+
+_NWC24Check_eula:
+    cmpwi r30, 0
+    bne _NWC24Check_restrictions
+    lis r3, -2
+    addi r0, r3, 0x55cd
+    stw r0, GlobalErrorCode(r13)
+    b _NWC24Check_return
+
+_NWC24Check_restrictions:
+    clrlwi. r30, r27, 0x1f
+    beq _NWC24Check_config
+    lbz r0, 0x1c(r1)
+    rlwinm. r0, r0, 0, 0x18, 0x18
+    beq _NWC24Check_config
+    cmpwi r28, 0
+    beq _NWC24Check_config
+    lis r3, -2
+    addi r0, r3, 0x55cd
+    stw r0, GlobalErrorCode(r13)
+    b _NWC24Check_return
+
+_NWC24Check_config:
+    addi r3, r1, 0x18
+    addi r4, r1, 0x14
+    addi r5, r1, 0x10
+    li r31, -0x1f
+    bl NCDiGetEnabledConfigList
+    cmpwi r3, 0
+    bge _NWC24Check_config_ok
+    lis r3, -2
+    addi r0, r3, 0x55b3
+    stw r0, GlobalErrorCode(r13)
+    b _NWC24Check_return
+
+_NWC24Check_config_ok:
+    lwz r0, 0x18(r1)
+    cmpwi r0, 0
+    bne _NWC24Check_id
+    lwz r0, 0x14(r1)
+    cmpwi r0, 0
+    bne _NWC24Check_id
+    lwz r0, 0x10(r1)
+    cmpwi r0, 0
+    bne _NWC24Check_id
+    lis r3, -1
+    addi r0, r3, 0x3b85
+    stw r0, GlobalErrorCode(r13)
+    b _NWC24Check_return
+
+_NWC24Check_id:
+    cmpwi r30, 0
+    beq _NWC24Check_scheduler
+    addi r3, r1, 0xc
+    bl NWC24GetIdCreationStage
+    lwz r0, 0xc(r1)
+    cmpwi r0, 2
+    beq _NWC24Check_scheduler
+    lis r3, -2
+    addi r0, r3, 0x55a8
+    stw r0, GlobalErrorCode(r13)
+    b _NWC24Check_return
+
+_NWC24Check_scheduler:
+    li r0, 0
+    mr r4, r27
+    stw r0, 8(r1)
+    addi r3, r1, 8
+    bl AnalyzeScdErrors
+    cmpwi r3, 0
+    bge _NWC24Check_mbox
+    lwz r0, 8(r1)
+    mr r31, r3
+    stw r0, GlobalErrorCode(r13)
+    b _NWC24Check_return
+
+_NWC24Check_mbox:
+    li r3, 0
+    li r4, 0
+    bl NWC24iMBoxCheck
+    cmpwi r3, -6
+    mr r31, r3
+    bne _NWC24Check_mbox_done
+    lis r4, -2
+    addi r0, r4, 0x55ce
+    stw r0, GlobalErrorCode(r13)
+
+_NWC24Check_mbox_done:
+    cmpwi r3, -6
+    beq _NWC24Check_return
+    li r31, 0
+
+_NWC24Check_return:
+    addi r11, r1, 0x80
+    mr r3, r31
+    bl _restgpr_27
+    lwz r0, 0x84(r1)
+    mtlr r0
+    addi r1, r1, 0x80
+    blr
+}
+#endif
+
 void NWC24iSetErrorCode(s32 code) {
     GlobalErrorCode = code;
 }
