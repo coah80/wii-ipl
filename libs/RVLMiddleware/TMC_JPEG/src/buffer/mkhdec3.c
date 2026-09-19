@@ -368,7 +368,8 @@ s32 TMCJPEGDEC_make_huffdec(const u8* dht, const u8* tb, TMCHuffParam* hp) {
 }
 #endif
 
-void TMCJPEGDEC_set_HuffmanTable(TMCHuffParam* tbl, s32 tblType, s32 tblID, TMCUnknownInfo* work) {
+void TMCJPEGDEC_set_HuffmanTable(TMCHuffParam* tbl, s32 tblType, s32 tblID, TMCUnknownInfo* info) {
+    TMCCJPEGDecWork* work = (TMCCJPEGDecWork*)info;
     void* hufftable;
     void* maxcode;
     void* valptr;
