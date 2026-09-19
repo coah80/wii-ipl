@@ -6161,14 +6161,11 @@ CHANSVmErr CHANSVmInit(CHANSVm* vm, vmPtr work, vmU32 size) {
         } else {
             ok = vmFalse;
         }
-        if (ok) {
-            cls = CHANSVmFindNativeClass(vm, VmArrayClassName);
-            if (cls != vmNull) {
-                pVm->pArrayCls = cls;
-                ok = vmTrue;
-            } else {
-                ok = vmFalse;
-            }
+        if (ok && (cls = CHANSVmFindNativeClass(vm, VmArrayClassName)) != vmNull) {
+            pVm->pArrayCls = cls;
+            ok = vmTrue;
+        } else {
+            ok = vmFalse;
         }
         if (!ok)
             goto class_fail;
