@@ -85,6 +85,126 @@ namespace ipl {
     }
 
     
+#ifdef __MWERKS__
+    extern "C" void _savegpr_23();
+    extern "C" void key_input__Q23ipl9ExceptionFv();
+    extern "C" void wait__Q23ipl9ExceptionFUl();
+    extern "C" s32 Console_GetTotalLines__Q24nw4r2dbFPQ44nw4r2db6detail11ConsoleHead();
+    extern "C" void Console_DrawDirect__Q24nw4r2dbFPQ44nw4r2db6detail11ConsoleHead();
+
+    asm void Exception::exception_callback(register nw4r::db::ConsoleHandle console) {
+        nofralloc
+
+        stwu r1, -0x240(r1)
+        mflr r0
+        stw r0, 0x244(r1)
+        addi r11, r1, 0x240
+        bl _savegpr_23
+        li r0, 1
+        mr r28, r3
+        stb r0, 0x22(r4)
+        lwz r3, 0(r3)
+        lwz r26, 0x14(r3)
+        bl Console_GetTotalLines__Q24nw4r2dbFPQ44nw4r2db6detail11ConsoleHead
+        subi r30, r3, 0x12
+        mr r3, r28
+        bl key_input__Q23ipl9ExceptionFv
+        b Exception_exception_callback_L1
+    Exception_exception_callback_L2:
+        lwz r3, 0(r28)
+        stw r26, 0x18(r3)
+        lwz r3, 0(r28)
+        bl Console_DrawDirect__Q24nw4r2dbFPQ44nw4r2db6detail11ConsoleHead
+        mr r3, r28
+        li r4, 0xfa
+        bl wait__Q23ipl9ExceptionFUl
+        addi r26, r26, 1
+    Exception_exception_callback_L1:
+        cmpw r26, r30
+        ble Exception_exception_callback_L2
+        lwz r3, 0(r28)
+        li r31, 0
+        stw r31, 0x18(r3)
+        lwz r3, 0(r28)
+        bl Console_DrawDirect__Q24nw4r2dbFPQ44nw4r2db6detail11ConsoleHead
+        bl OSEnableInterrupts
+        addi r3, r1, 8
+        li r4, 0
+        li r5, 0x210
+        bl memset
+        li r27, 4
+    Exception_exception_callback_L3:
+        lwz r3, 0(r28)
+        mr r25, r31
+        li r23, 0
+        li r26, 0
+        lha r29, 0x1c(r3)
+        mr r24, r29
+    Exception_exception_callback_L4:
+        addi r4, r1, 8
+        mr r3, r23
+        add r4, r4, r26
+        li r5, 1
+        bl KPADRead
+        addi r23, r23, 1
+        addi r26, r26, 0x84
+        cmpwi r23, 4
+        blt Exception_exception_callback_L4
+        mr r3, r28
+        li r4, 0x32
+        bl wait__Q23ipl9ExceptionFUl
+        li r3, 0
+        mtctr r27
+    Exception_exception_callback_L5:
+        addi r4, r1, 8
+        add r4, r4, r3
+        lbz r0, 0x5d(r4)
+        extsb. r0, r0
+        bne Exception_exception_callback_L6
+        lwz r4, 0(r4)
+        rlwinm. r0, r4, 0, 28, 28
+        beq Exception_exception_callback_L7
+        cmpwi r31, 0
+        ble Exception_exception_callback_L7
+        subi r31, r31, 1
+        b Exception_exception_callback_L6
+    Exception_exception_callback_L7:
+        rlwinm. r0, r4, 0, 29, 29
+        beq Exception_exception_callback_L8
+        cmpw r31, r30
+        bge Exception_exception_callback_L8
+        addi r31, r31, 1
+        b Exception_exception_callback_L6
+    Exception_exception_callback_L8:
+        rlwinm. r0, r4, 0, 30, 30
+        beq Exception_exception_callback_L9
+        cmpwi r29, 4
+        ble Exception_exception_callback_L9
+        subi r29, r29, 2
+        b Exception_exception_callback_L6
+    Exception_exception_callback_L9:
+        clrlwi. r0, r4, 31
+        beq Exception_exception_callback_L6
+        cmpwi r29, 0x18
+        bge Exception_exception_callback_L6
+        addi r29, r29, 2
+    Exception_exception_callback_L6:
+        addi r3, r3, 0x84
+        bdnz Exception_exception_callback_L5
+        cmpw r31, r25
+        bne Exception_exception_callback_L10
+        cmpw r29, r24
+        beq Exception_exception_callback_L3
+    Exception_exception_callback_L10:
+        lwz r3, 0(r28)
+        sth r29, 0x1c(r3)
+        lwz r3, 0(r28)
+        stw r31, 0x18(r3)
+        lwz r3, 0(r28)
+        bl Console_DrawDirect__Q24nw4r2dbFPQ44nw4r2db6detail11ConsoleHead
+        b Exception_exception_callback_L3
+    }
+#else
     void Exception::exception_callback(nw4r::db::ConsoleHandle console) {
         nw4r::db::Console_SetVisible(console, true);
 
@@ -150,6 +270,7 @@ namespace ipl {
             }
         }
     }
+#endif
 
     void Exception::wait(u32 tick) {
         OSTick prevTick = OSGetTick();
