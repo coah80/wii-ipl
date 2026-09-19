@@ -22,7 +22,7 @@ namespace ipl {
 
             virtual void calc();  // 0x0C
 
-            void* /*todo*/ startBGM(const char* bgmName);
+            nw4r::snd::SoundHandle* startBGM(const char* bgmName);
             nw4r::snd::SoundHandle* startSE(const char* sndName);
             int startSEIndex(u32 sndIndex);
             int startSEwithPos(const char* sndName, f32 pos);

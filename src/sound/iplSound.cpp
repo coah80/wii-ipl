@@ -6,6 +6,8 @@
 namespace ipl {
     namespace snd {
         BOOL m_isLocked;
+        extern nw4r::snd::SoundHandle _bgmBlk;
+        extern nw4r::snd::SoundHandle* _mainBGMHandle;
 
         static const nw4r::snd::FxReverbHi::ReverbHiParam reverbHiParam = {
             0.0f,
@@ -44,6 +46,16 @@ namespace ipl {
         void System::calc() {
             EGG::SimpleAudioMgr::calc();
             sBannerSoundPlayer.calc();
+        }
+
+        nw4r::snd::SoundHandle* System::startBGM(const char* bgmName) {
+            if (m_isLocked) {
+                return NULL;
+            }
+
+            EGG::ArcPlayer::startSound(&_bgmBlk, bgmName);
+            _mainBGMHandle = &_bgmBlk;
+            return &_bgmBlk;
         }
 
         long System::clipGELT_S32(long value, long lo, long hi) {
