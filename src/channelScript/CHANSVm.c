@@ -4239,7 +4239,7 @@ VmMethodDefine(Blob, SetBlob) {
     }
 
     if (CHANSVm_81451348(destBlob, logicalSize)) {
-        memmove(destBlob->offset + destBlob->pData, srcBlob->pData + srcBlob->offset, copySize);
+        memmove(destBlob->pData + *(u32*)&destBlob->offset, srcBlob->pData + srcBlob->offset, copySize);
         if (copySize < logicalSize) {
             memset(destBlob->offset + destBlob->pData + copySize, 0, logicalSize - copySize);
         }
