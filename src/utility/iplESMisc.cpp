@@ -122,7 +122,7 @@ namespace ipl {
             u32 usedBlocks = 0;
             u32 usedINodes = 0;
 
-            s32 ret;
+            ESError ret;
 
             sprintf(path, "/title/%08x/%08x/content", NANDTitleIdHi(titleId), NANDTitleIdLo(titleId));
             ret = NANDSecretGetUsage(path, &usedBlocks, &usedINodes);
@@ -772,37 +772,36 @@ namespace ipl {
             s32 ret = DeleteMetaContent(titleId);
 
             if (ret != ES_ERR_OK && ret != NAND_RESULT_NOEXISTS) {
-                ES_ERR_REPORT("failed to delete meta for %016llx: %d", titleId, ret);
+                OSReport("%s::%s failed to delete meta for %016llx: %d\n", __FILE__, __FUNCTION__, titleId, ret);
                 return ret;
             }
 
-            u32 titleIdLo = NANDTitleIdLo(titleId);
-            BOOL isSpecialTitle = (titleIdLo & 0xffffff00) == 0x48414f00;
-            ret = CheckSafeDeleteTitle(heap, titleId);
-            if (ret == 1 || isSpecialTitle) {
-                ret = DeleteTitle(heap, titleId);
-                if (ret != ES_ERR_OK) {
-                    ES_ERR_REPORT("failed to delete title for %016llx: %d", titleId, ret);
-                    return ret;
+            s32 result = (titleId & 0xffffff00ULL) == 0x48414f00ULL;
+            s32 safe = CheckSafeDeleteTitle(heap, titleId);
+            if (safe == 1 || result) {
+                result = DeleteTitle(heap, titleId);
+                if (result != ES_ERR_OK) {
+                    OSReport("%s::%s failed to delete title for %016llx: %d\n", __FILE__, __FUNCTION__, titleId, result);
+                    return result;
                 }
             } else {
-                if (ret != ES_ERR_OK) {
-                    ES_ERR_REPORT("failed to check safety for %016llx: %d", titleId, ret);
-                    return ret;
-                }
-
-                ret = ES_DeleteTitleContent(titleId);
-                if (ret != ES_ERR_OK) {
-                    ES_ERR_REPORT("failed to delete contents for %016llx: %d", titleId, ret);
-                    return ret;
+                if (safe == ES_ERR_OK) {
+                    result = ES_DeleteTitleContent(titleId);
+                    if (result != ES_ERR_OK) {
+                        OSReport("%s::%s failed to delete contents for %016llx: %d\n", __FILE__, __FUNCTION__, titleId, result);
+                        return result;
+                    }
+                } else {
+                    OSReport("%s::%s failed to check safety for %016llx: %d\n", __FILE__, __FUNCTION__, titleId, safe);
+                    return safe;
                 }
             }
 
-            ret = DeleteDownloadTask__Q33ipl7utility6ESMiscFv(heap, titleIdLo);
-            if (ret != ES_ERR_OK) {
-                ES_ERR_REPORT("failed to delete DL task for %016llx: %d", titleId, ret);
+            result = DeleteDownloadTask__Q33ipl7utility6ESMiscFv(heap, NANDTitleIdLo(titleId));
+            if (result != ES_ERR_OK) {
+                OSReport("%s::%s failed to delete DL task for %016llx: %d\n", __FILE__, __FUNCTION__, titleId, result);
             }
-            return ret;
+            return result;
         }
 
         ESError ESMisc::PrepareTitleDir(ESTitleId titleId, EGG::Heap* heap) {
@@ -812,7 +811,7 @@ namespace ipl {
             if (ret != ES_ERR_OK) {
                 ES_ERR_REPORT("Open backup TMD file failed: %d", ret);
                 tmdFile.Close();
-                goto done;
+                return ret;
             }
 
             ret = tmdFile.Restore(titleId);
@@ -829,7 +828,6 @@ namespace ipl {
             }
             tmdFile.Close();
 
-        done:
             return ret;
         }
 
