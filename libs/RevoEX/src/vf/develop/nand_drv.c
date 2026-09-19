@@ -535,7 +535,7 @@ static s32 nanddrv_format(PDM_DISK* p_disk, const u8* param) {
     }
     return 0;
 #else
-    if (p_disk != NULL) {
+    if (p_disk) {
         return 0;
     }
     return -20;
