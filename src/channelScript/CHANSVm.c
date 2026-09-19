@@ -2924,7 +2924,8 @@ VmMethodDefine(String, CharCodeAt) {
     parentStr = VmParentObj->value.string_v;
     charIndex = arg->value.int_v;
     if ((u64)(charIndex * 2) < (u64)(parentStr->len)) {
-        ch = (u8)parentStr->spData[(u32)(charIndex * 2)] << 8 | (u8)parentStr->spData[(u32)(charIndex * 2) + 1];
+        u32 data = (u32)parentStr->spData;
+        ch = *(u8*)(data + (u32)(charIndex * 2)) << 8 | *(u8*)(data + (u32)(charIndex * 2) + 1);
     }
 
     return CHANSVmSetInteger(VmInst, VmReturnObj, (vmInteger)(u64)ch) == CHANS_VM_OK;
