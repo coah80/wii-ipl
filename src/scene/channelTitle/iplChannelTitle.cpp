@@ -2119,7 +2119,8 @@ namespace ipl {
                 }
                 int searchPage = i / MAX_CHANNEL_INDEX;
                 int searchIndex = i % MAX_CHANNEL_INDEX;
-                if (System::getChannelManager()->getChannel(searchPage, searchIndex).loadedBnr) {
+                channel::Manager* manager = System::getChannelManager();
+                if (manager->getChannel(searchPage, searchIndex).loadedBnr) {
                     *page = searchPage;
                     *index = searchIndex;
                     result = TRUE;
