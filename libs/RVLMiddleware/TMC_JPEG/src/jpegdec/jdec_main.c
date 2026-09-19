@@ -2318,6 +2318,149 @@ static s32 TMCJPEGDEC_parse_sos(TMCCJPEGDecWork* work) {
 }
 #endif
 
+#ifdef __MWERKS__
+asm s32 TMCJPEGDEC_err_restart(register TMCCJPEGDecWork* work) {
+    nofralloc
+
+    stwu r1, -0x20(r1)
+    mflr r0
+    stw r0, 0x24(r1)
+    stw r31, 0x1c(r1)
+    stw r30, 0x18(r1)
+    mr r30, r3
+    stw r29, 0x14(r1)
+    stw r28, 0x10(r1)
+    lbz r0, 0x181c(r3)
+    lwz r31, 0x19e4(r3)
+    cmplwi r0, 1
+    bne _err_restart_rewind
+    li r0, 0
+    li r3, 0
+    stw r0, 0x6cc(r31)
+    b _err_restart_return
+
+_err_restart_rewind:
+    bl TMCJPEGDEC_rewind_ptr
+    cmpwi r3, 0
+    bge _err_restart_load_byte
+    b _err_restart_return
+
+_err_restart_load_byte:
+    lwz r3, 0xc(r30)
+    lbz r0, 0(r3)
+    stb r0, 8(r1)
+    b _err_restart_check_byte
+
+_err_restart_read_byte:
+    mr r4, r30
+    addi r3, r1, 8
+    bl TMCJPEGDEC_get_byte
+    cmpwi r3, 0
+    bge _err_restart_check_byte
+    b _err_restart_return
+
+_err_restart_check_byte:
+    lbz r0, 8(r1)
+    cmplwi r0, 0xff
+    bne _err_restart_read_byte
+    mr r4, r30
+    addi r3, r1, 8
+    bl TMCJPEGDEC_get_byte
+    lbz r6, 8(r1)
+    cmplwi r6, 0xd9
+    bne _err_restart_check_result
+    cmpwi r3, 0
+    bge _err_restart_eoi
+    cmpwi r3, -0x90
+    beq _err_restart_eoi
+    b _err_restart_return
+
+_err_restart_eoi:
+    li r3, 0
+    b _err_restart_return
+
+_err_restart_check_result:
+    cmpwi r3, 0
+    bge _err_restart_check_marker
+    b _err_restart_return
+
+_err_restart_check_marker:
+    cmplwi r6, 0xd0
+    blt _err_restart_check_byte
+    cmplwi r6, 0xd7
+    ble _err_restart_marker
+    b _err_restart_check_byte
+
+_err_restart_marker:
+    lhz r3, 0x52(r30)
+    addi r0, r6, 8
+    addi r3, r3, 0xcf
+    cmpw r6, r3
+    subf r0, r3, r0
+    clrlwi r5, r0, 0x18
+    ble _err_restart_have_diff
+    subf r0, r3, r6
+    clrlwi r5, r0, 0x18
+
+_err_restart_have_diff:
+    lhz r4, 0x181a(r30)
+    addi r0, r6, 1
+    clrlwi r3, r0, 0x1d
+    lhz r7, 0x10(r31)
+    mullw r5, r5, r4
+    li r0, 0
+    lwz r6, 0x54(r30)
+    sth r3, 0x52(r30)
+    mr r3, r30
+    clrlwi r4, r6, 0x18
+    clrlwi r8, r5, 0x18
+    srwi r6, r6, 0x10
+    mullw r5, r4, r7
+    stw r0, 0x30(r30)
+    add r4, r8, r6
+    stw r0, 0x34(r30)
+    stw r0, 0x38(r30)
+    add r5, r5, r4
+    divw r4, r5, r7
+    stw r0, 0x3c(r30)
+    sth r0, 0x50(r30)
+    mullw r0, r4, r7
+    clrlwi r28, r4, 0x10
+    subf r4, r0, r5
+    slwi r0, r4, 0x10
+    add r0, r0, r28
+    clrlwi r29, r4, 0x10
+    stw r0, 0x54(r30)
+    bl TMCJPEGDEC_init_buff
+    cmpwi r3, 0
+    bge _err_restart_store_position
+    b _err_restart_return
+
+_err_restart_store_position:
+    sth r29, 0(r31)
+    mr r3, r30
+    sth r28, 2(r31)
+    bl TMCJPEGDEC_get_position
+    stw r3, 4(r31)
+    lhz r4, 2(r31)
+    lhz r3, 0x10(r31)
+    lwz r0, 0xc(r31)
+    mullw r3, r4, r3
+    lhz r4, 0(r31)
+    subf r0, r3, r0
+    subf r3, r4, r0
+
+_err_restart_return:
+    lwz r0, 0x24(r1)
+    lwz r31, 0x1c(r1)
+    lwz r30, 0x18(r1)
+    lwz r29, 0x14(r1)
+    lwz r28, 0x10(r1)
+    mtlr r0
+    addi r1, r1, 0x20
+    blr
+}
+#else
 s32 TMCJPEGDEC_err_restart(TMCCJPEGDecWork* work) {
     TMCCJPEGDecState* state;
 
@@ -2405,6 +2548,7 @@ s32 TMCJPEGDEC_err_restart(TMCCJPEGDecWork* work) {
         return state->result - (state->posY * state->maxX) - state->posY;
     }
 }
+#endif
 
 void TMCJPEGDEC_set_entropytbl(TMCCJPEGDecWork* work, s32 idx, u8 data) {
     switch (idx) {
