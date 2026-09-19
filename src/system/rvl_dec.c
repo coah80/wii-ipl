@@ -714,6 +714,391 @@ LAB_813325b8:
 }
 #endif
 
+#ifdef __MWERKS__
+asm int Rvl_decode_asr(register u8* out, register u8* in) {
+    nofralloc
+        stwu r1, -0x40(r1)
+        stmw r21, 0x10(r1)
+        lwz r5, 4(r4)
+        li r12, 0x4000
+        rlwinm. r0, r5, 0, 0, 0
+        lwz r6, 8(r4)
+        clrlwi r5, r5, 8
+        li r7, 0
+        add r6, r6, r4
+        li r31, 0x200
+        addi r4, r4, 0xc
+        bne Rvl_decode_asr_L013
+        li r12, 0x800
+    Rvl_decode_asr_L013:
+        lis r8, _f_bss@h
+        ori r8, r8, _f_bss@l
+        mtctr r31
+        addi r9, r8, 0x800
+        addi r10, r9, 0x804
+        addi r11, r10, 0x4000
+        stw r7, 0(r9)
+        li r31, 1
+        li r26, 1
+        stw r7, 0(r11)
+    Rvl_decode_asr_L023:
+        stwx r31, r8, r7
+        addi r7, r7, 4
+        stwx r26, r9, r7
+        addi r26, r26, 1
+        bdnz Rvl_decode_asr_L023
+        srwi r30, r12, 2
+        li r7, 0
+        li r27, 1
+        mtctr r30
+    Rvl_decode_asr_L032:
+        stwx r31, r10, r7
+        addi r7, r7, 4
+        stwx r27, r11, r7
+        addi r27, r27, 1
+        bdnz Rvl_decode_asr_L032
+        lwz r30, 0(r4)
+        li r7, 0
+        lwz r31, 0(r6)
+        li r28, 0
+        li r29, 0
+        addi r26, r28, -1
+        addi r27, r29, -1
+        addi r4, r4, 4
+        addi r6, r6, 4
+    Rvl_decode_asr_L046:
+        lwz r25, 0x800(r9)
+        divwu r24, r26, r25
+        subf r0, r28, r30
+        li r21, 0
+        li r22, 0x800
+        divwu r23, r0, r24
+    Rvl_decode_asr_L052:
+        add r0, r21, r22
+        rlwinm r25, r0, 0x1f, 1, 0x1d
+        lwzx r0, r9, r25
+        cmplw r23, r0
+        bge Rvl_decode_asr_L059
+        mr r22, r25
+        b Rvl_decode_asr_L060
+    Rvl_decode_asr_L059:
+        addi r21, r25, 4
+    Rvl_decode_asr_L060:
+        cmplw r21, r22
+        blt Rvl_decode_asr_L052
+        add r22, r9, r25
+    Rvl_decode_asr_L063:
+        lwz r0, 0(r22)
+        cmplw r0, r23
+        bgt Rvl_decode_asr_L069
+        lwz r0, 4(r22)
+        cmplw r23, r0
+        blt Rvl_decode_asr_L072
+    Rvl_decode_asr_L069:
+        addic. r25, r25, -4
+        addi r22, r22, -4
+        bgt Rvl_decode_asr_L063
+    Rvl_decode_asr_L072:
+        lwzx r21, r9, r25
+        mullw r23, r21, r24
+        lwzx r21, r8, r25
+        mullw r26, r21, r24
+        add r28, r28, r23
+        addi r21, r21, 1
+        stwx r21, r8, r25
+        addi r24, r25, 4
+        srwi r25, r25, 2
+    Rvl_decode_asr_L081:
+        cmpwi r24, 0x800
+        bgt Rvl_decode_asr_L088
+        lwzx r22, r9, r24
+        addi r22, r22, 1
+        stwx r22, r9, r24
+        addi r24, r24, 4
+        b Rvl_decode_asr_L081
+    Rvl_decode_asr_L088:
+        lwz r21, 0x800(r9)
+        rlwinm. r21, r21, 0x10, 0x10, 0x1f
+        beq Rvl_decode_asr_L147
+        li r0, 0x40
+        li r22, 0
+        mr r23, r8
+        mr r24, r9
+        stw r22, 0(r9)
+        mtctr r0
+    Rvl_decode_asr_L097:
+        lwz r21, 0(r23)
+        srwi r21, r21, 1
+        ori r21, r21, 1
+        stw r21, 0(r23)
+        add r22, r22, r21
+        stw r22, 4(r24)
+        lwz r21, 4(r23)
+        srwi r21, r21, 1
+        ori r21, r21, 1
+        stw r21, 4(r23)
+        add r22, r22, r21
+        stw r22, 8(r24)
+        lwz r21, 8(r23)
+        srwi r21, r21, 1
+        ori r21, r21, 1
+        stw r21, 8(r23)
+        add r22, r22, r21
+        stw r22, 0xc(r24)
+        lwz r21, 0xc(r23)
+        srwi r21, r21, 1
+        ori r21, r21, 1
+        stw r21, 0xc(r23)
+        add r22, r22, r21
+        stw r22, 0x10(r24)
+        lwz r21, 0x10(r23)
+        srwi r21, r21, 1
+        ori r21, r21, 1
+        stw r21, 0x10(r23)
+        add r22, r22, r21
+        stw r22, 0x14(r24)
+        lwz r21, 0x14(r23)
+        srwi r21, r21, 1
+        ori r21, r21, 1
+        stw r21, 0x14(r23)
+        add r22, r22, r21
+        stw r22, 0x18(r24)
+        lwz r21, 0x18(r23)
+        srwi r21, r21, 1
+        ori r21, r21, 1
+        stw r21, 0x18(r23)
+        add r22, r22, r21
+        stw r22, 0x1c(r24)
+        lwz r21, 0x1c(r23)
+        srwi r21, r21, 1
+        ori r21, r21, 1
+        stw r21, 0x1c(r23)
+        add r22, r22, r21
+        stwu r22, 0x20(r24)
+        addi r23, r23, 0x20
+        bdnz Rvl_decode_asr_L097
+    Rvl_decode_asr_L147:
+        rlwinm r21, r28, 0, 0, 7
+        add r23, r28, r26
+        rlwinm r22, r23, 0, 0, 7
+        cmplw r21, r22
+        bne Rvl_decode_asr_L159
+        lbz r24, 0(r4)
+        slwi r30, r30, 8
+        slwi r28, r28, 8
+        slwi r26, r26, 8
+        or r30, r30, r24
+        addi r4, r4, 1
+        b Rvl_decode_asr_L147
+    Rvl_decode_asr_L159:
+        rlwinm. r0, r26, 0x10, 0x10, 0x1f
+        bne Rvl_decode_asr_L171
+        clrlwi r21, r28, 0x10
+        lbz r24, 0(r4)
+        lis r22, 1
+        subf r23, r21, r22
+        slwi r30, r30, 8
+        slwi r28, r28, 8
+        slwi r26, r23, 8
+        or r30, r30, r24
+        addi r4, r4, 1
+        b Rvl_decode_asr_L159
+    Rvl_decode_asr_L171:
+        cmpwi r25, 0x100
+        stbx r25, r3, r7
+        bge Rvl_decode_asr_L178
+        addi r7, r7, 1
+        cmplw r7, r5
+        blt Rvl_decode_asr_L046
+        b Rvl_decode_asr_L341
+    Rvl_decode_asr_L178:
+        lwzx r23, r11, r12
+        divwu r24, r27, r23
+        subf r0, r29, r31
+        li r21, 0
+        mr r22, r12
+        divwu r23, r0, r24
+    Rvl_decode_asr_L184:
+        add r0, r21, r22
+        rlwinm r25, r0, 0x1f, 1, 0x1d
+        lwzx r0, r11, r25
+        cmplw r23, r0
+        bge Rvl_decode_asr_L191
+        mr r22, r25
+        b Rvl_decode_asr_L192
+    Rvl_decode_asr_L191:
+        addi r21, r25, 4
+    Rvl_decode_asr_L192:
+        cmplw r21, r22
+        blt Rvl_decode_asr_L184
+        add r22, r11, r25
+    Rvl_decode_asr_L195:
+        lwz r0, 0(r22)
+        cmplw r0, r23
+        bgt Rvl_decode_asr_L201
+        lwz r0, 4(r22)
+        cmplw r23, r0
+        blt Rvl_decode_asr_L204
+    Rvl_decode_asr_L201:
+        addic. r25, r25, -4
+        addi r22, r22, -4
+        bgt Rvl_decode_asr_L195
+    Rvl_decode_asr_L204:
+        lwzx r21, r11, r25
+        mullw r23, r21, r24
+        lwzx r21, r10, r25
+        mullw r27, r21, r24
+        add r29, r29, r23
+        addi r21, r21, 1
+        stwx r21, r10, r25
+        addi r24, r25, 4
+        srwi r25, r25, 2
+        lbzx r22, r3, r7
+        subf r21, r25, r7
+        addi r22, r22, 3
+        add r25, r3, r7
+        rlwinm. r0, r22, 0x1d, 3, 0x1f
+        add r23, r3, r21
+        add r7, r7, r22
+        beq Rvl_decode_asr_L243
+        mtctr r0
+    Rvl_decode_asr_L222:
+        lbz r0, -1(r23)
+        stb r0, 0(r25)
+        lbz r0, 0(r23)
+        stb r0, 1(r25)
+        lbz r0, 1(r23)
+        stb r0, 2(r25)
+        lbz r0, 2(r23)
+        stb r0, 3(r25)
+        lbz r0, 3(r23)
+        stb r0, 4(r25)
+        lbz r0, 4(r23)
+        stb r0, 5(r25)
+        lbz r0, 5(r23)
+        stb r0, 6(r25)
+        lbz r0, 6(r23)
+        stb r0, 7(r25)
+        addi r23, r23, 8
+        addi r25, r25, 8
+        bdnz Rvl_decode_asr_L222
+        andi. r22, r22, 7
+        beq Rvl_decode_asr_L249
+    Rvl_decode_asr_L243:
+        mtctr r22
+    Rvl_decode_asr_L244:
+        lbz r0, -1(r23)
+        addi r23, r23, 1
+        stb r0, 0(r25)
+        addi r25, r25, 1
+        bdnz Rvl_decode_asr_L244
+    Rvl_decode_asr_L249:
+        cmplw r24, r12
+        bgt Rvl_decode_asr_L256
+        lwzx r22, r11, r24
+        addi r22, r22, 1
+        stwx r22, r11, r24
+        addi r24, r24, 4
+        b Rvl_decode_asr_L249
+    Rvl_decode_asr_L256:
+        lwzx r21, r11, r12
+        rlwinm. r21, r21, 0x10, 0x10, 0x1f
+        lis r25, 1
+        beq Rvl_decode_asr_L316
+        srwi r0, r12, 5
+        li r22, 0
+        mr r23, r10
+        mr r24, r11
+        stw r22, 0(r11)
+        mtctr r0
+    Rvl_decode_asr_L266:
+        lwz r21, 0(r23)
+        srwi r21, r21, 1
+        ori r21, r21, 1
+        stw r21, 0(r23)
+        add r22, r22, r21
+        stw r22, 4(r24)
+        lwz r21, 4(r23)
+        srwi r21, r21, 1
+        ori r21, r21, 1
+        stw r21, 4(r23)
+        add r22, r22, r21
+        stw r22, 8(r24)
+        lwz r21, 8(r23)
+        srwi r21, r21, 1
+        ori r21, r21, 1
+        stw r21, 8(r23)
+        add r22, r22, r21
+        stw r22, 0xc(r24)
+        lwz r21, 0xc(r23)
+        srwi r21, r21, 1
+        ori r21, r21, 1
+        stw r21, 0xc(r23)
+        add r22, r22, r21
+        stw r22, 0x10(r24)
+        lwz r21, 0x10(r23)
+        srwi r21, r21, 1
+        ori r21, r21, 1
+        stw r21, 0x10(r23)
+        add r22, r22, r21
+        stw r22, 0x14(r24)
+        lwz r21, 0x14(r23)
+        srwi r21, r21, 1
+        ori r21, r21, 1
+        stw r21, 0x14(r23)
+        add r22, r22, r21
+        stw r22, 0x18(r24)
+        lwz r21, 0x18(r23)
+        srwi r21, r21, 1
+        ori r21, r21, 1
+        stw r21, 0x18(r23)
+        add r22, r22, r21
+        stw r22, 0x1c(r24)
+        lwz r21, 0x1c(r23)
+        srwi r21, r21, 1
+        ori r21, r21, 1
+        stw r21, 0x1c(r23)
+        add r22, r22, r21
+        stwu r22, 0x20(r24)
+        addi r23, r23, 0x20
+        bdnz Rvl_decode_asr_L266
+    Rvl_decode_asr_L316:
+        rlwinm r21, r29, 0, 0, 7
+        add r23, r29, r27
+        rlwinm r22, r23, 0, 0, 7
+        cmplw r21, r22
+        bne Rvl_decode_asr_L328
+        lbz r24, 0(r6)
+        slwi r31, r31, 8
+        slwi r29, r29, 8
+        slwi r27, r27, 8
+        or r31, r31, r24
+        addi r6, r6, 1
+        b Rvl_decode_asr_L316
+    Rvl_decode_asr_L328:
+        rlwinm. r0, r27, 0x10, 0x10, 0x1f
+        bne Rvl_decode_asr_L339
+        clrlwi r21, r29, 0x10
+        lbz r24, 0(r6)
+        subf r23, r21, r25
+        slwi r31, r31, 8
+        slwi r29, r29, 8
+        slwi r27, r23, 8
+        or r31, r31, r24
+        addi r6, r6, 1
+        b Rvl_decode_asr_L328
+    Rvl_decode_asr_L339:
+        cmplw r7, r5
+        blt Rvl_decode_asr_L046
+    Rvl_decode_asr_L341:
+        mr r3, r5
+        lmw r21, 0x10(r1)
+        addi r1, r1, 0x40
+        blr
+
+}
+#else
 int Rvl_decode_asr(u8* out, u8* in) {
     return 0;
 }
+#endif
