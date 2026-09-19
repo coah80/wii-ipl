@@ -5987,7 +5987,7 @@ void CHANSVmImageRegisterAllocator(CHANSVmImageAllocatorCallback allocCb, CHANSV
 }
 
 CHANSVmObjHdr* CHANSVmNewImageObject(CHANSVm* vm, CHANSVmObjHdr* object, vmPtr srcData, vmU16 width, vmU16 height, s32 format) {
-    u32 bpp;
+    s32 bpp;
     CHANSVmImage* image;
     u32 dataSize;
     u32 allocSize;
