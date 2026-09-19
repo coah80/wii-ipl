@@ -1104,6 +1104,297 @@ static s32 TMCJPEGDEC_parse_dqt(TMCCJPEGDecWork* work) {
 }
 #endif
 
+#ifdef __MWERKS__
+static asm s32 TMCJPEGDEC_parse_sof(register TMCCJPEGDecWork* work) {
+    nofralloc
+
+    stwu r1, -0x30(r1)
+    mflr r0
+    stw r0, 0x34(r1)
+    stmw r25, 0x14(r1)
+    mr r27, r3
+    addi r29, r3, 0x17f0
+    addi r28, r3, 0x2c
+    addi r3, r1, 0xa
+    mr r4, r27
+    bl TMCJPEGDEC_get_wbyte
+    cmpwi r3, 0
+    bge _parse_sof_have_length
+    b _parse_sof_return
+
+_parse_sof_have_length:
+    lhz r0, 0xa(r1)
+    cmplwi r0, 2
+    bge _parse_sof_have_precision
+    li r3, -0x50
+    b _parse_sof_return
+
+_parse_sof_have_precision:
+    mr r4, r27
+    addi r3, r1, 8
+    bl TMCJPEGDEC_get_byte
+    cmpwi r3, 0
+    bge _parse_sof_check_precision
+    b _parse_sof_return
+
+_parse_sof_check_precision:
+    lbz r0, 8(r1)
+    cmplwi r0, 8
+    beq _parse_sof_get_height
+    li r3, -0x50
+    b _parse_sof_return
+
+_parse_sof_get_height:
+    mr r4, r27
+    addi r3, r1, 0xa
+    bl TMCJPEGDEC_get_wbyte
+    cmpwi r3, 0
+    bge _parse_sof_store_height
+    b _parse_sof_return
+
+_parse_sof_store_height:
+    lhz r0, 0xa(r1)
+    mr r4, r27
+    addi r3, r1, 0xa
+    sth r0, 2(r29)
+    bl TMCJPEGDEC_get_wbyte
+    cmpwi r3, 0
+    bge _parse_sof_store_width
+    b _parse_sof_return
+
+_parse_sof_store_width:
+    lhz r0, 0xa(r1)
+    mr r4, r27
+    addi r3, r1, 8
+    sth r0, 0(r29)
+    bl TMCJPEGDEC_get_byte
+    cmpwi r3, 0
+    bge _parse_sof_store_components
+    b _parse_sof_return
+
+_parse_sof_store_components:
+    lbz r0, 8(r1)
+    cmpwi r0, 0
+    stb r0, 0x1a(r29)
+    ble _parse_sof_bad_header
+    cmpwi r0, 4
+    ble _parse_sof_components_valid
+
+_parse_sof_bad_header:
+    li r3, -0x50
+    b _parse_sof_return
+
+_parse_sof_components_valid:
+    li r30, 0
+    li r31, 0
+    li r25, 0
+    b _parse_sof_component_condition
+
+_parse_sof_component_loop:
+    mr r4, r27
+    addi r3, r1, 8
+    bl TMCJPEGDEC_get_byte
+    cmpwi r3, 0
+    bge _parse_sof_have_component_id
+    b _parse_sof_return
+
+_parse_sof_have_component_id:
+    lbz r0, 8(r1)
+    add r26, r28, r25
+    mr r4, r27
+    addi r3, r1, 8
+    stb r0, 0x14(r26)
+    bl TMCJPEGDEC_get_byte
+    cmpwi r3, 0
+    bge _parse_sof_have_sampling
+    b _parse_sof_return
+
+_parse_sof_have_sampling:
+    lbz r0, 8(r1)
+    add r4, r29, r25
+    srawi r3, r0, 4
+    clrlwi r0, r0, 0x1c
+    stb r3, 0x20(r4)
+    cmpw r3, r31
+    stb r0, 0x24(r4)
+    ble _parse_sof_check_v_sampling
+    mr r31, r3
+
+_parse_sof_check_v_sampling:
+    lbz r0, 0x24(r4)
+    cmpw r0, r30
+    ble _parse_sof_get_qtable
+    mr r30, r0
+
+_parse_sof_get_qtable:
+    mr r4, r27
+    addi r3, r1, 8
+    bl TMCJPEGDEC_get_byte
+    cmpwi r3, 0
+    bge _parse_sof_store_qtable
+    b _parse_sof_return
+
+_parse_sof_store_qtable:
+    lbz r0, 8(r1)
+    addi r25, r25, 1
+    stb r0, 0x18(r26)
+
+_parse_sof_component_condition:
+    lbz r0, 0x1a(r29)
+    cmpw r25, r0
+    blt _parse_sof_component_loop
+    clrlwi. r0, r31, 0x10
+    beq _parse_sof_bad_sampling
+    clrlwi. r0, r30, 0x10
+    bne _parse_sof_sampling_valid
+
+_parse_sof_bad_sampling:
+    li r3, -0x50
+    b _parse_sof_return
+
+_parse_sof_sampling_valid:
+    li r0, 6
+    lis r6, TMCJPEGDEC_SampleComps@ha
+    lis r7, TMCJPEGDEC_SampleH_N@ha
+    lis r8, TMCJPEGDEC_SampleV_N@ha
+    stb r31, 0x28(r29)
+    addi r6, r6, TMCJPEGDEC_SampleComps@l
+    addi r7, r7, TMCJPEGDEC_SampleH_N@l
+    addi r8, r8, TMCJPEGDEC_SampleV_N@l
+    stb r30, 0x29(r29)
+    li r10, 0
+    stb r0, 0xc(r29)
+
+_parse_sof_sample_loop:
+    lbz r5, 0x1a(r29)
+    lbz r0, 0(r6)
+    cmplw r5, r0
+    bne _parse_sof_sample_next
+    mr r4, r7
+    mr r3, r8
+    li r11, 0
+    mtctr r5
+    cmpwi r5, 0
+    ble _parse_sof_sample_match
+
+_parse_sof_sample_compare:
+    add r9, r29, r11
+    lbz r0, 0(r4)
+    lbz r5, 0x20(r9)
+    cmplw r5, r0
+    bne _parse_sof_sample_next
+    lbz r5, 0x24(r9)
+    lbz r0, 0(r3)
+    cmplw r5, r0
+    bne _parse_sof_sample_next
+    addi r11, r11, 1
+    addi r3, r3, 1
+    addi r4, r4, 1
+    bdnz _parse_sof_sample_compare
+
+_parse_sof_sample_match:
+    stb r10, 0xc(r29)
+
+_parse_sof_sample_next:
+    addi r10, r10, 1
+    addi r7, r7, 4
+    cmpwi r10, 6
+    addi r8, r8, 4
+    addi r6, r6, 1
+    blt _parse_sof_sample_loop
+    lbz r0, 0xc(r29)
+    cmplwi r0, 6
+    bne _parse_sof_setup_mcu
+    li r3, -0x70
+    b _parse_sof_return
+
+_parse_sof_setup_mcu:
+    lhz r9, 0(r29)
+    rlwinm r8, r31, 3, 0x18, 0x1c
+    rlwinm r12, r30, 3, 0x18, 0x1c
+    lhz r11, 2(r29)
+    divw r6, r9, r8
+    stb r8, 0xd(r29)
+    lbz r5, 0x180a(r27)
+    addi r3, r27, 0x17f0
+    addi r0, r27, 0x2c
+    stb r12, 0xe(r29)
+    clrlwi r10, r6, 0x10
+    li r4, 0
+    mullw r6, r6, r8
+    divw r7, r11, r12
+    subf r6, r6, r9
+    stb r6, 0x18(r29)
+    mullw r9, r7, r12
+    clrlwi r8, r7, 0x10
+    clrlwi r7, r6, 0x18
+    neg r6, r7
+    subf r11, r9, r11
+    or r9, r6, r7
+    stb r11, 0x19(r29)
+    clrlwi r7, r11, 0x18
+    neg r6, r7
+    srwi r9, r9, 0x1f
+    or r6, r6, r7
+    add r9, r10, r9
+    srwi r6, r6, 0x1f
+    sth r9, 0x10(r29)
+    add r8, r8, r6
+    clrlwi r7, r9, 0x10
+    clrlwi r6, r8, 0x10
+    sth r8, 0x12(r29)
+    mullw r6, r7, r6
+    stw r6, 0x14(r29)
+    mtctr r5
+    cmpwi r5, 0
+    ble _parse_sof_component_check_done
+
+_parse_sof_component_check:
+    add r5, r3, r4
+    lbz r6, 0x20(r5)
+    cmplwi r6, 1
+    blt _parse_sof_bad_component
+    cmplwi r6, 4
+    ble _parse_sof_check_v_factor
+
+_parse_sof_bad_component:
+    li r3, -0x50
+    b _parse_sof_return
+
+_parse_sof_check_v_factor:
+    lbz r5, 0x24(r5)
+    cmplwi r5, 1
+    blt _parse_sof_bad_v_factor
+    cmplwi r5, 4
+    ble _parse_sof_check_qtable
+
+_parse_sof_bad_v_factor:
+    li r3, -0x50
+    b _parse_sof_return
+
+_parse_sof_check_qtable:
+    add r5, r0, r4
+    lbz r5, 0x18(r5)
+    cmplwi r5, 4
+    ble _parse_sof_next_check
+    li r3, -0x50
+    b _parse_sof_return
+
+_parse_sof_next_check:
+    addi r4, r4, 1
+    bdnz _parse_sof_component_check
+
+_parse_sof_component_check_done:
+    li r3, 0
+
+_parse_sof_return:
+    lmw r25, 0x14(r1)
+    lwz r0, 0x34(r1)
+    mtlr r0
+    addi r1, r1, 0x30
+    blr
+}
+#else
 static s32 TMCJPEGDEC_parse_sof(TMCCJPEGDecWork* work) {
     TMCJpegFrameInfo* frameInfo = (TMCJpegFrameInfo*)((u8*)work + 0x17f0);
 
@@ -1290,6 +1581,7 @@ static s32 TMCJPEGDEC_parse_sof(TMCCJPEGDecWork* work) {
 
     return 0;
 }
+#endif
 
 static s32 TMCJPEGDEC_parse_sos(TMCCJPEGDecWork* work) {
     s32 idx;
