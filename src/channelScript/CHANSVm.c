@@ -2335,7 +2335,7 @@ VmMethodDefine(Array, Shift) {
     }
 
     if (chunk != vmNull && chunk->count != 0) {
-        elemPtr = (CHANSVmObjHdr*)((u8*)chunk + chunk->start * 16 + sizeof(ArrayChunk));
+        elemPtr = (CHANSVmObjHdr*)((u8*)chunk + sizeof(ArrayChunk) + chunk->start * 16);
 
         if (CHANSVmCopyObject(VmInst, VmReturnObj, elemPtr) == vmNull || CHANSVmDeleteObject(VmInst, elemPtr) != CHANS_VM_OK) {
             goto error;
