@@ -31,7 +31,7 @@ namespace nw4r {
                 return false;
             }
 
-            u32 GetId() const NO_INLINE {
+            u32 GetId() const {
                 if (IsAttachedSound()) {
                     return mSound->GetId();
                 }
