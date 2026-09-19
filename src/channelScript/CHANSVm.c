@@ -6016,7 +6016,7 @@ CHANSVmObjHdr* CHANSVmNewImageObject(CHANSVm* vm, CHANSVmObjHdr* object, vmPtr s
         }
     }
 
-    dataSize = (u32)height * bpp * (u32)width / 8;
+    dataSize = (u32)((u32)width * (u32)height) * bpp / 8;
     allocSize = (dataSize & ~(-(VmImageAllocCallback != vmNull))) + 0x20;
 
     object = CHANSVmNewObject(vm, vmFalse, object, CHANS_VM_TYPE_OBJECT, allocSize);
