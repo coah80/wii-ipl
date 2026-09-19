@@ -7,6 +7,15 @@ namespace ipl {
     namespace snd {
         BOOL m_isLocked;
 
+        static const nw4r::snd::FxReverbHi::ReverbHiParam reverbHiParam = {
+            0.0f,
+            2.5f,
+            0.5f,
+            0.0f,
+            0.0f,
+            1.0f,
+        };
+
         void System::shutup(BOOL shutUpDMA) {
             if (m_isLocked == shutUpDMA) {
                 return;
@@ -26,6 +35,10 @@ namespace ipl {
 
         BOOL System::checkTmpSoundFile(void* data, u32 size) {
             return sBannerSoundPlayer.checkData(data, size, false);
+        }
+
+        void System::initFx() {
+            setFxReverbHi(nw4r::snd::AUX_A, &reverbHiParam);
         }
 
         long System::clipGELT_S32(long value, long lo, long hi) {
