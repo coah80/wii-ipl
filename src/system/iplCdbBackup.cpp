@@ -386,6 +386,8 @@ namespace ipl {
 #ifdef __MWERKS__
     extern "C" System::Arg smArg__Q23ipl6System;
     extern "C" void cdb_backup_delete_search_cb___3iplFPvP10_CDBRecord();
+    extern "C" void cdb_backup_move_search_cb___3iplFPvP10_CDBRecord();
+    extern "C" void getFreeSize__Q33ipl3cdb7ManagerFPUl();
     extern "C" void search__Q33ipl3cdb7ManagerFRCUlRCUl18CDBSearchDirection17CDBRecordLocationiPFPvP10_CDBRecord_iPv();
     extern "C" void cleanUpEmptyDirectories__Q33ipl3cdb7ManagerF17CDBRecordLocation();
 
@@ -496,7 +498,87 @@ namespace ipl {
         return result;
     }
 
-    // NonMatching too. see cdb_backup_delete_task_
+#ifdef __MWERKS__
+    asm void cdb_backup_move_task_(register void* work) {
+        nofralloc
+
+        stwu r1, -0x20(r1)
+        mflr r0
+        li r4, 0
+        li r5, 1
+        stw r0, 0x24(r1)
+        li r6, 0
+        li r7, 0
+        li r8, 0
+        stw r31, 0x1c(r1)
+        mr r31, r3
+        li r3, 0x7d0
+        bl CDBMakeCDBDate
+        stw r3, 0x10(r1)
+        li r3, 0x7f3
+        li r4, 0xc
+        li r5, 0x1f
+        li r6, 0x17
+        li r7, 0x3b
+        li r8, 0x3b
+        bl CDBMakeCDBDate
+        lis r4, smArg__Q23ipl6System@ha
+        stw r3, 0xc(r1)
+        addi r4, r4, smArg__Q23ipl6System@l
+        lbz r0, 0x2bc(r4)
+        cmpwi r0, 0
+        beq cdb_backup_move_task_L1
+        li r3, 0
+        b cdb_backup_move_task_L2
+    cdb_backup_move_task_L1:
+        lwz r3, 0x7c(r4)
+    cdb_backup_move_task_L2:
+        addi r4, r1, 0x8
+        bl getFreeSize__Q33ipl3cdb7ManagerFPUl
+        lwz r0, 0x8(r1)
+        lis r3, smArg__Q23ipl6System@ha
+        addi r3, r3, smArg__Q23ipl6System@l
+        stw r0, 0x8(r31)
+        lwz r0, 0x8(r1)
+        stw r0, 0xc(r31)
+        lbz r0, 0x2bc(r3)
+        cmpwi r0, 0
+        beq cdb_backup_move_task_L3
+        li r3, 0
+        b cdb_backup_move_task_L4
+    cdb_backup_move_task_L3:
+        lwz r3, 0x7c(r3)
+    cdb_backup_move_task_L4:
+        lis r9, cdb_backup_move_search_cb___3iplFPvP10_CDBRecord@ha
+        mr r10, r31
+        addi r4, r1, 0x10
+        addi r5, r1, 0xc
+        addi r9, r9, cdb_backup_move_search_cb___3iplFPvP10_CDBRecord@l
+        li r6, 1
+        li r7, 1
+        li r8, 1
+        bl search__Q33ipl3cdb7ManagerFRCUlRCUl18CDBSearchDirection17CDBRecordLocationiPFPvP10_CDBRecord_iPv
+        lis r3, smArg__Q23ipl6System@ha
+        addi r3, r3, smArg__Q23ipl6System@l
+        lbz r0, 0x2bc(r3)
+        cmpwi r0, 0
+        beq cdb_backup_move_task_L5
+        li r3, 0
+        b cdb_backup_move_task_L6
+    cdb_backup_move_task_L5:
+        lwz r3, 0x7c(r3)
+    cdb_backup_move_task_L6:
+        li r4, 1
+        bl cleanUpEmptyDirectories__Q33ipl3cdb7ManagerF17CDBRecordLocation
+        li r0, 1
+        stb r0, 0(r31)
+        lwz r0, 0x24(r1)
+        lwz r31, 0x1c(r1)
+        mtlr r0
+        addi r1, r1, 0x20
+        blr
+    }
+#else
     void cdb_backup_move_task_(void* work) {
         CdbBackup* cdbBackup = reinterpret_cast<CdbBackup*>(work);
 
@@ -517,4 +599,5 @@ namespace ipl {
 
         cdbBackup->set_done_process(true);
     }
+#endif
 }  // namespace ipl
