@@ -9,7 +9,11 @@ namespace nw4r {
     namespace ut {
         class Rect {
         public:
+#ifdef IPL_SOUND_RECT_OUT_OF_LINE
+            Rect();
+#else
             Rect() : left(), top(), right(), bottom() {}
+#endif
             Rect(f32 l, f32 t, f32 r, f32 b) : left(l), top(t), right(r), bottom(b) {}
 
             ~Rect() {}

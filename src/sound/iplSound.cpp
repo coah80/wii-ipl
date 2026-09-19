@@ -1,9 +1,11 @@
+#define IPL_SOUND_RECT_OUT_OF_LINE
 #include "iplSound.h"
 #include "sound/iplSound.h"
 
 #include <revolution/ai.h>
 
 #include "system/iplSystem.h"
+#undef IPL_SOUND_RECT_OUT_OF_LINE
 
 namespace ipl {
     namespace snd {
