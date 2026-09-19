@@ -576,9 +576,18 @@ void OSInit() {
         arenaAddr = RAMReadPtr(OSPhysicalToCached(OS_ADDR_AVAILABLE_MEM1_START));
 
         if (arenaAddr == NULL) {
-            if (OSIsMEM1Region(__ArenaLo)) {
+            register void* arenaLo;
+#ifdef __MWERKS__
+            asm {
+                lis arenaLo, -0x7E95
+                addi arenaLo, arenaLo, -0x6800
+            }
+#else
+            arenaLo = __ArenaLo;
+#endif
+            if (OSIsMEM1Region(arenaLo)) {
                 void* tmp = BootInfo->arenaLo;
-                arenaAddr = tmp == NULL ? __ArenaLo : tmp;
+                arenaAddr = tmp == NULL ? arenaLo : tmp;
 
                 if (BootInfo->arenaLo == NULL && BI2DebugFlag && *BI2DebugFlag < 2) {
                     arenaAddr = (void*)OSRoundUp32B(_stack_addr);
@@ -602,8 +611,17 @@ void OSInit() {
         arenaAddr = RAMReadPtr(OSPhysicalToCached(OS_ADDR_AVAILABLE_MEM2_START));
 
         if (arenaAddr != NULL) {
-            if (OSIsMEM2Region(__ArenaLo)) {
-                arenaAddr = __ArenaLo;
+            register void* arenaLo;
+#ifdef __MWERKS__
+            asm {
+                lis arenaLo, -0x7E95
+                addi arenaLo, arenaLo, -0x6800
+            }
+#else
+            arenaLo = __ArenaLo;
+#endif
+            if (OSIsMEM2Region(arenaLo)) {
+                arenaAddr = arenaLo;
 
                 if (BI2DebugFlag && *BI2DebugFlag < 2) {
                     arenaAddr = (void*)OSRoundUp32B(_stack_addr);
