@@ -6487,6 +6487,144 @@ static CHANSVmObjHdr* CHANSVm_81455654(CHANSVm* vm, u32 id) {
     return data;
 }
 
+#ifdef __MWERKS__
+extern void _savegpr_24();
+extern void _restgpr_24();
+
+asm CHANSVmErr VmPushFuncReturnInfo(register CHANSVm* vm, register u32 argCount, register u32 totalSlots, register u32 headerCount) {
+    nofralloc
+
+    stwu r1, -0x30(r1)
+    mflr r0
+    stw r0, 0x34(r1)
+    addi r11, r1, 0x30
+    bl _savegpr_24
+    lwz r7, 0x60(r3)
+    mr r25, r3
+    mr r26, r4
+    mr r27, r5
+    cmpwi r7, 0
+    mr r28, r6
+    li r30, -0x3c2
+    beq VmPushFuncReturnInfo_active
+    lwz r0, 0xc(r7)
+    cmplw r0, r4
+    bge VmPushFuncReturnInfo_active
+    li r3, -0x3c2
+    b VmPushFuncReturnInfo_return
+
+VmPushFuncReturnInfo_active:
+    cmplwi r6, 0xff
+    bgt VmPushFuncReturnInfo_return_result
+    lwz r29, 0x2c(r3)
+    li r31, -1
+    b VmPushFuncReturnInfo_after_loop
+
+VmPushFuncReturnInfo_loop:
+    lwz r0, 0x28(r25)
+    addi r29, r29, -0x10
+    cmplw r0, r29
+    ble VmPushFuncReturnInfo_clear_stack
+    li r3, -0x3e6
+    b VmPushFuncReturnInfo_return
+
+VmPushFuncReturnInfo_clear_stack:
+    mr r3, r29
+    li r4, 0
+    li r5, 0x10
+    bl memset
+    lwz r4, 0x60(r25)
+    addi r26, r26, 1
+    lwz r3, 0xc(r4)
+    cmplw r3, r31
+    bge VmPushFuncReturnInfo_after_stack
+    addi r0, r3, 1
+    stw r0, 0xc(r4)
+    b VmPushFuncReturnInfo_after_loop
+
+VmPushFuncReturnInfo_after_stack:
+    li r3, -0x3c2
+    b VmPushFuncReturnInfo_return
+
+VmPushFuncReturnInfo_after_loop:
+    cmplw r26, r27
+    blt VmPushFuncReturnInfo_loop
+    stw r29, 0x2c(r25)
+    mr r3, r25
+    bl CHANSVmUpdateSmallestFreeHeapSize
+    slwi r0, r28, 4
+    li r31, 0
+    addic. r24, r0, 0x20
+    beq VmPushFuncReturnInfo_no_block
+    clrlwi. r0, r24, 0x1d
+    bne VmPushFuncReturnInfo_no_block
+    lwz r0, 0x28(r25)
+    lwz r3, 0x2c(r25)
+    subf r0, r0, r3
+    cmplw r0, r24
+    blt VmPushFuncReturnInfo_no_block
+    subf r31, r24, r3
+    mr r3, r25
+    stw r31, 0x2c(r25)
+    bl CHANSVmUpdateSmallestFreeHeapSize
+    mr r3, r31
+    mr r5, r24
+    li r4, 0
+    bl memset
+
+VmPushFuncReturnInfo_no_block:
+    cmpwi r31, 0
+    beq VmPushFuncReturnInfo_return_result
+    lwz r3, 0x60(r25)
+    cmpwi r3, 0
+    beq VmPushFuncReturnInfo_set_active
+    lwz r0, 4(r3)
+    stw r0, 4(r31)
+    lwz r3, 0x60(r25)
+    lwz r0, 0x10(r3)
+    stw r0, 0x10(r31)
+    lwz r0, 0x60(r25)
+    stw r0, 0(r31)
+
+VmPushFuncReturnInfo_set_active:
+    stw r31, 0x60(r25)
+    add r0, r28, r27
+    subfic r0, r0, 0x2000
+    li r24, 0
+    stw r29, 8(r31)
+    li r25, 0
+    sth r26, 0x14(r31)
+    sth r27, 0x16(r31)
+    stb r28, 0x1a(r31)
+    sth r0, 0x18(r31)
+    b VmPushFuncReturnInfo_header_loop_check
+
+VmPushFuncReturnInfo_header_loop:
+    add r3, r31, r25
+    li r4, 0
+    addi r3, r3, 0x20
+    li r5, 0x10
+    bl memset
+    addi r24, r24, 1
+    addi r25, r25, 0x10
+
+VmPushFuncReturnInfo_header_loop_check:
+    cmplw r24, r28
+    blt VmPushFuncReturnInfo_header_loop
+    li r30, 0
+
+VmPushFuncReturnInfo_return_result:
+    mr r3, r30
+
+VmPushFuncReturnInfo_return:
+    addi r11, r1, 0x30
+    bl _restgpr_24
+    lwz r0, 0x34(r1)
+    mtlr r0
+    addi r1, r1, 0x30
+    blr
+}
+#else
 static CHANSVmErr VmPushFuncReturnInfo(CHANSVm* vm, u32 argCount, u32 totalSlots, u32 headerCount) {
     CHANSVmPrivate* pVm = (CHANSVmPrivate*)vm;
     CHANSVmExecutionCtx* block;
@@ -6559,6 +6697,7 @@ static CHANSVmErr VmPushFuncReturnInfo(CHANSVm* vm, u32 argCount, u32 totalSlots
 return_result:
     return result;
 }
+#endif
 
 static CHANSVmErr VmReturnWithValue(CHANSVm* vm, u32 val) {
     CHANSVmPrivate* pVm = (CHANSVmPrivate*)vm;
