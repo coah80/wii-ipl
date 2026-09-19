@@ -19,5 +19,9 @@ namespace ipl {
                 AIStartDMA();
             }
         }
+
+        void System::stopBannerSound(int unk) {
+            sBannerSoundPlayer.stop(unk);
+        }
     }  // namespace snd
 }  // namespace ipl
