@@ -547,6 +547,259 @@ s32 TMCJPEGDEC_restart_interval(TMCCJPEGDecWork* work, u32 maxMCU, u32 mcuCount)
     return 0;
 }
 
+#ifdef __MWERKS__
+static asm s32 TMCJPEGDEC_parse_para(register u16* marker, register TMCCJPEGDecWork* work) {
+    nofralloc
+
+    stwu r1, -0x30(r1)
+    mflr r0
+    stw r0, 0x34(r1)
+    stmw r26, 0x18(r1)
+    mr r28, r3
+    mr r29, r4
+    li r31, 0
+    lis r26, 1
+    li r27, 1
+    lhz r30, 0(r3)
+
+_parse_para_loop:
+    mr r4, r29
+    addi r3, r1, 0x12
+    bl TMCJPEGDEC_get_wbyte
+    cmpwi r3, 0
+    bge _parse_para_marker_loaded
+    cmpwi r3, -0x90
+    bne _parse_para_return
+    lhz r0, 0x12(r1)
+    cmplwi r0, 0xffd9
+    bne _parse_para_return
+    li r3, 0
+    b _parse_para_marker_loaded
+    b _parse_para_return
+
+_parse_para_marker_loaded:
+    lhz r0, 0x12(r1)
+    b _parse_para_marker_condition
+
+_parse_para_marker_byte:
+    mr r4, r29
+    addi r3, r1, 8
+    bl TMCJPEGDEC_get_byte
+    cmpwi r3, 0
+    bge _parse_para_marker_byte_loaded
+    b _parse_para_return
+
+_parse_para_marker_byte_loaded:
+    lbz r0, 8(r1)
+    ori r0, r0, 0xff00
+    sth r0, 0x12(r1)
+
+_parse_para_marker_condition:
+    clrlwi r4, r0, 0x10
+    cmplwi r4, 0xffff
+    beq _parse_para_marker_byte
+    cmplwi r4, 0xffe0
+    blt _parse_para_switch
+    cmplwi r4, 0xffef
+    bgt _parse_para_switch
+    mr r4, r29
+    addi r3, r1, 0x10
+    bl TMCJPEGDEC_get_wbyte
+    cmpwi r3, 0
+    bge _parse_para_app_length
+    b _parse_para_check_result
+
+_parse_para_app_length:
+    lhz r3, 0x10(r1)
+    cmplwi r3, 2
+    bge _parse_para_app_move
+    li r3, -0x45
+    b _parse_para_check_result
+
+_parse_para_app_move:
+    addi r0, r3, -2
+    mr r4, r29
+    sth r0, 0x10(r1)
+    clrlwi r3, r0, 0x10
+    bl TMCJPEGDEC_move_ptr
+    srawi r0, r3, 0x1f
+    and r3, r3, r0
+    srawi r0, r3, 0x1f
+    and r3, r3, r0
+    b _parse_para_check_result
+
+_parse_para_switch:
+    addi r0, r26, -0x27
+    cmpw r4, r0
+    beq _parse_para_eoi
+    bge _parse_para_switch_ge_ffc2
+    addi r0, r26, -0x3e
+    cmpw r4, r0
+    beq _parse_para_sos
+    bge _parse_para_switch_ge_ffc4
+    addi r0, r26, -0x40
+    cmpw r4, r0
+    beq _parse_para_sof
+    b _parse_para_unknown
+
+_parse_para_switch_ge_ffc4:
+    addi r0, r26, -0x3c
+    cmpw r4, r0
+    beq _parse_para_dht
+    b _parse_para_unknown
+
+_parse_para_switch_ge_ffc2:
+    addi r0, r26, -0x23
+    cmpw r4, r0
+    beq _parse_para_dri
+    bge _parse_para_switch_ge_ffdc
+    addi r0, r26, -0x25
+    cmpw r4, r0
+    beq _parse_para_dqt
+    bge _parse_para_dnl
+    b _parse_para_com_marker
+
+_parse_para_switch_ge_ffdc:
+    addi r0, r26, -2
+    cmpw r4, r0
+    beq _parse_para_com
+    b _parse_para_unknown
+
+_parse_para_dht:
+    mr r3, r30
+    mr r4, r29
+    bl TMCJPEGDEC_parse_dht
+    b _parse_para_check_result
+
+_parse_para_dqt:
+    mr r3, r29
+    bl TMCJPEGDEC_parse_dqt
+    b _parse_para_check_result
+
+_parse_para_dri:
+    mr r4, r29
+    addi r3, r1, 0xe
+    bl TMCJPEGDEC_get_wbyte
+    cmpwi r3, 0
+    bge _parse_para_dri_length
+    b _parse_para_check_result
+
+_parse_para_dri_length:
+    lhz r0, 0xe(r1)
+    cmplwi r0, 4
+    beq _parse_para_dri_value
+    li r3, -0x42
+    b _parse_para_check_result
+
+_parse_para_dri_value:
+    mr r4, r29
+    addi r3, r1, 0xe
+    bl TMCJPEGDEC_get_wbyte
+    cmpwi r3, 0
+    bge _parse_para_dri_store
+    b _parse_para_check_result
+
+_parse_para_dri_store:
+    lhz r0, 0xe(r1)
+    li r3, 0
+    sth r0, 0x181a(r29)
+    b _parse_para_check_result
+
+_parse_para_dnl:
+    mr r4, r29
+    addi r3, r1, 0xc
+    bl TMCJPEGDEC_get_wbyte
+    cmpwi r3, 0
+    bge _parse_para_dnl_length
+    b _parse_para_check_result
+
+_parse_para_dnl_length:
+    lhz r0, 0xc(r1)
+    cmplwi r0, 4
+    beq _parse_para_dnl_value
+    li r3, -0x43
+    b _parse_para_check_result
+
+_parse_para_dnl_value:
+    mr r4, r29
+    addi r3, r1, 0xc
+    bl TMCJPEGDEC_get_wbyte
+    cmpwi r3, 0
+    bge _parse_para_dnl_store
+    b _parse_para_check_result
+
+_parse_para_dnl_store:
+    lhz r0, 0xc(r1)
+    li r3, 0
+    sth r0, 0x17f2(r29)
+    b _parse_para_check_result
+
+_parse_para_com:
+    mr r4, r29
+    addi r3, r1, 0xa
+    bl TMCJPEGDEC_get_wbyte
+    cmpwi r3, 0
+    bge _parse_para_com_length
+    b _parse_para_check_result
+
+_parse_para_com_length:
+    lhz r3, 0xa(r1)
+    cmplwi r3, 2
+    bge _parse_para_com_move
+    li r3, -0x44
+    b _parse_para_check_result
+
+_parse_para_com_move:
+    addi r0, r3, -2
+    mr r4, r29
+    sth r0, 0xa(r1)
+    clrlwi r3, r0, 0x10
+    bl TMCJPEGDEC_move_ptr
+    srawi r0, r3, 0x1f
+    and r3, r3, r0
+    srawi r0, r3, 0x1f
+    and r3, r3, r0
+    b _parse_para_check_result
+
+_parse_para_sof:
+    li r31, 1
+    b _parse_para_check_result
+
+_parse_para_sos:
+    li r31, 1
+    b _parse_para_check_result
+
+_parse_para_com_marker:
+    li r31, 1
+    b _parse_para_check_result
+
+_parse_para_eoi:
+    stb r27, 0x181c(r29)
+    li r31, 1
+    b _parse_para_check_result
+
+_parse_para_unknown:
+    li r3, -0x2f
+
+_parse_para_check_result:
+    cmpwi r3, 0
+    bge _parse_para_keep_going
+    li r31, 1
+
+_parse_para_keep_going:
+    cmpwi r31, 0
+    beq _parse_para_loop
+    lhz r0, 0x12(r1)
+    sth r0, 0(r28)
+
+_parse_para_return:
+    lmw r26, 0x18(r1)
+    lwz r0, 0x34(r1)
+    mtlr r0
+    addi r1, r1, 0x30
+    blr
+}
+#else
 static s32 TMCJPEGDEC_parse_para(u16* marker, TMCCJPEGDecWork* work) {
     u8 byte;
     u16 local;
@@ -678,6 +931,7 @@ static s32 TMCJPEGDEC_parse_para(u16* marker, TMCCJPEGDecWork* work) {
     *marker = local;
     return result;
 }
+#endif
 
 #ifdef __MWERKS__
 static asm s32 TMCJPEGDEC_parse_dht(register s32 first, register TMCCJPEGDecWork* work) {
