@@ -1243,12 +1243,13 @@ namespace ipl {
         }
 
         void focus_object::check_paren(wchar_t ch) {
-            wchar_t patterns[] = {L'(',  L')',  L'{',  L'}',  L'[',  L']',  L'<',  L'>',  L'［', L'］', L'（', L'）', L'｛',
-                                  L'｝', L'＜', L'＞', L'《', L'》', L'【', L'】', L'〔', L'〕', L'「', L'」', L'『', L'』'};
+            wchar_t patterns[][2] = {{L'(', L')'}, {L'{', L'}'}, {L'[', L']'}, {L'<', L'>'}, {L'［', L'］'}, {L'（', L'）'},
+                                     {L'｛', L'｝'}, {L'＜', L'＞'}, {L'《', L'》'}, {L'【', L'】'}, {L'〔', L'〕'}, {L'「', L'」'},
+                                     {L'『', L'』'}};
 
-            for (int i = 0; i < ARRAY_LENGTH(patterns); i += 2) {
-                if (ch == patterns[i]) {
-                    unk_0x114[5] = patterns[i];
+            for (int i = 0; i < ARRAY_LENGTH(patterns); i++) {
+                if (ch == patterns[i][0]) {
+                    unk_0x114[5] = patterns[i][1];
                     break;
                 }
             }
