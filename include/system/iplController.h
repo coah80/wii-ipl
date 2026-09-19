@@ -205,7 +205,7 @@ namespace ipl {
             Interface* getYoungController();
 
         private:
-            // u8 dummy[0x2F8];
+            u8 dummy[0x2F8];
         };
     }  // namespace controller
 }  // namespace ipl

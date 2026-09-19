@@ -57,6 +57,8 @@ namespace ipl {
 
             static BOOL __IsPCEnable();
 
+            static ESError NumPrivateContents(EGG::Heap* heap, ESTitleId titleId);
+
             static BOOL ChangeUid(ESTitleId titleId);
 
             static u32 NumInodesSaveDirRoot(ESTitleId titleId);

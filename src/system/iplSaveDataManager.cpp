@@ -540,14 +540,15 @@ namespace ipl {
         }
 
         int Manager::getAvailableInList(const ESTitleId* titleIds, u32 titleCount) {
+            int i;
             int count = 0;
-            for (int i = 0; i < titleCount; i++) {
-                if (titleIds[i]) {
-                    if (mData.chanInfo[count / MAX_CHANNEL_INDEX][count % MAX_CHANNEL_INDEX].primaryType != channel::PRIMARY_TYPE_CHANNEL) {
+            for (i = 0; i < titleCount; i++) {
+                if (!titleIds[i]) {
+                    if (mData.chanInfo[count / MAX_CHANNEL_INDEX][count % MAX_CHANNEL_INDEX].primaryType != channel::PRIMARY_TYPE_DISK) {
                         return count;
                     }
-                    count++;
                 }
+                count++;
             }
             return -1;
         }
@@ -590,10 +591,11 @@ namespace ipl {
                 }
                 case 3: {
                     switch ((u16)oldVersion) {
-                        case 2: {
+                        case 0:
+                        case 1: {
                             setDefaultKeyboard();
                         }
-                        case 3: {
+                        case 2: {
                             setDefaultSDMenu();
                         }
                         default: {

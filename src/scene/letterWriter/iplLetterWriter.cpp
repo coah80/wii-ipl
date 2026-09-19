@@ -69,7 +69,7 @@ namespace ipl {
             mbClosing = false;
             unk_0x7D = true;
             mNwc24ErrCountdown = 0;
-            mpCaptionString = 0;
+            mbToFriend = false;
 
             mpCaptionAllocator = new EGG::Allocator(getSceneHeap(), 4);
 
@@ -82,7 +82,6 @@ namespace ipl {
             mNwc24ErrCountdown2 = 0;
 
             // Text balloon for Mii face
-            // What the fuck is up with these two floats
             mpNigaoeBalloon =
                 new TextBalloon(getSceneHeap(), mpBalloonFile, "arc", "my_IplTopBalloon_a.brlyt", math::VEC3(0.0f, 0.0f, 0.0f), 120.0f, 30.0f);
 

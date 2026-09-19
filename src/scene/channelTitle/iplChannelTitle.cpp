@@ -2511,8 +2511,9 @@ namespace ipl {
             } else {
                 if (System::getLanguage() == SC_LANG_ENGLISH) {
                     swprintf(limitStr, 65, L"%ls %d%ls%02d", limitStr, hour, System::getMessage(MESG_CHAN_SEL_SEPERATOR_2), minute);
-                } else if (System::getLanguage() == SC_LANG_JAPANESE || System::getLanguage() == SC_LANG_KOREAN ||
-                           System::getLanguage() == SC_LANG_GERMAN) {
+                } else {
+                    if (System::getLanguage() == SC_LANG_JAPANESE || System::getLanguage() == SC_LANG_KOREAN ||
+                        System::getLanguage() == SC_LANG_GERMAN) {
                     if (hour == 1) {
                         swprintf(local_38, 16, L"1%ls", System::getMessage(MESG_CHAN_SEL_SEPERATOR));
                     } else if (hour != 0) {
@@ -2548,10 +2549,10 @@ namespace ipl {
                     } else if (minute != 0) {
                         swprintf(local_58, 16, L"%02d%ls", minute, System::getMessage(MESG_CHAN_SEL_NO_SEPERATOR_2));
                     }
+                    }
+                    swprintf(limitStr, 65, L"%ls %ls%ls", limitStr, local_38, local_58);
                 }
-
-                swprintf(limitStr, 65, L"%ls %ls%ls", limitStr, local_38, local_58);
-            }
+                }
         }
 
         void ChannelTitle::getTmdTask(void* work) {

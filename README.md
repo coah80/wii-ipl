@@ -1,3 +1,10 @@
+> **Note from this fork (coah80/wii-ipl)**
+>
+> original doesnt like ai commits, so im forking to not disturb them. :)
+>
+> This is a personal fork for AI-assisted matching work. No pull requests are
+> opened against upstream, ever. See [AGENTS.md](AGENTS.md).
+
 <!--- Github Actions Badge -->
 
 [Build Status]: https://github.com/koopthekoopa/wii-ipl/actions/workflows/build.yml/badge.svg

@@ -14,8 +14,14 @@
 const f32 lbl_8160D2C0[] = {0.2, 0.3, 0, 0};
 
 namespace ipl {
-    namespace controller {
+    namespace math {
+        void VEC2::operator=(const VEC2& r) {
+            x = r.x;
+            y = r.y;
+        }
+    }
 
+    namespace controller {
         void Base::read() {
             if (isValidBtn()) {
                 if (downTrg(BTN_INTERACT)) {
@@ -296,24 +302,24 @@ namespace ipl {
             math::VEC2 ret;
             if (Revolution::isValidDpd()) {
                 ret.set(unk_0x20->horizon.x, unk_0x20->horizon.y);
-                return ret;
             } else {
-                return math::VEC2(1.0f, -0.2679492f);
+                ret.x = 1.0f;
+                ret.y = -0.2679492f;
             }
+            return ret;
         }
 
         math::VEC2 Classic::getDpdPos() const {
             math::VEC2 ret;
             if (Revolution::isValidDpd()) {
                 ret.set(unk_0x20->pos.x, unk_0x20->pos.y);
-                return ret;
-            }
-
-            if (unk_0x2C != 0) {
+            } else if (unk_0x2C != 0) {
                 ret = unk_0x24;
-                return ret;
+            } else {
+                ret.x = 1.0f / 0.0f;
+                ret.y = 1.0f / 0.0f;
             }
-            return math::VEC2(1.0f / 0.0f, 1.0f / 0.0f);
+            return ret;
         }
     }  // namespace controller
 }  // namespace ipl

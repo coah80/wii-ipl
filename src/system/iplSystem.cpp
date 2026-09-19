@@ -1219,7 +1219,7 @@ namespace ipl {
     }
 
     u32 System::getLanguage() {
-        u32 lang = SCGetLanguage();
+        s32 lang = SCGetLanguage();
         s32 region = getRegion();
 
         switch (region) {

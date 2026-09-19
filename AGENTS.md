@@ -1,0 +1,171 @@
+# AGENTS.md
+
+Guidance for AI agents working in this repository.
+
+## CRITICAL RULE: never touch upstream
+
+**Do not open a pull request against `koopthekoopa/wii-ipl`. Do not push to it.
+Do not open issues on it. Do not comment on it. Never. Not once.**
+
+The upstream maintainers do not want AI-authored commits in their history. This
+fork exists solely so that AI-assisted matching work has somewhere to live
+without disturbing them. Breaking this rule is worse than producing no matches
+at all.
+
+Concretely:
+
+- `origin` is this fork, `coah80/wii-ipl`. Push here.
+- `upstream` is `koopthekoopa/wii-ipl`. Its push URL is intentionally set to
+  the sentinel `DISABLED_never_push_to_upstream` so an accidental
+  `git push upstream` fails instead of uploading.
+- Never run `gh pr create` with an upstream base, and never pass
+  `--repo koopthekoopa/wii-ipl` to any `gh` command.
+- If a task appears to require contacting upstream, stop and ask the human.
+
+If you are reading this because you are about to open a PR: don't.
+
+## What this repository is
+
+A matching decompilation of the Wii Menu (system menu) 4.3U. "Matching" means
+the compiled output must be byte-identical to the original binary, not merely
+functionally equivalent. Correct behaviour that compiles to different assembly
+is a failure.
+
+## Build and verify
+
+```
+python3 configure.py --version 43U
+ninja
+```
+
+Ninja lives at `/home/cole/projects/tests/.venv/bin/ninja` in the author's
+environment.
+
+The acceptance gate for any change is the DOL hash:
+
+```
+build/43U/main.dol  ->  26116613f624061ba99c8d1a299aaa6efa85670d
+```
+
+Objects listed as `NonMatching` in `configure.py` are **not linked** into the
+DOL. Editing a `NonMatching` translation unit cannot change the DOL hash, which
+makes it safe to iterate on a partial match without breaking the build. Verify
+progress against the object file instead of the DOL:
+
+```
+build/43U/src/src/<path>.o        # what you just built
+build/43U/obj/src/<path>.o        # the original object, ground truth
+```
+
+## Tooling for measuring progress
+
+`objdiff` scores each function:
+
+```
+build/tools/objdiff-cli report generate -p . -o report.json -f json
+```
+
+A function counts as matched only at `fuzzy_match_percent == 100.0`. Anything
+below that is not a match, regardless of how good it looks.
+
+Helper tools live in `tools/decomp-assist/`:
+
+- `ctxdiff.py <unit> <symbol>` — compact instruction-level diff of one function
+  between your object and the original. This is the main iteration loop.
+- `disasm_fn.py <object> <symbol>` — disassembly with relocation-resolved call
+  names, so you can see which real functions are being called.
+- `pool_diff.py` — diffs the string pool in `.data` between your object and the
+  original, string by string. See below; this is the highest-signal tool.
+- `export_pyghidra.py` — regenerates `ghidra_decomp.txt`, decompiled C for the
+  functions still missing.
+
+## The single most useful finding: the string pool
+
+MWCC emits a translation unit's string literals into `.data` in the order the
+compiler encounters them, and the compiler encounters them in **source-token
+order**, not runtime order. Every later string's offset therefore depends on
+every earlier one.
+
+This matters enormously. If a function is missing from a translation unit, or
+references its strings in a different order than the original, then every
+string after it lands at the wrong offset, and *every function that reads those
+strings fails to match* — even functions you have not touched.
+
+Observable evidence: `TMDFile::Open` sat at 99.92 percent purely because a
+string several functions earlier was 8 bytes off. Adding the correct
+`checkContentsNum` block moved it to 99.96 without touching `Open`.
+
+**Always run `pool_diff.py` and fix the first divergence before tuning register
+allocation.** It points at exactly which function block is wrong or missing.
+
+### Which branch you write changes the pool
+
+Because emission follows source-token order, writing
+
+```cpp
+if (cond) { A(); } else { B(); }
+```
+
+versus
+
+```cpp
+if (!cond) { B(); } else { A(); }
+```
+
+emits the strings referenced by `A` and `B` in the opposite order. This is a
+free lever: if a function's codegen looks right but its strings are swapped,
+invert the condition rather than restructuring the logic. It fixed both the
+pool and the instruction stream for `GetValidTicketIndex` in one change.
+
+### Missing functions must all be present
+
+A string block cannot be partially correct. A function that is entirely absent
+leaves a hole, and everything downstream is shifted. Implement functions in
+**object-order** (the order their addresses appear in `config/43U/symbols.txt`
+and `splits.txt`), not in whatever order looks convenient.
+
+## Workflow that produced matches
+
+1. Find the next missing function in object order.
+2. Get its decompiled C from `ghidra_decomp.txt` (regenerate with
+   `export_pyghidra.py` if needed).
+3. Write it as literally as possible: same order of operations, same branch
+   direction, same number of temporaries.
+4. Insert it at the correct position in the source file.
+5. Build only that object: `ninja build/43U/src/src/<path>.o`.
+6. `pool_diff.py` first. Fix ordering divergences before anything else.
+7. `ctxdiff.py` next. Work through the instruction diff.
+8. Only then look at register allocation.
+
+## Things that do NOT work
+
+- **Frame pragmas.** `#pragma ppc_iro_level 0` fixed exactly one function out
+  of roughly forty attempts and made others worse. A search across pragma
+  variants produced almost no movement. Do not spend time here.
+- **Reverting to pristine upstream to unblock.** The unmodified upstream tree
+  is needed as a baseline, but it does not help you match anything.
+- **Searching other forks for the missing functions.** The eleven unimplemented
+  `iplESMisc` functions do not exist in any of the twenty-three public forks.
+
+## Known hard cases
+
+Many remaining diffs are pure compiler tie-breaks — register allocation and
+floating-point scheduling — with no source-level lever. If `ctxdiff.py` shows
+the instruction count already matches and the surviving differences are
+callee-saved register names, you are probably looking at a tie-break. Record it
+and move on rather than thrashing.
+
+## Current status at the time of writing
+
+- 8690 functions matched, zero regressions against the pristine baseline.
+- `main.dol` byte-identical to the original throughout.
+- `iplESMisc.cpp` is `NonMatching` and unlinked, so all work there is DOL-safe.
+- 6 functions still missing from `iplESMisc.cpp`: `DeleteEmptyTitles`,
+  `DeleteDownloadTask`, `DeleteTitleContent`, `PrepareTitleDir`,
+  `DeleteSavedata`, `DeleteUnauthorizedData`.
+
+## Reference
+
+`tools/decomp-assist/iplESMisc.reference.cpp` is a snapshot of `iplESMisc.cpp`
+with the matching work applied, kept as a reference for the string order and
+function layout that the pool depends on.

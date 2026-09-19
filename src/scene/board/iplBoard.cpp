@@ -1981,6 +1981,8 @@ namespace ipl {
             }
         }
 
+#pragma push
+#pragma ppc_iro_level 0
         BoardObject* Board::get_log_obj() {
             BoardObject* logObj = NULL;
 
@@ -1994,6 +1996,7 @@ namespace ipl {
 
             return logObj;
         }
+#pragma pop
 
         Board::ObjList::ObjList() : mObjects() {
             nw4r::ut::List_Init(&mUsedObjs, offsetof(BoardObject, mLinkNode));
