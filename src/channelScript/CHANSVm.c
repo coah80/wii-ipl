@@ -2382,12 +2382,12 @@ VmMethodDefine(Array, Pop) {
     }
 
     if (lastChunk != vmNull) {
-        u8* elemPtr = (u8*)lastChunk + (lastChunk->start + lastChunk->count - 1) * sizeof(CHANSVmObjHdr) + sizeof(ArrayChunk);
+        CHANSVmObjHdr* elemPtr = (CHANSVmObjHdr*)((u8*)lastChunk + sizeof(ArrayChunk) + (lastChunk->start + lastChunk->count - 1) * sizeof(CHANSVmObjHdr));
         if (VmReturnObj != vmNull) {
             memcpy(VmReturnObj, elemPtr, sizeof(CHANSVmObjHdr));
             VmReturnObj->flags.raw &= ~CHANSVM_OBJ_FLAG_READONLY;
             memset(elemPtr, 0, sizeof(CHANSVmObjHdr));
-        } else if (CHANSVmDeleteObject(VmInst, (CHANSVmObjHdr*)elemPtr) != CHANS_VM_OK) {
+        } else if (CHANSVmDeleteObject(VmInst, elemPtr) != CHANS_VM_OK) {
             goto error;
         }
         lastChunk->count--;
