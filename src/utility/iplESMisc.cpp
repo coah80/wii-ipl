@@ -769,6 +769,8 @@ namespace ipl {
         }
 
         s32 ESMisc::DeleteTitleContent(EGG::Heap* heap, ESTitleId titleId) {
+            s32 result;
+            s32 safe;
             s32 ret = DeleteMetaContent(titleId);
 
             if (ret != ES_ERR_OK && ret != NAND_RESULT_NOEXISTS) {
@@ -776,8 +778,8 @@ namespace ipl {
                 return ret;
             }
 
-            s32 result = (titleId & 0xffffff00ULL) == 0x48414f00ULL;
-            s32 safe = CheckSafeDeleteTitle(heap, titleId);
+            result = (titleId & 0xffffff00ULL) == 0x48414f00ULL;
+            safe = CheckSafeDeleteTitle(heap, titleId);
             if (safe == 1 || result) {
                 result = DeleteTitle(heap, titleId);
                 if (result != ES_ERR_OK) {
