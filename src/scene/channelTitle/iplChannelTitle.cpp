@@ -769,8 +769,13 @@ namespace ipl {
                     nw4r::ut::Rect drawRect(mDispTrans.x - mpChanSelScn->mChanThumbOff_X, mDispTrans.y + mpChanSelScn->mChanThumbOff_Y,
                                             mDispTrans.x + mpChanSelScn->mChanThumbOff_X, mDispTrans.y - mpChanSelScn->mChanThumbOff_Y);
 
-                    utility::Graphics::drawTexture(drawRect, mpCapture->getGXTex(), (GXColor){255, 255, 255, (u8)mpZoomAnim->get()}, 1);
-                    drawPolygonAroundRect(drawRect, (GXColor){0, 0, 0, (u8)mpZoomAnim->get()});
+                    GXColor textureColor = {255, 255, 255, 255};
+                    textureColor.a = (u8)mpZoomAnim->get();
+                    utility::Graphics::drawTexture(drawRect, mpCapture->getGXTex(), textureColor, 1);
+
+                    GXColor polygonColor = {0, 0, 0, 0};
+                    polygonColor.a = (u8)mpZoomAnim->get();
+                    drawPolygonAroundRect(drawRect, polygonColor);
                 } else {
                     utility::Graphics::setDefaultOrtho();
 
