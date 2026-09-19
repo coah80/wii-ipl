@@ -23,5 +23,9 @@ namespace ipl {
         void System::stopBannerSound(int unk) {
             sBannerSoundPlayer.stop(unk);
         }
+
+        BOOL System::checkTmpSoundFile(void* data, u32 size) {
+            return sBannerSoundPlayer.checkData(data, size, false);
+        }
     }  // namespace snd
 }  // namespace ipl
