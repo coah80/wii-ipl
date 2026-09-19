@@ -679,6 +679,155 @@ static s32 TMCJPEGDEC_parse_para(u16* marker, TMCCJPEGDecWork* work) {
     return result;
 }
 
+#ifdef __MWERKS__
+static asm s32 TMCJPEGDEC_parse_dht(register s32 first, register TMCCJPEGDecWork* work) {
+    nofralloc
+
+    stwu r1, -0x160(r1)
+    mflr r0
+    li r5, 0x11
+    stw r0, 0x164(r1)
+    addi r3, r1, 0x20
+    stmw r25, 0x144(r1)
+    mr r30, r4
+    addi r31, r4, 0x58
+    li r4, 0
+    bl memset
+    mr r4, r30
+    addi r3, r1, 0xa
+    bl TMCJPEGDEC_get_wbyte
+    cmpwi r3, 0
+    bge _parse_dht_have_length
+    b _parse_dht_return
+
+_parse_dht_have_length:
+    lhz r3, 0xa(r1)
+    li r29, 0
+    addi r0, r3, -2
+    sth r0, 0xa(r1)
+
+_parse_dht_table:
+    lhz r5, 0xa(r1)
+    mr r4, r30
+    addi r3, r1, 8
+    addi r0, r5, -0x11
+    sth r0, 0xa(r1)
+    bl TMCJPEGDEC_get_byte
+    cmpwi r3, 0
+    bge _parse_dht_have_info
+    b _parse_dht_return
+
+_parse_dht_have_info:
+    lbz r0, 8(r1)
+    srawi r27, r0, 4
+    clrlwi r26, r0, 0x1c
+    cmpwi r27, 2
+    bge _parse_dht_bad_table
+    cmpwi r26, 2
+    blt _parse_dht_valid_table
+
+_parse_dht_bad_table:
+    li r3, -0x40
+    b _parse_dht_return
+
+_parse_dht_valid_table:
+    stb r29, 0x20(r1)
+    addi r28, r1, 0x21
+    li r25, 1
+
+_parse_dht_count_loop:
+    mr r4, r30
+    addi r3, r1, 8
+    bl TMCJPEGDEC_get_byte
+    cmpwi r3, 0
+    bge _parse_dht_have_count
+    b _parse_dht_return
+
+_parse_dht_have_count:
+    lbz r3, 8(r1)
+    addi r25, r25, 1
+    lhz r0, 0xa(r1)
+    cmpwi r25, 0x10
+    stb r3, 0(r28)
+    addi r28, r28, 1
+    subf r0, r3, r0
+    sth r0, 0xa(r1)
+    ble _parse_dht_count_loop
+
+    lbz r4, 0x21(r1)
+    lbz r0, 0x22(r1)
+    lbz r3, 0x23(r1)
+    add r25, r4, r0
+    lbz r0, 0x24(r1)
+    add r25, r25, r3
+    lbz r3, 0x25(r1)
+    add r25, r25, r0
+    lbz r0, 0x26(r1)
+    add r25, r25, r3
+    lbz r3, 0x27(r1)
+    add r25, r25, r0
+    lbz r0, 0x28(r1)
+    add r25, r25, r3
+    lbz r4, 0x29(r1)
+    add r25, r25, r0
+    lbz r0, 0x2a(r1)
+    add r25, r25, r4
+    lbz r3, 0x2b(r1)
+    add r25, r25, r0
+    lbz r0, 0x2c(r1)
+    add r25, r25, r3
+    lbz r3, 0x2d(r1)
+    add r25, r25, r0
+    lbz r0, 0x2e(r1)
+    add r25, r25, r3
+    lbz r3, 0x2f(r1)
+    add r25, r25, r0
+    lbz r0, 0x30(r1)
+    add r25, r25, r3
+    add r25, r25, r0
+    cmpwi r25, 0xb0
+    ble _parse_dht_valid_count
+    li r3, -0x40
+    b _parse_dht_return
+
+_parse_dht_valid_count:
+    mr r5, r30
+    addi r3, r1, 0x38
+    clrlwi r4, r25, 0x18
+    bl TMCJPEGDEC_get_sbyte
+    cmpwi r3, 0
+    bge _parse_dht_have_symbols
+    b _parse_dht_return
+
+_parse_dht_have_symbols:
+    stb r25, 0x1c(r1)
+    mr r4, r27
+    mr r5, r26
+    mr r6, r31
+    addi r3, r1, 0x10
+    bl TMCJPEGDEC_set_HuffmanTable
+    addi r3, r1, 0x20
+    addi r4, r1, 0x38
+    addi r5, r1, 0x10
+    bl TMCJPEGDEC_make_huffdec
+    cmpwi r3, 0
+    bge _parse_dht_check_length
+    b _parse_dht_return
+
+_parse_dht_check_length:
+    lhz r0, 0xa(r1)
+    cmpwi r0, 0
+    bne _parse_dht_table
+    li r3, 0
+
+_parse_dht_return:
+    lmw r25, 0x144(r1)
+    lwz r0, 0x164(r1)
+    mtlr r0
+    addi r1, r1, 0x160
+    blr
+}
+#else
 static s32 TMCJPEGDEC_parse_dht(s32 first, TMCCJPEGDecWork* work) {
     TMCUnknownInfo* scaleInfo;
     u16 len;
@@ -770,6 +919,7 @@ static s32 TMCJPEGDEC_parse_dht(s32 first, TMCCJPEGDecWork* work) {
 
     return 0;
 }
+#endif
 
 #ifdef __MWERKS__
 static asm s32 TMCJPEGDEC_parse_dqt(register TMCCJPEGDecWork* work) {
