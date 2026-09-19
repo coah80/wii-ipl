@@ -590,6 +590,121 @@ s32 TMCJPEGDEC_scan_varinit(TMCCJPEGDecWork* work) {
 }
 #endif
 
+#ifdef __MWERKS__
+asm s32 TMCJPEGDEC_restart_interval(register TMCCJPEGDecWork* work, register u32 maxMCU, register u32 mcuCount) {
+    nofralloc
+
+    stwu r1, -0x20(r1)
+    mflr r0
+    stw r0, 0x24(r1)
+    stw r31, 0x1c(r1)
+    stw r30, 0x18(r1)
+    mr r30, r4
+    stw r29, 0x14(r1)
+    mr r29, r3
+    stw r28, 0x10(r1)
+    mr r28, r5
+    lhz r6, 0x50(r3)
+    lhz r0, 0x181a(r3)
+    addi r6, r6, 1
+    lwz r31, 0x19e4(r3)
+    clrlwi r4, r6, 0x10
+    sth r6, 0x50(r3)
+    cmplw r4, r0
+    li r0, 0
+    bne _restart_interval_result
+    bl TMCJPEGDEC_rewind_ptr
+    cmpwi r3, 0
+    bge _restart_interval_read_marker
+    b _restart_interval_epilogue
+
+_restart_interval_read_marker:
+    mr r4, r29
+    addi r3, r1, 8
+    bl TMCJPEGDEC_get_wbyte
+    lhz r0, 8(r1)
+    cmplwi r0, 0xffd9
+    bne _restart_interval_check_read
+    li r0, 1
+    stb r0, 0x181c(r29)
+
+_restart_interval_check_read:
+    cmpwi r3, 0
+    bge _restart_interval_check_marker
+    b _restart_interval_epilogue
+
+_restart_interval_check_marker:
+    lhz r4, 8(r1)
+    cmplwi r4, 0xffc0
+    blt _restart_interval_restart_marker
+    cmplwi r4, 0xffd0
+    blt _restart_interval_move_back
+    cmplwi r4, 0xffd7
+    ble _restart_interval_restart_marker
+
+_restart_interval_move_back:
+    mr r4, r29
+    li r3, -2
+    bl TMCJPEGDEC_move_ptr
+    cmpwi r3, 0
+    bge _restart_interval_update
+    b _restart_interval_epilogue
+
+_restart_interval_restart_marker:
+    lhz r3, 0x52(r29)
+    addis r3, r3, 1
+    addi r0, r3, -0x30
+    cmpw r4, r0
+    beq _restart_interval_update
+    li r3, -0x23
+    b _restart_interval_epilogue
+
+_restart_interval_update:
+    lhz r4, 0x52(r29)
+    li r0, 0
+    mr r3, r29
+    addi r4, r4, 1
+    clrlwi r4, r4, 0x1d
+    sth r4, 0x52(r29)
+    lbz r5, 0x15(r31)
+    lbz r4, 0x14(r31)
+    divwu r5, r28, r5
+    lhz r6, 0x10(r31)
+    stw r0, 0x30(r29)
+    stw r0, 0x34(r29)
+    stw r0, 0x38(r29)
+    stw r0, 0x3c(r29)
+    clrlwi r5, r5, 0x10
+    sth r0, 0x50(r29)
+    divwu r4, r30, r4
+    mullw r5, r5, r6
+    clrlwi r0, r4, 0x10
+    add r4, r0, r5
+    addi r0, r4, 1
+    clrlwi r5, r0, 0x10
+    divw r4, r5, r6
+    mullw r0, r4, r6
+    subf r0, r0, r5
+    slwi r0, r0, 0x10
+    add r0, r0, r4
+    stw r0, 0x54(r29)
+    bl TMCJPEGDEC_init_buff
+    mr r0, r3
+
+_restart_interval_result:
+    mr r3, r0
+
+_restart_interval_epilogue:
+    lwz r0, 0x24(r1)
+    lwz r31, 0x1c(r1)
+    lwz r30, 0x18(r1)
+    lwz r29, 0x14(r1)
+    lwz r28, 0x10(r1)
+    mtlr r0
+    addi r1, r1, 0x20
+    blr
+}
+#else
 s32 TMCJPEGDEC_restart_interval(TMCCJPEGDecWork* work, u32 maxMCU, u32 mcuCount) {
     u16 restartCount;
     u16 interval;
@@ -666,6 +781,7 @@ s32 TMCJPEGDEC_restart_interval(TMCCJPEGDecWork* work, u32 maxMCU, u32 mcuCount)
     }
     return 0;
 }
+#endif
 
 #ifdef __MWERKS__
 static asm s32 TMCJPEGDEC_parse_para(register u16* marker, register TMCCJPEGDecWork* work) {
