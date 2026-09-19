@@ -188,6 +188,50 @@ namespace ipl {
             return (int)block;
         }
 
+        int System::holdSEwithPosDis(const char* sndName, f32 x, f32 y) {
+            tagSSeInfo* block;
+
+            if (m_isLocked) {
+                return 0;
+            }
+
+            block = FIsSEActive(sndName);
+            if (block == NULL) {
+                block = getFreeSEBlock(true);
+            }
+            if (block == NULL) {
+                return 0;
+            }
+
+            EGG::ArcPlayer::holdSound(&block->handle, sndName);
+            block->name = sndName;
+            block->id = block->handle.GetId();
+            nw4r::ut::Rect rect;
+            ipl::System::getProjectionRect4x3(&rect);
+            f32 pan = x / rect.right;
+            if (block->handle.detail_GetAttachedSound() != NULL) {
+                block->handle.detail_GetAttachedSound()->SetPan(pan);
+            }
+            f32 pitch = 2.0f * y / rect.right;
+            if (1.0f < pitch) {
+                pitch = 1.0f;
+            }
+            if (block->handle.detail_GetAttachedSound() != NULL) {
+                block->handle.detail_GetAttachedSound()->SetVolume(pitch, 0);
+            }
+            if (30.0f < y) {
+                f32 pitch2 = y / 30.0f;
+                if (block->handle.detail_GetAttachedSound() != NULL) {
+                    block->handle.detail_GetAttachedSound()->SetPitch(pitch2);
+                }
+            } else if (60.0f < y) {
+                if (block->handle.detail_GetAttachedSound() != NULL) {
+                    block->handle.detail_GetAttachedSound()->SetPitch(1.0f);
+                }
+            }
+            return (int)block;
+        }
+
         long System::clipGELT_S32(long value, long lo, long hi) {
             long range = hi - lo;
 
