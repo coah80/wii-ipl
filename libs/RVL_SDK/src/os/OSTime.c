@@ -29,7 +29,7 @@ loop:
     mftbu   r5
 
     cmpw    r3, r5
-    bne     loop
+    bne     OSGetTime
 
     blr
 #endif // __MWERKS__
