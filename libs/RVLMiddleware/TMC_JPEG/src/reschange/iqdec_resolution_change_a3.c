@@ -1,7 +1,220 @@
 #include <tmc_jpeg_internal.h>
 
+extern void* memset(void* dest, int value, unsigned long size);
+
 static s32 TMCJPEGDEC_vl_decode_rc(u32* huff_tbl, u8* huff_sym, TMCCJPEGDecWork* work);
 
+#ifdef __MWERKS__
+asm s32 TMCJPEGDEC_decode_iquant_rc(register s32* block, register u8* conv_row_ptr, register u32* dc_predict_row_ptr, register TMCCJPEGDecWork* work) {
+    nofralloc
+
+    stwu r1, -0x40(r1)
+    mflr r0
+    stw r0, 0x44(r1)
+    stmw r21, 0x14(r1)
+    mr r22, r3
+    mr r23, r4
+    mr r25, r5
+    mr r24, r6
+    lwz r0, 4(r6)
+    lwz r21, 0x498(r6)
+    cmpwi r0, 8
+    bgt _decode_iquant_rc_have_dc_bits
+    mr r3, r24
+    bl TMCJPEGDEC_load_buff
+    cmpwi r3, 0
+    bge _decode_iquant_rc_have_dc_bits
+    b _decode_iquant_rc_return
+
+_decode_iquant_rc_have_dc_bits:
+    lwz r4, 4(r24)
+    lwz r3, 0(r24)
+    addi r0, r4, -8
+    srw r0, r3, r0
+    rlwinm r0, r0, 2, 0x16, 0x1d
+    lhzx r5, r21, r0
+    cmpwi r5, 0
+    beq _decode_iquant_rc_decode_dc
+    add r3, r21, r0
+    subf r0, r5, r4
+    lhz r21, 2(r3)
+    stw r0, 4(r24)
+    b _decode_iquant_rc_have_dc_value
+
+_decode_iquant_rc_decode_dc:
+    lwz r3, 0x49c(r24)
+    mr r5, r24
+    lwz r4, 0x4a0(r24)
+    bl TMCJPEGDEC_vl_decode_rc
+    cmpwi r3, 0
+    mr r21, r3
+    bge _decode_iquant_rc_have_dc_value
+    b _decode_iquant_rc_return
+
+_decode_iquant_rc_have_dc_value:
+    cmpwi r21, 0
+    beq _decode_iquant_rc_store_dc
+    lwz r0, 4(r24)
+    cmpw r0, r21
+    bgt _decode_iquant_rc_read_dc_bits
+    mr r3, r24
+    bl TMCJPEGDEC_load_buff
+    cmpwi r3, 0
+    bge _decode_iquant_rc_read_dc_bits
+    b _decode_iquant_rc_return
+
+_decode_iquant_rc_read_dc_bits:
+    lwz r0, 4(r24)
+    li r4, 1
+    lwz r3, 0(r24)
+    slw r6, r4, r21
+    subf r4, r21, r0
+    addi r5, r6, -1
+    srwi r0, r6, 1
+    srw r3, r3, r4
+    stw r4, 4(r24)
+    and r3, r5, r3
+    cmplw r0, r3
+    ble _decode_iquant_rc_store_dc_bits
+    subf r3, r5, r3
+
+_decode_iquant_rc_store_dc_bits:
+    lwz r0, 0(r25)
+    add r0, r0, r3
+    stw r0, 0(r25)
+
+_decode_iquant_rc_store_dc:
+    lwz r5, 0(r25)
+    addi r3, r22, 4
+    lwz r0, 0(r23)
+    li r4, 0
+    mullw r0, r5, r0
+    stw r0, 0(r22)
+    lwz r30, 0x4a8(r24)
+    lwz r26, 0x4ac(r24)
+    lwz r25, 0x4b0(r24)
+    lwz r27, 0x1834(r24)
+    lwz r5, 0x1838(r24)
+    bl memset
+    lis r21, TMCJPEGDEC_Zigzag_data@ha
+    li r28, 1
+    addi r21, r21, TMCJPEGDEC_Zigzag_data@l
+    li r31, 1
+
+_decode_iquant_rc_ac_loop:
+    lwz r0, 4(r24)
+    cmpwi r0, 8
+    bgt _decode_iquant_rc_have_ac_bits
+    mr r3, r24
+    bl TMCJPEGDEC_load_buff
+    cmpwi r3, 0
+    bge _decode_iquant_rc_have_ac_bits
+    b _decode_iquant_rc_return
+
+_decode_iquant_rc_have_ac_bits:
+    lwz r4, 4(r24)
+    lwz r3, 0(r24)
+    addi r0, r4, -8
+    srw r0, r3, r0
+    rlwinm r0, r0, 2, 0x16, 0x1d
+    add r3, r30, r0
+    lhzx r0, r30, r0
+    cmpwi r0, 0
+    beq _decode_iquant_rc_decode_ac
+    lhz r3, 2(r3)
+    subf r0, r0, r4
+    stw r0, 4(r24)
+    b _decode_iquant_rc_have_ac_value
+
+_decode_iquant_rc_decode_ac:
+    mr r3, r26
+    mr r4, r25
+    mr r5, r24
+    bl TMCJPEGDEC_vl_decode_rc
+    cmpwi r3, 0
+    bge _decode_iquant_rc_have_ac_value
+    b _decode_iquant_rc_return
+
+_decode_iquant_rc_have_ac_value:
+    clrlwi. r29, r3, 0x1c
+    beq _decode_iquant_rc_no_ac_bits
+    lwz r0, 4(r24)
+    srawi r3, r3, 4
+    add r28, r28, r3
+    cmpw r0, r29
+    bgt _decode_iquant_rc_read_ac_bits
+    mr r3, r24
+    bl TMCJPEGDEC_load_buff
+    cmpwi r3, 0
+    bge _decode_iquant_rc_read_ac_bits
+    b _decode_iquant_rc_return
+
+_decode_iquant_rc_read_ac_bits:
+    cmpw r28, r27
+    ble _decode_iquant_rc_store_ac
+    lwz r0, 4(r24)
+    cmpwi r28, 0x40
+    subf r0, r29, r0
+    stw r0, 4(r24)
+    blt _decode_iquant_rc_increment
+    li r3, -0x64
+    b _decode_iquant_rc_return
+
+_decode_iquant_rc_increment:
+    addi r28, r28, 1
+    b _decode_iquant_rc_loop_check
+
+_decode_iquant_rc_store_ac:
+    lwz r0, 4(r24)
+    slw r6, r31, r29
+    lwz r3, 0(r24)
+    addi r5, r6, -1
+    subf r4, r29, r0
+    srwi r0, r6, 1
+    srw r3, r3, r4
+    stw r4, 4(r24)
+    and r4, r5, r3
+    cmplw r0, r4
+    ble _decode_iquant_rc_have_extra
+    subf r4, r5, r4
+
+_decode_iquant_rc_have_extra:
+    cmpwi r28, 0x40
+    blt _decode_iquant_rc_store_coeff
+    li r3, -0x64
+    b _decode_iquant_rc_return
+
+_decode_iquant_rc_store_coeff:
+    lbzx r0, r21, r28
+    addi r28, r28, 1
+    slwi r3, r0, 2
+    lwzx r0, r23, r3
+    mullw r0, r4, r0
+    stwx r0, r22, r3
+    b _decode_iquant_rc_loop_check
+
+_decode_iquant_rc_no_ac_bits:
+    cmpwi r3, 0
+    bne _decode_iquant_rc_zrl
+    li r3, 0
+    b _decode_iquant_rc_return
+
+_decode_iquant_rc_zrl:
+    addi r28, r28, 0x10
+
+_decode_iquant_rc_loop_check:
+    cmpwi r28, 0x40
+    blt _decode_iquant_rc_ac_loop
+    li r3, 0
+
+_decode_iquant_rc_return:
+    lmw r21, 0x14(r1)
+    lwz r0, 0x44(r1)
+    mtlr r0
+    addi r1, r1, 0x40
+    blr
+}
+#else
 s32 TMCJPEGDEC_decode_iquant_rc(s32* block, u8* conv_row_ptr, u32* dc_predict_row_ptr, TMCCJPEGDecWork* work) {
     const u8* zztbl;
     u16* ac_fast;
@@ -142,6 +355,7 @@ s32 TMCJPEGDEC_decode_iquant_rc(s32* block, u8* conv_row_ptr, u32* dc_predict_ro
 
     return 0;
 }
+#endif
 
 static s32 TMCJPEGDEC_vl_decode_rc(u32* huff_tbl, u8* huff_sym, TMCCJPEGDecWork* work) {
     s32 bit_pos;
