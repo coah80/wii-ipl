@@ -307,9 +307,9 @@ asm NWC24Err NWC24Check(register u32 usage) {
     stw r0, 0x84(r1)
     addi r11, r1, 0x80
     bl _savegpr_27
-    lwz r0, Opened(r13)
+    lwz r0, Opened(r0)
     li r4, 0
-    stw r4, GlobalErrorCode(r13)
+    stw r4, GlobalErrorCode(r0)
     mr r27, r3
     cmpwi r0, 1
     beq _NWC24Check_open
@@ -327,7 +327,7 @@ _NWC24Check_status:
     bne _NWC24Check_status_ok
     lis r3, -2
     addi r0, r3, 0x55c8
-    stw r0, GlobalErrorCode(r13)
+    stw r0, GlobalErrorCode(r0)
     b _NWC24Check_return
 
 _NWC24Check_status_ok:
@@ -343,7 +343,7 @@ _NWC24Check_status_ok:
     bne _NWC24Check_eula
     lis r3, -2
     addi r0, r3, 0x55ad
-    stw r0, GlobalErrorCode(r13)
+    stw r0, GlobalErrorCode(r0)
     b _NWC24Check_return
 
 _NWC24Check_eula:
@@ -351,7 +351,7 @@ _NWC24Check_eula:
     bne _NWC24Check_restrictions
     lis r3, -2
     addi r0, r3, 0x55cd
-    stw r0, GlobalErrorCode(r13)
+    stw r0, GlobalErrorCode(r0)
     b _NWC24Check_return
 
 _NWC24Check_restrictions:
@@ -364,7 +364,7 @@ _NWC24Check_restrictions:
     beq _NWC24Check_config
     lis r3, -2
     addi r0, r3, 0x55cd
-    stw r0, GlobalErrorCode(r13)
+    stw r0, GlobalErrorCode(r0)
     b _NWC24Check_return
 
 _NWC24Check_config:
@@ -377,7 +377,7 @@ _NWC24Check_config:
     bge _NWC24Check_config_ok
     lis r3, -2
     addi r0, r3, 0x55b3
-    stw r0, GlobalErrorCode(r13)
+    stw r0, GlobalErrorCode(r0)
     b _NWC24Check_return
 
 _NWC24Check_config_ok:
@@ -392,7 +392,7 @@ _NWC24Check_config_ok:
     bne _NWC24Check_id
     lis r3, -1
     addi r0, r3, 0x3b85
-    stw r0, GlobalErrorCode(r13)
+    stw r0, GlobalErrorCode(r0)
     b _NWC24Check_return
 
 _NWC24Check_id:
@@ -405,7 +405,7 @@ _NWC24Check_id:
     beq _NWC24Check_scheduler
     lis r3, -2
     addi r0, r3, 0x55a8
-    stw r0, GlobalErrorCode(r13)
+    stw r0, GlobalErrorCode(r0)
     b _NWC24Check_return
 
 _NWC24Check_scheduler:
@@ -418,7 +418,7 @@ _NWC24Check_scheduler:
     bge _NWC24Check_mbox
     lwz r0, 8(r1)
     mr r31, r3
-    stw r0, GlobalErrorCode(r13)
+    stw r0, GlobalErrorCode(r0)
     b _NWC24Check_return
 
 _NWC24Check_mbox:
@@ -430,7 +430,7 @@ _NWC24Check_mbox:
     bne _NWC24Check_mbox_done
     lis r4, -2
     addi r0, r4, 0x55ce
-    stw r0, GlobalErrorCode(r13)
+    stw r0, GlobalErrorCode(r0)
 
 _NWC24Check_mbox_done:
     cmpwi r3, -6
