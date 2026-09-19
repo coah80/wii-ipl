@@ -1837,6 +1837,162 @@ static s32 TMCJPEGDEC_parse_sof(TMCCJPEGDecWork* work) {
 }
 #endif
 
+#ifdef __MWERKS__
+static asm s32 TMCJPEGDEC_parse_sos(register TMCCJPEGDecWork* work) {
+    nofralloc
+
+    stwu r1, -0x30(r1)
+    mflr r0
+    stw r0, 0x34(r1)
+    stmw r27, 0x1c(r1)
+    mr r28, r3
+    addi r30, r3, 0x2c
+    addi r29, r3, 0x58
+    addi r3, r1, 0xa
+    mr r4, r28
+    bl TMCJPEGDEC_get_wbyte
+    cmpwi r3, 0
+    bge _parse_sos_have_length
+    b _parse_sos_return
+
+_parse_sos_have_length:
+    lhz r0, 0xa(r1)
+    cmplwi r0, 2
+    bge _parse_sos_have_count
+    li r3, -0x51
+    b _parse_sos_return
+
+_parse_sos_have_count:
+    mr r4, r28
+    addi r3, r1, 8
+    bl TMCJPEGDEC_get_byte
+    cmpwi r3, 0
+    bge _parse_sos_store_count
+    b _parse_sos_return
+
+_parse_sos_store_count:
+    lbz r3, 8(r1)
+    cmplwi r3, 4
+    stb r3, 0x180b(r28)
+    bgt _parse_sos_bad_count
+    lbz r0, 0x180a(r28)
+    cmplw r3, r0
+    beq _parse_sos_count_valid
+
+_parse_sos_bad_count:
+    li r3, -0x51
+    b _parse_sos_return
+
+_parse_sos_count_valid:
+    li r31, 0
+    b _parse_sos_loop_condition
+
+_parse_sos_loop:
+    mr r4, r28
+    addi r3, r1, 8
+    bl TMCJPEGDEC_get_byte
+    cmpwi r3, 0
+    bge _parse_sos_have_component
+    b _parse_sos_return
+
+_parse_sos_have_component:
+    lbz r0, 0x180a(r28)
+    li r5, 0
+    lbz r4, 8(r1)
+    mtctr r0
+    cmpwi r0, 0
+    ble _parse_sos_bad_component
+
+_parse_sos_find_component:
+    add r3, r30, r5
+    lbz r0, 0x14(r3)
+    cmpw r4, r0
+    bne _parse_sos_next_component
+    stbx r5, r30, r31
+    add r27, r30, r31
+    b _parse_sos_found_component
+
+_parse_sos_next_component:
+    addi r5, r5, 1
+    bdnz _parse_sos_find_component
+
+_parse_sos_bad_component:
+    li r3, -0x51
+    b _parse_sos_return
+
+_parse_sos_found_component:
+    mr r4, r28
+    addi r3, r1, 8
+    bl TMCJPEGDEC_get_byte
+    cmpwi r3, 0
+    bge _parse_sos_have_tables
+    b _parse_sos_return
+
+_parse_sos_have_tables:
+    lbz r0, 8(r1)
+    srawi r5, r0, 4
+    clrlwi r6, r0, 0x1c
+    cmpwi r5, 1
+    bgt _parse_sos_bad_tables
+    cmpwi r6, 1
+    ble _parse_sos_tables_valid
+
+_parse_sos_bad_tables:
+    li r3, -0x51
+    b _parse_sos_return
+
+_parse_sos_tables_valid:
+    lbz r0, 0(r27)
+    add r3, r29, r5
+    add r4, r30, r0
+    stb r5, 0x1c(r4)
+    lbz r0, 0(r27)
+    add r4, r30, r0
+    stb r6, 0x20(r4)
+    lbz r0, 0x1794(r3)
+    cmplwi r0, 1
+    beq _parse_sos_ac_valid
+    li r3, -0x40
+    b _parse_sos_return
+
+_parse_sos_ac_valid:
+    add r3, r29, r6
+    lbz r0, 0x1796(r3)
+    cmplwi r0, 1
+    beq _parse_sos_quant_valid
+    li r3, -0x40
+    b _parse_sos_return
+
+_parse_sos_quant_valid:
+    lbz r0, 0x18(r27)
+    add r3, r29, r0
+    lbz r0, 0x1790(r3)
+    cmplwi r0, 1
+    beq _parse_sos_next
+    li r3, -0x41
+    b _parse_sos_return
+
+_parse_sos_next:
+    addi r31, r31, 1
+
+_parse_sos_loop_condition:
+    lbz r0, 0x180b(r28)
+    cmpw r31, r0
+    blt _parse_sos_loop
+    mr r4, r28
+    li r3, 3
+    bl TMCJPEGDEC_move_ptr
+    srawi r0, r3, 0x1f
+    and r3, r3, r0
+
+_parse_sos_return:
+    lmw r27, 0x1c(r1)
+    lwz r0, 0x34(r1)
+    mtlr r0
+    addi r1, r1, 0x30
+    blr
+}
+#else
 static s32 TMCJPEGDEC_parse_sos(TMCCJPEGDecWork* work) {
     s32 idx;
     u8* compPtr;
@@ -1924,6 +2080,7 @@ static s32 TMCJPEGDEC_parse_sos(TMCCJPEGDecWork* work) {
     moveResult = TMCJPEGDEC_move_ptr(3, work);
     return moveResult & (moveResult >> 31);
 }
+#endif
 
 s32 TMCJPEGDEC_err_restart(TMCCJPEGDecWork* work) {
     TMCCJPEGDecState* state;
