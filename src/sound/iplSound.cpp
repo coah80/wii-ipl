@@ -100,6 +100,41 @@ namespace ipl {
             return reinterpret_cast<nw4r::snd::SoundHandle*>(block);
         }
 
+        int System::startSEIndex(u32 sndIndex) {
+            tagSSeInfo* block;
+
+            if (m_isLocked) {
+                return 0;
+            }
+
+            block = FIsSEActive(sndIndex);
+            if (block != NULL && block->handle.GetId() == 0x39) {
+                goto return_block_index;
+            }
+            if (block == NULL) {
+                goto continue_block_index;
+            }
+            if (block->handle.GetId() != 0x35) {
+                goto continue_block_index;
+            }
+
+        return_block_index:
+            return (int)block;
+
+        continue_block_index:
+            if (block == NULL) {
+                block = getFreeSEBlock(true);
+            }
+            if (block == NULL) {
+                return 0;
+            }
+
+            block->handle.Stop(0);
+            mSoundArchivePlayer.StartSound(&block->handle, sndIndex);
+            block->id = sndIndex;
+            return (int)block;
+        }
+
         long System::clipGELT_S32(long value, long lo, long hi) {
             long range = hi - lo;
 
