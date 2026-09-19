@@ -58,12 +58,8 @@ namespace EGG {
 
         virtual bool holdSound(nw4r::snd::SoundHandle* pHandle, u32 id) { return mSoundArchivePlayer.HoldSound(pHandle, id); }           // 0x50
         virtual bool holdSound(nw4r::snd::SoundHandle* pHandle, unsigned int id) { return mSoundArchivePlayer.HoldSound(pHandle, id); }  // 0x50
-        virtual bool holdSound(nw4r::snd::SoundHandle* pHandle, const char* pName) {
-            u32 id = nw4r::snd::SoundArchive::INVALID_ID;
-            if (mpArchive != NULL) {
-                id = changeNameToId(pName);
-            }
-
+        virtual bool holdSound(nw4r::snd::SoundHandle* pHandle, const char* pName) NO_INLINE {
+            u32 id = changeNameToId(pName);
             return mSoundArchivePlayer.HoldSound(pHandle, id);
         }  // 0x58
 

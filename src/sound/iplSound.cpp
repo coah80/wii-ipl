@@ -167,6 +167,27 @@ namespace ipl {
             return (int)block;
         }
 
+        int System::holdSE(const char* sndName) {
+            tagSSeInfo* block;
+
+            if (m_isLocked) {
+                return 0;
+            }
+
+            block = FIsSEActive(sndName);
+            if (block == NULL) {
+                block = getFreeSEBlock(true);
+            }
+            if (block == NULL) {
+                return 0;
+            }
+
+            EGG::ArcPlayer::holdSound(&block->handle, sndName);
+            block->name = sndName;
+            block->id = block->handle.GetId();
+            return (int)block;
+        }
+
         long System::clipGELT_S32(long value, long lo, long hi) {
             long range = hi - lo;
 
