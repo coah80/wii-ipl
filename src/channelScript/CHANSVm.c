@@ -2513,7 +2513,7 @@ vmBoolInt VmDateCommon(CHANSVm* vm, OSCalendarTime* out) {
                     dst = &nettime.msec;
                     break;
                 default:
-                    CHANS_VM_PRINTF_CUSTOM("internal error in %s line %d\n", 211, __FUNCTION__);
+                    CHANS_VM_PRINTF_CUSTOM("internal error in %s line %d\n", __FUNCTION__, 211);
                     return vmFalse;
             }
 
