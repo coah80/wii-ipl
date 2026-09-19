@@ -106,6 +106,125 @@ s32 TMCJPEGDEC_decompmcu(u32 maxMCU, u32 mcuCount, TMCCJPEGDecWork* work, void* 
     return 0;
 }
 
+#ifdef __MWERKS__
+asm s32 TMCJPEGDEC_imagestart(register TMCCJPEGDecWork* work) {
+    nofralloc
+
+    stwu r1, -0x20(r1)
+    mflr r0
+    lis r8, TMCJPEGDEC_Zigzag_data@ha
+    li r4, 0
+    stw r0, 0x24(r1)
+    li r0, 4
+    addi r8, r8, TMCJPEGDEC_Zigzag_data@l
+    li r7, 0
+    stw r31, 0x1c(r1)
+    mr r31, r3
+    sth r4, 0x181a(r3)
+    stb r4, 0x181c(r3)
+    mtctr r0
+
+_imagestart_loop:
+    lbz r6, 0(r8)
+    add r9, r3, r7
+    lbz r5, 1(r8)
+    addi r7, r7, 8
+    rlwinm r6, r6, 2, 0x18, 0x1d
+    lbz r4, 2(r8)
+    stb r6, 0x458(r9)
+    rlwinm r5, r5, 2, 0x18, 0x1d
+    rlwinm r6, r4, 2, 0x18, 0x1d
+    lbz r0, 3(r8)
+    stb r5, 0x459(r9)
+    rlwinm r5, r0, 2, 0x18, 0x1d
+    lbz r4, 4(r8)
+    stb r6, 0x45a(r9)
+    rlwinm r6, r4, 2, 0x18, 0x1d
+    lbz r4, 6(r8)
+    stb r5, 0x45b(r9)
+    lbz r0, 5(r8)
+    rlwinm r4, r4, 2, 0x18, 0x1d
+    stb r6, 0x45c(r9)
+    rlwinm r5, r0, 2, 0x18, 0x1d
+    lbz r0, 7(r8)
+    stb r5, 0x45d(r9)
+    lbz r6, 8(r8)
+    rlwinm r0, r0, 2, 0x18, 0x1d
+    stb r4, 0x45e(r9)
+    lbz r5, 9(r8)
+    rlwinm r6, r6, 2, 0x18, 0x1d
+    stb r0, 0x45f(r9)
+    add r9, r3, r7
+    lbz r4, 0xa(r8)
+    rlwinm r5, r5, 2, 0x18, 0x1d
+    stb r6, 0x458(r9)
+    addi r7, r7, 8
+    rlwinm r6, r4, 2, 0x18, 0x1d
+    lbz r0, 0xb(r8)
+    stb r5, 0x459(r9)
+    rlwinm r5, r0, 2, 0x18, 0x1d
+    lbz r4, 0xc(r8)
+    stb r6, 0x45a(r9)
+    rlwinm r6, r4, 2, 0x18, 0x1d
+    lbz r4, 0xe(r8)
+    stb r5, 0x45b(r9)
+    lbz r0, 0xd(r8)
+    rlwinm r4, r4, 2, 0x18, 0x1d
+    stb r6, 0x45c(r9)
+    rlwinm r5, r0, 2, 0x18, 0x1d
+    lbz r0, 0xf(r8)
+    stb r5, 0x45d(r9)
+    addi r8, r8, 0x10
+    rlwinm r0, r0, 2, 0x18, 0x1d
+    stb r4, 0x45e(r9)
+    stb r0, 0x45f(r9)
+    bdnz _imagestart_loop
+
+    mr r4, r31
+    addi r3, r1, 8
+    bl TMCJPEGDEC_get_wbyte
+    cmpwi r3, 0
+    bge _imagestart_have_marker
+    b _imagestart_return
+
+_imagestart_have_marker:
+    lhz r0, 8(r1)
+    cmplwi r0, 0xffd8
+    beq _imagestart_parse
+    li r3, -0x20
+    b _imagestart_return
+
+_imagestart_parse:
+    li r0, 0
+    mr r4, r31
+    sth r0, 8(r1)
+    addi r3, r1, 8
+    bl TMCJPEGDEC_parse_para
+    cmpwi r3, 0
+    bge _imagestart_check_sof
+    b _imagestart_return
+
+_imagestart_check_sof:
+    lhz r0, 8(r1)
+    cmplwi r0, 0xffc0
+    beq _imagestart_parse_sof
+    li r3, -0x10
+    b _imagestart_return
+
+_imagestart_parse_sof:
+    mr r3, r31
+    bl TMCJPEGDEC_parse_sof
+    srawi r0, r3, 0x1f
+    and r3, r3, r0
+
+_imagestart_return:
+    lwz r0, 0x24(r1)
+    lwz r31, 0x1c(r1)
+    mtlr r0
+    addi r1, r1, 0x20
+    blr
+}
+#else
 s32 TMCJPEGDEC_imagestart(TMCCJPEGDecWork* work) {
     u16 marker;
     s32 r;
@@ -172,6 +291,7 @@ s32 TMCJPEGDEC_imagestart(TMCCJPEGDecWork* work) {
 
     return 0;
 }
+#endif
 
 s32 TMCJPEGDEC_imageend(TMCCJPEGDecWork* work) {
     if (work->pState->unk_0x21 == 1)
