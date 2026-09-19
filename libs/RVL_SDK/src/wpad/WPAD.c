@@ -28,7 +28,8 @@
 #define DPD_CONFIG2_SIZE 2
 #define SPK_CONFIG_SIZE 7
 
-SDKDefineVersion(WPAD, "Apr 20 2010", "11:20:55");
+char lbl_81687720[] = "<< RVL_SDK - WPAD \trelease build: Apr 20 2010 11:20:55 (0x4199_60831) >>";
+const char* __WPADVersion = lbl_81687720;
 
 WPADCB _wpd[WPAD_MAX_CONTROLLERS];
 WPADCB* _wpdcb[WPAD_MAX_CONTROLLERS];
@@ -615,6 +616,540 @@ static void __reconnect(BOOL exec) {
     WUDSetHidRecvCallback(NULL);
     WUDShutdown(exec);
 }
+#ifdef __MWERKS__
+char lbl_81687810[0x58] = "Reconnect Start!!\n\0\0\0\0\0\0"
+                           "Check the update of WiFi using channel\n\0"
+                           "WiFi uses channel = %d\n";
+extern void _savegpr_19();
+extern void _restgpr_19();
+static asm void WPADiManageHandler(OSAlarm* pAlarm, OSContext* pContext) {
+    nofralloc
+    stwu r1, -0x160(r1)
+    mflr r0
+    stw r0, 0x164(r1)
+    addi r11, r1, 0x160
+    bl _savegpr_19
+    lis r28, lbl_81687720@ha
+    addi r28, r28, lbl_81687720@l
+    bl WUDGetStatus
+    cmpwi r3, 0x3
+    beq WPADiManageHandler_8AC8
+    cmpwi r3, 0x2
+    bne WPADiManageHandler_91D8
+    lwz r0, _initialized(r13)
+    cmpwi r0, 0x0
+    bne WPADiManageHandler_91D8
+    li r0, 0x1
+    lis r3, WPADiConnCallback@ha
+    stw r0, _initialized(r13)
+    addi r3, r3, WPADiConnCallback@l
+    bl WUDSetHidConnCallback
+    lis r3, WPADiRecvCallback@ha
+    addi r3, r3, WPADiRecvCallback@l
+    bl WUDSetHidRecvCallback
+    li r0, 0x32
+    stw r0, _recCnt(r13)
+    b WPADiManageHandler_91D8
+WPADiManageHandler_8AC8:
+    lwz r4, _recCnt(r13)
+    lwz r19, _recFlag(r13)
+    cntlzw r3, r4
+    subi r0, r4, 0x1
+    extrwi r3, r3, 1, 26
+    cmpwi r19, 0x0
+    neg r3, r3
+    andc r0, r0, r3
+    stw r0, _recCnt(r13)
+    blt WPADiManageHandler_8B28
+    cmpwi r0, 0x0
+    bne WPADiManageHandler_91D8
+    addi r3, r28, 0xf0
+    crclr 4*cr1+eq
+    bl DEBUGPrint
+    bl BTA_DmSendHciReset
+    lis r3, _managerAlarm@ha
+    addi r3, r3, _managerAlarm@l
+    bl OSCancelAlarm
+    li r3, 0x0
+    bl WUDSetHidRecvCallback
+    mr r3, r19
+    bl WUDShutdown
+    b WPADiManageHandler_91D8
+WPADiManageHandler_8B28:
+    lis r24, _wpdcb@ha
+    li r22, 0x0
+    addi r24, r24, _wpdcb@l
+    la r25, _extCnt
+    la r23, _rumbleCnt
+    li r29, 0x0
+    li r30, 0x10
+    li r31, 0x1
+WPADiManageHandler_8B48:
+    lbz r0, 0x0(r25)
+    li r21, 0x0
+    cmplwi r0, 0x5
+    bne WPADiManageHandler_8D20
+    lwz r26, 0x0(r24)
+    lwz r0, 0x8d8(r26)
+    cmpwi r0, 0x0
+    beq WPADiManageHandler_8D10
+    bl OSDisableInterrupts
+    mr r27, r3
+    bl OSDisableInterrupts
+    lbz r4, 0x5ec(r26)
+    lbz r0, 0x5ed(r26)
+    subf r0, r4, r0
+    extsb. r19, r0
+    bge WPADiManageHandler_8B94
+    lwz r0, 0x5f4(r26)
+    add r0, r19, r0
+    extsb r19, r0
+WPADiManageHandler_8B94:
+    bl OSRestoreInterrupts
+    cmpwi r19, 0x0
+    bne WPADiManageHandler_8BB0
+    mr r3, r27
+    bl OSRestoreInterrupts
+    li r0, 0x0
+    b WPADiManageHandler_8BDC
+WPADiManageHandler_8BB0:
+    lbz r0, 0x5ec(r26)
+    addi r3, r1, 0xc8
+    lwz r4, 0x5f0(r26)
+    li r5, 0x30
+    extsb r0, r0
+    mulli r0, r0, 0x30
+    add r4, r4, r0
+    bl memcpy
+    mr r3, r27
+    bl OSRestoreInterrupts
+    li r0, 0x1
+WPADiManageHandler_8BDC:
+    cmpwi r0, 0x0
+    beq WPADiManageHandler_8D10
+    lwz r0, 0xc8(r1)
+    cmplwi r0, 0x12
+    beq WPADiManageHandler_8BFC
+    lwz r0, 0x840(r26)
+    cmpwi r0, 0x0
+    beq WPADiManageHandler_8D10
+WPADiManageHandler_8BFC:
+    lwz r21, 0xc8(r1)
+    mr r3, r22
+    lwz r20, 0xcc(r1)
+    addi r4, r1, 0xf8
+    lwz r19, 0xd0(r1)
+    lwz r12, 0xd4(r1)
+    lwz r11, 0xd8(r1)
+    lwz r10, 0xdc(r1)
+    lwz r9, 0xe0(r1)
+    lwz r8, 0xe4(r1)
+    lwz r7, 0xe8(r1)
+    lwz r6, 0xec(r1)
+    lwz r5, 0xf0(r1)
+    lwz r0, 0xf4(r1)
+    stw r21, 0xf8(r1)
+    stw r20, 0xfc(r1)
+    stw r19, 0x100(r1)
+    stw r12, 0x104(r1)
+    stw r11, 0x108(r1)
+    stw r10, 0x10c(r1)
+    stw r9, 0x110(r1)
+    stw r8, 0x114(r1)
+    stw r7, 0x118(r1)
+    stw r6, 0x11c(r1)
+    stw r5, 0x120(r1)
+    stw r0, 0x124(r1)
+    bl WPADiSendData
+    cmpwi r3, 0x0
+    bne WPADiManageHandler_8D10
+    bl OSDisableInterrupts
+    mr r27, r3
+    bl OSDisableInterrupts
+    lbz r4, 0x5ec(r26)
+    lbz r0, 0x5ed(r26)
+    subf r0, r4, r0
+    extsb. r19, r0
+    bge WPADiManageHandler_8C9C
+    lwz r0, 0x5f4(r26)
+    add r0, r19, r0
+    extsb r19, r0
+WPADiManageHandler_8C9C:
+    bl OSRestoreInterrupts
+    cmpwi r19, 0x0
+    bne WPADiManageHandler_8CB4
+    mr r3, r27
+    bl OSRestoreInterrupts
+    b WPADiManageHandler_8D08
+WPADiManageHandler_8CB4:
+    lbz r0, 0x5ec(r26)
+    li r4, 0x0
+    lwz r3, 0x5f0(r26)
+    li r5, 0x30
+    extsb r0, r0
+    mulli r0, r0, 0x30
+    add r3, r3, r0
+    bl memset
+    lbz r0, 0x5ec(r26)
+    mr r3, r27
+    lwz r4, 0x5f4(r26)
+    extsb r6, r0
+    subi r4, r4, 0x1
+    subf r5, r4, r6
+    addi r0, r6, 0x1
+    subf r4, r6, r4
+    nor r4, r5, r4
+    srawi r4, r4, 31
+    andc r0, r0, r4
+    stb r0, 0x5ec(r26)
+    bl OSRestoreInterrupts
+WPADiManageHandler_8D08:
+    li r21, 0x1
+    b WPADiManageHandler_8D14
+WPADiManageHandler_8D10:
+    li r21, 0x0
+WPADiManageHandler_8D14:
+    cmpwi r21, 0x0
+    beq WPADiManageHandler_8D20
+    stb r29, 0x0(r25)
+WPADiManageHandler_8D20:
+    cmpwi r21, 0x0
+    bne WPADiManageHandler_8ED0
+    lwz r27, 0x0(r24)
+    lwz r0, 0x8d8(r27)
+    cmpwi r0, 0x0
+    beq WPADiManageHandler_8EC8
+    bl OSDisableInterrupts
+    mr r26, r3
+    bl OSDisableInterrupts
+    lbz r4, 0x160(r27)
+    lbz r0, 0x161(r27)
+    subf r0, r4, r0
+    extsb. r19, r0
+    bge WPADiManageHandler_8D64
+    lwz r0, 0x168(r27)
+    add r0, r19, r0
+    extsb r19, r0
+WPADiManageHandler_8D64:
+    bl OSRestoreInterrupts
+    cmpwi r19, 0x0
+    bne WPADiManageHandler_8D80
+    mr r3, r26
+    bl OSRestoreInterrupts
+    li r0, 0x0
+    b WPADiManageHandler_8DAC
+WPADiManageHandler_8D80:
+    lbz r0, 0x160(r27)
+    addi r3, r1, 0x68
+    lwz r4, 0x164(r27)
+    li r5, 0x30
+    extsb r0, r0
+    mulli r0, r0, 0x30
+    add r4, r4, r0
+    bl memcpy
+    mr r3, r26
+    bl OSRestoreInterrupts
+    li r0, 0x1
+WPADiManageHandler_8DAC:
+    cmpwi r0, 0x0
+    beq WPADiManageHandler_8EC8
+    lwz r19, 0x68(r1)
+    mr r3, r22
+    lwz r20, 0x6c(r1)
+    addi r4, r1, 0x98
+    lwz r26, 0x70(r1)
+    lwz r12, 0x74(r1)
+    lwz r11, 0x78(r1)
+    lwz r10, 0x7c(r1)
+    lwz r9, 0x80(r1)
+    lwz r8, 0x84(r1)
+    lwz r7, 0x88(r1)
+    lwz r6, 0x8c(r1)
+    lwz r5, 0x90(r1)
+    lwz r0, 0x94(r1)
+    stw r19, 0x98(r1)
+    stw r20, 0x9c(r1)
+    stw r26, 0xa0(r1)
+    stw r12, 0xa4(r1)
+    stw r11, 0xa8(r1)
+    stw r10, 0xac(r1)
+    stw r9, 0xb0(r1)
+    stw r8, 0xb4(r1)
+    stw r7, 0xb8(r1)
+    stw r6, 0xbc(r1)
+    stw r5, 0xc0(r1)
+    stw r0, 0xc4(r1)
+    bl WPADiSendData
+    cmpwi r3, 0x0
+    bne WPADiManageHandler_8EC8
+    bl OSDisableInterrupts
+    mr r26, r3
+    bl OSDisableInterrupts
+    lbz r4, 0x160(r27)
+    lbz r0, 0x161(r27)
+    subf r0, r4, r0
+    extsb. r19, r0
+    bge WPADiManageHandler_8E54
+    lwz r0, 0x168(r27)
+    add r0, r19, r0
+    extsb r19, r0
+WPADiManageHandler_8E54:
+    bl OSRestoreInterrupts
+    cmpwi r19, 0x0
+    bne WPADiManageHandler_8E6C
+    mr r3, r26
+    bl OSRestoreInterrupts
+    b WPADiManageHandler_8EC0
+WPADiManageHandler_8E6C:
+    lbz r0, 0x160(r27)
+    li r4, 0x0
+    lwz r3, 0x164(r27)
+    li r5, 0x30
+    extsb r0, r0
+    mulli r0, r0, 0x30
+    add r3, r3, r0
+    bl memset
+    lbz r0, 0x160(r27)
+    mr r3, r26
+    lwz r4, 0x168(r27)
+    extsb r6, r0
+    subi r4, r4, 0x1
+    subf r5, r4, r6
+    addi r0, r6, 0x1
+    subf r4, r6, r4
+    nor r4, r5, r4
+    srawi r4, r4, 31
+    andc r0, r0, r4
+    stb r0, 0x160(r27)
+    bl OSRestoreInterrupts
+WPADiManageHandler_8EC0:
+    li r0, 0x1
+    b WPADiManageHandler_8ECC
+WPADiManageHandler_8EC8:
+    li r0, 0x0
+WPADiManageHandler_8ECC:
+    or r21, r21, r0
+WPADiManageHandler_8ED0:
+    lwz r20, 0x0(r24)
+    lwz r0, 0x8bc(r20)
+    cmpwi r0, -0x1
+    beq WPADiManageHandler_8FD0
+    cmpwi r21, 0x1
+    beq WPADiManageHandler_8F18
+    bl OSDisableInterrupts
+    lbz r4, 0x160(r20)
+    lbz r0, 0x161(r20)
+    subf r0, r4, r0
+    extsb. r19, r0
+    bge WPADiManageHandler_8F0C
+    lwz r0, 0x168(r20)
+    add r0, r19, r0
+    extsb r19, r0
+WPADiManageHandler_8F0C:
+    bl OSRestoreInterrupts
+    cmpwi r19, 0x0
+    ble WPADiManageHandler_8F24
+WPADiManageHandler_8F18:
+    lwz r3, 0x0(r24)
+    stw r29, 0x8d0(r3)
+    b WPADiManageHandler_8FAC
+WPADiManageHandler_8F24:
+    lbz r0, 0x0(r23)
+    cmplwi r0, 0x5
+    bne WPADiManageHandler_8FAC
+    sth r31, 0x22(r1)
+    mr r3, r22
+    lwz r5, 0x0(r24)
+    addi r4, r1, 0x38
+    stb r29, 0xc(r1)
+    lwz r12, 0x10(r1)
+    stw r29, 0x8d0(r5)
+    lwz r21, 0xc(r1)
+    lwz r11, 0x14(r1)
+    lwz r10, 0x18(r1)
+    lwz r9, 0x1c(r1)
+    lwz r8, 0x20(r1)
+    lwz r7, 0x24(r1)
+    lwz r6, 0x28(r1)
+    lwz r5, 0x2c(r1)
+    lwz r0, 0x30(r1)
+    stw r30, 0x8(r1)
+    stw r29, 0x34(r1)
+    stw r30, 0x38(r1)
+    stw r21, 0x3c(r1)
+    stw r12, 0x40(r1)
+    stw r11, 0x44(r1)
+    stw r10, 0x48(r1)
+    stw r9, 0x4c(r1)
+    stw r8, 0x50(r1)
+    stw r7, 0x54(r1)
+    stw r6, 0x58(r1)
+    stw r5, 0x5c(r1)
+    stw r0, 0x60(r1)
+    stw r29, 0x64(r1)
+    bl __SendData
+WPADiManageHandler_8FAC:
+    lwz r3, 0x0(r24)
+    lwz r0, 0x8d0(r3)
+    cmpwi r0, 0x0
+    beq WPADiManageHandler_8FC8
+    lbz r3, 0x0(r23)
+    addi r0, r3, 0x1
+    b WPADiManageHandler_8FCC
+WPADiManageHandler_8FC8:
+    li r0, 0x0
+WPADiManageHandler_8FCC:
+    stb r0, 0x0(r23)
+WPADiManageHandler_8FD0:
+    lbz r0, _checkCnt(r13)
+    cmplwi r0, 0x5
+    bne WPADiManageHandler_8FE4
+    mr r3, r22
+    bl WPADiCheckContInputs
+WPADiManageHandler_8FE4:
+    lhz r0, _senseCnt(r13)
+    cmplwi r0, 0xa
+    bne WPADiManageHandler_8FF8
+    mr r3, r22
+    bl WPADiRadioSensitivity
+WPADiManageHandler_8FF8:
+    lbz r3, 0x0(r25)
+    cmplwi r3, 0x5
+    addi r0, r3, 0x1
+    bne WPADiManageHandler_900C
+    mr r0, r3
+WPADiManageHandler_900C:
+    addi r22, r22, 0x1
+    stb r0, 0x0(r25)
+    cmpwi r22, 0x4
+    addi r25, r25, 0x1
+    addi r24, r24, 0x4
+    addi r23, r23, 0x1
+    blt WPADiManageHandler_8B48
+    lhz r0, _afhCnt(r13)
+    cmplwi r0, 0xea60
+    bne WPADiManageHandler_9090
+    lis r21, 0x8000
+    li r4, 0x1
+    addi r3, r21, 0x31a2
+    bl DCInvalidateRange
+    addi r3, r28, 0x108
+    crclr 4*cr1+eq
+    bl DEBUGPrint
+    lbz r3, _afhChannel(r13)
+    lbz r0, 0x31a2(r21)
+    extsb r3, r3
+    cmpw r3, r0
+    beq WPADiManageHandler_9090
+    bl OSDisableInterrupts
+    lbz r0, 0x31a2(r21)
+    stb r0, _afhChannel(r13)
+    bl OSRestoreInterrupts
+    lbz r4, 0x31a2(r21)
+    addi r3, r28, 0x130
+    crclr 4*cr1+eq
+    bl DEBUGPrint
+    lbz r0, _afhChannel(r13)
+    extsb r3, r0
+    bl WUDSetDisableChannel
+WPADiManageHandler_9090:
+    lhz r6, _senseCnt(r13)
+    lis r3, 0x1
+    subi r0, r3, 0x15a0
+    lbz r9, _checkCnt(r13)
+    subi r4, r6, 0xa
+    subfic r3, r6, 0xa
+    nor r3, r4, r3
+    lhz r10, _afhCnt(r13)
+    srawi r8, r3, 31
+    addi r7, r6, 0x1
+    clrlwi r0, r0, 16
+    subi r4, r9, 0x5
+    subfic r3, r9, 0x5
+    andc r7, r7, r8
+    nor r5, r4, r3
+    subf r4, r0, r10
+    subf r3, r10, r0
+    lbz r0, _scFlush(r13)
+    srawi r6, r5, 31
+    addi r5, r9, 0x1
+    nor r4, r4, r3
+    addi r3, r10, 0x1
+    srawi r4, r4, 31
+    andc r5, r5, r6
+    andc r3, r3, r4
+    cmpwi r0, 0x0
+    sth r7, _senseCnt(r13)
+    stb r5, _checkCnt(r13)
+    sth r3, _afhCnt(r13)
+    beq WPADiManageHandler_9138
+    bl SCCheckStatus
+    cmpwi r3, 0x0
+    bne WPADiManageHandler_9138
+    lis r3, _scArray@ha
+    addi r3, r3, _scArray@l
+    bl SCSetBtDeviceInfoArray
+    cmpwi r3, 0x1
+    bne WPADiManageHandler_9138
+    li r3, 0x0
+    bl SCFlushAsync
+    li r0, 0x0
+    stb r0, _scFlush(r13)
+WPADiManageHandler_9138:
+    lbz r0, _scSetting(r13)
+    cmpwi r0, 0x0
+    beq WPADiManageHandler_91D4
+    bl SCCheckStatus
+    cmpwi r3, 0x0
+    bne WPADiManageHandler_91D4
+    bl SCGetBtDpdSensibility
+    clrlwi r0, r3, 24
+    cmplwi r0, 0x1
+    bge WPADiManageHandler_9164
+    li r0, 0x1
+WPADiManageHandler_9164:
+    cmplwi r0, 0x5
+    ble WPADiManageHandler_9170
+    li r0, 0x5
+WPADiManageHandler_9170:
+    stb r0, _dpdSensitivity(r13)
+    bl SCGetWpadSensorBarPosition
+    clrlwi r3, r3, 24
+    subi r0, r3, 0x1
+    cntlzw r0, r0
+    extrwi r0, r0, 8, 19
+    stb r0, _sensorBarPos(r13)
+    bl SCGetWpadMotorMode
+    clrlwi r3, r3, 24
+    subi r0, r3, 0x1
+    cntlzw r0, r0
+    srwi r0, r0, 5
+    stw r0, _rumble(r13)
+    bl SCGetWpadSpeakerVolume
+    clrlwi. r0, r3, 24
+    mr r4, r3
+    bne WPADiManageHandler_91B8
+    li r4, 0x0
+WPADiManageHandler_91B8:
+    clrlwi r0, r3, 24
+    cmplwi r0, 0x7f
+    blt WPADiManageHandler_91C8
+    li r4, 0x7f
+WPADiManageHandler_91C8:
+    li r0, 0x0
+    stb r4, _speakerVolume(r13)
+    stb r0, _scSetting(r13)
+WPADiManageHandler_91D4:
+    bl BTA_HhGetAclQueueInfo
+WPADiManageHandler_91D8:
+    addi r11, r1, 0x160
+    bl _restgpr_19
+    lwz r0, 0x164(r1)
+    mtlr r0
+    addi r1, r1, 0x160
+    blr
+}
+#else
 static void WPADiManageHandler(OSAlarm* pAlarm, OSContext* pContext) {
     s32 status = WPADGetStatus();
     s32 chan;
@@ -682,6 +1217,8 @@ static void WPADiManageHandler(OSAlarm* pAlarm, OSContext* pContext) {
     BTA_HhGetAclQueueInfo();
 }
 
+
+#endif
 static void WPADiManageHandler0(OSAlarm* pAlarm, OSContext* pContext) {
     OSSwitchFiberEx((u32)pAlarm, (u32)pContext, 0, 0, WPADiManageHandler, __WPADiManageHandlerStack + sizeof(__WPADiManageHandlerStack));
 }
