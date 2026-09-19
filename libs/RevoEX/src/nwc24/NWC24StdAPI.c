@@ -24,7 +24,7 @@ int Mail_strlen(const char* str) {
 
 int STD_strnlen(const char* str, u32 len) {
     int i;
-    for (i = 0; len > 0; i++, str++, len--) {
+    for (i = 0; i < len; i++, str++) {
         if (*str == 0) {
             break;
         }
