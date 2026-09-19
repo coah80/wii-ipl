@@ -13,6 +13,9 @@
 
 #include <private/os.h>
 
+#include <revolution/nwc24/NWC24Dl.h>
+#include <revolution/nwc24/NWC24Manage.h>
+
 #include <cstring>
 
 #include "config.h"
@@ -23,6 +26,8 @@ namespace ipl {
     namespace utility {
 // meh
 #define ES_ERR_REPORT(msg, ...) OSReport("%s::%s: " msg "\n", __FILE__, __FUNCTION__, __VA_ARGS__);
+
+        BOOL checkForNullTermination(char* str, u32 len);
 
         ESError ESMisc::GetTmdView(EGG::Heap* heap, ESTitleId titleId, ESTmdView** outTmdView) {
             ESTmdView* tmdView;
@@ -639,10 +644,401 @@ namespace ipl {
             return ret;
         }
 
+        s32 ESMisc::DeleteEmptyTitles(EGG::Heap* heap) {
+            u32 titleCount = 0;
+            ESTitleId* titleIds = NULL;
+            s32 ret = ES_ListTitlesOnCard(NULL, &titleCount);
+
+            if (ret != ES_ERR_OK) {
+                ES_ERR_REPORT("ES_ListTitlesOnCard1 failed: %d", ret);
+            } else if (titleCount != 0) {
+                titleIds = (ESTitleId*)heap->alloc(OSRoundUp32B(titleCount * sizeof(ESTitleId)), -DEFAULT_ALIGN);
+                ret = ES_ListTitlesOnCard(titleIds, &titleCount);
+
+                if (ret != ES_ERR_OK) {
+                    ES_ERR_REPORT("ES_ListTitlesOnCard2 failed: %d", ret);
+                } else {
+                    for (u32 i = 0; i < titleCount; i++) {
+                        u32 titleIdHi = ((u32*)titleIds)[i * 2];
+                        u32 titleIdLo = ((u32*)titleIds)[i * 2 + 1];
+
+                        if (titleIdHi != 1) {
+                            ret = CheckSafeDeleteTitle(heap, ((ESTitleId)titleIdHi << 32) | titleIdLo);
+                            if (ret < 0) {
+                                ES_ERR_REPORT("CheckSafeDeleteTitle failed: %d", ret);
+                            }
+
+                            if (ret > 0) {
+                                ret = DeleteTitle(heap, ((ESTitleId)titleIdHi << 32) | titleIdLo);
+                                if (ret < 0) {
+                                    ES_ERR_REPORT("DeleteTitle failed: %d", ret);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (titleIds != NULL) {
+                heap->free(titleIds);
+            }
+
+            TMDFile tmdFile(heap);
+            ret = tmdFile.Open((char*)TMD_FILE);
+            if (ret != ES_ERR_OK) {
+                ES_ERR_REPORT("TMDFile::Open failed: %d", ret);
+            }
+            tmdFile.Close();
+            tmdFile.Close();
+            return ret;
+        }
+
         s32 ESMisc::DeleteMetaContent(ESTitleId titleId) {
             char metaPath[64] = "";
             snprintf(metaPath, sizeof(metaPath), "/meta/%08x/%08x/title.met", NANDTitleIdHi(titleId), NANDTitleIdLo(titleId));
             return NANDPrivateDelete(metaPath);
+        }
+
+        static s32 DeleteDownloadTask(EGG::Heap* heap, u32 titleId) {
+            void* nwc24Work = heap->alloc(NWC24_LIB_WORK_SIZE, 0x20);
+            OSTick startTick = OSGetTick();
+            s32 ret;
+            NWC24DlId dlId;
+            NWC24DlTask dlTask;
+            u32 dlAppId;
+            NWC24Err err;
+
+            goto open_lib;
+            while (true) {
+                OSReport("%s::%s waiting NWC24Open.\n", __FILE__, __FUNCTION__);
+                OSSleepTicks(OSMillisecondsToTicks((OSTime)30));
+                if (OSTicksToMilliseconds(OSGetTick() - startTick) > 3000) {
+                    ret = -0x1a;
+                    OSReport("%s::%s NWC24Open failed with time out.\n", __FILE__, __FUNCTION__);
+                    goto cleanup;
+                }
+
+            open_lib:
+                if (NWC24OpenLib(nwc24Work) != NWC24_OK) {
+                    continue;
+                }
+
+                dlId = 0;
+                err = NWC24IterateDlTask(&dlId, TRUE);
+                while (err >= NWC24_OK) {
+                    err = NWC24GetDlTask(&dlTask, dlId);
+                    if (err != NWC24_OK) {
+                        OSReport("%s::%s NWC24GetDlTask failed - [%d]  -> continue\n", __FILE__, __FUNCTION__, err);
+                    } else {
+                        err = NWC24GetDlAppId(&dlTask, &dlAppId);
+                        if (err != NWC24_OK) {
+                            OSReport("%s::%s NWC24GetDlAppId failed - [%d]  -> continue\n", __FILE__, __FUNCTION__, err);
+                        } else if (dlAppId == titleId) {
+                            OSReport("%s::%s found dl task owned same titleid [%p]\n", __FILE__, __FUNCTION__, &dlTask);
+                            err = NWC24DeleteDlTask(&dlTask);
+                            if (err != NWC24_OK) {
+                                OSReport("%s::%s NWC24GetDlAppId failed - [%d]  -> continue\n", __FILE__, __FUNCTION__, err);
+                            } else {
+                                OSReport("%s::%s delete download task for index : %d\n", __FILE__, __FUNCTION__, dlId);
+                            }
+                        } else {
+                            OSReport("%s::%s ignore title id %d: %08x \n", __FILE__, __FUNCTION__, dlId, dlAppId);
+                        }
+                    }
+                    err = NWC24IterateDlTask(&dlId, FALSE);
+                }
+
+                ret = NWC24CloseLib();
+                if (ret != NWC24_OK) {
+                    OSReport("%s::%s NWC24CloseLib failed - [%d]  -> continue\n", __FILE__, __FUNCTION__, ret);
+                }
+                goto cleanup;
+            }
+
+        cleanup:
+            if (nwc24Work != NULL) {
+                heap->free(nwc24Work);
+            }
+
+            OSReport("%s::%s delete download task for %08x\n", __FILE__, __FUNCTION__, titleId);
+            return ret;
+        }
+
+        extern "C" s32 DeleteDownloadTask__Q33ipl7utility6ESMiscFv(EGG::Heap* heap, u32 titleId) {
+            return DeleteDownloadTask(heap, titleId);
+        }
+
+        s32 ESMisc::DeleteTitleContent(EGG::Heap* heap, ESTitleId titleId) {
+            s32 ret = DeleteMetaContent(titleId);
+
+            if (ret != ES_ERR_OK && ret != NAND_RESULT_NOEXISTS) {
+                ES_ERR_REPORT("failed to delete meta for %016llx: %d", titleId, ret);
+                return ret;
+            }
+
+            u32 titleIdLo = NANDTitleIdLo(titleId);
+            BOOL isSpecialTitle = (titleIdLo & 0xffffff00) == 0x48414f00;
+            ret = CheckSafeDeleteTitle(heap, titleId);
+            if (ret == 1 || isSpecialTitle) {
+                ret = DeleteTitle(heap, titleId);
+                if (ret != ES_ERR_OK) {
+                    ES_ERR_REPORT("failed to delete title for %016llx: %d", titleId, ret);
+                    return ret;
+                }
+            } else {
+                if (ret != ES_ERR_OK) {
+                    ES_ERR_REPORT("failed to check safety for %016llx: %d", titleId, ret);
+                    return ret;
+                }
+
+                ret = ES_DeleteTitleContent(titleId);
+                if (ret != ES_ERR_OK) {
+                    ES_ERR_REPORT("failed to delete contents for %016llx: %d", titleId, ret);
+                    return ret;
+                }
+            }
+
+            ret = DeleteDownloadTask__Q33ipl7utility6ESMiscFv(heap, titleIdLo);
+            if (ret != ES_ERR_OK) {
+                ES_ERR_REPORT("failed to delete DL task for %016llx: %d", titleId, ret);
+            }
+            return ret;
+        }
+
+        ESError ESMisc::PrepareTitleDir(ESTitleId titleId, EGG::Heap* heap) {
+            TMDFile tmdFile(heap);
+            s32 ret = tmdFile.Open((char*)TMD_FILE);
+
+            if (ret != ES_ERR_OK) {
+                ES_ERR_REPORT("Open backup TMD file failed: %d", ret);
+                tmdFile.Close();
+                goto done;
+            }
+
+            ret = tmdFile.Restore(titleId);
+            if (ret == -0x401) {
+                ES_ERR_REPORT("No backup of %016llx: %d", titleId, ret);
+            } else if (ret != ES_ERR_OK) {
+                ES_ERR_REPORT("Restore failed: %d", ret);
+            }
+
+            s32 closeRet = tmdFile.Close();
+            if (closeRet != ES_ERR_OK) {
+                ES_ERR_REPORT("Failed to close TMD system file: %d", closeRet);
+                ret = closeRet;
+            }
+            tmdFile.Close();
+
+        done:
+            return ret;
+        }
+
+        ESError ESMisc::DeleteSavedata(ESTitleId titleId, EGG::Heap* heap) {
+            s32 ret;
+            char dirPath[0x80] ALIGN32;
+            char filePath[0x41];
+            char* entries = NULL;
+            u32 entryCount = 0;
+            char* entry;
+            u32 i;
+
+            sprintf(dirPath + 0x20, "/title/%08x/%08x/data/", NANDTitleIdHi(titleId), NANDTitleIdLo(titleId));
+            ret = NANDReadDir(dirPath + 0x20, NULL, &entryCount);
+
+            if (ret != ES_ERR_OK || entryCount == 0) {
+                ES_ERR_REPORT("Could not read1 %s: %d", dirPath + 0x20, ret);
+                goto cleanup;
+            }
+
+            entries = (char*)heap->alloc(OSRoundUp32B(entryCount * 0x41), -DEFAULT_ALIGN);
+            if (entries == NULL) {
+                ret = -2;
+                ES_ERR_REPORT("Could not alloc: %d", -2);
+                goto cleanup;
+            }
+
+            ret = NANDReadDir(dirPath + 0x20, entries, &entryCount);
+            if (ret != ES_ERR_OK) {
+                ES_ERR_REPORT("Could not read2 %s: %d", dirPath + 0x20, ret);
+                goto cleanup;
+            }
+
+            entry = entries;
+            for (i = 0; i < entryCount; i++) {
+                snprintf(filePath + 0x1c, 0x40, "%s%s", dirPath + 0x20, entry);
+                (filePath + 0x1c)[0x40] = 0;
+                ret = NANDPrivateDelete(filePath + 0x1c);
+                if (ret != ES_ERR_OK) {
+                    ES_ERR_REPORT("Failed to delete %s: %d", filePath + 0x1c, ret);
+                }
+                entry += strlen(entry) + 1;
+            }
+
+        cleanup:
+            if (entries != NULL) {
+                heap->free(entries);
+            }
+            return ret;
+        }
+
+        void ESMisc::DeleteUnauthorizedData(EGG::Heap* heap) {
+            u32 titleCount = 0;
+            ESTitleId* titleIds = NULL;
+            s32 ret = ES_ListTitlesOnCard(NULL, &titleCount);
+
+            if (ret != ES_ERR_OK) {
+                OSReport("%s::%s: Failed to ES_ListTitlesOnCard1: %d\n", __FILE__, "InitSavedata", ret);
+                return;
+            }
+
+            titleIds = (ESTitleId*)heap->alloc(OSRoundUp32B(titleCount * sizeof(ESTitleId)), -DEFAULT_ALIGN);
+            if (titleIds == NULL) {
+                OSReport("%s::%s: Unable to allocate\n", __FILE__, "InitSavedata");
+                return;
+            }
+
+            ret = ES_ListTitlesOnCard(titleIds, &titleCount);
+            if (ret != ES_ERR_OK) {
+                OSReport("%s::%s: Failed to ES_ListTitlesOnCard2: %d\n", __FILE__, "InitSavedata", ret);
+                heap->free(titleIds);
+                return;
+            }
+
+            for (u32 i = 0; i < titleCount; i++) {
+                u32 titleIdHi = ((u32*)titleIds)[i * 2];
+                u32 titleIdLo = ((u32*)titleIds)[i * 2 + 1];
+                ESTitleId titleId = ((ESTitleId)titleIdHi << 32) | titleIdLo;
+
+                if (titleIdHi == 0x10000 && (titleIdLo & 0xffffff00) == 0x525a4400) {
+                    char path[88];
+                    NANDFileInfo fileInfo ALIGN32;
+                    u8* saveData = NULL;
+                    BOOL fileOpen = FALSE;
+                    BOOL deleteSaveData = FALSE;
+
+                    sprintf(path - 8, "/title/%08x/%08x/data/%s", titleIdHi & 0xffffff, titleIdLo, "zeldaTp.dat");
+                    if (!ChangeUid(titleId)) {
+                        OSReport("%s::%s: ChangeUid failed\n", __FILE__, "verifySavedataZD");
+                        DeleteTitle(heap, titleId);
+                    } else {
+                        ret = NANDPrivateOpen(path - 8, (NANDFileInfo*)((u8*)&fileInfo - 0x20), NAND_ACCESS_READ);
+                        if (ret == NAND_RESULT_NOEXISTS) {
+                            OSReport("%s::%s: Does not exist %s: %d\n", __FILE__, "verifySavedataZD", path - 8, ret);
+                        } else if (ret != NAND_RESULT_OK) {
+                            OSReport("%s::%s: Open save data file failed: %d\n", __FILE__, "verifySavedataZD", ret);
+                        } else {
+                            fileOpen = TRUE;
+                            saveData = (u8*)heap->alloc(0x4000, -DEFAULT_ALIGN);
+                            if (saveData == NULL) {
+                                OSReport("%s::%s: Alloc failed: %d\n", __FILE__, "verifySavedataZD", -2);
+                            } else {
+                                memset(saveData, 0, 0x4000);
+                                ret = NANDRead((NANDFileInfo*)((u8*)&fileInfo - 0x20), saveData, 0x4000);
+                                if (ret < 0) {
+                                    OSReport("%s::%s: Read file failed: %d\n", __FILE__, "verifySavedataZD", ret);
+                                } else if (ret != 0x4000) {
+                                    OSReport("%s::%s: File size is not correct: %d\n", __FILE__, "verifySavedataZD", ret);
+                                    deleteSaveData = TRUE;
+                                } else {
+                                    u32 offset = 8;
+                                    u32 j = 0;
+                                    BOOL valid = FALSE;
+                                    while (j < 3) {
+                                        u8* block = saveData + offset;
+                                        if (!checkForNullTermination((char*)block + 0x4e, 8) ||
+                                            !checkForNullTermination((char*)block + 0x58, 8) ||
+                                            !checkForNullTermination((char*)block + 0x72, 8) ||
+                                            !checkForNullTermination((char*)block + 0x8e, 8) ||
+                                            !checkForNullTermination((char*)block + 0x1b4, 0x11) ||
+                                            !checkForNullTermination((char*)block + 0x1c5, 0x11)) {
+                                            goto verify_failed;
+                                        }
+                                        j++;
+                                        offset += 0xa94;
+                                    }
+
+                                    offset = 0x2008;
+                                    j = 0;
+                                    while (j < 3) {
+                                        u8* block = saveData + offset;
+                                        if (!checkForNullTermination((char*)block + 0x4e, 8) ||
+                                            !checkForNullTermination((char*)block + 0x58, 8) ||
+                                            !checkForNullTermination((char*)block + 0x72, 8) ||
+                                            !checkForNullTermination((char*)block + 0x8e, 8) ||
+                                            !checkForNullTermination((char*)block + 0x1b4, 0x11) ||
+                                            !checkForNullTermination((char*)block + 0x1c5, 0x11)) {
+                                            goto verify_failed;
+                                        }
+                                        j++;
+                                        offset += 0xa94;
+                                    }
+                                    valid = TRUE;
+
+                                verify_failed:
+
+                                    if (!valid) {
+                                        OSReport("%s::%s: Verify failed for %016llx\n", __FILE__, "verifySavedataZD", titleId);
+                                        deleteSaveData = TRUE;
+                                    }
+                                }
+
+                                NANDClose((NANDFileInfo*)((u8*)&fileInfo - 0x20));
+                                fileOpen = FALSE;
+                                if (deleteSaveData) {
+                                    DeleteSavedata(titleId, heap);
+                                }
+                            }
+                        }
+                    }
+
+                    if (saveData != NULL) {
+                        heap->free(saveData);
+                    }
+                    if (fileOpen) {
+                        NANDClose((NANDFileInfo*)((u8*)&fileInfo - 0x20));
+                    }
+                    ChangeUid(SYSMENU_TITLE_ID);
+                } else if (titleId == 0x0001000844495343ULL ||
+                           (titleId < 0x0001000844495343ULL &&
+                            (titleId == 0x000100014a4f4449ULL ||
+                             (titleId > 0x000100014a4f4449ULL && titleId == 0x0001000148415858ULL))) ||
+                           (titleId > 0x0001000844495343ULL &&
+                            (titleId == 0x0001000844564458ULL ||
+                             (titleId > 0x0001000844564458ULL && titleId == 0x000100084449534bULL)))) {
+                    ES_DeleteTitle(titleId);
+
+                    u8 ticketViews[0xe0];
+                    u32 ticketViewCount = 0;
+                    ESTicketView* ticketViewList = NULL;
+                    memset(ticketViews - 8, 0, sizeof(ticketViews));
+                    ret = ES_GetTicketViews(titleId, NULL, &ticketViewCount);
+                    if (ret != ES_ERR_OK) {
+                        OSReport("%s::%s: ES_GetTicketViews failed: %d for %016llx\n", __FILE__, "DeleteTicketsForce", ret, titleId);
+                    } else if (ticketViewCount != 0) {
+                        ticketViewList = (ESTicketView*)heap->alloc(ticketViewCount * sizeof(ESTicketView), -DEFAULT_ALIGN);
+                        ret = ES_GetTicketViews(titleId, ticketViewList, &ticketViewCount);
+                        if (ret != ES_ERR_OK) {
+                            OSReport("%s::%s: ES_GetTicketViews failed: %d for %016llx\n", __FILE__, "DeleteTicketsForce", ret, titleId);
+                        } else {
+                            for (u32 j = 0; j < ticketViewCount; j++) {
+                                memcpy(ticketViews - 8, (u8*)ticketViewList + j * sizeof(ESTicketView), 0xd8);
+                                ret = ES_DeleteTicket((ESTicketView*)(ticketViews - 8));
+                                if (ret != ES_ERR_OK) {
+                                    ESTitleId ticketTitleId;
+                                    memcpy(&ticketTitleId, (u8*)(ticketViews - 8) + 4, sizeof(ESTitleId));
+                                    OSReport("%s::%s: ES_DeleteTicket failed: %d for %016llx\n", __FILE__, "DeleteTicketsForce", ret, ticketTitleId);
+                                }
+                            }
+                        }
+                    }
+
+                    if (ticketViewList != NULL) {
+                        heap->free(ticketViewList);
+                    }
+                }
+            }
+
+            heap->free(titleIds);
         }
 
         BOOL checkForNullTermination(char* str, u32 len) {

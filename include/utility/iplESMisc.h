@@ -66,6 +66,7 @@ namespace ipl {
             static s32 CheckSafeDeleteTitle(EGG::Heap* heap, ESTitleId titleId);
 
             static ESError PrepareTitleDir(ESTitleId titleId, EGG::Heap* heap);
+            static ESError DeleteSavedata(ESTitleId titleId, EGG::Heap* heap);
 
             static ESError DeleteTitleContent(EGG::Heap* heap, ESTitleId titleId);
 
