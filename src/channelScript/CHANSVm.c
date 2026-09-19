@@ -2305,7 +2305,7 @@ error:
 
 VmMethodDefine(Array, New2d) {
     CHANSVmPrivate* pVm = (CHANSVmPrivate*)VmInst;
-    u32 sizes[2];
+    u32 sizes[0x12];
     u32 i;
 
     if (VmReturnObj == vmNull || pVm->pActiveCtx->argc != 2) {
