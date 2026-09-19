@@ -614,6 +614,115 @@ static s32 TMCJPEGDEC_parse_dht(s32 first, TMCCJPEGDecWork* work) {
     return 0;
 }
 
+#ifdef __MWERKS__
+static asm s32 TMCJPEGDEC_parse_dqt(register TMCCJPEGDecWork* work) {
+    nofralloc
+
+    stwu r1, -0x130(r1)
+    mflr r0
+    lis r4, lbl_8161E080@ha
+    stw r0, 0x134(r1)
+    addi r4, r4, lbl_8161E080@l
+    li r0, 0x20
+    addi r6, r1, 0xc
+    stmw r24, 0x110(r1)
+    mr r30, r3
+    addi r5, r4, -4
+    mtctr r0
+
+_parse_dqt_copy:
+    lwz r4, 4(r5)
+    lwzu r0, 8(r5)
+    stw r4, 4(r6)
+    stwu r0, 8(r6)
+    bdnz _parse_dqt_copy
+
+    addi r31, r3, 0x58
+    mr r4, r30
+    addi r3, r1, 0xa
+    bl TMCJPEGDEC_get_wbyte
+    cmpwi r3, 0
+    bge _parse_dqt_have_length
+    b _parse_dqt_return
+
+_parse_dqt_have_length:
+    lhz r3, 0xa(r1)
+    addi r29, r1, 0x10
+    li r27, 1
+    lis r28, TMCJPEGDEC_Zigzag_data@ha
+    addi r0, r3, -2
+    sth r0, 0xa(r1)
+
+_parse_dqt_table:
+    lhz r5, 0xa(r1)
+    mr r4, r30
+    addi r3, r1, 9
+    addi r0, r5, -0x41
+    sth r0, 0xa(r1)
+    bl TMCJPEGDEC_get_byte
+    cmpwi r3, 0
+    bge _parse_dqt_have_qt_info
+    b _parse_dqt_return
+
+_parse_dqt_have_qt_info:
+    lbz r0, 9(r1)
+    cmplwi r0, 4
+    ble _parse_dqt_valid_qt_info
+    li r3, -0x41
+    b _parse_dqt_return
+
+_parse_dqt_valid_qt_info:
+    add r3, r31, r0
+    addi r26, r28, TMCJPEGDEC_Zigzag_data@l
+    stb r27, 0x1790(r3)
+    li r25, 0
+
+_parse_dqt_coeff:
+    lbz r24, 0(r26)
+    cmpwi r24, 0x3f
+    ble _parse_dqt_valid_coeff
+    li r3, -0x41
+    b _parse_dqt_return
+
+_parse_dqt_valid_coeff:
+    mr r4, r30
+    addi r3, r1, 8
+    bl TMCJPEGDEC_get_byte
+    cmpwi r3, 0
+    bge _parse_dqt_have_coeff
+    b _parse_dqt_return
+
+_parse_dqt_have_coeff:
+    slwi r4, r24, 2
+    lbz r3, 9(r1)
+    add r0, r4, r31
+    lbz r5, 8(r1)
+    lwzx r4, r29, r4
+    slwi r3, r3, 8
+    mullw. r4, r5, r4
+    stwx r4, r3, r0
+    bne _parse_dqt_nonzero
+    li r3, -0x41
+    b _parse_dqt_return
+
+_parse_dqt_nonzero:
+    addi r25, r25, 1
+    addi r26, r26, 1
+    cmpwi r25, 0x40
+    blt _parse_dqt_coeff
+    lhz r0, 0xa(r1)
+    cmpwi r0, 0
+    bne _parse_dqt_table
+    li r3, 0
+
+_parse_dqt_return:
+    lmw r24, 0x110(r1)
+    lwz r0, 0x134(r1)
+    mtlr r0
+    addi r1, r1, 0x130
+    blr
+}
+#else
 static s32 TMCJPEGDEC_parse_dqt(TMCCJPEGDecWork* work) {
     typedef struct {
         u32 data[64];
@@ -686,6 +795,7 @@ static s32 TMCJPEGDEC_parse_dqt(TMCCJPEGDecWork* work) {
 
     return 0;
 }
+#endif
 
 static s32 TMCJPEGDEC_parse_sof(TMCCJPEGDecWork* work) {
     TMCJpegFrameInfo* frameInfo = (TMCJpegFrameInfo*)((u8*)work + 0x17f0);
