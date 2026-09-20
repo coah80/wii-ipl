@@ -23,3 +23,8 @@ extern "C" asm void getParent__Q33ipl5scene4BaseFv() {
     lwz r3, 4(r3)
     blr
 }
+
+extern "C" asm void startResetting__Q33ipl5scene4BaseFv() {
+    nofralloc
+    blr
+}
