@@ -763,8 +763,10 @@ s32 CHANSVm_8144B62C(vmWString buf, u32 len, vmFloat val) NO_INLINE {
     return VM_STR_LENGTH(result);
 }
 
+char lbl_81697591[] = "%lld";
+
 static int VmToStrFromInt(vmWString output, vmSize length, vmInteger integer) {
-    vmS32 len = snprintf((vmString)output, length, "%lld", integer);
+    vmS32 len = snprintf((vmString)output, length, lbl_81697591, integer);
     CHANSVmStrCpyToU16FromU8(output, (vmString)output, len);
     return len;
 }
