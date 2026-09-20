@@ -171,6 +171,8 @@ namespace ipl {
 
             virtual f32 getDpdDistance() const override;  // 0x60
 
+            virtual KPADStatus* getKPADStatus() const override;  // 0x64
+
             virtual math::VEC2 getDpdProjectionPos() const override;  // 0x58
 
             virtual bool isValidBtn() const override;  // 0x6C

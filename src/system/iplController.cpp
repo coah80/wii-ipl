@@ -225,6 +225,10 @@ namespace ipl {
             return unk_0x20->dist;
         }
 
+        KPADStatus* Revolution::getKPADStatus() const {
+            return unk_0x20;
+        }
+
         // non-matching
         math::VEC2 Revolution::getDpdProjectionPos() const {
             math::VEC2 ret;
