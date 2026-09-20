@@ -51,3 +51,8 @@ extern "C" asm void prepare__Q33ipl5scene7AddressFv() {
     nofralloc
     blr
 }
+
+extern "C" asm void calcCommon__Q33ipl5scene14FaderSceneBaseFv() {
+    nofralloc
+    blr
+}
