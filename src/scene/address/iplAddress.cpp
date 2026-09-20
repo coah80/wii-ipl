@@ -188,3 +188,14 @@ extern "C" asm void __ct__Q43ipl5scene7Address6MiiObjFv() {
     stw r0, 0x20(r3)
     blr
 }
+
+extern "C" asm void SetTranslate__Q34nw4r3lyt4PaneFRCQ34nw4r4math4VEC3() {
+    nofralloc
+    lfs f2, 0(r4)
+    lfs f1, 4(r4)
+    lfs f0, 8(r4)
+    stfs f2, 0x2c(r3)
+    stfs f1, 0x30(r3)
+    stfs f0, 0x34(r3)
+    blr
+}
