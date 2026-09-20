@@ -19,6 +19,8 @@ extern "C" void _savegpr_14();
 extern "C" void _restgpr_14();
 extern "C" void _savegpr_26();
 extern "C" void _restgpr_26();
+extern "C" void _savegpr_16();
+extern "C" void _restgpr_16();
 
 namespace ipl {
     // clang-format off
@@ -505,6 +507,7 @@ namespace ipl {
         extern "C" int isEqualChannel__Q33ipl8savedata7ManagerFUxUx();
         extern "C" int checkValidApp__Q33ipl8savedata7ManagerFUx();
         extern "C" int getAvailableInList__Q33ipl8savedata7ManagerFPCUxUl();
+        extern "C" int isDefaultChannel__Q33ipl8savedata7ManagerFUlUl();
 
         asm void Manager::makePriorTitleIDList(register ESTitleId* titleIdsOut, register ESTitleId* titleIdsIn, register u32 titleCount) {
             nofralloc
@@ -650,6 +653,117 @@ namespace ipl {
             blt makePriorTitleIDList_L1
             addi r11, r1, 0x50
             bl _restgpr_14
+            lwz r0, 0x54(r1)
+            mtlr r0
+            addi r1, r1, 0x50
+            blr
+        }
+
+        asm void Manager::makeTmpList(register ESTitleId* titleIdsOut, register u32 availableCount, register ESTitleId* titleIdsIn, register u32 titleCount) {
+            nofralloc
+            stwu r1, -0x50(r1)
+            mflr r0
+            stw r0, 0x54(r1)
+            addi r11, r1, 0x50
+            bl _savegpr_16
+            mr r22, r3
+            mr r23, r4
+            mr r24, r5
+            mr r25, r6
+            mr r26, r7
+            li r29, 6
+            li r21, 0x30
+            li r28, 0
+            li r27, 0
+            li r20, 0
+            li r31, -1
+            li r18, 0
+            b makeTmpList_L8
+        makeTmpList_L1:
+            add r30, r25, r20
+            lwzx r5, r25, r20
+            lwz r6, 4(r30)
+            or. r0, r6, r5
+            beq makeTmpList_L7
+            mr r3, r22
+            bl checkValidApp__Q33ipl8savedata7ManagerFUx
+            cmpwi r3, 0
+            beq makeTmpList_L6
+            li r3, -1
+            li r16, 0
+            li r19, 0
+            b makeTmpList_L3
+        makeTmpList_L2:
+            add r17, r23, r19
+            lwz r7, 0(r30)
+            lwzx r5, r23, r19
+            mr r3, r22
+            lwz r6, 4(r17)
+            lwz r8, 4(r30)
+            bl isEqualChannel__Q33ipl8savedata7ManagerFUxUx
+            cmpwi r3, -2
+            beq makeTmpList_L5
+            cmpwi r3, 0
+            beq makeTmpList_L5
+            cmpwi r3, 1
+            bne makeTmpList_L4
+            lwz r0, 0(r30)
+            lwz r4, 4(r30)
+            stw r4, 4(r17)
+            stw r0, 0(r17)
+            b makeTmpList_L5
+        makeTmpList_L4:
+            addi r16, r16, 1
+            addi r19, r19, 8
+        makeTmpList_L3:
+            cmpw r16, r29
+            blt makeTmpList_L2
+        makeTmpList_L5:
+            cmpwi r3, -1
+            beq makeTmpList_L5B
+            stw r18, 4(r30)
+            stw r18, 0(r30)
+            b makeTmpList_L7
+        makeTmpList_L5B:
+            lwz r0, 0(r30)
+            mr r3, r22
+            lwz r5, 4(r30)
+            and r4, r0, r31
+            and r5, r5, r31
+            bl isDefaultChannel__Q33ipl8savedata7ManagerFUlUl
+            cmpwi r3, -1
+            bne makeTmpList_L5C
+            lwz r0, 0(r30)
+            add r3, r23, r21
+            lwz r4, 4(r30)
+            addi r29, r29, 1
+            stw r4, 4(r3)
+            stwx r0, r23, r21
+            addi r21, r21, 8
+            b makeTmpList_L5D
+        makeTmpList_L5C:
+            slwi r0, r3, 3
+            lwz r4, 0(r30)
+            lwz r5, 4(r30)
+            add r3, r23, r0
+            stw r5, 4(r3)
+            stwx r4, r23, r0
+        makeTmpList_L5D:
+            addi r28, r28, 1
+        makeTmpList_L6:
+            stw r18, 4(r30)
+            cmplw r28, r24
+            stw r18, 0(r30)
+            bge makeTmpList_L9
+        makeTmpList_L7:
+            addi r27, r27, 1
+            addi r20, r20, 8
+        makeTmpList_L8:
+            cmplw r27, r26
+            blt makeTmpList_L1
+        makeTmpList_L9:
+            addi r11, r1, 0x50
+            bl _restgpr_16
             lwz r0, 0x54(r1)
             mtlr r0
             addi r1, r1, 0x50
