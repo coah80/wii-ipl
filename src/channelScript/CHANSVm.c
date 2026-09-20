@@ -452,8 +452,9 @@ CHANSVmObjHdr* CHANSVmCopyObject(CHANSVm* vm, CHANSVmObjHdr* outObj, CHANSVmObjH
             if (unk->alloc == 0) {
                 val = 1;
             } else {
-                if (unk->inUse < -1) {
-                    val = unk->inUse + 1;
+                u32 inUse = unk->inUse;
+                if (inUse < -1) {
+                    val = inUse + 1;
                     unk->inUse = val;
                 } else {
                     val = 0;
