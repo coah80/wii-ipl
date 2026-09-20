@@ -1110,7 +1110,9 @@ namespace ipl {
 
                 BoardObject* object = NULL;
                 FOREACH_OBJ_IN_LIST(object) {
+                    BoardObject* next = object;
                     object->left_away();
+                    object = next;
                 }
 
                 snd::getSystem()->startSEwithPos("WIPL_SE_MSG_HOUSE", -300.0f);
