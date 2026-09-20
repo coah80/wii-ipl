@@ -1489,35 +1489,36 @@ namespace ipl {
             if (mModuleType != MODULE_TYPE_CS) {
                 return;
             }
-            if (mState != STATE_START_ZOOM_IN && mState != STATE_ZOOMING_IN && mState != STATE_NORMAL_CHANGE_NEXT) {
-                switch (mModuleState) {
-                    case MODULE_STATE_INIT: {
-                        calcModuleInit();
-                        break;
-                    }
-                    case MODULE_STATE_WAIT: {
-                        calcCSWait();
-                        break;
-                    }
-                    case MODULE_STATE_CALC: {
-                        System::getCSManager()->calc();
-                        if (mpModuleThread->IsThreadTerminated()) {
-                            if (System::getCSManager()->getAltSoundState() == channel::CHANS_VM_ALT_SND_STATE_UNK1) {
-                                startChanSound();
-                                System::getCSManager()->setAltSoundState(channel::CHANS_VM_ALT_SND_STATE_UNAVAILABLE);
-                            }
-                            System::getCSManager()->finish();
-                            mModuleState = MODULE_STATE_FINISH;
+            if (mState == STATE_START_ZOOM_IN || mState == STATE_ZOOMING_IN || mState == STATE_NORMAL_CHANGE_NEXT) {
+                return;
+            }
+            switch (mModuleState) {
+                case MODULE_STATE_INIT: {
+                    calcModuleInit();
+                    break;
+                }
+                case MODULE_STATE_WAIT: {
+                    calcCSWait();
+                    break;
+                }
+                case MODULE_STATE_CALC: {
+                    System::getCSManager()->calc();
+                    if (mpModuleThread->IsThreadTerminated()) {
+                        if (System::getCSManager()->getAltSoundState() == channel::CHANS_VM_ALT_SND_STATE_UNK1) {
+                            startChanSound();
+                            System::getCSManager()->setAltSoundState(channel::CHANS_VM_ALT_SND_STATE_UNAVAILABLE);
                         }
-                        break;
+                        System::getCSManager()->finish();
+                        mModuleState = MODULE_STATE_FINISH;
                     }
-                    case MODULE_STATE_FINISH: {
-                        calcCSFinish();
-                        break;
-                    }
-                    default: {
-                        break;
-                    }
+                    break;
+                }
+                case MODULE_STATE_FINISH: {
+                    calcCSFinish();
+                    break;
+                }
+                default: {
+                    break;
                 }
             }
         }
