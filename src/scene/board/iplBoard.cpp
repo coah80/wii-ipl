@@ -1248,10 +1248,11 @@ namespace ipl {
                     end = DATE_TO_CDB_END(board->getDate());
                 }
 
+                CDBSearchDirection direction = board->getSearchDirection();
                 cdb::Manager* cdbManager = System::getCdbManager();
                 CDBRecordLocation location = cdbManager->isSDMounted() ? CDB_RECORD_LOCATION_ALL : CDB_RECORD_LOCATION_NAND;
 
-                cdbManager->search(start, end, board->getSearchDirection(), location, 0, read_task_cb_, work);
+                cdbManager->search(start, end, direction, location, 0, read_task_cb_, work);
 
                 board->clear_key_table();
 
