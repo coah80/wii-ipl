@@ -44,6 +44,7 @@ namespace ipl {
         };
         // clang-format on
 
+#pragma force_active on
         static int getFirstController() {
             for (int i = 0; i < WPAD_MAX_CONTROLLERS; i++) {
                 if (System::getController(i) != NULL) {
@@ -52,6 +53,7 @@ namespace ipl {
             }
             return 0;
         }
+#pragma force_active off
 
         void EventObserver::onCommand(textinput::CommandReceiver::INPUT_COMMAND command, void* data) {
             if (command == textinput::CommandReceiver::INPUT_COMMAND_37 && ((u32*)data)[0] == 0) {
