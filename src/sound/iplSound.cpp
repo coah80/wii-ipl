@@ -12,6 +12,7 @@ extern "C" void __dt__Q34nw4r3snd11SoundHandleFv();
 extern "C" void __dl__FPv();
 extern "C" void __destroy_arr();
 extern "C" void _seBlk__Q23ipl3snd();
+extern "C" nw4r::snd::SoundHandle* _mainBGMHandle__Q23ipl3snd;
 
 namespace ipl {
     namespace snd {
@@ -137,6 +138,23 @@ namespace ipl {
             0.0f,
             1.0f,
         };
+
+        extern "C" asm void stopBGM__Q33ipl3snd6SystemFi() {
+            nofralloc
+            lwz r3, _mainBGMHandle__Q23ipl3snd
+            cmpwi r3, 0
+            beqlr
+            lwz r0, 0(r3)
+            cmpwi r0, 0
+            beqlr
+            beqlr
+            lwz r3, 0(r3)
+            lwz r12, 0(r3)
+            lwz r12, 0x18(r12)
+            mtctr r12
+            bctr
+            blr
+        }
 
         void System::shutup(BOOL shutUpDMA) {
             if (m_isLocked == shutUpDMA) {
