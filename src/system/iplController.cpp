@@ -101,6 +101,10 @@ namespace ipl {
             return 0;
         }
 
+        int Interface::upTrg(u32 mButton) const {
+            return 0;
+        }
+
         int Interface::pinch() const {
             return 0;
         }
