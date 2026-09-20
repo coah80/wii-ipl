@@ -137,6 +137,14 @@ namespace ipl {
             return ret;
         }
 
+        math::VEC2 Interface::getDpdProjectionPos() const {
+            math::VEC2 ret;
+            f32 zero = *((volatile const f32*)&lbl_81694454);
+            ret.x = zero;
+            ret.y = zero;
+            return ret;
+        }
+
         int Interface::getClassicHoldFlag() const {
             return 0;
         }

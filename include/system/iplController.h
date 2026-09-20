@@ -167,6 +167,7 @@ namespace ipl {
             virtual int getType() const override;
             virtual bool isValidDpd() const override;
             virtual math::VEC2 getDpdPos() const override;
+            virtual math::VEC2 getDpdProjectionPos() const override;
             virtual void read() override;
         };
 
