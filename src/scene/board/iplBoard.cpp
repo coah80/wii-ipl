@@ -310,9 +310,9 @@ namespace ipl {
 
             return_to_freelist();
 
-            BoardObject* object = NULL;
-            while (object = mObjList.getNextFree(object), object != NULL) {
-                object->destroy_heap();
+            void* object = NULL;
+            while (object = (void*)mObjList.getNextFree((BoardObject*)object), object != NULL) {
+                ((BoardObject*)object)->destroy_heap();
             }
 
             // Unmount SD
