@@ -1,5 +1,8 @@
 #include "scene/address/iplAddress.h"
 
+extern "C" char smArg__Q23ipl6System;
+extern "C" void checkUserId__Q33ipl5nwc247ManagerFUx();
+
 extern "C" asm void getChild__Q33ipl5scene4BaseFv() {
     nofralloc
     lwz r3, 8(r3)
@@ -55,4 +58,21 @@ extern "C" asm void prepare__Q33ipl5scene7AddressFv() {
 extern "C" asm void calcCommon__Q33ipl5scene14FaderSceneBaseFv() {
     nofralloc
     blr
+}
+
+extern "C" asm void isValidId__Q33ipl5scene15FriendListCacheFRCUx() {
+    nofralloc
+    lis r3, smArg__Q23ipl6System@ha
+    addi r3, r3, smArg__Q23ipl6System@l
+    lbz r0, 0x2bc(r3)
+    cmpwi r0, 0
+    beq isValidId_L1
+    li r3, 0
+    b isValidId_L2
+isValidId_L1:
+    lwz r3, 0x8c(r3)
+isValidId_L2:
+    lwz r5, 0(r4)
+    lwz r6, 4(r4)
+    b checkUserId__Q33ipl5nwc247ManagerFUx
 }
