@@ -152,6 +152,10 @@ namespace ipl {
             return -1;
         }
 
+        int Interface::getType() const {
+            return -1;
+        }
+
         int Base::decide() const {
             return unk_0x08 == 5;
         }

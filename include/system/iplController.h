@@ -160,6 +160,7 @@ namespace ipl {
             virtual int getTrigFlag() const override;
             virtual void cancelRumbling() override;
             virtual int getChannel() const override;
+            virtual int getType() const override;
         };
 
         class Revolution : public Interface {
