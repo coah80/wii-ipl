@@ -6116,6 +6116,11 @@ static vmBoolInt VmWinEmuWrite(CHANSVm* vm, CHANSVmObjHdr* parent, CHANSVmObjHdr
 
 const CHANSVmMethodList VmWinEmuMethodTbl[] = {"write", VmWinEmuWrite};
 
+char lbl_816977AC[] = "Date";
+char lbl_816977B1[] = "@Math";
+char lbl_816977B7[] = "Math";
+char lbl_816977BC[] = "@WinEmu";
+
 static CHANSVmErr VmPushFuncReturnInfo(CHANSVm* vm, u32 argCount, u32 totalSlots, u32 headerCount);
 
 CHANSVmErr CHANSVmInit(CHANSVm* vm, vmPtr work, vmU32 size) {
@@ -6177,7 +6182,7 @@ CHANSVmErr CHANSVmInit(CHANSVm* vm, vmPtr work, vmU32 size) {
             goto class_fail;
 
         /* Date class */
-        cls = CHANSVmAddNativeClass2(vm, "Date", VmDateCtor, 0, VmDateDtor);
+        cls = CHANSVmAddNativeClass2(vm, lbl_816977AC, VmDateCtor, 0, VmDateDtor);
         if (cls == vmNull) {
             ok = vmFalse;
         } else {
@@ -6187,7 +6192,7 @@ CHANSVmErr CHANSVmInit(CHANSVm* vm, vmPtr work, vmU32 size) {
             goto class_fail;
 
         /* Math class */
-        if (CHANSVmNewBuiltinObject(vm, "@Math", vmNull, vmNull, vmNull, "Math", vmNull, VmMathPropertyTbl, CHANSVmPropertyCount(VmMathPropertyTbl),
+        if (CHANSVmNewBuiltinObject(vm, lbl_816977B1, vmNull, vmNull, vmNull, lbl_816977B7, vmNull, VmMathPropertyTbl, CHANSVmPropertyCount(VmMathPropertyTbl),
                                     VmMathMethodTbl, CHANSVmMethodCount(VmMathMethodTbl)) == 0) {
             goto class_fail;
         }
@@ -6226,13 +6231,13 @@ CHANSVmErr CHANSVmInit(CHANSVm* vm, vmPtr work, vmU32 size) {
         /* Image class */
         VmImageAllocCallback = vmNull;
         VmImageCtorCallback = vmNull;
-        if (CHANSVmNewBuiltinObject(vm, "Image", vmNull, VmImageCtor, vmNull, vmNull, vmNull, VmImagePropertyTbl, CHANSVmPropertyCount(VmImagePropertyTbl),
+        if (CHANSVmNewBuiltinObject(vm, lbl_8169778C, vmNull, VmImageCtor, vmNull, vmNull, vmNull, VmImagePropertyTbl, CHANSVmPropertyCount(VmImagePropertyTbl),
                                     vmNull, 0) == 0) {
             goto class_fail;
         }
 
         /* Screen (@WinEmu) class */
-        if (CHANSVmNewBuiltinObject(vm, "@WinEmu", vmNull, vmNull, vmNull, "document", vmNull, vmNull, 0, (CHANSVmMethodList*)&VmWinEmuMethodTbl,
+        if (CHANSVmNewBuiltinObject(vm, lbl_816977BC, vmNull, vmNull, vmNull, "document", vmNull, vmNull, 0, (CHANSVmMethodList*)&VmWinEmuMethodTbl,
                                     CHANSVmMethodCount(VmWinEmuMethodTbl)) == 0) {
         class_fail:
             result = CHANS_VM_ERR_NATIVE_METHOD_INIT;
