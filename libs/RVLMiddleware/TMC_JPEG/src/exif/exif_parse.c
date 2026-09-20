@@ -169,8 +169,9 @@ s32 TMCCJPEGDecGetOffsetEXIF(u32* pOffset, u32* pSize, TMCCJPEGDecInitParam* pPa
 
 s32 TMCCJPEGDecGetInfoEXIF(TMCCJPEGDecExifInfo* pInfo, TMCCJPEGDecInitParam* pParam) {
     TMCCJPEGDecWork* work;
-    u16 segSize;
-    u32 segSizeP2;
+    u32 segSize;
+    u16 segSizeP2;
+    u16 exifSize;
     s32 result;
 
     work = pParam->pBuf1;
@@ -195,7 +196,8 @@ s32 TMCCJPEGDecGetInfoEXIF(TMCCJPEGDecExifInfo* pInfo, TMCCJPEGDecInitParam* pPa
     }
 
     segSizeP2 = segSize + 2;
-    result = TMCJPEGDEC_exif_parse((const u8*)pParam->pBuf2 + 10, segSize - 8, &pInfo->exifData);
+    exifSize = segSize - 8;
+    result = TMCJPEGDEC_exif_parse((const u8*)pParam->pBuf2 + 10, exifSize, &pInfo->exifData);
     if (result < 0) {
         return result;
     }
