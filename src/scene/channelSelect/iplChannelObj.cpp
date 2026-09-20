@@ -23,10 +23,10 @@ namespace ipl {
             "my_IplTop_d_Select.brlan",
         };
 
-        static const char* scBalloonText = "T_Balloon";
+        extern "C" const char* lbl_8169699C = "T_Balloon";
 
         extern "C" const char* lbl_816969A8 = "W_Base";
-        static const char* scShadePane = "W_Shade";
+        extern "C" const char* lbl_816969B4 = "W_Shade";
 
         static const char* scLangGroups[] = {
             "JPN",
@@ -987,7 +987,7 @@ namespace ipl {
         }
 
         void ChannelObj::setBalloonText(const wchar_t* text) {
-            nw4r::lyt::TextBox* textPane = nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(mpBalloonLayout->FindPaneByName(scBalloonText));
+            nw4r::lyt::TextBox* textPane = nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(mpBalloonLayout->FindPaneByName(lbl_8169699C));
 
             wchar_t fullStr[channel::META_CHANNEL_NAME_LENGTH + 3] = L"";
             u32 strLen;
@@ -1033,7 +1033,7 @@ namespace ipl {
                 newSize.width = mLocationAdjust * 160.0f;
             }
 
-            mpBalloonLayout->FindPaneByName(scShadePane)->SetSize(newSize);
+            mpBalloonLayout->FindPaneByName(lbl_816969B4)->SetSize(newSize);
             mpBalloonLayout->FindPaneByName(lbl_816969A8)->SetSize(newSize);
         }
 
