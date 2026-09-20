@@ -17,6 +17,12 @@ extern "C" void _savegpr_25();
 extern "C" void _restgpr_25();
 extern "C" void __ptmf_scall();
 
+extern "C" asm void getMainStickX__Q33ipl10controller9InterfaceCFv() {
+    nofralloc
+    li r3, 0
+    blr
+}
+
 extern "C" asm void call__Q33ipl10controller6MasterCFUlMQ33ipl10controller9InterfaceFPCvPCvUl_b() {
     nofralloc
     stwu r1, -0x30(r1)
