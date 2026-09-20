@@ -120,6 +120,8 @@ namespace ipl {
         extern "C" const char lbl_8164E038[] = "WIPL_SE_DECIDE";
         extern "C" const char lbl_8164DE64[] = "N_GCIcon";
         extern "C" const char lbl_8164DE6D[] = "N_DiscUpdateIcon";
+        extern "C" const char lbl_8164DFF1[] = "WIPL_SE_CH_SET";
+        extern "C" const char lbl_8164E000[] = "WIPL_SE_CH_NOT_MOVE";
         #pragma pop
 
         #pragma push
@@ -3005,13 +3007,13 @@ calcNormalMoveChanOut_ChannelSelect_L1:
                 mpMoveLytDrop->GetRootPane()->SetTranslate(translate);
                 mpMoveLytDrop->getAnim(0)->play();
 
-                snd::getSystem()->startSEwithPos("WIPL_SE_CH_SET", mDragPos.x);
+                snd::getSystem()->startSEwithPos(lbl_8164DFF1, mDragPos.x);
 
                 mpMoveLytMask->getAnim(1)->play();
 
                 mState = STATE_NORMAL_MOVE_CHAN_IN;
             } else {
-                snd::getSystem()->startSEwithPos("WIPL_SE_CH_NOT_MOVE", mDragPos.x);
+                snd::getSystem()->startSEwithPos(lbl_8164E000, mDragPos.x);
 
                 mState = STATE_NORMAL_RELEASE_WAIT;
             }

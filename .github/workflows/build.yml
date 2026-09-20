@@ -56,6 +56,14 @@ jobs:
             --binutils /binutils --compilers /compilers
         ninja all_source progress build/${{ matrix.version }}/report.json
 
+    - name: Calculate decomp status
+      if: matrix.version == '43U'
+      run: |
+        python tools/decomp_status.py \
+            build/${{ matrix.version }}/report.json \
+            --output build/${{ matrix.version }}/decomp-status.json \
+            --summary "$GITHUB_STEP_SUMMARY"
+
     # Upload map files
     - name: Upload map
       uses: actions/upload-artifact@v4
@@ -69,3 +77,10 @@ jobs:
       with:
         name: ${{ matrix.version }}_report
         path: build/${{ matrix.version }}/report.json
+
+    - name: Upload decomp status
+      if: matrix.version == '43U'
+      uses: actions/upload-artifact@v4
+      with:
+        name: decomp_status
+        path: build/${{ matrix.version }}/decomp-status.json
