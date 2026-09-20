@@ -288,6 +288,18 @@ namespace ipl {
             return TRUE;
         }
 
+        Interface* Manager::getYoungController() {
+            Interface* ret = NULL;
+            for (int i = 0; i < 4; i++) {
+                Interface* controller = ((Interface**)this)[i];
+                if (controller != NULL) {
+                    ret = controller;
+                    break;
+                }
+            }
+            return ret;
+        }
+
         int Base::decide() const {
             return unk_0x08 == 5;
         }
