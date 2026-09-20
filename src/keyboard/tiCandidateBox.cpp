@@ -15,11 +15,16 @@ namespace textinput {
 
         #pragma push
         #pragma section sconst_type ".sdata"
+        extern "C" const char* lbl_816973C0 = lbl_8165D2D0;
+        extern "C" const char* lbl_816973C4 = lbl_8165D2E0;
+        extern "C" const wchar_t lbl_816973C8[4] = {0, 0, 0, 1};
         extern "C" const char lbl_816973D0[8] = "P_OnBtn";
+        extern "C" const char lbl_816973D8[8] = "B_OnBtn";
         #pragma pop
 
-        static const char* COMMON_TEXT_ANIM = lbl_8165D2D0;
-        static const char* COMMON_SCROLL_ANIM = lbl_8165D2E0;
+
+        #define COMMON_TEXT_ANIM lbl_816973C0
+        #define COMMON_SCROLL_ANIM lbl_816973C4
 
         // name made up, no dwarf (?)
         struct AnimationFile {
@@ -204,6 +209,9 @@ namespace textinput {
             "P_prdc_scrl_Rght\0\0\0"
             "\0\0\0";
         extern "C" char lbl_8165DA08[16] = "W_predictWindow";
+        extern "C" const char lbl_8165DA18[15] = "N_predictInput";
+        extern "C" const char lbl_8165DA28[13] = "W_OnOff_Area";
+        extern "C" const char lbl_8165DA38[13] = "N_prdc_Texts";
         #pragma pop
 
         void CandidateBoxCaller::Candidates::addCandidate(const wchar_t* wcString) {
@@ -380,7 +388,7 @@ namespace textinput {
             mRightScroll.Create(this, lbl_8165D984 + 108, lbl_8165D984 + 88);
             mLeftScroll.Init();
             mRightScroll.Init();
-            mTextWindow.Create(this, "W_predictWindow");
+            mTextWindow.Create(this, lbl_8165DA08);
             init();
         }
 
@@ -429,7 +437,7 @@ namespace textinput {
         }
 
         void LayoutByNW4R::init() {
-            searchAnmPane("N_predictInput")->changeAnimation(ANM_Normal);
+            searchAnmPane(lbl_8165DA18)->changeAnimation(ANM_Normal);
             Base::setInvalid(false);
             setActive(true);
             setOnOff(false);
@@ -442,7 +450,7 @@ namespace textinput {
             mpLayout->CalculateMtx(mDrawInfo);
             if (meLanguage == KR) {
                 mTextWindow.SetVisible(false);
-                getPane("W_OnOff_Area")->SetVisible(false);
+                getPane(lbl_8165DA28)->SetVisible(false);
             } else if (meLanguage == CN) {
                 setOnOff(true);
                 mTextWindow.SetVisible(true);
@@ -452,16 +460,16 @@ namespace textinput {
                 } else {
                     mTextWindow.ChangeAnimation(ANM_Normal);
                 }
-                getPane("W_OnOff_Area")->SetVisible(false);
+                getPane(lbl_8165DA28)->SetVisible(false);
             } else {
-                getPane("W_OnOff_Area")->SetVisible(true);
+                getPane(lbl_8165DA28)->SetVisible(true);
             }
         }
 
         void LayoutByNW4R::draw() {
-            getPane("N_prdc_Texts")->SetVisible(false);
+            getPane(lbl_8165DA38)->SetVisible(false);
             nw4rmanager::Layout::draw();
-            getPane("N_prdc_Texts")->SetVisible(true);
+            getPane(lbl_8165DA38)->SetVisible(true);
             if (!isInvalid()) {
                 mTextArea.Draw(mDrawInfo);
             }
@@ -471,8 +479,8 @@ namespace textinput {
             nw4rmanager::Layout::calc();
             mTextArea.Calc();
             if (mbAnimOn) {
-                getPane("N_prdc_Texts")->Animate(0);
-                getPane("N_prdc_Texts")->CalculateMtx(mDrawInfo);
+                getPane(lbl_8165DA38)->Animate(0);
+                getPane(lbl_8165DA38)->CalculateMtx(mDrawInfo);
             }
         }
 
@@ -988,7 +996,7 @@ namespace textinput {
                 mpBoundingPane[i]->setListener(this);
             }
             mpTextAreaPane = mgr->searchPaneComponent("N_prdcTextArea");
-            mpTextsPane = mgr->searchPaneComponent("N_prdc_Texts");
+            mpTextsPane = mgr->searchPaneComponent(lbl_8165DA38);
             mSize = mpTextBoxPane[0]->getTextPane()->GetFontSize();
             mpTextAreaPane->setListener(this);
         }
@@ -996,7 +1004,7 @@ namespace textinput {
 
         void UITextArea::Init() {
             for (u32 i = 0; i < NUM_PANES; i++) {
-                mpTextBoxPane[i]->getTextPane()->SetString(L"", 0);
+                mpTextBoxPane[i]->getTextPane()->SetString(const_cast<const wchar_t*>(lbl_816973C8), 0);
                 mpBoundingPane[i]->setTriggerTarget(true);
             }
             mfTextWidth = 0.0f;
@@ -1621,7 +1629,7 @@ namespace textinput {
             if (mgr()->isInScroll() && event != 1 && event != 0) {
                 return;
             }
-            if (!mgr()->searchAnmPane("W_predictWindow")->isInAnimation() || event == 1) {
+            if (!mgr()->searchAnmPane(lbl_8165DA08)->isInAnimation() || event == 1) {
                 if (!mgr()->isInvalid()) {
                     switch (event) {
                         case 4:
@@ -1732,7 +1740,7 @@ namespace textinput {
             if (mgr()->isInScroll() && event != 1 && event != 0) {
                 return;
             }
-            if (!mgr()->searchAnmPane("W_predictWindow")->isInAnimation() || event == 1) {
+            if (!mgr()->searchAnmPane(lbl_8165DA08)->isInAnimation() || event == 1) {
                 OnOffAnmPane* p;
                 if (&component == mpOnBoundPane) {
                     p = mpOnAnmPane;
