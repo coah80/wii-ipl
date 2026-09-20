@@ -8,10 +8,6 @@
 
 namespace ext_ead {
     namespace www {
-        namespace window {
-            IPL_WWW_REPORT_REDEFINE_MESSAGE(true);
-        }
-
         BrowserWindow::BrowserWindow(BrowserThread* thread) : mpWwwWindow(NULL), mpBrowserThread(thread) {
             unk_0x2B0 = 0;
             mRenderingMode = 6;
