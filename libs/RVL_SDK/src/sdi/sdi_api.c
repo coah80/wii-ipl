@@ -7,11 +7,16 @@
 
 #include <string.h>
 
+#pragma sym on
+
 #define SD_SLOT_0_PATH "/dev/sdio/slot0"
 #define SD_SLOT_1_PATH "/dev/sdio/slot1"
 #define SD_SLOT_W_PATH "/dev/sdio/slotw"
 
 #define SD_SLOT_PATH_LENGTH 32
+
+char lbl_81691748[] = "   +++ SD RESET Failed: %d +++\n\0"
+                       "/dev/sdio/slot0\0/dev/sdio/slot1\0/dev/sdio/slotw";
 
 typedef void (*SDCallbackFunc)(s32, void*);
 
@@ -29,7 +34,7 @@ u32* __sdReg = NULL;
 
 IOSIoVector* __sdVect = NULL;
 
-IOSHeapId __sdHeapId = -1;
+static IOSHeapId __sdHeapId[2] = {-1};
 
 char __sdPaths[SD_MAX_SLOTS][OSRoundUp32B(SD_SLOT_PATH_LENGTH)] ALIGN32;
 OSMutex __reqMutex;
@@ -67,7 +72,7 @@ IOSError __sdCb(s32 result, void* arg) {
     switch (data->unk_0x0C) {
         case 4: {
             if (result != 0) {
-                OSReport("   +++ SD RESET Failed: %d +++\n", result);
+                OSReport(lbl_81691748, result);
                 data->dev->SDDevRca = 0;
             } else {
                 if (data->dev != NULL) {
@@ -93,9 +98,9 @@ IOSError __sdCb(s32 result, void* arg) {
     }
 
     if (data->SDSectorSize != NULL) {
-        iosFree(__sdHeapId, data->SDSectorSize);
+        iosFree(__sdHeapId[0], data->SDSectorSize);
     }
-    iosFree(__sdHeapId, data);
+    iosFree(__sdHeapId[0], data);
 
     return result;
 }
@@ -103,7 +108,7 @@ IOSError __sdCb(s32 result, void* arg) {
 ISD_Error ISD_GetHCRegister(SDDev* dev, u32 param_2, u32* param_3, u32 param_4) {
     IOSError ret;
 
-    if (__sdHeapId < 0) {
+    if (__sdHeapId[0] < 0) {
         return SD_ERROR_FATAL;
     }
 
@@ -126,7 +131,7 @@ ISD_Error ISD_GetHCRegister(SDDev* dev, u32 param_2, u32* param_3, u32 param_4) 
 ISD_Error ISD_GetDeviceStatus(SDDev* dev, u32* param_2) {
     IOSError ret = SD_ERROR_FATAL;
 
-    if (__sdHeapId >= 0 && param_2 != NULL) {
+    if (__sdHeapId[0] >= 0 && param_2 != NULL) {
         OSLockMutex(&__reqMutex);
 
         if (__sdReq != 0) {
@@ -162,7 +167,7 @@ static IOSError sduCommandv(s32 fd, u32 cmd, u32 cmdType, u32 respType, u32 arg,
         writeCount = 2;
     }
 
-    sdCmd = iosAlloc(__sdHeapId, OSRoundUp32B(SD_CMD_SIZE));
+    sdCmd = iosAlloc(__sdHeapId[0], OSRoundUp32B(SD_CMD_SIZE));
     if (sdCmd == NULL) {
         ret = IPC_RESULT_ALLOC_FAILED;
     } else {
@@ -183,7 +188,7 @@ static IOSError sduCommandv(s32 fd, u32 cmd, u32 cmdType, u32 respType, u32 arg,
         __sdVect[2].length = 0x10;
 
         if (cb != NULL) {
-            __sdCbArg* data = iosAlloc(__sdHeapId, sizeof(__sdCbArg));
+            __sdCbArg* data = iosAlloc(__sdHeapId[0], sizeof(__sdCbArg));
             if (data == NULL) {
                 ret = IPC_RESULT_ALLOC_FAILED;
             } else {
@@ -204,7 +209,7 @@ static IOSError sduCommandv(s32 fd, u32 cmd, u32 cmdType, u32 respType, u32 arg,
     }
 
     if ((cb == NULL || ret != IPC_RESULT_OK) && sdCmd != NULL) {
-        iosFree(__sdHeapId, sdCmd);
+        iosFree(__sdHeapId[0], sdCmd);
     }
 
     return ret;
@@ -215,7 +220,7 @@ static ISD_Error sduCommand(s32 fd, u32 cmd, u32 cmdType, u32 respType, u32 arg,
     ISD_Error ret;
     u32* sdCmd;
 
-    sdCmd = iosAlloc(__sdHeapId, ROUNDUP(SD_CMD_SIZE, 64));
+    sdCmd = iosAlloc(__sdHeapId[0], ROUNDUP(SD_CMD_SIZE, 64));
     if (sdCmd == NULL) {
         ret = IPC_RESULT_ALLOC_FAILED;
     } else {
@@ -230,7 +235,7 @@ static ISD_Error sduCommand(s32 fd, u32 cmd, u32 cmdType, u32 respType, u32 arg,
 
         if (resp != NULL) {
             if (cb != NULL) {
-                __sdCbArg* data = iosAlloc(__sdHeapId, sizeof(__sdCbArg));
+                __sdCbArg* data = iosAlloc(__sdHeapId[0], sizeof(__sdCbArg));
                 if (data == NULL) {
                     ret = IPC_RESULT_ALLOC_FAILED;
                 } else {
@@ -265,7 +270,7 @@ static ISD_Error sduCommand(s32 fd, u32 cmd, u32 cmdType, u32 respType, u32 arg,
     }
 
     if ((resp == NULL || cb == NULL || ret != 0) && sdCmd != NULL) {
-        iosFree(__sdHeapId, sdCmd);
+        iosFree(__sdHeapId[0], sdCmd);
     }
 
     return ret;
@@ -274,7 +279,7 @@ static ISD_Error sduCommand(s32 fd, u32 cmd, u32 cmdType, u32 respType, u32 arg,
 ISD_Error ISD_ResetDevice(SDDev* dev) {
     IOSError ret;
 
-    if (__sdHeapId < 0) {
+    if (__sdHeapId[0] < 0) {
         return SD_ERROR_FATAL;
     }
 
@@ -320,7 +325,7 @@ ISD_Error ISD_ProbeCard(u32 slot) {
     ISD_Error ret;
     u32 status;
 
-    if (__sdHeapId < 0) {
+    if (__sdHeapId[0] < 0) {
         ret = SD_ERROR_FATAL;
     } else {
         ret = ISD_MountCard(slot, &pDev);
@@ -362,7 +367,7 @@ ISD_Error ISD_WriteMultiBlock(SDDev* dev, u32 offset, u8* cmdResp, u32 cmdRespSi
 ISD_Error ISD_MountCard(u32 slot, SDDev** dev) {
     IOSError ret = IPC_RESULT_OK;
 
-    if (__sdHeapId < 0) {
+    if (__sdHeapId[0] < 0) {
         ret = SD_ERROR_FATAL;
         goto out;
     }
@@ -394,6 +399,63 @@ ISD_Error ISD_UnmountCard(SDDev* dev) {
     dev->SDDevFd = -1;
 }
 
+ISD_Error ISD_InitCard() {
+    static u8* lo;
+    char* paths = lbl_81691748;
+    ISD_Error ret = SD_ERROR_SUCCESS;
+    BOOL enabled;
+
+    enabled = OSDisableInterrupts();
+    if (__sdHeapId[0] >= 0) {
+        OSRestoreInterrupts(enabled);
+        goto out;
+    }
+    OSRestoreInterrupts(enabled);
+
+    __sdReq = 0;
+    OSInitMutex(&__reqMutex);
+    lo = IPCGetBufferLo();
+    IPCGetBufferHi();
+    __sdHeapId[0] = iosCreateHeap(lo, 0x800);
+    if (__sdHeapId[0] < 0) {
+        ret = IPC_RESULT_ALLOC_FAILED;
+        goto out;
+    }
+
+    if ((__sdCmdBuffer = iosAlloc(__sdHeapId[0], 0x20)) == 0) {
+        ret = IPC_RESULT_ALLOC_FAILED;
+        goto out;
+    }
+
+    if ((__sdResp = iosAlloc(__sdHeapId[0], 0x20)) == 0) {
+        ret = IPC_RESULT_ALLOC_FAILED;
+        goto out;
+    }
+
+    if ((__sdResp2 = iosAlloc(__sdHeapId[0], 0x20)) == 0) {
+        ret = IPC_RESULT_ALLOC_FAILED;
+        goto out;
+    }
+
+    if ((__sdReg = iosAlloc(__sdHeapId[0], 0x20)) == 0) {
+        ret = IPC_RESULT_ALLOC_FAILED;
+        goto out;
+    }
+
+    if ((__sdVect = iosAlloc(__sdHeapId[0], 0x60)) == 0) {
+        ret = IPC_RESULT_ALLOC_FAILED;
+        goto out;
+    }
+
+    IPCSetBufferLo((void*)((u32)lo + 0x800));
+    strcpy(__sdPaths[0], paths + 0x20);
+    strcpy(__sdPaths[1], paths + 0x30);
+    strcpy(__sdPaths[2], paths + 0x40);
+
+out:
+    return ret;
+}
+
 ISD_Error sduDatabuswidth(SDDev* dev, u32 buswidth) {
     u32 resp[4];
     u32 cmdArg = buswidth == 4 ? 2 : 0;
@@ -421,7 +483,7 @@ ISD_Error sduDatabuswidth(SDDev* dev, u32 buswidth) {
         hcReg &= ~0x02;
     }
 
-    if (__sdHeapId < 0) {
+    if (__sdHeapId[0] < 0) {
         return SD_ERROR_FATAL;
     }
 
@@ -441,7 +503,7 @@ ISD_Error ISD_ReadCardRegister(SDDev* dev, u32 cmd, u32* cmdResp, u32 cmdRespSiz
     ISD_Error ret;
     u32 cmdArg = dev->SDDevRca;
 
-    if (__sdHeapId < 0) {
+    if (__sdHeapId[0] < 0) {
         ret = SD_ERROR_FATAL;
         goto out;
     }
@@ -597,7 +659,7 @@ ISD_Error ISD_GetCardSize(SDDev* dev, u32* param_2, u32* param_3, u32* param_4) 
 ISD_Error ISD_RegisterDeviceIntrHandler(SDDev* dev, SDDevIntrCallback intCB, void* arg) {
     u32 state;
 
-    if (__sdHeapId < 0) {
+    if (__sdHeapId[0] < 0) {
         return SD_ERROR_FATAL;
     }
 
@@ -621,7 +683,7 @@ ISD_Error ISD_RegisterDeviceIntrHandler(SDDev* dev, SDDevIntrCallback intCB, voi
 ISD_Error ISD_UnregisterDeviceIntrHandler(SDDev* dev) {
     u32 resp[4] ALIGN32;
 
-    if (__sdHeapId < 0) {
+    if (__sdHeapId[0] < 0) {
         return SD_ERROR_FATAL;
     }
 
