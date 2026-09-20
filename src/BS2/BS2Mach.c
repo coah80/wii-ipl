@@ -173,6 +173,41 @@ void BS2RestartStateMachine() {
     OSRestoreInterrupts(old);
 }
 
+void BS2AbortStateMachine() {
+    BOOL enabled = OSDisableInterrupts();
+
+    BS2Report("[BS2AbortStateMachine]\n");
+
+    lbl_81698A24 = 0;
+
+    if (State == BS2_STT_64) {
+        OSRestoreInterrupts(enabled);
+    } else if (State == BS2_STT_BEGIN || State == BS2_STT_1 || State == BS2_STT_2 || State == BS2_STT_4 || State == BS2_STT_6 || State == BS2_STT_8 ||
+               State == BS2_STT_10) {
+        State = BS2_STT_64;
+        OSRestoreInterrupts(enabled);
+    } else if (State == BS2_STT_NO_DISK || State == BS2_STT_COVER_OPEN || State == BS2_STT_55 || State == BS2_STT_WRONG_DISK || State == BS2_STT_66 ||
+               State == BS2_STT_67 || State == BS2_STT_68 || State == BS2_STT_FATAL_ERROR || State == BS2_STT_UPDATE_FAILED ||
+               State == BS2_STT_DIRTY_DISK) {
+        OSRestoreInterrupts(enabled);
+    } else {
+        *lbl_81698AE4 = 0;
+        lbl_81698AE0 = 0;
+        lbl_81698ADC = 0;
+        if (State == BS2_STT_3 || State == BS2_STT_5 || State == BS2_STT_7 || State == BS2_STT_9) {
+            State = BS2_STT_62;
+        } else {
+            if (lbl_81698A4C != 0) {
+                lbl_81698A50 = 1;
+            }
+            State = BS2_STT_60;
+            DVDCancelAsync(&Block, NULL);
+        }
+        AbortFlag = 1;
+        OSRestoreInterrupts(enabled);
+    }
+}
+
 void BS2SetBannerBuffer(void* pBanner, u32 bannerSize) {
     lbl_81698A14 = (u32)pBanner;
     lbl_81698AD8 = bannerSize;
