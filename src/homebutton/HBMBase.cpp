@@ -122,6 +122,7 @@ BOOL HBMIsReassignedControllers() {
 
 /* THE LOGIC */
 
+extern const f32 lbl_816946D8;
 extern const f32 lbl_816946DC;
 
 namespace homebutton {
@@ -605,8 +606,8 @@ namespace homebutton {
                 mpController[i]->initCallback();
                 mpController[i]->initSound();
 
-                mOnPaneVibFrame[i] = 0.0f;
-                mOnPaneVibWaitFrame[i] = 0.0f;
+                mOnPaneVibFrame[i] = ::lbl_816946D8;
+                mOnPaneVibWaitFrame[i] = ::lbl_816946D8;
             }
         }
 
@@ -627,7 +628,7 @@ namespace homebutton {
 
         if (mpSoundArchivePlayer != NULL) {
             for (i = 0; i < mpSoundArchivePlayer->GetSoundPlayerCount(); i++) {
-                mpSoundArchivePlayer->GetSoundPlayer(i).SetVolume(1.0f);
+                mpSoundArchivePlayer->GetSoundPlayer(i).SetVolume(::lbl_816946DC);
             }
         }
 
