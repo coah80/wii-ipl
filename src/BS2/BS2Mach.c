@@ -178,6 +178,10 @@ void BS2SetBannerBuffer(void* pBanner, u32 bannerSize) {
     lbl_81698AD8 = bannerSize;
 }
 
+BOOL BS2IsBannerAvailable() {
+    return lbl_81698A18;
+}
+
 void* BS2GetBannerBufferAddr() {
     return (void*)lbl_81698A14;
 }
