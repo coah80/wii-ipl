@@ -47,6 +47,29 @@ int STD_strnlen(const char* str, u32 len) {
     return i;
 }
 
+int Mail_strncmp(const char* str1, const char* str2, u32 len) {
+    int i;
+    char c1;
+    char c2;
+    int result;
+
+    result = 0;
+    for (i = 0; i < len; i++) {
+        c2 = *str2;
+        c1 = *str1;
+        result = c1 - c2;
+        if (result != 0) {
+            break;
+        }
+        if (c2 == 0) {
+            break;
+        }
+        str1++;
+        str2++;
+    }
+    return result;
+}
+
 int Mail_isdigit(int ch) {
     if (ch >= '0' && ch <= '9') {
         return 1;
