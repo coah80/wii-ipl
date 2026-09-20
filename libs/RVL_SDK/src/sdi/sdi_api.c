@@ -593,3 +593,37 @@ ISD_Error ISD_GetCardSize(SDDev* dev, u32* param_2, u32* param_3, u32* param_4) 
 
     return SD_ERROR_SUCCESS;
 }
+
+ISD_Error ISD_RegisterDeviceIntrHandler(SDDev* dev, SDDevIntrCallback intCB, void* arg) {
+    u32 state;
+
+    if (__sdHeapId < 0) {
+        return SD_ERROR_FATAL;
+    }
+
+    if (intCB == NULL) {
+        return SD_ERROR_FATAL;
+    }
+
+    if (arg != NULL) {
+        state = *(u32*)arg;
+    } else {
+        return IPC_RESULT_INVALID;
+    }
+
+    if (state != 2 && state != 1) {
+        return IPC_RESULT_INVALID;
+    }
+
+    return sduCommand(dev->SDDevFd, 0x40, 0, 0, state, 0, 0, 0, 0, __sdResp2, intCB, arg);
+}
+
+ISD_Error ISD_UnregisterDeviceIntrHandler(SDDev* dev) {
+    u32 resp[4] ALIGN32;
+
+    if (__sdHeapId < 0) {
+        return SD_ERROR_FATAL;
+    }
+
+    return sduCommand(dev->SDDevFd, 0x41, 0, 0, 0, 0, 0, 0, 0, resp, NULL, NULL);
+}
