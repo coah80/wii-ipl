@@ -786,6 +786,75 @@ namespace ipl {
             blr
         }
 
+        asm void Manager::iplSavedata_813596B8(register ESTitleId titleId) {
+            nofralloc
+            lis r7, 0x4841
+            lis r4, 1
+            addi r0, r7, 0x5445
+            addi r8, r4, 1
+            xor r4, r6, r0
+            xor r0, r5, r8
+            or. r0, r4, r0
+            beqlr
+            addi r4, r7, 0x4445
+            xor r0, r5, r8
+            xor r4, r6, r4
+            or. r0, r4, r0
+            bne iplSavedata_813596B8_L1
+            blr
+        iplSavedata_813596B8_L1:
+            addis r0, r5, -1
+            cmplwi r0, 1
+            beq iplSavedata_813596B8_L2
+            cmplwi r0, 3
+            beq iplSavedata_813596B8_L2
+            cmplwi r0, 4
+            beq iplSavedata_813596B8_L2
+            cmplwi r0, 6
+            bnelr
+        iplSavedata_813596B8_L2:
+            li r0, 0x30
+            li r9, 0
+            li r4, 0
+            mtctr r0
+        iplSavedata_813596B8_L3:
+            add r7, r3, r4
+            lwz r0, 0x340(r7)
+            lwz r7, 0x344(r7)
+            xor r0, r5, r0
+            xor r7, r6, r7
+            or. r0, r7, r0
+            beq iplSavedata_813596B8_L4
+            addi r9, r9, 1
+            addi r4, r4, 8
+            bdnz iplSavedata_813596B8_L3
+        iplSavedata_813596B8_L4:
+            cmpwi r9, 0x30
+            bne iplSavedata_813596B8_L5
+            li r9, 0x2f
+        iplSavedata_813596B8_L5:
+            slwi r4, r9, 3
+            mtctr r9
+            cmpwi r9, 0
+            ble iplSavedata_813596B8_L6
+        iplSavedata_813596B8_L7:
+            addi r0, r9, -1
+            add r7, r3, r4
+            slwi r0, r0, 3
+            addi r9, r9, -1
+            add r8, r3, r0
+            addi r4, r4, -8
+            lwz r0, 0x340(r8)
+            lwz r8, 0x344(r8)
+            stw r8, 0x344(r7)
+            stw r0, 0x340(r7)
+            bdnz iplSavedata_813596B8_L7
+        iplSavedata_813596B8_L6:
+            stw r6, 0x344(r3)
+            stw r5, 0x340(r3)
+            blr
+        }
+
         asm void Manager::makeTmpList(register ESTitleId* titleIdsOut, register u32 availableCount, register ESTitleId* titleIdsIn, register u32 titleCount) {
             nofralloc
             stwu r1, -0x50(r1)
