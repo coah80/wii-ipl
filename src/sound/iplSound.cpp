@@ -8,6 +8,8 @@
 #undef IPL_SOUND_RECT_OUT_OF_LINE
 
 extern "C" void __ct__Q23EGG20SimpleAudioMgrWithFxFv();
+extern "C" void __dt__Q34nw4r3snd11SoundHandleFv();
+extern "C" void __dl__FPv();
 
 namespace ipl {
     namespace snd {
@@ -54,6 +56,33 @@ namespace ipl {
         };
 
         tagSBgmInfo::tagSBgmInfo() {
+        }
+
+        extern "C" asm void __dt__Q33ipl3snd10tagSSeInfoFv() {
+            nofralloc
+            stwu r1, -0x10(r1)
+            mflr r0
+            cmpwi r3, 0
+            stw r0, 0x14(r1)
+            stw r31, 0xc(r1)
+            mr r31, r4
+            stw r30, 0x8(r1)
+            mr r30, r3
+            beq se_dtor_done
+            li r4, -1
+            bl __dt__Q34nw4r3snd11SoundHandleFv
+            cmpwi r31, 0
+            ble se_dtor_done
+            mr r3, r30
+            bl __dl__FPv
+        se_dtor_done:
+            mr r3, r30
+            lwz r31, 0xc(r1)
+            lwz r30, 0x8(r1)
+            lwz r0, 0x14(r1)
+            mtlr r0
+            addi r1, r1, 0x10
+            blr
         }
 
         extern nw4r::snd::SoundHandle _bgmBlk;
