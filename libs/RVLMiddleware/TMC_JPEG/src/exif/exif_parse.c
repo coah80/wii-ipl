@@ -621,9 +621,8 @@ static s32 TMCJPEGDEC_ThumbnailCheck(TMCCJPEGDecInitParam* param, TMCCJPEGDecExi
         return -0xA0;
     }
 
-    total += length;
     tmp = (s32)info->exifData.thumbnailData - (s32)param->pBuf2;
-    total += tmp;
+    total = length + total + tmp;
 
     if ((u32)total > param->buf2Size) {
         return -0xF1;
