@@ -72,6 +72,7 @@ namespace ipl {
         extern "C" const char lbl_8164DCB4[] = "chanSel.ash";
         extern "C" const char lbl_8164DCC0[] = "diskThum.ash\0WIPL_SE_WII_START";
         extern "C" const char lbl_8164DCDF[] = "WIPL_BGM_MENU\0WIPL_SE_SDCARD_IN\0WIPL_SE_SDCARD_OUT\0\0";
+        extern "C" const char lbl_8164DFCB[] = "WIPL_SE_CH_TARGETTING";
         #pragma pop
 
         #pragma push
@@ -2581,7 +2582,7 @@ draw_ChannelSelect_L6:
                     case ::gui::EventHandler::ON_POINT: {
                         if (isReleasableArea(mCurrentPage, id) || (mCurrentPage == mMoveOldPage && id == mMoveOldIndex)) {
                             searchList(mCurrentPage, id)->onPoint(2);
-                            snd::getSystem()->startSE("WIPL_SE_CH_TARGETTING");
+                            snd::getSystem()->startSE(lbl_8164DFCB);
                             con->rumble(1);
                             break;
                         }
@@ -2779,7 +2780,7 @@ draw_ChannelSelect_L6:
                         case ::gui::EventHandler::ON_POINT: {
                             if (mpInstance->mState == ChannelSelect::STATE_NORMAL && chanObj->isValid()) {
                                 chanObj->onPoint(0);
-                                snd::getSystem()->startSE("WIPL_SE_CH_TARGETTING");
+                                snd::getSystem()->startSE(lbl_8164DFCB);
                                 con->rumble(1);
                             }
                             break;
