@@ -173,7 +173,7 @@ namespace ipl {
             virtual f32 getMainStickY() const override;
             virtual f32 getSubStickX() const override;
             virtual f32 getSubStickY() const override;
-            virtual BOOL rumble(int type) override;
+            virtual BOOL rumble(int type = 0) override;
             virtual void read() override;
         };
 
