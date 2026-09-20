@@ -260,6 +260,10 @@ namespace ipl {
             return FIsSEActive(sndName) != NULL;
         }
 
+        BOOL System::isSEActive(u32 id) {
+            return FIsSEActive(id) != NULL;
+        }
+
         long System::clipGELT_S32(long value, long lo, long hi) {
             long range = hi - lo;
 
