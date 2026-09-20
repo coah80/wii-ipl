@@ -1,3 +1,4 @@
+#define IPL_SOUND_RECT_OUT_OF_LINE
 #include "system/iplKeyboard.h"
 
 #include "iplSound.h"
@@ -8,6 +9,8 @@
 #include <nw4r/lyt.h>
 
 #include <eztx.h>
+
+#undef IPL_SOUND_RECT_OUT_OF_LINE
 
 namespace ipl {
     namespace keyboard {
