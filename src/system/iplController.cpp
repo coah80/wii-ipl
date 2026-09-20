@@ -19,8 +19,20 @@ extern const f32 lbl_81694454 = 0.0f;
 extern const f32 lbl_81694458;
 extern const f32 lbl_8169445C;
 extern const f32 lbl_81694460;
+extern const f32 lbl_81694478;
+extern const f32 lbl_8169447C;
+extern const f32 lbl_81694480;
+extern const f32 lbl_81694484;
+extern const f32 lbl_81694488;
+extern const f32 lbl_8169448C;
+extern "C" void* mpBuf__Q33ipl10controller7Manager = 0;
+extern "C" void* mpParentHeap__Q33ipl10controller7Manager = 0;
+extern "C" void* mpHeap__Q33ipl10controller7Manager = 0;
+extern "C" void* mpAllocator__Q33ipl10controller7Manager;
 extern "C" void _savegpr_25();
 extern "C" void _restgpr_25();
+extern "C" void _savegpr_16();
+extern "C" void _restgpr_16();
 extern "C" void _savegpr_29();
 extern "C" void _restgpr_29();
 extern "C" void _savegpr_27();
@@ -37,6 +49,17 @@ extern "C" void read__Q33ipl10controller4BaseFv();
 extern "C" void isValidDpd__Q33ipl10controller10RevolutionCFv();
 extern "C" void getProjectionRect__Q23ipl6SystemFPQ34nw4r2ut4Rect();
 extern "C" void __as__Q33ipl4math4VEC2FRCQ33ipl4math4VEC2();
+extern "C" void __vt__Q33ipl10controller6Master();
+extern "C" void __vt__Q33ipl10controller4Core();
+extern "C" void __vt__Q33ipl10controller9FreeStyle();
+extern "C" void __ct__Q33ipl10controller10RevolutionFiiR10KPADStatus();
+extern "C" void __ct__Q33ipl10controller7ClassicFiR10KPADStatus();
+extern "C" asm void alloc__Q33ipl10controller7ManagerFUl();
+extern "C" asm void free__Q33ipl10controller7ManagerFPv();
+extern "C" void __ct__Q23EGG9AllocatorFPQ23EGG4Heapl();
+extern "C" void create__Q23EGG7ExpHeapFPvUlUs();
+extern "C" void __nw__FUlPQ23EGG4Heapi();
+extern "C" void read__Q33ipl10controller7ManagerFv();
 extern "C" void __dl__FPv();
 
 extern "C" asm void __ct__Q34nw4r2ut4RectFv() {
@@ -791,6 +814,117 @@ namespace ipl {
         int Manager::free(void* ptr) {
             mpAllocator->free(ptr);
             return TRUE;
+        }
+
+        extern "C" asm void __ct__Q33ipl10controller7ManagerFPQ23EGG4Heap() {
+            nofralloc
+            stwu r1, -0x20(r1)
+            mflr r0
+            stw r0, 0x24(r1)
+            addi r11, r1, 0x20
+            bl _savegpr_29
+            lis r5, __vt__Q33ipl10controller6Master@ha
+            mr r30, r4
+            addi r5, r5, __vt__Q33ipl10controller6Master@l
+            stw r3, 0xd4(r3)
+            mr r29, r3
+            li r4, 0
+            stw r5, 0xd0(r3)
+            li r5, 0x210
+            addi r3, r3, 0xd8
+            bl memset
+            mr r3, r29
+            li r4, 0
+            li r5, 0x10
+            bl memset
+            bl WPADGetWorkMemorySize
+            lwz r4, mpBuf__Q33ipl10controller7Manager
+            addi r31, r3, 0x400
+            cmpwi r4, 0
+            beq manager_ctor_parent_done
+            lwz r3, mpParentHeap__Q33ipl10controller7Manager
+            cmpwi r3, 0
+            beq manager_ctor_parent_done
+            lwz r12, 0(r3)
+            lwz r12, 0x18(r12)
+            mtctr r12
+            bctrl
+        manager_ctor_parent_done:
+            stw r30, mpParentHeap__Q33ipl10controller7Manager
+            mr r3, r30
+            mr r4, r31
+            li r5, 0x20
+            lwz r12, 0(r30)
+            lwz r12, 0x14(r12)
+            mtctr r12
+            bctrl
+            lwz r0, mpHeap__Q33ipl10controller7Manager
+            stw r3, mpBuf__Q33ipl10controller7Manager
+            cmpwi r0, 0
+            beq manager_ctor_heap_done
+            mr r3, r0
+            lwz r12, 0(r3)
+            lwz r12, 0x1c(r12)
+            mtctr r12
+            bctrl
+        manager_ctor_heap_done:
+            lwz r3, mpBuf__Q33ipl10controller7Manager
+            mr r4, r31
+            li r5, 2
+            bl create__Q23EGG7ExpHeapFPvUlUs
+            lwz r0, mpAllocator__Q33ipl10controller7Manager
+            stw r3, mpHeap__Q33ipl10controller7Manager
+            cmpwi r0, 0
+            beq manager_ctor_allocator_done
+            beq manager_ctor_allocator_done
+            mr r3, r0
+            li r4, 1
+            lwz r12, 0x10(r3)
+            lwz r12, 8(r12)
+            mtctr r12
+            bctrl
+        manager_ctor_allocator_done:
+            mr r4, r30
+            li r3, 0x14
+            li r5, 4
+            bl __nw__FUlPQ23EGG4Heapi
+            cmpwi r3, 0
+            mr r0, r3
+            beq manager_ctor_allocator_new_done
+            lwz r4, mpHeap__Q33ipl10controller7Manager
+            li r5, 4
+            bl __ct__Q23EGG9AllocatorFPQ23EGG4Heapl
+            mr r0, r3
+        manager_ctor_allocator_new_done:
+            lis r3, alloc__Q33ipl10controller7ManagerFUl@ha
+            lis r4, free__Q33ipl10controller7ManagerFPv@ha
+            stw r0, mpAllocator__Q33ipl10controller7Manager
+            addi r3, r3, alloc__Q33ipl10controller7ManagerFUl@l
+            addi r4, r4, free__Q33ipl10controller7ManagerFPv@l
+            bl WPADRegisterAllocator
+            bl KPADInit
+            bl SCGetBtDpdSensibility
+            mr r31, r3
+            li r30, 0
+        manager_ctor_repeat:
+            clrlwi r3, r31, 24
+            bl WPADSetDpdSensitivity
+            lfs f1, lbl_81694478
+            mr r3, r30
+            lfs f2, lbl_8169447C
+            bl KPADSetBtnRepeat
+            addi r30, r30, 1
+            cmpwi r30, 4
+            blt manager_ctor_repeat
+            mr r3, r29
+            bl read__Q33ipl10controller7ManagerFv
+            addi r11, r1, 0x20
+            mr r3, r29
+            bl _restgpr_29
+            lwz r0, 0x24(r1)
+            mtlr r0
+            addi r1, r1, 0x20
+            blr
         }
 
         Interface* Manager::getYoungController() {
