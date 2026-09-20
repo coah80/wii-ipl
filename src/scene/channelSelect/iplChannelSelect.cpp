@@ -26,6 +26,29 @@ namespace ipl {
         extern "C" void restartChannelModules__Q33ipl5scene13ChannelSelectFv();
         extern "C" void setEnable__Q23ipl11TVRCManagerFi();
         extern "C" void enableBtn__Q33ipl5scene6ButtonFv();
+        extern "C" void calcNormalNormal__Q33ipl5scene13ChannelSelectFv();
+        extern "C" void calcNormalWaitScrl__Q33ipl5scene13ChannelSelectFv();
+        extern "C" void calcNormalScrl__Q33ipl5scene13ChannelSelectFv();
+        extern "C" void tryToStartBoardScene__Q33ipl5scene13ChannelSelectFv();
+        extern "C" void calcNormalWaitLoading__Q33ipl5scene13ChannelSelectFv();
+        extern "C" void calcNormalFadeOutZoom__Q33ipl5scene13ChannelSelectFv();
+        extern "C" void calcNormalSafeModeDialog__Q33ipl5scene13ChannelSelectFv();
+        extern "C" void calcNormalGrab__Q33ipl5scene13ChannelSelectFv();
+        extern "C" void calcNormalDrag__Q33ipl5scene13ChannelSelectFv();
+        extern "C" void calcNormalReleaseWait__Q33ipl5scene13ChannelSelectFv();
+        extern "C" void calcNormalRelease__Q33ipl5scene13ChannelSelectFv();
+        extern "C" void calcNormalMoveChanIn__Q33ipl5scene13ChannelSelectFv();
+        extern "C" void calcNormalMoveChanSave__Q33ipl5scene13ChannelSelectFv();
+        extern "C" void calcNormalMoveChanOut__Q33ipl5scene13ChannelSelectFv();
+        extern "C" void calcNormalDragScrl__Q33ipl5scene13ChannelSelectFv();
+        extern "C" void initCursorAnim__Q33ipl5scene10ChannelObjFb();
+        extern "C" void initBalloonAnim__Q33ipl5scene10ChannelObjFb();
+        extern "C" void List_GetNext__Q24nw4r2utFPCQ34nw4r2ut4ListPCv();
+        extern "C" void getChannelBasePane__Q33ipl5scene13ChannelSelectFi();
+        extern "C" void initPane__Q33ipl3gui11PaneManagerFPQ34nw4r3lyt4Pane();
+        extern "C" char jumptable_8164DD14[];
+        extern "C" void getCurrentChannel__Q33ipl7channel7ManagerFPiPi();
+        extern "C" void calcNormalRestart__Q33ipl5scene13ChannelSelectFv();
         extern "C" void _savegpr_28();
         extern "C" void _restgpr_28();
         extern "C" void isPlaying__Q33ipl6layout6ObjectCFi();
@@ -736,116 +759,149 @@ calcCommon_ChannelSelect_L15:
             return mpLayout->isPlaying(0) ? FADER_SCN_CONTINUE : FADER_SCN_NEXT;
         }
 
-        FaderSceneCommand ChannelSelect::calcNormal() {
-            int state = mState;
-            if (mState == STATE_INACTIVE) {
-                return FADER_SCN_CONTINUE;
-            }
-
-            switch (state) {
-                case STATE_NORMAL: {
-                    calcNormalNormal();
-                    break;
-                }
-                case STATE_PREP_LEFT_PAGE_SCROLL:
-                case STATE_PREP_RIGHT_PAGE_SCROLL: {
-                    calcNormalWaitScrl();
-                    break;
-                }
-                case STATE_LEFT_PAGE_SCROLL:
-                case STATE_RIGHT_PAGE_SCROLL: {
-                    calcNormalScrl();
-                    break;
-                }
-                case STATE_START_BOARD_SCENE: {
-                    tryToStartBoardScene();
-                    break;
-                }
-                case STATE_NORMAL_WAIT_LOADING: {
-                    calcNormalWaitLoading();
-                    break;
-                }
-                case STATE_NORMAL_FADE_ZOOM: {
-                    calcNormalFadeOutZoom();
-                    break;
-                }
-                case STATE_NORMAL_DONE_FADE_ZOOM: {
-                    mState = STATE_INACTIVE;
-                    break;
-                }
-                case STATE_NORMAL_RESTART: {
-                    calcNormalRestart();
-                    break;
-                }
-                case STATE_NORMAL_SAFE_MODE_DIALOG: {
-                    calcNormalSafeModeDialog();
-                    break;
-                }
-                case STATE_NORMAL_GRAB: {
-                    calcNormalGrab();
-                    break;
-                }
-                case STATE_NORMAL_DRAG: {
-                    calcNormalDrag();
-                    break;
-                }
-                case STATE_NORMAL_RELEASE_WAIT: {
-                    calcNormalReleaseWait();
-                    break;
-                }
-                case STATE_NORMAL_RELEASE: {
-                    calcNormalRelease();
-                    break;
-                }
-                case STATE_NORMAL_MOVE_CHAN_IN: {
-                    calcNormalMoveChanIn();
-                    break;
-                }
-                case STATE_NORMAL_MOVE_CHAN_SAVE: {
-                    calcNormalMoveChanSave();
-                    break;
-                }
-                case STATE_NORMAL_MOVE_CHAN_OUT: {
-                    calcNormalMoveChanOut();
-                    break;
-                }
-                case STATE_DRAG_SCROLL_LEFT:
-                case STATE_DRAG_SCROLL_RIGHT: {
-                    calcNormalDragScrl();
-                    break;
-                }
-            }
-
-            if (state == STATE_NORMAL) {
-                if (mState != STATE_NORMAL && mState != STATE_NORMAL_GRAB) {
-                    int page, index;
-                    channel::Manager::getCurrentChannel(&page, &index);
-
-                    ChannelObj* chanObj = NULL;
-                    FOREACH_CHANNEL_OBJ(chanObj) {
-                        int chanPage = chanObj->mChanPage;
-                        int chanIndex = chanObj->mChanIndex;
-                        if (chanPage == mCurrentPage) {
-                            if (mState != STATE_NORMAL_WAIT_LOADING || chanIndex != index) {
-                                chanObj->initCursorAnim(TRUE);
-                            }
-                            chanObj->initBalloonAnim(TRUE);
-                        }
-                    }
-
-                    for (int i = 0; i < 12; i++) {
-                        mpGui->initPane(getChannelBasePane(i));
-                    }
-                }
-            }
-
-            if (mState == STATE_BOARD_SCENE || mState == STATE_START_SETTING_SCENE) {
-                mbModuleSceneChange = true;
-                unk_0x185 = true;
-                return FADER_SCN_NEXT;
-            } else {
-                return FADER_SCN_CONTINUE;
-            }
+        extern "C" asm void calcNormal__Q33ipl5scene13ChannelSelectFv() {
+            nofralloc
+            stwu r1, -0x20(r1)
+            mflr r0
+            stw r0, 0x24(r1)
+            stw r31, 0x1c(r1)
+            stw r30, 0x18(r1)
+            mr r30, r3
+            lwz r31, 0xc0(r3)
+            cmpwi r31, 0xf
+            bne calcNormal_ChannelSelect_L1
+            li r3, 0
+            b calcNormal_ChannelSelect_L20
+calcNormal_ChannelSelect_L1:
+            cmplwi r31, 0x1a
+            bgt calcNormal_ChannelSelect_L2
+            lis r4, jumptable_8164DD14@ha
+            slwi r0, r31, 2
+            addi r4, r4, jumptable_8164DD14@l
+            lwzx r4, r4, r0
+            mtctr r4
+            bctr
+calcNormal_ChannelSelect_L3:
+            bl calcNormalNormal__Q33ipl5scene13ChannelSelectFv
+            b calcNormal_ChannelSelect_L2
+calcNormal_ChannelSelect_L4:
+            bl calcNormalWaitScrl__Q33ipl5scene13ChannelSelectFv
+            b calcNormal_ChannelSelect_L2
+calcNormal_ChannelSelect_L5:
+            bl calcNormalScrl__Q33ipl5scene13ChannelSelectFv
+            b calcNormal_ChannelSelect_L2
+calcNormal_ChannelSelect_L6:
+            bl tryToStartBoardScene__Q33ipl5scene13ChannelSelectFv
+            b calcNormal_ChannelSelect_L2
+calcNormal_ChannelSelect_L7:
+            bl calcNormalWaitLoading__Q33ipl5scene13ChannelSelectFv
+            b calcNormal_ChannelSelect_L2
+calcNormal_ChannelSelect_L8:
+            bl calcNormalFadeOutZoom__Q33ipl5scene13ChannelSelectFv
+            b calcNormal_ChannelSelect_L2
+calcNormal_ChannelSelect_L9:
+            li r0, 0xf
+            stw r0, 0xc0(r3)
+            b calcNormal_ChannelSelect_L2
+calcNormal_ChannelSelect_L10:
+            bl calcNormalRestart__Q33ipl5scene13ChannelSelectFv
+            b calcNormal_ChannelSelect_L2
+calcNormal_ChannelSelect_L11:
+            bl calcNormalSafeModeDialog__Q33ipl5scene13ChannelSelectFv
+            b calcNormal_ChannelSelect_L2
+calcNormal_ChannelSelect_L12:
+            bl calcNormalGrab__Q33ipl5scene13ChannelSelectFv
+            b calcNormal_ChannelSelect_L2
+calcNormal_ChannelSelect_L13:
+            bl calcNormalDrag__Q33ipl5scene13ChannelSelectFv
+            b calcNormal_ChannelSelect_L2
+calcNormal_ChannelSelect_L14:
+            bl calcNormalReleaseWait__Q33ipl5scene13ChannelSelectFv
+            b calcNormal_ChannelSelect_L2
+calcNormal_ChannelSelect_L15:
+            bl calcNormalRelease__Q33ipl5scene13ChannelSelectFv
+            b calcNormal_ChannelSelect_L2
+calcNormal_ChannelSelect_L16:
+            bl calcNormalMoveChanIn__Q33ipl5scene13ChannelSelectFv
+            b calcNormal_ChannelSelect_L2
+calcNormal_ChannelSelect_L17:
+            bl calcNormalMoveChanSave__Q33ipl5scene13ChannelSelectFv
+            b calcNormal_ChannelSelect_L2
+calcNormal_ChannelSelect_L18:
+            bl calcNormalMoveChanOut__Q33ipl5scene13ChannelSelectFv
+            b calcNormal_ChannelSelect_L2
+calcNormal_ChannelSelect_L19:
+            bl calcNormalDragScrl__Q33ipl5scene13ChannelSelectFv
+calcNormal_ChannelSelect_L2:
+            cmpwi r31, 0x1
+            bne calcNormal_ChannelSelect_L21
+            lwz r0, 0xc0(r30)
+            cmpwi r0, 0x1
+            beq calcNormal_ChannelSelect_L21
+            cmpwi r0, 0x12
+            beq calcNormal_ChannelSelect_L21
+            addi r3, r1, 0xc
+            addi r4, r1, 0x8
+            bl getCurrentChannel__Q33ipl7channel7ManagerFPiPi
+            li r31, 0
+            b calcNormal_ChannelSelect_L22
+calcNormal_ChannelSelect_L23:
+            lwz r4, 0x1c(r3)
+            lwz r0, 0xc8(r30)
+            lwz r3, 0x20(r3)
+            cmpw r4, r0
+            bne calcNormal_ChannelSelect_L22
+            lwz r0, 0xc0(r30)
+            cmpwi r0, 0x7
+            bne calcNormal_ChannelSelect_L24
+            lwz r0, 0x8(r1)
+            cmpw r3, r0
+            beq calcNormal_ChannelSelect_L25
+calcNormal_ChannelSelect_L24:
+            mr r3, r31
+            li r4, 0x1
+            bl initCursorAnim__Q33ipl5scene10ChannelObjFb
+calcNormal_ChannelSelect_L25:
+            mr r3, r31
+            li r4, 0x1
+            bl initBalloonAnim__Q33ipl5scene10ChannelObjFb
+calcNormal_ChannelSelect_L22:
+            mr r4, r31
+            addi r3, r30, 0x58
+            bl List_GetNext__Q24nw4r2utFPCQ34nw4r2ut4ListPCv
+            cmpwi r3, 0
+            mr r31, r3
+            bne calcNormal_ChannelSelect_L23
+            li r31, 0
+calcNormal_ChannelSelect_L26:
+            mr r3, r30
+            mr r4, r31
+            bl getChannelBasePane__Q33ipl5scene13ChannelSelectFi
+            mr r4, r3
+            lwz r3, 0x7c(r30)
+            bl initPane__Q33ipl3gui11PaneManagerFPQ34nw4r3lyt4Pane
+            addi r31, r31, 0x1
+            cmpwi r31, 0xc
+            blt calcNormal_ChannelSelect_L26
+calcNormal_ChannelSelect_L21:
+            lwz r3, 0xc0(r30)
+            subi r0, r3, 0x5
+            cmplwi r0, 0x1
+            bgt calcNormal_ChannelSelect_L27
+            li r0, 0x1
+            li r3, 0x1
+            stb r0, 0x184(r30)
+            stb r0, 0x185(r30)
+            b calcNormal_ChannelSelect_L20
+calcNormal_ChannelSelect_L27:
+            li r3, 0
+calcNormal_ChannelSelect_L20:
+            lwz r0, 0x24(r1)
+            lwz r31, 0x1c(r1)
+            lwz r30, 0x18(r1)
+            mtlr r0
+            addi r1, r1, 0x20
+            blr
         }
 
         void ChannelSelect::initCalcFadeout() {
