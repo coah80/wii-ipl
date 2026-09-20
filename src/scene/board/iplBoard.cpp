@@ -672,6 +672,8 @@ namespace ipl {
             }
         }
 
+#pragma push
+#pragma ppc_iro_level 0
         void Board::stt_wait_child_dst() {
             scene::Manager* scnMgr = System::getSceneManager();
             Button* button = static_cast<Button*>(scnMgr->getScene(SCENE_BUTTON));
@@ -738,6 +740,7 @@ namespace ipl {
                 }
             }
         }
+#pragma pop
 
         void Board::stt_wait_child_cst() {
             scene::Manager* scnMgr = System::getSceneManager();
