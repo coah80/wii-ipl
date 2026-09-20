@@ -217,6 +217,10 @@ namespace ipl {
             return (Interface*)((u8*)this + 0xd0);
         }
 
+        Interface* Manager::getController(int chan) {
+            return ((Interface**)this)[chan];
+        }
+
         int Base::decide() const {
             return unk_0x08 == 5;
         }
