@@ -11,6 +11,7 @@ namespace ipl {
 
             class String {
             public:
+                void clear();
                 const wchar_t* getDispCodeLong() const;
             };
 

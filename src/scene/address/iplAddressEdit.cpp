@@ -28,6 +28,15 @@ const wchar_t* ipl::scene::AddressEdit::String::getDispCodeLong() const {
     return reinterpret_cast<const wchar_t*>(reinterpret_cast<const u8*>(this) + 0x21c);
 }
 
+void ipl::scene::AddressEdit::String::clear() {
+    memset(this, 0, 0x204);
+    memset(reinterpret_cast<u8*>(this) + 0x204, 0, 0x18);
+    memset(reinterpret_cast<u8*>(this) + 0x21c, 0, 0x204);
+    reinterpret_cast<u8*>(this)[0x420] = 0;
+    reinterpret_cast<u8*>(this)[0x421] = 0;
+    reinterpret_cast<u8*>(this)[0x422] = 0;
+}
+
 /*
     This is a modified version of NWC24CheckPublicMailAddr.
     Changes:
