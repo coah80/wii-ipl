@@ -702,7 +702,7 @@ namespace ipl {
         }
 
         void search_task_(void* work) {
-            Calendar* calendar = static_cast<Calendar*>(System::getScene(SCENE_CALENDAR));
+            Calendar* calendar = static_cast<Calendar*>(System::getSceneManager()->getScene(SCENE_CALENDAR));
             if (calendar != NULL) {
                 for (u32 i = 0; i < DATE_COUNT; i++) {
                     if (calendar->mbTaskCanceled == TRUE) {
