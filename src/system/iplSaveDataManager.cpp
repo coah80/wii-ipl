@@ -23,6 +23,8 @@ extern "C" void _savegpr_16();
 extern "C" void _restgpr_16();
 extern "C" void _savegpr_28();
 extern "C" void _restgpr_28();
+extern "C" void _savegpr_20();
+extern "C" void _restgpr_20();
 
 namespace ipl {
     // clang-format off
@@ -705,6 +707,82 @@ namespace ipl {
             lwz r0, 0x1d4(r1)
             mtlr r0
             addi r1, r1, 0x1d0
+            blr
+        }
+
+        asm BOOL Manager::doUpdateChanInfos(register ESTitleId* titleIds) {
+            nofralloc
+            stwu r1, -0x40(r1)
+            mflr r0
+            stw r0, 0x44(r1)
+            addi r11, r1, 0x40
+            bl _savegpr_20
+            mr r27, r3
+            mr r28, r4
+            li r3, 0
+            li r30, 0
+            li r26, 0
+            li r25, 0
+            li r20, 3
+            li r21, 0
+            li r22, 0xe
+            li r23, -1
+        doUpdateChanInfos_L1:
+            add r31, r27, r26
+            li r29, 0
+            li r24, 0
+        doUpdateChanInfos_L2:
+            add r4, r31, r24
+            lbz r0, 0x30(r4)
+            cmplwi r0, 1
+            beq doUpdateChanInfos_L5
+            add r0, r29, r25
+            lwz r9, 0x38(r4)
+            slwi r0, r0, 3
+            lwz r5, 0x3c(r4)
+            add r8, r28, r0
+            lwzx r6, r28, r0
+            lwz r7, 4(r8)
+            xor r0, r9, r6
+            xor r5, r5, r7
+            or. r0, r5, r0
+            beq doUpdateChanInfos_L5
+            or. r0, r7, r6
+            bne doUpdateChanInfos_L4
+            addi r3, r4, 0x30
+            li r4, 0
+            li r5, 0x10
+            bl memset
+            b doUpdateChanInfos_L6
+        doUpdateChanInfos_L4:
+            stb r20, 0x30(r4)
+            stb r21, 0x31(r4)
+            stb r21, 0x32(r4)
+            stb r21, 0x33(r4)
+            stw r22, 0x34(r4)
+            lwz r0, 0(r8)
+            and r0, r0, r23
+            stw r0, 0x38(r4)
+            lwz r0, 4(r8)
+            and r0, r0, r23
+            stw r0, 0x3c(r4)
+        doUpdateChanInfos_L6:
+            li r3, 1
+        doUpdateChanInfos_L5:
+            addi r29, r29, 1
+            addi r24, r24, 0x10
+            cmpwi r29, 0xc
+            blt doUpdateChanInfos_L2
+            addi r30, r30, 1
+            addi r25, r25, 0xc
+            cmpwi r30, 4
+            addi r26, r26, 0xc0
+            blt doUpdateChanInfos_L1
+            addi r11, r1, 0x40
+            bl _restgpr_20
+            lwz r0, 0x44(r1)
+            mtlr r0
+            addi r1, r1, 0x40
             blr
         }
 
