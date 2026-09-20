@@ -529,81 +529,149 @@ s32 VFi_sddrv_init_drv_tbl(PDM_DISK_TBL* p_disk_tbl /* r3 */, u32 ui_ext /* r4 *
 // Range: 0xF48 -> 0x1058
 static s32 sddrv_physical_read(u32 num_blocks /* r20 */, u8* buf /* r21 */, u32 block /* r1+0x8 */, u32 bps /* r22 */, u32* p_num_success /* r23 */,
                                PDM_DISK* p_disk /* r28 */) {
-    u32 fileSize;              // r27
-    VFSys_drive* drive_p;      // r24
-    u32 size;                  // r26
-    u32 offset;                // r30
-    s32 IOSErr;                // r31
-    VFSys_deviceSD* device_p;  // r25
-    SDDev* dev_handle_p;       // r29
+    u32 fileSize;
 
     fileSize = dCommon_getFileSizeFromDisk(p_disk);
-    drive_p = VFSysPDMDisk2DriveP(p_disk);
-    IOSErr = 0;
-    device_p = NULL;
-    dev_handle_p = NULL;
-    if (drive_p == NULL) {
+
+    if ((!VFSysPDMDisk2DriveP(p_disk)) || (bps != 0x200)) {
         return -0x14;
     }
-    device_p = (VFSys_deviceSD*)VFSysPDMDisk2DeviceP(p_disk);
-    dev_handle_p = &device_p->drive;
-    size = num_blocks * bps;
-    offset = block * bps;
-    if ((offset + size) > fileSize) {
-        IOSErr = Align_ReadBlock(dev_handle_p, offset, (u32*)buf, fileSize - offset);
+
+    {
+        u32 end;
+        u32 copyStart;
+        SDDev* dev_handle_p;
+
+        dev_handle_p = &((VFSys_deviceSD*)VFSysPDMDisk2DeviceP(p_disk))->drive;
+        end = block + num_blocks;
+
+        if (end > ((fileSize + 0x1FF) >> 9)) {
+            u32 last_block = (fileSize + 0x1FF) >> 9;
+            u8 work[512] ATTRIBUTE_ALIGN(512);
+            u32 readStart = block;
+            s32 IOSErr;
+            s32 result;
+
+            copyStart = 0;
+            end = block + (last_block - block);
+        while (readStart < end) {
+            result = ISD_ReadBlock(dev_handle_p, readStart, work, 1);
+            if (result != 0) {
+                IOSErr = result;
+                goto read_overflow_error;
+            }
+            VFipf_memcpy(&buf[copyStart], work, 0x200);
+            readStart++;
+            copyStart += 0x200;
+        }
+        IOSErr = 0;
+read_overflow_error:
         if (IOSErr != 0) {
             dCommon_setLastDeviceErrorToDisk(p_disk, IOSErr);
         }
         return -0x16;
     }
-    IOSErr = Align_ReadBlock(dev_handle_p, offset, (u32*)buf, size);
-    if (IOSErr != 0) {
-        dCommon_setLastDeviceErrorToDisk(p_disk, IOSErr);
-        return -1;
+
+        else {
+            u8 work[512] ATTRIBUTE_ALIGN(512);
+            u32 readStart = block;
+            s32 IOSErr;
+            s32 result;
+
+            copyStart = 0;
+            while (readStart < end) {
+            result = ISD_ReadBlock(dev_handle_p, readStart, work, 1);
+            if (result != 0) {
+                IOSErr = result;
+                goto read_error;
+            }
+            VFipf_memcpy(&buf[copyStart], work, 0x200);
+            readStart++;
+            copyStart += 0x200;
+        }
+        IOSErr = 0;
+read_error:
+        if (IOSErr != 0) {
+            dCommon_setLastDeviceErrorToDisk(p_disk, IOSErr);
+            return -1;
+        }
+        *p_num_success = num_blocks;
+        return 0;
+        }
     }
-    *p_num_success = num_blocks;
-    return 0;
 }
 
 // Range: 0x1058 -> 0x1170
 static s32 sddrv_physical_write(u32 num_blocks /* r20 */, const u8* buf /* r21 */, u32 block /* r1+0x8 */, u32 bps /* r22 */,
                                 u32* p_num_success /* r23 */, PDM_DISK* p_disk /* r28 */) {
-    u32 fileSize;              // r27
-    VFSys_drive* drive_p;      // r24
-    u32 size;                  // r26
-    u32 offset;                // r30
-    s32 err;                   // r1+0xC
-    s32 IOSErr;                // r31
-    VFSys_deviceSD* device_p;  // r25
-    SDDev* dev_handle_p;       // r29
-
-    static const int sector_size = 0x200;
+    u32 fileSize;
 
     fileSize = dCommon_getFileSizeFromDisk(p_disk);
-    drive_p = VFSysPDMDisk2DriveP(p_disk);
-    err = 0;
-    IOSErr = 0;
-    device_p = NULL;
-    dev_handle_p = NULL;
-    if (drive_p == NULL) {
+
+    if ((!VFSysPDMDisk2DriveP(p_disk)) || (bps != 0x200)) {
         return -0x14;
     }
-    device_p = (VFSys_deviceSD*)VFSysPDMDisk2DeviceP(p_disk);
-    dev_handle_p = &device_p->drive;
-    size = num_blocks * bps;
-    offset = block * bps;
-    if ((offset + size) > fileSize) {
-        IOSErr = Align_WriteBlock(dev_handle_p, offset, (u32)buf, fileSize - offset);
+
+    {
+        u32 end;
+        u32 copyStart;
+        SDDev* dev_handle_p;
+
+        dev_handle_p = &((VFSys_deviceSD*)VFSysPDMDisk2DeviceP(p_disk))->drive;
+        end = block + num_blocks;
+
+        if (end > ((fileSize + 0x1FF) >> 9)) {
+            u32 last_block = (fileSize + 0x1FF) >> 9;
+            u8 work[512] ATTRIBUTE_ALIGN(512);
+            u32 writeStart = block;
+            s32 IOSErr;
+            s32 result;
+
+            copyStart = 0;
+            end = block + (last_block - block);
+        while (writeStart < end) {
+            VFipf_memcpy(work, (u8*)&buf[copyStart], 0x200);
+            result = ISD_WriteBlock(dev_handle_p, writeStart, work, 1);
+            if (result != 0) {
+                IOSErr = result;
+                goto write_overflow_error;
+            }
+            writeStart++;
+            copyStart += 0x200;
+        }
+        IOSErr = 0;
+write_overflow_error:
         if (IOSErr != 0) {
             dCommon_setLastDeviceErrorToDisk(p_disk, IOSErr);
         }
         return -0x16;
     }
-    IOSErr = Align_WriteBlock(dev_handle_p, offset, (u32)buf, size);
-    if (IOSErr != 0) {
-        dCommon_setLastDeviceErrorToDisk(p_disk, IOSErr);
-        return -1;
+
+        else {
+            u8 work[512] ATTRIBUTE_ALIGN(512);
+            u32 writeStart = block;
+            s32 IOSErr;
+            s32 result;
+
+            copyStart = 0;
+            while (writeStart < end) {
+            VFipf_memcpy(work, (u8*)&buf[copyStart], 0x200);
+            result = ISD_WriteBlock(dev_handle_p, writeStart, work, 1);
+            if (result != 0) {
+                IOSErr = result;
+                goto write_error;
+            }
+            writeStart++;
+            copyStart += 0x200;
+        }
+        IOSErr = 0;
+write_error:
+        if (IOSErr != 0) {
+            dCommon_setLastDeviceErrorToDisk(p_disk, IOSErr);
+            return -1;
+        }
+        *p_num_success = num_blocks;
+        return 0;
+        }
     }
-    *p_num_success = num_blocks;
-    return 0;
 }
