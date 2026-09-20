@@ -37,13 +37,51 @@ namespace ipl {
         extern "C" void calcChannelThumbnails__Q33ipl5scene13ChannelSelectFv();
         extern "C" asm void calc__Q33ipl5scene5clockFv();
         extern "C" void playingSdAnim__Q33ipl5scene6ButtonFi();
+        extern "C" void _savegpr_27();
+        extern "C" void _restgpr_27();
+        extern "C" char mArg__Q33ipl7utility8Graphics;
+        extern "C" void __as__Q34nw4r4math4VEC3FRCQ34nw4r4math4VEC3();
+        extern "C" void __as__Q33ipl4math4VEC2FRCQ33ipl4math4VEC2();
+        extern "C" void setOrtho__Q33ipl7utility8GraphicsFUl();
+        extern "C" char mscBasePaneNames__Q33ipl5scene13ChannelSelect[];
+        extern "C" u32 mscMaskPaneName__Q33ipl5scene13ChannelSelect;
+        extern "C" void draw__Q33ipl6layout6ObjectFPQ34nw4r3lyt4Pane();
+        extern "C" void SetVisible__Q34nw4r3lyt4PaneFb();
+        extern "C" void drawChannelThumbnails__Q33ipl5scene13ChannelSelectFv();
+        extern "C" void setChanFrameVisibility__Q33ipl5scene13ChannelSelectFv();
+        extern "C" void getRenderModeObj__Q23ipl6SystemFv();
+        extern "C" void draw__Q33ipl6layout6ObjectFv();
+        extern "C" void draw__Q33ipl5scene5clockFPQ34nw4r3lyt4Pane();
+        extern "C" void drawChannelOthers__Q33ipl5scene13ChannelSelectFv();
+        extern "C" void __ct__Q34nw4r2ut4RectFv();
+        extern "C" void getProjectionRect__Q23ipl6SystemFPQ34nw4r2ut4Rect();
+        extern "C" void drawPolygon__Q33ipl7utility8GraphicsFRCQ34nw4r2ut4Rect8_GXColor();
         extern "C" BOOL msInitFlag__Q33ipl5scene13ChannelSelect = FALSE;
 
         #pragma push
         #pragma section const_type ".data"
-        extern "C" const char lbl_8164D978[0x348] = "N_Ch_a04";
+        extern "C" const char lbl_8164D978[0x314] = "N_Ch_a04";
+        extern "C" const char lbl_8164DC8C[] = "N_Clock0";
+        extern "C" const char lbl_8164DC95[] = "N_Clock1";
+        extern "C" const char lbl_8164DC9E[] = "N_Clock2";
+        extern "C" const char* const lbl_8164DCA8[3] __attribute__((aligned(4))) = {
+            lbl_8164DC8C,
+            lbl_8164DC95,
+            lbl_8164DC9E,
+        };
+        extern "C" const char lbl_8164DCB4[] = "chanSel.ash";
         extern "C" const char lbl_8164DCC0[] = "diskThum.ash\0WIPL_SE_WII_START";
-        extern "C" const char lbl_8164DCDF[] = "WIPL_BGM_MENU\0WIPL_SE_SDCARD_IN\0WIPL_SE_SDCARD_OUT\0\0\0";
+        extern "C" const char lbl_8164DCDF[] = "WIPL_BGM_MENU\0WIPL_SE_SDCARD_IN\0WIPL_SE_SDCARD_OUT\0\0";
+        #pragma pop
+
+        #pragma push
+        #pragma section sconst_type ".sdata2"
+        extern "C" const u32 lbl_81694948 = 1;
+        extern "C" const u32 lbl_8169494C = 1;
+        extern "C" const char lbl_81694950 = 0;
+        extern "C" const char lbl_81694951 = 0;
+        extern "C" const char lbl_81694952 = 0;
+        extern "C" const char lbl_81694953 = 255;
         #pragma pop
 
         static Board* getBoard() {
@@ -826,6 +864,172 @@ calcCommon_ChannelSelect_L15:
             return result;
         }
 
+        extern "C" asm void draw__Q33ipl5scene13ChannelSelectFv() {
+            nofralloc
+            stwu r1, -0x40(r1)
+            mflr r0
+            stw r0, 0x44(r1)
+            addi r11, r1, 0x40
+            bl _savegpr_27
+            lwz r4, 0xc0(r3)
+            mr r31, r3
+            cmpwi r4, 0xf
+            beq draw_ChannelSelect_L1
+            lis r3, smArg__Q23ipl6System@ha
+            addi r3, r3, smArg__Q23ipl6System@l
+            lwz r3, 0x64(r3)
+            lwz r0, 0x100(r3)
+            cmpwi r0, 0x1
+            bne draw_ChannelSelect_L1
+            cmpwi r4, 0x9
+            beq draw_ChannelSelect_L2
+            cmpwi r4, 0xe
+            beq draw_ChannelSelect_L2
+            cmpwi r4, 0x10
+            bne draw_ChannelSelect_L3
+draw_ChannelSelect_L2:
+            lis r29, mArg__Q33ipl7utility8Graphics@ha
+            addi r4, r31, 0xd8
+            addi r29, r29, mArg__Q33ipl7utility8Graphics@l
+            addi r3, r29, 0x70
+            bl __as__Q34nw4r4math4VEC3FRCQ34nw4r4math4VEC3
+            addi r3, r29, 0x7c
+            addi r4, r31, 0xe4
+            bl __as__Q33ipl4math4VEC2FRCQ33ipl4math4VEC2
+draw_ChannelSelect_L3:
+            li r3, 0
+            bl setOrtho__Q33ipl7utility8GraphicsFUl
+            lis r29, mscBasePaneNames__Q33ipl5scene13ChannelSelect@ha
+            li r27, 0
+            addi r29, r29, mscBasePaneNames__Q33ipl5scene13ChannelSelect@l
+            li r30, 0
+draw_ChannelSelect_L4:
+            lwz r3, 0x68(r31)
+            li r5, 0x1
+            lwzx r4, r29, r30
+            lwz r3, 0x14(r3)
+            lwz r12, 0(r3)
+            lwz r12, 0x3c(r12)
+            mtctr r12
+            bctrl
+            lbz r0, 0xcf(r3)
+            mr r28, r3
+            mr r4, r28
+            rlwinm r0, r0, 0, 24, 30
+            ori r0, r0, 0x1
+            stb r0, 0xcf(r3)
+            lwz r3, 0x68(r31)
+            bl draw__Q33ipl6layout6ObjectFPQ34nw4r3lyt4Pane
+            mr r3, r28
+            li r4, 0
+            bl SetVisible__Q34nw4r3lyt4PaneFb
+            addi r27, r27, 0x1
+            addi r30, r30, 0x4
+            cmpwi r27, 0x5
+            blt draw_ChannelSelect_L4
+            mr r3, r31
+            bl drawChannelThumbnails__Q33ipl5scene13ChannelSelectFv
+            mr r3, r31
+            bl setChanFrameVisibility__Q33ipl5scene13ChannelSelectFv
+            bl getRenderModeObj__Q23ipl6SystemFv
+            lhz r29, 0x6(r3)
+            bl getRenderModeObj__Q23ipl6SystemFv
+            lhz r5, 0x4(r3)
+            mr r6, r29
+            li r3, 0
+            li r4, 0
+            bl GXSetScissor
+            lwz r3, 0x68(r31)
+            li r5, 0x1
+            lwz r4, mscMaskPaneName__Q33ipl5scene13ChannelSelect
+            lwz r3, 0x14(r3)
+            lwz r12, 0(r3)
+            lwz r12, 0x3c(r12)
+            mtctr r12
+            bctrl
+            mr r28, r3
+            li r4, 0
+            bl SetVisible__Q34nw4r3lyt4PaneFb
+            lwz r3, 0x68(r31)
+            bl draw__Q33ipl6layout6ObjectFv
+            lwz r3, 0x9c(r31)
+            bl draw__Q33ipl6layout6ObjectFv
+            lis r29, lbl_8164DCA8@ha
+            li r27, 0
+            addi r29, r29, lbl_8164DCA8@l
+            li r30, 0
+draw_ChannelSelect_L5:
+            lwz r3, 0x68(r31)
+            li r5, 0x1
+            lwzx r4, r29, r30
+            lwz r3, 0x14(r3)
+            lwz r12, 0(r3)
+            lwz r12, 0x3c(r12)
+            mtctr r12
+            bctrl
+            mr r4, r3
+            addi r3, r31, 0x108
+            bl draw__Q33ipl5scene5clockFPQ34nw4r3lyt4Pane
+            addi r27, r27, 0x1
+            addi r30, r30, 0x4
+            cmpwi r27, 0x3
+            blt draw_ChannelSelect_L5
+            mr r3, r31
+            bl drawChannelOthers__Q33ipl5scene13ChannelSelectFv
+            lbz r0, 0xcf(r28)
+            mr r4, r28
+            rlwinm r0, r0, 0, 24, 30
+            ori r0, r0, 0x1
+            stb r0, 0xcf(r28)
+            lwz r3, 0x68(r31)
+            bl draw__Q33ipl6layout6ObjectFPQ34nw4r3lyt4Pane
+            lwz r3, 0xb0(r31)
+            bl draw__Q33ipl6layout6ObjectFv
+            b draw_ChannelSelect_L6
+draw_ChannelSelect_L1:
+            cmpwi r4, 0xf
+            bne draw_ChannelSelect_L6
+            lis r3, smArg__Q23ipl6System@ha
+            addi r3, r3, smArg__Q23ipl6System@l
+            lwz r3, 0x64(r3)
+            lwz r0, 0x100(r3)
+            cmpwi r0, 0x1
+            bne draw_ChannelSelect_L6
+            li r3, 0
+            bl setOrtho__Q33ipl7utility8GraphicsFUl
+            lbz r6, lbl_81694950
+            addi r3, r1, 0x10
+            lbz r5, lbl_81694951
+            lbz r4, lbl_81694952
+            lbz r0, lbl_81694953
+            stb r6, 0xc(r1)
+            stb r5, 0xd(r1)
+            stb r4, 0xe(r1)
+            stb r0, 0xf(r1)
+            bl __ct__Q34nw4r2ut4RectFv
+            addi r3, r1, 0x10
+            bl getProjectionRect__Q23ipl6SystemFPQ34nw4r2ut4Rect
+            lbz r7, 0xc(r1)
+            addi r3, r1, 0x10
+            lbz r6, 0xd(r1)
+            addi r4, r1, 0x8
+            lbz r5, 0xe(r1)
+            lbz r0, 0xf(r1)
+            stb r7, 0x8(r1)
+            stb r6, 0x9(r1)
+            stb r5, 0xa(r1)
+            stb r0, 0xb(r1)
+            bl drawPolygon__Q33ipl7utility8GraphicsFRCQ34nw4r2ut4Rect8_GXColor
+draw_ChannelSelect_L6:
+            addi r11, r1, 0x40
+            bl _restgpr_27
+            lwz r0, 0x44(r1)
+            mtlr r0
+            addi r1, r1, 0x40
+            blr
+        }
+
+#if 0
         void ChannelSelect::draw() {
             if (mState != STATE_INACTIVE && System::getSceneManager()->onDrawLayer(scene::DRAW_LAYER_DEFAULT)) {
                 if (mState == STATE_NORMAL_FADE_ZOOM || mState == STATE_NORMAL_DONE_FADE_ZOOM || mState == STATE_NORMAL_RESTART) {
@@ -872,6 +1076,8 @@ calcCommon_ChannelSelect_L15:
                 utility::Graphics::drawPolygon(pos, color);
             }
         }
+
+#endif
 
         void ChannelSelect::destroy() {
             System::getSaveData()->setLastPrevPage(mCurrentPage);
