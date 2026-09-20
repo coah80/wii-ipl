@@ -23,6 +23,8 @@ extern "C" void _savegpr_28();
 extern "C" void _restgpr_28();
 extern "C" void __ptmf_scall();
 extern "C" void __ct__Q33ipl4math4VEC2Fff();
+extern "C" void __vt__Q33ipl10controller4Base();
+extern "C" void __vt__Q33ipl10controller10Revolution();
 
 extern "C" asm void getMainStickX__Q33ipl10controller9InterfaceCFv() {
     nofralloc
@@ -372,6 +374,44 @@ iplController_Master_setForceInvalid_L2:
     blt iplController_Master_setForceInvalid_L1
     addi r11, r1, 0x20
     bl _restgpr_28
+    lwz r0, 0x24(r1)
+    mtlr r0
+    addi r1, r1, 0x20
+    blr
+}
+
+extern "C" asm void __ct__Q33ipl10controller10RevolutionFiiR10KPADStatus() {
+    nofralloc
+    stwu r1, -0x20(r1)
+    mflr r0
+    stw r0, 0x24(r1)
+    addi r11, r1, 0x20
+    bl _savegpr_29
+    lis r7, __vt__Q33ipl10controller4Base@ha
+    li r31, 0
+    addi r7, r7, __vt__Q33ipl10controller4Base@l
+    li r0, -1
+    stw r7, 0(r3)
+    mr r29, r3
+    mr r30, r6
+    stb r31, 4(r3)
+    stw r31, 8(r3)
+    stw r31, 0xc(r3)
+    stw r0, 0x10(r3)
+    stw r4, 0x14(r3)
+    stw r5, 0x18(r3)
+    stb r31, 0x1c(r3)
+    mr r3, r4
+    bl KPADEnableDPD
+    lis r3, __vt__Q33ipl10controller10Revolution@ha
+    stb r31, 0x1d(r29)
+    addi r3, r3, __vt__Q33ipl10controller10Revolution@l
+    addi r11, r1, 0x20
+    stw r3, 0(r29)
+    mr r3, r29
+    stb r31, 0x1e(r29)
+    stw r30, 0x20(r29)
+    bl _restgpr_29
     lwz r0, 0x24(r1)
     mtlr r0
     addi r1, r1, 0x20

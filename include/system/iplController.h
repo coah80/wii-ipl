@@ -195,6 +195,7 @@ namespace ipl {
         class Revolution : public Interface {
         public:
             Revolution(int chan, KPADStatus& arg1) : Interface(chan, arg1) {}
+            Revolution(int chan, int type, KPADStatus& arg1);
 
             virtual ~Revolution();
 
