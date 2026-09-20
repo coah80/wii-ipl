@@ -123,6 +123,7 @@ BOOL HBMIsReassignedControllers() {
 /* THE LOGIC */
 
 extern const f32 lbl_816946D8;
+extern const f32 lbl_81694744;
 extern const f32 lbl_816946DC;
 extern const f32 lbl_81694754;
 
@@ -1923,8 +1924,8 @@ namespace homebutton {
         }
 
         if (onFlag && pController != NULL) {
-            if (!getController(pController->chan)->isRumbling() && mOnPaneVibWaitFrame[pController->chan] <= 0.0f) {
-                mOnPaneVibFrame[pController->chan] = scOnPaneVibTime;
+            if (!getController(pController->chan)->isRumbling() && mOnPaneVibWaitFrame[pController->chan] <= ::lbl_816946D8) {
+                mOnPaneVibFrame[pController->chan] = ::lbl_81694744;
                 getController(pController->chan)->startMotor();
             }
         }
