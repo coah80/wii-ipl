@@ -7,8 +7,35 @@
 #include "system/iplSystem.h"
 #undef IPL_SOUND_RECT_OUT_OF_LINE
 
+extern "C" void __ct__Q23EGG20SimpleAudioMgrWithFxFv();
+
 namespace ipl {
     namespace snd {
+        extern "C" void __vt__Q33ipl3snd6System();
+
+        extern "C" asm void __ct__Q33ipl3snd6SystemFv() {
+            nofralloc
+            stwu r1, -0x10(r1)
+            mflr r0
+            stw r0, 0x14(r1)
+            stw r31, 0xc(r1)
+            mr r31, r3
+            bl __ct__Q23EGG20SimpleAudioMgrWithFxFv
+            lis r5, __vt__Q33ipl3snd6System@ha
+            mr r3, r31
+            addi r5, r5, __vt__Q33ipl3snd6System@l
+            addi r4, r5, 0x10
+            stw r5, 0x0(r31)
+            addi r0, r5, 0x20
+            stw r4, 0x4(r31)
+            stw r0, 0x34(r31)
+            lwz r31, 0xc(r1)
+            lwz r0, 0x14(r1)
+            mtlr r0
+            addi r1, r1, 0x10
+            blr
+        }
+
         struct tagSSeInfo {
             tagSSeInfo();
 
