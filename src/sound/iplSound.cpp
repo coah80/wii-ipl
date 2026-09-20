@@ -1,3 +1,4 @@
+#define AutoLock(x) AutoLock(x) NO_INLINE
 #define IPL_SOUND_RECT_OUT_OF_LINE
 #include "iplSound.h"
 #include "sound/iplSound.h"
@@ -6,6 +7,7 @@
 
 #include "system/iplSystem.h"
 #undef IPL_SOUND_RECT_OUT_OF_LINE
+#undef AutoLock
 
 extern "C" void __ct__Q23EGG20SimpleAudioMgrWithFxFv();
 extern "C" void __dt__Q34nw4r3snd11SoundHandleFv();
