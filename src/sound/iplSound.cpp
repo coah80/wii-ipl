@@ -17,6 +17,11 @@ extern "C" const f32 lbl_816946A4;
 extern "C" const f32 lbl_816946AC;
 extern "C" void _savegpr_29();
 extern "C" void _restgpr_29();
+extern "C" void sBannerSoundPlayer__Q23ipl3snd();
+extern "C" void pause__17BannerSoundPlayerFb();
+extern "C" void initFx__Q33ipl3snd6SystemFv();
+extern "C" void GetInstance__Q44nw4r3snd6detail9AxManagerFv();
+extern "C" void ClearEffect__Q44nw4r3snd6detail9AxManagerFQ34nw4r3snd6AuxBusi();
 
 namespace ipl {
     namespace snd {
@@ -261,6 +266,54 @@ namespace ipl {
             lwz r0, 0x24(r1)
             mtlr r0
             addi r1, r1, 0x20
+            blr
+        }
+
+        extern "C" asm void pauseOnBGM__Q33ipl3snd6SystemFv() {
+            nofralloc
+            stwu r1, -0x10(r1)
+            mflr r0
+            stw r0, 0x14(r1)
+            stw r31, 0xc(r1)
+            mr r31, r3
+            lwz r4, _mainBGMHandle__Q23ipl3snd
+            cmpwi r4, 0
+            beq pauseOnBGM_done
+            lwz r0, 0(r4)
+            cmpwi r0, 0
+            beq pauseOnBGM_resume
+            beq pauseOnBGM_resume
+            lwz r3, 0(r4)
+            li r4, 1
+            li r5, 5
+            lwz r12, 0(r3)
+            lwz r12, 0x1c(r12)
+            mtctr r12
+            bctrl
+        pauseOnBGM_resume:
+            mr r3, r31
+            bl pauseOnSE__Q33ipl3snd6SystemFv
+            lis r3, sBannerSoundPlayer__Q23ipl3snd@ha
+            li r4, 1
+            addi r3, r3, sBannerSoundPlayer__Q23ipl3snd@l
+            bl pause__17BannerSoundPlayerFb
+            bl GetInstance__Q44nw4r3snd6detail9AxManagerFv
+            li r4, 0
+            li r5, 0xfa
+            bl ClearEffect__Q44nw4r3snd6detail9AxManagerFQ34nw4r3snd6AuxBusi
+            bl GetInstance__Q44nw4r3snd6detail9AxManagerFv
+            li r4, 1
+            li r5, 0xfa
+            bl ClearEffect__Q44nw4r3snd6detail9AxManagerFQ34nw4r3snd6AuxBusi
+            bl GetInstance__Q44nw4r3snd6detail9AxManagerFv
+            li r4, 2
+            li r5, 0xfa
+            bl ClearEffect__Q44nw4r3snd6detail9AxManagerFQ34nw4r3snd6AuxBusi
+        pauseOnBGM_done:
+            lwz r0, 0x14(r1)
+            lwz r31, 0xc(r1)
+            mtlr r0
+            addi r1, r1, 0x10
             blr
         }
 
