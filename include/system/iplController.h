@@ -200,6 +200,7 @@ namespace ipl {
             virtual int pinch() const override;
             virtual int pinchTrg() const override;
             virtual int pinchOffTrg() const override;
+            virtual bool repeat(u32 button) const override;
 
             virtual f32 getDpdDistance() const override;  // 0x60
 

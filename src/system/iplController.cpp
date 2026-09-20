@@ -80,6 +80,36 @@ extern "C" asm void getHorizon__Q33ipl10controller10RevolutionCFv() {
     blr
 }
 
+extern "C" asm void repeat__Q33ipl10controller10RevolutionCFUl() {
+    nofralloc
+    stwu r1, -0x10(r1)
+    mflr r0
+    stw r0, 0x14(r1)
+    stw r31, 0xc(r1)
+    li r31, 0
+    stw r30, 8(r1)
+    mr r30, r3
+    lwz r12, 0(r3)
+    lwz r12, 0x14(r12)
+    mtctr r12
+    bctrl
+    cmpwi r3, 0
+    beq iplController_Revolution_repeat_L1
+    lwz r3, 0x20(r30)
+    lwz r0, 0(r3)
+    rlwinm. r0, r0, 0, 0, 0
+    beq iplController_Revolution_repeat_L1
+    li r31, 1
+iplController_Revolution_repeat_L1:
+    mr r3, r31
+    lwz r31, 0xc(r1)
+    lwz r30, 8(r1)
+    lwz r0, 0x14(r1)
+    mtlr r0
+    addi r1, r1, 0x10
+    blr
+}
+
 extern "C" asm void call__Q33ipl10controller6MasterCFUlMQ33ipl10controller9InterfaceFPCvPCvUl_b() {
     nofralloc
     stwu r1, -0x30(r1)
