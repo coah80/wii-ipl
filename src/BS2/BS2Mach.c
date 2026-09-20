@@ -177,3 +177,7 @@ void BS2SetBannerBuffer(void* pBanner, u32 bannerSize) {
     lbl_81698A14 = (u32)pBanner;
     lbl_81698AD8 = bannerSize;
 }
+
+BOOL BS2IsDiagDisc() {
+    return (u8)(*(u8*)OSPhysicalToCached(OS_ADDR_BOOT_INFO) - 0x30U) <= 1;
+}
