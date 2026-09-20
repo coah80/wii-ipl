@@ -11,6 +11,7 @@ namespace ipl {
     namespace scene {
         // clang-format off
         extern "C" char lbl_8164E290[] = "Cursur_a";
+        extern "C" char lbl_8164E744[] = "WIPL_SE_BALLOON";
 
         static const char* scCursur = lbl_8164E290;
 
@@ -1088,7 +1089,7 @@ namespace ipl {
                                 mpBalloonLayout->GetRootPane()->SetVisible(true);
                                 mpBalloonLayout->setAnmType(ANIM_TYPE_FORWARD);
                                 mpBalloonLayout->start();
-                                snd::getSystem()->startSE("WIPL_SE_BALLOON");
+                                snd::getSystem()->startSE(lbl_8164E744);
                             } else if (unk == 4) {
                                 unk_0x68 = 0;
                             }
