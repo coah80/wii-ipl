@@ -7,8 +7,8 @@
 
 <!--- Github Actions Badge -->
 
-[Build Status]: https://github.com/koopthekoopa/wii-ipl/actions/workflows/build.yml/badge.svg
-[actions]: https://github.com/koopthekoopa/wii-ipl/actions/workflows/build.yml
+[Build Status]: https://github.com/coah80/wii-ipl/actions/workflows/build.yml/badge.svg
+[actions]: https://github.com/coah80/wii-ipl/actions/workflows/build.yml
 
 <!--- Discord Badge -->
 
@@ -58,6 +58,13 @@ Wii Menu
 A work-in-progress decompilation of the Wii Menu (4.3)
 
 This repository does **not** contain any assets or assembly of the executable whatsoever. An existing WAD of the Wii Menu is required.
+
+Live decomp status
+==================
+
+[![Build status]][actions]
+
+Open the latest successful [Build workflow run][actions] and check its summary for the current objdiff metrics. It includes perfect-match/decompiled, fuzzy-match, fully linked, data, function, unit, and category breakdowns. The run also publishes version report artifacts for 43U, 43E, 43J, and 43K, plus the generated 43U decomp-status report.
 
 Supported versions:
 - `43U` - Version **4.3U** (USA)
