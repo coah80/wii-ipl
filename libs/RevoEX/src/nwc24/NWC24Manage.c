@@ -23,6 +23,7 @@ static u8 InternalStatBuf[32];
 
 static NWC24Err NWC24OpenLibInternal(NWC24Work* work, s32 state);
 NWC24Err InitAllFiles(NWC24Work* work, BOOL forceConfig, BOOL forceMBox, BOOL forceFriendList, BOOL forceDlTask);
+NWC24Err NWC24iInitMsgBoxDir(BOOL force);
 
 void NWC24iRegister() {
     if (Registered) {
@@ -538,6 +539,71 @@ NWC24Err InitAllFiles(NWC24Work* work, BOOL forceConfig, BOOL forceMBox, BOOL fo
     }
 
     return NWC24iInitDlTaskList(forceDlTask);
+}
+
+NWC24Err NWC24iInitMsgBoxDir(BOOL force) {
+    char path[0x40];
+    const char* mboxDir = NWC24GetMBoxDir();
+    char* p;
+    u32 num;
+    s32 result;
+    int slashCount;
+
+    Mail_strcpy(path, mboxDir);
+    p = path + 1;
+    while (*p != '\0') {
+        if (*p == '/') {
+            *p = '\0';
+            break;
+        }
+        p++;
+    }
+
+    result = NANDPrivateReadDir(path, NULL, &num);
+    if (result != 0) {
+        return NWC24_ERR_FATAL;
+    }
+
+    Mail_strcpy(path, mboxDir);
+    p = path + 1;
+    slashCount = 0;
+    while (*p != '\0') {
+        if (*p == '/') {
+            slashCount++;
+            if (slashCount == 2) {
+                *p = '\0';
+                break;
+            }
+        }
+        p++;
+    }
+
+    result = NANDPrivateReadDir(path, NULL, &num);
+    if (result == -12) {
+        result = NWC24CreateDir(path);
+        if (result != NWC24_OK) {
+            return NWC24_ERR_FATAL;
+        }
+    } else if (result != 0) {
+        return NWC24_ERR_FATAL;
+    }
+
+    if (force) {
+        result = NANDPrivateDelete(mboxDir);
+        if (result != 0 && result != -12) {
+            if (result == -4) {
+                return -38;
+            }
+            return NWC24_ERR_FATAL;
+        }
+    }
+
+    result = NWC24CreateDir(mboxDir);
+    if (result != -15 && result != 0) {
+        return NWC24_ERR_FATAL;
+    }
+
+    return NWC24_OK;
 }
 
 NWC24Err AnalyzeErrorCode(s32 errorCode, u32 usage, u32* score) {
