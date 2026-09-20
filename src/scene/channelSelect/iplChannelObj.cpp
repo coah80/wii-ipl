@@ -11,8 +11,7 @@ namespace ipl {
     namespace scene {
         // clang-format off
         extern "C" char lbl_8164E290[] = "Cursur_a";
-        extern "C" char lbl_8164E6AF[] = "%s_Rso%d.brlan";
-        extern "C" char lbl_8164E744[] = "WIPL_SE_BALLOON";
+        extern "C" char lbl_816969E8[] = "arc";
         extern "C" char lbl_816969EC[] = "Rso%d";
 
         static const char* scCursur = lbl_8164E290;
@@ -112,6 +111,9 @@ namespace ipl {
             "icon.brlan",
             "icon_Whole.brlan",
         };
+
+        extern "C" char lbl_8164E6AF[] = "%s_Rso%d.brlan";
+        extern "C" char lbl_8164E744[] = "WIPL_SE_BALLOON";
 
         static const u32 scLangLookup[SC_PRODUCT_AREA_MAX][16] = {
             // Japan
@@ -498,13 +500,14 @@ namespace ipl {
         }
 
         void ChannelObj::createDiskLayout(void* data) {
-            mpDiskLayout = layout::Object::create(mpDiskHeap, 0x19000, data, "arc", lbl_8164E328.iconBrlyt);
+            const ModuleData* moduleData = reinterpret_cast<const ModuleData*>(lbl_8164E290 + 0x98);
+            mpDiskLayout = layout::Object::create(mpDiskHeap, 0x19000, data, lbl_816969E8, moduleData->iconBrlyt);
             setLangPane(mpDiskLayout);
 
-            if (mpDiskLayout->searchFile(lbl_8164E328.iconBrlan)) {
-                mpDiskAnim = mpDiskLayout->bind(lbl_8164E328.iconBrlan);
-            } else if (mpDiskLayout->searchFile(lbl_8164E328.iconWholeBrlan)) {
-                mpDiskAnim = mpDiskLayout->bind(lbl_8164E328.iconWholeBrlan);
+            if (mpDiskLayout->searchFile(moduleData->iconBrlan)) {
+                mpDiskAnim = mpDiskLayout->bind(moduleData->iconBrlan);
+            } else if (mpDiskLayout->searchFile(moduleData->iconWholeBrlan)) {
+                mpDiskAnim = mpDiskLayout->bind(moduleData->iconWholeBrlan);
             } else {
                 mpDiskAnim = NULL;
             }
