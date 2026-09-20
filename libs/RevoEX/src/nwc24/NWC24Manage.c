@@ -22,6 +22,7 @@ static BOOL Registered = FALSE;
 static u8 InternalStatBuf[32];
 
 static NWC24Err NWC24OpenLibInternal(NWC24Work* work, s32 state);
+NWC24Err InitAllFiles(NWC24Work* work, BOOL forceConfig, BOOL forceMBox, BOOL forceFriendList, BOOL forceDlTask);
 
 void NWC24iRegister() {
     if (Registered) {
@@ -500,6 +501,43 @@ NWC24Err NWC24InitFilesIndividually(void* work, BOOL forceConfig, BOOL forceMBox
     if (result != NWC24_OK) {
         return result;
     }
+}
+
+NWC24Err InitAllFiles(NWC24Work* work, BOOL forceConfig, BOOL forceMBox, BOOL forceFriendList, BOOL forceDlTask) {
+    NWC24Err result;
+
+    if ((u32)work % 32 != 0) {
+        return NWC24_ERR_ALIGNMENT;
+    }
+
+    NWC24WorkP = work;
+
+    result = NWC24iInitMsgBoxDir(forceMBox);
+    if (result != NWC24_OK) {
+        return result;
+    }
+
+    result = NWC24iInitMBox();
+    if (result != NWC24_OK) {
+        return result;
+    }
+
+    result = NWC24iConfigInit(forceConfig);
+    if (result != NWC24_OK) {
+        return result;
+    }
+
+    result = NWC24iInitFriendList(forceFriendList);
+    if (result != NWC24_OK) {
+        return result;
+    }
+
+    result = NWC24iInitSecretFriendList(forceFriendList);
+    if (result != NWC24_OK) {
+        return result;
+    }
+
+    return NWC24iInitDlTaskList(forceDlTask);
 }
 
 NWC24Err AnalyzeErrorCode(s32 errorCode, u32 usage, u32* score) {
