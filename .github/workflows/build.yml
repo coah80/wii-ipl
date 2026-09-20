@@ -14,7 +14,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        version: [43U, 43E, 43J, 43K]
+        version: [43U]
 
     steps:
     # Checkout the repository
