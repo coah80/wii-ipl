@@ -129,6 +129,9 @@ extern const f32 lbl_81694744;
 extern const f32 lbl_816946DC;
 extern const f32 lbl_81694754;
 
+extern const f32 lbl_81694714;
+extern const f32 lbl_81694710;
+
 namespace homebutton {
     static void SimpleSyncCallback(s32 result, s32 num);
 
@@ -1469,12 +1472,13 @@ namespace homebutton {
                     nw4r::math::VEC3 vec;
 
                     if (pController->wiiCon[i].use_devtype == WPAD_DEV_CLASSIC && pController->wiiCon[i].kpad->dev_type == WPAD_DEV_CLASSIC) {
-                        vec = nw4r::math::VEC3(0.0f, 0.0f, 15.0f);
+                        vec = nw4r::math::VEC3(lbl_816946D8, lbl_816946D8,
+                                                *((volatile const f32*)&lbl_81694710));
                     } else {
                         Vec2 v = pController->wiiCon[i].kpad->horizon;
-                        f32 rad = nw4r::math::Atan2Deg(-v.y, v.x);
+                        f32 rad = nw4r::math::Atan2FIdx(-v.y, v.x) * lbl_81694714;
 
-                        vec = nw4r::math::VEC3(0.0f, 0.0f, rad);
+                        vec = nw4r::math::VEC3(lbl_816946D8, lbl_816946D8, rad);
                     }
 
                     if (!mpHBInfo->cursor) {
