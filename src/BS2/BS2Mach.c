@@ -226,3 +226,7 @@ BOOL BS2IsTitleAvailable(ESTitleId titleId) {
 
     return FALSE;
 }
+
+void callback(s32 result) {
+    lbl_81698A54 = result;
+}
