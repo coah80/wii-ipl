@@ -1290,8 +1290,9 @@ namespace ipl {
         void fwd_search_task_(void* work) {
             Board* board = static_cast<Board*>(System::getSceneManager()->getScene(SCENE_BOARD));
             if (board != NULL) {
-                CDBDate start = RECORD_DATE_TO_CDB(board->getSearchRecord());
-                CDBDate end = start = RECORD_DATE_TO_CDB_END(board->getSearchRecord());
+                CDBDate start, end;
+                start = RECORD_DATE_TO_CDB(board->getSearchRecord());
+                end = RECORD_DATE_TO_CDB_END(board->getSearchRecord());
 
                 cdb::Manager* cdbManager = System::getCdbManager();
                 CDBRecordLocation location = cdbManager->isSDMounted() ? CDB_RECORD_LOCATION_ALL : CDB_RECORD_LOCATION_NAND;
