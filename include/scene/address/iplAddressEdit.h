@@ -10,6 +10,7 @@ namespace ipl {
             AddressEdit(EGG::Heap * heap, int friendCode);
 
             void stt_msg_code_add();
+            void stt_msg_code_edit();
 
             class String {
             public:
