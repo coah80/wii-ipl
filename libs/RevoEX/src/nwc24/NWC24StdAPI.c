@@ -22,6 +22,21 @@ int Mail_strlen(const char* str) {
     return i;
 }
 
+char* Mail_strcat(char* dest, const char* src) {
+    int i;
+    char* pDest;
+
+    pDest = dest;
+    for (i = 0; *pDest != 0; pDest++, i++) {
+    }
+    pDest = dest + i;
+    while (*src != 0) {
+        *pDest++ = *src++;
+    }
+    *pDest = 0;
+    return dest;
+}
+
 int STD_strnlen(const char* str, u32 len) {
     int i;
     for (i = 0; i < len; i++, str++) {
