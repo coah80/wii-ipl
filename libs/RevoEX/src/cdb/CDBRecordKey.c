@@ -3,6 +3,13 @@
 
 #include <stdio.h>
 
+typedef struct _CDBRecordKeyArray {
+    CDBRecordKey* records;
+    int capacity;
+    int size;
+    int reverse;
+} CDBRecordKeyArray;
+
 BOOL CDBRecordKeyIsValid(CDBRecordKey* recordKey) {
     u32 keyLength;
     if (recordKey == NULL) {
@@ -96,4 +103,31 @@ int CDBRecordKeyCompareByDate(CDBRecordKey* recordKey1, CDBRecordKey* recordKey2
 
 void CDBRecordKeyGetKeyStr(CDBRecordKey* recordKey, char* keyString) {
     strcpy(keyString, recordKey->keyString);
+}
+
+void CDBRecordKeyArrayInit(CDBRecordKeyArray* recordArray, CDBRecordKey* records, int capacity) {
+    recordArray->size = 0;
+    recordArray->reverse = 1;
+    recordArray->capacity = capacity;
+    recordArray->records = records;
+}
+
+void CDBRecordKeyArraySetReverse(CDBRecordKeyArray* recordArray) {
+    recordArray->reverse = -1;
+}
+
+int CDBRecordKeyArraySize(CDBRecordKeyArray* recordArray) {
+    return recordArray->size;
+}
+
+CDBRecordKey* CDBRecordKeyArrayAt(CDBRecordKeyArray* recordArray, int index) {
+    return (CDBRecordKey*)((char*)recordArray->records + index * sizeof(CDBRecordKey));
+}
+
+BOOL CDBRecordKeyArrayEmpty(CDBRecordKeyArray* recordArray) {
+    return recordArray->size == 0;
+}
+
+CDBRecordKey* CDBRecordKeyArrayEnd(CDBRecordKeyArray* recordArray) {
+    return recordArray->records + recordArray->size;
 }
