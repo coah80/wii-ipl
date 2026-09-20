@@ -25,6 +25,35 @@ extern "C" void __ptmf_scall();
 extern "C" void __ct__Q33ipl4math4VEC2Fff();
 extern "C" void __vt__Q33ipl10controller4Base();
 extern "C" void __vt__Q33ipl10controller10Revolution();
+extern "C" void __dt__Q33ipl10controller10RevolutionFv();
+extern "C" void __dl__FPv();
+
+extern "C" asm void __dt__Q33ipl10controller7ClassicFv() {
+    nofralloc
+    stwu r1, -0x10(r1)
+    mflr r0
+    cmpwi r3, 0
+    stw r0, 0x14(r1)
+    stw r31, 0xc(r1)
+    mr r31, r4
+    stw r30, 0x8(r1)
+    mr r30, r3
+    beq classic_dtor_done
+    li r4, 0
+    bl __dt__Q33ipl10controller10RevolutionFv
+    cmpwi r31, 0
+    ble classic_dtor_done
+    mr r3, r30
+    bl __dl__FPv
+classic_dtor_done:
+    mr r3, r30
+    lwz r31, 0xc(r1)
+    lwz r30, 0x8(r1)
+    lwz r0, 0x14(r1)
+    mtlr r0
+    addi r1, r1, 0x10
+    blr
+}
 
 extern "C" asm void getMainStickX__Q33ipl10controller9InterfaceCFv() {
     nofralloc
