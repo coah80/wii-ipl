@@ -1,5 +1,7 @@
 #include "scene/address/iplAddressEdit.h"
 
+#include "system/iplSystem.h"
+
 #include <private/nwc24/NWC24Std.h>
 #include <revolution/nwc24.h>
 
@@ -20,6 +22,12 @@ enum {
 };
 
 static ChkHostNameError CheckHostName(const char* hostName, u32 hostNameLength);
+
+void ipl::scene::AddressEdit::stt_msg_code_add() {
+    if (System::getDialog()->getLastResult() == DialogWindow::RESULT_BUTTON) {
+        *reinterpret_cast<u32*>(reinterpret_cast<u8*>(this) + 0x64) = 0x22;
+    }
+}
 
 const wchar_t* ipl::scene::AddressEdit::String::getDispCodeLong() const {
     if (reinterpret_cast<const u8*>(this)[0x422] == 0) {

@@ -9,6 +9,8 @@ namespace ipl {
         public:
             AddressEdit(EGG::Heap * heap, int friendCode);
 
+            void stt_msg_code_add();
+
             class String {
             public:
                 void clear();
