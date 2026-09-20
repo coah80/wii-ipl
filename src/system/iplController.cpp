@@ -28,6 +28,16 @@ extern "C" void __vt__Q33ipl10controller10Revolution();
 extern "C" void __dt__Q33ipl10controller10RevolutionFv();
 extern "C" void __dl__FPv();
 
+extern "C" asm void __ct__Q34nw4r2ut4RectFv() {
+    nofralloc
+    lfs f0, lbl_81694454
+    stfs f0, 0(r3)
+    stfs f0, 4(r3)
+    stfs f0, 8(r3)
+    stfs f0, 0xc(r3)
+    blr
+}
+
 extern "C" asm void __dt__Q33ipl10controller7ClassicFv() {
     nofralloc
     stwu r1, -0x10(r1)
