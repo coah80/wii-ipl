@@ -128,6 +128,10 @@ namespace ipl {
             return 0;
         }
 
+        int Interface::getTrigFlag() const {
+            return 0;
+        }
+
         int Base::decide() const {
             return unk_0x08 == 5;
         }
