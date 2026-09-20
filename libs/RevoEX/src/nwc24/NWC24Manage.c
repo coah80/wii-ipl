@@ -448,6 +448,10 @@ _NWC24Check_return:
 }
 #endif
 
+s32 NWC24GetErrorCode() {
+    return GlobalErrorCode;
+}
+
 void NWC24iSetErrorCode(s32 code) {
     GlobalErrorCode = code;
 }
