@@ -15,6 +15,8 @@ extern "C" void _seBlk__Q23ipl3snd();
 extern "C" nw4r::snd::SoundHandle* _mainBGMHandle__Q23ipl3snd;
 extern "C" const f32 lbl_816946A4;
 extern "C" const f32 lbl_816946AC;
+extern "C" void _savegpr_29();
+extern "C" void _restgpr_29();
 
 namespace ipl {
     namespace snd {
@@ -189,6 +191,41 @@ namespace ipl {
             lwz r12, 0x38(r12)
             mtctr r12
             bctr
+            blr
+        }
+
+        extern "C" asm void pauseOnSE__Q33ipl3snd6SystemFv() {
+            nofralloc
+            stwu r1, -0x20(r1)
+            mflr r0
+            stw r0, 0x24(r1)
+            addi r11, r1, 0x20
+            bl _savegpr_29
+            lis r30, _seBlk__Q23ipl3snd@ha
+            li r29, 0
+            addi r30, r30, _seBlk__Q23ipl3snd@l
+            li r31, 0
+        pauseOnSE_loop:
+            lwzx r3, r30, r31
+            cmpwi r3, 0
+            beq pauseOnSE_next
+            beq pauseOnSE_next
+            lwz r12, 0(r3)
+            li r4, 1
+            li r5, 5
+            lwz r12, 0x1c(r12)
+            mtctr r12
+            bctrl
+        pauseOnSE_next:
+            addi r29, r29, 1
+            addi r31, r31, 0xc
+            cmpwi r29, 0x10
+            blt pauseOnSE_loop
+            addi r11, r1, 0x20
+            bl _restgpr_29
+            lwz r0, 0x24(r1)
+            mtlr r0
+            addi r1, r1, 0x20
             blr
         }
 
