@@ -9,6 +9,7 @@ namespace ipl {
     namespace scene {
         class FriendListCache {
         public:
+            void fin();
             const NWC24FriendInfo& getInfo(int index) const { return mInfos[index]; }
 
         private:
@@ -18,6 +19,7 @@ namespace ipl {
         FADER_SCENE_CLASS(Address) {
         public:
             Address(EGG::Heap * heap, int);
+            virtual void destroy() override;
 
             enum {
                 SCENE_ADD_WII = 1,

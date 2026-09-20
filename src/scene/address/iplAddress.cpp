@@ -66,6 +66,10 @@ extern "C" asm void calcCommon__Q33ipl5scene14FaderSceneBaseFv() {
     blr
 }
 
+void ipl::scene::Address::destroy() {
+    getFriendCache()->fin();
+}
+
 extern "C" asm void isValidId__Q33ipl5scene15FriendListCacheFRCUx() {
     nofralloc
     lis r3, smArg__Q23ipl6System@ha
