@@ -12,6 +12,7 @@ namespace ipl {
             void stt_msg_code_add();
             void stt_msg_code_edit();
             void stt_msg_parental();
+            void stt_msg_nwc24_error();
 
             class String {
             public:
