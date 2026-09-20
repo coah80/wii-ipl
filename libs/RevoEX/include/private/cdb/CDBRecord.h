@@ -27,7 +27,7 @@ enum {
 
 /* RECORD POOL */
 
-CDBErr CDBRecordPoolInit(void* work);
+void CDBRecordPoolInit(void* work);
 
 /* RECORD */
 

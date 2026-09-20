@@ -21,6 +21,7 @@ static VFErr s_lastVFError;
 static s32 s_lastNANDError;
 
 static u8 s_cdbWiiId[OSRoundUp32B(CDB_WIIID_DAT_SIZE)] ALIGN32;
+static u8* s_recordPool;
 
 void MutexInitialized() {
     s_mutexInitialized = TRUE;
@@ -70,6 +71,18 @@ BOOL CDBGetFatalVFErrorFlag() {
 
 void CDBSetFatalVFErrorFlag() {
     s_fatalVFFlag = TRUE;
+}
+
+void CDBRecordPoolInit(void* work) {
+    int i;
+
+    s_recordPool = (u8*)work + 0x18030;
+    for (i = 0; i < 5; i++) {
+        *(u32*)(s_recordPool + i * 0x470 + 0x18) = 0;
+        if (!s_mutexInitialized) {
+            OSInitMutex((OSMutex*)(s_recordPool + i * 0x470));
+        }
+    }
 }
 
 void CDBTryToCreate_wiiiddat(u8* data) {
