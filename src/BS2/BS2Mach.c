@@ -182,6 +182,10 @@ void* BS2GetBannerBufferAddr() {
     return (void*)lbl_81698A14;
 }
 
+u32 BS2GetBannerBufferLength() {
+    return lbl_81698AD8;
+}
+
 BOOL BS2IsDiagDisc() {
     return (u8)(*(u8*)OSPhysicalToCached(OS_ADDR_BOOT_INFO) - 0x30U) <= 1;
 }
