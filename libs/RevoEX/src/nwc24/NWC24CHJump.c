@@ -85,8 +85,7 @@ NWC24Err NWC24GetCHJumpBlockSize(const NWC24CHJumpObj* chjp, u32* size, u32 inde
 }
 
 NWC24Err NWC24GetCHJumpBlockData(const NWC24CHJumpObj* chjp, char* data, u32 size, u32 index) {
-    const CHJumpBlock* block;
-    const char* blockTbl = GetCHDataPtr(chjp);
+    const u32* blockTbl = (const u32*)GetCHDataPtr(chjp);
 
     char* srcData;
     u32 srcSize;
@@ -95,11 +94,9 @@ NWC24Err NWC24GetCHJumpBlockData(const NWC24CHJumpObj* chjp, char* data, u32 siz
         return NWC24_ERR_INVALID_VALUE;
     }
 
-    block = GetCHJumpBlock(blockTbl, index);
-
     // Get block data and size
-    srcData = (char*)&blockTbl[block->offset];
-    srcSize = block->size;
+    srcData = (char*)chjp + blockTbl[index * 2];
+    srcSize = blockTbl[index * 2 + 1];
 
     // Make sure they do not overflow
     if (srcSize > size) {
