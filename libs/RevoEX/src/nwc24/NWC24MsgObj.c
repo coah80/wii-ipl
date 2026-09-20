@@ -136,7 +136,8 @@ NWC24Err NWC24SetMsgText(NWC24MsgObj* msg, const char* text, u32 len, NWC24Chars
     if (encoding == NWC24_ENC_7BIT) {
         u32 lineLength = 0;
         const char* it;
-        for (it = text; it < text + len; it++) {
+        const char* end = text + len;
+        for (it = text; it < end; it++) {
             if (it[0] == '\r' && it[1] == '\n') {
                 lineLength = 0;
                 it++;
