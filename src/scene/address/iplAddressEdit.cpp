@@ -1,3 +1,5 @@
+#include "scene/address/iplAddressEdit.h"
+
 #include <private/nwc24/NWC24Std.h>
 #include <revolution/nwc24.h>
 
@@ -18,6 +20,13 @@ enum {
 };
 
 static ChkHostNameError CheckHostName(const char* hostName, u32 hostNameLength);
+
+const wchar_t* ipl::scene::AddressEdit::String::getDispCodeLong() const {
+    if (reinterpret_cast<const u8*>(this)[0x422] == 0) {
+        return;
+    }
+    return reinterpret_cast<const wchar_t*>(reinterpret_cast<const u8*>(this) + 0x21c);
+}
 
 /*
     This is a modified version of NWC24CheckPublicMailAddr.

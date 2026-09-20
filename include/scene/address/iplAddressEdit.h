@@ -9,6 +9,11 @@ namespace ipl {
         public:
             AddressEdit(EGG::Heap * heap, int friendCode);
 
+            class String {
+            public:
+                const wchar_t* getDispCodeLong() const;
+            };
+
             enum {
                 SCENE_ADD_WII = 1,
                 SCENE_ADD_EMAIL,
