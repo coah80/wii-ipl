@@ -222,6 +222,7 @@ void IplRso_DebugSetPollInterval(u32 val) {
     }
 }
 
+#pragma force_active on
 static layout::Animator* IplRso_getAnim(int idx) {
     if (idx < 0 || idx >= channel::MAX_ANIMS) {
         return NULL;
@@ -236,6 +237,7 @@ static layout::Animator* IplRso_getAnim(int idx) {
     }
     return ((scene::ChannelSelect*)scn)->getRsoAnimator(idx);
 }
+#pragma force_active off
 
 // Do not run this function
 // It's sole purpose is to make sure that it exports SDK functions for IplRso.
