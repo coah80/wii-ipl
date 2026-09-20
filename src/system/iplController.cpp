@@ -140,6 +140,9 @@ namespace ipl {
             return 0;
         }
 
+        void Interface::cancelRumbling() {
+        }
+
         int Base::decide() const {
             return unk_0x08 == 5;
         }

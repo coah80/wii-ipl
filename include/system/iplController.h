@@ -157,6 +157,7 @@ namespace ipl {
             virtual int getReleaseFlag() const override;
             virtual int getHoldFlag() const override;
             virtual int getTrigFlag() const override;
+            virtual void cancelRumbling() override;
         };
 
         class Revolution : public Interface {
