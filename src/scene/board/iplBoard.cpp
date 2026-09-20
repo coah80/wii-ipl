@@ -1567,29 +1567,28 @@ namespace ipl {
 
             if (System::getScene(SCENE_CHANNEL_SELECT) == NULL && System::getReservedScene() == NULL) {
                 if (mState == STATE_WAIT_CHILD_CST) {
-                    return;
-                }
-
-                enable_licon();
-                enable_ricon();
-
-                if (mCurrentDate == utility::Date::getMaxDate()) {
-                    if (button->isArrowVisible(Button::ARROW_BTN_RIGHT) && mbRIconEnable != true) {
-                        button->animation(Button::IDANIM_ARROW_RIGHT_DISAPPEAR);
-                    }
-                    if (!button->isArrowVisible(Button::ARROW_BTN_LEFT)) {
-                        button->animation(Button::IDANIM_ARROW_LEFT_APPEAR);
-                    }
                 } else {
-                    if (mCurrentDate == utility::Date::getMinDate()) {
-                        if (button->isArrowVisible(Button::ARROW_BTN_LEFT) && mbLIconEnable != true) {
-                            button->animation(Button::IDANIM_ARROW_LEFT_DISAPPEAR);
+                    enable_licon();
+                    enable_ricon();
+
+                    if (mCurrentDate == utility::Date::getMaxDate()) {
+                        if (button->isArrowVisible(Button::ARROW_BTN_RIGHT) && mbRIconEnable != true) {
+                            button->animation(Button::IDANIM_ARROW_RIGHT_DISAPPEAR);
                         }
-                        if (!button->isArrowVisible(Button::ARROW_BTN_RIGHT)) {
-                            button->animation(Button::IDANIM_ARROW_RIGHT_APPEAR);
+                        if (!button->isArrowVisible(Button::ARROW_BTN_LEFT)) {
+                            button->animation(Button::IDANIM_ARROW_LEFT_APPEAR);
                         }
                     } else {
-                        appear_arrow();
+                        if (mCurrentDate == utility::Date::getMinDate()) {
+                            if (button->isArrowVisible(Button::ARROW_BTN_LEFT) && mbLIconEnable != true) {
+                                button->animation(Button::IDANIM_ARROW_LEFT_DISAPPEAR);
+                            }
+                            if (!button->isArrowVisible(Button::ARROW_BTN_RIGHT)) {
+                                button->animation(Button::IDANIM_ARROW_RIGHT_APPEAR);
+                            }
+                        } else {
+                            appear_arrow();
+                        }
                     }
                 }
             }
