@@ -125,6 +125,10 @@ namespace ipl {
             return 0;
         }
 
+        bool Interface::isValidDpd() const {
+            return false;
+        }
+
         int Interface::getClassicHoldFlag() const {
             return 0;
         }

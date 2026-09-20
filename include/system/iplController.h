@@ -165,6 +165,7 @@ namespace ipl {
             virtual void cancelRumbling() override;
             virtual int getChannel() const override;
             virtual int getType() const override;
+            virtual bool isValidDpd() const override;
             virtual void read() override;
         };
 
