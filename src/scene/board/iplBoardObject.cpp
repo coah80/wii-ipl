@@ -666,12 +666,14 @@ namespace ipl {
             ARCFileInfo file;
 
             if (arc_init_handle(arcData, &arc)) {
-                if (ARCOpen(&arc, scThumbChangeTexFile.file, &file)) {
+                const char** pFile = (const char**)&scThumbChangeTexFile.file;
+
+                if (ARCOpen(&arc, pFile[0], &file)) {
                     TPLPalette* ptr = (TPLPalette*)((u8*)arcData + ARCGetStartOffset(&file));
                     u32 length = ARCGetLength(&file);
 
-                    change_tex(layout, scThumbChangeTexFile.s_pane, ptr, length);
-                    change_tex(layout, scThumbChangeTexFile.pane, ptr, length);
+                    change_tex(layout, pFile[1], ptr, length);
+                    change_tex(layout, pFile[2], ptr, length);
 
                     ARCClose(&file);
                 }
