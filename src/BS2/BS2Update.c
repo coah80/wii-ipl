@@ -1,5 +1,7 @@
 #include "BS2/BS2Update.h"
 
+#include <string.h>
+
 static BS2UpdateEntry* pEntries;
 static u32 EntriesCount;
 static u32* pFlags;
@@ -19,6 +21,16 @@ static u32 VersionMEM2;
 static u32 VersionES;
 static u32 ConsoleType;
 static void* FatalFunc;
+
+#pragma force_active on
+char* getSuffix(const char* path) {
+    char* suffix = strrchr(path, '.');
+    if (suffix != NULL) {
+        suffix++;
+    }
+    return suffix;
+}
+#pragma force_active off
 
 int BS2UpdateState() {
     return State;
