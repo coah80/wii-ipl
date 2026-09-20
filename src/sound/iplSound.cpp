@@ -21,6 +21,14 @@ namespace ipl {
         }
 
         BOOL m_isLocked;
+        struct tagSBgmInfo {
+            nw4r::snd::SoundHandle handle;
+            tagSBgmInfo();
+        };
+
+        tagSBgmInfo::tagSBgmInfo() {
+        }
+
         extern nw4r::snd::SoundHandle _bgmBlk;
         extern tagSSeInfo _seBlk[16];
         extern nw4r::snd::SoundHandle* _mainBGMHandle;
