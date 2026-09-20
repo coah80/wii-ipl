@@ -10,6 +10,8 @@
 extern "C" void __ct__Q23EGG20SimpleAudioMgrWithFxFv();
 extern "C" void __dt__Q34nw4r3snd11SoundHandleFv();
 extern "C" void __dl__FPv();
+extern "C" void __destroy_arr();
+extern "C" void _seBlk__Q23ipl3snd();
 
 namespace ipl {
     namespace snd {
@@ -115,6 +117,17 @@ namespace ipl {
         extern nw4r::snd::SoundHandle _bgmBlk;
         extern tagSSeInfo _seBlk[16];
         extern nw4r::snd::SoundHandle* _mainBGMHandle;
+
+        extern "C" asm void __dt__Q33ipl3snd6UnkClsFv() {
+            nofralloc
+            lis r3, _seBlk__Q23ipl3snd@ha
+            lis r4, __dt__Q33ipl3snd10tagSSeInfoFv@ha
+            addi r3, r3, _seBlk__Q23ipl3snd@l
+            li r5, 0xc
+            addi r4, r4, __dt__Q33ipl3snd10tagSSeInfoFv@l
+            li r6, 0x10
+            b __destroy_arr
+        }
 
         static const nw4r::snd::FxReverbHi::ReverbHiParam reverbHiParam = {
             0.0f,
