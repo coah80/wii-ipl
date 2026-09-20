@@ -575,19 +575,23 @@ namespace ipl {
         }
 
         void Calendar::set_textbox_date(int unk, const utility::Date& date) {
-            u32 lang = System::getLanguage();  // unused
-            int week = utility::Calendar::getWeek(date.year, date.month, 1);
-            int maxDays = utility::Calendar::getDays(date.year, date.month);
+            s32 lang = System::getLanguage();
+            int val;
+            int maxDays;
+            int week;
+            week = utility::Calendar::getWeek(date.year, date.month, 1);
+            maxDays = utility::Calendar::getDays(date.year, date.month);
 
             OSCalendarTime curTime = System::getCurrentTime();
 
-            utility::Date local_64(curTime.wday, curTime.year + 1, curTime.mon);
+            utility::Date local_64(curTime.year, curTime.mon + 1, curTime.mday);
             utility::Date local_70;
             utility::Date local_7c;
 
             utility::Calendar::getLastMonth(date, &local_70);
             utility::Calendar::getNextMonth(date, &local_7c);
 
+            int dateIndex;
             int iVar10;
             if (mbAsian || mbUSA) {
                 iVar10 = 6 - utility::Calendar::getWeek(date.year, date.month, maxDays);
@@ -602,18 +606,21 @@ namespace ipl {
                 }
             }
 
-            int dateIndex = unk == 1 ? 0 : DATE_COUNT;
+            dateIndex = unk == 1 ? 0 : DATE_COUNT;
 
             utility::Date local_88;
 
-            for (int i = 0; i < DATE_COUNT; i++) {
+            u32 attr;
+            int val2;
+            int i;
+            for (i = 0; i < DATE_COUNT; i++) {
                 Date* dateScn = ((Date*)nw4r::ut::List_GetNth(&mDateList, dateIndex));
                 dateIndex++;
                 dateScn->setVisible(true);
 
-                int val = (maxDays + week);
-                u32 attr = 0;
-                int val2 = (iVar10 + val);
+                val = (maxDays + week);
+                attr = 0;
+                val2 = (iVar10 + val);
                 if ((week - i) > 0) {
                     local_88.year = local_70.year;
                     local_88.month = local_70.month;
