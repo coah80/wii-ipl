@@ -18,13 +18,16 @@ def byte_measure(measures, kind):
     total = number(measures[f"total_{kind}"])
     matched = number(measures[f"matched_{kind}"])
     complete = number(measures[f"complete_{kind}"])
-    return {
+    result = {
         "total": total,
-        "matched": matched,
-        "matched_percent": percent(matched, total),
-        "complete": complete,
-        "complete_percent": percent(complete, total),
+        "perfect_match": matched,
+        "perfect_match_percent": percent(matched, total),
+        "fully_linked": complete,
+        "fully_linked_percent": percent(complete, total),
     }
+    if kind == "code":
+        result["fuzzy_match_percent"] = float(measures["fuzzy_match_percent"])
+    return result
 
 
 def build_status(report):
@@ -41,6 +44,7 @@ def build_status(report):
                 "id": category["id"],
                 "name": category["name"],
                 "decompiled_percent": float(category_measures["matched_code_percent"]),
+                "fuzzy_match_percent": float(category_measures["fuzzy_match_percent"]),
                 "fully_linked_percent": float(category_measures["complete_code_percent"]),
                 "units": {
                     "total": category_total_units,
@@ -53,6 +57,8 @@ def build_status(report):
         "report_version": report["version"],
         "commit": os.environ.get("GITHUB_SHA"),
         "decompiled_percent": float(measures["matched_code_percent"]),
+        "perfect_match_percent": float(measures["matched_code_percent"]),
+        "fuzzy_match_percent": float(measures["fuzzy_match_percent"]),
         "fully_linked_percent": float(measures["complete_code_percent"]),
         "code": byte_measure(measures, "code"),
         "data": byte_measure(measures, "data"),
@@ -73,25 +79,26 @@ def build_status(report):
 def markdown(status):
     lines = [
         f"## Wii Menu is {status['decompiled_percent']:.2f}% decompiled",
-        f"**{status['fully_linked_percent']:.2f}% fully linked**",
+        f"**{status['code']['fuzzy_match_percent']:.2f}% fuzzy match · {status['fully_linked_percent']:.2f}% fully linked**",
         "",
-        "| Metric | Matched | Fully linked | Total |",
-        "| --- | ---: | ---: | ---: |",
-        f"| Code | {status['code']['matched_percent']:.2f}% | {status['code']['complete_percent']:.2f}% | {status['code']['total']:,} bytes |",
-        f"| Data | {status['data']['matched_percent']:.2f}% | {status['data']['complete_percent']:.2f}% | {status['data']['total']:,} bytes |",
-        f"| Functions | {status['functions']['matched_percent']:.2f}% | — | {status['functions']['total']:,} |",
-        f"| Units | {status['units']['complete_percent']:.2f}% | — | {status['units']['total']:,} |",
+        "| Metric | Perfect match | Fuzzy match | Fully linked | Total |",
+        "| --- | ---: | ---: | ---: | ---: |",
+        f"| Code | {status['code']['perfect_match_percent']:.2f}% | {status['code']['fuzzy_match_percent']:.2f}% | {status['code']['fully_linked_percent']:.2f}% | {status['code']['total']:,} bytes |",
+        f"| Data | {status['data']['perfect_match_percent']:.2f}% | — | {status['data']['fully_linked_percent']:.2f}% | {status['data']['total']:,} bytes |",
+        f"| Functions | {status['functions']['matched_percent']:.2f}% | — | — | {status['functions']['total']:,} |",
+        f"| Units | {status['units']['complete_percent']:.2f}% | — | — | {status['units']['total']:,} |",
         "",
         "### Categories",
         "",
-        "| Category | Decompiled | Fully linked | Units complete |",
-        "| --- | ---: | ---: | ---: |",
+        "| Category | Perfect match | Fuzzy match | Fully linked | Units complete |",
+        "| --- | ---: | ---: | ---: | ---: |",
     ]
     for category in status["categories"]:
         units = category["units"]
         lines.append(
             f"| {category['name']} | {category['decompiled_percent']:.2f}% | "
-            f"{category['fully_linked_percent']:.2f}% | {units['complete']}/{units['total']} |"
+            f"{category['fuzzy_match_percent']:.2f}% | {category['fully_linked_percent']:.2f}% | "
+            f"{units['complete']}/{units['total']} |"
         )
     return "\n".join(lines)
 
