@@ -177,3 +177,10 @@ extern "C" asm void calcCommonAfter__Q33ipl5scene7AddressFv() {
     addi r1, r1, 0x10
     blr
 }
+
+extern "C" asm void __ct__Q43ipl5scene7Address6MiiObjFv() {
+    nofralloc
+    li r0, 0
+    stw r0, 0x20(r3)
+    blr
+}
