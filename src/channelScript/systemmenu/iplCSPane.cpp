@@ -234,15 +234,13 @@ namespace ipl {
             }
 
             CHANSVmDefineMethod(become_youngest_pane) {
-                nw4r::lyt::Pane* parent;
                 nw4r::lyt::Pane* pane;
+                nw4r::lyt::Pane* parent;
                 BOOL result = FALSE;
                 if (util::is_valid_datap(VmParentObj)) {
                     pane = *static_cast<nw4r::lyt::Pane**>(*VmParentObj->value.ptr_v);
                     if (pane != NULL) {
-                        // This function matches when using pointer arithmetic to access the parent field.
-                        // Using the getter causes reg-swaps.
-                        parent = pane->GetParent();
+                        parent = *reinterpret_cast<nw4r::lyt::Pane**>(reinterpret_cast<u8*>(pane) + 0xc);
                         if (parent != NULL) {
                             parent->RemoveChild(pane);
                             parent->AppendChild(pane);
