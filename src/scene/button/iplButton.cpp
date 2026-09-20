@@ -6,6 +6,8 @@
 
 #include "iplSystem.h"
 
+char lbl_816966F9[] = "B_Stop";
+
 namespace ipl {
     namespace scene {
         /* =========== */
@@ -902,7 +904,7 @@ namespace ipl {
         }
 
         void OptOutButton::start_left_event(const char* paneName) {
-            if (strcmp(paneName, "B_Stop") == 0) {
+            if (strcmp(paneName, lbl_816966F9) == 0) {
                 if (mbHovered == TRUE) {
                     mpLayout->getAnim(ANIM_OPT_OUT_FOCUS_OUT)->play();
                 }
