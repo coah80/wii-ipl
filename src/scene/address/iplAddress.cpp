@@ -11,3 +11,9 @@ extern "C" asm void getPrev__Q33ipl5scene4BaseFv() {
     lwz r3, 0x10(r3)
     blr
 }
+
+extern "C" asm void getNext__Q33ipl5scene4BaseFv() {
+    nofralloc
+    lwz r3, 0x0C(r3)
+    blr
+}
