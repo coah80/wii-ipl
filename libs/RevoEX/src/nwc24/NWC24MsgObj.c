@@ -108,6 +108,38 @@ NWC24Err NWC24SetMsgToId(NWC24MsgObj* msg, NWC24UserId id) {
     return NWC24_OK;
 }
 
+NWC24Err NWC24SetMsgToAddr(NWC24MsgObj* msg, const char* addr, u32 length) {
+    NWC24MsgObjPrivate* msgObj = (NWC24MsgObjPrivate*)msg;
+
+    if (!(msgObj->type & MSG_OBJ_INITIALIZED) || (msgObj->type & MSG_OBJ_DELIVERING)) {
+        return NWC24_ERR_PROTECTED;
+    }
+
+    if (addr == NULL || addr[0] == '\0') {
+        return NWC24_ERR_NULL;
+    }
+
+    if (!(msgObj->type & MSG_OBJ_FOR_PUBLIC)) {
+        return NWC24_ERR_NOT_SUPPORTED;
+    }
+
+    if (msgObj->numTo >= NWC24_MSG_RECIPIENT_MAX) {
+        return NWC24_ERR_FULL;
+    }
+
+    if (length >= NWC24_MSG_SUBJECT_LENGTH) {
+        return NWC24_ERR_OVERFLOW;
+    }
+
+    if (addr[length] != '\0') {
+        return NWC24_ERR_STRING_END;
+    }
+
+    NWC24Data_SetDataP(&msgObj->toAddrs[msgObj->numTo], addr, length);
+    msgObj->numTo++;
+    return NWC24_OK;
+}
+
 NWC24Err NWC24SetMsgSubject(NWC24MsgObj* msg, const char* subject, u32 length) {
     NWC24MsgObjPrivate* msgObj = (NWC24MsgObjPrivate*)msg;
 
