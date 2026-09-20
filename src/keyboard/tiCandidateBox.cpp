@@ -620,7 +620,7 @@ namespace textinput {
                     current = reinterpret_cast<CandidateBoxCaller::Candidates*>(reinterpret_cast<u8*>(current) + sizeof(current->szwcPredicted[0]));
                 }
             }
-            gui::PaneComponent* p = mpPaneManager->searchPaneComponent(isOn() ? "B_OnBtn" : "B_OffBtn");
+            gui::PaneComponent* p = mpPaneManager->searchPaneComponent(isOn() ? lbl_816973D8 : lbl_8165D984);
             if (p != NULL) {
                 p->lockInitialize(true);
             }
