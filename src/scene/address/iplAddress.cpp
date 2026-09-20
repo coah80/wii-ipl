@@ -4,6 +4,7 @@ extern "C" char smArg__Q23ipl6System;
 extern "C" void checkUserId__Q33ipl5nwc247ManagerFUx();
 extern "C" void getErrCode__Q33ipl5nwc247ManagerFv();
 extern "C" void close__Q33ipl5nwc247ManagerFv();
+extern "C" void deleteFriendInfo__Q33ipl5nwc247ManagerFUl();
 
 extern "C" asm void getChild__Q33ipl5scene4BaseFv() {
     nofralloc
@@ -112,4 +113,25 @@ fin_L1:
 fin_L2:
     b close__Q33ipl5nwc247ManagerFv
     blr
+}
+
+extern "C" asm void del__Q33ipl5scene15FriendListCacheFUl() {
+    nofralloc
+    add r5, r3, r4
+    li r0, 0
+    stb r0, 0x7d00(r5)
+    lis r5, smArg__Q23ipl6System@ha
+    addi r5, r5, smArg__Q23ipl6System@l
+    lwz r6, 0x7d70(r3)
+    addi r0, r6, -1
+    stw r0, 0x7d70(r3)
+    lbz r0, 0x2bc(r5)
+    cmpwi r0, 0
+    beq del_L1
+    li r3, 0
+    b del_L2
+del_L1:
+    lwz r3, 0x8c(r5)
+del_L2:
+    b deleteFriendInfo__Q33ipl5nwc247ManagerFUl
 }
