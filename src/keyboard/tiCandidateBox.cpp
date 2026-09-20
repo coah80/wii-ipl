@@ -738,6 +738,7 @@ namespace textinput {
         }
 
         void LayoutByNW4R::onEvent(UIObj* obj, u32 id, void* data) {
+            const char* base = lbl_8165D2D0;
             int tmp;
 
             switch (id) {
@@ -766,10 +767,10 @@ namespace textinput {
                 case 0x300:
                     setOnOff(true);
                     mpPaneManager->init();
-                    searchAnmPane(lbl_8165D984 + 68)->changeAnimation(ANM_Normal);
-                    searchAnmPane(lbl_8165D984 + 108)->changeAnimation(ANM_Normal);
+                    searchAnmPane(base + 0x6f8)->changeAnimation(ANM_Normal);
+                    searchAnmPane(base + 0x720)->changeAnimation(ANM_Normal);
                     if (mbInvalid) {
-                        searchAnmPane("W_predictWindow")->changeAnimation(ANM_InvalidOn);
+                        searchAnmPane(base + 0x738)->changeAnimation(ANM_InvalidOn);
                     }
                     break;
                 case 0x301:
