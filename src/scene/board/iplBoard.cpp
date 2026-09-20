@@ -255,7 +255,9 @@ namespace ipl {
                 if (System::onDrawLayer(scene::DRAW_LAYER_1)) {
                     BoardObject* object = NULL;
                     FOREACH_OBJ_IN_LIST(object) {
+                        BoardObject* next = object;
                         object->capture();
+                        object = next;
                     }
                 } else if (System::onDrawLayer(scene::DRAW_LAYER_2)) {
                     // Background
@@ -267,11 +269,13 @@ namespace ipl {
                     BoardObject* chosen = NULL;
                     BoardObject* object = NULL;
                     FOREACH_OBJ_IN_LIST(object) {
+                        BoardObject* next = object;
                         if (object->mState != BoardObject::STATE_PINCH) {
                             object->draw();
                         } else {
                             chosen = object;
                         }
+                        object = next;
                     }
 
                     // Pinched object
