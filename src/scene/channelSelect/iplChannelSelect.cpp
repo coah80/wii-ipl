@@ -20,6 +20,12 @@ namespace ipl {
     namespace scene {
         extern "C" char smArg__Q23ipl6System;
         extern "C" char sSystem__Q23ipl3snd;
+        extern "C" void* m_handle__Q23ipl11TVRCManager;
+        extern "C" void calcChanZoomParam__Q33ipl5scene13ChannelSelectFv();
+        extern "C" void setChanZoomOrtho__Q33ipl5scene13ChannelSelectFv();
+        extern "C" void restartChannelModules__Q33ipl5scene13ChannelSelectFv();
+        extern "C" void setEnable__Q23ipl11TVRCManagerFi();
+        extern "C" void enableBtn__Q33ipl5scene6ButtonFv();
         extern "C" void _savegpr_28();
         extern "C" void _restgpr_28();
         extern "C" void isPlaying__Q33ipl6layout6ObjectCFi();
@@ -1515,41 +1521,98 @@ draw_ChannelSelect_L6:
             }
         }
 
-        void ChannelSelect::calcNormalRestart() {
-            if (!mpChanZoomParams[0]->isPlaying() && getChannelTitle() == NULL) {
-                Button* button = getButton();
-                button->enableBtn();
-
-                if (mCurrentPage > 0) {
-                    button->animation(Button::IDANIM_ARROW_LEFT_APPEAR);
-                    mbLeftArrowVisible = true;
-                } else {
-                    mbLeftArrowVisible = false;
-                }
-
-                if (mMaxPages > 1 && mCurrentPage < mMaxPages - 1) {
-                    button->animation(Button::IDANIM_ARROW_RIGHT_APPEAR);
-                    mbRightArrowVisible = true;
-                } else {
-                    mbRightArrowVisible = false;
-                }
-
-                button->setEventHandler(mpButtonEvent);
-
-                if (!System::isSafeMode()) {
-                    button->get_sd_menu_btn()->setEventHandler(mpSDMenuEvent);
-                }
-
-                restartChannelModules();
-
-                TVRCManager::getHandle()->setEnable(TRUE);
-                snd::getSystem()->startBGM("WIPL_BGM_MENU");
-
-                mState = STATE_NORMAL;
-            } else {
-                calcChanZoomParam();
-                setChanZoomOrtho();
-            }
+        extern "C" asm void calcNormalRestart__Q33ipl5scene13ChannelSelectFv() {
+            nofralloc
+            stwu r1, -0x10(r1)
+            mflr r0
+            stw r0, 0x14(r1)
+            stw r31, 0xc(r1)
+            stw r30, 0x8(r1)
+            mr r30, r3
+            lwz r4, 0x6c(r3)
+            lwz r0, 0x14(r4)
+            cmpwi r0, 0x1
+            beq calcNormalRestart_ChannelSelect_L1
+            lis r31, smArg__Q23ipl6System@ha
+            li r4, 0x3
+            addi r31, r31, smArg__Q23ipl6System@l
+            lwz r3, 0x64(r31)
+            bl getScene__Q33ipl5scene7ManagerFi
+            cmpwi r3, 0
+            bne calcNormalRestart_ChannelSelect_L1
+            lwz r3, 0x64(r31)
+            li r4, 0x5
+            bl getScene__Q33ipl5scene7ManagerFi
+            mr r31, r3
+            bl enableBtn__Q33ipl5scene6ButtonFv
+            lwz r0, 0xc8(r30)
+            cmpwi r0, 0
+            ble calcNormalRestart_ChannelSelect_L2
+            mr r3, r31
+            li r4, 0x18
+            bl animation__Q33ipl5scene6ButtonFi
+            li r0, 0x1
+            stb r0, 0x100(r30)
+            b calcNormalRestart_ChannelSelect_L3
+calcNormalRestart_ChannelSelect_L2:
+            li r0, 0
+            stb r0, 0x100(r30)
+calcNormalRestart_ChannelSelect_L3:
+            lwz r4, 0xcc(r30)
+            cmpwi r4, 0x1
+            ble calcNormalRestart_ChannelSelect_L4
+            lwz r3, 0xc8(r30)
+            subi r0, r4, 0x1
+            cmpw r3, r0
+            bge calcNormalRestart_ChannelSelect_L4
+            mr r3, r31
+            li r4, 0x17
+            bl animation__Q33ipl5scene6ButtonFi
+            li r0, 0x1
+            stb r0, 0x101(r30)
+            b calcNormalRestart_ChannelSelect_L5
+calcNormalRestart_ChannelSelect_L4:
+            li r0, 0
+            stb r0, 0x101(r30)
+calcNormalRestart_ChannelSelect_L5:
+            lwz r4, 0xb8(r30)
+            mr r3, r31
+            li r5, 0
+            bl setEventHandler__Q33ipl5scene6ButtonFPQ23gui12EventHandlerPQ23gui12EventHandler
+            lis r3, smArg__Q23ipl6System@ha
+            addi r3, r3, smArg__Q23ipl6System@l
+            lbz r0, 0x2bc(r3)
+            cmpwi r0, 0
+            bne calcNormalRestart_ChannelSelect_L6
+            lwz r4, 0xbc(r30)
+            addi r3, r31, 0x70
+            bl setEventHandler__Q33ipl5scene12SDMenuButtonFPQ23gui12EventHandler
+calcNormalRestart_ChannelSelect_L6:
+            mr r3, r30
+            bl restartChannelModules__Q33ipl5scene13ChannelSelectFv
+            lwz r3, m_handle__Q23ipl11TVRCManager
+            li r4, 0x1
+            bl setEnable__Q23ipl11TVRCManagerFi
+            lis r3, sSystem__Q23ipl3snd@ha
+            lis r4, lbl_8164DCDF@ha
+            addi r3, r3, sSystem__Q23ipl3snd@l
+            addi r4, r4, lbl_8164DCDF@l
+            bl startBGM__Q33ipl3snd6SystemFPCc
+            li r0, 0x1
+            stw r0, 0xc0(r30)
+            b calcNormalRestart_ChannelSelect_L7
+calcNormalRestart_ChannelSelect_L1:
+            mr r3, r30
+            bl calcChanZoomParam__Q33ipl5scene13ChannelSelectFv
+            mr r3, r30
+            bl setChanZoomOrtho__Q33ipl5scene13ChannelSelectFv
+calcNormalRestart_ChannelSelect_L7:
+            lwz r0, 0x14(r1)
+            lwz r31, 0xc(r1)
+            lwz r30, 0x8(r1)
+            mtlr r0
+            addi r1, r1, 0x10
+            blr
         }
 
         void ChannelSelect::calcNormalSafeModeDialog() {
