@@ -13,6 +13,52 @@
 
 const f32 lbl_8160D2C0[] = {0.2, 0.3, 0, 0};
 extern const f32 lbl_81694454 = 0.0f;
+extern "C" void _savegpr_25();
+extern "C" void _restgpr_25();
+extern "C" void __ptmf_scall();
+
+extern "C" asm void call__Q33ipl10controller6MasterCFUlMQ33ipl10controller9InterfaceFPCvPCvUl_b() {
+    nofralloc
+    stwu r1, -0x30(r1)
+    mflr r0
+    stw r0, 0x34(r1)
+    addi r11, r1, 0x30
+    bl _savegpr_25
+    mr r25, r3
+    mr r26, r4
+    mr r27, r5
+    li r29, 0
+    li r28, 0
+    li r31, 0
+iplController_Master_call_L1:
+    lwz r3, 4(r25)
+    li r30, 0
+    lwzx r3, r3, r31
+    cmpwi r3, 0
+    beq iplController_Master_call_L2
+    mr r4, r26
+    mr r12, r27
+    bl __ptmf_scall
+    nop
+    cmpwi r3, 0
+    beq iplController_Master_call_L2
+    li r30, 1
+iplController_Master_call_L2:
+    addi r28, r28, 1
+    or r3, r29, r30
+    cmpwi r28, 4
+    addi r31, r31, 4
+    subic r0, r3, 1
+    subfe r29, r0, r3
+    blt iplController_Master_call_L1
+    addi r11, r1, 0x30
+    mr r3, r29
+    bl _restgpr_25
+    lwz r0, 0x34(r1)
+    mtlr r0
+    addi r1, r1, 0x30
+    blr
+}
 
 namespace ipl {
     namespace math {
@@ -97,11 +143,11 @@ namespace ipl {
             return false;
         }
 
-        int Interface::downTrg(u32 mButton) const {
+        bool Interface::downTrg(u32 mButton) const {
             return 0;
         }
 
-        int Interface::upTrg(u32 mButton) const {
+        bool Interface::upTrg(u32 mButton) const {
             return 0;
         }
 
@@ -117,11 +163,11 @@ namespace ipl {
             return 0;
         }
 
-        int Interface::down(u32 mButton) const {
+        bool Interface::down(u32 mButton) const {
             return 0;
         }
 
-        int Interface::repeat(u32 mButton) const {
+        bool Interface::repeat(u32 mButton) const {
             return 0;
         }
 
@@ -198,6 +244,22 @@ namespace ipl {
 
         int Interface::getType() const {
             return -1;
+        }
+
+        bool Master::down(u32 button) const {
+            return call(button, (bool (Interface::*)(u32) const)&Interface::down);
+        }
+
+        bool Master::downTrg(u32 button) const {
+            return call(button, (bool (Interface::*)(u32) const)&Interface::downTrg);
+        }
+
+        bool Master::upTrg(u32 button) const {
+            return call(button, (bool (Interface::*)(u32) const)&Interface::upTrg);
+        }
+
+        bool Master::repeat(u32 button) const {
+            return call(button, (bool (Interface::*)(u32) const)&Interface::repeat);
         }
 
         BOOL Interface::rumble(int type) {
@@ -288,7 +350,7 @@ namespace ipl {
             return (u8)(val + 7) <= 7 && ((1 << (val + 7)) & 0xA1) != 0;
         }
 
-        int Revolution::down(u32 mButton) const {
+        bool Revolution::down(u32 mButton) const {
             bool ret = false;
             if (isValidBtn()) {
                 if (unk_0x20->hold & (mButton & 0xFFFF)) {
@@ -364,6 +426,9 @@ namespace ipl {
         }
 
         Base::~Base() {
+        }
+
+        Master::~Master() {
         }
 
         Revolution::~Revolution() {

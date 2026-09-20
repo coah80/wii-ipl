@@ -83,14 +83,14 @@ namespace ipl {
             virtual ~Base();                            // 0x08
             virtual int getType() const;                // 0x0C
             virtual int getChannel() const;             // 0x10
-            virtual int down(u32 button) const;         // 0x14
-            virtual int downTrg(u32 button) const;      // 0x18
-            virtual int upTrg(u32 button) const;        // 0x1C
+            virtual bool down(u32 button) const;        // 0x14
+            virtual bool downTrg(u32 button) const;     // 0x18
+            virtual bool upTrg(u32 button) const;       // 0x1C
             virtual int pinch() const;                  // 0x20
             virtual int pinchTrg() const;               // 0x24
             virtual int pinchOffTrg() const;            // 0x28
             virtual int decide() const;                 // 0x2C
-            virtual int repeat(u32 button) const;       // 0x30
+            virtual bool repeat(u32 button) const;      // 0x30
             virtual BOOL rumble(int timer = 0);         // 0x34
             virtual void cancelRumbling();              // 0x38
             virtual int getHoldFlag() const;            // 0x3C
@@ -145,13 +145,13 @@ namespace ipl {
 
             ~Interface() {}
 
-            virtual int down(u32 button) const override;         // 0x10
-            virtual int downTrg(u32 button) const override;      // 0x18
-            virtual int upTrg(u32 button) const override;
+            virtual bool down(u32 button) const override;        // 0x10
+            virtual bool downTrg(u32 button) const override;     // 0x18
+            virtual bool upTrg(u32 button) const override;
             virtual int pinch() const override;                  // 0x1C
             virtual int pinchTrg() const override;
             virtual int pinchOffTrg() const override;
-            virtual int repeat(u32 button) const override;
+            virtual bool repeat(u32 button) const override;
             virtual int getClassicHoldFlag() const override;     // 0x48
             virtual int getClassicTrigFlag() const override;     // 0x4C
             virtual int getClassicReleaseFlag() const override;  // 0x50
@@ -173,13 +173,26 @@ namespace ipl {
             virtual void read() override;
         };
 
+        class Master {
+        public:
+            virtual ~Master();
+            virtual bool down(u32 button) const;
+            virtual bool downTrg(u32 button) const;
+            virtual bool upTrg(u32 button) const;
+            virtual bool repeat(u32 button) const;
+
+        private:
+            bool call(u32 button, bool (Interface::*func)(u32) const) const;
+            Interface** mpControllers;
+        };
+
         class Revolution : public Interface {
         public:
             Revolution(int chan, KPADStatus& arg1) : Interface(chan, arg1) {}
 
             virtual ~Revolution();
 
-            virtual int down(u32 button) const override;  // 0x10
+            virtual bool down(u32 button) const override;  // 0x10
 
             virtual f32 getDpdDistance() const override;  // 0x60
 
