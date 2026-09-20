@@ -160,6 +160,9 @@ namespace ipl {
             return -1;
         }
 
+        void Interface::read() {
+        }
+
         int Base::decide() const {
             return unk_0x08 == 5;
         }
