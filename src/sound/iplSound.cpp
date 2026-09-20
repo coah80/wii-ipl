@@ -280,6 +280,19 @@ namespace ipl {
             return FIsSEActive(sndName) != NULL;
         }
 
+        tagSSeInfo* System::FIsSEActive(const char* sndName) {
+            int i;
+
+            for (i = 0; i < 16; i++) {
+                tagSSeInfo* block = &_seBlk[i];
+                if (sndName == block->name && block->handle.IsAttachedSound()) {
+                    return block;
+                }
+            }
+
+            return NULL;
+        }
+
         BOOL System::isSEActive(u32 id) {
             return FIsSEActive(id) != NULL;
         }
