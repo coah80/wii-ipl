@@ -5,6 +5,8 @@ extern "C" void checkUserId__Q33ipl5nwc247ManagerFUx();
 extern "C" void getErrCode__Q33ipl5nwc247ManagerFv();
 extern "C" void close__Q33ipl5nwc247ManagerFv();
 extern "C" void deleteFriendInfo__Q33ipl5nwc247ManagerFUl();
+extern "C" void getScene__Q33ipl5scene7ManagerFi();
+extern "C" void setEventHandler__Q33ipl5scene6ButtonFPQ23gui12EventHandlerPQ23gui12EventHandler();
 
 extern "C" asm void getChild__Q33ipl5scene4BaseFv() {
     nofralloc
@@ -134,4 +136,23 @@ del_L1:
     lwz r3, 0x8c(r5)
 del_L2:
     b deleteFriendInfo__Q33ipl5nwc247ManagerFUl
+}
+
+extern "C" asm void initCalcFadeout__Q33ipl5scene7AddressFv() {
+    nofralloc
+    stwu r1, -0x10(r1)
+    mflr r0
+    lis r3, smArg__Q23ipl6System@ha
+    li r4, 5
+    stw r0, 0x14(r1)
+    addi r3, r3, smArg__Q23ipl6System@l
+    lwz r3, 0x64(r3)
+    bl getScene__Q33ipl5scene7ManagerFi
+    li r4, 0
+    li r5, 0
+    bl setEventHandler__Q33ipl5scene6ButtonFPQ23gui12EventHandlerPQ23gui12EventHandler
+    lwz r0, 0x14(r1)
+    mtlr r0
+    addi r1, r1, 0x10
+    blr
 }
