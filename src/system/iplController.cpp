@@ -213,6 +213,10 @@ namespace ipl {
             return mpAllocator->alloc(size);
         }
 
+        Interface* Manager::getMasterController() {
+            return (Interface*)((u8*)this + 0xd0);
+        }
+
         int Base::decide() const {
             return unk_0x08 == 5;
         }
