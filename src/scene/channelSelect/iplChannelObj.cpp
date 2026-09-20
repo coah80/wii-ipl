@@ -25,7 +25,7 @@ namespace ipl {
 
         static const char* scBalloonText = "T_Balloon";
 
-        static const char* scBasePane = "W_Base";
+        extern "C" const char* lbl_816969A8 = "W_Base";
         static const char* scShadePane = "W_Shade";
 
         static const char* scLangGroups[] = {
@@ -1026,7 +1026,7 @@ namespace ipl {
 
             nw4r::ut::Rect textRect = textPane->GetTextDrawRect(*mpBalloonLayout->getDrawInfo());
 
-            nw4r::lyt::Size newSize(mpBalloonLayout->FindPaneByName(scBasePane)->GetSize());
+            nw4r::lyt::Size newSize(mpBalloonLayout->FindPaneByName(lbl_816969A8)->GetSize());
             newSize.width = textRect.right - textRect.left + 40.0f;
 
             if (newSize.width < mLocationAdjust * 160.0f) {
@@ -1034,14 +1034,14 @@ namespace ipl {
             }
 
             mpBalloonLayout->FindPaneByName(scShadePane)->SetSize(newSize);
-            mpBalloonLayout->FindPaneByName(scBasePane)->SetSize(newSize);
+            mpBalloonLayout->FindPaneByName(lbl_816969A8)->SetSize(newSize);
         }
 
         void ChannelObj::calcBalloon(const nw4r::math::VEC3& vec) {
             if (mpBalloonLayout != NULL) {
                 nw4r::lyt::Size size;
 
-                size = mpBalloonLayout->FindPaneByName(scBasePane)->GetSize();
+                size = mpBalloonLayout->FindPaneByName(lbl_816969A8)->GetSize();
 
                 f32 val = -2.0f + ((size.height / 2) + mThumbHeight);
                 val *= -1.0f;
