@@ -203,7 +203,7 @@ namespace textinput {
             "B_prdc_scrl_Rght\0\0\0"
             "P_prdc_scrl_Rght\0\0\0"
             "\0\0\0";
-        extern "C" const char lbl_8165DA08[16] = "W_predictWindow";
+        extern "C" char lbl_8165DA08[16] = "W_predictWindow";
         #pragma pop
 
         void CandidateBoxCaller::Candidates::addCandidate(const wchar_t* wcString) {
@@ -480,7 +480,7 @@ namespace textinput {
             Base::setLanguage(language);
             init();
             // Maybe inlines, maybe not
-            nw4r::math::VEC3 pos = searchAnmPane("W_predictWindow")->getPane()->GetTranslate();
+            nw4r::math::VEC3 pos = searchAnmPane(lbl_8165DA08)->getPane()->GetTranslate();
             if (meLanguage == CN || meLanguage == KR) {
                 Base::checkValidation();
                 // Potentially an inline
@@ -495,7 +495,7 @@ namespace textinput {
                 pos.x = 202.0f;
             }
 
-            searchAnmPane("W_predictWindow")->getPane()->SetTranslate(pos);
+            searchAnmPane(lbl_8165DA08)->getPane()->SetTranslate(pos);
             if (meLanguage == CN) {
                 mTextArea.ApplyFontScale(1.2f);
             } else if (meLanguage == KR) {
