@@ -38,3 +38,12 @@ int Mail_isdigit(int ch) {
     }
     return 0;
 }
+
+int Mail_tolower(int ch) {
+    if (ch >= 'A') {
+        if (ch <= 'Z') {
+            return ch + 0x20;
+        }
+    }
+    return ch;
+}
