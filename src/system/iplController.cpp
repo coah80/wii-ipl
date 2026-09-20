@@ -1460,8 +1460,8 @@ namespace ipl {
             } else if (unk_0x2C != 0) {
                 ret = unk_0x24;
             } else {
-                ret.x = 1.0f / 0.0f;
-                ret.y = 1.0f / 0.0f;
+                ret.x = lbl_81694450;
+                ret.y = lbl_81694450;
             }
             return ret;
         }
