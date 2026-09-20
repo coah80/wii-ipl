@@ -889,7 +889,7 @@ namespace ipl {
         }
 
         void OptOutButton::start_point_event(const char* paneName, controller::Interface* con) {
-            if (strcmp(paneName, "B_Stop") == 0) {
+            if (strcmp(paneName, lbl_816966F9) == 0) {
                 if (mbHovered == FALSE) {
                     // Play hover in animation
                     mpLayout->getAnim(ANIM_OPT_OUT_FOCUS_IN)->play();
