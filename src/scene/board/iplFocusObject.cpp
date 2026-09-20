@@ -1470,8 +1470,7 @@ namespace ipl {
             nw4r::ut::Rect projRect;
             System::getProjectionRect(&projRect);
 
-            f32 limit =
-                160.0f + ((mLineCount * body->GetSize().height) + (header->GetSize().height + footer->GetSize().height) - projRect.GetHeight());
+            f32 limit = 160.0f + ((mLineCount * body->GetSize().height) + (header->GetSize().height + footer->GetSize().height) - projRect.GetHeight());
             if (limit < 0.0f) {
                 limit = 0.0f;
             }
