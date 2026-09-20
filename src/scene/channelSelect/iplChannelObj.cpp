@@ -10,7 +10,9 @@
 namespace ipl {
     namespace scene {
         // clang-format off
-        static const char* scCursur = "Cursur_a";
+        extern "C" char lbl_8164E290[] = "Cursur_a";
+
+        static const char* scCursur = lbl_8164E290;
 
         static const char* scCursorAnims[] = {
             "my_IplTop_d_FocusOff.brlan",
@@ -36,60 +38,76 @@ namespace ipl {
             "KOR",
         };
 
-        static const char* scLangGroupLookup[SC_PRODUCT_AREA_MAX][16] = {
-            // Japan
+        extern "C" char lbl_816969DC[] = "Calc";
+        extern "C" char lbl_816969E1[] = "Create";
+
+        struct ModuleData {
+            const char* langGroupLookup[SC_PRODUCT_AREA_MAX][16];
+            char resolved[40];
+            char unresolved[45];
+            char threadCalc[11];
+            char iconBrlyt[11];
+            char iconBrlan[11];
+            char iconWholeBrlan[17];
+        };
+
+        extern "C" ModuleData lbl_8164E328 = {
             {
-                "JPN",
-                NULL,
+                {
+                    "JPN",
+                    NULL,
+                },
+                {
+                    "ENG",
+                    "FRA",
+                    "SPA",
+                    NULL,
+                },
+                {
+                    "ENG",
+                    "FRA",
+                    "GER",
+                    "SPA",
+                    "ITA",
+                    "NED",
+                    NULL,
+                },
+                {
+                    NULL,
+                },
+                {
+                    NULL,
+                },
+                {
+                    NULL,
+                },
+                {
+                    "KOR",
+                    NULL,
+                },
+                {
+                    NULL,
+                },
+                {
+                    NULL,
+                },
+                {
+                    NULL,
+                },
+                {
+                    NULL,
+                },
+                {
+                    "CHN",
+                    NULL,
+                },
             },
-            // USA
-            {
-                "ENG",
-                "FRA",
-                "SPA",
-                NULL,
-            },
-            // Europe
-            {
-                "ENG",
-                "FRA",
-                "GER",
-                "SPA",
-                "ITA",
-                "NED",
-                NULL,
-            },
-            {
-                NULL,
-            },
-            {
-                NULL,
-            },
-            {
-                NULL,
-            },
-            // Korean
-            {
-                "KOR",
-                NULL,
-            },
-            {
-                NULL,
-            },
-            {
-                NULL,
-            },
-            {
-                NULL,
-            },
-            {
-                NULL,
-            },
-            // China
-            {
-                "CHN",
-                NULL,
-            },
+            "Module's ImportSymbol is resolved all.\n",
+            "%d module's ImportSymbols are not resolved.\n",
+            "ThreadCalc",
+            "icon.brlyt",
+            "icon.brlan",
+            "icon_Whole.brlan",
         };
 
         static const u32 scLangLookup[SC_PRODUCT_AREA_MAX][16] = {
@@ -272,6 +290,7 @@ namespace ipl {
 
         int ChannelObj::calcExtModule(EGG::ExpHeap* expHeap, bool unk0, bool onSceneChange) {
             int result = EXT_MODULE_RESULT_WAIT;
+            const char* dataBase = lbl_8164E290;
 
             if (mExtModuleState == EXT_MODULE_STATE_UNAVAILABLE) {
                 return EXT_MODULE_RESULT_UNAVAILABLE;
@@ -322,24 +341,24 @@ namespace ipl {
                         RSOLinkList(mpRSOHeader, mpRSOBss);
 
                         if (RSOIsImportSymbolResolvedAll(mpRSOHeader)) {
-                            OSReport("Module's ImportSymbol is resolved all.\n");
+                            OSReport(dataBase + 0x398);
                         } else {
-                            OSReport("%d module's ImportSymbols are not resolved.\n", RSOGetNumImportSymbolsUnresolved(mpRSOHeader));
+                            OSReport(dataBase + 0x3C0, RSOGetNumImportSymbolsUnresolved(mpRSOHeader));
                         }
 
                         // Import `int Calc(int)`
                         // This is during ChannelObj's loop.
-                        mpRSOCalc = (channel::CalcFunc)RSOFindExportSymbolAddr(mpRSOHeader, "Calc");
+                        mpRSOCalc = (channel::CalcFunc)RSOFindExportSymbolAddr(mpRSOHeader, lbl_816969DC);
 
                         // Import `void ThreadCalc()`
                         // This is executed on a seperate thread.
-                        mpModuleThread->setCalcFunc((channel::ThreadCalcFunc)RSOFindExportSymbolAddr(mpRSOHeader, "ThreadCalc"));
+                        mpModuleThread->setCalcFunc((channel::ThreadCalcFunc)RSOFindExportSymbolAddr(mpRSOHeader, dataBase + 0x3ED));
 
                         ((void (*)())mpRSOHeader->prolog)();
 
                         // Import `void Create(nw4r::lyt::Layout*)`
                         // This is the initialization of the module.
-                        channel::CreateFunc createFunc = (channel::CreateFunc)RSOFindExportSymbolAddr(mpRSOHeader, "Create");
+                        channel::CreateFunc createFunc = (channel::CreateFunc)RSOFindExportSymbolAddr(mpRSOHeader, lbl_816969E1);
                         if (createFunc != NULL) {
                             createFunc(mpThumbLayout->getNW4RLyt());
                         }
@@ -476,13 +495,13 @@ namespace ipl {
         }
 
         void ChannelObj::createDiskLayout(void* data) {
-            mpDiskLayout = layout::Object::create(mpDiskHeap, 0x19000, data, "arc", "icon.brlyt");
+            mpDiskLayout = layout::Object::create(mpDiskHeap, 0x19000, data, "arc", lbl_8164E328.iconBrlyt);
             setLangPane(mpDiskLayout);
 
-            if (mpDiskLayout->searchFile("icon.brlan")) {
-                mpDiskAnim = mpDiskLayout->bind("icon.brlan");
-            } else if (mpDiskLayout->searchFile("icon_Whole.brlan")) {
-                mpDiskAnim = mpDiskLayout->bind("icon_Whole.brlan");
+            if (mpDiskLayout->searchFile(lbl_8164E328.iconBrlan)) {
+                mpDiskAnim = mpDiskLayout->bind(lbl_8164E328.iconBrlan);
+            } else if (mpDiskLayout->searchFile(lbl_8164E328.iconWholeBrlan)) {
+                mpDiskAnim = mpDiskLayout->bind(lbl_8164E328.iconWholeBrlan);
             } else {
                 mpDiskAnim = NULL;
             }
@@ -654,7 +673,7 @@ namespace ipl {
             } else {
                 s32 region = System::getRegion();
                 for (int i = 0; i < channel::MAX_ANIMS; i++) {
-                    char* groupName = (char*)scLangGroupLookup[region][i];
+                    char* groupName = (char*)lbl_8164E328.langGroupLookup[region][i];
 
                     if (groupName != NULL) {
                         if (strcmp(groupName, &local_50[scLangLookup[region][i]]) == 0) {
@@ -746,7 +765,7 @@ namespace ipl {
         f32 ChannelObj::createWadThumbnail() {
             f32 frame = 0.0f;
 
-            mpThumbLayout = layout::Object::create(mpMainHeap, 0x8000, mpThumbFile->getBuffer(), "arc", "icon.brlyt");
+            mpThumbLayout = layout::Object::create(mpMainHeap, 0x8000, mpThumbFile->getBuffer(), "arc", lbl_8164E328.iconBrlyt);
             setLangPane(mpThumbLayout);
 
             u32 rsoIdx = System::getChannelManager()->getIconRSOIdx(mChanPage, mChanIndex);
@@ -766,11 +785,11 @@ namespace ipl {
                         mpThumbAnim = NULL;
                     }
                 } else {
-                    if (mpThumbLayout->searchFile("icon.brlan")) {
-                        mpThumbAnim = mpThumbLayout->bind("icon.brlan");
+                    if (mpThumbLayout->searchFile(lbl_8164E328.iconBrlan)) {
+                        mpThumbAnim = mpThumbLayout->bind(lbl_8164E328.iconBrlan);
                     } else {
-                        if (mpThumbLayout->searchFile("icon_Whole.brlan")) {
-                            mpThumbAnim = mpThumbLayout->bind("icon_Whole.brlan");
+                        if (mpThumbLayout->searchFile(lbl_8164E328.iconWholeBrlan)) {
+                            mpThumbAnim = mpThumbLayout->bind(lbl_8164E328.iconWholeBrlan);
                         } else {
                             mpThumbAnim = NULL;
                         }
@@ -1180,7 +1199,7 @@ namespace ipl {
                 if (group != NULL) {
                     mpNwc24NewGroup = group;
                 } else {
-                    char** lookup = (char**)scLangGroupLookup[System::getRegion()];
+                    char** lookup = (char**)lbl_8164E328.langGroupLookup[System::getRegion()];
 
                     for (int i = 0; lookup[i] != NULL; i++) {
                         sprintf(grpName, "New_%s", lookup[i]);
