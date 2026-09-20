@@ -28,3 +28,9 @@ extern "C" asm void startResetting__Q33ipl5scene4BaseFv() {
     nofralloc
     blr
 }
+
+extern "C" asm void isResetProcessDone__Q33ipl5scene4BaseFv() {
+    nofralloc
+    li r3, 1
+    blr
+}
