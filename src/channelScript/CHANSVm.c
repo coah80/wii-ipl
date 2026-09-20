@@ -5988,6 +5988,8 @@ void CHANSVmImageRegisterAllocator(CHANSVmImageAllocatorCallback allocCb, CHANSV
     VmImageCtorCallback = ctorCb;
 }
 
+char lbl_8169778C[] = "Image";
+
 CHANSVmObjHdr* CHANSVmNewImageObject(CHANSVm* vm, CHANSVmObjHdr* object, vmPtr srcData, vmU16 width, vmU16 height, s32 format) {
     u32 bpp;
     CHANSVmImage* image;
@@ -6024,7 +6026,7 @@ CHANSVmObjHdr* CHANSVmNewImageObject(CHANSVm* vm, CHANSVmObjHdr* object, vmPtr s
     if (object == vmNull) {
         goto ret;
     }
-    if (CHANSVmSetObjectAsNativeInstance(vm, object, vmNull, "Image") != CHANS_VM_OK) {
+    if (CHANSVmSetObjectAsNativeInstance(vm, object, vmNull, lbl_8169778C) != CHANS_VM_OK) {
         goto error;
     }
     image = (CHANSVmImage*)((u32*)object->value.ptr_v)[0];
