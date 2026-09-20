@@ -77,6 +77,15 @@ namespace ipl {
             setFxReverbHi(nw4r::snd::AUX_A, &reverbHiParam);
         }
 
+#pragma force_active on
+
+        extern "C" asm void __ct__Q34nw4r3snd11SoundHandleFv() {
+            nofralloc
+            li r0, 0
+            stw r0, 0(r3)
+            blr
+        }
+
         void System::calc() {
             EGG::SimpleAudioMgr::calc();
             sBannerSoundPlayer.calc();
