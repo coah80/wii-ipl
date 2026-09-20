@@ -106,6 +106,7 @@ namespace ipl {
         extern "C" const char lbl_8164DCC0[] = "diskThum.ash\0WIPL_SE_WII_START";
         extern "C" const char lbl_8164DCDF[] = "WIPL_BGM_MENU\0WIPL_SE_SDCARD_IN\0WIPL_SE_SDCARD_OUT\0\0";
         extern "C" const char lbl_8164DFCB[] = "WIPL_SE_CH_TARGETTING";
+        extern "C" const char lbl_8164E038[] = "WIPL_SE_DECIDE";
         #pragma pop
 
         #pragma push
@@ -3040,7 +3041,7 @@ calcNormalMoveChanOut_ChannelSelect_L1:
                             System::getFader()->fadeOut();
                             TVRCManager::getHandle()->setEnable(FALSE);
                             mpInstance->mState = ChannelSelect::STATE_START_SD_MENU_SCENE;
-                            snd::getSystem()->startSE("WIPL_SE_DECIDE");
+                            snd::getSystem()->startSE(lbl_8164E038);
                         }
                     }
                     break;
