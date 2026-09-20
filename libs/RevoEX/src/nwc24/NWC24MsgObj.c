@@ -329,3 +329,32 @@ NWC24Err NWC24GetMsgTextSize(const NWC24MsgObj* msg, u32* textSize) {
     }
     return NWC24_OK;
 }
+
+NWC24Err NWC24GetMsgAttachedSize(const NWC24MsgObj* msg, u32 attachIndex, u32* attachSize) {
+    const NWC24MsgObjPrivate* msgObj = (const NWC24MsgObjPrivate*)msg;
+
+    if (attachIndex >= NWC24_MSG_ATTACHMENT_MAX || attachIndex >= msgObj->numAttached) {
+        return NWC24_ERR_INVALID_VALUE;
+    }
+
+    *attachSize = msgObj->attachedSize[attachIndex];
+    return NWC24_OK;
+}
+
+NWC24Err NWC24GetMsgFromId(const NWC24MsgObj* msg, NWC24UserId* fromId) {
+    const NWC24MsgObjPrivate* msgObj = (const NWC24MsgObjPrivate*)msg;
+
+    if (!(msgObj->type & MSG_OBJ_FOR_RECIPIENT)) {
+        return NWC24_ERR_NOT_SUPPORTED;
+    }
+
+    *fromId = msgObj->fromId;
+    return NWC24_OK;
+}
+
+NWC24Err NWC24GetMsgDate(const NWC24MsgObj* msg, OSCalendarTime* msgDate) {
+    const NWC24MsgObjPrivate* msgObj = (const NWC24MsgObjPrivate*)msg;
+
+    NWC24iMinutesToOSCalendarTime(msgDate, msgObj->unk_0x28);
+    return NWC24_OK;
+}
