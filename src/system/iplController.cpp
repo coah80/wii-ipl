@@ -927,6 +927,222 @@ namespace ipl {
             blr
         }
 
+        extern "C" asm void read__Q33ipl10controller7ManagerFv() {
+            nofralloc
+            stwu r1, -0x50(r1)
+            mflr r0
+            stw r0, 0x54(r1)
+            addi r11, r1, 0x50
+            bl _savegpr_16
+            li r25, 0
+            lis r29, __vt__Q33ipl10controller4Core@ha
+            lis r30, __vt__Q33ipl10controller9FreeStyle@ha
+            mr r24, r3
+            mr r28, r25
+            mr r20, r25
+            mr r19, r25
+            mr r18, r25
+            mr r31, r25
+            addi r29, r29, __vt__Q33ipl10controller4Core@l
+            addi r30, r30, __vt__Q33ipl10controller9FreeStyle@l
+            li r23, 0
+            li r22, 0
+            li r21, 0
+            li r17, 0x3c
+        manager_read_loop:
+            bl SCGetWpadSensorBarPosition
+            clrlwi r0, r3, 24
+            cmplwi r0, 1
+            bne manager_read_sensor_low
+            lfs f1, lbl_81694480
+            mr r3, r25
+            bl KPADSetSensorHeight
+            b manager_read_probe
+        manager_read_sensor_low:
+            lfs f1, lbl_81694484
+            mr r3, r25
+            bl KPADSetSensorHeight
+        manager_read_probe:
+            mr r3, r25
+            addi r4, r1, 0x8
+            bl WPADProbe
+            cmpwi r3, -1
+            beq manager_read_probe_invalid
+            bge manager_read_probe_nonnegative
+            cmpwi r3, -3
+            bge manager_read_probe_valid
+            b manager_read_probe_invalid
+        manager_read_probe_nonnegative:
+            cmpwi r3, 1
+            bge manager_read_probe_invalid
+        manager_read_probe_valid:
+            add r4, r24, r23
+            mr r3, r25
+            addi r26, r4, 0xd8
+            li r5, 1
+            mr r4, r26
+            bl KPADRead
+            cmpwi r3, 0
+            ble manager_read_kpad_bad
+            add r4, r24, r23
+            lbz r0, 0x135(r4)
+            extsb r0, r0
+            cmpwi r0, -4
+            beq manager_read_kpad_bad
+            lwz r0, 0x8(r1)
+            cmplwi r0, 0xfd
+            beq manager_read_kpad_bad
+            add r27, r24, r21
+            stw r28, 0x2e8(r27)
+            lbz r0, 0x135(r4)
+            extsb r0, r0
+            cmpwi r0, -7
+            beq manager_read_make_revolution
+            lwz r0, 0x8(r1)
+            cmpwi r0, 0
+            beq manager_read_make_revolution
+            cmplwi r0, 0xfb
+            beq manager_read_make_revolution
+            cmplwi r0, 0xfc
+            beq manager_read_make_revolution
+            cmplwi r0, 0xff
+            bne manager_read_check_classic
+        manager_read_make_revolution:
+            lwz r3, 0(r27)
+            cmpwi r3, 0
+            beq manager_read_make_revolution_new
+            lwz r12, 0(r3)
+            lwz r12, 0xc(r12)
+            mtctr r12
+            bctrl
+            cmpwi r3, 0
+            beq manager_read_done
+        manager_read_make_revolution_new:
+            add r0, r24, r22
+            addic. r16, r0, 0x10
+            beq manager_read_store_revolution
+            mr r3, r16
+            mr r4, r25
+            mr r6, r26
+            li r5, 0
+            bl __ct__Q33ipl10controller10RevolutionFiiR10KPADStatus
+            stw r29, 0(r16)
+        manager_read_store_revolution:
+            stw r16, 0(r27)
+            b manager_read_done
+        manager_read_check_classic:
+            cmplwi r0, 1
+            bne manager_read_check_core
+            lwz r3, 0(r27)
+            cmpwi r3, 0
+            beq manager_read_make_core_new
+            lwz r12, 0(r3)
+            lwz r12, 0xc(r12)
+            mtctr r12
+            bctrl
+            cmpwi r3, 1
+            beq manager_read_done
+        manager_read_make_core_new:
+            add r0, r24, r22
+            addic. r16, r0, 0x10
+            beq manager_read_store_core
+            mr r3, r16
+            mr r4, r25
+            mr r6, r26
+            li r5, 1
+            bl __ct__Q33ipl10controller10RevolutionFiiR10KPADStatus
+            stw r30, 0(r16)
+        manager_read_store_core:
+            stw r16, 0(r27)
+            b manager_read_done
+        manager_read_check_core:
+            cmplwi r0, 2
+            bne manager_read_store_null
+            lwz r3, 0(r27)
+            cmpwi r3, 0
+            beq manager_read_make_classic_new
+            lwz r12, 0(r3)
+            lwz r12, 0xc(r12)
+            mtctr r12
+            bctrl
+            cmpwi r3, 2
+            beq manager_read_done
+        manager_read_make_classic_new:
+            add r0, r24, r22
+            addic. r3, r0, 0x10
+            beq manager_read_store_classic
+            mr r4, r25
+            mr r5, r26
+            bl __ct__Q33ipl10controller7ClassicFiR10KPADStatus
+        manager_read_store_classic:
+            stw r3, 0(r27)
+            b manager_read_done
+        manager_read_store_null:
+            stw r31, 0(r27)
+            b manager_read_done
+        manager_read_kpad_bad:
+            cmpwi r3, 0
+            bne manager_read_store_bad_null
+            add r16, r24, r21
+            lwz r3, 0x2e8(r16)
+            addi r0, r3, 1
+            cmpwi r0, 0x3c
+            stw r0, 0x2e8(r16)
+            ble manager_read_done
+            stw r17, 0x2e8(r16)
+            lwz r0, 0(r16)
+            cmpwi r0, 0
+            beq manager_read_timeout_clear
+            mr r3, r25
+            li r4, 0
+            bl WPADControlMotor
+        manager_read_timeout_clear:
+            stw r18, 0(r16)
+            b manager_read_done
+        manager_read_store_bad_null:
+            stwx r19, r24, r21
+            b manager_read_done
+        manager_read_probe_invalid:
+            add r4, r24, r23
+            mr r3, r25
+            addi r4, r4, 0xd8
+            li r5, 1
+            bl KPADRead
+            stwx r20, r24, r21
+        manager_read_done:
+            lfs f1, lbl_81694488
+            mr r3, r25
+            lfs f2, lbl_8169448C
+            bl KPADSetPosParam
+            addi r25, r25, 1
+            addi r22, r22, 0x30
+            cmpwi r25, 4
+            addi r21, r21, 4
+            addi r23, r23, 0x84
+            blt manager_read_loop
+            li r16, 0
+            li r25, 0
+        manager_read_controller_loop:
+            lwzx r3, r24, r25
+            cmpwi r3, 0
+            beq manager_read_controller_next
+            lwz r12, 0(r3)
+            lwz r12, 0x88(r12)
+            mtctr r12
+            bctrl
+        manager_read_controller_next:
+            addi r16, r16, 1
+            addi r25, r25, 4
+            cmpwi r16, 4
+            blt manager_read_controller_loop
+            addi r11, r1, 0x50
+            bl _restgpr_16
+            lwz r0, 0x54(r1)
+            mtlr r0
+            addi r1, r1, 0x50
+            blr
+        }
+
         Interface* Manager::getYoungController() {
             Interface* ret = NULL;
             for (int i = 0; i < 4; i++) {
