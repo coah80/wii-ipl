@@ -128,6 +128,10 @@ BOOL CDBRecordKeyArrayEmpty(CDBRecordKeyArray* recordArray) {
     return recordArray->size == 0;
 }
 
+BOOL CDBRecordKeyArrayFull(CDBRecordKeyArray* recordArray) {
+    return recordArray->capacity <= recordArray->size;
+}
+
 CDBRecordKey* CDBRecordKeyArrayEnd(CDBRecordKeyArray* recordArray) {
     return recordArray->records + recordArray->size;
 }
