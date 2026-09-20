@@ -238,3 +238,19 @@ NWC24Err NWC24GetMsgSubjectSize(const NWC24MsgObj* msg, u32* subjectSize) {
     }
     return NWC24_OK;
 }
+
+NWC24Err NWC24GetMsgTextSize(const NWC24MsgObj* msg, u32* textSize) {
+    const NWC24MsgObjPrivate* msgObj = (const NWC24MsgObjPrivate*)msg;
+    u32 size = msgObj->textSize;
+    if (size != 0) {
+        *textSize = size + 1;
+    } else {
+        size = msgObj->text.size;
+        if (size != 0) {
+            *textSize = size + 1;
+        } else {
+            *textSize = 0;
+        }
+    }
+    return NWC24_OK;
+}
