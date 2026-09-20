@@ -1,3 +1,4 @@
+#include <decomp/ide.h>
 #include "iplSceneUI.h"
 
 #include "scene/channelSelect/iplChannelSelect.h"
@@ -17,6 +18,34 @@
 
 namespace ipl {
     namespace scene {
+        extern "C" char smArg__Q23ipl6System;
+        extern "C" char sSystem__Q23ipl3snd;
+        extern "C" void _savegpr_28();
+        extern "C" void _restgpr_28();
+        extern "C" void isPlaying__Q33ipl6layout6ObjectCFi();
+        extern "C" void getScene__Q33ipl5scene7ManagerFi();
+        extern "C" void setEventHandler__Q33ipl5scene6ButtonFPQ23gui12EventHandlerPQ23gui12EventHandler();
+        extern "C" void setEventHandler__Q33ipl5scene12SDMenuButtonFPQ23gui12EventHandler();
+        extern "C" void initArrowAppearance__Q33ipl5scene6ButtonFib();
+        extern "C" void startSE__Q33ipl3snd6SystemFPCc();
+        extern "C" void startBGM__Q33ipl3snd6SystemFPCc();
+        extern "C" void animation__Q33ipl5scene6ButtonFi();
+        extern "C" void toggle_insert__Q33ipl5scene12SDMenuButtonFi();
+        extern "C" void calc__Q33ipl6layout6ObjectFv();
+        extern "C" void updateDiskState__Q33ipl5scene13ChannelSelectFv();
+        extern "C" void calcChannelModules__Q33ipl5scene13ChannelSelectFv();
+        extern "C" void calcChannelThumbnails__Q33ipl5scene13ChannelSelectFv();
+        extern "C" asm void calc__Q33ipl5scene5clockFv();
+        extern "C" void playingSdAnim__Q33ipl5scene6ButtonFi();
+        extern "C" BOOL msInitFlag__Q33ipl5scene13ChannelSelect = FALSE;
+
+        #pragma push
+        #pragma section const_type ".data"
+        extern "C" const char lbl_8164D978[0x348] = "N_Ch_a04";
+        extern "C" const char lbl_8164DCC0[] = "diskThum.ash\0WIPL_SE_WII_START";
+        extern "C" const char lbl_8164DCDF[] = "WIPL_BGM_MENU\0WIPL_SE_SDCARD_IN\0WIPL_SE_SDCARD_OUT\0\0\0";
+        #pragma pop
+
         static Board* getBoard() {
             return (Board*)System::getSceneManager()->getScene(SCENE_BOARD);
         }
@@ -28,8 +57,6 @@ namespace ipl {
         static ChannelTitle* getChannelTitle() {
             return (ChannelTitle*)System::getSceneManager()->getScene(SCENE_CHANNEL_TITLE);
         }
-
-        BOOL ChannelSelect::msInitFlag = FALSE;
 
         // clang-format off
         const char* ChannelSelect::mscChanPaneNames[CHAN_SCROLL_MAX][MAX_CHANNEL_INDEX] = {
@@ -270,6 +297,277 @@ namespace ipl {
             utility::CSFlags::UpdateFlagsFile();
         }
 
+        extern "C" asm void calcCommon__Q33ipl5scene13ChannelSelectFv() {
+            nofralloc
+            stwu r1, -0x20(r1)
+            mflr r0
+            stw r0, 0x24(r1)
+            addi r11, r1, 0x20
+            bl _savegpr_28
+            lwz r0, 0xc0(r3)
+            lis r31, lbl_8164D978@ha
+            mr r30, r3
+            cmpwi r0, 0x2
+            addi r31, r31, lbl_8164D978@l
+            bne calcCommon_ChannelSelect_L1
+            lwz r3, 0x68(r3)
+            li r4, 0
+            bl isPlaying__Q33ipl6layout6ObjectCFi
+            cmpwi r3, 0
+            bne calcCommon_ChannelSelect_L1
+            lis r29, smArg__Q23ipl6System@ha
+            li r4, 0x5
+            addi r29, r29, smArg__Q23ipl6System@l
+            lwz r3, 0x64(r29)
+            bl getScene__Q33ipl5scene7ManagerFi
+            cmpwi r3, 0
+            mr r28, r3
+            beq calcCommon_ChannelSelect_L1
+            lwz r4, 0xb8(r30)
+            li r5, 0
+            bl setEventHandler__Q33ipl5scene6ButtonFPQ23gui12EventHandlerPQ23gui12EventHandler
+            lbz r0, 0x2bc(r29)
+            cmpwi r0, 0
+            bne calcCommon_ChannelSelect_L2
+            lwz r4, 0xbc(r30)
+            addi r3, r28, 0x70
+            bl setEventHandler__Q33ipl5scene12SDMenuButtonFPQ23gui12EventHandler
+calcCommon_ChannelSelect_L2:
+            lwz r3, 0xc4(r30)
+            li r0, 0x3
+            stw r0, 0xc0(r30)
+            cmpwi r3, 0
+            bne calcCommon_ChannelSelect_L3
+            lwz r0, 0xc8(r30)
+            cmpwi r0, 0
+            ble calcCommon_ChannelSelect_L4
+            mr r3, r28
+            li r4, 0x1
+            li r5, 0x1
+            bl initArrowAppearance__Q33ipl5scene6ButtonFib
+            b calcCommon_ChannelSelect_L5
+calcCommon_ChannelSelect_L4:
+            mr r3, r28
+            li r4, 0x1
+            li r5, 0
+            bl initArrowAppearance__Q33ipl5scene6ButtonFib
+calcCommon_ChannelSelect_L5:
+            lwz r4, 0xcc(r30)
+            cmpwi r4, 0x1
+            ble calcCommon_ChannelSelect_L6
+            lwz r3, 0xc8(r30)
+            subi r0, r4, 0x1
+            cmpw r3, r0
+            bge calcCommon_ChannelSelect_L6
+            mr r3, r28
+            li r4, 0
+            li r5, 0x1
+            bl initArrowAppearance__Q33ipl5scene6ButtonFib
+            b calcCommon_ChannelSelect_L7
+calcCommon_ChannelSelect_L6:
+            mr r3, r28
+            li r4, 0
+            li r5, 0
+            bl initArrowAppearance__Q33ipl5scene6ButtonFib
+calcCommon_ChannelSelect_L7:
+            lwz r0, msInitFlag__Q33ipl5scene13ChannelSelect
+            cmpwi r0, 0
+            bne calcCommon_ChannelSelect_L1
+            lis r29, sSystem__Q23ipl3snd@ha
+            addi r4, r31, 0x355
+            addi r3, r29, sSystem__Q23ipl3snd@l
+            bl startSE__Q33ipl3snd6SystemFPCc
+            addi r3, r29, sSystem__Q23ipl3snd@l
+            addi r4, r31, 0x367
+            bl startBGM__Q33ipl3snd6SystemFPCc
+            stw r3, msInitFlag__Q33ipl5scene13ChannelSelect
+            b calcCommon_ChannelSelect_L1
+calcCommon_ChannelSelect_L3:
+            cmpwi r3, 0x1
+            bne calcCommon_ChannelSelect_L8
+            lwz r0, 0xc8(r30)
+            cmpwi r0, 0
+            ble calcCommon_ChannelSelect_L9
+            mr r3, r28
+            li r4, 0x18
+            bl animation__Q33ipl5scene6ButtonFi
+calcCommon_ChannelSelect_L9:
+            lwz r4, 0xcc(r30)
+            cmpwi r4, 0x1
+            ble calcCommon_ChannelSelect_L10
+            lwz r3, 0xc8(r30)
+            subi r0, r4, 0x1
+            cmpw r3, r0
+            bge calcCommon_ChannelSelect_L10
+            mr r3, r28
+            li r4, 0x17
+            bl animation__Q33ipl5scene6ButtonFi
+calcCommon_ChannelSelect_L10:
+            lis r3, smArg__Q23ipl6System@ha
+            addi r3, r3, smArg__Q23ipl6System@l
+            lbz r0, 0x2bc(r3)
+            cmpwi r0, 0
+            bne calcCommon_ChannelSelect_L1
+            lwz r3, 0x64(r3)
+            li r4, 0x4
+            bl getScene__Q33ipl5scene7ManagerFi
+            lwz r0, 0xfb0(r3)
+            cmpwi r0, 0x1
+            bne calcCommon_ChannelSelect_L11
+            addi r3, r28, 0x70
+            li r4, 0x1
+            bl toggle_insert__Q33ipl5scene12SDMenuButtonFi
+            b calcCommon_ChannelSelect_L12
+calcCommon_ChannelSelect_L11:
+            addi r3, r28, 0x70
+            li r4, 0
+            bl toggle_insert__Q33ipl5scene12SDMenuButtonFi
+calcCommon_ChannelSelect_L12:
+            mr r3, r28
+            li r4, 0x28
+            bl animation__Q33ipl5scene6ButtonFi
+            b calcCommon_ChannelSelect_L1
+calcCommon_ChannelSelect_L8:
+            cmpwi r3, 0x2
+            bne calcCommon_ChannelSelect_L1
+            li r0, 0
+            stb r0, 0x100(r30)
+            stb r0, 0x101(r30)
+calcCommon_ChannelSelect_L1:
+            lwz r0, 0xc0(r30)
+            cmpwi r0, 0x3
+            bne calcCommon_ChannelSelect_L14
+            lis r3, smArg__Q23ipl6System@ha
+            addi r3, r3, smArg__Q23ipl6System@l
+            lwz r3, 0xc4(r3)
+            lwz r12, 0(r3)
+            lwz r12, 0xc(r12)
+            mtctr r12
+            bctrl
+            cmpwi r3, 0x1
+            bne calcCommon_ChannelSelect_L14
+            li r0, 0x1
+            stw r0, 0xc0(r30)
+calcCommon_ChannelSelect_L14:
+            lwz r3, 0x68(r30)
+            bl calc__Q33ipl6layout6ObjectFv
+            lwz r3, 0x7c(r30)
+            lwz r12, 0(r3)
+            lwz r12, 0x10(r12)
+            mtctr r12
+            bctrl
+            mr r3, r30
+            bl updateDiskState__Q33ipl5scene13ChannelSelectFv
+            mr r3, r30
+            bl calcChannelModules__Q33ipl5scene13ChannelSelectFv
+            mr r3, r30
+            bl calcChannelThumbnails__Q33ipl5scene13ChannelSelectFv
+            lwz r3, 0xac(r30)
+            bl calc__Q33ipl6layout6ObjectFv
+            lwz r3, 0xb0(r30)
+            bl calc__Q33ipl6layout6ObjectFv
+            lwz r3, 0xb4(r30)
+            bl calc__Q33ipl6layout6ObjectFv
+            lwz r3, 0x2c4(r30)
+            bl calc__Q33ipl6layout6ObjectFv
+            addi r3, r30, 0x108
+            bl calc__Q33ipl5scene5clockFv
+            lis r29, smArg__Q23ipl6System@ha
+            li r4, 0x4
+            addi r29, r29, smArg__Q23ipl6System@l
+            lwz r3, 0x64(r29)
+            bl getScene__Q33ipl5scene7ManagerFi
+            lwz r28, 0xfb0(r3)
+            lwz r0, 0x168(r30)
+            cmpw r28, r0
+            beq calcCommon_ChannelSelect_L15
+            lbz r0, 0x2bc(r29)
+            cmpwi r0, 0
+            bne calcCommon_ChannelSelect_L15
+            cmpwi r28, 0x1
+            bne calcCommon_ChannelSelect_L16
+            lwz r3, 0x64(r29)
+            li r4, 0x5
+            bl getScene__Q33ipl5scene7ManagerFi
+            li r4, 0x1
+            addi r3, r3, 0x70
+            bl toggle_insert__Q33ipl5scene12SDMenuButtonFi
+            b calcCommon_ChannelSelect_L17
+calcCommon_ChannelSelect_L16:
+            lwz r3, 0x64(r29)
+            li r4, 0x5
+            bl getScene__Q33ipl5scene7ManagerFi
+            li r4, 0
+            addi r3, r3, 0x70
+            bl toggle_insert__Q33ipl5scene12SDMenuButtonFi
+calcCommon_ChannelSelect_L17:
+            lwz r0, 0xc0(r30)
+            cmpwi r0, 0x4
+            bge calcCommon_ChannelSelect_L18
+            cmpwi r0, 0x1
+            beq calcCommon_ChannelSelect_L19
+            bge calcCommon_ChannelSelect_L20
+            cmpwi r0, 0
+            bge calcCommon_ChannelSelect_L15
+            b calcCommon_ChannelSelect_L19
+calcCommon_ChannelSelect_L18:
+            cmpwi r0, 0xe
+            bge calcCommon_ChannelSelect_L21
+            cmpwi r0, 0xa
+            bge calcCommon_ChannelSelect_L19
+            b calcCommon_ChannelSelect_L15
+calcCommon_ChannelSelect_L21:
+            cmpwi r0, 0x11
+            bge calcCommon_ChannelSelect_L19
+            b calcCommon_ChannelSelect_L15
+calcCommon_ChannelSelect_L20:
+            lwz r0, 0xc4(r30)
+            cmpwi r0, 0x1
+            beq calcCommon_ChannelSelect_L15
+calcCommon_ChannelSelect_L19:
+            cmpwi r28, 0x1
+            bne calcCommon_ChannelSelect_L22
+            lwz r0, 0x168(r30)
+            cmpwi r0, 0
+            beq calcCommon_ChannelSelect_L22
+            lis r29, smArg__Q23ipl6System@ha
+            li r4, 0x5
+            addi r29, r29, smArg__Q23ipl6System@l
+            lwz r3, 0x64(r29)
+            bl getScene__Q33ipl5scene7ManagerFi
+            li r4, 0x28
+            bl playingSdAnim__Q33ipl5scene6ButtonFi
+            cmpwi r3, 0
+            bne calcCommon_ChannelSelect_L15
+            lis r3, sSystem__Q23ipl3snd@ha
+            addi r4, r31, 0x375
+            addi r3, r3, sSystem__Q23ipl3snd@l
+            bl startSE__Q33ipl3snd6SystemFPCc
+            lwz r3, 0x64(r29)
+            li r4, 0x5
+            bl getScene__Q33ipl5scene7ManagerFi
+            li r4, 0x2a
+            bl animation__Q33ipl5scene6ButtonFi
+            b calcCommon_ChannelSelect_L15
+calcCommon_ChannelSelect_L22:
+            lwz r0, 0x168(r30)
+            cmpwi r0, 0
+            beq calcCommon_ChannelSelect_L15
+            lis r3, sSystem__Q23ipl3snd@ha
+            addi r4, r31, 0x387
+            addi r3, r3, sSystem__Q23ipl3snd@l
+            bl startSE__Q33ipl3snd6SystemFPCc
+calcCommon_ChannelSelect_L15:
+            stw r28, 0x168(r30)
+            addi r11, r1, 0x20
+            bl _restgpr_28
+            lwz r0, 0x24(r1)
+            mtlr r0
+            addi r1, r1, 0x20
+            blr
+        }
+
+#if 0
         void ChannelSelect::calcCommon() {
             if (mState == STATE_CREATE && !mpLayout->isPlaying(0)) {
                 Button* button = getButton();
@@ -386,6 +684,8 @@ namespace ipl {
 
             mPrevSDState = sdState;
         }
+
+#endif
 
         FaderSceneCommand ChannelSelect::calcFadein() {
             return mpLayout->isPlaying(0) ? FADER_SCN_CONTINUE : FADER_SCN_NEXT;
