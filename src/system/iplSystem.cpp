@@ -33,6 +33,12 @@
 
 #include <revolution/rso.h>
 
+#ifdef __MWERKS__
+extern "C" ipl::System::Arg smArg__Q23ipl6System;
+extern "C" ipl::snd::System sSystem__Q23ipl3snd;
+extern "C" void initOnMemory__Q33ipl3snd6SystemFPCvPQ23EGG4HeapUl();
+#endif
+
 namespace ipl {
     System::Arg System::smArg;
 
@@ -154,10 +160,45 @@ namespace ipl {
         smArg.mbFontResLoaded = true;
     }
 
+#ifdef __MWERKS__
+    asm void System::constructSND_(register void* work) {
+        nofralloc
+        stwu r1, -0x10(r1)
+        mflr r0
+        li r4, 0x20
+        stw r0, 0x14(r1)
+        stw r31, 0xc(r1)
+        lis r31, smArg__Q23ipl6System@ha
+        addi r31, r31, smArg__Q23ipl6System@l
+        stw r30, 0x8(r1)
+        lwz r3, 0x14(r31)
+        lwz r5, 0xf4(r31)
+        lwz r12, 0(r3)
+        lwz r30, 0xa0(r5)
+        lwz r12, 0x24(r12)
+        mtctr r12
+        bctrl
+        lwz r5, 0x14(r31)
+        lis r7, sSystem__Q23ipl3snd@ha
+        mr r6, r3
+        mr r4, r30
+        addi r3, r7, sSystem__Q23ipl3snd@l
+        bl initOnMemory__Q33ipl3snd6SystemFPCvPQ23EGG4HeapUl
+        li r0, 1
+        stb r0, 0x2b7(r31)
+        lwz r0, 0x14(r1)
+        lwz r31, 0xc(r1)
+        lwz r30, 0x8(r1)
+        mtlr r0
+        addi r1, r1, 0x10
+        blr
+    }
+#else
     void System::constructSND_(void* work) {
         snd::getSystem()->initOnMemory(smArg.mResources.file[Arg::SOUND]->getBuffer(), getSoundHeap(), getSoundHeap()->getAllocatableSize(32));
         smArg.mbSndResLoaded = true;
     }
+#endif
 
     void* System::loadZiDIC_(void* arcData, const char* fileName) {
         void* buffer = NULL;
