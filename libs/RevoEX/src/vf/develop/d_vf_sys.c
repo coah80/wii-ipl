@@ -635,6 +635,7 @@ VFErr VFSysSetDeviceNANDFlash(s32* o_idx_p, void* i_cache_heap_p, u32 i_cache_si
 
 static void VFiSysClearDeviceSDDirect(VFSys_deviceSD* o_sd_p);
 
+#pragma dont_inline on
 VFErr VFSysSetDeviceSDDirect(s32* o_idx_p, u32 i_slot_no, void* i_cache_heap_p, u32 i_cache_size, VFSDEventCallback i_eventCallback) {
     s32 idx = VFiSysGetFreeHandleIdx();
     VFSys_handle* handle_p = VFSysGetHandleP(idx);
@@ -676,6 +677,7 @@ VFErr VFSysSetDeviceSDDirect(s32* o_idx_p, u32 i_slot_no, void* i_cache_heap_p, 
     VFiSysClearHandle(handle_p);
     return VFipf2_errnum();
 }
+#pragma dont_inline reset
 
 VFErr VFSysGetSlotNoSDDirect(s32 i_handle_idx) {
     VFSys_handle* handle_p;
