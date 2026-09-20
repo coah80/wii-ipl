@@ -762,11 +762,10 @@ namespace ipl {
             memset(name, 0, nameLen * sizeof(wchar_t));
 
             RBRHeader* recordHdr = (RBRHeader*)mpRecordData;
-            u32 offset = recordHdr->faceOffset;
 
-            if (offset != 0) {
+            if (recordHdr->faceOffset != 0) {
                 if (mpNigaoe != NULL && mpNigaoe->created()) {
-                    RFLiCharData* charData = (RFLiCharData*)((u8*)mpRecordData + offset);
+                    RFLiCharData* charData = (RFLiCharData*)((u8*)mpRecordData + recordHdr->faceOffset);
                     if (System::getMiiManager()->isValid(charData)) {
                         wcsncpy(name, (wchar_t*)charData->name, RFL_NAME_LENGTH);
                         result = TRUE;
