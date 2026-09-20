@@ -11,6 +11,7 @@ namespace ipl {
 
             void stt_msg_code_add();
             void stt_msg_code_edit();
+            void stt_msg_parental();
 
             class String {
             public:

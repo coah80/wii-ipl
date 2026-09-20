@@ -35,6 +35,12 @@ void ipl::scene::AddressEdit::stt_msg_code_edit() {
     }
 }
 
+void ipl::scene::AddressEdit::stt_msg_parental() {
+    if (System::getDialog()->getLastResult() == DialogWindow::RESULT_BUTTON) {
+        *reinterpret_cast<u32*>(reinterpret_cast<u8*>(this) + 0x64) = 0;
+    }
+}
+
 const wchar_t* ipl::scene::AddressEdit::String::getDispCodeLong() const {
     if (reinterpret_cast<const u8*>(this)[0x422] == 0) {
         return;
