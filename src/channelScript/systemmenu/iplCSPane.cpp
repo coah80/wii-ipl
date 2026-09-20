@@ -109,7 +109,7 @@ namespace ipl {
                         nw4r::math::VEC2 scale;
                         scale.x = pane->GetScale().x;
                         scale.y = pane->GetScale().y;
-                        result = vec3::_ctor(VmInst, VmReturnObj, scale.x, scale.y, 0.0f) == TRUE;
+                        result = vec3::_ctor(VmInst, VmReturnObj, scale.x, scale.y, lbl_81694FC0) == TRUE;
                     }
                 }
                 return result;
