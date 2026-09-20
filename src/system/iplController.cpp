@@ -113,6 +113,10 @@ namespace ipl {
             return 0;
         }
 
+        int Interface::repeat(u32 mButton) const {
+            return 0;
+        }
+
         int Interface::getClassicHoldFlag() const {
             return 0;
         }
