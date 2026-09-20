@@ -153,6 +153,88 @@ iplController_Classic_down_L1:
     blr
 }
 
+extern "C" asm void downTrg__Q33ipl10controller7ClassicCFUl() {
+    nofralloc
+    stwu r1, -0x20(r1)
+    mflr r0
+    stw r0, 0x24(r1)
+    addi r11, r1, 0x20
+    bl _savegpr_29
+    lwz r12, 0(r3)
+    mr r29, r3
+    mr r30, r4
+    li r31, 0
+    lwz r12, 0x6c(r12)
+    mtctr r12
+    bctrl
+    cmpwi r3, 0
+    beq iplController_Classic_downTrg_L1
+    lwz r5, 0x20(r29)
+    clrlwi r0, r30, 16
+    li r4, 1
+    lwz r3, 4(r5)
+    and. r0, r3, r0
+    bne iplController_Classic_downTrg_L2
+    lwz r3, 0x64(r5)
+    srwi r0, r30, 16
+    and. r0, r3, r0
+    bne iplController_Classic_downTrg_L2
+    li r4, 0
+iplController_Classic_downTrg_L2:
+    cmpwi r4, 0
+    beq iplController_Classic_downTrg_L1
+    li r31, 1
+iplController_Classic_downTrg_L1:
+    addi r11, r1, 0x20
+    mr r3, r31
+    bl _restgpr_29
+    lwz r0, 0x24(r1)
+    mtlr r0
+    addi r1, r1, 0x20
+    blr
+}
+
+extern "C" asm void upTrg__Q33ipl10controller7ClassicCFUl() {
+    nofralloc
+    stwu r1, -0x20(r1)
+    mflr r0
+    stw r0, 0x24(r1)
+    addi r11, r1, 0x20
+    bl _savegpr_29
+    lwz r12, 0(r3)
+    mr r29, r3
+    mr r30, r4
+    li r31, 0
+    lwz r12, 0x6c(r12)
+    mtctr r12
+    bctrl
+    cmpwi r3, 0
+    beq iplController_Classic_upTrg_L1
+    lwz r5, 0x20(r29)
+    clrlwi r0, r30, 16
+    li r4, 1
+    lwz r3, 8(r5)
+    and. r0, r3, r0
+    bne iplController_Classic_upTrg_L2
+    lwz r3, 0x68(r5)
+    srwi r0, r30, 16
+    and. r0, r3, r0
+    bne iplController_Classic_upTrg_L2
+    li r4, 0
+iplController_Classic_upTrg_L2:
+    cmpwi r4, 0
+    beq iplController_Classic_upTrg_L1
+    li r31, 1
+iplController_Classic_upTrg_L1:
+    addi r11, r1, 0x20
+    mr r3, r31
+    bl _restgpr_29
+    lwz r0, 0x24(r1)
+    mtlr r0
+    addi r1, r1, 0x20
+    blr
+}
+
 extern "C" asm void call__Q33ipl10controller6MasterCFUlMQ33ipl10controller9InterfaceFPCvPCvUl_b() {
     nofralloc
     stwu r1, -0x30(r1)

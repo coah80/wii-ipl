@@ -225,6 +225,8 @@ namespace ipl {
             Classic(int arg0, KPADStatus& arg1);
 
             virtual bool down(u32 button) const override;
+            virtual bool downTrg(u32 button) const override;
+            virtual bool upTrg(u32 button) const override;
             virtual int getClassicHoldFlag() const override;     // 0x48
             virtual int getClassicTrigFlag() const override;     // 0x4C
             virtual int getClassicReleaseFlag() const override;  // 0x50
