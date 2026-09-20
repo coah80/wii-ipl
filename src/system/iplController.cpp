@@ -1361,13 +1361,13 @@ namespace ipl {
 
             // regswap
             if (nw4r_rect.left - 100.0f > dest.x) {
-                dest.x = nw4r_rect.left;
+                dest.x = nw4r_rect.left - 100.0f;
             } else if (nw4r_rect.right + 100.0f < dest.x) {
-                dest.x = nw4r_rect.right;
+                dest.x = nw4r_rect.right + 100.0f;
             } else if (nw4r_rect.top - 100.0f > dest.y) {
-                dest.y = nw4r_rect.top;
+                dest.y = nw4r_rect.top - 100.0f;
             } else if (nw4r_rect.bottom + 100.0f < dest.y) {
-                dest.y = nw4r_rect.bottom;
+                dest.y = nw4r_rect.bottom + 100.0f;
             }
             // //
 
