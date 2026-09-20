@@ -19,11 +19,16 @@ extern "C" void _savegpr_29();
 extern "C" void _restgpr_29();
 extern "C" void _savegpr_24();
 extern "C" void _restgpr_24();
+extern "C" void _savegpr_26();
+extern "C" void _restgpr_26();
 extern "C" void sBannerSoundPlayer__Q23ipl3snd();
 extern "C" void pause__17BannerSoundPlayerFb();
 extern "C" void initFx__Q33ipl3snd6SystemFv();
 extern "C" void GetInstance__Q44nw4r3snd6detail9AxManagerFv();
 extern "C" void ClearEffect__Q44nw4r3snd6detail9AxManagerFQ34nw4r3snd6AuxBusi();
+extern "C" void stop__17BannerSoundPlayerFUl();
+extern "C" void setMasterVolume__17BannerSoundPlayerFf();
+extern "C" void SetMasterVolume__Q44nw4r3snd6detail9AxManagerFfi();
 
 namespace ipl {
     namespace snd {
@@ -404,6 +409,81 @@ namespace ipl {
             lwz r0, 0x34(r1)
             mtlr r0
             addi r1, r1, 0x30
+            blr
+        }
+
+        extern "C" asm void resetAllSound__Q33ipl3snd6SystemFv() {
+            nofralloc
+            stwu r1, -0x20(r1)
+            mflr r0
+            stw r0, 0x24(r1)
+            addi r11, r1, 0x20
+            bl _savegpr_26
+            li r26, 0
+            lis r28, _seBlk__Q23ipl3snd@ha
+            lis r3, 1
+            li r31, 0
+            mr r29, r26
+            addi r28, r28, _seBlk__Q23ipl3snd@l
+            subi r30, r3, 1
+        resetAllSound_loop:
+            lwzx r3, r28, r31
+            add r27, r28, r31
+            cmpwi r3, 0
+            beq resetAllSound_clear
+            lwz r12, 0(r3)
+            li r4, 0
+            lwz r12, 0x18(r12)
+            mtctr r12
+            bctrl
+        resetAllSound_clear:
+            stw r29, 0x4(r27)
+            addi r26, r26, 1
+            cmpwi r26, 0x10
+            addi r31, r31, 0xc
+            stw r30, 0x8(r27)
+            blt resetAllSound_loop
+            lwz r3, _mainBGMHandle__Q23ipl3snd
+            cmpwi r3, 0
+            beq resetAllSound_banner
+            lwz r0, 0(r3)
+            cmpwi r0, 0
+            beq resetAllSound_banner
+            lwz r3, 0(r3)
+            li r4, 0
+            lwz r12, 0(r3)
+            lwz r12, 0x18(r12)
+            mtctr r12
+            bctrl
+        resetAllSound_banner:
+            lis r31, sBannerSoundPlayer__Q23ipl3snd@ha
+            li r4, 0
+            addi r3, r31, sBannerSoundPlayer__Q23ipl3snd@l
+            bl stop__17BannerSoundPlayerFUl
+            bl GetInstance__Q44nw4r3snd6detail9AxManagerFv
+            li r4, 0
+            li r5, 0
+            bl ClearEffect__Q44nw4r3snd6detail9AxManagerFQ34nw4r3snd6AuxBusi
+            bl GetInstance__Q44nw4r3snd6detail9AxManagerFv
+            li r4, 1
+            li r5, 0
+            bl ClearEffect__Q44nw4r3snd6detail9AxManagerFQ34nw4r3snd6AuxBusi
+            bl GetInstance__Q44nw4r3snd6detail9AxManagerFv
+            li r4, 2
+            li r5, 0
+            bl ClearEffect__Q44nw4r3snd6detail9AxManagerFQ34nw4r3snd6AuxBusi
+            bl GetInstance__Q44nw4r3snd6detail9AxManagerFv
+            lfs f1, lbl_816946A4
+            li r4, 0
+            bl SetMasterVolume__Q44nw4r3snd6detail9AxManagerFfi
+            lfs f1, lbl_816946A4
+            addi r3, r31, sBannerSoundPlayer__Q23ipl3snd@l
+            bl setMasterVolume__17BannerSoundPlayerFf
+            addi r11, r1, 0x20
+            bl _restgpr_26
+            lwz r0, 0x24(r1)
+            mtlr r0
+            addi r1, r1, 0x20
             blr
         }
 
