@@ -122,6 +122,8 @@ BOOL HBMIsReassignedControllers() {
 
 /* THE LOGIC */
 
+extern const f32 lbl_816946DC;
+
 namespace homebutton {
     static void SimpleSyncCallback(s32 result, s32 num);
 
@@ -2486,7 +2488,7 @@ namespace homebutton {
                 }
             }
         } else {
-            scale = nw4r::math::VEC2(1.0f, 1.0f);
+            scale = nw4r::math::VEC2(::lbl_816946DC, ::lbl_816946DC);
             mpLayout->GetRootPane()->SetScale(scale);
 
             if (!mpHBInfo->cursor) {
