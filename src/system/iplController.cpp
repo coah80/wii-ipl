@@ -221,6 +221,11 @@ namespace ipl {
             return ((Interface**)this)[chan];
         }
 
+        int Manager::free(void* ptr) {
+            mpAllocator->free(ptr);
+            return TRUE;
+        }
+
         int Base::decide() const {
             return unk_0x08 == 5;
         }

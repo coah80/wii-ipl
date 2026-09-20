@@ -231,6 +231,7 @@ namespace ipl {
             Interface* getYoungController();
 
             static void* alloc(u32 size);
+            static int free(void* ptr);
 
         private:
             static EGG::Allocator* mpAllocator;
