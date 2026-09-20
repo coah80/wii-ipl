@@ -137,6 +137,43 @@ and `splits.txt`), not in whatever order looks convenient.
 7. `ctxdiff.py` next. Work through the instruction diff.
 8. Only then look at register allocation.
 
+## ReAgent and parallel worker workflow
+
+This repository targets only Wii Menu 4.3U. Do not configure or build 43E,
+43J, or 43K while doing matching work.
+
+Use the installed ReAgent environment for evidence-driven reversal work:
+
+```
+/home/cole/projects/tests/reagent-venv/bin/re-agent doctor
+/home/cole/projects/tests/reagent-venv/bin/re-agent status
+```
+
+ReAgent should use the authenticated local Codex provider with the requested
+model and a small per-function call cap. The Codex provider uses the local
+Codex login rather than an API key; API billing is not created by ReAgent, but
+the account's normal model or plan usage still applies. Do not start a model
+run until `doctor` reports the backend and acceptance configuration clearly.
+
+For parallel work, use three to five workers with disjoint translation units or
+function ranges. Every worker must return the changed paths, exact-match
+measurements, validation results, and commit hash. Workers may propose code,
+but a candidate is not accepted when it is only fuzzy, uses an uninitialized
+value, or hides a mismatch behind artificial assembly.
+
+For each candidate, the worker must:
+
+1. Run `pool_diff.py` before tuning code generation.
+2. Build the 43U object with `/home/cole/projects/tests/.venv/bin/ninja -C . build/43U/src/src/<path>.o`.
+3. Require `objdiff` to report `100.0%` for the function and `ctxdiff.py` to report `diffs 0`.
+4. Run `/home/cole/projects/tests/.venv/bin/ninja -C . build/43U/ok`.
+5. Commit the focused exact match immediately, then push it to `origin/main`.
+
+The main agent reviews every worker result before accepting it. After each
+accepted commit, record the new report from `build/43U/report.json` and keep
+the DOL hash at `26116613f624061ba99c8d1a299aaa6efa85670d`. Never push to
+`upstream`; only the fork's `origin` is in scope.
+
 ## Things that do NOT work
 
 - **Frame pragmas.** `#pragma ppc_iro_level 0` fixed exactly one function out
