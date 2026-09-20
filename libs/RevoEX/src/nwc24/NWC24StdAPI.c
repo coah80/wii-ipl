@@ -77,6 +77,19 @@ int Mail_isdigit(int ch) {
     return 0;
 }
 
+int Util_xtoi(char ch) {
+    if (ch >= '0' && ch <= '9') {
+        return ch - '0';
+    }
+    if (ch >= 'A' && ch <= 'F') {
+        return ch - 0x37;
+    }
+    if (ch >= 'a' && ch <= 'f') {
+        return ch - 0x57;
+    }
+    return -1;
+}
+
 int Mail_tolower(int ch) {
     if (ch >= 'A') {
         if (ch <= 'Z') {
