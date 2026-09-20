@@ -7,6 +7,18 @@
 
 namespace textinput {
     namespace gui {
+        #pragma push
+        #pragma section sconst_type ".sdata2"
+        extern "C" const f32 lbl_81694EE8 = 0.0f;
+        extern "C" const u8 lbl_81694EEC = 0xFF;
+        extern "C" const u8 lbl_81694EED = 0x00;
+        extern "C" const u8 lbl_81694EEE = 0x00;
+        extern "C" const u8 lbl_81694EEF = 0xFF;
+        extern "C" const f32 lbl_81694EF0 = 0.5f;
+        #pragma pop
+
+        extern "C" void drawLine___Q29textinput3guiFfffffUcR8_GXColor();
+
         void drawLine_(f32 x0, f32 y0, f32 x1, f32 y1, f32 z, u8 width, GXColor& color) {
             GXClearVtxDesc();
             GXSetVtxDesc(GX_VA_POS, GX_DIRECT);
@@ -28,7 +40,7 @@ namespace textinput {
             GXSetBlendMode(GX_BM_NONE, GX_BL_ZERO, GX_BL_ZERO, GX_LO_NOOP);
 
             Mtx mtx;
-            MTXTrans(mtx, 0.0f, 0.0f, 0.0f);
+            MTXTrans(mtx, lbl_81694EE8, lbl_81694EE8, lbl_81694EE8);
             GXLoadPosMtxImm(mtx, 0);
 
             GXSetLineWidth(width, GX_TO_ZERO);
@@ -340,28 +352,114 @@ namespace textinput {
             }
         }
 
-        void PaneComponent::draw() {
-            if (static_cast<PaneManager*>(mpManager)->getDrawInfo()) {
-                nw4r::lyt::Size size = mpPane->GetSize();
-                const nw4r::math::MTX34& mtx = mpPane->GetGlobalMtx();
-
-                f32 x = mtx.m[0][3];
-                f32 y = mtx.m[1][3];
-
-                // Red line
-                GXColor color = {255, 0, 0, 255};
-                if (isPointed(0)) {
-                    // If pointed, set to blue.
-                    color.r = 0;
-                    color.b = 255;
-                }
-
-                // Draw box
-                drawLine_(x - size.width / 2, y - size.height / 2, x + size.width / 2, y - size.height / 2, 0, 8, color);
-                drawLine_(x + size.width / 2, y - size.height / 2, x + size.width / 2, y + size.height / 2, 0, 8, color);
-                drawLine_(x + size.width / 2, y + size.height / 2, x - size.width / 2, y + size.height / 2, 0, 8, color);
-                drawLine_(x - size.width / 2, y + size.height / 2, x - size.width / 2, y - size.height / 2, 0, 8, color);
-            }
+        extern "C" asm void draw__Q39textinput3gui13PaneComponentFv() {
+            nofralloc
+            stwu r1, -0x40(r1)
+            mflr r0
+            stw r0, 0x44(r1)
+            stfd f31, 0x30(r1)
+            psq_st f31, 0x38(r1), 0, 0
+            stfd f30, 0x20(r1)
+            psq_st f30, 0x28(r1), 0, 0
+            stw r31, 0x1c(r1)
+            mr r31, r3
+            lwz r3, 0x94(r3)
+            lwz r12, 0(r3)
+            lwz r12, 0x50(r12)
+            mtctr r12
+            bctrl
+            cmpwi r3, 0
+            beq pane_component_draw_done
+            lwz r5, 0x9c(r31)
+            mr r3, r31
+            lbz r7, lbl_81694EEC
+            li r4, 0
+            lfs f1, 0x4c(r5)
+            lfs f0, 0x50(r5)
+            lfs f31, 0x90(r5)
+            lfs f30, 0xa0(r5)
+            lbz r6, lbl_81694EED
+            lbz r5, lbl_81694EEE
+            lbz r0, lbl_81694EEF
+            stb r7, 8(r1)
+            stb r6, 9(r1)
+            stb r5, 0xa(r1)
+            stb r0, 0xb(r1)
+            lwz r12, 0(r31)
+            stfs f1, 0x10(r1)
+            lwz r12, 0x24(r12)
+            stfs f0, 0x14(r1)
+            mtctr r12
+            bctrl
+            cmpwi r3, 0
+            beq pane_component_draw_lines
+            li r3, 0
+            li r0, 0xff
+            stb r3, 8(r1)
+            stb r0, 0xa(r1)
+        pane_component_draw_lines:
+            lfs f1, lbl_81694EF0
+            addi r4, r1, 8
+            lfs f0, 0x14(r1)
+            li r3, 8
+            lfs f2, 0x10(r1)
+            fmuls f0, f0, f1
+            lfs f5, lbl_81694EE8
+            fmuls f3, f2, f1
+            fsubs f2, f30, f0
+            fsubs f1, f31, f3
+            fadds f3, f31, f3
+            fmr f4, f2
+            bl drawLine___Q29textinput3guiFfffffUcR8_GXColor
+            lfs f1, 0x10(r1)
+            addi r4, r1, 8
+            lfs f2, lbl_81694EF0
+            li r3, 8
+            lfs f0, 0x14(r1)
+            fmuls f1, f1, f2
+            lfs f5, lbl_81694EE8
+            fmuls f0, f0, f2
+            fadds f1, f31, f1
+            fsubs f2, f30, f0
+            fadds f4, f30, f0
+            fmr f3, f1
+            bl drawLine___Q29textinput3guiFfffffUcR8_GXColor
+            lfs f1, lbl_81694EF0
+            addi r4, r1, 8
+            lfs f0, 0x14(r1)
+            li r3, 8
+            lfs f2, 0x10(r1)
+            fmuls f0, f0, f1
+            lfs f5, lbl_81694EE8
+            fmuls f3, f2, f1
+            fadds f2, f30, f0
+            fadds f1, f31, f3
+            fsubs f3, f31, f3
+            fmr f4, f2
+            bl drawLine___Q29textinput3guiFfffffUcR8_GXColor
+            lfs f1, 0x10(r1)
+            addi r4, r1, 8
+            lfs f2, lbl_81694EF0
+            li r3, 8
+            lfs f0, 0x14(r1)
+            fmuls f1, f1, f2
+            lfs f5, lbl_81694EE8
+            fmuls f0, f0, f2
+            fsubs f1, f31, f1
+            fadds f2, f30, f0
+            fsubs f4, f30, f0
+            fmr f3, f1
+            bl drawLine___Q29textinput3guiFfffffUcR8_GXColor
+        pane_component_draw_done:
+            psq_l f31, 0x38(r1), 0, 0
+            lfd f31, 0x30(r1)
+            psq_l f30, 0x28(r1), 0, 0
+            lfd f30, 0x20(r1)
+            lwz r0, 0x44(r1)
+            lwz r31, 0x1c(r1)
+            mtlr r0
+            addi r1, r1, 0x40
+            blr
         }
 
         static bool is_visible(nw4r::lyt::Pane* pane) {
