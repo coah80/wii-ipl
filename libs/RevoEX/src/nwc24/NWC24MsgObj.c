@@ -108,6 +108,25 @@ NWC24Err NWC24SetMsgToId(NWC24MsgObj* msg, NWC24UserId id) {
     return NWC24_OK;
 }
 
+NWC24Err NWC24SetMsgSubject(NWC24MsgObj* msg, const char* subject, u32 length) {
+    NWC24MsgObjPrivate* msgObj = (NWC24MsgObjPrivate*)msg;
+
+    if (!(msgObj->type & MSG_OBJ_INITIALIZED) || (msgObj->type & MSG_OBJ_DELIVERING)) {
+        return NWC24_ERR_PROTECTED;
+    }
+
+    if (subject == NULL || subject[0] == '\0') {
+        return NWC24_ERR_NULL;
+    }
+
+    if (subject[length] != '\0') {
+        return NWC24_ERR_STRING_END;
+    }
+
+    NWC24Data_SetDataP(&msgObj->subject, subject, length);
+    return NWC24_OK;
+}
+
 NWC24Err NWC24SetMsgText(NWC24MsgObj* msg, const char* text, u32 len, NWC24Charset charset, NWC24Encoding encoding) {
     NWC24MsgObjPrivate* msgObj = (NWC24MsgObjPrivate*)msg;
 
