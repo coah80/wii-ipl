@@ -154,3 +154,9 @@ NWC24Err NWC24SetMsgText(NWC24MsgObj* msg, const char* text, u32 len, NWC24Chars
     msgObj->encoding = encoding;
     return NWC24_OK;
 }
+
+NWC24Err NWC24GetMsgAppId(const NWC24MsgObj* msg, u32* appId) {
+    const NWC24MsgObjPrivate* msgObj = (const NWC24MsgObjPrivate*)msg;
+    *appId = msgObj->appId;
+    return NWC24_OK;
+}
