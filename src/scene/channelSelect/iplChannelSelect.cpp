@@ -116,6 +116,7 @@ namespace ipl {
         extern "C" const char lbl_8164DCB4[] = "chanSel.ash";
         extern "C" const char lbl_8164DCC0[] = "diskThum.ash\0WIPL_SE_WII_START";
         extern "C" const char lbl_8164DCDF[] = "WIPL_BGM_MENU\0WIPL_SE_SDCARD_IN\0WIPL_SE_SDCARD_OUT\0\0";
+        extern "C" const char lbl_8164DE9C[] = "WSD_SELECT";
         extern "C" const char lbl_8164DFCB[] = "WIPL_SE_CH_TARGETTING";
         extern "C" const char lbl_8164E038[] = "WIPL_SE_DECIDE";
         extern "C" const char lbl_8164DE64[] = "N_GCIcon";
@@ -127,8 +128,11 @@ namespace ipl {
 
         #pragma push
         #pragma section sconst_type ".sdata2"
-        extern "C" const u32 lbl_81694948 = 1;
+        extern "C" const f32 lbl_81694948;
         extern "C" const u32 lbl_8169494C = 1;
+        extern "C" const f32 lbl_81694968;
+        extern "C" const f32 lbl_8169496C;
+        extern "C" const f32 lbl_81694970;
         extern "C" const char lbl_81694950 = 0;
         extern "C" const char lbl_81694951 = 0;
         extern "C" const char lbl_81694952 = 0;
@@ -2668,8 +2672,8 @@ calcNormalRestart_ChannelSelect_L7:
             if (mCurrentPage > 0 && unk_0x2B0 >= 15 && isPageCreatedAllDone(mCurrentPage)) {
                 if (unkBool()) {
                     button->animation(Button::IDANIM_ARROW_LEFT_SELECT);
-                    mpLayout->setMinFrame(0.0f);
-                    mpLayout->setMaxFrame(20.0f);
+                    mpLayout->setMinFrame(lbl_81694948);
+                    mpLayout->setMaxFrame(lbl_81694968);
                     mpLayout->setAnmType(ANIM_TYPE_FORWARD);
                     mpLayout->start();
 
@@ -2686,7 +2690,7 @@ calcNormalRestart_ChannelSelect_L7:
                     for (int i = 0; i < MAX_CHANNEL_INDEX; i++) {
                         mpGui->initPane(getChannelBasePane(i));
                     }
-                    snd::getSystem()->startSE("WSD_SELECT");
+                    snd::getSystem()->startSE(lbl_8164DE9C);
                     return;
                 }
             }
@@ -2694,8 +2698,8 @@ calcNormalRestart_ChannelSelect_L7:
             if (mCurrentPage < mMaxPages - 1 && unk_0x2AC >= 15 && isPageCreatedAllDone(mCurrentPage)) {
                 if (unkBool()) {
                     button->animation(Button::IDANIM_ARROW_RIGHT_SELECT);
-                    mpLayout->setMinFrame(40.0f);
-                    mpLayout->setMaxFrame(60.0f);
+                    mpLayout->setMinFrame(lbl_8169496C);
+                    mpLayout->setMaxFrame(lbl_81694970);
                     mpLayout->setAnmType(ANIM_TYPE_FORWARD);
                     mpLayout->start();
 
@@ -2712,7 +2716,7 @@ calcNormalRestart_ChannelSelect_L7:
                     for (int i = 0; i < MAX_CHANNEL_INDEX; i++) {
                         mpGui->initPane(getChannelBasePane(i));
                     }
-                    snd::getSystem()->startSE("WSD_SELECT");
+                    snd::getSystem()->startSE(lbl_8164DE9C);
                     return;
                 }
             }
