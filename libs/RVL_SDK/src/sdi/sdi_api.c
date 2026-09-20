@@ -59,6 +59,7 @@ static ISD_Error sduDatabuswidth(SDDev* dev, u32 buswidth);
 static ISD_Error sduGetSCR(SDDev* dev, u32* data) NO_INLINE;
 static ISD_Error sduGetOCR(SDDev* dev, u32* data);
 extern ISD_Error ISD_ReadMultiBlockAsync(SDDev* dev, u32 offset, u8* cmdResp, u32 cmdRespSize, u32 param_5, u32 param_6);
+extern ISD_Error ISD_WriteMultiBlockAsync(SDDev* dev, u32 offset, u8* cmdResp, u32 cmdRespSize, u32 param_5, u32 param_6);
 
 IOSError __sdCb(s32 result, void* arg) {
     __sdCbArg* data = (__sdCbArg*)arg;
@@ -344,6 +345,18 @@ ISD_Error ISD_ProbeCard(u32 slot) {
 
 ISD_Error ISD_ReadBlock(SDDev* dev, u32 offset, u8* cmdResp, u32 cmdRespSize) {
     return ISD_ReadMultiBlockAsync(dev, offset, cmdResp, cmdRespSize, 0, 0);
+}
+
+ISD_Error ISD_WriteBlock(SDDev* dev, u32 offset, u8* cmdResp, u32 cmdRespSize) {
+    return ISD_WriteMultiBlockAsync(dev, offset, cmdResp, cmdRespSize, 0, 0);
+}
+
+ISD_Error ISD_ReadMultiBlock(SDDev* dev, u32 offset, u8* cmdResp, u32 cmdRespSize) {
+    return ISD_ReadMultiBlockAsync(dev, offset, cmdResp, cmdRespSize, 0, 0);
+}
+
+ISD_Error ISD_WriteMultiBlock(SDDev* dev, u32 offset, u8* cmdResp, u32 cmdRespSize) {
+    return ISD_WriteMultiBlockAsync(dev, offset, cmdResp, cmdRespSize, 0, 0);
 }
 
 ISD_Error ISD_MountCard(u32 slot, SDDev** dev) {
