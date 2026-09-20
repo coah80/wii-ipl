@@ -1,6 +1,8 @@
 #include <decomp/ide.h>
 #include <math/iplMathTypes.h>
+#define IPL_SOUND_RECT_OUT_OF_LINE
 #include <nw4r/ut/Rect.h>
+#undef IPL_SOUND_RECT_OUT_OF_LINE
 #include <revolution/kpad.h>
 #include <revolution/mtx/GeoTypes.h>
 #include <revolution/os.h>
@@ -12,7 +14,11 @@
 #include "system/iplSystem.h"
 
 const f32 lbl_8160D2C0[] = {0.2, 0.3, 0, 0};
+extern const f32 lbl_81694450;
 extern const f32 lbl_81694454 = 0.0f;
+extern const f32 lbl_81694458;
+extern const f32 lbl_8169445C;
+extern const f32 lbl_81694460;
 extern "C" void _savegpr_25();
 extern "C" void _restgpr_25();
 extern "C" void _savegpr_29();
@@ -26,6 +32,10 @@ extern "C" void __ct__Q33ipl4math4VEC2Fff();
 extern "C" void __vt__Q33ipl10controller4Base();
 extern "C" void __vt__Q33ipl10controller10Revolution();
 extern "C" void __dt__Q33ipl10controller10RevolutionFv();
+extern "C" void read__Q33ipl10controller4BaseFv();
+extern "C" void isValidDpd__Q33ipl10controller10RevolutionCFv();
+extern "C" void getProjectionRect__Q23ipl6SystemFPQ34nw4r2ut4Rect();
+extern "C" void __as__Q33ipl4math4VEC2FRCQ33ipl4math4VEC2();
 extern "C" void __dl__FPv();
 
 extern "C" asm void __ct__Q34nw4r2ut4RectFv() {
@@ -817,29 +827,95 @@ namespace ipl {
             mRumbleType = -1;
         }
 
-        void Revolution::read() {
-            if (!isValidDpd()) {
-                unk_0x20->pos.y = 1.0f / 0.0f;
-                unk_0x20->pos.x = 1.0f / 0.0f;
-                unk_0x20->speed = 0.0f;
-                unk_0x20->vec.y = 0.0f;
-                unk_0x20->vec.x = 0.0f;
-            }
-            unk_0x1E = unk_0x1D;
-
-            if (isValidBtn()) {
-                if (unk_0x1E == 0) {
-                    if (down(REVO_BTN_A) && down(REVO_BTN_B)) {
-                        unk_0x1D = 1;
-                    }
-                } else if (!down(REVO_BTN_A) || !down(REVO_BTN_B)) {
-                    unk_0x1D = 0;
-                }
-            } else {
-                unk_0x1D = 0;
-            }
-
-            Base::read();
+        extern "C" asm void read__Q33ipl10controller10RevolutionFv() {
+            nofralloc
+            stwu r1, -0x10(r1)
+            mflr r0
+            stw r0, 0x14(r1)
+            stw r31, 0xc(r1)
+            mr r31, r3
+            lwz r12, 0(r3)
+            lwz r12, 0x70(r12)
+            mtctr r12
+            bctrl
+            cmpwi r3, 0
+            bne revolution_read_dpd_done
+            lfs f1, lbl_81694450
+            lwz r3, 0x20(r31)
+            lfs f0, lbl_81694454
+            stfs f1, 0x24(r3)
+            lwz r3, 0x20(r31)
+            stfs f1, 0x20(r3)
+            lwz r3, 0x20(r31)
+            stfs f0, 0x30(r3)
+            lwz r3, 0x20(r31)
+            stfs f0, 0x2c(r3)
+            lwz r3, 0x20(r31)
+            stfs f0, 0x28(r3)
+        revolution_read_dpd_done:
+            lbz r0, 0x1d(r31)
+            mr r3, r31
+            stb r0, 0x1e(r31)
+            lwz r12, 0(r31)
+            lwz r12, 0x6c(r12)
+            mtctr r12
+            bctrl
+            cmpwi r3, 0
+            beq revolution_read_btn_invalid
+            lbz r0, 0x1e(r31)
+            cmpwi r0, 0
+            bne revolution_read_btn_was_down
+            lwz r12, 0(r31)
+            mr r3, r31
+            li r4, 0x800
+            lwz r12, 0x14(r12)
+            mtctr r12
+            bctrl
+            cmpwi r3, 0
+            beq revolution_read_btn_end
+            lwz r12, 0(r31)
+            mr r3, r31
+            li r4, 0x400
+            lwz r12, 0x14(r12)
+            mtctr r12
+            bctrl
+            cmpwi r3, 0
+            beq revolution_read_btn_end
+            li r0, 1
+            stb r0, 0x1d(r31)
+            b revolution_read_btn_end
+        revolution_read_btn_was_down:
+            lwz r12, 0(r31)
+            mr r3, r31
+            li r4, 0x800
+            lwz r12, 0x14(r12)
+            mtctr r12
+            bctrl
+            cmpwi r3, 0
+            beq revolution_read_clear_btn
+            lwz r12, 0(r31)
+            mr r3, r31
+            li r4, 0x400
+            lwz r12, 0x14(r12)
+            mtctr r12
+            bctrl
+            cmpwi r3, 0
+            bne revolution_read_btn_end
+        revolution_read_clear_btn:
+            li r0, 0
+            stb r0, 0x1d(r31)
+            b revolution_read_btn_end
+        revolution_read_btn_invalid:
+            li r0, 0
+            stb r0, 0x1d(r31)
+        revolution_read_btn_end:
+            mr r3, r31
+            bl read__Q33ipl10controller4BaseFv
+            lwz r0, 0x14(r1)
+            lwz r31, 0xc(r1)
+            mtlr r0
+            addi r1, r1, 0x10
+            blr
         }
 
         bool Revolution::isValidDpd() const {
