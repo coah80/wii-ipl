@@ -206,6 +206,54 @@ NWC24Err NWC24SetMsgText(NWC24MsgObj* msg, const char* text, u32 len, NWC24Chars
     return NWC24_OK;
 }
 
+NWC24Err NWC24SetMsgAttached(NWC24MsgObj* msg, const void* attachData, u32 attachSize, NWC24MIMEType type) {
+    NWC24MsgObjPrivate* msgObj = (NWC24MsgObjPrivate*)msg;
+    u32 i;
+    u32 totalSize = 0;
+
+    if (!(msgObj->type & MSG_OBJ_INITIALIZED) || (msgObj->type & MSG_OBJ_DELIVERING)) {
+        return NWC24_ERR_PROTECTED;
+    }
+
+    if (attachData == NULL || attachSize == 0) {
+        return NWC24_ERR_NULL;
+    }
+
+    if (msgObj->numAttached >= NWC24_MSG_ATTACHMENT_MAX) {
+        return NWC24_ERR_FULL;
+    }
+
+    if (NWC24GetMIMETypeStr(type) == NULL) {
+        return NWC24_ERR_INVALID_VALUE;
+    }
+
+    if ((msgObj->type & MSG_OBJ_FOR_PUBLIC) && type != NWC24_TEXT_PLAIN && type != NWC24_TEXT_HTML && type != NWC24_IMAGE_JPEG &&
+        type != NWC24_APPLICATION_OCTET_STREAM) {
+        return NWC24_ERR_NOT_SUPPORTED;
+    }
+
+    if (type == NWC24_X_WII_MINIDATA && attachSize > 0x80) {
+        return NWC24_ERR_INVALID_VALUE;
+    }
+
+    for (i = 0; i < msgObj->numAttached; i++) {
+        totalSize += msgObj->attachedSize[i];
+    }
+
+    totalSize += attachSize;
+    if (totalSize >= 0x245B0) {
+        return NWC24_ERR_OVERFLOW;
+    }
+
+    NWC24Data_SetDataP(&msgObj->attached[msgObj->numAttached], attachData, attachSize);
+    msgObj->attachedSize[msgObj->numAttached] = attachSize;
+    msgObj->attachedType[msgObj->numAttached] = type;
+    msgObj->numAttached++;
+    msgObj->type |= 0x10000;
+
+    return NWC24_OK;
+}
+
 NWC24Err NWC24SetMsgFaceData(NWC24MsgObj* msg, const void* faceData) {
     NWC24MsgObjPrivate* msgObj = (NWC24MsgObjPrivate*)msg;
 
