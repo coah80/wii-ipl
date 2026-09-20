@@ -79,8 +79,8 @@ namespace ipl {
         void UrlProcessor::make_collision(nw4r::ut::PrintContext<wchar_t>* context, u16 code) {
             if (code == SEPERATOR) {
                 if (unk_0x51 == 0) {
-                    url_collision* url_col = new (System::getMem2App(), 4) url_collision();
-                    line_collision* line_col = new (System::getMem2App(), 4) line_collision();
+                    url_collision* const url_col = new (System::getMem2App(), 4) url_collision();
+                    line_collision* const line_col = new (System::getMem2App(), 4) line_collision();
 
                     url_col->unk_0x00 = unk_0x48;
                     url_col->unk_0x04 = (wchar_t*)context->str;
@@ -91,8 +91,10 @@ namespace ipl {
 
                     unk_0x51 = 1;
                 } else {
-                    url_collision* url_col = (url_collision*)nw4r::ut::List_GetPrev(&mUrlCollisions, NULL);
-                    line_collision* line_col = (line_collision*)nw4r::ut::List_GetPrev(&url_col->mLineCollisions, NULL);
+                    void* url_col_raw = nw4r::ut::List_GetPrev(&mUrlCollisions, NULL);
+                    void* line_col_raw = nw4r::ut::List_GetPrev(&((url_collision*)url_col_raw)->mLineCollisions, NULL);
+                    url_collision* url_col = (url_collision*)url_col_raw;
+                    line_collision* line_col = (line_collision*)line_col_raw;
 
                     line_col->unk_0x04 = context->writer->GetCursorX();
                     line_col->unk_0x08 = context->writer->GetCursorY();
