@@ -855,6 +855,28 @@ namespace ipl {
             blr
         }
 
+        extern "C" asm BOOL iplSavedata_813597A0(register void* manager, register ESTitleId titleId) {
+            nofralloc
+            li r0, 0x30
+            li r4, 0
+            mtctr r0
+        iplSavedata_813597A0_L1:
+            add r7, r3, r4
+            lwz r0, 0x340(r7)
+            lwz r7, 0x344(r7)
+            xor r0, r5, r0
+            xor r7, r6, r7
+            or. r0, r7, r0
+            bne iplSavedata_813597A0_L2
+            li r3, 1
+            blr
+        iplSavedata_813597A0_L2:
+            addi r4, r4, 8
+            bdnz iplSavedata_813597A0_L1
+            li r3, 0
+            blr
+        }
+
         asm void Manager::makeTmpList(register ESTitleId* titleIdsOut, register u32 availableCount, register ESTitleId* titleIdsIn, register u32 titleCount) {
             nofralloc
             stwu r1, -0x50(r1)
