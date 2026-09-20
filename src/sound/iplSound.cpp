@@ -13,6 +13,8 @@ extern "C" void __dl__FPv();
 extern "C" void __destroy_arr();
 extern "C" void _seBlk__Q23ipl3snd();
 extern "C" nw4r::snd::SoundHandle* _mainBGMHandle__Q23ipl3snd;
+extern "C" const f32 lbl_816946A4;
+extern "C" const f32 lbl_816946AC;
 
 namespace ipl {
     namespace snd {
@@ -151,6 +153,23 @@ namespace ipl {
             lwz r3, 0(r3)
             lwz r12, 0(r3)
             lwz r12, 0x18(r12)
+            mtctr r12
+            bctr
+            blr
+        }
+
+        extern "C" asm void muteOnBGM__Q33ipl3snd6SystemFi() {
+            nofralloc
+            lwz r3, _mainBGMHandle__Q23ipl3snd
+            cmpwi r3, 0
+            beqlr
+            lwz r3, 0(r3)
+            cmpwi r3, 0
+            beqlr
+            beqlr
+            lwz r12, 0(r3)
+            lfs f1, lbl_816946A4
+            lwz r12, 0x38(r12)
             mtctr r12
             bctr
             blr
