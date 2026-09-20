@@ -1321,7 +1321,7 @@ namespace textinput {
                 while (idx < i) {
                     i = GetPrevPageIdx_(i);
                 }
-                StartScrollPageToIdx(i);
+                StartScrollToIdx(i);
             }
         }
 
