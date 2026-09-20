@@ -176,3 +176,14 @@ NWC24Err NWC24GetMsgNumAttached(const NWC24MsgObj* msg, u32* numAttach) {
     }
     return NWC24_OK;
 }
+
+NWC24Err NWC24GetMsgSubjectSize(const NWC24MsgObj* msg, u32* subjectSize) {
+    const NWC24MsgObjPrivate* msgObj = (const NWC24MsgObjPrivate*)msg;
+    u32 size = msgObj->subject.size;
+    if (size != 0) {
+        *subjectSize = size + 1;
+    } else {
+        *subjectSize = 0;
+    }
+    return NWC24_OK;
+}
