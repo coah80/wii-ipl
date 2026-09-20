@@ -659,29 +659,29 @@ namespace ipl {
 
             u32 tikCount = 0;
             s32 ret = ES_GetTicketViews(titleId, NULL, &tikCount);
-            if (ret < ES_ERR_OK && tikCount == 0) {
-                result = FALSE;
-            } else {
-                if (!utility::ESMisc::PrivateContentsExist(titleId)) {
-                    result = FALSE;
-                } else {
-                    ESTmdView* tmd = NULL;
-                    ret = utility::ESMisc::GetTmdView(mpHeap, titleId, &tmd);
-                    if (ret != ES_ERR_OK && ret != ES_ERR_NO_TMD_FILE_FOUND) {
-                        IPLErrorLogAndDisplay(MESG_ERR_FILE, "ES", ret, 1138);
-                    }
+            if (ret < ES_ERR_OK || tikCount == 0) {
+                return FALSE;
+            }
 
-                    if (ret == ES_ERR_NO_TMD_FILE_FOUND || utility::ESMisc::checkContentsNum(titleId, tmd)) {
-                        if (ret != ES_ERR_OK && ret != ES_ERR_NO_TMD_FILE_FOUND) {
-                            IPLErrorLogAndDisplay(MESG_ERR_FILE, "ES", ret, 1149);
-                        }
-                        result = FALSE;
-                    }
+            if (!utility::ESMisc::PrivateContentsExist(titleId)) {
+                return FALSE;
+            }
 
-                    if (tmd) {
-                        mpHeap->free(tmd);
-                    }
+            ESTmdView* tmd = NULL;
+            ret = utility::ESMisc::GetTmdView(mpHeap, titleId, &tmd);
+            if (ret != ES_ERR_OK && ret != ES_ERR_NO_TMD_FILE_FOUND) {
+                IPLErrorLogAndDisplay(MESG_ERR_FILE, "ES", ret, 1138);
+            }
+
+            if (ret == ES_ERR_NO_TMD_FILE_FOUND || utility::ESMisc::checkContentsNum(titleId, tmd)) {
+                if (ret != ES_ERR_OK && ret != ES_ERR_NO_TMD_FILE_FOUND) {
+                    IPLErrorLogAndDisplay(MESG_ERR_FILE, "ES", ret, 1149);
                 }
+                result = FALSE;
+            }
+
+            if (tmd) {
+                mpHeap->free(tmd);
             }
 
             return result;
