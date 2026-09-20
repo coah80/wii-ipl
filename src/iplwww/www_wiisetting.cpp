@@ -14,7 +14,11 @@ BOOL gEnableDpd = TRUE;
 
 namespace www {
     namespace wiisetting {
-        IPL_WWW_REPORT_REDEFINE_MESSAGE(true);
+        static const char emptyString[] = "";
+        char MSG_TICK_TIMER_TAG[12] = "[TickTimer]";
+        char MSG_WARNING_TAG[10] = "[Warning]";
+        char MSG_EVENT_TAG[10] = "[[Event]]";
+        const char* Message[] = {NULL, NULL, NULL, NULL, emptyString, NULL};
 
         const u8 kbLangUsaLUT[][0x30] = {
             {
