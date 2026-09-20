@@ -63,7 +63,7 @@ namespace ipl {
             tagSSeInfo* FIsSEActive(u32 id);
             tagSSeInfo* getFreeSEBlock(bool force);
 
-            void startBannerSound(void*, u32, bool ignoreSize = false);
+            BOOL startBannerSound(void*, u32, bool ignoreSize = false);
             void stopBannerSound(int unk = 0);
 
             BOOL checkTmpSoundFile(void*, u32);

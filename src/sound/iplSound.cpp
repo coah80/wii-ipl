@@ -330,6 +330,13 @@ namespace ipl {
             return NULL;
         }
 
+        BOOL System::startBannerSound(void* data, u32 size, bool ignoreSize) {
+            if (sBannerSoundPlayer.checkData(data, size, ignoreSize) == 0) {
+                return 0;
+            }
+            return sBannerSoundPlayer.start(data, size);
+        }
+
         long System::clipGELT_S32(long value, long lo, long hi) {
             long range = hi - lo;
 
