@@ -689,8 +689,9 @@ namespace textinput {
         }
 
         void LayoutByNW4R::cancelStateFocusIn() {
+            const PaneToAnimation* pane = lbl_8165D2F8.panes;
             for (int i = 0; i < ARRAY_LENGTH(lbl_8165D2F8.panes); i++) {
-                CandidateTextAnmPane* p = static_cast<CandidateTextAnmPane*>(searchAnmPane(lbl_8165D2F8.panes[i].paneName));
+                CandidateTextAnmPane* p = static_cast<CandidateTextAnmPane*>(searchAnmPane(pane->paneName));
                 if (p != NULL) {
                     switch (p->getKeyType()) {
                         case KT_CandidateText:
@@ -720,6 +721,7 @@ namespace textinput {
                             break;
                     }
                 }
+                pane++;
             }
         }
 
