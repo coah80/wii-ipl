@@ -24,7 +24,7 @@ namespace ipl {
             System();
 
             void initOnMemory(const void* data, EGG::Heap* heap, u32 soundSize);
-            void initFx();
+            void initFx() NO_INLINE;
 
             void shutup(BOOL shutUpDMA);
 

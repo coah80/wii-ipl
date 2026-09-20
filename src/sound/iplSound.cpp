@@ -42,6 +42,29 @@ namespace ipl {
             }
         }
 
+        void System::initOnMemory(const void* data, EGG::Heap* heap, u32 soundSize) {
+            unk_0x620[0] = 0;
+            unk_0x620[1] = 0;
+            _mainBGMHandle = NULL;
+            EGG::SimpleAudioMgrWithFx::ArgWithFx arg;
+            int i;
+
+            arg.pHeap = heap;
+            arg.soundHeapSize = soundSize;
+            arg.fxArg.heapSize[0] = 0x30000;
+            arg.fxArg.heapSize[1] = 0;
+            arg.fxArg.heapSize[2] = 0;
+            initialize(&arg);
+            unk_0x620[2] = reinterpret_cast<u32>(setupMemoryArchive(data, &getSoundHeap()));
+            initFx();
+            sBannerSoundPlayer.init(5);
+            for (i = 0; i < 16; i++) {
+                _seBlk[i].name = NULL;
+                _seBlk[i].id = 0xffff;
+            }
+            sBannerSoundPlayer.setMasterVolume(0.9f);
+        }
+
         void System::stopBannerSound(int unk) {
             sBannerSoundPlayer.stop(unk);
         }
