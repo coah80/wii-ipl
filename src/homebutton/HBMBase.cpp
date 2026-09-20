@@ -124,6 +124,7 @@ BOOL HBMIsReassignedControllers() {
 
 extern const f32 lbl_816946D8;
 extern const f32 lbl_816946DC;
+extern const f32 lbl_81694754;
 
 namespace homebutton {
     static void SimpleSyncCallback(s32 result, s32 num);
@@ -2673,7 +2674,7 @@ namespace homebutton {
         }
 
         if (mEndInitSoundFlag) {
-            AXSetAuxAReturnVolume(gain * AX_MAX_VOLUME);
+            AXSetAuxAReturnVolume(lbl_81694754 * gain);
         }
 
         if (mpSoundArchivePlayer != NULL) {
