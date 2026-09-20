@@ -15,6 +15,7 @@ namespace textinput {
 
                     virtual void    init();
 
+                    virtual void    updateInput(int chan, f32 x, f32 y, u32 trig, u32 hold, u32 release, void* data);
                     virtual bool    updateInput(input::HKBManager& hkbManager);
                         
                 private:

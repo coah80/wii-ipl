@@ -21,6 +21,12 @@ namespace textinput {
                 field_0x16 = 0;
             }
 
+            void HWKeyboard::updateInput(int chan, f32 x, f32 y, u32 trig, u32 hold, u32 release, void* data) {
+                if (trig != 0) {
+                    field_0x14 = 0;
+                }
+            }
+
             void HWKeyboard::updateShift(input::HKBManager& hkbManager) {
                 LayoutGather &gather = LayoutGather::Singleton::getInstance();
 
