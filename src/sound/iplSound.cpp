@@ -85,6 +85,33 @@ namespace ipl {
             blr
         }
 
+        extern "C" asm void __dt__Q33ipl3snd11tagSBgmInfoFv() {
+            nofralloc
+            stwu r1, -0x10(r1)
+            mflr r0
+            cmpwi r3, 0
+            stw r0, 0x14(r1)
+            stw r31, 0xc(r1)
+            mr r31, r4
+            stw r30, 0x8(r1)
+            mr r30, r3
+            beq bgm_dtor_done
+            li r4, -1
+            bl __dt__Q34nw4r3snd11SoundHandleFv
+            cmpwi r31, 0
+            ble bgm_dtor_done
+            mr r3, r30
+            bl __dl__FPv
+        bgm_dtor_done:
+            mr r3, r30
+            lwz r31, 0xc(r1)
+            lwz r30, 0x8(r1)
+            lwz r0, 0x14(r1)
+            mtlr r0
+            addi r1, r1, 0x10
+            blr
+        }
+
         extern nw4r::snd::SoundHandle _bgmBlk;
         extern tagSSeInfo _seBlk[16];
         extern nw4r::snd::SoundHandle* _mainBGMHandle;
