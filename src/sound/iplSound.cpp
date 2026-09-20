@@ -317,6 +317,44 @@ namespace ipl {
             blr
         }
 
+        extern "C" asm void pauseOffBGM__Q33ipl3snd6SystemFv() {
+            nofralloc
+            stwu r1, -0x10(r1)
+            mflr r0
+            stw r0, 0x14(r1)
+            stw r31, 0xc(r1)
+            mr r31, r3
+            lwz r0, _mainBGMHandle__Q23ipl3snd
+            cmpwi r0, 0
+            beq pauseOffBGM_done
+            bl initFx__Q33ipl3snd6SystemFv
+            lwz r3, _mainBGMHandle__Q23ipl3snd
+            lwz r0, 0(r3)
+            cmpwi r0, 0
+            beq pauseOffBGM_resume
+            beq pauseOffBGM_resume
+            lwz r3, 0(r3)
+            li r4, 0
+            li r5, 5
+            lwz r12, 0(r3)
+            lwz r12, 0x1c(r12)
+            mtctr r12
+            bctrl
+        pauseOffBGM_resume:
+            mr r3, r31
+            bl pauseOffSE__Q33ipl3snd6SystemFv
+            lis r3, sBannerSoundPlayer__Q23ipl3snd@ha
+            li r4, 0
+            addi r3, r3, sBannerSoundPlayer__Q23ipl3snd@l
+            bl pause__17BannerSoundPlayerFb
+        pauseOffBGM_done:
+            lwz r0, 0x14(r1)
+            lwz r31, 0xc(r1)
+            mtlr r0
+            addi r1, r1, 0x10
+            blr
+        }
+
         void System::shutup(BOOL shutUpDMA) {
             if (m_isLocked == shutUpDMA) {
                 return;
