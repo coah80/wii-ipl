@@ -8,7 +8,8 @@
 extern CDBErr GenCDBIdNumber(u32* cdbIDNum);
 
 static char CDB_ATTR_MAGIC[] = "CDBFILE";
-static const u8 CDB_ATTR_VERSION = 2;
+static const u32 CDB_ATTR_VERSION = 0x02000000;
+static const u32 CDB_ATTR_VERSION_PADDING = 0;
 
 static u32 s_seed = 0;
 
@@ -76,7 +77,7 @@ CDBErr CDBAttrCreateOnNAND(CDBAttr* attr, const char* desc, u32 lastModifiedDate
     CDBAttrInit(attr);
 
     memcpy(&attr->buf.magic, CDB_ATTR_MAGIC, sizeof(CDB_ATTR_MAGIC) - 1);
-    memcpy(&attr->buf.version, &CDB_ATTR_VERSION, sizeof(CDB_ATTR_VERSION));
+    memcpy(&attr->buf.version, &CDB_ATTR_VERSION, sizeof(u8));
 
     descStrLen = strlen(desc) + 1;
 
