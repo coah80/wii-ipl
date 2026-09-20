@@ -436,6 +436,30 @@ namespace ipl {
             return ret;
         }
 
+        int Revolution::pinch() const {
+            int ret = 0;
+            if (isValidBtn() && unk_0x1D != 0) {
+                ret = 1;
+            }
+            return ret;
+        }
+
+        int Revolution::pinchTrg() const {
+            int ret = 0;
+            if (isValidBtn() && unk_0x1D != 0 && unk_0x1E == 0) {
+                ret = 1;
+            }
+            return ret;
+        }
+
+        int Revolution::pinchOffTrg() const {
+            int ret = 0;
+            if (isValidBtn() && unk_0x1D == 0 && unk_0x1E != 0) {
+                ret = 1;
+            }
+            return ret;
+        }
+
         f32 Revolution::getDpdDistance() const {
             return unk_0x20->dist;
         }
