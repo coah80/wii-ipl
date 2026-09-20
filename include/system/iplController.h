@@ -149,6 +149,7 @@ namespace ipl {
             virtual int downTrg(u32 button) const override;      // 0x18
             virtual int upTrg(u32 button) const override;
             virtual int pinch() const override;                  // 0x1C
+            virtual int pinchTrg() const override;
             virtual int repeat(u32 button) const override;
             virtual int getClassicHoldFlag() const override;     // 0x48
             virtual int getClassicTrigFlag() const override;     // 0x4C
