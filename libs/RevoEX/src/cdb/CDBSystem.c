@@ -34,6 +34,18 @@ void CDBUnlock() {
     OSUnlockMutex(&s_mutex);
 }
 
+CDBErr CDBRecordFree(CDBRecord* record) {
+    CDBRecordFile* recordFile = record->file;
+
+    OSLockMutex(&s_mutex);
+    OSLockMutex((OSMutex*)recordFile);
+    *(u32*)&recordFile->unk_0x00[0x18] = 0;
+    OSUnlockMutex((OSMutex*)recordFile);
+    recordFile->unk_0x1C = 0;
+    record->file = NULL;
+    OSUnlockMutex(&s_mutex);
+}
+
 CDBErr _CDBOnVFErrorOccured(VFErr VFErr, const char* unused0, u32 unused1) {
     s_lastVFError = VFErr;
     return CDB_ERROR_VF_ERROR;
