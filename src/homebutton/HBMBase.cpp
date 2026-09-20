@@ -41,6 +41,7 @@ void HBMFreeMem(void* pBlock) {
     MEMFreeToAllocator(spAllocator, pBlock);
 }
 
+#pragma force_active on
 static HBMAllocatorType getAllocatorType(const HBMDataInfo* pDataInfo) {
     if (pDataInfo->pAllocator != NULL) {
         return HBM_ALLOCATOR_APPLI;
@@ -52,6 +53,7 @@ static HBMAllocatorType getAllocatorType(const HBMDataInfo* pDataInfo) {
 
     return HBM_ALLOCATOR_NW4R;
 }
+#pragma force_active off
 
 void HBMCreate(const HBMDataInfo* pDataInfo) {
     MEMiHeapHead* hExpHeap;
