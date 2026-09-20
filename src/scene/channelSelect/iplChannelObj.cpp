@@ -1004,7 +1004,8 @@ namespace ipl {
 
             nw4r::ut::Rect textRect = textPane->GetTextDrawRect(*mpBalloonLayout->getDrawInfo());
 
-            nw4r::lyt::Size newSize(textRect.GetWidth() + 40.0f, mpBalloonLayout->FindPaneByName(scBasePane)->GetSize().height);
+            nw4r::lyt::Size newSize(mpBalloonLayout->FindPaneByName(scBasePane)->GetSize());
+            newSize.width = textRect.right - textRect.left + 40.0f;
 
             if (newSize.width < mLocationAdjust * 160.0f) {
                 newSize.width = mLocationAdjust * 160.0f;
