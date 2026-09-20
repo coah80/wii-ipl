@@ -1,16 +1,24 @@
 #include <revolution.h>
 
+#include "iplwww/www_print.h"
+
+namespace ext_ead {
+    namespace www {
+        namespace window {
+            IPL_WWW_REPORT_REDEFINE_MESSAGE(true);
+        }
+    }
+}
+
 extern "C" char lbl_816962F8[] = "ERROR?\n";
 extern "C" char lbl_81643B40[] = " TextureBuffer_ %d:%d ptr:%p\n";
 extern "C" char lbl_81643B5E[] = "INFO: cannot create browser window\n";
-extern "C" char lbl_81643BC8[] = " LoadinStart: %d\n";
 
 #define OSReport(...) OSReport(lbl_816962F8)
 #include "iplwww/www_window.h"
 #undef OSReport
 
 #include "iplwww/www_browser.h"
-#include "iplwww/www_print.h"
 #include "iplwww/www_surface.h"
 
 #include <string.h>
@@ -157,7 +165,7 @@ namespace ext_ead {
                         }
                         unk_0x2C4[4] = 1;
                         unk_0x2C4[0] = 1;
-                        print::IPLWWWReport(2, lbl_81643BC8, unk_0x2B4[unk_0x2B0]);
+                        print::IPLWWWReport(2, " LoadinStart: %d\n", unk_0x2B4[unk_0x2B0]);
                     }
                     break;
                 }
