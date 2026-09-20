@@ -1,3 +1,133 @@
+#include <decomp.h>
+
+#include <revolution/cdb/CDBDate.h>
+#include <revolution/os/OSTime.h>
+
+#define IPL_UTILITY_CALENDAR_H
+
+namespace ipl {
+    namespace utility {
+        class Date {
+        public:
+            typedef enum {
+                NO_INIT = 0,
+            } HackF;
+
+            Date(HackF flag) {}
+
+            Date() : year(MIN_YEAR), month(MIN_MONTH), day(MIN_DAY) {}
+            Date(int myYear, int myMonth, int myDay) : year(myYear), month(myMonth), day(myDay) {}
+            Date(const OSCalendarTime& cal) : year(cal.year), month(cal.mon + 1), day(cal.mday) {}
+            Date(const Date& date) : year(date.year), month(date.month), day(date.day) {}
+
+            static Date getMaxDate() {
+                utility::Date date(MAX_YEAR, MAX_MONTH, MAX_DAY);
+                return date;
+            }
+            static Date getMinDate() {
+                utility::Date date(MIN_YEAR, MIN_MONTH, MIN_DAY);
+                return date;
+            }
+
+            CDBDate cdbDateBegin() { return CDBMakeCDBDate(year, month - 1, day, 0, 0, 0); }
+            CDBDate cdbDateEnd() { return CDBMakeCDBDate(year, month - 1, day, 23, 59, 59); }
+
+            bool operator==(const Date& rhs) const { return year == rhs.year && month == rhs.month && day == rhs.day; }
+
+            bool operator>(const Date& rhs) const {
+                bool result = false;
+                if (year > rhs.year) {
+                    result = true;
+                } else if (year == rhs.year) {
+                    if (month > rhs.month) {
+                        result = true;
+                    } else if (month == rhs.month) {
+                        if (day > rhs.day) {
+                            result = true;
+                        }
+                    }
+                }
+
+                return result;
+            }
+
+            bool operator<(const Date& rhs) const {
+                bool result = false;
+                if (year < rhs.year) {
+                    result = true;
+                } else if (year == rhs.year) {
+                    if (month < rhs.month) {
+                        result = true;
+                    } else if (month == rhs.month) {
+                        if (day < rhs.day) {
+                            result = true;
+                        }
+                    }
+                }
+
+                return result;
+            }
+
+            bool operator!=(const Date& rhs) const NO_INLINE { return year != rhs.year || month != rhs.month || day != rhs.day; }
+
+            int year;
+            int month;
+            int day;
+        };
+
+        class Calendar {
+        public:
+            static void setCalendarTime(OSCalendarTime* newCalendar);
+            static void getTomorrow(const Date& src, Date* dest);
+            static void getYesterday(const Date& src, Date* dest);
+            static int getDays(int year, int month);
+
+            static int getWeek(const Date& date) NO_INLINE {
+                int month, year, day;
+                month = date.month;
+                day = date.day;
+                year = date.year;
+                if (month <= 2) {
+                    year--;
+                    month += MAX_MONTH;
+                }
+                return (day + (((month * 13) + 8) / 5) + ((year / 400) + ((year + (year / 4)) - (year / 100)))) % 7;
+            }
+
+            static int getWeek(int year, int month, int day) NO_INLINE {
+                if (month <= 2) {
+                    year--;
+                    month += MAX_MONTH;
+                }
+                return (day + (((month * 13) + 8) / 5) + ((year / 400) + ((year + (year / 4)) - (year / 100)))) % 7;
+            }
+
+            static void getNextMonth(const Date& src, Date* dest) NO_INLINE {
+                *dest = src;
+                dest->month++;
+                if (dest->month > MAX_MONTH) {
+                    dest->month = MIN_MONTH;
+                    dest->year++;
+                }
+                dest->day = MIN_DAY;
+            }
+
+            static void getLastMonth(const Date& src, Date* dest) NO_INLINE {
+                *dest = src;
+                dest->month--;
+                if (dest->month <= 0) {
+                    dest->month--;
+                    if (dest->month <= 0) {
+                        dest->month = MAX_MONTH;
+                        dest->year--;
+                    }
+                }
+                dest->day = getDays(dest->year, dest->month);
+            }
+        };
+    }
+}
+
 #include "scene/board/iplBoard.h"
 
 #include "scene/button/iplButton.h"
