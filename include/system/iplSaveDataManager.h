@@ -82,6 +82,8 @@ namespace ipl {
 
             void makePriorTitleIDList(ESTitleId* titleIdsOut, ESTitleId* titleIdsIn, u32 titleCount);
             void integrateTitleIDList(ESTitleId* titleIdsOut, ESTitleId* titleIdsIn, u32 titleCount);
+            void makeTmpList(ESTitleId* titleIdsOut, u32 availableCount, ESTitleId* titleIdsIn, u32 titleCount);
+            void moveTitleTmpToPrior(ESTitleId* titleIdsOut, const ESTitleId* titleIdsIn);
 
             BOOL doUpdateChanInfos(ESTitleId* titleIds);
 
