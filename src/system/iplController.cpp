@@ -124,6 +124,10 @@ namespace ipl {
             return NULL;
         }
 
+        int Interface::getHoldFlag() const {
+            return 0;
+        }
+
         int Base::decide() const {
             return unk_0x08 == 5;
         }

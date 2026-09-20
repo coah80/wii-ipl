@@ -153,6 +153,7 @@ namespace ipl {
             virtual int getClassicReleaseFlag() const override;  // 0x50
             virtual KPADStatus* getKPADStatus() const override;  // 0x64
             virtual bool isValidBtn() const override;            // 0x6C
+            virtual int getHoldFlag() const override;
         };
 
         class Revolution : public Interface {
