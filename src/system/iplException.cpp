@@ -280,6 +280,11 @@ namespace ipl {
     }
 }  // namespace ipl
 
-/***********************************************************************
- * TODO: Generate weak function nw4r::ut::Color::operator=(const Color&)
- ***********************************************************************/
+extern "C" __declspec(weak) nw4r::ut::Color& __as__Q34nw4r2ut5ColorFRCQ34nw4r2ut5Color(nw4r::ut::Color& dst,
+                                                                                         const nw4r::ut::Color& src) {
+    dst.r = src.r;
+    dst.g = src.g;
+    dst.b = src.b;
+    dst.a = src.a;
+    return dst;
+}
