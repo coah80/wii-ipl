@@ -1,4 +1,10 @@
+#include <revolution.h>
+
+extern "C" char lbl_816962F8[] = "ERROR?\n";
+
+#define OSReport(...) OSReport(lbl_816962F8)
 #include "iplwww/www_window.h"
+#undef OSReport
 
 #include "iplwww/www_browser.h"
 #include "iplwww/www_print.h"
