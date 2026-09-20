@@ -1261,7 +1261,8 @@ namespace ipl {
                         if (state == bs2::IPL_STATE_RVL_GAME) {
                             if (mpDiskChanObj->mpThumbAnim != NULL) {
                                 mpDiskChanObj->mpThumbAnim->setAnmType(ANIM_TYPE_LOOP);
-                                mpDiskChanObj->mpThumbAnim->play();
+                                layout::Animator* thumbAnim = mpDiskChanObj->mpThumbAnim;
+                                thumbAnim->play();
                             }
                             mDiskState = DISK_STATE_RVL_GAME;
                         } else {
