@@ -113,6 +113,10 @@ namespace ipl {
             return 0;
         }
 
+        int Interface::pinchOffTrg() const {
+            return 0;
+        }
+
         int Interface::down(u32 mButton) const {
             return 0;
         }
