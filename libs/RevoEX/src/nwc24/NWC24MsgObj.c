@@ -160,3 +160,9 @@ NWC24Err NWC24GetMsgAppId(const NWC24MsgObj* msg, u32* appId) {
     *appId = msgObj->appId;
     return NWC24_OK;
 }
+
+NWC24Err NWC24GetMsgGroupId(const NWC24MsgObj* msg, u16* groupId) {
+    const NWC24MsgObjPrivate* msgObj = (const NWC24MsgObjPrivate*)msg;
+    *groupId = msgObj->groupId;
+    return NWC24_OK;
+}
