@@ -206,6 +206,81 @@ NWC24Err NWC24SetMsgText(NWC24MsgObj* msg, const char* text, u32 len, NWC24Chars
     return NWC24_OK;
 }
 
+NWC24Err NWC24SetMsgFaceData(NWC24MsgObj* msg, const void* faceData) {
+    NWC24MsgObjPrivate* msgObj = (NWC24MsgObjPrivate*)msg;
+
+    if (!(msgObj->type & MSG_OBJ_INITIALIZED) || (msgObj->type & MSG_OBJ_DELIVERING)) {
+        return NWC24_ERR_PROTECTED;
+    }
+
+    if (msgObj->faceData.size != 0) {
+        return NWC24_ERR_FULL;
+    }
+
+    NWC24Data_SetDataP(&msgObj->faceData, faceData, NWC24_FACE_DATA_SIZE);
+    return NWC24_OK;
+}
+
+NWC24Err NWC24SetMsgMBNoReply(NWC24MsgObj* msg, BOOL mbNoReplyFlag) {
+    NWC24MsgObjPrivate* msgObj = (NWC24MsgObjPrivate*)msg;
+
+    if (!(msgObj->type & MSG_OBJ_INITIALIZED) || (msgObj->type & MSG_OBJ_DELIVERING)) {
+        return NWC24_ERR_PROTECTED;
+    }
+
+    if (!(msgObj->type & MSG_OBJ_FOR_MENU)) {
+        return NWC24_ERR_NOT_SUPPORTED;
+    }
+
+    if (mbNoReplyFlag) {
+        msgObj->msgBoardFlags.noreply = 1;
+    } else {
+        msgObj->msgBoardFlags.noreply = 0;
+    }
+
+    return NWC24_OK;
+}
+
+NWC24Err NWC24SetMsgAppId(NWC24MsgObj* msg, u32 appId) {
+    NWC24MsgObjPrivate* msgObj = (NWC24MsgObjPrivate*)msg;
+
+    if (!(msgObj->type & MSG_OBJ_INITIALIZED) || (msgObj->type & MSG_OBJ_DELIVERING)) {
+        return NWC24_ERR_PROTECTED;
+    }
+
+    if (!NWC24IsMsgLibOpenedByTool() && NWC24GetAppId() != 0x48414541) {
+        return NWC24_ERR_PROTECTED;
+    }
+
+    msgObj->appId = appId;
+    return NWC24_OK;
+}
+
+NWC24Err NWC24GetMsgType(const NWC24MsgObj* msg, NWC24MsgType* type) {
+    const NWC24MsgObjPrivate* msgObj = (const NWC24MsgObjPrivate*)msg;
+    u32 flags = msgObj->type;
+
+    if (flags & MSG_OBJ_FOR_RECIPIENT) {
+        if (flags & MSG_OBJ_FOR_APP) {
+            if (flags & MSG_OBJ_FOR_MENU) {
+                *type = NWC24_MSGTYPE_RVL_MENU_SHARED;
+            } else {
+                *type = NWC24_MSGTYPE_RVL;
+            }
+        } else if (flags & MSG_OBJ_FOR_MENU) {
+            *type = NWC24_MSGTYPE_RVL_MENU;
+        } else {
+            *type = NWC24_MSGTYPE_RVL_HIDDEN;
+        }
+    } else if (flags & MSG_OBJ_FOR_PUBLIC) {
+        *type = NWC24_MSGTYPE_PUBLIC;
+    } else {
+        return NWC24_ERR_INVALID_VALUE;
+    }
+
+    return NWC24_OK;
+}
+
 NWC24Err NWC24GetMsgAppId(const NWC24MsgObj* msg, u32* appId) {
     const NWC24MsgObjPrivate* msgObj = (const NWC24MsgObjPrivate*)msg;
     *appId = msgObj->appId;
