@@ -148,6 +148,10 @@ namespace ipl {
         void Interface::cancelRumbling() {
         }
 
+        int Interface::getChannel() const {
+            return -1;
+        }
+
         int Base::decide() const {
             return unk_0x08 == 5;
         }
