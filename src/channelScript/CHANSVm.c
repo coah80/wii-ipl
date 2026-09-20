@@ -2145,7 +2145,7 @@ static u32 VmArrayJoinSub(CHANSVmObjHdr* obj, CHANSVmObjHdr* array, wchar_t* sep
                         goto error;
                     }
                     strBuf = (vmString)(*obj->value.ptr_v) + offset;
-                    elemLen = snprintf(strBuf, 0x40, "%lld", chunk->elements[countInChunk].value.int_v);
+                    elemLen = snprintf(strBuf, 0x40, lbl_81697591, chunk->elements[countInChunk].value.int_v);
                     CHANSVmStrCpyToU16FromU8((vmWString)strBuf, strBuf, elemLen);
                     elemLen = elemLen << 1;
                     break;
