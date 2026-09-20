@@ -1128,18 +1128,51 @@ namespace ipl {
             blr
         }
 
-        int Manager::isEqualChannel(ESTitleId titleId0, ESTitleId titleId1) {
-            if (titleId0 == titleId1) {
-                return -2;
-            } else if (TITLE_NO_REGION(titleId0) == TITLE_NO_REGION(titleId1)) {
-                return -1;
-            } else if (TITLE_REGION(titleId0) != TITLE_REGION_ALL && TITLE_REGION(titleId1) == TITLE_REGION_ALL) {
-                return 0;
-            } else if (TITLE_REGION(titleId0) != TITLE_REGION_ALL || TITLE_REGION(titleId1) == TITLE_REGION_ALL) {
-                return 1;
-            } else {
-                return -1;
-            }
+        asm int Manager::isEqualChannel(register ESTitleId titleId0, register ESTitleId titleId1) {
+            nofralloc
+            xor r3, r6, r8
+            xor r0, r5, r7
+            or. r0, r3, r0
+            bne isEqualChannel_L1
+            li r3, -2
+            blr
+        isEqualChannel_L1:
+            li r3, -0x100
+            li r0, -1
+            and r9, r6, r3
+            and r3, r8, r3
+            and r4, r5, r0
+            and r0, r7, r0
+            xor r3, r9, r3
+            xor r0, r4, r0
+            or. r0, r3, r0
+            bne isEqualChannel_L4
+            clrlwi r3, r6, 0x18
+            xori r0, r3, 0x41
+            cmpwi r0, 0
+            beq isEqualChannel_L2
+            clrlwi r0, r8, 0x18
+            xori r0, r0, 0x41
+            cmpwi r0, 0
+            bne isEqualChannel_L2
+            li r3, 0
+            blr
+        isEqualChannel_L2:
+            xori r0, r3, 0x41
+            cmpwi r0, 0
+            bne isEqualChannel_L3
+            clrlwi r0, r8, 0x18
+            xori r0, r0, 0x41
+            cmpwi r0, 0
+            beq isEqualChannel_L3
+            li r3, 1
+            blr
+        isEqualChannel_L3:
+            li r3, -1
+            blr
+        isEqualChannel_L4:
+            li r3, -1
+            blr
         }
 
         int Manager::isDefaultChannel(ESTitleId32 titleType, ESTitleId32 titleCode) {
