@@ -456,6 +456,23 @@ void NWC24iSetErrorCode(s32 code) {
     GlobalErrorCode = code;
 }
 
+NWC24Err NWC24InitFilesIndividually(void* work, BOOL forceConfig, BOOL forceMBox, BOOL forceFriendList, BOOL forceDlTask) {
+    NWC24Err result = NWC24BlockOpenMsgLib(TRUE);
+
+    if (result != NWC24_OK) {
+        return result;
+    }
+
+    NWC24SuspendScheduler();
+    result = InitAllFiles(work, forceConfig, forceMBox, forceFriendList, forceDlTask);
+    NWC24ResumeScheduler();
+    NWC24BlockOpenMsgLib(FALSE);
+
+    if (result != NWC24_OK) {
+        return result;
+    }
+}
+
 NWC24Err AnalyzeErrorCode(s32 errorCode, u32 usage, u32* score) {
     char digit[6];
     int i;
