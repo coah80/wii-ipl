@@ -173,6 +173,10 @@ namespace ipl {
 
             virtual KPADStatus* getKPADStatus() const override;  // 0x64
 
+            virtual int getReleaseFlag() const override;
+            virtual int getTrigFlag() const override;
+            virtual int getHoldFlag() const override;
+
             virtual math::VEC2 getDpdProjectionPos() const override;  // 0x58
 
             virtual bool isValidBtn() const override;  // 0x6C

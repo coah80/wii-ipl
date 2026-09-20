@@ -229,6 +229,18 @@ namespace ipl {
             return unk_0x20;
         }
 
+        int Revolution::getReleaseFlag() const {
+            return unk_0x20->release;
+        }
+
+        int Revolution::getTrigFlag() const {
+            return unk_0x20->trig;
+        }
+
+        int Revolution::getHoldFlag() const {
+            return unk_0x20->hold;
+        }
+
         // non-matching
         math::VEC2 Revolution::getDpdProjectionPos() const {
             math::VEC2 ret;
