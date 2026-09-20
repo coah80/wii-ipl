@@ -126,17 +126,20 @@ namespace EGG {
             pHeap = mpSoundHeap;
         }
 
+        void* pStrmBuffer;
         nw4r::snd::MemorySoundArchive* pMemoryArchive = &mMemorySoundArchive;
         mpArchive = pMemoryArchive;
 
         if (pMemoryArchive->Setup(pBinary)) {
             mbIsOpeningArchive = true;
 
-            u32 mramSize = mSoundArchivePlayer.GetRequiredMemSize(pMemoryArchive);
-
-            u32 strmSize = mSoundArchivePlayer.GetRequiredStrmBufferSize(pMemoryArchive);
-            void* pStrmBuffer = pHeap->Alloc(strmSize, NULL, NULL);
-            void* pMramBuffer = pHeap->Alloc(mramSize, NULL, NULL);
+            u32 mramSize;
+            u32 strmSize;
+            void* pMramBuffer;
+            mramSize = mSoundArchivePlayer.GetRequiredMemSize(pMemoryArchive);
+            strmSize = mSoundArchivePlayer.GetRequiredStrmBufferSize(pMemoryArchive);
+            pStrmBuffer = pHeap->Alloc(strmSize, NULL, NULL);
+            pMramBuffer = pHeap->Alloc(mramSize, NULL, NULL);
 
             if (!mSoundArchivePlayer.Setup(pMemoryArchive, pMramBuffer, mramSize, pStrmBuffer, strmSize)) {
                 mbIsOpeningArchive = false;
