@@ -135,3 +135,19 @@ BOOL CDBRecordKeyArrayFull(CDBRecordKeyArray* recordArray) {
 CDBRecordKey* CDBRecordKeyArrayEnd(CDBRecordKeyArray* recordArray) {
     return recordArray->records + recordArray->size;
 }
+
+CDBRecordKey* CDBRecordKeyArrayDicFind(CDBRecordKeyArray* recordArray, CDBRecordKey* recordKey) {
+    int size = recordArray->size;
+    int index;
+
+    if (size == 0) {
+        return recordArray->records + size;
+    }
+
+    index = CDBRecordKeyArrayDicFindR(recordArray, recordKey, 0, size - 1);
+    if (index != -1) {
+        return recordArray->records + index;
+    }
+
+    return recordArray->records + recordArray->size;
+}
