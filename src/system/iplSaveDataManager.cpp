@@ -21,6 +21,8 @@ extern "C" void _savegpr_26();
 extern "C" void _restgpr_26();
 extern "C" void _savegpr_16();
 extern "C" void _restgpr_16();
+extern "C" void _savegpr_28();
+extern "C" void _restgpr_28();
 
 namespace ipl {
     // clang-format off
@@ -507,7 +509,10 @@ namespace ipl {
         extern "C" int isEqualChannel__Q33ipl8savedata7ManagerFUxUx();
         extern "C" int checkValidApp__Q33ipl8savedata7ManagerFUx();
         extern "C" int getAvailableInList__Q33ipl8savedata7ManagerFPCUxUl();
+        extern "C" int getAvailableNumInList__Q33ipl8savedata7ManagerFPCUxUl();
         extern "C" int isDefaultChannel__Q33ipl8savedata7ManagerFUlUl();
+        extern "C" void makeTmpList__Q33ipl8savedata7ManagerFPUxUlPUxUl();
+        extern "C" void moveTitleTmpToPrior__Q33ipl8savedata7ManagerFPUxPCUx();
 
         asm void Manager::makePriorTitleIDList(register ESTitleId* titleIdsOut, register ESTitleId* titleIdsIn, register u32 titleCount) {
             nofralloc
@@ -656,6 +661,50 @@ namespace ipl {
             lwz r0, 0x54(r1)
             mtlr r0
             addi r1, r1, 0x50
+            blr
+        }
+
+        asm void Manager::integrateTitleIDList(register ESTitleId* titleIdsOut, register ESTitleId* titleIdsIn, register u32 titleCount) {
+            nofralloc
+            stwu r1, -0x1d0(r1)
+            mflr r0
+            stw r0, 0x1d4(r1)
+            addi r11, r1, 0x1d0
+            bl _savegpr_28
+            li r0, 0x36
+            mr r28, r3
+            mr r29, r4
+            mr r30, r5
+            mr r31, r6
+            addi r4, r1, 4
+            li r3, 0
+            mtctr r0
+        integrateTitleIDList_L1:
+            stw r3, 4(r4)
+            stwu r3, 8(r4)
+            bdnz integrateTitleIDList_L1
+            mr r3, r28
+            mr r4, r29
+            li r5, 0x30
+            bl getAvailableNumInList__Q33ipl8savedata7ManagerFPCUxUl
+            cmpwi r3, 0
+            mr r5, r3
+            beq integrateTitleIDList_L2
+            mr r3, r28
+            mr r6, r30
+            mr r7, r31
+            addi r4, r1, 8
+            bl makeTmpList__Q33ipl8savedata7ManagerFPUxUlPUxUl
+            mr r3, r28
+            mr r4, r29
+            addi r5, r1, 8
+            bl moveTitleTmpToPrior__Q33ipl8savedata7ManagerFPUxPCUx
+        integrateTitleIDList_L2:
+            addi r11, r1, 0x1d0
+            bl _restgpr_28
+            lwz r0, 0x1d4(r1)
+            mtlr r0
+            addi r1, r1, 0x1d0
             blr
         }
 
