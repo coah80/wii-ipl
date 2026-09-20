@@ -10,6 +10,7 @@
 
 #include "math/iplMathTypes.h"
 
+extern f32 lbl_81694FC0;
 
 namespace ipl {
     namespace cs {
@@ -518,7 +519,7 @@ namespace ipl {
             nw4r::lyt::Size get_size_(CHANSVm* vm) {
                 u32 argc = CHANSVmGetArgc(vm);
                 CHANSVmObjHdr* arg = CHANSVmGetArg(vm, 0);
-                nw4r::lyt::Size out(0.0f, 0.0f);
+                nw4r::lyt::Size out(lbl_81694FC0, lbl_81694FC0);
                 if (argc == 1 && util::is_valid_class(arg, "Size")) {
                     f32* src = static_cast<f32*>(*arg->value.ptr_v);
                     out.width = src[0];
