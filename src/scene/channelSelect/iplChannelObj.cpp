@@ -11,7 +11,9 @@ namespace ipl {
     namespace scene {
         // clang-format off
         extern "C" char lbl_8164E290[] = "Cursur_a";
+        extern "C" char lbl_8164E6AF[] = "%s_Rso%d.brlan";
         extern "C" char lbl_8164E744[] = "WIPL_SE_BALLOON";
+        extern "C" char lbl_816969EC[] = "Rso%d";
 
         static const char* scCursur = lbl_8164E290;
 
@@ -692,11 +694,11 @@ namespace ipl {
         void ChannelObj::bindRsoAnm(layout::Object* layout, layout::Animator** anims, const char* layoutFile) {
             for (int i = 0; i < channel::MAX_ANIMS; i++) {
                 char fileName[20];
-                sprintf(fileName, "%s_Rso%d.brlan", layoutFile, i);
+                sprintf(fileName, lbl_8164E6AF, layoutFile, i);
 
                 if (layout->searchFile(fileName)) {
                     char groupName[8];
-                    sprintf(groupName, "Rso%d", i);
+                    sprintf(groupName, lbl_816969EC, i);
 
                     bool found = false;
                     for (nw4r::lyt::GroupList::Iterator it = layout->GetGroupList().GetBeginIter(); it != layout->GetGroupList().GetEndIter(); it++) {
