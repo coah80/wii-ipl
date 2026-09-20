@@ -7,6 +7,7 @@ extern "C" void close__Q33ipl5nwc247ManagerFv();
 extern "C" void deleteFriendInfo__Q33ipl5nwc247ManagerFUl();
 extern "C" void getScene__Q33ipl5scene7ManagerFi();
 extern "C" void setEventHandler__Q33ipl5scene6ButtonFPQ23gui12EventHandlerPQ23gui12EventHandler();
+extern "C" void calc__Q33ipl6layout6ObjectFv();
 
 extern "C" asm void getChild__Q33ipl5scene4BaseFv() {
     nofralloc
@@ -152,6 +153,26 @@ extern "C" asm void initCalcFadeout__Q33ipl5scene7AddressFv() {
     li r5, 0
     bl setEventHandler__Q33ipl5scene6ButtonFPQ23gui12EventHandlerPQ23gui12EventHandler
     lwz r0, 0x14(r1)
+    mtlr r0
+    addi r1, r1, 0x10
+    blr
+}
+
+extern "C" asm void calcCommonAfter__Q33ipl5scene7AddressFv() {
+    nofralloc
+    stwu r1, -0x10(r1)
+    mflr r0
+    stw r0, 0x14(r1)
+    stw r31, 0xc(r1)
+    mr r31, r3
+    lwz r3, 0x8c(r3)
+    bl calc__Q33ipl6layout6ObjectFv
+    lwz r3, 0x9c(r31)
+    bl calc__Q33ipl6layout6ObjectFv
+    lwz r3, 0xa0(r31)
+    bl calc__Q33ipl6layout6ObjectFv
+    lwz r0, 0x14(r1)
+    lwz r31, 0xc(r1)
     mtlr r0
     addi r1, r1, 0x10
     blr
