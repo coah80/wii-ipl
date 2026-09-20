@@ -1337,13 +1337,15 @@ namespace ipl {
             if (mpBoardObj->arc_init_handle(mpArcData, &arc)) {
                 ARCFileInfo arcFile;
 
-                for (int i = 0; i < (int)ARRAY_LENGTH(scChangeTexFile); i++) {
-                    if (ARCOpen(&arc, scChangeTexFile[i].file, &arcFile)) {
+                for (int i = 0; i < (int)(sizeof(scChangeTexFile) / sizeof(scChangeTexFile[0])); i++) {
+                    const char* const* pFile = &scChangeTexFile[i].file;
+
+                    if (ARCOpen(&arc, pFile[0], &arcFile)) {
                         TPLPalette* tplData = (TPLPalette*)((u8*)mpArcData + ARCGetStartOffset(&arcFile));
                         u32 tplSize = ARCGetLength(&arcFile);
 
-                        mpBoardObj->change_tex(mpLayout, scChangeTexFile[i].s_pane, tplData, tplSize);
-                        mpBoardObj->change_tex(mpLayout, scChangeTexFile[i].pane, tplData, tplSize);
+                        mpBoardObj->change_tex(mpLayout, pFile[1], tplData, tplSize);
+                        mpBoardObj->change_tex(mpLayout, pFile[2], tplData, tplSize);
 
                         ARCClose(&arcFile);
                     }
