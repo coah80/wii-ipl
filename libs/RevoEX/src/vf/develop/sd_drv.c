@@ -91,23 +91,29 @@ static s32 Align_WriteBlock(SDDev* dev_handle_p /* r1+0x100 */, u32 offset /* r2
 }
 
 // Range: 0x1C4 -> 0x2CC
-static s32 _VFiGetCardSize(SDDev* fd /* r31+0x8 */, u32* totalSize /* r24 */, u32* totalSectors /* r27 */, u32* sectorSize /* r28 */) {
+static s32 _VFiGetCardSize(SDDev* fd /* r31+0x8 */, u32* totalSize /* r24 */, u32* totalSectors /* r27 */, u32* sectorSize /* r28 */) NO_INLINE {
     s32 result;        // r29
     u32 csd[4] = {0};  // r31+0x10
 
     result = ISD_ReadCardRegister(fd, 9, csd, 0x10);
     if (result == 0) {
-        u32 unit = ((csd[2] & 3) << 0xA) | ((u32)csd[1] >> 0x16U);
-        u32 sector_total = (unit + 1) * (1 << ((((u32)csd[1] >> 7U) & 7) + 2));
-        int tables = (1 << (((u32)csd[2] >> 8U) & 0xF)) / 512;
-        if (tables < 1) {
-            tables = 1;
-        } else if (tables > 4) {
-            tables = 4;
+        if (((csd[3] >> 0x16) & 3) != 1) {
+            u32 unit = ((csd[2] & 3) << 0xA) | ((u32)csd[1] >> 0x16U);
+            u32 sector_total = (unit + 1) * (1 << ((((u32)csd[1] >> 7U) & 7) + 2));
+            int tables = (1 << (((u32)csd[2] >> 8U) & 0xF)) / 512;
+            if (tables < 1) {
+                tables = 1;
+            } else if (tables > 4) {
+                tables = 4;
+            }
+            *totalSectors = sector_total * tables;
+            *sectorSize = 0x200;
+            *totalSize = *totalSectors << 9;
+        } else {
+            *totalSectors = (((csd[1] >> 8) & 0x3FFFFF) + 1) << 0xA;
+            *sectorSize = 0x200;
+            *totalSize = *totalSectors << 9;
         }
-        *totalSectors = sector_total * tables;
-        *sectorSize = 0x200;
-        *totalSize = *sectorSize * *totalSectors;
     }
     return result;
 }
@@ -254,7 +260,7 @@ static s32 _ChkMediaEjectedAndNotifyPrfile(PDM_DISK* p_disk /* r27 */) {
 static struct {
     // total size: 0x4
     u32 info_flg;    // 0x00
-} l_sddrv_info[26];  // size: 0x68, address: 0x340
+} l_sddrv_info[32];  // size: 0x80, address: 0x340
 // Range: 0x680 -> 0x948
 static s32 sddrv_init(PDM_DISK* p_disk /* r28 */) {
     s32 handleIdx;             // r1+0x14
