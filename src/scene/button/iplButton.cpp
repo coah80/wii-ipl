@@ -7,6 +7,7 @@
 #include "iplSystem.h"
 
 char lbl_816966F9[] = "B_Stop";
+char lbl_816967B5[] = "T_Stop";
 
 namespace ipl {
     namespace scene {
@@ -414,7 +415,7 @@ namespace ipl {
 
                     // Rumble!!!
                     if (con != NULL) {
-                        con->rumble();
+                        con->rumble(0);
                     }
 
                     // Show balloon
@@ -875,7 +876,7 @@ namespace ipl {
         }
 
         void OptOutButton::setText(u32 msgId) {
-            nw4r::lyt::TextBox* textBox = nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(mpLayout->FindPaneByName("T_Stop"));
+            nw4r::lyt::TextBox* textBox = nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(mpLayout->FindPaneByName(lbl_816967B5));
             textBox->SetString(System::getMessage(msgId));
         }
 
@@ -897,7 +898,7 @@ namespace ipl {
                     snd::getSystem()->startSE("WIPL_SE_BT_TARGETTING");
 
                     // Rumble!!... with no null check on `con`.
-                    con->rumble();
+                    con->rumble(0);
                 }
                 mbHovered++;
             }
