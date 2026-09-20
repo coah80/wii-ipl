@@ -274,6 +274,26 @@ char* strpbrk(const char* s1, const char* s2) {
     return 0;
 }
 
+size_t strspn(const char* s1, const char* s2) {
+    unsigned char table[32] = {0};
+    unsigned char* p;
+    unsigned long c;
+
+    p = (unsigned char*)s2 - 1;
+    while (c = *++p) {
+        table[(c >> 3) & 0x1f] |= (unsigned char)(1 << (c & 7));
+    }
+
+    p = (unsigned char*)s1 - 1;
+    while (c = *++p) {
+        if (!(table[(c >> 3) & 0x1f] & (unsigned char)(1 << (c & 7)))) {
+            break;
+        }
+    }
+
+    return p - (unsigned char*)s1;
+}
+
 char* strstr(const char* str, const char* pat) {
     unsigned char* s1 = (unsigned char*)str - 1;
     unsigned char* p1 = (unsigned char*)pat - 1;
