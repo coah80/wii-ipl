@@ -563,7 +563,22 @@ namespace textinput {
 
         void LayoutByNW4R::updateCandidate() {
             mTextArea.StopScroll();
-            Base::updateCandidate();
+            u32 i;
+            wchar_t* text;
+            CandidateBoxCaller::Candidates* current;
+            CandidateBoxCaller::Candidates* candidates = mpCandidates;
+            if (candidates != NULL) {
+                current = candidates;
+                text = candidates->szwcPredicted[0];
+                i = 0;
+                for (; i < candidates->mNumCandidate; i++) {
+                    if (text[0] == L' ' || text[0] == L'　') {
+                        current->szwcPredicted[0][0] = 0xE057;
+                    }
+                    text += ARRAY_LENGTH(candidates->szwcPredicted[0]);
+                    current = reinterpret_cast<CandidateBoxCaller::Candidates*>(reinterpret_cast<u8*>(current) + sizeof(current->szwcPredicted[0]));
+                }
+            }
             gui::PaneComponent* p = mpPaneManager->searchPaneComponent(isOn() ? "B_OnBtn" : "B_OffBtn");
             if (p != NULL) {
                 p->lockInitialize(true);
