@@ -152,6 +152,7 @@ namespace ipl {
             virtual int getClassicTrigFlag() const override;     // 0x4C
             virtual int getClassicReleaseFlag() const override;  // 0x50
             virtual KPADStatus* getKPADStatus() const override;  // 0x64
+            virtual PADStatus* getPADStatus() const override;    // 0x68
             virtual bool isValidBtn() const override;            // 0x6C
             virtual int getReleaseFlag() const override;
             virtual int getHoldFlag() const override;

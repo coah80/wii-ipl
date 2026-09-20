@@ -124,6 +124,10 @@ namespace ipl {
             return NULL;
         }
 
+        PADStatus* Interface::getPADStatus() const {
+            return NULL;
+        }
+
         int Interface::getHoldFlag() const {
             return 0;
         }
