@@ -58,6 +58,7 @@ static ISD_Error sduCommand(s32 fd, u32 cmd, u32 cmdType, u32 respType, u32 arg,
 static ISD_Error sduDatabuswidth(SDDev* dev, u32 buswidth);
 static ISD_Error sduGetSCR(SDDev* dev, u32* data) NO_INLINE;
 static ISD_Error sduGetOCR(SDDev* dev, u32* data);
+extern ISD_Error ISD_ReadMultiBlockAsync(SDDev* dev, u32 offset, u8* cmdResp, u32 cmdRespSize, u32 param_5, u32 param_6);
 
 IOSError __sdCb(s32 result, void* arg) {
     __sdCbArg* data = (__sdCbArg*)arg;
@@ -339,6 +340,10 @@ ISD_Error ISD_ProbeCard(u32 slot) {
     }
 
     return ret;
+}
+
+ISD_Error ISD_ReadBlock(SDDev* dev, u32 offset, u8* cmdResp, u32 cmdRespSize) {
+    return ISD_ReadMultiBlockAsync(dev, offset, cmdResp, cmdRespSize, 0, 0);
 }
 
 ISD_Error ISD_MountCard(u32 slot, SDDev** dev) {
