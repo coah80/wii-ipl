@@ -29,6 +29,7 @@ extern "C" void _savegpr_28();
 extern "C" void _restgpr_28();
 extern "C" void __ptmf_scall();
 extern "C" void __ct__Q33ipl4math4VEC2Fff();
+extern "C" void set__Q33ipl4math4VEC2Fff();
 extern "C" void __vt__Q33ipl10controller4Base();
 extern "C" void __vt__Q33ipl10controller10Revolution();
 extern "C" void __dt__Q33ipl10controller10RevolutionFv();
@@ -1113,6 +1114,111 @@ namespace ipl {
                 ret.y = 1.0f / 0.0f;
             }
             return ret;
+        }
+
+        extern "C" asm void getDpdProjectionPos__Q33ipl10controller7ClassicCFv() {
+            nofralloc
+            stwu r1, -0x50(r1)
+            mflr r0
+            stw r0, 0x54(r1)
+            stw r31, 0x4c(r1)
+            mr r31, r3
+            bl isValidDpd__Q33ipl10controller10RevolutionCFv
+            cmpwi r3, 0
+            beq classic_projection_check_stick
+            lwz r4, 0x20(r31)
+            addi r3, r1, 0x18
+            lfs f1, 0x20(r4)
+            lfs f2, 0x24(r4)
+            bl set__Q33ipl4math4VEC2Fff
+            b classic_projection_have_src
+        classic_projection_check_stick:
+            lwz r0, 0x2c(r31)
+            cmpwi r0, 0
+            beq classic_projection_invalid
+            addi r3, r1, 0x18
+            addi r4, r31, 0x24
+            bl __as__Q33ipl4math4VEC2FRCQ33ipl4math4VEC2
+            b classic_projection_have_src
+        classic_projection_invalid:
+            lfs f0, lbl_81694450
+            stfs f0, 0x18(r1)
+            stfs f0, 0x1c(r1)
+        classic_projection_have_src:
+            lfs f1, 0x18(r1)
+            addi r3, r1, 0x30
+            lfs f0, 0x1c(r1)
+            stfs f1, 0x8(r1)
+            stfs f0, 0xc(r1)
+            bl __ct__Q34nw4r2ut4RectFv
+            addi r3, r1, 0x30
+            bl getProjectionRect__Q23ipl6SystemFPQ34nw4r2ut4Rect
+            lfs f1, 0x30(r1)
+            addi r3, r1, 0x10
+            lfs f3, 0x34(r1)
+            addi r4, r1, 0x8
+            lfs f2, 0x38(r1)
+            addi r5, r1, 0x20
+            lfs f0, 0x3c(r1)
+            stfs f1, 0x20(r1)
+            lfs f1, lbl_81694458
+            stfs f3, 0x24(r1)
+            stfs f2, 0x28(r1)
+            stfs f0, 0x2c(r1)
+            bl KPADGetProjectionPos
+            bl SCGetAspectRatio
+            clrlwi r0, r3, 24
+            cmplwi r0, 1
+            bne classic_projection_no_aspect
+            lfs f1, 0x10(r1)
+            lfs f2, lbl_8169445C
+            lfs f0, 0x14(r1)
+            fmuls f1, f1, f2
+            fmuls f0, f0, f2
+            stfs f1, 0x10(r1)
+            stfs f0, 0x14(r1)
+        classic_projection_no_aspect:
+            lfs f0, 0x30(r1)
+            lfs f2, lbl_81694460
+            lfs f1, 0x10(r1)
+            fsubs f0, f0, f2
+            fcmpo cr0, f0, f1
+            ble classic_projection_right
+            stfs f0, 0x10(r1)
+            b classic_projection_done
+        classic_projection_right:
+            lfs f0, 0x38(r1)
+            fadds f0, f2, f0
+            fcmpo cr0, f0, f1
+            bge classic_projection_top
+            stfs f0, 0x10(r1)
+            b classic_projection_done
+        classic_projection_top:
+            lfs f0, 0x34(r1)
+            lfs f1, 0x14(r1)
+            fsubs f0, f0, f2
+            fcmpo cr0, f0, f1
+            ble classic_projection_bottom
+            stfs f0, 0x14(r1)
+            b classic_projection_done
+        classic_projection_bottom:
+            lfs f0, 0x3c(r1)
+            fadds f0, f2, f0
+            fcmpo cr0, f0, f1
+            bge classic_projection_done
+            stfs f0, 0x14(r1)
+        classic_projection_done:
+            lfs f1, 0x10(r1)
+            addi r3, r1, 0x18
+            lfs f2, 0x14(r1)
+            bl set__Q33ipl4math4VEC2Fff
+            lwz r31, 0x4c(r1)
+            lwz r0, 0x54(r1)
+            lwz r3, 0x18(r1)
+            lwz r4, 0x1c(r1)
+            mtlr r0
+            addi r1, r1, 0x50
+            blr
         }
     }  // namespace controller
 }  // namespace ipl
