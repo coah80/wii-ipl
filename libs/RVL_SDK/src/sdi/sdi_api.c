@@ -449,6 +449,90 @@ out:
     return ret;
 }
 
+ISD_Error ISD_WriteMultiBlockAsync(SDDev* dev, u32 offset, u8* cmdResp, u32 cmdRespSize, u32 param_5, u32 param_6) {
+    ISD_Error ret;
+    u32 status;
+
+    if (__sdHeapId[0] < 0) {
+        return SD_ERROR_FATAL;
+    }
+
+    if (dev->SDState == 0) {
+        return SD_ERROR_FATAL;
+    }
+
+    if (dev->SDDevSize == 0) {
+        if (ISD_GetCardSize(dev, NULL, NULL, NULL) < IPC_RESULT_OK) {
+            goto out;
+        }
+    }
+
+    if (offset + cmdRespSize > dev->SDDevSize) {
+        return -4;
+    }
+
+    OSLockMutex(&__reqMutex);
+    if (__sdReq != 0) {
+        OSUnlockMutex(&__reqMutex);
+        return SD_ERROR_FATAL;
+    }
+
+    __sdReq = 1;
+    OSUnlockMutex(&__reqMutex);
+
+    if (dev->SDState == 2) {
+        u32 zero = 0;
+        u32 resp[4];
+        u32 resp2[4];
+
+        ret = sduCommand(dev->SDDevFd, 7, 3, 2, dev->SDDevRca, 0, 0, 0, zero, resp2, (void*)zero, (void*)zero);
+        if (ret == IPC_RESULT_OK) {
+            dev->SDState = 1;
+            ret = sduCommand(dev->SDDevFd, 0x10, 3, 1, 0x200, 0, 0, 0, zero, resp, (void*)zero, (void*)zero);
+            if (ret == IPC_RESULT_OK) {
+                ret = sduDatabuswidth(dev, 4);
+                if (ret == IPC_RESULT_OK) {
+                    {
+                        IOSFd fd = dev->SDDevFd;
+                        u32* cmdBuffer = __sdCmdBuffer;
+                        cmdBuffer[0] = 1;
+                        ret = IOS_Ioctl(fd, 6, __sdCmdBuffer, 4, NULL, 0);
+                    }
+                    if (ret != IPC_RESULT_OK) {
+                        ret = SD_ERROR_FATAL;
+                    }
+                }
+            }
+        }
+
+        if (ret != IPC_RESULT_OK) {
+            __sdReq = 0;
+            goto out;
+        }
+    }
+
+    ret = IOS_Ioctl(dev->SDDevFd, 11, NULL, 0, &status, 4);
+    if (ret >= IPC_RESULT_OK) {
+        if ((status & 0x100000) == 0) {
+            offset <<= 9;
+        }
+
+        DCFlushRange(cmdResp, cmdRespSize << 9);
+
+        ret = sduCommand(dev->SDDevFd, 0x19, 3, 1, offset, (u32)cmdResp, cmdRespSize, 0x200, 1, __sdResp2, (void*)param_5, (void*)param_6);
+        if (ret != IPC_RESULT_OK) {
+            __sdReq = 0;
+        }
+
+        if (param_5 == 0) {
+            __sdReq = 0;
+        }
+    }
+
+out:
+    return ret;
+}
+
 ISD_Error ISD_MountCard(u32 slot, SDDev** dev) {
     IOSError ret = IPC_RESULT_OK;
 
@@ -541,49 +625,6 @@ out:
     return ret;
 }
 
-ISD_Error sduDatabuswidth(SDDev* dev, u32 buswidth) {
-    u32 resp[4];
-    u32 cmdArg = buswidth == 4 ? 2 : 0;
-    u32 hcReg;
-    ISD_Error ret;
-
-    ret = sduCommand(dev->SDDevFd, 0x37, 3, 1, dev->SDDevRca, 0, 0, 0, 0, resp, NULL, NULL);
-    if (ret != SD_ERROR_SUCCESS) {
-        return ret;
-    }
-
-    ret = sduCommand(dev->SDDevFd, 6, 3, 1, cmdArg, 0, 0, 0, 0, resp, NULL, NULL);
-    if (ret != SD_ERROR_SUCCESS) {
-        return ret;
-    }
-
-    ret = ISD_GetHCRegister(dev, 0x28, &hcReg, 1);
-    if (ret != SD_ERROR_SUCCESS) {
-        return ret;
-    }
-
-    if (cmdArg != 0) {
-        hcReg |= 2;
-    } else {
-        hcReg &= ~0x02;
-    }
-
-    if (__sdHeapId[0] < 0) {
-        return SD_ERROR_FATAL;
-    }
-
-    __sdReg[0] = 0x28;
-    __sdReg[3] = 1;
-    __sdReg[4] = hcReg;
-
-    ret = IOS_Ioctl(dev->SDDevFd, 1, __sdReg, 0x18, NULL, 0);
-    if (ret != IPC_RESULT_OK) {
-        ret = SD_ERROR_FATAL;
-    }
-
-    return ret;
-}
-
 ISD_Error ISD_ReadCardRegister(SDDev* dev, u32 cmd, u32* cmdResp, u32 cmdRespSize) {
     ISD_Error ret;
     u32 cmdArg = dev->SDDevRca;
@@ -664,6 +705,49 @@ ISD_Error ISD_ReadCardRegister(SDDev* dev, u32 cmd, u32* cmdResp, u32 cmdRespSiz
     __sdReq = 0;
 
 out:
+    return ret;
+}
+
+ISD_Error sduDatabuswidth(SDDev* dev, u32 buswidth) {
+    u32 resp[4];
+    u32 cmdArg = buswidth == 4 ? 2 : 0;
+    u32 hcReg;
+    ISD_Error ret;
+
+    ret = sduCommand(dev->SDDevFd, 0x37, 3, 1, dev->SDDevRca, 0, 0, 0, 0, resp, NULL, NULL);
+    if (ret != SD_ERROR_SUCCESS) {
+        return ret;
+    }
+
+    ret = sduCommand(dev->SDDevFd, 6, 3, 1, cmdArg, 0, 0, 0, 0, resp, NULL, NULL);
+    if (ret != SD_ERROR_SUCCESS) {
+        return ret;
+    }
+
+    ret = ISD_GetHCRegister(dev, 0x28, &hcReg, 1);
+    if (ret != SD_ERROR_SUCCESS) {
+        return ret;
+    }
+
+    if (cmdArg != 0) {
+        hcReg |= 2;
+    } else {
+        hcReg &= ~0x02;
+    }
+
+    if (__sdHeapId[0] < 0) {
+        return SD_ERROR_FATAL;
+    }
+
+    __sdReg[0] = 0x28;
+    __sdReg[3] = 1;
+    __sdReg[4] = hcReg;
+
+    ret = IOS_Ioctl(dev->SDDevFd, 1, __sdReg, 0x18, NULL, 0);
+    if (ret != IPC_RESULT_OK) {
+        ret = SD_ERROR_FATAL;
+    }
+
     return ret;
 }
 
