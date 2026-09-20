@@ -82,7 +82,7 @@ namespace EGG {
         }
 
         nw4r::snd::NandSoundArchive* pNandArchive = &mNandSoundArchive;
-        mpArchive = pNandArchive;
+        mpArchive = &mNandSoundArchive;
 
         if (pNandArchive->Open(pPath)) {
             mbIsOpeningArchive = true;
@@ -94,10 +94,14 @@ namespace EGG {
                 return NULL;
             }
 
-            u32 setupSize = mSoundArchivePlayer.GetRequiredMemSize(pNandArchive);
-            u32 strmSize = mSoundArchivePlayer.GetRequiredStrmBufferSize(pNandArchive);
-            void* pStrmBuffer = pHeap->Alloc(strmSize, NULL, NULL);
-            void* pSetupBuffer = pHeap->Alloc(setupSize, NULL, NULL);
+            void* pStrmBuffer;
+            u32 setupSize;
+            u32 strmSize;
+            void* pSetupBuffer;
+            setupSize = mSoundArchivePlayer.GetRequiredMemSize(pNandArchive);
+            strmSize = mSoundArchivePlayer.GetRequiredStrmBufferSize(pNandArchive);
+            pStrmBuffer = pHeap->Alloc(strmSize, NULL, NULL);
+            pSetupBuffer = pHeap->Alloc(setupSize, NULL, NULL);
 
             if (!mSoundArchivePlayer.Setup(pNandArchive, pSetupBuffer, setupSize, pStrmBuffer, strmSize)) {
                 mbIsOpeningArchive = false;
