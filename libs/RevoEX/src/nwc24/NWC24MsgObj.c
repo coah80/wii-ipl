@@ -241,6 +241,32 @@ NWC24Err NWC24SetMsgMBNoReply(NWC24MsgObj* msg, BOOL mbNoReplyFlag) {
     return NWC24_OK;
 }
 
+NWC24Err NWC24SetMsgMBRegDate(NWC24MsgObj* msg, u16 year, u8 month, u8 day) {
+    NWC24MsgObjPrivate* msgObj = (NWC24MsgObjPrivate*)msg;
+    NWC24Err err;
+
+    if (!(msgObj->type & MSG_OBJ_INITIALIZED) || (msgObj->type & MSG_OBJ_DELIVERING)) {
+        return NWC24_ERR_PROTECTED;
+    }
+
+    if (!(msgObj->type & MSG_OBJ_FOR_MENU)) {
+        return NWC24_ERR_NOT_SUPPORTED;
+    }
+
+    if (year < 2000 || year > 2035) {
+        return NWC24_ERR_INVALID_VALUE;
+    }
+
+    err = NWC24iIsValidDate(year, month, day);
+    if (err != NWC24_OK) {
+        return err;
+    }
+
+    msgObj->msgBoardFlags.raw = (msgObj->msgBoardFlags.raw & 0xFFFF0000) |
+                                ((((year - 2000) << 9) | (month << 5) | day) & 0xFFFF);
+    return NWC24_OK;
+}
+
 NWC24Err NWC24SetMsgAppId(NWC24MsgObj* msg, u32 appId) {
     NWC24MsgObjPrivate* msgObj = (NWC24MsgObjPrivate*)msg;
 
@@ -253,6 +279,33 @@ NWC24Err NWC24SetMsgAppId(NWC24MsgObj* msg, u32 appId) {
     }
 
     msgObj->appId = appId;
+    return NWC24_OK;
+}
+
+NWC24Err NWC24SetMsgLedPattern(NWC24MsgObj* msg, int ledPattern) {
+    NWC24MsgObjPrivate* msgObj = (NWC24MsgObjPrivate*)msg;
+
+    if (!(msgObj->type & MSG_OBJ_INITIALIZED) || (msgObj->type & MSG_OBJ_DELIVERING)) {
+        return NWC24_ERR_PROTECTED;
+    }
+
+    if (ledPattern == 0) {
+        return NWC24_ERR_INVALID_VALUE;
+    }
+
+    if (!(msgObj->type & MSG_OBJ_FOR_RECIPIENT) || !(msgObj->type & MSG_OBJ_FOR_MENU)) {
+        return NWC24_ERR_NOT_SUPPORTED;
+    }
+
+    if (msgObj->ledPattern != 0 && !(msgObj->ledPattern & (1 << 18))) {
+        return NWC24_ERR_NOT_SUPPORTED;
+    }
+
+    if (!NWC24IsMsgLibOpenedByTool() && NWC24GetAppId() != 0x48414541 && (u32)ledPattern >= 0x4000) {
+        return NWC24_ERR_INVALID_VALUE;
+    }
+
+    msgObj->ledPattern = ledPattern | (1 << 18);
     return NWC24_OK;
 }
 
@@ -341,6 +394,27 @@ NWC24Err NWC24GetMsgAttachedSize(const NWC24MsgObj* msg, u32 attachIndex, u32* a
     return NWC24_OK;
 }
 
+NWC24Err NWC24GetMsgAttachedType(const NWC24MsgObj* msg, u32 attachIndex, NWC24MIMEType* attachType) {
+    const NWC24MsgObjPrivate* msgObj = (const NWC24MsgObjPrivate*)msg;
+    u32 flags;
+    NWC24MIMEType type;
+
+    if (attachIndex >= NWC24_MSG_ATTACHMENT_MAX || attachIndex >= msgObj->numAttached) {
+        return NWC24_ERR_INVALID_VALUE;
+    }
+
+    flags = msgObj->type;
+    type = msgObj->attachedType[attachIndex];
+    *attachType = type;
+    if ((flags & MSG_OBJ_FOR_PUBLIC) && !(flags & (1 << 12))) {
+        if (type != NWC24_TEXT_PLAIN && type != NWC24_TEXT_HTML && type != NWC24_IMAGE_JPEG && type != NWC24_APPLICATION_OCTET_STREAM) {
+            *attachType = 0;
+        }
+    }
+
+    return NWC24_OK;
+}
+
 NWC24Err NWC24GetMsgFromId(const NWC24MsgObj* msg, NWC24UserId* fromId) {
     const NWC24MsgObjPrivate* msgObj = (const NWC24MsgObjPrivate*)msg;
 
@@ -356,5 +430,23 @@ NWC24Err NWC24GetMsgDate(const NWC24MsgObj* msg, OSCalendarTime* msgDate) {
     const NWC24MsgObjPrivate* msgObj = (const NWC24MsgObjPrivate*)msg;
 
     NWC24iMinutesToOSCalendarTime(msgDate, msgObj->unk_0x28);
+    return NWC24_OK;
+}
+
+NWC24Err NWC24GetMsgIconNewSign(const NWC24MsgObj* msg, u32* iconNewSign) {
+    const NWC24MsgObjPrivate* msgObj = (const NWC24MsgObjPrivate*)msg;
+    u32 flags = msgObj->type;
+    u32 iconNew;
+
+    if ((flags & MSG_OBJ_FOR_MENU) || (flags & MSG_OBJ_FOR_PUBLIC)) {
+        return NWC24_ERR_NOT_FOUND;
+    }
+
+    iconNew = msgObj->iconNew;
+    *iconNewSign = iconNew;
+    if (iconNew == 0 || iconNew == (1 << 31)) {
+        return NWC24_ERR_NOT_FOUND;
+    }
+
     return NWC24_OK;
 }
