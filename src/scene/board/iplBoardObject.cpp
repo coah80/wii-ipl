@@ -552,15 +552,17 @@ namespace ipl {
         }
 
         BOOL BoardObject::create_picture(picture* picture, EGG::Heap* picHeap, EGG::Heap* workHeap, u8* src, u32 srcSize) {
+            u32 pictureSize;
+            u32 rgb565Size;
             BOOL result = FALSE;
 
             picture->width = ODHGetWidth(src);
             picture->height = ODHGetHeight(src);
 
-            u32 pictureSize = picture->width * picture->height;
+            pictureSize = picture->width * picture->height;
 
             if (picture->width > 0 && picture->width <= 512 && picture->height > 0 && picture->height <= 456) {
-                u32 rgb565Size = pictureSize * 2;
+                rgb565Size = pictureSize * 2;
                 picture->mpRGB565 = new (picHeap, DEFAULT_ALIGN) u8[rgb565Size];
 
                 u32 workSize = ODHGetWorkSize(pictureSize);
