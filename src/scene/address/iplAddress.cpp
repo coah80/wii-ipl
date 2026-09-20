@@ -2,6 +2,7 @@
 
 extern "C" char smArg__Q23ipl6System;
 extern "C" void checkUserId__Q33ipl5nwc247ManagerFUx();
+extern "C" void getErrCode__Q33ipl5nwc247ManagerFv();
 
 extern "C" asm void getChild__Q33ipl5scene4BaseFv() {
     nofralloc
@@ -75,4 +76,19 @@ isValidId_L2:
     lwz r5, 0(r4)
     lwz r6, 4(r4)
     b checkUserId__Q33ipl5nwc247ManagerFUx
+}
+
+extern "C" asm void getErrCode__Q33ipl5scene15FriendListCacheCFv() {
+    nofralloc
+    lis r3, smArg__Q23ipl6System@ha
+    addi r3, r3, smArg__Q23ipl6System@l
+    lbz r0, 0x2bc(r3)
+    cmpwi r0, 0
+    beq getErrCode_L1
+    li r3, 0
+    b getErrCode_L2
+getErrCode_L1:
+    lwz r3, 0x8c(r3)
+getErrCode_L2:
+    b getErrCode__Q33ipl5nwc247ManagerFv
 }
