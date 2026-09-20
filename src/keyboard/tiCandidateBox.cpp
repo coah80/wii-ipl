@@ -1469,7 +1469,7 @@ namespace textinput {
             if (mgr()->isInScroll() && event != 1 && event != 0) {
                 return;
             }
-            if (!mgr()->searchAnmPane("W_predictWindow")->isInAnimation() || event == 1) {
+            if (!mgr()->searchAnmPane(lbl_8165DA08)->isInAnimation() || event == 1) {
                 if (!mgr()->isInvalid()) {
                     switch (event) {
                         case 4:
