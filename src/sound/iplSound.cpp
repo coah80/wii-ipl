@@ -256,6 +256,10 @@ namespace ipl {
             nw4r::snd::detail::AxManager::GetInstance().ClearEffect(nw4r::snd::AUX_C, frame);
         }
 
+        BOOL System::isSEActive(const char* sndName) {
+            return FIsSEActive(sndName) != NULL;
+        }
+
         long System::clipGELT_S32(long value, long lo, long hi) {
             long range = hi - lo;
 
