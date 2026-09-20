@@ -17,6 +17,8 @@ extern "C" void _savegpr_25();
 extern "C" void _restgpr_25();
 extern "C" void _savegpr_29();
 extern "C" void _restgpr_29();
+extern "C" void _savegpr_27();
+extern "C" void _restgpr_27();
 extern "C" void __ptmf_scall();
 extern "C" void __ct__Q33ipl4math4VEC2Fff();
 
@@ -293,6 +295,47 @@ iplController_Revolution_upTrg_L1:
     addi r11, r1, 0x20
     mr r3, r31
     bl _restgpr_29
+    lwz r0, 0x24(r1)
+    mtlr r0
+    addi r1, r1, 0x20
+    blr
+}
+
+extern "C" asm void decide__Q33ipl10controller6MasterCFv() {
+    nofralloc
+    stwu r1, -0x20(r1)
+    mflr r0
+    stw r0, 0x24(r1)
+    addi r11, r1, 0x20
+    bl _savegpr_27
+    mr r27, r3
+    li r29, 0
+    li r28, 0
+    li r31, 0
+iplController_Master_decide_L1:
+    lwz r3, 4(r27)
+    li r30, 0
+    lwzx r3, r3, r31
+    cmpwi r3, 0
+    beq iplController_Master_decide_L2
+    lwz r12, 0(r3)
+    lwz r12, 0x2c(r12)
+    mtctr r12
+    bctrl
+    cmpwi r3, 0
+    beq iplController_Master_decide_L2
+    li r30, 1
+iplController_Master_decide_L2:
+    addi r28, r28, 1
+    or r3, r29, r30
+    cmpwi r28, 4
+    addi r31, r31, 4
+    addic r0, r3, -1
+    subfe r29, r0, r3
+    blt iplController_Master_decide_L1
+    addi r11, r1, 0x20
+    mr r3, r29
+    bl _restgpr_27
     lwz r0, 0x24(r1)
     mtlr r0
     addi r1, r1, 0x20
