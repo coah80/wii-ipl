@@ -46,3 +46,8 @@ extern "C" asm void isReady__Q33ipl5scene4BaseCFv() {
     li r3, 0
     blr
 }
+
+extern "C" asm void prepare__Q33ipl5scene7AddressFv() {
+    nofralloc
+    blr
+}
