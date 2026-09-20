@@ -1109,7 +1109,7 @@ namespace ipl {
         void ChannelObj::calcBalloonAnim() {
             switch (unk_0x68) {
                 case 1: {
-                    if ((++unk_0x70) >= 20.0f) {
+                    if ((reinterpret_cast<u32&>(unk_0x70) += 1) >= 20.0f) {
                         setBalloonAnim(2);
                         break;
                     }
