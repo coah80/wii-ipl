@@ -15,6 +15,8 @@ const f32 lbl_8160D2C0[] = {0.2, 0.3, 0, 0};
 extern const f32 lbl_81694454 = 0.0f;
 extern "C" void _savegpr_25();
 extern "C" void _restgpr_25();
+extern "C" void _savegpr_29();
+extern "C" void _restgpr_29();
 extern "C" void __ptmf_scall();
 extern "C" void __ct__Q33ipl4math4VEC2Fff();
 
@@ -107,6 +109,47 @@ iplController_Revolution_repeat_L1:
     lwz r0, 0x14(r1)
     mtlr r0
     addi r1, r1, 0x10
+    blr
+}
+
+extern "C" asm void down__Q33ipl10controller7ClassicCFUl() {
+    nofralloc
+    stwu r1, -0x20(r1)
+    mflr r0
+    stw r0, 0x24(r1)
+    addi r11, r1, 0x20
+    bl _savegpr_29
+    lwz r12, 0(r3)
+    mr r29, r3
+    mr r30, r4
+    li r31, 0
+    lwz r12, 0x6c(r12)
+    mtctr r12
+    bctrl
+    cmpwi r3, 0
+    beq iplController_Classic_down_L1
+    lwz r3, 0x20(r29)
+    li r4, 1
+    lwz r0, 0(r3)
+    and r0, r0, r30
+    clrlwi. r0, r0, 16
+    bne iplController_Classic_down_L2
+    lwz r3, 0x60(r3)
+    srwi r0, r30, 16
+    and. r0, r3, r0
+    bne iplController_Classic_down_L2
+    li r4, 0
+iplController_Classic_down_L2:
+    cmpwi r4, 0
+    beq iplController_Classic_down_L1
+    li r31, 1
+iplController_Classic_down_L1:
+    addi r11, r1, 0x20
+    mr r3, r31
+    bl _restgpr_29
+    lwz r0, 0x24(r1)
+    mtlr r0
+    addi r1, r1, 0x20
     blr
 }
 
