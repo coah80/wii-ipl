@@ -197,6 +197,8 @@ namespace ipl {
             virtual ~Revolution();
 
             virtual bool down(u32 button) const override;  // 0x10
+            virtual bool downTrg(u32 button) const override;
+            virtual bool upTrg(u32 button) const override;
             virtual int pinch() const override;
             virtual int pinchTrg() const override;
             virtual int pinchOffTrg() const override;
