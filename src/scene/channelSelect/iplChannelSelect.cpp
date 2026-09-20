@@ -89,6 +89,7 @@ namespace ipl {
         extern "C" void setOrtho__Q33ipl7utility8GraphicsFUl();
         extern "C" char mscBasePaneNames__Q33ipl5scene13ChannelSelect[];
         extern "C" u32 mscMaskPaneName__Q33ipl5scene13ChannelSelect;
+        extern "C" const char lbl_8164DFE1[];
         extern "C" void draw__Q33ipl6layout6ObjectFPQ34nw4r3lyt4Pane();
         extern "C" void SetVisible__Q34nw4r3lyt4PaneFb();
         extern "C" void drawChannelThumbnails__Q33ipl5scene13ChannelSelectFv();
@@ -2970,7 +2971,7 @@ calcNormalMoveChanOut_ChannelSelect_L1:
                 if (con->isValidDpd()) {
                     mDragPos = con->getDpdPos();
                 } else {
-                    mDragPos = nw4r::math::VEC2(0.0f, 0.0f);
+                    mDragPos = nw4r::math::VEC2(lbl_81694948, lbl_81694948);
                 }
 
                 mConChan = con->getChannel();
@@ -3000,7 +3001,7 @@ calcNormalMoveChanOut_ChannelSelect_L1:
                 mbModuleSceneChange = true;
                 unk_0x185 = true;
 
-                snd::getSystem()->startSEwithPos("WIPL_SE_CH_HOLD", mDragPos.x);
+                snd::getSystem()->startSEwithPos(lbl_8164DFE1, mDragPos.x);
 
                 mState = STATE_NORMAL_GRAB;
             }
