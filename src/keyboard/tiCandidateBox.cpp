@@ -1189,7 +1189,7 @@ namespace textinput {
 
         void UITextArea::Clear() {
             for (u32 i = 0; i < NUM_PANES; i++) {
-                mpTextBoxPane[i]->getTextPane()->SetString(L"", 0);
+                mpTextBoxPane[i]->getTextPane()->SetString(const_cast<const wchar_t*>(lbl_816973C8), 0);
             }
         }
 
