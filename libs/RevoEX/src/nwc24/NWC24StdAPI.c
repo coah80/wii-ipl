@@ -31,3 +31,10 @@ int STD_strnlen(const char* str, u32 len) {
     }
     return i;
 }
+
+int Mail_isdigit(int ch) {
+    if (ch >= '0' && ch <= '9') {
+        return 1;
+    }
+    return 0;
+}
