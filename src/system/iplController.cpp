@@ -200,6 +200,10 @@ namespace ipl {
             return -1;
         }
 
+        BOOL Interface::rumble(int type) {
+            return FALSE;
+        }
+
         void Interface::read() {
         }
 
