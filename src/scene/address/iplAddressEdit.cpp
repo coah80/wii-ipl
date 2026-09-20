@@ -47,6 +47,15 @@ void ipl::scene::AddressEdit::stt_msg_nwc24_error() {
     }
 }
 
+extern "C" asm void __ct__Q43ipl8keyboard7Manager15KeyboardSettingFQ43ipl8keyboard7Manager12KeyboardTypePCwUlUl() {
+    nofralloc
+    stw r4, 0(r3)
+    stw r5, 4(r3)
+    stw r6, 8(r3)
+    stw r7, 0xc(r3)
+    blr
+}
+
 const wchar_t* ipl::scene::AddressEdit::String::getDispCodeLong() const {
     if (reinterpret_cast<const u8*>(this)[0x422] == 0) {
         return;
