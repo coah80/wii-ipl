@@ -17,6 +17,9 @@ extern "C" void _seBlk__Q23ipl3snd();
 extern "C" nw4r::snd::SoundHandle* _mainBGMHandle__Q23ipl3snd;
 extern "C" const f32 lbl_816946A4;
 extern "C" const f32 lbl_816946AC;
+extern "C" const f32 lbl_816946A8;
+extern "C" const f32 lbl_816946B0;
+extern "C" const f32 lbl_816946B4;
 extern "C" void _savegpr_29();
 extern "C" void _restgpr_29();
 extern "C" void _savegpr_24();
@@ -525,6 +528,8 @@ namespace ipl {
             sBannerSoundPlayer.setMasterVolume(0.9f);
         }
 
+        extern "C" const f32 lbl_816946A4 = 0.0f;
+
         void System::stopBannerSound(int unk) {
             sBannerSoundPlayer.stop(unk);
         }
@@ -705,21 +710,21 @@ namespace ipl {
             if (block->handle.detail_GetAttachedSound() != NULL) {
                 block->handle.detail_GetAttachedSound()->SetPan(pan);
             }
-            f32 pitch = 2.0f * y / rect.right;
-            if (1.0f < pitch) {
-                pitch = 1.0f;
+            f32 pitch = lbl_816946A8 * y / rect.right;
+            if (lbl_816946AC < pitch) {
+                pitch = lbl_816946AC;
             }
             if (block->handle.detail_GetAttachedSound() != NULL) {
                 block->handle.detail_GetAttachedSound()->SetVolume(pitch, 0);
             }
-            if (30.0f < y) {
-                f32 pitch2 = y / 30.0f;
+            if (lbl_816946B0 < y) {
+                f32 pitch2 = y / lbl_816946B0;
                 if (block->handle.detail_GetAttachedSound() != NULL) {
                     block->handle.detail_GetAttachedSound()->SetPitch(pitch2);
                 }
-            } else if (60.0f < y) {
+            } else if (lbl_816946B4 < y) {
                 if (block->handle.detail_GetAttachedSound() != NULL) {
-                    block->handle.detail_GetAttachedSound()->SetPitch(1.0f);
+                    block->handle.detail_GetAttachedSound()->SetPitch(lbl_816946A8);
                 }
             }
             return (int)block;
