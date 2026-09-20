@@ -16,6 +16,11 @@
 #include <cstring>
 #include <cwchar>
 
+extern "C" void _savegpr_27();
+extern "C" void _restgpr_27();
+extern "C" void getLanguage__Q23ipl6SystemFv();
+extern "C" void getRegion__Q23ipl6SystemFv();
+
 namespace ipl {
     namespace channel {
         u32 Manager::mNumFinished;
@@ -82,6 +87,8 @@ namespace ipl {
             },
         };
         // clang-format on
+
+        extern "C" const u32 scLangLookup__Q23ipl7channel[][16];
 
         Manager::Manager(EGG::Heap* heap)
             : mpHeap(heap), mState(INIT), mbCanRefresh(0), unk_0x1B81(false), mbSetDiskBannerInfo(false), mPrevNandResult(NAND_RESULT_OK),
@@ -462,35 +469,85 @@ namespace ipl {
             System::getSaveData()->setChanInfo(page1, index1, blankInfo);
         }
 
-        wchar_t* Manager::getTitleName(int page, int index, int nameIndex) const {
-            if (!mChannels[page][index].loadedBnr) {
-                return NULL;
-            }
-
-            u32 lang;
-
-            // Get title name via language
-            if (mChannels[page][index].metaHdr->names[System::getLanguage()][nameIndex][0] != 0) {
-                return mChannels[page][index].metaHdr->names[System::getLanguage()][nameIndex];
-            }
-
-            // If that failed? Load any available title name
-
-            u32* lookup = (u32*)scLangLookup[System::getRegion()];
-
-            for (int i = 0; i < ARRAY_LENGTH(scLangLookup[0]); i++) {
-                lang = lookup[i];
-                if (mChannels[page][index].metaHdr->names[lang][nameIndex][0] != 0) {
-                    return mChannels[page][index].metaHdr->names[lang][nameIndex];
-                }
-
-                if (lang == -1) {
-                    break;
-                }
-            }
-
-            // If that also failed? Force to load japanese name.
-            return mChannels[page][index].metaHdr->names[lookup[SC_LANG_JAPANESE]][nameIndex];
+        extern "C" asm void getTitleName__Q33ipl7channel7ManagerCFiii() {
+            nofralloc
+            stwu r1, -0x20(r1)
+            mflr r0
+            stw r0, 0x24(r1)
+            addi r11, r1, 0x20
+            bl _savegpr_27
+            mulli r28, r4, 0x540
+            mr r27, r3
+            mulli r29, r5, 0x70
+            add r0, r3, r28
+            add r31, r0, r29
+            lbz r0, 0x24(r31)
+            cmpwi r0, 0
+            bne getTitleName_L1
+            li r3, 0
+            b getTitleName_L8
+        getTitleName_L1:
+            mulli r30, r6, 0x2a
+            bl getLanguage__Q23ipl6SystemFv
+            mulli r0, r3, 0x54
+            lwz r3, 0x10(r31)
+            add r0, r30, r0
+            add r3, r3, r0
+            lhz r0, 0x5c(r3)
+            cmpwi r0, 0
+            beq getTitleName_L3
+            bl getLanguage__Q23ipl6SystemFv
+            mulli r3, r3, 0x54
+            lwz r0, 0x10(r31)
+            add r0, r0, r3
+            add r3, r0, r30
+            addi r3, r3, 0x5c
+            b getTitleName_L8
+        getTitleName_L3:
+            bl getRegion__Q23ipl6SystemFv
+            lis r5, scLangLookup__Q23ipl7channel@ha
+            add r4, r27, r28
+            slwi r3, r3, 6
+            li r0, 0x10
+            addi r5, r5, scLangLookup__Q23ipl7channel@l
+            add r6, r29, r4
+            add r8, r5, r3
+            li r3, 0
+            mtctr r0
+        getTitleName_L4:
+            lwzx r7, r8, r3
+            lwz r0, 0x10(r6)
+            mulli r5, r7, 0x54
+            add r0, r0, r30
+            add r4, r5, r0
+            lhz r0, 0x5c(r4)
+            cmpwi r0, 0
+            beq getTitleName_L6
+            lwz r0, 0x10(r31)
+            add r0, r0, r5
+            add r3, r0, r30
+            addi r3, r3, 0x5c
+            b getTitleName_L8
+        getTitleName_L6:
+            addis r0, r7, 1
+            cmplwi r0, 0xffff
+            beq getTitleName_L7
+            addi r3, r3, 4
+            bdnz getTitleName_L4
+        getTitleName_L7:
+            lwz r0, 0(r8)
+            lwz r3, 0x10(r31)
+            mulli r0, r0, 0x54
+            add r0, r3, r0
+            add r3, r0, r30
+            addi r3, r3, 0x5c
+        getTitleName_L8:
+            addi r11, r1, 0x20
+            bl _restgpr_27
+            lwz r0, 0x24(r1)
+            mtlr r0
+            addi r1, r1, 0x20
+            blr
         }
 
         BOOL Manager::checkNeedUpdate(int page, int index) const {
