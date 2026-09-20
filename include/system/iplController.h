@@ -110,7 +110,7 @@ namespace ipl {
              * @return The Horizon X and Y as `ipl::math::VEC2`.
              */
             virtual math::VEC2 getHorizon() const;      // 0x5C
-            virtual int getDpdDistance() const;         // 0x60
+            virtual f32 getDpdDistance() const;         // 0x60
             virtual KPADStatus* getKPADStatus() const;  // 0x64
             virtual PADStatus* getPADStatus() const;    // 0x68
             virtual bool isValidBtn() const;            // 0x6C
@@ -153,6 +153,7 @@ namespace ipl {
             virtual int getClassicReleaseFlag() const override;  // 0x50
             virtual KPADStatus* getKPADStatus() const override;  // 0x64
             virtual PADStatus* getPADStatus() const override;    // 0x68
+            virtual f32 getDpdDistance() const override;         // 0x60
             virtual bool isValidBtn() const override;            // 0x6C
             virtual int getReleaseFlag() const override;
             virtual int getHoldFlag() const override;

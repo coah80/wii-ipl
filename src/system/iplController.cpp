@@ -12,6 +12,7 @@
 #include "system/iplSystem.h"
 
 const f32 lbl_8160D2C0[] = {0.2, 0.3, 0, 0};
+extern const f32 lbl_81694454 = 0.0f;
 
 namespace ipl {
     namespace math {
@@ -126,6 +127,10 @@ namespace ipl {
 
         PADStatus* Interface::getPADStatus() const {
             return NULL;
+        }
+
+        f32 Interface::getDpdDistance() const {
+            return *((volatile const f32*)&lbl_81694454);
         }
 
         int Interface::getHoldFlag() const {
