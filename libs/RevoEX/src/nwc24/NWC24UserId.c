@@ -17,3 +17,19 @@ static u8 getbyte(NWC24UserId value, u8 index) {
 static NWC24UserId setbyte(NWC24UserId value, u8 index, u8 set) {
     return (value & ~(((u64)0xFF << (index * 8)))) | (((u64)set << (index * 8)));
 }
+
+NWC24Err NWC24iCheckUserIdCRC(NWC24UserId id) {
+    u64 value = getUnScrambleId(id);
+    int i;
+
+    for (i = 0; i < 0x2B; i++) {
+        if ((value >> (0x35 - (i + 1))) & 1) {
+            value ^= (u64)0x635 << (0x2A - i);
+        }
+    }
+
+    if (value != 0) {
+        return NWC24_ERR_ID_CRC;
+    }
+    return NWC24_OK;
+}
