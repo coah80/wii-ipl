@@ -203,6 +203,7 @@ namespace textinput {
             "B_prdc_scrl_Rght\0\0\0"
             "P_prdc_scrl_Rght\0\0\0"
             "\0\0\0";
+        extern "C" const char lbl_8165DA08[16] = "W_predictWindow";
         #pragma pop
 
         void CandidateBoxCaller::Candidates::addCandidate(const wchar_t* wcString) {
@@ -562,19 +563,20 @@ namespace textinput {
         }
 
         void LayoutByNW4R::startTurnOn(bool on) {
+            const char* base = lbl_8165D2D0;
             if (isInScroll()) {
                 return;
             }
-            if (!searchAnmPane("W_predictWindow")->isInAnimation() && isOn() != on) {
+            if (!searchAnmPane(base + 0x738)->isInAnimation() && isOn() != on) {
                 mTextWindow.TurnOnOff(on);
 
                 if (!on) {
                     searchAnmPane(lbl_816973D0)->onAnmEvent(nw4rmanager::AnmPane::PE_0);
                     mpEventObserver->onSE(sound::SE_PREDICT_OFF);
                 } else {
-                    searchAnmPane(lbl_8165D2F8.tail)->onAnmEvent(nw4rmanager::AnmPane::PE_0);
-                    searchAnmPane(lbl_8165D984 + 68)->changeAnimation(ANM_Normal);
-                    searchAnmPane(lbl_8165D984 + 108)->changeAnimation(ANM_Normal);
+                    searchAnmPane(base + 0x6a8)->onAnmEvent(nw4rmanager::AnmPane::PE_0);
+                    searchAnmPane(base + 0x6f8)->changeAnimation(ANM_Normal);
+                    searchAnmPane(base + 0x720)->changeAnimation(ANM_Normal);
                     mpEventObserver->onSE(sound::SE_PREDICT_ON);
                 }
             }
