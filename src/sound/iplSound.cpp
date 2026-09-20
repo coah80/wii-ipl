@@ -310,6 +310,26 @@ namespace ipl {
             return FIsSEActive(id) != NULL;
         }
 
+        tagSSeInfo* System::getFreeSEBlock(bool force) {
+            int index = clipGELT_S32(unk_0x620[0] + 1, 0, 16);
+            unk_0x620[0] = index;
+            int i = 0;
+            for (; i < 16; i++) {
+                index = clipGELT_S32(unk_0x620[0] + i, 0, 16);
+                if (_seBlk[index].handle.IsAttachedSound()) {
+                    continue;
+                }
+                unk_0x620[0] = index;
+                return &_seBlk[unk_0x620[0]];
+            }
+
+            if (force) {
+                return &_seBlk[unk_0x620[0]];
+            }
+
+            return NULL;
+        }
+
         long System::clipGELT_S32(long value, long lo, long hi) {
             long range = hi - lo;
 
