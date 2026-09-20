@@ -135,7 +135,7 @@ s32 __CARDFreeBlock(s32 chan, u16 nBlock, CARDCallback callback) {
         return CARD_RESULT_NOCARD;
     }
 
-    fat = __CARDGetFatBlock(card);
+    fat = __CARDGetFatBlockU16(card);
     while (nBlock != 0xFFFF) {
         if (!CARDIsValidBlockNo(card, nBlock)) {
             return CARD_RESULT_BROKEN;
