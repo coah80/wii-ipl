@@ -17,6 +17,7 @@ namespace ipl {
 
         BOOL m_isLocked;
         extern nw4r::snd::SoundHandle _bgmBlk;
+        extern tagSSeInfo _seBlk[16];
         extern nw4r::snd::SoundHandle* _mainBGMHandle;
 
         static const nw4r::snd::FxReverbHi::ReverbHiParam reverbHiParam = {
@@ -230,6 +231,29 @@ namespace ipl {
                 }
             }
             return (int)block;
+        }
+
+        void System::stopAllSound(int unk) {
+            int frame;
+            tagSSeInfo* block;
+            int i = 0;
+
+            for (; i < 16; i++) {
+                block = &_seBlk[i];
+                block->handle.Stop(unk);
+                block->name = NULL;
+                block->id = 0xffff;
+            }
+
+            if (_mainBGMHandle != NULL) {
+                _mainBGMHandle->Stop(unk);
+            }
+
+            sBannerSoundPlayer.stop(unk);
+            frame = unk * 1000 / 60;
+            nw4r::snd::detail::AxManager::GetInstance().ClearEffect(nw4r::snd::AUX_A, frame);
+            nw4r::snd::detail::AxManager::GetInstance().ClearEffect(nw4r::snd::AUX_B, frame);
+            nw4r::snd::detail::AxManager::GetInstance().ClearEffect(nw4r::snd::AUX_C, frame);
         }
 
         long System::clipGELT_S32(long value, long lo, long hi) {
