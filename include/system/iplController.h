@@ -170,6 +170,9 @@ namespace ipl {
             virtual math::VEC2 getDpdProjectionPos() const override;
             virtual math::VEC2 getHorizon() const override;
             virtual f32 getMainStickX() const override;
+            virtual f32 getMainStickY() const override;
+            virtual f32 getSubStickX() const override;
+            virtual f32 getSubStickY() const override;
             virtual BOOL rumble(int type) override;
             virtual void read() override;
         };
