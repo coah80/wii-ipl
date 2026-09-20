@@ -11,7 +11,7 @@ namespace nw4r {
     namespace snd {
         class SoundHandle : private ut::NonCopyable {
         public:
-            SoundHandle() : mSound(NULL) {}
+            SoundHandle() NO_INLINE : mSound(NULL) {}
             ~SoundHandle() { DetachSound(); }
 
             void detail_AttachSound(detail::BasicSound* sound);

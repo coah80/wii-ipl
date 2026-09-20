@@ -10,10 +10,15 @@
 namespace ipl {
     namespace snd {
         struct tagSSeInfo {
+            tagSSeInfo();
+
             nw4r::snd::SoundHandle handle;
             const char* name;
             u32 id;
         };
+
+        tagSSeInfo::tagSSeInfo() {
+        }
 
         BOOL m_isLocked;
         extern nw4r::snd::SoundHandle _bgmBlk;
