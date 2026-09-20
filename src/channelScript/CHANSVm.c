@@ -23,6 +23,7 @@ static const void* NETGetSHA1Interface(void);
 static void NETHMACInit(NETHMACContext* ctx, const void* interface, const void* key, u32 keyLen);
 static void NETHMACUpdate(NETHMACContext* ctx, const void* data, u32 len);
 static void NETHMACGetDigest(NETHMACContext* ctx, void* digest);
+extern char lbl_81697583[];
 
 #define CHANSVmDebugLength 1024
 #define VM_FRAME_ARENA_SIZE 8192
@@ -65,7 +66,7 @@ void CHANSVmDebugPrintf(const vmString format, ...) {
 
     str[CHANSVmDebugLength - 1] = str[CHANSVmDebugLength - 2] = 0;
 
-    OSReport("%s", str);
+    OSReport(lbl_81697583, str);
 }
 
 #define CHANS_VM_PRINTF(line, msg, ...)                                                                                                              \
@@ -676,6 +677,7 @@ const CHANSVmObjHdr CHANSVmConstStringObjectUndefined_[] = {{{(void*)&CHANSVmCon
                                                             {{(void*)&lbl_81616C98, 0}, 0x03800100, vmNull},
                                                             {{(void*)&lbl_81616CA8, 0}, 0x03800100, vmNull},
                                                             {{(void*)&lbl_81616CB8, 0}, 0x00800000, vmNull}};
+char lbl_81697583[] = "%s";
 
 const CHANSVmFloatConstantList lbl_81616D28[] = {
     { "Infinity", (double*)&VmInf },
