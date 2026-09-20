@@ -1604,6 +1604,8 @@ namespace ipl {
             }
         }
 
+#pragma push
+#pragma ppc_iro_level 0
         void Board::return_to_freelist_if_diff_date() {
             BoardObject* object = mObjList.getNext(NULL);
             goto start_loop;
@@ -1622,6 +1624,7 @@ namespace ipl {
                 }
             }
         }
+#pragma pop
 
         int Board::get_date_label(const utility::Date& date) {
             int ret = 1;
