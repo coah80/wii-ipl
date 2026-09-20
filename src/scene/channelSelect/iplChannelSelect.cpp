@@ -20,6 +20,7 @@ namespace ipl {
     namespace scene {
         extern "C" char smArg__Q23ipl6System;
         extern "C" char sSystem__Q23ipl3snd;
+        extern "C" const double lbl_81694998;
         extern "C" void* m_handle__Q23ipl11TVRCManager;
         extern "C" void calcChanZoomParam__Q33ipl5scene13ChannelSelectFv();
         extern "C" void setChanZoomOrtho__Q33ipl5scene13ChannelSelectFv();
@@ -41,9 +42,12 @@ namespace ipl {
         extern "C" void calcNormalMoveChanSave__Q33ipl5scene13ChannelSelectFv();
         extern "C" void calcNormalMoveChanOut__Q33ipl5scene13ChannelSelectFv();
         extern "C" void calcNormalDragScrl__Q33ipl5scene13ChannelSelectFv();
+        extern "C" void getRndm__Q23ipl6SystemFv();
+        extern "C" void get_u16__Q33ipl4math6RandomFv();
         extern "C" void initCursorAnim__Q33ipl5scene10ChannelObjFb();
         extern "C" void initBalloonAnim__Q33ipl5scene10ChannelObjFb();
         extern "C" void List_GetNext__Q24nw4r2utFPCQ34nw4r2ut4ListPCv();
+        extern "C" void List_GetNth__Q24nw4r2utFPCQ34nw4r2ut4ListUs();
         extern "C" void getChannelBasePane__Q33ipl5scene13ChannelSelectFi();
         extern "C" void initPane__Q33ipl3gui11PaneManagerFPQ34nw4r3lyt4Pane();
         extern "C" char jumptable_8164DD14[];
@@ -112,6 +116,7 @@ namespace ipl {
         extern "C" const char lbl_81694951 = 0;
         extern "C" const char lbl_81694952 = 0;
         extern "C" const char lbl_81694953 = 255;
+        extern "C" const double lbl_81694998 = 4503601774854144.0;
         #pragma pop
 
         static Board* getBoard() {
@@ -2628,13 +2633,60 @@ calcNormalRestart_ChannelSelect_L7:
             }
         }
 
-        void ChannelSelect::calcNormalMoveChanOut() {
-            if (!mpMoveLytMask->getAnim(1)->isPlaying() && !mpMoveLytObject->getAnim(1)->isPlaying() && !mpMoveLytDrop->getAnim(1)->isPlaying()) {
-                f32 frame = System::getRndm()->get_u16() % 2000;
-                unk_0x2C8->setCurrentFrame(frame);
-                restartChannelModules();
-                mState = STATE_NORMAL;
-            }
+        extern "C" asm void calcNormalMoveChanOut__Q33ipl5scene13ChannelSelectFv() {
+            nofralloc
+            stwu r1, -0x20(r1)
+            mflr r0
+            li r4, 0x1
+            stw r0, 0x24(r1)
+            stw r31, 0x1c(r1)
+            mr r31, r3
+            lwz r5, 0xac(r3)
+            addi r3, r5, 0x28c
+            bl List_GetNth__Q24nw4r2utFPCQ34nw4r2ut4ListUs
+            lwz r0, 0x14(r3)
+            cmpwi r0, 0x1
+            beq calcNormalMoveChanOut_ChannelSelect_L1
+            lwz r3, 0xb0(r31)
+            li r4, 0x1
+            addi r3, r3, 0x28c
+            bl List_GetNth__Q24nw4r2utFPCQ34nw4r2ut4ListUs
+            lwz r0, 0x14(r3)
+            cmpwi r0, 0x1
+            beq calcNormalMoveChanOut_ChannelSelect_L1
+            lwz r3, 0xb4(r31)
+            li r4, 0x1
+            addi r3, r3, 0x28c
+            bl List_GetNth__Q24nw4r2utFPCQ34nw4r2ut4ListUs
+            lwz r0, 0x14(r3)
+            cmpwi r0, 0x1
+            beq calcNormalMoveChanOut_ChannelSelect_L1
+            bl getRndm__Q23ipl6SystemFv
+            bl get_u16__Q33ipl4math6RandomFv
+            clrlwi r7, r3, 16
+            li r6, 0x7d0
+            divw r5, r7, r6
+            lis r0, 0x4330
+            stw r0, 0x8(r1)
+            mr r3, r31
+            lfd f1, lbl_81694998
+            lwz r4, 0x2c8(r31)
+            mullw r0, r5, r6
+            subf r0, r0, r7
+            xoris r0, r0, 0x8000
+            stw r0, 0xc(r1)
+            lfd f0, 0x8(r1)
+            fsubs f0, f0, f1
+            stfs f0, 0xc(r4)
+            bl restartChannelModules__Q33ipl5scene13ChannelSelectFv
+            li r0, 0x1
+            stw r0, 0xc0(r31)
+calcNormalMoveChanOut_ChannelSelect_L1:
+            lwz r0, 0x24(r1)
+            lwz r31, 0x1c(r1)
+            mtlr r0
+            addi r1, r1, 0x20
+            blr
         }
 
         void ChannelSelect::calcNormalDragScrl() {
