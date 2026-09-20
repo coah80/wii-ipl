@@ -452,8 +452,15 @@ namespace ipl {
         const wchar_t* bodyText = create_text(event);
 
         const void* attachData[RBR_ATTACHMENT_MAX] = {(void*)event, NULL};
-        u32 attachSize[RBR_ATTACHMENT_MAX] = {sizeof(EventBuffer), 0};
-        RBRAttachmentType attachType[RBR_ATTACHMENT_MAX] = {RBRAttachmentType_PlayTimeLog, RBRAttachmentType_None};
+        static const u32 attachSize0 = sizeof(EventBuffer);
+        static const u32 attachSize1 = 0;
+        static const RBRAttachmentType attachType0 = RBRAttachmentType_PlayTimeLog;
+        static const RBRAttachmentType attachType1 = RBRAttachmentType_None;
+        u32 attachSize[RBR_ATTACHMENT_MAX] = {*reinterpret_cast<const volatile u32*>(&attachSize0),
+                                              *reinterpret_cast<const volatile u32*>(&attachSize1)};
+        RBRAttachmentType attachType[RBR_ATTACHMENT_MAX] = {
+            *reinterpret_cast<const volatile RBRAttachmentType*>(&attachType0),
+            *reinterpret_cast<const volatile RBRAttachmentType*>(&attachType1)};
 
         RBRHeader* header = (RBRHeader*)buffer;
 
