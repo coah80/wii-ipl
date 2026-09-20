@@ -122,6 +122,7 @@ namespace ipl {
         extern "C" const char lbl_8164DE6D[] = "N_DiscUpdateIcon";
         extern "C" const char lbl_8164DFF1[] = "WIPL_SE_CH_SET";
         extern "C" const char lbl_8164E000[] = "WIPL_SE_CH_NOT_MOVE";
+        extern "C" const char lbl_8164E024[] = "WIPL_SE_GRAY_BUTTON";
         #pragma pop
 
         #pragma push
@@ -3150,13 +3151,13 @@ calcNormalMoveChanOut_ChannelSelect_L1:
                                     if (System::isSafeMode()) {
                                         System::getDialog()->callBtn0(MESG_CHAN_SEL_SAFE_MODE, 180);
                                         mpInstance->mState = ChannelSelect::STATE_NORMAL_SAFE_MODE_DIALOG;
-                                        snd::getSystem()->startSE("WIPL_SE_GRAY_BUTTON");
+                                        snd::getSystem()->startSE(lbl_8164E024);
                                     } else {
                                         mpInstance->setSomething();
                                         mpInstance->mState = ChannelSelect::STATE_START_BOARD_SCENE;
                                         mpInstance->tryToStartBoardScene();
                                         TVRCManager::getHandle()->setEnable(FALSE);
-                                        snd::getSystem()->startSE("WIPL_SE_DECIDE");
+                                        snd::getSystem()->startSE(lbl_8164E038);
                                     }
                                 } else if (Button::cmpButtonName(paneName, Button::BTN_SETTING) == 0) {
                                     button->setEventHandler(NULL);
@@ -3166,7 +3167,7 @@ calcNormalMoveChanOut_ChannelSelect_L1:
                                     System::getFader()->fadeOut();
                                     TVRCManager::getHandle()->setEnable(FALSE);
                                     mpInstance->mState = ChannelSelect::STATE_START_SETTING_SCENE;
-                                    snd::getSystem()->startSE("WIPL_SE_DECIDE");
+                                    snd::getSystem()->startSE(lbl_8164E038);
                                 } else if (Button::cmpButtonName(paneName, Button::BTN_ARROW_LEFT) == 0 && mpInstance->mCurrentPage > 0) {
                                     button->animation(Button::IDANIM_ARROW_LEFT_SELECT);
                                     mpInstance->preparePageScrolling(ChannelSelect::STATE_PREP_LEFT_PAGE_SCROLL);
