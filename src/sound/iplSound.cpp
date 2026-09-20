@@ -293,6 +293,19 @@ namespace ipl {
             return NULL;
         }
 
+        tagSSeInfo* System::FIsSEActive(u32 id) {
+            int i;
+
+            for (i = 0; i < 16; i++) {
+                tagSSeInfo* block = &_seBlk[i];
+                if (id == block->id && block->handle.IsAttachedSound()) {
+                    return block;
+                }
+            }
+
+            return NULL;
+        }
+
         BOOL System::isSEActive(u32 id) {
             return FIsSEActive(id) != NULL;
         }
