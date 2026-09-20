@@ -175,6 +175,23 @@ namespace ipl {
             blr
         }
 
+        extern "C" asm void muteOffBGM__Q33ipl3snd6SystemFi() {
+            nofralloc
+            lwz r3, _mainBGMHandle__Q23ipl3snd
+            cmpwi r3, 0
+            beqlr
+            lwz r3, 0(r3)
+            cmpwi r3, 0
+            beqlr
+            beqlr
+            lwz r12, 0(r3)
+            lfs f1, lbl_816946AC
+            lwz r12, 0x38(r12)
+            mtctr r12
+            bctr
+            blr
+        }
+
         void System::shutup(BOOL shutUpDMA) {
             if (m_isLocked == shutUpDMA) {
                 return;
