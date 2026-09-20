@@ -25,6 +25,8 @@ extern "C" void _savegpr_28();
 extern "C" void _restgpr_28();
 extern "C" void _savegpr_20();
 extern "C" void _restgpr_20();
+extern "C" void _savegpr_22();
+extern "C" void _restgpr_22();
 
 namespace ipl {
     // clang-format off
@@ -144,32 +146,88 @@ namespace ipl {
             return file->isFinished();
         }
 
-        ESTitleId Manager::hasChannel(ESTitleId titleId, int* outIndex, int* outPage) const {
-            u64 typeMask;
-            if (ES_TITLE_TYPE(titleId) != 0) {
-                typeMask = 0xFFFFFFFFFFFFFFFF;
-            } else {
-                typeMask = 0x00000000FFFFFFFF;
-            }
-
-            for (int page = 0; page < MAX_CHANNEL_PAGE; page++) {
-                for (int index = 0; index < MAX_CHANNEL_INDEX; index++) {
-                    if (mData.chanInfo[page][index].primaryType == channel::PRIMARY_TYPE_CHANNEL) {
-                        ESTitleId tId = ES_TITLE_ID(mData.chanInfo[page][index].titleType, mData.chanInfo[page][index].titleCode);
-                        if (titleId == (tId & typeMask) ||
-                            TITLE_NO_REGION(tId & typeMask) == TITLE_NO_REGION(titleId & typeMask) && TITLE_REGION(titleId) == TITLE_REGION_ALL) {
-                            if (outIndex) {
-                                *outIndex = index;
-                            }
-                            if (outPage) {
-                                *outPage = page;
-                            }
-                            return tId;
-                        }
-                    }
-                }
-            }
-            return 0;
+        asm ESTitleId Manager::hasChannel(register ESTitleId titleId, register int* outIndex, register int* outPage) const {
+            nofralloc
+            stwu r1, -0x30(r1)
+            mflr r0
+            stw r0, 0x34(r1)
+            addi r11, r1, 0x30
+            bl _savegpr_22
+            li r0, -1
+            and. r0, r5, r0
+            beq hasChannel_L1
+            li r10, -1
+            li r9, -1
+            b hasChannel_L2
+        hasChannel_L1:
+            li r10, -1
+            li r9, 0
+        hasChannel_L2:
+            li r4, -0x100
+            li r0, -1
+            and r12, r10, r4
+            li r31, 0
+            and r11, r9, r0
+            li r27, 0
+            li r28, 0xc
+        hasChannel_L3:
+            add r0, r3, r27
+            li r30, 0
+            li r26, 0
+            mtctr r28
+        hasChannel_L4:
+            add r22, r0, r26
+            lbz r4, 0x30(r22)
+            cmplwi r4, 3
+            bne hasChannel_L5
+            lwz r4, 0x3c(r22)
+            lwz r29, 0x38(r22)
+            and r23, r4, r10
+            and r22, r29, r9
+            xor r23, r6, r23
+            xor r22, r5, r22
+            or. r22, r23, r22
+            beq hasChannel_L6
+            and r22, r4, r12
+            and r24, r6, r12
+            and r23, r29, r11
+            and r25, r5, r11
+            xor r24, r22, r24
+            xor r25, r23, r25
+            or. r25, r24, r25
+            bne hasChannel_L5
+            clrlwi r25, r6, 0x18
+            xori r25, r25, 0x41
+            cmpwi r25, 0
+            bne hasChannel_L5
+        hasChannel_L6:
+            cmpwi r7, 0
+            beq hasChannel_L7
+            stw r31, 0(r7)
+        hasChannel_L7:
+            cmpwi r8, 0
+            beq hasChannel_L8
+            stw r30, 0(r8)
+        hasChannel_L8:
+            mr r3, r29
+            b hasChannel_L9
+        hasChannel_L5:
+            addi r30, r30, 1
+            addi r26, r26, 0x10
+            bdnz hasChannel_L4
+            addi r31, r31, 1
+            addi r27, r27, 0xc0
+            cmpwi r31, 4
+            blt hasChannel_L3
+            li r4, 0
+            li r3, 0
+        hasChannel_L9:
+            addi r11, r1, 0x30
+            bl _restgpr_22
+            lwz r0, 0x34(r1)
+            mtlr r0
+            addi r1, r1, 0x30
+            blr
         }
 
         asm int Manager::getNumValidChannel() const {
