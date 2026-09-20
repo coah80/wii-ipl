@@ -1529,8 +1529,7 @@ namespace ipl {
         }
 
         void ChannelSelect::reserveSceneChangeDerived(int page, int index) {
-            channel::SEntry& entry = System::getChannelManager()->getChannel(page, index);
-            s32 sceneID = entry.loadedBnr ? entry.info.sceneID : 0;
+            s32 sceneID = System::getChannelManager()->getSceneID(page, index);
 
             if (sceneID != 0) {
                 createChildScene(SCENE_CHANNEL_TITLE, this, NULL, this);
