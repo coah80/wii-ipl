@@ -7,6 +7,10 @@
 #define K1 0x80808080
 #define K2 0xfefefeff
 
+static const double zero = 0.0;
+static char* initial = (char*)&zero;
+static char* current = (char*)&zero;
+
 char* strcpy(char* dst, const char* src) {
     register unsigned char* destb;
     register unsigned char* fromb;
@@ -312,6 +316,49 @@ size_t strcspn(const char* s1, const char* s2) {
     }
 
     return p - (unsigned char*)s1;
+}
+
+char* strtok(char* str, const char* delimiters) {
+    unsigned char table[32] = {0};
+    unsigned char* p;
+    unsigned long c;
+
+    if (str) {
+        current = str;
+    }
+
+    p = (unsigned char*)delimiters - 1;
+    while (c = *++p) {
+        table[(c >> 3) & 0x1f] |= (unsigned char)(1 << (c & 7));
+    }
+
+    p = (unsigned char*)current - 1;
+    while (c = *++p) {
+        if (!(table[(c >> 3) & 0x1f] & (unsigned char)(1 << (c & 7)))) {
+            break;
+        }
+    }
+
+    if (!c) {
+        current = initial;
+        return 0;
+    }
+
+    str = (char*)p;
+    while (c = *++p) {
+        if (table[(c >> 3) & 0x1f] & (unsigned char)(1 << (c & 7))) {
+            break;
+        }
+    }
+
+    if (!c) {
+        current = initial;
+    } else {
+        current = (char*)(p + 1);
+        *p = 0;
+    }
+
+    return str;
 }
 
 char* strstr(const char* str, const char* pat) {
