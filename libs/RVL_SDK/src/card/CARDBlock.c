@@ -10,6 +10,10 @@ void* __CARDGetFatBlock(CARDControl* card) {
     return card->currentFat;
 }
 
+static u16* __CARDGetFatBlockU16(CARDControl* card) {
+    return card->currentFat;
+}
+
 static void WriteCallback(s32 chan, s32 result) {
     CARDControl* card;
     CARDCallback callback;
@@ -85,7 +89,7 @@ s32 __CARDAllocBlock(s32 chan, u32 cBlock, CARDCallback callback) {
         return CARD_RESULT_NOCARD;
     }
 
-    fat = __CARDGetFatBlock(card);
+    fat = __CARDGetFatBlockU16(card);
     if (fat[3] < cBlock) {
         return CARD_RESULT_INSSPACE;
     }
