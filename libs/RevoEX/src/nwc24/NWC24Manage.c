@@ -24,6 +24,7 @@ static u8 InternalStatBuf[32];
 static NWC24Err NWC24OpenLibInternal(NWC24Work* work, s32 state);
 NWC24Err InitAllFiles(NWC24Work* work, BOOL forceConfig, BOOL forceMBox, BOOL forceFriendList, BOOL forceDlTask);
 NWC24Err NWC24iInitMsgBoxDir(BOOL force);
+NWC24Err AnalyzeErrorCode(s32 errorCode, u32 usage, u32* score);
 
 void NWC24iRegister() {
     if (Registered) {
@@ -293,7 +294,7 @@ NWC24Err NWC24GetSchedulerError(s32* numErrors, s32* errorCode) {
 extern void _savegpr_27();
 extern void _restgpr_27();
 extern void NCDiGetEnabledConfigList();
-extern void AnalyzeScdErrors();
+extern NWC24Err AnalyzeScdErrors(s32* errorCode, u32 usage);
 extern void NWC24iMBoxCheck();
 extern void SCCheckStatus();
 extern void SCGetWCFlags();
@@ -603,6 +604,65 @@ NWC24Err NWC24iInitMsgBoxDir(BOOL force) {
         return NWC24_ERR_FATAL;
     }
 
+    return NWC24_OK;
+}
+
+NWC24Err AnalyzeScdErrors(s32* errorCode, u32 usage) {
+    NWC24ScdStat* stat;
+    NWC24Err result;
+    u32 totalScore;
+    u32 numErrors;
+    u32 i;
+    u32 count;
+    s32 index;
+    u32 score;
+
+    stat = (NWC24ScdStat*)nwc24Work->mainWork;
+    totalScore = 0;
+    *errorCode = 0;
+    result = NWC24iGetSchedulerStat(stat, sizeof(NWC24ScdStat));
+    if (result == NWC24_ERR_FATAL || result == NWC24_ERR_NOMEM || result == NWC24_ERR_INTERNAL_IPC) {
+        *errorCode = NWC24iMakeCode(NWC24_ERRCODE_1091XX, result);
+        return NWC24_ERR_FATAL;
+    }
+
+    if (result != NWC24_OK) {
+        return NWC24_OK;
+    }
+
+    if ((usage & 1) != 0) {
+        if ((stat->mailTaskTrace & 3) == 3) {
+            return NWC24_OK;
+        }
+    } else if ((usage & 2) != 0 && (stat->dlTaskTrace & 15) == 15) {
+        return NWC24_OK;
+    }
+
+    numErrors = stat->numErrors;
+    if (numErrors < 32) {
+        i = numErrors;
+    } else {
+        i = 32;
+    }
+    count = 0;
+    index = (s32)(numErrors + 31) % 32;
+
+    for (; count < i; count++) {
+        result = AnalyzeErrorCode(stat->errorLog[index], usage, &score);
+        if (result != NWC24_OK) {
+            totalScore += score;
+            if (totalScore >= 60) {
+                *errorCode = stat->errorLog[index];
+                return result;
+            }
+        }
+
+        if (--index < 0) {
+            index = 31;
+        }
+    }
+
+    *errorCode = 0;
     return NWC24_OK;
 }
 
