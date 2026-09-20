@@ -19,6 +19,8 @@ extern "C" void _savegpr_29();
 extern "C" void _restgpr_29();
 extern "C" void _savegpr_27();
 extern "C" void _restgpr_27();
+extern "C" void _savegpr_28();
+extern "C" void _restgpr_28();
 extern "C" void __ptmf_scall();
 extern "C" void __ct__Q33ipl4math4VEC2Fff();
 
@@ -336,6 +338,40 @@ iplController_Master_decide_L2:
     addi r11, r1, 0x20
     mr r3, r29
     bl _restgpr_27
+    lwz r0, 0x24(r1)
+    mtlr r0
+    addi r1, r1, 0x20
+    blr
+}
+
+extern "C" asm void setForceInvalid__Q33ipl10controller6MasterFb() {
+    nofralloc
+    stwu r1, -0x20(r1)
+    mflr r0
+    stw r0, 0x24(r1)
+    addi r11, r1, 0x20
+    bl _savegpr_28
+    mr r28, r3
+    mr r29, r4
+    li r30, 0
+    li r31, 0
+iplController_Master_setForceInvalid_L1:
+    lwz r3, 4(r28)
+    lwzx r3, r3, r31
+    cmpwi r3, 0
+    beq iplController_Master_setForceInvalid_L2
+    lwz r12, 0(r3)
+    mr r4, r29
+    lwz r12, 0x74(r12)
+    mtctr r12
+    bctrl
+iplController_Master_setForceInvalid_L2:
+    addi r30, r30, 1
+    addi r31, r31, 4
+    cmpwi r30, 4
+    blt iplController_Master_setForceInvalid_L1
+    addi r11, r1, 0x20
+    bl _restgpr_28
     lwz r0, 0x24(r1)
     mtlr r0
     addi r1, r1, 0x20

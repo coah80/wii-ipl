@@ -185,6 +185,7 @@ namespace ipl {
             virtual bool upTrg(u32 button) const;
             virtual bool repeat(u32 button) const;
             virtual int decide() const;
+            virtual void setForceInvalid(bool flag);
 
         private:
             bool call(u32 button, bool (Interface::*func)(u32) const) const;
