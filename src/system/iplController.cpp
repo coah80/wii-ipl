@@ -16,6 +16,7 @@ extern const f32 lbl_81694454 = 0.0f;
 extern "C" void _savegpr_25();
 extern "C" void _restgpr_25();
 extern "C" void __ptmf_scall();
+extern "C" void __ct__Q33ipl4math4VEC2Fff();
 
 extern "C" asm void getMainStickX__Q33ipl10controller9InterfaceCFv() {
     nofralloc
@@ -38,6 +39,44 @@ extern "C" asm void getSubStickX__Q33ipl10controller9InterfaceCFv() {
 extern "C" asm void getSubStickY__Q33ipl10controller9InterfaceCFv() {
     nofralloc
     li r3, 0
+    blr
+}
+
+extern "C" asm void getDpdPos__Q33ipl10controller10RevolutionCFv() {
+    nofralloc
+    stwu r1, -0x10(r1)
+    mflr r0
+    lwz r4, 0x20(r3)
+    stw r0, 0x14(r1)
+    addi r3, r1, 8
+    lfs f1, 0x20(r4)
+    lfs f2, 0x24(r4)
+    bl __ct__Q33ipl4math4VEC2Fff
+    lwz r0, 0x14(r1)
+    mr r4, r3
+    lwz r3, 0(r3)
+    lwz r4, 4(r4)
+    mtlr r0
+    addi r1, r1, 0x10
+    blr
+}
+
+extern "C" asm void getHorizon__Q33ipl10controller10RevolutionCFv() {
+    nofralloc
+    stwu r1, -0x10(r1)
+    mflr r0
+    lwz r4, 0x20(r3)
+    stw r0, 0x14(r1)
+    addi r3, r1, 8
+    lfs f1, 0x34(r4)
+    lfs f2, 0x38(r4)
+    bl __ct__Q33ipl4math4VEC2Fff
+    lwz r0, 0x14(r1)
+    mr r4, r3
+    lwz r3, 0(r3)
+    lwz r4, 4(r4)
+    mtlr r0
+    addi r1, r1, 0x10
     blr
 }
 

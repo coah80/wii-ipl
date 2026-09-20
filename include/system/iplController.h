@@ -206,7 +206,9 @@ namespace ipl {
             virtual int getTrigFlag() const override;
             virtual int getHoldFlag() const override;
 
+            virtual math::VEC2 getDpdPos() const override;
             virtual math::VEC2 getDpdProjectionPos() const override;  // 0x58
+            virtual math::VEC2 getHorizon() const override;
 
             virtual bool isValidBtn() const override;  // 0x6C
             virtual bool isValidDpd() const override;  // 0x70
