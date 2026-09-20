@@ -207,6 +207,12 @@ namespace ipl {
         void Interface::read() {
         }
 
+        EGG::Allocator* Manager::mpAllocator;
+
+        void* Manager::alloc(u32 size) {
+            return mpAllocator->alloc(size);
+        }
+
         int Base::decide() const {
             return unk_0x08 == 5;
         }

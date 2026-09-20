@@ -230,7 +230,10 @@ namespace ipl {
             Interface* getMasterController();
             Interface* getYoungController();
 
+            static void* alloc(u32 size);
+
         private:
+            static EGG::Allocator* mpAllocator;
             u8 dummy[0x2F8];
         };
     }  // namespace controller
