@@ -7,8 +7,19 @@
 namespace textinput {
     namespace candidatebox {
 
-        static const char* COMMON_TEXT_ANIM = "T_prdc_Text_00";
-        static const char* COMMON_SCROLL_ANIM = "P_prdc_scrl_Left";
+        #pragma push
+        #pragma section const_type ".data"
+        extern "C" const char lbl_8165D2D0[15] = "T_prdc_Text_00";
+        extern "C" const char lbl_8165D2E0[17] = "P_prdc_scrl_Left";
+        #pragma pop
+
+        #pragma push
+        #pragma section sconst_type ".sdata"
+        extern "C" const char lbl_816973D0[8] = "P_OnBtn";
+        #pragma pop
+
+        static const char* COMMON_TEXT_ANIM = lbl_8165D2D0;
+        static const char* COMMON_SCROLL_ANIM = lbl_8165D2E0;
 
         // name made up, no dwarf (?)
         struct AnimationFile {
@@ -42,7 +53,12 @@ namespace textinput {
             {ANM_InvalidOff, "fs_VK_predictInput_a_invalidMode_OFF.brlan"},
         };
 
-        extern const PaneToAnimation csPaneToAnimation[] = {
+        struct CandidatePaneData {
+            PaneToAnimation panes[26];
+            char tail[12];
+        };
+
+        extern "C" const CandidatePaneData lbl_8165D2F8 __attribute__((aligned(8))) = {{
             {KT_CandidateText, "N_predictInput", 1, NULL, {&csAninationFile[0]}},
             {KT_ScrollButton,
              "P_prdc_scrl_Left",
@@ -173,7 +189,21 @@ namespace textinput {
              6,
              NULL,
              {&csAninationFile[0], &csAninationFile[8], &csAninationFile[9], &csAninationFile[10], &csAninationFile[11], &csAninationFile[12]}},
-        };
+        }, {"P_OffBtn"}};
+
+        #pragma push
+        #pragma section const_type ".data"
+        extern "C" const char lbl_8165D984[132] =
+            "B_OffBtn\0\0\0"
+            "P_JPOffBtn\0"
+            "P_CNOffBtn\0"
+            "P_CNOnBtn\0\0"
+            "B_prdc_scrl_Left\0\0\0"
+            "P_prdc_scrl_Left\0\0\0"
+            "B_prdc_scrl_Rght\0\0\0"
+            "P_prdc_scrl_Rght\0\0\0"
+            "\0\0\0";
+        #pragma pop
 
         void CandidateBoxCaller::Candidates::addCandidate(const wchar_t* wcString) {
             wcsncpy(szwcPredicted[mNumCandidate], wcString, ARRAY_LENGTH(szwcPredicted[0]));
@@ -345,8 +375,8 @@ namespace textinput {
             mTextArea.Init();
             mOnOffButton.Create(this);
             mOnOffButton.Init();
-            mLeftScroll.Create(this, "P_prdc_scrl_Left", "B_prdc_scrl_Left");
-            mRightScroll.Create(this, "P_prdc_scrl_Rght", "B_prdc_scrl_Rght");
+            mLeftScroll.Create(this, lbl_8165D984 + 68, lbl_8165D984 + 48);
+            mRightScroll.Create(this, lbl_8165D984 + 108, lbl_8165D984 + 88);
             mLeftScroll.Init();
             mRightScroll.Init();
             mTextWindow.Create(this, "W_predictWindow");
@@ -354,8 +384,8 @@ namespace textinput {
         }
 
         void LayoutByNW4R::createAnmPane_(MEMAllocator* allocator) {
-            for (u16 i = 0; i < ARRAY_LENGTH(csPaneToAnimation); i++) {
-                const PaneToAnimation& p = csPaneToAnimation[i];
+            for (u16 i = 0; i < ARRAY_LENGTH(lbl_8165D2F8.panes); i++) {
+                const PaneToAnimation& p = lbl_8165D2F8.panes[i];
                 CandidateTextAnmPane* pane = NULL;
                 switch (p.type) {
                     case KT_ScrollButton: {
@@ -475,16 +505,17 @@ namespace textinput {
         }
 
         void LayoutByNW4R::onOnOffButton(bool arg) {
+            const char* base = lbl_8165D2D0;
             mTextWindow.TurnOnOff(!isOn());
             if (isOn()) {
-                searchAnmPane("P_OnBtn")->onAnmEvent(nw4rmanager::AnmPane::PE_0);
+                searchAnmPane(lbl_816973D0)->onAnmEvent(nw4rmanager::AnmPane::PE_0);
                 if (arg) {
                     mpEventObserver->onSE(sound::SE_PREDICT_OFF);
                 }
             } else {
-                searchAnmPane("P_OffBtn")->onAnmEvent(nw4rmanager::AnmPane::PE_0);
-                searchAnmPane("P_prdc_scrl_Left")->changeAnimation(ANM_Normal);
-                searchAnmPane("P_prdc_scrl_Rght")->changeAnimation(ANM_Normal);
+                searchAnmPane(base + 0x6a8)->onAnmEvent(nw4rmanager::AnmPane::PE_0);
+                searchAnmPane(base + 0x6f8)->changeAnimation(ANM_Normal);
+                searchAnmPane(base + 0x720)->changeAnimation(ANM_Normal);
                 if (arg) {
                     mpEventObserver->onSE(sound::SE_PREDICT_ON);
                 }
@@ -538,12 +569,12 @@ namespace textinput {
                 mTextWindow.TurnOnOff(on);
 
                 if (!on) {
-                    searchAnmPane("P_OnBtn")->onAnmEvent(nw4rmanager::AnmPane::PE_0);
+                    searchAnmPane(lbl_816973D0)->onAnmEvent(nw4rmanager::AnmPane::PE_0);
                     mpEventObserver->onSE(sound::SE_PREDICT_OFF);
                 } else {
-                    searchAnmPane("P_OffBtn")->onAnmEvent(nw4rmanager::AnmPane::PE_0);
-                    searchAnmPane("P_prdc_scrl_Left")->changeAnimation(ANM_Normal);
-                    searchAnmPane("P_prdc_scrl_Rght")->changeAnimation(ANM_Normal);
+                    searchAnmPane(lbl_8165D2F8.tail)->onAnmEvent(nw4rmanager::AnmPane::PE_0);
+                    searchAnmPane(lbl_8165D984 + 68)->changeAnimation(ANM_Normal);
+                    searchAnmPane(lbl_8165D984 + 108)->changeAnimation(ANM_Normal);
                     mpEventObserver->onSE(sound::SE_PREDICT_ON);
                 }
             }
@@ -648,8 +679,8 @@ namespace textinput {
         }
 
         void LayoutByNW4R::cancelStateFocusIn() {
-            for (int i = 0; i < ARRAY_LENGTH(csPaneToAnimation); i++) {
-                CandidateTextAnmPane* p = static_cast<CandidateTextAnmPane*>(searchAnmPane(csPaneToAnimation[i].paneName));
+            for (int i = 0; i < ARRAY_LENGTH(lbl_8165D2F8.panes); i++) {
+                CandidateTextAnmPane* p = static_cast<CandidateTextAnmPane*>(searchAnmPane(lbl_8165D2F8.panes[i].paneName));
                 if (p != NULL) {
                     switch (p->getKeyType()) {
                         case KT_CandidateText:
@@ -733,8 +764,8 @@ namespace textinput {
                 case 0x300:
                     setOnOff(true);
                     mpPaneManager->init();
-                    searchAnmPane("P_prdc_scrl_Left")->changeAnimation(ANM_Normal);
-                    searchAnmPane("P_prdc_scrl_Rght")->changeAnimation(ANM_Normal);
+                    searchAnmPane(lbl_8165D984 + 68)->changeAnimation(ANM_Normal);
+                    searchAnmPane(lbl_8165D984 + 108)->changeAnimation(ANM_Normal);
                     if (mbInvalid) {
                         searchAnmPane("W_predictWindow")->changeAnimation(ANM_InvalidOn);
                     }
@@ -1633,15 +1664,15 @@ namespace textinput {
             mpOnPictPane = mgr->searchPaneComponent("P_OnBtn");
             mpOnBoundPane = mgr->searchPaneComponent("B_OnBtn");
             mpOnAnmPane = static_cast<OnOffAnmPane*>(layout->searchAnmPane("P_OnBtn"));
-            mpOffPictPane = mgr->searchPaneComponent("P_OffBtn");
-            mpOffBoundPane = mgr->searchPaneComponent("B_OffBtn");
-            mpOffAnmPane = static_cast<OnOffAnmPane*>(layout->searchAnmPane("P_OffBtn"));
+            mpOffPictPane = mgr->searchPaneComponent(lbl_8165D2F8.tail);
+            mpOffBoundPane = mgr->searchPaneComponent(lbl_8165D984);
+            mpOffAnmPane = static_cast<OnOffAnmPane*>(layout->searchAnmPane(lbl_8165D2F8.tail));
 
-            layout->getLayout()->GetRootPane()->FindPaneByName("P_OffBtn")->GetMaterial()->GetTexture(&mOffTexDefault, 0);
-            layout->getLayout()->GetRootPane()->FindPaneByName("P_JPOffBtn")->GetMaterial()->GetTexture(&mOffTexJP, 0);
-            layout->getLayout()->GetRootPane()->FindPaneByName("P_CNOffBtn")->GetMaterial()->GetTexture(&mOffTexCN, 0);
-            layout->getLayout()->GetRootPane()->FindPaneByName("P_OnBtn")->GetMaterial()->GetTexture(&mOnTexDefault, 0);
-            layout->getLayout()->GetRootPane()->FindPaneByName("P_CNOnBtn")->GetMaterial()->GetTexture(&mOnTexCN, 0);
+            layout->getLayout()->GetRootPane()->FindPaneByName(lbl_8165D2F8.tail)->GetMaterial()->GetTexture(&mOffTexDefault, 0);
+            layout->getLayout()->GetRootPane()->FindPaneByName(lbl_8165D984 + 12)->GetMaterial()->GetTexture(&mOffTexJP, 0);
+            layout->getLayout()->GetRootPane()->FindPaneByName(lbl_8165D984 + 24)->GetMaterial()->GetTexture(&mOffTexCN, 0);
+            layout->getLayout()->GetRootPane()->FindPaneByName(lbl_816973D0)->GetMaterial()->GetTexture(&mOnTexDefault, 0);
+            layout->getLayout()->GetRootPane()->FindPaneByName(lbl_8165D984 + 36)->GetMaterial()->GetTexture(&mOnTexCN, 0);
 
             mpOffBoundPane->setListener(this);
             mpOnBoundPane->setListener(this);
