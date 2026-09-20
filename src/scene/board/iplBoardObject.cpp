@@ -408,7 +408,9 @@ namespace ipl {
 
                     f32 val = (newX * newX) + (newY * newY);
 
-                    if (val > 0.0f) {
+                    if (val <= 0.0f) {
+                        speed = 0.0f;
+                    } else {
                         speed = (val * nw4r::math::FrSqrt(val));
                     }
 
