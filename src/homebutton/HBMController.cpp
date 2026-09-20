@@ -1,4 +1,9 @@
+#include <nw4r/snd.h>
+
+#define SoundHandle SoundHandle*
 #include "homebutton/HBMController.h"
+#undef SoundHandle
+
 #include "homebutton/HBMRemoteSpk.h"
 
 #include "homebutton/internal/HBMBase.h"
@@ -7,6 +12,8 @@
 #include <revolution/os.h>
 #include <revolution/pad.h>
 #include <revolution/wpad.h>
+
+extern "C" void __dt__Q34nw4r3snd11SoundHandleFv(nw4r::snd::SoundHandle*, int);
 
 namespace homebutton {
     bool Controller::sBatteryFlag[WPAD_MAX_CONTROLLERS];
@@ -62,6 +69,7 @@ namespace homebutton {
     }
 
     Controller::Controller(int chan, RemoteSpk* pSpk) {
+        mSoundHandle = NULL;
         mHBController.chan = chan;
         mHBController.rumble = false;
         mHBController.spVol = 1.0f;
@@ -87,6 +95,7 @@ namespace homebutton {
     Controller::~Controller() {
         OSCancelAlarm(&sAlarm[mHBController.chan]);
         OSCancelAlarm(&sAlarmSoundOff[mHBController.chan]);
+        __dt__Q34nw4r3snd11SoundHandleFv(reinterpret_cast<nw4r::snd::SoundHandle*>(&mSoundHandle), -1);
     }
 
     void Controller::initCallback() {
