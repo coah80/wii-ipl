@@ -181,3 +181,32 @@ void BS2SetBannerBuffer(void* pBanner, u32 bannerSize) {
 BOOL BS2IsDiagDisc() {
     return (u8)(*(u8*)OSPhysicalToCached(OS_ADDR_BOOT_INFO) - 0x30U) <= 1;
 }
+
+BOOL BS2IsTitleAvailable(ESTitleId titleId) {
+    u32* count;
+    u32 i;
+
+    if (State != BS2_STT_DATA_DISK && State != BS2_STT_RVL_GAME) {
+        return FALSE;
+    }
+
+    lbl_81698A98 = (u32)PartitionInfoBuf;
+    count = *(u32**)&lbl_81698AA0;
+    for (i = 0; i < *count; i++) {
+        if (*(u32*)(lbl_81698A98 + 4) == (u32)titleId) {
+            return TRUE;
+        }
+        lbl_81698A98 += 8;
+    }
+
+    lbl_81698A98 = (u32)PartitionInfoBuf + 0x20;
+    count = *(u32**)&lbl_81698A9C;
+    for (i = 0; i < *count; i++) {
+        if (*(u32*)(lbl_81698A98 + 4) == (u32)titleId) {
+            return TRUE;
+        }
+        lbl_81698A98 += 8;
+    }
+
+    return FALSE;
+}
