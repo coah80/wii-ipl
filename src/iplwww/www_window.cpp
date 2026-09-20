@@ -1,6 +1,8 @@
 #include <revolution.h>
 
 extern "C" char lbl_816962F8[] = "ERROR?\n";
+extern "C" char lbl_81643B40[] = " TextureBuffer_ %d:%d ptr:%p\n";
+extern "C" char lbl_81643B5E[] = "INFO: cannot create browser window\n";
 
 #define OSReport(...) OSReport(lbl_816962F8)
 #include "iplwww/www_window.h"
@@ -63,12 +65,12 @@ namespace ext_ead {
                     memset(mTexBufArr[i][j], 0, texBufSize);
                     DCStoreRange(mTexBufArr[i][j], texBufSize);
 
-                    print::IPLWWWReport(print::WWW_DEBUG, " TextureBuffer_ %d:%d ptr:%p\n", j, i, mTexBufArr[i][j]);
+                    print::IPLWWWReport(print::WWW_DEBUG, lbl_81643B40, j, i, mTexBufArr[i][j]);
                 }
             }
 
             if (WWWCreateBrowserWindow(mpBrowserThread->GetHandle(), &mpWwwWindow, 0)) {
-                print::IPLWWWReport(print::WWW_WARNING, "INFO: cannot create browser window\n");
+                print::IPLWWWReport(print::WWW_WARNING, lbl_81643B5E);
                 return NULL;
             } else {
                 WWWRect rect = {0, 0, 0, 0};
