@@ -256,6 +256,26 @@ namespace ipl {
             nw4r::snd::detail::AxManager::GetInstance().ClearEffect(nw4r::snd::AUX_C, frame);
         }
 
+        void System::setOutputMode(EAudioOutputMode mode) {
+            nw4r::snd::OutputMode outputMode;
+
+            switch (mode) {
+                case AUDIO_OUTPUT_MODE_STEREO:
+                    outputMode = nw4r::snd::OUTPUT_MODE_STEREO;
+                    break;
+                case AUDIO_OUTPUT_MODE_SURROUND:
+                    outputMode = nw4r::snd::OUTPUT_MODE_SURROUND;
+                    break;
+                case AUDIO_OUTPUT_MODE_MONO:
+                    outputMode = nw4r::snd::OUTPUT_MODE_MONO;
+                    break;
+                default:
+                    return;
+            }
+
+            nw4r::snd::detail::AxManager::GetInstance().SetOutputMode(outputMode);
+        }
+
         BOOL System::isSEActive(const char* sndName) {
             return FIsSEActive(sndName) != NULL;
         }

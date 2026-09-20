@@ -11,6 +11,12 @@
 
 namespace ipl {
     namespace snd {
+        enum EAudioOutputMode {
+            AUDIO_OUTPUT_MODE_STEREO = 0,
+            AUDIO_OUTPUT_MODE_SURROUND = 1,
+            AUDIO_OUTPUT_MODE_MONO = 2,
+        };
+
         struct tagSSeInfo;
 
         class System : EGG::SimpleAudioMgrWithFx {
@@ -47,6 +53,8 @@ namespace ipl {
 
             int pauseOnSE();
             int pauseOffSE();
+
+            void setOutputMode(EAudioOutputMode mode);
 
             BOOL isSEActive(const char* sndName);
             BOOL isSEActive(u32 id);
