@@ -839,7 +839,7 @@ namespace ipl {
                 unk_0x1D = 0;
             }
 
-            Interface::read();
+            Base::read();
         }
 
         bool Revolution::isValidDpd() const {
