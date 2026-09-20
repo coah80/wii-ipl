@@ -221,6 +221,10 @@ namespace ipl {
             return ret;
         }
 
+        f32 Revolution::getDpdDistance() const {
+            return unk_0x20->dist;
+        }
+
         // non-matching
         math::VEC2 Revolution::getDpdProjectionPos() const {
             math::VEC2 ret;

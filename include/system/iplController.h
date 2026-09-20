@@ -169,6 +169,8 @@ namespace ipl {
 
             virtual int down(u32 button) const override;  // 0x10
 
+            virtual f32 getDpdDistance() const override;  // 0x60
+
             virtual math::VEC2 getDpdProjectionPos() const override;  // 0x58
 
             virtual bool isValidBtn() const override;  // 0x6C
