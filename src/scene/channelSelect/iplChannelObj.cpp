@@ -11,8 +11,6 @@ namespace ipl {
     namespace scene {
         // clang-format off
         extern "C" char lbl_8164E290[] = "Cursur_a";
-        extern "C" char lbl_816969E8[] = "arc";
-        extern "C" char lbl_816969EC[] = "Rso%d";
 
         static const char* scCursur = lbl_8164E290;
 
@@ -113,7 +111,6 @@ namespace ipl {
         };
 
         extern "C" char lbl_8164E6AF[] = "%s_Rso%d.brlan";
-        extern "C" char lbl_8164E744[] = "WIPL_SE_BALLOON";
 
         static const u32 scLangLookup[SC_PRODUCT_AREA_MAX][16] = {
             // Japan
@@ -501,7 +498,7 @@ namespace ipl {
 
         void ChannelObj::createDiskLayout(void* data) {
             const ModuleData* moduleData = reinterpret_cast<const ModuleData*>(lbl_8164E290 + 0x98);
-            mpDiskLayout = layout::Object::create(mpDiskHeap, 0x19000, data, lbl_816969E8, moduleData->iconBrlyt);
+            mpDiskLayout = layout::Object::create(mpDiskHeap, 0x19000, data, "arc", moduleData->iconBrlyt);
             setLangPane(mpDiskLayout);
 
             if (mpDiskLayout->searchFile(moduleData->iconBrlan)) {
@@ -701,7 +698,7 @@ namespace ipl {
 
                 if (layout->searchFile(fileName)) {
                     char groupName[8];
-                    sprintf(groupName, lbl_816969EC, i);
+                    sprintf(groupName, "Rso%d", i);
 
                     bool found = false;
                     for (nw4r::lyt::GroupList::Iterator it = layout->GetGroupList().GetBeginIter(); it != layout->GetGroupList().GetEndIter(); it++) {
@@ -866,8 +863,10 @@ namespace ipl {
             calcBalloon(pos);
         }
 
+        extern "C" char lbl_8164E6F3[] = "my_IplTop_d.brlyt";
+
         void ChannelObj::initCursor() {
-            mpCursorLayout = new (mpCursorHeap, 4) layout::Object(mpCursorHeap, mpSysLayoutFile, "arc", "my_IplTop_d.brlyt");
+            mpCursorLayout = new (mpCursorHeap, 4) layout::Object(mpCursorHeap, mpSysLayoutFile, "arc", lbl_8164E6F3);
 
             for (int i = 0; i < ANIM_CURSOR_MAX; i++) {
                 mpCursorAnims[i] = mpCursorLayout->bind(scCursorAnims[i], scCursur, false);
@@ -988,6 +987,8 @@ namespace ipl {
             setBalloonAnim(0);
             mpBalloonLayout->finishBinding();
         }
+
+        extern "C" char lbl_8164E744[] = "WIPL_SE_BALLOON";
 
         void ChannelObj::setBalloonText(const wchar_t* text) {
             nw4r::lyt::TextBox* textPane = nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(mpBalloonLayout->FindPaneByName(lbl_8169699C));
