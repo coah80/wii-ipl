@@ -113,6 +113,7 @@ namespace ipl {
         };
 
         extern "C" char lbl_8164E6AF[] = "%s_Rso%d.brlan";
+        extern "C" char lbl_8164E6C0[] = "icon_Start.brlan";
         extern "C" char lbl_816969E8[] = "arc";
 
         static const u32 scLangLookup[SC_PRODUCT_AREA_MAX][16] = {
@@ -771,31 +772,32 @@ namespace ipl {
         f32 ChannelObj::createWadThumbnail() {
             f32 frame = 0.0f;
 
-            mpThumbLayout = layout::Object::create(mpMainHeap, 0x8000, mpThumbFile->getBuffer(), lbl_816969E8, lbl_8164E328.iconBrlyt);
+            mpThumbLayout = layout::Object::create(mpMainHeap, 0x8000, mpThumbFile->getBuffer(), lbl_816969E8, lbl_8164E290 + 0x3F8);
             setLangPane(mpThumbLayout);
 
+            const char* dataBase = lbl_8164E290;
             u32 rsoIdx = System::getChannelManager()->getIconRSOIdx(mChanPage, mChanIndex);
             u32 csIdx = System::getChannelManager()->getIconCSIdx(mChanPage, mChanIndex);
 
             if (rsoIdx != 0) {
-                if (mpThumbLayout->searchFile("icon_Start.brlan")) {
-                    mpThumbAnim = mpThumbLayout->bind("icon_Start.brlan");
+                if (mpThumbLayout->searchFile(dataBase + 0x42E)) {
+                    mpThumbAnim = mpThumbLayout->bind(dataBase + 0x42E);
                 } else {
                     mpThumbAnim = NULL;
                 }
             } else {
                 if (csIdx != 0) {
-                    if (mpThumbLayout->searchFile("icon_Start.brlan")) {
-                        mpThumbAnim = mpThumbLayout->bind("icon_Start.brlan");
+                    if (mpThumbLayout->searchFile(dataBase + 0x42E)) {
+                        mpThumbAnim = mpThumbLayout->bind(dataBase + 0x42E);
                     } else {
                         mpThumbAnim = NULL;
                     }
                 } else {
-                    if (mpThumbLayout->searchFile(lbl_8164E328.iconBrlan)) {
-                        mpThumbAnim = mpThumbLayout->bind(lbl_8164E328.iconBrlan);
+                    if (mpThumbLayout->searchFile(dataBase + 0x403)) {
+                        mpThumbAnim = mpThumbLayout->bind(dataBase + 0x403);
                     } else {
-                        if (mpThumbLayout->searchFile(lbl_8164E328.iconWholeBrlan)) {
-                            mpThumbAnim = mpThumbLayout->bind(lbl_8164E328.iconWholeBrlan);
+                        if (mpThumbLayout->searchFile(dataBase + 0x40E)) {
+                            mpThumbAnim = mpThumbLayout->bind(dataBase + 0x40E);
                         } else {
                             mpThumbAnim = NULL;
                         }
@@ -950,7 +952,19 @@ namespace ipl {
                 case 1: {
                     if (!mpCursorAnims[ANIM_CURSOR_FOCUS_ON]->isPlaying()) {
                         int prev = unk_0x5C;
-                        unk_0x58 = 2;
+                        switch (unk_0x58) {
+                            case 0:
+                                break;
+                            case 1:
+                                unk_0x58 = 2;
+                                break;
+                            case 2:
+                                break;
+                            case 3:
+                                break;
+                            default:
+                                break;
+                        }
                         if (prev == 3) {
                             setCursorAnim(3);
                             unk_0x5C = 0;
