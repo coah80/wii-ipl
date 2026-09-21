@@ -37,6 +37,37 @@
 extern "C" ipl::System::Arg smArg__Q23ipl6System;
 extern "C" ipl::snd::System sSystem__Q23ipl3snd;
 extern "C" void initOnMemory__Q33ipl3snd6SystemFPCvPQ23EGG4HeapUl();
+extern "C" const f32 lbl_81694410;
+extern "C" const f64 lbl_81694418;
+extern "C" const f32 lbl_81694420;
+extern "C" void* m_handle__Q23ipl11TVRCManager;
+extern "C" void _savegpr_27();
+extern "C" void _restgpr_27();
+extern "C" void reset_run__Q23ipl6SystemFv();
+extern "C" void check__Q23ipl14WarningHandlerFv();
+extern "C" void check__Q23ipl12ResetHandlerFv();
+extern "C" void update__Q23ipl12ResetHandlerFv();
+extern "C" void check__Q23ipl12ErrorHandlerFv();
+extern "C" void endFrame__Q23ipl9FrameworkFv();
+extern "C" void calc__Q23ipl14WarningHandlerFv();
+extern "C" void calc__Q23ipl7PointerFv();
+extern "C" void calc__Q23ipl14HomeButtonMenuFv();
+extern "C" void update__Q33ipl7channel7ManagerFv();
+extern "C" void set__Q23ipl12ErrorHandlerFQ33ipl12ErrorHandler4TypeUlPCcii();
+extern "C" void update__Q33ipl3bs27ManagerFv();
+extern "C" void read__Q33ipl10controller7ManagerFv();
+extern "C" void setToday___Q23ipl6SystemFv();
+extern "C" void update__Q23ipl11TVRCManagerFv();
+extern "C" void endRender__Q23ipl9FrameworkFv();
+extern "C" void draw__Q23ipl7PointerFv();
+extern "C" void draw__Q23ipl14HomeButtonMenuFv();
+extern "C" void draw__Q23ipl14WarningHandlerFv();
+extern "C" void draw__Q23ipl12DialogWindowFv();
+extern "C" void draw__Q33ipl5scene7ManagerFv();
+extern "C" void makeRawData__Q33ipl7utility11JpegDecoderFv();
+extern "C" void makeIcon__Q33ipl6nigaoe7ManagerFv();
+extern "C" void beginRender__Q23ipl9FrameworkFv();
+extern "C" void beginFrame__Q23ipl9FrameworkFv();
 #endif
 
 namespace ipl {
@@ -524,9 +555,12 @@ namespace ipl {
 
         // Default values for initial setup
         if (!SCGetConfigDoneFlag() && !SCGetConfigDoneFlag2()) {
-            SCOwnerNickname blankName;
-            memset(&blankName, 0, sizeof(blankName));
-            SCSetOwnerNickName(&blankName);
+            struct BlankNameStorage {
+                u16 padding;
+                SCOwnerNickname blankName;
+            } blankNameStorage;
+            memset(&blankNameStorage.blankName, 0, sizeof(blankNameStorage.blankName));
+            SCSetOwnerNickName(&blankNameStorage.blankName);
 
             SCSetAspectRatio(SC_ASPECT_RATIO_4x3);
 
@@ -707,7 +741,8 @@ namespace ipl {
         smArg.mpNandManager = new (getMem1Sys(), 4) nand::Manager(getMem1Sys());
 
         // Symbol list for RSO modules
-        snprintf(rsoListPath, sizeof(rsoListPath), "/%s/%s/main.sel", SYSMENU_BUILD_TYPE, SYSMENU_BUILD_VERSION);
+        const char* rsoFormat = "/%s/%s/main.sel";
+        snprintf(rsoListPath, sizeof(rsoListPath), rsoFormat, SYSMENU_BUILD_TYPE, SYSMENU_BUILD_VERSION);
         smArg.mResources.file[Arg::RSO_SYM_LIST] = getNandManager()->read(getMem2Sys(), rsoListPath);
         RSOListInit(smArg.mResources.file[Arg::RSO_SYM_LIST]->getBuffer());
 
@@ -1080,99 +1115,196 @@ namespace ipl {
         }
     }
 
-    void System::warning_run() {
-        if (getResetHandler()->isResetting()) {
-            return;
-        }
-
-        VISetBlack(FALSE);
-
-        // Force pointer to be visible, and push it's old state
-        bool isVisible = System::getPointer()->isVisible();
-        System::getPointer()->setVisible(true);
-
-        while (TRUE) {
-            // Start rendering
-            smArg.mpFramework->beginFrame();
-            smArg.mpFramework->beginRender();
-
-            // Setup data
-            if (hasCreatedAfter()) {
-                getMiiManager()->makeIcon();
-            }
-            if (hasCreatedAfter()) {
-                getJpegDecoder()->makeRawData();
-            }
-
-            // Setup view
-            GXRenderModeObj* rMode = System::getRenderModeObj();
-            GXSetViewport(0.0f, 0.0f, rMode->fbWidth, rMode->efbHeight, 0.0f, 1.0f);
-            GXSetScissor(0, 0, rMode->fbWidth, rMode->efbHeight);
-
-            // Drawing
-            getSceneManager()->draw();
-            if (hasCreatedAfter()) {
-                getKeyboard()->draw();
-                getDialog()->draw();
-            }
-            getWarningHandler()->draw();
-            if (hasCreatedAfter()) {
-                getHomeButtonMenu()->draw();
-            }
-            if (hasCreatedAfter()) {
-                getPointer()->draw();
-            }
-            getFader()->draw();
-            getResetFader()->draw();
-
-            // End of rendering
-            smArg.mpFramework->endRender();
-
-            // Update logic
-            TVRCManager::getHandle()->update();
-            setToday_();
-            getControllerManager()->read();
-            if (getBS2Manager()->update() == bs2::IPL_STATE_FATAL) {
-                IPLErrorDisplay(MESG_ERR_DVD);
-            }
-            getChannelManager()->update();
-            if (hasCreatedAfter()) {
-                getHomeButtonMenu()->calc();
-                getPointer()->calc();
-                getFader()->calc();
-                getResetFader()->calc();
-                getWarningHandler()->calc();
-                snd::getSystem()->calc();
-            }
-
-            smArg.mpFramework->endFrame();
-
-            // Error handling
-            if (hasCreatedAfter()) {
-                getErrorHandler()->check();
-            }
-
-            // Reset handling
-            getResetHandler()->update();
-            getResetHandler()->check();
-
-            // If we pressed button in dialog, goodbye!
-            if (getWarningHandler()->check() != DialogWindow::RESULT_NONE) {
-                break;
-            }
-        };
-
-        // Pop old state
-        if (isVisible) {
-            System::getPointer()->setVisible(true);
-        } else {
-            System::getPointer()->setVisible(false);
-        }
-
-        // If the warning told the system to reset, then reset!
-        if (getWarningHandler()->resetting()) {
-            reset_run();
-        }
+    asm void System::warning_run() {
+        nofralloc
+        stwu r1, -0x40(r1)
+        mflr r0
+        stw r0, 0x44(r1)
+        stfd f31, 0x30(r1)
+        psq_st f31, 0x38(r1), 0, 0
+        addi r11, r1, 0x30
+        bl _savegpr_27
+        lis r3, smArg__Q23ipl6System@ha
+        addi r28, r3, smArg__Q23ipl6System@l
+        lwz r3, 0x9c(r28)
+        lwz r3, 4(r3)
+        addic r0, r3, -1
+        subfe. r0, r0, r3
+        bne warning_run_done
+        li r3, 0
+        bl VISetBlack
+        lwz r3, 0xb0(r28)
+        li r0, 1
+        lfd f31, lbl_81694418
+        lis r30, 0x4330
+        lbz r29, 0x3d(r3)
+        lis r31, sSystem__Q23ipl3snd@ha
+        stb r0, 0x3d(r3)
+    warning_run_loop:
+        lwz r3, 0x74(r28)
+        bl beginFrame__Q23ipl9FrameworkFv
+        lwz r3, 0x74(r28)
+        bl beginRender__Q23ipl9FrameworkFv
+        lbz r0, 0x2b2(r28)
+        cmpwi r0, 0
+        beq warning_run_no_mii
+        lwz r3, 0x70(r28)
+        bl makeIcon__Q33ipl6nigaoe7ManagerFv
+    warning_run_no_mii:
+        lbz r0, 0x2b2(r28)
+        cmpwi r0, 0
+        beq warning_run_no_jpeg
+        lwz r3, 0xbc(r28)
+        bl makeRawData__Q33ipl7utility11JpegDecoderFv
+    warning_run_no_jpeg:
+        lwz r3, 0x74(r28)
+        lfs f1, lbl_81694410
+        lwz r27, 0(r3)
+        stw r30, 8(r1)
+        fmr f2, f1
+        lhz r3, 4(r27)
+        fmr f5, f1
+        lhz r0, 6(r27)
+        stw r3, 0xc(r1)
+        lfs f6, lbl_81694420
+        lfd f0, 8(r1)
+        stw r0, 0x14(r1)
+        fsubs f3, f0, f31
+        stw r30, 0x10(r1)
+        lfd f0, 0x10(r1)
+        fsubs f4, f0, f31
+        bl GXSetViewport
+        lhz r5, 4(r27)
+        li r3, 0
+        lhz r6, 6(r27)
+        li r4, 0
+        bl GXSetScissor
+        lwz r3, 0x64(r28)
+        bl draw__Q33ipl5scene7ManagerFv
+        lbz r0, 0x2b2(r28)
+        cmpwi r0, 0
+        beq warning_run_no_keyboard
+        lwz r3, 0x90(r28)
+        lwz r12, 0(r3)
+        lwz r12, 0x14(r12)
+        mtctr r12
+        bctrl
+        lwz r3, 0xac(r28)
+        bl draw__Q23ipl12DialogWindowFv
+    warning_run_no_keyboard:
+        lwz r3, 0xa0(r28)
+        bl draw__Q23ipl14WarningHandlerFv
+        lbz r0, 0x2b2(r28)
+        cmpwi r0, 0
+        beq warning_run_no_home
+        lwz r3, 0xb4(r28)
+        bl draw__Q23ipl14HomeButtonMenuFv
+    warning_run_no_home:
+        lbz r0, 0x2b2(r28)
+        cmpwi r0, 0
+        beq warning_run_no_pointer
+        lwz r3, 0xb0(r28)
+        bl draw__Q23ipl7PointerFv
+    warning_run_no_pointer:
+        lwz r3, 0xc4(r28)
+        lwz r12, 0(r3)
+        lwz r12, 0x1c(r12)
+        mtctr r12
+        bctrl
+        lwz r3, 0xc8(r28)
+        lwz r12, 0(r3)
+        lwz r12, 0x1c(r12)
+        mtctr r12
+        bctrl
+        lwz r3, 0x74(r28)
+        bl endRender__Q23ipl9FrameworkFv
+        lwz r3, m_handle__Q23ipl11TVRCManager
+        bl update__Q23ipl11TVRCManagerFv
+        bl setToday___Q23ipl6SystemFv
+        lwz r3, 0x68(r28)
+        bl read__Q33ipl10controller7ManagerFv
+        lwz r3, 0xa8(r28)
+        bl update__Q33ipl3bs27ManagerFv
+        cmpwi r3, 0xa
+        bne warning_run_no_dvd
+        lwz r3, 0x98(r28)
+        li r4, 1
+        li r5, 0
+        li r6, 0
+        li r7, 0
+        li r8, -1
+        bl set__Q23ipl12ErrorHandlerFQ33ipl12ErrorHandler4TypeUlPCcii
+    warning_run_no_dvd:
+        lwz r3, 0x84(r28)
+        bl update__Q33ipl7channel7ManagerFv
+        lbz r0, 0x2b2(r28)
+        cmpwi r0, 0
+        beq warning_run_no_calc
+        lwz r3, 0xb4(r28)
+        bl calc__Q23ipl14HomeButtonMenuFv
+        lwz r3, 0xb0(r28)
+        bl calc__Q23ipl7PointerFv
+        lwz r3, 0xc4(r28)
+        lwz r12, 0(r3)
+        lwz r12, 0x18(r12)
+        mtctr r12
+        bctrl
+        lwz r3, 0xc8(r28)
+        lwz r12, 0(r3)
+        lwz r12, 0x18(r12)
+        mtctr r12
+        bctrl
+        lwz r3, 0xa0(r28)
+        bl calc__Q23ipl14WarningHandlerFv
+        addi r3, r31, sSystem__Q23ipl3snd@l
+        lwz r12, 0(r3)
+        lwz r12, 0xc(r12)
+        mtctr r12
+        bctrl
+    warning_run_no_calc:
+        lwz r3, 0x74(r28)
+        bl endFrame__Q23ipl9FrameworkFv
+        lbz r0, 0x2b2(r28)
+        cmpwi r0, 0
+        beq warning_run_no_error
+        lwz r3, 0x98(r28)
+        bl check__Q23ipl12ErrorHandlerFv
+    warning_run_no_error:
+        lwz r3, 0x9c(r28)
+        bl update__Q23ipl12ResetHandlerFv
+        lwz r3, 0x9c(r28)
+        bl check__Q23ipl12ResetHandlerFv
+        lwz r3, 0xa0(r28)
+        bl check__Q23ipl14WarningHandlerFv
+        cmpwi r3, -1
+        beq warning_run_loop
+        cmpwi r29, 0
+        beq warning_run_pointer_hidden
+        lwz r3, 0xb0(r28)
+        li r0, 1
+        stb r0, 0x3d(r3)
+        b warning_run_pointer_done
+    warning_run_pointer_hidden:
+        lwz r3, 0xb0(r28)
+        li r0, 0
+        stb r0, 0x3d(r3)
+    warning_run_pointer_done:
+        lis r3, smArg__Q23ipl6System@ha
+        addi r3, r3, smArg__Q23ipl6System@l
+        lwz r3, 0xa0(r3)
+        lwz r0, 0(r3)
+        cmpwi r0, 2
+        bne warning_run_done
+        bl reset_run__Q23ipl6SystemFv
+    warning_run_done:
+        psq_l f31, 0x38(r1), 0, 0
+        addi r11, r1, 0x30
+        lfd f31, 0x30(r1)
+        bl _restgpr_27
+        lwz r0, 0x44(r1)
+        mtlr r0
+        addi r1, r1, 0x40
+        blr
     }
 
     void System::reinit() {
