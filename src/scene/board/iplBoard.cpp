@@ -1658,7 +1658,9 @@ namespace ipl {
 
             BoardObject* object = NULL;
             FOREACH_OBJ_IN_LIST(object) {
-                strncpy((char*)mKeyTable[i++], object->mCDBRecordKey.keyString, sizeof(object->mCDBRecordKey.keyString));
+                BoardObject* next = object;
+                strncpy((char*)mKeyTable[i++], next->mCDBRecordKey.keyString, sizeof(next->mCDBRecordKey.keyString));
+                object = next;
             }
         }
 
