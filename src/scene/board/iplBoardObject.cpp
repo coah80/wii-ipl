@@ -219,7 +219,7 @@ namespace ipl {
 
                 mMoveAnim.calc();
 
-                math::VEC2 finalPos = offsetPos + mBoardPos + mMoveSpeed + mMoveAnim.get();
+                ipl::math::VEC2 finalPos = offsetPos + mBoardPos + mMoveSpeed + mMoveAnim.get2();
                 finalPos.x *= locationAdjust;
                 mpLayout->GetRootPane()->SetTranslate(finalPos);
                 mpLayout->calc();
