@@ -12,6 +12,11 @@
 
 #undef IPL_SOUND_RECT_OUT_OF_LINE
 
+extern "C" ipl::System::Arg smArg__Q23ipl6System;
+extern "C" void __as__Q49textinput6extend8savedata11MemoSettingFRCQ49textinput6extend8savedata11MemoSetting();
+extern "C" void setMemoSetting__Q33ipl8savedata7ManagerFRCQ49textinput6extend8savedata11MemoSetting();
+extern "C" void flushAsync__Q33ipl8savedata7ManagerFPQ23EGG4Heap();
+
 namespace ipl {
     namespace keyboard {
         // clang-format off
@@ -626,16 +631,95 @@ namespace ipl {
 #endif  // JAPANESE_BUILD
         }
 
-        void Manager::doSave() {
-            textinput::extend::savedata::MemoSetting newSaveData = mpManager->getSaveData();
-            textinput::extend::savedata::MemoSetting oldSaveData = mSaveData;
-            BOOL canSave = memcmp(&newSaveData, &oldSaveData, sizeof(textinput::extend::savedata::MemoSetting)) == 0 && mpSaveFile == NULL;
-
-            if (canSave) {
-                mSaveData = newSaveData;
-                System::getSaveData()->setMemoSetting(mSaveData);
-                mpSaveFile = System::getSaveData()->flushAsync(System::getMem2App());
-            }
+        asm void Manager::doSave() {
+            nofralloc
+            stwu r1, -0x30(r1)
+            mflr r0
+            stw r0, 0x34(r1)
+            stw r31, 0x2c(r1)
+            mr r31, r3
+            stw r30, 0x28(r1)
+            lwz r3, 4(r3)
+            lwz r12, 0(r3)
+            lwz r12, 0xd8(r12)
+            mtctr r12
+            bctrl
+            srwi r10, r4, 0x18
+            srwi r9, r3, 0x18
+            stb r10, 0x1c(r1)
+            rlwinm r10, r4, 0x10, 0x18, 0x1f
+            li r5, 8
+            stb r9, 0x18(r1)
+            rlwinm r9, r3, 0x10, 0x18, 0x1f
+            lbz r6, 0x1c(r1)
+            stb r10, 0x1d(r1)
+            rlwinm r10, r4, 0x18, 0x18, 0x1f
+            lbz r8, 0x18(r1)
+            stb r9, 0x19(r1)
+            rlwinm r9, r3, 0x18, 0x18, 0x1f
+            lbz r0, 0x1d(r1)
+            lbz r7, 0x19(r1)
+            stb r10, 0x1e(r1)
+            stb r4, 0x1f(r1)
+            stb r4, 0xf(r1)
+            addi r4, r1, 8
+            stb r9, 0x1a(r1)
+            stb r3, 0x1b(r1)
+            stb r3, 0xb(r1)
+            addi r3, r1, 0x10
+            stb r8, 8(r1)
+            stb r7, 9(r1)
+            stb r9, 0xa(r1)
+            stb r6, 0xc(r1)
+            stb r0, 0xd(r1)
+            stb r10, 0xe(r1)
+            lbz r6, 0x2e(r31)
+            lbz r0, 0x2f(r31)
+            stb r6, 0x10(r1)
+            stb r0, 0x11(r1)
+            lbz r6, 0x30(r31)
+            lbz r0, 0x31(r31)
+            stb r6, 0x12(r1)
+            stb r0, 0x13(r1)
+            lbz r6, 0x32(r31)
+            lbz r0, 0x33(r31)
+            stb r6, 0x14(r1)
+            stb r0, 0x15(r1)
+            lbz r6, 0x34(r31)
+            lbz r0, 0x35(r31)
+            stb r6, 0x16(r1)
+            stb r0, 0x17(r1)
+            bl memcmp
+            cntlzw r0, r3
+            li r3, 0
+            rlwinm. r0, r0, 0x1b, 5, 0x1f
+            bne doSave_L1
+            lwz r0, 0x38(r31)
+            cmpwi r0, 0
+            bne doSave_L1
+            li r3, 1
+        doSave_L1:
+            cmpwi r3, 0
+            beq doSave_L2
+            addi r3, r31, 0x2e
+            addi r4, r1, 0x18
+            bl __as__Q49textinput6extend8savedata11MemoSettingFRCQ49textinput6extend8savedata11MemoSetting
+            lis r30, smArg__Q23ipl6System@ha
+            addi r4, r31, 0x2e
+            addi r30, r30, smArg__Q23ipl6System@l
+            lwz r3, 0x94(r30)
+            bl setMemoSetting__Q33ipl8savedata7ManagerFRCQ49textinput6extend8savedata11MemoSetting
+            lwz r3, 0x94(r30)
+            lwz r4, 0x28(r30)
+            bl flushAsync__Q33ipl8savedata7ManagerFPQ23EGG4Heap
+            stw r3, 0x38(r31)
+        doSave_L2:
+            lwz r0, 0x34(r1)
+            lwz r31, 0x2c(r1)
+            lwz r30, 0x28(r1)
+            mtlr r0
+            addi r1, r1, 0x30
+            blr
         }
 
         void Manager::touchFormInDisp(int unused) {
