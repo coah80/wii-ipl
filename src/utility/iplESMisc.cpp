@@ -645,7 +645,7 @@ namespace ipl {
         }
 
         s32 ESMisc::DeleteEmptyTitles(EGG::Heap* heap) {
-            u32 titleCount = 0;
+            u32 titleCount;
             ESTitleId* titleIds = NULL;
             s32 ret = ES_ListTitlesOnCard(NULL, &titleCount);
 
@@ -658,18 +658,18 @@ namespace ipl {
                 if (ret != ES_ERR_OK) {
                     ES_ERR_REPORT("ES_ListTitlesOnCard2 failed: %d", ret);
                 } else {
+                    ESTitleId titleId;
                     for (u32 i = 0; i < titleCount; i++) {
-                        u32 titleIdHi = ((u32*)titleIds)[i * 2];
-                        u32 titleIdLo = ((u32*)titleIds)[i * 2 + 1];
+                        titleId = titleIds[i];
 
-                        if (titleIdHi != 1) {
-                            ret = CheckSafeDeleteTitle(heap, ((ESTitleId)titleIdHi << 32) | titleIdLo);
+                        if (NANDTitleIdHi(titleId) != 1) {
+                            ret = CheckSafeDeleteTitle(heap, titleId);
                             if (ret < 0) {
                                 ES_ERR_REPORT("CheckSafeDeleteTitle failed: %d", ret);
                             }
 
                             if (ret > 0) {
-                                ret = DeleteTitle(heap, ((ESTitleId)titleIdHi << 32) | titleIdLo);
+                                ret = DeleteTitle(heap, titleId);
                                 if (ret < 0) {
                                     ES_ERR_REPORT("DeleteTitle failed: %d", ret);
                                 }
