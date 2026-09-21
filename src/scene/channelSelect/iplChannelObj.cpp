@@ -864,6 +864,8 @@ namespace ipl {
         }
 
         extern "C" char lbl_8164E6F3[] = "my_IplTop_d.brlyt";
+        extern "C" char lbl_8164E705[] = "my_IplTopBalloon_a.brlyt";
+        extern "C" char lbl_8164E71E[] = "my_IplTopBalloon_a_BalloonInOut.brlan";
 
         void ChannelObj::initCursor() {
             mpCursorLayout = new (mpCursorHeap, 4) layout::Object(mpCursorHeap, mpSysLayoutFile, "arc", lbl_8164E6F3);
@@ -979,11 +981,11 @@ namespace ipl {
                 mpBalloonLayout = NULL;
                 return;
             }
-            mpBalloonLayout = new (mpBalloonHeap, 4) layout::Object(mpBalloonHeap, mpSysLayoutFile, "arc", "my_IplTopBalloon_a.brlyt");
+            mpBalloonLayout = new (mpBalloonHeap, 4) layout::Object(mpBalloonHeap, mpSysLayoutFile, "arc", lbl_8164E705);
 
             setBalloonText((wchar_t*)System::getChannelManager()->getTitleName(mChanPage, mChanIndex, 0));
 
-            mpBalloonAnim = mpBalloonLayout->bind("my_IplTopBalloon_a_BalloonInOut.brlan");
+            mpBalloonAnim = mpBalloonLayout->bind(lbl_8164E71E);
             setBalloonAnim(0);
             mpBalloonLayout->finishBinding();
         }
