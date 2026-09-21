@@ -1100,16 +1100,15 @@ namespace ipl {
             }
 
             for (int i = 0; i < RBR_ATTACHMENT_MAX; i++) {
-                RBRAttachment* attach = &recordHdr->attach[i];
-                switch (attach->type) {
+                switch (recordHdr->attach[i].type) {
                     case RBRAttachmentType_MsgBoard: {
-                        make_lettertex(attach);
-                        init_chanjump(attach);
-                        init_sound(attach);
+                        make_lettertex(&recordHdr->attach[i]);
+                        init_chanjump(&recordHdr->attach[i]);
+                        init_sound(&recordHdr->attach[i]);
                         break;
                     }
                     case RBRAttachmentType_Picture: {
-                        make_picture(attach);
+                        make_picture(&recordHdr->attach[i]);
                         break;
                     }
                     default: {
@@ -1148,7 +1147,6 @@ namespace ipl {
             mpParsedText = new (System::getMem2App(), 4) wchar_t[PARSED_TEXT_LENGTH];
             memset(mpParsedText, 0, PARSED_TEXT_LENGTH * sizeof(wchar_t));
 
-            const wchar_t* pURLStr;
             const wchar_t* pStr = inText;
 
             const wchar_t URLSep[2] = {UrlProcessor::SEPERATOR, 0x00};
@@ -1164,7 +1162,8 @@ namespace ipl {
 
             while (i != strLen) {
                 // If we found a URL
-                if (inText[i] == L'h' && (pURLStr = &inText[i], is_url_protocol(pURLStr))) {
+                if (inText[i] == L'h' && is_url_protocol(&inText[i])) {
+                    const wchar_t* pURLStr = &inText[i];
                     // Parse the URL
 
                     unk_0x114[5] = 0;
@@ -1486,7 +1485,13 @@ namespace ipl {
                 mURLProc.setUnk_0x40(8.0f);
             }
 
-            nw4r::lyt::TextBox* textPane = nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(mpLayout->FindPaneByName("T_Letter"));
+            nw4r::lyt::Pane* pane = mpLayout->FindPaneByName("T_Letter");
+            nw4r::lyt::TextBox* textPane;
+            if (pane->GetRuntimeTypeInfo()->IsDerivedFrom(&nw4r::lyt::TextBox::typeInfo)) {
+                textPane = static_cast<nw4r::lyt::TextBox*>(pane);
+            } else {
+                textPane = NULL;
+            }
 
             if (System::getChannelManager()->isEnableUrlJump() && mpBoardObj->mLetterType != BoardObject::TYPE_PLAYTIME) {
                 textPane->SetTagProcessor(&mURLProc);

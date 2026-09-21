@@ -199,6 +199,7 @@ namespace ipl {
             return FALSE;
         }
 
+#pragma dont_inline on
         Scroller::Scroller() {
             mState = 0;
             mDownLimit = 0.0f;
@@ -211,6 +212,7 @@ namespace ipl {
 
             anim.init(0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0, 1.0f);
         }
+#pragma dont_inline reset
 
         f32 Scroller::movable_pos(f32 speed) const {
             f32 newPos;
@@ -260,7 +262,7 @@ namespace ipl {
                     anim.init(0.0f, 300.0f, 20.0f, 0.0f, 0.0f, 0, 1.0f);
                     anim.initFrame();
                     anim.restart();
-                    mState = Pointer::SCROLL_BTN_DOWN;
+                    mState = Pointer::SCROLLING_BY_BTN;
                     break;
                 }
                 case Pointer::SCROLLING_BY_BTN: {

@@ -15,6 +15,8 @@
 #include "utility/iplRBRUtility.h"
 #include "utility/iplTPLValidity.h"
 
+extern "C" void __ct__Q33ipl4math4VEC2Fff(ipl::math::VEC2*, f32, f32);
+
 // I don't want to keep typing this out lol
 #define DELETE_PTR_FORCE(x)                                                                                                                          \
     {                                                                                                                                                \
@@ -219,7 +221,7 @@ namespace ipl {
 
                 mMoveAnim.calc();
 
-                math::VEC2 finalPos = offsetPos + mBoardPos + mMoveSpeed + mMoveAnim.get();
+                ipl::math::VEC2 finalPos = offsetPos + mBoardPos + mMoveSpeed + mMoveAnim.get2();
                 finalPos.x *= locationAdjust;
                 mpLayout->GetRootPane()->SetTranslate(finalPos);
                 mpLayout->calc();
@@ -475,8 +477,9 @@ namespace ipl {
             f32 dVar2 = nw4r::math::CosFIdx(((mStandData.unk_0x0C * 30.0f + 30.0f) * 0.7111111f));
             f32 dVar3 = nw4r::math::SinFIdx(((mStandData.unk_0x0C * 30.0f + 30.0f) * 0.7111111f));
 
-            mBoardPos =
-                (((mStandData.pos * (f32)(10 - mStandData.unk_0x08)) + (math::VEC2(dVar3 * 160.0f, dVar2 * 160.0f) * mStandData.unk_0x08)) / 10.0f);
+            math::VEC2 standPos;
+            __ct__Q33ipl4math4VEC2Fff(&standPos, dVar3 * 160.0f, dVar2 * 160.0f);
+            mBoardPos = (((mStandData.pos * (f32)(10 - mStandData.unk_0x08)) + (standPos * mStandData.unk_0x08)) / 10.0f);
 
             if ((mStandData.unk_0x08 += 1) > 10) {
                 mStandData.init();

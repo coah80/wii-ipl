@@ -11,6 +11,12 @@ extern "C" void deleteFriendInfo__Q33ipl5nwc247ManagerFUl();
 extern "C" void getScene__Q33ipl5scene7ManagerFi();
 extern "C" void setEventHandler__Q33ipl5scene6ButtonFPQ23gui12EventHandlerPQ23gui12EventHandler();
 extern "C" void calc__Q33ipl6layout6ObjectFv();
+extern "C" void __ct__Q33ipl4math4VEC2Fff();
+extern "C" void __dt__Q33ipl6nigaoe6ObjectFv();
+extern "C" void __dl__FPv();
+extern "C" void GetTexture__Q34nw4r3lyt8MaterialCFP9_GXTexObjUc();
+extern "C" void SetTexture__Q34nw4r3lyt8MaterialFUcRC9_GXTexObj();
+extern "C" void create__Q33ipl6nigaoe7ManagerFPQ23EGG4HeapiiiPFPQ33ipl6nigaoe6ObjectPvPv();
 extern "C" int init__Q33ipl5scene15FriendListCacheFv(void*);
 extern "C" void onInitFriendList__Q33ipl5scene7AddressFv(void*);
 extern "C" void callBtn1__Q23ipl12DialogWindowFUlUl(void*, unsigned int, unsigned int);
@@ -206,6 +212,173 @@ extern "C" asm void __ct__Q43ipl5scene7Address6MiiObjFv() {
     nofralloc
     li r0, 0
     stw r0, 0x20(r3)
+    blr
+}
+
+extern "C" asm void __dt__Q43ipl5scene7Address6MiiObjFv() {
+    stwu r1, -0x10(r1)
+    mflr r0
+    cmpwi r3, 0
+    stw r0, 0x14(r1)
+    stw r31, 0xc(r1)
+    mr r31, r4
+    stw r30, 8(r1)
+    mr r30, r3
+    beq miio_dt_done
+    lwz r3, 0x20(r3)
+    cmpwi r3, 0
+    beq miio_dt_skip_object
+    li r4, 1
+    bl __dt__Q33ipl6nigaoe6ObjectFv
+miio_dt_skip_object:
+    cmpwi r31, 0
+    ble miio_dt_done
+    mr r3, r30
+    bl __dl__FPv
+miio_dt_done:
+    mr r3, r30
+    lwz r31, 0xc(r1)
+    lwz r30, 8(r1)
+    lwz r0, 0x14(r1)
+    mtlr r0
+    addi r1, r1, 0x10
+    blr
+}
+
+extern "C" asm void init__Q43ipl5scene7Address6MiiObjFPQ34nw4r3lyt4Pane() {
+    stwu r1, -0x10(r1)
+    mflr r0
+    stw r0, 0x14(r1)
+    stw r31, 0xc(r1)
+    mr r31, r3
+    mr r3, r4
+    lwz r12, 0(r4)
+    lwz r12, 0x5c(r12)
+    mtctr r12
+    bctrl
+    stw r3, 0x24(r31)
+    mr r4, r31
+    li r5, 0
+    bl GetTexture__Q34nw4r3lyt8MaterialCFP9_GXTexObjUc
+    lwz r0, 0x14(r1)
+    lwz r31, 0xc(r1)
+    mtlr r0
+    addi r1, r1, 0x10
+    blr
+}
+
+extern "C" asm void reset__Q43ipl5scene7Address6MiiObjFv() {
+    stwu r1, -0x10(r1)
+    mflr r0
+    stw r0, 0x14(r1)
+    stw r31, 0xc(r1)
+    mr r31, r3
+    lwz r0, 0x20(r3)
+    cmpwi r0, 0
+    beq miio_reset_done
+    lwz r3, 0x24(r3)
+    mr r5, r31
+    li r4, 0
+    bl SetTexture__Q34nw4r3lyt8MaterialFUcRC9_GXTexObj
+    lwz r3, 0x20(r31)
+    li r4, 1
+    bl __dt__Q33ipl6nigaoe6ObjectFv
+    li r0, 0
+    stw r0, 0x20(r31)
+miio_reset_done:
+    lwz r0, 0x14(r1)
+    lwz r31, 0xc(r1)
+    mtlr r0
+    addi r1, r1, 0x10
+    blr
+}
+
+extern "C" asm void create_callback__Q43ipl5scene7Address6MiiObjFPQ33ipl6nigaoe6ObjectPv() {
+    stwu r1, -0x10(r1)
+    mflr r0
+    stw r0, 0x14(r1)
+    stw r31, 0xc(r1)
+    mr r31, r4
+    stw r30, 8(r1)
+    mr r30, r3
+    lwz r0, 0x20(r4)
+    cmpwi r0, 0
+    beq miio_create_store
+    mr r3, r0
+    li r4, 1
+    bl __dt__Q33ipl6nigaoe6ObjectFv
+miio_create_store:
+    stw r30, 0x20(r31)
+    addi r5, r30, 0x18
+    lwz r3, 0x24(r31)
+    li r4, 0
+    bl SetTexture__Q34nw4r3lyt8MaterialFUcRC9_GXTexObj
+    lwz r0, 0x14(r1)
+    lwz r31, 0xc(r1)
+    lwz r30, 8(r1)
+    mtlr r0
+    addi r1, r1, 0x10
+    blr
+}
+
+extern "C" asm void set__Q43ipl5scene7Address6MiiObjFUx() {
+    stwu r1, -0x30(r1)
+    mflr r0
+    stw r0, 0x34(r1)
+    addi r4, r1, 8
+    stw r31, 0x2c(r1)
+    mr r31, r3
+    addi r3, r1, 0x12
+    stw r5, 8(r1)
+    li r5, 8
+    stw r6, 0xc(r1)
+    bl memcpy
+    addi r3, r1, 0x12
+    addi r4, r1, 0x10
+    bl RFLSearchOfficialData
+    cmpwi r3, 0
+    beq miio_set_reset
+    lis r4, smArg__Q23ipl6System@ha
+    lis r8, create_callback__Q43ipl5scene7Address6MiiObjFPQ33ipl6nigaoe6ObjectPv@ha
+    addi r4, r4, smArg__Q23ipl6System@l
+    lha r7, 0x10(r1)
+    lwz r3, 0x70(r4)
+    mr r9, r31
+    lwz r4, 0x28(r4)
+    addi r8, r8, create_callback__Q43ipl5scene7Address6MiiObjFPQ33ipl6nigaoe6ObjectPv@l
+    li r5, 0x4c
+    li r6, 0x4c
+    bl create__Q33ipl6nigaoe7ManagerFPQ23EGG4HeapiiiPFPQ33ipl6nigaoe6ObjectPvPv
+    b miio_set_done
+miio_set_reset:
+    mr r3, r31
+    bl reset__Q43ipl5scene7Address6MiiObjFv
+miio_set_done:
+    lwz r0, 0x34(r1)
+    lwz r31, 0x2c(r1)
+    mtlr r0
+    addi r1, r1, 0x30
+    blr
+}
+
+extern "C" asm void __ml__Q33ipl4math4VEC2CFf() {
+    stwu r1, -0x10(r1)
+    mflr r0
+    mr r4, r3
+    lfs f2, 0(r3)
+    fmr f3, f1
+    lfs f0, 4(r4)
+    fmuls f1, f2, f1
+    stw r0, 0x14(r1)
+    addi r3, r1, 8
+    fmuls f2, f0, f3
+    bl __ct__Q33ipl4math4VEC2Fff
+    lwz r0, 0x14(r1)
+    mr r4, r3
+    lwz r3, 0(r3)
+    lwz r4, 4(r4)
+    mtlr r0
+    addi r1, r1, 0x10
     blr
 }
 
