@@ -37,7 +37,11 @@ extern "C" void update__Q33ipl5scene6ButtonFv();
 extern "C" void update__Q33ipl3gui11PaneManagerFv();
 extern "C" void del__Q33ipl5scene15FriendListCacheFUl();
 extern "C" void reset_friend__Q33ipl5scene7AddressFv();
+extern "C" void __div2u();
+extern "C" void __mod2u();
+extern "C" void _savegpr_23();
 extern "C" void _savegpr_27();
+extern "C" void _restgpr_23();
 extern "C" void _restgpr_27();
 
 void ipl::scene::AddressEdit::stt_msg_code_add() {
@@ -351,6 +355,53 @@ extern "C" u64 utf16_wiiid__Q33ipl5scene11AddressEditFPCw(const wchar_t* value) 
         multiplier *= 10;
     }
     return result;
+}
+
+extern "C" asm void wiiid_utf16__Q33ipl5scene11AddressEditFUxPw() {
+    nofralloc
+    stwu r1, -0x30(r1)
+    mflr r0
+    stw r0, 0x34(r1)
+    addi r11, r1, 0x30
+    bl _savegpr_23
+    mr r24, r3
+    mr r23, r4
+    mr r25, r5
+    li r27, 1
+    li r28, 0
+    li r26, 0
+    li r29, 0x30
+    li r30, 0
+    li r31, 0xa
+wiiid_utf16_L1:
+    mr r3, r24
+    mr r4, r23
+    mr r5, r28
+    mr r6, r27
+    bl __div2u
+    li r6, 0xa
+    li r5, 0
+    bl __mod2u
+    addc r5, r4, r29
+    adde r3, r3, r30
+    subfic r3, r26, 0xf
+    addi r26, r26, 1
+    slwi r4, r3, 1
+    mulhwu r0, r27, r31
+    cmpwi r26, 0x10
+    sthx r5, r25, r4
+    mullw r3, r28, r31
+    mulli r27, r27, 0xa
+    add r28, r0, r3
+    blt wiiid_utf16_L1
+    li r0, 0
+    addi r11, r1, 0x30
+    sth r0, 0x20(r25)
+    bl _restgpr_23
+    lwz r0, 0x34(r1)
+    mtlr r0
+    addi r1, r1, 0x30
+    blr
 }
 
 extern "C" void setName__Q43ipl5scene11AddressEdit6StringFPCw(void* self, const wchar_t* value) {
