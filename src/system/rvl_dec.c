@@ -5,7 +5,6 @@
 #define ASR_SIGNATURE 0x00415352 /* 'ASR' */
 
 static u8 work[0x9008];
-extern u8 _f_bss[];
 
 int Rvl_decode(u8* out, u8* in) {
 #ifdef TARGET_RVL
@@ -244,8 +243,8 @@ asm int Rvl_decode_ash(register u8* out, register u8* in) {
     lwz r26, 0xc(r4)
     lwzx r30, r28, r4
     addi r28, r28, 0x4
-    lis r8, _f_bss@h
-    ori r8, r8, _f_bss@l
+    lis r8, work@h
+    ori r8, r8, work@l
     addi r9, r8, 0x7fe
     addi r10, r9, 0x7fe
     addi r11, r10, 0x1ffe
@@ -731,8 +730,8 @@ asm int Rvl_decode_asr(register u8* out, register u8* in) {
         bne Rvl_decode_asr_L013
         li r12, 0x800
     Rvl_decode_asr_L013:
-        lis r8, _f_bss@h
-        ori r8, r8, _f_bss@l
+        lis r8, work@h
+        ori r8, r8, work@l
         mtctr r31
         addi r9, r8, 0x800
         addi r10, r9, 0x804

@@ -621,7 +621,7 @@ config.libs = [
     # Main
     IPLSection("system", [
             Object(Matching,    "system/enc_dummy.c"),
-            Object(NonMatching, "system/rvl_dec.c"),
+            Object(Matching,    "system/rvl_dec.c"),
             Object(Matching,    "system/RIPL_BoardRecord.c"),
             Object(Equivalent,  "system/iplSystem.cpp"),
             Object(NonMatching, "system/iplController.cpp"),
