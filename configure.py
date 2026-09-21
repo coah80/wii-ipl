@@ -633,7 +633,7 @@ config.libs = [
             Object(Matching,    "system/iplNandManager.cpp"),
             Object(Matching,    "system/iplNandWall.cpp"),
             Object(Matching,    "system/iplFramework.cpp"),
-            Object(NonMatching, "system/iplException.cpp"),
+            Object(Matching,    "system/iplException.cpp"),
             Object(Matching,    "system/iplMessage.cpp"),
             Object(Matching,    "system/iplMessageManager.cpp"),
             Object(Matching,    "system/iplNigaoeManager.cpp"),
