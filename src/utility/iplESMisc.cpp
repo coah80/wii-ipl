@@ -279,10 +279,10 @@ namespace ipl {
         }
 
         ESError ESMisc::GetValidTicketIndex(EGG::Heap* heap, ESTitleId titleId, ESTicketView* ticket, u32 ticketLength) {
+            s32 index;
             bool allocated = false;
             bool found = false;
             ESTicketView* ticketView;
-            s32 index;
 
             if (ticket == NULL) {
                 if (GetTicketViewList(heap, titleId, &ticket, &ticketLength) < 0) {
@@ -318,8 +318,8 @@ namespace ipl {
                 if (fd < 0) {
                     OSReport("ESMisc::GetValidTicketIndex: ES_OpenTitleContentFile fd %d\n", fd);
                 } else {
-                    u8* buf = (u8*)heap->alloc(0x40, 32);
-                    s32 numRead = ES_ReadContentFile(fd, buf, 0x40);
+                    char* buf = (char*)heap->alloc(0x40, -32);
+                    u32 numRead = ES_ReadContentFile(fd, buf, 0x40);
 
                     if (numRead != 0x40) {
                         OSReport("ESMisc::GetValidTicketIndex: ES_ReadContentFile err %d\n", numRead);
