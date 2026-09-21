@@ -14,6 +14,8 @@
 
 namespace ipl {
     namespace scene {
+        extern "C" char lbl_81650380[0x19] = "my_IplTopBalloon_a.brlyt";
+
         LetterWriter::LetterWriter(EGG::Heap* heap, int type)
             : TextWriter(heap), mbToFriend(false), mLetterState(LETTER_STATE_NORMAL), mLetterType((textinput::extend::letter::InputForm::Type)type),
               mpTextSubjectWork(NULL), mpCaptionString(NULL), mpCaptionAllocator(NULL), mNwc24ErrCountdown2(0) {
@@ -83,7 +85,7 @@ namespace ipl {
 
             // Text balloon for Mii face
             mpNigaoeBalloon =
-                new TextBalloon(getSceneHeap(), mpBalloonFile, "arc", "my_IplTopBalloon_a.brlyt", math::VEC3(0.0f, 0.0f, 0.0f), 120.0f, 30.0f);
+                new TextBalloon(getSceneHeap(), mpBalloonFile, "arc", lbl_81650380, math::VEC3(0.0f, 0.0f, 0.0f), 120.0f, 30.0f);
 
             // Scroller
             mpScroller = new utility::YoungBScroller();
@@ -372,10 +374,26 @@ namespace ipl {
             return TextWriter::calcFadeout();
         }
 
+        extern "C" char lbl_816503BF[] = "WIPL_SE_DECIDE";
+        extern "C" char lbl_816503CE[0x12A] =
+            "\x91\x97\x90\x4D\x8E\xB8\x94\x73\n\0"
+            "NWC24InitMsgObj err\n\0"
+            "NWC24SetMsgToId err\n\0"
+            "[to]: %016llu\n\0"
+            "NWC24SetMsgText err\n\0"
+            "RFLSetOfficial2NWC24Msg err = %d\n\0"
+            "NWC24SetMsgMBNoReply err\n\0"
+            "setMsgCommand err\n\0"
+            "NWC24SetMsgAttached err\n\0"
+            "NWC24CommitMsg err\n\0"
+            "NWC24SetMsgToAddr err\n\0"
+            "[LetterWriter]: send to %s\n\0"
+            "setMsgSubjectAndTextPublic err\n\0";
+
         void LetterWriter::onSend() {
             Button* button = getButton();
 
-            snd::getSystem()->startSE("WIPL_SE_DECIDE");
+            snd::getSystem()->startSE(lbl_816503BF);
 
             unk_0x7D = false;
 
@@ -391,7 +409,7 @@ namespace ipl {
             }
 
             if (sendMessageByNWC24(myUserId, mWCString) != 0) {
-                OSReport("送信失敗\n");  // "Send failure"
+                OSReport(lbl_816503CE);
             } else {
                 PlayTimeLog::sendMsgLog((wchar_t*)mFriendInfo.attr.name);
                 getBoard()->reopen_log();
@@ -462,26 +480,27 @@ namespace ipl {
 
         int LetterWriter::sendToWii(NWC24UserId userId, const wchar_t* wcString) {
             NWC24MsgObj msgObj;
+            const char* report = lbl_81650380;
 
             // Create message object
             if (!System::getNwc24Manager()->initMsgObj(&msgObj, NWC24_MSGTYPE_WII_MENU)) {
-                OSReport("NWC24InitMsgObj err\n");
+                OSReport(report + 0x58);
                 return SEND_ERR_NWC24;
             }
 
             // Set message to ID (in this case, my user ID)
             if (!System::getNwc24Manager()->setMsgToId(&msgObj, userId)) {
-                OSReport("NWC24SetMsgToId err\n");
+                OSReport(report + 0x6D);
                 return SEND_ERR_NWC24;
             }
 
-            OSReport("[to]: %016llu\n", userId);
+            OSReport(report + 0x82, userId);
 
             // Set letter contents
             if (*wcString != 0) {
                 if (!System::getNwc24Manager()->setMsgText(&msgObj, (char*)wcString, wcslen(wcString) * sizeof(wchar_t), NWC24_UTF_16BE,
                                                            NWC24_ENC_BASE64)) {
-                    OSReport("NWC24SetMsgText err\n");
+                    OSReport(report + 0x91);
                     return SEND_ERR_NWC24;
                 }
             } else {
@@ -491,7 +510,7 @@ namespace ipl {
 
                 if (!System::getNwc24Manager()->setMsgText(&msgObj, (char*)blank, wcslen(blank) * sizeof(wchar_t), NWC24_UTF_16BE,
                                                            NWC24_ENC_BASE64)) {
-                    OSReport("NWC24SetMsgText err\n");
+                    OSReport(report + 0x91);
                     return SEND_ERR_NWC24;
                 }
             }
@@ -501,19 +520,19 @@ namespace ipl {
                 RFLCharData data;
                 RFLErrcode err = RFLiSetOfficial2NWC24Msg(&msgObj, &data, mSelectedFaceId);
                 if (err != RFLErrcode_Success) {
-                    OSReport("RFLSetOfficial2NWC24Msg err = %d\n", err);
+                    OSReport(report + 0xA6, err);
                     return SEND_ERR_RFL;
                 }
             }
 
             // Do not reply
             if (!System::getNwc24Manager()->setMsgMBNoReply(&msgObj, false)) {
-                OSReport("NWC24SetMsgMBNoReply err\n");
+                OSReport(report + 0xC8);
                 return SEND_ERR_NWC24;
             }
 
             if (!System::getNwc24Manager()->setLedPattern(&msgObj)) {
-                OSReport("setMsgCommand err\n");
+                OSReport(report + 0xE2);
                 return SEND_ERR_NWC24;
             }
 
@@ -522,14 +541,14 @@ namespace ipl {
                 u32 picLength = 0;
                 const void* picData = board->getPicture(&picLength);
                 if (NWC24SetMsgAttached(&msgObj, picData, picLength, NWC24_X_WII_PICTURE) != NWC24_OK) {
-                    OSReport("NWC24SetMsgAttached err\n");
+                    OSReport(report + 0xF5);
                     return SEND_ERR_NWC24;
                 }
             }
 
             // Send!
             if (!System::getNwc24Manager()->commitMsg(&msgObj)) {
-                OSReport("NWC24CommitMsg err\n");
+                OSReport(report + 0x10E);
                 return SEND_ERR_NWC24;
             }
 
@@ -541,29 +560,29 @@ namespace ipl {
 
             // Create message object
             if (!System::getNwc24Manager()->initMsgObj(&msgObj, NWC24_MSGTYPE_PUBLIC)) {
-                OSReport("NWC24InitMsgObj err\n");
+                OSReport(lbl_816503CE + 0xA);
                 return SEND_ERR_NWC24;
             }
 
             // Set message to ID (in this case, my user ID)
             if (!System::getNwc24Manager()->setMsgToAddr(&msgObj, mFriendInfo.addr.mailAddr, strlen(mFriendInfo.addr.mailAddr))) {
-                OSReport("NWC24SetMsgToAddr err\n");
+                OSReport(lbl_816503CE + 0xD4);
                 return SEND_ERR_NWC24;
             }
 
-            OSReport("[LetterWriter]: send to %s\n", mFriendInfo.addr.mailAddr);
+            OSReport(lbl_816503CE + 0xEB, mFriendInfo.addr.mailAddr);
 
             // Set letter contents
             const wchar_t* subject = System::getMessage(MESG_LETTERWRITER_EMAIL_SUBJECT);
             if (!System::getNwc24Manager()->setMsgSubjectAndTextPublic(&msgObj, (u16*)subject, wcslen(subject), (u16*)wcString, wcslen(wcString),
                                                                        mpTextSubjectWork, mTextSubjectWorkSize)) {
-                OSReport("setMsgSubjectAndTextPublic err\n");
+                OSReport(lbl_816503CE + 0x107);
                 return SEND_ERR_NWC24;
             }
 
             // Send!
             if (!System::getNwc24Manager()->commitMsg(&msgObj)) {
-                OSReport("NWC24CommitMsg err\n");
+                OSReport(lbl_816503CE + 0xC0);
                 return SEND_ERR_NWC24;
             }
 
