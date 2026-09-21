@@ -8,7 +8,7 @@
 
 #pragma push
 #pragma section sconst_type ".sdata"
-extern const char lbl_816979E8 __attribute__((aligned(8))) = '/';
+extern const char lbl_816979E8[8] = "/";
 #pragma pop
 
 void CDBFSConcatenatePath(char* path, const char* concatPath) {
