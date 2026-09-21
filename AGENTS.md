@@ -157,9 +157,9 @@ run until `doctor` reports the backend and acceptance configuration clearly.
 
 For parallel work, use three to five workers with disjoint translation units or
 function ranges. Every worker must return the changed paths, exact-match
-measurements, validation results, and commit hash. Workers may propose code,
-but a candidate is not accepted when it is only fuzzy, uses an uninitialized
-value, or hides a mismatch behind artificial assembly.
+measurements, and validation results. Workers may propose code, but a candidate
+is not accepted when it is only fuzzy, uses an uninitialized value, or hides a
+mismatch behind artificial assembly.
 
 For each candidate, the worker must:
 
@@ -167,7 +167,8 @@ For each candidate, the worker must:
 2. Build the 43U object with `/home/cole/projects/tests/.venv/bin/ninja -C . build/43U/src/src/<path>.o`.
 3. Require `objdiff` to report `100.0%` for the function and `ctxdiff.py` to report `diffs 0`.
 4. Run `/home/cole/projects/tests/.venv/bin/ninja -C . build/43U/ok`.
-5. Commit the focused exact match immediately, then push it to `origin/main`.
+5. Return the focused exact match to the parent agent for review. The parent
+   commits and pushes it to `origin/main` only after rerunning every gate.
 
 The main agent reviews every worker result before accepting it. After each
 accepted commit, record the new report from `build/43U/report.json` and keep
@@ -192,14 +193,12 @@ the instruction count already matches and the surviving differences are
 callee-saved register names, you are probably looking at a tie-break. Record it
 and move on rather than thrashing.
 
-## Current status at the time of writing
+## Current status
 
-- 8690 functions matched, zero regressions against the pristine baseline.
-- `main.dol` byte-identical to the original throughout.
-- `iplESMisc.cpp` is `NonMatching` and unlinked, so all work there is DOL-safe.
-- 6 functions still missing from `iplESMisc.cpp`: `DeleteEmptyTitles`,
-  `DeleteDownloadTask`, `DeleteTitleContent`, `PrepareTitleDir`,
-  `DeleteSavedata`, `DeleteUnauthorizedData`.
+Do not copy a progress number from this file. Regenerate the live 43U report
+with `ninja -C . progress build/43U/report.json`; the report and DOL hash are
+the authority for current status. `iplESMisc.cpp` remains `NonMatching` and
+unlinked, so work there is DOL-safe.
 
 ## Reference
 
