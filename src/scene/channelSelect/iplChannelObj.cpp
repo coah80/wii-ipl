@@ -41,6 +41,7 @@ namespace ipl {
         extern "C" char lbl_816969DC[] = "Calc";
         extern "C" char lbl_816969E1[] = "Create";
 
+        #pragma pack(1)
         struct ModuleData {
             const char* langGroupLookup[SC_PRODUCT_AREA_MAX][16];
             char resolved[40];
@@ -50,6 +51,7 @@ namespace ipl {
             char iconBrlan[11];
             char iconWholeBrlan[17];
         };
+        #pragma pack()
 
         extern "C" ModuleData lbl_8164E328 = {
             {
@@ -1195,8 +1197,9 @@ namespace ipl {
         }
 
         void ChannelObj::bindNewAnm(layout::Object* layout) {
-            nw4r::lyt::Group* group;
             char grpName[20];
+            char** lookup;
+            nw4r::lyt::Group* group;
 
             // Look for "New" group first.
             // If that doesn't exist, look for "New_%d" group based on the System language.
@@ -1212,7 +1215,7 @@ namespace ipl {
                 if (group != NULL) {
                     mpNwc24NewGroup = group;
                 } else {
-                    char** lookup = (char**)lbl_8164E328.langGroupLookup[System::getRegion()];
+                    lookup = (char**)lbl_8164E328.langGroupLookup[System::getRegion()];
 
                     for (int i = 0; lookup[i] != NULL; i++) {
                         sprintf(grpName, "New_%s", lookup[i]);
