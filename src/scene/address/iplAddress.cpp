@@ -3,6 +3,130 @@
 #include "system/MESGEntries.h"
 #include "system/iplSystem.h"
 
+#include <string.h>
+
+extern "C" const char* sTextNameB[5] = {
+    "T_name_b_00", "T_name_b_01", "T_name_b_02", "T_name_b_03", "T_name_b_04",
+};
+
+extern "C" const char* sTextNameC[5] = {
+    "T_name_c_00", "T_name_c_01", "T_name_c_02", "T_name_c_03", "T_name_c_04",
+};
+
+extern "C" const char* sButtonNameB[5] = {
+    "B_name_b_00", "B_name_b_01", "B_name_b_02", "B_name_b_03", "B_name_b_04",
+};
+
+extern "C" const char* sButtonSpaceName[4] = {
+    "B_name_b_00_01", "B_name_b_01_02", "B_name_b_02_03", "B_name_b_03_04",
+};
+
+extern "C" const char* sNameB[5] = {
+    "name_b_00", "name_b_01", "name_b_02", "name_b_03", "name_b_04",
+};
+
+extern "C" const char* sNameC[5] = {
+    "G_name_c_00", "G_name_c_01", "G_name_c_02", "G_name_c_03", "G_name_c_04",
+};
+
+extern "C" char sAddressStringPoolA[] =
+    "th_Adress_a.brlyt\0"
+    "th_Adress_a_note_alp_in.brlan\0"
+    "G_note_all\0"
+    "th_Adress_a_note_alp_out.brlan\0"
+    "th_Adress_a_note_trns_in.brlan\0"
+    "th_Adress_a_note_trns_out.brlan\0"
+    "th_Adress_a_note_e_rtt.brlan\0"
+    "G_note_e_rtt\0"
+    "th_Adress_a_note_c_rtt.brlan\0"
+    "note_c_rtt\0"
+    "th_Adress_a_name_in.brlan\0"
+    "th_Adress_a_name_out.brlan\0"
+    "th_Adress_a_name_psh.brlan\0"
+    "th_Adress_a_gry_name_in.brlan\0"
+    "th_Adress_a_gry_name_out.brlan\0"
+    "th_Adress_a_gry_name_psh.brlan\0"
+    "th_Adress_a_name_c_gry.brlan\0"
+    "my_Back_a.brlyt\0"
+    "my_Back_a_Apear.brlan\0"
+    "Picture_00\0"
+    "my_Back_a_Lost.brlan\0"
+    "my_Dialog_a.brlyt\0"
+    "my_Dialog_a_DialogIn.brlan\0"
+    "my_Dialog_a_DialogOut.brlan\0"
+    "T_Dialog\0"
+    "mii_b_%02d\0"
+    "mii_c_%02d\0"
+    "T_adrs_00\0"
+    "T_wii_msg\0"
+    "N_note_move\0"
+    "WIPL_SE_FL_PAGE_INC\0"
+    "\0";
+
+extern "C" void calc__Q33ipl6layout6ObjectFv();
+
+extern "C" void (*sAddressJumpTable[26])() = {
+    calc__Q33ipl6layout6ObjectFv,
+    calc__Q33ipl6layout6ObjectFv,
+    calc__Q33ipl6layout6ObjectFv,
+    calc__Q33ipl6layout6ObjectFv,
+    calc__Q33ipl6layout6ObjectFv,
+    calc__Q33ipl6layout6ObjectFv,
+    calc__Q33ipl6layout6ObjectFv,
+    calc__Q33ipl6layout6ObjectFv,
+    calc__Q33ipl6layout6ObjectFv,
+    calc__Q33ipl6layout6ObjectFv,
+    calc__Q33ipl6layout6ObjectFv,
+    calc__Q33ipl6layout6ObjectFv,
+    calc__Q33ipl6layout6ObjectFv,
+    calc__Q33ipl6layout6ObjectFv,
+    calc__Q33ipl6layout6ObjectFv,
+    calc__Q33ipl6layout6ObjectFv,
+    calc__Q33ipl6layout6ObjectFv,
+    calc__Q33ipl6layout6ObjectFv,
+    calc__Q33ipl6layout6ObjectFv,
+    calc__Q33ipl6layout6ObjectFv,
+    calc__Q33ipl6layout6ObjectFv,
+    calc__Q33ipl6layout6ObjectFv,
+    calc__Q33ipl6layout6ObjectFv,
+    calc__Q33ipl6layout6ObjectFv,
+    calc__Q33ipl6layout6ObjectFv,
+    calc__Q33ipl6layout6ObjectFv,
+};
+
+extern "C" char sAddressStringPoolB[] =
+    "N_note_a\0"
+    "N_note_b\0"
+    "N_note_c\0"
+    "N_note_d\0"
+    "N_note_e\0"
+    "T_wii_name\0"
+    "T_nmbr_b\0"
+    "WIPL_SE_FL_PAGE_DEC\0"
+    "N_note_base\0"
+    "T_CalAdd_R\0"
+    "WIPL_SE_DECIDE\0"
+    "mii_move\0"
+    "WIPL_SE_CH_HOLD\0"
+    "WIPL_SE_CH_SET\0"
+    "WIPL_SE_CH_NOT_MOVE\0"
+    "WIPL_SE_BT_TARGETTING\0"
+    "WIPL_SE_CANCEL\0"
+    "T_nmbr_c\0"
+    "\0\0%"
+    "\0"
+    "0\0"
+    "6\0"
+    "d\0"
+    "\n\0\0"
+    "T_name_move\0"
+    "WIPL_SE_CH_DRAG\0"
+    "N_base_move\0"
+    "\x00\x31\x00\x32\x00\x33\x00\x34\x00\x35\x00\x36\x00\x37\x00\x38"
+    "\x00\x39\x00\x30\x00\x31\x00\x32\x00\x33\x00\x34\x00\x35\x00\x36"
+    "\x00\x00\x00\x25\x00\x30\x00\x31\x00\x36\x00\x6c\x00\x6c\x00\x64"
+    "\x00";
+
 extern "C" char smArg__Q23ipl6System;
 extern "C" void checkUserId__Q33ipl5nwc247ManagerFUx();
 extern "C" void getErrCode__Q33ipl5nwc247ManagerFv();
@@ -359,6 +483,28 @@ miio_set_done:
     mtlr r0
     addi r1, r1, 0x30
     blr
+}
+
+extern "C" int get_button_no__Q33ipl5scene7AddressFPCc(void*, const char* paneName) {
+    int result = -1;
+    for (int i = 0; i < 5; i++) {
+        if (strcmp(sButtonNameB[i], paneName) == 0) {
+            result = i;
+            break;
+        }
+    }
+    return result;
+}
+
+extern "C" int get_button_space_no__Q33ipl5scene7AddressFPCc(void*, const char* paneName) {
+    int result = -1;
+    for (int i = 0; i < 4; i++) {
+        if (strcmp(sButtonSpaceName[i], paneName) == 0) {
+            result = i;
+            break;
+        }
+    }
+    return result;
 }
 
 extern "C" asm void __ml__Q33ipl4math4VEC2CFf() {
