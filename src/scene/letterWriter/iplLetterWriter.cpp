@@ -557,32 +557,33 @@ namespace ipl {
 
         int LetterWriter::sendToPC(NWC24UserId userId, const wchar_t* wcString) {
             NWC24MsgObj msgObj;
+            const char* report = lbl_816503CE + 0x4E;
 
             // Create message object
             if (!System::getNwc24Manager()->initMsgObj(&msgObj, NWC24_MSGTYPE_PUBLIC)) {
-                OSReport(lbl_816503CE + 0xA);
+                OSReport(report + 0xA);
                 return SEND_ERR_NWC24;
             }
 
             // Set message to ID (in this case, my user ID)
             if (!System::getNwc24Manager()->setMsgToAddr(&msgObj, mFriendInfo.addr.mailAddr, strlen(mFriendInfo.addr.mailAddr))) {
-                OSReport(lbl_816503CE + 0xD4);
+                OSReport(report + 0xD4);
                 return SEND_ERR_NWC24;
             }
 
-            OSReport(lbl_816503CE + 0xEB, mFriendInfo.addr.mailAddr);
+            OSReport(report + 0xEB, mFriendInfo.addr.mailAddr);
 
             // Set letter contents
             const wchar_t* subject = System::getMessage(MESG_LETTERWRITER_EMAIL_SUBJECT);
             if (!System::getNwc24Manager()->setMsgSubjectAndTextPublic(&msgObj, (u16*)subject, wcslen(subject), (u16*)wcString, wcslen(wcString),
                                                                        mpTextSubjectWork, mTextSubjectWorkSize)) {
-                OSReport(lbl_816503CE + 0x107);
+                OSReport(report + 0x107);
                 return SEND_ERR_NWC24;
             }
 
             // Send!
             if (!System::getNwc24Manager()->commitMsg(&msgObj)) {
-                OSReport(lbl_816503CE + 0xC0);
+                OSReport(report + 0xC0);
                 return SEND_ERR_NWC24;
             }
 
