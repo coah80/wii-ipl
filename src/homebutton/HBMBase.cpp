@@ -129,6 +129,8 @@ extern const f32 lbl_81694748;
 extern const f32 lbl_81694744;
 extern const f32 lbl_816946DC;
 extern const f32 lbl_81694754;
+extern volatile const f32 lbl_8169474C;
+extern volatile const f32 lbl_81694750;
 
 extern const f32 lbl_81694714;
 extern const f32 lbl_81694710;
@@ -2643,7 +2645,7 @@ namespace homebutton {
 
         initgx();
         GXColor clr = {red_, green_, blue_, alpha};
-        drawBlackPlate(-1000.0f, -1000.0f, 1000.0f, 1000.0f, clr);
+        drawBlackPlate(::lbl_8169474C, ::lbl_8169474C, ::lbl_81694750, ::lbl_81694750, clr);
     }
 
     const int HomeButton::scSoundHeapSize_but2 = 0x60000;
