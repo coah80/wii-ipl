@@ -198,7 +198,6 @@ namespace ipl {
         }
 
         ESError ESMisc::checkContentsNum(ESTitleId titleId, ESTmdView* tmdView) {
-            s32 result = 0;
             u32 numContents = 0;
             ESContentId contentIds[ES_MAX_CONTENT] ALIGN32;
 
@@ -209,49 +208,50 @@ namespace ipl {
                 return 1;
             } else {
                 u16 num = tmdView->head.numContents;
-                u32 i;
-                s32 count = 0;
+                u32 count = 0;
 
-                for (i = 0; i < num; i++) {
+                for (u32 i = 0; i < num; i++) {
                     if ((tmdView->contents[i].type & 0x8000) == 0) {
                         count++;
                     }
                 }
 
                 if (privateCount == count) {
-                    result = 0;
+                    return 0;
                 } else {
                     ESError err = ES_ListTitleContentsOnCard(titleId, NULL, &numContents);
-                    result = err;
 
                     if (err != ES_ERR_OK) {
                         OSReport("ESMisc::checkContentsNum: ES_ListTitleContentsOnCard err %d\n", err);
+                        return err;
                     } else if (numContents == 0) {
                         OSReport("ESMisc::checkContentsNum: no content for 0x%016llx.\n", titleId);
-                        result = 1;
+                        return 1;
                     } else {
                         err = ES_ListTitleContentsOnCard(titleId, contentIds, &numContents);
-                        result = err;
 
                         if (err == ES_ERR_OK) {
                             bool found = false;
 
-                            for (i = 0; i < numContents && !found; i++) {
-                                for (u32 j = 0; j < num; j++) {
+                            for (u32 i = 0; i < numContents && !found; i++) {
+                                u32 j = 0;
+                                while (j < tmdView->head.numContents) {
                                     if (contentIds[i] == tmdView->contents[j].cid && (tmdView->contents[j].type & 0x8000) == 0) {
                                         found = true;
                                         break;
                                     }
+                                    j++;
                                 }
                             }
 
                             if (!found) {
                                 OSReport("ESMisc::checkContentsNum: 0x%016llx is already deleted.\n", titleId);
-                                result = 1;
+                                return 1;
                             } else {
+                                u32 k;
                                 for (u32 j = 0; j < num; j++) {
-                                    u32 k = 0;
-                                    for (i = 0; i < numContents; i++) {
+                                    k = 0;
+                                    for (u32 i = 0; i < numContents; i++) {
                                         if (contentIds[i] == tmdView->contents[j].cid) {
                                             break;
                                         }
@@ -260,22 +260,19 @@ namespace ipl {
                                     if (k == numContents && (tmdView->contents[j].type & 0x4000) == 0) {
                                         OSReport("ESMisc::checkContentsNum: not complete: non-optional cidx %d missing for 0x%016llx.\n",
                                                  tmdView->contents[j].index, titleId);
-                                        result = 2;
-                                        goto out;
+                                        return 2;
                                     }
                                 }
                                 OSReport("ESMisc::checkContentsNum: complete: only missing non-optional contents for 0x%016llx.\n", titleId);
-                                result = 0;
+                                return 0;
                             }
                         } else {
                             OSReport("ESMisc::checkContentsNum: ES_ListTitleContentsOnCard failed.[%d]\n", err);
+                            return err;
                         }
                     }
                 }
             }
-
-        out:
-            return result;
         }
 
         ESError ESMisc::GetValidTicketIndex(EGG::Heap* heap, ESTitleId titleId, ESTicketView* ticket, u32 ticketLength) {
