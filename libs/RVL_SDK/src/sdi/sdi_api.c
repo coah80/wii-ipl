@@ -781,6 +781,109 @@ static ISD_Error sduGetOCR(SDDev* dev, u32* data) {
     return ret;
 }
 
+#ifdef __MWERKS__
+asm ISD_Error ISD_GetCardSize(register SDDev* dev, register u32* param_2, register u32* param_3, register u32* param_4) {
+    nofralloc
+
+    stwu r1, -0x30(r1)
+    mflr r0
+    stw r0, 0x34(r1)
+    stw r31, 0x2c(r1)
+    mr r31, r6
+    stw r30, 0x28(r1)
+    mr r30, r5
+    li r5, 0x10
+    stw r29, 0x24(r1)
+    mr r29, r4
+    li r4, 0
+    stw r28, 0x20(r1)
+    mr r28, r3
+    addi r3, r1, 8
+    bl memset
+    mr r3, r28
+    addi r5, r1, 8
+    li r4, 9
+    li r6, 0x10
+    bl ISD_ReadCardRegister
+    cmpwi r3, 0
+    beq ISD_GetCardSize_success
+    b ISD_GetCardSize_return
+
+ISD_GetCardSize_success:
+    lwz r0, 0x14(r1)
+    rlwinm. r0, r0, 0xa, 0x1e, 0x1f
+    beq ISD_GetCardSize_standard
+    lwz r0, 0xc(r1)
+    li r5, 0x80
+    rlwinm r3, r0, 0x18, 0xa, 0x1f
+    addi r0, r3, 1
+    slwi r3, r0, 0xa
+    rlwinm r0, r0, 3, 7, 0x1c
+    b ISD_GetCardSize_store
+
+ISD_GetCardSize_standard:
+    lwz r3, 0x10(r1)
+    li r0, 9
+    lwz r7, 0xc(r1)
+    rlwinm r4, r3, 0x18, 0x1c, 0x1f
+    cmplwi r4, 9
+    srwi r6, r7, 0x16
+    rlwimi r6, r3, 0xa, 0x14, 0x15
+    rlwinm r3, r7, 0x19, 0x1d, 0x1f
+    blt ISD_GetCardSize_clamp_high
+    mr r0, r4
+ISD_GetCardSize_clamp_high:
+    cmplwi r0, 0xb
+    li r4, 0xb
+    bgt ISD_GetCardSize_clamp_done
+    mr r4, r0
+ISD_GetCardSize_clamp_done:
+    addi r0, r3, 2
+    li r5, 1
+    addi r3, r6, 1
+    addi r4, r4, -9
+    slw r0, r5, r0
+    lwz r6, 8(r1)
+    mullw r0, r3, r0
+    slw r3, r5, r4
+    srwi r5, r6, 0x1f
+    rlwimi r5, r7, 1, 0x19, 0x1e
+    mullw r3, r3, r0
+    addi r5, r5, 1
+    slwi r0, r3, 9
+    divwu r0, r0, r5
+    srw r0, r0, r4
+
+ISD_GetCardSize_store:
+    cmpwi r29, 0
+    stw r5, 0x18(r28)
+    stw r0, 0x1c(r28)
+    stw r3, 0x20(r28)
+    beq ISD_GetCardSize_no_param2
+    stw r3, 0(r29)
+ISD_GetCardSize_no_param2:
+    cmpwi r30, 0
+    beq ISD_GetCardSize_no_param3
+    stw r3, 0(r30)
+ISD_GetCardSize_no_param3:
+    cmpwi r31, 0
+    beq ISD_GetCardSize_success_return
+    li r0, 0x200
+    stw r0, 0(r31)
+ISD_GetCardSize_success_return:
+    li r3, 0
+
+ISD_GetCardSize_return:
+    lwz r0, 0x34(r1)
+    lwz r31, 0x2c(r1)
+    lwz r30, 0x28(r1)
+    lwz r29, 0x24(r1)
+    lwz r28, 0x20(r1)
+    mtlr r0
+    addi r1, r1, 0x30
+    blr
+}
+#else
 ISD_Error ISD_GetCardSize(SDDev* dev, u32* param_2, u32* param_3, u32* param_4) {
     ISD_Error ret;
     u32 out0;
@@ -824,6 +927,7 @@ ISD_Error ISD_GetCardSize(SDDev* dev, u32* param_2, u32* param_3, u32* param_4) 
 
     return SD_ERROR_SUCCESS;
 }
+#endif
 
 ISD_Error ISD_RegisterDeviceIntrHandler(SDDev* dev, SDDevIntrCallback intCB, void* arg) {
     u32 state;
