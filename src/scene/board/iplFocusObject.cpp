@@ -1147,7 +1147,6 @@ namespace ipl {
             mpParsedText = new (System::getMem2App(), 4) wchar_t[PARSED_TEXT_LENGTH];
             memset(mpParsedText, 0, PARSED_TEXT_LENGTH * sizeof(wchar_t));
 
-            const wchar_t* pURLStr;
             const wchar_t* pStr = inText;
 
             const wchar_t URLSep[2] = {UrlProcessor::SEPERATOR, 0x00};
@@ -1163,7 +1162,8 @@ namespace ipl {
 
             while (i != strLen) {
                 // If we found a URL
-                if (inText[i] == L'h' && (pURLStr = &inText[i], is_url_protocol(pURLStr))) {
+                if (inText[i] == L'h' && is_url_protocol(&inText[i])) {
+                    const wchar_t* pURLStr = &inText[i];
                     // Parse the URL
 
                     unk_0x114[5] = 0;
