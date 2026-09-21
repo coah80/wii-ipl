@@ -8,6 +8,7 @@ extern const u8 lbl_81616BD8[] = {0x0f, 0x21, 0x20, 0x08, 0x09, 0x0e, 0x19, 0x00
 extern const u8 lbl_81616BE4[] = {0x0f, 0x21, 0x20, 0x04, 0x09, 0x0e, 0x11, 0x00, 0x21, 0x21, 0x00, 0x00};
 extern "C" void SetCountry__Q39textinput5input10HKBManagerFUc();
 extern "C" textinput::input::HKBManager sInstance__Q39textinput5input10HKBManager;
+extern "C" char jumptable_81668EF8[];
 
 namespace textinput {
 
@@ -83,6 +84,166 @@ namespace textinput {
                 lbzx r4, r4, r5
                 addi r3, r3, sInstance__Q39textinput5input10HKBManager@l
                 b SetCountry__Q39textinput5input10HKBManagerFUc
+            }
+
+            extern "C" asm void convertWCCode__Q49textinput8keyboard5hwkey10HWKeyboardCFw() {
+                nofralloc
+                stwu r1, -0x10(r1)
+                mflr r0
+                stw r0, 0x14(r1)
+                stw r31, 0xc(r1)
+                mr r31, r4
+                stw r30, 8(r1)
+                mr r30, r3
+                lwz r3, 0x10(r3)
+                lwz r12, 0(r3)
+                lwz r12, 0x98(r12)
+                mtctr r12
+                bctrl
+                lwz r12, 0(r3)
+                lwz r12, 0x10(r12)
+                mtctr r12
+                bctrl
+                cmpwi r3, 0
+                beq convertWCCode_HWKeyboard_L1
+                lwz r3, 0x10(r30)
+                lwz r12, 0(r3)
+                lwz r12, 0x78(r12)
+                mtctr r12
+                bctrl
+                lwz r12, 0(r3)
+                lwz r12, 0x58(r12)
+                mtctr r12
+                bctrl
+                cmpwi r3, 0
+                beq convertWCCode_HWKeyboard_L1
+                lwz r3, 0x10(r30)
+                lwz r12, 0(r3)
+                lwz r12, 0x34(r12)
+                mtctr r12
+                bctrl
+                cmpwi r3, 0
+                bne convertWCCode_HWKeyboard_L2
+                cmpwi r31, 0x5b
+                beq convertWCCode_HWKeyboard_L3
+                bge convertWCCode_HWKeyboard_L4
+                cmpwi r31, 0x2d
+                beq convertWCCode_HWKeyboard_L5
+                bge convertWCCode_HWKeyboard_L6
+                cmpwi r31, 0x2c
+                bge convertWCCode_HWKeyboard_L7
+                b convertWCCode_HWKeyboard_L1
+            convertWCCode_HWKeyboard_L6:
+                cmpwi r31, 0x2f
+                bge convertWCCode_HWKeyboard_L1
+                b convertWCCode_HWKeyboard_L8
+            convertWCCode_HWKeyboard_L4:
+                cmpwi r31, 0x5d
+                beq convertWCCode_HWKeyboard_L9
+                b convertWCCode_HWKeyboard_L1
+            convertWCCode_HWKeyboard_L7:
+                li r3, 0x3001
+                b convertWCCode_HWKeyboard_L10
+            convertWCCode_HWKeyboard_L8:
+                li r3, 0x3002
+                b convertWCCode_HWKeyboard_L10
+            convertWCCode_HWKeyboard_L5:
+                li r3, 0x30fc
+                b convertWCCode_HWKeyboard_L10
+            convertWCCode_HWKeyboard_L3:
+                li r3, 0x300c
+                b convertWCCode_HWKeyboard_L10
+            convertWCCode_HWKeyboard_L9:
+                li r3, 0x300d
+                b convertWCCode_HWKeyboard_L10
+            convertWCCode_HWKeyboard_L2:
+                lwz r3, 0x10(r30)
+                lwz r12, 0(r3)
+                lwz r12, 0x34(r12)
+                mtctr r12
+                bctrl
+                cmpwi r3, 8
+                bne convertWCCode_HWKeyboard_L1
+                addi r0, r31, -0x21
+                cmplwi r0, 0x3e
+                bgt convertWCCode_HWKeyboard_L1
+                lis r3, jumptable_81668EF8@ha
+                slwi r0, r0, 2
+                addi r3, r3, jumptable_81668EF8@l
+                lwzx r3, r3, r0
+                mtctr r3
+                bctr
+            convertWCCode_HWKeyboard_L11:
+                lis r3, 1
+                addi r3, r3, -0xf4
+                b convertWCCode_HWKeyboard_L10
+            convertWCCode_HWKeyboard_L12:
+                li r3, 0x3002
+                b convertWCCode_HWKeyboard_L10
+            convertWCCode_HWKeyboard_L13:
+                li r3, 0x300a
+                b convertWCCode_HWKeyboard_L10
+            convertWCCode_HWKeyboard_L14:
+                li r3, 0x300b
+                b convertWCCode_HWKeyboard_L10
+            convertWCCode_HWKeyboard_L15:
+                lis r3, 1
+                addi r3, r3, -0xff
+                b convertWCCode_HWKeyboard_L10
+            convertWCCode_HWKeyboard_L16:
+                lis r3, 1
+                addi r3, r3, -0xe1
+                b convertWCCode_HWKeyboard_L10
+            convertWCCode_HWKeyboard_L17:
+                lis r3, 1
+                addi r3, r3, -0xf8
+                b convertWCCode_HWKeyboard_L10
+            convertWCCode_HWKeyboard_L18:
+                lis r3, 1
+                addi r3, r3, -0xf7
+                b convertWCCode_HWKeyboard_L10
+            convertWCCode_HWKeyboard_L19:
+                lis r3, 1
+                addi r3, r3, -0xe6
+                b convertWCCode_HWKeyboard_L10
+            convertWCCode_HWKeyboard_L20:
+                lis r3, 1
+                addi r3, r3, -0xe5
+                b convertWCCode_HWKeyboard_L10
+            convertWCCode_HWKeyboard_L21:
+                lis r3, 1
+                addi r3, r3, -0xf3
+                b convertWCCode_HWKeyboard_L10
+            convertWCCode_HWKeyboard_L22:
+                lis r3, 1
+                addi r3, r3, -0xc1
+                b convertWCCode_HWKeyboard_L10
+            convertWCCode_HWKeyboard_L23:
+                li r3, 0x3001
+                b convertWCCode_HWKeyboard_L10
+            convertWCCode_HWKeyboard_L24:
+                lbz r3, 0x15(r30)
+                neg r0, r3
+                or r0, r0, r3
+                srwi r3, r0, 0x1f
+                addi r3, r3, 0x2018
+                b convertWCCode_HWKeyboard_L10
+            convertWCCode_HWKeyboard_L25:
+                lbz r3, 0x16(r30)
+                neg r0, r3
+                or r0, r0, r3
+                srwi r3, r0, 0x1f
+                addi r3, r3, 0x201c
+                b convertWCCode_HWKeyboard_L10
+            convertWCCode_HWKeyboard_L1:
+                mr r3, r31
+            convertWCCode_HWKeyboard_L10:
+                lwz r0, 0x14(r1)
+                lwz r31, 0xc(r1)
+                lwz r30, 8(r1)
+                mtlr r0
+                addi r1, r1, 0x10
+                blr
             }
         }  // namespace hwkey
 
