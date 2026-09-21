@@ -656,7 +656,7 @@ config.libs = [
             Object(NonMatching, "system/iplSaveDataManager.cpp"),
             Object(Matching,    "system/iplChannelRsoThread.cpp"),
             Object(Equivalent,  "system/RsoSystem.cpp"),
-            Object(Equivalent,  "system/iplCdbBackup.cpp"),
+            Object(Matching,    "system/iplCdbBackup.cpp"),
             Object(NonMatching, "system/odh.cpp"),
             Object(Matching,    "system/iplSDVFWorker.cpp"),
             Object(Matching,    "system/iplNandWrapper.cpp"),
