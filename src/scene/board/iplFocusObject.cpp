@@ -1486,7 +1486,13 @@ namespace ipl {
                 mURLProc.setUnk_0x40(8.0f);
             }
 
-            nw4r::lyt::TextBox* textPane = nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(mpLayout->FindPaneByName("T_Letter"));
+            nw4r::lyt::Pane* pane = mpLayout->FindPaneByName("T_Letter");
+            nw4r::lyt::TextBox* textPane = NULL;
+            const nw4r::ut::detail::RuntimeTypeInfo* paneType = pane->GetRuntimeTypeInfo();
+            const nw4r::ut::detail::RuntimeTypeInfo* textBoxType = &nw4r::lyt::TextBox::typeInfo;
+            if (paneType->IsDerivedFrom(textBoxType)) {
+                textPane = static_cast<nw4r::lyt::TextBox*>(pane);
+            }
 
             if (System::getChannelManager()->isEnableUrlJump() && mpBoardObj->mLetterType != BoardObject::TYPE_PLAYTIME) {
                 textPane->SetTagProcessor(&mURLProc);
