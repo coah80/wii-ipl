@@ -6,6 +6,15 @@
 #include "sound/iplSound.h"
 
 namespace ipl {
+    namespace math {
+        template <>
+        VEC3 LinearIntp<VEC3>::get() const {
+            VEC3 r = mEnd * getCurrentFrame();
+            r += mStart * (mMaxFrame - mFrame);
+            return r * (f64)(1.0f / getMaxFrame());
+        }
+    }
+
     namespace scene {
         const f32 offsets[2][2] = {
             {64.f, 48.f},
