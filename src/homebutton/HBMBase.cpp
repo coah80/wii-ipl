@@ -125,6 +125,7 @@ BOOL HBMIsReassignedControllers() {
 /* THE LOGIC */
 
 extern const f32 lbl_816946D8;
+extern const f32 lbl_81694748;
 extern const f32 lbl_81694744;
 extern const f32 lbl_816946DC;
 extern const f32 lbl_81694754;
@@ -2385,10 +2386,10 @@ namespace homebutton {
     void HomeButton::reset_guiManager(int num) {
         if (num < 0) {
             for (int i = 0; i < 8; i++) {
-                mpPaneManager->update(i, -10000.0f, -10000.0f, 0, 0, 0, NULL);
+                mpPaneManager->update(i, ::lbl_81694748, ::lbl_81694748, 0, 0, 0, NULL);
             }
         } else {
-            mpPaneManager->update(num, -10000.0f, -10000.0f, 0, 0, 0, NULL);
+            mpPaneManager->update(num, ::lbl_81694748, ::lbl_81694748, 0, 0, 0, NULL);
         }
     }
 
