@@ -19,7 +19,12 @@ struct SArCDJ_OdhMaster {
     u16 field0;
     u16 field2;
     u8 field4;
-    u8 padding[0x22B];
+    u8 padding[0xB];
+    u32 bitBuffer;
+    u32 bitCount;
+    u32 outputPos;
+    u32 remaining;
+    u8 padding2[0x210];
     u8* data;
 };
 
@@ -27,6 +32,7 @@ class CArGBAOdh {
   public:
     s32 decompressGbaOdh(u8* src, int srcSize, u8* dest, int destSize, u8* work, int unk, int format);
     s32 compressGbaOdh(u8* src, u8* dest, int width, int height, int quality, u32 sizeLimit, u8* work, int format);
+    s32 cdj_c_flashBuffer(SArCDJ_OdhMaster* master);
     void cdj_c_makeHeader(SArCDJ_OdhMaster* master, u32 size);
 
   private:
@@ -72,6 +78,28 @@ int ODHGetWidth(u8* data) {
 
 int ODHGetHeight(u8* data) {
     return (((u32*)data)[1] >> 11 & 0x7FF) + 7 & 0x7F8;
+}
+
+s32 CArGBAOdh::cdj_c_flashBuffer(SArCDJ_OdhMaster* master) {
+    master->bitBuffer |= 0x7F << (master->bitCount -= 7);
+
+    while (master->bitCount <= 0x18) {
+        if (master->remaining == 0) {
+            return ODH_ERROR_80000004;
+        }
+
+        master->data[master->outputPos - master->remaining] = master->bitBuffer >> 24;
+        master->remaining--;
+        master->bitCount += 8;
+        master->bitBuffer <<= 8;
+    }
+
+    while ((master->outputPos - master->remaining) & 3) {
+        master->data[master->outputPos - master->remaining] = 0xFF;
+        master->remaining--;
+    }
+
+    return ODH_ERROR_SUCCESS;
 }
 
 void CArGBAOdh::cdj_c_makeHeader(SArCDJ_OdhMaster* master, u32 size) {
