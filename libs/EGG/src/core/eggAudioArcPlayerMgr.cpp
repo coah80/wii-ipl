@@ -44,32 +44,32 @@ namespace EGG {
         mpArchive = &mDvdSoundArchive;
 
         if (pDvdArchive->Open(pPath)) {
+            u32 headerSize;
+            u32 setupSize;
+            u32 strmSize;
+            u32 stringSize;
             mbIsOpeningArchive = true;
+            headerSize = pDvdArchive->GetHeaderSize();
 
-            u32 headerSize = pDvdArchive->GetHeaderSize();
-            void* pHeaderBuffer = pHeap->Alloc(headerSize, NULL, NULL);
-
-            if (!pDvdArchive->LoadHeader(pHeaderBuffer, headerSize)) {
+            if (!pDvdArchive->LoadHeader(pHeap->Alloc(headerSize, NULL, NULL), headerSize)) {
                 return NULL;
             }
 
-            u32 setupSize = mSoundArchivePlayer.GetRequiredMemSize(pDvdArchive);
-            u32 strmSize = mSoundArchivePlayer.GetRequiredStrmBufferSize(pDvdArchive);
-            void* pSetupBuffer = pHeap->Alloc(setupSize, NULL, NULL);
-            void* pStrmBuffer = pHeap->Alloc(strmSize, NULL, NULL);
+            setupSize = mSoundArchivePlayer.GetRequiredMemSize(pDvdArchive);
+            strmSize = mSoundArchivePlayer.GetRequiredStrmBufferSize(pDvdArchive);
 
-            if (!mSoundArchivePlayer.Setup(pDvdArchive, pSetupBuffer, setupSize, pStrmBuffer, strmSize)) {
+            if (!mSoundArchivePlayer.Setup(pDvdArchive, pHeap->Alloc(setupSize, NULL, NULL), setupSize,
+                                           pHeap->Alloc(strmSize, NULL, NULL), strmSize)) {
                 mbIsOpeningArchive = false;
                 return NULL;
             }
 
-            u32 stringSize = pDvdArchive->GetLabelStringDataSize();
-            void* pStringBuffer = pHeap->Alloc(stringSize, NULL, NULL);
+            stringSize = pDvdArchive->GetLabelStringDataSize();
 
-            pDvdArchive->LoadLabelStringData(pStringBuffer, stringSize);
+            pDvdArchive->LoadLabelStringData(pHeap->Alloc(stringSize, NULL, NULL), stringSize);
 
-            mStorage = SARC_STORAGE_DVD;
             mbIsOpeningArchive = false;
+            mStorage = SARC_STORAGE_DVD;
             return &mSoundArchivePlayer;
         }
 
