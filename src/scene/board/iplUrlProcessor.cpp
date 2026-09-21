@@ -174,17 +174,13 @@ namespace ipl {
 
                 while (url_col = (url_collision*)nw4r::ut::List_GetNext(&mUrlCollisions, url_col), url_col != NULL) {
                     while (line_col = (line_collision*)nw4r::ut::List_GetNext(&url_col->mLineCollisions, line_col), line_col != NULL) {
+                        f32 left = line_col->unk_0x00 - var_f28;
+                        f32 right = var_f28 + line_col->unk_0x04;
                         f32 temp_f0 = ((unk_0x44 + unk_0x40) - line_col->unk_0x08);
-                        f32 a = (var_f29 + temp_f0);
-                        f32 b = (var_f30 + temp_f0);
-                        if ((line_col->unk_0x00 - var_f28) <= var_f31) {
-                            if (var_f31 <= (var_f28 + line_col->unk_0x04)) {
-                                if ((a - var_f28) <= -pos.y) {
-                                    if (-pos.y <= (var_f28 + b)) {
-                                        return url_col->unk_0x00;
-                                    }
-                                }
-                            }
+                        f32 top = (var_f29 + temp_f0) - var_f28;
+                        f32 bottom = var_f28 + (var_f30 + temp_f0);
+                        if (left <= var_f31 && var_f31 <= right && top <= -pos.y && -pos.y <= bottom) {
+                            return url_col->unk_0x00;
                         }
                     }
                 }
@@ -214,7 +210,9 @@ namespace ipl {
 
                 int chIdx2 = 0;
                 int chIdx = 0;
-                for (int i = ((int)url_col->unk_0x08 - (int)url_col->unk_0x04) / sizeof(wchar_t); i > 0; i--) {
+                u32 i = (u32)url_col->unk_0x08 - (u32)url_col->unk_0x04;
+                i >>= 1;
+                for (; i > 0; i--) {
                     wchar_t wch = url_col->unk_0x04[chIdx];
                     if (wch != SEPERATOR && chIdx2 < 0x200) {
                         url[chIdx2++] = wch;
