@@ -1,3 +1,7 @@
+#include <revolution/types.h>
+#define vu8 u8
+#include "system/iplChannelManager.h"
+#undef vu8
 #include "scene/channelTitle/iplChannelTitle.h"
 #include "scene/channelSelect/iplChannelSelect.h"
 
