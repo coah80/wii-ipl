@@ -884,6 +884,11 @@ namespace ipl {
         void ESMisc::DeleteUnauthorizedData(EGG::Heap* heap) {
             u32 titleCount = 0;
             ESTitleId* titleIds = NULL;
+            char path[88];
+            NANDFileInfo fileInfo ALIGN32;
+            u8 ticketViews[0xe0] ALIGN32;
+            u32 ticketViewCount;
+            ESTicketView* ticketViewList;
             s32 ret = ES_ListTitlesOnCard(NULL, &titleCount);
 
             if (ret != ES_ERR_OK) {
@@ -904,22 +909,20 @@ namespace ipl {
                 return;
             }
 
+            u32 titleIdOffset = 0;
             for (u32 i = 0; i < titleCount; i++) {
-                u32 titleIdHi = ((u32*)titleIds)[i * 2];
-                u32 titleIdLo = ((u32*)titleIds)[i * 2 + 1];
-                ESTitleId titleId = ((ESTitleId)titleIdHi << 32) | titleIdLo;
+                u32 titleIdHi = *(u32*)((u8*)titleIds + titleIdOffset);
+                u32 titleIdLo = *(u32*)((u8*)titleIds + titleIdOffset + 4);
 
-                if (titleIdHi == 0x10000 && (titleIdLo & 0xffffff00) == 0x525a4400) {
-                    char path[88];
-                    NANDFileInfo fileInfo ALIGN32;
+                if ((titleIdLo & 0xffffff00) == 0x525a4400 && titleIdHi == 0x10000) {
                     u8* saveData = NULL;
                     BOOL fileOpen = FALSE;
                     BOOL deleteSaveData = FALSE;
 
                     sprintf(path - 8, "/title/%08x/%08x/data/%s", titleIdHi & 0xffffff, titleIdLo, "zeldaTp.dat");
-                    if (!ChangeUid(titleId)) {
+                    if (!ChangeUid(((ESTitleId)titleIdHi << 32) | titleIdLo)) {
                         OSReport("%s::%s: ChangeUid failed\n", __FILE__, "verifySavedataZD");
-                        DeleteTitle(heap, titleId);
+                        DeleteTitle(heap, ((ESTitleId)titleIdHi << 32) | titleIdLo);
                     } else {
                         ret = NANDPrivateOpen(path - 8, (NANDFileInfo*)((u8*)&fileInfo - 0x20), NAND_ACCESS_READ);
                         if (ret == NAND_RESULT_NOEXISTS) {
@@ -977,7 +980,8 @@ namespace ipl {
                                 verify_failed:
 
                                     if (!valid) {
-                                        OSReport("%s::%s: Verify failed for %016llx\n", __FILE__, "verifySavedataZD", titleId);
+                                        OSReport("%s::%s: Verify failed for %016llx\n", __FILE__, "verifySavedataZD",
+                                                 ((ESTitleId)titleIdHi << 32) | titleIdLo);
                                         deleteSaveData = TRUE;
                                     }
                                 }
@@ -985,7 +989,7 @@ namespace ipl {
                                 NANDClose((NANDFileInfo*)((u8*)&fileInfo - 0x20));
                                 fileOpen = FALSE;
                                 if (deleteSaveData) {
-                                    DeleteSavedata(titleId, heap);
+                                    DeleteSavedata(((ESTitleId)titleIdHi << 32) | titleIdLo, heap);
                                 }
                             }
                         }
@@ -998,19 +1002,20 @@ namespace ipl {
                         NANDClose((NANDFileInfo*)((u8*)&fileInfo - 0x20));
                     }
                     ChangeUid(SYSMENU_TITLE_ID);
-                } else if (titleId == 0x0001000844495343ULL ||
-                           (titleId < 0x0001000844495343ULL &&
-                            (titleId == 0x000100014a4f4449ULL ||
-                             (titleId > 0x000100014a4f4449ULL && titleId == 0x0001000148415858ULL))) ||
-                           (titleId > 0x0001000844495343ULL &&
-                            (titleId == 0x0001000844564458ULL ||
-                             (titleId > 0x0001000844564458ULL && titleId == 0x000100084449534bULL)))) {
+                } else if ((((ESTitleId)titleIdHi << 32) | titleIdLo) == 0x0001000844495343ULL ||
+                           ((((ESTitleId)titleIdHi << 32) | titleIdLo) < 0x0001000844495343ULL &&
+                            ((((ESTitleId)titleIdHi << 32) | titleIdLo) == 0x000100014a4f4449ULL ||
+                             ((((ESTitleId)titleIdHi << 32) | titleIdLo) > 0x000100014a4f4449ULL &&
+                              (((ESTitleId)titleIdHi << 32) | titleIdLo) == 0x0001000148415858ULL))) ||
+                           ((((ESTitleId)titleIdHi << 32) | titleIdLo) > 0x0001000844495343ULL &&
+                            ((((ESTitleId)titleIdHi << 32) | titleIdLo) == 0x0001000844564458ULL ||
+                             ((((ESTitleId)titleIdHi << 32) | titleIdLo) > 0x0001000844564458ULL &&
+                              (((ESTitleId)titleIdHi << 32) | titleIdLo) == 0x000100084449534bULL)))) {
+                    ESTitleId titleId = *(ESTitleId*)((u8*)titleIds + titleIdOffset);
                     ES_DeleteTitle(titleId);
 
-                    u8 ticketViews[0xe0];
-                    u32 ticketViewCount = 0;
-                    ESTicketView* ticketViewList = NULL;
-                    memset(ticketViews - 8, 0, sizeof(ticketViews));
+                    ticketViewList = NULL;
+                    memset(ticketViews, 0, sizeof(ticketViews));
                     ret = ES_GetTicketViews(titleId, NULL, &ticketViewCount);
                     if (ret != ES_ERR_OK) {
                         OSReport("%s::%s: ES_GetTicketViews failed: %d for %016llx\n", __FILE__, "DeleteTicketsForce", ret, titleId);
@@ -1021,12 +1026,11 @@ namespace ipl {
                             OSReport("%s::%s: ES_GetTicketViews failed: %d for %016llx\n", __FILE__, "DeleteTicketsForce", ret, titleId);
                         } else {
                             for (u32 j = 0; j < ticketViewCount; j++) {
-                                memcpy(ticketViews - 8, (u8*)ticketViewList + j * sizeof(ESTicketView), 0xd8);
-                                ret = ES_DeleteTicket((ESTicketView*)(ticketViews - 8));
+                                memcpy(ticketViews, (u8*)ticketViewList + j * sizeof(ESTicketView), 0xd8);
+                                ret = ES_DeleteTicket((ESTicketView*)ticketViews);
                                 if (ret != ES_ERR_OK) {
-                                    ESTitleId ticketTitleId;
-                                    memcpy(&ticketTitleId, (u8*)(ticketViews - 8) + 4, sizeof(ESTitleId));
-                                    OSReport("%s::%s: ES_DeleteTicket failed: %d for %016llx\n", __FILE__, "DeleteTicketsForce", ret, ticketTitleId);
+                                    OSReport("%s::%s: ES_DeleteTicket failed: %d for %016llx\n", __FILE__, "DeleteTicketsForce", ret,
+                                             ((ESTicketView*)ticketViews)->ticketId);
                                 }
                             }
                         }
@@ -1036,6 +1040,7 @@ namespace ipl {
                         heap->free(ticketViewList);
                     }
                 }
+                titleIdOffset += 8;
             }
 
             heap->free(titleIds);
