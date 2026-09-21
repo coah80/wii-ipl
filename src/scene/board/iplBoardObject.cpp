@@ -231,8 +231,12 @@ namespace ipl {
         void BoardObject::stt_create() {
             RBRHeader* recordHdr = (RBRHeader*)mpRecordData;
 
-            mBoardPos.x = recordHdr->xPos;
-            mBoardPos.y = recordHdr->yPos;
+            f32 xPos;
+            f32 yPos;
+            yPos = recordHdr->yPos;
+            xPos = recordHdr->xPos;
+            mBoardPos.x = xPos;
+            mBoardPos.y = yPos;
 
             mRecordType = (RBRRecordType)recordHdr->flags.type;
 
@@ -320,7 +324,7 @@ namespace ipl {
                         }
                     }
                 }
-                if (recordHdr->attach[i].type == RBRAttachmentType_Picture) {
+                else if (recordHdr->attach[i].type == RBRAttachmentType_Picture) {
                     if (create_picture(&mPicture, System::getMem2App(), System::getMem2App(), ((u8*)mpRecordData + recordHdr->attach[i].offset),
                                        4 + recordHdr->attach[i].size)) {
                         mpCapture = new (mpHeap, 4) utility::Capture(mpHeap, 0, 0, PICTURE_THUMB_WIDTH, PICTURE_THUMB_HEIGHT, GX_TF_RGB565);
@@ -474,8 +478,8 @@ namespace ipl {
         }
 
         void BoardObject::stt_stand() {
-            f32 dVar2 = nw4r::math::CosFIdx(((mStandData.unk_0x0C * 30.0f + 30.0f) * 0.7111111f));
-            f32 dVar3 = nw4r::math::SinFIdx(((mStandData.unk_0x0C * 30.0f + 30.0f) * 0.7111111f));
+            f32 dVar2 = nw4r::math::CosFIdx((0.7111111f * (mStandData.unk_0x0C * 30.0f + 30.0f)));
+            f32 dVar3 = nw4r::math::SinFIdx((0.7111111f * (mStandData.unk_0x0C * 30.0f + 30.0f)));
 
             math::VEC2 standPos;
             __ct__Q33ipl4math4VEC2Fff(&standPos, dVar3 * 160.0f, dVar2 * 160.0f);
