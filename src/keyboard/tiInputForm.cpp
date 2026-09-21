@@ -1,6 +1,8 @@
 #include "keyboard/tiInputForm.h"
 #include "keyboard/tiManager.h"
 
+#include <revolution/mtx.h>
+
 namespace textinput {
 namespace inputform {
 
@@ -79,6 +81,31 @@ void Base::limitStringLength(u32 limitStringLength) {
     muLimitStringLength = limitStringLength;
 }
 
+void Base::makeUpCursorPos(CursorPos* cursorPos, u32 pos, s32 startLine, s32 endLine) {
+    u32 wordWrapCounter = muWordWrapCounter;
+    muWordWrapCounter = pos;
+    textdrawer::Base::makeUpCursorPos(cursorPos, pos, startLine, endLine);
+    muWordWrapCounter = wordWrapCounter;
+}
+
+void Base::setFont(const nw4r::ut::Font& font) {
+    textdrawer::Base::setFont(font);
+}
+
+void Base::clear() {
+    static_cast<CommandReceiver*>(this)->clearSender();
+    mpString->clear();
+}
+
+nw4r::math::VEC2 Base::getGlobalLeftTopPos() const {
+    nw4r::math::VEC3 position;
+    position.x = mRect.left;
+    position.y = mRect.bottom;
+    position.z = 0.0f;
+    PSMTXMultVec(mMtx, position, position);
+    return nw4r::math::VEC2(position.x, -position.y);
+}
+
 void Base::doAfterDrawProcess(const wchar_t*, u32, const DrawInfo&) {}
 
 void Base::finishDraw(u32) {}
@@ -144,6 +171,16 @@ bool LayoutByNW4R::updateInput(textinput::input::HKBManager& hkbManager) {
 
 void LayoutByNW4R::visibleSeparator(bool flag) {
     unk_0x2C0[0x0E] = flag;
+}
+
+void LayoutByNW4R::setRootPaneScaleFor16x9() {
+    nw4rmanager::Layout::setRootPaneScaleFor16x9();
+    textdrawer::Base::setAspectRatio(false);
+}
+
+void LayoutByNW4R::setRootPaneScaleFor4x3() {
+    nw4rmanager::Layout::setRootPaneScaleFor4x3();
+    textdrawer::Base::setAspectRatio(true);
 }
 
 }
