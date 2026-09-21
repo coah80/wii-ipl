@@ -7,10 +7,10 @@
 
 namespace ipl {
     static const wchar_t scNumber[] = L"0123456789";
-    extern const u32 scCreateRecordAttachSize0 = sizeof(EventBuffer);
-    extern const u32 scCreateRecordAttachSize1 = 0;
-    extern const RBRAttachmentType scCreateRecordAttachType0 = RBRAttachmentType_PlayTimeLog;
-    extern const RBRAttachmentType scCreateRecordAttachType1 = RBRAttachmentType_None;
+    extern const u32 sPlayTimeLogAttachSize0 = sizeof(EventBuffer);
+    extern const u32 sPlayTimeLogAttachSize1 = 0;
+    extern const RBRAttachmentType sPlayTimeLogAttachType0 = RBRAttachmentType_PlayTimeLog;
+    extern const RBRAttachmentType sPlayTimeLogAttachType1 = RBRAttachmentType_None;
     PlayTimeLog PlayTimeLog::smArg;
 
     BOOL search_cb_(void* playTime, CDBRecord* record) {
@@ -351,11 +351,15 @@ namespace ipl {
 
         const void* attachData[RBR_ATTACHMENT_MAX] = {(void*)event, NULL};
 
-        u32 attachSize[RBR_ATTACHMENT_MAX] = {*reinterpret_cast<const volatile u32*>(&scCreateRecordAttachSize0),
-                                              *reinterpret_cast<const volatile u32*>(&scCreateRecordAttachSize1)};
+        u32 attachSize[RBR_ATTACHMENT_MAX] = {
+            *reinterpret_cast<volatile const u32*>(&sPlayTimeLogAttachSize0),
+            *reinterpret_cast<volatile const u32*>(&sPlayTimeLogAttachSize1)
+        };
+
         RBRAttachmentType attachType[RBR_ATTACHMENT_MAX] = {
-            *reinterpret_cast<const volatile RBRAttachmentType*>(&scCreateRecordAttachType0),
-            *reinterpret_cast<const volatile RBRAttachmentType*>(&scCreateRecordAttachType1)};
+            *reinterpret_cast<volatile const RBRAttachmentType*>(&sPlayTimeLogAttachType0),
+            *reinterpret_cast<volatile const RBRAttachmentType*>(&sPlayTimeLogAttachType1)
+        };
 
         NWC24FriendAddr friendAddr;
         memset(&friendAddr, 0, sizeof(NWC24FriendAddr));
