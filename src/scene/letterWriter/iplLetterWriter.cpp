@@ -84,8 +84,11 @@ namespace ipl {
             mNwc24ErrCountdown2 = 0;
 
             // Text balloon for Mii face
+            f32 f0 = 30.0f;
+            f32 f1 = 120.0f;
             mpNigaoeBalloon =
-                new TextBalloon(getSceneHeap(), mpBalloonFile, "arc", lbl_81650380, math::VEC3(0.0f, 0.0f, 0.0f), 120.0f, 30.0f);
+                new TextBalloon(getSceneHeap(), mpBalloonFile, "arc", lbl_81650380,
+                                math::VEC3(0.0f, (f1 = 120.0f, 0.0f), (f0 = 30.0f, 0.0f)), f1, f0);
 
             // Scroller
             mpScroller = new utility::YoungBScroller();
@@ -125,6 +128,7 @@ namespace ipl {
                     }
                     return;
                 }
+                case textinput::extend::letter::InputForm::T_Reply:
                 default: {
                     if (mLetterType == textinput::extend::letter::InputForm::T_Reply) {
                         mNwc24ErrCountdown2 = 0;
