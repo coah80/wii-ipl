@@ -216,6 +216,22 @@ accepted commit, record the new report from `build/43U/report.json` and keep
 the DOL hash at `26116613f624061ba99c8d1a299aaa6efa85670d`. Never push to
 `upstream`; only the fork's `origin` is in scope.
 
+### Orchestrator ownership boundary
+
+The orchestrator does not perform decompilation or hand-tune worker source.
+All source-level reverse engineering, implementation, compiler experiments,
+and match iteration belong to the persistent subagents. The orchestrator may
+only select disjoint leaves, start and pause workers, resume a worker with
+failure evidence, run independent verification commands, review diffs, record
+wave state, commit accepted worker changes, push `origin/main`, and publish
+progress. If a candidate fails validation, return it to its worker; do not fix
+the candidate inline in the orchestrator.
+
+A new thread must begin by reading this file, checking the live 43U report and
+remote branch, running the ReAgent doctor/status checks, and then dispatching
+the worker pool. The orchestrator must not claim a match based on its own
+decompilation because it must not do that work.
+
 ## Goal completion contract
 
 The decompilation loop does not stop after a successful wave, a convenient
