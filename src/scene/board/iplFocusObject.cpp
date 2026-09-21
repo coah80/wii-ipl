@@ -1391,13 +1391,13 @@ namespace ipl {
         }
 
         void focus_object::resize_pane(nw4r::lyt::Pane* pane) {
+            nw4r::lyt::Size paneSize(pane->GetSize());
             f32 paneH, paneW;
 
-            paneW = pane->GetSize().width;
-            paneH = pane->GetSize().height;
+            paneW = paneSize.width;
+            paneH = paneSize.height;
 
             nw4r::lyt::Size newSize(paneW, paneH);
-            nw4r::lyt::Size newSize2(paneW, paneH);
 
             if (mPicture.width != 0 && mPicture.height != 0) {
                 if (mPicture.width > mPicture.height) {
