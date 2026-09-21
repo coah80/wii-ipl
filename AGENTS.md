@@ -169,7 +169,7 @@ artificial assembly.
 
 The worker keeps iterating on its assigned function until exact-name `objdiff`
 reports `100.0%`. A worker must not stop at a fuzzy score, and must not commit
-or push. If the worker believes the remaining difference is a compiler
+or push to a remote. If the worker believes the remaining difference is a compiler
 tie-break, it reports the evidence and waits for the orchestrator to terminate
 or reassign the leaf; it does not self-accept a near-match. Reaching `100.0%`
 is only the handoff point; it is not acceptance.
@@ -196,7 +196,7 @@ The orchestrator must independently rebuild the owned object and verify:
 
 If any orchestrator gate fails, do not commit the candidate. Restore it or send
 the same disjoint task back to its worker with the failing evidence. Commit and
-push to `origin/main` immediately after every candidate passes all gates, then
+stage the candidate branch for a PR after every candidate passes all gates, then
 regenerate the live progress report before accepting the next candidate.
 
 For each candidate, the worker must:
@@ -206,10 +206,9 @@ For each candidate, the worker must:
 3. Require `objdiff` to report `100.0%` for the function and `ctxdiff.py` to report `diffs 0`.
 4. Iterate until exact-name objdiff reaches `100.0%`, while preserving the
    pool and source-quality requirements above.
-5. Return the focused exact match to the parent agent for review without
-   committing or pushing. The parent reruns every gate, runs
-   `/home/cole/projects/tests/.venv/bin/ninja -C . build/43U/ok`, and commits
-   and pushes to `origin/main` only after acceptance.
+5. Return the focused exact match to the parent agent for review. The parent
+   reruns every gate and runs `/home/cole/projects/tests/.venv/bin/ninja -C .
+   build/43U/ok`; the worker does not push, open a PR, or merge.
 
 The main agent reviews every worker result before accepting it. After each
 accepted commit, record the new report from `build/43U/report.json` and keep
@@ -231,6 +230,49 @@ A new thread must begin by reading this file, checking the live 43U report and
 remote branch, running the ReAgent doctor/status checks, and then dispatching
 the worker pool. The orchestrator must not claim a match based on its own
 decompilation because it must not do that work.
+
+### Worktrees, branches, and PR integration
+
+Every leaf gets its own worktree and branch created from the latest
+`origin/main`, for example `agent/<wave>/<leaf>`. No two workers may share a
+worktree, branch, or source file. A worker may commit locally on its leaf branch
+if that is needed to preserve its exact result, but it must not push, open a PR,
+or merge.
+
+After the worker reaches its handoff point, the orchestrator validates the
+worker's worktree from a fresh build. If every gate passes, the orchestrator
+pushes that leaf branch to the fork, opens a PR against `coah80/wii-ipl:main`,
+and merges it only after the same gates are recorded in the PR. Never create a
+PR against `koopthekoopa/wii-ipl`.
+
+Merge one accepted leaf at a time. After each merge, fetch the new
+`origin/main`, regenerate progress, and rebase or recreate all not-yet-merged
+leaf branches before their next validation. Re-run objdiff, pool, ctxdiff, the
+full build, and the DOL hash after rebasing. The PR itself is not acceptance;
+the post-merge main branch is the authority.
+
+The orchestrator may resolve mechanical branch conflicts such as unchanged
+context or generated bookkeeping. It must not resolve a semantic source
+conflict by inventing decompilation. Send semantic conflicts back to the same
+leaf worker, resume it in its worktree, and require the full gates again. Keep
+the worktree and worker handle until the leaf is merged, explicitly abandoned,
+or the whole goal is stopped; clean them up only after that terminal state.
+
+After a successful merge:
+
+1. Confirm the PR is merged into the fork's `main` and the leaf worktree has no
+   uncommitted changes.
+2. In the integration/main worktree, run `git fetch origin` followed by
+   `git merge --ff-only origin/main` (or an equivalent non-destructive fast
+   forward). Do not use `git reset --hard` or overwrite unrelated user work.
+3. Re-run the live progress report and the full 4.3U/DOL gates on the updated
+   main branch.
+4. Rebase each still-active leaf branch onto the new `origin/main` in its own
+   worktree, resolve only mechanical conflicts centrally, and send semantic
+   conflicts back to that leaf's worker.
+5. Only after the leaf is merged, clean, and no longer needed, remove its
+   worktree and local branch. A failed or conflicted leaf keeps its worktree
+   and worker alive.
 
 ## Goal completion contract
 
