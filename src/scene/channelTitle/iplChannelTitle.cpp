@@ -1373,6 +1373,8 @@ namespace ipl {
             }
         }
 
+#pragma push
+#pragma ppc_iro_level 1
         void ChannelTitle::calcNormalUpdating() {
             int state = System::getBS2Manager()->getIPLState();
 
@@ -1385,11 +1387,12 @@ namespace ipl {
                 System::getDialog()->terminate();
                 mState = STATE_NORMAL_UPDATE_FAIL;
             } else if (state == bs2::IPL_STATE_RESTART_IPL || state == bs2::IPL_STATE_RVL_GAME) {
-                System::getDialog()->setProgBarLength(100);
+                int progressBar = 100;
+                System::getDialog()->setProgBarLength(progressBar);
                 mState = STATE_NORMAL_UPDATE_SUCCESS;
             }
         }
-
+#pragma pop
         void ChannelTitle::calcNormalUpdateSucceeded() {
             if (System::getDialog()->getLastResult() != DialogWindow::RESULT_NONE) {
                 System::getDialog()->callBtn0(MESG_CHAN_SEL_UPDATE_SUCCESS, 180);
@@ -2588,6 +2591,8 @@ namespace ipl {
             chanTtl->unk_0x360 = true;
         }
 
+#pragma push
+#pragma ppc_iro_level 1
         void ChannelTitle::getTicketLimitTask(void* work) {
             ChannelTitle* chanTtl = static_cast<ChannelTitle*>(work);
 
@@ -2605,6 +2610,7 @@ namespace ipl {
             }
             chanTtl->unk_0x371 = true;
         }
+#pragma pop
 
         void ChannelTitle::iplChannelTitle_813BA784(void* work) {
             ChannelTitle* chanTtl = static_cast<ChannelTitle*>(work);
