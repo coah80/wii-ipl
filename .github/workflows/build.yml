@@ -4,6 +4,12 @@ on:
   push:
   pull_request:
   workflow_dispatch:
+    inputs:
+      require_complete:
+        description: Fail unless 43U code, data, functions, units, and links are all 100%
+        required: false
+        default: false
+        type: boolean
 
 jobs:
   build:
@@ -56,6 +62,9 @@ jobs:
             --binutils /binutils --compilers /compilers
         ninja all_source progress build/${{ matrix.version }}/report.json
 
+    - name: Test workflow guards
+      run: python tools/test_workflow_guards.py
+
     - name: Calculate decomp status
       if: matrix.version == '43U'
       run: |
@@ -64,8 +73,16 @@ jobs:
             --output build/${{ matrix.version }}/decomp-status.json \
             --summary "$GITHUB_STEP_SUMMARY"
 
+    - name: Enforce completion gate
+      if: matrix.version == '43U' && github.event_name == 'workflow_dispatch' && inputs.require_complete == true
+      run: |
+        python tools/check_decomp_complete.py \
+            build/${{ matrix.version }}/report.json \
+            --dol build/${{ matrix.version }}/main.dol
+
     # Upload map files
     - name: Upload map
+      if: always()
       uses: actions/upload-artifact@v4
       with:
         name: ${{ matrix.version }}_maps
@@ -73,13 +90,14 @@ jobs:
 
     # Upload progress report
     - name: Upload report
+      if: always()
       uses: actions/upload-artifact@v4
       with:
         name: ${{ matrix.version }}_report
         path: build/${{ matrix.version }}/report.json
 
     - name: Upload decomp status
-      if: matrix.version == '43U'
+      if: always() && matrix.version == '43U'
       uses: actions/upload-artifact@v4
       with:
         name: decomp_status

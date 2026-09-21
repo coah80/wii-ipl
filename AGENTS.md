@@ -14,7 +14,8 @@ at all.
 
 Concretely:
 
-- `origin` is this fork, `coah80/wii-ipl`. Push here.
+- `origin` is this fork, `coah80/wii-ipl`. Only the orchestrator pushes
+  validated leaf branches here.
 - `upstream` is `koopthekoopa/wii-ipl`. Its push URL is intentionally set to
   the sentinel `DISABLED_never_push_to_upstream` so an accidental
   `git push upstream` fails instead of uploading.
@@ -22,7 +23,8 @@ Concretely:
   `--repo koopthekoopa/wii-ipl` to any `gh` command.
 - If a task appears to require contacting upstream, stop and ask the human.
 
-If you are reading this because you are about to open a PR: don't.
+If you are reading this because you are about to open a PR against upstream:
+don't. PRs for validated leaf branches belong only to this fork.
 
 ## What this repository is
 
@@ -78,6 +80,23 @@ Helper tools live in `tools/decomp-assist/`:
   original, string by string. See below; this is the highest-signal tool.
 - `export_pyghidra.py` — regenerates `ghidra_decomp.txt`, decompiled C for the
   functions still missing.
+
+The final completion assertion is machine-checkable:
+
+```
+python3 tools/check_decomp_complete.py build/43U/report.json \
+    --dol build/43U/main.dol
+```
+
+It must pass before claiming full completion. GitHub Actions runs the same
+assertion when manually dispatched with `require_complete=true`.
+Normal push and pull-request builds publish progress without failing on the
+current incomplete state. Use the manual `require_complete=true` dispatch for
+the terminal all-100% gate.
+
+`tools/test_workflow_guards.py` exercises the completion checker, and
+`tools/worktree_check.py` validates the main, leaf, and cleanup states before
+integration.
 
 ## The single most useful finding: the string pool
 
@@ -155,6 +174,14 @@ Codex login rather than an API key; API billing is not created by ReAgent, but
 the account's normal model or plan usage still applies. Do not start a model
 run until `doctor` reports the backend and acceptance configuration clearly.
 
+If the launcher cannot import, or `doctor` reports `ready: false`, record the
+exact failure and do not claim ReAgent evidence. Repair a broken editable
+install with a fresh checkout and a non-editable install before retrying. If
+the decompile capability still lacks Java/Ghidra, workers may continue only in
+the explicitly labeled manual/objdiff fallback using fresh object builds,
+`pool_diff.py`, `ctxdiff.py`, full 43U builds, and the DOL hash. The fallback
+does not count as ReAgent execution.
+
 For parallel work, orchestrate up to ten workers at once when the agent runtime
 has the capacity. Use `gpt-5.6-luna` at maximum reasoning effort with the fast
 service tier when those settings are available. If the runtime cannot host ten
@@ -168,13 +195,16 @@ artificial assembly.
 ### Ten-worker exact-match loop
 
 The worker keeps iterating on its assigned function until exact-name `objdiff`
-reports `100.0%`. A worker must not stop at a fuzzy score, and must not commit
-or push to a remote. If the worker believes the remaining difference is a compiler
-tie-break, it reports the evidence and waits for the orchestrator to terminate
-or reassign the leaf; it does not self-accept a near-match. Reaching `100.0%`
-is only the handoff point; it is not acceptance.
+reports `100.0%`. A worker must not stop at a fuzzy score, push to a remote,
+open a PR, or merge. It may make a local commit on its isolated leaf branch if
+needed to preserve its work. If the worker believes the remaining difference is
+a compiler tie-break, it reports the evidence and waits for the orchestrator to
+terminate or reassign the leaf; it does not self-accept a near-match. Reaching
+`100.0%` is only the handoff point; it is not acceptance.
 
-Workers are persistent across validation. After reaching a candidate result,
+Worker measurements are advisory. Only a fresh orchestrator verification can
+accept, push, open, or merge a candidate. Workers are persistent across
+validation. After reaching a candidate result,
 the worker enters a paused or awaiting-parent state while the orchestrator
 performs its checks. Keep the worker handle and its leaf assignment alive. If
 pool, ctxdiff, source review, or any other gate fails, send the failure evidence
@@ -194,10 +224,11 @@ The orchestrator must independently rebuild the owned object and verify:
 5. The full 4.3U build passes and `build/43U/main.dol` has SHA1
    `26116613f624061ba99c8d1a299aaa6efa85670d`.
 
-If any orchestrator gate fails, do not commit the candidate. Restore it or send
-the same disjoint task back to its worker with the failing evidence. Commit and
-stage the candidate branch for a PR after every candidate passes all gates, then
-regenerate the live progress report before accepting the next candidate.
+If any orchestrator gate fails, do not promote, push, open a PR, or merge the
+candidate. Restore it or send the same disjoint task back to its worker with
+the failing evidence. Stage the candidate branch for a PR only after every
+gate passes, then regenerate the live progress report before accepting the
+next candidate.
 
 For each candidate, the worker must:
 
@@ -211,7 +242,7 @@ For each candidate, the worker must:
    build/43U/ok`; the worker does not push, open a PR, or merge.
 
 The main agent reviews every worker result before accepting it. After each
-accepted commit, record the new report from `build/43U/report.json` and keep
+accepted merge, record the new report from `build/43U/report.json` and keep
 the DOL hash at `26116613f624061ba99c8d1a299aaa6efa85670d`. Never push to
 `upstream`; only the fork's `origin` is in scope.
 
@@ -222,9 +253,10 @@ All source-level reverse engineering, implementation, compiler experiments,
 and match iteration belong to the persistent subagents. The orchestrator may
 only select disjoint leaves, start and pause workers, resume a worker with
 failure evidence, run independent verification commands, review diffs, record
-wave state, commit accepted worker changes, push `origin/main`, and publish
-progress. If a candidate fails validation, return it to its worker; do not fix
-the candidate inline in the orchestrator.
+wave state, commit validated leaf-branch changes, push the leaf branch, open
+and merge the PR, fast-forward `origin/main`, and publish progress. If a
+candidate fails validation, return it to its worker; do not fix the candidate
+inline in the orchestrator.
 
 A new thread must begin by reading this file, checking the live 43U report and
 remote branch, running the ReAgent doctor/status checks, and then dispatching
@@ -238,6 +270,18 @@ Every leaf gets its own worktree and branch created from the latest
 worktree, branch, or source file. A worker may commit locally on its leaf branch
 if that is needed to preserve its exact result, but it must not push, open a PR,
 or merge.
+
+Use the repository worktree checker before integration and cleanup:
+
+```
+python3 tools/worktree_check.py main --synced
+python3 tools/worktree_check.py leaf <leaf-worktree> agent/<wave>/<leaf>
+python3 tools/worktree_check.py cleanup <leaf-worktree> agent/<wave>/<leaf>
+```
+
+The cleanup check is read-only. It succeeds only for a clean leaf branch that
+is already an ancestor of `origin/main`; the orchestrator then performs the
+explicit `git worktree remove` and local branch deletion.
 
 After the worker reaches its handoff point, the orchestrator validates the
 worker's worktree from a fresh build. If every gate passes, the orchestrator
