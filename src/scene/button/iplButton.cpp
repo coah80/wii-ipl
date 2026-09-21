@@ -6,8 +6,8 @@
 
 #include "iplSystem.h"
 
-char lbl_816966F9[] = "B_Stop";
-char lbl_816967B5[] = "T_Stop";
+__declspec(section ".sdata") extern char lbl_816966F9[];
+extern char lbl_816967B5[];
 
 namespace ipl {
     namespace scene {
@@ -968,3 +968,5 @@ namespace ipl {
         }
     }  // namespace scene
 }  // namespace ipl
+
+char lbl_816967B5[] = "T_Stop";
