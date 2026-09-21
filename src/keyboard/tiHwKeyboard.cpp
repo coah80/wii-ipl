@@ -8,7 +8,95 @@ extern const u8 lbl_81616BD8[] = {0x0f, 0x21, 0x20, 0x08, 0x09, 0x0e, 0x19, 0x00
 extern const u8 lbl_81616BE4[] = {0x0f, 0x21, 0x20, 0x04, 0x09, 0x0e, 0x11, 0x00, 0x21, 0x21, 0x00, 0x00};
 extern "C" void SetCountry__Q39textinput5input10HKBManagerFUc();
 extern "C" textinput::input::HKBManager sInstance__Q39textinput5input10HKBManager;
-extern "C" char jumptable_81668EF8[];
+extern "C" void convertWCCode__Q49textinput8keyboard5hwkey10HWKeyboardCFw();
+extern "C" bool updateInput__Q49textinput8keyboard5hwkey10HWKeyboardFRQ39textinput5input10HKBManager();
+extern "C" void __dt__Q49textinput8keyboard5hwkey10HWKeyboardFv();
+extern "C" void create__Q29textinput4BaseFP12MEMAllocator();
+extern "C" void init__Q49textinput8keyboard5hwkey10HWKeyboardFv();
+extern "C" void setCommandReceiver__Q29textinput13CommandSenderFPQ29textinput15CommandReceiver();
+extern "C" void sendCommand__Q29textinput13CommandSenderFUlPv();
+extern "C" void updateFromReceiver__Q29textinput13CommandSenderFUlPv();
+
+#pragma push
+#pragma section const_type ".data"
+typedef void (*KeyboardDataFunction)();
+extern "C" KeyboardDataFunction const jumptable_81668EF8[0x3f] = {
+    reinterpret_cast<KeyboardDataFunction>(reinterpret_cast<u32>(convertWCCode__Q49textinput8keyboard5hwkey10HWKeyboardCFw) + 0x00000158),
+    reinterpret_cast<KeyboardDataFunction>(reinterpret_cast<u32>(convertWCCode__Q49textinput8keyboard5hwkey10HWKeyboardCFw) + 0x000001d8),
+    reinterpret_cast<KeyboardDataFunction>(reinterpret_cast<u32>(convertWCCode__Q49textinput8keyboard5hwkey10HWKeyboardCFw) + 0x000001f0),
+    reinterpret_cast<KeyboardDataFunction>(reinterpret_cast<u32>(convertWCCode__Q49textinput8keyboard5hwkey10HWKeyboardCFw) + 0x000001f0),
+    reinterpret_cast<KeyboardDataFunction>(reinterpret_cast<u32>(convertWCCode__Q49textinput8keyboard5hwkey10HWKeyboardCFw) + 0x000001f0),
+    reinterpret_cast<KeyboardDataFunction>(reinterpret_cast<u32>(convertWCCode__Q49textinput8keyboard5hwkey10HWKeyboardCFw) + 0x000001f0),
+    reinterpret_cast<KeyboardDataFunction>(reinterpret_cast<u32>(convertWCCode__Q49textinput8keyboard5hwkey10HWKeyboardCFw) + 0x000001c0),
+    reinterpret_cast<KeyboardDataFunction>(reinterpret_cast<u32>(convertWCCode__Q49textinput8keyboard5hwkey10HWKeyboardCFw) + 0x00000170),
+    reinterpret_cast<KeyboardDataFunction>(reinterpret_cast<u32>(convertWCCode__Q49textinput8keyboard5hwkey10HWKeyboardCFw) + 0x0000017c),
+    reinterpret_cast<KeyboardDataFunction>(reinterpret_cast<u32>(convertWCCode__Q49textinput8keyboard5hwkey10HWKeyboardCFw) + 0x000001f0),
+    reinterpret_cast<KeyboardDataFunction>(reinterpret_cast<u32>(convertWCCode__Q49textinput8keyboard5hwkey10HWKeyboardCFw) + 0x000001f0),
+    reinterpret_cast<KeyboardDataFunction>(reinterpret_cast<u32>(convertWCCode__Q49textinput8keyboard5hwkey10HWKeyboardCFw) + 0x00000134),
+    reinterpret_cast<KeyboardDataFunction>(reinterpret_cast<u32>(convertWCCode__Q49textinput8keyboard5hwkey10HWKeyboardCFw) + 0x000001a0),
+    reinterpret_cast<KeyboardDataFunction>(reinterpret_cast<u32>(convertWCCode__Q49textinput8keyboard5hwkey10HWKeyboardCFw) + 0x00000140),
+    reinterpret_cast<KeyboardDataFunction>(reinterpret_cast<u32>(convertWCCode__Q49textinput8keyboard5hwkey10HWKeyboardCFw) + 0x000001f0),
+    reinterpret_cast<KeyboardDataFunction>(reinterpret_cast<u32>(convertWCCode__Q49textinput8keyboard5hwkey10HWKeyboardCFw) + 0x000001f0),
+    reinterpret_cast<KeyboardDataFunction>(reinterpret_cast<u32>(convertWCCode__Q49textinput8keyboard5hwkey10HWKeyboardCFw) + 0x000001f0),
+    reinterpret_cast<KeyboardDataFunction>(reinterpret_cast<u32>(convertWCCode__Q49textinput8keyboard5hwkey10HWKeyboardCFw) + 0x000001f0),
+    reinterpret_cast<KeyboardDataFunction>(reinterpret_cast<u32>(convertWCCode__Q49textinput8keyboard5hwkey10HWKeyboardCFw) + 0x000001f0),
+    reinterpret_cast<KeyboardDataFunction>(reinterpret_cast<u32>(convertWCCode__Q49textinput8keyboard5hwkey10HWKeyboardCFw) + 0x000001f0),
+    reinterpret_cast<KeyboardDataFunction>(reinterpret_cast<u32>(convertWCCode__Q49textinput8keyboard5hwkey10HWKeyboardCFw) + 0x000001f0),
+    reinterpret_cast<KeyboardDataFunction>(reinterpret_cast<u32>(convertWCCode__Q49textinput8keyboard5hwkey10HWKeyboardCFw) + 0x000001f0),
+    reinterpret_cast<KeyboardDataFunction>(reinterpret_cast<u32>(convertWCCode__Q49textinput8keyboard5hwkey10HWKeyboardCFw) + 0x000001f0),
+    reinterpret_cast<KeyboardDataFunction>(reinterpret_cast<u32>(convertWCCode__Q49textinput8keyboard5hwkey10HWKeyboardCFw) + 0x000001f0),
+    reinterpret_cast<KeyboardDataFunction>(reinterpret_cast<u32>(convertWCCode__Q49textinput8keyboard5hwkey10HWKeyboardCFw) + 0x000001f0),
+    reinterpret_cast<KeyboardDataFunction>(reinterpret_cast<u32>(convertWCCode__Q49textinput8keyboard5hwkey10HWKeyboardCFw) + 0x00000188),
+    reinterpret_cast<KeyboardDataFunction>(reinterpret_cast<u32>(convertWCCode__Q49textinput8keyboard5hwkey10HWKeyboardCFw) + 0x00000194),
+    reinterpret_cast<KeyboardDataFunction>(reinterpret_cast<u32>(convertWCCode__Q49textinput8keyboard5hwkey10HWKeyboardCFw) + 0x00000148),
+    reinterpret_cast<KeyboardDataFunction>(reinterpret_cast<u32>(convertWCCode__Q49textinput8keyboard5hwkey10HWKeyboardCFw) + 0x000001f0),
+    reinterpret_cast<KeyboardDataFunction>(reinterpret_cast<u32>(convertWCCode__Q49textinput8keyboard5hwkey10HWKeyboardCFw) + 0x00000150),
+    reinterpret_cast<KeyboardDataFunction>(reinterpret_cast<u32>(convertWCCode__Q49textinput8keyboard5hwkey10HWKeyboardCFw) + 0x00000164),
+    reinterpret_cast<KeyboardDataFunction>(reinterpret_cast<u32>(convertWCCode__Q49textinput8keyboard5hwkey10HWKeyboardCFw) + 0x000001f0),
+    reinterpret_cast<KeyboardDataFunction>(reinterpret_cast<u32>(convertWCCode__Q49textinput8keyboard5hwkey10HWKeyboardCFw) + 0x000001f0),
+    reinterpret_cast<KeyboardDataFunction>(reinterpret_cast<u32>(convertWCCode__Q49textinput8keyboard5hwkey10HWKeyboardCFw) + 0x000001f0),
+    reinterpret_cast<KeyboardDataFunction>(reinterpret_cast<u32>(convertWCCode__Q49textinput8keyboard5hwkey10HWKeyboardCFw) + 0x000001f0),
+    reinterpret_cast<KeyboardDataFunction>(reinterpret_cast<u32>(convertWCCode__Q49textinput8keyboard5hwkey10HWKeyboardCFw) + 0x000001f0),
+    reinterpret_cast<KeyboardDataFunction>(reinterpret_cast<u32>(convertWCCode__Q49textinput8keyboard5hwkey10HWKeyboardCFw) + 0x000001f0),
+    reinterpret_cast<KeyboardDataFunction>(reinterpret_cast<u32>(convertWCCode__Q49textinput8keyboard5hwkey10HWKeyboardCFw) + 0x000001f0),
+    reinterpret_cast<KeyboardDataFunction>(reinterpret_cast<u32>(convertWCCode__Q49textinput8keyboard5hwkey10HWKeyboardCFw) + 0x000001f0),
+    reinterpret_cast<KeyboardDataFunction>(reinterpret_cast<u32>(convertWCCode__Q49textinput8keyboard5hwkey10HWKeyboardCFw) + 0x000001f0),
+    reinterpret_cast<KeyboardDataFunction>(reinterpret_cast<u32>(convertWCCode__Q49textinput8keyboard5hwkey10HWKeyboardCFw) + 0x000001f0),
+    reinterpret_cast<KeyboardDataFunction>(reinterpret_cast<u32>(convertWCCode__Q49textinput8keyboard5hwkey10HWKeyboardCFw) + 0x000001f0),
+    reinterpret_cast<KeyboardDataFunction>(reinterpret_cast<u32>(convertWCCode__Q49textinput8keyboard5hwkey10HWKeyboardCFw) + 0x000001f0),
+    reinterpret_cast<KeyboardDataFunction>(reinterpret_cast<u32>(convertWCCode__Q49textinput8keyboard5hwkey10HWKeyboardCFw) + 0x000001f0),
+    reinterpret_cast<KeyboardDataFunction>(reinterpret_cast<u32>(convertWCCode__Q49textinput8keyboard5hwkey10HWKeyboardCFw) + 0x000001f0),
+    reinterpret_cast<KeyboardDataFunction>(reinterpret_cast<u32>(convertWCCode__Q49textinput8keyboard5hwkey10HWKeyboardCFw) + 0x000001f0),
+    reinterpret_cast<KeyboardDataFunction>(reinterpret_cast<u32>(convertWCCode__Q49textinput8keyboard5hwkey10HWKeyboardCFw) + 0x000001f0),
+    reinterpret_cast<KeyboardDataFunction>(reinterpret_cast<u32>(convertWCCode__Q49textinput8keyboard5hwkey10HWKeyboardCFw) + 0x000001f0),
+    reinterpret_cast<KeyboardDataFunction>(reinterpret_cast<u32>(convertWCCode__Q49textinput8keyboard5hwkey10HWKeyboardCFw) + 0x000001f0),
+    reinterpret_cast<KeyboardDataFunction>(reinterpret_cast<u32>(convertWCCode__Q49textinput8keyboard5hwkey10HWKeyboardCFw) + 0x000001f0),
+    reinterpret_cast<KeyboardDataFunction>(reinterpret_cast<u32>(convertWCCode__Q49textinput8keyboard5hwkey10HWKeyboardCFw) + 0x000001f0),
+    reinterpret_cast<KeyboardDataFunction>(reinterpret_cast<u32>(convertWCCode__Q49textinput8keyboard5hwkey10HWKeyboardCFw) + 0x000001f0),
+    reinterpret_cast<KeyboardDataFunction>(reinterpret_cast<u32>(convertWCCode__Q49textinput8keyboard5hwkey10HWKeyboardCFw) + 0x000001f0),
+    reinterpret_cast<KeyboardDataFunction>(reinterpret_cast<u32>(convertWCCode__Q49textinput8keyboard5hwkey10HWKeyboardCFw) + 0x000001f0),
+    reinterpret_cast<KeyboardDataFunction>(reinterpret_cast<u32>(convertWCCode__Q49textinput8keyboard5hwkey10HWKeyboardCFw) + 0x000001f0),
+    reinterpret_cast<KeyboardDataFunction>(reinterpret_cast<u32>(convertWCCode__Q49textinput8keyboard5hwkey10HWKeyboardCFw) + 0x000001f0),
+    reinterpret_cast<KeyboardDataFunction>(reinterpret_cast<u32>(convertWCCode__Q49textinput8keyboard5hwkey10HWKeyboardCFw) + 0x000001f0),
+    reinterpret_cast<KeyboardDataFunction>(reinterpret_cast<u32>(convertWCCode__Q49textinput8keyboard5hwkey10HWKeyboardCFw) + 0x000001f0),
+    reinterpret_cast<KeyboardDataFunction>(reinterpret_cast<u32>(convertWCCode__Q49textinput8keyboard5hwkey10HWKeyboardCFw) + 0x000001f0),
+    reinterpret_cast<KeyboardDataFunction>(reinterpret_cast<u32>(convertWCCode__Q49textinput8keyboard5hwkey10HWKeyboardCFw) + 0x000001b8),
+    reinterpret_cast<KeyboardDataFunction>(reinterpret_cast<u32>(convertWCCode__Q49textinput8keyboard5hwkey10HWKeyboardCFw) + 0x000001f0),
+    reinterpret_cast<KeyboardDataFunction>(reinterpret_cast<u32>(convertWCCode__Q49textinput8keyboard5hwkey10HWKeyboardCFw) + 0x000001f0),
+    reinterpret_cast<KeyboardDataFunction>(reinterpret_cast<u32>(convertWCCode__Q49textinput8keyboard5hwkey10HWKeyboardCFw) + 0x000001ac)
+};
+extern "C" KeyboardDataFunction const __vt__Q49textinput8keyboard5hwkey10HWKeyboard[9] = {
+    NULL,
+    NULL,
+    __dt__Q49textinput8keyboard5hwkey10HWKeyboardFv,
+    create__Q29textinput4BaseFP12MEMAllocator,
+    init__Q49textinput8keyboard5hwkey10HWKeyboardFv,
+    setCommandReceiver__Q29textinput13CommandSenderFPQ29textinput15CommandReceiver,
+    sendCommand__Q29textinput13CommandSenderFUlPv,
+    updateFromReceiver__Q29textinput13CommandSenderFUlPv,
+    reinterpret_cast<KeyboardDataFunction>(updateInput__Q49textinput8keyboard5hwkey10HWKeyboardFRQ39textinput5input10HKBManager)
+};
+#pragma pop
 
 namespace textinput {
 
