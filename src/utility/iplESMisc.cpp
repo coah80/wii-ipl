@@ -697,8 +697,10 @@ namespace ipl {
         }
 
         s32 ESMisc::DeleteMetaContent(ESTitleId titleId) {
-            char metaPath[64] = "";
-            snprintf(metaPath, sizeof(metaPath), "/meta/%08x/%08x/title.met", NANDTitleIdHi(titleId), NANDTitleIdLo(titleId));
+            char metaPath[0x41] = "";
+            u32 titleIdHi = NANDTitleIdHi(titleId);
+            u32 titleIdLo = NANDTitleIdLo(titleId);
+            snprintf(metaPath, 0x40, "/meta/%08x/%08x/title.met", titleIdHi, titleIdLo);
             return NANDPrivateDelete(metaPath);
         }
 
