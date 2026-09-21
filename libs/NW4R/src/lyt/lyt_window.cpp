@@ -1,3 +1,22 @@
+#include <nw4r/db/assert.h>
+
+extern "C" const u8 lbl_81695550 = 255;
+extern "C" const u8 lbl_81695551 = 255;
+extern "C" const u8 lbl_81695552 = 255;
+extern "C" const u8 lbl_81695553 = 0;
+extern "C" char lbl_816719DC[] = "Error#004\nAn error has occurred.\nThe system files are corrupted.";
+
+#undef NW4R_ASSERT
+#define NW4R_ASSERT(x)                                                                                                                               \
+    {                                                                                                                                                \
+        if (!(x)) {                                                                                                                                  \
+            GXColor front = {*((volatile const u8*)&::lbl_81695550), *((volatile const u8*)&::lbl_81695551),                                        \
+                             *((volatile const u8*)&::lbl_81695552), *((volatile const u8*)&::lbl_81695553)};                                        \
+            GXColor back = {0, 0, 0, 0};                                                                                                             \
+            OSFatal((GXColor)front, (GXColor)back, ::lbl_816719DC);                                                                                  \
+        }                                                                                                                                            \
+    }
+
 #include <nw4r/lyt/window.h>
 
 #include <nw4r/lyt/common.h>
