@@ -1530,8 +1530,10 @@ namespace ipl {
             if (mModuleType != MODULE_TYPE_RSO) {
                 return;
             }
-            if (mState != STATE_START_ZOOM_IN && mState != STATE_ZOOMING_IN && mState != STATE_NORMAL_CHANGE_NEXT) {
-                switch (mModuleState) {
+            if (mState == STATE_START_ZOOM_IN || mState == STATE_ZOOMING_IN || mState == STATE_NORMAL_CHANGE_NEXT) {
+                return;
+            }
+            switch (mModuleState) {
                     case MODULE_STATE_INIT: {
                         calcModuleInit();
                         break;
@@ -1626,7 +1628,6 @@ namespace ipl {
                     default: {
                         break;
                     }
-                }
             }
         }
 
