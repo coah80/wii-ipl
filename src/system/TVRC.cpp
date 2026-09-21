@@ -51,12 +51,20 @@ extern "C" void __div2i();
 extern "C" void __FTVRCLoop0Handler__7LibTVRCFP7OSAlarmP9OSContext();
 extern "C" void __FTVRCLoop1Handler__7LibTVRCFP7OSAlarmP9OSContext();
 
+#pragma push
+#pragma section data_type ".sdata"
+extern "C" char lbl_81696230[5] = {'T', 'V', 'R', '0', '\0'};
+#pragma pop
+
 namespace LibTVRC {
-    const char* TVRC_FILE_HEADER = "TVR0";
+    const char* TVRC_FILE_HEADER = lbl_81696230;
     u32 __tienHoseiNsec = 1100;
     u32 _limitMilli = 400;
 
-    ARCHandle _database ALIGN32;
+    struct TVRCHandle : ARCHandle {
+        u8 _padding[4];
+    };
+    TVRCHandle _database;
     OSAlarm _alarm;
 
     BOOL _isRepeatActive;
@@ -106,7 +114,7 @@ namespace LibTVRC {
     u32 _repeatBitLength;
     u32 _repeatBitArray;
 
-    OSTime _tickT;
+    u32 _tickT;
     OSTime _tickWait[2];
 
     void __FTVRCLoop0Handler(OSAlarm *alarm, OSContext *ctx);
