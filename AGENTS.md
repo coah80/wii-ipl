@@ -155,20 +155,51 @@ Codex login rather than an API key; API billing is not created by ReAgent, but
 the account's normal model or plan usage still applies. Do not start a model
 run until `doctor` reports the backend and acceptance configuration clearly.
 
-For parallel work, use three to five workers with disjoint translation units or
-function ranges. Every worker must return the changed paths, exact-match
-measurements, and validation results. Workers may propose code, but a candidate
-is not accepted when it is only fuzzy, uses an uninitialized value, or hides a
-mismatch behind artificial assembly.
+For parallel work, orchestrate up to ten workers at once when the agent runtime
+has the capacity. Use `gpt-5.6-luna` at maximum reasoning effort with the fast
+service tier when those settings are available. If the runtime cannot host ten
+live workers, queue the remainder; never duplicate a source file or function
+range just to fill a slot. Each worker must own a disjoint translation unit or
+function range and return the changed paths, exact-match measurements, and
+validation results. Workers may propose code, but a candidate is not accepted
+when it is only fuzzy, uses an uninitialized value, or hides a mismatch behind
+artificial assembly.
+
+### Ten-worker exact-match loop
+
+The worker keeps iterating on its assigned function until exact-name `objdiff`
+reports `100.0%`. A worker must not stop at a fuzzy score, and must not commit
+or push. If the worker believes the remaining difference is a compiler
+tie-break, it reports the evidence and waits for the orchestrator to terminate
+or reassign the leaf; it does not self-accept a near-match. Reaching `100.0%`
+is only the handoff point; it is not acceptance.
+
+The orchestrator must independently rebuild the owned object and verify:
+
+1. `pool_diff.py` reports identical pools, with no first divergence.
+2. Exact-name `objdiff` reports `100.0%` for the requested symbol.
+3. `ctxdiff.py` reports `diffs 0` and identical instruction counts.
+4. The focused source diff is minimal, readable, and free of artificial
+   assembly, uninitialized values, or unrelated edits.
+5. The full 4.3U build passes and `build/43U/main.dol` has SHA1
+   `26116613f624061ba99c8d1a299aaa6efa85670d`.
+
+If any orchestrator gate fails, do not commit the candidate. Restore it or send
+the same disjoint task back to its worker with the failing evidence. Commit and
+push to `origin/main` immediately after every candidate passes all gates, then
+regenerate the live progress report before accepting the next candidate.
 
 For each candidate, the worker must:
 
 1. Run `pool_diff.py` before tuning code generation.
 2. Build the 43U object with `/home/cole/projects/tests/.venv/bin/ninja -C . build/43U/src/src/<path>.o`.
 3. Require `objdiff` to report `100.0%` for the function and `ctxdiff.py` to report `diffs 0`.
-4. Run `/home/cole/projects/tests/.venv/bin/ninja -C . build/43U/ok`.
-5. Return the focused exact match to the parent agent for review. The parent
-   commits and pushes it to `origin/main` only after rerunning every gate.
+4. Iterate until exact-name objdiff reaches `100.0%`, while preserving the
+   pool and source-quality requirements above.
+5. Return the focused exact match to the parent agent for review without
+   committing or pushing. The parent reruns every gate, runs
+   `/home/cole/projects/tests/.venv/bin/ninja -C . build/43U/ok`, and commits
+   and pushes to `origin/main` only after acceptance.
 
 The main agent reviews every worker result before accepting it. After each
 accepted commit, record the new report from `build/43U/report.json` and keep
