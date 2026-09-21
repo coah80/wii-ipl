@@ -466,12 +466,13 @@ namespace ipl {
         }
 
         ESError ESMisc::NumPrivateContents(EGG::Heap* heap, ESTitleId titleId) {
-            ESTmdView* tmdView = NULL;
+            ESError ret;
             ESContentId* contentIds = NULL;
+            ESTmdView* tmdView = NULL;
             u32 numContents;
             u32 tmdViewSize;
 
-            ESError ret = ES_GetTmdView(titleId, NULL, &tmdViewSize);
+            ret = ES_GetTmdView(titleId, NULL, &tmdViewSize);
             if (ret == ES_ERR_DONT_EXISTS) {
                 return ES_ERR_OK;
             }
@@ -507,10 +508,12 @@ namespace ipl {
             }
 
             ret = 0;
+            u32 i = 0;
             u32 j = 0;
-            for (u32 i = 0; i < tmdView->head.numContents && j < numContents; i++) {
-                if (tmdView->contents[i].cid == contentIds[j]) {
-                    if (!(tmdView->contents[i].type & 0x8000)) {
+            ESCmdView* content = tmdView->contents;
+            for (; i < tmdView->head.numContents && j < numContents; i++, content++) {
+                if (content->cid == contentIds[j]) {
+                    if (!(content->type & 0x8000)) {
                         ret++;
                     }
                     j++;
