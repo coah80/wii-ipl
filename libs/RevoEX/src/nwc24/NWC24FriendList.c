@@ -476,8 +476,8 @@ NWC24Err NWC24SearchFriendInfoByAddr(const NWC24FriendAddr* addr, u32* index) {
     NWC24Err result;
 
     NWC24FLHeader* header;
+    NWC24FriendAddr* tmpFriendAddr;
     NWC24FriendInfo* tmpFriendInfo;
-
     int cmpResult;
 
     u32 i;
@@ -498,10 +498,12 @@ NWC24Err NWC24SearchFriendInfoByAddr(const NWC24FriendAddr* addr, u32* index) {
     }
 
     tmpFriendInfo = (NWC24FriendInfo*)&nwc24Work->mainWork;
+    tmpFriendAddr = (NWC24FriendAddr*)&tmpFriendInfo->addr.mailAddr[sizeof(NWC24UserId)];
 
     for (i = 0; i < header->infoCount; i++) {
         if (friendValue == header->friendIds[i]) {
-            result = NWC24ReadFriendInfo(tmpFriendInfo, i);
+            result = NWC24ReadFriendInfo(
+                (NWC24FriendInfo*)((u8*)tmpFriendAddr - sizeof(NWC24FriendAttr) - sizeof(NWC24UserId)), i);
             if (result != NWC24_OK) {
                 return result;
             }
