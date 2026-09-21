@@ -1,5 +1,8 @@
 #include "scene/address/iplAddress.h"
 
+#include "system/MESGEntries.h"
+#include "system/iplSystem.h"
+
 extern "C" char smArg__Q23ipl6System;
 extern "C" void checkUserId__Q33ipl5nwc247ManagerFUx();
 extern "C" void getErrCode__Q33ipl5nwc247ManagerFv();
@@ -8,6 +11,9 @@ extern "C" void deleteFriendInfo__Q33ipl5nwc247ManagerFUl();
 extern "C" void getScene__Q33ipl5scene7ManagerFi();
 extern "C" void setEventHandler__Q33ipl5scene6ButtonFPQ23gui12EventHandlerPQ23gui12EventHandler();
 extern "C" void calc__Q33ipl6layout6ObjectFv();
+extern "C" int init__Q33ipl5scene15FriendListCacheFv(void*);
+extern "C" void onInitFriendList__Q33ipl5scene7AddressFv(void*);
+extern "C" void callBtn1__Q23ipl12DialogWindowFUlUl(void*, unsigned int, unsigned int);
 
 extern "C" asm void getChild__Q33ipl5scene4BaseFv() {
     nofralloc
@@ -64,6 +70,20 @@ extern "C" asm void prepare__Q33ipl5scene7AddressFv() {
 extern "C" asm void calcCommon__Q33ipl5scene14FaderSceneBaseFv() {
     nofralloc
     blr
+}
+
+extern "C" void fistt_wait_open__Q33ipl5scene7AddressFv(ipl::scene::Address* self) {
+    char* address = reinterpret_cast<char*>(self);
+    if (init__Q33ipl5scene15FriendListCacheFv(*reinterpret_cast<void**>(address + 0x274))) {
+        onInitFriendList__Q33ipl5scene7AddressFv(self);
+        *reinterpret_cast<int*>(address + 0xa4) = 1;
+    } else if (*reinterpret_cast<int*>(address + 0xa8) >= 300) {
+        callBtn1__Q23ipl12DialogWindowFUlUl(ipl::System::getDialog(), MESG_ERROR_NWC24_FATAL,
+                                            MESG_CMN_OK);
+        *reinterpret_cast<int*>(address + 0xac) = 0x18;
+        *reinterpret_cast<int*>(address + 0xa4) = 2;
+    }
+    *reinterpret_cast<int*>(address + 0xa8) += 1;
 }
 
 void ipl::scene::Address::destroy() {
