@@ -1100,16 +1100,15 @@ namespace ipl {
             }
 
             for (int i = 0; i < RBR_ATTACHMENT_MAX; i++) {
-                RBRAttachment* attach = &recordHdr->attach[i];
-                switch (attach->type) {
+                switch (recordHdr->attach[i].type) {
                     case RBRAttachmentType_MsgBoard: {
-                        make_lettertex(attach);
-                        init_chanjump(attach);
-                        init_sound(attach);
+                        make_lettertex(&recordHdr->attach[i]);
+                        init_chanjump(&recordHdr->attach[i]);
+                        init_sound(&recordHdr->attach[i]);
                         break;
                     }
                     case RBRAttachmentType_Picture: {
-                        make_picture(attach);
+                        make_picture(&recordHdr->attach[i]);
                         break;
                     }
                     default: {
@@ -1487,11 +1486,11 @@ namespace ipl {
             }
 
             nw4r::lyt::Pane* pane = mpLayout->FindPaneByName("T_Letter");
-            nw4r::lyt::TextBox* textPane = NULL;
-            const nw4r::ut::detail::RuntimeTypeInfo* paneType = pane->GetRuntimeTypeInfo();
-            const nw4r::ut::detail::RuntimeTypeInfo* textBoxType = &nw4r::lyt::TextBox::typeInfo;
-            if (paneType->IsDerivedFrom(textBoxType)) {
+            nw4r::lyt::TextBox* textPane;
+            if (pane->GetRuntimeTypeInfo()->IsDerivedFrom(&nw4r::lyt::TextBox::typeInfo)) {
                 textPane = static_cast<nw4r::lyt::TextBox*>(pane);
+            } else {
+                textPane = NULL;
             }
 
             if (System::getChannelManager()->isEnableUrlJump() && mpBoardObj->mLetterType != BoardObject::TYPE_PLAYTIME) {
