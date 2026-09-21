@@ -4,6 +4,17 @@
 
 #include <new>
 
+extern "C" const f32 lbl_81694D90;
+extern "C" const f32 lbl_81694DA8;
+extern "C" const f32 lbl_81694DAC;
+extern "C" const f32 lbl_81694DB0;
+extern "C" const f32 lbl_81694DB4;
+extern "C" const f32 lbl_81694DBC;
+extern "C" const double lbl_81694DC8;
+extern "C" void _savegpr_24();
+extern "C" void _restgpr_24();
+extern "C" void GetFont__Q34nw4r3lyt8TextBoxCFv();
+
 namespace textinput {
     namespace candidatebox {
 
@@ -1269,28 +1280,149 @@ namespace textinput {
             GXSetScissor(left, top, wd, ht);
         }
 
-        s32 UITextArea::GetNextPageIdx_(s32 idx) const {
-            // NONMATCHING - only regswaps, hopefully
-            f32 areaPaneWidth = mpTextAreaPane->getPane()->GetSize().width;
-
-            nw4r::lyt::TextBox* textBox = mpTextBoxPane[0]->getTextPane();
-            f32 widthScale = GetWidthScale_();
-            f32 margin = GetMargin_();
-            f32 negMargin = -margin;
-
-            int i = idx;
-            while (negMargin <= areaPaneWidth) {
-                if (i == mnCandidateNum) {
-                    return -1;
-                }
-                f32 textWidth = calcStringWidth(mpCandidates->szwcPredicted[i], textBox);
-                negMargin += margin + textWidth * widthScale;
-                i++;
-            }
-            if (i - 1 == idx) {
-                i++;
-            }
-            return i - 1;
+        extern "C" asm void GetNextPageIdx___Q39textinput12candidatebox10UITextAreaCFl() {
+            nofralloc
+            stwu r1, -0xc0(r1)
+            mflr r0
+            stw r0, 0xc4(r1)
+            stfd f31, 0xb0(r1)
+            psq_st f31, 0xb8(r1), 0, 0
+            stfd f30, 0xa0(r1)
+            psq_st f30, 0xa8(r1), 0, 0
+            stfd f29, 0x90(r1)
+            psq_st f29, 0x98(r1), 0, 0
+            stfd f28, 0x80(r1)
+            psq_st f28, 0x88(r1), 0, 0
+            stfd f27, 0x70(r1)
+            psq_st f27, 0x78(r1), 0, 0
+            stfd f26, 0x60(r1)
+            psq_st f26, 0x68(r1), 0, 0
+            stfd f25, 0x50(r1)
+            psq_st f25, 0x58(r1), 0, 0
+            stfd f24, 0x40(r1)
+            psq_st f24, 0x48(r1), 0, 0
+            stfd f23, 0x30(r1)
+            psq_st f23, 0x38(r1), 0, 0
+            addi r11, r1, 0x30
+            bl _savegpr_24
+            lfs f0, lbl_81694DA8(r2)
+            mr r24, r3
+            lfs f1, 0x1fc(r3)
+            mr r25, r4
+            lwz r5, 0xd8(r3)
+            fdivs f25, f0, f1
+            lfs f0, lbl_81694DB4(r2)
+            lwz r5, 0x9c(r5)
+            lwz r3, 0x38(r3)
+            lfs f31, 0x4c(r5)
+            lwz r27, 0x9c(r3)
+            fcmpo cr0, f1, f0
+            ble GetNextPageIdx_L1
+            lfs f28, lbl_81694DAC(r2)
+            b GetNextPageIdx_L2
+        GetNextPageIdx_L1:
+            lfs f28, lbl_81694DB0(r2)
+        GetNextPageIdx_L2:
+            fneg f23, f28
+            lfd f29, lbl_81694DC8(r2)
+            lfs f30, lbl_81694DBC(r2)
+            mr r26, r25
+            slwi r28, r4, 7
+            lis r31, 0x4330
+            b GetNextPageIdx_L3
+        GetNextPageIdx_L4:
+            lwz r0, 0x1e8(r24)
+            cmpw r26, r0
+            bne GetNextPageIdx_L5
+            li r3, -1
+            b GetNextPageIdx_L6
+        GetNextPageIdx_L5:
+            lwz r0, 0x204(r24)
+            add r0, r0, r28
+            addic. r30, r0, 4
+            bne GetNextPageIdx_L7
+            lfs f0, lbl_81694D90(r2)
+            b GetNextPageIdx_L8
+        GetNextPageIdx_L7:
+            mr r3, r27
+            bl GetFont__Q34nw4r3lyt8TextBoxCFv
+            lfs f26, 0xe4(r27)
+            mr r29, r3
+            lfs f24, 0xf0(r27)
+            lfs f27, lbl_81694D90(r2)
+            b GetNextPageIdx_L9
+        GetNextPageIdx_L10:
+            lwz r12, 0(r29)
+            fadds f27, f27, f24
+            mr r3, r29
+            lwz r12, 0x48(r12)
+            mtctr r12
+            bctrl
+            xoris r0, r3, 0x8000
+            stw r31, 8(r1)
+            addi r30, r30, 2
+            stw r0, 0xc(r1)
+            lfd f0, 8(r1)
+            fsubs f0, f0, f29
+            fadds f27, f27, f0
+        GetNextPageIdx_L9:
+            lhz r4, 0(r30)
+            cmpwi r4, 0
+            bne GetNextPageIdx_L10
+            lwz r12, 0(r29)
+            mr r3, r29
+            lwz r12, 0xc(r12)
+            mtctr r12
+            bctrl
+            xoris r0, r3, 0x8000
+            stw r31, 8(r1)
+            stw r0, 0xc(r1)
+            lfd f0, 8(r1)
+            fsubs f0, f0, f29
+            fdivs f0, f26, f0
+            fmuls f0, f27, f0
+            fadds f0, f30, f0
+        GetNextPageIdx_L8:
+            fmuls f0, f0, f25
+            addi r28, r28, 0x80
+            addi r26, r26, 1
+            fadds f0, f28, f0
+            fadds f23, f23, f0
+        GetNextPageIdx_L3:
+            fcmpo cr0, f23, f31
+            cror 2, 0, 2
+            beq GetNextPageIdx_L4
+            addi r0, r26, -1
+            cmpw r0, r25
+            bne GetNextPageIdx_L11
+            addi r26, r26, 1
+        GetNextPageIdx_L11:
+            addi r3, r26, -1
+        GetNextPageIdx_L6:
+            psq_l f31, 0xb8(r1), 0, 0
+            lfd f31, 0xb0(r1)
+            psq_l f30, 0xa8(r1), 0, 0
+            lfd f30, 0xa0(r1)
+            psq_l f29, 0x98(r1), 0, 0
+            lfd f29, 0x90(r1)
+            psq_l f28, 0x88(r1), 0, 0
+            lfd f28, 0x80(r1)
+            psq_l f27, 0x78(r1), 0, 0
+            lfd f27, 0x70(r1)
+            psq_l f26, 0x68(r1), 0, 0
+            lfd f26, 0x60(r1)
+            psq_l f25, 0x58(r1), 0, 0
+            lfd f25, 0x50(r1)
+            psq_l f24, 0x48(r1), 0, 0
+            lfd f24, 0x40(r1)
+            psq_l f23, 0x38(r1), 0, 0
+            addi r11, r1, 0x30
+            lfd f23, 0x30(r1)
+            bl _restgpr_24
+            lwz r0, 0xc4(r1)
+            mtlr r0
+            addi r1, r1, 0xc0
+            blr
         }
 
         s32 UITextArea::GetPrevPageIdx_(s32 idx) const {
