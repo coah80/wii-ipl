@@ -586,13 +586,12 @@ namespace ipl {
                 } else if (result > 0) {
                     result = 0;
                 } else {
-                    ESError err = ES_GetTmdView(titleId, NULL, &tmdViewSize);
-                    result = err;
+                    result = ES_GetTmdView(titleId, NULL, &tmdViewSize);
 
-                    if (err == ES_ERR_DONT_EXISTS) {
+                    if (result == ES_ERR_DONT_EXISTS) {
                         result = ES_ERR_OK;
-                    } else if (err != ES_ERR_OK) {
-                        ES_ERR_REPORT("ES_GetTmdView1 failed: %d", err);
+                    } else if (result != ES_ERR_OK) {
+                        ES_ERR_REPORT("ES_GetTmdView1 failed: %d", result);
                     } else {
                         tmdView = (ESTmdView*)heap->alloc(OSRoundUp32B(tmdViewSize), -DEFAULT_ALIGN);
                         result = ES_GetTmdView(titleId, tmdView, &tmdViewSize);
@@ -607,7 +606,7 @@ namespace ipl {
                             if (result < 0) {
                                 ES_ERR_REPORT("NumInodesSaveDirRoot failed: %d", result);
                             } else {
-                                result = (result == 0);
+                                result = __rlwnm(1, __cntlzw(result), 31, 31);
                             }
                         }
                     }
