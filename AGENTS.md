@@ -174,6 +174,16 @@ tie-break, it reports the evidence and waits for the orchestrator to terminate
 or reassign the leaf; it does not self-accept a near-match. Reaching `100.0%`
 is only the handoff point; it is not acceptance.
 
+Workers are persistent across validation. After reaching a candidate result,
+the worker enters a paused or awaiting-parent state while the orchestrator
+performs its checks. Keep the worker handle and its leaf assignment alive. If
+pool, ctxdiff, source review, or any other gate fails, send the failure evidence
+back to that same worker and resume it on the same leaf. Do not discard a
+near-match and silently replace it with a new worker. A worker may be closed
+only after its leaf is accepted, explicitly abandoned, or the orchestrator is
+stopping the entire goal. A wait timeout is not worker termination; poll the
+same handle or inspect its authoritative status before taking recovery action.
+
 The orchestrator must independently rebuild the owned object and verify:
 
 1. `pool_diff.py` reports identical pools, with no first divergence.
@@ -205,6 +215,25 @@ The main agent reviews every worker result before accepting it. After each
 accepted commit, record the new report from `build/43U/report.json` and keep
 the DOL hash at `26116613f624061ba99c8d1a299aaa6efa85670d`. Never push to
 `upstream`; only the fork's `origin` is in scope.
+
+## Goal completion contract
+
+The decompilation loop does not stop after a successful wave, a convenient
+near-match, or a code-only milestone. Keep dispatching and resuming workers
+until the live 43U report proves all of the following:
+
+- Code is 100.00% exact-matched, not merely fuzzy-matched.
+- Code is 100.00% fully linked, with no remaining unlinked code units.
+- Data is 100.00% extracted/decompiled and 100.00% fully linked.
+- Every source unit and function in the 4.3U target is accounted for; no
+  `NonMatching`, missing, fuzzy-only, or unlinked unit remains.
+- The final full build passes, the DOL hash remains correct, and the report,
+  object files, and linked DOL agree.
+
+Until every condition is true and independently verified, the goal remains
+active. A worker wave with zero accepted matches is a failed attempt, not a
+completion condition; preserve useful workers, resume fixable leaves, and
+dispatch the next disjoint batch.
 
 ## Things that do NOT work
 
