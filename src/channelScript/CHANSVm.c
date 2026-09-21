@@ -678,6 +678,7 @@ const CHANSVmObjHdr CHANSVmConstStringObjectUndefined_[] = {{{(void*)&CHANSVmCon
                                                             {{(void*)&lbl_81616CA8, 0}, 0x03800100, vmNull},
                                                             {{(void*)&lbl_81616CB8, 0}, 0x00800000, vmNull}};
 char lbl_81697583[] = "%s";
+char lbl_8169758A[] = "%.16lg";
 
 const CHANSVmFloatConstantList lbl_81616D28[] = {
     { "Infinity", (double*)&VmInf },
@@ -758,7 +759,7 @@ CHANSVmObjHdr* CHANSVmConvertToStrFromUndefined(CHANSVm* vm, CHANSVmObjType type
 }
 
 s32 CHANSVm_8144B62C(vmWString buf, u32 len, vmFloat val) NO_INLINE {
-    s32 result = snprintf((char*)buf, len / 2, "%.16lg", val);
+    s32 result = snprintf((char*)buf, len / 2, lbl_8169758A, val);
     CHANSVmStrCpyToU16FromU8(buf, (vmString)buf, result);
     return VM_STR_LENGTH(result);
 }
