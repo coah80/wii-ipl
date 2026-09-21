@@ -30,6 +30,19 @@ namespace ipl {
         static const NWC24EncodingRegion ENCODING_REGION = NWC24_ENCODING_REGION_NON;
 #endif
 
+        static const NWC24DlId DL_ID_0 = 0;
+        static const NWC24DlId DL_ID_1 = 1;
+        static const NWC24DlId DL_ID_5 = 5;
+        static const NWC24DlId DL_ID_6 = 6;
+        static const u16 DL_INTERVAL_0 = 240;
+        static const u16 DL_INTERVAL_1 = 240;
+        static const u16 DL_INTERVAL_2 = 240;
+        static const u16 DL_INTERVAL_3 = 240;
+        static const u8 DL_PRIORITY_0 = 128;
+        static const u8 DL_PRIORITY_1 = 160;
+        static const u8 DL_PRIORITY_2 = 200;
+        static const u8 DL_PRIORITY_3 = 240;
+
 #define FILE_ERROR_OK                                                                                                                                \
     (((mLastError > NWC24_ERR_FILE_OPEN || mLastError < NWC24_ERR_FILE_OTHER) && mLastError != NWC24_ERR_NAND_CORRUPT) &&                            \
      (mLastError != NWC24_ERR_FILE_EXISTS && mLastError != NWC24_ERR_INTERNAL_VF && mLastError != NWC24_ERR_FILE_BROKEN))
@@ -914,9 +927,24 @@ namespace ipl {
                         char fullDlUrl[64];
                         memset(fullDlUrl, 0, sizeof(fullDlUrl));
 
-                        NWC24DlId dlIds[4] = {0, 1, 5, 6};
-                        u16 dlIntervals[4] = {240, 240, 240, 240};
-                        u8 dlPrios[4] = {128, 160, 200, 240};
+                        NWC24DlId dlIds[4] = {
+                            *(volatile const NWC24DlId*)&DL_ID_0,
+                            *(volatile const NWC24DlId*)&DL_ID_1,
+                            *(volatile const NWC24DlId*)&DL_ID_5,
+                            *(volatile const NWC24DlId*)&DL_ID_6,
+                        };
+                        u16 dlIntervals[4] = {
+                            *(volatile const u16*)&DL_INTERVAL_0,
+                            *(volatile const u16*)&DL_INTERVAL_1,
+                            *(volatile const u16*)&DL_INTERVAL_2,
+                            *(volatile const u16*)&DL_INTERVAL_3,
+                        };
+                        u8 dlPrios[4] = {
+                            *(volatile const u8*)&DL_PRIORITY_0,
+                            *(volatile const u8*)&DL_PRIORITY_1,
+                            *(volatile const u8*)&DL_PRIORITY_2,
+                            *(volatile const u8*)&DL_PRIORITY_3,
+                        };
 
                         for (int j = 0; j < 4; j++) {
                             // Add DL task for announcements
