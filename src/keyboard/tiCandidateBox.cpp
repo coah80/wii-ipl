@@ -384,8 +384,9 @@ namespace textinput {
             mTextArea.Init();
             mOnOffButton.Create(this);
             mOnOffButton.Init();
-            mLeftScroll.Create(this, lbl_8165D984 + 68, lbl_8165D984 + 48);
-            mRightScroll.Create(this, lbl_8165D984 + 108, lbl_8165D984 + 88);
+            const char* paneNames = lbl_8165D984;
+            mLeftScroll.Create(this, paneNames + 68, paneNames + 48);
+            mRightScroll.Create(this, paneNames + 108, paneNames + 88);
             mLeftScroll.Init();
             mRightScroll.Init();
             mTextWindow.Create(this, lbl_8165DA08);
@@ -394,8 +395,8 @@ namespace textinput {
 
         void LayoutByNW4R::createAnmPane_(MEMAllocator* allocator) {
             for (u16 i = 0; i < ARRAY_LENGTH(lbl_8165D2F8.panes); i++) {
-                const PaneToAnimation& p = lbl_8165D2F8.panes[i];
                 CandidateTextAnmPane* pane = NULL;
+                const PaneToAnimation& p = lbl_8165D2F8.panes[i];
                 switch (p.type) {
                     case KT_ScrollButton: {
                         void* pBtnBuf = MEMAllocFromAllocator(allocator, sizeof(CandidateScrollAnmPane));
@@ -423,14 +424,15 @@ namespace textinput {
                 nw4r::ut::List_Append(&mAnmPanes, pane);
 
                 for (u16 j = 0; j < p.count; j++) {
+                    const AnimationFile* animation = p.pAnims[j];
                     void* pResource = mpMultiArcResourceAccessor->GetResource(0, p.pAnims[j]->fileName);
                     AnimTransformPane* transform =
                         static_cast<AnimTransformPane*>(getLayout()->CreateAnimTransform(pResource, mpMultiArcResourceAccessor));
 
                     if (p.forceAddName == NULL) {
-                        pane->addAnimation(allocator, p.pAnims[j]->id, transform, false, true);
+                        pane->addAnimation(allocator, animation->id, transform, false, true);
                     } else {
-                        pane->forceAddAnimation(allocator, p.pAnims[j]->id, transform, p.forceAddName, false, true);
+                        pane->forceAddAnimation(allocator, animation->id, transform, p.forceAddName, false, true);
                     }
                 }
             }
@@ -979,7 +981,7 @@ namespace textinput {
         void UITextArea::Create(nw4rmanager::Layout* layout) {
             // These could have been static...
             const char* textPanes[NUM_PANES] = {
-                "T_prdc_Text_00", "T_prdc_Text_01", "T_prdc_Text_02", "T_prdc_Text_03", "T_prdc_Text_04", "T_prdc_Text_05", "T_prdc_Text_06",
+                lbl_8165D2D0, "T_prdc_Text_01", "T_prdc_Text_02", "T_prdc_Text_03", "T_prdc_Text_04", "T_prdc_Text_05", "T_prdc_Text_06",
                 "T_prdc_Text_07", "T_prdc_Text_08", "T_prdc_Text_09", "T_prdc_Text_10", "T_prdc_Text_11", "T_prdc_Text_12", "T_prdc_Text_13",
                 "T_prdc_Text_14", "T_prdc_Text_15", "T_prdc_Text_16", "T_prdc_Text_17", "T_prdc_Text_18", "T_prdc_Text_19",
             };
@@ -1232,26 +1234,31 @@ namespace textinput {
                 }
             }
 
+            struct {
+                f32 left;
+                f32 width;
+            } scissor;
             nw4r::ut::Rect r = mpTextAreaPane->getPane()->GetPaneRect(drawInfo);
             // TODO - These vectors are zero-initialized using GPRs first...
-            nw4r::math::VEC3 v1;
-            nw4r::math::VEC3 v2;
+            Vec v1 = {0, 0, 0};
+            Vec v2 = {0, 0, 0};
             v1.x = r.left;
             v1.y = r.top;
             v2.x = r.right;
             v2.y = r.bottom;
-            MTXMultVec(mpTextAreaPane->getTextPane()->GetGlobalMtx(), v1, v1);
-            MTXMultVec(mpTextAreaPane->getTextPane()->GetGlobalMtx(), v2, v2);
+            MTXMultVec(mpTextAreaPane->getTextPane()->GetGlobalMtx(), &v1, &v1);
+            MTXMultVec(mpTextAreaPane->getTextPane()->GetGlobalMtx(), &v2, &v2);
             u32 left, top, wd, ht;
             GXGetScissor(&left, &top, &wd, &ht);
             // TODO - These floats need to be stored to the stack
-            f32 f3 = v1.x + mfScreenWidth / 2.0f;
-            f3 += f3 * (640.0f / mfScreenWidth - 1.0f);
-            f32 f2 = (640.0f / mfScreenWidth) * (v2.x - v1.x);
-            GXSetScissor(f3, top, f2, ht);
+            f32 scale = 640.0f / mfScreenWidth;
+            scissor.left = v1.x + mfScreenWidth / 2.0f;
+            scissor.left += scissor.left * (scale - 1.0f);
+            scissor.width = scale * (v2.x - v1.x);
+            GXSetScissor(scissor.left, top, scissor.width, ht);
             mpTextsPane->getPane()->Draw(drawInfo);
             if (!IsScrolling()) {
-                GXSetScissor(left, top, (f2 + f3) - left, ht);
+                GXSetScissor(left, top, (scissor.width + scissor.left) - left, ht);
                 for (u32 i = 0; i < NUM_PANES; i++) {
                     if (i == selected || mpTextAnmPane[i]->getState() == ANM_FocusOut) {
                         mpTextBoxPane[i]->getPane()->SetVisible(true);
