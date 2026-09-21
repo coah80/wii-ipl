@@ -9,6 +9,8 @@
 
 #include <private/es.h>
 
+#include <string.h>
+
 typedef struct AppLoaderHeader {
     char date[16];    // 0x00
     u32 entryPoint;   // 0x10
@@ -18,6 +20,7 @@ typedef struct AppLoaderHeader {
 } AppLoaderHeader;
 
 u8 TicketViewsBuf[OSRoundUp32B(sizeof(ESTicketView) * 64)] ALIGN32;
+ESTicketView* lbl_81696578 = (ESTicketView*)TicketViewsBuf;
 DVDDiskID lbl_810ADF60 ALIGN32;
 OSBootInfo2 bi2 ALIGN32;
 AppLoaderHeader AppLoaderHdr ALIGN32;
@@ -233,6 +236,79 @@ BOOL BS2IsDiagDisc() {
     return (u8)(*(u8*)OSPhysicalToCached(OS_ADDR_BOOT_INFO) - 0x30U) <= 1;
 }
 
+BOOL BS2GetLockedTitles(ESTitleId* pTitleIds, u32* count) {
+    u32 i;
+    u32 titleMask;
+    u32 titleCount;
+
+    if (State != BS2_STT_DATA_DISK && State != BS2_STT_RVL_GAME) {
+        return FALSE;
+    }
+
+    if (pTitleIds) {
+        goto getLockedTitles;
+    }
+
+    *count = 0;
+    lbl_81698A98 = (u32)PartitionInfoBuf;
+    for (i = 0; i < **(u32**)&lbl_81698AA0; i++) {
+        BS2Report("gamePartition ... 0x%08X\n", *(u32*)lbl_81698A98);
+        BS2Report("type          ... 0x%08X\n", *(u32*)(lbl_81698A98 + 4));
+        if (*(u32*)(lbl_81698A98 + 4) & 0xFF000000) {
+            BS2Report(" count++\n");
+            (*count)++;
+        }
+        lbl_81698A98 += 8;
+    }
+
+    lbl_81698A98 = (u32)PartitionInfoBuf + 0x20;
+    for (i = 0; i < **(u32**)&lbl_81698A9C; i++) {
+        BS2Report("gamePartition ... 0x%08X\n", *(u32*)lbl_81698A98);
+        BS2Report("type          ... 0x%08X\n", *(u32*)(lbl_81698A98 + 4));
+        if (*(u32*)(lbl_81698A98 + 4) & 0xFF000000) {
+            BS2Report(" count++\n");
+            (*count)++;
+        }
+        lbl_81698A98 += 8;
+    }
+
+    return TRUE;
+
+getLockedTitles:
+    titleCount = *count;
+    if (titleCount != 0) {
+        lbl_81698A98 = (u32)PartitionInfoBuf;
+        titleMask = (u32)-1;
+        for (i = 0; i < **(u32**)&lbl_81698AA0; i++) {
+            if (titleCount == 0) {
+                return TRUE;
+            }
+            if (*(u32*)(lbl_81698A98 + 4) & 0xFF000000) {
+                *pTitleIds = ((ESTitleId)0x00010000 << 32) | (*(u32*)(lbl_81698A98 + 4) & titleMask);
+                titleCount--;
+                pTitleIds++;
+            }
+            lbl_81698A98 += 8;
+        }
+
+        lbl_81698A98 = (u32)PartitionInfoBuf + 0x20;
+        titleMask = (u32)-1;
+        for (i = 0; i < **(u32**)&lbl_81698A9C; i++) {
+            if (titleCount == 0) {
+                return TRUE;
+            }
+            if (*(u32*)(lbl_81698A98 + 4) & 0xFF000000) {
+                *pTitleIds = ((ESTitleId)0x00010000 << 32) | (*(u32*)(lbl_81698A98 + 4) & titleMask);
+                titleCount--;
+                pTitleIds++;
+            }
+            lbl_81698A98 += 8;
+        }
+    }
+
+    return TRUE;
+}
+
 BOOL BS2IsTitleAvailable(ESTitleId titleId) {
     u32* count;
     u32 i;
@@ -254,6 +330,91 @@ BOOL BS2IsTitleAvailable(ESTitleId titleId) {
     count = *(u32**)&lbl_81698A9C;
     for (i = 0; i < *count; i++) {
         if (*(u32*)(lbl_81698A98 + 4) == (u32)titleId) {
+            return TRUE;
+        }
+        lbl_81698A98 += 8;
+    }
+
+    return FALSE;
+}
+
+s32 BS2GetTicketFromNand(ESTitleId titleId, ESTicketView* pTicketView) {
+    s32 ret;
+    u32 ticketCount;
+    s32 index;
+
+    ret = ES_GetTicketViews(titleId, NULL, &ticketCount);
+    if (ret != 0) {
+        OSReport("ES_GetTicketViews%d failed: %d\n", 1, ret);
+        return ret;
+    }
+    if (ticketCount == 0) {
+        OSReport("No ticket for disc.  Please import a ticket.\n");
+        return -1;
+    }
+    if (ticketCount > 0x40) {
+        OSReport("Internal error: Too many tickets\n");
+        return -1;
+    }
+
+    ret = ES_GetTicketViews(titleId, lbl_81696578, &ticketCount);
+    if (ret != 0) {
+        OSReport("ES_GetTicketViews%d failed: %d\n", 2, ret);
+        return ret;
+    }
+
+    BS2Report("Found %d tickets in NAND\n", ticketCount);
+    index = __OSGetValidTicketIndex(lbl_81696578, ticketCount);
+    if (index < 0 || (u32)index > ticketCount - 1) {
+        OSReport("Failed to get best ticket.\n");
+        return -1;
+    }
+
+    memcpy(pTicketView, &lbl_81696578[index], sizeof(ESTicketView));
+    DCStoreRange(pTicketView, sizeof(ESTicketView));
+    return ticketCount;
+}
+
+BOOL BS2StartLoadingTitle(ESTitleId titleId, ESTicketView* pTicketView) {
+    u32* gamePartitionCount;
+    u32* dataPartitionCount;
+    u32 i;
+
+    if (State != BS2_STT_DATA_DISK && State != BS2_STT_RVL_GAME) {
+        return FALSE;
+    }
+
+    lbl_81698A30 = 1;
+    lbl_81698A7C = (u32)pTicketView;
+    lbl_81698A98 = (u32)PartitionInfoBuf;
+    gamePartitionCount = *(u32**)&lbl_81698AA0;
+    for (i = 0; i < *gamePartitionCount; i++) {
+        if (*(u32*)(lbl_81698A98 + 4) == (u32)titleId) {
+            lbl_81698A90 = lbl_81698A98;
+            if (BS2BootFromCache) {
+                State = BS2_STT_8;
+            } else {
+                State = BS2_STT_LOCKED_DISK;
+            }
+            BS2BootFromCache = FALSE;
+            BS2BootCaching = FALSE;
+            return TRUE;
+        }
+        lbl_81698A98 += 8;
+    }
+
+    lbl_81698A98 = (u32)PartitionInfoBuf + 0x20;
+    dataPartitionCount = *(u32**)&lbl_81698A9C;
+    for (i = 0; i < *dataPartitionCount; i++) {
+        if (*(u32*)(lbl_81698A98 + 4) == (u32)titleId) {
+            lbl_81698A90 = lbl_81698A98;
+            if (BS2BootFromCache) {
+                State = BS2_STT_8;
+            } else {
+                State = BS2_STT_LOCKED_DISK;
+            }
+            BS2BootFromCache = FALSE;
+            BS2BootCaching = FALSE;
             return TRUE;
         }
         lbl_81698A98 += 8;
