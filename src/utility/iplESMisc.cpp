@@ -894,23 +894,13 @@ namespace ipl {
             ESTicketView* ticketViewList;
             s32 ret = ES_ListTitlesOnCard(NULL, &titleCount);
 
-            if (ret != ES_ERR_OK) {
-                OSReport("%s::%s: Failed to ES_ListTitlesOnCard1: %d\n", __FILE__, "InitSavedata", ret);
-                return;
-            }
-
-            titleIds = (ESTitleId*)heap->alloc(OSRoundUp32B(titleCount * sizeof(ESTitleId)), -DEFAULT_ALIGN);
+            if (ret == ES_ERR_OK) {
+                titleIds = (ESTitleId*)heap->alloc(OSRoundUp32B(titleCount * sizeof(ESTitleId)), -DEFAULT_ALIGN);
             if (titleIds == NULL) {
                 OSReport("%s::%s: Unable to allocate\n", __FILE__, "InitSavedata");
-                return;
-            }
-
-            ret = ES_ListTitlesOnCard(titleIds, &titleCount);
-            if (ret != ES_ERR_OK) {
-                OSReport("%s::%s: Failed to ES_ListTitlesOnCard2: %d\n", __FILE__, "InitSavedata", ret);
-                heap->free(titleIds);
-                return;
-            }
+            } else {
+                ret = ES_ListTitlesOnCard(titleIds, &titleCount);
+                if (ret == ES_ERR_OK) {
 
             u32 titleIdOffset = 0;
             for (u32 i = 0; i < titleCount; i++) {
@@ -1005,7 +995,9 @@ namespace ipl {
                         NANDClose((NANDFileInfo*)((u8*)&fileInfo - 0x20));
                     }
                     ChangeUid(SYSMENU_TITLE_ID);
-                } else if ((((ESTitleId)titleIdHi << 32) | titleIdLo) == 0x0001000844495343ULL ||
+                    continue;
+                }
+                if ((((ESTitleId)titleIdHi << 32) | titleIdLo) == 0x0001000844495343ULL ||
                            ((((ESTitleId)titleIdHi << 32) | titleIdLo) < 0x0001000844495343ULL &&
                             ((((ESTitleId)titleIdHi << 32) | titleIdLo) == 0x000100014a4f4449ULL ||
                              ((((ESTitleId)titleIdHi << 32) | titleIdLo) > 0x000100014a4f4449ULL &&
@@ -1023,7 +1015,7 @@ namespace ipl {
                     if (ret != ES_ERR_OK) {
                         OSReport("%s::%s: ES_GetTicketViews failed: %d for %016llx\n", __FILE__, "DeleteTicketsForce", ret, titleId);
                     } else if (ticketViewCount != 0) {
-                        ticketViewList = (ESTicketView*)heap->alloc(ticketViewCount * sizeof(ESTicketView), -DEFAULT_ALIGN);
+                        ticketViewList = (ESTicketView*)heap->alloc(ticketViewCount * 0xe0, -DEFAULT_ALIGN);
                         ret = ES_GetTicketViews(titleId, ticketViewList, &ticketViewCount);
                         if (ret != ES_ERR_OK) {
                             OSReport("%s::%s: ES_GetTicketViews failed: %d for %016llx\n", __FILE__, "DeleteTicketsForce", ret, titleId);
@@ -1046,7 +1038,18 @@ namespace ipl {
                 titleIdOffset += 8;
             }
 
-            heap->free(titleIds);
+                } else {
+                    OSReport("%s::%s: Failed to ES_ListTitlesOnCard2: %d\n", __FILE__, "InitSavedata", ret);
+                }
+            }
+            } else {
+                OSReport("%s::%s: Failed to ES_ListTitlesOnCard1: %d\n", __FILE__, "InitSavedata", ret);
+            }
+
+            if (titleIds != NULL) {
+                heap->free(titleIds);
+            }
+            return;
         }
 
         BOOL checkForNullTermination(char* str, u32 len) {
@@ -1111,7 +1114,7 @@ namespace ipl {
                 return FALSE;
             }
 
-            for (; offset < mFileLength; offset += OSRoundUp32B(entry.tmdSize)) {
+            for (; offset < mFileLength;) {
                 s32 ret = NANDSeek(&mFile, offset, NAND_SEEK_BEG);
                 if (ret != offset) {
                     ES_ERR_REPORT("NANDSeek err: %d!=%d", ret, offset);
@@ -1134,6 +1137,9 @@ namespace ipl {
                     }
                     return TRUE;
                 }
+
+                offset += entry.tmdSize;
+                offset = OSRoundUp32B(offset);
             }
             return FALSE;
         }
