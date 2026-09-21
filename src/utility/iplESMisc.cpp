@@ -837,13 +837,13 @@ namespace ipl {
         }
 
         ESError ESMisc::DeleteSavedata(ESTitleId titleId, EGG::Heap* heap) {
-            s32 ret;
             char dirPath[0x80] ALIGN32;
             char filePath[0x41];
             char* entries = NULL;
             u32 entryCount = 0;
             char* entry;
             u32 i;
+            s32 ret;
 
             sprintf(dirPath + 0x20, "/title/%08x/%08x/data/", NANDTitleIdHi(titleId), NANDTitleIdLo(titleId));
             ret = NANDReadDir(dirPath + 0x20, NULL, &entryCount);
@@ -867,13 +867,14 @@ namespace ipl {
             }
 
             entry = entries;
-            for (i = 0; i < entryCount; i++) {
+            for (i = 0; i < entryCount;) {
                 snprintf(filePath + 0x1c, 0x40, "%s%s", dirPath + 0x20, entry);
                 (filePath + 0x1c)[0x40] = 0;
                 ret = NANDPrivateDelete(filePath + 0x1c);
                 if (ret != ES_ERR_OK) {
                     ES_ERR_REPORT("Failed to delete %s: %d", filePath + 0x1c, ret);
                 }
+                i++;
                 entry += strlen(entry) + 1;
             }
 
