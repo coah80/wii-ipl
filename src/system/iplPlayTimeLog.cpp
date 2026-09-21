@@ -7,6 +7,10 @@
 
 namespace ipl {
     static const wchar_t scNumber[] = L"0123456789";
+    extern const u32 sPlayTimeLogAttachSize0 = sizeof(EventBuffer);
+    extern const u32 sPlayTimeLogAttachSize1 = 0;
+    extern const RBRAttachmentType sPlayTimeLogAttachType0 = RBRAttachmentType_PlayTimeLog;
+    extern const RBRAttachmentType sPlayTimeLogAttachType1 = RBRAttachmentType_None;
 
     PlayTimeLog PlayTimeLog::smArg;
 
@@ -348,15 +352,24 @@ namespace ipl {
 
         const void* attachData[RBR_ATTACHMENT_MAX] = {(void*)event, NULL};
 
-        u32 attachSize[RBR_ATTACHMENT_MAX] = {sizeof(EventBuffer), 0};
+        u32 attachSize[RBR_ATTACHMENT_MAX] = {
+            *reinterpret_cast<volatile const u32*>(&sPlayTimeLogAttachSize0),
+            *reinterpret_cast<volatile const u32*>(&sPlayTimeLogAttachSize1)
+        };
 
-        RBRAttachmentType attachType[RBR_ATTACHMENT_MAX] = {RBRAttachmentType_PlayTimeLog, RBRAttachmentType_None};
+        RBRAttachmentType attachType[RBR_ATTACHMENT_MAX] = {
+            *reinterpret_cast<volatile const RBRAttachmentType*>(&sPlayTimeLogAttachType0),
+            *reinterpret_cast<volatile const RBRAttachmentType*>(&sPlayTimeLogAttachType1)
+        };
 
         NWC24FriendAddr friendAddr;
         memset(&friendAddr, 0, sizeof(NWC24FriendAddr));
 
+        RBRRecordFlags recordFlags = {0};
+        recordFlags.type = RBRRecordType_PlayTimeLog;
+
         cdbManager->createNewRecord("playtimelog", RBRFileType_Log, &mDateTime, NULL, NULL, recordPos,
-                                    RBR_MAKE_RECORDFLAGS(RBRRecordType_PlayTimeLog, FALSE), friendAddr, NWC24_FRIENDTYPE_NONE,
+                                    recordFlags.data, friendAddr, NWC24_FRIENDTYPE_NONE,
                                     RBRReplyFlag_NotAvailable, titleText, bodyText, NULL, attachData, attachSize, attachType);
 
         delete[] bodyText;
