@@ -15,10 +15,19 @@ enum {
     ODH_ERROR_80000005 = 0x80000005,
 };
 
+struct SArCDJ_OdhMaster {
+    u16 field0;
+    u16 field2;
+    u8 field4;
+    u8 padding[0x22B];
+    u8* data;
+};
+
 class CArGBAOdh {
   public:
     s32 decompressGbaOdh(u8* src, int srcSize, u8* dest, int destSize, u8* work, int unk, int format);
     s32 compressGbaOdh(u8* src, u8* dest, int width, int height, int quality, u32 sizeLimit, u8* work, int format);
+    void cdj_c_makeHeader(SArCDJ_OdhMaster* master, u32 size);
 
   private:
     s32 ScaleLimit(s32 scale);
@@ -63,6 +72,16 @@ int ODHGetWidth(u8* data) {
 
 int ODHGetHeight(u8* data) {
     return (((u32*)data)[1] >> 11 & 0x7FF) + 7 & 0x7F8;
+}
+
+void CArGBAOdh::cdj_c_makeHeader(SArCDJ_OdhMaster* master, u32 size) {
+    master->data[0] = 'A';
+    master->data[1] = 'J';
+    master->data[2] = 'P';
+    master->data[3] = 'G';
+    *(u32*)&master->data[4] = master->field0 | (u32)master->field2 << 11 | (u32)master->field4 << 24;
+    *(u32*)&master->data[8] = size;
+    *(u32*)&master->data[12] = 0;
 }
 
 s32 CArGBAOdh::ScaleLimit(s32 scale) {
