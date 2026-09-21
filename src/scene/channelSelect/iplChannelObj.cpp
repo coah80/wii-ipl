@@ -111,6 +111,7 @@ namespace ipl {
         };
 
         extern "C" char lbl_8164E6AF[] = "%s_Rso%d.brlan";
+        extern "C" char lbl_816969E8[] = "arc";
 
         static const u32 scLangLookup[SC_PRODUCT_AREA_MAX][16] = {
             // Japan
@@ -498,7 +499,7 @@ namespace ipl {
 
         void ChannelObj::createDiskLayout(void* data) {
             const ModuleData* moduleData = reinterpret_cast<const ModuleData*>(lbl_8164E290 + 0x98);
-            mpDiskLayout = layout::Object::create(mpDiskHeap, 0x19000, data, "arc", moduleData->iconBrlyt);
+            mpDiskLayout = layout::Object::create(mpDiskHeap, 0x19000, data, lbl_816969E8, moduleData->iconBrlyt);
             setLangPane(mpDiskLayout);
 
             if (mpDiskLayout->searchFile(moduleData->iconBrlan)) {
@@ -768,7 +769,7 @@ namespace ipl {
         f32 ChannelObj::createWadThumbnail() {
             f32 frame = 0.0f;
 
-            mpThumbLayout = layout::Object::create(mpMainHeap, 0x8000, mpThumbFile->getBuffer(), "arc", lbl_8164E328.iconBrlyt);
+            mpThumbLayout = layout::Object::create(mpMainHeap, 0x8000, mpThumbFile->getBuffer(), lbl_816969E8, lbl_8164E328.iconBrlyt);
             setLangPane(mpThumbLayout);
 
             u32 rsoIdx = System::getChannelManager()->getIconRSOIdx(mChanPage, mChanIndex);
@@ -821,8 +822,11 @@ namespace ipl {
             return frame;
         }
 
+        extern "C" char lbl_8164E6CF[] = "my_IplTop_b.brlyt";
+        extern "C" char lbl_8164E6E1[] = "my_IplTop_b.brlan";
+
         f32 ChannelObj::createWrongThumbnail() {
-            mpThumbLayout = layout::Object::create(mpMainHeap, 0x8000, mpSysLayoutFile, "arc", "my_IplTop_b.brlyt");
+            mpThumbLayout = layout::Object::create(mpMainHeap, 0x8000, mpSysLayoutFile, lbl_816969E8, lbl_8164E6CF);
 
             mpThumbLayout->FindPaneByName("Ch0")->SetVisible(false);
             mpThumbLayout->FindPaneByName("Ch1")->GetMaterial()->SetTevColor(0, (GXColorS10){0, 0, 0, 255});
@@ -833,8 +837,8 @@ namespace ipl {
         }
 
         f32 ChannelObj::createEmptyThumbnail() {
-            mpThumbLayout = layout::Object::create(mpMainHeap, 0x8000, mpSysLayoutFile, "arc", "my_IplTop_b.brlyt");
-            mpThumbAnim = mpThumbLayout->bind("my_IplTop_b.brlan");
+            mpThumbLayout = layout::Object::create(mpMainHeap, 0x8000, mpSysLayoutFile, lbl_816969E8, lbl_8164E6CF);
+            mpThumbAnim = mpThumbLayout->bind(lbl_8164E6E1);
 
             return System::getRndm()->get_u16() % 2000;
         }
@@ -868,7 +872,7 @@ namespace ipl {
         extern "C" char lbl_8164E71E[] = "my_IplTopBalloon_a_BalloonInOut.brlan";
 
         void ChannelObj::initCursor() {
-            mpCursorLayout = new (mpCursorHeap, 4) layout::Object(mpCursorHeap, mpSysLayoutFile, "arc", lbl_8164E6F3);
+            mpCursorLayout = new (mpCursorHeap, 4) layout::Object(mpCursorHeap, mpSysLayoutFile, lbl_816969E8, lbl_8164E6F3);
 
             for (int i = 0; i < ANIM_CURSOR_MAX; i++) {
                 mpCursorAnims[i] = mpCursorLayout->bind(scCursorAnims[i], scCursur, false);
@@ -981,7 +985,7 @@ namespace ipl {
                 mpBalloonLayout = NULL;
                 return;
             }
-            mpBalloonLayout = new (mpBalloonHeap, 4) layout::Object(mpBalloonHeap, mpSysLayoutFile, "arc", lbl_8164E705);
+            mpBalloonLayout = new (mpBalloonHeap, 4) layout::Object(mpBalloonHeap, mpSysLayoutFile, lbl_816969E8, lbl_8164E705);
 
             setBalloonText((wchar_t*)System::getChannelManager()->getTitleName(mChanPage, mChanIndex, 0));
 
