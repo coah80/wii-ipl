@@ -543,6 +543,7 @@ namespace ipl {
         }
 
         u32 ESMisc::NumInodesSaveDirRoot(ESTitleId titleId) {
+            s32 ret;
             s32 result = -1;
             bool changedUid = false;
 
@@ -553,7 +554,7 @@ namespace ipl {
                 snprintf(path, sizeof(path), "/title/%08x/%08x/data", NANDTitleIdHi(titleId), NANDTitleIdLo(titleId));
 
                 u32 nodes;
-                s32 ret = NANDPrivateReadDir(path, NULL, &nodes);
+                ret = NANDPrivateReadDir(path, NULL, &nodes);
 
                 if (ret != NAND_RESULT_OK) {
                     ES_ERR_REPORT("NANDReadDir failed: %d", ret);
