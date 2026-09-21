@@ -39,6 +39,13 @@ extern "C" void del__Q33ipl5scene15FriendListCacheFUl();
 extern "C" void reset_friend__Q33ipl5scene7AddressFv();
 extern "C" void __div2u();
 extern "C" void __mod2u();
+extern "C" void UTF16ToANSI__Q33ipl7utility13CharacterCodeFPUcPCwl();
+extern "C" void isValidId__Q33ipl5scene15FriendListCacheFRCUx();
+extern "C" void isDupId__Q33ipl5scene15FriendListCacheFRCUx();
+extern "C" void isDupMail__Q33ipl5scene15FriendListCacheFPCc();
+extern "C" u64 utf16_wiiid__Q33ipl5scene11AddressEditFPCw(const wchar_t*);
+extern "C" void _savegpr_29();
+extern "C" void _restgpr_29();
 extern "C" void _savegpr_23();
 extern "C" void _savegpr_27();
 extern "C" void _restgpr_23();
@@ -118,6 +125,158 @@ void ipl::scene::AddressEdit::String::clear() {
     reinterpret_cast<u8*>(this)[0x420] = 0;
     reinterpret_cast<u8*>(this)[0x421] = 0;
     reinterpret_cast<u8*>(this)[0x422] = 0;
+}
+
+extern "C" asm void setWiiNo__Q43ipl5scene11AddressEdit6StringFPCw() {
+    nofralloc
+    stwu r1, -0x20(r1)
+    mflr r0
+    stw r0, 0x24(r1)
+    addi r11, r1, 0x20
+    bl _savegpr_29
+    li r0, 1
+    mr r31, r4
+    stb r0, 0x422(r3)
+    mr r30, r3
+    li r4, 0
+    li r5, 0x204
+    bl memset
+    mr r3, r30
+    mr r4, r31
+    li r5, 0x10
+    bl wcsncpy
+    addi r3, r30, 0x21c
+    li r4, 0
+    li r5, 0x204
+    bl memset
+    li r0, 0x10
+    li r7, 0
+    li r3, 0
+    li r5, 0x3f
+    mtctr r0
+setWiiNo_L1:
+    lhzx r6, r31, r3
+    cmplwi r6, 0x30
+    blt setWiiNo_L2
+    cmplwi r6, 0x39
+    bgt setWiiNo_L2
+    srawi r0, r7, 2
+    addze r0, r0
+    add r0, r7, r0
+    slwi r0, r0, 1
+    add r4, r30, r0
+    sth r6, 0x21c(r4)
+    b setWiiNo_L3
+setWiiNo_L2:
+    srawi r0, r7, 2
+    addze r0, r0
+    add r0, r7, r0
+    slwi r0, r0, 1
+    add r4, r30, r0
+    sth r5, 0x21c(r4)
+setWiiNo_L3:
+    addi r7, r7, 1
+    addi r3, r3, 2
+    bdnz setWiiNo_L1
+    li r0, 0x20
+    mr r3, r31
+    sth r0, 0x238(r30)
+    li r29, 0
+    sth r0, 0x22e(r30)
+    sth r0, 0x224(r30)
+    bl wcslen
+    cmplwi r3, 0x10
+    bne setWiiNo_L4
+    mr r3, r31
+    bl utf16_wiiid__Q33ipl5scene11AddressEditFPCw
+    stw r4, 0xc(r1)
+    addi r4, r1, 8
+    stw r3, 8(r1)
+    lwz r3, 0x424(r30)
+    lwz r3, 0x4ec(r3)
+    bl isValidId__Q33ipl5scene15FriendListCacheFRCUx
+    cmpwi r3, 0
+    beq setWiiNo_L4
+    li r29, 1
+setWiiNo_L4:
+    stb r29, 0x420(r30)
+    addi r11, r1, 0x20
+    bl _restgpr_29
+    lwz r0, 0x24(r1)
+    mtlr r0
+    addi r1, r1, 0x20
+    blr
+}
+
+extern "C" asm void isDupCode__Q43ipl5scene11AddressEdit6StringCFv() {
+    nofralloc
+    stwu r1, -0x120(r1)
+    mflr r0
+    stw r0, 0x124(r1)
+    lbz r0, 0x422(r3)
+    stw r31, 0x11c(r1)
+    mr r31, r3
+    cmpwi r0, 0
+    beq isDupCode_L1
+    bl utf16_wiiid__Q33ipl5scene11AddressEditFPCw
+    stw r4, 0xc(r1)
+    addi r4, r1, 8
+    lwz r5, 0x424(r31)
+    stw r3, 8(r1)
+    lwz r3, 0x4ec(r5)
+    bl isDupId__Q33ipl5scene15FriendListCacheFRCUx
+    b isDupCode_L2
+isDupCode_L1:
+    addi r3, r1, 0x10
+    li r4, 0
+    li r5, 0x101
+    bl memset
+    mr r4, r31
+    addi r3, r1, 0x10
+    li r5, 0x100
+    bl UTF16ToANSI__Q33ipl7utility13CharacterCodeFPUcPCwl
+    lwz r3, 0x424(r31)
+    addi r4, r1, 0x10
+    lwz r3, 0x4ec(r3)
+    bl isDupMail__Q33ipl5scene15FriendListCacheFPCc
+isDupCode_L2:
+    lwz r0, 0x124(r1)
+    lwz r31, 0x11c(r1)
+    mtlr r0
+    addi r1, r1, 0x120
+    blr
+}
+
+extern "C" asm void isMyCode__Q43ipl5scene11AddressEdit6StringCFv() {
+    nofralloc
+    stwu r1, -0x10(r1)
+    mflr r0
+    stw r0, 0x14(r1)
+    lbz r0, 0x422(r3)
+    stw r31, 0xc(r1)
+    cmpwi r0, 0
+    stw r30, 8(r1)
+    beq isMyCode_L1
+    lwz r4, 0x424(r3)
+    lwz r4, 0x4ec(r4)
+    lwz r31, 0x7d68(r4)
+    lwz r30, 0x7d6c(r4)
+    bl utf16_wiiid__Q33ipl5scene11AddressEditFPCw
+    xor r4, r30, r4
+    xor r0, r31, r3
+    or r0, r4, r0
+    cntlzw r0, r0
+    srwi r3, r0, 5
+    b isMyCode_L2
+isMyCode_L1:
+    li r3, 0
+isMyCode_L2:
+    lwz r0, 0x14(r1)
+    lwz r31, 0xc(r1)
+    lwz r30, 8(r1)
+    mtlr r0
+    addi r1, r1, 0x10
+    blr
 }
 
 extern "C" asm void prepare__Q33ipl5scene11AddressEditFv() {
