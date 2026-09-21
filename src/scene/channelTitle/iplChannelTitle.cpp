@@ -1131,6 +1131,8 @@ namespace ipl {
             }
         }
 
+#pragma push
+#pragma ppc_iro_level 0
         void ChannelTitle::calcNormalParentalDialog() {
             if (mChanSceneID == SCENE_DISK_CHANNEL &&
                 (System::getBS2Manager()->getIPLState() != bs2::IPL_STATE_RVL_GAME || System::getChannelManager()->isUnk_0x1B81())) {
@@ -1189,6 +1191,7 @@ namespace ipl {
                 }
             }
         }
+#pragma pop
 
         void ChannelTitle::calcNormalSettingDialog() {
             switch (System::getDialog()->getLastResult()) {
