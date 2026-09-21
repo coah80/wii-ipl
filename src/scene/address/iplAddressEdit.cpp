@@ -307,6 +307,15 @@ extern "C" void calc__Q33ipl6layout6ObjectFv();
 extern "C" void isActive__Q33ipl5scene6ButtonCFv();
 extern "C" void update__Q33ipl5scene6ButtonFv();
 extern "C" void update__Q33ipl3gui11PaneManagerFv();
+extern "C" void setOrtho__Q33ipl7utility8GraphicsFUl();
+extern "C" void draw__Q33ipl6layout6ObjectFv();
+extern "C" void draw__Q33ipl5scene11TextBalloonFv();
+extern "C" void callBtn1__Q23ipl12DialogWindowFUlUl();
+extern "C" void callS2Btn2__Q23ipl12DialogWindowFUlUlb();
+extern "C" void reserveText__Q33ipl5scene6ButtonFiUl();
+extern "C" void reserveAnm__Q33ipl5scene6ButtonFi();
+extern "C" void initFrame__Q33ipl7utility15FrameControllerFv();
+extern "C" void getMessage__Q33ipl7message7MessageCFUl();
 extern "C" void del__Q33ipl5scene15FriendListCacheFUl();
 extern "C" void reset_friend__Q33ipl5scene7AddressFv();
 extern "C" void __div2u();
@@ -319,8 +328,10 @@ extern "C" u64 utf16_wiiid__Q33ipl5scene11AddressEditFPCw(const wchar_t*);
 extern "C" void _savegpr_29();
 extern "C" void _restgpr_29();
 extern "C" void _savegpr_23();
+extern "C" void _savegpr_29();
 extern "C" void _savegpr_27();
 extern "C" void _restgpr_23();
+extern "C" void _restgpr_29();
 extern "C" void _restgpr_27();
 
 void ipl::scene::AddressEdit::stt_msg_code_add() {
@@ -849,6 +860,314 @@ extern "C" void setName__Q43ipl5scene11AddressEdit6StringFPCw(void* self, const 
             break;
         }
     }
+}
+
+extern "C" asm void calcFadeout__Q33ipl5scene11AddressEditFv() {
+    nofralloc
+    stwu r1, -0x10(r1)
+    mflr r0
+    stw r0, 0x14(r1)
+    stw r31, 0xc(r1)
+    stw r30, 8(r1)
+    mr r30, r3
+    lwz r3, 0xa8(r3)
+    bl calc__Q33ipl5scene11TextBalloonFv
+    lis r31, smArg__Q23ipl6System@ha
+    addi r31, r31, smArg__Q23ipl6System@l
+    lwz r3, 0xc4(r31)
+    lwz r12, 0(r3)
+    lwz r12, 0xc(r12)
+    mtctr r12
+    bctrl
+    cmpwi r3, 1
+    bne calcFadeout_L1
+    lwz r3, 0x68(r30)
+    li r31, 0
+    li r4, 0x1e
+    addi r3, r3, 0x28c
+    bl List_GetNth__Q24nw4r2utFPCQ34nw4r2ut4ListUs
+    lwz r0, 0x14(r3)
+    cmpwi r0, 1
+    beq calcFadeout_L2
+    lwz r3, 0x74(r30)
+    li r4, 9
+    addi r3, r3, 0x28c
+    bl List_GetNth__Q24nw4r2utFPCQ34nw4r2ut4ListUs
+    lwz r0, 0x14(r3)
+    cmpwi r0, 1
+    beq calcFadeout_L2
+    li r31, 1
+calcFadeout_L2:
+    mr r3, r31
+    b calcFadeout_L3
+calcFadeout_L1:
+    lwz r3, 0xc4(r31)
+    lwz r12, 0(r3)
+    lwz r12, 0xc(r12)
+    mtctr r12
+    bctrl
+    cntlzw r0, r3
+    srwi r3, r0, 5
+calcFadeout_L3:
+    lwz r0, 0x14(r1)
+    lwz r31, 0xc(r1)
+    lwz r30, 8(r1)
+    mtlr r0
+    addi r1, r1, 0x10
+    blr
+}
+
+extern "C" asm void draw__Q33ipl5scene11AddressEditFv() {
+    nofralloc
+    stwu r1, -0x10(r1)
+    mflr r0
+    lis r4, smArg__Q23ipl6System@ha
+    stw r0, 0x14(r1)
+    addi r4, r4, smArg__Q23ipl6System@l
+    stw r31, 0xc(r1)
+    mr r31, r3
+    lwz r3, 0x64(r4)
+    lwz r0, 0x100(r3)
+    cmpwi r0, 1
+    bne draw_L1
+    li r3, 0
+    bl setOrtho__Q33ipl7utility8GraphicsFUl
+    lwz r3, 0x68(r31)
+    bl draw__Q33ipl6layout6ObjectFv
+    lwz r3, 0x80(r31)
+    bl draw__Q33ipl6layout6ObjectFv
+    lwz r3, 0x74(r31)
+    bl draw__Q33ipl6layout6ObjectFv
+    lwz r3, 0xa8(r31)
+    bl draw__Q33ipl5scene11TextBalloonFv
+draw_L1:
+    lwz r0, 0x14(r1)
+    lwz r31, 0xc(r1)
+    mtlr r0
+    addi r1, r1, 0x10
+    blr
+}
+
+extern "C" asm void stt_wait_btn_fadein__Q33ipl5scene11AddressEditFv() {
+    nofralloc
+    stwu r1, -0x10(r1)
+    mflr r0
+    stw r0, 0x14(r1)
+    stw r31, 0xc(r1)
+    mr r31, r3
+    stw r30, 8(r1)
+    lwz r0, 0xa4(r3)
+    lwz r4, 0x4ec(r3)
+    mulli r0, r0, 0x140
+    add r4, r4, r0
+    lwz r0, 4(r4)
+    cmplwi r0, 2
+    bne stt_wait_btn_fadein_L1
+    lwz r3, 0x68(r3)
+    li r4, 0x10
+    addi r3, r3, 0x28c
+    bl List_GetNth__Q24nw4r2utFPCQ34nw4r2ut4ListUs
+    lwz r3, 0x14(r3)
+    addi r3, r3, -1
+    addic r0, r3, -1
+    subfe r30, r0, r3
+    b stt_wait_btn_fadein_L2
+stt_wait_btn_fadein_L1:
+    lwz r3, 0x68(r3)
+    li r4, 0x1a
+    addi r3, r3, 0x28c
+    bl List_GetNth__Q24nw4r2utFPCQ34nw4r2ut4ListUs
+    lwz r3, 0x14(r3)
+    addi r3, r3, -1
+    addic r0, r3, -1
+    subfe r30, r0, r3
+stt_wait_btn_fadein_L2:
+    lwz r3, 0x68(r31)
+    li r4, 0x11
+    addi r3, r3, 0x28c
+    bl List_GetNth__Q24nw4r2utFPCQ34nw4r2ut4ListUs
+    lwz r5, 0x14(r3)
+    li r4, 0x12
+    lwz r3, 0x68(r31)
+    addi r5, r5, -1
+    addic r0, r5, -1
+    addi r3, r3, 0x28c
+    subfe r0, r0, r5
+    and r5, r30, r0
+    addic r0, r5, -1
+    subfe r30, r0, r5
+    bl List_GetNth__Q24nw4r2utFPCQ34nw4r2ut4ListUs
+    lwz r3, 0x14(r3)
+    addi r3, r3, -1
+    addic r0, r3, -1
+    subfe r0, r0, r3
+    and r3, r30, r0
+    addic r0, r3, -1
+    subfe. r0, r0, r3
+    beq stt_wait_btn_fadein_L3
+    li r0, 0
+    stw r0, 0x64(r31)
+stt_wait_btn_fadein_L3:
+    lwz r0, 0x14(r1)
+    lwz r31, 0xc(r1)
+    lwz r30, 8(r1)
+    mtlr r0
+    addi r1, r1, 0x10
+    blr
+}
+
+extern "C" asm void stt_wait_del_msg_fadeout_to_rlt__Q33ipl5scene11AddressEditFv() {
+    nofralloc
+    stwu r1, -0x10(r1)
+    mflr r0
+    li r4, 0x1d
+    stw r0, 0x14(r1)
+    stw r31, 0xc(r1)
+    mr r31, r3
+    lwz r5, 0x68(r3)
+    addi r3, r5, 0x28c
+    bl List_GetNth__Q24nw4r2utFPCQ34nw4r2ut4ListUs
+    lwz r0, 0x14(r3)
+    cmpwi r0, 1
+    beq stt_wait_del_msg_fadeout_to_rlt_L1
+    li r0, 8
+    lis r3, smArg__Q23ipl6System@ha
+    stw r0, 0x64(r31)
+    addi r3, r3, smArg__Q23ipl6System@l
+    li r4, 0x51
+    li r5, 0x2e
+    lwz r3, 0xac(r3)
+    bl callBtn1__Q23ipl12DialogWindowFUlUl
+stt_wait_del_msg_fadeout_to_rlt_L1:
+    lwz r0, 0x14(r1)
+    lwz r31, 0xc(r1)
+    mtlr r0
+    addi r1, r1, 0x10
+    blr
+}
+
+extern "C" asm void stt_msg_del_rlt__Q33ipl5scene11AddressEditFv() {
+    nofralloc
+    stwu r1, -0x10(r1)
+    mflr r0
+    li r4, 5
+    stw r0, 0x14(r1)
+    stw r31, 0xc(r1)
+    lis r31, smArg__Q23ipl6System@ha
+    addi r31, r31, smArg__Q23ipl6System@l
+    stw r30, 8(r1)
+    mr r30, r3
+    lwz r3, 0x64(r31)
+    bl getScene__Q33ipl5scene7ManagerFi
+    lwz r4, 0xac(r31)
+    mr r31, r3
+    lwz r0, 0x24(r4)
+    cmpwi r0, 1
+    beq stt_msg_del_rlt_L2
+    b stt_msg_del_rlt_L1
+stt_msg_del_rlt_L2:
+    li r4, 1
+    li r5, 0x29
+    bl reserveText__Q33ipl5scene6ButtonFiUl
+    mr r3, r31
+    li r4, 0xf
+    bl reserveAnm__Q33ipl5scene6ButtonFi
+    lwz r3, 0x68(r30)
+    li r4, 0x1e
+    addi r3, r3, 0x28c
+    bl List_GetNth__Q24nw4r2utFPCQ34nw4r2ut4ListUs
+    mr r31, r3
+    bl initFrame__Q33ipl7utility15FrameControllerFv
+    li r3, 1
+    li r0, 0x30
+    stw r3, 0x14(r31)
+    stw r0, 0x64(r30)
+stt_msg_del_rlt_L1:
+    lwz r0, 0x14(r1)
+    lwz r31, 0xc(r1)
+    lwz r30, 8(r1)
+    mtlr r0
+    addi r1, r1, 0x10
+    blr
+}
+
+extern "C" asm void stt_ipt_wait_fadein__Q33ipl5scene11AddressEditFv() {
+    nofralloc
+    stwu r1, -0x10(r1)
+    mflr r0
+    li r4, 0
+    stw r0, 0x14(r1)
+    stw r31, 0xc(r1)
+    mr r31, r3
+    lwz r5, 0x74(r3)
+    addi r3, r5, 0x28c
+    bl List_GetNth__Q24nw4r2utFPCQ34nw4r2ut4ListUs
+    lwz r0, 0x14(r3)
+    cmpwi r0, 1
+    beq stt_ipt_wait_fadein_L1
+    lwz r3, 0x74(r31)
+    li r4, 1
+    addi r3, r3, 0x28c
+    bl List_GetNth__Q24nw4r2utFPCQ34nw4r2ut4ListUs
+    lwz r0, 0x14(r3)
+    cmpwi r0, 1
+    beq stt_ipt_wait_fadein_L1
+    lwz r3, 0x74(r31)
+    li r4, 2
+    addi r3, r3, 0x28c
+    bl List_GetNth__Q24nw4r2utFPCQ34nw4r2ut4ListUs
+    lwz r0, 0x14(r3)
+    cmpwi r0, 1
+    beq stt_ipt_wait_fadein_L1
+    lwz r3, 0x80(r31)
+    li r4, 0
+    addi r3, r3, 0x28c
+    bl List_GetNth__Q24nw4r2utFPCQ34nw4r2ut4ListUs
+    lwz r0, 0x14(r3)
+    cmpwi r0, 1
+    beq stt_ipt_wait_fadein_L1
+    li r0, 0xd
+    stw r0, 0x64(r31)
+stt_ipt_wait_fadein_L1:
+    lwz r0, 0x14(r1)
+    lwz r31, 0xc(r1)
+    mtlr r0
+    addi r1, r1, 0x10
+    blr
+}
+
+extern "C" asm void stt_ipt_normal__Q33ipl5scene11AddressEditFv() {
+    nofralloc
+    stwu r1, -0x10(r1)
+    mflr r0
+    lis r5, smArg__Q23ipl6System@ha
+    li r4, 5
+    stw r0, 0x14(r1)
+    addi r5, r5, smArg__Q23ipl6System@l
+    stw r31, 0xc(r1)
+    stw r30, 8(r1)
+    mr r30, r3
+    lwz r3, 0x64(r5)
+    bl getScene__Q33ipl5scene7ManagerFi
+    mr r31, r3
+    bl isActive__Q33ipl5scene6ButtonCFv
+    cmpwi r3, 0
+    beq stt_ipt_normal_L1
+    mr r3, r31
+    bl update__Q33ipl5scene6ButtonFv
+stt_ipt_normal_L1:
+    lwz r0, 0x64(r30)
+    cmpwi r0, 0xd
+    bne stt_ipt_normal_L2
+    lwz r3, 0x7c(r30)
+    bl update__Q33ipl3gui11PaneManagerFv
+stt_ipt_normal_L2:
+    lwz r0, 0x14(r1)
+    lwz r31, 0xc(r1)
+    lwz r30, 8(r1)
+    mtlr r0
+    addi r1, r1, 0x10
+    blr
 }
 
 /*
