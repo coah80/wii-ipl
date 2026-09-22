@@ -8,7 +8,7 @@ namespace ipl {
             // used but pooled first
             DECOMP_FORCE_ACTIVE(iplCSMtx_cpp, "MTX34");
 
-            static char mtx34_name[] = "MTX34";
+            static const char mtx34_name[] = "MTX34";
 
 #define PROPERTY_COUNT 13
             extern const CHANSVmPropertyList cPropertyList[PROPERTY_COUNT];
