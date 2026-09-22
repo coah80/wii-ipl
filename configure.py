@@ -1031,7 +1031,7 @@ config.libs = [
             Object(Matching,    "cdb/CDBFBridgeVF.c"),
             Object(Matching,    "cdb/CDBFBridgeSD.c"),
             Object(Matching,    "cdb/CDBId.c"),
-            Object(NonMatching, "cdb/CDBCrypt.c"),
+            Object(Matching,    "cdb/CDBCrypt.c"),
         ]
     ),
     RevoEXLib("ncd", [
