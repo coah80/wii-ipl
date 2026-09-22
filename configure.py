@@ -662,7 +662,7 @@ config.libs = [
             Object(Matching,    "system/iplNandWrapper.cpp"),
             Object(Matching,    "system/main.cpp"),
             Object(Matching,    "system/iplBS2Manager.cpp"),
-            Object(NonMatching, "system/TVRC.cpp"),
+            Object(Matching,    "system/TVRC.cpp"),
             Object(Matching,    "system/iplTVRCManager.cpp"),
             Object(Matching,    "system/_DATA_.c"),
         ]
