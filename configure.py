@@ -740,7 +740,7 @@ config.libs = [
             Object(Equivalent,  "scene/board/iplBoard.cpp"),
             Object(Equivalent,  "scene/board/iplBoardObject.cpp"),
             Object(Matching,    "scene/board/iplBoardSD.cpp"),
-            Object(Equivalent,  "scene/board/iplUrlProcessor.cpp"),
+            Object(Matching,    "scene/board/iplUrlProcessor.cpp"),
             Object(Equivalent,  "scene/board/iplFocusObject.cpp"),
         ]
     ),
