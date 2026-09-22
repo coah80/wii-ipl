@@ -48,13 +48,21 @@ namespace ext_ead {
             extern const char* Message[6];
 
             // TODO: sort out this messy match hack
+#ifdef IPL_WWW_SURFACE_MESSAGE
+#define IPL_WWW_SURFACE_ZERO_DECL __declspec(weak) extern const char IPL_WWW_SURFACE_ZERO[];
+#define IPL_WWW_STRIPPED_MESSAGE print::IPL_WWW_SURFACE_ZERO
+#else
+#define IPL_WWW_SURFACE_ZERO_DECL
+#define IPL_WWW_STRIPPED_MESSAGE ""
+#endif
+            IPL_WWW_SURFACE_ZERO_DECL
 #define IPL_WWW_REPORT_REDEFINE_MESSAGE(RESPECT_STRIP)                                                                                               \
     char MSG_TICK_TIMER_TAG[12] = "[TickTimer]";                                                                                                     \
     char MSG_WARNING_TAG[10] = "[Warning]";                                                                                                          \
     char MSG_EVENT_TAG[10] = "[[Event]]";                                                                                                            \
     const char* Message[] = {                                                                                                                        \
         RESPECT_STRIP ? NULL : MSG_TICK_TIMER_TAG, RESPECT_STRIP ? NULL : MSG_WARNING_TAG, RESPECT_STRIP ? NULL : "[Info]",                          \
-        RESPECT_STRIP ? NULL : "[Debug]",          RESPECT_STRIP ? "" : MSG_EVENT_TAG,     RESPECT_STRIP ? NULL : "",                                \
+        RESPECT_STRIP ? NULL : "[Debug]",          RESPECT_STRIP ? IPL_WWW_STRIPPED_MESSAGE : MSG_EVENT_TAG,     RESPECT_STRIP ? NULL : "",                                \
     };
         }  // namespace print
     }  // namespace www

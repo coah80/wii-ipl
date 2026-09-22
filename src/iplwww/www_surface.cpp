@@ -1,6 +1,8 @@
 #include "iplwww/www_surface.h"
 
+#define IPL_WWW_SURFACE_MESSAGE
 #include "iplwww/www_print.h"
+#undef IPL_WWW_SURFACE_MESSAGE
 #include "iplwww/www_trasition.h"
 
 #include <revolution/vi.h>

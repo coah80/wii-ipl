@@ -8,6 +8,7 @@ MEMORY {
 }
 
 SECTIONS {
+    IPL_WWW_SURFACE_ZERO__Q37ext_ead3www5print = 0;
     GROUP: {
         .init       ALIGN(0x20):    {}
         extab       ALIGN(0x20):    {}
