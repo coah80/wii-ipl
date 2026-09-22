@@ -1729,7 +1729,7 @@ config.libs = [
             Object(Matching,    "fa/pf_fclose.c"),
             Object(NonMatching, "fa/pf_fconcat.c"),
             Object(Matching,    "fa/pf_feof.c"),
-            Object(NonMatching, "fa/pf_ferror.c"),
+            Object(Matching,    "fa/pf_ferror.c"),
             Object(NonMatching, "fa/pf_finfo.c"),
             Object(NonMatching, "fa/pf_flock.c"),
             Object(NonMatching, "fa/pf_fopen.c"),
