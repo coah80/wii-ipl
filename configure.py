@@ -1949,7 +1949,7 @@ config.libs = [
             Object(Matching,    "MSL_Common/arith.c"),
             Object(Matching,    "MSL_Common/bsearch.c"),
             Object(Matching,    "MSL_Common/buffer_io.c"),
-            Object(NonMatching, "MSL_Common/direct_io.c"),
+            Object(Matching,    "MSL_Common/direct_io.c", extra_cflags=["-Cpp_exceptions on"]),
             Object(NonMatching, "MSL_Common/file_io.c"),
             Object(NonMatching, "MSL_Common/FILE_POS.c"),
             Object(Matching,    "MSL_Common/mbstring.c"),
