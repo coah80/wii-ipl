@@ -1958,7 +1958,7 @@ config.libs = [
             Object(Matching,    "MSL_Common/math_api.c"),
             Object(NonMatching, "MSL_Common/misc_io.c"),
             Object(NonMatching, "MSL_Common/printf.c"),
-            Object(NonMatching, "MSL_Common/qsort.c"),
+            Object(Matching,    "MSL_Common/qsort.c", extra_cflags=["-Cpp_exceptions on"]),
             Object(Matching,    "MSL_Common/rand.c"),
             Object(NonMatching, "MSL_Common/scanf.c"),
             Object(NonMatching, "MSL_Common/signal.c"),
