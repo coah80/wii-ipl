@@ -723,7 +723,7 @@ namespace ipl {
     }  // namespace utility
 
 #ifndef NON_MATCHING
-    math::VEC2 ForceCTORWeak() {
+    __declspec(weak) math::VEC2 ForceCTORWeak() {
         return math::VEC2(NULL, NULL);
     }
 #endif  // NON_MATCHING
