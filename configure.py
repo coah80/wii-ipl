@@ -1199,7 +1199,7 @@ config.libs = [
         [
             Object(NonMatching, "buffer/mkhdec3.c"),
             Object(Matching,    "buffer/buffer_system.c"),
-            Object(Equivalent,  "buffer/getcode.c"),
+            Object(Matching,    "buffer/getcode.c"),
             Object(NonMatching, "buffer/idct_block_var.c"),
 
             Object(Matching,   "api/decapi.c"),
