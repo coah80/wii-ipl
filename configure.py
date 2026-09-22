@@ -1961,7 +1961,7 @@ config.libs = [
             Object(Matching,    "MSL_Common/qsort.c", extra_cflags=["-Cpp_exceptions on"]),
             Object(Matching,    "MSL_Common/rand.c"),
             Object(NonMatching, "MSL_Common/scanf.c"),
-            Object(NonMatching, "MSL_Common/signal.c"),
+            Object(Matching,    "MSL_Common/signal.c", extra_cflags=["-Cpp_exceptions on"]),
             Object(NonMatching, "MSL_Common/string.c"),
             Object(Matching,    "MSL_Common/float.c"),
             Object(NonMatching, "MSL_Common/strtold.c"),
