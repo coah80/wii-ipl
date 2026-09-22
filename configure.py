@@ -1726,7 +1726,7 @@ config.libs = [
             Object(NonMatching, "fa/pf_fadjust.c"),
             Object(NonMatching, "fa/pf_fappend.c"),
             Object(NonMatching, "fa/pf_fchdir.c"),
-            Object(NonMatching, "fa/pf_fclose.c"),
+            Object(Matching,    "fa/pf_fclose.c"),
             Object(NonMatching, "fa/pf_fconcat.c"),
             Object(NonMatching, "fa/pf_feof.c"),
             Object(NonMatching, "fa/pf_ferror.c"),
