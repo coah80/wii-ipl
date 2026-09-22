@@ -1731,7 +1731,7 @@ config.libs = [
             Object(Matching,    "fa/pf_feof.c"),
             Object(Matching,    "fa/pf_ferror.c"),
             Object(NonMatching, "fa/pf_finfo.c"),
-            Object(NonMatching, "fa/pf_flock.c"),
+            Object(Matching,    "fa/pf_flock.c"),
             Object(NonMatching, "fa/pf_fopen.c"),
             Object(NonMatching, "fa/pf_format.c"),
             Object(Matching,    "fa/pf_fread.c"),
