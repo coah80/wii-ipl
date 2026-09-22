@@ -202,7 +202,7 @@ void RFLExit() {
     }
 }
 
-RFLErrcode RFLiBootLoad() {
+static inline RFLErrcode RFLiBootLoad() {
     RFLiBootLoadAsync();
     return RFLWaitAsync();
 }
@@ -223,7 +223,7 @@ static void bootloadDB2Res_() {
     }
 }
 
-RFLErrcode RFLiBootLoadAsync() {
+static inline RFLErrcode RFLiBootLoadAsync() {
     return RFLiBootLoadDatabaseAsync(bootloadDB2Res_);
 }
 
@@ -249,7 +249,7 @@ void RFLiFree(void* block) {
     MEMFreeToExpHeap(RFLiGetManager()->mTmpHeap, block);
 }
 
-u32 RFLiGetUsedWorkSize() {
+static inline u32 RFLiGetUsedWorkSize() {
     if (RFLAvailable()) {
         MEMiHeapHead* heap = RFLiGetManager()->mTmpHeap;
         return MEMGetAllocatableSizeForExpHeap(heap) - MEMGetTotalFreeSizeForExpHeap(heap);
@@ -397,7 +397,7 @@ BOOL RFLiNeedRepairError() {
     return ((*list & (1 << RFLiFileBrokenType_DBBroken)) != 0) ? TRUE : FALSE;
 }
 
-BOOL RFLiCriticalError() {
+static inline BOOL RFLiCriticalError() {
     u8* list = &sRFLBrokenType;
     BOOL ret = FALSE;  // Unused
 
