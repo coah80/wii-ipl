@@ -46,7 +46,7 @@ void CDBRecordKeyGetKeyStr(CDBRecordKey* recordKey, char* keyString);
 
 void CDBRecordKeySetSerialNumber(CDBRecordKey* recordKey, int serialNum);
 
-void CDBRecordKeyCopy(CDBRecordKey* recordKey, CDBRecordKey* newRecordKey);
+void CDBRecordKeyCopy(CDBRecordKey* recordKey, const CDBRecordKey* newRecordKey);
 
 BOOL CDBRecordKeyCompare(CDBRecordKey* recordKey1, CDBRecordKey* recordKey2);
 int CDBRecordKeyCompareByDate(CDBRecordKey* recordKey1, CDBRecordKey* recordKey2);

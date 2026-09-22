@@ -29,23 +29,25 @@ BOOL CDBRecordKeyIsValid(CDBRecordKey* recordKey) {
 }
 
 void CDBRecordKeyInit(CDBRecordKey* recordKey, CDBDate epoch, int gameCode, u16 makerCode, int serialNumber, char* fileType, int unk) {
-    char typeStr[8];
-    char gcStr[8];
-    char mcStr[8];
+    struct {
+        char mcStr[4];
+        char typeStr[8];
+        char gcStr[8];
+    } strings;
 
     u32 typeLength;
 
-    CDBConvMCValueToMCStr(makerCode, mcStr);
-    CDBConvGCValueToGCStr(gameCode, gcStr);
+    CDBConvMCValueToMCStr(makerCode, strings.mcStr);
+    CDBConvGCValueToGCStr(gameCode, strings.gcStr);
 
     recordKey->wiiId = CDBGetWiiId();
     recordKey->location = unk;
 
-    typeLength = strlen(typeStr);
-    strcpy(typeStr, fileType);
-    CDBToLower(typeStr, typeLength);
+    typeLength = strlen(fileType);
+    strcpy(strings.typeStr, fileType);
+    CDBToLower(((char*)strings.typeStr), typeLength);
 
-    sprintf(recordKey->keyString, "%010u_%s_%s_%03d.%s", epoch, gcStr, mcStr, serialNumber, typeStr);
+    sprintf(recordKey->keyString, "%010u_%s_%s_%03d.%s", epoch, strings.gcStr, strings.mcStr, serialNumber, strings.typeStr);
 }
 
 void CDBRecordKeySetSerialNumber(CDBRecordKey* recordKey, int serialNum) {
@@ -72,9 +74,8 @@ void CDBRecordKeyInitFromFileName2(CDBRecordKey* recordKey, char* keyString, cha
     recordKey->location = CDB_FS_LOCATION_SD;
 }
 
-void CDBRecordKeyCopy(CDBRecordKey* recordKey, CDBRecordKey* newRecordKey) {
+void CDBRecordKeyCopy(CDBRecordKey* recordKey, const CDBRecordKey* newRecordKey) {
     strcpy(recordKey->keyString, newRecordKey->keyString);
-
     recordKey->wiiId = newRecordKey->wiiId;
     recordKey->location = newRecordKey->location;
 }
@@ -135,6 +136,156 @@ BOOL CDBRecordKeyArrayFull(CDBRecordKeyArray* recordArray) {
 CDBRecordKey* CDBRecordKeyArrayEnd(CDBRecordKeyArray* recordArray) {
     return recordArray->records + recordArray->size;
 }
+
+#pragma dont_inline on
+
+int CDBRecordKeyArrayDicInsertR(CDBRecordKeyArray* recordArray, CDBRecordKey* recordKey, int first, int last) {
+    int index;
+    int result;
+
+    if (first == last || first == last - 1) {
+        result = CDBRecordKeyCompare(recordKey, recordArray->records + first);
+        if (result < 0) {
+            return first;
+        }
+
+        result = CDBRecordKeyCompare(recordKey, recordArray->records + last);
+        if (result >= 0) {
+            last++;
+        }
+        return last;
+    }
+
+    index = first + (last - first) / 2;
+    result = CDBRecordKeyCompare(recordKey, recordArray->records + index);
+    if (result < 0) {
+        return CDBRecordKeyArrayDicInsertR(recordArray, recordKey, first, index);
+    }
+    if (result > 0) {
+        return CDBRecordKeyArrayDicInsertR(recordArray, recordKey, index, last);
+    }
+
+    return index;
+}
+
+CDBRecordKey* CDBRecordKeyArrayDicInsert(CDBRecordKeyArray* recordArray, CDBRecordKey* recordKey) {
+    int size = recordArray->size;
+    int index;
+    int moveCount;
+    CDBRecordKey* record;
+
+    if (size == 0) {
+        if (size < recordArray->capacity) {
+            record = recordArray->records + size;
+            CDBRecordKeyCopy(record, recordKey);
+            recordArray->size++;
+        }
+        return recordKey;
+    }
+
+    if (recordArray->capacity <= size) {
+        if (recordArray->reverse == 1) {
+            if (size != 0) {
+                record = recordArray->records + (size - 1);
+            } else {
+                record = recordArray->records;
+            }
+            if (CDBRecordKeyCompare(record, recordKey) < 0) {
+                return record;
+            }
+
+            recordArray->size--;
+            index = CDBRecordKeyArrayDicInsertR(recordArray, recordKey, 0, recordArray->size - 1);
+            moveCount = (recordArray->size - index) * sizeof(CDBRecordKey);
+            if (recordArray->capacity <= recordArray->size) {
+                moveCount -= sizeof(CDBRecordKey);
+            }
+            if (moveCount > 0) {
+                memmove((CDBRecordKey*)((char*)recordArray->records + (index + 1) * sizeof(CDBRecordKey)),
+                        (CDBRecordKey*)((char*)recordArray->records + index * sizeof(CDBRecordKey)),
+                        moveCount);
+            }
+            CDBRecordKeyCopy((CDBRecordKey*)((char*)recordArray->records + index * sizeof(CDBRecordKey)), recordKey);
+            if (recordArray->size < recordArray->capacity) {
+                recordArray->size++;
+            }
+            return (CDBRecordKey*)((char*)recordArray->records + index * sizeof(CDBRecordKey));
+        }
+
+        record = recordArray->records;
+        if (CDBRecordKeyCompare(recordKey, record) < 0) {
+            return record;
+        }
+
+        recordArray->size--;
+        if (recordArray->size >= 0 && recordArray->capacity - 1 >= 0) {
+            memmove(recordArray->records, recordArray->records + 1, recordArray->size * sizeof(CDBRecordKey));
+        }
+        index = CDBRecordKeyArrayDicInsertR(recordArray, recordKey, 0, recordArray->size - 1);
+        moveCount = (recordArray->size - index) * sizeof(CDBRecordKey);
+        if (recordArray->capacity <= recordArray->size) {
+            moveCount -= sizeof(CDBRecordKey);
+        }
+        if (moveCount > 0) {
+            memmove((CDBRecordKey*)((char*)recordArray->records + (index + 1) * sizeof(CDBRecordKey)),
+                    (CDBRecordKey*)((char*)recordArray->records + index * sizeof(CDBRecordKey)),
+                    moveCount);
+        }
+        CDBRecordKeyCopy((CDBRecordKey*)((char*)recordArray->records + index * sizeof(CDBRecordKey)), recordKey);
+        if (recordArray->size < recordArray->capacity) {
+            recordArray->size++;
+        }
+        return (CDBRecordKey*)((char*)recordArray->records + index * sizeof(CDBRecordKey));
+    }
+
+    index = CDBRecordKeyArrayDicInsertR(recordArray, recordKey, 0, size - 1);
+    moveCount = (recordArray->size - index) * sizeof(CDBRecordKey);
+    if (recordArray->capacity <= recordArray->size) {
+        moveCount -= sizeof(CDBRecordKey);
+    }
+    if (moveCount > 0) {
+        memmove((CDBRecordKey*)((char*)recordArray->records + (index + 1) * sizeof(CDBRecordKey)),
+                (CDBRecordKey*)((char*)recordArray->records + index * sizeof(CDBRecordKey)),
+                moveCount);
+    }
+    CDBRecordKeyCopy((CDBRecordKey*)((char*)recordArray->records + index * sizeof(CDBRecordKey)), recordKey);
+    if (recordArray->size < recordArray->capacity) {
+        recordArray->size++;
+    }
+    return (CDBRecordKey*)((char*)recordArray->records + index * sizeof(CDBRecordKey));
+}
+
+int CDBRecordKeyArrayDicFindR(CDBRecordKeyArray* recordArray, CDBRecordKey* recordKey, int first, int last) {
+    int index;
+    int result;
+
+    if (first == last || first == last - 1) {
+        result = CDBRecordKeyCompare(recordKey, recordArray->records + first);
+        if (result == 0) {
+            return first;
+        }
+
+        result = CDBRecordKeyCompare(recordKey, recordArray->records + last);
+        if (result != 0) {
+            return -1;
+        }
+
+        return last;
+    }
+
+    index = first + (last - first) / 2;
+    result = CDBRecordKeyCompare(recordKey, recordArray->records + index);
+    if (result < 0) {
+        return CDBRecordKeyArrayDicFindR(recordArray, recordKey, first, index);
+    }
+    if (result > 0) {
+        return CDBRecordKeyArrayDicFindR(recordArray, recordKey, index, last);
+    }
+
+    return index;
+}
+
+#pragma dont_inline reset
 
 CDBRecordKey* CDBRecordKeyArrayDicFind(CDBRecordKeyArray* recordArray, CDBRecordKey* recordKey) {
     int size = recordArray->size;
