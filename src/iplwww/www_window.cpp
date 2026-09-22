@@ -225,7 +225,8 @@ namespace ext_ead {
                 SubRow* blockRowA = (SubRow*)rasterSrc;
                 SubRow* blockRowB = (SubRow*)((u8*)rasterSrc + srcRowAdvance);
                 SubRow* blockRowC = (SubRow*)((u8*)blockRowB + srcRowAdvance);
-                SubRow* blockRowD = (SubRow*)((u8*)blockRowC + srcRowAdvance);
+                u8* blockRowDBytes = (u8*)blockRowB + srcRowAdvance;
+                SubRow* blockRowD = (SubRow*)(blockRowDBytes + srcRowAdvance);
 
                 for (int blockX = 0; blockX < mWidth; blockX += 4) {
                     blockDst[0] = convertToRGB565((*blockRowA)[0]);
