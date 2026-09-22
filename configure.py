@@ -1017,7 +1017,7 @@ config.libs = [
             Object(Matching,    "cdb/cdb.c"),
             Object(Equivalent,  "cdb/CDBConv.c"), # hmm
             Object(NonMatching, "cdb/CDBDatabase.c"),
-            Object(Equivalent,  "cdb/CDBFileSystemUtils.c"),
+            Object(Matching,    "cdb/CDBFileSystemUtils.c"),
             Object(Matching,    "cdb/CDBFileSystem.c"),
             Object(Matching,    "cdb/CDBFileSystemVF.c"),
             Object(Matching,    "cdb/CDBFileSystemSD.c"),
