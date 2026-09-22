@@ -980,7 +980,7 @@ config.libs = [
         ]
     ),
     ZI8Lib("zi8clib", [
-            Object(NonMatching, "clib/zaddress.c"),
+            Object(Matching,    "clib/zaddress.c"),
             Object(NonMatching, "clib/zconvert.c"),
             Object(NonMatching, "clib/zi81key.c"),
             Object(NonMatching, "clib/zi8alpha.c"),
