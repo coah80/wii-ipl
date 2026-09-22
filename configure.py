@@ -1947,7 +1947,7 @@ config.libs = [
             Object(Matching,    "MSL_Common/ctype.c"),
             Object(NonMatching, "MSL_Common/locale.c"),
             Object(Matching,    "MSL_Common/arith.c"),
-            Object(NonMatching, "MSL_Common/bsearch.c"),
+            Object(Matching,    "MSL_Common/bsearch.c"),
             Object(NonMatching, "MSL_Common/buffer_io.c"),
             Object(NonMatching, "MSL_Common/direct_io.c"),
             Object(NonMatching, "MSL_Common/file_io.c"),
