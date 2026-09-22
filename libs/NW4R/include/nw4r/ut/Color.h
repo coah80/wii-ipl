@@ -59,7 +59,7 @@ namespace nw4r {
                 b = blue;
                 a = alpha;
             }
-        } Color;
+        } ATTRIBUTE_ALIGN(4) Color;
     }  // namespace ut
 }  // namespace nw4r
 

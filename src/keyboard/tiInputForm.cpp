@@ -3601,7 +3601,7 @@ extern "C" asm void getValue__Q39textinput4util9AnimationFv() {
     lfs f6, 0x8(r3)
     b hermiteInterporation__Q29textinput4utilFfffffff
 }
-extern "C" asm void getDrawCacheStartPos__Q39textinput10textdrawer4BaseCFv() {
+extern "C" asm u32 getDrawCacheStartPos__Q39textinput10textdrawer4BaseCFv() {
     nofralloc
     lbz r0, 0xe4(r3)
     cmpwi r0, 0
@@ -4674,6 +4674,113 @@ void Base::doAfterDrawProcess(const wchar_t*, u32, const DrawInfo&) {}
 void Base::preDraw(u32 pos) {
     muWordWrapCounter = pos;
     mbHyphen = false;
+}
+
+bool Base::doWordWrap(const wchar_t* string, u32 pos, f32 width) {
+    struct WordWrapDrawInfo {
+        f32 left;
+        f32 top;
+        f32 right;
+        f32 bottom;
+        u16 character;
+    };
+
+    if (!mbDoWordWrap) {
+        return false;
+    }
+
+    bool characterWrap;
+    const wchar_t* stringPtr = string;
+    u32 current;
+    u32 wordWrapCounter = muWordWrapCounter;
+    if (pos < wordWrapCounter) {
+        return false;
+    }
+
+    s32 hyphenType = 0;
+    if (wordWrapCounter != 0 && getDrawCacheStartPos() != wordWrapCounter) {
+        wchar_t previous = stringPtr[wordWrapCounter - 1];
+        if (previous == L'-') {
+            hyphenType = 1;
+        } else if (previous != L' ') {
+            hyphenType = 2;
+        }
+    }
+
+    f32 stringWidth = 0.0f;
+    f32 zero = stringWidth;
+    u32 index;
+    u32 hyphenPos;
+    bool wrap;
+    hyphenPos = 0;
+    current = muWordWrapCounter;
+    wrap = false;
+    index = current;
+    stringPtr = string + current;
+    do {
+        if (*stringPtr == L' ' || *stringPtr == L'\n') {
+            break;
+        }
+        WordWrapDrawInfo drawInfo;
+        drawInfo.left = 0.0f;
+        drawInfo.top = 0.0f;
+        drawInfo.right = 0.0f;
+        drawInfo.bottom = 0.0f;
+        drawInfo.character = *stringPtr;
+        calcRect(reinterpret_cast<DrawInfo&>(drawInfo));
+        characterWrap = false;
+        stringWidth += drawInfo.right - drawInfo.left;
+
+        if (width != getScale().x) {
+            if (width + stringWidth * getScale().x >= getWordWrapRectWidth() * getScale().x) {
+                characterWrap = true;
+            }
+        }
+        if (characterWrap) {
+            wrap = true;
+        }
+
+        if (index != current && *stringPtr == L'-') {
+            hyphenPos = index;
+            mbHyphen = true;
+        }
+
+        ++stringPtr;
+        ++index;
+    } while (*stringPtr != L'\0');
+
+    if (index == current) {
+        mbHyphen = false;
+    }
+
+    if (stringWidth * getScale().x >= getWordWrapRectWidth() * getScale().x) {
+        wrap = false;
+        if (mbHyphen) {
+            wrap = true;
+        }
+        if (hyphenType == 1) {
+            wrap = true;
+        }
+    }
+
+    if (wrap) {
+        if (!findURL(0, 0, string, current, index)) {
+            if (hyphenPos == 0) {
+                mbHyphen = false;
+                ++index;
+                muWordWrapCounter = index;
+                return true;
+            }
+
+            index = hyphenPos;
+        }
+    } else {
+        mbHyphen = false;
+    }
+
+    ++index;
+    muWordWrapCounter = index;
+    return false;
 }
 
 asm void Base::doLineFeed() {
