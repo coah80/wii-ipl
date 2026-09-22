@@ -1446,7 +1446,7 @@ config.libs = [
     RVLSDKLib("axfx", [
             Object(Matching,    "axfx/AXFXReverbHi.c"),
             Object(Matching,    "axfx/AXFXReverbHiDpl2.c"),
-            Object(NonMatching, "axfx/AXFXReverbHiExp.c"),
+            Object(Matching,    "axfx/AXFXReverbHiExp.c"),
             Object(NonMatching, "axfx/AXFXReverbHiExpDpl2.c"),
             Object(Matching,    "axfx/AXFXDelay.c"),
             Object(Matching,    "axfx/AXFXReverbStd.c"),
