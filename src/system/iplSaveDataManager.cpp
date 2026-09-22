@@ -1255,7 +1255,7 @@ namespace ipl {
         void Manager::updateVersion(u32 newVersion, u32 oldVersion) {
             if ((newVersion & 0xFFFF0000) != (oldVersion & 0xFFFF0000)) {
                 OSReport("[SaveDataManager] Invalid major version change %d -> %d\n", oldVersion >> 16, newVersion >> 16);
-                OSHalt("", 1344);
+                OSHalt("\0\0\0", 1344);
             }
             mData.fileSize = sizeof(Data);
             mData.version = newVersion;
