@@ -204,7 +204,7 @@ void RFLi_MakeRandomFace_Core(RFLiCharInfo* pCharInfo, RFLi_SEX argSex, RFLi_AGE
     pCharInfo->personal.localonly = FALSE;
 }
 
-u8 RFLi_GetFacelineType(RFLi_SEX sex, RFLi_AGE age, RFLi_RACE race) {
+static u8 RFLi_GetFacelineType(RFLi_SEX sex, RFLi_AGE age, RFLi_RACE race) {
     // clang-format off
     static const u8 facelineTypeTable[RFLSex_All * RFLAge_All * RFLRace_All][10] = {
         /*  Male,  Child, Black */ {0, 0, 0, 1, 1, 1, 2, 3, 4, 5},
@@ -272,7 +272,7 @@ u8 RFLi_GetHairType(RFLi_SEX sex, RFLi_AGE age, RFLi_RACE race) {
     return hair_parts[index][RFLi_GetRandU32(hair_parts_num[index])];
 }
 
-u8 RFLi_GetEyeType(RFLi_SEX sex, RFLi_AGE age, RFLi_RACE race) {
+static u8 RFLi_GetEyeType(RFLi_SEX sex, RFLi_AGE age, RFLi_RACE race) {
     // clang-format off
     u8 eye_parts[RFLSex_All * RFLAge_All * RFLRace_All][48] = {
         /*  Male,  Child, Black */ { 2,  3,  5,  7,  8,  9, 11, 12, 13, 15, 16, 18, 27, 29, 32, 34, 36, 38, 39, 41, 43, 47,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0},
@@ -307,7 +307,7 @@ u8 RFLi_GetEyeType(RFLi_SEX sex, RFLi_AGE age, RFLi_RACE race) {
     return eye_parts[index][RFLi_GetRandU32(eye_parts_num[index])];
 }
 
-u8 RFLi_GetEyebrowType(RFLi_SEX sex, RFLi_AGE age, RFLi_RACE race) {
+static u8 RFLi_GetEyebrowType(RFLi_SEX sex, RFLi_AGE age, RFLi_RACE race) {
     // clang-format off
     static const u8 eyebrow_parts[RFLSex_All * RFLAge_All * RFLRace_All][24] = {
         /*  Male,  Child, Black */ { 0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 17, 18, 20,  0,  0,  0,  0,  0,  0},
@@ -342,7 +342,7 @@ u8 RFLi_GetEyebrowType(RFLi_SEX sex, RFLi_AGE age, RFLi_RACE race) {
     return eyebrow_parts[index][RFLi_GetRandU32(eyebrow_parts_num[index])];
 }
 
-u8 RFLi_GetNoseType(RFLi_SEX sex, RFLi_AGE age, RFLi_RACE race) {
+static u8 RFLi_GetNoseType(RFLi_SEX sex, RFLi_AGE age, RFLi_RACE race) {
     // clang-format off
     u8 nose_parts[RFLSex_All * RFLAge_All * RFLRace_All][12] = {
         /*  Male,  Child, Black */ { 0,  1,  2,  3,  4,  5,  7,  8, 10,  0,  0,  0},
@@ -377,7 +377,7 @@ u8 RFLi_GetNoseType(RFLi_SEX sex, RFLi_AGE age, RFLi_RACE race) {
     return nose_parts[index][RFLi_GetRandU32(nose_parts_num[index])];
 }
 
-u8 RFLi_GetMouthType(RFLi_SEX sex, RFLi_AGE age, RFLi_RACE race) {
+static u8 RFLi_GetMouthType(RFLi_SEX sex, RFLi_AGE age, RFLi_RACE race) {
     // clang-format off
     u8 mouth_parts[RFLSex_All * RFLAge_All * RFLRace_All][24] = {
         /*  Male,  Child, Black */ { 0,  2,  3,  6,  7,  8,  9, 10, 12, 14, 15, 17, 18, 19, 21, 22, 23,  0,  0,  0,  0,  0,  0,  0},
@@ -412,7 +412,7 @@ u8 RFLi_GetMouthType(RFLi_SEX sex, RFLi_AGE age, RFLi_RACE race) {
     return mouth_parts[index][RFLi_GetRandU32(mouth_parts_num[index])];
 }
 
-u8 RFLi_GetFaceTexType(RFLi_SEX sex, RFLi_AGE age, RFLi_RACE race) {
+static u8 RFLi_GetFaceTexType(RFLi_SEX sex, RFLi_AGE age, RFLi_RACE race) {
     // clang-format off
     static const u8 faceTexTypeTable[RFLSex_All * RFLAge_All * RFLRace_All][20] = {
         /*  Male,  Child, Black */ { 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  3,  3},
@@ -507,7 +507,7 @@ u8 RFLi_GetGlassType(RFLi_AGE age) {
     }
 }
 
-u8 RFLi_GetFaceColor(RFLi_SEX sex, RFLi_RACE race) {
+static u8 RFLi_GetFaceColor(RFLi_SEX sex, RFLi_RACE race) {
     // clang-format off
     static const u8 faceColorTable[RFLSex_All * RFLRace_All][10] = {
         /*  Male,  Black */ { 2, 2, 4, 4, 4, 4, 5, 5, 5, 5 },
@@ -526,7 +526,7 @@ u8 RFLi_GetFaceColor(RFLi_SEX sex, RFLi_RACE race) {
     return faceColorTable[(sex * RFLRace_All) + race][RFLi_GetRandU32(GET_ARRAY_LENGTH(faceColorTable[0]))];
 }
 
-u8 RFLi_GetHairColor(RFLi_AGE age, RFLi_RACE race) {
+static u8 RFLi_GetHairColor(RFLi_AGE age, RFLi_RACE race) {
     // clang-format off
     static const u8 hairColorTable[RFLAge_All * RFLRace_All][20] = {
         /* Black, Child */ {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -547,7 +547,7 @@ u8 RFLi_GetHairColor(RFLi_AGE age, RFLi_RACE race) {
     return hairColorTable[(race * 4 - race) + age][RFLi_GetRandU32(GET_ARRAY_LENGTH(hairColorTable[0]))];
 }
 
-u8 RFLi_GetEyeColor(RFLi_RACE race) {
+static u8 RFLi_GetEyeColor(RFLi_RACE race) {
     // clang-format off
     static const u8 eyeColorTable[RFLRace_All][10] = {
         /* Black */ {0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
@@ -561,6 +561,6 @@ u8 RFLi_GetEyeColor(RFLi_RACE race) {
     return eyeColorTable[race][RFLi_GetRandU32(GET_ARRAY_LENGTH(eyeColorTable[0]))];
 }
 
-u32 RFLi_GetRandU32(u32 max) {
+static u32 RFLi_GetRandU32(u32 max) {
     return OSGetTick() % max;
 }
