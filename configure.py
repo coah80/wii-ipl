@@ -944,7 +944,7 @@ config.libs = [
             Object(Matching,    "channelScript/systemmenu/VmSystem.c"),
             Object(Matching,    "channelScript/systemmenu/iplCSSystem.cpp"),
             Object(Matching,    "channelScript/systemmenu/iplCSLayout.cpp"),
-            Object(Equivalent,  "channelScript/systemmenu/iplCSPane.cpp"),
+            Object(Matching,    "channelScript/systemmenu/iplCSPane.cpp"),
             Object(Matching,    "channelScript/systemmenu/iplCSMaterial.cpp"),
             Object(Matching,    "channelScript/systemmenu/iplCSTexture.cpp"),
             Object(Matching,    "channelScript/systemmenu/iplCSSavedata.cpp"),
