@@ -1734,7 +1734,7 @@ config.libs = [
             Object(NonMatching, "fa/pf_flock.c"),
             Object(NonMatching, "fa/pf_fopen.c"),
             Object(NonMatching, "fa/pf_format.c"),
-            Object(NonMatching, "fa/pf_fread.c"),
+            Object(Matching,    "fa/pf_fread.c"),
             Object(NonMatching, "fa/pf_fseek.c"),
             Object(NonMatching, "fa/pf_fsetclstlink.c"),
             Object(NonMatching, "fa/pf_fsexec.c"),
