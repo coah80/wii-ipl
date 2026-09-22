@@ -623,7 +623,7 @@ config.libs = [
             Object(Matching,    "system/enc_dummy.c"),
             Object(Matching,    "system/rvl_dec.c"),
             Object(Matching,    "system/RIPL_BoardRecord.c"),
-            Object(Equivalent,  "system/iplSystem.cpp"),
+            Object(Matching,    "system/iplSystem.cpp"),
             Object(NonMatching, "system/iplController.cpp"),
             Object(Matching,    "system/iplChannelManager.cpp"),
             Object(Matching,    "system/iplChannelScriptManager.cpp"),
