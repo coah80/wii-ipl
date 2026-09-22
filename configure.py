@@ -1967,7 +1967,7 @@ config.libs = [
             Object(NonMatching, "MSL_Common/strtold.c"),
             Object(NonMatching, "MSL_Common/strtoul.c"),
             Object(NonMatching, "MSL_Common/time.c"),
-            Object(NonMatching, "MSL_Common/wctype.c"),
+            Object(Matching,    "MSL_Common/wctype.c"),
             Object(Matching,    "MSL_Common/wmem.c"),
             Object(NonMatching, "MSL_Common/wprintf.c"),
             Object(NonMatching, "MSL_Common/wstring.c"),
