@@ -79,7 +79,7 @@ namespace textinput {
                 virtual void                isEnableCursorCache();
                 virtual void                getDrawModifyStartLine();
                 virtual void                getDrawModifyEndLine();
-                virtual void                getDrawCacheStartPos();
+                virtual u32                 getDrawCacheStartPos() const;
                 virtual void                dirtyDrawCache();
                 virtual void                dirtyCursorCache();
 

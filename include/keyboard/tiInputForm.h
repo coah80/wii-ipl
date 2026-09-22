@@ -162,6 +162,7 @@ namespace textinput {
                 virtual void                autoScroll();
 
                 virtual bool                doWordWrap(const wchar_t* string, u32, f32);
+                f32 getWordWrapRectWidth() const { return mRect.right - mRect.left; }
                 virtual void                drawFixString(u32);
 
                 virtual void                onSE(sound::SE seId);
