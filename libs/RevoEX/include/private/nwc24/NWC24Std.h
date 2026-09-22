@@ -16,7 +16,7 @@ int STD_strnlen(const char* str, u32 len);
 
 int Util_xtoi(char ch);
 
-void* Mail_memcpy(void* dest, void* src, u32 len);
+void* Mail_memcpy(void* dest, const void* src, u32 len);
 void* Mail_memset(void* dest, int fill, u32 count);
 
 int Mail_strlen(const char* str);

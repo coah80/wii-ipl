@@ -1068,7 +1068,7 @@ config.libs = [
         ]
     ),
     RevoEXLib("nwc24", [
-            Object(NonMatching, "nwc24/NWC24StdAPI.c"),
+            Object(Matching,    "nwc24/NWC24StdAPI.c"),
             Object(Matching,    "nwc24/NWC24FileAPI.c"),
             Object(Matching,    "nwc24/NWC24Config.c"),
             Object(Matching,    "nwc24/NWC24Utils.c"),
