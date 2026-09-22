@@ -7,6 +7,12 @@
 
 namespace ipl {
     namespace scene {
+        class MaxDate : public utility::Date {
+        public:
+            u8 padding[0x10];
+            MaxDate(int year, int month, int day) : utility::Date(year, month, day) {}
+        };
+
         class Date : ::gui::EventHandler {
         public:
             typedef struct AnmFrame {
@@ -82,7 +88,7 @@ namespace ipl {
             static const char* mscAnimPanes[ANIM_PANE_MAX];
 
             static utility::Date mscMinDate;
-            static utility::Date mscMaxDate;
+            static MaxDate mscMaxDate;
 
             nw4r::ut::Link mNode1;  // 0x40
             nw4r::ut::Link mNode2;  // 0x48
