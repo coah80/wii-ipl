@@ -2,6 +2,8 @@
 
 Guidance for AI agents working in this repository.
 
+Keep code comments to cases where they are necessary.
+
 ## CRITICAL RULE: never touch upstream
 
 **Do not open a pull request against `koopthekoopa/wii-ipl`. Do not push to it.
@@ -156,51 +158,24 @@ and `splits.txt`), not in whatever order looks convenient.
 7. `ctxdiff.py` next. Work through the instruction diff.
 8. Only then look at register allocation.
 
-## ReAgent and parallel worker workflow
+## Subagent and PR workflow
 
 This repository targets only Wii Menu 4.3U. Do not configure or build 43E,
 43J, or 43K while doing matching work.
 
-Use the installed ReAgent environment for evidence-driven reversal work:
+Most workers should pursue exact matching or safe linking; assign the remainder
+to decompilation. Keep up to 20 live workers when the runtime allows it. Fill
+completed slots with disjoint tasks. Never duplicate a source file or function
+range. Workers return changed paths, exact objdiff measurements, and validation
+results. Fuzzy-only results are not accepted.
 
-```
-/home/cole/projects/tests/reagent-venv/bin/re-agent doctor
-/home/cole/projects/tests/reagent-venv/bin/re-agent status
-```
+### Worker loop
 
-ReAgent should use the authenticated local Codex provider with the requested
-model and a small per-function call cap. The Codex provider uses the local
-Codex login rather than an API key; API billing is not created by ReAgent, but
-the account's normal model or plan usage still applies. Do not start a model
-run until `doctor` reports the backend and acceptance configuration clearly.
-
-If the launcher cannot import, or `doctor` reports `ready: false`, record the
-exact failure and do not claim ReAgent evidence. Repair a broken editable
-install with a fresh checkout and a non-editable install before retrying. If
-the decompile capability still lacks Java/Ghidra, workers may continue only in
-the explicitly labeled manual/objdiff fallback using fresh object builds,
-`pool_diff.py`, `ctxdiff.py`, full 43U builds, and the DOL hash. The fallback
-does not count as ReAgent execution.
-
-For parallel work, orchestrate up to ten workers at once when the agent runtime
-has the capacity. Use `gpt-5.6-luna` at maximum reasoning effort with the fast
-service tier when those settings are available. If the runtime cannot host ten
-live workers, queue the remainder; never duplicate a source file or function
-range just to fill a slot. Each worker must own a disjoint translation unit or
-function range and return the changed paths, exact-match measurements, and
-validation results. Workers may propose code, but a candidate is not accepted
-when it is only fuzzy, uses an uninitialized value, or hides a mismatch behind
-artificial assembly.
-
-### Ten-worker exact-match loop
-
-The worker keeps iterating on its assigned function until exact-name `objdiff`
-reports `100.0%`. A worker must not stop at a fuzzy score, push to a remote,
-open a PR, or merge. It may make a local commit on its isolated leaf branch if
-needed to preserve its work. If the worker believes the remaining difference is
-a compiler tie-break, it reports the evidence and waits for the orchestrator to
-terminate or reassign the leaf; it does not self-accept a near-match. Reaching
-`100.0%` is only the handoff point; it is not acceptance.
+Workers iterate until exact-name `objdiff` reports `100.0%`. They must not stop
+at a fuzzy score, push, open a PR, or merge. A local commit is fine. Compiler
+tie-breaks should be reported with evidence, not hidden behind artificial
+assembly or uninitialized values. Exact matching is the handoff point, not
+acceptance.
 
 Worker measurements are advisory. Only a fresh orchestrator verification can
 accept, push, open, or merge a candidate. Workers are persistent across
@@ -238,8 +213,9 @@ For each candidate, the worker must:
 4. Iterate until exact-name objdiff reaches `100.0%`, while preserving the
    pool and source-quality requirements above.
 5. Return the focused exact match to the parent agent for review. The parent
-   reruns every gate and runs `/home/cole/projects/tests/.venv/bin/ninja -C .
-   build/43U/ok`; the worker does not push, open a PR, or merge.
+   reruns every gate, runs `tools/decomp_status.py` and
+   `tools/check_decomp_complete.py`, and runs `/home/cole/projects/tests/.venv/bin/ninja -C . build/43U/ok`;
+   the worker does not push, open a PR, or merge.
 
 The main agent reviews every worker result before accepting it. After each
 accepted merge, record the new report from `build/43U/report.json` and keep
@@ -259,9 +235,8 @@ candidate fails validation, return it to its worker; do not fix the candidate
 inline in the orchestrator.
 
 A new thread must begin by reading this file, checking the live 43U report and
-remote branch, running the ReAgent doctor/status checks, and then dispatching
-the worker pool. The orchestrator must not claim a match based on its own
-decompilation because it must not do that work.
+remote branch, and dispatching the worker pool. The parent must not claim a
+match without fresh independent verification.
 
 ### Worktrees, branches, and PR integration
 
