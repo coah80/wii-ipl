@@ -662,7 +662,7 @@ config.libs = [
             Object(Matching,    "system/iplNandWrapper.cpp"),
             Object(Matching,    "system/main.cpp"),
             Object(Matching,    "system/iplBS2Manager.cpp"),
-            Object(NonMatching, "system/TVRC.cpp"),
+            Object(Matching,    "system/TVRC.cpp"),
             Object(Matching,    "system/iplTVRCManager.cpp"),
             Object(Matching,    "system/_DATA_.c"),
         ]
@@ -751,7 +751,7 @@ config.libs = [
     ),
     IPLSection("calendar", [
             Object(Equivalent,  "scene/calendar/iplCalendar.cpp"),
-            Object(Equivalent,  "scene/calendar/iplDate.cpp"),
+            Object(Matching,    "scene/calendar/iplDate.cpp"),
         ]
     ),
     IPLSection("channelEdit", [
@@ -783,7 +783,7 @@ config.libs = [
         ]
     ),
     IPLSection("kitayamaTest", [
-            Object(Equivalent, "scene/kitayamaTest/iplKitayamaTest.cpp"),
+            Object(Matching, "scene/kitayamaTest/iplKitayamaTest.cpp"),
             Object(Matching, "scene/kitayamaTest/nandsdworker_autotest.cpp"),
         ]
     ),
@@ -1197,7 +1197,7 @@ config.libs = [
     # TMC JPEG
     TMCJpegLib(
         [
-            Object(NonMatching, "buffer/mkhdec3.c"),
+            Object(Matching,    "buffer/mkhdec3.c"),
             Object(Matching,    "buffer/buffer_system.c"),
             Object(Matching,    "buffer/getcode.c"),
             Object(NonMatching, "buffer/idct_block_var.c"),
@@ -1205,12 +1205,12 @@ config.libs = [
             Object(Matching,   "api/decapi.c"),
 
             Object(Matching,    "jpegdec/jdec.c"),
-            Object(NonMatching, "jpegdec/jdec_main.c"),
+            Object(Matching,    "jpegdec/jdec_main.c"),
             Object(Matching,    "jpegdec/jpformat.c"),
 
             Object(NonMatching, "exif/exif_parse.c"),
 
-            Object(Equivalent,  "reschange/iqdec_resolution_change_a3.c"),
+            Object(Matching,    "reschange/iqdec_resolution_change_a3.c"),
             Object(NonMatching, "reschange/idct_resolution_change_var.c"),
 
             Object(NonMatching, "texturecvtr/Texture_MCUtoY8U8V8.c"),
@@ -1726,7 +1726,7 @@ config.libs = [
             Object(NonMatching, "fa/pf_fadjust.c"),
             Object(NonMatching, "fa/pf_fappend.c"),
             Object(NonMatching, "fa/pf_fchdir.c"),
-            Object(NonMatching, "fa/pf_fclose.c"),
+            Object(Matching,    "fa/pf_fclose.c"),
             Object(NonMatching, "fa/pf_fconcat.c"),
             Object(NonMatching, "fa/pf_feof.c"),
             Object(NonMatching, "fa/pf_ferror.c"),
@@ -1741,7 +1741,7 @@ config.libs = [
             Object(NonMatching, "fa/pf_fsfirst.c"),
             Object(NonMatching, "fa/pf_fsnext.c"),
             Object(NonMatching, "fa/pf_fstat.c"),
-            Object(NonMatching, "fa/pf_fsync.c"),
+            Object(Matching,    "fa/pf_fsync.c"),
             Object(Matching,    "fa/pf_fwrite.c"),
             Object(NonMatching, "fa/pf_getdev.c"),
             Object(NonMatching, "fa/pf_getvol.c"),
