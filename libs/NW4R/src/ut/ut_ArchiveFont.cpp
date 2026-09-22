@@ -34,19 +34,28 @@ namespace nw4r {
             const u32* flags0A;
             const u32* flags0C;
 
-            int i, j;
+            int i;
             int entryI;
             const HeaderedGlyphGroups* offsetPGlgr;
+            const u8* offsetFlags;
             u32 loadedSheetCount, loadedSmth0ASize, loadedSmth0CSize;
             u32 flagWord;
-            const u8* offsetFlags;
             const char* groupName;
             const u32* offsetData;
+            int j;
 
             u32 sheetOffsetsSize;
             u32 loadedSheetsSize;
             u32 neededCharacterSize;
             u32 baseSize;
+
+            u32 count0CWork;
+
+            u32& neededCharacterSizeRef = neededCharacterSize;
+
+            u32 loadedSizeRef;
+
+            u32 groupOffset;
 
             if (!ArchiveFontBase::IsValidResource(fontData, 0x4000)) {
                 return 0;
@@ -55,29 +64,30 @@ namespace nw4r {
             font = (ArchiveFontBinaryLayout*)fontData;
             pGlgr = &font->glgr;
 
-            countName = font->glgr.inner.nameCount;
-            countSheet = font->glgr.inner.sheetCount;
-            count0A = font->glgr.inner.smthCount_0x0a;
-            count0C = font->glgr.inner.smthCount_0x0c;
+            countName = pGlgr->inner.nameCount;
+            countSheet = pGlgr->inner.sheetCount;
+            count0A = pGlgr->inner.smthCount_0x0a;
+            count0C = pGlgr->inner.smthCount_0x0c;
+            count0CWork = count0C;
 
             stepSheets = ((s32)countSheet + 0x1f) / 32 * 4;
             step0A = ((s32)count0A + 0x1f) / 32 * 4;
-            step0C = ((s32)count0C + 0x1f) / 32 * 4;
+            step0C = ((s32)count0CWork + 0x1f) / 32 * 4;
 
             dataSheetsOff = ROUNDUP(offsetof(ArchiveFontBinaryLayout, glgr.inner.nameOffsets) + countName * sizeof(u16), 4);
             data0AOff = ROUNDUP(dataSheetsOff + countSheet * sizeof(u32), 4);
             data0COff = ROUNDUP(data0AOff + count0A * sizeof(u32), 4);
-            dataSheets = lyt::detail::ConvertOffsToPtr<u32>(fontData, dataSheetsOff);
-            data0A = lyt::detail::ConvertOffsToPtr<u32>(fontData, data0AOff);
-            data0C = lyt::detail::ConvertOffsToPtr<u32>(fontData, data0COff);
+            dataSheets = (const u32*)((u32)dataSheetsOff + (u32)fontData);
+            data0A = (const u32*)((u32)data0AOff + (u32)fontData);
+            data0C = (const u32*)((u32)data0COff + (u32)fontData);
 
-            flagsSheetsOff = ROUNDUP(data0COff + count0C * sizeof(u32), 4);
+            flagsSheetsOff = ROUNDUP(data0COff + count0CWork * sizeof(u32), 4);
             flags0AOff = ROUNDUP(flagsSheetsOff + stepSheets * countName, 4);
             flags0COff = ROUNDUP(flags0AOff + step0A * countName, 4);
 
-            flagsSheets = lyt::detail::ConvertOffsToPtr<u32>(fontData, flagsSheetsOff);
-            flags0A = lyt::detail::ConvertOffsToPtr<u32>(fontData, flags0AOff);
-            flags0C = lyt::detail::ConvertOffsToPtr<u32>(fontData, flags0COff);
+            flagsSheets = (const u32*)((u32)flagsSheetsOff + (u32)fontData);
+            flags0A = (const u32*)((u32)flags0AOff + (u32)fontData);
+            flags0C = (const u32*)((u32)flags0COff + (u32)fontData);
 
             loadedSheetCount = 0;
             loadedSmth0ASize = 0;
@@ -90,7 +100,7 @@ namespace nw4r {
                 flagWord = 0;
                 for (j = 0, offsetPGlgr = pGlgr; j < pGlgr->inner.nameCount;
                      offsetPGlgr = (const HeaderedGlyphGroups*)((const u8*)offsetPGlgr + 2), j++) {
-                    groupName = (const char*)fontData + offsetPGlgr->inner.nameOffsets[0];
+                    groupName = (const char*)((u32)offsetPGlgr->inner.nameOffsets[0] + (u32)fontData);
                     if (*includedGroups == '\0' || detail::ArchiveFontBase::IncludeName(includedGroups, groupName)) {
                         flagWord |= *(const u32*)((const u8*)offsetFlags + ROUNDDOWN(j * stepSheets, 4));
                     }
@@ -101,12 +111,13 @@ namespace nw4r {
             // getLoadedSheetCount(pGlgr, flagsSheets, stepSheets, fontData, includedGroups, &loadedSheetCount);
 
             // Get the SIZE of unk_0x0a that should be loaded
-            for (i = 0, entryI = 0; entryI < pGlgr->inner.smthCount_0x0a; entryI += 32, i++) {
+            for (i = 0; i * 32 < pGlgr->inner.smthCount_0x0a; i++) {
                 offsetFlags = (const u8*)flags0A + i * sizeof(u32);
 
                 flagWord = 0;
                 for (j = 0; j < pGlgr->inner.nameCount; j++) {
-                    groupName = (const char*)fontData + pGlgr->inner.nameOffsets[j];
+                    groupOffset = pGlgr->inner.nameOffsets[j];
+                    groupName = (const char*)(groupOffset + (u32)fontData);
                     if (*includedGroups == '\0' || detail::ArchiveFontBase::IncludeName(includedGroups, groupName)) {
                         flagWord |= *(const u32*)((const u8*)offsetFlags + ROUNDDOWN(j * step0A, 4));
                     }
@@ -121,12 +132,13 @@ namespace nw4r {
             }
 
             // Get the SIZE of unk_0x0C that should be loaded
-            for (i = 0, entryI = 0; entryI < pGlgr->inner.smthCount_0x0c; entryI += 32, i++) {
+            for (i = 0; i * 32 < pGlgr->inner.smthCount_0x0c; i++) {
                 offsetFlags = (const u8*)flags0C + i * sizeof(u32);
 
                 flagWord = 0;
                 for (j = 0; j < pGlgr->inner.nameCount; j++) {
-                    groupName = (const char*)fontData + pGlgr->inner.nameOffsets[j];
+                    groupOffset = pGlgr->inner.nameOffsets[j];
+                    groupName = (const char*)(groupOffset + (u32)fontData);
                     if (*includedGroups == '\0' || detail::ArchiveFontBase::IncludeName(includedGroups, groupName)) {
                         flagWord |= *(const u32*)((const u8*)offsetFlags + ROUNDDOWN(j * step0C, 4));
                     }
@@ -145,13 +157,14 @@ namespace nw4r {
             sheetOffsetsSize = ROUNDUP(pGlgr->inner.sheetCount * 2, 4);
             loadedSheetsSize = ROUNDUP(loadedSheetCount * pGlgr->inner.uncompSheetSize, 4);
 
-            neededCharacterSize = sizeof(CXUncompContextHuffman);
-            if (loadedSmth0ASize + loadedSmth0CSize >= sizeof(CXUncompContextHuffman)) {
-                neededCharacterSize = loadedSmth0ASize + loadedSmth0CSize;
+            loadedSizeRef = loadedSmth0ASize + loadedSmth0CSize;
+            neededCharacterSizeRef = sizeof(CXUncompContextHuffman);
+            if (loadedSizeRef >= sizeof(CXUncompContextHuffman)) {
+                neededCharacterSize = loadedSizeRef;
             }
 
             baseSize = OSRoundUp32B(sizeof(FontInformation) + sizeof(FontTextureGlyph) + sheetOffsetsSize);
-            return baseSize + neededCharacterSize + loadedSheetsSize;
+            return (baseSize + loadedSheetsSize) + neededCharacterSize;
         }
 
         detail::ArchiveFontBase::ConstructState ArchiveFont::StreamingConstruct(ConstructContext* ctx, const void* fontData, u32 fontDataSize) {
@@ -164,8 +177,9 @@ namespace nw4r {
             }
 
             state = CONSTRUCT_STATE_WORKING;
-            reader = &ctx->mReader;
-            reader->Attach(fontData, fontDataSize);
+            CachedStreamReader& readerRef = ctx->mReader;
+            reader = &readerRef;
+            readerRef.Attach(fontData, fontDataSize);
 
             while (state == CONSTRUCT_STATE_WORKING) {
                 switch (ctx->mNextCmd) {
