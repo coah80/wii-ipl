@@ -1299,7 +1299,7 @@ config.libs = [
             Object(Matching,    "ut/ut_ResFontBase.cpp"),
             Object(Matching,    "ut/ut_ResFont.cpp"),
             Object(NonMatching, "ut/ut_ArchiveFontBase.cpp"),
-            Object(NonMatching, "ut/ut_ArchiveFont.cpp"),
+            Object(Matching,    "ut/ut_ArchiveFont.cpp"),
             Object(Matching,    "ut/ut_CharWriter.cpp"),
             Object(Matching,    "ut/ut_TextWriterBase.cpp"),
         ]
