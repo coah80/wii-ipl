@@ -745,7 +745,7 @@ config.libs = [
         ]
     ),
     IPLSection("button", [
-            Object(Equivalent,  "scene/button/iplButton.cpp"),
+            Object(Matching,    "scene/button/iplButton.cpp"),
             Object(Matching,    "scene/button/iplArrow.cpp"),
         ]
     ),
