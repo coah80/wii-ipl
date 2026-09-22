@@ -1940,7 +1940,7 @@ config.libs = [
     ),
     # MSL Library
     MSLLib("MSL_C.PPCEABI.bare.H", [
-            Object(NonMatching, "MSL_Common/alloc.c"),
+            Object(Matching,    "MSL_Common/alloc.c"),
             Object(Matching,    "MSL_Common/errno.c"),
             Object(Matching,    "MSL_Common/ansi_files.c"),
             Object(NonMatching, "MSL_Common_Embedded/ansi_fp.c"),
