@@ -176,7 +176,10 @@ Workers iterate until exact-name `objdiff` reports `100.0%`. They must not stop
 at a fuzzy score, push, open a PR, or merge. A local commit is fine. Compiler
 tie-breaks should be reported with evidence, not hidden behind artificial
 assembly or uninitialized values. Exact matching is the handoff point, not
-acceptance.
+acceptance. A candidate is incomplete until every owned code and data section
+and its link metrics are 100%; matching a few functions alone is not enough.
+Write new matches as readable C or C++ and keep new inline assembly out of the
+source unless the existing target structure makes it unavoidable.
 
 Worker measurements are advisory. Only a fresh orchestrator verification can
 accept, push, open, or merge a candidate. Workers are persistent across
@@ -195,9 +198,11 @@ The orchestrator must independently rebuild the owned object and verify:
 1. `pool_diff.py` reports identical pools, with no first divergence.
 2. Exact-name `objdiff` reports `100.0%` for the requested symbol.
 3. `ctxdiff.py` reports `diffs 0` and identical instruction counts.
-4. The focused source diff is minimal, readable, and free of artificial
+4. Unit-level code, data, function, and link measures for the owned range are
+   100%, including every owned section.
+5. The focused source diff is minimal, readable, and free of artificial
    assembly, uninitialized values, or unrelated edits.
-5. The full 4.3U build passes and `build/43U/main.dol` has SHA1
+6. The full 4.3U build passes and `build/43U/main.dol` has SHA1
    `26116613f624061ba99c8d1a299aaa6efa85670d`.
 
 If any orchestrator gate fails, do not promote, push, open a PR, or merge the
