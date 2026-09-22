@@ -1977,7 +1977,7 @@ config.libs = [
             Object(Matching,    "PPC_EABI/uart_console_io_gcn.c"),
             Object(Matching,    "PPC_EABI/abort_exit_ppc_eabi.c"),
             Object(Matching,    "MSL_Common/math_sun.c", extra_cflags=["-Cpp_exceptions on"]),
-            Object(NonMatching, "MSL_Common/extras.c"),
+            Object(Matching,    "MSL_Common/extras.c"),
 
             Object(Matching,    "MSL_Common_Embedded/Math/e_acos.c"),
             Object(Matching,    "MSL_Common_Embedded/Math/e_asin.c"),
