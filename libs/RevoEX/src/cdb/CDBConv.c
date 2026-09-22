@@ -324,25 +324,37 @@ CDBErr CDBConvKeyToFullPath(CDBRecordKey* recordKey, char* fullPath) {
 }
 
 void CDBConvKeyStrToFullPath_(char* keyString, char* fullPath, CDBLocation location, u64* wiiId) {
+    char fileNameStr[8];
     char yearStr[8];
     char monthStr[8];
     char dayStr[8];
     char hourStr[8];
     char minStr[8];
-
     char codeStr[8];
-    char typeStr[8];
-    char serialNumStr[8];
-    char fileNameStr[8];
-
+    char typeStr[5];
     CDBDate epoch;
     int year;
     int month;
     int day;
     int hour;
     int min;
+    char serialNumStr[4];
+    char fileSerial[4];
+    CDBDate fileEpoch;
+    char fileEpochStr[40];
 
-    CDBConvKeyStrToEpochValue(keyString, &epoch);
+    {
+        union {
+            char storage[20];
+            struct {
+                char prefix[8];
+                char value[12];
+            } epoch;
+        } epochBuffer;
+        strncpy(epochBuffer.epoch.value, CDBKeyStrEpoch(keyString), CDB_KEYSTR_EPOCH_SIZE);
+        epochBuffer.epoch.value[CDB_KEYSTR_EPOCH_SIZE] = 0;
+        sscanf(epochBuffer.epoch.value, "%ul", &epoch);
+    }
     CDBConvEpochValueToDate(epoch, &year, &month, &day, &hour, &min, NULL);
 
     CDBConvYearValueToYearStr(yearStr, year);
@@ -354,7 +366,12 @@ void CDBConvKeyStrToFullPath_(char* keyString, char* fullPath, CDBLocation locat
     CDBConvKeyStrToCode(keyString, codeStr);
     CDBConvKeyStrToSerialNumber(keyString, serialNumStr);
     CDBConvKeyStrToType(keyString, typeStr);
-    CDBConvKeyStrToFileName(keyString, fileNameStr);
+    strncpy(fileEpochStr, CDBKeyStrEpoch(keyString), CDB_KEYSTR_EPOCH_SIZE);
+    fileEpochStr[CDB_KEYSTR_EPOCH_SIZE] = 0;
+    sscanf(fileEpochStr, "%ul", &fileEpoch);
+    strncpy(fileSerial, CDBKeyStrSerialNumber(keyString), CDB_KEYSTR_SERIAL_NUMBER_SIZE);
+    fileSerial[CDB_KEYSTR_SERIAL_NUMBER_SIZE] = 0;
+    sprintf(fileNameStr, "%08X.%s", fileEpoch, fileSerial);
 
     if (location == CDB_FS_LOCATION_NAND || location == CDB_FS_LOCATION_SD) {
         CDBConvFileNameStrToFullPath(fullPath, yearStr, monthStr, dayStr, hourStr, minStr, codeStr, typeStr, fileNameStr, location, wiiId);
