@@ -895,7 +895,7 @@ config.libs = [
         ]
     ),
     IPLSection("textWriter", [
-            Object(Equivalent,  "scene/textWriter/iplTextWriter.cpp"),
+            Object(Matching,    "scene/textWriter/iplTextWriter.cpp"),
         ]
     ),
     IPLSection("bannerSound", [
