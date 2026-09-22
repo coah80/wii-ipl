@@ -315,8 +315,11 @@ namespace textinput {
             return NULL;
         }
 
+        PaneComponent::~PaneComponent() {}
+
         void PaneManager::setAllBoundingBoxComponentTriggerTarget(bool bEnable) {
-            for (u32 i = 0; i < nw4r::ut::List_GetSize(&mPaneComponents); i++) {
+            const volatile u16& numObjects = mPaneComponents.numObjects;
+            for (u32 i = 0; i < numObjects; i++) {
                 PaneToComponent* p = static_cast<PaneToComponent*>(nw4r::ut::List_GetNth(&mPaneComponents, (u16)i));
                 if (nw4r::ut::DynamicCast<nw4r::lyt::Bounding*>(p->getPane())) {
                     p->mpComponent->setTriggerTarget(bEnable);

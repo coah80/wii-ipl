@@ -290,7 +290,7 @@ namespace textinput {
         public:
             PaneComponent(u32 id) : GUIComponent(id) { mpPane = NULL; }
 
-            virtual ~PaneComponent() {}  // 0x08
+            virtual ~PaneComponent();  // 0x08
 
             virtual void draw();  // 0x1C
 
