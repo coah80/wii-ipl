@@ -662,7 +662,7 @@ config.libs = [
             Object(Matching,    "system/iplNandWrapper.cpp"),
             Object(Matching,    "system/main.cpp"),
             Object(Matching,    "system/iplBS2Manager.cpp"),
-            Object(NonMatching, "system/TVRC.cpp"),
+            Object(Matching,    "system/TVRC.cpp"),
             Object(Matching,    "system/iplTVRCManager.cpp"),
             Object(Matching,    "system/_DATA_.c"),
         ]
@@ -783,7 +783,7 @@ config.libs = [
         ]
     ),
     IPLSection("kitayamaTest", [
-            Object(Equivalent, "scene/kitayamaTest/iplKitayamaTest.cpp"),
+            Object(Matching, "scene/kitayamaTest/iplKitayamaTest.cpp"),
             Object(Matching, "scene/kitayamaTest/nandsdworker_autotest.cpp"),
         ]
     ),
@@ -1726,7 +1726,7 @@ config.libs = [
             Object(NonMatching, "fa/pf_fadjust.c"),
             Object(NonMatching, "fa/pf_fappend.c"),
             Object(NonMatching, "fa/pf_fchdir.c"),
-            Object(NonMatching, "fa/pf_fclose.c"),
+            Object(Matching,    "fa/pf_fclose.c"),
             Object(NonMatching, "fa/pf_fconcat.c"),
             Object(NonMatching, "fa/pf_feof.c"),
             Object(NonMatching, "fa/pf_ferror.c"),
@@ -1741,7 +1741,7 @@ config.libs = [
             Object(NonMatching, "fa/pf_fsfirst.c"),
             Object(NonMatching, "fa/pf_fsnext.c"),
             Object(NonMatching, "fa/pf_fstat.c"),
-            Object(NonMatching, "fa/pf_fsync.c"),
+            Object(Matching,    "fa/pf_fsync.c"),
             Object(Matching,    "fa/pf_fwrite.c"),
             Object(NonMatching, "fa/pf_getdev.c"),
             Object(NonMatching, "fa/pf_getvol.c"),

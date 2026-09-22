@@ -63,6 +63,8 @@ namespace ipl {
         void KitayamaTest::calcCommon() {
         }
 
+        #pragma push
+        #pragma ppc_iro_level 2
         FaderSceneCommand KitayamaTest::calcNormal() {
             FaderSceneCommand command = FADER_SCN_CONTINUE;
             controller::Interface* controller = System::getMasterController();
@@ -268,6 +270,7 @@ namespace ipl {
 
             return command;
         }
+        #pragma pop
 
         FaderSceneCommand KitayamaTest::calcFadeout() {
             if (mOption == KITAYAMA_OPT_INIT_NAND) {
