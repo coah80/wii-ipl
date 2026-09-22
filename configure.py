@@ -1863,7 +1863,7 @@ config.libs = [
         ]
     ),
     RVLSDKLib("sdi", [
-            Object(NonMatching, "sdi/sdi_api.c"),
+            Object(Matching,    "sdi/sdi_api.c"),
         ]
     ),
     RVLSDKLib("nup", [
