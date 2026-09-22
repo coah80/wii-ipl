@@ -382,28 +382,6 @@ NWC24Err NWC24GetMsgType(const NWC24MsgObj* msg, NWC24MsgType* type) {
     return NWC24_OK;
 }
 
-NWC24Err NWC24GetMsgAppId(const NWC24MsgObj* msg, u32* appId) {
-    const NWC24MsgObjPrivate* msgObj = (const NWC24MsgObjPrivate*)msg;
-    *appId = msgObj->appId;
-    return NWC24_OK;
-}
-
-NWC24Err NWC24GetMsgGroupId(const NWC24MsgObj* msg, u16* groupId) {
-    const NWC24MsgObjPrivate* msgObj = (const NWC24MsgObjPrivate*)msg;
-    *groupId = msgObj->groupId;
-    return NWC24_OK;
-}
-
-NWC24Err NWC24GetMsgNumAttached(const NWC24MsgObj* msg, u32* numAttach) {
-    const NWC24MsgObjPrivate* msgObj = (const NWC24MsgObjPrivate*)msg;
-    u8 numAttached = msgObj->numAttached;
-    *numAttach = numAttached;
-    if (numAttached > NWC24_MSG_ATTACHMENT_MAX) {
-        return NWC24_ERR_BROKEN;
-    }
-    return NWC24_OK;
-}
-
 NWC24Err NWC24GetMsgSubjectSize(const NWC24MsgObj* msg, u32* subjectSize) {
     const NWC24MsgObjPrivate* msgObj = (const NWC24MsgObjPrivate*)msg;
     u32 size = msgObj->subject.size;
@@ -427,6 +405,16 @@ NWC24Err NWC24GetMsgTextSize(const NWC24MsgObj* msg, u32* textSize) {
         } else {
             *textSize = 0;
         }
+    }
+    return NWC24_OK;
+}
+
+NWC24Err NWC24GetMsgNumAttached(const NWC24MsgObj* msg, u32* numAttach) {
+    const NWC24MsgObjPrivate* msgObj = (const NWC24MsgObjPrivate*)msg;
+    u8 numAttached = msgObj->numAttached;
+    *numAttach = numAttached;
+    if (numAttached > NWC24_MSG_ATTACHMENT_MAX) {
+        return NWC24_ERR_BROKEN;
     }
     return NWC24_OK;
 }
@@ -460,6 +448,18 @@ NWC24Err NWC24GetMsgAttachedType(const NWC24MsgObj* msg, u32 attachIndex, NWC24M
         }
     }
 
+    return NWC24_OK;
+}
+
+NWC24Err NWC24GetMsgAppId(const NWC24MsgObj* msg, u32* appId) {
+    const NWC24MsgObjPrivate* msgObj = (const NWC24MsgObjPrivate*)msg;
+    *appId = msgObj->appId;
+    return NWC24_OK;
+}
+
+NWC24Err NWC24GetMsgGroupId(const NWC24MsgObj* msg, u16* groupId) {
+    const NWC24MsgObjPrivate* msgObj = (const NWC24MsgObjPrivate*)msg;
+    *groupId = msgObj->groupId;
     return NWC24_OK;
 }
 
