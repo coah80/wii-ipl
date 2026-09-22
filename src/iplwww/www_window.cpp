@@ -211,7 +211,6 @@ namespace ext_ead {
                 return;
             }
 
-            u32 srcBlockAdvance;
             u32 srcRowAdvance;
             void* rasterSrc;
             u16* blockRowDst;
@@ -221,7 +220,6 @@ namespace ext_ead {
             rasterSrc = mpBrowserThread->GetRaster();
             blockRowDst = (u16*)GetTextureBuffer(0, TRUE, NULL);
 
-            srcBlockAdvance = srcRowAdvance * sizeof(u32);
             for (int blockY = 0; blockY < mHeight; blockY += 4) {
                 u16* blockDst = blockRowDst;
                 SubRow* blockRowA = (SubRow*)rasterSrc;
@@ -252,7 +250,7 @@ namespace ext_ead {
 
                     blockDst += 16;
                 }
-                rasterSrc = (u8*)rasterSrc + srcBlockAdvance;
+                rasterSrc = (u8*)rasterSrc + srcRowAdvance * sizeof(u32);
                 blockRowDst += mWidth * 4;
             }
 
