@@ -18,10 +18,16 @@ enum {
 #define FRIEND_LIST_MAGIC 'WcFl'
 #define FRIEND_LIST_VERSION 2
 
-static const char* FLFilePath = "/shared2/wc24/nwc24fl.bin";
+const char lbl_8166E160[26] __attribute__((section(".data"), aligned(8))) = "/shared2/wc24/nwc24fl.bin";
+void* const lbl_8166E160_pad __attribute__((section(".data"))) = (void*)0;
+static const char* FLFilePath = lbl_8166E160;
+const u32 FLFilePath_pad __attribute__((section(".sdata"), aligned(1))) = 0;
+
+const char g_SpecialsChars[16] = { '(', ')', '<', '>', '[', ']', ':', ';', '\\', ',', '"' };
 
 static NWC24Err GetCachedFLHeader(NWC24FLHeader** header);
 static ChkHostNameError CheckHostName(const char* hostName, u32 hostNameLength);
+static inline NWC24Err CheckFriendInfo(const NWC24FriendInfo* friendInfo);
 
 static u32 GetUnkFlag(u32 index) {
     NWC24Err result;
@@ -127,7 +133,7 @@ NWC24Err NWC24WriteFriendInfo(const NWC24FriendInfo* friendInfo, u32 index) {
         return NWC24_ERR_ALIGNMENT;
     }
 
-    result = NWC24CheckFriendInfo(friendInfo);
+    result = CheckFriendInfo(friendInfo);
     if (result != NWC24_OK) {
         return result;
     }
@@ -219,63 +225,6 @@ NWC24Err NWC24WriteFriendInfo(const NWC24FriendInfo* friendInfo, u32 index) {
     return result;
 }
 
-NWC24Err NWC24DeleteFriendInfo(u32 index) {
-    NWC24Err result;
-    NWC24Err resultWrite;
-
-    NWC24FLHeader* header;
-    NWC24FriendInfo* tmpFriendInfo;
-
-    NWC24File file;
-    u32 fileOffset;
-
-    if (!NWC24IsMsgLibOpened() && !NWC24IsMsgLibOpenedByTool()) {
-        return NWC24_ERR_LIB_NOT_OPENED;
-    }
-
-    result = GetCachedFLHeader(&header);
-    if (result != NWC24_OK) {
-        return result;
-    }
-
-    if (index >= header->infoCount) {
-        return NWC24_ERR_INVALID_VALUE;
-    }
-
-    if (header->friendIds[index] == 0) {
-        return NWC24_ERR_NULL;
-    }
-
-    tmpFriendInfo = (NWC24FriendInfo*)nwc24Work->mainWork;
-    Mail_memset(tmpFriendInfo, 0, sizeof(NWC24FriendInfo));
-
-    result = NWC24FOpen(&file, FLFilePath, NWC24_OPEN_RW);
-    if (result != NWC24_OK) {
-        return result;
-    }
-
-    fileOffset = (index * sizeof(NWC24FriendInfo)) + sizeof(NWC24FLHeader);
-    NWC24FSeek(&file, fileOffset, NWC24_SEEK_BEG);
-
-    resultWrite = NWC24FWrite(tmpFriendInfo, sizeof(NWC24FriendInfo), &file);
-    if (resultWrite == NWC24_OK) {
-        header->friendIds[index] = 0;
-        header->registeredCount--;
-        result = SetUnkFlag(index, 0);
-        if (result == NWC24_OK) {
-            NWC24FSeek(&file, 0, NWC24_SEEK_BEG);
-            resultWrite = NWC24FWrite(header, sizeof(NWC24FLHeader), &file);
-        }
-    }
-
-    result = NWC24FClose(&file);
-    if (resultWrite != NWC24_OK) {
-        result = resultWrite;
-    }
-
-    return result;
-}
-
 NWC24Err NWC24UpdateFriendInfo(const NWC24FriendInfo* friendInfo, u32 index) {
     NWC24Err result;
     NWC24Err resultFile;
@@ -296,7 +245,7 @@ NWC24Err NWC24UpdateFriendInfo(const NWC24FriendInfo* friendInfo, u32 index) {
         return NWC24_ERR_ALIGNMENT;
     }
 
-    result = NWC24CheckFriendInfo(friendInfo);
+    result = CheckFriendInfo(friendInfo);
     if (result != NWC24_OK) {
         return result;
     }
@@ -353,6 +302,63 @@ out:
     result = NWC24FClose(&file);
     if (resultFile != NWC24_OK) {
         result = resultFile;
+    }
+
+    return result;
+}
+
+NWC24Err NWC24DeleteFriendInfo(u32 index) {
+    NWC24Err result;
+    NWC24Err resultWrite;
+
+    NWC24FLHeader* header;
+    NWC24FriendInfo* tmpFriendInfo;
+
+    NWC24File file;
+    u32 fileOffset;
+
+    if (!NWC24IsMsgLibOpened() && !NWC24IsMsgLibOpenedByTool()) {
+        return NWC24_ERR_LIB_NOT_OPENED;
+    }
+
+    result = GetCachedFLHeader(&header);
+    if (result != NWC24_OK) {
+        return result;
+    }
+
+    if (index >= header->infoCount) {
+        return NWC24_ERR_INVALID_VALUE;
+    }
+
+    if (header->friendIds[index] == 0) {
+        return NWC24_ERR_NULL;
+    }
+
+    tmpFriendInfo = (NWC24FriendInfo*)nwc24Work->mainWork;
+    Mail_memset(tmpFriendInfo, 0, sizeof(NWC24FriendInfo));
+
+    result = NWC24FOpen(&file, FLFilePath, NWC24_OPEN_RW);
+    if (result != NWC24_OK) {
+        return result;
+    }
+
+    fileOffset = (index * sizeof(NWC24FriendInfo)) + sizeof(NWC24FLHeader);
+    NWC24FSeek(&file, fileOffset, NWC24_SEEK_BEG);
+
+    resultWrite = NWC24FWrite(tmpFriendInfo, sizeof(NWC24FriendInfo), &file);
+    if (resultWrite == NWC24_OK) {
+        header->friendIds[index] = 0;
+        header->registeredCount--;
+        result = SetUnkFlag(index, 0);
+        if (result == NWC24_OK) {
+            NWC24FSeek(&file, 0, NWC24_SEEK_BEG);
+            resultWrite = NWC24FWrite(header, sizeof(NWC24FLHeader), &file);
+        }
+    }
+
+    result = NWC24FClose(&file);
+    if (resultWrite != NWC24_OK) {
+        result = resultWrite;
     }
 
     return result;
@@ -750,7 +756,7 @@ static NWC24Err GetCachedFLHeader(NWC24FLHeader** header) {
     return NWC24_OK;
 }
 
-NWC24Err NWC24CheckFriendInfo(const NWC24FriendInfo* friendInfo) {
+static inline NWC24Err CheckFriendInfo(const NWC24FriendInfo* friendInfo) {
     NWC24Err result;
 
     if (friendInfo == NULL) {
@@ -774,8 +780,6 @@ NWC24Err NWC24CheckPublicMailAddr(const char* addr) {
     int i, j;
     int len;
     BOOL readingDomain;
-
-    static const char specials[] = { '(', ')', '<', '>', '[', ']', ':', ';', '\\', ',', '"' };
 
     // Check parameters
     if (addr == NULL) {
@@ -812,8 +816,8 @@ NWC24Err NWC24CheckPublicMailAddr(const char* addr) {
         }
 
         // If the character is special, invalid!
-        for (j = 0; j < sizeof(specials); j++) {
-            if (ch == specials[j]) {
+        for (j = 0; j < 11; j++) {
+            if (ch == g_SpecialsChars[j]) {
                 return NWC24_ERR_FORMAT;
             }
         }
