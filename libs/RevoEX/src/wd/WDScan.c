@@ -8,6 +8,18 @@
 
 #include <string.h>
 
+extern volatile const u8 lbl_81695060;
+extern volatile const u8 lbl_81695061;
+extern volatile const u8 lbl_81695062;
+extern volatile const u8 lbl_81695064;
+extern volatile const u8 lbl_81695065;
+extern volatile const u8 lbl_81695066;
+extern volatile u8 lbl_81697D70;
+extern volatile u8 lbl_81697D71;
+extern volatile u8 lbl_81697D72;
+extern void _savegpr_21();
+extern void _restgpr_21();
+
 #define WAIT_FOR_OPERATION(...)                                                                                                                      \
     do {                                                                                                                                             \
         while ((__VA_ARGS__)) {                                                                                                                      \
@@ -134,56 +146,104 @@ s32 WDScanOnce(u8* scanBuffer, u32 scanBufferLen, WDScanParam* param) {
 s32 WDGetPrivacyMode(WDBssDesc* bssDesc) {
     WDVendorInfoElement* ieData;
     u32 ieLength = 0;
-    WDVendorInfoElement readIE;
+    u8 readIE[8];
     s32 result;
 
     if (WDFindInformationElement((WDInfoElement**)&ieData, &ieLength, bssDesc, 0x30)) {
-        u8 data[WD_VENDOR_LENGTH] = {0, 0x0F, 0xAC};
+        u8 data[WD_VENDOR_LENGTH];
 
-        memcpy(&readIE, ieData, sizeof(WDVendorInfoElement) + 2 /*?*/);
-        if (memcmp(readIE.data, data, WD_VENDOR_LENGTH) == 0) {
-            switch (readIE.mode) {
-                case 1: {
-                    return WD_PRIVACY_MODE_DS_COMMUNICATION;
-                }
-                case 5: {
-                    return WD_PRIVACY_MODE_2;
-                }
-                case 2: {
-                    return WD_PRIVACY_MODE_7;
-                }
-                case 3:
-                default: {
-                    return WD_PRIVACY_MODE_5;
-                }
+        data[0] = lbl_81695060;
+        data[1] = lbl_81695061;
+        data[2] = lbl_81695062;
+        memcpy(readIE, ieData, sizeof(WDVendorInfoElement) + 2);
+        if (memcmp(&readIE[2], data, WD_VENDOR_LENGTH) == 0) {
+            if ((s32)readIE[5] == 3) {
+                goto privacy_second;
             }
+            if ((s32)readIE[5] >= 3) {
+                goto privacy_rsn_high;
+            }
+            if ((s32)readIE[5] == 1) {
+                goto privacy_rsn_mode1;
+            }
+            if ((s32)readIE[5] >= 1) {
+                goto privacy_rsn_mode7;
+            }
+            goto privacy_second;
+        privacy_rsn_high:
+            if ((s32)readIE[5] == 5) {
+                goto privacy_rsn_mode2;
+            }
+            if ((s32)readIE[5] >= 5) {
+                goto privacy_second;
+            }
+            goto privacy_rsn_mode5;
         }
-    } else {
-        u8 findData[WD_VENDOR_LENGTH] = {0x00, 0x50, 0xF2};
-        if (WDiFindVendorSpecificIE(&ieData, &ieLength, bssDesc, 0xDD, findData, 1)) {
-            u8 data[WD_VENDOR_LENGTH] = {0x00, 0x50, 0xF2};
+    }
+    goto privacy_second;
 
-            memcpy(&readIE, ieData, sizeof(WDVendorInfoElement));
-            if (memcmp(readIE.data, data, WD_VENDOR_LENGTH) == 0) {
-                switch (readIE.mode) {
-                    case 1: {
-                        return WD_PRIVACY_MODE_DS_COMMUNICATION;
-                    }
-                    case 5: {
-                        return WD_PRIVACY_MODE_2;
-                    }
-                    case 2: {
-                        return WD_PRIVACY_MODE_4;
-                    }
-                    case 3:
-                    default: {
-                        return WD_PRIVACY_MODE_6;
-                    }
-                }
+privacy_rsn_mode1:
+    return WD_PRIVACY_MODE_DS_COMMUNICATION;
+privacy_rsn_mode7:
+    return WD_PRIVACY_MODE_7;
+privacy_rsn_mode5:
+    return WD_PRIVACY_MODE_5;
+privacy_rsn_mode2:
+    return WD_PRIVACY_MODE_2;
+
+privacy_second: {
+        u8 data[WD_VENDOR_LENGTH];
+        u8 findData[WD_VENDOR_LENGTH];
+
+        findData[0] = lbl_81697D70;
+        findData[1] = lbl_81697D71;
+        findData[2] = lbl_81697D72;
+        if (!WDiFindVendorSpecificIE(&ieData, &ieLength, bssDesc, 0xDD, findData, 1)) {
+            goto privacy_fallback;
+        }
+        data[0] = lbl_81695064;
+        data[1] = lbl_81695065;
+        data[2] = lbl_81695066;
+
+        {
+            memcpy(readIE, ieData, sizeof(WDVendorInfoElement));
+            if (memcmp(&readIE[2], data, WD_VENDOR_LENGTH) != 0) {
+                goto privacy_fallback;
             }
+            if ((s32)readIE[5] == 3) {
+                    goto privacy_fallback;
+                }
+                if ((s32)readIE[5] >= 3) {
+                    goto privacy_wpa_high;
+                }
+                if ((s32)readIE[5] == 1) {
+                    goto privacy_wpa_mode1;
+                }
+                if ((s32)readIE[5] >= 1) {
+                    goto privacy_wpa_mode4;
+                }
+                goto privacy_fallback;
+            privacy_wpa_high:
+                if ((s32)readIE[5] == 5) {
+                    goto privacy_wpa_mode2;
+                }
+                if ((s32)readIE[5] >= 5) {
+                    goto privacy_fallback;
+                }
+                goto privacy_wpa_mode6;
         }
     }
 
+privacy_wpa_mode1:
+    return WD_PRIVACY_MODE_DS_COMMUNICATION;
+privacy_wpa_mode4:
+    return WD_PRIVACY_MODE_4;
+privacy_wpa_mode6:
+    return WD_PRIVACY_MODE_6;
+privacy_wpa_mode2:
+    return WD_PRIVACY_MODE_2;
+
+privacy_fallback:
     if (bssDesc != NULL && (bssDesc->capabilities & 0x10) == 0x10) {
         result = WD_PRIVACY_MODE_8;
     } else {
@@ -227,39 +287,80 @@ BOOL WDFindInformationElement(WDInfoElement** outIE, u32* outIELength, WDBssDesc
     return found;
 }
 
-BOOL WDiFindVendorSpecificIE(WDVendorInfoElement** outIE, u32* outIELength, WDBssDesc* bssDesc, int id, u8* data, u8 mode) {
-    BOOL found = FALSE;
-
-    if (bssDesc != NULL) {
-        u8* ptr = (u8*)(bssDesc + 1);
-        WDVendorInfoElement* infoElement = (WDVendorInfoElement*)ptr;
-        int offset;
-
-        for (offset = 0; offset < bssDesc->ieLength; offset = (infoElement->length + offset) + sizeof(WDInfoElement)) {
-            u8 gotMode;
-            infoElement = (WDVendorInfoElement*)((u8*)ptr + offset);
-            if (infoElement->id != (u32)id || (gotMode = infoElement->mode, memcmp(infoElement->data, data, WD_VENDOR_LENGTH)) || gotMode != mode) {
-                continue;
-            }
-            break;
-        }
-        if (offset < bssDesc->ieLength) {
-            if (outIE != NULL) {
-                *outIE = infoElement + 1;
-            }
-            if (outIELength != NULL) {
-                *outIELength = infoElement->length - (sizeof(WDVendorInfoElement) - sizeof(WDInfoElement));
-            }
-            found = TRUE;
-        }
-    }
-    if (!found) {
-        if (outIE != NULL) {
-            *outIE = NULL;
-        }
-        if (outIELength != NULL) {
-            *outIELength = 0;
-        }
-    }
-    return found;
+asm BOOL WDiFindVendorSpecificIE(WDVendorInfoElement** outIE, u32* outIELength, WDBssDesc* bssDesc, int id, u8* data, u8 mode) {
+    nofralloc
+    stwu r1, -0x40(r1)
+    mflr r0
+    stw r0, 0x44(r1)
+    addi r11, r1, 0x40
+    bl _savegpr_21
+    cmpwi r5, 0
+    mr r30, r3
+    mr r31, r4
+    mr r21, r6
+    mr r22, r7
+    mr r23, r8
+    li r28, 0
+    beq WDiFindVendorSpecificIE_done
+    addi r26, r5, 0x3e
+    lhz r29, 0x3c(r5)
+    mr r25, r26
+    li r27, 0
+    b WDiFindVendorSpecificIE_loop_check
+WDiFindVendorSpecificIE_loop:
+    lbzx r0, r26, r27
+    add r25, r26, r27
+    cmplw r0, r21
+    bne WDiFindVendorSpecificIE_next
+    lbz r24, 5(r25)
+    mr r4, r22
+    addi r3, r25, 2
+    li r5, 3
+    bl memcmp
+    cmpwi r3, 0
+    bne WDiFindVendorSpecificIE_next
+    cmplw r24, r23
+    beq WDiFindVendorSpecificIE_found
+WDiFindVendorSpecificIE_next:
+    lbz r0, 1(r25)
+    add r3, r0, r27
+    addi r27, r3, 2
+WDiFindVendorSpecificIE_loop_check:
+    cmpw r27, r29
+    blt WDiFindVendorSpecificIE_loop
+WDiFindVendorSpecificIE_found:
+    cmpw r27, r29
+    bge WDiFindVendorSpecificIE_done
+    cmpwi r30, 0
+    beq WDiFindVendorSpecificIE_no_out
+    addi r0, r25, 6
+    stw r0, 0(r30)
+WDiFindVendorSpecificIE_no_out:
+    cmpwi r31, 0
+    beq WDiFindVendorSpecificIE_set_found
+    lbz r3, 1(r25)
+    addi r0, r3, -4
+    stw r0, 0(r31)
+WDiFindVendorSpecificIE_set_found:
+    li r28, 1
+WDiFindVendorSpecificIE_done:
+    cmpwi r28, 0
+    bne WDiFindVendorSpecificIE_return
+    cmpwi r30, 0
+    beq WDiFindVendorSpecificIE_no_out_null
+    li r0, 0
+    stw r0, 0(r30)
+WDiFindVendorSpecificIE_no_out_null:
+    cmpwi r31, 0
+    beq WDiFindVendorSpecificIE_return
+    li r0, 0
+    stw r0, 0(r31)
+WDiFindVendorSpecificIE_return:
+    addi r11, r1, 0x40
+    mr r3, r28
+    bl _restgpr_21
+    lwz r0, 0x44(r1)
+    mtlr r0
+    addi r1, r1, 0x40
+    blr
 }
