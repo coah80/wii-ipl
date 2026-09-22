@@ -1971,7 +1971,7 @@ config.libs = [
             Object(Matching,    "MSL_Common/wmem.c"),
             Object(NonMatching, "MSL_Common/wprintf.c"),
             Object(NonMatching, "MSL_Common/wstring.c"),
-            Object(NonMatching, "MSL_Common/wchar_io.c"),
+            Object(Matching,    "MSL_Common/wchar_io.c"),
             Object(Matching,    "PPC_EABI/time.dolphin.c"),
             Object(Matching,    "PPC_EABI/sysenv.GCN.c"),
             Object(Matching,    "PPC_EABI/uart_console_io_gcn.c"),
