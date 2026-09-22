@@ -31,7 +31,7 @@
 char lbl_81687720[] = "<< RVL_SDK - WPAD \trelease build: Apr 20 2010 11:20:55 (0x4199_60831) >>";
 const char* __WPADVersion = lbl_81687720;
 
-WPADCB _wpd[WPAD_MAX_CONTROLLERS];
+WPADStorage _wpd;
 WPADCB* _wpdcb[WPAD_MAX_CONTROLLERS];
 
 u8 __WPADiManageHandlerStack[0x1000] ALIGN32;
@@ -636,30 +636,30 @@ static asm void WPADiManageHandler(OSAlarm* pAlarm, OSContext* pContext) {
     beq WPADiManageHandler_8AC8
     cmpwi r3, 0x2
     bne WPADiManageHandler_91D8
-    lwz r0, _initialized(r13)
+    lwz r0, _initialized(r0)
     cmpwi r0, 0x0
     bne WPADiManageHandler_91D8
     li r0, 0x1
     lis r3, WPADiConnCallback@ha
-    stw r0, _initialized(r13)
+    stw r0, _initialized(r0)
     addi r3, r3, WPADiConnCallback@l
     bl WUDSetHidConnCallback
     lis r3, WPADiRecvCallback@ha
     addi r3, r3, WPADiRecvCallback@l
     bl WUDSetHidRecvCallback
     li r0, 0x32
-    stw r0, _recCnt(r13)
+    stw r0, _recCnt(r0)
     b WPADiManageHandler_91D8
 WPADiManageHandler_8AC8:
-    lwz r4, _recCnt(r13)
-    lwz r19, _recFlag(r13)
+    lwz r4, _recCnt(r0)
+    lwz r19, _recFlag(r0)
     cntlzw r3, r4
     subi r0, r4, 0x1
     extrwi r3, r3, 1, 26
     cmpwi r19, 0x0
     neg r3, r3
     andc r0, r0, r3
-    stw r0, _recCnt(r13)
+    stw r0, _recCnt(r0)
     blt WPADiManageHandler_8B28
     cmpwi r0, 0x0
     bne WPADiManageHandler_91D8
@@ -1001,13 +1001,13 @@ WPADiManageHandler_8FC8:
 WPADiManageHandler_8FCC:
     stb r0, 0x0(r23)
 WPADiManageHandler_8FD0:
-    lbz r0, _checkCnt(r13)
+    lbz r0, _checkCnt(r0)
     cmplwi r0, 0x5
     bne WPADiManageHandler_8FE4
     mr r3, r22
     bl WPADiCheckContInputs
 WPADiManageHandler_8FE4:
-    lhz r0, _senseCnt(r13)
+    lhz r0, _senseCnt(r0)
     cmplwi r0, 0xa
     bne WPADiManageHandler_8FF8
     mr r3, r22
@@ -1026,7 +1026,7 @@ WPADiManageHandler_900C:
     addi r24, r24, 0x4
     addi r23, r23, 0x1
     blt WPADiManageHandler_8B48
-    lhz r0, _afhCnt(r13)
+    lhz r0, _afhCnt(r0)
     cmplwi r0, 0xea60
     bne WPADiManageHandler_9090
     lis r21, 0x8000
@@ -1036,31 +1036,31 @@ WPADiManageHandler_900C:
     addi r3, r28, 0x108
     crclr 4*cr1+eq
     bl DEBUGPrint
-    lbz r3, _afhChannel(r13)
+    lbz r3, _afhChannel(r0)
     lbz r0, 0x31a2(r21)
     extsb r3, r3
     cmpw r3, r0
     beq WPADiManageHandler_9090
     bl OSDisableInterrupts
     lbz r0, 0x31a2(r21)
-    stb r0, _afhChannel(r13)
+    stb r0, _afhChannel(r0)
     bl OSRestoreInterrupts
     lbz r4, 0x31a2(r21)
     addi r3, r28, 0x130
     crclr 4*cr1+eq
     bl DEBUGPrint
-    lbz r0, _afhChannel(r13)
+    lbz r0, _afhChannel(r0)
     extsb r3, r0
     bl WUDSetDisableChannel
 WPADiManageHandler_9090:
-    lhz r6, _senseCnt(r13)
+    lhz r6, _senseCnt(r0)
     lis r3, 0x1
     subi r0, r3, 0x15a0
-    lbz r9, _checkCnt(r13)
+    lbz r9, _checkCnt(r0)
     subi r4, r6, 0xa
     subfic r3, r6, 0xa
     nor r3, r4, r3
-    lhz r10, _afhCnt(r13)
+    lhz r10, _afhCnt(r0)
     srawi r8, r3, 31
     addi r7, r6, 0x1
     clrlwi r0, r0, 16
@@ -1070,7 +1070,7 @@ WPADiManageHandler_9090:
     nor r5, r4, r3
     subf r4, r0, r10
     subf r3, r10, r0
-    lbz r0, _scFlush(r13)
+    lbz r0, _scFlush(r0)
     srawi r6, r5, 31
     addi r5, r9, 0x1
     nor r4, r4, r3
@@ -1079,9 +1079,9 @@ WPADiManageHandler_9090:
     andc r5, r5, r6
     andc r3, r3, r4
     cmpwi r0, 0x0
-    sth r7, _senseCnt(r13)
-    stb r5, _checkCnt(r13)
-    sth r3, _afhCnt(r13)
+    sth r7, _senseCnt(r0)
+    stb r5, _checkCnt(r0)
+    sth r3, _afhCnt(r0)
     beq WPADiManageHandler_9138
     bl SCCheckStatus
     cmpwi r3, 0x0
@@ -1094,9 +1094,9 @@ WPADiManageHandler_9090:
     li r3, 0x0
     bl SCFlushAsync
     li r0, 0x0
-    stb r0, _scFlush(r13)
+    stb r0, _scFlush(r0)
 WPADiManageHandler_9138:
-    lbz r0, _scSetting(r13)
+    lbz r0, _scSetting(r0)
     cmpwi r0, 0x0
     beq WPADiManageHandler_91D4
     bl SCCheckStatus
@@ -1112,19 +1112,19 @@ WPADiManageHandler_9164:
     ble WPADiManageHandler_9170
     li r0, 0x5
 WPADiManageHandler_9170:
-    stb r0, _dpdSensitivity(r13)
+    stb r0, _dpdSensitivity(r0)
     bl SCGetWpadSensorBarPosition
     clrlwi r3, r3, 24
     subi r0, r3, 0x1
     cntlzw r0, r0
     extrwi r0, r0, 8, 19
-    stb r0, _sensorBarPos(r13)
+    stb r0, _sensorBarPos(r0)
     bl SCGetWpadMotorMode
     clrlwi r3, r3, 24
     subi r0, r3, 0x1
     cntlzw r0, r0
     srwi r0, r0, 5
-    stw r0, _rumble(r13)
+    stw r0, _rumble(r0)
     bl SCGetWpadSpeakerVolume
     clrlwi. r0, r3, 24
     mr r4, r3
@@ -1137,8 +1137,8 @@ WPADiManageHandler_91B8:
     li r4, 0x7f
 WPADiManageHandler_91C8:
     li r0, 0x0
-    stb r4, _speakerVolume(r13)
-    stb r0, _scSetting(r13)
+    stb r4, _speakerVolume(r0)
+    stb r0, _scSetting(r0)
 WPADiManageHandler_91D4:
     bl BTA_HhGetAclQueueInfo
 WPADiManageHandler_91D8:
@@ -1338,12 +1338,12 @@ void WPADiInitSub() {
     DEBUGPrint("WPADInit()\n");
 
     for (chan = 0; chan < WPAD_MAX_CONTROLLERS; chan++) {
-        _wpdcb[chan] = &_wpd[chan];
+        _wpdcb[chan] = &_wpd.controllers[chan];
         _chan_active_state[chan] = FALSE;
 
         _wpdcb[chan]->connectCB = NULL;
         __ClearControlBlock(chan);
-        OSInitThreadQueue(&_wpd[chan].threadQueue);
+        OSInitThreadQueue(&_wpd.controllers[chan].threadQueue);
 
         _extCnt[chan] = 0;
         _rumbleCnt[chan] = 0;
