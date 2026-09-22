@@ -25,7 +25,7 @@ enum {
 
 #define MAX_IOS_VECS 4
 
-SDKDefineVersionEx(SSL, "Jun 21 2007", "13:10:10", 60726);
+const char* __SSLVersion = "<< RVL_SDK - SSL \trelease build: Jun 21 2007 13:10:10 (0x4199_60726) >>";
 
 static BOOL sslRegistered = FALSE;
 static s32 l_initialized = 0;
@@ -547,3 +547,10 @@ static u32 SSL_strnlen(const char* s, u32 n) {
     }
     return t - s;
 }
+
+#pragma push
+#pragma section data_type ".data"
+#pragma pop
+#pragma push
+#pragma section data_type ".sdata"
+#pragma pop
