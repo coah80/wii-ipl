@@ -210,10 +210,10 @@ namespace ipl {
 
                 int chIdx2 = 0;
                 int chIdx = 0;
-                u32 i = (u32)url_col->unk_0x08 - (u32)url_col->unk_0x04;
-                i >>= 1;
-                for (; i > 0; i--) {
-                    wchar_t wch = url_col->unk_0x04[chIdx];
+                u32 count = (u32)url_col->unk_0x08 - (u32)url_col->unk_0x04;
+                count >>= 1;
+                for (u32 i = 0; i < count; i++) {
+                    wchar_t wch = url_col->unk_0x04[i];
                     if (wch != SEPERATOR && chIdx2 < 0x200) {
                         url[chIdx2++] = wch;
                     }
@@ -239,6 +239,15 @@ namespace ipl {
                 nw4r::ut::List_Remove(&mLineCollisions, col);
                 delete col;
             }
+        }
+    }  // namespace scene
+}  // namespace ipl
+
+namespace ipl {
+    namespace scene {
+        __declspec(weak) u32 url_processor_data_pad() {
+            static const u32 pad __attribute__((section(".data"), aligned(1))) = 0;
+            return *((volatile const u32*)&pad);
         }
     }  // namespace scene
 }  // namespace ipl
