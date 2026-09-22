@@ -1699,7 +1699,7 @@ config.libs = [
             Object(NonMatching, "fa/pf_fat12.c"),
             Object(NonMatching, "fa/pf_fat16.c"),
             Object(NonMatching, "fa/pf_fat32.c"),
-            Object(NonMatching, "fa/pf_fatfs.c"),
+            Object(Matching,    "fa/pf_fatfs.c"),
             Object(NonMatching, "fa/pf_file.c"),
             Object(NonMatching, "fa/pf_path.c"),
             Object(NonMatching, "fa/pf_sector.c"),
