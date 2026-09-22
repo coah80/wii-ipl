@@ -788,7 +788,7 @@ config.libs = [
         ]
     ),
     IPLSection("letterWriter", [
-            Object(Equivalent,  "scene/letterWriter/iplLetterWriter.cpp"),
+            Object(Matching,    "scene/letterWriter/iplLetterWriter.cpp"),
         ]
     ),
     IPLSection("limitOver", [
