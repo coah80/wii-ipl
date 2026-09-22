@@ -404,7 +404,12 @@ namespace ipl {
             int mModuleIndex;                                     // 0x400
             EGG::ExpHeap* mpCSHeap;                               // 0x404
 
-            static ESTicketView msTicketView;
+            struct TicketViewStorage {
+                ESTicketView view;
+                u8 pad[8];
+            };
+
+            static TicketViewStorage msTicketView;
             static ESTicketView msUnlockTicket;
 
             static const char* mscBtnNames[BTN_MAX];
