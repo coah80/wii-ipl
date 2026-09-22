@@ -1742,7 +1742,7 @@ config.libs = [
             Object(NonMatching, "fa/pf_fsnext.c"),
             Object(NonMatching, "fa/pf_fstat.c"),
             Object(NonMatching, "fa/pf_fsync.c"),
-            Object(NonMatching, "fa/pf_fwrite.c"),
+            Object(Matching,    "fa/pf_fwrite.c"),
             Object(NonMatching, "fa/pf_getdev.c"),
             Object(NonMatching, "fa/pf_getvol.c"),
             Object(NonMatching, "fa/pf_getvolcfg.c"),
