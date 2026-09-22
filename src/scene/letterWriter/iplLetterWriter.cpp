@@ -14,6 +14,10 @@
 
 namespace ipl {
     namespace scene {
+        static inline wchar_t* letterWriterCaption(wchar_t* caption) {
+            return caption;
+        }
+
         extern "C" char lbl_81650380[0x19] = "my_IplTopBalloon_a.brlyt";
 
         LetterWriter::LetterWriter(EGG::Heap* heap, int type)
@@ -143,7 +147,7 @@ namespace ipl {
                         Address* address = static_cast<Address*>(System::getScene(SCENE_ADDRESS));
                         memcpy(&mFriendInfo, &address->getFriendCache()->getInfo(address->getChosenFriendIndex()), sizeof(NWC24FriendInfo));
 
-                        const wchar_t* caption = makeHeaderCaption((const wchar_t*)mFriendInfo.attr.name);
+                        const wchar_t* caption = letterWriterCaption(makeHeaderCaption((const wchar_t*)mFriendInfo.attr.name));
                         getLetterInputForm()->setHeaderCaption(caption);
 
                         mbToFriend = true;
