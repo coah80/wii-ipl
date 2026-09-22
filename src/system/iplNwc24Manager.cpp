@@ -559,7 +559,7 @@ namespace ipl {
                 memset(msgFriendName, 0, sizeof(msgFriendName));
 
                 // Get message data
-                NWC24MsgObj msgObj ALIGN32;
+                NWC24MsgObj msgObj ATTRIBUTE_ALIGN(16);
                 NWC24MsgType msgType;
                 if (!getMsgObj(&msgObj, NWC24_MBOX_TYPE_RECV, mMsgIdsTbl[i]) || !getMsgType(&msgObj, &msgType)) {
                     continue;
@@ -569,7 +569,7 @@ namespace ipl {
                     NWC24FriendAddr msgFriendAddr;
                     memset(&msgFriendAddr, 0, sizeof(msgFriendAddr));
 
-                    u16 msgFriendType;
+                    NWC24FriendType msgFriendType;
 
                     // Get friend data
                     if (msgType == NWC24_MSGTYPE_PUBLIC) {
@@ -579,7 +579,7 @@ namespace ipl {
                         }
                         msgFriendType = NWC24_FRIENDTYPE_EMAIL;
                         if (searchFriendInfo(&msgFriendAddr, &index)) {
-                            NWC24FriendInfo friendInfo;
+                            NWC24FriendInfo friendInfo ALIGN32;
                             readFriendInfo(&friendInfo, index);
                             wcsncpy(msgFriendName, (wchar_t*)friendInfo.attr.name, 12);
                         }
@@ -588,7 +588,7 @@ namespace ipl {
                         getMsgFromId(&msgObj, &msgFriendAddr.wiiId);
                         msgFriendType = msgFriendAddr.wiiId == myUserId ? NWC24_FRIENDTYPE_NONE : NWC24_FRIENDTYPE_WII;
                         if (searchFriendInfo(msgFriendAddr.wiiId, &index)) {
-                            NWC24FriendInfo friendInfo;
+                            NWC24FriendInfo friendInfo ALIGN32;
                             readFriendInfo(&friendInfo, index);
                             wcsncpy(msgFriendName, (wchar_t*)friendInfo.attr.name, 12);
                         }
@@ -596,6 +596,7 @@ namespace ipl {
 
                     // Get app and group ID
                     u32 msgAppId;
+                    u16 msgOptOutAppId;
                     u16 msgGroupId;
                     getMsgAppId(&msgObj, &msgAppId);
                     getMsgGroupId(&msgObj, &msgGroupId);
@@ -613,9 +614,9 @@ namespace ipl {
 
                     // Get opt out flag (display "Opt Out" button)
                     BOOL msgMbOptOutFlag = FALSE;
-                    u32 msgOptOutAppId = 0;
                     bool msgBoardUpdateSW = (result & (bool)msgMbUpdateSW);
-                    result = readMsgMBOptOutFlag(&msgObj, &msgMbOptOutFlag, &msgOptOutAppId);
+                    *(u32*)&msgOptOutAppId = 0;
+                    result = readMsgMBOptOutFlag(&msgObj, &msgMbOptOutFlag, (u32*)&msgOptOutAppId);
                     if (!FILE_ERROR_OK) {
                         goto out;
                     }
