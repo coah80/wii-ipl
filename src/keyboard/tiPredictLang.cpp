@@ -33,6 +33,8 @@ namespace textinput {
             {ANM_RollOver, "fs_prdicSelWidw_a_PRDC_Roll_over.brlan"}, {ANM_ToggleOff, "fs_prdicSelWidw_a_PRDC_toggle-OFF.brlan"},
             {ANM_ToggleOn, "fs_prdicSelWidw_a_PRDC_toggle-ON.brlan"}};
 
+        extern "C" __declspec(section ".rodata") const u32 tiPredictLang_rodata_pad = 0;
+
         static const PaneToAnimation csPaneToAnimation[] = {
             {KT_Whole, "N_PRDCkeytop_all", 3, NULL, {&csAninationFile[0], &csAninationFile[4], &csAninationFile[5]}},
             {KT_ChangeButton,
