@@ -51,7 +51,6 @@ extern "C" asm void __dt__Q39textinput11nw4rmanager6LayoutFv();
 extern "C" asm void __dt__Q34nw4r2ut10CharWriterFv();
 extern "C" asm void __ct__Q39textinput11nw4rmanager6LayoutFPQ34nw4r3lyt24MultiArcResourceAccessorPCcPQ29textinput13EventObserver();
 extern "C" asm void __ct__Q34nw4r2ut7ResFontFv();
-extern "C" asm void csLanguageDependencyDataUEJ__Q29textinput9inputform();
 extern "C" asm void __dt__Q39textinput8tistring10StringBaseFv();
 extern "C" asm void KPRLookAhead();
 extern "C" asm void set__Q39textinput8tistring10StringBaseFPCw();
@@ -69,6 +68,19 @@ extern "C" asm void searchPaneComponent__Q39textinput3gui11PaneManagerFPCc();
 #pragma push
 #pragma section const_type ".data"
 extern "C" const char lbl_8165C820[];
+extern "C" const char lbl_8165C830[];
+extern "C" const char lbl_8165C8C0[];
+extern "C" const char lbl_8165C8CC[];
+extern "C" const char lbl_8165C8E0[];
+extern "C" const char lbl_8165C8F0[];
+extern "C" const char lbl_8165C900[];
+extern "C" const char lbl_8165C918[];
+extern "C" const char lbl_8165C928[];
+extern "C" const char lbl_8165C938[];
+extern "C" const char lbl_8165C950[];
+extern "C" const char lbl_8165C960[];
+extern "C" const char lbl_816973A4[];
+extern "C" const char lbl_816973AC[];
 #pragma pop
 extern "C" const f32 lbl_81694D28;
 extern "C" void _savegpr_20();
@@ -1030,6 +1042,93 @@ resetContextPredict_L1:
     addi r1, r1, 0x10
     blr
 }
+
+struct InputFormAnimationFile {
+    u32 id;
+    char fileName[0x40];
+};
+
+#pragma push
+#pragma section const_type ".rodata"
+extern "C" const InputFormAnimationFile csAninationFile__Q29textinput9inputform[8] = {
+    {0, "fs_VK_textBox_a_normal.brlan"},
+    {1, "fs_VK_textBox_a_Foucus_IN.brlan"},
+    {2, "fs_VK_textBox_a_Focus-OUT.brlan"},
+    {3, "fs_VK_textBox_a_Roll_over.brlan"},
+    {4, "fs_VK_textBox_a_Pushed.brlan"},
+    {5, "fs_VK_textBox_a_Fade_IN.brlan"},
+    {6, "fs_VK_textBox_a_Fade_OUT.brlan"},
+    {7, "fs_VK_textBox_a_Off.brlan"},
+};
+
+#pragma section data_type ".rodata"
+extern "C" const void* csVisiblePaneUEJ__Q29textinput9inputform[9] = {
+    (const void*)0x00010002,
+    lbl_8165C8C0,
+    0,
+    0,
+    0,
+    lbl_816973A4,
+    lbl_816973AC,
+    0,
+    0,
+};
+
+extern "C" const void* csVisiblePaneKOR__Q29textinput9inputform[9] = {
+    (const void*)0x00010002,
+    lbl_816973A4,
+    0,
+    0,
+    0,
+    lbl_816973AC,
+    lbl_8165C8C0,
+    0,
+    0,
+};
+
+extern "C" const void* csVisiblePaneCHN__Q29textinput9inputform[10] = {
+    (const void*)0x00010002,
+    lbl_816973AC,
+    0,
+    0,
+    0,
+    lbl_816973A4,
+    lbl_8165C8C0,
+    0,
+    0,
+    0,
+};
+
+extern "C" const void* csLanguageDependencyDataUEJ__Q29textinput9inputform[4] = {
+    csVisiblePaneUEJ__Q29textinput9inputform,
+    lbl_8165C8CC,
+    lbl_8165C8E0,
+    lbl_8165C8F0,
+};
+
+extern "C" const void* csLanguageDependencyDataKOR__Q29textinput9inputform[4] = {
+    csVisiblePaneKOR__Q29textinput9inputform,
+    lbl_8165C900,
+    lbl_8165C918,
+    lbl_8165C928,
+};
+
+extern "C" const void* csLanguageDependencyDataCHN__Q29textinput9inputform[4] = {
+    csVisiblePaneCHN__Q29textinput9inputform,
+    lbl_8165C938,
+    lbl_8165C950,
+    lbl_8165C960,
+};
+#pragma section data_type ".data"
+
+extern "C" const u32 pppURLCheck[10] = {
+    0x00680074, 0x00740070, 0x003A002F, 0x002F0000, 0x00000000,
+    0x00680074, 0x00740070, 0x0073003A, 0x002F002F, 0x00000000
+};
+
+extern "C" const u32 lbl_816152D0[4] = {0x00200000, 0, 0, 0};
+#pragma pop
+
 extern "C" const f32 lbl_81694D28 = 0.0f;
 extern "C" const f32 lbl_81694D2C = 640.0f;
 extern "C" const f64 lbl_81694D30 = 4503601774854144.0;
@@ -1056,11 +1155,6 @@ extern "C" const f32 lbl_81694D78 = 14592.0f;
 extern "C" const f64 lbl_81694D80 = 4503599627370496.0;
 extern "C" const f32 lbl_81694D88 = 15.0f;
 extern "C" f32 lbl_81698D1C;
-extern "C" const u32 pppURLCheck[10] = {
-    0x00680074, 0x00740070, 0x003A002F, 0x002F0000, 0x00000000,
-    0x00680074, 0x0073003A, 0x002F002F, 0x00000000, 0x00000000
-};
-extern "C" const u32 lbl_816152D0[4] = {0x00200000, 0, 0, 0};
 
 bool mbHyphen;
 
@@ -1068,6 +1162,40 @@ bool mbHyphen;
 #pragma section const_type ".data"
 extern "C" const char lbl_8165C820[] = "P_txtScrll_UP";
 extern "C" const char lbl_8165C830[] = "P_txtScrll_DOWN";
+extern "C" const void* lbl_8165C840[32] = {
+    0,
+    lbl_8165C820,
+    (const void*)0x00000008,
+    0,
+    csAninationFile__Q29textinput9inputform,
+    csAninationFile__Q29textinput9inputform + 1,
+    csAninationFile__Q29textinput9inputform + 2,
+    csAninationFile__Q29textinput9inputform + 3,
+    csAninationFile__Q29textinput9inputform + 4,
+    csAninationFile__Q29textinput9inputform + 5,
+    csAninationFile__Q29textinput9inputform + 6,
+    0,
+    0,
+    0,
+    0,
+    0,
+    lbl_8165C830,
+    (const void*)0x00000008,
+    0,
+    csAninationFile__Q29textinput9inputform,
+    csAninationFile__Q29textinput9inputform + 1,
+    csAninationFile__Q29textinput9inputform + 2,
+    csAninationFile__Q29textinput9inputform + 3,
+    csAninationFile__Q29textinput9inputform + 4,
+    csAninationFile__Q29textinput9inputform + 5,
+    csAninationFile__Q29textinput9inputform + 6,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+};
 extern "C" const char lbl_8165C8C0[] = "N_JPNUSAEUR";
 extern "C" const char lbl_8165C8CC[] = "N_separateBarAll";
 extern "C" const char lbl_8165C8E0[] = "T_2l_TextBox";
@@ -1078,6 +1206,83 @@ extern "C" const char lbl_8165C928[] = "T_title_textKOR";
 extern "C" const char lbl_8165C938[] = "N_separateBarCHN";
 extern "C" const char lbl_8165C950[] = "T_2l_TextBoxCHN";
 extern "C" const char lbl_8165C960[] = "T_title_textCHN";
+extern "C" const u16 lbl_8165C970[16] = {
+    0x00a4, 0x00ac, 0x00af, 0x00b2, 0x00b3, 0x00b6, 0x00b8, 0x00b9,
+    0x00bc, 0x00bd, 0x00be, 0x00d0, 0x00de, 0x00f0, 0x00fe, 0x0000,
+};
+
+extern "C" u16 ToIndependentClass__Q39textinput9inputform13DeadKeyStreamFw(u16 code) {
+    if (code < 0x300 || code > 0x330) {
+        return code;
+    }
+    switch (code) {
+        case 0x300:
+            return 0x60;
+        case 0x301:
+            return 0xb4;
+        case 0x302:
+            return 0x5e;
+        case 0x303:
+            return 0x7e;
+        case 0x308:
+            return 0xa8;
+        case 0x30d:
+            return 0x27;
+        case 0x30e:
+            return 0x22;
+        case 0x327:
+            return 0xb8;
+        default:
+            return code;
+    }
+}
+
+void Base::setLanguage(Language language) {
+    meLanguage = language;
+    switch (language) {
+        case JP:
+            setPredictMode(PM_Atok);
+            break;
+        case USA:
+            setPredictMode(PM_USEn);
+            break;
+        case UK:
+            setPredictMode(PM_En);
+            break;
+        case FR:
+            setPredictMode(PM_De);
+            break;
+        case DE:
+            setPredictMode(PM_It);
+            break;
+        case IT:
+            setPredictMode(PM_Nl);
+            break;
+        case SP:
+            if (meDestination == DST_EU) {
+                setPredictMode(PM_Sp);
+            } else {
+                setPredictMode(PM_USSp);
+            }
+            break;
+        case NL:
+            if (meDestination == DST_EU) {
+                setPredictMode(PM_Fr);
+            } else {
+                setPredictMode(PM_USFr);
+            }
+            break;
+        case CN:
+            setPredictMode(PM_11);
+            break;
+        case KR:
+            setPredictMode(PM_12);
+            break;
+        default:
+            break;
+    }
+}
+
 extern "C" const char lbl_8165CBE0[] = "T_2l_TextBox";
 extern "C" const char lbl_8165D258[] = "RevoIpl_RodinNTLGProM_32_I4.brfnt";
 extern "C" const char lbl_8165D27C[] = "P_txtScrll_UP";
@@ -4380,52 +4585,6 @@ checkHeadOfSentence_L7:
     mtlr r0
     addi r1, r1, 0x20
     blr
-}
-
-void Base::setLanguage(Language language) {
-    meLanguage = language;
-    switch (language) {
-        case JP:
-            setPredictMode(PM_Atok);
-            break;
-        case USA:
-            setPredictMode(PM_USEn);
-            break;
-        case UK:
-            setPredictMode(PM_En);
-            break;
-        case FR:
-            setPredictMode(PM_De);
-            break;
-        case DE:
-            setPredictMode(PM_It);
-            break;
-        case IT:
-            setPredictMode(PM_Nl);
-            break;
-        case SP:
-            if (meDestination == DST_EU) {
-                setPredictMode(PM_Sp);
-            } else {
-                setPredictMode(PM_USSp);
-            }
-            break;
-        case NL:
-            if (meDestination == DST_EU) {
-                setPredictMode(PM_Fr);
-            } else {
-                setPredictMode(PM_USFr);
-            }
-            break;
-        case CN:
-            setPredictMode(PM_11);
-            break;
-        case KR:
-            setPredictMode(PM_12);
-            break;
-        default:
-            break;
-    }
 }
 
 void Base::setLineDrawInfo(bool lineDraw, u32 lineCount) {
