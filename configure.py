@@ -1035,7 +1035,7 @@ config.libs = [
         ]
     ),
     RevoEXLib("ncd", [
-            Object(NonMatching, "ncd/ncdsystem.c"),
+            Object(Matching,    "ncd/ncdsystem.c"),
             Object(NonMatching, "ncd/ncdsleep.c"),
         ]
     ),

@@ -24,7 +24,7 @@ const char* __NCDUnofficialVersion = "<< RVL_SDK - NCD \trelease build: Dec 12 2
 
 static void LockRight(void);
 static NCDErr ExecConfigCommand(const char* name, NCDConfig* config, u32 command);
-static NCDErr NCDiGetWirelessMacAddress(u8* macAddr);
+NCDErr NCDiGetWirelessMacAddress(u8* macAddr);
 
 NCDErr NCDReadConfig(NCDConfig* config) {
     if (config == NULL) {
@@ -323,7 +323,7 @@ NCDErr NCDGetWirelessMacAddress(u8* macAddr) {
     return NCDiGetWirelessMacAddress(macAddr);
 }
 
-static NCDErr NCDiGetWirelessMacAddress(u8* macAddr) {
+NCDErr NCDiGetWirelessMacAddress(u8* macAddr) {
     NCDErr err = 0;
     s32 fd;
 
