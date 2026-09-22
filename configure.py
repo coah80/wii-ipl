@@ -692,7 +692,7 @@ config.libs = [
         ]
     ),
     IPLSection("iplwww", [
-            Object(Equivalent,  "iplwww/www_browser.cpp"),
+            Object(Matching,    "iplwww/www_browser.cpp"),
             Object(Matching,    "iplwww/www_message.cpp"),
             Object(Matching,    "iplwww/www_surface.cpp"),
             Object(Matching,    "iplwww/www_thread.cpp"),
