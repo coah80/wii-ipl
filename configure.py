@@ -1835,7 +1835,7 @@ config.libs = [
             Object(NonMatching, "fa/api/FAFinfo.c"),
             Object(NonMatching, "fa/api/FAFopen.c"),
             Object(NonMatching, "fa/api/FAFormat.c"),
-            Object(NonMatching, "fa/api/FAFread.c"),
+            Object(Matching,    "fa/api/FAFread.c"),
             Object(NonMatching, "fa/api/FAFseek.c"),
             Object(NonMatching, "fa/api/FAFsfirst.c"),
             Object(NonMatching, "fa/api/FAFsnext.c"),
