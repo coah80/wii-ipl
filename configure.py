@@ -1171,7 +1171,7 @@ config.libs = [
             Object(Matching,    "wd/wd_misc.c"),
             Object(Matching,    "wd/wd_request.c"),
             Object(Matching,    "wd/wd_init.c"),
-            Object(NonMatching, "wd/WDScan.c"),
+            Object(Matching,    "wd/WDScan.c"),
         ]
     ),
     # RVLFaceLib
