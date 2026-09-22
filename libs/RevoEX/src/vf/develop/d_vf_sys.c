@@ -385,7 +385,7 @@ VFErr VFSysSetSyncMode(s32 i_handle_idx, u32 i_mode) {
     return VF_ERR_SYSTEM;
 }
 
-u32 VFSysGetSyncMode(s32 i_handle_idx) {
+static u32 VFSysGetSyncMode(s32 i_handle_idx) {
     VFSys_handle* handle_p = VFSysGetHandleP(i_handle_idx);
 
     if (handle_p == NULL || handle_p->drive.pf_disk_p == NULL || handle_p->device_p == NULL) {
@@ -541,7 +541,7 @@ s32 VFSysHandleP2Idx(VFSys_handle* i_handle_p) {
     return VF_ERR_SYSTEM;
 }
 
-VFSys_handle* VFSysVol2HandleP(PF_VOLUME* i_vol_p) {
+static VFSys_handle* VFSysVol2HandleP(PF_VOLUME* i_vol_p) {
     if (i_vol_p != NULL) {
         VFSys_handle* handle_p = VFSysGetHandleP(0);
         VFSys_handle* handle_end_p = &handle_p[l_vfsys_vol_max];
@@ -728,7 +728,7 @@ static void VFiSysClearDeviceSDDirect(VFSys_deviceSD* o_sd_p) {
     o_sd_p->slotNo = -1;
 }
 
-VFSys_device* VFSysGetDeviceP(s32 i_idx) {
+static VFSys_device* VFSysGetDeviceP(s32 i_idx) {
     VFSys_handle* handle_p = VFSysGetHandleP(i_idx);
     if (handle_p != NULL) {
         return handle_p->device_p;
@@ -1170,7 +1170,7 @@ static VFErr VFiSysGetLastDeviceError_common(VFSys_handle* i_handle_p) {
     return VF_ERR_SYSTEM;
 }
 
-void VFSysSetDevErrInfo(s32 i_handle_idx, VFErr i_err) {
+static void VFSysSetDevErrInfo(s32 i_handle_idx, VFErr i_err) {
     VFSys_handle* handle_p = VFSysGetHandleP(i_handle_idx);
     if (handle_p != NULL) {
         VFiSysSetDeviceErrInfo(handle_p, i_err);
