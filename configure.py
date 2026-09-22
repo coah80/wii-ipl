@@ -1843,7 +1843,7 @@ config.libs = [
             Object(Matching,    "fa/api/FAFwrite.c"),
             Object(NonMatching, "fa/api/FAGetdev.c"),
             Object(NonMatching, "fa/api/FAInit.c"),
-            Object(NonMatching, "fa/api/FAInitDiskManager.c"),
+            Object(Matching,    "fa/api/FAInitDiskManager.c"),
             Object(NonMatching, "fa/api/FAMount.c"),
             Object(NonMatching, "fa/api/FARegistCB.c"),
             Object(NonMatching, "fa/api/FARemove.c"),

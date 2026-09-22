@@ -1,0 +1,2 @@
+int FADiskInitializedPadding;
+int FADiskInitialized;
