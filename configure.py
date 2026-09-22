@@ -751,7 +751,7 @@ config.libs = [
     ),
     IPLSection("calendar", [
             Object(Equivalent,  "scene/calendar/iplCalendar.cpp"),
-            Object(Equivalent,  "scene/calendar/iplDate.cpp"),
+            Object(Matching,    "scene/calendar/iplDate.cpp"),
         ]
     ),
     IPLSection("channelEdit", [
