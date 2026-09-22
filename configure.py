@@ -1722,7 +1722,7 @@ config.libs = [
             Object(NonMatching, "fa/pf_derrnum.c"),
             Object(NonMatching, "fa/pf_detach.c"),
             Object(NonMatching, "fa/pf_divide.c"),
-            Object(NonMatching, "fa/pf_errnum.c"),
+            Object(Matching,    "fa/pf_errnum.c"),
             Object(NonMatching, "fa/pf_fadjust.c"),
             Object(NonMatching, "fa/pf_fappend.c"),
             Object(NonMatching, "fa/pf_fchdir.c"),
