@@ -808,8 +808,8 @@ namespace ipl {
                 dateIndex++;
 
                 nw4r::math::VEC3 local_68;
-                local_68.x = ((i & 0xFFFF) % 7) * 0x46;
-                local_68.y = ((i & 0xFFFF) / 7) * -0x30;
+                local_68.x = ((u16)i % 7) * 0x46;
+                local_68.y = ((u16)i / 7) * -0x30;
                 local_68.z = 0.0f;
 
                 MTXMultVec(pane2->GetGlobalMtx(), local_68, local_68);
@@ -880,6 +880,10 @@ namespace ipl {
 
         BOOL Calendar::is_lower_limit() {
             return mpBoardDate->year == mscMinDate.year && mpBoardDate->month == mscMinDate.month;
+        }
+        __declspec(weak) f32 calendar_data_pad() {
+            static const f32 pad __attribute__((section(".data"), aligned(1))) = 0.0f;
+            return *((volatile const f32*)&pad);
         }
     }  // namespace scene
 }  // namespace ipl
