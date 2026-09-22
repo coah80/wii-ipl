@@ -783,7 +783,7 @@ config.libs = [
         ]
     ),
     IPLSection("kitayamaTest", [
-            Object(Equivalent, "scene/kitayamaTest/iplKitayamaTest.cpp"),
+            Object(Matching, "scene/kitayamaTest/iplKitayamaTest.cpp"),
             Object(Matching, "scene/kitayamaTest/nandsdworker_autotest.cpp"),
         ]
     ),
