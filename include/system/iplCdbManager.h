@@ -25,7 +25,7 @@ namespace ipl {
             void closeDatabase();
 
             BOOL createNewRecord(const char* recordName, const char* recordFileType, const OSCalendarTime* dateTime, u32* gameCode, u16* makerCode,
-                                 const math::VEC2& recordPos, u32 recordFlags, const NWC24FriendAddr& addr, u16 addrType, u16 noReplyFlag,
+                                 const math::VEC2& recordPos, u32 recordFlags, const NWC24FriendAddr& addr, NWC24FriendType addrType, u16 noReplyFlag,
                                  const wchar_t* titleText, const wchar_t* bodyText, const void* faceData, const void** attachData, u32* attachSize,
                                  RBRAttachmentType* attachType);
 

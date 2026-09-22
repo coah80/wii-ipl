@@ -641,7 +641,7 @@ config.libs = [
             Object(Matching,    "system/iplCdbManager.cpp"),
             Object(Matching,    "system/iplCdbWrapper.cpp"),
             Object(Matching,    "system/iplPlayTimeLog.cpp"),
-            Object(Equivalent,  "system/iplNwc24Manager.cpp"),
+            Object(Matching,    "system/iplNwc24Manager.cpp"),
             Object(Matching,    "system/iplPointer.cpp"),
             Object(Matching,    "system/iplPointerCore.cpp"),
             Object(Matching,    "system/iplDialogWindow.cpp"),
