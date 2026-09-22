@@ -14,17 +14,337 @@
 #include "system/iplSystem.h"
 
 const f32 lbl_8160D2C0[] = {0.2, 0.3, 0, 0};
-extern const f32 lbl_81694450;
+extern "C" void __ct__Q34nw4r2ut4RectFv();
+typedef void (*ControllerDataFunction)();
+#pragma push
+#pragma section const_type ".data"
+extern "C" unsigned int const lbl_816346A8[3] = {0, 0x14, 0};
+extern "C" unsigned int const lbl_816346B4[3] = {0, 0x18, 0};
+extern "C" unsigned int const lbl_816346C0[3] = {0, 0x1c, 0};
+extern "C" unsigned int const lbl_816346CC[3] = {0, 0x30, 0};
+extern "C" void __dt__Q33ipl10controller6MasterFv();
+extern "C" void getType__Q33ipl10controller9InterfaceCFv();
+extern "C" void getChannel__Q33ipl10controller9InterfaceCFv();
+extern "C" void down__Q33ipl10controller6MasterCFUl();
+extern "C" void downTrg__Q33ipl10controller6MasterCFUl();
+extern "C" void upTrg__Q33ipl10controller6MasterCFUl();
+extern "C" void pinch__Q33ipl10controller9InterfaceCFv();
+extern "C" void pinchTrg__Q33ipl10controller9InterfaceCFv();
+extern "C" void pinchOffTrg__Q33ipl10controller9InterfaceCFv();
+extern "C" void decide__Q33ipl10controller6MasterCFv();
+extern "C" void repeat__Q33ipl10controller6MasterCFUl();
+extern "C" void rumble__Q33ipl10controller9InterfaceFi();
+extern "C" void cancelRumbling__Q33ipl10controller9InterfaceFv();
+extern "C" void getHoldFlag__Q33ipl10controller9InterfaceCFv();
+extern "C" void getTrigFlag__Q33ipl10controller9InterfaceCFv();
+extern "C" void getReleaseFlag__Q33ipl10controller9InterfaceCFv();
+extern "C" void getClassicHoldFlag__Q33ipl10controller9InterfaceCFv();
+extern "C" void getClassicTrigFlag__Q33ipl10controller9InterfaceCFv();
+extern "C" void getClassicReleaseFlag__Q33ipl10controller9InterfaceCFv();
+extern "C" void getDpdPos__Q33ipl10controller9InterfaceCFv();
+extern "C" void getDpdProjectionPos__Q33ipl10controller9InterfaceCFv();
+extern "C" void getHorizon__Q33ipl10controller9InterfaceCFv();
+extern "C" void getDpdDistance__Q33ipl10controller9InterfaceCFv();
+extern "C" void getKPADStatus__Q33ipl10controller9InterfaceCFv();
+extern "C" void getPADStatus__Q33ipl10controller9InterfaceCFv();
+extern "C" void isValidBtn__Q33ipl10controller9InterfaceCFv();
+extern "C" void isValidDpd__Q33ipl10controller9InterfaceCFv();
+extern "C" void setForceInvalid__Q33ipl10controller6MasterFb();
+extern "C" void setForceInvalid__Q33ipl10controller4BaseFb();
+extern "C" void getMainStickX__Q33ipl10controller9InterfaceCFv();
+extern "C" void getMainStickY__Q33ipl10controller9InterfaceCFv();
+extern "C" void getSubStickX__Q33ipl10controller9InterfaceCFv();
+extern "C" void getSubStickY__Q33ipl10controller9InterfaceCFv();
+extern "C" void read__Q33ipl10controller9InterfaceFv();
+extern "C" void __dt__Q33ipl10controller7ClassicFv();
+extern "C" void getType__Q33ipl10controller4BaseCFv();
+extern "C" void getChannel__Q33ipl10controller4BaseCFv();
+extern "C" void down__Q33ipl10controller7ClassicCFUl();
+extern "C" void downTrg__Q33ipl10controller7ClassicCFUl();
+extern "C" void upTrg__Q33ipl10controller7ClassicCFUl();
+extern "C" void pinch__Q33ipl10controller10RevolutionCFv();
+extern "C" void pinchTrg__Q33ipl10controller10RevolutionCFv();
+extern "C" void pinchOffTrg__Q33ipl10controller10RevolutionCFv();
+extern "C" void decide__Q33ipl10controller4BaseCFv();
+extern "C" void repeat__Q33ipl10controller10RevolutionCFUl();
+extern "C" void rumble__Q33ipl10controller4BaseFi();
+extern "C" void cancelRumbling__Q33ipl10controller4BaseFv();
+extern "C" void getHoldFlag__Q33ipl10controller10RevolutionCFv();
+extern "C" void getTrigFlag__Q33ipl10controller10RevolutionCFv();
+extern "C" void getReleaseFlag__Q33ipl10controller10RevolutionCFv();
+extern "C" void getClassicHoldFlag__Q33ipl10controller7ClassicCFv();
+extern "C" void getClassicTrigFlag__Q33ipl10controller7ClassicCFv();
+extern "C" void getClassicReleaseFlag__Q33ipl10controller7ClassicCFv();
+extern "C" void getDpdPos__Q33ipl10controller7ClassicCFv();
+extern "C" void getDpdProjectionPos__Q33ipl10controller7ClassicCFv();
+extern "C" void getHorizon__Q33ipl10controller7ClassicCFv();
+extern "C" void getDpdDistance__Q33ipl10controller10RevolutionCFv();
+extern "C" void getKPADStatus__Q33ipl10controller10RevolutionCFv();
+extern "C" void isValidBtn__Q33ipl10controller10RevolutionCFv();
+extern "C" void isValidDpd__Q33ipl10controller7ClassicCFv();
+extern "C" void read__Q33ipl10controller7ClassicFv();
+extern "C" void isValidDpdClassic__Q33ipl10controller7ClassicCFv();
+extern "C" void __dt__Q33ipl10controller10RevolutionFv();
+extern "C" void down__Q33ipl10controller10RevolutionCFUl();
+extern "C" void downTrg__Q33ipl10controller10RevolutionCFUl();
+extern "C" void upTrg__Q33ipl10controller10RevolutionCFUl();
+extern "C" void getDpdPos__Q33ipl10controller10RevolutionCFv();
+extern "C" void getDpdProjectionPos__Q33ipl10controller10RevolutionCFv();
+extern "C" void getHorizon__Q33ipl10controller10RevolutionCFv();
+extern "C" void isValidDpd__Q33ipl10controller10RevolutionCFv();
+extern "C" void read__Q33ipl10controller10RevolutionFv();
+extern "C" void __dt__Q33ipl10controller4BaseFv();
+extern "C" void down__Q33ipl10controller9InterfaceCFUl();
+extern "C" void downTrg__Q33ipl10controller9InterfaceCFUl();
+extern "C" void upTrg__Q33ipl10controller9InterfaceCFUl();
+extern "C" void repeat__Q33ipl10controller9InterfaceCFUl();
+extern "C" void read__Q33ipl10controller4BaseFv();
+extern "C" void __dt__Q33ipl10controller9FreeStyleFv();
+extern "C" void __dt__Q33ipl10controller4CoreFv();
+extern "C" ControllerDataFunction const __vt__Q33ipl10controller6Master[35] = {
+    0,
+    0,
+    __dt__Q33ipl10controller6MasterFv,
+    getType__Q33ipl10controller9InterfaceCFv,
+    getChannel__Q33ipl10controller9InterfaceCFv,
+    down__Q33ipl10controller6MasterCFUl,
+    downTrg__Q33ipl10controller6MasterCFUl,
+    upTrg__Q33ipl10controller6MasterCFUl,
+    pinch__Q33ipl10controller9InterfaceCFv,
+    pinchTrg__Q33ipl10controller9InterfaceCFv,
+    pinchOffTrg__Q33ipl10controller9InterfaceCFv,
+    decide__Q33ipl10controller6MasterCFv,
+    repeat__Q33ipl10controller6MasterCFUl,
+    rumble__Q33ipl10controller9InterfaceFi,
+    cancelRumbling__Q33ipl10controller9InterfaceFv,
+    getHoldFlag__Q33ipl10controller9InterfaceCFv,
+    getTrigFlag__Q33ipl10controller9InterfaceCFv,
+    getReleaseFlag__Q33ipl10controller9InterfaceCFv,
+    getClassicHoldFlag__Q33ipl10controller9InterfaceCFv,
+    getClassicTrigFlag__Q33ipl10controller9InterfaceCFv,
+    getClassicReleaseFlag__Q33ipl10controller9InterfaceCFv,
+    getDpdPos__Q33ipl10controller9InterfaceCFv,
+    getDpdProjectionPos__Q33ipl10controller9InterfaceCFv,
+    getHorizon__Q33ipl10controller9InterfaceCFv,
+    getDpdDistance__Q33ipl10controller9InterfaceCFv,
+    getKPADStatus__Q33ipl10controller9InterfaceCFv,
+    getPADStatus__Q33ipl10controller9InterfaceCFv,
+    isValidBtn__Q33ipl10controller9InterfaceCFv,
+    isValidDpd__Q33ipl10controller9InterfaceCFv,
+    setForceInvalid__Q33ipl10controller6MasterFb,
+    getMainStickX__Q33ipl10controller9InterfaceCFv,
+    getMainStickY__Q33ipl10controller9InterfaceCFv,
+    getSubStickX__Q33ipl10controller9InterfaceCFv,
+    getSubStickY__Q33ipl10controller9InterfaceCFv,
+    read__Q33ipl10controller9InterfaceFv,
+};
+extern "C" ControllerDataFunction const __vt__Q33ipl10controller7Classic[36] = {
+    0,
+    0,
+    __dt__Q33ipl10controller7ClassicFv,
+    getType__Q33ipl10controller4BaseCFv,
+    getChannel__Q33ipl10controller4BaseCFv,
+    down__Q33ipl10controller7ClassicCFUl,
+    downTrg__Q33ipl10controller7ClassicCFUl,
+    upTrg__Q33ipl10controller7ClassicCFUl,
+    pinch__Q33ipl10controller10RevolutionCFv,
+    pinchTrg__Q33ipl10controller10RevolutionCFv,
+    pinchOffTrg__Q33ipl10controller10RevolutionCFv,
+    decide__Q33ipl10controller4BaseCFv,
+    repeat__Q33ipl10controller10RevolutionCFUl,
+    rumble__Q33ipl10controller4BaseFi,
+    cancelRumbling__Q33ipl10controller4BaseFv,
+    getHoldFlag__Q33ipl10controller10RevolutionCFv,
+    getTrigFlag__Q33ipl10controller10RevolutionCFv,
+    getReleaseFlag__Q33ipl10controller10RevolutionCFv,
+    getClassicHoldFlag__Q33ipl10controller7ClassicCFv,
+    getClassicTrigFlag__Q33ipl10controller7ClassicCFv,
+    getClassicReleaseFlag__Q33ipl10controller7ClassicCFv,
+    getDpdPos__Q33ipl10controller7ClassicCFv,
+    getDpdProjectionPos__Q33ipl10controller7ClassicCFv,
+    getHorizon__Q33ipl10controller7ClassicCFv,
+    getDpdDistance__Q33ipl10controller10RevolutionCFv,
+    getKPADStatus__Q33ipl10controller10RevolutionCFv,
+    getPADStatus__Q33ipl10controller9InterfaceCFv,
+    isValidBtn__Q33ipl10controller10RevolutionCFv,
+    isValidDpd__Q33ipl10controller7ClassicCFv,
+    setForceInvalid__Q33ipl10controller4BaseFb,
+    getMainStickX__Q33ipl10controller9InterfaceCFv,
+    getMainStickY__Q33ipl10controller9InterfaceCFv,
+    getSubStickX__Q33ipl10controller9InterfaceCFv,
+    getSubStickY__Q33ipl10controller9InterfaceCFv,
+    read__Q33ipl10controller7ClassicFv,
+    isValidDpdClassic__Q33ipl10controller7ClassicCFv,
+};
+extern "C" ControllerDataFunction const __vt__Q33ipl10controller10Revolution[35] = {
+    0,
+    0,
+    __dt__Q33ipl10controller10RevolutionFv,
+    getType__Q33ipl10controller4BaseCFv,
+    getChannel__Q33ipl10controller4BaseCFv,
+    down__Q33ipl10controller10RevolutionCFUl,
+    downTrg__Q33ipl10controller10RevolutionCFUl,
+    upTrg__Q33ipl10controller10RevolutionCFUl,
+    pinch__Q33ipl10controller10RevolutionCFv,
+    pinchTrg__Q33ipl10controller10RevolutionCFv,
+    pinchOffTrg__Q33ipl10controller10RevolutionCFv,
+    decide__Q33ipl10controller4BaseCFv,
+    repeat__Q33ipl10controller10RevolutionCFUl,
+    rumble__Q33ipl10controller4BaseFi,
+    cancelRumbling__Q33ipl10controller4BaseFv,
+    getHoldFlag__Q33ipl10controller10RevolutionCFv,
+    getTrigFlag__Q33ipl10controller10RevolutionCFv,
+    getReleaseFlag__Q33ipl10controller10RevolutionCFv,
+    getClassicHoldFlag__Q33ipl10controller9InterfaceCFv,
+    getClassicTrigFlag__Q33ipl10controller9InterfaceCFv,
+    getClassicReleaseFlag__Q33ipl10controller9InterfaceCFv,
+    getDpdPos__Q33ipl10controller10RevolutionCFv,
+    getDpdProjectionPos__Q33ipl10controller10RevolutionCFv,
+    getHorizon__Q33ipl10controller10RevolutionCFv,
+    getDpdDistance__Q33ipl10controller10RevolutionCFv,
+    getKPADStatus__Q33ipl10controller10RevolutionCFv,
+    getPADStatus__Q33ipl10controller9InterfaceCFv,
+    isValidBtn__Q33ipl10controller10RevolutionCFv,
+    isValidDpd__Q33ipl10controller10RevolutionCFv,
+    setForceInvalid__Q33ipl10controller4BaseFb,
+    getMainStickX__Q33ipl10controller9InterfaceCFv,
+    getMainStickY__Q33ipl10controller9InterfaceCFv,
+    getSubStickX__Q33ipl10controller9InterfaceCFv,
+    getSubStickY__Q33ipl10controller9InterfaceCFv,
+    read__Q33ipl10controller10RevolutionFv,
+};
+extern "C" ControllerDataFunction const __vt__Q33ipl10controller4Base[36] = {
+    0,
+    0,
+    __dt__Q33ipl10controller4BaseFv,
+    getType__Q33ipl10controller4BaseCFv,
+    getChannel__Q33ipl10controller4BaseCFv,
+    down__Q33ipl10controller9InterfaceCFUl,
+    downTrg__Q33ipl10controller9InterfaceCFUl,
+    upTrg__Q33ipl10controller9InterfaceCFUl,
+    pinch__Q33ipl10controller9InterfaceCFv,
+    pinchTrg__Q33ipl10controller9InterfaceCFv,
+    pinchOffTrg__Q33ipl10controller9InterfaceCFv,
+    decide__Q33ipl10controller4BaseCFv,
+    repeat__Q33ipl10controller9InterfaceCFUl,
+    rumble__Q33ipl10controller4BaseFi,
+    cancelRumbling__Q33ipl10controller4BaseFv,
+    getHoldFlag__Q33ipl10controller9InterfaceCFv,
+    getTrigFlag__Q33ipl10controller9InterfaceCFv,
+    getReleaseFlag__Q33ipl10controller9InterfaceCFv,
+    getClassicHoldFlag__Q33ipl10controller9InterfaceCFv,
+    getClassicTrigFlag__Q33ipl10controller9InterfaceCFv,
+    getClassicReleaseFlag__Q33ipl10controller9InterfaceCFv,
+    getDpdPos__Q33ipl10controller9InterfaceCFv,
+    getDpdProjectionPos__Q33ipl10controller9InterfaceCFv,
+    getHorizon__Q33ipl10controller9InterfaceCFv,
+    getDpdDistance__Q33ipl10controller9InterfaceCFv,
+    getKPADStatus__Q33ipl10controller9InterfaceCFv,
+    getPADStatus__Q33ipl10controller9InterfaceCFv,
+    isValidBtn__Q33ipl10controller9InterfaceCFv,
+    isValidDpd__Q33ipl10controller9InterfaceCFv,
+    setForceInvalid__Q33ipl10controller4BaseFb,
+    getMainStickX__Q33ipl10controller9InterfaceCFv,
+    getMainStickY__Q33ipl10controller9InterfaceCFv,
+    getSubStickX__Q33ipl10controller9InterfaceCFv,
+    getSubStickY__Q33ipl10controller9InterfaceCFv,
+    read__Q33ipl10controller4BaseFv,
+    0,
+};
+extern "C" ControllerDataFunction const __vt__Q33ipl10controller9FreeStyle[35] = {
+    0,
+    0,
+    __dt__Q33ipl10controller9FreeStyleFv,
+    getType__Q33ipl10controller4BaseCFv,
+    getChannel__Q33ipl10controller4BaseCFv,
+    down__Q33ipl10controller10RevolutionCFUl,
+    downTrg__Q33ipl10controller10RevolutionCFUl,
+    upTrg__Q33ipl10controller10RevolutionCFUl,
+    pinch__Q33ipl10controller10RevolutionCFv,
+    pinchTrg__Q33ipl10controller10RevolutionCFv,
+    pinchOffTrg__Q33ipl10controller10RevolutionCFv,
+    decide__Q33ipl10controller4BaseCFv,
+    repeat__Q33ipl10controller10RevolutionCFUl,
+    rumble__Q33ipl10controller4BaseFi,
+    cancelRumbling__Q33ipl10controller4BaseFv,
+    getHoldFlag__Q33ipl10controller10RevolutionCFv,
+    getTrigFlag__Q33ipl10controller10RevolutionCFv,
+    getReleaseFlag__Q33ipl10controller10RevolutionCFv,
+    getClassicHoldFlag__Q33ipl10controller9InterfaceCFv,
+    getClassicTrigFlag__Q33ipl10controller9InterfaceCFv,
+    getClassicReleaseFlag__Q33ipl10controller9InterfaceCFv,
+    getDpdPos__Q33ipl10controller10RevolutionCFv,
+    getDpdProjectionPos__Q33ipl10controller10RevolutionCFv,
+    getHorizon__Q33ipl10controller10RevolutionCFv,
+    getDpdDistance__Q33ipl10controller10RevolutionCFv,
+    getKPADStatus__Q33ipl10controller10RevolutionCFv,
+    getPADStatus__Q33ipl10controller9InterfaceCFv,
+    isValidBtn__Q33ipl10controller10RevolutionCFv,
+    isValidDpd__Q33ipl10controller10RevolutionCFv,
+    setForceInvalid__Q33ipl10controller4BaseFb,
+    getMainStickX__Q33ipl10controller9InterfaceCFv,
+    getMainStickY__Q33ipl10controller9InterfaceCFv,
+    getSubStickX__Q33ipl10controller9InterfaceCFv,
+    getSubStickY__Q33ipl10controller9InterfaceCFv,
+    read__Q33ipl10controller10RevolutionFv,
+};
+extern "C" ControllerDataFunction const __vt__Q33ipl10controller4Core[35] = {
+    0,
+    0,
+    __dt__Q33ipl10controller4CoreFv,
+    getType__Q33ipl10controller4BaseCFv,
+    getChannel__Q33ipl10controller4BaseCFv,
+    down__Q33ipl10controller10RevolutionCFUl,
+    downTrg__Q33ipl10controller10RevolutionCFUl,
+    upTrg__Q33ipl10controller10RevolutionCFUl,
+    pinch__Q33ipl10controller10RevolutionCFv,
+    pinchTrg__Q33ipl10controller10RevolutionCFv,
+    pinchOffTrg__Q33ipl10controller10RevolutionCFv,
+    decide__Q33ipl10controller4BaseCFv,
+    repeat__Q33ipl10controller10RevolutionCFUl,
+    rumble__Q33ipl10controller4BaseFi,
+    cancelRumbling__Q33ipl10controller4BaseFv,
+    getHoldFlag__Q33ipl10controller10RevolutionCFv,
+    getTrigFlag__Q33ipl10controller10RevolutionCFv,
+    getReleaseFlag__Q33ipl10controller10RevolutionCFv,
+    getClassicHoldFlag__Q33ipl10controller9InterfaceCFv,
+    getClassicTrigFlag__Q33ipl10controller9InterfaceCFv,
+    getClassicReleaseFlag__Q33ipl10controller9InterfaceCFv,
+    getDpdPos__Q33ipl10controller10RevolutionCFv,
+    getDpdProjectionPos__Q33ipl10controller10RevolutionCFv,
+    getHorizon__Q33ipl10controller10RevolutionCFv,
+    getDpdDistance__Q33ipl10controller10RevolutionCFv,
+    getKPADStatus__Q33ipl10controller10RevolutionCFv,
+    getPADStatus__Q33ipl10controller9InterfaceCFv,
+    isValidBtn__Q33ipl10controller10RevolutionCFv,
+    isValidDpd__Q33ipl10controller10RevolutionCFv,
+    setForceInvalid__Q33ipl10controller4BaseFb,
+    getMainStickX__Q33ipl10controller9InterfaceCFv,
+    getMainStickY__Q33ipl10controller9InterfaceCFv,
+    getSubStickX__Q33ipl10controller9InterfaceCFv,
+    getSubStickY__Q33ipl10controller9InterfaceCFv,
+    read__Q33ipl10controller10RevolutionFv,
+};
+#pragma pop
+extern const f32 lbl_81694440 = 1000.0f;
+extern const f32 lbl_81694444 = 0.058333333f;
+extern const f64 lbl_81694448 = 4503599627370496.0;
+extern const f32 lbl_81694450 = 1.0f / 0.0f;
 extern const f32 lbl_81694454 = 0.0f;
-extern const f32 lbl_81694458;
-extern const f32 lbl_8169445C;
-extern const f32 lbl_81694460;
-extern const f32 lbl_81694478;
-extern const f32 lbl_8169447C;
-extern const f32 lbl_81694480;
-extern const f32 lbl_81694484;
-extern const f32 lbl_81694488;
-extern const f32 lbl_8169448C;
+extern const f32 lbl_81694458 = 1.10132003f;
+extern const f32 lbl_8169445C = 1.15f;
+extern const f32 lbl_81694460 = 100.0f;
+extern const f32 lbl_81694464 = 0.01f;
+extern const f32 lbl_81694468 = 0.0036f;
+extern const f32 lbl_8169446C = 0.05f;
+extern const f32 lbl_81694470 = 1.0f;
+extern const f32 lbl_81694474 = -0.2679492f;
+extern const f32 lbl_81694478 = 0.5f;
+extern const f32 lbl_8169447C = 0.1f;
+extern const f32 lbl_81694480 = 0.2f;
+extern const f32 lbl_81694484 = -0.2f;
+extern const f32 lbl_81694488 = 0.05f;
+extern const f32 lbl_8169448C = 1.0f;
 extern "C" void* mpBuf__Q33ipl10controller7Manager = 0;
 extern "C" void* mpParentHeap__Q33ipl10controller7Manager = 0;
 extern "C" void* mpHeap__Q33ipl10controller7Manager = 0;
@@ -42,16 +362,11 @@ extern "C" void _restgpr_28();
 extern "C" void __ptmf_scall();
 extern "C" void __ct__Q33ipl4math4VEC2Fff();
 extern "C" void set__Q33ipl4math4VEC2Fff();
-extern "C" void __vt__Q33ipl10controller4Base();
-extern "C" void __vt__Q33ipl10controller10Revolution();
 extern "C" void __dt__Q33ipl10controller10RevolutionFv();
 extern "C" void read__Q33ipl10controller4BaseFv();
 extern "C" void isValidDpd__Q33ipl10controller10RevolutionCFv();
 extern "C" void getProjectionRect__Q23ipl6SystemFPQ34nw4r2ut4Rect();
 extern "C" void __as__Q33ipl4math4VEC2FRCQ33ipl4math4VEC2();
-extern "C" void __vt__Q33ipl10controller6Master();
-extern "C" void __vt__Q33ipl10controller4Core();
-extern "C" void __vt__Q33ipl10controller9FreeStyle();
 extern "C" void __ct__Q33ipl10controller10RevolutionFiiR10KPADStatus();
 extern "C" void __ct__Q33ipl10controller7ClassicFiR10KPADStatus();
 extern "C" asm void alloc__Q33ipl10controller7ManagerFUl();
@@ -624,8 +939,8 @@ namespace ipl {
                 case 0:
                 case 1: {
                     u32 time = OSTicksToMilliseconds(OSGetTick() - mLastRumbleTime);
-                    f32 f1 = (f32)time / 1000.0f;
-                    if (f1 < 7.0f / 120.0f) {
+                    f32 f1 = (f32)time / lbl_81694440;
+                    if (f1 < lbl_81694444) {
                         WPADControlMotor(mChan, 1);
                     } else if (f1 < lbl_8160D2C0[mRumbleType]) {
                         WPADControlMotor(mChan, 0);
@@ -642,7 +957,7 @@ namespace ipl {
                 }
                 case 2: {
                     u32 time = OSTicksToMilliseconds(OSGetTick() - mLastRumbleTime);
-                    f32 f1 = (f32)time / 1000.0f;
+                    f32 f1 = (f32)time / lbl_81694440;
                     if (f1 < lbl_8160D2C0[1]) {
                         WPADControlMotor(mChan, 0);
                     } else if (getKPADStatus() == NULL || getKPADStatus()->wpad_err == 0) {
@@ -1353,21 +1668,21 @@ namespace ipl {
             kpad_rect.right = nw4r_rect.right;
             kpad_rect.bottom = nw4r_rect.bottom;
 
-            KPADGetProjectionPos(&dest, &src, &kpad_rect, 1.10132f);
+            KPADGetProjectionPos(&dest, &src, &kpad_rect, lbl_81694458);
             if (SCGetAspectRatio() == 1) {
-                dest.x *= 1.15f;
-                dest.y *= 1.15f;
+                dest.x *= lbl_8169445C;
+                dest.y *= lbl_8169445C;
             }
 
             // regswap
-            if (nw4r_rect.left - 100.0f > dest.x) {
-                dest.x = nw4r_rect.left - 100.0f;
-            } else if (nw4r_rect.right + 100.0f < dest.x) {
-                dest.x = nw4r_rect.right + 100.0f;
-            } else if (nw4r_rect.top - 100.0f > dest.y) {
-                dest.y = nw4r_rect.top - 100.0f;
-            } else if (nw4r_rect.bottom + 100.0f < dest.y) {
-                dest.y = nw4r_rect.bottom + 100.0f;
+            if (nw4r_rect.left - lbl_81694460 > dest.x) {
+                dest.x = nw4r_rect.left - lbl_81694460;
+            } else if (nw4r_rect.right + lbl_81694460 < dest.x) {
+                dest.x = nw4r_rect.right + lbl_81694460;
+            } else if (nw4r_rect.top - lbl_81694460 > dest.y) {
+                dest.y = nw4r_rect.top - lbl_81694460;
+            } else if (nw4r_rect.bottom + lbl_81694460 < dest.y) {
+                dest.y = nw4r_rect.bottom + lbl_81694460;
             }
             // //
 
@@ -1377,8 +1692,8 @@ namespace ipl {
         }
 
         Classic::Classic(int arg0, KPADStatus& arg1) : Revolution(arg0, arg1) {
-            unk_0x24.x = 0.01f;
-            unk_0x24.y = 0.01f;
+            unk_0x24.x = lbl_81694464;
+            unk_0x24.y = lbl_81694464;
             unk_0x2C = 0;
         }
 
@@ -1395,14 +1710,14 @@ namespace ipl {
             if (!Revolution::isValidDpd()) {
                 math::VEC2 lstick(unk_0x20->ex_status.cl.lstick.x, unk_0x20->ex_status.cl.lstick.y);
 
-                if (lstick.x * lstick.x + lstick.y * lstick.y > 0.0036f) {
-                    unk_0x24.x = math::abs_clamp(unk_0x24.x + unk_0x20->ex_status.cl.lstick.x * 0.05f, 1.8f);
-                    unk_0x24.y = math::abs_clamp(unk_0x24.y - unk_0x20->ex_status.cl.lstick.y * 0.05f, 1.2f);
+                if (lstick.x * lstick.x + lstick.y * lstick.y > lbl_81694468) {
+                    unk_0x24.x = math::abs_clamp(unk_0x24.x + unk_0x20->ex_status.cl.lstick.x * lbl_8169446C, 1.8f);
+                    unk_0x24.y = math::abs_clamp(unk_0x24.y - unk_0x20->ex_status.cl.lstick.y * lbl_8169446C, 1.2f);
                 }
 
                 math::VEC2 rstick = math::VEC2(unk_0x20->ex_status.cl.rstick.x, unk_0x20->ex_status.cl.rstick.y);
-                if (getClassicHoldFlag() != 0 || lstick.x * lstick.x + lstick.y * lstick.y > 0.0036f ||
-                    rstick.x * rstick.x + rstick.y * rstick.y > 0.0036f) {
+                if (getClassicHoldFlag() != 0 || lstick.x * lstick.x + lstick.y * lstick.y > lbl_81694468 ||
+                    rstick.x * rstick.x + rstick.y * rstick.y > lbl_81694468) {
                     unk_0x2C = 180;
                 }
 
@@ -1410,8 +1725,8 @@ namespace ipl {
                     unk_0x2C = 0;
                 }
             } else {
-                unk_0x24.y = 0.01f;
-                unk_0x24.x = 0.01f;
+                unk_0x24.y = lbl_81694464;
+                unk_0x24.x = lbl_81694464;
                 unk_0x2C = 0;
             }
 
@@ -1448,7 +1763,7 @@ namespace ipl {
                 ret.set(unk_0x20->horizon.x, unk_0x20->horizon.y);
             } else {
                 ret.x = 1.0f;
-                ret.y = -0.2679492f;
+                ret.y = lbl_81694474;
             }
             return ret;
         }
