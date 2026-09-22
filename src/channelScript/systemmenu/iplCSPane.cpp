@@ -1,3 +1,22 @@
+#include <revolution/gx/GXStruct.h>
+#include <revolution/os/OSError.h>
+
+extern "C" const char lbl_8166A6E3[];
+extern "C" const u8 lbl_81697844;
+extern "C" const u8 lbl_81697845;
+extern "C" const u8 lbl_81697846;
+extern "C" const u8 lbl_81697847;
+
+#define NW4R_DB_ASSERT_H
+#define NW4R_ASSERT(x) \
+    { \
+        if (!(x)) { \
+            GXColor front = {lbl_81697844, lbl_81697845, lbl_81697846, lbl_81697847}; \
+            GXColor back = {0, 0, 0, 0}; \
+            OSFatal((GXColor)front, (GXColor)back, lbl_8166A6E3); \
+        } \
+    }
+
 #include "channelScript/iplCSLibrary.h"
 
 #include "iplSystem.h"
@@ -10,7 +29,9 @@
 
 #include "math/iplMathTypes.h"
 
-extern f32 lbl_81694FC0;
+extern "C" const f32 lbl_81694FC0 = 0.0f;
+
+extern "C" nw4r::ut::Color GetTextColor__Q34nw4r3lyt7TextBoxCFUl(const nw4r::lyt::TextBox*, u32);
 
 namespace ipl {
     namespace cs {
@@ -393,7 +414,7 @@ namespace ipl {
                         CHANSVmObjHdr* arg = CHANSVmGetArgInteger(VmInst, 0);
                         if (box != NULL && argc == 1 && arg != NULL) {
                             if (arg->value.int_v < 4ULL) {
-                                result = color::_ctor(VmInst, VmReturnObj, (nw4r::ut::Color) static_cast<u32>(box->GetTextColor(arg->value.int_v))) == TRUE;
+                                result = color::_ctor(VmInst, VmReturnObj, (nw4r::ut::Color) static_cast<u32>(GetTextColor__Q34nw4r3lyt7TextBoxCFUl(box, arg->value.int_v))) == TRUE;
                             }
                         }
                     }
@@ -595,3 +616,22 @@ namespace ipl {
         }  // namespace pane
     }  // namespace cs
 }  // namespace ipl
+
+namespace ipl {
+    namespace cs {
+        namespace pane {
+#pragma push
+#pragma section const_type ".data"
+            extern "C" const char lbl_8166A6E3[] = "Error#004\nAn error has occurred.\nThe system files are corrupted.";
+#pragma pop
+
+#pragma push
+#pragma section data_type ".sdata"
+            extern "C" __declspec(section ".sdata") const u8 lbl_81697844 = 0xff;
+            extern "C" __declspec(section ".sdata") const u8 lbl_81697845 = 0xff;
+            extern "C" __declspec(section ".sdata") const u8 lbl_81697846 = 0xff;
+            extern "C" __declspec(section ".sdata") const u8 lbl_81697847 = 0;
+#pragma pop
+        }
+    }
+}
