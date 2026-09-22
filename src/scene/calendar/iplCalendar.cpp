@@ -881,5 +881,9 @@ namespace ipl {
         BOOL Calendar::is_lower_limit() {
             return mpBoardDate->year == mscMinDate.year && mpBoardDate->month == mscMinDate.month;
         }
+        __declspec(weak) f32 calendar_data_pad() {
+            static const f32 pad __attribute__((section(".data"), aligned(1))) = 0.0f;
+            return *((volatile const f32*)&pad);
+        }
     }  // namespace scene
 }  // namespace ipl
