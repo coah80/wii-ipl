@@ -1015,7 +1015,7 @@ config.libs = [
     # RevoEX
     RevoEXLib("cdb", [
             Object(Matching,    "cdb/cdb.c"),
-            Object(Equivalent,  "cdb/CDBConv.c"), # hmm
+            Object(Matching,    "cdb/CDBConv.c"), # hmm
             Object(Matching,    "cdb/CDBDatabase.c"),
             Object(Matching,    "cdb/CDBFileSystemUtils.c"),
             Object(Matching,    "cdb/CDBFileSystem.c"),
