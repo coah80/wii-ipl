@@ -1023,7 +1023,7 @@ config.libs = [
             Object(Matching,    "cdb/CDBFileSystemSD.c"),
             Object(NonMatching, "cdb/CDBRecord.c"),
             Object(Matching,    "cdb/CDBRecordFile.c"),
-            Object(NonMatching, "cdb/CDBRecordKey.c"),
+            Object(Matching,    "cdb/CDBRecordKey.c"),
             Object(NonMatching, "cdb/CDBIntArray.c"),
             Object(NonMatching, "cdb/CDBSystem.c"),
             Object(Equivalent,  "cdb/CDBAttr.c"),
