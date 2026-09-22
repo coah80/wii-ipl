@@ -1,3 +1,4 @@
+#define IPL_CHANNEL_TITLE_NOVTABLE
 #include <revolution/types.h>
 #define vu8 u8
 #include "system/iplChannelManager.h"
@@ -19,111 +20,194 @@
 #include <private/os.h>
 #include <private/wpad.h>
 
+#pragma dont_instantiate ipl::math::HermiteIntp<float>
+
+#undef IPL_CHANNEL_TITLE_NOVTABLE
+
 // :)
 #define PREV_LOADED_INDEX (1 - mLoadedIndex)
 
 namespace ipl {
     namespace scene {
-        ESTicketView ChannelTitle::msTicketView;
+        ChannelTitle::TicketViewStorage ChannelTitle::msTicketView ALIGN32;
         ESTicketView ChannelTitle::msUnlockTicket;
 
+        extern "C" char lbl_81696A10[];
+        extern "C" char lbl_81696A17[];
+        extern "C" char lbl_81696A28[];
+        extern "C" char lbl_81696A34[];
+        extern "C" char lbl_81696A3A[];
+        extern "C" char lbl_81696A44[];
+        extern "C" char lbl_81696A54[];
+        extern "C" char lbl_81696A5A[];
+        extern "C" char lbl_81696A60[];
+        extern "C" char lbl_81696A66[];
+        extern "C" char lbl_81696A6C[];
+        extern "C" char lbl_81696A72[];
+        extern "C" char lbl_81696A78[];
+        extern "C" char lbl_81696A7E[];
+        extern "C" char lbl_81696A84[];
+        extern "C" char lbl_81696A8A[];
+        extern "C" char lbl_81696A90[];
+        extern "C" char lbl_81696A96[];
+        extern "C" char lbl_81696A9C[];
+        extern "C" char lbl_81696AA3[];
+
         // clang-format off
-        const char* ChannelTitle::mscBtnNames[BTN_MAX] = {
-            "B_BtnA",
-            "B_BtnB",
-        };
+        extern "C" char lbl_8164E768[] = "G_FocusBtnA";
+        extern "C" char lbl_8164E774[] = "G_FocusBtnB";
+        extern "C" char lbl_8164E780[] = "G_SelectBtnA";
+        extern "C" char lbl_8164E78D[] = "G_SelectBtnB";
+        extern "C" char lbl_8164E79A[] = "G_OnOffBtnA";
+        extern "C" char lbl_8164E7A6[] = "G_OnOffBtnB";
+        extern "C" char lbl_8164E7B2[] = "G_ChangeTextA";
+        extern "C" char lbl_8164E7C0[] = "G_ChangeTextB";
 
-        const char* ChannelTitle::mscChangeName[] = {
-            "Change"
-        };
-
-        const char* ChannelTitle::mscAnimGroups[ANIM_GRP_MAX+1] = {
-            "G_FocusBtnA",
-            "G_FocusBtnB",
-            "G_SelectBtnA",
-            "G_SelectBtnB",
-            "G_OnOffBtnA",
-            "G_OnOffBtnB",
-            "G_ChangeTextA",
-            "G_ChangeTextB",
-            NULL // ?
-        };
-
-        const char* ChannelTitle::mscAnimNames[ANIM_MAX] = {
-            "my_ChTop_a_FocusBtnA_off.brlan",
-            "my_ChTop_a_FocusBtn_on.brlan",
-            "my_ChTop_a_SelectBtn_Ac.brlan",
-            "my_ChTop_a_OffBtn.brlan",
-            "my_ChTop_a_OnBtn.brlan",
-            "my_ChTop_a_ChangeTextOut.brlan",
-            "my_ChTop_a_ChangeTextIn.brlan",
-            "my_ChTop_a_ChangeIn.brlan",
-            "my_ChTop_a_ChangeRoop.brlan",
-            "my_ChTop_a_ChangeOut.brlan"
-        };
-
-        const char* ChannelTitle::mscBannerAnims[BANNER_ANIM_MAX] = {
-            "banner.brlan",
-            "banner_Start.brlan",
-            "banner_Loop.brlan"
-        };
-
-        const char* ChannelTitle::mscDiskGroups[DISK_ANIM_GRP_MAX] = {
-            "G_Comment0",
-            "G_Wii",
-            "G_GC",
-            // Not including the unused "G_DVD"
-            "G_DiskIn",
+        const char* scAnimGroups[8+1] = {
+            lbl_8164E768,
+            lbl_8164E774,
+            lbl_8164E780,
+            lbl_8164E78D,
+            lbl_8164E79A,
+            lbl_8164E7A6,
+            lbl_8164E7B2,
+            lbl_8164E7C0,
             NULL
         };
 
-        const char* ChannelTitle::mscDiskAnimNames[DISK_ANIM_MAX] = {
-            "my_DiskCh_a_Start.brlan",
-            "my_DiskCh_a_DiskStart.brlan",
-            "my_DiskCh_a_DiskLoop.brlan",
-            "my_DiskCh_a_DiskEnd.brlan",
-            "my_DiskCh_a_DiskLost.brlan",
-            "my_DiskCh_a_DiskIn.brlan",
-            "my_DiskCh_a_DiskEject.brlan",
-            "my_DiskCh_a_Unknown.brlan",
-            "my_DiskCh_a_UnknownLoop.brlan",
-            "my_DiskCh_a_UnknwnEject.brlan"
+        extern "C" char lbl_8164E7F4[] = "my_ChTop_a_FocusBtnA_off.brlan";
+        extern "C" char lbl_8164E813[] = "my_ChTop_a_FocusBtn_on.brlan";
+        extern "C" char lbl_8164E830[] = "my_ChTop_a_SelectBtn_Ac.brlan";
+        extern "C" char lbl_8164E84E[] = "my_ChTop_a_OffBtn.brlan";
+        extern "C" char lbl_8164E866[] = "my_ChTop_a_OnBtn.brlan";
+        extern "C" char lbl_8164E87D[] = "my_ChTop_a_ChangeTextOut.brlan";
+        extern "C" char lbl_8164E89C[] = "my_ChTop_a_ChangeTextIn.brlan";
+        extern "C" char lbl_8164E8BA[] = "my_ChTop_a_ChangeIn.brlan";
+        extern "C" char lbl_8164E8D4[] = "my_ChTop_a_ChangeRoop.brlan";
+        extern "C" char lbl_8164E8F0[] = "my_ChTop_a_ChangeOut.brlan";
+
+        const char* scAnimNames[10] = {
+            lbl_8164E7F4,
+            lbl_8164E813,
+            lbl_8164E830,
+            lbl_8164E84E,
+            lbl_8164E866,
+            lbl_8164E87D,
+            lbl_8164E89C,
+            lbl_8164E8BA,
+            lbl_8164E8D4,
+            lbl_8164E8F0
         };
 
-        const char* ChannelTitle::mscDiskLytFile[] = {
-            "my_DiskCh_a.brlyt"
+        extern "C" char lbl_8164E934[] = "banner.brlan";
+        extern "C" char lbl_8164E941[] = "banner_Start.brlan";
+        extern "C" char lbl_8164E954[] = "banner_Loop.brlan";
+
+        const char* scBannerAnims[3] = {
+            lbl_8164E934,
+            lbl_8164E941,
+            lbl_8164E954
         };
 
-        const char* ChannelTitle::mscGCAnimGroups[] = {
-            "G_Back"
+        extern "C" char lbl_8164E974[] = "G_Comment0";
+        extern "C" char lbl_8164E97F[] = "G_DiskIn";
+
+        const char* scDiskGroups[5] = {
+            lbl_8164E974,
+            lbl_81696A34,
+            lbl_81696A3A,
+            lbl_8164E97F,
+            NULL
         };
 
-        const char* ChannelTitle::mscGCAnimNames[] = {
-            "my_GCTop_a_BackLoop.brlan"
+        extern "C" char lbl_8164E99C[] = "my_DiskCh_a_Start.brlan";
+        extern "C" char lbl_8164E9B4[] = "my_DiskCh_a_DiskStart.brlan";
+        extern "C" char lbl_8164E9D0[] = "my_DiskCh_a_DiskLoop.brlan";
+        extern "C" char lbl_8164E9EB[] = "my_DiskCh_a_DiskEnd.brlan";
+        extern "C" char lbl_8164EA05[] = "my_DiskCh_a_DiskLost.brlan";
+        extern "C" char lbl_8164EA20[] = "my_DiskCh_a_DiskIn.brlan";
+        extern "C" char lbl_8164EA39[] = "my_DiskCh_a_DiskEject.brlan";
+        extern "C" char lbl_8164EA55[] = "my_DiskCh_a_Unknown.brlan";
+        extern "C" char lbl_8164EA6F[] = "my_DiskCh_a_UnknownLoop.brlan";
+        extern "C" char lbl_8164EA8D[] = "my_DiskCh_a_UnknwnEject.brlan";
+
+        const char* scDiskAnimNames[10] = {
+            lbl_8164E99C,
+            lbl_8164E9B4,
+            lbl_8164E9D0,
+            lbl_8164E9EB,
+            lbl_8164EA05,
+            lbl_8164EA20,
+            lbl_8164EA39,
+            lbl_8164EA55,
+            lbl_8164EA6F,
+            lbl_8164EA8D
         };
 
-        static const char* scWidePanes[3][4] = {
+        extern "C" char lbl_8164EAD4[] = "my_DiskCh_a.brlyt";
+        extern "C" char lbl_8164EAE6[] = "my_GCTop_a_BackLoop.brlan";
+
+        #pragma push
+        #pragma section data_type ".sdata"
+        extern "C" char lbl_81696A10[] = "B_BtnA";
+        extern "C" char lbl_81696A17[] = "B_BtnB";
+        extern "C" const char* lbl_81696A20[2] = {
+            lbl_81696A10,
+            lbl_81696A17,
+        };
+        extern "C" char lbl_81696A28[] = "Change";
+        extern "C" const char* lbl_81696A30[] = {
+            lbl_81696A28,
+        };
+        extern "C" char lbl_81696A34[] = "G_Wii";
+        extern "C" char lbl_81696A3A[] = "G_GC";
+        const char* scLayoutNames[] = {
+            lbl_8164EAD4,
+        };
+        extern "C" char lbl_81696A44[] = "G_Back";
+        const char* scGCAnimGroups[] = {
+            lbl_81696A44,
+        };
+        const char* scGCAnimNames[] = {
+            lbl_8164EAE6,
+        };
+        extern "C" char lbl_81696A54[] = "Fre_a";
+        extern "C" char lbl_81696A5A[] = "Fre_d";
+        extern "C" char lbl_81696A60[] = "Fre_i";
+        extern "C" char lbl_81696A66[] = "Fre_l";
+        extern "C" char lbl_81696A6C[] = "Fre_e";
+        extern "C" char lbl_81696A72[] = "Fre_f";
+        extern "C" char lbl_81696A78[] = "Fre_g";
+        extern "C" char lbl_81696A7E[] = "Fre_h";
+        extern "C" char lbl_81696A84[] = "Fre_b";
+        extern "C" char lbl_81696A8A[] = "Fre_c";
+        extern "C" char lbl_81696A90[] = "Fre_j";
+        extern "C" char lbl_81696A96[] = "Fre_k";
+        extern "C" char lbl_81696A9C[] = "T_BtnA";
+        extern "C" char lbl_81696AA3[] = "T_BtnB";
+        const char* lbl_81696AAC[] = {
+            lbl_81696A9C,
+            lbl_81696AA3,
+        };
+        #pragma pop
+
+        const char* scWidePanes[3][4] = {
             {
-                "Fre_a",
-                "Fre_d",
-                "Fre_i",
-                "Fre_l",
+                lbl_81696A54,
+                lbl_81696A5A,
+                lbl_81696A60,
+                lbl_81696A66,
             }, {
-                "Fre_e",
-                "Fre_f",
-                "Fre_g",
-                "Fre_h",
+                lbl_81696A6C,
+                lbl_81696A72,
+                lbl_81696A78,
+                lbl_81696A7E,
             }, {
-                "Fre_b",
-                "Fre_c",
-                "Fre_j",
-                "Fre_k",
+                lbl_81696A84,
+                lbl_81696A8A,
+                lbl_81696A90,
+                lbl_81696A96,
             }
-        };
-
-        const char* ChannelTitle::mscButtonTextName[BTN_MAX] = {
-            "T_BtnA",
-            "T_BtnB"
         };
 
         static const f32 cfChanThumbOfss[2][2] = {
@@ -137,9 +221,6 @@ namespace ipl {
             }
         };
 
-        // Titles:
-        // Tiger Woods PGA Tour 08
-        // Tiger Woods PGA Tour 07
         static const ESTitleId scSoundSizeSkipTitles[] = {
             'RT8\0',
             'RT7\0'
@@ -260,12 +341,12 @@ namespace ipl {
                 }
             }
 
-            setMessage(mpLayout->FindPaneByName(mscButtonTextName[0]), MESG_CMN_WII_MENU);
+            setMessage(mpLayout->FindPaneByName(lbl_81696AAC[0]), MESG_CMN_WII_MENU);
 
             if (System::getChannelManager()->checkNeedUpdate(mChanPage, mChanIndex)) {
-                setMessage(mpLayout->FindPaneByName(mscButtonTextName[BTN_B]), MESG_CHAN_TTL_BTN_UPDATE);
+                setMessage(mpLayout->FindPaneByName(lbl_81696AAC[BTN_B]), MESG_CHAN_TTL_BTN_UPDATE);
             } else {
-                setMessage(mpLayout->FindPaneByName(mscButtonTextName[BTN_B]), MESG_CMN_START);
+                setMessage(mpLayout->FindPaneByName(lbl_81696AAC[BTN_B]), MESG_CMN_START);
             }
 
             if (isEnableToExecute(mChanPage, mChanIndex)) {
@@ -273,43 +354,43 @@ namespace ipl {
             }
 
             mpGrpAnims[ANIM_GRP_FOCUS_BTN_A][ANIM_BTM_FOCUS_IN] =
-                mpLayout->bindToGroup(mscAnimNames[ANIM_BTM_FOCUS_IN], mscAnimGroups[ANIM_GRP_FOCUS_BTN_A], false, false);
+                mpLayout->bindToGroup(scAnimNames[ANIM_BTM_FOCUS_IN], scAnimGroups[ANIM_GRP_FOCUS_BTN_A], false, false);
             mpGrpAnims[ANIM_GRP_FOCUS_BTN_A][ANIM_BTM_FOCUS_OUT] =
-                mpLayout->bindToGroup(mscAnimNames[ANIM_BTM_FOCUS_OUT], mscAnimGroups[ANIM_GRP_FOCUS_BTN_A], false);
+                mpLayout->bindToGroup(scAnimNames[ANIM_BTM_FOCUS_OUT], scAnimGroups[ANIM_GRP_FOCUS_BTN_A], false);
 
             if (mpChanSelScn->mStartType == ChannelSelect::START_FROM_CHJUMP && isEnableToExecute(mChanPage, mChanIndex)) {
                 mpGrpAnims[ANIM_GRP_FOCUS_BTN_B][ANIM_BTM_FOCUS_IN] =
-                    mpLayout->bindToGroup(mscAnimNames[ANIM_BTM_FOCUS_IN], mscAnimGroups[ANIM_GRP_FOCUS_BTN_B], false);
+                    mpLayout->bindToGroup(scAnimNames[ANIM_BTM_FOCUS_IN], scAnimGroups[ANIM_GRP_FOCUS_BTN_B], false);
                 mpGrpAnims[ANIM_GRP_FOCUS_BTN_B][ANIM_BTM_FOCUS_OUT] =
-                    mpLayout->bindToGroup(mscAnimNames[ANIM_BTM_FOCUS_OUT], mscAnimGroups[ANIM_GRP_FOCUS_BTN_B], false, false);
+                    mpLayout->bindToGroup(scAnimNames[ANIM_BTM_FOCUS_OUT], scAnimGroups[ANIM_GRP_FOCUS_BTN_B], false, false);
             } else {
                 mpGrpAnims[ANIM_GRP_FOCUS_BTN_B][ANIM_BTM_FOCUS_IN] =
-                    mpLayout->bindToGroup(mscAnimNames[ANIM_BTM_FOCUS_IN], mscAnimGroups[ANIM_GRP_FOCUS_BTN_B], false, false);
+                    mpLayout->bindToGroup(scAnimNames[ANIM_BTM_FOCUS_IN], scAnimGroups[ANIM_GRP_FOCUS_BTN_B], false, false);
                 mpGrpAnims[ANIM_GRP_FOCUS_BTN_B][ANIM_BTM_FOCUS_OUT] = mpLayout->bindToGroup(
-                    mscAnimNames[ANIM_BTM_FOCUS_OUT], mscAnimGroups[ANIM_GRP_FOCUS_BTN_B], false, isEnableToExecute(mChanPage, mChanIndex));
+                    scAnimNames[ANIM_BTM_FOCUS_OUT], scAnimGroups[ANIM_GRP_FOCUS_BTN_B], false, isEnableToExecute(mChanPage, mChanIndex));
             }
 
             mpGrpAnims[ANIM_GRP_SELECT_BTN_A][ANIM_SELECT_BTN] =
-                mpLayout->bindToGroup(mscAnimNames[ANIM_SELECT_BTN], mscAnimGroups[ANIM_GRP_SELECT_BTN_A], false, false);
+                mpLayout->bindToGroup(scAnimNames[ANIM_SELECT_BTN], scAnimGroups[ANIM_GRP_SELECT_BTN_A], false, false);
             mpGrpAnims[ANIM_GRP_SELECT_BTN_B][ANIM_SELECT_BTN] =
-                mpLayout->bindToGroup(mscAnimNames[ANIM_SELECT_BTN], mscAnimGroups[ANIM_GRP_SELECT_BTN_B], false, false);
+                mpLayout->bindToGroup(scAnimNames[ANIM_SELECT_BTN], scAnimGroups[ANIM_GRP_SELECT_BTN_B], false, false);
             mpGrpAnims[ANIM_GRP_ONOFF_BTN_A][ANIM_OFF_BTN] =
-                mpLayout->bindToGroup(mscAnimNames[ANIM_OFF_BTN], mscAnimGroups[ANIM_GRP_ONOFF_BTN_A], false, false);
+                mpLayout->bindToGroup(scAnimNames[ANIM_OFF_BTN], scAnimGroups[ANIM_GRP_ONOFF_BTN_A], false, false);
             mpGrpAnims[ANIM_GRP_ONOFF_BTN_B][ANIM_OFF_BTN] =
-                mpLayout->bindToGroup(mscAnimNames[ANIM_OFF_BTN], mscAnimGroups[ANIM_GRP_ONOFF_BTN_B], false, false);
+                mpLayout->bindToGroup(scAnimNames[ANIM_OFF_BTN], scAnimGroups[ANIM_GRP_ONOFF_BTN_B], false, false);
             mpGrpAnims[ANIM_GRP_ONOFF_BTN_A][ANIM_ON_BTN] =
-                mpLayout->bindToGroup(mscAnimNames[ANIM_ON_BTN], mscAnimGroups[ANIM_GRP_ONOFF_BTN_A], false, false);
-            mpGrpAnims[ANIM_GRP_ONOFF_BTN_B][ANIM_ON_BTN] = mpLayout->bindToGroup(mscAnimNames[ANIM_ON_BTN], mscAnimGroups[ANIM_GRP_ONOFF_BTN_B],
+                mpLayout->bindToGroup(scAnimNames[ANIM_ON_BTN], scAnimGroups[ANIM_GRP_ONOFF_BTN_A], false, false);
+            mpGrpAnims[ANIM_GRP_ONOFF_BTN_B][ANIM_ON_BTN] = mpLayout->bindToGroup(scAnimNames[ANIM_ON_BTN], scAnimGroups[ANIM_GRP_ONOFF_BTN_B],
                                                                                   false, !isEnableToExecute(mChanPage, mChanIndex));
 
             for (int i = ANIM_GRP_CHANGE_BTN_A; i <= ANIM_GRP_CHANGE_BTN_B; i++) {
                 for (int j = ANIM_CHANGE_TEXT_IN; j <= ANIM_CHANGE_TEXT_OUT; j++) {
-                    mpGrpAnims[i][j] = mpLayout->bindToGroup(mscAnimNames[j], mscAnimGroups[i], false, false);
+                    mpGrpAnims[i][j] = mpLayout->bindToGroup(scAnimNames[j], scAnimGroups[i], false, false);
                 }
             }
 
             for (int i = ANIM_CHANGE_IN; i <= ANIM_CHANGE_OUT; i++) {
-                mpChangeAnims[i] = mpLayout->bind(mscAnimNames[i], mscChangeName[0], false, false);
+                mpChangeAnims[i] = mpLayout->bind(scAnimNames[i], lbl_81696A30[0], false, false);
             }
 
             mpLayout->finishBinding();
@@ -319,8 +400,8 @@ namespace ipl {
             mpGui->createLayoutScene(*mpLayout->getNW4RLyt());
             mpGui->setAllComponentTriggerTarget(false);
 
-            mpGui->getPaneComponentByPane(mpLayout->FindPaneByName(mscBtnNames[BTN_A]))->setTriggerTarget(true);
-            mpGui->getPaneComponentByPane(mpLayout->FindPaneByName(mscBtnNames[BTN_B]))->setTriggerTarget(true);
+            mpGui->getPaneComponentByPane(mpLayout->FindPaneByName(lbl_81696A20[BTN_A]))->setTriggerTarget(true);
+            mpGui->getPaneComponentByPane(mpLayout->FindPaneByName(lbl_81696A20[BTN_B]))->setTriggerTarget(true);
 
             mpLimitRemainLyt = new layout::Object(getSceneHeap(), mpLayoutFile, "arc", "my_Timer_a.brlyt");
             mpLimitDoneLyt = new layout::Object(getSceneHeap(), mpLayoutFile, "arc", "my_Timer_b.brlyt");
@@ -336,7 +417,7 @@ namespace ipl {
             updateLockedMsg(LOCKED_MSG_AUTO);
             dispTimeLimitWindow();
 
-            mpDiskBnrLayout = new layout::Object(getSceneHeap(), mpDiskBnrFile, "arc", mscDiskLytFile[0]);
+            mpDiskBnrLayout = new layout::Object(getSceneHeap(), mpDiskBnrFile, "arc", scLayoutNames[0]);
 
             bindDiskAnms();
 
@@ -773,7 +854,7 @@ namespace ipl {
                     nw4r::ut::Rect drawRect(mDispTrans.x - mpChanSelScn->mChanThumbOff_X, mDispTrans.y + mpChanSelScn->mChanThumbOff_Y,
                                             mDispTrans.x + mpChanSelScn->mChanThumbOff_X, mDispTrans.y - mpChanSelScn->mChanThumbOff_Y);
 
-                    GXColor textureColor = {255, 255, 255, 255};
+                    GXColor textureColor = {255, 255, 255, 0};
                     textureColor.a = (u8)mpZoomAnim->get();
                     utility::Graphics::drawTexture(drawRect, mpCapture->getGXTex(), textureColor, 1);
 
@@ -952,7 +1033,7 @@ namespace ipl {
             } else if (mpGCBannerFile != NULL && lytFile == mpGCBannerFile) {
                 if (mpGCBannerLyt == NULL) {
                     mpGCBannerLyt = layout::Object::create(System::getMem2App(), 0x40000, lytFile, "arc", "my_GCTop_a.brlyt");
-                    mpGCBannerAnim = mpGCBannerLyt->bindToGroup(mscGCAnimNames[0], mscGCAnimGroups[0], false);
+                    mpGCBannerAnim = mpGCBannerLyt->bindToGroup(scGCAnimNames[0], scGCAnimGroups[0], false);
                     mpGCBannerLyt->finishBinding();
                     mpGCBannerLyt->adjustHeap();
                 }
@@ -1106,9 +1187,9 @@ namespace ipl {
                 if (mpGrpAnims[ANIM_GRP_CHANGE_BTN_B][ANIM_CHANGE_TEXT_IN]->getCurrentFrame() ==
                     mpGrpAnims[ANIM_GRP_CHANGE_BTN_B][ANIM_CHANGE_TEXT_IN]->getMaxFrame()) {
                     if (System::getChannelManager()->checkNeedUpdate(mChanPage, mChanIndex)) {
-                        setMessage(mpLayout->FindPaneByName(mscButtonTextName[BTN_B]), MESG_CHAN_SEL_UPDATE_BTN, false);
+                        setMessage(mpLayout->FindPaneByName(lbl_81696AAC[BTN_B]), MESG_CHAN_SEL_UPDATE_BTN, false);
                     } else {
-                        setMessage(mpLayout->FindPaneByName(mscButtonTextName[BTN_B]), MESG_CHAN_SEL_START_BTN, false);
+                        setMessage(mpLayout->FindPaneByName(lbl_81696AAC[BTN_B]), MESG_CHAN_SEL_START_BTN, false);
                     }
                     mpGrpAnims[ANIM_GRP_CHANGE_BTN_B][ANIM_CHANGE_TEXT_OUT]->play();
                     mpGrpAnims[ANIM_GRP_CHANGE_BTN_B][ANIM_CHANGE_TEXT_IN]->initAnmFrame();
@@ -1771,18 +1852,18 @@ namespace ipl {
 
         void ChannelTitle::bindChanBaseAnms() {
             for (int i = 0; i < BANNER_ANIM_MAX; i++) {
-                if (mpChanBannerLyt->searchFile(mscBannerAnims[i])) {
+                if (mpChanBannerLyt->searchFile(scBannerAnims[i])) {
                     if (i == 0) {
-                        mpChanBannerAnims[i] = mpChanBannerLyt->bind(mscBannerAnims[i]);
+                        mpChanBannerAnims[i] = mpChanBannerLyt->bind(scBannerAnims[i]);
                         mpChanBannerAnims[i]->setAnmType(ANIM_TYPE_LOOP);
                     } else if (i == 1) {
-                        mpChanBannerAnims[i] = mpChanBannerLyt->bind(mscBannerAnims[i]);
+                        mpChanBannerAnims[i] = mpChanBannerLyt->bind(scBannerAnims[i]);
                         mpChanBannerAnims[i]->setAnmType(ANIM_TYPE_FORWARD);
                     } else {
                         if (mpChanBannerAnims[BANNER_ANIM_START] == NULL) {
-                            mpChanBannerAnims[i] = mpChanBannerLyt->bind(mscBannerAnims[i], true);
+                            mpChanBannerAnims[i] = mpChanBannerLyt->bind(scBannerAnims[i], true);
                         } else {
-                            mpChanBannerAnims[i] = mpChanBannerLyt->bind(mscBannerAnims[i], false);
+                            mpChanBannerAnims[i] = mpChanBannerLyt->bind(scBannerAnims[i], false);
                         }
                         mpChanBannerAnims[i]->setAnmType(ANIM_TYPE_LOOP);
                     }
@@ -1795,9 +1876,9 @@ namespace ipl {
         void ChannelTitle::bindDiskAnms() {
             memset(mpDiskBnrAnims, 0, sizeof(mpDiskBnrAnims));
 
-            mpDiskBnrAnims[DISK_ANIM_GRP_ALL][DISK_ANIM_START] = mpDiskBnrLayout->bind(mscDiskAnimNames[DISK_ANIM_START]);
+            mpDiskBnrAnims[DISK_ANIM_GRP_ALL][DISK_ANIM_START] = mpDiskBnrLayout->bind(scDiskAnimNames[DISK_ANIM_START]);
             mpDiskBnrAnims[DISK_ANIM_GRP_COMMENT][DISK_ANIM_START] =
-                mpDiskBnrLayout->bindToGroup(mscDiskAnimNames[DISK_ANIM_START], mscDiskGroups[DISK_ANIM_GRP_COMMENT], false, false);
+                mpDiskBnrLayout->bindToGroup(scDiskAnimNames[DISK_ANIM_START], scDiskGroups[DISK_ANIM_GRP_COMMENT], false, false);
 
             for (int i = DISK_ANIM_GRP_COMMENT; i <= DISK_ANIM_GRP_GC; i++) {
                 for (int j = DISK_ANIM_DISK_START; j <= DISK_ANIM_DISK_IN; j++) {
@@ -1805,16 +1886,16 @@ namespace ipl {
                         break;
                     }
 
-                    mpDiskBnrAnims[i][j] = mpDiskBnrLayout->bindToGroup(mscDiskAnimNames[j], mscDiskGroups[i], false, false);
+                    mpDiskBnrAnims[i][j] = mpDiskBnrLayout->bindToGroup(scDiskAnimNames[j], scDiskGroups[i], false, false);
                 }
             }
 
             for (int i = DISK_ANIM_DISK_EJECT; i <= DISK_ANIM_UNKNOWN_EJECT; i++) {
-                mpDiskBnrAnims[DISK_ANIM_GRP_ALL][i] = mpDiskBnrLayout->bind(mscDiskAnimNames[i], false);
+                mpDiskBnrAnims[DISK_ANIM_GRP_ALL][i] = mpDiskBnrLayout->bind(scDiskAnimNames[i], false);
             }
 
             mpDiskBnrAnims[DISK_ANIM_GRP_DISK_IN][DISK_ANIM_DISK_IN] =
-                mpDiskBnrLayout->bindToGroup(mscDiskAnimNames[DISK_ANIM_DISK_IN], mscDiskGroups[DISK_ANIM_GRP_DISK_IN], false, false);
+                mpDiskBnrLayout->bindToGroup(scDiskAnimNames[DISK_ANIM_DISK_IN], scDiskGroups[DISK_ANIM_GRP_DISK_IN], false, false);
         }
 
         void ChannelTitle::updateDiskState(int page, int index) {
@@ -1847,8 +1928,9 @@ namespace ipl {
 
                             bool noDisk = BS2State == bs2::IPL_STATE_NO_DISK;
 
-                            nw4r::lyt::Group* group = mpDiskBnrLayout->FindGroupByName(mscDiskGroups[DISK_ANIM_GRP_COMMENT]);
-                            for (nw4r::lyt::PaneLinkList::Iterator it = group->GetPaneList().GetBeginIter(); it != group->GetPaneList().GetEndIter();
+                            nw4r::lyt::Group* group = mpDiskBnrLayout->FindGroupByName(scDiskGroups[DISK_ANIM_GRP_COMMENT]);
+                            nw4r::lyt::Group*& groupAlias = group;
+                            for (nw4r::lyt::PaneLinkList::Iterator it = groupAlias->GetPaneList().GetBeginIter(); it != groupAlias->GetPaneList().GetEndIter();
                                  it++) {
                                 it->mTarget->SetVisible(noDisk);
                             }
@@ -1867,9 +1949,10 @@ namespace ipl {
                             !mpDiskBnrAnims[DISK_ANIM_GRP_COMMENT][DISK_ANIM_START]->isPlaying()) {
                             mDiskState = DISK_STATE_IDLE;
                             if (BS2State == bs2::IPL_STATE_NO_DISK) {
-                                nw4r::lyt::Group* group = mpDiskBnrLayout->FindGroupByName(mscDiskGroups[DISK_ANIM_GRP_COMMENT]);
-                                for (nw4r::lyt::PaneLinkList::Iterator it = group->GetPaneList().GetBeginIter();
-                                     it != group->GetPaneList().GetEndIter(); it++) {
+                                nw4r::lyt::Group* group = mpDiskBnrLayout->FindGroupByName(scDiskGroups[DISK_ANIM_GRP_COMMENT]);
+                                nw4r::lyt::Group*& groupAlias = group;
+                                for (nw4r::lyt::PaneLinkList::Iterator it = groupAlias->GetPaneList().GetBeginIter();
+                                     it != groupAlias->GetPaneList().GetEndIter(); it++) {
                                     it->mTarget->SetVisible(true);
                                 }
                             }
@@ -1927,8 +2010,9 @@ namespace ipl {
                     case DISK_STATE_INTERRUPT_EJECT: {
                         if (!mpDiskBnrAnims[DISK_ANIM_GRP_WII][DISK_ANIM_DISK_END]->isPlaying() &&
                             !mpDiskBnrAnims[DISK_ANIM_GRP_GC][DISK_ANIM_DISK_END]->isPlaying()) {
-                            nw4r::lyt::Group* group = mpDiskBnrLayout->FindGroupByName(mscDiskGroups[DISK_ANIM_GRP_COMMENT]);
-                            for (nw4r::lyt::PaneLinkList::Iterator it = group->GetPaneList().GetBeginIter(); it != group->GetPaneList().GetEndIter();
+                            nw4r::lyt::Group* group = mpDiskBnrLayout->FindGroupByName(scDiskGroups[DISK_ANIM_GRP_COMMENT]);
+                            nw4r::lyt::Group*& groupAlias = group;
+                            for (nw4r::lyt::PaneLinkList::Iterator it = groupAlias->GetPaneList().GetBeginIter(); it != groupAlias->GetPaneList().GetEndIter();
                                  it++) {
                                 it->mTarget->SetVisible(true);
                             }
@@ -2039,8 +2123,9 @@ namespace ipl {
                             mpDiskBnrAnims[DISK_ANIM_GRP_ALL][DISK_ANIM_UNKNOWN_LOOP]->stop();
                             mpDiskBnrAnims[DISK_ANIM_GRP_ALL][DISK_ANIM_UNKNOWN_EJECT]->play();
 
-                            nw4r::lyt::Group* group = mpDiskBnrLayout->FindGroupByName(mscDiskGroups[DISK_ANIM_GRP_COMMENT]);
-                            for (nw4r::lyt::PaneLinkList::Iterator it = group->GetPaneList().GetBeginIter(); it != group->GetPaneList().GetEndIter();
+                            nw4r::lyt::Group* group = mpDiskBnrLayout->FindGroupByName(scDiskGroups[DISK_ANIM_GRP_COMMENT]);
+                            nw4r::lyt::Group*& groupAlias = group;
+                            for (nw4r::lyt::PaneLinkList::Iterator it = groupAlias->GetPaneList().GetBeginIter(); it != groupAlias->GetPaneList().GetEndIter();
                                  it++) {
                                 it->mTarget->SetVisible(true);
                             }
@@ -2379,7 +2464,7 @@ namespace ipl {
                 if (unk_0x8C == 0) {
                     mpGrpAnims[ANIM_GRP_ONOFF_BTN_B][ANIM_OFF_BTN]->stop();
                     mpGrpAnims[ANIM_GRP_ONOFF_BTN_B][ANIM_ON_BTN]->play();
-                    mpGui->initPane(mpLayout->FindPaneByName(mscBtnNames[BTN_B]));
+                    mpGui->initPane(mpLayout->FindPaneByName(lbl_81696A20[BTN_B]));
                     mbHovered[BTN_B] = FALSE;
                 }
                 unk_0x8C = 1;
@@ -2417,11 +2502,9 @@ namespace ipl {
         }
 
         void ChannelTitle::setMessage(nw4r::lyt::Pane* targetPane, u32 msgId, bool alloc) {
-            static const int LENGTH = 255;
-
-            wchar_t msg[LENGTH + 1];
-            wcsncpy(msg, System::getMessage(msgId), LENGTH + 1);
-            msg[LENGTH] = 0;
+            wchar_t msg[255 + 1];
+            wcsncpy(msg, System::getMessage(msgId), 255 + 1);
+            msg[255] = 0;
 
             nw4r::lyt::TextBox* textBox = nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(targetPane);
             if (alloc) {
@@ -2602,12 +2685,12 @@ namespace ipl {
 
             ESTitleId titleId = System::getChannelManager()->getTitleID(chanTtl->mChanPage, chanTtl->mChanIndex);
             int ticketIdx = System::getChannelManager()->getChannel(chanTtl->mChanPage, chanTtl->mChanIndex).ticketIdx;
-            ESError err = utility::ESMisc::GetTicketView(System::getMem2App(), titleId, &msTicketView, ticketIdx);
+            ESError err = utility::ESMisc::GetTicketView(System::getMem2App(), titleId, &msTicketView.view, ticketIdx);
             if (err != ES_ERR_OK) {
                 IPLErrorLogAndDisplay(MESG_ERR_FILE, "ES", err, 4789);
             }
 
-            if (chanTtl->isTimeLimitedTicket(&msTicketView, &chanTtl->mTimeLimitRemain)) {
+            if (chanTtl->isTimeLimitedTicket(&msTicketView.view, &chanTtl->mTimeLimitRemain)) {
                 chanTtl->mLimitType = LIMIT_TYPE_TIME;
             } else {
                 chanTtl->mLimitType = LIMIT_TYPE_COUNT;
@@ -2739,12 +2822,12 @@ namespace ipl {
                         break;
                     }
                     if (con->downTrg(controller::BTN_INTERACT)) {
-                        if (strcmp(paneName, ChannelTitle::mscBtnNames[ChannelTitle::BTN_A]) == 0) {
+                        if (strcmp(paneName, lbl_81696A20[ChannelTitle::BTN_A]) == 0) {
                             mpInstance->mpGrpAnims[ChannelTitle::ANIM_GRP_SELECT_BTN_A][ChannelTitle::ANIM_SELECT_BTN]->play();
                             snd::getSystem()->startSE("WIPL_SE_BT_PUSH");
                             mpInstance->mState = ChannelTitle::STATE_START_ZOOM_OUT;
                             mpInstance->tryToGoBackward();
-                        } else if (strcmp(paneName, ChannelTitle::mscBtnNames[ChannelTitle::BTN_B]) == 0) {
+                        } else if (strcmp(paneName, lbl_81696A20[ChannelTitle::BTN_B]) == 0) {
                             if (mpInstance->unk_0x8C != 2) {
                                 snd::getSystem()->startSE("WIPL_SE_GRAY_BUTTON");
                             } else {
@@ -2758,7 +2841,7 @@ namespace ipl {
                 }
                 case ::gui::EventHandler::ON_POINT: {
                     for (int i = 0; i < ChannelTitle::BTN_MAX; i++) {
-                        if (strcmp(paneName, ChannelTitle::mscBtnNames[i]) == 0) {
+                        if (strcmp(paneName, lbl_81696A20[i]) == 0) {
                             if (i == 0 || mpInstance->unk_0x8C > 0) {
                                 mpInstance->mbHovered[i]++;
                                 if (mpInstance->mbHovered[i] <= TRUE) {
@@ -2774,7 +2857,7 @@ namespace ipl {
                 }
                 case ::gui::EventHandler::ON_LEFT: {
                     for (int i = 0; i < ChannelTitle::BTN_MAX; i++) {
-                        if (strcmp(paneName, ChannelTitle::mscBtnNames[i]) == 0) {
+                        if (strcmp(paneName, lbl_81696A20[i]) == 0) {
                             if (i == 0 || mpInstance->unk_0x8C > 0) {
                                 mpInstance->mbHovered[i]--;
                                 if (mpInstance->mbHovered[i] <= FALSE) {
