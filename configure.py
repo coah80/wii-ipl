@@ -1714,7 +1714,7 @@ config.libs = [
             Object(NonMatching, "fa/pf_chdmod.c"),
             Object(NonMatching, "fa/pf_chmod.c"),
             Object(NonMatching, "fa/pf_cinsert.c"),
-            Object(NonMatching, "fa/pf_closedir.c"),
+            Object(Matching,    "fa/pf_closedir.c"),
             Object(NonMatching, "fa/pf_combine.c"),
             Object(NonMatching, "fa/pf_create.c"),
             Object(NonMatching, "fa/pf_createdir.c"),
