@@ -1159,7 +1159,7 @@ config.libs = [
             Object(Matching,    "vf/system/pf_system.c"),
 
             Object(Matching,    "vf/develop/d_vf.c"),
-            Object(NonMatching, "vf/develop/d_vf_sys.c"),
+            Object(Matching,    "vf/develop/d_vf_sys.c"),
             Object(Matching,    "vf/develop/d_hash.c"),
             Object(Matching,    "vf/develop/d_time.c"),
             Object(Matching,    "vf/develop/d_common.c"),
@@ -1952,7 +1952,7 @@ config.libs = [
             Object(NonMatching, "MSL_Common/direct_io.c"),
             Object(NonMatching, "MSL_Common/file_io.c"),
             Object(NonMatching, "MSL_Common/FILE_POS.c"),
-            Object(NonMatching, "MSL_Common/mbstring.c"),
+            Object(Matching,    "MSL_Common/mbstring.c"),
             Object(Matching,    "MSL_Common/mem.c"),
             Object(Matching,    "MSL_Common/mem_funcs.c"),
             Object(Matching,    "MSL_Common/math_api.c"),
