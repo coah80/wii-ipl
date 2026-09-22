@@ -10,7 +10,16 @@ extern "C" {
 #endif
 
 typedef struct _GXColor {
+#ifdef IPL_SYSTEM_COLOR_ALIGNMENT
+    union {
+        struct {
+            u8 r, g, b, a;
+        };
+        u32 value;
+    };
+#else
     u8 r, g, b, a;  // 0x00
+#endif
 } GXColor;
 
 typedef struct _GXColorS10 {

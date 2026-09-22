@@ -1,4 +1,6 @@
+#define IPL_SYSTEM_COLOR_ALIGNMENT
 #include "iplSystem.h"
+#undef IPL_SYSTEM_COLOR_ALIGNMENT
 #include "iplSound.h"
 
 #include "system/iplCdbWrapper.h"
@@ -556,7 +558,6 @@ namespace ipl {
         // Default values for initial setup
         if (!SCGetConfigDoneFlag() && !SCGetConfigDoneFlag2()) {
             struct BlankNameStorage {
-                u16 padding;
                 SCOwnerNickname blankName;
             } blankNameStorage;
             memset(&blankNameStorage.blankName, 0, sizeof(blankNameStorage.blankName));
