@@ -1094,7 +1094,7 @@ config.libs = [
         ]
     ),
     RevoEXLib("so", [
-            Object(NonMatching, "so/SOCommon.c"),
+            Object(Matching,    "so/SOCommon.c"),
             Object(NonMatching, "so/SOBasic.c"),
             Object(NonMatching, "so/SOInformation.c"),
             Object(NonMatching, "so/SOOption.c"),
