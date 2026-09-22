@@ -1089,7 +1089,7 @@ config.libs = [
             Object(Matching,    "nwc24/NWC24Time.c"),
             Object(Matching,    "nwc24/NWC24Ipc.c"),
             Object(NonMatching, "nwc24/NWC24Download.c"),
-            Object(Equivalent,  "nwc24/NWC24CHJump.c"),
+            Object(Matching,    "nwc24/NWC24CHJump.c"),
             Object(NonMatching, "nwc24/NWC24System.c"),
         ]
     ),
