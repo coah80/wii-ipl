@@ -1,6 +1,8 @@
 #include <revolution.h>
 
+#define IPL_WWW_SURFACE_MESSAGE
 #include "iplwww/www_print.h"
+#undef IPL_WWW_SURFACE_MESSAGE
 
 namespace ext_ead {
     namespace www {
