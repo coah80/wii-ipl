@@ -274,7 +274,7 @@ namespace ipl {
 
             u32 fileLen = sizeof(Data);
             BOOL bCreateNew = FALSE;
-            BOOL bNeedFlush = FALSE;
+            bool bNeedFlush = false;
 
             ES_SetUid(SYSMENU_TITLE_ID);
 
@@ -330,12 +330,21 @@ namespace ipl {
                                             NETMD5Sum md5;
                                             NETCalcMD5(md5, &manager->mData, fileLen - NET_MD5_DIGEST_SIZE);
 
-                                            for (int i = 0; i < NET_MD5_DIGEST_SIZE; i++) {
-                                                if (md5[i] != manager->mData.MD5Sum[i]) {
+                                            u8* data = (u8*)manager;
+                                            u32* loopFileLen = &fileLen;
+                                            volatile NETMD5Sum& md5Ref = md5;
+                                            u32 i = 0;
+                                            while (i < NET_MD5_DIGEST_SIZE) {
+                                                u8 md5Byte = md5Ref[i];
+                                                u32 offset = i;
+                                                offset += *loopFileLen;
+                                                u32 fileByte = *(u8*)(offset + (u32)data + NET_MD5_DIGEST_SIZE);
+                                                if (md5Byte != fileByte) {
                                                     // Invalid MD5 sum, create new
                                                     bCreateNew = TRUE;
                                                     break;
                                                 }
+                                                i++;
                                             }
                                         }
                                     }
@@ -382,7 +391,8 @@ namespace ipl {
                 }
             }
 
-            if (bNeedFlush | manager->updateChanInfos()) {
+            bool flush = bNeedFlush | manager->updateChanInfos();
+            if (flush) {
                 if (manager->mpUpdatedFile) {
                     delete manager->mpUpdatedFile;
                 }
