@@ -93,26 +93,21 @@ BOOL AXFXReverbHiExpInit(AXFX_REVERBHI_EXP* fx) {
 }
 
 BOOL AXFXReverbHiExpSettings(AXFX_REVERBHI_EXP* fx) {
-    u32 uVar1;
-    u32 uVar2;
-    int iVar3 = 0;
-
-    uVar1 = OSDisableInterrupts();
+    BOOL mask = OSDisableInterrupts();
     fx->active = fx->active | 1;
     AXFXReverbHiExpShutdown(fx);
 
     if (!AXFXReverbHiExpInit(fx)) {
         AXFXReverbHiExpShutdown(fx);
-        OSRestoreInterrupts(uVar1);
+        OSRestoreInterrupts(mask);
         return FALSE;
     } else {
         fx->active |= 2;
         fx->active &= ~1;
-        OSRestoreInterrupts(uVar1);
+        OSRestoreInterrupts(mask);
         return TRUE;
     }
 
-    return iVar3 != 0;
 }
 
 void AXFXReverbHiExpShutdown(AXFX_REVERBHI_EXP* fx) {

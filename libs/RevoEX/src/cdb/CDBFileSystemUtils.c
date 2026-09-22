@@ -8,7 +8,7 @@
 
 #pragma push
 #pragma section sconst_type ".sdata"
-extern const char lbl_816979E8[1] = "/";
+extern const char lbl_816979E8[8] = "/\0\0\0\0\0\0\0";
 #pragma pop
 
 void CDBFSConcatenatePath(char* path, const char* concatPath) {
