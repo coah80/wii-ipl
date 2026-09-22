@@ -164,7 +164,7 @@ This repository targets only Wii Menu 4.3U. Do not configure or build 43E,
 43J, or 43K while doing matching work.
 
 Most workers should pursue exact matching or safe linking; assign the remainder
-to decompilation. Keep up to 45 live workers when the runtime allows it, while
+to decompilation. Keep up to 75 live workers when the runtime allows it, while
 reserving capacity for fixer and validation workers. Fill completed slots with
 disjoint tasks. Never duplicate a source file or function
 range. Workers return changed paths, exact objdiff measurements, and validation
