@@ -57,6 +57,46 @@ void RFLiInitCtrlBuf(MEMiHeapHead* sysHeap) {
     }
 }
 
+int RFLiGetControllerData(RFLiCharInfo* dst, s32 chan, u8 index, BOOL hiddenAvailable) {
+    RFLiCtrlManager* manager;
+    RFLiCtrlBuffer* buffer;
+    u16 flag;
+
+    RFLi_ASSERTLINE_RANGE(chan, 0, WPAD_MAX_CONTROLLERS, 1412);
+    RFLi_ASSERTLINE_RANGE(index, 0, RFL_MAX_CTRL_BUFFER, 1413);
+
+    if (chan < 0 || chan >= WPAD_MAX_CONTROLLERS) {
+        return FALSE;
+    }
+
+    if (index >= RFL_MAX_CTRL_BUFFER) {
+        return FALSE;
+    }
+
+    manager = RFLiGetCtrlBufManager();
+    if (manager == NULL) {
+        return FALSE;
+    }
+
+    if (!manager->mIsLoaded[chan]) {
+        return FALSE;
+    }
+
+    flag = (1 << index);
+    buffer = manager->mBuffer[chan];
+    if (!RFLiIsValidID((RFLCreateID*)&buffer->mData[index].createID)) {
+        return FALSE;
+    }
+
+    if (!hiddenAvailable && (buffer->mSecretFlag & flag) != 0) {
+        return FALSE;
+    }
+
+    RFLiConvertRaw2Info(&buffer->mData[index], dst);
+
+    return TRUE;
+}
+
 BOOL RFLiCheckCtrlBufferCore(const RFLiCtrlBuffer* buffer, u8 index, RFLiCtrlCheckType type) {
     u16 flag = (1 << index);
 
@@ -769,46 +809,6 @@ int RFLiSetControllerData(const RFLiCharInfo* src, s32 chan, u8 index) {
     }
 
     return setDataCore_(src, chan, index, FALSE);
-}
-
-int RFLiGetControllerData(RFLiCharInfo* dst, s32 chan, u8 index, BOOL hiddenAvailable) {
-    RFLiCtrlManager* manager;
-    RFLiCtrlBuffer* buffer;
-    u16 flag;
-
-    RFLi_ASSERTLINE_RANGE(chan, 0, WPAD_MAX_CONTROLLERS, 1412);
-    RFLi_ASSERTLINE_RANGE(index, 0, RFL_MAX_CTRL_BUFFER, 1413);
-
-    if (chan < 0 || chan >= WPAD_MAX_CONTROLLERS) {
-        return FALSE;
-    }
-
-    if (index >= RFL_MAX_CTRL_BUFFER) {
-        return FALSE;
-    }
-
-    manager = RFLiGetCtrlBufManager();
-    if (manager == NULL) {
-        return FALSE;
-    }
-
-    if (!manager->mIsLoaded[chan]) {
-        return FALSE;
-    }
-
-    flag = (1 << index);
-    buffer = manager->mBuffer[chan];
-    if (!RFLiIsValidID((RFLCreateID*)&buffer->mData[index].createID)) {
-        return FALSE;
-    }
-
-    if (!hiddenAvailable && (buffer->mSecretFlag & flag) != 0) {
-        return FALSE;
-    }
-
-    RFLiConvertRaw2Info(&buffer->mData[index], dst);
-
-    return TRUE;
 }
 
 RFLErrcode RFLUnloadController(s32 chan) {
