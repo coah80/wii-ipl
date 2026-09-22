@@ -697,7 +697,7 @@ config.libs = [
             Object(Matching,    "iplwww/www_surface.cpp"),
             Object(Matching,    "iplwww/www_thread.cpp"),
             Object(Matching,    "iplwww/www_print.cpp"),
-            Object(Equivalent,  "iplwww/www_window.cpp"),
+            Object(Matching,    "iplwww/www_window.cpp"),
             Object(Matching,    "iplwww/www_trasition.cpp"),
             Object(Equivalent,  "iplwww/www_wiisetting.cpp"),
             Object(Matching,    "iplwww/www_arcreader.cpp"),
