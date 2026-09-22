@@ -134,7 +134,7 @@ static u32 _EventFlagAddressToHandleIdx(u32* event /* r3 */) {
     int i;  // r31
 
     for (i = 0; i < 0x1A; i++) {
-        if ((u32*)((u8*)l_event + (i << 5)) == event) {
+        if (&l_event[i].flag == event) {
             return i;
         }
     }
@@ -157,12 +157,12 @@ SDDevIntrCallback _EventCallBack(u32 status /* r25 */, u32* data /* r27 */) {
             handle_p = VFSysGetHandleP(handleIdx);
             if ((u32)(status & 2) == 2) {
                 *data = 1;
-                if (handle_p != NULL) {
+                if ((u32)handle_p != 0) {
                     PDM_DISK* pf_disk_p = handle_p->drive.pf_disk_p;  // r26
-                    if (pf_disk_p != NULL) {
+                    if ((u32)pf_disk_p != 0) {
                         VFSys_deviceSD* device_p = (VFSys_deviceSD*)VFSysPDMDisk2DeviceP(pf_disk_p);  // r29
                         VFipdm_disk_notify_media_eject(pf_disk_p);
-                        if ((device_p != NULL) && ((device_p->eventCallback) != NULL)) {
+                        if (((u32)device_p != 0) && ((u32)device_p->eventCallback != 0)) {
                             device_p->eventCallback(2);
                         }
                     }
@@ -170,23 +170,23 @@ SDDevIntrCallback _EventCallBack(u32 status /* r25 */, u32* data /* r27 */) {
             }
             if ((u32)(status & 1) == 1) {
                 *data = 2;
-                if (handle_p != NULL) {
+                if ((u32)handle_p != 0) {
                     PDM_DISK* pf_disk_p = handle_p->drive.pf_disk_p;  // r31+0x14
-                    if (pf_disk_p != NULL) {
+                    if ((u32)pf_disk_p != 0) {
                         VFSys_deviceSD* device_p = (VFSys_deviceSD*)VFSysPDMDisk2DeviceP(pf_disk_p);  // r28
-                        if ((device_p != NULL) && ((device_p->eventCallback) != NULL)) {
+                        if (((u32)device_p != 0) && ((u32)device_p->eventCallback != 0)) {
                             device_p->eventCallback(1);
                         }
                     }
                 }
             }
-            if (handle_p != NULL) {
+            if ((u32)handle_p != 0) {
                 PDM_DISK* pf_disk_p = handle_p->drive.pf_disk_p;  // r31+0x10
-                if (pf_disk_p != NULL) {
+                if ((u32)pf_disk_p != 0) {
                     VFSys_deviceSD* device_p = (VFSys_deviceSD*)VFSysPDMDisk2DeviceP(pf_disk_p);  // r31+0xC
-                    if (device_p != NULL) {
+                    if ((u32)device_p != 0) {
                         SDDev* dev_handle_p = (&device_p->drive);  // r31+0x8
-                        if (dev_handle_p != NULL) {
+                        if ((u32)dev_handle_p != 0) {
                             IOSErr = ISD_RegisterDeviceIntrHandler(dev_handle_p, (SDDevIntrCallback)_EventCallBack, data);
                             if (IOSErr != 0) {
                                 u32 stub = 0;
@@ -273,12 +273,12 @@ static s32 sddrv_init(PDM_DISK* p_disk /* r28 */) {
     drive_p = NULL;
     device_p = NULL;
     dev_handle_p = NULL;
-    if (p_disk == NULL) {
+    if ((u32)p_disk == 0) {
         return -0x14;
     }
     drive_p = VFSysPDMDisk2DriveP(p_disk);
     device_p = (VFSys_deviceSD*)VFSysPDMDisk2DeviceP(p_disk);
-    if ((drive_p == NULL) || (device_p == NULL)) {
+    if (((u32)drive_p == 0) || ((u32)device_p == 0)) {
         return -0x14;
     }
     dev_handle_p = &device_p->drive;
@@ -316,8 +316,8 @@ static s32 sddrv_init(PDM_DISK* p_disk /* r28 */) {
         ISD_UnmountCard(dev_handle_p);
         return IOSErr;
     }
-    *(u32*)((u8*)l_event + (handleIdx << 5)) = 2;
-    IOSErr = ISD_RegisterDeviceIntrHandler(dev_handle_p, (SDDevIntrCallback)_EventCallBack, (u32*)((u8*)l_event + (handleIdx << 5)));
+    l_event[handleIdx].flag = 2;
+    IOSErr = ISD_RegisterDeviceIntrHandler(dev_handle_p, (SDDevIntrCallback)_EventCallBack, &l_event[handleIdx].flag);
     if (IOSErr != 0) {
         VFi_PrintInternalError(IOSErr, 0x1ED);
         dCommon_setLastDeviceErrorToDisk(p_disk, IOSErr);
