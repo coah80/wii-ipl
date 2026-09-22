@@ -66,6 +66,7 @@ void __OSEVStart();
 void __OSEVEnd();
 #define __OSEVSize ((u32)__OSEVEnd - (u32)__OSEVStart)
 void __OSEVSetNumber();
+void __OSDBJumpTarget();
 
 void __DBVECTOR();
 
@@ -795,7 +796,7 @@ static asm void __OSDBJump() {
  #ifdef __MWERKS__
     nofralloc
 entry __OSDBJUMPSTART
-    bla OS_ADDR_DB_INTEGRATOR_HOOK
+    bla __OSDBJumpTarget
 entry __OSDBJUMPEND
 #endif // __MWERKS__
     // clang-format on
@@ -831,6 +832,7 @@ entry __OSEVStart
     mflr    r3
     stw     r3, OSContext.lr(r4)
     mfctr   r3
+entry __OSDBJumpTarget
     stw     r3, OSContext.ctr(r4)
     mfxer   r3
     stw     r3, OSContext.xer(r4)
