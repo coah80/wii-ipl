@@ -96,6 +96,8 @@ namespace ipl {
 
 #include <revolution/enc.h>
 
+extern "C" ipl::math::VEC2* __ct__Q33ipl4math4VEC2Fff(ipl::math::VEC2*, f32, f32);
+
 namespace ipl {
     namespace utility {
         const char* Language::mLangPath[10] = {"jpn", "eng", "ger", "fra", "spa", "ita", "ned", "chn", "eng", "kor"};
@@ -553,7 +555,13 @@ namespace ipl {
             nw4r::ut::Rect rect4x3;
             System::getProjectionRect4x3(&rect4x3);
 
-            return math::VEC2(basePos.x * (rect4x3.GetWidth() / rect16x9.GetWidth()), -basePos.y);
+            math::VEC2 result;
+            math::VEC2 pos;
+            math::VEC2* posPtr = &pos;
+            posPtr = __ct__Q33ipl4math4VEC2Fff(posPtr, basePos.x * (rect4x3.GetWidth() / rect16x9.GetWidth()), -basePos.y);
+            ((u32*)&result)[1] = ((u32*)posPtr)[1];
+            ((u32*)&result)[0] = ((u32*)posPtr)[0];
+            return result;
         }
 
         tpl_validity::tpl_validity(TPLPalette* pal, u32 palSize) {
