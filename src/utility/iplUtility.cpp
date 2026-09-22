@@ -1,3 +1,88 @@
+#define IPL_MATH_INTERPORATION_H
+
+#include <nw4r/math.h>
+
+#include "utility/iplFrameController.h"
+
+namespace ipl {
+    namespace math {
+        template <typename T>
+        class Interporation : public utility::FrameController {
+        public:
+            void init(int playback, f32 maxFrame, f32 minFrame, const T& start, const T& end, f32 speed = 1.0f) {
+                mStart = start;
+                mEnd = end;
+                utility::FrameController::init(playback, maxFrame, minFrame, speed);
+            }
+
+            const T& getStart() { return mStart; }
+            const T& getEnd() { return mEnd; }
+
+            void playBackwards() {
+                mAnmType = ANIM_TYPE_BACKWARD;
+                mState = ANIM_STATE_PLAY;
+            }
+
+        protected:
+            T mStart;
+            T mEnd;
+        };
+
+        template <typename T>
+        class LinearIntp : public Interporation<T> {
+        public:
+            T get() const {
+                T r = mEnd * getCurrentFrame();
+                T b = mStart * (mMaxFrame - mFrame);
+                b += r;
+                return b * (f64)(1.0f / getMaxFrame());
+            }
+
+            T get2() const { return (((mStart * (mMaxFrame - mFrame)) + (mEnd * mFrame)) / mMaxFrame); }
+        };
+
+        template <typename T>
+        class HermiteIntp : public utility::FrameController {
+        public:
+            HermiteIntp() {}
+
+            void init(const T& start, const T& end, f32 maxFrame, f32 param_5, f32 param_6, int playback = ANIM_TYPE_FORWARD, f32 speed = 1.0f) {
+                mStart = start;
+                mEnd = end;
+                utility::FrameController::init(playback, maxFrame, 0.0f, speed);
+                unkVal0 = param_5;
+                unkVal1 = param_6;
+            }
+
+            T get() const {
+                f32 var_f27 = mFrame;
+                f32 var_f28 = 1.0f / mMaxFrame;
+                T r =
+                    (mStart *
+                     (1.0f + ((var_f28 * (var_f28 * (var_f28 * (var_f27 * (2.0f * var_f27 * var_f27))))) -
+                              (var_f28 * (var_f28 * (3.0f * var_f27 * var_f27)))))) -
+                    (mEnd * ((var_f28 * (var_f28 * (var_f28 * (var_f27 * (2.0f * var_f27 * var_f27))))) -
+                              (var_f28 * (var_f28 * (3.0f * var_f27 * var_f27)))));
+                r +=
+                    (unkVal0 *
+                     (var_f27 +
+                      ((var_f28 * (var_f28 * (var_f27 * (var_f27 * var_f27)))) -
+                       (var_f28 * (2.0f * var_f27 * var_f27))))) +
+                    (unkVal1 * ((var_f28 * (var_f28 * (var_f27 * (var_f27 * var_f27)))) -
+                                (var_f28 * (var_f27 * var_f27))));
+
+                return r;
+            }
+
+        protected:
+            T mStart;
+            T mEnd;
+            f32 unkVal0;
+            f32 unkVal1;
+        };
+    }
+}
+
 #include "iplUtility.h"
 
 #include "iplSystem.h"
@@ -241,7 +326,8 @@ namespace ipl {
                     break;
                 }
                 case Pointer::SCROLL_CON_DOWN: {
-                    unk_0x3C = unk_0x3C * unk_0x48 + unk_0x4C;
+                    unk_0x3C = unk_0x3C * unk_0x48;
+                    unk_0x3C += unk_0x4C;
                     if (unk_0x3C < 0.0f) {
                         unk_0x3C = 0.0f;
                     }
