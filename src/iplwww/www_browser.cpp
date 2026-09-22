@@ -595,5 +595,23 @@ namespace ext_ead {
             }
         }
 
+        BrowserThread::CmdPacket& BrowserThread::CmdPacket::operator=(const BrowserThread::CmdPacket& other) {
+            type = other.type;
+            data = other.data;
+            return *this;
+        }
+
+        ImeData& ImeData::operator=(const ImeData& other) {
+            unk_0x00 = other.unk_0x00;
+            imeID = other.imeID;
+            text = other.text;
+            unk_0x0C = other.unk_0x0C;
+            unk_0x10 = other.unk_0x10;
+            unk_0x14 = other.unk_0x14;
+            unk_0x18 = other.unk_0x18;
+            maxLength = other.maxLength;
+            return *this;
+        }
+
     }  // namespace www
 }  // namespace ext_ead
