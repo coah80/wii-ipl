@@ -1899,7 +1899,7 @@ config.libs = [
         ]
     ),
     RVLSDKLib("cntcache", [
-            Object(NonMatching, "cntcache/cntcache.c"),
+            Object(Matching,    "cntcache/cntcache.c"),
         ]
     ),
     # EGG library (for Nintendo EAD software)
