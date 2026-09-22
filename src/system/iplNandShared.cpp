@@ -18,6 +18,8 @@ namespace ipl {
         BOOL SharedFile::openTicketFile_() {
             int code = 0;
             int errcode = 0;
+            ESTitleId titleId = 0;
+            ESTicketId ticketId = 0;
             int erridx = 0;
             mTicket = (ESTicketView*)System::getSharedHeap()->alloc(OSRoundUp32B(sizeof(ESTicketView)), -DEFAULT_ALIGN);
 
@@ -27,18 +29,24 @@ namespace ipl {
                     goto err;
                 }
             } else {
-                ESTicketView* tik;
                 u32 tikCount;
+                ESTicketView* tik;
 
                 if (utility::ESMisc::GetTicketViewList(System::getSharedHeap(), mTitleId, &tik, &tikCount) != ES_ERR_OK) {
-                    int tikIdx = utility::ESMisc::GetValidTicketIndex(System::getSharedHeap(), mTitleId, tik, tikCount);
-                    if (tikIdx >= 0 && tikIdx <= tikCount) {
-                        mTicketIdx = tikIdx;
-                        memcpy(mTicket, &tik[tikIdx], sizeof(ESTicketView));
-                        System::getSharedHeap()->free(tik);
-                    }
-                } else {
+                    code = code;
                     goto err;
+                } else {
+                    int tikIdx = utility::ESMisc::GetValidTicketIndex(System::getSharedHeap(), mTitleId, tik, tikCount);
+                    if (tikIdx < 0) {
+                        goto err;
+                    }
+                    if (tikIdx >= tikCount) {
+                        code = code;
+                        goto err;
+                    }
+                    mTicketIdx = tikIdx;
+                    memcpy(mTicket, &tik[tikIdx], sizeof(ESTicketView));
+                    System::getSharedHeap()->free(tik);
                 }
             }
 
@@ -46,9 +54,13 @@ namespace ipl {
             mDescriptor = ret;
 
             if (ret < ES_ERR_OK) {
+                errcode = ret;
+                titleId = mTitleId;
+                if (mTicket) {
+                    ticketId = mTicket->ticketId;
+                }
                 erridx = mContentIdx;
                 code = 400;
-                errcode = ret;
                 goto err;
             }
 
@@ -68,17 +80,19 @@ namespace ipl {
             }
 
             BOOL result = ARCOpen(&mArc, msFileName, &mArcFile);
-            if (result && ES_CloseContentFile(mDescriptor) >= ES_ERR_OK) {
-                return result == TRUE;
-            } else {
-            err:
-                char errString[192];
-                sprintf(errString, "ES %d, %llx, %llx, %x", errcode, mTitleId, erridx);
-
-                IPLErrorLogAndDisplay(MESG_ERR_FILE, errString, code, 158);
-
-                return FALSE;
+            if (!result) {
+                if (ES_CloseContentFile(mDescriptor) < ES_ERR_OK) {
+                    goto err;
+                }
             }
+            return result == TRUE;
+        err:
+            char errString[128];
+            sprintf(errString, "ES %d, %llx, %llx, %x", errcode, titleId, ticketId, erridx);
+
+            IPLErrorLogAndDisplay(MESG_ERR_FILE, errString, code, 158);
+
+            return FALSE;
         }
 
         BOOL SharedFile::closeTicketFile_() {

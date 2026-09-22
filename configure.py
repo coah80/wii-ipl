@@ -628,7 +628,7 @@ config.libs = [
             Object(Matching,    "system/iplChannelManager.cpp"),
             Object(Matching,    "system/iplChannelScriptManager.cpp"),
             Object(Matching,    "system/iplNand.cpp"),
-            Object(NonMatching, "system/iplNandShared.cpp"),
+            Object(Matching,    "system/iplNandShared.cpp"),
             Object(Matching,    "system/iplNandMeta.cpp"),
             Object(Matching,    "system/iplNandManager.cpp"),
             Object(Matching,    "system/iplNandWall.cpp"),
