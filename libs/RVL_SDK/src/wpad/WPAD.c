@@ -31,7 +31,7 @@
 char lbl_81687720[] = "<< RVL_SDK - WPAD \trelease build: Apr 20 2010 11:20:55 (0x4199_60831) >>";
 const char* __WPADVersion = lbl_81687720;
 
-WPADCB _wpd[WPAD_MAX_CONTROLLERS];
+WPADStorage _wpd;
 WPADCB* _wpdcb[WPAD_MAX_CONTROLLERS];
 
 u8 __WPADiManageHandlerStack[0x1000] ALIGN32;
@@ -1338,12 +1338,12 @@ void WPADiInitSub() {
     DEBUGPrint("WPADInit()\n");
 
     for (chan = 0; chan < WPAD_MAX_CONTROLLERS; chan++) {
-        _wpdcb[chan] = &_wpd[chan];
+        _wpdcb[chan] = &_wpd.controllers[chan];
         _chan_active_state[chan] = FALSE;
 
         _wpdcb[chan]->connectCB = NULL;
         __ClearControlBlock(chan);
-        OSInitThreadQueue(&_wpd[chan].threadQueue);
+        OSInitThreadQueue(&_wpd.controllers[chan].threadQueue);
 
         _extCnt[chan] = 0;
         _rumbleCnt[chan] = 0;

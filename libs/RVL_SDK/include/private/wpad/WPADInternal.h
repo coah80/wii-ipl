@@ -247,7 +247,12 @@ typedef struct WPADCB {
     u8 unk_0x98F[0x9A0 - 0x990];
 } WPADCB;
 
-extern WPADCB _wpd[WPAD_MAX_CONTROLLERS];
+typedef struct WPADStorage {
+    WPADCB controllers[WPAD_MAX_CONTROLLERS];
+    u8 unk_0x26C0[0x48];
+} WPADStorage;
+
+extern WPADStorage _wpd;
 extern WPADCB* _wpdcb[WPAD_MAX_CONTROLLERS];
 
 void WPADiInitSub();
