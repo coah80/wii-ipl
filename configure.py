@@ -1073,7 +1073,7 @@ config.libs = [
             Object(Matching,    "nwc24/NWC24Config.c"),
             Object(Matching,    "nwc24/NWC24Utils.c"),
             Object(NonMatching, "nwc24/NWC24Manage.c"),
-            Object(NonMatching, "nwc24/NWC24MsgObj.c"),
+            Object(Matching,    "nwc24/NWC24MsgObj.c"),
             Object(NonMatching, "nwc24/NWC24MBoxCtrl.c"),
             Object(NonMatching, "nwc24/NWC24Mime.c"),
             Object(Matching,    "nwc24/NWC24Stream.c"),
