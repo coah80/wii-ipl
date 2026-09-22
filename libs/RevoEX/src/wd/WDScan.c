@@ -8,15 +8,38 @@
 
 #include <string.h>
 
-extern volatile const u8 lbl_81695060;
-extern volatile const u8 lbl_81695061;
-extern volatile const u8 lbl_81695062;
-extern volatile const u8 lbl_81695064;
-extern volatile const u8 lbl_81695065;
-extern volatile const u8 lbl_81695066;
-extern volatile u8 lbl_81697D70;
-extern volatile u8 lbl_81697D71;
-extern volatile u8 lbl_81697D72;
+#pragma push
+#pragma section sconst_type ".sdata2"
+const u8 lbl_81695060 = 0;
+const u8 lbl_81695061 = 0x0F;
+const u8 lbl_81695062 = 0xAC;
+const u8 lbl_81695063 = 0;
+const u8 lbl_81695064 = 0;
+const u8 lbl_81695065 = 0x50;
+const u8 lbl_81695066 = 0xF2;
+const u8 lbl_81695067 = 0;
+#pragma pop
+#pragma push
+#pragma section sconst_type ".sdata"
+const u8 lbl_81697D70 = 0;
+const u8 lbl_81697D71 = 0x50;
+const u8 lbl_81697D72 = 0xF2;
+const u8 lbl_81697D73 = 0;
+const u8 lbl_81697D74 = 0;
+const u8 lbl_81697D75 = 0;
+const u8 lbl_81697D76 = 0;
+const u8 lbl_81697D77 = 0;
+#pragma pop
+
+#define lbl_81695060 (*((volatile const u8*)&lbl_81695060))
+#define lbl_81695061 (*((volatile const u8*)&lbl_81695061))
+#define lbl_81695062 (*((volatile const u8*)&lbl_81695062))
+#define lbl_81695064 (*((volatile const u8*)&lbl_81695064))
+#define lbl_81695065 (*((volatile const u8*)&lbl_81695065))
+#define lbl_81695066 (*((volatile const u8*)&lbl_81695066))
+#define lbl_81697D70 (*((volatile const u8*)&lbl_81697D70))
+#define lbl_81697D71 (*((volatile const u8*)&lbl_81697D71))
+#define lbl_81697D72 (*((volatile const u8*)&lbl_81697D72))
 extern void _savegpr_21();
 extern void _restgpr_21();
 
