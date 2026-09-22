@@ -1,9 +1,327 @@
-#include "scene/iplSceneManager.h"
+#define IPL_SCENE_MANAGER_H
+#define IPL_BASE_SCENE_H
+#define IPL_TREE_NODE_H
+#define IPL_QUEUE_H
 
+#include <decomp.h>
+#include <revolution.h>
+#include <egg/core.h>
+
+#include "scene/iplSceneCreator.h"
+
+namespace ipl {
+    namespace utility {
+        class Tree {
+        public:
+            Tree();
+            virtual ~Tree();
+            virtual Tree* getParent();
+            virtual Tree* getChild();
+            virtual Tree* getNext();
+            virtual Tree* getPrev();
+            void attach(Tree* tree);
+            void insert(Tree* tree, Tree* childTree);
+            void detach();
+            static Tree* empty() { return (Tree*)0; }
+
+            class iterator {
+                typedef Tree value_type;
+                typedef value_type* pointer;
+                typedef value_type& reference;
+
+            public:
+                explicit inline iterator(pointer ptr) : mPtr(ptr) {}
+                virtual reference operator*();
+                pointer operator->() { return mPtr; }
+                pointer getPtr() { return mPtr; }
+                iterator& operator++();
+
+            protected:
+                pointer mPtr;
+            };
+
+            class reverse_iterator {
+                typedef Tree value_type;
+                typedef value_type* pointer;
+                typedef value_type& reference;
+
+            public:
+                explicit inline reverse_iterator(pointer ptr) : mPtr(ptr) { reverse(); }
+                virtual reference operator*();
+                pointer operator->() { return mPtr; }
+                pointer getPtr() { return mPtr; }
+                void reverse();
+
+            protected:
+                pointer mPtr;
+            };
+
+        protected:
+            Tree* mpParent;
+            Tree* mpChild;
+            Tree* mpNext;
+            Tree* mpPrev;
+        };
+    }
+}
+
+namespace ipl {
+    namespace scene {
+        class Base;
+        enum {
+            COMMAND_NONE = 0,
+            COMMAND_CREATE_CHILD,
+            COMMAND_RESERVE_CHANGE,
+            COMMAND_RESERVE_ALL_DESTRUCT,
+        };
+
+        typedef struct {
+            int type;
+            int newSceneID;
+            int prevSceneID;
+            int newRootID;
+            Base* parent;
+            Base* child;
+            void* args;
+        } CommandData;
+
+        typedef struct Command {
+            CommandData data;
+            void clear();
+            Command() { clear(); }
+        } Command;
+
+        class Base : public utility::Tree, EGG::Disposer {
+        public:
+            Base(EGG::Heap* heap);
+            virtual ~Base();
+            virtual BOOL isReady() const;
+            virtual BOOL isResetAcceptable() const;
+            virtual void startResetting();
+            virtual BOOL isResetProcessDone();
+            virtual void prepare();
+            virtual void create();
+            virtual void calc();
+            virtual void draw();
+            virtual void destroy();
+            virtual Base* getParent();
+            virtual Base* getChild();
+            virtual Base* getNext();
+            virtual Base* getPrev();
+            bool isSceneCreated() const { return (mScnState & SCN_STATE_CREATED); }
+
+            class iterator : public utility::Tree::iterator {
+                typedef Base value_type;
+                typedef value_type* pointer;
+                typedef value_type& reference;
+
+            public:
+                explicit inline iterator(pointer ptr) : utility::Tree::iterator(ptr) {}
+                virtual reference operator*();
+                pointer operator->() { return (pointer)mPtr; }
+                pointer getPtr() { return (pointer)mPtr; }
+                void setPtr(pointer p) { mPtr = p; }
+            };
+
+            class reverse_iterator : public utility::Tree::reverse_iterator {
+                typedef Base value_type;
+                typedef value_type* pointer;
+                typedef value_type& reference;
+
+            public:
+                explicit reverse_iterator(pointer ptr);
+                virtual reference operator*();
+                pointer operator->() { return (pointer)mPtr; }
+                pointer getPtr() { return (pointer)mPtr; }
+                void setPtr(pointer p) { mPtr = p; }
+            };
+
+        private:
+            enum {
+                SCN_STATE_CREATED = (1 << 0),
+                SCN_STATE_DESTROY_REQ = (1 << 1),
+            };
+
+            void do_prepare();
+            void do_create();
+            void do_calc();
+            void do_draw();
+            void do_destroy();
+
+            EGG::Heap* mpHeap;
+            u32 mParentFlags;
+            u32 mScnState;
+            int mSceneID;
+            u32 mPrevSceneID;
+            Command mCommand;
+
+        protected:
+            enum {
+                SCN_PARENTFLAG_CALC = (1 << 0),
+                SCN_PARENTFLAG_DRAW = (1 << 1),
+            };
+
+            void createChildScene(int sceneId, Base* parent, Base* child, void* args = NULL);
+            void reserveSceneChange(int sceneId, void* args = NULL);
+            void reserveAllSceneDestruction(int sceneId, void* args = NULL);
+            void setSceneParentFlags(u32 flag) { mParentFlags = flag; }
+            void requestSceneDestruction() { mScnState |= SCN_STATE_DESTROY_REQ; }
+            EGG::Heap* getSceneHeap() { return mpHeap; }
+            int getSceneID() const { return mSceneID; }
+            u32 getPrevSceneID() const { return mPrevSceneID; }
+
+            friend class Manager;
+        };
+    }
+}
+
+namespace ipl {
+    namespace utility {
+        template <typename T, int c>
+        class Queue {
+        public:
+            inline Queue() : count(c), current(0), popped(0), pushed(0) {}
+
+            BOOL push(const T& item) {
+                if (count == current) {
+                    return FALSE;
+                }
+                items[pushed] = item;
+                if (++pushed >= count) {
+                    pushed = 0;
+                }
+                current++;
+                return TRUE;
+            }
+
+            BOOL pop() {
+                BOOL result = TRUE;
+                if (current == 0) {
+                    result = FALSE;
+                    goto done;
+                }
+                if (++popped >= count) {
+                    popped = 0;
+                }
+                current--;
+            done:
+                return result;
+            }
+
+            int get_current_index() { return current; }
+            T& get_current_item() { return items[get_current_index()]; }
+            int get_popped_index() { return popped; }
+            T& get_popped_item() { return items[get_popped_index()]; }
+            void next_popped_item() { popped++; }
+            void no_popped_item() { popped = 0; }
+            int get_pushed_index() { return pushed; }
+            T& get_pushed_item() { return items[get_pushed_index()]; }
+
+            T items[c];
+            int count;
+            int current;
+            int popped, pushed;
+        };
+
+        template <>
+        class Queue<ipl::scene::Command, 8> {
+        public:
+            inline Queue() : count(8), current(0), popped(0), pushed(0) {}
+
+            BOOL push(const ipl::scene::Command& item) {
+                if (count == current) {
+                    return FALSE;
+                }
+                items[pushed] = item;
+                if (++pushed >= count) {
+                    pushed = 0;
+                }
+                current++;
+                return TRUE;
+            }
+
+            BOOL pop();
+            int get_current_index() { return current; }
+            ipl::scene::Command& get_current_item() { return items[get_current_index()]; }
+            int get_popped_index() { return popped; }
+            ipl::scene::Command& get_popped_item() { return items[get_popped_index()]; }
+            void next_popped_item() { popped++; }
+            void no_popped_item() { popped = 0; }
+            int get_pushed_index() { return pushed; }
+            ipl::scene::Command& get_pushed_item() { return items[get_pushed_index()]; }
+
+            ipl::scene::Command items[8];
+            int count;
+            int current;
+            int popped, pushed;
+        };
+    }
+}
+
+namespace ipl {
+    namespace scene {
+        enum {
+            DRAW_LAYER_1 = 0,
+            DRAW_LAYER_2,
+            DRAW_LAYER_DEFAULT = DRAW_LAYER_2,
+            DRAW_LAYER_3,
+            DRAW_LAYER_MAX,
+        };
+
+#define MAX_COMMANDS 8
+        typedef utility::Queue<Command, MAX_COMMANDS> CommandList;
+
+        class Manager {
+        public:
+            Manager(EGG::Heap* heap);
+            void init();
+            void calc();
+            void calc(SceneObj* scene);
+            void draw();
+            void draw(SceneObj* scene);
+            SceneObj* createScene(int sceneId, int prevSceneId, void* args);
+            SceneObj* createScene(int sceneId, void* args) { return createScene(sceneId, SCENE_NONE, args); }
+            void createScene(const Command& command);
+            void destroyScene(SceneObj* scene);
+            void detach(SceneObj* scene);
+            void startResetting();
+            BOOL isResetProcessDone();
+            BOOL isResetAcceptable();
+            BOOL pushCommand(const Command& pCommand);
+            void setDestructSync();
+            void doDestructSync() { mbDestroySyncTask = true; }
+            SceneObj* getScene(int sceneId);
+            SceneObj* getScene(int sceneId, SceneObj* obj);
+            bool onDefaultDrawLayer() { return mDrawLayer == DRAW_LAYER_2; }
+            bool onDrawLayer(int layer) { return mDrawLayer == layer; }
+            void attachReservedScene();
+            BOOL isReady(int sceneId);
+            SceneObj* getReservedScene() { return mpReservedScene; }
+            int getCurrentRootSceneID() { return mRootSceneID; }
+            int getPreviousRootSceneID() { return mPrevRootSceneID; }
+
+        private:
+            void createRootScene(int sceneId, void* args);
+
+            EGG::UnitHeap* mpBigSceneHeap;
+            EGG::UnitHeap* mpMdmSceneHeap;
+            EGG::UnitHeap* mpSmlSceneHeap;
+            SceneObj* mpRootScene;
+            CommandList mCommands;
+            int mDrawLayer;
+            SceneObj* mpReservedScene;
+            Command mReservedCommand;
+            bool mbCreatedReserved;
+            bool mbDestroySyncTask;
+            int mRootSceneID;
+            int mPrevRootSceneID;
+        };
+    }
+}
+
+#define SCENE_CLASS(x) class x : public scene::Base
 #include "scene/iplRootScene.h"
-
 #include "iplSystem.h"
-
 #include <cstring>
 
 namespace ipl {
@@ -97,6 +415,33 @@ namespace ipl {
             }
         }
 
+        Base& Base::iterator::operator*() {
+            return *(Base*)mPtr;
+        }
+    }
+
+    namespace utility {
+        Tree::iterator& Tree::iterator::operator++() {
+            if (mPtr->getChild()) {
+                mPtr = mPtr->getChild();
+            } else {
+                if (mPtr->getNext()) {
+                    mPtr = mPtr->getNext();
+                } else {
+                    while ((mPtr = mPtr->getParent())) {
+                        if (!mPtr->getNext()) {
+                            continue;
+                        }
+
+                        mPtr = mPtr->getNext();
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    namespace scene {
         void Manager::draw() {
             mDrawLayer = DRAW_LAYER_1;
             while (mDrawLayer < DRAW_LAYER_MAX) {
@@ -163,6 +508,25 @@ namespace ipl {
                 }
                 stack10.setPtr(&*stack18);
             }
+        }
+
+        Base::reverse_iterator::reverse_iterator(Base* ptr) : utility::Tree::reverse_iterator(ptr) {}
+    }
+
+    namespace utility {
+        void Tree::reverse_iterator::reverse() {
+            while (mPtr->getChild()) {
+                mPtr = mPtr->getChild();
+                while (mPtr->getNext()) {
+                    mPtr = mPtr->getNext();
+                }
+            }
+        }
+    }
+
+    namespace scene {
+        Base& Base::reverse_iterator::operator*() {
+            return *(Base*)mPtr;
         }
 
         void Manager::createScene(const Command& command) {
@@ -278,4 +642,24 @@ namespace ipl {
             return found;
         }
     }  // namespace scene
+
+    namespace utility {
+        Tree& Tree::reverse_iterator::operator*() {
+            return *mPtr;
+        }
+
+        BOOL Queue<scene::Command, 8>::pop() {
+            BOOL result = TRUE;
+            if (current == 0) {
+                result = FALSE;
+                goto done;
+            }
+            if (++popped >= count) {
+                popped = 0;
+            }
+            current--;
+        done:
+            return result;
+        }
+    }
 }  // namespace ipl
