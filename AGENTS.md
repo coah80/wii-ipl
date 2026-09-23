@@ -170,6 +170,12 @@ disjoint tasks. Never duplicate a source file or function
 range. Workers return changed paths, exact objdiff measurements, and validation
 results. Fuzzy-only results are not accepted.
 
+Workers must do the work through tool calls and avoid conversational messages.
+Send findings to the parent only through the collaboration tool, with concise
+paths, measurements, and validation evidence. Put PR discussion on the PR when
+needed. Do not send user-facing status chatter; the orchestrator follows the
+reporting rule below.
+
 ### Worker loop
 
 Workers iterate until exact-name `objdiff` reports `100.0%`. They must not stop
@@ -298,6 +304,21 @@ After a successful merge:
 5. Only after the leaf is merged, clean, and no longer needed, remove its
    worktree and local branch. A failed or conflicted leaf keeps its worktree
    and worker alive.
+
+### User-facing progress reports
+
+Keep user-facing messages to a minimum and use as few tokens as possible.
+Do not send routine status updates or commentary while workers are running or
+PRs are open. After each matching-work PR is merged and the live progress
+report has been regenerated, send only the current linked, fuzzy, and data
+percentages in this format:
+
+```
+Linked: <percent> | Fuzzy: <percent> | Data: <percent>
+```
+
+Do not report stale values, unmerged PR results, or add other text to that
+update. Continue all required verification and coordination silently.
 
 ## Goal completion contract
 
