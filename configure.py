@@ -1965,7 +1965,7 @@ config.libs = [
             Object(Matching,    "MSL_Common/string.c"),
             Object(Matching,    "MSL_Common/float.c"),
             Object(NonMatching, "MSL_Common/strtold.c"),
-            Object(NonMatching, "MSL_Common/strtoul.c"),
+            Object(Matching,    "MSL_Common/strtoul.c", extra_cflags=["-Cpp_exceptions on"]),
             Object(NonMatching, "MSL_Common/time.c"),
             Object(Matching,    "MSL_Common/wctype.c"),
             Object(Matching,    "MSL_Common/wmem.c"),
