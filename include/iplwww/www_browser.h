@@ -139,6 +139,9 @@ namespace ext_ead {
             u32 unk_0x14;   // 0x14
             u32 unk_0x18;   // 0x18
             u32 maxLength;  // 0x1c
+
+            ImeData& operator=(const ImeData&);
+
         } ImeData;
 
         class BrowserThread : public ut_thread {
@@ -170,6 +173,9 @@ namespace ext_ead {
                     } updateIme;  // ID 4
                     u32 raw[6];
                 } data;
+
+                CmdPacket& operator=(const CmdPacket&);
+
             };
 
             BrowserThread();
