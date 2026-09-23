@@ -1832,7 +1832,7 @@ config.libs = [
             Object(NonMatching, "fa/api/FADetach.c"),
             Object(NonMatching, "fa/api/FAErrnum.c"),
             Object(Matching,    "fa/api/FAFclose.c"),
-            Object(NonMatching, "fa/api/FAFinfo.c"),
+            Object(Matching,    "fa/api/FAFinfo.c"),
             Object(NonMatching, "fa/api/FAFopen.c"),
             Object(NonMatching, "fa/api/FAFormat.c"),
             Object(Matching,    "fa/api/FAFread.c"),
