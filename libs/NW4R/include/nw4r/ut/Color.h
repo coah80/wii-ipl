@@ -31,7 +31,7 @@ namespace nw4r {
 
             // Left out destructor
 
-            ~Color();
+            ~Color() {}
 
             // Operators
 

@@ -26,7 +26,7 @@ namespace textinput {
 
                 virtual void    onTiEvent(gui::PaneComponent* paneComponent, u32 event, Input* input) = 0;  // 0x18
         
-                virtual void    setEventObserver(EventObserver *event);        // 0x1C
+                virtual void    setEventObserver(EventObserver *event)  { mpEventObserver = event; }        // 0x1C
 
             protected:
                 EventObserver*  mpEventObserver;    // 0x08
@@ -210,14 +210,14 @@ namespace textinput {
                 virtual bool                    updateInput(int point, f32 x, f32 y, u32 trig, u32 hold, u32 release, void* data);                  // 0x20
                 virtual bool                    updateInput(input::HKBManager& hkbManager);                                                         // 0x24
 
-                virtual TiLayout*               getLayout();                                                        // 0x28
+                virtual TiLayout*               getLayout()             { return mpLayout; }                                                        // 0x28
 
                 virtual nw4r::lyt::Pane*        getPane(const char* paneName);                                                                      // 0x2C
                 virtual const nw4r::lyt::Pane*  getPane(const char* paneName) const;                                                                // 0x30
 
                 virtual u32                     getFlightDuration(int point, const char* paneName);                                                 // 0x34
 
-                virtual void                    setAnimOn(bool flag);                                                        // 0x38
+                virtual void                    setAnimOn(bool flag)    { mbAnimOn = flag; }                                                        // 0x38
 
                 virtual void                    drawPane(const char* paneName);                                                                     // 0x3C
 
@@ -237,8 +237,8 @@ namespace textinput {
                 virtual AnmPane*                searchAnmPane(const char* paneName);                                                                // 0x60
                 virtual AnmPane*                searchAnmPane(wchar_t ch);                                                                          // 0x64
                 
-                virtual nw4r::ut::List&         getAnmPaneList();                                                       // 0x68
-                virtual gui::PaneManager*       getPaneManager();                                                   // 0x6C
+                virtual nw4r::ut::List&         getAnmPaneList()        { return mAnmPanes; }                                                       // 0x68
+                virtual gui::PaneManager*       getPaneManager()        { return mpPaneManager; }                                                   // 0x6C
 
                 virtual void                    AdjustPaneMtx(Mtx& mtx, const nw4r::lyt::DrawInfo& drawInfo, const nw4r::math::MTX34& mGlobalMtx);  // 0x70
 
