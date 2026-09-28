@@ -7467,17 +7467,17 @@ void CHANSVmSetSignal(CHANSVm* vm, vmBool* signal) {
 CHANSVmErr CHANSVmStep(CHANSVm* vm, int stepCount) {
     CHANSVmObjHdr* stackPtr;
     CHANSVmPrivate* pVm;
-    u32 etypes[4];
-    CHANSVmObjHdr tmpObj;
-    CHANSVmObjHdr tmpCopyObj;
+    u64 floatRaw;
+    u32 etypes[2];
+    CHANSVmObjHdr objBuf[4];
 
     pVm = (CHANSVmPrivate*)vm;
 
     if (stepCount == 0) {
         stepCount = 1;
     }
-    memset(&tmpObj, 0, sizeof(tmpObj));
-    stackPtr = &tmpCopyObj;
+    memset(&objBuf[3], 0, sizeof(objBuf[3]));
+    stackPtr = objBuf;
 
     while (stepCount-- != 0) {
         s32 opSize;
@@ -7546,7 +7546,6 @@ CHANSVmErr CHANSVmStep(CHANSVm* vm, int stepCount) {
                     break;
 
                 case CHANS_VM_OP_LOAD_FLOAT: {
-                    u64 floatRaw;
                     opSize = 9;
                     operandBuf = VmGetOperand(vm, 1, 9);
                     memcpy(&floatRaw, operandBuf, 8);
@@ -7626,10 +7625,10 @@ CHANSVmErr CHANSVmStep(CHANSVm* vm, int stepCount) {
 
                 binary_imm:
                     leftOp = &pVm->accumulator;
-                    rightOp = &tmpObj;
+                    rightOp = &objBuf[3];
                     opSize = 2;
                     operandBuf = VmGetOperand(vm, 1, 2);
-                    result = VmLoadImmInteger(vm, &tmpObj, operandBuf, 1);
+                    result = VmLoadImmInteger(vm, &objBuf[3], operandBuf, 1);
                 binary_typecheck:
                     if (result != CHANS_VM_OK) {
                         break;
@@ -7706,13 +7705,13 @@ CHANSVmErr CHANSVmStep(CHANSVm* vm, int stepCount) {
                     result = opFunc(vm, convTypeIdx, &pVm->accumulator, leftOp, rightOp);
 
                     if (result == CHANS_VM_OK) {
-                        result = CHANSVmDeleteObject(vm, &tmpObj);
-                        if (result == CHANS_VM_OK && leftOp != &pVm->accumulator && leftOp != &tmpObj && (leftOp->flags.raw & CHANSVM_OBJ_FLAG_READONLY) == 0 &&
+                        result = CHANSVmDeleteObject(vm, &objBuf[3]);
+                        if (result == CHANS_VM_OK && leftOp != &pVm->accumulator && leftOp != &objBuf[3] && (leftOp->flags.raw & CHANSVM_OBJ_FLAG_READONLY) == 0 &&
                             (result = CHANSVmDeleteObject(vm, leftOp), result == CHANS_VM_OK)) {
                             // TODO: find the correct sizeof(...) expression
                             CHANSVmFree(vm, leftOp, 0x20);
                         }
-                        if (result == CHANS_VM_OK && rightOp != &pVm->accumulator && rightOp != &tmpObj && (rightOp->flags.raw & CHANSVM_OBJ_FLAG_READONLY) == 0 &&
+                        if (result == CHANS_VM_OK && rightOp != &pVm->accumulator && rightOp != &objBuf[3] && (rightOp->flags.raw & CHANSVM_OBJ_FLAG_READONLY) == 0 &&
                             (result = CHANSVmDeleteObject(vm, rightOp), result == CHANS_VM_OK)) {
                             // TODO: find the correct sizeof(...) expression
                             CHANSVmFree(vm, rightOp, 0x20);
@@ -7828,9 +7827,9 @@ CHANSVmErr CHANSVmStep(CHANSVm* vm, int stepCount) {
                 }
 
                 binary_pop:
-                    leftOp = &tmpObj;
+                    leftOp = &objBuf[3];
                     rightOp = &pVm->accumulator;
-                    result = CHANSVmPopObject(vm, &tmpObj);
+                    result = CHANSVmPopObject(vm, &objBuf[3]);
                     if (result != CHANS_VM_OK) {
                         break;
                     }
@@ -7894,15 +7893,14 @@ CHANSVmErr CHANSVmStep(CHANSVm* vm, int stepCount) {
 
                 case CHANS_VM_OP_LOAD_INDIRECT: {
                     CHANSVmObjHdr* pAcc = &pVm->accumulator;
-                    CHANSVmObjHdr loadTmp;
                     result = CHANS_VM_ERR_LOAD_INDIRECT;
                     if (pAcc->type == CHANS_VM_TYPE_INDEX_REF) {
-                        copyResult = CHANSVmCopyObject(vm, &loadTmp, pAcc);
+                        copyResult = CHANSVmCopyObject(vm, &objBuf[2], pAcc);
                         if (copyResult != vmNull) {
-                            foundObj = VmGetArrayElement(vm, &loadTmp, arrayIdx, vmFalse);
+                            foundObj = VmGetArrayElement(vm, &objBuf[2], arrayIdx, vmFalse);
                             result = VmStore(vm, pAcc, foundObj);
                             if (result == CHANS_VM_OK) {
-                                result = CHANSVmDeleteObject(vm, &loadTmp);
+                                result = CHANSVmDeleteObject(vm, &objBuf[2]);
                             }
                         }
                     }
