@@ -1577,13 +1577,13 @@ namespace ipl {
         void Address::set_err_msg(wchar_t* errMsg, u32 errMsgLen, NWC24Err err) {
             memset(errMsg, 0, errMsgLen * sizeof(wchar_t));
             wcsncat(errMsg, System::getMessage(MESG_ERROR_CODE), errMsgLen - wcslen(errMsg));
+            u32 msgId = MESG_ERROR_CODE;
 
             wchar_t errCode[32];
             memset(errCode, 0, sizeof(errCode));
             swprintf(errCode, ARRAY_LENGTH(errCode), L"%06d\n", System::getNwc24Manager()->getErrCode());
             wcsncat(errMsg, errCode, errMsgLen - wcslen(errMsg));
 
-            u32 msgId = MESG_ERROR_CODE;
             switch (err) {
                 case NWC24_ERR_NETWORK: {
                     msgId = MESG_ERROR_NWC24_NETWORK;
