@@ -7,12 +7,23 @@
 #include <revolution/ax.h>
 
 namespace EGG {
+    IAudioMgr::Arg::Arg() {
+        pHeap = NULL;
+
+        soundThreadPrio = nw4r::snd::SoundSystem::DEFAULT_SOUND_THREAD_PRIORITY;
+        dvdThreadPrio = nw4r::snd::SoundSystem::DEFAULT_DVD_THREAD_PRIORITY;
+
+        unk_0x04 = 0;
+    }
+
     SimpleAudioMgr::SimpleAudioMgrArg::SimpleAudioMgrArg() {
         soundHeapSize = DEFAULT_SOUND_HEAP_SIZE;
     }
 
     SimpleAudioMgr::SimpleAudioMgr() : ArcPlayer(&getSoundHeap()) {
     }
+
+    SoundHeapMgr::SoundHeapMgr() {}
 
     SimpleAudioMgr::~SimpleAudioMgr() {
     }

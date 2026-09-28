@@ -880,12 +880,6 @@ namespace ipl {
 
         BOOL Calendar::is_lower_limit() {
             static const f32 pad0 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
-            static const f32 pad1 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
-            static const f32 pad2 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
-            static const f32 pad3 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
-            static const f32 pad4 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
-            static const f32 pad5 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
-            static const f32 pad6 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
             return mpBoardDate->year == mscMinDate.year && mpBoardDate->month == mscMinDate.month;
         }
     }  // namespace scene

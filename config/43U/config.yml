@@ -10,6 +10,17 @@ splits: 'config/43U/splits.txt'
 
 ldscript_template: 'config/ldscript_ipl2.lcf'
 
+force_active:
+  - labs
+  - itoa
+  - strpbrk
+  - strspn
+  - strcspn
+  - atol
+  - padding__Q23ipl5scene
+  - lbl_81695063
+  - lbl_81695067
+
 quick_analysis: true
 fill_gaps: false
 
