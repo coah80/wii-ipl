@@ -63,10 +63,14 @@ namespace ipl {
         // clang-format on
 
 #ifdef IPL_CONTROLLER_NATIVE_HIERARCHY
+#ifdef IPL_CONTROLLER_OUT_OF_LINE_INTERFACE
+#define IPL_CONTROLLER_DEFAULT_VIRTUAL(signature, implementation) virtual signature;
+#else
 #ifdef IPL_CONTROLLER_INLINE_INTERFACE
 #define IPL_CONTROLLER_DEFAULT_VIRTUAL(signature, implementation) virtual signature implementation
 #else
 #define IPL_CONTROLLER_DEFAULT_VIRTUAL(signature, implementation) virtual signature;
+#endif
 #endif
         class Interface {
         public:
@@ -79,7 +83,7 @@ namespace ipl {
             IPL_CONTROLLER_DEFAULT_VIRTUAL(int pinch() const, { return 0; })
             IPL_CONTROLLER_DEFAULT_VIRTUAL(int pinchTrg() const, { return 0; })
             IPL_CONTROLLER_DEFAULT_VIRTUAL(int pinchOffTrg() const, { return 0; })
-            IPL_CONTROLLER_DEFAULT_VIRTUAL(int decide() const, { return 0; })
+            virtual int decide() const = 0;
             IPL_CONTROLLER_DEFAULT_VIRTUAL(bool repeat(u32 button) const, { return false; })
             IPL_CONTROLLER_DEFAULT_VIRTUAL(BOOL rumble(int type = 0), { return FALSE; })
             IPL_CONTROLLER_DEFAULT_VIRTUAL(void cancelRumbling(), {  })
