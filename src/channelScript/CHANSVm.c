@@ -7491,6 +7491,7 @@ CHANSVmErr CHANSVmStep(CHANSVm* vm, int stepCount) {
         u32 newPos;
         u32 isTypeMatch;
         u32 shouldBranch;
+        u32 foundEntry;
 
         if (pVm->bSignalUpdated != vmFalse && pVm->bSignalBlocked == vmFalse) {
             pVm->bSignalUpdated = vmFalse;
@@ -8059,7 +8060,6 @@ CHANSVmErr CHANSVmStep(CHANSVm* vm, int stepCount) {
                 }
 
                 case CHANS_VM_OP_GET_PROPERTY_NAME: {
-                    u32 foundEntry;
                     CHANSVmObjHdr* pAcc = &pVm->accumulator;
                     opSize = 5;
                     operandBuf = VmGetOperand(vm, 1, 5);
@@ -8106,15 +8106,19 @@ CHANSVmErr CHANSVmStep(CHANSVm* vm, int stepCount) {
                                         s32 snpLen = snprintf(s, 0x40, lbl_81697591, (u64)arrayIdx);
                                         CHANSVmStrCpyToU16FromU8((wchar_t*)s, s, snpLen);
                                         pAcc->value.string_v->len = VM_STR_LENGTH(snpLen);
-                                        if (pAcc->value.string_v->len == 0) {
-                                            result = CHANS_VM_ERR_GET_PROPERTY_NAME;
+                                        if (pAcc->value.string_v->len != 0) {
+                                            goto prop_name_ok;
+                                        } else {
+                                            goto prop_name_err;
                                         }
                                     } else {
-                                        result = CHANS_VM_ERR_GET_PROPERTY_NAME;
+                                        goto prop_name_err;
                                     }
+                                    prop_name_err:
+                                    result = CHANS_VM_ERR_GET_PROPERTY_NAME;
+                                    prop_name_ok:;
                                 }
                                 if (result != CHANS_VM_OK) {
-                                    result = CHANS_VM_ERR_GET_PROPERTY_NAME;
                                     break;
                                 }
                             } else {
