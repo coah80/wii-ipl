@@ -466,35 +466,25 @@ namespace ipl {
 
             utility::CharacterCode::WiiIdToUTF16(wii, mpFriendList->mMyUserId);
 
-            const wchar_t* src = wii;
             int i = 0;
-            for (int k = 0; k < 4; k++) {
-                text[i] = *src;
-                src++;
-                i++;
+            for (int j = 0; j < 4; j++) {
+                text[i++] = wii[j];
             }
             text[i] = L' ';
             i++;
-            for (int k = 0; k < 4; k++) {
-                text[i] = *src;
-                src++;
-                i++;
+            for (int j = 4; j < 8; j++) {
+                text[i++] = wii[j];
             }
             text[i] = L' ';
             i++;
-            for (int k = 0; k < 4; k++) {
-                text[i] = *src;
-                src++;
-                i++;
+            for (int j = 8; j < 12; j++) {
+                text[i++] = wii[j];
             }
             text[i] = L' ';
             i++;
-            for (int k = 0; k < 4; k++) {
-                text[i] = *src;
-                src++;
-                i++;
+            for (int j = 12; j < 16; j++) {
+                text[i++] = wii[j];
             }
-            text[i] = L' ';
 
             set_textbox("T_wii_name", text);
             set_page_text("T_nmbr_b", mPageNo + 1);
