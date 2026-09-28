@@ -805,8 +805,15 @@ void __a1_22_ack(u8 chan, u8* data) {
     p_wpd = _wpdcb[chan];
     p_status = (WPADStatus*)(p_wpd->rxBufs[0] + p_wpd->rxBufIndex * WPAD_RX_DATASIZE);
     p_clear = (u8*)(p_status);
-    for (i = 0; i < WPAD_RX_DATASIZE; i++) {
+    for (i = 0; i < WPAD_RX_DATASIZE; i += 8) {
         p_clear[i] = 0;
+        p_clear[i + 1] = 0;
+        p_clear[i + 2] = 0;
+        p_clear[i + 3] = 0;
+        p_clear[i + 4] = 0;
+        p_clear[i + 5] = 0;
+        p_clear[i + 6] = 0;
+        p_clear[i + 7] = 0;
     }
 
     p_status->button =
@@ -817,10 +824,10 @@ void __a1_22_ack(u8 chan, u8* data) {
 
     DEBUGPrint("ack --> report ID = %02x, error code = %d\n", type, err);
 
-    status = (err == 0) ? WPAD_ERR_NONE : WPAD_ERR_TRANSFER;
-
     p_status->err = WPAD_ERR_BUSY;
     p_status->dev = p_wpd->devType;
+    status = WPAD_ERR_TRANSFER;
+    status &= ~-((__cntlzw(err) >> 5) & 1);
 
     if (err) {
         DEBUGPrint("ack error --> report ID = %d, error code = %d\n", type, err);
