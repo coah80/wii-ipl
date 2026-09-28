@@ -1,21 +1,6 @@
 #include <nw4r/db/assert.h>
 
-extern "C" const u8 lbl_81695550 = 255;
-extern "C" const u8 lbl_81695551 = 255;
-extern "C" const u8 lbl_81695552 = 255;
-extern "C" const u8 lbl_81695553 = 0;
-extern "C" char lbl_816719DC[] = "Error#004\nAn error has occurred.\nThe system files are corrupted.";
-
-#undef NW4R_ASSERT
-#define NW4R_ASSERT(x)                                                                                                                               \
-    {                                                                                                                                                \
-        if (!(x)) {                                                                                                                                  \
-            GXColor front = {*((volatile const u8*)&::lbl_81695550), *((volatile const u8*)&::lbl_81695551),                                        \
-                             *((volatile const u8*)&::lbl_81695552), *((volatile const u8*)&::lbl_81695553)};                                        \
-            GXColor back = {0, 0, 0, 0};                                                                                                             \
-            OSFatal((GXColor)front, (GXColor)back, ::lbl_816719DC);                                                                                  \
-        }                                                                                                                                            \
-    }
+extern "C" extern char lbl_816719DC[];
 
 #include <nw4r/lyt/window.h>
 
@@ -28,6 +13,22 @@ extern "C" char lbl_816719DC[] = "Error#004\nAn error has occurred.\nThe system 
 #include <nw4r/math.h>
 
 #include <new>
+
+#undef NW4R_ASSERT
+#define NW4R_ASSERT(x)                                                                                                                               \
+    {                                                                                                                                                \
+        if (!(x)) {                                                                                                                                  \
+            static const u8 front_0 = 255;                                                                                                         \
+            static const u8 front_1 = 255;                                                                                                         \
+            static const u8 front_2 = 255;                                                                                                         \
+            static const u8 front_3 = 0;                                                                                                           \
+            GXColor front = {*((volatile const u8*)&front_0), *((volatile const u8*)&front_1),                                                       \
+                             *((volatile const u8*)&front_2), *((volatile const u8*)&front_3)};                                                      \
+            GXColor back = {0, 0, 0, 0};                                                                                                             \
+            OSFatal((GXColor)front, (GXColor)back, ::lbl_816719DC);                                                                                  \
+        }                                                                                                                                            \
+    }
+
 
 namespace nw4r {
     namespace lyt {
@@ -44,8 +45,18 @@ namespace {
         u8 idx[FLIPINDEX_MAX];                      // 0x08
     } TextureFlipInfo;
 
+    extern "C" const u8 lbl_81695530 = 255;
+    extern "C" const u8 lbl_81695531 = 255;
+    extern "C" const u8 lbl_81695532 = 255;
+    extern "C" const u8 lbl_81695533 = 0;
+
     TextureFlipInfo& GetTexutreFlipInfo(u8 textureFlip) {
-        NW4R_ASSERT(textureFlip < TEXTUREFLIP_MAX);
+        if (!(textureFlip < TEXTUREFLIP_MAX)) {
+            GXColor front = {*((volatile const u8*)&::lbl_81695530), *((volatile const u8*)&::lbl_81695531),
+                             *((volatile const u8*)&::lbl_81695532), *((volatile const u8*)&::lbl_81695533)};
+            GXColor back = {0, 0, 0, 0};
+            OSFatal((GXColor)front, (GXColor)back, ::lbl_816719DC);
+        }
 
         // clang-format off
         static TextureFlipInfo flipInfos[] = {                                                      //    0    1    2    3
@@ -165,7 +176,10 @@ namespace {
             flipInfo.coords[VERTEXCOLOR_RB][iy] +
             polSize.height / ((flipInfo.coords[VERTEXCOLOR_RT][iy] - flipInfo.coords[VERTEXCOLOR_RB][iy]) * tSz[iy]);
     }
-}  // namespace
+}
+
+extern "C" char lbl_816719DC[] = "Error#004\nAn error has occurred.\nThe system files are corrupted.";
+  // namespace
 
 namespace nw4r {
     namespace lyt {
@@ -285,13 +299,33 @@ namespace nw4r {
             Pane::SetAnimationEnable(animTrans, bEnable, bRecursive);
         }
 
+        extern "C" const u8 lbl_81695534 = 255;
+        extern "C" const u8 lbl_81695535 = 255;
+        extern "C" const u8 lbl_81695536 = 255;
+        extern "C" const u8 lbl_81695537 = 0;
+
         ut::Color Window::GetVtxColor(u32 idx) const {
-            NW4R_ASSERT(idx < VERTEXCOLOR_MAX);
+            if (!(idx < VERTEXCOLOR_MAX)) {
+                GXColor front = {*((volatile const u8*)&::lbl_81695534), *((volatile const u8*)&::lbl_81695535),
+                                 *((volatile const u8*)&::lbl_81695536), *((volatile const u8*)&::lbl_81695537)};
+                GXColor back = {0, 0, 0, 0};
+                OSFatal((GXColor)front, (GXColor)back, ::lbl_816719DC);
+            }
             return mContent.vtxColors[idx];
         }
 
+        extern "C" const u8 lbl_81695538 = 255;
+        extern "C" const u8 lbl_81695539 = 255;
+        extern "C" const u8 lbl_8169553A = 255;
+        extern "C" const u8 lbl_8169553B = 0;
+
         void Window::SetVtxColor(u32 idx, ut::Color value) {
-            NW4R_ASSERT(idx < VERTEXCOLOR_MAX);
+            if (!(idx < VERTEXCOLOR_MAX)) {
+                GXColor front = {*((volatile const u8*)&::lbl_81695538), *((volatile const u8*)&::lbl_81695539),
+                                 *((volatile const u8*)&::lbl_8169553A), *((volatile const u8*)&::lbl_8169553B)};
+                GXColor back = {0, 0, 0, 0};
+                OSFatal((GXColor)front, (GXColor)back, ::lbl_816719DC);
+            }
             mContent.vtxColors[idx] = value;
         }
 
@@ -487,8 +521,22 @@ namespace nw4r {
             return ret;
         }
 
+        extern "C" const u8 lbl_81695550 = 255;
+        extern "C" const u8 lbl_81695551 = 255;
+        extern "C" const u8 lbl_81695552 = 255;
+        extern "C" const u8 lbl_81695553 = 0;
+        extern "C" const u8 lbl_81695554 = 0;
+        extern "C" const u8 lbl_81695555 = 0;
+        extern "C" const u8 lbl_81695556 = 0;
+        extern "C" const u8 lbl_81695557 = 0;
+
         Material* Window::GetFrameMaterial(u32 frameIdx) const {
-            NW4R_ASSERT(frameIdx < WINDOWFRAME_MAX);
+            if (!(frameIdx < WINDOWFRAME_MAX)) {
+                GXColor front = {*((volatile const u8*)&::lbl_81695550), *((volatile const u8*)&::lbl_81695551),
+                                 *((volatile const u8*)&::lbl_81695552), *((volatile const u8*)&::lbl_81695553)};
+                GXColor back = {0, 0, 0, 0};
+                OSFatal((GXColor)front, (GXColor)back, ::lbl_816719DC);
+            }
             if (frameIdx >= mFrameNum) {
                 return NULL;
             }
