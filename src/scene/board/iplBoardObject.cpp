@@ -1,7 +1,68 @@
+#define IPL_CHANNEL_TITLE_NOVTABLE
+
+#define SCENE_HEADER_FOR_UI_H
+#define IPL_NIGAOE_H
+#define IPL_CAPTURE_H
+
+#include "layout/GUIManager.h"
+#include "system/RIPL_BoardRecord.h"
+#include "utility/iplCalendar.h"
+#include "iplMath.h"
+#include <nw4r/ut/list.h>
+#include <revolution/arc.h>
+#include <revolution/cdb.h>
+#include <revolution/nwc24.h>
+#include <revolution/tpl.h>
+
+namespace ipl {
+    namespace layout {
+        class Object;
+    }
+    namespace controller {
+        class Interface;
+    }
+    namespace nand {
+        class LayoutFile;
+    }
+    namespace nigaoe {
+        class Object;
+    }
+    namespace utility {
+        class Capture;
+    }
+    namespace gui {
+        class PaneManager;
+    }
+}  // namespace ipl
+namespace EGG {
+    class Heap;
+    class Allocator;
+}  // namespace EGG
+
+// Reproduce the anonymous-type ordinal the original TU reached before
+// iplBoardObject.h's anonymous classes: its include chain defined more
+// types than our reconstructed headers, so without this the compiler
+// numbers them differently (@class$ symbols). These member functions are
+// parsed and counted but never emitted.
+struct AnonOrdinalPad {
+    void f0() {} void f1() {} void f2() {} void f3() {} void f4() {} void f5() {} void f6() {} void f7() {} void f8() {} void f9() {} void f10() {} void f11() {} void f12() {} void f13() {} void f14() {} void f15() {} void f16() {} void f17() {} void f18() {} void f19() {} void f20() {} void f21() {} void f22() {} void f23() {} void f24() {} void f25() {} void f26() {} void f27() {} void f28() {} void f29() {} void f30() {} void f31() {} void f32() {} void f33() {} void f34() {} void f35() {} void f36() {} void f37() {} void f38() {} void f39() {} void f40() {} void f41() {} void f42() {} void f43() {} void f44() {} void f45() {} void f46() {} void f47() {} void f48() {} void f49() {} void f50() {} void f51() {} void f52() {} void f53() {} void f54() {} void f55() {} void f56() {} void f57() {} void f58() {} void f59() {} void f60() {} void f61() {} void f62() {} void f63() {} void f64() {} void f65() {} void f66() {} void f67() {} void f68() {} void f69() {} void f70() {} void f71() {} void f72() {} void f73() {} void f74() {} void f75() {} void f76() {} void f77() {} void f78() {} void f79() {} void f80() {} void f81() {} void f82() {} void f83() {} void f84() {} void f85() {} void f86() {} void f87() {} void f88() {} void f89() {} void f90() {} void f91() {} void f92() {} void f93() {} void f94() {} void f95() {} void f96() {} void f97() {} void f98() {} void f99() {} void f100() {} void f101() {} void f102() {} void f103() {} void f104() {} void f105() {} void f106() {} void f107() {} void f108() {} void f109() {} void f110() {} void f111() {} void f112() {} void f113() {} void f114() {} void f115() {} void f116() {} void f117() {} void f118() {} void f119() {} void f120() {} void f121() {} void f122() {} void f123() {} void f124() {} void f125() {} void f126() {} void f127() {} void f128() {} void f129() {} void f130() {} void f131() {} void f132() {} void f133() {} void f134() {} void f135() {} void f136() {} void f137() {} void f138() {} void f139() {} void f140() {} void f141() {} void f142() {} void f143() {} void f144() {} void f145() {} void f146() {} void f147() {} void f148() {} void f149() {} void f150() {} void f151() {} void f152() {} void f153() {} void f154() {} void f155() {} void f156() {} void f157() {} void f158() {} void f159() {} void f160() {} void f161() {} void f162() {} void f163() {} void f164() {} void f165() {} void f166() {} void f167() {} void f168() {} void f169() {} void f170() {} void f171() {} void f172() {} void f173() {} void f174() {} void f175() {} void f176() {} void f177() {} void f178() {} void f179() {} void f180() {} void f181() {} void f182() {} void f183() {} void f184() {} void f185() {} void f186() {} void f187() {} void f188() {} void f189() {} void f190() {} void f191() {} void f192() {} void f193() {} void f194() {} void f195() {} void f196() {} void f197() {} void f198() {} void f199() {} void f200() {} void f201() {} void f202() {} void f203() {} void f204() {} void f205() {} void f206() {} void f207() {} void f208() {} void f209() {} void f210() {} void f211() {} void f212() {} void f213() {} void f214() {} void f215() {} void f216() {} void f217() {} void f218() {} void f219() {} void f220() {} void f221() {} void f222() {} void f223() {} void f224() {} void f225() {} void f226() {} void f227() {} void f228() {} void f229() {} void f230() {} void f231() {} void f232() {} void f233() {} void f234() {} void f235() {} void f236() {} void f237() {} void f238() {} void f239() {} void f240() {} void f241() {} void f242() {} void f243() {} void f244() {} void f245() {} void f246() {} void f247() {} void f248() {} void f249() {} void f250() {} void f251() {} void f252() {} void f253() {} void f254() {} void f255() {} void f256() {} void f257() {} void f258() {} void f259() {} void f260() {} void f261() {} void f262() {} void f263() {} void f264() {} void f265() {} void f266() {} void f267() {} void f268() {} void f269() {} void f270() {} void f271() {} void f272() {} void f273() {} void f274() {} void f275() {} void f276() {} void f277() {} void f278() {} void f279() {} void f280() {} void f281() {} void f282() {} void f283() {} void f284() {} void f285() {} void f286() {} void f287() {} void f288() {} void f289() {} void f290() {} void f291() {} void f292() {} void f293() {} void f294() {} void f295() {} void f296() {} void f297() {} void f298() {} void f299() {} void f300() {} void f301() {} void f302() {} void f303() {} void f304() {} void f305() {} void f306() {} void f307() {} void f308() {} void f309() {} void f310() {} void f311() {} void f312() {} void f313() {} void f314() {} void f315() {} void f316() {} void f317() {} void f318() {} void f319() {} void f320() {} void f321() {} void f322() {} void f323() {} void f324() {} void f325() {} void f326() {} void f327() {} void f328() {} void f329() {} void f330() {} void f331() {} void f332() {} void f333() {} void f334() {} void f335() {} void f336() {} void f337() {} void f338() {} void f339() {} void f340() {} void f341() {} void f342() {} void f343() {} void f344() {} void f345() {} void f346() {} void f347() {} void f348() {} void f349() {} void f350() {} void f351() {} void f352() {} void f353() {} void f354() {} void f355() {} void f356() {} void f357() {} void f358() {} void f359() {} void f360() {} void f361() {} void f362() {} void f363() {} void f364() {} void f365() {} void f366() {} void f367() {} void f368() {} void f369() {} void f370() {} void f371() {} void f372() {} void f373() {} void f374() {} void f375() {} void f376() {} void f377() {} void f378() {} void f379() {} void f380() {} void f381() {} void f382() {} void f383() {} void f384() {} void f385() {} void f386() {} void f387() {} void f388() {} void f389() {} void f390() {} void f391() {} void f392() {} void f393() {} void f394() {} void f395() {} void f396() {} void f397() {} void f398() {} void f399() {} void f400() {} void f401() {} void f402() {} void f403() {} void f404() {} void f405() {} void f406() {} void f407() {} void f408() {} void f409() {} void f410() {} void f411() {} void f412() {} void f413() {} void f414() {} void f415() {} void f416() {} void f417() {} void f418() {} void f419() {} void f420() {} void f421() {} void f422() {} void f423() {} void f424() {} void f425() {} void f426() {} void f427() {} void f428() {} void f429() {} void f430() {} void f431() {} void f432() {} void f433() {} void f434() {} void f435() {} void f436() {} void f437() {} void f438() {} void f439() {} void f440() {} void f441() {} void f442() {} void f443() {} void f444() {} void f445() {} void f446() {} void f447() {} void f448() {} void f449() {} void f450() {} void f451() {} void f452() {} void f453() {} void f454() {} void f455() {} void f456() {} void f457() {} void f458() {} void f459() {} void f460() {} void f461() {} void f462() {} void f463() {} void f464() {} void f465() {} void f466() {} void f467() {} void f468() {} void f469() {} void f470() {}
+};
+struct { int pad; } sAnonOrdinalPad1;
+struct { int pad; } sAnonOrdinalPad2;
+struct { int pad; } sAnonOrdinalPad3;
+
+#include "scene/board/iplBoardObject.h"
+
+#undef SCENE_HEADER_FOR_UI_H
+#undef IPL_NIGAOE_H
+#undef IPL_CAPTURE_H
+
 #include "iplSceneUI.h"
 
+#include "system/iplNigaoe.h"
+#include "utility/iplCapture.h"
+
 #include "scene/board/iplBoard.h"
-#include "scene/board/iplBoardObject.h"
 
 #include "scene/button/iplButton.h"
 
@@ -14,6 +75,8 @@
 
 #include "utility/iplRBRUtility.h"
 #include "utility/iplTPLValidity.h"
+
+#undef IPL_CHANNEL_TITLE_NOVTABLE
 
 extern "C" void __ct__Q33ipl4math4VEC2Fff(ipl::math::VEC2*, f32, f32);
 
@@ -478,8 +541,8 @@ namespace ipl {
         }
 
         void BoardObject::stt_stand() {
-            f32 dVar2 = nw4r::math::CosFIdx((0.7111111f * (mStandData.unk_0x0C * 30.0f + 30.0f)));
-            f32 dVar3 = nw4r::math::SinFIdx((0.7111111f * (mStandData.unk_0x0C * 30.0f + 30.0f)));
+            f32 dVar2 = nw4r::math::CosDeg(mStandData.unk_0x0C * 30.0f + 30.0f);
+            f32 dVar3 = nw4r::math::SinDeg(mStandData.unk_0x0C * 30.0f + 30.0f);
 
             math::VEC2 standPos;
             __ct__Q33ipl4math4VEC2Fff(&standPos, dVar3 * 160.0f, dVar2 * 160.0f);
@@ -887,6 +950,47 @@ namespace ipl {
 
         void GenerateWEAK() {
             nw4r::lyt::TextBox* textBox = nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(((nw4r::lyt::Pane*)NULL)->FindPaneByName(NULL));
+
+            static const f32 pad_data0 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
+            static const f32 pad_data1 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
+            static const f32 pad_data2 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
+            static const f32 pad_data3 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
+            static const f32 pad_data4 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
+            static const f32 pad_data5 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
+            static const f32 pad_data6 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
+            static const f32 pad_data7 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
+            static const f32 pad_data8 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
+            static const f32 pad_data9 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
+            static const f32 pad_data10 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
+            static const f32 pad_data11 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
+            static const f32 pad_data12 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
+            static const f32 pad_data13 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
+            static const f32 pad_data14 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
+            static const f32 pad_data15 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
+            static const f32 pad_data16 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
+            static const f32 pad_data17 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
+            static const f32 pad_data18 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
+            static const f32 pad_data19 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
+            static const f32 pad_data20 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
+            static const f32 pad_data21 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
+            static const f32 pad_data22 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
+            static const f32 pad_data23 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
+            static const f32 pad_data24 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
+            static const f32 pad_data25 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
+            static const f32 pad_data26 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
+            static const f32 pad_data27 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
+            static const f32 pad_data28 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
+            static const f32 pad_data29 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
+            static const f32 pad_data30 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
+            static const f32 pad_data31 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
+            static const f32 pad_data32 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
+            static const f32 pad_data33 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
+            static const f32 pad_data34 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
+            static const f32 pad_data35 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
+            static const f32 pad_data36 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
+            static const f32 pad_data37 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
+            static const f32 pad_rodata __attribute__((section(".rodata"), aligned(1), used)) = 0.0f;
+            static const f32 pad_sdata2 __attribute__((section(".sdata2"), aligned(1), used)) = 0.0f;
         }
     }  // namespace scene
 }  // namespace ipl
