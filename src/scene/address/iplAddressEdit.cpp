@@ -1724,72 +1724,19 @@ void ipl::scene::AddressEdit::draw() {
     }
 }
 
-extern "C" asm void stt_wait_btn_fadein__Q33ipl5scene11AddressEditFv(ipl::scene::AddressEdit*) {
-    nofralloc
-    stwu r1, -0x10(r1)
-    mflr r0
-    stw r0, 0x14(r1)
-    stw r31, 0xc(r1)
-    mr r31, r3
-    stw r30, 8(r1)
-    lwz r0, 0xa4(r3)
-    lwz r4, 0x4ec(r3)
-    mulli r0, r0, 0x140
-    add r4, r4, r0
-    lwz r0, 4(r4)
-    cmplwi r0, 2
-    bne stt_wait_btn_fadein_L1
-    lwz r3, 0x68(r3)
-    li r4, 0x10
-    addi r3, r3, 0x28c
-    bl List_GetNth__Q24nw4r2utFPCQ34nw4r2ut4ListUs
-    lwz r3, 0x14(r3)
-    addi r3, r3, -1
-    addic r0, r3, -1
-    subfe r30, r0, r3
-    b stt_wait_btn_fadein_L2
-stt_wait_btn_fadein_L1:
-    lwz r3, 0x68(r3)
-    li r4, 0x1a
-    addi r3, r3, 0x28c
-    bl List_GetNth__Q24nw4r2utFPCQ34nw4r2ut4ListUs
-    lwz r3, 0x14(r3)
-    addi r3, r3, -1
-    addic r0, r3, -1
-    subfe r30, r0, r3
-stt_wait_btn_fadein_L2:
-    lwz r3, 0x68(r31)
-    li r4, 0x11
-    addi r3, r3, 0x28c
-    bl List_GetNth__Q24nw4r2utFPCQ34nw4r2ut4ListUs
-    lwz r5, 0x14(r3)
-    li r4, 0x12
-    lwz r3, 0x68(r31)
-    addi r5, r5, -1
-    addic r0, r5, -1
-    addi r3, r3, 0x28c
-    subfe r0, r0, r5
-    and r5, r30, r0
-    addic r0, r5, -1
-    subfe r30, r0, r5
-    bl List_GetNth__Q24nw4r2utFPCQ34nw4r2ut4ListUs
-    lwz r3, 0x14(r3)
-    addi r3, r3, -1
-    addic r0, r3, -1
-    subfe r0, r0, r3
-    and r3, r30, r0
-    addic r0, r3, -1
-    subfe. r0, r0, r3
-    beq stt_wait_btn_fadein_L3
-    li r0, 0
-    stw r0, 0x64(r31)
-stt_wait_btn_fadein_L3:
-    lwz r0, 0x14(r1)
-    lwz r31, 0xc(r1)
-    lwz r30, 8(r1)
-    mtlr r0
-    addi r1, r1, 0x10
-    blr
+void ipl::scene::AddressEdit::stt_wait_btn_fadein() {
+    u32 friendStatus = mpFriendCache->getInfo(mSelectedFriend).attr.status;
+    bool finished;
+    if (friendStatus == 2) {
+        finished = !mpCodeLayout->getAnim(0x10)->isPlaying();
+    } else {
+        finished = !mpCodeLayout->getAnim(0x1a)->isPlaying();
+    }
+    finished = finished & !mpCodeLayout->getAnim(0x11)->isPlaying();
+    finished = finished & !mpCodeLayout->getAnim(0x12)->isPlaying();
+    if (finished) {
+        mState = 0;
+    }
 }
 
 void ipl::scene::AddressEdit::stt_wait_btn_fadeout() {
