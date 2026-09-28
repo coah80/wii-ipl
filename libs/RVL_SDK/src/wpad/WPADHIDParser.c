@@ -104,6 +104,23 @@ static u8 checkInvalidData[21] = {
     0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
 };
 
+static void abortInitExtension(s32 chan, s32 result);
+
+static void initExtension(s32 chan) {
+    WPADControlBlock* p_wpd = _wpdcb[chan];
+
+    WPADiClearQueue(&p_wpd->extCmdQueue);
+    WPADiSendSetReportType(&p_wpd->extCmdQueue, p_wpd->dataFormat,
+                           p_wpd->unk_0x98E, abortInitExtension);
+    p_wpd->unk_0x98D = 1;
+    WPADiSendWriteDataCmd(&p_wpd->extCmdQueue, 0x55, 0x04a400f0,
+                          abortInitExtension);
+    WPADiSendWriteDataCmd(&p_wpd->extCmdQueue, 0, 0x04a400fb,
+                          abortInitExtension);
+    WPADiSendReadData(&p_wpd->extCmdQueue, p_wpd->wmReadDataBuf, 6,
+                      0x04a400fa, abortInitExtension);
+}
+
 static void abortInitExtension(s32 chan, s32 result) {
     WPADControlBlock* p_wpd = _wpdcb[chan];
     u32 type;
@@ -117,16 +134,7 @@ static void abortInitExtension(s32 chan, s32 result) {
 
         else if (p_wpd->wpInfo.attach) {
             if (_retryCnt[chan]++ < 32) {
-                WPADiClearQueue(&p_wpd->extCmdQueue);
-                WPADiSendSetReportType(&p_wpd->extCmdQueue, p_wpd->dataFormat,
-                                       p_wpd->unk_0x98E, abortInitExtension);
-                p_wpd->unk_0x98D = 1;
-                WPADiSendWriteDataCmd(&p_wpd->extCmdQueue, 0x55, 0x04a400f0,
-                                      abortInitExtension);
-                WPADiSendWriteDataCmd(&p_wpd->extCmdQueue, 0, 0x04a400fb,
-                                      abortInitExtension);
-                WPADiSendReadData(&p_wpd->extCmdQueue, p_wpd->wmReadDataBuf, 6,
-                                  0x04a400fa, abortInitExtension);
+                initExtension(chan);
                 return;
             }
             type = WPAD_DEV_NOT_SUPPORTED;
@@ -154,8 +162,8 @@ static void getDevConfig(s32 chan, s32 result) {
     int j;
     int index;
     DPDObject obj[WPAD_DPD_MAX_OBJECTS];
-    const s16 dummyObjX[] = {127, 896, 896, 127};
-    const s16 dummyObjY[] = {93, 93, 674, 674};
+    const s16 defaultDpdX[] = {127, 896, 896, 127};
+    const s16 defaultDpdY[] = {93, 93, 674, 674};
     f32 difaveX;
     f32 difaveY;
     f32 deltaX;
@@ -166,8 +174,8 @@ static void getDevConfig(s32 chan, s32 result) {
     f32 ag_org[WPAD_DPD_MAX_OBJECTS];
 
     for (i = 0; i < WPAD_DPD_MAX_OBJECTS; i++) {
-        p_wpd->devConfig.dpd[i].x = dummyObjX[i];
-        p_wpd->devConfig.dpd[i].y = dummyObjY[i];
+        p_wpd->devConfig.dpd[i].x = defaultDpdX[i];
+        p_wpd->devConfig.dpd[i].y = defaultDpdY[i];
         p_wpd->devConfig.dpd[i].size = (u16)p_wpd->defaultDpdSize;
         p_wpd->devConfig.dpd[i].traceId = i;
     }
@@ -261,8 +269,8 @@ static void getDevConfig(s32 chan, s32 result) {
     for (i = 0; i < WPAD_DPD_MAX_OBJECTS; i++) {
         x[i] = (f32)(p_wpd->devConfig.dpd[i].x);
         y[i] = (f32)(p_wpd->devConfig.dpd[i].y);
-        difaveX += p_wpd->devConfig.dpd[i].x - dummyObjX[i];
-        difaveY += p_wpd->devConfig.dpd[i].y - dummyObjY[i];
+        difaveX += p_wpd->devConfig.dpd[i].x - defaultDpdX[i];
+        difaveY += p_wpd->devConfig.dpd[i].y - defaultDpdY[i];
 
         DEBUGPrint("x = %lf, y = %lf\n", x[i], y[i]);
     }
@@ -293,7 +301,7 @@ static void getDevConfig(s32 chan, s32 result) {
     rolag[chan] = 0.0f;
     for (i = 0; i < WPAD_DPD_MAX_OBJECTS; i++) {
         ag[i] = (f32)atan((f32)(y[i] - centerY[chan]) / (f32)(x[i] - centerX[chan]));
-        ag_org[i] = (f32)atan((f32)((f32)(dummyObjY[i]) - 383.5f) / (f32)((f32)(dummyObjX[i]) - 511.5f));
+        ag_org[i] = (f32)atan((f32)((f32)(defaultDpdY[i]) - 383.5f) / (f32)((f32)(defaultDpdX[i]) - 511.5f));
 
         rolag[chan] += ag[i] - ag_org[i];
     }
