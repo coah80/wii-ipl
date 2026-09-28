@@ -250,6 +250,8 @@ namespace textinput {
             }
         }
 
+        PaneComponent::~PaneComponent() {}
+
         void PaneManager::createLayoutScene(const nw4r::lyt::Layout& layout) {
             mIDCounter = 0;
             walkInChildren(layout.GetRootPane()->GetChildList());
@@ -314,8 +316,6 @@ namespace textinput {
             }
             return NULL;
         }
-
-        PaneComponent::~PaneComponent() {}
 
         void PaneManager::setAllBoundingBoxComponentTriggerTarget(bool bEnable) {
             const volatile u16& numObjects = mPaneComponents.numObjects;
