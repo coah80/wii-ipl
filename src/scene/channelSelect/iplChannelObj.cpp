@@ -638,7 +638,7 @@ namespace ipl {
         void ChannelObj::setLangPane(const layout::Object* layout) {
             int lang = System::getLanguage();
             const char* langGroup = scLangGroups[lang];
-            char local_50[40] = "";
+            char local_50[10][4] = {""};
 
             bool bVar4 = false;
 
@@ -648,7 +648,7 @@ namespace ipl {
                 } else {
                     bool bVar3 = true;
                     for (int i = 0; i < channel::MAX_ANIMS; i++) {
-                        char name[6];
+                        char name[8];
                         sprintf(name, "Rso%d", i);
                         if (strncmp(it->GetName(), name, 5) == 0) {
                             bVar3 = false;
@@ -661,10 +661,10 @@ namespace ipl {
                             it2->mTarget->SetVisible(false);
                         }
 
-                        for (int i = 0; i < 10; i++) {
+                        for (int i = 0; i < SC_LANG_MAX; i++) {
                             if (strncmp(it->GetName(), scLangGroups[i], 3) == 0) {
-                                memcpy(&local_50[i], it->GetName(), 3);
-                                local_50[i + 3] = 0;
+                                memcpy(local_50[i], it->GetName(), 3);
+                                local_50[i][3] = 0;
                                 break;
                             }
                         }
@@ -680,11 +680,9 @@ namespace ipl {
             } else {
                 s32 region = System::getRegion();
                 for (int i = 0; i < channel::MAX_ANIMS; i++) {
-                    char* groupName = (char*)lbl_8164E328.langGroupLookup[region][i];
-
-                    if (groupName != NULL) {
-                        if (strcmp(groupName, &local_50[scLangLookup[region][i]]) == 0) {
-                            nw4r::lyt::Group* group = layout->FindGroupByName(groupName);
+                    if (lbl_8164E328.langGroupLookup[region][i] != NULL) {
+                        if (strcmp(lbl_8164E328.langGroupLookup[region][i], local_50[scLangLookup[region][i]]) == 0) {
+                            nw4r::lyt::Group* group = layout->FindGroupByName(((const char**)lbl_8164E328.langGroupLookup[region])[i]);
                             for (nw4r::lyt::PaneLinkList::Iterator it = group->GetPaneList().GetBeginIter(); it != group->GetPaneList().GetEndIter();
                                  it++) {
                                 it->mTarget->SetVisible(true);
