@@ -4,6 +4,39 @@
 #include <revolution/mtx.h>
 #include <revolution/os.h>
 
+typedef struct KPADSampleFS {
+    s16 accX;
+    s16 accY;
+    s16 accZ;
+    s8 stickX;
+    s8 stickY;
+} KPADSampleFS;
+
+typedef struct KPADSampleCL {
+    u16 buttons;
+    s16 lStickX;
+    s16 lStickY;
+    s16 rStickX;
+    s16 rStickY;
+    u8 triggerL;
+    u8 triggerR;
+} KPADSampleCL;
+
+typedef struct KPADSample {
+    u16 buttons;
+    s16 accX;
+    s16 accY;
+    s16 accZ;
+    DPDObject objects[WPAD_MAX_DPD_OBJECTS];
+    u8 device;
+    s8 error;
+    union {
+        KPADSampleFS fs;
+        KPADSampleCL cl;
+    } extension;
+    u8 dataFormat;
+} KPADSample;
+
 typedef struct KPADInside {
     KPADStatus status;
     f32 posParamX;
@@ -43,7 +76,7 @@ typedef struct KPADInside {
     u16 dpdCount;
     u8 ringIndex;
     u8 ringCount;
-    u8 ringData[16][0x38];
+    KPADSample ringData[16];
     f32 value490;
     f32 value494;
     f32 value498;
@@ -60,7 +93,6 @@ typedef struct KPADInside {
     f32 value4C4;
     u16 value4C8;
     u8 value4CA;
-    u8 pad4CB;
     u16 repeatCount;
     u16 repeatCount2;
     u16 repeatDelay;
@@ -84,7 +116,7 @@ typedef struct KPADInside {
     f32 value510;
     f32 value514;
     WPADSamplingCallback samplingCallback;
-    u8 pad51C;
+    u8 samplingInProgress;
     u8 flag51D;
     u8 flag51E;
     u8 flag51F;
@@ -94,14 +126,14 @@ typedef struct KPADInside {
     u8 dpdCallbackPending;
     u8 sensorHeightPending;
     u8 sensorBarPosition;
-    u8 pad526[2];
+    u16 freeStyleAccelRotation;
 } KPADInside;
 
 typedef struct KPADDPDObject {
     f32 x;
     f32 y;
     u8 flags;
-    u8 pad[3];
+    u8 status;
 } KPADDPDObject;
 
 static KPADInside inside_kpads[4];
@@ -398,8 +430,8 @@ static void calc_acc_vertical(KPADInside* kpad) {
     }
 }
 
-static void read_kpad_acc(KPADInside* kpad, u8* status) {
-    u8 format = status[0x36];
+static void read_kpad_acc(KPADInside* kpad, KPADSample* status) {
+    u8 format = status->dataFormat;
     f32 oldX;
     f32 oldY;
     f32 oldZ;
@@ -416,7 +448,7 @@ static void read_kpad_acc(KPADInside* kpad, u8* status) {
     oldX = kpad->status.acc.x;
     oldY = kpad->status.acc.y;
     oldZ = kpad->status.acc.z;
-    target = -(f32)*(s16*)(status + 2) * kpad->value4DC;
+    target = -(f32)status->accX * kpad->value4DC;
     if (target < 0.0f) {
         if (target < -kp_rm_acc_max) {
             target = -kp_rm_acc_max;
@@ -425,7 +457,7 @@ static void read_kpad_acc(KPADInside* kpad, u8* status) {
         target = kp_rm_acc_max;
     }
     kpad->value4A4 = target;
-    target = -(f32)*(s16*)(status + 6) * kpad->value4E4;
+    target = -(f32)status->accZ * kpad->value4E4;
     if (target < 0.0f) {
         if (target < -kp_rm_acc_max) {
             target = -kp_rm_acc_max;
@@ -434,7 +466,7 @@ static void read_kpad_acc(KPADInside* kpad, u8* status) {
         target = kp_rm_acc_max;
     }
     kpad->value4A8 = target;
-    target = (f32)*(s16*)(status + 4) * kpad->value4E0;
+    target = (f32)status->accY * kpad->value4E0;
     if (target < 0.0f) {
         if (target < -kp_rm_acc_max) {
             target = -kp_rm_acc_max;
@@ -492,7 +524,7 @@ static void read_kpad_acc(KPADInside* kpad, u8* status) {
     kpad->status.acc_speed = (f32)sqrt(delta * delta + (currentX * currentX + currentY * currentY));
     calc_acc_horizon(kpad);
     calc_acc_vertical(kpad);
-    if (status[0x29] != 0 || status[0x28] != 1) {
+    if (status->error != 0 || status->device != 1) {
         return;
     }
     if (format != 4 && format != 5) {
@@ -501,25 +533,25 @@ static void read_kpad_acc(KPADInside* kpad, u8* status) {
     {
         Vec raw;
         f32* values = (f32*)&raw;
-        values[0] = -(f32)*(s16*)(status + 0x2A) * kpad->value4E8;
+        values[0] = -(f32)status->extension.fs.accX * kpad->value4E8;
         if (values[0] < -kp_fs_acc_max) {
             values[0] = -kp_fs_acc_max;
         } else if (values[0] > kp_fs_acc_max) {
             values[0] = kp_fs_acc_max;
         }
-        values[1] = -(f32)*(s16*)(status + 0x2E) * kpad->value4F0;
+        values[1] = -(f32)status->extension.fs.accZ * kpad->value4F0;
         if (values[1] < -kp_fs_acc_max) {
             values[1] = -kp_fs_acc_max;
         } else if (values[1] > kp_fs_acc_max) {
             values[1] = kp_fs_acc_max;
         }
-        values[2] = (f32)*(s16*)(status + 0x2C) * kpad->value4EC;
+        values[2] = (f32)status->extension.fs.accY * kpad->value4EC;
         if (values[2] < -kp_fs_acc_max) {
             values[2] = -kp_fs_acc_max;
         } else if (values[2] > kp_fs_acc_max) {
             values[2] = kp_fs_acc_max;
         }
-        if (*(u16*)(kpad->pad526) != 0) {
+        if (kpad->freeStyleAccelRotation != 0) {
             PSMTXMultVec((const f32 (*)[4])initial_rotation_matrix, &raw, &raw);
         }
         oldX = kpad->status.ex_status.fs.acc.x;
@@ -741,7 +773,7 @@ static s8 select_1obj_first(KPADInside* kpad) {
                 kpad->valueF4 = left;
                 kpad->valueF8 = bottom;
                 kpad->valueFC = 0;
-                ((u8*)kpad)[0xFD] = 0xFF;
+                ((u8*)&kpad->valueFC)[1] = 0xFF;
                 return -1;
             }
             continue;
@@ -753,7 +785,7 @@ static s8 select_1obj_first(KPADInside* kpad) {
             kpad->value100 = right;
             kpad->value104 = top;
             kpad->value108 = 0;
-            ((u8*)kpad)[0x109] = 0xFF;
+            ((u8*)&kpad->value108)[1] = 0xFF;
             return -1;
         }
     }
@@ -770,8 +802,11 @@ static s8 select_1obj_continue(KPADInside* kpad) {
     s32 track;
     s32 i;
     for (track = 0; track < 2; track++) {
-        u8* tracked = (u8*)kpad + (track == 0 ? 0xF4 : 0x100);
-        if ((s8)tracked[8] != 0 || (s8)tracked[9] != 0) {
+        f32* candidateX = track == 0 ? &kpad->valueF4 : &kpad->value100;
+        f32* candidateY = track == 0 ? &kpad->valueF8 : &kpad->value104;
+        u32* candidateFlags = track == 0 ? &kpad->valueFC : &kpad->value108;
+        u8* candidateState = (u8*)candidateFlags;
+        if ((s8)candidateState[0] != 0 || (s8)candidateState[1] != 0) {
             continue;
         }
         for (i = 0; i < 4; i++) {
@@ -781,15 +816,15 @@ static s8 select_1obj_continue(KPADInside* kpad) {
             if ((s8)objects[i].flags != 0) {
                 continue;
             }
-            dx = objects[i].x - *(f32*)tracked;
-            dy = objects[i].y - *(f32*)(tracked + 4);
+            dx = objects[i].x - *candidateX;
+            dy = objects[i].y - *candidateY;
             distance = dx * dx + dy * dy;
             if (distance < threshold) {
                 threshold = distance;
                 source = &objects[i];
-                trackedX = (f32*)tracked;
-                trackedY = (f32*)(tracked + 4);
-                trackedFlags = (u32*)(tracked + 8);
+                trackedX = candidateX;
+                trackedY = candidateY;
+                trackedFlags = candidateFlags;
             }
         }
     }
@@ -806,15 +841,15 @@ static s8 select_1obj_continue(KPADInside* kpad) {
         f32 offsetY = kpad->value490 * y;
         kpad->value494 = x;
         kpad->value498 = y;
-        if (trackedX == (f32*)((u8*)kpad + 0x100)) {
+        if (trackedX == &kpad->value100) {
             kpad->value100 = *trackedX + offsetX;
             kpad->value108 = 0;
-            ((u8*)kpad)[0x109] = 0xFF;
+            ((u8*)&kpad->value108)[1] = 0xFF;
             kpad->value104 = *trackedY + offsetY;
         } else {
             kpad->valueF4 = *trackedX - offsetX;
             kpad->valueFC = 0;
-            ((u8*)kpad)[0xFD] = 0xFF;
+            ((u8*)&kpad->valueFC)[1] = 0xFF;
             kpad->valueF8 = *trackedY - offsetY;
         }
     }
@@ -824,19 +859,19 @@ static s8 select_1obj_continue(KPADInside* kpad) {
     return 1;
 }
 
-static void read_kpad_dpd(KPADInside* kpad, u8* status) {
+static void read_kpad_dpd(KPADInside* kpad, KPADSample* status) {
     KPADDPDObject* objects = (KPADDPDObject*)((u8*)kpad + 0xC4);
-    u8 format = status[0x36];
+    u8 format = status->dataFormat;
     s8 selected = 0;
     s32 i;
     if (format == 2 || format == 5 || format == 8) {
         for (i = 3; i >= 0; i--) {
-            DPDObject* source = (DPDObject*)(status + 8 + i * 8);
+            DPDObject* source = &status->objects[i];
             if (source->size != 0) {
                 objects[i].x = (f32)source->x * 0.001953125f - 0.9990234375f;
                 objects[i].y = (f32)source->y * 0.001953125f - 0.7490234375f;
                 objects[i].flags = 0;
-                objects[i].pad[0] = 0;
+                objects[i].status = 0;
             } else {
                 objects[i].flags = 0xFF;
             }
@@ -998,7 +1033,7 @@ static void clamp_stick_cross(Vec2* stick, s32 x, s32 y, s32 minimum, s32 maximu
     }
 }
 
-static void read_kpad_stick(KPADInside* kpad, u8* status) {
+static void read_kpad_stick(KPADInside* kpad, KPADSample* status) {
     typedef void (*StickClamp)(Vec2*, s32, s32, s32, s32);
     StickClamp clamp = clamp_stick_cross;
     KPADEXStatus* extension = (KPADEXStatus*)((u8*)kpad + 0x60);
@@ -1007,8 +1042,8 @@ static void read_kpad_stick(KPADInside* kpad, u8* status) {
     if (kp_stick_clamp_cross != 0) {
         clamp = clamp_stick_circle;
     }
-    device = status[0x28];
-    format = status[0x36];
+    device = status->device;
+    format = status->dataFormat;
     if (device == 1) {
         if ((u8)(format + 0xFD) <= 2) {
             if (kpad->flag51E != 0) {
@@ -1020,7 +1055,7 @@ static void read_kpad_stick(KPADInside* kpad, u8* status) {
                 extension->fs.acc_value = 1.0f;
                 extension->fs.acc_speed = 0.0f;
             }
-            clamp(&extension->fs.stick, (s8)status[0x30], (s8)status[0x31], kp_fs_fstick_min, kp_fs_fstick_max);
+            clamp(&extension->fs.stick, status->extension.fs.stickX, status->extension.fs.stickY, kp_fs_fstick_min, kp_fs_fstick_max);
             return;
         }
         return;
@@ -1040,24 +1075,24 @@ static void read_kpad_stick(KPADInside* kpad, u8* status) {
         kpad->repeatCurrent = 0;
         kpad->repeatCurrent2 = kpad->repeatDelay;
     }
-    clamp(&extension->cl.lstick, *(s16*)(status + 0x2C), *(s16*)(status + 0x2E), kp_cl_stick_min, kp_cl_stick_max);
-    clamp(&extension->cl.rstick, (s8)*(s16*)(status + 0x30), *(s8*)(status + 0x32), kp_cl_stick_min, kp_cl_stick_max);
-    if (status[0x34] <= kp_cl_trigger_min) {
+    clamp(&extension->cl.lstick, status->extension.cl.lStickX, status->extension.cl.lStickY, kp_cl_stick_min, kp_cl_stick_max);
+    clamp(&extension->cl.rstick, (s8)status->extension.cl.rStickX, *(s8*)&status->extension.cl.rStickY, kp_cl_stick_min, kp_cl_stick_max);
+    if (status->extension.cl.triggerL <= kp_cl_trigger_min) {
         extension->cl.ltrigger = 0.0f;
-    } else if (status[0x34] >= kp_cl_trigger_max) {
+    } else if (status->extension.cl.triggerL >= kp_cl_trigger_max) {
         extension->cl.ltrigger = 1.0f;
     } else {
-        extension->cl.ltrigger = (f32)(status[0x34] - kp_cl_trigger_min) / (kp_cl_trigger_max - kp_cl_trigger_min);
+        extension->cl.ltrigger = (f32)(status->extension.cl.triggerL - kp_cl_trigger_min) / (kp_cl_trigger_max - kp_cl_trigger_min);
     }
-    if (status[0x35] <= kp_cl_trigger_min) {
+    if (status->extension.cl.triggerR <= kp_cl_trigger_min) {
         extension->cl.rtrigger = 0.0f;
         return;
     }
-    if (status[0x35] >= kp_cl_trigger_max) {
+    if (status->extension.cl.triggerR >= kp_cl_trigger_max) {
         extension->cl.rtrigger = 1.0f;
         return;
     }
-    extension->cl.rtrigger = (f32)(status[0x35] - kp_cl_trigger_min) / (kp_cl_trigger_max - kp_cl_trigger_min);
+    extension->cl.rtrigger = (f32)(status->extension.cl.triggerR - kp_cl_trigger_min) / (kp_cl_trigger_max - kp_cl_trigger_min);
 }
 
 static void reset_kpad(KPADInside* kpad) {
@@ -1318,11 +1353,11 @@ s32 KPADRead(s32 chan, KPADStatus* statuses, u32 count) {
         return 0;
     }
     interruptState = OSDisableInterrupts();
-    if (kpad->pad51C != 0) {
+    if (kpad->samplingInProgress != 0) {
         OSRestoreInterrupts(interruptState);
         return 0;
     }
-    kpad->pad51C = 1;
+    kpad->samplingInProgress = 1;
     probe = WPADProbe(chan, 0);
     OSRestoreInterrupts(interruptState);
     if (kpad->flag51D != 0) {
@@ -1331,7 +1366,7 @@ s32 KPADRead(s32 chan, KPADStatus* statuses, u32 count) {
     }
     WPADSetSamplingCallback(chan, KPADiSamplingCallback);
     if (kpad->ringCount == 0 || statuses == 0 || count == 0) {
-        kpad->pad51C = 0;
+        kpad->samplingInProgress = 0;
         return 0;
     }
     interruptState = OSDisableInterrupts();
@@ -1343,12 +1378,12 @@ s32 KPADRead(s32 chan, KPADStatus* statuses, u32 count) {
     start = (kpad->ringIndex - available) & 0xF;
     OSRestoreInterrupts(interruptState);
     for (i = 0; i < available; i++) {
-        u8* sample = (u8*)kpad + (start * 0x38) + 0x110;
+        KPADSample* sample = &kpad->ringData[start];
         KPADStatus* output = (KPADStatus*)((u8*)statuses + i * sizeof(KPADStatus));
-        u8 device = sample[0x28];
-        s8 error = (s8)sample[0x29];
-        u8 format = sample[0x36];
-        u32 buttons = *(u16*)sample & 0x9FFF;
+        u8 device = sample->device;
+        s8 error = sample->error;
+        u8 format = sample->dataFormat;
+        u32 buttons = sample->buttons & 0x9FFF;
         u32 oldButtons = kpad->status.hold;
         u32 changed = oldButtons ^ buttons;
         kpad->status.hold = buttons;
@@ -1358,7 +1393,7 @@ s32 KPADRead(s32 chan, KPADStatus* statuses, u32 count) {
         kpad->status.wpad_err = error;
         kpad->status.data_format = format;
         if (device == 2) {
-            u32 classicButtons = *(u16*)(sample + 0x2A);
+            u32 classicButtons = sample->extension.cl.buttons;
             oldButtons = kpad->status.ex_status.cl.hold;
             changed = oldButtons ^ classicButtons;
             kpad->status.ex_status.cl.hold = classicButtons;
@@ -1378,7 +1413,7 @@ s32 KPADRead(s32 chan, KPADStatus* statuses, u32 count) {
         memcpy(output, &kpad->status, sizeof(KPADStatus));
         start = (start + 1) & 0xF;
     }
-    kpad->pad51C = 0;
+    kpad->samplingInProgress = 0;
     return available;
 }
 
@@ -1460,7 +1495,7 @@ void KPADInit(void) {
         kpad->repeatCurrent2 = 40000;
         kpad->sensorHeightPending = 1;
         kpad->sensorBarPosition = 1;
-        *(u16*)kpad->pad526 = 0;
+        kpad->freeStyleAccelRotation = 0;
         matrix[4] = temp_f29;
         temp_f2 = (f32)cos(temp_f30 * sensor_bar_angle_degrees);
         matrix[5] = temp_f2;
@@ -1477,7 +1512,7 @@ void KPADInit(void) {
             u8* record = (u8*)kpad;
             i = 0;
             do {
-                record[0x139] = 0xFF;
+                kpad->ringData[i].error = -1;
                 record += 0x38;
                 i++;
             } while (i < 16);
@@ -1510,16 +1545,16 @@ static void KPADiSamplingCallback(s32 chan) {
     u32 device;
     if (WPADProbe(chan, &device) != -1) {
         u8 index = kpad->ringIndex;
-        u8* status;
+    KPADSample* status;
         u32 tier;
         u32 enabled;
         u32 tableIndex;
         if (index >= 16) {
             index = 0;
         }
-        status = (u8*)kpad + index * 0x38 + 0x110;
+        status = &kpad->ringData[index];
         WPADRead(chan, (WPADStatus*)status);
-        status[0x36] = WPADGetDataFormat(chan);
+        status->dataFormat = WPADGetDataFormat(chan);
         kpad->ringIndex = index + 1;
         if (kpad->ringCount < 16) {
             kpad->ringCount++;
@@ -1585,7 +1620,7 @@ static void KPADiSamplingCallback(s32 chan) {
                     kpad->dpdFormat = dpdModeTable[tableIndex];
                 }
             }
-        } else if (status[0x36] != dpdModeTable[tableIndex + 1]) {
+        } else if (status->dataFormat != dpdModeTable[tableIndex + 1]) {
             WPADSetDataFormat(chan, dpdModeTable[tableIndex + 1]);
         }
     }
