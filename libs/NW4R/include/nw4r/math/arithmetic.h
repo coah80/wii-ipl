@@ -50,6 +50,10 @@ namespace nw4r {
 
         f32 FrSqrt(f32 x);
         u32 CntBit1(u32 x);
+
+#ifdef IPL_ADDRESS_MATCHING
+        inline f32 FSqrt(f32 x) { return (x <= 0.0f) ? 0.0f : x * FrSqrt(x); }
+#endif
     }  // namespace math
 }  // namespace nw4r
 
