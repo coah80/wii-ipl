@@ -1766,25 +1766,9 @@ void ipl::scene::AddressEdit::stt_wait_del_msg_fadein() {
     }
 }
 
-extern "C" asm void delete_friendinfo__Q33ipl5scene11AddressEditFv(void* self) {
-    nofralloc
-    stwu r1, -0x10(r1)
-    mflr r0
-    mr r4, r3
-    stw r0, 0x14(r1)
-    lwz r3, 0x4ec(r3)
-    lwz r4, 0xa4(r4)
-    bl del__Q33ipl5scene15FriendListCacheFUl
-    lis r3, smArg__Q23ipl6System@ha
-    li r4, 0x14
-    addi r3, r3, smArg__Q23ipl6System@l
-    lwz r3, 0x64(r3)
-    bl getScene__Q33ipl5scene7ManagerFi
-    bl reset_friend__Q33ipl5scene7AddressFv
-    lwz r0, 0x14(r1)
-    mtlr r0
-    addi r1, r1, 0x10
-    blr
+void ipl::scene::AddressEdit::delete_friendinfo() {
+    mpFriendCache->del(mSelectedFriend);
+    static_cast<ipl::scene::Address*>(ipl::System::getScene(0x14))->reset_friend();
 }
 
 u64 ipl::scene::AddressEdit::utf16_wiiid(const wchar_t* value) {
