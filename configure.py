@@ -765,7 +765,7 @@ config.libs = [
         ]
     ),
     IPLSection("channelSelect", [
-            Object(Matching,    "scene/channelSelect/iplChannelSelect.cpp"),
+            Object(Equivalent,  "scene/channelSelect/iplChannelSelect.cpp"),
             Object(Matching,    "scene/channelSelect/iplClock.cpp"),
             Object(Equivalent,  "scene/channelSelect/iplChannelObj.cpp"),
         ]
