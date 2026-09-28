@@ -1760,28 +1760,10 @@ void ipl::scene::AddressEdit::stt_normal() {
     }
 }
 
-extern "C" asm void stt_wait_del_msg_fadein__Q33ipl5scene11AddressEditFv(ipl::scene::AddressEdit*) {
-    nofralloc
-    stwu r1, -0x10(r1)
-    mflr r0
-    li r4, 0x1c
-    stw r0, 0x14(r1)
-    stw r31, 0xc(r1)
-    mr r31, r3
-    lwz r5, 0x68(r3)
-    addi r3, r5, 0x28c
-    bl List_GetNth__Q24nw4r2utFPCQ34nw4r2ut4ListUs
-    lwz r0, 0x14(r3)
-    cmpwi r0, 1
-    beq stt_wait_del_msg_fadein_L1
-    li r0, 7
-    stw r0, 0x64(r31)
-stt_wait_del_msg_fadein_L1:
-    lwz r0, 0x14(r1)
-    lwz r31, 0xc(r1)
-    mtlr r0
-    addi r1, r1, 0x10
-    blr
+void ipl::scene::AddressEdit::stt_wait_del_msg_fadein() {
+    if (!mpCodeLayout->getAnim(0x1c)->isPlaying()) {
+        mState = 7;
+    }
 }
 
 extern "C" asm void delete_friendinfo__Q33ipl5scene11AddressEditFv(void* self) {
