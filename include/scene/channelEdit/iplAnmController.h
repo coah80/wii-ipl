@@ -3,7 +3,15 @@
 
 #include <revolution/types.h>
 
+#ifdef IPL_ANM_CONTROLLER_FORWARD_GUI
+namespace ipl {
+    namespace gui {
+        class PaneManager;
+    }
+}
+#else
 #include "layout/iplGuiManager.h"
+#endif
 #include "layout/iplLayout.h"
 
 namespace ipl {

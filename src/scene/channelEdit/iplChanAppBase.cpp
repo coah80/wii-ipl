@@ -1,3 +1,7 @@
+#define IPL_ANM_CONTROLLER_FORWARD_GUI
+#include "scene/channelEdit/iplAnmController.h"
+#undef IPL_ANM_CONTROLLER_FORWARD_GUI
+
 #include "scene/channelEdit/iplChanAppBase.h"
 
 #include "scene/channelEdit/iplChannelEdit.h"
