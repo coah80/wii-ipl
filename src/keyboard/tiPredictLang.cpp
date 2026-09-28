@@ -1,4 +1,6 @@
+#define TI_PREDICTLANG_SAMPLE_CLASS
 #include "keyboard/tiPredictLang.h"
+#undef TI_PREDICTLANG_SAMPLE_CLASS
 
 #include "keyboard/tiLanguageIndependentData.h"
 #include "keyboard/tiManager.h"
