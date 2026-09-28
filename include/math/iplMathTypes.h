@@ -91,11 +91,15 @@ namespace ipl {
                 y = r.y;
                 z = 0.0f;
             }
+#ifdef IPL_ADDRESS_EDIT_CPP
+            VEC3(f32 fx, f32 fy, f32 fz);
+#else
             VEC3(f32 fx, f32 fy, f32 fz) {
                 x = fx;
                 y = fy;
                 z = fz;
             }
+#endif
 
             VEC3& operator+=(const VEC3& rhs) {
                 VEC3Add(this, this, &rhs);

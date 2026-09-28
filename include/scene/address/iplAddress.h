@@ -258,6 +258,9 @@ namespace ipl {
             static const math::VEC2 smcPageOffset;
 
             friend class AddressEvent;
+#ifdef IPL_ADDRESS_EDIT_CPP
+            friend class AddressEdit;
+#endif
         };
 
         class AddressEvent : public ::gui::EventHandler {

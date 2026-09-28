@@ -54,6 +54,9 @@ namespace ipl {
                 const wchar_t* wcString;  // 0x04
                 u32 stringLimit;          // 0x08
                 u32 rowLimit;             // 0x0C
+#ifdef IPL_ADDRESS_EDIT_CPP
+                KeyboardSetting(KeyboardType keyboardType, const wchar_t* value, u32 limit, u32 rows);
+#endif
             } KeyboardSetting;
 
             typedef struct State {
