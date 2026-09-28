@@ -679,12 +679,12 @@ static s8 select_2obj_first(KPADInside* kpad) {
     if (best == kp_err_first_inpr) {
         return 0;
     }
-    kpad->valueF4 = first->x;
-    kpad->valueF8 = first->y;
-    kpad->valueFC = first->flags;
-    kpad->value100 = second->x;
-    kpad->value104 = second->y;
-    kpad->value108 = second->flags;
+    ((u32*)&kpad->valueF4)[0] = ((u32*)first)[0];
+    ((u32*)&kpad->valueF4)[1] = ((u32*)first)[1];
+    ((u32*)&kpad->valueF4)[2] = ((u32*)first)[2];
+    ((u32*)&kpad->value100)[0] = ((u32*)second)[0];
+    ((u32*)&kpad->value100)[1] = ((u32*)second)[1];
+    ((u32*)&kpad->value100)[2] = ((u32*)second)[2];
     return 2;
 }
 
@@ -756,12 +756,12 @@ static s8 select_2obj_continue(KPADInside* kpad) {
     if (best < 0.0f) {
         return 0;
     }
-    kpad->valueF4 = first->x;
-    kpad->valueF8 = first->y;
-    kpad->valueFC = first->flags;
-    kpad->value100 = second->x;
-    kpad->value104 = second->y;
-    kpad->value108 = second->flags;
+    ((u32*)&kpad->valueF4)[0] = ((u32*)first)[0];
+    ((u32*)&kpad->valueF4)[1] = ((u32*)first)[1];
+    ((u32*)&kpad->valueF4)[2] = ((u32*)first)[2];
+    ((u32*)&kpad->value100)[0] = ((u32*)second)[0];
+    ((u32*)&kpad->value100)[1] = ((u32*)second)[1];
+    ((u32*)&kpad->value100)[2] = ((u32*)second)[2];
     return 2;
 }
 
