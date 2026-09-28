@@ -17,6 +17,48 @@
 // #pragma sym on
 
 namespace ipl {
+    namespace math {
+        static inline nw4r::math::VEC3 subHermitePoints(const VEC3& start, const VEC3& end) {
+            nw4r::math::VEC3 temp;
+            nw4r::math::VEC3Sub(&temp, &start, &end);
+            return temp;
+        }
+
+        template <>
+        VEC3 HermiteIntp<VEC3>::get() const {
+            f32 var_f27 = mFrame;
+            f32 var_f28 = 1.0f / mMaxFrame;
+            VEC3 r(subHermitePoints(
+                mStart * (1.0f + ((var_f28 * (var_f28 * (var_f28 * (var_f27 * (2.0f * var_f27 * var_f27))))) -
+                                  (var_f28 * (var_f28 * (3.0f * var_f27 * var_f27))))),
+                mEnd * ((var_f28 * (var_f28 * (var_f28 * (var_f27 * (2.0f * var_f27 * var_f27))))) -
+                        (var_f28 * (var_f28 * (3.0f * var_f27 * var_f27))))));
+            f32 temp_f4 = var_f27 * var_f27;
+            f32 temp_f7 = var_f28 * (var_f28 * (var_f27 * temp_f4));
+            f32 temp_f3 = (unkVal0 * (var_f27 + (temp_f7 - (var_f28 * (2.0f * var_f27 * var_f27))))) +
+                          (unkVal1 * (temp_f7 - (var_f28 * temp_f4)));
+            r.x += temp_f3;
+            r.y += temp_f3;
+            r.z += temp_f3;
+            return r;
+        }
+
+        template <>
+        f32 HermiteIntp<f32>::get() const {
+            f32 var_f27 = mFrame;
+            f32 var_f28 = 1.0f / mMaxFrame;
+            f32 r = (mStart * (1.0f + ((var_f28 * (var_f28 * (var_f28 * (var_f27 * (2.0f * var_f27 * var_f27))))) -
+                                       (var_f28 * (var_f28 * (3.0f * var_f27 * var_f27)))))) -
+                    (mEnd * ((var_f28 * (var_f28 * (var_f28 * (var_f27 * (2.0f * var_f27 * var_f27))))) -
+                             (var_f28 * (var_f28 * (3.0f * var_f27 * var_f27)))));
+            r += (unkVal0 * (var_f27 + ((var_f28 * (var_f28 * (var_f27 * (var_f27 * var_f27)))) - (var_f28 * (2.0f * var_f27 * var_f27))))) +
+                 (unkVal1 * ((var_f28 * (var_f28 * (var_f27 * (var_f27 * var_f27)))) - (var_f28 * (var_f27 * var_f27))));
+            return r;
+        }
+    }  // namespace math
+}  // namespace ipl
+
+namespace ipl {
     namespace scene {
         extern "C" char smArg__Q23ipl6System;
         extern "C" char sSystem__Q23ipl3snd;
@@ -368,20 +410,18 @@ namespace ipl {
 
 #define FOREACH_CHANNEL_OBJ(chanObj) while (chanObj = (ChannelObj*)nw4r::ut::List_GetNext(&mChanList, chanObj), chanObj != NULL)
 
-        ChannelSelect::ChannelSelect(EGG::Heap* heap, int startup) : scene::FaderSceneBase(heap), mpDiskChanObj(NULL) {
-            mpButtonEvent = new CsChanSelButtonEventHandler(this);
-            mpSDMenuEvent = new CsChanSelSDMenuEventHandler(this);
-
-            mState = STATE_NONE;
-
-            mStartType = startup;
-
-            mChanThumbOff_X = cfChanThumbOfss[SCGetAspectRatio()][0];
-            mChanThumbOff_Y = cfChanThumbOfss[SCGetAspectRatio()][1];
-
-            mDiskState = DISK_STATE_READ;
-            mspDiskID = NULL;
-            mspDiskMaker = NULL;
+        ChannelSelect::ChannelSelect(EGG::Heap* heap, int startup)
+            : scene::FaderSceneBase(heap),
+              mpDiskChanObj(NULL),
+              mpButtonEvent(new CsChanSelButtonEventHandler(this)),
+              mpSDMenuEvent(new CsChanSelSDMenuEventHandler(this)),
+              mState(STATE_NONE),
+              mStartType(startup),
+              mChanThumbOff_X(cfChanThumbOfss[SCGetAspectRatio()][0]),
+              mChanThumbOff_Y(cfChanThumbOfss[SCGetAspectRatio()][1]),
+              mDiskState(DISK_STATE_READ),
+              mspDiskID(NULL),
+              mspDiskMaker(NULL) {
 
             // mClock = clock();
 
@@ -2525,54 +2565,49 @@ calcNormalRestart_ChannelSelect_L7:
 
         void ChannelSelect::setChannelScissor(const ChannelObj* channelObj) const {
             nw4r::math::VEC3 vec(channelObj->getTranslate());
-
             nw4r::ut::Rect projRect;
             System::getProjectionRect(&projRect);
-
             GXRenderModeObj* rMode = System::getRenderModeObj();
-
             f32 var_f29;
             f32 var_f30;
             f32 var_f31;
             f32 var_f1;
-
             u16 var_r0;
             u16 var_r3;
-
             if (mState == STATE_NORMAL_FADE_ZOOM || mState == STATE_NORMAL_DONE_FADE_ZOOM || mState == STATE_NORMAL_RESTART) {
                 nw4r::math::MTX44 mtx;
-                f32 fVar1 = unk_0xE4.x;
-                f32 fVar2 = unk_0xE4.y;
-                f32 fVar3 = unk_0xD8.x;
-                f32 fVar4 = unk_0xD8.y;
-                MTXOrtho(mtx, fVar4 - projRect.top / fVar2, fVar4 - projRect.bottom / fVar2, fVar3 + projRect.left / fVar1,
-                         fVar3 + projRect.right / fVar1, -100.0f, 100.0f);
-                nw4r::math::VEC4 vec4;
+                f32 rightScale = projRect.right / unk_0xE4.x;
+                f32 leftScale = projRect.left / unk_0xE4.x;
+                f32 topScale = projRect.top / unk_0xE4.y;
+                f32 bottomScale = projRect.bottom / unk_0xE4.y;
+                f32 bottom = unk_0xD8.y - bottomScale;
+                f32 right = unk_0xD8.x + rightScale;
+                f32 left = unk_0xD8.x + leftScale;
+                f32 top = unk_0xD8.y - topScale;
+                MTXOrtho(mtx, top, bottom, left, right, -100.0f, 100.0f);
                 nw4r::math::VEC4 vec4_in(vec.x, vec.y, 0.0f, 1.0f);
+                nw4r::math::VEC4 vec4;
                 nw4r::math::VEC4Transform(&vec4, &mtx, &vec4_in);
-
                 var_r0 = rMode->fbWidth;
                 var_r3 = rMode->efbHeight;
                 var_f29 = projRect.GetWidth();
+                var_f30 = (var_r3 - ((1.0f + vec4.y) * var_r3 / 2)) - (mChanThumbOff_Y * unk_0xE4.y);
                 f32 temp_f7_2 = var_r0 / var_f29;
+                var_f31 = ((1.0f + vec4.x) * var_r0 / 2) - ((mChanThumbOff_X * unk_0xE4.x) * (temp_f7_2));
                 var_f29 = 2.0f * (mChanThumbOff_X * unk_0xE4.x) * (var_r0 / var_f29);
                 var_f1 = 2.0f * (mChanThumbOff_Y * unk_0xE4.y);
-                var_f30 = (var_r3 - ((1.0f + vec4.y) * var_r3 / 2)) - (mChanThumbOff_Y * unk_0xE4.y);
-                var_f31 = ((1.0f + vec4.x) * var_r0 / 2) - ((mChanThumbOff_X * unk_0xE4.x) * (temp_f7_2));
             } else {
                 var_r0 = rMode->fbWidth;
                 var_r3 = rMode->efbHeight;
-                var_f29 = 2.0f * mChanThumbOff_X * (var_r0 / projRect.GetWidth());
-                var_f30 = (((f32)var_r3 / 2) - vec.y) - mChanThumbOff_Y;
                 var_f31 = ((f32)var_r0 / 2) + ((vec.x - mChanThumbOff_X) * (var_r0 / projRect.GetWidth()));
+                var_f30 = (((f32)var_r3 / 2) - vec.y) - mChanThumbOff_Y;
+                var_f29 = 2.0f * mChanThumbOff_X * (var_r0 / projRect.GetWidth());
                 var_f1 = 2.0f * mChanThumbOff_Y;
             }
-
             var_f31 -= 1.0f;
             var_f30 -= 1.0f;
             var_f29 += 2.0f;
             var_f1 += 2.0f;
-
             if (var_f31 >= var_r0 || (var_f31 + var_f29) <= 0.0f || var_f30 >= var_r3 || (var_f30 + var_f1) <= 0.0f) {
                 GXSetScissor(0, 0, 0, 0);
             } else {
@@ -2584,7 +2619,6 @@ calcNormalRestart_ChannelSelect_L7:
                     var_f1 += var_f30;
                     var_f30 = 0.0f;
                 }
-
                 if ((var_f31 + var_f29) > 1705.0f) {
                     var_f29 -= (var_f31 + var_f29) - 1705.0f;
                 }
@@ -2632,8 +2666,8 @@ calcNormalRestart_ChannelSelect_L7:
         }
 
         void ChannelSelect::setChanZoomOrtho() {
-            nw4r::math::VEC3 frames[4];
-            for (int i = 0; i < 4; i++) {
+            nw4r::math::VEC3 frames[3];
+            for (int i = 0; i < 3; i++) {
                 frames[i] = mpChanZoomParams[i]->get();
             }
 
@@ -3174,14 +3208,17 @@ calcNormalMoveChanOut_ChannelSelect_L1:
                 mpMoveLytObject->GetRootPane()->SetTranslate(newPos);
                 mpMoveLytObject->calcMtx();
 
-                f32 speed = 0.0f;
+                f32 speed;
 
-                f32 newY = pos.y - mDragPos.y;
-                f32 newX = pos.x - mDragPos.x;
+                math::VEC2 delta;
+                delta.y = pos.y - mDragPos.y;
+                delta.x = pos.x - mDragPos.x;
 
-                f32 val = (newX * newX) + (newY * newY);
+                f32 val = (delta.x * delta.x) + (delta.y * delta.y);
 
-                if (val > 0.0f) {
+                if (val <= 0.0f) {
+                    speed = 0.0f;
+                } else {
                     speed = (val * nw4r::math::FrSqrt(val));
                 }
 

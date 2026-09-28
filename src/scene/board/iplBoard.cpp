@@ -197,55 +197,53 @@ namespace ipl {
                 mpLayoutBg->calc();
                 mpLayoutFocusBg->calc();
 
-                if (mState != STATE_TO_SETTINGS && mState != STATE_TERMINATE) {
-                    if (mState == STATE_DONE) {
-                        return;
+                if (mState == STATE_TO_SETTINGS || mState == STATE_TERMINATE || mState == STATE_DONE) {
+                    return;
+                }
+
+                calc_board_object();
+
+                Button* button = get_button();
+
+                if (mbNewMsgAnimCount && button != NULL) {
+                    /* Message count on button icon */
+
+                    wchar_t numStr[3] = L"";
+                    int index = 0;
+
+                    int mailCount;
+
+                    if (mMsgCount >= 0) {
+                        mailCount = 99;
+                        if (mMsgCount <= 99) {
+                            mailCount = mMsgCount;
+                        }
+                    } else {
+                        mailCount = 0;
                     }
 
-                    calc_board_object();
+                    if (mailCount >= 10) {
+                        index = 1;
+                        numStr[0] = scNumber[(mailCount / 10) % 10];
+                    }
+                    numStr[index++] = scNumber[mailCount % 10];
 
-                    Button* button = get_button();
+                    button->setText("T_BbsMark1", numStr);
 
-                    if (mbNewMsgAnimCount && button != NULL) {
-                        /* Message count on button icon */
+                    // New mail animation
 
-                        int index = 0;
-                        wchar_t numStr[3] = L"";
-
-                        int mailCount;
-
-                        if (mMsgCount >= 0) {
-                            mailCount = 99;
-                            if (mMsgCount <= 99) {
-                                mailCount = mMsgCount;
-                            }
-                        } else {
-                            mailCount = 0;
-                        }
-
-                        if (mailCount >= 10) {
-                            index = 1;
-                            numStr[0] = scNumber[(mailCount / 10) % 10];
-                        }
-                        numStr[index++] = scNumber[mailCount % 10];
-
-                        button->setText("T_BbsMark1", numStr);
-
-                        // New mail animation
-
-                        if (mailCount != 0) {
-                            button->startMailNumAnm();
-                        } else {
-                            button->stopMailNumAnm();
-                        }
-
-                        mbNewMsgAnimCount = false;
+                    if (mailCount != 0) {
+                        button->startMailNumAnm();
+                    } else {
+                        button->stopMailNumAnm();
                     }
 
-                    // Do SD process
-                    if (System::getCdbManager() != NULL && mState != STATE_WAIT_INIT) {
-                        mBoardSD.update();
-                    }
+                    mbNewMsgAnimCount = false;
+                }
+
+                // Do SD process
+                if (System::getCdbManager() != NULL && mState != STATE_WAIT_INIT) {
+                    mBoardSD.update();
                 }
             }
         }
@@ -907,14 +905,16 @@ namespace ipl {
                 if (mState == STATE_NORMAL) {
                     for (int i = 0; i < WPAD_MAX_CONTROLLERS; i++) {
                         BoardObject* object = NULL;
-                        FOREACH_OBJ_IN_LIST(object) {
+                        BoardObject* nextObject = NULL;
+                        while ((nextObject = mObjList.getNext(object)) != NULL) {
+                            object = nextObject;
                             if ((mHoveredObjs[i] == NULL || mHoveredObjs[i] == object) && mState == STATE_NORMAL) {
                                 object->update(i);
                             }
                         }
 
                         if (System::getController(i) == NULL && mHoveredObjs[i] != NULL) {
-                            object->start_left_event(i);
+                            mHoveredObjs[i]->start_left_event(i);
                             mHoveredObjs[i] = NULL;
                         }
                     }
@@ -1134,9 +1134,11 @@ namespace ipl {
             bool result = mbDoReadTask == false;
             BoardObject* object = NULL;
             FOREACH_OBJ_IN_LIST(object) {
-                result = (result & (!object->mbRightWay && !object->mbLeftWay && !object->mMoveAnim.isPlaying() && object->mpLayout != NULL &&
-                                    !object->mpLayout->getAnim(BoardObject::ANIM_NEXT_PAGE)->isPlaying())) != false &&
-                         object->mbModifiedPos == false;
+                bool stillMoving = (result & (!object->mbRightWay && !object->mbLeftWay && !object->mMoveAnim.isPlaying() &&
+                                              object->mpLayout != NULL &&
+                                              !object->mpLayout->getAnim(BoardObject::ANIM_NEXT_PAGE)->isPlaying())) != false;
+                bool modifiedPos = object->mbModifiedPos;
+                result = stillMoving & (modifiedPos == false);
             }
 
             if (result) {
@@ -1565,31 +1567,30 @@ namespace ipl {
         void Board::edge_arrow() {
             Button* button = get_button();
 
-            if (System::getScene(SCENE_CHANNEL_SELECT) == NULL && System::getReservedScene() == NULL) {
-                if (mState == STATE_WAIT_CHILD_CST) {
-                } else {
-                    enable_licon();
-                    enable_ricon();
+            if (System::getScene(SCENE_CHANNEL_SELECT) != NULL || System::getReservedScene() != NULL || mState == STATE_WAIT_CHILD_CST) {
+                return;
+            }
 
-                    if (mCurrentDate == utility::Date::getMaxDate()) {
-                        if (button->isArrowVisible(Button::ARROW_BTN_RIGHT) && mbRIconEnable != true) {
-                            button->animation(Button::IDANIM_ARROW_RIGHT_DISAPPEAR);
-                        }
-                        if (!button->isArrowVisible(Button::ARROW_BTN_LEFT)) {
-                            button->animation(Button::IDANIM_ARROW_LEFT_APPEAR);
-                        }
-                    } else {
-                        if (mCurrentDate == utility::Date::getMinDate()) {
-                            if (button->isArrowVisible(Button::ARROW_BTN_LEFT) && mbLIconEnable != true) {
-                                button->animation(Button::IDANIM_ARROW_LEFT_DISAPPEAR);
-                            }
-                            if (!button->isArrowVisible(Button::ARROW_BTN_RIGHT)) {
-                                button->animation(Button::IDANIM_ARROW_RIGHT_APPEAR);
-                            }
-                        } else {
-                            appear_arrow();
-                        }
+            enable_licon();
+            enable_ricon();
+
+            if (mCurrentDate == utility::Date::getMaxDate()) {
+                if (button->isArrowVisible(Button::ARROW_BTN_RIGHT) && mbRIconEnable != true) {
+                    button->animation(Button::IDANIM_ARROW_RIGHT_DISAPPEAR);
+                }
+                if (!button->isArrowVisible(Button::ARROW_BTN_LEFT)) {
+                    button->animation(Button::IDANIM_ARROW_LEFT_APPEAR);
+                }
+            } else {
+                if (mCurrentDate == utility::Date::getMinDate()) {
+                    if (button->isArrowVisible(Button::ARROW_BTN_LEFT) && mbLIconEnable != true) {
+                        button->animation(Button::IDANIM_ARROW_LEFT_DISAPPEAR);
                     }
+                    if (!button->isArrowVisible(Button::ARROW_BTN_RIGHT)) {
+                        button->animation(Button::IDANIM_ARROW_RIGHT_APPEAR);
+                    }
+                } else {
+                    appear_arrow();
                 }
             }
         }
@@ -1675,6 +1676,12 @@ namespace ipl {
             return result;
         }
 
+        static inline nw4r::math::VEC3 addTranslate(const nw4r::math::VEC3& a, const nw4r::math::VEC3& b) {
+            nw4r::math::VEC3 sum;
+            nw4r::math::VEC3Add(&sum, &a, &b);
+            return sum;
+        }
+
         void Board::calc_board_object() {
             nw4r::lyt::Pane* pane = mpLayoutBg->FindPaneByName("N_TopBack");
 
@@ -1682,8 +1689,7 @@ namespace ipl {
             FOREACH_OBJ_IN_LIST(object) {
                 nw4r::lyt::Pane* posPane = mpLayoutBg->FindPaneByName(scScrollPane[get_date_label(object->mBoardDate)]);
 
-                math::VEC3 pos;
-                nw4r::math::VEC3Add(&pos, &pane->GetTranslate(), &posPane->GetTranslate());
+                math::VEC3 pos = addTranslate(pane->GetTranslate(), posPane->GetTranslate());
 
                 object->calc(math::VEC2(pos.x, pos.y));
             }
