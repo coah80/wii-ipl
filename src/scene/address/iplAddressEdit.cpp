@@ -65,9 +65,6 @@ namespace ipl {
     }
 }
 
-extern "C" u8 __vt__Q33ipl5scene11AddressEdit[];
-extern "C" void __dl__FPv(void*);
-
 ipl::keyboard::Manager::KeyboardSetting::KeyboardSetting(
     ipl::keyboard::Manager::KeyboardType keyboardType, const wchar_t* value, u32 limit, u32 rows) {
     type = keyboardType;
@@ -140,15 +137,12 @@ void ipl::scene::AddressEdit::reset_gui() {
 }
 
 
-extern "C" u8 __vt__Q33ipl5scene16AddressEditEvent[];
-extern "C" u8 __vt__Q33ipl5scene17AddressInputEvent[];
 extern "C" void* __nw__FUl(u32);
 extern "C" BOOL RFLSearchOfficialData(const RFLCreateID*, u16*);
 
 extern "C" NWC24FriendInfo sFriendInfo__Q23ipl5scene;
 extern "C" char smArg__Q23ipl6System;
 extern "C" const char* smButtonName__Q33ipl5scene6Button[];
-extern "C" void readLayoutAsync__Q33ipl4nand7ManagerFPQ23EGG4HeapPCcb();
 extern "C" void List_GetNth__Q24nw4r2utFPCQ34nw4r2ut4ListUs();
 extern "C" void getScene__Q33ipl5scene7ManagerFi();
 extern "C" void UTF16ToANSI__Q33ipl7utility13CharacterCodeFPUcPCwl();
@@ -174,11 +168,9 @@ extern "C" void draw__Q33ipl5scene11TextBalloonFv();
 
 
 int ipl::scene::AddressEdit::get_button_no(const char*);
-extern "C" void callS2Btn2__Q23ipl12DialogWindowFUlUlb();
 extern "C" void reserveText__Q33ipl5scene6ButtonFiUl();
 extern "C" void reserveAnm__Q33ipl5scene6ButtonFi();
 extern "C" void initFrame__Q33ipl7utility15FrameControllerFv();
-extern "C" void getMessage__Q33ipl7message7MessageCFUl();
 extern "C" void del__Q33ipl5scene15FriendListCacheFUl();
 
 
@@ -201,9 +193,7 @@ extern "C" void isDupMail__Q33ipl5scene15FriendListCacheFPCc();
 extern "C" void _savegpr_29();
 extern "C" void _restgpr_29();
 extern "C" void _savegpr_23();
-extern "C" void _savegpr_27();
 extern "C" void _restgpr_23();
-extern "C" void _restgpr_27();
 
 
 
