@@ -1918,7 +1918,7 @@ namespace ipl {
             memcpy(&mInfos[index1], &mInfos[index2], sizeof(NWC24FriendInfo));
             memcpy(&mInfos[index2], &temp, sizeof(NWC24FriendInfo));
 
-            bool bThere = mbThere[index1];
+            u8 bThere = mbThere[index1];
             mbThere[index1] = mbThere[index2];
             mbThere[index2] = bThere;
 
@@ -1930,7 +1930,7 @@ namespace ipl {
         }
 
         BOOL FriendListCache::isDupId(const NWC24UserId& userId) {
-            for (int i = 0; i < FRIEND_MAX; i++) {
+            for (u32 i = 0; i < FRIEND_MAX; i++) {
                 if (mbThere[i] && mInfos[i].attr.type == NWC24_FRIENDTYPE_WII && userId == mInfos[i].addr.wiiId) {
                     return TRUE;
                 }

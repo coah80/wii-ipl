@@ -41,14 +41,14 @@ namespace ipl {
             s32 getErrCode() const;
 
             const NWC24FriendInfo& getInfo(int index) const { return mInfos[index]; }
-            bool isThere(u32 index) const { return mbThere[index]; }
+            BOOL isThere(u32 index) const { return mbThere[index]; }
             u32 getRegFriendNum() const { return mRegFriendNum; }
             NWC24UserId getMyUserId() const { return mMyUserId; }
             s32 getLastErr() const { return mErrCode; }
 
         private:
             NWC24FriendInfo mInfos[FRIEND_MAX];  // 0x0000
-            bool mbThere[FRIEND_MAX];            // 0x7D00
+            u8 mbThere[FRIEND_MAX];              // 0x7D00
             NWC24UserId mMyUserId;               // 0x7D68
             u32 mRegFriendNum;                   // 0x7D70
             u8 mSendWork[0x2000];                // 0x7D74
