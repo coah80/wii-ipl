@@ -1898,35 +1898,14 @@ calcFadeout_L3:
     blr
 }
 
-extern "C" asm void draw__Q33ipl5scene11AddressEditFv() {
-    nofralloc
-    stwu r1, -0x10(r1)
-    mflr r0
-    lis r4, smArg__Q23ipl6System@ha
-    stw r0, 0x14(r1)
-    addi r4, r4, smArg__Q23ipl6System@l
-    stw r31, 0xc(r1)
-    mr r31, r3
-    lwz r3, 0x64(r4)
-    lwz r0, 0x100(r3)
-    cmpwi r0, 1
-    bne draw_L1
-    li r3, 0
-    bl setOrtho__Q33ipl7utility8GraphicsFUl
-    lwz r3, 0x68(r31)
-    bl draw__Q33ipl6layout6ObjectFv
-    lwz r3, 0x80(r31)
-    bl draw__Q33ipl6layout6ObjectFv
-    lwz r3, 0x74(r31)
-    bl draw__Q33ipl6layout6ObjectFv
-    lwz r3, 0xa8(r31)
-    bl draw__Q33ipl5scene11TextBalloonFv
-draw_L1:
-    lwz r0, 0x14(r1)
-    lwz r31, 0xc(r1)
-    mtlr r0
-    addi r1, r1, 0x10
-    blr
+void ipl::scene::AddressEdit::draw() {
+    if (ipl::System::onDefaultDrawLayer()) {
+        ipl::utility::Graphics::setOrtho(0);
+        mpCodeLayout->draw();
+        mpBackgroundLayout->draw();
+        mpNameLayout->draw();
+        mpBalloon->draw();
+    }
 }
 
 extern "C" asm void stt_wait_btn_fadein__Q33ipl5scene11AddressEditFv(ipl::scene::AddressEdit*) {
