@@ -1701,59 +1701,17 @@ void ipl::scene::AddressEdit::String::setName(const wchar_t* value) {
     }
 }
 
-extern "C" asm void calcFadeout__Q33ipl5scene11AddressEditFv() {
-    nofralloc
-    stwu r1, -0x10(r1)
-    mflr r0
-    stw r0, 0x14(r1)
-    stw r31, 0xc(r1)
-    stw r30, 8(r1)
-    mr r30, r3
-    lwz r3, 0xa8(r3)
-    bl calc__Q33ipl5scene11TextBalloonFv
-    lis r31, smArg__Q23ipl6System@ha
-    addi r31, r31, smArg__Q23ipl6System@l
-    lwz r3, 0xc4(r31)
-    lwz r12, 0(r3)
-    lwz r12, 0xc(r12)
-    mtctr r12
-    bctrl
-    cmpwi r3, 1
-    bne calcFadeout_L1
-    lwz r3, 0x68(r30)
-    li r31, 0
-    li r4, 0x1e
-    addi r3, r3, 0x28c
-    bl List_GetNth__Q24nw4r2utFPCQ34nw4r2ut4ListUs
-    lwz r0, 0x14(r3)
-    cmpwi r0, 1
-    beq calcFadeout_L2
-    lwz r3, 0x74(r30)
-    li r4, 9
-    addi r3, r3, 0x28c
-    bl List_GetNth__Q24nw4r2utFPCQ34nw4r2ut4ListUs
-    lwz r0, 0x14(r3)
-    cmpwi r0, 1
-    beq calcFadeout_L2
-    li r31, 1
-calcFadeout_L2:
-    mr r3, r31
-    b calcFadeout_L3
-calcFadeout_L1:
-    lwz r3, 0xc4(r31)
-    lwz r12, 0(r3)
-    lwz r12, 0xc(r12)
-    mtctr r12
-    bctrl
-    cntlzw r0, r3
-    srwi r3, r0, 5
-calcFadeout_L3:
-    lwz r0, 0x14(r1)
-    lwz r31, 0xc(r1)
-    lwz r30, 8(r1)
-    mtlr r0
-    addi r1, r1, 0x10
-    blr
+ipl::scene::FaderSceneCommand ipl::scene::AddressEdit::calcFadeout() {
+    mpBalloon->calc();
+    if (ipl::System::getFader()->getStatus() == EGG::Fader::PREPARE_OUT) {
+        FaderSceneCommand command = FADER_SCN_CONTINUE;
+        if (!mpCodeLayout->getAnim(0x1e)->isPlaying() && !mpNameLayout->getAnim(9)->isPlaying()) {
+            command = FADER_SCN_NEXT;
+        }
+        return command;
+    }
+    return ipl::System::getFader()->getStatus() == EGG::Fader::PREPARE_IN ? FADER_SCN_NEXT
+                                                                           : FADER_SCN_CONTINUE;
 }
 
 void ipl::scene::AddressEdit::draw() {
