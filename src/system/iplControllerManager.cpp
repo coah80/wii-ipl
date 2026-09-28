@@ -98,11 +98,7 @@ namespace ipl {
             probe_valid:
                 {
                     s32 read = KPADRead(chan, &mKPADStatus[chan], 1);
-                    if (read > 0) {
-                        if (mKPADStatus[chan].wpad_err == -4 || deviceType == 0xfd) {
-                            goto store_null;
-                        }
-
+                    if (read > 0 && mKPADStatus[chan].wpad_err != -4 && deviceType != 0xfd) {
                         mInvalidCount[chan] = 0;
                         if (mKPADStatus[chan].wpad_err == -7 || deviceType == 0 || deviceType == 0xfb ||
                             deviceType == 0xfc || deviceType == 0xff) {
@@ -120,7 +116,10 @@ namespace ipl {
                         } else {
                             mControllers[chan] = NULL;
                         }
-                    } else if (read == 0) {
+                    } else {
+                        if (read != 0) {
+                            goto store_null;
+                        }
                         mInvalidCount[chan]++;
                         if (mInvalidCount[chan] > 0x3c) {
                             mInvalidCount[chan] = 0x3c;
@@ -129,8 +128,6 @@ namespace ipl {
                             }
                             mControllers[chan] = NULL;
                         }
-                    } else {
-                        goto store_null;
                     }
                 }
                 goto channel_done;
