@@ -569,7 +569,7 @@ namespace ipl {
                     NWC24FriendAddr msgFriendAddr;
                     memset(&msgFriendAddr, 0, sizeof(msgFriendAddr));
 
-                    NWC24FriendType msgFriendType;
+                    u16 msgFriendType;
 
                     // Get friend data
                     if (msgType == NWC24_MSGTYPE_PUBLIC) {
@@ -586,7 +586,11 @@ namespace ipl {
                     } else {
                         u32 index = 0;
                         getMsgFromId(&msgObj, &msgFriendAddr.wiiId);
-                        msgFriendType = msgFriendAddr.wiiId == myUserId ? NWC24_FRIENDTYPE_NONE : NWC24_FRIENDTYPE_WII;
+                        if (msgFriendAddr.wiiId == myUserId) {
+                            msgFriendType = NWC24_FRIENDTYPE_NONE;
+                        } else {
+                            msgFriendType = NWC24_FRIENDTYPE_WII;
+                        }
                         if (searchFriendInfo(msgFriendAddr.wiiId, &index)) {
                             NWC24FriendInfo friendInfo ALIGN32;
                             readFriendInfo(&friendInfo, index);
