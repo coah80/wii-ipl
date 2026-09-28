@@ -3808,9 +3808,9 @@ CHANSVmObjHdr* CHANSVm_8145049C(CHANSVm* vm, CHANSVmObjHdr* obj, u32 arg) {
                         goto loop_hint;
                     }
                     isEscaped = (u32)pad0;
-                    litLen = 0;
                     *(u16*)pad0 = cv->value.int_v;
                     *(u16*)(pad0 + 2) = 0;
+                    litLen = 0;
                     goto common_string_format;
                 }
 
