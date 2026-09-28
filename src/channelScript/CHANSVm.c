@@ -675,7 +675,8 @@ const CHANSVmObjHdr CHANSVmConstStringObjectUndefined = {{(wchar_t*)lbl_81669070
 const CHANSVmObjHdr lbl_81616C88 = {{(wchar_t*)lbl_81697578, 6}, {0}, vmNull};
 const CHANSVmObjHdr lbl_81616C98 = {{(wchar_t*)lbl_81669083, 16}, {0}, vmNull};
 const CHANSVmObjHdr lbl_81616CA8 = {{(wchar_t*)lbl_81669094, 18}, {0}, vmNull};
-const CHANSVmObjHdr lbl_81616CB8 = {{(void*)"\0,", 2}, {0}, vmNull};
+u8 lbl_8169757F[] = {0x00, ',', 0x00};
+const CHANSVmObjHdr lbl_81616CB8 = {{(void*)lbl_8169757F, 2}, {0}, vmNull};
 const char* const CHANSVmConstStringDataEmpty[4] = {(const char*)"", NULL, NULL, NULL};
 const CHANSVmObjHdr CHANSVmConstStringObjectUndefined_[] = {{{(void*)&CHANSVmConstStringObjectUndefined, 0}, 0x03800100, vmNull},
                                                             {{(void*)&lbl_81616C88, 0}, 0x03800100, vmNull},
@@ -683,12 +684,17 @@ const CHANSVmObjHdr CHANSVmConstStringObjectUndefined_[] = {{{(void*)&CHANSVmCon
                                                             {{(void*)&lbl_81616CA8, 0}, 0x03800100, vmNull},
                                                             {{(void*)vmNull, 0}, 0x00800000, vmNull}};
 char lbl_81697583[] = "%s";
+char lbl_81697586[] = "NaN";
+
+char lbl_816690A7[] = "Infinity";
+char lbl_816690B0[] = "+Infinity";
+char lbl_816690BA[] = "-Infinity";
 
 const CHANSVmFloatConstantList lbl_81616D28[] = {
-    { "Infinity", (double*)&VmInf },
-    { "+Infinity", (double*)&VmInf },
-    { "-Infinity", (double*)&VmMinusInf },
-    { "NaN", (double*)&VmNaN }
+    { lbl_816690A7, (double*)&VmInf },
+    { lbl_816690B0, (double*)&VmInf },
+    { lbl_816690BA, (double*)&VmMinusInf },
+    { lbl_81697586, (double*)&VmNaN }
 };
 // clang-format on
 
@@ -762,8 +768,10 @@ CHANSVmObjHdr* CHANSVmConvertToStrFromUndefined(CHANSVm* vm, CHANSVmObjType type
     return (CHANSVmObjHdr*)CHANSVmConstStringObjectUndefined_;
 }
 
+char lbl_8169758A[] = "%.16lg";
+
 s32 CHANSVm_8144B62C(vmWString buf, u32 len, vmFloat val) NO_INLINE {
-    s32 result = snprintf((char*)buf, len / 2, "%.16lg", val);
+    s32 result = snprintf((char*)buf, len / 2, lbl_8169758A, val);
     CHANSVmStrCpyToU16FromU8(buf, (vmString)buf, result);
     return VM_STR_LENGTH(result);
 }
@@ -829,8 +837,11 @@ CHANSVmObjHdr* CHANSVmConvertToStrFromArray(CHANSVm* vm, CHANSVmObjType type, CH
     return VmArrayJoinCommon(vm, 0, object, 0, 0);
 }
 
+char lbl_816690C4[] = "CHANSVmConvertObjectTypeError";
+char lbl_816690E2[] = "%s %d, type to %d from %d\n";
+
 CHANSVmObjHdr* CHANSVmConvertObjectTypeError(CHANSVm* vm, CHANSVmObjType type, CHANSVmObjHdr* object) {
-    CHANS_VM_PRINTF(1176, ", type to %d from %d\n", type, object->type);
+    CHANS_VM_PRINTF_CUSTOM(lbl_816690E2, lbl_816690C4, 1176, type, object->type);
     return vmNull;
 }
 
@@ -1456,85 +1467,164 @@ CHANSVmObjHdr* CHANSVmGetArgString(CHANSVm* vm, vmU32 argIdx) {
 }
 
 // === vmErrorList: maps error codes to strings ===
+char lbl_816691A8[] = "CHANS_VM_ERR_NO_1000";
+char lbl_816691BD[] = "CHANS_VM_ERR_EXIT";
+char lbl_816691CF[] = "CHANS_VM_ERR_NO_MEMORY";
+char lbl_816691E6[] = "CHANS_VM_ERR_INVALID_EXE_FORMAT";
+char lbl_81669206[] = "CHANS_VM_ERR_ARG";
+char lbl_81669217[] = "CHANS_VM_ERR_CODE_RANGE";
+char lbl_8166922F[] = "CHANS_VM_ERR_HEAP_RANGE";
+char lbl_81669247[] = "CHANS_VM_ERR_OBJECT_NOT_FOUND";
+char lbl_81669265[] = "CHANS_VM_ERR_ALIGNMENT";
+char lbl_8166927C[] = "CHANS_VM_ERR_RESULT_TYPE";
+char lbl_81669295[] = "CHANS_VM_ERR_TOO_MANY_DEFINED";
+char lbl_816692B3[] = "CHANS_VM_ERR_ALREADY_DEFINED";
+char lbl_816692D0[] = "CHANS_VM_ERR_LINK_FAILED";
+char lbl_816692E9[] = "CHANS_VM_ERR_IN_METHOD_OR_PROPERTY";
+char lbl_8166930C[] = "CHANS_VM_ERR_NATIVE_METHOD_INIT";
+char lbl_8166932C[] = "CHANS_VM_ERR_LOAD_OBJECT";
+char lbl_81669345[] = "CHANS_VM_ERR_STORE_OBJECT";
+char lbl_8166935F[] = "CHANS_VM_ERR_DIVISION_BY_ZERO";
+char lbl_8166937D[] = "CHANS_VM_ERR_DELETE_OBJECT";
+char lbl_81669398[] = "CHANS_VM_ERR_DELETE_OBJHDR";
+char lbl_816693B3[] = "CHANS_VM_ERR_DELETE_OBJDATA";
+char lbl_816693CF[] = "CHANS_VM_ERR_POP_OBJECT";
+char lbl_816693E7[] = "CHANS_VM_ERR_STR_U8_TO_U16";
+char lbl_81669402[] = "CHANS_VM_ERR_SET_INTEGER";
+char lbl_8166941B[] = "CHANS_VM_ERR_SET_FLOAT";
+char lbl_81669432[] = "CHANS_VM_ERR_ADD";
+char lbl_81669443[] = "CHANS_VM_ERR_SUB";
+char lbl_81669454[] = "CHANS_VM_ERR_MUL";
+char lbl_81669465[] = "CHANS_VM_ERR_DIV";
+char lbl_81669476[] = "CHANS_VM_ERR_MOD";
+char lbl_81669487[] = "CHANS_VM_ERR_ULSHIFT";
+char lbl_8166949C[] = "CHANS_VM_ERR_ARSHIFT";
+char lbl_816694B1[] = "CHANS_VM_ERR_BIT_AND";
+char lbl_816694C6[] = "CHANS_VM_ERR_BIT_OR";
+char lbl_816694DA[] = "CHANS_VM_ERR_BIT_XOR";
+char lbl_816694EF[] = "CHANS_VM_ERR_CMP";
+char lbl_81669500[] = "CHANS_VM_ERR_ADD_NATIVE_METHOD";
+char lbl_8166951F[] = "CHANS_VM_ERR_SET_LOCAL_FUNCTION";
+char lbl_8166953F[] = "CHANS_VM_ERR_PUSH_FUNC_RETURN_INFO";
+char lbl_81669562[] = "CHANS_VM_ERR_LOAD_IMM";
+char lbl_81669578[] = "CHANS_VM_ERR_LOAD_CONST";
+char lbl_81669590[] = "CHANS_VM_ERR_RETURN";
+char lbl_816695A4[] = "CHANS_VM_ERR_STRCAT";
+char lbl_816695B8[] = "CHANS_VM_ERR_SET_OBJECT_NATIVE_CLASS";
+char lbl_816695DD[] = "CHANS_VM_ERR_RESOLVE_NATIVE_METHOD_CALL";
+char lbl_81669605[] = "CHANS_VM_ERR_RESOLVE_GLOBAL_OBJECT_REFERENCE";
+char lbl_81669632[] = "CHANS_VM_ERR_NEW";
+char lbl_81669643[] = "CHANS_VM_ERR_ADD_NATIVE_PROPERTY";
+char lbl_81669664[] = "CHANS_VM_ERR_GET_BOOLEAN";
+char lbl_8166967D[] = "CHANS_VM_ERR_CASE";
+char lbl_8166968F[] = "CHANS_VM_ERR_CHECK_STRICT_EQUALITY";
+char lbl_816696B2[] = "CHANS_VM_ERR_ADD_REFERENCE";
+char lbl_816696CD[] = "CHANS_VM_ERR_LOAD_INDIRECT";
+char lbl_816696E8[] = "CHANS_VM_ERR_CALL_METHOD";
+char lbl_81669701[] = "CHANS_VM_ERR_STORE_INDIRECT";
+char lbl_8166971D[] = "CHANS_VM_ERR_LOAD_STRING_CONST";
+char lbl_8166973C[] = "CHANS_VM_ERR_SIGNAL";
+char lbl_81669750[] = "CHANS_VM_ERR_STORE_READONLY";
+char lbl_8166976C[] = "CHANS_VM_ERR_SET_INDEX";
+char lbl_81669783[] = "CHANS_VM_ERR_GET_PROPERTY_NAME";
+char lbl_816697A2[] = "CHANS_VM_ERR_SET_STRING";
+char lbl_816697BA[] = "CHANS_VM_ERR_CALL_NEW_ARRAY";
+char lbl_816697D6[] = "CHANS_VM_ERR_OPCODE_VERSION";
+char lbl_816697F2[] = "CHANS_VM_ERR_NOT_SUPPORTED_FLOAT";
+char lbl_81669813[] = "CHANS_VM_ERR_NOT_CONSTRUCTOR";
+char lbl_81669830[] = "CHANS_VM_ERR_DELETE_INDIRECT";
+char lbl_8166984D[] = "CHANS_VM_ERR_FORBIDDEN_CLASS_PROPERTY";
+char lbl_81669873[] = "CHANS_VM_ERR_FORBIDDEN_CLASS_METHOD";
+char lbl_81669897[] = "CHANS_VM_ERR_NEED_NEW";
+char lbl_816698AD[] = "CHANS_VM_ERR_INVALID_OBJECT";
+char lbl_816698C9[] = "CHANS_VM_ERR_INVALID_OBJECT_TYPE";
+char lbl_816698EA[] = "CHANS_VM_ERR_NO_SUCH_PROPERTY";
+char lbl_81669908[] = "CHANS_VM_ERR_NO_SUCH_METHOD";
+char lbl_81669924[] = "CHANS_VM_ERR_NOT_READABLE_PROPERTY";
+char lbl_81669947[] = "CHANS_VM_ERR_NOT_WRITABLE_PROPERTY";
+char lbl_8166996A[] = "CHANS_VM_ERR_INVALID_EXE_TYPE";
+char lbl_81669988[] = "CHANS_VM_ERR_NO_SUCH_FUNCTION";
+char lbl_816699A6[] = "CHANS_VM_ERR_RESERVED_OPCODE";
+
 const char* vmErrorList[] = {
-    "CHANS_VM_ERR_NO_1000",
-    "CHANS_VM_ERR_EXIT",                            /* -999 */
-    "CHANS_VM_ERR_NO_MEMORY",                       /* -998 */
-    "CHANS_VM_ERR_INVALID_EXE_FORMAT",              /* -997 */
-    "CHANS_VM_ERR_ARG",                             /* -996 */
-    "CHANS_VM_ERR_CODE_RANGE",                      /* -995 */
-    "CHANS_VM_ERR_HEAP_RANGE",                      /* -994 */
-    "CHANS_VM_ERR_OBJECT_NOT_FOUND",                /* -993 */
-    "CHANS_VM_ERR_ALIGNMENT",                       /* -992 */
-    "CHANS_VM_ERR_RESULT_TYPE",                     /* -991 */
-    "CHANS_VM_ERR_TOO_MANY_DEFINED",                /* -990 */
-    "CHANS_VM_ERR_ALREADY_DEFINED",                 /* -989 */
-    "CHANS_VM_ERR_LINK_FAILED",                     /* -988 */
-    "CHANS_VM_ERR_IN_METHOD_OR_PROPERTY",           /* -987 */
-    "CHANS_VM_ERR_NATIVE_METHOD_INIT",              /* -986 */
-    "CHANS_VM_ERR_LOAD_OBJECT",                     /* -985 */
-    "CHANS_VM_ERR_STORE_OBJECT",                    /* -984 */
-    "CHANS_VM_ERR_DIVISION_BY_ZERO",                /* -983 */
-    "CHANS_VM_ERR_DELETE_OBJECT",                   /* -982 */
-    "CHANS_VM_ERR_DELETE_OBJHDR",                   /* -981 */
-    "CHANS_VM_ERR_DELETE_OBJDATA",                  /* -980 */
-    "CHANS_VM_ERR_POP_OBJECT",                      /* -979 */
-    "CHANS_VM_ERR_STR_U8_TO_U16",                   /* -978 */
-    "CHANS_VM_ERR_SET_INTEGER",                     /* -977 */
-    "CHANS_VM_ERR_SET_FLOAT",                       /* -976 */
-    "CHANS_VM_ERR_ADD",                             /* -975 */
-    "CHANS_VM_ERR_SUB",                             /* -974 */
-    "CHANS_VM_ERR_MUL",                             /* -973 */
-    "CHANS_VM_ERR_DIV",                             /* -972 */
-    "CHANS_VM_ERR_MOD",                             /* -971 */
-    "CHANS_VM_ERR_ULSHIFT",                         /* -970 */
-    "CHANS_VM_ERR_ARSHIFT",                         /* -969 */
-    "CHANS_VM_ERR_BIT_AND",                         /* -968 */
-    "CHANS_VM_ERR_BIT_OR",                          /* -967 */
-    "CHANS_VM_ERR_BIT_XOR",                         /* -966 */
-    "CHANS_VM_ERR_CMP",                             /* -965 */
-    "CHANS_VM_ERR_ADD_NATIVE_METHOD",               /* -964 */
-    "CHANS_VM_ERR_SET_LOCAL_FUNCTION",              /* -963 */
-    "CHANS_VM_ERR_PUSH_FUNC_RETURN_INFO",           /* -962 */
-    "CHANS_VM_ERR_LOAD_IMM",                        /* -961 */
-    "CHANS_VM_ERR_LOAD_CONST",                      /* -960 */
-    "CHANS_VM_ERR_RETURN",                          /* -959 */
-    "CHANS_VM_ERR_STRCAT",                          /* -958 */
-    "CHANS_VM_ERR_SET_OBJECT_NATIVE_CLASS",         /* -957 */
-    "CHANS_VM_ERR_RESOLVE_NATIVE_METHOD_CALL",      /* -956 */
-    "CHANS_VM_ERR_RESOLVE_GLOBAL_OBJECT_REFERENCE", /* -955 */
-    "CHANS_VM_ERR_NEW",                             /* -954 */
-    "CHANS_VM_ERR_ADD_NATIVE_PROPERTY",             /* -953 */
-    "CHANS_VM_ERR_GET_BOOLEAN",                     /* -952 */
-    "CHANS_VM_ERR_CASE",                            /* -951 */
-    "CHANS_VM_ERR_CHECK_STRICT_EQUALITY",           /* -950 */
-    "CHANS_VM_ERR_ADD_REFERENCE",                   /* -949 */
-    "CHANS_VM_ERR_LOAD_INDIRECT",                   /* -948 */
-    "CHANS_VM_ERR_CALL_METHOD",                     /* -947 */
-    "CHANS_VM_ERR_STORE_INDIRECT",                  /* -946 */
-    "CHANS_VM_ERR_LOAD_STRING_CONST",               /* -945 */
-    "CHANS_VM_ERR_SIGNAL",                          /* -944 */
-    "CHANS_VM_ERR_STORE_READONLY",                  /* -943 */
-    "CHANS_VM_ERR_SET_INDEX",                       /* -942 */
-    "CHANS_VM_ERR_GET_PROPERTY_NAME",               /* -941 */
-    "CHANS_VM_ERR_SET_STRING",                      /* -940 */
-    "CHANS_VM_ERR_CALL_NEW_ARRAY",                  /* -939 */
-    "CHANS_VM_ERR_OPCODE_VERSION",                  /* -938 */
-    "CHANS_VM_ERR_NOT_SUPPORTED_FLOAT",             /* -937 */
-    "CHANS_VM_ERR_NOT_CONSTRUCTOR",                 /* -936 */
-    "CHANS_VM_ERR_DELETE_INDIRECT",                 /* -935 */
-    "CHANS_VM_ERR_FORBIDDEN_CLASS_PROPERTY",        /* -934 */
-    "CHANS_VM_ERR_FORBIDDEN_CLASS_METHOD",          /* -933 */
-    "CHANS_VM_ERR_NEED_NEW",                        /* -932 */
-    "CHANS_VM_ERR_INVALID_OBJECT",                  /* -931 */
-    "CHANS_VM_ERR_INVALID_OBJECT_TYPE",             /* -930 */
-    "CHANS_VM_ERR_NO_SUCH_PROPERTY",                /* -929 */
-    "CHANS_VM_ERR_NO_SUCH_METHOD",                  /* -928 */
-    "CHANS_VM_ERR_NOT_READABLE_PROPERTY",           /* -927 */
-    "CHANS_VM_ERR_NOT_WRITABLE_PROPERTY",           /* -926 */
-    "CHANS_VM_ERR_INVALID_EXE_TYPE",                /* -925 */
-    "CHANS_VM_ERR_NO_SUCH_FUNCTION",                /* -924 */
-    "CHANS_VM_ERR_RESERVED_OPCODE",                 /* -923 */
+    lbl_816691A8,
+    lbl_816691BD,                            /* -999 */
+    lbl_816691CF,                       /* -998 */
+    lbl_816691E6,              /* -997 */
+    lbl_81669206,                             /* -996 */
+    lbl_81669217,                      /* -995 */
+    lbl_8166922F,                      /* -994 */
+    lbl_81669247,                /* -993 */
+    lbl_81669265,                       /* -992 */
+    lbl_8166927C,                     /* -991 */
+    lbl_81669295,                /* -990 */
+    lbl_816692B3,                 /* -989 */
+    lbl_816692D0,                     /* -988 */
+    lbl_816692E9,           /* -987 */
+    lbl_8166930C,              /* -986 */
+    lbl_8166932C,                     /* -985 */
+    lbl_81669345,                    /* -984 */
+    lbl_8166935F,                /* -983 */
+    lbl_8166937D,                   /* -982 */
+    lbl_81669398,                   /* -981 */
+    lbl_816693B3,                  /* -980 */
+    lbl_816693CF,                      /* -979 */
+    lbl_816693E7,                   /* -978 */
+    lbl_81669402,                     /* -977 */
+    lbl_8166941B,                       /* -976 */
+    lbl_81669432,                             /* -975 */
+    lbl_81669443,                             /* -974 */
+    lbl_81669454,                             /* -973 */
+    lbl_81669465,                             /* -972 */
+    lbl_81669476,                             /* -971 */
+    lbl_81669487,                         /* -970 */
+    lbl_8166949C,                         /* -969 */
+    lbl_816694B1,                         /* -968 */
+    lbl_816694C6,                          /* -967 */
+    lbl_816694DA,                         /* -966 */
+    lbl_816694EF,                             /* -965 */
+    lbl_81669500,               /* -964 */
+    lbl_8166951F,              /* -963 */
+    lbl_8166953F,           /* -962 */
+    lbl_81669562,                        /* -961 */
+    lbl_81669578,                      /* -960 */
+    lbl_81669590,                          /* -959 */
+    lbl_816695A4,                          /* -958 */
+    lbl_816695B8,         /* -957 */
+    lbl_816695DD,      /* -956 */
+    lbl_81669605, /* -955 */
+    lbl_81669632,                             /* -954 */
+    lbl_81669643,             /* -953 */
+    lbl_81669664,                     /* -952 */
+    lbl_8166967D,                            /* -951 */
+    lbl_8166968F,           /* -950 */
+    lbl_816696B2,                   /* -949 */
+    lbl_816696CD,                   /* -948 */
+    lbl_816696E8,                     /* -947 */
+    lbl_81669701,                  /* -946 */
+    lbl_8166971D,               /* -945 */
+    lbl_8166973C,                          /* -944 */
+    lbl_81669750,                  /* -943 */
+    lbl_8166976C,                       /* -942 */
+    lbl_81669783,               /* -941 */
+    lbl_816697A2,                      /* -940 */
+    lbl_816697BA,                  /* -939 */
+    lbl_816697D6,                  /* -938 */
+    lbl_816697F2,             /* -937 */
+    lbl_81669813,                 /* -936 */
+    lbl_81669830,                 /* -935 */
+    lbl_8166984D,        /* -934 */
+    lbl_81669873,          /* -933 */
+    lbl_81669897,                        /* -932 */
+    lbl_816698AD,                  /* -931 */
+    lbl_816698C9,             /* -930 */
+    lbl_816698EA,                /* -929 */
+    lbl_81669908,                  /* -928 */
+    lbl_81669924,           /* -927 */
+    lbl_81669947,           /* -926 */
+    lbl_8166996A,                /* -925 */
+    lbl_81669988,                /* -924 */
+    lbl_816699A6,                 /* -923 */
 };
 
 char vmNoError[] = "CHANS_VM_OK";
@@ -2068,6 +2158,9 @@ u32 CHANSVmGetArrayLength(CHANSVm* vm, CHANSVmObjHdr* array) {
     return 0;
 }
 
+char lbl_81669B12[] = "VmArrayJoinEstimateStrSize";
+char lbl_81669B2D[] = "%s %d: unsupported type 0x%x\n";
+
 static u32 VmArrayJoinEstimateStrSize(CHANSVmObjHdr* object, u32 sepLen) {
     ArrayChunk* chunk;
     u32 total;
@@ -2101,7 +2194,7 @@ static u32 VmArrayJoinEstimateStrSize(CHANSVmObjHdr* object, u32 sepLen) {
                     break;
                 }
                 default: {
-                    CHANS_VM_PRINTF(318, ": unsupported type 0x%x\n", type);
+                    CHANS_VM_PRINTF_CUSTOM(lbl_81669B2D, lbl_81669B12, 318, type);
                     goto error;
                 }
             }
@@ -2115,6 +2208,8 @@ static u32 VmArrayJoinEstimateStrSize(CHANSVmObjHdr* object, u32 sepLen) {
 error:
     return 0;
 }
+
+char lbl_81669B4B[] = "VmArrayJoinSub";
 
 static u32 VmArrayJoinSub(CHANSVmObjHdr* obj, CHANSVmObjHdr* array, wchar_t* separator, u32 sepLen, u32 bufSize, u32 offset) {
     ArrayChunk* chunk;
@@ -2168,7 +2263,7 @@ static u32 VmArrayJoinSub(CHANSVmObjHdr* obj, CHANSVmObjHdr* array, wchar_t* sep
                     break;
                 }
                 default: {
-                    CHANS_VM_PRINTF(389, ": unsupported type 0x%x\n", type);
+                    CHANS_VM_PRINTF_CUSTOM(lbl_81669B2D, lbl_81669B4B, 389, type);
                     goto error;
                 }
             }
@@ -2444,18 +2539,33 @@ error:
     return vmFalse;
 }
 
+char lbl_81697596[] = "length";
+
 const CHANSVmPropertyList VmArrayPropertyTbl[] = {
-    {"length", VmArrayGetLength, VmArraySetLength},
+    {lbl_81697596, VmArrayGetLength, VmArraySetLength},
 };
+char lbl_8169759D[] = "join";
+char lbl_816975A2[] = "new2d";
+char lbl_816975A8[] = "pop";
+char lbl_816975AC[] = "push";
+char lbl_816975B1[] = "shift";
+char lbl_816975B7[] = "slice";
+char lbl_816975BD[] = "unshift";
+
 const CHANSVmMethodList VmArrayMethodTbl[] = {
-    {"join", VmArrayJoin},   {"new2d", VmArrayNew2d}, {"pop", VmArrayPop},         {"push", VmArrayPush},
-    {"shift", VmArrayShift}, {"slice", VmArraySlice}, {"unshift", VmArrayUnshift},
+    {lbl_8169759D, VmArrayJoin},   {lbl_816975A2, VmArrayNew2d}, {lbl_816975A8, VmArrayPop},         {lbl_816975AC, VmArrayPush},
+    {lbl_816975B1, VmArrayShift}, {lbl_816975B7, VmArraySlice}, {lbl_816975BD, VmArrayUnshift},
 };
+
+u8 lbl_816975C5[] = {0x00, 'U', 0x00, 'T', 0x00, 'C', 0x00};
 
 const CHANSVmIntConstantList VmDateConstantTbl[] = {
     // Avoid L".." because it inserts two null terminator bytes, but the original only used one, despite it being a wide string.
-    {(const char*)"\0U\0T\0C", 6},
+    {(const char*)lbl_816975C5, 6},
     {vmNull, 0}};
+
+char lbl_81669B5A[] = "VmDateCommon";
+char lbl_81669B67[] = "internal error in %s line %d\n";
 
 vmBoolInt VmDateCommon(CHANSVm* vm, OSCalendarTime* out) {
     u32 argc;
@@ -2526,7 +2636,7 @@ vmBoolInt VmDateCommon(CHANSVm* vm, OSCalendarTime* out) {
                     dst = &nettime.msec;
                     break;
                 default:
-                    CHANS_VM_PRINTF_CUSTOM("internal error in %s line %d\n", __FUNCTION__, 211);
+                    CHANS_VM_PRINTF_CUSTOM(lbl_81669B67, lbl_81669B5A, 211);
                     return vmFalse;
             }
 
@@ -2562,8 +2672,29 @@ VmCtorDefine(Date) {
 
 #define RANGE(val, min, max) ((val) >= (min) && (val) <= (max))
 
-const char* VmDateDayTbl[] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
-const char* VmDateMonthTbl[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
+char lbl_816975CC[] = "Sun";
+char lbl_816975D0[] = "Mon";
+char lbl_816975D4[] = "Tue";
+char lbl_816975D8[] = "Wed";
+char lbl_816975DC[] = "Thu";
+char lbl_816975E0[] = "Fri";
+char lbl_816975E4[] = "Sat";
+
+const char* VmDateDayTbl[] = {lbl_816975CC, lbl_816975D0, lbl_816975D4, lbl_816975D8, lbl_816975DC, lbl_816975E0, lbl_816975E4};
+char lbl_816975E8[] = "Jan";
+char lbl_816975EC[] = "Feb";
+char lbl_816975F0[] = "Mar";
+char lbl_816975F4[] = "Apr";
+char lbl_816975F8[] = "May";
+char lbl_816975FC[] = "Jun";
+char lbl_81697600[] = "Jul";
+char lbl_81697604[] = "Aug";
+char lbl_81697608[] = "Sep";
+char lbl_8169760C[] = "Oct";
+char lbl_81697610[] = "Nov";
+char lbl_81697614[] = "Dec";
+
+const char* VmDateMonthTbl[] = {lbl_816975E8, lbl_816975EC, lbl_816975F0, lbl_816975F4, lbl_816975F8, lbl_816975FC, lbl_81697600, lbl_81697604, lbl_81697608, lbl_8169760C, lbl_81697610, lbl_81697614};
 
 VmDtorDefine(Date) {
     char buffer[32];
@@ -2644,17 +2775,28 @@ VmMethodDefine(Date, GetRTC) {
     return CHANSVmSetInteger(VmInst, VmReturnObj, val) == CHANS_VM_OK;
 }
 
+char lbl_81697618[] = "getDate";
+char lbl_81697620[] = "getDay";
+char lbl_81669C0F[] = "getFullYear";
+char lbl_81669C1B[] = "getHours";
+char lbl_81669C24[] = "getMilliseconds";
+char lbl_81669C34[] = "getMinutes";
+char lbl_81669C3F[] = "getMonth";
+char lbl_81669C48[] = "getSeconds";
+char lbl_81697627[] = "getTime";
+char lbl_8169762F[] = "getRTC";
+
 const CHANSVmMethodList VmDateMethodTbl[] = {
-    {"getDate", VmDateGetDate},
-    {"getDay", VmDateGetDay},
-    {"getFullYear", VmDateGetFullYear},
-    {"getHours", VmDateGetHours},
-    {"getMilliseconds", VmDateGetMilliseconds},
-    {"getMinutes", VmDateGetMinutes},
-    {"getMonth", VmDateGetMonth},
-    {"getSeconds", VmDateGetSeconds},
-    {"getTime", VmDateGetTime},
-    {"getRTC", VmDateGetRTC},
+    {lbl_81697618, VmDateGetDate},
+    {lbl_81697620, VmDateGetDay},
+    {lbl_81669C0F, VmDateGetFullYear},
+    {lbl_81669C1B, VmDateGetHours},
+    {lbl_81669C24, VmDateGetMilliseconds},
+    {lbl_81669C34, VmDateGetMinutes},
+    {lbl_81669C3F, VmDateGetMonth},
+    {lbl_81669C48, VmDateGetSeconds},
+    {lbl_81697627, VmDateGetTime},
+    {lbl_8169762F, VmDateGetRTC},
 };
 
 VmMethodDefine(Math, E) {
@@ -2838,14 +2980,42 @@ VmMethodDefine(Math, tan) {
     return arg != vmNull && CHANSVmSetFloat(VmInst, VmReturnObj, tan(arg->value.float_v)) == CHANS_VM_OK;
 }
 
+char lbl_81697636[] = "E";
+char lbl_81697638[] = "LN10";
+char lbl_8169763D[] = "LN2";
+char lbl_81697641[] = "LOG2E";
+char lbl_81697647[] = "LOG10E";
+char lbl_8169764E[] = "PI";
+char lbl_81697651[] = "SQRT1_2";
+char lbl_81697659[] = "SQRT2";
+
 const CHANSVmPropertyList VmMathPropertyTbl[] = {
-    {"E", VmMathE, vmNull},           {"LN10", VmMathLN10, vmNull}, {"LN2", VmMathLN2, vmNull},         {"LOG2E", VmMathLOG2E, vmNull},
-    {"LOG10E", VmMathLOG10E, vmNull}, {"PI", VmMathPI, vmNull},     {"SQRT1_2", VmMathSQRT1_2, vmNull}, {"SQRT2", VmMathSQRT2, vmNull},
+    {lbl_81697636, VmMathE, vmNull},           {lbl_81697638, VmMathLN10, vmNull}, {lbl_8169763D, VmMathLN2, vmNull},         {lbl_81697641, VmMathLOG2E, vmNull},
+    {lbl_81697647, VmMathLOG10E, vmNull}, {lbl_8169764E, VmMathPI, vmNull},     {lbl_81697651, VmMathSQRT1_2, vmNull}, {lbl_81697659, VmMathSQRT2, vmNull},
 };
+char lbl_8169765F[] = "abs";
+char lbl_81697663[] = "acos";
+char lbl_81697668[] = "asin";
+char lbl_8169766D[] = "atan";
+char lbl_81697672[] = "atan2";
+char lbl_81697678[] = "ceil";
+char lbl_8169767D[] = "cos";
+char lbl_81697681[] = "exp";
+char lbl_81697685[] = "floor";
+char lbl_8169768B[] = "log";
+char lbl_8169768F[] = "max";
+char lbl_81697693[] = "min";
+char lbl_81697697[] = "pow";
+char lbl_8169769B[] = "random";
+char lbl_816976A2[] = "round";
+char lbl_816976A8[] = "sin";
+char lbl_816976AC[] = "sqrt";
+char lbl_816976B1[] = "tan";
+
 const CHANSVmMethodList VmMathMethodTbl[] = {
-    {"abs", VmMathabs}, {"acos", VmMathacos},     {"asin", VmMathasin},   {"atan", VmMathatan}, {"atan2", VmMathatan2}, {"ceil", VmMathceil},
-    {"cos", VmMathcos}, {"exp", VmMathexp},       {"floor", VmMathfloor}, {"log", VmMathlog},   {"max", VmMathmax},     {"min", VmMathmin},
-    {"pow", VmMathpow}, {"random", VmMathrandom}, {"round", VmMathround}, {"sin", VmMathsin},   {"sqrt", VmMathsqrt},   {"tan", VmMathtan},
+    {lbl_8169765F, VmMathabs}, {lbl_81697663, VmMathacos},     {lbl_81697668, VmMathasin},   {lbl_8169766D, VmMathatan}, {lbl_81697672, VmMathatan2}, {lbl_81697678, VmMathceil},
+    {lbl_8169767D, VmMathcos}, {lbl_81697681, VmMathexp},       {lbl_81697685, VmMathfloor}, {lbl_8169768B, VmMathlog},   {lbl_8169768F, VmMathmax},     {lbl_81697693, VmMathmin},
+    {lbl_81697697, VmMathpow}, {lbl_8169769B, VmMathrandom}, {lbl_816976A2, VmMathround}, {lbl_816976A8, VmMathsin},   {lbl_816976AC, VmMathsqrt},   {lbl_816976B1, VmMathtan},
 };
 
 const static char VmStringClassName[] = "String";
@@ -3740,13 +3910,25 @@ VmMethodDefine(String, Format) {
 }
 
 const CHANSVmPropertyList VmStringPropertyTbl[] = {
-    {"length", VmStringGetLength, vmNull},
+    {lbl_81697596, VmStringGetLength, vmNull},
 };
+char lbl_816976B5[] = "charAt";
+char lbl_81669DB8[] = "charCodeAt";
+char lbl_81669DC3[] = "*fromCharCode";
+char lbl_816976BC[] = "*format";
+char lbl_816976C4[] = "indexOf";
+char lbl_81669DD1[] = "lastIndexOf";
+char lbl_816976CC[] = "replace";
+char lbl_816976D4[] = "search";
+char lbl_816976DB[] = "split";
+char lbl_81669DDD[] = "toLowerCase";
+char lbl_81669DE9[] = "toUpperCase";
+
 const CHANSVmMethodList VmStringMethodTbl[] = {
-    {"charAt", VmStringCharAt},   {"charCodeAt", VmStringCharCodeAt},   {"*fromCharCode", VmStringFromCharCode},
-    {"*format", VmStringFormat},  {"indexOf", VmStringIndexOf},         {"lastIndexOf", VmStringLastIndexOf},
-    {"replace", VmStringReplace}, {"search", VmStringSearch},           {"slice", VmStringSplice},
-    {"split", VmStringSplit},     {"toLowerCase", VmStringToLowerCase}, {"toUpperCase", VmStringToUpperCase},
+    {lbl_816976B5, VmStringCharAt},   {lbl_81669DB8, VmStringCharCodeAt},   {lbl_81669DC3, VmStringFromCharCode},
+    {lbl_816976BC, VmStringFormat},  {lbl_816976C4, VmStringIndexOf},         {lbl_81669DD1, VmStringLastIndexOf},
+    {lbl_816976CC, VmStringReplace}, {lbl_816976D4, VmStringSearch},           {lbl_816975B7, VmStringSplice},
+    {lbl_816976DB, VmStringSplit},     {lbl_81669DDD, VmStringToLowerCase}, {lbl_81669DE9, VmStringToUpperCase},
 };
 
 vmString VmGetStrFromObjHdr(CHANSVmObjHdr* object) {
@@ -5944,52 +6126,95 @@ CHANSVmObjHdr* CHANSVmNewBlobObject(CHANSVm* VmInst, CHANSVmObjHdr* obj, u32 siz
     return obj;
 }
 
+char lbl_816976EC[] = "offset";
+char lbl_816976F3[] = "*create";
+char lbl_816976FB[] = "seek";
+char lbl_81697700[] = "skip";
+char lbl_81697705[] = "isEqual";
+char lbl_8169770D[] = "fill";
+char lbl_81697712[] = "getU8";
+char lbl_81697718[] = "getU16";
+char lbl_8169771F[] = "getU32";
+char lbl_81697726[] = "getS8";
+char lbl_8169772C[] = "getS16";
+char lbl_81697733[] = "getS32";
+char lbl_8169773A[] = "getS64";
+char lbl_81697741[] = "setU8";
+char lbl_81697747[] = "setU16";
+char lbl_8169774E[] = "setU32";
+char lbl_81697755[] = "setS8";
+char lbl_8169775B[] = "setS16";
+char lbl_81697762[] = "setS32";
+char lbl_81697769[] = "setS64";
+char lbl_81697770[] = "getBlob";
+char lbl_81697778[] = "setBlob";
+char lbl_81697780[] = "pack";
+char lbl_81697785[] = "unpack";
+char lbl_81669F98[] = "getLength";
+char lbl_81669FA2[] = "setLength";
+char lbl_81669FAC[] = "getString";
+char lbl_81669FB6[] = "getWString";
+char lbl_81669FC1[] = "setString";
+char lbl_81669FCB[] = "setWString";
+char lbl_81669FD6[] = "getHexString";
+char lbl_81669FE3[] = "copyRangeFrom";
+char lbl_81669FF1[] = "calcSHA1Digest";
+char lbl_8166A000[] = "calcMD5Digest";
+char lbl_8166A00E[] = "calcCRC16";
+char lbl_8166A018[] = "calcCRC32";
+char lbl_8166A022[] = "calcHMAC";
+char lbl_8166A02B[] = "calcRangeSHA1Digest";
+char lbl_8166A03F[] = "calcRangeMD5Digest";
+char lbl_8166A052[] = "calcRangeCRC16";
+char lbl_8166A061[] = "calcRangeCRC32";
+char lbl_8166A070[] = "calcRangeHMAC";
+
 const CHANSVmPropertyList VmBlobPropertyTbl[] = {
-    {"offset", VmBlobGetOffset, VmBlobSeek},
-    {"length", VmBlobGetLength, VmBlobSetLength},
+    {lbl_816976EC, VmBlobGetOffset, VmBlobSeek},
+    {lbl_81697596, VmBlobGetLength, VmBlobSetLength},
 };
 const CHANSVmMethodList VmBlobMethodTbl[] = {
-    {"*create", VmBlobCreate},
-    {"seek", VmBlobSeek},
-    {"skip", VmBlobSkip},
-    {"isEqual", VmBlobIsEqual},
-    {"getLength", VmBlobGetLength},
-    {"setLength", VmBlobSetLength},
-    {"fill", VmBlobFill},
-    {"getU8", VmBlobGetU8},
-    {"getU16", VmBlobGetU16},
-    {"getU32", VmBlobGetU32},
-    {"getS8", VmBlobGetS8},
-    {"getS16", VmBlobGetS16},
-    {"getS32", VmBlobGetS32},
-    {"getS64", VmBlobGetS64},
-    {"setU8", VmBlobSetU8},
-    {"setU16", VmBlobSetU16},
-    {"setU32", VmBlobSetU32},
-    {"setS8", VmBlobSetS8},
-    {"setS16", VmBlobSetS16},
-    {"setS32", VmBlobSetS32},
-    {"setS64", VmBlobSetS64},
-    {"getString", VmBlobGetString},
-    {"getWString", VmBlobGetWString},
-    {"setString", VmBlobSetString},
-    {"setWString", VmBlobSetWString},
-    {"getBlob", VmBlobGetBlob},
-    {"setBlob", VmBlobSetBlob},
-    {"getHexString", VmBlobGetHexString},
-    {"copyRangeFrom", VmBlobCopyRangeFrom},
-    {"calcSHA1Digest", VmBlobCalcSHA1Digest},
-    {"calcMD5Digest", VmBlobCalcMD5Digest},
-    {"calcCRC16", VmBlobCalcCRC16},
-    {"calcCRC32", VmBlobCalcCRC32},
-    {"calcHMAC", VmBlobCalcHMAC},
-    {"calcRangeSHA1Digest", VmBlobCalcRangeSHA1Digest},
-    {"calcRangeMD5Digest", VmBlobCalcRangeMD5Digest},
-    {"calcRangeCRC16", VmBlobCalcRangeCRC16},
-    {"calcRangeCRC32", VmBlobCalcRangeCRC32},
-    {"calcRangeHMAC", VmBlobCalcRangeHMAC},
-    {"pack", VmBlobPack},
-    {"unpack", VmBlobUnpack},
+    {lbl_816976F3, VmBlobCreate},
+    {lbl_816976FB, VmBlobSeek},
+    {lbl_81697700, VmBlobSkip},
+    {lbl_81697705, VmBlobIsEqual},
+    {lbl_81669F98, VmBlobGetLength},
+    {lbl_81669FA2, VmBlobSetLength},
+    {lbl_8169770D, VmBlobFill},
+    {lbl_81697712, VmBlobGetU8},
+    {lbl_81697718, VmBlobGetU16},
+    {lbl_8169771F, VmBlobGetU32},
+    {lbl_81697726, VmBlobGetS8},
+    {lbl_8169772C, VmBlobGetS16},
+    {lbl_81697733, VmBlobGetS32},
+    {lbl_8169773A, VmBlobGetS64},
+    {lbl_81697741, VmBlobSetU8},
+    {lbl_81697747, VmBlobSetU16},
+    {lbl_8169774E, VmBlobSetU32},
+    {lbl_81697755, VmBlobSetS8},
+    {lbl_8169775B, VmBlobSetS16},
+    {lbl_81697762, VmBlobSetS32},
+    {lbl_81697769, VmBlobSetS64},
+    {lbl_81669FAC, VmBlobGetString},
+    {lbl_81669FB6, VmBlobGetWString},
+    {lbl_81669FC1, VmBlobSetString},
+    {lbl_81669FCB, VmBlobSetWString},
+    {lbl_81697770, VmBlobGetBlob},
+    {lbl_81697778, VmBlobSetBlob},
+    {lbl_81669FD6, VmBlobGetHexString},
+    {lbl_81669FE3, VmBlobCopyRangeFrom},
+    {lbl_81669FF1, VmBlobCalcSHA1Digest},
+    {lbl_8166A000, VmBlobCalcMD5Digest},
+    {lbl_8166A00E, VmBlobCalcCRC16},
+    {lbl_8166A018, VmBlobCalcCRC32},
+    {lbl_8166A022, VmBlobCalcHMAC},
+    {lbl_8166A02B, VmBlobCalcRangeSHA1Digest},
+    {lbl_8166A03F, VmBlobCalcRangeMD5Digest},
+    {lbl_8166A052, VmBlobCalcRangeCRC16},
+    {lbl_8166A061, VmBlobCalcRangeCRC32},
+    {lbl_8166A070, VmBlobCalcRangeHMAC},
+    {lbl_81697780, VmBlobPack},
+    {lbl_81697785, VmBlobUnpack},
 };
 
 VmMethodDefine(Image, Width) {
@@ -6094,11 +6319,17 @@ VmCtorDefine(Image) {
     return result;
 }
 
+char lbl_81697792[] = "width";
+char lbl_81697798[] = "height";
+char lbl_8169779F[] = "format";
+
 const CHANSVmPropertyList VmImagePropertyTbl[] = {
-    {"width", VmImageWidth, vmNull},
-    {"height", VmImageHeight, vmNull},
-    {"format", VmImageFormat, vmNull},
+    {lbl_81697792, VmImageWidth, vmNull},
+    {lbl_81697798, VmImageHeight, vmNull},
+    {lbl_8169779F, VmImageFormat, vmNull},
 };
+
+char lbl_8166A07E[] = "document.write(): conversion error (%d)\n";
 
 static vmBoolInt VmWinEmuWrite(CHANSVm* vm, CHANSVmObjHdr* parent, CHANSVmObjHdr* ret) {
     CHANSVmObjHdr* strObj;
@@ -6126,7 +6357,7 @@ static vmBoolInt VmWinEmuWrite(CHANSVm* vm, CHANSVmObjHdr* parent, CHANSVmObjHdr
                 buf[outLen + 1] = 0;
                 OSReport(lbl_81697583, buf);
             } else {
-                OSReport("document.write(): conversion error (%d)\n", result);
+                OSReport(lbl_8166A07E, result);
                 break;
             }
 
@@ -6136,12 +6367,17 @@ static vmBoolInt VmWinEmuWrite(CHANSVm* vm, CHANSVmObjHdr* parent, CHANSVmObjHdr
     return vmTrue;
 }
 
-const CHANSVmMethodList VmWinEmuMethodTbl[] = {"write", VmWinEmuWrite};
+char lbl_816977A6[] = "write";
+const CHANSVmMethodList VmWinEmuMethodTbl[] = {lbl_816977A6, VmWinEmuWrite};
+
+char lbl_8166A0A7[] = "document";
+char lbl_8166A0B0[] = "%s: no table for op '%c'\n";
 
 char lbl_816977AC[] = "Date";
 char lbl_816977B1[] = "@Math";
 char lbl_816977B7[] = "Math";
 char lbl_816977BC[] = "@WinEmu";
+char lbl_816977C4[] = "RCHE";
 
 static CHANSVmErr VmPushFuncReturnInfo(CHANSVm* vm, u32 argCount, u32 totalSlots, u32 headerCount);
 
@@ -6259,7 +6495,7 @@ CHANSVmErr CHANSVmInit(CHANSVm* vm, vmPtr work, vmU32 size) {
         }
 
         /* Screen (@WinEmu) class */
-        if (CHANSVmNewBuiltinObject(vm, lbl_816977BC, vmNull, vmNull, vmNull, "document", vmNull, vmNull, 0, (CHANSVmMethodList*)&VmWinEmuMethodTbl,
+        if (CHANSVmNewBuiltinObject(vm, lbl_816977BC, vmNull, vmNull, vmNull, lbl_8166A0A7, vmNull, vmNull, 0, (CHANSVmMethodList*)&VmWinEmuMethodTbl,
                                     CHANSVmMethodCount(VmWinEmuMethodTbl)) == 0) {
         class_fail:
             result = CHANS_VM_ERR_NATIVE_METHOD_INIT;
@@ -6303,7 +6539,7 @@ CHANSVmErr CHANSVmAddExe(CHANSVm* vm, vmS32 unk0, CHANSVm* execCtx) {
 
     mod = (ModuleHeader*)pVm->pFreeExeBuf;
     size = mod->size;
-    if (memcmp(&mod->magic, "RCHE", 4) != 0 || size < 0x80 || size & 0x1F) {
+    if (memcmp(&mod->magic, lbl_816977C4, 4) != 0 || size < 0x80 || size & 0x1F) {
     fail_format:
         return CHANS_VM_ERR_INVALID_EXE_FORMAT;
     }
@@ -7439,7 +7675,7 @@ CHANSVmErr CHANSVmStep(CHANSVm* vm, int stepCount) {
                             }
                             default: {
                                 // TODO: This is an inlined function called "VmGetResultType"
-                                CHANS_VM_PRINTF_CUSTOM("%s: no table for op '%c'\n", lbl_81669128, opKind);
+                                CHANS_VM_PRINTF_CUSTOM(lbl_8166A0B0, lbl_81669128, opKind);
                                 goto error_setter;
                             }
                         }
