@@ -478,8 +478,10 @@ namespace ipl {
         }
 
         void BoardObject::stt_stand() {
-            f32 dVar2 = nw4r::math::CosFIdx((0.7111111f * (mStandData.unk_0x0C * 30.0f + 30.0f)));
-            f32 dVar3 = nw4r::math::SinFIdx((0.7111111f * (mStandData.unk_0x0C * 30.0f + 30.0f)));
+            f32 degrees = mStandData.unk_0x0C * 30.0f + 30.0f;
+            f32 dVar2 = nw4r::math::CosFIdx(degrees * 0.7111111f);
+            degrees = mStandData.unk_0x0C * 30.0f + 30.0f;
+            f32 dVar3 = nw4r::math::SinFIdx(degrees * 0.7111111f);
 
             math::VEC2 standPos;
             __ct__Q33ipl4math4VEC2Fff(&standPos, dVar3 * 160.0f, dVar2 * 160.0f);
