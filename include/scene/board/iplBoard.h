@@ -234,7 +234,6 @@ namespace ipl {
             class ObjList {
             public:
                 ObjList();
-                ~ObjList() {}
 
                 BoardObject* getNext(BoardObject* obj = NULL) const { return (BoardObject*)nw4r::ut::List_GetNext((nw4r::ut::List*)&mUsedObjs, obj); }
 

@@ -419,11 +419,11 @@ namespace ipl {
             CDBRecordKey recordKey;
 
             utility::Date recordDate;
-            u32 recordGC = 0;
-
-            int recordHour;
-            int recordMin;
             int recordDay;
+            int recordMin;
+            int recordHour;
+
+            u32 recordGC = 0;
 
             cdb::Manager* cdbManager = System::getCdbManager();
 
@@ -460,7 +460,7 @@ namespace ipl {
 
             // Find any free space to put the object on screen
 
-            volatile BOOL old = OSDisableInterrupts();
+            BOOL old = OSDisableInterrupts();
             BOOL exist = is_exist_diff_date();
             BoardObject* obj = mObjList.getNextFree();
             OSRestoreInterrupts(old);
@@ -468,7 +468,7 @@ namespace ipl {
             if (obj == NULL && exist) {
                 while (obj == NULL) {
                     OSSleepMilliseconds((OSTime)1);
-                    volatile BOOL old2 = OSDisableInterrupts();
+                    BOOL old2 = OSDisableInterrupts();
                     obj = mObjList.getNextFree();
                     OSRestoreInterrupts(old2);
                 }
@@ -513,7 +513,7 @@ namespace ipl {
             result = TRUE;
 
             if (((RBRHeader*)rbrData)->magic == RBR_MAGIC && cdbManager->isValidHeader((RBRHeader*)rbrData)) {
-                volatile BOOL old3 = OSDisableInterrupts();
+                BOOL old3 = OSDisableInterrupts();
 
                 if (recordDate == mCurrentDate) {
                     if (mbReading == true && mSearchRecord_Prev.created) {
