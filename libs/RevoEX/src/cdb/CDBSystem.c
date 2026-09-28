@@ -9,19 +9,32 @@
 #include <revolution/dvd.h>
 #include <revolution/os.h>
 
+typedef struct {
+    u32 used;
+    u8 padding[0xC00C];
+    u32 flags;
+    u32 unk;
+} CDBDatabaseInstanceWork;
+
 static OSMutex s_mutex;
 static BOOL s_mutexInitialized = FALSE;
 
 static BOOL s_fatalVFFlag = FALSE;
 
-// This was likely a local originally, but oh well!
 s32 CDBPrintDebugLevel = CDB_VERBOSE_LEVEL_NONE;
 
+static u8 s_cdbWiiId[OSRoundUp32B(CDB_WIIID_DAT_SIZE)] ALIGN32;
+static CDBDatabaseInstanceWork* s_databasePool;
+static u8* s_recordPool;
+u8* CDBDatabaseWorkBuf;
 static VFErr s_lastVFError;
 static s32 s_lastNANDError;
 
-static u8 s_cdbWiiId[OSRoundUp32B(CDB_WIIID_DAT_SIZE)] ALIGN32;
-static u8* s_recordPool;
+extern void CDBDatabaseInstanceInit(void* instance, int flag, CDBDatabase* database);
+extern BOOL CDBDatabaseInstanceIsUsed(void* instance);
+extern void CDBRecordInstanceInit(void* instance, CDBRecord* record, int flag);
+extern BOOL CDBRecordInstanceIsUsed(void* instance);
+extern BOOL CDBRecordKeyCompare(CDBRecordKey* recordKey1, CDBRecordKey* recordKey2);
 
 void MutexInitialized() {
     s_mutexInitialized = TRUE;
@@ -33,6 +46,216 @@ void CDBLock() {
 
 void CDBUnlock() {
     OSUnlockMutex(&s_mutex);
+}
+
+void CDBDatabaseInstancePoolInit(void* work) {
+    u32* workPointer = (u32*)work;
+
+    s_databasePool = (CDBDatabaseInstanceWork*)workPointer;
+    s_databasePool[0].used = 0;
+    s_databasePool[1].used = 0;
+    if (((u32)(workPointer + 0x7880) & 0x3f) != 0) {
+        CDBReportWarn("割り当てられた領域が64バイトアライメントされていません(%d)\n", (u64)((u32)(workPointer + 0x7880) & 0x3f));
+    }
+    CDBCryptBufSysInit((CDBCryptBuf*)(workPointer + 0x7880));
+    if (!s_mutexInitialized) {
+        OSInitMutex(&s_mutex);
+    }
+    CDBDatabaseWorkBuf = (u8*)workPointer + 0x19660;
+}
+
+void CDBRecordPoolInit(void* work) {
+    int i;
+
+    s_recordPool = (u8*)work + 0x18030;
+    for (i = 0; i < 5; i++) {
+        *(u32*)(s_recordPool + i * 0x470 + 0x18) = 0;
+        if (!s_mutexInitialized) {
+            OSInitMutex((OSMutex*)(s_recordPool + i * 0x470));
+        }
+    }
+}
+
+CDBErr CDBDatabaseAllocate(CDBDatabase* database, u32 flag) {
+    CDBDatabaseInstanceWork* databaseInstance;
+    CDBDatabaseInstanceWork* requestedInstance;
+    u32 writeFlag;
+    int i;
+
+    if (s_recordPool == NULL) {
+        OSPanic(__FILE__, 0x185, "(CDB) error : CDBInit() is not called\n");
+    }
+
+    OSLockMutex(&s_mutex);
+    requestedInstance = database->instance;
+    if (requestedInstance != NULL) {
+        for (i = 0, databaseInstance = s_databasePool; i < 2; i++, databaseInstance++) {
+            if (requestedInstance == databaseInstance) {
+                if (requestedInstance->flags == 0) {
+                    CDBReportFatal("CDBDatabaseAllocate system error\n");
+                    OSUnlockMutex(&s_mutex);
+                    return CDB_ERROR_FATAL_ERROR;
+                }
+                CDBReportError("database descripter has opened already\n");
+                OSUnlockMutex(&s_mutex);
+                return 0x1c;
+            }
+        }
+
+        CDBReportError("database descripter is not initialized\n");
+        OSUnlockMutex(&s_mutex);
+        return 0x18;
+    }
+
+    writeFlag = flag & CDB_RECORD_ALLOC_WRITE;
+    for (i = 0, databaseInstance = s_databasePool; i < 2; i++, databaseInstance++) {
+        if (databaseInstance->used != 0) {
+            if ((databaseInstance->flags & CDB_RECORD_ALLOC_WRITE) != 0) {
+                CDBReportError("can't open the database as WRITE mode; another database discripter opened the database as WRITE mode\n");
+                OSUnlockMutex(&s_mutex);
+                return 0x19;
+            }
+            if (writeFlag != 0) {
+                CDBReportError("can't open the database as WRITE mode; other database discripter(s) opened the database as READ mode\n");
+                OSUnlockMutex(&s_mutex);
+                return 0x19;
+            }
+        }
+    }
+
+    for (i = 0; i < 2; i++) {
+        if (s_databasePool[i].used == 0) {
+            CDBDatabaseInstanceInit(s_databasePool + i, flag, database);
+            database->instance = s_databasePool + i;
+            OSUnlockMutex(&s_mutex);
+            return CDB_ERROR_OK;
+        }
+    }
+
+    CDBReportError("can't open databases any more\n");
+    OSUnlockMutex(&s_mutex);
+    return CDB_ERROR_CRYPT_ALLOC_FAIL;
+}
+
+CDBErr CDBDatabaseFree(CDBDatabase* database) {
+    int offset;
+    int i;
+    u32* databaseInstance = database->instance;
+    BOOL hasOpenRecord = FALSE;
+
+    if (databaseInstance == NULL) {
+        return 0x1b;
+    }
+
+    OSLockMutex(&s_mutex);
+    for (i = 0, offset = 0; i < 5; i++, offset += 0x470) {
+        if (CDBRecordInstanceIsUsed(s_recordPool + offset) &&
+            *(CDBDatabase**)(s_recordPool + offset + 0x468) == database) {
+            CDBReportError("can't close database; record %s is opened\n", s_recordPool + offset + 0x438);
+            hasOpenRecord = TRUE;
+        }
+    }
+
+    if (hasOpenRecord) {
+        OSUnlockMutex(&s_mutex);
+        return 0x21;
+    }
+
+    databaseInstance[0] = 0;
+    database->instance = NULL;
+    OSUnlockMutex(&s_mutex);
+    return CDB_ERROR_OK;
+}
+
+CDBErr CDBDatabaseCheckOpenDatabase() {
+    int i;
+    BOOL hasOpenDatabase = FALSE;
+
+    OSLockMutex(&s_mutex);
+    for (i = 0; i < 2; i++) {
+        if (CDBDatabaseInstanceIsUsed(s_databasePool + i)) {
+            CDBReportError("database is opened\n");
+            hasOpenDatabase = TRUE;
+        }
+    }
+    OSUnlockMutex(&s_mutex);
+    if (hasOpenDatabase) {
+        return 0x22;
+    }
+    return CDB_ERROR_OK;
+}
+
+CDBErr CDBDatabaseCheckOpenRecord() {
+    int offset;
+    int i;
+    BOOL hasOpenRecord = FALSE;
+
+    OSLockMutex(&s_mutex);
+    for (i = 0, offset = 0; i < 5; i++, offset += 0x470) {
+        if (CDBRecordInstanceIsUsed(s_recordPool + offset)) {
+            CDBReportError("record %s is opened\n", s_recordPool + offset + 0x438);
+            hasOpenRecord = TRUE;
+        }
+    }
+    OSUnlockMutex(&s_mutex);
+    if (hasOpenRecord) {
+        return 0x21;
+    }
+    return CDB_ERROR_OK;
+}
+
+char s_recordOnSDMessage[] = "record %s on SD is opened\n";
+
+CDBErr CDBRecordAllocate(CDBRecord* record, int flag) {
+    int writeFlag;
+    int offset;
+    int i;
+    CDBDatabaseInstanceWork* databaseInstance = ((CDBDatabase*)*(CDBDatabase**)record)->instance;
+
+    OSLockMutex(&s_mutex);
+    if (databaseInstance == NULL) {
+        CDBReportError("can't open the record; database is closed\n");
+        OSUnlockMutex(&s_mutex);
+        return 0x1b;
+    }
+
+    if ((databaseInstance->flags & CDB_RECORD_ALLOC_WRITE) == 0 && (flag & CDB_RECORD_ALLOC_WRITE) != 0) {
+        CDBReportError("can't open the record as WRITE mode; database is readonly mode\n");
+        OSUnlockMutex(&s_mutex);
+        return 0x1a;
+    }
+
+    writeFlag = flag & CDB_RECORD_ALLOC_WRITE;
+    for (i = 0, offset = 0; i < 5; i++, offset += 0x470) {
+        if (CDBRecordInstanceIsUsed(s_recordPool + offset) &&
+            CDBRecordKeyCompare(&record->key, (CDBRecordKey*)(s_recordPool + offset + 0x438)) == FALSE &&
+            *(s32*)((u8*)record + 0x30) == *(s32*)(s_recordPool + offset + 0x460)) {
+            if ((*(u32*)(s_recordPool + offset + 0x1c) & CDB_RECORD_ALLOC_WRITE) != 0) {
+                CDBReportError("can't open the record as WRITE mode; another record discripter opened the record as WRITE mode\n");
+                OSUnlockMutex(&s_mutex);
+                return 0x19;
+            }
+            if (writeFlag != 0) {
+                CDBReportError("can't open the record as WRITE mode; other record discripter(s) opened the record as READ mode \n");
+                OSUnlockMutex(&s_mutex);
+                return 0x19;
+            }
+        }
+    }
+
+    for (i = 0; i < 5; i++) {
+        if (!CDBRecordInstanceIsUsed(s_recordPool + i * 0x470)) {
+            offset = i * 0x470;
+            CDBRecordInstanceInit(s_recordPool + offset, record, flag);
+            record->file = s_recordPool + offset;
+            OSUnlockMutex(&s_mutex);
+            return CDB_ERROR_OK;
+        }
+    }
+
+    CDBReportError("can't open record any more\n");
+    OSUnlockMutex(&s_mutex);
+    return CDB_ERROR_CRYPT_ALLOC_FAIL;
 }
 
 CDBErr CDBRecordFree(CDBRecord* record) {
@@ -73,18 +296,6 @@ void CDBSetFatalVFErrorFlag() {
     s_fatalVFFlag = TRUE;
 }
 
-void CDBRecordPoolInit(void* work) {
-    int i;
-
-    s_recordPool = (u8*)work + 0x18030;
-    for (i = 0; i < 5; i++) {
-        *(u32*)(s_recordPool + i * 0x470 + 0x18) = 0;
-        if (!s_mutexInitialized) {
-            OSInitMutex((OSMutex*)(s_recordPool + i * 0x470));
-        }
-    }
-}
-
 void CDBTryToCreate_wiiiddat(u8* data) {
     NANDFileInfo fileInfo;
     u32 nandCheck;
@@ -92,7 +303,7 @@ void CDBTryToCreate_wiiiddat(u8* data) {
     // Requires 1 NAND block and 1 NAND node
     s32 ret = NANDCheck(1, 1, &nandCheck);
     if (ret != NAND_RESULT_OK) {
-        CDBReportError("failed NANDCheck\n");
+        CDBReportFatal("failed NANDCheck\n");
         return;
     }
 
@@ -325,6 +536,29 @@ void CDBCheckMakerCodeStr(char* makerCodeStr) {
     } else {
         makerCodeStr[1] = 0x23;
     }
+}
+
+BOOL CDBRecordBelongedDBOpenedAsRW(CDBRecord* record) {
+    int i;
+    CDBDatabaseInstanceWork* databaseInstance = NULL;
+    CDBDatabaseInstanceWork* databasePool;
+
+    if (record == NULL) {
+        return FALSE;
+    }
+
+    databasePool = s_databasePool;
+    for (i = 0; i < 2; i++) {
+        if (databasePool[i].used != 0 && (databasePool[i].flags & CDB_RECORD_ALLOC_WRITE) != 0) {
+            databaseInstance = databasePool + i;
+            break;
+        }
+    }
+
+    if (databaseInstance == NULL) {
+        return FALSE;
+    }
+    return TRUE;
 }
 
 static int s_vfSync = 1;

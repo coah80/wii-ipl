@@ -11,9 +11,7 @@ static char CDB_ATTR_MAGIC[] = "CDBFILE";
 static const u32 CDB_ATTR_VERSION = 0x02000000;
 static const u32 CDB_ATTR_VERSION_PADDING = 0;
 
-static u32 s_seed = 0;
-
-u32 CDBAttrGetDescOffset(CDBAttr* attr) {
+static u32 CDBAttrGetDescOffset(CDBAttr* attr) {
     return attr->buf.version == 1 ? 0x0D : offsetof(CDBAttrBuf, descLength);
 }
 
@@ -171,28 +169,18 @@ void CDBAttrGetKeyStr(CDBAttr* attr, char* keyString) {
     memcpy(keyString, attr->buf.keyString, CDB_ATTR_BUF_KEY_STRING_LEN);
 }
 
-u32 CDBAttrSetIV(CDBAttr* attr, u32 seed);
-
 void CDBAttrInitIV(CDBAttr* attr) {
-    int i, j;
-    u32 seed;
+    static u32 s_seed = 0;
+    int i;
 
     if (s_seed == 0) {
         s_seed = OSGetTick();
     }
 
-    s_seed = CDBAttrSetIV(attr, s_seed);
-}
-
-u32 CDBAttrSetIV(CDBAttr* attr, u32 seed) {
-    int i, j;
-    for (i = 0; i < 2; i++) {
-        for (j = 0; j < 8; j++) {
-            seed = 1566083941 * seed + 2531011;
-            attr->buf.iv[(i * 8) + j] = (s8)(seed >> 16);
-        }
+    for (i = 0; i < CDB_ATTR_BUF_KEY_IV_LEN; i++) {
+        s_seed = 1566083941 * s_seed + 2531011;
+        attr->buf.iv[i] = (s8)(s_seed >> 16);
     }
-    return seed;
 }
 
 void CDBAttrGetIV(CDBAttr* attr, u8* iv) {

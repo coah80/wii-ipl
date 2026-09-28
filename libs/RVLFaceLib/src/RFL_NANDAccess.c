@@ -133,7 +133,7 @@ void RFLiEndWorking(RFLErrcode errcode) {
     RFLiEndWorkingReason(errcode, 0);
 }
 
-NANDCommandBlock* RFLiSetCommandBlock(RFLiFileType type, RFLiAsyncTag tag) {
+inline NANDCommandBlock* RFLiSetCommandBlock(RFLiFileType type, RFLiAsyncTag tag) {
     NANDCommandBlock* block = &RFLiGetAccInfo(type)->commandBlock;
     RFLiCallbackTag* store = &RFLiGetAccInfo(type)->callbackTag;
 
@@ -147,7 +147,7 @@ NANDCommandBlock* RFLiSetCommandBlock(RFLiFileType type, RFLiAsyncTag tag) {
     return block;
 }
 
-RFLiAsyncTag RFLiGetTag(NANDCommandBlock* block) {
+inline RFLiAsyncTag RFLiGetTag(NANDCommandBlock* block) {
     RFLiCallbackTag* stored;
 
     RFLi_ASSERTLINE_NULL(block, 312);
@@ -159,7 +159,7 @@ RFLiAsyncTag RFLiGetTag(NANDCommandBlock* block) {
     return stored->tag;
 }
 
-RFLiFileType RFLiGetType(NANDCommandBlock* block) {
+inline RFLiFileType RFLiGetType(NANDCommandBlock* block) {
     RFLiCallbackTag* stored;
 
     RFLi_ASSERTLINE_NULL(block, 335);
@@ -171,7 +171,7 @@ RFLiFileType RFLiGetType(NANDCommandBlock* block) {
     return stored->type;
 }
 
-NANDFileInfo* RFLiGetWorkingFile(RFLiFileType type) {
+inline NANDFileInfo* RFLiGetWorkingFile(RFLiFileType type) {
     RFLi_ASSERTLINE_RANGE(type, RFLiFileType_Database, RFLiFileType_Max, 356);
 
     if (!RFLAvailable()) {

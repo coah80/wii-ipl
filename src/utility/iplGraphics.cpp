@@ -33,20 +33,25 @@ namespace ipl {
         }
 
         void Graphics::setOrthoProjection(const math::VEC3& translate, const math::VEC2& scale) {
-            nw4r::ut::Rect projRect(0, 0, 0, 0);
+            nw4r::ut::Rect projRect;
             System::getProjectionRect(&projRect);
 
-            f32 temp_f9 = projRect.right / scale.x;
-            f32 temp_f7 = projRect.left / scale.x;
-            MTXOrtho(mArg.mProjMtx, translate.y - (projRect.top / scale.y), translate.y - (projRect.bottom / scale.y), translate.x + temp_f7,
-                     translate.x + temp_f9, -100.0f, 100.0f);
+            f32 right = translate.x + projRect.right / scale.x;
+            f32 left = translate.x + projRect.left / scale.x;
+            f32 bottom = translate.y - (projRect.bottom / scale.y);
+            f32 top = translate.y - (projRect.top / scale.y);
+            MTXOrtho(mArg.mProjMtx, top, bottom, left, right, -100.0f, 100.0f);
 
             GXSetProjection(mArg.mProjMtx, GX_ORTHOGRAPHIC);
         }
 
         void Graphics::setOrthoProjection(u32 id) {
             GXRenderModeObj* rMode = System::getRenderModeObj();
-            MTXOrtho(mArg.mProjMtx, rMode->efbHeight / 2, -rMode->efbHeight / 2, -rMode->fbWidth / 2, rMode->fbWidth / 2, -100.0f, 100.0f);
+            f32 widthHalf = rMode->fbWidth / 2;
+            f32 negativeWidthHalf = -rMode->fbWidth / 2;
+            f32 negativeHeightHalf = -rMode->efbHeight / 2;
+            f32 heightHalf = rMode->efbHeight / 2;
+            MTXOrtho(mArg.mProjMtx, heightHalf, negativeHeightHalf, negativeWidthHalf, widthHalf, -100.0f, 100.0f);
             GXSetProjection(mArg.mProjMtx, GX_ORTHOGRAPHIC);
 
             calcOrthoCamera();

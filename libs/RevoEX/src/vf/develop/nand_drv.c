@@ -53,8 +53,8 @@ static struct {
     VFi_NANDDelete delete;        // 0x0C
 } l_nandFunc[PF_DRIVE_COUNT];
 
-int VF_nand_retry_max;
 int VF_nand_sleep_msec;
+int VF_nand_retry_max;
 
 #ifdef DEBUG
 #define VFi_NANDPrint(...) printf(__VA_ARGS__)
@@ -130,7 +130,7 @@ s32 VFi_NandPrivateOpen(const char* path, NANDFileInfo* info, u8 accType) {
     VFi_NANDFunction(NANDPrivateOpen(path, info, accType));
 }
 
-s32 VFi_NandWrite(NANDFileInfo* info, void* buf, u32 length) {
+inline s32 VFi_NandWrite(NANDFileInfo* info, void* buf, u32 length) {
     VFi_NANDFunction(NANDWrite(info, buf, length));
 }
 
@@ -146,7 +146,7 @@ s32 VFi_NandPrivateCreateDir(const char* path, u8 perm, u8 attr) {
     VFi_NANDFunction(NANDPrivateCreateDir(path, perm, attr));
 }
 
-s32 VFi_NandSeek(NANDFileInfo* info, s32 offset, s32 whence) {
+inline s32 VFi_NandSeek(NANDFileInfo* info, s32 offset, s32 whence) {
     VFi_NANDFunction(NANDSeek(info, offset, whence));
 }
 
@@ -177,12 +177,12 @@ static u8 _MakePermitForRVL(u8 i_perm) {
     return perm;
 }
 
-s32 VFi_NandCreateSp(const char* path, u8 i_perm, u8 attr, u32 i_handleIdx) {
+inline s32 VFi_NandCreateSp(const char* path, u8 i_perm, u8 attr, u32 i_handleIdx) {
     u8 perm = _MakePermitForRVL(i_perm);
     if (i_handleIdx < PF_DRIVE_COUNT) {
         VFi_NANDCreate tmpCreate;
         tmpCreate = l_nandFunc[i_handleIdx].create;
-        if (tmpCreate != NULL) {
+        if (tmpCreate) {
             return tmpCreate(path, perm, attr);
         }
         return VFi_NandCreate(path, perm, attr);
@@ -197,7 +197,7 @@ s32 VFi_NandOpenSp(const char* path, void* info, u8 accType, u32 i_handleIdx) {
     NANDFileInfo* info_p = info;
     if (i_handleIdx < PF_DRIVE_COUNT) {
         VFi_NANDOpen tmpOpen = l_nandFunc[i_handleIdx].open;
-        if (tmpOpen != NULL) {
+        if (tmpOpen) {
             return tmpOpen(path, info_p, accType);
         }
         return VFi_NandOpen(path, info_p, accType);
@@ -208,10 +208,10 @@ s32 VFi_NandOpenSp(const char* path, void* info, u8 accType, u32 i_handleIdx) {
     return VFi_NandPrivateOpen(path, info_p, accType);
 }
 
-s32 VFi_NandDeleteSp(const char* path, u32 i_handleIdx) {
+inline s32 VFi_NandDeleteSp(const char* path, u32 i_handleIdx) {
     if (i_handleIdx < PF_DRIVE_COUNT) {
         VFi_NANDDelete tmpDelete = l_nandFunc[i_handleIdx].delete;
-        if (tmpDelete != NULL) {
+        if (tmpDelete) {
             return tmpDelete(path);
         }
         return VFi_NandDelete(path);
