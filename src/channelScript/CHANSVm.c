@@ -2268,7 +2268,7 @@ VmMethodDefine(Array, Slice) {
         }
         end = (u32)v;
     }
-    newLen = end > start ? end - start : 0;
+    newLen = (end - start) & ~-(s32)(start >= end);
 
     if (CHANSVmNewArrayObject(VmInst, VmReturnObj, 1, &newLen) != vmNull) {
         for (i = 0; i < newLen; i++) {
