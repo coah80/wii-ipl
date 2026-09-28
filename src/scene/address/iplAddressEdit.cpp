@@ -1737,28 +1737,9 @@ void ipl::scene::AddressEdit::stt_add_name_fadeout() {
     }
 }
 
-extern "C" asm void initCalcFadeout__Q33ipl5scene11AddressEditFv() {
-    nofralloc
-    stwu r1, -0x10(r1)
-    mflr r0
-    lis r5, smArg__Q23ipl6System@ha
-    li r4, 5
-    stw r0, 0x14(r1)
-    addi r5, r5, smArg__Q23ipl6System@l
-    stw r31, 0xc(r1)
-    mr r31, r3
-    lwz r3, 0x64(r5)
-    bl getScene__Q33ipl5scene7ManagerFi
-    li r4, 0
-    li r5, 0
-    bl setEventHandler__Q33ipl5scene6ButtonFPQ23gui12EventHandlerPQ23gui12EventHandler
-    lwz r3, 0xa8(r31)
-    bl calc__Q33ipl5scene11TextBalloonFv
-    lwz r0, 0x14(r1)
-    lwz r31, 0xc(r1)
-    mtlr r0
-    addi r1, r1, 0x10
-    blr
+void ipl::scene::AddressEdit::initCalcFadeout() {
+    static_cast<ipl::scene::Button*>(ipl::System::getScene(5))->setEventHandler(NULL);
+    mpBalloon->calc();
 }
 
 extern "C" asm void calcCommonAfter__Q33ipl5scene11AddressEditFv() {
