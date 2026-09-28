@@ -2044,49 +2044,11 @@ void ipl::scene::AddressEdit::stt_msg_del_rlt() {
     }
 }
 
-extern "C" asm void stt_ipt_wait_fadein__Q33ipl5scene11AddressEditFv(ipl::scene::AddressEdit*) {
-    nofralloc
-    stwu r1, -0x10(r1)
-    mflr r0
-    li r4, 0
-    stw r0, 0x14(r1)
-    stw r31, 0xc(r1)
-    mr r31, r3
-    lwz r5, 0x74(r3)
-    addi r3, r5, 0x28c
-    bl List_GetNth__Q24nw4r2utFPCQ34nw4r2ut4ListUs
-    lwz r0, 0x14(r3)
-    cmpwi r0, 1
-    beq stt_ipt_wait_fadein_L1
-    lwz r3, 0x74(r31)
-    li r4, 1
-    addi r3, r3, 0x28c
-    bl List_GetNth__Q24nw4r2utFPCQ34nw4r2ut4ListUs
-    lwz r0, 0x14(r3)
-    cmpwi r0, 1
-    beq stt_ipt_wait_fadein_L1
-    lwz r3, 0x74(r31)
-    li r4, 2
-    addi r3, r3, 0x28c
-    bl List_GetNth__Q24nw4r2utFPCQ34nw4r2ut4ListUs
-    lwz r0, 0x14(r3)
-    cmpwi r0, 1
-    beq stt_ipt_wait_fadein_L1
-    lwz r3, 0x80(r31)
-    li r4, 0
-    addi r3, r3, 0x28c
-    bl List_GetNth__Q24nw4r2utFPCQ34nw4r2ut4ListUs
-    lwz r0, 0x14(r3)
-    cmpwi r0, 1
-    beq stt_ipt_wait_fadein_L1
-    li r0, 0xd
-    stw r0, 0x64(r31)
-stt_ipt_wait_fadein_L1:
-    lwz r0, 0x14(r1)
-    lwz r31, 0xc(r1)
-    mtlr r0
-    addi r1, r1, 0x10
-    blr
+void ipl::scene::AddressEdit::stt_ipt_wait_fadein() {
+    if (!mpNameLayout->getAnim(0)->isPlaying() && !mpNameLayout->getAnim(1)->isPlaying() &&
+        !mpNameLayout->getAnim(2)->isPlaying() && !mpBackgroundLayout->getAnim(0)->isPlaying()) {
+        mState = 0xd;
+    }
 }
 
 extern "C" asm void stt_ipt_normal__Q33ipl5scene11AddressEditFv(ipl::scene::AddressEdit*) {
