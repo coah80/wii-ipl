@@ -7,8 +7,6 @@ from odiff import dis, sym
 import os
 import itertools
 
-os.chdir("/home/cole/projects/tests/wii-ipl")
-
 
 def main():
     unit, name = sys.argv[1], sys.argv[2]
