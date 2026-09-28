@@ -368,85 +368,32 @@ void ipl::scene::AddressEdit::String::setEMail(const wchar_t* value) {
     mbValidMail = !NWC24CheckPublicMailAddr_(reinterpret_cast<const char*>(address));
 }
 
-extern "C" asm void setWiiNo__Q43ipl5scene11AddressEdit6StringFPCw(void*, const wchar_t*) {
-    nofralloc
-    stwu r1, -0x20(r1)
-    mflr r0
-    stw r0, 0x24(r1)
-    addi r11, r1, 0x20
-    bl _savegpr_29
-    li r0, 1
-    mr r31, r4
-    stb r0, 0x422(r3)
-    mr r30, r3
-    li r4, 0
-    li r5, 0x204
-    bl memset
-    mr r3, r30
-    mr r4, r31
-    li r5, 0x10
-    bl wcsncpy
-    addi r3, r30, 0x21c
-    li r4, 0
-    li r5, 0x204
-    bl memset
-    li r0, 0x10
-    li r7, 0
-    li r3, 0
-    li r5, 0x3f
-    mtctr r0
-setWiiNo_L1:
-    lhzx r6, r31, r3
-    cmplwi r6, 0x30
-    blt setWiiNo_L2
-    cmplwi r6, 0x39
-    bgt setWiiNo_L2
-    srawi r0, r7, 2
-    addze r0, r0
-    add r0, r7, r0
-    slwi r0, r0, 1
-    add r4, r30, r0
-    sth r6, 0x21c(r4)
-    b setWiiNo_L3
-setWiiNo_L2:
-    srawi r0, r7, 2
-    addze r0, r0
-    add r0, r7, r0
-    slwi r0, r0, 1
-    add r4, r30, r0
-    sth r5, 0x21c(r4)
-setWiiNo_L3:
-    addi r7, r7, 1
-    addi r3, r3, 2
-    bdnz setWiiNo_L1
-    li r0, 0x20
-    mr r3, r31
-    sth r0, 0x238(r30)
-    li r29, 0
-    sth r0, 0x22e(r30)
-    sth r0, 0x224(r30)
-    bl wcslen
-    cmplwi r3, 0x10
-    bne setWiiNo_L4
-    mr r3, r31
-    bl utf16_wiiid__Q33ipl5scene11AddressEditFPCw
-    stw r4, 0xc(r1)
-    addi r4, r1, 8
-    stw r3, 8(r1)
-    lwz r3, 0x424(r30)
-    lwz r3, 0x4ec(r3)
-    bl isValidId__Q33ipl5scene15FriendListCacheFRCUx
-    cmpwi r3, 0
-    beq setWiiNo_L4
-    li r29, 1
-setWiiNo_L4:
-    stb r29, 0x420(r30)
-    addi r11, r1, 0x20
-    bl _restgpr_29
-    lwz r0, 0x24(r1)
-    mtlr r0
-    addi r1, r1, 0x20
-    blr
+void ipl::scene::AddressEdit::String::setWiiNo(const wchar_t* value) {
+    mbHasWiiNo = true;
+    memset(mValue, 0, sizeof(mValue));
+    wcsncpy(mValue, value, 0x10);
+    memset(mDisplayText, 0, sizeof(mDisplayText));
+
+    for (s32 i = 0; i < 0x10; ++i) {
+        wchar_t digit = value[i];
+        if (digit >= L'0' && digit <= L'9') {
+            mDisplayText[i + i / 4] = digit;
+        } else {
+            mDisplayText[i + i / 4] = L'?';
+        }
+    }
+    mDisplayText[14] = L' ';
+    mDisplayText[9] = L' ';
+    mDisplayText[4] = L' ';
+
+    bool valid = false;
+    if (wcslen(value) == 0x10) {
+        u64 userId = AddressEdit::utf16_wiiid(value);
+        if (mpCallbackOwner->mpFriendCache->isValidId(userId)) {
+            valid = true;
+        }
+    }
+    mbValidMail = valid;
 }
 
 extern "C" asm int isDupCode__Q43ipl5scene11AddressEdit6StringCFv(void*) {
@@ -2127,8 +2074,7 @@ void ipl::scene::AddressEdit::stt_add_code_input() {
         bool codeWasEmpty = mString.mValue[0] == 0;
         if (state->pressOK) {
             if (mMode == 1) {
-                setWiiNo__Q43ipl5scene11AddressEdit6StringFPCw(
-                    &mString, state->wcString);
+                mString.setWiiNo(state->wcString);
             } else {
                 mString.setEMail(state->wcString);
             }
