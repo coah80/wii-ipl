@@ -408,36 +408,12 @@ BOOL ipl::scene::AddressEdit::String::isDupCode() const {
     return mpCallbackOwner->mpFriendCache->isDupMail(reinterpret_cast<const char*>(mail));
 }
 
-extern "C" asm int isMyCode__Q43ipl5scene11AddressEdit6StringCFv(void*) {
-    nofralloc
-    stwu r1, -0x10(r1)
-    mflr r0
-    stw r0, 0x14(r1)
-    lbz r0, 0x422(r3)
-    stw r31, 0xc(r1)
-    cmpwi r0, 0
-    stw r30, 8(r1)
-    beq isMyCode_L1
-    lwz r4, 0x424(r3)
-    lwz r4, 0x4ec(r4)
-    lwz r31, 0x7d68(r4)
-    lwz r30, 0x7d6c(r4)
-    bl utf16_wiiid__Q33ipl5scene11AddressEditFPCw
-    xor r4, r30, r4
-    xor r0, r31, r3
-    or r0, r4, r0
-    cntlzw r0, r0
-    srwi r3, r0, 5
-    b isMyCode_L2
-isMyCode_L1:
-    li r3, 0
-isMyCode_L2:
-    lwz r0, 0x14(r1)
-    lwz r31, 0xc(r1)
-    lwz r30, 8(r1)
-    mtlr r0
-    addi r1, r1, 0x10
-    blr
+BOOL ipl::scene::AddressEdit::String::isMyCode() const {
+    if (mbHasWiiNo) {
+        NWC24UserId myUserId = mpCallbackOwner->mpFriendCache->getMyUserId();
+        return AddressEdit::utf16_wiiid(mValue) == myUserId;
+    }
+    return false;
 }
 
 void ipl::scene::AddressEdit::prepare() {
@@ -2075,7 +2051,7 @@ void ipl::scene::AddressEdit::stt_add_code_input() {
             }
             if (mString.mbValidMail != 0 &&
                 mString.isDupCode() == 0 &&
-                isMyCode__Q43ipl5scene11AddressEdit6StringCFv(&mString) == 0) {
+                mString.isMyCode() == 0) {
                 button->reserveText(1, 0x2e);
                 button->reserveAnm(0xf);
             } else {
@@ -2088,8 +2064,7 @@ void ipl::scene::AddressEdit::stt_add_code_input() {
         if (state->pressOK) {
             if (mString.mValue[0] != 0) {
                 if (mMode == 1) {
-                    if (isMyCode__Q43ipl5scene11AddressEdit6StringCFv(
-                &mString) != 0) {
+                    if (mString.isMyCode() != 0) {
                         ipl::System::getDialog()->callBtn1(0x56, 0x2e);
                         mState = 0x16;
                     } else if (mString.isDupCode() != 0) {
@@ -2629,7 +2604,7 @@ void ipl::scene::AddressEdit::start_ipt_trig_event(
         setDefaultTitleText(mString.mValue, false);
         if (mString.mbValidMail != 0 &&
             mString.isDupCode() == 0 &&
-            isMyCode__Q43ipl5scene11AddressEdit6StringCFv(&mString) == 0) {
+            mString.isMyCode() == 0) {
             button->reserveAnm(0x10);
         } else {
             button->reserveAnm(0xc);
@@ -2785,8 +2760,7 @@ void ipl::scene::AddressEdit::onEventDerived(u32 componentId, u32 event, const i
             button->reserveAnm(0x1b);
             if (mString.mbValidMail != 0 &&
                 mString.isDupCode() == 0 &&
-                isMyCode__Q43ipl5scene11AddressEdit6StringCFv(
-                    &mString) == 0) {
+                mString.isMyCode() == 0) {
                 button->reserveAnm(0x10);
             } else {
                 button->reserveAnm(0xc);
