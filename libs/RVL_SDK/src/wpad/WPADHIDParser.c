@@ -1930,8 +1930,15 @@ void __a1_3f_data_type(u8 chan, u8* data) {
 
     if (_recv_3e[chan] == 0 && _recv_3f[chan] == 0) {
         p_clear = (u8*)(p_status);
-        for (i = 0; i < WPAD_RX_DATASIZE; i++) {
+        for (i = 0; i < WPAD_RX_DATASIZE; i += 8) {
             p_clear[i] = 0;
+            p_clear[i + 1] = 0;
+            p_clear[i + 2] = 0;
+            p_clear[i + 3] = 0;
+            p_clear[i + 4] = 0;
+            p_clear[i + 5] = 0;
+            p_clear[i + 6] = 0;
+            p_clear[i + 7] = 0;
         }
     }
 
