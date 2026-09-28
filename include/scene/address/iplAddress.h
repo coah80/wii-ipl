@@ -40,6 +40,8 @@ namespace ipl {
 
             const NWC24FriendInfo& getInfo(int index) const { return mInfos[index]; }
 
+            friend class Address;
+
         private:
             NWC24FriendInfo mInfos[100];        // 0x0000
             u8              mbHasInfo[100];     // 0x7D00
@@ -63,6 +65,8 @@ namespace ipl {
         };
 
         FADER_SCENE_CLASS(Address), public ButtonEventHandlerBase {
+            friend class AddressEvent;
+
         public:
             enum {
                 SCENE_ADD_WII = 1,
@@ -81,6 +85,8 @@ namespace ipl {
                 void set(NWC24UserId userId);
 
                 static void create_callback(nigaoe::Object* nigaoe, void* work);
+
+                friend class Address;
 
             private:
                 GXTexObj             mMiiTexObj;      // 0x00
@@ -216,6 +222,7 @@ namespace ipl {
             FriendListCache* mpFriendList;      // 0x274
             GXTexObj        mMiiTexObj;         // 0x278
             u8*             mpWork;             // 0x298
+            f32             mUnk_0x29C;         // 0x29C
         };
 
     }  // namespace scene
