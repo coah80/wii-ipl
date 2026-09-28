@@ -10,7 +10,9 @@
 #include <revolution/sc.h>
 #include <revolution/wpad.h>
 
+#define IPL_CONTROLLER_NATIVE_HIERARCHY
 #include "system/iplController.h"
+#undef IPL_CONTROLLER_NATIVE_HIERARCHY
 #include "system/iplSystem.h"
 
 nw4r::ut::Rect::Rect() : left(0.0f), top(0.0f), right(0.0f), bottom(0.0f) {}
@@ -662,22 +664,6 @@ namespace ipl {
             return math::VEC2(unk_0x20->horizon.x, unk_0x20->horizon.y);
         }
 
-        int Interface::getMainStickX() const {
-            return 0;
-        }
-
-        int Interface::getMainStickY() const {
-            return 0;
-        }
-
-        int Interface::getSubStickX() const {
-            return 0;
-        }
-
-        int Interface::getSubStickY() const {
-            return 0;
-        }
-
         void Base::read() {
             if (isValidBtn()) {
                 if (downTrg(BTN_INTERACT)) {
@@ -744,115 +730,8 @@ namespace ipl {
             return mChan;
         }
 
-        bool Base::setForceInvalid(bool flag) {
+        void Base::setForceInvalid(bool flag) {
             unk_0x1C = flag;
-        }
-
-        bool Interface::isValidBtn() const {
-            return false;
-        }
-
-        bool Interface::downTrg(u32 mButton) const {
-            return 0;
-        }
-
-        bool Interface::upTrg(u32 mButton) const {
-            return 0;
-        }
-
-        int Interface::pinch() const {
-            return 0;
-        }
-
-        int Interface::pinchTrg() const {
-            return 0;
-        }
-
-        int Interface::pinchOffTrg() const {
-            return 0;
-        }
-
-        bool Interface::down(u32 mButton) const {
-            return 0;
-        }
-
-        bool Interface::repeat(u32 mButton) const {
-            return 0;
-        }
-
-        bool Interface::isValidDpd() const {
-            return false;
-        }
-
-        math::VEC2 Interface::getDpdPos() const {
-            math::VEC2 ret;
-            f32 zero = *((volatile const f32*)&lbl_81694454);
-            ret.x = zero;
-            ret.y = zero;
-            return ret;
-        }
-
-        math::VEC2 Interface::getDpdProjectionPos() const {
-            math::VEC2 ret;
-            f32 zero = *((volatile const f32*)&lbl_81694454);
-            ret.x = zero;
-            ret.y = zero;
-            return ret;
-        }
-
-        math::VEC2 Interface::getHorizon() const {
-            math::VEC2 ret;
-            f32 zero = *((volatile const f32*)&lbl_81694454);
-            ret.x = zero;
-            ret.y = zero;
-            return ret;
-        }
-
-        int Interface::getClassicHoldFlag() const {
-            return 0;
-        }
-
-        int Interface::getClassicTrigFlag() const {
-            return 0;
-        }
-
-        int Interface::getClassicReleaseFlag() const {
-            return 0;
-        }
-
-        KPADStatus* Interface::getKPADStatus() const {
-            return NULL;
-        }
-
-        PADStatus* Interface::getPADStatus() const {
-            return NULL;
-        }
-
-        f32 Interface::getDpdDistance() const {
-            return *((volatile const f32*)&lbl_81694454);
-        }
-
-        int Interface::getHoldFlag() const {
-            return 0;
-        }
-
-        int Interface::getReleaseFlag() const {
-            return 0;
-        }
-
-        int Interface::getTrigFlag() const {
-            return 0;
-        }
-
-        void Interface::cancelRumbling() {
-        }
-
-        int Interface::getChannel() const {
-            return -1;
-        }
-
-        int Interface::getType() const {
-            return -1;
         }
 
         bool Master::down(u32 button) const {
@@ -869,13 +748,6 @@ namespace ipl {
 
         bool Master::repeat(u32 button) const {
             return call(button, (bool (Interface::*)(u32) const)&Interface::repeat);
-        }
-
-        BOOL Interface::rumble(int type) {
-            return FALSE;
-        }
-
-        void Interface::read() {
         }
 
         EGG::Allocator* Manager::mpAllocator;
