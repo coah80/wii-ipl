@@ -1289,16 +1289,15 @@ namespace ipl {
                 }
             }
 
-            if (mArg2 != 0) {
+            if (mArg2) {
                 return;
             }
 
             if (isReleasableArea(mPageNo, buttonNo)) {
                 mUnk_0xbc = buttonNo;
                 mChosenFriendIndex = mPageNo * 5 + buttonNo;
-                mUnk_0x80 = mChosenFriendIndex;
-                if (mUnk_0x80 != mDragPageNo * 5 + mDragButtonNo) {
-                    mpFriendList->swap(mDragPageNo * 5 + mDragButtonNo, mUnk_0x80);
+                if (mChosenFriendIndex != (u32)(mDragPageNo * 5 + mDragButtonNo)) {
+                    mpFriendList->swap(mChosenFriendIndex, mDragPageNo * 5 + mDragButtonNo);
                 }
                 snd::getSystem()->startSEwithPos("WIPL_SE_CH_SET", mDragPos.x);
             }
@@ -1307,7 +1306,7 @@ namespace ipl {
             }
 
             System::getPointer()->changeType(mDragChannel, 0);
-            button->enableBtn();
+            static_cast<Button*>(System::getScene(SCENE_BUTTON))->enableBtn();
             mpLayout->FindPaneByName(sTextNameB[mDragButtonNo])->SetVisible(true);
             mbDragging = FALSE;
             mState = 0xB;
