@@ -758,7 +758,7 @@ config.libs = [
             Object(Matching,    "scene/channelEdit/iplChannelEdit.cpp"),
             Object(Equivalent,  "scene/channelEdit/iplChanAppBase.cpp"),
             Object(Matching,    "scene/channelEdit/iplChanAppBox.cpp"),
-            Object(Equivalent,  "scene/channelEdit/iplChanAppEdit.cpp"),
+            Object(Matching,    "scene/channelEdit/iplChanAppEdit.cpp"),
             Object(Matching,    "scene/channelEdit/iplAnmController.cpp"),
             Object(Matching,    "scene/channelEdit/iplNandSDCardManager.cpp"),
             Object(Matching,    "scene/channelEdit/iplThumbnail.cpp"),

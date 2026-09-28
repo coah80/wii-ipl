@@ -7,11 +7,18 @@
 
 namespace ipl {
     namespace math {
+        static inline VEC3 add(const VEC3& a, const VEC3& b) {
+            VEC3 sum;
+            VEC3Add(&sum, &a, &b);
+            return sum;
+        }
+
         template <>
         VEC3 LinearIntp<VEC3>::get() const {
-            VEC3 r = mEnd * getCurrentFrame();
-            r += mStart * (mMaxFrame - mFrame);
-            return r * (f64)(1.0f / getMaxFrame());
+            nw4r::math::VEC3 result;
+            VEC3 sum = add(mStart * (mMaxFrame - mFrame), mEnd * getCurrentFrame());
+            VEC3Scale(&result, &sum, 1.0f / getMaxFrame());
+            return result;
         }
     }
 
