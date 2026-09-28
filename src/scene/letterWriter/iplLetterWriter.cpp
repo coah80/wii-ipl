@@ -202,6 +202,10 @@ namespace ipl {
             return mpCaptionString->getWCString();
         }
 
+        wchar_t* textinput::tistring::StringBase::getWCString() const {
+            return mpszString;
+        }
+
         FaderSceneCommand LetterWriter::calcNormal() {
             const wchar_t* caption;
 

@@ -51,7 +51,7 @@ namespace textinput {
 
                 virtual nw4r::math::VEC2    getScale() const = 0;
 
-                virtual void                setSecretModeOn(bool secretMode)    { mbSecretMode = secretMode; }
+                virtual void                setSecretModeOn(bool secretMode);
 
                 virtual void                doBeforeDrawProcess(const wchar_t*, u32, const DrawInfo& drawInfo);
                 virtual void                doAfterDrawProcess(const wchar_t*, u32, const DrawInfo& drawInfo);
@@ -75,8 +75,8 @@ namespace textinput {
                 // todo
                 virtual void                setDrawModifyScopeLine();
                 virtual void                setDrawCacheScopeLine();
-                virtual void                modifyCursorCache();
-                virtual void                isEnableCursorCache();
+                virtual void                modifyCursorCache(s32, u32, f32, f32, f32, f32);
+                virtual bool                isEnableCursorCache() const;
                 virtual void                getDrawModifyStartLine();
                 virtual void                getDrawModifyEndLine();
                 virtual u32                 getDrawCacheStartPos() const;

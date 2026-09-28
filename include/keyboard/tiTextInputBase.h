@@ -55,6 +55,12 @@ namespace textinput {
                 INPUT_COMMAND_37 = 37,
             } INPUT_COMMAND;
 
+            typedef struct Scroll {
+                bool absY;  // 0x00
+                f32  x;     // 0x04
+                f32  y;     // 0x08
+            } Scroll;
+
             virtual void    clearSender();
             virtual void    onCommand(INPUT_COMMAND command, void* data);
             virtual void    addSender(CommandSender* cmdSend);

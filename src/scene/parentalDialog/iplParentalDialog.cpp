@@ -14,6 +14,10 @@
 
 namespace ipl {
     namespace scene {
+        inline void textinput::textdrawer::Base::setSecretModeOn(bool secretMode) {
+            mbSecretMode = secretMode;
+        }
+
         // clang-format off
         const char* ParentalDialog::smButtonName[ParentalDialog::BTN_MAX] = {
             "B_BtnA",

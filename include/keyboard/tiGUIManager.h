@@ -74,8 +74,8 @@ namespace textinput {
 
             virtual void onEvent(GUIComponent& comp, u32 event, void* data) {}  // 0x0C
 
-            virtual void setLatestEventCtrlNo(int ctrlNo) { muLatestEventCtrlNo = ctrlNo; }  // 0x10
-            virtual int getLatestEventCtrlNo() { return muLatestEventCtrlNo; }               // 0x14
+            virtual void setLatestEventCtrlNo(int ctrlNo);  // 0x10
+            virtual int getLatestEventCtrlNo();               // 0x14
 
         protected:
             int muLatestEventCtrlNo;  // 0x04

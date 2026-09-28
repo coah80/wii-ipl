@@ -33,10 +33,10 @@ namespace textinput {
 
                 virtual void        setLength(u16);
 
-                virtual wchar_t*    getWCString() const             { return mpszString; }
+                virtual wchar_t*    getWCString() const;
 
                 virtual void        setCandidate(wchar_t candidate) { mwcCandidate = candidate; }
-                virtual wchar_t     getCandidate()                  { return mwcCandidate; }
+                virtual wchar_t     getCandidate() const            { return mwcCandidate; }
                 virtual bool        hasCandidate() const;
 
                 virtual wchar_t     getLastWChar();
@@ -62,38 +62,42 @@ namespace textinput {
         public:
             Decolated(u16 maxLen) : StringBase(maxLen), field_0x18(0), field_0x1C(0), field_0x20(0), field_0x24(0) { initKanaConverter(); }
 
-            virtual void inputChar();
-            virtual void inputString();
+            virtual void clear();
+            virtual void set(const wchar_t* string);
+            virtual void setLength(u16);
+
+            virtual void inputChar(wchar_t);
+            virtual void inputString(const wchar_t*);
             virtual void deleteChar();
             virtual void backSpace();
-            virtual void confirm();
+            virtual void confirm(const wchar_t*);
             virtual void moveCursorRight();
             virtual void moveCursorLeft();
-            virtual void setCursorPos();
+            virtual void setCursorPos(u32);
             virtual void onSustain();
             virtual void offSustain();
-            virtual void isOnSustain();
-            virtual void getCursorPos();
+            virtual bool isOnSustain();
+            virtual u32 getCursorPos() const;
             virtual void getCursorPos(u32*, u32*);
-            virtual void canBackSpace();
+            virtual bool canBackSpace();
             virtual void deleteForward();
-            virtual void getSelected();
-            virtual void getWCharAtCursor();
-            virtual void replaceAtCursor();
-            virtual void isDakuten();
+            virtual void getSelected(u32&, u32&);
+            virtual wchar_t getWCharAtCursor();
+            virtual void replaceAtCursor(wchar_t);
+            virtual bool isDakuten();
             virtual void converDakuten();
-            virtual void isHandaku();
+            virtual bool isHandaku();
             virtual void converHandaku();
             virtual void convertAll();
-            virtual void isSmall();
+            virtual bool isSmall();
             virtual void converSmall();
             virtual bool atTheBeginningOfASentence();
             virtual void initKanaConverter();
-            virtual void getKanaBuffer();
-            virtual void isKanaFix();
+            virtual void* getKanaBuffer();
+            virtual bool isKanaFix() const;
             virtual void confirmKana();
             virtual void clearKana();
-            virtual void EnableKSXFilter();
+            virtual void EnableKSXFilter(bool);
 
         private:
             u32 field_0x18;          // 0x18
@@ -103,7 +107,50 @@ namespace textinput {
             KanaStream mKanaStream;  // 0x28
         };
 
-        class WithAtok : public StringBase {};
+        class WithAtok : public Decolated {
+        public:
+            struct DrawInfo;
+
+            ~WithAtok();
+
+            virtual void pushBack(wchar_t ch);
+            virtual void popBack();
+            virtual void inputChar(wchar_t);
+            virtual void backSpace();
+            virtual void confirm(const wchar_t*);
+            virtual void moveCursorRight();
+            virtual void moveCursorLeft();
+            virtual void getCursorPos(u32*, u32*);
+
+            virtual bool isFix();
+            virtual void setFix(bool);
+            virtual void initConverting();
+            virtual bool isConverting();
+            virtual wchar_t* getConfirmedWCString() const;
+            virtual int getCurrentNumPredicted();
+            virtual bool getPredicted(int, wchar_t*);
+            virtual void commitPredicted(int);
+            virtual void setSelectedCandidate(long);
+            virtual bool isCandidateSelected();
+            virtual int getSelectedCandidate();
+            virtual void init();
+            virtual void setInputting(wchar_t);
+            virtual void getDrawString(DrawInfo&);
+            virtual void openDictionary(void*, int, void*, int, void*, int);
+            virtual void closeDictionary();
+            virtual bool hasConfirmedString();
+            virtual void enableConfirmedString(bool);
+            virtual void startConverting();
+            virtual bool isDictionaryOpened();
+            virtual void changeKanaMode(bool);
+            virtual int getInputStringLength();
+            virtual void resetRelation();
+            virtual void setFixMode(bool);
+            virtual void setFixPrediction(int, const char* const*);
+            virtual void setDefaultPrediction(int, const char* const*);
+            virtual int getSelectedConverting();
+            virtual int getFixedPredictionNum();
+        };
     }
 }
 

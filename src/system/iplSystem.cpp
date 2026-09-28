@@ -75,6 +75,8 @@ extern "C" void beginRender__Q23ipl9FrameworkFv();
 extern "C" void beginFrame__Q23ipl9FrameworkFv();
 #endif
 
+inline nw4r::ut::Color::~Color() {}
+
 namespace ipl {
     System::Arg System::smArg;
 

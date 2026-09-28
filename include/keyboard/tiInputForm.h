@@ -17,7 +17,8 @@ namespace textinput {
     namespace inputform {
         class EditBuffer {
             public:
-                ~EditBuffer();
+                virtual ~EditBuffer();
+                virtual void create(MEMAllocator* allocator);
 
             private:
                 void*           mpString;       // 0x04
@@ -27,6 +28,9 @@ namespace textinput {
         };
 
         class DeadKeyStream {
+        public:
+            static bool sbCompatibleFilterEnabled;
+
         private:
             KPRQueue mKPRQueue;  // 0x00
         };
@@ -82,6 +86,10 @@ namespace textinput {
                 };
 
                 virtual ~Base();
+
+                virtual void                create(MEMAllocator* allocator);
+                virtual void                init();
+                virtual void                onCommand(INPUT_COMMAND command, void* data);
 
                 virtual void                create(MEMAllocator* allocator, EditBuffer* editBuffer);
 

@@ -46,7 +46,10 @@ namespace textinput {
         public:
             Animation() : mfAnimationTime(0.0f), mbInAnimation(false), mbSE(false), mpAnimObserver(NULL) {}
 
-            virtual void startAnm(AnimObserver*, f32, f32, f32, void*);  // 0x08
+            virtual void startAnm(f32, f32, f32, AnimObserver*, void*);  // 0x08
+            void startAnm(AnimObserver* observer, f32 start, f32 end, f32 frame, void* arg) {
+                startAnm(start, end, frame, observer, arg);
+            }
             virtual void calc();                                         // 0x0C
             virtual f32 getValue();                                      // 0x10
             virtual bool isActive();                                     // 0x14
