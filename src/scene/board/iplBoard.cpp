@@ -1,4 +1,14 @@
+#define IPL_BOARD_DATE_CTOR_OUT_OF_LINE
+#define IPL_BOARD_WEEK_FUNCTION_OUT_OF_LINE
+
 #include "iplSceneUI.h"
+
+#include "iplSystem.h"
+
+#if defined(SYSMENU_REGION_USA)
+#define IPL_BOARD_DATE_HELPERS_INLINE
+#endif
+#define IPL_BOARD_INLINE_GETTERS
 
 #include "scene/board/iplBoard.h"
 
@@ -12,8 +22,6 @@
 #include "scene/channelTitle/iplChannelTitle.h"
 
 #include "scene/setting/iplSetting.h"
-
-#include "iplSystem.h"
 
 #include "utility/iplRBRUtility.h"
 
@@ -71,6 +79,11 @@ namespace ipl {
             init_search_condition();
         }
 
+    }
+    namespace utility {
+        Date::Date(const OSCalendarTime& cal) : year(cal.year), month(cal.mon + 1), day(cal.mday) {}
+    }
+    namespace scene {
         void Board::prepare() {
             System::checkNandOverFlowFlagAsync();
 
@@ -427,7 +440,13 @@ namespace ipl {
 
             cdb::Manager* cdbManager = System::getCdbManager();
 
-            BOOL result = TRUE;
+            struct InterruptState {
+                BOOL first;
+                BOOL second;
+                BOOL third;
+                BOOL result;
+            } interrupts;
+            interrupts.result = TRUE;
 
             char recordType[8] = "";
 
@@ -460,17 +479,17 @@ namespace ipl {
 
             // Find any free space to put the object on screen
 
-            BOOL old = OSDisableInterrupts();
+            interrupts.first = OSDisableInterrupts();
             BOOL exist = is_exist_diff_date();
             BoardObject* obj = mObjList.getNextFree();
-            OSRestoreInterrupts(old);
+            OSRestoreInterrupts(interrupts.first);
 
             if (obj == NULL && exist) {
                 while (obj == NULL) {
                     OSSleepMilliseconds((OSTime)1);
-                    BOOL old2 = OSDisableInterrupts();
+                    interrupts.second = OSDisableInterrupts();
                     obj = mObjList.getNextFree();
-                    OSRestoreInterrupts(old2);
+                    OSRestoreInterrupts(interrupts.second);
                 }
             }
 
@@ -510,16 +529,16 @@ namespace ipl {
                 goto close;
             }
 
-            result = TRUE;
+            interrupts.result = TRUE;
 
             if (((RBRHeader*)rbrData)->magic == RBR_MAGIC && cdbManager->isValidHeader((RBRHeader*)rbrData)) {
-                BOOL old3 = OSDisableInterrupts();
+                interrupts.third = OSDisableInterrupts();
 
                 if (recordDate == mCurrentDate) {
                     if (mbReading == true && mSearchRecord_Prev.created) {
                         mbReading = false;
                         delete[] rbrData;
-                        OSRestoreInterrupts(old3);
+                        OSRestoreInterrupts(interrupts.third);
 
                         return FALSE;
                     }
@@ -537,11 +556,11 @@ namespace ipl {
                         memcpy(&mSearchRecord_Prev, &mSearchRecord_Next, sizeof(SearchRecord));
                     }
                 } else {
-                    result = FALSE;
+                    interrupts.result = FALSE;
                     delete[] rbrData;
                 }
 
-                OSRestoreInterrupts(old3);
+                OSRestoreInterrupts(interrupts.third);
             } else {
                 delete[] rbrData;
             }
@@ -565,13 +584,13 @@ namespace ipl {
                 show_ricon();
             }
 
-            result = FALSE;
+            interrupts.result = FALSE;
             goto out;
 
         error:
-            result = FALSE;
+            interrupts.result = FALSE;
         out:
-            return result;
+            return interrupts.result;
         }
 
         void Board::stt_wait_cdb_init() {
@@ -1390,10 +1409,11 @@ namespace ipl {
 #undef TEXT_LENGTH
         }
 
-        static const u32 scWeekMsgId[] = {MESG_CALENDAR_SUNDAY,   MESG_CALENDAR_MONDAY, MESG_CALENDAR_TUESDAY, MESG_CALENDAR_WEDNESDAY,
-                                          MESG_CALENDAR_THURSDAY, MESG_CALENDAR_FRIDAY, MESG_CALENDAR_SATURDAY};
-
-        void Board::get_text_jpn(const utility::Date& date, wchar_t* text, u32 textLen) {
+        const u32 scWeekMsgId[] = {MESG_CALENDAR_SUNDAY,   MESG_CALENDAR_MONDAY, MESG_CALENDAR_TUESDAY, MESG_CALENDAR_WEDNESDAY,
+                                   MESG_CALENDAR_THURSDAY, MESG_CALENDAR_FRIDAY, MESG_CALENDAR_SATURDAY};
+        wchar_t scTextDateJpnFormat[] = L"%d%ls%d%ls%ls%ls%ls";
+#ifndef IPL_BOARD_DATE_HELPERS_INLINE
+        inline void Board::get_text_jpn(const utility::Date& date, wchar_t* text, u32 textLen) {
             message::Manager* msgMgr = System::getMessageManager();
             const wchar_t* week = msgMgr->getMessage(scWeekMsgId[utility::Calendar::getWeek(date)]);
             const wchar_t* sep1 = msgMgr->getMessage(MESG_CALENDAR_MONDAY);
@@ -1401,10 +1421,13 @@ namespace ipl {
             const wchar_t* weekStart = msgMgr->getMessage(MESG_CALENDAR_WEEK_START);
             const wchar_t* weekEnd = msgMgr->getMessage(MESG_CALENDAR_WEEK_END);
 
-            swprintf(text, textLen, L"%d%ls%d%ls%ls%ls%ls", date.month, sep1, date.day, sep2, weekStart, week, weekEnd);
+            swprintf(text, textLen, scTextDateJpnFormat, date.month, sep1, date.day, sep2, weekStart, week, weekEnd);
         }
+#endif
 
-        void Board::get_text_kor(const utility::Date& date, wchar_t* text, u32 textLen) {
+        wchar_t scTextDateKorFormat[] = L"%d%ls %d%ls%ls%ls%ls";
+#ifndef IPL_BOARD_DATE_HELPERS_INLINE
+        inline void Board::get_text_kor(const utility::Date& date, wchar_t* text, u32 textLen) {
             message::Manager* msgMgr = System::getMessageManager();
             const wchar_t* week = msgMgr->getMessage(scWeekMsgId[utility::Calendar::getWeek(date)]);
             const wchar_t* sep1 = msgMgr->getMessage(MESG_CALENDAR_MONDAY);
@@ -1412,9 +1435,25 @@ namespace ipl {
             const wchar_t* weekStart = msgMgr->getMessage(MESG_CALENDAR_WEEK_START);
             const wchar_t* weekEnd = msgMgr->getMessage(MESG_CALENDAR_WEEK_END);
 
-            swprintf(text, textLen, L"%d%ls %d%ls%ls%ls%ls", date.month, sep1, date.day, sep2, weekStart, week, weekEnd);
+            swprintf(text, textLen, scTextDateKorFormat, date.month, sep1, date.day, sep2, weekStart, week, weekEnd);
         }
+#endif
 
+    }
+    namespace utility {
+        int Calendar::getWeek(const Date& date) NO_INLINE {
+            int month, year, day;
+            month = date.month;
+            day = date.day;
+            year = date.year;
+            if (month <= 2) {
+                year--;
+                month += MAX_MONTH;
+            }
+            return (day + (((month * 13) + 8) / 5) + ((year / 400) + ((year + (year / 4)) - (year / 100)))) % 7;
+        }
+    }
+    namespace scene {
         void Board::get_text_spa(const utility::Date& date, wchar_t* text, u32 textLen) {
             message::Manager* msgMgr = System::getMessageManager();
             const wchar_t* week = msgMgr->getMessage(scWeekMsgId[utility::Calendar::getWeek(date)]);
@@ -1422,14 +1461,17 @@ namespace ipl {
             swprintf(text, textLen, L"%ls %02d-%02d", week, date.day, date.month);
         }
 
-        void Board::get_text_ger(const utility::Date& date, wchar_t* text, u32 textLen) {
+        wchar_t scTextDateGerFormat[] = L"%02d.%02d.%ls%ls%ls";
+#ifndef IPL_BOARD_DATE_HELPERS_INLINE
+        inline void Board::get_text_ger(const utility::Date& date, wchar_t* text, u32 textLen) {
             message::Manager* msgMgr = System::getMessageManager();
             const wchar_t* week = msgMgr->getMessage(scWeekMsgId[utility::Calendar::getWeek(date)]);
             const wchar_t* weekStart = msgMgr->getMessage(MESG_CALENDAR_WEEK_START);
             const wchar_t* weekEnd = msgMgr->getMessage(MESG_CALENDAR_WEEK_END);
 
-            swprintf(text, textLen, L"%02d.%02d.%ls%ls%ls", date.day, date.month, weekStart, week, weekEnd);
+            swprintf(text, textLen, scTextDateGerFormat, date.day, date.month, weekStart, week, weekEnd);
         }
+#endif
 
         void Board::get_text_usaeng(const utility::Date& date, wchar_t* text, u32 textLen) {
             message::Manager* msgMgr = System::getMessageManager();
@@ -1445,12 +1487,15 @@ namespace ipl {
             swprintf(text, textLen, L"%ls %02d-%02d", week, date.month, date.day);
         }
 
-        void Board::get_text_paleng(const utility::Date& date, wchar_t* text, u32 textLen) {
+        wchar_t scTextDatePalengFormat[] = L"%ls %02d/%02d";
+#ifndef IPL_BOARD_DATE_HELPERS_INLINE
+        inline void Board::get_text_paleng(const utility::Date& date, wchar_t* text, u32 textLen) {
             message::Manager* msgMgr = System::getMessageManager();
             const wchar_t* week = msgMgr->getMessage(scWeekMsgId[utility::Calendar::getWeek(date)]);
 
-            swprintf(text, textLen, L"%ls %02d/%02d", week, date.day, date.month);
+            swprintf(text, textLen, scTextDatePalengFormat, week, date.day, date.month);
         }
+#endif
 
         void Board::show_ricon() {
             u8 prev = mbRIconEnable;
@@ -2030,6 +2075,7 @@ namespace ipl {
             }
         }
 
+#ifndef IPL_BOARD_INLINE_GETTERS
         Button* Board::get_button() {
             return static_cast<Button*>(System::getScene(SCENE_BUTTON));
         }
@@ -2037,5 +2083,6 @@ namespace ipl {
         Arrow* Board::get_arrow() {
             return static_cast<Arrow*>(System::getScene(SCENE_ARROW));
         }
+#endif
     }  // namespace scene
 }  // namespace ipl

@@ -19,6 +19,13 @@
 
 namespace ipl {
     namespace scene {
+        extern wchar_t scTextDateJpnFormat[];
+        extern wchar_t scTextDateKorFormat[];
+        extern wchar_t scTextDateGerFormat[];
+        extern wchar_t scTextDatePalengFormat[];
+#ifdef IPL_BOARD_DATE_HELPERS_INLINE
+        extern const u32 scWeekMsgId[];
+#endif
         class focus_object;
         SCENE_CLASS(Board), public ButtonEventHandlerBase {
         public:
@@ -81,13 +88,57 @@ namespace ipl {
             void set_text_date();
             void set_text_date(const utility::Date& date, const char* paneName);
 
+#ifdef IPL_BOARD_DATE_HELPERS_INLINE
+            void get_text_jpn(const utility::Date& date, wchar_t* text, u32 textLen) {
+                message::Manager* msgMgr = System::getMessageManager();
+                const wchar_t* week = msgMgr->getMessage(scWeekMsgId[utility::Calendar::getWeek(date)]);
+                const wchar_t* sep1 = msgMgr->getMessage(MESG_CALENDAR_MONDAY);
+                const wchar_t* sep2 = msgMgr->getMessage(MESG_CALENDAR_MONDAY);
+                const wchar_t* weekStart = msgMgr->getMessage(MESG_CALENDAR_WEEK_START);
+                const wchar_t* weekEnd = msgMgr->getMessage(MESG_CALENDAR_WEEK_END);
+
+                swprintf(text, textLen, scTextDateJpnFormat, date.month, sep1, date.day, sep2, weekStart, week, weekEnd);
+            }
+
+            void get_text_kor(const utility::Date& date, wchar_t* text, u32 textLen) {
+                message::Manager* msgMgr = System::getMessageManager();
+                const wchar_t* week = msgMgr->getMessage(scWeekMsgId[utility::Calendar::getWeek(date)]);
+                const wchar_t* sep1 = msgMgr->getMessage(MESG_CALENDAR_MONDAY);
+                const wchar_t* sep2 = msgMgr->getMessage(MESG_CALENDAR_MONDAY);
+                const wchar_t* weekStart = msgMgr->getMessage(MESG_CALENDAR_WEEK_START);
+                const wchar_t* weekEnd = msgMgr->getMessage(MESG_CALENDAR_WEEK_END);
+
+                swprintf(text, textLen, scTextDateKorFormat, date.month, sep1, date.day, sep2, weekStart, week, weekEnd);
+            }
+#else
             void get_text_jpn(const utility::Date& date, wchar_t* text, u32 textLen);
             void get_text_kor(const utility::Date& date, wchar_t* text, u32 textLen);
+#endif
             void get_text_spa(const utility::Date& date, wchar_t* text, u32 textLen);
+#ifdef IPL_BOARD_DATE_HELPERS_INLINE
+            void get_text_ger(const utility::Date& date, wchar_t* text, u32 textLen) {
+                message::Manager* msgMgr = System::getMessageManager();
+                const wchar_t* week = msgMgr->getMessage(scWeekMsgId[utility::Calendar::getWeek(date)]);
+                const wchar_t* weekStart = msgMgr->getMessage(MESG_CALENDAR_WEEK_START);
+                const wchar_t* weekEnd = msgMgr->getMessage(MESG_CALENDAR_WEEK_END);
+
+                swprintf(text, textLen, scTextDateGerFormat, date.day, date.month, weekStart, week, weekEnd);
+            }
+#else
             void get_text_ger(const utility::Date& date, wchar_t* text, u32 textLen);
+#endif
             void get_text_usaeng(const utility::Date& date, wchar_t* text, u32 textLen);
             void get_text_usafre(const utility::Date& date, wchar_t* text, u32 textLen);
+#ifdef IPL_BOARD_DATE_HELPERS_INLINE
+            void get_text_paleng(const utility::Date& date, wchar_t* text, u32 textLen) {
+                message::Manager* msgMgr = System::getMessageManager();
+                const wchar_t* week = msgMgr->getMessage(scWeekMsgId[utility::Calendar::getWeek(date)]);
+
+                swprintf(text, textLen, scTextDatePalengFormat, week, date.day, date.month);
+            }
+#else
             void get_text_paleng(const utility::Date& date, wchar_t* text, u32 textLen);
+#endif
 
             void show_ricon();
             void hide_ricon();
@@ -226,8 +277,17 @@ namespace ipl {
                 STATE_DONE,
             };
 
+#ifdef IPL_BOARD_INLINE_GETTERS
+            static Button* get_button() {
+                return static_cast<Button*>(System::getScene(SCENE_BUTTON));
+            }
+            static Arrow* get_arrow() {
+                return static_cast<Arrow*>(System::getScene(SCENE_ARROW));
+            }
+#else
             static Button* get_button();
             static Arrow* get_arrow();
+#endif
 
             static const int OBJECTS_ON_SCREEN = 10;
 

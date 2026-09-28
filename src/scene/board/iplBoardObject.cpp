@@ -1,3 +1,5 @@
+#define IPL_BOARD_OBJECT_EXTERNAL_DYNAMIC_CAST
+
 #include "iplSceneUI.h"
 
 #include "scene/board/iplBoard.h"
@@ -881,14 +883,5 @@ namespace ipl {
             return result;
         }
 
-#ifndef NON_MATCHING
-        void forceWeakFunc(nw4r::math::VEC2& vec) {
-            nw4r::math::VEC2 end(vec / 10.0f);
-        }
-#endif
-
-        void GenerateWEAK() {
-            nw4r::lyt::TextBox* textBox = nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(((nw4r::lyt::Pane*)NULL)->FindPaneByName(NULL));
-        }
     }  // namespace scene
 }  // namespace ipl
