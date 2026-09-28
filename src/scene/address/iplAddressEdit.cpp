@@ -141,22 +141,7 @@ extern "C" void* __nw__FUl(u32);
 extern "C" BOOL RFLSearchOfficialData(const RFLCreateID*, u16*);
 
 extern "C" NWC24FriendInfo sFriendInfo__Q23ipl5scene;
-extern "C" char smArg__Q23ipl6System;
 extern "C" const char* smButtonName__Q33ipl5scene6Button[];
-extern "C" void List_GetNth__Q24nw4r2utFPCQ34nw4r2ut4ListUs();
-extern "C" void getScene__Q33ipl5scene7ManagerFi();
-extern "C" void UTF16ToANSI__Q33ipl7utility13CharacterCodeFPUcPCwl();
-extern "C" void reset_friend__Q33ipl5scene7AddressFv();
-extern "C" void callBtn1__Q23ipl12DialogWindowFUlUl();
-extern "C" void setEventHandler__Q33ipl5scene6ButtonFPQ23gui12EventHandlerPQ23gui12EventHandler();
-extern "C" void calc__Q33ipl5scene11TextBalloonFv();
-extern "C" void calc__Q33ipl6layout6ObjectFv();
-extern "C" void isActive__Q33ipl5scene6ButtonCFv();
-extern "C" void update__Q33ipl5scene6ButtonFv();
-extern "C" void update__Q33ipl3gui11PaneManagerFv();
-extern "C" void setOrtho__Q33ipl7utility8GraphicsFUl();
-extern "C" void draw__Q33ipl6layout6ObjectFv();
-extern "C" void draw__Q33ipl5scene11TextBalloonFv();
 
 
 
@@ -168,10 +153,6 @@ extern "C" void draw__Q33ipl5scene11TextBalloonFv();
 
 
 int ipl::scene::AddressEdit::get_button_no(const char*);
-extern "C" void reserveText__Q33ipl5scene6ButtonFiUl();
-extern "C" void reserveAnm__Q33ipl5scene6ButtonFi();
-extern "C" void initFrame__Q33ipl7utility15FrameControllerFv();
-extern "C" void del__Q33ipl5scene15FriendListCacheFUl();
 
 
 
@@ -181,19 +162,6 @@ extern "C" void del__Q33ipl5scene15FriendListCacheFUl();
 
 
 extern "C" NWC24Err NWC24CheckPublicMailAddr_(const char*);
-extern "C" void __div2u();
-extern "C" void __mod2u();
-extern "C" u64 utf16_wiiid__Q33ipl5scene11AddressEditFPCw(const wchar_t*);
-extern "C" void isValidId__Q33ipl5scene15FriendListCacheFRCUx();
-extern "C" void isDupId__Q33ipl5scene15FriendListCacheFRCUx();
-extern "C" void isDupMail__Q33ipl5scene15FriendListCacheFPCc();
-
-
-
-extern "C" void _savegpr_29();
-extern "C" void _restgpr_29();
-extern "C" void _savegpr_23();
-extern "C" void _restgpr_23();
 
 
 
