@@ -1640,8 +1640,8 @@ void KPADInit(void) {
         *(u32*)&kpad->valueB4 = ((u32*)&isec_nrm_hori)[1];
         *(u32*)&kpad->sensorB8 = ((u32*)&icenter_org)[0];
         *(u32*)&kpad->sensorBC = ((u32*)&icenter_org)[1];
-        temp_f1 = (f32)sqrt(temp_f27 * temp_f27 + temp_f28 * temp_f28);
         temp_f0 = kpad->sensorB8;
+        temp_f1 = (f32)sqrt(temp_f27 * temp_f27 + temp_f28 * temp_f28);
         if (temp_f0 < temp_f29) {
             var_f27 = temp_f27 + temp_f0;
         } else {
@@ -1662,14 +1662,14 @@ void KPADInit(void) {
         matrix[2] = temp_f29;
         matrix[3] = temp_f29;
         kpad->sensorC0 = temp_f1 / var_f27;
-        kpad->posParamX = temp_f29;
-        kpad->posParamY = temp_f31;
-        kpad->value8C = temp_f29;
-        kpad->value90 = temp_f31;
-        kpad->value94 = temp_f29;
-        kpad->value98 = temp_f31;
         kpad->value9C = temp_f29;
+        kpad->value94 = temp_f29;
+        kpad->value8C = temp_f29;
+        kpad->posParamX = temp_f29;
         kpad->valueA0 = temp_f31;
+        kpad->value98 = temp_f31;
+        kpad->value90 = temp_f31;
+        kpad->posParamY = temp_f31;
         kpad->repeatDelay = 40000;
         kpad->repeatInterval = 0;
         kpad->repeatCount = 0;
@@ -1682,10 +1682,10 @@ void KPADInit(void) {
         matrix[4] = temp_f29;
         temp_f2 = (f32)cos(temp_f30 * sensor_bar_angle_degrees);
         matrix[5] = temp_f2;
-        temp_f2 = (f32)-sin(temp_f30 * sensor_bar_angle_degrees);
-        matrix[6] = temp_f2;
         matrix[7] = temp_f29;
         matrix[8] = temp_f29;
+        temp_f2 = (f32)-sin(temp_f30 * sensor_bar_angle_degrees);
+        matrix[6] = temp_f2;
         temp_f2 = (f32)sin(temp_f30 * sensor_bar_angle_degrees);
         matrix[9] = temp_f2;
         temp_f2 = (f32)cos(temp_f30 * sensor_bar_angle_degrees);
@@ -1695,9 +1695,9 @@ void KPADInit(void) {
             u8* record = (u8*)kpad;
             i = 0;
             do {
+                i++;
                 record[0x139] = -1;
                 record += 0x38;
-                i++;
             } while (i < 16);
         }
         chan++;
