@@ -1443,7 +1443,7 @@ namespace ipl {
                         set_page_text("T_nmbr_b", mPageNo + 1);
                         set_page_text("T_nmbr_c", mPageNo);
                         reset_gui(false);
-                        for (int i = 0; i < 5; i++) {
+                        for (u32 i = 0; i < 5; i++) {
                             set_friend(sTextNameB[i], mPageNo * 5 + i, i, mMiiB[i], false);
                             set_friend(sTextNameC[i], (mPageNo - 1) * 5 + i, i, mMiiC[i], true);
                         }
@@ -1467,7 +1467,7 @@ namespace ipl {
                     mpLayout->getAnim(4)->setAnmType(0);
                     mpLayout->getAnim(4)->play();
                     reset_gui(true);
-                    for (int i = 0; i < 5; i++) {
+                    for (u32 i = 0; i < 5; i++) {
                         set_friend(sTextNameB[i], mPageNo * 5 + i, i, mMiiB[i], false);
                     }
                     mState = 2;
@@ -1487,7 +1487,7 @@ namespace ipl {
                         mpLayout->getAnim(5)->play();
                         set_page_text("T_nmbr_c", mPageNo + 1);
                         reset_gui(true);
-                        for (int i = 0; i < 5; i++) {
+                        for (u32 i = 0; i < 5; i++) {
                             set_friend(sTextNameC[i], mPageNo * 5 + i, i, mMiiC[i], true);
                         }
                         mState = 6;
@@ -1510,7 +1510,7 @@ namespace ipl {
                     mpLayout->getAnim(4)->play();
                     set_page_text("T_nmbr_b", mPageNo + 1);
                     reset_gui(false);
-                    for (int i = 0; i < 5; i++) {
+                    for (u32 i = 0; i < 5; i++) {
                         set_friend(sTextNameB[i], mPageNo * 5 + i, i, mMiiB[i], false);
                     }
                     mState = 8;
@@ -1618,11 +1618,6 @@ namespace ipl {
         }
 
         void Address::changePage_onDrag() {
-            nw4r::ut::Rect projRect;
-            nw4r::ut::Rect projRect4x3;
-            nw4r::math::VEC2 v;
-            math::VEC2 pos;
-
             Button* button = static_cast<Button*>(System::getScene(SCENE_BUTTON));
             if (button->isActive()) {
                 button->update();
@@ -1636,10 +1631,10 @@ namespace ipl {
             }
             else {
                 set_textbox("T_name_move", (const wchar_t*)mpFriendList->mInfos[mDragPageNo * 5 + mDragButtonNo].attr.name);
-                pos = System::getControllerManager()->getController(mDragChannel)->getDpdProjectionPos();
+                math::VEC2 pos = System::getControllerManager()->getController(mDragChannel)->getDpdProjectionPos();
                 if (System::getControllerManager()->getController(mDragChannel) != NULL
                     && System::getControllerManager()->getController(mDragChannel)->isValidDpd()) {
-                    v = nw4r::math::VEC2(pos.x - mDragPos.x, pos.y - mDragPos.y);
+                    nw4r::math::VEC2 v(pos.x - mDragPos.x, pos.y - mDragPos.y);
                     f32 sqLen = v.x * v.x + v.y * v.y;
                     f32 dist = 0.0f;
                     if (sqLen > 0.0f) {
@@ -1648,9 +1643,11 @@ namespace ipl {
                     snd::getSystem()->holdSEwithPosDis("WIPL_SE_CH_DRAG", pos.x, dist);
                     mDragPos = pos;
                 }
+                nw4r::ut::Rect projRect;
+                nw4r::ut::Rect projRect4x3;
                 System::getProjectionRect(&projRect);
                 System::getProjectionRect4x3(&projRect4x3);
-                pos.x = pos.x * (projRect4x3.right - projRect4x3.left) / (projRect.right - projRect.left) + mUnk_0x29C;
+                pos.x = pos.x * ((projRect.right - projRect.left) / (projRect4x3.right - projRect4x3.left)) + mUnk_0x29C;
                 pos.y = -pos.y;
                 nw4r::lyt::Pane* pane = mpLayout->FindPaneByName("N_note_move");
                 pane->SetTranslate(pos);
@@ -1679,26 +1676,24 @@ namespace ipl {
         }
 
         void Address::movePane_onDrag() {
-            nw4r::ut::Rect projRect;
-            nw4r::ut::Rect projRect4x3;
             f32 width = 0.0f;
 
             nw4r::lyt::Pane* pane = mpLayout->FindPaneByName("N_base_move");
-            math::VEC3 trans = pane->GetTranslate();
+            nw4r::math::VEC3 trans = pane->GetTranslate();
             math::VEC2 pos = System::getControllerManager()->getController(mDragChannel)->getDpdProjectionPos();
 
             nw4r::lyt::TextBox* textBox = nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(mpLayout->FindPaneByName("T_name_move"));
-            if (textBox != NULL) {
+            if (textBox != NULL && mpFriendList->mInfos[mDragPageNo * 5 + mDragButtonNo].attr.name != NULL) {
                 const wchar_t* name = (const wchar_t*)mpFriendList->mInfos[mDragPageNo * 5 + mDragButtonNo].attr.name;
-                if (name != NULL) {
-                    textBox->GetFont()->GetWidth();
-                    for (const wchar_t* p = name; *p != 0; p++) {
-                        width += textBox->GetFont()->GetCharWidth(*p);
-                    }
-                    width += 0.01f;
+                textBox->GetFont()->GetWidth();
+                for (const wchar_t* p = name; *p != 0; p++) {
+                    width += textBox->GetFont()->GetCharWidth(*p);
                 }
+                width = 0.01f + width;
             }
 
+            nw4r::ut::Rect projRect;
+            nw4r::ut::Rect projRect4x3;
             System::getProjectionRect(&projRect);
             System::getProjectionRect4x3(&projRect4x3);
             if (trans.x + width < pos.x) {
