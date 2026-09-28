@@ -341,27 +341,6 @@ const wchar_t* ipl::scene::AddressEdit::String::getDispCodeLong() const {
     return mDisplayText;
 }
 
-extern "C" asm const wchar_t* getName__Q33ipl6nigaoe6ObjectCFv(void*) {
-    nofralloc
-    stwu r1, -0x10(r1)
-    mflr r0
-    stw r0, 0x14(r1)
-    lwz r0, 0x3c(r3)
-    cmpwi r0, 0
-    blt getName_L1
-    clrlwi r3, r0, 16
-    bl RFLiGetCharData
-    addi r3, r3, 2
-    b getName_L2
-getName_L1:
-    li r3, 0
-getName_L2:
-    lwz r0, 0x14(r1)
-    mtlr r0
-    addi r1, r1, 0x10
-    blr
-}
-
 void ipl::scene::AddressEdit::String::clear() {
     memset(mValue, 0, sizeof(mValue));
     memset(mName, 0, sizeof(mName));
