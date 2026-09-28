@@ -14142,4 +14142,4 @@ void emitPooledLiterals(EventObserver* observer, nw4r::lyt::TextBox* textBox) {
 }
 }
 }
-extern "C" u32 lbl_81698D1C = 0;
+extern "C" f32 lbl_81698D1C = 0.0f;
