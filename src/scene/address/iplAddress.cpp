@@ -1636,18 +1636,22 @@ namespace ipl {
                     && System::getControllerManager()->getController(mDragChannel)->isValidDpd()) {
                     nw4r::math::VEC2 v(pos.x - mDragPos.x, pos.y - mDragPos.y);
                     f32 sqLen = v.x * v.x + v.y * v.y;
-                    f32 dist = 0.0f;
-                    if (sqLen > 0.0f) {
+                    f32 dist;
+                    if (sqLen <= 0.0f) {
+                        dist = 0.0f;
+                    }
+                    else {
                         dist = sqLen * nw4r::math::FrSqrt(sqLen);
                     }
                     snd::getSystem()->holdSEwithPosDis("WIPL_SE_CH_DRAG", pos.x, dist);
                     mDragPos = pos;
                 }
-                nw4r::ut::Rect projRect;
                 nw4r::ut::Rect projRect4x3;
+                nw4r::ut::Rect projRect;
                 System::getProjectionRect(&projRect);
                 System::getProjectionRect4x3(&projRect4x3);
-                pos.x = pos.x * ((projRect.right - projRect.left) / (projRect4x3.right - projRect4x3.left)) + mUnk_0x29C;
+                pos.x = pos.x * ((projRect4x3.right - projRect4x3.left) / (projRect.right - projRect.left));
+                pos.x = pos.x + mUnk_0x29C;
                 pos.y = -pos.y;
                 nw4r::lyt::Pane* pane = mpLayout->FindPaneByName("N_note_move");
                 pane->SetTranslate(pos);
@@ -1692,17 +1696,17 @@ namespace ipl {
                 width = 0.01f + width;
             }
 
-            nw4r::ut::Rect projRect;
             nw4r::ut::Rect projRect4x3;
+            nw4r::ut::Rect projRect;
             System::getProjectionRect(&projRect);
             System::getProjectionRect4x3(&projRect4x3);
             if (trans.x + width < pos.x) {
-                mUnk_0x29C = -(trans.x + width) * (projRect4x3.right - projRect4x3.left) / (projRect.right - projRect.left);
+                mUnk_0x29C = -(trans.x + width) * ((projRect4x3.right - projRect4x3.left) / (projRect.right - projRect.left));
             }
             else {
-                pos.x = pos.x * (projRect4x3.right - projRect4x3.left) / (projRect.right - projRect.left);
+                pos.x = pos.x * ((projRect4x3.right - projRect4x3.left) / (projRect.right - projRect.left));
                 mUnk_0x29C = -pos.x;
-                mUnk_0x29C += (f32)mDragPageNo * sNullVec.x * (projRect4x3.right - projRect4x3.left) / (projRect.right - projRect.left);
+                mUnk_0x29C += (f32)mDragPageNo * sNullVec.x * ((projRect4x3.right - projRect4x3.left) / (projRect.right - projRect.left));
             }
         }
 
