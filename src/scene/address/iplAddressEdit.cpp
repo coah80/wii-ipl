@@ -1742,34 +1742,12 @@ void ipl::scene::AddressEdit::initCalcFadeout() {
     mpBalloon->calc();
 }
 
-extern "C" asm void calcCommonAfter__Q33ipl5scene11AddressEditFv() {
-    nofralloc
-    stwu r1, -0x10(r1)
-    mflr r0
-    stw r0, 0x14(r1)
-    stw r31, 0xc(r1)
-    mr r31, r3
-    lwz r3, 0x70(r3)
-    lwz r12, 0(r3)
-    lwz r12, 0x10(r12)
-    mtctr r12
-    bctrl
-    lwz r3, 0x68(r31)
-    bl calc__Q33ipl6layout6ObjectFv
-    lwz r3, 0x7c(r31)
-    lwz r12, 0(r3)
-    lwz r12, 0x10(r12)
-    mtctr r12
-    bctrl
-    lwz r3, 0x74(r31)
-    bl calc__Q33ipl6layout6ObjectFv
-    lwz r3, 0x80(r31)
-    bl calc__Q33ipl6layout6ObjectFv
-    lwz r0, 0x14(r1)
-    lwz r31, 0xc(r1)
-    mtlr r0
-    addi r1, r1, 0x10
-    blr
+void ipl::scene::AddressEdit::calcCommonAfter() {
+    mpEditGui->calc();
+    mpCodeLayout->calc();
+    mpInputGui->calc();
+    mpNameLayout->calc();
+    mpBackgroundLayout->calc();
 }
 
 extern "C" asm void stt_normal__Q33ipl5scene11AddressEditFv(ipl::scene::AddressEdit*) {
