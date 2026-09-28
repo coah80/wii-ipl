@@ -5508,7 +5508,6 @@ VmMethodDefine(Blob, Unpack) {
     u32 iterIdx;
     u32 buf_area[2];
     srcBlob = (BlobHeader*)VmGetStrFromObjHdr(VmParentObj);
-    bufAreaBase = buf_area;
     argStr = CHANSVmConvertObjectType(VmInst, CHANS_VM_OBJ_TYPE_STRING, CHANSVmGetArg(VmInst, 0));
     fmtStr = (wchar_t*)VmGetStrFromObjHdr(argStr);
     fmtLen = (u32)VmGetIntFromObjHdr(argStr) >> 1;
@@ -5626,6 +5625,7 @@ VmMethodDefine(Blob, Unpack) {
         }
     }
 
+    bufAreaBase = buf_area;
     fmtPos = 0;
     elemIdx = 0;
     outSize = 1;
@@ -5696,7 +5696,8 @@ VmMethodDefine(Blob, Unpack) {
                     buf_area[1] = c0;
                     memcpy(buf_area, srcBlob->pData + srcBlob->offset, outSize);
 
-                    if ((s32)outType >= 8 && (s32)outType < 10) {
+                    if ((s32)outType >= 8) {
+                        if ((s32)outType < 10) {
                         switch (outSize) {
                             case 2: {
                                 u16 hwTmp = *(u16*)bufAreaBase;
@@ -5714,6 +5715,7 @@ VmMethodDefine(Blob, Unpack) {
                                 bufAreaBase[1] = (u32)(tmpVal >> 32);
                                 break;
                             }
+                        }
                         }
                     }
 
