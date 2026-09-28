@@ -446,39 +446,46 @@ static void read_kpad_acc(KPADInside* kpad, KPADSample* status) {
     f32 currentX;
     f32 currentY;
     f32 currentZ;
+    f32 limit;
     if (format == 0 || format == 6 || format >= 9) {
         return;
     }
     oldX = kpad->status.acc.x;
     oldY = kpad->status.acc.y;
     oldZ = kpad->status.acc.z;
-    target = -(f32)status->accX * kpad->value4DC;
+    limit = kp_rm_acc_max;
+    target = (f32)-(s32)status->accX * kpad->value4DC;
     if (target < 0.0f) {
-        if (target < -kp_rm_acc_max) {
-            target = -kp_rm_acc_max;
+        limit = -limit;
+        if (target >= limit) {
+            limit = target;
         }
-    } else if (target > kp_rm_acc_max) {
-        target = kp_rm_acc_max;
+    } else if (target <= limit) {
+        limit = target;
     }
-    kpad->value4A4 = target;
-    target = -(f32)status->accZ * kpad->value4E4;
+    kpad->value4A4 = limit;
+    limit = kp_rm_acc_max;
+    target = (f32)-(s32)status->accZ * kpad->value4E4;
     if (target < 0.0f) {
-        if (target < -kp_rm_acc_max) {
-            target = -kp_rm_acc_max;
+        limit = -limit;
+        if (target >= limit) {
+            limit = target;
         }
-    } else if (target > kp_rm_acc_max) {
-        target = kp_rm_acc_max;
+    } else if (target <= limit) {
+        limit = target;
     }
-    kpad->value4A8 = target;
+    kpad->value4A8 = limit;
+    limit = kp_rm_acc_max;
     target = (f32)status->accY * kpad->value4E0;
     if (target < 0.0f) {
-        if (target < -kp_rm_acc_max) {
-            target = -kp_rm_acc_max;
+        limit = -limit;
+        if (target >= limit) {
+            limit = target;
         }
-    } else if (target > kp_rm_acc_max) {
-        target = kp_rm_acc_max;
+    } else if (target <= limit) {
+        limit = target;
     }
-    kpad->value4AC = target;
+    kpad->value4AC = limit;
     delta = kpad->value4A4 - oldX;
     magnitude = delta;
     if (magnitude < 0.0f) {
@@ -537,24 +544,30 @@ static void read_kpad_acc(KPADInside* kpad, KPADSample* status) {
     {
         Vec raw;
         f32* values = (f32*)&raw;
-        values[0] = -(f32)status->extension.fs.accX * kpad->value4E8;
+        values[0] = (f32)-(s32)status->extension.fs.accX * kpad->value4E8;
+        limit = kp_fs_acc_max;
         if (values[0] < -kp_fs_acc_max) {
-            values[0] = -kp_fs_acc_max;
-        } else if (values[0] > kp_fs_acc_max) {
-            values[0] = kp_fs_acc_max;
+            limit = -kp_fs_acc_max;
+        } else if (values[0] <= limit) {
+            limit = values[0];
         }
-        values[1] = -(f32)status->extension.fs.accZ * kpad->value4F0;
+        values[0] = limit;
+        values[1] = (f32)-(s32)status->extension.fs.accZ * kpad->value4F0;
+        limit = kp_fs_acc_max;
         if (values[1] < -kp_fs_acc_max) {
-            values[1] = -kp_fs_acc_max;
-        } else if (values[1] > kp_fs_acc_max) {
-            values[1] = kp_fs_acc_max;
+            limit = -kp_fs_acc_max;
+        } else if (values[1] <= limit) {
+            limit = values[1];
         }
+        values[1] = limit;
         values[2] = (f32)status->extension.fs.accY * kpad->value4EC;
+        limit = kp_fs_acc_max;
         if (values[2] < -kp_fs_acc_max) {
-            values[2] = -kp_fs_acc_max;
-        } else if (values[2] > kp_fs_acc_max) {
-            values[2] = kp_fs_acc_max;
+            limit = -kp_fs_acc_max;
+        } else if (values[2] <= limit) {
+            limit = values[2];
         }
+        values[2] = limit;
         if (kpad->freeStyleAccelRotation != 0) {
             PSMTXMultVec((const f32 (*)[4])initial_rotation_matrix, &raw, &raw);
         }
