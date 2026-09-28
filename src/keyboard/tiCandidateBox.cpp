@@ -214,11 +214,10 @@ namespace textinput {
             "P_JPOffBtn\0\0"
             "P_CNOffBtn\0\0"
             "P_CNOnBtn\0\0\0"
-            "B_prdc_scrl_Left\0\0\0"
-            "P_prdc_scrl_Left\0\0\0"
-            "B_prdc_scrl_Rght\0\0\0"
-            "P_prdc_scrl_Rght\0\0"
-            "\0\0\0\0";
+            "B_prdc_scrl_Left\0\0\0\0"
+            "P_prdc_scrl_Left\0\0\0\0"
+            "B_prdc_scrl_Rght\0\0\0\0"
+            "P_prdc_scrl_Rght\0\0\0\0";
         extern "C" char lbl_8165DA08[16] = "W_predictWindow";
         extern "C" const char lbl_8165DA18[15] = "N_predictInput";
         extern "C" const char lbl_8165DA28[13] = "W_OnOff_Area";
