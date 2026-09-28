@@ -1773,8 +1773,8 @@ void ipl::scene::AddressEdit::stt_ipt_normal() {
 
 void ipl::scene::AddressEdit::stt_ipt_input() {
     ipl::keyboard::Manager::State* state = ipl::System::getKeyboard()->getState();
-    ipl::scene::Manager* sceneManager = ipl::System::getSceneManager();
-    ipl::scene::Button* button = static_cast<ipl::scene::Button*>(sceneManager->getScene(5));
+    ipl::scene::Button* button =
+        static_cast<ipl::scene::Button*>(ipl::System::getSceneManager()->getScene(5));
     s32 keyboardType = state->iplType;
     if (keyboardType == ipl::keyboard::Manager::STATE_DISAPPEARING) {
         goto state_disappearing;
@@ -1939,8 +1939,7 @@ void ipl::scene::AddressEdit::stt_add_code_input() {
 }
 
 void ipl::scene::AddressEdit::stt_add_code_fadeout() {
-    ipl::layout::Object* layout = mpNameLayout;
-    ipl::layout::Animator* pane = layout->getAnim(5);
+    ipl::layout::Animator* pane = mpNameLayout->getAnim(5);
     if (!pane->isPlaying()) {
         pane = mpNameLayout->getAnim(6);
         if (!pane->isPlaying()) {
