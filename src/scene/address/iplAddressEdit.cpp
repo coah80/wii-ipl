@@ -1470,30 +1470,8 @@ ipl::scene::FaderSceneCommand ipl::scene::AddressEdit::calcFadein() {
     return command;
 }
 
-extern "C" asm void initCalcNormal__Q33ipl5scene11AddressEditFv() {
-    nofralloc
-    stwu r1, -0x10(r1)
-    mflr r0
-    cmpwi r3, 0
-    stw r0, 0x14(r1)
-    stw r31, 0xc(r1)
-    mr r31, r3
-    beq initCalcNormal_L1
-    addi r31, r3, 0x58
-initCalcNormal_L1:
-    lis r3, smArg__Q23ipl6System@ha
-    li r4, 5
-    addi r3, r3, smArg__Q23ipl6System@l
-    lwz r3, 0x64(r3)
-    bl getScene__Q33ipl5scene7ManagerFi
-    mr r4, r31
-    li r5, 0
-    bl setEventHandler__Q33ipl5scene6ButtonFPQ23gui12EventHandlerPQ23gui12EventHandler
-    lwz r0, 0x14(r1)
-    lwz r31, 0xc(r1)
-    mtlr r0
-    addi r1, r1, 0x10
-    blr
+void ipl::scene::AddressEdit::initCalcNormal() {
+    static_cast<ipl::scene::Button*>(ipl::System::getScene(5))->setEventHandler(this);
 }
 
 ipl::scene::FaderSceneCommand ipl::scene::AddressEdit::calcNormal() {
