@@ -624,7 +624,7 @@ config.libs = [
             Object(Matching,    "system/rvl_dec.c"),
             Object(Matching,    "system/RIPL_BoardRecord.c"),
             Object(Matching,    "system/iplSystem.cpp"),
-            Object(Matching,    "system/iplController.cpp"),
+            Object(NonMatching, "system/iplController.cpp"),
             Object(Matching,    "system/iplChannelManager.cpp"),
             Object(Matching,    "system/iplChannelScriptManager.cpp"),
             Object(Matching,    "system/iplNand.cpp"),
@@ -653,7 +653,7 @@ config.libs = [
             Object(Matching,    "system/iplWarningHandler.cpp"),
             Object(Matching,    "system/iplSocketSetting.cpp"),
             Object(Matching,    "system/iplPostmanManager.cpp"),
-            Object(Matching,    "system/iplSaveDataManager.cpp"),
+            Object(NonMatching, "system/iplSaveDataManager.cpp"),
             Object(Matching,    "system/iplChannelRsoThread.cpp"),
             Object(Matching,    "system/RsoSystem.cpp"),
             Object(Matching,    "system/iplCdbBackup.cpp"),
@@ -737,8 +737,8 @@ config.libs = [
         ]
     ),
     IPLSection("board", [
-            Object(Matching,    "scene/board/iplBoard.cpp"),
-            Object(Matching,    "scene/board/iplBoardObject.cpp"),
+            Object(Equivalent,  "scene/board/iplBoard.cpp"),
+            Object(Equivalent,  "scene/board/iplBoardObject.cpp"),
             Object(Matching,    "scene/board/iplBoardSD.cpp"),
             Object(Matching,    "scene/board/iplUrlProcessor.cpp"),
             Object(Equivalent,  "scene/board/iplFocusObject.cpp"),
@@ -765,13 +765,13 @@ config.libs = [
         ]
     ),
     IPLSection("channelSelect", [
-            Object(Matching,    "scene/channelSelect/iplChannelSelect.cpp"),
+            Object(Equivalent,  "scene/channelSelect/iplChannelSelect.cpp"),
             Object(Matching,    "scene/channelSelect/iplClock.cpp"),
             Object(Equivalent,  "scene/channelSelect/iplChannelObj.cpp"),
         ]
     ),
     IPLSection("channelTitle", [
-            Object(Matching,    "scene/channelTitle/iplChannelTitle.cpp"),
+            Object(Equivalent,  "scene/channelTitle/iplChannelTitle.cpp"),
         ]
     ),
     IPLSection("faceSelect", [
@@ -1907,7 +1907,7 @@ config.libs = [
         [
             Object(Matching,    "core/eggAllocator.cpp"),
             Object(Matching,    "core/eggAudioArcPlayerMgr.cpp"),
-            Object(Matching,    "core/eggAudioExpMgr.cpp"),
+            Object(Equivalent,  "core/eggAudioExpMgr.cpp"),
             Object(Matching,    "core/eggAudioFxMgr.cpp"),
             Object(Matching,    "core/eggAudioMgr.cpp"),
             Object(Matching,    "core/eggAudioHeapMgr.cpp"),

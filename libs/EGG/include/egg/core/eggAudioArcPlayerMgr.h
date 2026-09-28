@@ -38,19 +38,6 @@ namespace EGG {
 
         virtual void calc();  // 0x30
 
-#ifdef EGG_AUDIO_EXPMGR_NO_INLINE_VIRTUALS
-        virtual bool startSound(nw4r::snd::SoundHandle* pHandle, u32 id);              // 0x34
-        virtual bool startSound(nw4r::snd::SoundHandle* pHandle, unsigned int id);     // 0x38
-        virtual bool startSound(nw4r::snd::SoundHandle* pHandle, const char* pName);   // 0x3C
-
-        virtual bool prepareSound(nw4r::snd::SoundHandle* pHandle, u32 id);            // 0x44
-        virtual bool prepareSound(nw4r::snd::SoundHandle* pHandle, unsigned int id);   // 0x44
-        virtual bool prepareSound(nw4r::snd::SoundHandle* pHandle, const char* pName); // 0x48
-
-        virtual bool holdSound(nw4r::snd::SoundHandle* pHandle, u32 id);               // 0x50
-        virtual bool holdSound(nw4r::snd::SoundHandle* pHandle, unsigned int id);      // 0x50
-        virtual bool holdSound(nw4r::snd::SoundHandle* pHandle, const char* pName);    // 0x58
-#else
         virtual bool startSound(nw4r::snd::SoundHandle* pHandle, u32 id) { return mSoundArchivePlayer.StartSound(pHandle, id); }           // 0x34
         virtual bool startSound(nw4r::snd::SoundHandle* pHandle, unsigned int id) { return mSoundArchivePlayer.StartSound(pHandle, id); }  // 0x38
         virtual bool startSound(nw4r::snd::SoundHandle* pHandle, const char* pName) NO_INLINE {
@@ -75,7 +62,6 @@ namespace EGG {
             u32 id = changeNameToId(pName);
             return mSoundArchivePlayer.HoldSound(pHandle, id);
         }  // 0x58
-#endif
 
         u32 changeNameToId(const char* pName) { return mpArchive->ConvertLabelStringToSoundId(pName); }
         const char* changeIdToName(u32 id) { return mpArchive->GetSoundLabelString(id); }

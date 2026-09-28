@@ -2900,60 +2900,6 @@ namespace ipl {
         }
 
         void ChannelTitle::startResetting() {
-            // clang-format off
-            static const f32 pad0 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
-            static const f32 pad1 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
-            static const f32 pad2 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
-            static const f32 pad3 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
-            static const f32 pad4 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
-            static const f32 pad5 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
-            static const f32 pad6 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
-            static const f32 pad7 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
-            static const f32 pad8 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
-            static const f32 pad9 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
-            static const f32 pad10 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
-            static const f32 pad11 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
-            static const f32 pad12 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
-            static const f32 pad13 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
-            static const f32 pad14 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
-            static const f32 pad15 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
-            static const f32 pad16 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
-            static const f32 pad17 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
-            static const f32 pad18 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
-            static const f32 pad19 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
-            static const f32 pad20 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
-            static const f32 pad21 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
-            static const f32 pad22 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
-            static const f32 pad23 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
-            static const f32 pad24 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
-            static const f32 pad25 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
-            static const f32 pad26 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
-            static const f32 pad27 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
-            static const f32 pad28 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
-            static const f32 pad29 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
-            static const f32 pad30 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
-            static const f32 pad31 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
-            static const f32 pad32 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
-            static const f32 pad33 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
-            static const f32 pad34 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
-            static const f32 pad35 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
-            static const f32 pad36 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
-            static const f32 pad37 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
-            static const f32 pad38 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
-            static const f32 pad39 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
-            static const f32 pad40 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
-            static const f32 pad41 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
-            static const f32 pad42 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
-            static const f32 pad43 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
-            static const f32 pad44 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
-            static const f32 pad45 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
-            static const u8 pad53 __attribute__((section(".sdata"), aligned(1), used)) = 0;
-            static const u8 pad54 __attribute__((section(".sdata"), aligned(1), used)) = 0;
-            static const u8 pad55 __attribute__((section(".sdata"), aligned(1), used)) = 0;
-            static const u8 pad56 __attribute__((section(".sdata"), aligned(1), used)) = 0;
-            static const u8 pad57 __attribute__((section(".sdata"), aligned(1), used)) = 0;
-            static const u8 pad58 __attribute__((section(".sdata"), aligned(1), used)) = 0;
-            // clang-format on
             snd::getSystem()->resetAllSound();
         }
     }  // namespace scene
