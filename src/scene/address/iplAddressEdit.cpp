@@ -1462,38 +1462,12 @@ void ipl::scene::AddressEdit::nigaoe_create_callback_add(ipl::nigaoe::Object* ob
     self->mpBalloon->init(object->getName(), 0xa);
 }
 
-extern "C" asm void calcFadein__Q33ipl5scene11AddressEditFv() {
-    nofralloc
-    stwu r1, -0x10(r1)
-    mflr r0
-    li r4, 0
-    stw r0, 0x14(r1)
-    stw r31, 0xc(r1)
-    li r31, 0
-    stw r30, 8(r1)
-    mr r30, r3
-    lwz r5, 0x68(r3)
-    addi r3, r5, 0x28c
-    bl List_GetNth__Q24nw4r2utFPCQ34nw4r2ut4ListUs
-    lwz r0, 0x14(r3)
-    cmpwi r0, 1
-    beq calcFadein_L1
-    lwz r3, 0x74(r30)
-    li r4, 0
-    addi r3, r3, 0x28c
-    bl List_GetNth__Q24nw4r2utFPCQ34nw4r2ut4ListUs
-    lwz r0, 0x14(r3)
-    cmpwi r0, 1
-    beq calcFadein_L1
-    li r31, 1
-calcFadein_L1:
-    mr r3, r31
-    lwz r31, 0xc(r1)
-    lwz r30, 8(r1)
-    lwz r0, 0x14(r1)
-    mtlr r0
-    addi r1, r1, 0x10
-    blr
+ipl::scene::FaderSceneCommand ipl::scene::AddressEdit::calcFadein() {
+    FaderSceneCommand command = FADER_SCN_CONTINUE;
+    if (!mpCodeLayout->getAnim(0)->isPlaying() && !mpNameLayout->getAnim(0)->isPlaying()) {
+        command = FADER_SCN_NEXT;
+    }
+    return command;
 }
 
 extern "C" asm void initCalcNormal__Q33ipl5scene11AddressEditFv() {
