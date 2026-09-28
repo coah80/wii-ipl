@@ -81,6 +81,11 @@ namespace ipl {
                 mChanIndex = index;
             }
 
+            u64 getTitleID() const { return mTitleID; }
+            int getChanType() const { return mChanType; }
+            u8* getThumbBuffer() const { return mpThumbBuffer; }
+            BOOL isBannerLoaded() const;
+
         private:
             u8 unk_0x00[8];
 

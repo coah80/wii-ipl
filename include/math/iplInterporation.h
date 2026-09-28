@@ -50,7 +50,7 @@ namespace ipl {
             T get2() const { return (((mStart * (mMaxFrame - mFrame)) + (mEnd * mFrame)) / mMaxFrame); }
         };
 
-#ifdef IPL_CHANNEL_TITLE_NOVTABLE
+#if defined(IPL_CHANNEL_TITLE_NOVTABLE) || defined(IPL_SD_CHANNEL_TITLE_NOVTABLE)
         template <typename T>
         class __declspec(novtable) HermiteIntp : public utility::FrameController {
         public:
@@ -110,6 +110,9 @@ namespace ipl {
             void init(const f32& start, const f32& end, f32 maxFrame, f32 param_5, f32 param_6, int playback = ANIM_TYPE_FORWARD,
                       f32 speed = 1.0f);
 
+#ifdef IPL_SD_CHANNEL_TITLE_NOVTABLE
+            f32 get() const;
+#else
             f32 get() const {
                 f32 var_f27 = mFrame;
                 f32 var_f28 = 1.0f / mMaxFrame;
@@ -128,6 +131,7 @@ namespace ipl {
 
                 return r;
             }
+#endif
 
         protected:
             f32 mStart;

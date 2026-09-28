@@ -84,6 +84,10 @@ namespace ipl {
             bool isDownEnd() const { return mScroll == mDownLimit; }
             bool isUpEnd() const { return mScroll == mUpLimit; }
 
+            f32 getDownLimit() const { return mDownLimit; }
+            f32 getUpLimit() const { return mUpLimit; }
+            f32 getScroll() const { return mScroll; }
+
         protected:
             void movable_pos();
 

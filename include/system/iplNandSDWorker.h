@@ -545,6 +545,7 @@ namespace ipl {
         static const u8 c_md5_secret_key[0x10];
         static const u8 c_es_encrypt_iv[0x10];
 
+    public:
         static WorkSDState s_sd_state;
         static int s_completion_pct;
     };

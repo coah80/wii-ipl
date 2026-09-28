@@ -53,6 +53,11 @@ namespace ipl {
                 mBScroller.init();
             }
 
+            void reset() {
+                mScroller.init();
+                mBScroller.reset();
+            }
+
             BOOL calc(bool canScroll) __attribute__((never_inline)) /*for now*/ {
                 BOOL result = FALSE;
 
@@ -108,6 +113,10 @@ namespace ipl {
             bool isActive() const { return mScroller.isActive(); }
 
             f32 get() { return mScroller.get(); }
+
+            f32 getDownLimit() const { return mScroller.getDownLimit(); }
+            f32 getUpLimit() const { return mScroller.getUpLimit(); }
+            f32 getScroll() const { return mScroller.getScroll(); }
 
         private:
             utility::Scroller mScroller;    // 0x50

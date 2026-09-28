@@ -1,158 +1,140 @@
 #ifndef IPL_SCENE_SD_MEMORY_H
 #define IPL_SCENE_SD_MEMORY_H
 
-#include <revolution.h>
+#include <egg/core.h>
 
-#include "layout/iplLayout.h"
 #include "layout/iplGuiManager.h"
+#include "layout/iplLayout.h"
+
 #include "scene/board/iplFocusObject.h"
-#include "scene/channelEdit/iplNandSDCardManager.h"
+
+#include "system/iplNandSDWorker.h"
 
 namespace ipl {
+    namespace controller {
+        class Interface;
+    }
+
+    namespace nand {
+        class LayoutFile;
+    }
+
     namespace scene {
         class SDChannelSelect;
 
         class SDMemory {
         public:
-            struct TitleRange {
-                s32 mByteSize;
-                u32 mCount;
-            };
-
             SDMemory();
             ~SDMemory();
 
-            void create(EGG::Heap* heap, nand::LayoutFile* layoutFile, SDChannelSelect* channelSelect);
-            void setTitleLists(const TitleRange& nandTitles, const TitleRange& sdTitles);
-            bool calc();
+            void create(EGG::Heap* heap, nand::LayoutFile* layoutFile, SDChannelSelect* chanSel);
+
+            void startCheck(NandSDWorker::AppBlocksInfo* freeArea, NandSDWorker::AppBlocksInfo* needed);
+            void initScroller();
+            void resetEdgeAnims();
+            void updateEdgeAnims(u32 p1, u32 p2, u32 p3, u32 p4);
+            void playEdgeAnim0();
+            void playEdgeAnim1();
+            void stopEdgeAnim0();
+            void stopEdgeAnim1();
+            void updateEdgeArrows();
+            void playEdgeAnim2();
+            void playEdgeAnim3();
+            void stopEdgeAnim2();
+            void stopEdgeAnim3();
+            void initArwAnims();
+            int checkProgress();
+            void state0();
+            void state2();
+            int state3();
+            void state4();
+            void state6();
+            void state7();
+            void state8();
+            void state9();
+            void state10();
+            void state11();
+            void state12();
+            BOOL findId(u64 id, const u64* list, u32 n);
+            void state13();
+            void state14();
+            void state15();
+            void state16();
+            void state17();
+            void state18();
+            void state19();
+            int state20();
+            void state21();
+            int state22();
+            void state23();
+            int state24();
+            BOOL waitEnd();
             void draw();
-            void setScrollLimit();
-            void updateSideArrows();
-            void resetScrollArrows();
-            void updateScrollArrows(u32 previousDownEnd, u32 previousUpEnd, u32 downEnd, u32 upEnd);
-            void showDownArrow();
-            void showUpArrow();
-            void hideDownArrow();
-            void hideUpArrow();
-            void showLeftArrow();
-            void showRightArrow();
-            void hideLeftArrow();
-            void hideRightArrow();
+            void drawProgress();
 
-        private:
-            s32 updateState();
-            void drawTransferTitles();
-            void onDialogState0();
-            void onDialogState2();
-            bool onDialogState3();
-            void onDialogState4();
-            void onDialogState6();
-            void onDialogState7();
-            void onDialogState8();
-            void onDialogState9();
-            void onDialogState10();
-            void onDialogState11();
-            void onDialogState12();
-            void onDialogState13();
-            void onDialogState14();
-            void onDialogState15();
-            void onDialogState16();
-            void onDialogState17();
-            void onDialogState18();
-            void onDialogState19();
-            bool onDialogState20();
-            void onDialogState21();
-            bool onDialogState22();
-            void onDialogState23();
-            bool onDialogState24();
-            void resetDialogPaneAnimations();
-            s32 getControlPaneIndex(const char* paneName);
-            void activateControlPane(const char* paneName, ::gui::Component* component);
-            void deactivateControlPane(const char* paneName);
-            void cancelControlPane(const char* paneName);
-            s32 getTitlePaneIndex(const char* paneName);
-            void activateTitlePane(const char* paneName, ::gui::Component* component);
-            void deactivateTitlePane(const char* paneName);
-            void selectTitlePane(const char* paneName);
-            s32 getDialogPaneIndex(const char* paneName);
-            void activateDialogPane(const char* paneName, ::gui::Component* component);
-            void deactivateDialogPane(const char* paneName);
-            void selectDialogPane(const char* paneName);
+            int findDialogAPane(const char* name);
+            void onPointDialogA(const char* name, controller::Interface* con);
+            void onLeftDialogA(const char* name);
+            void onTrigDialogA(const char* name);
 
-            class ControlPaneEventHandler : public ::gui::EventHandler {
-            public:
-                ControlPaneEventHandler(SDMemory* instance) : ::gui::EventHandler(), mpInstance(instance) {}
-                virtual void onEvent(u32 compId, u32 event, void* data);
+            int findDialogBPane(const char* name);
+            void onPointDialogB(const char* name, controller::Interface* con);
+            void onLeftDialogB(const char* name);
+            void onTrigDialogB(const char* name);
 
-            private:
-                SDMemory* mpInstance;
-            };
+            int findDialogCPane(const char* name);
+            void onPointDialogC(const char* name, controller::Interface* con);
+            void onLeftDialogC(const char* name);
+            void onTrigDialogC(const char* name);
 
-            class TitlePaneEventHandler : public ::gui::EventHandler {
-            public:
-                TitlePaneEventHandler(SDMemory* instance) : ::gui::EventHandler(), mpInstance(instance) {}
-                virtual void onEvent(u32 compId, u32 event, void* data);
+            layout::Object* mpDialogA;        // 0x00
+            layout::Object* mpDialogB;        // 0x04
+            layout::Object* mpDialogC;        // 0x08
+            layout::Object* mpDialogBg;       // 0x0C
 
-            private:
-                SDMemory* mpInstance;
-            };
+            gui::PaneManager* mpPaneMgrA;     // 0x10
+            gui::PaneManager* mpPaneMgrB;     // 0x14
+            gui::PaneManager* mpPaneMgrC;     // 0x18
 
-            class DialogPaneEventHandler : public ::gui::EventHandler {
-            public:
-                DialogPaneEventHandler(SDMemory* instance) : ::gui::EventHandler(), mpInstance(instance) {}
-                virtual void onEvent(u32 compId, u32 event, void* data);
-
-            private:
-                SDMemory* mpInstance;
-            };
-
-            layout::Object* mpMainLayout;
-            layout::Object* mpTitleLayout;
-            layout::Object* mpDialogLayout;
-            layout::Object* mpProgressLayout;
-            gui::PaneManager* mpPaneManagers[3];
-            s32 mDialogState;
-            s32 mProcessState;
-            s32 mDisplayMode;
-            s32 mMessageId;
-            u32 mErrorCode;
-            u32 mPanelStates[3];
-            u32 mTitlePanelStates[5];
-            u32 mPanelAnimationStates[4];
-            SDChannelSelect* mpSDChannelSelect;
-            TitleRange mNandTitleRange;
-            TitleRange mSDTitleRange;
-            u32 mTitleCount;
-            u32 mCurrentTitle;
-            u32 mTitleFlags;
-            ESTitleId mTitleIds[96];
-            wchar_t mTitleNames[96][21];
-            u32 mTitleNameCount;
-            u32 mSDTitleCount;
-            ESTitleId mSDTitleIds[96];
-            u32 mNandTitleCount;
-            u32 mNandTitleNameCount;
-            ESTitleId mNandTitleIds[96];
-            wchar_t mCurrentTitleName[0x840];
-            u8 mTransferFlags[4];
-            u32 mTransferStatus;
-            u64 mTransferStartTime;
-            s32 mTransferFrame;
-            struct TitleListState {
-                ESTitleId* mpTitles;
-                u32 mCount;
-                ESTitleId* mpSecondaryTitles;
-                u32 mSecondaryCount;
-                ESTitleId* mpNames;
-                u32 mNameCount;
-            } mTitleListState;
-            scroller mScroller;
-            s32 mButtonState;
-            u8 mControllerFlags[4];
-            u32 mFinalState[3];
-            u8 mFinalFlags[4];
+            int mCheckProgress;             // 0x1C
+            int mDialogBtnType;             // 0x20
+            int mDialogResult;              // 0x24
+            int mNextProgress;              // 0x28
+            int mState;                     // 0x2C
+            int mUnk30[3];
+            int mUnk3C[5];                  // 0x3C
+            s32 mScrFlags[4];                 // 0x50
+            SDChannelSelect* mpChanSelect;    // 0x60
+            NandSDWorker::AppBlocksInfo mFreeArea;    // 0x64
+            NandSDWorker::AppBlocksInfo mNeededArea;  // 0x6C
+            u32 mMsgCount;                      // 0x74
+            u32 unk_0x78;                       // 0x78
+            u32 unk_0x7C;                       // 0x7C
+            u64 unk_0x80[0x60];                 // 0x80
+            u8 unk_0x380[0xFC0];                // 0x380
+            u32 mField1340;                     // 0x1340
+            u32 unk_0x1344;                     // 0x1344
+            u64 mIdListA[0x60];                 // 0x1348
+            u32 mField1648;                     // 0x1648
+            u32 unk_0x164C;                     // 0x164C
+            u64 mEntryList[0x60];               // 0x1650
+            wchar_t mDialogText[0x840];         // 0x1950
+            bool mbDialogOpen;                // 0x29D0
+            bool mbChecking;                  // 0x29D1
+            u8 unk_0x29D2[0x2];               // 0x29D2
+            u8 unk_0x29D4[0x4];               // 0x29D4
+            long long mCheckTime;               // 0x29D8
+            int mUnk29E0;                       // 0x29E0
+            struct {
+                u64* ids;                       // +0x0
+                u32 count;                      // +0x4
+            } mCheckLists[3];                   // 0x29E4
+            scroller mScroller;               // 0x29FC
+            int mLineCount;                   // 0x2A6C
+            bool mbEdgePlayed[4];             // 0x2A70
+            u8 unk_0x2A74[0x4];               // 0x2A74
         };
     }  // namespace scene
 }  // namespace ipl
 
-#endif
+#endif  // IPL_SCENE_SD_MEMORY_H

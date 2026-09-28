@@ -8,53 +8,71 @@
 #include "system/iplChannelRsoThread.h"
 #include "system/iplNandSDWorker.h"
 
+#include <nw4r/math.h>
+
+#include "scene/sdChannelSelect/iplSDChannelObj.h"
+#include "system/iplNandSDWorker.h"
+
 namespace ipl {
+    namespace controller {
+        class Interface;
+    }
+    namespace channel {
+        class RsoThread;
+    }
+    class NandSDWorker;
+
     namespace scene {
         class SDChannelObj {
         public:
-            SDChannelObj(EGG::Heap* heap, int page, int index);
             ~SDChannelObj();
 
             EGG::Heap* getHeap() const { return mpHeap; }
             int getPage() const { return mPage; }
             int getIndex() const { return mIndex; }
 
-        private:
-            friend class SDChannelSelect;
+            SDChannelObj* getChanObj() {
+                return NULL;
+            }
+            SDChannelObj* getChanObj(int page, int index);
 
-            nw4r::ut::Link mListLink;
-            EGG::ExpHeap* mpDialogHeap;
-            EGG::ExpHeap* mpChannelHeap;
-            EGG::Heap* mpHeap;
-            u32 mState;
-            int mPage;
-            int mIndex;
-            nand::LayoutFile* mpLayoutFile;
-            nw4r::lyt::Pane* mpPane;
-            layout::Animator* mpPaneAnimator;
-            layout::Object* mpBaseLayout;
-            layout::Animator* mpBaseAnimator;
-            layout::Object* mpPageLayout;
-            layout::Animator* mpPageAnimators[3];
-            int mPageAnimation;
-            int mPageAnimationFrame;
-            layout::Object* mpDialogLayout;
-            layout::Animator* mpDialogAnimator;
-            int mDialogState;
-            int mDialogFrame;
-            int mDialogTimer;
-            int mAnimationState;
-            nw4r::lyt::Group* mpNewMessageGroup;
-            int mNewMessageCount;
-            u8 mbNewMessageGroupActive;
-            int mNewMessageState;
-            int mNewMessageFrame;
-            f32 mOffsetX;
-            f32 mOffsetY;
-            f32 mAspectRatioScale;
-            int mStateFlags;
-            void* mpThumbnailData;
-            NandSDWorker::SDAppMetaEntry mAppMeta;
+            static void getChanPoint(nw4r::math::VEC3* out, const SDChannelSelect* sel, int index);
+            void getSelectChan(int dir, int* pageOut, int* indexOut);
+            void setSelectChan(int page, int index, SDChannelObj* chanObj);
+            BOOL isAnyChanMoving();
+            BOOL startChanAnime(int page);
+            void getChanSelectState(int page, int index);
+            BOOL startNandCheck(u64 titleId, NandSDWorker::AppBlocksInfo* freeOut);
+            BOOL isAsyncDone(u32 titleId);
+            BOOL startNandAsync(u64 titleId, int flag);
+            int startSDWorker(NandSDWorker::AppBlocksInfo* freeArea, NandSDWorker::AppBlocksInfo* needed, void* unk1, void* unk2, void* unk3, int type);
+            int iplSDChannelSelect_813DB530(void* p1, void* p2);
+            int iplSDChannelSelect_813DB58C(void* p1, void* p2, void* p3);
+            int iplSDChannelSelect_813DB478(u64 id);
+            int iplSDChannelSelect_813DB4D4(u64 id, int flag);
+            int iplSDChannelSelect_813DB5EC(u64 id);
+            void startNandAsync2();
+            void startNandAsync3();
+            BOOL getNandFree(NandSDWorker::AppBlocksInfo* freeOut);
+            BOOL fn_813E05C0(int page);
+            void fn_813E0624(int page, int index);
+
+            controller::Interface* getController();
+
+            u8 unk_0x58[0x44];                      // 0x58
+            int mChanPage;                          // 0x9C
+            int mChanCount;                         // 0xA0
+            int mChanIndex;                         // 0xA4
+            f32 mChanSizeX;                         // 0xA8
+            f32 mChanSizeY;                         // 0xAC
+            u8 unk_0xB0[0x64];                      // 0xB0
+            EGG::Heap* mpCsHeap;                    // 0x114
+            channel::RsoThread* mpRsoThread;        // 0x118
+            u8 unk_0x11C[0x5E4];                    // 0x11C
+            int mSelState;                          // 0x700
+            u8 unk_0x704[0x14];                     // 0x704
+            NandSDWorker* mpWorker;                 // 0x718
+            u8 unk_0x71C[0x64];                     // 0x71C
         };
         extern "C" void iplSDChannelObj_813E3104(SDChannelObj* channel);
         extern "C" void iplSDChannelObj_813E311C(SDChannelObj* channel, EGG::ExpHeap* firstHeap,
@@ -64,8 +82,6 @@ namespace ipl {
         extern "C" void iplSDChannelObj_813E3180(SDChannelObj* channel, nand::LayoutFile* layoutFile);
         extern "C" void iplSDChannelObj_813E3304(SDChannelObj* channel);
         extern "C" void iplSDChannelObj_813E330C(SDChannelObj* channel);
-        extern "C" void* iplSDChannelObj_813E3128(SDChannelObj* channel);
-        extern "C" bool iplSDChannelObj_813E3330(SDChannelObj* channel);
 
         union SDChannelSelectCommandArguments {
             u32 values[3];
@@ -99,7 +115,7 @@ namespace ipl {
 
         struct SDChannelSelectTitleInfo {
             ESTitleId32 titleId;
-            bool used;
+            u32 state;
         };
 
         struct SDChannelSelectNoticeQueue {
@@ -124,11 +140,6 @@ namespace ipl {
 
             SDChannelSelect(EGG::Heap* heap);
             virtual ~SDChannelSelect();
-
-            NandSDWorker::WorkSDState getSDState() const {
-                return static_cast<NandSDWorker::WorkSDState>(mCurrentSDState);
-            }
-            NandSDWorker* getWorker() const { return mpSDWorker; }
 
             virtual BOOL isResetProcessDone();
             virtual void startResetting();
@@ -183,10 +194,6 @@ namespace ipl {
             void handleNandTitleUsage();
             void handleNandTitleUsageComplete();
             void handleSDTitleList();
-            void handleSDTitleListResult();
-            void refreshAfterSDTitleList();
-            void handleSDChannelUpdateComplete();
-            void updateChannelNotices(int pageOffset, int index);
             void handleSDMountComplete();
             void handleCopyComplete();
             void handleDeleteComplete();
@@ -204,10 +211,7 @@ namespace ipl {
             static int compareTitleInfo(const void* lhs, const void* rhs);
             void createChannelList(int page, bool force);
             void destroyChannelObject(SDChannelObj* channel);
-            void destroyUnusedChannelObjects(int currentPage, SDChannelObj* keepChannel);
-            void refreshChannelList();
             bool hasChannelObject(int page, int index) const;
-            SDChannelObj* findChannelObject(int page, int index) const;
             void createChannelObject(int page, int index);
             void createBaseLayout();
             void updateNoCardLayouts();

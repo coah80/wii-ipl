@@ -64,7 +64,7 @@ namespace ipl {
         extern "C" char lbl_81654FE2[] = "G_OutBtn";
         // clang-format on
 
-        static const char* scAnimGroups[] = {
+        static const char* scSDAnimGroups[] = {
             lbl_81654F98, lbl_81654FA4, lbl_81654FB0, lbl_81654FBD,
             lbl_81654FCA, lbl_81654FD6, lbl_81654FE2,
         };
@@ -78,7 +78,7 @@ namespace ipl {
         extern "C" char lbl_816550CD[] = "mn_SdcardMenuBanner_bc_OutBtn.brlan";
         // clang-format on
 
-        static const char* scAnimNames[] = {
+        static const char* scSDAnimNames[] = {
             lbl_81655008, lbl_81655033, lbl_8165505C,
             lbl_81655086, lbl_816550AA, lbl_816550CD,
         };
@@ -89,11 +89,11 @@ namespace ipl {
         extern "C" char lbl_8165512C[] = "banner_Loop.brlan";
         // clang-format on
 
-        static const char* scBannerAnims[] = {
+        static const char* scSDBannerAnims[] = {
             lbl_8165510C, lbl_81655119, lbl_8165512C,
         };
 
-        static const char* scWidePanes[][4] = {
+        static const char* scSDWidePanes[][4] = {
             {"Fre_a", "Fre_d", "Fre_i", "Fre_l"},
             {"Fre_e", "Fre_f", "Fre_g", "Fre_h"},
             {"Fre_b", "Fre_c", "Fre_j", "Fre_k"},
@@ -213,7 +213,7 @@ namespace ipl {
 
                 for (i = 0; i < 3; i++) {
                     for (j = 0; j < 4; j++) {
-                        mpLayout->FindPaneByName(scWidePanes[i][j])->GetMaterial()->SetTexture(0, texObj[i]);
+                        mpLayout->FindPaneByName(scSDWidePanes[i][j])->GetMaterial()->SetTexture(0, texObj[i]);
                     }
                 }
             }
@@ -223,17 +223,17 @@ namespace ipl {
 
             mGuiState = 1;
 
-            mpFocusAnimAOff = mpLayout->bindToGroup(scAnimNames[0], scAnimGroups[0], false, false);
-            mpFocusAnimAOn = mpLayout->bindToGroup(scAnimNames[1], scAnimGroups[0], false, true);
-            mpFocusAnimBOff = mpLayout->bindToGroup(scAnimNames[0], scAnimGroups[1], false, false);
-            mpFocusAnimBOn = mpLayout->bindToGroup(scAnimNames[1], scAnimGroups[1], false, true);
-            mpSelectAnimA = mpLayout->bindToGroup(scAnimNames[2], scAnimGroups[2], false, false);
-            mpSelectAnimB = mpLayout->bindToGroup(scAnimNames[2], scAnimGroups[3], false, false);
-            mpOffAnimA = mpLayout->bindToGroup(scAnimNames[3], scAnimGroups[4], false, false);
-            mpOffAnimB = mpLayout->bindToGroup(scAnimNames[3], scAnimGroups[5], false, false);
-            mpOnAnimA = mpLayout->bindToGroup(scAnimNames[4], scAnimGroups[4], false, false);
-            mpOnAnimB = mpLayout->bindToGroup(scAnimNames[4], scAnimGroups[5], false, false);
-            mpOutAnim = mpLayout->bindToGroup(scAnimNames[5], scAnimGroups[6], false, false);
+            mFocusAnims[0].off = mpLayout->bindToGroup(scSDAnimNames[0], scSDAnimGroups[0], false, false);
+            mFocusAnims[0].on = mpLayout->bindToGroup(scSDAnimNames[1], scSDAnimGroups[0], false, true);
+            mFocusAnims[1].off = mpLayout->bindToGroup(scSDAnimNames[0], scSDAnimGroups[1], false, false);
+            mFocusAnims[1].on = mpLayout->bindToGroup(scSDAnimNames[1], scSDAnimGroups[1], false, true);
+            mpSelectAnimA = mpLayout->bindToGroup(scSDAnimNames[2], scSDAnimGroups[2], false, false);
+            mpSelectAnimB = mpLayout->bindToGroup(scSDAnimNames[2], scSDAnimGroups[3], false, false);
+            mpOffAnimA = mpLayout->bindToGroup(scSDAnimNames[3], scSDAnimGroups[4], false, false);
+            mpOffAnimB = mpLayout->bindToGroup(scSDAnimNames[3], scSDAnimGroups[5], false, false);
+            mpOnAnimA = mpLayout->bindToGroup(scSDAnimNames[4], scSDAnimGroups[4], false, false);
+            mpOnAnimB = mpLayout->bindToGroup(scSDAnimNames[4], scSDAnimGroups[5], false, false);
+            mpOutAnim = mpLayout->bindToGroup(scSDAnimNames[5], scSDAnimGroups[6], false, false);
 
             mpLayout->finishBinding();
 
@@ -273,8 +273,8 @@ namespace ipl {
             mpSubLayout->FindPaneByName(lbl_81655285)->GetMaterial()->SetTexture(1, mpCapture2->getGXTex());
             mpSubLayout->FindPaneByName(lbl_81655290)->GetMaterial()->SetTexture(1, mpCapture2->getGXTex());
 
-            mChanState = 2;
             mCsFrame = mCsFrameMax = 0x8CA0;
+            mChanState = 2;
 
             resetTitleAnim();
 
@@ -305,7 +305,7 @@ namespace ipl {
             }
 
             if (mChanState == 5 && !unk_0x1A4 && !mpSelectAnimB->isPlaying()) {
-                mpFocusAnimBOff->play();
+                mFocusAnims[1].off->play();
                 unk_0x1A4 = true;
             }
 
@@ -478,7 +478,11 @@ namespace ipl {
                                 doReboot();
                             }
 
-                            for (;;) {
+                            while (WPADGetStatus()
+                                || System::getBS2Manager()->getIPLState() != 8
+                                || !System::getSaveData()->isFinished(mpSaveFile)
+                                || (mCsCalcFlag != 0 && mCsState != 4)
+                                || (worker != NULL && worker->is_working())) {
                                 snd::getSystem()->calc();
                                 System::getBS2Manager()->update();
                                 VIWaitForRetrace();
@@ -491,22 +495,6 @@ namespace ipl {
                                 if (System::getBS2Manager()->getIPLState() != 8) {
                                     OSReport(lbl_8165536C);
                                 }
-                                if (WPADGetStatus()) {
-                                    continue;
-                                }
-                                if (System::getBS2Manager()->getIPLState() != 8) {
-                                    continue;
-                                }
-                                if (!System::getSaveData()->isFinished(mpSaveFile)) {
-                                    continue;
-                                }
-                                if (mCsCalcFlag != 0 && mCsState != 4) {
-                                    continue;
-                                }
-                                if (worker != NULL && worker->is_working()) {
-                                    continue;
-                                }
-                                break;
                             }
 
                             if (worker != NULL) {
@@ -651,7 +639,7 @@ namespace ipl {
         }
 
         BOOL SDChannelTitle::isResetAcceptable() {
-            if (mSDMemory.unk_0x29D0 != 0) {
+            if (mSDMemory.mbDialogOpen) {
                 return mbHbmEnable;
             }
             return FALSE;
@@ -830,13 +818,17 @@ namespace ipl {
                         reserveAllSceneDestruction(0x12, (void*)1);
                         mChanState = 7;
                     } else {
-                        mChanState = mbSDWorkDone ? 0x19 : 0xF;
+                        if (mbSDWorkDone) {
+                            mChanState = 0x19;
+                        } else {
+                            mChanState = 0xF;
+                        }
                     }
                 } else {
                     if (mbSDWorkDone) {
                         mChanState = 0x1D;
                     } else {
-                        mpFocusAnimBOff->play();
+                        mFocusAnims[1].off->play();
                         ((SDButton*)System::getSceneManager()->getScene(SCENE_SD_BUTTON))->animation(0xD);
                         ((SDButton*)System::getSceneManager()->getScene(SCENE_SD_BUTTON))->animation(0xE);
 
@@ -858,6 +850,8 @@ namespace ipl {
                         }
                         break;
                     case ParentalDialog::RESULT_OVER_ATTEMPTS:
+                        mChildSceneState = 2;
+                        break;
                     case ParentalDialog::RESULT_CANCELLED:
                         mChildSceneState = 2;
                         break;
@@ -873,7 +867,7 @@ namespace ipl {
                     } else {
                         ((SDButton*)System::getSceneManager()->getScene(SCENE_SD_BUTTON))->animation(0xD);
                         ((SDButton*)System::getSceneManager()->getScene(SCENE_SD_BUTTON))->animation(0xE);
-                        mpFocusAnimBOff->play();
+                        mFocusAnims[1].off->play();
 
                         for (int i = 0; i < 2; i++) {
                             mBtnFocusCount[i] = 0;
@@ -896,46 +890,42 @@ namespace ipl {
         }
 
         void SDChannelTitle::calcNormalCheckStart() {
-            if (mpChanSelect->mpWorker->is_working()) {
-                return;
-            }
-            if (mpSubLayout->isPlaying(0)) {
-                return;
-            }
-            if (mpSelectAnimB->isPlaying()) {
+            if (mpChanSelect->mpWorker->is_working()
+                || mpSubLayout->isPlaying(0)
+                || mpSelectAnimB->isPlaying()) {
                 return;
             }
 
-            layout::Animator* animator = mpSubLayout->getAnim(1);
-            animator->setAnmType(0);
-            animator = mpSubLayout->getAnim(1);
-            animator->initAnmFrame();
-            animator = mpSubLayout->getAnim(1);
-            animator->play();
+            {
+                layout::Animator* animator = mpSubLayout->getAnim(1);
+                animator->setAnmType(0);
+                animator = mpSubLayout->getAnim(1);
+                animator->initAnmFrame();
+                animator = mpSubLayout->getAnim(1);
+                animator->play();
 
-            mpFocusAnimBOff->initAnmFrame();
-            mpFocusAnimBOff->play();
+                mFocusAnims[1].off->initAnmFrame();
+                mFocusAnims[1].off->play();
 
-            mpOutAnim->setAnmType(0);
-            mpOutAnim->initAnmFrame();
-            mpOutAnim->play();
+                mpOutAnim->setAnmType(0);
+                mpOutAnim->initAnmFrame();
+                mpOutAnim->play();
 
-            if (mpChanSelect->getChanObj(mChanPage, mChanIndex)->getChanType() == 3) {
-                mChanState = 0x1A;
-                mErrMsgId = 0xAF;
-            } else if (mpChanSelect->startNandCheck(mTitleID, &mNandFree)) {
-                mChanState = 0x14;
-            } else {
-                mChanState = 0x1A;
-                mErrMsgId = 0xAE;
+                if (mpChanSelect->getChanObj(mChanPage, mChanIndex)->getChanType() == 3) {
+                    mChanState = 0x1A;
+                    mErrMsgId = 0xAF;
+                } else if (mpChanSelect->startNandCheck(mTitleID, &mNandFree)) {
+                    mChanState = 0x14;
+                } else {
+                    mChanState = 0x1A;
+                    mErrMsgId = 0xAE;
+                }
             }
         }
 
         void SDChannelTitle::calcNormalStartChannel() {
-            if (mpChanSelect->mpWorker->is_working()) {
-                return;
-            }
-            if (mpSubLayout->isPlaying(1)) {
+            if (mpChanSelect->mpWorker->is_working()
+                || mpSubLayout->isPlaying(1)) {
                 return;
             }
 
@@ -946,26 +936,27 @@ namespace ipl {
                     return;
                 }
 
-                NandSDWorker::AppBlocksInfo needed;
                 NandSDWorker::AppBlocksInfo freeArea;
+                NandSDWorker::AppBlocksInfo needed;
                 if (mNandFree.bytes < 0x3800000) {
                     needed.bytes = 0x3800000;
                     needed.blocks = mNandFree.blocks;
                     freeArea = mNandFree;
                 } else {
-                    freeArea = mNandFree;
-                    needed = freeArea;
+                    needed = freeArea = mNandFree;
                 }
 
-                NandSDWorker::AppBlocksInfo neededArg = needed;
-                NandSDWorker::AppBlocksInfo freeAreaArg = freeArea;
+                NandSDWorker::AppBlocksInfo freeAreaArg;
+                NandSDWorker::AppBlocksInfo neededArg;
+                neededArg = needed;
+                freeAreaArg = freeArea;
                 mSDMemory.startCheck(&freeAreaArg, &neededArg);
                 mSDMemory.waitEnd();
                 mbHbmEnable = true;
                 System::getHomeButtonMenu()->enable();
                 mChanState = 0x17;
             } else {
-                if (result == -15 || result == -16) {
+                if (result == -15 || result == -14) {
                     mChanState = 0x1A;
                     mErrMsgId = 0xAF;
                 } else if (result == -0x10) {
@@ -1078,8 +1069,9 @@ namespace ipl {
         // clang-format on
 
         void SDChannelTitle::calcNormalLoadMeta() {
+            int pct = NandSDWorker::s_completion_pct;
             layout::Animator* animator = mpSubLayout->getAnim(2);
-            animator->initAnmFrame(NandSDWorker::s_completion_pct);
+            animator->initAnmFrame(pct);
 
             if (mpChanSelect->mpWorker->is_working()) {
                 return;
@@ -1128,7 +1120,7 @@ namespace ipl {
             if (mpSubLayout->isPlaying(1)) {
                 return;
             }
-            if (mpFocusAnimBOff->isPlaying()) {
+            if (mFocusAnims[1].off->isPlaying()) {
                 return;
             }
             if (mpOutAnim->isPlaying()) {
@@ -1149,8 +1141,8 @@ namespace ipl {
             mpOutAnim->initAnmFrame();
             mpOutAnim->play();
 
-            mpFocusAnimBOff->initAnmFrame();
-            mpFocusAnimBOff->play();
+            mFocusAnims[1].off->initAnmFrame();
+            mFocusAnims[1].off->play();
 
             ((SDButton*)System::getSceneManager()->getScene(SCENE_SD_BUTTON))->animation(0xD);
             ((SDButton*)System::getSceneManager()->getScene(SCENE_SD_BUTTON))->animation(0xE);
@@ -1260,35 +1252,33 @@ namespace ipl {
         // clang-format on
 
         void SDChannelTitle::calcNormalButtonWait() {
-            if (mCsCalcFlag != 0 && mCsState != 4) {
-                mbLaunching = true;
+            if (mCsCalcFlag == 0 || mCsState == 4) {
+                if (!mpChanSelect->fn_813E05C0(mChanPage)) {
+                    return;
+                }
+                mpChanSelect->fn_813E0624(mChanPage, mChanIndex);
+
+                mpIntp->init(0.0f, 255.0f, 28.0f, 0.0f, 0.0f, 0, 1.0f);
+                mpIntp->setAnmType(1);
+                mpIntp->play();
+
+                mChanState = 6;
+                snd::getSystem()->startSE(lbl_8165542D);
+                if (snd::getBannerPlayer()->isStarted()) {
+                    snd::getSystem()->stopBannerSound(0x1C);
+                }
+                if (mpSeHandle != NULL && mpSeHandle->IsAttachedSound()) {
+                    snd::getSystem()->stopSE(mpSeHandle, 0x1C);
+                }
                 return;
             }
-            if (!mpChanSelect->fn_813E05C0(mChanPage)) {
-                return;
-            }
-            mpChanSelect->fn_813E0624(mChanPage, mChanIndex);
-
-            mpIntp->init(0.0f, 255.0f, 28.0f, 0.0f, 0.0f, 0, 1.0f);
-            mpIntp->setAnmType(1);
-            mpIntp->play();
-
-            mChanState = 6;
-            snd::getSystem()->startSE(lbl_8165542D);
-            if (snd::getBannerPlayer()->isStarted()) {
-                snd::getSystem()->stopBannerSound(0x1C);
-            }
-            if (mpSeHandle != NULL && mpSeHandle->IsAttachedSound()) {
-                snd::getSystem()->stopSE(mpSeHandle, 0x1C);
-            }
+            mbLaunching = true;
         }
 
         void SDChannelTitle::releaseChannel(u64 titleId) {
             if (!System::isSafeMode()) {
                 if (mCsCalcFlag != 0) {
-                    if (mpCsFile != NULL) {
-                        delete mpCsFile;
-                    }
+                    delete mpCsFile;
                     mpCsFile = NULL;
                 }
                 if (System::getChannelManager()->fn_8133A57C(titleId)) {
@@ -1343,8 +1333,9 @@ namespace ipl {
             } else {
                 mCsFrame++;
                 if (mCsFrame > mCsFrameMax) {
+                    int sel = mCsHeapSel;
                     mCsState = 1;
-                    mCsHeapSel ^= 1;
+                    mCsHeapSel = sel ^ 1;
                 }
                 if (System::getChannelManager()->fn_8133A634(mTitleID)) {
                     if (mCsFrame == mCsFrameMax - 0xF0) {
@@ -1378,7 +1369,7 @@ namespace ipl {
             data.anims = mCsAnims;
             data.titleId = mTitleID;
             data.threadTerminated = mbCsThreadTerminated;
-            if (System::getNwc24ManagerForce() == NULL || !System::getNwc24ManagerForce()->isNewMessageThere((u32)data.titleId)) {
+            if (System::getNwc24Manager() == NULL || !System::getNwc24Manager()->isNewMessageThere((u32)(data.titleId & 0xFFFFFFFF))) {
                 data.unk_0x1A = false;
             }
 
@@ -1405,16 +1396,17 @@ namespace ipl {
         // clang-format on
 
         void SDChannelTitle::restartTitleAnim() {
-            if (mpBannerAnims[1] != NULL) {
-                mpBannerAnims[1]->initFrame();
-                mpBannerAnims[1]->play();
+            layout::Animator* anim;
+            if ((anim = mpBannerAnims[1]) != NULL) {
+                anim->initFrame();
+                anim->restart();
                 mbEnableStart = false;
-            } else if (mpBannerAnims[2] != NULL) {
-                mpBannerAnims[2]->initFrame();
-                mpBannerAnims[2]->play();
-            } else if (mpBannerAnims[0] != NULL) {
-                mpBannerAnims[0]->initFrame();
-                mpBannerAnims[0]->play();
+            } else if ((anim = mpBannerAnims[2]) != NULL) {
+                anim->initFrame();
+                anim->restart();
+            } else if ((anim = mpBannerAnims[0]) != NULL) {
+                anim->initFrame();
+                anim->restart();
             }
 
             if (mChanState == 6) {
@@ -1454,11 +1446,12 @@ namespace ipl {
         // clang-format on
 
         void SDChannelTitle::bindRsoAnims(layout::Object* layoutObj, layout::Animator** anims, const char* prefix) {
-            char fileName[0x40];
-            char groupName[0x40];
-            int found;
+            char fileName[0x18];
+            char groupName[8];
+            int i;
+            bool found;
 
-            for (int i = 0; i < 0x10; i++) {
+            for (i = 0; i < 0x10; i++) {
                 sprintf(fileName, lbl_81655453, prefix, i);
                 if (layoutObj->searchFile(fileName) == NULL) {
                     continue;
@@ -1482,18 +1475,18 @@ namespace ipl {
 
         void SDChannelTitle::bindBannerAnims() {
             for (int i = 0; i < 3; i++) {
-                if (mpBannerLayout->searchFile(scBannerAnims[i]) != NULL) {
+                if (mpBannerLayout->searchFile(scSDBannerAnims[i]) != NULL) {
                     if (i == 0) {
-                        mpBannerAnims[i] = mpBannerLayout->bind(scBannerAnims[i], true);
+                        mpBannerAnims[i] = mpBannerLayout->bind(scSDBannerAnims[i], true);
                         mpBannerAnims[i]->setAnmType(ANIM_TYPE_LOOP);
                     } else if (i == 1) {
-                        mpBannerAnims[i] = mpBannerLayout->bind(scBannerAnims[i], true);
+                        mpBannerAnims[i] = mpBannerLayout->bind(scSDBannerAnims[i], true);
                         mpBannerAnims[i]->setAnmType(ANIM_TYPE_FORWARD);
                     } else {
                         if (mpBannerAnims[1] == NULL) {
-                            mpBannerAnims[i] = mpBannerLayout->bind(scBannerAnims[i], true);
+                            mpBannerAnims[i] = mpBannerLayout->bind(scSDBannerAnims[i], true);
                         } else {
-                            mpBannerAnims[i] = mpBannerLayout->bind(scBannerAnims[i], false);
+                            mpBannerAnims[i] = mpBannerLayout->bind(scSDBannerAnims[i], false);
                         }
                         mpBannerAnims[i]->setAnmType(ANIM_TYPE_LOOP);
                     }
@@ -1504,10 +1497,7 @@ namespace ipl {
         }
 
         bool SDChannelTitle::isNetEnable(u64 titleId) {
-            if (System::getChannelManager()->fn_8133A5F0(titleId) == 0) {
-                return true;
-            }
-            if (ncd::NCDSetting::getConnectEnableFlag()) {
+            if (System::getChannelManager()->fn_8133A5F0(titleId) == 0 || ncd::NCDSetting::getConnectEnableFlag() != 0) {
                 return true;
             }
             return false;
@@ -1527,10 +1517,9 @@ namespace ipl {
             System::getHomeButtonMenu()->enable();
             mbHbmEnable = true;
 
-            SDButton* button = (SDButton*)System::getSceneManager()->getScene(0x24);
-            if (button->mbArrowVisible[SDButton::ARROW_BTN_LEFT]) {
-                button->animation(0xF);
-                button->animation(0x10);
+            if (((SDButton*)System::getSceneManager()->getScene(0x24))->mbArrowVisible[SDButton::ARROW_BTN_LEFT]) {
+                ((SDButton*)System::getSceneManager()->getScene(0x24))->animation(0xF);
+                ((SDButton*)System::getSceneManager()->getScene(0x24))->animation(0x10);
             }
 
             createChildScene(SCENE_PARENTAL_DIALOG, this, NULL, (void*)kind);
@@ -1546,15 +1535,16 @@ namespace ipl {
 
             mChanPage = page;
             mChanIndex = index;
-            mpChanSelect->setSelectChan(page, index);
+            mpChanSelect->setSelectChan(page, index, chanObj);
 
             chanObj = mpChanSelect->getChanObj(mChanPage, mChanIndex);
 
             nw4r::math::VEC3 pos;
             SDChannelSelect::getChanPoint(&pos, mpChanSelect, mChanIndex);
             mChanPosX = pos.x;
-            SDChannelSelect::getChanPoint(&pos, mpChanSelect, mChanIndex);
-            mChanPosY = pos.y;
+            nw4r::math::VEC3 pos2;
+            SDChannelSelect::getChanPoint(&pos2, mpChanSelect, mChanIndex);
+            mChanPosY = pos2.y;
 
             if (chanObj->isValid()) {
                 setTitleID(chanObj);
@@ -1576,9 +1566,8 @@ namespace ipl {
             mChildSceneState = 0;
             unk_0x1A4 = false;
 
-            SDButton* button = (SDButton*)System::getSceneManager()->getScene(0x24);
-            button->animation(0xF);
-            button->animation(0x10);
+            ((SDButton*)System::getSceneManager()->getScene(0x24))->animation(0xF);
+            ((SDButton*)System::getSceneManager()->getScene(0x24))->animation(0x10);
 
             if (mpBannerFiles[mBannerSel] != NULL) {
                 delete mpBannerFiles[mBannerSel];
@@ -1596,7 +1585,10 @@ namespace ipl {
             int page;
             int index;
             BOOL hasChan = System::getChannelManager()->hasChannel(mTitleID, &page, &index) != 0;
-            BOOL tmpLoaded = SCGetTmpTitleID() == mTitleID && System::getChannelManager()->isLoadedTmp();
+            BOOL tmpLoaded = false;
+            if (SCGetTmpTitleID() == mTitleID && System::getChannelManager()->isLoadedTmp()) {
+                tmpLoaded = true;
+            }
 
             mLaunchKind = 0x11;
             mbTmdLoaded = false;
@@ -1624,10 +1616,9 @@ namespace ipl {
                 return;
             }
 
-            SDButton* button = (SDButton*)System::getSceneManager()->getScene(0x24);
-            if (button->mbArrowVisible[SDButton::ARROW_BTN_LEFT]) {
-                button->animation(0xF);
-                button->animation(0x10);
+            if (((SDButton*)System::getSceneManager()->getScene(0x24))->mbArrowVisible[SDButton::ARROW_BTN_LEFT]) {
+                ((SDButton*)System::getSceneManager()->getScene(0x24))->animation(0xF);
+                ((SDButton*)System::getSceneManager()->getScene(0x24))->animation(0x10);
             }
 
             System::getDialog()->callBtn2(0x143, 0x146, 0x25, false);
@@ -1656,7 +1647,8 @@ namespace ipl {
                 System::getSaveData()->iplSavedata_813596B8(mTitleID);
             }
             System::getSaveData()->mData.prevSDPage = mChanPage;
-            mpSaveFile = System::getSaveData()->flushAsync(System::getMem2App());
+            EGG::Heap* mem2App = System::getMem2App();
+            mpSaveFile = System::getSaveData()->flushAsync(mem2App);
             __WPADReconnect(TRUE);
         }
 
@@ -1673,7 +1665,7 @@ namespace ipl {
 
         u32 SDChannelTitle::checkWaitEnd() {
             u32 wait = (u32)(120.0f / System::getAnimDelta());
-            return mWaitCounter <= wait;
+            return wait < mWaitCounter;
         }
 
         void SDChannelTitle::resetBtnPane() {
@@ -1723,7 +1715,8 @@ namespace ipl {
 
             nw4r::lyt::TextBox* textBox = nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(pane);
             if (alloc) {
-                textBox->AllocStringBuffer(wcslen(msg) & 0xFFFF);
+                u32 len = wcslen(msg);
+                textBox->AllocStringBuffer((u16)len);
             }
             textBox->SetString(msg, 0);
         }
@@ -1752,7 +1745,7 @@ namespace ipl {
             self->mbTmdLoaded = true;
         }
 
-        bool SDChannelTitle::checkParentalControl(ESTmdView* tmdView) {
+        u32 SDChannelTitle::checkParentalControl(ESTmdView* tmdView) {
             if (!utility::ESMisc::__IsPCEnable()) {
                 return true;
             }
@@ -1761,21 +1754,22 @@ namespace ipl {
             if (!SCGetParentalControl(&pcInfo)) {
                 return true;
             }
-            if (!(pcInfo.enable & SC_PARENTAL_FLAG_ENABLED)) {
-                return true;
-            }
 
-            u32 ncRestriction = System::getChannelManager()->fn_8133A6B8(mTitleID);
-            if ((SCGetNetContentRestrictions() & ncRestriction) != 0) {
-                return false;
+            if (pcInfo.enable & SC_PARENTAL_FLAG_ENABLED) {
+                u32 ncRestriction = System::getChannelManager()->fn_8133A6B8(mTitleID);
+                u32 netRestriction = SCGetNetContentRestrictions();
+                if ((netRestriction & ncRestriction) != 0) {
+                    return false;
+                }
+                if (SCGetWwwRestriction() && System::getChannelManager()->fn_8133A73C(mTitleID)) {
+                    return false;
+                }
+                if (System::getChannelManager()->fn_8133A73C(mTitleID)) {
+                    return true;
+                }
+                return utility::ESMisc::CheckTmdParentalControl(tmdView);
             }
-            if (SCGetWwwRestriction() && System::getChannelManager()->fn_8133A73C(mTitleID)) {
-                return false;
-            }
-            if (System::getChannelManager()->fn_8133A73C(mTitleID)) {
-                return true;
-            }
-            return utility::ESMisc::CheckTmdParentalControl(tmdView);
+            return true;
         }
 
         void SDChannelTitleEvent::onEventDerived(u32 compId, u32 event, const controller::Interface* con) {
@@ -1783,21 +1777,28 @@ namespace ipl {
             nw4r::lyt::Pane* pane = component->getPane();
             const char* name = pane->GetName();
 
-            if (event == ::gui::EventHandler::ON_TRIG && mpScene->mChanState == 1 && con->downTrg(controller::BTN_INTERACT)) {
-                SDButton* button = (SDButton*)System::getSceneManager()->getScene(SCENE_SD_BUTTON);
+            switch (event) {
+                case ::gui::EventHandler::ON_TRIG: {
+                    if (mpScene->mChanState == 1 && con->downTrg(controller::BTN_INTERACT)) {
+                        SDButton* button = (SDButton*)System::getSceneManager()->getScene(SCENE_SD_BUTTON);
 
-                int page;
-                int index;
-                if (strcmp(name, SDButton::smButtonName[3]) == 0) {
-                    mpScene->mpChanSelect->getSelectChan(1, &page, &index);
-                    button->animation(7);
-                    mpScene->selectChannel(page, index);
-                    snd::getSystem()->startSE(lbl_816553FE);
-                } else if (strcmp(name, SDButton::smButtonName[2]) == 0) {
-                    mpScene->mpChanSelect->getSelectChan(0, &page, &index);
-                    button->animation(8);
-                    mpScene->selectChannel(page, index);
-                    snd::getSystem()->startSE(lbl_816553FE);
+                        if (strcmp(name, SDButton::smButtonName[3]) == 0) {
+                            int page;
+                            int index;
+                            mpScene->mpChanSelect->getSelectChan(1, &page, &index);
+                            button->animation(7);
+                            mpScene->selectChannel(page, index);
+                            snd::getSystem()->startSE(lbl_816553FE);
+                        } else if (strcmp(name, SDButton::smButtonName[2]) == 0) {
+                            int page;
+                            int index;
+                            mpScene->mpChanSelect->getSelectChan(0, &page, &index);
+                            button->animation(8);
+                            mpScene->selectChannel(page, index);
+                            snd::getSystem()->startSE(lbl_816553FE);
+                        }
+                    }
+                    break;
                 }
             }
         }
@@ -1812,8 +1813,9 @@ namespace ipl {
                     if (mpScene->mChanState == 1) {
                         if (((controller::Interface*)data)->downTrg(controller::BTN_INTERACT)) {
                             if (strcmp(name, scBtnPanes[0]) == 0) {
-                                mpScene->mpSelectAnimA->initFrame();
-                                mpScene->mpSelectAnimA->play();
+                                layout::Animator* anim = mpScene->mpSelectAnimA;
+                                anim->initFrame();
+                                anim->restart();
                                 snd::getSystem()->startSE(lbl_81655478);
                                 mpScene->mChanState = 0xA;
                                 mpScene->calcNormalButtonWait();
@@ -1822,8 +1824,9 @@ namespace ipl {
                                     snd::getSystem()->startSE(lbl_81655488);
                                 } else {
                                     mpScene->launchChannel();
-                                    mpScene->mpSelectAnimB->initFrame();
-                                    mpScene->mpSelectAnimB->play();
+                                    layout::Animator* anim = mpScene->mpSelectAnimB;
+                                    anim->initFrame();
+                                    anim->restart();
                                     snd::getSystem()->stopSE(mpScene->mpSeHandle, 0x1E);
                                     snd::getSystem()->startSE(lbl_8165549C);
                                 }
@@ -1831,36 +1834,40 @@ namespace ipl {
                         }
                     }
                     break;
-                case ::gui::EventHandler::ON_POINT:
+                case ::gui::EventHandler::ON_POINT: {
+                    layout::Animator* anim;
                     for (int i = 0; i < 2; i++) {
                         if (strcmp(name, scBtnPanes[i]) == 0) {
                             if (i == 0 || mpScene->mGuiState > 0) {
                                 ++mpScene->mBtnFocusCount[i];
                                 if (mpScene->mBtnFocusCount[i] <= 1) {
-                                    (&mpScene->mpFocusAnimAOn)[i * 6]->initFrame();
-                                    (&mpScene->mpFocusAnimAOn)[i * 6]->play();
+                                    anim = mpScene->mFocusAnims[i].on;
+                                    anim->initFrame();
+                                    anim->restart();
                                     snd::getSystem()->startSE(lbl_816554AB);
                                     ((controller::Interface*)data)->rumble(0);
+                                    break;
                                 }
                             }
-                            break;
                         }
                     }
                     break;
+                }
                 case ::gui::EventHandler::ON_LEFT:
                     for (int i = 0; i < 2; i++) {
                         if (strcmp(name, scBtnPanes[i]) == 0) {
                             if (i == 0 || mpScene->mGuiState > 0) {
                                 if (mpScene->mBtnFocusCount[i] <= 0) {
-                                    return;
+                                    break;
                                 }
                                 --mpScene->mBtnFocusCount[i];
                                 if (mpScene->mBtnFocusCount[i] <= 0) {
-                                    (&mpScene->mpFocusAnimAOff)[i * 6]->initFrame();
-                                    (&mpScene->mpFocusAnimAOff)[i * 6]->play();
+                                    layout::Animator* anim = mpScene->mFocusAnims[i].off;
+                                    anim->initFrame();
+                                    anim->restart();
+                                    break;
                                 }
                             }
-                            break;
                         }
                     }
                     break;

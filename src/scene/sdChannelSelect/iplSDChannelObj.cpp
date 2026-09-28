@@ -480,7 +480,7 @@ namespace ipl {
         extern "C" char lbl_81654BDA[] = "mn_SdcardMenu_d.brlan";
 
         f32 SDChannelObj::createEmptyThumbnail() {
-            mpThumbLayout = layout::Object::create(mpMainHeap, 0x18000, mpSysLayoutFile, "arc", lbl_81654BC4);
+            mpThumbLayout = layout::Object::create(mpMainHeap, 0x8000, mpSysLayoutFile, "arc", lbl_81654BC4);
             mpThumbAnim = mpThumbLayout->bind(lbl_81654BDA);
 
             return System::getRndm()->get_u16() % 2000;

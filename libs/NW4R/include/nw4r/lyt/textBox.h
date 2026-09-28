@@ -65,6 +65,10 @@ namespace nw4r {
                 NW4R_ASSERT(type < TEXTCOLOR_MAX);
                 mTextColors[type] = value;
             }
+            void SetTextColor(ut::Color start, ut::Color end) {
+                mTextColors[0] = start;
+                mTextColors[1] = end;
+            }
 
             void SetTextPositionH(u8 pos) { detail::SetHorizontalPosition(&mTextPosition, pos); }
             void SetTextPositionV(u8 pos) { detail::SetVerticalPosition(&mTextPosition, pos); }

@@ -56,6 +56,9 @@ namespace ipl {
     namespace gui {
         class PaneManager;
     }
+    namespace scene {
+        class SDMemory;
+    }
 }  // namespace ipl
 namespace gui {
     class EventHandler;
@@ -116,6 +119,8 @@ namespace ipl {
 
         /** @return The result of the dialog saved after finishing. */
         int getLastResult() { return mLastResult; }
+        /** @return The current dialog state. */
+        int getState() { return mState; }
         /** @return If the dialog is moving onto the next state. */
         bool doingNextState() { return mbNextState; }
 #ifdef IPL_SDMEMORY_DIALOG_STATE_ACCESSOR
@@ -341,6 +346,7 @@ namespace ipl {
 
         /* MEMBERS AND ROUTINES FOR WORK */
     private:
+        friend class scene::SDMemory;
         typedef enum State {
             DIALOG_STATE_READY = 0,
             DIALOG_STATE_FADE_IN,

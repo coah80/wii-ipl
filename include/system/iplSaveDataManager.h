@@ -18,6 +18,10 @@ namespace ipl {
     namespace channel {
         class Manager;
     }
+    namespace scene {
+        class SDChannelTitle;
+        class SDMemory;
+    }
     namespace savedata {
         extern "C" BOOL iplSavedata_813597A0(void* manager, ESTitleId titleId);
 
@@ -160,6 +164,8 @@ namespace ipl {
 
             friend class channel::Manager;
             friend BOOL iplSavedata_813597A0(void* manager, ESTitleId titleId);
+            friend class scene::SDChannelTitle;
+            friend class scene::SDMemory;
         };
     }  // namespace savedata
 }  // namespace ipl

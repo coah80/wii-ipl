@@ -65,7 +65,11 @@ namespace ipl {
             virtual BOOL isReady() const { return FALSE; }
 
             /** @brief If the user can power off/reset the system */
+#ifdef IPL_SD_CHANNEL_TITLE_NOVTABLE
+            virtual BOOL isResetAcceptable() { return TRUE; }
+#else
             virtual BOOL isResetAcceptable() const { return TRUE; }
+#endif
             /** @brief The scene running code when powering off/resetting the system */
             virtual void startResetting() {}
             /** @brief If the scene has finished its powering off/resetting task */
