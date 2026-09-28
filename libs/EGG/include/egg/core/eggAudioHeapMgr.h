@@ -15,7 +15,7 @@ namespace EGG {
 
     class SoundHeapMgr {
     public:
-        SoundHeapMgr() NO_INLINE {}
+        SoundHeapMgr();
 
         ~SoundHeapMgr() { destroySoundHeap(); }
 

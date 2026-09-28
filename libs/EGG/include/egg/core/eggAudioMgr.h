@@ -17,14 +17,7 @@ namespace EGG {
             s32 soundThreadPrio;  // 0x08
             s32 dvdThreadPrio;    // 0x0C
 
-            Arg() NO_INLINE {
-                pHeap = NULL;
-
-                soundThreadPrio = nw4r::snd::SoundSystem::DEFAULT_SOUND_THREAD_PRIORITY;
-                dvdThreadPrio = nw4r::snd::SoundSystem::DEFAULT_DVD_THREAD_PRIORITY;
-
-                unk_0x04 = 0;
-            }
+            Arg();
         };
 
     public:
