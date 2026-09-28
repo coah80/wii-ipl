@@ -1677,51 +1677,13 @@ u64 ipl::scene::AddressEdit::utf16_wiiid(const wchar_t* value) {
     return result;
 }
 
-extern "C" asm void wiiid_utf16__Q33ipl5scene11AddressEditFUxPw(u64, wchar_t*) {
-    nofralloc
-    stwu r1, -0x30(r1)
-    mflr r0
-    stw r0, 0x34(r1)
-    addi r11, r1, 0x30
-    bl _savegpr_23
-    mr r24, r3
-    mr r23, r4
-    mr r25, r5
-    li r27, 1
-    li r28, 0
-    li r26, 0
-    li r29, 0x30
-    li r30, 0
-    li r31, 0xa
-wiiid_utf16_L1:
-    mr r3, r24
-    mr r4, r23
-    mr r5, r28
-    mr r6, r27
-    bl __div2u
-    li r6, 0xa
-    li r5, 0
-    bl __mod2u
-    addc r5, r4, r29
-    adde r3, r3, r30
-    subfic r3, r26, 0xf
-    addi r26, r26, 1
-    slwi r4, r3, 1
-    mulhwu r0, r27, r31
-    cmpwi r26, 0x10
-    sthx r5, r25, r4
-    mullw r3, r28, r31
-    mulli r27, r27, 0xa
-    add r28, r0, r3
-    blt wiiid_utf16_L1
-    li r0, 0
-    addi r11, r1, 0x30
-    sth r0, 0x20(r25)
-    bl _restgpr_23
-    lwz r0, 0x34(r1)
-    mtlr r0
-    addi r1, r1, 0x30
-    blr
+void ipl::scene::AddressEdit::wiiid_utf16(u64 value, wchar_t* output) {
+    u64 multiplier = 1;
+    for (int i = 0; i < 0x10; ++i) {
+        output[0xf - i] = static_cast<wchar_t>((value / multiplier) % 10 + L'0');
+        multiplier *= 10;
+    }
+    output[0x10] = 0;
 }
 
 void ipl::scene::AddressEdit::String::setName(const wchar_t* value) {
