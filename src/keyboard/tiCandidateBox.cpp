@@ -210,15 +210,15 @@ namespace textinput {
         #pragma push
         #pragma section const_type ".data"
         extern "C" const char lbl_8165D984[132] =
-            "B_OffBtn\0\0\0"
-            "P_JPOffBtn\0"
-            "P_CNOffBtn\0"
-            "P_CNOnBtn\0\0"
+            "B_OffBtn\0\0\0\0"
+            "P_JPOffBtn\0\0"
+            "P_CNOffBtn\0\0"
+            "P_CNOnBtn\0\0\0"
             "B_prdc_scrl_Left\0\0\0"
             "P_prdc_scrl_Left\0\0\0"
             "B_prdc_scrl_Rght\0\0\0"
-            "P_prdc_scrl_Rght\0\0\0"
-            "\0\0\0";
+            "P_prdc_scrl_Rght\0\0"
+            "\0\0\0\0";
         extern "C" char lbl_8165DA08[16] = "W_predictWindow";
         extern "C" const char lbl_8165DA18[15] = "N_predictInput";
         extern "C" const char lbl_8165DA28[13] = "W_OnOff_Area";
@@ -1081,7 +1081,7 @@ namespace textinput {
                 nw4r::lyt::TextBox* textPane = mpTextBoxPane[i]->getTextPane();
                 nw4r::lyt::Bounding* boundPane = mpBoundingPane[i]->getBoundPane();
                 nw4r::lyt::Size sz1 = textPane->GetSize();
-                textPane->SetString(L"");
+                textPane->SetString(lbl_816973C8);
                 textPane->SetVisible(false);
                 boundPane->SetSize(nw4r::lyt::Size(0.0f, sz1.height));
             }
@@ -1247,14 +1247,18 @@ namespace textinput {
 
             struct {
                 f32 left;
+                f32 top;
                 f32 width;
+                f32 height;
+                f32 x;
+                f32 y;
             } scissor;
             nw4r::ut::Rect r = mpTextAreaPane->getPane()->GetPaneRect(drawInfo);
             // TODO - These vectors are zero-initialized using GPRs first...
             Vec v1 = {0, 0, 0};
-            Vec v2 = {0, 0, 0};
             v1.x = r.left;
             v1.y = r.top;
+            Vec v2 = {0, 0, 0};
             v2.x = r.right;
             v2.y = r.bottom;
             MTXMultVec(mpTextAreaPane->getTextPane()->GetGlobalMtx(), &v1, &v1);
@@ -1813,9 +1817,9 @@ namespace textinput {
 
         void UIOnOffButton::Create(nw4rmanager::Layout* layout) {
             gui::PaneManager* mgr = layout->getPaneManager();
-            mpOnPictPane = mgr->searchPaneComponent("P_OnBtn");
-            mpOnBoundPane = mgr->searchPaneComponent("B_OnBtn");
-            mpOnAnmPane = static_cast<OnOffAnmPane*>(layout->searchAnmPane("P_OnBtn"));
+            mpOnPictPane = mgr->searchPaneComponent(lbl_816973D0);
+            mpOnBoundPane = mgr->searchPaneComponent(lbl_816973D8);
+            mpOnAnmPane = static_cast<OnOffAnmPane*>(layout->searchAnmPane(lbl_816973D0));
             mpOffPictPane = mgr->searchPaneComponent(lbl_8165D2F8.tail);
             mpOffBoundPane = mgr->searchPaneComponent(lbl_8165D984);
             mpOffAnmPane = static_cast<OnOffAnmPane*>(layout->searchAnmPane(lbl_8165D2F8.tail));
