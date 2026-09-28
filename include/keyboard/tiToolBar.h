@@ -36,8 +36,8 @@ namespace textinput {
         class LayoutByNW4R : public Base, public nw4rmanager::Layout {
         public:
 #ifdef TI_TOOLBAR_SAMPLE_CLASS
-            LayoutByNW4R(Manager* manager, nw4r::lyt::MultiArcResourceAccessor* resAccessor, EventObserver* observer)
-                : Base(manager), nw4rmanager::Layout(resAccessor, "fs_VK_toolbar_a.brlyt", observer), mpEventHandler(NULL),
+            LayoutByNW4R(Manager* manager, nw4r::lyt::MultiArcResourceAccessor* resAccessor, const char* arcName, EventObserver* observer)
+                : Base(manager), nw4rmanager::Layout(resAccessor, arcName, observer), mpEventHandler(NULL),
                   mbIsEnableQwertyChg(false) {}
 #endif
 
@@ -120,9 +120,9 @@ namespace textinput {
 #ifdef TI_TOOLBAR_SAMPLE_CLASS
         class Sample : public LayoutByNW4R {
         public:
-            Sample(Manager* manager, nw4r::lyt::MultiArcResourceAccessor* resAccessor, EventObserver* observer)
-                : LayoutByNW4R(manager, resAccessor, observer) {}
-            virtual ~Sample() {}
+            Sample(Manager* manager, nw4r::lyt::MultiArcResourceAccessor* resAccessor, const char* arcName, EventObserver* observer)
+                : LayoutByNW4R(manager, resAccessor, arcName, observer) {}
+            virtual ~Sample();
         };
 #else
         class Sample {};

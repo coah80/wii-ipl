@@ -8,18 +8,25 @@ namespace textinput {
     class Manager;
     namespace keyboard {
         namespace hwkey {
-            class HWKeyboard : CommandSender {
+            class HWKeyboard : public CommandSender {
                 public:
                     HWKeyboard(Manager *);
-                    ~HWKeyboard();
 
                     virtual void    init();
+                    virtual ~HWKeyboard();
 
                     virtual void    updateInput(int chan, f32 x, f32 y, u32 trig, u32 hold, u32 release, void* data);
                     virtual bool    updateInput(input::HKBManager& hkbManager);
                         
                 private:
                     void            updateShift(input::HKBManager& hkbManager);
+                    bool            updateRepeatKey_(input::HKBManager& hkbManager);
+                    bool            updateTriggerKey_(input::HKBManager& hkbManager);
+                    bool            updateTappingShift_(input::HKBManager& hkbManager);
+                    u16             convertWCCode(wchar_t wc) const;
+                public:
+                    void            setLanguage(Destination destination, Language language);
+                private:
                     void controlKeyTriggeredHandler(input::HKBManager);
 
                     Manager *mgr() { return mpManager; }

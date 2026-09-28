@@ -464,7 +464,7 @@ namespace ipl {
             }
             mpManager->limitStringLength(setting.stringLimit);
             mpManager->limitRowNum(setting.rowLimit);
-            mpManager->setTitleText(L"");
+            mpManager->setTitleText(const_cast<wchar_t*>(L""));
             mpManager->changeState(textinput::extend::memo::Manager::STL_Transition);
 
             // Open!

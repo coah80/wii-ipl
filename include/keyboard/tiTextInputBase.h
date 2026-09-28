@@ -61,6 +61,8 @@ namespace textinput {
                 f32  y;     // 0x08
             } Scroll;
 
+            struct ChangePredictMode;
+
             virtual void    clearSender();
             virtual void    onCommand(INPUT_COMMAND command, void* data);
             virtual void    addSender(CommandSender* cmdSend);

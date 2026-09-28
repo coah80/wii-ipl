@@ -17,8 +17,13 @@ namespace textinput {
     namespace inputform {
         class EditBuffer {
             public:
+                EditBuffer() : mpString(NULL), mpUnfixString(NULL), mpZiString(NULL), mpAllocator(NULL) {}
+
                 virtual ~EditBuffer();
                 virtual void create(MEMAllocator* allocator);
+
+                void*           getString() const { return mpString; }
+                void*           getZiString() const { return mpZiString; }
 
             private:
                 void*           mpString;       // 0x04
@@ -191,6 +196,9 @@ namespace textinput {
 
                 virtual void                makeUpCursorPos(CursorPos* cursorPos, u32 pos, s32 startLine, s32 endLine);
 
+                bool                        isVacancy() const;
+                bool                        isPredictOn() const { return mbPredictOn; }
+
             private:
                 Rect mRect;                         // 0x120
                 nw4r::math::MTX34 mMtx;             // 0x130
@@ -236,6 +244,8 @@ namespace textinput {
 
         class LayoutByNW4R : public Base, public nw4rmanager::Layout {
             public:
+                LayoutByNW4R(Manager* manager, nw4r::lyt::MultiArcResourceAccessor* resAccessor, const char* arcName,
+                             EventObserver* observer, const char* subName);
                 ~LayoutByNW4R();
 
                 virtual void                init();
@@ -263,8 +273,18 @@ namespace textinput {
                 virtual void                visibleSeparator(bool flag);
 
             private:
-                u8  unk_0x2C0[0x4C];
+                u8  unk_0x2C0[0x48];
         };
+
+#ifdef TI_INPUTFORM_SAMPLE_CLASS
+        class Sample : public LayoutByNW4R {
+        public:
+            Sample(Manager* manager, nw4r::lyt::MultiArcResourceAccessor* resAccessor, const char* arcName,
+                   EventObserver* observer, const char* subName)
+                : LayoutByNW4R(manager, resAccessor, arcName, observer, subName) {}
+            virtual ~Sample();
+        };
+#endif
     }
     typedef inputform::LayoutByNW4R InputForm;
     typedef inputform::Base InputFormBase;

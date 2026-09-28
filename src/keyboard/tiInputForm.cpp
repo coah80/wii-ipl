@@ -9,6 +9,7 @@
 extern "C" void __dl__FPv(void*);
 
 namespace textinput {
+
 namespace tistring {
 extern "C" asm void __dt__Q39textinput8tistring10StringBaseFv();
 }

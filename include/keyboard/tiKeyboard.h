@@ -8,13 +8,15 @@ namespace textinput {
 
         class KeyboardBase : public CommandSender {
         public:
-            virtual ~KeyboardBase() {}
+            KeyboardBase() : meLanguage(JP) {}
+
+            virtual ~KeyboardBase();
             virtual void create(MEMAllocator* alloc) override;
             virtual void init() override;
             virtual void setCommandReceiver(CommandReceiver* receiver) override;
             virtual void sendCommand(u32 command, void*) override;
             virtual void updateFromReceiver(u32, void*) override;
-            virtual void onKey(u32);
+            virtual void onKey(u32, void*);
             virtual void getType();
             virtual void setLanguage(Language language);
             virtual Language getLanguage() const;

@@ -4,8 +4,28 @@
 #include "keyboard/tiHKBManager.h"
 #include "keyboard/tiLayoutGather.h"
 
+static const u8 lbl_81616B88[64] = {
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+};
+static const u32 lbl_81616BC8[4] = {0, 0, 0x01000000, 0};
 extern const u8 lbl_81616BD8[] = {0x0f, 0x21, 0x20, 0x08, 0x09, 0x0e, 0x19, 0x00, 0x21, 0x21, 0x00, 0x00};
 extern const u8 lbl_81616BE4[] = {0x0f, 0x21, 0x20, 0x04, 0x09, 0x0e, 0x11, 0x00, 0x21, 0x21, 0x00, 0x00};
+const u8 scKeyMap[136] = {
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x09, 0x01, 0x0a, 0x03, 0x08, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x04, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26,
+    0x27, 0x28, 0x29, 0x2a, 0x2b, 0x2c, 0x19, 0x1a, 0x1b, 0x13, 0x15, 0x17, 0x14, 0x16, 0x18, 0x00,
+    0x00, 0x00, 0x00, 0x1c, 0x00, 0x00, 0x00, 0x00, 0x09, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x0c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0x00, 0x0f, 0x0e, 0x00, 0x00, 0x00, 0x00,
+    0x11, 0x12, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x06, 0x05, 0x07, 0x0b, 0x06, 0x05, 0x07, 0x0b, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+};
+static u32 scKeyRepeatData[2] = {8, 0};
+static u32 scTriggerData[2] = {8, 0};
 extern "C" void SetCountry__Q39textinput5input10HKBManagerFUc();
 extern "C" textinput::input::HKBManager sInstance__Q39textinput5input10HKBManager;
 extern "C" void convertWCCode__Q49textinput8keyboard5hwkey10HWKeyboardCFw();
@@ -103,11 +123,236 @@ namespace textinput {
     namespace keyboard {
 
         namespace hwkey {
+
+            struct Packet {
+                u16 code;
+                u16 unk_02;
+                u32 flags;
+                u32 unk_08;
+                u32 unk_0C;
+            };
+
             extern "C" void GetTriggeredKeySet__Q39textinput5input10HKBManagerCFv();
             extern "C" void IsValid__Q49textinput5input10HKBManager6KeySetCFv();
             extern "C" void GetKey__Q49textinput5input10HKBManager6KeySetCFv();
             extern "C" void GetNext__Q49textinput5input10HKBManager6KeySetCFv();
             extern "C" void GetModifierState__Q39textinput5input10HKBManagerCFv();
+            bool HWKeyboard::updateRepeatKey_(input::HKBManager& hkbManager) {
+                u32 mods = hkbManager.GetModifierState();
+                input::HKBManager::KeySet keySet(NULL, 0);
+                keySet = hkbManager.GetRepeatedKeySet();
+                if (!keySet.IsValid()) {
+                    return false;
+                }
+                if (!mgr()->getToolBar()->isQwerty() && mgr()->getToolBar()->isEnableKeytopChange()) {
+                    return true;
+                }
+                u32 shift = mods & 0x8;
+                while (keySet.IsValid()) {
+                    u8 key = keySet.GetKey();
+                    u32 v;
+                    switch (key) {
+                        case 0x4C:
+                            sendCommand(2, NULL);
+                            break;
+                        case 0x2A:
+                            sendCommand(1, NULL);
+                            break;
+                        case 0x4F: v = 0x20; goto send_arrow;
+                        case 0x50: v = 0x1F; goto send_arrow;
+                        case 0x51: v = 0x1E; goto send_arrow;
+                        case 0x52: v = 0x1D;
+send_arrow: {
+                            u32 data[2] = {v, mods};
+                            sendCommand(0x26, data);
+                            break;
+                        }
+                        case 0x2C:
+                            if ((mgr()->getToolBar()->isQwerty() != 0 ||
+                                 mgr()->getCellPhoneKeyboard()->isNumeric() == 0) && shift == 0) {
+                                u32 data[2] = {scKeyRepeatData[0], mods};
+                                sendCommand(0x26, data);
+                            }
+                            break;
+                    }
+                    keySet = keySet.GetNext();
+                }
+                return false;
+            }
+
+            bool HWKeyboard::updateTriggerKey_(input::HKBManager& hkbManager) {
+                u32 mods = hkbManager.GetModifierState();
+                input::HKBManager::KeySet keySet(NULL, 0);
+                keySet = hkbManager.GetTriggeredKeySet();
+                if (!keySet.IsValid()) {
+                    return false;
+                }
+                if (mgr()->getToolBar()->isQwerty() == 0 &&
+                    mgr()->getToolBar()->isEnableKeytopChange() != 0) {
+                    return true;
+                }
+                if (mgr()->getPCKeyboard()->vt_0x48() == 0) {
+                    if (mgr()->getToolBar()->isQwerty() != 0 && mgr()->getEventObserver() != 0) {
+                        mgr()->getEventObserver()->onSE((sound::SE)0xD);
+                    }
+                    mgr()->getPCKeyboard()->vt_0x4C(1);
+                }
+                while (keySet.IsValid()) {
+                    wchar_t wc = keySet.GetWChar();
+                    u8 key = keySet.GetKey();
+                    if (wc == 0x20) {
+                        if (mods & 0x8) {
+                            u32 data[2] = {scTriggerData[0], mods};
+                            sendCommand(0x26, data);
+                        }
+                    }
+                    else if (wc != 0) {
+                        bool send = true;
+                        if (mgr()->getToolBar()->isQwerty() == 0 &&
+                            mgr()->getCellPhoneKeyboard()->isNumeric() != 0) {
+                            if ((int)wc == 0x2F) {
+                                goto bad_wc;
+                            }
+                            if ((int)wc >= 0x2F) {
+                                if ((int)wc >= 0x3A) {
+                                    goto bad_wc;
+                                }
+                            }
+                            else {
+                                if ((int)wc >= 0x2E) {
+                                    if (mgr()->getCellPhoneKeyboard()->isNumericWithDot() == 0) {
+                                        goto bad_wc;
+                                    }
+                                }
+                                else {
+                                    goto bad_wc;
+                                }
+                            }
+                            goto ok_wc;
+bad_wc:
+                            send = false;
+ok_wc:;
+                        }
+                        if (send) {
+                            u32 abc = 0;
+                            if (hkbManager.GetModifierState() & 0x2) {
+                                abc |= 1;
+                            }
+                            if (hkbManager.GetModifierState() & 0x200) {
+                                abc |= 2;
+                            }
+                            if (!(abc & 1)) {
+                                pctype::LayoutByNW4R* pcKbd = mgr()->getPCKeyboard();
+                                pcKbd->mKeyState.setABCFlag(pcKbd->mKeyState.mFlags & ~0x8F);
+                            }
+                            wc = convertWCCode(wc);
+                            Packet packet = *(const Packet*)lbl_81616BC8;
+                            packet.code = wc;
+                            packet.flags = abc;
+                            sendCommand(0, &packet);
+                            if (mgr()->getLanguage() == 8) {
+                                if ((u16)(wc - 0x201C) <= 1) {
+                                    field_0x16 = field_0x16 ? 0 : 1;
+                                }
+                                else if ((u16)(wc - 0x2018) <= 1) {
+                                    field_0x15 = field_0x15 ? 0 : 1;
+                                }
+                            }
+                        }
+                    }
+                    else {
+                        bool send = true;
+                        u8 code;
+                        if (key < 0x20) {
+                            code = 0;
+                        }
+                        else if (key < 0x98) {
+                            code = scKeyMap[key - 0x20];
+                        }
+                        else if (key < 0xE0) {
+                            code = 0;
+                        }
+                        else if (key < 0xF0) {
+                            code = scKeyMap[key - 0x68];
+                        }
+                        else {
+                            code = 0;
+                        }
+                        if (code == 0x1C) {
+                            u32 m = !(hkbManager.GetModifierState() & 0x100);
+                            if (mgr()->getToolBar()->isQwerty() == 0 &&
+                                mgr()->getCellPhoneKeyboard()->isNumeric() != 0) {
+                                m = 1;
+                            }
+                            hkbManager.SetModifierState(m ? 0x100 : 0, 0x100);
+                        }
+                        if (mgr()->getToolBar()->isQwerty() == 0 &&
+                            mgr()->getCellPhoneKeyboard()->isNumeric() != 0) {
+                            if (code >= 0x1D) {
+                                if (code >= 0x21) {
+                                    send = false;
+                                }
+                            }
+                            else if (code >= 0x17) {
+                                send = false;
+                            }
+                            else if (code < 0x15) {
+                                send = false;
+                            }
+                        }
+                        if (send) {
+                            u32 data[2] = {code, mods};
+                            sendCommand(0x26, data);
+                        }
+                    }
+                    if ((int)keySet.GetKey() == 0x39) {
+                        if (mgr()->getToolBar()->isQwerty() != 0 ||
+                            mgr()->getToolBar()->isEnableKeytopChange() != 0) {
+                            mgr()->getPCKeyboard()->onPressedCaps();
+                        }
+                    }
+                    keySet = keySet.GetNext();
+                }
+                return false;
+            }
+
+            bool HWKeyboard::updateTappingShift_(input::HKBManager& hkbManager) {
+                hkbManager.GetModifierState();
+                input::HKBManager::KeySet keySet(NULL, 0);
+                keySet = hkbManager.GetTriggeredKeySet();
+                while (keySet.IsValid()) {
+                    switch (keySet.GetKey()) {
+                        case 0xE1:
+                        case 0xE5:
+                            field_0x14 = 1;
+                            return false;
+                        default:
+                            field_0x14 = 0;
+                            keySet = keySet.GetNext();
+                            break;
+                    }
+                }
+                if (field_0x14 == 0) {
+                    return false;
+                }
+                keySet = hkbManager.GetReleasedKeySet();
+                while (keySet.IsValid()) {
+                    switch (keySet.GetKey()) {
+                        case 0xE1:
+                        case 0xE5:
+                            field_0x14 = 0;
+                            if (mgr()->getToolBar()->isQwerty() != 0 &&
+                                mgr()->getPCKeyboard()->field_0x3d != 0) {
+                                sendCommand(0x2E, NULL);
+                            }
+                            return false;
+                        default:
+                            keySet = keySet.GetNext();
+                            break;
+                    }
+                }
+                return false;
+            }
             extern "C" bool updateRepeatKey___Q49textinput8keyboard5hwkey10HWKeyboardFRQ39textinput5input10HKBManager();
             extern "C" bool updateTriggerKey___Q49textinput8keyboard5hwkey10HWKeyboardFRQ39textinput5input10HKBManager();
             extern "C" bool updateTappingShift___Q49textinput8keyboard5hwkey10HWKeyboardFRQ39textinput5input10HKBManager();

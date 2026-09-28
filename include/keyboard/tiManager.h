@@ -9,6 +9,8 @@
 #include "tiToolBar.h"
 #include "tiPcKeyboard.h"
 #include "tiCellPhone.h"
+#include "tiPredictLang.h"
+#include "tiSignWindow.h"
 
 #include <nw4r/lyt/pane.h>
 #include <nw4r/lyt/arcResourceAccessor.h>
@@ -24,13 +26,13 @@ namespace textinput {
     class EventObserver {
         public:
             virtual void    onInput(CommandReceiver::INPUT_COMMAND command, void* data) {}      // 0x08
-            virtual void    onCommand(CommandReceiver::INPUT_COMMAND command, void* data) {}    // 0x0C
+            virtual void    onCommand(CommandReceiver::INPUT_COMMAND command, void* data);      // 0x0C
             virtual void    onEvent(nw4r::lyt::Pane* pane, u32 event) {}                        // 0x10
 
-            virtual void    onSE(sound::SE seId)    {}
-            virtual void    onOK()                  { printf("OK!\n"); }
-            virtual void    onCancel()              { printf("Cancel!\n"); }
-            virtual void    onOutOfLength()         { printf("OutOfLength\n"); }
+            virtual void    onSE(sound::SE seId);
+            virtual void    onOK();
+            virtual void    onCancel();
+            virtual void    onOutOfLength();
     };
     
     class Manager : public Base {
@@ -55,7 +57,7 @@ namespace textinput {
             virtual void                                setWCString(const wchar_t* string);
 
             virtual void                                setLanguage(Language language);
-            virtual Language                            getLanguage() const { return meLanguage; }
+            virtual Language                            getLanguage() const;
 
             virtual void                                setDestination(Destination destination);
 
@@ -66,7 +68,7 @@ namespace textinput {
             
             virtual void                                setAspectRatio(bool b4x3);
 
-            virtual void                                setSecretInputMode(bool secretInputMode) { mpInputForm->setSecretModeOn(secretInputMode); }
+            virtual void                                setSecretInputMode(bool secretInputMode);
 #ifdef IPL_ADDRESS_EDIT_CPP
             void enableKSXFilter(bool compatibleFilter);
 #endif
@@ -74,34 +76,36 @@ namespace textinput {
             virtual void                                setDefaultPredictionJP(int num, const char** predicts);
             virtual void                                setFixedPredictionJP(int num, const char** predicts);
 
-            virtual void                                setTitleText(const wchar_t* titleText);
+            virtual void                                setTitleText(wchar_t* titleText);
 
-            virtual void                                start() {}
-            virtual void                                end()   {}
+            virtual void                                start();
+            virtual void                                end();
 
-            virtual InputForm*                          getInputForm()                          { return mpInputForm; }
-            virtual const InputForm*                    getInputForm() const                    { return mpInputForm; }
+            virtual InputForm*                          getInputForm();
+            virtual const InputForm*                    getInputForm() const;
             
-            virtual keyboard::hwkey::HWKeyboard*        getHWKeyboard()                         { return mpHWKeyboard; }
-            virtual const keyboard::hwkey::HWKeyboard*  getHWKeyboard() const                   { return mpHWKeyboard; }
+            virtual keyboard::hwkey::HWKeyboard*        getHWKeyboard();
+            virtual const keyboard::hwkey::HWKeyboard*  getHWKeyboard() const;
             
-            virtual keyboard::pctype::LayoutByNW4R*       getPCKeyboard()                         { return mpPCKeyboard; }
-            virtual const keyboard::pctype::LayoutByNW4R* getPCKeyboard() const                   { return mpPCKeyboard; }
+            virtual keyboard::pctype::LayoutByNW4R*       getPCKeyboard();
+            virtual const keyboard::pctype::LayoutByNW4R* getPCKeyboard() const;
             
-            virtual keyboard::cellphonetype::LayoutByNW4R*       getCellPhoneKeyboard()                  { return mpCellPhoneKeyboard; }
-            virtual const keyboard::cellphonetype::LayoutByNW4R* getCellPhoneKeyboard() const            { return mpCellPhoneKeyboard; }
+            virtual keyboard::cellphonetype::LayoutByNW4R*       getCellPhoneKeyboard();
+            virtual const keyboard::cellphonetype::LayoutByNW4R* getCellPhoneKeyboard() const;
             
-            virtual void*                               getSignKeyboard()                       { return mpSignWindow; }
-            virtual const void*                         getSignKeyboard() const                 { return mpSignWindow; }
+            virtual void*                               getSignKeyboard();
+            virtual const void*                         getSignKeyboard() const;
             
-            virtual candidatebox::LayoutByNW4R*         getCandidateBox()                       { return mpCandidateBox; }
-            virtual const candidatebox::LayoutByNW4R*   getCandidateBox() const                 { return mpCandidateBox; }
+            virtual candidatebox::LayoutByNW4R*         getCandidateBox();
+            virtual const candidatebox::LayoutByNW4R*   getCandidateBox() const;
             
-            virtual toolbar::LayoutByNW4R*              getToolBar()                            { return mpToolBar; }
-            virtual const toolbar::LayoutByNW4R*        getToolBar() const                      { return mpToolBar; }
+            virtual toolbar::LayoutByNW4R*              getToolBar();
+            virtual const toolbar::LayoutByNW4R*        getToolBar() const;
             
-            virtual void*                               getPredictLanguageSelectDialog()        { return mpPredictLanguageDialog; }
-            virtual const void*                         getPredictLanguageSelectDialog() const  { return mpPredictLanguageDialog; }
+            virtual void*                               getPredictLanguageSelectDialog();
+            virtual const void*                         getPredictLanguageSelectDialog() const;
+
+            EventObserver*                              getEventObserver()                      { return mpEventObserver; }
 
             virtual inputform::EditBuffer*              createEditBuffer();
             virtual keyboard::hwkey::HWKeyboard*        createHWKeyboard();
@@ -117,8 +121,15 @@ namespace textinput {
             virtual void                                setLayoutScaleFor4x3();
 
             void                                        enableCompatibleFilter(bool compatibleFilter);
+            void                                        enableKSXFilter(bool flag);
+
+            void                                        startPredictTurnOn(bool flag);
+            bool                                        isPredictTurning() const;
 
             bool                                        isVacancy() const;
+
+        private:
+            void                                        initAspect();
 
         private:
             MEMAllocator*                           mpAllocator;                // 0x04
@@ -132,8 +143,8 @@ namespace textinput {
             InputForm*                              mpInputForm;                // 0x1C
             candidatebox::LayoutByNW4R*             mpCandidateBox;             // 0x20
             toolbar::LayoutByNW4R*                  mpToolBar;                  // 0x24
-            void*                                   mpPredictLanguageDialog;    // 0x28
-            void*                                   mpSignWindow;               // 0x2C
+            predictlang::LayoutByNW4R*              mpPredictLanguageDialog;    // 0x28
+            keyboard::signwindow::LayoutByNW4R*     mpSignWindow;               // 0x2C
 
             EventObserver*                          mpEventObserver;            // 0x30
 
