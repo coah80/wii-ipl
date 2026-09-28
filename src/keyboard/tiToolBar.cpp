@@ -1,4 +1,6 @@
+#define TI_TOOLBAR_SAMPLE_CLASS
 #include "keyboard/tiToolBar.h"
+#undef TI_TOOLBAR_SAMPLE_CLASS
 
 #include "keyboard/tiHKBManager.h"
 #include "keyboard/tiLanguageIndependentData.h"
@@ -182,7 +184,7 @@ namespace textinput {
                             }
                             break;
                         }
-                        case ANM_07:
+                        case ANM_08:
                         case ANM_11: {
                             pane->changeAnimation(ANM_09);
                             break;
