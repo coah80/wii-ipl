@@ -18,7 +18,9 @@
 
 #define IPL_CONTROLLER_NATIVE_HIERARCHY
 #define IPL_CONTROLLER_INLINE_INTERFACE
+#define IPL_CONTROLLER_OUT_OF_LINE_INTERFACE
 #include "system/iplController.h"
+#undef IPL_CONTROLLER_OUT_OF_LINE_INTERFACE
 #undef IPL_CONTROLLER_INLINE_INTERFACE
 #undef IPL_CONTROLLER_NATIVE_HIERARCHY
 #include "system/iplSystem.h"
@@ -90,6 +92,21 @@ namespace ipl {
                     break;
                 }
             }
+        }
+        bool ipl::controller::Interface::isValidBtn() const {
+            return false;
+        }
+        bool ipl::controller::Interface::downTrg(u32 button) const {
+            return false;
+        }
+        int ipl::controller::Interface::pinch() const {
+            return 0;
+        }
+        bool ipl::controller::Interface::down(u32 button) const {
+            return false;
+        }
+        KPADStatus* ipl::controller::Interface::getKPADStatus() const {
+            return NULL;
         }
         int ipl::controller::Base::decide() const {
             return unk_0x08 == 5;
@@ -325,8 +342,14 @@ namespace ipl {
         bool ipl::controller::Master::upTrg(u32 button) const {
             return call(button, kUpTrgMember);
         }
+        bool ipl::controller::Interface::upTrg(u32 button) const {
+            return false;
+        }
         bool ipl::controller::Master::repeat(u32 button) const {
             return call(button, kRepeatMember);
+        }
+        bool ipl::controller::Interface::repeat(u32 button) const {
+            return false;
         }
         int ipl::controller::Master::decide() const {
             bool current = false;
@@ -364,6 +387,71 @@ void ipl::controller::Master::setForceInvalid(bool flag) {
                 ret = ret | current;
             }
             return ret;
+        }
+        void ipl::controller::Interface::read() {}
+        int ipl::controller::Interface::getSubStickY() const {
+            return 0;
+        }
+        int ipl::controller::Interface::getSubStickX() const {
+            return 0;
+        }
+        int ipl::controller::Interface::getMainStickY() const {
+            return 0;
+        }
+        int ipl::controller::Interface::getMainStickX() const {
+            return 0;
+        }
+        bool ipl::controller::Interface::isValidDpd() const {
+            return false;
+        }
+        PADStatus* ipl::controller::Interface::getPADStatus() const {
+            return NULL;
+        }
+        f32 ipl::controller::Interface::getDpdDistance() const {
+            return 0.0f;
+        }
+        ipl::math::VEC2 ipl::controller::Interface::getHorizon() const {
+            return ipl::math::VEC2(0.0f, 0.0f);
+        }
+        ipl::math::VEC2 ipl::controller::Interface::getDpdProjectionPos() const {
+            return ipl::math::VEC2(0.0f, 0.0f);
+        }
+        ipl::math::VEC2 ipl::controller::Interface::getDpdPos() const {
+            return ipl::math::VEC2(0.0f, 0.0f);
+        }
+        int ipl::controller::Interface::getClassicReleaseFlag() const {
+            return 0;
+        }
+        int ipl::controller::Interface::getClassicTrigFlag() const {
+            return 0;
+        }
+        int ipl::controller::Interface::getClassicHoldFlag() const {
+            return 0;
+        }
+        int ipl::controller::Interface::getReleaseFlag() const {
+            return 0;
+        }
+        int ipl::controller::Interface::getTrigFlag() const {
+            return 0;
+        }
+        int ipl::controller::Interface::getHoldFlag() const {
+            return 0;
+        }
+        void ipl::controller::Interface::cancelRumbling() {}
+        BOOL ipl::controller::Interface::rumble(int type) {
+            return FALSE;
+        }
+        int ipl::controller::Interface::pinchOffTrg() const {
+            return 0;
+        }
+        int ipl::controller::Interface::pinchTrg() const {
+            return 0;
+        }
+        int ipl::controller::Interface::getChannel() const {
+            return -1;
+        }
+        int ipl::controller::Interface::getType() const {
+            return -1;
         }
         void ipl::controller::Base::setForceInvalid(bool flag) {
             unk_0x1C = flag;
