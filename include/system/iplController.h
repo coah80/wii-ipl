@@ -118,11 +118,11 @@ namespace ipl {
 
             virtual bool setForceInvalid(bool flag);  // 0x74
 
-            virtual f32 getMainStickX() const;  // 0x78
-            virtual f32 getMainStickY() const;  // 0x7C
+            virtual int getMainStickX() const;  // 0x78
+            virtual int getMainStickY() const;  // 0x7C
 
-            virtual f32 getSubStickX() const;  // 0x80
-            virtual f32 getSubStickY() const;  // 0x84
+            virtual int getSubStickX() const;  // 0x80
+            virtual int getSubStickY() const;  // 0x84
 
             virtual void read();  // 0x88
 
@@ -169,10 +169,10 @@ namespace ipl {
             virtual math::VEC2 getDpdPos() const override;
             virtual math::VEC2 getDpdProjectionPos() const override;
             virtual math::VEC2 getHorizon() const override;
-            virtual f32 getMainStickX() const override;
-            virtual f32 getMainStickY() const override;
-            virtual f32 getSubStickX() const override;
-            virtual f32 getSubStickY() const override;
+            virtual int getMainStickX() const override;
+            virtual int getMainStickY() const override;
+            virtual int getSubStickX() const override;
+            virtual int getSubStickY() const override;
             virtual BOOL rumble(int type = 0) override;
             virtual void read() override;
         };
@@ -228,6 +228,7 @@ namespace ipl {
         class Classic : public Revolution {
         public:
             Classic(int arg0, KPADStatus& arg1);
+            virtual ~Classic();
 
             virtual bool down(u32 button) const override;
             virtual bool downTrg(u32 button) const override;

@@ -13,8 +13,10 @@
 #include "system/iplController.h"
 #include "system/iplSystem.h"
 
-const f32 lbl_8160D2C0[] = {0.2, 0.3, 0, 0};
+nw4r::ut::Rect::Rect() : left(0.0f), top(0.0f), right(0.0f), bottom(0.0f) {}
+
 extern "C" void __ct__Q34nw4r2ut4RectFv();
+const f32 lbl_8160D2C0[] = {0.2, 0.3, 0, 0};
 typedef void (*ControllerDataFunction)();
 #pragma push
 #pragma section const_type ".data"
@@ -377,43 +379,6 @@ extern "C" void __nw__FUlPQ23EGG4Heapi();
 extern "C" void read__Q33ipl10controller7ManagerFv();
 extern "C" void __dl__FPv();
 
-extern "C" asm void __ct__Q34nw4r2ut4RectFv() {
-    nofralloc
-    lfs f0, lbl_81694454
-    stfs f0, 0(r3)
-    stfs f0, 4(r3)
-    stfs f0, 8(r3)
-    stfs f0, 0xc(r3)
-    blr
-}
-
-extern "C" asm void __dt__Q33ipl10controller7ClassicFv() {
-    nofralloc
-    stwu r1, -0x10(r1)
-    mflr r0
-    cmpwi r3, 0
-    stw r0, 0x14(r1)
-    stw r31, 0xc(r1)
-    mr r31, r4
-    stw r30, 0x8(r1)
-    mr r30, r3
-    beq classic_dtor_done
-    li r4, 0
-    bl __dt__Q33ipl10controller10RevolutionFv
-    cmpwi r31, 0
-    ble classic_dtor_done
-    mr r3, r30
-    bl __dl__FPv
-classic_dtor_done:
-    mr r3, r30
-    lwz r31, 0xc(r1)
-    lwz r30, 0x8(r1)
-    lwz r0, 0x14(r1)
-    mtlr r0
-    addi r1, r1, 0x10
-    blr
-}
-
 extern "C" asm void __dt__Q33ipl10controller4CoreFv() {
     nofralloc
     stwu r1, -0x10(r1)
@@ -468,284 +433,11 @@ freestyle_dtor_done:
     blr
 }
 
-extern "C" asm void getMainStickX__Q33ipl10controller9InterfaceCFv() {
-    nofralloc
-    li r3, 0
-    blr
-}
 
-extern "C" asm void getMainStickY__Q33ipl10controller9InterfaceCFv() {
-    nofralloc
-    li r3, 0
-    blr
-}
 
-extern "C" asm void getSubStickX__Q33ipl10controller9InterfaceCFv() {
-    nofralloc
-    li r3, 0
-    blr
-}
 
-extern "C" asm void getSubStickY__Q33ipl10controller9InterfaceCFv() {
-    nofralloc
-    li r3, 0
-    blr
-}
 
-extern "C" asm void getDpdPos__Q33ipl10controller10RevolutionCFv() {
-    nofralloc
-    stwu r1, -0x10(r1)
-    mflr r0
-    lwz r4, 0x20(r3)
-    stw r0, 0x14(r1)
-    addi r3, r1, 8
-    lfs f1, 0x20(r4)
-    lfs f2, 0x24(r4)
-    bl __ct__Q33ipl4math4VEC2Fff
-    lwz r0, 0x14(r1)
-    mr r4, r3
-    lwz r3, 0(r3)
-    lwz r4, 4(r4)
-    mtlr r0
-    addi r1, r1, 0x10
-    blr
-}
 
-extern "C" asm void getHorizon__Q33ipl10controller10RevolutionCFv() {
-    nofralloc
-    stwu r1, -0x10(r1)
-    mflr r0
-    lwz r4, 0x20(r3)
-    stw r0, 0x14(r1)
-    addi r3, r1, 8
-    lfs f1, 0x34(r4)
-    lfs f2, 0x38(r4)
-    bl __ct__Q33ipl4math4VEC2Fff
-    lwz r0, 0x14(r1)
-    mr r4, r3
-    lwz r3, 0(r3)
-    lwz r4, 4(r4)
-    mtlr r0
-    addi r1, r1, 0x10
-    blr
-}
-
-extern "C" asm void repeat__Q33ipl10controller10RevolutionCFUl() {
-    nofralloc
-    stwu r1, -0x10(r1)
-    mflr r0
-    stw r0, 0x14(r1)
-    stw r31, 0xc(r1)
-    li r31, 0
-    stw r30, 8(r1)
-    mr r30, r3
-    lwz r12, 0(r3)
-    lwz r12, 0x14(r12)
-    mtctr r12
-    bctrl
-    cmpwi r3, 0
-    beq iplController_Revolution_repeat_L1
-    lwz r3, 0x20(r30)
-    lwz r0, 0(r3)
-    rlwinm. r0, r0, 0, 0, 0
-    beq iplController_Revolution_repeat_L1
-    li r31, 1
-iplController_Revolution_repeat_L1:
-    mr r3, r31
-    lwz r31, 0xc(r1)
-    lwz r30, 8(r1)
-    lwz r0, 0x14(r1)
-    mtlr r0
-    addi r1, r1, 0x10
-    blr
-}
-
-extern "C" asm void down__Q33ipl10controller7ClassicCFUl() {
-    nofralloc
-    stwu r1, -0x20(r1)
-    mflr r0
-    stw r0, 0x24(r1)
-    addi r11, r1, 0x20
-    bl _savegpr_29
-    lwz r12, 0(r3)
-    mr r29, r3
-    mr r30, r4
-    li r31, 0
-    lwz r12, 0x6c(r12)
-    mtctr r12
-    bctrl
-    cmpwi r3, 0
-    beq iplController_Classic_down_L1
-    lwz r3, 0x20(r29)
-    li r4, 1
-    lwz r0, 0(r3)
-    and r0, r0, r30
-    clrlwi. r0, r0, 16
-    bne iplController_Classic_down_L2
-    lwz r3, 0x60(r3)
-    srwi r0, r30, 16
-    and. r0, r3, r0
-    bne iplController_Classic_down_L2
-    li r4, 0
-iplController_Classic_down_L2:
-    cmpwi r4, 0
-    beq iplController_Classic_down_L1
-    li r31, 1
-iplController_Classic_down_L1:
-    addi r11, r1, 0x20
-    mr r3, r31
-    bl _restgpr_29
-    lwz r0, 0x24(r1)
-    mtlr r0
-    addi r1, r1, 0x20
-    blr
-}
-
-extern "C" asm void downTrg__Q33ipl10controller7ClassicCFUl() {
-    nofralloc
-    stwu r1, -0x20(r1)
-    mflr r0
-    stw r0, 0x24(r1)
-    addi r11, r1, 0x20
-    bl _savegpr_29
-    lwz r12, 0(r3)
-    mr r29, r3
-    mr r30, r4
-    li r31, 0
-    lwz r12, 0x6c(r12)
-    mtctr r12
-    bctrl
-    cmpwi r3, 0
-    beq iplController_Classic_downTrg_L1
-    lwz r5, 0x20(r29)
-    clrlwi r0, r30, 16
-    li r4, 1
-    lwz r3, 4(r5)
-    and. r0, r3, r0
-    bne iplController_Classic_downTrg_L2
-    lwz r3, 0x64(r5)
-    srwi r0, r30, 16
-    and. r0, r3, r0
-    bne iplController_Classic_downTrg_L2
-    li r4, 0
-iplController_Classic_downTrg_L2:
-    cmpwi r4, 0
-    beq iplController_Classic_downTrg_L1
-    li r31, 1
-iplController_Classic_downTrg_L1:
-    addi r11, r1, 0x20
-    mr r3, r31
-    bl _restgpr_29
-    lwz r0, 0x24(r1)
-    mtlr r0
-    addi r1, r1, 0x20
-    blr
-}
-
-extern "C" asm void upTrg__Q33ipl10controller7ClassicCFUl() {
-    nofralloc
-    stwu r1, -0x20(r1)
-    mflr r0
-    stw r0, 0x24(r1)
-    addi r11, r1, 0x20
-    bl _savegpr_29
-    lwz r12, 0(r3)
-    mr r29, r3
-    mr r30, r4
-    li r31, 0
-    lwz r12, 0x6c(r12)
-    mtctr r12
-    bctrl
-    cmpwi r3, 0
-    beq iplController_Classic_upTrg_L1
-    lwz r5, 0x20(r29)
-    clrlwi r0, r30, 16
-    li r4, 1
-    lwz r3, 8(r5)
-    and. r0, r3, r0
-    bne iplController_Classic_upTrg_L2
-    lwz r3, 0x68(r5)
-    srwi r0, r30, 16
-    and. r0, r3, r0
-    bne iplController_Classic_upTrg_L2
-    li r4, 0
-iplController_Classic_upTrg_L2:
-    cmpwi r4, 0
-    beq iplController_Classic_upTrg_L1
-    li r31, 1
-iplController_Classic_upTrg_L1:
-    addi r11, r1, 0x20
-    mr r3, r31
-    bl _restgpr_29
-    lwz r0, 0x24(r1)
-    mtlr r0
-    addi r1, r1, 0x20
-    blr
-}
-
-extern "C" asm void downTrg__Q33ipl10controller10RevolutionCFUl() {
-    nofralloc
-    stwu r1, -0x20(r1)
-    mflr r0
-    stw r0, 0x24(r1)
-    addi r11, r1, 0x20
-    bl _savegpr_29
-    lwz r12, 0(r3)
-    mr r29, r3
-    mr r30, r4
-    li r31, 0
-    lwz r12, 0x6c(r12)
-    mtctr r12
-    bctrl
-    cmpwi r3, 0
-    beq iplController_Revolution_downTrg_L1
-    lwz r3, 0x20(r29)
-    clrlwi r0, r30, 16
-    lwz r3, 4(r3)
-    and. r0, r3, r0
-    beq iplController_Revolution_downTrg_L1
-    li r31, 1
-iplController_Revolution_downTrg_L1:
-    addi r11, r1, 0x20
-    mr r3, r31
-    bl _restgpr_29
-    lwz r0, 0x24(r1)
-    mtlr r0
-    addi r1, r1, 0x20
-    blr
-}
-
-extern "C" asm void upTrg__Q33ipl10controller10RevolutionCFUl() {
-    nofralloc
-    stwu r1, -0x20(r1)
-    mflr r0
-    stw r0, 0x24(r1)
-    addi r11, r1, 0x20
-    bl _savegpr_29
-    lwz r12, 0(r3)
-    mr r29, r3
-    mr r30, r4
-    li r31, 0
-    lwz r12, 0x6c(r12)
-    mtctr r12
-    bctrl
-    cmpwi r3, 0
-    beq iplController_Revolution_upTrg_L1
-    lwz r3, 0x20(r29)
-    clrlwi r0, r30, 16
-    lwz r3, 8(r3)
-    and. r0, r3, r0
-    beq iplController_Revolution_upTrg_L1
-    li r31, 1
-iplController_Revolution_upTrg_L1:
-    addi r11, r1, 0x20
-    mr r3, r31
-    bl _restgpr_29
-    lwz r0, 0x24(r1)
-    mtlr r0
-    addi r1, r1, 0x20
-    blr
-}
 
 extern "C" asm void decide__Q33ipl10controller6MasterCFv() {
     nofralloc
@@ -788,38 +480,12 @@ iplController_Master_decide_L2:
     blr
 }
 
-extern "C" asm void setForceInvalid__Q33ipl10controller6MasterFb() {
-    nofralloc
-    stwu r1, -0x20(r1)
-    mflr r0
-    stw r0, 0x24(r1)
-    addi r11, r1, 0x20
-    bl _savegpr_28
-    mr r28, r3
-    mr r29, r4
-    li r30, 0
-    li r31, 0
-iplController_Master_setForceInvalid_L1:
-    lwz r3, 4(r28)
-    lwzx r3, r3, r31
-    cmpwi r3, 0
-    beq iplController_Master_setForceInvalid_L2
-    lwz r12, 0(r3)
-    mr r4, r29
-    lwz r12, 0x74(r12)
-    mtctr r12
-    bctrl
-iplController_Master_setForceInvalid_L2:
-    addi r30, r30, 1
-    addi r31, r31, 4
-    cmpwi r30, 4
-    blt iplController_Master_setForceInvalid_L1
-    addi r11, r1, 0x20
-    bl _restgpr_28
-    lwz r0, 0x24(r1)
-    mtlr r0
-    addi r1, r1, 0x20
-    blr
+void ipl::controller::Master::setForceInvalid(bool flag) {
+    for (int i = 0; i < 4; i++) {
+        if (mpControllers[i] != NULL) {
+            mpControllers[i]->setForceInvalid(flag);
+        }
+    }
 }
 
 extern "C" asm void __ct__Q33ipl10controller10RevolutionFiiR10KPADStatus() {
@@ -912,6 +578,106 @@ namespace ipl {
     }
 
     namespace controller {
+        Classic::~Classic() {}
+
+        bool Revolution::repeat(u32 button) const {
+            return down(button) && (unk_0x20->hold & 0x80000000) != 0;
+        }
+
+        bool Revolution::downTrg(u32 button) const {
+            bool ret = false;
+            if (isValidBtn()) {
+                if (unk_0x20->trig & (button & 0xFFFF)) {
+                    ret = true;
+                }
+            }
+            return ret;
+        }
+
+        bool Revolution::upTrg(u32 button) const {
+            bool ret = false;
+            if (isValidBtn()) {
+                if (unk_0x20->release & (button & 0xFFFF)) {
+                    ret = true;
+                }
+            }
+            return ret;
+        }
+
+        bool Classic::down(u32 button) const {
+            bool ret = false;
+            if (isValidBtn()) {
+                bool pressed = true;
+                if ((unk_0x20->hold & (button & 0xFFFF)) == 0) {
+                    if ((unk_0x20->ex_status.cl.hold & (button >> 16)) == 0) {
+                        pressed = false;
+                    }
+                }
+                if (pressed) {
+                    ret = true;
+                }
+            }
+            return ret;
+        }
+
+        bool Classic::downTrg(u32 button) const {
+            bool ret = false;
+            if (isValidBtn()) {
+                bool pressed = true;
+                KPADStatus* status = unk_0x20;
+                if ((status->trig & (button & 0xFFFF)) == 0) {
+                    if ((status->ex_status.cl.trig & (button >> 16)) == 0) {
+                        pressed = false;
+                    }
+                }
+                if (pressed) {
+                    ret = true;
+                }
+            }
+            return ret;
+        }
+
+        bool Classic::upTrg(u32 button) const {
+            bool ret = false;
+            if (isValidBtn()) {
+                bool pressed = true;
+                KPADStatus* status = unk_0x20;
+                if ((status->release & (button & 0xFFFF)) == 0) {
+                    if ((status->ex_status.cl.release & (button >> 16)) == 0) {
+                        pressed = false;
+                    }
+                }
+                if (pressed) {
+                    ret = true;
+                }
+            }
+            return ret;
+        }
+
+        math::VEC2 Revolution::getDpdPos() const {
+            return math::VEC2(unk_0x20->pos.x, unk_0x20->pos.y);
+        }
+
+        math::VEC2 Revolution::getHorizon() const {
+            return math::VEC2(unk_0x20->horizon.x, unk_0x20->horizon.y);
+        }
+
+        int Interface::getMainStickX() const {
+            return 0;
+        }
+
+        int Interface::getMainStickY() const {
+            return 0;
+        }
+
+        int Interface::getSubStickX() const {
+            return 0;
+        }
+
+        int Interface::getSubStickY() const {
+            return 0;
+        }
+
         void Base::read() {
             if (isValidBtn()) {
                 if (downTrg(BTN_INTERACT)) {
@@ -1493,95 +1259,29 @@ namespace ipl {
             mRumbleType = -1;
         }
 
-        extern "C" asm void read__Q33ipl10controller10RevolutionFv() {
-            nofralloc
-            stwu r1, -0x10(r1)
-            mflr r0
-            stw r0, 0x14(r1)
-            stw r31, 0xc(r1)
-            mr r31, r3
-            lwz r12, 0(r3)
-            lwz r12, 0x70(r12)
-            mtctr r12
-            bctrl
-            cmpwi r3, 0
-            bne revolution_read_dpd_done
-            lfs f1, lbl_81694450
-            lwz r3, 0x20(r31)
-            lfs f0, lbl_81694454
-            stfs f1, 0x24(r3)
-            lwz r3, 0x20(r31)
-            stfs f1, 0x20(r3)
-            lwz r3, 0x20(r31)
-            stfs f0, 0x30(r3)
-            lwz r3, 0x20(r31)
-            stfs f0, 0x2c(r3)
-            lwz r3, 0x20(r31)
-            stfs f0, 0x28(r3)
-        revolution_read_dpd_done:
-            lbz r0, 0x1d(r31)
-            mr r3, r31
-            stb r0, 0x1e(r31)
-            lwz r12, 0(r31)
-            lwz r12, 0x6c(r12)
-            mtctr r12
-            bctrl
-            cmpwi r3, 0
-            beq revolution_read_btn_invalid
-            lbz r0, 0x1e(r31)
-            cmpwi r0, 0
-            bne revolution_read_btn_was_down
-            lwz r12, 0(r31)
-            mr r3, r31
-            li r4, 0x800
-            lwz r12, 0x14(r12)
-            mtctr r12
-            bctrl
-            cmpwi r3, 0
-            beq revolution_read_btn_end
-            lwz r12, 0(r31)
-            mr r3, r31
-            li r4, 0x400
-            lwz r12, 0x14(r12)
-            mtctr r12
-            bctrl
-            cmpwi r3, 0
-            beq revolution_read_btn_end
-            li r0, 1
-            stb r0, 0x1d(r31)
-            b revolution_read_btn_end
-        revolution_read_btn_was_down:
-            lwz r12, 0(r31)
-            mr r3, r31
-            li r4, 0x800
-            lwz r12, 0x14(r12)
-            mtctr r12
-            bctrl
-            cmpwi r3, 0
-            beq revolution_read_clear_btn
-            lwz r12, 0(r31)
-            mr r3, r31
-            li r4, 0x400
-            lwz r12, 0x14(r12)
-            mtctr r12
-            bctrl
-            cmpwi r3, 0
-            bne revolution_read_btn_end
-        revolution_read_clear_btn:
-            li r0, 0
-            stb r0, 0x1d(r31)
-            b revolution_read_btn_end
-        revolution_read_btn_invalid:
-            li r0, 0
-            stb r0, 0x1d(r31)
-        revolution_read_btn_end:
-            mr r3, r31
-            bl read__Q33ipl10controller4BaseFv
-            lwz r0, 0x14(r1)
-            lwz r31, 0xc(r1)
-            mtlr r0
-            addi r1, r1, 0x10
-            blr
+        void Revolution::read() {
+            if (!isValidDpd()) {
+                unk_0x20->pos.y = 1.0f / 0.0f;
+                unk_0x20->pos.x = 1.0f / 0.0f;
+                unk_0x20->speed = 0.0f;
+                unk_0x20->vec.y = 0.0f;
+                unk_0x20->vec.x = 0.0f;
+            }
+
+            unk_0x1E = unk_0x1D;
+            if (isValidBtn()) {
+                if (unk_0x1E == 0) {
+                    if (down(0x800) && down(0x400)) {
+                        unk_0x1D = 1;
+                    }
+                } else if (!down(0x800) || !down(0x400)) {
+                    unk_0x1D = 0;
+                }
+            } else {
+                unk_0x1D = 0;
+            }
+
+            Base::read();
         }
 
         bool Revolution::isValidDpd() const {
