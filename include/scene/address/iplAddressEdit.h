@@ -121,6 +121,7 @@ namespace ipl {
                 bool mbValidMail;
                 bool mbNameNotEmpty;
                 bool mbHasWiiNo;
+                AddressEdit* mpCallbackOwner;
             };
 
             enum {
@@ -144,7 +145,6 @@ namespace ipl {
             TextBalloon* mpBalloon;
             nand::LayoutFile* mpBalloonFile;
             String mString;
-            AddressEdit* mpCallbackOwner;
             bool mbParentalOK;
             nigaoe::Object* mpNigaoe;
             RFLCreateID mCreateID;

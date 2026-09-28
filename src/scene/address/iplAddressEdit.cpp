@@ -79,7 +79,7 @@ ipl::scene::AddressEdit::AddressEdit(EGG::Heap* heap, int friendCode)
     mSelectedButton = -1;
     mSubState = -1;
     mSelectedFriend = 0;
-    mpCallbackOwner = this;
+    mString.mpCallbackOwner = this;
     mString.clear();
     mbParentalOK = false;
     mpNigaoe = NULL;
