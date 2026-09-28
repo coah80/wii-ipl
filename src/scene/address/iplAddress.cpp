@@ -1893,7 +1893,7 @@ namespace ipl {
         }
 
         void FriendListCache::swap(u32 indexA, u32 indexB) {
-            NWC24FriendInfo work;
+            NWC24FriendInfo work ALIGN32;
 
             memcpy(&work, &mInfos[indexA], sizeof(NWC24FriendInfo));
             memcpy(&mInfos[indexA], &mInfos[indexB], sizeof(NWC24FriendInfo));
@@ -1931,9 +1931,9 @@ namespace ipl {
         }
 
         void FriendListCache::sendRegisterMail(u32 index) {
-            NWC24MsgObj msgObj;
             wchar_t idStr[0x11];
-            wchar_t text[0x1040];
+            NWC24MsgObj msgObj;
+            wchar_t text[0x400];
 
             nwc24::Manager* manager = System::getNwc24Manager();
             const NWC24FriendInfo* info = &mInfos[index];
@@ -1949,7 +1949,9 @@ namespace ipl {
 
                 wchar_t* p;
                 while ((p = wcsstr(text, L"1234567890123456")) != NULL) {
-                    memcpy(p, idStr, 0x10 * sizeof(wchar_t));
+                    for (int i = 0; i < 0x10; i++) {
+                        p[i] = idStr[i];
+                    }
                 }
             }
 
