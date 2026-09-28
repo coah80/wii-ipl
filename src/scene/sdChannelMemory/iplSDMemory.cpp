@@ -15,20 +15,32 @@
 namespace ipl {
     namespace scene {
         // clang-format off
+        extern "C" __declspec(section ".sdata") char lbl_81696F50[] = "A";
+        extern "C" __declspec(section ".sdata") char lbl_81696F52[] = "B";
+        extern "C" __declspec(section ".sdata") char lbl_81696F54[] = "B_BtnA";
+        extern "C" __declspec(section ".sdata") char lbl_81696F5B[] = "C";
+        extern "C" __declspec(section ".sdata") char lbl_81696F5D[] = "D";
+        extern "C" __declspec(section ".sdata") char lbl_81696F5F[] = "B_00";
+        extern "C" __declspec(section ".sdata") char lbl_81696F64[] = "C_00";
+        extern "C" __declspec(section ".sdata") char lbl_81696F69[] = "D_00";
+        extern "C" __declspec(section ".sdata") char lbl_81696F6E[] = "B_ArwR";
+        extern "C" __declspec(section ".sdata") char lbl_81696F75[] = "B_ArwL";
         static const char* scDialogABtnPanes[] = {
-            "A", "B", "B_BtnA",
+            lbl_81696F50, lbl_81696F52, lbl_81696F54,
         };
 
         static const char* scDialogBBtnPanes5[] = {
-            "A", "B", "C", "D", "B_BtnA",
+            lbl_81696F50, lbl_81696F52, lbl_81696F5B, lbl_81696F5D, lbl_81696F54,
         };
 
         static const char* scDialogBBtnPanes4[] = {
-            "B_00", "C_00", "D_00", "B_BtnA",
+            lbl_81696F5F, lbl_81696F64, lbl_81696F69, lbl_81696F54,
         };
 
+        extern "C" char lbl_81655CD0[] = "B_CalExit";
+        extern "C" char lbl_81655CDA[] = "B_CalExit_00";
         static const char* scDialogCBtnPanes[] = {
-            "B_ArwR", "B_ArwL", "B_CalExit", "B_CalExit_00",
+            lbl_81696F6E, lbl_81696F75, lbl_81655CD0, lbl_81655CDA,
         };
         // clang-format on
 
@@ -68,21 +80,98 @@ namespace ipl {
         SDMemory::~SDMemory() {
         }
 
+        extern "C" char lbl_81655CF8[] = "mn_DialogWindow_ChChange_a.brlyt";
+        extern "C" char lbl_81655D19[] = "mn_DialogWindow_ChChange_a_DialogIn.brlan";
+        extern "C" char lbl_81655D43[] = "mn_DialogWindow_ChChange_a_DialogOut.brlan";
+        extern "C" char lbl_81655D6E[] = "mn_DialogWindow_ChChange_a_FocusBtn_on.brlan";
+        extern "C" char lbl_81655D9B[] = "G_FocusBtnA";
+        extern "C" char lbl_81655DA7[] = "mn_DialogWindow_ChChange_a_FocusBtn_off.brlan";
+        extern "C" char lbl_81655DD5[] = "mn_DialogWindow_ChChange_a_SelectBtn_Ac.brlan";
+        extern "C" char lbl_81655E03[] = "G_SelectBtnA";
+        extern "C" char lbl_81655E10[] = "mn_DialogWindow_ChChange_a_BtnA_Rollover.brlan";
+        extern "C" char lbl_81655E3F[] = "mn_DialogWindow_ChChange_a_BtnA_Rollout.brlan";
+        extern "C" char lbl_81655E6D[] = "mn_DialogWindow_ChChange_a_BtnA_On.brlan";
+        extern "C" char lbl_81655E96[] = "mn_DialogWindow_ChChange_a_BtnB_Rollover.brlan";
+        extern "C" char lbl_81655EC5[] = "mn_DialogWindow_ChChange_a_BtnB_Rollout.brlan";
+        extern "C" char lbl_81655EF3[] = "mn_DialogWindow_ChChange_a_BtnB_On.brlan";
+        extern "C" char lbl_81655F1C[] = "T_Dialog_00";
+        extern "C" char lbl_81655F28[] = "TextBox_05";
+        extern "C" char lbl_81655F33[] = "TextBox_06";
+        extern "C" char lbl_81655F3E[] = "mn_DialogWindow_ChChange_b.brlyt";
+        extern "C" char lbl_81655F5F[] = "mn_DialogWindow_ChChange_b_DialogIn.brlan";
+        extern "C" char lbl_81655F89[] = "mn_DialogWindow_ChChange_b_DialogOut.brlan";
+        extern "C" char lbl_81655FB4[] = "mn_DialogWindow_ChChange_b_FocusBtn_on.brlan";
+        extern "C" char lbl_81655FE1[] = "mn_DialogWindow_ChChange_b_FocusBtn_off.brlan";
+        extern "C" char lbl_8165600F[] = "mn_DialogWindow_ChChange_b_SelectBtn_Ac.brlan";
+        extern "C" char lbl_8165603D[] = "mn_DialogWindow_ChChange_b_BtnA_Rollover.brlan";
+        extern "C" char lbl_8165606C[] = "mn_DialogWindow_ChChange_b_BtnA_Rollout.brlan";
+        extern "C" char lbl_8165609A[] = "mn_DialogWindow_ChChange_b_BtnA_On.brlan";
+        extern "C" char lbl_816560C3[] = "mn_DialogWindow_ChChange_b_BtnB_Rollover.brlan";
+        extern "C" char lbl_816560F2[] = "mn_DialogWindow_ChChange_b_BtnB_Rollout.brlan";
+        extern "C" char lbl_81656120[] = "mn_DialogWindow_ChChange_b_BtnB_On.brlan";
+        extern "C" char lbl_81656149[] = "mn_DialogWindow_ChChange_b_BtnC_Rollover.brlan";
+        extern "C" char lbl_81656178[] = "mn_DialogWindow_ChChange_b_BtnC_Rollout.brlan";
+        extern "C" char lbl_816561A6[] = "mn_DialogWindow_ChChange_b_BtnC_On.brlan";
+        extern "C" char lbl_816561CF[] = "mn_DialogWindow_ChChange_b_BtnD_Rollover.brlan";
+        extern "C" char lbl_816561FE[] = "mn_DialogWindow_ChChange_b_BtnD_Rollout.brlan";
+        extern "C" char lbl_8165622C[] = "mn_DialogWindow_ChChange_b_BtnD_On.brlan";
+        extern "C" char lbl_81656255[] = "T_Dialog";
+        extern "C" char lbl_8165625E[] = "TextBox_00";
+        extern "C" char lbl_81656269[] = "TextBox_01";
+        extern "C" char lbl_81656274[] = "TextBox_02";
+        extern "C" char lbl_8165627F[] = "TextBox_03";
+        extern "C" char lbl_8165628A[] = "TextBox_07";
+        extern "C" char lbl_81656295[] = "mn_DialogWindow_ChChange_c.brlyt";
+        extern "C" char lbl_816562B6[] = "T_Letter";
+        extern "C" char lbl_816562BF[] = "mn_DialogWindow_ChChange_c_Dialog_FadeIn.brlan";
+        extern "C" char lbl_816562EE[] = "mn_DialogWindow_ChChange_c_Dialog_FadeOut.brlan";
+        extern "C" char lbl_8165631E[] = "mn_DialogWindow_ChChange_c_Back_RollOver.brlan";
+        extern "C" char lbl_8165634D[] = "G_Back_Focus";
+        extern "C" char lbl_8165635A[] = "mn_DialogWindow_ChChange_c_Back_Rollout.brlan";
+        extern "C" char lbl_81656388[] = "mn_DialogWindow_ChChange_c_Back_On.brlan";
+        extern "C" char lbl_816563B1[] = "G_Back_Ac";
+        extern "C" char lbl_816563BB[] = "mn_DialogWindow_ChChange_c_Move_RollOver.brlan";
+        extern "C" char lbl_816563EA[] = "G_Move_Focus";
+        extern "C" char lbl_816563F7[] = "mn_DialogWindow_ChChange_c_Move_Rollout.brlan";
+        extern "C" char lbl_81656425[] = "mn_DialogWindow_ChChange_c_Move_On.brlan";
+        extern "C" char lbl_8165644E[] = "G_Move_Ac";
+        extern "C" char lbl_81656458[] = "mn_DialogWindow_ChChange_c_FocusOn.brlan";
+        extern "C" char lbl_81656481[] = "G_ArwL_Focus";
+        extern "C" char lbl_8165648E[] = "mn_DialogWindow_ChChange_c_FocusOff.brlan";
+        extern "C" char lbl_816564B8[] = "mn_DialogWindow_ChChange_c_Select.brlan";
+        extern "C" char lbl_816564E0[] = "G_ArwL_Ac";
+        extern "C" char lbl_816564EA[] = "G_ArwR_Focus";
+        extern "C" char lbl_816564F7[] = "G_ArwR_Ac";
+        extern "C" char lbl_81656501[] = "mn_DialogWindow_ChChange_c_Appear.brlan";
+        extern "C" char lbl_81656529[] = "G_ArwL_End";
+        extern "C" char lbl_81656534[] = "mn_DialogWindow_ChChange_c_Lost.brlan";
+        extern "C" char lbl_8165655A[] = "G_ArwR_End";
+        extern "C" char lbl_81656565[] = "mn_DialogWindow_ChChange_c_Loop.brlan";
+        extern "C" char lbl_8165658B[] = "G_ArwRoop";
+        extern "C" char lbl_81656595[] = "mn_DialogWindow_ChChange_c_HDActionStart.brlan";
+        extern "C" char lbl_816565C4[] = "G_ArwL_HDAc";
+        extern "C" char lbl_816565D0[] = "mn_DialogWindow_ChChange_c_HDActionEnd.brlan";
+        extern "C" char lbl_816565FD[] = "G_ArwR_HDAc";
+        extern "C" char lbl_81656609[] = "T_CalExit";
+        extern "C" char lbl_81656613[] = "T_CalExit_00";
+        extern "C" char lbl_81656620[] = "mn_DialogWindow_Background.brlyt";
+        extern "C" char lbl_81656641[] = "mn_DialogWindow_Background_DialogIn.brlan";
+        extern "C" char lbl_8165666B[] = "mn_DialogWindow_Background_DialogOut.brlan";
         void SDMemory::create(EGG::Heap* heap, nand::LayoutFile* layoutFile, SDChannelSelect* chanSel) {
             mpChanSelect = chanSel;
 
-            mpDialogA = new layout::Object(heap, layoutFile, "arc", "mn_DialogWindow_ChChange_a.brlyt");
-            mpDialogA->bindToGroup("mn_DialogWindow_ChChange_a_DialogIn.brlan", "G_InOut", false, true);
-            mpDialogA->bindToGroup("mn_DialogWindow_ChChange_a_DialogOut.brlan", "G_InOut", false, true);
-            mpDialogA->bindToGroup("mn_DialogWindow_ChChange_a_FocusBtn_on.brlan", "G_FocusBtnA", false, true);
-            mpDialogA->bindToGroup("mn_DialogWindow_ChChange_a_FocusBtn_off.brlan", "G_FocusBtnA", false, true);
-            mpDialogA->bindToGroup("mn_DialogWindow_ChChange_a_SelectBtn_Ac.brlan", "G_SelectBtnA", false, true);
-            mpDialogA->bindToGroup("mn_DialogWindow_ChChange_a_BtnA_Rollover.brlan", "G_BtnA", false, true);
-            mpDialogA->bindToGroup("mn_DialogWindow_ChChange_a_BtnA_Rollout.brlan", "G_BtnA", false, true);
-            mpDialogA->bindToGroup("mn_DialogWindow_ChChange_a_BtnA_On.brlan", "G_BtnA", false, true);
-            mpDialogA->bindToGroup("mn_DialogWindow_ChChange_a_BtnB_Rollover.brlan", "G_BtnB", false, true);
-            mpDialogA->bindToGroup("mn_DialogWindow_ChChange_a_BtnB_Rollout.brlan", "G_BtnB", false, true);
-            mpDialogA->bindToGroup("mn_DialogWindow_ChChange_a_BtnB_On.brlan", "G_BtnB", false, true);
+            mpDialogA = new layout::Object(heap, layoutFile, "arc", lbl_81655CF8);
+            mpDialogA->bindToGroup(lbl_81655D19, "G_InOut", false, true);
+            mpDialogA->bindToGroup(lbl_81655D43, "G_InOut", false, true);
+            mpDialogA->bindToGroup(lbl_81655D6E, lbl_81655D9B, false, true);
+            mpDialogA->bindToGroup(lbl_81655DA7, lbl_81655D9B, false, true);
+            mpDialogA->bindToGroup(lbl_81655DD5, lbl_81655E03, false, true);
+            mpDialogA->bindToGroup(lbl_81655E10, "G_BtnA", false, true);
+            mpDialogA->bindToGroup(lbl_81655E3F, "G_BtnA", false, true);
+            mpDialogA->bindToGroup(lbl_81655E6D, "G_BtnA", false, true);
+            mpDialogA->bindToGroup(lbl_81655E96, "G_BtnB", false, true);
+            mpDialogA->bindToGroup(lbl_81655EC5, "G_BtnB", false, true);
+            mpDialogA->bindToGroup(lbl_81655EF3, "G_BtnB", false, true);
             mpDialogA->finishBinding();
             mpDialogA->getAnim(0)->initAnmFrame();
             mpDialogA->getAnim(2)->initAnmFrame();
@@ -90,33 +179,33 @@ namespace ipl {
             mpDialogA->getAnim(8)->initAnmFrame();
 
             nw4r::lyt::TextBox* textPane;
-            textPane = (nw4r::lyt::TextBox*)mpDialogA->FindPaneByName("T_Dialog_00");
+            textPane = (nw4r::lyt::TextBox*)mpDialogA->FindPaneByName(lbl_81655F1C);
             textPane->SetString(System::getMessage(0xB0), 0);
-            textPane = (nw4r::lyt::TextBox*)mpDialogA->FindPaneByName("TextBox_05");
+            textPane = (nw4r::lyt::TextBox*)mpDialogA->FindPaneByName(lbl_81655F28);
             textPane->SetString(System::getMessage(0xBB), 0);
-            textPane = (nw4r::lyt::TextBox*)mpDialogA->FindPaneByName("TextBox_06");
+            textPane = (nw4r::lyt::TextBox*)mpDialogA->FindPaneByName(lbl_81655F33);
             textPane->SetString(System::getMessage(0xBC), 0);
             textPane = (nw4r::lyt::TextBox*)mpDialogA->FindPaneByName("T_BtnA");
             textPane->SetString(System::getMessage(0x25), 0);
 
-            mpDialogB = new layout::Object(heap, layoutFile, "arc", "mn_DialogWindow_ChChange_b.brlyt");
-            mpDialogB->bindToGroup("mn_DialogWindow_ChChange_b_DialogIn.brlan", "G_InOut", false, true);
-            mpDialogB->bindToGroup("mn_DialogWindow_ChChange_b_DialogOut.brlan", "G_InOut", false, true);
-            mpDialogB->bindToGroup("mn_DialogWindow_ChChange_b_FocusBtn_on.brlan", "G_FocusBtnA", false, true);
-            mpDialogB->bindToGroup("mn_DialogWindow_ChChange_b_FocusBtn_off.brlan", "G_FocusBtnA", false, true);
-            mpDialogB->bindToGroup("mn_DialogWindow_ChChange_b_SelectBtn_Ac.brlan", "G_SelectBtnA", false, true);
-            mpDialogB->bindToGroup("mn_DialogWindow_ChChange_b_BtnA_Rollover.brlan", "G_BtnA", false, true);
-            mpDialogB->bindToGroup("mn_DialogWindow_ChChange_b_BtnA_Rollout.brlan", "G_BtnA", false, true);
-            mpDialogB->bindToGroup("mn_DialogWindow_ChChange_b_BtnA_On.brlan", "G_BtnA", false, true);
-            mpDialogB->bindToGroup("mn_DialogWindow_ChChange_b_BtnB_Rollover.brlan", "G_BtnB", false, true);
-            mpDialogB->bindToGroup("mn_DialogWindow_ChChange_b_BtnB_Rollout.brlan", "G_BtnB", false, true);
-            mpDialogB->bindToGroup("mn_DialogWindow_ChChange_b_BtnB_On.brlan", "G_BtnB", false, true);
-            mpDialogB->bindToGroup("mn_DialogWindow_ChChange_b_BtnC_Rollover.brlan", "G_BtnC", false, true);
-            mpDialogB->bindToGroup("mn_DialogWindow_ChChange_b_BtnC_Rollout.brlan", "G_BtnC", false, true);
-            mpDialogB->bindToGroup("mn_DialogWindow_ChChange_b_BtnC_On.brlan", "G_BtnC", false, true);
-            mpDialogB->bindToGroup("mn_DialogWindow_ChChange_b_BtnD_Rollover.brlan", "G_BtnD", false, true);
-            mpDialogB->bindToGroup("mn_DialogWindow_ChChange_b_BtnD_Rollout.brlan", "G_BtnD", false, true);
-            mpDialogB->bindToGroup("mn_DialogWindow_ChChange_b_BtnD_On.brlan", "G_BtnD", false, true);
+            mpDialogB = new layout::Object(heap, layoutFile, "arc", lbl_81655F3E);
+            mpDialogB->bindToGroup(lbl_81655F5F, "G_InOut", false, true);
+            mpDialogB->bindToGroup(lbl_81655F89, "G_InOut", false, true);
+            mpDialogB->bindToGroup(lbl_81655FB4, lbl_81655D9B, false, true);
+            mpDialogB->bindToGroup(lbl_81655FE1, lbl_81655D9B, false, true);
+            mpDialogB->bindToGroup(lbl_8165600F, lbl_81655E03, false, true);
+            mpDialogB->bindToGroup(lbl_8165603D, "G_BtnA", false, true);
+            mpDialogB->bindToGroup(lbl_8165606C, "G_BtnA", false, true);
+            mpDialogB->bindToGroup(lbl_8165609A, "G_BtnA", false, true);
+            mpDialogB->bindToGroup(lbl_816560C3, "G_BtnB", false, true);
+            mpDialogB->bindToGroup(lbl_816560F2, "G_BtnB", false, true);
+            mpDialogB->bindToGroup(lbl_81656120, "G_BtnB", false, true);
+            mpDialogB->bindToGroup(lbl_81656149, "G_BtnC", false, true);
+            mpDialogB->bindToGroup(lbl_81656178, "G_BtnC", false, true);
+            mpDialogB->bindToGroup(lbl_816561A6, "G_BtnC", false, true);
+            mpDialogB->bindToGroup(lbl_816561CF, "G_BtnD", false, true);
+            mpDialogB->bindToGroup(lbl_816561FE, "G_BtnD", false, true);
+            mpDialogB->bindToGroup(lbl_8165622C, "G_BtnD", false, true);
             mpDialogB->finishBinding();
             mpDialogB->getAnim(0)->initAnmFrame();
             mpDialogB->getAnim(2)->initAnmFrame();
@@ -125,23 +214,23 @@ namespace ipl {
             mpDialogB->getAnim(0xB)->initAnmFrame();
             mpDialogB->getAnim(0xE)->initAnmFrame();
 
-            textPane = (nw4r::lyt::TextBox*)mpDialogB->FindPaneByName("T_Dialog");
+            textPane = (nw4r::lyt::TextBox*)mpDialogB->FindPaneByName(lbl_81656255);
             textPane->SetString(System::getMessage(0xB6), 0);
-            textPane = (nw4r::lyt::TextBox*)mpDialogB->FindPaneByName("TextBox_00");
+            textPane = (nw4r::lyt::TextBox*)mpDialogB->FindPaneByName(lbl_8165625E);
             textPane->SetString(System::getMessage(0xB7), 0);
-            textPane = (nw4r::lyt::TextBox*)mpDialogB->FindPaneByName("TextBox_01");
+            textPane = (nw4r::lyt::TextBox*)mpDialogB->FindPaneByName(lbl_81656269);
             textPane->SetString(System::getMessage(0xB8), 0);
-            textPane = (nw4r::lyt::TextBox*)mpDialogB->FindPaneByName("TextBox_02");
+            textPane = (nw4r::lyt::TextBox*)mpDialogB->FindPaneByName(lbl_81656274);
             textPane->SetString(System::getMessage(0xB9), 0);
-            textPane = (nw4r::lyt::TextBox*)mpDialogB->FindPaneByName("TextBox_03");
+            textPane = (nw4r::lyt::TextBox*)mpDialogB->FindPaneByName(lbl_8165627F);
             textPane->SetString(System::getMessage(0xBA), 0);
-            textPane = (nw4r::lyt::TextBox*)mpDialogB->FindPaneByName("T_Dialog_00");
+            textPane = (nw4r::lyt::TextBox*)mpDialogB->FindPaneByName(lbl_81655F1C);
             textPane->SetString(System::getMessage(0xB6), 0);
-            textPane = (nw4r::lyt::TextBox*)mpDialogB->FindPaneByName("TextBox_05");
+            textPane = (nw4r::lyt::TextBox*)mpDialogB->FindPaneByName(lbl_81655F28);
             textPane->SetString(System::getMessage(0xB8), 0);
-            textPane = (nw4r::lyt::TextBox*)mpDialogB->FindPaneByName("TextBox_06");
+            textPane = (nw4r::lyt::TextBox*)mpDialogB->FindPaneByName(lbl_81655F33);
             textPane->SetString(System::getMessage(0xB9), 0);
-            textPane = (nw4r::lyt::TextBox*)mpDialogB->FindPaneByName("TextBox_07");
+            textPane = (nw4r::lyt::TextBox*)mpDialogB->FindPaneByName(lbl_8165628A);
             textPane->SetString(System::getMessage(0xBA), 0);
 
             int numChannels = 0;
@@ -163,31 +252,31 @@ namespace ipl {
             textPane = (nw4r::lyt::TextBox*)mpDialogB->FindPaneByName("T_BtnA");
             textPane->SetString(System::getMessage(0xA5), 0);
 
-            mpDialogC = new layout::Object(heap, layoutFile, "arc", "mn_DialogWindow_ChChange_c.brlyt");
-            ((nw4r::lyt::TextBox*)mpDialogC->FindPaneByName("T_Letter"))->AllocStringBuffer(0x840);
-            mpDialogC->bindToGroup("mn_DialogWindow_ChChange_c_Dialog_FadeIn.brlan", "G_Fede", false, true);
-            mpDialogC->bindToGroup("mn_DialogWindow_ChChange_c_Dialog_FadeOut.brlan", "G_Fede", false, true);
-            mpDialogC->bindToGroup("mn_DialogWindow_ChChange_c_Back_RollOver.brlan", "G_Back_Focus", false, true);
-            mpDialogC->bindToGroup("mn_DialogWindow_ChChange_c_Back_Rollout.brlan", "G_Back_Focus", false, true);
-            mpDialogC->bindToGroup("mn_DialogWindow_ChChange_c_Back_On.brlan", "G_Back_Ac", false, true);
-            mpDialogC->bindToGroup("mn_DialogWindow_ChChange_c_Move_RollOver.brlan", "G_Move_Focus", false, true);
-            mpDialogC->bindToGroup("mn_DialogWindow_ChChange_c_Move_Rollout.brlan", "G_Move_Focus", false, true);
-            mpDialogC->bindToGroup("mn_DialogWindow_ChChange_c_Move_On.brlan", "G_Move_Ac", false, true);
-            mpDialogC->bindToGroup("mn_DialogWindow_ChChange_c_FocusOn.brlan", "G_ArwL_Focus", false, true);
-            mpDialogC->bindToGroup("mn_DialogWindow_ChChange_c_FocusOff.brlan", "G_ArwL_Focus", false, true);
-            mpDialogC->bindToGroup("mn_DialogWindow_ChChange_c_Select.brlan", "G_ArwL_Ac", false, true);
-            mpDialogC->bindToGroup("mn_DialogWindow_ChChange_c_FocusOn.brlan", "G_ArwR_Focus", false, true);
-            mpDialogC->bindToGroup("mn_DialogWindow_ChChange_c_FocusOff.brlan", "G_ArwR_Focus", false, true);
-            mpDialogC->bindToGroup("mn_DialogWindow_ChChange_c_Select.brlan", "G_ArwR_Ac", false, true);
-            mpDialogC->bindToGroup("mn_DialogWindow_ChChange_c_Appear.brlan", "G_ArwL_End", false, true);
-            mpDialogC->bindToGroup("mn_DialogWindow_ChChange_c_Lost.brlan", "G_ArwL_End", false, true);
-            mpDialogC->bindToGroup("mn_DialogWindow_ChChange_c_Appear.brlan", "G_ArwR_End", false, true);
-            mpDialogC->bindToGroup("mn_DialogWindow_ChChange_c_Lost.brlan", "G_ArwR_End", false, true);
-            mpDialogC->bindToGroup("mn_DialogWindow_ChChange_c_Loop.brlan", "G_ArwRoop", false, true);
-            mpDialogC->bindToGroup("mn_DialogWindow_ChChange_c_HDActionStart.brlan", "G_ArwL_HDAc", false, true);
-            mpDialogC->bindToGroup("mn_DialogWindow_ChChange_c_HDActionEnd.brlan", "G_ArwL_HDAc", false, true);
-            mpDialogC->bindToGroup("mn_DialogWindow_ChChange_c_HDActionStart.brlan", "G_ArwR_HDAc", false, true);
-            mpDialogC->bindToGroup("mn_DialogWindow_ChChange_c_HDActionEnd.brlan", "G_ArwR_HDAc", false, true);
+            mpDialogC = new layout::Object(heap, layoutFile, "arc", lbl_81656295);
+            ((nw4r::lyt::TextBox*)mpDialogC->FindPaneByName(lbl_816562B6))->AllocStringBuffer(0x840);
+            mpDialogC->bindToGroup(lbl_816562BF, "G_Fede", false, true);
+            mpDialogC->bindToGroup(lbl_816562EE, "G_Fede", false, true);
+            mpDialogC->bindToGroup(lbl_8165631E, lbl_8165634D, false, true);
+            mpDialogC->bindToGroup(lbl_8165635A, lbl_8165634D, false, true);
+            mpDialogC->bindToGroup(lbl_81656388, lbl_816563B1, false, true);
+            mpDialogC->bindToGroup(lbl_816563BB, lbl_816563EA, false, true);
+            mpDialogC->bindToGroup(lbl_816563F7, lbl_816563EA, false, true);
+            mpDialogC->bindToGroup(lbl_81656425, lbl_8165644E, false, true);
+            mpDialogC->bindToGroup(lbl_81656458, lbl_81656481, false, true);
+            mpDialogC->bindToGroup(lbl_8165648E, lbl_81656481, false, true);
+            mpDialogC->bindToGroup(lbl_816564B8, lbl_816564E0, false, true);
+            mpDialogC->bindToGroup(lbl_81656458, lbl_816564EA, false, true);
+            mpDialogC->bindToGroup(lbl_8165648E, lbl_816564EA, false, true);
+            mpDialogC->bindToGroup(lbl_816564B8, lbl_816564F7, false, true);
+            mpDialogC->bindToGroup(lbl_81656501, lbl_81656529, false, true);
+            mpDialogC->bindToGroup(lbl_81656534, lbl_81656529, false, true);
+            mpDialogC->bindToGroup(lbl_81656501, lbl_8165655A, false, true);
+            mpDialogC->bindToGroup(lbl_81656534, lbl_8165655A, false, true);
+            mpDialogC->bindToGroup(lbl_81656565, lbl_8165658B, false, true);
+            mpDialogC->bindToGroup(lbl_81656595, lbl_816565C4, false, true);
+            mpDialogC->bindToGroup(lbl_816565D0, lbl_816565C4, false, true);
+            mpDialogC->bindToGroup(lbl_81656595, lbl_816565FD, false, true);
+            mpDialogC->bindToGroup(lbl_816565D0, lbl_816565FD, false, true);
             mpDialogC->finishBinding();
             mpDialogC->getAnim(0)->initAnmFrame();
             mpDialogC->getAnim(2)->initAnmFrame();
@@ -199,14 +288,14 @@ namespace ipl {
             pAnim->initFrame();
             pAnim->restart();
 
-            textPane = (nw4r::lyt::TextBox*)mpDialogC->FindPaneByName("T_CalExit");
+            textPane = (nw4r::lyt::TextBox*)mpDialogC->FindPaneByName(lbl_81656609);
             textPane->SetString(System::getMessage(0xA5), 0);
-            textPane = (nw4r::lyt::TextBox*)mpDialogC->FindPaneByName("T_CalExit_00");
+            textPane = (nw4r::lyt::TextBox*)mpDialogC->FindPaneByName(lbl_81656613);
             textPane->SetString(System::getMessage(0xC4), 0);
 
-            mpDialogBg = new layout::Object(heap, layoutFile, "arc", "mn_DialogWindow_Background.brlyt");
-            mpDialogBg->bindToGroup("mn_DialogWindow_Background_DialogIn.brlan", "G_InOut", false, true);
-            mpDialogBg->bindToGroup("mn_DialogWindow_Background_DialogOut.brlan", "G_InOut", false, true);
+            mpDialogBg = new layout::Object(heap, layoutFile, "arc", lbl_81656620);
+            mpDialogBg->bindToGroup(lbl_81656641, "G_InOut", false, true);
+            mpDialogBg->bindToGroup(lbl_8165666B, "G_InOut", false, true);
             mpDialogC->finishBinding();
             mpDialogBg->getAnim(0)->initAnmFrame();
 
@@ -243,6 +332,7 @@ namespace ipl {
             mbDialogOpen = true;
         }
 
+        extern "C" char lbl_81656696[] = "WIPL_SE_INFO_WINDOW";
         void SDMemory::startCheck(NandSDWorker::AppBlocksInfo* freeArea, NandSDWorker::AppBlocksInfo* needed) {
             mFreeArea = *freeArea;
             mNeededArea = *needed;
@@ -260,16 +350,18 @@ namespace ipl {
             pAnim->initFrame();
             pAnim->restart();
 
-            snd::getSystem()->startSE("WIPL_SE_INFO_WINDOW");
+            snd::getSystem()->startSE(lbl_81656696);
 
             mbChecking = true;
             mState = 0;
         }
 
+        extern "C" char lbl_816566AA[] = "N_Header";
+        extern "C" char lbl_816566B3[] = "N_Footer";
         void SDMemory::initScroller() {
-            nw4r::lyt::Pane* header = mpDialogC->FindPaneByName("N_Header");
+            nw4r::lyt::Pane* header = mpDialogC->FindPaneByName(lbl_816566AA);
             nw4r::lyt::Pane* body = mpDialogC->FindPaneByName("N_Body");
-            nw4r::lyt::Pane* footer = mpDialogC->FindPaneByName("N_Footer");
+            nw4r::lyt::Pane* footer = mpDialogC->FindPaneByName(lbl_816566B3);
 
             nw4r::ut::Rect projRect;
             System::getProjectionRect(&projRect);
@@ -420,15 +512,13 @@ namespace ipl {
             }
         }
 
-        static const char* sc_arwPaneNames[4] = {"B_ArwR", "B_ArwL", "B_CalExit", "B_CalExit_00"};
-
         void SDMemory::initArwAnims() {
 
             for (int i = 0; i < 4; i++) {
                 if (mScrFlags[i] != 0) {
                     mScrFlags[i] = 0;
 
-                    nw4r::lyt::Pane* pPane = mpDialogC->FindPaneByName(sc_arwPaneNames[i]);
+                    nw4r::lyt::Pane* pPane = mpDialogC->FindPaneByName(scDialogCBtnPanes[i]);
                     mpPaneMgrC->initPane(pPane);
 
                     layout::Animator* pAnim = NULL;
@@ -510,25 +600,25 @@ namespace ipl {
                     case 0x0C:
                         state12();
                         break;
-                    case 0x0D:
+                    case 0x13:
                         state13();
                         break;
-                    case 0x0E:
+                    case 0x0D:
                         state14();
                         break;
-                    case 0x0F:
+                    case 0x0E:
                         state15();
                         break;
-                    case 0x10:
+                    case 0x0F:
                         state16();
                         break;
-                    case 0x11:
+                    case 0x10:
                         state17();
                         break;
-                    case 0x12:
+                    case 0x11:
                         state18();
                         break;
-                    case 0x13:
+                    case 0x12:
                         state19();
                         break;
                     case 0x14:
@@ -718,11 +808,10 @@ namespace ipl {
             return ret;
         }
         void SDMemory::state0() {
-            static const char* sc_paneNames[3] = {"A", "B", "B_BtnA"};
             if (!mpDialogA->isPlaying(-1)) {
                 for (int i = 0; i < 3; i++) {
                     mUnk30[i] = 0;
-                    nw4r::lyt::Pane* pPane = mpDialogA->FindPaneByName(sc_paneNames[i]);
+                    nw4r::lyt::Pane* pPane = mpDialogA->FindPaneByName(scDialogABtnPanes[i]);
                     mpPaneMgrA->initPane(pPane);
                 }
                 mCheckProgress = 1;
@@ -757,7 +846,7 @@ namespace ipl {
                             layout::Animator* pAnim = mpDialogB->getAnim(0);
                             pAnim->initFrame();
                             pAnim->restart();
-                            snd::sSystem.startSE("WIPL_SE_INFO_WINDOW");
+                            snd::sSystem.startSE(lbl_81656696);
                         } else {
                             mCheckProgress = 0x15;
                             mNextProgress = 0xB4;
@@ -780,19 +869,17 @@ namespace ipl {
         }
 
         void SDMemory::state4() {
-            static const char* sc_paneNames1[5] = {"A", "B", "C", "D", "B_BtnA"};
-            static const char* sc_paneNames2[4] = {"B_00", "C_00", "D_00", "B_BtnA"};
             if (!mpDialogB->isPlaying(-1)) {
                 if (mDialogResult == 4) {
                     for (int i = 0; i < 5; i++) {
                         mUnk3C[i] = 0;
-                        nw4r::lyt::Pane* pPane = mpDialogB->FindPaneByName(sc_paneNames1[i]);
+                        nw4r::lyt::Pane* pPane = mpDialogB->FindPaneByName(scDialogBBtnPanes5[i]);
                         mpPaneMgrB->initPane(pPane);
                     }
                 } else {
                     for (int i = 1; i < 5; i++) {
                         mUnk3C[i] = 0;
-                        nw4r::lyt::Pane* pPane = mpDialogB->FindPaneByName(sc_paneNames2[i - 1]);
+                        nw4r::lyt::Pane* pPane = mpDialogB->FindPaneByName(scDialogBBtnPanes4[i - 1]);
                         mpPaneMgrB->initPane(pPane);
                     }
                 }
@@ -818,7 +905,7 @@ namespace ipl {
                         layout::Animator* pAnim = mpDialogA->getAnim(0);
                         pAnim->initFrame();
                         pAnim->restart();
-                        snd::sSystem.startSE("WIPL_SE_INFO_WINDOW");
+                        snd::sSystem.startSE(lbl_81656696);
                         break;
                     }
                     default: {
@@ -832,6 +919,7 @@ namespace ipl {
             }
         }
 
+        extern "C" char lbl_81656780[] = "T_Header";
         void SDMemory::state8() {
             if (System::getDialog()->getState() == 2) {
                 if (mCheckTime == 0) {
@@ -857,18 +945,18 @@ namespace ipl {
                     pAnim->initFrame();
                     pAnim->restart();
 
-                    nw4r::lyt::TextBox* pHeader = static_cast<nw4r::lyt::TextBox*>(mpDialogC->FindPaneByName("T_Header"));
+                    nw4r::lyt::TextBox* pHeader = static_cast<nw4r::lyt::TextBox*>(mpDialogC->FindPaneByName(lbl_81656780));
                     pHeader->SetString(System::getMessage(0xBE));
 
                     mLineCount = 0;
 
                     nw4r::lyt::Pane* pBody = mpDialogC->FindPaneByName("N_Body");
-                    nw4r::lyt::Pane* pLetter = mpDialogC->FindPaneByName("T_Letter");
+                    nw4r::lyt::Pane* pLetter = mpDialogC->FindPaneByName(lbl_816562B6);
                     pLetter->SetAlpha(0xFF);
 
                     for (int i = 0; i < mMsgCount; i++) {
                         utility::layout::set_string(pLetter, (const wchar_t*)(unk_0x380 + i * 0x2A));
-                        nw4r::ut::Rect textRect = mpDialogC->getTextDrawRect("T_Letter");
+                        nw4r::ut::Rect textRect = mpDialogC->getTextDrawRect(lbl_816562B6);
                         mLineCount += (int)ceilf(-textRect.GetHeight() / pBody->GetSize().height);
                     }
 
@@ -882,7 +970,7 @@ namespace ipl {
             if (!mpDialogC->isPlaying(0)) {
                 for (int i = 0; i < 4; i++) {
                     mScrFlags[i] = 0;
-                    mpPaneMgrC->initPane(mpDialogC->FindPaneByName(sc_arwPaneNames[i]));
+                    mpPaneMgrC->initPane(mpDialogC->FindPaneByName(scDialogCBtnPanes[i]));
                 }
                 mCheckProgress = 0xA;
             }
@@ -934,6 +1022,7 @@ namespace ipl {
             }
         }
 
+        extern "C" wchar_t lbl_8165678A[] = L"%ls\n%ls";
         void SDMemory::state12() {
             if (!mpDialogC->isPlaying(1)) {
                 switch (mDialogBtnType) {
@@ -943,7 +1032,7 @@ namespace ipl {
                         pAnim->initAnmFrame();
                         pAnim->initFrame();
                         pAnim->restart();
-                        snd::sSystem.startSE("WIPL_SE_INFO_WINDOW");
+                        snd::sSystem.startSE(lbl_81656696);
                         break;
                     }
                     case 3: {
@@ -962,7 +1051,7 @@ namespace ipl {
                             mDialogText[0] = 0;
                             unk_0x78 = 0;
                             const wchar_t* msg = System::getMessage(0xB1);
-                            swprintf(mDialogText, 0x107F, L"%ls\n%ls", (const wchar_t*)(unk_0x380 + unk_0x78 * 0x2A), msg);
+                            swprintf(mDialogText, 0x107F, lbl_8165678A, (const wchar_t*)(unk_0x380 + unk_0x78 * 0x2A), msg);
                             System::getDialog()->callBtnPrgNoShade(mDialogText);
                         } else {
                             mCheckProgress = 0x17;
@@ -1011,7 +1100,7 @@ namespace ipl {
             if (System::getDialog()->getState() == 2) {
                 mDialogText[0] = 0;
                 const wchar_t* msg = System::getMessage(0xB1);
-                swprintf(mDialogText, 0x107F, L"%ls\n%ls", (const wchar_t*)(unk_0x380 + unk_0x78 * 0x2A), msg);
+                swprintf(mDialogText, 0x107F, lbl_8165678A, (const wchar_t*)(unk_0x380 + unk_0x78 * 0x2A), msg);
                 System::getDialog()->set_title(mDialogText);
                 if (findId(unk_0x80[unk_0x78], mIdListA, mField1340) != 0 ||
                     findId(unk_0x80[unk_0x78], mEntryList, mField1648) != 0) {
@@ -1110,7 +1199,7 @@ namespace ipl {
             if (System::getDialog()->getState() == 2) {
                 mDialogText[0] = 0;
                 const wchar_t* msg = System::getMessage(0xB1);
-                swprintf(mDialogText, 0x107F, L"%ls\n%ls", (const wchar_t*)(unk_0x380 + unk_0x78 * 0x2A), msg);
+                swprintf(mDialogText, 0x107F, lbl_8165678A, (const wchar_t*)(unk_0x380 + unk_0x78 * 0x2A), msg);
                 System::getDialog()->set_title(mDialogText);
                 if (mpChanSelect->iplSDChannelSelect_813DB5EC(unk_0x80[unk_0x78]) != 0) {
                     mCheckProgress = 0x12;
@@ -1162,9 +1251,10 @@ namespace ipl {
             return 0;
         }
 
+        extern "C" wchar_t lbl_8165679A[] = L"****";
         void SDMemory::state21() {
             const wchar_t* msg = System::getMessage(mNextProgress);
-            const wchar_t* found = wcsstr(msg, L"****");
+            const wchar_t* found = wcsstr(msg, lbl_8165679A);
             wchar_t* buf1 = new (System::getMem2App(), -0x20) wchar_t[0x400];
             wchar_t* buf2 = new (System::getMem2App(), -0x20) wchar_t[0x400];
             if (found != NULL && msg != NULL) {
@@ -1193,8 +1283,7 @@ namespace ipl {
                 pAnim->initFrame();
                 pAnim->restart();
                 mbChecking = false;
-                DialogWindow* pDlg = System::getDialog();
-                int r = pDlg->getLastResult();
+                int r = System::getDialog()->getLastResult();
                 if (r != -1) {
                     if (r == 1) {
                         mState = 4;
@@ -1205,7 +1294,7 @@ namespace ipl {
                     layout::Animator* pAnimA = mpDialogA->getAnim(0);
                     pAnimA->initFrame();
                     pAnimA->restart();
-                    snd::sSystem.startSE("WIPL_SE_INFO_WINDOW");
+                    snd::sSystem.startSE(lbl_81656696);
                     mCheckProgress = 0;
                 }
             }
@@ -1273,14 +1362,18 @@ namespace ipl {
             }
         }
 
+        extern "C" char lbl_816567A4[] = "header_header";
+        extern "C" char lbl_816567B2[] = "header_body";
+        extern "C" char lbl_816567BE[] = "T_Header_body";
+        extern "C" char lbl_816567CC[] = "N_TopBtn_00";
         void SDMemory::drawProgress() {
             nw4r::math::VEC3 pos = mpDialogC->FindPaneByName("N_Memo")->GetTranslate();
 
-            mpDialogC->FindPaneByName("header_header");
-            nw4r::lyt::Pane* pBodyPane = mpDialogC->FindPaneByName("header_body");
+            mpDialogC->FindPaneByName(lbl_816567A4);
+            nw4r::lyt::Pane* pBodyPane = mpDialogC->FindPaneByName(lbl_816567B2);
 
             if (pos.y < 500.0f) {
-                mpDialogC->draw("header_header");
+                mpDialogC->draw(lbl_816567A4);
             }
 
             u8 alpha = mpDialogC->FindPaneByName("N_Memo")->GetAlpha();
@@ -1306,7 +1399,7 @@ namespace ipl {
                 }
 
                 msg = System::getMessage(0xCB);
-                nw4r::lyt::Pane* pTxtPane = mpDialogC->FindPaneByName("T_Header_body");
+                nw4r::lyt::Pane* pTxtPane = mpDialogC->FindPaneByName(lbl_816567BE);
 
                 int count = nLines + 1;
                 if (count > 0) {
@@ -1344,7 +1437,7 @@ namespace ipl {
                 it->SetAlpha(alpha);
             }
 
-            nw4r::lyt::TextBox* pLetter = static_cast<nw4r::lyt::TextBox*>(mpDialogC->FindPaneByName("T_Letter"));
+            nw4r::lyt::TextBox* pLetter = static_cast<nw4r::lyt::TextBox*>(mpDialogC->FindPaneByName(lbl_816562B6));
             pLetter->SetAlpha(alpha);
 
             int matchIdx = 0;
@@ -1362,7 +1455,7 @@ namespace ipl {
                     pLetter->SetTextColor(color, color);
                 }
 
-                nw4r::ut::Rect rect = mpDialogC->getTextDrawRect("T_Letter");
+                nw4r::ut::Rect rect = mpDialogC->getTextDrawRect(lbl_816562B6);
                 int rows = (int)ceilf(-rect.GetHeight() / bodyHeight);
 
                 for (int j = 0; j < rows; j++) {
@@ -1384,7 +1477,7 @@ namespace ipl {
 
             bodyY += bodyHeight;
 
-            nw4r::lyt::Pane* pFooter = mpDialogC->FindPaneByName("N_Footer");
+            nw4r::lyt::Pane* pFooter = mpDialogC->FindPaneByName(lbl_816566B3);
 
             for (nw4r::lyt::PaneList::Iterator it = pFooter->GetChildList().GetBeginIter(); it != pFooter->GetChildList().GetEndIter(); ++it) {
                 it->SetAlpha(alpha);
@@ -1396,7 +1489,7 @@ namespace ipl {
                 mpDialogC->draw(pFooter);
             }
 
-            mpDialogC->draw("N_TopBtn_00");
+            mpDialogC->draw(lbl_816567CC);
             mpDialogC->draw("N_Back");
             mpDialogC->draw("N_Move");
         }
@@ -1413,6 +1506,7 @@ namespace ipl {
             return result;
         }
 
+        extern "C" char lbl_816567D8[] = "WIPL_SE_BT_TARGETTING";
         void SDMemory::onPointDialogA(const char* name, controller::Interface* con) {
             layout::Animator* pAnim = NULL;
             int idx = findDialogAPane(name);
@@ -1433,7 +1527,7 @@ namespace ipl {
                     pAnim->setAnmType(0);
                     pAnim->initFrame();
                     pAnim->restart();
-                    snd::sSystem.startSE("WIPL_SE_BT_TARGETTING");
+                    snd::sSystem.startSE(lbl_816567D8);
                     if (con != NULL) {
                         con->rumble(0);
                     }
@@ -1471,6 +1565,8 @@ namespace ipl {
             }
         }
 
+        extern "C" char lbl_816567EE[] = "WIPL_SE_CANCEL";
+        extern "C" char lbl_816567FD[] = "WIPL_SE_DECIDE";
         void SDMemory::onTrigDialogA(const char* name) {
             layout::Animator* pAnim = NULL;
             int idx = findDialogAPane(name);
@@ -1494,9 +1590,9 @@ namespace ipl {
                     pAnim->initFrame();
                     pAnim->restart();
                     if (idx == 2) {
-                        snd::sSystem.startSE("WIPL_SE_CANCEL");
+                        snd::sSystem.startSE(lbl_816567EE);
                     } else {
-                        snd::sSystem.startSE("WIPL_SE_DECIDE");
+                        snd::sSystem.startSE(lbl_816567FD);
                     }
                 }
             }
@@ -1570,7 +1666,7 @@ namespace ipl {
                     pAnim->setAnmType(0);
                     pAnim->initFrame();
                     pAnim->restart();
-                    snd::sSystem.startSE("WIPL_SE_BT_TARGETTING");
+                    snd::sSystem.startSE(lbl_816567D8);
                     if (con != NULL) {
                         con->rumble(0);
                     }
@@ -1660,9 +1756,9 @@ namespace ipl {
                         mpChanSelect->iplSDChannelSelect_813DB58C(&mCheckLists[0], &mCheckLists[1], &mCheckLists[2]);
                     }
                     if (idx == 4) {
-                        snd::sSystem.startSE("WIPL_SE_CANCEL");
+                        snd::sSystem.startSE(lbl_816567EE);
                     } else {
-                        snd::sSystem.startSE("WIPL_SE_DECIDE");
+                        snd::sSystem.startSE(lbl_816567FD);
                     }
                 }
             }
@@ -1724,7 +1820,7 @@ namespace ipl {
                     pAnim->setAnmType(0);
                     pAnim->initFrame();
                     pAnim->restart();
-                    snd::sSystem.startSE("WIPL_SE_BT_TARGETTING");
+                    snd::sSystem.startSE(lbl_816567D8);
                     if (con != NULL) {
                         con->rumble(0);
                     }
@@ -1803,9 +1899,9 @@ namespace ipl {
                     pAnim->initFrame();
                     pAnim->restart();
                     if (idx == 2) {
-                        snd::sSystem.startSE("WIPL_SE_CANCEL");
+                        snd::sSystem.startSE(lbl_816567EE);
                     } else if (idx == 3) {
-                        snd::sSystem.startSE("WIPL_SE_DECIDE");
+                        snd::sSystem.startSE(lbl_816567FD);
                     }
                 }
             }

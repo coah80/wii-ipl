@@ -36,6 +36,130 @@ add_relocations:
       type: abs
       target: csAninationFile__Q29textinput7toolbar
       addend: 0x1DC
+    - source: .data:0x8165685c
+      type: abs
+      target: create__Q23gui9InterfaceFv
+      addend: 0x0
+    - source: .data:0x81656860
+      type: abs
+      target: init__Q23gui7ManagerFv
+      addend: 0x0
+    - source: .data:0x81656864
+      type: abs
+      target: calc__Q23gui7ManagerFv
+      addend: 0x0
+    - source: .data:0x81656868
+      type: abs
+      target: draw__Q23gui9InterfaceFRA3_A4_f
+      addend: 0x0
+    - source: .data:0x8165686c
+      type: abs
+      target: draw__Q23gui7ManagerFv
+      addend: 0x0
+    - source: .data:0x81656870
+      type: abs
+      target: __dt__Q33ipl3gui11PaneManagerFv
+      addend: 0x0
+    - source: .data:0x81656874
+      type: abs
+      target: addComponent__Q23gui7ManagerFPQ23gui9Component
+      addend: 0x0
+    - source: .data:0x81656878
+      type: abs
+      target: getComponent__Q23gui7ManagerFUl
+      addend: 0x0
+    - source: .data:0x8165687c
+      type: abs
+      target: update__Q23gui7ManagerFiPC10KPADStatusffPv
+      addend: 0x0
+    - source: .data:0x81656880
+      type: abs
+      target: update__Q23gui7ManagerFiffUlUlUlPv
+      addend: 0x0
+    - source: .data:0x81656884
+      type: abs
+      target: onEvent__Q23gui7ManagerFUlUliPv
+      addend: 0x0
+    - source: .data:0x81656888
+      type: abs
+      target: setAllComponentTriggerTarget__Q23gui7ManagerFb
+      addend: 0x0
+    - source: .data:0x8165688c
+      type: abs
+      target: setEventHandler__Q23gui7ManagerFPQ23gui12EventHandler
+      addend: 0x0
+    - source: .data:0x81656890
+      type: abs
+      target: changeEventHandler__Q23gui7ManagerFPQ23gui12EventHandler
+      addend: 0x0
+    - source: .data:0x81656894
+      type: abs
+      target: setDraggingButton__Q23gui7ManagerFUl
+      addend: 0x0
+    - source: .data:0x81656898
+      type: abs
+      target: createLayoutScene__Q23gui11PaneManagerFRCQ34nw4r3lyt6Layout
+      addend: 0x0
+    - source: .data:0x8165689c
+      type: abs
+      target: getPaneComponentByPane__Q23gui11PaneManagerFPQ34nw4r3lyt4Pane
+      addend: 0x0
+    - source: .data:0x816568a0
+      type: abs
+      target: getDrawInfo__Q23gui11PaneManagerFv
+      addend: 0x0
+    - source: .data:0x816568a4
+      type: abs
+      target: setDrawInfo__Q23gui11PaneManagerFPCQ34nw4r3lyt8DrawInfo
+      addend: 0x0
+    - source: .data:0x816568a8
+      type: abs
+      target: setAllBoundingBoxComponentTriggerTarget__Q23gui11PaneManagerFb
+      addend: 0x0
+    - source: .data:0x816568ac
+      type: abs
+      target: walkInChildren__Q23gui11PaneManagerFRQ34nw4r2ut28LinkList<Q34nw4r3lyt4Pane,4>
+      addend: 0x0
+    - source: .data:0x816568b8
+      type: abs
+      target: onEvent__Q23gui12EventHandlerFUlUlPv
+      addend: 0x0
+    - source: .data:0x816568bc
+      type: abs
+      target: setManager__Q23gui12EventHandlerFPQ23gui7Manager
+      addend: 0x0
+    - source: .data:0x816568c0
+      type: abs
+      target: setLatestEventCtrlNo__Q23gui12EventHandlerFi
+      addend: 0x0
+    - source: .data:0x816568c4
+      type: abs
+      target: getLatestEventCtrlNo__Q23gui12EventHandlerFv
+      addend: 0x0
+    - source: .data:0x816568d0
+      type: abs
+      target: create__Q23gui9InterfaceFv
+      addend: 0x0
+    - source: .data:0x816568d4
+      type: abs
+      target: init__Q23gui9InterfaceFv
+      addend: 0x0
+    - source: .data:0x816568d8
+      type: abs
+      target: calc__Q23gui9InterfaceFv
+      addend: 0x0
+    - source: .data:0x816568dc
+      type: abs
+      target: draw__Q23gui9InterfaceFRA3_A4_f
+      addend: 0x0
+    - source: .data:0x816568e0
+      type: abs
+      target: draw__Q23gui9InterfaceFv
+      addend: 0x0
+    - source: .data:0x816568e4
+      type: abs
+      target: __dt__Q23gui9InterfaceFv
+      addend: 0x0
 
 quick_analysis: true
 fill_gaps: false
