@@ -625,7 +625,7 @@ config.libs = [
             Object(Matching,    "system/RIPL_BoardRecord.c"),
             Object(Matching,    "system/iplSystem.cpp"),
             Object(Matching,    "system/iplController.cpp"),
-            Object(NonMatching, "system/iplControllerManager.cpp"),
+            Object(Matching,    "system/iplControllerManager.cpp"),
             Object(Matching,    "system/iplChannelManager.cpp"),
             Object(Matching,    "system/iplChannelScriptManager.cpp"),
             Object(Matching,    "system/iplNand.cpp"),
