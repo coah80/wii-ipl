@@ -366,8 +366,11 @@ namespace ipl {
 
                 nw4r::lyt::Pane* pane = mpLayout->FindPaneByName("N_note_a");
                 for (int i = mMaxPage; i >= 1; i--) {
-                    math::VEC2 v = math::VEC2(sNullVec.x * i, sNullVec.y * i);
-                    pane->SetTranslate(v);
+                    math::VEC2 t;
+                    t.y = sNullVec.y * i;
+                    t.x = sNullVec.x * i;
+                    math::VEC2 v = t;
+                    pane->SetTranslate(nw4r::math::VEC2(v));
                     pane->CalculateMtx(*mpLayout->getDrawInfo());
                     mpLayout->draw(pane);
                 }
@@ -391,21 +394,24 @@ namespace ipl {
 
                 pane = mpLayout->FindPaneByName("N_note_d");
                 for (int i = count; i < mUnk_0xb8 + count; i++) {
-                    pane->SetTranslate(sNullVec * -i);
+                    math::VEC2 v = sNullVec * -i;
+                    pane->SetTranslate(v);
                     pane->CalculateMtx(*mpLayout->getDrawInfo());
                     mpLayout->draw(pane);
                 }
 
                 pane = mpLayout->FindPaneByName("N_note_e");
-                if (mState == 7 || mState == 8) {
+                if (mState < 9 && mState >= 7) {
                     for (int i = 1; i < 0x14; i++) {
-                        pane->SetTranslate(sNullVec * -i);
+                        math::VEC2 v = sNullVec * -i;
+                        pane->SetTranslate(v);
                         pane->CalculateMtx(*mpLayout->getDrawInfo());
                         mpLayout->draw(pane);
                     }
                 }
                 else {
-                    pane->SetTranslate(sNullVec * -(mUnk_0xb8 + count));
+                    math::VEC2 v = sNullVec * -(mUnk_0xb8 + count);
+                    pane->SetTranslate(v);
                     pane->CalculateMtx(*mpLayout->getDrawInfo());
                     mpLayout->draw("N_note_e");
                 }
