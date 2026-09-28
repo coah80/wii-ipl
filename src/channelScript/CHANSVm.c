@@ -913,16 +913,16 @@ typedef struct {
 } VmResultTypeData;
 
 // clang-format off
-const VmResultTypeData VmResultTypeTbl = {
-    /* add[6][6] = */ {
+static const VmResultTypeMatrix VmResultTypeTbl_add =
+    {
         0x00, 0x02, 0x02, 0x03, 0x00, 0x00,
         0x02, 0x01, 0x02, 0x03, 0x03, 0x00,
         0x02, 0x02, 0x02, 0x03, 0x03, 0x00,
         0x03, 0x03, 0x03, 0x03, 0x03, 0x00,
         0x00, 0x03, 0x03, 0x03, 0x03, 0x00,
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-    },
-    /* arith[6][6] = */
+    };
+static const VmResultTypeMatrix VmResultTypeTbl_arith =
     {
         0x00, 0x02, 0x02, 0x02, 0x00, 0x00,
         0x02, 0x01, 0x02, 0x02, 0x00, 0x00,
@@ -930,8 +930,8 @@ const VmResultTypeData VmResultTypeTbl = {
         0x02, 0x02, 0x02, 0x02, 0x00, 0x00,
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-    },
-    /* cmp[6][6] = */
+    };
+static const VmResultTypeMatrix VmResultTypeTbl_cmp =
     {
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
         0x00, 0x01, 0x02, 0x02, 0x00, 0x00,
@@ -939,8 +939,8 @@ const VmResultTypeData VmResultTypeTbl = {
         0x00, 0x02, 0x02, 0x03, 0x03, 0x00,
         0x00, 0x00, 0x00, 0x03, 0x03, 0x00,
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-    },
-    /* eq[6][6] = */
+    };
+static const VmResultTypeMatrix VmResultTypeTbl_eq =
     {
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
         0x00, 0x01, 0x02, 0x02, 0x00, 0x00,
@@ -948,8 +948,8 @@ const VmResultTypeData VmResultTypeTbl = {
         0x00, 0x02, 0x02, 0x03, 0x03, 0x00,
         0x00, 0x00, 0x00, 0x03, 0x04, 0x00,
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-    },
-    /* bitShift[6][6] = */
+    };
+static const VmResultTypeMatrix VmResultTypeTbl_bitShift =
     {
         0x00, 0x01, 0x01, 0x01, 0x00, 0x00,
         0x01, 0x01, 0x01, 0x01, 0x00, 0x00,
@@ -957,8 +957,7 @@ const VmResultTypeData VmResultTypeTbl = {
         0x01, 0x01, 0x01, 0x01, 0x00, 0x00,
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-    },
-};
+    };
 // clang-format on
 
 CHANSVmObjHdr* CHANSVmConvertObjectType(CHANSVm* vm, vmU32 type, CHANSVmObjHdr* object) {
@@ -5512,25 +5511,25 @@ static vmBoolInt VmBlobPackCommon(CHANSVm* VmInst, CHANSVmObjHdr* VmParentObj, C
 
                     if ((s32)elemType >= 8) {
                         if ((s32)elemType < 10) {
-                            switch (elemSize) {
-                            case 2: {
-                                u16 tmp = *(u16*)packBuf;
-                                *(u16*)packBuf = (tmp & 0xFF00) >> 8 | (tmp & 0x00FF) << 8;
-                                break;
-                            }
-                            case 4: {
-                                u32 tmp = *(u32*)packBuf;
-                                __stwbrx(tmp, 0, (u32)packBuf);
-                                break;
-                            }
-                            case 8: {
-                                u64 val = CHANSVm_814540E0(*((u32*)packBuf + 1), *(u32*)packBuf);
-                                *(u32*)packBuf = (u32)(val >> 32);
-                                *((u32*)packBuf + 1) = (u32)val;
-                                break;
-                            }
+                        switch (elemSize) {
+                        case 2: {
+                            u16 tmp = *(u16*)packBuf;
+                            *(u16*)packBuf = (tmp & 0xFF00) >> 8 | (tmp & 0x00FF) << 8;
+                            break;
+                        }
+                        case 4: {
+                            u32 tmp = *(u32*)packBuf;
+                            __stwbrx(tmp, 0, (u32)packBuf);
+                            break;
+                        }
+                        case 8: {
+                            u64 val = CHANSVm_814540E0(*((u32*)packBuf + 1), *(u32*)packBuf);
+                            *(u32*)packBuf = (u32)(val >> 32);
+                            *((u32*)packBuf + 1) = (u32)val;
+                            break;
                         }
                         }
+                    }
                     }
                     memcpy(destBlob->pData + destBlob->offset, packBuf, elemSize);
                     destBlob->offset += elemSize;
@@ -7646,30 +7645,30 @@ CHANSVmErr CHANSVmStep(CHANSVm* vm, int stepCount) {
                     }
 
                     {
-                        const u8* convTbl;
+                        const VmResultTypeMatrix* convTbl;
                         switch (opKind) {
                             case VM_OPKIND_ADD: {
-                                convTbl = (u8*)VmResultTypeTbl.add;
+                                convTbl = &VmResultTypeTbl_add;
                                 break;
                             }
                             case VM_OPKIND_MOD:
                             case VM_OPKIND_MUL:
                             case VM_OPKIND_SUB:
                             case VM_OPKIND_DIV: {
-                                convTbl = (u8*)VmResultTypeTbl.arith;
+                                convTbl = &VmResultTypeTbl_arith;
                                 break;
                             }
                             case VM_OPKIND_CMP: {
-                                convTbl = (u8*)VmResultTypeTbl.cmp;
+                                convTbl = &VmResultTypeTbl_cmp;
                                 break;
                             }
                             case VM_OPKIND_EQ: {
-                                convTbl = (u8*)VmResultTypeTbl.arith;
+                                convTbl = &VmResultTypeTbl_eq;
                                 break;
                             }
                             case VM_OPKIND_BIT:
                             case VM_OPKIND_SHIFT: {
-                                convTbl = (u8*)VmResultTypeTbl.bitShift;
+                                convTbl = &VmResultTypeTbl_bitShift;
                                 break;
                             }
                             default: {
@@ -7680,7 +7679,7 @@ CHANSVmErr CHANSVmStep(CHANSVm* vm, int stepCount) {
                         }
 
                         result = CHANS_VM_OK;
-                        convTypeIdx = convTbl[etypes[0] * 6 + etypes[1]];
+                        convTypeIdx = (*convTbl)[etypes[0]][etypes[1]];
                         goto result_check;
                     }
 
@@ -7954,14 +7953,14 @@ CHANSVmErr CHANSVmStep(CHANSVm* vm, int stepCount) {
                     CHANSVmObjHdr* pAcc = &pVm->accumulator;
                     result = CHANS_VM_ERR_STORE_INDIRECT;
                     if (pAcc->type == CHANS_VM_TYPE_INDEX_REF) {
-                        copyResult = CHANSVmCopyObject(vm, stackPtr + 1, pAcc);
+                        copyResult = CHANSVmCopyObject(vm, &objBuf[1], pAcc);
                         if (copyResult != 0) {
                             result = CHANSVmPopObject(vm, pAcc);
                             if (result == CHANS_VM_OK) {
-                                foundObj = VmGetArrayElement(vm, stackPtr + 1, (stackPtr + 1)->value.data.len, vmTrue);
+                                foundObj = VmGetArrayElement(vm, &objBuf[1], objBuf[1].value.data.len, vmTrue);
                                 result = VmStore(vm, foundObj, pAcc);
                                 if (result == CHANS_VM_OK) {
-                                    result = CHANSVmDeleteObject(vm, stackPtr + 1);
+                                    result = CHANSVmDeleteObject(vm, &objBuf[1]);
                                 }
                             }
                         }
@@ -8004,17 +8003,18 @@ CHANSVmErr CHANSVmStep(CHANSVm* vm, int stepCount) {
                     u64 cmpVal;
                     s64 fullVal;
                     u64 tmp64;
+                    CHANSVmObjHdr* pAcc = &pVm->accumulator;
                     result = CHANS_VM_ERR_SET_INDEX;
-                    copyResult = CHANSVmCopyObject(vm, stackPtr, &pVm->accumulator);
+                    copyResult = CHANSVmCopyObject(vm, stackPtr, pAcc);
                     if (copyResult == 0) {
                         break;
                     }
-                    result = CHANSVmPopObject(vm, &pVm->accumulator);
+                    result = CHANSVmPopObject(vm, pAcc);
                     if (result != CHANS_VM_OK) {
                         break;
                     }
 
-                    if (pVm->accumulator.type == CHANS_VM_TYPE_ARRAY) {
+                    if (pAcc->type == CHANS_VM_TYPE_ARRAY) {
                         int typeByte = stackPtr->type;
                         switch (typeByte) {
                             case CHANS_VM_OBJ_TYPE_INTEGER:
@@ -8027,7 +8027,7 @@ CHANSVmErr CHANSVmStep(CHANSVm* vm, int stepCount) {
                                 goto set_index_ok;
                             case CHANS_VM_OBJ_TYPE_FLOAT: {
                                 double stackFloat = *(double*)stackPtr;
-                                if (stackFloat <= 4294967294.0 && 0.0 <= stackFloat) {
+                                if (stackFloat >= 0.0 && stackFloat <= 4294967294.0) {
                                     arrayIdx = (u32)stackFloat;
                                     goto set_index_ok;
                                 }
@@ -8052,14 +8052,15 @@ CHANSVmErr CHANSVmStep(CHANSVm* vm, int stepCount) {
                     if (result != CHANS_VM_OK) {
                         break;
                     }
-                    pVm->accumulator.value.data.len = arrayIdx;
-                    pVm->accumulator.type = CHANS_VM_TYPE_INDEX_REF;
+                    pAcc->value.data.len = arrayIdx;
+                    pAcc->type = CHANS_VM_TYPE_INDEX_REF;
                     result = CHANSVmDeleteObject(vm, stackPtr);
                     break;
                 }
 
                 case CHANS_VM_OP_GET_PROPERTY_NAME: {
                     u32 foundEntry;
+                    CHANSVmObjHdr* pAcc = &pVm->accumulator;
                     opSize = 5;
                     operandBuf = VmGetOperand(vm, 1, 5);
                     if (operandBuf == vmNull) {
@@ -8069,9 +8070,9 @@ CHANSVmErr CHANSVmStep(CHANSVm* vm, int stepCount) {
                     arrayIdx = 0;
                     imm16Val = VM_READ_BE_U16(operandBuf, 0);
                     foundObj = CHANSVm_81455654(vm, imm16Val);
-                    if (foundObj != vmNull && pVm->accumulator.type == CHANS_VM_OBJ_TYPE_INTEGER &&
+                    if (foundObj != vmNull && pAcc->type == CHANS_VM_OBJ_TYPE_INTEGER &&
                         // TODO: these raw pointer casts with the accumulator are a recurring thing. get rid of raw ptr access
-                        (computedAddr = *((u32*)&pVm->accumulator.value + 1), (u64)pVm->accumulator.value.int_v <= ~1U)) {
+                        (computedAddr = *((u32*)&pAcc->value + 1), (u64)pAcc->value.int_v <= ~1U)) {
                         if ((s32)foundObj->type != CHANS_VM_TYPE_ARRAY) {
                             foundEntry = 0;
                         } else {
@@ -8097,14 +8098,17 @@ CHANSVmErr CHANSVmStep(CHANSVm* vm, int stepCount) {
                         found_entry:
                             if (copyResult != vmNull) {
                                 foundEntry = 1;
-                                result = CHANSVmDeleteObject(vm, &pVm->accumulator);
+                                result = CHANSVmDeleteObject(vm, pAcc);
                                 if (result == CHANS_VM_OK) {
-                                    CHANSVmObjHdr* hdr = CHANSVmNewObject(vm, vmFalse, &pVm->accumulator, CHANS_VM_OBJ_TYPE_STRING, VM_STRING_SIZE);
+                                    CHANSVmObjHdr* hdr = CHANSVmNewObject(vm, vmFalse, pAcc, CHANS_VM_OBJ_TYPE_STRING, VM_STRING_SIZE);
                                     if (hdr != vmNull) {
-                                        char* s = pVm->accumulator.value.string_v->spData;
+                                        char* s = pAcc->value.string_v->spData;
                                         s32 snpLen = snprintf(s, 0x40, lbl_81697591, (u64)arrayIdx);
                                         CHANSVmStrCpyToU16FromU8((wchar_t*)s, s, snpLen);
-                                        pVm->accumulator.value.string_v->len = VM_STR_LENGTH(snpLen);
+                                        pAcc->value.string_v->len = VM_STR_LENGTH(snpLen);
+                                        if (pAcc->value.string_v->len == 0) {
+                                            result = CHANS_VM_ERR_GET_PROPERTY_NAME;
+                                        }
                                     } else {
                                         result = CHANS_VM_ERR_GET_PROPERTY_NAME;
                                     }
@@ -8198,7 +8202,7 @@ CHANSVmErr CHANSVmStep(CHANSVm* vm, int stepCount) {
                 }
 
                 case CHANS_VM_OP_STORE_UNDEFINED: {
-                    result = VmStore(vm, &pVm->accumulator, (CHANSVmObjHdr*)&CHANSVmConstStringObjectUndefined_[4]);
+                    result = VmStore(vm, &pVm->accumulator, (CHANSVmObjHdr*)&(&CHANSVmConstStringObjectUndefined)[10]);
                     break;
                 }
 
