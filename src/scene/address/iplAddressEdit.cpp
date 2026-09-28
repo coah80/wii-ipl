@@ -627,7 +627,7 @@ void ipl::scene::AddressEdit::stt_wait_decide_anm() {
     ipl::scene::Button* button = static_cast<ipl::scene::Button*>(ipl::System::getScene(5));
     for (s32 i = 0; i < 5; ++i) {
         u16 index = static_cast<u16>(mSelectedButton + 6);
-        complete = complete && !mpCodeLayout->getAnim(index)->isPlaying();
+        complete = (complete & !mpCodeLayout->getAnim(index)->isPlaying()) != 0;
     }
     if (!complete) {
         return;
@@ -636,15 +636,16 @@ void ipl::scene::AddressEdit::stt_wait_decide_anm() {
     switch (mSelectedButton) {
     case 2: {
         u32 friendIndex = mSelectedFriend;
-        ipl::layout::Animator* animator;
         if (mpFriendCache->getInfo(friendIndex).attr.status == 2) {
-            animator = mpCodeLayout->getAnim(0x15);
+            ipl::layout::Animator* statusAnimator = mpCodeLayout->getAnim(0x15);
+            statusAnimator->initFrame();
+            statusAnimator->restart();
         } else {
-            animator = mpCodeLayout->getAnim(0x1b);
+            ipl::layout::Animator* statusAnimator = mpCodeLayout->getAnim(0x1b);
+            statusAnimator->initFrame();
+            statusAnimator->restart();
         }
-        animator->initFrame();
-        animator->restart();
-        animator = mpCodeLayout->getAnim(0x16);
+        ipl::layout::Animator* animator = mpCodeLayout->getAnim(0x16);
         animator->initFrame();
         animator->restart();
         animator = mpCodeLayout->getAnim(0x17);
