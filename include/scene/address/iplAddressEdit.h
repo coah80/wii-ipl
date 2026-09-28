@@ -114,6 +114,7 @@ namespace ipl {
                 void setName(const wchar_t* value);
                 void setEMail(const wchar_t* value);
                 void setWiiNo(const wchar_t* value);
+                BOOL isDupCode() const;
 
                 wchar_t mValue[0x102];
                 wchar_t mName[0x0c];
