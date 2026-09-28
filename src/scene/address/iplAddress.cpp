@@ -561,7 +561,12 @@ namespace ipl {
         void Address::stt_cover_forward() {
             if (!mpLayout->getAnim(4)->isPlaying()) {
                 mbFlagE1 = FALSE;
-                mState = mbDragging ? 0xA : 4;
+                if (mbDragging) {
+                    mState = 0xA;
+                }
+                else {
+                    mState = 4;
+                }
             }
             else if (mbDragging) {
                 changePage_onDrag();
@@ -571,8 +576,8 @@ namespace ipl {
         void Address::stt_cover_backward() {
             if (!mpLayout->getAnim(4)->isPlaying()) {
                 nw4r::math::VEC2 v;
-                v.x = -sNullVec.x;
                 v.y = -sNullVec.y;
+                v.x = -sNullVec.x;
                 nw4r::math::VEC2 w = v;
                 math::VEC2 u = w;
                 add_translate(mpLayout->FindPaneByName("N_note_base"), u);
@@ -608,7 +613,12 @@ namespace ipl {
         void Address::stt_forward() {
             if (!mpLayout->getAnim(5)->isPlaying()) {
                 mUnk_0xb8++;
-                mState = mbDragging ? 0xA : 4;
+                if (mbDragging) {
+                    mState = 0xA;
+                }
+                else {
+                    mState = 4;
+                }
             }
             else if (mbDragging) {
                 changePage_onDrag();
@@ -619,8 +629,8 @@ namespace ipl {
             if (!mpLayout->getAnim(5)->isPlaying()) {
                 mMaxPage++;
                 nw4r::math::VEC2 v;
-                v.x = -sNullVec.x;
                 v.y = -sNullVec.y;
+                v.x = -sNullVec.x;
                 nw4r::math::VEC2 w = v;
                 math::VEC2 u = w;
                 add_translate(mpLayout->FindPaneByName("N_note_base"), u);
@@ -628,7 +638,12 @@ namespace ipl {
                 for (int i = 0; i < 5; i++) {
                     set_friend(sTextNameB[i], i, i, mMiiB[i], false);
                 }
-                mState = mbDragging ? 0xA : 4;
+                if (mbDragging) {
+                    mState = 0xA;
+                }
+                else {
+                    mState = 4;
+                }
             }
             else if (mbDragging) {
                 changePage_onDrag();
@@ -638,15 +653,14 @@ namespace ipl {
         void Address::stt_loop_forward() {
             if (!mpLayout->getAnim(4)->isPlaying()) {
                 nw4r::math::VEC2 v;
-                v.x = -sNullVec.x;
                 v.y = -sNullVec.y;
+                v.x = -sNullVec.x;
                 nw4r::math::VEC2 w = v;
-                math::VEC2 u = w * 20.0f;
-                add_translate(mpLayout->FindPaneByName("N_note_base"), u);
+                add_translate(mpLayout->FindPaneByName("N_note_base"), w * 20.0f);
                 set_page_text("T_nmbr_b", mPageNo + 1);
                 reset_gui(false);
-                for (int i = 0; i < 5; i++) {
-                    set_friend(sTextNameB[i], i, i, mMiiB[i], false);
+                for (u32 i = 0; i < 5; i++) {
+                    set_friend(sTextNameB[i], mPageNo * 5 + i, i, mMiiB[i], false);
                 }
                 mbFlagE1 = TRUE;
                 mMaxPage = 0x14;
@@ -661,7 +675,12 @@ namespace ipl {
             if (!mpLayout->getAnim(4)->isPlaying()) {
                 mbFlagE1 = FALSE;
                 mUnk_0xb8 = 0x13;
-                mState = mbDragging ? 0xA : 4;
+                if (mbDragging) {
+                    mState = 0xA;
+                }
+                else {
+                    mState = 4;
+                }
             }
             else if (mbDragging) {
                 changePage_onDrag();
@@ -715,7 +734,12 @@ namespace ipl {
 
             mpLayout->FindPaneByName("N_note_move")->SetVisible(false);
 
-            mState = mbFlagE1 ? 1 : 4;
+            if (mbFlagE1) {
+                mState = 1;
+            }
+            else {
+                mState = 4;
+            }
         }
 
         void Address::stt_wait_child_cst() {
@@ -742,7 +766,12 @@ namespace ipl {
                 button->setText("T_CalAdd_R", 0x29);
                 button->animation(0x17);
                 button->animation(0x18);
-                mState = mbFlagE1 ? 1 : 4;
+                if (mbFlagE1) {
+                    mState = 1;
+                }
+                else {
+                    mState = 4;
+                }
             }
         }
 
@@ -808,7 +837,12 @@ namespace ipl {
                 else {
                     static_cast<Button*>(System::getScene(SCENE_BUTTON))->animation(0xF);
                     static_cast<Button*>(System::getScene(SCENE_BUTTON))->setEventHandler(this);
-                    mState = mbFlagE1 ? 1 : 4;
+                    if (mbFlagE1) {
+                        mState = 1;
+                    }
+                    else {
+                        mState = 4;
+                    }
                     static_cast<Button*>(System::getScene(SCENE_BUTTON))->animation(0x17);
                     static_cast<Button*>(System::getScene(SCENE_BUTTON))->animation(0x18);
                 }
@@ -877,7 +911,12 @@ namespace ipl {
                 else {
                     static_cast<Button*>(System::getScene(SCENE_BUTTON))->animation(0xF);
                     static_cast<Button*>(System::getScene(SCENE_BUTTON))->setEventHandler(this);
-                    mState = mbFlagE1 ? 1 : 4;
+                    if (mbFlagE1) {
+                        mState = 1;
+                    }
+                    else {
+                        mState = 4;
+                    }
                     static_cast<Button*>(System::getScene(SCENE_BUTTON))->animation(0x17);
                     static_cast<Button*>(System::getScene(SCENE_BUTTON))->animation(0x18);
                 }
