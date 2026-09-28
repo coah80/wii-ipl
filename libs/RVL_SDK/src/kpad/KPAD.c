@@ -1777,14 +1777,19 @@ static void KPADiSamplingCallback(s32 chan) {
             kpad->sensorC0 = distance;
             kpad->sensorHeightPending = 0;
         }
-        if (device == 0 || device == 0xFB || device == 0xFC || device == 0xFF) {
+        switch (device) {
+        case 0xFF:
             tier = 0;
-        } else if (device == 1) {
+            break;
+        case 1:
             tier = 2;
-        } else if (device == 2) {
+            break;
+        case 2:
             tier = 4;
-        } else {
+            break;
+        default:
             tier = 0;
+            break;
         }
         if (kpad->dpdEnable != 0) {
             tier++;
