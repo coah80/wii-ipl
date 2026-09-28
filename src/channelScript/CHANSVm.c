@@ -2268,11 +2268,7 @@ VmMethodDefine(Array, Slice) {
         }
         end = (u32)v;
     }
-    if (end <= start) {
-        newLen = 0;
-    } else {
-        newLen = end - start;
-    }
+    newLen = end > start ? end - start : 0;
 
     if (CHANSVmNewArrayObject(VmInst, VmReturnObj, 1, &newLen) != vmNull) {
         for (i = 0; i < newLen; i++) {
@@ -7060,8 +7056,7 @@ static CHANSVmErr VmCallMethod(CHANSVm* vm, u32 instructionSize, u32 callType, u
             if (callType == CHANS_VM_CALL_TYPE_METHOD) {
                 retVal = CHANS_VM_ERR_NO_SUCH_METHOD;
             }
-            goto return_label;
-            break;
+            return retVal;
         }
     }
 
@@ -7086,7 +7081,7 @@ static CHANSVmErr VmCallMethod(CHANSVm* vm, u32 instructionSize, u32 callType, u
     } else {
         CHANSVmExecutionCtx* ec = pVm->pActiveCtx;
         // TODO: what's the actual type of the object here? avoid raw ptr access
-        u32 methodId = *((u16*)pConstObj + 1);
+        u32 methodId = ((u8*)pConstObj)[2] | ((u8*)pConstObj)[1] << 8;
         u32 methodCount;
 
         if (ec->pDbg->pMethodTbl == vmNull) {
