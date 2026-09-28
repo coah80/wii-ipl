@@ -1781,13 +1781,15 @@ namespace ipl {
             math::VEC2 pos = System::getControllerManager()->getController(mDragChannel)->getDpdProjectionPos();
 
             nw4r::lyt::TextBox* textBox = nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(mpLayout->FindPaneByName("T_name_move"));
-            if (textBox != NULL && mpFriendList->mInfos[mDragPageNo * 5 + mDragButtonNo].attr.name != NULL) {
+            if (textBox != NULL) {
                 const wchar_t* name = (const wchar_t*)mpFriendList->mInfos[mDragPageNo * 5 + mDragButtonNo].attr.name;
-                textBox->GetFont()->GetWidth();
-                for (const wchar_t* p = name; *p != 0; p++) {
-                    width += textBox->GetFont()->GetCharWidth(*p);
+                if (name != NULL) {
+                    textBox->GetFont()->GetWidth();
+                    for (const wchar_t* p = name; *p != 0; p++) {
+                        width += textBox->GetFont()->GetCharWidth(*p);
+                    }
+                    width = 0.01f + width;
                 }
-                width = 0.01f + width;
             }
 
             nw4r::ut::Rect projRect4x3;
@@ -1795,7 +1797,7 @@ namespace ipl {
             System::getProjectionRect(&projRect);
             System::getProjectionRect4x3(&projRect4x3);
             if (trans.x + width < pos.x) {
-                mUnk_0x29C = -(trans.x + width) * ((projRect4x3.right - projRect4x3.left) / (projRect.right - projRect.left));
+                mUnk_0x29C = -((trans.x + width) * ((projRect4x3.right - projRect4x3.left) / (projRect.right - projRect.left)));
             }
             else {
                 pos.x = pos.x * ((projRect4x3.right - projRect4x3.left) / (projRect.right - projRect.left));
