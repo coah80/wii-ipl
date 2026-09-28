@@ -2051,38 +2051,14 @@ void ipl::scene::AddressEdit::stt_ipt_wait_fadein() {
     }
 }
 
-extern "C" asm void stt_ipt_normal__Q33ipl5scene11AddressEditFv(ipl::scene::AddressEdit*) {
-    nofralloc
-    stwu r1, -0x10(r1)
-    mflr r0
-    lis r5, smArg__Q23ipl6System@ha
-    li r4, 5
-    stw r0, 0x14(r1)
-    addi r5, r5, smArg__Q23ipl6System@l
-    stw r31, 0xc(r1)
-    stw r30, 8(r1)
-    mr r30, r3
-    lwz r3, 0x64(r5)
-    bl getScene__Q33ipl5scene7ManagerFi
-    mr r31, r3
-    bl isActive__Q33ipl5scene6ButtonCFv
-    cmpwi r3, 0
-    beq stt_ipt_normal_L1
-    mr r3, r31
-    bl update__Q33ipl5scene6ButtonFv
-stt_ipt_normal_L1:
-    lwz r0, 0x64(r30)
-    cmpwi r0, 0xd
-    bne stt_ipt_normal_L2
-    lwz r3, 0x7c(r30)
-    bl update__Q33ipl3gui11PaneManagerFv
-stt_ipt_normal_L2:
-    lwz r0, 0x14(r1)
-    lwz r31, 0xc(r1)
-    lwz r30, 8(r1)
-    mtlr r0
-    addi r1, r1, 0x10
-    blr
+void ipl::scene::AddressEdit::stt_ipt_normal() {
+    ipl::scene::Button* button = static_cast<ipl::scene::Button*>(ipl::System::getScene(5));
+    if (button->isActive()) {
+        button->update();
+    }
+    if (mState == 0xd) {
+        mpInputGui->update();
+    }
 }
 
 void ipl::scene::AddressEdit::stt_ipt_input() {
