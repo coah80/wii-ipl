@@ -119,174 +119,10 @@ namespace LibTVRC {
 
     void __FTVRCLoop0Handler(OSAlarm *alarm, OSContext *ctx);
 
-    void __FTVRCLoop1Handler(OSAlarm *alarm, OSContext *ctx) {
-        if (_ctCombo != 0 && _isActive != 0) {
-            if (_func1state == -1) {
-                _unitStartTime = OSGetTime();
-                _func1state = 0;
-            }
-
-            if (_isLastOnOff != 0) {
-                _unitLastTime = OSGetTime();
-
-                if (_func1state == 0) {
-                    WPADSetSensorBarPower(TRUE);
-                    _func1state = 1;
-                    OSSetAlarm(&_alarm, _tickWait[1], __FTVRCLoop1Handler);
-                    return;
-                }
-
-                BOOL active = (int)(_unitLastTime - _unitStartTime) < (int)(*(u32*)&_tickT * _ctCombo);
-                WPADSetSensorBarPower(FALSE);
-                _func1state = 0;
-                if (active) {
-                    OSSetAlarm(&_alarm, _tickWait[0], __FTVRCLoop1Handler);
-                } else {
-                    OSSetAlarm(&_alarm, _tickWait[0], __FTVRCLoop0Handler);
-                }
-            } else {
-                WPADSetSensorBarPower(FALSE);
-                OSSetAlarm(&_alarm, *(u32*)&_tickT * _ctCombo, __FTVRCLoop0Handler);
-            }
-        }
-    }
+    void __FTVRCLoop1Handler(OSAlarm *alarm, OSContext *ctx);
 }  // namespace LibTVRC
 
 using namespace LibTVRC;
-
-extern "C" asm void __FTVRCLoop0Handler__7LibTVRCFP7OSAlarmP9OSContext() {
-    nofralloc
-    stwu r1, -0x10(r1)
-    mflr r0
-    stw r0, 0x14(r1)
-    stw r31, 0xc(r1)
-    mr r31, r4
-    stw r30, 0x8(r1)
-    mr r30, r3
-    lwz r0, _isActive__7LibTVRC
-    cmpwi r0, 0
-    bne TVRCLoop0_active
-    li r0, 2
-    stw r0, _func0state__7LibTVRC
-TVRCLoop0_active:
-    lwz r0, _func0state__7LibTVRC
-    cmpwi r0, 1
-    bne TVRCLoop0_check_state
-    li r0, 0
-    stw r0, _func0state__7LibTVRC
-    b TVRCLoop0_prepare
-TVRCLoop0_check_state:
-    cmpwi r0, 0
-    bne TVRCLoop0_check_stop
-    lwz r4, _loop0count__7LibTVRC
-    li r0, 0
-    lwz r3, _isOnOff__7LibTVRC
-    addi r4, r4, 1
-    stw r0, _func0state__7LibTVRC
-    stw r4, _loop0count__7LibTVRC
-    stw r3, _isLastOnOff__7LibTVRC
-    b TVRCLoop0_prepare
-TVRCLoop0_check_stop:
-    cmpwi r0, 2
-    bne TVRCLoop0_prepare
-    lwz r0, _isReserveDeactive__7LibTVRC
-    cmpwi r0, 0
-    bne TVRCLoop0_stop
-    bl OSGetTime
-    lis r5, 0x8000
-    lwz r6, _totalStartTime__7LibTVRC+4
-    lwz r5, 0xf8(r5)
-    li r0, 0x3e8
-    subfc r4, r6, r4
-    lwz r7, _totalStartTime__7LibTVRC
-    srwi r6, r5, 2
-    li r5, 0
-    divwu r6, r6, r0
-    subfe r3, r7, r3
-    bl __div2i
-    lwz r7, _limitMilli__7LibTVRC
-    li r6, 0
-    xoris r5, r3, 0x8000
-    xoris r0, r6, 0x8000
-    subfc r3, r4, r7
-    subfe r5, r5, r0
-    subfe r5, r0, r0
-    neg. r5, r5
-    beq TVRCLoop0_continue
-TVRCLoop0_stop:
-    li r3, 1
-    bl WPADSetSensorBarPower
-    li r0, 0
-    stw r0, _isActive__7LibTVRC
-    b TVRCLoop0_exit
-TVRCLoop0_continue:
-    lwz r4, _isUseRepeatCode__7LibTVRC
-    lwz r3, _repeatBitLength__7LibTVRC
-    lwz r0, _repeatBitArray__7LibTVRC
-    stw r4, _isRepeatActive__7LibTVRC
-    stw r3, _bitLength__7LibTVRC
-    stw r0, _bitArray__7LibTVRC
-    stw r6, _isOnOff__7LibTVRC
-    stw r6, _isLastOnOff__7LibTVRC
-    stw r6, _func0state__7LibTVRC
-    stw r6, _loop0count__7LibTVRC
-TVRCLoop0_prepare:
-    li r3, 0
-    lwz r7, _bitArray__7LibTVRC
-    stw r3, _ctCombo__7LibTVRC
-    lwz r8, _bitLength__7LibTVRC
-    lwz r4, _loop0count__7LibTVRC
-    lwz r0, _isLastOnOff__7LibTVRC
-    b TVRCLoop0_check_bits
-TVRCLoop0_bit_loop:
-    srawi r5, r4, 3
-    addi r3, r3, 1
-    addze r6, r5
-    srawi r5, r4, 3
-    lbzx r6, r7, r6
-    addze r5, r5
-    slwi r5, r5, 3
-    stw r3, _ctCombo__7LibTVRC
-    subf r5, r5, r4
-    subfic r5, r5, 7
-    sraw r5, r6, r5
-    clrlwi r5, r5, 31
-    cmpw r0, r5
-    stw r5, _isOnOff__7LibTVRC
-    beq TVRCLoop0_bit_match
-    li r3, -1
-    li r0, 0
-    stw r3, _func1state__7LibTVRC
-    mr r3, r30
-    mr r4, r31
-    stw r0, _func0state__7LibTVRC
-    bl __FTVRCLoop1Handler__7LibTVRCFP7OSAlarmP9OSContext
-    b TVRCLoop0_exit
-TVRCLoop0_bit_match:
-    addi r4, r4, 1
-    stw r5, _isLastOnOff__7LibTVRC
-    mr r0, r5
-    stw r4, _loop0count__7LibTVRC
-TVRCLoop0_check_bits:
-    cmpw r4, r8
-    blt TVRCLoop0_bit_loop
-    addi r3, r3, 1
-    li r5, -1
-    li r0, 2
-    stw r3, _ctCombo__7LibTVRC
-    mr r3, r30
-    mr r4, r31
-    stw r5, _func1state__7LibTVRC
-    stw r0, _func0state__7LibTVRC
-    bl __FTVRCLoop1Handler__7LibTVRCFP7OSAlarmP9OSContext
-TVRCLoop0_exit:
-    lwz r0, 0x14(r1)
-    lwz r31, 0xc(r1)
-    lwz r30, 0x8(r1)
-    mtlr r0
-    addi r1, r1, 0x10
-    blr
-}
 
 BOOL TVRCInit(void* pRsrc) {
     if (_isInitialized) {
@@ -596,3 +432,171 @@ TVRCSendStartAsync_exit:
     addi r1, r1, 0x40
     blr
 }
+
+extern "C" asm void __FTVRCLoop0Handler__7LibTVRCFP7OSAlarmP9OSContext() {
+    nofralloc
+    stwu r1, -0x10(r1)
+    mflr r0
+    stw r0, 0x14(r1)
+    stw r31, 0xc(r1)
+    mr r31, r4
+    stw r30, 0x8(r1)
+    mr r30, r3
+    lwz r0, _isActive__7LibTVRC
+    cmpwi r0, 0
+    bne TVRCLoop0_active
+    li r0, 2
+    stw r0, _func0state__7LibTVRC
+TVRCLoop0_active:
+    lwz r0, _func0state__7LibTVRC
+    cmpwi r0, 1
+    bne TVRCLoop0_check_state
+    li r0, 0
+    stw r0, _func0state__7LibTVRC
+    b TVRCLoop0_prepare
+TVRCLoop0_check_state:
+    cmpwi r0, 0
+    bne TVRCLoop0_check_stop
+    lwz r4, _loop0count__7LibTVRC
+    li r0, 0
+    lwz r3, _isOnOff__7LibTVRC
+    addi r4, r4, 1
+    stw r0, _func0state__7LibTVRC
+    stw r4, _loop0count__7LibTVRC
+    stw r3, _isLastOnOff__7LibTVRC
+    b TVRCLoop0_prepare
+TVRCLoop0_check_stop:
+    cmpwi r0, 2
+    bne TVRCLoop0_prepare
+    lwz r0, _isReserveDeactive__7LibTVRC
+    cmpwi r0, 0
+    bne TVRCLoop0_stop
+    bl OSGetTime
+    lis r5, 0x8000
+    lwz r6, _totalStartTime__7LibTVRC+4
+    lwz r5, 0xf8(r5)
+    li r0, 0x3e8
+    subfc r4, r6, r4
+    lwz r7, _totalStartTime__7LibTVRC
+    srwi r6, r5, 2
+    li r5, 0
+    divwu r6, r6, r0
+    subfe r3, r7, r3
+    bl __div2i
+    lwz r7, _limitMilli__7LibTVRC
+    li r6, 0
+    xoris r5, r3, 0x8000
+    xoris r0, r6, 0x8000
+    subfc r3, r4, r7
+    subfe r5, r5, r0
+    subfe r5, r0, r0
+    neg. r5, r5
+    beq TVRCLoop0_continue
+TVRCLoop0_stop:
+    li r3, 1
+    bl WPADSetSensorBarPower
+    li r0, 0
+    stw r0, _isActive__7LibTVRC
+    b TVRCLoop0_exit
+TVRCLoop0_continue:
+    lwz r4, _isUseRepeatCode__7LibTVRC
+    lwz r3, _repeatBitLength__7LibTVRC
+    lwz r0, _repeatBitArray__7LibTVRC
+    stw r4, _isRepeatActive__7LibTVRC
+    stw r3, _bitLength__7LibTVRC
+    stw r0, _bitArray__7LibTVRC
+    stw r6, _isOnOff__7LibTVRC
+    stw r6, _isLastOnOff__7LibTVRC
+    stw r6, _func0state__7LibTVRC
+    stw r6, _loop0count__7LibTVRC
+TVRCLoop0_prepare:
+    li r3, 0
+    lwz r7, _bitArray__7LibTVRC
+    stw r3, _ctCombo__7LibTVRC
+    lwz r8, _bitLength__7LibTVRC
+    lwz r4, _loop0count__7LibTVRC
+    lwz r0, _isLastOnOff__7LibTVRC
+    b TVRCLoop0_check_bits
+TVRCLoop0_bit_loop:
+    srawi r5, r4, 3
+    addi r3, r3, 1
+    addze r6, r5
+    srawi r5, r4, 3
+    lbzx r6, r7, r6
+    addze r5, r5
+    slwi r5, r5, 3
+    stw r3, _ctCombo__7LibTVRC
+    subf r5, r5, r4
+    subfic r5, r5, 7
+    sraw r5, r6, r5
+    clrlwi r5, r5, 31
+    cmpw r0, r5
+    stw r5, _isOnOff__7LibTVRC
+    beq TVRCLoop0_bit_match
+    li r3, -1
+    li r0, 0
+    stw r3, _func1state__7LibTVRC
+    mr r3, r30
+    mr r4, r31
+    stw r0, _func0state__7LibTVRC
+    bl __FTVRCLoop1Handler__7LibTVRCFP7OSAlarmP9OSContext
+    b TVRCLoop0_exit
+TVRCLoop0_bit_match:
+    addi r4, r4, 1
+    stw r5, _isLastOnOff__7LibTVRC
+    mr r0, r5
+    stw r4, _loop0count__7LibTVRC
+TVRCLoop0_check_bits:
+    cmpw r4, r8
+    blt TVRCLoop0_bit_loop
+    addi r3, r3, 1
+    li r5, -1
+    li r0, 2
+    stw r3, _ctCombo__7LibTVRC
+    mr r3, r30
+    mr r4, r31
+    stw r5, _func1state__7LibTVRC
+    stw r0, _func0state__7LibTVRC
+    bl __FTVRCLoop1Handler__7LibTVRCFP7OSAlarmP9OSContext
+TVRCLoop0_exit:
+    lwz r0, 0x14(r1)
+    lwz r31, 0xc(r1)
+    lwz r30, 0x8(r1)
+    mtlr r0
+    addi r1, r1, 0x10
+    blr
+}
+
+namespace LibTVRC {
+    void __FTVRCLoop1Handler(OSAlarm *alarm, OSContext *ctx) {
+        if (_ctCombo != 0 && _isActive != 0) {
+            if (_func1state == -1) {
+                _unitStartTime = OSGetTime();
+                _func1state = 0;
+            }
+
+            if (_isLastOnOff != 0) {
+                _unitLastTime = OSGetTime();
+
+                if (_func1state == 0) {
+                    WPADSetSensorBarPower(TRUE);
+                    _func1state = 1;
+                    OSSetAlarm(&_alarm, _tickWait[1], __FTVRCLoop1Handler);
+                    return;
+                }
+
+                BOOL active = (int)(_unitLastTime - _unitStartTime) < (int)(*(u32*)&_tickT * _ctCombo);
+                WPADSetSensorBarPower(FALSE);
+                _func1state = 0;
+                if (active) {
+                    OSSetAlarm(&_alarm, _tickWait[0], __FTVRCLoop1Handler);
+                } else {
+                    OSSetAlarm(&_alarm, _tickWait[0], __FTVRCLoop0Handler);
+                }
+            } else {
+                WPADSetSensorBarPower(FALSE);
+                OSSetAlarm(&_alarm, *(u32*)&_tickT * _ctCombo, __FTVRCLoop0Handler);
+            }
+        }
+    }
+}  // namespace LibTVRC
