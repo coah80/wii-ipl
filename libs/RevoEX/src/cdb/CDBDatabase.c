@@ -62,7 +62,7 @@ extern void _restgpr_25();
 extern void _restgpr_26();
 extern int atoi();
 #pragma section sdata_type ".sdata"
-extern u32 lbl_81698D8C;
+extern u32 CDBDatabaseWorkBuf;
 extern char lbl_8166B528[];
 extern char lbl_8166B550[];
 extern char lbl_8166B57C[];
@@ -834,7 +834,7 @@ asm CDBErr CDBDatabaseSearchRecordLayer() {
     stw r0, 0x124(r1)
     addi r11, r1, 0x120
     bl _savegpr_14
-    lwz r11, lbl_81698D8C(r0)
+    lwz r11, CDBDatabaseWorkBuf(r0)
     mr r20, r5
     mr r22, r7
     mr r24, r9
@@ -855,7 +855,7 @@ asm CDBErr CDBDatabaseSearchRecordLayer() {
     bl CDBConvDirStrToCDBDate
     lwz r0, 0x18(r19)
     mr r31, r3
-    lwz r25, lbl_81698D8C(r0)
+    lwz r25, CDBDatabaseWorkBuf(r0)
     addi r26, r3, 0x3b
     cmpwi r0, 0x0
     addi r0, r25, 0x994
@@ -1327,7 +1327,7 @@ asm CDBErr CDBDatabaseSearchMinuteLayer() {
     stw r0, 0x174(r1)
     addi r11, r1, 0x170
     bl _savegpr_17
-    lwz r10, lbl_81698D8C(r0)
+    lwz r10, CDBDatabaseWorkBuf(r0)
     mr r21, r5
     mr r19, r3
     mr r20, r4
@@ -1589,7 +1589,7 @@ asm CDBErr CDBDatabaseSearchHourLayer() {
     stw r0, 0xb4(r1)
     addi r11, r1, 0xb0
     bl _savegpr_18
-    lwz r9, lbl_81698D8C(r0)
+    lwz r9, CDBDatabaseWorkBuf(r0)
     mr r22, r5
     mr r20, r3
     mr r21, r4
@@ -1846,7 +1846,7 @@ asm CDBErr CDBDatabaseSearchDayLayer() {
     stw r0, 0x104(r1)
     addi r11, r1, 0x100
     bl _savegpr_17
-    lwz r8, lbl_81698D8C(r0)
+    lwz r8, CDBDatabaseWorkBuf(r0)
     mr r19, r5
     mr r17, r3
     mr r18, r4
@@ -2128,7 +2128,7 @@ asm CDBErr CDBDatabaseSearchMonthLayer() {
     stw r0, 0xb4(r1)
     addi r11, r1, 0xb0
     bl _savegpr_19
-    lwz r7, lbl_81698D8C(r0)
+    lwz r7, CDBDatabaseWorkBuf(r0)
     mr r23, r5
     mr r21, r3
     mr r22, r4
@@ -2398,7 +2398,7 @@ asm CDBErr CDBDatabaseSearchYearLayer() {
     stw r0, 0x94(r1)
     addi r11, r1, 0x90
     bl _savegpr_22
-    lwz r6, lbl_81698D8C(r0)
+    lwz r6, CDBDatabaseWorkBuf(r0)
     and. r0, r3, r4
     mr r24, r3
     mr r25, r4
@@ -2832,7 +2832,7 @@ asm CDBErr CDBDatabaseCleanUpEmptyDirectoriesRecord() {
     stw r0, 0x134(r1)
     addi r11, r1, 0x130
     bl _savegpr_25
-    lwz r11, lbl_81698D8C(r0)
+    lwz r11, CDBDatabaseWorkBuf(r0)
     mr r25, r4
     lwz r29, 0x138(r1)
     mr r26, r5
@@ -2912,7 +2912,7 @@ asm CDBErr CDBDatabaseCleanUpEmptyDirectoriesType() {
     addi r11, r1, 0x140
     bl _savegpr_22
     li r0, 0x0
-    lwz r11, lbl_81698D8C(r0)
+    lwz r11, CDBDatabaseWorkBuf(r0)
     stw r0, 0x10(r1)
     mr r22, r3
     lwz r30, 0x148(r1)
@@ -3010,7 +3010,7 @@ asm CDBErr CDBDatabaseCleanUpEmptyDirectoriesCode() {
     stw r0, 0x144(r1)
     addi r11, r1, 0x140
     bl _savegpr_23
-    lwz r11, lbl_81698D8C(r0)
+    lwz r11, CDBDatabaseWorkBuf(r0)
     li r0, 0x0
     mr r23, r3
     mr r24, r4
@@ -3105,7 +3105,7 @@ asm CDBErr CDBDatabaseCleanUpEmptyDirectoriesMinute() {
     stw r0, 0x134(r1)
     addi r11, r1, 0x130
     bl _savegpr_24
-    lwz r10, lbl_81698D8C(r0)
+    lwz r10, CDBDatabaseWorkBuf(r0)
     li r0, 0x0
     mr r24, r3
     mr r25, r4
@@ -3197,7 +3197,7 @@ asm CDBErr CDBDatabaseCleanUpEmptyDirectoriesHour() {
     stw r0, 0x134(r1)
     addi r11, r1, 0x130
     bl _savegpr_25
-    lwz r9, lbl_81698D8C(r0)
+    lwz r9, CDBDatabaseWorkBuf(r0)
     li r0, 0x0
     mr r25, r3
     mr r26, r4
@@ -3286,7 +3286,7 @@ asm CDBErr CDBDatabaseCleanUpEmptyDirectoriesDay() {
     stw r0, 0x134(r1)
     addi r11, r1, 0x130
     bl _savegpr_26
-    lwz r8, lbl_81698D8C(r0)
+    lwz r8, CDBDatabaseWorkBuf(r0)
     li r0, 0x0
     mr r26, r3
     mr r27, r4
@@ -3382,7 +3382,7 @@ asm CDBErr CDBDatabaseCleanUpEmptyDirectoriesMonth() {
     mr r28, r3
     mr r4, r28
     addi r3, r1, 0x10
-    lwz r7, lbl_81698D8C(r0)
+    lwz r7, CDBDatabaseWorkBuf(r0)
     stw r0, 0x8(r1)
     addi r31, r7, 0x3a78
     bl CDBConvYearStrToFullPath
@@ -3460,7 +3460,7 @@ asm CDBErr CDBDatabaseCleanUpEmptyDirectories(CDBDatabase* database, CDBRecordLo
     stw r30, 0x18(r1)
     stw r29, 0x14(r1)
     mr r29, r4
-    lwz r5, lbl_81698D8C(r0)
+    lwz r5, CDBDatabaseWorkBuf(r0)
     addi r30, r5, 0x430c
     bne L_8148A13C
     li r3, 0x1
