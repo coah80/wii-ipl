@@ -240,12 +240,12 @@ namespace ipl {
                 }
             }
             if (numChannels >= 5) {
-                layout::Wrapper::Hide(mpDialogB->FindPaneByName("N_Btn_3"));
+                mpDialogB->FindPaneByName("N_Btn_3")->SetVisible(false);
                 mpDialogB->FindPaneByName("N_Btn_4")->SetVisible(true);
                 mDialogBtnType = 4;
             } else {
                 mpDialogB->FindPaneByName("N_Btn_3")->SetVisible(true);
-                layout::Wrapper::Hide(mpDialogB->FindPaneByName("N_Btn_4"));
+                mpDialogB->FindPaneByName("N_Btn_4")->SetVisible(false);
                 mDialogBtnType = 3;
             }
 
@@ -405,22 +405,22 @@ namespace ipl {
         }
 
         void SDMemory::playEdgeAnim0() {
-            if (!mbEdgePlayed[0]) {
-                mpDialogC->getAnim(0x10)->initAnmFrame();
-                layout::Animator* pAnim = mpDialogC->getAnim(0x10);
-                pAnim->initFrame();
-                pAnim->restart();
-                mbEdgePlayed[0] = true;
-            }
-        }
-
-        void SDMemory::playEdgeAnim1() {
             if (!mbEdgePlayed[1]) {
                 mpDialogC->getAnim(0xE)->initAnmFrame();
                 layout::Animator* pAnim = mpDialogC->getAnim(0xE);
                 pAnim->initFrame();
                 pAnim->restart();
                 mbEdgePlayed[1] = true;
+            }
+        }
+
+        void SDMemory::playEdgeAnim1() {
+            if (!mbEdgePlayed[0]) {
+                mpDialogC->getAnim(0x10)->initAnmFrame();
+                layout::Animator* pAnim = mpDialogC->getAnim(0x10);
+                pAnim->initFrame();
+                pAnim->restart();
+                mbEdgePlayed[0] = true;
             }
         }
 
@@ -447,7 +447,7 @@ namespace ipl {
         void SDMemory::updateEdgeArrows() {
             controller::Interface* pCon = System::getMasterController();
 
-            if (mScroller.getBInst().isActive()) {
+            if (mScroller.getBInst().isActive() ? false : true) {
                 if (pCon->down(controller::BTN_UP)) {
                     playEdgeAnim2();
                 }
@@ -1283,20 +1283,20 @@ namespace ipl {
                 pAnim->initFrame();
                 pAnim->restart();
                 mbChecking = false;
-                int r = System::getDialog()->getLastResult();
-                if (r != -1) {
-                    if (r == 1) {
-                        mState = 4;
-                        mCheckProgress = 0x19;
-                        return 1;
-                    }
-                    mpDialogA->getAnim(0)->initAnmFrame();
-                    layout::Animator* pAnimA = mpDialogA->getAnim(0);
-                    pAnimA->initFrame();
-                    pAnimA->restart();
-                    snd::sSystem.startSE(lbl_81656696);
-                    mCheckProgress = 0;
+            }
+            int r = System::getDialog()->getLastResult();
+            if (r != -1) {
+                if (r == 1) {
+                    mState = 4;
+                    mCheckProgress = 0x19;
+                    return 1;
                 }
+                mpDialogA->getAnim(0)->initAnmFrame();
+                layout::Animator* pAnim = mpDialogA->getAnim(0);
+                pAnim->initFrame();
+                pAnim->restart();
+                snd::sSystem.startSE(lbl_81656696);
+                mCheckProgress = 0;
             }
             return 0;
         }
@@ -1319,14 +1319,16 @@ namespace ipl {
         int SDMemory::state24() {
             if (System::getDialog()->getState() == 3) {
                 mpDialogBg->getAnim(1)->initAnmFrame();
-                mpDialogBg->getAnim(1)->play();
+                layout::Animator* pAnim = mpDialogBg->getAnim(1);
+                pAnim->initFrame();
+                pAnim->restart();
                 mbChecking = false;
-                if (System::getDialog()->getLastResult() != -1) {
-                    mbDialogOpen = true;
-                    System::getHomeButtonMenu()->enable();
-                    mCheckProgress = 0x19;
-                    return 1;
-                }
+            }
+            if (System::getDialog()->getLastResult() != -1) {
+                mbDialogOpen = true;
+                System::getHomeButtonMenu()->enable();
+                mCheckProgress = 0x19;
+                return 1;
             }
             return 0;
         }
@@ -1367,7 +1369,11 @@ namespace ipl {
         extern "C" char lbl_816567BE[] = "T_Header_body";
         extern "C" char lbl_816567CC[] = "N_TopBtn_00";
         void SDMemory::drawProgress() {
-            nw4r::math::VEC3 pos = mpDialogC->FindPaneByName("N_Memo")->GetTranslate();
+            const nw4r::math::VEC3& trans = mpDialogC->FindPaneByName("N_Memo")->GetTranslate();
+            nw4r::math::VEC3 pos;
+            pos.x = trans.x;
+            pos.y = trans.y;
+            pos.z = trans.z;
 
             mpDialogC->FindPaneByName(lbl_816567A4);
             nw4r::lyt::Pane* pBodyPane = mpDialogC->FindPaneByName(lbl_816567B2);

@@ -451,7 +451,7 @@ namespace ipl {
         f32 SDChannelObj::createSDThumbnail() {
             f32 frame = 0.0f;
 
-            mpThumbLayout = layout::Object::create(mpMainHeap, 0x18000, mpThumbBuffer, "arc", lbl_81654BB8);
+            mpThumbLayout = layout::Object::create(mpMainHeap, 0x8000, mpThumbBuffer, "arc", lbl_81654BB8);
             setLangPane(mpThumbLayout);
 
             if (mpThumbLayout->searchFile("icon.brlan")) {
