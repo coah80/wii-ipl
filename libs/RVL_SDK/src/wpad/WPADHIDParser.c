@@ -824,10 +824,11 @@ void __a1_22_ack(u8 chan, u8* data) {
 
     DEBUGPrint("ack --> report ID = %02x, error code = %d\n", type, err);
 
-    p_status->err = WPAD_ERR_BUSY;
-    p_status->dev = p_wpd->devType;
     status = WPAD_ERR_TRANSFER;
     status &= ~-((__cntlzw(err) >> 5) & 1);
+
+    p_status->err = WPAD_ERR_BUSY;
+    p_status->dev = p_wpd->devType;
 
     if (err) {
         DEBUGPrint("ack error --> report ID = %d, error code = %d\n", type, err);
