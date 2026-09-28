@@ -2542,9 +2542,8 @@ void ipl::scene::AddressEdit::onEventDerived(u32 componentId, u32 event, const i
     nw4r::lyt::Pane* pane = component->getPane();
 
     const char* paneName = pane->GetName();
-    if (event != 0) {
-        return;
-    }
+    switch (event) {
+    case 0: {
     if (controller == NULL) {
         return;
     }
@@ -2769,6 +2768,11 @@ void ipl::scene::AddressEdit::onEventDerived(u32 componentId, u32 event, const i
             }
         }
         }
+        break;
+    }
+    default:
+        break;
+    }
 }
 
 void ipl::scene::AddressEdit::start_ipt_left_event(
