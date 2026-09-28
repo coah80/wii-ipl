@@ -20,6 +20,7 @@ force_active:
   - padding__Q23ipl5scene
   - lbl_81695063
   - lbl_81695067
+  - __vt__Q49textinput6extend4memo19NigaoeEventObserver
 
 # textinput::toolbar::csPaneToAnimation points one past the end of csAninationFile.
 block_relocations:
