@@ -1695,7 +1695,7 @@ void KPADInit(void) {
             u8* record = (u8*)kpad;
             i = 0;
             do {
-                kpad->ringData[i].error = -1;
+                record[0x139] = -1;
                 record += 0x38;
                 i++;
             } while (i < 16);
