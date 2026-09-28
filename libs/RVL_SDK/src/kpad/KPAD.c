@@ -172,12 +172,11 @@ static void calc_dpd_variable(KPADInside* kpad, s8 valid);
 
 static void* get_ring_buffer_by_kpad1_style(s32 chan, void* buffer, s32 style) {
     KPADInside* kpad = &inside_kpads[chan];
-    s32 size;
-    u16 enabled;
-    s32 index;
-    s32 latest;
     u32 i;
-    KPADSample* record;
+    s32 latest;
+    s32 index;
+    u16 enabled;
+    s32 size;
     u32 type;
     switch (style) {
     case 0:
@@ -203,8 +202,7 @@ process:
         if (latest < 0) {
             latest = 15;
         }
-        record = kpad->ringData + index;
-        type = record->device;
+        type = kpad->ringData[index].device;
         switch (type) {
         case 0:
         case 0xFB:
@@ -224,9 +222,9 @@ process:
         }
         if (type == style) {
             if (WPADGetStatus() != 3) {
-                record->error = 0xFC;
+                kpad->ringData[index].error = 0xFC;
             }
-            memcpy((u8*)buffer + latest * size, record, size);
+            memcpy((u8*)buffer + latest * size, &kpad->ringData[index], size);
         }
         index--;
         latest--;
@@ -1244,13 +1242,14 @@ static void reset_kpad(KPADInside* kpad) {
 }
 
 void KPADGetProjectionPos(Vec2* dest, Vec2* src, const Rect* rect, f32 scale) {
+    f64 scaled;
     f32 height = rect->bottom - rect->top;
-    f64 scaled = 0.908 * scale;
     f32 halfHeight = height * 0.5f;
     f32 x = src->x * halfHeight;
     f32 y = src->y * halfHeight;
     x *= 1.2f;
     y *= 1.2f;
+    scaled = 0.908 * scale;
     dest->y = y;
     dest->x = (f32)(x * scaled);
 }
