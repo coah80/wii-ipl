@@ -20,7 +20,12 @@ namespace ipl {
 
             Date() : year(MIN_YEAR), month(MIN_MONTH), day(MIN_DAY) {}
             Date(int myYear, int myMonth, int myDay) : year(myYear), month(myMonth), day(myDay) {}
+#ifdef IPL_BOARD_DATE_CTOR_OUT_OF_LINE
+            Date(const OSCalendarTime& cal);
+#else
             Date(const OSCalendarTime& cal) : year(cal.year), month(cal.mon + 1), day(cal.mday) {}
+#endif
+#line 24 "include/utility/iplCalendar.h"
             Date(const Date& date) : year(date.year), month(date.month), day(date.day) {}
 
             static Date getMaxDate() {
@@ -127,6 +132,9 @@ namespace ipl {
                 return days[month - 1];
             }
 
+#ifdef IPL_BOARD_WEEK_FUNCTION_OUT_OF_LINE
+            static int getWeek(const Date& date) NO_INLINE;
+#else
             static int getWeek(const Date& date) NO_INLINE {
                 int month, year, day;
                 month = date.month;
@@ -138,6 +146,8 @@ namespace ipl {
                 }
                 return (day + (((month * 13) + 8) / 5) + ((year / 400) + ((year + (year / 4)) - (year / 100)))) % 7;
             }
+#endif
+#line 147 "include/utility/iplCalendar.h"
 
             static int getWeek(int year, int month, int day) NO_INLINE {
                 if (month <= 2) {

@@ -1,3 +1,6 @@
+#define IPL_BOARD_OBJECT_EXTERNAL_DYNAMIC_CAST
+#define IPL_BOARD_OBJECT_INLINE_INTERPOLATION_DTORS
+
 #include "iplSceneUI.h"
 
 #include "scene/board/iplBoard.h"
@@ -43,6 +46,10 @@ extern "C" void __ct__Q33ipl4math4VEC2Fff(ipl::math::VEC2*, f32, f32);
 #define PICTURE_THUMB_HEIGHT 48
 
 namespace ipl {
+    namespace math {
+        template <> inline LinearIntp<VEC2>::~LinearIntp() {}
+        template <> inline Interporation<VEC2>::~Interporation() {}
+    }
     namespace scene {
         // clang-format off
         const char* BoardObject::mAnimNames[BoardObject::TYPE_MAX][1+BoardObject::ANIM_MAX] = {
@@ -478,8 +485,10 @@ namespace ipl {
         }
 
         void BoardObject::stt_stand() {
-            f32 dVar2 = nw4r::math::CosFIdx((0.7111111f * (mStandData.unk_0x0C * 30.0f + 30.0f)));
-            f32 dVar3 = nw4r::math::SinFIdx((0.7111111f * (mStandData.unk_0x0C * 30.0f + 30.0f)));
+            f32 degrees = mStandData.unk_0x0C * 30.0f + 30.0f;
+            f32 dVar2 = nw4r::math::CosFIdx(degrees * 0.7111111f);
+            degrees = mStandData.unk_0x0C * 30.0f + 30.0f;
+            f32 dVar3 = nw4r::math::SinFIdx(degrees * 0.7111111f);
 
             math::VEC2 standPos;
             __ct__Q33ipl4math4VEC2Fff(&standPos, dVar3 * 160.0f, dVar2 * 160.0f);
@@ -879,14 +888,5 @@ namespace ipl {
             return result;
         }
 
-#ifndef NON_MATCHING
-        void forceWeakFunc(nw4r::math::VEC2& vec) {
-            nw4r::math::VEC2 end(vec / 10.0f);
-        }
-#endif
-
-        void GenerateWEAK() {
-            nw4r::lyt::TextBox* textBox = nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(((nw4r::lyt::Pane*)NULL)->FindPaneByName(NULL));
-        }
     }  // namespace scene
 }  // namespace ipl

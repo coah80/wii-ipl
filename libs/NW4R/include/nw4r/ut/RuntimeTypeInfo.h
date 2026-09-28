@@ -37,6 +37,9 @@ namespace nw4r {
         }  // namespace detail
 
         template <typename TDerived, typename TBase>
+#ifdef IPL_BOARD_OBJECT_EXTERNAL_DYNAMIC_CAST
+        TDerived DynamicCast(TBase* pPtr);
+#else
         inline TDerived DynamicCast(TBase* pPtr) {
             const detail::RuntimeTypeInfo* pDerivedTypeInfo = detail::GetTypeInfoFromPtr_(static_cast<TDerived>(NULL));
             if (pPtr->GetRuntimeTypeInfo()->IsDerivedFrom(pDerivedTypeInfo)) {
@@ -44,6 +47,7 @@ namespace nw4r {
             }
             return NULL;
         }
+#endif
     }  // namespace ut
 }  // namespace nw4r
 
