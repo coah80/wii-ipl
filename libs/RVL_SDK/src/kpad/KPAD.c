@@ -821,63 +821,63 @@ static s8 select_1obj_first(KPADInside* kpad) {
 
 static s8 select_1obj_continue(KPADInside* kpad) {
     KPADDPDObject* objects = (KPADDPDObject*)((u8*)kpad + 0xC4);
-    f32 threshold = kp_err_near_pos * kp_err_near_pos;
+    KPADDPDObject* candidates = (KPADDPDObject*)((u8*)kpad + 0xF4);
+    KPADDPDObject* matchedCandidate = 0;
     KPADDPDObject* source = 0;
-    f32* trackedX = 0;
-    f32* trackedY = 0;
-    u32* trackedFlags = 0;
-    s32 track;
-    s32 i;
-    for (track = 0; track < 2; track++) {
-        f32* candidateX = track == 0 ? &kpad->valueF4 : &kpad->value100;
-        f32* candidateY = track == 0 ? &kpad->valueF8 : &kpad->value104;
-        u32* candidateFlags = track == 0 ? &kpad->valueFC : &kpad->value108;
-        u8* candidateState = (u8*)candidateFlags;
-        if ((s8)candidateState[0] != 0 || (s8)candidateState[1] != 0) {
-            continue;
+    KPADDPDObject* candidate;
+    f32 best = kp_err_near_pos * kp_err_near_pos;
+    candidate = candidates;
+    do {
+        if ((s8)candidate->flags == 0 && (s8)candidate->status == 0) {
+            KPADDPDObject* object = objects;
+            do {
+                if ((s8)object->flags == 0) {
+                    f32 dx = candidate->x - object->x;
+                    f32 dy = candidate->y - object->y;
+                    f32 distance = dx * dx + dy * dy;
+                    if (distance < best) {
+                        best = distance;
+                        matchedCandidate = candidate;
+                        source = object;
+                    }
+                }
+            } while (++object < candidates);
         }
-        for (i = 0; i < 4; i++) {
-            f32 dx;
-            f32 dy;
-            f32 distance;
-            if ((s8)objects[i].flags != 0) {
-                continue;
-            }
-            dx = objects[i].x - *candidateX;
-            dy = objects[i].y - *candidateY;
-            distance = dx * dx + dy * dy;
-            if (distance < threshold) {
-                threshold = distance;
-                source = &objects[i];
-                trackedX = candidateX;
-                trackedY = candidateY;
-                trackedFlags = candidateFlags;
-            }
-        }
-    }
-    if (source == 0) {
+    } while (++candidate < (KPADDPDObject*)((u8*)kpad + 0x10C));
+    if (best == kp_err_near_pos * kp_err_near_pos) {
         return 0;
     }
-    *trackedX = source->x;
-    *trackedY = source->y;
-    *trackedFlags = source->flags;
+    ((u32*)matchedCandidate)[0] = ((u32*)source)[0];
+    ((u32*)matchedCandidate)[1] = ((u32*)source)[1];
+    ((u32*)matchedCandidate)[2] = ((u32*)source)[2];
     {
-        f32 x = kpad->valueB0 * kpad->value4B8 + kpad->valueB4 * kpad->value4BC;
-        f32 y = kpad->valueB4 * kpad->value4B8 - kpad->valueB0 * kpad->value4BC;
-        f32 offsetX = kpad->value490 * x;
-        f32 offsetY = kpad->value490 * y;
-        kpad->value494 = x;
-        kpad->value498 = y;
-        if (trackedX == &kpad->value100) {
-            kpad->value100 = *trackedX + offsetX;
+        f32 axisX = kpad->valueB0;
+        f32 normX = kpad->value4B8;
+        f32 axisY = kpad->valueB4;
+        f32 normY = kpad->value4BC;
+        f32 distance = kpad->value490;
+        f32 horizontal = axisX * normX;
+        f32 vertical = axisY * normX;
+        f32 offsetX;
+        f32 directionX;
+        f32 directionY;
+        f32 offsetY;
+        directionX = horizontal + axisY * normY;
+        directionY = vertical - axisX * normY;
+        offsetX = distance * directionX;
+        kpad->value494 = directionX;
+        offsetY = distance * directionY;
+        kpad->value498 = directionY;
+        if (matchedCandidate == candidates) {
+            kpad->value100 = matchedCandidate->x + offsetX;
             kpad->value108 = 0;
             ((u8*)&kpad->value108)[1] = 0xFF;
-            kpad->value104 = *trackedY + offsetY;
+            kpad->value104 = matchedCandidate->y + offsetY;
         } else {
-            kpad->valueF4 = *trackedX - offsetX;
+            kpad->valueF4 = matchedCandidate->x - offsetX;
             kpad->valueFC = 0;
             ((u8*)&kpad->valueFC)[1] = 0xFF;
-            kpad->valueF8 = *trackedY - offsetY;
+            kpad->valueF8 = matchedCandidate->y - offsetY;
         }
     }
     if (kpad->status.dpd_valid_fg < 0) {
