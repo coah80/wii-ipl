@@ -55,10 +55,14 @@ namespace ipl {
                 x = r.x;
                 y = r.y;
             }
+#ifdef IPL_MATH_VEC2_CTOR_OUT_OF_LINE
+            VEC2(f32 fx, f32 fy);
+#else
             VEC2(f32 fx, f32 fy) {
                 x = fx;
                 y = fy;
             }
+#endif
 
             void operator=(const VEC2& r);
 
