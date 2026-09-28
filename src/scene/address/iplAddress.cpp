@@ -632,23 +632,23 @@ namespace ipl {
         }
 
         void Address::stt_backward() {
+            nw4r::math::VEC2 w;
+            math::VEC2 v;
             if (!mpLayout->getAnim(5)->isPlaying()) {
                 mMaxPage++;
-                nw4r::math::VEC2 v;
                 v.y = -sNullVec.y;
                 v.x = -sNullVec.x;
-                nw4r::math::VEC2 w = v;
-                math::VEC2 u = w;
-                add_translate(mpLayout->FindPaneByName("N_note_base"), u);
+                nw4r::math::VEC2 z = v;
+                add_translate(mpLayout->FindPaneByName("N_note_base"), z);
                 set_page_text("T_nmbr_b", mPageNo + 1);
                 for (u32 i = 0; i < 5; i++) {
                     set_friend(sTextNameB[i], mPageNo * 5 + i, i, mMiiB[i], false);
                 }
-                if (mbDragging) {
-                    mState = 0xA;
+                if (!mbDragging) {
+                    mState = 4;
                 }
                 else {
-                    mState = 4;
+                    mState = 0xA;
                 }
             }
             else if (mbDragging) {
@@ -2005,8 +2005,8 @@ namespace ipl {
             NWC24MsgObj msgObj;
             wchar_t text[0x400];
 
-            nwc24::Manager* manager = System::getNwc24Manager();
             const NWC24FriendInfo* info = &mInfos[index];
+            nwc24::Manager* manager = System::getNwc24Manager();
 
             manager->initMsgObj(&msgObj, NWC24_MSGTYPE_PUBLIC);
             manager->setMsgToAddr(&msgObj, info->addr.mailAddr, strlen(info->addr.mailAddr));

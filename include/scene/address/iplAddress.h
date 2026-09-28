@@ -19,6 +19,7 @@ namespace ipl {
             FriendListCache() {
                 mbOpened = FALSE;
             }
+            ~FriendListCache() {}
 
             BOOL    init();
             void    fin();
