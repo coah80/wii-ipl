@@ -60,9 +60,11 @@ namespace ipl {
         // clang-format on
 
         utility::Date Date::mscMinDate(MIN_YEAR, MIN_MONTH, MIN_DAY);
-        MaxDate Date::mscMaxDate(MAX_YEAR, MAX_MONTH, MAX_DAY);
+        utility::Date Date::mscMaxDate(MAX_YEAR, MAX_MONTH, MAX_DAY);
 
-        DECOMP_FORCE_ACTIVE(iplDate_cpp, &Date::mscMaxDate);
+        u8 padding[0x10];
+
+        DECOMP_FORCE_ACTIVE(iplDate_cpp, padding);
 
         Date::Date(EGG::Heap* heap, nand::LayoutFile* file, const char* layoutFolder, const char* layoutFileName)
             : ::gui::EventHandler(), mbAppearMsg(0), unk_0x10(0), unk_0x14(0), mpLayout(NULL), mpCurrentPaneAnim(0), unk_0x3C(0) {
