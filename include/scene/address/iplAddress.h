@@ -50,7 +50,7 @@ namespace ipl {
             u32             mNumRegInfos;       // 0x7D70
             u8              unk_0x7D74[0x2000]; // 0x7D74
             u32             mUnk_0x9D74;        // 0x9D74
-            BOOL            mbOpened;           // 0x9D78
+            bool            mbOpened;           // 0x9D78
         };
 
         class AddressEvent : public ::gui::EventHandler {
@@ -213,7 +213,7 @@ namespace ipl {
             int             mChosenFriendIndex; // 0xC0
             u8              mbHovered[5];       // 0xC4
             u8              unk_0xC9[3];        // 0xC9
-            u32             mPaneFlags[5];      // 0xCC
+            int             mPaneFlags[5];      // 0xCC
             u8              mbFlagE0;           // 0xE0
             u8              mbFlagE1;           // 0xE1
             u8              unk_0xE2[2];        // 0xE2

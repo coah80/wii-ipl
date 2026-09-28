@@ -90,6 +90,7 @@ namespace ipl {
             mpBackLayout(NULL),
             mFisttState(1), mCounter(0), mState(1), mPageNo(0), mMaxPage(0x14),
             mUnk_0xb8(0), mUnk_0xbc(0), mChosenFriendIndex(0), mbFlagE0(FALSE) {
+            setSceneParentFlags(SCN_PARENTFLAG_CALC | SCN_PARENTFLAG_DRAW);
             int i;
             for (i = 0; i < 5; i++) {
                 mPaneFlags[i] = 0;
@@ -111,9 +112,9 @@ namespace ipl {
         }
 
         void Address::create() {
-            mbFlagE1 = TRUE;
-
             nand::LayoutFile* layoutFile = static_cast<Board*>(System::getScene(SCENE_BOARD))->getLayoutFile();
+
+            mbFlagE1 = TRUE;
 
             mpLayout = new layout::Object(getSceneHeap(), layoutFile, "arc", "th_Adress_a.brlyt");
 
@@ -832,7 +833,7 @@ namespace ipl {
                     if (SCGetParentalControl(&pcInfo) && (pcInfo.enable & SC_PARENTAL_FLAG_ENABLED)) {
                         static_cast<Button*>(System::getScene(SCENE_BUTTON))->setEventHandler(NULL, NULL);
                         static_cast<Button*>(System::getScene(SCENE_BUTTON))->animation(0x10);
-                        createChildScene(SCENE_PARENTAL_DIALOG, this, NULL, (void*)4);
+                        createChildScene(SCENE_PARENTAL_DIALOG, this, NULL, (void*)1);
                         mbFlagE0 = FALSE;
                         mState = 0x13;
                     }
@@ -1368,8 +1369,9 @@ namespace ipl {
                 }
                 case 2: {
                     if (mpFriendList->mbHasInfo[index]) {
-                        return mpFriendList->mInfos[index].attr.status == NWC24_FRIENDSTATUS_CONFIRMED &&
-                            mpFriendList->mInfos[index].attr.type == NWC24_FRIENDTYPE_WII;
+                        NWC24FriendInfo* info = &mpFriendList->mInfos[index];
+                        return info->attr.status == NWC24_FRIENDSTATUS_CONFIRMED &&
+                            info->attr.type == NWC24_FRIENDTYPE_WII;
                     }
                     return FALSE;
                 }
@@ -1832,8 +1834,8 @@ namespace ipl {
             RFLCreateID data;
             memcpy(&data, &userId, sizeof(data));
 
-            u16 index;
-            if (RFLSearchOfficialData(&data, &index)) {
+            s16 index;
+            if (RFLSearchOfficialData(&data, (u16*)&index)) {
                 System::getMiiManager()->create(System::getMem2App(),
                     0x4C, 0x4C, index, create_callback, this);
             }
