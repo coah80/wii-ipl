@@ -1100,55 +1100,59 @@ static void read_kpad_stick(KPADInside* kpad, KPADSample* status) {
     }
     device = status->device;
     format = status->dataFormat;
-    if (device == 1) {
+    switch (device) {
+    case 1:
         if ((u8)(format + 0xFD) <= 2) {
             if (kpad->flag51E != 0) {
                 kpad->flag51E = 0;
                 extension->fs.stick = Vec2_0;
+                extension->fs.acc.z = 0.0f;
                 extension->fs.acc.x = 0.0f;
                 extension->fs.acc.y = -1.0f;
-                extension->fs.acc.z = 0.0f;
                 extension->fs.acc_value = 1.0f;
                 extension->fs.acc_speed = 0.0f;
             }
             clamp(&extension->fs.stick, status->extension.fs.stickX, status->extension.fs.stickY, kp_fs_fstick_min, kp_fs_fstick_max);
-            return;
         }
-        return;
+        break;
+    case 2:
+        if ((u8)(format + 0xFA) > 2) {
+            break;
+        }
+        if (kpad->flag51E != 0) {
+            kpad->flag51E = 0;
+            extension->cl.lstick = Vec2_0;
+            extension->cl.rstick = Vec2_0;
+            extension->cl.rtrigger = 0.0f;
+            extension->cl.ltrigger = 0.0f;
+            extension->cl.release = 0;
+            extension->cl.trig = 0;
+            extension->cl.hold = 0;
+            kpad->repeatCurrent = 0;
+            kpad->repeatCurrent2 = kpad->repeatDelay;
+        }
+        clamp(&extension->cl.lstick, status->extension.cl.lStickX, status->extension.cl.lStickY, kp_cl_stick_min, kp_cl_stick_max);
+        clamp(&extension->cl.rstick, (s8)status->extension.cl.rStickX, (s8)status->extension.cl.rStickY, kp_cl_stick_min, kp_cl_stick_max);
+        if (status->extension.cl.triggerL <= kp_cl_trigger_min) {
+            extension->cl.ltrigger = 0.0f;
+        } else if (status->extension.cl.triggerL >= kp_cl_trigger_max) {
+            extension->cl.ltrigger = 1.0f;
+        } else {
+            extension->cl.ltrigger = (f32)(status->extension.cl.triggerL - kp_cl_trigger_min) / (kp_cl_trigger_max - kp_cl_trigger_min);
+        }
+        if (status->extension.cl.triggerR <= kp_cl_trigger_min) {
+            extension->cl.rtrigger = 0.0f;
+            break;
+        }
+        if (status->extension.cl.triggerR >= kp_cl_trigger_max) {
+            extension->cl.rtrigger = 1.0f;
+            break;
+        }
+        extension->cl.rtrigger = (f32)(status->extension.cl.triggerR - kp_cl_trigger_min) / (kp_cl_trigger_max - kp_cl_trigger_min);
+        break;
+    default:
+        break;
     }
-    if (device != 2 || (u8)(format + 0xFA) > 2) {
-        return;
-    }
-    if (kpad->flag51E != 0) {
-        kpad->flag51E = 0;
-        extension->cl.hold = 0;
-        extension->cl.trig = 0;
-        extension->cl.release = 0;
-        extension->cl.lstick = Vec2_0;
-        extension->cl.rstick = Vec2_0;
-        extension->cl.ltrigger = 0.0f;
-        extension->cl.rtrigger = 0.0f;
-        kpad->repeatCurrent = 0;
-        kpad->repeatCurrent2 = kpad->repeatDelay;
-    }
-    clamp(&extension->cl.lstick, status->extension.cl.lStickX, status->extension.cl.lStickY, kp_cl_stick_min, kp_cl_stick_max);
-    clamp(&extension->cl.rstick, (s8)status->extension.cl.rStickX, *(s8*)&status->extension.cl.rStickY, kp_cl_stick_min, kp_cl_stick_max);
-    if (status->extension.cl.triggerL <= kp_cl_trigger_min) {
-        extension->cl.ltrigger = 0.0f;
-    } else if (status->extension.cl.triggerL >= kp_cl_trigger_max) {
-        extension->cl.ltrigger = 1.0f;
-    } else {
-        extension->cl.ltrigger = (f32)(status->extension.cl.triggerL - kp_cl_trigger_min) / (kp_cl_trigger_max - kp_cl_trigger_min);
-    }
-    if (status->extension.cl.triggerR <= kp_cl_trigger_min) {
-        extension->cl.rtrigger = 0.0f;
-        return;
-    }
-    if (status->extension.cl.triggerR >= kp_cl_trigger_max) {
-        extension->cl.rtrigger = 1.0f;
-        return;
-    }
-    extension->cl.rtrigger = (f32)(status->extension.cl.triggerR - kp_cl_trigger_min) / (kp_cl_trigger_max - kp_cl_trigger_min);
 }
 
 static void reset_kpad(KPADInside* kpad) {
