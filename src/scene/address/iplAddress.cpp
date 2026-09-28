@@ -538,9 +538,9 @@ namespace ipl {
 
         void Address::stt_cover_backward() {
             if (!mpLayout->getAnim(4)->isPlaying()) {
-                math::VEC2 offset = sPageOffset;
-                offset.y = -offset.y;
-                offset.x = -offset.x;
+                math::VEC2 offset;
+                offset.x = -sPageOffset.x;
+                offset.y = -sPageOffset.y;
                 add_translate(mpLayout->FindPaneByName("N_note_base"), offset);
                 mbCover = true;
                 mNextPageNum++;
@@ -1144,7 +1144,10 @@ namespace ipl {
 
         void Address::start_drag_event(const char* paneName, const controller::Interface* con) {
             int buttonNo = get_button_no(paneName);
-            if (buttonNo == -1 || con->getChannel() < 0) {
+            if (buttonNo == -1) {
+                return;
+            }
+            if (con->getChannel() < 0) {
                 return;
             }
 
@@ -1556,8 +1559,8 @@ namespace ipl {
                     mNextPageNum = 0;
                     mbCover = false;
                     math::VEC2 offset;
-                    offset.x = sPageOffset.x * PAGE_MAX;
                     offset.y = sPageOffset.y * PAGE_MAX;
+                    offset.x = sPageOffset.x * PAGE_MAX;
                     add_translate(mpLayout->FindPaneByName("N_note_base"), offset);
                     mpLayout->getAnim(4)->setAnmType(0);
                     mpLayout->getAnim(4)->play();
@@ -1874,7 +1877,8 @@ namespace ipl {
             manager->getNumRegFriendInfos(&mRegFriendNum);
 
             for (u32 i = 0; i < FRIEND_MAX; i++) {
-                if ((mbThere[i] = manager->isFriendInfoThere(i))) {
+                mbThere[i] = manager->isFriendInfoThere(i);
+                if (mbThere[i]) {
                     manager->readFriendInfo(&mInfos[i], i);
                 }
             }
@@ -1899,10 +1903,11 @@ namespace ipl {
         }
 
         void FriendListCache::update(u32 index, const wchar_t* name, u64 fdId) {
-            mInfos[index].attr.fdId = fdId;
-            memset(mInfos[index].attr.name, 0, sizeof(mInfos[index].attr.name));
-            wcsncpy((wchar_t*)mInfos[index].attr.name, name, 10);
-            System::getNwc24Manager()->updateFriendInfo(&mInfos[index], index);
+            NWC24FriendInfo* info = &mInfos[index];
+            info->attr.fdId = fdId;
+            memset(info->attr.name, 0, sizeof(info->attr.name));
+            wcsncpy((wchar_t*)info->attr.name, name, 10);
+            System::getNwc24Manager()->updateFriendInfo(info, index);
         }
 
         void FriendListCache::del(u32 index) {
@@ -1964,10 +1969,11 @@ namespace ipl {
 
             if (mMyUserId != 1234567890123456ULL) {
                 wchar_t idStr[17];
+                const wchar_t* idPattern = L"1234567890123456";
                 swprintf(idStr, ARRAY_LENGTH(idStr), L"%016lld", mMyUserId);
 
                 wchar_t* pos;
-                while ((pos = wcsstr(text, L"1234567890123456")) != NULL) {
+                while ((pos = wcsstr(text, idPattern)) != NULL) {
                     for (int i = 0; i < 16; i++) {
                         pos[i] = idStr[i];
                     }
