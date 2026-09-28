@@ -9,8 +9,8 @@
 #define NCD_IPC_HEAP_SIZE 0x1B60
 #define NCD_MAX_PROFILE 3
 
-static u32 ncdInitialized;
 static NCDConfig* ncdCommonBuffer;
+static u32 ncdInitialized;
 
 struct NCDMutex {
     OSMutex mutex;
@@ -24,7 +24,7 @@ const char* __NCDUnofficialVersion = "<< RVL_SDK - NCD \trelease build: Dec 12 2
 
 static void LockRight(void);
 static NCDErr ExecConfigCommand(const char* name, NCDConfig* config, u32 command);
-static NCDErr NCDiGetWirelessMacAddress(u8* macAddr);
+NCDErr NCDiGetWirelessMacAddress(u8* macAddr);
 
 NCDErr NCDReadConfig(NCDConfig* config) {
     if (config == NULL) {
@@ -323,7 +323,7 @@ NCDErr NCDGetWirelessMacAddress(u8* macAddr) {
     return NCDiGetWirelessMacAddress(macAddr);
 }
 
-static NCDErr NCDiGetWirelessMacAddress(u8* macAddr) {
+NCDErr NCDiGetWirelessMacAddress(u8* macAddr) {
     NCDErr err = 0;
     s32 fd;
 
