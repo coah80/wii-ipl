@@ -1026,48 +1026,16 @@ namespace ipl {
             blr
         }
 
-        asm void Manager::moveTitleTmpToPrior(register ESTitleId* titleIdsOut, register const ESTitleId* titleIdsIn) {
-            nofralloc
-            stwu r1, -0x20(r1)
-            mflr r0
-            stw r0, 0x24(r1)
-            addi r11, r1, 0x20
-            bl _savegpr_26
-            mr r26, r3
-            mr r27, r4
-            mr r28, r5
-            li r29, 0
-            li r31, 0
-        moveTitleTmpToPrior_L1:
-            add r30, r28, r31
-            lwzx r0, r28, r31
-            lwz r3, 4(r30)
-            or. r0, r3, r0
-            beq moveTitleTmpToPrior_L2
-            mr r3, r26
-            mr r4, r27
-            li r5, 0x30
-            bl getAvailableInList__Q33ipl8savedata7ManagerFPCUxUl
-            cmpwi r3, -1
-            beq moveTitleTmpToPrior_L3
-            slwi r0, r3, 3
-            lwz r4, 4(r30)
-            add r3, r27, r0
-            lwz r0, 0(r30)
-            stw r4, 4(r3)
-            stw r0, 0(r3)
-        moveTitleTmpToPrior_L2:
-            addi r29, r29, 1
-            addi r31, r31, 8
-            cmpwi r29, 0x36
-            blt moveTitleTmpToPrior_L1
-        moveTitleTmpToPrior_L3:
-            addi r11, r1, 0x20
-            bl _restgpr_26
-            lwz r0, 0x24(r1)
-            mtlr r0
-            addi r1, r1, 0x20
-            blr
+        void Manager::moveTitleTmpToPrior(ESTitleId* titleIdsOut, const ESTitleId* titleIdsIn) {
+            for (int titleIndex = 0; titleIndex < 0x36; titleIndex++) {
+                if (titleIdsIn[titleIndex] != TITLE_NULL) {
+                    int availableIndex = getAvailableInList(titleIdsOut, 0x30);
+                    if (availableIndex == -1) {
+                        return;
+                    }
+                    titleIdsOut[availableIndex] = titleIdsIn[titleIndex];
+                }
+            }
         }
 #endif
 
