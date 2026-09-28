@@ -1528,23 +1528,6 @@ namespace ipl {
 
         void Address::onPreviousPage() {
             switch (mState) {
-                case STATE_COVER_NORMAL: {
-                    mPage = PAGE_MAX - 1;
-                    mNextPageNum = 0;
-                    mbCover = false;
-                    add_translate(mpLayout->FindPaneByName("N_note_base"), sPageOffset * PAGE_MAX);
-                    mpLayout->getAnim(4)->setAnmType(0);
-                    mpLayout->getAnim(4)->play();
-                    set_page_text("T_nmbr_b", mPage + 1);
-                    reset_gui(false);
-
-                    for (u32 i = 0; i < BTN_MAX; i++) {
-                        set_friend(sTextNameB[i], i + mPage * BTN_MAX, i, mMiiObj[i], false);
-                    }
-
-                    mState = STATE_LOOP_BACKWARD;
-                    break;
-                }
                 case STATE_NORMAL:
                 case STATE_DRAG: {
                     if (mPage > 0) {
@@ -1566,6 +1549,26 @@ namespace ipl {
                         reset_gui(true);
                         mState = STATE_COVER_BACKWARD;
                     }
+                    break;
+                }
+                case STATE_COVER_NORMAL: {
+                    mPage = PAGE_MAX - 1;
+                    mNextPageNum = 0;
+                    mbCover = false;
+                    math::VEC2 offset;
+                    offset.x = sPageOffset.x * PAGE_MAX;
+                    offset.y = sPageOffset.y * PAGE_MAX;
+                    add_translate(mpLayout->FindPaneByName("N_note_base"), offset);
+                    mpLayout->getAnim(4)->setAnmType(0);
+                    mpLayout->getAnim(4)->play();
+                    set_page_text("T_nmbr_b", mPage + 1);
+                    reset_gui(false);
+
+                    for (u32 i = 0; i < BTN_MAX; i++) {
+                        set_friend(sTextNameB[i], i + mPage * BTN_MAX, i, mMiiObj[i], false);
+                    }
+
+                    mState = STATE_LOOP_BACKWARD;
                     break;
                 }
             }
