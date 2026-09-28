@@ -2,6 +2,8 @@
 #include "keyboard/tiInputForm.h"
 #include "keyboard/tiManager.h"
 
+#include <nw4r/lyt/textBox.h>
+
 #include <revolution/mtx.h>
 
 extern "C" void __dl__FPv(void*);
@@ -14131,7 +14133,13 @@ L_c228:
     blr 
 }
 
-extern "C" const char lbl_8165D258[] = "OutOfLength\n";
-extern "C" const char lbl_8165D2D0[] = "Error#004\nAn error has occurred.\nThe system files are corrupted.";
+// Pooled-literal call sites: the original C++ callers of these inline bodies
+// (EventObserver::onOutOfLength's printf, TextBox::GetTextColor's NW4R_ASSERT)
+// are transcribed as asm above, so the strings would otherwise never emit.
+void emitPooledLiterals(EventObserver* observer, nw4r::lyt::TextBox* textBox) {
+    observer->onOutOfLength();
+    textBox->GetTextColor(0);
 }
 }
+}
+extern "C" u32 lbl_81698D1C = 0;
