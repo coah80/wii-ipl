@@ -15,7 +15,6 @@
 #undef IPL_CONTROLLER_NATIVE_HIERARCHY
 #include "system/iplSystem.h"
 
-extern "C" void* mpAllocator__Q33ipl10controller7Manager;
 extern "C" void _savegpr_16();
 extern "C" void _restgpr_16();
 extern "C" void _savegpr_29();
@@ -24,16 +23,6 @@ extern "C" void _savegpr_27();
 extern "C" void _restgpr_27();
 extern "C" void _savegpr_28();
 extern "C" void _restgpr_28();
-extern "C" void __ct__Q33ipl10controller10RevolutionFiiR10KPADStatus();
-extern "C" void __ct__Q33ipl10controller7ClassicFiR10KPADStatus();
-extern "C" void __ct__Q23EGG9AllocatorFPQ23EGG4Heapl();
-extern "C" void create__Q23EGG7ExpHeapFPvUlUs();
-extern "C" void __nw__FUlPQ23EGG4Heapi();
-extern "C" void __dl__FPv();
-extern "C" void __ptmf_scall();
-extern "C" void alloc__Q33ipl10controller7ManagerFUl();
-extern "C" void free__Q33ipl10controller7ManagerFPv();
-extern "C" void read__Q33ipl10controller7ManagerFv();
 
 namespace ipl {
     namespace controller {
@@ -98,13 +87,15 @@ namespace ipl {
                     goto probe_invalid;
                 }
                 if (probe < -1) {
-                    if (probe < -3) {
-                        goto probe_invalid;
+                    if (probe >= -3) {
+                        goto probe_valid;
                     }
+                    goto probe_invalid;
                 } else if (probe >= 1) {
                     goto probe_invalid;
                 }
 
+            probe_valid:
                 {
                     s32 read = KPADRead(chan, &mKPADStatus[chan], 1);
                     if (read > 0) {
@@ -170,7 +161,7 @@ namespace ipl {
         }
 
         Interface* Manager::getMasterController() {
-            return (Interface*)((u8*)this + 0xd0);
+            return &mMaster;
         }
 
         Interface* Manager::getController(int chan) {
