@@ -538,7 +538,10 @@ namespace ipl {
 
         void Address::stt_cover_backward() {
             if (!mpLayout->getAnim(4)->isPlaying()) {
-                add_translate(mpLayout->FindPaneByName("N_note_base"), -sPageOffset);
+                math::VEC2 offset = sPageOffset;
+                offset.y = -offset.y;
+                offset.x = -offset.x;
+                add_translate(mpLayout->FindPaneByName("N_note_base"), offset);
                 mbCover = true;
                 mNextPageNum++;
                 mState = STATE_COVER_NORMAL;
@@ -1476,21 +1479,6 @@ namespace ipl {
 
         void Address::onNextPage() {
             switch (mState) {
-                case STATE_INIT:
-                case STATE_COVER_NORMAL: {
-                    mNextPageNum--;
-                    add_translate(mpLayout->FindPaneByName("N_note_base"), sPageOffset);
-                    mpLayout->getAnim(4)->setAnmType(0);
-                    mpLayout->getAnim(4)->play();
-                    reset_gui(true);
-
-                    for (u32 i = 0; i < BTN_MAX; i++) {
-                        set_friend(sTextNameB[i], i + mPage * BTN_MAX, i, mMiiObj[i], false);
-                    }
-
-                    mState = STATE_COVER_FORWARD;
-                    break;
-                }
                 case STATE_NORMAL:
                 case STATE_DRAG: {
                     if (mPage < PAGE_MAX - 1) {
@@ -1518,6 +1506,21 @@ namespace ipl {
                         reset_gui(true);
                         mState = STATE_LOOP_FORWARD;
                     }
+                    break;
+                }
+                case STATE_INIT:
+                case STATE_COVER_NORMAL: {
+                    mNextPageNum--;
+                    add_translate(mpLayout->FindPaneByName("N_note_base"), sPageOffset);
+                    mpLayout->getAnim(4)->setAnmType(0);
+                    mpLayout->getAnim(4)->play();
+                    reset_gui(true);
+
+                    for (u32 i = 0; i < BTN_MAX; i++) {
+                        set_friend(sTextNameB[i], i + mPage * BTN_MAX, i, mMiiObj[i], false);
+                    }
+
+                    mState = STATE_COVER_FORWARD;
                     break;
                 }
             }

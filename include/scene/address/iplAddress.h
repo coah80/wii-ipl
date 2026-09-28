@@ -239,7 +239,7 @@ namespace ipl {
             int mFadeinState;                   // 0xA4
             int mWaitOpenCount;                 // 0xA8
             int mState;                         // 0xAC
-            u32 mPage;                          // 0xB0
+            int mPage;                          // 0xB0
             int mNextPageNum;                   // 0xB4
             int mPrevPageNum;                   // 0xB8
             int mSelectedButton;                // 0xBC
