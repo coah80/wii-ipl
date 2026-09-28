@@ -2021,34 +2021,11 @@ void ipl::scene::AddressEdit::stt_wait_btn_fadeout() {
     }
 }
 
-extern "C" asm void stt_wait_del_msg_fadeout_to_rlt__Q33ipl5scene11AddressEditFv(ipl::scene::AddressEdit*) {
-    nofralloc
-    stwu r1, -0x10(r1)
-    mflr r0
-    li r4, 0x1d
-    stw r0, 0x14(r1)
-    stw r31, 0xc(r1)
-    mr r31, r3
-    lwz r5, 0x68(r3)
-    addi r3, r5, 0x28c
-    bl List_GetNth__Q24nw4r2utFPCQ34nw4r2ut4ListUs
-    lwz r0, 0x14(r3)
-    cmpwi r0, 1
-    beq stt_wait_del_msg_fadeout_to_rlt_L1
-    li r0, 8
-    lis r3, smArg__Q23ipl6System@ha
-    stw r0, 0x64(r31)
-    addi r3, r3, smArg__Q23ipl6System@l
-    li r4, 0x51
-    li r5, 0x2e
-    lwz r3, 0xac(r3)
-    bl callBtn1__Q23ipl12DialogWindowFUlUl
-stt_wait_del_msg_fadeout_to_rlt_L1:
-    lwz r0, 0x14(r1)
-    lwz r31, 0xc(r1)
-    mtlr r0
-    addi r1, r1, 0x10
-    blr
+void ipl::scene::AddressEdit::stt_wait_del_msg_fadeout_to_rlt() {
+    if (!mpCodeLayout->getAnim(0x1d)->isPlaying()) {
+        mState = 8;
+        ipl::System::getDialog()->callBtn1(0x51, 0x2e);
+    }
 }
 
 extern "C" asm void stt_msg_del_rlt__Q33ipl5scene11AddressEditFv(ipl::scene::AddressEdit*) {
