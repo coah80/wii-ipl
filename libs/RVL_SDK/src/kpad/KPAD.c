@@ -173,9 +173,9 @@ static void calc_dpd_variable(KPADInside* kpad, s8 valid);
 static void* get_ring_buffer_by_kpad1_style(s32 chan, void* buffer, s32 style) {
     KPADInside* kpad = &inside_kpads[chan];
     u32 i;
-    s32 latest;
     s32 index;
-    u16 enabled;
+    s32 latest;
+    int enabled;
     s32 size;
     u32 type;
     switch (style) {
