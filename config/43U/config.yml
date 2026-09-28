@@ -21,6 +21,21 @@ force_active:
   - lbl_81695063
   - lbl_81695067
 
+# textinput::toolbar::csPaneToAnimation points one past the end of csAninationFile.
+block_relocations:
+    - source: .data:0x8165E15C
+    - source: .data:0x8165E19C
+
+add_relocations:
+    - source: .data:0x8165E15C
+      type: abs
+      target: csAninationFile__Q29textinput7toolbar
+      addend: 0x1DC
+    - source: .data:0x8165E19C
+      type: abs
+      target: csAninationFile__Q29textinput7toolbar
+      addend: 0x1DC
+
 quick_analysis: true
 fill_gaps: false
 
