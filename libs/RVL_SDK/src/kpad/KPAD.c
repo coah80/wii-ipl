@@ -415,22 +415,21 @@ static void calc_acc_vertical(KPADInside* kpad) {
     accelZ = -kpad->value4AC;
     magnitude = (f32)sqrt(horizontalMagnitude + accelZ * accelZ);
     if (magnitude != 0.0f) {
-        if (magnitude >= 2.0f) {
-            return;
-        }
-        normalizedX = horizontal / magnitude;
-        normalizedZ = accelZ / magnitude;
-        if (magnitude > 1.0f) {
-            magnitude = 2.0f - magnitude;
-        }
-        blend = magnitude * kp_acc_horizon_pw;
-        smoothing = magnitude * blend;
-        nextX = kpad->status.acc_vertical.x + smoothing * (normalizedX - kpad->status.acc_vertical.x);
-        nextZ = kpad->status.acc_vertical.y + smoothing * (normalizedZ - kpad->status.acc_vertical.y);
-        normalized = (f32)sqrt(nextX * nextX + nextZ * nextZ);
-        if (normalized != 0.0f) {
-            kpad->status.acc_vertical.x = nextX / normalized;
-            kpad->status.acc_vertical.y = nextZ / normalized;
+        if (!(magnitude >= 2.0f)) {
+            normalizedX = horizontal / magnitude;
+            normalizedZ = accelZ / magnitude;
+            if (magnitude > 1.0f) {
+                magnitude = 2.0f - magnitude;
+            }
+            blend = magnitude * kp_acc_horizon_pw;
+            smoothing = magnitude * blend;
+            nextX = kpad->status.acc_vertical.x + smoothing * (normalizedX - kpad->status.acc_vertical.x);
+            nextZ = kpad->status.acc_vertical.y + smoothing * (normalizedZ - kpad->status.acc_vertical.y);
+            normalized = (f32)sqrt(nextX * nextX + nextZ * nextZ);
+            if (normalized != 0.0f) {
+                kpad->status.acc_vertical.x = nextX / normalized;
+                kpad->status.acc_vertical.y = nextZ / normalized;
+            }
         }
     }
 }
@@ -1378,6 +1377,14 @@ s32 KPADRead(s32 chan, KPADStatus* statuses, u32 count) {
     }
     kpad->samplingInProgress = 1;
     probe = WPADProbe(chan, 0);
+    if (probe == -1 && kpad->dpdCallback != 0 && kpad->dpdCallbackFired != 0 && kpad->dpdCallbackPending == 0) {
+        if (kpad->dpdCallback == 0) {
+            kpad->dpdCallbackPending = 1;
+            kpad->dpdCallback(chan, 1);
+            kpad->dpdCallbackFired = 0;
+        }
+        kpad->flag51F = 0;
+    }
     OSRestoreInterrupts(interruptState);
     if (kpad->flag51D != 0) {
         kpad->status.wpad_err = probe;
