@@ -25,14 +25,17 @@ namespace textinput {
         #pragma pop
 
         #pragma push
-        #pragma section sconst_type ".sdata"
+        #pragma section data_type ".sdata"
+        #pragma explicit_zero_data on
         extern "C" const char* lbl_816973C0 = lbl_8165D2D0;
         extern "C" const char* lbl_816973C4 = lbl_8165D2E0;
-        extern "C" const wchar_t lbl_816973C8[4] = {0, 0, 0, 1};
+        extern "C" wchar_t lbl_816973C8[4] = {0, 0, 0, 0};
+        #pragma pop
+        #pragma push
+        #pragma section sconst_type ".sdata"
         extern "C" const char lbl_816973D0[8] = "P_OnBtn";
         extern "C" const char lbl_816973D8[8] = "B_OnBtn";
         #pragma pop
-
 
         #define COMMON_TEXT_ANIM lbl_816973C0
         #define COMMON_SCROLL_ANIM lbl_816973C4
@@ -1018,7 +1021,7 @@ namespace textinput {
 
         void UITextArea::Init() {
             for (u32 i = 0; i < NUM_PANES; i++) {
-                mpTextBoxPane[i]->getTextPane()->SetString(const_cast<const wchar_t*>(lbl_816973C8), 0);
+                mpTextBoxPane[i]->getTextPane()->SetString(lbl_816973C8, 0);
                 mpBoundingPane[i]->setTriggerTarget(true);
             }
             mfTextWidth = 0.0f;
@@ -1203,7 +1206,7 @@ namespace textinput {
 
         void UITextArea::Clear() {
             for (u32 i = 0; i < NUM_PANES; i++) {
-                mpTextBoxPane[i]->getTextPane()->SetString(const_cast<const wchar_t*>(lbl_816973C8), 0);
+                mpTextBoxPane[i]->getTextPane()->SetString(lbl_816973C8, 0);
             }
         }
 
