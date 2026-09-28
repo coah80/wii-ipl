@@ -1,540 +1,1991 @@
+#define IPL_ADDRESS_MATCHING
+#define IPL_SOUND_RECT_OUT_OF_LINE
+#include <nw4r/ut/Rect.h>
+#undef IPL_SOUND_RECT_OUT_OF_LINE
+
 #include "scene/address/iplAddress.h"
 
+#include "iplSceneUI.h"
+
+#include "scene/board/iplBoard.h"
+#include "scene/letterWriter/iplLetterWriter.h"
+#include "scene/mailAddSel/iplMailAddressSelect.h"
+#include "scene/parentalDialog/iplParentalDialog.h"
+
+#include "scene/setting/iplNCDSetting.h"
+
 #include "system/MESGEntries.h"
+#include "system/iplNigaoe.h"
+#include "system/iplNigaoeManager.h"
 #include "system/iplSystem.h"
+#include "utility/iplCharacterCode.h"
 
 #include <string.h>
+#include <wchar.h>
 
-extern "C" const char* sTextNameB[5] = {
-    "T_name_b_00", "T_name_b_01", "T_name_b_02", "T_name_b_03", "T_name_b_04",
-};
+namespace ipl {
+    namespace scene {
+        static const char* sTextNameB[Address::BTN_MAX] = {"T_name_b_00", "T_name_b_01", "T_name_b_02", "T_name_b_03", "T_name_b_04"};
 
-extern "C" const char* sTextNameC[5] = {
-    "T_name_c_00", "T_name_c_01", "T_name_c_02", "T_name_c_03", "T_name_c_04",
-};
+        static const char* sTextNameC[Address::BTN_MAX] = {"T_name_c_00", "T_name_c_01", "T_name_c_02", "T_name_c_03", "T_name_c_04"};
 
-extern "C" const char* sButtonNameB[5] = {
-    "B_name_b_00", "B_name_b_01", "B_name_b_02", "B_name_b_03", "B_name_b_04",
-};
+        static const char* sButtonName[Address::BTN_MAX] = {"B_name_b_00", "B_name_b_01", "B_name_b_02", "B_name_b_03", "B_name_b_04"};
 
-extern "C" const char* sButtonSpaceName[4] = {
-    "B_name_b_00_01", "B_name_b_01_02", "B_name_b_02_03", "B_name_b_03_04",
-};
+        static const char* sButtonSpaceName[Address::BTN_SPACE_MAX] = {"B_name_b_00_01", "B_name_b_01_02", "B_name_b_02_03",
+                                                                       "B_name_b_03_04"};
 
-extern "C" const char* sNameB[5] = {
-    "name_b_00", "name_b_01", "name_b_02", "name_b_03", "name_b_04",
-};
+        static const char* sNameGroup[Address::BTN_MAX] = {"name_b_00", "name_b_01", "name_b_02", "name_b_03", "name_b_04"};
 
-extern "C" const char* sNameC[5] = {
-    "G_name_c_00", "G_name_c_01", "G_name_c_02", "G_name_c_03", "G_name_c_04",
-};
+        static const char* sNameCGroup[Address::BTN_MAX] = {"G_name_c_00", "G_name_c_01", "G_name_c_02", "G_name_c_03", "G_name_c_04"};
 
-extern "C" char sAddressStringPoolA[] =
-    "th_Adress_a.brlyt\0"
-    "th_Adress_a_note_alp_in.brlan\0"
-    "G_note_all\0"
-    "th_Adress_a_note_alp_out.brlan\0"
-    "th_Adress_a_note_trns_in.brlan\0"
-    "th_Adress_a_note_trns_out.brlan\0"
-    "th_Adress_a_note_e_rtt.brlan\0"
-    "G_note_e_rtt\0"
-    "th_Adress_a_note_c_rtt.brlan\0"
-    "note_c_rtt\0"
-    "th_Adress_a_name_in.brlan\0"
-    "th_Adress_a_name_out.brlan\0"
-    "th_Adress_a_name_psh.brlan\0"
-    "th_Adress_a_gry_name_in.brlan\0"
-    "th_Adress_a_gry_name_out.brlan\0"
-    "th_Adress_a_gry_name_psh.brlan\0"
-    "th_Adress_a_name_c_gry.brlan\0"
-    "my_Back_a.brlyt\0"
-    "my_Back_a_Apear.brlan\0"
-    "Picture_00\0"
-    "my_Back_a_Lost.brlan\0"
-    "my_Dialog_a.brlyt\0"
-    "my_Dialog_a_DialogIn.brlan\0"
-    "my_Dialog_a_DialogOut.brlan\0"
-    "T_Dialog\0"
-    "mii_b_%02d\0"
-    "mii_c_%02d\0"
-    "T_adrs_00\0"
-    "T_wii_msg\0"
-    "N_note_move\0"
-    "WIPL_SE_FL_PAGE_INC\0"
-    "\0";
+        static math::VEC2 sPageOffset(-1.0f, -1.0f);
 
-extern "C" void calc__Q33ipl6layout6ObjectFv();
-
-extern "C" void (*sAddressJumpTable[26])() = {
-    calc__Q33ipl6layout6ObjectFv,
-    calc__Q33ipl6layout6ObjectFv,
-    calc__Q33ipl6layout6ObjectFv,
-    calc__Q33ipl6layout6ObjectFv,
-    calc__Q33ipl6layout6ObjectFv,
-    calc__Q33ipl6layout6ObjectFv,
-    calc__Q33ipl6layout6ObjectFv,
-    calc__Q33ipl6layout6ObjectFv,
-    calc__Q33ipl6layout6ObjectFv,
-    calc__Q33ipl6layout6ObjectFv,
-    calc__Q33ipl6layout6ObjectFv,
-    calc__Q33ipl6layout6ObjectFv,
-    calc__Q33ipl6layout6ObjectFv,
-    calc__Q33ipl6layout6ObjectFv,
-    calc__Q33ipl6layout6ObjectFv,
-    calc__Q33ipl6layout6ObjectFv,
-    calc__Q33ipl6layout6ObjectFv,
-    calc__Q33ipl6layout6ObjectFv,
-    calc__Q33ipl6layout6ObjectFv,
-    calc__Q33ipl6layout6ObjectFv,
-    calc__Q33ipl6layout6ObjectFv,
-    calc__Q33ipl6layout6ObjectFv,
-    calc__Q33ipl6layout6ObjectFv,
-    calc__Q33ipl6layout6ObjectFv,
-    calc__Q33ipl6layout6ObjectFv,
-    calc__Q33ipl6layout6ObjectFv,
-};
-
-extern "C" char sAddressStringPoolB[] =
-    "N_note_a\0"
-    "N_note_b\0"
-    "N_note_c\0"
-    "N_note_d\0"
-    "N_note_e\0"
-    "T_wii_name\0"
-    "T_nmbr_b\0"
-    "WIPL_SE_FL_PAGE_DEC\0"
-    "N_note_base\0"
-    "T_CalAdd_R\0"
-    "WIPL_SE_DECIDE\0"
-    "mii_move\0"
-    "WIPL_SE_CH_HOLD\0"
-    "WIPL_SE_CH_SET\0"
-    "WIPL_SE_CH_NOT_MOVE\0"
-    "WIPL_SE_BT_TARGETTING\0"
-    "WIPL_SE_CANCEL\0"
-    "T_nmbr_c\0"
-    "\0\0%"
-    "\0"
-    "0\0"
-    "6\0"
-    "d\0"
-    "\n\0\0"
-    "T_name_move\0"
-    "WIPL_SE_CH_DRAG\0"
-    "N_base_move\0"
-    "\x00\x31\x00\x32\x00\x33\x00\x34\x00\x35\x00\x36\x00\x37\x00\x38"
-    "\x00\x39\x00\x30\x00\x31\x00\x32\x00\x33\x00\x34\x00\x35\x00\x36"
-    "\x00\x00\x00\x25\x00\x30\x00\x31\x00\x36\x00\x6c\x00\x6c\x00\x64"
-    "\x00";
-
-extern "C" char smArg__Q23ipl6System;
-extern "C" void checkUserId__Q33ipl5nwc247ManagerFUx();
-extern "C" void getErrCode__Q33ipl5nwc247ManagerFv();
-extern "C" void close__Q33ipl5nwc247ManagerFv();
-extern "C" void deleteFriendInfo__Q33ipl5nwc247ManagerFUl();
-extern "C" void getScene__Q33ipl5scene7ManagerFi();
-extern "C" void setEventHandler__Q33ipl5scene6ButtonFPQ23gui12EventHandlerPQ23gui12EventHandler();
-extern "C" void calc__Q33ipl6layout6ObjectFv();
-extern "C" void __ct__Q33ipl4math4VEC2Fff();
-extern "C" void __dt__Q33ipl6nigaoe6ObjectFv();
-extern "C" void __dl__FPv();
-extern "C" void GetTexture__Q34nw4r3lyt8MaterialCFP9_GXTexObjUc();
-extern "C" void SetTexture__Q34nw4r3lyt8MaterialFUcRC9_GXTexObj();
-extern "C" void create__Q33ipl6nigaoe7ManagerFPQ23EGG4HeapiiiPFPQ33ipl6nigaoe6ObjectPvPv();
-extern "C" int init__Q33ipl5scene15FriendListCacheFv(void*);
-extern "C" void onInitFriendList__Q33ipl5scene7AddressFv(void*);
-extern "C" void callBtn1__Q23ipl12DialogWindowFUlUl(void*, unsigned int, unsigned int);
-
-extern "C" asm void getChild__Q33ipl5scene4BaseFv() {
-    nofralloc
-    lwz r3, 8(r3)
-    blr
-}
-
-extern "C" asm void getPrev__Q33ipl5scene4BaseFv() {
-    nofralloc
-    lwz r3, 0x10(r3)
-    blr
-}
-
-extern "C" asm void getNext__Q33ipl5scene4BaseFv() {
-    nofralloc
-    lwz r3, 0x0C(r3)
-    blr
-}
-
-extern "C" asm void getParent__Q33ipl5scene4BaseFv() {
-    nofralloc
-    lwz r3, 4(r3)
-    blr
-}
-
-extern "C" asm void startResetting__Q33ipl5scene4BaseFv() {
-    nofralloc
-    blr
-}
-
-extern "C" asm void isResetProcessDone__Q33ipl5scene4BaseFv() {
-    nofralloc
-    li r3, 1
-    blr
-}
-
-extern "C" asm void isResetAcceptable__Q33ipl5scene4BaseCFv() {
-    nofralloc
-    li r3, 1
-    blr
-}
-
-extern "C" asm void isReady__Q33ipl5scene4BaseCFv() {
-    nofralloc
-    li r3, 0
-    blr
-}
-
-extern "C" asm void prepare__Q33ipl5scene7AddressFv() {
-    nofralloc
-    blr
-}
-
-extern "C" asm void calcCommon__Q33ipl5scene14FaderSceneBaseFv() {
-    nofralloc
-    blr
-}
-
-extern "C" void fistt_wait_open__Q33ipl5scene7AddressFv(ipl::scene::Address* self) {
-    char* address = reinterpret_cast<char*>(self);
-    if (init__Q33ipl5scene15FriendListCacheFv(*reinterpret_cast<void**>(address + 0x274))) {
-        onInitFriendList__Q33ipl5scene7AddressFv(self);
-        *reinterpret_cast<int*>(address + 0xa4) = 1;
-    } else if (*reinterpret_cast<int*>(address + 0xa8) >= 300) {
-        callBtn1__Q23ipl12DialogWindowFUlUl(ipl::System::getDialog(), MESG_ERROR_NWC24_FATAL,
-                                            MESG_CMN_OK);
-        *reinterpret_cast<int*>(address + 0xac) = 0x18;
-        *reinterpret_cast<int*>(address + 0xa4) = 2;
-    }
-    *reinterpret_cast<int*>(address + 0xa8) += 1;
-}
-
-void ipl::scene::Address::destroy() {
-    getFriendCache()->fin();
-}
-
-extern "C" asm void isValidId__Q33ipl5scene15FriendListCacheFRCUx() {
-    nofralloc
-    lis r3, smArg__Q23ipl6System@ha
-    addi r3, r3, smArg__Q23ipl6System@l
-    lbz r0, 0x2bc(r3)
-    cmpwi r0, 0
-    beq isValidId_L1
-    li r3, 0
-    b isValidId_L2
-isValidId_L1:
-    lwz r3, 0x8c(r3)
-isValidId_L2:
-    lwz r5, 0(r4)
-    lwz r6, 4(r4)
-    b checkUserId__Q33ipl5nwc247ManagerFUx
-}
-
-extern "C" asm void getErrCode__Q33ipl5scene15FriendListCacheCFv() {
-    nofralloc
-    lis r3, smArg__Q23ipl6System@ha
-    addi r3, r3, smArg__Q23ipl6System@l
-    lbz r0, 0x2bc(r3)
-    cmpwi r0, 0
-    beq getErrCode_L1
-    li r3, 0
-    b getErrCode_L2
-getErrCode_L1:
-    lwz r3, 0x8c(r3)
-getErrCode_L2:
-    b getErrCode__Q33ipl5nwc247ManagerFv
-}
-
-extern "C" asm void fin__Q33ipl5scene15FriendListCacheFv() {
-    nofralloc
-    addis r3, r3, 1
-    lbz r0, -0x6288(r3)
-    cmpwi r0, 0
-    beqlr
-    lis r3, smArg__Q23ipl6System@ha
-    addi r3, r3, smArg__Q23ipl6System@l
-    lbz r0, 0x2bc(r3)
-    cmpwi r0, 0
-    beq fin_L1
-    li r3, 0
-    b fin_L2
-fin_L1:
-    lwz r3, 0x8c(r3)
-fin_L2:
-    b close__Q33ipl5nwc247ManagerFv
-    blr
-}
-
-extern "C" asm void del__Q33ipl5scene15FriendListCacheFUl() {
-    nofralloc
-    add r5, r3, r4
-    li r0, 0
-    stb r0, 0x7d00(r5)
-    lis r5, smArg__Q23ipl6System@ha
-    addi r5, r5, smArg__Q23ipl6System@l
-    lwz r6, 0x7d70(r3)
-    addi r0, r6, -1
-    stw r0, 0x7d70(r3)
-    lbz r0, 0x2bc(r5)
-    cmpwi r0, 0
-    beq del_L1
-    li r3, 0
-    b del_L2
-del_L1:
-    lwz r3, 0x8c(r5)
-del_L2:
-    b deleteFriendInfo__Q33ipl5nwc247ManagerFUl
-}
-
-extern "C" asm void initCalcFadeout__Q33ipl5scene7AddressFv() {
-    nofralloc
-    stwu r1, -0x10(r1)
-    mflr r0
-    lis r3, smArg__Q23ipl6System@ha
-    li r4, 5
-    stw r0, 0x14(r1)
-    addi r3, r3, smArg__Q23ipl6System@l
-    lwz r3, 0x64(r3)
-    bl getScene__Q33ipl5scene7ManagerFi
-    li r4, 0
-    li r5, 0
-    bl setEventHandler__Q33ipl5scene6ButtonFPQ23gui12EventHandlerPQ23gui12EventHandler
-    lwz r0, 0x14(r1)
-    mtlr r0
-    addi r1, r1, 0x10
-    blr
-}
-
-extern "C" asm void calcCommonAfter__Q33ipl5scene7AddressFv() {
-    nofralloc
-    stwu r1, -0x10(r1)
-    mflr r0
-    stw r0, 0x14(r1)
-    stw r31, 0xc(r1)
-    mr r31, r3
-    lwz r3, 0x8c(r3)
-    bl calc__Q33ipl6layout6ObjectFv
-    lwz r3, 0x9c(r31)
-    bl calc__Q33ipl6layout6ObjectFv
-    lwz r3, 0xa0(r31)
-    bl calc__Q33ipl6layout6ObjectFv
-    lwz r0, 0x14(r1)
-    lwz r31, 0xc(r1)
-    mtlr r0
-    addi r1, r1, 0x10
-    blr
-}
-
-extern "C" asm void __ct__Q43ipl5scene7Address6MiiObjFv() {
-    nofralloc
-    li r0, 0
-    stw r0, 0x20(r3)
-    blr
-}
-
-extern "C" asm void __dt__Q43ipl5scene7Address6MiiObjFv() {
-    stwu r1, -0x10(r1)
-    mflr r0
-    cmpwi r3, 0
-    stw r0, 0x14(r1)
-    stw r31, 0xc(r1)
-    mr r31, r4
-    stw r30, 8(r1)
-    mr r30, r3
-    beq miio_dt_done
-    lwz r3, 0x20(r3)
-    cmpwi r3, 0
-    beq miio_dt_skip_object
-    li r4, 1
-    bl __dt__Q33ipl6nigaoe6ObjectFv
-miio_dt_skip_object:
-    cmpwi r31, 0
-    ble miio_dt_done
-    mr r3, r30
-    bl __dl__FPv
-miio_dt_done:
-    mr r3, r30
-    lwz r31, 0xc(r1)
-    lwz r30, 8(r1)
-    lwz r0, 0x14(r1)
-    mtlr r0
-    addi r1, r1, 0x10
-    blr
-}
-
-extern "C" asm void init__Q43ipl5scene7Address6MiiObjFPQ34nw4r3lyt4Pane() {
-    stwu r1, -0x10(r1)
-    mflr r0
-    stw r0, 0x14(r1)
-    stw r31, 0xc(r1)
-    mr r31, r3
-    mr r3, r4
-    lwz r12, 0(r4)
-    lwz r12, 0x5c(r12)
-    mtctr r12
-    bctrl
-    stw r3, 0x24(r31)
-    mr r4, r31
-    li r5, 0
-    bl GetTexture__Q34nw4r3lyt8MaterialCFP9_GXTexObjUc
-    lwz r0, 0x14(r1)
-    lwz r31, 0xc(r1)
-    mtlr r0
-    addi r1, r1, 0x10
-    blr
-}
-
-extern "C" asm void reset__Q43ipl5scene7Address6MiiObjFv() {
-    stwu r1, -0x10(r1)
-    mflr r0
-    stw r0, 0x14(r1)
-    stw r31, 0xc(r1)
-    mr r31, r3
-    lwz r0, 0x20(r3)
-    cmpwi r0, 0
-    beq miio_reset_done
-    lwz r3, 0x24(r3)
-    mr r5, r31
-    li r4, 0
-    bl SetTexture__Q34nw4r3lyt8MaterialFUcRC9_GXTexObj
-    lwz r3, 0x20(r31)
-    li r4, 1
-    bl __dt__Q33ipl6nigaoe6ObjectFv
-    li r0, 0
-    stw r0, 0x20(r31)
-miio_reset_done:
-    lwz r0, 0x14(r1)
-    lwz r31, 0xc(r1)
-    mtlr r0
-    addi r1, r1, 0x10
-    blr
-}
-
-extern "C" asm void create_callback__Q43ipl5scene7Address6MiiObjFPQ33ipl6nigaoe6ObjectPv() {
-    stwu r1, -0x10(r1)
-    mflr r0
-    stw r0, 0x14(r1)
-    stw r31, 0xc(r1)
-    mr r31, r4
-    stw r30, 8(r1)
-    mr r30, r3
-    lwz r0, 0x20(r4)
-    cmpwi r0, 0
-    beq miio_create_store
-    mr r3, r0
-    li r4, 1
-    bl __dt__Q33ipl6nigaoe6ObjectFv
-miio_create_store:
-    stw r30, 0x20(r31)
-    addi r5, r30, 0x18
-    lwz r3, 0x24(r31)
-    li r4, 0
-    bl SetTexture__Q34nw4r3lyt8MaterialFUcRC9_GXTexObj
-    lwz r0, 0x14(r1)
-    lwz r31, 0xc(r1)
-    lwz r30, 8(r1)
-    mtlr r0
-    addi r1, r1, 0x10
-    blr
-}
-
-extern "C" asm void set__Q43ipl5scene7Address6MiiObjFUx() {
-    stwu r1, -0x30(r1)
-    mflr r0
-    stw r0, 0x34(r1)
-    addi r4, r1, 8
-    stw r31, 0x2c(r1)
-    mr r31, r3
-    addi r3, r1, 0x12
-    stw r5, 8(r1)
-    li r5, 8
-    stw r6, 0xc(r1)
-    bl memcpy
-    addi r3, r1, 0x12
-    addi r4, r1, 0x10
-    bl RFLSearchOfficialData
-    cmpwi r3, 0
-    beq miio_set_reset
-    lis r4, smArg__Q23ipl6System@ha
-    lis r8, create_callback__Q43ipl5scene7Address6MiiObjFPQ33ipl6nigaoe6ObjectPv@ha
-    addi r4, r4, smArg__Q23ipl6System@l
-    lha r7, 0x10(r1)
-    lwz r3, 0x70(r4)
-    mr r9, r31
-    lwz r4, 0x28(r4)
-    addi r8, r8, create_callback__Q43ipl5scene7Address6MiiObjFPQ33ipl6nigaoe6ObjectPv@l
-    li r5, 0x4c
-    li r6, 0x4c
-    bl create__Q33ipl6nigaoe7ManagerFPQ23EGG4HeapiiiPFPQ33ipl6nigaoe6ObjectPvPv
-    b miio_set_done
-miio_set_reset:
-    mr r3, r31
-    bl reset__Q43ipl5scene7Address6MiiObjFv
-miio_set_done:
-    lwz r0, 0x34(r1)
-    lwz r31, 0x2c(r1)
-    mtlr r0
-    addi r1, r1, 0x30
-    blr
-}
-
-extern "C" int get_button_no__Q33ipl5scene7AddressFPCc(void*, const char* paneName) {
-    int result = -1;
-    for (int i = 0; i < 5; i++) {
-        if (strcmp(sButtonNameB[i], paneName) == 0) {
-            result = i;
-            break;
+        inline void Address::set_textbox(const char* paneName, u32 msgId) {
+            set_textbox(paneName, System::getMessage(msgId));
         }
-    }
-    return result;
-}
 
-extern "C" int get_button_space_no__Q33ipl5scene7AddressFPCc(void*, const char* paneName) {
-    int result = -1;
-    for (int i = 0; i < 4; i++) {
-        if (strcmp(sButtonSpaceName[i], paneName) == 0) {
-            result = i;
-            break;
+        Address::Address(EGG::Heap* heap, int mode)
+            : FaderSceneBase(heap), mMode(mode), mpLayout(NULL), unk_0x90(0), mpEvent(NULL), mpGui(NULL), mpBackLayout(NULL),
+              mFadeinState(FADEIN_STATE_FADEIN), mWaitOpenCount(0), mState(STATE_COVER_NORMAL), mPage(0), mNextPageNum(PAGE_MAX),
+              mPrevPageNum(0), mSelectedButton(0), mChosenFriend(0), mbParentalOK(false) {
+            setSceneParentFlags(SCN_PARENTFLAG_CALC | SCN_PARENTFLAG_DRAW);
+
+            for (int i = 0; i < BTN_MAX; i++) {
+                mPointCount[i] = 0;
+            }
+
+            for (int i = 0; i < BTN_MAX; i++) {
+                mbFaceValid[i] = false;
+            }
+
+            memset(&mDrag, 0, sizeof(DragInfo));
+            mDrag.mNextCount = -1;
+            mDrag.mPrevCount = -1;
         }
-    }
-    return result;
-}
 
-extern "C" asm void __ml__Q33ipl4math4VEC2CFf() {
-    stwu r1, -0x10(r1)
-    mflr r0
-    mr r4, r3
-    lfs f2, 0(r3)
-    fmr f3, f1
-    lfs f0, 4(r4)
-    fmuls f1, f2, f1
-    stw r0, 0x14(r1)
-    addi r3, r1, 8
-    fmuls f2, f0, f3
-    bl __ct__Q33ipl4math4VEC2Fff
-    lwz r0, 0x14(r1)
-    mr r4, r3
-    lwz r3, 0(r3)
-    lwz r4, 4(r4)
-    mtlr r0
-    addi r1, r1, 0x10
-    blr
-}
+        Address::~Address() {
+            if (mpFriendCache != NULL) {
+                delete mpFriendCache;
+            }
+        }
 
-extern "C" asm void SetTranslate__Q34nw4r3lyt4PaneFRCQ34nw4r4math4VEC3() {
-    nofralloc
-    lfs f2, 0(r4)
-    lfs f1, 4(r4)
-    lfs f0, 8(r4)
-    stfs f2, 0x2c(r3)
-    stfs f1, 0x30(r3)
-    stfs f0, 0x34(r3)
-    blr
-}
+        void Address::prepare() {}
+
+        void Address::create() {
+            nand::LayoutFile* layoutFile = static_cast<Board*>(System::getScene(SCENE_BOARD))->getLayoutFile();
+
+            mbCover = true;
+
+            // Main layout
+            mpLayout = new layout::Object(getSceneHeap(), layoutFile, "arc", "th_Adress_a.brlyt");
+            mpLayout->bindToGroup("th_Adress_a_note_alp_in.brlan", "G_note_all", false, true);
+            mpLayout->bindToGroup("th_Adress_a_note_alp_out.brlan", "G_note_all", false, false);
+            mpLayout->bindToGroup("th_Adress_a_note_trns_in.brlan", "G_note_all", false, false);
+            mpLayout->bindToGroup("th_Adress_a_note_trns_out.brlan", "G_note_all", false, false);
+            mpLayout->bindToGroup("th_Adress_a_note_e_rtt.brlan", "G_note_e_rtt", false, mbCover);
+            mpLayout->bindToGroup("th_Adress_a_note_c_rtt.brlan", "note_c_rtt", false, !mbCover);
+
+            for (int i = 0; i < BTN_MAX; i++) {
+                mpLayout->bindToGroup("th_Adress_a_name_in.brlan", sNameGroup[i], false, false);
+            }
+            for (int i = 0; i < BTN_MAX; i++) {
+                mpLayout->bindToGroup("th_Adress_a_name_out.brlan", sNameGroup[i], false, false);
+            }
+            for (int i = 0; i < BTN_MAX; i++) {
+                mpLayout->bindToGroup("th_Adress_a_name_psh.brlan", sNameGroup[i], false, false);
+            }
+            for (int i = 0; i < BTN_MAX; i++) {
+                mpLayout->bindToGroup("th_Adress_a_gry_name_in.brlan", sNameGroup[i], false, false);
+            }
+            for (int i = 0; i < BTN_MAX; i++) {
+                mpLayout->bindToGroup("th_Adress_a_gry_name_out.brlan", sNameGroup[i], false, false);
+            }
+            for (int i = 0; i < BTN_MAX; i++) {
+                mpLayout->bindToGroup("th_Adress_a_gry_name_psh.brlan", sNameGroup[i], false, false);
+            }
+            for (int i = 0; i < BTN_MAX; i++) {
+                mpLayout->bindToGroup("th_Adress_a_name_c_gry.brlan", sNameCGroup[i], false, false);
+            }
+            mpLayout->finishBinding();
+
+            // Background layout
+            mpBackLayout = new layout::Object(getSceneHeap(), layoutFile, "arc", "my_Back_a.brlyt");
+            mpBackLayout->bind("my_Back_a_Apear.brlan", "Picture_00", false, true);
+            mpBackLayout->bind("my_Back_a_Lost.brlan", "Picture_00", false, false);
+            mpBackLayout->finishBinding();
+            mpBackLayout->getAnim()->initAnmFrame();
+
+            // Dialog layout
+            mpDialogLayout = new layout::Object(getSceneHeap(), layoutFile, "arc", "my_Dialog_a.brlyt");
+            mpDialogLayout->bind("my_Dialog_a_DialogIn.brlan", "N_Top", false, true);
+            mpDialogLayout->bind("my_Dialog_a_DialogOut.brlan", "N_Top", false, false);
+            mpDialogLayout->finishBinding();
+            nw4r::lyt::TextBox* dialogText = nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(mpDialogLayout->FindPaneByName("T_Dialog"));
+            dialogText->SetString(System::getMessage(MESG_ADDRESS_CHOOSE), 0);
+
+            // GUI
+            mpEvent = new AddressEvent(this);
+            mpGui = new gui::PaneManager(mpEvent, mpLayout->getDrawInfo(), NULL, NULL);
+            mpGui->setupScene(mpLayout);
+            mpGui->setAllComponentTriggerTarget(false);
+            for (int i = 0; i < BTN_MAX; i++) {
+                mpGui->setTriggerTarget(mpLayout->FindPaneByName(sButtonName[i]), true);
+            }
+            for (int i = 0; i < BTN_SPACE_MAX; i++) {
+                mpGui->setTriggerTarget(mpLayout->FindPaneByName(sButtonSpaceName[i]), true);
+            }
+
+            // Mii panes
+            char miiName[16];
+            for (int i = 0; i < BTN_MAX; i++) {
+                sprintf(miiName, "mii_b_%02d", i);
+                mMiiObj[i].init(mpLayout->FindPaneByName(miiName));
+            }
+            char nextMiiName[16];
+            for (int i = 0; i < BTN_MAX; i++) {
+                sprintf(nextMiiName, "mii_c_%02d", i);
+                mNextMiiObj[i].init(mpLayout->FindPaneByName(nextMiiName));
+            }
+
+            set_textbox("T_adrs_00", MESG_ADDRESS_TITLE);
+            set_textbox("T_wii_msg", MESG_ADDRESS_WII_ID);
+
+            // Friend list
+            mpFriendCache = new (32) FriendListCache();
+            if (mpFriendCache->init()) {
+                onInitFriendList();
+                mFadeinState = FADEIN_STATE_FADEIN;
+            } else {
+                mFadeinState = FADEIN_STATE_WAIT_OPEN;
+            }
+
+            mpWork = new u8[0x2D20];
+
+            mpLayout->FindPaneByName("N_note_move")->SetVisible(false);
+        }
+
+        FaderSceneCommand Address::calcFadein() {
+            switch (mFadeinState) {
+                case FADEIN_STATE_WAIT_OPEN: {
+                    fistt_wait_open();
+                    break;
+                }
+                case FADEIN_STATE_FADEIN: {
+                    fistt_fadein();
+                    break;
+                }
+            }
+
+            return mFadeinState == FADEIN_STATE_DONE ? FADER_SCN_NEXT : FADER_SCN_CONTINUE;
+        }
+
+        void Address::initCalcNormal() {
+            static_cast<Button*>(System::getScene(SCENE_BUTTON))->setEventHandler(this);
+        }
+
+        FaderSceneCommand Address::calcNormal() {
+            switch (mState) {
+                case STATE_INIT: {
+                    snd::getSystem()->startSE("WIPL_SE_FL_PAGE_INC");
+                    onNextPage();
+                    break;
+                }
+                case STATE_COVER_NORMAL: {
+                    stt_cover_normal();
+                    break;
+                }
+                case STATE_COVER_FORWARD: {
+                    stt_cover_forward();
+                    break;
+                }
+                case STATE_COVER_BACKWARD: {
+                    stt_cover_backward();
+                    break;
+                }
+                case STATE_NORMAL: {
+                    stt_normal();
+                    break;
+                }
+                case STATE_FORWARD: {
+                    stt_forward();
+                    break;
+                }
+                case STATE_BACKWARD: {
+                    stt_backward();
+                    break;
+                }
+                case STATE_LOOP_FORWARD: {
+                    stt_loop_forward();
+                    break;
+                }
+                case STATE_LOOP_BACKWARD: {
+                    stt_loop_backward();
+                    break;
+                }
+                case STATE_DECIDE: {
+                    stt_decide();
+                    break;
+                }
+                case STATE_DRAG: {
+                    stt_drag();
+                    break;
+                }
+                case STATE_RELEASE: {
+                    stt_release();
+                    break;
+                }
+                case STATE_WAIT_CHILD_CST: {
+                    stt_wait_child_cst();
+                    break;
+                }
+                case STATE_WAIT_CHILD_DST: {
+                    stt_wait_child_dst();
+                    break;
+                }
+                case STATE_WAIT_CHILD_FADEOUT: {
+                    stt_wait_child_fadeout();
+                    break;
+                }
+                case STATE_MSG_NET: {
+                    stt_msg_net();
+                    break;
+                }
+                case STATE_WAIT_PARENTAL: {
+                    stt_wait_parental();
+                    break;
+                }
+                case STATE_WAIT_PARENTAL_DST: {
+                    stt_wait_parental_dst();
+                    break;
+                }
+                case STATE_MSG_WC: {
+                    stt_msg_wc();
+                    break;
+                }
+                case STATE_WAIT_PARENTAL_WC: {
+                    stt_wait_parental_wc();
+                    break;
+                }
+                case STATE_WAIT_PARENTAL_DST_WC: {
+                    stt_wait_parental_dst_wc();
+                    break;
+                }
+                case STATE_MSG_NWC24_ERROR: {
+                    stt_msg_nwc24_error();
+                    break;
+                }
+                case STATE_MSG_FI_FULL: {
+                    stt_msg_fi_full();
+                    break;
+                }
+                case STATE_MSG_PARENTAL: {
+                    stt_msg_parental();
+                    break;
+                }
+                case STATE_MSG_OPEN_FAILURE: {
+                    stt_msg_open_failure();
+                    break;
+                }
+                case STATE_WAIT_DIALOG: {
+                    stt_wait_dialog();
+                    break;
+                }
+            }
+
+            return mState == STATE_DONE ? FADER_SCN_NEXT : FADER_SCN_CONTINUE;
+        }
+
+        void Address::initCalcFadeout() {
+            static_cast<Button*>(System::getScene(SCENE_BUTTON))->setEventHandler(NULL);
+        }
+
+        FaderSceneCommand Address::calcFadeout() {
+            BOOL bAnimDone;
+            BOOL ret;
+
+            if (System::getFader()->getStatus() == EGG::Fader::PREPARE_OUT) {
+                ret = FALSE;
+
+                bAnimDone = FALSE;
+                if (!mpLayout->getAnim(1)->isPlaying() && !mpLayout->getAnim(3)->isPlaying()) {
+                    bAnimDone = TRUE;
+                }
+
+                if (bAnimDone && !mpDialogLayout->getAnim(1)->isPlaying()) {
+                    ret = TRUE;
+                }
+            } else {
+                ret = System::getFader()->getStatus() == EGG::Fader::PREPARE_IN;
+            }
+
+            return (FaderSceneCommand)ret;
+        }
+
+        void Address::calcCommonAfter() {
+            mpLayout->calc();
+            mpBackLayout->calc();
+            mpDialogLayout->calc();
+        }
+
+        void Address::draw() {
+            if (System::getSceneManager()->onDrawLayer(DRAW_LAYER_2)) {
+                utility::Graphics::setOrtho(0);
+
+                nw4r::lyt::Pane* pane = mpLayout->FindPaneByName("N_note_a");
+                for (int i = mNextPageNum; i >= 1; i--) {
+                    math::VEC2 trans;
+                    trans.y = sPageOffset.y * i;
+                    trans.x = sPageOffset.x * i;
+                    pane->SetTranslate(trans);
+                    pane->CalculateMtx(*mpLayout->getDrawInfo());
+                    mpLayout->draw(pane);
+                }
+
+                mpLayout->draw("N_note_b");
+
+                if (mState == STATE_FORWARD || mState == STATE_BACKWARD) {
+                    mpLayout->draw("N_note_c");
+                }
+
+                int offset = 0;
+                switch (mState) {
+                    case STATE_COVER_FORWARD:
+                    case STATE_COVER_BACKWARD:
+                    case STATE_FORWARD:
+                    case STATE_BACKWARD: {
+                        offset = 1;
+                        break;
+                    }
+                }
+
+                pane = mpLayout->FindPaneByName("N_note_d");
+                for (int i = offset; i < mPrevPageNum + offset; i++) {
+                    math::VEC2 trans = sPageOffset * -i;
+                    pane->SetTranslate(trans);
+                    pane->CalculateMtx(*mpLayout->getDrawInfo());
+                    mpLayout->draw(pane);
+                }
+
+                pane = mpLayout->FindPaneByName("N_note_e");
+                switch (mState) {
+                    case STATE_LOOP_FORWARD:
+                    case STATE_LOOP_BACKWARD: {
+                        for (int i = 1; i < PAGE_MAX; i++) {
+                            math::VEC2 trans = sPageOffset * -i;
+                    pane->SetTranslate(trans);
+                            pane->CalculateMtx(*mpLayout->getDrawInfo());
+                            mpLayout->draw(pane);
+                        }
+                        break;
+                    }
+                    default: {
+                        math::VEC2 trans = sPageOffset * -(mPrevPageNum + offset);
+                        pane->SetTranslate(trans);
+                        pane->CalculateMtx(*mpLayout->getDrawInfo());
+                        mpLayout->draw("N_note_e");
+                        break;
+                    }
+                }
+
+                mpBackLayout->draw();
+                mpDialogLayout->draw();
+            } else if (System::getSceneManager()->onDrawLayer(DRAW_LAYER_3)) {
+                utility::Graphics::setOrtho(0);
+
+                switch (mState) {
+                    case STATE_COVER_NORMAL:
+                    case STATE_COVER_FORWARD:
+                    case STATE_COVER_BACKWARD:
+                    case STATE_FORWARD:
+                    case STATE_BACKWARD:
+                    case STATE_LOOP_FORWARD:
+                    case STATE_LOOP_BACKWARD:
+                    case STATE_DRAG: {
+                        mpLayout->draw("N_note_move");
+                        break;
+                    }
+                }
+            }
+        }
+
+        void Address::destroy() {
+            mpFriendCache->fin();
+        }
+
+        void Address::fistt_wait_open() {
+            if (mpFriendCache->init()) {
+                onInitFriendList();
+                mFadeinState = FADEIN_STATE_FADEIN;
+            } else if (mWaitOpenCount >= 300) {
+                System::getDialog()->callBtn1(MESG_ERROR_NWC24_FATAL, MESG_CMN_OK);
+                mState = STATE_MSG_OPEN_FAILURE;
+                mFadeinState = FADEIN_STATE_DONE;
+            }
+
+            mWaitOpenCount++;
+        }
+
+        void Address::fistt_fadein() {
+            if (!mpLayout->getAnim(0)->isPlaying() && !mpLayout->getAnim(2)->isPlaying() && !mpDialogLayout->getAnim(0)->isPlaying()) {
+                mFadeinState = FADEIN_STATE_DONE;
+            }
+        }
+
+        void Address::onInitFriendList() {
+            Button* button;
+            wchar_t idStr[24];
+            wchar_t text[24];
+
+            memset(idStr, 0, sizeof(idStr));
+            memset(text, 0, sizeof(text));
+
+            utility::CharacterCode::WiiIdToUTF16(idStr, mpFriendCache->getMyUserId());
+
+            // Format the Wii number as "XXXX XXXX XXXX XXXX"
+            int textIdx = 0;
+            for (int i = 0; i < 4; i++) {
+                text[textIdx++] = idStr[i];
+            }
+            text[textIdx++] = L' ';
+            for (int i = 4; i < 8; i++) {
+                text[textIdx++] = idStr[i];
+            }
+            text[textIdx++] = L' ';
+            for (int i = 8; i < 12; i++) {
+                text[textIdx++] = idStr[i];
+            }
+            text[textIdx++] = L' ';
+            for (int i = 12; i < 16; i++) {
+                text[textIdx++] = idStr[i];
+            }
+
+            set_textbox("T_wii_name", text);
+            set_page_text("T_nmbr_b", mPage + 1);
+
+            for (u32 i = 0; i < BTN_MAX; i++) {
+                set_friend(sTextNameB[i], i, i, mMiiObj[i], false);
+
+                if (mbFaceValid[i]) {
+                    mpLayout->getAnim(i + 6)->initAnmFrame();
+                } else {
+                    mpLayout->getAnim(i + 21)->initAnmFrame();
+                }
+            }
+
+            mPage = 0;
+            mPrevPageNum = 0;
+            mNextPageNum = PAGE_MAX;
+
+            button = static_cast<Button*>(System::getScene(SCENE_BUTTON));
+            button->animation(Button::IDANIM_ARROW_RIGHT_APPEAR);
+            button->animation(Button::IDANIM_ARROW_LEFT_APPEAR);
+
+            if (mMode == 0) {
+                mState = STATE_COVER_NORMAL;
+            } else if (mpFriendCache->getRegFriendNum() == 0) {
+                mState = STATE_COVER_NORMAL;
+            } else {
+                mState = STATE_INIT;
+            }
+
+            switch (mMode) {
+                case 0: {
+                    mpLayout->getAnim(0)->play();
+                    break;
+                }
+                case SCENE_ADD_WII:
+                case SCENE_ADD_EMAIL: {
+                    mpLayout->getAnim(2)->play();
+                    mpDialogLayout->getAnim(0)->play();
+                    break;
+                }
+            }
+        }
+
+        void Address::stt_cover_normal() {
+            if (mDrag.mbDragging) {
+                changePage_onDrag();
+            } else {
+                Button* button = static_cast<Button*>(System::getScene(SCENE_BUTTON));
+                if (button->isActive()) {
+                    button->update();
+                }
+            }
+
+            if (mState == STATE_COVER_NORMAL) {
+                if (System::getMasterController()->down(controller::BTN_NEXT_RIGHT)) {
+                    snd::getSystem()->startSE("WIPL_SE_FL_PAGE_INC");
+                    onNextPage();
+                } else if (System::getMasterController()->down(controller::BTN_NEXT_LEFT)) {
+                    snd::getSystem()->startSE("WIPL_SE_FL_PAGE_DEC");
+                    onPreviousPage();
+                }
+            }
+        }
+
+        void Address::stt_cover_forward() {
+            if (!mpLayout->getAnim(4)->isPlaying()) {
+                mbCover = false;
+                if (!mDrag.mbDragging) {
+                    mState = STATE_NORMAL;
+                } else {
+                    mState = STATE_DRAG;
+                }
+            } else if (mDrag.mbDragging) {
+                changePage_onDrag();
+            }
+        }
+
+        void Address::stt_cover_backward() {
+            if (!mpLayout->getAnim(4)->isPlaying()) {
+                math::VEC2 offset = sPageOffset;
+                offset.y = -offset.y;
+                offset.x = -offset.x;
+                add_translate(mpLayout->FindPaneByName("N_note_base"), offset);
+                mbCover = true;
+                mNextPageNum++;
+                mState = STATE_COVER_NORMAL;
+            } else if (mDrag.mbDragging) {
+                changePage_onDrag();
+            }
+        }
+
+        void Address::stt_normal() {
+            Button* button = static_cast<Button*>(System::getScene(SCENE_BUTTON));
+            if (button->isActive()) {
+                button->update();
+            }
+
+            if (mState == STATE_NORMAL) {
+                mpGui->update();
+
+                if (System::getMasterController()->down(controller::BTN_NEXT_RIGHT)) {
+                    snd::getSystem()->startSE("WIPL_SE_FL_PAGE_INC");
+                    onNextPage();
+                } else if (System::getMasterController()->down(controller::BTN_NEXT_LEFT)) {
+                    snd::getSystem()->startSE("WIPL_SE_FL_PAGE_DEC");
+                    onPreviousPage();
+                }
+            }
+        }
+
+        void Address::stt_forward() {
+            if (!mpLayout->getAnim(5)->isPlaying()) {
+                mPrevPageNum++;
+                if (!mDrag.mbDragging) {
+                    mState = STATE_NORMAL;
+                } else {
+                    mState = STATE_DRAG;
+                }
+            } else if (mDrag.mbDragging) {
+                changePage_onDrag();
+            }
+        }
+
+        void Address::stt_backward() {
+            if (!mpLayout->getAnim(5)->isPlaying()) {
+                mNextPageNum++;
+                add_translate(mpLayout->FindPaneByName("N_note_base"), -sPageOffset);
+                set_page_text("T_nmbr_b", mPage + 1);
+
+                for (u32 i = 0; i < BTN_MAX; i++) {
+                    set_friend(sTextNameB[i], i + mPage * BTN_MAX, i, mMiiObj[i], false);
+                }
+
+                if (!mDrag.mbDragging) {
+                    mState = STATE_NORMAL;
+                } else {
+                    mState = STATE_DRAG;
+                }
+            } else if (mDrag.mbDragging) {
+                changePage_onDrag();
+            }
+        }
+
+        void Address::stt_loop_forward() {
+            if (!mpLayout->getAnim(4)->isPlaying()) {
+                add_translate(mpLayout->FindPaneByName("N_note_base"), -sPageOffset * PAGE_MAX);
+                set_page_text("T_nmbr_b", mPage + 1);
+                reset_gui(false);
+
+                for (u32 i = 0; i < BTN_MAX; i++) {
+                    set_friend(sTextNameB[i], i + mPage * BTN_MAX, i, mMiiObj[i], false);
+                }
+
+                mbCover = true;
+                mNextPageNum = PAGE_MAX;
+                mState = STATE_COVER_NORMAL;
+            } else if (mDrag.mbDragging) {
+                changePage_onDrag();
+            }
+        }
+
+        void Address::stt_loop_backward() {
+            if (!mpLayout->getAnim(4)->isPlaying()) {
+                mbCover = false;
+                mPrevPageNum = PAGE_MAX - 1;
+                if (!mDrag.mbDragging) {
+                    mState = STATE_NORMAL;
+                } else {
+                    mState = STATE_DRAG;
+                }
+            } else if (mDrag.mbDragging) {
+                changePage_onDrag();
+            }
+        }
+
+        void Address::stt_decide() {
+            if (!mpLayout->getAnim(mSelectedButton + 16)->isPlaying() && !mpLayout->getAnim(mSelectedButton + 31)->isPlaying()) {
+                reset_gui(true);
+
+                switch (mMode) {
+                    case 0: {
+                        createChildScene(SCENE_ADDRESS_EDIT, this, NULL, NULL);
+                        mpBackLayout->getAnim(0)->play();
+                        mState = STATE_WAIT_CHILD_CST;
+                        break;
+                    }
+                    case SCENE_ADD_WII:
+                    case SCENE_ADD_EMAIL: {
+                        LetterWriter* letterWriter = static_cast<LetterWriter*>(System::getScene(SCENE_LETTER_WRITER));
+                        letterWriter->setFriendInfo(mpFriendCache->getInfo(mChosenFriend));
+                        mpLayout->getAnim(3)->play();
+                        mpDialogLayout->getAnim(1)->play();
+                        mState = STATE_DONE;
+                        break;
+                    }
+                }
+            }
+        }
+
+        void Address::stt_drag() {
+            mpGui->update();
+            if (mState == STATE_DRAG) {
+                changePage_onDrag();
+            }
+        }
+
+        void Address::stt_release() {
+            mpGui->init();
+
+            for (int i = 0; i < BTN_MAX; i++) {
+                if (mbFaceValid[i]) {
+                    mpLayout->getAnim(i + 6)->initAnmFrame();
+                } else {
+                    mpLayout->getAnim(i + 21)->initAnmFrame();
+                }
+
+                mPointCount[i] = 0;
+            }
+
+            mpLayout->FindPaneByName("N_note_move")->SetVisible(false);
+
+            if (mbCover) {
+                mState = STATE_COVER_NORMAL;
+            } else {
+                mState = STATE_NORMAL;
+            }
+        }
+
+        void Address::stt_wait_child_cst() {
+            if (getChild() != NULL && !mpBackLayout->getAnim(0)->isPlaying()) {
+                mState = STATE_WAIT_CHILD_DST;
+                reset_gui(true);
+
+                for (int i = 0; i < BTN_MAX; i++) {
+                    mPointCount[i] = 0;
+                }
+            }
+        }
+
+        void Address::stt_wait_child_dst() {
+            if (getChild() == NULL && System::getReservedScene() == NULL) {
+                mpBackLayout->getAnim(1)->play();
+                static_cast<Button*>(System::getScene(SCENE_BUTTON))->setEventHandler(this);
+                mState = STATE_WAIT_CHILD_FADEOUT;
+            }
+        }
+
+        void Address::stt_wait_child_fadeout() {
+            if (!mpBackLayout->getAnim(1)->isPlaying()) {
+                Button* button = static_cast<Button*>(System::getScene(SCENE_BUTTON));
+                button->setText("T_CalAdd_R", MESG_ADDRESS_REGISTER);
+                button->animation(Button::IDANIM_ARROW_RIGHT_APPEAR);
+                button->animation(Button::IDANIM_ARROW_LEFT_APPEAR);
+
+                if (mbCover) {
+                    mState = STATE_COVER_NORMAL;
+                } else {
+                    mState = STATE_NORMAL;
+                }
+            }
+        }
+
+        void Address::stt_msg_net() {
+            switch (System::getDialog()->getLastResult()) {
+                case DialogWindow::RESULT_LEFT_BUTTON: {
+                    if (mbCover) {
+                        mState = STATE_COVER_NORMAL;
+                    } else {
+                        mState = STATE_NORMAL;
+                    }
+
+                    static_cast<Button*>(System::getScene(SCENE_BUTTON))->animation(Button::IDANIM_ARROW_RIGHT_APPEAR);
+                    static_cast<Button*>(System::getScene(SCENE_BUTTON))->animation(Button::IDANIM_ARROW_LEFT_APPEAR);
+                    break;
+                }
+                case DialogWindow::RESULT_RIGHT_BUTTON: {
+                    SCParentalControlsInfo pcInfo;
+                    if (SCGetParentalControl(&pcInfo) && (pcInfo.enable & SC_PARENTAL_FLAG_ENABLED)) {
+                        static_cast<Button*>(System::getScene(SCENE_BUTTON))->setEventHandler(NULL);
+                        static_cast<Button*>(System::getScene(SCENE_BUTTON))->animation(Button::IDANIM_DISAPPEAR_LEFT_AND_RIGHT_BUTTON);
+                        createChildScene(SCENE_PARENTAL_DIALOG, this, NULL, (void*)1);
+                        mbParentalOK = false;
+                        mState = STATE_WAIT_PARENTAL;
+                    } else {
+                        System::getFader()->fadeOut();
+                        reserveAllSceneDestruction(SCENE_SETTING, (void*)1);
+                        mState = STATE_DONE;
+                    }
+                    break;
+                }
+            }
+        }
+
+        void Address::stt_wait_parental() {
+            ParentalDialog* parental = static_cast<ParentalDialog*>(System::getScene(SCENE_PARENTAL_DIALOG));
+            if (parental != NULL) {
+                switch (parental->getResult()) {
+                    case ParentalDialog::RESULT_SUCCESS: {
+                        mbParentalOK = true;
+                        mState = STATE_WAIT_PARENTAL_DST;
+                        break;
+                    }
+                    case ParentalDialog::RESULT_OVER_ATTEMPTS:
+                    case ParentalDialog::RESULT_CANCELLED: {
+                        mbParentalOK = false;
+                        mState = STATE_WAIT_PARENTAL_DST;
+                        break;
+                    }
+                }
+            }
+        }
+
+        void Address::stt_wait_parental_dst() {
+            if (getChild() == NULL) {
+                if (mbParentalOK) {
+                    System::getFader()->fadeOut();
+                    reserveAllSceneDestruction(SCENE_SETTING, (void*)1);
+                    mState = STATE_DONE;
+                } else {
+                    static_cast<Button*>(System::getScene(SCENE_BUTTON))->animation(Button::IDANIM_APPEAR_LEFT_AND_RIGHT_BUTTON);
+                    static_cast<Button*>(System::getScene(SCENE_BUTTON))->setEventHandler(this);
+
+                    if (mbCover) {
+                        mState = STATE_COVER_NORMAL;
+                    } else {
+                        mState = STATE_NORMAL;
+                    }
+
+                    static_cast<Button*>(System::getScene(SCENE_BUTTON))->animation(Button::IDANIM_ARROW_RIGHT_APPEAR);
+                    static_cast<Button*>(System::getScene(SCENE_BUTTON))->animation(Button::IDANIM_ARROW_LEFT_APPEAR);
+                }
+            }
+        }
+
+        void Address::stt_msg_wc() {
+            switch (System::getDialog()->getLastResult()) {
+                case DialogWindow::RESULT_LEFT_BUTTON: {
+                    if (mbCover) {
+                        mState = STATE_COVER_NORMAL;
+                    } else {
+                        mState = STATE_NORMAL;
+                    }
+
+                    static_cast<Button*>(System::getScene(SCENE_BUTTON))->animation(Button::IDANIM_ARROW_RIGHT_APPEAR);
+                    static_cast<Button*>(System::getScene(SCENE_BUTTON))->animation(Button::IDANIM_ARROW_LEFT_APPEAR);
+                    break;
+                }
+                case DialogWindow::RESULT_RIGHT_BUTTON: {
+                    SCParentalControlsInfo pcInfo;
+                    if (SCGetParentalControl(&pcInfo) && (pcInfo.enable & SC_PARENTAL_FLAG_ENABLED)) {
+                        static_cast<Button*>(System::getScene(SCENE_BUTTON))->setEventHandler(NULL);
+                        static_cast<Button*>(System::getScene(SCENE_BUTTON))->animation(Button::IDANIM_DISAPPEAR_LEFT_AND_RIGHT_BUTTON);
+                        createChildScene(SCENE_PARENTAL_DIALOG, this, NULL, (void*)1);
+                        mbParentalOK = false;
+                        mState = STATE_WAIT_PARENTAL_WC;
+                    } else {
+                        System::getFader()->fadeOut();
+                        reserveAllSceneDestruction(SCENE_SETTING, (void*)4);
+                        mState = STATE_DONE;
+                    }
+                    break;
+                }
+            }
+        }
+
+        void Address::stt_wait_parental_wc() {
+            ParentalDialog* parental = static_cast<ParentalDialog*>(System::getScene(SCENE_PARENTAL_DIALOG));
+            if (parental != NULL) {
+                switch (parental->getResult()) {
+                    case ParentalDialog::RESULT_SUCCESS: {
+                        mbParentalOK = true;
+                        mState = STATE_WAIT_PARENTAL_DST_WC;
+                        break;
+                    }
+                    case ParentalDialog::RESULT_OVER_ATTEMPTS:
+                    case ParentalDialog::RESULT_CANCELLED: {
+                        mbParentalOK = false;
+                        mState = STATE_WAIT_PARENTAL_DST_WC;
+                        break;
+                    }
+                }
+            }
+        }
+
+        void Address::stt_wait_parental_dst_wc() {
+            if (getChild() == NULL) {
+                if (mbParentalOK) {
+                    System::getFader()->fadeOut();
+                    reserveAllSceneDestruction(SCENE_SETTING, (void*)4);
+                    mState = STATE_DONE;
+                } else {
+                    static_cast<Button*>(System::getScene(SCENE_BUTTON))->animation(Button::IDANIM_APPEAR_LEFT_AND_RIGHT_BUTTON);
+                    static_cast<Button*>(System::getScene(SCENE_BUTTON))->setEventHandler(this);
+
+                    if (mbCover) {
+                        mState = STATE_COVER_NORMAL;
+                    } else {
+                        mState = STATE_NORMAL;
+                    }
+
+                    static_cast<Button*>(System::getScene(SCENE_BUTTON))->animation(Button::IDANIM_ARROW_RIGHT_APPEAR);
+                    static_cast<Button*>(System::getScene(SCENE_BUTTON))->animation(Button::IDANIM_ARROW_LEFT_APPEAR);
+                }
+            }
+        }
+
+        void Address::stt_msg_nwc24_error() {
+            switch (System::getDialog()->getLastResult()) {
+                case DialogWindow::RESULT_BUTTON: {
+                    if (mbCover) {
+                        mState = STATE_COVER_NORMAL;
+                    } else {
+                        mState = STATE_NORMAL;
+                    }
+
+                    static_cast<Button*>(System::getScene(SCENE_BUTTON))->animation(Button::IDANIM_ARROW_RIGHT_APPEAR);
+                    static_cast<Button*>(System::getScene(SCENE_BUTTON))->animation(Button::IDANIM_ARROW_LEFT_APPEAR);
+                    break;
+                }
+            }
+        }
+
+        void Address::stt_msg_fi_full() {
+            switch (System::getDialog()->getLastResult()) {
+                case DialogWindow::RESULT_BUTTON: {
+                    if (mbCover) {
+                        mState = STATE_COVER_NORMAL;
+                    } else {
+                        mState = STATE_NORMAL;
+                    }
+
+                    static_cast<Button*>(System::getScene(SCENE_BUTTON))->animation(Button::IDANIM_ARROW_RIGHT_APPEAR);
+                    static_cast<Button*>(System::getScene(SCENE_BUTTON))->animation(Button::IDANIM_ARROW_LEFT_APPEAR);
+                    break;
+                }
+            }
+        }
+
+        void Address::stt_msg_parental() {
+            switch (System::getDialog()->getLastResult()) {
+                case DialogWindow::RESULT_BUTTON: {
+                    if (mbCover) {
+                        mState = STATE_COVER_NORMAL;
+                    } else {
+                        mState = STATE_NORMAL;
+                    }
+
+                    static_cast<Button*>(System::getScene(SCENE_BUTTON))->animation(Button::IDANIM_ARROW_RIGHT_APPEAR);
+                    static_cast<Button*>(System::getScene(SCENE_BUTTON))->animation(Button::IDANIM_ARROW_LEFT_APPEAR);
+                    break;
+                }
+            }
+        }
+
+        void Address::stt_msg_open_failure() {
+            switch (System::getDialog()->getLastResult()) {
+                case DialogWindow::RESULT_BUTTON: {
+                    Button* button = static_cast<Button*>(System::getScene(SCENE_BUTTON));
+                    MailAddressSelect* mailAddrSel = static_cast<MailAddressSelect*>(System::getScene(SCENE_MAIL_ADDRESS_SELECT));
+
+                    switch (mMode) {
+                        case 0: {
+                            if (mailAddrSel != NULL) {
+                                mailAddrSel->finishAddress();
+                            }
+                            button->reserveAnm(Button::IDANIM_DISAPPEAR_LEFT_AND_RIGHT_BUTTON);
+                            button->reserveAnm(Button::IDANIM_APPEAR_LEFT_BUTTON);
+                            break;
+                        }
+                        case SCENE_ADD_WII: {
+                            button->reserveAnm(Button::IDANIM_DISAPPEAR_LEFT_BUTTON);
+                            button->reserveAnm(Button::IDANIM_APPEAR_LEFT_BUTTON);
+                            break;
+                        }
+                        case SCENE_ADD_EMAIL: {
+                            button->reserveAnm(Button::IDANIM_DISAPPEAR_LEFT_BUTTON);
+                            button->reserveText(0, MESG_CMN_BACK_ALT);
+                            button->reserveText(1, 51);
+                            button->reserveAnm(Button::IDANIM_APPEAR_LEFT_AND_RIGHT_BUTTON);
+                            break;
+                        }
+                    }
+
+                    button->animation(Button::IDANIM_ARROW_RIGHT_DISAPPEAR);
+                    button->animation(Button::IDANIM_ARROW_LEFT_DISAPPEAR);
+                    mState = STATE_DONE;
+                    break;
+                }
+            }
+        }
+
+        void Address::stt_wait_dialog() {
+            if (System::getDialog()->getLastResult() >= DialogWindow::RESULT_WAIT) {
+                reset_gui(true);
+                mState = STATE_NORMAL;
+            }
+        }
+
+        void Address::add_translate(nw4r::lyt::Pane* pane, const math::VEC2& offset) {
+            nw4r::ut::Rect rect;
+            nw4r::ut::Rect rect4x3;
+
+            System::getProjectionRect(&rect);
+            System::getProjectionRect4x3(&rect4x3);
+
+            nw4r::math::VEC3 trans;
+            trans.x = pane->GetTranslate().x;
+            trans.y = pane->GetTranslate().y;
+            trans.z = pane->GetTranslate().z;
+            trans.x += offset.x * rect4x3.GetWidth() / rect.GetWidth();
+            trans.y += offset.y;
+            pane->SetTranslate(trans);
+        }
+
+        void Address::set_friend(const char* paneName, u32 friendNo, u32 buttonNo, MiiObj& miiObj, bool bDrag) {
+            wchar_t blank[1];
+            blank[0] = 0;
+            const wchar_t* name = blank;
+
+            if (mpFriendCache->isThere(friendNo)) {
+                const NWC24FriendInfo& info = mpFriendCache->getInfo(friendNo);
+                name = (const wchar_t*)info.attr.name;
+
+                bool bValid = info.attr.status == NWC24_FRIENDSTATUS_CONFIRMED;
+                if (mMode == SCENE_ADD_EMAIL) {
+                    bValid = bValid & (info.attr.type == NWC24_FRIENDTYPE_WII);
+                }
+
+                if (bDrag) {
+                    if (bValid) {
+                        mpLayout->getAnim(buttonNo + 36)->initAnmFrame(0.0f);
+                    } else {
+                        mpLayout->getAnim(buttonNo + 36)->initAnmFrame(1.0f);
+                    }
+                } else {
+                    if (bValid) {
+                        mpLayout->getAnim(buttonNo + 6)->initAnmFrame();
+                    } else {
+                        mpLayout->getAnim(buttonNo + 21)->initAnmFrame();
+                    }
+                    mbFaceValid[buttonNo] = bValid;
+                }
+
+                if (!mDrag.mbDragging || friendNo != mDrag.mButton + mDrag.mPage * BTN_MAX) {
+                    miiObj.set(info.attr.fdId);
+                }
+            } else {
+                if (bDrag) {
+                    mpLayout->getAnim(buttonNo + 36)->initAnmFrame(0.0f);
+                } else {
+                    mbFaceValid[buttonNo] = false;
+                    mpLayout->getAnim(buttonNo + 21)->initAnmFrame();
+                }
+
+                miiObj.reset();
+            }
+
+            if (!mDrag.mbDragging || friendNo != mDrag.mButton + mDrag.mPage * BTN_MAX) {
+                set_textbox(paneName, name);
+            } else {
+                set_textbox(paneName, L"");
+                miiObj.reset();
+            }
+        }
+
+        void Address::set_page_text(const char* paneName, int page) {
+            const wchar_t digits[10] = {L'0', L'1', L'2', L'3', L'4', L'5', L'6', L'7', L'8', L'9'};
+            wchar_t text[6] = {0};
+
+            int i = 0;
+            if (page >= 10) {
+                text[i++] = digits[page / 10];
+            }
+            text[i++] = digits[page % 10];
+            text[i++] = L'/';
+            text[i++] = digits[PAGE_MAX / 10];
+            text[i++] = digits[PAGE_MAX % 10];
+            text[i] = 0;
+
+            set_textbox(paneName, text);
+        }
+
+        void Address::set_textbox(const char* paneName, const wchar_t* text) {
+            nw4r::lyt::TextBox* textBox = nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(mpLayout->FindPaneByName(paneName));
+            textBox->SetString(text, 0);
+        }
+
+        void Address::reset_friend() {
+            for (u32 i = 0; i < BTN_MAX; i++) {
+                set_friend(sTextNameB[i], i + mPage * BTN_MAX, i, mMiiObj[i], false);
+            }
+        }
+
+        void Address::start_point_event(const char* paneName, controller::Interface* con) {
+            int buttonNo = get_button_no(paneName);
+            if (buttonNo != -1) {
+                if (mMode == 0 || (mMode == SCENE_ADD_WII && is_selectable(buttonNo + mPage * BTN_MAX))) {
+                    on_point_event(buttonNo, con);
+                }
+            }
+        }
+
+        void Address::start_left_event(const char* paneName) {
+            int buttonNo = get_button_no(paneName);
+            if (buttonNo != -1) {
+                if (mMode == 0 || (mMode == SCENE_ADD_WII && is_selectable(buttonNo + mPage * BTN_MAX))) {
+                    left_point_event(buttonNo);
+                }
+            }
+        }
+
+        void Address::start_trig_event(const char* paneName) {
+            Button* button = static_cast<Button*>(System::getScene(SCENE_BUTTON));
+            int buttonNo = get_button_no(paneName);
+
+            switch (mState) {
+                case STATE_NORMAL: {
+                switch (mMode) {
+                    case 0: {
+                        if (buttonNo != -1 && is_selectable(buttonNo + mPage * BTN_MAX)) {
+                            button->animation(Button::IDANIM_ARROW_RIGHT_DISAPPEAR);
+                            button->animation(Button::IDANIM_ARROW_LEFT_DISAPPEAR);
+                            button->animation(Button::IDANIM_DISAPPEAR_LEFT_AND_RIGHT_BUTTON);
+                            button->reserveText(Button::TEXT_LEFT_BUTTON, MESG_CMN_BACK_ALT);
+                            button->reserveAnm(Button::IDANIM_APPEAR_LEFT_BUTTON);
+                            button->setEventHandler(NULL);
+
+                            if (mbFaceValid[buttonNo]) {
+                                mpLayout->getAnim(buttonNo + 16)->play();
+                            } else {
+                                mpLayout->getAnim(buttonNo + 31)->play();
+                            }
+
+                            mSelectedButton = buttonNo;
+                            mChosenFriend = buttonNo + mPage * BTN_MAX;
+                            snd::getSystem()->startSE("WIPL_SE_DECIDE");
+                            mPointCount[buttonNo]++;
+                            mState = STATE_DECIDE;
+                        } else if (buttonNo != -1) {
+                            mSelectedButton = buttonNo;
+                            mChosenFriend = buttonNo + mPage * BTN_MAX;
+                            entry_friend();
+                        }
+                        break;
+                    }
+                    case SCENE_ADD_WII:
+                    case SCENE_ADD_EMAIL: {
+                        if (buttonNo != -1 && is_selectable(buttonNo + mPage * BTN_MAX)) {
+                            button->animation(Button::IDANIM_DISAPPEAR_LEFT_BUTTON);
+                            button->reserveText(Button::TEXT_LEFT_BUTTON, MESG_CMN_QUIT);
+                            button->reserveText(Button::TEXT_RIGHT_BUTTON, 51);
+                            button->reserveAnm(Button::IDANIM_APPEAR_LEFT_AND_RIGHT_BUTTON);
+                            button->animation(Button::IDANIM_ARROW_RIGHT_DISAPPEAR);
+                            button->animation(Button::IDANIM_ARROW_LEFT_DISAPPEAR);
+
+                            mpLayout->getAnim(buttonNo + 16)->play();
+
+                            mSelectedButton = buttonNo;
+                            mChosenFriend = buttonNo + mPage * BTN_MAX;
+                            snd::getSystem()->startSE("WIPL_SE_DECIDE");
+                            mState = STATE_DECIDE;
+                        } else if (buttonNo != -1) {
+                            u32 friendNo = buttonNo + mPage * BTN_MAX;
+                            if (mpFriendCache->isThere(friendNo)) {
+                                if (mMode == SCENE_ADD_WII) {
+                                    System::getDialog()->callBtn1(87, MESG_CMN_OK);
+                                } else if (mpFriendCache->getInfo(friendNo).attr.type == NWC24_FRIENDTYPE_WII) {
+                                    System::getDialog()->callBtn1(87, MESG_CMN_OK);
+                                } else {
+                                    System::getDialog()->callBtn1(34, MESG_CMN_OK);
+                                }
+
+                                mState = STATE_WAIT_DIALOG;
+                            }
+                        }
+                        break;
+                    }
+                }
+                    break;
+                }
+            }
+        }
+
+        void Address::start_drag_event(const char* paneName, const controller::Interface* con) {
+            int buttonNo = get_button_no(paneName);
+            if (buttonNo == -1 || con->getChannel() < 0) {
+                return;
+            }
+
+            if (mState != STATE_NORMAL || mMode != 0) {
+                return;
+            }
+
+            if (!mpFriendCache->isThere(buttonNo + mPage * BTN_MAX)) {
+                return;
+            }
+
+            mDrag.mbDragging = true;
+            mDrag.mChan = con->getChannel();
+
+            if (con->isValidDpd()) {
+                mDrag.mPos = System::getControllerManager()->getController(mDrag.mChan)->getDpdProjectionPos();
+            } else {
+                mDrag.mPos = nw4r::math::VEC2(0.0f, 0.0f);
+            }
+
+            mDrag.mPage = mPage;
+            mDrag.mButton = buttonNo;
+            mDrag.mNextCount = -1;
+            mDrag.mPrevCount = -1;
+            mDrag.unk_0x1C = 0;
+
+            System::getPointer()->changeType(con->getChannel(), 1);
+            static_cast<Button*>(System::getScene(SCENE_BUTTON))->disableBtn();
+
+            wchar_t blank[2] = {0, 0};
+            static_cast<nw4r::lyt::TextBox*>(mpLayout->FindPaneByName(sTextNameB[mDrag.mButton]))->SetString(blank, 0);
+
+            nigaoe::Object* nigaoe = mMiiObj[buttonNo].mpNigaoe;
+            if (nigaoe != NULL) {
+                nw4r::lyt::Pane* miiPane = mpLayout->FindPaneByName("mii_move");
+                miiPane->SetVisible(true);
+
+                mDragTexObj = nigaoe->getIconTexture();
+                memcpy(mpWork, nigaoe->getIconImage(), 0x2D20);
+                GXInitTexObj(&mDragTexObj, mpWork, 76, 76, GX_TF_RGB5A3, GX_CLAMP, GX_CLAMP, GX_FALSE);
+                miiPane->GetMaterial()->SetTexture(GX_TEXMAP0, mDragTexObj);
+
+                mMiiObj[buttonNo].reset();
+            } else {
+                mpLayout->FindPaneByName("mii_move")->SetVisible(false);
+            }
+
+            mpGui->init();
+
+            for (int i = 0; i < BTN_MAX; i++) {
+                mPointCount[i] = 0;
+
+                if (mbFaceValid[i]) {
+                    mpLayout->getAnim(i + 6)->initAnmFrame();
+                } else {
+                    mpLayout->getAnim(i + 21)->initAnmFrame();
+                }
+            }
+
+            movePane_onDrag();
+
+            snd::getSystem()->startSEwithPos("WIPL_SE_CH_HOLD", mDrag.mPos.x);
+
+            mState = STATE_DRAG;
+        }
+
+        void Address::start_drag_point_event(const char* paneName, controller::Interface* con) {
+            int buttonNo = get_button_no(paneName);
+            if (buttonNo != -1 && isReleasableArea(mPage, buttonNo)) {
+                on_point_event(buttonNo, con);
+                mDrag.mbDragging = true;
+            }
+        }
+
+        void Address::start_drag_left_event(const char* paneName) {
+            int buttonNo = get_button_no(paneName);
+            if (buttonNo != -1) {
+                left_point_event(buttonNo);
+                mDrag.mbDragging = true;
+            }
+        }
+
+        void Address::start_release_event(const char* paneName) {
+            Button* button = static_cast<Button*>(System::getScene(SCENE_BUTTON));
+
+            int buttonNo = -1;
+            if (paneName != NULL) {
+                buttonNo = get_button_no(paneName);
+                if (buttonNo == -1) {
+                    buttonNo = get_button_space_no(paneName);
+                }
+            }
+
+            switch (mMode) {
+                case 0: {
+                    if (isReleasableArea(mPage, buttonNo)) {
+                        u32 friendNo = buttonNo + mPage * BTN_MAX;
+                        u32 dragFriendNo = mDrag.mButton + mDrag.mPage * BTN_MAX;
+                        mSelectedButton = buttonNo;
+                        mChosenFriend = friendNo;
+                        if (friendNo != dragFriendNo) {
+                            mpFriendCache->swap(friendNo, dragFriendNo);
+                        }
+                        snd::getSystem()->startSEwithPos("WIPL_SE_CH_SET", mDrag.mPos.x);
+                    } else {
+                        snd::getSystem()->startSEwithPos("WIPL_SE_CH_NOT_MOVE", mDrag.mPos.x);
+                    }
+
+                    System::getPointer()->changeType(mDrag.mChan, 0);
+                    static_cast<Button*>(System::getScene(SCENE_BUTTON))->enableBtn();
+
+                    mpLayout->FindPaneByName(sTextNameB[mDrag.mButton])->SetVisible(true);
+
+                    mDrag.mbDragging = false;
+                    mState = STATE_RELEASE;
+                    reset_friend();
+                    break;
+                }
+            }
+        }
+
+        void Address::on_point_event(int buttonNo, controller::Interface* con) {
+            if (mPointCount[buttonNo] == 0) {
+                if (mbFaceValid[buttonNo]) {
+                    mpLayout->getAnim(buttonNo + 6)->play();
+                } else {
+                    mpLayout->getAnim(buttonNo + 21)->play();
+                }
+
+                snd::getSystem()->startSE("WIPL_SE_BT_TARGETTING");
+                con->rumble(1);
+            }
+
+            mPointCount[buttonNo]++;
+        }
+
+        void Address::left_point_event(int buttonNo) {
+            if (mPointCount[buttonNo] == 1) {
+                if (mbFaceValid[buttonNo]) {
+                    mpLayout->getAnim(buttonNo + 11)->play();
+                } else {
+                    mpLayout->getAnim(buttonNo + 26)->play();
+                }
+            }
+
+            if (mPointCount[buttonNo] > 0) {
+                mPointCount[buttonNo]--;
+            }
+        }
+
+        int Address::get_button_no(const char* paneName) {
+            int ret = -1;
+            for (int i = 0; i < BTN_MAX; i++) {
+                if (strcmp(sButtonName[i], paneName) == 0) {
+                    ret = i;
+                    break;
+                }
+            }
+
+            return ret;
+        }
+
+        int Address::get_button_space_no(const char* paneName) {
+            int ret = -1;
+            for (int i = 0; i < BTN_SPACE_MAX; i++) {
+                if (strcmp(sButtonSpaceName[i], paneName) == 0) {
+                    ret = i;
+                    break;
+                }
+            }
+
+            return ret;
+        }
+
+        void Address::reset_gui(bool bKeepPointed) {
+            mpGui->init();
+
+            for (int i = 0; i < BTN_MAX; i++) {
+                mpLayout->getAnim(i + 6)->initAnmFrame();
+                mpLayout->getAnim(i + 6)->calc();
+                mpLayout->getAnim(i + 11)->initAnmFrame();
+                mpLayout->getAnim(i + 11)->calc();
+                mpLayout->getAnim(i + 16)->initAnmFrame();
+                mpLayout->getAnim(i + 16)->calc();
+                mpLayout->getAnim(i + 21)->initAnmFrame();
+                mpLayout->getAnim(i + 21)->calc();
+                mpLayout->getAnim(i + 26)->initAnmFrame();
+                mpLayout->getAnim(i + 26)->calc();
+                mpLayout->getAnim(i + 31)->initAnmFrame();
+                mpLayout->getAnim(i + 31)->calc();
+
+                if (mPointCount[i] != 0 && bKeepPointed) {
+                    if (mbFaceValid[i]) {
+                        mpLayout->getAnim(i + 11)->play();
+                    } else {
+                        mpLayout->getAnim(i + 26)->play();
+                    }
+                } else {
+                    if (mbFaceValid[i]) {
+                        mpLayout->getAnim(i + 6)->initAnmFrame();
+                        mpLayout->getAnim(i + 6)->calc();
+                    } else {
+                        mpLayout->getAnim(i + 21)->initAnmFrame();
+                        mpLayout->getAnim(i + 21)->calc();
+                    }
+                }
+
+                mPointCount[i] = 0;
+            }
+        }
+
+        BOOL Address::is_selectable(u32 friendNo) {
+            switch (mMode) {
+                case 0: {
+                    return mpFriendCache->isThere(friendNo);
+                }
+                case SCENE_ADD_WII: {
+                    if (mpFriendCache->isThere(friendNo)) {
+                        return mpFriendCache->getInfo(friendNo).attr.status == NWC24_FRIENDSTATUS_CONFIRMED;
+                    }
+                    return FALSE;
+                }
+                case SCENE_ADD_EMAIL: {
+                    if (mpFriendCache->isThere(friendNo)) {
+                        const NWC24FriendInfo& info = mpFriendCache->getInfo(friendNo);
+                        BOOL ret = FALSE;
+                        if (info.attr.status == NWC24_FRIENDSTATUS_CONFIRMED && info.attr.type == NWC24_FRIENDTYPE_WII) {
+                            ret = TRUE;
+                        }
+                        return ret;
+                    }
+                    return FALSE;
+                }
+            }
+
+            return FALSE;
+        }
+
+        void Address::onEventDerived(u32 compId, u32 event, const controller::Interface* con) {
+            const char* paneName = static_cast<gui::PaneComponent*>(mpManager->getComponent(compId))->getPane()->GetName();
+
+            switch (event) {
+                case ::gui::EventHandler::ON_TRIG: {
+                    if (con == NULL) {
+                        break;
+                    }
+
+                    if (con->downTrg(controller::BTN_INTERACT)) {
+                        Button* button = static_cast<Button*>(System::getScene(SCENE_BUTTON));
+                        if (mState != STATE_COVER_NORMAL && mState != STATE_NORMAL) {
+                            break;
+                        }
+
+                        if (Button::cmpButtonName(paneName, Button::BTN_EXIT) == 0) {
+                            MailAddressSelect* mailAddrSel = static_cast<MailAddressSelect*>(System::getScene(SCENE_MAIL_ADDRESS_SELECT));
+                            button->animation(Button::IDANIM_SELECT_CALENDAR_EXIT);
+
+                            switch (mMode) {
+                                case 0: {
+                                    if (mailAddrSel != NULL) {
+                                        mailAddrSel->finishAddress();
+                                    }
+                                    mpLayout->getAnim(1)->play();
+                                    button->reserveAnm(Button::IDANIM_DISAPPEAR_LEFT_AND_RIGHT_BUTTON);
+                                    button->reserveAnm(Button::IDANIM_APPEAR_LEFT_BUTTON);
+                                    break;
+                                }
+                                case SCENE_ADD_WII: {
+                                    mpLayout->getAnim(3)->play();
+                                    mpDialogLayout->getAnim(1)->play();
+                                    button->reserveAnm(Button::IDANIM_DISAPPEAR_LEFT_BUTTON);
+                                    button->reserveAnm(Button::IDANIM_APPEAR_LEFT_BUTTON);
+                                    break;
+                                }
+                                case SCENE_ADD_EMAIL: {
+                                    mpLayout->getAnim(3)->play();
+                                    mpDialogLayout->getAnim(1)->play();
+                                    button->reserveAnm(Button::IDANIM_DISAPPEAR_LEFT_BUTTON);
+                                    button->reserveText(Button::TEXT_LEFT_BUTTON, MESG_CMN_BACK_ALT);
+                                    button->reserveText(Button::TEXT_RIGHT_BUTTON, 51);
+                                    button->reserveAnm(Button::IDANIM_APPEAR_LEFT_AND_RIGHT_BUTTON);
+                                    break;
+                                }
+                            }
+
+                            button->animation(Button::IDANIM_ARROW_RIGHT_DISAPPEAR);
+                            button->animation(Button::IDANIM_ARROW_LEFT_DISAPPEAR);
+                            snd::getSystem()->startSE("WIPL_SE_CANCEL");
+                            mState = STATE_DONE;
+                        } else if (Button::cmpButtonName(paneName, Button::BTN_CREATE_R_BUTTON) == 0) {
+                            mChosenFriend = -1;
+                            entry_friend();
+                        } else if (Button::cmpButtonName(paneName, Button::BTN_ARROW_RIGHT) == 0) {
+                            button->animation(Button::IDANIM_ARROW_RIGHT_SELECT);
+                            snd::getSystem()->startSE("WIPL_SE_FL_PAGE_INC");
+                            onNextPage();
+                        } else if (Button::cmpButtonName(paneName, Button::BTN_ARROW_LEFT) == 0) {
+                            button->animation(Button::IDANIM_ARROW_LEFT_SELECT);
+                            snd::getSystem()->startSE("WIPL_SE_FL_PAGE_DEC");
+                            onPreviousPage();
+                        }
+                        break;
+                    }
+                    // fallthrough
+                }
+                case ::gui::EventHandler::ON_POINT: {
+                    if (mDrag.mbDragging && (con == NULL || con == System::getControllerManager()->getController(mDrag.mChan))) {
+                        if (Button::cmpButtonName(paneName, Button::BTN_ARROW_LEFT) == 0) {
+                            if (mDrag.mPrevCount < 0) {
+                                mDrag.mPrevCount = 0;
+                            }
+                        } else if (Button::cmpButtonName(paneName, Button::BTN_ARROW_RIGHT) == 0) {
+                            if (mDrag.mNextCount < 0) {
+                                mDrag.mNextCount = 0;
+                            }
+                        }
+                    }
+                    break;
+                }
+                case ::gui::EventHandler::ON_LEFT: {
+                    if (mDrag.mbDragging && (con == NULL || con == System::getControllerManager()->getController(mDrag.mChan))) {
+                        if (Button::cmpButtonName(paneName, Button::BTN_ARROW_LEFT) == 0) {
+                            mDrag.mPrevCount = -1;
+                        } else if (Button::cmpButtonName(paneName, Button::BTN_ARROW_RIGHT) == 0) {
+                            mDrag.mNextCount = -1;
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+
+        void Address::onNextPage() {
+            switch (mState) {
+                case STATE_NORMAL:
+                case STATE_DRAG: {
+                    if (mPage < PAGE_MAX - 1) {
+                        mPage++;
+                        mNextPageNum--;
+                        add_translate(mpLayout->FindPaneByName("N_note_base"), sPageOffset);
+                        mpLayout->getAnim(5)->setAnmType(0);
+                        mpLayout->getAnim(5)->play();
+                        set_page_text("T_nmbr_b", mPage + 1);
+                        set_page_text("T_nmbr_c", mPage);
+                        reset_gui(false);
+
+                        for (u32 i = 0; i < BTN_MAX; i++) {
+                            set_friend(sTextNameB[i], i + mPage * BTN_MAX, i, mMiiObj[i], false);
+                            set_friend(sTextNameC[i], i + (mPage - 1) * BTN_MAX, i, mNextMiiObj[i], true);
+                        }
+
+                        mState = STATE_FORWARD;
+                    } else {
+                        mPage = 0;
+                        mPrevPageNum = 0;
+                        mbCover = true;
+                        mpLayout->getAnim(4)->setAnmType(1);
+                        mpLayout->getAnim(4)->play();
+                        reset_gui(true);
+                        mState = STATE_LOOP_FORWARD;
+                    }
+                    break;
+                }
+                case STATE_INIT:
+                case STATE_COVER_NORMAL: {
+                    mNextPageNum--;
+                    add_translate(mpLayout->FindPaneByName("N_note_base"), sPageOffset);
+                    mpLayout->getAnim(4)->setAnmType(0);
+                    mpLayout->getAnim(4)->play();
+                    reset_gui(true);
+
+                    for (u32 i = 0; i < BTN_MAX; i++) {
+                        set_friend(sTextNameB[i], i + mPage * BTN_MAX, i, mMiiObj[i], false);
+                    }
+
+                    mState = STATE_COVER_FORWARD;
+                    break;
+                }
+            }
+        }
+
+        void Address::onPreviousPage() {
+            switch (mState) {
+                case STATE_NORMAL:
+                case STATE_DRAG: {
+                    if (mPage > 0) {
+                        mPage--;
+                        mPrevPageNum--;
+                        mpLayout->getAnim(5)->setAnmType(1);
+                        mpLayout->getAnim(5)->play();
+                        set_page_text("T_nmbr_c", mPage + 1);
+                        reset_gui(true);
+
+                        for (u32 i = 0; i < BTN_MAX; i++) {
+                            set_friend(sTextNameC[i], i + mPage * BTN_MAX, i, mNextMiiObj[i], true);
+                        }
+
+                        mState = STATE_BACKWARD;
+                    } else {
+                        mpLayout->getAnim(4)->setAnmType(1);
+                        mpLayout->getAnim(4)->play();
+                        reset_gui(true);
+                        mState = STATE_COVER_BACKWARD;
+                    }
+                    break;
+                }
+                case STATE_COVER_NORMAL: {
+                    mPage = PAGE_MAX - 1;
+                    mNextPageNum = 0;
+                    mbCover = false;
+                    math::VEC2 offset;
+                    offset.x = sPageOffset.x * PAGE_MAX;
+                    offset.y = sPageOffset.y * PAGE_MAX;
+                    add_translate(mpLayout->FindPaneByName("N_note_base"), offset);
+                    mpLayout->getAnim(4)->setAnmType(0);
+                    mpLayout->getAnim(4)->play();
+                    set_page_text("T_nmbr_b", mPage + 1);
+                    reset_gui(false);
+
+                    for (u32 i = 0; i < BTN_MAX; i++) {
+                        set_friend(sTextNameB[i], i + mPage * BTN_MAX, i, mMiiObj[i], false);
+                    }
+
+                    mState = STATE_LOOP_BACKWARD;
+                    break;
+                }
+            }
+        }
+
+        void Address::set_err_msg(wchar_t* errMsg, u32 errMsgLen, NWC24Err err) {
+            memset(errMsg, 0, errMsgLen * sizeof(wchar_t));
+            wcsncat(errMsg, System::getMessage(MESG_ERROR_CODE), errMsgLen - wcslen(errMsg));
+            u32 msgId = MESG_ERROR_CODE;
+
+            wchar_t errCode[32];
+            memset(errCode, 0, sizeof(errCode));
+            swprintf(errCode, ARRAY_LENGTH(errCode), L"%06d\n", System::getNwc24Manager()->getErrCode());
+            wcsncat(errMsg, errCode, errMsgLen - wcslen(errMsg));
+
+            switch (err) {
+                case NWC24_ERR_NETWORK: {
+                    msgId = MESG_ERROR_NWC24_NETWORK;
+                    break;
+                }
+                case NWC24_ERR_SERVER:
+                case NWC24_ERR_FULL: {
+                    msgId = MESG_ERROR_NWC24_SERVER;
+                    break;
+                }
+            }
+
+            wcsncat(errMsg, System::getMessage(msgId), errMsgLen - wcslen(errMsg));
+        }
+
+        void Address::entry_friend() {
+            if (mMode != 0) {
+                return;
+            }
+
+            Button* button = static_cast<Button*>(System::getScene(SCENE_BUTTON));
+
+            SCParentalControlsInfo pcInfo;
+            BOOL bGotParental = SCGetParentalControl(&pcInfo);
+            u32 regFriendNum = mpFriendCache->getRegFriendNum();
+
+            snd::getSystem()->startSE("WIPL_SE_DECIDE");
+
+            if (mChosenFriend == -1) {
+                button->animation(Button::IDANIM_SELECT_CREATE_R);
+            }
+
+            if (!ncd::NCDSetting::getConnectEnableFlag()) {
+                System::getDialog()->callBtn2(325, MESG_NETWORK_SETTINGS_BTN, MESG_CMN_QUIT);
+                mState = STATE_MSG_NET;
+            } else if (!(SCGetWCFlags() & SC_WC_FLAGS_ENABLED)) {
+                System::getDialog()->callBtn2(MESG_NETWORK_NO_WC24_CONFIG, MESG_NETWORK_SETTINGS_BTN, MESG_CMN_QUIT);
+                mState = STATE_MSG_WC;
+            } else if (bGotParental && (pcInfo.enable & SC_PARENTAL_FLAG_ENABLED) && (SCGetNetContentRestrictions() & 2)) {
+                System::getDialog()->callBtn1(MESG_NETWORK_PARENTAL_RESTRICT, MESG_CMN_OK);
+                mState = STATE_MSG_PARENTAL;
+            } else if (mpFriendCache->check() == NWC24_ERR_NETWORK || mpFriendCache->getLastErr() == NWC24_ERR_SERVER ||
+                       mpFriendCache->getLastErr() == NWC24_ERR_FULL) {
+                wchar_t errMsg[0x400] = {0};
+                set_err_msg(errMsg, ARRAY_LENGTH(errMsg), (NWC24Err)mpFriendCache->getLastErr());
+                System::getDialog()->callBtn1(errMsg, MESG_CMN_OK);
+                mState = STATE_MSG_NWC24_ERROR;
+            } else if (regFriendNum >= FriendListCache::FRIEND_MAX) {
+                System::getDialog()->callBtn1(80, MESG_CMN_OK);
+                mState = STATE_MSG_FI_FULL;
+            } else {
+                createChildScene(SCENE_ADDRESS_ADD_SELECT, this, NULL, NULL);
+                button->reserveAnm(Button::IDANIM_DISAPPEAR_LEFT_AND_RIGHT_BUTTON);
+                button->reserveText(Button::TEXT_LEFT_BUTTON, MESG_CMN_BACK_ALT);
+                button->reserveAnm(Button::IDANIM_APPEAR_LEFT_BUTTON);
+                button->setEventHandler(NULL);
+                mpBackLayout->getAnim(0)->play();
+                mState = STATE_WAIT_CHILD_CST;
+            }
+
+            button->animation(Button::IDANIM_ARROW_RIGHT_DISAPPEAR);
+            button->animation(Button::IDANIM_ARROW_LEFT_DISAPPEAR);
+        }
+
+        bool Address::isReleasableArea(int page, int buttonNo) {
+            if (page < 0 || page >= PAGE_MAX) {
+                return false;
+            }
+
+            if (mbCover) {
+                return false;
+            }
+
+            if (buttonNo < 0 || buttonNo >= BTN_MAX) {
+                return false;
+            }
+
+            if (page == mDrag.mPage && buttonNo == mDrag.mButton) {
+                return true;
+            }
+
+            if (mpFriendCache->isThere(buttonNo + page * BTN_MAX)) {
+                return false;
+            }
+
+            return mDrag.mbDragging == true;
+        }
+
+        void Address::changePage_onDrag() {
+            Button* button = static_cast<Button*>(System::getScene(SCENE_BUTTON));
+            if (button->isActive()) {
+                button->update();
+            }
+
+            if (mState == STATE_DRAG || mState == STATE_COVER_NORMAL) {
+                if (System::getControllerManager()->getController(mDrag.mChan) == NULL ||
+                    !System::getControllerManager()->getController(mDrag.mChan)->pinch()) {
+                    mDrag.mbDragging = true;
+                    start_release_event(NULL);
+                    return;
+                }
+            }
+
+            set_textbox("T_name_move", (const wchar_t*)mpFriendCache->getInfo(mDrag.mButton + mDrag.mPage * BTN_MAX).attr.name);
+
+            math::VEC2 pos = System::getControllerManager()->getController(mDrag.mChan)->getDpdProjectionPos();
+
+            if (System::getControllerManager()->getController(mDrag.mChan) != NULL &&
+                System::getControllerManager()->getController(mDrag.mChan)->isValidDpd()) {
+                nw4r::math::VEC2 move(pos.x - mDrag.mPos.x, pos.y - mDrag.mPos.y);
+                snd::getSystem()->holdSEwithPosDis("WIPL_SE_CH_DRAG", pos.x, nw4r::math::FSqrt(nw4r::math::VEC2LenSq(&move)));
+                mDrag.mPos = pos;
+            }
+
+            nw4r::ut::Rect rect;
+            nw4r::ut::Rect rect4x3;
+            System::getProjectionRect(&rect);
+            System::getProjectionRect4x3(&rect4x3);
+
+            pos.x *= rect4x3.GetWidth() / rect.GetWidth();
+            pos.x += mDragOffsetX;
+            pos.y = -pos.y;
+
+            nw4r::lyt::Pane* movePane = mpLayout->FindPaneByName("N_note_move");
+            movePane->SetTranslate(pos);
+            movePane->SetVisible(true);
+
+            if (mDrag.mPrevCount >= 0) {
+                mDrag.mPrevCount++;
+            }
+            if (mDrag.mNextCount >= 0) {
+                mDrag.mNextCount++;
+            }
+
+            if (mDrag.mPrevCount >= 30) {
+                button->animation(Button::IDANIM_ARROW_LEFT_SELECT);
+                snd::getSystem()->startSE("WIPL_SE_FL_PAGE_DEC");
+                onPreviousPage();
+                mDrag.mPrevCount = 0;
+                mDrag.mNextCount = -1;
+            } else if (mDrag.mNextCount >= 30) {
+                button->animation(Button::IDANIM_ARROW_RIGHT_SELECT);
+                snd::getSystem()->startSE("WIPL_SE_FL_PAGE_INC");
+                onNextPage();
+                mDrag.mPrevCount = -1;
+                mDrag.mNextCount = 0;
+            }
+        }
+
+        void Address::movePane_onDrag() {
+            nw4r::math::VEC3 baseTrans = mpLayout->FindPaneByName("N_base_move")->GetTranslate();
+            math::VEC2 pos = System::getControllerManager()->getController(mDrag.mChan)->getDpdProjectionPos();
+            nw4r::lyt::TextBox* textBox = static_cast<nw4r::lyt::TextBox*>(mpLayout->FindPaneByName("T_name_move"));
+            const u16* name = mpFriendCache->getInfo(mDrag.mButton + mDrag.mPage * BTN_MAX).attr.name;
+
+            f32 width = 0.0f;
+            if (textBox != NULL && name != NULL) {
+                textBox->GetFont()->GetWidth();
+                for (; *name != 0; name++) {
+                    width += textBox->GetFont()->GetCharWidth(*name);
+                }
+            }
+            width += 0.01f;
+
+            nw4r::ut::Rect rect;
+            nw4r::ut::Rect rect4x3;
+            System::getProjectionRect(&rect);
+            System::getProjectionRect4x3(&rect4x3);
+
+            if (baseTrans.x + width < pos.x) {
+                mDragOffsetX = -((baseTrans.x + width) * (rect4x3.GetWidth() / rect.GetWidth()));
+            } else {
+                pos.x *= rect4x3.GetWidth() / rect.GetWidth();
+                mDragOffsetX = -pos.x;
+                mDragOffsetX += (mDrag.mPage * sPageOffset.x) * (rect4x3.GetWidth() / rect.GetWidth());
+            }
+        }
+
+        Address::MiiObj::MiiObj() : mpNigaoe(NULL) {}
+
+        Address::MiiObj::~MiiObj() {
+            if (mpNigaoe != NULL) {
+                delete mpNigaoe;
+            }
+        }
+
+        void Address::MiiObj::init(nw4r::lyt::Pane* pane) {
+            mpMaterial = pane->GetMaterial();
+            mpMaterial->GetTexture(&mTexObj, GX_TEXMAP0);
+        }
+
+        void Address::MiiObj::set(u64 fdId) {
+            RFLCreateID createId;
+            u16 index;
+
+            memcpy(&createId, &fdId, sizeof(RFLCreateID));
+            if (RFLSearchOfficialData(&createId, &index)) {
+                System::getMiiManager()->create(System::getMem2App(), 76, 76, (s16)index, create_callback, this);
+            } else {
+                reset();
+            }
+        }
+
+        void Address::MiiObj::reset() {
+            if (mpNigaoe != NULL) {
+                mpMaterial->SetTexture(GX_TEXMAP0, mTexObj);
+                delete mpNigaoe;
+                mpNigaoe = NULL;
+            }
+        }
+
+        void Address::MiiObj::create_callback(nigaoe::Object* object, void* work) {
+            MiiObj* miiObj = static_cast<MiiObj*>(work);
+
+            if (miiObj->mpNigaoe != NULL) {
+                delete miiObj->mpNigaoe;
+            }
+
+            miiObj->mpNigaoe = object;
+            miiObj->mpMaterial->SetTexture(GX_TEXMAP0, object->getIconTexture());
+        }
+
+        void AddressEvent::onEvent(u32 compId, u32 event, void* data) {
+            const char* paneName = static_cast<gui::PaneComponent*>(mpManager->getComponent(compId))->getPane()->GetName();
+            controller::Interface* con = static_cast<controller::Interface*>(data);
+
+            switch (event) {
+                case ::gui::EventHandler::ON_POINT: {
+                    if (con != NULL) {
+                        if (mpInstance->mDrag.mbDragging) {
+                            if (con == NULL || con == System::getControllerManager()->getController(mpInstance->mDrag.mChan)) {
+                                mpInstance->start_drag_point_event(paneName, con);
+                            }
+                        } else {
+                            if (paneName[0] == 'B' && mTrigChan == con->getChannel()) {
+                                mTrigChan = -1;
+                            }
+                            mpInstance->start_point_event(paneName, con);
+                        }
+                    }
+                    break;
+                }
+                case ::gui::EventHandler::ON_LEFT: {
+                    if (mpInstance->mDrag.mbDragging) {
+                        if (con == NULL || con == System::getControllerManager()->getController(mpInstance->mDrag.mChan)) {
+                            mpInstance->start_drag_left_event(paneName);
+                        }
+                    } else {
+                        mpInstance->start_left_event(paneName);
+                    }
+                    break;
+                }
+                case ::gui::EventHandler::ON_DRAG: {
+                    if (mpInstance->mState == Address::STATE_NORMAL && con != NULL && con->decide() && mTrigChan >= 0) {
+                        mpInstance->start_trig_event(paneName);
+                    }
+                    break;
+                }
+                case ::gui::EventHandler::ON_TRIG: {
+                    if (mpInstance->mState == Address::STATE_NORMAL && con != NULL) {
+                        mTrigChan = con->getChannel();
+                        if (con->pinchTrg()) {
+                            mpInstance->start_drag_event(paneName, con);
+                        }
+                    }
+                    break;
+                }
+                case ::gui::EventHandler::ON_RELEASE: {
+                    if (mpInstance->mDrag.mbDragging &&
+                        (con == NULL || con == System::getControllerManager()->getController(mpInstance->mDrag.mChan)) && !con->pinch()) {
+                        mpInstance->start_release_event(paneName);
+                    }
+                    break;
+                }
+            }
+        }
+
+        BOOL FriendListCache::init() {
+            nwc24::Manager* manager = System::getNwc24Manager();
+            if (!manager->open()) {
+                return FALSE;
+            }
+
+            manager->getMyUserId(&mMyUserId);
+
+            u32 friendNum;
+            manager->getNumFriendInfos(&friendNum);
+            manager->getNumRegFriendInfos(&mRegFriendNum);
+
+            for (u32 i = 0; i < FRIEND_MAX; i++) {
+                if ((mbThere[i] = manager->isFriendInfoThere(i))) {
+                    manager->readFriendInfo(&mInfos[i], i);
+                }
+            }
+
+            mErrCode = 0;
+            mbOpened = true;
+
+            return TRUE;
+        }
+
+        void FriendListCache::fin() {
+            if (mbOpened) {
+                System::getNwc24Manager()->close();
+            }
+        }
+
+        void FriendListCache::add(u32 index, const NWC24FriendInfo& info) {
+            memcpy(&mInfos[index], &info, sizeof(NWC24FriendInfo));
+            mbThere[index] = true;
+            mRegFriendNum++;
+            System::getNwc24Manager()->writeFriendInfo(&mInfos[index], index);
+        }
+
+        void FriendListCache::update(u32 index, const wchar_t* name, u64 fdId) {
+            mInfos[index].attr.fdId = fdId;
+            memset(mInfos[index].attr.name, 0, sizeof(mInfos[index].attr.name));
+            wcsncpy((wchar_t*)mInfos[index].attr.name, name, 10);
+            System::getNwc24Manager()->updateFriendInfo(&mInfos[index], index);
+        }
+
+        void FriendListCache::del(u32 index) {
+            mbThere[index] = false;
+            mRegFriendNum--;
+            System::getNwc24Manager()->deleteFriendInfo(index);
+        }
+
+        void FriendListCache::swap(u32 index1, u32 index2) {
+            NWC24FriendInfo temp ATTRIBUTE_ALIGN(32);
+
+            memcpy(&temp, &mInfos[index1], sizeof(NWC24FriendInfo));
+            memcpy(&mInfos[index1], &mInfos[index2], sizeof(NWC24FriendInfo));
+            memcpy(&mInfos[index2], &temp, sizeof(NWC24FriendInfo));
+
+            u8 bThere = mbThere[index1];
+            mbThere[index1] = mbThere[index2];
+            mbThere[index2] = bThere;
+
+            System::getNwc24Manager()->swapFriendInfo(index1, index2);
+        }
+
+        BOOL FriendListCache::isValidId(const NWC24UserId& userId) {
+            return System::getNwc24Manager()->checkUserId(userId);
+        }
+
+        BOOL FriendListCache::isDupId(const NWC24UserId& userId) {
+            for (u32 i = 0; i < FRIEND_MAX; i++) {
+                if (mbThere[i] && mInfos[i].attr.type == NWC24_FRIENDTYPE_WII && userId == mInfos[i].addr.wiiId) {
+                    return TRUE;
+                }
+            }
+
+            return FALSE;
+        }
+
+        BOOL FriendListCache::isDupMail(const char* mailAddr) {
+            for (int i = 0; i < FRIEND_MAX; i++) {
+                if (mbThere[i] && mInfos[i].attr.type == NWC24_FRIENDTYPE_EMAIL && strcmp(mInfos[i].addr.mailAddr, mailAddr) == 0) {
+                    return TRUE;
+                }
+            }
+
+            return FALSE;
+        }
+
+        void FriendListCache::sendRegisterMail(u32 index) {
+            const NWC24FriendInfo& info = mInfos[index];
+            nwc24::Manager* manager = System::getNwc24Manager();
+
+            NWC24MsgObj msgObj;
+            manager->initMsgObj(&msgObj, NWC24_MSGTYPE_PUBLIC);
+            manager->setMsgToAddr(&msgObj, info.addr.mailAddr, strlen(info.addr.mailAddr));
+
+            const wchar_t* subject = System::getMessage(385);
+
+            wchar_t text[0x400];
+            wcscpy(text, System::getMessage(386));
+
+            if (mMyUserId != 1234567890123456ULL) {
+                wchar_t idStr[17];
+                swprintf(idStr, ARRAY_LENGTH(idStr), L"%016lld", mMyUserId);
+
+                wchar_t* pos;
+                while ((pos = wcsstr(text, L"1234567890123456")) != NULL) {
+                    for (int i = 0; i < 16; i++) {
+                        pos[i] = idStr[i];
+                    }
+                }
+            }
+
+            memset(mSendWork, 0, sizeof(mSendWork));
+            manager->setMsgSubjectAndTextPublic(&msgObj, (const u16*)subject, wcslen(subject), (const u16*)text, wcslen(text), mSendWork,
+                                                sizeof(mSendWork));
+            manager->commitMsg(&msgObj);
+        }
+
+        s32 FriendListCache::check() {
+            return mErrCode = System::getNwc24Manager()->check(1);
+        }
+
+        s32 FriendListCache::getErrCode() const {
+            return System::getNwc24Manager()->getErrCode();
+        }
+    }  // namespace scene
+}  // namespace ipl

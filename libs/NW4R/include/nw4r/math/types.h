@@ -118,6 +118,10 @@ namespace nw4r {
                 return *this;
             }
 
+#ifdef IPL_ADDRESS_MATCHING
+            VEC2 operator-() const { return VEC2(-x, -y); }
+#endif
+
             VEC2 operator+(const VEC2& rhs) const { return VEC2(x + rhs.x, y + rhs.y); }
             VEC2 operator-(const VEC2& rhs) const { return VEC2(x - rhs.x, y - rhs.y); }
             VEC2 operator*(f32 val) const { return VEC2(val * x, val * y); }
@@ -129,6 +133,10 @@ namespace nw4r {
             bool operator==(const VEC2& rhs) const { return x == rhs.x && y == rhs.y; }
             bool operator!=(const VEC2& rhs) const { return x != rhs.x || y != rhs.y; }
         } VEC2;
+
+#ifdef IPL_ADDRESS_MATCHING
+        inline f32 VEC2LenSq(const VEC2* p) { return p->x * p->x + p->y * p->y; }
+#endif
 
         typedef struct VEC3 VEC3;
 
