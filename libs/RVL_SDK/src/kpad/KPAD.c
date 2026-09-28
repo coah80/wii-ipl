@@ -359,11 +359,11 @@ static void calc_acc_horizon(KPADInside* kpad) {
     f32 deltaX;
     f32 deltaY;
     if (magnitude != 0.0f) {
-        if (magnitude == 2.0f) {
+        if (magnitude >= 2.0f) {
             return;
         }
-        normalizedX = accelX / magnitude;
-        normalizedY = accelY / magnitude;
+        normalizedX = kpad->value4A4 / magnitude;
+        normalizedY = kpad->value4A8 / magnitude;
         if (magnitude > 1.0f) {
             magnitude = 2.0f - magnitude;
         }
@@ -399,12 +399,10 @@ static void calc_acc_horizon(KPADInside* kpad) {
 }
 
 static void calc_acc_vertical(KPADInside* kpad) {
-    f32 accelX = kpad->value4A4;
-    f32 accelY = kpad->value4A8;
-    f32 horizontalMagnitude = accelX * accelX + accelY * accelY;
-    f32 horizontal = (f32)sqrt(horizontalMagnitude);
-    f32 accelZ = -kpad->value4AC;
-    f32 magnitude = (f32)sqrt(horizontalMagnitude + accelZ * accelZ);
+    f32 horizontal;
+    f32 horizontalMagnitude;
+    f32 accelZ;
+    f32 magnitude;
     f32 normalizedX;
     f32 normalizedZ;
     f32 blend;
@@ -412,8 +410,12 @@ static void calc_acc_vertical(KPADInside* kpad) {
     f32 nextX;
     f32 nextZ;
     f32 normalized;
+    horizontalMagnitude = kpad->value4A4 * kpad->value4A4 + kpad->value4A8 * kpad->value4A8;
+    horizontal = (f32)sqrt(horizontalMagnitude);
+    accelZ = -kpad->value4AC;
+    magnitude = (f32)sqrt(horizontalMagnitude + accelZ * accelZ);
     if (magnitude != 0.0f) {
-        if (magnitude == 2.0f) {
+        if (magnitude >= 2.0f) {
             return;
         }
         normalizedX = horizontal / magnitude;
@@ -1439,7 +1441,8 @@ s32 KPADRead(s32 chan, KPADStatus* statuses, u32 count) {
     while (remainingSamples != 0) {
         output--;
         sample = remainingSamples > 1 ? (KPADSample*)output : &latestSample;
-        if (sample->error == 0) {
+        switch (sample->error) {
+        case 0:
             device = sample->device;
             if (device == 1) {
                 coreButtons = sample->buttons;
@@ -1451,9 +1454,12 @@ s32 KPADRead(s32 chan, KPADStatus* statuses, u32 count) {
                 coreButtons = 0;
                 extensionButtons = 0;
             }
-        }
-        if (sample->error == 0 || sample->error == -2 || sample->error == -7) {
             buttons = sample->buttons;
+            break;
+        case -2:
+        case -7:
+            buttons = sample->buttons;
+            break;
         }
         remainingSamples--;
     }
@@ -1497,13 +1503,14 @@ s32 KPADRead(s32 chan, KPADStatus* statuses, u32 count) {
                 kpad->flag51E = 1;
             }
             kpad->status.data_format = sample->dataFormat;
-            if (sample->error == 0) {
+            switch (sample->error) {
+            case 0:
                 read_kpad_stick(kpad, sample);
-            }
-            if (sample->error == 0 || sample->error == -7) {
+            case -7:
                 read_kpad_acc(kpad, sample);
                 read_kpad_dpd(kpad, sample);
-            } else {
+                break;
+            default:
                 kpad->status.dpd_valid_fg = 0;
             }
             statuses[outputIndex] = kpad->status;
