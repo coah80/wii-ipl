@@ -62,6 +62,200 @@ namespace ipl {
         };
         // clang-format on
 
+#ifdef IPL_CONTROLLER_NATIVE_HIERARCHY
+#ifdef IPL_CONTROLLER_INLINE_INTERFACE
+#define IPL_CONTROLLER_DEFAULT_VIRTUAL(signature, implementation) virtual signature implementation
+#else
+#define IPL_CONTROLLER_DEFAULT_VIRTUAL(signature, implementation) virtual signature;
+#endif
+        class Interface {
+        public:
+            virtual ~Interface() = 0;
+            IPL_CONTROLLER_DEFAULT_VIRTUAL(int getType() const, { return -1; })
+            IPL_CONTROLLER_DEFAULT_VIRTUAL(int getChannel() const, { return -1; })
+            IPL_CONTROLLER_DEFAULT_VIRTUAL(bool down(u32 button) const, { return false; })
+            IPL_CONTROLLER_DEFAULT_VIRTUAL(bool downTrg(u32 button) const, { return false; })
+            IPL_CONTROLLER_DEFAULT_VIRTUAL(bool upTrg(u32 button) const, { return false; })
+            IPL_CONTROLLER_DEFAULT_VIRTUAL(int pinch() const, { return 0; })
+            IPL_CONTROLLER_DEFAULT_VIRTUAL(int pinchTrg() const, { return 0; })
+            IPL_CONTROLLER_DEFAULT_VIRTUAL(int pinchOffTrg() const, { return 0; })
+            IPL_CONTROLLER_DEFAULT_VIRTUAL(int decide() const, { return 0; })
+            IPL_CONTROLLER_DEFAULT_VIRTUAL(bool repeat(u32 button) const, { return false; })
+            IPL_CONTROLLER_DEFAULT_VIRTUAL(BOOL rumble(int type = 0), { return FALSE; })
+            IPL_CONTROLLER_DEFAULT_VIRTUAL(void cancelRumbling(), {  })
+            IPL_CONTROLLER_DEFAULT_VIRTUAL(int getHoldFlag() const, { return 0; })
+            IPL_CONTROLLER_DEFAULT_VIRTUAL(int getTrigFlag() const, { return 0; })
+            IPL_CONTROLLER_DEFAULT_VIRTUAL(int getReleaseFlag() const, { return 0; })
+            IPL_CONTROLLER_DEFAULT_VIRTUAL(int getClassicHoldFlag() const, { return 0; })
+            IPL_CONTROLLER_DEFAULT_VIRTUAL(int getClassicTrigFlag() const, { return 0; })
+            IPL_CONTROLLER_DEFAULT_VIRTUAL(int getClassicReleaseFlag() const, { return 0; })
+            IPL_CONTROLLER_DEFAULT_VIRTUAL(math::VEC2 getDpdPos() const, { return math::VEC2(0.0f, 0.0f); })
+            IPL_CONTROLLER_DEFAULT_VIRTUAL(math::VEC2 getDpdProjectionPos() const, { return math::VEC2(0.0f, 0.0f); })
+            IPL_CONTROLLER_DEFAULT_VIRTUAL(math::VEC2 getHorizon() const, { return math::VEC2(0.0f, 0.0f); })
+            IPL_CONTROLLER_DEFAULT_VIRTUAL(f32 getDpdDistance() const, { return 0.0f; })
+            IPL_CONTROLLER_DEFAULT_VIRTUAL(KPADStatus* getKPADStatus() const, { return NULL; })
+            IPL_CONTROLLER_DEFAULT_VIRTUAL(PADStatus* getPADStatus() const, { return NULL; })
+            IPL_CONTROLLER_DEFAULT_VIRTUAL(bool isValidBtn() const, { return false; })
+            IPL_CONTROLLER_DEFAULT_VIRTUAL(bool isValidDpd() const, { return false; })
+            virtual void setForceInvalid(bool flag) = 0;
+            IPL_CONTROLLER_DEFAULT_VIRTUAL(int getMainStickX() const, { return 0; })
+            IPL_CONTROLLER_DEFAULT_VIRTUAL(int getMainStickY() const, { return 0; })
+            IPL_CONTROLLER_DEFAULT_VIRTUAL(int getSubStickX() const, { return 0; })
+            IPL_CONTROLLER_DEFAULT_VIRTUAL(int getSubStickY() const, { return 0; })
+            IPL_CONTROLLER_DEFAULT_VIRTUAL(void read(), {  })
+        };
+
+#undef IPL_CONTROLLER_DEFAULT_VIRTUAL
+#ifdef IPL_CONTROLLER_INLINE_INTERFACE
+        inline Interface::~Interface() {}
+#endif
+
+        class Base : public Interface {
+        public:
+            Base(int chan, KPADStatus& status) {
+                mButton = 0;
+                unk_0x08 = 0;
+                mLastRumbleTime = 0;
+                mRumbleType = -1;
+                mChan = chan;
+                mType = 2;
+                unk_0x1C = 0;
+                KPADEnableDPD(chan);
+                unk_0x1D = 0;
+                unk_0x1E = 0;
+                unk_0x20 = &status;
+            }
+
+            Base(int chan, int type, KPADStatus& status) {
+                mButton = 0;
+                unk_0x08 = 0;
+                mLastRumbleTime = 0;
+                mRumbleType = -1;
+                mChan = chan;
+                mType = type;
+                unk_0x1C = 0;
+                KPADEnableDPD(chan);
+            }
+
+            virtual ~Base();
+            virtual int getType() const override;
+            virtual int getChannel() const override;
+            virtual int decide() const override;
+            virtual BOOL rumble(int timer = 0) override;
+            virtual void cancelRumbling() override;
+            virtual void setForceInvalid(bool flag) override;
+            virtual void read() override;
+
+        protected:
+            u8 mButton;
+            u32 unk_0x08;
+            OSTick mLastRumbleTime;
+            s32 mRumbleType;
+            u32 mChan;
+            u32 mType;
+            u8 unk_0x1C;
+            u8 unk_0x1D;
+            u8 unk_0x1E;
+            KPADStatus* unk_0x20;
+        };
+
+        class Revolution : public Base {
+        public:
+            Revolution(int chan, KPADStatus& status) : Base(chan, status) {}
+            Revolution(int chan, int type, KPADStatus& status);
+            virtual ~Revolution();
+            virtual bool down(u32 button) const override;
+            virtual bool downTrg(u32 button) const override;
+            virtual bool upTrg(u32 button) const override;
+            virtual int pinch() const override;
+            virtual int pinchTrg() const override;
+            virtual int pinchOffTrg() const override;
+            virtual bool repeat(u32 button) const override;
+            virtual f32 getDpdDistance() const override;
+            virtual KPADStatus* getKPADStatus() const override;
+            virtual int getReleaseFlag() const override;
+            virtual int getTrigFlag() const override;
+            virtual int getHoldFlag() const override;
+            virtual math::VEC2 getDpdPos() const override;
+            virtual math::VEC2 getDpdProjectionPos() const override;
+            virtual math::VEC2 getHorizon() const override;
+            virtual bool isValidBtn() const override;
+            virtual bool isValidDpd() const override;
+            virtual void read() override;
+        };
+
+        class Classic : public Revolution {
+        public:
+            Classic(int chan, KPADStatus& status);
+            virtual ~Classic();
+            virtual bool down(u32 button) const override;
+            virtual bool downTrg(u32 button) const override;
+            virtual bool upTrg(u32 button) const override;
+            virtual int getClassicHoldFlag() const override;
+            virtual int getClassicTrigFlag() const override;
+            virtual int getClassicReleaseFlag() const override;
+            virtual math::VEC2 getDpdPos() const override;
+            virtual math::VEC2 getDpdProjectionPos() const override;
+            virtual math::VEC2 getHorizon() const override;
+            virtual bool isValidDpd() const override;
+            virtual void read() override;
+            virtual BOOL isValidDpdClassic() const;
+
+        private:
+            math::VEC2 unk_0x24;
+            int unk_0x2C;
+        };
+
+        class Master : public Interface {
+        public:
+            Master(Interface** controllers) : mpControllers(controllers) {}
+            virtual ~Master();
+            virtual bool down(u32 button) const override;
+            virtual bool downTrg(u32 button) const override;
+            virtual bool upTrg(u32 button) const override;
+            virtual bool repeat(u32 button) const override;
+            virtual int decide() const override;
+            virtual void setForceInvalid(bool flag) override;
+
+        private:
+            bool call(u32 button, bool (Interface::*func)(u32) const) const;
+            Interface** mpControllers;
+        };
+
+        class Core : public Revolution {
+        public:
+            Core(int chan, int type, KPADStatus& status) : Revolution(chan, type, status) {}
+            virtual ~Core();
+        };
+
+        class FreeStyle : public Revolution {
+        public:
+            FreeStyle(int chan, int type, KPADStatus& status) : Revolution(chan, type, status) {}
+            virtual ~FreeStyle();
+        };
+
+        class Manager {
+        public:
+            Manager(EGG::Heap* heap);
+            void read();
+            Interface* getController(int chan);
+            Interface* getMasterController();
+            Interface* getYoungController();
+            static void* alloc(u32 size);
+            static int free(void* ptr);
+
+        private:
+            static void* mpBuf;
+            static EGG::Heap* mpParentHeap;
+            static EGG::ExpHeap* mpHeap;
+            static EGG::Allocator* mpAllocator;
+            Interface* mControllers[4];
+            u32 mControllerStorage[4][12];
+            Master mMaster;
+            KPADStatus mKPADStatus[4];
+            s32 mInvalidCount[4];
+        };
+#else
         class Base {
         public:
             Base(int chan, KPADStatus& arg1) {
@@ -118,11 +312,11 @@ namespace ipl {
 
             virtual bool setForceInvalid(bool flag);  // 0x74
 
-            virtual f32 getMainStickX() const;  // 0x78
-            virtual f32 getMainStickY() const;  // 0x7C
+            virtual int getMainStickX() const;  // 0x78
+            virtual int getMainStickY() const;  // 0x7C
 
-            virtual f32 getSubStickX() const;  // 0x80
-            virtual f32 getSubStickY() const;  // 0x84
+            virtual int getSubStickX() const;  // 0x80
+            virtual int getSubStickY() const;  // 0x84
 
             virtual void read();  // 0x88
 
@@ -169,10 +363,10 @@ namespace ipl {
             virtual math::VEC2 getDpdPos() const override;
             virtual math::VEC2 getDpdProjectionPos() const override;
             virtual math::VEC2 getHorizon() const override;
-            virtual f32 getMainStickX() const override;
-            virtual f32 getMainStickY() const override;
-            virtual f32 getSubStickX() const override;
-            virtual f32 getSubStickY() const override;
+            virtual int getMainStickX() const override;
+            virtual int getMainStickY() const override;
+            virtual int getSubStickX() const override;
+            virtual int getSubStickY() const override;
             virtual BOOL rumble(int type = 0) override;
             virtual void read() override;
         };
@@ -228,6 +422,7 @@ namespace ipl {
         class Classic : public Revolution {
         public:
             Classic(int arg0, KPADStatus& arg1);
+            virtual ~Classic();
 
             virtual bool down(u32 button) const override;
             virtual bool downTrg(u32 button) const override;
@@ -268,6 +463,7 @@ namespace ipl {
             static EGG::Allocator* mpAllocator;
             u8 dummy[0x2F8];
         };
+#endif
     }  // namespace controller
 }  // namespace ipl
 

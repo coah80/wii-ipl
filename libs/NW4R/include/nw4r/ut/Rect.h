@@ -16,7 +16,9 @@ namespace nw4r {
 #endif
             Rect(f32 l, f32 t, f32 r, f32 b) : left(l), top(t), right(r), bottom(b) {}
 
+#ifndef IPL_CONTROLLER_TRIVIAL_RECT_DTOR
             ~Rect() {}
+#endif
 
             void SetWidth(f32 width) { right = left + width; }
             void SetHeight(f32 height) { bottom = top + height; }
