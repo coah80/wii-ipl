@@ -767,45 +767,55 @@ static s8 select_2obj_continue(KPADInside* kpad) {
 
 static s8 select_1obj_first(KPADInside* kpad) {
     KPADDPDObject* objects = (KPADDPDObject*)((u8*)kpad + 0xC4);
-    f32 offsetX = (kpad->valueB0 * kpad->value4B8 + kpad->valueB4 * kpad->value4BC) * kpad->value4A0;
-    f32 offsetY = (kpad->valueB4 * kpad->value4B8 - kpad->valueB0 * kpad->value4BC) * kpad->value4A0;
-    s32 i;
-    for (i = 0; i < 4; i++) {
-        f32 left;
-        f32 bottom;
-        f32 right;
-        f32 top;
-        if ((s8)objects[i].flags != 0) {
-            continue;
-        }
-        left = objects[i].x - offsetX;
-        bottom = objects[i].y - offsetY;
-        right = objects[i].x + offsetX;
-        top = objects[i].y + offsetY;
-        if (left == kpad->value4F4 || left == kpad->value4FC || bottom == kpad->value4F8 || bottom == kpad->value500) {
-            if (right > kpad->value4F4 && right < kpad->value4FC && top > kpad->value4F8 && top < kpad->value500) {
-                kpad->value100 = objects[i].x;
-                kpad->value104 = objects[i].y;
-                kpad->value108 = objects[i].flags;
-                kpad->valueF4 = left;
-                kpad->valueF8 = bottom;
-                kpad->valueFC = 0;
-                ((u8*)&kpad->valueFC)[1] = 0xFF;
+    KPADDPDObject* object;
+    KPADDPDObject* end = (KPADDPDObject*)((u8*)kpad + 0xF4);
+    f32 xAxis = kpad->valueB0;
+    f32 xNorm = kpad->value4B8;
+    f32 yAxis = kpad->valueB4;
+    f32 yNorm = kpad->value4BC;
+    f32 scale = kpad->value4A0;
+    f32 offsetX = (xAxis * xNorm + yAxis * yNorm) * scale;
+    f32 offsetY = (yAxis * xNorm - xAxis * yNorm) * scale;
+    object = objects;
+    do {
+        if ((s8)object->flags == 0) {
+            f32 x = object->x;
+            f32 y = object->y;
+            f32 left = x - offsetX;
+            f32 bottom = y - offsetY;
+            f32 right = x + offsetX;
+            f32 top = y + offsetY;
+            f32 leftBound = kpad->value4F4;
+            f32 rightBound = kpad->value4FC;
+            f32 topBound = kpad->value4F8;
+            f32 bottomBound = kpad->value500;
+            if (left == leftBound || left == rightBound || bottom == topBound || bottom == bottomBound) {
+                if (right > leftBound && right < rightBound && top > topBound && top < bottomBound) {
+                    u32* objectWords = (u32*)object;
+                    u32* statusWords = (u32*)&kpad->value100;
+                    statusWords[0] = objectWords[0];
+                    statusWords[1] = objectWords[1];
+                    statusWords[2] = objectWords[2];
+                    kpad->valueF4 = left;
+                    kpad->valueF8 = bottom;
+                    kpad->valueFC = 0;
+                    ((u8*)&kpad->valueFC)[1] = 0xFF;
+                    return -1;
+                }
+            } else if (right == leftBound || right == rightBound || top == topBound || top == bottomBound) {
+                u32* objectWords = (u32*)object;
+                u32* statusWords = (u32*)&kpad->valueFC;
+                statusWords[0] = objectWords[0];
+                statusWords[1] = objectWords[1];
+                statusWords[2] = objectWords[2];
+                kpad->value100 = right;
+                kpad->value104 = top;
+                kpad->value108 = 0;
+                ((u8*)&kpad->value108)[1] = 0xFF;
                 return -1;
             }
-            continue;
         }
-        if (right == kpad->value4F4 || right == kpad->value4FC || top == kpad->value4F8 || top == kpad->value500) {
-            kpad->valueF4 = objects[i].x;
-            kpad->valueF8 = objects[i].y;
-            kpad->valueFC = objects[i].flags;
-            kpad->value100 = right;
-            kpad->value104 = top;
-            kpad->value108 = 0;
-            ((u8*)&kpad->value108)[1] = 0xFF;
-            return -1;
-        }
-    }
+    } while (++object < end);
     return 0;
 }
 
