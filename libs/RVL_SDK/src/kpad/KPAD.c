@@ -889,72 +889,101 @@ static s8 select_1obj_continue(KPADInside* kpad) {
 static void read_kpad_dpd(KPADInside* kpad, KPADSample* status) {
     KPADDPDObject* objects = (KPADDPDObject*)((u8*)kpad + 0xC4);
     u8 format = status->dataFormat;
+    KPADDPDObject* object;
     s8 selected = 0;
-    s32 i;
     if (format == 2 || format == 5 || format == 8) {
-        for (i = 3; i >= 0; i--) {
-            DPDObject* source = &status->objects[i];
+        DPDObject* source = &status->objects[3];
+        object = objects + 3;
+        for (;;) {
             if (source->size != 0) {
-                objects[i].x = (f32)source->x * 0.001953125f - 0.9990234375f;
-                objects[i].y = (f32)source->y * 0.001953125f - 0.7490234375f;
-                objects[i].flags = 0;
-                objects[i].status = 0;
+                object->x = (f32)source->x * 0.001953125f - 0.9990234375f;
+                object->y = (f32)source->y * 0.001953125f - 0.7490234375f;
+                object->flags = 0;
+                object->status = 0;
             } else {
-                objects[i].flags = 0xFF;
+                object->flags = 0xFF;
             }
+            if (object == objects) {
+                break;
+            }
+            object--;
+            source--;
         }
     } else {
-        for (i = 3; i >= 0; i--) {
-            objects[i].flags = 0xFF;
+        object = objects + 3;
+        for (;;) {
+            object->flags = 0xFF;
+            if (object == objects) {
+                break;
+            }
+            object--;
         }
     }
-    for (i = 3; i >= 0; i--) {
-        if ((s8)objects[i].flags >= 0 &&
-            (objects[i].x == kpad->value4F4 || objects[i].x == kpad->value4FC ||
-             objects[i].y == kpad->value4F8 || objects[i].y == kpad->value500)) {
-            objects[i].flags |= 1;
+    object = objects + 3;
+    for (;;) {
+        if ((s8)object->flags >= 0 &&
+            (object->x == kpad->value4F4 || object->x == kpad->value4FC ||
+             object->y == kpad->value4F8 || object->y == kpad->value500)) {
+            object->flags |= 1;
         }
+        if (object == objects) {
+            break;
+        }
+        object--;
     }
-    for (i = 0; i < 3; i++) {
-        s32 j;
-        if ((s8)objects[i].flags != 0) {
-            continue;
-        }
-        for (j = i + 1; j < 4; j++) {
-            if ((s8)objects[j].flags == 0 && objects[i].x == objects[j].x && objects[i].y == objects[j].y) {
-                objects[j].flags |= 2;
+    for (object = objects; object < objects + 3; object++) {
+        if ((s8)object->flags == 0) {
+            KPADDPDObject* other = object + 1;
+            for (;;) {
+                if ((s8)other->flags == 0 && object->x == other->x && object->y == other->y) {
+                    other->flags |= 2;
+                }
+                if (other == objects + 3) {
+                    break;
+                }
+                other++;
             }
         }
     }
     kpad->dpdCount = 0;
-    for (i = 3; i >= 0; i--) {
-        if ((s8)objects[i].flags == 0) {
+    object = objects + 3;
+    for (;;) {
+        if ((s8)object->flags == 0) {
             kpad->dpdCount++;
         }
+        if (object == objects) {
+            break;
+        }
+        object--;
     }
     if (kpad->status.acc_vertical.x != kp_err_up_inpr) {
-        s8 previous = kpad->status.dpd_valid_fg;
-        if (previous == 2 || previous == -2) {
+        switch (kpad->status.dpd_valid_fg) {
+        case 2:
+        case -2:
             if (kpad->dpdCount >= 2) {
                 selected = select_2obj_continue(kpad);
             }
             if (selected == 0 && kpad->dpdCount >= 1) {
                 selected = select_1obj_continue(kpad);
             }
-        } else if (previous == 1 || previous == -1) {
+            break;
+        case 1:
+        case -1:
             if (kpad->dpdCount >= 2) {
                 selected = select_2obj_first(kpad);
             }
             if (selected == 0 && kpad->dpdCount >= 1) {
                 selected = select_1obj_continue(kpad);
             }
-        } else {
+            break;
+        default:
             if (kpad->dpdCount >= 2) {
                 selected = select_2obj_first(kpad);
             }
             if (selected == 0 && kpad->dpdCount == 1) {
                 selected = select_1obj_first(kpad);
             }
+            break;
         }
     }
     if (selected != 0) {
@@ -1245,111 +1274,107 @@ void KPADSetSensorHeight(s32 chan, f32 sensorHeight) {
 }
 
 static void calc_dpd_variable(KPADInside* kpad, s8 valid) {
-    f32 x;
-    f32 y;
-    f32 dx;
-    f32 dy;
-    f32 length;
-    f32 amount;
-    f32 value;
-    f32 next;
-    f32 rotatedX;
-    f32 rotatedY;
-    f32 scaleX;
-    f32 scaleY;
-    f32 pointX;
-    f32 pointY;
     if (valid == 0) {
         kpad->status.dpd_valid_fg = 0;
         return;
     }
-    x = kpad->valueB0 * kpad->value494 + kpad->valueB4 * kpad->value498;
-    y = kpad->valueB4 * kpad->value494 - kpad->valueB0 * kpad->value498;
-    if (kpad->status.dpd_valid_fg == 0) {
-        kpad->status.horizon.x = x;
-        kpad->status.horizon.y = y;
-        kpad->status.hori_vec = Vec2_0;
-        kpad->status.hori_speed = 0.0f;
-    } else {
-        dx = x - kpad->status.horizon.x;
-        dy = y - kpad->status.horizon.y;
-        length = (f32)sqrt(dx * dx + dy * dy);
-        if (length == kpad->value8C) {
-            amount = 1.0f;
+    {
+        f32 x = kpad->valueB0 * kpad->value494 + kpad->valueB4 * kpad->value498;
+        f32 y = kpad->valueB4 * kpad->value494 - kpad->valueB0 * kpad->value498;
+        if (kpad->status.dpd_valid_fg == 0) {
+            kpad->status.horizon.x = x;
+            kpad->status.horizon.y = y;
+            kpad->status.hori_vec = Vec2_0;
+            kpad->status.hori_speed = 0.0f;
         } else {
-            amount = length / kpad->value8C;
-            amount *= amount;
-            amount *= amount;
+            f32 dx = x - kpad->status.horizon.x;
+            f32 dy = y - kpad->status.horizon.y;
+            f32 length = (f32)sqrt(dx * dx + dy * dy);
+            f32 amount;
+            if (length == kpad->value8C) {
+                amount = 1.0f;
+            } else {
+                amount = length / kpad->value8C;
+                amount *= amount;
+                amount *= amount;
+            }
+            amount *= kpad->value90;
+            x = kpad->status.horizon.x + amount * dx;
+            y = kpad->status.horizon.y + amount * dy;
+            length = (f32)sqrt(x * x + y * y);
+            x /= length;
+            y /= length;
+            kpad->status.hori_vec.x = x - kpad->status.horizon.x;
+            kpad->status.hori_vec.y = y - kpad->status.horizon.y;
+            kpad->status.horizon.x = x;
+            kpad->status.horizon.y = y;
+            kpad->status.hori_speed = (f32)sqrt(kpad->status.hori_vec.x * kpad->status.hori_vec.x + kpad->status.hori_vec.y * kpad->status.hori_vec.y);
         }
-        amount *= kpad->value90;
-        x = kpad->status.horizon.x + amount * dx;
-        y = kpad->status.horizon.y + amount * dy;
-        length = (f32)sqrt(x * x + y * y);
-        x /= length;
-        y /= length;
-        kpad->status.hori_vec.x = x - kpad->status.horizon.x;
-        kpad->status.hori_vec.y = y - kpad->status.horizon.y;
-        kpad->status.horizon.x = x;
-        kpad->status.horizon.y = y;
-        kpad->status.hori_speed = (f32)sqrt(kpad->status.hori_vec.x * kpad->status.hori_vec.x + kpad->status.hori_vec.y * kpad->status.hori_vec.y);
     }
-    value = kpad->value510 / kpad->value490;
-    if (kpad->status.dpd_valid_fg == 0) {
-        kpad->status.dist = value;
-        kpad->status.dist_vec = 0.0f;
-        kpad->status.dist_speed = 0.0f;
-    } else {
-        dx = value - kpad->status.dist;
-        dy = dx;
-        if (dy < 0.0f) {
-            dy = -dy;
-        }
-        if (dy == kpad->value94) {
-            amount = 1.0f;
+    {
+        f32 value = kpad->value510 / kpad->value490;
+        if (kpad->status.dpd_valid_fg == 0) {
+            kpad->status.dist = value;
+            kpad->status.dist_vec = 0.0f;
+            kpad->status.dist_speed = 0.0f;
         } else {
-            amount = dy / kpad->value94;
-            amount *= amount;
-            amount *= amount;
+            f32 dx = value - kpad->status.dist;
+            f32 magnitude = dx;
+            f32 amount;
+            f32 next;
+            if (magnitude < 0.0f) {
+                magnitude = -magnitude;
+            }
+            if (magnitude == kpad->value94) {
+                amount = 1.0f;
+            } else {
+                amount = magnitude / kpad->value94;
+                amount *= amount;
+                amount *= amount;
+            }
+            next = amount * kpad->value98 * dx;
+            kpad->status.dist_vec = next;
+            if (next < 0.0f) {
+                kpad->status.dist_speed = -next;
+            } else {
+                kpad->status.dist_speed = next;
+            }
+            kpad->status.dist += kpad->status.dist_vec;
         }
-        next = amount * kpad->value98 * dx;
-        kpad->status.dist_vec = next;
-        if (next < 0.0f) {
-            kpad->status.dist_speed = -next;
-        } else {
-            kpad->status.dist_speed = next;
-        }
-        kpad->status.dist += kpad->status.dist_vec;
     }
-    rotatedX = kpad->value494 * kpad->valueB0 + kpad->value498 * kpad->valueB4;
-    rotatedY = -kpad->value498 * kpad->valueB0 + kpad->value494 * kpad->valueB4;
-    scaleX = 0.5f * (kpad->valueF4 + kpad->value100);
-    scaleY = 0.5f * (kpad->valueF8 + kpad->value104);
-    pointX = kpad->sensorC0 * (kpad->sensorB8 - (rotatedX * scaleX - rotatedY * scaleY));
-    pointY = kpad->sensorC0 * (kpad->sensorBC - (rotatedY * scaleX + rotatedX * scaleY));
-    x = -kpad->valueAC * pointX + kpad->valueA8 * pointY;
-    y = -kpad->valueA8 * pointX - kpad->valueAC * pointY;
-    if (kpad->status.dpd_valid_fg == 0) {
-        kpad->status.pos.x = x;
-        kpad->status.pos.y = y;
-        kpad->status.vec = Vec2_0;
-        kpad->status.speed = 0.0f;
-    } else {
-        dx = x - kpad->status.pos.x;
-        dy = y - kpad->status.pos.y;
-        length = (f32)sqrt(dx * dx + dy * dy);
-        if (length == kpad->posParamX) {
-            amount = 1.0f;
+    {
+        f32 rotatedX = kpad->value494 * kpad->valueB0 + kpad->value498 * kpad->valueB4;
+        f32 rotatedY = -kpad->value498 * kpad->valueB0 + kpad->value494 * kpad->valueB4;
+        f32 scaleX = 0.5f * (kpad->valueF4 + kpad->value100);
+        f32 scaleY = 0.5f * (kpad->valueF8 + kpad->value104);
+        f32 pointX = kpad->sensorC0 * (kpad->sensorB8 - (rotatedX * scaleX - rotatedY * scaleY));
+        f32 pointY = kpad->sensorC0 * (kpad->sensorBC - (rotatedY * scaleX + rotatedX * scaleY));
+        f32 x = -kpad->valueAC * pointX + kpad->valueA8 * pointY;
+        f32 y = -kpad->valueA8 * pointX - kpad->valueAC * pointY;
+        if (kpad->status.dpd_valid_fg == 0) {
+            kpad->status.pos.x = x;
+            kpad->status.pos.y = y;
+            kpad->status.vec = Vec2_0;
+            kpad->status.speed = 0.0f;
         } else {
-            amount = length / kpad->posParamX;
-            amount *= amount;
-            amount *= amount;
+            f32 dx = x - kpad->status.pos.x;
+            f32 dy = y - kpad->status.pos.y;
+            f32 length = (f32)sqrt(dx * dx + dy * dy);
+            f32 amount;
+            if (length == kpad->posParamX) {
+                amount = 1.0f;
+            } else {
+                amount = length / kpad->posParamX;
+                amount *= amount;
+                amount *= amount;
+            }
+            amount *= kpad->posParamY;
+            kpad->status.vec.x = amount * dx;
+            kpad->status.vec.y = amount * dy;
+            kpad->status.speed = (f32)sqrt(kpad->status.vec.x * kpad->status.vec.x + kpad->status.vec.y * kpad->status.vec.y);
+            kpad->status.pos.x += kpad->status.vec.x;
+            kpad->status.pos.y += kpad->status.vec.y;
         }
-        amount *= kpad->posParamY;
-        kpad->status.vec.x = amount * dx;
-        kpad->status.vec.y = amount * dy;
-        kpad->status.speed = (f32)sqrt(kpad->status.vec.x * kpad->status.vec.x + kpad->status.vec.y * kpad->status.vec.y);
-        kpad->status.pos.x += kpad->status.vec.x;
-        kpad->status.pos.y += kpad->status.vec.y;
     }
     kpad->status.dpd_valid_fg = valid;
 }
