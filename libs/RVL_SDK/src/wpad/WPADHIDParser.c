@@ -591,9 +591,16 @@ void __a1_20_status_report(u8 chan, u8* data) {
     }
 
     p_status = (WPADStatus*)(p_wpd->rxBufs[0] + p_wpd->rxBufIndex * WPAD_RX_DATASIZE);
-    p_clear = (u8*)(p_status);
-    for (i = 0; i < WPAD_RX_DATASIZE; i++) {
+    p_clear = (u8*)p_status;
+    for (i = 0; i < WPAD_RX_DATASIZE; i += 8) {
         p_clear[i] = 0;
+        p_clear[i + 1] = 0;
+        p_clear[i + 2] = 0;
+        p_clear[i + 3] = 0;
+        p_clear[i + 4] = 0;
+        p_clear[i + 5] = 0;
+        p_clear[i + 6] = 0;
+        p_clear[i + 7] = 0;
     }
 
     attach = p_wpd->wpInfo.attach;
