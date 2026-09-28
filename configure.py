@@ -704,7 +704,7 @@ config.libs = [
         ]
     ),
     IPLSection("homebutton", [
-            Object(Equivalent,  "homebutton/HBMBase.cpp"),
+            Object(Matching,    "homebutton/HBMBase.cpp"),
             Object(Matching,    "homebutton/HBMAnmController.cpp"),
             Object(Matching,    "homebutton/HBMController.cpp"),
             Object(Matching,    "homebutton/HBMFrameController.cpp"),

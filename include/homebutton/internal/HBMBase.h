@@ -272,20 +272,20 @@ namespace homebutton {
             f32                                     mFadeOutSeTime;                                         // 0x798
 
         private:
-            static const int scSoundHeapSize_but2;
-            static const int scSoundHeapSize_but3;
-            static const int scSoundThreadPrio;
-            static const int scDvdThreadPrio;
+            static const int scSoundHeapSize_but2 = 0x60000;
+            static const int scSoundHeapSize_but3 = 0x6f800;
+            static const int scSoundThreadPrio = 4;
+            static const int scDvdThreadPrio = 3;
 
-            static const int scReConnectTime;
-            static const int scReConnectTime2;
-            static const int scPadDrawWaitTime;
-            static const int scGetPadInfoTime;
-            static const int scForcusSEWaitTime;
+            static const int scReConnectTime = 3600;
+            static const int scReConnectTime2 = 3570;
+            static const int scPadDrawWaitTime = 5;
+            static const int scGetPadInfoTime = 100;
+            static const int scForcusSEWaitTime = 2;
             static const f32 scOnPaneVibTime;
             static const f32 scOnPaneVibWaitTime;
-            static const int scWaitStopMotorTime;
-            static const int scWaitDisConnectTime;
+            static const int scWaitStopMotorTime = 30;
+            static const int scWaitDisConnectTime = 180;
 
             static const char* scCursorLytName[res::eCursorLyt_Max];
             static const char* scCursorPaneName;

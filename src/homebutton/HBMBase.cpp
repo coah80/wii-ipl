@@ -34,7 +34,9 @@ static MEMAllocator sAllocator;
 static MEMAllocator* spAllocator = &sAllocator;
 
 void* HBMAllocMem(u32 size) {
-    return MEMAllocFromAllocator(spAllocator, size);
+    void* addr = MEMAllocFromAllocator(spAllocator, size);
+
+    return addr;
 }
 
 void HBMFreeMem(void* pBlock) {
@@ -124,17 +126,6 @@ BOOL HBMIsReassignedControllers() {
 
 /* THE LOGIC */
 
-extern const f32 lbl_816946D8;
-extern const f32 lbl_81694748;
-extern const f32 lbl_81694744;
-extern const f32 lbl_816946DC;
-extern const f32 lbl_81694754;
-extern volatile const f32 lbl_8169474C;
-extern volatile const f32 lbl_81694750;
-
-extern const f32 lbl_81694714;
-extern const f32 lbl_81694710;
-
 namespace homebutton {
     static void SimpleSyncCallback(s32 result, s32 num);
 
@@ -155,16 +146,6 @@ namespace homebutton {
         {33, 16}, {33, 17}, {33, 18}, {33, 21}, {34, 15}, {34, 16}, {34, 17}, {34, 18}, {34, 21}};
 
     HomeButton* HomeButton::spHomeButtonObj = NULL;
-
-    const int HomeButton::scReConnectTime = 3600;
-    const int HomeButton::scReConnectTime2 = 3570;
-    const int HomeButton::scPadDrawWaitTime = 5;
-    const int HomeButton::scGetPadInfoTime = 100;
-    const int HomeButton::scForcusSEWaitTime = 2;
-    const f32 HomeButton::scOnPaneVibTime = 3.0f;
-    const f32 HomeButton::scOnPaneVibWaitTime = 9.0f;
-    const int HomeButton::scWaitStopMotorTime = 30;
-    const int HomeButton::scWaitDisConnectTime = 180;
 
     const char* HomeButton::scCursorLytName[res::eCursorLyt_Max] = {
         "P1_Def.brlyt",
@@ -616,8 +597,8 @@ namespace homebutton {
                 mpController[i]->initCallback();
                 mpController[i]->initSound();
 
-                mOnPaneVibFrame[i] = ::lbl_816946D8;
-                mOnPaneVibWaitFrame[i] = ::lbl_816946D8;
+                mOnPaneVibFrame[i] = 0.0f;
+                mOnPaneVibWaitFrame[i] = 0.0f;
             }
         }
 
@@ -638,7 +619,7 @@ namespace homebutton {
 
         if (mpSoundArchivePlayer != NULL) {
             for (i = 0; i < mpSoundArchivePlayer->GetSoundPlayerCount(); i++) {
-                mpSoundArchivePlayer->GetSoundPlayer(i).SetVolume(::lbl_816946DC);
+                mpSoundArchivePlayer->GetSoundPlayer(i).SetVolume(1.0f);
             }
         }
 
@@ -798,7 +779,7 @@ namespace homebutton {
                     if (mOnPaneVibFrame[i] <= 0.0f || mState == 17) {
                         getController(i)->stopMotor();
                         mOnPaneVibFrame[i] = 0.0f;
-                        mOnPaneVibWaitFrame[i] = scOnPaneVibWaitTime;
+                        mOnPaneVibWaitFrame[i] = 9.0f;
                     }
                 }
             } else if (mOnPaneVibWaitFrame[i] > 0.0f) {
@@ -1271,20 +1252,6 @@ namespace homebutton {
         }
     }
 
-    void HomeButton::calc_letter() {
-        if (mLetterFlag && !mpPairGroupAnmController[res::ePairAnm_ltrIcn_on]->isPlaying()) {
-            mpLayout->GetRootPane()->FindPaneByName(scFuncPaneName[res::eFuncPane_let_icn_00], true)->SetVisible(true);
-
-            mpPairGroupAnmController[res::ePairAnm_ltrIcn_on]->setAnmType(ANIM_TYPE_LOOP);
-
-            mpPairGroupAnmController[res::ePairAnm_ltrIcn_on]->play();
-        } else if (!mLetterFlag) {
-            mpLayout->GetRootPane()->FindPaneByName(scFuncPaneName[res::eFuncPane_let_icn_00], true)->SetVisible(false);
-
-            mpPairGroupAnmController[res::ePairAnm_ltrIcn_on]->stop();
-        }
-    }
-
     void HomeButton::calc_battery(int chan) {
         for (int i = 0; i < res::eBatteryPane_Max; i++) {
             if (i < mWpadInfo[chan].battery) {
@@ -1309,6 +1276,20 @@ namespace homebutton {
         }
 
         getController(chan)->clrBatteryFlag();
+    }
+
+    void HomeButton::calc_letter() {
+        if (mLetterFlag && !mpPairGroupAnmController[res::ePairAnm_ltrIcn_on]->isPlaying()) {
+            mpLayout->GetRootPane()->FindPaneByName(scFuncPaneName[res::eFuncPane_let_icn_00], true)->SetVisible(true);
+
+            mpPairGroupAnmController[res::ePairAnm_ltrIcn_on]->setAnmType(ANIM_TYPE_LOOP);
+
+            mpPairGroupAnmController[res::ePairAnm_ltrIcn_on]->play();
+        } else if (!mLetterFlag) {
+            mpLayout->GetRootPane()->FindPaneByName(scFuncPaneName[res::eFuncPane_let_icn_00], true)->SetVisible(false);
+
+            mpPairGroupAnmController[res::ePairAnm_ltrIcn_on]->stop();
+        }
     }
 
     void HomeButton::draw() {
@@ -1475,13 +1456,12 @@ namespace homebutton {
                     nw4r::math::VEC3 vec;
 
                     if (pController->wiiCon[i].use_devtype == WPAD_DEV_CLASSIC && pController->wiiCon[i].kpad->dev_type == WPAD_DEV_CLASSIC) {
-                        vec = nw4r::math::VEC3(lbl_816946D8, lbl_816946D8,
-                                                *((volatile const f32*)&lbl_81694710));
+                        vec = nw4r::math::VEC3(0.0f, 0.0f, 15.0f);
                     } else {
                         Vec2 v = pController->wiiCon[i].kpad->horizon;
-                        f32 rad = nw4r::math::Atan2FIdx(-v.y, v.x) * lbl_81694714;
+                        f32 rad = nw4r::math::Atan2FIdx(-v.y, v.x) * 1.40625f;
 
-                        vec = nw4r::math::VEC3(lbl_816946D8, lbl_816946D8, rad);
+                        vec = nw4r::math::VEC3(0.0f, 0.0f, rad);
                     }
 
                     if (!mpHBInfo->cursor) {
@@ -1933,8 +1913,8 @@ namespace homebutton {
         }
 
         if (onFlag && pController != NULL) {
-            if (!getController(pController->chan)->isRumbling() && mOnPaneVibWaitFrame[pController->chan] <= ::lbl_816946D8) {
-                mOnPaneVibFrame[pController->chan] = ::lbl_81694744;
+            if (!getController(pController->chan)->isRumbling() && mOnPaneVibWaitFrame[pController->chan] <= 0.0f) {
+                mOnPaneVibFrame[pController->chan] = 3.0f;
                 getController(pController->chan)->startMotor();
             }
         }
@@ -2388,10 +2368,10 @@ namespace homebutton {
     void HomeButton::reset_guiManager(int num) {
         if (num < 0) {
             for (int i = 0; i < 8; i++) {
-                mpPaneManager->update(i, ::lbl_81694748, ::lbl_81694748, 0, 0, 0, NULL);
+                mpPaneManager->update(i, -10000.0f, -10000.0f, 0, 0, 0, NULL);
             }
         } else {
-            mpPaneManager->update(num, ::lbl_81694748, ::lbl_81694748, 0, 0, 0, NULL);
+            mpPaneManager->update(num, -10000.0f, -10000.0f, 0, 0, 0, NULL);
         }
     }
 
@@ -2500,7 +2480,7 @@ namespace homebutton {
                 }
             }
         } else {
-            scale = nw4r::math::VEC2(::lbl_816946DC, ::lbl_816946DC);
+            scale = nw4r::math::VEC2(1.0f, 1.0f);
             mpLayout->GetRootPane()->SetScale(scale);
 
             if (!mpHBInfo->cursor) {
@@ -2645,13 +2625,8 @@ namespace homebutton {
 
         initgx();
         GXColor clr = {red_, green_, blue_, alpha};
-        drawBlackPlate(::lbl_8169474C, ::lbl_8169474C, ::lbl_81694750, ::lbl_81694750, clr);
+        drawBlackPlate(-1000.0f, -1000.0f, 1000.0f, 1000.0f, clr);
     }
-
-    const int HomeButton::scSoundHeapSize_but2 = 0x60000;
-    const int HomeButton::scSoundHeapSize_but3 = 0x6f800;
-    const int HomeButton::scSoundThreadPrio = 4;
-    const int HomeButton::scDvdThreadPrio = 3;
 
     void HomeButton::update_sound() {
         if (mpSoundArchivePlayer != NULL) {
@@ -2684,7 +2659,7 @@ namespace homebutton {
         }
 
         if (mEndInitSoundFlag) {
-            AXSetAuxAReturnVolume(lbl_81694754 * gain);
+            AXSetAuxAReturnVolume(32768.0f * gain);
         }
 
         if (mpSoundArchivePlayer != NULL) {
