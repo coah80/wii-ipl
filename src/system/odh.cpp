@@ -505,7 +505,7 @@ HufftreeData hufftreePtr = {
 
 class CArGBAOdh {
   public:
-    u32 outputCursor;
+    u8* outputCursor;
     s32 decompressGbaOdh(u8* src, int srcSize, u8* dest, int destSize, u8* work, int unk, int format);
     s32 compressGbaOdh(u8* src, u8* dest, int width, int height, int quality, u32 sizeLimit, u8* work, int format);
     s32 cdj_c_initializeCompressOdh(SArCDJ_OdhMaster* master, u16* dimensions, u8 quality, u8* work, u8* dest, u32 sizeLimit);
@@ -917,16 +917,15 @@ void CArGBAOdh::cdj_c_setQuantizationTable(SArCDJ_OdhMaster* master, u32 quality
     int scaledTableOffset = 0;
     const u16* scales = (const u16*)gArAANScales;
     do {
-        int outputOffset = 0;
         int scaleIndex = 0;
         u32* destination = master->quantizationTables + tableOffset / 4;
         u8* quantizationRow = scaledQuantization + scaledTableOffset;
         for (int i = 0; i < 0x40; i++) {
             u32 scale = scales[scaleIndex];
             u8 coefficient = quantizationRow[i];
-            destination[outputOffset / 4] = 0x4000000 / (scale * (u32)coefficient);
+            *destination = 0x4000000 / (scale * (u32)coefficient);
             scaleIndex++;
-            outputOffset += 4;
+            destination++;
         }
         tablePass = tablePass + 1;
         tableOffset = tableOffset + 0x100;
@@ -952,9 +951,9 @@ s32 CArGBAOdh::cdj_c_colorConv(SArCDJ_OdhMaster* master, u8* sourceData, int for
         }
     }
 
-    int workPlaneAddress = (int)master->workBuffer;
-    int cbPlaneAddress = workPlaneAddress + (u32)paddedDimensions[0] * (u32)paddedDimensions[1];
-    int crPlaneAddress = cbPlaneAddress + (u32)paddedDimensions[0] * (u32)paddedDimensions[1];
+    u8* workPlane = master->workBuffer;
+    u8* cbPlane = workPlane + (u32)paddedDimensions[0] * (u32)paddedDimensions[1];
+    u8* crPlane = cbPlane + (u32)paddedDimensions[0] * (u32)paddedDimensions[1];
     int sourceStride;
     if (format == 0) {
         sourceStride = (width & 0xFFFC) << 3;
@@ -968,11 +967,11 @@ s32 CArGBAOdh::cdj_c_colorConv(SArCDJ_OdhMaster* master, u8* sourceData, int for
     u32 paddedWidth = (u32)paddedDimensions[0];
     for (u32 rowIndex = 0; (s32)rowIndex < (s32)(u32)height; rowIndex++) {
         LineConv11((u8*)(((s32)rowIndex / 4) * sourceStride + (s32)sourceData + (rowIndex & 3) * 8),
-                   (u8*)workPlaneAddress, (u8*)cbPlaneAddress, (u8*)crPlaneAddress, *dimensions, dimensions[1],
+                   workPlane, cbPlane, crPlane, *dimensions, dimensions[1],
                    (const long*)gArConvPlttTbl, format);
-        workPlaneAddress += paddedWidth;
-        cbPlaneAddress += paddedWidth;
-        crPlaneAddress += paddedWidth;
+        workPlane += paddedWidth;
+        cbPlane += paddedWidth;
+        crPlane += paddedWidth;
     }
 
     return 0;
@@ -1130,7 +1129,7 @@ void CArGBAOdh::fdct_fast(u32* coefficients, u8* samples, u32 stride, u32* quant
         buffer[0x18] = evenDifference - oddBranch;
         buffer[8] = outerSum + butterflyValueA;
         buffer[0x38] = outerSum - butterflyValueA;
-        buffer = (int*)((u8*)buffer + 4);
+        buffer++;
     }
 
     int* coefficientColumn = (int*)coefficients;
@@ -1151,7 +1150,7 @@ void CArGBAOdh::fdct_fast(u32* coefficients, u8* samples, u32 stride, u32* quant
 s32 CArGBAOdh::huffmanCoder(u16* coefficientInput, SArCDJ_HuffmanRequest* request) {
     int isAcBlock = 0;
     u16* inputCursor = (u16*)((u8*)coefficientInput + 2);
-    this->outputCursor = (u32)request->bitstream + (request->bytesConsumed - *request->remaining);
+    this->outputCursor = request->bitstream + (request->bytesConsumed - *request->remaining);
 
     while (true) {
         u32* predictor = isAcBlock == 0 ? request->dcPredictor : request->acPredictor;
@@ -1281,7 +1280,7 @@ s32 CArGBAOdh::EmitBit(long bits, long bitCount, SArCDJ_HuffmanRequest* request)
             return ODH_ERROR_80000004;
         }
 
-        *(u8*)this->outputCursor = (u8)(*request->bitBuffer >> 0x18);
+        *this->outputCursor = (u8)(*request->bitBuffer >> 0x18);
         this->outputCursor++;
         *request->remaining -= 1;
         *request->bitBuffer <<= 8;
@@ -1397,8 +1396,7 @@ s32 CArGBAOdh::cdj_d_decompressLoop(SArCDJ_OdhMaster* master, int srcSize, int w
       statusOrOffset = 0;
       for (naturalIndex = 0; naturalIndex < 0x40; naturalIndex++) {
         coefficientIndex = odh_natural_order[naturalIndex];
-                statusOrOffset = statusOrOffset + 4;
-        master->coefficients[coefficientIndex] = master->dcCoefficients[(statusOrOffset >> 2) - 1];
+        master->coefficients[coefficientIndex] = master->dcCoefficients[naturalIndex];
       }
       statusOrOffset = ((u32)master->blockY << 6) * (u32)master->blocksWide +
               (u32)master->blockX * 8;
@@ -1415,8 +1413,7 @@ s32 CArGBAOdh::cdj_d_decompressLoop(SArCDJ_OdhMaster* master, int srcSize, int w
       statusOrOffset = 0;
       for (naturalIndex = 0; naturalIndex < 0x40; naturalIndex++) {
         coefficientIndex = odh_natural_order[naturalIndex];
-                statusOrOffset = statusOrOffset + 4;
-        master->coefficients[coefficientIndex] = master->dcCoefficients[(statusOrOffset >> 2) - 1];
+        master->coefficients[coefficientIndex] = master->dcCoefficients[naturalIndex];
       }
       statusOrOffset = ((u32)master->blockY << 6) * (u32)master->blocksWide +
               (((u32)master->blocksWide << 6) * (u32)master->blocksHigh +
@@ -1436,8 +1433,7 @@ s32 CArGBAOdh::cdj_d_decompressLoop(SArCDJ_OdhMaster* master, int srcSize, int w
       statusOrOffset = 0;
       for (naturalIndex = 0; naturalIndex < 0x40; naturalIndex++) {
         coefficientIndex = odh_natural_order[naturalIndex];
-                statusOrOffset = statusOrOffset + 4;
-        master->coefficients[coefficientIndex] = master->dcCoefficients[(statusOrOffset >> 2) - 1];
+        master->coefficients[coefficientIndex] = master->dcCoefficients[naturalIndex];
       }
       statusOrOffset = ((u32)master->blocksWide << 6) * (u32)master->blocksHigh * 2 +
               ((u32)master->blockX * 8 +
@@ -1457,8 +1453,7 @@ s32 CArGBAOdh::cdj_d_decompressLoop(SArCDJ_OdhMaster* master, int srcSize, int w
       statusOrOffset = 0;
       for (naturalIndex = 0; naturalIndex < 0x40; naturalIndex++) {
         coefficientIndex = odh_natural_order[naturalIndex];
-                statusOrOffset = statusOrOffset + 4;
-        master->coefficients[coefficientIndex] = master->dcCoefficients[(statusOrOffset >> 2) - 1];
+        master->coefficients[coefficientIndex] = master->dcCoefficients[naturalIndex];
       }
       planeOffset = (u32)master->blockX * 0x10 +
                ((u32)master->blockY << 6) * (u32)master->blocksWide * 2;
@@ -1476,8 +1471,7 @@ s32 CArGBAOdh::cdj_d_decompressLoop(SArCDJ_OdhMaster* master, int srcSize, int w
       statusOrOffset = 0;
       for (naturalIndex = 0; naturalIndex < 0x40; naturalIndex++) {
         coefficientIndex = odh_natural_order[naturalIndex];
-                statusOrOffset = statusOrOffset + 4;
-        master->coefficients[coefficientIndex] = master->dcCoefficients[(statusOrOffset >> 2) - 1];
+        master->coefficients[coefficientIndex] = master->dcCoefficients[naturalIndex];
       }
       if (planeOffset + blockRowStride + 0x10 > workBufferSize) {
         statusOrOffset = -0x7ffffffa;
@@ -1492,8 +1486,7 @@ s32 CArGBAOdh::cdj_d_decompressLoop(SArCDJ_OdhMaster* master, int srcSize, int w
       statusOrOffset = 0;
       for (naturalIndex = 0; naturalIndex < 0x40; naturalIndex++) {
         coefficientIndex = odh_natural_order[naturalIndex];
-                statusOrOffset = statusOrOffset + 4;
-        master->coefficients[coefficientIndex] = master->dcCoefficients[(statusOrOffset >> 2) - 1];
+        master->coefficients[coefficientIndex] = master->dcCoefficients[naturalIndex];
       }
       statusOrOffset = (u32)master->blocksWide * ((u32)master->blockY << 6) +
               (u32)master->blockX * 8 +
@@ -1512,8 +1505,7 @@ s32 CArGBAOdh::cdj_d_decompressLoop(SArCDJ_OdhMaster* master, int srcSize, int w
       statusOrOffset = 0;
       for (naturalIndex = 0; naturalIndex < 0x40; naturalIndex++) {
         coefficientIndex = odh_natural_order[naturalIndex];
-                statusOrOffset = statusOrOffset + 4;
-        master->coefficients[coefficientIndex] = master->dcCoefficients[(statusOrOffset >> 2) - 1];
+        master->coefficients[coefficientIndex] = master->dcCoefficients[naturalIndex];
       }
       statusOrOffset = ((u32)master->blocksHigh * ((u32)master->blocksWide << 7) * 2) +
               ((u32)master->blockX * 8 +
@@ -1533,8 +1525,7 @@ s32 CArGBAOdh::cdj_d_decompressLoop(SArCDJ_OdhMaster* master, int srcSize, int w
       statusOrOffset = 0;
       for (naturalIndex = 0; naturalIndex < 0x40; naturalIndex++) {
         coefficientIndex = odh_natural_order[naturalIndex];
-                statusOrOffset = statusOrOffset + 4;
-        master->coefficients[coefficientIndex] = master->dcCoefficients[(statusOrOffset >> 2) - 1];
+        master->coefficients[coefficientIndex] = master->dcCoefficients[naturalIndex];
       }
       planeOffset = (u32)master->blockX * 8 +
                ((u32)master->blockY << 6) * (u32)master->blocksWide * 2;
@@ -1552,8 +1543,7 @@ s32 CArGBAOdh::cdj_d_decompressLoop(SArCDJ_OdhMaster* master, int srcSize, int w
       statusOrOffset = 0;
       for (naturalIndex = 0; naturalIndex < 0x40; naturalIndex++) {
         coefficientIndex = odh_natural_order[naturalIndex];
-                statusOrOffset = statusOrOffset + 4;
-        master->coefficients[coefficientIndex] = master->dcCoefficients[(statusOrOffset >> 2) - 1];
+        master->coefficients[coefficientIndex] = master->dcCoefficients[naturalIndex];
       }
       planeOffset = planeOffset + (u32)master->blocksWide * 0x40;
       if (planeOffset + blockRowSize + 8 > workBufferSize) {
@@ -1569,8 +1559,7 @@ s32 CArGBAOdh::cdj_d_decompressLoop(SArCDJ_OdhMaster* master, int srcSize, int w
       statusOrOffset = 0;
       for (naturalIndex = 0; naturalIndex < 0x40; naturalIndex++) {
         coefficientIndex = odh_natural_order[naturalIndex];
-                statusOrOffset = statusOrOffset + 4;
-        master->coefficients[coefficientIndex] = master->dcCoefficients[(statusOrOffset >> 2) - 1];
+        master->coefficients[coefficientIndex] = master->dcCoefficients[naturalIndex];
       }
       statusOrOffset = ((u32)master->blocksWide << 6) * (u32)master->blocksHigh * 2 +
               ((u32)master->blockX * 8 +
@@ -1589,8 +1578,7 @@ s32 CArGBAOdh::cdj_d_decompressLoop(SArCDJ_OdhMaster* master, int srcSize, int w
       statusOrOffset = 0;
       for (naturalIndex = 0; naturalIndex < 0x40; naturalIndex++) {
         coefficientIndex = odh_natural_order[naturalIndex];
-                statusOrOffset = statusOrOffset + 4;
-        master->coefficients[coefficientIndex] = master->dcCoefficients[(statusOrOffset >> 2) - 1];
+        master->coefficients[coefficientIndex] = master->dcCoefficients[naturalIndex];
       }
       statusOrOffset = ((u32)master->blocksWide << 6) * (u32)master->blocksHigh * 4 +
               ((u32)master->blockX * 8 +
@@ -1610,8 +1598,7 @@ s32 CArGBAOdh::cdj_d_decompressLoop(SArCDJ_OdhMaster* master, int srcSize, int w
       statusOrOffset = 0;
       for (naturalIndex = 0; naturalIndex < 0x40; naturalIndex++) {
         coefficientIndex = odh_natural_order[naturalIndex];
-                statusOrOffset = statusOrOffset + 4;
-        master->coefficients[coefficientIndex] = master->dcCoefficients[(statusOrOffset >> 2) - 1];
+        master->coefficients[coefficientIndex] = master->dcCoefficients[naturalIndex];
       }
       planeOffset = (u32)master->blockX * 0x10 +
                ((u32)master->blockY << 6) * (u32)master->blocksWide * 4;
@@ -1628,8 +1615,7 @@ s32 CArGBAOdh::cdj_d_decompressLoop(SArCDJ_OdhMaster* master, int srcSize, int w
       statusOrOffset = 0;
       for (naturalIndex = 0; naturalIndex < 0x40; naturalIndex++) {
         coefficientIndex = odh_natural_order[naturalIndex];
-                statusOrOffset = statusOrOffset + 4;
-        master->coefficients[coefficientIndex] = master->dcCoefficients[(statusOrOffset >> 2) - 1];
+        master->coefficients[coefficientIndex] = master->dcCoefficients[naturalIndex];
       }
       int nextOffset = planeOffset + 8;
       planeOffset = nextOffset;
@@ -1646,8 +1632,7 @@ s32 CArGBAOdh::cdj_d_decompressLoop(SArCDJ_OdhMaster* master, int srcSize, int w
       statusOrOffset = 0;
       for (naturalIndex = 0; naturalIndex < 0x40; naturalIndex++) {
         coefficientIndex = odh_natural_order[naturalIndex];
-                statusOrOffset = statusOrOffset + 4;
-        master->coefficients[coefficientIndex] = master->dcCoefficients[(statusOrOffset >> 2) - 1];
+        master->coefficients[coefficientIndex] = master->dcCoefficients[naturalIndex];
       }
       planeOffset = planeOffset + (u32)master->blocksWide * 0x80 + -8;
       if (planeOffset + blockRowStride + 8 > workBufferSize) {
@@ -1664,8 +1649,7 @@ s32 CArGBAOdh::cdj_d_decompressLoop(SArCDJ_OdhMaster* master, int srcSize, int w
       statusOrOffset = 0;
       for (naturalIndex = 0; naturalIndex < 0x40; naturalIndex++) {
         coefficientIndex = odh_natural_order[naturalIndex];
-                statusOrOffset = statusOrOffset + 4;
-        master->coefficients[coefficientIndex] = master->dcCoefficients[(statusOrOffset >> 2) - 1];
+        master->coefficients[coefficientIndex] = master->dcCoefficients[naturalIndex];
       }
       if (planeOffset + blockRowStride + 0x10 > workBufferSize) {
         statusOrOffset = -0x7ffffffa;
@@ -1680,8 +1664,7 @@ s32 CArGBAOdh::cdj_d_decompressLoop(SArCDJ_OdhMaster* master, int srcSize, int w
       statusOrOffset = 0;
       for (naturalIndex = 0; naturalIndex < 0x40; naturalIndex++) {
         coefficientIndex = odh_natural_order[naturalIndex];
-                statusOrOffset = statusOrOffset + 4;
-        master->coefficients[coefficientIndex] = master->dcCoefficients[(statusOrOffset >> 2) - 1];
+        master->coefficients[coefficientIndex] = master->dcCoefficients[naturalIndex];
       }
       statusOrOffset = ((u32)master->blocksWide << 6) * (u32)master->blocksHigh * 4 +
               ((u32)master->blockX * 8 +
@@ -1700,8 +1683,7 @@ s32 CArGBAOdh::cdj_d_decompressLoop(SArCDJ_OdhMaster* master, int srcSize, int w
       statusOrOffset = 0;
       for (naturalIndex = 0; naturalIndex < 0x40; naturalIndex++) {
         coefficientIndex = odh_natural_order[naturalIndex];
-                statusOrOffset = statusOrOffset + 4;
-        master->coefficients[coefficientIndex] = master->dcCoefficients[(statusOrOffset >> 2) - 1];
+        master->coefficients[coefficientIndex] = master->dcCoefficients[naturalIndex];
       }
       statusOrOffset = ((u32)master->blocksWide << 6) * (u32)master->blocksHigh * 8 +
               ((u32)master->blockX * 8 +
@@ -1733,9 +1715,7 @@ void CArGBAOdh::cdj_d_setDequantizationTable(SArCDJ_OdhMaster* master, u32 quali
     int tableByteOffset = 0;
     int standardTableOffset = 0;
     u32 tablePass = 0;
-    int destinationAddress;
     int scaleIndex;
-    int destinationByteOffset;
     int tableIndex;
     const u8* standardTable;
     u32 scaledCoefficient;
@@ -1743,7 +1723,6 @@ void CArGBAOdh::cdj_d_setDequantizationTable(SArCDJ_OdhMaster* master, u32 quali
 
     do {
         standardTable = gArCdj_std_quant_tbl + standardTableOffset;
-        destinationByteOffset = 0;
         tableIndex = 0;
 
         for (int i = 0; i < 0x40; i++) {
@@ -1757,12 +1736,11 @@ void CArGBAOdh::cdj_d_setDequantizationTable(SArCDJ_OdhMaster* master, u32 quali
             }
             scaleIndex = tableIndex;
             u32 scale = scales[scaleIndex];
-            destinationAddress = (int)master->quantizationTables + tableByteOffset + destinationByteOffset;
-            destinationByteOffset += 4;
             u32 value = (boundedCoefficient * scale + 2048) >> 0xC;
+            u32* destination = master->quantizationTables + tableByteOffset / 4;
+            destination[tableIndex] = value;
             tableIndex++;
             standardTable++;
-            *(u32*)destinationAddress = value;
         }
         tablePass++;
         tableByteOffset += 0x100;
@@ -2002,7 +1980,7 @@ void CArGBAOdh::LineDeconv12(u8* dest, u8* y, u8* cb, u8* cr, u16 width, u16 hei
     crOutput = dest + pixelCount * 2;
     u8* yNext = y + imageWidth;
 
-    for (pixelIndex = 0; pixelIndex < (u32)imageWidth; pixelIndex++) {
+    for (pixelIndex = 0; (s32)pixelIndex < (s32)imageWidth; pixelIndex++) {
         crValue = *cr;
         lumaValue = *y;
         cbValue = *cb;
@@ -2066,7 +2044,7 @@ void CArGBAOdh::LineDeconv22(u8* dest, u8* y, u8* cb, u8* cr, u16 width, u16 hei
     u32 index;
     u8* output;
 
-    for (index = 0; (s32)index < (s32)(width & 0xFFFF); index += 2) {
+    for (index = 0; (s32)index < (s32)width; index += 2) {
         u8 crValue = *cr;
         u8* yCursor = y;
         u8 yValue = *yCursor;
@@ -2408,8 +2386,8 @@ void CArGBAOdh::idct_fast(const u8* rangeLimitTable, u32* coefficients, u32* qua
             workspace[0x30] = value;
             workspace[0x38] = value;
             workspace = workspace + 1;
-            quantizationTable = (u32*)((u8*)quantizationTable + 4);
-            coefficients = (u32*)((u8*)coefficients + 4);
+            quantizationTable++;
+            coefficients++;
         } else {
             butterflyValue = coefficientCursor[8] * quantizationCursor[8];
             temporaryC = coefficientCursor[0x10] * quantizationCursor[0x10] + coefficientCursor[0x30] * quantizationCursor[0x30];
@@ -2438,16 +2416,16 @@ void CArGBAOdh::idct_fast(const u8* rangeLimitTable, u32* coefficients, u32* qua
             workspace[0x20] = temporaryD + butterflyValueB;
             workspace[0x18] = temporaryD - butterflyValueB;
             workspace = workspace + 1;
-            quantizationTable = (u32*)((u8*)quantizationTable + 4);
-            coefficients = (u32*)((u8*)coefficients + 4);
+            quantizationTable++;
+            coefficients++;
         }
     }
 
     workspace = blockWorkspace;
     rowIndex = 0;
-    for (int row = 0; row < 8; row++) {
+    for (int row = 0; row < 8; row++, workspace += 8, rowIndex++) {
         value = workspace[1];
-        outputRow = (u8*)((int)destination + rowIndex * (int)stride);
+        outputRow = destination + rowIndex * stride;
         if ((((value == 0) && (workspace[2] == 0)) &&
              ((workspace[3] == 0) && (((workspace[4] == 0) && (workspace[5] == 0)) && (workspace[6] == 0)))) &&
             (workspace[7] == 0)) {
@@ -2493,7 +2471,5 @@ void CArGBAOdh::idct_fast(const u8* rangeLimitTable, u32* coefficients, u32* qua
             outputRow[4] = rangeLimitTable[((u32)(sumA + sumC) >> 5 & 0x3FF)];
             outputRow[3] = pixelValue;
         }
-        workspace = workspace + 8;
-        rowIndex++;
     }
 }
