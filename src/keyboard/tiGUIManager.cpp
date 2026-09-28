@@ -8,6 +8,7 @@
 namespace textinput {
     namespace gui {
         extern "C" void drawLine___Q29textinput3guiFfffffUcR8_GXColor();
+        extern "C" const f32 lbl_81694EE8;
 
         void drawLine_(f32 x0, f32 y0, f32 x1, f32 y1, f32 z, u8 width, GXColor& color) {
             GXClearVtxDesc();
@@ -30,7 +31,7 @@ namespace textinput {
             GXSetBlendMode(GX_BM_NONE, GX_BL_ZERO, GX_BL_ZERO, GX_LO_NOOP);
 
             Mtx mtx;
-            MTXTrans(mtx, 0.0f, 0.0f, 0.0f);
+            MTXTrans(mtx, lbl_81694EE8, lbl_81694EE8, lbl_81694EE8);
             GXLoadPosMtxImm(mtx, 0);
 
             GXSetLineWidth(width, GX_TO_ZERO);
@@ -45,16 +46,6 @@ namespace textinput {
             }
             GXEnd();
         }
-
-        #pragma push
-        #pragma section sconst_type ".sdata2"
-        extern "C" const f32 lbl_81694EE8 = 0.0f;
-        extern "C" const u8 lbl_81694EEC = 0xFF;
-        extern "C" const u8 lbl_81694EED = 0x00;
-        extern "C" const u8 lbl_81694EEE = 0x00;
-        extern "C" const u8 lbl_81694EEF = 0xFF;
-        extern "C" const f32 lbl_81694EF0 = 0.5f;
-        #pragma pop
 
         u32 GUIComponent::updatePointerImpl(const GUIPointer& pointer) {
             int point = pointer.getCtrlNo();
@@ -343,7 +334,7 @@ namespace textinput {
             MTXInverse(mpPane->GetGlobalMtx(), globalMtx);
 
             nw4r::math::VEC3 pos;
-            MTXMultVec(globalMtx, nw4r::math::VEC3(x, y, 0), pos);
+            MTXMultVec(globalMtx, nw4r::math::VEC3(x, y, lbl_81694EE8), pos);
 
             nw4r::ut::Rect rect = mpPane->GetPaneRect(*drawInfo);
 
@@ -354,6 +345,16 @@ namespace textinput {
                 return false;
             }
         }
+
+        #pragma push
+        #pragma section sconst_type ".sdata2"
+        extern "C" const f32 lbl_81694EE8 = 0.0f;
+        extern "C" const u8 lbl_81694EEC = 0xFF;
+        extern "C" const u8 lbl_81694EED = 0x00;
+        extern "C" const u8 lbl_81694EEE = 0x00;
+        extern "C" const u8 lbl_81694EEF = 0xFF;
+        extern "C" const f32 lbl_81694EF0 = 0.5f;
+        #pragma pop
 
         extern "C" asm void draw__Q39textinput3gui13PaneComponentFv() {
             nofralloc
