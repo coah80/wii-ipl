@@ -635,8 +635,8 @@ namespace ipl {
                 math::VEC2 u = w;
                 add_translate(mpLayout->FindPaneByName("N_note_base"), u);
                 set_page_text("T_nmbr_b", mPageNo + 1);
-                for (int i = 0; i < 5; i++) {
-                    set_friend(sTextNameB[i], i, i, mMiiB[i], false);
+                for (u32 i = 0; i < 5; i++) {
+                    set_friend(sTextNameB[i], mPageNo * 5 + i, i, mMiiB[i], false);
                 }
                 if (mbDragging) {
                     mState = 0xA;
