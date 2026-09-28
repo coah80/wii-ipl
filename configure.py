@@ -750,7 +750,7 @@ config.libs = [
         ]
     ),
     IPLSection("calendar", [
-            Object(Equivalent,  "scene/calendar/iplCalendar.cpp"),
+            Object(Matching,    "scene/calendar/iplCalendar.cpp"),
             Object(Matching,    "scene/calendar/iplDate.cpp"),
         ]
     ),
@@ -1015,7 +1015,7 @@ config.libs = [
     # RevoEX
     RevoEXLib("cdb", [
             Object(Matching,    "cdb/cdb.c"),
-            Object(Equivalent,  "cdb/CDBConv.c"), # hmm
+            Object(Matching,    "cdb/CDBConv.c"), # hmm
             Object(Matching,    "cdb/CDBDatabase.c"),
             Object(Matching,    "cdb/CDBFileSystemUtils.c"),
             Object(Matching,    "cdb/CDBFileSystem.c"),
@@ -1550,7 +1550,7 @@ config.libs = [
         ]
     ),
     RVLSDKLib("wpad", [
-            Object(Equivalent,  "wpad/WPAD.c"),
+            Object(Matching,    "wpad/WPAD.c"),
             Object(NonMatching, "wpad/WPADHIDParser.c"),
             Object(Matching,    "wpad/WPADMem.c"),
             Object(Matching,    "wpad/WPADEncrypt.c"),
@@ -1899,7 +1899,7 @@ config.libs = [
         ]
     ),
     RVLSDKLib("cntcache", [
-            Object(NonMatching, "cntcache/cntcache.c"),
+            Object(Matching,    "cntcache/cntcache.c"),
         ]
     ),
     # EGG library (for Nintendo EAD software)
