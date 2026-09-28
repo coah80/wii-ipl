@@ -1,4 +1,5 @@
 #define IPL_BOARD_OBJECT_EXTERNAL_DYNAMIC_CAST
+#define IPL_BOARD_OBJECT_INLINE_INTERPOLATION_DTORS
 
 #include "iplSceneUI.h"
 
@@ -45,6 +46,10 @@ extern "C" void __ct__Q33ipl4math4VEC2Fff(ipl::math::VEC2*, f32, f32);
 #define PICTURE_THUMB_HEIGHT 48
 
 namespace ipl {
+    namespace math {
+        template <> inline LinearIntp<VEC2>::~LinearIntp() {}
+        template <> inline Interporation<VEC2>::~Interporation() {}
+    }
     namespace scene {
         // clang-format off
         const char* BoardObject::mAnimNames[BoardObject::TYPE_MAX][1+BoardObject::ANIM_MAX] = {
