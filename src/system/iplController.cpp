@@ -381,58 +381,12 @@ extern "C" void __nw__FUlPQ23EGG4Heapi();
 extern "C" void read__Q33ipl10controller7ManagerFv();
 extern "C" void __dl__FPv();
 
-extern "C" asm void __dt__Q33ipl10controller4CoreFv() {
-    nofralloc
-    stwu r1, -0x10(r1)
-    mflr r0
-    cmpwi r3, 0
-    stw r0, 0x14(r1)
-    stw r31, 0xc(r1)
-    mr r31, r4
-    stw r30, 0x8(r1)
-    mr r30, r3
-    beq core_dtor_done
-    li r4, 0
-    bl __dt__Q33ipl10controller10RevolutionFv
-    cmpwi r31, 0
-    ble core_dtor_done
-    mr r3, r30
-    bl __dl__FPv
-core_dtor_done:
-    mr r3, r30
-    lwz r31, 0xc(r1)
-    lwz r30, 0x8(r1)
-    lwz r0, 0x14(r1)
-    mtlr r0
-    addi r1, r1, 0x10
-    blr
-}
+namespace ipl {
+    namespace controller {
+        Core::~Core() {}
 
-extern "C" asm void __dt__Q33ipl10controller9FreeStyleFv() {
-    nofralloc
-    stwu r1, -0x10(r1)
-    mflr r0
-    cmpwi r3, 0
-    stw r0, 0x14(r1)
-    stw r31, 0xc(r1)
-    mr r31, r4
-    stw r30, 0x8(r1)
-    mr r30, r3
-    beq freestyle_dtor_done
-    li r4, 0
-    bl __dt__Q33ipl10controller10RevolutionFv
-    cmpwi r31, 0
-    ble freestyle_dtor_done
-    mr r3, r30
-    bl __dl__FPv
-freestyle_dtor_done:
-    mr r3, r30
-    lwz r31, 0xc(r1)
-    lwz r30, 0x8(r1)
-    lwz r0, 0x14(r1)
-    mtlr r0
-    addi r1, r1, 0x10
-    blr
+        FreeStyle::~FreeStyle() {}
+    }
 }
 
 
