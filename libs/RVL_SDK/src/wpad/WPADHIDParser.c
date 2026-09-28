@@ -697,9 +697,16 @@ void __a1_21_user_data(u8 chan, u8* data) {
     enable = OSDisableInterrupts();
     p_wpd = _wpdcb[chan];
     p_status = (WPADStatus*)(p_wpd->rxBufs[0] + p_wpd->rxBufIndex * WPAD_RX_DATASIZE);
-    p_clear = (u8*)(p_status);
-    for (i = 0; i < WPAD_RX_DATASIZE; i++) {
+    p_clear = (u8*)p_status;
+    for (i = 0; i < WPAD_RX_DATASIZE; i += 8) {
         p_clear[i] = 0;
+        p_clear[i + 1] = 0;
+        p_clear[i + 2] = 0;
+        p_clear[i + 3] = 0;
+        p_clear[i + 4] = 0;
+        p_clear[i + 5] = 0;
+        p_clear[i + 6] = 0;
+        p_clear[i + 7] = 0;
     }
 
     p_status->button =
@@ -732,7 +739,8 @@ void __a1_21_user_data(u8 chan, u8* data) {
         if (base + p_wpd->wmReadLength == addr + len) {
             DEBUGPrint("base addr: %08x\n", p_wpd->wmReadAddress);
             DEBUGPrint("length   : %d\n", p_wpd->wmReadLength);
-            status = (p_wpd->wmReadHadError < 0) ? WPAD_ERR_TRANSFER : WPAD_ERR_NONE;
+            status = WPAD_ERR_TRANSFER;
+            status &= p_wpd->wmReadHadError >> 31;
             DEBUGPrint("i2c = %04x\n", i2c);
             DEBUGPrint("enc = %d\n", p_wpd->unk_0x98D);
 
