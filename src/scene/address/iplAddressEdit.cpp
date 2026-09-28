@@ -2028,49 +2028,20 @@ void ipl::scene::AddressEdit::stt_wait_del_msg_fadeout_to_rlt() {
     }
 }
 
-extern "C" asm void stt_msg_del_rlt__Q33ipl5scene11AddressEditFv(ipl::scene::AddressEdit*) {
-    nofralloc
-    stwu r1, -0x10(r1)
-    mflr r0
-    li r4, 5
-    stw r0, 0x14(r1)
-    stw r31, 0xc(r1)
-    lis r31, smArg__Q23ipl6System@ha
-    addi r31, r31, smArg__Q23ipl6System@l
-    stw r30, 8(r1)
-    mr r30, r3
-    lwz r3, 0x64(r31)
-    bl getScene__Q33ipl5scene7ManagerFi
-    lwz r4, 0xac(r31)
-    mr r31, r3
-    lwz r0, 0x24(r4)
-    cmpwi r0, 1
-    beq stt_msg_del_rlt_L2
-    b stt_msg_del_rlt_L1
-stt_msg_del_rlt_L2:
-    li r4, 1
-    li r5, 0x29
-    bl reserveText__Q33ipl5scene6ButtonFiUl
-    mr r3, r31
-    li r4, 0xf
-    bl reserveAnm__Q33ipl5scene6ButtonFi
-    lwz r3, 0x68(r30)
-    li r4, 0x1e
-    addi r3, r3, 0x28c
-    bl List_GetNth__Q24nw4r2utFPCQ34nw4r2ut4ListUs
-    mr r31, r3
-    bl initFrame__Q33ipl7utility15FrameControllerFv
-    li r3, 1
-    li r0, 0x30
-    stw r3, 0x14(r31)
-    stw r0, 0x64(r30)
-stt_msg_del_rlt_L1:
-    lwz r0, 0x14(r1)
-    lwz r31, 0xc(r1)
-    lwz r30, 8(r1)
-    mtlr r0
-    addi r1, r1, 0x10
-    blr
+void ipl::scene::AddressEdit::stt_msg_del_rlt() {
+    ipl::scene::Button* button = static_cast<ipl::scene::Button*>(ipl::System::getScene(5));
+    switch (ipl::System::getDialog()->getLastResult()) {
+    case 1:
+        button->reserveText(1, 0x29);
+        button->reserveAnm(0xf);
+        ipl::layout::Animator* animator = mpCodeLayout->getAnim(0x1e);
+        animator->initFrame();
+        animator->restart();
+        mState = 0x30;
+        break;
+    default:
+        break;
+    }
 }
 
 extern "C" asm void stt_ipt_wait_fadein__Q33ipl5scene11AddressEditFv(ipl::scene::AddressEdit*) {
