@@ -8,8 +8,6 @@ namespace ipl {
             // used but pooled first
             DECOMP_FORCE_ACTIVE(iplCSMtx_cpp, "MTX34");
 
-            static const char mtx34_name[] = "MTX34";
-
 #define PROPERTY_COUNT 13
             extern const CHANSVmPropertyList cPropertyList[PROPERTY_COUNT];
 
@@ -153,7 +151,7 @@ namespace ipl {
             BOOL init(CHANSVm* vm) {
                 BOOL result = FALSE;
                 // Create class
-                CHANSVmNativeClass* cls = CHANSVmAddNativeClass(vm, mtx34_name, ctor, NULL);
+                CHANSVmNativeClass* cls = CHANSVmAddNativeClass(vm, "MTX34", ctor, NULL);
                 if (cls != NULL) {
                     // Add properties
                     result = CHANSVmAddNativePropertyAccessorsList(vm, cls, cPropertyList, PROPERTY_COUNT) == CHANS_VM_OK;
