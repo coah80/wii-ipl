@@ -24,30 +24,60 @@ enum {
     ODH_ERROR_80000005 = 0x80000005,
 };
 
-struct SArCDJ_HuffmanRequest;
-struct SArDeconvTbl;
+struct SArDeconvTbl {
+    s16 luma[256];
+    s32 cbGreen[256];
+    s32 crGreen[256];
+    s16 blue[256];
+};
+
+struct SArCDJ_HuffmanRequest {
+    u32* dcPredictor;
+    u32* acPredictor;
+    u32* dcTable;
+    u32* acTable;
+    u8* bitstream;
+    u32* remaining;
+    u32* bitBuffer;
+    u32* bitCount;
+    s32 bytesConsumed;
+};
 
 struct SArCDJ_OdhMaster {
-    u16 field0;
-    u16 field2;
-    u8 field4;
-    u8 padding[0xB];
+    u16 width;
+    u16 height;
+    u8 quality;
+    u8 field5;
+    u16 blocksWide;
+    u16 blocksHigh;
+    u16 blockX;
+    u16 blockY;
+    u8 xSampling;
+    u8 ySampling;
     u32 bitBuffer;
     u32 bitCount;
     u32 outputPos;
     u32 remaining;
-    u8 padding2[0x210];
+    u32 field20;
+    u32 field24;
+    u32 field28;
+    u8* workBuffer;
+    u32 dcCoefficients[64];
+    u32 coefficients[64];
     u8* data;
-    u8 padding3[0x24C];
+    u32 quantizationTables[128];
+    SArCDJ_HuffmanRequest luminanceRequest;
+    SArCDJ_HuffmanRequest chrominanceRequest;
+    u32 requestTail;
 };
 
-static volatile const f32 colorConvert16 = 16.0f;
-static volatile const f32 colorConvert128 = 128.0f;
-static volatile const f32 colorConvertY = 1.1643835306167603f;
-static volatile const f32 colorConvertR = 1.596027135848999f;
-static volatile const f32 colorConvertG1 = 0.3917616009712219f;
-static volatile const f32 colorConvertG2 = 0.8129680752754211f;
-static volatile const double colorConvertB = 2.01723105;
+static const f32 colorConvert16 = 16.0f;
+static const f32 colorConvert128 = 128.0f;
+static const f32 colorConvertY = 1.1643835306167603f;
+static const f32 colorConvertR = 1.596027135848999f;
+static const f32 colorConvertG1 = 0.3917616009712219f;
+static const f32 colorConvertG2 = 0.8129680752754211f;
+static const double colorConvertB = 2.01723105;
 static const double colorConvertBias = 4503599627370496.0;
 
 static const u8 odh_zigzag_order[64] = {
@@ -713,7 +743,6 @@ compressGbaOdh_L8:
 }
 
 s32 CArGBAOdh::cdj_c_initializeCompressOdh(SArCDJ_OdhMaster* param_2, u16* param_3, u8 in_r6, u8* param_4, u8* param_5, u32 param_6) {
-    u16* master = (u16*)param_2;
     u32 uVar3;
     u32 iVar2;
     s32 result;
@@ -723,33 +752,33 @@ s32 CArGBAOdh::cdj_c_initializeCompressOdh(SArCDJ_OdhMaster* param_2, u16* param
     } else if (in_r6 > 0x64) {
         result = ODH_ERROR_80000002;
     } else {
-        *(u32*)(master + 0x16) = (u32)param_4;
-        *(u32*)(master + 0x118) = (u32)param_5;
-        *master = *param_3;
-        master[1] = param_3[1];
-        *(char*)(master + 2) = (char)in_r6;
+        param_2->workBuffer = param_4;
+        param_2->data = param_5;
+        param_2->width = *param_3;
+        param_2->height = param_3[1];
+        param_2->quality = in_r6;
         uVar3 = *param_3 - 1;
-        master[3] = (s32)uVar3 / 8 + 1;
+        param_2->blocksWide = (s32)uVar3 / 8 + 1;
         uVar3 = param_3[1] - 1;
-        master[4] = (s32)uVar3 / 8 + 1;
-        *(u16**)(master + 0x21A) = master + 0x10;
-        *(u16**)(master + 0x21C) = master + 0x10;
-        *(u8**)(master + 0x21E) = (u8*)gArDC_L_Table;
-        *(u8**)(master + 0x220) = (u8*)gArDC_L_Table;
-        *(u32*)(master + 0x222) = (u32)param_5;
-        *(u16**)(master + 0x224) = master + 0x0E;
-        *(u16**)(master + 0x226) = master + 8;
-        *(u16**)(master + 0x228) = master + 10;
-        *(u32*)(master + 0x22A) = param_6;
-        *(u16**)(master + 0x22C) = master + 0x12;
-        *(u16**)(master + 0x22E) = master + 0x14;
-        *(u8**)(master + 0x230) = (u8*)gArDC_C_Table;
-        *(u8**)(master + 0x232) = (u8*)gArDC_L_Table;
-        *(u32*)(master + 0x234) = (u32)param_5;
-        *(u16**)(master + 0x236) = master + 0x0E;
-        *(u16**)(master + 0x238) = master + 8;
-        *(u16**)(master + 0x23A) = master + 10;
-        *(u32*)(master + 0x23C) = param_6;
+        param_2->blocksHigh = (s32)uVar3 / 8 + 1;
+        param_2->luminanceRequest.dcPredictor = &param_2->field20;
+        param_2->luminanceRequest.acPredictor = &param_2->field20;
+        param_2->luminanceRequest.dcTable = (u32*)gArDC_L_Table;
+        param_2->luminanceRequest.acTable = (u32*)gArDC_L_Table;
+        param_2->luminanceRequest.bitstream = param_5;
+        param_2->luminanceRequest.remaining = &param_2->remaining;
+        param_2->luminanceRequest.bitBuffer = &param_2->bitBuffer;
+        param_2->luminanceRequest.bitCount = &param_2->bitCount;
+        param_2->luminanceRequest.bytesConsumed = param_6;
+        param_2->chrominanceRequest.dcPredictor = &param_2->field24;
+        param_2->chrominanceRequest.acPredictor = &param_2->field28;
+        param_2->chrominanceRequest.dcTable = (u32*)gArDC_C_Table;
+        param_2->chrominanceRequest.acTable = (u32*)gArDC_L_Table;
+        param_2->chrominanceRequest.bitstream = param_5;
+        param_2->chrominanceRequest.remaining = &param_2->remaining;
+        param_2->chrominanceRequest.bitBuffer = &param_2->bitBuffer;
+        param_2->chrominanceRequest.bitCount = &param_2->bitCount;
+        param_2->chrominanceRequest.bytesConsumed = param_6;
         u32 quality = in_r6;
         if (quality == 0) {
             quality = 1;
@@ -760,15 +789,15 @@ s32 CArGBAOdh::cdj_c_initializeCompressOdh(SArCDJ_OdhMaster* param_2, u16* param
             iVar2 = 200 - (quality << 1);
         }
         cdj_c_setQuantizationTable(param_2, iVar2);
-        master[5] = 0;
-        master[6] = 0;
-        *(u32*)(master + 8) = 0;
-        *(u32*)(master + 10) = 0x20;
-        *(u32*)(master + 0x0C) = param_6;
-        *(u32*)(master + 0x0E) = param_6 - 0x10;
-        *(u32*)(master + 0x10) = 0;
-        *(u32*)(master + 0x12) = 0;
-        *(u32*)(master + 0x14) = 0;
+        param_2->blockX = 0;
+        param_2->blockY = 0;
+        param_2->bitBuffer = 0;
+        param_2->bitCount = 0x20;
+        param_2->outputPos = param_6;
+        param_2->remaining = param_6 - 0x10;
+        param_2->field20 = 0;
+        param_2->field24 = 0;
+        param_2->field28 = 0;
         result = 0;
     }
 
@@ -776,78 +805,67 @@ s32 CArGBAOdh::cdj_c_initializeCompressOdh(SArCDJ_OdhMaster* param_2, u16* param
 }
 
 s32 CArGBAOdh::cdj_c_compressLoop(SArCDJ_OdhMaster* param_2) {
-    u8 bVar1;
     int iVar2;
     int iVar4;
     u16 sVar6;
-    int iVar7;
     int iVar8;
-    u8* master = (u8*)param_2;
-
     do {
-        iVar8 = (u32)*(u16*)(master + 0x0C) << 6;
-        iVar8 = (u32)*(u16*)(master + 6) * iVar8;
-        iVar8 += (u32)*(u16*)(master + 0x0A) << 3;
-        fdct_fast((u32*)(master + 0x130), (u8*)(*(u32*)(master + 0x2C) + iVar8),
-                  (u32)*(u16*)(master + 6) << 3, (u32*)(master + 0x234));
-        iVar7 = 0;
-        iVar4 = 0;
+        int rowOffset = (u32)param_2->blockY << 6;
+        int blocksWide = param_2->blocksWide;
+        int columnOffset = (u32)param_2->blockX << 3;
+        iVar8 = blocksWide * rowOffset + columnOffset;
+        u32 stride = (u32)param_2->blocksWide << 3;
+        fdct_fast(param_2->coefficients, (u8*)((u32)param_2->workBuffer + iVar8), stride,
+                  param_2->quantizationTables);
         for (int i = 0; i < 0x40; i++) {
-            bVar1 = odh_zigzag_order[i];
-            iVar2 = *(int*)(master + iVar4 + 0x130) << 0x10;
-            iVar7++;
-            iVar4 += 4;
-            *(int*)(master + (u32)bVar1 * 4 + 0x30) = iVar2;
+            u8 index = odh_zigzag_order[i];
+            param_2->dcCoefficients[index] = param_2->coefficients[i] << 0x10;
         }
-        *(u32*)(master + 0x130) = 0x40004000;
-        iVar4 = huffmanCoder((u16*)(master + 0x2E), (SArCDJ_HuffmanRequest*)(master + 0x434));
+        param_2->coefficients[0] = 0x40004000;
+        iVar4 = huffmanCoder((u16*)param_2->dcCoefficients - 1, &param_2->luminanceRequest);
         if (iVar4 == ODH_ERROR_80000004) {
             iVar4 = ODH_ERROR_80000004;
             goto done;
         }
-        iVar4 = (u32)*(u16*)(master + 6) << 6;
-        iVar4 = (u32)*(u16*)(master + 8) * iVar4;
+        int nextBlocksWide = param_2->blocksWide;
+        int blocksHigh = param_2->blocksHigh;
+        int rowStride = nextBlocksWide << 6;
+        iVar4 = blocksHigh * rowStride;
         iVar8 = iVar8 + iVar4;
-        fdct_fast((u32*)(master + 0x130), (u8*)(*(u32*)(master + 0x2C) + iVar8),
-                  (u32)*(u16*)(master + 6) << 3, (u32*)(master + 0x334));
-        iVar4 = 0;
+        u32 nextStride = (u32)nextBlocksWide << 3;
+        fdct_fast(param_2->coefficients, (u8*)((u32)param_2->workBuffer + iVar8), nextStride,
+                  param_2->quantizationTables + 64);
         for (int i = 0; i < 0x40; i++) {
-            iVar2 = (int)(master + iVar4);
-            bVar1 = odh_zigzag_order[i];
-            iVar4 += 4;
-            *(u32*)(master + (u32)bVar1 * 4 + 0x30) = *(u32*)(iVar2 + 0x130) & 0xFFFF;
+            u8 index = odh_zigzag_order[i];
+            param_2->dcCoefficients[index] = param_2->coefficients[i] & 0xFFFF;
         }
-        iVar8 += (u32)*(u16*)(master + 8) * ((u32)*(u16*)(master + 6) << 6);
-        fdct_fast((u32*)(master + 0x130), (u8*)(*(u32*)(master + 0x2C) + iVar8),
-                  (u32)*(u16*)(master + 6) << 3, (u32*)(master + 0x334));
-        iVar7 = 0;
-        iVar4 = 0;
+        iVar8 += (u32)param_2->blocksHigh * ((u32)param_2->blocksWide << 6);
+        fdct_fast(param_2->coefficients, (u8*)((u32)param_2->workBuffer + iVar8),
+                  (u32)param_2->blocksWide << 3, param_2->quantizationTables + 64);
         for (int i = 0; i < 0x40; i++) {
-            iVar8 = (int)(master + iVar4);
-            iVar7++;
-            iVar4 += 4;
-            iVar2 = (int)(master + (u32)odh_zigzag_order[i] * 4);
-            *(u32*)(iVar2 + 0x30) = *(u32*)(iVar8 + 0x130) << 0x10 | *(u32*)(iVar2 + 0x30);
+            u8 index = odh_zigzag_order[i];
+            param_2->dcCoefficients[index] =
+                param_2->coefficients[i] << 0x10 | param_2->dcCoefficients[index];
         }
-        *(u32*)(master + 0x130) = 0x40004000;
-        iVar4 = huffmanCoder((u16*)(master + 0x30), (SArCDJ_HuffmanRequest*)(master + 0x458));
+        param_2->coefficients[0] = 0x40004000;
+        iVar4 = huffmanCoder((u16*)param_2->dcCoefficients, &param_2->chrominanceRequest);
         if (iVar4 == ODH_ERROR_80000004) {
             iVar4 = ODH_ERROR_80000004;
             goto done;
         }
-        sVar6 = *(u16*)(master + 0x0A) + 1;
-        *(u16*)(master + 0x0A) = sVar6;
-        if (sVar6 == *(u16*)(master + 6)) {
-            *(u16*)(master + 0x0A) = 0;
-            *(u16*)(master + 0x0C) = *(u16*)(master + 0x0C) + 1;
+        int nextBlockX = param_2->blockX + 1;
+        param_2->blockX = nextBlockX;
+        if ((u16)nextBlockX == param_2->blocksWide) {
+            param_2->blockX = 0;
+            param_2->blockY = param_2->blockY + 1;
         }
-    } while (*(u16*)(master + 0x0C) < *(u16*)(master + 8));
+    } while (param_2->blockY < param_2->blocksHigh);
     iVar4 = cdj_c_flashBuffer(param_2);
     if (iVar4 == ODH_ERROR_80000004) {
         iVar4 = ODH_ERROR_80000004;
     } else {
-        cdj_c_makeHeader(param_2, *(u32*)(master + 0x18) - *(u32*)(master + 0x1C));
-        iVar4 = *(u32*)(master + 0x18) - *(u32*)(master + 0x1C);
+        cdj_c_makeHeader(param_2, param_2->outputPos - param_2->remaining);
+        iVar4 = param_2->outputPos - param_2->remaining;
     }
 
 done:
@@ -883,7 +901,7 @@ void CArGBAOdh::cdj_c_setQuantizationTable(SArCDJ_OdhMaster* param_2, u32 param_
 
     do {
         for (int i = 0; i < 0x40; i++) {
-            u32 uVar10 = (param_3 * gArCdj_std_quant_tbl[iVar4 + i] + 0x32) / 100;
+            u32 uVar10 = (param_3 * gArCdj_std_quant_tbl[iVar4 + i] + 50) / 100;
             if ((int)uVar10 == 0) {
                 uVar10 = 1;
             }
@@ -903,12 +921,12 @@ void CArGBAOdh::cdj_c_setQuantizationTable(SArCDJ_OdhMaster* param_2, u32 param_
     do {
         int outputOffset = 0;
         int scaleIndex = 0;
-        int destinationBase = (int)param_2 + iVar4;
+        int destinationBase = (int)param_2->quantizationTables + iVar4;
         u8* local = local_98 + iVar5;
         for (int i = 0; i < 0x40; i++) {
             u32 scale = scales[scaleIndex];
             u8 coefficient = local[i];
-            *(u32*)(destinationBase + outputOffset + 0x234) = 0x4000000 / (scale * (u32)coefficient);
+            *(u32*)(destinationBase + outputOffset) = 0x4000000 / (scale * (u32)coefficient);
             scaleIndex++;
             outputOffset += 4;
         }
@@ -936,7 +954,7 @@ s32 CArGBAOdh::cdj_c_colorConv(SArCDJ_OdhMaster* param_2, u8* param_3, int param
         }
     }
 
-    int iVar10 = *(int*)(master + 0x16);
+    int iVar10 = (int)param_2->workBuffer;
     int iVar7 = iVar10 + (u32)local_40[0] * (u32)local_40[1];
     int iVar6 = iVar7 + (u32)local_40[0] * (u32)local_40[1];
     int iVar9;
@@ -966,13 +984,13 @@ void CArGBAOdh::LineConv11(u8* param_2, u8* param_3, u8* param_4, u8* param_5, u
                            const long* param_8, int param_9) {
     u32 in__r9 = (u32)param_6 * (u32)param_7;
     const s32* table = (const s32*)param_8;
-    double dVar14 = colorConvertB;
-    float fVar13 = colorConvertG2;
-    float dVar23 = colorConvertG1;
-    float fVar12 = colorConvertR;
-    float fVar11 = colorConvertY;
-    float fVar10 = colorConvert128;
     float fVar9 = colorConvert16;
+    float fVar10 = colorConvert128;
+    float fVar11 = colorConvertY;
+    float fVar12 = colorConvertR;
+    float dVar23 = colorConvertG1;
+    float fVar13 = colorConvertG2;
+    double dVar14 = colorConvertB;
     u32 uVar18 = 0;
 
     for (int i = 0; i < param_6; i++) {
@@ -1082,7 +1100,7 @@ void CArGBAOdh::fdct_fast(u32* param_2, u8* param_3, u32 param_4, u32* param_5) 
         buffer[3] = iVar8 - iVar5;
         buffer[1] = iVar4 + iVar6;
         buffer[7] = iVar4 - iVar6;
-        buffer = (int*)((u8*)buffer + 0x20);
+        buffer += 8;
     }
 
     buffer = (int*)param_2;
@@ -1131,13 +1149,12 @@ void CArGBAOdh::fdct_fast(u32* param_2, u8* param_3, u32 param_4, u32* param_5) 
 }
 
 s32 CArGBAOdh::huffmanCoder(u16* param_2, SArCDJ_HuffmanRequest* param_3) {
-    u8* request = (u8*)param_3;
     int iVar4 = 0;
     u16* inputCursor = (u16*)((u8*)param_2 + 2);
-    this->outputCursor = *(u32*)(request + 0x10) + (*(u32*)(request + 0x20) - **(u32**)(request + 0x14));
+    this->outputCursor = (u32)param_3->bitstream + (param_3->bytesConsumed - *param_3->remaining);
 
     while (true) {
-        u32* puVar1 = *(u32**)(request + iVar4 * 4);
+        u32* puVar1 = iVar4 == 0 ? param_3->dcPredictor : param_3->acPredictor;
         u16* uVar10 = inputCursor + 2;
         u32 rawValue = (u32)*inputCursor << 16;
         s32 currentValue = (s32)rawValue >> 16;
@@ -1161,7 +1178,7 @@ s32 CArGBAOdh::huffmanCoder(u16* param_2, SArCDJ_HuffmanRequest* param_3) {
             }
         }
 
-        u32 uVar8 = *(u32*)(*(u32*)(request + 8) + uVar12 * 4);
+        u32 uVar8 = param_3->dcTable[uVar12];
         s32 result = EmitBit((encodedValue & ((1 << uVar12) - 1U)) |
                                  ((uVar8 & 0xFFFFFF) << uVar12),
                              ((s32)uVar8 >> 0x18) + uVar12, param_3);
@@ -1202,7 +1219,7 @@ s32 CArGBAOdh::huffmanCoder(u16* param_2, SArCDJ_HuffmanRequest* param_3) {
                 }
             }
 
-            u32 uVar2 = *(u32*)(*(u32*)(request + 0xC) + uVar9 * 4);
+            u32 uVar2 = param_3->acTable[uVar9];
             result = EmitBit((uVar8 & ((1 << uVar9) - 1U)) |
                                  ((uVar2 & 0xFFFFFF) << uVar9),
                              ((s32)uVar2 >> 0x18) + uVar9, param_3);
@@ -1229,7 +1246,7 @@ s32 CArGBAOdh::huffmanCoder(u16* param_2, SArCDJ_HuffmanRequest* param_3) {
                 }
             }
 
-            uVar9 = *(u32*)(*(u32*)(request + 8) + uVar8 * 4);
+            uVar9 = param_3->dcTable[uVar8];
             result = EmitBit((encodedValue & ((1 << uVar8) - 1U)) |
                                  ((uVar9 & 0xFFFFFF) << uVar8),
                              ((s32)uVar9 >> 0x18) + uVar8, param_3);
@@ -1239,7 +1256,7 @@ s32 CArGBAOdh::huffmanCoder(u16* param_2, SArCDJ_HuffmanRequest* param_3) {
         }
 
         if ((uVar8 != 0) &&
-            (uVar12 = *(u32*)(*(u32*)(request + 0xC) + 0x1C),
+            (uVar12 = param_3->acTable[7],
              result = EmitBit(uVar12 & 0xFFFFFF, (s32)uVar12 >> 0x18, param_3),
              result == ODH_ERROR_80000004)) {
             return ODH_ERROR_80000004;
@@ -1256,27 +1273,25 @@ s32 CArGBAOdh::huffmanCoder(u16* param_2, SArCDJ_HuffmanRequest* param_3) {
 }
 
 s32 CArGBAOdh::EmitBit(long param_2, long param_3, SArCDJ_HuffmanRequest* param_4) {
-    u8* request = (u8*)param_4;
-    **(u32**)(request + 0x18) |= (u32)param_2 << (**(u32**)(request + 0x1C) - (u32)param_3);
-    **(u32**)(request + 0x1C) -= (u32)param_3;
+    *param_4->bitBuffer |= (u32)param_2 << (*param_4->bitCount - (u32)param_3);
+    *param_4->bitCount -= (u32)param_3;
 
-    while (**(u32**)(request + 0x1C) <= 0x18) {
-        if (**(u32**)(request + 0x14) == 0) {
+    while (*param_4->bitCount <= 0x18) {
+        if (*param_4->remaining == 0) {
             return ODH_ERROR_80000004;
         }
 
-        *(u8*)this->outputCursor = (u8)(**(u32**)(request + 0x18) >> 0x18);
+        *(u8*)this->outputCursor = (u8)(*param_4->bitBuffer >> 0x18);
         this->outputCursor++;
-        **(u32**)(request + 0x14) -= 1;
-        **(u32**)(request + 0x18) <<= 8;
-        **(u32**)(request + 0x1C) += 8;
+        *param_4->remaining -= 1;
+        *param_4->bitBuffer <<= 8;
+        *param_4->bitCount += 8;
     }
 
     return 0;
 }
 
 s32 CArGBAOdh::cdj_d_initializeDecompressOdh(SArCDJ_OdhMaster* param_2, u8* param_3, u8* param_4) {
-    u16* master = (u16*)param_2;
     u32 uVar1;
     u32 uVar2;
     int iVar6;
@@ -1293,15 +1308,15 @@ s32 CArGBAOdh::cdj_d_initializeDecompressOdh(SArCDJ_OdhMaster* param_2, u8* para
 
         uVar1 = *(u32*)(param_4 + 4);
         uVar3 = uVar1 & 0x7FF;
-        *master = (s16)uVar3;
+        param_2->width = (s16)uVar3;
         uVar4 = (*(u32*)(param_4 + 4) >> 0xB) & 0x7FF;
-        master[1] = (s16)uVar4;
+        param_2->height = (s16)uVar4;
         iVar7 = ((*(u32*)(param_4 + 4) >> 0x16) & 1) + 1;
-        *(char*)(master + 7) = (char)iVar7;
+        param_2->xSampling = iVar7;
         iVar6 = ((*(u32*)(param_4 + 4) >> 0x17) & 1) + 1;
-        *(char*)((int)master + 0xF) = (char)iVar6;
+        param_2->ySampling = iVar6;
         uVar2 = *(u32*)(param_4 + 4);
-        *(char*)(master + 2) = (char)(uVar2 >> 0x18);
+        param_2->quality = (u8)(uVar2 >> 0x18);
 
         if (((uVar3 == 0) || (0x7FF < uVar3)) ||
             ((uVar4 == 0) || (0x7FF < uVar4))) {
@@ -1309,28 +1324,28 @@ s32 CArGBAOdh::cdj_d_initializeDecompressOdh(SArCDJ_OdhMaster* param_2, u8* para
         } else if ((uVar2 >> 0x18) > 0x64) {
             result = ODH_ERROR_80000002;
         } else {
-            *(u32*)(master + 0x16) = (u32)param_3;
+            param_2->workBuffer = param_3;
             param_4 += 0x10;
-            *(char**)(master + 0x118) = (char*)param_4;
+            param_2->data = param_4;
             widthScale = (iVar7 << 3) & 0x7F8;
-            master[3] = (int)(uVar3 - 1) / widthScale + 1;
-            master[4] = (int)(uVar4 - 1) / ((iVar6 << 3) & 0x7F8) + 1;
-            master[5] = 0;
-            master[6] = 0;
-            *(u32*)(master + 10) = 0;
-            *(u32*)(master + 0x10) = 0;
-            *(u32*)(master + 0x12) = 0;
-            *(u32*)(master + 0x14) = 0;
-            *(u16**)(master + 0x21A) = master + 0x10;
-            *(u16**)(master + 0x21C) = master + 0x10;
-            *(char**)(master + 0x222) = (char*)param_4;
-            *(u16**)(master + 0x228) = master + 10;
-            *(u32*)(master + 0x22A) = 0x10;
-            *(u16**)(master + 0x22C) = master + 0x12;
-            *(u16**)(master + 0x22E) = master + 0x14;
-            *(char**)(master + 0x234) = (char*)param_4;
-            *(u16**)(master + 0x23A) = master + 10;
-            *(u32*)(master + 0x23C) = 0x10;
+            param_2->blocksWide = (int)(uVar3 - 1) / widthScale + 1;
+            param_2->blocksHigh = (int)(uVar4 - 1) / ((iVar6 << 3) & 0x7F8) + 1;
+            param_2->blockX = 0;
+            param_2->blockY = 0;
+            param_2->bitCount = 0;
+            param_2->field20 = 0;
+            param_2->field24 = 0;
+            param_2->field28 = 0;
+            param_2->luminanceRequest.dcPredictor = &param_2->field20;
+            param_2->luminanceRequest.acPredictor = &param_2->field20;
+            param_2->luminanceRequest.bitstream = param_4;
+            param_2->luminanceRequest.bitCount = &param_2->bitCount;
+            param_2->luminanceRequest.bytesConsumed = 0x10;
+            param_2->chrominanceRequest.dcPredictor = &param_2->field24;
+            param_2->chrominanceRequest.acPredictor = &param_2->field28;
+            param_2->chrominanceRequest.bitstream = param_4;
+            param_2->chrominanceRequest.bitCount = &param_2->bitCount;
+            param_2->chrominanceRequest.bytesConsumed = 0x10;
             u32 quality = uVar2 >> 0x18;
             if (quality == 0) {
                 quality = 1;
@@ -1348,7 +1363,6 @@ s32 CArGBAOdh::cdj_d_initializeDecompressOdh(SArCDJ_OdhMaster* param_2, u8* para
 }
 
 s32 CArGBAOdh::cdj_d_decompressLoop(SArCDJ_OdhMaster* master, int srcSize, int workSize) {
-  int param_2 = (int)master;
   int param_3 = srcSize;
   int param_4 = workSize;
 
@@ -1367,268 +1381,255 @@ s32 CArGBAOdh::cdj_d_decompressLoop(SArCDJ_OdhMaster* master, int srcSize, int w
   int lVar14;
 
   uVar8 = (u32)this;
-  uVar3 = *(u16 *)(param_2 + 6);
+  uVar3 = master->blocksWide;
   iVar13 = (u32)uVar3 * 0x38;
   iVar6 = (u32)uVar3 << 3;
   iVar4 = iVar13 * 2;
   iVar7 = (u32)uVar3 << 4;
   do {
-    cVar1 = *(u8 *)(param_2 + 0xe);
-    if ((cVar1 == 1U) && (*(u8 *)(param_2 + 0xf) == 1U)) {
+    cVar1 = master->xSampling;
+    if ((cVar1 == 1U) && (master->ySampling == 1U)) {
       iVar9 = huffmanDecoder__9CArGBAOdhFPUlP21SArCDJ_HuffmanRequestPPUsiUl
-                        (uVar8,param_2 + 0x30,param_2 + 0x434,(u32)&hufftreePtr,0,param_3);
-      *(u32 *)(param_2 + 0x468) = *(u32 *)(param_2 + 0x444);
-      *(u32 *)(param_2 + 0x478) = *(u32 *)(param_2 + 0x454);
+                        (uVar8,(u32)master->dcCoefficients,(u32)&master->luminanceRequest,(u32)&hufftreePtr,0,param_3);
+      master->chrominanceRequest.bitstream = master->luminanceRequest.bitstream;
+      master->chrominanceRequest.bytesConsumed = master->luminanceRequest.bytesConsumed;
       if (iVar9 != 0) return iVar9;
       iVar9 = 0;
       for (lVar14 = 0; lVar14 < 0x40; lVar14++) {
         bVar2 = odh_natural_order[lVar14];
-        iVar12 = param_2 + iVar9;
-        iVar9 = iVar9 + 4;
-        *(u32 *) (param_2 + (u32)bVar2 * 4 + 0x130) = *(u32 *)(iVar12 + 0x30);
+                iVar9 = iVar9 + 4;
+        master->coefficients[bVar2] = master->dcCoefficients[(iVar9 >> 2) - 1];
       }
-      iVar9 = ((u32)*(u16 *)(param_2 + 0xc) << 6) * (u32)*(u16 *)(param_2 + 6) +
-              (u32)*(u16 *)(param_2 + 10) * 8;
+      iVar9 = ((u32)master->blockY << 6) * (u32)master->blocksWide +
+              (u32)master->blockX * 8;
       if (iVar9 + iVar13 + 8 > param_4) {
         iVar9 = -0x7ffffffa;
         goto LAB_0001239c;
       }
       idct_fast__9CArGBAOdhFPCUcPUlPUlPUcUl
-                (uVar8,(u32)range_limit,param_2 + 0x234,param_2 + 0x130,*(int *)(param_2 + 0x2c) + iVar9,
+                (uVar8,(u32)range_limit,(u32)master->quantizationTables,(u32)master->coefficients,(int)master->workBuffer + iVar9,
                  iVar6);
       iVar9 = huffmanDecoder__9CArGBAOdhFPUlP21SArCDJ_HuffmanRequestPPUsiUl
-                        (uVar8,param_2 + 0x30,param_2 + 0x458,(u32)(u32)&hufftreePtr.tables[2],1,param_3);
+                        (uVar8,(u32)master->dcCoefficients,(u32)&master->chrominanceRequest,(u32)(u32)&hufftreePtr.tables[2],1,param_3);
       if (iVar9 != 0) return iVar9;
       iVar9 = 0;
       for (lVar14 = 0; lVar14 < 0x40; lVar14++) {
         bVar2 = odh_natural_order[lVar14];
-        iVar12 = param_2 + iVar9;
-        iVar9 = iVar9 + 4;
-        *(u32 *) (param_2 + (u32)bVar2 * 4 + 0x130) = *(u32 *)(iVar12 + 0x30);
+                iVar9 = iVar9 + 4;
+        master->coefficients[bVar2] = master->dcCoefficients[(iVar9 >> 2) - 1];
       }
-      iVar9 = ((u32)*(u16 *)(param_2 + 0xc) << 6) * (u32)*(u16 *)(param_2 + 6) +
-              (((u32)*(u16 *)(param_2 + 6) << 6) * (u32)*(u16 *)(param_2 + 8) +
-               (u32)*(u16 *)(param_2 + 10) * 8);
+      iVar9 = ((u32)master->blockY << 6) * (u32)master->blocksWide +
+              (((u32)master->blocksWide << 6) * (u32)master->blocksHigh +
+               (u32)master->blockX * 8);
       if (iVar9 + iVar13 + 8 > param_4) {
         iVar9 = -0x7ffffffa;
         goto LAB_0001239c;
       }
       idct_fast__9CArGBAOdhFPCUcPUlPUlPUcUl
-                (uVar8,(u32)range_limit,param_2 + 0x334,param_2 + 0x130,*(int *)(param_2 + 0x2c) + iVar9,
+                (uVar8,(u32)range_limit,(u32)(master->quantizationTables + 64),(u32)master->coefficients,(int)master->workBuffer + iVar9,
                  iVar6);
       iVar9 = huffmanDecoder__9CArGBAOdhFPUlP21SArCDJ_HuffmanRequestPPUsiUl
-                        (uVar8,param_2 + 0x30,param_2 + 0x458,(u32)(u32)&hufftreePtr.tables[2],2,param_3);
-      *(u32 *)(param_2 + 0x444) = *(u32 *)(param_2 + 0x468);
-      *(u32 *)(param_2 + 0x454) = *(u32 *)(param_2 + 0x478);
+                        (uVar8,(u32)master->dcCoefficients,(u32)&master->chrominanceRequest,(u32)(u32)&hufftreePtr.tables[2],2,param_3);
+      master->luminanceRequest.bitstream = master->chrominanceRequest.bitstream;
+      master->luminanceRequest.bytesConsumed = master->chrominanceRequest.bytesConsumed;
       if (iVar9 != 0) return iVar9;
       iVar9 = 0;
       for (lVar14 = 0; lVar14 < 0x40; lVar14++) {
         bVar2 = odh_natural_order[lVar14];
-        iVar12 = param_2 + iVar9;
-        iVar9 = iVar9 + 4;
-        *(u32 *) (param_2 + (u32)bVar2 * 4 + 0x130) = *(u32 *)(iVar12 + 0x30);
+                iVar9 = iVar9 + 4;
+        master->coefficients[bVar2] = master->dcCoefficients[(iVar9 >> 2) - 1];
       }
-      iVar9 = ((u32)*(u16 *)(param_2 + 6) << 6) * (u32)*(u16 *)(param_2 + 8) * 2 +
-              ((u32)*(u16 *)(param_2 + 10) * 8 +
-              ((u32)*(u16 *)(param_2 + 0xc) << 6) * (u32)*(u16 *)(param_2 + 6));
+      iVar9 = ((u32)master->blocksWide << 6) * (u32)master->blocksHigh * 2 +
+              ((u32)master->blockX * 8 +
+              ((u32)master->blockY << 6) * (u32)master->blocksWide);
       if (iVar9 + iVar13 + 8 > param_4) {
         iVar9 = -0x7ffffffa;
         goto LAB_0001239c;
       }
       idct_fast__9CArGBAOdhFPCUcPUlPUlPUcUl
-                (uVar8,(u32)range_limit,param_2 + 0x334,param_2 + 0x130,*(int *)(param_2 + 0x2c) + iVar9,
+                (uVar8,(u32)range_limit,(u32)(master->quantizationTables + 64),(u32)master->coefficients,(int)master->workBuffer + iVar9,
                  iVar6);
     }
-    else if ((cVar1 == 2U) && (*(u8 *)(param_2 + 0xf) == 1U)) {
+    else if ((cVar1 == 2U) && (master->ySampling == 1U)) {
       iVar9 = huffmanDecoder__9CArGBAOdhFPUlP21SArCDJ_HuffmanRequestPPUsiUl
-                        (uVar8,param_2 + 0x30,param_2 + 0x434,(u32)&hufftreePtr,0,param_3);
+                        (uVar8,(u32)master->dcCoefficients,(u32)&master->luminanceRequest,(u32)&hufftreePtr,0,param_3);
       if (iVar9 != 0) return iVar9;
       iVar9 = 0;
       for (lVar14 = 0; lVar14 < 0x40; lVar14++) {
         bVar2 = odh_natural_order[lVar14];
-        iVar12 = param_2 + iVar9;
-        iVar9 = iVar9 + 4;
-        *(u32 *) (param_2 + (u32)bVar2 * 4 + 0x130) = *(u32 *)(iVar12 + 0x30);
+                iVar9 = iVar9 + 4;
+        master->coefficients[bVar2] = master->dcCoefficients[(iVar9 >> 2) - 1];
       }
-      iVar12 = (u32)*(u16 *)(param_2 + 10) * 0x10 +
-               ((u32)*(u16 *)(param_2 + 0xc) << 6) * (u32)*(u16 *)(param_2 + 6) * 2;
+      iVar12 = (u32)master->blockX * 0x10 +
+               ((u32)master->blockY << 6) * (u32)master->blocksWide * 2;
       if (iVar12 + iVar4 + 8 > param_4) {
         iVar9 = -0x7ffffffa;
         goto LAB_0001239c;
       }
       idct_fast__9CArGBAOdhFPCUcPUlPUlPUcUl
-                (uVar8,(u32)range_limit,param_2 + 0x234,param_2 + 0x130,*(int *)(param_2 + 0x2c) + iVar12
+                (uVar8,(u32)range_limit,(u32)master->quantizationTables,(u32)master->coefficients,(int)master->workBuffer + iVar12
                  ,iVar7);
       iVar9 = huffmanDecoder__9CArGBAOdhFPUlP21SArCDJ_HuffmanRequestPPUsiUl
-                        (uVar8,param_2 + 0x30,param_2 + 0x434,(u32)&hufftreePtr,0,param_3);
-      *(u32 *)(param_2 + 0x468) = *(u32 *)(param_2 + 0x444);
+                        (uVar8,(u32)master->dcCoefficients,(u32)&master->luminanceRequest,(u32)&hufftreePtr,0,param_3);
+      master->chrominanceRequest.bitstream = master->luminanceRequest.bitstream;
       if (iVar9 != 0) return iVar9;
       iVar9 = 0;
       for (lVar14 = 0; lVar14 < 0x40; lVar14++) {
         bVar2 = odh_natural_order[lVar14];
-        iVar5 = param_2 + iVar9;
-        iVar9 = iVar9 + 4;
-        *(u32 *) (param_2 + (u32)bVar2 * 4 + 0x130) = *(u32 *)(iVar5 + 0x30);
+                iVar9 = iVar9 + 4;
+        master->coefficients[bVar2] = master->dcCoefficients[(iVar9 >> 2) - 1];
       }
       if (iVar12 + iVar4 + 0x10 > param_4) {
         iVar9 = -0x7ffffffa;
         goto LAB_0001239c;
       }
       idct_fast__9CArGBAOdhFPCUcPUlPUlPUcUl
-                (uVar8,(u32)range_limit,param_2 + 0x234,param_2 + 0x130,
-                 iVar12 + *(int *)(param_2 + 0x2c) + 8,iVar7);
+                (uVar8,(u32)range_limit,(u32)master->quantizationTables,(u32)master->coefficients,
+                 iVar12 + (int)master->workBuffer + 8,iVar7);
       iVar9 = huffmanDecoder__9CArGBAOdhFPUlP21SArCDJ_HuffmanRequestPPUsiUl
-                        (uVar8,param_2 + 0x30,param_2 + 0x458,(u32)(u32)&hufftreePtr.tables[2],1,param_3);
+                        (uVar8,(u32)master->dcCoefficients,(u32)&master->chrominanceRequest,(u32)(u32)&hufftreePtr.tables[2],1,param_3);
       if (iVar9 != 0) return iVar9;
       iVar9 = 0;
       for (lVar14 = 0; lVar14 < 0x40; lVar14++) {
         bVar2 = odh_natural_order[lVar14];
-        iVar12 = param_2 + iVar9;
-        iVar9 = iVar9 + 4;
-        *(u32 *) (param_2 + (u32)bVar2 * 4 + 0x130) = *(u32 *)(iVar12 + 0x30);
+                iVar9 = iVar9 + 4;
+        master->coefficients[bVar2] = master->dcCoefficients[(iVar9 >> 2) - 1];
       }
-      iVar9 = (u32)*(u16 *)(param_2 + 6) * ((u32)*(u16 *)(param_2 + 0xc) << 6) +
-              (u32)*(u16 *)(param_2 + 10) * 8 +
-              (u32)*(u16 *)(param_2 + 8) * ((u32)*(u16 *)(param_2 + 6) << 7);
+      iVar9 = (u32)master->blocksWide * ((u32)master->blockY << 6) +
+              (u32)master->blockX * 8 +
+              (u32)master->blocksHigh * ((u32)master->blocksWide << 7);
       if (iVar9 + iVar13 + 8 > param_4) {
         iVar9 = -0x7ffffffa;
         goto LAB_0001239c;
       }
       idct_fast__9CArGBAOdhFPCUcPUlPUlPUcUl
-                (uVar8,(u32)range_limit,param_2 + 0x334,param_2 + 0x130,*(int *)(param_2 + 0x2c) + iVar9,
+                (uVar8,(u32)range_limit,(u32)(master->quantizationTables + 64),(u32)master->coefficients,(int)master->workBuffer + iVar9,
                  iVar6);
       iVar9 = huffmanDecoder__9CArGBAOdhFPUlP21SArCDJ_HuffmanRequestPPUsiUl
-                        (uVar8,param_2 + 0x30,param_2 + 0x458,(u32)(u32)&hufftreePtr.tables[2],2,param_3);
-      *(u32 *)(param_2 + 0x444) = *(u32 *)(param_2 + 0x468);
+                        (uVar8,(u32)master->dcCoefficients,(u32)&master->chrominanceRequest,(u32)(u32)&hufftreePtr.tables[2],2,param_3);
+      master->luminanceRequest.bitstream = master->chrominanceRequest.bitstream;
       if (iVar9 != 0) return iVar9;
       iVar9 = 0;
       for (lVar14 = 0; lVar14 < 0x40; lVar14++) {
         bVar2 = odh_natural_order[lVar14];
-        iVar12 = param_2 + iVar9;
-        iVar9 = iVar9 + 4;
-        *(u32 *) (param_2 + (u32)bVar2 * 4 + 0x130) = *(u32 *)(iVar12 + 0x30);
+                iVar9 = iVar9 + 4;
+        master->coefficients[bVar2] = master->dcCoefficients[(iVar9 >> 2) - 1];
       }
-      iVar9 = ((u32)*(u16 *)(param_2 + 8) * ((u32)*(u16 *)(param_2 + 6) << 7) * 2) +
-              ((u32)*(u16 *)(param_2 + 10) * 8 +
-               ((u32)*(u16 *)(param_2 + 0xc) << 6) * (u32)*(u16 *)(param_2 + 6));
+      iVar9 = ((u32)master->blocksHigh * ((u32)master->blocksWide << 7) * 2) +
+              ((u32)master->blockX * 8 +
+               ((u32)master->blockY << 6) * (u32)master->blocksWide);
       if (iVar9 + iVar13 + 8 > param_4) {
         iVar9 = -0x7ffffffa;
         goto LAB_0001239c;
       }
       idct_fast__9CArGBAOdhFPCUcPUlPUlPUcUl
-                (uVar8,(u32)range_limit,param_2 + 0x334,param_2 + 0x130,*(int *)(param_2 + 0x2c) + iVar9,
+                (uVar8,(u32)range_limit,(u32)(master->quantizationTables + 64),(u32)master->coefficients,(int)master->workBuffer + iVar9,
                  iVar6);
     }
-    else if ((cVar1 == 1U) && (*(u8 *)(param_2 + 0xf) == 2U)) {
+    else if ((cVar1 == 1U) && (master->ySampling == 2U)) {
       iVar9 = huffmanDecoder__9CArGBAOdhFPUlP21SArCDJ_HuffmanRequestPPUsiUl
-                        (uVar8,param_2 + 0x30,param_2 + 0x434,(u32)&hufftreePtr,0,param_3);
+                        (uVar8,(u32)master->dcCoefficients,(u32)&master->luminanceRequest,(u32)&hufftreePtr,0,param_3);
       if (iVar9 != 0) return iVar9;
       iVar9 = 0;
       for (lVar14 = 0; lVar14 < 0x40; lVar14++) {
         bVar2 = odh_natural_order[lVar14];
-        iVar12 = param_2 + iVar9;
-        iVar9 = iVar9 + 4;
-        *(u32 *) (param_2 + (u32)bVar2 * 4 + 0x130) = *(u32 *)(iVar12 + 0x30);
+                iVar9 = iVar9 + 4;
+        master->coefficients[bVar2] = master->dcCoefficients[(iVar9 >> 2) - 1];
       }
-      iVar12 = (u32)*(u16 *)(param_2 + 10) * 8 +
-               ((u32)*(u16 *)(param_2 + 0xc) << 6) * (u32)*(u16 *)(param_2 + 6) * 2;
+      iVar12 = (u32)master->blockX * 8 +
+               ((u32)master->blockY << 6) * (u32)master->blocksWide * 2;
       if (iVar12 + iVar13 + 8 > param_4) {
         iVar9 = -0x7ffffffa;
         goto LAB_0001239c;
       }
       idct_fast__9CArGBAOdhFPCUcPUlPUlPUcUl
-                (uVar8,(u32)range_limit,param_2 + 0x234,param_2 + 0x130,*(int *)(param_2 + 0x2c) + iVar12
+                (uVar8,(u32)range_limit,(u32)master->quantizationTables,(u32)master->coefficients,(int)master->workBuffer + iVar12
                  ,iVar6);
       iVar9 = huffmanDecoder__9CArGBAOdhFPUlP21SArCDJ_HuffmanRequestPPUsiUl
-                        (uVar8,param_2 + 0x30,param_2 + 0x434,(u32)&hufftreePtr,0,param_3);
-      *(u32 *)(param_2 + 0x468) = *(u32 *)(param_2 + 0x444);
+                        (uVar8,(u32)master->dcCoefficients,(u32)&master->luminanceRequest,(u32)&hufftreePtr,0,param_3);
+      master->chrominanceRequest.bitstream = master->luminanceRequest.bitstream;
       if (iVar9 != 0) return iVar9;
       iVar9 = 0;
       for (lVar14 = 0; lVar14 < 0x40; lVar14++) {
         bVar2 = odh_natural_order[lVar14];
-        iVar5 = param_2 + iVar9;
-        iVar9 = iVar9 + 4;
-        *(u32 *) (param_2 + (u32)bVar2 * 4 + 0x130) = *(u32 *)(iVar5 + 0x30);
+                iVar9 = iVar9 + 4;
+        master->coefficients[bVar2] = master->dcCoefficients[(iVar9 >> 2) - 1];
       }
-      iVar12 = iVar12 + (u32)*(u16 *)(param_2 + 6) * 0x40;
+      iVar12 = iVar12 + (u32)master->blocksWide * 0x40;
       if (iVar12 + iVar13 + 8 > param_4) {
         iVar9 = -0x7ffffffa;
         goto LAB_0001239c;
       }
       idct_fast__9CArGBAOdhFPCUcPUlPUlPUcUl
-                (uVar8,(u32)range_limit,param_2 + 0x234,param_2 + 0x130,*(int *)(param_2 + 0x2c) + iVar12
+                (uVar8,(u32)range_limit,(u32)master->quantizationTables,(u32)master->coefficients,(int)master->workBuffer + iVar12
                  ,iVar6);
       iVar9 = huffmanDecoder__9CArGBAOdhFPUlP21SArCDJ_HuffmanRequestPPUsiUl
-                        (uVar8,param_2 + 0x30,param_2 + 0x458,(u32)(u32)&hufftreePtr.tables[2],1,param_3);
+                        (uVar8,(u32)master->dcCoefficients,(u32)&master->chrominanceRequest,(u32)(u32)&hufftreePtr.tables[2],1,param_3);
       if (iVar9 != 0) return iVar9;
       iVar9 = 0;
       for (lVar14 = 0; lVar14 < 0x40; lVar14++) {
         bVar2 = odh_natural_order[lVar14];
-        iVar12 = param_2 + iVar9;
-        iVar9 = iVar9 + 4;
-        *(u32 *) (param_2 + (u32)bVar2 * 4 + 0x130) = *(u32 *)(iVar12 + 0x30);
+                iVar9 = iVar9 + 4;
+        master->coefficients[bVar2] = master->dcCoefficients[(iVar9 >> 2) - 1];
       }
-      iVar9 = ((u32)*(u16 *)(param_2 + 6) << 6) * (u32)*(u16 *)(param_2 + 8) * 2 +
-              ((u32)*(u16 *)(param_2 + 10) * 8 +
-              ((u32)*(u16 *)(param_2 + 0xc) << 6) * (u32)*(u16 *)(param_2 + 6));
+      iVar9 = ((u32)master->blocksWide << 6) * (u32)master->blocksHigh * 2 +
+              ((u32)master->blockX * 8 +
+              ((u32)master->blockY << 6) * (u32)master->blocksWide);
       if (iVar9 + iVar13 + 8 > param_4) {
         iVar9 = -0x7ffffffa;
         goto LAB_0001239c;
       }
       idct_fast__9CArGBAOdhFPCUcPUlPUlPUcUl
-                (uVar8,(u32)range_limit,param_2 + 0x334,param_2 + 0x130,*(int *)(param_2 + 0x2c) + iVar9,
+                (uVar8,(u32)range_limit,(u32)(master->quantizationTables + 64),(u32)master->coefficients,(int)master->workBuffer + iVar9,
                  iVar6);
       iVar9 = huffmanDecoder__9CArGBAOdhFPUlP21SArCDJ_HuffmanRequestPPUsiUl
-                        (uVar8,param_2 + 0x30,param_2 + 0x458,(u32)(u32)&hufftreePtr.tables[2],2,param_3);
-      *(u32 *)(param_2 + 0x444) = *(u32 *)(param_2 + 0x468);
+                        (uVar8,(u32)master->dcCoefficients,(u32)&master->chrominanceRequest,(u32)(u32)&hufftreePtr.tables[2],2,param_3);
+      master->luminanceRequest.bitstream = master->chrominanceRequest.bitstream;
       if (iVar9 != 0) return iVar9;
       iVar9 = 0;
       for (lVar14 = 0; lVar14 < 0x40; lVar14++) {
         bVar2 = odh_natural_order[lVar14];
-        iVar12 = param_2 + iVar9;
-        iVar9 = iVar9 + 4;
-        *(u32 *) (param_2 + (u32)bVar2 * 4 + 0x130) = *(u32 *)(iVar12 + 0x30);
+                iVar9 = iVar9 + 4;
+        master->coefficients[bVar2] = master->dcCoefficients[(iVar9 >> 2) - 1];
       }
-      iVar9 = ((u32)*(u16 *)(param_2 + 6) << 6) * (u32)*(u16 *)(param_2 + 8) * 4 +
-              ((u32)*(u16 *)(param_2 + 10) * 8 +
-               ((u32)*(u16 *)(param_2 + 0xc) << 6) * (u32)*(u16 *)(param_2 + 6));
+      iVar9 = ((u32)master->blocksWide << 6) * (u32)master->blocksHigh * 4 +
+              ((u32)master->blockX * 8 +
+               ((u32)master->blockY << 6) * (u32)master->blocksWide);
       if (iVar9 + iVar13 + 8 > param_4) {
         iVar9 = -0x7ffffffa;
         goto LAB_0001239c;
       }
       idct_fast__9CArGBAOdhFPCUcPUlPUlPUcUl
-                (uVar8,(u32)range_limit,param_2 + 0x334,param_2 + 0x130,*(int *)(param_2 + 0x2c) + iVar9,
+                (uVar8,(u32)range_limit,(u32)(master->quantizationTables + 64),(u32)master->coefficients,(int)master->workBuffer + iVar9,
                  iVar6);
     }
-    else if ((cVar1 == 2U) && (*(u8 *)(param_2 + 0xf) == 2U)) {
+    else if ((cVar1 == 2U) && (master->ySampling == 2U)) {
       iVar9 = huffmanDecoder__9CArGBAOdhFPUlP21SArCDJ_HuffmanRequestPPUsiUl
-                        (uVar8,param_2 + 0x30,param_2 + 0x434,(u32)&hufftreePtr,0,param_3);
+                        (uVar8,(u32)master->dcCoefficients,(u32)&master->luminanceRequest,(u32)&hufftreePtr,0,param_3);
       if (iVar9 != 0) return iVar9;
       iVar9 = 0;
       for (lVar14 = 0; lVar14 < 0x40; lVar14++) {
         bVar2 = odh_natural_order[lVar14];
-        iVar12 = param_2 + iVar9;
-        iVar9 = iVar9 + 4;
-        *(u32 *) (param_2 + (u32)bVar2 * 4 + 0x130) = *(u32 *)(iVar12 + 0x30);
+                iVar9 = iVar9 + 4;
+        master->coefficients[bVar2] = master->dcCoefficients[(iVar9 >> 2) - 1];
       }
-      iVar12 = (u32)*(u16 *)(param_2 + 10) * 0x10 +
-               ((u32)*(u16 *)(param_2 + 0xc) << 6) * (u32)*(u16 *)(param_2 + 6) * 4;
+      iVar12 = (u32)master->blockX * 0x10 +
+               ((u32)master->blockY << 6) * (u32)master->blocksWide * 4;
       if (iVar12 + iVar4 + 8 > param_4) {
         iVar9 = -0x7ffffffa;
         goto LAB_0001239c;
       }
       idct_fast__9CArGBAOdhFPCUcPUlPUlPUcUl
-                (uVar8,(u32)range_limit,param_2 + 0x234,param_2 + 0x130,*(int *)(param_2 + 0x2c) + iVar12
+                (uVar8,(u32)range_limit,(u32)master->quantizationTables,(u32)master->coefficients,(int)master->workBuffer + iVar12
                  ,iVar7);
       iVar9 = huffmanDecoder__9CArGBAOdhFPUlP21SArCDJ_HuffmanRequestPPUsiUl
-                        (uVar8,param_2 + 0x30,param_2 + 0x434,(u32)&hufftreePtr,0,param_3);
+                        (uVar8,(u32)master->dcCoefficients,(u32)&master->luminanceRequest,(u32)&hufftreePtr,0,param_3);
       if (iVar9 != 0) return iVar9;
       iVar9 = 0;
       for (lVar14 = 0; lVar14 < 0x40; lVar14++) {
         bVar2 = odh_natural_order[lVar14];
-        iVar5 = param_2 + iVar9;
-        iVar9 = iVar9 + 4;
-        *(u32 *) (param_2 + (u32)bVar2 * 4 + 0x130) = *(u32 *)(iVar5 + 0x30);
+                iVar9 = iVar9 + 4;
+        master->coefficients[bVar2] = master->dcCoefficients[(iVar9 >> 2) - 1];
       }
       int nextOffset = iVar12 + 8;
       iVar12 = nextOffset;
@@ -1637,93 +1638,89 @@ s32 CArGBAOdh::cdj_d_decompressLoop(SArCDJ_OdhMaster* master, int srcSize, int w
         goto LAB_0001239c;
       }
       idct_fast__9CArGBAOdhFPCUcPUlPUlPUcUl
-                (uVar8,(u32)range_limit,param_2 + 0x234,param_2 + 0x130,*(int *)(param_2 + 0x2c) + nextOffset
+                (uVar8,(u32)range_limit,(u32)master->quantizationTables,(u32)master->coefficients,(int)master->workBuffer + nextOffset
                  ,iVar7);
       iVar9 = huffmanDecoder__9CArGBAOdhFPUlP21SArCDJ_HuffmanRequestPPUsiUl
-                        (uVar8,param_2 + 0x30,param_2 + 0x434,(u32)&hufftreePtr,0,param_3);
+                        (uVar8,(u32)master->dcCoefficients,(u32)&master->luminanceRequest,(u32)&hufftreePtr,0,param_3);
       if (iVar9 != 0) return iVar9;
       iVar9 = 0;
       for (lVar14 = 0; lVar14 < 0x40; lVar14++) {
         bVar2 = odh_natural_order[lVar14];
-        iVar5 = param_2 + iVar9;
-        iVar9 = iVar9 + 4;
-        *(u32 *) (param_2 + (u32)bVar2 * 4 + 0x130) = *(u32 *)(iVar5 + 0x30);
+                iVar9 = iVar9 + 4;
+        master->coefficients[bVar2] = master->dcCoefficients[(iVar9 >> 2) - 1];
       }
-      iVar12 = iVar12 + (u32)*(u16 *)(param_2 + 6) * 0x80 + -8;
+      iVar12 = iVar12 + (u32)master->blocksWide * 0x80 + -8;
       if (iVar12 + iVar4 + 8 > param_4) {
         iVar9 = -0x7ffffffa;
         goto LAB_0001239c;
       }
       idct_fast__9CArGBAOdhFPCUcPUlPUlPUcUl
-                (uVar8,(u32)range_limit,param_2 + 0x234,param_2 + 0x130,*(int *)(param_2 + 0x2c) + iVar12
+                (uVar8,(u32)range_limit,(u32)master->quantizationTables,(u32)master->coefficients,(int)master->workBuffer + iVar12
                  ,iVar7);
       iVar9 = huffmanDecoder__9CArGBAOdhFPUlP21SArCDJ_HuffmanRequestPPUsiUl
-                        (uVar8,param_2 + 0x30,param_2 + 0x434,(u32)&hufftreePtr,0,param_3);
-      *(u32 *)(param_2 + 0x468) = *(u32 *)(param_2 + 0x444);
+                        (uVar8,(u32)master->dcCoefficients,(u32)&master->luminanceRequest,(u32)&hufftreePtr,0,param_3);
+      master->chrominanceRequest.bitstream = master->luminanceRequest.bitstream;
       if (iVar9 != 0) return iVar9;
       iVar9 = 0;
       for (lVar14 = 0; lVar14 < 0x40; lVar14++) {
         bVar2 = odh_natural_order[lVar14];
-        iVar5 = param_2 + iVar9;
-        iVar9 = iVar9 + 4;
-        *(u32 *) (param_2 + (u32)bVar2 * 4 + 0x130) = *(u32 *)(iVar5 + 0x30);
+                iVar9 = iVar9 + 4;
+        master->coefficients[bVar2] = master->dcCoefficients[(iVar9 >> 2) - 1];
       }
       if (iVar12 + iVar4 + 0x10 > param_4) {
         iVar9 = -0x7ffffffa;
         goto LAB_0001239c;
       }
       idct_fast__9CArGBAOdhFPCUcPUlPUlPUcUl
-                (uVar8,(u32)range_limit,param_2 + 0x234,param_2 + 0x130,
-                 iVar12 + *(int *)(param_2 + 0x2c) + 8,iVar7);
+                (uVar8,(u32)range_limit,(u32)master->quantizationTables,(u32)master->coefficients,
+                 iVar12 + (int)master->workBuffer + 8,iVar7);
       iVar9 = huffmanDecoder__9CArGBAOdhFPUlP21SArCDJ_HuffmanRequestPPUsiUl
-                        (uVar8,param_2 + 0x30,param_2 + 0x458,(u32)(u32)&hufftreePtr.tables[2],1,param_3);
+                        (uVar8,(u32)master->dcCoefficients,(u32)&master->chrominanceRequest,(u32)(u32)&hufftreePtr.tables[2],1,param_3);
       if (iVar9 != 0) return iVar9;
       iVar9 = 0;
       for (lVar14 = 0; lVar14 < 0x40; lVar14++) {
         bVar2 = odh_natural_order[lVar14];
-        iVar12 = param_2 + iVar9;
-        iVar9 = iVar9 + 4;
-        *(u32 *) (param_2 + (u32)bVar2 * 4 + 0x130) = *(u32 *)(iVar12 + 0x30);
+                iVar9 = iVar9 + 4;
+        master->coefficients[bVar2] = master->dcCoefficients[(iVar9 >> 2) - 1];
       }
-      iVar9 = ((u32)*(u16 *)(param_2 + 6) << 6) * (u32)*(u16 *)(param_2 + 8) * 4 +
-              ((u32)*(u16 *)(param_2 + 10) * 8 +
-               ((u32)*(u16 *)(param_2 + 0xc) << 6) * (u32)*(u16 *)(param_2 + 6));
+      iVar9 = ((u32)master->blocksWide << 6) * (u32)master->blocksHigh * 4 +
+              ((u32)master->blockX * 8 +
+               ((u32)master->blockY << 6) * (u32)master->blocksWide);
       if (iVar9 + iVar13 + 8 > param_4) {
         iVar9 = -0x7ffffffa;
         goto LAB_0001239c;
       }
       idct_fast__9CArGBAOdhFPCUcPUlPUlPUcUl
-                (uVar8,(u32)range_limit,param_2 + 0x334,param_2 + 0x130,*(int *)(param_2 + 0x2c) + iVar9,
+                (uVar8,(u32)range_limit,(u32)(master->quantizationTables + 64),(u32)master->coefficients,(int)master->workBuffer + iVar9,
                  iVar6);
       iVar9 = huffmanDecoder__9CArGBAOdhFPUlP21SArCDJ_HuffmanRequestPPUsiUl
-                        (uVar8,param_2 + 0x30,param_2 + 0x458,(u32)(u32)&hufftreePtr.tables[2],2,param_3);
-      *(u32 *)(param_2 + 0x444) = *(u32 *)(param_2 + 0x468);
+                        (uVar8,(u32)master->dcCoefficients,(u32)&master->chrominanceRequest,(u32)(u32)&hufftreePtr.tables[2],2,param_3);
+      master->luminanceRequest.bitstream = master->chrominanceRequest.bitstream;
       if (iVar9 != 0) return iVar9;
       iVar9 = 0;
       for (lVar14 = 0; lVar14 < 0x40; lVar14++) {
         bVar2 = odh_natural_order[lVar14];
-        iVar12 = param_2 + iVar9;
-        iVar9 = iVar9 + 4;
-        *(u32 *) (param_2 + (u32)bVar2 * 4 + 0x130) = *(u32 *)(iVar12 + 0x30);
+                iVar9 = iVar9 + 4;
+        master->coefficients[bVar2] = master->dcCoefficients[(iVar9 >> 2) - 1];
       }
-      iVar9 = ((u32)*(u16 *)(param_2 + 6) << 6) * (u32)*(u16 *)(param_2 + 8) * 8 +
-              ((u32)*(u16 *)(param_2 + 10) * 8 +
-              ((u32)*(u16 *)(param_2 + 0xc) << 6) * (u32)*(u16 *)(param_2 + 6));
+      iVar9 = ((u32)master->blocksWide << 6) * (u32)master->blocksHigh * 8 +
+              ((u32)master->blockX * 8 +
+              ((u32)master->blockY << 6) * (u32)master->blocksWide);
       if (iVar9 + iVar13 + 8 > param_4) {
         iVar9 = -0x7ffffffa;
         goto LAB_0001239c;
       }
       idct_fast__9CArGBAOdhFPCUcPUlPUlPUcUl
-                (uVar8,(u32)range_limit,param_2 + 0x334,param_2 + 0x130,*(int *)(param_2 + 0x2c) + iVar9,
+                (uVar8,(u32)range_limit,(u32)(master->quantizationTables + 64),(u32)master->coefficients,(int)master->workBuffer + iVar9,
                  iVar6);
     }
-    sVar11 = *(u16 *)(param_2 + 10) + 1;
-    *(u16 *)(param_2 + 10) = sVar11;
-    if (sVar11 == *(u16 *)(param_2 + 6)) {
-      *(u16 *)(param_2 + 10) = 0;
-      *(u16 *)(param_2 + 0xc) = *(u16 *)(param_2 + 0xc) + 1;
+    sVar11 = master->blockX + 1;
+    master->blockX = sVar11;
+    if (sVar11 == master->blocksWide) {
+      master->blockX = 0;
+      master->blockY = master->blockY + 1;
     }
-  } while (*(u16 *)(param_2 + 0xc) < *(u16 *)(param_2 + 8));
+  } while (master->blockY < master->blocksHigh);
   iVar9 = 0;
 LAB_0001239c:
   return iVar9;
@@ -1750,7 +1747,7 @@ void CArGBAOdh::cdj_d_setDequantizationTable(SArCDJ_OdhMaster* param_2, u32 para
         iVar6 = 0;
 
         for (int i = 0; i < 0x40; i++) {
-            uVar9 = (param_3 * *pbVar7 + 0x32) / 100;
+            uVar9 = (param_3 * *pbVar7 + 50) / 100;
             if (uVar9 == 0) {
                 uVar9 = 1;
             }
@@ -1760,12 +1757,12 @@ void CArGBAOdh::cdj_d_setDequantizationTable(SArCDJ_OdhMaster* param_2, u32 para
             }
             iVar2 = iVar6;
             u32 scale = scales[iVar2];
-            iVar1 = (int)param_2 + iVar3 + iVar5;
+            iVar1 = (int)param_2->quantizationTables + iVar3 + iVar5;
             iVar5 += 4;
-            u32 value = (iVar10 * scale + 0x800) >> 0xC;
+            u32 value = (iVar10 * scale + 2048) >> 0xC;
             iVar6++;
             pbVar7++;
-            *(u32*)(iVar1 + 0x234) = value;
+            *(u32*)iVar1 = value;
         }
         uVar8++;
         iVar3 += 0x100;
@@ -1778,7 +1775,7 @@ void CArGBAOdh::cdj_c_makeHeader(SArCDJ_OdhMaster* master, u32 size) {
     master->data[1] = 'J';
     master->data[2] = 'P';
     master->data[3] = 'G';
-    *(u32*)&master->data[4] = master->field0 | (u32)master->field2 << 11 | (u32)master->field4 << 24;
+    *(u32*)&master->data[4] = master->width | (u32)master->height << 11 | (u32)master->quality << 24;
     *(u32*)&master->data[8] = size;
     *(u32*)&master->data[12] = 0;
 }
@@ -1796,16 +1793,15 @@ s32 CArGBAOdh::ScaleLimit(s32 scale) {
 }
 
 s32 CArGBAOdh::cdj_d_colorDeconv(SArCDJ_OdhMaster* param_2, u8* param_3, int param_4) {
-    u16* master = (u16*)param_2;
-    u16 width = *master;
+    u16 width = param_2->width;
     u32 widthValue = width;
-    if ((width & 1) != 0 || (master[1] & 1) != 0) {
+    if ((width & 1) != 0 || (param_2->height & 1) != 0) {
         return 1;
     }
 
     {
-        s32 size = widthValue * (u32)master[1];
-        u8* y = (u8*)*(u32*)(master + 0x16);
+        s32 size = widthValue * (u32)param_2->height;
+        u8* y = param_2->workBuffer;
         u8* cb = y + size;
         u8* cr = cb + size;
         s32 lineStride;
@@ -1820,52 +1816,52 @@ s32 CArGBAOdh::cdj_d_colorDeconv(SArCDJ_OdhMaster* param_2, u8* param_3, int par
             }
         }
 
-        u8 xSampling = *((u8*)master + 0x0E);
+        u8 xSampling = param_2->xSampling;
         s32 row;
-        if (xSampling == 1 && *((u8*)master + 0x0F) == 1) {
-            for (row = 0; row < (s32)(u32)master[1]; row++) {
+        if (xSampling == 1 && param_2->ySampling == 1) {
+            for (row = 0; row < (s32)(u32)param_2->height; row++) {
                 s32 rowGroup = row / 4;
                 s32 rowOffset = rowGroup * lineStride + (row & 3) * 8 + (s32)param_3;
                 LineDeconv11((u8*)rowOffset,
-                             y, cb, cr, widthValue, master[1],
+                             y, cb, cr, widthValue, param_2->height,
                              (const SArDeconvTbl*)gArDeconvPlttTbl, format);
-                widthValue = *master;
+                widthValue = param_2->width;
                 y += widthValue;
                 cb += widthValue;
                 cr += widthValue;
             }
-        } else if (xSampling == 2 && *((u8*)master + 0x0F) == 1) {
-            for (row = 0; row < (s32)(u32)master[1]; row++) {
+        } else if (xSampling == 2 && param_2->ySampling == 1) {
+            for (row = 0; row < (s32)(u32)param_2->height; row++) {
                 s32 rowGroup = row / 4;
                 s32 rowOffset = rowGroup * lineStride + (row & 3) * 8 + (s32)param_3;
                 LineDeconv21((u8*)rowOffset,
-                             y, cb, cr, widthValue, master[1],
+                             y, cb, cr, widthValue, param_2->height,
                              (const SArDeconvTbl*)gArDeconvPlttTbl, format);
-                widthValue = *master;
+                widthValue = param_2->width;
                 y += widthValue;
                 cb += ((s32)widthValue >> 1);
                 cr += ((s32)widthValue >> 1);
             }
-        } else if (xSampling == 1 && *((u8*)master + 0x0F) == 2) {
-            for (row = 0; row < (s32)(u32)master[1]; row += 2) {
+        } else if (xSampling == 1 && param_2->ySampling == 2) {
+            for (row = 0; row < (s32)(u32)param_2->height; row += 2) {
                 s32 rowGroup = row / 4;
                 s32 rowOffset = rowGroup * lineStride + (row & 3) * 8 + (s32)param_3;
                 LineDeconv12((u8*)rowOffset,
-                             y, cb, cr, widthValue, master[1],
+                             y, cb, cr, widthValue, param_2->height,
                              (const SArDeconvTbl*)gArDeconvPlttTbl, format);
-                widthValue = *master;
+                widthValue = param_2->width;
                 y += widthValue * 2;
                 cb += widthValue;
                 cr += widthValue;
             }
-        } else if (xSampling == 2 && *((u8*)master + 0x0F) == 2) {
-            for (row = 0; row < (s32)(u32)master[1]; row += 2) {
+        } else if (xSampling == 2 && param_2->ySampling == 2) {
+            for (row = 0; row < (s32)(u32)param_2->height; row += 2) {
                 s32 rowGroup = row / 4;
                 s32 rowOffset = rowGroup * lineStride + (row & 3) * 8 + (s32)param_3;
                 LineDeconv22((u8*)rowOffset,
-                             y, cb, cr, widthValue, master[1],
+                             y, cb, cr, widthValue, param_2->height,
                              (const SArDeconvTbl*)gArDeconvPlttTbl, format);
-                widthValue = *master;
+                widthValue = param_2->width;
                 y += widthValue * 2;
                 cb += ((s32)widthValue >> 1);
                 cr += ((s32)widthValue >> 1);
@@ -1891,11 +1887,9 @@ void CArGBAOdh::LineDeconv11(u8* dest, u8* y, u8* cb, u8* cr, u16 width, u16 hei
         bVar1 = *cr;
         bVar2 = *y;
         bVar3 = *cb;
-        uVar5 = ScaleLimit((u32)bVar2 + *(s16*)((u8*)table + (u32)bVar1 * 2));
-        uVar6 = ScaleLimit((u32)bVar2 +
-                           (*(s32*)((u8*)table + (u32)bVar3 * 4 + 0x200) +
-                            *(s32*)((u8*)table + (u32)bVar1 * 4 + 0x600) >> 16));
-        iVar7 = ScaleLimit((u32)bVar2 + *(s16*)((u8*)table + (u32)bVar3 * 2 + 0xA00));
+        uVar5 = ScaleLimit((u32)bVar2 + table->luma[bVar1]);
+        uVar6 = ScaleLimit((u32)bVar2 + (table->cbGreen[bVar3] + table->crGreen[bVar1] >> 16));
+        iVar7 = ScaleLimit((u32)bVar2 + table->blue[bVar3]);
 
         if (format == 0) {
             uVar5 = ((uVar5 & 0xF8) << 8 | (uVar6 & 0xFC) << 3) | (iVar7 >> 3);
@@ -1926,30 +1920,23 @@ void CArGBAOdh::LineDeconv21(u8* dest, u8* y, u8* cb, u8* cr, u16 width, u16 hei
     u8 bVar1;
     u8 bVar2;
     u8 bVar3;
-    s32 iVar4;
     s32 iVar6;
     s32 iVar7;
     s32 uVar9;
     u32 uVar10;
     s32 iVar11;
-    s32 iVar12;
     s32 iVar13;
     u8* puVar8;
     u32 uVar14;
     u8* destinationCb = dest + (s32)width * height;
     u8* destinationCr = dest + (s32)width * height * 2;
-    const u8* tableBytes = (const u8*)table;
-
     for (uVar14 = 0; (s32)uVar14 < (s32)(width & 0xFFFF); uVar14 += 2) {
         bVar1 = *cr;
         bVar2 = *y;
         bVar3 = *cb;
-        uVar9 = ScaleLimit((u32)bVar2 + *(s16*)(tableBytes + (u32)bVar1 * 2));
-        iVar12 = (s32)(tableBytes + (u32)bVar1 * 4);
-        iVar4 = (s32)(tableBytes + (u32)bVar3 * 4);
-        uVar10 = ScaleLimit((u32)bVar2 +
-                            (*(s32*)(iVar4 + 0x200) + *(s32*)(iVar12 + 0x600) >> 16));
-        iVar11 = ScaleLimit((u32)bVar2 + *(s16*)(tableBytes + (u32)bVar3 * 2 + 0xA00));
+        uVar9 = ScaleLimit((u32)bVar2 + table->luma[bVar1]);
+        uVar10 = ScaleLimit((u32)bVar2 + (table->cbGreen[bVar3] + table->crGreen[bVar1] >> 16));
+        iVar11 = ScaleLimit((u32)bVar2 + table->blue[bVar3]);
 
         if (format == 0) {
             iVar13 = (uVar14 & 0x1FFFFFFC) * 8 + (uVar14 & 3) * 2;
@@ -1972,10 +1959,9 @@ void CArGBAOdh::LineDeconv21(u8* dest, u8* y, u8* cb, u8* cr, u16 width, u16 hei
         }
 
         bVar2 = y[1];
-        uVar9 = ScaleLimit((u32)bVar2 + *(s16*)(tableBytes + (u32)bVar1 * 2));
-        uVar10 = ScaleLimit((u32)bVar2 +
-                            (*(s32*)(iVar4 + 0x200) + *(s32*)(iVar12 + 0x600) >> 16));
-        iVar11 = ScaleLimit((u32)bVar2 + *(s16*)(tableBytes + (u32)bVar3 * 2 + 0xA00));
+        uVar9 = ScaleLimit((u32)bVar2 + table->luma[bVar1]);
+        uVar10 = ScaleLimit((u32)bVar2 + (table->cbGreen[bVar3] + table->crGreen[bVar1] >> 16));
+        iVar11 = ScaleLimit((u32)bVar2 + table->blue[bVar3]);
 
         if (format == 0) {
             uVar9 = ((uVar9 & 0xF8) << 8 | (uVar10 & 0xFC) << 3) | (iVar11 >> 3);
@@ -2003,8 +1989,6 @@ void CArGBAOdh::LineDeconv12(u8* dest, u8* y, u8* cb, u8* cr, u16 width, u16 hei
     u8 bVar1;
     u8 bVar2;
     u8 bVar3;
-    s32 iVar4;
-    s32 iVar5;
     s32 iVar6;
     s32 iVar7;
     s32 uVar9;
@@ -2015,7 +1999,6 @@ void CArGBAOdh::LineDeconv12(u8* dest, u8* y, u8* cb, u8* cr, u16 width, u16 hei
     u16 uVar15 = width;
     u32 uVar16;
     u8* puVar17;
-    const u8* tableBytes = (const u8*)table;
     s32 pixelCount = (u32)uVar15 * height;
     iVar7 = (s32)dest + pixelCount;
     iVar6 = (s32)dest + pixelCount * 2;
@@ -2025,13 +2008,9 @@ void CArGBAOdh::LineDeconv12(u8* dest, u8* y, u8* cb, u8* cr, u16 width, u16 hei
         bVar1 = *cr;
         bVar2 = *y;
         bVar3 = *cb;
-        uVar9 = ScaleLimit((u32)bVar2 + *(s16*)(tableBytes + (u32)bVar1 * 2));
-        iVar12 = (s32)(tableBytes + (u32)bVar1 * 4);
-        iVar4 = (s32)(tableBytes + (u32)bVar3 * 4);
-        uVar10 = ScaleLimit((u32)bVar2 +
-                            (*(s32*)(iVar4 + 0x200) + *(s32*)(iVar12 + 0x600) >> 16));
-        iVar5 = (s32)(tableBytes + (u32)bVar3 * 2);
-        iVar11 = ScaleLimit((u32)bVar2 + *(s16*)(iVar5 + 0xA00));
+        uVar9 = ScaleLimit((u32)bVar2 + table->luma[bVar1]);
+        uVar10 = ScaleLimit((u32)bVar2 + (table->cbGreen[bVar3] + table->crGreen[bVar1] >> 16));
+        iVar11 = ScaleLimit((u32)bVar2 + table->blue[bVar3]);
 
         if (format == 0) {
             iVar13 = (uVar16 & 0x1FFFFFFC) * 8 + (uVar16 & 3) * 2;
@@ -2054,10 +2033,9 @@ void CArGBAOdh::LineDeconv12(u8* dest, u8* y, u8* cb, u8* cr, u16 width, u16 hei
         }
 
         bVar2 = *yNext;
-        uVar9 = ScaleLimit((u32)bVar2 + *(s16*)(tableBytes + (u32)bVar1 * 2));
-        uVar10 = ScaleLimit((u32)bVar2 +
-                            (*(s32*)(iVar4 + 0x200) + *(s32*)(iVar12 + 0x600) >> 16));
-        iVar12 = ScaleLimit((u32)bVar2 + *(s16*)(iVar5 + 0xA00));
+        uVar9 = ScaleLimit((u32)bVar2 + table->luma[bVar1]);
+        uVar10 = ScaleLimit((u32)bVar2 + (table->cbGreen[bVar3] + table->crGreen[bVar1] >> 16));
+        iVar12 = ScaleLimit((u32)bVar2 + table->blue[bVar3]);
 
         if (format == 0) {
             uVar9 = iVar12 >> 3 | (uVar9 & 0xF8) << 8 | (uVar10 & 0xFC) << 3;
@@ -2084,7 +2062,6 @@ void CArGBAOdh::LineDeconv12(u8* dest, u8* y, u8* cb, u8* cr, u16 width, u16 hei
 
 void CArGBAOdh::LineDeconv22(u8* dest, u8* y, u8* cb, u8* cr, u16 width, u16 height,
                              const SArDeconvTbl* table, int format) {
-    const u8* tableBytes = (const u8*)table;
     u32 pixelCount = (u32)width * height;
     u8* destinationCb = dest + pixelCount;
     u8* destinationCr = dest + pixelCount * 2;
@@ -2097,14 +2074,9 @@ void CArGBAOdh::LineDeconv22(u8* dest, u8* y, u8* cb, u8* cr, u16 width, u16 hei
         u8 yValue = *pbVar15;
         u8* nextRow = pbVar15 + width;
         u8 cbValue = *cb;
-        u32 red = ScaleLimit(yValue + *(s16*)(tableBytes + (u32)crValue * 2));
-        s32 crGreenOffset = (s32)(tableBytes + (u32)crValue * 4);
-        s32 cbGreenOffset = (s32)(tableBytes + (u32)cbValue * 4);
-        u32 green = ScaleLimit(yValue +
-                               (*(s32*)(cbGreenOffset + 0x200) +
-                                *(s32*)(crGreenOffset + 0x600) >> 16));
-        s32 blueOffset = (s32)(tableBytes + (u32)cbValue * 2);
-        s32 blue = ScaleLimit(yValue + *(s16*)(blueOffset + 0xA00));
+        u32 red = ScaleLimit(yValue + table->luma[crValue]);
+        u32 green = ScaleLimit(yValue + (table->cbGreen[cbValue] + table->crGreen[crValue] >> 16));
+        s32 blue = ScaleLimit(yValue + table->blue[cbValue]);
 
         if (format == 0) {
             output = dest + (index & 0x1FFFFFFC) * 8 + (index & 3) * 2;
@@ -2126,11 +2098,9 @@ void CArGBAOdh::LineDeconv22(u8* dest, u8* y, u8* cb, u8* cr, u16 width, u16 hei
         }
 
         yValue = pbVar15[1];
-        red = ScaleLimit(yValue + *(s16*)(tableBytes + (u32)crValue * 2));
-        green = ScaleLimit(yValue +
-                           (*(s32*)(cbGreenOffset + 0x200) +
-                            *(s32*)(crGreenOffset + 0x600) >> 16));
-        blue = ScaleLimit(yValue + *(s16*)(blueOffset + 0xA00));
+        red = ScaleLimit(yValue + table->luma[crValue]);
+        green = ScaleLimit(yValue + (table->cbGreen[cbValue] + table->crGreen[crValue] >> 16));
+        blue = ScaleLimit(yValue + table->blue[cbValue]);
 
         if (format == 0) {
             s32 pixel = ((red & 0xF8) << 8 | (green & 0xFC) << 3) | blue >> 3;
@@ -2151,11 +2121,9 @@ void CArGBAOdh::LineDeconv22(u8* dest, u8* y, u8* cb, u8* cr, u16 width, u16 hei
 
         y += 2;
         yValue = *nextRow;
-        red = ScaleLimit(yValue + *(s16*)(tableBytes + (u32)crValue * 2));
-        green = ScaleLimit(yValue +
-                           (*(s32*)(cbGreenOffset + 0x200) +
-                            *(s32*)(crGreenOffset + 0x600) >> 16));
-        blue = ScaleLimit(yValue + *(s16*)(blueOffset + 0xA00));
+        red = ScaleLimit(yValue + table->luma[crValue]);
+        green = ScaleLimit(yValue + (table->cbGreen[cbValue] + table->crGreen[crValue] >> 16));
+        blue = ScaleLimit(yValue + table->blue[cbValue]);
 
         if (format == 0) {
             s32 pixel = ((red & 0xF8) << 8 | (green & 0xFC) << 3) | blue >> 3;
@@ -2175,11 +2143,9 @@ void CArGBAOdh::LineDeconv22(u8* dest, u8* y, u8* cb, u8* cr, u16 width, u16 hei
         }
 
         yValue = nextRow[1];
-        red = ScaleLimit(yValue + *(s16*)(tableBytes + (u32)crValue * 2));
-        green = ScaleLimit(yValue +
-                           (*(s32*)(cbGreenOffset + 0x200) +
-                            *(s32*)(crGreenOffset + 0x600) >> 16));
-        blue = ScaleLimit(yValue + *(s16*)(blueOffset + 0xA00));
+        red = ScaleLimit(yValue + table->luma[crValue]);
+        green = ScaleLimit(yValue + (table->cbGreen[cbValue] + table->crGreen[crValue] >> 16));
+        blue = ScaleLimit(yValue + table->blue[cbValue]);
 
         if (format == 0) {
             s32 pixel = ((red & 0xF8) << 8 | (green & 0xFC) << 3) | blue >> 3;
@@ -2220,9 +2186,9 @@ s32 CArGBAOdh::huffmanDecoder(u32* param_2, SArCDJ_HuffmanRequest* param_3, u16*
     u32 uVar14;
     u32 uVar15;
 
-    iVar13 = *(int*)((u8*)param_3 + 0x20);
-    pbVar10 = *(u8**)((u8*)param_3 + 0x10);
-    u32 bitOffset = **(u32**)((u8*)param_3 + 0x1C);
+    iVar13 = param_3->bytesConsumed;
+    pbVar10 = param_3->bitstream;
+    u32 bitOffset = *param_3->bitCount;
     if ((u32)(iVar13 + 4) > param_6) {
         uVar5 = 0x80000003;
     } else {
@@ -2265,13 +2231,13 @@ s32 CArGBAOdh::huffmanDecoder(u32* param_2, SArCDJ_HuffmanRequest* param_3, u16*
             } else {
                 uVar9 = 0;
             }
-            iVar8 = (param_5 & 0x7FFFFFFE) * 2;
+            u32* predictor = param_5 == 2 ? param_3->acPredictor : param_3->dcPredictor;
             uVar15 = bitOffset + iVar6 + unaff_r29;
             uVar11 = (u32)(uVar15 >> 3);
             uVar14 = 1;
-            iVar6 = (int)uVar9 + **(int**)((u8*)param_3 + iVar8);
+            iVar6 = (int)uVar9 + *predictor;
             *param_2 = iVar6;
-            **(int**)((u8*)param_3 + iVar8) = iVar6;
+            *predictor = iVar6;
             for (u32 byteIndex = 0; byteIndex < uVar11; byteIndex++) {
                 pbVar10++;
                 iVar13++;
@@ -2398,10 +2364,10 @@ s32 CArGBAOdh::huffmanDecoder(u32* param_2, SArCDJ_HuffmanRequest* param_3, u16*
             for (; (int)uVar14 < 0x40; uVar14++) {
                 param_2[uVar14] = 0;
             }
-            *(int*)((u8*)param_3 + 0x20) = iVar13;
+            param_3->bytesConsumed = iVar13;
             uVar5 = 0;
-            *(u8**)((u8*)param_3 + 0x10) = pbVar10;
-            **(u32**)((u8*)param_3 + 0x1C) = uVar15;
+            param_3->bitstream = pbVar10;
+            *param_3->bitCount = uVar15;
         }
     }
 LAB_00013590:
