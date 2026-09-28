@@ -436,105 +436,114 @@ static void calc_acc_vertical(KPADInside* kpad) {
 
 static void read_kpad_acc(KPADInside* kpad, KPADSample* status) {
     u8 format = status->dataFormat;
-    f32 oldX;
-    f32 oldY;
-    f32 oldZ;
-    f32 target;
-    f32 delta;
-    f32 magnitude;
-    f32 blend;
-    f32 currentX;
-    f32 currentY;
-    f32 currentZ;
-    f32 limit;
-    if (format == 0 || format == 6 || format >= 9) {
+    if (format == 6) {
         return;
     }
-    oldX = kpad->status.acc.x;
-    oldY = kpad->status.acc.y;
-    oldZ = kpad->status.acc.z;
-    limit = kp_rm_acc_max;
-    target = (f32)-(s32)status->accX * kpad->value4DC;
-    if (target < 0.0f) {
-        limit = -limit;
-        if (target >= limit) {
+    if (format < 6) {
+        if (format == 3) {
+            return;
+        }
+        if (format < 3 && format < 1) {
+            return;
+        }
+    } else if (format >= 9) {
+        return;
+    }
+    {
+        f32 oldX = kpad->status.acc.x;
+        f32 oldY = kpad->status.acc.y;
+        f32 oldZ = kpad->status.acc.z;
+        f32 target;
+        f32 delta;
+        f32 magnitude;
+        f32 blend;
+        f32 currentX;
+        f32 currentY;
+        f32 currentZ;
+        f32 limit;
+        limit = kp_rm_acc_max;
+        target = (f32)-(s32)status->accX * kpad->value4DC;
+        if (target < 0.0f) {
+            limit = -limit;
+            if (target >= limit) {
+                limit = target;
+            }
+        } else if (target <= limit) {
             limit = target;
         }
-    } else if (target <= limit) {
-        limit = target;
-    }
-    kpad->value4A4 = limit;
-    limit = kp_rm_acc_max;
-    target = (f32)-(s32)status->accZ * kpad->value4E4;
-    if (target < 0.0f) {
-        limit = -limit;
-        if (target >= limit) {
+        kpad->value4A4 = limit;
+        limit = kp_rm_acc_max;
+        target = (f32)-(s32)status->accZ * kpad->value4E4;
+        if (target < 0.0f) {
+            limit = -limit;
+            if (target >= limit) {
+                limit = target;
+            }
+        } else if (target <= limit) {
             limit = target;
         }
-    } else if (target <= limit) {
-        limit = target;
-    }
-    kpad->value4A8 = limit;
-    limit = kp_rm_acc_max;
-    target = (f32)status->accY * kpad->value4E0;
-    if (target < 0.0f) {
-        limit = -limit;
-        if (target >= limit) {
+        kpad->value4A8 = limit;
+        limit = kp_rm_acc_max;
+        target = (f32)status->accY * kpad->value4E0;
+        if (target < 0.0f) {
+            limit = -limit;
+            if (target >= limit) {
+                limit = target;
+            }
+        } else if (target <= limit) {
             limit = target;
         }
-    } else if (target <= limit) {
-        limit = target;
+        kpad->value4AC = limit;
+        delta = kpad->value4A4 - oldX;
+        magnitude = delta;
+        if (magnitude < 0.0f) {
+            magnitude = -magnitude;
+        }
+        if (magnitude == kpad->value9C) {
+            blend = 1.0f;
+        } else {
+            blend = magnitude / kpad->value9C;
+            blend *= blend;
+            blend *= blend;
+        }
+        kpad->status.acc.x = oldX + blend * kpad->valueA0 * delta;
+        delta = kpad->value4A8 - oldY;
+        magnitude = delta;
+        if (magnitude < 0.0f) {
+            magnitude = -magnitude;
+        }
+        if (magnitude == kpad->value9C) {
+            blend = 1.0f;
+        } else {
+            blend = magnitude / kpad->value9C;
+            blend *= blend;
+            blend *= blend;
+        }
+        kpad->status.acc.y = oldY + blend * kpad->valueA0 * delta;
+        delta = kpad->value4AC - oldZ;
+        magnitude = delta;
+        if (magnitude < 0.0f) {
+            magnitude = -magnitude;
+        }
+        if (magnitude == kpad->value9C) {
+            blend = 1.0f;
+        } else {
+            blend = magnitude / kpad->value9C;
+            blend *= blend;
+            blend *= blend;
+        }
+        kpad->status.acc.z = oldZ + blend * kpad->valueA0 * delta;
+        currentX = kpad->status.acc.x;
+        currentY = kpad->status.acc.y;
+        currentZ = kpad->status.acc.z;
+        kpad->status.acc_value = (f32)sqrt(currentX * currentX + (currentY * currentY + currentZ * currentZ));
+        delta = currentX - oldX;
+        currentX = currentY - oldY;
+        currentY = currentZ - oldZ;
+        kpad->status.acc_speed = (f32)sqrt(delta * delta + (currentX * currentX + currentY * currentY));
+        calc_acc_horizon(kpad);
+        calc_acc_vertical(kpad);
     }
-    kpad->value4AC = limit;
-    delta = kpad->value4A4 - oldX;
-    magnitude = delta;
-    if (magnitude < 0.0f) {
-        magnitude = -magnitude;
-    }
-    if (magnitude == kpad->value9C) {
-        blend = 1.0f;
-    } else {
-        blend = magnitude / kpad->value9C;
-        blend *= blend;
-        blend *= blend;
-    }
-    kpad->status.acc.x = oldX + blend * kpad->valueA0 * delta;
-    delta = kpad->value4A8 - oldY;
-    magnitude = delta;
-    if (magnitude < 0.0f) {
-        magnitude = -magnitude;
-    }
-    if (magnitude == kpad->value9C) {
-        blend = 1.0f;
-    } else {
-        blend = magnitude / kpad->value9C;
-        blend *= blend;
-        blend *= blend;
-    }
-    kpad->status.acc.y = oldY + blend * kpad->valueA0 * delta;
-    delta = kpad->value4AC - oldZ;
-    magnitude = delta;
-    if (magnitude < 0.0f) {
-        magnitude = -magnitude;
-    }
-    if (magnitude == kpad->value9C) {
-        blend = 1.0f;
-    } else {
-        blend = magnitude / kpad->value9C;
-        blend *= blend;
-        blend *= blend;
-    }
-    kpad->status.acc.z = oldZ + blend * kpad->valueA0 * delta;
-    currentX = kpad->status.acc.x;
-    currentY = kpad->status.acc.y;
-    currentZ = kpad->status.acc.z;
-    kpad->status.acc_value = (f32)sqrt(currentX * currentX + (currentY * currentY + currentZ * currentZ));
-    delta = currentX - oldX;
-    currentX = currentY - oldY;
-    currentY = currentZ - oldZ;
-    kpad->status.acc_speed = (f32)sqrt(delta * delta + (currentX * currentX + currentY * currentY));
-    calc_acc_horizon(kpad);
-    calc_acc_vertical(kpad);
     if (status->error != 0 || status->device != 1) {
         return;
     }
@@ -544,6 +553,16 @@ static void read_kpad_acc(KPADInside* kpad, KPADSample* status) {
     {
         Vec raw;
         f32* values = (f32*)&raw;
+        f32 oldX;
+        f32 oldY;
+        f32 oldZ;
+        f32 delta;
+        f32 magnitude;
+        f32 blend;
+        f32 currentX;
+        f32 currentY;
+        f32 currentZ;
+        f32 limit;
         values[0] = (f32)-(s32)status->extension.fs.accX * kpad->value4E8;
         limit = kp_fs_acc_max;
         if (values[0] < -kp_fs_acc_max) {
