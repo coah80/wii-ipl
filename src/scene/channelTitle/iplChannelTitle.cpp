@@ -2947,13 +2947,6 @@ namespace ipl {
             static const f32 pad43 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
             static const f32 pad44 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
             static const f32 pad45 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
-            static const f32 pad46 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
-            static const f32 pad47 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
-            static const f32 pad48 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
-            static const f32 pad49 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
-            static const f32 pad50 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
-            static const f32 pad51 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
-            static const f32 pad52 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
             static const u8 pad53 __attribute__((section(".sdata"), aligned(1), used)) = 0;
             static const u8 pad54 __attribute__((section(".sdata"), aligned(1), used)) = 0;
             static const u8 pad55 __attribute__((section(".sdata"), aligned(1), used)) = 0;

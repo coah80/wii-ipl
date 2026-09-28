@@ -400,20 +400,35 @@ namespace ipl {
 
         class ButtonEventHandlerBase : public ::gui::EventHandler {
         public:
+#ifdef IPL_CHANNEL_TITLE_NOVTABLE
+            virtual void onEvent(u32 compId, u32 event, void* data) {}
+            virtual void onEventDerived(u32 compId, u32 event, const controller::Interface* con) {}
+#else
             virtual void onEvent(u32 compId, u32 event, void* data);
             virtual void onEventDerived(u32 compId, u32 event, const controller::Interface* con);
+#endif
         };
 
         class OptOutButtonEventHandlerBase : public ButtonEventHandlerBase {
         public:
+#ifdef IPL_CHANNEL_TITLE_NOVTABLE
+            virtual void onEvent(u32 compId, u32 event, void* data) {}
+            virtual void onEventDerived(u32 compId, u32 event, const controller::Interface* con) {}
+#else
             virtual void onEvent(u32 compId, u32 event, void* data);
             virtual void onEventDerived(u32 compId, u32 event, const controller::Interface* con);
+#endif
         };
 
         class SDMenuEventHandlerBase : public ButtonEventHandlerBase {
         public:
+#ifdef IPL_CHANNEL_TITLE_NOVTABLE
+            virtual void onEvent(u32 compId, u32 event, void* data) {}
+            virtual void onEventDerived(u32 compId, u32 event, const controller::Interface* con) {}
+#else
             virtual void onEvent(u32 compId, u32 event, void* data);
             virtual void onEventDerived(u32 compId, u32 event, const controller::Interface* con);
+#endif
         };
     }  // namespace scene
 }  // namespace ipl

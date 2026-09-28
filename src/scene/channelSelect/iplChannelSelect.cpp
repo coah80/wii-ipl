@@ -1,3 +1,49 @@
+#include "layout/GUIManager.h"
+#include "math/iplInterporation.h"
+
+namespace ipl {
+    namespace math {
+        template <>
+        class HermiteIntp<f32> : public utility::FrameController {
+        public:
+            HermiteIntp() {}
+            virtual ~HermiteIntp() {}
+
+            void init(const f32& start, const f32& end, f32 maxFrame, f32 param_5, f32 param_6,
+                      int playback = ANIM_TYPE_FORWARD, f32 speed = 1.0f) {
+                mStart = start;
+                mEnd = end;
+                utility::FrameController::init(playback, maxFrame, 0.0f, speed);
+                unkVal0 = param_5;
+                unkVal1 = param_6;
+            }
+
+            f32 get() const {
+                f32 var_f27 = mFrame;
+                f32 var_f28 = 1.0f / mMaxFrame;
+                f32 r =
+                    (mStart *
+                     (1.0f + ((var_f28 * (var_f28 * (var_f28 * (var_f27 * (2.0f * var_f27 * var_f27))))) -
+                              (var_f28 * (var_f28 * (3.0f * var_f27 * var_f27)))))) -
+                    (mEnd * ((var_f28 * (var_f28 * (var_f28 * (var_f27 * (2.0f * var_f27 * var_f27))))) -
+                             (var_f28 * (var_f28 * (3.0f * var_f27 * var_f27)))));
+                r += (unkVal0 * (var_f27 + ((var_f28 * (var_f28 * (var_f27 * (var_f27 * var_f27)))) -
+                                           (var_f28 * (2.0f * var_f27 * var_f27))))) +
+                     (unkVal1 * ((var_f28 * (var_f28 * (var_f27 * (var_f27 * var_f27)))) -
+                                 (var_f28 * (var_f27 * var_f27))));
+                return r;
+            }
+
+        protected:
+            f32 mStart;
+            f32 mEnd;
+            f32 unkVal0;
+            f32 unkVal1;
+        };
+    }  // namespace math
+}  // namespace ipl
+
+#define IPL_CHANNEL_TITLE_NOVTABLE
 #include <decomp/ide.h>
 #include "iplSceneUI.h"
 
@@ -13,6 +59,11 @@
 #include "scene/channelTitle/iplChannelTitle.h"
 
 #include <cstring>
+
+#pragma dont_instantiate ipl::math::HermiteIntp<float>
+
+#undef IPL_CHANNEL_TITLE_NOVTABLE
+
 
 // #pragma sym on
 
@@ -44,16 +95,13 @@ namespace ipl {
         }
 
         template <>
-        f32 HermiteIntp<f32>::get() const {
-            f32 var_f27 = mFrame;
-            f32 var_f28 = 1.0f / mMaxFrame;
-            f32 r = (mStart * (1.0f + ((var_f28 * (var_f28 * (var_f28 * (var_f27 * (2.0f * var_f27 * var_f27))))) -
-                                       (var_f28 * (var_f28 * (3.0f * var_f27 * var_f27)))))) -
-                    (mEnd * ((var_f28 * (var_f28 * (var_f28 * (var_f27 * (2.0f * var_f27 * var_f27))))) -
-                             (var_f28 * (var_f28 * (3.0f * var_f27 * var_f27)))));
-            r += (unkVal0 * (var_f27 + ((var_f28 * (var_f28 * (var_f27 * (var_f27 * var_f27)))) - (var_f28 * (2.0f * var_f27 * var_f27))))) +
-                 (unkVal1 * ((var_f28 * (var_f28 * (var_f27 * (var_f27 * var_f27)))) - (var_f28 * (var_f27 * var_f27))));
-            return r;
+        void HermiteIntp<VEC3>::init(const VEC3& start, const VEC3& end, f32 maxFrame, f32 param_5, f32 param_6,
+                                     int playback, f32 speed) {
+            mStart = start;
+            mEnd = end;
+            utility::FrameController::init(playback, maxFrame, 0.0f, speed);
+            unkVal0 = param_5;
+            unkVal1 = param_6;
         }
     }  // namespace math
 }  // namespace ipl
@@ -62,7 +110,6 @@ namespace ipl {
     namespace scene {
         extern "C" char smArg__Q23ipl6System;
         extern "C" char sSystem__Q23ipl3snd;
-        extern "C" const double lbl_81694998;
         extern "C" void* m_handle__Q23ipl11TVRCManager;
         extern "C" void calcChanZoomParam__Q33ipl5scene13ChannelSelectFv();
         extern "C" void setChanZoomOrtho__Q33ipl5scene13ChannelSelectFv();
@@ -95,7 +142,9 @@ namespace ipl {
         extern "C" void initPane__Q33ipl3gui11PaneManagerFPQ34nw4r3lyt4Pane();
         extern "C" void* jumptable_8164DD14[];
         extern "C" void* jumptable_8164DE80[];
-        extern "C" void getCurrentChannel__Q33ipl7channel7ManagerFPiPi();
+        extern "C" void getCurrentChannel__Q33ipl7channel7ManagerFPiPi(int*, int*);
+        extern "C" int msCurPage__Q33ipl7channel7Manager;
+        extern "C" int msCurIndex__Q33ipl7channel7Manager;
         extern "C" void calcNormalRestart__Q33ipl5scene13ChannelSelectFv();
         extern "C" void _savegpr_28();
         extern "C" void _restgpr_28();
@@ -136,7 +185,6 @@ namespace ipl {
         extern "C" char lbl_8164DFE1[];
         extern "C" char lbl_8164DE64[];
         extern "C" char lbl_8164DE6D[];
-        extern "C" char lbl_8164DE9C[];
         extern "C" char lbl_8164DFCB[];
         extern "C" char lbl_8164DFF1[];
         extern "C" char lbl_8164E000[];
@@ -200,20 +248,6 @@ namespace ipl {
         extern "C" const char lbl_8164DAE0[] = "N_Ch_e05";
         extern "C" const char lbl_8164DAE9[] = "N_Ch_e09";
 
-        #pragma pop
-
-        #pragma push
-        #pragma section sconst_type ".sdata2"
-        extern "C" const f32 lbl_81694948;
-        extern "C" const u32 lbl_8169494C = 1;
-        extern "C" const f32 lbl_81694968;
-        extern "C" const f32 lbl_8169496C;
-        extern "C" const f32 lbl_81694970;
-        extern "C" const char lbl_81694950 = 0;
-        extern "C" const char lbl_81694951 = 0;
-        extern "C" const char lbl_81694952 = 0;
-        extern "C" const char lbl_81694953 = 255;
-        extern "C" const double lbl_81694998 = 4503601774854144.0;
         #pragma pop
 
         static Board* getBoard() {
@@ -1065,6 +1099,15 @@ calcNormal_ChannelSelect_L20:
             blr
         }
 
+        extern "C" asm void getCurrentChannel__Q33ipl7channel7ManagerFPiPi(int*, int*) {
+            nofralloc
+            lwz r0, -0x59a4(r13)
+            stw r0, 0(r3)
+            lwz r0, -0x59a0(r13)
+            stw r0, 0(r4)
+            blr
+        }
+
         void ChannelSelect::initCalcFadeout() {
         }
 
@@ -1087,6 +1130,14 @@ calcNormal_ChannelSelect_L20:
 
             return result;
         }
+
+        #pragma push
+        #pragma section sconst_type ".sdata2"
+        extern "C" const char lbl_81694950 = 0;
+        extern "C" const char lbl_81694951 = 0;
+        extern "C" const char lbl_81694952 = 0;
+        extern "C" const char lbl_81694953 = 255;
+        #pragma pop
 
         extern "C" asm void draw__Q33ipl5scene13ChannelSelectFv() {
             nofralloc
@@ -1730,7 +1781,7 @@ draw_ChannelSelect_L6:
             if (isPageCreatedAllDone(mCurrentPage)) {
                 if (unkBool()) {
                     int page, index;
-                    channel::Manager::getCurrentChannel(&page, &index);
+                    getCurrentChannel__Q33ipl7channel7ManagerFPiPi(&page, &index);
                     reserveSceneChangeDerived(page, index);
                     mState = STATE_CHANNEL_TITLE;
                 }
@@ -1740,7 +1791,7 @@ draw_ChannelSelect_L6:
         void ChannelSelect::calcNormalFadeOutZoom() {
             // unused
             int page, index;
-            channel::Manager::getCurrentChannel(&page, &index);
+            getCurrentChannel__Q33ipl7channel7ManagerFPiPi(&page, &index);
 
             calcChanZoomParam();
             setChanZoomOrtho();
@@ -2568,33 +2619,28 @@ calcNormalRestart_ChannelSelect_L7:
             nw4r::ut::Rect projRect;
             System::getProjectionRect(&projRect);
             GXRenderModeObj* rMode = System::getRenderModeObj();
-            f32 var_f29;
-            f32 var_f30;
             f32 var_f31;
+            f32 var_f30;
+            f32 var_f29;
             f32 var_f1;
             u16 var_r0;
             u16 var_r3;
             if (mState == STATE_NORMAL_FADE_ZOOM || mState == STATE_NORMAL_DONE_FADE_ZOOM || mState == STATE_NORMAL_RESTART) {
                 nw4r::math::MTX44 mtx;
-                f32 rightScale = projRect.right / unk_0xE4.x;
-                f32 leftScale = projRect.left / unk_0xE4.x;
-                f32 topScale = projRect.top / unk_0xE4.y;
-                f32 bottomScale = projRect.bottom / unk_0xE4.y;
-                f32 bottom = unk_0xD8.y - bottomScale;
-                f32 right = unk_0xD8.x + rightScale;
-                f32 left = unk_0xD8.x + leftScale;
-                f32 top = unk_0xD8.y - topScale;
+                f32 right = unk_0xD8.x + projRect.right / unk_0xE4.x;
+                f32 left = unk_0xD8.x + projRect.left / unk_0xE4.x;
+                f32 bottom = unk_0xD8.y - projRect.bottom / unk_0xE4.y;
+                f32 top = unk_0xD8.y - projRect.top / unk_0xE4.y;
                 MTXOrtho(mtx, top, bottom, left, right, -100.0f, 100.0f);
                 nw4r::math::VEC4 vec4_in(vec.x, vec.y, 0.0f, 1.0f);
                 nw4r::math::VEC4 vec4;
                 nw4r::math::VEC4Transform(&vec4, &mtx, &vec4_in);
                 var_r0 = rMode->fbWidth;
                 var_r3 = rMode->efbHeight;
-                var_f29 = projRect.GetWidth();
+                f32 width = projRect.GetWidth();
+                var_f31 = ((1.0f + vec4.x) * var_r0 / 2) - ((mChanThumbOff_X * unk_0xE4.x) * (var_r0 / width));
                 var_f30 = (var_r3 - ((1.0f + vec4.y) * var_r3 / 2)) - (mChanThumbOff_Y * unk_0xE4.y);
-                f32 temp_f7_2 = var_r0 / var_f29;
-                var_f31 = ((1.0f + vec4.x) * var_r0 / 2) - ((mChanThumbOff_X * unk_0xE4.x) * (temp_f7_2));
-                var_f29 = 2.0f * (mChanThumbOff_X * unk_0xE4.x) * (var_r0 / var_f29);
+                var_f29 = 2.0f * (mChanThumbOff_X * unk_0xE4.x) * (var_r0 / width);
                 var_f1 = 2.0f * (mChanThumbOff_Y * unk_0xE4.y);
             } else {
                 var_r0 = rMode->fbWidth;
@@ -2818,8 +2864,8 @@ calcNormalRestart_ChannelSelect_L7:
             if (mCurrentPage > 0 && unk_0x2B0 >= 15 && isPageCreatedAllDone(mCurrentPage)) {
                 if (unkBool()) {
                     button->animation(Button::IDANIM_ARROW_LEFT_SELECT);
-                    mpLayout->setMinFrame(lbl_81694948);
-                    mpLayout->setMaxFrame(lbl_81694968);
+                    mpLayout->setMinFrame(0.0f);
+                    mpLayout->setMaxFrame(20.0f);
                     mpLayout->setAnmType(ANIM_TYPE_FORWARD);
                     mpLayout->start();
 
@@ -2836,7 +2882,7 @@ calcNormalRestart_ChannelSelect_L7:
                     for (int i = 0; i < MAX_CHANNEL_INDEX; i++) {
                         mpGui->initPane(getChannelBasePane(i));
                     }
-                    snd::getSystem()->startSE(lbl_8164DE9C);
+                    snd::getSystem()->startSE("WSD_SELECT");
                     return;
                 }
             }
@@ -2844,8 +2890,8 @@ calcNormalRestart_ChannelSelect_L7:
             if (mCurrentPage < mMaxPages - 1 && unk_0x2AC >= 15 && isPageCreatedAllDone(mCurrentPage)) {
                 if (unkBool()) {
                     button->animation(Button::IDANIM_ARROW_RIGHT_SELECT);
-                    mpLayout->setMinFrame(lbl_8169496C);
-                    mpLayout->setMaxFrame(lbl_81694970);
+                    mpLayout->setMinFrame(40.0f);
+                    mpLayout->setMaxFrame(60.0f);
                     mpLayout->setAnmType(ANIM_TYPE_FORWARD);
                     mpLayout->start();
 
@@ -2862,7 +2908,7 @@ calcNormalRestart_ChannelSelect_L7:
                     for (int i = 0; i < MAX_CHANNEL_INDEX; i++) {
                         mpGui->initPane(getChannelBasePane(i));
                     }
-                    snd::getSystem()->startSE(lbl_8164DE9C);
+                    snd::getSystem()->startSE("WSD_SELECT");
                     return;
                 }
             }
@@ -2945,60 +2991,14 @@ calcNormalRestart_ChannelSelect_L7:
             }
         }
 
-        extern "C" asm void calcNormalMoveChanOut__Q33ipl5scene13ChannelSelectFv() {
-            nofralloc
-            stwu r1, -0x20(r1)
-            mflr r0
-            li r4, 0x1
-            stw r0, 0x24(r1)
-            stw r31, 0x1c(r1)
-            mr r31, r3
-            lwz r5, 0xac(r3)
-            addi r3, r5, 0x28c
-            bl List_GetNth__Q24nw4r2utFPCQ34nw4r2ut4ListUs
-            lwz r0, 0x14(r3)
-            cmpwi r0, 0x1
-            beq calcNormalMoveChanOut_ChannelSelect_L1
-            lwz r3, 0xb0(r31)
-            li r4, 0x1
-            addi r3, r3, 0x28c
-            bl List_GetNth__Q24nw4r2utFPCQ34nw4r2ut4ListUs
-            lwz r0, 0x14(r3)
-            cmpwi r0, 0x1
-            beq calcNormalMoveChanOut_ChannelSelect_L1
-            lwz r3, 0xb4(r31)
-            li r4, 0x1
-            addi r3, r3, 0x28c
-            bl List_GetNth__Q24nw4r2utFPCQ34nw4r2ut4ListUs
-            lwz r0, 0x14(r3)
-            cmpwi r0, 0x1
-            beq calcNormalMoveChanOut_ChannelSelect_L1
-            bl getRndm__Q23ipl6SystemFv
-            bl get_u16__Q33ipl4math6RandomFv
-            clrlwi r7, r3, 16
-            li r6, 0x7d0
-            divw r5, r7, r6
-            lis r0, 0x4330
-            stw r0, 0x8(r1)
-            mr r3, r31
-            lfd f1, lbl_81694998
-            lwz r4, 0x2c8(r31)
-            mullw r0, r5, r6
-            subf r0, r0, r7
-            xoris r0, r0, 0x8000
-            stw r0, 0xc(r1)
-            lfd f0, 0x8(r1)
-            fsubs f0, f0, f1
-            stfs f0, 0xc(r4)
-            bl restartChannelModules__Q33ipl5scene13ChannelSelectFv
-            li r0, 0x1
-            stw r0, 0xc0(r31)
-calcNormalMoveChanOut_ChannelSelect_L1:
-            lwz r0, 0x24(r1)
-            lwz r31, 0x1c(r1)
-            mtlr r0
-            addi r1, r1, 0x20
-            blr
+        void ChannelSelect::calcNormalMoveChanOut() {
+            if (!mpMoveLytMask->getAnim(1)->isPlaying() &&
+                !mpMoveLytObject->getAnim(1)->isPlaying() &&
+                !mpMoveLytDrop->getAnim(1)->isPlaying()) {
+                unk_0x2C8->setCurrentFrame(System::getRndm()->get_u16() % 2000);
+                restartChannelModules();
+                mState = STATE_NORMAL;
+            }
         }
 
         void ChannelSelect::calcNormalDragScrl() {
@@ -3116,7 +3116,7 @@ calcNormalMoveChanOut_ChannelSelect_L1:
                 if (con->isValidDpd()) {
                     mDragPos = con->getDpdPos();
                 } else {
-                    mDragPos = nw4r::math::VEC2(lbl_81694948, lbl_81694948);
+                    mDragPos = nw4r::math::VEC2(0.0f, 0.0f);
                 }
 
                 mConChan = con->getChannel();
@@ -3379,6 +3379,19 @@ calcNormalMoveChanOut_ChannelSelect_L1:
         math::VEC2 ForceCTORWeak() {
             return math::VEC2(NULL, NULL);
         }
+
+        // Stripped out function generated weak emits for dead data (dedup'd vtables).
+        void ForceVTableWeaks() {
+            utility::Tree::reverse_iterator deadTreeIter(NULL);
+            scene::Base::reverse_iterator deadSceneIter(NULL);
+            OptOutButtonEventHandlerBase deadOptOutEvent;
+            (void)deadTreeIter;
+            (void)deadSceneIter;
+            (void)deadOptOutEvent;
+        }
+
+        static u32 deadSBss;
+        DECOMP_FORCE_ACTIVE(iplChannelSelect_cpp, deadSBss);
 #endif  // NON_MATCHING
     }  // namespace scene
 }  // namespace ipl
