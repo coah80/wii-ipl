@@ -345,19 +345,26 @@ static void calc_acc_horizon(KPADInside* kpad) {
     f32 magnitude = (f32)sqrt(accelX * accelX + accelY * accelY);
     f32 normalizedX;
     f32 normalizedY;
-    f32 targetX;
     f32 targetY;
+    f32 targetX;
+    f32 productX;
     f32 oldX;
     f32 oldY;
     f32 blend;
+    f32 projectedX;
     f32 smoothing;
+    f32 deltaX;
     f32 nextX;
     f32 nextY;
     f32 normalized;
+    f32 unitX;
+    f32 oldCircleX;
+    f32 oldCircleY;
+    f32 unitY;
     f32 circleX;
+    f32 deltaCircleX;
     f32 circleY;
-    f32 deltaX;
-    f32 deltaY;
+    f32 deltaCircleY;
     if (magnitude != 0.0f) {
         if (magnitude >= 2.0f) {
             return;
@@ -367,27 +374,32 @@ static void calc_acc_horizon(KPADInside* kpad) {
         if (magnitude > 1.0f) {
             magnitude = 2.0f - magnitude;
         }
-        targetX = kpad->valueA8;
         targetY = kpad->valueAC;
+        targetX = kpad->valueA8;
+        productX = targetX * normalizedX;
         oldX = kpad->value4B8;
         oldY = kpad->value4BC;
         blend = magnitude * kp_acc_horizon_pw;
+        projectedX = productX + targetY * normalizedY;
         smoothing = magnitude * blend;
-        nextX = oldX + smoothing * ((targetX * normalizedX + targetY * normalizedY) - oldX);
-        nextY = oldY + smoothing * ((targetY * normalizedX - targetX * normalizedY) - oldY);
+        deltaX = smoothing * (projectedX - oldX);
+        nextX = oldX + deltaX;
+        nextY = oldY + smoothing * (((targetY * normalizedX) - (targetX * normalizedY)) - oldY);
         normalized = (f32)sqrt(nextX * nextX + nextY * nextY);
         if (normalized != 0.0f) {
-            nextX /= normalized;
-            nextY /= normalized;
-            kpad->value4B8 = nextX;
-            kpad->value4BC = nextY;
-            circleX = kpad->value4C0 + kp_ah_circle_pw * (nextX - kpad->value4C0);
-            circleY = kpad->value4C4 + kp_ah_circle_pw * (nextY - kpad->value4C4);
-            deltaX = nextX - circleX;
-            deltaY = nextY - circleY;
+            unitX = nextX / normalized;
+            oldCircleX = kpad->value4C0;
+            oldCircleY = kpad->value4C4;
+            unitY = nextY / normalized;
+            kpad->value4B8 = unitX;
+            kpad->value4BC = unitY;
+            circleX = oldCircleX + kp_ah_circle_pw * (unitX - oldCircleX);
+            deltaCircleX = unitX - circleX;
             kpad->value4C0 = circleX;
+            circleY = oldCircleY + kp_ah_circle_pw * (unitY - oldCircleY);
+            deltaCircleY = unitY - circleY;
             kpad->value4C4 = circleY;
-            if (deltaX * deltaX + deltaY * deltaY == kpad->value50C) {
+            if (deltaCircleX * deltaCircleX + deltaCircleY * deltaCircleY == kpad->value50C) {
                 if (kpad->value4C8 != 0) {
                     kpad->value4C8--;
                 }
