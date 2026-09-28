@@ -726,18 +726,21 @@ namespace ipl {
         void Address::stt_msg_net() {
             switch (System::getDialog()->getLastResult()) {
                 case 2: {
-                    mState = mbFlagE1 ? 1 : 4;
-                    Button* button = static_cast<Button*>(System::getScene(SCENE_BUTTON));
-                    button->animation(0x17);
-                    button->animation(0x18);
+                    if (mbFlagE1) {
+                        mState = 1;
+                    }
+                    else {
+                        mState = 4;
+                    }
+                    static_cast<Button*>(System::getScene(SCENE_BUTTON))->animation(0x17);
+                    static_cast<Button*>(System::getScene(SCENE_BUTTON))->animation(0x18);
                     break;
                 }
                 case 1: {
                     SCParentalControlsInfo pcInfo;
                     if (SCGetParentalControl(&pcInfo) && (pcInfo.enable & SC_PARENTAL_FLAG_ENABLED)) {
-                        Button* button = static_cast<Button*>(System::getScene(SCENE_BUTTON));
-                        button->setEventHandler(NULL, NULL);
-                        button->animation(0x10);
+                        static_cast<Button*>(System::getScene(SCENE_BUTTON))->setEventHandler(NULL, NULL);
+                        static_cast<Button*>(System::getScene(SCENE_BUTTON))->animation(0x10);
                         createChildScene(SCENE_PARENTAL_DIALOG, this, NULL, (void*)1);
                         mbFlagE0 = FALSE;
                         mState = 0x10;
@@ -792,18 +795,21 @@ namespace ipl {
         void Address::stt_msg_wc() {
             switch (System::getDialog()->getLastResult()) {
                 case 2: {
-                    mState = mbFlagE1 ? 1 : 4;
-                    Button* button = static_cast<Button*>(System::getScene(SCENE_BUTTON));
-                    button->animation(0x17);
-                    button->animation(0x18);
+                    if (mbFlagE1) {
+                        mState = 1;
+                    }
+                    else {
+                        mState = 4;
+                    }
+                    static_cast<Button*>(System::getScene(SCENE_BUTTON))->animation(0x17);
+                    static_cast<Button*>(System::getScene(SCENE_BUTTON))->animation(0x18);
                     break;
                 }
                 case 1: {
                     SCParentalControlsInfo pcInfo;
                     if (SCGetParentalControl(&pcInfo) && (pcInfo.enable & SC_PARENTAL_FLAG_ENABLED)) {
-                        Button* button = static_cast<Button*>(System::getScene(SCENE_BUTTON));
-                        button->setEventHandler(NULL, NULL);
-                        button->animation(0x10);
+                        static_cast<Button*>(System::getScene(SCENE_BUTTON))->setEventHandler(NULL, NULL);
+                        static_cast<Button*>(System::getScene(SCENE_BUTTON))->animation(0x10);
                         createChildScene(SCENE_PARENTAL_DIALOG, this, NULL, (void*)4);
                         mbFlagE0 = FALSE;
                         mState = 0x13;
@@ -856,24 +862,42 @@ namespace ipl {
         }
 
         void Address::stt_msg_nwc24_error() {
-            if (System::getDialog()->getLastResult() == 1) {
-                mState = mbFlagE1 ? 1 : 4;
+            switch (System::getDialog()->getLastResult()) {
+                case 1:
+                if (mbFlagE1) {
+                    mState = 1;
+                }
+                else {
+                    mState = 4;
+                }
                 static_cast<Button*>(System::getScene(SCENE_BUTTON))->animation(0x17);
                 static_cast<Button*>(System::getScene(SCENE_BUTTON))->animation(0x18);
             }
         }
 
         void Address::stt_msg_fi_full() {
-            if (System::getDialog()->getLastResult() == 1) {
-                mState = mbFlagE1 ? 1 : 4;
+            switch (System::getDialog()->getLastResult()) {
+                case 1:
+                if (mbFlagE1) {
+                    mState = 1;
+                }
+                else {
+                    mState = 4;
+                }
                 static_cast<Button*>(System::getScene(SCENE_BUTTON))->animation(0x17);
                 static_cast<Button*>(System::getScene(SCENE_BUTTON))->animation(0x18);
             }
         }
 
         void Address::stt_msg_parental() {
-            if (System::getDialog()->getLastResult() == 1) {
-                mState = mbFlagE1 ? 1 : 4;
+            switch (System::getDialog()->getLastResult()) {
+                case 1:
+                if (mbFlagE1) {
+                    mState = 1;
+                }
+                else {
+                    mState = 4;
+                }
                 static_cast<Button*>(System::getScene(SCENE_BUTTON))->animation(0x17);
                 static_cast<Button*>(System::getScene(SCENE_BUTTON))->animation(0x18);
             }
