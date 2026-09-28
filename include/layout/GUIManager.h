@@ -37,7 +37,11 @@ namespace gui {
 #endif
     };
 
+#ifdef IPL_CHANNEL_TITLE_NOVTABLE
     class __declspec(novtable) EventHandler {
+#else
+    class EventHandler {
+#endif
     public:
         enum {
             ON_TRIG = 0,
