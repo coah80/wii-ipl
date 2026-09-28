@@ -671,7 +671,7 @@ config.libs = [
             Object(Matching,    "utility/iplTVRCUtils.cpp"),
             Object(Matching,    "utility/iplTree.cpp"),
             Object(Matching,    "utility/iplFrameController.cpp"),
-            Object(Equivalent,  "utility/iplGraphics.cpp"),
+            Object(Matching,    "utility/iplGraphics.cpp"),
             Object(Matching,    "utility/iplCapture.cpp"),
             Object(Matching,    "utility/iplUtility.cpp"),
             Object(Matching,    "utility/iplThread.cpp"),
