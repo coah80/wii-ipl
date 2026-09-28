@@ -7686,12 +7686,12 @@ CHANSVmErr CHANSVmStep(CHANSVm* vm, int stepCount) {
                 }
 
                 case CHANS_VM_OP_IS_CLASS: {
-                    if (pVm->accumulator.type != CHANS_VM_TYPE_CLASS_REF) {
-                        result = CHANS_VM_ERR_INVALID_OBJECT_TYPE;
-                        break;
+                    if (pVm->accumulator.type == CHANS_VM_TYPE_CLASS_REF) {
+                        result = 1;
+                        goto call_function_common;
                     }
-                    result = 1;
-                    goto call_function_common;
+                    result = CHANS_VM_ERR_INVALID_OBJECT_TYPE;
+                    break;
                 }
                 case CHANS_VM_OP_CALL_FUNCTION: {
                     result = CHANS_VM_OK;
@@ -7819,9 +7819,11 @@ CHANSVmErr CHANSVmStep(CHANSVm* vm, int stepCount) {
                     }
                 set_index_error:
                     result = CHANS_VM_ERR_SET_INDEX;
-                    break;
 
                 set_index_ok:
+                    if (result != CHANS_VM_OK) {
+                        break;
+                    }
                     pVm->accumulator.value.data.len = arrayIdx;
                     pVm->accumulator.type = CHANS_VM_TYPE_INDEX_REF;
                     result = CHANSVmDeleteObject(vm, stackPtr);
@@ -7842,7 +7844,7 @@ CHANSVmErr CHANSVmStep(CHANSVm* vm, int stepCount) {
                     if (foundObj != vmNull && pVm->accumulator.type == CHANS_VM_OBJ_TYPE_INTEGER &&
                         // TODO: these raw pointer casts with the accumulator are a recurring thing. get rid of raw ptr access
                         (computedAddr = *((u32*)&pVm->accumulator.value + 1), (u64)pVm->accumulator.value.int_v <= ~1U)) {
-                        if (foundObj->type != CHANS_VM_TYPE_ARRAY) {
+                        if ((s32)foundObj->type != CHANS_VM_TYPE_ARRAY) {
                             foundEntry = 0;
                         } else {
                             u32 idx;
@@ -7931,7 +7933,10 @@ CHANSVmErr CHANSVmStep(CHANSVm* vm, int stepCount) {
 
                         if (CHANSVmNewObjData(vm, pAcc, 0x18) != vmNull) {
                             if (imm16Val != 0) {
-                                result = VmArrayExpandCommon(vm, pAcc, imm16Val, 0, vmTrue);
+                                if (VmArrayExpandCommon(vm, pAcc, imm16Val, 0, vmTrue) == 0) {
+                                    result = CHANS_VM_ERR_CALL_NEW_ARRAY;
+                                    break;
+                                }
                             }
                         } else {
                             result = CHANS_VM_ERR_CALL_NEW_ARRAY;
@@ -8031,10 +8036,6 @@ CHANSVmErr CHANSVmStep(CHANSVm* vm, int stepCount) {
                         isTypeMatch = 0;
                         if (pVm->accumulator.type == stackTop->type) {
                             switch (stackTop->type) {
-                                case CHANS_VM_OBJ_TYPE_BLANK: {
-                                    isTypeMatch = 1;
-                                    goto end_branch_check;
-                                }
                                 case CHANS_VM_OBJ_TYPE_INTEGER: {
                                     u32 low1 = *(u32*)stackTop;
                                     u32 low2 = *(u32*)&pVm->accumulator;
@@ -8074,6 +8075,10 @@ CHANSVmErr CHANSVmStep(CHANSVm* vm, int stepCount) {
                                             isTypeMatch = 1;
                                         }
                                     }
+                                    goto end_branch_check;
+                                }
+                                case CHANS_VM_OBJ_TYPE_BLANK: {
+                                    isTypeMatch = 1;
                                     goto end_branch_check;
                                 }
                                 case CHANS_VM_TYPE_ARRAY:
