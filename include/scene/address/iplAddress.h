@@ -49,7 +49,7 @@ namespace ipl {
             NWC24UserId     mMyUserId;          // 0x7D68
             u32             mNumRegInfos;       // 0x7D70
             u8              unk_0x7D74[0x2000]; // 0x7D74
-            u32             mUnk_0x9D74;        // 0x9D74
+            int             mUnk_0x9D74;        // 0x9D74
             bool            mbOpened;           // 0x9D78
         };
 

@@ -1641,7 +1641,7 @@ namespace ipl {
                 u32 count = mpFriendList->mNumRegInfos;
 
                 snd::getSystem()->startSE("WIPL_SE_DECIDE");
-                if (mChosenFriendIndex == -1) {
+                if ((u32)mChosenFriendIndex == 0xFFFFFFFF) {
                     button->animation(0x1D);
                 }
 
