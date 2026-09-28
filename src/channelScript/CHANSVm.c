@@ -5696,8 +5696,10 @@ VmMethodDefine(Blob, Unpack) {
                     buf_area[1] = c0;
                     memcpy(buf_area, srcBlob->pData + srcBlob->offset, outSize);
 
-                    if ((s32)outType >= 8) {
-                        if ((s32)outType < 10) {
+                    if ((s32)outType < 8 || (s32)outType >= 10) {
+                        goto after_swap;
+                    }
+                    {
                         switch (outSize) {
                             case 2: {
                                 u16 hwTmp = *(u16*)bufAreaBase;
@@ -5716,9 +5718,8 @@ VmMethodDefine(Blob, Unpack) {
                                 break;
                             }
                         }
-                        }
                     }
-
+                after_swap:
                     switch (outType) {
                         case 6:
                         case 8: {
