@@ -1597,8 +1597,9 @@ namespace ipl {
                     mPageNo = 0x13;
                     mMaxPage = 0;
                     mbFlagE1 = FALSE;
-                    nw4r::math::VEC2 v(sNullVec.x * 20.0f, sNullVec.y * 20.0f);
-                    add_translate(mpLayout->FindPaneByName("N_note_base"), v);
+                    math::VEC2 w;
+                    w.set(sNullVec.x * 20.0f, sNullVec.y * 20.0f);
+                    add_translate(mpLayout->FindPaneByName("N_note_base"), math::VEC2(w));
                     mpLayout->getAnim(4)->setAnmType(0);
                     mpLayout->getAnim(4)->play();
                     set_page_text("T_nmbr_b", mPageNo + 1);
