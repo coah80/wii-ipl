@@ -459,22 +459,41 @@ namespace ipl {
 
             utility::CharacterCode::WiiIdToUTF16(wii, mpFriendList->mMyUserId);
 
-            int j = 0;
-            for (int i = 0; i < 0x10; i++) {
-                if ((i % 5) == 4) {
-                    text[i] = L' ';
-                }
-                else {
-                    text[i] = wii[j];
-                    j++;
-                }
+            const wchar_t* src = wii;
+            int i = 0;
+            for (int k = 0; k < 4; k++) {
+                text[i] = *src;
+                src++;
+                i++;
             }
+            text[i] = L' ';
+            i++;
+            for (int k = 0; k < 4; k++) {
+                text[i] = *src;
+                src++;
+                i++;
+            }
+            text[i] = L' ';
+            i++;
+            for (int k = 0; k < 4; k++) {
+                text[i] = *src;
+                src++;
+                i++;
+            }
+            text[i] = L' ';
+            i++;
+            for (int k = 0; k < 4; k++) {
+                text[i] = *src;
+                src++;
+                i++;
+            }
+            text[i] = L' ';
 
             set_textbox("T_wii_name", text);
             set_page_text("T_nmbr_b", mPageNo + 1);
 
-            for (int i = 0; i < 5; i++) {
-                set_friend(sTextNameB[i], mPageNo * 5 + i, i, mMiiB[i], false);
+            for (u32 i = 0; i < 5; i++) {
+                set_friend(sTextNameB[i], i, i, mMiiB[i], false);
                 if (mbHovered[i]) {
                     mpLayout->getAnim(i + 6)->initAnmFrame();
                 }
@@ -491,7 +510,10 @@ namespace ipl {
             btn->animation(0x17);
             btn->animation(0x18);
 
-            if (mArg2 == 0 || mpFriendList->mNumRegInfos == 0) {
+            if (mArg2 == 0) {
+                mState = 1;
+            }
+            else if (mpFriendList->mNumRegInfos == 0) {
                 mState = 1;
             }
             else {
@@ -603,7 +625,7 @@ namespace ipl {
                 add_translate(mpLayout->FindPaneByName("N_note_base"), u);
                 set_page_text("T_nmbr_b", mPageNo + 1);
                 for (int i = 0; i < 5; i++) {
-                    set_friend(sTextNameB[i], mPageNo * 5 + i, i, mMiiB[i], false);
+                    set_friend(sTextNameB[i], i, i, mMiiB[i], false);
                 }
                 mState = mbDragging ? 0xA : 4;
             }
@@ -623,7 +645,7 @@ namespace ipl {
                 set_page_text("T_nmbr_b", mPageNo + 1);
                 reset_gui(false);
                 for (int i = 0; i < 5; i++) {
-                    set_friend(sTextNameB[i], mPageNo * 5 + i, i, mMiiB[i], false);
+                    set_friend(sTextNameB[i], i, i, mMiiB[i], false);
                 }
                 mbFlagE1 = TRUE;
                 mMaxPage = 0x14;
@@ -1036,8 +1058,8 @@ namespace ipl {
         }
 
         void Address::reset_friend() {
-            for (int i = 0; i < 5; i++) {
-                set_friend(sTextNameB[i], mPageNo * 5 + i, i, mMiiB[i], false);
+            for (u32 i = 0; i < 5; i++) {
+                set_friend(sTextNameB[i], i, i, mMiiB[i], false);
             }
         }
 
@@ -1468,7 +1490,7 @@ namespace ipl {
                         set_page_text("T_nmbr_c", mPageNo);
                         reset_gui(false);
                         for (u32 i = 0; i < 5; i++) {
-                            set_friend(sTextNameB[i], mPageNo * 5 + i, i, mMiiB[i], false);
+                            set_friend(sTextNameB[i], i, i, mMiiB[i], false);
                             set_friend(sTextNameC[i], (mPageNo - 1) * 5 + i, i, mMiiC[i], true);
                         }
                         mState = 5;
@@ -1492,7 +1514,7 @@ namespace ipl {
                     mpLayout->getAnim(4)->play();
                     reset_gui(true);
                     for (u32 i = 0; i < 5; i++) {
-                        set_friend(sTextNameB[i], mPageNo * 5 + i, i, mMiiB[i], false);
+                        set_friend(sTextNameB[i], i, i, mMiiB[i], false);
                     }
                     mState = 2;
                     break;
@@ -1535,7 +1557,7 @@ namespace ipl {
                     set_page_text("T_nmbr_b", mPageNo + 1);
                     reset_gui(false);
                     for (u32 i = 0; i < 5; i++) {
-                        set_friend(sTextNameB[i], mPageNo * 5 + i, i, mMiiB[i], false);
+                        set_friend(sTextNameB[i], i, i, mMiiB[i], false);
                     }
                     mState = 8;
                     break;
