@@ -17,6 +17,9 @@ force_active:
   - strspn
   - strcspn
   - atol
+  - padding__Q23ipl5scene
+  - lbl_81695063
+  - lbl_81695067
 
 quick_analysis: true
 fill_gaps: false
