@@ -188,20 +188,21 @@ static void* get_ring_buffer_by_kpad1_style(s32 chan, void* buffer, s32 style) {
     s32 offset;
     u32 i;
     u8* record;
-    u8 type;
+    u32 type;
     switch (style) {
     case 0:
         size = 0x2A;
-        break;
+        goto process;
     case 1:
         size = 0x32;
-        break;
+        goto process;
     case 2:
         size = 0x36;
-        break;
+        goto process;
     default:
         return buffer;
     }
+process:
     enabled = OSDisableInterrupts();
     index = *((u8*)kpad + 0x10E) - 1;
     latest = WPADGetLatestIndexInBuf(chan);
@@ -1100,6 +1101,7 @@ static void reset_kpad(KPADInside* kpad) {
     f32 temp_f1;
     u8* p;
     u32* words;
+    p = (u8*)kpad + 0xE8;
     temp_f1 = kpad->valueA4;
     kpad->flag51D = 0;
     kpad->value4F4 = -1.0f + kp_err_outside_frame;
@@ -1126,8 +1128,8 @@ static void reset_kpad(KPADInside* kpad) {
     kpad->status.speed = 0.0f;
     kpad->value4B0 = 1.0f;
     kpad->status.horizon.x = 1.0f;
-    kpad->status.horizon.y = 0.0f;
     kpad->value4B4 = 0.0f;
+    kpad->status.horizon.y = 0.0f;
     kpad->status.hori_speed = 0.0f;
     kpad->status.acc.z = 0.0f;
     kpad->status.acc.x = 0.0f;
@@ -1153,7 +1155,6 @@ static void reset_kpad(KPADInside* kpad) {
     *(u32*)&kpad->value4C4 = *(u32*)&kpad->value4BC;
     kpad->value4C8 = kp_ah_circle_ct;
     kpad->dpdCount = 0;
-    p = (u8*)kpad + 0xE8;
     do {
         p[8] = 0xFF;
         p -= 0xC;
