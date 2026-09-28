@@ -1,3 +1,7 @@
+#include "math/iplInterporation.h"
+
+#define IPL_CHANNEL_TITLE_NOVTABLE
+
 #include "scene/board/iplFocusObject.h"
 #include "scene/parentalDialog/iplParentalDialog.h"
 
@@ -11,7 +15,25 @@
 #include <revolution/cx.h>
 #include <revolution/enc.h>
 
+#undef IPL_CHANNEL_TITLE_NOVTABLE
+
 namespace ipl {
+    namespace math {
+        static inline VEC3 add(const VEC3& a, const VEC3& b) {
+            VEC3 sum;
+            VEC3Add(&sum, &a, &b);
+            return sum;
+        }
+
+        template <>
+        VEC3 LinearIntp<VEC3>::get() const {
+            nw4r::math::VEC3 result;
+            VEC3 sum = add(mStart * (mMaxFrame - mFrame), mEnd * getCurrentFrame());
+            VEC3Scale(&result, &sum, 1.0f / getMaxFrame());
+            return result;
+        }
+    }
+
     namespace scene {
         // clang-format off
         const char* focus_object::mAnimNames[BoardObject::TYPE_MAX][1+ANIM_ARROW_MAX] = {
@@ -2109,6 +2131,47 @@ namespace ipl {
                     }
                 }
             }
+        }
+
+        void GenerateWEAK() {
+            static const f32 pad_data0 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
+            static const f32 pad_data1 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
+            static const f32 pad_data2 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
+            static const f32 pad_data3 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
+            static const f32 pad_data4 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
+            static const f32 pad_data5 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
+            static const f32 pad_data6 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
+            static const f32 pad_data7 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
+            static const f32 pad_data8 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
+            static const f32 pad_data9 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
+            static const f32 pad_data10 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
+            static const f32 pad_data11 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
+            static const f32 pad_data12 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
+            static const f32 pad_data13 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
+            static const f32 pad_data14 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
+            static const f32 pad_data15 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
+            static const f32 pad_data16 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
+            static const f32 pad_data17 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
+            static const f32 pad_data18 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
+            static const f32 pad_data19 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
+            static const f32 pad_data20 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
+            static const f32 pad_data21 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
+            static const f32 pad_data22 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
+            static const f32 pad_data23 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
+            static const f32 pad_data24 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
+            static const f32 pad_data25 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
+            static const f32 pad_data26 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
+            static const f32 pad_data27 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
+            static const f32 pad_data28 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
+            static const f32 pad_data29 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
+            static const f32 pad_data30 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
+            static const f32 pad_data31 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
+            static const f32 pad_data32 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
+            static const f32 pad_data33 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
+            static const f32 pad_data34 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
+            static const f32 pad_data35 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
+            static const f32 pad_data36 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
+            static const f32 pad_data37 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
         }
     }  // namespace scene
 }  // namespace ipl
