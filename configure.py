@@ -653,7 +653,7 @@ config.libs = [
             Object(Matching,    "system/iplWarningHandler.cpp"),
             Object(Matching,    "system/iplSocketSetting.cpp"),
             Object(Matching,    "system/iplPostmanManager.cpp"),
-            Object(NonMatching, "system/iplSaveDataManager.cpp"),
+            Object(Matching,    "system/iplSaveDataManager.cpp"),
             Object(Matching,    "system/iplChannelRsoThread.cpp"),
             Object(Matching,    "system/RsoSystem.cpp"),
             Object(Matching,    "system/iplCdbBackup.cpp"),
