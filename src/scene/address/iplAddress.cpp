@@ -557,11 +557,11 @@ namespace ipl {
         void Address::stt_cover_forward() {
             if (!mpLayout->getAnim(4)->isPlaying()) {
                 mbFlagE1 = FALSE;
-                if (mbDragging) {
-                    mState = 0xA;
+                if (!mbDragging) {
+                    mState = 4;
                 }
                 else {
-                    mState = 4;
+                    mState = 0xA;
                 }
             }
             else if (mbDragging) {
@@ -572,8 +572,8 @@ namespace ipl {
         void Address::stt_cover_backward() {
             if (!mpLayout->getAnim(4)->isPlaying()) {
                 nw4r::math::VEC2 v;
-                v.y = -sNullVec.y;
                 v.x = -sNullVec.x;
+                v.y = -sNullVec.y;
                 nw4r::math::VEC2 w = v;
                 math::VEC2 u = w;
                 add_translate(mpLayout->FindPaneByName("N_note_base"), u);
@@ -609,11 +609,11 @@ namespace ipl {
         void Address::stt_forward() {
             if (!mpLayout->getAnim(5)->isPlaying()) {
                 mUnk_0xb8++;
-                if (mbDragging) {
-                    mState = 0xA;
+                if (!mbDragging) {
+                    mState = 4;
                 }
                 else {
-                    mState = 4;
+                    mState = 0xA;
                 }
             }
             else if (mbDragging) {
@@ -671,11 +671,11 @@ namespace ipl {
             if (!mpLayout->getAnim(4)->isPlaying()) {
                 mbFlagE1 = FALSE;
                 mUnk_0xb8 = 0x13;
-                if (mbDragging) {
-                    mState = 0xA;
+                if (!mbDragging) {
+                    mState = 4;
                 }
                 else {
-                    mState = 4;
+                    mState = 0xA;
                 }
             }
             else if (mbDragging) {
@@ -1984,9 +1984,11 @@ namespace ipl {
 
         BOOL FriendListCache::isDupMail(const char* mailAddr) {
             for (int i = 0; i < 100; i++) {
-                if (mbHasInfo[i] && mInfos[i].attr.type == NWC24_FRIENDTYPE_EMAIL &&
-                    strcmp(mInfos[i].addr.mailAddr, mailAddr) == 0) {
-                    return TRUE;
+                if (mbHasInfo[i] && mInfos[i].attr.type == NWC24_FRIENDTYPE_EMAIL) {
+                    const char* mail = mInfos[i].addr.mailAddr;
+                    if (strcmp(mail, mailAddr) == 0) {
+                        return TRUE;
+                    }
                 }
             }
             return FALSE;
@@ -2007,10 +2009,11 @@ namespace ipl {
             wcscpy(text, System::getMessage(0x182));
 
             if (mMyUserId != 0x000462D53C8ABAC0ULL) {
+                const wchar_t* needle = L"1234567890123456";
                 swprintf(idStr, 0x11, L"%016lld", mMyUserId);
 
                 wchar_t* p;
-                while ((p = wcsstr(text, L"1234567890123456")) != NULL) {
+                while ((p = wcsstr(text, needle)) != NULL) {
                     for (int i = 0; i < 0x10; i++) {
                         p[i] = idStr[i];
                     }
