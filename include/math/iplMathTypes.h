@@ -35,6 +35,10 @@ namespace ipl {
                 return x;
             }
         }
+#ifdef IPL_CONTROLLER_OUT_OF_LINE_ABS_CLAMP
+        template <>
+        f32 abs_clamp<f32>(const f32& x, const f32& y);
+#endif
 
         typedef struct MTX33 : public nw4r::math::MTX33 {
         } MTX33;
@@ -55,19 +59,27 @@ namespace ipl {
                 x = r.x;
                 y = r.y;
             }
+#ifdef IPL_CONTROLLER_OUT_OF_LINE_VEC2
+            VEC2(f32 fx, f32 fy);
+#else
             VEC2(f32 fx, f32 fy) {
                 x = fx;
                 y = fy;
             }
+#endif
 
             void operator=(const VEC2& r);
 
             VEC2 operator*(f32 val) const { return VEC2(x * val, y * val); }
 
+#ifdef IPL_CONTROLLER_OUT_OF_LINE_VEC2
+            void set(f32 fx, f32 fy);
+#else
             void set(f32 fx, f32 fy) {
                 x = fx;
                 y = fy;
             }
+#endif
 
             void clear() {
                 y = 0;

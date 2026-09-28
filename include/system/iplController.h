@@ -63,44 +63,52 @@ namespace ipl {
         // clang-format on
 
 #ifdef IPL_CONTROLLER_NATIVE_HIERARCHY
+#ifdef IPL_CONTROLLER_INLINE_INTERFACE
+#define IPL_CONTROLLER_DEFAULT_VIRTUAL(signature, implementation) virtual signature implementation
+#else
+#define IPL_CONTROLLER_DEFAULT_VIRTUAL(signature, implementation) virtual signature;
+#endif
         class Interface {
         public:
             virtual ~Interface() = 0;
-            virtual int getType() const { return -1; }
-            virtual int getChannel() const { return -1; }
-            virtual bool down(u32 button) const { return false; }
-            virtual bool downTrg(u32 button) const { return false; }
-            virtual bool upTrg(u32 button) const { return false; }
-            virtual int pinch() const { return 0; }
-            virtual int pinchTrg() const { return 0; }
-            virtual int pinchOffTrg() const { return 0; }
-            virtual int decide() const { return 0; }
-            virtual bool repeat(u32 button) const { return false; }
-            virtual BOOL rumble(int type = 0) { return FALSE; }
-            virtual void cancelRumbling() {}
-            virtual int getHoldFlag() const { return 0; }
-            virtual int getTrigFlag() const { return 0; }
-            virtual int getReleaseFlag() const { return 0; }
-            virtual int getClassicHoldFlag() const { return 0; }
-            virtual int getClassicTrigFlag() const { return 0; }
-            virtual int getClassicReleaseFlag() const { return 0; }
-            virtual math::VEC2 getDpdPos() const { return math::VEC2(0.0f, 0.0f); }
-            virtual math::VEC2 getDpdProjectionPos() const { return math::VEC2(0.0f, 0.0f); }
-            virtual math::VEC2 getHorizon() const { return math::VEC2(0.0f, 0.0f); }
-            virtual f32 getDpdDistance() const { return 0.0f; }
-            virtual KPADStatus* getKPADStatus() const { return NULL; }
-            virtual PADStatus* getPADStatus() const { return NULL; }
-            virtual bool isValidBtn() const { return false; }
-            virtual bool isValidDpd() const { return false; }
+            IPL_CONTROLLER_DEFAULT_VIRTUAL(int getType() const, { return -1; })
+            IPL_CONTROLLER_DEFAULT_VIRTUAL(int getChannel() const, { return -1; })
+            IPL_CONTROLLER_DEFAULT_VIRTUAL(bool down(u32 button) const, { return false; })
+            IPL_CONTROLLER_DEFAULT_VIRTUAL(bool downTrg(u32 button) const, { return false; })
+            IPL_CONTROLLER_DEFAULT_VIRTUAL(bool upTrg(u32 button) const, { return false; })
+            IPL_CONTROLLER_DEFAULT_VIRTUAL(int pinch() const, { return 0; })
+            IPL_CONTROLLER_DEFAULT_VIRTUAL(int pinchTrg() const, { return 0; })
+            IPL_CONTROLLER_DEFAULT_VIRTUAL(int pinchOffTrg() const, { return 0; })
+            IPL_CONTROLLER_DEFAULT_VIRTUAL(int decide() const, { return 0; })
+            IPL_CONTROLLER_DEFAULT_VIRTUAL(bool repeat(u32 button) const, { return false; })
+            IPL_CONTROLLER_DEFAULT_VIRTUAL(BOOL rumble(int type = 0), { return FALSE; })
+            IPL_CONTROLLER_DEFAULT_VIRTUAL(void cancelRumbling(), {  })
+            IPL_CONTROLLER_DEFAULT_VIRTUAL(int getHoldFlag() const, { return 0; })
+            IPL_CONTROLLER_DEFAULT_VIRTUAL(int getTrigFlag() const, { return 0; })
+            IPL_CONTROLLER_DEFAULT_VIRTUAL(int getReleaseFlag() const, { return 0; })
+            IPL_CONTROLLER_DEFAULT_VIRTUAL(int getClassicHoldFlag() const, { return 0; })
+            IPL_CONTROLLER_DEFAULT_VIRTUAL(int getClassicTrigFlag() const, { return 0; })
+            IPL_CONTROLLER_DEFAULT_VIRTUAL(int getClassicReleaseFlag() const, { return 0; })
+            IPL_CONTROLLER_DEFAULT_VIRTUAL(math::VEC2 getDpdPos() const, { return math::VEC2(0.0f, 0.0f); })
+            IPL_CONTROLLER_DEFAULT_VIRTUAL(math::VEC2 getDpdProjectionPos() const, { return math::VEC2(0.0f, 0.0f); })
+            IPL_CONTROLLER_DEFAULT_VIRTUAL(math::VEC2 getHorizon() const, { return math::VEC2(0.0f, 0.0f); })
+            IPL_CONTROLLER_DEFAULT_VIRTUAL(f32 getDpdDistance() const, { return 0.0f; })
+            IPL_CONTROLLER_DEFAULT_VIRTUAL(KPADStatus* getKPADStatus() const, { return NULL; })
+            IPL_CONTROLLER_DEFAULT_VIRTUAL(PADStatus* getPADStatus() const, { return NULL; })
+            IPL_CONTROLLER_DEFAULT_VIRTUAL(bool isValidBtn() const, { return false; })
+            IPL_CONTROLLER_DEFAULT_VIRTUAL(bool isValidDpd() const, { return false; })
             virtual void setForceInvalid(bool flag) = 0;
-            virtual int getMainStickX() const { return 0; }
-            virtual int getMainStickY() const { return 0; }
-            virtual int getSubStickX() const { return 0; }
-            virtual int getSubStickY() const { return 0; }
-            virtual void read() {}
+            IPL_CONTROLLER_DEFAULT_VIRTUAL(int getMainStickX() const, { return 0; })
+            IPL_CONTROLLER_DEFAULT_VIRTUAL(int getMainStickY() const, { return 0; })
+            IPL_CONTROLLER_DEFAULT_VIRTUAL(int getSubStickX() const, { return 0; })
+            IPL_CONTROLLER_DEFAULT_VIRTUAL(int getSubStickY() const, { return 0; })
+            IPL_CONTROLLER_DEFAULT_VIRTUAL(void read(), {  })
         };
 
+#undef IPL_CONTROLLER_DEFAULT_VIRTUAL
+#ifdef IPL_CONTROLLER_INLINE_INTERFACE
         inline Interface::~Interface() {}
+#endif
 
         class Base : public Interface {
         public:
@@ -127,9 +135,6 @@ namespace ipl {
                 mType = type;
                 unk_0x1C = 0;
                 KPADEnableDPD(chan);
-                unk_0x1D = 0;
-                unk_0x1E = 0;
-                unk_0x20 = &status;
             }
 
             virtual ~Base();
@@ -152,21 +157,6 @@ namespace ipl {
             u8 unk_0x1D;
             u8 unk_0x1E;
             KPADStatus* unk_0x20;
-        };
-
-        class Master : public Interface {
-        public:
-            virtual ~Master();
-            virtual bool down(u32 button) const override;
-            virtual bool downTrg(u32 button) const override;
-            virtual bool upTrg(u32 button) const override;
-            virtual bool repeat(u32 button) const override;
-            virtual int decide() const override;
-            virtual void setForceInvalid(bool flag) override;
-
-        private:
-            bool call(u32 button, bool (Interface::*func)(u32) const) const;
-            Interface** mpControllers;
         };
 
         class Revolution : public Base {
@@ -216,6 +206,22 @@ namespace ipl {
             int unk_0x2C;
         };
 
+        class Master : public Interface {
+        public:
+            Master(Interface** controllers) : mpControllers(controllers) {}
+            virtual ~Master();
+            virtual bool down(u32 button) const override;
+            virtual bool downTrg(u32 button) const override;
+            virtual bool upTrg(u32 button) const override;
+            virtual bool repeat(u32 button) const override;
+            virtual int decide() const override;
+            virtual void setForceInvalid(bool flag) override;
+
+        private:
+            bool call(u32 button, bool (Interface::*func)(u32) const) const;
+            Interface** mpControllers;
+        };
+
         class Core : public Revolution {
         public:
             Core(int chan, int type, KPADStatus& status) : Revolution(chan, type, status) {}
@@ -226,12 +232,6 @@ namespace ipl {
         public:
             FreeStyle(int chan, int type, KPADStatus& status) : Revolution(chan, type, status) {}
             virtual ~FreeStyle();
-        };
-
-        class MasterStorage {
-        public:
-            void* vtable;
-            Interface** mpControllers;
         };
 
         class Manager {
@@ -245,12 +245,15 @@ namespace ipl {
             static int free(void* ptr);
 
         private:
+            static void* mpBuf;
+            static EGG::Heap* mpParentHeap;
+            static EGG::ExpHeap* mpHeap;
             static EGG::Allocator* mpAllocator;
             Interface* mControllers[4];
             u32 mControllerStorage[4][12];
-            MasterStorage mMaster;
+            Master mMaster;
             KPADStatus mKPADStatus[4];
-            u32 mInvalidCount[4];
+            s32 mInvalidCount[4];
         };
 #else
         class Base {

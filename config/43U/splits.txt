@@ -37,11 +37,16 @@ src/system/iplSystem.cpp:
 	.sdata      start:0x81696060 end:0x81696080
 
 src/system/iplController.cpp:
-	.text       start:0x81335CCC end:0x81337978
+	.text       start:0x81335CCC end:0x81337318
 	.rodata     start:0x8160D2C0 end:0x8160D2D0
-	.data       start:0x816346A8 end:0x81634A28
-	.sdata2     start:0x81694440 end:0x81694490
+	.data       start:0x816346A8 end:0x81634910
+	.sdata2     start:0x81694440 end:0x81694478
 	.sdata      start:0x81696080 end:0x81696088
+
+src/system/iplControllerManager.cpp:
+	.text       start:0x81337318 end:0x81337978
+	.data       start:0x81634910 end:0x81634A28
+	.sdata2     start:0x81694478 end:0x81694490
 	.sbss       start:0x81698680 end:0x81698690
 
 src/system/iplChannelManager.cpp:
