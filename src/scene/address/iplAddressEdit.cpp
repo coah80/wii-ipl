@@ -362,12 +362,6 @@ getName_L2:
     blr
 }
 
-extern "C" asm void getInputForm__Q29textinput7ManagerFv() {
-    nofralloc
-    lwz r3, 0x1c(r3)
-    blr
-}
-
 void ipl::scene::AddressEdit::String::clear() {
     memset(mValue, 0, sizeof(mValue));
     memset(mName, 0, sizeof(mName));
