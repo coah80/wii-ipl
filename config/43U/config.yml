@@ -10,6 +10,14 @@ splits: 'config/43U/splits.txt'
 
 ldscript_template: 'config/ldscript_ipl2.lcf'
 
+force_active:
+  - labs
+  - itoa
+  - strpbrk
+  - strspn
+  - strcspn
+  - atol
+
 quick_analysis: true
 fill_gaps: false
 

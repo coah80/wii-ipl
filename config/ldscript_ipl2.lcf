@@ -36,3 +36,7 @@ SECTIONS {
     __ArenaLo       =   (_db_stack_addr + 0x1F) & ~0x1F;
     __ArenaHi       =   $ARENAHI;
 }
+
+FORCEACTIVE {
+    $FORCEACTIVE
+}
