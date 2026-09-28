@@ -80,6 +80,10 @@ SimpleWavePlayer::SimpleWavePlayer() : mSetupParam(1, nw4r::snd::SAMPLE_FORMAT_P
     mThreadRunning = false;
 }
 
+WaveFileAiff::~WaveFileAiff() {}
+
+WaveFileWav::~WaveFileWav() {}
+
 SimpleWavePlayer::~SimpleWavePlayer() {
 }
 

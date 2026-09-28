@@ -30,9 +30,9 @@ private:
 class WaveFileAiff : public WaveFile {
 public:
     WaveFileAiff();
-    virtual ~WaveFileAiff() {}
 
     virtual u32 getBit() const override;
+    virtual ~WaveFileAiff();
     virtual int getChannels() const override { return mNumChans; }
     virtual f64 getSamplingRate() const override { return mSamplingRate; }
     virtual s32 getFrames() const override;
@@ -67,9 +67,9 @@ private:
 class WaveFileWav : public WaveFile {
 public:
     WaveFileWav();
-    virtual ~WaveFileWav() {}
 
     virtual u32 getBit() const override;
+    virtual ~WaveFileWav();
     virtual int getChannels() const override { return mNumChans; }
     virtual f64 getSamplingRate() const override { return mSamplingRate; }
     virtual s32 getFrames() const override;
