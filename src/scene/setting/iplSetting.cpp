@@ -1510,10 +1510,10 @@ namespace ipl {
             OSReport("initKeyboard formId:%d\n", mpWiiSettingData->data[0x11]);
             memset(unk_0x938, 0, sizeof(unk_0x938));
 
-            int invalidInput = 0;
             keyboard::Manager::KeyboardType keyboardType = keyboard::Manager::LETTER;
-            int rowLimit = 0;
-            int stringLimit = 0;
+            int invalidInput = 0;
+            int rowLimit;
+            int stringLimit;
             int productArea = SCGetProductArea();
 
             switch (mpWiiSettingData->data[0x11]) {
@@ -1521,30 +1521,30 @@ namespace ipl {
                     stringLimit = 10;
                     rowLimit = 6;
                     break;
-                case 2:
-                    if (ncd::NCDSetting::getPrivacyMode() == 1) {
-                        stringLimit = 0x1A;
-                        keyboardType = keyboard::Manager::NORMAL_WITHOUT_LINEFEED;
-                    } else {
-                        stringLimit = 0x40;
-                        keyboardType = keyboard::Manager::NORMAL_WITHOUT_LINEFEED_WITH_SIGN;
-                    }
-                    rowLimit = 7;
-                    break;
                 case 3:
                     stringLimit = 0x20;
-                    keyboardType = keyboard::Manager::NORMAL_WITHOUT_LINEFEED;
+                    keyboardType = keyboard::Manager::PHOTO_LETTER;
+                    rowLimit = 7;
+                    break;
+                case 10:
+                    stringLimit = 0xFF;
+                    keyboardType = static_cast<keyboard::Manager::KeyboardType>(0x10);
                     rowLimit = 7;
                     break;
                 case 12:
                     stringLimit = 0x20;
-                    keyboardType = keyboard::Manager::NORMAL_WITHOUT_LINEFEED;
+                    keyboardType = keyboard::Manager::PHOTO_LETTER;
                     rowLimit = 7;
                     break;
-                case 13:
+                case 18:
+                case 19:
                     stringLimit = 0x20;
-                    keyboardType = keyboard::Manager::NORMAL_WITHOUT_LINEFEED;
-                    rowLimit = 7;
+                    keyboardType = keyboard::Manager::PHOTO_LETTER;
+                    if (productArea == 11 || productArea == 6) {
+                        rowLimit = 0xD;
+                    } else {
+                        rowLimit = 5;
+                    }
                     break;
                 case 4:
                 case 5:
@@ -1553,11 +1553,6 @@ namespace ipl {
                 case 8:
                     stringLimit = 0xF;
                     rowLimit = 10;
-                    break;
-                case 10:
-                    stringLimit = 0xFF;
-                    keyboardType = keyboard::Manager::NUMERIC_WITH_DOT;
-                    rowLimit = 7;
                     break;
                 case 11:
                 case 20:
@@ -1571,15 +1566,24 @@ namespace ipl {
                     stringLimit = 4;
                     rowLimit = 3;
                     break;
-                case 18:
-                case 19:
+                case 2:
+                    if ((u16)ncd::NCDSetting::getPrivacyMode() == 1) {
+                        stringLimit = 0x1A;
+                        keyboardType = keyboard::Manager::PHOTO_LETTER;
+                    } else {
+                        stringLimit = 0x40;
+                        keyboardType = keyboard::Manager::NORMAL_WITHOUT_LINEFEED;
+                    }
+                    rowLimit = 7;
+                    break;
+                case 13:
                     stringLimit = 0x20;
-                    keyboardType = keyboard::Manager::NORMAL_WITHOUT_LINEFEED;
-                    rowLimit = productArea == 11 || productArea == 6 ? 13 : 5;
+                    keyboardType = keyboard::Manager::PHOTO_LETTER;
+                    rowLimit = 7;
                     break;
                 case 22:
                     stringLimit = 0x40;
-                    keyboardType = keyboard::Manager::NORMAL_WITHOUT_LINEFEED_WITH_SIGN;
+                    keyboardType = keyboard::Manager::NORMAL_WITHOUT_LINEFEED;
                     rowLimit = 7;
                     break;
             }
@@ -1594,35 +1598,58 @@ namespace ipl {
             OSReport("キーボード: %d %d %d %d\n", rowLimit, stringLimit, keyboardType, textLength);
             reinterpret_cast<wchar_t*>(unk_0x938)[stringLimit] = 0;
 
-            if (mpWiiSettingData->data[0x11] >= 4 && mpWiiSettingData->data[0x11] <= 8) {
-                invalidInput = checkIPString(reinterpret_cast<const wchar_t*>(unk_0x938));
-            } else if ((mpWiiSettingData->data[0x11] > 0 && mpWiiSettingData->data[0x11] < 4) ||
-                       (mpWiiSettingData->data[0x11] >= 10 && mpWiiSettingData->data[0x11] <= 20) ||
-                       mpWiiSettingData->data[0x11] == 22) {
-                invalidInput = checkInputString(reinterpret_cast<const wchar_t*>(unk_0x938));
+            switch (mpWiiSettingData->data[0x11]) {
+                case 1:
+                case 2:
+                case 3:
+                case 10:
+                case 11:
+                case 12:
+                case 13:
+                case 14:
+                case 15:
+                case 16:
+                case 17:
+                case 18:
+                case 19:
+                case 20:
+                case 22:
+                    invalidInput = checkInputString(reinterpret_cast<const wchar_t*>(unk_0x938));
+                    break;
+                case 4:
+                case 5:
+                case 6:
+                case 7:
+                case 8:
+                    invalidInput = checkIPString(reinterpret_cast<const wchar_t*>(unk_0x938));
+                    break;
             }
 
             if (invalidInput != 0) {
                 memset(unk_0x938, 0, sizeof(unk_0x938));
             }
 
-            keyboard::Manager* keyboardManager = System::getKeyboard();
             if (productArea == 11) {
-                keyboardManager->memoFrm()->setZiDictionary(keyboardManager->getZiOemDic(), keyboardManager->getZiSystemDic());
+                void* ziSystemDic = System::getKeyboard()->getZiSystemDic();
+                void* ziOemDic = System::getKeyboard()->getZiOemDic();
+                System::getKeyboard()->memoFrm()->setZiDictionary(ziOemDic, ziSystemDic);
             }
 
             keyboard::Manager::KeyboardSetting setting;
-            setting.type = keyboardType;
+            setting.rowLimit = rowLimit;
             setting.wcString = reinterpret_cast<const wchar_t*>(unk_0x938);
             setting.stringLimit = stringLimit;
-            setting.rowLimit = rowLimit;
-            keyboardManager->init();
-            keyboardManager->start(0, setting);
+            setting.type = keyboardType;
+            System::getKeyboard()->start(0, setting);
 
             if (invalidInput != 0) {
                 setDefaultBackString();
             } else {
-                reinterpret_cast<textinput::inputform::Base*>(keyboardManager->memoFrm())->setString(reinterpret_cast<const wchar_t*>(unk_0x938));
+                System::getKeyboard()->memoMgr()->setTitleText(NULL);
+            }
+
+            if (mpWiiSettingData->data[0x11] == 0x11) {
+                System::getKeyboard()->memoMgr()->setSecretInputMode(true);
             }
         }
 
