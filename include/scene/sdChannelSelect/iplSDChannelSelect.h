@@ -12,6 +12,7 @@ namespace ipl {
     namespace scene {
         class SDChannelObj {
         public:
+            SDChannelObj(EGG::Heap* heap, int page, int index);
             ~SDChannelObj();
 
             EGG::Heap* getHeap() const { return mpHeap; }
@@ -19,13 +20,41 @@ namespace ipl {
             int getIndex() const { return mIndex; }
 
         private:
+            friend class SDChannelSelect;
+
             nw4r::ut::Link mListLink;
-            f32 mOffsetX;
-            f32 mOffsetY;
+            EGG::ExpHeap* mpDialogHeap;
+            EGG::ExpHeap* mpChannelHeap;
             EGG::Heap* mpHeap;
             u32 mState;
             int mPage;
             int mIndex;
+            nand::LayoutFile* mpLayoutFile;
+            nw4r::lyt::Pane* mpPane;
+            layout::Animator* mpPaneAnimator;
+            layout::Object* mpBaseLayout;
+            layout::Animator* mpBaseAnimator;
+            layout::Object* mpPageLayout;
+            layout::Animator* mpPageAnimators[3];
+            int mPageAnimation;
+            int mPageAnimationFrame;
+            layout::Object* mpDialogLayout;
+            layout::Animator* mpDialogAnimator;
+            int mDialogState;
+            int mDialogFrame;
+            int mDialogTimer;
+            int mAnimationState;
+            nw4r::lyt::Group* mpNewMessageGroup;
+            int mNewMessageCount;
+            u8 mbNewMessageGroupActive;
+            int mNewMessageState;
+            int mNewMessageFrame;
+            f32 mOffsetX;
+            f32 mOffsetY;
+            f32 mAspectRatioScale;
+            int mStateFlags;
+            void* mpThumbnailData;
+            NandSDWorker::SDAppMetaEntry mAppMeta;
         };
         extern "C" void iplSDChannelObj_813E3104(SDChannelObj* channel);
         extern "C" void iplSDChannelObj_813E311C(SDChannelObj* channel, EGG::ExpHeap* firstHeap,
@@ -35,6 +64,8 @@ namespace ipl {
         extern "C" void iplSDChannelObj_813E3180(SDChannelObj* channel, nand::LayoutFile* layoutFile);
         extern "C" void iplSDChannelObj_813E3304(SDChannelObj* channel);
         extern "C" void iplSDChannelObj_813E330C(SDChannelObj* channel);
+        extern "C" void* iplSDChannelObj_813E3128(SDChannelObj* channel);
+        extern "C" bool iplSDChannelObj_813E3330(SDChannelObj* channel);
 
         union SDChannelSelectCommandArguments {
             u32 values[3];
@@ -68,7 +99,7 @@ namespace ipl {
 
         struct SDChannelSelectTitleInfo {
             ESTitleId32 titleId;
-            u32 state;
+            bool used;
         };
 
         struct SDChannelSelectNoticeQueue {
@@ -147,6 +178,10 @@ namespace ipl {
             void handleNandTitleUsage();
             void handleNandTitleUsageComplete();
             void handleSDTitleList();
+            void handleSDTitleListResult();
+            void refreshAfterSDTitleList();
+            void handleSDChannelUpdateComplete();
+            void updateChannelNotices(int pageOffset, int index);
             void handleSDMountComplete();
             void handleCopyComplete();
             void handleDeleteComplete();
@@ -164,7 +199,10 @@ namespace ipl {
             static int compareTitleInfo(const void* lhs, const void* rhs);
             void createChannelList(int page, bool force);
             void destroyChannelObject(SDChannelObj* channel);
+            void destroyUnusedChannelObjects(int currentPage, SDChannelObj* keepChannel);
+            void refreshChannelList();
             bool hasChannelObject(int page, int index) const;
+            SDChannelObj* findChannelObject(int page, int index) const;
             void createChannelObject(int page, int index);
             void createBaseLayout();
             void updateNoCardLayouts();

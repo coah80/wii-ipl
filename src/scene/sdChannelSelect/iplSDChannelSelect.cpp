@@ -433,7 +433,7 @@ namespace ipl {
                 mpSDWorker->startup_async();
                 mWorkerState = 2;
             } else if (mPreviousSDState != mCurrentSDState && mCurrentSDState == 7) {
-                System::getErrorHandler()->set(ErrorHandler::DEFAULT, 1);
+                setDialogMessage(8, 0xaa);
             }
         }
 
@@ -544,6 +544,91 @@ namespace ipl {
             return left->titleId != right->titleId;
         }
 
+        void SDChannelSelect::handleSDTitleListResult() {
+            if (mpSDWorker->is_working()) {
+                return;
+            }
+
+            mLastOperation = 14;
+            if (mDialogState != 0) {
+                return;
+            }
+
+            if (OSGetTime() - mOperationStartTime >= OS_TIMER_CLOCK) {
+                setDialogMessage(1, 0);
+                int result = mpSDWorker->get_async_result();
+                if (result == NandSDWorker::RESULT_OK ||
+                    result == NandSDWorker::RESULT_SD_APP_LOC_NOT_FOUND) {
+                    for (int channelIndex = 0; channelIndex < mPageCount * 12;
+                         ++channelIndex) {
+                        if (mpChannelTitleIds[channelIndex] != 0) {
+                            SDChannelSelectTitleInfo* info =
+                                static_cast<SDChannelSelectTitleInfo*>(
+                                    bsearch(mpChannelTitleIds + channelIndex, mpSDTitleInfo,
+                                            mSDTitleCount, sizeof(SDChannelSelectTitleInfo),
+                                            compareTitleInfo));
+                            if (info != NULL) {
+                                info->used = true;
+                            } else {
+                                mpChannelTitleIds[channelIndex] = 0;
+                            }
+                        }
+                    }
+
+                    int channelIndex = 0;
+                    u32 titleIndex = 0;
+                    bool addedTitle = false;
+                    for (; channelIndex < mPageCount * 12; ++channelIndex) {
+                        if (mpChannelTitleIds[channelIndex] == 0) {
+                            if (titleIndex == mSDTitleCount) {
+                                break;
+                            }
+
+                            for (; titleIndex < mSDTitleCount; ++titleIndex) {
+                                SDChannelSelectTitleInfo* info = &mpSDTitleInfo[titleIndex];
+                                if (!info->used && info->titleId != 0x48415A41) {
+                                    mpChannelTitleIds[channelIndex] = info->titleId;
+                                    addedTitle = true;
+                                    ++titleIndex;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+                    if (addedTitle || result == NandSDWorker::RESULT_SD_APP_LOC_NOT_FOUND) {
+                        enqueueLoadNotice();
+                    }
+                } else {
+                    int channelCount = 0;
+                    int channelIndex = 0;
+                    u32 titleIndex = 0;
+                    for (; titleIndex < mSDTitleCount; ++titleIndex) {
+                        u32 titleId = mpSDTitleInfo[titleIndex].titleId;
+                        if (titleId != 0x48415A41) {
+                            ++channelCount;
+                            mpChannelTitleIds[channelIndex++] = titleId;
+                            if (channelCount == mPageCount * 12) {
+                                break;
+                            }
+                        }
+                    }
+                    enqueueLoadNotice();
+                }
+
+                mWorkerCommand = 1;
+                mbNeedsRefresh = true;
+                u32 titleCount = mbHazardTitleFound ? mSDTitleCount - 1 : mSDTitleCount;
+                if (titleCount > static_cast<u32>(mPageCount * 12)) {
+                    mbOperationActive = true;
+                }
+                if (titleCount >= static_cast<u32>(mPageCount * 12)) {
+                    mbSDCardBroken = true;
+                }
+                refreshAfterSDTitleList();
+            }
+        }
+
         void SDChannelSelect::processWorkerCommands() {
             if (mpSDWorker->is_working() || mWorkerState != 4) {
                 return;
@@ -643,6 +728,53 @@ namespace ipl {
             }
         }
 
+        void SDChannelSelect::handleSDChannelUpdateComplete() {
+            if (mpSDWorker->is_working()) {
+                return;
+            }
+
+            mLastOperation = 14;
+            SDChannelObj* channel = mpCurrentLoadedChannel;
+            int page = channel->mPage;
+            int index = channel->mIndex;
+            if (!isChannelInCalc(page, index, mCurrentPage) ||
+                static_cast<u32>(mCurrentSDState) - 1 <= 1) {
+                destroyChannelObject(channel);
+                mWorkerCommand = 1;
+                mpCurrentLoadedChannel = NULL;
+                return;
+            }
+
+            if (mpSDWorker->get_async_result() >= 0) {
+                channel->mStateFlags = 0;
+                channel->mState = 2;
+                DCFlushRange(iplSDChannelObj_813E3128(channel), 0x19000);
+            } else {
+                memcpy(iplSDChannelObj_813E3128(channel),
+                       mpCorruptIconFile->getBuffer(), mpCorruptIconFile->getLength());
+                memset(&channel->mAppMeta, 0, sizeof(channel->mAppMeta));
+                channel->mStateFlags = 3;
+                channel->mState = 2;
+            }
+
+            SDChannelObj* previous = findChannelObject(page, index);
+            if (previous != NULL) {
+                nw4r::ut::List_Insert(&mChannelObjects, previous, channel);
+                nw4r::ut::List_Remove(&mChannelObjects, previous);
+                destroyChannelObject(previous);
+            } else {
+                nw4r::ut::List_Append(&mChannelObjects, channel);
+            }
+
+            updateChannelObject(channel);
+            if (mCurrentPage == page) {
+                mpPaneManager->initPane(getChannelPane(index));
+            }
+
+            mWorkerCommand = 1;
+            mpCurrentLoadedChannel = NULL;
+        }
+
         void SDChannelSelect::handleCopyComplete() {
             if (!mpSDWorker->is_working()) {
                 mLastOperation = 14;
@@ -736,6 +868,50 @@ namespace ipl {
             }
         }
 
+        void SDChannelSelect::updateChannelNotices(int pageOffset, int index) {
+            int page = mCurrentPage + pageOffset;
+            if (page < 0 || mpChannelTitleIds == NULL) {
+                return;
+            }
+
+            int firstIndex;
+            int indexStep;
+            if (pageOffset == 2) {
+                firstIndex = 0;
+                indexStep = 4;
+            } else if (pageOffset < 2) {
+                if (pageOffset == -2) {
+                    firstIndex = 3;
+                    indexStep = 4;
+                } else {
+                    firstIndex = 0;
+                    indexStep = 1;
+                }
+            } else {
+                firstIndex = 0;
+                indexStep = 1;
+            }
+
+            int pageTitleIndex = page * 12;
+            SDChannelObj* channel;
+            if (index >= 0 && index < 12 &&
+                (channel = findChannelObject(page, index)) != NULL && channel->mState == 2 &&
+                mpChannelTitleIds[pageTitleIndex + index] != 0) {
+                enqueueNotice(mpChannelTitleIds[pageTitleIndex + index], page, index);
+            }
+
+            for (int channelIndex = firstIndex; channelIndex < 12;
+                 channelIndex += indexStep) {
+                if (channelIndex != index &&
+                    (channel = findChannelObject(page, channelIndex)) != NULL &&
+                    channel->mState == 2 &&
+                    mpChannelTitleIds[pageTitleIndex + channelIndex] != 0) {
+                    enqueueNotice(mpChannelTitleIds[pageTitleIndex + channelIndex], page,
+                                  channelIndex);
+                }
+            }
+        }
+
         void SDChannelSelect::processWorkerState() {
             mPreviousSDState = mCurrentSDState;
             mCurrentSDState = mpSDWorker->get_sd_state();
@@ -761,7 +937,7 @@ namespace ipl {
                 handleSDTitleList();
                 break;
             case 3:
-                handleCopyComplete();
+                handleSDChannelUpdateComplete();
                 break;
             case 4:
                 handleSDMountComplete();
@@ -1335,6 +1511,129 @@ namespace ipl {
 
         nw4r::lyt::Pane* SDChannelSelect::getChannelPane(int index) const {
             return mpLayout->FindPaneByName(mscChannelPaneNames[2][index]);
+        }
+
+        void SDChannelSelect::createChannelList(int page, bool force) {
+            for (int index = 0; index < MAX_CHANNEL_INDEX; ++index) {
+                if (force || findChannelObject(page, index) == NULL) {
+                    createChannelObject(page, index);
+                }
+            }
+
+            if (page < mPageCount - 1) {
+                for (int index = 0; index < MAX_CHANNEL_INDEX; index += 4) {
+                    if (force || findChannelObject(page + 1, index) == NULL) {
+                        createChannelObject(page + 1, index);
+                    }
+                }
+            }
+
+            if (page > 0) {
+                for (int index = 3; index < MAX_CHANNEL_INDEX; index += 4) {
+                    if (force || findChannelObject(page - 1, index) == NULL) {
+                        createChannelObject(page - 1, index);
+                    }
+                }
+            }
+        }
+
+        void SDChannelSelect::destroyUnusedChannelObjects(int currentPage,
+                                                           SDChannelObj* keepChannel) {
+            int keepPage;
+            int keepIndex;
+            if (keepChannel != NULL) {
+                keepPage = keepChannel->getPage();
+                keepIndex = keepChannel->getIndex();
+            }
+
+            SDChannelObj* channel = NULL;
+            while (channel = static_cast<SDChannelObj*>(
+                       nw4r::ut::List_GetNext(&mChannelObjects, channel)),
+                   channel != NULL) {
+                int page = channel->getPage();
+                int index = channel->getIndex();
+                if (keepChannel != NULL && page == keepPage && index == keepIndex) {
+                    continue;
+                }
+                if (mState < 0x18) {
+                    if (mState >= 0xF && page == mSourcePage && index == mSourceIndex) {
+                        continue;
+                    }
+                }
+                if (!isChannelInCalc(page, index, currentPage)) {
+                    SDChannelObj* previous = static_cast<SDChannelObj*>(
+                        nw4r::ut::List_GetPrev(&mChannelObjects, channel));
+                    nw4r::ut::List_Remove(&mChannelObjects, channel);
+                    destroyChannelObject(channel);
+                    channel = previous;
+                }
+            }
+        }
+
+        void SDChannelSelect::createChannelObject(int page, int index) {
+            EGG::FrmHeap* objectHeap = EGG::FrmHeap::create(0x212B8, mpLayoutHeap, 2);
+            SDChannelObj* channel = new (mpThumbnailHeap, 4) SDChannelObj(objectHeap, page, index);
+            nw4r::ut::List_Append(&mChannelObjects, channel);
+        }
+
+        void SDChannelSelect::refreshChannelList() {
+            SDChannelObj* channel = NULL;
+            while (channel = static_cast<SDChannelObj*>(
+                       nw4r::ut::List_GetNext(&mChannelObjects, channel)),
+                   channel != NULL) {
+                if (iplSDChannelObj_813E3330(channel)) {
+                    SDChannelObj* previous = static_cast<SDChannelObj*>(
+                        nw4r::ut::List_GetPrev(&mChannelObjects, channel));
+                    nw4r::ut::List_Remove(&mChannelObjects, channel);
+                    destroyChannelObject(channel);
+                    channel = previous;
+                } else if (channel->mStateFlags == 2) {
+                    channel->mStateFlags = 1;
+                }
+            }
+
+            createChannelList(mCurrentPage, false);
+            if (mCurrentPage < mPageCount - 1) {
+                createChannelList(mCurrentPage + 1, false);
+            }
+            if (mCurrentPage > 0) {
+                createChannelList(mCurrentPage - 1, false);
+            }
+            updateChannelObjects();
+        }
+
+        void SDChannelSelect::refreshAfterSDTitleList() {
+            SDChannelObj* channel = NULL;
+            while (channel = static_cast<SDChannelObj*>(
+                       nw4r::ut::List_GetNext(&mChannelObjects, channel)),
+                   channel != NULL) {
+                int channelIndex = channel->mPage * 12 + channel->mIndex;
+                if (!iplSDChannelObj_813E3330(channel) &&
+                    mpChannelTitleIds[channelIndex] != 0) {
+                    channel->mStateFlags = 2;
+                }
+            }
+
+            clearNoticeQueue();
+            updateChannelNotices(0, -1);
+            updateChannelNotices(-1, -1);
+            updateChannelNotices(1, -1);
+            updateChannelNotices(-2, -1);
+            updateChannelNotices(2, -1);
+        }
+
+        SDChannelObj* SDChannelSelect::findChannelObject(int page, int index) const {
+            SDChannelObj* channel = NULL;
+            while (channel = static_cast<SDChannelObj*>(
+                       nw4r::ut::List_GetNext(&mChannelObjects, channel)),
+                   channel != NULL) {
+                if (page == channel->getPage()) {
+                    if (index == channel->getIndex()) {
+                        return channel;
+                    }
+                }
+            }
+            return NULL;
         }
 
         math::VEC3 SDChannelSelect::getChannelPanePosition(SDChannelSelect* scene, int index) {
