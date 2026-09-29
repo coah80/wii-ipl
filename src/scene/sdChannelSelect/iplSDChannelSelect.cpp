@@ -2958,7 +2958,7 @@ namespace ipl {
 
             mpPointerLayout = new layout::Object(getSceneHeap(), mpLayoutFile, "arc",
                                                  "wait_icon.brlyt");
-            mpPointerLayout->bind("wait_icon_wait_loop.brlan", NULL, false, true);
+            mpPointerLayout->bind("wait_icon_wait_loop.brlan", "Wait_00", false, true);
             mpPointerLayout->finishBinding();
             mpPointerLayout->getAnim(0)->initAnmFrame();
 
@@ -3049,8 +3049,10 @@ namespace ipl {
             SDChannelObj* channel = NULL;
             while (channel = static_cast<SDChannelObj*>(nw4r::ut::List_GetNext(&mChannelObjects, channel)),
                    channel != NULL) {
-                iplSDChannelObj_813E3480(
-                    channel, channel->getPage() == page && channel->getIndex() == index);
+                int channelPage = channel->getPage();
+                int channelIndex = channel->getIndex();
+                bool selected = channelPage == page && channelIndex == index;
+                iplSDChannelObj_813E3480(channel, selected);
             }
 
             snd::getSystem()->startSEwithPos("WIPL_SE_CH_HOLD", mPointerPosition.x);
