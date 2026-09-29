@@ -2152,8 +2152,8 @@ namespace ipl {
 
         void Setting::setMasterKey() {
             char masterKey[16];
-            u8 result = 2;
             memset(masterKey, 0, 6);
+            u8 result = 2;
             if (checkTextNum(mpStringBuffer->masterKey) == 3) {
                 utility::CharacterCode::UTF8ToANSI(reinterpret_cast<u8*>(masterKey), mpStringBuffer->masterKey);
                 if (parental::Parental::judgeMaster(masterKey)) {
