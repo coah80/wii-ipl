@@ -81,6 +81,11 @@ extern "C" void iplSDChannelTitle_813E88CC(SDChannelTitle* scene, bool settings)
 extern "C" void iplSDChannelTitle_813E8A20(SDChannelTitle* scene, int nextScene);
 extern "C" SDMemory::TitleRange* iplSDChannelTitle_813E6FA0(SDMemory::TitleRange*, const SDMemory::TitleRange*);
 
+static inline void setMemoryTitleLists(SDMemory* memory, SDMemory::TitleRange sdRange,
+                                      SDMemory::TitleRange nandRange) {
+    memory->setTitleLists(sdRange, nandRange);
+}
+
 static const int sCaptureSizes[2][2] = {{128, 96}, {176, 96}};
 
 static const char* sButtonGroups[7] = {
@@ -760,7 +765,7 @@ extern "C" void iplSDChannelTitle_813E6E24(SDChannelTitle* scene) {
                     iplSDChannelTitle_813E6FA0(&nandRange, iplSDChannelTitle_813E6FA0(&sdRange, &scene->mTitleRange));
                 }
                 SDMemory* memory = &scene->mMemory;
-                memory->setTitleLists(SDMemory::TitleRange(sdRange), SDMemory::TitleRange(nandRange));
+                setMemoryTitleLists(memory, sdRange, nandRange);
                 scene->mMemory.calc();
                 scene->mbResetAcceptable = true;
                 System::getHomeButtonMenu()->enable();

@@ -8,7 +8,7 @@ The default gate baseline `70970038` is absent from this checkout. Checks use th
 available ancestor `e265d9664e73912f2dbf8dd02425f9dc64eac55b` through the gate's
 supported `--base` option. Its unit baseline is zero instruction-exact functions.
 
-## Remaining functions
+## Initial remaining functions
 
 | Function | Distinct source attempts | Final instruction evidence |
 | --- | --- | --- |
@@ -55,3 +55,28 @@ no artificial data or force-active workaround was added.
 The two notice APIs declare an ignored controller argument that the target callers do
 not initialize. The source supplies zero rather than depending on an uninitialized value.
 The title-range output pointer is passed as the fourth channel-notice argument.
+
+## Continuation from merged main
+
+Starting main: `fcb5be85f76b17b4341b6868b768f22ded14f8e7`.
+Its gate baseline became available during this continuation, so the final check uses
+ordinary `origin/main`, with 63/69 exact functions and 17064/18624 matched code bytes.
+
+`813E6E24` now has 95/95 instructions and zero differences. An inline helper takes
+both title ranges by value, preserving the copies while evaluating the memory receiver
+before their loads. This changes no other translation unit and adds no out-of-line helper.
+The string pool remains identical.
+
+Fresh attempts for every function still open:
+
+| Function | Attempt 1 | Attempt 2 | Attempt 3 | Retained result |
+| --- | --- | --- | --- | --- |
+| `813E8A20` | Cached save manager through the flush: 36/37 instructions, missing reload. | Named previous-page reference: 37/37, same six differences. | Read save heap before the page store: 37/37, reordered loads and six differences. | Original 37/37, six register/load-order differences. Also tried guarded direct field access and an inline save-page helper; neither improved it. |
+| `calcFadein` | Scoped inline SDButton method body: 51/47, virtual call expanded. | Scoped inline body with NO_INLINE: 48/47, null callback argument remains. | Scoped inline body using a named gui-manager receiver: 51/47, same expanded virtual call. | Original 48/47; all header trials reverted. |
+| `initCalcFadeout` | Scoped inline SDButton method body: 52/49, virtual call expanded. | Scoped inline body with NO_INLINE: 50/49, null callback argument remains. | Scoped inline body using a named gui-manager receiver: 52/49, same expanded virtual call. | Original 50/49; all header trials reverted. |
+| `813E6CCC` | Inline notice wrapper with title ID and range parameters: 87/86, unchanged call setup. | Title-ID union with named words: 91/86, extra stores and loads. | Named enqueue result and failure early return: 87/86, result branches also differed. | Original 87/86; extra ignored-controller initialization and argument setup differences. |
+| `813E7074` | Inline notice wrapper with title ID and state parameters: 77/76, unchanged. | Title-ID union with named words: 77/76, worse register and stack allocation. | Named enqueue result and failure early return: 77/76, result branches also differed. | Original 77/76; extra ignored-controller initialization and argument move order. |
+
+All unsuccessful source and shared-header trials were reverted. The retained source
+change is the by-value range helper and its call. The unit remains NonMatching because
+five functions still differ; the condition for trying a Matching link has not been reached.
