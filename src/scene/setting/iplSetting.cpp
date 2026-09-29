@@ -3030,10 +3030,9 @@ namespace ipl {
         }
 
         bool Setting::validateEULA_() {
-            ESTmdView* titleView = NULL;
-            s32 contentResult;
-            s32 result = utility::ESMisc::GetTmdView(System::getMem1Root(), mUpdateTitleId, &titleView);
             bool valid = false;
+            ESTmdView* titleView = NULL;
+            s32 result = utility::ESMisc::GetTmdView(System::getMem1Root(), mUpdateTitleId, &titleView);
             if (result == -0x401 || result == -0x6a) {
                 unk_0x7C = 0;
                 unk_0x74 = 0xd;
@@ -3043,9 +3042,9 @@ namespace ipl {
                 System::getErrorHandler()->log("error", result, "iplSetting.cpp", 0x10f1);
                 System::getErrorHandler()->set(ErrorHandler::DEFAULT, 2);
             } else {
-                contentResult = 0;
-                if (!utility::ESMisc::ContentExist(titleView, 1, &contentResult) && contentResult != 0) {
-                    System::getErrorHandler()->log("error", contentResult, "iplSetting.cpp", 0x10fc);
+                result = 0;
+                if (!utility::ESMisc::ContentExist(titleView, 1, &result) && result != 0) {
+                    System::getErrorHandler()->log("error", result, "iplSetting.cpp", 0x10fc);
                     System::getErrorHandler()->set(ErrorHandler::DEFAULT, 2);
                 }
                 valid = true;
