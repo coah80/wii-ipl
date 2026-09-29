@@ -14,6 +14,7 @@ typedef struct IPAddrEntry {
 } IPAddrEntry;
 
 int SOGetInterfaceOpt(void* unk, int level, int optname, void* optval, int* optlen);
+int SOSetInterfaceOpt(void* unk, int level, int optname, const void* optval, int optlen);
 
 #ifdef __cplusplus
 }

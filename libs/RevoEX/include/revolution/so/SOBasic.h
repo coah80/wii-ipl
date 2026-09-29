@@ -99,19 +99,25 @@ struct SOAddrInfo {
     u32 addrLen;       // 0x10
     char* canonName;   // 0x14
     void* addr;        // 0x18
-    SOAddrInfo* next;  // 0x20
+    SOAddrInfo* next;  // 0x1C
 };
 
 int SOSocket(int pf, int type, int protocol);
 int SOClose(int s);
 
-int SOConnect(int s, void* sockAddr);
+int SOBind(int s, SOSockAddr* sockAddr);
+int SOConnect(int s, SOSockAddr* sockAddr);
+int SOGetSockName(int s, SOSockAddr* sockAddr);
 
+int SORecvFrom(int s, void* buf, int len, int flags, SOSockAddr* sockAddr);
 int SORecv(int s, void* buf, int len, int flags);
+int SORead(int s, void* buf, int len);
+int SOSendTo(int s, const void* buf, int len, int flags, const SOSockAddr* sockAddr);
 int SOSend(int s, void* buf, int len, int flags);
 int SOFcntl(int s, int cmd, ...);
 
 int SOShutdown(int s, int how);
+int SOPoll(SOPollFD* fds, int nfds, OSTime timeout);
 
 int SOInetAtoN(const char* cp, SOInAddr* inp);
 char* SOInetNtoA(SOInAddr in);
