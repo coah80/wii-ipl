@@ -3452,13 +3452,14 @@ namespace ipl {
             if (initialized) {
                 www::wiisetting::setFuncResult(1);
             } else {
-                if (error < -2) {
-                    if (error == -5) {
+                switch (error) {
+                    case -5:
                         System::getErrorHandler()->set(ErrorHandler::DEFAULT, 1);
-                    }
-                } else if (error == -2) {
-                    System::getErrorHandler()->log("NandSDWorker", error, "iplSetting.cpp", 0x13a7);
-                    System::getErrorHandler()->set(ErrorHandler::DEFAULT, 2);
+                        break;
+                    case -2:
+                        System::getErrorHandler()->log("NandSDWorker", -2, "iplSetting.cpp", 0x13a7);
+                        System::getErrorHandler()->set(ErrorHandler::DEFAULT, 2);
+                        break;
                 }
             }
         }
