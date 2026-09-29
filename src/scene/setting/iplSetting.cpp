@@ -2249,23 +2249,43 @@ namespace ipl {
 
         void Setting::convertRevIP(u8* destination, const char* address) {
             char ascii[20];
+            int count = 0;
             memset(ascii, 0, sizeof(ascii));
             utility::CharacterCode::UTF8ToANSI(reinterpret_cast<u8*>(ascii), address);
-            char* component = ascii;
-            u32 count = 0;
-            for (char* current = ascii;; ++current) {
-                if (*current == '.' || *current == 0) {
-                    bool finished = *current == 0;
-                    *current = 0;
-                    u32 value = atoi(component);
+            char* converted = ascii;
+            int componentStart = 0;
+            u8* output = destination;
+            for (int index = 0; index < 0x10; ++index) {
+                u8 character = static_cast<u8>(converted[index]);
+                if (character == '.' || character == 0) {
+                    if (character == 0) {
+                        index = 0x10;
+                    }
+                    converted[index] = 0;
+                    u32 value = atoi(converted + componentStart);
                     if (value > 0xff) {
                         value = 0xff;
                     }
-                    destination[count++] = value;
-                    if (finished || count == 4) {
-                        break;
+                    if (count == 0) {
+                        *output = value;
+                    } else {
+                        destination[1] = destination[2];
+                        destination[2] = destination[3];
+                        destination[3] = value;
                     }
-                    component = current + 1;
+                    componentStart = index + 1;
+                    ++count;
+                    ++output;
+                    if (count == 3 && index != 0x10) {
+                        value = atoi(converted + componentStart);
+                        if (value > 0xff) {
+                            value = 0xff;
+                        }
+                        destination[1] = destination[2];
+                        destination[2] = destination[3];
+                        destination[3] = value;
+                        return;
+                    }
                 }
             }
         }
