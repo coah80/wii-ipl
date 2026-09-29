@@ -14,6 +14,12 @@
 #endif
 
 namespace ipl {
+    namespace controller {
+        class Interface;
+    }
+}
+
+namespace ipl {
     namespace scene {
 #ifdef IPL_SETTING_IMPLEMENTATION
         class Setting;
@@ -60,6 +66,11 @@ namespace ipl {
             void initMTU();
             void initSecA();
             void initVersion();
+            void updateController_();
+            void setSE();
+            void changeVideoMode();
+            bool isInitialSequenceExit(const ::ipl::controller::Interface* input);
+            bool updateScreenMode();
             void start_point_event(const char* pageName);
             void start_trig_event(const char* pageName);
             void start_left_event(const char* pageName);

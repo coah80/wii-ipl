@@ -5,6 +5,7 @@
 #include "scene/setting/iplParental.h"
 #include "system/iplErrorHandler.h"
 #include "system/iplSystem.h"
+#include "utility/iplWpad.h"
 
 #include "iplwww/www_wiisetting.h"
 #include "iplwww/www_surface.h"
@@ -456,13 +457,13 @@ namespace ipl {
         }
 
         FaderSceneCommand Setting::calcFadein() {
-            if (System::hasCreatedAfter() && mBrowserCreated == 0) {
-                mBrowserCreated = 1;
-                createBrowser();
-                OSReport("............browser created\n");
-            }
-
-            if (mBrowserCreated == 0) {
+            if (System::hasCreatedAfter()) {
+                if (mBrowserCreated == 0) {
+                    mBrowserCreated = 1;
+                    createBrowser();
+                    OSReport("............browser created\n");
+                }
+            } else if (mBrowserCreated == 0) {
                 OSReport("wait first init\n");
                 return FADER_SCN_CONTINUE;
             }
@@ -477,8 +478,155 @@ namespace ipl {
             System::getFader()->fadeIn();
             mCreatePageTime = OSGetTime();
             OSReport("*** create page costs: %dms\n",
-                     (OSGetTick() - mPrepareTick) / ((OS_TIMER_CLOCK / 4) / 1000));
+                     (OSGetTick() - mPrepareTick) / (OS_TIMER_CLOCK / 1000));
             return FADER_SCN_NEXT;
+        }
+
+        void Setting::updateController_() {
+            nw4r::ut::Rect projection;
+            System::getProjectionRect4x3(&projection);
+
+            if (isAnimating()) {
+                return;
+            }
+
+            controller::Interface* youngController = System::getYoungController();
+            ext_ead::www::BrowserThread::CmdPacket packet;
+
+            if (youngController == NULL) {
+                packet.type = 0;
+                packet.data.controller.irX = -1000.0f;
+                packet.data.controller.irY = -1000.0f;
+                packet.data.controller.btnHold = 0;
+                packet.data.controller.btnTrigger = 0;
+                packet.data.controller.btnRelease = 0;
+                ext_ead::www::SurfaceManager::GetInstance()->GetBrowserThread()->SendUIEvent(&packet);
+                return;
+            }
+
+            if (unk_0xB9C >= 10 && *(reinterpret_cast<char*>(mpStringBuffer) + 0x60e) == 0) {
+                packet.data.controller.irX = youngController->getDpdProjectionPos().x - projection.left;
+                packet.data.controller.irY = youngController->getDpdProjectionPos().y - projection.top;
+                u32 classicHold = youngController->getClassicHoldFlag();
+                u32 classicTrigger = youngController->getClassicTrigFlag();
+                u32 classicRelease = youngController->getClassicReleaseFlag();
+                packet.data.controller.btnHold = (classicHold << 16) | youngController->getHoldFlag();
+                packet.data.controller.btnTrigger = (classicTrigger << 16) | youngController->getTrigFlag();
+                packet.data.controller.btnRelease = (classicRelease << 16) | youngController->getReleaseFlag();
+            } else {
+                packet.data.controller.irX = -1000.0f;
+                packet.data.controller.irY = -1000.0f;
+                packet.data.controller.btnHold = 0;
+                packet.data.controller.btnTrigger = 0;
+                packet.data.controller.btnRelease = 0;
+            }
+
+            packet.type = 0;
+            if (mKeyboardState.type == textinput::MemoManager::ST_Hidden && unk_0x74 == 0) {
+                ext_ead::www::SurfaceManager::GetInstance()->GetBrowserThread()->SendUIEvent(&packet);
+            }
+        }
+
+        void Setting::changeVideoMode() {
+            setSE();
+            VISetBlack(TRUE);
+            VIFlush();
+            VIWaitForRetrace();
+            System::resetFrameworkRenderMode();
+
+            u32 startTick = OSGetTick();
+            while ((OSGetTick() - startTick) / (OS_TIMER_CLOCK / 1000) < 0x67c) {
+                VIWaitForRetrace();
+            }
+
+            mAspectRatio = SCGetAspectRatio();
+            mProgressiveMode = SCGetProgressiveMode();
+            mEuRgb60Mode = SCGetEuRgb60Mode();
+            unk_0xB94 = 0;
+
+            VISetBlack(FALSE);
+            VIFlush();
+            VIWaitForRetrace();
+
+            while (mpSecondAnimation->state == 1 || mpFirstAnimation->state == 1) {
+                mpChangeLayout->calc();
+            }
+
+            mState = 20;
+            unk_0xB9C = 10;
+        }
+
+        bool Setting::isInitialSequenceExit(const controller::Interface* input) {
+            u32 connectedMask = utility::wpad::getWpadConnectedMask();
+            if (input->downTrg(0x100800)) {
+                return true;
+            }
+
+            OSTime elapsed = OSGetTime() - mCreatePageTime;
+            if (elapsed / (OS_TIMER_CLOCK / 1000) >= 500 && connectedMask != unk_0xBA8 &&
+                utility::wpad::isIncreaseConnectedWpad(unk_0xBA8, connectedMask)) {
+                return true;
+            }
+
+            if (connectedMask != unk_0xBA8) {
+                unk_0xBA8 = connectedMask;
+            }
+            return false;
+        }
+
+        bool Setting::updateScreenMode() {
+            if (unk_0x91C[2] != 0) {
+                if (unk_0xB94 == 0) {
+                    if (mEuRgb60Mode == SCGetEuRgb60Mode()) {
+                        if (mProgressiveMode != SCGetProgressiveMode()) {
+                            unk_0xB94 = 2;
+                        }
+                    } else {
+                        unk_0xB94 = 3;
+                    }
+
+                    if (unk_0xB94 != 0 && unk_0xB94 != 1) {
+                        System::getFader()->fadeOut();
+                        mState = 0;
+                        return true;
+                    }
+                }
+            } else if (unk_0xB94 == 1 && unk_0x74 == 8) {
+                    System::getFader()->fadeOut();
+                    mState = 0;
+                    unk_0x92C = 0;
+                    unk_0x74 = 0;
+                    return true;
+            }
+
+            if (unk_0xB94 == 1) {
+                if (System::getFader()->getStatus() != EGG::Fader::PREPARE_IN) {
+                    mState = 0;
+                    return true;
+                }
+
+                System::getDialog()->terminate();
+                SCSetAspectRatio(mAspectRatio & 0xff);
+                SCFlush();
+                if (System::getDialog()->getLastResult() < 0) {
+                    mState = 0;
+                    return true;
+                }
+
+                changeVideoMode();
+                www::wiisetting::setStringBuf(mpStringBuffer);
+                System::getFader()->fadeIn();
+            } else if (unk_0xB94 > 0 && unk_0xB94 < 4) {
+                if (System::getFader()->getStatus() != EGG::Fader::PREPARE_IN) {
+                    mState = 0;
+                    return true;
+                }
+
+                changeVideoMode();
+                System::getFader()->fadeIn();
+            }
+
+            return false;
         }
 
         u16 Setting::getProfileID() {
