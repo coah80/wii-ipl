@@ -108,8 +108,8 @@ typedef struct WADImportTransfer {
     BOOL ready[2];
     void* buffers[2];
     OSMutex mutex[2];
-    OSCond signalCond[2];
     OSCond waitCond[2];
+    OSCond signalCond[2];
 } WADImportTransfer;
 
 typedef struct WADImportLoopArgs {
@@ -117,6 +117,8 @@ typedef struct WADImportLoopArgs {
     u32 size;
     WADImportTransfer* transfer;
 } WADImportLoopArgs;
+
+typedef WADImportLoopArgs WADExportLoopArgs;
 
 #define WAD_STREAM_ALIGNMENT 0x40
 #define WAD_READ_ALIGNMENT 0x20
@@ -452,6 +454,38 @@ static s32 WAD_815BFFA8(WADImportLoopArgs* args) {
         }
         result = ES_ImportContentData(args->fd, transfer->buffers[bufferIndex], size);
         transfer->ready[bufferIndex] = 0;
+        if (result != 0) {
+            transfer->error = 1;
+        }
+        OSUnlockMutex(mutex);
+        OSSignalCond(&transfer->signalCond[bufferIndex]);
+        remaining -= size;
+        bufferIndex ^= 1;
+    }
+    return result;
+}
+
+s32 WAD_815C1288(WADExportLoopArgs* args) {
+    ESFd fd = args->fd;
+    s32 result = 0;
+    u32 remaining = args->size;
+    u32 bufferIndex = 0;
+    WADImportTransfer* transfer = args->transfer;
+
+    while ((remaining != 0) && (result == 0)) {
+        u32 size = remaining;
+        OSMutex* mutex;
+
+        if (transfer->chunkSize < remaining) {
+            size = transfer->chunkSize;
+        }
+        mutex = &transfer->mutex[bufferIndex];
+        OSLockMutex(mutex);
+        while (transfer->ready[bufferIndex] != 0) {
+            OSWaitCond(&transfer->waitCond[bufferIndex], mutex);
+        }
+        result = ES_ExportContentData(fd, transfer->buffers[bufferIndex], size);
+        transfer->ready[bufferIndex] = size;
         if (result != 0) {
             transfer->error = 1;
         }
