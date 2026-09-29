@@ -137,6 +137,8 @@ namespace ipl {
 
         const char* sSettingAPNumberNames[] = {"N_AP1", "N_AP2", "N_AP3", "N_AP4", "N_AP5", "N_AP6"};
 
+        const char* sAPScrollArrowNames[] = {"B_ArwA", "B_ArwB"};
+
         const char* sSettingAPPaneNames[] = {
             "G_ListUpDown", "G_ListInOut", "G_ArwA", "G_ArwB", "G_Denpa", "G_Lock",  "G_AP0",
             "G_AP1",        "G_AP2",       "G_AP3",  "G_AP4",  "G_AP5",   "G_AP6",   "G_AP7",
@@ -2609,9 +2611,9 @@ namespace ipl {
                             mpMainLayout->FindPaneByName(sSettingAPNumberNames[0])->SetVisible(true);
                         }
                         if (mAPScanList.count == unk_0x914 + 4) {
-                            mpMainLayout->FindPaneByName(sSettingAPNumberNames[1])->SetVisible(false);
+                            mpMainLayout->FindPaneByName(sSettingAPTextNames[1])->SetVisible(false);
                         } else if (mAPScanList.count == unk_0x914 + 5) {
-                            mpMainLayout->FindPaneByName(sSettingAPNumberNames[1])->SetVisible(true);
+                            mpMainLayout->FindPaneByName(sSettingAPTextNames[1])->SetVisible(true);
                         }
                         mpMainLayout->FindPaneByName(sSettingAPTextNames[0])->SetVisible(true);
                         mpMainLayout->FindPaneByName(sSettingAPTextNames[1])->SetVisible(true);
@@ -2645,44 +2647,45 @@ namespace ipl {
             if (unk_0x91C[2] == 0) {
                 return;
             }
-            mpMainLayout->FindPaneByName(sSettingAPNumberNames[1])->SetVisible(true);
-            mpMainLayout->FindPaneByName(sSettingAPNumberNames[2])->SetVisible(true);
-            mpMainLayout->FindPaneByName(sSettingAPNumberNames[3])->SetVisible(true);
-            mpMainLayout->FindPaneByName(sSettingAPNumberNames[4])->SetVisible(true);
-            mpMainLayout->FindPaneByName(sSettingAPNumberNames[0])->SetVisible(true);
-            mpMainLayout->FindPaneByName(sSettingAPNumberNames[5])->SetVisible(true);
-            u16 count = mAPScanList.count;
-            if (count == 2) {
-                mpMainLayout->FindPaneByName(sSettingAPNumberNames[3])->SetVisible(false);
-            } else if (count < 2) {
-                if (count == 0) {
-                    mpMainLayout->FindPaneByName(sSettingAPNumberNames[1])->SetVisible(false);
-                }
-                mpMainLayout->FindPaneByName(sSettingAPNumberNames[2])->SetVisible(false);
-                mpMainLayout->FindPaneByName(sSettingAPNumberNames[3])->SetVisible(false);
+            mpMainLayout->FindPaneByName("N_AP2")->SetVisible(true);
+            mpMainLayout->FindPaneByName("N_AP3")->SetVisible(true);
+            mpMainLayout->FindPaneByName("N_AP4")->SetVisible(true);
+            mpMainLayout->FindPaneByName("N_AP5")->SetVisible(true);
+            mpMainLayout->FindPaneByName("N_AP6")->SetVisible(true);
+            mpMainLayout->FindPaneByName("N_AP7")->SetVisible(true);
+            switch (mAPScanList.count) {
+                case 0:
+                    mpMainLayout->FindPaneByName("N_ArwB")->SetVisible(false);
+                case 1:
+                    mpMainLayout->FindPaneByName("N_AP3")->SetVisible(false);
+                case 2:
+                    mpMainLayout->FindPaneByName("N_AP4")->SetVisible(false);
+                case 3:
+                    mpMainLayout->FindPaneByName("N_AP5")->SetVisible(false);
+                    mpMainLayout->FindPaneByName("N_AP6")->SetVisible(false);
+                    mpMainLayout->FindPaneByName("N_AP7")->SetVisible(false);
+                    break;
             }
-            if (count < 4) {
-                for (int index = 4; index < 6; ++index) {
-                    mpMainLayout->FindPaneByName(sSettingAPNumberNames[index])->SetVisible(false);
-                }
-                mpMainLayout->FindPaneByName("N_AP7")->SetVisible(false);
-            }
-            mpMainLayout->getAnim(0x14)->initFrame();
-            mpMainLayout->getAnim(0x14)->restart();
+            utility::FrameController* numberAnim = mpMainLayout->getAnim(0x14);
+            numberAnim->initFrame();
+            numberAnim->restart();
             mpMainLayout->getAnim(0)->initAnmFrame();
-            mpMainLayout->FindPaneByName(sSettingAPPaneNames[0])->SetVisible(false);
-            mpMainLayout->FindPaneByName(sSettingAPPaneNames[1])->SetVisible(false);
-            if (count > unk_0x914 + 4) {
-                mpMainLayout->FindPaneByName(sSettingAPPaneNames[3])->SetVisible(true);
-                mpMainLayout->getAnim(1)->initFrame();
-                mpMainLayout->getAnim(1)->restart();
-                for (int index = 1; index < 6; ++index) {
-                    mpMainLayout->FindPaneByName(sSettingAPNumberNames[index])->SetVisible(true);
+            mpMainLayout->FindPaneByName(sAPScrollArrowNames[0])->SetVisible(false);
+            mpMainLayout->FindPaneByName(sSettingAPTextNames[0])->SetVisible(false);
+            if (mAPScanList.count <= unk_0x914 + 4) {
+                mpMainLayout->FindPaneByName(NULL)->SetVisible(false);
+                mpMainLayout->FindPaneByName(sSettingAPNumberNames[1])->SetVisible(false);
+                for (int index = mAPScanList.count + 1; index < 6; ++index) {
+                    mpMainLayout->FindPaneByName(sSettingAPNumberNames[index])->SetVisible(false);
                 }
             } else {
-                mpMainLayout->FindPaneByName(sSettingAPPaneNames[3])->SetVisible(false);
-                for (int index = count + 1; index < 6; ++index) {
-                    mpMainLayout->FindPaneByName(sSettingAPNumberNames[index])->SetVisible(false);
+                mpMainLayout->FindPaneByName(NULL)->SetVisible(true);
+                mpMainLayout->FindPaneByName(sSettingAPNumberNames[1])->SetVisible(true);
+                utility::FrameController* scrollAnim = mpMainLayout->getAnim(1);
+                scrollAnim->initFrame();
+                scrollAnim->restart();
+                for (int index = 1; index < 6; ++index) {
+                    mpMainLayout->FindPaneByName(sSettingAPNumberNames[index])->SetVisible(true);
                 }
             }
             unk_0x78 = 6;
