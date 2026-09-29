@@ -2098,25 +2098,29 @@ namespace ipl {
 
         void Setting::setPareRePass() {
             char password[16];
-            u8 result = 2;
             memset(password, 0, 5);
+            u8 result = 2;
             utility::CharacterCode::UTF8ToANSI(reinterpret_cast<u8*>(password), mpStringBuffer->parentalRePass);
-            if (checkTextNum(password) == 3 && parental::Parental::checkPass(password)) {
-                result = 1;
+            if (checkTextNum(password) == 3) {
+                if (parental::Parental::checkPass(password)) {
+                    result = 1;
+                }
+                www::wiisetting::setFuncResult(result);
             }
-            www::wiisetting::setFuncResult(result);
             memset(mpStringBuffer->parentalRePass, 0, 5);
         }
 
         void Setting::setPareJudgePass() {
             char password[16];
-            u8 result = 2;
             memset(password, 0, 5);
+            u8 result = 2;
             utility::CharacterCode::UTF8ToANSI(reinterpret_cast<u8*>(password), mpStringBuffer->parentalJudgePass);
-            if (checkTextNum(password) == 3 && parental::Parental::judgePass(password)) {
-                result = 1;
+            if (checkTextNum(password) == 3) {
+                if (parental::Parental::judgePass(password)) {
+                    result = 1;
+                }
+                www::wiisetting::setFuncResult(result);
             }
-            www::wiisetting::setFuncResult(result);
             memset(mpStringBuffer->parentalJudgePass, 0, 5);
         }
 
