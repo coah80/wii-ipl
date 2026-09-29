@@ -220,7 +220,7 @@ u32 PFSTR_GetCodeMode(PF_STR* p_str);
 s8* PFSTR_GetStrPos(PF_STR* p_str, u32 target);
 void PFSTR_MoveStrPos(PF_STR* p_str, s16 num_char);
 s32 PFSTR_InitStr(PF_STR* p_str, const s8* s, u32 code_mode);
-u16 PFSTR_StrLen(PF_STR* p_str);
+u32 PFSTR_StrLen(PF_STR* p_str);
 u16 PFSTR_StrNumChar(PF_STR* p_str, u32 target);
 s32 PFSTR_StrCmp(const PF_STR* p_str, const s8* s);
 s32 PFSTR_StrNCmp(PF_STR* p_str, const s8* s, u32 target, s16 offset, u16 num);

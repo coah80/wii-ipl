@@ -1,62 +1,9 @@
 #include <revolution/types.h>
 #include <private/fa/fa_local.h>
 
-typedef enum {
-    FAT_12 = 0,
-    FAT_16 = 1,
-    FAT_32 = 2,
-    FAT_ERR = -1,
-} PF_FAT_TYPE;
-
 #define FAT_MAX 3
 
-typedef struct PF_BPB {
-    u16 bytes_per_sector;         // 0x00
-    u16 num_reserved_sectors;     // 0x02
-    u16 num_root_dir_entries;     // 0x04
-    u8 sectors_per_cluster;       // 0x06
-    u8 num_FATs;                  // 0x07
-    u32 total_sectors;            // 0x08
-    u32 sectors_per_FAT;          // 0x0C
-    u32 root_dir_cluster;         // 0x10
-    u16 fs_info_sector;           // 0x14
-    u16 backup_boot_sector;       // 0x16
-    u16 ext_flags;                // 0x18
-    u8 media;                     // 0x1A
-    u8 pad_1B;
-    PF_FAT_TYPE fat_type;         // 0x1C
-    u8 log2_bytes_per_sector;     // 0x20
-    u8 log2_sectors_per_cluster;  // 0x21
-    u8 num_active_FATs;           // 0x22
-    u8 pad_23;
-    u16 num_root_dir_sectors;     // 0x24
-    u8 pad_26[2];
-    u32 active_FAT_sector;        // 0x28
-    u32 first_root_dir_sector;    // 0x2C
-    u32 first_data_sector;        // 0x30
-    u32 num_clusters;             // 0x34
-} PF_BPB;
-
 typedef s32 (*PF_VOLUME_CB)(s32);
-
-struct PF_VOLUME {
-    PF_BPB bpb;                  // 0x00
-    u32 num_free_clusters;       // 0x38
-    u32 last_free_cluster;       // 0x3C
-    u8 pad_40[0x1F40];           // mid-struct (sfds/ufds/sdds/udds/cache/etc.)
-    s32 last_error;              // 0x1F80
-    s32 last_driver_error;       // 0x1F84
-    u32 file_config;             // 0x1F88
-    u16 flags;                   // 0x1F8C
-    s8 drv_char;                 // 0x1F8E
-    u8 pad_1F8F;
-    u16 fsi_flag;                // 0x1F90
-    u8 pad_1F92[0x0A];
-    u32 cluster_link_field;      // 0x1F9C (placeholder)
-    void* p_part;                // 0x1FA0
-    s32 (*p_callback)(s32);      // 0x1FA4
-    const u8* format_param;      // 0x1FA8
-};
 
 typedef struct PF_CACHE_PAGE {
     u16 stat;            // 0x00
@@ -71,42 +18,6 @@ typedef struct PF_CACHE_PAGE {
     struct PF_CACHE_PAGE* p_next;  // 0x20
     struct PF_CACHE_PAGE* p_prev;  // 0x24
 } PF_CACHE_PAGE;
-
-typedef struct PF_LAST_CLUSTER {
-    u32 num_last_cluster;  // 0x00
-    u32 max_chain_index;   // 0x04
-} PF_LAST_CLUSTER;
-
-typedef struct PF_FAT_LAST_ACCESS {
-    u32 chain_index;  // 0x00
-    u32 cluster;      // 0x04
-} PF_FAT_LAST_ACCESS;
-
-typedef struct PF_CLUSTER_LINK {
-    u32* buffer;          // 0x00
-    u16 interval;         // 0x04
-    u16 interval_offset;  // 0x06
-    u32 position;         // 0x08
-    u32 max_count;        // 0x0C
-    u32 save_index;       // 0x10
-} PF_CLUSTER_LINK;
-
-typedef struct PF_FAT_HINT {
-    u32 chain_index;    // 0x00
-    u32 cluster;        // 0x04
-    u32 start_cluster;  // 0x08
-} PF_FAT_HINT;
-
-typedef struct PF_FFD {
-    u32 start_cluster;                    // 0x00
-    u32 field_04;                         // 0x04
-    u32* p_start_cluster;                 // 0x08
-    PF_LAST_CLUSTER last_cluster;         // 0x0C
-    PF_FAT_LAST_ACCESS last_access_cluster;  // 0x14
-    PF_CLUSTER_LINK cluster_link;         // 0x1C
-    PF_FAT_HINT* p_hint;                  // 0x30
-    PF_VOLUME* p_vol;                     // 0x34
-} PF_FFD;
 
 typedef struct PF_CLUSTER_LINK_VOL {
     u16 flag;      // 0x00
