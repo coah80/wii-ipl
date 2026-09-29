@@ -638,22 +638,21 @@ static void* _WADMemAlloc(MEMAllocator* allocator, u32 size) {
         return 0;
     }
     heapType = ((MEMiHeapHead*)allocator->heap)->magic;
-    if (heapType == 0x46524D48) {
+    switch (heapType) {
+    case 0x46524D48:
         allocationKind = 1;
-    } else {
-        if (heapType < 0x46524D48) {
-            if (heapType == 0x45585048) {
-                allocationKind = 0;
-                goto allocate;
-            }
-        } else if (heapType == 0x554E5448) {
-            allocationKind = 2;
-            goto allocate;
-        }
+        break;
+    case 0x45585048:
+        allocationKind = 0;
+        break;
+    case 0x554E5448:
+        allocationKind = 2;
+        break;
+    default:
         allocationKind = 3;
+        break;
     }
 
-allocate:
     if (allocationKind == 1) {
         return MEMAllocFromFrmHeapEx(allocator->heap, size, 0x40);
     }
