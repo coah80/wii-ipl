@@ -161,6 +161,7 @@ typedef struct _ziGetParam {
     ziU8 maxCandidates;      // 0x1C
     ziWChar firstCandidate;  // 0x1E
     ziU8 wordCandidates;     // 0x1F
+    ziU8 unk_0x20;           // 0x20
 
     ziU8 letters;   // 0x21
     ziU8 count;     // 0x22
