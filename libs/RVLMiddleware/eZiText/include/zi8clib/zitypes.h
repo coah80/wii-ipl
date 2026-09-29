@@ -165,6 +165,7 @@ typedef struct _ziGetParam {
     ziU8 letters;   // 0x21
     ziU8 count;     // 0x22
     ziU8* scratch;  // 0x24
+    ziU32 unk_0x28; // 0x28
 } ziGetParam;
 
 typedef struct _ziLanguageEntry {
@@ -282,7 +283,29 @@ struct __zi8_work_data_s {
     ziU8* unk_0x17F0;
     ziWChar unk_0x17F4[0x40];  // 0x17F4..0x1874
     ziU16 unk_0x1874;
-    ziU8 unk_0x1876[0x2A2];
+    ziU8 unk_0x1876;
+    ziU8 unk_0x1877;
+    ziU8 unk_0x1878;
+    ziU8 unk_0x1879;
+    ziWChar unk_0x187A[0x41];
+    ziU8 unk_0x18FC;
+    ziU8 unk_0x18FD;
+    ziWChar unk_0x18FE[0x41];
+    ziU8 unk_0x1980;
+    ziU8 unk_0x1981;
+    ziU8 unk_0x1982;
+    ziU8 unk_0x1983;
+    ziU8 unk_0x1984;
+    ziU8 unk_0x1985;
+    ziU8 unk_0x1986;
+    ziU8 unk_0x1987;
+    ziWChar unk_0x1988[0x41];
+    ziU8 unk_0x1A0A;
+    ziU8 unk_0x1A0B[0x85];
+    ziWChar unk_0x1A90;
+    ziWChar unk_0x1A92[0x41];
+    ziU8 unk_0x1B14;
+    ziU8 unk_0x1B15[3];
     ziU16* unk_0x1B18;
     ziU16 unk_0x1B1C;
     ziU16 unk_0x1B1E;

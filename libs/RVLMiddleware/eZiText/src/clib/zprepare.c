@@ -310,7 +310,14 @@ L_phonetic:
         if (c2 != 0) {
             v12 = v16;
             v10 = v14;
-            goto L_store;
+L_store:
+            out->phon[out->nCand] = v1a;
+            out->phon2[out->nCand] = v18;
+            if (out->nCand == 0) {
+                out->first = v16;
+                out->first2 = v14;
+            }
+            continue;
         }
         if (i == 0) {
             goto L_reset;
@@ -347,13 +354,6 @@ L_phonetic:
         i--;
         continue;
 
-    L_store:
-        out->phon[out->nCand] = v1a;
-        out->phon2[out->nCand] = v18;
-        if (out->nCand == 0) {
-            out->first = v16;
-            out->first2 = v14;
-        }
     }
 
     if (n != 0) {
