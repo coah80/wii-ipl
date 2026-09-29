@@ -2929,22 +2929,24 @@ namespace ipl {
         }
 
         void Setting::setUseEULA_() {
-            if (unk_0x7C != 2) {
-                if (unk_0x7C < 2) {
-                    if (unk_0x7C != 0) {
-                        if (unk_0x7C >= 0) {
-                            setUseEULA_Start_();
-                        }
-                    } else {
-                        setUseEULA_Init_();
+            switch (unk_0x7C) {
+                case 0:
+                    setUseEULA_Init_();
+                    break;
+                case 1:
+                    setUseEULA_Start_();
+                    break;
+                case 2:
+                    setUseEULA_Cancel_();
+                    break;
+                case 3:
+                    if (!snd::getSystem()->isSEActive("WIPL_SE_DECIDE")) {
+                        unk_0x7C = 4;
                     }
-                } else if (unk_0x7C == 4) {
+                    break;
+                case 4:
                     setUseEULA_WaitStopMotor_();
-                } else if (unk_0x7C < 4 && !snd::getSystem()->isSEActive("WIPL_SE_DECIDE")) {
-                    unk_0x7C = 4;
-                }
-            } else {
-                setUseEULA_Cancel_();
+                    break;
             }
         }
 
@@ -3429,31 +3431,33 @@ namespace ipl {
         }
 
         void Setting::setUSBAP() {
-            if (unk_0x84 != 2) {
-                if (unk_0x84 < 2) {
-                    if (unk_0x84 >= 1) {
-                        if (static_cast<USBAPThread*>(mpUSBAPThread)->is()) {
-                            bool result = SCGetOwnerNickName(reinterpret_cast<SCOwnerNickname*>(mSettingData));
-                            if (!result) {
-                                www::wiisetting::setFuncResult(2);
-                                resetFuncMsgQ();
-                            } else {
-                                OSReport("USB SCGetOwnerNickName:%d\n", result);
-                                static_cast<USBAPThread*>(mpUSBAPThread)->setData(
-                                    reinterpret_cast<const wchar_t*>(mSettingData), &unk_0x91C[1]);
-                                static_cast<USBAPThread*>(mpUSBAPThread)->Init(
-                                    reinterpret_cast<unsigned short*>(mpMem2BrowserBuffer),
-                                    reinterpret_cast<u8*>(mpBrowserStringBuffer));
-                                unk_0x84 = 2;
-                            }
+            switch (unk_0x84) {
+                case 1:
+                    if (static_cast<USBAPThread*>(mpUSBAPThread)->is()) {
+                        bool result = SCGetOwnerNickName(reinterpret_cast<SCOwnerNickname*>(mSettingData));
+                        if (result != 0) {
+                            OSReport("USB SCGetOwnerNickName:%d\n", result);
+                            static_cast<USBAPThread*>(mpUSBAPThread)->setData(
+                                reinterpret_cast<const wchar_t*>(mSettingData), &unk_0x91C[1]);
+                            static_cast<USBAPThread*>(mpUSBAPThread)->Init(
+                                reinterpret_cast<unsigned short*>(mpMem2BrowserBuffer),
+                                reinterpret_cast<u8*>(mpBrowserStringBuffer));
+                            unk_0x84 = 2;
+                        } else {
+                            www::wiisetting::setFuncResult(2);
+                            resetFuncMsgQ();
                         }
                     }
-                }
-            } else if (unk_0x91C[1] != 0) {
-                www::wiisetting::setFuncResult(unk_0x91C[1]);
-                unk_0x84 = 1;
-                unk_0x91C[1] = 0;
-                resetFuncMsgQ();
+                    break;
+                case 2: {
+                    if (unk_0x91C[1] != 0) {
+                        www::wiisetting::setFuncResult(unk_0x91C[1]);
+                        unk_0x84 = 1;
+                        unk_0x91C[1] = 0;
+                        resetFuncMsgQ();
+                    }
+                    break;
+                    }
             }
         }
 
@@ -3542,56 +3546,63 @@ namespace ipl {
             }
             bool cancelCommand = command == 0x2bu;
             int state = static_cast<RakuRakuThread*>(mpRakuRakuThread)->getState();
-            int result = 0;
-            if (cancelCommand && (state == 0 || state == 6 || state == 7 || state == 8)) {
-                if (static_cast<RakuRakuThread*>(mpRakuRakuThread)->finish(NULL, NULL) != 0) {
-                    www::wiisetting::setFuncResult(5);
-                    resetFuncMsgQ();
-                } else {
-                    static_cast<RakuRakuThread*>(mpRakuRakuThread)->cancel();
+            int result;
+            if (cancelCommand) {
+                switch (state) {
+                    case 0:
+                    case 6:
+                    case 7:
+                        if (static_cast<RakuRakuThread*>(mpRakuRakuThread)->finish(NULL, NULL) != 0) {
+                            www::wiisetting::setFuncResult(5);
+                            resetFuncMsgQ();
+                        }
+                        break;
+                    default:
+                        static_cast<RakuRakuThread*>(mpRakuRakuThread)->cancel();
+                        break;
                 }
                 return;
             }
-            if (!cancelCommand && state == 0) {
-                if (!snd::getSystem()->isSEActive("WIPL_SE_DECIDE") &&
-                    static_cast<RakuRakuThread*>(mpRakuRakuThread)->start() == 0) {
-                    www::wiisetting::setFuncResult(2);
-                    resetFuncMsgQ();
-                }
-                return;
-            }
-            if (!cancelCommand && state == 5) {
-                if (mpWiiSettingFlag->smthMsgData == 0x29u) {
-                    www::wiisetting::setFuncResult(1);
-                    resetFuncMsgQ();
-                }
-                return;
-            }
-            if (state == 7) {
-                if (static_cast<RakuRakuThread*>(mpRakuRakuThread)->finish(NULL, &result) != 0) {
-                    www::wiisetting::setFuncResult(2);
-                    resetFuncMsgQ();
-                }
-                return;
-            }
-            if (state > 4 && state < 7) {
-                if (static_cast<RakuRakuThread*>(mpRakuRakuThread)->finish(
-                        &m_RakuConfig.cfg, &result) != 0) {
-                    if (result == 1) {
-                        ncd::NCDSetting::getData();
-                        ncd::NCDSetting::getID();
-                        ncd::NCDSetting::setRakuParams(m_RakuConfig.cfg);
-                        www::wiisetting::setFuncResult(1);
-                    } else {
-                        www::wiisetting::setFuncResult(2);
+            switch (state) {
+                case 0:
+                    if (!snd::getSystem()->isSEActive("WIPL_SE_DECIDE") &&
+                        static_cast<RakuRakuThread*>(mpRakuRakuThread)->start() == 0) {
+                        www::wiisetting::setFuncResult(cancelCommand ? 5 : 2);
+                        resetFuncMsgQ();
                     }
-                    resetFuncMsgQ();
-                }
-                return;
-            }
-            if (state > 0 && state < 4 && mpWiiSettingFlag->smthMsgData == 0x28u) {
-                www::wiisetting::setFuncResult(1);
-                resetFuncMsgQ();
+                    break;
+                case 4:
+                    if (mpWiiSettingFlag->smthMsgData == 0x28u) {
+                        www::wiisetting::setFuncResult(1);
+                        resetFuncMsgQ();
+                    }
+                    break;
+                case 5:
+                    if (mpWiiSettingFlag->smthMsgData == 0x29u) {
+                        www::wiisetting::setFuncResult(1);
+                        resetFuncMsgQ();
+                    }
+                    break;
+                case 6:
+                    if (static_cast<RakuRakuThread*>(mpRakuRakuThread)->finish(
+                            &m_RakuConfig.cfg, &result) != 0) {
+                        if (result != 1) {
+                            www::wiisetting::setFuncResult(2);
+                        } else {
+                            ncd::NCDSetting::getData();
+                            ncd::NCDSetting::getID();
+                            ncd::NCDSetting::setRakuParams(m_RakuConfig.cfg);
+                            www::wiisetting::setFuncResult(1);
+                        }
+                        resetFuncMsgQ();
+                    }
+                    break;
+                case 7:
+                    if (static_cast<RakuRakuThread*>(mpRakuRakuThread)->finish(NULL, &result) != 0) {
+                        www::wiisetting::setFuncResult(2);
+                        resetFuncMsgQ();
+                    }
+                    break;
             }
         }
 
