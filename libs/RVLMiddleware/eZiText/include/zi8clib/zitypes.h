@@ -189,7 +189,8 @@ struct __zi8_work_data_s {
     ziU16 unk_0x1A;
     ziU8 unk_0x1C[3];
     ziU8 unk_0x1F;
-    ziU8 unk_0x20[0x104];
+    ziU16 unk_0x20[0x40];
+    ziU16 unk_0xA0[0x42];
     ziU16* unk_0x124[1];
     ziU8* unk_0x128;
     ziU8 unk_0x12C;
@@ -207,7 +208,14 @@ struct __zi8_work_data_s {
     ziU16 unk_0x141A;
     ziU8 unk_0x141C[0x458];
     ziU16 unk_0x1874;
-    ziU8 unk_0x1876[0x2B2];
+    ziU8 unk_0x1876[0x2A2];
+    ziU16* unk_0x1B18;
+    ziU16 unk_0x1B1C;
+    ziU16 unk_0x1B1E;
+    ziU16 unk_0x1B20;
+    ziU16 unk_0x1B22;
+    ziU8 unk_0x1B24;
+    ziU8 unk_0x1B25[3];
     union {
         ziU32 word;
         struct {
