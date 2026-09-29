@@ -102,8 +102,6 @@ namespace ipl {
 
         static const char* scMaskPaneName = "ChMask";
 
-        extern "C" BOOL iplSavedata_813597A0(void* manager, ESTitleId titleId);
-
 
         static const f32 scChanSize[2][2] = {
             {64.0f, 48.0f},

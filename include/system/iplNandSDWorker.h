@@ -11,6 +11,9 @@
 #include "system/iplChannelManager.h"
 
 namespace ipl {
+    namespace scene {
+        class SDChannelSelect;
+    }
     class NandSDWorker {
     public:
         typedef enum WorkSDState {
@@ -529,7 +532,7 @@ namespace ipl {
         Work* myWork;   // 0x00
         bool unk_0x04;  // 0x04
 
-        friend class ipl::scene::SDChannelSelect;
+        friend class scene::SDChannelSelect;
 
         static const char* c_banner_file_name;
         static const char* c_nocopy_folder_name;
