@@ -998,15 +998,16 @@ void ipl::scene::AddressEdit::stt_wait_del_msg_fadeout() {
     if (!mpCodeLayout->getAnim(0x1d)->isPlaying()) {
         u32 friendIndex = mSelectedFriend;
         u32 status = mpFriendCache->getInfo(friendIndex).attr.status;
-        ipl::layout::Animator* animator;
         if (status == 2) {
-            animator = mpCodeLayout->getAnim(0x10);
+            ipl::layout::Animator* animator = mpCodeLayout->getAnim(0x10);
+            animator->initFrame();
+            animator->restart();
         } else {
-            animator = mpCodeLayout->getAnim(0x1a);
+            ipl::layout::Animator* animator = mpCodeLayout->getAnim(0x1a);
+            animator->initFrame();
+            animator->restart();
         }
-        animator->initFrame();
-        animator->restart();
-        animator = mpCodeLayout->getAnim(0x11);
+        ipl::layout::Animator* animator = mpCodeLayout->getAnim(0x11);
         animator->initFrame();
         animator->restart();
         animator = mpCodeLayout->getAnim(0x12);
