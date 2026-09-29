@@ -589,6 +589,7 @@ static s32 _WADGetCidx(const ESContentMask* contentMask, u32 contentNumber) {
     return -1;
 }
 
+#pragma dont_inline on
 static s32 _WADGetTransferId(void* transferId) {
     NANDFileInfo fileInfo;
     BOOL valid;
@@ -597,8 +598,11 @@ static s32 _WADGetTransferId(void* transferId) {
     valid = FALSE;
     result = NANDPrivateOpen("/shared2/succession/transfer.id", &fileInfo, 1);
     if (result == 0) {
+        valid = TRUE;
         result = NANDRead(&fileInfo, transferId, 0x20);
-        valid = result == 0x20;
+        if (result != 0x20) {
+            valid = FALSE;
+        }
         NANDClose(&fileInfo);
     }
     return valid;
@@ -608,11 +612,11 @@ static s32 _WADCanImportFile(const WADFileHeader* fileHeader, u32 transferId, co
                              const void* transferIdBuffer) {
     s32 result;
 
-    result = strncmp(fileHeader->name, "banner.bin", 6);
+    result = strncmp(fileHeader->name, "nocopy", 6);
     if (result == 0) {
         return FALSE;
     }
-    result = strncmp(fileHeader->name, "zeldaTp.dat", 10);
+    result = strncmp(fileHeader->name, "notransfer", 10);
     if (result == 0) {
         if ((transferId == 0) || (fileNames == 0) || (transferIdBuffer == 0)) {
             return FALSE;
@@ -622,6 +626,7 @@ static s32 _WADCanImportFile(const WADFileHeader* fileHeader, u32 transferId, co
     }
     return TRUE;
 }
+#pragma dont_inline reset
 
 #pragma dont_inline on
 static void* _WADMemAlloc(MEMAllocator* allocator, u32 size) {
