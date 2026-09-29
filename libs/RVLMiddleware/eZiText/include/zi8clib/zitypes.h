@@ -172,6 +172,28 @@ typedef struct _ziLanguageEntry {
     ziU8* tableData;  // 0x04
 } ziLanguageEntry;
 
+typedef struct _zi8DawgRec {
+    ziU8* node;
+    ziU32 attr;
+    ziU16 key;
+    ziU8 unk_0x0A[2];
+    ziU8* back;
+} zi8DawgRec;
+
+typedef struct _zi8DawgCtx {
+    ziU8 lang;       // 0x00
+    ziU8 key;        // 0x01
+    ziU16 cnt;       // 0x02
+    ziU16 cap;       // 0x04
+    ziU8 unk_0x06[2];
+    ziU8* p08;       // 0x08
+    ziU8* p0C;       // 0x0C
+    ziU8* table;     // 0x10
+    ziU8* p14;       // 0x14
+    zi8DawgRec recs[0x32];  // 0x18
+    ziU32 unk_0x338; // 0x338
+} zi8DawgCtx;
+
 typedef struct _ziUwdNode {
     struct _ziUwdNode* next;
     ziU8* word;
@@ -240,7 +262,21 @@ struct __zi8_work_data_s {
     ziU8 unk_0x1418;
     ziU8 unk_0x1419;
     ziU16 unk_0x141A;
-    ziU8 unk_0x141C[0x458];
+    ziU8 unk_0x141C;
+    ziU8 unk_0x141D;
+    ziU8 unk_0x141E;
+    ziU8 unk_0x141F;
+    ziU8 unk_0x1420[4];
+    zi8DawgCtx dawgCtx;    // 0x1424
+    ziU8 unk_0x1760[4];    // 0x1760
+    ziU8* unk_0x1764;      // 0x1764
+    ziU8 unk_0x1768;
+    ziU8 unk_0x1769[0x81];
+    ziU16 unk_0x17EA;
+    ziU8 unk_0x17EC;
+    ziU8 unk_0x17ED[3];
+    ziU8* unk_0x17F0;
+    ziWChar unk_0x17F4[0x40];  // 0x17F4..0x1874
     ziU16 unk_0x1874;
     ziU8 unk_0x1876[0x2A2];
     ziU16* unk_0x1B18;
