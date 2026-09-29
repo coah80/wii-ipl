@@ -324,7 +324,7 @@ pf_s32 PFDIR_p_readdir(PFDIR_DIR* dir, PFDIR_READ_RESULT* result) {
     remaining = dir->end_position;
     if (dir->next_position <= remaining) {
         remaining -= dir->next_position;
-    } else {
+    } else if (dir->next_position > remaining) {
         dir->current_position = 0;
         dir->next_position = 0;
     }
