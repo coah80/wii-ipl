@@ -194,7 +194,17 @@ struct __zi8_work_data_s {
     ziU16* unk_0x124[1];
     ziU8* unk_0x128;
     ziU8 unk_0x12C;
-    ziU8 unk_0x12D[0x1F3];
+    ziU8 unk_0x12D[0x19F];
+    ziU32 pudTable[0x10];  // 0x2CC
+    ziU8 pudCount;         // 0x30C
+    ziU8 unk_0x30D[3];
+    ziU32 unk_0x310;
+    ziU32 unk_0x314;
+    ziU32 unk_0x318;
+    ziU8 pdRemoveOpt;      // 0x31C
+    ziU8 unk_0x31D;
+    ziU8 unk_0x31E;
+    ziU8 unk_0x31F;
     ziU8 (*oemMatch)(ziU16 idx, ziWChar* buf, ziU8 len, ziPtr data); //0x320
     ziU16 oemLen;  //0x324
     ziU8 unk_0x326[2];
