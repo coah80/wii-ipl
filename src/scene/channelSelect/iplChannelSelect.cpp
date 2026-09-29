@@ -62,7 +62,6 @@ namespace ipl {
     namespace scene {
         extern "C" char smArg__Q23ipl6System;
         extern "C" char sSystem__Q23ipl3snd;
-        extern "C" const double lbl_81694998;
         extern "C" void* m_handle__Q23ipl11TVRCManager;
         extern "C" void calcChanZoomParam__Q33ipl5scene13ChannelSelectFv();
         extern "C" void setChanZoomOrtho__Q33ipl5scene13ChannelSelectFv();
@@ -93,7 +92,6 @@ namespace ipl {
         extern "C" void List_GetNth__Q24nw4r2utFPCQ34nw4r2ut4ListUs();
         extern "C" void getChannelBasePane__Q33ipl5scene13ChannelSelectFi();
         extern "C" void initPane__Q33ipl3gui11PaneManagerFPQ34nw4r3lyt4Pane();
-        extern "C" void* jumptable_8164DD14[];
         extern "C" void* jumptable_8164DE80[];
         extern "C" void getCurrentChannel__Q33ipl7channel7ManagerFPiPi();
         extern "C" void calcNormalRestart__Q33ipl5scene13ChannelSelectFv();
@@ -155,66 +153,6 @@ namespace ipl {
         extern "C" void drawPolygon__Q33ipl7utility8GraphicsFRCQ34nw4r2ut4Rect8_GXColor();
         extern "C" BOOL msInitFlag__Q33ipl5scene13ChannelSelect = FALSE;
 
-        #pragma push
-        #pragma section const_type ".data"
-        extern "C" const char lbl_8164D978[] = "N_Ch_a04";
-        extern "C" const char lbl_8164D981[] = "N_Ch_a08";
-        extern "C" const char lbl_8164D98A[] = "N_Ch_a12";
-        extern "C" const char lbl_8164D993[] = "N_Ch_b01";
-        extern "C" const char lbl_8164D99C[] = "N_Ch_b02";
-        extern "C" const char lbl_8164D9A5[] = "N_Ch_b03";
-        extern "C" const char lbl_8164D9AE[] = "N_Ch_b04";
-        extern "C" const char lbl_8164D9B7[] = "N_Ch_b05";
-        extern "C" const char lbl_8164D9C0[] = "N_Ch_b06";
-        extern "C" const char lbl_8164D9C9[] = "N_Ch_b07";
-        extern "C" const char lbl_8164D9D2[] = "N_Ch_b08";
-        extern "C" const char lbl_8164D9DB[] = "N_Ch_b09";
-        extern "C" const char lbl_8164D9E4[] = "N_Ch_b10";
-        extern "C" const char lbl_8164D9ED[] = "N_Ch_b11";
-        extern "C" const char lbl_8164D9F6[] = "N_Ch_b12";
-        extern "C" const char lbl_8164D9FF[] = "N_Ch_c01";
-        extern "C" const char lbl_8164DA08[] = "N_Ch_c02";
-        extern "C" const char lbl_8164DA11[] = "N_Ch_c03";
-        extern "C" const char lbl_8164DA1A[] = "N_Ch_c04";
-        extern "C" const char lbl_8164DA23[] = "N_Ch_c05";
-        extern "C" const char lbl_8164DA2C[] = "N_Ch_c06";
-        extern "C" const char lbl_8164DA35[] = "N_Ch_c07";
-        extern "C" const char lbl_8164DA3E[] = "N_Ch_c08";
-        extern "C" const char lbl_8164DA47[] = "N_Ch_c09";
-        extern "C" const char lbl_8164DA50[] = "N_Ch_c10";
-        extern "C" const char lbl_8164DA59[] = "N_Ch_c11";
-        extern "C" const char lbl_8164DA62[] = "N_Ch_c12";
-        extern "C" const char lbl_8164DA6B[] = "N_Ch_d01";
-        extern "C" const char lbl_8164DA74[] = "N_Ch_d02";
-        extern "C" const char lbl_8164DA7D[] = "N_Ch_d03";
-        extern "C" const char lbl_8164DA86[] = "N_Ch_d04";
-        extern "C" const char lbl_8164DA8F[] = "N_Ch_d05";
-        extern "C" const char lbl_8164DA98[] = "N_Ch_d06";
-        extern "C" const char lbl_8164DAA1[] = "N_Ch_d07";
-        extern "C" const char lbl_8164DAAA[] = "N_Ch_d08";
-        extern "C" const char lbl_8164DAB3[] = "N_Ch_d09";
-        extern "C" const char lbl_8164DABC[] = "N_Ch_d10";
-        extern "C" const char lbl_8164DAC5[] = "N_Ch_d11";
-        extern "C" const char lbl_8164DACE[] = "N_Ch_d12";
-        extern "C" const char lbl_8164DAD7[] = "N_Ch_e01";
-        extern "C" const char lbl_8164DAE0[] = "N_Ch_e05";
-        extern "C" const char lbl_8164DAE9[] = "N_Ch_e09";
-
-        #pragma pop
-
-        #pragma push
-        #pragma section sconst_type ".sdata2"
-        extern "C" const f32 lbl_81694948;
-        extern "C" const u32 lbl_8169494C = 1;
-        extern "C" const f32 lbl_81694968;
-        extern "C" const f32 lbl_8169496C;
-        extern "C" const f32 lbl_81694970;
-        extern "C" const char lbl_81694950 = 0;
-        extern "C" const char lbl_81694951 = 0;
-        extern "C" const char lbl_81694952 = 0;
-        extern "C" const char lbl_81694953 = 255;
-        extern "C" const double lbl_81694998 = 4503601774854144.0;
-        #pragma pop
 
         static Board* getBoard() {
             return (Board*)System::getSceneManager()->getScene(SCENE_BOARD);
@@ -234,106 +172,90 @@ namespace ipl {
                 "",
                 "",
                 "",
-                lbl_8164D978,
+                "N_Ch_a04",
                 "",
                 "",
                 "",
-                lbl_8164D981,
+                "N_Ch_a08",
                 "",
                 "",
                 "",
-                lbl_8164D98A
+                "N_Ch_a12"
             },
         {
-                lbl_8164D993,
-                lbl_8164D99C,
-                lbl_8164D9A5,
-                lbl_8164D9AE,
-                lbl_8164D9B7,
-                lbl_8164D9C0,
-                lbl_8164D9C9,
-                lbl_8164D9D2,
-                lbl_8164D9DB,
-                lbl_8164D9E4,
-                lbl_8164D9ED,
-                lbl_8164D9F6
+                "N_Ch_b01",
+                "N_Ch_b02",
+                "N_Ch_b03",
+                "N_Ch_b04",
+                "N_Ch_b05",
+                "N_Ch_b06",
+                "N_Ch_b07",
+                "N_Ch_b08",
+                "N_Ch_b09",
+                "N_Ch_b10",
+                "N_Ch_b11",
+                "N_Ch_b12"
             },
             {
-                lbl_8164D9FF,
-                lbl_8164DA08,
-                lbl_8164DA11,
-                lbl_8164DA1A,
-                lbl_8164DA23,
-                lbl_8164DA2C,
-                lbl_8164DA35,
-                lbl_8164DA3E,
-                lbl_8164DA47,
-                lbl_8164DA50,
-                lbl_8164DA59,
-                lbl_8164DA62
+                "N_Ch_c01",
+                "N_Ch_c02",
+                "N_Ch_c03",
+                "N_Ch_c04",
+                "N_Ch_c05",
+                "N_Ch_c06",
+                "N_Ch_c07",
+                "N_Ch_c08",
+                "N_Ch_c09",
+                "N_Ch_c10",
+                "N_Ch_c11",
+                "N_Ch_c12"
             },
             {
-                lbl_8164DA6B,
-                lbl_8164DA74,
-                lbl_8164DA7D,
-                lbl_8164DA86,
-                lbl_8164DA8F,
-                lbl_8164DA98,
-                lbl_8164DAA1,
-                lbl_8164DAAA,
-                lbl_8164DAB3,
-                lbl_8164DABC,
-                lbl_8164DAC5,
-                lbl_8164DACE
+                "N_Ch_d01",
+                "N_Ch_d02",
+                "N_Ch_d03",
+                "N_Ch_d04",
+                "N_Ch_d05",
+                "N_Ch_d06",
+                "N_Ch_d07",
+                "N_Ch_d08",
+                "N_Ch_d09",
+                "N_Ch_d10",
+                "N_Ch_d11",
+                "N_Ch_d12"
             },
             {
-                lbl_8164DAD7,
+                "N_Ch_e01",
                 "",
                 "",
                 "",
-                lbl_8164DAE0,
+                "N_Ch_e05",
                 "",
                 "",
                 "",
-                lbl_8164DAE9,
+                "N_Ch_e09",
                 "",
                 "",
                 ""
             }
         };
 
-        #pragma push
-        #pragma section const_type ".data"
-        extern "C" const char lbl_8164DBE4[] = "BaseMask0";
-        extern "C" const char lbl_8164DBEE[] = "BaseMask1";
-        extern "C" const char lbl_8164DBF8[] = "BaseMask2";
-        extern "C" const char lbl_8164DC02[] = "BaseMask3";
-        extern "C" const char lbl_8164DC0C[] = "BaseMask4";
-        #pragma pop
 
         const char* ChannelSelect::mscBasePaneNames[CHAN_SCROLL_MAX] = {
-            lbl_8164DBE4,
-            lbl_8164DBEE,
-            lbl_8164DBF8,
-            lbl_8164DC02,
-            lbl_8164DC0C
+            "BaseMask0",
+            "BaseMask1",
+            "BaseMask2",
+            "BaseMask3",
+            "BaseMask4"
         };
 
-        #pragma push
-        #pragma section const_type ".data"
-        extern "C" const char lbl_8164DC2C[] = "Picture_00";
-        extern "C" const char lbl_8164DC37[] = "Picture_01";
-        extern "C" const char lbl_8164DC42[] = "Picture_02";
-        extern "C" const char lbl_8164DC4D[] = "Picture_03";
-        extern "C" const char lbl_8164DC58[] = "Picture_04";
-        #pragma pop
 
         const char* ChannelSelect::mscUnk0PaneNames[CHAN_SCROLL_MAX] = {
-            lbl_8164DC2C,
-            lbl_8164DC37,
-            lbl_8164DC42,
-            lbl_8164DC4D,
-            lbl_8164DC58
+            "Picture_00",
+            "Picture_01",
+            "Picture_02",
+            "Picture_03",
+            "Picture_04"
         };
         
         const char* ChannelSelect::mscUnk1PaneNames[CHAN_SCROLL_MAX] = {
@@ -344,54 +266,12 @@ namespace ipl {
             "Edge4"
         };
 
-        #pragma push
-        #pragma section const_type ".data"
-        extern "C" const char lbl_8164DC8C[] = "N_Clock0";
-        extern "C" const char lbl_8164DC95[] = "N_Clock1";
-        extern "C" const char lbl_8164DC9E[] = "N_Clock2";
-        #pragma pop
 
         const char* ChannelSelect::mscClockPaneNames[3] = {
-            lbl_8164DC8C,
-            lbl_8164DC95,
-            lbl_8164DC9E
+            "N_Clock0",
+            "N_Clock1",
+            "N_Clock2"
         };
-
-        #pragma push
-        #pragma section const_type ".data"
-        extern "C" const char lbl_8164DCB4[] = "chanSel.ash";
-        extern "C" const char lbl_8164DCC0[] = "diskThum.ash\0WIPL_SE_WII_START";
-        extern "C" const char lbl_8164DCDF[] = "WIPL_BGM_MENU\0WIPL_SE_SDCARD_IN\0WIPL_SE_SDCARD_OUT\0\0";
-        extern "C" void* jumptable_8164DD14[0x1B] = {
-            (void*)((const char*)calcNormal__Q33ipl5scene13ChannelSelectFv + 0xD4),
-            (void*)((const char*)calcNormal__Q33ipl5scene13ChannelSelectFv + 0x4C),
-            (void*)((const char*)calcNormal__Q33ipl5scene13ChannelSelectFv + 0xD4),
-            (void*)((const char*)calcNormal__Q33ipl5scene13ChannelSelectFv + 0xD4),
-            (void*)((const char*)calcNormal__Q33ipl5scene13ChannelSelectFv + 0x64),
-            (void*)((const char*)calcNormal__Q33ipl5scene13ChannelSelectFv + 0xD4),
-            (void*)((const char*)calcNormal__Q33ipl5scene13ChannelSelectFv + 0xD4),
-            (void*)((const char*)calcNormal__Q33ipl5scene13ChannelSelectFv + 0x6C),
-            (void*)((const char*)calcNormal__Q33ipl5scene13ChannelSelectFv + 0xD4),
-            (void*)((const char*)calcNormal__Q33ipl5scene13ChannelSelectFv + 0x74),
-            (void*)((const char*)calcNormal__Q33ipl5scene13ChannelSelectFv + 0x54),
-            (void*)((const char*)calcNormal__Q33ipl5scene13ChannelSelectFv + 0x54),
-            (void*)((const char*)calcNormal__Q33ipl5scene13ChannelSelectFv + 0x5C),
-            (void*)((const char*)calcNormal__Q33ipl5scene13ChannelSelectFv + 0x5C),
-            (void*)((const char*)calcNormal__Q33ipl5scene13ChannelSelectFv + 0x7C),
-            (void*)((const char*)calcNormal__Q33ipl5scene13ChannelSelectFv + 0xD4),
-            (void*)((const char*)calcNormal__Q33ipl5scene13ChannelSelectFv + 0x88),
-            (void*)((const char*)calcNormal__Q33ipl5scene13ChannelSelectFv + 0x90),
-            (void*)((const char*)calcNormal__Q33ipl5scene13ChannelSelectFv + 0x98),
-            (void*)((const char*)calcNormal__Q33ipl5scene13ChannelSelectFv + 0xA0),
-            (void*)((const char*)calcNormal__Q33ipl5scene13ChannelSelectFv + 0xA8),
-            (void*)((const char*)calcNormal__Q33ipl5scene13ChannelSelectFv + 0xB0),
-            (void*)((const char*)calcNormal__Q33ipl5scene13ChannelSelectFv + 0xB8),
-            (void*)((const char*)calcNormal__Q33ipl5scene13ChannelSelectFv + 0xC0),
-            (void*)((const char*)calcNormal__Q33ipl5scene13ChannelSelectFv + 0xC8),
-            (void*)((const char*)calcNormal__Q33ipl5scene13ChannelSelectFv + 0xD0),
-            (void*)((const char*)calcNormal__Q33ipl5scene13ChannelSelectFv + 0xD0)
-        };
-        #pragma pop
 
         const char* ChannelSelect::mscMaskPaneName ="ChMask";
 
@@ -479,8 +359,8 @@ namespace ipl {
         }
 
         void ChannelSelect::prepare() {
-            mpLayoutFile = System::getNandManager()->readLayoutAsync(getSceneHeap(), lbl_8164DCB4);
-            mpDiskThumbFile = System::getNandManager()->readLayoutAsync(getSceneHeap(), lbl_8164DCC0);
+            mpLayoutFile = System::getNandManager()->readLayoutAsync(getSceneHeap(), "chanSel.ash");
+            mpDiskThumbFile = System::getNandManager()->readLayoutAsync(getSceneHeap(), "diskThum.ash");
 
             ChannelObj* chanObj = NULL;
             FOREACH_CHANNEL_OBJ(chanObj) {
@@ -526,277 +406,6 @@ namespace ipl {
             utility::CSFlags::UpdateFlagsFile();
         }
 
-        extern "C" asm void calcCommon__Q33ipl5scene13ChannelSelectFv() {
-            nofralloc
-            stwu r1, -0x20(r1)
-            mflr r0
-            stw r0, 0x24(r1)
-            addi r11, r1, 0x20
-            bl _savegpr_28
-            lwz r0, 0xc0(r3)
-            lis r31, lbl_8164D978@ha
-            mr r30, r3
-            cmpwi r0, 0x2
-            addi r31, r31, lbl_8164D978@l
-            bne calcCommon_ChannelSelect_L1
-            lwz r3, 0x68(r3)
-            li r4, 0
-            bl isPlaying__Q33ipl6layout6ObjectCFi
-            cmpwi r3, 0
-            bne calcCommon_ChannelSelect_L1
-            lis r29, smArg__Q23ipl6System@ha
-            li r4, 0x5
-            addi r29, r29, smArg__Q23ipl6System@l
-            lwz r3, 0x64(r29)
-            bl getScene__Q33ipl5scene7ManagerFi
-            cmpwi r3, 0
-            mr r28, r3
-            beq calcCommon_ChannelSelect_L1
-            lwz r4, 0xb8(r30)
-            li r5, 0
-            bl setEventHandler__Q33ipl5scene6ButtonFPQ23gui12EventHandlerPQ23gui12EventHandler
-            lbz r0, 0x2bc(r29)
-            cmpwi r0, 0
-            bne calcCommon_ChannelSelect_L2
-            lwz r4, 0xbc(r30)
-            addi r3, r28, 0x70
-            bl setEventHandler__Q33ipl5scene12SDMenuButtonFPQ23gui12EventHandler
-calcCommon_ChannelSelect_L2:
-            lwz r3, 0xc4(r30)
-            li r0, 0x3
-            stw r0, 0xc0(r30)
-            cmpwi r3, 0
-            bne calcCommon_ChannelSelect_L3
-            lwz r0, 0xc8(r30)
-            cmpwi r0, 0
-            ble calcCommon_ChannelSelect_L4
-            mr r3, r28
-            li r4, 0x1
-            li r5, 0x1
-            bl initArrowAppearance__Q33ipl5scene6ButtonFib
-            b calcCommon_ChannelSelect_L5
-calcCommon_ChannelSelect_L4:
-            mr r3, r28
-            li r4, 0x1
-            li r5, 0
-            bl initArrowAppearance__Q33ipl5scene6ButtonFib
-calcCommon_ChannelSelect_L5:
-            lwz r4, 0xcc(r30)
-            cmpwi r4, 0x1
-            ble calcCommon_ChannelSelect_L6
-            lwz r3, 0xc8(r30)
-            subi r0, r4, 0x1
-            cmpw r3, r0
-            bge calcCommon_ChannelSelect_L6
-            mr r3, r28
-            li r4, 0
-            li r5, 0x1
-            bl initArrowAppearance__Q33ipl5scene6ButtonFib
-            b calcCommon_ChannelSelect_L7
-calcCommon_ChannelSelect_L6:
-            mr r3, r28
-            li r4, 0
-            li r5, 0
-            bl initArrowAppearance__Q33ipl5scene6ButtonFib
-calcCommon_ChannelSelect_L7:
-            lwz r0, msInitFlag__Q33ipl5scene13ChannelSelect
-            cmpwi r0, 0
-            bne calcCommon_ChannelSelect_L1
-            lis r29, sSystem__Q23ipl3snd@ha
-            addi r4, r31, 0x355
-            addi r3, r29, sSystem__Q23ipl3snd@l
-            bl startSE__Q33ipl3snd6SystemFPCc
-            addi r3, r29, sSystem__Q23ipl3snd@l
-            addi r4, r31, 0x367
-            bl startBGM__Q33ipl3snd6SystemFPCc
-            stw r3, msInitFlag__Q33ipl5scene13ChannelSelect
-            b calcCommon_ChannelSelect_L1
-calcCommon_ChannelSelect_L3:
-            cmpwi r3, 0x1
-            bne calcCommon_ChannelSelect_L8
-            lwz r0, 0xc8(r30)
-            cmpwi r0, 0
-            ble calcCommon_ChannelSelect_L9
-            mr r3, r28
-            li r4, 0x18
-            bl animation__Q33ipl5scene6ButtonFi
-calcCommon_ChannelSelect_L9:
-            lwz r4, 0xcc(r30)
-            cmpwi r4, 0x1
-            ble calcCommon_ChannelSelect_L10
-            lwz r3, 0xc8(r30)
-            subi r0, r4, 0x1
-            cmpw r3, r0
-            bge calcCommon_ChannelSelect_L10
-            mr r3, r28
-            li r4, 0x17
-            bl animation__Q33ipl5scene6ButtonFi
-calcCommon_ChannelSelect_L10:
-            lis r3, smArg__Q23ipl6System@ha
-            addi r3, r3, smArg__Q23ipl6System@l
-            lbz r0, 0x2bc(r3)
-            cmpwi r0, 0
-            bne calcCommon_ChannelSelect_L1
-            lwz r3, 0x64(r3)
-            li r4, 0x4
-            bl getScene__Q33ipl5scene7ManagerFi
-            lwz r0, 0xfb0(r3)
-            cmpwi r0, 0x1
-            bne calcCommon_ChannelSelect_L11
-            addi r3, r28, 0x70
-            li r4, 0x1
-            bl toggle_insert__Q33ipl5scene12SDMenuButtonFi
-            b calcCommon_ChannelSelect_L12
-calcCommon_ChannelSelect_L11:
-            addi r3, r28, 0x70
-            li r4, 0
-            bl toggle_insert__Q33ipl5scene12SDMenuButtonFi
-calcCommon_ChannelSelect_L12:
-            mr r3, r28
-            li r4, 0x28
-            bl animation__Q33ipl5scene6ButtonFi
-            b calcCommon_ChannelSelect_L1
-calcCommon_ChannelSelect_L8:
-            cmpwi r3, 0x2
-            bne calcCommon_ChannelSelect_L1
-            li r0, 0
-            stb r0, 0x100(r30)
-            stb r0, 0x101(r30)
-calcCommon_ChannelSelect_L1:
-            lwz r0, 0xc0(r30)
-            cmpwi r0, 0x3
-            bne calcCommon_ChannelSelect_L14
-            lis r3, smArg__Q23ipl6System@ha
-            addi r3, r3, smArg__Q23ipl6System@l
-            lwz r3, 0xc4(r3)
-            lwz r12, 0(r3)
-            lwz r12, 0xc(r12)
-            mtctr r12
-            bctrl
-            cmpwi r3, 0x1
-            bne calcCommon_ChannelSelect_L14
-            li r0, 0x1
-            stw r0, 0xc0(r30)
-calcCommon_ChannelSelect_L14:
-            lwz r3, 0x68(r30)
-            bl calc__Q33ipl6layout6ObjectFv
-            lwz r3, 0x7c(r30)
-            lwz r12, 0(r3)
-            lwz r12, 0x10(r12)
-            mtctr r12
-            bctrl
-            mr r3, r30
-            bl updateDiskState__Q33ipl5scene13ChannelSelectFv
-            mr r3, r30
-            bl calcChannelModules__Q33ipl5scene13ChannelSelectFv
-            mr r3, r30
-            bl calcChannelThumbnails__Q33ipl5scene13ChannelSelectFv
-            lwz r3, 0xac(r30)
-            bl calc__Q33ipl6layout6ObjectFv
-            lwz r3, 0xb0(r30)
-            bl calc__Q33ipl6layout6ObjectFv
-            lwz r3, 0xb4(r30)
-            bl calc__Q33ipl6layout6ObjectFv
-            lwz r3, 0x2c4(r30)
-            bl calc__Q33ipl6layout6ObjectFv
-            addi r3, r30, 0x108
-            bl calc__Q33ipl5scene5clockFv
-            lis r29, smArg__Q23ipl6System@ha
-            li r4, 0x4
-            addi r29, r29, smArg__Q23ipl6System@l
-            lwz r3, 0x64(r29)
-            bl getScene__Q33ipl5scene7ManagerFi
-            lwz r28, 0xfb0(r3)
-            lwz r0, 0x168(r30)
-            cmpw r28, r0
-            beq calcCommon_ChannelSelect_L15
-            lbz r0, 0x2bc(r29)
-            cmpwi r0, 0
-            bne calcCommon_ChannelSelect_L15
-            cmpwi r28, 0x1
-            bne calcCommon_ChannelSelect_L16
-            lwz r3, 0x64(r29)
-            li r4, 0x5
-            bl getScene__Q33ipl5scene7ManagerFi
-            li r4, 0x1
-            addi r3, r3, 0x70
-            bl toggle_insert__Q33ipl5scene12SDMenuButtonFi
-            b calcCommon_ChannelSelect_L17
-calcCommon_ChannelSelect_L16:
-            lwz r3, 0x64(r29)
-            li r4, 0x5
-            bl getScene__Q33ipl5scene7ManagerFi
-            li r4, 0
-            addi r3, r3, 0x70
-            bl toggle_insert__Q33ipl5scene12SDMenuButtonFi
-calcCommon_ChannelSelect_L17:
-            lwz r0, 0xc0(r30)
-            cmpwi r0, 0x4
-            bge calcCommon_ChannelSelect_L18
-            cmpwi r0, 0x1
-            beq calcCommon_ChannelSelect_L19
-            bge calcCommon_ChannelSelect_L20
-            cmpwi r0, 0
-            bge calcCommon_ChannelSelect_L15
-            b calcCommon_ChannelSelect_L19
-calcCommon_ChannelSelect_L18:
-            cmpwi r0, 0xe
-            bge calcCommon_ChannelSelect_L21
-            cmpwi r0, 0xa
-            bge calcCommon_ChannelSelect_L19
-            b calcCommon_ChannelSelect_L15
-calcCommon_ChannelSelect_L21:
-            cmpwi r0, 0x11
-            bge calcCommon_ChannelSelect_L19
-            b calcCommon_ChannelSelect_L15
-calcCommon_ChannelSelect_L20:
-            lwz r0, 0xc4(r30)
-            cmpwi r0, 0x1
-            beq calcCommon_ChannelSelect_L15
-calcCommon_ChannelSelect_L19:
-            cmpwi r28, 0x1
-            bne calcCommon_ChannelSelect_L22
-            lwz r0, 0x168(r30)
-            cmpwi r0, 0
-            beq calcCommon_ChannelSelect_L22
-            lis r29, smArg__Q23ipl6System@ha
-            li r4, 0x5
-            addi r29, r29, smArg__Q23ipl6System@l
-            lwz r3, 0x64(r29)
-            bl getScene__Q33ipl5scene7ManagerFi
-            li r4, 0x28
-            bl playingSdAnim__Q33ipl5scene6ButtonFi
-            cmpwi r3, 0
-            bne calcCommon_ChannelSelect_L15
-            lis r3, sSystem__Q23ipl3snd@ha
-            addi r4, r31, 0x375
-            addi r3, r3, sSystem__Q23ipl3snd@l
-            bl startSE__Q33ipl3snd6SystemFPCc
-            lwz r3, 0x64(r29)
-            li r4, 0x5
-            bl getScene__Q33ipl5scene7ManagerFi
-            li r4, 0x2a
-            bl animation__Q33ipl5scene6ButtonFi
-            b calcCommon_ChannelSelect_L15
-calcCommon_ChannelSelect_L22:
-            lwz r0, 0x168(r30)
-            cmpwi r0, 0
-            beq calcCommon_ChannelSelect_L15
-            lis r3, sSystem__Q23ipl3snd@ha
-            addi r4, r31, 0x387
-            addi r3, r3, sSystem__Q23ipl3snd@l
-            bl startSE__Q33ipl3snd6SystemFPCc
-calcCommon_ChannelSelect_L15:
-            stw r28, 0x168(r30)
-            addi r11, r1, 0x20
-            bl _restgpr_28
-            lwz r0, 0x24(r1)
-            mtlr r0
-            addi r1, r1, 0x20
-            blr
-        }
-
-#if 0
         void ChannelSelect::calcCommon() {
             if (mState == STATE_CREATE && !mpLayout->isPlaying(0)) {
                 Button* button = getButton();
@@ -914,155 +523,102 @@ calcCommon_ChannelSelect_L15:
             mPrevSDState = sdState;
         }
 
-#endif
-
         FaderSceneCommand ChannelSelect::calcFadein() {
             return mpLayout->isPlaying(0) ? FADER_SCN_CONTINUE : FADER_SCN_NEXT;
         }
 
-        extern "C" asm void calcNormal__Q33ipl5scene13ChannelSelectFv() {
-            nofralloc
-            stwu r1, -0x20(r1)
-            mflr r0
-            stw r0, 0x24(r1)
-            stw r31, 0x1c(r1)
-            stw r30, 0x18(r1)
-            mr r30, r3
-            lwz r31, 0xc0(r3)
-            cmpwi r31, 0xf
-            bne calcNormal_ChannelSelect_L1
-            li r3, 0
-            b calcNormal_ChannelSelect_L20
-calcNormal_ChannelSelect_L1:
-            cmplwi r31, 0x1a
-            bgt calcNormal_ChannelSelect_L2
-            lis r4, jumptable_8164DD14@ha
-            slwi r0, r31, 2
-            addi r4, r4, jumptable_8164DD14@l
-            lwzx r4, r4, r0
-            mtctr r4
-            bctr
-calcNormal_ChannelSelect_L3:
-            bl calcNormalNormal__Q33ipl5scene13ChannelSelectFv
-            b calcNormal_ChannelSelect_L2
-calcNormal_ChannelSelect_L4:
-            bl calcNormalWaitScrl__Q33ipl5scene13ChannelSelectFv
-            b calcNormal_ChannelSelect_L2
-calcNormal_ChannelSelect_L5:
-            bl calcNormalScrl__Q33ipl5scene13ChannelSelectFv
-            b calcNormal_ChannelSelect_L2
-calcNormal_ChannelSelect_L6:
-            bl tryToStartBoardScene__Q33ipl5scene13ChannelSelectFv
-            b calcNormal_ChannelSelect_L2
-calcNormal_ChannelSelect_L7:
-            bl calcNormalWaitLoading__Q33ipl5scene13ChannelSelectFv
-            b calcNormal_ChannelSelect_L2
-calcNormal_ChannelSelect_L8:
-            bl calcNormalFadeOutZoom__Q33ipl5scene13ChannelSelectFv
-            b calcNormal_ChannelSelect_L2
-calcNormal_ChannelSelect_L9:
-            li r0, 0xf
-            stw r0, 0xc0(r3)
-            b calcNormal_ChannelSelect_L2
-calcNormal_ChannelSelect_L10:
-            bl calcNormalRestart__Q33ipl5scene13ChannelSelectFv
-            b calcNormal_ChannelSelect_L2
-calcNormal_ChannelSelect_L11:
-            bl calcNormalSafeModeDialog__Q33ipl5scene13ChannelSelectFv
-            b calcNormal_ChannelSelect_L2
-calcNormal_ChannelSelect_L12:
-            bl calcNormalGrab__Q33ipl5scene13ChannelSelectFv
-            b calcNormal_ChannelSelect_L2
-calcNormal_ChannelSelect_L13:
-            bl calcNormalDrag__Q33ipl5scene13ChannelSelectFv
-            b calcNormal_ChannelSelect_L2
-calcNormal_ChannelSelect_L14:
-            bl calcNormalReleaseWait__Q33ipl5scene13ChannelSelectFv
-            b calcNormal_ChannelSelect_L2
-calcNormal_ChannelSelect_L15:
-            bl calcNormalRelease__Q33ipl5scene13ChannelSelectFv
-            b calcNormal_ChannelSelect_L2
-calcNormal_ChannelSelect_L16:
-            bl calcNormalMoveChanIn__Q33ipl5scene13ChannelSelectFv
-            b calcNormal_ChannelSelect_L2
-calcNormal_ChannelSelect_L17:
-            bl calcNormalMoveChanSave__Q33ipl5scene13ChannelSelectFv
-            b calcNormal_ChannelSelect_L2
-calcNormal_ChannelSelect_L18:
-            bl calcNormalMoveChanOut__Q33ipl5scene13ChannelSelectFv
-            b calcNormal_ChannelSelect_L2
-calcNormal_ChannelSelect_L19:
-            bl calcNormalDragScrl__Q33ipl5scene13ChannelSelectFv
-calcNormal_ChannelSelect_L2:
-            cmpwi r31, 0x1
-            bne calcNormal_ChannelSelect_L21
-            lwz r0, 0xc0(r30)
-            cmpwi r0, 0x1
-            beq calcNormal_ChannelSelect_L21
-            cmpwi r0, 0x12
-            beq calcNormal_ChannelSelect_L21
-            addi r3, r1, 0xc
-            addi r4, r1, 0x8
-            bl getCurrentChannel__Q33ipl7channel7ManagerFPiPi
-            li r31, 0
-            b calcNormal_ChannelSelect_L22
-calcNormal_ChannelSelect_L23:
-            lwz r4, 0x1c(r3)
-            lwz r0, 0xc8(r30)
-            lwz r3, 0x20(r3)
-            cmpw r4, r0
-            bne calcNormal_ChannelSelect_L22
-            lwz r0, 0xc0(r30)
-            cmpwi r0, 0x7
-            bne calcNormal_ChannelSelect_L24
-            lwz r0, 0x8(r1)
-            cmpw r3, r0
-            beq calcNormal_ChannelSelect_L25
-calcNormal_ChannelSelect_L24:
-            mr r3, r31
-            li r4, 0x1
-            bl initCursorAnim__Q33ipl5scene10ChannelObjFb
-calcNormal_ChannelSelect_L25:
-            mr r3, r31
-            li r4, 0x1
-            bl initBalloonAnim__Q33ipl5scene10ChannelObjFb
-calcNormal_ChannelSelect_L22:
-            mr r4, r31
-            addi r3, r30, 0x58
-            bl List_GetNext__Q24nw4r2utFPCQ34nw4r2ut4ListPCv
-            cmpwi r3, 0
-            mr r31, r3
-            bne calcNormal_ChannelSelect_L23
-            li r31, 0
-calcNormal_ChannelSelect_L26:
-            mr r3, r30
-            mr r4, r31
-            bl getChannelBasePane__Q33ipl5scene13ChannelSelectFi
-            mr r4, r3
-            lwz r3, 0x7c(r30)
-            bl initPane__Q33ipl3gui11PaneManagerFPQ34nw4r3lyt4Pane
-            addi r31, r31, 0x1
-            cmpwi r31, 0xc
-            blt calcNormal_ChannelSelect_L26
-calcNormal_ChannelSelect_L21:
-            lwz r3, 0xc0(r30)
-            subi r0, r3, 0x5
-            cmplwi r0, 0x1
-            bgt calcNormal_ChannelSelect_L27
-            li r0, 0x1
-            li r3, 0x1
-            stb r0, 0x184(r30)
-            stb r0, 0x185(r30)
-            b calcNormal_ChannelSelect_L20
-calcNormal_ChannelSelect_L27:
-            li r3, 0
-calcNormal_ChannelSelect_L20:
-            lwz r0, 0x24(r1)
-            lwz r31, 0x1c(r1)
-            lwz r30, 0x18(r1)
-            mtlr r0
-            addi r1, r1, 0x20
-            blr
+        FaderSceneCommand ChannelSelect::calcNormal() {
+            int state = mState;
+            if (state == STATE_INACTIVE) {
+                return FADER_SCN_CONTINUE;
+            }
+
+            switch (state) {
+                case STATE_NORMAL:
+                    calcNormalNormal();
+                    break;
+                case STATE_PREP_LEFT_PAGE_SCROLL:
+                case STATE_PREP_RIGHT_PAGE_SCROLL:
+                    calcNormalWaitScrl();
+                    break;
+                case STATE_LEFT_PAGE_SCROLL:
+                case STATE_RIGHT_PAGE_SCROLL:
+                    calcNormalScrl();
+                    break;
+                case STATE_START_BOARD_SCENE:
+                    tryToStartBoardScene();
+                    break;
+                case STATE_NORMAL_WAIT_LOADING:
+                    calcNormalWaitLoading();
+                    break;
+                case STATE_NORMAL_FADE_ZOOM:
+                    calcNormalFadeOutZoom();
+                    break;
+                case STATE_NORMAL_DONE_FADE_ZOOM:
+                    mState = STATE_INACTIVE;
+                    break;
+                case STATE_NORMAL_RESTART:
+                    calcNormalRestart();
+                    break;
+                case STATE_NORMAL_SAFE_MODE_DIALOG:
+                    calcNormalSafeModeDialog();
+                    break;
+                case STATE_NORMAL_GRAB:
+                    calcNormalGrab();
+                    break;
+                case STATE_NORMAL_DRAG:
+                    calcNormalDrag();
+                    break;
+                case STATE_NORMAL_RELEASE_WAIT:
+                    calcNormalReleaseWait();
+                    break;
+                case STATE_NORMAL_RELEASE:
+                    calcNormalRelease();
+                    break;
+                case STATE_NORMAL_MOVE_CHAN_IN:
+                    calcNormalMoveChanIn();
+                    break;
+                case STATE_NORMAL_MOVE_CHAN_SAVE:
+                    calcNormalMoveChanSave();
+                    break;
+                case STATE_NORMAL_MOVE_CHAN_OUT:
+                    calcNormalMoveChanOut();
+                    break;
+                case STATE_DRAG_SCROLL_LEFT:
+                case STATE_DRAG_SCROLL_RIGHT:
+                    calcNormalDragScrl();
+                    break;
+                default:
+                    break;
+            }
+
+            if (state == STATE_NORMAL && mState != STATE_NORMAL && mState != STATE_NORMAL_GRAB) {
+                int page;
+                int index;
+                channel::Manager::getCurrentChannel(&page, &index);
+                ChannelObj* chanObj = NULL;
+                FOREACH_CHANNEL_OBJ(chanObj) {
+                    int chanPage = chanObj->mChanPage;
+                    int chanIndex = chanObj->mChanIndex;
+                    if (chanPage == mCurrentPage) {
+                        if (mState != STATE_NORMAL_WAIT_LOADING || chanIndex != index) {
+                            chanObj->initCursorAnim(TRUE);
+                        }
+                        chanObj->initBalloonAnim(TRUE);
+                    }
+                }
+
+                for (int i = 0; i < MAX_CHANNEL_INDEX; i++) {
+                    mpGui->initPane(getChannelBasePane(i));
+                }
+            }
+
+            if (mState == STATE_BOARD_SCENE || mState == STATE_START_SETTING_SCENE) {
+                mbModuleSceneChange = true;
+                unk_0x185 = true;
+                return FADER_SCN_NEXT;
+            }
+            return FADER_SCN_CONTINUE;
         }
 
         void ChannelSelect::initCalcFadeout() {
@@ -1088,172 +644,6 @@ calcNormal_ChannelSelect_L20:
             return result;
         }
 
-        extern "C" asm void draw__Q33ipl5scene13ChannelSelectFv() {
-            nofralloc
-            stwu r1, -0x40(r1)
-            mflr r0
-            stw r0, 0x44(r1)
-            addi r11, r1, 0x40
-            bl _savegpr_27
-            lwz r4, 0xc0(r3)
-            mr r31, r3
-            cmpwi r4, 0xf
-            beq draw_ChannelSelect_L1
-            lis r3, smArg__Q23ipl6System@ha
-            addi r3, r3, smArg__Q23ipl6System@l
-            lwz r3, 0x64(r3)
-            lwz r0, 0x100(r3)
-            cmpwi r0, 0x1
-            bne draw_ChannelSelect_L1
-            cmpwi r4, 0x9
-            beq draw_ChannelSelect_L2
-            cmpwi r4, 0xe
-            beq draw_ChannelSelect_L2
-            cmpwi r4, 0x10
-            bne draw_ChannelSelect_L3
-draw_ChannelSelect_L2:
-            lis r29, mArg__Q33ipl7utility8Graphics@ha
-            addi r4, r31, 0xd8
-            addi r29, r29, mArg__Q33ipl7utility8Graphics@l
-            addi r3, r29, 0x70
-            bl __as__Q34nw4r4math4VEC3FRCQ34nw4r4math4VEC3
-            addi r3, r29, 0x7c
-            addi r4, r31, 0xe4
-            bl __as__Q33ipl4math4VEC2FRCQ33ipl4math4VEC2
-draw_ChannelSelect_L3:
-            li r3, 0
-            bl setOrtho__Q33ipl7utility8GraphicsFUl
-            lis r29, mscBasePaneNames__Q33ipl5scene13ChannelSelect@ha
-            li r27, 0
-            addi r29, r29, mscBasePaneNames__Q33ipl5scene13ChannelSelect@l
-            li r30, 0
-draw_ChannelSelect_L4:
-            lwz r3, 0x68(r31)
-            li r5, 0x1
-            lwzx r4, r29, r30
-            lwz r3, 0x14(r3)
-            lwz r12, 0(r3)
-            lwz r12, 0x3c(r12)
-            mtctr r12
-            bctrl
-            lbz r0, 0xcf(r3)
-            mr r28, r3
-            mr r4, r28
-            rlwinm r0, r0, 0, 24, 30
-            ori r0, r0, 0x1
-            stb r0, 0xcf(r3)
-            lwz r3, 0x68(r31)
-            bl draw__Q33ipl6layout6ObjectFPQ34nw4r3lyt4Pane
-            mr r3, r28
-            li r4, 0
-            bl SetVisible__Q34nw4r3lyt4PaneFb
-            addi r27, r27, 0x1
-            addi r30, r30, 0x4
-            cmpwi r27, 0x5
-            blt draw_ChannelSelect_L4
-            mr r3, r31
-            bl drawChannelThumbnails__Q33ipl5scene13ChannelSelectFv
-            mr r3, r31
-            bl setChanFrameVisibility__Q33ipl5scene13ChannelSelectFv
-            bl getRenderModeObj__Q23ipl6SystemFv
-            lhz r29, 0x6(r3)
-            bl getRenderModeObj__Q23ipl6SystemFv
-            lhz r5, 0x4(r3)
-            mr r6, r29
-            li r3, 0
-            li r4, 0
-            bl GXSetScissor
-            lwz r3, 0x68(r31)
-            li r5, 0x1
-            lwz r4, mscMaskPaneName__Q33ipl5scene13ChannelSelect
-            lwz r3, 0x14(r3)
-            lwz r12, 0(r3)
-            lwz r12, 0x3c(r12)
-            mtctr r12
-            bctrl
-            mr r28, r3
-            li r4, 0
-            bl SetVisible__Q34nw4r3lyt4PaneFb
-            lwz r3, 0x68(r31)
-            bl draw__Q33ipl6layout6ObjectFv
-            lwz r3, 0x9c(r31)
-            bl draw__Q33ipl6layout6ObjectFv
-            lis r29, mscClockPaneNames__Q33ipl5scene13ChannelSelect@ha
-            li r27, 0
-            addi r29, r29, mscClockPaneNames__Q33ipl5scene13ChannelSelect@l
-            li r30, 0
-draw_ChannelSelect_L5:
-            lwz r3, 0x68(r31)
-            li r5, 0x1
-            lwzx r4, r29, r30
-            lwz r3, 0x14(r3)
-            lwz r12, 0(r3)
-            lwz r12, 0x3c(r12)
-            mtctr r12
-            bctrl
-            mr r4, r3
-            addi r3, r31, 0x108
-            bl draw__Q33ipl5scene5clockFPQ34nw4r3lyt4Pane
-            addi r27, r27, 0x1
-            addi r30, r30, 0x4
-            cmpwi r27, 0x3
-            blt draw_ChannelSelect_L5
-            mr r3, r31
-            bl drawChannelOthers__Q33ipl5scene13ChannelSelectFv
-            lbz r0, 0xcf(r28)
-            mr r4, r28
-            rlwinm r0, r0, 0, 24, 30
-            ori r0, r0, 0x1
-            stb r0, 0xcf(r28)
-            lwz r3, 0x68(r31)
-            bl draw__Q33ipl6layout6ObjectFPQ34nw4r3lyt4Pane
-            lwz r3, 0xb0(r31)
-            bl draw__Q33ipl6layout6ObjectFv
-            b draw_ChannelSelect_L6
-draw_ChannelSelect_L1:
-            cmpwi r4, 0xf
-            bne draw_ChannelSelect_L6
-            lis r3, smArg__Q23ipl6System@ha
-            addi r3, r3, smArg__Q23ipl6System@l
-            lwz r3, 0x64(r3)
-            lwz r0, 0x100(r3)
-            cmpwi r0, 0x1
-            bne draw_ChannelSelect_L6
-            li r3, 0
-            bl setOrtho__Q33ipl7utility8GraphicsFUl
-            lbz r6, lbl_81694950
-            addi r3, r1, 0x10
-            lbz r5, lbl_81694951
-            lbz r4, lbl_81694952
-            lbz r0, lbl_81694953
-            stb r6, 0xc(r1)
-            stb r5, 0xd(r1)
-            stb r4, 0xe(r1)
-            stb r0, 0xf(r1)
-            bl __ct__Q34nw4r2ut4RectFv
-            addi r3, r1, 0x10
-            bl getProjectionRect__Q23ipl6SystemFPQ34nw4r2ut4Rect
-            lbz r7, 0xc(r1)
-            addi r3, r1, 0x10
-            lbz r6, 0xd(r1)
-            addi r4, r1, 0x8
-            lbz r5, 0xe(r1)
-            lbz r0, 0xf(r1)
-            stb r7, 0x8(r1)
-            stb r6, 0x9(r1)
-            stb r5, 0xa(r1)
-            stb r0, 0xb(r1)
-            bl drawPolygon__Q33ipl7utility8GraphicsFRCQ34nw4r2ut4Rect8_GXColor
-draw_ChannelSelect_L6:
-            addi r11, r1, 0x40
-            bl _restgpr_27
-            lwz r0, 0x44(r1)
-            mtlr r0
-            addi r1, r1, 0x40
-            blr
-        }
-
-#if 0
         void ChannelSelect::draw() {
             if (mState != STATE_INACTIVE && System::getSceneManager()->onDrawLayer(scene::DRAW_LAYER_DEFAULT)) {
                 if (mState == STATE_NORMAL_FADE_ZOOM || mState == STATE_NORMAL_DONE_FADE_ZOOM || mState == STATE_NORMAL_RESTART) {
@@ -1300,8 +690,6 @@ draw_ChannelSelect_L6:
                 utility::Graphics::drawPolygon(pos, color);
             }
         }
-
-#endif
 
         void ChannelSelect::destroy() {
             System::getSaveData()->setLastPrevPage(mCurrentPage);
@@ -1750,98 +1138,41 @@ draw_ChannelSelect_L6:
             }
         }
 
-        extern "C" asm void calcNormalRestart__Q33ipl5scene13ChannelSelectFv() {
-            nofralloc
-            stwu r1, -0x10(r1)
-            mflr r0
-            stw r0, 0x14(r1)
-            stw r31, 0xc(r1)
-            stw r30, 0x8(r1)
-            mr r30, r3
-            lwz r4, 0x6c(r3)
-            lwz r0, 0x14(r4)
-            cmpwi r0, 0x1
-            beq calcNormalRestart_ChannelSelect_L1
-            lis r31, smArg__Q23ipl6System@ha
-            li r4, 0x3
-            addi r31, r31, smArg__Q23ipl6System@l
-            lwz r3, 0x64(r31)
-            bl getScene__Q33ipl5scene7ManagerFi
-            cmpwi r3, 0
-            bne calcNormalRestart_ChannelSelect_L1
-            lwz r3, 0x64(r31)
-            li r4, 0x5
-            bl getScene__Q33ipl5scene7ManagerFi
-            mr r31, r3
-            bl enableBtn__Q33ipl5scene6ButtonFv
-            lwz r0, 0xc8(r30)
-            cmpwi r0, 0
-            ble calcNormalRestart_ChannelSelect_L2
-            mr r3, r31
-            li r4, 0x18
-            bl animation__Q33ipl5scene6ButtonFi
-            li r0, 0x1
-            stb r0, 0x100(r30)
-            b calcNormalRestart_ChannelSelect_L3
-calcNormalRestart_ChannelSelect_L2:
-            li r0, 0
-            stb r0, 0x100(r30)
-calcNormalRestart_ChannelSelect_L3:
-            lwz r4, 0xcc(r30)
-            cmpwi r4, 0x1
-            ble calcNormalRestart_ChannelSelect_L4
-            lwz r3, 0xc8(r30)
-            subi r0, r4, 0x1
-            cmpw r3, r0
-            bge calcNormalRestart_ChannelSelect_L4
-            mr r3, r31
-            li r4, 0x17
-            bl animation__Q33ipl5scene6ButtonFi
-            li r0, 0x1
-            stb r0, 0x101(r30)
-            b calcNormalRestart_ChannelSelect_L5
-calcNormalRestart_ChannelSelect_L4:
-            li r0, 0
-            stb r0, 0x101(r30)
-calcNormalRestart_ChannelSelect_L5:
-            lwz r4, 0xb8(r30)
-            mr r3, r31
-            li r5, 0
-            bl setEventHandler__Q33ipl5scene6ButtonFPQ23gui12EventHandlerPQ23gui12EventHandler
-            lis r3, smArg__Q23ipl6System@ha
-            addi r3, r3, smArg__Q23ipl6System@l
-            lbz r0, 0x2bc(r3)
-            cmpwi r0, 0
-            bne calcNormalRestart_ChannelSelect_L6
-            lwz r4, 0xbc(r30)
-            addi r3, r31, 0x70
-            bl setEventHandler__Q33ipl5scene12SDMenuButtonFPQ23gui12EventHandler
-calcNormalRestart_ChannelSelect_L6:
-            mr r3, r30
-            bl restartChannelModules__Q33ipl5scene13ChannelSelectFv
-            lwz r3, m_handle__Q23ipl11TVRCManager
-            li r4, 0x1
-            bl setEnable__Q23ipl11TVRCManagerFi
-            lis r3, sSystem__Q23ipl3snd@ha
-            lis r4, lbl_8164DCDF@ha
-            addi r3, r3, sSystem__Q23ipl3snd@l
-            addi r4, r4, lbl_8164DCDF@l
-            bl startBGM__Q33ipl3snd6SystemFPCc
-            li r0, 0x1
-            stw r0, 0xc0(r30)
-            b calcNormalRestart_ChannelSelect_L7
-calcNormalRestart_ChannelSelect_L1:
-            mr r3, r30
-            bl calcChanZoomParam__Q33ipl5scene13ChannelSelectFv
-            mr r3, r30
-            bl setChanZoomOrtho__Q33ipl5scene13ChannelSelectFv
-calcNormalRestart_ChannelSelect_L7:
-            lwz r0, 0x14(r1)
-            lwz r31, 0xc(r1)
-            lwz r30, 0x8(r1)
-            mtlr r0
-            addi r1, r1, 0x10
-            blr
+        void ChannelSelect::calcNormalRestart() {
+            if (!mpChanZoomParams[0]->isPlaying()) {
+                if (System::getSceneManager()->getScene(SCENE_CHANNEL_TITLE) == NULL) {
+                    Button* button = getButton();
+                    button->enableBtn();
+
+                    if (mCurrentPage > 0) {
+                        button->animation(Button::IDANIM_ARROW_LEFT_APPEAR);
+                        mbLeftArrowVisible = TRUE;
+                    } else {
+                        mbLeftArrowVisible = FALSE;
+                    }
+
+                    if (mMaxPages > 1 && mCurrentPage < mMaxPages - 1) {
+                        button->animation(Button::IDANIM_ARROW_RIGHT_APPEAR);
+                        mbRightArrowVisible = TRUE;
+                    } else {
+                        mbRightArrowVisible = FALSE;
+                    }
+
+                    button->setEventHandler(mpButtonEvent);
+                    if (!System::isSafeMode()) {
+                        button->get_sd_menu_btn()->setEventHandler(mpSDMenuEvent);
+                    }
+
+                    restartChannelModules();
+                    TVRCManager::getHandle()->setEnable(TRUE);
+                    snd::getSystem()->startBGM("WIPL_BGM_MENU");
+                    mState = STATE_NORMAL;
+                    return;
+                }
+            }
+
+            calcChanZoomParam();
+            setChanZoomOrtho();
         }
 
         void ChannelSelect::calcNormalSafeModeDialog() {
@@ -2818,8 +2149,8 @@ calcNormalRestart_ChannelSelect_L7:
             if (mCurrentPage > 0 && unk_0x2B0 >= 15 && isPageCreatedAllDone(mCurrentPage)) {
                 if (unkBool()) {
                     button->animation(Button::IDANIM_ARROW_LEFT_SELECT);
-                    mpLayout->setMinFrame(lbl_81694948);
-                    mpLayout->setMaxFrame(lbl_81694968);
+                    mpLayout->setMinFrame(0.0f);
+                    mpLayout->setMaxFrame(20.0f);
                     mpLayout->setAnmType(ANIM_TYPE_FORWARD);
                     mpLayout->start();
 
@@ -2844,8 +2175,8 @@ calcNormalRestart_ChannelSelect_L7:
             if (mCurrentPage < mMaxPages - 1 && unk_0x2AC >= 15 && isPageCreatedAllDone(mCurrentPage)) {
                 if (unkBool()) {
                     button->animation(Button::IDANIM_ARROW_RIGHT_SELECT);
-                    mpLayout->setMinFrame(lbl_8169496C);
-                    mpLayout->setMaxFrame(lbl_81694970);
+                    mpLayout->setMinFrame(40.0f);
+                    mpLayout->setMaxFrame(60.0f);
                     mpLayout->setAnmType(ANIM_TYPE_FORWARD);
                     mpLayout->start();
 
@@ -2945,60 +2276,21 @@ calcNormalRestart_ChannelSelect_L7:
             }
         }
 
-        extern "C" asm void calcNormalMoveChanOut__Q33ipl5scene13ChannelSelectFv() {
-            nofralloc
-            stwu r1, -0x20(r1)
-            mflr r0
-            li r4, 0x1
-            stw r0, 0x24(r1)
-            stw r31, 0x1c(r1)
-            mr r31, r3
-            lwz r5, 0xac(r3)
-            addi r3, r5, 0x28c
-            bl List_GetNth__Q24nw4r2utFPCQ34nw4r2ut4ListUs
-            lwz r0, 0x14(r3)
-            cmpwi r0, 0x1
-            beq calcNormalMoveChanOut_ChannelSelect_L1
-            lwz r3, 0xb0(r31)
-            li r4, 0x1
-            addi r3, r3, 0x28c
-            bl List_GetNth__Q24nw4r2utFPCQ34nw4r2ut4ListUs
-            lwz r0, 0x14(r3)
-            cmpwi r0, 0x1
-            beq calcNormalMoveChanOut_ChannelSelect_L1
-            lwz r3, 0xb4(r31)
-            li r4, 0x1
-            addi r3, r3, 0x28c
-            bl List_GetNth__Q24nw4r2utFPCQ34nw4r2ut4ListUs
-            lwz r0, 0x14(r3)
-            cmpwi r0, 0x1
-            beq calcNormalMoveChanOut_ChannelSelect_L1
-            bl getRndm__Q23ipl6SystemFv
-            bl get_u16__Q33ipl4math6RandomFv
-            clrlwi r7, r3, 16
-            li r6, 0x7d0
-            divw r5, r7, r6
-            lis r0, 0x4330
-            stw r0, 0x8(r1)
-            mr r3, r31
-            lfd f1, lbl_81694998
-            lwz r4, 0x2c8(r31)
-            mullw r0, r5, r6
-            subf r0, r0, r7
-            xoris r0, r0, 0x8000
-            stw r0, 0xc(r1)
-            lfd f0, 0x8(r1)
-            fsubs f0, f0, f1
-            stfs f0, 0xc(r4)
-            bl restartChannelModules__Q33ipl5scene13ChannelSelectFv
-            li r0, 0x1
-            stw r0, 0xc0(r31)
-calcNormalMoveChanOut_ChannelSelect_L1:
-            lwz r0, 0x24(r1)
-            lwz r31, 0x1c(r1)
-            mtlr r0
-            addi r1, r1, 0x20
-            blr
+        void ChannelSelect::calcNormalMoveChanOut() {
+            if (mpMoveLytMask->getAnim(1)->isPlaying()) {
+                return;
+            }
+            if (mpMoveLytObject->getAnim(1)->isPlaying()) {
+                return;
+            }
+            if (mpMoveLytDrop->getAnim(1)->isPlaying()) {
+                return;
+            }
+
+            f32 frame = System::getRndm()->get_u16() % 2000;
+            unk_0x2C8->setCurrentFrame(frame);
+            restartChannelModules();
+            mState = STATE_NORMAL;
         }
 
         void ChannelSelect::calcNormalDragScrl() {
@@ -3116,7 +2408,7 @@ calcNormalMoveChanOut_ChannelSelect_L1:
                 if (con->isValidDpd()) {
                     mDragPos = con->getDpdPos();
                 } else {
-                    mDragPos = nw4r::math::VEC2(lbl_81694948, lbl_81694948);
+                    mDragPos = nw4r::math::VEC2(0.0f, 0.0f);
                 }
 
                 mConChan = con->getChannel();

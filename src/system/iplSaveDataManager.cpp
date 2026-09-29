@@ -751,215 +751,13 @@ namespace ipl {
             blr
         }
 
-        asm void Manager::integrateTitleIDList(register ESTitleId* titleIdsOut, register ESTitleId* titleIdsIn, register u32 titleCount) {
-            nofralloc
-            stwu r1, -0x1d0(r1)
-            mflr r0
-            stw r0, 0x1d4(r1)
-            addi r11, r1, 0x1d0
-            bl _savegpr_28
-            li r0, 0x36
-            mr r28, r3
-            mr r29, r4
-            mr r30, r5
-            mr r31, r6
-            addi r4, r1, 4
-            li r3, 0
-            mtctr r0
-        integrateTitleIDList_L1:
-            stw r3, 4(r4)
-            stwu r3, 8(r4)
-            bdnz integrateTitleIDList_L1
-            mr r3, r28
-            mr r4, r29
-            li r5, 0x30
-            bl getAvailableNumInList__Q33ipl8savedata7ManagerFPCUxUl
-            cmpwi r3, 0
-            mr r5, r3
-            beq integrateTitleIDList_L2
-            mr r3, r28
-            mr r6, r30
-            mr r7, r31
-            addi r4, r1, 8
-            bl makeTmpList__Q33ipl8savedata7ManagerFPUxUlPUxUl
-            mr r3, r28
-            mr r4, r29
-            addi r5, r1, 8
-            bl moveTitleTmpToPrior__Q33ipl8savedata7ManagerFPUxPCUx
-        integrateTitleIDList_L2:
-            addi r11, r1, 0x1d0
-            bl _restgpr_28
-            lwz r0, 0x1d4(r1)
-            mtlr r0
-            addi r1, r1, 0x1d0
-            blr
-        }
-
-        asm BOOL Manager::doUpdateChanInfos(register ESTitleId* titleIds) {
-            nofralloc
-            stwu r1, -0x40(r1)
-            mflr r0
-            stw r0, 0x44(r1)
-            addi r11, r1, 0x40
-            bl _savegpr_20
-            mr r27, r3
-            mr r28, r4
-            li r3, 0
-            li r30, 0
-            li r26, 0
-            li r25, 0
-            li r20, 3
-            li r21, 0
-            li r22, 0xe
-            li r23, -1
-        doUpdateChanInfos_L1:
-            add r31, r27, r26
-            li r29, 0
-            li r24, 0
-        doUpdateChanInfos_L2:
-            add r4, r31, r24
-            lbz r0, 0x30(r4)
-            cmplwi r0, 1
-            beq doUpdateChanInfos_L5
-            add r0, r29, r25
-            lwz r9, 0x38(r4)
-            slwi r0, r0, 3
-            lwz r5, 0x3c(r4)
-            add r8, r28, r0
-            lwzx r6, r28, r0
-            lwz r7, 4(r8)
-            xor r0, r9, r6
-            xor r5, r5, r7
-            or. r0, r5, r0
-            beq doUpdateChanInfos_L5
-            or. r0, r7, r6
-            bne doUpdateChanInfos_L4
-            addi r3, r4, 0x30
-            li r4, 0
-            li r5, 0x10
-            bl memset
-            b doUpdateChanInfos_L6
-        doUpdateChanInfos_L4:
-            stb r20, 0x30(r4)
-            stb r21, 0x31(r4)
-            stb r21, 0x32(r4)
-            stb r21, 0x33(r4)
-            stw r22, 0x34(r4)
-            lwz r0, 0(r8)
-            and r0, r0, r23
-            stw r0, 0x38(r4)
-            lwz r0, 4(r8)
-            and r0, r0, r23
-            stw r0, 0x3c(r4)
-        doUpdateChanInfos_L6:
-            li r3, 1
-        doUpdateChanInfos_L5:
-            addi r29, r29, 1
-            addi r24, r24, 0x10
-            cmpwi r29, 0xc
-            blt doUpdateChanInfos_L2
-            addi r30, r30, 1
-            addi r25, r25, 0xc
-            cmpwi r30, 4
-            addi r26, r26, 0xc0
-            blt doUpdateChanInfos_L1
-            addi r11, r1, 0x40
-            bl _restgpr_20
-            lwz r0, 0x44(r1)
-            mtlr r0
-            addi r1, r1, 0x40
-            blr
-        }
-
-        asm void Manager::iplSavedata_813596B8(register ESTitleId titleId) {
-            nofralloc
-            lis r7, 0x4841
-            lis r4, 1
-            addi r0, r7, 0x5445
-            addi r8, r4, 1
-            xor r4, r6, r0
-            xor r0, r5, r8
-            or. r0, r4, r0
-            beqlr
-            addi r4, r7, 0x4445
-            xor r0, r5, r8
-            xor r4, r6, r4
-            or. r0, r4, r0
-            bne iplSavedata_813596B8_L1
-            blr
-        iplSavedata_813596B8_L1:
-            addis r0, r5, -1
-            cmplwi r0, 1
-            beq iplSavedata_813596B8_L2
-            cmplwi r0, 3
-            beq iplSavedata_813596B8_L2
-            cmplwi r0, 4
-            beq iplSavedata_813596B8_L2
-            cmplwi r0, 6
-            bnelr
-        iplSavedata_813596B8_L2:
-            li r0, 0x30
-            li r9, 0
-            li r4, 0
-            mtctr r0
-        iplSavedata_813596B8_L3:
-            add r7, r3, r4
-            lwz r0, 0x340(r7)
-            lwz r7, 0x344(r7)
-            xor r0, r5, r0
-            xor r7, r6, r7
-            or. r0, r7, r0
-            beq iplSavedata_813596B8_L4
-            addi r9, r9, 1
-            addi r4, r4, 8
-            bdnz iplSavedata_813596B8_L3
-        iplSavedata_813596B8_L4:
-            cmpwi r9, 0x30
-            bne iplSavedata_813596B8_L5
-            li r9, 0x2f
-        iplSavedata_813596B8_L5:
-            slwi r4, r9, 3
-            mtctr r9
-            cmpwi r9, 0
-            ble iplSavedata_813596B8_L6
-        iplSavedata_813596B8_L7:
-            addi r0, r9, -1
-            add r7, r3, r4
-            slwi r0, r0, 3
-            addi r9, r9, -1
-            add r8, r3, r0
-            addi r4, r4, -8
-            lwz r0, 0x340(r8)
-            lwz r8, 0x344(r8)
-            stw r8, 0x344(r7)
-            stw r0, 0x340(r7)
-            bdnz iplSavedata_813596B8_L7
-        iplSavedata_813596B8_L6:
-            stw r6, 0x344(r3)
-            stw r5, 0x340(r3)
-            blr
-        }
-
-        extern "C" asm BOOL iplSavedata_813597A0(register void* manager, register ESTitleId titleId) {
-            nofralloc
-            li r0, 0x30
-            li r4, 0
-            mtctr r0
-        iplSavedata_813597A0_L1:
-            add r7, r3, r4
-            lwz r0, 0x340(r7)
-            lwz r7, 0x344(r7)
-            xor r0, r5, r0
-            xor r7, r6, r7
-            or. r0, r7, r0
-            bne iplSavedata_813597A0_L2
-            li r3, 1
-            blr
-        iplSavedata_813597A0_L2:
-            addi r4, r4, 8
-            bdnz iplSavedata_813597A0_L1
-            li r3, 0
-            blr
+        void Manager::integrateTitleIDList(ESTitleId* titleIdsOut, ESTitleId* titleIdsIn, u32 titleCount) {
+            ESTitleId temporaryTitleIds[0x36] = {0};
+            int availableCount = getAvailableNumInList(titleIdsOut, 0x30);
+            if (availableCount != 0) {
+                makeTmpList(temporaryTitleIds, availableCount, titleIdsIn, titleCount);
+                moveTitleTmpToPrior(titleIdsOut, temporaryTitleIds);
+            }
         }
 
         asm void Manager::makeTmpList(register ESTitleId* titleIdsOut, register u32 availableCount, register ESTitleId* titleIdsIn, register u32 titleCount) {
@@ -1073,47 +871,91 @@ namespace ipl {
             blr
         }
 
-        asm void Manager::moveTitleTmpToPrior(register ESTitleId* titleIdsOut, register const ESTitleId* titleIdsIn) {
+        void Manager::moveTitleTmpToPrior(ESTitleId* titleIdsOut, const ESTitleId* titleIdsIn) {
+            for (int titleIndex = 0; titleIndex < 0x36; titleIndex++) {
+                if (titleIdsIn[titleIndex] != TITLE_NULL) {
+                    int availableIndex = getAvailableInList(titleIdsOut, 0x30);
+                    if (availableIndex == -1) {
+                        return;
+                    }
+                    titleIdsOut[availableIndex] = titleIdsIn[titleIndex];
+                }
+            }
+        }
+
+        asm BOOL Manager::doUpdateChanInfos(register ESTitleId* titleIds) {
             nofralloc
-            stwu r1, -0x20(r1)
+            stwu r1, -0x40(r1)
             mflr r0
-            stw r0, 0x24(r1)
-            addi r11, r1, 0x20
-            bl _savegpr_26
-            mr r26, r3
-            mr r27, r4
-            mr r28, r5
+            stw r0, 0x44(r1)
+            addi r11, r1, 0x40
+            bl _savegpr_20
+            mr r27, r3
+            mr r28, r4
+            li r3, 0
+            li r30, 0
+            li r26, 0
+            li r25, 0
+            li r20, 3
+            li r21, 0
+            li r22, 0xe
+            li r23, -1
+        doUpdateChanInfos_L1:
+            add r31, r27, r26
             li r29, 0
-            li r31, 0
-        moveTitleTmpToPrior_L1:
-            add r30, r28, r31
-            lwzx r0, r28, r31
-            lwz r3, 4(r30)
-            or. r0, r3, r0
-            beq moveTitleTmpToPrior_L2
-            mr r3, r26
-            mr r4, r27
-            li r5, 0x30
-            bl getAvailableInList__Q33ipl8savedata7ManagerFPCUxUl
-            cmpwi r3, -1
-            beq moveTitleTmpToPrior_L3
-            slwi r0, r3, 3
-            lwz r4, 4(r30)
-            add r3, r27, r0
-            lwz r0, 0(r30)
-            stw r4, 4(r3)
-            stw r0, 0(r3)
-        moveTitleTmpToPrior_L2:
+            li r24, 0
+        doUpdateChanInfos_L2:
+            add r4, r31, r24
+            lbz r0, 0x30(r4)
+            cmplwi r0, 1
+            beq doUpdateChanInfos_L5
+            add r0, r29, r25
+            lwz r9, 0x38(r4)
+            slwi r0, r0, 3
+            lwz r5, 0x3c(r4)
+            add r8, r28, r0
+            lwzx r6, r28, r0
+            lwz r7, 4(r8)
+            xor r0, r9, r6
+            xor r5, r5, r7
+            or. r0, r5, r0
+            beq doUpdateChanInfos_L5
+            or. r0, r7, r6
+            bne doUpdateChanInfos_L4
+            addi r3, r4, 0x30
+            li r4, 0
+            li r5, 0x10
+            bl memset
+            b doUpdateChanInfos_L6
+        doUpdateChanInfos_L4:
+            stb r20, 0x30(r4)
+            stb r21, 0x31(r4)
+            stb r21, 0x32(r4)
+            stb r21, 0x33(r4)
+            stw r22, 0x34(r4)
+            lwz r0, 0(r8)
+            and r0, r0, r23
+            stw r0, 0x38(r4)
+            lwz r0, 4(r8)
+            and r0, r0, r23
+            stw r0, 0x3c(r4)
+        doUpdateChanInfos_L6:
+            li r3, 1
+        doUpdateChanInfos_L5:
             addi r29, r29, 1
-            addi r31, r31, 8
-            cmpwi r29, 0x36
-            blt moveTitleTmpToPrior_L1
-        moveTitleTmpToPrior_L3:
-            addi r11, r1, 0x20
-            bl _restgpr_26
-            lwz r0, 0x24(r1)
+            addi r24, r24, 0x10
+            cmpwi r29, 0xc
+            blt doUpdateChanInfos_L2
+            addi r30, r30, 1
+            addi r25, r25, 0xc
+            cmpwi r30, 4
+            addi r26, r26, 0xc0
+            blt doUpdateChanInfos_L1
+            addi r11, r1, 0x40
+            bl _restgpr_20
+            lwz r0, 0x44(r1)
             mtlr r0
-            addi r1, r1, 0x20
+            addi r1, r1, 0x40
             blr
         }
 #endif
@@ -1288,6 +1130,87 @@ namespace ipl {
             memset(mData.titleCache, 0, sizeof(mData.titleCache));
             mData.prevSDPage = 0;
         }
+
+#ifdef __MWERKS__
+        asm void Manager::iplSavedata_813596B8(register ESTitleId titleId) {
+            nofralloc
+            lis r7, 0x4841
+            lis r4, 1
+            addi r0, r7, 0x5445
+            addi r8, r4, 1
+            xor r4, r6, r0
+            xor r0, r5, r8
+            or. r0, r4, r0
+            beqlr
+            addi r4, r7, 0x4445
+            xor r0, r5, r8
+            xor r4, r6, r4
+            or. r0, r4, r0
+            bne iplSavedata_813596B8_L1
+            blr
+        iplSavedata_813596B8_L1:
+            addis r0, r5, -1
+            cmplwi r0, 1
+            beq iplSavedata_813596B8_L2
+            cmplwi r0, 3
+            beq iplSavedata_813596B8_L2
+            cmplwi r0, 4
+            beq iplSavedata_813596B8_L2
+            cmplwi r0, 6
+            bnelr
+        iplSavedata_813596B8_L2:
+            li r0, 0x30
+            li r9, 0
+            li r4, 0
+            mtctr r0
+        iplSavedata_813596B8_L3:
+            add r7, r3, r4
+            lwz r0, 0x340(r7)
+            lwz r7, 0x344(r7)
+            xor r0, r5, r0
+            xor r7, r6, r7
+            or. r0, r7, r0
+            beq iplSavedata_813596B8_L4
+            addi r9, r9, 1
+            addi r4, r4, 8
+            bdnz iplSavedata_813596B8_L3
+        iplSavedata_813596B8_L4:
+            cmpwi r9, 0x30
+            bne iplSavedata_813596B8_L5
+            li r9, 0x2f
+        iplSavedata_813596B8_L5:
+            slwi r4, r9, 3
+            mtctr r9
+            cmpwi r9, 0
+            ble iplSavedata_813596B8_L6
+        iplSavedata_813596B8_L7:
+            addi r0, r9, -1
+            add r7, r3, r4
+            slwi r0, r0, 3
+            addi r9, r9, -1
+            add r8, r3, r0
+            addi r4, r4, -8
+            lwz r0, 0x340(r8)
+            lwz r8, 0x344(r8)
+            stw r8, 0x344(r7)
+            stw r0, 0x340(r7)
+            bdnz iplSavedata_813596B8_L7
+        iplSavedata_813596B8_L6:
+            stw r6, 0x344(r3)
+            stw r5, 0x340(r3)
+            blr
+        }
+
+        extern "C" BOOL iplSavedata_813597A0(void* manager, ESTitleId titleId) {
+            Manager* savedataManager = static_cast<Manager*>(manager);
+            for (int index = 0; index < MAX_CHANNEL_TOTAL; index++) {
+                if (savedataManager->mData.titleCache[0][index] == titleId) {
+                    return TRUE;
+                }
+            }
+            return FALSE;
+        }
+#endif
 
         BOOL Manager::nand_error_handling(int code) {
             BOOL result = FALSE;

@@ -19,6 +19,8 @@ namespace ipl {
         class Manager;
     }
     namespace savedata {
+        extern "C" BOOL iplSavedata_813597A0(void* manager, ESTitleId titleId);
+
         class Manager {
         public:
             Manager(EGG::Heap* heap);
@@ -151,6 +153,7 @@ namespace ipl {
             u8 unused_0x504[28];
 
             friend class channel::Manager;
+            friend BOOL iplSavedata_813597A0(void* manager, ESTitleId titleId);
         };
     }  // namespace savedata
 }  // namespace ipl

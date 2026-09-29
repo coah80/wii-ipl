@@ -12,6 +12,9 @@ namespace ipl {
         template <typename T>
         class Interporation : public utility::FrameController {
         public:
+#ifdef IPL_BOARD_OBJECT_INLINE_INTERPOLATION_DTORS
+            virtual ~Interporation();
+#endif
             void init(int playback, f32 maxFrame, f32 minFrame, const T& start, const T& end, f32 speed = 1.0f) {
                 mStart = start;
                 mEnd = end;
@@ -34,6 +37,9 @@ namespace ipl {
         template <typename T>
         class LinearIntp : public Interporation<T> {
         public:
+#ifdef IPL_BOARD_OBJECT_INLINE_INTERPOLATION_DTORS
+            virtual ~LinearIntp();
+#endif
             T get() const {
                 T r = mEnd * getCurrentFrame();
                 T b = mStart * (mMaxFrame - mFrame);

@@ -1,201 +1,162 @@
+#define IPL_ADDRESS_MATCHING
+#define IPL_SOUND_RECT_OUT_OF_LINE
+#include <nw4r/ut/Rect.h>
+#undef IPL_SOUND_RECT_OUT_OF_LINE
+
 #include "scene/address/iplAddress.h"
-
-#include <cstring>
-#include <cstdlib>
-#include <cstdio>
-#include <cwchar>
-#include <cstdarg>
-
-#include <revolution.h>
-#include <revolution/sc.h>
-#include <revolution/nwc24.h>
-
-#include <nw4r/lyt/textBox.h>
 
 #include "iplSceneUI.h"
 
 #include "scene/board/iplBoard.h"
-#include "scene/button/iplButton.h"
 #include "scene/letterWriter/iplLetterWriter.h"
 #include "scene/mailAddSel/iplMailAddressSelect.h"
 #include "scene/parentalDialog/iplParentalDialog.h"
+
 #include "scene/setting/iplNCDSetting.h"
 
-#include "iplSystem.h"
-#include "iplSound.h"
-
+#include "system/MESGEntries.h"
 #include "system/iplNigaoe.h"
-#include "system/iplPointer.h"
-
+#include "system/iplNigaoeManager.h"
+#include "system/iplSystem.h"
 #include "utility/iplCharacterCode.h"
-#include "utility/iplGraphics.h"
+
+#include <string.h>
+#include <wchar.h>
 
 namespace ipl {
     namespace scene {
-        namespace {
-            static const char* sTextNameB[5] = {
-                "T_name_b_00",
-                "T_name_b_01",
-                "T_name_b_02",
-                "T_name_b_03",
-                "T_name_b_04",
-            };
+        static const char* sTextNameB[Address::BTN_MAX] = {"T_name_b_00", "T_name_b_01", "T_name_b_02", "T_name_b_03", "T_name_b_04"};
 
-            static const char* sTextNameC[5] = {
-                "T_name_c_00",
-                "T_name_c_01",
-                "T_name_c_02",
-                "T_name_c_03",
-                "T_name_c_04",
-            };
+        static const char* sTextNameC[Address::BTN_MAX] = {"T_name_c_00", "T_name_c_01", "T_name_c_02", "T_name_c_03", "T_name_c_04"};
 
-            static const char* sButtonNameB[5] = {
-                "B_name_b_00",
-                "B_name_b_01",
-                "B_name_b_02",
-                "B_name_b_03",
-                "B_name_b_04",
-            };
+        static const char* sButtonName[Address::BTN_MAX] = {"B_name_b_00", "B_name_b_01", "B_name_b_02", "B_name_b_03", "B_name_b_04"};
 
-            static const char* sButtonNameBB[] = {
-                "B_name_b_00_01",
-                "B_name_b_01_02",
-                "B_name_b_02_03",
-                "B_name_b_03_04",
-            };
+        static const char* sButtonSpaceName[Address::BTN_SPACE_MAX] = {"B_name_b_00_01", "B_name_b_01_02", "B_name_b_02_03",
+                                                                       "B_name_b_03_04"};
 
-            static const char* sNameB[5] = {
-                "name_b_00",
-                "name_b_01",
-                "name_b_02",
-                "name_b_03",
-                "name_b_04",
-            };
+        static const char* sNameGroup[Address::BTN_MAX] = {"name_b_00", "name_b_01", "name_b_02", "name_b_03", "name_b_04"};
 
-            static const char* sNameC[5] = {
-                "G_name_c_00",
-                "G_name_c_01",
-                "G_name_c_02",
-                "G_name_c_03",
-                "G_name_c_04",
-            };
+        static const char* sNameCGroup[Address::BTN_MAX] = {"G_name_c_00", "G_name_c_01", "G_name_c_02", "G_name_c_03", "G_name_c_04"};
 
-            static math::VEC2  sNullVec(-1.0f, -1.0f);
+        static math::VEC2 sPageOffset(-1.0f, -1.0f);
+
+        inline void Address::set_textbox(const char* paneName, u32 msgId) {
+            set_textbox(paneName, System::getMessage(msgId));
         }
 
-        Address::Address(EGG::Heap* heap, int arg2)
-            : FaderSceneBase(heap),
-            mArg2(arg2),
-            mpLayout(NULL), mpLayoutUnused(NULL), mpEvent(NULL), mpGui(NULL),
-            mpBackLayout(NULL),
-            mFisttState(1), mCounter(0), mState(1), mPageNo(0), mMaxPage(0x14),
-            mUnk_0xb8(0), mUnk_0xbc(0), mChosenFriendIndex(0), mbFlagE0(FALSE) {
+        Address::Address(EGG::Heap* heap, int mode)
+            : FaderSceneBase(heap), mMode(mode), mpLayout(NULL), unk_0x90(0), mpEvent(NULL), mpGui(NULL), mpBackLayout(NULL),
+              mFadeinState(FADEIN_STATE_FADEIN), mWaitOpenCount(0), mState(STATE_COVER_NORMAL), mPage(0), mNextPageNum(PAGE_MAX),
+              mPrevPageNum(0), mSelectedButton(0), mChosenFriend(0), mbParentalOK(false) {
             setSceneParentFlags(SCN_PARENTFLAG_CALC | SCN_PARENTFLAG_DRAW);
-            int i;
-            for (i = 0; i < 5; i++) {
-                mPaneFlags[i] = 0;
+
+            for (int i = 0; i < BTN_MAX; i++) {
+                mPointCount[i] = 0;
             }
-            for (i = 0; i < 5; i++) {
-                mbHovered[i] = 0;
+
+            for (int i = 0; i < BTN_MAX; i++) {
+                mbFaceValid[i] = false;
             }
-            memset(&mDragPos, 0, 0x24);
-            mRightPageNo = -1;
-            mLeftPageNo = -1;
+
+            memset(&mDrag, 0, sizeof(DragInfo));
+            mDrag.mNextCount = -1;
+            mDrag.mPrevCount = -1;
         }
 
         Address::~Address() {
-            delete mpFriendList;
+            if (mpFriendCache != NULL) {
+                delete mpFriendCache;
+            }
         }
 
-        void Address::prepare() {
-            // Empty
-        }
+        void Address::prepare() {}
 
         void Address::create() {
             nand::LayoutFile* layoutFile = static_cast<Board*>(System::getScene(SCENE_BOARD))->getLayoutFile();
 
-            mbFlagE1 = TRUE;
+            mbCover = true;
 
+            // Main layout
             mpLayout = new layout::Object(getSceneHeap(), layoutFile, "arc", "th_Adress_a.brlyt");
-
             mpLayout->bindToGroup("th_Adress_a_note_alp_in.brlan", "G_note_all", false, true);
             mpLayout->bindToGroup("th_Adress_a_note_alp_out.brlan", "G_note_all", false, false);
             mpLayout->bindToGroup("th_Adress_a_note_trns_in.brlan", "G_note_all", false, false);
             mpLayout->bindToGroup("th_Adress_a_note_trns_out.brlan", "G_note_all", false, false);
-            mpLayout->bindToGroup("th_Adress_a_note_e_rtt.brlan", "G_note_e_rtt", false, mbFlagE1);
-            mpLayout->bindToGroup("th_Adress_a_note_c_rtt.brlan", "note_c_rtt", false, !mbFlagE1);
+            mpLayout->bindToGroup("th_Adress_a_note_e_rtt.brlan", "G_note_e_rtt", false, mbCover);
+            mpLayout->bindToGroup("th_Adress_a_note_c_rtt.brlan", "note_c_rtt", false, !mbCover);
 
-            for (int i = 0; i < 5; i++) {
-                mpLayout->bindToGroup("th_Adress_a_name_in.brlan", sNameB[i], false, false);
+            for (int i = 0; i < BTN_MAX; i++) {
+                mpLayout->bindToGroup("th_Adress_a_name_in.brlan", sNameGroup[i], false, false);
             }
-            for (int i = 0; i < 5; i++) {
-                mpLayout->bindToGroup("th_Adress_a_name_out.brlan", sNameB[i], false, false);
+            for (int i = 0; i < BTN_MAX; i++) {
+                mpLayout->bindToGroup("th_Adress_a_name_out.brlan", sNameGroup[i], false, false);
             }
-            for (int i = 0; i < 5; i++) {
-                mpLayout->bindToGroup("th_Adress_a_name_psh.brlan", sNameB[i], false, false);
+            for (int i = 0; i < BTN_MAX; i++) {
+                mpLayout->bindToGroup("th_Adress_a_name_psh.brlan", sNameGroup[i], false, false);
             }
-            for (int i = 0; i < 5; i++) {
-                mpLayout->bindToGroup("th_Adress_a_gry_name_in.brlan", sNameB[i], false, false);
+            for (int i = 0; i < BTN_MAX; i++) {
+                mpLayout->bindToGroup("th_Adress_a_gry_name_in.brlan", sNameGroup[i], false, false);
             }
-            for (int i = 0; i < 5; i++) {
-                mpLayout->bindToGroup("th_Adress_a_gry_name_out.brlan", sNameB[i], false, false);
+            for (int i = 0; i < BTN_MAX; i++) {
+                mpLayout->bindToGroup("th_Adress_a_gry_name_out.brlan", sNameGroup[i], false, false);
             }
-            for (int i = 0; i < 5; i++) {
-                mpLayout->bindToGroup("th_Adress_a_gry_name_psh.brlan", sNameB[i], false, false);
+            for (int i = 0; i < BTN_MAX; i++) {
+                mpLayout->bindToGroup("th_Adress_a_gry_name_psh.brlan", sNameGroup[i], false, false);
             }
-            for (int i = 0; i < 5; i++) {
-                mpLayout->bindToGroup("th_Adress_a_name_c_gry.brlan", sNameC[i], false, false);
+            for (int i = 0; i < BTN_MAX; i++) {
+                mpLayout->bindToGroup("th_Adress_a_name_c_gry.brlan", sNameCGroup[i], false, false);
             }
-
             mpLayout->finishBinding();
 
+            // Background layout
             mpBackLayout = new layout::Object(getSceneHeap(), layoutFile, "arc", "my_Back_a.brlyt");
             mpBackLayout->bind("my_Back_a_Apear.brlan", "Picture_00", false, true);
             mpBackLayout->bind("my_Back_a_Lost.brlan", "Picture_00", false, false);
             mpBackLayout->finishBinding();
-            mpBackLayout->getAnim(0)->initAnmFrame();
+            mpBackLayout->getAnim()->initAnmFrame();
 
+            // Dialog layout
             mpDialogLayout = new layout::Object(getSceneHeap(), layoutFile, "arc", "my_Dialog_a.brlyt");
             mpDialogLayout->bind("my_Dialog_a_DialogIn.brlan", "N_Top", false, true);
             mpDialogLayout->bind("my_Dialog_a_DialogOut.brlan", "N_Top", false, false);
             mpDialogLayout->finishBinding();
+            nw4r::lyt::TextBox* dialogText = nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(mpDialogLayout->FindPaneByName("T_Dialog"));
+            dialogText->SetString(System::getMessage(MESG_ADDRESS_CHOOSE), 0);
 
-            nw4r::lyt::TextBox* textBox = nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(mpDialogLayout->FindPaneByName("T_Dialog"));
-            textBox->SetString(System::getMessage(0x4E), 0);
-
+            // GUI
             mpEvent = new AddressEvent(this);
             mpGui = new gui::PaneManager(mpEvent, mpLayout->getDrawInfo(), NULL, NULL);
             mpGui->setupScene(mpLayout);
             mpGui->setAllComponentTriggerTarget(false);
-
-            for (int i = 0; i < 5; i++) {
-                mpGui->setTriggerTarget(mpLayout->FindPaneByName(sButtonNameB[i]), true);
+            for (int i = 0; i < BTN_MAX; i++) {
+                mpGui->setTriggerTarget(mpLayout->FindPaneByName(sButtonName[i]), true);
             }
-            for (int i = 0; i < 4; i++) {
-                mpGui->setTriggerTarget(mpLayout->FindPaneByName(sButtonNameBB[i]), true);
-            }
-
-            for (int i = 0; i < 5; i++) {
-                char paneName[0x10];
-                sprintf(paneName, "mii_b_%02d", i);
-                mMiiB[i].init(mpLayout->FindPaneByName(paneName));
-            }
-            for (int i = 0; i < 5; i++) {
-                char paneName[0x10];
-                sprintf(paneName, "mii_c_%02d", i);
-                mMiiC[i].init(mpLayout->FindPaneByName(paneName));
+            for (int i = 0; i < BTN_SPACE_MAX; i++) {
+                mpGui->setTriggerTarget(mpLayout->FindPaneByName(sButtonSpaceName[i]), true);
             }
 
-            set_textbox("T_adrs_00", System::getMessage(0x86));
-            set_textbox("T_wii_msg", System::getMessage(0x42));
+            // Mii panes
+            char miiName[16];
+            for (int i = 0; i < BTN_MAX; i++) {
+                sprintf(miiName, "mii_b_%02d", i);
+                mMiiObj[i].init(mpLayout->FindPaneByName(miiName));
+            }
+            char nextMiiName[16];
+            for (int i = 0; i < BTN_MAX; i++) {
+                sprintf(nextMiiName, "mii_c_%02d", i);
+                mNextMiiObj[i].init(mpLayout->FindPaneByName(nextMiiName));
+            }
 
-            mpFriendList = new (0x20) FriendListCache;
-            if (mpFriendList->init()) {
+            set_textbox("T_adrs_00", MESG_ADDRESS_TITLE);
+            set_textbox("T_wii_msg", MESG_ADDRESS_WII_ID);
+
+            // Friend list
+            mpFriendCache = new (32) FriendListCache();
+            if (mpFriendCache->init()) {
                 onInitFriendList();
-                mFisttState = 1;
-            }
-            else {
-                mFisttState = 0;
+                mFadeinState = FADEIN_STATE_FADEIN;
+            } else {
+                mFadeinState = FADEIN_STATE_WAIT_OPEN;
             }
 
             mpWork = new u8[0x2D20];
@@ -204,38 +165,18 @@ namespace ipl {
         }
 
         FaderSceneCommand Address::calcFadein() {
-            switch (mFisttState) {
-                case 0: {
+            switch (mFadeinState) {
+                case FADEIN_STATE_WAIT_OPEN: {
                     fistt_wait_open();
                     break;
                 }
-                case 1: {
+                case FADEIN_STATE_FADEIN: {
                     fistt_fadein();
                     break;
                 }
             }
 
-            return mFisttState == 2 ? FADER_SCN_NEXT : FADER_SCN_CONTINUE;
-        }
-
-        FaderSceneCommand Address::calcFadeout() {
-            FaderSceneCommand result;
-            if (System::getFader()->getStatus() == EGG::Fader::PREPARE_OUT) {
-                result = FADER_SCN_CONTINUE;
-                bool bDone = !mpLayout->getAnim(1)->isPlaying() && !mpLayout->getAnim(3)->isPlaying();
-                if (bDone && !mpDialogLayout->getAnim(1)->isPlaying()) {
-                    result = FADER_SCN_NEXT;
-                }
-            }
-            else {
-                result = (FaderSceneCommand)(System::getFader()->getStatus() == EGG::Fader::PREPARE_IN);
-            }
-
-            return result;
-        }
-
-        void Address::initCalcFadeout() {
-            static_cast<Button*>(System::getScene(SCENE_BUTTON))->setEventHandler(NULL, NULL);
+            return mFadeinState == FADEIN_STATE_DONE ? FADER_SCN_NEXT : FADER_SCN_CONTINUE;
         }
 
         void Address::initCalcNormal() {
@@ -244,114 +185,140 @@ namespace ipl {
 
         FaderSceneCommand Address::calcNormal() {
             switch (mState) {
-                case 0: {
+                case STATE_INIT: {
                     snd::getSystem()->startSE("WIPL_SE_FL_PAGE_INC");
                     onNextPage();
                     break;
                 }
-                case 1: {
+                case STATE_COVER_NORMAL: {
                     stt_cover_normal();
                     break;
                 }
-                case 2: {
+                case STATE_COVER_FORWARD: {
                     stt_cover_forward();
                     break;
                 }
-                case 3: {
+                case STATE_COVER_BACKWARD: {
                     stt_cover_backward();
                     break;
                 }
-                case 4: {
+                case STATE_NORMAL: {
                     stt_normal();
                     break;
                 }
-                case 5: {
+                case STATE_FORWARD: {
                     stt_forward();
                     break;
                 }
-                case 6: {
+                case STATE_BACKWARD: {
                     stt_backward();
                     break;
                 }
-                case 7: {
+                case STATE_LOOP_FORWARD: {
                     stt_loop_forward();
                     break;
                 }
-                case 8: {
+                case STATE_LOOP_BACKWARD: {
                     stt_loop_backward();
                     break;
                 }
-                case 9: {
+                case STATE_DECIDE: {
                     stt_decide();
                     break;
                 }
-                case 0xA: {
+                case STATE_DRAG: {
                     stt_drag();
                     break;
                 }
-                case 0xB: {
+                case STATE_RELEASE: {
                     stt_release();
                     break;
                 }
-                case 0xC: {
+                case STATE_WAIT_CHILD_CST: {
                     stt_wait_child_cst();
                     break;
                 }
-                case 0xD: {
+                case STATE_WAIT_CHILD_DST: {
                     stt_wait_child_dst();
                     break;
                 }
-                case 0xE: {
+                case STATE_WAIT_CHILD_FADEOUT: {
                     stt_wait_child_fadeout();
                     break;
                 }
-                case 0xF: {
+                case STATE_MSG_NET: {
                     stt_msg_net();
                     break;
                 }
-                case 0x10: {
+                case STATE_WAIT_PARENTAL: {
                     stt_wait_parental();
                     break;
                 }
-                case 0x11: {
+                case STATE_WAIT_PARENTAL_DST: {
                     stt_wait_parental_dst();
                     break;
                 }
-                case 0x12: {
+                case STATE_MSG_WC: {
                     stt_msg_wc();
                     break;
                 }
-                case 0x13: {
+                case STATE_WAIT_PARENTAL_WC: {
                     stt_wait_parental_wc();
                     break;
                 }
-                case 0x14: {
+                case STATE_WAIT_PARENTAL_DST_WC: {
                     stt_wait_parental_dst_wc();
                     break;
                 }
-                case 0x15: {
+                case STATE_MSG_NWC24_ERROR: {
                     stt_msg_nwc24_error();
                     break;
                 }
-                case 0x16: {
+                case STATE_MSG_FI_FULL: {
                     stt_msg_fi_full();
                     break;
                 }
-                case 0x17: {
+                case STATE_MSG_PARENTAL: {
                     stt_msg_parental();
                     break;
                 }
-                case 0x18: {
+                case STATE_MSG_OPEN_FAILURE: {
                     stt_msg_open_failure();
                     break;
                 }
-                case 0x19: {
+                case STATE_WAIT_DIALOG: {
                     stt_wait_dialog();
                     break;
                 }
             }
 
-            return mState == 0x1A ? FADER_SCN_NEXT : FADER_SCN_CONTINUE;
+            return mState == STATE_DONE ? FADER_SCN_NEXT : FADER_SCN_CONTINUE;
+        }
+
+        void Address::initCalcFadeout() {
+            static_cast<Button*>(System::getScene(SCENE_BUTTON))->setEventHandler(NULL);
+        }
+
+        FaderSceneCommand Address::calcFadeout() {
+            BOOL bAnimDone;
+            BOOL ret;
+
+            if (System::getFader()->getStatus() == EGG::Fader::PREPARE_OUT) {
+                ret = FALSE;
+
+                bAnimDone = FALSE;
+                if (!mpLayout->getAnim(1)->isPlaying() && !mpLayout->getAnim(3)->isPlaying()) {
+                    bAnimDone = TRUE;
+                }
+
+                if (bAnimDone && !mpDialogLayout->getAnim(1)->isPlaying()) {
+                    ret = TRUE;
+                }
+            } else {
+                ret = System::getFader()->getStatus() == EGG::Fader::PREPARE_IN;
+            }
+
+            return (FaderSceneCommand)ret;
         }
 
         void Address::calcCommonAfter() {
@@ -361,169 +328,173 @@ namespace ipl {
         }
 
         void Address::draw() {
-            if (System::onDrawLayer(scene::DRAW_LAYER_2)) {
+            if (System::getSceneManager()->onDrawLayer(DRAW_LAYER_2)) {
                 utility::Graphics::setOrtho(0);
 
                 nw4r::lyt::Pane* pane = mpLayout->FindPaneByName("N_note_a");
-                for (int i = mMaxPage; i >= 1; i--) {
-                    math::VEC2 t;
-                    t.y = sNullVec.y * i;
-                    t.x = sNullVec.x * i;
-                    math::VEC2 v = t;
-                    pane->SetTranslate(nw4r::math::VEC2(v));
+                for (int i = mNextPageNum; i >= 1; i--) {
+                    math::VEC2 trans;
+                    trans.y = sPageOffset.y * i;
+                    trans.x = sPageOffset.x * i;
+                    pane->SetTranslate(trans);
                     pane->CalculateMtx(*mpLayout->getDrawInfo());
                     mpLayout->draw(pane);
                 }
 
                 mpLayout->draw("N_note_b");
 
-                if (mState == 5 || mState == 6) {
+                if (mState == STATE_FORWARD || mState == STATE_BACKWARD) {
                     mpLayout->draw("N_note_c");
                 }
 
-                int count;
+                int offset = 0;
                 switch (mState) {
-                    case 2: case 3:
-                    case 5: case 6:
-                        count = 1;
+                    case STATE_COVER_FORWARD:
+                    case STATE_COVER_BACKWARD:
+                    case STATE_FORWARD:
+                    case STATE_BACKWARD: {
+                        offset = 1;
                         break;
-                    default:
-                        count = 0;
-                        break;
+                    }
                 }
 
                 pane = mpLayout->FindPaneByName("N_note_d");
-                for (int i = count; i < mUnk_0xb8 + count; i++) {
-                    math::VEC2 v = sNullVec * -i;
-                    pane->SetTranslate(v);
+                for (int i = offset; i < mPrevPageNum + offset; i++) {
+                    math::VEC2 trans = sPageOffset * -i;
+                    pane->SetTranslate(trans);
                     pane->CalculateMtx(*mpLayout->getDrawInfo());
                     mpLayout->draw(pane);
                 }
 
                 pane = mpLayout->FindPaneByName("N_note_e");
-                if (mState < 9 && mState >= 7) {
-                    for (int i = 1; i < 0x14; i++) {
-                        math::VEC2 v = sNullVec * -i;
-                        pane->SetTranslate(v);
-                        pane->CalculateMtx(*mpLayout->getDrawInfo());
-                        mpLayout->draw(pane);
+                switch (mState) {
+                    case STATE_LOOP_FORWARD:
+                    case STATE_LOOP_BACKWARD: {
+                        for (int i = 1; i < PAGE_MAX; i++) {
+                            math::VEC2 trans = sPageOffset * -i;
+                    pane->SetTranslate(trans);
+                            pane->CalculateMtx(*mpLayout->getDrawInfo());
+                            mpLayout->draw(pane);
+                        }
+                        break;
                     }
-                }
-                else {
-                    math::VEC2 v = sNullVec * -(mUnk_0xb8 + count);
-                    pane->SetTranslate(v);
-                    pane->CalculateMtx(*mpLayout->getDrawInfo());
-                    mpLayout->draw("N_note_e");
+                    default: {
+                        math::VEC2 trans = sPageOffset * -(mPrevPageNum + offset);
+                        pane->SetTranslate(trans);
+                        pane->CalculateMtx(*mpLayout->getDrawInfo());
+                        mpLayout->draw("N_note_e");
+                        break;
+                    }
                 }
 
                 mpBackLayout->draw();
                 mpDialogLayout->draw();
-            }
-            else if (System::onDrawLayer(scene::DRAW_LAYER_3)) {
+            } else if (System::getSceneManager()->onDrawLayer(DRAW_LAYER_3)) {
                 utility::Graphics::setOrtho(0);
 
                 switch (mState) {
-                    case 1: case 2: case 3:
-                    case 5: case 6: case 7: case 8:
-                    case 0xA:
+                    case STATE_COVER_NORMAL:
+                    case STATE_COVER_FORWARD:
+                    case STATE_COVER_BACKWARD:
+                    case STATE_FORWARD:
+                    case STATE_BACKWARD:
+                    case STATE_LOOP_FORWARD:
+                    case STATE_LOOP_BACKWARD:
+                    case STATE_DRAG: {
                         mpLayout->draw("N_note_move");
                         break;
+                    }
                 }
             }
         }
 
         void Address::destroy() {
-            mpFriendList->fin();
+            mpFriendCache->fin();
         }
 
         void Address::fistt_wait_open() {
-            if (mpFriendList->init()) {
+            if (mpFriendCache->init()) {
                 onInitFriendList();
-                mFisttState = 1;
-            }
-            else if (mCounter >= 300) {
-                System::getDialog()->callBtn1(0x1C6, 0x2E);
-                mState = 0x18;
-                mFisttState = 2;
+                mFadeinState = FADEIN_STATE_FADEIN;
+            } else if (mWaitOpenCount >= 300) {
+                System::getDialog()->callBtn1(MESG_ERROR_NWC24_FATAL, MESG_CMN_OK);
+                mState = STATE_MSG_OPEN_FAILURE;
+                mFadeinState = FADEIN_STATE_DONE;
             }
 
-            mCounter++;
+            mWaitOpenCount++;
         }
 
         void Address::fistt_fadein() {
-            if (!mpLayout->getAnim(0)->isPlaying() &&
-                !mpLayout->getAnim(2)->isPlaying() &&
-                !mpDialogLayout->getAnim(0)->isPlaying()) {
-                mFisttState = 2;
+            if (!mpLayout->getAnim(0)->isPlaying() && !mpLayout->getAnim(2)->isPlaying() && !mpDialogLayout->getAnim(0)->isPlaying()) {
+                mFadeinState = FADEIN_STATE_DONE;
             }
         }
 
         void Address::onInitFriendList() {
-            wchar_t wii[0x18];
-            wchar_t text[0x18];
-            memset(wii, 0, sizeof(wii));
+            Button* button;
+            wchar_t idStr[24];
+            wchar_t text[24];
+
+            memset(idStr, 0, sizeof(idStr));
             memset(text, 0, sizeof(text));
 
-            utility::CharacterCode::WiiIdToUTF16(wii, mpFriendList->mMyUserId);
+            utility::CharacterCode::WiiIdToUTF16(idStr, mpFriendCache->getMyUserId());
 
-            int i = 0;
-            for (int j = 0; j < 4; j++) {
-                text[i++] = wii[j];
+            // Format the Wii number as "XXXX XXXX XXXX XXXX"
+            int textIdx = 0;
+            for (int i = 0; i < 4; i++) {
+                text[textIdx++] = idStr[i];
             }
-            text[i] = L' ';
-            i++;
-            for (int j = 4; j < 8; j++) {
-                text[i++] = wii[j];
+            text[textIdx++] = L' ';
+            for (int i = 4; i < 8; i++) {
+                text[textIdx++] = idStr[i];
             }
-            text[i] = L' ';
-            i++;
-            for (int j = 8; j < 12; j++) {
-                text[i++] = wii[j];
+            text[textIdx++] = L' ';
+            for (int i = 8; i < 12; i++) {
+                text[textIdx++] = idStr[i];
             }
-            text[i] = L' ';
-            i++;
-            for (int j = 12; j < 16; j++) {
-                text[i++] = wii[j];
+            text[textIdx++] = L' ';
+            for (int i = 12; i < 16; i++) {
+                text[textIdx++] = idStr[i];
             }
 
             set_textbox("T_wii_name", text);
-            set_page_text("T_nmbr_b", mPageNo + 1);
+            set_page_text("T_nmbr_b", mPage + 1);
 
-            for (u32 i = 0; i < 5; i++) {
-                set_friend(sTextNameB[i], i, i, mMiiB[i], false);
-                if (mbHovered[i]) {
+            for (u32 i = 0; i < BTN_MAX; i++) {
+                set_friend(sTextNameB[i], i, i, mMiiObj[i], false);
+
+                if (mbFaceValid[i]) {
                     mpLayout->getAnim(i + 6)->initAnmFrame();
+                } else {
+                    mpLayout->getAnim(i + 21)->initAnmFrame();
                 }
-                else {
-                    mpLayout->getAnim(i + 0x15)->initAnmFrame();
-                }
             }
 
-            mPageNo = 0;
-            mUnk_0xb8 = 0;
-            mMaxPage = 0x14;
+            mPage = 0;
+            mPrevPageNum = 0;
+            mNextPageNum = PAGE_MAX;
 
-            Button* btn = static_cast<Button*>(System::getScene(SCENE_BUTTON));
-            btn->animation(0x17);
-            btn->animation(0x18);
+            button = static_cast<Button*>(System::getScene(SCENE_BUTTON));
+            button->animation(Button::IDANIM_ARROW_RIGHT_APPEAR);
+            button->animation(Button::IDANIM_ARROW_LEFT_APPEAR);
 
-            if (mArg2 == 0) {
-                mState = 1;
-            }
-            else if (mpFriendList->mNumRegInfos == 0) {
-                mState = 1;
-            }
-            else {
-                mState = 0;
+            if (mMode == 0) {
+                mState = STATE_COVER_NORMAL;
+            } else if (mpFriendCache->getRegFriendNum() == 0) {
+                mState = STATE_COVER_NORMAL;
+            } else {
+                mState = STATE_INIT;
             }
 
-            switch (mArg2) {
+            switch (mMode) {
                 case 0: {
                     mpLayout->getAnim(0)->play();
                     break;
                 }
-                case 1:
-                case 2: {
+                case SCENE_ADD_WII:
+                case SCENE_ADD_EMAIL: {
                     mpLayout->getAnim(2)->play();
                     mpDialogLayout->getAnim(0)->play();
                     break;
@@ -532,22 +503,20 @@ namespace ipl {
         }
 
         void Address::stt_cover_normal() {
-            if (mbDragging) {
+            if (mDrag.mbDragging) {
                 changePage_onDrag();
-            }
-            else {
+            } else {
                 Button* button = static_cast<Button*>(System::getScene(SCENE_BUTTON));
                 if (button->isActive()) {
                     button->update();
                 }
             }
 
-            if (mState == 1) {
+            if (mState == STATE_COVER_NORMAL) {
                 if (System::getMasterController()->down(controller::BTN_NEXT_RIGHT)) {
                     snd::getSystem()->startSE("WIPL_SE_FL_PAGE_INC");
                     onNextPage();
-                }
-                else if (System::getMasterController()->down(controller::BTN_NEXT_LEFT)) {
+                } else if (System::getMasterController()->down(controller::BTN_NEXT_LEFT)) {
                     snd::getSystem()->startSE("WIPL_SE_FL_PAGE_DEC");
                     onPreviousPage();
                 }
@@ -556,32 +525,27 @@ namespace ipl {
 
         void Address::stt_cover_forward() {
             if (!mpLayout->getAnim(4)->isPlaying()) {
-                mbFlagE1 = FALSE;
-                if (!mbDragging) {
-                    mState = 4;
+                mbCover = false;
+                if (!mDrag.mbDragging) {
+                    mState = STATE_NORMAL;
+                } else {
+                    mState = STATE_DRAG;
                 }
-                else {
-                    mState = 0xA;
-                }
-            }
-            else if (mbDragging) {
+            } else if (mDrag.mbDragging) {
                 changePage_onDrag();
             }
         }
 
         void Address::stt_cover_backward() {
             if (!mpLayout->getAnim(4)->isPlaying()) {
-                nw4r::math::VEC2 v;
-                v.x = -sNullVec.x;
-                v.y = -sNullVec.y;
-                nw4r::math::VEC2 w = v;
-                math::VEC2 u = w;
-                add_translate(mpLayout->FindPaneByName("N_note_base"), u);
-                mbFlagE1 = TRUE;
-                mMaxPage++;
-                mState = 1;
-            }
-            else if (mbDragging) {
+                math::VEC2 offset;
+                offset.x = -sPageOffset.x;
+                offset.y = -sPageOffset.y;
+                add_translate(mpLayout->FindPaneByName("N_note_base"), offset);
+                mbCover = true;
+                mNextPageNum++;
+                mState = STATE_COVER_NORMAL;
+            } else if (mDrag.mbDragging) {
                 changePage_onDrag();
             }
         }
@@ -592,14 +556,13 @@ namespace ipl {
                 button->update();
             }
 
-            if (mState == 4) {
+            if (mState == STATE_NORMAL) {
                 mpGui->update();
 
                 if (System::getMasterController()->down(controller::BTN_NEXT_RIGHT)) {
                     snd::getSystem()->startSE("WIPL_SE_FL_PAGE_INC");
                     onNextPage();
-                }
-                else if (System::getMasterController()->down(controller::BTN_NEXT_LEFT)) {
+                } else if (System::getMasterController()->down(controller::BTN_NEXT_LEFT)) {
                     snd::getSystem()->startSE("WIPL_SE_FL_PAGE_DEC");
                     onPreviousPage();
                 }
@@ -608,99 +571,87 @@ namespace ipl {
 
         void Address::stt_forward() {
             if (!mpLayout->getAnim(5)->isPlaying()) {
-                mUnk_0xb8++;
-                if (!mbDragging) {
-                    mState = 4;
+                mPrevPageNum++;
+                if (!mDrag.mbDragging) {
+                    mState = STATE_NORMAL;
+                } else {
+                    mState = STATE_DRAG;
                 }
-                else {
-                    mState = 0xA;
-                }
-            }
-            else if (mbDragging) {
+            } else if (mDrag.mbDragging) {
                 changePage_onDrag();
             }
         }
 
         void Address::stt_backward() {
-            nw4r::math::VEC2 w;
-            math::VEC2 v;
             if (!mpLayout->getAnim(5)->isPlaying()) {
-                mMaxPage++;
-                v.y = -sNullVec.y;
-                v.x = -sNullVec.x;
-                nw4r::math::VEC2 z = v;
-                add_translate(mpLayout->FindPaneByName("N_note_base"), z);
-                set_page_text("T_nmbr_b", mPageNo + 1);
-                for (u32 i = 0; i < 5; i++) {
-                    set_friend(sTextNameB[i], mPageNo * 5 + i, i, mMiiB[i], false);
+                mNextPageNum++;
+                add_translate(mpLayout->FindPaneByName("N_note_base"), -sPageOffset);
+                set_page_text("T_nmbr_b", mPage + 1);
+
+                for (u32 i = 0; i < BTN_MAX; i++) {
+                    set_friend(sTextNameB[i], i + mPage * BTN_MAX, i, mMiiObj[i], false);
                 }
-                if (!mbDragging) {
-                    mState = 4;
+
+                if (!mDrag.mbDragging) {
+                    mState = STATE_NORMAL;
+                } else {
+                    mState = STATE_DRAG;
                 }
-                else {
-                    mState = 0xA;
-                }
-            }
-            else if (mbDragging) {
+            } else if (mDrag.mbDragging) {
                 changePage_onDrag();
             }
         }
 
         void Address::stt_loop_forward() {
             if (!mpLayout->getAnim(4)->isPlaying()) {
-                nw4r::math::VEC2 v;
-                v.y = -sNullVec.y;
-                v.x = -sNullVec.x;
-                nw4r::math::VEC2 w = v;
-                add_translate(mpLayout->FindPaneByName("N_note_base"), w * 20.0f);
-                set_page_text("T_nmbr_b", mPageNo + 1);
+                add_translate(mpLayout->FindPaneByName("N_note_base"), -sPageOffset * PAGE_MAX);
+                set_page_text("T_nmbr_b", mPage + 1);
                 reset_gui(false);
-                for (u32 i = 0; i < 5; i++) {
-                    set_friend(sTextNameB[i], mPageNo * 5 + i, i, mMiiB[i], false);
+
+                for (u32 i = 0; i < BTN_MAX; i++) {
+                    set_friend(sTextNameB[i], i + mPage * BTN_MAX, i, mMiiObj[i], false);
                 }
-                mbFlagE1 = TRUE;
-                mMaxPage = 0x14;
-                mState = 1;
-            }
-            else if (mbDragging) {
+
+                mbCover = true;
+                mNextPageNum = PAGE_MAX;
+                mState = STATE_COVER_NORMAL;
+            } else if (mDrag.mbDragging) {
                 changePage_onDrag();
             }
         }
 
         void Address::stt_loop_backward() {
             if (!mpLayout->getAnim(4)->isPlaying()) {
-                mbFlagE1 = FALSE;
-                mUnk_0xb8 = 0x13;
-                if (!mbDragging) {
-                    mState = 4;
+                mbCover = false;
+                mPrevPageNum = PAGE_MAX - 1;
+                if (!mDrag.mbDragging) {
+                    mState = STATE_NORMAL;
+                } else {
+                    mState = STATE_DRAG;
                 }
-                else {
-                    mState = 0xA;
-                }
-            }
-            else if (mbDragging) {
+            } else if (mDrag.mbDragging) {
                 changePage_onDrag();
             }
         }
 
         void Address::stt_decide() {
-            if (!mpLayout->getAnim(mUnk_0xbc + 0x10)->isPlaying() &&
-                !mpLayout->getAnim(mUnk_0xbc + 0x1F)->isPlaying()) {
+            if (!mpLayout->getAnim(mSelectedButton + 16)->isPlaying() && !mpLayout->getAnim(mSelectedButton + 31)->isPlaying()) {
                 reset_gui(true);
 
-                switch (mArg2) {
+                switch (mMode) {
                     case 0: {
                         createChildScene(SCENE_ADDRESS_EDIT, this, NULL, NULL);
                         mpBackLayout->getAnim(0)->play();
-                        mState = 0xC;
+                        mState = STATE_WAIT_CHILD_CST;
                         break;
                     }
-                    case 1:
-                    case 2: {
-                        static_cast<LetterWriter*>(System::getScene(SCENE_LETTER_WRITER))->setFriendInfo(mpFriendList->mInfos[mChosenFriendIndex]);
+                    case SCENE_ADD_WII:
+                    case SCENE_ADD_EMAIL: {
+                        LetterWriter* letterWriter = static_cast<LetterWriter*>(System::getScene(SCENE_LETTER_WRITER));
+                        letterWriter->setFriendInfo(mpFriendCache->getInfo(mChosenFriend));
                         mpLayout->getAnim(3)->play();
                         mpDialogLayout->getAnim(1)->play();
-                        mState = 0x1A;
+                        mState = STATE_DONE;
                         break;
                     }
                 }
@@ -709,8 +660,7 @@ namespace ipl {
 
         void Address::stt_drag() {
             mpGui->update();
-
-            if (mState == 0xA) {
+            if (mState == STATE_DRAG) {
                 changePage_onDrag();
             }
         }
@@ -718,85 +668,84 @@ namespace ipl {
         void Address::stt_release() {
             mpGui->init();
 
-            for (int i = 0; i < 5; i++) {
-                if (mbHovered[i]) {
+            for (int i = 0; i < BTN_MAX; i++) {
+                if (mbFaceValid[i]) {
                     mpLayout->getAnim(i + 6)->initAnmFrame();
+                } else {
+                    mpLayout->getAnim(i + 21)->initAnmFrame();
                 }
-                else {
-                    mpLayout->getAnim(i + 0x15)->initAnmFrame();
-                }
-                mPaneFlags[i] = 0;
+
+                mPointCount[i] = 0;
             }
 
             mpLayout->FindPaneByName("N_note_move")->SetVisible(false);
 
-            if (mbFlagE1) {
-                mState = 1;
-            }
-            else {
-                mState = 4;
+            if (mbCover) {
+                mState = STATE_COVER_NORMAL;
+            } else {
+                mState = STATE_NORMAL;
             }
         }
 
         void Address::stt_wait_child_cst() {
             if (getChild() != NULL && !mpBackLayout->getAnim(0)->isPlaying()) {
-                mState = 0xD;
+                mState = STATE_WAIT_CHILD_DST;
                 reset_gui(true);
-                for (int i = 0; i < 5; i++) {
-                    mPaneFlags[i] = 0;
+
+                for (int i = 0; i < BTN_MAX; i++) {
+                    mPointCount[i] = 0;
                 }
             }
         }
 
         void Address::stt_wait_child_dst() {
-            if (getChild() == NULL && System::getSceneManager()->getReservedScene() == NULL) {
+            if (getChild() == NULL && System::getReservedScene() == NULL) {
                 mpBackLayout->getAnim(1)->play();
                 static_cast<Button*>(System::getScene(SCENE_BUTTON))->setEventHandler(this);
-                mState = 0xE;
+                mState = STATE_WAIT_CHILD_FADEOUT;
             }
         }
 
         void Address::stt_wait_child_fadeout() {
             if (!mpBackLayout->getAnim(1)->isPlaying()) {
                 Button* button = static_cast<Button*>(System::getScene(SCENE_BUTTON));
-                button->setText("T_CalAdd_R", 0x29);
-                button->animation(0x17);
-                button->animation(0x18);
-                if (mbFlagE1) {
-                    mState = 1;
-                }
-                else {
-                    mState = 4;
+                button->setText("T_CalAdd_R", MESG_ADDRESS_REGISTER);
+                button->animation(Button::IDANIM_ARROW_RIGHT_APPEAR);
+                button->animation(Button::IDANIM_ARROW_LEFT_APPEAR);
+
+                if (mbCover) {
+                    mState = STATE_COVER_NORMAL;
+                } else {
+                    mState = STATE_NORMAL;
                 }
             }
         }
 
         void Address::stt_msg_net() {
             switch (System::getDialog()->getLastResult()) {
-                case 2: {
-                    if (mbFlagE1) {
-                        mState = 1;
+                case DialogWindow::RESULT_LEFT_BUTTON: {
+                    if (mbCover) {
+                        mState = STATE_COVER_NORMAL;
+                    } else {
+                        mState = STATE_NORMAL;
                     }
-                    else {
-                        mState = 4;
-                    }
-                    static_cast<Button*>(System::getScene(SCENE_BUTTON))->animation(0x17);
-                    static_cast<Button*>(System::getScene(SCENE_BUTTON))->animation(0x18);
+
+                    static_cast<Button*>(System::getScene(SCENE_BUTTON))->animation(Button::IDANIM_ARROW_RIGHT_APPEAR);
+                    static_cast<Button*>(System::getScene(SCENE_BUTTON))->animation(Button::IDANIM_ARROW_LEFT_APPEAR);
                     break;
                 }
-                case 1: {
+                case DialogWindow::RESULT_RIGHT_BUTTON: {
                     SCParentalControlsInfo pcInfo;
                     if (SCGetParentalControl(&pcInfo) && (pcInfo.enable & SC_PARENTAL_FLAG_ENABLED)) {
-                        static_cast<Button*>(System::getScene(SCENE_BUTTON))->setEventHandler(NULL, NULL);
-                        static_cast<Button*>(System::getScene(SCENE_BUTTON))->animation(0x10);
+                        static_cast<Button*>(System::getScene(SCENE_BUTTON))->setEventHandler(NULL);
+                        static_cast<Button*>(System::getScene(SCENE_BUTTON))->animation(Button::IDANIM_DISAPPEAR_LEFT_AND_RIGHT_BUTTON);
                         createChildScene(SCENE_PARENTAL_DIALOG, this, NULL, (void*)1);
-                        mbFlagE0 = FALSE;
-                        mState = 0x10;
-                    }
-                    else {
+                        mbParentalOK = false;
+                        mState = STATE_WAIT_PARENTAL;
+                    } else {
                         System::getFader()->fadeOut();
                         reserveAllSceneDestruction(SCENE_SETTING, (void*)1);
-                        mState = 0x1A;
+                        mState = STATE_DONE;
                     }
                     break;
                 }
@@ -804,19 +753,18 @@ namespace ipl {
         }
 
         void Address::stt_wait_parental() {
-            ParentalDialog* parentDialog = static_cast<ParentalDialog*>(System::getScene(SCENE_PARENTAL_DIALOG));
-
-            if (parentDialog != NULL) {
-                switch (parentDialog->getResult()) {
+            ParentalDialog* parental = static_cast<ParentalDialog*>(System::getScene(SCENE_PARENTAL_DIALOG));
+            if (parental != NULL) {
+                switch (parental->getResult()) {
                     case ParentalDialog::RESULT_SUCCESS: {
-                        mbFlagE0 = TRUE;
-                        mState = 0x11;
+                        mbParentalOK = true;
+                        mState = STATE_WAIT_PARENTAL_DST;
                         break;
                     }
                     case ParentalDialog::RESULT_OVER_ATTEMPTS:
                     case ParentalDialog::RESULT_CANCELLED: {
-                        mbFlagE0 = FALSE;
-                        mState = 0x11;
+                        mbParentalOK = false;
+                        mState = STATE_WAIT_PARENTAL_DST;
                         break;
                     }
                 }
@@ -825,52 +773,51 @@ namespace ipl {
 
         void Address::stt_wait_parental_dst() {
             if (getChild() == NULL) {
-                if (mbFlagE0) {
+                if (mbParentalOK) {
                     System::getFader()->fadeOut();
                     reserveAllSceneDestruction(SCENE_SETTING, (void*)1);
-                    mState = 0x1A;
-                }
-                else {
-                    static_cast<Button*>(System::getScene(SCENE_BUTTON))->animation(0xF);
+                    mState = STATE_DONE;
+                } else {
+                    static_cast<Button*>(System::getScene(SCENE_BUTTON))->animation(Button::IDANIM_APPEAR_LEFT_AND_RIGHT_BUTTON);
                     static_cast<Button*>(System::getScene(SCENE_BUTTON))->setEventHandler(this);
-                    if (mbFlagE1) {
-                        mState = 1;
+
+                    if (mbCover) {
+                        mState = STATE_COVER_NORMAL;
+                    } else {
+                        mState = STATE_NORMAL;
                     }
-                    else {
-                        mState = 4;
-                    }
-                    static_cast<Button*>(System::getScene(SCENE_BUTTON))->animation(0x17);
-                    static_cast<Button*>(System::getScene(SCENE_BUTTON))->animation(0x18);
+
+                    static_cast<Button*>(System::getScene(SCENE_BUTTON))->animation(Button::IDANIM_ARROW_RIGHT_APPEAR);
+                    static_cast<Button*>(System::getScene(SCENE_BUTTON))->animation(Button::IDANIM_ARROW_LEFT_APPEAR);
                 }
             }
         }
 
         void Address::stt_msg_wc() {
             switch (System::getDialog()->getLastResult()) {
-                case 2: {
-                    if (mbFlagE1) {
-                        mState = 1;
+                case DialogWindow::RESULT_LEFT_BUTTON: {
+                    if (mbCover) {
+                        mState = STATE_COVER_NORMAL;
+                    } else {
+                        mState = STATE_NORMAL;
                     }
-                    else {
-                        mState = 4;
-                    }
-                    static_cast<Button*>(System::getScene(SCENE_BUTTON))->animation(0x17);
-                    static_cast<Button*>(System::getScene(SCENE_BUTTON))->animation(0x18);
+
+                    static_cast<Button*>(System::getScene(SCENE_BUTTON))->animation(Button::IDANIM_ARROW_RIGHT_APPEAR);
+                    static_cast<Button*>(System::getScene(SCENE_BUTTON))->animation(Button::IDANIM_ARROW_LEFT_APPEAR);
                     break;
                 }
-                case 1: {
+                case DialogWindow::RESULT_RIGHT_BUTTON: {
                     SCParentalControlsInfo pcInfo;
                     if (SCGetParentalControl(&pcInfo) && (pcInfo.enable & SC_PARENTAL_FLAG_ENABLED)) {
-                        static_cast<Button*>(System::getScene(SCENE_BUTTON))->setEventHandler(NULL, NULL);
-                        static_cast<Button*>(System::getScene(SCENE_BUTTON))->animation(0x10);
+                        static_cast<Button*>(System::getScene(SCENE_BUTTON))->setEventHandler(NULL);
+                        static_cast<Button*>(System::getScene(SCENE_BUTTON))->animation(Button::IDANIM_DISAPPEAR_LEFT_AND_RIGHT_BUTTON);
                         createChildScene(SCENE_PARENTAL_DIALOG, this, NULL, (void*)1);
-                        mbFlagE0 = FALSE;
-                        mState = 0x13;
-                    }
-                    else {
+                        mbParentalOK = false;
+                        mState = STATE_WAIT_PARENTAL_WC;
+                    } else {
                         System::getFader()->fadeOut();
                         reserveAllSceneDestruction(SCENE_SETTING, (void*)4);
-                        mState = 0x1A;
+                        mState = STATE_DONE;
                     }
                     break;
                 }
@@ -878,19 +825,18 @@ namespace ipl {
         }
 
         void Address::stt_wait_parental_wc() {
-            ParentalDialog* parentDialog = static_cast<ParentalDialog*>(System::getScene(SCENE_PARENTAL_DIALOG));
-
-            if (parentDialog != NULL) {
-                switch (parentDialog->getResult()) {
+            ParentalDialog* parental = static_cast<ParentalDialog*>(System::getScene(SCENE_PARENTAL_DIALOG));
+            if (parental != NULL) {
+                switch (parental->getResult()) {
                     case ParentalDialog::RESULT_SUCCESS: {
-                        mbFlagE0 = TRUE;
-                        mState = 0x14;
+                        mbParentalOK = true;
+                        mState = STATE_WAIT_PARENTAL_DST_WC;
                         break;
                     }
                     case ParentalDialog::RESULT_OVER_ATTEMPTS:
                     case ParentalDialog::RESULT_CANCELLED: {
-                        mbFlagE0 = FALSE;
-                        mState = 0x14;
+                        mbParentalOK = false;
+                        mState = STATE_WAIT_PARENTAL_DST_WC;
                         break;
                     }
                 }
@@ -899,212 +845,217 @@ namespace ipl {
 
         void Address::stt_wait_parental_dst_wc() {
             if (getChild() == NULL) {
-                if (mbFlagE0) {
+                if (mbParentalOK) {
                     System::getFader()->fadeOut();
                     reserveAllSceneDestruction(SCENE_SETTING, (void*)4);
-                    mState = 0x1A;
-                }
-                else {
-                    static_cast<Button*>(System::getScene(SCENE_BUTTON))->animation(0xF);
+                    mState = STATE_DONE;
+                } else {
+                    static_cast<Button*>(System::getScene(SCENE_BUTTON))->animation(Button::IDANIM_APPEAR_LEFT_AND_RIGHT_BUTTON);
                     static_cast<Button*>(System::getScene(SCENE_BUTTON))->setEventHandler(this);
-                    if (mbFlagE1) {
-                        mState = 1;
+
+                    if (mbCover) {
+                        mState = STATE_COVER_NORMAL;
+                    } else {
+                        mState = STATE_NORMAL;
                     }
-                    else {
-                        mState = 4;
-                    }
-                    static_cast<Button*>(System::getScene(SCENE_BUTTON))->animation(0x17);
-                    static_cast<Button*>(System::getScene(SCENE_BUTTON))->animation(0x18);
+
+                    static_cast<Button*>(System::getScene(SCENE_BUTTON))->animation(Button::IDANIM_ARROW_RIGHT_APPEAR);
+                    static_cast<Button*>(System::getScene(SCENE_BUTTON))->animation(Button::IDANIM_ARROW_LEFT_APPEAR);
                 }
             }
         }
 
         void Address::stt_msg_nwc24_error() {
             switch (System::getDialog()->getLastResult()) {
-                case 1:
-                if (mbFlagE1) {
-                    mState = 1;
+                case DialogWindow::RESULT_BUTTON: {
+                    if (mbCover) {
+                        mState = STATE_COVER_NORMAL;
+                    } else {
+                        mState = STATE_NORMAL;
+                    }
+
+                    static_cast<Button*>(System::getScene(SCENE_BUTTON))->animation(Button::IDANIM_ARROW_RIGHT_APPEAR);
+                    static_cast<Button*>(System::getScene(SCENE_BUTTON))->animation(Button::IDANIM_ARROW_LEFT_APPEAR);
+                    break;
                 }
-                else {
-                    mState = 4;
-                }
-                static_cast<Button*>(System::getScene(SCENE_BUTTON))->animation(0x17);
-                static_cast<Button*>(System::getScene(SCENE_BUTTON))->animation(0x18);
             }
         }
 
         void Address::stt_msg_fi_full() {
             switch (System::getDialog()->getLastResult()) {
-                case 1:
-                if (mbFlagE1) {
-                    mState = 1;
+                case DialogWindow::RESULT_BUTTON: {
+                    if (mbCover) {
+                        mState = STATE_COVER_NORMAL;
+                    } else {
+                        mState = STATE_NORMAL;
+                    }
+
+                    static_cast<Button*>(System::getScene(SCENE_BUTTON))->animation(Button::IDANIM_ARROW_RIGHT_APPEAR);
+                    static_cast<Button*>(System::getScene(SCENE_BUTTON))->animation(Button::IDANIM_ARROW_LEFT_APPEAR);
+                    break;
                 }
-                else {
-                    mState = 4;
-                }
-                static_cast<Button*>(System::getScene(SCENE_BUTTON))->animation(0x17);
-                static_cast<Button*>(System::getScene(SCENE_BUTTON))->animation(0x18);
             }
         }
 
         void Address::stt_msg_parental() {
             switch (System::getDialog()->getLastResult()) {
-                case 1:
-                if (mbFlagE1) {
-                    mState = 1;
+                case DialogWindow::RESULT_BUTTON: {
+                    if (mbCover) {
+                        mState = STATE_COVER_NORMAL;
+                    } else {
+                        mState = STATE_NORMAL;
+                    }
+
+                    static_cast<Button*>(System::getScene(SCENE_BUTTON))->animation(Button::IDANIM_ARROW_RIGHT_APPEAR);
+                    static_cast<Button*>(System::getScene(SCENE_BUTTON))->animation(Button::IDANIM_ARROW_LEFT_APPEAR);
+                    break;
                 }
-                else {
-                    mState = 4;
-                }
-                static_cast<Button*>(System::getScene(SCENE_BUTTON))->animation(0x17);
-                static_cast<Button*>(System::getScene(SCENE_BUTTON))->animation(0x18);
             }
         }
 
         void Address::stt_msg_open_failure() {
-            if (System::getDialog()->getLastResult() == 1) {
-                Button* button = static_cast<Button*>(System::getScene(SCENE_BUTTON));
-                MailAddressSelect* mailSel = static_cast<MailAddressSelect*>(System::getScene(SCENE_MAIL_ADDRESS_SELECT));
+            switch (System::getDialog()->getLastResult()) {
+                case DialogWindow::RESULT_BUTTON: {
+                    Button* button = static_cast<Button*>(System::getScene(SCENE_BUTTON));
+                    MailAddressSelect* mailAddrSel = static_cast<MailAddressSelect*>(System::getScene(SCENE_MAIL_ADDRESS_SELECT));
 
-                switch (mArg2) {
-                    case 0: {
-                        if (mailSel != NULL) {
-                            mailSel->finishAddress();
+                    switch (mMode) {
+                        case 0: {
+                            if (mailAddrSel != NULL) {
+                                mailAddrSel->finishAddress();
+                            }
+                            button->reserveAnm(Button::IDANIM_DISAPPEAR_LEFT_AND_RIGHT_BUTTON);
+                            button->reserveAnm(Button::IDANIM_APPEAR_LEFT_BUTTON);
+                            break;
                         }
-                        button->reserveAnm(0x10);
-                        button->reserveAnm(0xB);
-                        break;
+                        case SCENE_ADD_WII: {
+                            button->reserveAnm(Button::IDANIM_DISAPPEAR_LEFT_BUTTON);
+                            button->reserveAnm(Button::IDANIM_APPEAR_LEFT_BUTTON);
+                            break;
+                        }
+                        case SCENE_ADD_EMAIL: {
+                            button->reserveAnm(Button::IDANIM_DISAPPEAR_LEFT_BUTTON);
+                            button->reserveText(0, MESG_CMN_BACK_ALT);
+                            button->reserveText(1, 51);
+                            button->reserveAnm(Button::IDANIM_APPEAR_LEFT_AND_RIGHT_BUTTON);
+                            break;
+                        }
                     }
-                    case 1: {
-                        button->reserveAnm(0xC);
-                        button->reserveAnm(0xB);
-                        break;
-                    }
-                    case 2: {
-                        button->reserveAnm(0xC);
-                        button->reserveText(0, 0x13B);
-                        button->reserveText(1, 0x33);
-                        button->reserveAnm(0xF);
-                        break;
-                    }
-                }
 
-                button->animation(0x19);
-                button->animation(0x1A);
-                mState = 0x1A;
+                    button->animation(Button::IDANIM_ARROW_RIGHT_DISAPPEAR);
+                    button->animation(Button::IDANIM_ARROW_LEFT_DISAPPEAR);
+                    mState = STATE_DONE;
+                    break;
+                }
             }
         }
 
         void Address::stt_wait_dialog() {
-            if (System::getDialog()->getLastResult() >= 0) {
+            if (System::getDialog()->getLastResult() >= DialogWindow::RESULT_WAIT) {
                 reset_gui(true);
-                mState = 4;
+                mState = STATE_NORMAL;
             }
         }
 
-        void Address::add_translate(nw4r::lyt::Pane* pane, const math::VEC2& trans) {
-            nw4r::ut::Rect projRect;
-            nw4r::ut::Rect projRect4x3;
-            System::getProjectionRect(&projRect);
-            System::getProjectionRect4x3(&projRect4x3);
+        void Address::add_translate(nw4r::lyt::Pane* pane, const math::VEC2& offset) {
+            nw4r::ut::Rect rect;
+            nw4r::ut::Rect rect4x3;
 
-            math::VEC3 pos;
-            pos.x = pane->GetTranslate().x;
-            pos.y = pane->GetTranslate().y;
-            pos.z = pane->GetTranslate().z;
-            pos.x += trans.x * (projRect4x3.right - projRect4x3.left) / (projRect.right - projRect.left);
-            pos.y += trans.y;
-            pane->SetTranslate(pos);
+            System::getProjectionRect(&rect);
+            System::getProjectionRect4x3(&rect4x3);
+
+            nw4r::math::VEC3 trans;
+            trans.x = pane->GetTranslate().x;
+            trans.y = pane->GetTranslate().y;
+            trans.z = pane->GetTranslate().z;
+            trans.x += offset.x * rect4x3.GetWidth() / rect.GetWidth();
+            trans.y += offset.y;
+            pane->SetTranslate(trans);
         }
 
-        void Address::set_friend(const char* paneName, u32 index, u32 buttonNo, MiiObj& mii, bool bBackup) {
-            wchar_t empty = 0;
-            const wchar_t* text = &empty;
+        void Address::set_friend(const char* paneName, u32 friendNo, u32 buttonNo, MiiObj& miiObj, bool bDrag) {
+            wchar_t blank[1];
+            blank[0] = 0;
+            const wchar_t* name = blank;
 
-            if (mpFriendList->mbHasInfo[index]) {
-                NWC24FriendInfo* info = &mpFriendList->mInfos[index];
-                text = (const wchar_t*)info->attr.name;
+            if (mpFriendCache->isThere(friendNo)) {
+                const NWC24FriendInfo& info = mpFriendCache->getInfo(friendNo);
+                name = (const wchar_t*)info.attr.name;
 
-                bool select = info->attr.status == NWC24_FRIENDSTATUS_CONFIRMED;
-                if (mArg2 == 2) {
-                    select = select & (info->attr.type == NWC24_FRIENDTYPE_WII);
+                bool bValid = info.attr.status == NWC24_FRIENDSTATUS_CONFIRMED;
+                if (mMode == SCENE_ADD_EMAIL) {
+                    bValid = bValid & (info.attr.type == NWC24_FRIENDTYPE_WII);
                 }
 
-                if (bBackup) {
-                    if (select) {
-                        mpLayout->getAnim(buttonNo + 0x24)->initAnmFrame(0.0f);
+                if (bDrag) {
+                    if (bValid) {
+                        mpLayout->getAnim(buttonNo + 36)->initAnmFrame(0.0f);
+                    } else {
+                        mpLayout->getAnim(buttonNo + 36)->initAnmFrame(1.0f);
                     }
-                    else {
-                        mpLayout->getAnim(buttonNo + 0x24)->initAnmFrame(1.0f);
-                    }
-                }
-                else {
-                    if (select) {
+                } else {
+                    if (bValid) {
                         mpLayout->getAnim(buttonNo + 6)->initAnmFrame();
+                    } else {
+                        mpLayout->getAnim(buttonNo + 21)->initAnmFrame();
                     }
-                    else {
-                        mpLayout->getAnim(buttonNo + 0x15)->initAnmFrame();
-                    }
-                    mbHovered[buttonNo] = select;
+                    mbFaceValid[buttonNo] = bValid;
                 }
 
-                if (!(mbDragging && index == mDragPageNo * 5 + mDragButtonNo)) {
-                    mii.set(info->attr.fdId);
+                if (!mDrag.mbDragging || friendNo != mDrag.mButton + mDrag.mPage * BTN_MAX) {
+                    miiObj.set(info.attr.fdId);
                 }
-            }
-            else {
-                if (bBackup) {
-                    mpLayout->getAnim(buttonNo + 0x24)->initAnmFrame(0.0f);
+            } else {
+                if (bDrag) {
+                    mpLayout->getAnim(buttonNo + 36)->initAnmFrame(0.0f);
+                } else {
+                    mbFaceValid[buttonNo] = false;
+                    mpLayout->getAnim(buttonNo + 21)->initAnmFrame();
                 }
-                else {
-                    mbHovered[buttonNo] = FALSE;
-                    mpLayout->getAnim(buttonNo + 0x15)->initAnmFrame();
-                }
-                mii.reset();
+
+                miiObj.reset();
             }
 
-            if (mbDragging && index == mDragPageNo * 5 + mDragButtonNo) {
+            if (!mDrag.mbDragging || friendNo != mDrag.mButton + mDrag.mPage * BTN_MAX) {
+                set_textbox(paneName, name);
+            } else {
                 set_textbox(paneName, L"");
-                mii.reset();
-            }
-            else {
-                set_textbox(paneName, text);
+                miiObj.reset();
             }
         }
 
         void Address::set_page_text(const char* paneName, int page) {
-            wchar_t digits[10] = {L'0', L'1', L'2', L'3', L'4', L'5', L'6', L'7', L'8', L'9'};
-            wchar_t buf[6] = {0};
+            const wchar_t digits[10] = {L'0', L'1', L'2', L'3', L'4', L'5', L'6', L'7', L'8', L'9'};
+            wchar_t text[6] = {0};
 
             int i = 0;
             if (page >= 10) {
-                buf[i++] = digits[page / 10];
+                text[i++] = digits[page / 10];
             }
-            buf[i++] = digits[page % 10];
-            buf[i++] = L'/';
-            buf[i++] = digits[2];
-            buf[i++] = digits[0];
-            buf[i] = 0;
+            text[i++] = digits[page % 10];
+            text[i++] = L'/';
+            text[i++] = digits[PAGE_MAX / 10];
+            text[i++] = digits[PAGE_MAX % 10];
+            text[i] = 0;
 
-            set_textbox(paneName, buf);
+            set_textbox(paneName, text);
         }
 
         void Address::set_textbox(const char* paneName, const wchar_t* text) {
-            nw4r::lyt::TextBox* pane = nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(mpLayout->FindPaneByName(paneName));
-            pane->SetString(text, 0);
+            nw4r::lyt::TextBox* textBox = nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(mpLayout->FindPaneByName(paneName));
+            textBox->SetString(text, 0);
         }
 
         void Address::reset_friend() {
-            for (u32 i = 0; i < 5; i++) {
-                set_friend(sTextNameB[i], mPageNo * 5 + i, i, mMiiB[i], false);
+            for (u32 i = 0; i < BTN_MAX; i++) {
+                set_friend(sTextNameB[i], i + mPage * BTN_MAX, i, mMiiObj[i], false);
             }
         }
 
         void Address::start_point_event(const char* paneName, controller::Interface* con) {
             int buttonNo = get_button_no(paneName);
-
             if (buttonNo != -1) {
-                if (mArg2 == 0 || (mArg2 == 1 && is_selectable(mPageNo * 5 + buttonNo))) {
+                if (mMode == 0 || (mMode == SCENE_ADD_WII && is_selectable(buttonNo + mPage * BTN_MAX))) {
                     on_point_event(buttonNo, con);
                 }
             }
@@ -1112,9 +1063,8 @@ namespace ipl {
 
         void Address::start_left_event(const char* paneName) {
             int buttonNo = get_button_no(paneName);
-
             if (buttonNo != -1) {
-                if (mArg2 == 0 || (mArg2 == 1 && is_selectable(mPageNo * 5 + buttonNo))) {
+                if (mMode == 0 || (mMode == SCENE_ADD_WII && is_selectable(buttonNo + mPage * BTN_MAX))) {
                     left_point_event(buttonNo);
                 }
             }
@@ -1124,62 +1074,69 @@ namespace ipl {
             Button* button = static_cast<Button*>(System::getScene(SCENE_BUTTON));
             int buttonNo = get_button_no(paneName);
 
-            if (mState != 4) {
-                return;
-            }
+            switch (mState) {
+                case STATE_NORMAL: {
+                switch (mMode) {
+                    case 0: {
+                        if (buttonNo != -1 && is_selectable(buttonNo + mPage * BTN_MAX)) {
+                            button->animation(Button::IDANIM_ARROW_RIGHT_DISAPPEAR);
+                            button->animation(Button::IDANIM_ARROW_LEFT_DISAPPEAR);
+                            button->animation(Button::IDANIM_DISAPPEAR_LEFT_AND_RIGHT_BUTTON);
+                            button->reserveText(Button::TEXT_LEFT_BUTTON, MESG_CMN_BACK_ALT);
+                            button->reserveAnm(Button::IDANIM_APPEAR_LEFT_BUTTON);
+                            button->setEventHandler(NULL);
 
-            switch (mArg2) {
-                case 0: {
-                    if (buttonNo != -1 && is_selectable(mPageNo * 5 + buttonNo)) {
-                        button->animation(0x19);
-                        button->animation(0x1A);
-                        button->animation(0x10);
-                        button->reserveText(0, 0x13B);
-                        button->reserveAnm(0xB);
-                        button->setEventHandler(NULL, NULL);
-                        if (mbHovered[buttonNo]) {
-                            mpLayout->getAnim(buttonNo + 0x10)->play();
+                            if (mbFaceValid[buttonNo]) {
+                                mpLayout->getAnim(buttonNo + 16)->play();
+                            } else {
+                                mpLayout->getAnim(buttonNo + 31)->play();
+                            }
+
+                            mSelectedButton = buttonNo;
+                            mChosenFriend = buttonNo + mPage * BTN_MAX;
+                            snd::getSystem()->startSE("WIPL_SE_DECIDE");
+                            mPointCount[buttonNo]++;
+                            mState = STATE_DECIDE;
+                        } else if (buttonNo != -1) {
+                            mSelectedButton = buttonNo;
+                            mChosenFriend = buttonNo + mPage * BTN_MAX;
+                            entry_friend();
                         }
-                        else {
-                            mpLayout->getAnim(buttonNo + 0x1F)->play();
+                        break;
+                    }
+                    case SCENE_ADD_WII:
+                    case SCENE_ADD_EMAIL: {
+                        if (buttonNo != -1 && is_selectable(buttonNo + mPage * BTN_MAX)) {
+                            button->animation(Button::IDANIM_DISAPPEAR_LEFT_BUTTON);
+                            button->reserveText(Button::TEXT_LEFT_BUTTON, MESG_CMN_QUIT);
+                            button->reserveText(Button::TEXT_RIGHT_BUTTON, 51);
+                            button->reserveAnm(Button::IDANIM_APPEAR_LEFT_AND_RIGHT_BUTTON);
+                            button->animation(Button::IDANIM_ARROW_RIGHT_DISAPPEAR);
+                            button->animation(Button::IDANIM_ARROW_LEFT_DISAPPEAR);
+
+                            mpLayout->getAnim(buttonNo + 16)->play();
+
+                            mSelectedButton = buttonNo;
+                            mChosenFriend = buttonNo + mPage * BTN_MAX;
+                            snd::getSystem()->startSE("WIPL_SE_DECIDE");
+                            mState = STATE_DECIDE;
+                        } else if (buttonNo != -1) {
+                            u32 friendNo = buttonNo + mPage * BTN_MAX;
+                            if (mpFriendCache->isThere(friendNo)) {
+                                if (mMode == SCENE_ADD_WII) {
+                                    System::getDialog()->callBtn1(87, MESG_CMN_OK);
+                                } else if (mpFriendCache->getInfo(friendNo).attr.type == NWC24_FRIENDTYPE_WII) {
+                                    System::getDialog()->callBtn1(87, MESG_CMN_OK);
+                                } else {
+                                    System::getDialog()->callBtn1(34, MESG_CMN_OK);
+                                }
+
+                                mState = STATE_WAIT_DIALOG;
+                            }
                         }
-                        mUnk_0xbc = buttonNo;
-                        mChosenFriendIndex = mPageNo * 5 + buttonNo;
-                        snd::getSystem()->startSE("WIPL_SE_DECIDE");
-                        mPaneFlags[buttonNo]++;
-                        mState = 9;
+                        break;
                     }
-                    else if (buttonNo != -1) {
-                        mUnk_0xbc = buttonNo;
-                        mChosenFriendIndex = mPageNo * 5 + buttonNo;
-                        entry_friend();
-                    }
-                    break;
                 }
-                case 1:
-                case 2: {
-                    if (buttonNo != -1 && is_selectable(mPageNo * 5 + buttonNo)) {
-                        button->animation(0xC);
-                        button->reserveText(0, 0x25);
-                        button->reserveText(1, 0x33);
-                        button->reserveAnm(0xF);
-                        button->animation(0x19);
-                        button->animation(0x1A);
-                        mpLayout->getAnim(buttonNo + 0x10)->play();
-                        mUnk_0xbc = buttonNo;
-                        mChosenFriendIndex = mPageNo * 5 + buttonNo;
-                        snd::getSystem()->startSE("WIPL_SE_DECIDE");
-                        mState = 9;
-                    }
-                    else if (buttonNo != -1 && mpFriendList->mbHasInfo[mPageNo * 5 + buttonNo]) {
-                        if (mArg2 == 1 || mpFriendList->mInfos[mPageNo * 5 + buttonNo].attr.type == NWC24_FRIENDTYPE_WII) {
-                            System::getDialog()->callBtn1(0x57, 0x2E);
-                        }
-                        else {
-                            System::getDialog()->callBtn1(0x22, 0x2E);
-                        }
-                        mState = 0x19;
-                    }
                     break;
                 }
             }
@@ -1187,91 +1144,96 @@ namespace ipl {
 
         void Address::start_drag_event(const char* paneName, const controller::Interface* con) {
             int buttonNo = get_button_no(paneName);
-
-            if (buttonNo == -1 || con->getChannel() < 0 ||
-                mState != 4 || mArg2 != 0 ||
-                !mpFriendList->mbHasInfo[mPageNo * 5 + buttonNo]) {
+            if (buttonNo == -1) {
+                return;
+            }
+            if (con->getChannel() < 0) {
                 return;
             }
 
-            mbDragging = TRUE;
-            mDragChannel = con->getChannel();
-            if (con->isValidDpd()) {
-                mDragPos = System::getControllerManager()->getController(mDragChannel)->getDpdProjectionPos();
-            }
-            else {
-                mDragPos = math::VEC2(0.0f, 0.0f);
+            if (mState != STATE_NORMAL || mMode != 0) {
+                return;
             }
 
-            mDragPageNo = mPageNo;
-            mDragButtonNo = buttonNo;
-            mRightPageNo = -1;
-            mLeftPageNo = -1;
-            mUnk_0x80 = 0;
+            if (!mpFriendCache->isThere(buttonNo + mPage * BTN_MAX)) {
+                return;
+            }
+
+            mDrag.mbDragging = true;
+            mDrag.mChan = con->getChannel();
+
+            if (con->isValidDpd()) {
+                mDrag.mPos = System::getControllerManager()->getController(mDrag.mChan)->getDpdProjectionPos();
+            } else {
+                mDrag.mPos = nw4r::math::VEC2(0.0f, 0.0f);
+            }
+
+            mDrag.mPage = mPage;
+            mDrag.mButton = buttonNo;
+            mDrag.mNextCount = -1;
+            mDrag.mPrevCount = -1;
+            mDrag.unk_0x1C = 0;
 
             System::getPointer()->changeType(con->getChannel(), 1);
             static_cast<Button*>(System::getScene(SCENE_BUTTON))->disableBtn();
 
-            wchar_t empty[2] = {0};
-            nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(mpLayout->FindPaneByName(sTextNameB[mDragButtonNo]))->SetString(empty, 0);
+            wchar_t blank[2] = {0, 0};
+            static_cast<nw4r::lyt::TextBox*>(mpLayout->FindPaneByName(sTextNameB[mDrag.mButton]))->SetString(blank, 0);
 
-            nigaoe::Object* nigaoe = mMiiB[buttonNo].mpNigaoeObj;
+            nigaoe::Object* nigaoe = mMiiObj[buttonNo].mpNigaoe;
             if (nigaoe != NULL) {
-                nw4r::lyt::Pane* pane = mpLayout->FindPaneByName("mii_move");
-                pane->SetVisible(true);
+                nw4r::lyt::Pane* miiPane = mpLayout->FindPaneByName("mii_move");
+                miiPane->SetVisible(true);
 
-                memcpy(&mMiiTexObj, &nigaoe->getIconTexture(), 0x20);
-                memcpy(mpWork, nigaoe->getIconTexImage(), 0x2D20);
-                GXInitTexObj(&mMiiTexObj, mpWork, 0x4C, 0x4C, (GXTexFmt)5, GX_CLAMP, GX_CLAMP, GX_FALSE);
-                pane->GetMaterial()->SetTexture(0, mMiiTexObj);
+                mDragTexObj = nigaoe->getIconTexture();
+                memcpy(mpWork, nigaoe->getIconImage(), 0x2D20);
+                GXInitTexObj(&mDragTexObj, mpWork, 76, 76, GX_TF_RGB5A3, GX_CLAMP, GX_CLAMP, GX_FALSE);
+                miiPane->GetMaterial()->SetTexture(GX_TEXMAP0, mDragTexObj);
 
-                mMiiB[buttonNo].reset();
-            }
-            else {
+                mMiiObj[buttonNo].reset();
+            } else {
                 mpLayout->FindPaneByName("mii_move")->SetVisible(false);
             }
 
             mpGui->init();
 
-            for (int i = 0; i < 5; i++) {
-                mPaneFlags[i] = 0;
-                if (mbHovered[i]) {
+            for (int i = 0; i < BTN_MAX; i++) {
+                mPointCount[i] = 0;
+
+                if (mbFaceValid[i]) {
                     mpLayout->getAnim(i + 6)->initAnmFrame();
-                }
-                else {
-                    mpLayout->getAnim(i + 0x15)->initAnmFrame();
+                } else {
+                    mpLayout->getAnim(i + 21)->initAnmFrame();
                 }
             }
 
             movePane_onDrag();
 
-            snd::getSystem()->startSEwithPos("WIPL_SE_CH_HOLD", mDragPos.x);
+            snd::getSystem()->startSEwithPos("WIPL_SE_CH_HOLD", mDrag.mPos.x);
 
-            mState = 0xA;
+            mState = STATE_DRAG;
         }
 
         void Address::start_drag_point_event(const char* paneName, controller::Interface* con) {
             int buttonNo = get_button_no(paneName);
-
-            if (buttonNo != -1 && isReleasableArea(mPageNo, buttonNo)) {
+            if (buttonNo != -1 && isReleasableArea(mPage, buttonNo)) {
                 on_point_event(buttonNo, con);
-                mbDragging = TRUE;
+                mDrag.mbDragging = true;
             }
         }
 
         void Address::start_drag_left_event(const char* paneName) {
             int buttonNo = get_button_no(paneName);
-
             if (buttonNo != -1) {
                 left_point_event(buttonNo);
-                mbDragging = TRUE;
+                mDrag.mbDragging = true;
             }
         }
 
         void Address::start_release_event(const char* paneName) {
             Button* button = static_cast<Button*>(System::getScene(SCENE_BUTTON));
-            int buttonNo = -1;
 
+            int buttonNo = -1;
             if (paneName != NULL) {
                 buttonNo = get_button_no(paneName);
                 if (buttonNo == -1) {
@@ -1279,233 +1241,238 @@ namespace ipl {
                 }
             }
 
-            if (mArg2) {
-                return;
-            }
+            switch (mMode) {
+                case 0: {
+                    if (isReleasableArea(mPage, buttonNo)) {
+                        u32 friendNo = buttonNo + mPage * BTN_MAX;
+                        u32 dragFriendNo = mDrag.mButton + mDrag.mPage * BTN_MAX;
+                        mSelectedButton = buttonNo;
+                        mChosenFriend = friendNo;
+                        if (friendNo != dragFriendNo) {
+                            mpFriendCache->swap(friendNo, dragFriendNo);
+                        }
+                        snd::getSystem()->startSEwithPos("WIPL_SE_CH_SET", mDrag.mPos.x);
+                    } else {
+                        snd::getSystem()->startSEwithPos("WIPL_SE_CH_NOT_MOVE", mDrag.mPos.x);
+                    }
 
-            if (isReleasableArea(mPageNo, buttonNo)) {
-                mUnk_0xbc = buttonNo;
-                mChosenFriendIndex = mPageNo * 5 + buttonNo;
-                if (mChosenFriendIndex != (u32)(mDragPageNo * 5 + mDragButtonNo)) {
-                    mpFriendList->swap(mChosenFriendIndex, mDragPageNo * 5 + mDragButtonNo);
+                    System::getPointer()->changeType(mDrag.mChan, 0);
+                    static_cast<Button*>(System::getScene(SCENE_BUTTON))->enableBtn();
+
+                    mpLayout->FindPaneByName(sTextNameB[mDrag.mButton])->SetVisible(true);
+
+                    mDrag.mbDragging = false;
+                    mState = STATE_RELEASE;
+                    reset_friend();
+                    break;
                 }
-                snd::getSystem()->startSEwithPos("WIPL_SE_CH_SET", mDragPos.x);
             }
-            else {
-                snd::getSystem()->startSEwithPos("WIPL_SE_CH_NOT_MOVE", mDragPos.x);
-            }
-
-            System::getPointer()->changeType(mDragChannel, 0);
-            static_cast<Button*>(System::getScene(SCENE_BUTTON))->enableBtn();
-            mpLayout->FindPaneByName(sTextNameB[mDragButtonNo])->SetVisible(true);
-            mbDragging = FALSE;
-            mState = 0xB;
-            reset_friend();
         }
 
         void Address::on_point_event(int buttonNo, controller::Interface* con) {
-            if (mPaneFlags[buttonNo] == 0) {
-                if (mbHovered[buttonNo]) {
+            if (mPointCount[buttonNo] == 0) {
+                if (mbFaceValid[buttonNo]) {
                     mpLayout->getAnim(buttonNo + 6)->play();
+                } else {
+                    mpLayout->getAnim(buttonNo + 21)->play();
                 }
-                else {
-                    mpLayout->getAnim(buttonNo + 0x15)->play();
-                }
+
                 snd::getSystem()->startSE("WIPL_SE_BT_TARGETTING");
                 con->rumble(1);
             }
-            mPaneFlags[buttonNo]++;
+
+            mPointCount[buttonNo]++;
         }
 
         void Address::left_point_event(int buttonNo) {
-            if (mPaneFlags[buttonNo] == 1) {
-                if (mbHovered[buttonNo]) {
-                    mpLayout->getAnim(buttonNo + 0xB)->play();
-                }
-                else {
-                    mpLayout->getAnim(buttonNo + 0x1A)->play();
+            if (mPointCount[buttonNo] == 1) {
+                if (mbFaceValid[buttonNo]) {
+                    mpLayout->getAnim(buttonNo + 11)->play();
+                } else {
+                    mpLayout->getAnim(buttonNo + 26)->play();
                 }
             }
-            if (mPaneFlags[buttonNo] > 0) {
-                mPaneFlags[buttonNo]--;
+
+            if (mPointCount[buttonNo] > 0) {
+                mPointCount[buttonNo]--;
             }
         }
 
         int Address::get_button_no(const char* paneName) {
-            int result = -1;
-            for (int i = 0; i < 5; i++) {
-                if (strcmp(sButtonNameB[i], paneName) == 0) {
-                    result = i;
+            int ret = -1;
+            for (int i = 0; i < BTN_MAX; i++) {
+                if (strcmp(sButtonName[i], paneName) == 0) {
+                    ret = i;
                     break;
                 }
             }
-            return result;
+
+            return ret;
         }
 
         int Address::get_button_space_no(const char* paneName) {
-            int result = -1;
-            for (int i = 0; i < 4; i++) {
-                if (strcmp(sButtonNameBB[i], paneName) == 0) {
-                    result = i;
+            int ret = -1;
+            for (int i = 0; i < BTN_SPACE_MAX; i++) {
+                if (strcmp(sButtonSpaceName[i], paneName) == 0) {
+                    ret = i;
                     break;
                 }
             }
-            return result;
+
+            return ret;
         }
 
-        void Address::reset_gui(bool bPage) {
+        void Address::reset_gui(bool bKeepPointed) {
             mpGui->init();
 
-            for (int i = 0; i < 5; i++) {
+            for (int i = 0; i < BTN_MAX; i++) {
                 mpLayout->getAnim(i + 6)->initAnmFrame();
                 mpLayout->getAnim(i + 6)->calc();
-                mpLayout->getAnim(i + 0xB)->initAnmFrame();
-                mpLayout->getAnim(i + 0xB)->calc();
-                mpLayout->getAnim(i + 0x10)->initAnmFrame();
-                mpLayout->getAnim(i + 0x10)->calc();
-                mpLayout->getAnim(i + 0x15)->initAnmFrame();
-                mpLayout->getAnim(i + 0x15)->calc();
-                mpLayout->getAnim(i + 0x1A)->initAnmFrame();
-                mpLayout->getAnim(i + 0x1A)->calc();
-                mpLayout->getAnim(i + 0x1F)->initAnmFrame();
-                mpLayout->getAnim(i + 0x1F)->calc();
+                mpLayout->getAnim(i + 11)->initAnmFrame();
+                mpLayout->getAnim(i + 11)->calc();
+                mpLayout->getAnim(i + 16)->initAnmFrame();
+                mpLayout->getAnim(i + 16)->calc();
+                mpLayout->getAnim(i + 21)->initAnmFrame();
+                mpLayout->getAnim(i + 21)->calc();
+                mpLayout->getAnim(i + 26)->initAnmFrame();
+                mpLayout->getAnim(i + 26)->calc();
+                mpLayout->getAnim(i + 31)->initAnmFrame();
+                mpLayout->getAnim(i + 31)->calc();
 
-                if (mPaneFlags[i] != 0 && bPage) {
-                    if (mbHovered[i]) {
-                        mpLayout->getAnim(i + 0xB)->play();
+                if (mPointCount[i] != 0 && bKeepPointed) {
+                    if (mbFaceValid[i]) {
+                        mpLayout->getAnim(i + 11)->play();
+                    } else {
+                        mpLayout->getAnim(i + 26)->play();
                     }
-                    else {
-                        mpLayout->getAnim(i + 0x1A)->play();
+                } else {
+                    if (mbFaceValid[i]) {
+                        mpLayout->getAnim(i + 6)->initAnmFrame();
+                        mpLayout->getAnim(i + 6)->calc();
+                    } else {
+                        mpLayout->getAnim(i + 21)->initAnmFrame();
+                        mpLayout->getAnim(i + 21)->calc();
                     }
-                }
-                else if (mbHovered[i]) {
-                    mpLayout->getAnim(i + 6)->initAnmFrame();
-                    mpLayout->getAnim(i + 6)->calc();
-                }
-                else {
-                    mpLayout->getAnim(i + 0x15)->initAnmFrame();
-                    mpLayout->getAnim(i + 0x15)->calc();
                 }
 
-                mPaneFlags[i] = 0;
+                mPointCount[i] = 0;
             }
         }
 
-        BOOL Address::is_selectable(u32 index) {
-            switch (mArg2) {
+        BOOL Address::is_selectable(u32 friendNo) {
+            switch (mMode) {
                 case 0: {
-                    return mpFriendList->mbHasInfo[index];
+                    return mpFriendCache->isThere(friendNo);
                 }
-                case 1: {
-                    if (mpFriendList->mbHasInfo[index]) {
-                        return mpFriendList->mInfos[index].attr.status == NWC24_FRIENDSTATUS_CONFIRMED;
+                case SCENE_ADD_WII: {
+                    if (mpFriendCache->isThere(friendNo)) {
+                        return mpFriendCache->getInfo(friendNo).attr.status == NWC24_FRIENDSTATUS_CONFIRMED;
                     }
                     return FALSE;
                 }
-                case 2: {
-                    if (mpFriendList->mbHasInfo[index]) {
-                        NWC24FriendInfo* info = &mpFriendList->mInfos[index];
-                        return info->attr.status == NWC24_FRIENDSTATUS_CONFIRMED &&
-                            info->attr.type == NWC24_FRIENDTYPE_WII;
+                case SCENE_ADD_EMAIL: {
+                    if (mpFriendCache->isThere(friendNo)) {
+                        const NWC24FriendInfo& info = mpFriendCache->getInfo(friendNo);
+                        BOOL ret = FALSE;
+                        if (info.attr.status == NWC24_FRIENDSTATUS_CONFIRMED && info.attr.type == NWC24_FRIENDTYPE_WII) {
+                            ret = TRUE;
+                        }
+                        return ret;
                     }
-                    return FALSE;
-                }
-                default: {
                     return FALSE;
                 }
             }
+
+            return FALSE;
         }
 
         void Address::onEventDerived(u32 compId, u32 event, const controller::Interface* con) {
-            gui::PaneComponent* component = static_cast<gui::PaneComponent*>(mpManager->getComponent(compId));
-            const char* paneName = component->getPane()->GetName();
+            const char* paneName = static_cast<gui::PaneComponent*>(mpManager->getComponent(compId))->getPane()->GetName();
 
             switch (event) {
-                case ON_TRIG: {
+                case ::gui::EventHandler::ON_TRIG: {
                     if (con == NULL) {
                         break;
                     }
-                    if (con->downTrg(0x100800)) {
+
+                    if (con->downTrg(controller::BTN_INTERACT)) {
                         Button* button = static_cast<Button*>(System::getScene(SCENE_BUTTON));
-                        if (mState == 1 || mState == 4) {
-                            if (Button::cmpButtonName(paneName, 5) == 0) {
-                                MailAddressSelect* sel = static_cast<MailAddressSelect*>(System::getScene(SCENE_MAIL_ADDRESS_SELECT));
-                                button->animation(0x1B);
-                                switch (mArg2) {
-                                    case 0: {
-                                        if (sel != NULL) {
-                                            sel->finishAddress();
-                                        }
-                                        mpLayout->getAnim(1)->play();
-                                        button->reserveAnm(0x10);
-                                        button->reserveAnm(0xB);
-                                        break;
-                                    }
-                                    case 1: {
-                                        mpLayout->getAnim(3)->play();
-                                        mpDialogLayout->getAnim(1)->play();
-                                        button->reserveAnm(0xC);
-                                        button->reserveAnm(0xB);
-                                        break;
-                                    }
-                                    case 2: {
-                                        mpLayout->getAnim(3)->play();
-                                        mpDialogLayout->getAnim(1)->play();
-                                        button->reserveAnm(0xC);
-                                        button->reserveText(0, 0x13B);
-                                        button->reserveText(1, 0x33);
-                                        button->reserveAnm(0xF);
-                                        break;
-                                    }
-                                }
-                                button->animation(0x19);
-                                button->animation(0x1A);
-                                snd::getSystem()->startSE("WIPL_SE_CANCEL");
-                                mState = 0x1A;
-                            }
-                            else if (Button::cmpButtonName(paneName, 7) == 0) {
-                                mChosenFriendIndex = -1;
-                                entry_friend();
-                            }
-                            else if (Button::cmpButtonName(paneName, 9) == 0) {
-                                button->animation(0x13);
-                                snd::getSystem()->startSE("WIPL_SE_FL_PAGE_INC");
-                                onNextPage();
-                            }
-                            else if (Button::cmpButtonName(paneName, 10) == 0) {
-                                button->animation(0x14);
-                                snd::getSystem()->startSE("WIPL_SE_FL_PAGE_DEC");
-                                onPreviousPage();
-                            }
+                        if (mState != STATE_COVER_NORMAL && mState != STATE_NORMAL) {
+                            break;
                         }
-                    }
-                }
-                case ON_POINT: {
-                    if (mbDragging) {
-                        if (con == NULL || con == System::getControllerManager()->getController(mDragChannel)) {
-                            if (Button::cmpButtonName(paneName, 10) == 0) {
-                                if (mLeftPageNo < 0) {
-                                    mLeftPageNo = 0;
+
+                        if (Button::cmpButtonName(paneName, Button::BTN_EXIT) == 0) {
+                            MailAddressSelect* mailAddrSel = static_cast<MailAddressSelect*>(System::getScene(SCENE_MAIL_ADDRESS_SELECT));
+                            button->animation(Button::IDANIM_SELECT_CALENDAR_EXIT);
+
+                            switch (mMode) {
+                                case 0: {
+                                    if (mailAddrSel != NULL) {
+                                        mailAddrSel->finishAddress();
+                                    }
+                                    mpLayout->getAnim(1)->play();
+                                    button->reserveAnm(Button::IDANIM_DISAPPEAR_LEFT_AND_RIGHT_BUTTON);
+                                    button->reserveAnm(Button::IDANIM_APPEAR_LEFT_BUTTON);
+                                    break;
+                                }
+                                case SCENE_ADD_WII: {
+                                    mpLayout->getAnim(3)->play();
+                                    mpDialogLayout->getAnim(1)->play();
+                                    button->reserveAnm(Button::IDANIM_DISAPPEAR_LEFT_BUTTON);
+                                    button->reserveAnm(Button::IDANIM_APPEAR_LEFT_BUTTON);
+                                    break;
+                                }
+                                case SCENE_ADD_EMAIL: {
+                                    mpLayout->getAnim(3)->play();
+                                    mpDialogLayout->getAnim(1)->play();
+                                    button->reserveAnm(Button::IDANIM_DISAPPEAR_LEFT_BUTTON);
+                                    button->reserveText(Button::TEXT_LEFT_BUTTON, MESG_CMN_BACK_ALT);
+                                    button->reserveText(Button::TEXT_RIGHT_BUTTON, 51);
+                                    button->reserveAnm(Button::IDANIM_APPEAR_LEFT_AND_RIGHT_BUTTON);
+                                    break;
                                 }
                             }
-                            else if (Button::cmpButtonName(paneName, 9) == 0) {
-                                if (mRightPageNo < 0) {
-                                    mRightPageNo = 0;
-                                }
+
+                            button->animation(Button::IDANIM_ARROW_RIGHT_DISAPPEAR);
+                            button->animation(Button::IDANIM_ARROW_LEFT_DISAPPEAR);
+                            snd::getSystem()->startSE("WIPL_SE_CANCEL");
+                            mState = STATE_DONE;
+                        } else if (Button::cmpButtonName(paneName, Button::BTN_CREATE_R_BUTTON) == 0) {
+                            mChosenFriend = -1;
+                            entry_friend();
+                        } else if (Button::cmpButtonName(paneName, Button::BTN_ARROW_RIGHT) == 0) {
+                            button->animation(Button::IDANIM_ARROW_RIGHT_SELECT);
+                            snd::getSystem()->startSE("WIPL_SE_FL_PAGE_INC");
+                            onNextPage();
+                        } else if (Button::cmpButtonName(paneName, Button::BTN_ARROW_LEFT) == 0) {
+                            button->animation(Button::IDANIM_ARROW_LEFT_SELECT);
+                            snd::getSystem()->startSE("WIPL_SE_FL_PAGE_DEC");
+                            onPreviousPage();
+                        }
+                        break;
+                    }
+                    // fallthrough
+                }
+                case ::gui::EventHandler::ON_POINT: {
+                    if (mDrag.mbDragging && (con == NULL || con == System::getControllerManager()->getController(mDrag.mChan))) {
+                        if (Button::cmpButtonName(paneName, Button::BTN_ARROW_LEFT) == 0) {
+                            if (mDrag.mPrevCount < 0) {
+                                mDrag.mPrevCount = 0;
+                            }
+                        } else if (Button::cmpButtonName(paneName, Button::BTN_ARROW_RIGHT) == 0) {
+                            if (mDrag.mNextCount < 0) {
+                                mDrag.mNextCount = 0;
                             }
                         }
                     }
                     break;
                 }
-                case ON_LEFT: {
-                    if (mbDragging) {
-                        if (con == NULL || con == System::getControllerManager()->getController(mDragChannel)) {
-                            if (Button::cmpButtonName(paneName, 10) == 0) {
-                                mLeftPageNo = -1;
-                            }
-                            else if (Button::cmpButtonName(paneName, 9) == 0) {
-                                mRightPageNo = -1;
-                            }
+                case ::gui::EventHandler::ON_LEFT: {
+                    if (mDrag.mbDragging && (con == NULL || con == System::getControllerManager()->getController(mDrag.mChan))) {
+                        if (Button::cmpButtonName(paneName, Button::BTN_ARROW_LEFT) == 0) {
+                            mDrag.mPrevCount = -1;
+                        } else if (Button::cmpButtonName(paneName, Button::BTN_ARROW_RIGHT) == 0) {
+                            mDrag.mNextCount = -1;
                         }
                     }
                     break;
@@ -1515,45 +1482,48 @@ namespace ipl {
 
         void Address::onNextPage() {
             switch (mState) {
-                case 4:
-                case 0xA: {
-                    if (mPageNo < 0x13) {
-                        mPageNo++;
-                        mMaxPage--;
-                        add_translate(mpLayout->FindPaneByName("N_note_base"), sNullVec);
+                case STATE_NORMAL:
+                case STATE_DRAG: {
+                    if (mPage < PAGE_MAX - 1) {
+                        mPage++;
+                        mNextPageNum--;
+                        add_translate(mpLayout->FindPaneByName("N_note_base"), sPageOffset);
                         mpLayout->getAnim(5)->setAnmType(0);
                         mpLayout->getAnim(5)->play();
-                        set_page_text("T_nmbr_b", mPageNo + 1);
-                        set_page_text("T_nmbr_c", mPageNo);
+                        set_page_text("T_nmbr_b", mPage + 1);
+                        set_page_text("T_nmbr_c", mPage);
                         reset_gui(false);
-                        for (u32 i = 0; i < 5; i++) {
-                            set_friend(sTextNameB[i], mPageNo * 5 + i, i, mMiiB[i], false);
-                            set_friend(sTextNameC[i], (mPageNo - 1) * 5 + i, i, mMiiC[i], true);
+
+                        for (u32 i = 0; i < BTN_MAX; i++) {
+                            set_friend(sTextNameB[i], i + mPage * BTN_MAX, i, mMiiObj[i], false);
+                            set_friend(sTextNameC[i], i + (mPage - 1) * BTN_MAX, i, mNextMiiObj[i], true);
                         }
-                        mState = 5;
-                    }
-                    else {
-                        mPageNo = 0;
-                        mUnk_0xb8 = 0;
-                        mbFlagE1 = TRUE;
+
+                        mState = STATE_FORWARD;
+                    } else {
+                        mPage = 0;
+                        mPrevPageNum = 0;
+                        mbCover = true;
                         mpLayout->getAnim(4)->setAnmType(1);
                         mpLayout->getAnim(4)->play();
                         reset_gui(true);
-                        mState = 7;
+                        mState = STATE_LOOP_FORWARD;
                     }
                     break;
                 }
-                case 0:
-                case 1: {
-                    mMaxPage--;
-                    add_translate(mpLayout->FindPaneByName("N_note_base"), sNullVec);
+                case STATE_INIT:
+                case STATE_COVER_NORMAL: {
+                    mNextPageNum--;
+                    add_translate(mpLayout->FindPaneByName("N_note_base"), sPageOffset);
                     mpLayout->getAnim(4)->setAnmType(0);
                     mpLayout->getAnim(4)->play();
                     reset_gui(true);
-                    for (u32 i = 0; i < 5; i++) {
-                        set_friend(sTextNameB[i], mPageNo * 5 + i, i, mMiiB[i], false);
+
+                    for (u32 i = 0; i < BTN_MAX; i++) {
+                        set_friend(sTextNameB[i], i + mPage * BTN_MAX, i, mMiiObj[i], false);
                     }
-                    mState = 2;
+
+                    mState = STATE_COVER_FORWARD;
                     break;
                 }
             }
@@ -1561,144 +1531,148 @@ namespace ipl {
 
         void Address::onPreviousPage() {
             switch (mState) {
-                case 4:
-                case 0xA: {
-                    if (mPageNo > 0) {
-                        mPageNo--;
-                        mUnk_0xb8--;
+                case STATE_NORMAL:
+                case STATE_DRAG: {
+                    if (mPage > 0) {
+                        mPage--;
+                        mPrevPageNum--;
                         mpLayout->getAnim(5)->setAnmType(1);
                         mpLayout->getAnim(5)->play();
-                        set_page_text("T_nmbr_c", mPageNo + 1);
+                        set_page_text("T_nmbr_c", mPage + 1);
                         reset_gui(true);
-                        for (u32 i = 0; i < 5; i++) {
-                            set_friend(sTextNameC[i], mPageNo * 5 + i, i, mMiiC[i], true);
+
+                        for (u32 i = 0; i < BTN_MAX; i++) {
+                            set_friend(sTextNameC[i], i + mPage * BTN_MAX, i, mNextMiiObj[i], true);
                         }
-                        mState = 6;
-                    }
-                    else {
+
+                        mState = STATE_BACKWARD;
+                    } else {
                         mpLayout->getAnim(4)->setAnmType(1);
                         mpLayout->getAnim(4)->play();
                         reset_gui(true);
-                        mState = 3;
+                        mState = STATE_COVER_BACKWARD;
                     }
                     break;
                 }
-                case 1: {
-                    mPageNo = 0x13;
-                    mMaxPage = 0;
-                    mbFlagE1 = FALSE;
-                    math::VEC2 w;
-                    w.set(sNullVec.x * 20.0f, sNullVec.y * 20.0f);
-                    add_translate(mpLayout->FindPaneByName("N_note_base"), math::VEC2(w));
+                case STATE_COVER_NORMAL: {
+                    mPage = PAGE_MAX - 1;
+                    mNextPageNum = 0;
+                    mbCover = false;
+                    math::VEC2 offset;
+                    offset.y = sPageOffset.y * PAGE_MAX;
+                    offset.x = sPageOffset.x * PAGE_MAX;
+                    add_translate(mpLayout->FindPaneByName("N_note_base"), offset);
                     mpLayout->getAnim(4)->setAnmType(0);
                     mpLayout->getAnim(4)->play();
-                    set_page_text("T_nmbr_b", mPageNo + 1);
+                    set_page_text("T_nmbr_b", mPage + 1);
                     reset_gui(false);
-                    for (u32 i = 0; i < 5; i++) {
-                        set_friend(sTextNameB[i], mPageNo * 5 + i, i, mMiiB[i], false);
+
+                    for (u32 i = 0; i < BTN_MAX; i++) {
+                        set_friend(sTextNameB[i], i + mPage * BTN_MAX, i, mMiiObj[i], false);
                     }
-                    mState = 8;
+
+                    mState = STATE_LOOP_BACKWARD;
                     break;
                 }
             }
         }
 
-        void Address::set_err_msg(wchar_t* buf, u32 bufLen, NWC24Err err) {
-            wchar_t num[0x20];
-            u32 msgId;
+        void Address::set_err_msg(wchar_t* errMsg, u32 errMsgLen, NWC24Err err) {
+            memset(errMsg, 0, errMsgLen * sizeof(wchar_t));
+            wcsncat(errMsg, System::getMessage(MESG_ERROR_CODE), errMsgLen - wcslen(errMsg));
+            u32 msgId = MESG_ERROR_CODE;
 
-            memset(buf, 0, bufLen * sizeof(wchar_t));
-            wcsncat(buf, System::getMessage(0x190), bufLen - wcslen(buf));
-            memset(num, 0, sizeof(num));
-            swprintf(num, 0x20, L"%06d\n", System::getNwc24Manager()->getErrCode());
-            wcsncat(buf, num, bufLen - wcslen(buf));
+            wchar_t errCode[32];
+            memset(errCode, 0, sizeof(errCode));
+            swprintf(errCode, ARRAY_LENGTH(errCode), L"%06d\n", System::getNwc24Manager()->getErrCode());
+            wcsncat(errMsg, errCode, errMsgLen - wcslen(errMsg));
 
             switch (err) {
                 case NWC24_ERR_NETWORK: {
-                    msgId = 0x19A;
+                    msgId = MESG_ERROR_NWC24_NETWORK;
                     break;
                 }
                 case NWC24_ERR_SERVER:
                 case NWC24_ERR_FULL: {
-                    msgId = 0x1C5;
+                    msgId = MESG_ERROR_NWC24_SERVER;
                     break;
                 }
             }
 
-            wcsncat(buf, System::getMessage(msgId), bufLen - wcslen(buf));
+            wcsncat(errMsg, System::getMessage(msgId), errMsgLen - wcslen(errMsg));
         }
 
         void Address::entry_friend() {
-            if (mArg2 == 0) {
-                Button* button = static_cast<Button*>(System::getScene(SCENE_BUTTON));
-                SCParentalControlsInfo pcInfo;
-                wchar_t msg[0x400];
-                BOOL parental = SCGetParentalControl(&pcInfo);
-                u32 count = mpFriendList->mNumRegInfos;
-
-                snd::getSystem()->startSE("WIPL_SE_DECIDE");
-                if ((u32)mChosenFriendIndex == 0xFFFFFFFF) {
-                    button->animation(0x1D);
-                }
-
-                if (!ncd::NCDSetting::getConnectEnableFlag()) {
-                    System::getDialog()->callBtn2(0x145, 0x146, 0x25, false);
-                    mState = 0xF;
-                }
-                else if (!(SCGetWCFlags() & 1)) {
-                    System::getDialog()->callBtn2(0x17E, 0x146, 0x25, false);
-                    mState = 0x12;
-                }
-                else if (parental && (pcInfo.enable & SC_PARENTAL_FLAG_ENABLED) && (SCGetNetContentRestrictions() & 2)) {
-                    System::getDialog()->callBtn1(0x14C, 0x2E);
-                    mState = 0x17;
-                }
-                else if (mpFriendList->check() == NWC24_ERR_NETWORK || mpFriendList->mUnk_0x9D74 == NWC24_ERR_SERVER || mpFriendList->mUnk_0x9D74 == NWC24_ERR_FULL) {
-                    wchar_t* p = msg - 1;
-                    for (int i = 0; i < 0x200; i++) {
-                        *++p = 0;
-                        *++p = 0;
-                    }
-                    set_err_msg(msg, 0x400, (NWC24Err)mpFriendList->mUnk_0x9D74);
-                    System::getDialog()->callBtn1(msg, 0x2E);
-                    mState = 0x15;
-                }
-                else if (count >= 0x64) {
-                    System::getDialog()->callBtn1(0x50, 0x2E);
-                    mState = 0x16;
-                }
-                else {
-                    createChildScene(0x18, this, NULL, NULL);
-                    button->reserveAnm(0x10);
-                    button->reserveText(0, 0x13B);
-                    button->reserveAnm(0xB);
-                    button->setEventHandler(NULL, NULL);
-                    mpBackLayout->getAnim(0)->play();
-                    mState = 0xC;
-                }
-
-                button->animation(0x19);
-                button->animation(0x1A);
+            if (mMode != 0) {
+                return;
             }
+
+            Button* button = static_cast<Button*>(System::getScene(SCENE_BUTTON));
+
+            SCParentalControlsInfo pcInfo;
+            BOOL bGotParental = SCGetParentalControl(&pcInfo);
+            u32 regFriendNum = mpFriendCache->getRegFriendNum();
+
+            snd::getSystem()->startSE("WIPL_SE_DECIDE");
+
+            if (mChosenFriend == -1) {
+                button->animation(Button::IDANIM_SELECT_CREATE_R);
+            }
+
+            if (!ncd::NCDSetting::getConnectEnableFlag()) {
+                System::getDialog()->callBtn2(325, MESG_NETWORK_SETTINGS_BTN, MESG_CMN_QUIT);
+                mState = STATE_MSG_NET;
+            } else if (!(SCGetWCFlags() & SC_WC_FLAGS_ENABLED)) {
+                System::getDialog()->callBtn2(MESG_NETWORK_NO_WC24_CONFIG, MESG_NETWORK_SETTINGS_BTN, MESG_CMN_QUIT);
+                mState = STATE_MSG_WC;
+            } else if (bGotParental && (pcInfo.enable & SC_PARENTAL_FLAG_ENABLED) && (SCGetNetContentRestrictions() & 2)) {
+                System::getDialog()->callBtn1(MESG_NETWORK_PARENTAL_RESTRICT, MESG_CMN_OK);
+                mState = STATE_MSG_PARENTAL;
+            } else if (mpFriendCache->check() == NWC24_ERR_NETWORK || mpFriendCache->getLastErr() == NWC24_ERR_SERVER ||
+                       mpFriendCache->getLastErr() == NWC24_ERR_FULL) {
+                wchar_t errMsg[0x400] = {0};
+                set_err_msg(errMsg, ARRAY_LENGTH(errMsg), (NWC24Err)mpFriendCache->getLastErr());
+                System::getDialog()->callBtn1(errMsg, MESG_CMN_OK);
+                mState = STATE_MSG_NWC24_ERROR;
+            } else if (regFriendNum >= FriendListCache::FRIEND_MAX) {
+                System::getDialog()->callBtn1(80, MESG_CMN_OK);
+                mState = STATE_MSG_FI_FULL;
+            } else {
+                createChildScene(SCENE_ADDRESS_ADD_SELECT, this, NULL, NULL);
+                button->reserveAnm(Button::IDANIM_DISAPPEAR_LEFT_AND_RIGHT_BUTTON);
+                button->reserveText(Button::TEXT_LEFT_BUTTON, MESG_CMN_BACK_ALT);
+                button->reserveAnm(Button::IDANIM_APPEAR_LEFT_BUTTON);
+                button->setEventHandler(NULL);
+                mpBackLayout->getAnim(0)->play();
+                mState = STATE_WAIT_CHILD_CST;
+            }
+
+            button->animation(Button::IDANIM_ARROW_RIGHT_DISAPPEAR);
+            button->animation(Button::IDANIM_ARROW_LEFT_DISAPPEAR);
         }
 
-        BOOL Address::isReleasableArea(int page, int buttonNo) {
-            if (page < 0 || page >= 0x14) {
-                return FALSE;
+        bool Address::isReleasableArea(int page, int buttonNo) {
+            if (page < 0 || page >= PAGE_MAX) {
+                return false;
             }
-            if (mbFlagE1) {
-                return FALSE;
+
+            if (mbCover) {
+                return false;
             }
-            if (buttonNo < 0 || buttonNo >= 5) {
-                return FALSE;
+
+            if (buttonNo < 0 || buttonNo >= BTN_MAX) {
+                return false;
             }
-            if (page == mDragPageNo && buttonNo == mDragButtonNo) {
-                return TRUE;
+
+            if (page == mDrag.mPage && buttonNo == mDrag.mButton) {
+                return true;
             }
-            if (mpFriendList->mbHasInfo[page * 5 + buttonNo]) {
-                return FALSE;
+
+            if (mpFriendCache->isThere(buttonNo + page * BTN_MAX)) {
+                return false;
             }
-            return mbDragging == 1;
+
+            return mDrag.mbDragging == true;
         }
 
         void Address::changePage_onDrag() {
@@ -1707,221 +1681,211 @@ namespace ipl {
                 button->update();
             }
 
-            if ((mState == 0xA || mState == 1)
-                && (System::getControllerManager()->getController(mDragChannel) == NULL
-                    || System::getControllerManager()->getController(mDragChannel)->pinch() == 0)) {
-                mbDragging = TRUE;
-                start_release_event(NULL);
+            if (mState == STATE_DRAG || mState == STATE_COVER_NORMAL) {
+                if (System::getControllerManager()->getController(mDrag.mChan) == NULL ||
+                    !System::getControllerManager()->getController(mDrag.mChan)->pinch()) {
+                    mDrag.mbDragging = true;
+                    start_release_event(NULL);
+                    return;
+                }
             }
-            else {
-                set_textbox("T_name_move", (const wchar_t*)mpFriendList->mInfos[mDragPageNo * 5 + mDragButtonNo].attr.name);
-                math::VEC2 pos = System::getControllerManager()->getController(mDragChannel)->getDpdProjectionPos();
-                if (System::getControllerManager()->getController(mDragChannel) != NULL
-                    && System::getControllerManager()->getController(mDragChannel)->isValidDpd()) {
-                    nw4r::math::VEC2 v(pos.x - mDragPos.x, pos.y - mDragPos.y);
-                    f32 sqLen = v.x * v.x + v.y * v.y;
-                    f32 dist;
-                    if (sqLen <= 0.0f) {
-                        dist = 0.0f;
-                    }
-                    else {
-                        dist = sqLen * nw4r::math::FrSqrt(sqLen);
-                    }
-                    snd::getSystem()->holdSEwithPosDis("WIPL_SE_CH_DRAG", pos.x, dist);
-                    mDragPos = pos;
-                }
-                nw4r::ut::Rect projRect4x3;
-                nw4r::ut::Rect projRect;
-                System::getProjectionRect(&projRect);
-                System::getProjectionRect4x3(&projRect4x3);
-                pos.x = pos.x * ((projRect4x3.right - projRect4x3.left) / (projRect.right - projRect.left));
-                pos.x = pos.x + mUnk_0x29C;
-                pos.y = -pos.y;
-                nw4r::lyt::Pane* pane = mpLayout->FindPaneByName("N_note_move");
-                pane->SetTranslate(pos);
-                pane->SetVisible(true);
-                if (mLeftPageNo >= 0) {
-                    mLeftPageNo++;
-                }
-                if (mRightPageNo >= 0) {
-                    mRightPageNo++;
-                }
-                if (mLeftPageNo >= 0x1E) {
-                    button->animation(0x14);
-                    snd::getSystem()->startSE("WIPL_SE_FL_PAGE_DEC");
-                    onPreviousPage();
-                    mLeftPageNo = 0;
-                    mRightPageNo = -1;
-                }
-                else if (mRightPageNo >= 0x1E) {
-                    button->animation(0x13);
-                    snd::getSystem()->startSE("WIPL_SE_FL_PAGE_INC");
-                    onNextPage();
-                    mLeftPageNo = -1;
-                    mRightPageNo = 0;
-                }
+
+            set_textbox("T_name_move", (const wchar_t*)mpFriendCache->getInfo(mDrag.mButton + mDrag.mPage * BTN_MAX).attr.name);
+
+            math::VEC2 pos = System::getControllerManager()->getController(mDrag.mChan)->getDpdProjectionPos();
+
+            if (System::getControllerManager()->getController(mDrag.mChan) != NULL &&
+                System::getControllerManager()->getController(mDrag.mChan)->isValidDpd()) {
+                nw4r::math::VEC2 move(pos.x - mDrag.mPos.x, pos.y - mDrag.mPos.y);
+                snd::getSystem()->holdSEwithPosDis("WIPL_SE_CH_DRAG", pos.x, nw4r::math::FSqrt(nw4r::math::VEC2LenSq(&move)));
+                mDrag.mPos = pos;
+            }
+
+            nw4r::ut::Rect rect;
+            nw4r::ut::Rect rect4x3;
+            System::getProjectionRect(&rect);
+            System::getProjectionRect4x3(&rect4x3);
+
+            pos.x *= rect4x3.GetWidth() / rect.GetWidth();
+            pos.x += mDragOffsetX;
+            pos.y = -pos.y;
+
+            nw4r::lyt::Pane* movePane = mpLayout->FindPaneByName("N_note_move");
+            movePane->SetTranslate(pos);
+            movePane->SetVisible(true);
+
+            if (mDrag.mPrevCount >= 0) {
+                mDrag.mPrevCount++;
+            }
+            if (mDrag.mNextCount >= 0) {
+                mDrag.mNextCount++;
+            }
+
+            if (mDrag.mPrevCount >= 30) {
+                button->animation(Button::IDANIM_ARROW_LEFT_SELECT);
+                snd::getSystem()->startSE("WIPL_SE_FL_PAGE_DEC");
+                onPreviousPage();
+                mDrag.mPrevCount = 0;
+                mDrag.mNextCount = -1;
+            } else if (mDrag.mNextCount >= 30) {
+                button->animation(Button::IDANIM_ARROW_RIGHT_SELECT);
+                snd::getSystem()->startSE("WIPL_SE_FL_PAGE_INC");
+                onNextPage();
+                mDrag.mPrevCount = -1;
+                mDrag.mNextCount = 0;
             }
         }
 
         void Address::movePane_onDrag() {
+            nw4r::math::VEC3 baseTrans = mpLayout->FindPaneByName("N_base_move")->GetTranslate();
+            math::VEC2 pos = System::getControllerManager()->getController(mDrag.mChan)->getDpdProjectionPos();
+            nw4r::lyt::TextBox* textBox = static_cast<nw4r::lyt::TextBox*>(mpLayout->FindPaneByName("T_name_move"));
+            const u16* name = mpFriendCache->getInfo(mDrag.mButton + mDrag.mPage * BTN_MAX).attr.name;
+
             f32 width = 0.0f;
-
-            nw4r::lyt::Pane* pane = mpLayout->FindPaneByName("N_base_move");
-            nw4r::math::VEC3 trans = pane->GetTranslate();
-            math::VEC2 pos = System::getControllerManager()->getController(mDragChannel)->getDpdProjectionPos();
-
-            nw4r::lyt::TextBox* textBox = nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(mpLayout->FindPaneByName("T_name_move"));
-            if (textBox != NULL) {
-                const wchar_t* name = (const wchar_t*)mpFriendList->mInfos[mDragPageNo * 5 + mDragButtonNo].attr.name;
-                if (name != NULL) {
-                    textBox->GetFont()->GetWidth();
-                    for (const wchar_t* p = name; *p != 0; p++) {
-                        width += textBox->GetFont()->GetCharWidth(*p);
-                    }
-                    width = 0.01f + width;
+            if (textBox != NULL && name != NULL) {
+                textBox->GetFont()->GetWidth();
+                for (; *name != 0; name++) {
+                    width += textBox->GetFont()->GetCharWidth(*name);
                 }
             }
+            width += 0.01f;
 
-            nw4r::ut::Rect projRect4x3;
-            nw4r::ut::Rect projRect;
-            System::getProjectionRect(&projRect);
-            System::getProjectionRect4x3(&projRect4x3);
-            if (trans.x + width < pos.x) {
-                mUnk_0x29C = -((trans.x + width) * ((projRect4x3.right - projRect4x3.left) / (projRect.right - projRect.left)));
-            }
-            else {
-                pos.x = pos.x * ((projRect4x3.right - projRect4x3.left) / (projRect.right - projRect.left));
-                mUnk_0x29C = -pos.x;
-                mUnk_0x29C += (f32)mDragPageNo * sNullVec.x * ((projRect4x3.right - projRect4x3.left) / (projRect.right - projRect.left));
+            nw4r::ut::Rect rect;
+            nw4r::ut::Rect rect4x3;
+            System::getProjectionRect(&rect);
+            System::getProjectionRect4x3(&rect4x3);
+
+            if (baseTrans.x + width < pos.x) {
+                mDragOffsetX = -((baseTrans.x + width) * (rect4x3.GetWidth() / rect.GetWidth()));
+            } else {
+                pos.x *= rect4x3.GetWidth() / rect.GetWidth();
+                mDragOffsetX = -pos.x;
+                mDragOffsetX += (mDrag.mPage * sPageOffset.x) * (rect4x3.GetWidth() / rect.GetWidth());
             }
         }
 
+        Address::MiiObj::MiiObj() : mpNigaoe(NULL) {}
+
+        Address::MiiObj::~MiiObj() {
+            if (mpNigaoe != NULL) {
+                delete mpNigaoe;
+            }
+        }
+
+        void Address::MiiObj::init(nw4r::lyt::Pane* pane) {
+            mpMaterial = pane->GetMaterial();
+            mpMaterial->GetTexture(&mTexObj, GX_TEXMAP0);
+        }
+
+        void Address::MiiObj::set(u64 fdId) {
+            RFLCreateID createId;
+            u16 index;
+
+            memcpy(&createId, &fdId, sizeof(RFLCreateID));
+            if (RFLSearchOfficialData(&createId, &index)) {
+                System::getMiiManager()->create(System::getMem2App(), 76, 76, (s16)index, create_callback, this);
+            } else {
+                reset();
+            }
+        }
+
+        void Address::MiiObj::reset() {
+            if (mpNigaoe != NULL) {
+                mpMaterial->SetTexture(GX_TEXMAP0, mTexObj);
+                delete mpNigaoe;
+                mpNigaoe = NULL;
+            }
+        }
+
+        void Address::MiiObj::create_callback(nigaoe::Object* object, void* work) {
+            MiiObj* miiObj = static_cast<MiiObj*>(work);
+
+            if (miiObj->mpNigaoe != NULL) {
+                delete miiObj->mpNigaoe;
+            }
+
+            miiObj->mpNigaoe = object;
+            miiObj->mpMaterial->SetTexture(GX_TEXMAP0, object->getIconTexture());
+        }
+
         void AddressEvent::onEvent(u32 compId, u32 event, void* data) {
-            gui::PaneComponent* component = static_cast<gui::PaneComponent*>(mpManager->getComponent(compId));
-            const char* paneName = component->getPane()->GetName();
+            const char* paneName = static_cast<gui::PaneComponent*>(mpManager->getComponent(compId))->getPane()->GetName();
             controller::Interface* con = static_cast<controller::Interface*>(data);
 
             switch (event) {
-                case ON_POINT: {
+                case ::gui::EventHandler::ON_POINT: {
                     if (con != NULL) {
-                        if (mpInstance->mbDragging) {
-                            if (con == NULL || con == System::getControllerManager()->getController(mpInstance->mDragChannel)) {
+                        if (mpInstance->mDrag.mbDragging) {
+                            if (con == NULL || con == System::getControllerManager()->getController(mpInstance->mDrag.mChan)) {
                                 mpInstance->start_drag_point_event(paneName, con);
                             }
-                        }
-                        else {
-                            if (paneName[0] == 'B' && con->getChannel() == mDragChannel) {
-                                mDragChannel = -1;
+                        } else {
+                            if (paneName[0] == 'B' && mTrigChan == con->getChannel()) {
+                                mTrigChan = -1;
                             }
                             mpInstance->start_point_event(paneName, con);
                         }
                     }
                     break;
                 }
-                case ON_LEFT: {
-                    if (mpInstance->mbDragging) {
-                        if (con == NULL || con == System::getControllerManager()->getController(mpInstance->mDragChannel)) {
+                case ::gui::EventHandler::ON_LEFT: {
+                    if (mpInstance->mDrag.mbDragging) {
+                        if (con == NULL || con == System::getControllerManager()->getController(mpInstance->mDrag.mChan)) {
                             mpInstance->start_drag_left_event(paneName);
                         }
-                    }
-                    else {
+                    } else {
                         mpInstance->start_left_event(paneName);
                     }
                     break;
                 }
-                case ON_DRAG: {
-                    if (mpInstance->mState == 4 && con != NULL && con->decide() && mDragChannel >= 0) {
+                case ::gui::EventHandler::ON_DRAG: {
+                    if (mpInstance->mState == Address::STATE_NORMAL && con != NULL && con->decide() && mTrigChan >= 0) {
                         mpInstance->start_trig_event(paneName);
                     }
                     break;
                 }
-                case ON_TRIG: {
-                    if (mpInstance->mState == 4 && con != NULL) {
-                        mDragChannel = con->getChannel();
+                case ::gui::EventHandler::ON_TRIG: {
+                    if (mpInstance->mState == Address::STATE_NORMAL && con != NULL) {
+                        mTrigChan = con->getChannel();
                         if (con->pinchTrg()) {
                             mpInstance->start_drag_event(paneName, con);
                         }
                     }
                     break;
                 }
-                case ON_RELEASE: {
-                    if (mpInstance->mbDragging) {
-                        if (con == NULL || con == System::getControllerManager()->getController(mpInstance->mDragChannel)) {
-                            if (!con->pinch()) {
-                                mpInstance->start_release_event(paneName);
-                            }
-                        }
+                case ::gui::EventHandler::ON_RELEASE: {
+                    if (mpInstance->mDrag.mbDragging &&
+                        (con == NULL || con == System::getControllerManager()->getController(mpInstance->mDrag.mChan)) && !con->pinch()) {
+                        mpInstance->start_release_event(paneName);
                     }
                     break;
                 }
             }
         }
 
-        Address::MiiObj::~MiiObj() {
-            if (mpNigaoeObj != NULL) {
-                delete mpNigaoeObj;
-            }
-        }
-
-        void Address::MiiObj::init(nw4r::lyt::Pane* pane) {
-            mpMaterial = pane->GetMaterial();
-            mpMaterial->GetTexture(&mMiiTexObj, 0);
-        }
-
-        void Address::MiiObj::set(u64 userId) {
-            RFLCreateID data;
-            memcpy(&data, &userId, sizeof(data));
-
-            s16 index;
-            if (RFLSearchOfficialData(&data, (u16*)&index)) {
-                System::getMiiManager()->create(System::getMem2App(),
-                    0x4C, 0x4C, index, create_callback, this);
-            }
-            else {
-                reset();
-            }
-        }
-
-        void Address::MiiObj::reset() {
-            if (mpNigaoeObj != NULL) {
-                mpMaterial->SetTexture(0, mMiiTexObj);
-                delete mpNigaoeObj;
-                mpNigaoeObj = NULL;
-            }
-        }
-
-        void Address::MiiObj::create_callback(nigaoe::Object* obj, void* work) {
-            MiiObj* mii = (MiiObj*)work;
-
-            if (mii->mpNigaoeObj != NULL) {
-                delete mii->mpNigaoeObj;
-            }
-            mii->mpNigaoeObj = obj;
-            mii->mpMaterial->SetTexture(0, obj->getIconTexture());
-        }
-
         BOOL FriendListCache::init() {
             nwc24::Manager* manager = System::getNwc24Manager();
-
             if (!manager->open()) {
                 return FALSE;
             }
 
             manager->getMyUserId(&mMyUserId);
 
-            u32 numFriendInfos;
-            manager->getNumFriendInfos(&numFriendInfos);
-            manager->getNumRegFriendInfos(&mNumRegInfos);
+            u32 friendNum;
+            manager->getNumFriendInfos(&friendNum);
+            manager->getNumRegFriendInfos(&mRegFriendNum);
 
-            for (u32 i = 0; i < 100; i++) {
-                mbHasInfo[i] = manager->isFriendInfoThere(i);
-                if (mbHasInfo[i]) {
+            for (u32 i = 0; i < FRIEND_MAX; i++) {
+                mbThere[i] = manager->isFriendInfoThere(i);
+                if (mbThere[i]) {
                     manager->readFriendInfo(&mInfos[i], i);
                 }
             }
 
-            mUnk_0x9D74 = 0;
-            mbOpened = TRUE;
+            mErrCode = 0;
+            mbOpened = true;
+
             return TRUE;
         }
 
@@ -1933,39 +1897,37 @@ namespace ipl {
 
         void FriendListCache::add(u32 index, const NWC24FriendInfo& info) {
             memcpy(&mInfos[index], &info, sizeof(NWC24FriendInfo));
-            mbHasInfo[index] = TRUE;
-            mNumRegInfos++;
-
+            mbThere[index] = true;
+            mRegFriendNum++;
             System::getNwc24Manager()->writeFriendInfo(&mInfos[index], index);
         }
 
-        void FriendListCache::update(u32 index, const wchar_t* name, NWC24UserId userId) {
-            mInfos[index].attr.fdId = userId;
-            memset(mInfos[index].attr.name, 0, sizeof(mInfos[index].attr.name));
-            wcsncpy((wchar_t*)mInfos[index].attr.name, name, 0xA);
-
-            System::getNwc24Manager()->updateFriendInfo(&mInfos[index], index);
+        void FriendListCache::update(u32 index, const wchar_t* name, u64 fdId) {
+            NWC24FriendInfo* info = &mInfos[index];
+            info->attr.fdId = fdId;
+            memset(info->attr.name, 0, sizeof(info->attr.name));
+            wcsncpy((wchar_t*)info->attr.name, name, 10);
+            System::getNwc24Manager()->updateFriendInfo(info, index);
         }
 
         void FriendListCache::del(u32 index) {
-            mbHasInfo[index] = FALSE;
-            mNumRegInfos--;
-
+            mbThere[index] = false;
+            mRegFriendNum--;
             System::getNwc24Manager()->deleteFriendInfo(index);
         }
 
-        void FriendListCache::swap(u32 indexA, u32 indexB) {
-            NWC24FriendInfo work ALIGN32;
+        void FriendListCache::swap(u32 index1, u32 index2) {
+            NWC24FriendInfo temp ATTRIBUTE_ALIGN(32);
 
-            memcpy(&work, &mInfos[indexA], sizeof(NWC24FriendInfo));
-            memcpy(&mInfos[indexA], &mInfos[indexB], sizeof(NWC24FriendInfo));
-            memcpy(&mInfos[indexB], &work, sizeof(NWC24FriendInfo));
+            memcpy(&temp, &mInfos[index1], sizeof(NWC24FriendInfo));
+            memcpy(&mInfos[index1], &mInfos[index2], sizeof(NWC24FriendInfo));
+            memcpy(&mInfos[index2], &temp, sizeof(NWC24FriendInfo));
 
-            u8 hasInfo = mbHasInfo[indexA];
-            mbHasInfo[indexA] = mbHasInfo[indexB];
-            mbHasInfo[indexB] = hasInfo;
+            u8 bThere = mbThere[index1];
+            mbThere[index1] = mbThere[index2];
+            mbThere[index2] = bThere;
 
-            System::getNwc24Manager()->swapFriendInfo(indexA, indexB);
+            System::getNwc24Manager()->swapFriendInfo(index1, index2);
         }
 
         BOOL FriendListCache::isValidId(const NWC24UserId& userId) {
@@ -1973,64 +1935,63 @@ namespace ipl {
         }
 
         BOOL FriendListCache::isDupId(const NWC24UserId& userId) {
-            for (int i = 0; i < 100; i++) {
-                if (mbHasInfo[i] && mInfos[i].attr.type == NWC24_FRIENDTYPE_WII &&
-                    mInfos[i].addr.wiiId == userId) {
+            for (u32 i = 0; i < FRIEND_MAX; i++) {
+                if (mbThere[i] && mInfos[i].attr.type == NWC24_FRIENDTYPE_WII && userId == mInfos[i].addr.wiiId) {
                     return TRUE;
                 }
             }
+
             return FALSE;
         }
 
         BOOL FriendListCache::isDupMail(const char* mailAddr) {
-            for (int i = 0; i < 100; i++) {
-                if (mbHasInfo[i] && mInfos[i].attr.type == NWC24_FRIENDTYPE_EMAIL) {
-                    const char* mail = mInfos[i].addr.mailAddr;
-                    if (strcmp(mail, mailAddr) == 0) {
-                        return TRUE;
-                    }
+            for (int i = 0; i < FRIEND_MAX; i++) {
+                if (mbThere[i] && mInfos[i].attr.type == NWC24_FRIENDTYPE_EMAIL && strcmp(mInfos[i].addr.mailAddr, mailAddr) == 0) {
+                    return TRUE;
                 }
             }
+
             return FALSE;
         }
 
         void FriendListCache::sendRegisterMail(u32 index) {
-            wchar_t idStr[0x11];
-            NWC24MsgObj msgObj;
-            wchar_t text[0x400];
-
-            const NWC24FriendInfo* info = &mInfos[index];
+            const NWC24FriendInfo& info = mInfos[index];
             nwc24::Manager* manager = System::getNwc24Manager();
 
+            NWC24MsgObj msgObj;
             manager->initMsgObj(&msgObj, NWC24_MSGTYPE_PUBLIC);
-            manager->setMsgToAddr(&msgObj, info->addr.mailAddr, strlen(info->addr.mailAddr));
+            manager->setMsgToAddr(&msgObj, info.addr.mailAddr, strlen(info.addr.mailAddr));
 
-            const wchar_t* subject = System::getMessage(0x181);
-            wcscpy(text, System::getMessage(0x182));
+            const wchar_t* subject = System::getMessage(385);
 
-            if (mMyUserId != 0x000462D53C8ABAC0ULL) {
-                const wchar_t* needle = L"1234567890123456";
-                swprintf(idStr, 0x11, L"%016lld", mMyUserId);
+            wchar_t text[0x400];
+            wcscpy(text, System::getMessage(386));
 
-                wchar_t* p;
-                while ((p = wcsstr(text, needle)) != NULL) {
-                    for (int i = 0; i < 0x10; i++) {
-                        p[i] = idStr[i];
+            if (mMyUserId != 1234567890123456ULL) {
+                wchar_t idStr[17];
+                const wchar_t* idPattern = L"1234567890123456";
+                swprintf(idStr, ARRAY_LENGTH(idStr), L"%016lld", mMyUserId);
+
+                wchar_t* pos;
+                while ((pos = wcsstr(text, idPattern)) != NULL) {
+                    for (int i = 0; i < 16; i++) {
+                        pos[i] = idStr[i];
                     }
                 }
             }
 
-            memset(unk_0x7D74, 0, sizeof(unk_0x7D74));
-            manager->setMsgSubjectAndTextPublic(&msgObj, (u16*)subject, wcslen(subject), (u16*)text, wcslen(text), unk_0x7D74, sizeof(unk_0x7D74));
+            memset(mSendWork, 0, sizeof(mSendWork));
+            manager->setMsgSubjectAndTextPublic(&msgObj, (const u16*)subject, wcslen(subject), (const u16*)text, wcslen(text), mSendWork,
+                                                sizeof(mSendWork));
             manager->commitMsg(&msgObj);
         }
 
-        int FriendListCache::check() {
-            return mUnk_0x9D74 = System::getNwc24Manager()->check(1);
+        s32 FriendListCache::check() {
+            return mErrCode = System::getNwc24Manager()->check(1);
         }
 
-        int FriendListCache::getErrCode() const {
+        s32 FriendListCache::getErrCode() const {
             return System::getNwc24Manager()->getErrCode();
         }
-    }
-}
+    }  // namespace scene
+}  // namespace ipl

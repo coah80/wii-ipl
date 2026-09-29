@@ -35,10 +35,14 @@ namespace ipl {
             virtual void onSend();
             virtual int sendMessageByNWC24(NWC24UserId userId, const wchar_t* wcString);
 
+#ifdef IPL_ADDRESS_MATCHING
             virtual void setFriendInfo(const NWC24FriendInfo& info) {
                 mbToFriend = true;
                 mFriendInfo = info;
             }
+#else
+            virtual void setFriendInfo(const NWC24FriendInfo& info);
+#endif
             virtual void setPhoto(const GXTexObj& texObj);
 
             virtual int sendToWii(NWC24UserId userId, const wchar_t* wcString);
