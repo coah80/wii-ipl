@@ -1794,7 +1794,7 @@ namespace ipl {
             OSReport("SCGetOwnerNickName:%d\n", nicknameExists);
             if (nicknameExists) {
                 SCOwnerNickname* ownerNickname = reinterpret_cast<SCOwnerNickname*>(mSettingData);
-                memcpy(unk_0x938, ownerNickname->name, ownerNickname->length * sizeof(wchar_t));
+                    memcpy(unk_0x938, mSettingData, ownerNickname->length * sizeof(wchar_t));
             }
             memset(mpStringBuffer->nickname, 0, sizeof(mpStringBuffer->nickname));
             utility::CharacterCode::UTF16ToUTF8(mpStringBuffer->nickname,
@@ -1864,7 +1864,7 @@ namespace ipl {
 
         void Setting::initMTU() {
             memset(mpStringBuffer->adjMtu, 0, sizeof(mpStringBuffer->adjMtu));
-            char mtuText[20];
+            char mtuText[12];
             sprintf(mtuText, "%d", ncd::NCDSetting::getMTU());
             utility::CharacterCode::ANSIToUTF8(mpStringBuffer->adjMtu,
                                                reinterpret_cast<const u8*>(mtuText));
@@ -1872,7 +1872,7 @@ namespace ipl {
 
         void Setting::initSecA() {
             memset(mpStringBuffer->parentalSecA, 0, sizeof(mpStringBuffer->parentalSecA));
-            wchar_t answer[42];
+            wchar_t answer[34];
             memset(answer, 0, 0x44);
             wcsncpy(answer, parental::Parental::getSecA(), 0x20);
             memset(unk_0x938, 0, sizeof(unk_0x938));
@@ -2173,15 +2173,16 @@ namespace ipl {
         }
 
         void Setting::adjustSecA(wchar_t* text) {
+            u32 index = 0;
             bool containsWideCharacter = false;
-            for (u32 i = 0; text[i] != 0; ++i) {
-                if (text[i] > 0x7f) {
+            for (; text[index] != 0; ++index) {
+                if (text[index] > 0x7f) {
                     containsWideCharacter = true;
                     break;
                 }
             }
             if (containsWideCharacter && wcslen(reinterpret_cast<const wchar_t*>(unk_0x938)) > 0x10) {
-                char secondLine[0x34];
+                char secondLine[0x22];
                 memcpy(secondLine, reinterpret_cast<char*>(text) + 0x20, 0x22);
                 memcpy(reinterpret_cast<char*>(text) + 0x22, secondLine, 0x22);
                 text[0x10] = L'\n';
@@ -2198,7 +2199,7 @@ namespace ipl {
                 }
             }
             if (containsWideCharacter && wcslen(text) > 0x10) {
-                char secondLine[0x34];
+                char secondLine[0x22];
                 memcpy(secondLine, reinterpret_cast<char*>(text) + 0x22, 0x22);
                 memcpy(reinterpret_cast<char*>(text) + 0x20, secondLine, 0x22);
             }
@@ -2852,7 +2853,7 @@ namespace ipl {
 
         void Setting::setUpdate_Reboot_() {
             if (unk_0x92C == 0xb4) {
-                if (mProgressiveMode == 2 || mProgressiveMode == 5) {
+                if (mInitialArgument == 2 || mInitialArgument == 5) {
                     SCSetConfigDoneFlag(1);
                     SCSetConfigDoneFlag2(1);
                     SCFlush();
@@ -3249,20 +3250,20 @@ namespace ipl {
         }
 
         void Setting::waitStart() {
-            mpMainLayout->getAnim(0)->initFrame();
-            mpMainLayout->getAnim(0)->restart();
-            mpMainLayout->FindPaneByName("G_Wait")->SetVisible(true);
+            mpWaitLayout->getAnim(0)->initFrame();
+            mpWaitLayout->getAnim(0)->restart();
+            mpWaitLayout->FindPaneByName("G_Wait")->SetVisible(true);
             snd::getSystem()->startSE("WIPL_SE_COPYING");
         }
 
         void Setting::waitFinish() {
-            mpMainLayout->getAnim(0)->stop();
-            mpMainLayout->FindPaneByName("G_Wait")->SetVisible(false);
+            mpWaitLayout->getAnim(0)->stop();
+            mpWaitLayout->FindPaneByName("G_Wait")->SetVisible(false);
             snd::getSystem()->startSE("WIPL_SE_COPY_FINISH");
         }
 
         bool Setting::isWaitPlaying() {
-            return mpMainLayout->getAnim(0)->isPlaying();
+            return mpWaitLayout->getAnim(0)->isPlaying();
         }
 
         void Setting::setSE() {
