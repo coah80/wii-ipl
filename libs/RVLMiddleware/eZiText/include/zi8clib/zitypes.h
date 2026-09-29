@@ -160,7 +160,6 @@ typedef struct _ziGetParam {
     ziWChar* candidates;     // 0x18
     ziU8 maxCandidates;      // 0x1C
     ziWChar firstCandidate;  // 0x1E
-    ziU8 wordCandidates;     // 0x1F
     ziU8 unk_0x20;           // 0x20
 
     ziU8 letters;   // 0x21
@@ -202,6 +201,8 @@ typedef struct _ziUwdNode {
 
 struct __zi8_work_data_s {
     ziU8 unk_0x00;
+    ziU8 unk_0x01;
+    ziU8 unk_0x02[2];
     ziLanguageEntry* langEntries;  // 0x04
     ziU8 unk_0x08;
     ziU8 unk_0x09;
@@ -254,7 +255,9 @@ struct __zi8_work_data_s {
     ziU32 unk_0x338;
     ziU8 unk_0x33C[0x1FC];
     ziU8 unk_0x538;
-    ziU8 unk_0x539[0xCC3];
+    ziU8 unk_0x539;
+    ziU8 unk_0x53A[0x40];
+    ziWChar unk_0x57A[0x641];
     ziPtr unk_0x11FC;
     ziPtr userKeys[0x83];  // 0x1200
     ziU8 unk_0x140C[4];
