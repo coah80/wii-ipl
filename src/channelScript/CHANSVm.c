@@ -23,7 +23,7 @@ static const void* NETGetSHA1Interface(void);
 static void NETHMACInit(NETHMACContext* ctx, const void* interface, const void* key, u32 keyLen);
 static void NETHMACUpdate(NETHMACContext* ctx, const void* data, u32 len);
 static void NETHMACGetDigest(NETHMACContext* ctx, void* digest);
-extern char lbl_81697583[];
+extern char VmReportFormat[];
 
 #define CHANSVmDebugLength 1024
 #define VM_FRAME_ARENA_SIZE 8192
@@ -66,7 +66,7 @@ void CHANSVmDebugPrintf(const vmString format, ...) {
 
     str[CHANSVmDebugLength - 1] = str[CHANSVmDebugLength - 2] = 0;
 
-    OSReport(lbl_81697583, str);
+    OSReport(VmReportFormat, str);
 }
 
 #define CHANS_VM_PRINTF(line, msg, ...)                                                                                                              \
@@ -397,7 +397,7 @@ error:
     return vmNull;
 }
 
-extern const char CHANSVmConstStringDataEmpty[16];
+extern const CHANSVmObjHdr CHANSVmConstStringDataEmpty;
 
 CHANSVmObjHdr* CHANSVmNewObject(CHANSVm* vm, vmBoolInt noAlloc, CHANSVmObjHdr* object, CHANSVmObjType type, vmSize len) {
     CHANSVmObjHdr* header;
@@ -418,7 +418,7 @@ CHANSVmObjHdr* CHANSVmNewObject(CHANSVm* vm, vmBoolInt noAlloc, CHANSVmObjHdr* o
         }
     } else {
         if (type == 3UL) {
-            object->value.ptr_v = (vmPtr)CHANSVmConstStringDataEmpty;
+            object->value.ptr_v = (vmPtr)&CHANSVmConstStringDataEmpty;
         }
     }
 
@@ -509,15 +509,13 @@ CHANSVmErr CHANSVmPopObject(CHANSVm* vm, CHANSVmObjHdr* object) {
 
 void CHANSVmStrCpyToU16FromU8(vmWString output, vmString input, vmSize length) {
     u8* src = (u8*)input + length;
-    u32 offset = VM_STR_LENGTH(length);
 
     while (length > 0) {
         u8 val;
-        offset -= 2;
+        u32 offset = VM_STR_LENGTH(--length);
         val = *--src;
         ((u8*)output)[offset + 1] = val;
         ((u8*)output)[offset] = 0;
-        length--;
     }
 }
 
@@ -667,25 +665,25 @@ u8 lbl_81669094[19] = {0x00, '-', 0x00, 'I', 0x00, 'n', 0x00, 'f', 0x00, 'i', 0x
 
 // clang-format off
 const CHANSVmObjHdr CHANSVmConstStringObjectUndefined = {{(wchar_t*)lbl_81669070, 18}, {0}, vmNull};
-const CHANSVmObjHdr lbl_81616C88 = {{L"NaN", 6}, {0}, vmNull};
+const CHANSVmObjHdr lbl_81616C88 = {{(wchar_t*)"\0N\0a\0N", 6}, {0}, vmNull};
 const CHANSVmObjHdr lbl_81616C98 = {{(wchar_t*)lbl_81669083, 16}, {0}, vmNull};
 const CHANSVmObjHdr lbl_81616CA8 = {{(wchar_t*)lbl_81669094, 18}, {0}, vmNull};
-const CHANSVmObjHdr lbl_81616CB8 = {{L",", 2}, {0}, vmNull};
-const char CHANSVmConstStringDataEmpty[16] = "";
+const CHANSVmObjHdr lbl_81616CB8 = {{(wchar_t*)"\0,", 2}, {0}, vmNull};
+const CHANSVmObjHdr CHANSVmConstStringDataEmpty = {{(wchar_t*)"", 0}, {0}, vmNull};
 const CHANSVmObjHdr CHANSVmConstStringObjectUndefined_[] = {{{(void*)&CHANSVmConstStringObjectUndefined, 0}, 0x03800100, vmNull},
                                                             {{(void*)&lbl_81616C88, 0}, 0x03800100, vmNull},
                                                             {{(void*)&lbl_81616C98, 0}, 0x03800100, vmNull},
                                                             {{(void*)&lbl_81616CA8, 0}, 0x03800100, vmNull},
-                                                            {{(void*)&lbl_81616CB8, 0}, 0x00800000, vmNull}};
-char lbl_81697583[] = "%s";
-char lbl_8169758A[] = "%.16lg";
+                                                            {{vmNull, 0}, 0x00800000, vmNull}};
+char VmReportFormat[] = "%s";
 
 const CHANSVmFloatConstantList lbl_81616D28[] = {
     { "Infinity", (double*)&VmInf },
     { "+Infinity", (double*)&VmInf },
     { "-Infinity", (double*)&VmMinusInf },
-    { "Infinity", (double*)&VmNaN }
+    { "NaN", (double*)&VmNaN }
 };
+char lbl_8169758A[] = "%.16lg";
 // clang-format on
 
 CHANSVmObjHdr* CHANSVm_8144B4D4(CHANSVm* vm, CHANSVmObjType type, CHANSVmObjHdr* object) {
@@ -764,10 +762,10 @@ s32 CHANSVm_8144B62C(vmWString buf, u32 len, vmFloat val) NO_INLINE {
     return VM_STR_LENGTH(result);
 }
 
-char lbl_81697591[] = "%lld";
+char VmIntegerFormat[] = "%lld";
 
 static int VmToStrFromInt(vmWString output, vmSize length, vmInteger integer) {
-    vmS32 len = snprintf((vmString)output, length, lbl_81697591, integer);
+    vmS32 len = snprintf((vmString)output, length, VmIntegerFormat, integer);
     CHANSVmStrCpyToU16FromU8(output, (vmString)output, len);
     return len;
 }
@@ -1920,15 +1918,15 @@ static CHANSVmErr VmArrayExpandCommon(CHANSVm* vm, CHANSVmObjHdr* obj, u32 start
         chunk->pNext = current;
     }
 
-    for (i = 0, allocSize = 0; i < total; i++, allocSize += sizeof(CHANSVmObjHdr)) {
+    for (i = 0; i < total; i++) {
         if (fillFromArgs != 0 && i < ((CHANSVmPrivate*)vm)->pActiveCtx->argc && CHANSVmGetArg(vm, i) != vmNull) {
             CHANSVmObjHdr* arg = CHANSVmGetArg(vm, i);
-            if (CHANSVmCopyObject(vm, (CHANSVmObjHdr*)((u8*)chunk + sizeof(ArrayChunk) + allocSize), arg) == vmNull) {
+            if (CHANSVmCopyObject(vm, &chunk->elements[i], arg) == vmNull) {
                 goto error;
             }
             continue;
         }
-        memset((u8*)chunk + sizeof(ArrayChunk) + allocSize, 0, sizeof(CHANSVmObjHdr));
+        memset(&chunk->elements[i], 0, sizeof(CHANSVmObjHdr));
     }
 
     return vmTrue;
@@ -2146,7 +2144,7 @@ static u32 VmArrayJoinSub(CHANSVmObjHdr* obj, CHANSVmObjHdr* array, wchar_t* sep
                         goto error;
                     }
                     strBuf = (vmString)(*obj->value.ptr_v) + offset;
-                    elemLen = snprintf(strBuf, 0x40, lbl_81697591, chunk->elements[countInChunk].value.int_v);
+                    elemLen = snprintf(strBuf, 0x40, VmIntegerFormat, chunk->elements[countInChunk].value.int_v);
                     CHANSVmStrCpyToU16FromU8((vmWString)strBuf, strBuf, elemLen);
                     elemLen = elemLen << 1;
                     break;
@@ -2631,8 +2629,8 @@ VmMethodDefine(Date, GetRTC) {
     u32 bias = SCGetCounterBias();
     s64 ticks = OSCalendarTimeToTicks(cal);
     u64 t = ticks / (__OSBusClock / 4 / 1000);
-    t = t / 1000;
-    return CHANSVmSetInteger(VmInst, VmReturnObj, (u64)(t - bias) & 0xFFFFFFFFULL) == CHANS_VM_OK;
+    t /= 1000;
+    return CHANSVmSetInteger(VmInst, VmReturnObj, (t - bias) & 0xFFFFFFFFULL) == CHANS_VM_OK;
 }
 
 const CHANSVmMethodList VmDateMethodTbl[] = {
@@ -3165,13 +3163,13 @@ VmMethodDefine(String, Splice) {
     length = VmParentObj->value.string_v->len;
 
     if (arg0 != vmNull) {
-        s64 byteOffs0 = arg0->value.int_v * 2;
-        if (byteOffs0 > length) {
+        s64 startByteOffset = arg0->value.int_v * 2;
+        if (startByteOffset > length) {
             start = length;
         } else {
-            start = byteOffs0;
-            if (byteOffs0 < 0) {
-                s64 t0 = byteOffs0 + length;
+            start = startByteOffset;
+            if (startByteOffset < 0) {
+                s64 t0 = startByteOffset + length;
                 start = t0;
                 if (t0 < 0) {
                     start = 0;
@@ -6105,7 +6103,7 @@ static vmBoolInt VmWinEmuWrite(CHANSVm* vm, CHANSVmObjHdr* parent, CHANSVmObjHdr
             if (result == 0) {
                 buf[outLen] = 0;
                 buf[outLen + 1] = 0;
-                OSReport("%s", buf);
+                OSReport(VmReportFormat, buf);
             } else {
                 OSReport("document.write(): conversion error (%d)\n", result);
                 break;
@@ -7850,7 +7848,7 @@ CHANSVmErr CHANSVmStep(CHANSVm* vm, int stepCount) {
                                     CHANSVmObjHdr* hdr = CHANSVmNewObject(vm, vmFalse, &pVm->accumulator, CHANS_VM_OBJ_TYPE_STRING, VM_STRING_SIZE);
                                     if (hdr != vmNull) {
                                         char* s = pVm->accumulator.value.string_v->spData;
-                                        s32 snpLen = snprintf(s, 0x40, "%lld", (u64)arrayIdx);
+                                        s32 snpLen = snprintf(s, 0x40, VmIntegerFormat, (u64)arrayIdx);
                                         CHANSVmStrCpyToU16FromU8((wchar_t*)s, s, snpLen);
                                         pVm->accumulator.value.string_v->len = VM_STR_LENGTH(snpLen);
                                     } else {
