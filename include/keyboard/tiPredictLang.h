@@ -18,8 +18,8 @@ namespace textinput {
             Base(Manager* manager) : mePredictMode(inputform::Base::PM_USEn), mpAllocator(NULL), mpManager(manager) {}
 #endif
 
-            virtual ~Base();
-            virtual void create(MEMAllocator* allocator) override;
+            virtual ~Base() {}
+            virtual void create(MEMAllocator* allocator) override { mpAllocator = allocator; }
             virtual void init();
             virtual void setPredictMode(inputform::Base::PredictMode mode) { mePredictMode = mode; }
 
@@ -42,8 +42,8 @@ namespace textinput {
 
             virtual ~LayoutByNW4R();
             virtual void create(MEMAllocator* allocator) override;
-            virtual void init() override;
             virtual void draw() override;
+            virtual void init() override;
 
             virtual void open(inputform::Base::PredictMode predictMode, keyboard::KeyboardBase* keyboard);
             virtual void endToOpen();
@@ -75,7 +75,7 @@ namespace textinput {
         public:
             Sample(Manager* manager, nw4r::lyt::MultiArcResourceAccessor* resAccessor, const char* arcName, EventObserver* observer)
                 : LayoutByNW4R(manager, resAccessor, arcName, observer) {}
-            virtual ~Sample();
+            virtual ~Sample() {}
         };
 #endif
 

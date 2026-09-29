@@ -1812,6 +1812,10 @@ namespace textinput {
             }
         }
 
+        u16 gui::GUIComponent::getFlightDuration(int point) {
+            return mFlightDuration[point];
+        }
+
         UIOnOffButton::UIOnOffButton(u32 id, LayoutByNW4R* layout, UIObj::Listener* listener)
             : UIObj(id, layout, listener), mpOnPictPane(NULL), mpOnBoundPane(NULL), mpOffPictPane(NULL), mpOffBoundPane(NULL), mpOnAnmPane(NULL),
               mpOffAnmPane(NULL) {

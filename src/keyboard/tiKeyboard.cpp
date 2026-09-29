@@ -328,7 +328,7 @@ namespace textinput {
         }
     }
 
-    void Manager::setTitleText(wchar_t* titleText) {
+    void Manager::setTitleText(const wchar_t* titleText) {
         nw4r::lyt::Pane* pane = mpInputForm->getPane("T_title_text");
         nw4r::lyt::TextBox* textBox = nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(pane);
         if (textBox != NULL) {
@@ -392,8 +392,6 @@ namespace textinput {
     void* Manager::createPredictLanguageDialog() {
         return new (MEMAllocFromAllocator(mpAllocator, sizeof(predictlang::Sample))) predictlang::Sample(this, mpMultiArcResourceAccessor, "fs_prdicSelWidw_a.brlyt", mpEventObserver);
     }
-
-    predictlang::Base::~Base() {}
 
     void* Manager::createSignWindow() {
         return new (MEMAllocFromAllocator(mpAllocator, sizeof(keyboard::signwindow::Sample))) keyboard::signwindow::Sample(this, mpMultiArcResourceAccessor, "fs_signWindow_a.brlyt", mpEventObserver);
@@ -483,22 +481,14 @@ namespace textinput {
 
     void predictlang::Base::init() {}
 
-    void predictlang::Base::create(MEMAllocator* allocator) {
-        mpAllocator = allocator;
-    }
-
-    keyboard::signwindow::Sample::~Sample() {}
-
-    predictlang::Sample::~Sample() {}
-
-    toolbar::Sample::~Sample() {}
-
-    inputform::Sample::~Sample() {}
-
-    candidatebox::Sample::~Sample() {}
+    keyboard::pctype::Sample::~Sample() {}
 
     keyboard::cellphonetype::Sample::~Sample() {}
 
-    keyboard::pctype::Sample::~Sample() {}
+    candidatebox::Sample::~Sample() {}
+
+    inputform::Sample::~Sample() {}
+
+    keyboard::signwindow::Sample::~Sample() {}
 
 }  // namespace textinput

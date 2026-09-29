@@ -43,8 +43,8 @@ namespace textinput {
 
             virtual ~LayoutByNW4R();
             virtual void create(MEMAllocator* allocator) override;
-            virtual void init() override;
             virtual void draw() override;
+            virtual void init() override;
 
             virtual void setQwerty(bool qwerty) override;
             virtual void setLanguage(Language language) override;
@@ -122,7 +122,7 @@ namespace textinput {
         public:
             Sample(Manager* manager, nw4r::lyt::MultiArcResourceAccessor* resAccessor, const char* arcName, EventObserver* observer)
                 : LayoutByNW4R(manager, resAccessor, arcName, observer) {}
-            virtual ~Sample();
+            virtual ~Sample() {}
         };
 #else
         class Sample {};

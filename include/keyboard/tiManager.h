@@ -69,14 +69,11 @@ namespace textinput {
             virtual void                                setAspectRatio(bool b4x3);
 
             virtual void                                setSecretInputMode(bool secretInputMode) { mpInputForm->setSecretModeOn(secretInputMode); }
-#ifdef IPL_ADDRESS_EDIT_CPP
-            void enableKSXFilter(bool compatibleFilter);
-#endif
 
             virtual void                                setDefaultPredictionJP(int num, const char** predicts);
             virtual void                                setFixedPredictionJP(int num, const char** predicts);
 
-            virtual void                                setTitleText(wchar_t* titleText);
+            virtual void                                setTitleText(const wchar_t* titleText);
 
             virtual void                                start() {}
             virtual void                                end()   {}

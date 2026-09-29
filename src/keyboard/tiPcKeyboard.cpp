@@ -1938,11 +1938,6 @@ static const PaneToAnimation csPaneToAnimation[129] = {
                 mAnmPaneFifo.init();
             }
 
-            void nw4rmanager::PaneFifo::init() {
-                for (int i = 0; i < MAX_COUNT; i++) {
-                    mpaFifo[i] = NULL;
-                }
-            }
 
             void LayoutByNW4R::throwReleaseForAll() {
                 AnmPane* it = (AnmPane*)nw4r::ut::List_GetNext(&mAnmPanes, NULL);
@@ -2059,37 +2054,9 @@ static const PaneToAnimation csPaneToAnimation[129] = {
                 updateDakuten();
             }
 
-            nw4r::lyt::Pane* nw4rmanager::PaneFifo::getLast() {
-                for (int i = MAX_COUNT-1; i > -1; i--) {
-                    if (mpaFifo[i] != NULL) {
-                        return mpaFifo[i];
-                    }
-                }
-                return NULL;
-            }
 
             void nw4rmanager::Layout::setPaneLastDrawReceived(nw4r::lyt::Pane* pane) {
                 mAnmPaneFifo.push(pane);
-            }
-
-            void nw4rmanager::PaneFifo::push(nw4r::lyt::Pane* pane) {
-                if (mpaFifo[MAX_COUNT-1] == NULL) {
-                    for (int i = 0; i < MAX_COUNT; i++) {
-                        if (mpaFifo[i] == NULL) {
-                            mpaFifo[i] = pane;
-                            return;
-                        }
-                    }
-                }
-                else {
-                    for (int i = 1; i < MAX_COUNT; i++) {
-                        mpaFifo[i-1] = mpaFifo[i];
-                        if (pane == mpaFifo[i-1]) {
-                            mpaFifo[i-1] = NULL;
-                        }
-                    }
-                    mpaFifo[MAX_COUNT-1] = pane;
-                }
             }
 
             void LayoutByNW4R::updateDakuten() {
@@ -2843,14 +2810,6 @@ static const PaneToAnimation csPaneToAnimation[129] = {
                 return mpCurrentAnim != NULL;
             }
 
-            int gui::EventHandler::getLatestEventCtrlNo() {
-                return muLatestEventCtrlNo;
-            }
-
-            void gui::EventHandler::setLatestEventCtrlNo(int ctrlNo) {
-                muLatestEventCtrlNo = ctrlNo;
-            }
-
             int Base::getAIUInputMode() const {
                 switch (mKeyState.mAIUFlags & 0xF) {
                     case 0:     return IM_06;
@@ -2906,13 +2865,14 @@ static const PaneToAnimation csPaneToAnimation[129] = {
             void UIObj::onGUIEvent(gui::PaneComponent& pane, u32 event, nw4rmanager::TiEventHandler::Input* input) {
             }
 
+            void nw4rmanager::TiEventHandler::setEventObserver(EventObserver* event) {
+                mpEventObserver = event;
+            }
+
             void Base::setInputModeCK(u32) {
             }
 
             void Base::setInputModeJP(bool, u32, u32) {
-            }
-
-            void gui::EventHandler::onEvent(gui::GUIComponent& comp, u32 event, void* data) {
             }
 
         }  // namespace pctype

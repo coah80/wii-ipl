@@ -72,10 +72,10 @@ namespace textinput {
 
             virtual ~EventHandler() {}  // 0x08
 
-            virtual void onEvent(GUIComponent& comp, u32 event, void* data);  // 0x0C
+            virtual void onEvent(GUIComponent& comp, u32 event, void* data) {}  // 0x0C
 
-            virtual void setLatestEventCtrlNo(int ctrlNo);  // 0x10
-            virtual int getLatestEventCtrlNo();             // 0x14
+            virtual void setLatestEventCtrlNo(int ctrlNo) { muLatestEventCtrlNo = ctrlNo; }  // 0x10
+            virtual int getLatestEventCtrlNo() { return muLatestEventCtrlNo; }               // 0x14
 
         protected:
             int muLatestEventCtrlNo;  // 0x04
@@ -105,7 +105,7 @@ namespace textinput {
                 : GUIInterface(), mbInitialize(false), mDraggingButton(0xFFFF), mID(id), mbTriggerTarget(false), mpManager(NULL), mpListener(NULL) {
                 init();
             }
-            virtual ~GUIComponent() {}  // 0x08
+            virtual ~GUIComponent();  // 0x08
 
             virtual u32 getID() { return mID; }  // 0x20
 
@@ -149,7 +149,7 @@ namespace textinput {
 
             virtual bool isVisible() { return true; }  // 0x58
 
-            virtual u16 getFlightDuration(int point) { return mFlightDuration[point]; }                       // 0x5C
+            virtual u16 getFlightDuration(int point);                                                             // 0x5C
             virtual void setFlightDuration(int point, u16 flightDir);  // 0x60
 
             virtual bool contain(f32 x, f32 y) = 0;  // 0x64
