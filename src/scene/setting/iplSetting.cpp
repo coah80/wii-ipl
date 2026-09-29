@@ -1989,14 +1989,14 @@ namespace ipl {
 
         void Setting::setSecurityKey() {
             int keyLength = ncd::NCDSetting::checkWEPKey(mpStringBuffer->securityKey);
-            if (keyLength < 0) {
-                System::getDialog()->callBtn0(0x1be, 0xb4, false);
-                unk_0x74 = 2;
-                www::wiisetting::setFuncResult(4);
-            } else {
+            if (keyLength >= 0) {
                 www::wiisetting::setFuncResult(3);
                 ncd::NCDSetting::setPrivacy(reinterpret_cast<u8*>(mpStringBuffer->securityKey), keyLength);
                 OSReport("securityFlag:1 %s\n", mpStringBuffer->securityKey);
+            } else {
+                System::getDialog()->callBtn0(0x1be, 0xb4, false);
+                unk_0x74 = 2;
+                www::wiisetting::setFuncResult(4);
             }
         }
 
@@ -2004,6 +2004,7 @@ namespace ipl {
             u8 ssid[0x61];
             memset(ssid, 0, sizeof(ssid));
             utility::CharacterCode::UTF8ToANSI(ssid, mpStringBuffer->ssid);
+            memset(ssid + 0x20, 0, 0x41);
             ncd::NCDSetting::setSSID(ssid);
         }
 
