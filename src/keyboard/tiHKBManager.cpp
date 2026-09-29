@@ -6,19 +6,19 @@ namespace textinput {
         HKBManager HKBManager::sInstance;
 
         void HKBManager::SetLedCB(KBDEc result, void* arg) {
+            u8 packet[8];
             if (result == KBD_EC_OK) {
-                u8 packet[8];
+                void* data = arg;
                 *(u32*)(packet + 4) = 0;
-                u8 chan = *(u8*)&arg;
-                packet[0] = chan;
+                packet[0] = *(u8*)&data;
 
                 u32 intr = OSDisableInterrupts();
-                sInstance.mPendingLeds &= ~(1 << chan);
+                sInstance.mPendingLeds &= ~(1 << *(u8*)&data);
                 OSRestoreInterrupts(intr);
 
-                if (KBDSetLedsAsync(chan, 0, SetLedCB, (void*)*(u32*)packet) == KBD_EC_OK) {
+                if (KBDSetLedsAsync(*(u8*)&data, 0, SetLedCB, (void*)*(u32*)packet) == KBD_EC_OK) {
                     intr = OSDisableInterrupts();
-                    sInstance.mPendingLeds |= (1 << chan);
+                    sInstance.mPendingLeds |= (1 << *(u8*)&data);
                     OSRestoreInterrupts(intr);
                 }
             }
@@ -80,8 +80,8 @@ namespace textinput {
         }
 
         void HKBManager::AttachCB(KBDDevEvent* event) {
-            KBDListener* head = &sInstance.mListener;
-            KBDListener* listener = head;
+            KBDListener* listener = &sInstance.mListener;
+            KBDListener* head = listener;
             while (listener != NULL) {
                 listener->OnAttach(event);
                 listener = listener->mpNext;
@@ -92,8 +92,8 @@ namespace textinput {
         }
 
         void HKBManager::DetachCB(KBDDevEvent* event) {
-            KBDListener* head = &sInstance.mListener;
-            KBDListener* listener = head;
+            KBDListener* listener = &sInstance.mListener;
+            KBDListener* head = listener;
             while (listener != NULL) {
                 listener->OnDetach(event);
                 listener = listener->mpNext;
@@ -170,10 +170,12 @@ namespace textinput {
         }
 
         u32 HKBManager::GetModifierState() const {
-            return ((mKeyStates[0].mModState & ~mKeyStates[0].mForceMask) |
-                    (mKeyStates[0].mForceMod & mKeyStates[0].mForceMask)) |
-                   ((mKeyStates[1].mModState & ~mKeyStates[1].mForceMask) |
-                    (mKeyStates[1].mForceMod & mKeyStates[1].mForceMask));
+            u32 modState = 0;
+            for (u8 i = 0; i < 2; i++) {
+                modState |= (mKeyStates[i].mForceMod & mKeyStates[i].mForceMask) |
+                            (mKeyStates[i].mModState & ~mKeyStates[i].mForceMask);
+            }
+            return modState;
         }
 
         void HKBManager::SetCountry(u8 country) {

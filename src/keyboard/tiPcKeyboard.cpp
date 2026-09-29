@@ -31,9 +31,11 @@ namespace textinput {
             extern const u8 csCNKeyboard[];
             extern const u8 csJPKeyboard[];
 
-            static const char* scPaneName00 = "P_Gkey_00";
-            static const u32 csHangulChoseong = 1;
-            static const u32 csHangulJungseong = 2;
+            struct HangulInputMode {
+                u32 mode;
+            };
+            static const HangulInputMode csHangulChoseong = {1};
+            static const HangulInputMode csHangulJungseong = {2};
 
             struct InputWCharCommand {
                 u16 mWChar;
@@ -43,7 +45,7 @@ namespace textinput {
                 u32 mY;
             };
             static const InputWCharCommand csInputWChar0 = {0, 0, 0, 0x10000, 0};
-static const struct GridKeyboard { char mPaneName[0x16]; u16 muHiragana; u16 muKatakana; } csGridKeyboard[] = {
+static const struct GridKeyboard { char mPaneName[0x12]; u16 mWChars[4]; } csGridKeyboard[] = {
     { "P_Gkey_00", 0x0000, 0x0000 },
     { "P_Gkey_01", 0x3042, 0x30a2 },
     { "P_Gkey_02", 0x304b, 0x30ab },
@@ -696,117 +698,118 @@ typedef struct PaneToAnimation {
     const AnimationFile* mpaAnimations[12];
 } PaneToAnimation;
 
+static const char* sPkeyBasePaneName = "P_key_00";
 static const PaneToAnimation csPaneToAnimation[129] = {
     { 0, "P_key_00", 5, NULL, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_key_01", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_key_02", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_key_03", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_key_04", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_key_05", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_key_06", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_key_07", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_key_08", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_key_09", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_key_10", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_key_11", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_key_12", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_key_13", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_key_15", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_key_16", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_key_17", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_key_18", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_key_14", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_key_19", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_key_20", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_key_21", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_key_22", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_key_23", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_key_24", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_key_25", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_key_26", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_key_27", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_key_28", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_key_29", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_key_30", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_key_31", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_key_32", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_key_33", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_key_34", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_key_35", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_key_36", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_key_37", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_key_38", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_key_39", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_key_40", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_key_41", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_key_42", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_key_43", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_key_44", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_key_45", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_key_46", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_key_47", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_key_48", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_key_49", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_key_DELETE", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_key_LF", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_key_SPACE", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 1, "P_key_SHIFT", 12, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], &csAninationFile[6], &csAninationFile[7], &csAninationFile[8], &csAninationFile[9], &csAninationFile[10], &csAninationFile[11] } },
-    { 1, "P_key_CAPS", 12, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], &csAninationFile[6], &csAninationFile[7], &csAninationFile[8], &csAninationFile[9], &csAninationFile[10], &csAninationFile[11] } },
-    { 0, "P_Gkey_00", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_Gkey_01", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_Gkey_02", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_Gkey_03", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_Gkey_04", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_Gkey_05", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_Gkey_06", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_Gkey_07", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_Gkey_08", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_Gkey_09", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_Gkey_10", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_Gkey_11", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_Gkey_12", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_Gkey_13", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_Gkey_14", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_Gkey_15", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_Gkey_16", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_Gkey_17", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_Gkey_18", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_Gkey_19", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_Gkey_20", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_Gkey_21", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_Gkey_22", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_Gkey_23", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_Gkey_24", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_Gkey_25", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_Gkey_26", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_Gkey_27", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_Gkey_28", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_Gkey_29", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_Gkey_30", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_Gkey_31", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_Gkey_32", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_Gkey_33", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_Gkey_34", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_Gkey_35", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_Gkey_36", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_Gkey_37", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_Gkey_38", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_Gkey_39", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_Gkey_40", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_Gkey_41", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_Gkey_42", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_Gkey_43", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_Gkey_44", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_Gkey_45", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_Gkey_46", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_Gkey_47", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_Gkey_48", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_Gkey_49", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_Gkey_50", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_Gkey_51", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_Gkey_52", 5, scPaneName00, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_Gkey_53", 5, NULL, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
-    { 0, "P_Gkey_54", 5, NULL, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_key_01", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_key_02", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_key_03", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_key_04", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_key_05", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_key_06", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_key_07", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_key_08", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_key_09", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_key_10", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_key_11", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_key_12", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_key_13", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_key_15", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_key_16", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_key_17", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_key_18", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_key_14", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_key_19", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_key_20", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_key_21", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_key_22", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_key_23", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_key_24", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_key_25", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_key_26", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_key_27", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_key_28", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_key_29", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_key_30", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_key_31", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_key_32", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_key_33", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_key_34", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_key_35", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_key_36", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_key_37", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_key_38", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_key_39", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_key_40", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_key_41", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_key_42", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_key_43", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_key_44", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_key_45", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_key_46", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_key_47", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_key_48", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_key_49", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_key_DELETE", 5, NULL, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_key_LF", 5, NULL, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_key_SPACE", 5, NULL, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 1, "P_key_SHIFT", 12, NULL, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], &csAninationFile[6], &csAninationFile[7], &csAninationFile[8], &csAninationFile[9], &csAninationFile[10], &csAninationFile[11] } },
+    { 1, "P_key_CAPS", 12, NULL, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], &csAninationFile[6], &csAninationFile[7], &csAninationFile[8], &csAninationFile[9], &csAninationFile[10], &csAninationFile[11] } },
+    { 0, "P_Gkey_00", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_Gkey_01", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_Gkey_02", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_Gkey_03", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_Gkey_04", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_Gkey_05", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_Gkey_06", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_Gkey_07", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_Gkey_08", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_Gkey_09", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_Gkey_10", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_Gkey_11", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_Gkey_12", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_Gkey_13", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_Gkey_14", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_Gkey_15", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_Gkey_16", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_Gkey_17", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_Gkey_18", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_Gkey_19", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_Gkey_20", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_Gkey_21", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_Gkey_22", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_Gkey_23", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_Gkey_24", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_Gkey_25", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_Gkey_26", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_Gkey_27", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_Gkey_28", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_Gkey_29", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_Gkey_30", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_Gkey_31", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_Gkey_32", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_Gkey_33", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_Gkey_34", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_Gkey_35", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_Gkey_36", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_Gkey_37", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_Gkey_38", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_Gkey_39", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_Gkey_40", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_Gkey_41", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_Gkey_42", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_Gkey_43", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_Gkey_44", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_Gkey_45", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_Gkey_46", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_Gkey_47", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_Gkey_48", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_Gkey_49", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_Gkey_50", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_Gkey_51", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_Gkey_52", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_Gkey_53", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
+    { 0, "P_Gkey_54", 5, sPkeyBasePaneName, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
     { 0, "P_Gkey_55", 5, NULL, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
     { 0, "P_Gkey_DELETE", 5, NULL, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
     { 0, "P_Gkey_LF", 5, NULL, { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], NULL, NULL, NULL, NULL, NULL, NULL } },
@@ -827,8 +830,34 @@ static const PaneToAnimation csPaneToAnimation[129] = {
     { 2, "P_Mode_kr_eng", 7, "P_Mode_direct", { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], &csAninationFile[6], &csAninationFile[7], NULL, NULL, NULL, NULL } },
     { 2, "P_Mode_kr_han", 7, "P_Mode_direct", { &csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5], &csAninationFile[6], &csAninationFile[7], NULL, NULL, NULL, NULL } },
 };
+            const keyboard::hwkey::HWKeyboard* Manager::getHWKeyboard() const {
+                return mpHWKeyboard;
+            }
 
-            // == Manager accessors (inline uses) ==
+            const toolbar::LayoutByNW4R* Manager::getToolBar() const {
+                return mpToolBar;
+            }
+
+            Base::TranslateMode Base::getTranslateMode() const {
+                switch (mKeyState.mFlags & 0xF) {
+                    case 0: return TM_00;
+                    case 1: return TM_01;
+                    case 2: return TM_02;
+                    default: return TM_00;
+                }
+            }
+
+            const pctype::LayoutByNW4R* Manager::getPCKeyboard() const {
+                return mpPCKeyboard;
+            }
+
+            Language Manager::getLanguage() const {
+                return meLanguage;
+            }
+
+            bool Base::isCapsOn() const {
+                return (mKeyState.mFlags & 0x40) != 0;
+            }
 
             void Base::create(MEMAllocator* allocator) {
                 mpAllocator = allocator;
@@ -847,7 +876,7 @@ static const PaneToAnimation csPaneToAnimation[129] = {
                 }
                 mKeyState.mAIUFlags = 0;
                 mKeyState.refresh_();
-                u32 mode;
+                s32 mode;
                 switch (mKeyState.mFlags & 0xF) {
                     case 0: mode = 0; break;
                     case 1: mode = 1; break;
@@ -857,37 +886,31 @@ static const PaneToAnimation csPaneToAnimation[129] = {
                 sendCommand(0x12, &mode);
             }
 
-            void Base::updateFromReceiver(u32 command, void* data) {
-                if (command != 0x1F) {
-                    CommandReceiver::ChangePredictMode mode = {0, 0};
-                    sendCommand(0x1F, &mode);
-                    if (!(command == 0x19 || command == 0x1A || command == 0x1C || command == 0x18 ||
-                          command == 0x14 || command == 0x13 || command == 0x23) ||
-                        command == 0x24) {
-                        if ((mKeyState.mAIUFlags & ~0xF) != 0) {
-                            mKeyState.mAIUFlags &= 0xF;
-                            mKeyState.refresh_();
-                        }
-                    }
-                    if (command == 0x24) {
-                        unk_0x14 = 1;
-                    }
+            Language KeyboardBase::getLanguage() const {
+                return meLanguage;
+            }
+
+            void CommandSender::sendCommand(u32 command, void* data) {
+                if (mpCommandReceiver != NULL) {
+                    mpCommandReceiver->onCommand((CommandReceiver::INPUT_COMMAND)command, data);
                 }
+            }
+
+            void Base::inputCharCode(wchar_t wc) {
+                sendInputWChar(wc, false);
             }
 
             void Base::onKey(u32 key, void* data) {
                 wchar_t wc = getWCCode((char*)data);
                 if (key == 4) {
-                    if ((wc & 0xFFFF) != 0) {
-                        inputCharCode(wc);
-                    } else {
+                    if ((wc & 0xFFFF) == 0) {
                         switch (getControlKey((char*)data)) {
+                            case 1:
+                                sendCommand(1, NULL);
+                                break;
                             case 0:
                                 sendCommand(7, NULL);
                                 sendCommand(0x27, NULL);
-                                break;
-                            case 1:
-                                sendCommand(1, NULL);
                                 break;
                             case 2:
                                 if (mgr()->getInputForm()->canConvert()) {
@@ -895,9 +918,6 @@ static const PaneToAnimation csPaneToAnimation[129] = {
                                 } else {
                                     sendInputWChar(0x20, false);
                                 }
-                                break;
-                            case 10:
-                                changePredictLanguage();
                                 break;
                             case 11:
                                 setABC(true);
@@ -907,6 +927,9 @@ static const PaneToAnimation csPaneToAnimation[129] = {
                                 break;
                             case 13:
                                 goSignInputMode();
+                                break;
+                            case 10:
+                                changePredictLanguage();
                                 break;
                             case 14:
                                 changeAIUInputMode(IM_04);
@@ -918,13 +941,13 @@ static const PaneToAnimation csPaneToAnimation[129] = {
                                 break;
                             }
                             case 16: {
-                                u32 mode = csHangulChoseong;
+                                HangulInputMode mode = csHangulChoseong;
                                 sendCommand(0x12, &mode);
                                 setTranslateMode((TranslateMode)1);
                                 break;
                             }
                             case 17: {
-                                u32 mode = csHangulJungseong;
+                                HangulInputMode mode = csHangulJungseong;
                                 sendCommand(0x12, &mode);
                                 setTranslateMode((TranslateMode)2);
                                 break;
@@ -960,65 +983,38 @@ static const PaneToAnimation csPaneToAnimation[129] = {
                             default:
                                 break;
                         }
+                    } else {
+                        inputCharCode(wc);
                     }
                 }
             }
 
-            bool Base::isABC() {
-                return mKeyState.mIsABC == 0;
+            bool inputform::Base::canConvert() {
+                return getCurrentString(false) == mpUnfixString;
             }
 
-            void Base::setABC(bool flag) {
-                u32 notABC = (flag == 0);
-                if (notABC != mKeyState.mIsABC) {
-                    mKeyState.mIsABC = notABC;
-                    mKeyState.refresh_();
-                }
-                sendCommand(0x29, NULL);
+            void Base::goSignInputMode() {
             }
 
-            void Base::setTranslateMode(TranslateMode mode) {
-                u32 newMode;
-                switch (mode) {
-                    case TM_00: newMode = 0; break;
-                    case TM_01: newMode = 1; break;
-                    case TM_02: newMode = 2; break;
-                    default:    newMode = 0; break;
-                }
-                if (newMode != (mKeyState.mFlags & 0xF)) {
-                    if (getLanguage() == 9 || getLanguage() == 8) {
-                        mgr()->getInputForm()->onCommand((CommandReceiver::INPUT_COMMAND)6, NULL);
-                    }
-                    if ((mKeyState.mFlags & 0xF) != newMode) {
-                        mKeyState.mFlags = (mKeyState.mFlags & ~0xF) | (newMode & 0xF);
-                        mKeyState.refresh_();
-                    }
-                    if (getLanguage() == 8) {
-                        if (mgr()->getCandidateBox() != NULL) {
-                            mgr()->getCandidateBox()->checkValidation();
+            void Base::changePredictLanguage() {
+            }
+
+            void Base::updateFromReceiver(u32 command, void* data) {
+                if (command != 0x1F) {
+                    CommandReceiver::ChangePredictMode mode = {0, 0};
+                    sendCommand(0x1F, &mode);
+                    if (!(command == 0x19 || command == 0x1A || command == 0x1C || command == 0x18 ||
+                          command == 0x14 || command == 0x13 || command == 0x23) ||
+                        command == 0x24) {
+                        if ((mKeyState.mAIUFlags & ~0xF) != 0) {
+                            mKeyState.mAIUFlags &= 0xF;
+                            mKeyState.refresh_();
                         }
                     }
-                    sendCommand(0x12, &mode);
-                    mKeyState.mpLanguageDep = &csJapanKanaInput;
-                    sendCommand(0x29, NULL);
+                    if (command == 0x24) {
+                        unk_0x14 = 1;
+                    }
                 }
-            }
-
-            Base::TranslateMode Base::getTranslateMode() const {
-                switch (mKeyState.mFlags & 0xF) {
-                    case 0: return TM_00;
-                    case 1: return TM_01;
-                    case 2: return TM_02;
-                    default: return TM_00;
-                }
-            }
-
-            bool Base::isShiftOn() const {
-                return (mKeyState.mFlags & 0x80) != 0;
-            }
-
-            bool Base::isCapsOn() const {
-                return (mKeyState.mFlags & 0x40) != 0;
             }
 
             void Base::onActive() {
@@ -1032,23 +1028,46 @@ static const PaneToAnimation csPaneToAnimation[129] = {
                 sendCommand(0x12, &mode);
                 sendCommand(0x27, NULL);
                 if (mKeyState.mIsABC == 0) {
+                    u32 mode2;
                     switch (mKeyState.mFlags & 0xF) {
-                        case 0: mode = 0; break;
-                        case 1: mode = 1; break;
-                        case 2: mode = 2; break;
-                        default: mode = 0; break;
+                        case 0: mode2 = 0; break;
+                        case 1: mode2 = 1; break;
+                        case 2: mode2 = 2; break;
+                        default: mode2 = 0; break;
                     }
-                    if (mode == 1 || mode == 2) {
-                        u8 flag = (mode == 2) ? 0 : 1;
-                        sendCommand(0x13, &flag);
+                    u32 flag;
+                    switch (mode2) {
+                        case 1:
+                            flag = 1;
+                            break;
+                        case 2:
+                            flag = 0;
+                            break;
+                        default:
+                            goto end;
                     }
-                } else {
-                    switch (mKeyState.mAIUFlags & 0xF) {
-                        case 1: mode = 7; break;
-                        default: mode = 6; break;
-                    }
-                    u8 flag = (mode == 7) ? 0 : 1;
                     sendCommand(0x13, &flag);
+                end:;
+                } else {
+                    u32 mode2;
+                    switch (mKeyState.mAIUFlags & 0xF) {
+                        case 0: mode2 = 6; break;
+                        case 1: mode2 = 7; break;
+                        default: mode2 = 6; break;
+                    }
+                    u32 flag;
+                    switch (mode2) {
+                        case 6:
+                            flag = 1;
+                            break;
+                        case 7:
+                            flag = 0;
+                            break;
+                        default:
+                            goto end2;
+                    }
+                    sendCommand(0x13, &flag);
+                end2:;
                 }
                 updateFixMode();
             }
@@ -1057,15 +1076,14 @@ static const PaneToAnimation csPaneToAnimation[129] = {
             }
 
             wchar_t Base::getWCCode(char* paneName) {
-                return mKeyState.getWCCode(paneName);
+                KeyState& keyState = mKeyState;
+                return keyState.getWCCode(paneName);
             }
 
             u32 Base::getControlKey(char* paneName) {
-                const LanguageDependency* dep = (const LanguageDependency*)mKeyState.mpLanguageDep;
-                const struct PaneNameToControlKey* ctrl = (const struct PaneNameToControlKey*)dep->mpCtrlTbl;
                 for (u16 i = 0; i < 0x17; i++) {
-                    if (util::strcmp(ctrl[i].mPaneName, paneName)) {
-                        return ctrl[i].mControlKey;
+                    if (util::strcmp(((const struct PaneNameToControlKey*)((const LanguageDependency*)mKeyState.mpLanguageDep)->mpCtrlTbl)[i].mPaneName, paneName)) {
+                        return ((const struct PaneNameToControlKey*)((const LanguageDependency*)mKeyState.mpLanguageDep)->mpCtrlTbl)[i].mControlKey;
                     }
                 }
                 return 0x1B;
@@ -1117,8 +1135,8 @@ static const PaneToAnimation csPaneToAnimation[129] = {
             }
 
             void Base::sendInputWChar(wchar_t wc, bool flag) {
-                u32 flags = 0;
                 unk_0x14 = 0;
+                u32 flags = 0;
                 if (mKeyState.mFlags & 0x40) {
                     flags |= 2;
                 }
@@ -1153,6 +1171,98 @@ static const PaneToAnimation csPaneToAnimation[129] = {
                 }
             }
 
+            void Base::setLanguage(Language language) {
+                meLanguage = language;
+                mKeyState.mLanguage = language;
+                mKeyState.refresh_();
+            }
+
+            void Base::updateFixMode() {
+                if (mgr()->getToolBar() != NULL && !mgr()->getToolBar()->isQwerty()) {
+                    return;
+                }
+                switch (getLanguage()) {
+                    case JP: {
+                        u8 flag = 0;
+                        if (isABC() && (mKeyState.mFlags & 0xF) == 0) {
+                            flag = 1;
+                        }
+                        else {
+                            flag = 0;
+                        }
+                        sendCommand(0x14, &flag);
+                        break;
+                    }
+                }
+            }
+
+            toolbar::LayoutByNW4R* Manager::getToolBar() {
+                return mpToolBar;
+            }
+
+            bool Base::isABC() {
+                return mKeyState.mIsABC == 0;
+            }
+
+            void Base::setABC(bool flag) {
+                u32 notABC = (flag == 0);
+                if (notABC != mKeyState.mIsABC) {
+                    mKeyState.mIsABC = notABC;
+                    mKeyState.refresh_();
+                }
+                sendCommand(0x29, NULL);
+            }
+
+            void Base::setTranslateMode(TranslateMode mode) {
+                u32 newMode;
+                switch (mode) {
+                    case TM_00: newMode = 0; break;
+                    case TM_01: newMode = 1; break;
+                    case TM_02: newMode = 2; break;
+                }
+                if (newMode != (mKeyState.mFlags & 0xF)) {
+                    if (getLanguage() == 9 || getLanguage() == 8) {
+                        mgr()->getInputForm()->onCommand((CommandReceiver::INPUT_COMMAND)6, NULL);
+                    }
+                    if ((mKeyState.mFlags & 0xF) != newMode) {
+                        mKeyState.mFlags = (mKeyState.mFlags & ~0xF) | (newMode & 0xF);
+                        mKeyState.refresh_();
+                    }
+                    if (getLanguage() == 8) {
+                        if (mgr()->getCandidateBox() != NULL) {
+                            mgr()->getCandidateBox()->checkValidation();
+                        }
+                    }
+                    u32 data = mode;
+                    sendCommand(0x12, &data);
+                    mpLanguageDep = &csJapanKanaInput;
+                    sendCommand(0x29, NULL);
+                }
+            }
+
+            candidatebox::LayoutByNW4R* Manager::getCandidateBox() {
+                return mpCandidateBox;
+            }
+
+            void LayoutByNW4R::setABC(bool flag) {
+                changeAnimationAllToNormal();
+                if (flag != isABC()) {
+                    if (flag) {
+                        searchAnmPane("W_JP_Chng_ABC")->changeAnimation(4);
+                        searchAnmPane("W_JP_Chng_KANA")->changeAnimation(6);
+                    } else {
+                        searchAnmPane("W_JP_Chng_ABC")->changeAnimation(6);
+                        searchAnmPane("W_JP_Chng_KANA")->changeAnimation(4);
+                    }
+                }
+                u32 notABC = (flag == 0);
+                if (notABC != mKeyState.mIsABC) {
+                    mKeyState.mIsABC = notABC;
+                    mKeyState.refresh_();
+                }
+                sendCommand(0x29, NULL);
+            }
+
             void Base::KeyState::refresh_() {
                 if ((mLanguage != 0 && mLanguage != 9 && mLanguage != 8) || mpBase->mbOnlyQwerty != 0) {
                     if ((mFlags & 0xF) != 0) {
@@ -1160,9 +1270,12 @@ static const PaneToAnimation csPaneToAnimation[129] = {
                         refresh_();
                     }
                 }
-                if ((mLanguage == 8 || mLanguage == 9) && (mFlags & 0xF) == 2 && (mFlags & 0xF) != 1) {
-                    mFlags = (mFlags & ~0xF) | 1;
-                    refresh_();
+                if ((mLanguage == 8 || mLanguage == 9)) {
+                    u32 fl = mFlags & 0xF;
+                    if (fl == 2 && (mFlags & 0xF) != 1) {
+                        mFlags = (mFlags & ~0xF) | 1;
+                        refresh_();
+                    }
                 }
                 if ((mFlags & 0xF) == 0) {
                     mpLanguageDep = &csLanguageDependencyData[mLanguage];
@@ -1173,38 +1286,40 @@ static const PaneToAnimation csPaneToAnimation[129] = {
                         mpLanguageDep = &csLanguageDependencyData[mLanguage];
                     }
                 }
-                u8 isABC = 0;
-                u8 isAIU = 0;
                 if (mIsABC == 0) {
+                    u8 key13, key14;
                     switch (mFlags & 0xF) {
                         case 0:
-                            isABC = 1;
-                            mpBase->sendCommand(0x14, &isABC);
+                            key14 = 1;
+                            mpBase->sendCommand(0x14, &key14);
                             break;
                         case 1:
-                            mpBase->sendCommand(0x14, &isABC);
-                            isAIU = 1;
-                            mpBase->sendCommand(0x13, &isAIU);
+                            key14 = 0;
+                            key13 = 1;
+                            mpBase->sendCommand(0x14, &key14);
+                            mpBase->sendCommand(0x13, &key13);
                             break;
                         case 2:
-                            mpBase->sendCommand(0x14, &isABC);
-                            mpBase->sendCommand(0x13, &isAIU);
-                            break;
-                        default:
+                            key14 = 0;
+                            key13 = 0;
+                            mpBase->sendCommand(0x14, &key14);
+                            mpBase->sendCommand(0x13, &key13);
                             break;
                     }
                 } else {
+                    u8 key13, key14;
                     switch (mAIUFlags & 0xF) {
                         case 0:
-                            mpBase->sendCommand(0x14, &isABC);
-                            isAIU = 1;
-                            mpBase->sendCommand(0x13, &isAIU);
+                            key14 = 0;
+                            key13 = 1;
+                            mpBase->sendCommand(0x14, &key14);
+                            mpBase->sendCommand(0x13, &key13);
                             break;
                         case 1:
-                            mpBase->sendCommand(0x14, &isABC);
-                            mpBase->sendCommand(0x13, &isAIU);
-                            break;
-                        default:
+                            key14 = 0;
+                            key13 = 0;
+                            mpBase->sendCommand(0x14, &key14);
+                            mpBase->sendCommand(0x13, &key13);
                             break;
                     }
                 }
@@ -1213,12 +1328,13 @@ static const PaneToAnimation csPaneToAnimation[129] = {
                 }
             }
 
+            void Base::refreshState() {
+            }
+
             void Base::KeyState::refreshText(nw4r::lyt::Pane* pane) {
-                const u16* keyTbl = *(const u16**)mpLanguageDep;
-                const GridKeyboard* gridTbl = *(const GridKeyboard**)((u8*)mpLanguageDep + 4);
                 for (u16 i = 0; i < 0x32; i++) {
                     char paneName[0x14];
-                    util::replaceChar(paneName, 0x11, *(const char**)((const u8*)keyTbl + i * 0xC), 0, 'T');
+                    util::replaceChar(paneName, 0x11, ((const KeyTblEntry*)((const LanguageDependency*)mpLanguageDep)->mpKeyTbl)[i].mPaneName, 0, 'T');
                     nw4r::lyt::TextBox* textBox = nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(
                         pane->FindPaneByName(paneName, true));
                     if (textBox != NULL) {
@@ -1226,33 +1342,29 @@ static const PaneToAnimation csPaneToAnimation[129] = {
                         buf[0] = getWCCode(i);
                         buf[1] = 0;
                         if (mLanguage == 9 && (mFlags & 0xF) == 1) {
-                            if (mpBase->isCapsOn()) {
-                                buf[0] = util::reverseLetterCaseW(buf[0]);
+                            u32 w = mpBase->isCapsOn() ? util::reverseLetterCaseW(buf[0]) : buf[0];
+                            if (w >= 0x61 && w <= 0x7A) {
+                                w = csHangulLowerJamoTbl[w - 0x61];
+                            } else if (w >= 0x41 && w <= 0x5A) {
+                                w = csHangulUpperJamoTbl[w - 0x41];
                             }
-                            if (buf[0] >= 0x61 && buf[0] <= 0x7A) {
-                                buf[0] = csHangulLowerJamoTbl[buf[0] - 0x61];
-                            } else if (buf[0] >= 0x41 && buf[0] <= 0x5A) {
-                                buf[0] = csHangulUpperJamoTbl[buf[0] - 0x41];
-                            }
+                            buf[0] = w;
                         }
                         textBox->SetString(buf, 0);
                     }
                 }
                 for (u16 i = 0; i < 0x38; i++) {
                     char paneName[0x14];
-                    util::replaceChar(paneName, 0x11, gridTbl[i].mPaneName, 0, 'T');
+                    util::replaceChar(paneName, 0x11, ((const GridKeyboard*)((const LanguageDependency*)mpLanguageDep)->mpGridTbl)[i].mPaneName, 0, 'T');
                     nw4r::lyt::TextBox* textBox = nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(
                         pane->FindPaneByName(paneName, true));
                     if (textBox != NULL) {
                         wchar_t buf[2];
-                        buf[0] = ((mAIUFlags & 0xF) == 0) ? gridTbl[i].muHiragana : gridTbl[i].muKatakana;
+                        buf[0] = ((const GridKeyboard*)((const LanguageDependency*)mpLanguageDep)->mpGridTbl)[i].mWChars[((mAIUFlags & 0xF) == 0) ? 2 : 3];
                         buf[1] = 0;
                         textBox->SetString(buf, 0);
                     }
                 }
-            }
-
-            void Base::refreshState() {
             }
 
             void Base::KeyState::setABCFlag(u32 flag) {
@@ -1272,71 +1384,47 @@ static const PaneToAnimation csPaneToAnimation[129] = {
                 if (mFlags & 0x80) {
                     shift |= 2;
                 }
-                const u16* keyTbl = *(const u16**)mpLanguageDep;
-                wchar_t wc = keyTbl[keyType * 6 + shift + 2];
+                const KeyTblEntry* keyTbl = *(const KeyTblEntry**)mpLanguageDep;
+                wchar_t wc = keyTbl[keyType].mWChars[shift];
                 if (mIsABC == 0 && (mFlags & 0xF) == 0) {
-                    switch (wc) {
-                        case 0x3001:
-                            wc = 0x2C;
-                            break;
-                        case 0x3002:
-                            wc = 0x2E;
-                            break;
-                        case 0x30FC:
-                            wc = 0x2D;
-                            break;
-                        case 0x300C:
-                            wc = 0x5B;
-                            break;
-                        case 0x300D:
-                            wc = 0x5D;
-                            break;
-                        default:
-                            break;
+                    if (wc == 0x3001) {
+                        wc = 0x2C;
+                    } else if (wc == 0x3002) {
+                        wc = 0x2E;
+                    } else if (wc == 0x30FC) {
+                        wc = 0x2D;
+                    } else if (wc == 0x300C) {
+                        wc = 0x5B;
+                    } else if (wc == 0x300D) {
+                        wc = 0x5D;
                     }
                 } else if (mpBase->getLanguage() == 8 && (mFlags & 0xF) == 1) {
-                    switch (wc) {
-                        case 0x5B:
-                            wc = 0x300A;
-                            break;
-                        case 0x5D:
-                            wc = 0x300B;
-                            break;
-                        case 0x2E:
-                            wc = 0x3002;
-                            break;
-                        case 0x27:
-                            wc = 0x3001;
-                            break;
-                        case 0x2C:
-                            wc = 0xFF0C;
-                            break;
-                        case 0x2D:
-                            wc = 0xFF0D;
-                            break;
-                        case 0x5F:
-                            wc = 0xFF3F;
-                            break;
-                        case 0x3A:
-                            wc = 0xFF1A;
-                            break;
-                        case 0x3B:
-                            wc = 0xFF1B;
-                            break;
-                        case 0x21:
-                            wc = 0xFF01;
-                            break;
-                        case 0x3F:
-                            wc = 0xFF1F;
-                            break;
-                        case 0x28:
-                            wc = 0xFF08;
-                            break;
-                        case 0x29:
-                            wc = 0xFF09;
-                            break;
-                        default:
-                            break;
+                    if (wc == 0x5B) {
+                        wc = 0x300A;
+                    } else if (wc == 0x5D) {
+                        wc = 0x300B;
+                    } else if (wc == 0x2E) {
+                        wc = 0x3002;
+                    } else if (wc == 0x27) {
+                        wc = 0x3001;
+                    } else if (wc == 0x2C) {
+                        wc = 0xFF0C;
+                    } else if (wc == 0x2D) {
+                        wc = 0xFF0D;
+                    } else if (wc == 0x5F) {
+                        wc = 0xFF3F;
+                    } else if (wc == 0x3A) {
+                        wc = 0xFF1A;
+                    } else if (wc == 0x3B) {
+                        wc = 0xFF1B;
+                    } else if (wc == 0x21) {
+                        wc = 0xFF01;
+                    } else if (wc == 0x3F) {
+                        wc = 0xFF1F;
+                    } else if (wc == 0x28) {
+                        wc = 0xFF08;
+                    } else if (wc == 0x29) {
+                        wc = 0xFF09;
                     }
                 }
                 return wc;
@@ -1344,24 +1432,53 @@ static const PaneToAnimation csPaneToAnimation[129] = {
 
             wchar_t Base::KeyState::getWCCode(char* paneName) {
                 wchar_t wc = 0;
-                const u16* keyTbl = *(const u16**)mpLanguageDep;
-                const GridKeyboard* gridTbl = *(const GridKeyboard**)((u8*)mpLanguageDep + 4);
                 for (u16 i = 0; i < 0x32; i++) {
-                    const char* name = *(const char**)((const u8*)keyTbl + i * 0xC);
-                    if (util::strcmp(name, paneName)) {
+                    if (util::strcmp(((const KeyTblEntry*)((const LanguageDependency*)mpLanguageDep)->mpKeyTbl)[i].mPaneName, paneName)) {
                         wc = getWCCode(i);
                     }
                 }
                 for (u16 i = 0; i < 0x38; i++) {
-                    if (util::strcmp(gridTbl[i].mPaneName, paneName)) {
-                        wc = ((mAIUFlags & 0xF) == 0) ? gridTbl[i].muHiragana : gridTbl[i].muKatakana;
+                    if (util::strcmp(((const GridKeyboard*)((const LanguageDependency*)mpLanguageDep)->mpGridTbl)[i].mPaneName, paneName)) {
+                        wc = ((const GridKeyboard*)((const LanguageDependency*)mpLanguageDep)->mpGridTbl)[i].mWChars[((mAIUFlags & 0xF) == 0) ? 2 : 3];
                     }
                 }
                 return wc;
             }
 
-            // ============ ~LayoutByNW4R ============
+            void Base::onlyQwerty(bool flag) {
+                mbOnlyQwerty = flag;
+                if (getLanguage() == (Language)0) {
+                    if (flag) {
+                        setABC(true);
+                        mKeyState.setABCFlag(0);
+                        changeABCInputMode(IM_00);
+                    }
+                    else {
+                        setABC(false);
+                        changeAIUInputMode(IM_06);
+                    }
+                }
+            }
+
+            void Base::setLangKeyActive(bool flag) {
+                mbLangKeyActive = flag;
+                if (getLanguage() == (Language)9 || getLanguage() == (Language)8) {
+                    if (!flag) {
+                        mKeyState.setABCFlag(0);
+                        changeABCInputMode(IM_00);
+                    }
+                }
+            }
+
             LayoutByNW4R::~LayoutByNW4R() {
+                mpEventHandler->~EventHandler();
+                MEMFreeToAllocator(mpAllocator, mpEventHandler);
+                for (AnmPane* anmPane = (AnmPane*)nw4r::ut::List_GetNext(&mAnmPanes, NULL);
+                     anmPane != NULL;
+                     anmPane = (AnmPane*)nw4r::ut::List_GetNext(&mAnmPanes, NULL)) {
+                    nw4r::ut::List_Remove(&mAnmPanes, anmPane);
+                    anmPane->destroy(mpAllocator);
+                }
             }
 
             UIModePanel::~UIModePanel() {
@@ -1370,13 +1487,18 @@ static const PaneToAnimation csPaneToAnimation[129] = {
             UIObj::~UIObj() {
             }
 
+            gui::EventHandler::~EventHandler() {
+            }
+
             UIModifierButton::~UIModifierButton() {
+            }
+
+            Base::~Base() {
             }
 
             EventHandler::~EventHandler() {
             }
 
-            // ============ LayoutByNW4R ============
             void LayoutByNW4R::create(MEMAllocator* allocator) {
                 mpAllocator = allocator;
                 mpEventHandler = new (MEMAllocFromAllocator(allocator, sizeof(EventHandler))) EventHandler(this);
@@ -1384,14 +1506,22 @@ static const PaneToAnimation csPaneToAnimation[129] = {
                 mpPaneManager->setAllComponentTriggerTarget(false);
                 mpPaneManager->setAllBoundingBoxComponentTriggerTarget(true);
                 createAnmPane_(allocator);
-                mShiftButton.mpPaneComp1 = getPaneManager()->searchPaneComponent("P_key_SHIFT");
-                mShiftButton.mpPaneComp2 = getPaneManager()->searchPaneComponent("B_key_SHIFT");
-                mShiftButton.mpAnmPane = searchAnmPane("P_key_SHIFT");
-                mShiftButton.mpPaneComp2->setOwner(&mShiftButton);
-                mCapsButton.mpPaneComp1 = getPaneManager()->searchPaneComponent("P_key_CAPS");
-                mCapsButton.mpPaneComp2 = getPaneManager()->searchPaneComponent("B_key_CAPS");
-                mCapsButton.mpAnmPane = searchAnmPane("P_key_CAPS");
-                mCapsButton.mpPaneComp2->setOwner(&mCapsButton);
+                nw4rmanager::Layout* layout = (nw4rmanager::Layout*)this;
+                gui::PaneManager* paneManager = layout->getPaneManager();
+                const char* bShiftPaneName = "B_key_SHIFT";
+                const char* pShiftPaneName = "P_key_SHIFT";
+                mShiftButton.mpPaneComp1 = paneManager->searchPaneComponent(pShiftPaneName);
+                mShiftButton.mpPaneComp2 = paneManager->searchPaneComponent(bShiftPaneName);
+                mShiftButton.mpAnmPane = layout->searchAnmPane(pShiftPaneName);
+                mShiftButton.mpPaneComp2->setListener(&mShiftButton);
+                layout = (nw4rmanager::Layout*)this;
+                paneManager = layout->getPaneManager();
+                const char* bCapsPaneName = "B_key_CAPS";
+                const char* pCapsPaneName = "P_key_CAPS";
+                mCapsButton.mpPaneComp1 = paneManager->searchPaneComponent(pCapsPaneName);
+                mCapsButton.mpPaneComp2 = paneManager->searchPaneComponent(bCapsPaneName);
+                mCapsButton.mpAnmPane = layout->searchAnmPane(pCapsPaneName);
+                mCapsButton.mpPaneComp2->setListener(&mCapsButton);
                 mModePanel.Create(this);
                 mShiftButton.mpPaneComp2->setTriggerTarget(true);
                 mCapsButton.mpPaneComp2->setTriggerTarget(true);
@@ -1410,417 +1540,49 @@ static const PaneToAnimation csPaneToAnimation[129] = {
 
             void LayoutByNW4R::createAnmPane_(MEMAllocator* allocator) {
                 AnmPane* anmPane;
-                for (u32 i = 0; i < sizeof(csPaneToAnimation) / sizeof(csPaneToAnimation[0]); i++) {
-                    const PaneToAnimation* pa = &csPaneToAnimation[i];
+                for (u16 i = 0; i < sizeof(csPaneToAnimation) / sizeof(csPaneToAnimation[0]); i++) {
                     anmPane = NULL;
-                    switch (pa->muType) {
+                    switch (csPaneToAnimation[i].muType) {
                         case 0: {
-                            void* buf = MEMAllocFromAllocator(allocator, sizeof(NormalButtonAnmPane));
-                            if (buf != NULL) {
-                                anmPane = new (buf) NormalButtonAnmPane(getPane(pa->mpPaneName), NULL);
-                            }
+                            anmPane = new (MEMAllocFromAllocator(allocator, sizeof(NormalButtonAnmPane))) NormalButtonAnmPane(getPane(csPaneToAnimation[i].mpPaneName), NULL);
                             break;
                         }
                         case 1: {
-                            void* buf = MEMAllocFromAllocator(allocator, sizeof(ShiftCapsAnmPane));
-                            if (buf != NULL) {
-                                anmPane = new (buf) ShiftCapsAnmPane(getPane(pa->mpPaneName), NULL);
-                            }
+                            anmPane = new (MEMAllocFromAllocator(allocator, sizeof(ShiftCapsAnmPane))) ShiftCapsAnmPane(getPane(csPaneToAnimation[i].mpPaneName), NULL);
                             break;
                         }
                         case 2: {
-                            void* buf = MEMAllocFromAllocator(allocator, sizeof(ToggleButtonAnmPane));
-                            if (buf != NULL) {
-                                anmPane = new (buf) ToggleButtonAnmPane(getPane(pa->mpPaneName), NULL);
-                            }
+                            anmPane = new (MEMAllocFromAllocator(allocator, sizeof(ToggleButtonAnmPane))) ToggleButtonAnmPane(getPane(csPaneToAnimation[i].mpPaneName), NULL);
                             break;
                         }
                         case 3: {
-                            void* buf = MEMAllocFromAllocator(allocator, sizeof(OnOffButtonAnmPane));
-                            if (buf != NULL) {
-                                anmPane = new (buf) OnOffButtonAnmPane(getPane(pa->mpPaneName), NULL);
-                            }
+                            anmPane = new (MEMAllocFromAllocator(allocator, sizeof(OnOffButtonAnmPane))) OnOffButtonAnmPane(getPane(csPaneToAnimation[i].mpPaneName), NULL);
                             break;
                         }
                     }
                     nw4r::ut::List_Append(&mAnmPanes, anmPane);
-                    for (u16 j = 0; j < pa->muAnimationCount; j++) {
-                        const AnimationFile* af = pa->mpaAnimations[j];
+                    for (u16 j = 0; j < csPaneToAnimation[i].muAnimationCount; j++) {
+                        const AnimationFile* af = csPaneToAnimation[i].mpaAnimations[j];
                         void* resBuf = mpMultiArcResourceAccessor->GetResource(0, af->mFileName, 0);
                         AnimTransformPane* anim = (AnimTransformPane*)getLayout()->CreateAnimTransform(resBuf, mpMultiArcResourceAccessor);
-                        if (pa->mpLinkedPaneName == NULL) {
+                        if (csPaneToAnimation[i].mpLinkedPaneName == NULL) {
                             anmPane->addAnimation(allocator, af->mAnimationNo, anim, false, true);
                         } else {
-                            anmPane->forceAddAnimation(allocator, af->mAnimationNo, anim, pa->mpLinkedPaneName, false, true);
+                            anmPane->forceAddAnimation(allocator, af->mAnimationNo, anim, csPaneToAnimation[i].mpLinkedPaneName, false, true);
                         }
                     }
                 }
             }
 
-            void LayoutByNW4R::calc() {
-                nw4rmanager::Layout::calc();
-                if (mgr()->getInputForm()->canConvert()) {
-                    setVisible("T_key_SPACE", false);
-                    setVisible("T_Gkey_SPACE", false);
-                    setVisible("P_key_HENKAN", true);
-                    setVisible("P_Gkey_HENKAN", true);
-                } else {
-                    setVisible("T_key_SPACE", true);
-                    setVisible("T_Gkey_SPACE", true);
-                    setVisible("P_key_HENKAN", false);
-                    setVisible("P_Gkey_HENKAN", false);
-                }
+            AnmPane::~AnmPane() {
             }
 
-            void LayoutByNW4R::draw() {
-                nw4rmanager::Layout::draw();
+            TiLayout* nw4rmanager::Layout::getLayout() {
+                return mpLayout;
             }
 
-            void LayoutByNW4R::inputCharCode(wchar_t wc) {
-                sendInputWChar(wc, false);
-            }
-
-            void LayoutByNW4R::onPressedCaps() {
-                textinput::LayoutGather& gather = textinput::LayoutGather::Singleton::getInstance();
-                if (!gather.isHoldingShift()) {
-                    if ((mKeyState.mFlags & ~0xF) != 0) {
-                        mKeyState.mFlags &= ~0x80;
-                        mKeyState.refresh_();
-                    }
-                    if (mShiftButton.mbFocused) {
-                        mShiftButton.mbFocused = 0;
-                        mShiftButton.mpAnmPane->onAnmEvent(nw4rmanager::AnmPane::PE_5);
-                    }
-                }
-                gather.changeCapsLock(!gather.isCapsLock());
-                mKeyState.mFlags = (mKeyState.mFlags & ~0x40) | ((mKeyState.mFlags ^ 0x40) & 0x40);
-                mKeyState.refresh_();
-                mCapsButton.mbFocused = (mKeyState.mFlags & 0x40) != 0;
-                if (mCapsButton.mbFocused) {
-                    mCapsButton.mpAnmPane->onAnmEvent(nw4rmanager::AnmPane::PE_10);
-                } else {
-                    mCapsButton.mpAnmPane->onAnmEvent(nw4rmanager::AnmPane::PE_11);
-                }
-                mpEventObserver->onSE(sound::SE_KETAI_MODE_SWITCHING);
-            }
-
-            void LayoutByNW4R::onPressedShift(bool flag) {
-                mKeyState.setABCFlag(mKeyState.mFlags | 0x80);
-                mShiftButton.mbFocused = true;
-                mShiftButton.mpAnmPane->onAnmEvent(nw4rmanager::AnmPane::PE_10);
-                if (flag) {
-                    mpEventObserver->onSE(sound::SE_KETAI_MODE_SWITCHING);
-                }
-            }
-
-            void LayoutByNW4R::onReleasedShift() {
-                mKeyState.setABCFlag(mKeyState.mFlags & ~0x80);
-                if (mShiftButton.mbFocused) {
-                    mShiftButton.mbFocused = 0;
-                    mShiftButton.mpAnmPane->onAnmEvent(nw4rmanager::AnmPane::PE_5);
-                }
-            }
-
-            void LayoutByNW4R::onClose() {
-                this->initPaneLastDrawReceived();
-                cancelStateFocusIn();
-            }
-
-            void LayoutByNW4R::throwReleaseForAll() {
-                AnmPane* it = (AnmPane*)nw4r::ut::List_GetNext(&mAnmPanes, NULL);
-                for (; it != NULL; it = (AnmPane*)nw4r::ut::List_GetNext(&mAnmPanes, it)) {
-                    if (it->getKeyType() == 0) {
-                        it->onAnmEvent((nw4rmanager::AnmPane::AnmPaneEvent)2);
-                    }
-                }
-            }
-
-            void LayoutByNW4R::cancelStateFocusIn() {
-                AnmPane* it = (AnmPane*)nw4r::ut::List_GetNext(&mAnmPanes, NULL);
-                for (; it != NULL; it = (AnmPane*)nw4r::ut::List_GetNext(&mAnmPanes, it)) {
-                    switch (it->getKeyType()) {
-                        case 0:
-                            switch (it->getState()) {
-                                case 1:
-                                case 3:
-                                case 4:
-                                    it->changeAnimation(2);
-                                    break;
-                                case 0x10:
-                                    it->changeAnimation(0);
-                                    break;
-                                default:
-                                    break;
-                            }
-                            break;
-                        case 1:
-                            switch (it->getState()) {
-                                case 1:
-                                case 3:
-                                case 0xB:
-                                    it->changeAnimation(2);
-                                    break;
-                                case 4:
-                                case 5:
-                                case 8:
-                                    it->changeAnimation(9);
-                                    break;
-                                default:
-                                    break;
-                            }
-                            break;
-                        case 2:
-                            switch (it->getState()) {
-                                case 1:
-                                case 3:
-                                    it->changeAnimation(2);
-                                    break;
-                                case 4:
-                                    it->changeAnimation(5);
-                                    break;
-                                default:
-                                    break;
-                            }
-                            break;
-                        case 3:
-                            switch (it->getState()) {
-                                case 1:
-                                case 3:
-                                case 4:
-                                    it->changeAnimation(2);
-                                    break;
-                                default:
-                                    break;
-                            }
-                            break;
-                        default:
-                            break;
-                    }
-                }
-            }
-
-            void LayoutByNW4R::goSignInputMode() {
-                mpSignWindow->open(this, 0);
-                throwReleaseForAll();
-            }
-
-            void LayoutByNW4R::changePredictLanguage() {
-                throwReleaseForAll();
-                CommandReceiver::ChangePredictMode mode = {0, 0};
-                sendCommand(0x1F, &mode);
-                mpPredictLanguageDialog->open((inputform::Base::PredictMode)mode.muLanguage, this);
-            }
-
-            void LayoutByNW4R::updatePredictLanguage(CommandReceiver::ChangePredictMode* mode) {
-                if (getLanguage() != 0) {
-                    if (mode->mbPredictOn == 0) {
-                        setVisible("P_prdc_ON", false);
-                        setVisible("P_prdc_OFF", true);
-                    } else {
-                        setVisible("P_prdc_ON", true);
-                        setVisible("P_prdc_OFF", false);
-                    }
-                    ((nw4r::lyt::TextBox*)getPane("T_USEU_prdc_lang"))->SetString(csLanguageNames[mode->muLanguage], 0);
-                }
-            }
-
-            void LayoutByNW4R::sendInputWChar(wchar_t wc, bool flag) {
-                nw4r::lyt::Pane* pane = NULL;
-                bool gotPane = false;
-                if (mKeyState.mFlags & 0x80) {
-                    pane = mAnmPaneFifo.getLast();
-                    gotPane = true;
-                }
-                Base::sendInputWChar(wc, flag);
-                if (gotPane && pane != NULL) {
-                    setPaneLastDrawReceived(pane);
-                }
-                updateDakuten();
-            }
-
-            void LayoutByNW4R::updateDakuten() {
-                if ((mKeyState.mAIUFlags & 0x20) != 0) {
-                    this->searchAnmPane("P_Gkey_dakuten")->changeAnimation(7);
-                } else {
-                    this->searchAnmPane("P_Gkey_dakuten")->changeAnimation(8);
-                }
-                if ((mKeyState.mAIUFlags & 0x40) != 0) {
-                    this->searchAnmPane("P_Gkey_handaku")->changeAnimation(7);
-                } else {
-                    this->searchAnmPane("P_Gkey_handaku")->changeAnimation(8);
-                }
-                if ((mKeyState.mAIUFlags & 0x80) != 0) {
-                    this->searchAnmPane("P_Gkey_komoji")->changeAnimation(7);
-                } else {
-                    this->searchAnmPane("P_Gkey_komoji")->changeAnimation(8);
-                }
-            }
-
-            void LayoutByNW4R::setLineFeedButton(bool flag) {
-                mbLineFeed = flag;
-                setVisible("P_key_LF", flag);
-                setVisible("P_Gkey_LF", mbLineFeed);
-            }
-
-            void LayoutByNW4R::setPredictLanguageButton(bool flag) {
-                setVisible("W_USEU_prdc_lang", flag);
-            }
-
-            void LayoutByNW4R::setSignWindowButton(bool flag) {
-                if (flag == 0) {
-                    setVisible("W_USEU_Chng_sign", flag);
-                    setVisible("W_JP_Chng_sign", flag);
-                } else {
-                    setVisible("W_USEU_Chng_sign", false);
-                    setVisible("W_JP_Chng_sign", false);
-                    if (getLanguage() == 0) {
-                        setVisible("W_JP_Chng_sign", true);
-                    } else {
-                        setVisible("W_USEU_Chng_sign", true);
-                    }
-                }
-            }
-
-            void LayoutByNW4R::onlyQwerty(bool flag) {
-                mbOnlyQwerty = flag;
-                if (getLanguage() == 0) {
-                    if (flag) {
-                        setABC(true);
-                        if ((mKeyState.mFlags & ~0xF) != 0) {
-                            mKeyState.mFlags &= 0xF;
-                            if (mKeyState.mpBase != NULL) {
-                                mKeyState.mpBase->refreshState();
-                            }
-                        }
-                        changeABCInputMode(IM_00);
-                    } else {
-                        setABC(false);
-                        changeAIUInputMode(IM_06);
-                    }
-                }
-                if (getLanguage() == 0) {
-                    initLayout();
-                    u32 inv = (flag == 0);
-                    setVisible("W_JP_Chng_ABC", inv);
-                    setVisible("W_JP_Chng_KANA", inv);
-                    setVisible("P_Mode_roma_hira", inv);
-                    setVisible("P_Mode_roma_kata", inv);
-                    setVisible("P_Mode_direct", inv);
-                    setVisible("P_romajiBox", inv);
-                }
-                if (getLanguage() == 9 || getLanguage() == 8) {
-                    if (mgr()->getCandidateBox()->isActive()) {
-                        setLangKeyActive(!flag);
-                    } else {
-                        setLangKeyActive(false);
-                    }
-                }
-            }
-
-            void LayoutByNW4R::setLangKeyActive(bool flag) {
-                mbLangKeyActive = flag;
-                if (getLanguage() == 9 || getLanguage() == 8) {
-                    if (!flag) {
-                        if ((mKeyState.mFlags & ~0xF) != 0) {
-                            mKeyState.mFlags &= 0xF;
-                            if (mKeyState.mpBase != NULL) {
-                                mKeyState.mpBase->refreshState();
-                            }
-                        }
-                        changeABCInputMode(IM_00);
-                    }
-                }
-                if (getLanguage() == 9 || getLanguage() == 8) {
-                    initLayout();
-                    setVisible("P_Mode_kr_eng", flag);
-                    setVisible("P_Mode_kr_han", flag);
-                    setVisible("P_hangulBox", flag);
-                    if (getLanguage() == 8) {
-                        setVisible("P_key_42", flag);
-                        setVisible("P_key_43", flag);
-                    }
-                }
-            }
-
-            void LayoutByNW4R::setInputModeJP(bool abc, u32 abcMode, u32 aiuMode) {
-                setABC(abc);
-                if ((mKeyState.mFlags & 0xF) != abcMode) {
-                    mKeyState.mFlags = (mKeyState.mFlags & ~0xF) | (abcMode & 0xF);
-                    mKeyState.refresh_();
-                }
-                if ((mKeyState.mAIUFlags & 0xF) != aiuMode) {
-                    mKeyState.mAIUFlags = (mKeyState.mAIUFlags & ~0xF) | (aiuMode & 0xF);
-                    mKeyState.refresh_();
-                }
-                switch (abcMode) {
-                    case 0:
-                        mKeyState.mpLanguageDep = &csLanguageDependencyData[getLanguage()];
-                        break;
-                    case 1:
-                        mKeyState.mpLanguageDep = &csJapanKanaInput;
-                        break;
-                    case 2:
-                        mKeyState.mpLanguageDep = &csJapanKanaInput;
-                        break;
-                }
-                initLayout();
-                sendCommand(0x29, NULL);
-            }
-
-            void LayoutByNW4R::setInputModeCK(u32 mode) {
-                setInputModeJP(true, mode, 0);
-            }
-
-            void LayoutByNW4R::setTranslateMode(TranslateMode mode) {
-                u32 prev = mKeyState.mFlags & 0xF;
-                Base::setTranslateMode(mode);
-                if ((mKeyState.mFlags & 0xF) != prev) {
-                    mpEventObserver->onSE(sound::SE_KETAI_MODE_SWITCHING);
-                    switch (prev) {
-                        case 0:
-                            searchAnmPane("P_Mode_direct")->changeAnimation(6);
-                            searchAnmPane("P_Mode_kr_eng")->changeAnimation(6);
-                            break;
-                        case 1:
-                            searchAnmPane("P_Mode_roma_hira")->changeAnimation(6);
-                            searchAnmPane("P_Mode_kr_han")->changeAnimation(6);
-                            break;
-                        case 2:
-                            searchAnmPane("P_Mode_roma_kata")->changeAnimation(6);
-                            break;
-                    }
-                    switch (mode) {
-                        case 0:
-                            searchAnmPane("P_Mode_direct")->onAnmEvent(nw4rmanager::AnmPane::PE_0);
-                            searchAnmPane("P_Mode_kr_eng")->onAnmEvent(nw4rmanager::AnmPane::PE_0);
-                            break;
-                        case 1:
-                            searchAnmPane("P_Mode_roma_hira")->onAnmEvent(nw4rmanager::AnmPane::PE_0);
-                            searchAnmPane("P_Mode_kr_han")->onAnmEvent(nw4rmanager::AnmPane::PE_0);
-                            break;
-                        case 2:
-                            searchAnmPane("P_Mode_roma_kata")->onAnmEvent(nw4rmanager::AnmPane::PE_0);
-                            break;
-                    }
-                }
-            }
-
-            void LayoutByNW4R::setSignWindow(signwindow::LayoutByNW4R* window) {
-                mpSignWindow = window;
-            }
-
-            void LayoutByNW4R::setPredictLanguageDialog(predictlang::LayoutByNW4R* dialog) {
-                mpPredictLanguageDialog = dialog;
-            }
-
-            void LayoutByNW4R::onEvent(UIObj* uiObj, u32 event, void* data) {
-                if (event == 0) {
-                    mpEventObserver->onSE((sound::SE)(u32)data);
-                }
-            }
-
-            static const nw4r::math::VEC3 csTranslatePanePos8(-219.0f, -130.0f, 0.0f);
-            static const nw4r::math::VEC3 csTranslatePanePos9(-209.0f, -90.0f, 0.0f);
+            static const nw4r::math::_VEC3 csTranslatePanePos8 = { -219.0f, -130.0f, 0.0f };
+            static const nw4r::math::_VEC3 csTranslatePanePos9 = { -209.0f, -90.0f, 0.0f };
 
             void LayoutByNW4R::init() {
                 unk_0x14 = 0;
@@ -1835,7 +1597,7 @@ static const PaneToAnimation csPaneToAnimation[129] = {
                 }
                 mKeyState.mAIUFlags = 0;
                 mKeyState.refresh_();
-                u32 mode;
+                s32 mode;
                 switch (mKeyState.mFlags & 0xF) {
                     case 0: mode = 0; break;
                     case 1: mode = 1; break;
@@ -1846,14 +1608,16 @@ static const PaneToAnimation csPaneToAnimation[129] = {
                 setLineFeedButton(true);
                 setPredictLanguageButton(true);
                 setSignWindowButton(true);
+                const nw4r::math::_VEC3 pos8 = csTranslatePanePos8;
+                const nw4r::math::_VEC3 pos9 = csTranslatePanePos9;
                 if (meLanguage == 8) {
                     mModePanel.mExtraPanes[0]->GetMaterial()->SetTexture(0, mModePanel.mTexObjs[0]);
                     mModePanel.mExtraPanes[1]->GetMaterial()->SetTexture(0, mModePanel.mTexObjs[1]);
-                    mModePanel.mExtraPanes[2]->SetTranslate(csTranslatePanePos8);
+                    mModePanel.mExtraPanes[2]->SetTranslate(nw4r::math::VEC3(pos8.x, pos8.y, pos8.z));
                 } else if (meLanguage == 9) {
                     mModePanel.mExtraPanes[0]->GetMaterial()->SetTexture(0, mModePanel.mTexObjs[2]);
                     mModePanel.mExtraPanes[1]->GetMaterial()->SetTexture(0, mModePanel.mTexObjs[3]);
-                    mModePanel.mExtraPanes[2]->SetTranslate(csTranslatePanePos9);
+                    mModePanel.mExtraPanes[2]->SetTranslate(nw4r::math::VEC3(pos9.x, pos9.y, pos9.z));
                 }
                 searchAnmPane("P_key_SHIFT")->changeAnimation(0);
                 searchAnmPane("P_key_CAPS")->changeAnimation(0);
@@ -1943,6 +1707,70 @@ static const PaneToAnimation csPaneToAnimation[129] = {
                 }
                 mpLayout->Animate(0);
                 mpLayout->CalculateMtx(mDrawInfo);
+            }
+
+            void LayoutByNW4R::calc() {
+                nw4rmanager::Layout::calc();
+                if (mgr()->getInputForm()->canConvert()) {
+                    setVisible("T_key_SPACE", false);
+                    setVisible("T_Gkey_SPACE", false);
+                    setVisible("P_key_HENKAN", true);
+                    setVisible("P_Gkey_HENKAN", true);
+                } else {
+                    setVisible("T_key_SPACE", true);
+                    setVisible("T_Gkey_SPACE", true);
+                    setVisible("P_key_HENKAN", false);
+                    setVisible("P_Gkey_HENKAN", false);
+                }
+            }
+
+            void LayoutByNW4R::draw() {
+                nw4rmanager::Layout::draw();
+            }
+
+            void LayoutByNW4R::inputCharCode(wchar_t wc) {
+                sendInputWChar(wc, false);
+            }
+
+            void LayoutByNW4R::onPressedCaps() {
+                textinput::LayoutGather& gather = textinput::LayoutGather::Singleton::getInstance();
+                if (!gather.isHoldingShift()) {
+                    if ((mKeyState.mFlags & ~0xF) != 0) {
+                        mKeyState.mFlags &= ~0x80;
+                        mKeyState.refresh_();
+                    }
+                    if (mShiftButton.mbFocused) {
+                        mShiftButton.mbFocused = 0;
+                        mShiftButton.mpAnmPane->onAnmEvent(nw4rmanager::AnmPane::PE_5);
+                    }
+                }
+                gather.changeCapsLock(!gather.isCapsLock());
+                mKeyState.mFlags = (mKeyState.mFlags & ~0x40) | ((mKeyState.mFlags ^ 0x40) & 0x40);
+                mKeyState.refresh_();
+                mCapsButton.mbFocused = (mKeyState.mFlags & 0x40) != 0;
+                if (mCapsButton.mbFocused) {
+                    mCapsButton.mpAnmPane->onAnmEvent(nw4rmanager::AnmPane::PE_10);
+                } else {
+                    mCapsButton.mpAnmPane->onAnmEvent(nw4rmanager::AnmPane::PE_11);
+                }
+                mpEventObserver->onSE(sound::SE_KETAI_MODE_SWITCHING);
+            }
+
+            void LayoutByNW4R::onPressedShift(bool flag) {
+                mKeyState.setABCFlag((mKeyState.mFlags & ~0xF) | 0x80);
+                mShiftButton.mbFocused = true;
+                mShiftButton.mpAnmPane->onAnmEvent(nw4rmanager::AnmPane::PE_10);
+                if (flag) {
+                    mpEventObserver->onSE(sound::SE_KETAI_MODE_SWITCHING);
+                }
+            }
+
+            void LayoutByNW4R::onReleasedShift() {
+                mKeyState.setABCFlag(mKeyState.mFlags & ~0x80);
+                if (mShiftButton.mbFocused) {
+                    mShiftButton.mbFocused = 0;
+                    mShiftButton.mpAnmPane->onAnmEvent(nw4rmanager::AnmPane::PE_5);
+                }
             }
 
             void LayoutByNW4R::onKey(u32 event, void* paneName) {
@@ -2074,6 +1902,16 @@ static const PaneToAnimation csPaneToAnimation[129] = {
                 this->init();
             }
 
+            void LayoutByNW4R::updateFromReceiver(u32 command, void* data) {
+                Base::updateFromReceiver(command, data);
+                updateDakuten();
+                switch (command) {
+                    case 0x1D:
+                        updatePredictLanguage((CommandReceiver::ChangePredictMode*)data);
+                        break;
+                }
+            }
+
             void LayoutByNW4R::onActive() {
                 Base::onActive();
                 nw4rmanager::Layout::init();
@@ -2094,33 +1932,437 @@ static const PaneToAnimation csPaneToAnimation[129] = {
                 }
             }
 
-            void LayoutByNW4R::updateFromReceiver(u32 command, void* data) {
-                Base::updateFromReceiver(command, data);
-                updateDakuten();
-                switch (command) {
-                    case 0x1D:
-                        updatePredictLanguage((CommandReceiver::ChangePredictMode*)data);
-                        break;
+            void LayoutByNW4R::onClose() {
+                this->initPaneLastDrawReceived();
+                cancelStateFocusIn();
+            }
+
+            void nw4rmanager::Layout::initPaneLastDrawReceived() {
+                mAnmPaneFifo.init();
+            }
+
+            void nw4rmanager::PaneFifo::init() {
+                for (int i = 0; i < MAX_COUNT; i++) {
+                    mpaFifo[i] = NULL;
                 }
             }
 
-            void LayoutByNW4R::setABC(bool flag) {
-                changeAnimationAllToNormal();
-                if (flag != isABC()) {
-                    if (flag) {
-                        searchAnmPane("W_JP_Chng_ABC")->changeAnimation(4);
-                        searchAnmPane("W_JP_Chng_KANA")->changeAnimation(6);
-                    } else {
-                        searchAnmPane("W_JP_Chng_ABC")->changeAnimation(6);
-                        searchAnmPane("W_JP_Chng_KANA")->changeAnimation(4);
+            void LayoutByNW4R::throwReleaseForAll() {
+                AnmPane* it = (AnmPane*)nw4r::ut::List_GetNext(&mAnmPanes, NULL);
+                for (; it != NULL; it = (AnmPane*)nw4r::ut::List_GetNext(&mAnmPanes, it)) {
+                    if (it->getKeyType() == 0) {
+                        it->onAnmEvent((nw4rmanager::AnmPane::AnmPaneEvent)2);
                     }
                 }
-                u32 notABC = (flag == 0);
-                if (notABC != mKeyState.mIsABC) {
-                    mKeyState.mIsABC = notABC;
+            }
+
+            void nw4rmanager::AnmPane::onAnmEvent(AnmPaneEvent) {
+            }
+
+            void LayoutByNW4R::cancelStateFocusIn() {
+                AnmPane* it = (AnmPane*)nw4r::ut::List_GetNext(&mAnmPanes, NULL);
+                for (; it != NULL; it = (AnmPane*)nw4r::ut::List_GetNext(&mAnmPanes, it)) {
+                    switch (it->getKeyType()) {
+                        case 0:
+                            switch (it->getState()) {
+                                case 1:
+                                case 3:
+                                case 4:
+                                    it->changeAnimation(2);
+                                    break;
+                                case 0x10:
+                                    it->changeAnimation(0);
+                                    break;
+                                default:
+                                    break;
+                            }
+                            break;
+                        case 1:
+                            switch (it->getState()) {
+                                case 1:
+                                case 3:
+                                case 0xB:
+                                    it->changeAnimation(2);
+                                    break;
+                                case 4:
+                                case 5:
+                                case 8:
+                                    it->changeAnimation(9);
+                                    break;
+                                default:
+                                    break;
+                            }
+                            break;
+                        case 2:
+                            switch (it->getState()) {
+                                case 1:
+                                case 3:
+                                    it->changeAnimation(2);
+                                    break;
+                                case 4:
+                                    it->changeAnimation(5);
+                                    break;
+                                default:
+                                    break;
+                            }
+                            break;
+                        case 3:
+                            switch (it->getState()) {
+                                case 1:
+                                case 3:
+                                case 4:
+                                    it->changeAnimation(2);
+                                    break;
+                                default:
+                                    break;
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+
+            void LayoutByNW4R::goSignInputMode() {
+                mpSignWindow->open(this, 0);
+                throwReleaseForAll();
+            }
+
+            void LayoutByNW4R::changePredictLanguage() {
+                throwReleaseForAll();
+                CommandReceiver::ChangePredictMode mode = {0, 0};
+                sendCommand(0x1F, &mode);
+                mpPredictLanguageDialog->open((inputform::Base::PredictMode)mode.muLanguage, this);
+            }
+
+            void LayoutByNW4R::updatePredictLanguage(CommandReceiver::ChangePredictMode* mode) {
+                if (getLanguage() != 0) {
+                    if (mode->mbPredictOn == 0) {
+                        setVisible("P_prdc_ON", false);
+                        setVisible("P_prdc_OFF", true);
+                    } else {
+                        setVisible("P_prdc_ON", true);
+                        setVisible("P_prdc_OFF", false);
+                    }
+                    ((nw4r::lyt::TextBox*)getPane("T_USEU_prdc_lang"))->SetString(csLanguageNames[mode->muLanguage], 0);
+                }
+            }
+
+            void LayoutByNW4R::sendInputWChar(wchar_t wc, bool flag) {
+                nw4r::lyt::Pane* pane = NULL;
+                bool gotPane = false;
+                if (mKeyState.mFlags & 0x80) {
+                    pane = mAnmPaneFifo.getLast();
+                    gotPane = true;
+                }
+                Base::sendInputWChar(wc, flag);
+                if (gotPane && pane != NULL) {
+                    setPaneLastDrawReceived(pane);
+                }
+                updateDakuten();
+            }
+
+            nw4r::lyt::Pane* nw4rmanager::PaneFifo::getLast() {
+                for (int i = MAX_COUNT-1; i > -1; i--) {
+                    if (mpaFifo[i] != NULL) {
+                        return mpaFifo[i];
+                    }
+                }
+                return NULL;
+            }
+
+            void nw4rmanager::Layout::setPaneLastDrawReceived(nw4r::lyt::Pane* pane) {
+                mAnmPaneFifo.push(pane);
+            }
+
+            void nw4rmanager::PaneFifo::push(nw4r::lyt::Pane* pane) {
+                if (mpaFifo[MAX_COUNT-1] == NULL) {
+                    for (int i = 0; i < MAX_COUNT; i++) {
+                        if (mpaFifo[i] == NULL) {
+                            mpaFifo[i] = pane;
+                            return;
+                        }
+                    }
+                }
+                else {
+                    for (int i = 1; i < MAX_COUNT; i++) {
+                        mpaFifo[i-1] = mpaFifo[i];
+                        if (pane == mpaFifo[i-1]) {
+                            mpaFifo[i-1] = NULL;
+                        }
+                    }
+                    mpaFifo[MAX_COUNT-1] = pane;
+                }
+            }
+
+            void LayoutByNW4R::updateDakuten() {
+                if ((mKeyState.mAIUFlags & 0x20) != 0) {
+                    this->searchAnmPane("P_Gkey_dakuten")->changeAnimation(7);
+                } else {
+                    this->searchAnmPane("P_Gkey_dakuten")->changeAnimation(8);
+                }
+                if ((mKeyState.mAIUFlags & 0x40) != 0) {
+                    this->searchAnmPane("P_Gkey_handaku")->changeAnimation(7);
+                } else {
+                    this->searchAnmPane("P_Gkey_handaku")->changeAnimation(8);
+                }
+                if ((mKeyState.mAIUFlags & 0x80) != 0) {
+                    this->searchAnmPane("P_Gkey_komoji")->changeAnimation(7);
+                } else {
+                    this->searchAnmPane("P_Gkey_komoji")->changeAnimation(8);
+                }
+            }
+
+            void LayoutByNW4R::setLineFeedButton(bool flag) {
+                mbLineFeed = flag;
+                setVisible("P_key_LF", mbLineFeed);
+                setVisible("P_Gkey_LF", mbLineFeed);
+            }
+
+            void LayoutByNW4R::setPredictLanguageButton(bool flag) {
+                setVisible("W_USEU_prdc_lang", flag);
+            }
+
+            void LayoutByNW4R::setSignWindowButton(bool flag) {
+                if (flag == 0) {
+                    setVisible("W_USEU_Chng_sign", flag);
+                    setVisible("W_JP_Chng_sign", flag);
+                } else {
+                    setVisible("W_USEU_Chng_sign", false);
+                    setVisible("W_JP_Chng_sign", false);
+                    if (getLanguage() == 0) {
+                        setVisible("W_JP_Chng_sign", true);
+                    } else {
+                        setVisible("W_USEU_Chng_sign", true);
+                    }
+                }
+            }
+
+            void LayoutByNW4R::onlyQwerty(bool flag) {
+                mbOnlyQwerty = flag;
+                if (getLanguage() == 0) {
+                    if (flag) {
+                        setABC(true);
+                        if ((mKeyState.mFlags & ~0xF) != 0) {
+                            mKeyState.mFlags &= 0xF;
+                            if (mKeyState.mpBase != NULL) {
+                                mKeyState.mpBase->refreshState();
+                            }
+                        }
+                        changeABCInputMode(IM_00);
+                    } else {
+                        setABC(false);
+                        changeAIUInputMode(IM_06);
+                    }
+                }
+                if (getLanguage() == 0) {
+                    initLayout();
+                    u32 inv = (flag == 0);
+                    setVisible("W_JP_Chng_ABC", inv);
+                    setVisible("W_JP_Chng_KANA", inv);
+                    setVisible("P_Mode_roma_hira", inv);
+                    setVisible("P_Mode_roma_kata", inv);
+                    setVisible("P_Mode_direct", inv);
+                    setVisible("P_romajiBox", inv);
+                }
+                if (getLanguage() == 9 || getLanguage() == 8) {
+                    if (mgr()->getCandidateBox()->isActive()) {
+                        setLangKeyActive(!flag);
+                    } else {
+                        setLangKeyActive(false);
+                    }
+                }
+            }
+
+            bool candidatebox::LayoutByNW4R::isActive() const {
+                return mbActive;
+            }
+
+            void LayoutByNW4R::setLangKeyActive(bool flag) {
+                mbLangKeyActive = flag;
+                if (getLanguage() == 9 || getLanguage() == 8) {
+                    if (!flag) {
+                        if ((mKeyState.mFlags & ~0xF) != 0) {
+                            mKeyState.mFlags &= 0xF;
+                            if (mKeyState.mpBase != NULL) {
+                                mKeyState.mpBase->refreshState();
+                            }
+                        }
+                        changeABCInputMode(IM_00);
+                    }
+                }
+                if (getLanguage() == 9 || getLanguage() == 8) {
+                    initLayout();
+                    setVisible("P_Mode_kr_eng", flag);
+                    setVisible("P_Mode_kr_han", flag);
+                    setVisible("P_hangulBox", flag);
+                    if (getLanguage() == 8) {
+                        setVisible("P_key_42", flag);
+                        setVisible("P_key_43", flag);
+                    }
+                }
+            }
+
+            void LayoutByNW4R::setInputModeJP(bool abc, u32 abcMode, u32 aiuMode) {
+                setABC(abc);
+                if ((mKeyState.mFlags & 0xF) != abcMode) {
+                    mKeyState.mFlags = (mKeyState.mFlags & ~0xF) | (abcMode & 0xF);
                     mKeyState.refresh_();
                 }
+                if ((mKeyState.mAIUFlags & 0xF) != aiuMode) {
+                    mKeyState.mAIUFlags = (mKeyState.mAIUFlags & ~0xF) | (aiuMode & 0xF);
+                    mKeyState.refresh_();
+                }
+                switch (abcMode) {
+                    case 0:
+                        mKeyState.mpLanguageDep = &csLanguageDependencyData[getLanguage()];
+                        break;
+                    case 1:
+                        mKeyState.mpLanguageDep = &csJapanKanaInput;
+                        break;
+                    case 2:
+                        mKeyState.mpLanguageDep = &csJapanKanaInput;
+                        break;
+                }
+                initLayout();
                 sendCommand(0x29, NULL);
+            }
+
+            void LayoutByNW4R::setTranslateMode(TranslateMode mode) {
+                u32 prev = mKeyState.mFlags & 0xF;
+                Base::setTranslateMode(mode);
+                if ((mKeyState.mFlags & 0xF) != prev) {
+                    mpEventObserver->onSE(sound::SE_KETAI_MODE_SWITCHING);
+                    switch (prev) {
+                        case 0:
+                            searchAnmPane("P_Mode_direct")->changeAnimation(6);
+                            searchAnmPane("P_Mode_kr_eng")->changeAnimation(6);
+                            break;
+                        case 1:
+                            searchAnmPane("P_Mode_roma_hira")->changeAnimation(6);
+                            searchAnmPane("P_Mode_kr_han")->changeAnimation(6);
+                            break;
+                        case 2:
+                            searchAnmPane("P_Mode_roma_kata")->changeAnimation(6);
+                            break;
+                    }
+                    switch (mode) {
+                        case 0:
+                            searchAnmPane("P_Mode_direct")->onAnmEvent(nw4rmanager::AnmPane::PE_0);
+                            searchAnmPane("P_Mode_kr_eng")->onAnmEvent(nw4rmanager::AnmPane::PE_0);
+                            break;
+                        case 1:
+                            searchAnmPane("P_Mode_roma_hira")->onAnmEvent(nw4rmanager::AnmPane::PE_0);
+                            searchAnmPane("P_Mode_kr_han")->onAnmEvent(nw4rmanager::AnmPane::PE_0);
+                            break;
+                        case 2:
+                            searchAnmPane("P_Mode_roma_kata")->onAnmEvent(nw4rmanager::AnmPane::PE_0);
+                            break;
+                    }
+                }
+            }
+
+            bool LayoutByNW4R::updateInput(int chan, f32 x, f32 y, u32 trig, u32 hold, u32 release, void* data) {
+                bool ret = nw4rmanager::Layout::updateInput(chan, x, y, trig, hold, release, data);
+                textinput::LayoutGather& gather = textinput::LayoutGather::Singleton::getInstance();
+                bool wasPressed = gather.isHoldingShift();
+                if (hold & 0x400) {
+                    gather.setPressedShiftB(1);
+                    input::HKBManager::getInstance().SetForceModifierState(2, 2);
+                    if (wasPressed == 0) {
+                        onPressedShift(isABC());
+                    }
+                } else {
+                    gather.setPressedShiftB(0);
+                    input::HKBManager::getInstance().SetForceModifierState(0, 0);
+                    if (wasPressed != 0 && !gather.isHoldingShift()) {
+                        onReleasedShift();
+                    }
+                }
+                return ret;
+            }
+
+            bool LayoutByNW4R::updateInput(input::HKBManager& hkbManager) {
+                input::HKBManager::KeySet keySet = hkbManager.GetTriggeredKeySet();
+                while (keySet.IsValid()) {
+                    nw4rmanager::AnmPane* anmPane = NULL;
+                    u8 key = keySet.GetKey();
+                    wchar_t wc = keySet.GetWChar();
+                    switch (key) {
+                        case 0x28:
+                        case 0x58:
+                            if (!(hkbManager.GetModifierState() & 0x4)) {
+                                anmPane = searchAnmPane("P_key_LF");
+                            }
+                            break;
+                        case 0x2C:
+                            break;
+                        default: {
+                            wc = inputform::DeadKeyStream::ToIndependentClass(wc);
+                            wc = ((const Manager*)mgr())->getHWKeyboard()->convertWCCode(wc);
+                            if (((const Manager*)mgr())->getToolBar()->isQwerty() != 0 &&
+                                ((const Manager*)mgr())->getPCKeyboard()->getTranslateMode() != 0 &&
+                                ((const Manager*)mgr())->getLanguage() == 9) {
+                                if (isCapsOn()) {
+                                    wc = util::reverseLetterCaseW(wc);
+                                }
+                                if (wc >= 'a' && wc <= 'z') {
+                                    wc = csHangulUpperJamoTbl[wc - 'a'];
+                                } else if (wc >= 'A' && wc <= 'Z') {
+                                    wc = csHangulLowerJamoTbl[wc - 'A'];
+                                }
+                            }
+                            anmPane = searchAnmPane(wc);
+                            break;
+                        }
+                    }
+                    if (anmPane != NULL) {
+                        anmPane->onAnmEvent(nw4rmanager::AnmPane::PE_0);
+                    }
+                    keySet = keySet.GetNext();
+                }
+                keySet = hkbManager.GetRepeatedKeySet();
+                while (keySet.IsValid()) {
+                    nw4rmanager::AnmPane* anmPane = NULL;
+                    u8 key = keySet.GetKey();
+                    wchar_t wc = keySet.GetWChar();
+                    switch (key) {
+                        case 0x2A:
+                            if (hkbManager.GetModifierState() & 0x4) {
+                                break;
+                            }
+                        case 0x4C:
+                            anmPane = searchAnmPane("P_key_DELETE");
+                            break;
+                        case 0x2C:
+                            if (!(hkbManager.GetModifierState() & 0x8)) {
+                                anmPane = searchAnmPane("P_key_SPACE");
+                            }
+                            break;
+                    }
+                    if (anmPane != NULL) {
+                        anmPane->onAnmEvent(nw4rmanager::AnmPane::PE_0);
+                    }
+                    keySet = keySet.GetNext();
+                }
+                return false;
+            }
+
+            void LayoutByNW4R::changeAnimationAllToNormal() {
+                for (AnmPane* anmPane = (AnmPane*)nw4r::ut::List_GetNext(&mAnmPanes, NULL);
+                     anmPane != NULL;
+                     anmPane = (AnmPane*)nw4r::ut::List_GetNext(&mAnmPanes, anmPane)) {
+                    if (anmPane->getKeyType() == 0) {
+                        anmPane->changeAnimation(0);
+                    }
+                }
+                if ((mKeyState.mAIUFlags & 0xF) == 0) {
+                    searchAnmPane("P_hiragana")->changeAnimation(5);
+                    searchAnmPane("P_katakana")->changeAnimation(0);
+                } else {
+                    searchAnmPane("P_hiragana")->changeAnimation(0);
+                    searchAnmPane("P_katakana")->changeAnimation(5);
+                }
             }
 
             void LayoutByNW4R::refreshState() {
@@ -2173,107 +2415,13 @@ static const PaneToAnimation csPaneToAnimation[129] = {
                 }
             }
 
-            bool LayoutByNW4R::updateInput(int chan, f32 x, f32 y, u32 trig, u32 hold, u32 release, void* data) {
-                bool ret = nw4rmanager::Layout::updateInput(chan, x, y, trig, hold, release, data);
-                textinput::LayoutGather& gather = textinput::LayoutGather::Singleton::getInstance();
-                u32 wasPressed = (gather.isHWPressedShift() || gather.isPressedShiftB()) ? 1 : 0;
-                if (trig & 0x400) {
-                    gather.setPressedShiftB(1);
-                    input::HKBManager::getInstance().SetForceModifierState(2, 2);
-                    if (wasPressed == 0) {
-                        onPressedShift(isABC());
-                    }
-                } else {
-                    gather.clearPressedShift();
-                    input::HKBManager::getInstance().SetForceModifierState(0, 0);
-                    if (wasPressed != 0 && !gather.isHWPressedShift() && !gather.isPressedShiftB()) {
-                        onReleasedShift();
-                    }
-                }
-                return ret;
+            bool Base::isShiftOn() const {
+                return (mKeyState.mFlags & 0x80) != 0;
             }
 
-            bool LayoutByNW4R::updateInput(input::HKBManager& hkbManager) {
-                input::HKBManager::KeySet keySet = hkbManager.GetTriggeredKeySet();
-                while (keySet.IsValid()) {
-                    nw4rmanager::AnmPane* anmPane = NULL;
-                    u8 key = keySet.GetKey();
-                    wchar_t wc = keySet.GetWChar();
-                    switch (key) {
-                        case 0x28:
-                        case 0x58:
-                            if (!(hkbManager.GetModifierState() & 0x4)) {
-                                anmPane = searchAnmPane("P_key_LF");
-                            }
-                            break;
-                        case 0x2C:
-                            break;
-                        default: {
-                            wc = inputform::DeadKeyStream::ToIndependentClass(wc);
-                            wc = ((const Manager*)mgr())->getHWKeyboard()->convertWCCode(wc);
-                            if (((const Manager*)mgr())->getToolBar()->isQwerty() != 0 &&
-                                ((const Manager*)mgr())->getPCKeyboard()->getTranslateMode() != 0 &&
-                                ((const Manager*)mgr())->getLanguage() == 9) {
-                                if (isCapsOn()) {
-                                    wc = util::reverseLetterCaseW(wc);
-                                }
-                                if (wc >= 'a' && wc <= 'z') {
-                                    wc = csHangulUpperJamoTbl[wc - 'a'];
-                                } else if (wc >= 'A' && wc <= 'Z') {
-                                    wc = csHangulLowerJamoTbl[wc - 'A'];
-                                }
-                            }
-                            anmPane = searchAnmPane(wc);
-                            break;
-                        }
-                    }
-                    if (anmPane != NULL) {
-                        anmPane->onAnmEvent(nw4rmanager::AnmPane::PE_0);
-                    }
-                    keySet = keySet.GetNext();
-                }
-                keySet = hkbManager.GetRepeatedKeySet();
-                while (keySet.IsValid()) {
-                    nw4rmanager::AnmPane* anmPane = NULL;
-                    u8 key = keySet.GetKey();
-                    wchar_t wc = keySet.GetWChar();
-                    switch (key) {
-                        case 0x2C:
-                            if (!(hkbManager.GetModifierState() & 0x8)) {
-                                anmPane = searchAnmPane("P_key_SPACE");
-                            }
-                            break;
-                        case 0x4C:
-                            anmPane = searchAnmPane("P_key_DELETE");
-                            break;
-                        case 0x2A:
-                            if (!(hkbManager.GetModifierState() & 0x4)) {
-                                anmPane = searchAnmPane("P_key_DELETE");
-                            }
-                            break;
-                    }
-                    if (anmPane != NULL) {
-                        anmPane->onAnmEvent(nw4rmanager::AnmPane::PE_0);
-                    }
-                    keySet = keySet.GetNext();
-                }
-                return false;
-            }
-
-            void LayoutByNW4R::changeAnimationAllToNormal() {
-                for (AnmPane* anmPane = (AnmPane*)nw4r::ut::List_GetNext(&mAnmPanes, NULL);
-                     anmPane != NULL;
-                     anmPane = (AnmPane*)nw4r::ut::List_GetNext(&mAnmPanes, anmPane)) {
-                    if (anmPane->getKeyType() == 0) {
-                        anmPane->changeAnimation(0);
-                    }
-                }
-                if ((mKeyState.mAIUFlags & 0xF) == 0) {
-                    searchAnmPane("P_hiragana")->changeAnimation(5);
-                    searchAnmPane("P_katakana")->changeAnimation(0);
-                } else {
-                    searchAnmPane("P_hiragana")->changeAnimation(0);
-                    searchAnmPane("P_katakana")->changeAnimation(5);
+            void LayoutByNW4R::onEvent(UIObj* uiObj, u32 event, void* data) {
+                if (event == 0) {
+                    mpEventObserver->onSE((sound::SE)(u32)data);
                 }
             }
 
@@ -2344,21 +2492,13 @@ static const PaneToAnimation csPaneToAnimation[129] = {
                 mpLayout->onKey(4, paneName);
             }
 
-            // ============ AnmPane ============
-            void AnmPane::init() {
-                mState = 0;
-            }
-
             void AnmPane::changeAnimation(u32 id) {
                 mState = id;
                 nw4rmanager::AnmPane::changeAnimation(id == 0x10 ? 2 : id);
             }
 
-            AnmPane::~AnmPane() {
-            }
-
             void NormalButtonAnmPane::onAnmEvent(AnmPaneEvent paneEvent) {
-                switch (mKeyType) {
+                switch (mState) {
                     case 0:
                         if (paneEvent == 1) changeAnimation(1);
                         if (paneEvent == 0) changeAnimation(0x10);
@@ -2368,11 +2508,11 @@ static const PaneToAnimation csPaneToAnimation[129] = {
                         if (paneEvent == 2) changeAnimation(2);
                         if (paneEvent == 0) changeAnimation(4);
                         break;
-                    case 2:
+                    case 3:
                         if (paneEvent == 2) changeAnimation(2);
                         if (paneEvent == 0) changeAnimation(4);
                         break;
-                    case 3:
+                    case 2:
                         if (paneEvent == 4) changeAnimation(0);
                         if (paneEvent == 1) changeAnimation(1);
                         if (paneEvent == 0) changeAnimation(0x10);
@@ -2382,7 +2522,7 @@ static const PaneToAnimation csPaneToAnimation[129] = {
                         if (paneEvent == 2) changeAnimation(2);
                         if (paneEvent == 0) changeAnimation(4);
                         break;
-                    case 5:
+                    case 16:
                         if (paneEvent == 4) changeAnimation(0);
                         if (paneEvent == 1) changeAnimation(1);
                         if (paneEvent == 0) changeAnimation(0x10);
@@ -2390,9 +2530,6 @@ static const PaneToAnimation csPaneToAnimation[129] = {
                     default:
                         break;
                 }
-            }
-
-            NormalButtonAnmPane::~NormalButtonAnmPane() {
             }
 
             bool ShiftCapsAnmPane::isFocused() const {
@@ -2417,49 +2554,108 @@ static const PaneToAnimation csPaneToAnimation[129] = {
             void ShiftCapsAnmPane::onAnmEvent(AnmPaneEvent paneEvent) {
                 if (paneEvent == 0xA) {
                     mbFocused = true;
-                    if (mKeyType <= 0xA) {
+                    u32 flag;
+                    switch (mState) {
+                        case 0:
+                        case 2:
+                        case 6:
+                        case 9:
+                        case 10:
+                            flag = 0;
+                            break;
+                        default:
+                            flag = 1;
+                            break;
+                    }
+                    if (flag == 0) {
                         changeAnimation(9);
                     } else {
                         changeAnimation(4);
                     }
                 } else if (paneEvent == 0xB) {
                     mbFocused = false;
-                    if (mKeyType <= 0xA) {
+                    u32 flag;
+                    switch (mState) {
+                        case 0:
+                        case 2:
+                        case 6:
+                        case 9:
+                        case 10:
+                            flag = 0;
+                            break;
+                        default:
+                            flag = 1;
+                            break;
+                    }
+                    if (flag == 0) {
                         changeAnimation(2);
                     } else {
                         changeAnimation(0xB);
                     }
                 } else if (paneEvent == 5) {
                     mbFocused = false;
-                    if (mKeyType == 0xA) {
-                        changeAnimation(6);
-                    } else if (mKeyType == 8 || (mKeyType >= 4 && mKeyType <= 5)) {
-                        changeAnimation(3);
+                    if (mState != 9) {
+                        if (mState == 0xA) {
+                            changeAnimation(6);
+                        } else if (mState == 8 || (u32)(mState - 4) <= 1) {
+                            changeAnimation(3);
+                        }
                     }
                 } else if (!mbFocused) {
-                    switch (mKeyType) {
-                        case 0:
+                    switch (mState) {
+                        case 9:
                             if (paneEvent == 4) changeAnimation(0);
+                            break;
+                        case 6:
+                            if (paneEvent == 4) changeAnimation(0);
+                        case 0:
+                            if (paneEvent == 1) changeAnimation(1);
+                            break;
+                        case 1:
+                            if (paneEvent == 4) changeAnimation(3);
+                            if (paneEvent == 2) changeAnimation(2);
+                            break;
+                        case 3:
+                            if (paneEvent == 2) changeAnimation(2);
+                            break;
+                        case 2:
+                            if (paneEvent == 4) changeAnimation(0);
+                            if (paneEvent == 1) changeAnimation(1);
+                            break;
+                        case 11:
+                            if (paneEvent == 4) changeAnimation(3);
+                            if (paneEvent == 2) changeAnimation(2);
+                            break;
+                        default:
+                            break;
+                    }
+                } else {
+                    switch (mState) {
+                        case 6:
+                            if (paneEvent == 4) changeAnimation(0);
+                        case 0:
                             if (paneEvent == 1) changeAnimation(1);
                             if (paneEvent == 0) changeAnimation(9);
                             break;
-                        case 1:
+                        case 10:
                             if (paneEvent == 1) changeAnimation(8);
                             break;
-                        case 2:
+                        case 8:
                             if (paneEvent == 4) changeAnimation(5);
                             if (paneEvent == 2) changeAnimation(9);
                             break;
-                        case 3:
+                        case 5:
                             if (paneEvent == 2) changeAnimation(9);
                             break;
-                        case 4:
+                        case 9:
                             if (paneEvent == 4) changeAnimation(0xA);
-                            if (paneEvent == 1) changeAnimation(1);
+                            if (paneEvent == 1) changeAnimation(8);
                             break;
-                        case 5:
-                            if (paneEvent == 4) changeAnimation(3);
-                            if (paneEvent == 2) changeAnimation(2);
+                        case 4:
+                            if (paneEvent == 4) changeAnimation(5);
+                            if (paneEvent == 2) changeAnimation(9);
+                            break;
+                        case 11:
                             break;
                         default:
                             break;
@@ -2467,16 +2663,13 @@ static const PaneToAnimation csPaneToAnimation[129] = {
                 }
             }
 
-            ShiftCapsAnmPane::~ShiftCapsAnmPane() {
-            }
-
             void ToggleButtonAnmPane::onAnmEvent(AnmPaneEvent paneEvent) {
                 if (paneEvent == 0) {
-                    if (mKeyType != 5 && mKeyType != 4) {
+                    if (mState != 5 && mState != 4) {
                         changeAnimation(4);
                     }
                 }
-                switch (mKeyType) {
+                switch (mState) {
                     case 0:
                         if (paneEvent == 1) changeAnimation(1);
                         break;
@@ -2484,17 +2677,17 @@ static const PaneToAnimation csPaneToAnimation[129] = {
                         if (paneEvent == 4) changeAnimation(3);
                         if (paneEvent == 2) changeAnimation(2);
                         break;
-                    case 2:
+                    case 3:
                         if (paneEvent == 2) changeAnimation(2);
                         break;
-                    case 3:
+                    case 2:
                         if (paneEvent == 4) changeAnimation(0);
                         if (paneEvent == 1) changeAnimation(1);
                         break;
                     case 4:
                         if (paneEvent == 4) changeAnimation(5);
                         break;
-                    case 5:
+                    case 6:
                         if (paneEvent == 4) changeAnimation(0);
                         break;
                     default:
@@ -2502,52 +2695,49 @@ static const PaneToAnimation csPaneToAnimation[129] = {
                 }
             }
 
-            ToggleButtonAnmPane::~ToggleButtonAnmPane() {
-            }
-
             void OnOffButtonAnmPane::onAnmEvent(AnmPaneEvent paneEvent) {
                 if (paneEvent == 0) {
-                    if (mKeyType != 0xF && mKeyType != 2 && mKeyType != 0xD) {
+                    if (mState != 0xF && mState != 2 && mState != 0xD) {
                         changeAnimation(4);
                     }
                     return;
                 }
                 if (paneEvent == 6) {
-                    if (mKeyType != 0xE && mKeyType != 4 && mKeyType != 3 && mKeyType != 0xC &&
-                        mKeyType != 1 && mKeyType != 2) {
+                    if (mState != 0xE && mState != 4 && mState != 3 && mState != 0xC &&
+                        mState != 1 && mState != 2) {
                         changeAnimation(0xC);
                     }
                     return;
                 }
                 if (paneEvent == 7) {
-                    if (mKeyType != 0xF) {
+                    if (mState != 0xF) {
                         changeAnimation(0xD);
                     }
                     return;
                 }
-                switch (mKeyType) {
-                    case 0:
+                switch (mState) {
+                    case 12:
                         if (paneEvent == 4) changeAnimation(0xE);
+                        if (paneEvent == 1) changeAnimation(1);
+                        break;
+                    case 13:
+                        if (paneEvent == 4) changeAnimation(0xF);
+                        break;
+                    case 14:
                         if (paneEvent == 1) changeAnimation(1);
                         break;
                     case 1:
-                        if (paneEvent == 4) changeAnimation(0xF);
-                        break;
-                    case 2:
-                        if (paneEvent == 1) changeAnimation(1);
-                        break;
-                    case 3:
                         if (paneEvent == 4) changeAnimation(3);
                         if (paneEvent == 2) changeAnimation(2);
                         break;
-                    case 4:
+                    case 3:
                         if (paneEvent == 2) changeAnimation(2);
                         break;
-                    case 5:
+                    case 2:
                         if (paneEvent == 4) changeAnimation(0xE);
                         if (paneEvent == 1) changeAnimation(1);
                         break;
-                    case 6:
+                    case 4:
                         if (paneEvent == 4) changeAnimation(3);
                         if (paneEvent == 2) changeAnimation(2);
                         break;
@@ -2556,16 +2746,16 @@ static const PaneToAnimation csPaneToAnimation[129] = {
                 }
             }
 
-            OnOffButtonAnmPane::~OnOffButtonAnmPane() {
-            }
-
-            // ============ UI objects ============
             UIModifierButton::UIModifierButton(u32 ctrlNo, LayoutByNW4R* layout, Listener* listener)
                 : UIObj(ctrlNo, layout, listener) {
                 mpPaneComp1 = NULL;
                 mpPaneComp2 = NULL;
                 mpAnmPane = NULL;
                 mbFocused = false;
+            }
+
+            gui::PaneManager* nw4rmanager::Layout::getPaneManager() {
+                return mpPaneManager;
             }
 
             void UIModifierButton::onGUIEvent(gui::PaneComponent& pane, u32 event, nw4rmanager::TiEventHandler::Input* input) {
@@ -2603,22 +2793,19 @@ static const PaneToAnimation csPaneToAnimation[129] = {
                 }
             }
 
-            void UIModePanel::onGUIEvent(gui::PaneComponent& pane, u32 event, nw4rmanager::TiEventHandler::Input* input) {
-            }
-
             void UIModePanel::Create(nw4rmanager::Layout* layout) {
-                static const char* csAnmPaneNames[5] = {
+                const char* anmPaneNames[5] = {
                     "P_Mode_direct", "P_Mode_roma_hira", "P_Mode_roma_kata", "P_Mode_kr_eng", "P_Mode_kr_han"
                 };
-                static const char* csCompNames[5] = {
+                const char* compNames[5] = {
                     "B_Mode_direct", "B_Mode_roma_hira", "B_Mode_roma_kata", "B_Mode_kr_eng", "B_Mode_kr_han"
                 };
                 gui::PaneManager* pm = layout->getPaneManager();
-                for (int i = 0; i < 5; i++) {
-                    mpComps1[i] = pm->searchPaneComponent(csAnmPaneNames[i]);
-                    mpComps2[i] = pm->searchPaneComponent(csCompNames[i]);
-                    mpAnmPanes[i] = layout->searchAnmPane(csAnmPaneNames[i]);
-                    mpComps2[i]->setOwner(this);
+                for (u32 i = 0; i < 5; i++) {
+                    mpComps1[i] = pm->searchPaneComponent(anmPaneNames[i]);
+                    mpComps2[i] = pm->searchPaneComponent(compNames[i]);
+                    mpAnmPanes[i] = layout->searchAnmPane(anmPaneNames[i]);
+                    mpComps2[i]->setListener(this);
                 }
                 nw4r::lyt::Pane* rootPane = layout->getLayout()->GetRootPane();
                 mExtraPanes[0] = rootPane->FindPaneByName("T_Mode_kr_eng", true);
@@ -2630,128 +2817,18 @@ static const PaneToAnimation csPaneToAnimation[129] = {
                 rootPane->FindPaneByName("T_Mode_cn_pinyin", true)->GetMaterial()->GetTexture(&mTexObjs[1], 0);
             }
 
-            void UIObj::onEvent(gui::GUIComponent& comp, u32 event, void* data) {
-                onGUIEvent(*(gui::PaneComponent*)&comp, event, (nw4rmanager::TiEventHandler::Input*)data);
-            }
-
-            void UIObj::onGUIEvent(gui::PaneComponent& pane, u32 event, nw4rmanager::TiEventHandler::Input* input) {
-            }
-
-            gui::EventHandler::~EventHandler() {
-            }
-
-            void nw4rmanager::AnmPane::onAnmEvent(AnmPaneEvent) {
-            }
-
-            void gui::EventHandler::setLatestEventCtrlNo(int ctrlNo) {
-                muLatestEventCtrlNo = ctrlNo;
-            }
-
-            int gui::EventHandler::getLatestEventCtrlNo() {
-                return muLatestEventCtrlNo;
-            }
-
-            void gui::EventHandler::onEvent(gui::GUIComponent& comp, u32 event, void* data) {
-            }
-
-            void nw4rmanager::PaneFifo::init() {
-                for (int i = 0; i < MAX_COUNT; i++) {
-                    mpaFifo[i] = NULL;
-                }
-            }
-
-            void nw4rmanager::PaneFifo::push(nw4r::lyt::Pane* pane) {
-                if (mpaFifo[MAX_COUNT-1] == NULL) {
-                    for (int i = 0; i < MAX_COUNT; i++) {
-                        if (mpaFifo[i] == NULL) {
-                            mpaFifo[i] = pane;
-                            return;
-                        }
-                    }
-                }
-                else {
-                    for (int i = 1; i < MAX_COUNT; i++) {
-                        mpaFifo[i-1] = mpaFifo[i];
-                        if (pane == mpaFifo[i-1]) {
-                            mpaFifo[i-1] = NULL;
-                        }
-                    }
-                    mpaFifo[MAX_COUNT-1] = pane;
-                }
-            }
-
-            nw4r::lyt::Pane* nw4rmanager::PaneFifo::getLast() {
-                for (int i = MAX_COUNT-1; i > -1; i--) {
-                    if (mpaFifo[i] != NULL) {
-                        return mpaFifo[i];
-                    }
-                }
-                return NULL;
-            }
-
-            void CommandSender::sendCommand(u32 command, void* data) {
-                if (mpCommandReceiver != NULL) {
-                    mpCommandReceiver->onCommand((CommandReceiver::INPUT_COMMAND)command, data);
-                }
+            void UIModePanel::onGUIEvent(gui::PaneComponent& pane, u32 event, nw4rmanager::TiEventHandler::Input* input) {
             }
 
             void KeyboardBase::update() {
-            }
-
-            Language KeyboardBase::getLanguage() const {
-                return meLanguage;
-            }
-
-            Language Manager::getLanguage() const {
-                return meLanguage;
-            }
-
-            const keyboard::hwkey::HWKeyboard* Manager::getHWKeyboard() const {
-                return mpHWKeyboard;
-            }
-
-            const pctype::LayoutByNW4R* Manager::getPCKeyboard() const {
-                return mpPCKeyboard;
-            }
-
-            toolbar::LayoutByNW4R* Manager::getToolBar() {
-                return mpToolBar;
-            }
-
-            const toolbar::LayoutByNW4R* Manager::getToolBar() const {
-                return mpToolBar;
-            }
-
-            candidatebox::LayoutByNW4R* Manager::getCandidateBox() {
-                return mpCandidateBox;
-            }
-
-            TiLayout* nw4rmanager::Layout::getLayout() {
-                return mpLayout;
-            }
-
-            gui::PaneManager* nw4rmanager::Layout::getPaneManager() {
-                return mpPaneManager;
-            }
-
-            void nw4rmanager::Layout::setAnimOn(bool flag) {
-                mbAnimOn = flag;
             }
 
             nw4r::ut::List& nw4rmanager::Layout::getAnmPaneList() {
                 return mAnmPanes;
             }
 
-            void nw4rmanager::Layout::initPaneLastDrawReceived() {
-                mAnmPaneFifo.init();
-            }
-
-            void nw4rmanager::Layout::setPaneLastDrawReceived(nw4r::lyt::Pane* pane) {
-                mAnmPaneFifo.push(pane);
-            }
-
-            bool nw4rmanager::AnmPane::isInAnimation() {
-                return mpCurrentAnim != NULL;
+            void nw4rmanager::Layout::setAnimOn(bool flag) {
+                mbAnimOn = flag;
             }
 
             nw4rmanager::Anim* nw4rmanager::AnmPane::searchAnimation(u32 id) {
@@ -2765,93 +2842,16 @@ static const PaneToAnimation csPaneToAnimation[129] = {
                 return NULL;
             }
 
-            bool candidatebox::LayoutByNW4R::isActive() const {
-                return mbActive;
+            bool nw4rmanager::AnmPane::isInAnimation() {
+                return mpCurrentAnim != NULL;
             }
 
-            bool inputform::Base::canConvert() {
-                return getCurrentString(false) == mpUnfixString;
+            int gui::EventHandler::getLatestEventCtrlNo() {
+                return muLatestEventCtrlNo;
             }
 
-            Base::~Base() {
-            }
-
-            int Base::getType() {
-                return 0;
-            }
-
-            void* Base::getState() {
-                return &unk_0x14;
-            }
-
-            void Base::inputCharCode(wchar_t wc) {
-                sendInputWChar(wc, false);
-            }
-
-            void Base::setInputModeCK(u32) {
-            }
-
-            void Base::setInputModeJP(bool, u32, u32) {
-            }
-
-            void Base::goSignInputMode() {
-            }
-
-            void Base::changePredictLanguage() {
-            }
-
-            void Base::setLanguage(Language language) {
-                meLanguage = language;
-                mKeyState.mLanguage = language;
-                mKeyState.refresh_();
-            }
-
-            void Base::setLangKeyActive(bool flag) {
-                mbLangKeyActive = flag;
-                if (getLanguage() == (Language)9 || getLanguage() == (Language)8) {
-                    if (!flag) {
-                        mKeyState.setABCFlag(0);
-                        changeABCInputMode(IM_00);
-                    }
-                }
-            }
-
-            void Base::onlyQwerty(bool flag) {
-                mbOnlyQwerty = flag;
-                if (getLanguage() == (Language)0) {
-                    if (flag) {
-                        setABC(true);
-                        mKeyState.setABCFlag(0);
-                        changeABCInputMode(IM_00);
-                    }
-                    else {
-                        setABC(false);
-                        changeAIUInputMode(IM_06);
-                    }
-                }
-            }
-
-            void Base::updateFixMode() {
-                if (mgr()->getToolBar() != NULL && !mgr()->getToolBar()->isQwerty()) {
-                    return;
-                }
-                switch (getLanguage()) {
-                    case JP: {
-                        u8 flag = 0;
-                        if (isABC() && (mKeyState.mFlags & 0xF) == 0) {
-                            flag = 1;
-                        }
-                        else {
-                            flag = 0;
-                        }
-                        sendCommand(0x14, &flag);
-                        break;
-                    }
-                }
-            }
-
-            int Base::getABCInputMode() const {
-                return IM_00;
+            void gui::EventHandler::setLatestEventCtrlNo(int ctrlNo) {
+                muLatestEventCtrlNo = ctrlNo;
             }
 
             int Base::getAIUInputMode() const {
@@ -2860,6 +2860,62 @@ static const PaneToAnimation csPaneToAnimation[129] = {
                     case 1:     return IM_07;
                     default:    return IM_06;
                 }
+            }
+
+            int Base::getABCInputMode() const {
+                return IM_00;
+            }
+
+            void* Base::getState() {
+                return &unk_0x14;
+            }
+
+            int Base::getType() {
+                return 0;
+            }
+
+            void LayoutByNW4R::setInputModeCK(u32 mode) {
+                setInputModeJP(true, mode, 0);
+            }
+
+            void LayoutByNW4R::setSignWindow(signwindow::LayoutByNW4R* window) {
+                mpSignWindow = window;
+            }
+
+            void LayoutByNW4R::setPredictLanguageDialog(predictlang::LayoutByNW4R* dialog) {
+                mpPredictLanguageDialog = dialog;
+            }
+
+            void AnmPane::init() {
+                mState = 0;
+            }
+
+            OnOffButtonAnmPane::~OnOffButtonAnmPane() {
+            }
+
+            ToggleButtonAnmPane::~ToggleButtonAnmPane() {
+            }
+
+            ShiftCapsAnmPane::~ShiftCapsAnmPane() {
+            }
+
+            NormalButtonAnmPane::~NormalButtonAnmPane() {
+            }
+
+            void UIObj::onEvent(gui::GUIComponent& comp, u32 event, void* data) {
+                onGUIEvent(*(gui::PaneComponent*)&comp, event, (nw4rmanager::TiEventHandler::Input*)data);
+            }
+
+            void UIObj::onGUIEvent(gui::PaneComponent& pane, u32 event, nw4rmanager::TiEventHandler::Input* input) {
+            }
+
+            void Base::setInputModeCK(u32) {
+            }
+
+            void Base::setInputModeJP(bool, u32, u32) {
+            }
+
+            void gui::EventHandler::onEvent(gui::GUIComponent& comp, u32 event, void* data) {
             }
 
         }  // namespace pctype
