@@ -2464,13 +2464,22 @@ namespace ipl {
             }
         }
 
+#pragma dont_inline on
         bool Setting::checkInputString(const wchar_t* text) {
             return *text == 0;
         }
+#pragma dont_inline reset
 
         int Setting::checkIPString(const wchar_t* text) {
             wchar_t zeroAddress[16] = L"000.000.000.000";
-            return memcmp(text, zeroAddress, sizeof(zeroAddress)) == 0 || checkInputString(text);
+            if (memcmp(text, zeroAddress, sizeof(zeroAddress)) == 0) {
+                return 1;
+            }
+            if (checkInputString(text)) {
+                return 1;
+            } else {
+                return 0;
+            }
         }
 
         bool Setting::calcSafeMode() {
