@@ -2072,12 +2072,13 @@ namespace ipl {
         }
 
         void Setting::setMTU() {
+            const char* mtuString = mpStringBuffer->adjMtu;
             wchar_t mtuText[6];
-            u32 mtu;
+            u32 parsedMtu;
             memset(mtuText, 0, sizeof(mtuText));
-            utility::CharacterCode::UTF8ToUTF16(mtuText, mpStringBuffer->adjMtu, 6);
-            utility::CharacterCode::UTF16ToU32(&mtu, mtuText);
-            mtu &= 0xffff;
+            utility::CharacterCode::UTF8ToUTF16(mtuText, mtuString, 6);
+            utility::CharacterCode::UTF16ToU32(&parsedMtu, mtuText);
+            s32 mtu = parsedMtu & 0xffff;
             if (mtu < 0x240 || mtu > 0x5dc) {
                 mtu = 0;
             }
