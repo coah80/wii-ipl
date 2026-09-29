@@ -506,7 +506,7 @@ s32 WAD_815C1288(WADExportLoopArgs* args) {
         u32 size = remaining;
         OSMutex* mutex;
 
-        if (transfer->chunkSize < remaining) {
+        if (remaining > transfer->chunkSize) {
             size = transfer->chunkSize;
         }
         mutex = &transfer->mutex[bufferIndex];
