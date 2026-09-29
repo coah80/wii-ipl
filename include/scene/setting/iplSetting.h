@@ -8,6 +8,7 @@
 #include "layout/iplGuiManager.h"
 #include "layout/GUIManager.h"
 #include "iplwww/www_wiisetting.h"
+#include "iplwww/www_browser.h"
 #include "system/iplKeyboard.h"
 #include "system/iplNand.h"
 #include "utility/iplThread.h"
@@ -32,6 +33,7 @@ namespace ipl {
             virtual void onEvent(u32 componentID, u32 event, void* data);
 
             void setEventType(u8 eventType) { reinterpret_cast<u8&>(mpManager) = eventType; }
+            u8 getEventType() const { return reinterpret_cast<const u8&>(mpManager); }
 
         private:
             Setting* mpSetting;
@@ -71,6 +73,26 @@ namespace ipl {
             void changeVideoMode();
             bool isInitialSequenceExit(const ::ipl::controller::Interface* input);
             bool updateScreenMode();
+            void initHTMLText();
+            void initMessage();
+            void initKeyboard(const char* text);
+            void calcKeyboard();
+            void calcSetting();
+            bool calcSafeMode();
+            void waitStart();
+            void waitFinish();
+            bool isWaitPlaying();
+            void initAP();
+            void resetAP();
+            void redrawAP();
+            void scanAP();
+            void setNUP();
+            void setUSBAP();
+            void cancelUSBAP();
+            void AOSSProcess();
+            void RakuProcess();
+            void setUpdate_();
+            void setUseEULA_();
             void start_point_event(const char* pageName);
             void start_trig_event(const char* pageName);
             void start_left_event(const char* pageName);
@@ -144,8 +166,8 @@ namespace ipl {
             int unk_0x914;
             int unk_0x918;
             u8 unk_0x91C[4];
-            void* mpBrowserData;
-            u32 unk_0x924;
+            ext_ead::www::ImeData* mpBrowserData;
+            www::wiisetting::WiiData* mpWiiSettingData;
             APEvent* mpAPEvent;
             u8 unk_0x92C;
             u8 unk_0x92D[3];
