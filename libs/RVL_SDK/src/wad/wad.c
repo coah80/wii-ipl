@@ -72,11 +72,25 @@ typedef struct WADUnpackInfo {
 } WADUnpackInfo;
 
 typedef struct WADFileHeader {
-    u32 headerSize;
+    u32 magic;
     u32 fileSize;
     u8 flags[3];
-    char name[0x75];
+    char name[0x40];
+    u8 reserved_0x4b[5];
+    u8 iv[0x10];
+    u8 reserved_0x60[0x20];
 } WADFileHeader;
+
+typedef struct WADSaveDataHeader {
+    u8 reserved_0x00[0x60];
+    u32 fileSize;
+    u32 magic;
+    u8 reserved_0x68[0x18];
+} WADSaveDataHeader;
+
+typedef struct WADThreadStack {
+    u8 bytes[0x1000];
+} WADThreadStack;
 
 typedef struct WADFileEntry {
     u32 fileSize;
@@ -180,6 +194,8 @@ static s32 _WADCanImportFile(const WADFileHeader* fileHeader, u32 transferId, co
                              const void* transferIdBuffer);
 static void _WADFreeMemory(WADUnpackInfo* info, MEMAllocator* allocator);
 static s32 WAD_815BFFA8(WADImportLoopArgs* args);
+static s32 _WADVerifySavedataZD(void* header, WADStream* stream, MEMAllocator* allocator, u32 offset);
+static void _WADCleanTmpDir(MEMAllocator* allocator);
 u32 _WADIsTerminated(const char* text, u32 maxLength);
 
 extern s32 ES_GetBoot2Version(u32* version);
@@ -465,32 +481,648 @@ cleanup:
 }
 
 static s32 WAD_815BFFA8(WADImportLoopArgs* args) {
-    WADImportTransfer* transfer = args->transfer;
-    u32 remaining = args->size;
+    s32 fd = args->fd;
     s32 result = 0;
+    u32 remaining = args->size;
     u32 bufferIndex = 0;
+    WADImportTransfer* transfer = args->transfer;
 
     while ((remaining != 0) && (result == 0)) {
         u32 size = remaining;
         OSMutex* mutex;
 
-        if (transfer->chunkSize < remaining) {
+        if (remaining > transfer->chunkSize) {
             size = transfer->chunkSize;
         }
         mutex = &transfer->mutex[bufferIndex];
         OSLockMutex(mutex);
         while (transfer->ready[bufferIndex] == 0) {
-            OSWaitCond(&transfer->waitCond[bufferIndex], mutex);
+            OSWaitCond(&transfer->signalCond[bufferIndex], mutex);
         }
-        result = ES_ImportContentData(args->fd, transfer->buffers[bufferIndex], size);
+        result = ES_ImportContentData(fd, transfer->buffers[bufferIndex], size);
         transfer->ready[bufferIndex] = 0;
         if (result != 0) {
             transfer->error = 1;
         }
         OSUnlockMutex(mutex);
-        OSSignalCond(&transfer->signalCond[bufferIndex]);
+        OSSignalCond(&transfer->waitCond[bufferIndex]);
         remaining -= size;
         bufferIndex ^= 1;
+    }
+    return result;
+}
+
+s32 WADImportEx(char* path, MEMAllocator* allocator, WADLocation location, u32 offset, u32 flags,
+                WADProcessCallback processCallback) {
+    WADImportWorkspace workspace ALIGN32;
+    WADSaveDataHeader wadHeader ALIGN32;
+    WADFileHeader backupHeader ALIGN32;
+    WADImportTransfer transfer;
+    WADImportLoopArgs threadArgs;
+    OSThread importThread;
+    NANDFileInfo backupFile;
+    NANDStatus fileStatus;
+    NANDStatus updatedFileStatus;
+    ESContentId* installedContentIds = 0;
+    ESTitleMeta* installedTitleMeta = 0;
+    ESContentMeta* matchingContents = 0;
+    ESHash* sharedContentHashes = 0;
+    void* firstBuffer = 0;
+    void* secondBuffer = 0;
+    WADThreadStack* threadStack = 0;
+    void* wadHeaderBuffer = &wadHeader;
+    void* fileHeaderBuffer = &backupHeader;
+    u8 transferId[0x20] ALIGN32;
+    u32 fileOffset = 0;
+    u32 importedBytes = 0;
+    u32 installedContentCount = 0;
+    u32 installedTmdSize = 0;
+    u32 sharedContentCount = 0;
+    u32 contentCount = 0;
+    u32 contentIndex;
+    u32 listIndex;
+    u32 sizeRemaining;
+    u32 transferIdValue;
+    s32 result = 0;
+    s32 streamOpened = FALSE;
+    s32 backupFileOpened = FALSE;
+    s32 titleImportStarted = FALSE;
+    s32 contentImportStarted = FALSE;
+    s32 threadCreated = FALSE;
+    s32 contentFd = 0;
+    s32 importExistingTitle = TRUE;
+    s32 existingTmdAvailable = FALSE;
+    s32 fileReadResult;
+    u32 importedContentCount = 0;
+    u32 bufferIndex = 0;
+    u32 callbackTotal = 0;
+    u32 installedContentIndex = 0;
+    u32 sharedContentIndex;
+    u32 contentFileOffset;
+    u32 pathFileIndex;
+    s32 matchFound;
+    s32 listResult;
+    s32 titleVersion;
+    u32 contentSize;
+    u32 chunkSize;
+    u32 readSize;
+    u32 bootSize;
+    u32 alignedSize;
+    u32 callbackDone;
+    u32 currentTitleId;
+    u32 currentTitleVersion;
+    u32 currentContentId;
+    u32 importedFileCount;
+    u32 savedataFileIndex;
+    s32 importResult;
+    u32 threadPriority;
+    const char* functionName = "WADImportEx";
+
+    memset(&workspace.unpackInfo, 0, sizeof(WADUnpackInfo));
+    memset(&transfer, 0, sizeof(transfer));
+    if ((path == 0) || (allocator == 0) || (allocator->heap == 0)) {
+        result = -3000;
+        goto cleanup;
+    }
+    if ((offset & 0x3F) != 0) {
+        result = -3007;
+        goto cleanup;
+    }
+    if (processCallback != 0) {
+        processCallback(0, 0, FALSE);
+    }
+    result = WADOpenStream(location, path, &workspace.stream, 0, 0);
+    streamOpened = TRUE;
+    if (result != 0) {
+        goto cleanup;
+    }
+    result = WADReadStream(&workspace.stream, &wadHeaderBuffer, sizeof(wadHeader), offset);
+    if (result != sizeof(wadHeader)) {
+        result = -3005;
+        goto cleanup;
+    }
+    result = _WADUnpack(&wadHeader, &workspace.stream, &workspace.unpackInfo, allocator, offset,
+                        flags, 0);
+    if (result != 0) {
+        goto cleanup;
+    }
+    importedBytes = workspace.unpackInfo.contentOffset;
+    callbackTotal = workspace.unpackInfo.contentSize + workspace.unpackInfo.fileListSize;
+    if (((flags & 8) != 0) && (workspace.unpackInfo.titleMeta != 0)) {
+        if (workspace.unpackInfo.headerInfo != 2) {
+            result = -3001;
+            goto cleanup;
+        }
+        result = ES_GetTicketViews(workspace.unpackInfo.titleMeta->head.titleId, 0,
+                                   &installedContentCount);
+        if (result != 0) {
+            goto cleanup;
+        }
+        if (installedContentCount == 0) {
+            result = -1028;
+            goto cleanup;
+        }
+    }
+    if ((workspace.unpackInfo.titleMeta != 0) &&
+        (((workspace.unpackInfo.size_0x18 == 1) &&
+          (workspace.unpackInfo.size_0x0c == 1)) ||
+         (workspace.unpackInfo.headerInfo == 3))) {
+        bootSize = (workspace.unpackInfo.titleMetaSize + 0x0F) & ~0x0F;
+        alignedSize = (bootSize + 0x1F) & ~0x1F;
+        firstBuffer = _WADMemAlloc(allocator, alignedSize);
+        if (firstBuffer == 0) {
+            result = -3003;
+            goto cleanup;
+        }
+        result = WADReadStream(&workspace.stream, &firstBuffer, alignedSize,
+                               offset + importedBytes);
+        if ((u32)result != alignedSize) {
+            result = -3005;
+            goto cleanup;
+        }
+        result = ES_ImportBoot(workspace.unpackInfo.buffer_0x34,
+                               workspace.unpackInfo.buffer_0x14,
+                               workspace.unpackInfo.size_0x0c,
+                               workspace.unpackInfo.titleMeta,
+                               workspace.unpackInfo.sectionSize,
+                               workspace.unpackInfo.buffer_0x14,
+                               workspace.unpackInfo.size_0x0c,
+                               workspace.unpackInfo.buffer_0x24,
+                               workspace.unpackInfo.size_0x1c, firstBuffer,
+                               workspace.unpackInfo.titleMetaSize);
+        goto cleanup;
+    }
+    if ((workspace.unpackInfo.titleMeta != 0) &&
+        (workspace.unpackInfo.buffer_0x34 != 0)) {
+        result = ES_ImportTicket(workspace.unpackInfo.buffer_0x34,
+                                 workspace.unpackInfo.buffer_0x14,
+                                 workspace.unpackInfo.size_0x0c,
+                                 workspace.unpackInfo.buffer_0x24,
+                                 workspace.unpackInfo.size_0x1c, 0);
+        if (result != 0) {
+            goto cleanup;
+        }
+    }
+    if (processCallback != 0) {
+        processCallback(0, callbackTotal, FALSE);
+    }
+    if (workspace.unpackInfo.titleMeta != 0) {
+        if (workspace.unpackInfo.cidxMode == 0) {
+            contentCount = workspace.unpackInfo.titleMeta->head.numContents;
+        } else {
+            contentCount = _WADGetCidxCount(workspace.unpackInfo.contentIndex);
+            if (workspace.unpackInfo.titleMeta->head.numContents < contentCount) {
+                result = -3001;
+                goto cleanup;
+            }
+        }
+        result = ES_ListTmdContentsOnCard(workspace.unpackInfo.titleMeta,
+                                          workspace.unpackInfo.sectionSize, 0,
+                                          &installedContentCount);
+        if ((result == 0) && (installedContentCount != 0)) {
+            installedContentIds = _WADMemAlloc(allocator, installedContentCount * sizeof(ESContentId));
+            if (installedContentIds == 0) {
+                result = -3003;
+                goto cleanup;
+            }
+            result = ES_ListTmdContentsOnCard(workspace.unpackInfo.titleMeta,
+                                              workspace.unpackInfo.sectionSize,
+                                              installedContentIds, &installedContentCount);
+            if ((result == 0) &&
+                (ES_GetTmd(workspace.unpackInfo.titleMeta->head.titleId, 0,
+                           &installedTmdSize) == 0)) {
+                alignedSize = (installedTmdSize + 0x1F) & ~0x1F;
+                installedTitleMeta = _WADMemAlloc(allocator, alignedSize);
+                if (installedTitleMeta == 0) {
+                    result = -3003;
+                    goto cleanup;
+                }
+                result = ES_GetTmd(workspace.unpackInfo.titleMeta->head.titleId,
+                                   installedTitleMeta, &installedTmdSize);
+                if (result == 0) {
+                    importExistingTitle = FALSE;
+                }
+            }
+        }
+        if (!importExistingTitle && (installedContentCount != 0)) {
+            matchingContents = _WADMemAlloc(allocator, installedContentCount * sizeof(ESContentMeta));
+            if (matchingContents == 0) {
+                result = -3003;
+                goto cleanup;
+            }
+            installedContentIndex = 0;
+            for (listIndex = 0; listIndex < installedContentCount; listIndex++) {
+                for (contentIndex = 0;
+                     contentIndex < installedTitleMeta->head.numContents; contentIndex++) {
+                    if (installedContentIds[listIndex] ==
+                        installedTitleMeta->contents[contentIndex].cid) {
+                        memcpy(&matchingContents[installedContentIndex],
+                               &installedTitleMeta->contents[contentIndex], sizeof(ESContentMeta));
+                        installedContentIndex++;
+                    }
+                }
+            }
+        }
+        result = ES_ListSharedContents(&sharedContentCount, 0);
+        if (result == 0) {
+            alignedSize = (sharedContentCount * sizeof(ESHash) + 0x1F) & ~0x1F;
+            sharedContentHashes = _WADMemAlloc(allocator, alignedSize);
+            if ((sharedContentHashes == 0) && (sharedContentCount != 0)) {
+                result = -3003;
+                goto cleanup;
+            }
+            result = ES_ListSharedContents(&sharedContentCount, sharedContentHashes);
+            if ((result != 0) && (sharedContentHashes != 0)) {
+                _WADMemFree(allocator, sharedContentHashes);
+                sharedContentHashes = 0;
+            }
+        }
+        result = ES_ImportTitleInit(workspace.unpackInfo.titleMeta,
+                                    workspace.unpackInfo.sectionSize,
+                                    workspace.unpackInfo.buffer_0x14,
+                                    workspace.unpackInfo.size_0x0c,
+                                    workspace.unpackInfo.buffer_0x24,
+                                    workspace.unpackInfo.size_0x1c,
+                                    workspace.unpackInfo.headerInfo, 1);
+        if (result != 0) {
+            goto cleanup;
+        }
+        titleImportStarted = TRUE;
+        if ((flags & 2) == 0) {
+            for (contentIndex = 0; contentIndex < contentCount; contentIndex++) {
+                ESContentMeta* content;
+                s32 titleMetaIndex = contentIndex;
+                matchFound = FALSE;
+                if (workspace.unpackInfo.cidxMode != 0) {
+                    titleMetaIndex = _WADGetCidx(workspace.unpackInfo.contentIndex, contentIndex);
+                    if ((titleMetaIndex < 0) ||
+                        ((s32)workspace.unpackInfo.titleMeta->head.numContents <= titleMetaIndex)) {
+                        result = -3001;
+                        goto cleanup;
+                    }
+                }
+                content = &workspace.unpackInfo.titleMeta->contents[titleMetaIndex];
+                if (!importExistingTitle) {
+                    for (listIndex = 0; listIndex < installedContentCount; listIndex++) {
+                        ESContentMeta* installedContent = &matchingContents[listIndex];
+                        if ((content->cid == installedContent->cid) &&
+                            (memcmp(content->hash, installedContent->hash, sizeof(ESHash)) == 0) &&
+                            (content->type == installedContent->type)) {
+                            matchFound = TRUE;
+                        }
+                    }
+                }
+                if (((content->type & 0x8000) != 0) &&
+                    (sharedContentHashes != 0) && !matchFound) {
+                    for (sharedContentIndex = 0; sharedContentIndex < sharedContentCount;
+                         sharedContentIndex++) {
+                        if (memcmp(content->hash, sharedContentHashes[sharedContentIndex],
+                                   sizeof(ESHash)) == 0) {
+                            matchFound = TRUE;
+                        }
+                    }
+                }
+                if (matchFound) {
+                    importedBytes += (content->size + 0x0F) & ~0x0F;
+                    if (processCallback != 0) {
+                        processCallback(importedBytes - workspace.unpackInfo.contentOffset,
+                                        callbackTotal, FALSE);
+                    }
+                } else {
+                    if (firstBuffer == 0) {
+                        firstBuffer = _WADMemAlloc(allocator, 0x10000);
+                        if (firstBuffer == 0) {
+                            result = -3003;
+                            goto cleanup;
+                        }
+                    }
+                    if (secondBuffer == 0) {
+                        secondBuffer = _WADMemAlloc(allocator, 0x10000);
+                        if (secondBuffer == 0) {
+                            result = -3003;
+                            goto cleanup;
+                        }
+                    }
+                    if (threadStack == 0) {
+                        threadStack = _WADMemAlloc(allocator, sizeof(WADThreadStack));
+                        if (threadStack == 0) {
+                            result = -3003;
+                            goto cleanup;
+                        }
+                    }
+                    if ((firstBuffer == 0) || (secondBuffer == 0) || (threadStack == 0)) {
+                        result = -3003;
+                        goto cleanup;
+                    }
+                    contentFd = ES_ImportContentBegin(
+                        workspace.unpackInfo.titleMeta->head.titleId, content->cid);
+                    result = contentFd;
+                    if (contentFd < 0) {
+                        goto cleanup;
+                    }
+                    contentImportStarted = TRUE;
+                    sizeRemaining = (content->size + 0x0F) & ~0x0F;
+                    WAD_815C4A2C(&transfer, firstBuffer, secondBuffer, 0x10000);
+                    threadArgs.fd = contentFd;
+                    threadArgs.transfer = &transfer;
+                    threadArgs.size = sizeRemaining;
+                    threadPriority = OSGetThreadPriority(OSGetCurrentThread());
+                    threadCreated = OSCreateThread(&importThread,
+                                                   (void* (*)(void*))WAD_815BFFA8,
+                                                   &threadArgs,
+                                                   &threadStack->bytes[sizeof(threadStack->bytes)],
+                                                   sizeof(threadStack->bytes),
+                                                   threadPriority, 0);
+                    if (!threadCreated) {
+                        result = -3009;
+                        goto cleanup;
+                    }
+                    OSResumeThread(&importThread);
+                    transfer.error = 0;
+                    bufferIndex = 0;
+                    while ((sizeRemaining != 0) && (transfer.error == 0)) {
+                        chunkSize = sizeRemaining;
+                        if (transfer.chunkSize < chunkSize) {
+                            chunkSize = transfer.chunkSize;
+                        }
+                        OSLockMutex(&transfer.mutex[bufferIndex]);
+                        while ((transfer.ready[bufferIndex] != 0) &&
+                               (transfer.error == 0)) {
+                            OSWaitCond(&transfer.waitCond[bufferIndex],
+                                       &transfer.mutex[bufferIndex]);
+                        }
+                        if (transfer.error != 0) {
+                            break;
+                        }
+                        readSize = (chunkSize + 0x1F) & ~0x1F;
+                        result = WADReadStream(&workspace.stream,
+                                               &transfer.buffers[bufferIndex], readSize,
+                                               offset + importedBytes);
+                        if ((u32)result != readSize) {
+                            OSLockMutex(&transfer.mutex[bufferIndex ^ 1]);
+                            OSCancelThread(&importThread);
+                            OSJoinThread(&importThread, 0);
+                            OSUnlockMutex(&transfer.mutex[bufferIndex ^ 1]);
+                            OSUnlockMutex(&transfer.mutex[bufferIndex]);
+                            result = -3005;
+                            goto cleanup;
+                        }
+                        transfer.ready[bufferIndex] = chunkSize;
+                        OSUnlockMutex(&transfer.mutex[bufferIndex]);
+                        OSSignalCond(&transfer.signalCond[bufferIndex]);
+                        importedBytes += chunkSize;
+                        sizeRemaining -= chunkSize;
+                        if (processCallback != 0) {
+                            processCallback(importedBytes - workspace.unpackInfo.contentOffset,
+                                            callbackTotal, FALSE);
+                        }
+                        bufferIndex ^= 1;
+                    }
+                    if (threadCreated) {
+                        importResult = OSJoinThread(&importThread, (void**)&result);
+                        if (!importResult) {
+                            result = -3009;
+                            goto cleanup;
+                        }
+                        threadCreated = FALSE;
+                    }
+                    if ((result != 0) || (transfer.error != 0)) {
+                        goto cleanup;
+                    }
+                    result = ES_ImportContentEnd(contentFd);
+                    if (result != 0) {
+                        goto cleanup;
+                    }
+                    contentImportStarted = FALSE;
+                }
+                if (workspace.unpackInfo.type == 2) {
+                    importedBytes = (importedBytes + 0x3F) & ~0x3F;
+                }
+            }
+        }
+        result = ES_ImportTitleDone();
+        if (result != 0) {
+            goto cleanup;
+        }
+        titleImportStarted = FALSE;
+    }
+    if (((flags & 2) != 0) || (workspace.unpackInfo.fileListSize == 0) ||
+        (workspace.unpackInfo.fileCount == 0)) {
+        goto cleanup;
+    }
+    if (firstBuffer == 0) {
+        firstBuffer = _WADMemAlloc(allocator, 0x10000);
+        if (firstBuffer == 0) {
+            result = -3003;
+            goto cleanup;
+        }
+    }
+    if (secondBuffer == 0) {
+        secondBuffer = _WADMemAlloc(allocator, 0x10000);
+        if (secondBuffer == 0) {
+            result = -3003;
+            goto cleanup;
+        }
+    }
+    transferIdValue = _WADGetTransferId(transferId);
+    fileOffset = workspace.unpackInfo.fileOffset;
+    if (((wadHeader.magic & 0xFFFFFF00) == 0x525A4400) &&
+        (wadHeader.fileSize == 0x10000)) {
+        result = _WADVerifySavedataZD(&wadHeader, &workspace.stream, allocator,
+                                      offset + workspace.unpackInfo.fileOffset);
+        goto cleanup;
+    }
+    for (pathFileIndex = 0; pathFileIndex < workspace.unpackInfo.fileCount; pathFileIndex++) {
+        result = WADReadStream(&workspace.stream, &fileHeaderBuffer, sizeof(backupHeader),
+                               offset + fileOffset);
+        if (result != sizeof(backupHeader)) {
+            result = -3005;
+            goto cleanup;
+        }
+        fileOffset = (fileOffset + 0xBF) & ~0x3F;
+        if (backupHeader.magic != 0x3ADF17E) {
+            result = -3000;
+            goto cleanup;
+        }
+        result = 0;
+        if (_WADCanImportFile(&backupHeader, transferIdValue,
+                              workspace.unpackInfo.fileNames, transferId) == 0) {
+            if ((backupHeader.flags[2] == 1) && (backupHeader.fileSize != 0)) {
+                fileOffset = (fileOffset + backupHeader.fileSize + 0x3F) &
+                             ~0x3F;
+            }
+            continue;
+        }
+        if (backupHeader.flags[2] == 1) {
+            result = NANDPrivateCreate(backupHeader.name, backupHeader.flags[0] | 0x20,
+                                       backupHeader.flags[1]);
+            if (result != 0) {
+                goto cleanup;
+            }
+            if (backupHeader.fileSize != 0) {
+                result = NANDPrivateOpen(backupHeader.name, &backupFile, 2);
+                if (result != 0) {
+                    goto cleanup;
+                }
+                backupFileOpened = TRUE;
+                sizeRemaining = backupHeader.fileSize;
+                while (sizeRemaining != 0) {
+                    chunkSize = sizeRemaining;
+                    if (chunkSize > 0x10000) {
+                        chunkSize = 0x10000;
+                    }
+                    result = WADReadStream(&workspace.stream, &firstBuffer,
+                                           (chunkSize + 0x1F) & ~0x1F,
+                                           offset + fileOffset);
+                    readSize = (chunkSize + 0x1F) & ~0x1F;
+                    if ((u32)result != readSize) {
+                        result = -3005;
+                        goto cleanup;
+                    }
+                    result = ES_Decrypt(6, backupHeader.iv,
+                                        firstBuffer, readSize, secondBuffer);
+                    if (result != 0) {
+                        goto cleanup;
+                    }
+                    result = NANDWrite(&backupFile, secondBuffer, chunkSize);
+                    if ((u32)result != chunkSize) {
+                        result = -3006;
+                        goto cleanup;
+                    }
+                    importedBytes += chunkSize;
+                    sizeRemaining -= chunkSize;
+                    if (processCallback != 0) {
+                        processCallback(workspace.unpackInfo.fileListSize +
+                                            importedBytes - workspace.unpackInfo.fileOffset,
+                                        callbackTotal, FALSE);
+                    }
+                    fileOffset += chunkSize;
+                }
+                result = NANDClose(&backupFile);
+                if (result != 0) {
+                    goto cleanup;
+                }
+                backupFileOpened = FALSE;
+            }
+            if ((backupHeader.flags[0] & 0x20) == 0) {
+                result = NANDPrivateGetStatus(backupHeader.name, &fileStatus);
+                if (result != 0) {
+                    goto cleanup;
+                }
+                updatedFileStatus = fileStatus;
+                updatedFileStatus.permission = backupHeader.flags[0];
+                updatedFileStatus.attribute = backupHeader.flags[1];
+                result = NANDPrivateSetStatus(backupHeader.name, &updatedFileStatus);
+                if (result != 0) {
+                    goto cleanup;
+                }
+            }
+        } else if (backupHeader.flags[2] == 2) {
+            result = NANDPrivateCreateDir(backupHeader.name,
+                                          backupHeader.flags[0] | 0x20,
+                                          backupHeader.flags[1]);
+            if (result != -6) {
+                if (result != 0) {
+                    goto cleanup;
+                }
+            } else {
+                result = NANDPrivateGetStatus(backupHeader.name, &fileStatus);
+                if (result != 0) {
+                    goto cleanup;
+                }
+                if ((fileStatus.permission & 0x20) == 0) {
+                    fileStatus.permission = backupHeader.flags[0] | 0x20;
+                    fileStatus.attribute = backupHeader.flags[1];
+                    result = NANDPrivateSetStatus(backupHeader.name, &fileStatus);
+                    if (result != 0) {
+                        goto cleanup;
+                    }
+                }
+            }
+        }
+        fileOffset = (fileOffset + 0x3F) & ~0x3F;
+        if ((backupHeader.fileSize == 0) && (processCallback != 0)) {
+            processCallback(workspace.unpackInfo.fileListSize +
+                                importedBytes - workspace.unpackInfo.fileOffset,
+                            callbackTotal, FALSE);
+        }
+        fileOffset += backupHeader.fileSize;
+        fileOffset = (fileOffset + 0x3F) & ~0x3F;
+    }
+    fileOffset = workspace.unpackInfo.fileOffset;
+    for (savedataFileIndex = 0; savedataFileIndex < workspace.unpackInfo.fileCount;
+         savedataFileIndex++) {
+        fileReadResult = WADReadStream(&workspace.stream, &fileHeaderBuffer,
+                                       sizeof(backupHeader),
+                                       offset + fileOffset);
+        if (fileReadResult != sizeof(backupHeader)) {
+            result = -3005;
+            break;
+        }
+        result = 0;
+        fileOffset = (fileOffset + 0xBF) & ~0x3F;
+        if ((_WADCanImportFile(&backupHeader, transferIdValue,
+                               workspace.unpackInfo.fileNames, transferId) != 0) &&
+            (((result = NANDPrivateGetStatus(backupHeader.name, &fileStatus)) !=
+                  0) ||
+             ((backupHeader.flags[0] & 0x20) == 0 &&
+              ((fileStatus.permission = backupHeader.flags[0]),
+               (result = NANDPrivateSetStatus(backupHeader.name, &fileStatus)) !=
+                   0)))) {
+            break;
+        }
+        fileOffset = (fileOffset + backupHeader.fileSize + 0x3F) & ~0x3F;
+    }
+
+cleanup:
+    _WADFreeMemory(&workspace.unpackInfo, allocator);
+    if (firstBuffer != 0) {
+        _WADMemFree(allocator, firstBuffer);
+    }
+    if (secondBuffer != 0) {
+        _WADMemFree(allocator, secondBuffer);
+    }
+    if (installedTitleMeta != 0) {
+        _WADMemFree(allocator, installedTitleMeta);
+    }
+    if (installedContentIds != 0) {
+        _WADMemFree(allocator, installedContentIds);
+    }
+    if (matchingContents != 0) {
+        _WADMemFree(allocator, matchingContents);
+    }
+    if (sharedContentHashes != 0) {
+        _WADMemFree(allocator, sharedContentHashes);
+    }
+    if (threadStack != 0) {
+        _WADMemFree(allocator, threadStack);
+    }
+    if (backupFileOpened) {
+        NANDClose(&backupFile);
+    }
+    if (streamOpened) {
+        WADCloseStream(&workspace.stream);
+    }
+    if (contentImportStarted) {
+        ES_ImportContentEnd(contentFd);
+        OSReport("%s:%d Cancel importing the content.\n", functionName, 0x8DF);
+    }
+    if (titleImportStarted) {
+        ES_ImportTitleCancel();
+        _WADCleanTmpDir(allocator);
+        OSReport("%s:%d Cancel importing the title.\n", functionName, 0x8E6);
+    }
+    if (processCallback != 0) {
+        if (importedBytes == 0) {
+            processCallback(0, 0, TRUE);
+        } else if ((callbackTotal == 0) || (workspace.unpackInfo.fileCount == 0)) {
+            processCallback(importedBytes - workspace.unpackInfo.contentOffset, callbackTotal,
+                            TRUE);
+        } else {
+            processCallback(workspace.unpackInfo.fileListSize +
+                                importedBytes - workspace.unpackInfo.fileOffset,
+                            callbackTotal, TRUE);
+        }
     }
     return result;
 }
