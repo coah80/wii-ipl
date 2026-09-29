@@ -851,7 +851,7 @@ vmBoolInt CHANSVmGetEnumedType(CHANSVmObjType* eType, vmU32 iType) NO_INLINE {
             type = 4;
             break;
         }
-        case CHANS_VM_TYPE_GLOBAL_REF:
+        case CHANS_VM_TYPE_OBJECT:
         case CHANS_VM_TYPE_CLASS_REF:
         case CHANS_VM_TYPE_METHOD_REF: {
             type = 5;
@@ -874,12 +874,13 @@ char lbl_81669128[] = "VmGetResultType";
 
 // clang-format off
 const VmConvertEntry VmTypeConvertFuncTbl[] = {
-    {CHANSVmConvertObjectTypeError, CHANSVmConvertObjectTypeError, CHANSVmConvertObjectTypeError, CHANSVmConvertObjectTypeError, CHANSVmConvertObjectTypeError, CHANSVmConvertObjectTypeError},
-    {CHANSVm_8144B30C, CHANSVmConvertToIntFromStr, CHANSVmConvertToIntFromArray, CHANSVmConvertObjectTypeError, CHANSVm_8144B430, CHANSVm_8144B470},
-    {CHANSVm_8144B4D4, CHANSVmConvertObjectTypeError, CHANSVmConvertObjectTypeError, CHANSVmConvertToStrFromUndefined, CHANSVmConvertToStrFromInt, CHANSVm_8144B734},
-    {CHANSVmConvertToStrFromArray, CHANSVmConvertObjectTypeError, CHANSVmConvertObjectTypeError, CHANSVmConvertObjectTypeError, CHANSVmConvertObjectTypeError, CHANSVmConvertObjectTypeError},
-    {CHANSVmConvertObjectTypeError, CHANSVmConvertObjectTypeError, CHANSVmConvertObjectTypeError, CHANSVmConvertObjectTypeError, CHANSVmConvertObjectTypeError, CHANSVmConvertObjectTypeError},
-    {CHANSVmConvertObjectTypeError, CHANSVmConvertObjectTypeError, CHANSVmConvertObjectTypeError, CHANSVmConvertObjectTypeError, CHANSVmConvertObjectTypeError, CHANSVmConvertObjectTypeError}};
+    {vmNull, CHANSVmConvertObjectTypeError, CHANSVmConvertObjectTypeError, CHANSVmConvertObjectTypeError, CHANSVmConvertObjectTypeError, CHANSVmConvertObjectTypeError},
+    {CHANSVmConvertObjectTypeError, vmNull, CHANSVm_8144B30C, CHANSVmConvertToIntFromStr, CHANSVmConvertToIntFromArray, CHANSVmConvertObjectTypeError},
+    {CHANSVm_8144B430, CHANSVm_8144B470, vmNull, CHANSVm_8144B4D4, CHANSVmConvertObjectTypeError, CHANSVmConvertObjectTypeError},
+    {CHANSVmConvertToStrFromUndefined, CHANSVmConvertToStrFromInt, CHANSVm_8144B734, vmNull, CHANSVmConvertToStrFromArray, CHANSVmConvertObjectTypeError},
+    {CHANSVmConvertObjectTypeError, CHANSVmConvertObjectTypeError, CHANSVmConvertObjectTypeError, CHANSVmConvertObjectTypeError, vmNull, CHANSVmConvertObjectTypeError},
+    {CHANSVmConvertObjectTypeError, CHANSVmConvertObjectTypeError, CHANSVmConvertObjectTypeError, CHANSVmConvertObjectTypeError, CHANSVmConvertObjectTypeError, vmNull},
+};
 // clang-format on
 
 // Each table is a 6x6 u8 matrix indexed [left_enumed][right_enumed].
@@ -4379,14 +4380,14 @@ VmMethodDefine(Blob, CalcMD5Digest) {
 }
 
 VmMethodDefine(Blob, CalcRangeMD5Digest) {
+    u8* data;
+    u8* digest;
     BlobHeader* blob = (BlobHeader*)VmGetStrFromObjHdr(VmParentObj);
     CHANSVmObjHdr* arg0 = CHANSVmConvertObjectType(VmInst, CHANS_VM_OBJ_TYPE_INTEGER, CHANSVmGetArg(VmInst, 0));
     CHANSVmObjHdr* arg1 = CHANSVmConvertObjectType(VmInst, CHANS_VM_OBJ_TYPE_INTEGER, CHANSVmGetArg(VmInst, 1));
     u32 offset = 0;
     u32 size;
-    u8* data;
     NETMD5Context ctx;
-    u8* digest;
     CHANSVmObjHdr* newObj;
 
     if (blob == vmNull || arg0 == vmNull) {
@@ -4527,6 +4528,8 @@ VmMethodDefine(Blob, CalcHMAC) {
 }
 
 VmMethodDefine(Blob, CalcRangeHMAC) {
+    u8* blobData;
+    u8* digest;
     BlobHeader* blob = (BlobHeader*)VmGetStrFromObjHdr(VmParentObj);
     CHANSVmObjHdr* argKey = CHANSVmGetArg(VmInst, 0);
     BlobHeader* keyBlob;
@@ -4553,9 +4556,7 @@ VmMethodDefine(Blob, CalcRangeHMAC) {
             off = offset;
             if (((s64)size >= 0LL && (s64)(blob->size - off) >= (s64)size) != vmFalse) {
                 NETHMACContext ctx;
-                u8* digest;
                 CHANSVmObjHdr* newObj;
-                u8* blobData;
 
                 newObj = VmBlobCreateDirect(VmInst, VmReturnObj, 20);
                 digest = VmBlobGetDataBufferDirect(newObj);
