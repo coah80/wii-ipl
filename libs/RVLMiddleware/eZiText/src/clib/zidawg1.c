@@ -20,8 +20,9 @@ ziU8* ZiDAWGGetChild(ziU8* node) {
     node += off;
     if ((hdr & 2) != 0) {
         if ((node[0] & 0x80) != 0) {
-            off = node[2] + (((ziU32)(node[0] & 0x7F) << 16) +
-                              ((ziU16)node[1] << 8) + 0x8000);
+            off = (((ziU32)(node[0] & 0x7F) << 16) +
+                    (ziU32)((ziU16)node[1] << 8)) + 0x8000;
+            off = node[2] + off;
         } else {
             off = ((ziU16)node[0] << 8) + node[1];
         }
@@ -59,8 +60,11 @@ ziU8* ZiDAWGGetSibling(ziU8* node) {
             }
         }
         if ((node[0] & 0x80) != 0) {
-            orig = (((ziU32)(node[0] & 0x7F) << 16) +
-                     ((ziU16)node[1] << 8)) + 0x8000 + (orig + node[2]);
+            count = ((ziU32)(node[0] & 0x7F) << 16) +
+                    ((ziU16)node[1] << 8);
+            count += 0x8000;
+            orig += node[2];
+            orig = (ziU8*)((ziU32)count + (ziU32)orig);
         } else {
             orig = orig + ((ziU16)node[0] << 8) + node[1];
         }
@@ -105,7 +109,7 @@ ziU8* ZiDAWGGetSibling(ziU8* node) {
 }
 
 ziU8 ZiDAWGgetEOWattribute(ziU8* node) {
-    return (ziU8)(!!(nodeHeaderTable[node[0] >> 4] & 0x10));
+    return (ziU8)(((nodeHeaderTable[node[0] >> 4] >> 4) & 1));
 }
 
 ziU32 ZiDAWGgetCHARattribute(ziU8* graph, ziU8* node ZI_NEED_WORK) {

@@ -51,10 +51,7 @@ ziBool Zi8IsWordW(ziWChar* word, ziU8 language,
     if (language != 1) {
         i = 0;
         while (word[i] != 0) {
-            if (word[i] >= 0xEFF1) {
-                return 0;
-            }
-            if (i == 0x40) {
+            if (word[i] >= 0xEFF1 || i == 0x40) {
                 return 0;
             }
             i++;
@@ -160,12 +157,12 @@ ziBool Zi8IsWordW(ziWChar* word, ziU8 language,
         }
         q += cnt;
     }
-    if ((*q & 0x80) == 0) {
-        return 0;
+    if ((*q & 0x80) != 0) {
+        packed = 0;
+        q += ((*q & 0x7F) >> 4) + 1;
+        goto tail;
     }
-    packed = 0;
-    q += ((*q & 0x7F) >> 4) + 1;
-    goto tail;
+    return 0;
 more:
     packed = *q++;
 
