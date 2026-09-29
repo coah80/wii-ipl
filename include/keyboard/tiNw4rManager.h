@@ -86,11 +86,29 @@ namespace textinput {
                 virtual void        init() {}                           // 0x08
                 virtual void        calc();                             // 0x0C
 
-                virtual void        onAnmEvent(AnmPaneEvent paneEvent); // 0x10
+                #ifdef TI_PC_KEYBOARD_IMPLEMENTATION
+                virtual void onAnmEvent(AnmPaneEvent) {}
+#else
+                virtual void onAnmEvent(AnmPaneEvent paneEvent);
+#endif // 0x10
 
                 virtual void        changeAnimation(u32 id);            // 0x14
-                virtual bool        isInAnimation();                    // 0x18
-                virtual Anim*       searchAnimation(u32 id);            // 0x1C
+                #ifdef TI_PC_KEYBOARD_IMPLEMENTATION
+                virtual bool isInAnimation() { return mpCurrentAnim != NULL; }
+#else
+                virtual bool isInAnimation();
+#endif                    // 0x18
+                #ifdef TI_PC_KEYBOARD_IMPLEMENTATION
+                virtual Anim* searchAnimation(u32 id) {
+                    for (Anim* animation = static_cast<Anim*>(nw4r::ut::List_GetNext(&mAnms, NULL)); animation != NULL;
+                         animation = static_cast<Anim*>(nw4r::ut::List_GetNext(&mAnms, animation))) {
+                        if (animation->muID == id) return animation;
+                    }
+                    return NULL;
+                }
+#else
+                virtual Anim* searchAnimation(u32 id);
+#endif            // 0x1C
 
                 virtual ~AnmPane();                                     // 0x20
 
@@ -186,7 +204,11 @@ namespace textinput {
 
                 virtual nw4r::lyt::Pane*    get(int i)  { return mpaFifo[i]; }  // 0x10
                 virtual nw4r::lyt::Pane* getLast() {                            // 0x14
+                    #ifdef TI_PC_KEYBOARD_IMPLEMENTATION
+                    for (int i = MAX_COUNT-1; i > -1; i--) {
+#else
                     for (int i = MAX_COUNT-1; i > -1; i++) {
+#endif
                         if (mpaFifo[i] != NULL) {
                             return mpaFifo[i];
                         }
@@ -231,8 +253,16 @@ namespace textinput {
                 
                 virtual void                    setProjectionMtx();                                                                                 // 0x48
 
-                virtual void                    setPaneLastDrawReceived(nw4r::lyt::Pane* paneLastDraw);                                             // 0x4C
-                virtual void                    initPaneLastDrawReceived();                                                                         // 0x50
+                #ifdef TI_PC_KEYBOARD_IMPLEMENTATION
+                virtual void setPaneLastDrawReceived(nw4r::lyt::Pane* pane) { mAnmPaneFifo.push(pane); }
+#else
+                virtual void setPaneLastDrawReceived(nw4r::lyt::Pane* paneLastDraw);
+#endif                                             // 0x4C
+                #ifdef TI_PC_KEYBOARD_IMPLEMENTATION
+                virtual void initPaneLastDrawReceived() { mAnmPaneFifo.init(); }
+#else
+                virtual void initPaneLastDrawReceived();
+#endif                                                                         // 0x50
 
                 virtual void                    setVisible(const char* paneName, bool flag);                                                        // 0x54
                 virtual bool                    isVisible(const char* paneName, bool* result) const;                                                // 0x58

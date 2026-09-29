@@ -62,6 +62,9 @@ namespace textinput {
                 INPUT_COMMAND_37 = 37,
             } INPUT_COMMAND;
 
+#ifdef TI_PC_KEYBOARD_IMPLEMENTATION
+            struct ChangePredictMode { u32 mode; bool enabled; };
+#endif
             virtual void    clearSender();
             virtual void    onCommand(INPUT_COMMAND command, void* data);
             virtual void    addSender(CommandSender* cmdSend);
@@ -75,7 +78,13 @@ namespace textinput {
             CommandSender() : mpCommandReceiver(NULL) {}
 
             virtual void    setCommandReceiver(CommandReceiver* cmdRecv);
+            #ifdef TI_PC_KEYBOARD_IMPLEMENTATION
+            virtual void sendCommand(u32 command, void* data) {
+                if (mpCommandReceiver != NULL) mpCommandReceiver->onCommand(static_cast<CommandReceiver::INPUT_COMMAND>(command), data);
+            }
+#else
             virtual void    sendCommand(u32, void*);
+#endif
             virtual void    updateFromReceiver(u32, void*) {}
 
             nw4r::ut::Link      mLink;              // 0x00

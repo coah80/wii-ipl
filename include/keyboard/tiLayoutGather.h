@@ -19,6 +19,10 @@ namespace textinput {
         bool isHoldingShift() const {
             return isHWPressedShift() || isPressedShiftB();
         }
+#ifdef TI_PC_KEYBOARD_IMPLEMENTATION
+        u8 isCapsLock() const { return mbCpasLock; }
+        void setPressedShiftB(bool pressed) { mbPressedShiftB = pressed; }
+#endif
         u8 isHWPressedShift() const { return mbPressedShift; }
         u8 isPressedShiftB() const { return mbPressedShiftB; }
         void setHWPressedShift(const u8& arg) { mbPressedShift = arg; }

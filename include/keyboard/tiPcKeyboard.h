@@ -1,6 +1,10 @@
 #ifndef TEXTINPUT_PC_KEYBOARD_H
 #define TEXTINPUT_PC_KEYBOARD_H
 
+#ifdef TI_PC_KEYBOARD_IMPLEMENTATION
+#include "tiPcKeyboardImpl.h"
+#else
+
 #include "tiNw4rManager.h"
 #include "tiTextInputBase.h"
 #ifdef MYTIMANAGER_IMPLEMENTATION
@@ -179,4 +183,5 @@ namespace textinput {
 
 }  // namespace textinput
 
+#endif
 #endif  // TEXTINPUT_HW_KEYBOARD_H
