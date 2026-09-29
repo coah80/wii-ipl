@@ -235,7 +235,6 @@ pf_s32 PFDIR_DoFsexecOpenDir(PF_DIR_ENT* entry, PF_ENT_ITER* iter, PFDIR_DIR** o
 pf_s32 PFDIR_p_opendir(PF_VOLUME* volume, PFDIR_STR* path, PFDIR_DIR** opened_dir) {
     PF_ENT_ITER iter;
     PF_DIR_ENT entry;
-    PFDIR_VOLUME_DIRS* volume_dirs = (PFDIR_VOLUME_DIRS*)volume;
     PFDIR_SDD* sdd;
     PFDIR_DIR* dir;
     pf_s32 error;
@@ -285,13 +284,16 @@ open_directory:
     if (sdd == 0) {
         return 0x15;
     }
-    dir = volume_dirs->udds;
-    for (i = 0; i < 3; i++, dir++) {
+    dir = ((PFDIR_VOLUME_DIRS*)volume)->udds;
+    i = 3;
+    do {
         if ((dir->stat & 1) == 0) {
             break;
         }
-    }
-    if (i == 3) {
+        i--;
+        dir++;
+    } while (i != 0);
+    if (i == 0) {
         return 0x16;
     }
     dir->p_sdd = sdd;
@@ -597,8 +599,7 @@ pf_s32 PFDIR_p_rmdir(PF_VOLUME* volume, PFDIR_STR* path) {
     volume_dirs = (PFDIR_VOLUME_DIRS*)volume;
     for (i = 0; i < 3; i++) {
         PFDIR_SDD* sdd = &volume_dirs->sdds[i];
-        if ((sdd->stat & 1) != 0 && (sdd->stat & 2) != 0 &&
-            entry.p_vol == sdd->dir_entry.p_vol &&
+        if ((sdd->stat & 3) == 3 && entry.p_vol == sdd->dir_entry.p_vol &&
             entry.entry_sector == sdd->dir_entry.entry_sector &&
             entry.entry_offset == sdd->dir_entry.entry_offset) {
             return 0x13;
