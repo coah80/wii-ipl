@@ -454,7 +454,7 @@ s32 PFVOL_p_getvol(PF_VOLUME* p_vol, PF_VOL_INF* p_vinf) {
 }
 
 s32 PFVOL_p_rmvvol(PF_VOLUME* p_vol) {
-    u8 del_code = *((const u8*)pf_vol_dummy_e5);
+    u8 del_code;
     u32 pos;
     u32 ppos;
     u32 written;
@@ -464,6 +464,7 @@ s32 PFVOL_p_rmvvol(PF_VOLUME* p_vol) {
     PF_DIR_ENT root;
     PF_DIR_ENT ent;
     s32 err;
+    del_code = *((const u8*)pf_vol_dummy_e5);
     err = PFENT_GetRootDir(p_vol, &root);
     if (err != 0) {
         return err;
