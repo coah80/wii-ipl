@@ -2675,7 +2675,11 @@ namespace ipl {
 
         void Setting::setUseEULA_Init_() {
             if (!ncd::NCDSetting::getEnableFlag()) {
-                System::getDialog()->callBtn2(System::getRegion() == 2 ? 0x174 : 0x170, 0x146, 0x25);
+                if (static_cast<u32>(System::getRegion()) == 2) {
+                    System::getDialog()->callBtn2(0x174, 0x146, 0x25);
+                } else {
+                    System::getDialog()->callBtn2(0x170, 0x146, 0x25);
+                }
                 unk_0x74 = 9;
                 unk_0x7C = 0;
                 resetFuncMsgQ();
@@ -2761,18 +2765,18 @@ namespace ipl {
         }
 
         void Setting::setUpdate_Init_() {
-            if (!ncd::NCDSetting::getEnableFlag()) {
-                System::getDialog()->callBtn2(0x17f, 0x146, 0x25);
-                unk_0x74 = 9;
-                resetFuncMsgQ();
-            } else {
+            if (ncd::NCDSetting::getEnableFlag()) {
                 www::wiisetting::setFuncResult(1);
-                if (System::getRegion() == 2) {
+                if (static_cast<u32>(System::getRegion()) == 2) {
                     System::getDialog()->callBtn1Sml(0x177, 0x179);
                 } else {
                     System::getDialog()->callBtn1Sml(0x176, 0x178);
                 }
                 mProfileIDMode = 1;
+            } else {
+                System::getDialog()->callBtn2(0x17f, 0x146, 0x25);
+                unk_0x74 = 9;
+                resetFuncMsgQ();
             }
         }
 
@@ -2841,12 +2845,12 @@ namespace ipl {
 
         void Setting::setUpdate_EULAInit_() {
             if (System::getDialog()->getLastResult() >= 0) {
-                if (SCGetEULA() == 0) {
+                if (SCGetEULA() != 0) {
+                    mProfileIDMode = 10;
+                } else {
                     mProfileIDMode = 0;
                     www::wiisetting::setFuncResult(1);
                     resetFuncMsgQ();
-                } else {
-                    mProfileIDMode = 10;
                 }
             }
         }
@@ -2870,7 +2874,10 @@ namespace ipl {
             }
             u16 profileID = ncd::NCDSetting::getUseProfileID();
             ncd::NCDSetting::initSetID(profileID & 0xff);
-            return (profileID & 0xff) == 3 ? 0 : profileID;
+            if ((profileID & 0xff) == 3) {
+                profileID = 0;
+            }
+            return profileID;
         }
 
         int Setting::getUpdateTiming() {
