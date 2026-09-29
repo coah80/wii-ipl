@@ -103,7 +103,7 @@ namespace ipl {
                 y = r.y;
                 z = 0.0f;
             }
-#ifdef IPL_ADDRESS_EDIT_CPP
+#if defined(IPL_ADDRESS_EDIT_CPP) || defined(IPL_SD_CHANNEL_SELECT_CPP)
             VEC3(f32 fx, f32 fy, f32 fz);
 #else
             VEC3(f32 fx, f32 fy, f32 fz) {

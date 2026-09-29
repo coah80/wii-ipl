@@ -50,6 +50,11 @@ namespace ipl {
 
             int getPrevPage() { return mLastPrevPage; }
 
+#ifdef IPL_SD_CHANNEL_SELECT_ACCESS
+            int getLastSDPrevPage() { return mLastSDPrevPage; }
+            BOOL didntGotoSDMenu() const { return mData.didntGotoSDMenu; }
+#endif
+
             bool hasPhotoMP3Dummy() { return mbPhotoMP3; }
             bool hasPhoto2Title() { return mbPhoto2; }
             bool hasPhoto2DummyCheck() { return mbPhoto2Check; }
