@@ -15,6 +15,7 @@
 
 #include "iplwww/www_wiisetting.h"
 #include "iplwww/www_surface.h"
+#include "iplwww/www_window.h"
 #include "iplwww/www_trasition.h"
 
 #include <cstdio>
@@ -30,6 +31,12 @@
 #include <private/wpad/WPADInternal.h>
 
 extern "C" void __VISetAdjustingValues(s32 horizontal, s32 vertical);
+
+namespace ipl {
+    namespace scene {
+        static s32 browserScrollDirection;
+    }
+}
 
 namespace ipl {
     class SensitivityDrawing {
@@ -137,7 +144,7 @@ namespace ipl {
             "G_Lock1",      "G_Lock2",     "G_Lock3", "G_Lock4", "G_Lock5", "G_Lock6",
         };
 
-        const char* sSettingAPAnimations[] = {
+        const char* sSettingAPAnimations[19] = {
             "my_AP_a_ArwAppear.brlan", "my_AP_a_ArwLost.brlan", "my_AP_a_ArwFocusOn.brlan",
             "my_AP_a_ArwFocusOff.brlan", "my_AP_a_ArwSelect.brlan", "my_AP_a_ScrollUp.brlan",
             "my_AP_a_ScrollDown.brlan", "my_AP_a_BtnFocusOn.brlan", "my_AP_a_BtnFocusOff.brlan",
@@ -656,7 +663,8 @@ namespace ipl {
 
         bool Setting::updateScreenMode() {
             if (unk_0x91C[2] != 0) {
-                if (unk_0xB94 == 0) {
+                switch (unk_0xB94) {
+                case 0:
                     if (mEuRgb60Mode != SCGetEuRgb60Mode()) {
                         unk_0xB94 = 3;
                     } else if (mProgressiveMode != SCGetProgressiveMode()) {
@@ -668,6 +676,9 @@ namespace ipl {
                         mState = 0;
                         return true;
                     }
+                    break;
+                default:
+                    goto screenModeDispatch;
                 }
             } else if (unk_0xB94 == 1 && unk_0x74 == 8) {
                     System::getFader()->fadeOut();
@@ -677,6 +688,7 @@ namespace ipl {
                     return true;
             }
 
+        screenModeDispatch:
             switch (unk_0xB94) {
             case 1:
                 if (System::getFader()->getStatus() == EGG::Fader::PREPARE_IN) {
@@ -1261,63 +1273,67 @@ namespace ipl {
 
         FaderSceneCommand Setting::calcFadeout() {
             if (System::getFader()->getStatus() == EGG::Fader::PREPARE_IN) {
-                if (unk_0x5C == 0) {
+                const u8 surfaceState = unk_0x5C;
+                if (surfaceState == 0) {
                     unk_0x5C = 1;
                     ext_ead::www::SurfaceManager::GetInstance()->StopThreadAsync();
                     OSReport("!!!!!!!!!!!!! SCFlush !!!!!!!!!!!!!!\n");
                     SCFlush();
-                } else if (unk_0x7C == 5) {
-                if (mInitialArgument == 2 || mInitialArgument == 5) {
-                    SCSetConfigDoneFlag(TRUE);
-                    SCSetConfigDoneFlag2(TRUE);
-                    SCSetUpdateType(0);
-                    SCFlush();
                 }
+                if (surfaceState != 0) {
+                    if (unk_0x7C == 5) {
+                        if (mInitialArgument == 2 || mInitialArgument == 5) {
+                            SCSetConfigDoneFlag(TRUE);
+                            SCSetConfigDoneFlag2(TRUE);
+                            SCSetUpdateType(0);
+                            SCFlush();
+                        }
 
-                    while (WPADGetStatus() != 0 ||
-                           System::getBS2Manager()->getIPLState() != bs2::IPL_STATE_8) {
-                        snd::getSystem()->calc();
-                        System::getBS2Manager()->update();
+                        while (WPADGetStatus() != 0 ||
+                               System::getBS2Manager()->getIPLState() != bs2::IPL_STATE_8) {
+                            snd::getSystem()->calc();
+                            System::getBS2Manager()->update();
+                            VIWaitForRetrace();
+                            if (WPADGetStatus() != 0) {
+                                OSReport("wait for WPAD\n");
+                            }
+                            if (System::getBS2Manager()->getIPLState() != bs2::IPL_STATE_8) {
+                                OSReport("wait for BS2\n");
+                            }
+                        }
+
+                        VISetBlack(TRUE);
+                        VIFlush();
                         VIWaitForRetrace();
-                        if (WPADGetStatus() != 0) {
-                            OSReport("wait for WPAD\n");
+                        OSReport("VI Black\n");
+                        while (!__OSSyncSram()) {
+                            OSReport("sync sram\n");
                         }
-                        if (System::getBS2Manager()->getIPLState() != bs2::IPL_STATE_8) {
-                            OSReport("wait for BS2\n");
+                        while (!System::isReceiveScheduleStopped()) {
+                            OSReport("Wait ScheduleStopped\n");
+                            OSSleepMilliseconds(5);
                         }
+                        __OSLaunchTitlelForSystem(mUpdateTitleId, 0, NULL);
+                        for (;;) {
+                            OSReport(NULL);
+                        }
+                    } else if (ext_ead::www::SurfaceManager::GetInstance()->IsThreadStopped()) {
+                        OSReport("reserve destroy\n");
+                        ext_ead::www::SurfaceManager::DisposeManager();
+                        OSReport("reserve destroy done\n");
+                        if (mInitialArgument == 2 || mInitialArgument == 5) {
+                            SCSetConfigDoneFlag(TRUE);
+                            SCSetConfigDoneFlag2(TRUE);
+                            SCSetUpdateType(0);
+                            SCFlush();
+                            reserveAllSceneDestruction(0x1a, NULL);
+                        } else {
+                            System::reloadDownloadTask();
+                            reserveAllSceneDestruction(0x15, NULL);
+                        }
+                        delete mpBrowserData;
+                        return FADER_SCN_NEXT;
                     }
-
-                    VISetBlack(TRUE);
-                    VIFlush();
-                    VIWaitForRetrace();
-                    OSReport("VI Black\n");
-                    while (!__OSSyncSram()) {
-                        OSReport("sync sram\n");
-                    }
-                    while (!System::isReceiveScheduleStopped()) {
-                        OSReport("Wait ScheduleStopped\n");
-                        OSSleepMilliseconds(5);
-                    }
-                    __OSLaunchTitlelForSystem(mUpdateTitleId, 0, NULL);
-                    for (;;) {
-                        OSReport(NULL);
-                    }
-                } else if (ext_ead::www::SurfaceManager::GetInstance()->IsThreadStopped()) {
-                    OSReport("reserve destroy\n");
-                    ext_ead::www::SurfaceManager::DisposeManager();
-                    OSReport("reserve destroy done\n");
-                    if (mInitialArgument == 2 || mInitialArgument == 5) {
-                        SCSetConfigDoneFlag(TRUE);
-                        SCSetConfigDoneFlag2(TRUE);
-                        SCSetUpdateType(0);
-                        SCFlush();
-                        reserveAllSceneDestruction(0x1a, NULL);
-                    } else {
-                        System::reloadDownloadTask();
-                        reserveAllSceneDestruction(0x15, NULL);
-                    }
-                    delete mpBrowserData;
-                    return FADER_SCN_NEXT;
                 }
             }
 
@@ -1347,18 +1363,33 @@ namespace ipl {
                 return;
             }
 
+            ext_ead::www::BrowserWindow* browserWindow =
+                static_cast<ext_ead::www::BrowserWindow*>(browser->mpBrowserWindows[0]);
+            if (browserWindow != NULL && browserWindow->unk_0x2C4[3] != 0) {
+                unk_0x91C[2] = 1;
+                mState = 0;
+                browserWindow->unk_0x2C4[3] = 0;
+                www::trasition::ScrollState scrollState = www::trasition::GetScrollState();
+                browserScrollDirection = scrollState == www::trasition::SCROLL_LEFT
+                                             ? 1
+                                             : (scrollState == www::trasition::SCROLL_RIGHT ? -1 : 0);
+                www::trasition::ResetScrollState();
+                void* changedWideBuffer = browser->GetTextureBuffer(1, NULL);
+                void* changedStandardBuffer = browser->GetTextureBuffer(0, NULL);
+                OSReport("changed %p %p\n", changedStandardBuffer, changedWideBuffer);
+                ext_ead::www::Heap::reportLeaHeap();
+            }
+
+            bool showBrowserWindow =
+                mpSecondAnimation->state == 1 || mpFirstAnimation->state == 1;
+            mpChangeLayout->FindPaneByName("hoge")->SetVisible(showBrowserWindow);
+
             WWWRect* wideRect = NULL;
             WWWRect* standardRect = NULL;
             void* wideBuffer = browser->GetTextureBuffer(1, &wideRect);
             void* standardBuffer = browser->GetTextureBuffer(0, &standardRect);
             if (wideBuffer == NULL || standardBuffer == NULL) {
                 return;
-            }
-
-            if (www::trasition::GetScrollState() != www::trasition::SCROLL_RESET) {
-                www::trasition::ResetScrollState();
-                OSReport("changed %p %p\n", standardBuffer, wideBuffer);
-                ext_ead::www::Heap::reportLeaHeap();
             }
 
             nw4r::ut::Rect projection4x3;
@@ -1372,6 +1403,10 @@ namespace ipl {
             GXInitTexObj(&wideTexture, wideBuffer, wideRect->w, wideRect->h, GX_TF_RGBA8, GX_CLAMP, GX_CLAMP, GX_FALSE);
             GXInitTexObjLOD(&standardTexture, GX_LINEAR, GX_LINEAR, 0.0f, 0.0f, 0.0f, GX_FALSE, GX_FALSE, GX_ANISO_1);
             GXInitTexObjLOD(&wideTexture, GX_LINEAR, GX_LINEAR, 0.0f, 0.0f, 0.0f, GX_FALSE, GX_FALSE, GX_ANISO_1);
+
+            if (browserScrollDirection != 0) {
+                mpChangeLayout->FindPaneByName("hoge")->SetVisible(true);
+            }
 
             utility::Graphics::setOrtho(0);
             GXColor color = {0xFF, 0xFF, 0xFF, (u8)(mState * 0xFF / 20)};
@@ -1914,20 +1949,24 @@ namespace ipl {
             memset(mpStringBuffer->securityKey, 0, sizeof(mpStringBuffer->securityKey));
             s32 privacyMode = ncd::NCDSetting::getNCDPrivacyMode();
             size_t keyLength;
-            if (privacyMode != 2) {
-                if (privacyMode < 2) {
-                    if (privacyMode == 0) {
-                        keyLength = 0;
-                    } else {
-                        keyLength = 5;
-                    }
-                } else if (privacyMode < 7 && privacyMode > 3) {
-                    keyLength = 64;
-                } else {
-                    keyLength = 0;
-                }
-            } else {
+            switch (privacyMode) {
+            case 0:
+                keyLength = 0;
+                break;
+            case 1:
+                keyLength = 5;
+                break;
+            case 2:
                 keyLength = 13;
+                break;
+            case 4:
+            case 5:
+            case 6:
+                keyLength = 64;
+                break;
+            default:
+                keyLength = 0;
+                break;
             }
             if (keyLength != 0) {
                 memcpy(mpStringBuffer->securityKey, ncd::NCDSetting::getPrivacy(), keyLength);
@@ -2288,17 +2327,16 @@ namespace ipl {
             int count = 0;
             memset(ascii, 0, sizeof(ascii));
             utility::CharacterCode::UTF8ToANSI(reinterpret_cast<u8*>(ascii), address);
-            char* converted = ascii;
             int componentStart = 0;
             u8* output = destination;
             for (int index = 0; index < 0x10; ++index) {
-                u8 character = static_cast<u8>(converted[index]);
+                u8 character = static_cast<u8>(ascii[index]);
                 if (character == '.' || character == 0) {
                     if (character == 0) {
                         index = 0x10;
                     }
-                    converted[index] = 0;
-                    u32 value = atoi(converted + componentStart);
+                    ascii[index] = 0;
+                    u32 value = atoi(ascii + componentStart);
                     if (value > 0xff) {
                         value = 0xff;
                     }
@@ -2313,7 +2351,7 @@ namespace ipl {
                     ++count;
                     ++output;
                     if (count == 3 && index != 0x10) {
-                        value = atoi(converted + componentStart);
+                        value = atoi(ascii + componentStart);
                         if (value > 0xff) {
                             value = 0xff;
                         }
@@ -2811,16 +2849,15 @@ namespace ipl {
             if (accessPoint != -1) {
                 int index = 0;
                 while (index <= mAPScanList.count) {
-                    WDBssDesc_* descriptor = mAPScanList.currentDescriptor;
-                    int recordLength = descriptor->length * 2;
+                    int recordLength = mAPScanList.currentDescriptor->length * 2;
                     recordOffset += recordLength;
                     if (recordOffset > 0x800) {
                         break;
                     }
                     if (index == accessPoint + unk_0x914 + 1) {
-                        u8 privacyMode = static_cast<u8>(WDGetPrivacyMode(descriptor));
+                        u8 privacyMode = static_cast<u8>(WDGetPrivacyMode(mAPScanList.currentDescriptor));
                         char ssid[0x21];
-                        memcpy(ssid, descriptor->ssid, 0x20);
+                        memcpy(ssid, mAPScanList.currentDescriptor->ssid, 0x20);
                         ssid[0x20] = 0;
                         memset(mpStringBuffer->securityKey, 0, sizeof(mpStringBuffer->securityKey));
                         memset(mpStringBuffer->ssid, 0, sizeof(mpStringBuffer->ssid));
@@ -2838,7 +2875,9 @@ namespace ipl {
                         OSReport("SET DATA : %d %s %d\n", index, ssid, privacyMode);
                         break;
                     }
-                    mAPScanList.currentDescriptorWords += recordLength / sizeof(u16);
+                    mAPScanList.currentDescriptor =
+                        reinterpret_cast<WDBssDesc_*>(
+                            mAPScanList.entries + recordOffset - sizeof(mAPScanList.count));
                     ++index;
                 }
                 unk_0x91C[2] = 0;
@@ -2857,7 +2896,7 @@ namespace ipl {
                     if (unk_0x914 == 1) {
                         mpMainLayout->FindPaneByName("N_AP0")->SetVisible(false);
                     }
-                } else {
+                } else if (arrow == 1) {
                     unk_0x91C[0] = 1;
                     if (mAPScanList.count == unk_0x914 + 5) {
                         mpMainLayout->FindPaneByName("N_AP7")->SetVisible(false);
@@ -3097,13 +3136,15 @@ namespace ipl {
         }
 
         u16 Setting::getProfileID() {
-            if (mProfileIDMode < 3) {
-                return ncd::NCDSetting::getID();
-            }
-            u16 profileID = ncd::NCDSetting::getUseProfileID();
-            ncd::NCDSetting::initSetID(profileID & 0xff);
-            if ((profileID & 0xff) == 3) {
-                profileID = 0;
+            u16 profileID;
+            if (mProfileIDMode >= 3) {
+                profileID = ncd::NCDSetting::getUseProfileID();
+                ncd::NCDSetting::initSetID(static_cast<u8>(profileID));
+                if (static_cast<u8>(profileID) == 3) {
+                    profileID = 0;
+                }
+            } else {
+                profileID = ncd::NCDSetting::getID();
             }
             return profileID;
         }
@@ -3239,7 +3280,7 @@ namespace ipl {
             }
         }
 
-        static const wchar_t errorFormat[] = L"\n%03d";
+        static const wchar_t errorFormat[] = L"%d\n";
 
         void Setting::makeErrorMessage() {
             const wchar_t* prefix = System::getMessage(400);
@@ -3399,7 +3440,7 @@ namespace ipl {
                 unk_0x84 = 1;
                 unk_0x91C[1] = 0;
                 resetFuncMsgQ();
-                }
+            }
         }
 
         void Setting::cancelUSBAP() {
@@ -3630,14 +3671,14 @@ namespace ipl {
             case ::gui::EventHandler::ON_POINT:
                 mpSetting->start_point_event(paneName);
                 break;
+            case ::gui::EventHandler::ON_LEFT:
+                mpSetting->start_left_event(paneName);
+                break;
             case ::gui::EventHandler::ON_TRIG:
                 controller::Interface* input = static_cast<controller::Interface*>(data);
                 if (input->downTrg(0x100800)) {
                     mpSetting->start_trig_event(paneName);
                 }
-                break;
-            case ::gui::EventHandler::ON_LEFT:
-                mpSetting->start_left_event(paneName);
                 break;
             default:
                 break;
