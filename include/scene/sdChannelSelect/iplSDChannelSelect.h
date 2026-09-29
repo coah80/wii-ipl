@@ -15,15 +15,21 @@ namespace ipl {
             ~SDChannelObj();
 
             EGG::Heap* getHeap() const { return mpHeap; }
+            int getPage() const { return mPage; }
+            int getIndex() const { return mIndex; }
 
         private:
             nw4r::ut::Link mListLink;
             f32 mOffsetX;
             f32 mOffsetY;
             EGG::Heap* mpHeap;
+            u32 mState;
+            int mPage;
+            int mIndex;
         };
         extern "C" void iplSDChannelObj_813E3104(SDChannelObj* channel);
         extern "C" void iplSDChannelObj_813E322C(SDChannelObj* channel);
+        extern "C" void iplSDChannelObj_813E3304(SDChannelObj* channel);
         extern "C" void iplSDChannelObj_813E330C(SDChannelObj* channel);
 
         union SDChannelSelectCommandArguments {

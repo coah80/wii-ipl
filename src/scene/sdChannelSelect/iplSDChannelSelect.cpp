@@ -962,7 +962,17 @@ namespace ipl {
             SDChannelObj* channel = NULL;
             while (channel = static_cast<SDChannelObj*>(nw4r::ut::List_GetNext(&mChannelObjects, channel)),
                    channel != NULL) {
-                iplSDChannelObj_813E330C(channel);
+                if (hasChannelObject(channel->getPage(), channel->getIndex())) {
+                    iplSDChannelObj_813E3304(channel);
+                }
+            }
+
+            channel = NULL;
+            while (channel = static_cast<SDChannelObj*>(nw4r::ut::List_GetNext(&mChannelObjects, channel)),
+                   channel != NULL) {
+                if (hasChannelObject(channel->getPage(), channel->getIndex())) {
+                    iplSDChannelObj_813E330C(channel);
+                }
             }
         }
 
