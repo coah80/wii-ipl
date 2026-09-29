@@ -1044,10 +1044,11 @@ s32 PFFAT_GetSectorSpecified(PF_FFD* p_ffd, u32 chain_index, u32 is_contiguous, 
     s32 err;
 
     err = PFFAT_GetSector(p_ffd, chain_index, is_contiguous != 0, 0, p_sector);
-    if (err != 0) {
+    if (err == 0) {
+        return 0;
+    } else {
         return err;
     }
-    return 0;
 }
 
 s32 PFFAT_GetSectorAllocated(PF_FFD* p_ffd, u32 chain_index, u32 num_bytes, u32* p_sector) {

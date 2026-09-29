@@ -106,11 +106,11 @@ typedef struct PF_FAT_LAST_ACCESS {
 } PF_FAT_LAST_ACCESS;
 
 typedef struct PF_CLUSTER_LINK {
-    u32 max_count;
+    u32* buffer;
     u16 interval;
     u16 interval_offset;
     u32 position;
-    u32* buffer;
+    u32 max_count;
     u32 save_index;
 } PF_CLUSTER_LINK;
 
@@ -293,8 +293,8 @@ typedef struct PF_VOLUME {
     u16 clst_interval;             // 0x1F96
     u32* clst_buffer;              // 0x1F98
     u32 clst_link_max;             // 0x1F9C
-    u32* clst_buf;                 // 0x1F98
-    u32 clst_count;                // 0x1F9C
+#define clst_buf clst_buffer
+#define clst_count clst_link_max
     void* p_part;                  // 0x1FA0
     s32 (*p_callback)(s32);        // 0x1FA4
     const u8* format_param;        // 0x1FA8
@@ -359,7 +359,7 @@ u32 PFSTR_GetCodeMode(PF_STR* p_str);
 s8* PFSTR_GetStrPos(PF_STR* p_str, u32 target);
 void PFSTR_MoveStrPos(PF_STR* p_str, s16 num_char);
 s32 PFSTR_InitStr(PF_STR* p_str, const s8* s, u32 code_mode);
-u32 PFSTR_StrLen(PF_STR* p_str);
+u16 PFSTR_StrLen(PF_STR* p_str);
 u16 PFSTR_StrNumChar(PF_STR* p_str, u32 target);
 s32 PFSTR_StrCmp(const PF_STR* p_str, const s8* s);
 s32 PFSTR_StrNCmp(PF_STR* p_str, const s8* s, u32 target, s16 offset, u16 num);

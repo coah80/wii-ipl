@@ -42,8 +42,8 @@ extern s32 pdm_disk_physical_read(PDM_DISK* p_disk, u8* buf, u32 sector, u32 num
 extern s32 pdm_disk_physical_write(PDM_DISK* p_disk, const u8* buf, u32 sector, u32 num_sector, u16 bps, u32* p_num_success);
 
 s32 pdm_part_is_master_boot_sector(const u8* p_sector, u32 num_sector, u32* p_is_mbr) {
-    u32 start_sector[4];
     u32 sector_num[4];
+    u32 start_sector[4];
     u32* p_num;
     u32* p_start;
     const u8* pe;
@@ -59,8 +59,8 @@ s32 pdm_part_is_master_boot_sector(const u8* p_sector, u32 num_sector, u32* p_is
     p_num = sector_num;
     for (i = 0; i < 4; i++) {
         *p_start = 0;
-        *p_start = pe[0x1C9] * 0x1000000 + pe[0x1C8] * 0x10000 + pe[0x1C6] + pe[0x1C7] * 0x100;
-        *p_num = pe[0x1CD] * 0x1000000 + pe[0x1CC] * 0x10000 + pe[0x1CA] + pe[0x1CB] * 0x100;
+        *p_start = (pe[0x1C9] * 0x1000000 + pe[0x1C7] * 0x100) + (pe[0x1C8] * 0x10000 + pe[0x1C6]);
+        *p_num = (pe[0x1CD] * 0x1000000 + pe[0x1CB] * 0x100) + (pe[0x1CC] * 0x10000 + pe[0x1CA]);
         if (*p_start != 0 && *p_num != 0) {
             if (i == 0) {
                 *p_is_mbr = 1;
@@ -152,22 +152,14 @@ s32 pdm_part_get_start_sector(PDM_PARTITION* p_part) {
 
     pdm_part_is_master_boot_sector(buf, p_part->p_disk->num_sectors, &is_mbr);
     if (is_mbr != 0) {
-        start_sector[0] = buf[0x1C8] * 0x10000 + buf[0x1C6] +
-                            buf[0x1C9] * 0x1000000 + buf[0x1C7] * 0x100;
-        sector_num[0] = buf[0x1CC] * 0x10000 + buf[0x1CA] +
-                            buf[0x1CD] * 0x1000000 + buf[0x1CB] * 0x100;
-        start_sector[1] = buf[0x1D8] * 0x10000 + buf[0x1D6] +
-                            buf[0x1D9] * 0x1000000 + buf[0x1D7] * 0x100;
-        sector_num[1] = buf[0x1DC] * 0x10000 + buf[0x1DA] +
-                            buf[0x1DD] * 0x1000000 + buf[0x1DB] * 0x100;
-        start_sector[2] = buf[0x1E8] * 0x10000 + buf[0x1E6] +
-                            buf[0x1E9] * 0x1000000 + buf[0x1E7] * 0x100;
-        sector_num[2] = buf[0x1EC] * 0x10000 + buf[0x1EA] +
-                            buf[0x1ED] * 0x1000000 + buf[0x1EB] * 0x100;
-        start_sector[3] = buf[0x1F8] * 0x10000 + buf[0x1F6] +
-                            buf[0x1F9] * 0x1000000 + buf[0x1F7] * 0x100;
-        sector_num[3] = buf[0x1FC] * 0x10000 + buf[0x1FA] +
-                            buf[0x1FD] * 0x1000000 + buf[0x1FB] * 0x100;
+        start_sector[0] = buf[0x1C6] + buf[0x1C7] * 0x100 + buf[0x1C8] * 0x10000 + buf[0x1C9] * 0x1000000;
+        sector_num[0] = buf[0x1CA] + buf[0x1CB] * 0x100 + buf[0x1CC] * 0x10000 + buf[0x1CD] * 0x1000000;
+        start_sector[1] = buf[0x1D6] + buf[0x1D7] * 0x100 + buf[0x1D8] * 0x10000 + buf[0x1D9] * 0x1000000;
+        sector_num[1] = buf[0x1DA] + buf[0x1DB] * 0x100 + buf[0x1DC] * 0x10000 + buf[0x1DD] * 0x1000000;
+        start_sector[2] = buf[0x1E6] + buf[0x1E7] * 0x100 + buf[0x1E8] * 0x10000 + buf[0x1E9] * 0x1000000;
+        sector_num[2] = buf[0x1EA] + buf[0x1EB] * 0x100 + buf[0x1EC] * 0x10000 + buf[0x1ED] * 0x1000000;
+        start_sector[3] = buf[0x1F6] + buf[0x1F7] * 0x100 + buf[0x1F8] * 0x10000 + buf[0x1F9] * 0x1000000;
+        sector_num[3] = buf[0x1FA] + buf[0x1FB] * 0x100 + buf[0x1FC] * 0x10000 + buf[0x1FD] * 0x1000000;
 
         for (i = 0; i < 4; i++) {
             rel_start = start_sector[i];
@@ -237,8 +229,8 @@ s32 pdm_part_get_start_sector(PDM_PARTITION* p_part) {
 
 u32 pdm_part_chg_ltop(PDM_PARTITION* p_part, u32 lsector, u16 lbps) {
     u16 bps;
-    u32 shift;
     u32 offset;
+    u32 shift;
 
     pdm_disk_get_media_bps(p_part->p_disk, &bps);
     if (lbps == bps) {
