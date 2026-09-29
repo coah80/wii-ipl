@@ -608,13 +608,10 @@ namespace ipl {
 
         bool Setting::isInitialSequenceExit(const controller::Interface* input) {
             u32 connectedMask = utility::wpad::getWpadConnectedMask();
-            if (input->downTrg(0x100800)) {
-                return true;
-            }
-
-            OSTime elapsed = OSGetTime() - mCreatePageTime;
-            if (elapsed / (OS_TIMER_CLOCK / 1000) >= 500 && connectedMask != unk_0xBA8 &&
-                utility::wpad::isIncreaseConnectedWpad(unk_0xBA8, connectedMask)) {
+            if (input->downTrg(0x100800) ||
+                ((OSGetTime() - mCreatePageTime) / (OS_TIMER_CLOCK / 1000) >= 500 &&
+                 connectedMask != unk_0xBA8 &&
+                 utility::wpad::isIncreaseConnectedWpad(unk_0xBA8, connectedMask))) {
                 return true;
             }
 
