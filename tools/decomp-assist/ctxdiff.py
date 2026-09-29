@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """Compact function diff with context: python ctxdiff.py <unit> <symbol> [--full]"""
 import sys
+import os
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, "/home/cole/projects/tests")
 from odiff import dis, sym
-import os
 import itertools
 
 
