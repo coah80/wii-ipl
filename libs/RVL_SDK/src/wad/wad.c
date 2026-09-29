@@ -3053,6 +3053,186 @@ cleanup:
     return result;
 }
 
+s32 WADImportDVDExForBS(const char* path, void* buffer, u32 bufferSize) {
+    WADHeader header ALIGN32;
+    WADBootImportParts parts;
+    DVDFileInfo fileInfo;
+    u8* readBuffer = buffer;
+    u8* contentBuffer;
+    ESTitleMeta* titleMeta;
+    ESContentMeta* contentMeta;
+    u32 sectionOffset;
+    u32 remainingBufferSize;
+    u32 contentCount;
+    u32 contentIndex;
+    s32 contentFd;
+    s32 result = 0;
+    s32 readResult;
+    BOOL fileOpened = FALSE;
+
+    if ((path == 0) || (buffer == 0)) {
+        result = -3000;
+        goto cleanup;
+    }
+    if (!DVDOpen(path, &fileInfo)) {
+        return -3004;
+    }
+    fileOpened = TRUE;
+    if (buffer == 0) {
+        result = -3003;
+        goto cleanup;
+    }
+    if (((s32)readBuffer % 0x40) != 0) {
+        readBuffer += 0x20;
+        bufferSize -= 0x20;
+    }
+    readResult = DVDReadPrio(&fileInfo, &header, sizeof(header), 0, 2);
+    if (readResult != sizeof(header)) {
+        result = -3005;
+        goto cleanup;
+    }
+
+    memset(&parts, 0, sizeof(parts));
+    result = WAD_815C2F44(&header, parts.headerInfo);
+    if (result != 2) {
+        result = -3000;
+        goto cleanup;
+    }
+
+    sectionOffset = (header.hdrSize + 0x3F) & ~0x3F;
+    if (header.certSize != 0) {
+        parts.certificateSize = header.certSize;
+        parts.certificates = readBuffer + sectionOffset;
+        sectionOffset += (header.certSize + 0x3F) & ~0x3F;
+    }
+    if (header.crlSize != 0) {
+        parts.crlSize = header.crlSize;
+        parts.crls = readBuffer + sectionOffset;
+        sectionOffset += (header.crlSize + 0x3F) & ~0x3F;
+    }
+    if (header.ticketSize != 0) {
+        parts.ticketSize = header.ticketSize;
+        parts.ticket = readBuffer + sectionOffset;
+        sectionOffset += (header.ticketSize + 0x3F) & ~0x3F;
+    }
+    if (header.tmdSize != 0) {
+        parts.titleMetaSize = header.tmdSize;
+        parts.titleMeta = readBuffer + sectionOffset;
+        sectionOffset += (header.tmdSize + 0x3F) & ~0x3F;
+    }
+    titleMeta = parts.titleMeta;
+    remainingBufferSize = bufferSize - sectionOffset;
+    contentBuffer = readBuffer + sectionOffset;
+    if (sectionOffset > bufferSize) {
+        result = -3003;
+        goto cleanup;
+    }
+    readResult = DVDReadPrio(&fileInfo, readBuffer, sectionOffset, 0, 2);
+    if (readResult != sectionOffset) {
+        result = -3005;
+        goto cleanup;
+    }
+    if (parts.headerInfo[0] == 3) {
+        result = -3001;
+        goto cleanup;
+    }
+    if (parts.ticket != 0) {
+        result = ES_ImportTicket(parts.ticket, parts.certificates, parts.certificateSize,
+                                 parts.crls, parts.crlSize, 1);
+        if (result != 0) {
+            goto cleanup;
+        }
+    }
+    if (titleMeta == 0) {
+        goto cleanup;
+    }
+    if (parts.headerInfo[1] >= 1) {
+        contentCount = _WADGetCidxCount((ESContentMask*)parts.headerInfo);
+        if (contentCount > titleMeta->head.numContents) {
+            goto cleanup;
+        }
+    } else {
+        contentCount = titleMeta->head.numContents;
+    }
+
+    result = ES_ImportTitleInit(parts.titleMeta, parts.titleMetaSize, parts.certificates,
+                                parts.certificateSize, parts.crls, parts.crlSize,
+                                parts.headerInfo[0], 1);
+    if (result != 0) {
+        ES_ImportTitleCancel();
+        goto cleanup;
+    }
+
+    contentIndex = 0;
+    while (contentIndex < contentCount) {
+        s32 titleContentIndex;
+        u32 remainingContentSize;
+
+        if (parts.headerInfo[1] >= 1) {
+            titleContentIndex = _WADGetCidx((ESContentMask*)parts.headerInfo, contentIndex);
+            if ((titleContentIndex < 0) ||
+                (titleContentIndex >= titleMeta->head.numContents)) {
+                ES_ImportTitleCancel();
+                goto cleanup;
+            }
+            contentMeta = &titleMeta->contents[titleContentIndex];
+        } else {
+            contentMeta = &titleMeta->contents[contentIndex];
+        }
+        contentFd = ES_ImportContentBegin(titleMeta->head.titleId, contentMeta->cid);
+        if (contentFd < 0) {
+            result = contentFd;
+            ES_ImportContentEnd(contentFd);
+            ES_ImportTitleCancel();
+            goto cleanup;
+        }
+
+        remainingContentSize = ((u32)contentMeta->size + 0xF) & ~0xF;
+        while (remainingContentSize != 0) {
+            u32 chunkSize = remainingContentSize;
+            u32 readSize;
+
+            if (chunkSize > remainingBufferSize) {
+                chunkSize = remainingBufferSize;
+            }
+            readSize = (chunkSize + 0x1F) & ~0x1F;
+            readResult = DVDReadPrio(&fileInfo, contentBuffer, readSize, sectionOffset, 2);
+            if ((u32)readResult != readSize) {
+                result = -3005;
+                ES_ImportContentEnd(contentFd);
+                ES_ImportTitleCancel();
+                goto cleanup;
+            }
+            sectionOffset += readResult;
+            result = ES_ImportContentData(contentFd, contentBuffer, chunkSize);
+            if (result < 0) {
+                ES_ImportContentEnd(contentFd);
+                ES_ImportTitleCancel();
+                goto cleanup;
+            }
+            remainingContentSize -= chunkSize;
+        }
+        sectionOffset = (sectionOffset + 0x3F) & ~0x3F;
+        result = ES_ImportContentEnd(contentFd);
+        if (result != 0) {
+            ES_ImportTitleCancel();
+            goto cleanup;
+        }
+        contentIndex++;
+    }
+
+    result = ES_ImportTitleDone();
+    if (result != 0) {
+        ES_ImportTitleCancel();
+    }
+
+cleanup:
+    if (fileOpened) {
+        DVDClose(&fileInfo);
+    }
+    return result;
+}
+
 extern const u8 ca_ppki[];
 extern const u8 ms_ppki[];
 extern const u8 ca_dpki[];
