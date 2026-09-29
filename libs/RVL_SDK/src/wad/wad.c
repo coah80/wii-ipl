@@ -15,7 +15,6 @@ typedef union WADStreamHandle {
     CNTFileInfoNAND contentNand;
     FAFILE* fa;
     void* memoryBase;
-    u8 storage[0xB8];
 } WADStreamHandle;
 
 typedef struct __attribute__((aligned(32))) WADStream {
@@ -100,8 +99,7 @@ typedef struct WADVerificationCertificateBundle {
     u8 secondCertificate[0x180];
 } WADVerificationCertificateBundle;
 
-typedef struct __attribute__((aligned(64))) WADVerificationWorkspace {
-    u8 reserved_0x00[0x40];
+typedef struct WADVerificationWorkspace {
     void* readBuffer[16];
     u8 digest[0x40];
     u8 hashContext[0xC0];
@@ -142,6 +140,12 @@ typedef struct WADImportLoopArgs {
 
 typedef WADImportLoopArgs WADExportLoopArgs;
 
+typedef struct WADHashThreadArgs {
+    void* context;
+    u32 size;
+    WADImportTransfer* transfer;
+} WADHashThreadArgs;
+
 #define WAD_STREAM_ALIGNMENT 0x40
 #define WAD_READ_ALIGNMENT 0x20
 #define WAD_ALIGN32(value) (((value) + WAD_READ_ALIGNMENT - 1) & ~(WAD_READ_ALIGNMENT - 1))
@@ -163,7 +167,9 @@ static s32 _WADUnpackBackup(WADHeader* header, WADStream* stream, WADUnpackInfo*
 static s32 _WADUnpack(void* header, WADStream* stream, WADUnpackInfo* info, MEMAllocator* allocator,
                       u32 offset, u32 flags, u32 mode);
 static s32 _WADHash(WADStream* stream, u32 offset, u32 size, void* context, void* buffer,
-                    u32 bufferSize, u32 flags, u32 mode, u32 chunkSize);
+                    u32 chunkSize, void* secondBuffer, void* threadStack, u32 threadStackSize);
+static void WAD_815C4A2C(WADImportTransfer* transfer, void* firstBuffer, void* secondBuffer,
+                         u32 chunkSize);
 s32 WADVerify(WADStream* stream, MEMAllocator* allocator, u32 offset, u32 size);
 s32 _WADGetCidxCount(const ESContentMask* contentMask);
 static s32 _WADGetCidx(const ESContentMask* contentMask, s32 contentNumber);
@@ -615,6 +621,7 @@ static s32 _WADCanImportFile(const WADFileHeader* fileHeader, u32 transferId, co
 
 #pragma dont_inline on
 static void* _WADMemAlloc(MEMAllocator* allocator, u32 size) {
+    s32 allocationKind;
     u32 heapType;
     void* buffer;
 
@@ -623,9 +630,25 @@ static void* _WADMemAlloc(MEMAllocator* allocator, u32 size) {
     }
     heapType = ((MEMiHeapHead*)allocator->heap)->magic;
     if (heapType == 0x46524D48) {
+        allocationKind = 1;
+    } else {
+        if (heapType < 0x46524D48) {
+            if (heapType == 0x45585048) {
+                allocationKind = 0;
+                goto allocate;
+            }
+        } else if (heapType == 0x554E5448) {
+            allocationKind = 2;
+            goto allocate;
+        }
+        allocationKind = 3;
+    }
+
+allocate:
+    if (allocationKind == 1) {
         return MEMAllocFromFrmHeapEx(allocator->heap, size, 0x40);
     }
-    if (heapType == 0x45585048) {
+    if (allocationKind == 0) {
         return MEMAllocFromExpHeapEx(allocator->heap, size, 0x40);
     }
     buffer = MEMAllocFromAllocator(allocator, size);
@@ -638,8 +661,12 @@ static void* _WADMemAlloc(MEMAllocator* allocator, u32 size) {
 }
 
 static void _WADMemFree(MEMAllocator* allocator, void* buffer) {
-    if ((allocator != 0) && (allocator->heap != 0) && (buffer != 0)) {
-        MEMFreeToAllocator(allocator, buffer);
+    if (allocator != 0) {
+        if (allocator->heap != 0) {
+            if (buffer != 0) {
+                MEMFreeToAllocator(allocator, buffer);
+            }
+        }
     }
 }
 #pragma dont_inline reset
@@ -1328,52 +1355,57 @@ typedef struct WADSaveDataFile {
 } WADSaveDataFile;
 
 s32 WADCheckSavedataZD(const WADSaveDataFile* saveData) {
-    const WADSaveDataRecord* record;
+    const WADSaveDataRecord* record = saveData->primary;
     u32 index;
+    s32 result = FALSE;
 
-    for (index = 0; index < 3; index++) {
-        record = &saveData->primary[index];
+    index = 0;
+    do {
         if (!_WADIsTerminated(record->fileName, 8)) {
-            return FALSE;
+            goto done;
         }
         if (!_WADIsTerminated(record->bannerName, 8)) {
-            return FALSE;
+            goto done;
         }
         if (!_WADIsTerminated(record->saveName, 8)) {
-            return FALSE;
+            goto done;
         }
         if (!_WADIsTerminated(record->titleName, 8)) {
-            return FALSE;
+            goto done;
         }
         if (!_WADIsTerminated(record->description, 0x11)) {
-            return FALSE;
+            goto done;
         }
         if (!_WADIsTerminated(record->subtitle, 0x11)) {
-            return FALSE;
+            goto done;
         }
-    }
-    for (index = 0; index < 3; index++) {
-        record = &saveData->secondary[index];
+        index++;
+        record++;
+    } while (index < 3);
+    record = saveData->secondary;
+    for (index = 0; index < 3; index++, record++) {
         if (!_WADIsTerminated(record->fileName, 8)) {
-            return FALSE;
+            goto done;
         }
         if (!_WADIsTerminated(record->bannerName, 8)) {
-            return FALSE;
+            goto done;
         }
         if (!_WADIsTerminated(record->saveName, 8)) {
-            return FALSE;
+            goto done;
         }
         if (!_WADIsTerminated(record->titleName, 8)) {
-            return FALSE;
+            goto done;
         }
         if (!_WADIsTerminated(record->description, 0x11)) {
-            return FALSE;
+            goto done;
         }
         if (!_WADIsTerminated(record->subtitle, 0x11)) {
-            return FALSE;
+            goto done;
         }
     }
-    return TRUE;
+    result = TRUE;
+done:
+    return result;
 }
 
 extern const u8 ca_ppki[];
@@ -1383,8 +1415,151 @@ extern const u8 ms_dpki[];
 extern s32 SHA1Reset(void* context);
 extern s32 SHA1Result(void* context, void* digest);
 
+static s32 WAD_815C43E0(WADHashThreadArgs* args) {
+    void* context;
+    s32 result;
+    u32 remaining;
+    u32 bufferIndex;
+    WADImportTransfer* transfer;
+
+    context = args->context;
+    result = 0;
+    remaining = args->size;
+    bufferIndex = 0;
+    transfer = args->transfer;
+
+    while ((remaining != 0) && (result == 0)) {
+        u32 size = remaining;
+        OSMutex* mutex;
+
+        if (transfer->chunkSize < remaining) {
+            size = transfer->chunkSize;
+        }
+        mutex = &transfer->mutex[bufferIndex];
+        OSLockMutex(mutex);
+        while (transfer->ready[bufferIndex] == 0) {
+            OSWaitCond(&transfer->signalCond[bufferIndex], mutex);
+        }
+        result = SHA1Input(context, transfer->buffers[bufferIndex], size);
+        transfer->ready[bufferIndex] = 0;
+        if (result != 0) {
+            transfer->error = 1;
+        }
+        OSUnlockMutex(mutex);
+        OSSignalCond(&transfer->waitCond[bufferIndex]);
+        remaining -= size;
+        bufferIndex ^= 1;
+    }
+    return result;
+}
+
+static s32 _WADHash(WADStream* stream, u32 offset, u32 size, void* context, void* buffer,
+                    u32 chunkSize, void* secondBuffer, void* threadStack, u32 threadStackSize) {
+    s32 result = 0;
+
+    if ((stream == 0) || (context == 0) || (buffer == 0)) {
+        return -3000;
+    }
+    if (size != WAD_ALIGN32(size)) {
+        return -3000;
+    }
+    if (((u32)buffer & 0x1F) != 0) {
+        return -3007;
+    }
+    if (chunkSize != WAD_ALIGN32(chunkSize)) {
+        return -3000;
+    }
+    if ((secondBuffer == 0) || (threadStack == 0)) {
+        u32 completed = 0;
+
+        while (size != 0) {
+            void* readBuffer = buffer;
+            u32 readSize = size;
+
+            if (chunkSize < size) {
+                readSize = chunkSize;
+            }
+            result = WADReadStream(stream, &readBuffer, readSize, offset + completed);
+            if ((u32)result != readSize) {
+                result = -3005;
+                break;
+            }
+            result = SHA1Input(context, readBuffer, readSize);
+            if (result != 0) {
+                break;
+            }
+            completed += readSize;
+            size -= readSize;
+        }
+    } else {
+        WADImportTransfer transfer;
+        WADHashThreadArgs args;
+        OSThread thread;
+        s32 threadResult = 0;
+        u32 completed = 0;
+        u32 bufferIndex = 0;
+        BOOL readFailed = FALSE;
+
+        WAD_815C4A2C(&transfer, buffer, secondBuffer, chunkSize);
+        args.context = context;
+        args.size = size;
+        args.transfer = &transfer;
+        if (!OSCreateThread(&thread, (void* (*)(void*))WAD_815C43E0, &args,
+                            (u8*)threadStack + threadStackSize, threadStackSize,
+                            OSGetThreadPriority(OSGetCurrentThread()), 0)) {
+            return -3009;
+        }
+        OSResumeThread(&thread);
+        while ((size != 0) && (transfer.error == 0)) {
+            void* readBuffer;
+            u32 readSize = size;
+            OSMutex* mutex = &transfer.mutex[bufferIndex];
+
+            if (chunkSize < size) {
+                readSize = chunkSize;
+            }
+            OSLockMutex(mutex);
+            while ((transfer.ready[bufferIndex] != 0) && (transfer.error == 0)) {
+                OSWaitCond(&transfer.waitCond[bufferIndex], mutex);
+            }
+            if (transfer.error != 0) {
+                OSUnlockMutex(mutex);
+                break;
+            }
+            readBuffer = transfer.buffers[bufferIndex];
+            result = WADReadStream(stream, &readBuffer, readSize, offset + completed);
+            if ((u32)result != readSize) {
+                OSMutex* otherMutex = &transfer.mutex[bufferIndex ^ 1];
+
+                OSLockMutex(otherMutex);
+                OSCancelThread(&thread);
+                OSJoinThread(&thread, 0);
+                OSUnlockMutex(otherMutex);
+                OSUnlockMutex(mutex);
+                result = -3005;
+                readFailed = TRUE;
+                break;
+            }
+            transfer.ready[bufferIndex] = readSize;
+            OSUnlockMutex(mutex);
+            OSSignalCond(&transfer.signalCond[bufferIndex]);
+            completed += readSize;
+            size -= readSize;
+            bufferIndex ^= 1;
+        }
+        if (!readFailed) {
+            if (!OSJoinThread(&thread, &threadResult)) {
+                result = -3009;
+            } else {
+                result = threadResult;
+            }
+        }
+    }
+    return result;
+}
+
 s32 WADVerify(WADStream* stream, MEMAllocator* allocator, u32 offset, u32 size) {
-    WADVerificationWorkspace workspace;
+    WADVerificationWorkspace workspace ALIGN64;
     void* verificationBuffer = 0;
     WADBackupSignature* backupSignature;
     WADVerificationCertificateBundle* certificateBundle;
