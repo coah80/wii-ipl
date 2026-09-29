@@ -48,10 +48,14 @@ namespace ipl {
             mpMainLayout->getAnim(5)->initAnmFrame();
             mpMainLayout->getAnim(8)->initAnmFrame();
 
-            nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(mpMainLayout->FindPaneByName("T_Dialog_00"))->SetString(System::getMessage(0xB0));
-            nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(mpMainLayout->FindPaneByName("TextBox_05"))->SetString(System::getMessage(0xBB));
-            nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(mpMainLayout->FindPaneByName("TextBox_06"))->SetString(System::getMessage(0xBC));
-            nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(mpMainLayout->FindPaneByName("T_BtnA"))->SetString(System::getMessage(0x25));
+            nw4r::lyt::TextBox* textBox = nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(mpMainLayout->FindPaneByName("T_Dialog_00"));
+            textBox->SetString(System::getMessage(0xB0));
+            textBox = nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(mpMainLayout->FindPaneByName("TextBox_05"));
+            textBox->SetString(System::getMessage(0xBB));
+            textBox = nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(mpMainLayout->FindPaneByName("TextBox_06"));
+            textBox->SetString(System::getMessage(0xBC));
+            textBox = nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(mpMainLayout->FindPaneByName("T_BtnA"));
+            textBox->SetString(System::getMessage(0x25));
 
             mpTitleLayout = new (heap) layout::Object(heap, layoutFile, "arc", "mn_DialogWindow_ChChange_b.brlyt");
             mpTitleLayout->bindToGroup("mn_DialogWindow_ChChange_b_DialogIn.brlan", "G_InOut", false, true);
@@ -79,15 +83,24 @@ namespace ipl {
             mpTitleLayout->getAnim(11)->initAnmFrame();
             mpTitleLayout->getAnim(14)->initAnmFrame();
 
-            nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(mpTitleLayout->FindPaneByName("T_Dialog"))->SetString(System::getMessage(0xB6));
-            nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(mpTitleLayout->FindPaneByName("TextBox_00"))->SetString(System::getMessage(0xB7));
-            nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(mpTitleLayout->FindPaneByName("TextBox_01"))->SetString(System::getMessage(0xB8));
-            nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(mpTitleLayout->FindPaneByName("TextBox_02"))->SetString(System::getMessage(0xB9));
-            nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(mpTitleLayout->FindPaneByName("TextBox_03"))->SetString(System::getMessage(0xBA));
-            nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(mpTitleLayout->FindPaneByName("T_Dialog_00"))->SetString(System::getMessage(0xB6));
-            nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(mpTitleLayout->FindPaneByName("TextBox_05"))->SetString(System::getMessage(0xB8));
-            nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(mpTitleLayout->FindPaneByName("TextBox_06"))->SetString(System::getMessage(0xB9));
-            nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(mpTitleLayout->FindPaneByName("TextBox_07"))->SetString(System::getMessage(0xBA));
+            textBox = nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(mpTitleLayout->FindPaneByName("T_Dialog"));
+            textBox->SetString(System::getMessage(0xB6));
+            textBox = nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(mpTitleLayout->FindPaneByName("TextBox_00"));
+            textBox->SetString(System::getMessage(0xB7));
+            textBox = nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(mpTitleLayout->FindPaneByName("TextBox_01"));
+            textBox->SetString(System::getMessage(0xB8));
+            textBox = nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(mpTitleLayout->FindPaneByName("TextBox_02"));
+            textBox->SetString(System::getMessage(0xB9));
+            textBox = nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(mpTitleLayout->FindPaneByName("TextBox_03"));
+            textBox->SetString(System::getMessage(0xBA));
+            textBox = nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(mpTitleLayout->FindPaneByName("T_Dialog_00"));
+            textBox->SetString(System::getMessage(0xB6));
+            textBox = nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(mpTitleLayout->FindPaneByName("TextBox_05"));
+            textBox->SetString(System::getMessage(0xB8));
+            textBox = nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(mpTitleLayout->FindPaneByName("TextBox_06"));
+            textBox->SetString(System::getMessage(0xB9));
+            textBox = nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(mpTitleLayout->FindPaneByName("TextBox_07"));
+            textBox->SetString(System::getMessage(0xBA));
 
             mpDialogLayout = new (heap) layout::Object(heap, layoutFile, "arc", "mn_DialogWindow_ChChange_c.brlyt");
             static_cast<nw4r::lyt::TextBox*>(mpDialogLayout->FindPaneByName("T_Letter"))->AllocStringBuffer(0x840);
@@ -124,10 +137,10 @@ namespace ipl {
             mpDialogLayout->getAnim(18)->initFrame();
             mpDialogLayout->getAnim(18)->restart();
 
-            nw4r::lyt::TextBox* exitText = nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(mpDialogLayout->FindPaneByName("T_CalExit"));
-            exitText->SetString(System::getMessage(0xA5));
-            nw4r::lyt::TextBox* exitTextAlt = nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(mpDialogLayout->FindPaneByName("T_CalExit_00"));
-            exitTextAlt->SetString(System::getMessage(0xC4));
+            textBox = nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(mpDialogLayout->FindPaneByName("T_CalExit"));
+            textBox->SetString(System::getMessage(0xA5));
+            textBox = nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(mpDialogLayout->FindPaneByName("T_CalExit_00"));
+            textBox->SetString(System::getMessage(0xC4));
 
             mpProgressLayout = new (heap) layout::Object(heap, layoutFile, "arc", "mn_DialogWindow_Background.brlyt");
             mpProgressLayout->bindToGroup("mn_DialogWindow_Background_DialogIn.brlan", "G_InOut", false, true);
@@ -318,7 +331,7 @@ namespace ipl {
             for (int i = 0; i < 4; i++) {
                 if (mPanelAnimationStates[i] != 0) {
                     mPanelAnimationStates[i] = 0;
-                    nw4r::lyt::Pane* pane = mpDialogLayout->getNW4RLyt()->GetRootPane()->FindPaneByName(sDialogPaneNames[i]);
+                    nw4r::lyt::Pane* pane = mpDialogLayout->FindPaneByName(sDialogPaneNames[i]);
                     mpPaneManagers[2]->initPane(pane);
 
                     layout::Animator* animation = NULL;
