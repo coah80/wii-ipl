@@ -2401,18 +2401,18 @@ namespace ipl {
             if (System::getNwc24Manager() != NULL) {
                 return true;
             }
-            if (unk_0x94 == 1) {
-                if (System::getDialog()->getLastResult() >= 0) {
-                    unk_0xB9C = 1;
-                    unk_0x74 = 0;
-                    unk_0x94 = 0;
+            if (unk_0x94 != 1) {
+                if (unk_0x94 < 1 && unk_0x94 >= 0) {
+                    resetFuncMsgQ();
+                    System::getDialog()->callBtn1(0x21, 0x2e);
+                    www::wiisetting::setFuncResult(2);
+                    unk_0x74 = 0x11;
+                    unk_0x94 = 1;
                 }
-            } else if (unk_0x94 == 0) {
-                resetFuncMsgQ();
-                System::getDialog()->callBtn1(0x21, 0x2e);
-                www::wiisetting::setFuncResult(2);
-                unk_0x74 = 0x11;
-                unk_0x94 = 1;
+            } else if (System::getDialog()->getLastResult() >= 0) {
+                unk_0xB9C = 1;
+                unk_0x74 = 0;
+                unk_0x94 = 0;
             }
             return false;
         }
