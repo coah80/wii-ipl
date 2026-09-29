@@ -27,8 +27,13 @@ void VISetNextFrameBuffer(void* fb);
 void VISetBlack(BOOL setBlack);
 
 void VISetTrapFilter(BOOL setTrap);
+#ifdef VI_MATCHING_SOURCE
+BOOL VIResetDimmingCount();
+BOOL VIEnableDimming(BOOL enableDim);
+#else
 void VIResetDimmingCount();
 void VIEnableDimming(BOOL enableDim);
+#endif
 
 u32 VIGetRetraceCount();
 u32 VIGetDTVStatus();
