@@ -548,6 +548,14 @@ namespace ipl {
             VIFlush();
             VIWaitForRetrace();
 
+            if (static_cast<u32>(System::getRegion()) == 2) {
+                if (mEuRgb60Mode == 0) {
+                    *reinterpret_cast<u32*>(0x800000cc) = 1;
+                } else {
+                    *reinterpret_cast<u32*>(0x800000cc) = 5;
+                }
+            }
+
             while (mpSecondAnimation->state == 1 || mpFirstAnimation->state == 1) {
                 mpChangeLayout->calc();
             }
