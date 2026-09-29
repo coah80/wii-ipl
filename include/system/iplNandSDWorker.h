@@ -179,6 +179,10 @@ namespace ipl {
 
         static const int SD_APP_BACKUP_THUMBNAIL_LENGTH = 0xC800;
 
+#ifdef IPL_SDMEMORY_COMPLETION_PCT_ACCESSOR
+        static int getCompletionPct() { return s_completion_pct; }
+#endif
+
     protected:
         static const int FAT_PAGES = 8;
         static const int DATA_PAGES = 32;

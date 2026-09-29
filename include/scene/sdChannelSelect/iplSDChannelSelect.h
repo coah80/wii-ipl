@@ -125,6 +125,11 @@ namespace ipl {
             SDChannelSelect(EGG::Heap* heap);
             virtual ~SDChannelSelect();
 
+            NandSDWorker::WorkSDState getSDState() const {
+                return static_cast<NandSDWorker::WorkSDState>(mCurrentSDState);
+            }
+            NandSDWorker* getWorker() const { return mpSDWorker; }
+
             virtual BOOL isResetProcessDone();
             virtual void startResetting();
             virtual void prepare();

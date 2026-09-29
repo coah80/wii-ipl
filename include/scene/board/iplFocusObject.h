@@ -85,6 +85,9 @@ namespace ipl {
             }
 
             const utility::BScroller& getBInst() { return mBScroller; }
+#ifdef IPL_SDMEMORY_SCROLLER_BINST_RESET
+            void resetBInst() { mBScroller.reset(); }
+#endif
 
             bool isDownEnd() const { return mScroller.isDownEnd(); }
             bool isUpEnd() const { return mScroller.isUpEnd(); }
@@ -98,6 +101,9 @@ namespace ipl {
 
             void setDownLimit(f32 v) { mScroller.setDownLimit(v); }
             void setUpLimit(f32 v) { mScroller.setUpLimit(v); }
+#ifdef IPL_SDMEMORY_SCROLLER_STATE_ACCESSOR
+            void setState(int state) { mScroller.setState(state); }
+#endif
 
             bool isActive() const { return mScroller.isActive(); }
 

@@ -327,6 +327,9 @@ namespace ipl {
         void setProgBarLength(int len) { mProgBarLen = len; }
         /** @return The current length of the progress bar */
         int getProgBarLength() { return mProgBarLen; }
+#ifdef IPL_SDMEMORY_DIALOG_PROGRESS_FRAME_ACCESSOR
+        int getProgBarFrame() const { return mProgBarFrame; }
+#endif
 
         /**
          * Dialog component handler (Automatically executed by the GUI manager)

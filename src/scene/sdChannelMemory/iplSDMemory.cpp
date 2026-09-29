@@ -2,26 +2,47 @@
 #define IPL_SDMEMORY_SET_TRANSLATE_OUT_OF_LINE
 #define IPL_SDMEMORY_DIALOG_STATE_ACCESSOR
 #define IPL_SDMEMORY_GET_TEXT_DRAW_RECT_OUT_OF_LINE
+#define IPL_SDMEMORY_SCROLLER_BINST_RESET
+#define IPL_SDMEMORY_SD_CHANNEL_SELECT_LAYOUT
+#define IPL_SDMEMORY_COMPLETION_PCT_ACCESSOR
+#define IPL_SDMEMORY_DIALOG_PROGRESS_FRAME_ACCESSOR
+#define IPL_SDMEMORY_SET_TEXT_COLORS
+#define IPL_SDMEMORY_SCROLLER_STATE_ACCESSOR
+#include "system/iplDialogWindow.h"
+#undef IPL_SDMEMORY_DIALOG_PROGRESS_FRAME_ACCESSOR
 #include "scene/sdChannelMemory/iplSDMemory.h"
+#include "scene/sdChannelSelect/iplSDChannelSelect.h"
+#undef IPL_SDMEMORY_SET_TEXT_COLORS
+#undef IPL_SDMEMORY_SCROLLER_STATE_ACCESSOR
 #undef IPL_SDMEMORY_DIALOG_STATE_ACCESSOR
 #undef IPL_SDMEMORY_SET_TRANSLATE_OUT_OF_LINE
 #undef IPL_SDMEMORY_SCROLLER_INIT_OUT_OF_LINE
 #undef IPL_SDMEMORY_GET_TEXT_DRAW_RECT_OUT_OF_LINE
+#undef IPL_SDMEMORY_SCROLLER_BINST_RESET
+#undef IPL_SDMEMORY_SD_CHANNEL_SELECT_LAYOUT
+#undef IPL_SDMEMORY_COMPLETION_PCT_ACCESSOR
 
 #include "system/iplSystem.h"
 #include "sound/iplSound.h"
 #include "utility/iplLayout.h"
 #include <revolution/os/OSTime.h>
 
-extern "C" bool iplSDChannelSelect_813DDB74(ipl::scene::NandSDCardManager* manager,
+extern "C" bool iplSDChannelSelect_813DDB74(ipl::scene::SDChannelSelect* channelSelect,
                                              ipl::scene::SDMemory::TitleRange* nandTitles,
                                              ipl::scene::SDMemory::TitleRange* sdTitles,
                                              ESTitleId* titleIds, wchar_t* titleNames, u32* titleCount,
                                              s32 state);
-extern "C" bool iplSDChannelSelect_813DB5EC(ipl::scene::NandSDCardManager* manager,
+extern "C" bool iplSDChannelSelect_813DB5EC(ipl::scene::SDChannelSelect* channelSelect,
                                              const ESTitleId* titleEntry, ESTitleId titleId);
-extern "C" bool iplSDChannelSelect_813DB4D4(ipl::scene::NandSDCardManager* manager,
+extern "C" bool iplSDChannelSelect_813DB4D4(ipl::scene::SDChannelSelect* channelSelect,
                                              const ESTitleId* titleEntry, ESTitleId titleId, u32 flags);
+extern "C" bool iplSDChannelSelect_813DB530(ipl::scene::SDChannelSelect* channelSelect,
+                                             ESTitleId** titleNames, ESTitleId** secondaryTitles);
+extern "C" bool iplSDChannelSelect_813DB478(ipl::scene::SDChannelSelect* channelSelect,
+                                             const ESTitleId* titleEntry, ESTitleId titleId);
+extern "C" bool iplSDChannelSelect_813DB58C(ipl::scene::SDChannelSelect* channelSelect,
+                                             ESTitleId** titles, ESTitleId** secondaryTitles,
+                                             ESTitleId** names);
 
 namespace ipl {
     namespace utility {
@@ -35,6 +56,13 @@ namespace ipl {
     }
 
     namespace scene {
+        typedef ::gui::Component GuiComponent;
+        typedef ::gui::PaneComponent GuiPaneComponent;
+        typedef controller::Interface ControllerInterface;
+
+        void setTitleRowColors(nw4r::lyt::TextBox* textBox, const nw4r::ut::Color& first,
+                               const nw4r::ut::Color& second);
+
         static const char* const sControlPaneNames[] = {
             "A", "B", "B_BtnA",
         };
@@ -47,8 +75,8 @@ namespace ipl {
 
         SDMemory::~SDMemory() {}
 
-        void SDMemory::create(EGG::Heap* heap, nand::LayoutFile* layoutFile, NandSDCardManager* manager) {
-            mpNandSDCardManager = manager;
+        void SDMemory::create(EGG::Heap* heap, nand::LayoutFile* layoutFile, SDChannelSelect* channelSelect) {
+            mpSDChannelSelect = channelSelect;
 
             mpMainLayout = new (heap) layout::Object(heap, layoutFile, "arc", "mn_DialogWindow_ChChange_a.brlyt");
             mpMainLayout->bindToGroup("mn_DialogWindow_ChChange_a_DialogIn.brlan", "G_InOut", false, true);
@@ -167,6 +195,37 @@ namespace ipl {
             mpProgressLayout->bindToGroup("mn_DialogWindow_Background_DialogOut.brlan", "G_InOut", false, true);
             mpProgressLayout->finishBinding();
             mpProgressLayout->getAnim(0)->initAnmFrame();
+
+            ControlPaneEventHandler* controlEvent = new ControlPaneEventHandler(this);
+            mpPaneManagers[0] = new gui::PaneManager(controlEvent, mpMainLayout->getDrawInfo(), NULL, NULL);
+            mpPaneManagers[0]->setupScene(mpMainLayout);
+            mpPaneManagers[0]->setAllComponentTriggerTarget(false);
+            for (s32 i = 0; i < 3; ++i) {
+                mpPaneManagers[0]->setTriggerTarget(mpMainLayout->FindPaneByName(sControlPaneNames[i]), true);
+            }
+
+            TitlePaneEventHandler* titleEvent = new TitlePaneEventHandler(this);
+            mpPaneManagers[1] = new gui::PaneManager(titleEvent, mpTitleLayout->getDrawInfo(), NULL, NULL);
+            mpPaneManagers[1]->setupScene(mpTitleLayout);
+            mpPaneManagers[1]->setAllComponentTriggerTarget(false);
+            if (mDisplayMode == 4) {
+                for (s32 i = 0; i < 5; ++i) {
+                    mpPaneManagers[1]->setTriggerTarget(mpTitleLayout->FindPaneByName(sTitlePaneNames[i]), true);
+                }
+            } else {
+                for (s32 i = 0; i < 4; ++i) {
+                    mpPaneManagers[1]->setTriggerTarget(
+                        mpTitleLayout->FindPaneByName(sAdditionalTitlePaneNames[i]), true);
+                }
+            }
+
+            DialogPaneEventHandler* dialogEvent = new DialogPaneEventHandler(this);
+            mpPaneManagers[2] = new gui::PaneManager(dialogEvent, mpDialogLayout->getDrawInfo(), NULL, NULL);
+            mpPaneManagers[2]->setupScene(mpDialogLayout);
+            mpPaneManagers[2]->setAllComponentTriggerTarget(false);
+            for (s32 i = 0; i < 4; ++i) {
+                mpPaneManagers[2]->setTriggerTarget(mpDialogLayout->FindPaneByName(sDialogPaneNames[i]), true);
+            }
 
         }
 
@@ -482,6 +541,134 @@ namespace ipl {
             return stateResult == 2 ? true : result;
         }
 
+        s32 SDMemory::updateState() {
+            NandSDWorker::WorkSDState sdState = mpSDChannelSelect->getSDState();
+            s32 result = 0;
+            if (static_cast<u32>(sdState - NandSDWorker::SD_STATE_EJECTED) >
+                static_cast<u32>(NandSDWorker::SD_STATE_INSERTED - NandSDWorker::SD_STATE_EJECTED)) {
+                return result;
+            }
+
+            switch (mDialogState) {
+            case 1:
+            case 2: {
+                mpMainLayout->getAnim(1)->initAnmFrame();
+                mpMainLayout->getAnim(1)->initFrame();
+                mpMainLayout->getAnim(1)->restart();
+                mpDialogLayout->getAnim(1)->initAnmFrame();
+                mpDialogLayout->getAnim(1)->initFrame();
+                mpDialogLayout->getAnim(1)->restart();
+                mTransferFlags[1] = 0;
+                mDialogState = 3;
+                result = 1;
+                break;
+            }
+            case 3:
+                if (mTransferFlags[1] != 0) {
+                    mpDialogLayout->getAnim(1)->initAnmFrame();
+                    mpDialogLayout->getAnim(1)->initFrame();
+                    mpDialogLayout->getAnim(1)->restart();
+                    mTransferFlags[1] = 0;
+                }
+                if (!mpMainLayout->isPlaying(1) && !mpDialogLayout->isPlaying(1)) {
+                    result = 2;
+                } else {
+                    result = 1;
+                }
+                break;
+            case 5:
+            case 6:
+                mpTitleLayout->getAnim(1)->initAnmFrame();
+                mpTitleLayout->getAnim(1)->initFrame();
+                mpTitleLayout->getAnim(1)->restart();
+                mpDialogLayout->getAnim(1)->initAnmFrame();
+                mpDialogLayout->getAnim(1)->initFrame();
+                mpDialogLayout->getAnim(1)->restart();
+                mTransferFlags[1] = 0;
+                mDialogState = 7;
+                result = 1;
+                break;
+            case 7:
+                if (mTransferFlags[1] != 0) {
+                    mpDialogLayout->getAnim(1)->initAnmFrame();
+                    mpDialogLayout->getAnim(1)->initFrame();
+                    mpDialogLayout->getAnim(1)->restart();
+                    mTransferFlags[1] = 0;
+                }
+                if (!mpTitleLayout->isPlaying(1) && !mpDialogLayout->isPlaying(1)) {
+                    result = 2;
+                } else {
+                    result = 1;
+                }
+                break;
+            case 10:
+            case 11:
+                mDialogState = 12;
+                mpDialogLayout->getAnim(1)->initAnmFrame();
+                mpDialogLayout->getAnim(1)->initFrame();
+                mpDialogLayout->getAnim(1)->restart();
+                mTransferFlags[1] = 0;
+                mScroller.init();
+                mScroller.resetBInst();
+                if (mControllerFlags[0] != 0) {
+                    hideDownArrow();
+                }
+                if (mControllerFlags[1] != 0) {
+                    hideUpArrow();
+                }
+                result = 1;
+                break;
+            case 12:
+                if (mTransferFlags[1] != 0) {
+                    mScroller.init();
+                    mScroller.resetBInst();
+                    mpDialogLayout->getAnim(1)->initAnmFrame();
+                    mpDialogLayout->getAnim(1)->initFrame();
+                    mpDialogLayout->getAnim(1)->restart();
+                    mTransferFlags[1] = 0;
+                }
+                if (!mpTitleLayout->isPlaying(1) && !mpDialogLayout->isPlaying(1)) {
+                    result = 2;
+                } else {
+                    result = 1;
+                }
+                break;
+            case 8:
+            case 22: {
+                DialogWindow* dialog = System::getDialog();
+                s32 dialogState = dialog->getStateForSDMemory();
+                if (dialogState == 2) {
+                    dialog->terminate();
+                    mpDialogLayout->getAnim(1)->initAnmFrame();
+                    mpDialogLayout->getAnim(1)->initFrame();
+                    mpDialogLayout->getAnim(1)->restart();
+                    mTransferFlags[1] = 0;
+                } else if ((dialogState == 3 || dialogState == 4) && mTransferFlags[1] != 0) {
+                    mpDialogLayout->getAnim(1)->initAnmFrame();
+                    mpDialogLayout->getAnim(1)->initFrame();
+                    mpDialogLayout->getAnim(1)->restart();
+                    mTransferFlags[1] = 0;
+                }
+
+                if (dialog->getLastResult() != -1) {
+                    if (mpDialogLayout->isPlaying(1) || dialog->getLastResult() == 1) {
+                        result = 1;
+                    } else {
+                        result = 2;
+                    }
+                }
+                break;
+            }
+            default:
+                break;
+            }
+
+            if (result == 2) {
+                mErrorCode = 6;
+            }
+            return result;
+        }
+
         void SDMemory::onDialogState0() {
             if (!mpMainLayout->isPlaying(-1)) {
                 for (int i = 0; i < 3; i++) {
@@ -513,7 +700,7 @@ namespace ipl {
             if (!mpMainLayout->isPlaying(-1)) {
                 switch (mProcessState) {
                 case 0:
-                    if (iplSDChannelSelect_813DDB74(mpNandSDCardManager, &mNandTitleRange, &mSDTitleRange,
+                    if (iplSDChannelSelect_813DDB74(mpSDChannelSelect, &mNandTitleRange, &mSDTitleRange,
                                                    mTitleIds, &mTitleNames[0][0], &mTitleCount, 2)) {
                         mDialogState = 4;
                         mpTitleLayout->getAnim(0)->initAnmFrame();
@@ -570,14 +757,14 @@ namespace ipl {
                     mTransferStartTime = OSGetTime();
                 }
 
-                if (!mpNandSDCardManager->getWorker()->is_working() &&
+                if (!mpSDChannelSelect->getWorker()->is_working() &&
                     OSGetTime() - mTransferStartTime > OS_TIMER_CLOCK) {
                     System::getDialog()->terminate();
                 }
             }
 
             if (System::getDialog()->getLastResult() != -1) {
-                if (mpNandSDCardManager->getWorker()->get_async_result() == 0) {
+                if (mpSDChannelSelect->getWorker()->get_async_result() == 0) {
                     mNandTitleCount = mTitleListState.mSecondaryCount;
                     mTitleNameCount = mTitleListState.mNameCount;
                 } else {
@@ -586,23 +773,24 @@ namespace ipl {
                 }
 
                 mDialogState = 9;
-                layout::Animator* animation = mpMainLayout->getAnim(0);
+                layout::Animator* animation = mpDialogLayout->getAnim(0);
                 animation->initFrame();
                 animation->restart();
 
-                nw4r::lyt::Pane* headerPane = mpMainLayout->FindPaneByName("T_Header");
+                nw4r::lyt::Pane* headerPane = mpDialogLayout->FindPaneByName("T_Header");
                 static_cast<nw4r::lyt::TextBox*>(headerPane)->SetString(System::getMessage(0xBE), 0);
 
                 mButtonState = 0;
-                nw4r::lyt::Pane* titlePane = mpMainLayout->FindPaneByName("N_Body");
-                nw4r::lyt::Pane* bodyPane = mpMainLayout->FindPaneByName("T_Letter");
+                nw4r::lyt::Pane* titlePane = mpDialogLayout->FindPaneByName("N_Body");
+                nw4r::lyt::Pane* bodyPane = mpDialogLayout->FindPaneByName("T_Letter");
                 bodyPane->SetAlpha(0xFF);
 
                 for (u32 i = 0; i < mTitleCount; i++) {
                     utility::layout::set_string(bodyPane, mTitleNames[i]);
-                    nw4r::ut::Rect textRect = mpMainLayout->getTextDrawRect("T_Letter");
+                    nw4r::ut::Rect textRect = mpDialogLayout->getTextDrawRect("T_Letter");
                     f32 lineCount = -(textRect.bottom - textRect.top) / titlePane->GetSize().height;
-                    mButtonState += static_cast<s32>(ceil(lineCount));
+                    f32 roundedLineCount = ceil(lineCount);
+                    mButtonState += static_cast<s32>(roundedLineCount);
                 }
 
                 setScrollLimit();
@@ -655,8 +843,8 @@ namespace ipl {
                 }
             }
 
-            bool previousDownEnd = !!mControllerFlags[0];
-            bool previousUpEnd = !!mControllerFlags[1];
+            bool previousDownEnd = !mControllerFlags[0];
+            bool previousUpEnd = !mControllerFlags[1];
             updateScrollArrows(previousDownEnd, previousUpEnd, mScroller.isUpEnd(), mScroller.isDownEnd());
 
             if (mScroller.getBInst().isActive() ? false : true) {
@@ -667,7 +855,9 @@ namespace ipl {
 
         void SDMemory::onDialogState11() {
             if (!mpDialogLayout->isPlaying(4) && !mpDialogLayout->isPlaying(7)) {
-                if (mProcessState < 4 && mProcessState >= 2) {
+                switch (mProcessState) {
+                case 2:
+                case 3:
                     mDialogState = 12;
                     mpDialogLayout->getAnim(1)->initAnmFrame();
                     mpDialogLayout->getAnim(1)->play();
@@ -678,8 +868,181 @@ namespace ipl {
                     if (mControllerFlags[1] != 0) {
                         hideUpArrow();
                     }
-                } else {
+                    break;
+                default:
                     mDialogState = 10;
+                    break;
+                }
+            }
+        }
+
+        void SDMemory::onDialogState12() {
+            if (mpDialogLayout->isPlaying(1)) {
+                return;
+            }
+
+            switch (mProcessState) {
+            case 2: {
+                mDialogState = 4;
+                layout::Animator* animation = mpTitleLayout->getAnim(0);
+                animation->initAnmFrame();
+                animation->play();
+                snd::getSystem()->startSE("WIPL_SE_INFO_WINDOW");
+                break;
+            }
+            case 3: {
+                mTransferFlags[0] = 0;
+                System::getHomeButtonMenu()->disable();
+
+                if ((mTitleNameCount != 0 || mNandTitleCount != 0) &&
+                    mpSDChannelSelect->getWorker()->is_sd_write_protected()) {
+                    mErrorCode = 5;
+                    mDialogState = 23;
+                    mMessageId = 0xBF;
+                    return;
+                }
+
+                if (iplSDChannelSelect_813DB530(mpSDChannelSelect, &mTitleListState.mpNames,
+                                                &mTitleListState.mpSecondaryTitles)) {
+                    mDialogState = 19;
+                    mCurrentTitleName[0] = L'\0';
+                    mCurrentTitle = 0;
+                    const wchar_t* message = System::getMessage(0xB1);
+                    const wchar_t* titleName = mTitleNames[mCurrentTitle];
+                    swprintf(mCurrentTitleName, 0x107f, L"%ls\n%ls", titleName, message);
+                    System::getDialog()->callBtnPrgNoShade(mCurrentTitleName);
+                } else {
+                    mDialogState = 23;
+                    mErrorCode = 1;
+                    mMessageId = 0xAE;
+                }
+                break;
+            }
+            default:
+                break;
+            }
+        }
+
+        extern "C" bool iplSDMemory_813EE358(const SDMemory* memory,
+                                             const ESTitleId* titleEntry, ESTitleId titleId,
+                                             const ESTitleId* titleIds, u32 titleCount) {
+            for (u32 i = 0; i < titleCount; i++) {
+                if (titleIds[i] == titleId) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        void SDMemory::onDialogState13() {
+            if (!mpSDChannelSelect->getWorker()->is_working()) {
+                s32 result = mpSDChannelSelect->getWorker()->get_async_result();
+                if (result == 0) {
+                    const ESTitleId* titleEntry = &mTitleIds[mCurrentTitle];
+                    ESTitleId titleId = *titleEntry;
+                    if (iplSDMemory_813EE358(this, titleEntry, titleId,
+                                             mNandTitleIds, mNandTitleCount)) {
+                        mDialogState = 17;
+                    } else {
+                        mDialogState = 13;
+                    }
+                } else {
+                    if (result > 0) {
+                        System::getDialog()->terminate();
+                        mDialogState = 20;
+                        mErrorCode = 2;
+                        mMessageId = 0xB5;
+                    } else {
+                        System::getDialog()->terminate();
+                        mDialogState = 20;
+                        mErrorCode = 1;
+                        mMessageId = 0xAE;
+                    }
+                }
+            }
+        }
+
+        void SDMemory::onDialogState14() {
+            if (System::getDialog()->getStateForSDMemory() != 2) {
+                return;
+            }
+
+            mCurrentTitleName[0] = L'\0';
+            const wchar_t* message = System::getMessage(0xB1);
+            const wchar_t* titleName = mTitleNames[mCurrentTitle];
+            swprintf(mCurrentTitleName, 0x107f, L"%ls\n%ls", titleName, message);
+            System::getDialog()->setTitleForSDMemory(mCurrentTitleName);
+
+            bool isKnownTitle;
+            {
+                const ESTitleId* titleEntry = &mTitleIds[mCurrentTitle];
+                ESTitleId titleId = *titleEntry;
+                isKnownTitle = iplSDMemory_813EE358(this, titleEntry, titleId,
+                                                    mSDTitleIds, mTitleNameCount);
+            }
+            if (!isKnownTitle) {
+                const ESTitleId* titleEntry = &mTitleIds[mCurrentTitle];
+                ESTitleId titleId = *titleEntry;
+                isKnownTitle = iplSDMemory_813EE358(this, titleEntry, titleId,
+                                                    mNandTitleIds, mNandTitleCount);
+            }
+
+            if (isKnownTitle) {
+                const ESTitleId* titleEntry = &mTitleIds[mCurrentTitle];
+                ESTitleId titleId = *titleEntry;
+                if (iplSDChannelSelect_813DB478(mpSDChannelSelect, titleEntry, titleId)) {
+                    mDialogState = 14;
+                } else {
+                    System::getDialog()->terminate();
+                    mDialogState = 20;
+                    mErrorCode = 1;
+                    mMessageId = 0xAE;
+                }
+            } else {
+                f32 completedTitles = static_cast<f32>(mCurrentTitle + 1);
+                f32 totalTitles = static_cast<f32>(mTitleCount);
+                mDialogState = 15;
+                f32 progress = completedTitles * 100.0f / totalTitles;
+                if (progress >= 100.0f) {
+                    progress = 100.0f;
+                }
+
+                mTransferFrame = static_cast<s32>(progress);
+                System::getDialog()->setProgBarLength(mTransferFrame);
+            }
+        }
+
+        void SDMemory::onDialogState15() {
+            u32 completedPercent = NandSDWorker::getCompletionPct() / mTitleCount;
+            u32 currentTitle = mCurrentTitle;
+            u32 titleCount = mTitleCount;
+            f32 completedPercentFloat = static_cast<f32>(completedPercent);
+            f32 currentTitleNumber = static_cast<f32>(currentTitle + 1);
+            f32 progress = currentTitleNumber * 100.0f;
+            progress = progress / static_cast<f32>(titleCount);
+            progress += completedPercentFloat;
+            if (progress >= 100.0f) {
+                progress = 100.0f;
+            }
+
+            mTransferFrame = static_cast<s32>(progress);
+            System::getDialog()->setProgBarLength(mTransferFrame);
+
+            if (!mpSDChannelSelect->getWorker()->is_working()) {
+                s32 result = mpSDChannelSelect->getWorker()->get_async_result();
+                if (result == 0) {
+                    mDialogState = 15;
+                } else {
+                    System::getDialog()->terminate();
+                    mDialogState = 20;
+                    if (result == -7) {
+                        mErrorCode = 2;
+                        mMessageId = 0xB5;
+                    } else {
+                        mErrorCode = 1;
+                        mMessageId = 0xAE;
+                    }
                 }
             }
         }
@@ -687,7 +1050,7 @@ namespace ipl {
         void SDMemory::onDialogState16() {
             if (mTitleCount > mCurrentTitle && System::isReceiveScheduleStopped()) {
                 const ESTitleId* titleEntry = &mTitleIds[mCurrentTitle];
-                if (iplSDChannelSelect_813DB4D4(mpNandSDCardManager, titleEntry, *titleEntry, 0)) {
+                if (iplSDChannelSelect_813DB4D4(mpSDChannelSelect, titleEntry, *titleEntry, 0)) {
                     mDialogState = 16;
                 } else {
                     System::getDialog()->terminate();
@@ -695,6 +1058,42 @@ namespace ipl {
                     mErrorCode = 1;
                     mMessageId = 0xAE;
                 }
+            }
+        }
+
+        void SDMemory::onDialogState17() {
+            if (mpSDChannelSelect->getWorker()->is_working()) {
+                return;
+            }
+
+            if (System::getDialog()->getProgBarFrame() < mTransferFrame) {
+                return;
+            }
+
+            const ESTitleId* titleEntry = &mTitleIds[mCurrentTitle];
+            System::getChannelManager()->fn_8133AA50(*titleEntry);
+
+            if (mpSDChannelSelect->getWorker()->get_async_result() == 0) {
+                mCurrentTitle++;
+                if (mTitleCount > mCurrentTitle) {
+                    const ESTitleId* nextTitle = &mTitleIds[mCurrentTitle];
+                    ESTitleId nextTitleId = *nextTitle;
+                    if (iplSDMemory_813EE358(this, nextTitle, nextTitleId,
+                                             mNandTitleIds, mNandTitleCount)) {
+                        mDialogState = 17;
+                    } else {
+                        mDialogState = 13;
+                    }
+                } else {
+                    System::getDialog()->setProgBarLength(100);
+                    mDialogState = 20;
+                    mErrorCode = 0;
+                }
+            } else {
+                System::getDialog()->terminate();
+                mDialogState = 20;
+                mErrorCode = 1;
+                mMessageId = 0xAE;
             }
         }
 
@@ -708,7 +1107,7 @@ namespace ipl {
 
                 const ESTitleId* titleEntry = &mTitleIds[mCurrentTitle];
                 const ESTitleId titleId = *titleEntry;
-                if (iplSDChannelSelect_813DB5EC(mpNandSDCardManager, titleEntry, titleId)) {
+                if (iplSDChannelSelect_813DB5EC(mpSDChannelSelect, titleEntry, titleId)) {
                     mDialogState = 18;
                 } else {
                     System::getDialog()->terminate();
@@ -720,8 +1119,8 @@ namespace ipl {
         }
 
         void SDMemory::onDialogState19() {
-            if (!mpNandSDCardManager->getWorker()->is_working()) {
-                if (mpNandSDCardManager->getWorker()->get_async_result() == 0) {
+            if (!mpSDChannelSelect->getWorker()->is_working()) {
+                if (mpSDChannelSelect->getWorker()->get_async_result() == 0) {
                     mDialogState = 13;
                 } else {
                     System::getDialog()->terminate();
@@ -835,6 +1234,151 @@ namespace ipl {
             return false;
         }
 
+        void SDMemory::draw() {
+            utility::Graphics::setDefaultOrtho(0);
+            mpProgressLayout->draw();
+
+            switch (mDialogState) {
+            case 0:
+            case 1:
+            case 2:
+            case 3:
+                mpMainLayout->draw();
+                break;
+            case 4:
+            case 5:
+            case 6:
+            case 7:
+                mpTitleLayout->draw();
+                break;
+            case 9:
+            case 10:
+            case 11:
+            case 12:
+                drawTransferTitles();
+                break;
+            default:
+                break;
+            }
+        }
+
+        void SDMemory::drawTransferTitles() {
+            nw4r::lyt::Pane* memoPane = mpDialogLayout->FindPaneByName("N_Memo");
+            nw4r::lyt::Pane* headerPane = mpDialogLayout->FindPaneByName("header_header");
+            nw4r::lyt::Pane* bodyPane = mpDialogLayout->FindPaneByName("header_body");
+
+            f32 bodyY = headerPane->GetTranslate().y;
+            if (bodyY < 0.0f) {
+                mpDialogLayout->draw("header_header");
+            }
+
+            nw4r::ut::LinkList<nw4r::lyt::Pane, offsetof(nw4r::lyt::detail::PaneBase, mLink)>::Iterator child =
+                bodyPane->GetChildList().GetBeginIter();
+            while (child != bodyPane->GetChildList().GetEndIter()) {
+                child->SetAlpha(memoPane->GetAlpha());
+                ++child;
+            }
+
+            u32 lineCount = 0;
+            f32 messageOffset = 0.0f;
+            f32 bodyHeight = bodyPane->GetSize().height;
+            if (mNandTitleCount != 0) {
+                const wchar_t* messageForCount = System::getMessage(0xCB);
+                const wchar_t* newline = wcsstr(messageForCount, L"\n");
+                while (newline != NULL) {
+                    ++lineCount;
+                    newline = wcsstr(newline + 1, L"\n");
+                }
+
+                const wchar_t* messageLine = System::getMessage(0xCB);
+                nw4r::lyt::TextBox* messageText = static_cast<nw4r::lyt::TextBox*>(
+                    mpDialogLayout->FindPaneByName("T_Header_body"));
+                u32 lineIndex = 0;
+                while (lineIndex <= lineCount) {
+                    const wchar_t* lineEnd = wcsstr(messageLine, L"\n");
+                    if (lineEnd != NULL) {
+                        u32 lineLength = static_cast<u32>(lineEnd - messageLine);
+                        wcsncpy(mCurrentTitleName, messageLine, lineLength);
+                        mCurrentTitleName[lineLength] = L'\0';
+                        utility::layout::set_string(messageText, mCurrentTitleName);
+                        messageLine = lineEnd + 1;
+                    } else {
+                        utility::layout::set_string(messageText, messageLine);
+                    }
+
+                    if (bodyY < 500.0f) {
+                        nw4r::math::VEC2 translation(0.0f, messageOffset);
+                        bodyPane->SetTranslate(translation);
+                        bodyPane->CalculateMtx(*mpDialogLayout->getDrawInfo());
+                        mpDialogLayout->draw(bodyPane);
+                    }
+
+                    messageOffset -= bodyHeight;
+                    ++lineIndex;
+                }
+            }
+
+            messageOffset += bodyHeight;
+            f32 titleOffset = messageOffset;
+
+            nw4r::lyt::TextBox* titleSizePane = static_cast<nw4r::lyt::TextBox*>(
+                mpDialogLayout->FindPaneByName("T_Letter"));
+            f32 rowHeight = titleSizePane->GetSize().height;
+            nw4r::lyt::PaneList::Iterator titleChild = titleSizePane->GetChildList().GetBeginIter();
+            while (titleChild != titleSizePane->GetChildList().GetEndIter()) {
+                titleChild->SetAlpha(memoPane->GetAlpha());
+                ++titleChild;
+            }
+
+            nw4r::lyt::TextBox* titleText = static_cast<nw4r::lyt::TextBox*>(
+                mpDialogLayout->FindPaneByName("T_Letter"));
+            titleText->SetAlpha(memoPane->GetAlpha());
+
+            nw4r::ut::Color activeTitleColor(0x34, 0xBE, 0xED, 0xFF);
+            nw4r::ut::Color inactiveTitleColor(0x64, 0x64, 0x64, 0xFF);
+            for (u32 titleIndex = 0; titleIndex < mTitleCount; ++titleIndex) {
+                utility::layout::set_string(titleText, mTitleNames[titleIndex]);
+                if (titleIndex < mNandTitleCount && mTitleIds[titleIndex] == mNandTitleIds[titleIndex]) {
+                    setTitleRowColors(titleText, activeTitleColor, activeTitleColor);
+                } else {
+                    setTitleRowColors(titleText, inactiveTitleColor, inactiveTitleColor);
+                }
+
+                nw4r::ut::Rect textRect = mpDialogLayout->getTextDrawRect("T_Header_body");
+                f32 rowTop = textRect.bottom - textRect.top;
+                u32 visibleRows = static_cast<u32>(ceil(-rowTop / rowHeight));
+                for (u32 row = 0; row < visibleRows; ++row) {
+                    f32 rowOffset = titleOffset + static_cast<f32>(row) * rowHeight;
+                    f32 rowY = bodyY + rowOffset;
+                    if (rowY > -500.0f && rowY < 500.0f) {
+                        nw4r::math::VEC2 translation(0.0f, rowOffset);
+                        titleText->SetTranslate(translation);
+                        titleText->CalculateMtx(*mpDialogLayout->getDrawInfo());
+                        mpDialogLayout->draw(titleText);
+                    }
+                }
+                titleOffset -= rowHeight * static_cast<f32>(visibleRows);
+            }
+
+            nw4r::lyt::Pane* footerPane = mpDialogLayout->FindPaneByName("N_Footer");
+            nw4r::lyt::PaneList::Iterator footerChild = footerPane->GetChildList().GetBeginIter();
+            while (footerChild != footerPane->GetChildList().GetEndIter()) {
+                footerChild->SetAlpha(memoPane->GetAlpha());
+                ++footerChild;
+            }
+
+            if (bodyY + titleOffset > -500.0f) {
+                nw4r::math::VEC2 translation(0.0f, titleOffset);
+                footerPane->SetTranslate(translation);
+                footerPane->CalculateMtx(*mpDialogLayout->getDrawInfo());
+                mpDialogLayout->draw(footerPane);
+            }
+
+            mpDialogLayout->draw("header_body");
+            mpDialogLayout->draw("N_TopBtn_00");
+            mpDialogLayout->draw("N_Memo");
+        }
+
         s32 SDMemory::getControlPaneIndex(const char* paneName) {
             s32 paneIndex = -1;
             for (s32 i = 0; i < 3; i++) {
@@ -847,11 +1391,448 @@ namespace ipl {
             return paneIndex;
         }
 
+        void SDMemory::activateControlPane(const char* paneName, ::gui::Component* component) {
+            layout::Animator* animator = NULL;
+            s32 paneIndex = getControlPaneIndex(paneName);
+            if (mPanelStates[paneIndex] == 0) {
+                switch (paneIndex) {
+                case 0:
+                    animator = mpMainLayout->getAnim(5);
+                    break;
+                case 1:
+                    animator = mpMainLayout->getAnim(8);
+                    break;
+                case 2:
+                    animator = mpMainLayout->getAnim(2);
+                    break;
+                }
+
+                if (animator != NULL) {
+                    animator->initAnmFrame();
+                    animator->setAnmType(ANIM_TYPE_FORWARD);
+                    animator->initFrame();
+                    animator->restart();
+                    snd::getSystem()->startSE("WIPL_SE_BT_TARGETTING");
+                    if (component != NULL) {
+                        component->offPoint(0);
+                    }
+                    if (static_cast<s32>(mPanelStates[paneIndex]) < 4) {
+                        ++mPanelStates[paneIndex];
+                    }
+                }
+            }
+        }
+
+        void SDMemory::deactivateControlPane(const char* paneName) {
+            layout::Animator* animator = NULL;
+            s32 paneIndex = getControlPaneIndex(paneName);
+            if (static_cast<s32>(mPanelStates[paneIndex]) == 1) {
+                switch (paneIndex) {
+                case 0:
+                    animator = mpMainLayout->getAnim(6);
+                    break;
+                case 1:
+                    animator = mpMainLayout->getAnim(9);
+                    break;
+                case 2:
+                    animator = mpMainLayout->getAnim(3);
+                    break;
+                }
+
+                if (animator != NULL) {
+                    animator->initAnmFrame();
+                    animator->setAnmType(ANIM_TYPE_FORWARD);
+                    animator->initFrame();
+                    animator->restart();
+                    if (static_cast<s32>(mPanelStates[paneIndex]) > 0) {
+                        --mPanelStates[paneIndex];
+                    }
+                }
+            }
+        }
+
+        void SDMemory::cancelControlPane(const char* paneName) {
+            layout::Animator* animator = NULL;
+            s32 paneIndex = getControlPaneIndex(paneName);
+            if (static_cast<s32>(mPanelStates[paneIndex]) > 0) {
+                switch (paneIndex) {
+                case 0:
+                    animator = mpMainLayout->getAnim(7);
+                    break;
+                case 1:
+                    animator = mpMainLayout->getAnim(10);
+                    break;
+                case 2:
+                    animator = mpMainLayout->getAnim(4);
+                    break;
+                }
+
+                if (animator != NULL) {
+                    mProcessState = paneIndex;
+                    mDialogState = 2;
+                    animator->initAnmFrame();
+                    animator->setAnmType(ANIM_TYPE_FORWARD);
+                    animator->initFrame();
+                    animator->restart();
+                    if (paneIndex == 2) {
+                        snd::getSystem()->startSE("WIPL_SE_CANCEL");
+                    } else {
+                        snd::getSystem()->startSE("WIPL_SE_DECIDE");
+                    }
+                }
+            }
+        }
+
+        void SDMemory::ControlPaneEventHandler::onEvent(u32 compId, u32 event, void* data) {
+            GuiPaneComponent* component = static_cast<GuiPaneComponent*>(mpManager->getComponent(compId));
+            const char* paneName = component->getPane()->GetName();
+            s32 eventType = static_cast<s32>(event);
+            switch (eventType) {
+            case ON_POINT:
+                mpInstance->activateControlPane(paneName, static_cast<GuiComponent*>(data));
+                break;
+            case ON_LEFT:
+                mpInstance->deactivateControlPane(paneName);
+                break;
+            case ON_TRIG:
+                if (static_cast<ControllerInterface*>(data)->downTrg(controller::BTN_INTERACT)) {
+                    mpInstance->cancelControlPane(paneName);
+                }
+                break;
+            }
+        }
+
+        s32 SDMemory::getTitlePaneIndex(const char* paneName) {
+            s32 paneIndex = -1;
+            if (mDisplayMode == 4) {
+                for (s32 i = 0; i < 5; i++) {
+                    if (strcmp(paneName, sTitlePaneNames[i]) == 0) {
+                        paneIndex = i;
+                        break;
+                    }
+                }
+            } else {
+                for (s32 i = 0; i < 4; i++) {
+                    if (strcmp(paneName, sAdditionalTitlePaneNames[i]) == 0) {
+                        paneIndex = i + 1;
+                        break;
+                    }
+                }
+            }
+            return paneIndex;
+        }
+
+        void SDMemory::activateTitlePane(const char* paneName, ::gui::Component* component) {
+            layout::Animator* animator = NULL;
+            s32 paneIndex = getTitlePaneIndex(paneName);
+            u32* panelState = &mTitlePanelStates[paneIndex];
+            if (*panelState == 0) {
+                switch (paneIndex) {
+                case 0:
+                    animator = mpTitleLayout->getAnim(5);
+                    break;
+                case 1:
+                    animator = mpTitleLayout->getAnim(8);
+                    break;
+                case 2:
+                    animator = mpTitleLayout->getAnim(11);
+                    break;
+                case 3:
+                    animator = mpTitleLayout->getAnim(14);
+                    break;
+                case 4:
+                    animator = mpTitleLayout->getAnim(2);
+                    break;
+                }
+
+                if (animator != NULL) {
+                    mProcessState = paneIndex;
+                    mDialogState = 2;
+                    animator->initAnmFrame();
+                    animator->setAnmType(ANIM_TYPE_FORWARD);
+                    animator->initFrame();
+                    animator->restart();
+                    snd::getSystem()->startSE("WIPL_SE_BT_TARGETTING");
+                    if (component != NULL) {
+                        component->offPoint(0);
+                    }
+                    if (static_cast<s32>(*panelState) < 4) {
+                        ++*panelState;
+                    }
+                }
+            }
+        }
+
+        void SDMemory::deactivateTitlePane(const char* paneName) {
+            layout::Animator* animator = NULL;
+            s32 paneIndex = getTitlePaneIndex(paneName);
+            if (static_cast<s32>(mTitlePanelStates[paneIndex]) == 1) {
+                switch (paneIndex) {
+                case 0:
+                    animator = mpTitleLayout->getAnim(6);
+                    break;
+                case 1:
+                    animator = mpTitleLayout->getAnim(9);
+                    break;
+                case 2:
+                    animator = mpTitleLayout->getAnim(12);
+                    break;
+                case 3:
+                    animator = mpTitleLayout->getAnim(15);
+                    break;
+                case 4:
+                    animator = mpTitleLayout->getAnim(3);
+                    break;
+                }
+
+                if (animator != NULL) {
+                    animator->initAnmFrame();
+                    animator->setAnmType(ANIM_TYPE_FORWARD);
+                    animator->initFrame();
+                    animator->restart();
+                    if (static_cast<s32>(mTitlePanelStates[paneIndex]) > 0) {
+                        --mTitlePanelStates[paneIndex];
+                    }
+                }
+            }
+        }
+
+        void SDMemory::selectTitlePane(const char* paneName) {
+            layout::Animator* animator = NULL;
+            s32 paneIndex = getTitlePaneIndex(paneName);
+            if (static_cast<s32>(mTitlePanelStates[paneIndex]) > 0) {
+                switch (paneIndex) {
+                case 0:
+                    animator = mpTitleLayout->getAnim(7);
+                    iplSDChannelSelect_813DDB74(mpSDChannelSelect, &mNandTitleRange, &mSDTitleRange,
+                                                mTitleIds, &mTitleNames[0][0], &mTitleCount, 0);
+                    break;
+                case 1:
+                    animator = mpTitleLayout->getAnim(10);
+                    iplSDChannelSelect_813DDB74(mpSDChannelSelect, &mNandTitleRange, &mSDTitleRange,
+                                                mTitleIds, &mTitleNames[0][0], &mTitleCount, 1);
+                    break;
+                case 2:
+                    animator = mpTitleLayout->getAnim(13);
+                    iplSDChannelSelect_813DDB74(mpSDChannelSelect, &mNandTitleRange, &mSDTitleRange,
+                                                mTitleIds, &mTitleNames[0][0], &mTitleCount, 2);
+                    break;
+                case 3:
+                    animator = mpTitleLayout->getAnim(16);
+                    iplSDChannelSelect_813DDB74(mpSDChannelSelect, &mNandTitleRange, &mSDTitleRange,
+                                                mTitleIds, &mTitleNames[0][0], &mTitleCount, 3);
+                    break;
+                case 4:
+                    animator = mpTitleLayout->getAnim(4);
+                    break;
+                }
+
+                if (animator != NULL) {
+                    mProcessState = paneIndex;
+                    mDialogState = 6;
+                    animator->initAnmFrame();
+                    animator->setAnmType(ANIM_TYPE_FORWARD);
+                    animator->initFrame();
+                    animator->restart();
+
+                    if (paneIndex >= 0 && paneIndex <= 3) {
+                        memset(mNandTitleIds, 0, sizeof(mNandTitleIds));
+                        memset(mSDTitleIds, 0, sizeof(mSDTitleIds));
+                        mNandTitleCount = 0;
+                        mTitleNameCount = 0;
+                        mTitleListState.mpTitles = mTitleIds;
+                        mTitleListState.mCount = mTitleCount;
+                        mTitleListState.mpSecondaryTitles = mNandTitleIds;
+                        mTitleListState.mSecondaryCount = 0;
+                        mTitleListState.mpNames = mSDTitleIds;
+                        mTitleListState.mNameCount = 0;
+                        iplSDChannelSelect_813DB58C(mpSDChannelSelect,
+                                                    &mTitleListState.mpTitles,
+                                                    &mTitleListState.mpSecondaryTitles,
+                                                    &mTitleListState.mpNames);
+                    }
+
+                    if (paneIndex == 4) {
+                        snd::getSystem()->startSE("WIPL_SE_CANCEL");
+                    } else {
+                        snd::getSystem()->startSE("WIPL_SE_DECIDE");
+                    }
+                }
+            }
+        }
+
+        void SDMemory::TitlePaneEventHandler::onEvent(u32 compId, u32 event, void* data) {
+            GuiPaneComponent* component = static_cast<GuiPaneComponent*>(mpManager->getComponent(compId));
+            const char* paneName = component->getPane()->GetName();
+            s32 eventType = static_cast<s32>(event);
+            switch (eventType) {
+            case ON_POINT:
+                mpInstance->activateTitlePane(paneName, static_cast<GuiComponent*>(data));
+                break;
+            case ON_LEFT:
+                mpInstance->deactivateTitlePane(paneName);
+                break;
+            case ON_TRIG:
+                if (static_cast<ControllerInterface*>(data)->downTrg(controller::BTN_INTERACT)) {
+                    mpInstance->selectTitlePane(paneName);
+                }
+                break;
+            }
+        }
+
+        s32 SDMemory::getDialogPaneIndex(const char* paneName) {
+            s32 paneIndex = -1;
+            for (s32 i = 0; i < 4; i++) {
+                if (strcmp(paneName, sDialogPaneNames[i]) == 0) {
+                    paneIndex = i;
+                    break;
+                }
+            }
+            return paneIndex;
+        }
+
+        void SDMemory::activateDialogPane(const char* paneName, ::gui::Component* component) {
+            layout::Animator* animator = NULL;
+            s32 paneIndex = getDialogPaneIndex(paneName);
+            if (static_cast<s32>(mPanelAnimationStates[paneIndex]) == 0) {
+                switch (paneIndex) {
+                case 2:
+                    animator = mpDialogLayout->getAnim(2);
+                    break;
+                case 3:
+                    animator = mpDialogLayout->getAnim(5);
+                    break;
+                case 0:
+                    animator = mpDialogLayout->getAnim(11);
+                    break;
+                case 1:
+                    animator = mpDialogLayout->getAnim(8);
+                    break;
+                }
+
+                if (animator != NULL) {
+                    animator->initAnmFrame();
+                    animator->setAnmType(ANIM_TYPE_FORWARD);
+                    animator->initFrame();
+                    animator->restart();
+                    snd::getSystem()->startSE("WIPL_SE_BT_TARGETTING");
+                    if (component != NULL) {
+                        component->offPoint(0);
+                    }
+                    if (static_cast<s32>(mPanelAnimationStates[paneIndex]) < 4) {
+                        ++mPanelAnimationStates[paneIndex];
+                    }
+                }
+            }
+        }
+
+        void SDMemory::deactivateDialogPane(const char* paneName) {
+            layout::Animator* animator = NULL;
+            s32 paneIndex = getDialogPaneIndex(paneName);
+            if (static_cast<s32>(mPanelAnimationStates[paneIndex]) == 1) {
+                switch (paneIndex) {
+                case 2:
+                    animator = mpDialogLayout->getAnim(3);
+                    break;
+                case 3:
+                    animator = mpDialogLayout->getAnim(6);
+                    break;
+                case 0:
+                    animator = mpDialogLayout->getAnim(12);
+                    break;
+                case 1:
+                    animator = mpDialogLayout->getAnim(9);
+                    break;
+                }
+
+                if (animator != NULL) {
+                    animator->initAnmFrame();
+                    animator->setAnmType(ANIM_TYPE_FORWARD);
+                    animator->initFrame();
+                    animator->restart();
+                    if (static_cast<s32>(mPanelAnimationStates[paneIndex]) > 0) {
+                        --mPanelAnimationStates[paneIndex];
+                    }
+                }
+            }
+        }
+
+        void SDMemory::selectDialogPane(const char* paneName) {
+            layout::Animator* animator = NULL;
+            s32 paneIndex = getDialogPaneIndex(paneName);
+            if (static_cast<s32>(mPanelAnimationStates[paneIndex]) > 0) {
+                switch (paneIndex) {
+                case 2:
+                    if (!mScroller.is_busy()) {
+                        animator = mpDialogLayout->getAnim(4);
+                    }
+                    break;
+                case 3:
+                    if (!mScroller.is_busy()) {
+                        animator = mpDialogLayout->getAnim(7);
+                    }
+                    break;
+                case 0:
+                    if (!mScroller.is_busy()) {
+                        animator = mpDialogLayout->getAnim(13);
+                        mScroller.setState(3);
+                    }
+                    break;
+                case 1:
+                    if (!mScroller.is_busy()) {
+                        animator = mpDialogLayout->getAnim(10);
+                        mScroller.setState(4);
+                    }
+                    break;
+                }
+
+                if (animator != NULL) {
+                    mProcessState = paneIndex;
+                    if (static_cast<u32>(paneIndex - 2) <= 1) {
+                        mDialogState = 11;
+                    }
+                    animator->initAnmFrame();
+                    animator->setAnmType(ANIM_TYPE_FORWARD);
+                    animator->initFrame();
+                    animator->restart();
+                    if (paneIndex == 2) {
+                        snd::getSystem()->startSE("WIPL_SE_CANCEL");
+                    } else if (paneIndex == 3) {
+                        snd::getSystem()->startSE("WIPL_SE_DECIDE");
+                    }
+                }
+            }
+        }
+
+        void SDMemory::DialogPaneEventHandler::onEvent(u32 compId, u32 event, void* data) {
+            GuiPaneComponent* component = static_cast<GuiPaneComponent*>(mpManager->getComponent(compId));
+            const char* paneName = component->getPane()->GetName();
+            s32 eventType = static_cast<s32>(event);
+            switch (eventType) {
+            case ON_POINT:
+                mpInstance->activateDialogPane(paneName, static_cast<GuiComponent*>(data));
+                break;
+            case ON_LEFT:
+                mpInstance->deactivateDialogPane(paneName);
+                break;
+            case ON_TRIG:
+                if (static_cast<ControllerInterface*>(data)->downTrg(controller::BTN_INTERACT)) {
+                    mpInstance->selectDialogPane(paneName);
+                }
+                break;
+            }
+        }
+
         void writeFourFlagBytes(u8* flags, u8 first, u8 second, u8 third, u8 fourth) {
             flags[0] = first;
             flags[1] = second;
             flags[2] = third;
             flags[3] = fourth;
+        }
+
+        void setTitleRowColors(nw4r::lyt::TextBox* textBox, const nw4r::ut::Color& first,
+                               const nw4r::ut::Color& second) {
+            textBox->SetTextColors(first, second);
         }
     }
 }
