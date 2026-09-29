@@ -525,7 +525,7 @@ void ATERM_8140684C(OSAlarm* alarm, OSContext* context);
 s32 ATERM_814038C8(void);
 int ATERM_81404844(u16* destination, u16* source, u32 length, void* key, u32 keyLength);
 int ATERM_81404A18(u16* destination, u16* source, u32 length, void* key, u32 keyLength);
-int ATERM_81404BFC(u32* expandedKey, const void* key, u32 keyBits);
+int ATERM_81404BFC(u32* expandedKey, const void* key, s32 keyBits);
 int ATERM_8140502C(u32* expandedKey, const void* key, u32 keyBits);
 void ATERM_81405254(const u32* expandedKey, u32 rounds, const u8* input, u8* output);
 void ATERM_81405690(const u32* expandedKey, u32 rounds, const u8* input, u8* output);
@@ -2051,51 +2051,60 @@ int ATERM_81404A18(u16* destination, u16* source, u32 length, void* key, u32 key
 
 #define ATERM_AES_SUB_BYTE(value) (gAtermAesTables[4][(value)] & 0xFF)
 #define ATERM_AES_SUB_WORD(value) \
-    ((ATERM_AES_SUB_BYTE(((value) >> 24) & 0xFF) << 24) | \
-     (ATERM_AES_SUB_BYTE(((value) >> 16) & 0xFF) << 16) | \
-     (ATERM_AES_SUB_BYTE(((value) >> 8) & 0xFF) << 8) | \
-     ATERM_AES_SUB_BYTE((value) & 0xFF))
+    ((sbox[((value) >> 24) & 0xFF] & 0xFF000000) ^ \
+     (sbox[((value) >> 16) & 0xFF] & 0x00FF0000) ^ \
+     (sbox[((value) >> 8) & 0xFF] & 0x0000FF00) ^ \
+     (sbox[(value) & 0xFF] & 0x000000FF))
 
 #define ATERM_AES_READ_KEY_WORD(index) \
-    (((u32)keyBytes[(index) * 4] << 24) | \
-     ((u32)keyBytes[(index) * 4 + 1] << 16) | \
-     ((u32)keyBytes[(index) * 4 + 2] << 8) | \
-     keyBytes[(index) * 4 + 3])
+    (((u32)keyBytes[(index) * 4] << 24) ^ \
+     ((u32)keyBytes[(index) * 4 + 1] << 16) ^ \
+     ((u32)keyBytes[(index) * 4 + 2] << 8) ^ \
+     (u32)keyBytes[(index) * 4 + 3])
 
-int ATERM_81404BFC(u32* expandedKey, const void* key, u32 keyBits) {
+int ATERM_81404BFC(u32* expandedKey, const void* key, s32 keyBits) {
     const u8* keyBytes = (const u8*)key;
     u32* roundKey;
     const u32* roundConstant;
+    const u32* sbox;
     u32 temp;
+    int i;
 
     expandedKey[0] = ATERM_AES_READ_KEY_WORD(0);
     expandedKey[1] = ATERM_AES_READ_KEY_WORD(1);
     expandedKey[2] = ATERM_AES_READ_KEY_WORD(2);
     expandedKey[3] = ATERM_AES_READ_KEY_WORD(3);
 
+    i = 0;
     if (keyBits == 0x80) {
+        sbox = gAtermAesTables[4];
         roundKey = expandedKey + 4;
         roundConstant = gAtermAesRoundConstants;
-        do {
-            temp = roundKey[3];
+        for (;;) {
+            temp = roundKey[-1];
             temp = (temp << 8) | (temp >> 24);
             temp = ATERM_AES_SUB_WORD(temp) ^ *roundConstant++;
             roundKey[0] = roundKey[-4] ^ temp;
             roundKey[1] = roundKey[-3] ^ roundKey[0];
             roundKey[2] = roundKey[-2] ^ roundKey[1];
             roundKey[3] = roundKey[-1] ^ roundKey[2];
+            i++;
+            if (i == 10) {
+                break;
+            }
             roundKey += 4;
-        } while (roundKey < expandedKey + 44);
+        }
         return 10;
     }
 
     expandedKey[4] = ATERM_AES_READ_KEY_WORD(4);
     expandedKey[5] = ATERM_AES_READ_KEY_WORD(5);
     if (keyBits == 0xC0) {
+        sbox = gAtermAesTables[4];
         roundKey = expandedKey + 6;
         roundConstant = gAtermAesRoundConstants;
-        do {
-            temp = roundKey[5];
+        for (;;) {
+            temp = roundKey[-1];
             temp = (temp << 8) | (temp >> 24);
             temp = ATERM_AES_SUB_WORD(temp) ^ *roundConstant++;
             roundKey[0] = roundKey[-6] ^ temp;
@@ -2104,18 +2113,23 @@ int ATERM_81404BFC(u32* expandedKey, const void* key, u32 keyBits) {
             roundKey[3] = roundKey[-3] ^ roundKey[2];
             roundKey[4] = roundKey[-2] ^ roundKey[0];
             roundKey[5] = roundKey[-1] ^ roundKey[4];
+            i++;
+            if (i == 8) {
+                break;
+            }
             roundKey += 6;
-        } while (roundKey < expandedKey + 54);
+        }
         return 12;
     }
 
     expandedKey[6] = ATERM_AES_READ_KEY_WORD(6);
     expandedKey[7] = ATERM_AES_READ_KEY_WORD(7);
     if (keyBits == 0x100) {
+        sbox = gAtermAesTables[4];
         roundKey = expandedKey + 8;
         roundConstant = gAtermAesRoundConstants;
-        do {
-            temp = roundKey[7];
+        for (;;) {
+            temp = roundKey[-1];
             temp = (temp << 8) | (temp >> 24);
             temp = ATERM_AES_SUB_WORD(temp) ^ *roundConstant++;
             roundKey[0] = roundKey[-8] ^ temp;
@@ -2127,8 +2141,12 @@ int ATERM_81404BFC(u32* expandedKey, const void* key, u32 keyBits) {
             roundKey[5] = roundKey[-3] ^ roundKey[4];
             roundKey[6] = roundKey[-2] ^ roundKey[5];
             roundKey[7] = roundKey[-1] ^ roundKey[6];
+            i++;
+            if (i == 7) {
+                break;
+            }
             roundKey += 8;
-        } while (roundKey < expandedKey + 64);
+        }
         return 14;
     }
     return 0;
