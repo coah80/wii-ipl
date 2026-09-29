@@ -536,36 +536,35 @@ namespace ipl {
             controller::Interface* youngController = System::getYoungController();
             ext_ead::www::BrowserThread::CmdPacket packet;
 
-            if (youngController == NULL) {
-                packet.type = 0;
-                packet.data.controller.irX = -1000.0f;
-                packet.data.controller.irY = -1000.0f;
-                packet.data.controller.btnHold = 0;
-                packet.data.controller.btnTrigger = 0;
-                packet.data.controller.btnRelease = 0;
-                ext_ead::www::SurfaceManager::GetInstance()->GetBrowserThread()->SendUIEvent(&packet);
-                return;
-            }
+            if (youngController != NULL) {
+                if (unk_0xB9C < 10 || mpStringBuffer->netSettingArg[0] != 0) {
+                    packet.data.controller.irX = -1000.0f;
+                    packet.data.controller.irY = -1000.0f;
+                    packet.data.controller.btnHold = 0;
+                    packet.data.controller.btnTrigger = 0;
+                    packet.data.controller.btnRelease = 0;
+                } else {
+                    packet.data.controller.irX = youngController->getDpdProjectionPos().x - projection.left;
+                    packet.data.controller.irY = youngController->getDpdProjectionPos().y - projection.top;
+                    u32 classicHold = youngController->getClassicHoldFlag();
+                    u32 classicTrigger = youngController->getClassicTrigFlag();
+                    u32 classicRelease = youngController->getClassicReleaseFlag();
+                    packet.data.controller.btnHold = (classicHold << 16) | youngController->getHoldFlag();
+                    packet.data.controller.btnTrigger = (classicTrigger << 16) | youngController->getTrigFlag();
+                    packet.data.controller.btnRelease = (classicRelease << 16) | youngController->getReleaseFlag();
+                }
 
-            if (unk_0xB9C >= 10 && mpStringBuffer->netSettingArg[0] == 0) {
-                packet.data.controller.irX = youngController->getDpdProjectionPos().x - projection.left;
-                packet.data.controller.irY = youngController->getDpdProjectionPos().y - projection.top;
-                u32 classicHold = youngController->getClassicHoldFlag();
-                u32 classicTrigger = youngController->getClassicTrigFlag();
-                u32 classicRelease = youngController->getClassicReleaseFlag();
-                packet.data.controller.btnHold = (classicHold << 16) | youngController->getHoldFlag();
-                packet.data.controller.btnTrigger = (classicTrigger << 16) | youngController->getTrigFlag();
-                packet.data.controller.btnRelease = (classicRelease << 16) | youngController->getReleaseFlag();
+                packet.type = 0;
+                if (mKeyboardState.type == textinput::MemoManager::ST_Hidden && unk_0x74 == 0) {
+                    ext_ead::www::SurfaceManager::GetInstance()->GetBrowserThread()->SendUIEvent(&packet);
+                }
             } else {
                 packet.data.controller.irX = -1000.0f;
                 packet.data.controller.irY = -1000.0f;
                 packet.data.controller.btnHold = 0;
                 packet.data.controller.btnTrigger = 0;
                 packet.data.controller.btnRelease = 0;
-            }
-
-            packet.type = 0;
-            if (mKeyboardState.type == textinput::MemoManager::ST_Hidden && unk_0x74 == 0) {
+                packet.type = 0;
                 ext_ead::www::SurfaceManager::GetInstance()->GetBrowserThread()->SendUIEvent(&packet);
             }
         }
