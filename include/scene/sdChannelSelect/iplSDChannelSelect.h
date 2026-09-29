@@ -127,6 +127,12 @@ namespace ipl {
             void handleMoveComplete();
             void handleStorageCheckComplete();
             void handleCardCommand();
+            void handleSDCardReady();
+            void handleSDLocationUpdateComplete();
+            void handleSDLocationReadComplete();
+            void handleBackupFitComplete();
+            void handleNandSDCleanupComplete();
+            void handleSDDeleteComplete();
             bool setDialogMessage(u32 state, u32 message);
             static int compareTitleUsage(const void* lhs, const void* rhs);
             static int compareTitleInfo(const void* lhs, const void* rhs);
@@ -206,8 +212,8 @@ namespace ipl {
             layout::Object* mpPointerLayout;
             layout::Object* mpHelpButtonLayout;
             int mOperationResult;
-            u8 mbOperationActive;
             u8 mbShowNoCardMessage;
+            u8 mbOperationActive;
             u8 mbSDCardBroken;
             u32 mOperationState;
             u32 mDialogState;

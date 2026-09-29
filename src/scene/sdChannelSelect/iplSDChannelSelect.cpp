@@ -102,8 +102,8 @@ namespace ipl {
               mpChannelTitleIds(NULL),
               mLastOperation(14),
               mOperationResult(0),
-              mbOperationActive(false),
               mbShowNoCardMessage(false),
+              mbOperationActive(false),
               mbSDCardBroken(false),
               mOperationState(0),
               mDialogState(0),
@@ -411,13 +411,12 @@ namespace ipl {
         }
 
         bool SDChannelSelect::setDialogMessage(u32 state, u32 message) {
-            if (mDialogState != 0) {
-                return false;
+            if (mDialogState == 0) {
+                mDialogState = state;
+                mAnimationTarget = message;
+                return true;
             }
-
-            mDialogState = state;
-            mAnimationTarget = message;
-            return true;
+            return false;
         }
 
         int SDChannelSelect::compareTitleUsage(const void* lhs, const void* rhs) {
@@ -583,11 +582,53 @@ namespace ipl {
                 return;
             }
 
-            NandSDWorker::WorkSDState state = mpSDWorker->get_sd_state();
-            if (state == NandSDWorker::SD_STATE_EJECTED) {
+            if (mpSDWorker->get_sd_state() == NandSDWorker::SD_STATE_EJECTED) {
                 setDialogMessage(2, 0xa9);
                 mWorkerCommand = 6;
-            } else if (state == NandSDWorker::SD_STATE_INSERTED) {
+            } else if (mpSDWorker->get_sd_state() == NandSDWorker::SD_STATE_INSERTED) {
+                mWorkerCommand = 1;
+            }
+        }
+
+        void SDChannelSelect::handleSDCardReady() {
+            if (mpSDWorker->get_sd_state() == NandSDWorker::SD_STATE_INSERTED &&
+                mDialogState == 0) {
+                setDialogMessage(1, 0);
+                mWorkerCommand = 1;
+            }
+        }
+
+        void SDChannelSelect::handleSDLocationUpdateComplete() {
+            if (!mpSDWorker->is_working()) {
+                mLastOperation = 14;
+                mWorkerCommand = 1;
+            }
+        }
+
+        void SDChannelSelect::handleSDLocationReadComplete() {
+            if (!mpSDWorker->is_working()) {
+                mLastOperation = 14;
+                mWorkerCommand = 1;
+            }
+        }
+
+        void SDChannelSelect::handleBackupFitComplete() {
+            if (!mpSDWorker->is_working()) {
+                mLastOperation = 14;
+                mWorkerCommand = 1;
+            }
+        }
+
+        void SDChannelSelect::handleNandSDCleanupComplete() {
+            if (!mpSDWorker->is_working()) {
+                mLastOperation = 14;
+                mWorkerCommand = 1;
+            }
+        }
+
+        void SDChannelSelect::handleSDDeleteComplete() {
+            if (!mpSDWorker->is_working()) {
+                mLastOperation = 14;
                 mWorkerCommand = 1;
             }
         }
@@ -615,27 +656,37 @@ namespace ipl {
                 handleSDTitleList();
                 break;
             case 3:
-            case 8:
-            case 12:
                 handleCopyComplete();
                 break;
             case 4:
                 handleSDMountComplete();
                 break;
             case 5:
-            case 9:
-            case 13:
                 handleDeleteComplete();
                 break;
             case 6:
-                handleCardCommand();
+                handleSDCardReady();
                 break;
             case 7:
-            case 11:
-                handleStorageCheckComplete();
+                handleCopyComplete();
+                break;
+            case 8:
+                handleSDLocationUpdateComplete();
+                break;
+            case 9:
+                handleSDLocationReadComplete();
                 break;
             case 10:
                 handleMoveComplete();
+                break;
+            case 11:
+                handleBackupFitComplete();
+                break;
+            case 12:
+                handleNandSDCleanupComplete();
+                break;
+            case 13:
+                handleSDDeleteComplete();
                 break;
             case 15:
                 handleCardCommand();
