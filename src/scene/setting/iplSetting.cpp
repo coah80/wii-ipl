@@ -2424,19 +2424,23 @@ namespace ipl {
         }
 
         void Setting::resetAP() {
-            mpChangeLayout->getAnim(0x15)->initFrame();
-            mpChangeLayout->getAnim(0x15)->restart();
+            layout::Animator* animation = mpMainLayout->getAnim(0x15);
+            animation->initFrame();
+            animation->restart();
             if (unk_0x914 != 0) {
-                mpChangeLayout->getAnim(2)->initFrame();
-                mpChangeLayout->getAnim(2)->restart();
+                animation = mpMainLayout->getAnim(2);
+                animation->initFrame();
+                animation->restart();
             }
             if (mAPScanList.count != unk_0x914 + 4) {
-                mpChangeLayout->getAnim(3)->initFrame();
-                mpChangeLayout->getAnim(3)->restart();
+                animation = mpMainLayout->getAnim(3);
+                animation->initFrame();
+                animation->restart();
             }
-            for (int animation = 0x10; animation < 0x14; ++animation) {
-                mpChangeLayout->getAnim(animation)->initFrame();
-                mpChangeLayout->getAnim(animation)->restart();
+            for (int index = 0x10; index <= 0x13; ++index) {
+                animation = mpMainLayout->getAnim(index);
+                animation->initFrame();
+                animation->restart();
             }
             initAP();
             unk_0x918 = 0x15;
