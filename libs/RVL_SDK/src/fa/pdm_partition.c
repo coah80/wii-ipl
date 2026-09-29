@@ -42,10 +42,10 @@ extern s32 pdm_disk_physical_read(PDM_DISK* p_disk, u8* buf, u32 sector, u32 num
 extern s32 pdm_disk_physical_write(PDM_DISK* p_disk, const u8* buf, u32 sector, u32 num_sector, u16 bps, u32* p_num_success);
 
 s32 pdm_part_is_master_boot_sector(const u8* p_sector, u32 num_sector, u32* p_is_mbr) {
-    u32 sector_num[4];
     u32 start_sector[4];
-    u32* p_num;
+    u32 sector_num[4];
     u32* p_start;
+    u32* p_num;
     const u8* pe;
     s16 i;
 
@@ -229,15 +229,15 @@ s32 pdm_part_get_start_sector(PDM_PARTITION* p_part) {
 
 u32 pdm_part_chg_ltop(PDM_PARTITION* p_part, u32 lsector, u16 lbps) {
     u16 bps;
-    u32 offset;
     u32 shift;
+    u32 offset;
 
     pdm_disk_get_media_bps(p_part->p_disk, &bps);
     if (lbps == bps) {
         return lsector + p_part->start_sector;
     }
+    shift = (u32)bps >> 9;
     offset = p_part->start_sector;
-    shift = bps >> 9;
     if (shift == 2) {
         offset <<= 1;
     } else if (shift == 4) {
@@ -245,7 +245,7 @@ u32 pdm_part_chg_ltop(PDM_PARTITION* p_part, u32 lsector, u16 lbps) {
     } else if (shift == 8) {
         offset <<= 3;
     }
-    shift = lbps >> 9;
+    shift = (u32)lbps >> 9;
     if (shift == 2) {
         offset >>= 1;
     } else if (shift == 4) {
@@ -484,10 +484,8 @@ void pdm_part_set_change_media_state(PDM_DISK* p_disk, s32 state) {
             continue;
         }
         pdm_disk_set.part_table[i].stat |= 2;
-        if (state == 0) {
-            if (pdm_disk_set.part_table[i].callback[1] != NULL) {
-                pdm_disk_set.part_table[i].callback[1](p_part);
-            }
+        if (state == 0 && pdm_disk_set.part_table[i].callback[1] != NULL) {
+            pdm_disk_set.part_table[i].callback[1](p_part);
         } else {
             if (pdm_disk_set.part_table[i].callback[0] != NULL) {
                 pdm_disk_set.part_table[i].callback[0](p_part);

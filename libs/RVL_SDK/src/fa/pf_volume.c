@@ -52,6 +52,7 @@ typedef struct PF_DRV_TBL {
 } PF_DRV_TBL;
 
 PF_VOLUME_SET pf_vol_set;
+
 extern const u8 pf_vol_dummy_e5[8];
 
 /* pf_drv.c */
@@ -364,7 +365,7 @@ s32 PFVOL_p_setvol(PF_VOLUME* p_vol, const s8* label) {
     goto alloc_done;
 do_alloc:
     {
-        PFSTR_InitStr(&pattern, (const s8*)"", 1);
+        PFSTR_InitStr(&pattern, (const s8*)"\0\0\0", 1);
         PFSTR_SetLocalStr(&pattern, NULL);
         err = PFENT_allocateEntry(&ent, 1, &ffd, &pos, &pattern);
         if (err != 0) {
@@ -923,7 +924,7 @@ s32 PFVOL_getvol(s8 drv_char, PF_VOL_INF* p_vinf) {
 
     p_vol = PFVOL_GetVolumeFromDrvChar(drv_char);
 
-    if (pf_memcmp(p_vol->label, (const s8*)"NO NAME    ", 0xB) == 0) {
+    if (pf_memcmp(p_vol->label, (const s8*)(const s8*)"NO NAME    ", 0xB) == 0) {
         pf_vol_set.last_error = 3;
         p_vol->last_error = 3;
         return 3;
@@ -1014,7 +1015,7 @@ s32 PFVOL_rmvvol(s8 drv_char) {
 
     p_vol = PFVOL_GetVolumeFromDrvChar(drv_char);
 
-    if (pf_memcmp(p_vol->label, (const s8*)"NO NAME    ", 0xB) == 0) {
+    if (pf_memcmp(p_vol->label, (const s8*)(const s8*)"NO NAME    ", 0xB) == 0) {
         pf_vol_set.last_error = 3;
         p_vol->last_error = 3;
         return 3;
@@ -1094,7 +1095,7 @@ err_test:
         p_vol->last_error = err;
         return err;
     }
-    err = PFDRV_StoreVolumeLabelToBPB(p_vol, (const s8*)"NO NAME    ");
+    err = PFDRV_StoreVolumeLabelToBPB(p_vol, (const s8*)(const s8*)"NO NAME    ");
     if (err != 0) {
         pf_vol_set.last_error = err;
         p_vol->last_error = err;

@@ -939,12 +939,14 @@ s32 PFFAT_GetClusterSpecified(PF_FFD* p_ffd, u32 chain_index, u32 is_contiguous,
     }
     *p_cluster = -1;
     err = PFFAT_GetClusterInChain(p_ffd, chain_index, is_contiguous != 0, 0, &locate_start, &locate_end);
-    if (err == 0) {
+    switch (err) {
+    case 0:
         if (locate_end >= 2 && locate_end < p_ffd->p_vol->bpb.num_clusters + 2) {
             *p_cluster = locate_end;
         }
         err = 0;
-    } else {
+        break;
+    default:
         goto recheck;
     }
 recheck:
@@ -977,7 +979,8 @@ s32 PFFAT_GetClusterAllocated(PF_FFD* p_ffd, u32 chain_index, u32 num_cluster, u
     }
     *p_cluster = -1;
     err = PFFAT_GetClusterInChain(p_ffd, chain_index, 2, num_cluster, &locate_start, &locate_end);
-    if (err == 0) {
+    switch (err) {
+    case 0:
         if (locate_start >= 2 && locate_start < p_ffd->p_vol->bpb.num_clusters + 2) {
             *p_cluster = locate_start;
         }
@@ -1044,9 +1047,10 @@ s32 PFFAT_GetSectorSpecified(PF_FFD* p_ffd, u32 chain_index, u32 is_contiguous, 
     s32 err;
 
     err = PFFAT_GetSector(p_ffd, chain_index, is_contiguous != 0, 0, p_sector);
-    if (err == 0) {
+    switch (err) {
+    case 0:
         return 0;
-    } else {
+    default:
         return err;
     }
 }
@@ -1282,10 +1286,10 @@ s32 PFFAT_FreeChain(PF_FFD* p_ffd, u32 start_cluster, u32 chain_index, u32 size)
 }
 
 s32 PFFAT_getBeforeChain(PF_VOLUME* p_vol, u32 start_cluster, u32 lActive, u32* p_cluster) {
-    PF_CACHE_PAGE* p_page;
-    u32 eoc1;
     u32 value;
+    PF_CACHE_PAGE* p_page;
     u32 dummy;
+    u32 eoc1;
     s32 err;
 
     eoc1 = fat_special_values[p_vol->bpb.fat_type].eoc1;

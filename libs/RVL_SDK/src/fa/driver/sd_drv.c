@@ -29,13 +29,12 @@ struct SDDRV_INFO {
 };
 
 struct SDDRV_INFO g_pfd_sddrv_info;
-SDDev g_pfd_sddev;
-static u8 g_pfd_sddev_pad[0x18];
-u8 g_pfd_sddrv_buf[0x200];
+struct { SDDev dev; u32 field_28[6]; } g_pfd_sddev;
+u8 g_pfd_sddrv_buf[0x200] ALIGN32;
 
-static void* g_attach_func;
+u32 g_event ALIGN32;
 static void* g_detach_func;
-static u32 g_event;
+static void* g_attach_func;
 
 extern void pdm_disk_notify_media_insert(PDM_DISK* p_disk);
 extern void pdm_disk_notify_media_eject(PDM_DISK* p_disk);
@@ -186,7 +185,7 @@ s32 pfd_sddrv_init(PDM_DISK* p_disk) {
         g_pfd_sddrv_info.flags |= 4;
     }
     pf_memset(&g_pfd_sddev, 0, 0x28);
-    dev = &g_pfd_sddev;
+    dev = &g_pfd_sddev.dev;
     ret = ISD_MountCard(0, &dev);
     if (ret != 0) {
         OSReport("ERR SD card can not mount [ret = 0x%x]. pfd_sddrv_init()\n", ret);
@@ -577,7 +576,7 @@ s32 pfd_sddrv_get_total_sectors(u32* p_total_sectors, u16* p_bps) {
     pf_memset(csd, 0, 0x10);
     ret = ISD_ReadCardRegister(g_pfd_sddrv_info.dev, 9, csd, 0x10);
     if (ret != 0) {
-        OSReport("ERR Failed to read CSD reg. pfd_sddrv_get_total_sectors()\n");
+        OSReport("ERR Failed to get CSD Info. pfd_sddrv_get_total_sectors()\n");
         return -0x2b;
     }
     if ((csd[3] & 0x400000) == 0) {
@@ -621,6 +620,7 @@ static s32 pfd_sddrv_store_mbr_buf(SDDRV_MBR_BPB* p, u8* buf);
 static s32 pfd_sddrv_store_fat32_bpb_buf(SDDRV_MBR_BPB* p, u8* buf);
 static s32 pfd_sddrv_store_fat32_mbr_buf(SDDRV_MBR_BPB* p, u8* buf);
 static s32 pfd_sddrv_store_fat32_fsi_buf(u8* buf);
+static s32 pfd_sddrv_store_fat32_reserved_buf(u8* buf);
 
 s32 pfd_sddrv_calc_mbr_bpb(SDDRV_MBR_BPB* p) {
     const SDDRV_SIZE_DEPEND* p_tbl;
@@ -1251,6 +1251,22 @@ static s32 pfd_sddrv_store_fat32_fsi_buf(u8* buf) {
     return 0;
 }
 
+static s32 pfd_sddrv_store_fat32_reserved_buf(u8* buf) {
+    pf_memset(buf, 0, 0x200);
+    if (((u32)(buf + 0x1fe) & 1) != 0) {
+        buf[0x1fe] = 0x55;
+        buf[0x1ff] = 0xaa;
+    } else {
+        *(u16*)(buf + 0x1fe) = 0x55AA;
+    }
+    if (buf == NULL) {
+        OSReport("ERR Failed to store reserved for boot sector values to buf. ");
+        OSReport("pfd_sddrv_store_fat32_reserved_buf()\n");
+        return -0x25;
+    }
+    return 0;
+}
+
 static s32 pfd_sddrv_store_fat32_bpb_buf(SDDRV_MBR_BPB* p, u8* buf) {
     SDDRV_FIELDS v;
     u32 total;
@@ -1477,13 +1493,7 @@ s32 pfd_sddrv_build_fat32_mbr_bpb(u32 total_sectors) {
         OSReport("ERR Failed to write BPB fields. ISD_WriteBlock()\n");
         return -0x24;
     }
-    pf_memset(g_pfd_sddrv_buf, 0, 0x200);
-    if (((u32)(g_pfd_sddrv_buf + 0x1fe) & 1) != 0) {
-        g_pfd_sddrv_buf[0x1fe] = 0x55;
-        g_pfd_sddrv_buf[0x1ff] = 0xaa;
-    } else {
-        *(u16*)(g_pfd_sddrv_buf + 0x1fe) = 0x55AA;
-    }
+    ret = pfd_sddrv_store_fat32_reserved_buf(g_pfd_sddrv_buf);
     if (g_pfd_sddrv_info.inserted == 0) {
         return -0x21;
     }
@@ -1583,7 +1593,7 @@ fat32:
         ret = pfd_sddrv_build_fat32_mbr_bpb(total_sectors);
     }
     if (ret != 0) {
-        OSReport("ERR Failed to build up and write MBR and BPB fields.\n");
+        OSReport("ERR Failed to build up and write MBR and BPB fields.\n\0\0");
         return ret;
     }
     return 0;
