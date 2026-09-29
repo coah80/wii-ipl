@@ -2240,8 +2240,7 @@ done:
 void ipl::scene::AddressEdit::start_left_event(
     const char* paneName) {
     int buttonNo = get_button_no(paneName);
-    s32 state = mState;
-    switch (state) {
+    switch (mState) {
     case 0x22:
         goto state22;
     case 0:
