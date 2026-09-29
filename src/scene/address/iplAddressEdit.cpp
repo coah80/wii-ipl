@@ -936,13 +936,11 @@ void ipl::scene::AddressEdit::stt_add_mii_input() {
 }
 
 void ipl::scene::AddressEdit::stt_add_mii_fadeout() {
-    if (mpNameLayout->getAnim(9)->isPlaying() ||
-        mpNameLayout->getAnim(5)->isPlaying() ||
-        mpNameLayout->getAnim(8)->isPlaying()) {
-        return;
-    }
-
-    if (mSubState == 5) {
+    if (!mpNameLayout->getAnim(9)->isPlaying() &&
+        !mpNameLayout->getAnim(5)->isPlaying() &&
+        !mpNameLayout->getAnim(8)->isPlaying()) {
+        switch (mSubState) {
+    case 5: {
         ipl::layout::Animator* animator = mpNameLayout->getAnim(1);
         animator->initFrame();
         animator->restart();
@@ -958,10 +956,10 @@ void ipl::scene::AddressEdit::stt_add_mii_fadeout() {
         pane = mpNameLayout->getNW4RLyt()->GetRootPane()->FindPaneByName("T_msg_00", true);
         set_textbox(pane, ipl::System::getMessage(0x49));
         mState = 0x18;
-        return;
+        break;
     }
 
-    if (mSubState == 7) {
+    case 7: {
         ipl::layout::Animator* animator = mpCodeLayout->getAnim(0);
         animator->initFrame();
         animator->restart();
@@ -980,6 +978,11 @@ void ipl::scene::AddressEdit::stt_add_mii_fadeout() {
         pane = mpCodeLayout->getNW4RLyt()->GetRootPane()->FindPaneByName("T_frnd_crd_00", true);
         set_textbox(pane, mString.mDisplayText);
         mState = 0x21;
+        break;
+    }
+    default:
+        break;
+        }
     }
 }
 
