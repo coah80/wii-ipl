@@ -2986,7 +2986,7 @@ namespace ipl {
 
         bool Setting::validateEULA_() {
             ESTmdView* titleView = NULL;
-            s32 contentResult = 0;
+            s32 contentResult;
             s32 result = utility::ESMisc::GetTmdView(System::getMem1Root(), mUpdateTitleId, &titleView);
             bool valid = false;
             if (result == -0x401 || result == -0x6a) {
@@ -2994,15 +2994,16 @@ namespace ipl {
                 unk_0x74 = 0xd;
                 resetFuncMsgQ();
                 System::getDialog()->callBtn2(0x180, 0x2e, 0x25);
-            } else if (result == 0) {
+            } else if (result != 0) {
+                System::getErrorHandler()->log("error", result, "iplSetting.cpp", 0x10f1);
+                System::getErrorHandler()->set(ErrorHandler::DEFAULT, 2);
+            } else {
+                contentResult = 0;
                 if (!utility::ESMisc::ContentExist(titleView, 1, &contentResult) && contentResult != 0) {
                     System::getErrorHandler()->log("error", contentResult, "iplSetting.cpp", 0x10fc);
                     System::getErrorHandler()->set(ErrorHandler::DEFAULT, 2);
                 }
                 valid = true;
-            } else {
-                System::getErrorHandler()->log("error", result, "iplSetting.cpp", 0x10f1);
-                System::getErrorHandler()->set(ErrorHandler::DEFAULT, 2);
             }
             if (titleView != NULL) {
                 System::getMem1Root()->free(titleView);
@@ -3160,27 +3161,31 @@ namespace ipl {
                 mUpdateTiming = 0;
                 mIsResetAcceptable = 1;
             } else if (mpWiiSettingFlag->smthMsgData == 9) {
-                if (result == 2) {
-                    System::getDialog()->terminate();
-                    mUpdateTiming = 6;
-                    mpWiiSettingFlag->err = networkError;
-                } else if (result == 1) {
-                    System::getDialog()->setProgBarLength(100);
-                    mProfileIDMode = 6;
-                    mUpdateTiming = 0;
-                    mpWiiSettingFlag->smthMsgData = 0x54;
-                    SCSetUpdateType(2);
-                    SCFlush();
-                } else if (result == 3) {
-                    System::getDialog()->terminate();
-                    if (SCGetConfigDoneFlag2() == 0) {
+                switch (result) {
+                    case 1:
+                        System::getDialog()->setProgBarLength(100);
                         mProfileIDMode = 6;
-                    } else {
-                        mProfileIDMode = 7;
-                        unk_0x92C = 0;
-                    }
-                    mUpdateTiming = 0;
-                    mpWiiSettingFlag->smthMsgData = 0x54;
+                        mUpdateTiming = 0;
+                        mpWiiSettingFlag->smthMsgData = 0x54;
+                        SCSetUpdateType(2);
+                        SCFlush();
+                        break;
+                    case 2:
+                        System::getDialog()->terminate();
+                        mUpdateTiming = 6;
+                        mpWiiSettingFlag->err = networkError;
+                        break;
+                    case 3:
+                        System::getDialog()->terminate();
+                        if (SCGetConfigDoneFlag2() == 0) {
+                            mProfileIDMode = 6;
+                        } else {
+                            mProfileIDMode = 7;
+                            unk_0x92C = 0;
+                        }
+                        mUpdateTiming = 0;
+                        mpWiiSettingFlag->smthMsgData = 0x54;
+                        break;
                 }
             } else {
                 if (result == 1) {
@@ -3466,16 +3471,16 @@ namespace ipl {
         void Setting::AOSSProcess() {
             u8 message = mpWiiSettingFlag->smthMsgData;
             if (message == 0x22u) {
-                if (mAOSSState == 3) {
+                if (mAOSSState != 3) {
+                    System::getDialog()->callBtn1(0x1c2, 0x2e);
+                    mAOSSState = 3;
+                    unk_0x74 = 2;
+                } else {
                     if (System::getDialog()->getLastResult() >= 0) {
                         mAOSSState = 0;
                         www::wiisetting::setFuncResult(10);
                         resetFuncMsgQ();
                     }
-                } else {
-                    System::getDialog()->callBtn1(0x1c2, 0x2e);
-                    mAOSSState = 3;
-                    unk_0x74 = 2;
                 }
                 return;
             }
