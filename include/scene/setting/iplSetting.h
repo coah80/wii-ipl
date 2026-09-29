@@ -31,6 +31,8 @@ namespace ipl {
             bool isAnimating();
             void getFuncMsgQ();
             void resetFuncMsgQ();
+            int get_arw_no(const char* paneName);
+            int get_ap_no(const char* buttonName);
             virtual void destroy();
             virtual void prepare();
             virtual void create();

@@ -5,6 +5,29 @@
 
 namespace ipl {
     namespace scene {
+        static const char* sSettingAPButtonNames[] = {
+            "B_AP2", "B_AP3", "B_AP4", "B_AP5", "T_Name1", "T_Name2", "T_Name3", "T_Name4",
+            "T_Name5", "T_Name6", "N_AP1",  "N_AP2",  "N_AP3",  "N_AP4",  "N_AP5",  "N_AP6",
+        };
+
+        static const char* sSettingArrowNames[] = {"B_ArwA", "B_ArwB"};
+
+        static const char* sSettingAPPaneNames[] = {
+            "G_ListUpDown", "G_ListInOut", "G_ArwA", "G_ArwB", "G_Denpa", "G_Lock",  "G_AP0",
+            "G_AP1",        "G_AP2",       "G_AP3",  "G_AP4",  "G_AP5",   "G_AP6",   "G_AP7",
+            "G_Denpa1",     "G_Denpa2",    "G_Denpa3", "G_Denpa4", "G_Denpa5", "G_Denpa6",
+            "G_Lock1",      "G_Lock2",     "G_Lock3", "G_Lock4", "G_Lock5", "G_Lock6",
+        };
+
+        static const char* sSettingAPAnimations[] = {
+            "my_AP_a_ArwAppear.brlan", "my_AP_a_ArwLost.brlan", "my_AP_a_ArwFocusOn.brlan",
+            "my_AP_a_ArwFocusOff.brlan", "my_AP_a_ArwSelect.brlan", "my_AP_a_ScrollUp.brlan",
+            "my_AP_a_ScrollDown.brlan", "my_AP_a_BtnFocusOn.brlan", "my_AP_a_BtnFocusOff.brlan",
+            "my_AP_a_ListAppear.brlan", "my_AP_a_ListLost.brlan", "my_AP_a_Denpa0.brlan",
+            "my_AP_a_Denpa1.brlan", "my_AP_a_Denpa2.brlan", "my_AP_a_Denpa3.brlan",
+            "my_AP_a_LockOff.brlan", "my_AP_a_LockOn.brlan",
+        };
+
         NCDAossConfig m_AOSSConfig;
         NCDRakuApConfig m_RakuConfig;
 
@@ -79,6 +102,28 @@ namespace ipl {
 
         int Setting::getUpdateTiming() {
             return mUpdateTiming;
+        }
+
+        int Setting::get_arw_no(const char* paneName) {
+            int result = -1;
+            for (int index = 0; index < 2; index++) {
+                if (strcmp(sSettingArrowNames[index], paneName) == 0) {
+                    result = index;
+                    break;
+                }
+            }
+            return result;
+        }
+
+        int Setting::get_ap_no(const char* buttonName) {
+            int result = -1;
+            for (int index = 0; index < 4; index++) {
+                if (strcmp(sSettingAPButtonNames[index], buttonName) == 0) {
+                    result = index;
+                    break;
+                }
+            }
+            return result;
         }
 
         BOOL Setting::isResetAcceptable() const {
