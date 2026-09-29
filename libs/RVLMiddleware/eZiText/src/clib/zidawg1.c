@@ -109,7 +109,7 @@ ziU8* ZiDAWGGetSibling(ziU8* node) {
 }
 
 ziU8 ZiDAWGgetEOWattribute(ziU8* node) {
-    return (ziU8)(((nodeHeaderTable[node[0] >> 4] >> 4) & 1));
+    return (nodeHeaderTable[node[0] >> 4] & 0x10) > 0;
 }
 
 ziU32 ZiDAWGgetCHARattribute(ziU8* graph, ziU8* node ZI_NEED_WORK) {
@@ -131,9 +131,9 @@ ziU32 ZiDAWGgetCHARattribute(ziU8* graph, ziU8* node ZI_NEED_WORK) {
 }
 
 ziU8* ZiDAWGGetGraph(ziU8* arg) {
-    return ((ziU16)(*(ziU8**)(arg + 0x10))[2] << 8) +
-           (*(ziU8**)(arg + 0x10))[3] +
-           *(ziU8**)(arg + 0x10) + 4;
+    return *(ziU8**)(arg + 0x10) +
+           ((ziU16)(*(ziU8**)(arg + 0x10))[2] << 8) +
+           (*(ziU8**)(arg + 0x10))[3] + 4;
 }
 
 ziU32 ZiDAWGGetGraphInfo(ziPtr work, ziU8* hdr, ziWChar* key) {
