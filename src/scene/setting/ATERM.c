@@ -1292,13 +1292,13 @@ int ATERM_81403614(u8* destination, const char* source, s32 length) {
     u32 characterIndex = 0;
 
     while (length > 0) {
-        s32 character = *source++;
+        s32 character = *source;
 
         if (character < 'G') {
-            if (character < '0') {
-                return 0;
-            }
             if (character < ':') {
+                if (character < '0') {
+                    return 0;
+                }
                 value += character - '0';
             } else {
                 if (character < 'A') {
@@ -1307,19 +1307,22 @@ int ATERM_81403614(u8* destination, const char* source, s32 length) {
                 value += character - '7';
             }
         } else {
-            if (character > 'f' || character < 'a') {
+            if (character >= 'g') {
+                return 0;
+            }
+            if (character < 'a') {
                 return 0;
             }
             value += character - 'W';
         }
-
-        if ((characterIndex & 1) == 0) {
+        if (characterIndex % 2 == 0) {
             value <<= 4;
         } else {
-            *destination++ = (u8)value;
+            destination[characterIndex / 2] = (u8)value;
             value = 0;
         }
         characterIndex++;
+        source++;
         length--;
     }
     return 1;
