@@ -285,7 +285,7 @@ namespace ipl {
 
             mpRsoThread = new (System::getMem2App(), 32) channel::RsoThread(mpCsHeap);
 
-            iplSDChannelSelect_813DE9FC();
+            createBaseLayout();
 
             if (mChanPage < mChanCount - 1) {
                 iplSDChannelSelect_813DF834(mChanPage + 1, 0);
@@ -294,7 +294,7 @@ namespace ipl {
                 iplSDChannelSelect_813DF834(mChanPage - 1, 0);
             }
 
-            iplSDChannelSelect_813DEE3C();
+            updateChannelObjects();
             iplSDChannelSelect_813E11C4();
 
             u32 bs2AbortStart = OSGetTick();
@@ -312,7 +312,7 @@ namespace ipl {
             utility::CSFlags::UpdateFlagsFile();
         }
 
-        void SDChannelSelect::iplSDChannelSelect_813DB1C8() {
+        void SDChannelSelect::enqueueStartNotice() {
             s32 req[8];
             req[0] = 1;
             req[4] = 0;
@@ -322,7 +322,7 @@ namespace ipl {
             mCmdQueue.push(req);
         }
 
-        BOOL SDChannelSelect::iplSDChannelSelect_813DB20C() {
+        BOOL SDChannelSelect::enqueueFinishNotice() {
             s32 req[8];
             req[0] = 2;
             req[4] = 0;
@@ -333,7 +333,7 @@ namespace ipl {
             return TRUE;
         }
 
-        BOOL SDChannelSelect::iplSDChannelSelect_813DB254(int a, int b, int c) {
+        BOOL SDChannelSelect::enqueueNotice(int a, int b, int c) {
             if (mSelState != 6) {
                 return FALSE;
             }
@@ -349,7 +349,7 @@ namespace ipl {
             }
         }
 
-        BOOL SDChannelSelect::iplSDChannelSelect_813DB308() {
+        BOOL SDChannelSelect::enqueueLoadNotice() {
             if (mSelState != 6) {
                 return FALSE;
             }
@@ -363,7 +363,7 @@ namespace ipl {
             return TRUE;
         }
 
-        BOOL SDChannelSelect::iplSDChannelSelect_813DB364() {
+        BOOL SDChannelSelect::enqueuePageNotice() {
             if (mSelState != 6) {
                 return FALSE;
             }
@@ -405,7 +405,7 @@ namespace ipl {
             return TRUE;
         }
 
-        int SDChannelSelect::iplSDChannelSelect_813DB478(u64 id) {
+        int SDChannelSelect::enqueueMoveNotice(u64 id) {
             if (mSelState != 6) {
                 return FALSE;
             }
@@ -433,7 +433,7 @@ namespace ipl {
             return TRUE;
         }
 
-        int SDChannelSelect::iplSDChannelSelect_813DB530(void* p1, void* p2) {
+        int SDChannelSelect::enqueueErrorNotice(void* p1, void* p2) {
             if (mSelState != 6) {
                 return FALSE;
             }
@@ -447,7 +447,7 @@ namespace ipl {
             return TRUE;
         }
 
-        int SDChannelSelect::iplSDChannelSelect_813DB58C(void* p1, void* p2, void* p3) {
+        int SDChannelSelect::enqueueCommandNotice(void* p1, void* p2, void* p3) {
             if (mSelState != 6) {
                 return FALSE;
             }
@@ -462,7 +462,7 @@ namespace ipl {
             return TRUE;
         }
 
-        int SDChannelSelect::iplSDChannelSelect_813DB5EC(u64 id) {
+        int SDChannelSelect::enqueueDeleteNotice(u64 id) {
             if (mSelState != 6) {
                 return FALSE;
             }
@@ -479,7 +479,7 @@ namespace ipl {
 
         struct SDCmdQueueEntry { s32 v[8]; };
 
-        void SDChannelSelect::iplSDChannelSelect_813DB6CC() {
+        void SDChannelSelect::processWorkerCommands() {
             switch (mSelState) {
             case 1:
             case 3:
@@ -525,20 +525,20 @@ namespace ipl {
                     unk_0x77F = 0;
                     switch (mSelState) {
                     case 1:
-                        iplSDChannelSelect_813DCEF0(2, 0xA9);
+                        setDialogMessage(2, 0xA9);
                         mAsyncFlag = 6;
                         break;
                     case 2:
                         if (unk_0x77E == 0) {
-                            iplSDChannelSelect_813DCEF0(8, 0xAA);
+                            setDialogMessage(8, 0xAA);
                         }
                         unk_0x77E = 1;
-                        iplSDChannelSelect_813DB1C8();
-                        iplSDChannelSelect_813DB20C();
+                        enqueueStartNotice();
+                        enqueueFinishNotice();
                         break;
                     case 3:
                     case 4:
-                        iplSDChannelSelect_813DCEF0(2, 0xAB);
+                        setDialogMessage(2, 0xAB);
                         mAsyncFlag = 0xF;
                         break;
                     }
@@ -636,23 +636,23 @@ namespace ipl {
             }
         }
 
-        void SDChannelSelect::iplSDChannelSelect_813DBBE4() {
+        void SDChannelSelect::handleWorkerStartup() {
             if (mpWorker->is_working() == 0) {
                 if (mpWorker->get_async_result() == 0) {
                     if (unk_0x75C == 0) {
-                        iplSDChannelSelect_813DCEF0(8, 0xAA);
+                        setDialogMessage(8, 0xAA);
                     }
-                    iplSDChannelSelect_813DB20C();
+                    enqueueFinishNotice();
                     mAsyncFlag = 1;
                 }
                 mpWorker->startup_async();
                 mMountFlag = 2;
             } else if (unk_0x704 != mSelState && mSelState == 7) {
-                iplSDChannelSelect_813DCEF0(8, 0xAA);
+                setDialogMessage(8, 0xAA);
             }
         }
 
-        void SDChannelSelect::iplSDChannelSelect_813DBC94() {
+        void SDChannelSelect::handleNandTitleCount() {
             if (mpWorker->is_working() == 0) {
                 if (mpWorker->get_async_result() == -5) {
                     System::getErrorHandler()->set(ErrorHandler::DEFAULT, 1, NULL, 0, -1);
@@ -684,7 +684,7 @@ namespace ipl {
             }
         }
 
-        void SDChannelSelect::iplSDChannelSelect_813DBD4C() {
+        void SDChannelSelect::handleNandTitleUsageComplete() {
             if (!mpWorker->is_working()) {
                 mResetState = 0xE;
                 mAsyncFlag = 1;
@@ -700,7 +700,7 @@ namespace ipl {
 
         static int compareChanObj_813DBE6C(const ChanSortEntry8* a, const ChanSortEntry8* b);
 
-        void SDChannelSelect::iplSDChannelSelect_813DBD94() {
+        void SDChannelSelect::handleNandTitleUsage() {
             if (mpWorker->is_working() == 0) {
                 if (mpWorker->get_async_result() == 0) {
                     qsort(mpBuf724, unk_0x738, 0x10, (int(*)(const void*,const void*))compareChanObj_813DBE6C);
@@ -732,12 +732,12 @@ namespace ipl {
 
         static int compareChanObj_813DBFB8(const ChanSortEntry0* a, const ChanSortEntry0* b);
 
-        void SDChannelSelect::iplSDChannelSelect_813DBE94() {
+        void SDChannelSelect::handleSDTitleList() {
             if (mpWorker->is_working() == 0) {
                 mResetState = 0xE;
                 if (unk_0x734 == 0) {
                     if (mReqType == 0) {
-                        iplSDChannelSelect_813DCEF0(1, 0);
+                        setDialogMessage(1, 0);
                         mAsyncFlag = 0xF;
                     }
                 } else {
@@ -753,10 +753,10 @@ namespace ipl {
                             off2 += 4;
                         }
                         qsort(mpBuf720, unk_0x734, 8, (int(*)(const void*,const void*))compareChanObj_813DBFB8);
-                        iplSDChannelSelect_813DB364();
+                        enqueuePageNotice();
                         mAsyncFlag = 1;
                     } else if (mReqType == 0) {
-                        iplSDChannelSelect_813DCEF0(2, 0xC3);
+                        setDialogMessage(2, 0xC3);
                         mAsyncFlag = 0xF;
                     }
                 }
@@ -781,7 +781,7 @@ namespace ipl {
                 mResetState = 0xE;
                 if (mReqType == 0) {
                     if (OSGetTime() - mLastTime >= OSSecondsToTicks(1)) {
-                        iplSDChannelSelect_813DCEF0(1, 0);
+                        setDialogMessage(1, 0);
                         int result = mpWorker->get_async_result();
                         if (result == 0 || result == -0x11) {
                             for (int i = 0; i < mChanCount * 0xC; i++) {
@@ -815,7 +815,7 @@ namespace ipl {
                                 }
                             }
                             if (found9 || result == -0x11) {
-                                iplSDChannelSelect_813DB308();
+                                enqueueLoadNotice();
                             }
                         } else {
                             int cnt = 0;
@@ -830,7 +830,7 @@ namespace ipl {
                                     }
                                 }
                             }
-                            iplSDChannelSelect_813DB308();
+                            enqueueLoadNotice();
                         }
                         mAsyncFlag = 1;
                         unk_0x77F = 1;
@@ -852,7 +852,7 @@ namespace ipl {
             }
         }
 
-        void SDChannelSelect::iplSDChannelSelect_813DC28C() {
+        void SDChannelSelect::handleSDMountComplete() {
             if (!mpWorker->is_working()) {
                 mResetState = 0xE;
                 if (mpWorker->get_async_result() == -7) {
@@ -868,8 +868,8 @@ namespace ipl {
                 mResetState = 0xE;
                 int index = mpPendingChan->mChanIndex;
                 int page = mpPendingChan->mChanPage;
-                if (iplSDChannelSelect_813E022C(page, index, mChanPage) == 0 || (u32)(mSelState - 1) <= 1) {
-                    iplSDChannelSelect_813DFCA0(mpPendingChan);
+                if (isChannelInCalc(page, index, mChanPage) == 0 || (u32)(mSelState - 1) <= 1) {
+                    destroyChannelObject(mpPendingChan);
                     mAsyncFlag = 1;
                     mpPendingChan = NULL;
                 } else {
@@ -890,13 +890,13 @@ namespace ipl {
                     if (old != NULL) {
                         nw4r::ut::List_Insert(&mChanList, old, mpPendingChan);
                         nw4r::ut::List_Remove(&mChanList, old);
-                        iplSDChannelSelect_813DFCA0(old);
+                        destroyChannelObject(old);
                     } else {
                         nw4r::ut::List_Append(&mChanList, mpPendingChan);
                     }
-                    iplSDChannelSelect_813DEE98(mpPendingChan);
+                    updateChannelObject(mpPendingChan);
                     if (mChanPage == page) {
-                        mpGui->initPane(iplSDChannelSelect_813E07B4(index));
+                        mpGui->initPane(getChannelPane(index));
                     }
                     mAsyncFlag = 1;
                     mpPendingChan = NULL;
@@ -904,17 +904,17 @@ namespace ipl {
             }
         }
 
-        void SDChannelSelect::iplSDChannelSelect_813DC4A0() {
+        void SDChannelSelect::handleSDCardReady() {
             if (mpWorker->get_sd_state() == 2 && mReqType == 0) {
-                iplSDChannelSelect_813DCEF0(1, 0);
+                setDialogMessage(1, 0);
                 mAsyncFlag = 1;
             }
         }
 
-        void SDChannelSelect::iplSDChannelSelect_813DC4FC() {
+        void SDChannelSelect::handleCardCommand() {
             if (mReqType == 0) {
                 if (mpWorker->get_sd_state() == 1) {
-                    iplSDChannelSelect_813DCEF0(2, 0xA9);
+                    setDialogMessage(2, 0xA9);
                     mAsyncFlag = 6;
                 } else if (mpWorker->get_sd_state() == 2) {
                     mAsyncFlag = 1;
@@ -922,7 +922,7 @@ namespace ipl {
             }
         }
 
-        void SDChannelSelect::iplSDChannelSelect_813DC574() {
+        void SDChannelSelect::handleCopyComplete() {
             if (mpWorker->is_working() == 0) {
                 mResetState = 0xE;
                 if (mpWorker->get_async_result() == -5) {
@@ -933,21 +933,21 @@ namespace ipl {
             }
         }
 
-        void SDChannelSelect::iplSDChannelSelect_813DC5F4() {
+        void SDChannelSelect::handleSDLocationUpdateComplete() {
             if (!mpWorker->is_working()) {
                 mResetState = 0xE;
                 mAsyncFlag = 1;
             }
         }
 
-        void SDChannelSelect::iplSDChannelSelect_813DC63C() {
+        void SDChannelSelect::handleSDLocationReadComplete() {
             if (!mpWorker->is_working()) {
                 mResetState = 0xE;
                 mAsyncFlag = 1;
             }
         }
 
-        void SDChannelSelect::iplSDChannelSelect_813DC684() {
+        void SDChannelSelect::handleMoveComplete() {
             if (mpWorker->is_working() == 0) {
                 mResetState = 0xE;
                 if (mpWorker->get_async_result() == -5) {
@@ -959,21 +959,21 @@ namespace ipl {
             }
         }
 
-        void SDChannelSelect::iplSDChannelSelect_813DC714() {
+        void SDChannelSelect::handleBackupFitComplete() {
             if (!mpWorker->is_working()) {
                 mResetState = 0xE;
                 mAsyncFlag = 1;
             }
         }
 
-        void SDChannelSelect::iplSDChannelSelect_813DC75C() {
+        void SDChannelSelect::handleNandSDCleanupComplete() {
             if (!mpWorker->is_working()) {
                 mResetState = 0xE;
                 mAsyncFlag = 1;
             }
         }
 
-        void SDChannelSelect::iplSDChannelSelect_813DC7A4() {
+        void SDChannelSelect::handleSDDeleteComplete() {
             if (!mpWorker->is_working()) {
                 mResetState = 0xE;
                 mAsyncFlag = 1;
@@ -1008,7 +1008,7 @@ namespace ipl {
                         chanObj->mChanType == 2 &&
                         mpChanTable[tIdx] != 0
                     ) {
-                        iplSDChannelSelect_813DB254(
+                        enqueueNotice(
                             mpChanTable[tIdx],
                             targetPage,
                             focusedIndex);
@@ -1023,7 +1023,7 @@ namespace ipl {
                             chanObj->mChanType == 2 &&
                             mpChanTable[tIdx] != 0
                         ) {
-                            iplSDChannelSelect_813DB254(
+                            enqueueNotice(
                                 mpChanTable[tIdx],
                                 targetPage,
                                 i);
@@ -1035,32 +1035,32 @@ namespace ipl {
         }
 
 
-        void SDChannelSelect::iplSDChannelSelect_813DC938() {
+        void SDChannelSelect::processWorkerState() {
             unk_0x704 = mSelState;
             mSelState = mpWorker->get_sd_state();
             switch (mMountFlag) {
             case 1:
-                iplSDChannelSelect_813DBBE4();
+                handleWorkerStartup();
                 break;
             case 2:
-                iplSDChannelSelect_813DBC94();
+                handleNandTitleCount();
                 break;
             case 3:
-                iplSDChannelSelect_813DBD94();
+                handleNandTitleUsage();
                 break;
             }
             switch (mAsyncFlag) {
             case 1:
-                iplSDChannelSelect_813DB6CC();
+                processWorkerCommands();
                 break;
             case 0:
-                iplSDChannelSelect_813DBD4C();
+                handleNandTitleUsageComplete();
                 break;
             case 2:
-                iplSDChannelSelect_813DBE94();
+                handleSDTitleList();
                 break;
             case 4:
-                iplSDChannelSelect_813DC28C();
+                handleSDMountComplete();
                 break;
             case 5:
                 iplSDChannelSelect_813DBFE0();
@@ -1069,40 +1069,40 @@ namespace ipl {
                 iplSDChannelSelect_813DC2F0();
                 break;
             case 7:
-                iplSDChannelSelect_813DC574();
+                handleCopyComplete();
                 break;
             case 8:
-                iplSDChannelSelect_813DC5F4();
+                handleSDLocationUpdateComplete();
                 break;
             case 9:
-                iplSDChannelSelect_813DC63C();
+                handleSDLocationReadComplete();
                 break;
             case 10:
-                iplSDChannelSelect_813DC684();
+                handleMoveComplete();
                 break;
             case 0xb:
-                iplSDChannelSelect_813DC714();
+                handleBackupFitComplete();
                 break;
             case 0xc:
-                iplSDChannelSelect_813DC75C();
+                handleNandSDCleanupComplete();
                 break;
             case 0xd:
-                iplSDChannelSelect_813DC7A4();
+                handleSDDeleteComplete();
                 break;
             case 6:
-                iplSDChannelSelect_813DC4A0();
+                handleSDCardReady();
                 break;
             case 0xf:
-                iplSDChannelSelect_813DC4FC();
+                handleCardCommand();
                 break;
             }
             if (mSelState != 6 && mState < 0x18 && mState > 0xE) {
                 unk_0x105 = 1;
             }
-            iplSDChannelSelect_813DCAC4();
+            updateDialogAnimation();
         }
 
-        void SDChannelSelect::iplSDChannelSelect_813DCAC4() {
+        void SDChannelSelect::updateDialogAnimation() {
             if (!mpTimerAnim->isPlaying(-1) || mpTimerAnim->isPlaying(4)) {
                 switch (unk_0x75C) {
                 case 3:
@@ -1245,7 +1245,7 @@ namespace ipl {
         }
 
 
-        BOOL SDChannelSelect::iplSDChannelSelect_813DCEF0(int type, int param) {
+        BOOL SDChannelSelect::setDialogMessage(int type, int param) {
             if (mReqType == 0) {
                 mReqType = type;
                 mReqParam = param;
@@ -1638,7 +1638,7 @@ namespace ipl {
             }
             mpLayout->calc();
             mpGui->calc();
-            iplSDChannelSelect_813DEF10();
+            calcChannelObjects();
             mpAnimLayout1->calc();
             mpAnimLayout2->calc();
             mpAnimLayout3->calc();
@@ -1646,7 +1646,7 @@ namespace ipl {
             mDialogAnim->calc();
             mpAnimLayout4->calc();
             mpTimerAnim->calc();
-            iplSDChannelSelect_813DC938();
+            processWorkerState();
         }
 
         FaderSceneCommand SDChannelSelect::calcFadein() {
@@ -1740,7 +1740,7 @@ namespace ipl {
                     }
                     int i = 0;
                     do {
-                        mpGui->initPane(iplSDChannelSelect_813E07B4(i));
+                        mpGui->initPane(getChannelPane(i));
                         i++;
                     } while (i < 0xC);
                 }
@@ -1803,7 +1803,7 @@ namespace ipl {
                     mpAnimLayout6->calcMtx();
                     mpAnimLayout6->draw();
                 }
-                iplSDChannelSelect_813DF1F8();
+                drawChannelObjects();
                 maskPane->SetVisible(true);
                 mpLayout->draw(maskPane);
                 mpAnimLayout2->draw();
@@ -1825,7 +1825,7 @@ namespace ipl {
             SDChannelObj* chanObj = NULL;
             while ((chanObj = (SDChannelObj*)nw4r::ut::List_GetNext(&mChanList, NULL)) != NULL) {
                 nw4r::ut::List_Remove(&mChanList, chanObj);
-                iplSDChannelSelect_813DFCA0(chanObj);
+                destroyChannelObject(chanObj);
             }
 
             mpWorkHeap->destroy();
@@ -1874,7 +1874,7 @@ namespace ipl {
             }
         }
 
-        void SDChannelSelect::iplSDChannelSelect_813DE9FC() {
+        void SDChannelSelect::createBaseLayout() {
             mpLayout = new layout::Object(getSceneHeap(), mpChanLayoutFile, "arc", "mn_SdcardMenu_a.brlyt");
             if (SCGetAspectRatio() == SC_ASPECT_RATIO_16x9) {
                 GXTexObj tex16x9;
@@ -1913,28 +1913,28 @@ namespace ipl {
             mpGui->createLayoutScene(*mpLayout->getNW4RLyt());
             mpGui->setAllComponentTriggerTarget(false);
             for (int i = 0; i < 0xC; i++) {
-                mpGui->getPaneComponentByPane(iplSDChannelSelect_813E07B4(i))->setTriggerTarget(true);
+                mpGui->getPaneComponentByPane(getChannelPane(i))->setTriggerTarget(true);
             }
             for (int i = 0; i < 4; i++) {
                 mHandlers[i] = new math::HermiteIntp<math::VEC3>();
             }
         }
 
-        void SDChannelSelect::iplSDChannelSelect_813DEE3C() {
+        void SDChannelSelect::updateChannelObjects() {
             SDChannelObj* chanObj = NULL;
             while (chanObj = (SDChannelObj*)nw4r::ut::List_GetNext(&mChanList, chanObj), chanObj != NULL) {
-                iplSDChannelSelect_813DEE98(chanObj);
+                updateChannelObject(chanObj);
             }
         }
 
-        void SDChannelSelect::iplSDChannelSelect_813DEE98(SDChannelObj* chanObj) {
+        void SDChannelSelect::updateChannelObject(SDChannelObj* chanObj) {
             chanObj->prepare();
             chanObj->setHeaps(mpHeap1, mpHeap2);
-            chanObj->setBasePane(iplSDChannelSelect_813E06D8(chanObj->mChanPage, chanObj->mChanIndex, mChanPage));
+            chanObj->setBasePane(getChannelBasePane(chanObj->mChanPage, chanObj->mChanIndex, mChanPage));
             chanObj->create(mpChanLayoutFile);
         }
 
-        void SDChannelSelect::iplSDChannelSelect_813DEF10() {
+        void SDChannelSelect::calcChannelObjects() {
             SDChannelObj* chanObj = NULL;
             while (chanObj = (SDChannelObj*)nw4r::ut::List_GetNext(&mChanList, chanObj), chanObj != NULL) {
                 chanObj->calc();
@@ -1948,7 +1948,7 @@ namespace ipl {
             while ((chanObj = (SDChannelObj*)nw4r::ut::List_GetNext(&mChanList, chanObj)) != NULL) {
                 page = chanObj->mChanPage;
                 index = chanObj->mChanIndex;
-                if (iplSDChannelSelect_813E00EC(page, index) == 0 || iplSDChannelSelect_813DF1E4(chanObj) == 0) {
+                if (hasChannelObject(page, index) == 0 || iplSDChannelSelect_813DF1E4(chanObj) == 0) {
                     continue;
                 }
 
@@ -2007,16 +2007,16 @@ namespace ipl {
             return chanObj->mState == 3;
         }
 
-        void SDChannelSelect::iplSDChannelSelect_813DF1F8() {
+        void SDChannelSelect::drawChannelObjects() {
             SDChannelObj* chanObj = NULL;
             while (chanObj = (SDChannelObj*)nw4r::ut::List_GetNext(&mChanList, chanObj), chanObj != NULL) {
-                if (iplSDChannelSelect_813E00EC(chanObj->mChanPage, chanObj->mChanIndex) != 0) {
+                if (hasChannelObject(chanObj->mChanPage, chanObj->mChanIndex) != 0) {
                     chanObj->drawCursor();
                 }
             }
             chanObj = NULL;
             while (chanObj = (SDChannelObj*)nw4r::ut::List_GetNext(&mChanList, chanObj), chanObj != NULL) {
-                if (iplSDChannelSelect_813E00EC(chanObj->mChanPage, chanObj->mChanIndex) != 0) {
+                if (hasChannelObject(chanObj->mChanPage, chanObj->mChanIndex) != 0) {
                     chanObj->drawBalloon();
                 }
             }
@@ -2082,7 +2082,7 @@ namespace ipl {
         }
 
         void SDChannelSelect::iplSDChannelSelect_813DF50C() {
-            iplSDChannelSelect_813E0E80();
+            calcPageAnimations();
             iplSDChannelSelect_813E0EE0();
             if (*(int*)((u8*)mHandlers[0] + 0x14) != 1) {
                 mState = 0xC;
@@ -2116,7 +2116,7 @@ namespace ipl {
                 iplSDChannelSelect_813DC7EC(2, -1);
                 mState = 1;
             } else {
-                iplSDChannelSelect_813E0E80();
+                calcPageAnimations();
                 iplSDChannelSelect_813E0EE0();
             }
         }
@@ -2138,7 +2138,7 @@ namespace ipl {
                     obj->mChanType = 2;
                 }
             }
-            iplSDChannelSelect_813DEE3C();
+            updateChannelObjects();
             if (unk_0x77F != 0) {
                 startNandAsync3();
                 iplSDChannelSelect_813DC7EC(0, index);
@@ -2190,10 +2190,10 @@ namespace ipl {
                 int chanIndex = chanObj->mChanIndex;
                 if ((keepObj == NULL || chanPage != keepPage || chanIndex != keepIndex) &&
                     ((mState >= 0x18 || mState < 0xF || chanPage != mSelPage || chanIndex != mSelIndex) &&
-                     iplSDChannelSelect_813E022C(chanPage, chanIndex, page) == 0)) {
+                     isChannelInCalc(chanPage, chanIndex, page) == 0)) {
                     SDChannelObj* prev = (SDChannelObj*)nw4r::ut::List_GetPrev(&mChanList, chanObj);
                     nw4r::ut::List_Remove(&mChanList, chanObj);
-                    iplSDChannelSelect_813DFCA0(chanObj);
+                    destroyChannelObject(chanObj);
                     chanObj = prev;
                 }
             }
@@ -2205,7 +2205,7 @@ namespace ipl {
                 if (chanObj->isValid() != 0) {
                     SDChannelObj* prev = (SDChannelObj*)nw4r::ut::List_GetPrev(&mChanList, chanObj);
                     nw4r::ut::List_Remove(&mChanList, chanObj);
-                    iplSDChannelSelect_813DFCA0(chanObj);
+                    destroyChannelObject(chanObj);
                     chanObj = prev;
                 } else {
                     if (chanObj->mChanType == 2) {
@@ -2220,7 +2220,7 @@ namespace ipl {
             if (mChanPage > 0) {
                 iplSDChannelSelect_813DF834(mChanPage - 1, 0);
             }
-            iplSDChannelSelect_813DEE3C();
+            updateChannelObjects();
         }
 
         void SDChannelSelect::iplSDChannelSelect_813DFBBC() {
@@ -2239,7 +2239,7 @@ namespace ipl {
             iplSDChannelSelect_813DC7EC(2, -1);
         }
 
-        void SDChannelSelect::iplSDChannelSelect_813DFCA0(void* node) {
+        void SDChannelSelect::destroyChannelObject(void* node) {
             EGG::Heap* heap = *(EGG::Heap**)((u8*)node + 0x10);
             delete (SDChannelObj*)node;
             if (heap != NULL) {
@@ -2331,7 +2331,7 @@ namespace ipl {
             }
         }
 
-        BOOL SDChannelSelect::iplSDChannelSelect_813E00EC(int page, int index) {
+        BOOL SDChannelSelect::hasChannelObject(int page, int index) {
             if (page == mChanPage) {
                 return TRUE;
             }
@@ -2371,7 +2371,7 @@ namespace ipl {
             return FALSE;
         }
 
-        BOOL SDChannelSelect::iplSDChannelSelect_813E022C(int page, int index, int curPage) {
+        BOOL SDChannelSelect::isChannelInCalc(int page, int index, int curPage) {
             if (page - curPage <= -3 || page - curPage >= 3 || strcmp(scChanPaneNames[page - curPage + 2][index], "") == 0) {
                 return FALSE;
             }
@@ -2474,7 +2474,7 @@ namespace ipl {
             mpLayout->setAnmType(1, -1);
             mpLayout->start(-1);
             nw4r::math::VEC3 v = nw4r::math::VEC3(lbl_81694AC8, lbl_81694AC8, lbl_81694AC8);
-            nw4r::lyt::Pane* pane = iplSDChannelSelect_813E0784(index);
+            nw4r::lyt::Pane* pane = getCenterChannelPane(index);
             PSMTXMultVec(pane->GetGlobalMtx(), v, v);
             math::VEC3 v2(v);
             iplSDChannelSelect_813E0BEC(&v2, 1);
@@ -2482,18 +2482,18 @@ namespace ipl {
             mState = 0xE;
         }
 
-        nw4r::lyt::Pane* SDChannelSelect::iplSDChannelSelect_813E06D8(int page, int index, int curPage) {
-            if (iplSDChannelSelect_813E022C(page, index, curPage) != 0) {
+        nw4r::lyt::Pane* SDChannelSelect::getChannelBasePane(int page, int index, int curPage) {
+            if (isChannelInCalc(page, index, curPage) != 0) {
                 return mpLayout->GetRootPane()->FindPaneByName(scChanPaneNames[page - curPage + 2][index], true);
             }
             return mpLayout->GetRootPane()->FindPaneByName("Picture_16", true);
         }
 
-        nw4r::lyt::Pane* SDChannelSelect::iplSDChannelSelect_813E0784(int index) const {
+        nw4r::lyt::Pane* SDChannelSelect::getCenterChannelPane(int index) const {
             return mpLayout->GetRootPane()->FindPaneByName(scChanPaneNames[2][index], true);
         }
 
-        nw4r::lyt::Pane* SDChannelSelect::iplSDChannelSelect_813E07B4(int index) const {
+        nw4r::lyt::Pane* SDChannelSelect::getChannelPane(int index) const {
             return mpLayout->GetRootPane()->FindPaneByName(scChanPaneNames[2][index], true);
         }
 
@@ -2592,7 +2592,7 @@ namespace ipl {
             }
         }
 
-        void SDChannelSelect::iplSDChannelSelect_813E0E80() {
+        void SDChannelSelect::calcPageAnimations() {
             for (int i = 0; i < 4; i++) {
                 mHandlers[i]->calc();
             }
@@ -2726,7 +2726,7 @@ namespace ipl {
                     chanObj->initCursorAnim(true);
                 }
                 for (int i = 0; i < 0xC; i++) {
-                    mpGui->initPane(iplSDChannelSelect_813E07B4(i));
+                    mpGui->initPane(getChannelPane(i));
                 }
                 snd::getSystem()->startSE("WSD_SELECT");
             } else if (mChanPage < mChanCount - 1 && mFieldF8 >= 0xF) {
@@ -2743,7 +2743,7 @@ namespace ipl {
                     chanObj->initCursorAnim(true);
                 }
                 for (int i = 0; i < 0xC; i++) {
-                    mpGui->initPane(iplSDChannelSelect_813E07B4(i));
+                    mpGui->initPane(getChannelPane(i));
                 }
                 snd::getSystem()->startSE("WSD_SELECT");
             }
@@ -2777,16 +2777,16 @@ namespace ipl {
                     s32 tmp = mpChanTable[selEntry];
                     mpChanTable[selEntry] = mpChanTable[dstEntry];
                     mpChanTable[dstEntry] = tmp;
-                    if (iplSDChannelSelect_813DB308() != 0) {
+                    if (enqueueLoadNotice() != 0) {
                         mFlag758 = 0;
                         mpSwapChanObj = getChanObj(mSelPage, mSelIndex);
                         if (mpSwapChanObj == NULL) {
                             mpSwapChanObj = getChanObj(mFieldF0, mFieldF4);
-                            iplSDChannelSelect_813DB254(mpChanTable[dstEntry], mFieldF0, mFieldF4);
+                            enqueueNotice(mpChanTable[dstEntry], mFieldF0, mFieldF4);
                         } else {
                             SDChannelObj* otherObj = getChanObj(mFieldF0, mFieldF4);
-                            mpSwapChanObj->setBasePane(iplSDChannelSelect_813E06D8(mFieldF0, mFieldF4, mChanPage));
-                            otherObj->setBasePane(iplSDChannelSelect_813E06D8(mSelPage, mSelIndex, mChanPage));
+                            mpSwapChanObj->setBasePane(getChannelBasePane(mFieldF0, mFieldF4, mChanPage));
+                            otherObj->setBasePane(getChannelBasePane(mSelPage, mSelIndex, mChanPage));
                             mpSwapChanObj->mChanPage = mFieldF0;
                             mpSwapChanObj->mChanIndex = mFieldF4;
                             otherObj->mChanPage = mSelPage;
@@ -2986,7 +2986,7 @@ namespace ipl {
                 chanObj->initCursorAnim(true);
             }
             for (int i = 0; i < 0xC; i++) {
-                mpGui->initPane(iplSDChannelSelect_813E07B4(i));
+                mpGui->initPane(getChannelPane(i));
             }
         }
 
@@ -3165,7 +3165,7 @@ namespace ipl {
 
         void SDChannelSelect::getChanPoint(nw4r::math::VEC3* out, const SDChannelSelect* sel, int index) {
             *out = nw4r::math::VEC3(lbl_81694AC8, lbl_81694AC8, lbl_81694AC8);
-            PSMTXMultVec(sel->iplSDChannelSelect_813E0784(index)->GetGlobalMtx(), *out, *out);
+            PSMTXMultVec(sel->getCenterChannelPane(index)->GetGlobalMtx(), *out, *out);
         }
     }
 }
