@@ -90,6 +90,7 @@ namespace ipl {
             nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(mpTitleLayout->FindPaneByName("TextBox_07"))->SetString(System::getMessage(0xBA));
 
             mpDialogLayout = new (heap) layout::Object(heap, layoutFile, "arc", "mn_DialogWindow_ChChange_c.brlyt");
+            static_cast<nw4r::lyt::TextBox*>(mpDialogLayout->FindPaneByName("T_Letter"))->AllocStringBuffer(0x840);
             mpDialogLayout->bindToGroup("mn_DialogWindow_ChChange_c_Dialog_FadeIn.brlan", "G_Fede", false, true);
             mpDialogLayout->bindToGroup("mn_DialogWindow_ChChange_c_Dialog_FadeOut.brlan", "G_Fede", false, true);
             mpDialogLayout->bindToGroup("mn_DialogWindow_ChChange_c_Back_RollOver.brlan", "G_Back_Focus", false, true);
@@ -310,6 +311,38 @@ namespace ipl {
                 animation->initFrame();
                 animation->restart();
                 mControllerFlags[3] = 0;
+            }
+        }
+
+        void SDMemory::resetDialogPaneAnimations() {
+            for (int i = 0; i < 4; i++) {
+                if (mPanelAnimationStates[i] != 0) {
+                    mPanelAnimationStates[i] = 0;
+                    nw4r::lyt::Pane* pane = mpDialogLayout->getNW4RLyt()->GetRootPane()->FindPaneByName(sDialogPaneNames[i]);
+                    mpPaneManagers[2]->initPane(pane);
+
+                    layout::Animator* animation = NULL;
+                    switch (i) {
+                    case 2:
+                        animation = mpDialogLayout->getAnim(3);
+                        break;
+                    case 3:
+                        animation = mpDialogLayout->getAnim(6);
+                        break;
+                    case 0:
+                        animation = mpDialogLayout->getAnim(12);
+                        break;
+                    case 1:
+                        animation = mpDialogLayout->getAnim(9);
+                        break;
+                    }
+
+                    if (animation != NULL) {
+                        animation->initAnmFrame();
+                        animation->initFrame();
+                        animation->restart();
+                    }
+                }
             }
         }
     }

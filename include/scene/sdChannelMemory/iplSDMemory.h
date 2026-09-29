@@ -36,6 +36,8 @@ namespace ipl {
             void hideRightArrow();
 
         private:
+            void resetDialogPaneAnimations();
+
             layout::Object* mpMainLayout;
             layout::Object* mpTitleLayout;
             layout::Object* mpDialogLayout;
