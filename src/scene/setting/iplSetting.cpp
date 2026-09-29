@@ -647,30 +647,30 @@ namespace ipl {
             }
 
             if (unk_0xB94 == 1) {
-                if (System::getFader()->getStatus() != EGG::Fader::PREPARE_IN) {
+                if (System::getFader()->getStatus() == EGG::Fader::PREPARE_IN) {
+                    System::getDialog()->terminate();
+                    SCSetAspectRatio(mAspectRatio & 0xff);
+                    SCFlush();
+                    if (System::getDialog()->getLastResult() < 0) {
+                        mState = 0;
+                        return true;
+                    }
+
+                    changeVideoMode();
+                    www::wiisetting::setStringBuf(mpStringBuffer);
+                    System::getFader()->fadeIn();
+                } else {
                     mState = 0;
                     return true;
                 }
-
-                System::getDialog()->terminate();
-                SCSetAspectRatio(mAspectRatio & 0xff);
-                SCFlush();
-                if (System::getDialog()->getLastResult() < 0) {
-                    mState = 0;
-                    return true;
-                }
-
-                changeVideoMode();
-                www::wiisetting::setStringBuf(mpStringBuffer);
-                System::getFader()->fadeIn();
             } else if (unk_0xB94 > 0 && unk_0xB94 < 4) {
-                if (System::getFader()->getStatus() != EGG::Fader::PREPARE_IN) {
+                if (System::getFader()->getStatus() == EGG::Fader::PREPARE_IN) {
+                    changeVideoMode();
+                    System::getFader()->fadeIn();
+                } else {
                     mState = 0;
                     return true;
                 }
-
-                changeVideoMode();
-                System::getFader()->fadeIn();
             }
 
             return false;
