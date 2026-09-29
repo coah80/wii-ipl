@@ -6,7 +6,6 @@
 #include "scene/button/iplButton.h"
 
 #include <revolution/nwc24.h>
-#include <revolution/nwc24/NWC24Friend.h>
 
 namespace ipl {
     namespace nigaoe {
@@ -47,9 +46,6 @@ namespace ipl {
             NWC24UserId getMyUserId() const { return mMyUserId; }
             s32 getLastErr() const { return mErrCode; }
 
-            friend class Address;
-            friend class AddressEdit;
-
         private:
             NWC24FriendInfo mInfos[FRIEND_MAX];  // 0x0000
             u8 mbThere[FRIEND_MAX];              // 0x7D00
@@ -82,17 +78,6 @@ namespace ipl {
 
             virtual void onEventDerived(u32 compId, u32 event, const controller::Interface* con);
 
-            virtual void onEvent(u32 compId, u32 event, void* data);  // 0x08
-
-        private:
-            Address*    mpInstance;    // 0x0C
-            int         mDragChannel;  // 0x10
-        };
-
-        FADER_SCENE_CLASS(Address), public ButtonEventHandlerBase {
-            friend class AddressEvent;
-
-        public:
             enum {
                 SCENE_ADD_WII = 1,
                 SCENE_ADD_EMAIL,
@@ -288,7 +273,6 @@ namespace ipl {
             Address* mpInstance;  // 0x0C
             int mTrigChan;        // 0x10
         };
-
     }  // namespace scene
 }  // namespace ipl
 

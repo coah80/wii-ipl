@@ -50,9 +50,6 @@ namespace ipl {
             } KeyboardType;
 
             typedef struct KeyboardSetting {
-                KeyboardSetting() {}
-                KeyboardSetting(KeyboardType type, const wchar_t* wcString, u32 stringLimit, u32 rowLimit);
-
                 KeyboardType type;        // 0x00
                 const wchar_t* wcString;  // 0x04
                 u32 stringLimit;          // 0x08

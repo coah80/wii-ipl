@@ -153,27 +153,6 @@ namespace ipl {
             int mNigaoeState;
             FriendListCache* mpFriendCache;
         };
-
-        class AddressEditEvent : public ::gui::EventHandler {
-        public:
-            AddressEditEvent(void* instance) : mpInstance(instance) {}
-            virtual void onEvent(u32 compId, u32 event, void* data);  // 0x08
-
-        private:
-            void* mpInstance;  // 0x0C
-        };
-
-        class AddressInputEvent : public ::gui::EventHandler {
-        public:
-            AddressInputEvent(void* instance) : mpInstance(instance) {}
-
-            virtual void onEvent(u32 compId, u32 event, void* data);  // 0x08
-
-        private:
-            void* mpInstance;  // 0x0C
-        };
-
-
     }  // namespace scene
 }  // namespace ipl
 

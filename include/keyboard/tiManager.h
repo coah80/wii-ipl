@@ -63,8 +63,6 @@ namespace textinput {
             virtual void                                limitRowNum(u32 limitRowNum);
 
             virtual void                                setAnimationOn(bool flag);
-
-            void                                        enableKSXFilter(bool flag);
             
             virtual void                                setAspectRatio(bool b4x3);
 
