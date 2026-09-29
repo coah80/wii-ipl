@@ -603,7 +603,8 @@ static BOOL CopyWithoutLinearWhiteSpaces(u8* pText, u32* pTextSize,
         case '\r':
         case '\n':
             if (!afterNewLine) {
-                *pText++ = ' ';
+                *pText = ' ';
+                pText++;
                 textWritten++;
             }
             afterNewLine = TRUE;
@@ -611,13 +612,15 @@ static BOOL CopyWithoutLinearWhiteSpaces(u8* pText, u32* pTextSize,
         case ' ':
         case '\t':
             if (!afterNewLine) {
-                *pText++ = c;
+                *pText = c;
+                pText++;
                 textWritten++;
             }
             break;
         default:
-            *pText++ = c;
+            *pText = c;
             afterNewLine = FALSE;
+            pText++;
             textWritten++;
             break;
         }
@@ -649,6 +652,7 @@ static NWC24Err DecodeWord(u8* pCharset, u32 charsetSize, u8* pText,
     u32 remaining;
     u32 qLen;
     u8* found;
+    u8* p;
     char encoding;
     char c;
     BOOL allSpace;
@@ -674,14 +678,15 @@ static NWC24Err DecodeWord(u8* pCharset, u32 charsetSize, u8* pText,
 
     markStr = "=?";
     markLen = Mail_strlen(markStr);
-    mark = NULL;
     for (i = 0; i <= dataSize; i++) {
         mark = pData + i;
         if (Mail_strncmp((char*)mark, markStr, markLen) == 0) {
-            break;
+            goto found1;
         }
     }
+    mark = NULL;
 
+found1:
     if (mark == pData) {
         err = ExtractCharset((char*)pCharset, charsetSize, &copied, mark,
                              dataSize);
@@ -695,11 +700,13 @@ static NWC24Err DecodeWord(u8* pCharset, u32 charsetSize, u8* pText,
         charsetEnd = mark + consumed;
         remaining = dataSize - consumed;
 
+        p = charsetEnd;
         for (i = 0; i <= remaining; i++) {
-            if (Mail_strncmp((char*)(charsetEnd + i), qStr, qLen) == 0) {
+            if (Mail_strncmp((char*)p, qStr, qLen) == 0) {
                 found = charsetEnd + i;
                 goto found2;
             }
+            p++;
         }
         found = NULL;
 found2:
@@ -742,7 +749,8 @@ found2:
         textLen = size;
         if (mark != NULL) {
             allSpace = TRUE;
-            for (i = 0; i < textLen && (c = (char)pText[i]) != '\0'; i++) {
+            for (i = 0; i < textLen && (char)pText[i] != '\0'; i++) {
+                c = (char)pText[i];
                 if (c != ' ' && c != '\t' && c != '\r' && c != '\n') {
                     allSpace = FALSE;
                 }
@@ -881,9 +889,11 @@ static NWC24Err ExtractCharset(char* pCharset, u32 charsetSize,
     markLen = Mail_strlen(markStr);
     for (i = 0; i <= textSize; i++) {
         mark = pText + i;
-        if (Mail_strncmp((char*)mark, markStr, markLen) == 0) {
-            goto found;
+        if (Mail_strncmp((char*)mark, markStr, markLen) != 0) {
+            goto next1;
         }
+        goto found;
+next1:  ;
     }
     mark = NULL;
 found:
@@ -909,11 +919,12 @@ found2:
     }
 
     charsetLen = end - (mark + 2);
-    if (charsetLen >= charsetSize) {
+    if (charsetLen < charsetSize) {
+        Mail_strncpy(pCharset, (char*)(mark + 2), charsetLen);
+        pCharset[charsetLen] = '\0';
+    } else {
         return NWC24_ERR_OVERFLOW;
     }
-    Mail_strncpy(pCharset, (char*)(mark + 2), charsetLen);
-    pCharset[charsetLen] = '\0';
     *pCharsetLen = charsetLen + 2;
 
     return NWC24_OK;
@@ -925,7 +936,10 @@ static NWC24Err ExtractEncodedText(u8* pText, u32 textSize, u32* pTextWritten,
                                    u32* pDataRead) {
     u8* mark;
     u8* end;
+    const char* markStr;
+    const char* endStr;
     u32 markLen;
+    u32 endLen;
     u32 textLen;
     u32 i;
     NWC24Err err;
@@ -946,29 +960,36 @@ static NWC24Err ExtractEncodedText(u8* pText, u32 textSize, u32* pTextWritten,
 
     *pDataRead = 0;
 
-    markLen = Mail_strlen("?");
-    for (i = 0, mark = NULL; i <= dataSize; i++) {
-        u8* p = pData + i;
-        if (Mail_strncmp((char*)p, "?", markLen) == 0) {
-            mark = p;
-            break;
+    markStr = "?";
+    markLen = Mail_strlen(markStr);
+    i = 0;
+    while (i <= dataSize) {
+        mark = pData + i;
+        if (Mail_strncmp((char*)mark, markStr, markLen) != 0) {
+            i++;
+        } else {
+            goto found1;
         }
     }
-
+    mark = NULL;
+found1:
     if (mark == NULL) {
         return NWC24_ERR_NOT_SUPPORTED;
     }
 
     {
-        u32 endLen = Mail_strlen("?=");
         u32 remaining = dataSize - (mark + 1 - pData);
 
-        for (i = 0, end = NULL; i <= remaining; i++) {
-            if (Mail_strncmp((char*)(mark + i + 1), "?=", endLen) == 0) {
-                end = mark + i + 1;
-                break;
+        endStr = "?=";
+        endLen = Mail_strlen(endStr);
+        for (i = 0; i <= remaining; i++) {
+            if (Mail_strncmp((char*)(mark + i + 1), endStr, endLen) == 0) {
+                end = &mark[i + 1];
+                goto found2;
             }
         }
+        end = NULL;
+found2:  ;
     }
 
     if (end == NULL) {
