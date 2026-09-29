@@ -258,19 +258,21 @@ namespace ipl {
                 goto koreanFont;
             }
             if (productArea < 6) {
-                if (productArea != 4) {
-                    if (productArea > 3) {
-                        goto europeFont;
-                    } else if (productArea >= 0) {
-                        snprintf(fontName, sizeof(fontName), "WiiNTLG-Regular.ttc");
-                        snprintf(htmlPath, sizeof(htmlPath), "/html/%s/iplsetting.ash", "US2");
-                        goto loadFiles;
-                    }
+                if (productArea == 4) {
+                    goto defaultFont;
+                }
+                if (productArea >= 4) {
+                    goto europeFont;
+                }
+                if (productArea >= 0) {
+                    goto standardFont;
                 }
             } else if (productArea == 11) {
                 goto chineseFont;
             }
+            goto defaultFont;
 
+        standardFont:
             snprintf(fontName, sizeof(fontName), "WiiNTLG-Regular.ttc");
             snprintf(htmlPath, sizeof(htmlPath), "/html/%s/iplsetting.ash", "US2");
             goto loadFiles;
@@ -288,6 +290,11 @@ namespace ipl {
         europeFont:
             snprintf(fontName, sizeof(fontName), "WiiNTLG-Regular.ttc");
             snprintf(htmlPath, sizeof(htmlPath), "/html/%s/iplsetting.ash", "TW2");
+            goto loadFiles;
+
+        defaultFont:
+            snprintf(fontName, sizeof(fontName), "WiiNTLG-Regular.ttc");
+            snprintf(htmlPath, sizeof(htmlPath), "/html/%s/iplsetting.ash", "US2");
 
         loadFiles:
             mpSettingHTMLFile = System::getNandManager()->readAsync(
@@ -315,13 +322,11 @@ namespace ipl {
             nand::File* archiveFile = static_cast<nand::File*>(mpWWWArchiveFile);
             nand::File* writtenArchive = System::getNandManager()->write(
                 getSceneHeap(), "/tmp/www.arc", archiveFile->getBuffer(), archiveFile->getLength(), 0x30);
-            if (writtenArchive->isFatalError()) {
-                System::getErrorHandler()->log("NAND", writtenArchive->checkData(), "iplSetting.cpp", 0x178);
+            if (writtenArchive->isFullForTask()) {
+                System::getErrorHandler()->log("NAND", 0, "iplSetting.cpp", 0x178);
                 System::getErrorHandler()->set(ErrorHandler::DEFAULT, 2, NULL, 0, -1);
             }
-            if (writtenArchive != NULL) {
-                delete writtenArchive;
-            }
+            delete writtenArchive;
 
             mpChangeLayout = new layout::Object(getSceneHeap(), mpSettingLayoutFile, "arc", "SceenChange_b.brlyt");
             mpFirstAnimation = reinterpret_cast<SettingAnimation*>(mpChangeLayout->bind("SceenChange_b_Right.brlan"));
@@ -330,9 +335,11 @@ namespace ipl {
 
             mpMainLayout = new layout::Object(getSceneHeap(), mpSettingLayoutFile, "arc", "my_AP_a.brlyt");
             for (int index = 0; index < 58; index++) {
+                bool initialAnimation = index == 20 || index == 10;
                 const SettingAnimationBinding& binding = sSettingAnimationBindings[index];
-                mpMainLayout->bindToGroup(sSettingAPAnimations[binding.animation], sSettingAPPaneNames[binding.pane], false,
-                                          index == 20 || index == 10);
+                const char* animation = sSettingAPAnimations[binding.animation];
+                const char* pane = sSettingAPPaneNames[binding.pane];
+                mpMainLayout->bindToGroup(animation, pane, false, initialAnimation);
             }
             mpMainLayout->finishBinding();
 
@@ -348,7 +355,9 @@ namespace ipl {
             parental::Parental::init();
 
             mpAOSSThread = new AOSSThread(getSceneHeap());
+            mAOSSState = 0;
             mpRakuRakuThread = new RakuRakuThread(getSceneHeap());
+            mRakuState = 0;
 
             www::wiisetting::initWiiSetting();
             initWiiSettingData();
@@ -358,16 +367,15 @@ namespace ipl {
             www::wiisetting::setMsgQueue(&mFuncMessageQueue);
 
             mpMem1BrowserBuffer = getSceneHeap()->alloc(0x1000, 0x20);
-            unk_0x908 = 0;
             mpMem2BrowserBuffer = getSceneHeap()->alloc(0x800, 4);
             memset(mpMem2BrowserBuffer, 0, 0x800);
             mpBrowserStringBuffer = getSceneHeap()->alloc(0x79, 4);
             memset(mpBrowserStringBuffer, 0, 0x79);
 
             mpEventHandler = new APEvent(this);
-            mpPaneManager = new gui::PaneManager(mpEventHandler, mpMainLayout->getDrawInfo(), getSceneHeap(), NULL, false);
+            mpPaneManager = new gui::PaneManager(mpEventHandler, mpMainLayout->getDrawInfo(), NULL, NULL, true);
             mpPaneManager->setupScene(mpMainLayout);
-            mpPaneManager->setAllBoundingBoxComponentTriggerTarget(false);
+            mpPaneManager->setAllComponentTriggerTarget(false);
 
             for (int index = 0; index < 4; index++) {
                 mpPaneManager->setTriggerTarget(mpMainLayout->FindPaneByName(sSettingAPButtonNames[index]), true);
@@ -377,8 +385,8 @@ namespace ipl {
             }
 
             TPLBind(reinterpret_cast<TPLPalette*>(static_cast<nand::File*>(mpBackgroundTPLFile)->getBuffer()));
-            int tick = OSGetTick();
-            OSReport("*** prepare costs: %dms\n", (tick - mPrepareTick) / (OS_TIMER_CLOCK / 4000));
+            u32 elapsed = OSGetTick() - mPrepareTick;
+            OSReport("*** prepare costs: %dms\n", elapsed / (OS_TIMER_CLOCK / 1000));
             mPrepareTick = OSGetTick();
         }
 
@@ -2646,13 +2654,14 @@ namespace ipl {
         }
 
         void Setting::setAPDraw() {
-            WDBssDesc_* descriptor = reinterpret_cast<WDBssDesc_*>(mAPScanList.entries);
+            mAPScanList.currentDescriptor = reinterpret_cast<WDBssDesc_*>(mAPScanList.entries);
             u32 recordOffset = 2;
             for (u32 index = 0; index <= mAPScanList.count; ++index) {
+                WDBssDesc_* descriptor = mAPScanList.currentDescriptor;
+                recordOffset += descriptor->length * 2;
                 if (recordOffset > 0x800) {
                     return;
                 }
-                descriptor = reinterpret_cast<WDBssDesc_*>(mAPScanList.entries + recordOffset - 2);
                 mpMainLayout->getAnim(10)->stop();
                 mpMainLayout->getAnim(11)->stop();
                 int privacyMode = WDGetPrivacyMode(descriptor);
@@ -2683,7 +2692,8 @@ namespace ipl {
                     mpMainLayout->getAnim(row + signal * 6 + 0x16)->initFrame();
                     mpMainLayout->getAnim(row + signal * 6 + 0x16)->restart();
                 }
-                recordOffset += descriptor->length * 2;
+                mAPScanList.currentDescriptor =
+                    reinterpret_cast<WDBssDesc_*>(mAPScanList.entries + recordOffset - 2);
             }
         }
 
@@ -2750,8 +2760,9 @@ namespace ipl {
             int accessPoint = get_ap_no(pageName);
             if (accessPoint != -1) {
                 u32 recordOffset = 2;
-                WDBssDesc_* descriptor = reinterpret_cast<WDBssDesc_*>(mAPScanList.entries);
-                for (u32 index = 0; index <= mAPScanList.count; ++index) {
+                u32 index = 0;
+                while (index <= mAPScanList.count) {
+                    WDBssDesc_* descriptor = mAPScanList.currentDescriptor;
                     recordOffset += descriptor->length * 2;
                     if (recordOffset > 0x800) {
                         break;
@@ -2773,7 +2784,9 @@ namespace ipl {
                         OSReport("SET DATA : %d %s %d\n", index, ssid, privacyMode);
                         break;
                     }
-                    descriptor = reinterpret_cast<WDBssDesc_*>(mAPScanList.entries + recordOffset - 2);
+                    mAPScanList.currentDescriptor =
+                        reinterpret_cast<WDBssDesc_*>(mAPScanList.entries + recordOffset - 2);
+                    ++index;
                 }
                 unk_0x91C[2] = 0;
                 unk_0x78 = 8;
@@ -2783,8 +2796,9 @@ namespace ipl {
                     return;
                 }
                 unk_0x918 = arrow + 8;
-                mpMainLayout->getAnim(unk_0x918)->initFrame();
-                mpMainLayout->getAnim(unk_0x918)->restart();
+                layout::Animator* animator = mpMainLayout->getAnim(unk_0x918);
+                animator->initFrame();
+                animator->restart();
                 if (arrow == 0) {
                     unk_0x91C[0] = 0;
                     if (unk_0x914 == 1) {
