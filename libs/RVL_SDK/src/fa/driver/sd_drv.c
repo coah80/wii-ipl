@@ -102,7 +102,6 @@ typedef struct {
 } SDDRV_FIELDS;
 
 s32 pfd_st_inter_callback(u32 status, void* data) {
-    struct SDDRV_INFO* info = &g_pfd_sddrv_info;
     u8 drv_char;
 
     if ((s32)(status & 1) != 1) {
@@ -110,52 +109,51 @@ s32 pfd_st_inter_callback(u32 status, void* data) {
     }
     if (g_pfd_sddrv_info.dev != NULL) {
         g_event = 2;
-        if (ISD_RegisterDeviceIntrHandler((SDDev*)*(u32*)&info->dev, pfd_st_inter_callback, &g_event) != 0) {
+        if (ISD_RegisterDeviceIntrHandler((SDDev*)*(u32*)&g_pfd_sddrv_info.dev, pfd_st_inter_callback, &g_event) != 0) {
             OSReport("ERR:Failed to regist intr handler. pfd_st_inter_callback()\n");
         }
     }
-    if (info->p_disk != NULL) {
-        if (info->drv_char == 0) {
-            if ((u8)pfd_get_media_drv_char(info->p_disk, &drv_char, 1) == 1) {
-                info->drv_char = drv_char;
+    if (g_pfd_sddrv_info.p_disk != NULL) {
+        if (g_pfd_sddrv_info.drv_char == 0) {
+            if ((u8)pfd_get_media_drv_char(g_pfd_sddrv_info.p_disk, &drv_char, 1) == 1) {
+                g_pfd_sddrv_info.drv_char = drv_char;
             }
         }
-        pdm_disk_notify_media_insert(info->p_disk);
-        if (info->drv_char != 0) {
+        pdm_disk_notify_media_insert(g_pfd_sddrv_info.p_disk);
+        if (g_pfd_sddrv_info.drv_char != 0) {
             if (g_attach_func != NULL) {
-                ((void (*)(s8))g_attach_func)(info->drv_char);
+                ((void (*)(s8))g_attach_func)(g_pfd_sddrv_info.drv_char);
             }
         }
     }
-    info->inserted = 1;
-    info->reset_done = 1;
+    g_pfd_sddrv_info.inserted = 1;
+    g_pfd_sddrv_info.reset_done = 1;
     return 0;
 }
 
 s32 pfd_st_removal_callback(u32 status, void* data) {
-    struct SDDRV_INFO* info = &g_pfd_sddrv_info;
     u8 drv_char;
 
     if ((s32)(status & 2) != 2) {
         return 0;
     }
-    info->inserted = 0;
+    g_pfd_sddrv_info.inserted = 0;
     if (g_pfd_sddrv_info.dev != NULL) {
         g_event = 1;
-        if (ISD_RegisterDeviceIntrHandler(info->dev, pfd_st_removal_callback, &g_event) != 0) {
+        if (ISD_RegisterDeviceIntrHandler((SDDev*)*(u32*)&g_pfd_sddrv_info.dev, pfd_st_removal_callback, &g_event) != 0) {
             OSReport("ERR:Failed to regist intr handler. pfd_st_removal_callback()\n");
         }
     }
-    if (info->p_disk != NULL) {
-        if (info->drv_char == 0) {
-            if ((u8)pfd_get_media_drv_char(info->p_disk, &drv_char, 1) == 1) {
-                info->drv_char = drv_char;
+    if (g_pfd_sddrv_info.p_disk != NULL) {
+        if (g_pfd_sddrv_info.drv_char == 0) {
+            if ((u8)pfd_get_media_drv_char(g_pfd_sddrv_info.p_disk, &drv_char, 1) == 1) {
+                g_pfd_sddrv_info.drv_char = drv_char;
             }
         }
-        pdm_disk_notify_media_eject(info->p_disk);
-        if (info->drv_char != 0) {
+        pdm_disk_notify_media_eject(g_pfd_sddrv_info.p_disk);
+        if (g_pfd_sddrv_info.drv_char != 0) {
             if (g_detach_func != NULL) {
-                ((void (*)(s8))g_detach_func)(info->drv_char);
+                ((void (*)(s8))g_detach_func)(g_pfd_sddrv_info.drv_char);
             }
         }
     }
@@ -418,17 +416,18 @@ s32 pfd_sddrv_registar_callback(void* attach_func, void* detach_func) {
 s32 pfd_sddrv_is_media_insert(void) {
     u8 drv_char;
 
-    if ((g_pfd_sddrv_info.flags & 1) == 0) {
-        return 0;
-    }
-    if (g_pfd_sddrv_info.drv_char == 0) {
-        if ((u8)pfd_get_media_drv_char(g_pfd_sddrv_info.p_disk, &drv_char, 1) == 1) {
-            g_pfd_sddrv_info.drv_char = drv_char;
+    if ((g_pfd_sddrv_info.flags & 1) != 0) {
+        if (g_pfd_sddrv_info.drv_char == 0) {
+            if ((u8)pfd_get_media_drv_char(g_pfd_sddrv_info.p_disk, &drv_char, 1) == 1) {
+                g_pfd_sddrv_info.drv_char = drv_char;
+            }
         }
-    }
-    if (g_pfd_sddrv_info.inserted != 0) {
-        pdm_disk_notify_media_insert(g_pfd_sddrv_info.p_disk);
-        return 1;
+        if (g_pfd_sddrv_info.inserted != 0) {
+            pdm_disk_notify_media_insert(g_pfd_sddrv_info.p_disk);
+            return 1;
+        } else {
+            return 0;
+        }
     }
     return 0;
 }
