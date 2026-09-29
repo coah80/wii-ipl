@@ -9,7 +9,7 @@
 
 namespace textinput {
     namespace textdrawer {
-#ifdef MYTIMANAGER_IMPLEMENTATION
+#if defined(MYTIMANAGER_IMPLEMENTATION) || defined(MYTIINPUTFORM_IMPLEMENTATION)
         class Base : public nw4r::ut::CharWriter {
 #else
         class Base : nw4r::ut::CharWriter {
@@ -90,7 +90,14 @@ namespace textinput {
             private:
                 u8      unk_0x50[0x78];
                 bool    mbSecretMode;   // 0xC8
+#ifdef MYTIINPUTFORM_IMPLEMENTATION
+            protected:
+                u8 mDrawState[0x27];
+                f32 mfDrawScrollY;
+                u8 mDrawCacheState[0x14];
+#else
                 u8      unk_0xCC[0x3C];
+#endif
         };
     }
 }

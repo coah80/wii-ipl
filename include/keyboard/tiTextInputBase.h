@@ -50,6 +50,13 @@ namespace textinput {
     class CommandSender;
     class CommandReceiver : public Base {
         public:
+#ifdef MYTIINPUTFORM_IMPLEMENTATION
+            struct Scroll {
+                bool absY;
+                f32 x;
+                f32 y;
+            };
+#endif
             typedef enum INPUT_COMMAND {
                 INPUT_COMMAND_0 = 0,
                 INPUT_COMMAND_37 = 37,

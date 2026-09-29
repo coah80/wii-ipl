@@ -190,8 +190,19 @@ namespace textinput {
 
                 virtual void                makeUpCursorPos(CursorPos* cursorPos, u32 pos, s32 startLine, s32 endLine);
 
+#ifdef MYTIINPUTFORM_IMPLEMENTATION
+            protected:
+                void setCursorPos(tistring::Decolated* string, u32 pos);
+                void resetRelation();
+                void calcCursorTimer();
+#else
             private:
-                Rect mRect;                         // 0x120
+#endif
+#ifdef MYTIINPUTFORM_IMPLEMENTATION
+                nw4r::ut::Rect mRect;
+#else
+                Rect mRect;
+#endif
                 nw4r::math::MTX34 mMtx;             // 0x130
                 Destination meDestination;          // 0x160
                 tistring::Decolated* mpString;      // 0x164
@@ -264,11 +275,30 @@ namespace textinput {
 
                 virtual void                visibleSeparator(bool flag);
 
+#ifdef MYTIINPUTFORM_IMPLEMENTATION
+            protected:
+                const void* mpLayoutData;
+                const void* mpLanguageData;
+                const char* mpFontName;
+                bool mbUpVisible;
+                bool mbDownVisible;
+                bool mbRepeat;
+                nw4rmanager::TiEventHandler* mpInputEventHandler;
+                nw4r::ut::ResFont mFont;
+                int mUpRepeat;
+                int mDownRepeat;
+                int mLeftRepeat;
+                int mRightRepeat;
+                int mDeleteRepeat;
+                int mConfirmRepeat;
+                u32 mRepeatButtons;
+#else
             private:
 #ifdef MYTIMANAGER_IMPLEMENTATION
                 u8  unk_0x2C0[0x48];
 #else
                 u8  unk_0x2C0[0x4C];
+#endif
 #endif
         };
     }
