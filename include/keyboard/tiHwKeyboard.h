@@ -14,6 +14,9 @@ namespace textinput {
                     ~HWKeyboard();
 
                     virtual void    init();
+#ifdef TI_PC_KEYBOARD_IMPLEMENTATION
+                    wchar_t convertWCCode(wchar_t code) const;
+#endif
 
 #ifdef MYTIMANAGER_IMPLEMENTATION
                     void            updateInput(int chan, f32 x, f32 y, u32 trig, u32 hold, u32 release, void* data);
