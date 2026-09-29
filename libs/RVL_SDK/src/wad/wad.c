@@ -1355,10 +1355,11 @@ typedef struct WADSaveDataFile {
 } WADSaveDataFile;
 
 s32 WADCheckSavedataZD(const WADSaveDataFile* saveData) {
-    const WADSaveDataRecord* record = saveData->primary;
-    u32 index;
     s32 result = FALSE;
+    u32 index;
+    const WADSaveDataRecord* record;
 
+    record = saveData->primary;
     index = 0;
     do {
         if (!_WADIsTerminated(record->fileName, 8)) {
