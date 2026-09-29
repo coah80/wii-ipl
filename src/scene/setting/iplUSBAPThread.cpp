@@ -42,9 +42,9 @@ namespace ipl {
 
         void USBAPThread::Init(u16* pData, u8* pBuf) {
             s32 priority = OSGetThreadPriority(OSGetCurrentThread()) + 1;
-            if (USBAPStartRegistration(NULL, NULL, priority, NULL, this,
-                    USBAPRegisterCallback, pData, pBuf)
-                == 1)
+            s32 result = USBAPStartRegistration(NULL, NULL, priority, NULL, this,
+                    USBAPRegisterCallback, pData, pBuf);
+            if (result == 1)
             {
                 OSReport("Registration started\n");
             }
