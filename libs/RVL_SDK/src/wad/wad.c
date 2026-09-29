@@ -151,7 +151,7 @@ typedef struct WADHashThreadArgs {
 #define WAD_ALIGN32(value) (((value) + WAD_READ_ALIGNMENT - 1) & ~(WAD_READ_ALIGNMENT - 1))
 
 static s32 WADOpenStream(WADLocation location, const char* path, WADStream* stream, u32, u32);
-static s32 WADReadStream(WADStream* stream, void** buffer, u32 size, u32 offset);
+static size_t WADReadStream(WADStream* stream, void** buffer, size_t size, s32 offset);
 static void WADCloseStream(WADStream* stream);
 static s32 WADWriteStream(WADStream* stream, void* buffer, u32 size);
 static s32 WADSeekStream(WADStream* stream, u32 offset, s32 origin);
@@ -810,9 +810,10 @@ static s32 WADOpenStream(WADLocation location, const char* path, WADStream* stre
     return -3000;
 }
 
-static s32 WADReadStream(WADStream* stream, void** buffer, u32 size, u32 offset) {
-    s32 result;
+static size_t WADReadStream(WADStream* stream, void** buffer, size_t size, s32 offset) {
+    size_t result;
     u32 alignedSize;
+    s32 location;
 
     if ((s32)size <= 0) {
         result = 0;
@@ -821,37 +822,43 @@ static s32 WADReadStream(WADStream* stream, void** buffer, u32 size, u32 offset)
     } else {
         alignedSize = (size + WAD_READ_ALIGNMENT - 1) & ~(WAD_READ_ALIGNMENT - 1);
         if (size == alignedSize) {
-            if (stream->location == WAD_LOCATION_SD_CARD) {
-                if (stream->handle.fa == 0) {
-                    result = -3000;
+            location = stream->location;
+            if (location != WAD_LOCATION_SD_CARD) {
+                if (location < WAD_LOCATION_SD_CARD) {
+                    if (location != WAD_LOCATION_DVD) {
+                        if (location > 0) {
+                            result = NANDSeek(&stream->handle.nand, offset, 0);
+                            if ((s32)result < 0) {
+                                return result;
+                            }
+                            return NANDRead(&stream->handle.nand, *buffer, alignedSize);
+                        }
+                        if (location >= 0) {
+                            memcpy(*buffer, (u8*)stream->handle.memoryBase + offset, size);
+                            return size;
+                        }
+                    } else {
+                        return DVDReadPrio(&stream->handle.dvd, *buffer, alignedSize, offset, 2);
+                    }
                 } else {
-                    result = FAFseek(stream->handle.fa, offset, 0);
-                    if (result == 0) {
-                        result = FAFread(*buffer, 1, size, stream->handle.fa);
+                    if (location != WAD_LOCATION_CNT_NAND) {
+                        if (location < WAD_LOCATION_CNT_NAND) {
+                            return contentReadDVD(&stream->handle.contentDvd, *buffer, alignedSize,
+                                                  offset);
+                        }
+                    } else {
+                        return contentReadNAND(&stream->handle.contentNand, *buffer, alignedSize,
+                                               offset);
                     }
-                }
-            } else if (stream->location < WAD_LOCATION_SD_CARD) {
-                if (stream->location == WAD_LOCATION_DVD) {
-                    return DVDReadPrio(&stream->handle.dvd, *buffer, alignedSize, offset, 2);
-                }
-                if (stream->location > WAD_LOCATION_DVD) {
-                    result = NANDSeek(&stream->handle.nand, offset, 0);
-                    if (result < 0) {
-                        return result;
-                    }
-                    return NANDRead(&stream->handle.nand, *buffer, alignedSize);
-                }
-                if (stream->location >= 0) {
-                    memcpy(*buffer, (u8*)stream->handle.memoryBase + offset, size);
-                    return size;
                 }
                 result = -3000;
-            } else if (stream->location == WAD_LOCATION_CNT_NAND) {
-                return contentReadNAND(&stream->handle.contentNand, *buffer, alignedSize, offset);
-            } else if (stream->location < WAD_LOCATION_CNT_NAND) {
-                return contentReadDVD(&stream->handle.contentDvd, *buffer, alignedSize, offset);
+            } else if (stream->handle.fa == 0) {
+                result = -3000;
             } else {
-                result = -3000;
+                result = FAFseek(stream->handle.fa, offset, 0);
+                if (result == 0) {
+                    result = FAFread(*buffer, 1, size, stream->handle.fa);
+                }
             }
         } else {
             result = -3000;
@@ -864,34 +871,31 @@ static void WADCloseStream(WADStream* stream) {
     if (stream == 0) {
         return;
     }
-    if (stream->location == WAD_LOCATION_SD_CARD) {
-        if (stream->handle.fa == 0) {
-            return;
-        }
-        FAFclose(stream->handle.fa);
-        return;
-    }
-    if (stream->location < WAD_LOCATION_SD_CARD) {
-        if (stream->location == WAD_LOCATION_DVD) {
+    if (stream->location != WAD_LOCATION_SD_CARD) {
+        if (stream->location < WAD_LOCATION_SD_CARD) {
+            if (stream->location != WAD_LOCATION_DVD) {
+                if (stream->location < WAD_LOCATION_DVD) {
+                    return;
+                }
+                NANDClose(&stream->handle.nand);
+                return;
+            }
             DVDClose(&stream->handle.dvd);
             return;
         }
-        if (stream->location < WAD_LOCATION_DVD) {
+        if (stream->location != WAD_LOCATION_CNT_NAND) {
+            if (stream->location > WAD_LOCATION_CNT_NAND) {
+                return;
+            }
+            contentCloseDVD(&stream->handle.contentDvd);
             return;
         }
-        if (stream->location > WAD_LOCATION_DVD) {
-            NANDClose(&stream->handle.nand);
-        }
-        return;
-    }
-    if (stream->location == WAD_LOCATION_CNT_NAND) {
         contentCloseNAND(&stream->handle.contentNand);
         return;
     }
-    if (stream->location >= WAD_LOCATION_CNT_NAND) {
-        return;
+    if (stream->handle.fa != 0) {
+        FAFclose(stream->handle.fa);
     }
-    contentCloseDVD(&stream->handle.contentDvd);
 }
 
 static s32 WADWriteStream(WADStream* stream, void* buffer, u32 size) {
