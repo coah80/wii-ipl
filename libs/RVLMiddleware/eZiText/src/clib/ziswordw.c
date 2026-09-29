@@ -24,6 +24,8 @@ ziBool Zi8IsWordW(ziWChar* word, ziU8 language,
                   struct __zi8_work_data_s* work) {
     ziU32 t1 = 0;
     ziU32 t2 = 0;
+    ziU8* p;
+    ziWChar* wp;
     ziU8 packed = 0;
     ziU8 rem = 0;
     ziU16 wc = 0;
@@ -34,11 +36,9 @@ ziBool Zi8IsWordW(ziWChar* word, ziU8 language,
     Zi8CandParam sp = {0};
     ziWChar wbuf[0x40];
     ziS32 i;
-    ziU8* p;
     ziU8* q;
     ziS32 v;
     ziS32 cnt;
-    ziWChar* wp;
     ziWChar* wp2;
 
     Zi8LogError(0x64, work);
