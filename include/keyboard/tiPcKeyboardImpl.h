@@ -117,7 +117,7 @@ namespace textinput {
                 };
                 virtual ~Base();
                 virtual void create(MEMAllocator* allocator);
-                virtual void init();
+                virtual inline void init();
                 virtual void updateFromReceiver(u32 command, void* data);
                 virtual void onKey(u32 event, void* data);
                 virtual int getType();
@@ -159,46 +159,15 @@ namespace textinput {
             };
 
             class LayoutByNW4R;
-            class AnmPane : public nw4rmanager::AnmPane {
+            class AnmPane;
+            class EventHandler : public nw4rmanager::TiEventHandler {
             public:
-                AnmPane(nw4r::lyt::Pane* pane, nw4rmanager::AnmObserver* observer) : nw4rmanager::AnmPane(pane, observer), mAnimation(0) {}
-                virtual void init();
-                virtual void changeAnimation(u32 animation);
-                virtual ~AnmPane();
-                virtual int getState() const { return mAnimation; }
-                virtual int getKeyType() const { return mKeyType; }
-
-            protected:
-                int mAnimation;
-                int mKeyType;
-            };
-            class NormalButtonAnmPane : public AnmPane {
-            public:
-                NormalButtonAnmPane(nw4r::lyt::Pane* pane, nw4rmanager::AnmObserver* observer) : AnmPane(pane, observer) { mKeyType = 0; }
-                virtual ~NormalButtonAnmPane();
-                virtual void onAnmEvent(AnmPaneEvent event);
-            };
-            class ShiftCapsAnmPane : public AnmPane {
-            public:
-                ShiftCapsAnmPane(nw4r::lyt::Pane* pane, nw4rmanager::AnmObserver* observer) : AnmPane(pane, observer), mbOn(false) { mKeyType = 1; }
-                virtual ~ShiftCapsAnmPane();
-                virtual void onAnmEvent(AnmPaneEvent event);
-                bool isFocused() const;
+                EventHandler(LayoutByNW4R* layout) : mpKeyboard(layout) {}
+                virtual ~EventHandler();
+                virtual void onTiEvent(gui::PaneComponent* component, u32 event, Input* input);
 
             private:
-                bool mbOn;
-            };
-            class ToggleButtonAnmPane : public AnmPane {
-            public:
-                ToggleButtonAnmPane(nw4r::lyt::Pane* pane, nw4rmanager::AnmObserver* observer) : AnmPane(pane, observer) { mKeyType = 2; }
-                virtual ~ToggleButtonAnmPane();
-                virtual void onAnmEvent(AnmPaneEvent event);
-            };
-            class OnOffButtonAnmPane : public AnmPane {
-            public:
-                OnOffButtonAnmPane(nw4r::lyt::Pane* pane, nw4rmanager::AnmObserver* observer) : AnmPane(pane, observer) { mKeyType = 3; }
-                virtual ~OnOffButtonAnmPane();
-                virtual void onAnmEvent(AnmPaneEvent event);
+                LayoutByNW4R* mpKeyboard;
             };
             class UIObj : public gui::EventHandler {
             public:
@@ -243,15 +212,6 @@ namespace textinput {
                 GXTexObj mPinyinTexture;
                 GXTexObj mEnglishTexture;
                 GXTexObj mHangulTexture;
-            };
-            class EventHandler : public nw4rmanager::TiEventHandler {
-            public:
-                EventHandler(LayoutByNW4R* layout) : mpKeyboard(layout) {}
-                virtual ~EventHandler();
-                virtual void onTiEvent(gui::PaneComponent* component, u32 event, Input* input);
-
-            private:
-                LayoutByNW4R* mpKeyboard;
             };
             class LayoutByNW4R : public Base, public nw4rmanager::Layout, public UIObj::Listener {
             public:
@@ -303,6 +263,48 @@ namespace textinput {
                 UIModifierButton mShiftButton;
                 UIModifierButton mCapsButton;
                 UIModePanel mModePanel;
+            };
+
+            class AnmPane : public nw4rmanager::AnmPane {
+            public:
+                AnmPane(nw4r::lyt::Pane* pane, nw4rmanager::AnmObserver* observer) : nw4rmanager::AnmPane(pane, observer), mAnimation(0) {}
+                virtual void init();
+                virtual void changeAnimation(u32 animation);
+                virtual ~AnmPane();
+                virtual int getState() const { return mAnimation; }
+                virtual int getKeyType() const { return mKeyType; }
+
+            protected:
+                int mAnimation;
+                int mKeyType;
+            };
+            class NormalButtonAnmPane : public AnmPane {
+            public:
+                NormalButtonAnmPane(nw4r::lyt::Pane* pane, nw4rmanager::AnmObserver* observer) : AnmPane(pane, observer) { mKeyType = 0; }
+                virtual ~NormalButtonAnmPane();
+                virtual void onAnmEvent(AnmPaneEvent event);
+            };
+            class ShiftCapsAnmPane : public AnmPane {
+            public:
+                ShiftCapsAnmPane(nw4r::lyt::Pane* pane, nw4rmanager::AnmObserver* observer) : AnmPane(pane, observer), mbOn(false) { mKeyType = 1; }
+                virtual ~ShiftCapsAnmPane();
+                virtual void onAnmEvent(AnmPaneEvent event);
+                bool isFocused() const;
+
+            private:
+                bool mbOn;
+            };
+            class ToggleButtonAnmPane : public AnmPane {
+            public:
+                ToggleButtonAnmPane(nw4r::lyt::Pane* pane, nw4rmanager::AnmObserver* observer) : AnmPane(pane, observer) { mKeyType = 2; }
+                virtual ~ToggleButtonAnmPane();
+                virtual void onAnmEvent(AnmPaneEvent event);
+            };
+            class OnOffButtonAnmPane : public AnmPane {
+            public:
+                OnOffButtonAnmPane(nw4r::lyt::Pane* pane, nw4rmanager::AnmObserver* observer) : AnmPane(pane, observer) { mKeyType = 3; }
+                virtual ~OnOffButtonAnmPane();
+                virtual void onAnmEvent(AnmPaneEvent event);
             };
 
         }
