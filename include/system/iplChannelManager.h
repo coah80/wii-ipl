@@ -36,6 +36,11 @@
 #define MAX_CHANNEL_INFO_SIZE CHANNEL_INFO_SIZE(MAX_CHANNEL_PAGE, MAX_CHANNEL_INDEX)
 
 namespace ipl {
+#ifdef IPL_SD_CHANNEL_SELECT_CPP
+    namespace scene {
+        class SDChannelSelect;
+    }
+#endif
     namespace channel {
         enum {
             PRIMARY_TYPE_NONE = 0,
@@ -368,6 +373,9 @@ namespace ipl {
             char* getChJumpData() { return mChJumpData; }
 
         private:
+#ifdef IPL_SD_CHANNEL_SELECT_CPP
+            friend class ipl::scene::SDChannelSelect;
+#endif
             typedef struct MD5Head {
                 u8 magic[4];     // 0x00 (`IMD5`; "IPL MD5"?)
                 u32 length;      // 0x04

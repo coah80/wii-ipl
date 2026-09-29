@@ -157,11 +157,15 @@ namespace nw4r {
                 y = pF[1];
                 z = pF[2];
             }
+#if defined(IPL_SD_CHANNEL_SELECT_CPP)
+            VEC3(f32 fx, f32 fy, f32 fz);
+#else
             VEC3(f32 fx, f32 fy, f32 fz) {
                 x = fx;
                 y = fy;
                 z = fz;
             }
+#endif
 
             operator Vec*() { return reinterpret_cast<Vec*>(this); }
             operator const Vec*() const { return reinterpret_cast<const Vec*>(this); }

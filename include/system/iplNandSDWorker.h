@@ -151,6 +151,10 @@ namespace ipl {
         BOOL is_terminated();
         BOOL is_working();
 
+#ifdef IPL_SD_CHANNEL_SELECT_CPP
+        void requestCancel() { unk_0x04 = true; }
+#endif
+
         WIISaveBannerFile* get_cached_nand_save_banner(ESTitleId titleId);
         void* get_cached_nand_app_thumbnail(ESTitleId titleId, u32*);
         WIISaveBannerFile* get_cached_sd_save_banner(ESTitleId32 titleId);

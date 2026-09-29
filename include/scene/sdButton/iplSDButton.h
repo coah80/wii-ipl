@@ -11,6 +11,12 @@
 
 namespace ipl {
     namespace scene {
+#ifdef IPL_SD_CHANNEL_SELECT_CPP
+        namespace {
+            class SDChannelSelectButtonEventHandler;
+        }
+#endif
+
         class SDButtonEventHandlerBase : public ::gui::EventHandler {
         public:
             virtual void onEvent(u32 compId, u32 event, void* data);
@@ -92,7 +98,12 @@ namespace ipl {
 
             bool isActive() const;
 
+#ifdef IPL_SD_CHANNEL_SELECT_CPP
+            void setEventHandler(::gui::EventHandler * event,
+                                 ::gui::EventHandler * optOutEvent = NULL);
+#else
             void setEventHandler(::gui::EventHandler * event, ::gui::EventHandler * optOutEvent);
+#endif
 
             void setText(const char* paneName, u32 msgId);
             void setText(const char* paneName, const wchar_t* text);
@@ -156,6 +167,10 @@ namespace ipl {
 
             friend class SDArrow;
             friend class SDButtonEventHandlerBase;
+#ifdef IPL_SD_CHANNEL_SELECT_CPP
+            friend class SDChannelSelect;
+            friend class SDChannelSelectButtonEventHandler;
+#endif
         };
     }  // namespace scene
 }  // namespace ipl
