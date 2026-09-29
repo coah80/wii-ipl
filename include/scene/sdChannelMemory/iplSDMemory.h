@@ -10,6 +10,8 @@
 
 namespace ipl {
     namespace scene {
+        class SDChannelSelect;
+
         class SDMemory {
         public:
             struct TitleRange {
@@ -20,9 +22,10 @@ namespace ipl {
             SDMemory();
             ~SDMemory();
 
-            void create(EGG::Heap* heap, nand::LayoutFile* layoutFile, NandSDCardManager* manager);
+            void create(EGG::Heap* heap, nand::LayoutFile* layoutFile, SDChannelSelect* channelSelect);
             void setTitleLists(const TitleRange& nandTitles, const TitleRange& sdTitles);
             bool calc();
+            void draw();
             void setScrollLimit();
             void updateSideArrows();
             void resetScrollArrows();
@@ -38,6 +41,7 @@ namespace ipl {
 
         private:
             s32 updateState();
+            void drawTransferTitles();
             void onDialogState0();
             void onDialogState2();
             bool onDialogState3();
@@ -63,6 +67,44 @@ namespace ipl {
             bool onDialogState24();
             void resetDialogPaneAnimations();
             s32 getControlPaneIndex(const char* paneName);
+            void activateControlPane(const char* paneName, ::gui::Component* component);
+            void deactivateControlPane(const char* paneName);
+            void cancelControlPane(const char* paneName);
+            s32 getTitlePaneIndex(const char* paneName);
+            void activateTitlePane(const char* paneName, ::gui::Component* component);
+            void deactivateTitlePane(const char* paneName);
+            void selectTitlePane(const char* paneName);
+            s32 getDialogPaneIndex(const char* paneName);
+            void activateDialogPane(const char* paneName, ::gui::Component* component);
+            void deactivateDialogPane(const char* paneName);
+            void selectDialogPane(const char* paneName);
+
+            class ControlPaneEventHandler : public ::gui::EventHandler {
+            public:
+                ControlPaneEventHandler(SDMemory* instance) : ::gui::EventHandler(), mpInstance(instance) {}
+                virtual void onEvent(u32 compId, u32 event, void* data);
+
+            private:
+                SDMemory* mpInstance;
+            };
+
+            class TitlePaneEventHandler : public ::gui::EventHandler {
+            public:
+                TitlePaneEventHandler(SDMemory* instance) : ::gui::EventHandler(), mpInstance(instance) {}
+                virtual void onEvent(u32 compId, u32 event, void* data);
+
+            private:
+                SDMemory* mpInstance;
+            };
+
+            class DialogPaneEventHandler : public ::gui::EventHandler {
+            public:
+                DialogPaneEventHandler(SDMemory* instance) : ::gui::EventHandler(), mpInstance(instance) {}
+                virtual void onEvent(u32 compId, u32 event, void* data);
+
+            private:
+                SDMemory* mpInstance;
+            };
 
             layout::Object* mpMainLayout;
             layout::Object* mpTitleLayout;
@@ -77,7 +119,7 @@ namespace ipl {
             u32 mPanelStates[3];
             u32 mTitlePanelStates[5];
             u32 mPanelAnimationStates[4];
-            NandSDCardManager* mpNandSDCardManager;
+            SDChannelSelect* mpSDChannelSelect;
             TitleRange mNandTitleRange;
             TitleRange mSDTitleRange;
             u32 mTitleCount;
@@ -86,11 +128,11 @@ namespace ipl {
             ESTitleId mTitleIds[96];
             wchar_t mTitleNames[96][21];
             u32 mTitleNameCount;
-            u32 mNandTitleNameCount;
-            ESTitleId mNandTitleIds[96];
-            u32 mNandTitleCount;
             u32 mSDTitleCount;
             ESTitleId mSDTitleIds[96];
+            u32 mNandTitleCount;
+            u32 mNandTitleNameCount;
+            ESTitleId mNandTitleIds[96];
             wchar_t mCurrentTitleName[0x840];
             u8 mTransferFlags[4];
             u32 mTransferStatus;

@@ -73,6 +73,9 @@ namespace ipl {
 
             void setDownLimit(f32 v) { mDownLimit = v; }
             void setUpLimit(f32 v) { mUpLimit = v; }
+#ifdef IPL_SDMEMORY_SCROLLER_STATE_ACCESSOR
+            void setState(int state) { mState = state; }
+#endif
 
             void addScroll(f32 v) { mScroll += v; }
 

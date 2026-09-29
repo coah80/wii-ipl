@@ -55,6 +55,12 @@ namespace nw4r {
                 NW4R_ASSERT(type < TEXTCOLOR_MAX);
                 return mTextColors[type];
             }
+#ifdef IPL_SDMEMORY_SET_TEXT_COLORS
+            void SetTextColors(const ut::Color& first, const ut::Color& second) {
+                mTextColors[0] = first;
+                mTextColors[1] = second;
+            }
+#endif
             void SetTextColor(u32 type, ut::Color value) {
                 NW4R_ASSERT(type < TEXTCOLOR_MAX);
                 mTextColors[type] = value;
