@@ -102,8 +102,9 @@ ziChar Zi8ConvertWC2UC(ziWChar ch, ziU8 language ZI_NEED_WORK) {
                 Zi8LogError(0x64, ZI_WORK);
                 return (ziChar)val;
             }
+            p = (ziU8*)tableAddr + val + (ziU16)ch - first + 8;
             Zi8LogError(0x64, ZI_WORK);
-            return ((ziU8*)tableAddr)[val + (ziU16)ch - first + 8];
+            return *p;
         }
         Zi8LogError(0x6C2, ZI_WORK);
         return 0;
@@ -122,7 +123,7 @@ ziChar Zi8ConvertWC2UC(ziWChar ch, ziU8 language ZI_NEED_WORK) {
                 return (ziChar)(ziU32)map[i].map;
             }
             m = map[i].map;
-            return m[(ziU16)ch - map[i].first];
+            return (ziChar)m[(ziU16)ch - map[i].first];
         }
     }
     Zi8LogError(0x6C2, ZI_WORK);
@@ -138,7 +139,7 @@ ziWChar Zi8ConvertUC2Key(ziChar ch, ziU8 language ZI_NEED_WORK) {
     ziU16 first;
     ziU16 last;
     ziU16 result;
-    const ziU8* m;
+    const ziChar* m;
 
     result = 0;
 
