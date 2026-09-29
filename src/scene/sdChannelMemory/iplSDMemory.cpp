@@ -1,10 +1,210 @@
+#define IPL_SDMEMORY_SCROLLER_INIT_OUT_OF_LINE
 #include "scene/sdChannelMemory/iplSDMemory.h"
+#undef IPL_SDMEMORY_SCROLLER_INIT_OUT_OF_LINE
+
+#include "system/iplSystem.h"
+#include "sound/iplSound.h"
 
 namespace ipl {
+    namespace utility {
+        void Scroller::init() {
+            mState = 0;
+            mScroll = 0.0f;
+            unk_0x3C = 0.0f;
+            mUpLimit = 0.0f;
+            mDownLimit = 0.0f;
+        }
+    }
+
     namespace scene {
+        static const char* const sControlPaneNames[] = {
+            "A", "B", "B_BtnA", "A", "B", "C", "D", "B_BtnA", "B_00", "C_00", "D_00", "B_BtnA",
+        };
+
+        static const char* const sDialogPaneNames[] = {"B_ArwR", "B_ArwL", "B_CalExit", "B_CalExit_00"};
+
         SDMemory::SDMemory() : mScroller() {}
 
         SDMemory::~SDMemory() {}
+
+        void SDMemory::create(EGG::Heap* heap, nand::LayoutFile* layoutFile, NandSDCardManager* manager) {
+            mpNandSDCardManager = manager;
+
+            mpMainLayout = new (heap) layout::Object(heap, layoutFile, "arc", "mn_DialogWindow_ChChange_a.brlyt");
+            mpMainLayout->bindToGroup("mn_DialogWindow_ChChange_a_DialogIn.brlan", "G_InOut", false, true);
+            mpMainLayout->bindToGroup("mn_DialogWindow_ChChange_a_DialogOut.brlan", "G_InOut", false, true);
+            mpMainLayout->bindToGroup("mn_DialogWindow_ChChange_a_FocusBtn_on.brlan", "G_FocusBtnA", false, true);
+            mpMainLayout->bindToGroup("mn_DialogWindow_ChChange_a_FocusBtn_off.brlan", "G_FocusBtnA", false, true);
+            mpMainLayout->bindToGroup("mn_DialogWindow_ChChange_a_SelectBtn_Ac.brlan", "G_SelectBtnA", false, true);
+            mpMainLayout->bindToGroup("mn_DialogWindow_ChChange_a_BtnA_Rollover.brlan", "G_BtnA", false, true);
+            mpMainLayout->bindToGroup("mn_DialogWindow_ChChange_a_BtnA_Rollout.brlan", "G_BtnA", false, true);
+            mpMainLayout->bindToGroup("mn_DialogWindow_ChChange_a_BtnA_On.brlan", "G_BtnA", false, true);
+            mpMainLayout->bindToGroup("mn_DialogWindow_ChChange_a_BtnB_Rollover.brlan", "G_BtnB", false, true);
+            mpMainLayout->bindToGroup("mn_DialogWindow_ChChange_a_BtnB_Rollout.brlan", "G_BtnB", false, true);
+            mpMainLayout->bindToGroup("mn_DialogWindow_ChChange_a_BtnB_On.brlan", "G_BtnB", false, true);
+            mpMainLayout->finishBinding();
+            mpMainLayout->getAnim(0)->initAnmFrame();
+            mpMainLayout->getAnim(2)->initAnmFrame();
+            mpMainLayout->getAnim(5)->initAnmFrame();
+            mpMainLayout->getAnim(8)->initAnmFrame();
+
+            nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(mpMainLayout->FindPaneByName("T_Dialog_00"))->SetString(System::getMessage(0xB0));
+            nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(mpMainLayout->FindPaneByName("TextBox_05"))->SetString(System::getMessage(0xBB));
+            nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(mpMainLayout->FindPaneByName("TextBox_06"))->SetString(System::getMessage(0xBC));
+            nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(mpMainLayout->FindPaneByName("T_BtnA"))->SetString(System::getMessage(0x25));
+
+            mpTitleLayout = new (heap) layout::Object(heap, layoutFile, "arc", "mn_DialogWindow_ChChange_b.brlyt");
+            mpTitleLayout->bindToGroup("mn_DialogWindow_ChChange_b_DialogIn.brlan", "G_InOut", false, true);
+            mpTitleLayout->bindToGroup("mn_DialogWindow_ChChange_b_DialogOut.brlan", "G_InOut", false, true);
+            mpTitleLayout->bindToGroup("mn_DialogWindow_ChChange_b_FocusBtn_on.brlan", "G_FocusBtnA", false, true);
+            mpTitleLayout->bindToGroup("mn_DialogWindow_ChChange_b_FocusBtn_off.brlan", "G_FocusBtnA", false, true);
+            mpTitleLayout->bindToGroup("mn_DialogWindow_ChChange_b_SelectBtn_Ac.brlan", "G_SelectBtnA", false, true);
+            mpTitleLayout->bindToGroup("mn_DialogWindow_ChChange_b_BtnA_Rollover.brlan", "G_BtnA", false, true);
+            mpTitleLayout->bindToGroup("mn_DialogWindow_ChChange_b_BtnA_Rollout.brlan", "G_BtnA", false, true);
+            mpTitleLayout->bindToGroup("mn_DialogWindow_ChChange_b_BtnA_On.brlan", "G_BtnA", false, true);
+            mpTitleLayout->bindToGroup("mn_DialogWindow_ChChange_b_BtnB_Rollover.brlan", "G_BtnB", false, true);
+            mpTitleLayout->bindToGroup("mn_DialogWindow_ChChange_b_BtnB_Rollout.brlan", "G_BtnB", false, true);
+            mpTitleLayout->bindToGroup("mn_DialogWindow_ChChange_b_BtnB_On.brlan", "G_BtnB", false, true);
+            mpTitleLayout->bindToGroup("mn_DialogWindow_ChChange_b_BtnC_Rollover.brlan", "G_BtnC", false, true);
+            mpTitleLayout->bindToGroup("mn_DialogWindow_ChChange_b_BtnC_Rollout.brlan", "G_BtnC", false, true);
+            mpTitleLayout->bindToGroup("mn_DialogWindow_ChChange_b_BtnC_On.brlan", "G_BtnC", false, true);
+            mpTitleLayout->bindToGroup("mn_DialogWindow_ChChange_b_BtnD_Rollover.brlan", "G_BtnD", false, true);
+            mpTitleLayout->bindToGroup("mn_DialogWindow_ChChange_b_BtnD_Rollout.brlan", "G_BtnD", false, true);
+            mpTitleLayout->bindToGroup("mn_DialogWindow_ChChange_b_BtnD_On.brlan", "G_BtnD", false, true);
+            mpTitleLayout->finishBinding();
+            mpTitleLayout->getAnim(0)->initAnmFrame();
+            mpTitleLayout->getAnim(2)->initAnmFrame();
+            mpTitleLayout->getAnim(5)->initAnmFrame();
+            mpTitleLayout->getAnim(8)->initAnmFrame();
+            mpTitleLayout->getAnim(11)->initAnmFrame();
+            mpTitleLayout->getAnim(14)->initAnmFrame();
+
+            nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(mpTitleLayout->FindPaneByName("T_Dialog"))->SetString(System::getMessage(0xB6));
+            nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(mpTitleLayout->FindPaneByName("TextBox_00"))->SetString(System::getMessage(0xB7));
+            nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(mpTitleLayout->FindPaneByName("TextBox_01"))->SetString(System::getMessage(0xB8));
+            nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(mpTitleLayout->FindPaneByName("TextBox_02"))->SetString(System::getMessage(0xB9));
+            nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(mpTitleLayout->FindPaneByName("TextBox_03"))->SetString(System::getMessage(0xBA));
+            nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(mpTitleLayout->FindPaneByName("T_Dialog_00"))->SetString(System::getMessage(0xB6));
+            nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(mpTitleLayout->FindPaneByName("TextBox_05"))->SetString(System::getMessage(0xB8));
+            nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(mpTitleLayout->FindPaneByName("TextBox_06"))->SetString(System::getMessage(0xB9));
+            nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(mpTitleLayout->FindPaneByName("TextBox_07"))->SetString(System::getMessage(0xBA));
+
+            mpDialogLayout = new (heap) layout::Object(heap, layoutFile, "arc", "mn_DialogWindow_ChChange_c.brlyt");
+            mpDialogLayout->bindToGroup("mn_DialogWindow_ChChange_c_Dialog_FadeIn.brlan", "G_Fede", false, true);
+            mpDialogLayout->bindToGroup("mn_DialogWindow_ChChange_c_Dialog_FadeOut.brlan", "G_Fede", false, true);
+            mpDialogLayout->bindToGroup("mn_DialogWindow_ChChange_c_Back_RollOver.brlan", "G_Back_Focus", false, true);
+            mpDialogLayout->bindToGroup("mn_DialogWindow_ChChange_c_Back_Rollout.brlan", "G_Back_Focus", false, true);
+            mpDialogLayout->bindToGroup("mn_DialogWindow_ChChange_c_Back_On.brlan", "G_Back_Ac", false, true);
+            mpDialogLayout->bindToGroup("mn_DialogWindow_ChChange_c_Move_RollOver.brlan", "G_Move_Focus", false, true);
+            mpDialogLayout->bindToGroup("mn_DialogWindow_ChChange_c_Move_Rollout.brlan", "G_Move_Focus", false, true);
+            mpDialogLayout->bindToGroup("mn_DialogWindow_ChChange_c_Move_On.brlan", "G_Move_Ac", false, true);
+            mpDialogLayout->bindToGroup("mn_DialogWindow_ChChange_c_FocusOn.brlan", "G_ArwL_Focus", false, true);
+            mpDialogLayout->bindToGroup("mn_DialogWindow_ChChange_c_FocusOff.brlan", "G_ArwL_Focus", false, true);
+            mpDialogLayout->bindToGroup("mn_DialogWindow_ChChange_c_Select.brlan", "G_ArwL_Ac", false, true);
+            mpDialogLayout->bindToGroup("mn_DialogWindow_ChChange_c_FocusOn.brlan", "G_ArwR_Focus", false, true);
+            mpDialogLayout->bindToGroup("mn_DialogWindow_ChChange_c_FocusOff.brlan", "G_ArwR_Focus", false, true);
+            mpDialogLayout->bindToGroup("mn_DialogWindow_ChChange_c_Select.brlan", "G_ArwR_Ac", false, true);
+            mpDialogLayout->bindToGroup("mn_DialogWindow_ChChange_c_Appear.brlan", "G_ArwL_End", false, true);
+            mpDialogLayout->bindToGroup("mn_DialogWindow_ChChange_c_Lost.brlan", "G_ArwL_End", false, true);
+            mpDialogLayout->bindToGroup("mn_DialogWindow_ChChange_c_Appear.brlan", "G_ArwR_End", false, true);
+            mpDialogLayout->bindToGroup("mn_DialogWindow_ChChange_c_Lost.brlan", "G_ArwR_End", false, true);
+            mpDialogLayout->bindToGroup("mn_DialogWindow_ChChange_c_Loop.brlan", "G_ArwRoop", false, true);
+            mpDialogLayout->bindToGroup("mn_DialogWindow_ChChange_c_HDActionStart.brlan", "G_ArwL_HDAc", false, true);
+            mpDialogLayout->bindToGroup("mn_DialogWindow_ChChange_c_HDActionEnd.brlan", "G_ArwL_HDAc", false, true);
+            mpDialogLayout->bindToGroup("mn_DialogWindow_ChChange_c_HDActionStart.brlan", "G_ArwR_HDAc", false, true);
+            mpDialogLayout->bindToGroup("mn_DialogWindow_ChChange_c_HDActionEnd.brlan", "G_ArwR_HDAc", false, true);
+            mpDialogLayout->finishBinding();
+            mpDialogLayout->getAnim(0)->initAnmFrame();
+            mpDialogLayout->getAnim(2)->initAnmFrame();
+            mpDialogLayout->getAnim(5)->initAnmFrame();
+            mpDialogLayout->getAnim(11)->initAnmFrame();
+            mpDialogLayout->getAnim(8)->initAnmFrame();
+            mpDialogLayout->getAnim(18)->initAnmFrame();
+            mpDialogLayout->getAnim(18)->initFrame();
+            mpDialogLayout->getAnim(18)->restart();
+
+            nw4r::lyt::TextBox* exitText = nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(mpDialogLayout->FindPaneByName("T_CalExit"));
+            exitText->SetString(System::getMessage(0xA5));
+            nw4r::lyt::TextBox* exitTextAlt = nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(mpDialogLayout->FindPaneByName("T_CalExit_00"));
+            exitTextAlt->SetString(System::getMessage(0xC4));
+
+            mpProgressLayout = new (heap) layout::Object(heap, layoutFile, "arc", "mn_DialogWindow_Background.brlyt");
+            mpProgressLayout->bindToGroup("mn_DialogWindow_Background_DialogIn.brlan", "G_InOut", false, true);
+            mpProgressLayout->bindToGroup("mn_DialogWindow_Background_DialogOut.brlan", "G_InOut", false, true);
+            mpProgressLayout->finishBinding();
+            mpProgressLayout->getAnim(0)->initAnmFrame();
+
+        }
+
+        void SDMemory::setTitleLists(const TitleRange& nandTitles, const TitleRange& sdTitles) {
+            mNandTitleRange = nandTitles;
+            mSDTitleRange = sdTitles;
+            mTransferFlags[0] = 1;
+            mDialogState = 0;
+            mpMainLayout->getAnim(0)->initAnmFrame();
+            mpMainLayout->getAnim(0)->play();
+            mpProgressLayout->getAnim(0)->initAnmFrame();
+            mpProgressLayout->getAnim(0)->play();
+            snd::getSystem()->startSE("WIPL_SE_INFO_WINDOW");
+            mTransferFlags[1] = 1;
+            mErrorCode = 0;
+        }
+
+        void SDMemory::setScrollLimit() {
+            nw4r::lyt::Pane* headerPane = mpDialogLayout->FindPaneByName("N_Header");
+            nw4r::lyt::Pane* buttonPane = mpDialogLayout->FindPaneByName("T_BtnA");
+            nw4r::lyt::Pane* footerPane = mpDialogLayout->FindPaneByName("N_Footer");
+
+            nw4r::ut::Rect projection;
+            System::getProjectionRect(&projection);
+
+            f32 itemCount = static_cast<f32>(mButtonState);
+            f32 buttonHeight = buttonPane->GetSize().height;
+            f32 headerHeight = headerPane->GetSize().height;
+            f32 footerHeight = footerPane->GetSize().height;
+            f32 contentHeight = headerHeight + footerHeight;
+            f32 itemHeight = itemCount * buttonHeight;
+            f32 contentHeightWithItems = itemHeight + contentHeight;
+            f32 downLimit = contentHeightWithItems - projection.GetHeight() + 1.0f;
+            if (downLimit < 0.0f) {
+                downLimit = 0.0f;
+            }
+
+            mScroller.init();
+            mScroller.setDownLimit(downLimit);
+        }
+
+        void SDMemory::updateSideArrows() {
+            controller::Interface* masterController = System::getMasterController();
+
+            if (mScroller.getBInst().isActive() ? false : true) {
+                if (masterController->down(controller::BTN_UP)) {
+                    showLeftArrow();
+                }
+                if (!masterController->down(controller::BTN_UP)) {
+                    hideLeftArrow();
+                }
+                if (masterController->down(controller::BTN_DOWN)) {
+                    showRightArrow();
+                }
+                if (!masterController->down(controller::BTN_DOWN)) {
+                    hideRightArrow();
+                }
+            } else {
+                if (mScroller.getBInst().isUp()) {
+                    showLeftArrow();
+                }
+                if (!mScroller.getBInst().isUp()) {
+                    hideLeftArrow();
+                }
+                if (mScroller.getBInst().isDown()) {
+                    showRightArrow();
+                }
+                if (!mScroller.getBInst().isDown()) {
+                    hideRightArrow();
+                }
+            }
+        }
 
         void SDMemory::resetScrollArrows() {
             mControllerFlags[0] = 0;

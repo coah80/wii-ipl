@@ -4,6 +4,7 @@
 #include <revolution.h>
 
 #include "layout/iplLayout.h"
+#include "layout/iplGuiManager.h"
 #include "scene/board/iplFocusObject.h"
 #include "scene/channelEdit/iplNandSDCardManager.h"
 
@@ -11,9 +12,18 @@ namespace ipl {
     namespace scene {
         class SDMemory {
         public:
+            struct TitleRange {
+                ESTitleId* mpTitles;
+                u32 mCount;
+            };
+
             SDMemory();
             ~SDMemory();
 
+            void create(EGG::Heap* heap, nand::LayoutFile* layoutFile, NandSDCardManager* manager);
+            void setTitleLists(const TitleRange& nandTitles, const TitleRange& sdTitles);
+            void setScrollLimit();
+            void updateSideArrows();
             void resetScrollArrows();
             void updateScrollArrows(u32 previousDownEnd, u32 previousUpEnd, u32 downEnd, u32 upEnd);
             void showDownArrow();
@@ -30,7 +40,7 @@ namespace ipl {
             layout::Object* mpTitleLayout;
             layout::Object* mpDialogLayout;
             layout::Object* mpProgressLayout;
-            DialogWindow* mpDialogs[3];
+            gui::PaneManager* mpPaneManagers[3];
             u32 mDialogState;
             u32 mProcessState;
             u32 mDisplayMode;
@@ -46,10 +56,8 @@ namespace ipl {
             u32 mPanelFlags;
             u32 mPanelAnimationStates[4];
             NandSDCardManager* mpNandSDCardManager;
-            u32 mReadState;
-            u32 mListState;
-            u32 mPageOffset;
-            u32 mPageCount;
+            TitleRange mNandTitleRange;
+            TitleRange mSDTitleRange;
             u32 mTitleCount;
             u32 mCurrentTitle;
             u32 mTitleFlags;
@@ -62,7 +70,7 @@ namespace ipl {
             u32 mSDTitleCount;
             ESTitleId mSDTitleIds[96];
             wchar_t mCurrentTitleName[0x840];
-            u32 mTransferFlags;
+            u8 mTransferFlags[4];
             u32 mTransferStatus;
             u64 mTransferStartTime;
             s32 mTransferFrame;
@@ -75,7 +83,7 @@ namespace ipl {
                 u32 mNameCount;
             } mTitleListState;
             scroller mScroller;
-            u32 mButtonState;
+            s32 mButtonState;
             u8 mControllerFlags[4];
             u32 mFinalState[3];
             u8 mFinalFlags[4];

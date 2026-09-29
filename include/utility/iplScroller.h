@@ -49,6 +49,9 @@ namespace ipl {
         public:
             Scroller();
 
+#ifdef IPL_SDMEMORY_SCROLLER_INIT_OUT_OF_LINE
+            void init();
+#else
             void init() {
                 mState = 0;
                 mScroll = 0.0f;
@@ -56,6 +59,7 @@ namespace ipl {
                 mUpLimit = 0.0f;
                 mDownLimit = 0.0f;
             }
+#endif
 
             void calc();
             f32 get() const;
