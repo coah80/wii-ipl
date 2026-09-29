@@ -14,6 +14,10 @@ namespace textinput {
 
             class LayoutByNW4R : public Base, public nw4rmanager::Layout {
                 public:
+                    LayoutByNW4R(nw4r::lyt::MultiArcResourceAccessor* resAccessor, const char* layoutBinName,
+                                 EventObserver* event)
+                        : nw4rmanager::Layout(resAccessor, layoutBinName, event) {}
+
                     virtual ~LayoutByNW4R() {}
 
                     virtual void    create(MEMAllocator* allocator);

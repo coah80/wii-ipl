@@ -51,6 +51,7 @@ namespace textinput {
     class CommandReceiver : public Base {
         public:
             typedef enum INPUT_COMMAND {
+                IC_TRANSLATE_MODE = 6,
                 INPUT_COMMAND_0 = 0,
                 INPUT_COMMAND_37 = 37,
             } INPUT_COMMAND;

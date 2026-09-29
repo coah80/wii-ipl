@@ -16,6 +16,11 @@ namespace textinput {
                         T_Last,
                     } Type;
 
+                    InputForm(Manager* manager, nw4r::lyt::MultiArcResourceAccessor* resAccessor, const char* arcName,
+                              EventObserver* observer, const char* subName)
+                        : MemoInputForm(manager, resAccessor, arcName, observer, subName),
+                          unk_0x400(0), mbPhotoDraw(false), meType(T_MailAddressSel) {}
+
                     virtual nw4r::lyt::Material*    getPhotoPaneMaterial();
 
                     virtual void                    onPhotoTrig();

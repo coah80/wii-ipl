@@ -3,6 +3,7 @@
 
 #include "tiManager.h"
 
+#include "MyTiBg.h"
 #include "MyTiInputForm.h"
 #include "MyTiLetterForm.h"
 
@@ -28,6 +29,7 @@ namespace textinput {
                         CT_NumericWithSeparator,
                         CT_NormalWithoutLineFeedWithSign,
                         CT_PredictWithoutLineFeed,
+                        CT_PredictBigText,
 
                         CT_Last
                     } ConfigType;
@@ -78,7 +80,7 @@ namespace textinput {
                     virtual void                    start();
                     virtual void                    end();
 
-                    virtual InputForm*              createInputForm();
+                    virtual textinput::InputForm*    createInputForm();
 
                     virtual void                    memoDraw();
 
@@ -111,10 +113,13 @@ namespace textinput {
                     virtual void                    configNormalWithoutLineFeedWithSign();
                     virtual void                    configPredictWithoutLineFeed();
                     virtual void                    configPredictBigText();
-                    virtual void                    createMemoInputForm();
-                    virtual void                    createLetterInputForm();
-                    virtual void                    createBigTextInputForm();
-                    virtual void                    createBG();
+                    virtual InputForm*              createMemoInputForm();
+                    virtual letter::InputForm*      createLetterInputForm();
+                    virtual textinput::InputForm*    createBigTextInputForm();
+                    virtual bg::LayoutByNW4R*       createBG();
+
+                    void                            reflectSaveDataRev1();
+                    void                            reflectSaveDataDefault();
 
                 private:
                     State*                  mpCurrentState;                 // 0x40
@@ -123,23 +128,82 @@ namespace textinput {
                     MemoInputForm*          mpMemoInputForm;                // 0x50
                     LetterInputForm*        mpLetterInputForm;              // 0x54
                     textinput::InputForm*   mpBigTextInputForm;             // 0x58
-                    void*                   mpDefaultPCKeyboard;            // 0x5C
-                    void*                   mpDefaultCellPhoneKeyboard;     // 0x60
+                    keyboard::pctype::LayoutByNW4R*        mpDefaultPCKeyboard;            // 0x5C
+                    keyboard::cellphonetype::LayoutByNW4R* mpDefaultCellPhoneKeyboard;     // 0x60
                     textinput::InputForm*   mpDefaultInputForm;             // 0x64
-                    void*                   mpDefaultCandidateBox;          // 0x68
-                    void*                   mpDefaultToolBar;               // 0x6C
-                    void*                   mpDefaultPredictLanguageDialog; // 0x70
-                    void*                   mpDefaultSignWindow;            // 0x74
-                    void*                   mpBackGround;                   // 0x78
+                    candidatebox::LayoutByNW4R*   mpDefaultCandidateBox;          // 0x68
+                    toolbar::LayoutByNW4R*        mpDefaultToolBar;               // 0x6C
+                    predictlang::LayoutByNW4R*    mpDefaultPredictLanguageDialog; // 0x70
+                    keyboard::signwindow::LayoutByNW4R*  mpDefaultSignWindow;       // 0x74
+                    bg::LayoutByNW4R*         mpBackGround;                   // 0x78
+
+                    friend class State;
             };
 
             class State {
                 public:
+                    State() : mpManager(NULL) {}
                     virtual ~State();
+                    virtual Manager::StateType  getStateType() = 0;
+
+                    virtual void                create() = 0;
+
+                    virtual void                init() = 0;
+
+                    virtual void                draw() = 0;
+                    virtual void                memoDraw() = 0;
+
+                    virtual void                calc() = 0;
+
+                    virtual bool                updateInput(int chan, f32 x, f32 y, u32 trig, u32 hold, u32 release) = 0;
+                    virtual bool                updateInput(input::HKBManager& hkbManager) = 0;
+
+                    virtual void                start() = 0;
+                    virtual void                end() = 0;
+
+                    virtual InputForm*                          InputForm();
+                    virtual keyboard::hwkey::HWKeyboard*        HWKeyboard();
+                    virtual keyboard::pctype::LayoutByNW4R*     PCKeyboard();
+                    virtual keyboard::cellphonetype::LayoutByNW4R* CellPhoneKeyboard();
+                    virtual keyboard::signwindow::LayoutByNW4R* SignKeyboard();
+                    virtual candidatebox::LayoutByNW4R*         CandidateBox();
+                    virtual toolbar::LayoutByNW4R*              ToolBar();
+                    virtual predictlang::LayoutByNW4R*          PredictLanguageSelectDialog();
+                    virtual bg::LayoutByNW4R*                   BG();
+
+                protected:
+                    Manager*    mpManager;  // 0x04
+
+                    friend class Manager;
+            };
+
+            class DispMemoState : public State {
+                public:
+                    virtual ~DispMemoState();
                     virtual Manager::StateType  getStateType();
 
                     virtual void                create();
+                    virtual void                init();
 
+                    virtual void                draw();
+                    virtual void                memoDraw();
+
+                    virtual void                calc();
+
+                    virtual bool                updateInput(int chan, f32 x, f32 y, u32 trig, u32 hold, u32 release);
+                    virtual bool                updateInput(input::HKBManager& hkbManager);
+
+                    virtual void                start();
+                    virtual void                end();
+            };
+
+            class AppearMemoState : public State {
+                public:
+                    AppearMemoState() : mfAnim(0.0f) {}
+                    virtual ~AppearMemoState();
+                    virtual Manager::StateType  getStateType();
+
+                    virtual void                create();
                     virtual void                init();
 
                     virtual void                draw();
@@ -153,8 +217,38 @@ namespace textinput {
                     virtual void                start();
                     virtual void                end();
 
-                private:
-                    Manager*    mpManager;  // 0x04
+                protected:
+                    f32     mfAnim;     // 0x08
+            };
+
+            class EditMemoState : public State {
+                public:
+                    virtual ~EditMemoState();
+                    virtual Manager::StateType  getStateType();
+
+                    virtual void                create();
+                    virtual void                init();
+
+                    virtual void                draw();
+                    virtual void                memoDraw();
+
+                    virtual void                calc();
+
+                    virtual bool                updateInput(int chan, f32 x, f32 y, u32 trig, u32 hold, u32 release);
+                    virtual bool                updateInput(input::HKBManager& hkbManager);
+
+                    virtual void                start();
+                    virtual void                end();
+            };
+
+            class DisappearMemoState : public AppearMemoState {
+                public:
+                    virtual ~DisappearMemoState();
+                    virtual Manager::StateType  getStateType();
+
+                    virtual void                calc();
+
+                    virtual void                start();
             };
         }
     }

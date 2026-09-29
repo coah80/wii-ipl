@@ -6,19 +6,20 @@ namespace textinput {
         HKBManager HKBManager::sInstance;
 
         void HKBManager::SetLedCB(KBDEc result, void* arg) {
-            u8 packet[8];
             if (result == KBD_EC_OK) {
+                u8 packet[8];
                 void* data = arg;
                 *(u32*)(packet + 4) = 0;
                 packet[0] = *(u8*)&data;
 
                 u32 intr = OSDisableInterrupts();
-                sInstance.mPendingLeds &= ~(1 << *(u8*)&data);
+                u32 bit = 1 << *(u8*)&data;
+                sInstance.mPendingLeds &= ~bit;
                 OSRestoreInterrupts(intr);
 
                 if (KBDSetLedsAsync(*(u8*)&data, 0, SetLedCB, (void*)*(u32*)packet) == KBD_EC_OK) {
                     intr = OSDisableInterrupts();
-                    sInstance.mPendingLeds |= (1 << *(u8*)&data);
+                    sInstance.mPendingLeds |= bit;
                     OSRestoreInterrupts(intr);
                 }
             }
@@ -104,8 +105,8 @@ namespace textinput {
         }
 
         void HKBManager::KeyEventCB(KBDKeyEvent* event) {
-            KBDListener* head = &sInstance.mListener;
-            KBDListener* listener = head;
+            KBDListener* listener = &sInstance.mListener;
+            KBDListener* head = listener;
             while (listener != NULL) {
                 listener->OnKeyEvent(event);
                 listener = listener->mpNext;
@@ -172,8 +173,8 @@ namespace textinput {
         u32 HKBManager::GetModifierState() const {
             u32 modState = 0;
             for (u8 i = 0; i < 2; i++) {
-                modState |= (mKeyStates[i].mForceMod & mKeyStates[i].mForceMask) |
-                            (mKeyStates[i].mModState & ~mKeyStates[i].mForceMask);
+                modState |= (mKeyStates[i].mModState & ~mKeyStates[i].mForceMask) |
+                            (mKeyStates[i].mForceMod & mKeyStates[i].mForceMask);
             }
             return modState;
         }
@@ -207,7 +208,8 @@ namespace textinput {
                 u32 oldLeds = mKeyStates[i].mModState & 0x700;
                 mKeyStates[i].mModState &= ~0x700;
                 mKeyStates[i].mModState |= mModState;
-                if (oldLeds != newLeds && mAttached[i] != 0) {
+                u32 changed = (oldLeds - newLeds) | (newLeds - oldLeds);
+                if (changed && mAttached[i]) {
                     KBDSetModState(mKeyStates[i].mKbdChan, mKeyStates[i].mModState);
 
                     u8 leds = 0;
@@ -429,7 +431,7 @@ namespace textinput {
         }
 
         wchar_t HKBManager::KeySet::GetWChar() const {
-            u16 vcode = GetVCode();
+            wchar_t vcode = GetVCode();
             if (vcode >= 0xF130 && vcode <= 0xF139) {
                 vcode = vcode - 0xF100;
             }
@@ -451,13 +453,15 @@ namespace textinput {
             if (vcode < 0x20) {
                 return 0;
             }
-            if (mpManager->mpKeyTable != NULL && mpManager->mKeyTableNum != 0) {
-                for (u32 i = 0; i < mpManager->mKeyTableNum; i++) {
-                    if (mpManager->mpKeyTable[i] == vcode) {
-                        return vcode;
+            if (mpManager->mpKeyTable != NULL) {
+                if (mpManager->mKeyTableNum != 0) {
+                    for (u32 i = 0; i < mpManager->mKeyTableNum; i++) {
+                        if (mpManager->mpKeyTable[i] == vcode) {
+                            return vcode;
+                        }
                     }
+                    return 0;
                 }
-                return 0;
             }
             return vcode;
         }
@@ -475,18 +479,21 @@ namespace textinput {
                 return 0;
             }
 
-            const KeyState_* state = &mpManager->mKeyStates[mSubIndex];
             switch (mType) {
                 case 0:
                 case 1:
                 case 3:
-                    if ((state->mCurMask & (1 << mIndex)) != 0) {
-                        mVCode = KBDTranslateHidCode(state->mPrevKeys[mIndex], state->mCountry);
+                    if ((mpManager->mKeyStates[mSubIndex].mCurMask & (1 << mIndex)) != 0) {
+                        mVCode = KBDTranslateHidCode(
+                            mpManager->mKeyStates[mSubIndex].mPrevKeys[mIndex],
+                            mpManager->mKeyStates[mSubIndex].mCountry);
                     }
                     break;
                 case 2:
-                    if ((state->mPrevMask & (1 << mIndex)) != 0) {
-                        mVCode = KBDTranslateHidCode(state->mReleasedKeys[mIndex], state->mCountry);
+                    if ((mpManager->mKeyStates[mSubIndex].mPrevMask & (1 << mIndex)) != 0) {
+                        mVCode = KBDTranslateHidCode(
+                            mpManager->mKeyStates[mSubIndex].mReleasedKeys[mIndex],
+                            mpManager->mKeyStates[mSubIndex].mCountry);
                     }
                     break;
             }

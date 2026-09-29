@@ -26,13 +26,13 @@ namespace textinput {
     class EventObserver {
         public:
             virtual void    onInput(CommandReceiver::INPUT_COMMAND command, void* data) {}      // 0x08
-            virtual void    onCommand(CommandReceiver::INPUT_COMMAND command, void* data);      // 0x0C
+            virtual void    onCommand(CommandReceiver::INPUT_COMMAND command, void* data) {}    // 0x0C
             virtual void    onEvent(nw4r::lyt::Pane* pane, u32 event) {}                        // 0x10
 
-            virtual void    onSE(sound::SE seId);
-            virtual void    onOK();
-            virtual void    onCancel();
-            virtual void    onOutOfLength();
+            virtual void    onSE(sound::SE seId)    {}
+            virtual void    onOK()                  { printf("OK!\n"); }
+            virtual void    onCancel()              { printf("Cancel!\n"); }
+            virtual void    onOutOfLength()         { printf("OutOfLength\n"); }
     };
     
     class Manager : public Base {
@@ -57,7 +57,7 @@ namespace textinput {
             virtual void                                setWCString(const wchar_t* string);
 
             virtual void                                setLanguage(Language language);
-            virtual Language                            getLanguage() const;
+            virtual Language                            getLanguage() const { return meLanguage; }
 
             virtual void                                setDestination(Destination destination);
 
@@ -68,7 +68,7 @@ namespace textinput {
             
             virtual void                                setAspectRatio(bool b4x3);
 
-            virtual void                                setSecretInputMode(bool secretInputMode);
+            virtual void                                setSecretInputMode(bool secretInputMode) { mpInputForm->setSecretModeOn(secretInputMode); }
 #ifdef IPL_ADDRESS_EDIT_CPP
             void enableKSXFilter(bool compatibleFilter);
 #endif
@@ -78,29 +78,29 @@ namespace textinput {
 
             virtual void                                setTitleText(wchar_t* titleText);
 
-            virtual void                                start();
-            virtual void                                end();
+            virtual void                                start() {}
+            virtual void                                end()   {}
 
-            virtual InputForm*                          getInputForm();
+            virtual InputForm*                          getInputForm()                          { return mpInputForm; }
             virtual const InputForm*                    getInputForm() const;
             
-            virtual keyboard::hwkey::HWKeyboard*        getHWKeyboard();
-            virtual const keyboard::hwkey::HWKeyboard*  getHWKeyboard() const;
+            virtual keyboard::hwkey::HWKeyboard*        getHWKeyboard()                         { return mpHWKeyboard; }
+            virtual const keyboard::hwkey::HWKeyboard*  getHWKeyboard() const                   { return mpHWKeyboard; }
             
-            virtual keyboard::pctype::LayoutByNW4R*       getPCKeyboard();
-            virtual const keyboard::pctype::LayoutByNW4R* getPCKeyboard() const;
+            virtual keyboard::pctype::LayoutByNW4R*       getPCKeyboard()                         { return mpPCKeyboard; }
+            virtual const keyboard::pctype::LayoutByNW4R* getPCKeyboard() const                   { return mpPCKeyboard; }
             
-            virtual keyboard::cellphonetype::LayoutByNW4R*       getCellPhoneKeyboard();
+            virtual keyboard::cellphonetype::LayoutByNW4R*       getCellPhoneKeyboard()                  { return mpCellPhoneKeyboard; }
             virtual const keyboard::cellphonetype::LayoutByNW4R* getCellPhoneKeyboard() const;
             
             virtual void*                               getSignKeyboard();
             virtual const void*                         getSignKeyboard() const;
             
-            virtual candidatebox::LayoutByNW4R*         getCandidateBox();
-            virtual const candidatebox::LayoutByNW4R*   getCandidateBox() const;
+            virtual candidatebox::LayoutByNW4R*         getCandidateBox()                       { return mpCandidateBox; }
+            virtual const candidatebox::LayoutByNW4R*   getCandidateBox() const                 { return mpCandidateBox; }
             
-            virtual toolbar::LayoutByNW4R*              getToolBar();
-            virtual const toolbar::LayoutByNW4R*        getToolBar() const;
+            virtual toolbar::LayoutByNW4R*              getToolBar()                            { return mpToolBar; }
+            virtual const toolbar::LayoutByNW4R*        getToolBar() const                      { return mpToolBar; }
             
             virtual void*                               getPredictLanguageSelectDialog();
             virtual const void*                         getPredictLanguageSelectDialog() const;
@@ -128,10 +128,10 @@ namespace textinput {
 
             bool                                        isVacancy() const;
 
-        private:
+        protected:
             void                                        initAspect();
 
-        private:
+        protected:
             MEMAllocator*                           mpAllocator;                // 0x04
             nw4r::lyt::MultiArcResourceAccessor*    mpMultiArcResourceAccessor; // 0x08
 

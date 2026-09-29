@@ -3,6 +3,7 @@
 
 #include "tiInputForm.h"
 #include "tiString.h"
+#include "tiUtil.h"
 
 #include <nw4r/lyt/pane.h>
 
@@ -29,6 +30,16 @@ namespace textinput {
                         EM_Disappear,
                         EM_Last
                     } EditMode;
+
+                    InputForm(Manager* manager, nw4r::lyt::MultiArcResourceAccessor* resAccessor, const char* arcName,
+                              EventObserver* observer, const char* subName)
+                        : textinput::InputForm(manager, resAccessor, arcName, observer, subName),
+                          unk_0x308(NULL), unk_0x30C(NULL), unk_0x310(NULL), unk_0x314(NULL),
+                          mfScroll(0.0f), mfScrollFrom(0.0f), mfScrollTo(0.0f), mnLine(0),
+                          mDrawRect(0.0f, 0.0f, 0.0f, 0.0f), mDefaultDrawSize(0.0f, 0.0f), mDefaultBoundSize(0.0f, 0.0f),
+                          mpNigaoeObserver(NULL), mpDefaultNigaoe(NULL), mpSendString(NULL),
+                          mbEdited(false), mbGoodBye(false), mbEditScrollUp(false), mbEditScrollDown(false), mbCloseWithSend(false),
+                          mpScrollButton(NULL), mbScrollUp(false), mbScrollDown(false), meEditMode(EM_Disp) {}
 
                     ~InputForm();
 
@@ -90,7 +101,7 @@ namespace textinput {
                     void                            setEditScrollDown(bool editScrollDown)  { mbEditScrollUp = editScrollDown; }
                     void                            setCloseWithSend(bool closeWithSend)    { mbCloseWithSend = closeWithSend; }
 
-                    void                            setEditMode(EditMode editMode)          { meEditMode = editMode; }
+                    void                            setEditMode(EditMode editMode);
                     
                     bool                            isEdited()                              { return mbEdited; }
                     bool                            isGoodBye()                             { return mbGoodBye; }
@@ -103,6 +114,7 @@ namespace textinput {
                     tistring::Decolated*            getSendString()                         { return mpSendString; }
 
                 private:
+                    undefined4*             unk_0x308;
                     undefined4*             unk_0x30C;
                     undefined4*             unk_0x310;
                     undefined4*             unk_0x314;
@@ -117,7 +129,7 @@ namespace textinput {
                     nw4r::lyt::Size         mDefaultBoundSize;  // 0x358
                     Mtx                     mDrawMtx;           // 0x360
                     Mtx                     mBoundMtx;          // 0x390
-                    u8 /*todo*/             mExScrollAnm[32];   // 0x3C0
+                    util::Animation         mExScrollAnm;       // 0x3C0
                     NigaoeEventObserver*    mpNigaoeObserver;   // 0x3E0
                     GXTexObj*               mpDefaultNigaoe;    // 0x3E4
                     tistring::Decolated*    mpSendString;       // 0x3E8

@@ -520,14 +520,14 @@ ok_wc:;
                 }
 
                 bool previousShift = gather.isHoldingShift();
+                bool shiftPressed = (state & 0x2) != 0;
 
-                if (state & 0x2) {
-                    gather.setHWPressedShift(true);
+                gather.setHWPressedShift(shiftPressed);
+                if (shiftPressed) {
                     if (!previousShift) {
                         mgr()->getPCKeyboard()->onPressedShift(true);
                     }
                 } else {
-                    gather.setHWPressedShift(false);
                     if (previousShift) {
                         if (!gather.isHoldingShift()) {
                             mgr()->getPCKeyboard()->onReleasedShift();

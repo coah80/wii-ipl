@@ -143,6 +143,7 @@ namespace textinput {
 
                 void                        initZiString();
                 void                        resetContextPredict_();
+                void                        dirtyCacheAll();
 
                 void                        notifyChangeMode();
 
