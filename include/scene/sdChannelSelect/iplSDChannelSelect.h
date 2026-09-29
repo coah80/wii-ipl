@@ -184,8 +184,8 @@ namespace ipl {
             u32 mCommandQueueState;
             SDChannelSelectCommandQueue mCommandQueue;
             SDChannelSelectNoticeQueue mNoticeQueue;
-            int mPreviousSDState;
             int mCurrentSDState;
+            int mPreviousSDState;
             int mWorkerState;
             int mWorkerCommand;
             EGG::Heap* mpWorkerHeap;

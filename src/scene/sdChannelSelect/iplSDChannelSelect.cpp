@@ -100,8 +100,8 @@ namespace ipl {
               mThumbOffsetY(sThumbnailOffsets[SCGetAspectRatio()][1]),
               mCommandQueue(4, 0, 0, 0),
               mNoticeQueue(42, 0, 0, 0),
-              mPreviousSDState(0),
               mCurrentSDState(0),
+              mPreviousSDState(0),
               mWorkerState(0),
               mWorkerCommand(1),
               mpWorkerHeap(NULL),
@@ -333,7 +333,7 @@ namespace ipl {
         void SDChannelSelect::handleWorkerStartup() {
             if (!mpSDWorker->is_working()) {
                 if (mpSDWorker->get_async_result() == NandSDWorker::RESULT_OK) {
-                    if (mOperationResult == 0) {
+                    if (mDialogState == 0) {
                         setDialogMessage(8, 0xaa);
                     }
                     enqueueFinishNotice();
@@ -341,7 +341,7 @@ namespace ipl {
                 }
                 mpSDWorker->startup_async();
                 mWorkerState = 2;
-            } else if (mCurrentSDState != mPreviousSDState && mPreviousSDState == 7) {
+            } else if (mPreviousSDState != mCurrentSDState && mCurrentSDState == 7) {
                 System::getErrorHandler()->set(ErrorHandler::DEFAULT, 1);
             }
         }
@@ -358,11 +358,12 @@ namespace ipl {
                 if (mNandTitleCount > 0x60) {
                     mNandTitleCount = 0x60;
                 }
-                if (mNandTitleCount == 0) {
-                    mWorkerState = 4;
-                } else {
-                    mpSDWorker->list_nand_apps_usage_async(NULL, mpNandTitleInfo);
+                if (mNandTitleCount != 0) {
+                    mpSDWorker->list_nand_apps_usage_async(
+                        mpNandTitleInfo, reinterpret_cast<void*>(mNandTitleCount));
                     mWorkerState = 3;
+                } else {
+                    mWorkerState = 4;
                 }
             }
         }
@@ -604,8 +605,8 @@ namespace ipl {
         }
 
         void SDChannelSelect::processWorkerState() {
-            mCurrentSDState = mPreviousSDState;
-            mPreviousSDState = mpSDWorker->get_sd_state();
+            mPreviousSDState = mCurrentSDState;
+            mCurrentSDState = mpSDWorker->get_sd_state();
 
             if (mWorkerState == 2) {
                 handleNandTitleCount();
