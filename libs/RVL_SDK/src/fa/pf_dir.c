@@ -950,13 +950,12 @@ pf_s32 PFDIR_p_fsexec(PF_DTA* data, pf_u32 flags, pf_u32 mode) {
 
 void PFDIR_FinalizeAllDirs(PF_VOLUME* volume) {
     PFDIR_VOLUME_DIRS* volume_dirs = (PFDIR_VOLUME_DIRS*)volume;
-    pf_u16 index = 0;
+    pf_u16 index;
 
-    do {
+    for (index = 0; index < 3; index++) {
         volume_dirs->sdds[index].stat = 0;
         PFFAT_FinalizeFFD((PF_FFD*)&volume_dirs->sdds[index].ffd);
-        index++;
-    } while (index != 3);
+    }
     volume_dirs->udds[0].stat &= ~1;
     volume_dirs->udds[1].stat &= ~1;
     volume_dirs->udds[2].stat &= ~1;
