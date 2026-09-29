@@ -1,0 +1,86 @@
+#ifndef IPL_SCENE_SD_MEMORY_H
+#define IPL_SCENE_SD_MEMORY_H
+
+#include <revolution.h>
+
+#include "layout/iplLayout.h"
+#include "scene/board/iplFocusObject.h"
+#include "scene/channelEdit/iplNandSDCardManager.h"
+
+namespace ipl {
+    namespace scene {
+        class SDMemory {
+        public:
+            SDMemory();
+            ~SDMemory();
+
+            void resetScrollArrows();
+            void showDownArrow();
+            void showUpArrow();
+            void hideDownArrow();
+            void hideUpArrow();
+            void showLeftArrow();
+            void showRightArrow();
+            void hideLeftArrow();
+            void hideRightArrow();
+
+        private:
+            layout::Object* mpMainLayout;
+            layout::Object* mpTitleLayout;
+            layout::Object* mpDialogLayout;
+            layout::Object* mpProgressLayout;
+            DialogWindow* mpDialogs[3];
+            u32 mDialogState;
+            u32 mProcessState;
+            u32 mDisplayMode;
+            u32 mMessageId;
+            u32 mErrorCode;
+            u32 mCommandState;
+            u32 mSelectionState;
+            u32 mDisplayState;
+            u32 mCurrentOperation;
+            u32 mCurrentResult;
+            u32 mDialogFlags;
+            u32 mLayoutFlags;
+            u32 mPanelFlags;
+            u32 mPanelAnimationStates[4];
+            NandSDCardManager* mpNandSDCardManager;
+            u32 mReadState;
+            u32 mListState;
+            u32 mPageOffset;
+            u32 mPageCount;
+            u32 mTitleCount;
+            u32 mCurrentTitle;
+            u32 mTitleFlags;
+            ESTitleId mTitleIds[96];
+            wchar_t mTitleNames[96][21];
+            u32 mTitleNameCount;
+            u32 mNandTitleNameCount;
+            ESTitleId mNandTitleIds[96];
+            u32 mNandTitleCount;
+            u32 mSDTitleCount;
+            ESTitleId mSDTitleIds[96];
+            wchar_t mCurrentTitleName[0x840];
+            u32 mTransferFlags;
+            u32 mTransferStatus;
+            u64 mTransferStartTime;
+            s32 mTransferFrame;
+            struct TitleListState {
+                ESTitleId* mpTitles;
+                u32 mCount;
+                ESTitleId* mpSecondaryTitles;
+                u32 mSecondaryCount;
+                ESTitleId* mpNames;
+                u32 mNameCount;
+            } mTitleListState;
+            scroller mScroller;
+            u32 mButtonState;
+            u32 mPageButtonState;
+            u8 mControllerFlags[4];
+            u32 mFinalState[3];
+            u8 mFinalFlags[4];
+        };
+    }  // namespace scene
+}  // namespace ipl
+
+#endif
