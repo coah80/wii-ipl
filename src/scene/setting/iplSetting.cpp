@@ -2326,58 +2326,64 @@ namespace ipl {
         void Setting::setDefaultBackString() {
             switch (mpWiiSettingData->data[0x11]) {
                 case 1:
-                    reinterpret_cast<textinput::inputform::Base*>(System::getKeyboard()->memoFrm())->setString(System::getMessage(0x15c));
+                    System::getKeyboard()->memoMgr()->setTitleText(System::getMessage(0x15c));
                     break;
                 case 2:
-                    reinterpret_cast<textinput::inputform::Base*>(System::getKeyboard()->memoFrm())->setString(System::getMessage(0x153));
+                    System::getKeyboard()->memoMgr()->setTitleText(System::getMessage(0x153));
                     break;
                 case 3:
-                    reinterpret_cast<textinput::inputform::Base*>(System::getKeyboard()->memoFrm())->setString(System::getMessage(0x152));
+                    System::getKeyboard()->memoMgr()->setTitleText(System::getMessage(0x152));
                     break;
                 case 4:
-                    reinterpret_cast<textinput::inputform::Base*>(System::getKeyboard()->memoFrm())->setString(System::getMessage(0x14d));
+                    System::getKeyboard()->memoMgr()->setTitleText(System::getMessage(0x14d));
                     break;
                 case 5:
-                    reinterpret_cast<textinput::inputform::Base*>(System::getKeyboard()->memoFrm())->setString(System::getMessage(0x150));
+                    System::getKeyboard()->memoMgr()->setTitleText(System::getMessage(0x150));
                     break;
                 case 6:
-                    reinterpret_cast<textinput::inputform::Base*>(System::getKeyboard()->memoFrm())->setString(System::getMessage(0x151));
+                    System::getKeyboard()->memoMgr()->setTitleText(System::getMessage(0x151));
                     break;
                 case 7:
-                    reinterpret_cast<textinput::inputform::Base*>(System::getKeyboard()->memoFrm())->setString(System::getMessage(0x14e));
+                    System::getKeyboard()->memoMgr()->setTitleText(System::getMessage(0x14e));
                     break;
                 case 8:
-                    reinterpret_cast<textinput::inputform::Base*>(System::getKeyboard()->memoFrm())->setString(System::getMessage(0x14f));
+                    System::getKeyboard()->memoMgr()->setTitleText(System::getMessage(0x14f));
                     break;
                 case 10:
-                    reinterpret_cast<textinput::inputform::Base*>(System::getKeyboard()->memoFrm())->setString(System::getMessage(0x154));
+                    System::getKeyboard()->memoMgr()->setTitleText(System::getMessage(0x154));
                     break;
                 case 11:
-                    reinterpret_cast<textinput::inputform::Base*>(System::getKeyboard()->memoFrm())->setString(System::getMessage(0x155));
+                    System::getKeyboard()->memoMgr()->setTitleText(System::getMessage(0x155));
                     break;
                 case 12:
-                    reinterpret_cast<textinput::inputform::Base*>(System::getKeyboard()->memoFrm())->setString(System::getMessage(0x156));
+                    System::getKeyboard()->memoMgr()->setTitleText(System::getMessage(0x156));
                     break;
                 case 13:
-                    reinterpret_cast<textinput::inputform::Base*>(System::getKeyboard()->memoFrm())->setString(System::getMessage(0x157));
+                    System::getKeyboard()->memoMgr()->setTitleText(System::getMessage(0x157));
                     break;
                 case 14:
-                    reinterpret_cast<textinput::inputform::Base*>(System::getKeyboard()->memoFrm())->setString(System::getMessage(0x158));
+                    System::getKeyboard()->memoMgr()->setTitleText(System::getMessage(0x158));
                     break;
                 case 15:
+                    System::getKeyboard()->memoMgr()->setTitleText(System::getMessage(0x159));
+                    break;
                 case 16:
+                    System::getKeyboard()->memoMgr()->setTitleText(System::getMessage(0x159));
+                    break;
                 case 17:
-                    reinterpret_cast<textinput::inputform::Base*>(System::getKeyboard()->memoFrm())->setString(System::getMessage(0x159));
+                    System::getKeyboard()->memoMgr()->setTitleText(System::getMessage(0x159));
                     break;
                 case 18:
+                    System::getKeyboard()->memoMgr()->setTitleText(System::getMessage(0x15a));
+                    break;
                 case 19:
-                    reinterpret_cast<textinput::inputform::Base*>(System::getKeyboard()->memoFrm())->setString(System::getMessage(0x15a));
+                    System::getKeyboard()->memoMgr()->setTitleText(System::getMessage(0x15a));
                     break;
                 case 20:
-                    reinterpret_cast<textinput::inputform::Base*>(System::getKeyboard()->memoFrm())->setString(System::getMessage(0x15b));
+                    System::getKeyboard()->memoMgr()->setTitleText(System::getMessage(0x15b));
                     break;
                 case 22:
-                    reinterpret_cast<textinput::inputform::Base*>(System::getKeyboard()->memoFrm())->setString(System::getMessage(0x153));
+                    System::getKeyboard()->memoMgr()->setTitleText(System::getMessage(0x153));
                     break;
             }
         }
