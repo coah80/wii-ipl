@@ -2340,31 +2340,36 @@ void ATERM_81405ACC(AtermMd5Context* context, const u8* input, u32 length) {
 
     i = context->count[0];
     context->count[0] = i + (length << 3);
+    index = (i >> 3) & 0x3f;
     if (context->count[0] < (length << 3)) {
         context->count[1]++;
     }
     context->count[1] += length >> 29;
 
-    index = (i >> 3) & 0x3f;
     partLen = 64 - index;
 
     if (length >= partLen) {
-        dst = &context->buffer[index];
-        src = input;
-        for (i = 0; i < partLen - 8; i += 8) {
-            dst[0] = src[0];
-            dst[1] = src[1];
-            dst[2] = src[2];
-            dst[3] = src[3];
-            dst[4] = src[4];
-            dst[5] = src[5];
-            dst[6] = src[6];
-            dst[7] = src[7];
-            dst += 8;
-            src += 8;
-        }
-        for (; i < partLen; i++) {
-            *dst++ = *src++;
+        j = 0;
+        if (partLen != 0) {
+            dst = &context->buffer[index];
+            src = input;
+            if (partLen > 8) {
+                for (; j < partLen - 8; j += 8) {
+                    dst[0] = src[0];
+                    dst[1] = src[1];
+                    dst[2] = src[2];
+                    dst[3] = src[3];
+                    dst[4] = src[4];
+                    dst[5] = src[5];
+                    dst[6] = src[6];
+                    dst[7] = src[7];
+                    dst += 8;
+                    src += 8;
+                }
+            }
+            for (; j < partLen; j++) {
+                *dst++ = *src++;
+            }
         }
         ATERM_81405D0C(context->state, context->buffer);
         for (i = partLen; i + 63 < length; i += 64) {
@@ -2374,9 +2379,12 @@ void ATERM_81405ACC(AtermMd5Context* context, const u8* input, u32 length) {
     } else {
         i = 0;
     }
-    dst = &context->buffer[index];
-    src = &input[i];
-    for (j = 0; j < length - i - 8; j += 8) {
+    j = 0;
+    if (length - i != 0) {
+        dst = &context->buffer[index];
+        src = &input[i];
+        if (length - i > 8) {
+        for (; j < length - i - 8; j += 8) {
         dst[0] = src[0];
         dst[1] = src[1];
         dst[2] = src[2];
@@ -2384,18 +2392,20 @@ void ATERM_81405ACC(AtermMd5Context* context, const u8* input, u32 length) {
         dst[4] = src[4];
         dst[5] = src[5];
         dst[6] = src[6];
-        dst[7] = src[7];
-        dst += 8;
-        src += 8;
-    }
-    for (; j < length - i; j++) {
-        *dst++ = *src++;
+            dst[7] = src[7];
+            dst += 8;
+            src += 8;
+        }
+        }
+        for (; j < length - i; j++) {
+            *dst++ = *src++;
+        }
     }
 }
 
 #define ATERM_MD5_STEP(A, B, C, D, WORD, CONSTANT, SHIFT, F) \
     do { \
-        u32 value = (A) + (F) + (WORD) + (CONSTANT); \
+        u32 value = ((WORD) + (CONSTANT)) + (A) + (F); \
         (A) = (D); \
         (D) = (C); \
         (C) = (B); \
@@ -2412,24 +2422,31 @@ void ATERM_81405D0C(u32 state[4], const u8 block[64]) {
 
     for (index = 0; index < 2; index++) {
         const u8* inputGroup = block + index * 32;
-        u32* wordGroup = words + index * 8;
 
-        wordGroup[0] = (u32)inputGroup[0] | ((u32)inputGroup[1] << 8) |
-                       ((u32)inputGroup[2] << 16) | ((u32)inputGroup[3] << 24);
-        wordGroup[1] = (u32)inputGroup[4] | ((u32)inputGroup[5] << 8) |
-                       ((u32)inputGroup[6] << 16) | ((u32)inputGroup[7] << 24);
-        wordGroup[2] = (u32)inputGroup[8] | ((u32)inputGroup[9] << 8) |
-                       ((u32)inputGroup[10] << 16) | ((u32)inputGroup[11] << 24);
-        wordGroup[3] = (u32)inputGroup[12] | ((u32)inputGroup[13] << 8) |
-                       ((u32)inputGroup[14] << 16) | ((u32)inputGroup[15] << 24);
-        wordGroup[4] = (u32)inputGroup[16] | ((u32)inputGroup[17] << 8) |
-                       ((u32)inputGroup[18] << 16) | ((u32)inputGroup[19] << 24);
-        wordGroup[5] = (u32)inputGroup[20] | ((u32)inputGroup[21] << 8) |
-                       ((u32)inputGroup[22] << 16) | ((u32)inputGroup[23] << 24);
-        wordGroup[6] = (u32)inputGroup[24] | ((u32)inputGroup[25] << 8) |
-                       ((u32)inputGroup[26] << 16) | ((u32)inputGroup[27] << 24);
-        wordGroup[7] = (u32)inputGroup[28] | ((u32)inputGroup[29] << 8) |
-                       ((u32)inputGroup[30] << 16) | ((u32)inputGroup[31] << 24);
+        words[index * 8 + 0] =
+            (u32)inputGroup[0] | ((u32)inputGroup[1] << 8) |
+            ((u32)inputGroup[2] << 16) | ((u32)inputGroup[3] << 24);
+        words[index * 8 + 1] =
+            (u32)inputGroup[4] | ((u32)inputGroup[5] << 8) |
+            ((u32)inputGroup[6] << 16) | ((u32)inputGroup[7] << 24);
+        words[index * 8 + 2] =
+            (u32)inputGroup[8] | ((u32)inputGroup[9] << 8) |
+            ((u32)inputGroup[10] << 16) | ((u32)inputGroup[11] << 24);
+        words[index * 8 + 3] =
+            (u32)inputGroup[12] | ((u32)inputGroup[13] << 8) |
+            ((u32)inputGroup[14] << 16) | ((u32)inputGroup[15] << 24);
+        words[index * 8 + 4] =
+            (u32)inputGroup[16] | ((u32)inputGroup[17] << 8) |
+            ((u32)inputGroup[18] << 16) | ((u32)inputGroup[19] << 24);
+        words[index * 8 + 5] =
+            (u32)inputGroup[20] | ((u32)inputGroup[21] << 8) |
+            ((u32)inputGroup[22] << 16) | ((u32)inputGroup[23] << 24);
+        words[index * 8 + 6] =
+            (u32)inputGroup[24] | ((u32)inputGroup[25] << 8) |
+            ((u32)inputGroup[26] << 16) | ((u32)inputGroup[27] << 24);
+        words[index * 8 + 7] =
+            (u32)inputGroup[28] | ((u32)inputGroup[29] << 8) |
+            ((u32)inputGroup[30] << 16) | ((u32)inputGroup[31] << 24);
     }
 
     ATERM_MD5_STEP(a, b, c, d, words[0], 0xd76aa478, 7, (b & c) | (~b & d));
@@ -2501,6 +2518,45 @@ void ATERM_81405D0C(u32 state[4], const u8 block[64]) {
     state[1] += b;
     state[2] += c;
     state[3] += d;
+
+    {
+        u8* clear = (u8*)block;
+        u32 i;
+        for (i = 0; i < 64; i += 32) {
+            clear[i + 0] = 0;
+            clear[i + 1] = 0;
+            clear[i + 2] = 0;
+            clear[i + 3] = 0;
+            clear[i + 4] = 0;
+            clear[i + 5] = 0;
+            clear[i + 6] = 0;
+            clear[i + 7] = 0;
+            clear[i + 8] = 0;
+            clear[i + 9] = 0;
+            clear[i + 10] = 0;
+            clear[i + 11] = 0;
+            clear[i + 12] = 0;
+            clear[i + 13] = 0;
+            clear[i + 14] = 0;
+            clear[i + 15] = 0;
+            clear[i + 16] = 0;
+            clear[i + 17] = 0;
+            clear[i + 18] = 0;
+            clear[i + 19] = 0;
+            clear[i + 20] = 0;
+            clear[i + 21] = 0;
+            clear[i + 22] = 0;
+            clear[i + 23] = 0;
+            clear[i + 24] = 0;
+            clear[i + 25] = 0;
+            clear[i + 26] = 0;
+            clear[i + 27] = 0;
+            clear[i + 28] = 0;
+            clear[i + 29] = 0;
+            clear[i + 30] = 0;
+            clear[i + 31] = 0;
+        }
+    }
 }
 #undef ATERM_MD5_STEP
 
