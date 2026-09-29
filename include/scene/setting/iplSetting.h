@@ -227,7 +227,11 @@ namespace ipl {
             u8 unk_0x92D[3];
             int unk_0x930;
             www::wiisetting::SetStringBuf* mpStringBuffer;
+#ifdef IPL_SETTING_IMPLEMENTATION
+            wchar_t unk_0x938[0x101];
+#else
             u8 unk_0x938[0x202];
+#endif
             u8 unk_0xB3A;
             u8 mBrowserCreated;
             keyboard::Manager::State mKeyboardState;

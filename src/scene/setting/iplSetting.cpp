@@ -2231,12 +2231,10 @@ namespace ipl {
         }
 
         bool Setting::checkSpace() {
-            const wchar_t* text = reinterpret_cast<const wchar_t*>(unk_0x938);
-            while (*text != 0) {
-                if (*text != L' ' && *text != 0x3000) {
+            for (u32 i = 0; unk_0x938[i] != 0; ++i) {
+                if (unk_0x938[i] != L' ' && unk_0x938[i] != 0x3000) {
                     return true;
                 }
-                ++text;
             }
             return false;
         }
@@ -2309,17 +2307,17 @@ namespace ipl {
         }
 
         void Setting::reAdjustSecA() {
-            wchar_t* text = reinterpret_cast<wchar_t*>(unk_0x938);
+            u32 i = 0;
             bool containsWideCharacter = false;
-            for (u32 i = 0; text[i] != 0; ++i) {
-                if (text[i] > 0x7f) {
+            for (; unk_0x938[i] != 0; ++i) {
+                if (unk_0x938[i] > 0x7f) {
                     containsWideCharacter = true;
                     break;
                 }
             }
-            if (containsWideCharacter && wcslen(text) > 0x10) {
+            if (containsWideCharacter && wcslen(unk_0x938) > 0x10) {
                 char secondLine[0x22];
-                SettingSecAText* lines = reinterpret_cast<SettingSecAText*>(text);
+                SettingSecAText* lines = reinterpret_cast<SettingSecAText*>(unk_0x938);
                 memcpy(secondLine, &lines->wrappedLine[1], 0x22);
                 memcpy(lines->wrappedLine, secondLine, 0x22);
             }
