@@ -1007,6 +1007,48 @@ namespace ipl {
             delete channel;
         }
 
+        bool SDChannelSelect::hasChannelObject(int page, int index) const {
+            if (page == mCurrentPage) {
+                return true;
+            }
+
+            if (page == mCurrentPage - 1) {
+                if (mState == 10 || mState == 22) {
+                    return true;
+                }
+                for (int current = 3; current < MAX_CHANNEL_INDEX; current += 4) {
+                    if (current == index) {
+                        return true;
+                    }
+                }
+            } else if (page == mCurrentPage - 2) {
+                if (mState == 10 || mState == 22) {
+                    for (int current = 3; current < MAX_CHANNEL_INDEX; current += 4) {
+                        if (current == index) {
+                            return true;
+                        }
+                    }
+                }
+            } else if (page == mCurrentPage + 1) {
+                if (mState == 11 || mState == 23) {
+                    return true;
+                }
+                for (int current = 0; current < MAX_CHANNEL_INDEX; current += 4) {
+                    if (current == index) {
+                        return true;
+                    }
+                }
+            } else if (page == mCurrentPage + 2 && (mState == 11 || mState == 23)) {
+                for (int current = 0; current < MAX_CHANNEL_INDEX; current += 4) {
+                    if (current == index) {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
         void SDChannelSelect::destroy() {
             System::getBS2Manager()->restart();
             System::getSaveData()->setLastSDPrevPage(mCurrentPage);
