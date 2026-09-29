@@ -1,235 +1,317 @@
-# CHANSVm attempt log
+# CHANSVm continuation attempt log
+
+The live checkout started at 02e50d2d without the earlier CHANSVm source changes or its attempt log, despite the continuation description. The live gate baseline is used below. No branch, remote or worktree operations were performed.
+
+## Final full gate
+
+```text
+full build: ok
+main.dol sha1: 26116613f624061ba99c8d1a299aaa6efa85670d
+[src/channelScript/CHANSVm] pool: IDENTICAL
+[src/channelScript/CHANSVm] objdiff: code 31960/53564 data 800/6904 functions 205/233 fuzzy 98.3091 linked code 0
+[src/channelScript/CHANSVm] instruction-exact functions: 204/233
+[src/channelScript/CHANSVm]   section .data size 4672 match 18.050066
+[src/channelScript/CHANSVm]   section .rodata size 1432 match 97.2067
+[src/channelScript/CHANSVm]   section .sbss size 16 match 100.0
+[src/channelScript/CHANSVm]   section .sdata size 600 match 100.0
+[src/channelScript/CHANSVm]   section .sdata2 size 184 match 100.0
+[src/channelScript/CHANSVm]   section .text size 53564 match 98.30909
+[src/channelScript/CHANSVm]   below 100: CHANSVmGetSourceLine 97.71739
+[src/channelScript/CHANSVm]   below 100: CHANSVmNewObjData 99.375
+[src/channelScript/CHANSVm]   below 100: CHANSVmStrCpyToU16FromU8 98.46154
+[src/channelScript/CHANSVm]   below 100: CHANSVmParseInt 94.69388
+[src/channelScript/CHANSVm]   below 100: CHANSVm_8144B4D4 96.92771
+[src/channelScript/CHANSVm]   below 100: VmArraySlice 96.2782
+[src/channelScript/CHANSVm]   below 100: VmDateDtor 94.96703
+[src/channelScript/CHANSVm]   below 100: VmStringFromCharCode 99.40678
+[src/channelScript/CHANSVm]   below 100: VmStringReplace 97.106064
+[src/channelScript/CHANSVm]   below 100: VmStringSplit 96.04955
+[src/channelScript/CHANSVm]   below 100: CHANSVm_8145049C 98.58237
+[src/channelScript/CHANSVm]   below 100: CHANSVm_81450D14 97.391304
+[src/channelScript/CHANSVm]   below 100: VmBlobCopyRangeFrom 91.67647
+[src/channelScript/CHANSVm]   below 100: VmBlobGetHexString 98.71951
+[src/channelScript/CHANSVm]   below 100: VmBlobCalcRangeSHA1Digest 96.484535
+[src/channelScript/CHANSVm]   below 100: VmBlobCalcRangeMD5Digest 99.793816
+[src/channelScript/CHANSVm]   below 100: VmBlobCalcHMAC 99.453125
+[src/channelScript/CHANSVm]   below 100: VmBlobCalcRangeHMAC 99.72269
+[src/channelScript/CHANSVm]   below 100: vmBlobParsePackFormatString 99.69827
+[src/channelScript/CHANSVm]   below 100: VmBlobPackCommon 92.603294
+[src/channelScript/CHANSVm]   below 100: VmBlobUnpack 92.083176
+[src/channelScript/CHANSVm]   below 100: VmImageCtor 99.0
+[src/channelScript/CHANSVm]   below 100: VmWinEmuWrite 99.62687
+[src/channelScript/CHANSVm]   below 100: CHANSVmAddExe 99.1063
+[src/channelScript/CHANSVm]   below 100: CHANSVm_81455654 94.0
+[src/channelScript/CHANSVm]   below 100: CHANSVmLinkModules 98.677246
+[src/channelScript/CHANSVm]   below 100: VmCallMethod 96.565834
+[src/channelScript/CHANSVm]   below 100: CHANSVmStep 94.7901
+[src/channelScript/CHANSVm] baseline: code 30984/53564 data 16 functions 202 fuzzy 98.2665
+regressions vs baseline: 0
+global matched_code_percent: 72.11085 -> 72.14343
+global fuzzy_match_percent: 80.97820 -> 80.97897
+global complete_code_percent: 56.76068 -> 56.76068
+global matched_data_percent: 86.15517 -> 86.19795
+forbidden patterns added (net, per file): 0
+readability warnings (net, per file; must be 0 in the final result): 0
+GATE PASS
+```
+
+## Before and after
+
+Instruction-exact functions: 201/233 -> 204/233. Objdiff-matched functions: 202/233 -> 205/233. Code bytes: 30984/53564 -> 31960/53564. Data bytes: 16/6904 -> 800/6904.
+
+VmArrayExpandCommon: 85/85 instructions, diffs 0. VmDateGetRTC: 38/38 instructions, diffs 0. VmStringSplice: 121/121 instructions, diffs 0. The clock and slice fixes were reverified and reapplied because they were absent from the live checkout.
+
+CHANSVmStrCpyToU16FromU8 improves from 97.30769% to 98.46154%; it remains non-matching, with three register differences.
+
+## Data work
+
+- UTF-16 NaN and comma literals use ordinary escaped string literals with the original single-byte terminator.
+- The empty string data is a real object header with an empty-string pointer, matching the original relocation at .rodata+0x50.
+- The fifth constant object has a null pointer, matching the absence of a target relocation at .rodata+0xa0.
+- The final floating constant keyword is NaN, rather than a duplicate Infinity. Its source position precedes the floating-point format string.
+- Error success and unknown messages are arrays, matching the original data symbols, rather than pointers.
+- Shared report and integer format arrays eliminate duplicate pooled literals in the document writer and interpreter.
+- .sdata, .sdata2 and .sbss score 100% in objdiff. .rodata improves from 85.50279% to 97.2067%. .data improves from 17.614084% to 18.050066%.
+
+Raw bytes, before applying relocations, are identical for .data, .rodata and .sdata2. The .sdata source bytes match the target prefix; objdiff accepts the target trailing zero alignment and scores it 100%. Raw-byte identity does not establish relocation-exact data. No new labels, forced sections, dummy objects or measurement mappings were introduced.
+
+## Remaining functions
+
+CHANSVmGetSourceLine, 97.71739%, register allocation and line-data address operands.
+CHANSVmNewObjData, 99.375%, register allocation and allocation-failure branch destination.
+CHANSVmStrCpyToU16FromU8, 98.46154%, three register differences after the decrement-first rewrite.
+CHANSVmParseInt, 94.69388%, three instruction scheduling differences.
+CHANSVm_8144B4D4, 96.92771%, register allocation and parse-end initialization scheduling.
+VmArraySlice, 96.2782%, signed index clipping, branch layout and register allocation.
+VmDateDtor, 94.96703%, seven argument-load scheduling differences.
+VmStringFromCharCode, 99.40678%, six register differences.
+VmStringReplace, 97.106064%, string field-load scheduling and register allocation.
+VmStringSplit, 96.04955%, register allocation, scheduling and branch operands.
+CHANSVm_8145049C, 98.58237%, character and string formatting paths, scheduling and register allocation.
+CHANSVm_81450D14, 97.391304%, one missing instruction and branch layout.
+VmBlobFill, 100.0%, two raw conditional branch operands differ despite objdiff 100%.
+VmBlobCopyRangeFrom, 91.67647%, range-check control flow, 139/136 instructions.
+VmBlobGetHexString, 98.71951%, fourteen register differences.
+VmBlobCalcRangeSHA1Digest, 96.484535%, range-check scheduling and register allocation.
+VmBlobCalcRangeMD5Digest, 99.793816%, four register differences.
+VmBlobCalcHMAC, 99.453125%, seven register differences.
+VmBlobCalcRangeHMAC, 99.72269%, register allocation and hash context stack offset.
+vmBlobParsePackFormatString, 99.69827%, decimal accumulator register allocation.
+VmBlobPackCommon, 92.603294%, stack layout and control flow, 675/668 instructions.
+VmBlobUnpack, 92.083176%, control flow and register allocation, 531/517 instructions.
+VmImageCtor, 99.0%, four register differences.
+VmWinEmuWrite, 99.62687%, five register differences.
+CHANSVmAddExe, 99.1063%, register allocation, relocation loop scheduling and addition operands.
+CHANSVm_81455654, 94.0%, missing initial null-result instruction, 34/35 instructions.
+CHANSVmLinkModules, 98.677246%, register allocation and dispatch traversal scheduling.
+VmCallMethod, 96.565834%, control flow and register allocation, 279/281 instructions.
+CHANSVmStep, 94.7901%, stack layout and interpreter paths, 1249/1253 instructions.
 
-43U only. Baseline: 201/233 instruction-exact, 202/233 objdiff-matched, code 30984/53564 bytes, data 16/6904 bytes. The original string pool has 125 strings and matches the initial source pool.
+## Attempts
 
-Each experiment rebuilt only CHANSVm.o, regenerated objdiff, compared instruction counts and instruction operands, and checked previously matched functions in this unit. Unaccepted experiments were restored. No shared headers or other source units changed.
+Each compiling attempt rebuilt only CHANSVm.o, regenerated objdiff and compared raw instructions against the original. Every remaining function has at least three distinct compiling source-level attempts. Failed compiler experiments are recorded separately. Changes with regressions were restored. Exact variants retained during iteration were cleaned up before the final gate; the source diff is the authority for retained changes.
 
-Accepted source changes: VmDateGetRTC preserves the 64-bit subtraction mask; VmStringSplice expresses the clipped result length with a conditional. vmNoError and vmUnknownError are character arrays, matching the original symbol sizes 12 and 10, rather than pointers. Their writable array definitions preserve the pool; const arrays moved their text into .rodata and regressed CHANSVmInit, so that variant was restored.
+### VmBlobCalcRangeMD5Digest
 
-A CalcRangeMD5Digest experiment reached zero instruction differences by reusing an object pointer for byte data. It was discarded because that pointer reuse was less readable than the existing code. Its later exact variants were discarded with it.
+- name the range validation boolean: 99.793816%; instructions 97/97, differing positions 4; restored.
+- test digest buffer before allocated object: 99.639175%; instructions 97/97, differing positions 7; restored.
+- load range pointer directly into update argument: 90.515465%; instructions 96/97, differing positions 26; restored.
 
-VmBlobFill has 100% objdiff but two raw conditional-branch operand differences in the baseline. The same discrepancy remains; it is included below.
+### VmBlobCalcRangeHMAC
 
-## CHANSVmGetSourceLine
+- declare hash context before pointer locals: 99.890755%; instructions 119/119, differing positions 5; restored.
+- check digest pointer before output object: 99.68067%; instructions 119/119, differing positions 10; restored.
+- write data argument directly in hash update: 85.411766%; instructions 118/119, differing positions 32; restored.
 
-- use lineData once for bounds and read: did not compile, C89 declaration placement; restored. A corrected compiling variant is recorded separately.
-- reverse entry and offset addition: 97.71739%; instructions 46/46, differing instruction positions 16; restored.
-- while loop with explicit increment: 97.71739%; instructions 46/46, differing instruction positions 16; restored.
-- hoist lineData declaration and common address: 97.71739%; instructions 46/46, differing instruction positions 16; restored.
-- source line offsets relative to line table base: 97.82609%; instructions 46/46, differing instruction positions 16; restored.
-- cache module and line table with base relative offsets: 97.391304%; instructions 46/46, differing instruction positions 17; restored.
+### vmBlobParsePackFormatString
 
-## CHANSVmNewObjData
+- scope a signed numeric character beside accumulator: 98.01724%; instructions 117/116, differing positions 41; restored.
+- subtract ascii zero before adding decimal product: 99.69827%; instructions 116/116, differing positions 6; restored.
+- parameter loop with explicit position increment: 99.69827%; instructions 116/116, differing positions 6; restored.
 
-- allocation failure returns null immediately: 97.239586%; instructions 98/96, differing instruction positions 69; restored.
-- chunk scan for loop: 99.375%; instructions 96/96, differing instruction positions 11; restored.
-- inner entry scan for loop: 99.375%; instructions 96/96, differing instruction positions 11; restored.
-- all failure paths return directly: 92.135414%; instructions 102/96, differing instruction positions 90; restored.
+### VmWinEmuWrite
 
-## CHANSVmStrCpyToU16FromU8
+- read string length before resetting offset: 99.62687%; instructions 67/67, differing positions 5; restored.
+- separate conversion input data pointer: 99.62687%; instructions 67/67, differing positions 5; restored.
+- two byte string terminators with memset: 89.31343%; instructions 68/67, differing positions 57; restored.
 
-- reassign source argument at end: did not compile, C89 declaration placement; restored. A corrected compiling variant is recorded separately.
-- assign length byte offset and use loop counter: 81.92308%; instructions 13/13, differing instruction positions 6; restored.
-- pointer destination reverse walk: 97.30769%; instructions 13/13, differing instruction positions 5; restored.
-- reuse input argument after declarations: 80.76923%; instructions 13/13, differing instruction positions 7; restored.
-- initialize byte offset before source pointer: 81.53846%; instructions 13/13, differing instruction positions 7; restored.
-- set output high byte before low byte: 67.69231%; instructions 13/13, differing instruction positions 6; restored.
+### VmBlobCalcHMAC
 
-## CHANSVmParseInt
+- check output buffer before header: 99.453125%; instructions 64/64, differing positions 7; restored.
+- explicit boolean native key test: 99.453125%; instructions 64/64, differing positions 7; restored.
+- load data before size at hash setup: 99.265625%; instructions 64/64, differing positions 11; restored.
 
-- initialize end pointer in declaration: 94.69388%; instructions 49/49, differing instruction positions 3; restored.
-- initialize end pointer before type load: 83.67347%; instructions 49/49, differing instruction positions 5; restored.
-- direct object type comparison: 83.67347%; instructions 49/49, differing instruction positions 5; restored.
-- zero parsing end pointer with memset: 77.02041%; instructions 53/49, differing instruction positions 51; restored.
-- scope end pointer with parsing buffer: 87.755104%; instructions 49/49, differing instruction positions 6; restored.
-- split number and end pointer initialization in parsing call scope: 78.44898%; instructions 49/49, differing instruction positions 33; restored.
+### VmStringFromCharCode
 
-## CHANSVm_8144B4D4
+- cache upper bound for code points: 99.40678%; instructions 59/59, differing positions 6; restored.
+- code point masking after low word load: 94.32204%; instructions 57/59, differing positions 45; restored.
+- assign byte offset before index counter: 99.32204%; instructions 59/59, differing positions 7; restored.
 
-- ordinary char end pointer for strtod: 96.92771%; instructions 83/83, differing instruction positions 13; restored.
-- initialize end pointer before object allocation: 94.518074%; instructions 83/83, differing instruction positions 20; restored.
-- direct object type test: 94.518074%; instructions 83/83, differing instruction positions 13; restored.
+### CHANSVmNewObjData
 
-## VmArrayExpandCommon
+- cache chunk slot as typed pointer: 99.375%; instructions 96/96, differing positions 11; restored.
+- invert allocation success branch within scan: 99.375%; instructions 96/96, differing positions 11; restored.
+- advance free entry pointer during entry scan: did not compile due to C89 declaration placement; restored and followed by a compiling variant.
+- pointer scan with declaration in function scope: 97.552086%; instructions 95/96, differing positions 65; restored.
 
-- separate capacity and element byte offset: 98.70588%; instructions 85/85, differing instruction positions 17; restored.
-- declare chunk before capacity: 99.35294%; instructions 85/85, differing instruction positions 8; restored.
-- inline allocation size expression: 99.35294%; instructions 85/85, differing instruction positions 8; restored.
+### VmArrayExpandCommon
 
-## VmArraySlice
+- derive element offset from index: 100.0%; instructions 85/85, differing positions 0; retained during iteration.
+- iterate element headers with typed pointer: 100.0%; instructions 85/85, differing positions 0; retained during iteration.
+- narrow allocation size lifetime to allocation block: 100.0%; instructions 85/85, differing positions 0; retained during iteration.
+- use array chunk element field for destinations: 100.0%; instructions 85/85, differing positions 0; retained during iteration.
 
-- mutable signed start and end indexes: 95.75188%; instructions 133/133, differing instruction positions 65; restored.
-- initialize end beside length: 94.172935%; instructions 132/133, differing instruction positions 93; restored.
-- loop index while form: 96.2782%; instructions 133/133, differing instruction positions 56; restored.
+### CHANSVmAddExe
 
-## VmDateDtor
+- reverse initial typed module and context declarations: 99.1063%; instructions 254/254, differing positions 35; restored.
+- use module element fields instead of byte offset: 99.15354%; instructions 254/254, differing positions 34; restored.
+- test typed execution id using temporary: 99.1063%; instructions 254/254, differing positions 35; restored.
 
-- load month name before snprintf: 94.96703%; instructions 91/91, differing instruction positions 7; restored.
-- load day then month into local names: 94.96703%; instructions 91/91, differing instruction positions 7; restored.
-- use date aggregate fields for formatting: 82.12088%; instructions 97/91, differing instruction positions 80; restored.
+### VmImageCtor
 
-## VmDateGetRTC
+- name data pointer inside callback branch: 99.0%; instructions 25/25, differing positions 4; restored.
+- store return object pointer in image lookup temporary: 99.0%; instructions 25/25, differing positions 4; restored.
+- use pointer truth test and retain size test: 99.0%; instructions 25/25, differing positions 4; restored.
 
-- explicit unsigned integer result mask: 100.0%; instructions 38/38, differing instruction positions 0; retained during iteration.
-- cast seconds before subtracting bias: 100.0%; instructions 38/38, differing instruction positions 0; retained during iteration.
-- signed seconds temporary: 83.947365%; instructions 38/38, differing instruction positions 5; restored.
-- remove obsolete narrowed result local: 100.0%; instructions 38/38, differing instruction positions 0; retained during iteration.
+### VmBlobGetHexString
 
-## VmStringFromCharCode
+- separate high and low nibble values: 98.71951%; instructions 82/82, differing positions 14; restored.
+- reverse nibble lookup operand order: 98.71951%; instructions 82/82, differing positions 14; restored.
+- signed destination byte count: 98.71951%; instructions 82/82, differing positions 14; restored.
 
-- separate narrowed codepoint temporary: 94.32204%; instructions 57/59, differing instruction positions 45; restored.
-- reverse offset and index update order: 99.40678%; instructions 59/59, differing instruction positions 6; restored.
-- for loop with byte offset: 99.40678%; instructions 59/59, differing instruction positions 6; restored.
+### CHANSVm_8145049C
 
-## VmStringReplace
+- use typed temporary string header: 98.58237%; instructions 431/431, differing positions 42; restored.
+- use typed character string buffer and retained buffer size: 98.58237%; instructions 431/431, differing positions 42; restored.
+- scope string output data before source data: 98.58237%; instructions 431/431, differing positions 42; restored.
 
-- load search fields before parent fields: 97.257576%; instructions 132/132, differing instruction positions 52; restored.
-- load parent pointer before lengths: 97.106064%; instructions 132/132, differing instruction positions 53; restored.
-- cache parent and search value structures: 97.82576%; instructions 132/132, differing instruction positions 47; restored.
+### CHANSVmLinkModules
 
-## VmStringSplice
+- load module count into loop bound: 95.544975%; instructions 189/189, differing positions 123; restored.
+- increment module index before loading next module: 98.677246%; instructions 189/189, differing positions 43; restored.
+- copy dispatch entry fields separately: did not compile due to C89 declaration placement; restored and followed by a compiling variant.
+- copy dispatch fields after local declarations: 92.53439%; instructions 197/189, differing positions 186; restored.
 
-- signed byte offsets update in place: 97.55372%; instructions 121/121, differing instruction positions 8; restored.
-- conditional result length: 100.0%; instructions 121/121, differing instruction positions 0; retained during iteration.
-- shift integer offsets to byte offsets: 100.0%; instructions 121/121, differing instruction positions 0; retained during iteration.
-- retain multiplication for signed byte offsets: 100.0%; instructions 121/121, differing instruction positions 0; retained during iteration.
+### CHANSVmGetSourceLine
 
-## VmStringSplit
+- source offset relative to cached table start: 97.82609%; instructions 46/46, differing positions 16; restored.
+- byte-sized program offset loop bound: 98.04348%; instructions 46/46, differing positions 15; restored.
+- bit test with indexed table field: 89.021736%; instructions 45/46, differing positions 39; restored.
 
-- read parent and delimiter lengths first: 95.936935%; instructions 222/222, differing instruction positions 92; restored.
-- read delimiter fields first: 95.96847%; instructions 222/222, differing instruction positions 90; restored.
-- initialize array count in declaration: 96.04955%; instructions 222/222, differing instruction positions 81; restored.
+### VmStringSplice
 
-## CHANSVm_8145049C
+- use conditional for clipped byte length: 100.0%; instructions 121/121, differing positions 0; retained during iteration.
+- calculate length only in positive range: 97.06612%; instructions 120/121, differing positions 29; restored.
+- name starting argument signed byte offset: 100.0%; instructions 121/121, differing positions 0; retained during iteration.
 
-- use real wide character buffer for character format: 98.53133%; instructions 431/431, differing instruction positions 62; restored.
-- load source and destination string data before memcpy: did not compile, C89 declaration placement; restored. A corrected compiling variant is recorded separately.
-- initialize literal length before char buffer pointer: 98.58237%; instructions 431/431, differing instruction positions 42; restored.
-- cache both string buffers within C89 block: 98.58237%; instructions 431/431, differing instruction positions 42; restored.
+### CHANSVm_81450D14
 
-## CHANSVm_81450D14
+- positive range early successful fallthrough: 89.565216%; instructions 50/46, differing positions 33; restored.
+- test negative value before negative size bound: 70.978264%; instructions 45/46, differing positions 29; restored.
+- cache unsigned blob size in signed scalar: 79.565216%; instructions 44/46, differing positions 40; restored.
 
-- reverse bounds addition operands: 97.391304%; instructions 45/46, differing instruction positions 29; restored.
-- explicit valid range branch: 97.391304%; instructions 45/46, differing instruction positions 29; restored.
-- negative range validation early returns: 86.195656%; instructions 44/46, differing instruction positions 29; restored.
+### CHANSVmStrCpyToU16FromU8
 
-## VmBlobCopyRangeFrom
+- decrement count before byte offset calculation: 98.46154%; instructions 13/13, differing positions 3; restored.
+- input indexed by reverse character counter: 69.61539%; instructions 14/13, differing positions 14; restored.
+- byte output pointer scoped beside reverse input: 97.30769%; instructions 13/13, differing positions 5; restored.
+- inspect decrement-first offset variant: 98.46154%; instructions 13/13, differing positions 3; retained during iteration.
+- distinct remaining character counter: 98.46154%; instructions 13/13, differing positions 3; restored.
+- hold narrowed byte value as signed char: 98.46154%; instructions 13/13, differing positions 4; restored.
+- use byte load directly in low-byte store: 98.46154%; instructions 13/13, differing positions 4; restored.
 
-- correct both available range bounds from target: 91.52941%; instructions 139/136, differing instruction positions 71; restored.
-- combine target range bounds: 93.80882%; instructions 138/136, differing instruction positions 50; restored.
-- snapshot offsets for target bounds: 91.57353%; instructions 139/136, differing instruction positions 93; restored.
+### VmStringReplace
 
-## VmBlobGetHexString
+- cache all three string value structures in load order: 97.82576%; instructions 132/132, differing positions 47; restored.
+- convert replacement after search is validated: 94.11364%; instructions 132/132, differing positions 59; restored.
+- reverse initial argument declaration order: 97.106064%; instructions 132/132, differing positions 53; restored.
 
-- load byte once per hexadecimal pair: 92.36585%; instructions 81/82, differing instruction positions 36; restored.
-- merge byte and destination counters: 90.060974%; instructions 83/82, differing instruction positions 38; restored.
-- direct pointer advancement for hex output: 88.53658%; instructions 77/82, differing instruction positions 40; restored.
+### CHANSVm_8144B4D4
 
-## VmBlobCalcRangeSHA1Digest
+- use ordinary typed parse end pointer: 96.92771%; instructions 83/83, differing positions 13; restored.
+- read string length before allocating converted object: 82.349396%; instructions 89/83, differing positions 84; restored.
+- local typed result pointer before floating store: did not compile due to C89 declaration placement; restored and followed by a compiling variant.
+- scoped typed result pointer after store label: 96.92771%; instructions 83/83, differing positions 13; restored.
 
-- reuse argument header for digest object: 96.484535%; instructions 97/97, differing instruction positions 14; restored.
-- declare output header before data and digest: 96.484535%; instructions 97/97, differing instruction positions 14; restored.
-- form data pointer before creating digest object: 70.24742%; instructions 97/97, differing instruction positions 29; restored.
-- reuse argument pointer for data buffer: 96.69072%; instructions 97/97, differing instruction positions 10; restored.
-- cache range valid result in named boolean: 96.484535%; instructions 97/97, differing instruction positions 14; restored.
+### VmBlobCalcRangeSHA1Digest
 
-## VmBlobCalcRangeMD5Digest
+- load range offset for both bounds and hash pointer: 98.09278%; instructions 96/97, differing positions 35; restored.
+- test output buffer before digest object: 96.329895%; instructions 97/97, differing positions 17; restored.
+- assign range validity to a named boolean: 96.484535%; instructions 97/97, differing positions 14; restored.
 
-- reuse argument header for digest object: 99.793816%; instructions 97/97, differing instruction positions 4; restored.
-- declare output header before data and digest: 99.793816%; instructions 97/97, differing instruction positions 4; restored.
-- form data pointer before creating digest object: 74.98969%; instructions 96/97, differing instruction positions 38; restored.
-- reuse argument pointer for data buffer: 100.0%; instructions 97/97, differing instruction positions 0; later discarded for readability.
-- cache range valid result in named boolean: 100.0%; instructions 97/97, differing instruction positions 0; later discarded for readability.
-- reuse converted argument as new digest object: 99.793816%; instructions 97/97, differing instruction positions 4; restored.
-- scope range data to digest block: 99.793816%; instructions 97/97, differing instruction positions 4; restored.
-- scope digest pointer to allocation and hash block: 99.793816%; instructions 97/97, differing instruction positions 4; restored.
-- use const byte pointer for hash input: 99.793816%; instructions 97/97, differing instruction positions 4; restored.
+### VmArraySlice
 
-## VmBlobCalcHMAC
+- mutate signed indices before clipping to array length: 95.07519%; instructions 134/133, differing positions 100; restored.
+- assign end length before start range checks: 94.172935%; instructions 132/133, differing positions 93; restored.
+- array element source acquired before destination: 88.68421%; instructions 133/133, differing positions 60; restored.
 
-- reuse input argument for digest header: 99.90625%; instructions 64/64, differing instruction positions 6; restored.
-- capture blob data before creating digest: 93.34375%; instructions 64/64, differing instruction positions 22; restored.
-- declare key blob before initialized input header: 99.453125%; instructions 64/64, differing instruction positions 7; restored.
+### VmStringSplit
 
-## VmBlobCalcRangeHMAC
+- cache string structures before loading lengths: 95.64414%; instructions 222/222, differing positions 101; restored.
+- derive empty-delimiter byte offset from character index: 96.04955%; instructions 222/222, differing positions 81; restored.
+- validate array before getting first created element: 92.58108%; instructions 223/222, differing positions 131; restored.
 
-- reuse argument header for output object: 99.890755%; instructions 119/119, differing instruction positions 5; restored.
-- scope digest context for entire function: 99.72269%; instructions 119/119, differing instruction positions 9; restored.
-- capture data pointer before digest creation: 75.56303%; instructions 118/119, differing instruction positions 75; restored.
+### VmDateDtor
 
-## vmBlobParsePackFormatString
+- load both calendar name tables into pointers: 91.79121%; instructions 91/91, differing positions 63; restored.
+- read month before day and pass names as locals: 94.96703%; instructions 91/91, differing positions 7; restored.
+- use calendar object directly instead of calendar pointer: 89.14286%; instructions 90/91, differing positions 85; restored.
 
-- accumulate decimal product before character add: 99.69827%; instructions 116/116, differing instruction positions 6; restored.
-- use separate parameter character: 98.01724%; instructions 117/116, differing instruction positions 41; restored.
-- unsigned digit temporary with explicit character truncation: 99.69827%; instructions 116/116, differing instruction positions 6; restored.
+### CHANSVmParseInt
 
-## VmBlobPackCommon
+- group end pointer and input buffer into parse context: 94.69388%; instructions 49/49, differing positions 3; restored.
+- cache string value before type test: 94.69388%; instructions 49/49, differing positions 3; restored.
+- initialize parsing end pointer after string length load: 81.42857%; instructions 50/49, differing positions 41; restored.
 
-- initialize parser type before parser size: 92.61826%; instructions 679/668, differing instruction positions 668; restored.
-- move parser output scalars into parsing scope: 92.621254%; instructions 675/668, differing instruction positions 638; restored.
-- explicit source blob check before format scan: 92.603294%; instructions 675/668, differing instruction positions 642; restored.
+### VmDateGetRTC
 
-## VmBlobUnpack
+- apply unsigned 64-bit mask after bias subtraction: 100.0%; instructions 38/38, differing positions 0; retained during iteration.
+- name rtc seconds after division: 100.0%; instructions 38/38, differing positions 0; retained during iteration.
+- unsigned bias widened before subtraction: 100.0%; instructions 38/38, differing positions 0; retained during iteration.
+- remove experimental block around seconds calculation: 100.0%; instructions 38/38, differing positions 0; retained during iteration.
 
-- initialize parser scalar outputs with constants: 92.083176%; instructions 531/517, differing instruction positions 496; restored.
-- read format length before format pointer: 91.32108%; instructions 531/517, differing instruction positions 496; restored.
-- validate source blob before converting format argument: 90.92263%; instructions 533/517, differing instruction positions 517; restored.
+### CHANSVm_81455654
 
-## VmImageCtor
+- assign result instead of returning through negative-index branch: 88.28571%; instructions 33/35, differing positions 18; restored.
+- separate argument table from return pointer: 94.0%; instructions 34/35, differing positions 35; restored.
+- initialize result after active context retrieval: 94.0%; instructions 34/35, differing positions 35; restored.
 
-- early true return for absent callback: 79.8%; instructions 25/25, differing instruction positions 15; restored.
-- declare image before result: 99.0%; instructions 25/25, differing instruction positions 4; restored.
-- return callback directly for valid image: 58.4%; instructions 17/25, differing instruction positions 25; restored.
-- save image data pointer before callback test: 86.6%; instructions 25/25, differing instruction positions 8; restored.
-- cache constructor callback before image lookup: 99.0%; instructions 25/25, differing instruction positions 4; restored.
+### VmCallMethod
 
-## VmWinEmuWrite
+- cache active module during operand range validation: 96.565834%; instructions 279/281, differing positions 228; restored.
+- cache native property method state as bool: 96.6726%; instructions 279/281, differing positions 228; restored.
+- separate argument count operand pointer: 96.565834%; instructions 279/281, differing positions 228; restored.
 
-- hoist input string value pointer: did not compile, incorrect guessed structure type; restored. A corrected compiling variant is recorded separately.
-- initialize input and output lengths in reverse order: 90.67164%; instructions 67/67, differing instruction positions 12; restored.
-- for loop over input chunks: 99.62687%; instructions 67/67, differing instruction positions 5; restored.
-- cache correctly typed wide string structure: 96.1194%; instructions 65/67, differing instruction positions 54; restored.
+### CHANSVmStep
 
-## CHANSVmAddExe
+- named execution context for initial range validation: 94.56664%; instructions 1249/1253, differing positions 1172; restored.
+- signed opcode instead of unsigned dispatch scalar: 94.52673%; instructions 1249/1253, differing positions 1173; restored.
+- load float operand into double object directly: 94.7901%; instructions 1249/1253, differing positions 1173; restored.
 
-- read header size before assigning module variable: 99.1063%; instructions 254/254, differing instruction positions 35; restored.
-- split format magic and alignment validation: 99.1063%; instructions 254/254, differing instruction positions 35; restored.
-- integer aligned size check: 99.1063%; instructions 254/254, differing instruction positions 35; restored.
+### VmBlobPackCommon
 
-## CHANSVm_81455654
+- typed signed parser parameter address: 92.603294%; instructions 675/668, differing positions 642; restored.
+- derive format length with shift: 92.603294%; instructions 675/668, differing positions 642; restored.
+- validate parent only for pack operation: 92.61078%; instructions 675/668, differing positions 641; restored.
 
-- direct module offset assignment: 94.0%; instructions 34/35, differing instruction positions 35; restored.
-- inline active context access: 94.0%; instructions 34/35, differing instruction positions 35; restored.
-- early null return on negative frame index: 76.57143%; instructions 36/35, differing instruction positions 36; restored.
-- separate result pointer from table pointer: 94.0%; instructions 34/35, differing instruction positions 35; restored.
+### VmBlobUnpack
 
-## CHANSVmLinkModules
+- array buffer declared before scalar pointers: 92.083176%; instructions 531/517, differing positions 496; restored.
+- named constant parser defaults: 92.083176%; instructions 531/517, differing positions 496; restored.
+- signed count for unpacked elements: 92.083176%; instructions 531/517, differing positions 496; restored.
 
-- for module traversal: 98.677246%; instructions 189/189, differing instruction positions 43; restored.
-- remove copied dispatch entry in global pass: 94.25926%; instructions 189/189, differing instruction positions 52; restored.
-- early return when linking blocked or no modules: 96.44974%; instructions 189/189, differing instruction positions 173; restored.
+### VmBlobCopyRangeFrom
 
-## VmCallMethod
+- target bounds checks with named availability: 91.52941%; instructions 139/136, differing positions 71; restored.
+- use existing range predicate for both blobs: 93.80882%; instructions 138/136, differing positions 50; restored.
+- load source and destination offsets after count conversion: 94.08088%; instructions 137/136, differing positions 73; restored.
 
-- initialize dispatch state in declarations: 96.565834%; instructions 279/281, differing instruction positions 228; restored.
-- cache method reference table entry: did not compile, incorrect guessed structure type; restored. A corrected compiling variant is recorded separately.
-- reuse existing accumulator argument header pointer: 96.565834%; instructions 279/281, differing instruction positions 228; restored.
-- cache correctly typed name table entry: 96.565834%; instructions 279/281, differing instruction positions 228; restored.
+### VmBlobFill
 
-## CHANSVmStep
+- name converted byte value before memset: 100.0%; instructions 63/63, differing positions 2; restored.
+- scope fill byte and destination pointer together: 100.0%; instructions 63/63, differing positions 2; restored.
+- advance offset before memory fill with original offset cached: 87.01588%; instructions 63/63, differing positions 12; restored. Regressions: VmBlobFill.
 
-- for step counter with decrement after body: 94.630486%; instructions 1249/1253, differing instruction positions 1173; restored.
-- inline initial comparison constants: 94.73823%; instructions 1249/1253, differing instruction positions 1173; restored.
-- initialize interpreter private pointer at declaration: 94.7901%; instructions 1249/1253, differing instruction positions 1173; restored.
+## Uncertainty
 
-## VmBlobFill
-
-- remove redundant blob conditional after null check: 91.74603%; instructions 60/63, differing instruction positions 43; restored. Unit function regressions: VmBlobFill.
-- explicit separate input null checks: 96.666664%; instructions 65/63, differing instruction positions 39; restored. Unit function regressions: VmBlobFill.
-- snapshot data and offset before memset: 99.809525%; instructions 63/63, differing instruction positions 5; restored. Unit function regressions: VmBlobFill.
-
-## Final validation
-
-Full gate after a clean 43U rebuild: GATE PASS. DOL SHA1 26116613f624061ba99c8d1a299aaa6efa85670d. Pool identical. Regression count 0; forbidden patterns 0; readability warnings 0.
-
-Instruction-exact functions 201 -> 203; objdiff-matched functions 202 -> 204; code bytes 30984 -> 31620 out of 53564; data bytes 16 -> 16 out of 6904. VmDateGetRTC has 38/38 instructions and diffs 0; VmStringSplice has 121/121 instructions and diffs 0. Every remaining function has at least three distinct compiling source-level attempts recorded above. The unit remains NonMatching. Data is still incomplete; the matching string pool alone does not establish matching data.
+The reason for VmBlobFill raw branch differences remains unresolved. Register-only mismatches may be compiler tie-breaks; the attempts do not prove that no readable C variation can match them. Remaining .data/.rodata relocation and symbol comparisons are unresolved, so the unit is not complete.
