@@ -53,7 +53,7 @@ typedef enum NWC24EncodingRegion {
 /* NWC24 Message Object */
 
 typedef struct NWC24MsgObj {
-    u32 data[64];  // 0x00
+    volatile u32 data[64];  // 0x00
 } NWC24MsgObj;
 
 #define NWC24_FACE_DATA_SIZE 0x4A /* sizeof(RFLCharData) */

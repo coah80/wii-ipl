@@ -32,9 +32,9 @@ NWC24Err NWC24ReadMsgField(const NWC24MsgObj* msg, char* fieldName,
     NWC24Err closeResult;
     NWC24MsgBoxId id;
     u32 flags;
-    u32 fieldLength;
-    u32 fieldOffset;
     char* pField;
+    u32 fieldOffset;
+    u32 fieldLength;
     NWC24FileStream stream;
     NWC24File file;
 
@@ -72,18 +72,18 @@ select_done:
     if (result == NWC24_OK) {
         result = NWC24iSearchHeaderF(&stream, fieldName, pMsg->unk_0x10,
                                    &fieldOffset, &fieldLength);
-    }
 
-    if (result == NWC24_OK) {
-        if (fieldLength > fieldBufLen) {
-            result = NWC24_ERR_OVERFLOW;
-        } else {
-            result = NWC24FStreamSeek(&stream, fieldOffset);
-            if (result == NWC24_OK) {
-                result = NWC24FStreamGetPtr(&stream, &pField, fieldLength);
+        if (result == NWC24_OK) {
+            if (fieldLength > fieldBufLen) {
+                result = NWC24_ERR_OVERFLOW;
+            } else {
+                result = NWC24FStreamSeek(&stream, fieldOffset);
                 if (result == NWC24_OK) {
-                    Mail_strncpy((char*)fieldBuf, pField, fieldLength);
-                    fieldBuf[fieldLength - 2] = 0;
+                    result = NWC24FStreamGetPtr(&stream, &pField, fieldLength);
+                    if (result == NWC24_OK) {
+                        Mail_strncpy((char*)fieldBuf, pField, fieldLength);
+                        fieldBuf[fieldLength - 2] = 0;
+                    }
                 }
             }
         }
@@ -150,7 +150,7 @@ NWC24Err NWC24ReadMsgAltName(const NWC24MsgObj* msg, u16* altName,
     result = NWC24Base64Decode((u8*)pWork, length, (u8*)altName, altNameLen * 2,
                                &decodeSize);
 
-    return result == NWC24_OK ? NWC24_OK : result;
+    return result != NWC24_OK ? result : NWC24_OK;
 }
 
 NWC24Err NWC24ReadMsgMBNoReply(const NWC24MsgObj* msg, BOOL* mbNoReplyFlag) {
@@ -378,11 +378,11 @@ NWC24Err NWC24ReadMsgMBOptOutFlag(const NWC24MsgObj* msg, BOOL* mbOptOutFlag,
 NWC24Err NWC24ReadMsgFromAddr(const NWC24MsgObj* msg, char* addr,
                               u32 addrLen) {
     const NWC24MsgObjPrivate* pMsg = (const NWC24MsgObjPrivate*)msg;
+    char* pWork;
     NWC24Err result;
     NWC24Err closeResult;
     NWC24MsgBoxId id;
     u32 flags;
-    char* pWork;
     NWC24FileStream stream;
     NWC24File file;
 
@@ -390,28 +390,29 @@ NWC24Err NWC24ReadMsgFromAddr(const NWC24MsgObj* msg, char* addr,
         return NWC24_ERR_LIB_NOT_OPENED;
     }
 
-    if (!(pMsg->type & MSG_OBJ_DELIVERING)) {
+    if (!(msg->data[1] & MSG_OBJ_DELIVERING)) {
         return NWC24_ERR_PROTECTED;
     }
 
     pWork = NWC24WorkP->stringWork;
     Mail_memset(pWork, 0, NWC24i_STRING_WORK_SIZE);
 
-    if (!(pMsg->type & MSG_OBJ_FOR_PUBLIC)) {
+    if (!(msg->data[1] & MSG_OBJ_FOR_PUBLIC)) {
         return NWC24_ERR_NOT_SUPPORTED;
     }
 
     flags = pMsg->type;
     if (flags & MSG_OBJ_TO_SEND) {
         id = NWC24_MSGBOX_SEND;
-        result = NWC24_OK;
     } else if (flags & MSG_OBJ_TO_RECV) {
         id = NWC24_MSGBOX_RECV;
-        result = NWC24_OK;
     } else {
         result = NWC24_ERR_INVALID_VALUE;
+        goto select_done;
     }
+    result = NWC24_OK;
 
+select_done:
     if (result != NWC24_OK) {
         return result;
     }
@@ -420,10 +421,7 @@ NWC24Err NWC24ReadMsgFromAddr(const NWC24MsgObj* msg, char* addr,
         return NWC24_ERR_NULL;
     }
 
-    if (result == NWC24_OK) {
-        result = NWC24iMBoxOpenStoredMsg(id, pMsg->msgId, &file);
-    }
-
+    result = NWC24iMBoxOpenStoredMsg(id, pMsg->msgId, &file);
     if (result != NWC24_OK) {
         return result;
     }
@@ -439,11 +437,10 @@ NWC24Err NWC24ReadMsgFromAddr(const NWC24MsgObj* msg, char* addr,
     }
 
     closeResult = NWC24iMBoxCloseMsg(&file);
-    if (result == NWC24_OK) {
-        result = closeResult;
+    if (result != NWC24_OK) {
+        return result;
     }
-
-    return result;
+    return closeResult;
 }
 
 NWC24Err NWC24ReadMsgSubject(const NWC24MsgObj* msg, char* subject,
@@ -460,21 +457,22 @@ NWC24Err NWC24ReadMsgSubject(const NWC24MsgObj* msg, char* subject,
         return NWC24_ERR_LIB_NOT_OPENED;
     }
 
-    if (!(pMsg->type & MSG_OBJ_DELIVERING)) {
+    if (!(msg->data[1] & MSG_OBJ_DELIVERING)) {
         return NWC24_ERR_PROTECTED;
     }
 
     flags = pMsg->type;
     if (flags & MSG_OBJ_TO_SEND) {
         id = NWC24_MSGBOX_SEND;
-        result = NWC24_OK;
     } else if (flags & MSG_OBJ_TO_RECV) {
         id = NWC24_MSGBOX_RECV;
-        result = NWC24_OK;
     } else {
         result = NWC24_ERR_INVALID_VALUE;
+        goto select_done;
     }
+    result = NWC24_OK;
 
+select_done:
     if (result != NWC24_OK) {
         return result;
     }
@@ -484,9 +482,7 @@ NWC24Err NWC24ReadMsgSubject(const NWC24MsgObj* msg, char* subject,
         return NWC24_ERR_NULL;
     }
 
-    if (result == NWC24_OK) {
-        result = NWC24iMBoxOpenStoredMsg(id, pMsg->msgId, &file);
-    }
+    result = NWC24iMBoxOpenStoredMsg(id, pMsg->msgId, &file);
 
     if (result != NWC24_OK) {
         return result;
@@ -538,24 +534,29 @@ NWC24Err NWC24ReadMsgTextEx(const NWC24MsgObj* msg, char* text, u32 textLen,
 
     result = ReadMsgTextInternal(msg, text, textLen, (char*)name, nameLen,
                                  &enc);
-    if (result != NWC24_OK) {
-        return result;
+    if (result == NWC24_OK) {
+        pName = (char*)name;
+        for (i = 0; i < nameLen; i++) {
+            c = *pName;
+            switch (c) {
+            case ' ':
+            case '\r':
+            case '\t':
+            case '\n':
+            case ';':
+            case '"':
+                *pName = '\0';
+                break;
+            }
+
+            if (*pName == '\0') {
+                break;
+            }
+            pName++;
+        }
     }
 
-    pName = (char*)name;
-    for (i = 0; i < nameLen; i++) {
-        c = pName[i];
-        if (c == ' ' || c == '\r' || (c >= '\t' && c < '\v') || c == ';' ||
-            c == '"') {
-            pName[i] = '\0';
-        }
-
-        if (pName[i] == '\0') {
-            break;
-        }
-    }
-
-    return NWC24_OK;
+    return result;
 }
 
 static NWC24Err ReadMsgTextInternal(const NWC24MsgObj* msg, char* text,
@@ -566,9 +567,9 @@ static NWC24Err ReadMsgTextInternal(const NWC24MsgObj* msg, char* text,
     NWC24Err result;
     NWC24Err closeResult;
     NWC24MsgBoxId id;
-    u32 flags;
     u32 length;
     u32 decodeSize;
+    u32 flags;
     char* pWork;
     NWC24File file;
 
@@ -578,29 +579,30 @@ static NWC24Err ReadMsgTextInternal(const NWC24MsgObj* msg, char* text,
         return NWC24_ERR_LIB_NOT_OPENED;
     }
 
-    if (!(pMsg->type & MSG_OBJ_DELIVERING)) {
+    if (!(msg->data[1] & MSG_OBJ_DELIVERING)) {
         return NWC24_ERR_PROTECTED;
     }
 
-    *encoding = NWC24_ENC_7BIT;
-
-    flags = pMsg->type;
-    if (flags & MSG_OBJ_TO_SEND) {
+    pWork = NWC24WorkP->stringWork;
+    if (pMsg->type & MSG_OBJ_TO_SEND) {
         id = NWC24_MSGBOX_SEND;
-        result = NWC24_OK;
-    } else if (flags & MSG_OBJ_TO_RECV) {
+    } else if (pMsg->type & MSG_OBJ_TO_RECV) {
         id = NWC24_MSGBOX_RECV;
-        result = NWC24_OK;
     } else {
         result = NWC24_ERR_INVALID_VALUE;
+        goto select_done;
     }
+    result = NWC24_OK;
+    *encoding = NWC24_ENC_7BIT;
 
+select_done:
     if (result != NWC24_OK) {
         return result;
     }
 
-    length = pMsg->textSize;
-    if (length == 0) {
+    if (pMsg->textSize != 0) {
+        length = pMsg->textSize;
+    } else {
         length = pMsg->text.size;
     }
     if (length == 0) {
@@ -612,10 +614,7 @@ static NWC24Err ReadMsgTextInternal(const NWC24MsgObj* msg, char* text,
         retCode = NWC24_ERR_OVERFLOW;
     }
 
-    if (result == NWC24_OK) {
-        result = NWC24iMBoxOpenStoredMsg(id, pMsg->msgId, &file);
-    }
-
+    result = NWC24iMBoxOpenStoredMsg(id, pMsg->msgId, &file);
     if (result != NWC24_OK) {
         return result;
     }
@@ -630,7 +629,6 @@ static NWC24Err ReadMsgTextInternal(const NWC24MsgObj* msg, char* text,
             result = NWC24FRead(name, pMsg->unk_0x50.size, &file);
         }
 
-        pWork = NWC24WorkP->stringWork;
         if (result == NWC24_OK && pMsg->unk_0x58.size != 0 &&
             pMsg->unk_0x58.size < 0x20) {
             Mail_memset(pWork, 0, 0x20);
@@ -697,7 +695,7 @@ NWC24Err NWC24ReadMsgAttached(const NWC24MsgObj* msg, u32 attachIndex,
         return NWC24_ERR_LIB_NOT_OPENED;
     }
 
-    if (!(pMsg->type & MSG_OBJ_DELIVERING)) {
+    if (!(msg->data[1] & MSG_OBJ_DELIVERING)) {
         return NWC24_ERR_PROTECTED;
     }
 
@@ -708,29 +706,25 @@ NWC24Err NWC24ReadMsgAttached(const NWC24MsgObj* msg, u32 attachIndex,
     flags = pMsg->type;
     if (flags & MSG_OBJ_TO_SEND) {
         id = NWC24_MSGBOX_SEND;
-        result = NWC24_OK;
     } else if (flags & MSG_OBJ_TO_RECV) {
         id = NWC24_MSGBOX_RECV;
-        result = NWC24_OK;
     } else {
         result = NWC24_ERR_INVALID_VALUE;
+        goto select_done;
     }
+    result = NWC24_OK;
 
+select_done:
     if (result != NWC24_OK) {
         return result;
     }
 
-    if (pMsg->attached[attachIndex].size == 0) {
-        return NWC24_ERR_NULL;
-    }
-    if (pMsg->attachedSize[attachIndex] == 0) {
+    if (pMsg->attached[attachIndex].size == 0 ||
+        pMsg->attachedSize[attachIndex] == 0) {
         return NWC24_ERR_NULL;
     }
 
-    if (result == NWC24_OK) {
-        result = NWC24iMBoxOpenStoredMsg(id, pMsg->msgId, &file);
-    }
-
+    result = NWC24iMBoxOpenStoredMsg(id, pMsg->msgId, &file);
     if (result != NWC24_OK) {
         return result;
     }
@@ -754,7 +748,7 @@ static NWC24Err ReadBase64Data(NWC24File* file, const NWC24Data* data,
                                u8* out, u32 outSize, u32* outLen) {
     char* pWork;
     NWC24Err result;
-    u32 remaining;
+    s32 remaining;
     u32 offset;
     u32 written;
     u32 chunk;
@@ -823,10 +817,10 @@ static NWC24Err ReadQPText(const NWC24MsgObj* msg, NWC24File* file, char* text,
     const NWC24MsgObjPrivate* pMsg = (const NWC24MsgObjPrivate*)msg;
     char* pWork;
     NWC24Err result;
-    u32 remaining;
+    s32 remaining;
     u32 offset;
     u32 written;
-    u32 chunk;
+    s32 chunk;
     u32 decLen;
     u32 encLen;
 
