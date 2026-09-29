@@ -2141,10 +2141,12 @@ namespace ipl {
             utility::CharacterCode::UTF8ToUTF16(reinterpret_cast<wchar_t*>(unk_0x938),
                                                 mpStringBuffer->parentalReSecA, 0x44);
             reAdjustSecA();
-            if (checkTextNum(NULL) == 3 && parental::Parental::judgeSecA(reinterpret_cast<const wchar_t*>(unk_0x938))) {
-                result = 1;
+            if (checkTextNum(NULL) == 3) {
+                if (parental::Parental::judgeSecA(reinterpret_cast<const wchar_t*>(unk_0x938))) {
+                    result = 1;
+                }
+                www::wiisetting::setFuncResult(result);
             }
-            www::wiisetting::setFuncResult(result);
             memset(unk_0x938, 0, sizeof(unk_0x938));
         }
 
