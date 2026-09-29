@@ -131,8 +131,8 @@ void ipl::scene::AddressEdit::reset_gui() {
             ipl::layout::Animator* animator = mpCodeLayout->getAnim(i + 0xb);
             animator->initFrame();
             animator->restart();
+            mPointCount[i] = 0;
         }
-        mPointCount[i] = 0;
     }
 }
 
@@ -140,7 +140,11 @@ void ipl::scene::AddressEdit::reset_gui() {
 extern "C" void* __nw__FUl(u32);
 extern "C" BOOL RFLSearchOfficialData(const RFLCreateID*, u16*);
 
-extern "C" NWC24FriendInfo sFriendInfo__Q23ipl5scene;
+namespace ipl {
+    namespace scene {
+        NWC24FriendInfo sFriendInfo;
+    }
+}
 extern "C" const char* smButtonName__Q33ipl5scene6Button[];
 
 
@@ -318,24 +322,6 @@ void ipl::scene::AddressEdit::String::clear() {
     mbHasWiiNo = false;
 }
 
-void ipl::scene::AddressEdit::String::setEMail(const wchar_t* value) {
-    mbHasWiiNo = false;
-    memset(mValue, 0, sizeof(mValue));
-    wcsncpy(mValue, value, 0xff);
-    u32 length = wcslen(value);
-    memset(mDisplayText, 0, sizeof(mDisplayText));
-    if (length > 0x10) {
-        wcsncpy(mDisplayText, value, 0xe);
-        wcscpy(mDisplayText + 0xe, L"...");
-    } else {
-        wcscpy(mDisplayText, value);
-    }
-    u8 address[0x100];
-    memset(address, 0, sizeof(address));
-    ipl::utility::CharacterCode::UTF16ToANSI(address, value, sizeof(address));
-    mbValidMail = !NWC24CheckPublicMailAddr_(reinterpret_cast<const char*>(address));
-}
-
 void ipl::scene::AddressEdit::String::setWiiNo(const wchar_t* value) {
     mbHasWiiNo = true;
     memset(mValue, 0, sizeof(mValue));
@@ -500,7 +486,7 @@ void ipl::scene::AddressEdit::create() {
         ->getAnim(0)->initAnmFrame();
 
     mString.clear();
-    memset(&sFriendInfo__Q23ipl5scene, 0, sizeof(sFriendInfo__Q23ipl5scene));
+    memset(&sFriendInfo, 0, sizeof(sFriendInfo));
     mpNigaoe = 0;
     mNigaoeState = 0;
     ipl::scene::SceneObj* addressScene = ipl::System::getScene(0x14);
@@ -593,15 +579,29 @@ create_mode_done:
     ipl::System::getKeyboard()->init();
 
     ipl::scene::TextBalloon* balloon = reinterpret_cast<ipl::scene::TextBalloon*>(__nw__FUl(0x3c));
-    if (balloon != NULL) {
-        f32 balloonWidth = 30.0f;
-        f32 balloonHeight = 120.0f;
-        EGG::Heap* heap = getHeap();
-        ipl::math::VEC3 position(0.0f, 0.0f, 0.0f);
-        balloon = new (balloon) ipl::scene::TextBalloon(heap, mpBalloonFile, "arc", "my_IplTopBalloon_a.brlyt", position, balloonHeight, balloonWidth);
-    }
+    f32 balloonWidth = 30.0f;
+    f32 balloonHeight = 120.0f;
+    balloon = new (balloon) ipl::scene::TextBalloon(getHeap(), mpBalloonFile, "arc", "my_IplTopBalloon_a.brlyt", ipl::math::VEC3(0.0f, 0.0f, 0.0f), balloonHeight, balloonWidth);
     mpBalloon = balloon;
 }
+void ipl::scene::AddressEdit::String::setEMail(const wchar_t* value) {
+    mbHasWiiNo = false;
+    memset(mValue, 0, sizeof(mValue));
+    wcsncpy(mValue, value, 0xff);
+    u32 length = wcslen(value);
+    memset(mDisplayText, 0, sizeof(mDisplayText));
+    if (length > 0x10) {
+        wcsncpy(mDisplayText, value, 0xe);
+        wcscpy(mDisplayText + 0xe, L"...");
+    } else {
+        wcscpy(mDisplayText, value);
+    }
+    u8 address[0x100];
+    memset(address, 0, sizeof(address));
+    ipl::utility::CharacterCode::UTF16ToANSI(address, value, sizeof(address));
+    mbValidMail = !NWC24CheckPublicMailAddr_(reinterpret_cast<const char*>(address));
+}
+
 
 void ipl::scene::AddressEdit::stt_wait_decide_anm() {
     bool complete = true;
@@ -889,14 +889,13 @@ void ipl::scene::AddressEdit::stt_add_mii_normal() {
 void ipl::scene::AddressEdit::stt_add_mii_input() {
     ipl::scene::Base* child = getChild();
     if (child != NULL) {
-        ipl::scene::FaceSelect* faceSelect = static_cast<ipl::scene::FaceSelect*>(child);
-        s32 faceId = faceSelect->getSelectedFaceId();
+        s32 faceId = static_cast<ipl::scene::FaceSelect*>(getChild())->getSelectedFaceId();
         if (faceId >= 0 && ipl::System::getMiiManager()->isAvalable(faceId) &&
             mNigaoeState == 0) {
             RFLAdditionalInfo additionalInfo;
             RFLGetAdditionalInfo(&additionalInfo, RFLDataSource_Official, NULL, faceId);
             if (!RFLiIsSameID(&mCreateID, &additionalInfo.createID)) {
-                mCreateID = additionalInfo.createID;
+                memcpy(&mCreateID, &additionalInfo.createID, sizeof(RFLCreateID));
                 ipl::System::getMiiManager()->create(ipl::System::getMem2App(), 0x4c, 0x4c, faceId,
                     ipl::scene::AddressEdit::nigaoe_create_callback_add,
                     this);
@@ -2222,82 +2221,57 @@ void ipl::scene::AddressEdit::start_left_event(
     const char* paneName) {
     int buttonNo = get_button_no(paneName);
     switch (mState) {
-    case 0x22:
-        goto state22;
     case 0:
         switch (buttonNo) {
-        case 3:
-            goto state0Button3;
-        case 0:
-            goto state0Friend;
+        case 0: {
+            u32 friendType = mpFriendCache->getInfo(mSelectedFriend).attr.status;
+            if (friendType != 2) {
+                break;
+            }
+            if (mPointCount[buttonNo] == 1) {
+                ipl::layout::Animator* pane = mpCodeLayout->getAnim(buttonNo + 0xb);
+                pane->initFrame();
+                pane->restart();
+            }
+            if (mPointCount[buttonNo] > 0) {
+                --mPointCount[buttonNo];
+            }
+            break;
+        }
         case 1:
         case 2:
-            goto state0Common;
+            goto common;
+        case 3:
+            if (mPointCount[buttonNo] == 1) {
+                mpBalloon->fadeoutForce();
+            }
+        common:
+            if (mPointCount[buttonNo] == 1) {
+                ipl::layout::Animator* pane = mpCodeLayout->getAnim(buttonNo + 0xb);
+                pane->initFrame();
+                pane->restart();
+            }
+            if (mPointCount[buttonNo] > 0) {
+                --mPointCount[buttonNo];
+            }
+            break;
+        }
+        break;
+    case 0x22:
+        switch (buttonNo) {
+        case 3:
+            if (mPointCount[buttonNo] == 1) {
+                mpBalloon->fadeoutForce();
+            }
+            --mPointCount[buttonNo];
+            break;
         default:
             break;
         }
         break;
-    default:
-        break;
-    }
-    goto done;
-
-state0Friend: {
-        u32 friendIndex = mSelectedFriend;
-        u32 friendType = mpFriendCache->getInfo(friendIndex).attr.status;
-        if (friendType != 2) {
-            goto done;
-        }
-        s32* count = &mPointCount[buttonNo];
-        if (*count == 1) {
-            ipl::layout::Object* layout = mpCodeLayout;
-            ipl::layout::Animator* pane = layout->getAnim(buttonNo + 0xb);
-            pane->initFrame();
-            pane->restart();
-        }
-        if (*count > 0) {
-            --*count;
-        }
-        goto done;
     }
 
-state0Button3: {
-        s32* count = &mPointCount[buttonNo];
-        if (*count == 1) {
-            (mpBalloon)->fadeoutForce();
-        }
-        --*count;
-        goto done;
-    }
-
-state0Common: {
-        s32* count = &mPointCount[buttonNo];
-        if (*count == 1) {
-            ipl::layout::Object* layout = mpCodeLayout;
-            ipl::layout::Animator* pane = layout->getAnim(buttonNo + 0xb);
-            pane->initFrame();
-            pane->restart();
-        }
-        if (*count > 0) {
-            --*count;
-        }
-        goto done;
-    }
-
-state22:
-    if (buttonNo != 3) {
-        goto done;
-    }
-    {
-        s32* count = &mPointCount[buttonNo];
-        if (*count == 1) {
-            (mpBalloon)->fadeoutForce();
-        }
-        --*count;
-    }
-
-done:
-    return;
+done:;
 }
 
 void ipl::scene::AddressEdit::start_trig_event(
@@ -2392,7 +2366,8 @@ void ipl::scene::AddressEdit::start_ipt_trig_event(
     if (controller->getChannel() != channel) {
         return;
     }
-    if (!strcmp(sInputPaneName, paneName)) {
+    bool isInputPane = strcmp(sInputPaneName, paneName) == 0;
+    if (isInputPane) {
         s32 state = mState;
         switch (state) {
     case 0xd: {
@@ -2410,8 +2385,8 @@ void ipl::scene::AddressEdit::start_ipt_trig_event(
             break;
         }
         case 6:
-            ipl::System::getKeyboard()->baseMgr()->enableKSXFilter(true);
             setting.type = static_cast<ipl::keyboard::Manager::KeyboardType>(0xd);
+            ipl::System::getKeyboard()->baseMgr()->enableKSXFilter(true);
             break;
         default:
             break;
@@ -2464,8 +2439,8 @@ void ipl::scene::AddressEdit::start_ipt_trig_event(
             break;
         }
         case 6:
-            ipl::System::getKeyboard()->baseMgr()->enableKSXFilter(true);
             setting.type = static_cast<ipl::keyboard::Manager::KeyboardType>(0xd);
+            ipl::System::getKeyboard()->baseMgr()->enableKSXFilter(true);
             break;
         default:
             break;
@@ -2478,7 +2453,6 @@ void ipl::scene::AddressEdit::start_ipt_trig_event(
         } else {
             button->reserveAnm(0xc);
         }
-        button->reserveText(1, 0x2e);
         ipl::snd::getSystem()->startSE("WIPL_SE_DECIDE");
         mState = 0x1a;
         break;
@@ -2805,7 +2779,7 @@ void ipl::scene::AddressEdit::set_err_msg(wchar_t* outErrMsg, u32 outErrMsgLen, 
     swprintf(nwc24ErrStr, sizeof(nwc24ErrStr) / sizeof(wchar_t), L"%06d\n", errorCode);
     wcsncat(outErrMsg, nwc24ErrStr, outErrMsgLen - wcslen(outErrMsg));
 
-    u32 messageId = MESG_ERROR_NWC24_SERVER;
+    u32 messageId;
     switch (nwc24Err) {
         case NWC24_ERR_NETWORK:
             messageId = MESG_ERROR_NWC24_NETWORK;
@@ -2888,9 +2862,9 @@ void ipl::scene::AddressEdit::add_friendinfo() {
 }
 
 void ipl::scene::AddressEdit::get_friendinfo() {
-    memcpy(&sFriendInfo__Q23ipl5scene, &mpFriendCache->getInfo(mSelectedFriend),
-        sizeof(sFriendInfo__Q23ipl5scene));
-    mString.setName(reinterpret_cast<const wchar_t*>(sFriendInfo__Q23ipl5scene.attr.name));
+    memcpy(&sFriendInfo, &mpFriendCache->getInfo(mSelectedFriend),
+        sizeof(sFriendInfo));
+    mString.setName(reinterpret_cast<const wchar_t*>(sFriendInfo.attr.name));
     const wchar_t* name = mString.mName;
     nw4r::lyt::Pane* namePane =
         mpCodeLayout->getNW4RLyt()->GetRootPane()->FindPaneByName("T_name_00", true);
@@ -2898,29 +2872,29 @@ void ipl::scene::AddressEdit::get_friendinfo() {
 
     wchar_t wiiNo[0x100];
     wchar_t email[0x102];
-    if (sFriendInfo__Q23ipl5scene.attr.type == 1) {
+    if (sFriendInfo.attr.type == 1) {
         memset(wiiNo, 0, sizeof(wiiNo));
-        ipl::scene::AddressEdit::wiiid_utf16(sFriendInfo__Q23ipl5scene.addr.wiiId, wiiNo);
+        ipl::scene::AddressEdit::wiiid_utf16(sFriendInfo.addr.wiiId, wiiNo);
         mString.setWiiNo(wiiNo);
     } else {
         memset(email, 0, sizeof(email));
-        ipl::utility::CharacterCode::ANSIToUTF16(email, reinterpret_cast<const u8*>(&sFriendInfo__Q23ipl5scene.addr), 0x102);
+        ipl::utility::CharacterCode::ANSIToUTF16(email, reinterpret_cast<const u8*>(&sFriendInfo.addr), 0x102);
         mString.setEMail(email);
     }
     const wchar_t* displayText = mString.mDisplayText;
     nw4r::lyt::Pane* friendCodePane =
         mpCodeLayout->getNW4RLyt()->GetRootPane()->FindPaneByName("T_frnd_crd_00", true);
     set_textbox(friendCodePane, displayText);
-    memcpy(&mCreateID, &sFriendInfo__Q23ipl5scene.attr.fdId, sizeof(mCreateID));
+    memcpy(&mCreateID, &sFriendInfo.attr.fdId, sizeof(mCreateID));
 }
 
 void ipl::scene::AddressEdit::update_friendinfo() {
-    memset(sFriendInfo__Q23ipl5scene.attr.name, 0, 0x18);
-    wcsncpy(reinterpret_cast<wchar_t*>(sFriendInfo__Q23ipl5scene.attr.name), mString.mName, 0xa);
-    memcpy(&sFriendInfo__Q23ipl5scene.attr.fdId, &mCreateID, sizeof(mCreateID));
+    memset(sFriendInfo.attr.name, 0, 0x18);
+    wcsncpy(reinterpret_cast<wchar_t*>(sFriendInfo.attr.name), mString.mName, 0xa);
+    memcpy(&sFriendInfo.attr.fdId, &mCreateID, sizeof(mCreateID));
     mpFriendCache->update(
         mSelectedFriend,
-        reinterpret_cast<const wchar_t*>(sFriendInfo__Q23ipl5scene.attr.name),
-        sFriendInfo__Q23ipl5scene.attr.fdId);
+        reinterpret_cast<const wchar_t*>(sFriendInfo.attr.name),
+        sFriendInfo.attr.fdId);
     static_cast<ipl::scene::Address*>(ipl::System::getScene(0x14))->reset_friend();
 }

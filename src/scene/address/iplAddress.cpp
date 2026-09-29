@@ -333,9 +333,7 @@ namespace ipl {
 
                 nw4r::lyt::Pane* pane = mpLayout->FindPaneByName("N_note_a");
                 for (int i = mNextPageNum; i >= 1; i--) {
-                    math::VEC2 trans;
-                    trans.y = sPageOffset.y * i;
-                    trans.x = sPageOffset.x * i;
+                    math::VEC2 trans = sPageOffset * i;
                     pane->SetTranslate(trans);
                     pane->CalculateMtx(*mpLayout->getDrawInfo());
                     mpLayout->draw(pane);
@@ -360,7 +358,7 @@ namespace ipl {
 
                 pane = mpLayout->FindPaneByName("N_note_d");
                 for (int i = offset; i < mPrevPageNum + offset; i++) {
-                    math::VEC2 trans = sPageOffset * -i;
+                    nw4r::math::VEC2 trans = sPageOffset * -i;
                     pane->SetTranslate(trans);
                     pane->CalculateMtx(*mpLayout->getDrawInfo());
                     mpLayout->draw(pane);
@@ -371,7 +369,7 @@ namespace ipl {
                     case STATE_LOOP_FORWARD:
                     case STATE_LOOP_BACKWARD: {
                         for (int i = 1; i < PAGE_MAX; i++) {
-                            math::VEC2 trans = sPageOffset * -i;
+                            nw4r::math::VEC2 trans = sPageOffset * -i;
                     pane->SetTranslate(trans);
                             pane->CalculateMtx(*mpLayout->getDrawInfo());
                             mpLayout->draw(pane);
@@ -379,7 +377,7 @@ namespace ipl {
                         break;
                     }
                     default: {
-                        math::VEC2 trans = sPageOffset * -(mPrevPageNum + offset);
+                        nw4r::math::VEC2 trans = sPageOffset * -(mPrevPageNum + offset);
                         pane->SetTranslate(trans);
                         pane->CalculateMtx(*mpLayout->getDrawInfo());
                         mpLayout->draw("N_note_e");
@@ -1151,67 +1149,77 @@ namespace ipl {
                 return;
             }
 
-            if (mState != STATE_NORMAL || mMode != 0) {
-                return;
-            }
+            switch (mState) {
+                case STATE_NORMAL: {
+                    switch (mMode) {
+                        case 0: {
+                            if (!mpFriendCache->isThere(buttonNo + mPage * BTN_MAX)) {
+                                return;
+                            }
 
-            if (!mpFriendCache->isThere(buttonNo + mPage * BTN_MAX)) {
-                return;
-            }
+                            mDrag.mbDragging = true;
+                            mDrag.mChan = con->getChannel();
 
-            mDrag.mbDragging = true;
-            mDrag.mChan = con->getChannel();
+                            if (con->isValidDpd()) {
+                                mDrag.mPos = System::getControllerManager()->getController(mDrag.mChan)->getDpdProjectionPos();
+                            } else {
+                                mDrag.mPos = nw4r::math::VEC2(0.0f, 0.0f);
+                            }
 
-            if (con->isValidDpd()) {
-                mDrag.mPos = System::getControllerManager()->getController(mDrag.mChan)->getDpdProjectionPos();
-            } else {
-                mDrag.mPos = nw4r::math::VEC2(0.0f, 0.0f);
-            }
+                            mDrag.mPage = mPage;
+                            mDrag.mButton = buttonNo;
+                            mDrag.mNextCount = -1;
+                            mDrag.mPrevCount = -1;
+                            mDrag.unk_0x1C = 0;
 
-            mDrag.mPage = mPage;
-            mDrag.mButton = buttonNo;
-            mDrag.mNextCount = -1;
-            mDrag.mPrevCount = -1;
-            mDrag.unk_0x1C = 0;
+                            System::getPointer()->changeType(con->getChannel(), 1);
+                            static_cast<Button*>(System::getScene(SCENE_BUTTON))->disableBtn();
 
-            System::getPointer()->changeType(con->getChannel(), 1);
-            static_cast<Button*>(System::getScene(SCENE_BUTTON))->disableBtn();
+                            wchar_t blank[2] = {0, 0};
+                            static_cast<nw4r::lyt::TextBox*>(mpLayout->FindPaneByName(sTextNameB[mDrag.mButton]))->SetString(blank, 0);
 
-            wchar_t blank[2] = {0, 0};
-            static_cast<nw4r::lyt::TextBox*>(mpLayout->FindPaneByName(sTextNameB[mDrag.mButton]))->SetString(blank, 0);
+                            nigaoe::Object* nigaoe = mMiiObj[buttonNo].mpNigaoe;
+                            if (nigaoe != NULL) {
+                                nw4r::lyt::Pane* miiPane = mpLayout->FindPaneByName("mii_move");
+                                miiPane->SetVisible(true);
 
-            nigaoe::Object* nigaoe = mMiiObj[buttonNo].mpNigaoe;
-            if (nigaoe != NULL) {
-                nw4r::lyt::Pane* miiPane = mpLayout->FindPaneByName("mii_move");
-                miiPane->SetVisible(true);
+                                mDragTexObj = nigaoe->getIconTexture();
+                                memcpy(mpWork, nigaoe->getIconImage(), 0x2D20);
+                                GXInitTexObj(&mDragTexObj, mpWork, 76, 76, GX_TF_RGB5A3, GX_CLAMP, GX_CLAMP, GX_FALSE);
+                                miiPane->GetMaterial()->SetTexture(GX_TEXMAP0, mDragTexObj);
 
-                mDragTexObj = nigaoe->getIconTexture();
-                memcpy(mpWork, nigaoe->getIconImage(), 0x2D20);
-                GXInitTexObj(&mDragTexObj, mpWork, 76, 76, GX_TF_RGB5A3, GX_CLAMP, GX_CLAMP, GX_FALSE);
-                miiPane->GetMaterial()->SetTexture(GX_TEXMAP0, mDragTexObj);
+                                mMiiObj[buttonNo].reset();
+                            } else {
+                                mpLayout->FindPaneByName("mii_move")->SetVisible(false);
+                            }
 
-                mMiiObj[buttonNo].reset();
-            } else {
-                mpLayout->FindPaneByName("mii_move")->SetVisible(false);
-            }
+                            mpGui->init();
 
-            mpGui->init();
+                            for (int i = 0; i < BTN_MAX; i++) {
+                                mPointCount[i] = 0;
 
-            for (int i = 0; i < BTN_MAX; i++) {
-                mPointCount[i] = 0;
+                                if (mbFaceValid[i]) {
+                                    mpLayout->getAnim(i + 6)->initAnmFrame();
+                                } else {
+                                    mpLayout->getAnim(i + 21)->initAnmFrame();
+                                }
+                            }
 
-                if (mbFaceValid[i]) {
-                    mpLayout->getAnim(i + 6)->initAnmFrame();
-                } else {
-                    mpLayout->getAnim(i + 21)->initAnmFrame();
+                            movePane_onDrag();
+
+                            snd::getSystem()->startSEwithPos("WIPL_SE_CH_HOLD", mDrag.mPos.x);
+
+                            mState = STATE_DRAG;
+                            break;
+                        }
+                        default:
+                            break;
+                    }
+                    break;
                 }
+                default:
+                    break;
             }
-
-            movePane_onDrag();
-
-            snd::getSystem()->startSEwithPos("WIPL_SE_CH_HOLD", mDrag.mPos.x);
-
-            mState = STATE_DRAG;
         }
 
         void Address::start_drag_point_event(const char* paneName, controller::Interface* con) {
@@ -1580,7 +1588,7 @@ namespace ipl {
         void Address::set_err_msg(wchar_t* errMsg, u32 errMsgLen, NWC24Err err) {
             memset(errMsg, 0, errMsgLen * sizeof(wchar_t));
             wcsncat(errMsg, System::getMessage(MESG_ERROR_CODE), errMsgLen - wcslen(errMsg));
-            u32 msgId = MESG_ERROR_CODE;
+            u32 msgId;
 
             wchar_t errCode[32];
             memset(errCode, 0, sizeof(errCode));
@@ -1749,7 +1757,7 @@ namespace ipl {
                     width += textBox->GetFont()->GetCharWidth(*name);
                 }
             }
-            width += 0.01f;
+            width = 0.01f + width;
 
             nw4r::ut::Rect rect;
             nw4r::ut::Rect rect4x3;
@@ -1906,8 +1914,8 @@ namespace ipl {
             NWC24FriendInfo* info = &mInfos[index];
             info->attr.fdId = fdId;
             memset(info->attr.name, 0, sizeof(info->attr.name));
-            wcsncpy((wchar_t*)info->attr.name, name, 10);
-            System::getNwc24Manager()->updateFriendInfo(info, index);
+            wcsncpy((wchar_t*)mInfos[index].attr.name, name, 10);
+            System::getNwc24Manager()->updateFriendInfo(&mInfos[index], index);
         }
 
         void FriendListCache::del(u32 index) {
