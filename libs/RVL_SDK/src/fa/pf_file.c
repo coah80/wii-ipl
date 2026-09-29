@@ -390,12 +390,12 @@ pf_s32 PFFILE_Cursor_Read(PFFILE_FILE* file, pf_u8* buffer, pf_u32 size, pf_u32*
     if (error != 0) {
         return error;
     }
-    if (size <= part_size) {
+    if (part_size >= size) {
         return 0;
     }
     size -= part_size;
     volume = file == PF_NULL ? PF_NULL : file->p_sfd->dir_entry.p_vol;
-    while (volume->bpb.bytes_per_sector <= size) {
+    while (size >= volume->bpb.bytes_per_sector) {
         error = PFFILE_Cursor_ReadBodySectors(file, buffer + *size_read, size, &part_size);
         *size_read += part_size;
         if (error != 0) {
@@ -408,10 +408,10 @@ pf_s32 PFFILE_Cursor_Read(PFFILE_FILE* file, pf_u8* buffer, pf_u32 size, pf_u32*
     }
     error = PFFILE_Cursor_ReadTailSector(file, buffer + *size_read, size, &part_size);
     *size_read += part_size;
-    if (error == 0) {
-        error = 0;
+    if (error != 0) {
+        return error;
     }
-    return error;
+    return 0;
 }
 
 pf_s32 PFFILE_Cursor_WriteHeadSector(PFFILE_FILE* file, const pf_u8* buffer, pf_u32 size,
@@ -419,6 +419,8 @@ pf_s32 PFFILE_Cursor_WriteHeadSector(PFFILE_FILE* file, const pf_u8* buffer, pf_
     pf_s32 error;
     pf_u32 success_size;
     pf_u32 next_position;
+    pf_u32 current_sector;
+    pf_u32 written_size;
     PF_VOLUME* volume;
 
     *size_written = 0;
@@ -447,10 +449,13 @@ pf_s32 PFFILE_Cursor_WriteHeadSector(PFFILE_FILE* file, const pf_u8* buffer, pf_
         return error;
     }
     *size_written = success_size;
+    current_sector = file->cursor.sector;
+    written_size = success_size;
     volume = file == PF_NULL ? PF_NULL : file->p_sfd->dir_entry.p_vol;
-    next_position = file->cursor.offset_in_sector + success_size;
+    next_position = file->cursor.offset_in_sector + written_size;
     if (((volume->bpb.bytes_per_sector - 1) & next_position) != 0) {
-        file->cursor.sector += next_position >> volume->bpb.log2_bytes_per_sector;
+        file->cursor.sector = current_sector +
+                              (next_position >> volume->bpb.log2_bytes_per_sector);
     } else {
         file->cursor.sector = -1;
     }
@@ -519,6 +524,8 @@ pf_s32 PFFILE_Cursor_WriteTailSector(PFFILE_FILE* file, const pf_u8* buffer, pf_
     pf_s32 error;
     pf_u32 success_size;
     pf_u32 next_position;
+    pf_u32 current_sector;
+    pf_u32 written_size;
     PF_VOLUME* volume;
 
     *size_written = 0;
@@ -548,10 +555,13 @@ pf_s32 PFFILE_Cursor_WriteTailSector(PFFILE_FILE* file, const pf_u8* buffer, pf_
         return error;
     }
     *size_written = success_size;
+    current_sector = file->cursor.sector;
+    written_size = success_size;
     volume = file == PF_NULL ? PF_NULL : file->p_sfd->dir_entry.p_vol;
-    next_position = file->cursor.offset_in_sector + success_size;
+    next_position = file->cursor.offset_in_sector + written_size;
     if (((volume->bpb.bytes_per_sector - 1) & next_position) != 0) {
-        file->cursor.sector += next_position >> volume->bpb.log2_bytes_per_sector;
+        file->cursor.sector = current_sector +
+                              (next_position >> volume->bpb.log2_bytes_per_sector);
     } else {
         file->cursor.sector = -1;
     }
@@ -576,7 +586,6 @@ pf_s32 PFFILE_Cursor_Write(PFFILE_FILE* file, const pf_u8* buffer, pf_u32 size,
     pf_u32 append_needed;
     pf_u32 allocated_end;
     pf_u32 requested_end;
-    pf_u32 remaining;
     PF_VOLUME* volume;
     PFFILE_VOLUME_DIRS* volume_dirs;
 
@@ -598,9 +607,9 @@ pf_s32 PFFILE_Cursor_Write(PFFILE_FILE* file, const pf_u8* buffer, pf_u32 size,
     if (part_size >= size) {
         return 0;
     }
-    remaining = size - part_size;
+    size -= part_size;
     error = PFFAT_CountAllocatedClusters(&file->p_sfd->ffd,
-                                         file->cursor.position + remaining, &num_clusters);
+                                         file->cursor.position + size, &num_clusters);
     if (file == PF_NULL) {
         volume = PF_NULL;
     } else {
@@ -608,17 +617,17 @@ pf_s32 PFFILE_Cursor_Write(PFFILE_FILE* file, const pf_u8* buffer, pf_u32 size,
     }
     allocated_end = num_clusters << (volume->bpb.log2_bytes_per_sector +
                                      volume->bpb.log2_sectors_per_cluster);
-    requested_end = file->cursor.position + remaining;
+    requested_end = file->cursor.position + size;
     if (allocated_end < requested_end) {
         append_needed = requested_end - allocated_end;
     } else {
         append_needed = 0;
     }
     append_size = 0;
-    while (append_needed != 0 || remaining >= volume->bpb.bytes_per_sector) {
+    while (append_needed != 0 || size >= volume->bpb.bytes_per_sector) {
         if (append_needed != 0) {
             error = PFCLUSTER_AppendCluster(file, append_needed, &append_size);
-            if (error != 0 && remaining == append_needed) {
+            if (error != 0 && size == append_needed) {
                 return error;
             }
             if (append_size == 0) {
@@ -626,9 +635,9 @@ pf_s32 PFFILE_Cursor_Write(PFFILE_FILE* file, const pf_u8* buffer, pf_u32 size,
             }
             append_needed -= append_size;
         }
-        while (remaining >= append_needed + append_size &&
-               remaining >= volume->bpb.bytes_per_sector) {
-            error = PFFILE_Cursor_WriteBodySectors(file, buffer + *size_written, remaining,
+        while (size >= append_needed + append_size &&
+               size >= volume->bpb.bytes_per_sector) {
+            error = PFFILE_Cursor_WriteBodySectors(file, buffer + *size_written, size,
                                                    &part_size);
             *size_written += part_size;
             if (error != 0) {
@@ -637,13 +646,13 @@ pf_s32 PFFILE_Cursor_Write(PFFILE_FILE* file, const pf_u8* buffer, pf_u32 size,
             if (part_size == 0) {
                 return 0;
             }
-            remaining -= part_size;
-            if (remaining == 0) {
+            size -= part_size;
+            if (size == 0) {
                 break;
             }
         }
     }
-    error = PFFILE_Cursor_WriteTailSector(file, buffer + *size_written, remaining, &part_size);
+    error = PFFILE_Cursor_WriteTailSector(file, buffer + *size_written, size, &part_size);
     *size_written += part_size;
     error = error & ((-error | error) >> 31);
     return error;
@@ -1072,7 +1081,6 @@ pf_s32 PFFILE_p_finfo(PFFILE_FILE* file, PF_INFO* info) {
     pf_u32 cluster_size;
     pf_u32 file_size_remainder;
     pf_u32 file_size;
-    pf_u32 nonempty_bytes;
     pf_s32 sign_bits;
     pf_s32 error;
 
@@ -1088,9 +1096,9 @@ pf_s32 PFFILE_p_finfo(PFFILE_FILE* file, PF_INFO* info) {
         }
         file_size = file->p_sfd->dir_entry.file_size;
         file_size_remainder = file_size % cluster_size;
-        nonempty_bytes = cluster_size - file_size_remainder;
         sign_bits = -(pf_s32)file_size_remainder | (pf_s32)file_size_remainder;
-        info->empty_size = info->allocated_size + (nonempty_bytes & (sign_bits >> 31));
+        info->empty_size = info->allocated_size +
+                           ((sign_bits >> 31) & (cluster_size - file_size_remainder));
     } else {
         info->allocated_size = 0;
         info->empty_size = 0;
@@ -1485,18 +1493,19 @@ pf_s32 PFFILE_FsexecOpenFile(PF_DIR_ENT* entry, PFFILE_ENT_ITER* iter,
     file->p_sfd = sfd;
     file->stat = 1;
     file->open_mode = mode;
+    file->last_access_data.state.last_error = 0;
     file->lock_count = 0;
     PFFAT_InitHint(&file->hint);
     file->cursor.sector = 0xFFFFFFFF;
-    file->last_access_data.state.last_error = 0;
     file->cursor.position = 0;
     PFFILE_Cursor_Recalc(file);
     if ((mode & 1) != 0) {
-        sfd->stat |= 4;
+        file->p_sfd->stat |= 4;
     }
-    if ((mode & 4) != 0) {
+    if ((file->open_mode & 4) != 0) {
         PFFILE_Cursor_MoveToEnd(file);
     }
+    sfd->handler_count++;
     data->p_file = (PF_FILE*)file;
     return 0;
 }
@@ -1600,12 +1609,13 @@ pf_s32 PFFILE_fopen(PF_STR* path, pf_s32 mode, PFFILE_FILE** result) {
 }
 
 pf_s32 PFFILE_fclose(PFFILE_FILE* file) {
+    pf_s32 close_error = 0;
     PF_VOLUME* volume = file == PF_NULL ? PF_NULL : file->p_sfd->dir_entry.p_vol;
     PFFILE_VOLUME_DIRS* volume_dirs;
     pf_s32 error;
 
     error = PFVOL_CheckForWrite(volume);
-    if (error != 0 && (error != 0x0B || file->open_mode != 2)) {
+    if (error != 0 && (error != 0x0B || (pf_s32)file->open_mode != 2)) {
         pf_vol_set.last_error = error;
         ((PFFILE_VOLUME_DIRS*)volume)->last_error = error;
         return error;
@@ -1617,12 +1627,11 @@ pf_s32 PFFILE_fclose(PFFILE_FILE* file) {
         return 10;
     }
     volume_dirs->cache_signature = file;
-    if (file->p_sfd->handler_count <= 1 && (file->p_sfd->dir_entry.attr & 0x19) == 0 &&
-        PFVOL_CheckForWrite(volume) == 0 &&
+    if (((pf_s32)file->p_sfd->handler_count - 1) <= 0 &&
+        (file->p_sfd->dir_entry.attr & 0x19) == 0 &&
+        (error & 0x0B) == 0 &&
         ((file->p_sfd->stat & 4) != 0 || (volume_dirs->file_config & 1) != 1)) {
-        error = PFENT_updateEntry(&file->p_sfd->dir_entry, 1);
-    } else {
-        error = 0;
+        close_error = PFENT_updateEntry(&file->p_sfd->dir_entry, 1);
     }
     if (file->lock_count != 0) {
         if ((file->p_sfd->lock.mode & 1) != 0) {
@@ -1633,7 +1642,7 @@ pf_s32 PFFILE_fclose(PFFILE_FILE* file) {
             }
             file->p_sfd->lock.mode &= ~3;
         } else if (file->p_sfd->lock.owner != (PF_FILE*)file) {
-            error = 0x19;
+            close_error = 0x19;
         } else {
             file->p_sfd->lock.count = 0;
             file->lock_count = 0;
@@ -1642,36 +1651,38 @@ pf_s32 PFFILE_fclose(PFFILE_FILE* file) {
             file->p_sfd->lock.mode &= ~3;
         }
     }
-    if (error != 0) {
-        pf_vol_set.last_error = error;
-        ((PFFILE_VOLUME_DIRS*)file->p_sfd->ffd.p_vol)->last_error = error;
-        file->last_access_data.state.last_error = error;
-    } else if ((volume_dirs->cache_control & 2) != 0) {
-        error = PFCACHE_FlushFATCache(volume);
-        if (error != 0) {
-            pf_vol_set.last_error = error;
-            ((PFFILE_VOLUME_DIRS*)file->p_sfd->ffd.p_vol)->last_error = error;
-            file->last_access_data.state.last_error = error;
+    if (close_error != 0) {
+        pf_vol_set.last_error = close_error;
+        ((PFFILE_VOLUME_DIRS*)file->p_sfd->ffd.p_vol)->last_error = close_error;
+        file->last_access_data.state.last_error = close_error;
+        goto close_file_complete;
+    }
+    if ((volume_dirs->cache_control & 2) != 0) {
+        close_error = PFCACHE_FlushFATCache(volume);
+        if (close_error != 0) {
+            pf_vol_set.last_error = close_error;
+            ((PFFILE_VOLUME_DIRS*)file->p_sfd->ffd.p_vol)->last_error = close_error;
+            file->last_access_data.state.last_error = close_error;
         } else {
-            error = PFCACHE_FlushDataCacheSpecific(volume, file);
-            if (error != 0) {
-                pf_vol_set.last_error = error;
-                ((PFFILE_VOLUME_DIRS*)file->p_sfd->ffd.p_vol)->last_error = error;
-                file->last_access_data.state.last_error = error;
+            close_error = PFCACHE_FlushDataCacheSpecific(volume, file);
+            if (close_error != 0) {
+                pf_vol_set.last_error = close_error;
+                ((PFFILE_VOLUME_DIRS*)file->p_sfd->ffd.p_vol)->last_error = close_error;
+                file->last_access_data.state.last_error = close_error;
             }
         }
     }
-    if (error == 0) {
-        file->p_sfd->handler_count--;
-        if (file->p_sfd->handler_count == 0) {
+    if (close_error == 0) {
+        if (--file->p_sfd->handler_count == 0) {
             file->p_sfd->stat &= ~1U;
             file->p_sfd->ffd.cluster_link.buffer = PF_NULL;
         }
         file->stat &= ~1U;
         volume_dirs->num_opened_files--;
     }
+close_file_complete:
     volume_dirs->cache_signature = PF_NULL;
-    return error;
+    return close_error;
 }
 
 pf_s32 PFFILE_fread(pf_u8* buffer, pf_u32 size, pf_u32 count,
@@ -1704,11 +1715,12 @@ pf_s32 PFFILE_fread(pf_u8* buffer, pf_u32 size, pf_u32 count,
 
 pf_s32 PFFILE_fwrite(const pf_u8* buffer, pf_u32 size, pf_u32 count,
                      PFFILE_FILE* file, pf_u32* count_written) {
-    PF_VOLUME* volume = file == PF_NULL ? PF_NULL : file->p_sfd->dir_entry.p_vol;
+    PF_VOLUME* volume;
     pf_u32 bytes_written;
     pf_s32 error;
 
     *count_written = 0;
+    volume = file == PF_NULL ? PF_NULL : file->p_sfd->dir_entry.p_vol;
     error = PFVOL_CheckForWrite(volume);
     if (error != 0) {
         pf_vol_set.last_error = error;
@@ -1753,10 +1765,10 @@ pf_s32 PFFILE_feof(PFFILE_FILE* file) {
         ((PFFILE_VOLUME_DIRS*)volume)->last_error = 0x26;
         return 0x26;
     }
-    if (file->cursor.position < file->p_sfd->dir_entry.file_size) {
-        return 0;
+    if (file->cursor.position >= file->p_sfd->dir_entry.file_size) {
+        error = 1;
     }
-    return 1;
+    return error;
 }
 
 pf_s32 PFFILE_fseek(PFFILE_FILE* file, pf_s32 offset, pf_s32 origin) {
@@ -1841,10 +1853,9 @@ pf_s32 PFFILE_fsetclstlink(PFFILE_FILE* file, pf_u32 mode,
             file->p_sfd->ffd.cluster_link.position++;
         }
         if (file->p_sfd->ffd.p_hint != PF_NULL) {
-            PFFILE_FAT_HINT* hint = (PFFILE_FAT_HINT*)file->p_sfd->ffd.p_hint;
-            hint->chain_index = 0;
-            hint->cluster = 0;
-            hint->previous_cluster = 0;
+            ((PFFILE_FAT_HINT*)file->p_sfd->ffd.p_hint)->chain_index = 0;
+            ((PFFILE_FAT_HINT*)file->p_sfd->ffd.p_hint)->cluster = 0;
+            ((PFFILE_FAT_HINT*)file->p_sfd->ffd.p_hint)->previous_cluster = 0;
         }
         file->p_sfd->ffd.last_cluster.num_last_cluster = 0;
         file->p_sfd->ffd.last_cluster.max_chain_index = 0;
@@ -1933,8 +1944,10 @@ pf_s32 PFFILE_fappend(PFFILE_FILE* file, pf_u32 size, pf_u32* size_appended) {
 pf_s32 PFFILE_fadjust(PFFILE_FILE* file) {
     PF_VOLUME* volume = file == PF_NULL ? PF_NULL : file->p_sfd->dir_entry.p_vol;
     PFFILE_CURSOR saved_cursor;
-    PF_FAT_HINT saved_hint;
-    pf_u32 saved_last_access_chain_index;
+    struct {
+        PF_FAT_HINT hint;
+        pf_u32 last_access_chain_index;
+    } saved_hint;
     pf_u16 access_time;
     pf_s32 error;
 
@@ -1952,9 +1965,9 @@ pf_s32 PFFILE_fadjust(PFFILE_FILE* file) {
     }
     ((PFFILE_VOLUME_DIRS*)volume)->cache_signature = file;
     saved_cursor = file->cursor;
-    saved_hint = file->hint;
-    saved_last_access_chain_index = file->last_access_data.last_access.chain_index;
-    if ((file->open_mode & 8) == 0 && (file->open_mode & 4) != 0) {
+    saved_hint.hint = file->hint;
+    saved_hint.last_access_chain_index = file->last_access_data.last_access.chain_index;
+    if ((file->open_mode & 8) == 0 && (file->open_mode & 2) != 0) {
         error = 0x0A;
     } else if ((file->p_sfd->lock.mode & 3) != 0 &&
                ((file->p_sfd->lock.mode & 1) != 0 ||
@@ -1965,8 +1978,8 @@ pf_s32 PFFILE_fadjust(PFFILE_FILE* file) {
         error &= (-error | error) >> 31;
     }
     file->cursor = saved_cursor;
-    file->hint = saved_hint;
-    file->last_access_data.last_access.chain_index = saved_last_access_chain_index;
+    file->hint = saved_hint.hint;
+    file->last_access_data.last_access.chain_index = saved_hint.last_access_chain_index;
     ((PFFILE_VOLUME_DIRS*)volume)->cache_signature = PF_NULL;
     if (error != 0) {
         pf_vol_set.last_error = error;
@@ -1981,8 +1994,10 @@ pf_s32 PFFILE_fadjust(PFFILE_FILE* file) {
 pf_s32 PFFILE_finfo(PFFILE_FILE* file, PF_INFO* info) {
     PF_VOLUME* volume = file == PF_NULL ? PF_NULL : file->p_sfd->dir_entry.p_vol;
     PFFILE_CURSOR saved_cursor;
-    PF_FAT_HINT saved_hint;
-    pf_u32 saved_last_access_chain_index;
+    struct {
+        PF_FAT_HINT hint;
+        pf_u32 last_access_chain_index;
+    } saved_hint;
     pf_s32 error;
 
     error = PFVOL_CheckForRead(volume);
@@ -1999,12 +2014,12 @@ pf_s32 PFFILE_finfo(PFFILE_FILE* file, PF_INFO* info) {
     }
     ((PFFILE_VOLUME_DIRS*)volume)->cache_signature = file;
     saved_cursor = file->cursor;
-    saved_hint = file->hint;
-    saved_last_access_chain_index = file->last_access_data.last_access.chain_index;
+    saved_hint.hint = file->hint;
+    saved_hint.last_access_chain_index = file->last_access_data.last_access.chain_index;
     error = PFFILE_p_finfo(file, info);
     file->cursor = saved_cursor;
-    file->hint = saved_hint;
-    file->last_access_data.last_access.chain_index = saved_last_access_chain_index;
+    file->hint = saved_hint.hint;
+    file->last_access_data.last_access.chain_index = saved_hint.last_access_chain_index;
     ((PFFILE_VOLUME_DIRS*)volume)->cache_signature = PF_NULL;
     if (error != 0) {
         pf_vol_set.last_error = error;
