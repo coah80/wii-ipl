@@ -9,8 +9,8 @@ extern ziU8 Zi8GetBpmfPhonetic(ziWChar* src, ziU8 i, ziWChar* a, ziWChar* b,
 
 ziU8 Zi8ZHaddSpace(ziWChar* src, ziU8 count, ziWChar* dst,
                    ziU16 maxLen ZI_NEED_WORK) {
+    ziWChar candBuf[0x10];
     ziWChar pyBuf[0x10];
-    ziWChar candBuf[0x12];
     ziU16 m;
     ziU16 vE;
     ziU16 vC;
@@ -20,9 +20,10 @@ ziU8 Zi8ZHaddSpace(ziWChar* src, ziU8 count, ziWChar* dst,
     ziU8 isPy;
     int i;
     int k;
-    ziWChar* psrc = src;
+    ziWChar* psrc;
     ziWChar* pdst;
 
+    psrc = src;
     n = count;
     pdst = dst;
     m = maxLen;
