@@ -760,10 +760,10 @@ s32 PFFAT_GetClusterInChain(PF_FFD* p_ffd, u32 chain_index, u32 mode, u32 num_cl
         count = remaining;
         if (p_ffd->last_cluster.num_last_cluster != 0) {
             start_cluster = p_ffd->last_cluster.num_last_cluster;
+            count = p_ffd->last_cluster.max_chain_index + num_cluster - chain_index;
             current_cluster = fat_special_values[p_ffd->p_vol->bpb.fat_type].eoc2;
             index = p_ffd->last_cluster.max_chain_index + 1;
             remaining = 0;
-            count = p_ffd->last_cluster.max_chain_index + num_cluster - chain_index;
         }
     } else {
         if (mode == 1 && start_cluster == 0) {
