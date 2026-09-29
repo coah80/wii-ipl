@@ -172,6 +172,11 @@ typedef struct _ziLanguageEntry {
     ziU8* tableData;  // 0x04
 } ziLanguageEntry;
 
+typedef struct _ziUwdNode {
+    struct _ziUwdNode* next;
+    ziU8* word;
+} ziUwdNode;
+
 struct __zi8_work_data_s {
     ziU8 unk_0x00;
     ziLanguageEntry* langEntries;  // 0x04
@@ -194,7 +199,19 @@ struct __zi8_work_data_s {
     ziU16* unk_0x124[1];
     ziU8* unk_0x128;
     ziU8 unk_0x12C;
-    ziU8 unk_0x12D[0x19F];
+    ziU8 unk_0x12D;
+    ziU8 unk_0x12E;
+    ziU8 unk_0x12F;
+    ziPtr unk_0x130[2];
+    ziU8 unk_0x138;
+    ziU8 unk_0x139[3];
+    ziU32 unk_0x13C;
+    ziU8 unk_0x140;
+    ziU8 unk_0x141[0x43];
+    ziU8 unk_0x184[0x43];
+    ziU8 uwdCount;         // 0x1C7
+    ziUwdNode uwdNodes[0x20];  // 0x1C8
+    ziUwdNode* uwdList;    // 0x2C8
     ziU32 pudTable[0x10];  // 0x2CC
     ziU8 pudCount;         // 0x30C
     ziU8 unk_0x30D[3];
