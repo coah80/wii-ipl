@@ -1,5 +1,8 @@
 #include <private/fa/fa_local.h>
 
+static s8 ext_sig_1;
+static s8 ext_sig_2;
+
 #define VALID_PATH_CHAR(x, b) ((u8)(x) >= 0x80 || ((u8)(x) >= ' ' && (pf_valid_fn_char[(u8)(x) - ' '] & b)))
 #define VALID_PATH_WCHAR(x, b)                                                                                                                     \
     ((x) >= 0x80 || (u8)(x) >= ' ' && ((u8)(x)&0xFF00) == 0 && (pf_valid_fn_char[(u8)((x & 0x00FF) - ' ')] & b))
@@ -465,9 +468,19 @@ u32 PFPATH_MatchFileNameWithPattern(const s8* file_name, PF_STR* p_pattern, u32 
 
     if (PFSTR_GetCodeMode(p_pattern) == 1) {
         if (is_long_name == 0 && (pf_vol_set.setting & 0x02) == 0x02) {
-            is_ext = PFPATH_CheckExtShortNameSignature(&pattern);
+            const s8 sig[2] = {1, 2};
+            is_ext = 0;
+            if (PFSTR_StrNCmp(&pattern, sig, 1, 0, 2) == 0) {
+                is_ext = 1;
+            }
             if (is_ext == 1) {
-                is_match = PFPATH_CheckExtShortNameSignature(&pattern);
+                s8 sig2[2];
+                sig2[0] = ext_sig_1;
+                sig2[1] = ext_sig_2;
+                is_match = 0;
+                if (PFSTR_StrNCmp(&pattern, sig2, 1, 0, 2) == 0) {
+                    is_match = 1;
+                }
                 if (is_match == 1) {
                     name.index += 2;
                     pattern.p_head += 2;
@@ -923,6 +936,9 @@ void PFPATH_SetSearchPattern(s8* p_buf_local, u16* p_buf_unicode, PF_STR* p_patt
     PFPATH_transformFromUnicodeToNormal(p_buf_local, p_buf_unicode);
 }
 
+static s8 ext_sig_1 = 1;
+static s8 ext_sig_2 = 2;
+
 u32 PFPATH_CheckExtShortNameSignature(PF_STR* p_str) {
     u32 result = 0;
     s8 sig[2] = {1, 2};
@@ -938,9 +954,12 @@ u32 PFPATH_CheckExtShortName(PF_STR* p_str, u32 target, u32 wildcard) {
     s16 i;
     s16 num;
     u32 is_wildcard = 0;
-    s8 sig[2] = {1, 2};
+    s8 sig[2];
     s8* p_c;
     u16* p_wc;
+
+    sig[0] = ext_sig_1;
+    sig[1] = ext_sig_2;
 
     if (PFSTR_StrNCmp(p_str, sig, target, 0, 2) == 0) {
         goto matched;
@@ -995,9 +1014,12 @@ u32 PFPATH_GetExtShortNameIndex(PF_STR* p_str, u32* p_index) {
     s16 i;
     s16 num;
     u32 index;
-    s8 sig[2] = {1, 2};
+    s8 sig[2];
     s8* p_c;
     u16* p_wc;
+
+    sig[0] = ext_sig_1;
+    sig[1] = ext_sig_2;
 
     if (PFSTR_StrNCmp(p_str, sig, 1, 0, 2) == 0) {
         index = 0;
@@ -1043,3 +1065,4 @@ s32 PFPATH_AdjustExtShortName(s8* pName, u32 position) {
     }
     return 0;
 }
+
