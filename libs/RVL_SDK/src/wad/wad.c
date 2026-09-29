@@ -2886,21 +2886,18 @@ static s32 _WADVerifySavedataZD(WADSaveDataHeader* header, WADStream* stream,
         goto cleanup;
     }
     result = NANDPrivateCreate(fileHeader->name, 0x34, 0);
-    if (result != 0) {
-        goto cleanup;
+    if ((result == 0) && (NANDPrivateOpen(fileHeader->name, &fileInfo, 2) == 0)) {
+        fileOpened = TRUE;
+        result = NANDWrite(&fileInfo, decryptedData, 0x4000);
+        if (result != 0x4000) {
+            result = -3006;
+        } else {
+            result = NANDClose(&fileInfo);
+            if (result == 0) {
+                fileOpened = FALSE;
+            }
+        }
     }
-    result = NANDPrivateOpen(fileHeader->name, &fileInfo, 2);
-    if (result != 0) {
-        goto cleanup;
-    }
-    fileOpened = TRUE;
-    result = NANDWrite(&fileInfo, decryptedData, 0x4000);
-    if (result != 0x4000) {
-        result = -3006;
-        goto cleanup;
-    }
-    result = NANDClose(&fileInfo);
-    fileOpened = FALSE;
 
 cleanup:
     if (fileHeader != 0) {
