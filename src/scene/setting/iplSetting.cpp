@@ -2674,17 +2674,17 @@ namespace ipl {
         }
 
         void Setting::setUseEULA_Init_() {
-            if (!ncd::NCDSetting::getEnableFlag()) {
-                if (static_cast<u32>(System::getRegion()) == 2) {
-                    System::getDialog()->callBtn2(0x174, 0x146, 0x25);
-                } else {
+            if (ncd::NCDSetting::getEnableFlag()) {
+                unk_0x7C = 1;
+            } else {
+                if (static_cast<u32>(System::getRegion()) != 2) {
                     System::getDialog()->callBtn2(0x170, 0x146, 0x25);
+                } else {
+                    System::getDialog()->callBtn2(0x174, 0x146, 0x25);
                 }
                 unk_0x74 = 9;
                 unk_0x7C = 0;
                 resetFuncMsgQ();
-            } else {
-                unk_0x7C = 1;
             }
         }
 
