@@ -786,6 +786,7 @@ s32 PFVOL_CheckForWrite(PFVOL_VOLUME* volume) {
 s32 PFVOL_CheckCurrentDir(PFVOL_VOLUME* volume, u32 start_cluster) {
     s32 context_id;
     u32 current_dir_index;
+    s32 result = 0;
 
     if ((volume->flags & 8) == 0) {
         return 9;
@@ -801,9 +802,9 @@ s32 PFVOL_CheckCurrentDir(PFVOL_VOLUME* volume, u32 start_cluster) {
         current_dir_index = 0;
     }
     if (start_cluster == volume->current_dir[current_dir_index].directory.start_cluster) {
-        return -1;
+        result = -1;
     }
-    return 0;
+    return result;
 }
 
 s32 PFVOL_SetCurrentDir(PFVOL_VOLUME* volume, PFVOL_DIR_ENTRY* directory) {
@@ -824,13 +825,15 @@ s32 PFVOL_SetCurrentDir(PFVOL_VOLUME* volume, PFVOL_DIR_ENTRY* directory) {
         }
     }
     if (current_dir_index == 4) {
-        for (context_index = 0; context_index < 3; context_index++) {
-            pf_vol_set.context[context_index].stat &= 1;
-            if (pf_vol_set.context[context_index].stat != 0 &&
-                pf_vol_set.context[context_index].context_id == context_id) {
-                context_registered = 1;
-                break;
-            }
+        if (((pf_vol_set.context[0].stat &= 1) != 0 &&
+             context_id == pf_vol_set.context[0].context_id) ||
+            ((pf_vol_set.context[1].stat &= 1) != 0 &&
+             context_id == pf_vol_set.context[1].context_id) ||
+            ((pf_vol_set.context[2].stat &= 1) != 0 &&
+             context_id == pf_vol_set.context[2].context_id)) {
+            context_registered = 1;
+        } else {
+            context_registered = 0;
         }
         if (context_registered != 0) {
             for (current_dir_index = 1; current_dir_index < 4; current_dir_index++) {
@@ -865,13 +868,15 @@ s32 PFVOL_GetCurrentDir(PFVOL_VOLUME* volume, PFVOL_DIR_ENTRY* directory) {
         }
     }
     if (current_dir_index == 4) {
-        for (context_index = 0; context_index < 3; context_index++) {
-            pf_vol_set.context[context_index].stat &= 1;
-            if (pf_vol_set.context[context_index].stat != 0 &&
-                pf_vol_set.context[context_index].context_id == context_id) {
-                context_registered = 1;
-                break;
-            }
+        if (((pf_vol_set.context[0].stat &= 1) != 0 &&
+             context_id == pf_vol_set.context[0].context_id) ||
+            ((pf_vol_set.context[1].stat &= 1) != 0 &&
+             context_id == pf_vol_set.context[1].context_id) ||
+            ((pf_vol_set.context[2].stat &= 1) != 0 &&
+             context_id == pf_vol_set.context[2].context_id)) {
+            context_registered = 1;
+        } else {
+            context_registered = 0;
         }
         if (context_registered != 0) {
             for (current_dir_index = 1; current_dir_index < 4; current_dir_index++) {
