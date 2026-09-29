@@ -232,7 +232,7 @@ static s32 _WADBackupGetFiles(const char* path, u32 flags, MEMAllocator* allocat
                               u32* fileCount, WADBackupFileHeader* files);
 static s32 _WADBackupGetSize(u32 flags, ESTmdView* titleMeta, ESContentMask* contentMask,
                              u32 fileCount, WADBackupFileHeader* files, u32* titleMetaSize,
-                             u32* contentDataSize, u32* totalSize);
+                             u32* contentDataSize, u32* fileDataSize, u32* totalSize);
 static s32 _WADCheckContents(ESTmdView* titleMeta, ESContentMask* contentMask);
 static void _WADRandPad(void* buffer, u32 size);
 static s32 _WADVerifySavedataZD(WADSaveDataHeader* header, WADStream* stream,
@@ -432,14 +432,14 @@ s32 WADImportGetBlocks(char* path, MEMAllocator* allocator, WADLocation location
                             blocks->unkBlocks += (workspace.unpackInfo.sectionSize + 0x3FFF) >> 14;
                             blocks->unkInodes = 1;
                         }
-                        if (workspace.unpackInfo.cidxMode < 1) {
-                            contentCount = titleMeta->head.numContents;
-                        } else {
+                        if (workspace.unpackInfo.cidxMode >= 1) {
                             contentCount = _WADGetCidxCount(workspace.unpackInfo.contentIndex);
                             if (contentCount > titleMeta->head.numContents) {
                                 result = -3001;
                                 goto cleanup;
                             }
+                        } else {
+                            contentCount = titleMeta->head.numContents;
                         }
                         contentMeta = titleMeta->contents;
                         for (index = 0; index < contentCount; index++) {
@@ -453,12 +453,12 @@ s32 WADImportGetBlocks(char* path, MEMAllocator* allocator, WADLocation location
                                 contentMeta = titleMeta->contents + selectedIndex;
                                 result = 0;
                             }
-                            if ((contentMeta->type & 0x8000) == 0) {
-                                blocks->privateInodes++;
-                                blocks->privateBlocks += ((u32)contentMeta->size + 0x3FFF) >> 14;
-                            } else {
+                            if ((contentMeta->type & 0x8000) != 0) {
                                 blocks->sharedInodes++;
                                 blocks->sharedBlocks += ((u32)contentMeta->size + 0x3FFF) >> 14;
+                            } else {
+                                blocks->privateInodes++;
+                                blocks->privateBlocks += ((u32)contentMeta->size + 0x3FFF) >> 14;
                             }
                             contentMeta++;
                         }
@@ -1338,7 +1338,7 @@ s32 WADBackupEx(u64 titleId, u32 ticketId, MEMAllocator* allocator, char* path, 
         }
     }
     result = _WADBackupGetSize(flags, titleMeta, &existingContentMask, fileCount, files,
-                               &titleMetaSize, &contentDataSize, &fileDataSize);
+                               &titleMetaSize, &contentDataSize, &fileDataSize, &totalSize);
     if (result != 0) {
         goto cleanup;
     }
@@ -1346,9 +1346,8 @@ s32 WADBackupEx(u64 titleId, u32 ticketId, MEMAllocator* allocator, char* path, 
         result = -3002;
         goto cleanup;
     }
-    totalSize = titleMetaSize + contentDataSize + fileDataSize + 0x340;
     if (path == 0) {
-        *sizeOut = totalSize;
+        *sizeOut = totalSize + 0x340;
         result = 0;
         goto cleanup;
     }
@@ -1794,48 +1793,51 @@ s32 _WADGetCidxCount(const ESContentMask* contentMask) {
         if ((contentMask->data[bitIndex >> 3] & (1 << (bitIndex & 7))) != 0) {
             count++;
         }
-        if ((contentMask->data[(bitIndex + 1) >> 3] & (1 << ((bitIndex + 1) & 7))) != 0) {
+        bitIndex++;
+        if ((contentMask->data[bitIndex >> 3] & (1 << (bitIndex & 7))) != 0) {
             count++;
         }
-        if ((contentMask->data[(bitIndex + 2) >> 3] & (1 << ((bitIndex + 2) & 7))) != 0) {
+        bitIndex++;
+        if ((contentMask->data[bitIndex >> 3] & (1 << (bitIndex & 7))) != 0) {
             count++;
         }
-        if ((contentMask->data[(bitIndex + 3) >> 3] & (1 << ((bitIndex + 3) & 7))) != 0) {
+        bitIndex++;
+        if ((contentMask->data[bitIndex >> 3] & (1 << (bitIndex & 7))) != 0) {
             count++;
         }
-        bitIndex += 4;
+        bitIndex++;
     }
     return count;
 }
 
 static s32 _WADGetCidx(const ESContentMask* contentMask, u32 contentNumber) {
     u32 remaining = contentNumber + 1;
-    u32 bitIndex = 0;
-    u32 nextIndex;
+    s32 bitIndex = 0;
+    s32 nextIndex;
 
     for (bitIndex = 0; bitIndex < 0x200; bitIndex += 4) {
-        if ((contentMask->data[(s32)bitIndex >> 3] & (1 << (bitIndex & 7))) != 0) {
+        if ((contentMask->data[bitIndex >> 3] & (1 << (bitIndex & 7))) != 0) {
             remaining--;
         }
         if (remaining == 0) {
             return bitIndex;
         }
         nextIndex = bitIndex + 1;
-        if ((contentMask->data[(s32)nextIndex >> 3] & (1 << (nextIndex & 7))) != 0) {
+        if ((contentMask->data[nextIndex >> 3] & (1 << (nextIndex & 7))) != 0) {
             remaining--;
         }
         if (remaining == 0) {
             return nextIndex;
         }
         nextIndex = bitIndex + 2;
-        if ((contentMask->data[(s32)nextIndex >> 3] & (1 << (nextIndex & 7))) != 0) {
+        if ((contentMask->data[nextIndex >> 3] & (1 << (nextIndex & 7))) != 0) {
             remaining--;
         }
         if (remaining == 0) {
             return nextIndex;
         }
         nextIndex = bitIndex + 3;
-        if ((contentMask->data[(s32)nextIndex >> 3] & (1 << (nextIndex & 7))) != 0) {
+        if ((contentMask->data[nextIndex >> 3] & (1 << (nextIndex & 7))) != 0) {
             remaining--;
         }
         if (remaining == 0) {
@@ -2041,8 +2043,8 @@ cleanup:
 
 static s32 _WADBackupGetSize(u32 flags, ESTmdView* titleMeta, ESContentMask* contentMask,
                              u32 fileCount, WADBackupFileHeader* files, u32* titleMetaSize,
-                             u32* contentDataSize, u32* fileDataSize) {
-    u32 titleSize = 0;
+                             u32* contentDataSize, u32* fileDataSize, u32* totalSize) {
+    u32 titleSize = 0x80;
     u32 contentSize = 0;
     u32 filesSize = 0;
     u32 selectedCount;
@@ -2050,26 +2052,26 @@ static s32 _WADBackupGetSize(u32 flags, ESTmdView* titleMeta, ESContentMask* con
     u32 fileIndex;
     s32 result = 0;
 
-    if (titleMeta == 0) {
-        if (titleMetaSize != 0) {
-            *titleMetaSize = 0;
-        }
-    } else if (((flags & 1) != 0) || ((flags & 0x20) != 0)) {
-        result = ES_GetTmdSizeFromView(titleMeta, &titleSize);
-        if (result != 0) {
-            return result;
-        }
-        titleSize = (titleSize + 0x3F) & ~0x3F;
-    }
-    if (((flags & 1) != 0) && (titleMeta != 0)) {
-        selectedCount = _WADGetCidxCount(contentMask);
-        for (contentIndex = 0; contentIndex < selectedCount; contentIndex++) {
-            s32 tmdIndex = _WADGetCidx(contentMask, contentIndex);
-            if ((tmdIndex < 0) || (titleMeta->head.numContents <= tmdIndex)) {
-                return -3009;
+    if ((titleMeta != 0) && (titleMetaSize != 0)) {
+        if (((flags & 1) != 0) || ((flags & 0x20) != 0)) {
+            result = ES_GetTmdSizeFromView(titleMeta, titleMetaSize);
+            if (result != 0) {
+                return result;
             }
-            contentSize += (titleMeta->contents[tmdIndex].size + 0x3F) & ~0x3F;
+            titleSize += (*titleMetaSize + 0x3F) & ~0x3F;
         }
+        if ((flags & 1) != 0) {
+            selectedCount = _WADGetCidxCount(contentMask);
+            for (contentIndex = 0; contentIndex < selectedCount; contentIndex++) {
+                s32 tmdIndex = _WADGetCidx(contentMask, contentIndex);
+                if ((tmdIndex < 0) || (titleMeta->head.numContents <= tmdIndex)) {
+                    return -3009;
+                }
+                contentSize += (titleMeta->contents[tmdIndex].size + 0x3F) & ~0x3F;
+            }
+        }
+    } else if ((titleMeta == 0) && (titleMetaSize != 0)) {
+        *titleMetaSize = 0;
     }
     if ((fileCount != 0) && (files != 0)) {
         for (fileIndex = 0; fileIndex < fileCount; fileIndex++) {
@@ -2084,6 +2086,9 @@ static s32 _WADBackupGetSize(u32 flags, ESTmdView* titleMeta, ESContentMask* con
     }
     if (fileDataSize != 0) {
         *fileDataSize = filesSize;
+    }
+    if (totalSize != 0) {
+        *totalSize = titleSize + contentSize + filesSize;
     }
     return result;
 }
@@ -2998,13 +3003,13 @@ s32 WADImportDVDForBS(const char* path, void* buffer, u32 bufferSize) {
     DVDFileInfo fileInfo;
     WADBootImportParts parts;
     WADHeader* header;
-    ESTitleMeta* titleMeta;
-    u8* readBuffer = buffer;
+    u8* readBuffer;
+    BOOL fileOpened = FALSE;
+    ESTitleMeta* titleMeta = 0;
     void* applicationData;
     u32 paddedFileSize;
     u32 sectionOffset;
     u32 applicationSize;
-    BOOL fileOpened = FALSE;
     s32 result;
 
     if ((path == 0) || (buffer == 0)) {
@@ -3015,6 +3020,7 @@ s32 WADImportDVDForBS(const char* path, void* buffer, u32 bufferSize) {
         return -3004;
     }
     fileOpened = TRUE;
+    readBuffer = buffer;
     paddedFileSize = (fileInfo.length + 0x1F) & ~0x1F;
     if (paddedFileSize > bufferSize) {
         result = -3003;
@@ -3057,10 +3063,10 @@ s32 WADImportDVDForBS(const char* path, void* buffer, u32 bufferSize) {
         }
         if (header->tmdSize != 0) {
             parts.titleMetaSize = header->tmdSize;
-            parts.titleMeta = readBuffer + sectionOffset;
+            titleMeta = (ESTitleMeta*)(readBuffer + sectionOffset);
+            parts.titleMeta = titleMeta;
             sectionOffset += (header->tmdSize + 0x3F) & ~0x3F;
         }
-        titleMeta = parts.titleMeta;
         applicationSize = ((u32)titleMeta->contents[0].size + 0xF) & ~0xF;
         applicationData = readBuffer + sectionOffset;
         if ((titleMeta != 0) && (titleMeta->head.titleId == ES_TITLE_ID(1, 1))) {
@@ -3093,8 +3099,8 @@ cleanup:
 
 s32 WADImportDVDExForBS(const char* path, void* buffer, u32 bufferSize) {
     WADHeader header ALIGN32;
-    WADBootImportParts parts;
     DVDFileInfo fileInfo;
+    WADBootImportParts parts;
     u8* readBuffer = buffer;
     u8* contentBuffer;
     ESTitleMeta* titleMeta;
