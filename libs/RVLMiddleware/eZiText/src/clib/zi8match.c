@@ -343,8 +343,8 @@ ziU8 Zi8MatchPhonetic(ziU8* tblA, ziU8* tblB, ziU8* elements, ziU16 count16,
     ziU16 res;
     ziU8* e;
 
-    limf = (*limit != 0) ? 1 : 0;
-    n = (*countP != 0) ? *countP : 1;
+    if (*limit != 0) limf = 1; else limf = 0;
+    if (*countP != 0) n = *countP; else n = 1;
     hits = 0;
     if (aC != 0 && (ziU8)len > 1) {
         flag = 1;
