@@ -383,16 +383,6 @@ namespace ipl {
         }
 
         void Setting::createBrowser() {
-            static const char* urlFormats[] = {"marc:%s/%s/", "file:dvd/html/IPLSetting/%s/%s/"};
-            static const char* pagePaths[] = {
-                "index01.html", "Internet/Internet_index.html", "Setup/startup_index1.html",
-                "Update/Update_index.html", "index02.html", "Setup/ScreenSave.html",
-                "Country/US_Country_flame.html",
-            };
-            static const char* pageNames[] = {"Calendar", "Parental_Control", "Internet", "Wiiconnect24"};
-            static const char* regionCodes[] = {"JP/JP", "FIX/US", "EU/EU", "TW/TW", "KR/KR", "CN/CN"};
-            static const char* languageCodes[] = {"JPN", "ENG", "GER", "FRA", "SPA", "ITA", "DUT", "CHN", "KOR"};
-
             EGG::Heap* mem1Heap = System::createMem1AppHeap();
             u32 mem1Size = mem1Heap->getAllocatableSize(4);
             EGG::Heap* mem2Heap = System::getMem2App();
@@ -407,6 +397,16 @@ namespace ipl {
             System::getProjectionRect4x3(&projection4x3);
             int width = projection16x9.right - projection16x9.left;
             int height = projection16x9.bottom - projection16x9.top;
+
+            const char* urlFormats[] = {"marc:%s/%s/", "file:dvd/html/IPLSetting/%s/%s/"};
+            const char* pagePaths[] = {
+                "index01.html", "Internet/Internet_index.html", "Setup/startup_index1.html",
+                "Update/Update_index.html", "index02.html", "Setup/ScreenSave.html",
+                "Country/US_Country_flame.html",
+            };
+            const char* pageNames[] = {"Calendar", "Parental_Control", "Internet", "Wiiconnect24"};
+            const char* regionCodes[] = {"JP/JP", "FIX/US", "EU/EU", "TW/TW", "KR/KR", "CN/CN"};
+            const char* languageCodes[] = {"JPN", "ENG", "GER", "FRA", "SPA", "ITA", "DUT", "CHN", "KOR"};
 
             char basePath[100];
             char browserPath[100];
