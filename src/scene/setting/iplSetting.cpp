@@ -2482,9 +2482,9 @@ namespace ipl {
                         if (mAPScanList.count == 0) {
                             www::wiisetting::setFuncResult(2);
                             initAP();
-                            mpChangeLayout->getAnim(0x14)->initAnmFrame();
-                            mpChangeLayout->getAnim(0)->initAnmFrame();
-                            mpChangeLayout->getAnim(1)->initAnmFrame();
+                            mpMainLayout->getAnim(0x14)->initAnmFrame();
+                            mpMainLayout->getAnim(0)->initAnmFrame();
+                            mpMainLayout->getAnim(1)->initAnmFrame();
                         } else {
                             www::wiisetting::setFuncResult(1);
                             setAPDraw();
@@ -2511,27 +2511,27 @@ namespace ipl {
                     break;
                 case 6:
                     unk_0xB9C = 1;
-                    if (!mpChangeLayout->getAnim(unk_0x918)->isPlaying()) {
+                    if (!mpMainLayout->getAnim(unk_0x918)->isPlaying()) {
                         unk_0x78 = 5;
                         setAPDraw();
-                        mpChangeLayout->getAnim(unk_0x91C[0] == 0 ? 0xb : 0xa)->initAnmFrame();
+                        mpMainLayout->getAnim(unk_0x91C[0] == 0 ? 0xb : 0xa)->initAnmFrame();
                         if (unk_0x914 == 0) {
-                            mpChangeLayout->FindPaneByName(sSettingAPNumberNames[0])->SetVisible(false);
+                            mpMainLayout->FindPaneByName(sSettingAPNumberNames[0])->SetVisible(false);
                         } else if (unk_0x914 == 1) {
-                            mpChangeLayout->FindPaneByName(sSettingAPNumberNames[0])->SetVisible(true);
+                            mpMainLayout->FindPaneByName(sSettingAPNumberNames[0])->SetVisible(true);
                         }
                         if (mAPScanList.count == unk_0x914 + 4) {
-                            mpChangeLayout->FindPaneByName(sSettingAPNumberNames[1])->SetVisible(false);
+                            mpMainLayout->FindPaneByName(sSettingAPNumberNames[1])->SetVisible(false);
                         } else if (mAPScanList.count == unk_0x914 + 5) {
-                            mpChangeLayout->FindPaneByName(sSettingAPNumberNames[1])->SetVisible(true);
+                            mpMainLayout->FindPaneByName(sSettingAPNumberNames[1])->SetVisible(true);
                         }
-                        mpChangeLayout->FindPaneByName(sSettingAPTextNames[0])->SetVisible(true);
-                        mpChangeLayout->FindPaneByName(sSettingAPTextNames[1])->SetVisible(true);
+                        mpMainLayout->FindPaneByName(sSettingAPTextNames[0])->SetVisible(true);
+                        mpMainLayout->FindPaneByName(sSettingAPTextNames[1])->SetVisible(true);
                     }
                     break;
                 case 7:
                     unk_0xB9C = 1;
-                    if (!mpChangeLayout->getAnim(unk_0x918)->isPlaying()) {
+                    if (!mpMainLayout->getAnim(unk_0x918)->isPlaying()) {
                         updateScroll();
                         unk_0x78 = 6;
                     }
@@ -2541,13 +2541,13 @@ namespace ipl {
                     unk_0x91C[2] = 0;
                     break;
                 case 9:
-                    if (!mpChangeLayout->getAnim(unk_0x918)->isPlaying()) {
+                    if (!mpMainLayout->getAnim(unk_0x918)->isPlaying()) {
                         resetFuncMsgQ();
                         unk_0x78 = 1;
                         unk_0x918 = -1;
                         mpPaneManager->update();
-                        mpChangeLayout->getAnim(0x14)->initFrame();
-                        mpChangeLayout->calc();
+                        mpMainLayout->getAnim(0x14)->initFrame();
+                        mpMainLayout->calc();
                     }
                     break;
             }
@@ -2558,40 +2558,40 @@ namespace ipl {
                 return;
             }
             for (int index = 1; index <= 4; ++index) {
-                mpChangeLayout->FindPaneByName(sSettingAPNumberNames[index])->SetVisible(true);
+                mpMainLayout->FindPaneByName(sSettingAPNumberNames[index])->SetVisible(true);
             }
             u16 count = mAPScanList.count;
             if (count == 2) {
-                mpChangeLayout->FindPaneByName(sSettingAPNumberNames[3])->SetVisible(false);
+                mpMainLayout->FindPaneByName(sSettingAPNumberNames[3])->SetVisible(false);
             } else if (count < 2) {
                 if (count == 0) {
-                    mpChangeLayout->FindPaneByName(sSettingAPNumberNames[1])->SetVisible(false);
+                    mpMainLayout->FindPaneByName(sSettingAPNumberNames[1])->SetVisible(false);
                 }
-                mpChangeLayout->FindPaneByName(sSettingAPNumberNames[2])->SetVisible(false);
-                mpChangeLayout->FindPaneByName(sSettingAPNumberNames[3])->SetVisible(false);
+                mpMainLayout->FindPaneByName(sSettingAPNumberNames[2])->SetVisible(false);
+                mpMainLayout->FindPaneByName(sSettingAPNumberNames[3])->SetVisible(false);
             }
             if (count < 4) {
                 for (int index = 4; index < 6; ++index) {
-                    mpChangeLayout->FindPaneByName(sSettingAPNumberNames[index])->SetVisible(false);
+                    mpMainLayout->FindPaneByName(sSettingAPNumberNames[index])->SetVisible(false);
                 }
-                mpChangeLayout->FindPaneByName("N_AP7")->SetVisible(false);
+                mpMainLayout->FindPaneByName("N_AP7")->SetVisible(false);
             }
-            mpChangeLayout->getAnim(0x14)->initFrame();
-            mpChangeLayout->getAnim(0x14)->restart();
-            mpChangeLayout->getAnim(0)->initAnmFrame();
-            mpChangeLayout->FindPaneByName(sSettingAPPaneNames[0])->SetVisible(false);
-            mpChangeLayout->FindPaneByName(sSettingAPPaneNames[1])->SetVisible(false);
+            mpMainLayout->getAnim(0x14)->initFrame();
+            mpMainLayout->getAnim(0x14)->restart();
+            mpMainLayout->getAnim(0)->initAnmFrame();
+            mpMainLayout->FindPaneByName(sSettingAPPaneNames[0])->SetVisible(false);
+            mpMainLayout->FindPaneByName(sSettingAPPaneNames[1])->SetVisible(false);
             if (count > unk_0x914 + 4) {
-                mpChangeLayout->FindPaneByName(sSettingAPPaneNames[3])->SetVisible(true);
-                mpChangeLayout->getAnim(1)->initFrame();
-                mpChangeLayout->getAnim(1)->restart();
+                mpMainLayout->FindPaneByName(sSettingAPPaneNames[3])->SetVisible(true);
+                mpMainLayout->getAnim(1)->initFrame();
+                mpMainLayout->getAnim(1)->restart();
                 for (int index = 1; index < 6; ++index) {
-                    mpChangeLayout->FindPaneByName(sSettingAPNumberNames[index])->SetVisible(true);
+                    mpMainLayout->FindPaneByName(sSettingAPNumberNames[index])->SetVisible(true);
                 }
             } else {
-                mpChangeLayout->FindPaneByName(sSettingAPPaneNames[3])->SetVisible(false);
+                mpMainLayout->FindPaneByName(sSettingAPPaneNames[3])->SetVisible(false);
                 for (int index = count + 1; index < 6; ++index) {
-                    mpChangeLayout->FindPaneByName(sSettingAPNumberNames[index])->SetVisible(false);
+                    mpMainLayout->FindPaneByName(sSettingAPNumberNames[index])->SetVisible(false);
                 }
             }
             unk_0x78 = 6;
@@ -2603,33 +2603,46 @@ namespace ipl {
             if (unk_0x91C[0] == 0) {
                 --unk_0x914;
                 if (unk_0x914 == 0) {
-                    mpChangeLayout->getAnim(2)->initFrame();
-                    mpChangeLayout->getAnim(2)->restart();
-                    mpChangeLayout->FindPaneByName(sSettingAPPaneNames[0])->SetVisible(false);
+                    layout::Animator* animation = mpMainLayout->getAnim(2);
+                    animation->initFrame();
+                    animation->restart();
+                    mpMainLayout->FindPaneByName(sSettingAPPaneNames[0])->SetVisible(false);
+                    for (int point = 0; point < 8; ++point) {
+                        mpPaneManager->getPaneComponentByPane(
+                            mpMainLayout->FindPaneByName(sSettingAPPaneNames[0]))->setPointed(point, false);
+                    }
                 }
                 if (mAPScanList.count == unk_0x914 + 5) {
-                    mpChangeLayout->getAnim(1)->initFrame();
-                    mpChangeLayout->getAnim(1)->restart();
-                    mpChangeLayout->FindPaneByName(sSettingAPPaneNames[1])->SetVisible(true);
+                    layout::Animator* animation = mpMainLayout->getAnim(1);
+                    animation->initFrame();
+                    animation->restart();
+                    mpMainLayout->FindPaneByName(sSettingAPPaneNames[1])->SetVisible(true);
                 }
             } else {
-                int previous = unk_0x914++;
-                if (mAPScanList.count == previous + 5) {
-                    mpChangeLayout->getAnim(3)->initFrame();
-                    mpChangeLayout->getAnim(3)->restart();
-                    mpChangeLayout->FindPaneByName(sSettingAPPaneNames[1])->SetVisible(false);
+                ++unk_0x914;
+                if (mAPScanList.count == unk_0x914 + 4) {
+                    layout::Animator* animation = mpMainLayout->getAnim(3);
+                    animation->initFrame();
+                    animation->restart();
+                    mpMainLayout->FindPaneByName(sSettingAPPaneNames[1])->SetVisible(false);
+                    for (int point = 0; point < 8; ++point) {
+                        mpPaneManager->getPaneComponentByPane(
+                            mpMainLayout->FindPaneByName(sSettingAPPaneNames[1]))->setPointed(point, false);
+                    }
                 }
                 if (unk_0x914 == 1) {
-                    mpChangeLayout->getAnim(0)->initFrame();
-                    mpChangeLayout->getAnim(0)->restart();
-                    mpChangeLayout->FindPaneByName(sSettingAPPaneNames[0])->SetVisible(true);
+                    layout::Animator* animation = mpMainLayout->getAnim(0);
+                    animation->initFrame();
+                    animation->restart();
+                    mpMainLayout->FindPaneByName(sSettingAPPaneNames[0])->SetVisible(true);
                 }
             }
-            mpChangeLayout->getAnim(10)->stop();
-            mpChangeLayout->getAnim(11)->stop();
+            mpMainLayout->getAnim(10)->stop();
+            mpMainLayout->getAnim(11)->stop();
             unk_0x918 = unk_0x91C[0] + 10;
-            mpChangeLayout->getAnim(unk_0x918)->initFrame();
-            mpChangeLayout->getAnim(unk_0x918)->restart();
+            layout::Animator* animation = mpMainLayout->getAnim(unk_0x918);
+            animation->initFrame();
+            animation->restart();
         }
 
         void Setting::setAPDraw() {
@@ -2640,8 +2653,8 @@ namespace ipl {
                     return;
                 }
                 descriptor = reinterpret_cast<WDBssDesc_*>(mAPScanList.entries + recordOffset - 2);
-                mpChangeLayout->getAnim(10)->stop();
-                mpChangeLayout->getAnim(11)->stop();
+                mpMainLayout->getAnim(10)->stop();
+                mpMainLayout->getAnim(11)->stop();
                 int privacyMode = WDGetPrivacyMode(descriptor);
                 char ssid[0x21];
                 wchar_t displayName[0x21];
@@ -2652,23 +2665,23 @@ namespace ipl {
                 if (row >= 0 && row < 6) {
                     utility::CharacterCode::UTF8ToUTF16(displayName, ssid, 0x21);
                     nw4r::lyt::TextBox* textBox = static_cast<nw4r::lyt::TextBox*>(
-                        mpChangeLayout->FindPaneByName(sSettingAPTextNames[row]));
+                        mpMainLayout->FindPaneByName(sSettingAPTextNames[row]));
                     textBox->SetString(displayName);
                     if (privacyMode == 0) {
-                        mpChangeLayout->getAnim(row + 0x2e)->initFrame();
-                        mpChangeLayout->getAnim(row + 0x2e)->restart();
-                        mpChangeLayout->getAnim(row + 0x34)->stop();
+                        mpMainLayout->getAnim(row + 0x2e)->initFrame();
+                        mpMainLayout->getAnim(row + 0x2e)->restart();
+                        mpMainLayout->getAnim(row + 0x34)->stop();
                     } else {
-                        mpChangeLayout->getAnim(row + 0x34)->initFrame();
-                        mpChangeLayout->getAnim(row + 0x34)->restart();
-                        mpChangeLayout->getAnim(row + 0x2e)->stop();
+                        mpMainLayout->getAnim(row + 0x34)->initFrame();
+                        mpMainLayout->getAnim(row + 0x34)->restart();
+                        mpMainLayout->getAnim(row + 0x2e)->stop();
                     }
                     for (int animation = row + 0x16; animation <= row + 0x28; animation += 6) {
-                        mpChangeLayout->getAnim(animation)->stop();
+                        mpMainLayout->getAnim(animation)->stop();
                     }
                     int signal = getRadioLevel(descriptor);
-                    mpChangeLayout->getAnim(row + signal * 6 + 0x16)->initFrame();
-                    mpChangeLayout->getAnim(row + signal * 6 + 0x16)->restart();
+                    mpMainLayout->getAnim(row + signal * 6 + 0x16)->initFrame();
+                    mpMainLayout->getAnim(row + signal * 6 + 0x16)->restart();
                 }
                 recordOffset += descriptor->length * 2;
             }
@@ -2694,14 +2707,24 @@ namespace ipl {
 
         void Setting::start_point_event(const char* pageName) {
             int accessPoint = get_ap_no(pageName);
-            mpChangeLayout->getAnim(10)->stop();
-            mpChangeLayout->getAnim(11)->stop();
-            int animation = accessPoint == -1 ? get_arw_no(pageName) + 4 : accessPoint + 0xc;
-            if (accessPoint == -1 && animation == 3) {
+            mpMainLayout->getAnim(10)->stop();
+            mpMainLayout->getAnim(11)->stop();
+            if (accessPoint != -1) {
+                layout::Animator* animator = mpMainLayout->getAnim(accessPoint + 0xc);
+                animator->initFrame();
+                animator->restart();
+                mpWiiSettingData->data[0x37] = 2;
+                setSE();
                 return;
             }
-            mpChangeLayout->getAnim(animation)->initFrame();
-            mpChangeLayout->getAnim(animation)->restart();
+            int arrow = get_arw_no(pageName);
+            if (arrow == -1) {
+                return;
+            }
+            int animation = arrow + 4;
+            layout::Animator* animator = mpMainLayout->getAnim(animation);
+            animator->initFrame();
+            animator->restart();
             mpWiiSettingData->data[0x37] = 2;
             setSE();
         }
@@ -2718,8 +2741,8 @@ namespace ipl {
             } else {
                 animation = accessPoint + 0x10;
             }
-            mpChangeLayout->getAnim(animation)->initFrame();
-            mpChangeLayout->getAnim(animation)->restart();
+            mpMainLayout->getAnim(animation)->initFrame();
+            mpMainLayout->getAnim(animation)->restart();
         }
 
         void Setting::start_trig_event(const char* pageName) {
@@ -2759,17 +2782,17 @@ namespace ipl {
                     return;
                 }
                 unk_0x918 = arrow + 8;
-                mpChangeLayout->getAnim(unk_0x918)->initFrame();
-                mpChangeLayout->getAnim(unk_0x918)->restart();
+                mpMainLayout->getAnim(unk_0x918)->initFrame();
+                mpMainLayout->getAnim(unk_0x918)->restart();
                 if (arrow == 0) {
                     unk_0x91C[0] = 0;
                     if (unk_0x914 == 1) {
-                        mpChangeLayout->FindPaneByName("N_AP0")->SetVisible(false);
+                        mpMainLayout->FindPaneByName("N_AP0")->SetVisible(false);
                     }
                 } else {
                     unk_0x91C[0] = 1;
                     if (mAPScanList.count == unk_0x914 + 5) {
-                        mpChangeLayout->FindPaneByName("N_AP7")->SetVisible(false);
+                        mpMainLayout->FindPaneByName("N_AP7")->SetVisible(false);
                     }
                 }
                 unk_0x78 = 7;
