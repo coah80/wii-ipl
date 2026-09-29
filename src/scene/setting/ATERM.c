@@ -398,8 +398,8 @@ typedef struct {
 typedef struct {
     u16 type;
     u16 length;
-    u8 value[20];
-} AtermRequestOption24;
+    u8 value[4];
+} AtermRequestOption8;
 
 typedef struct {
     u8 firstAddress[6];
@@ -419,6 +419,12 @@ typedef struct {
     s32 remainingTime;
     s32 result;
 } AtermProgress;
+
+typedef struct {
+    u32 state[4];
+    u32 count[2];
+    u8 buffer[64];
+} AtermMd5Context;
 
 typedef struct {
     u32 word0;
@@ -463,8 +469,7 @@ typedef struct {
     u8 keyMaterial[0x40];
     u8 connectionPrefix[0x10];
     u8 packetBuffer[0x800];
-    u16 responseLength;
-    u8 trailingData[6];
+    u8 workBuffer[8];
 } AtermConfigurationResult;
 
 typedef struct {
@@ -489,7 +494,12 @@ u32 gDefaultSubnetMask = 0xFFFFFF00;
 u32 gDefaultGateway = 0xC0A80001;
 u32 gDefaultPrimaryDns = 0xC0A80001;
 u32 gDefaultSecondaryDns = 0xC0A80001;
+static const u8 sAtermOptionName[8] = {6, 0, 1, 2, 3, 4, 5, 0};
+
+static const u8 sAtermMd5Padding[64] = {0x80};
+
 char gAtermAossSsid[7] = "******";
+u8* gAtermOptionBuffer = NULL;
 u32 gAtermUseSharedAddress = 1;
 char gAtermProductName[5] = "WARP";
 u32 gAtermCancelRequested;
@@ -519,6 +529,7 @@ int ATERM_81404BFC(u32* expandedKey, const void* key, u32 keyBits);
 int ATERM_8140502C(u32* expandedKey, const void* key, u32 keyBits);
 void ATERM_81405254(const u32* expandedKey, u32 rounds, const u8* input, u8* output);
 void ATERM_81405690(const u32* expandedKey, u32 rounds, const u8* input, u8* output);
+void ATERM_81405ACC(AtermMd5Context* context, const u8* input, u32 length);
 int ATERM_814033F0(u16* response);
 
 int ATERM_814021BC(void) {
@@ -1046,6 +1057,7 @@ int ATERM_81402FC0(AtermPacket* packet, u32* setupType) {
     u8* limit;
     u8* payload;
     u8* value;
+    AtermPacketOption* option;
     u16 checksum;
     u16 messageType;
     u32 payloadLength;
@@ -1054,7 +1066,6 @@ int ATERM_81402FC0(AtermPacket* packet, u32* setupType) {
     u16 authenticationReady;
     u16 networkReady;
     u16 selectedMode;
-    AtermPacketOption* option;
     s32 byteLength;
 
     messageType = SONtoHs(packet->sequence);
@@ -1121,7 +1132,7 @@ int ATERM_81402FC0(AtermPacket* packet, u32* setupType) {
     return 0;
 }
 
-int ATERM_814031DC(AtermAssociationRequest* request) {
+int ATERM_814031DC(AtermAssociationRequest* request, AtermSocketAddress* address) {
     u8 scanAddress[8];
     u8 interfaceMacAddress[8];
     char scanAddressText[32];
@@ -1408,251 +1419,506 @@ s32 ATERM_814038C8(void) {
     OSMessage waitBuffer[1];
     OSMessage waitMessage;
     OSAlarm waitAlarm;
-    AtermSocketAddress socketBindAddress;
     AtermSocketAddress peerAddress;
+    AtermPacketOption* option;
     u8* packetBuffer = gAtermConfigurationResult.packetBuffer;
-    u8* requestOptions = gAtermResponseBuffer.data;
-    u8 digest[16];
-    AtermRequestOption16* shortOption;
-    AtermRequestOption24* longOption;
-    u8* optionEnd;
-    s32 socket = -1;
-    s32 result = -5;
-    s32 failed = 0;
-    s32 retries = 0;
-    u32 lastSendTime = 0;
-    u32 now;
-    u32 requestLength;
+    u8* workBuffer = gAtermConfigurationResult.workBuffer;
+    u8* challengeBuffer = &gAtermResponseBuffer.data[0x7f8];
+    u8* cursor;
+    u8* end;
+    s32 byteLength;
+    u8* limit;
+    u32 padIndex;
+    u32 padLength;
     s32 receivedLength;
-    s32 stateProgress[3];
-    u16 enabled;
+    u32 requestLength;
+    s32 socket = 0;
+    s32 result = -5;
+    u32 lastSendTime = 0;
+    s32 retries = 0;
+    s32 failed = 0;
+    u32 now;
     u32 reciprocal = 0x10624DD3;
 
     gAtermProtocolState = 1;
-    memset(&peerAddress, 0, sizeof(peerAddress));
-    for (;;) {
-        if (failed != 0 || gAtermCancelRequested != 0) {
-            if (socket >= 0) {
-                SOClose(socket);
-            }
-            if (gAtermCancelRequested != 0) {
-                result = -8;
-            }
-            return result;
-        }
-
+    while (failed == 0 && gAtermCancelRequested == 0) {
         OSInitMessageQueue(&waitQueue, waitBuffer, 1);
         OSCreateAlarm(&waitAlarm);
         OSSetAlarmTag(&waitAlarm, (u32)&waitQueue);
-        OSSetPeriodicAlarm(&waitAlarm, OS_BUS_CLOCK >> 2,
-                           (OS_BUS_CLOCK / 4000) * 500, ATERM_8140684C);
+        OSSetAlarm(&waitAlarm, (__mulhwu(reciprocal, OS_BUS_CLOCK >> 2) >> 6) * 500,
+                   ATERM_8140684C);
         OSReceiveMessage(&waitQueue, &waitMessage, 1);
 
         switch (gAtermProtocolState) {
-        case 1:
-            if (ATERM_81402A24() == 1) {
-                gAtermProtocolState = 2;
-            } else {
+        case 1: {
+            s32 progress[3];
+            result = ATERM_81402A24();
+            if (result != 1) {
                 failed = 1;
+                break;
             }
-            break;
-        case 2:
-            if (ATERM_814021BC() == 1) {
+            gAtermState = 3;
+            progress[0] = 3;
+            if (gAtermDeadline == 0xFFFFFFFF) {
+                progress[1] = -1;
+            } else {
                 now = (u32)(OSGetTime() / (__mulhwu(reciprocal, OS_BUS_CLOCK >> 2) >> 6));
-                if (gAtermDeadline < now + 10000) {
-                    gAtermDeadline = now + 10000;
-                }
-                gAtermProtocolState = 3;
-            } else {
-                result = -2;
-                failed = 1;
+                progress[1] = gAtermDeadline - now;
             }
+            progress[2] = gAtermResult;
+            (*gAtermProgressCallback)(progress);
+            gAtermProtocolState = 2;
             break;
-        case 3:
+        }
+        case 2:
+            result = ATERM_814021BC();
+            if (result != 1) {
+                failed = 1;
+                break;
+            }
+            now = (u32)(OSGetTime() / (__mulhwu(reciprocal, OS_BUS_CLOCK >> 2) >> 6));
+            if (gAtermDeadline < now + 0x2710) {
+                now = (u32)(OSGetTime() / (__mulhwu(reciprocal, OS_BUS_CLOCK >> 2) >> 6));
+                gAtermDeadline = now + 0x2710;
+            }
+            gAtermProtocolState = 3;
+            break;
+        case 3: {
+            AtermSocketAddress bindAddress;
             socket = SOSocket(2, 2, 0);
             if (socket < 0) {
                 result = -2;
                 failed = 1;
                 break;
             }
-            memset(&socketBindAddress, 0, sizeof(socketBindAddress));
-            socketBindAddress.length = 8;
-            socketBindAddress.family = 2;
-            socketBindAddress.port = SOHtoNs(0xE601);
-            if (SOBind(socket, &socketBindAddress) < 0) {
+            memset(&bindAddress, 0, sizeof(bindAddress));
+            bindAddress.length = 8;
+            bindAddress.family = 2;
+            bindAddress.address = 0;
+            bindAddress.port = SOHtoNs(0xE601);
+            result = SOBind(socket, &bindAddress);
+            if (result < 0) {
                 result = -2;
                 failed = 1;
             } else {
                 gAtermProtocolState = 4;
             }
             break;
-        case 4:
+        }
+        case 4: {
+            s32 progress[3];
             now = (u32)(OSGetTime() / (__mulhwu(reciprocal, OS_BUS_CLOCK >> 2) >> 6));
             if (now >= gAtermDeadline) {
                 SOClose(socket);
-                socket = -1;
                 result = -3;
                 failed = 1;
                 break;
             }
-            memset(&peerAddress, 0, sizeof(peerAddress));
-            receivedLength = SORecvFrom(socket, packetBuffer,
-                                        sizeof(gAtermConfigurationResult.packetBuffer), 4,
-                                        &peerAddress);
+            peerAddress.length = 8;
+            ATERM_814031DC((AtermAssociationRequest*)gAtermConfigurationResult.connectionPrefix,
+                           &peerAddress);
+            receivedLength = SORecvFrom(socket, packetBuffer, 0x800, 4, &peerAddress);
             if (receivedLength > 0 &&
-                ATERM_81402FC0((AtermPacket*)packetBuffer, &gAtermResponseMode)) {
+                ATERM_81402FC0((AtermPacket*)packetBuffer, &gAtermResponseMode) != 0) {
                 now = (u32)(OSGetTime() / (__mulhwu(reciprocal, OS_BUS_CLOCK >> 2) >> 6));
-                gAtermDeadline = now + 30000;
+                gAtermDeadline = now + 0x7530;
                 gAtermProtocolState = 5;
-                stateProgress[0] = 4;
-                stateProgress[1] = 30000;
-                stateProgress[2] = gAtermResult;
-                (*gAtermProgressCallback)(stateProgress);
+                gAtermState = 4;
+                progress[0] = 4;
+                if (gAtermDeadline == 0xFFFFFFFF) {
+                    progress[1] = -1;
+                } else {
+                    now = (u32)(OSGetTime() / (__mulhwu(reciprocal, OS_BUS_CLOCK >> 2) >> 6));
+                    progress[1] = gAtermDeadline - now;
+                }
+                progress[2] = gAtermResult;
+                (*gAtermProgressCallback)(progress);
             }
             break;
-        case 5:
-            memset(requestOptions, 0,
-                   sizeof(AtermRequestOption16) * 3 + sizeof(AtermRequestOption24) * 2);
-            shortOption = (AtermRequestOption16*)requestOptions;
+        }
+        case 5: {
+            u16 flag;
+            u8 name[7];
+            AtermSocketAddress sendAddress;
+            AtermRequestOption8* shortOption;
+            AtermRequestOption16* longOption;
+            u8* optionBuffer;
+            u8* optionEnd;
+            flag = SOHtoNs(1);
+            {
+                u8* nameSource = (u8*)sAtermOptionName;
+                name[0] = nameSource[0];
+                name[1] = nameSource[1];
+                name[2] = nameSource[2];
+                name[3] = nameSource[3];
+                name[4] = nameSource[4];
+                name[5] = nameSource[5];
+                name[6] = nameSource[6];
+            }
+            optionBuffer = gAtermOptionBuffer;
+            shortOption = (AtermRequestOption8*)optionBuffer;
+            memset(shortOption, 0, 4);
             shortOption->type = SOHtoNs(1);
             shortOption->length = SOHtoNs(2);
-            *(u16*)shortOption->value = SOHtoNs(1);
+            memset(shortOption->value, 0, 4);
+            memcpy(shortOption->value, &flag, 2);
             shortOption++;
+            memset(shortOption, 0, 4);
             shortOption->type = SOHtoNs(2);
             shortOption->length = SOHtoNs(2);
-            *(u16*)shortOption->value = SOHtoNs(1);
+            memset(shortOption->value, 0, 4);
+            memcpy(shortOption->value, &flag, 2);
             shortOption++;
             if (gAtermResponseMode != 0) {
+                memset(shortOption, 0, 4);
                 shortOption->type = SOHtoNs(5);
                 shortOption->length = SOHtoNs(2);
-                *(u16*)shortOption->value = SOHtoNs(1);
+                memset(shortOption->value, 0, 4);
+                memcpy(shortOption->value, &flag, 2);
                 shortOption++;
             }
-            longOption = (AtermRequestOption24*)shortOption;
+            longOption = (AtermRequestOption16*)shortOption;
+            memset(longOption, 0, 4);
             longOption->type = SOHtoNs(3);
             longOption->length = SOHtoNs(7);
-            memcpy(longOption->value, gAtermProductName, 4);
+            memset(longOption->value, 0, 0xc);
+            memcpy(longOption->value, name, 7);
             longOption++;
             if (gAtermResponseMode != 0) {
+                memset(longOption, 0, 4);
                 longOption->type = SOHtoNs(4);
                 longOption->length = SOHtoNs(6);
+                memset(longOption->value, 0, 0xc);
                 memcpy(longOption->value, gAtermAddressBuffer, 6);
                 longOption++;
             }
             optionEnd = (u8*)longOption;
-            requestLength = ATERM_81402E40((u16*)packetBuffer, 2,
-                                           (u16*)requestOptions,
-                                           optionEnd - requestOptions, 0);
+            requestLength = ATERM_81402E40((u16*)packetBuffer, 2, (u16*)workBuffer,
+                                           optionEnd - gAtermOptionBuffer + 8, NULL);
             gAtermMessageLength = requestLength;
-            if (SOSendTo(socket, packetBuffer, requestLength, 0, &peerAddress) < 0) {
-                result = -2;
-                failed = 1;
-                break;
-            }
-            lastSendTime = (u32)(OSGetTime() / (__mulhwu(reciprocal, OS_BUS_CLOCK >> 2) >> 6));
+            sendAddress.length = 8;
+            sendAddress.family = 2;
+            sendAddress.address = -1;
+            sendAddress.port = SOHtoNs(0xE601);
+            SOSendTo(socket, packetBuffer, requestLength, 0, &sendAddress);
+            now = (u32)(OSGetTime() / (__mulhwu(reciprocal, OS_BUS_CLOCK >> 2) >> 6));
+            lastSendTime = now;
             gAtermProtocolState = 6;
             break;
-        case 6:
+        }
+        case 6: {
+            s16 packetType;
+            s32 optionType;
+            u32 blockLength;
+            u32 optionLength;
+            u32 timestamp;
+            u8 bits[8];
+            AtermMd5Context md5Context;
+            s32 progress[3];
+            u32 checksum;
+            u32 dataLength;
+            s32 byteLength;
+            u16* payload;
+            u16* key;
+            u8* cursor;
+            u8* end;
+            u8* limit;
+            u8* optionCursor;
+            AtermPacketOption* option;
+            u32 i;
             now = (u32)(OSGetTime() / (__mulhwu(reciprocal, OS_BUS_CLOCK >> 2) >> 6));
             if (now >= gAtermDeadline) {
                 SOClose(socket);
-                socket = -1;
                 result = -4;
                 failed = 1;
                 break;
             }
-            receivedLength = SORecvFrom(socket, packetBuffer,
-                                        sizeof(gAtermConfigurationResult.packetBuffer), 4,
-                                        &peerAddress);
-            if (receivedLength > 0 &&
-                ATERM_81402FC0((AtermPacket*)packetBuffer, &gAtermResponseMode) &&
-                ATERM_81404A18((u16*)packetBuffer, (u16*)packetBuffer, receivedLength,
-                               gAtermAddressBuffer, 0x10)) {
-                memcpy(digest, packetBuffer, sizeof(digest));
-                gAtermProtocolState = 7;
-                stateProgress[0] = 5;
-                stateProgress[1] = (s32)(gAtermDeadline - now);
-                stateProgress[2] = gAtermResult;
-                (*gAtermProgressCallback)(stateProgress);
-            } else if (now - lastSendTime >= 2000) {
-                if (++retries >= 10) {
-                    result = -2;
-                    failed = 1;
-                } else {
-                    gAtermProtocolState = 5;
+            receivedLength = SORecvFrom(socket, packetBuffer, 0x800, 4, &peerAddress);
+            if (receivedLength > 0) {
+                packetType = SONtoHs(*(u16*)packetBuffer);
+                dataLength = SONtoHs(*(u16*)(packetBuffer + 2));
+                checksum = 0;
+                end = packetBuffer + 6 + dataLength;
+                cursor = packetBuffer;
+                if (packetBuffer < end) {
+                    byteLength = end - packetBuffer;
+                    limit = end - 8;
+                    if (byteLength > 8 && cursor <= end) {
+                        for (; cursor < limit; cursor += 8) {
+                            checksum += cursor[0];
+                            checksum += cursor[1];
+                            checksum += cursor[2];
+                            checksum += cursor[3];
+                            checksum += cursor[4];
+                            checksum += cursor[5];
+                            checksum += cursor[6];
+                            checksum += cursor[7];
+                        }
+                    }
+                    while (cursor < end) {
+                        checksum += *cursor++;
+                    }
                 }
-            }
-            break;
-        case 7:
-            memset(requestOptions, 0, sizeof(AtermRequestOption24));
-            longOption = (AtermRequestOption24*)requestOptions;
-            longOption->type = SOHtoNs(0x102);
-            longOption->length = SOHtoNs(8);
-            memcpy(longOption->value, digest, 8);
-            requestLength = ATERM_81402E40((u16*)packetBuffer, 4,
-                                           (u16*)requestOptions,
-                                           sizeof(AtermRequestOption24),
-                                           packetBuffer);
-            SOSendTo(socket, packetBuffer, requestLength, 0, &peerAddress);
-            gAtermProtocolState = 8;
-            lastSendTime = now;
-            break;
-        case 8:
-            receivedLength = SORecvFrom(socket, packetBuffer,
-                                        sizeof(gAtermConfigurationResult.packetBuffer), 4,
-                                        &peerAddress);
-            if (receivedLength > 0 &&
-                ATERM_81402FC0((AtermPacket*)packetBuffer, &gAtermResponseMode) &&
-                ATERM_814033F0((u16*)packetBuffer)) {
-                gAtermMode = (gScanSettings.ssid[0] & 0x80) != 0;
-                gAtermProtocolState = 9;
-                retries = 0;
-            } else if (now - lastSendTime >= 1000) {
-                if (++retries < 10) {
-                    gAtermProtocolState = 7;
-                } else {
-                    result = -2;
-                    failed = 1;
+                payload = (u16*)(packetBuffer + 6);
+                if ((u16)checksum != SONtoHs(*(u16*)end)) {
+                    payload = NULL;
                 }
-            }
-            break;
-        case 9:
-            memset(requestOptions, 0, sizeof(AtermRequestOption16));
-            shortOption = (AtermRequestOption16*)requestOptions;
-            shortOption->type = SOHtoNs(0x301);
-            shortOption->length = SOHtoNs(1);
-            shortOption->value[0] = gAtermMode;
-            requestLength = ATERM_81402E40((u16*)packetBuffer, 6,
-                                           (u16*)requestOptions,
-                                           sizeof(AtermRequestOption16),
-                                           gAtermAddressBuffer);
-            SOSendTo(socket, packetBuffer, requestLength, 0, &peerAddress);
-            gAtermProtocolState = 10;
-            lastSendTime = now;
-            break;
-        case 10:
-            if (NCDGetLinkStatus() == 5) {
-                SOClose(socket);
-                socket = -1;
-                return ATERM_814036D8();
+                if (payload == NULL) {
+                    dataLength = 0;
+                } else if (packetType != 3) {
+                    dataLength = 0;
+                } else {
+                    key = (u16*)gAtermConfigurationResult.connectionPrefix;
+                    if (key != NULL) {
+                        ATERM_81404A18((u16*)workBuffer, payload, dataLength, key, 0x10);
+                        dataLength -= 8;
+                    } else {
+                        memcpy(workBuffer, payload, dataLength);
+                    }
+                }
+                if (dataLength != 0) {
+                    option = (AtermPacketOption*)(workBuffer + 8);
+                    blockLength = SONtoHs(*(u16*)workBuffer);
+                    if ((u8*)option >= (u8*)option + blockLength) {
+                        option = NULL;
+                    } else {
+                        optionType = SONtoHs(option->type);
+                        optionLength = SONtoHs(option->length);
+                        option = (AtermPacketOption*)((u8*)option + 4);
+                    }
+                    if (optionType == 0x101) {
+                        timestamp =
+                            (u32)(OSGetTime() / (__mulhwu(reciprocal, OS_BUS_CLOCK >> 2) >> 6));
+                        memcpy(challengeBuffer, option, 8);
+                        md5Context.state[0] = 0x67452301;
+                        md5Context.state[1] = 0xEFCDAB89;
+                        md5Context.state[2] = 0x98BADCFE;
+                        md5Context.state[3] = 0x10325476;
+                        md5Context.count[0] = 0;
+                        md5Context.count[1] = 0;
+                        ATERM_81405ACC(&md5Context, (u8*)&timestamp, 4);
+                        bits[0] = md5Context.count[0];
+                        bits[1] = md5Context.count[0] >> 8;
+                        bits[2] = md5Context.count[0] >> 16;
+                        bits[3] = md5Context.count[0] >> 24;
+                        bits[4] = md5Context.count[1];
+                        bits[5] = md5Context.count[1] >> 8;
+                        bits[6] = md5Context.count[1] >> 16;
+                        bits[7] = md5Context.count[1] >> 24;
+                        padIndex = (md5Context.count[0] >> 3) & 0x3F;
+                        padLength = padIndex < 56 ? 56 - padIndex : 120 - padIndex;
+                        ATERM_81405ACC(&md5Context, sAtermMd5Padding, padLength);
+                        ATERM_81405ACC(&md5Context, bits, 8);
+                        challengeBuffer[8] = md5Context.state[0];
+                        challengeBuffer[9] = md5Context.state[0] >> 8;
+                        challengeBuffer[10] = md5Context.state[0] >> 16;
+                        challengeBuffer[11] = md5Context.state[0] >> 24;
+                        challengeBuffer[12] = md5Context.state[1];
+                        challengeBuffer[13] = md5Context.state[1] >> 8;
+                        challengeBuffer[14] = md5Context.state[1] >> 16;
+                        challengeBuffer[15] = md5Context.state[1] >> 24;
+                        challengeBuffer[16] = md5Context.state[2];
+                        challengeBuffer[17] = md5Context.state[2] >> 8;
+                        challengeBuffer[18] = md5Context.state[2] >> 16;
+                        challengeBuffer[19] = md5Context.state[2] >> 24;
+                        challengeBuffer[20] = md5Context.state[3];
+                        challengeBuffer[21] = md5Context.state[3] >> 8;
+                        challengeBuffer[22] = md5Context.state[3] >> 16;
+                        challengeBuffer[23] = md5Context.state[3] >> 24;
+                        cursor = (u8*)&md5Context;
+                        for (i = 0; i < 88; i += 8) {
+                            cursor[0] = 0;
+                            cursor[1] = 0;
+                            cursor[2] = 0;
+                            cursor[3] = 0;
+                            cursor[4] = 0;
+                            cursor[5] = 0;
+                            cursor[6] = 0;
+                            cursor[7] = 0;
+                            cursor += 8;
+                        }
+                        gAtermProtocolState = 7;
+                        gAtermState = 5;
+                        retries = 0;
+                        gAtermDeadline = 0xFFFFFFFF;
+                        progress[0] = 5;
+                        progress[1] = -1;
+                        progress[2] = gAtermResult;
+                        (*gAtermProgressCallback)(progress);
+                    }
+                    break;
+                }
             }
             now = (u32)(OSGetTime() / (__mulhwu(reciprocal, OS_BUS_CLOCK >> 2) >> 6));
-            if (now - lastSendTime >= 1000) {
-                if (++retries >= 10) {
-                    result = -5;
-                    failed = 1;
+            if (now >= lastSendTime + 0x7D0) {
+                gAtermProtocolState = 5;
+            }
+            break;
+        }
+        case 7: {
+            AtermSocketAddress sendAddress;
+            AtermRequestOption16* longOption;
+            u8* optionEnd;
+            memset(workBuffer, 0, 8);
+            longOption = (AtermRequestOption16*)(workBuffer + 8);
+            memset(longOption, 0, 4);
+            longOption->type = SOHtoNs(0x102);
+            longOption->length = SOHtoNs(8);
+            memset(longOption->value, 0, 0xc);
+            memcpy(longOption->value, challengeBuffer + 8, 8);
+            longOption++;
+            optionEnd = (u8*)longOption;
+            gAtermReplyLength = optionEnd - workBuffer;
+            *(u16*)workBuffer = optionEnd - workBuffer - 8;
+            requestLength = ATERM_81402E40((u16*)packetBuffer, 4, (u16*)workBuffer,
+                                           optionEnd - workBuffer,
+                                           gAtermConfigurationResult.connectionPrefix);
+            gAtermMessageLength = requestLength;
+            sendAddress.length = 8;
+            sendAddress.family = 2;
+            sendAddress.address = -1;
+            sendAddress.port = SOHtoNs(0xE601);
+            SOSendTo(socket, packetBuffer, requestLength, 0, &sendAddress);
+            now = (u32)(OSGetTime() / (__mulhwu(reciprocal, OS_BUS_CLOCK >> 2) >> 6));
+            lastSendTime = now;
+            memset(&gScanSettings, 0, 0x254);
+            gAtermProtocolState = 8;
+            break;
+        }
+        case 8: {
+            s16 packetType;
+            u32 checksum;
+            u32 dataLength;
+            s32 byteLength;
+            u16* payload;
+            u8* cursor;
+            u8* end;
+            u8* limit;
+            receivedLength = SORecvFrom(socket, packetBuffer, 0x800, 4, &peerAddress);
+            if (receivedLength > 0) {
+                packetType = SONtoHs(*(u16*)packetBuffer);
+                dataLength = SONtoHs(*(u16*)(packetBuffer + 2));
+                checksum = 0;
+                end = packetBuffer + 6 + dataLength;
+                cursor = packetBuffer;
+                if (packetBuffer < end) {
+                    byteLength = end - packetBuffer;
+                    limit = end - 8;
+                    if (byteLength > 8 && cursor <= end) {
+                        for (; cursor < limit; cursor += 8) {
+                            checksum += cursor[0];
+                            checksum += cursor[1];
+                            checksum += cursor[2];
+                            checksum += cursor[3];
+                            checksum += cursor[4];
+                            checksum += cursor[5];
+                            checksum += cursor[6];
+                            checksum += cursor[7];
+                        }
+                    }
+                    while (cursor < end) {
+                        checksum += *cursor++;
+                    }
+                }
+                payload = (u16*)(packetBuffer + 6);
+                if ((u16)checksum != SONtoHs(*(u16*)end)) {
+                    payload = NULL;
+                }
+                if (payload == NULL) {
+                    dataLength = 0;
+                } else if (packetType != 5) {
+                    dataLength = 0;
                 } else {
+                    if (challengeBuffer != NULL) {
+                        ATERM_81404A18((u16*)workBuffer, payload, dataLength, challengeBuffer,
+                                       0x10);
+                        dataLength -= 8;
+                    } else {
+                        memcpy(workBuffer, payload, dataLength);
+                    }
+                }
+                gAtermReplyLength = dataLength;
+                if (dataLength != 0 && ATERM_814033F0((u16*)workBuffer) != 0) {
+                    {
+                        s8 signedByte = (s8)gScanSettings.ssid[0];
+                        gAtermMode = ((-signedByte | signedByte) < 0);
+                    }
+                    retries = 0;
                     gAtermProtocolState = 9;
+                    break;
+                }
+            }
+            now = (u32)(OSGetTime() / (__mulhwu(reciprocal, OS_BUS_CLOCK >> 2) >> 6));
+            if (now >= lastSendTime + 0x3E8) {
+                retries++;
+                if (retries < 10) {
+                    gAtermProtocolState = 7;
+                } else {
+                    SOClose(socket);
+                    result = -2;
+                    failed = 1;
                 }
             }
             break;
-        default:
-            result = -5;
-            failed = 1;
+        }
+        case 9: {
+            AtermSocketAddress sendAddress;
+            AtermRequestOption8* shortOption;
+            u8* optionEnd;
+            memset(workBuffer, 0, 8);
+            shortOption = (AtermRequestOption8*)(workBuffer + 8);
+            memset(shortOption, 0, 4);
+            shortOption->type = SOHtoNs(0x301);
+            shortOption->length = SOHtoNs(1);
+            memset(shortOption->value, 0, 4);
+            memcpy(shortOption->value, &gAtermMode, 1);
+            shortOption++;
+            optionEnd = (u8*)shortOption;
+            gAtermReplyLength = optionEnd - workBuffer;
+            *(u16*)workBuffer = optionEnd - workBuffer - 8;
+            requestLength = ATERM_81402E40((u16*)packetBuffer, 6, (u16*)workBuffer,
+                                           optionEnd - workBuffer, challengeBuffer);
+            gAtermMessageLength = requestLength;
+            if ((s32)NCDGetLinkStatus() == 5) {
+                sendAddress.length = 8;
+                sendAddress.family = 2;
+                sendAddress.address = -1;
+                sendAddress.port = SOHtoNs(0xE601);
+                SOSendTo(socket, packetBuffer, gAtermMessageLength, 0, &sendAddress);
+                now = (u32)(OSGetTime() / (__mulhwu(reciprocal, OS_BUS_CLOCK >> 2) >> 6));
+                lastSendTime = now;
+                gAtermProtocolState = 10;
+            } else {
+                now = (u32)(OSGetTime() / (__mulhwu(reciprocal, OS_BUS_CLOCK >> 2) >> 6));
+                lastSendTime = now + 0x3E8;
+                retries = 10;
+                gAtermProtocolState = 10;
+            }
+            break;
+        }
+        case 10:
+            now = (u32)(OSGetTime() / (__mulhwu(reciprocal, OS_BUS_CLOCK >> 2) >> 6));
+            if (now >= lastSendTime + 0x3E8) {
+                retries++;
+                if (retries < 10) {
+                    gAtermProtocolState = 9;
+                } else {
+                    failed = 1;
+                    result = ATERM_814036D8();
+                }
+            }
             break;
         }
     }
+    if (socket != 0) {
+        SOClose(socket);
+    }
+    if (gAtermCancelRequested != 0) {
+        result = -8;
+    }
+    return result;
 }
+
 
 s32 ATERMi_AutoConfigThread(void) {
     s32 result = ATERM_814038C8();
@@ -2063,12 +2329,6 @@ void ATERM_81405690(const u32* expandedKey, u32 rounds, const u8* input, u8* out
 }
 
 void ATERM_81405D0C(u32 state[4], const u8 block[64]);
-
-typedef struct {
-    u32 state[4];
-    u32 count[2];
-    u8 buffer[64];
-} AtermMd5Context;
 
 void ATERM_81405ACC(AtermMd5Context* context, const u8* input, u32 length) {
     u8* dst;
