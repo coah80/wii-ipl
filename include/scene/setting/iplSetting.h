@@ -149,6 +149,8 @@ namespace ipl {
             void start_left_event(const char* pageName);
             int get_arw_no(const char* paneName);
             int get_ap_no(const char* buttonName);
+            void makeSupportCode();
+            int getErrorNum();
             virtual void destroy();
             virtual void prepare();
             virtual void create();
@@ -190,7 +192,8 @@ namespace ipl {
             int unk_0x7C;
             int mProfileIDMode;
             int unk_0x84;
-            u8 unk_0x88[8];
+            int mAOSSState;
+            int mRakuState;
             int mFuncMsgPending;
             int unk_0x94;
             ESTitleId mUpdateTitleId;
