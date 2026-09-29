@@ -166,12 +166,8 @@ namespace ipl {
 
             mChanCount = mpChanSelect->mChanCount;
 
-            nw4r::math::VEC3 pos;
-            nw4r::math::VEC3 pos2;
-            pos = SDChannelSelect::getChannelPanePosition(mpChanSelect, mChanIndex);
-            mChanPosX = pos.x;
-            pos2 = SDChannelSelect::getChannelPanePosition(mpChanSelect, mChanIndex);
-            mChanPosY = pos2.y;
+            mChanPosX = SDChannelSelect::getChannelPanePosition(mpChanSelect, mChanIndex).x;
+            mChanPosY = SDChannelSelect::getChannelPanePosition(mpChanSelect, mChanIndex).y;
             mChanPosZ = 0.0f;
 
             mpBannerFiles[0] = NULL;
@@ -946,12 +942,8 @@ namespace ipl {
                     needed = freeArea = mNandFree;
                 }
 
-                NandSDWorker::AppBlocksInfo freeAreaArg;
-                NandSDWorker::AppBlocksInfo neededArg;
-                neededArg = needed;
-                freeAreaArg = freeArea;
-                SDMemory::TitleRange nandTitles = *(SDMemory::TitleRange*)&freeAreaArg;
-                SDMemory::TitleRange sdTitles = *(SDMemory::TitleRange*)&neededArg;
+                SDMemory::TitleRange nandTitles = *(SDMemory::TitleRange*)&freeArea;
+                SDMemory::TitleRange sdTitles = *(SDMemory::TitleRange*)&needed;
                 mSDMemory.setTitleLists(nandTitles, sdTitles);
                 mSDMemory.calc();
                 mbHbmEnable = true;
@@ -1541,12 +1533,8 @@ namespace ipl {
 
             chanObj = mpChanSelect->getChanObj(mChanPage, mChanIndex);
 
-            nw4r::math::VEC3 pos;
-            pos = SDChannelSelect::getChannelPanePosition(mpChanSelect, mChanIndex);
-            mChanPosX = pos.x;
-            nw4r::math::VEC3 pos2;
-            pos2 = SDChannelSelect::getChannelPanePosition(mpChanSelect, mChanIndex);
-            mChanPosY = pos2.y;
+            mChanPosX = SDChannelSelect::getChannelPanePosition(mpChanSelect, mChanIndex).x;
+            mChanPosY = SDChannelSelect::getChannelPanePosition(mpChanSelect, mChanIndex).y;
 
             if (chanObj->isValid()) {
                 setTitleID(chanObj);

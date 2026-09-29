@@ -980,7 +980,10 @@ namespace ipl {
 
         void SDChannelSelect::iplSDChannelSelect_813DC7EC(int dir, int focusedIndex) {
             const int targetPage = mChanPage + dir;
-            if (targetPage >= 0 && mpChanTable != NULL) {
+            if (targetPage < 0) {
+                return;
+            }
+            if (mpChanTable != NULL) {
                 int start;
                 int step;
                 switch (dir) {
@@ -1601,9 +1604,15 @@ namespace ipl {
         }
 
         BOOL SDChannelSelect::isResetProcessDone() {
-            if (mResetState < 9 && mResetState >= 5) {
-                return FALSE;
+            if (mResetState >= 9) {
+                goto ret0;
             }
+            if (mResetState >= 5) {
+                goto ret1;
+            }
+ret0:
+            return FALSE;
+ret1:
             return TRUE;
         }
 
@@ -2427,8 +2436,7 @@ namespace ipl {
 
         void SDChannelSelect::iplSDChannelSelect_813E0450(int page, int index) {
             SDChannelObj* chanObj = getChanObj(page, index);
-            math::VEC3 vec(chanObj->mpThumbLayout->GetRootPane()->GetTranslate());
-            iplSDChannelSelect_813E0BEC(&vec, 0);
+            iplSDChannelSelect_813E0BEC(&math::VEC3(chanObj->mpThumbLayout->GetRootPane()->GetTranslate()), 0);
             chanObj->setCursorDecideAnim();
             SDButton* button = (SDButton*)System::getSceneManager()->getScene(0x24);
             if (mbFlagC8 != 0) {
@@ -2776,6 +2784,14 @@ namespace ipl {
                     mpChanTable[dstEntry] = tmp;
                     if (enqueueLoadNotice() != 0) {
                         mFlag758 = 0;
+                        goto swap;
+                    } else {
+                        mpAnimLayout3->getAnim(1)->play();
+                        mState = 0x15;
+                    }
+                    return;
+                swap:
+                    {
                         mpSwapChanObj = getChanObj(mSelPage, mSelIndex);
                         if (mpSwapChanObj == NULL) {
                             mpSwapChanObj = getChanObj(mFieldF0, mFieldF4);
@@ -2784,20 +2800,21 @@ namespace ipl {
                             SDChannelObj* otherObj = getChanObj(mFieldF0, mFieldF4);
                             mpSwapChanObj->setBasePane(getChannelBasePane(mFieldF0, mFieldF4, mChanPage));
                             otherObj->setBasePane(getChannelBasePane(mSelPage, mSelIndex, mChanPage));
+                            s32 dstIndex = mFieldF4;
                             SDChannelObj* swapObj = mpSwapChanObj;
-                            swapObj->mChanPage = mFieldF0;
-                            swapObj->mChanIndex = mFieldF4;
-                            otherObj->mChanPage = mSelPage;
-                            otherObj->mChanIndex = mSelIndex;
+                            s32 dstPage = mFieldF0;
+                            swapObj->mChanPage = dstPage;
+                            swapObj->mChanIndex = dstIndex;
+                            s32 srcIndex = mSelIndex;
+                            s32 srcPage = mSelPage;
+                            otherObj->mChanPage = srcPage;
+                            otherObj->mChanIndex = srcIndex;
                             mpSwapChanObj->calc();
                             otherObj->calc();
                             mpSwapChanObj = NULL;
                             otherObj->mpThumbAnim->setCurrentFrame(mpMoveAnim->getCurrentFrame());
                         }
                         mState = 0x14;
-                    } else {
-                        mpAnimLayout3->getAnim(1)->play();
-                        mState = 0x15;
                     }
                 }
             }
@@ -2951,7 +2968,7 @@ namespace ipl {
                 mpAnimLayout2->getAnim(0)->play();
                 ((SDButton*)System::getSceneManager()->getScene(0x24))->disableBtn();
                 SDChannelObj* chanObj = NULL;
-                while (chanObj = (SDChannelObj*)nw4r::ut::List_GetNext(&mChanList, chanObj), chanObj != NULL) {
+                while ((chanObj = (SDChannelObj*)nw4r::ut::List_GetNext(&mChanList, chanObj)) != NULL) {
                     chanObj->onPinch(chanObj->mChanPage == page && chanObj->mChanIndex == index);
                 }
                 snd::getSystem()->startSEwithPos("WIPL_SE_CH_HOLD", mCursorPos.x);
