@@ -499,27 +499,23 @@ s32 WAD_815C1288(WADExportLoopArgs* args) {
 
 s32 _WADGetCidxCount(const ESContentMask* contentMask) {
     s32 count = 0;
-    u32 bitMask = 1;
     u32 bitIndex = 0;
     u32 groupIndex;
 
     for (groupIndex = 0; groupIndex < 0x80; groupIndex++) {
-        if ((contentMask->data[bitIndex >> 3] & (bitMask << (bitIndex & 7))) != 0) {
+        if ((contentMask->data[bitIndex >> 3] & (1 << (bitIndex & 7))) != 0) {
             count++;
         }
-        bitIndex++;
-        if ((contentMask->data[bitIndex >> 3] & (bitMask << (bitIndex & 7))) != 0) {
+        if ((contentMask->data[(bitIndex + 1) >> 3] & (1 << ((bitIndex + 1) & 7))) != 0) {
             count++;
         }
-        bitIndex++;
-        if ((contentMask->data[bitIndex >> 3] & (bitMask << (bitIndex & 7))) != 0) {
+        if ((contentMask->data[(bitIndex + 2) >> 3] & (1 << ((bitIndex + 2) & 7))) != 0) {
             count++;
         }
-        bitIndex++;
-        if ((contentMask->data[bitIndex >> 3] & (bitMask << (bitIndex & 7))) != 0) {
+        if ((contentMask->data[(bitIndex + 3) >> 3] & (1 << ((bitIndex + 3) & 7))) != 0) {
             count++;
         }
-        bitIndex++;
+        bitIndex += 4;
     }
     return count;
 }
