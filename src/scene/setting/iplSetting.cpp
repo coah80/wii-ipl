@@ -2273,62 +2273,63 @@ namespace ipl {
         }
 
         u8 Setting::checkTextNum(const char* text) {
-            int formId = mpWiiSettingData->data[0x36];
             u8 result = 4;
             u32 message = 0;
-            if (formId < 13) {
-                if (formId != 2) {
-                    if (formId < 2) {
-                    } else if (formId < 10) {
-                    } else {
-                        if (strlen(text) == 4) {
+            switch (mpWiiSettingData->data[0x36]) {
+                case 2: {
+                    if (wcslen(reinterpret_cast<const wchar_t*>(unk_0x938)) != 0) {
+                        if (checkSpace()) {
                             result = 3;
+                        } else {
+                            message = 0x1c1;
                         }
-                        message = 0x1ba;
-                    }
-                } else {
-                    size_t length = wcslen(reinterpret_cast<const wchar_t*>(unk_0x938));
-                    if (length == 0) {
+                    } else {
                         message = 0x1c0;
-                    } else if (checkSpace()) {
-                        result = 3;
-                    } else {
-                        message = 0x1c1;
                     }
+                    break;
                 }
-            } else if (formId != 15) {
-                if (formId <= 14) {
-                    int region = System::getRegion();
+                case 10:
+                case 11:
+                case 12: {
+                    if (strlen(text) == 4) {
+                        result = 3;
+                    }
+                    message = 0x1ba;
+                    break;
+                }
+                case 13:
+                case 14: {
                     u32 minimum;
-                    if (region == 6) {
-                        minimum = 2;
-                    } else if (region < 6) {
-                        if (region == 0) {
+                    switch (System::getRegion()) {
+                        case 0:
+                        case 11:
                             minimum = 3;
-                        } else {
+                            break;
+                        case 6:
+                            minimum = 2;
+                            break;
+                        default:
                             minimum = 6;
+                            break;
+                    }
+                    if (wcslen(reinterpret_cast<const wchar_t*>(unk_0x938)) >= minimum) {
+                        if (checkSpace()) {
+                            result = 3;
+                        } else {
+                            message = 0x1c1;
                         }
                     } else {
-                        if (region == 11) {
-                            minimum = 3;
-                        } else {
-                            minimum = 6;
-                        }
-                    }
-                    size_t length = wcslen(reinterpret_cast<const wchar_t*>(unk_0x938));
-                    if (length < minimum) {
                         message = 0x1bb;
-                    } else if (checkSpace()) {
-                        result = 3;
-                    } else {
-                        message = 0x1c1;
                     }
+                    break;
                 }
-            } else {
-                if (strlen(text) == 5) {
-                    result = 3;
+                case 15: {
+                    if (strlen(text) == 5) {
+                        result = 3;
+                    }
+                    message = 0x1bc;
+                    break;
                 }
-                message = 0x1bc;
             }
             www::wiisetting::setFuncResult(result);
             if (result == 4) {
