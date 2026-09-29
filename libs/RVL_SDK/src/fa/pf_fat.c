@@ -605,13 +605,12 @@ s32 PFFAT_DoAllocateChain(PF_FFD* p_ffd, u32 chain_len, u32 chain_index, u32* p_
     PF_VOLUME* p_vol = p_ffd->p_vol;
     u32 eoc2;
     PF_FAT_TYPE fat_type = p_vol->bpb.fat_type;
-    u32 first_allocated_cluster;
-    u32 last_allocated_cluster;
+    u32 first_allocated_cluster, last_allocated_cluster;
     u32 start_cluster;
     u32 sector;
     u16 i;
     s32 err;
-    s32 fat_err = 0;
+    s32 fat_err;
     PF_CACHE_PAGE* p_page;
     u32 dummy;
 
@@ -619,7 +618,6 @@ s32 PFFAT_DoAllocateChain(PF_FFD* p_ffd, u32 chain_len, u32 chain_index, u32* p_
 
     *p_chain_start = -1;
     *p_last_allocated = -1;
-    last_allocated_cluster = -1;
     err = PFFAT_SearchForNumFreeClusters(p_vol, p_vol->last_free_cluster, -1, chain_len, &first_allocated_cluster,
                                        &last_allocated_cluster);
     if (err != 0) {
@@ -682,6 +680,7 @@ s32 PFFAT_DoAllocateChain(PF_FFD* p_ffd, u32 chain_len, u32 chain_index, u32* p_
     *p_last_allocated = last_allocated_cluster;
 
     sector = p_page->sector;
+    fat_err = 0;
     for (i = 0; i < p_vol->bpb.num_active_FATs; i++) {
         err = PFSEC_WriteFAT(p_vol, p_page->p_buf, sector, 0, p_vol->bpb.bytes_per_sector);
         if (err != 0 && fat_err == 0) {
