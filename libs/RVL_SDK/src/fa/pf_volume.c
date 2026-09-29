@@ -146,18 +146,23 @@ s32 PFVOL_p_setvol(PF_VOLUME* p_vol, const s8* label);
 s32 PFVOL_p_getvol(PF_VOLUME* p_vol, PF_VOL_INF* p_vinf);
 s32 PFVOL_p_rmvvol(PF_VOLUME* p_vol);
 
-static u32 PFVOL_CheckContextRegistered(s32 context_id);
-static u32 PFVOL_CheckContextRegistered(s32 context_id) {
+static inline u32 PFVOL_CheckContextRegistered(s32 context_id) {
     u32 is_registered;
     PF_CONTEXT* p_ctx = pf_vol_set.context;
-    if ((p_ctx[0].stat &= 1) != 0 && p_ctx[0].context_id == context_id) {
-        is_registered = 1;
-    } else if ((p_ctx[1].stat &= 1) != 0 && p_ctx[1].context_id == context_id) {
-        is_registered = 1;
-    } else if ((p_ctx[2].stat &= 1) != 0 && p_ctx[2].context_id == context_id) {
+    if ((p_ctx[0].stat &= 1) != 0 && context_id == p_ctx[0].context_id) {
         is_registered = 1;
     } else {
-        is_registered = 0;
+        p_ctx++;
+        if ((p_ctx[0].stat &= 1) != 0 && context_id == p_ctx[0].context_id) {
+            is_registered = 1;
+        } else {
+            p_ctx++;
+            if ((p_ctx[0].stat &= 1) != 0 && context_id == p_ctx[0].context_id) {
+                is_registered = 1;
+            } else {
+                is_registered = 0;
+            }
+        }
     }
     return is_registered;
 }
@@ -167,12 +172,14 @@ s32 PFVOL_DoMountVolume(PF_VOLUME* p_vol) {
     s32 context_id;
     s32 cache_sectors;
     s32 i;
-    PF_DIR_ENT* p_dir;
 
     p_vol->last_error = 0;
     p_vol->last_driver_error = 0;
     err = PFDRV_mount(p_vol);
-    if (err != 0) {
+    switch (err) {
+    case 0:
+        break;
+    default:
         goto end;
     }
     if (p_vol->bpb.bytes_per_sector == 0 || (p_vol->bpb.bytes_per_sector & 0x1FF) != 0) {
@@ -185,7 +192,10 @@ s32 PFVOL_DoMountVolume(PF_VOLUME* p_vol) {
         goto end;
     }
     err = PFCACHE_InitCaches(p_vol);
-    if (err != 0) {
+    switch (err) {
+    case 0:
+        break;
+    default:
         goto end;
     }
     p_vol->flags |= 0x08;
@@ -199,13 +209,18 @@ s32 PFVOL_DoMountVolume(PF_VOLUME* p_vol) {
         p_vol->current_dir[1].stat |= 1;
         p_vol->current_dir[1].context_id = context_id;
     }
-    p_dir = &p_vol->current_dir[0].directory;
-    for (i = 0; (u32)i < 4; i++) {
-        err = PFENT_GetRootDir(p_vol, p_dir);
-        if (err != 0) {
-            goto check;
+    {
+        PF_DIR_ENT* p_ent = &p_vol->current_dir[0].directory;
+        for (i = 0; (u32)i < 4; i++) {
+            err = PFENT_GetRootDir(p_vol, p_ent);
+            switch (err) {
+            case 0:
+                break;
+            default:
+                goto check;
+            }
+            p_ent = (PF_DIR_ENT*)((u8*)p_ent + sizeof(PF_CUR_DIR));
         }
-        p_dir++;
     }
     err = 0;
 check:
@@ -240,14 +255,19 @@ s32 PFVOL_p_unmount(PF_VOLUME* p_vol, u32 mode) {
     if (err2 == 0 || (mode & 1) != 0) {
         PFCACHE_FreeAllCaches(p_vol);
         err2 = PFDRV_unmount(p_vol, mode);
-        if (err2 == 0) {
+        switch (err2) {
+        case 0:
             if ((p_vol->flags & 0x08) != 0) {
                 p_vol->current_dir[0].stat = 0;
                 p_vol->current_dir[1].stat = 0;
                 p_vol->current_dir[2].stat = 0;
                 p_vol->current_dir[3].stat = 0;
             }
+            err2 = 0;
             p_vol->flags &= ~0x08;
+            break;
+        default:
+            break;
         }
         if (err2 != 0 && err == 0) {
             err = err2;
@@ -283,13 +303,19 @@ s32 PFVOL_p_format(PF_VOLUME* p_vol, const u8* param) {
     }
     if ((p_vol->flags & 0x08) == 0) {
         err = PFVOL_DoMountVolume(p_vol);
-        if (err != 0) {
+        switch (err) {
+        case 0:
+            goto mount_ok;
+        default:
             goto end;
         }
-        p_vol->fsi_flag &= ~0x07;
-        PFDRV_ClearUnmountRequested(p_vol);
-        pf_vol_set.num_mounted_volumes++;
     }
+    goto mount_clear;
+mount_ok:
+    p_vol->fsi_flag &= ~0x07;
+    PFDRV_ClearUnmountRequested(p_vol);
+    pf_vol_set.num_mounted_volumes++;
+mount_clear:
     PFDRV_ClearMountRequested(p_vol);
     err = 0;
 end:
@@ -309,9 +335,12 @@ end:
                 p_vol->fsi_flag &= ~0x03;
             }
             err = PFFAT_CountFreeClusters(p_vol, &num_free);
-            if (err != 0) {
-                return err;
+            if (err == 0) {
+                goto zero_ret;
             }
+            return err;
+zero_ret:
+            return 0;
         }
     } else {
         err = PFFAT_InitFATRegion(p_vol);
@@ -337,19 +366,19 @@ end:
 
 s32 PFVOL_p_setvol(PF_VOLUME* p_vol, const s8* label) {
     s32 err;
-    u32 start_cluster;
+    PF_DIR_ENT root;
+    PF_DIR_ENT ent;
+    PF_FFD ffd;
+    PF_FAT_HINT hint;
+    PF_STR pattern;
+    u32 pos2;
     u32 pos;
     u32 ppos;
-    PF_STR pattern;
-    PF_FAT_HINT hint;
-    PF_FFD ffd;
-    PF_DIR_ENT ent;
-    PF_DIR_ENT root;
     err = PFENT_GetRootDir(p_vol, &root);
     if (err != 0) {
         return err;
     }
-    PFFAT_InitFFD(&ffd, &hint, p_vol, &start_cluster);
+    PFFAT_InitFFD(&ffd, &hint, p_vol, &root.start_cluster);
     PFSTR_InitStr(&pattern, (const s8*)"*", 1);
     PFSTR_SetLocalStr(&pattern, NULL);
     err = PFENT_findEntryPos(&ffd, &ent, 0, &pattern, 8, 0, &pos, &ppos);
@@ -367,7 +396,7 @@ do_alloc:
     {
         PFSTR_InitStr(&pattern, (const s8*)"\0\0\0", 1);
         PFSTR_SetLocalStr(&pattern, NULL);
-        err = PFENT_allocateEntry(&ent, 1, &ffd, &pos, &pattern);
+        err = PFENT_allocateEntry(&ent, 1, &ffd, &pos2, &pattern);
         if (err != 0) {
             return err;
         }
@@ -392,19 +421,18 @@ alloc_done:
 
 s32 PFVOL_p_getvol(PF_VOLUME* p_vol, PF_VOL_INF* p_vinf) {
     s32 err;
-    u32 start_cluster;
+    PF_DIR_ENT root;
+    PF_DIR_ENT ent;
+    PF_FFD ffd;
+    PF_FAT_HINT hint;
+    PF_STR pattern;
     u32 pos;
     u32 ppos;
-    PF_STR pattern;
-    PF_FAT_HINT hint;
-    PF_FFD ffd;
-    PF_DIR_ENT ent;
-    PF_DIR_ENT root;
     err = PFENT_GetRootDir(p_vol, &root);
     if (err != 0) {
         return err;
     }
-    PFFAT_InitFFD(&ffd, &hint, p_vol, &start_cluster);
+    PFFAT_InitFFD(&ffd, &hint, p_vol, &root.start_cluster);
     PFSTR_InitStr(&pattern, (const s8*)"*", 1);
     PFSTR_SetLocalStr(&pattern, (const s8*)"*");
     err = PFENT_findEntryPos(&ffd, &ent, 0, &pattern, 8, 0, &pos, &ppos);
@@ -460,8 +488,8 @@ s32 PFVOL_p_rmvvol(PF_VOLUME* p_vol) {
 }
 
 s32 PFVOL_InitModule(u32 flag, u32 param) {
-    s32 i;
     PF_VOLUME* p_vol;
+    s32 i;
     u32 stat;
     if ((flag & 0x10000) != 0) {
         pf_vol_set.config |= 0x10000;
@@ -469,10 +497,11 @@ s32 PFVOL_InitModule(u32 flag, u32 param) {
         pf_vol_set.config &= ~0x10000;
     }
     stat = pf_vol_set.current_vol[0].stat | 1;
-    pf_vol_set.current_vol[0].p_vol = &pf_vol_set.volumes[0];
-    pf_vol_set.current_vol[1].p_vol = &pf_vol_set.volumes[0];
-    pf_vol_set.current_vol[2].p_vol = &pf_vol_set.volumes[0];
-    pf_vol_set.current_vol[3].p_vol = &pf_vol_set.volumes[0];
+    p_vol = &pf_vol_set.volumes[0];
+    pf_vol_set.current_vol[0].p_vol = p_vol;
+    pf_vol_set.current_vol[1].p_vol = p_vol;
+    pf_vol_set.current_vol[2].p_vol = p_vol;
+    pf_vol_set.current_vol[3].p_vol = p_vol;
     pf_vol_set.current_vol[0].stat = stat;
     pf_vol_set.num_attached_volumes = 0;
     pf_vol_set.num_mounted_volumes = 0;
@@ -521,10 +550,12 @@ s32 PFVOL_CheckForRead(PF_VOLUME* p_vol) {
         if (PFDRV_IsMountRequested(p_vol) != 0) {
             if ((p_vol->flags & 0x08) == 0) {
                 err = PFVOL_DoMountVolume(p_vol);
-                if (err == 0) {
+                switch (err) {
+                case 0:
                     goto mount_ok;
+                default:
+                    goto mount_done;
                 }
-                goto mount_done;
             }
             goto mount_clear;
 mount_ok:
@@ -590,10 +621,12 @@ s32 PFVOL_CheckForWrite(PF_VOLUME* p_vol) {
         if (PFDRV_IsMountRequested(p_vol) != 0) {
             if ((p_vol->flags & 0x08) == 0) {
                 err = PFVOL_DoMountVolume(p_vol);
-                if (err == 0) {
+                switch (err) {
+                case 0:
                     goto mount_ok;
+                default:
+                    goto mount_done;
                 }
-                goto mount_done;
             }
             goto mount_clear;
 mount_ok:
@@ -632,17 +665,17 @@ mount_done:
 merge:
     err = 0;
 err_test:
-    if (err != 0) {
-        return err;
+    switch (err) {
+    case 0:
+        if ((p_vol->flags & 0x08) != 0) {
+            err = -(s32)((p_vol->flags >> 1) & 0x01) & 0x0B;
+        } else {
+            err = 9;
+        }
+        break;
+    default:
+        break;
     }
-    if ((p_vol->flags & 0x08) == 0) {
-        goto ret9;
-    }
-    err = -(s32)((p_vol->flags >> 1) & 0x01) & 0x0B;
-    goto ret;
-ret9:
-    err = 9;
-ret:
     return err;
 }
 
@@ -808,7 +841,7 @@ s32 PFVOL_setvol(s8 drv_char, PF_STR* p_label) {
     s8 label[12];
 
     p_vol = PFVOL_GetVolumeFromDrvChar(drv_char);
-    len = PFSTR_StrLen(p_label);
+    len = (u16)PFSTR_StrLen(p_label);
 
     if (PFDRV_IsInserted(p_vol) != 0) {
         if (PFDRV_IsUnmountRequested(p_vol) != 0 && (p_vol->flags & 0x08) == 0) {
@@ -830,10 +863,12 @@ s32 PFVOL_setvol(s8 drv_char, PF_STR* p_label) {
         if (err != 0) {
             if ((p_vol->flags & 0x08) == 0) {
                 err = PFVOL_DoMountVolume(p_vol);
-                if (err == 0) {
+                switch (err) {
+                case 0:
                     goto mount_ok;
+                default:
+                    goto mount_done;
                 }
-                goto mount_done;
             }
             goto mount_clear;
 mount_ok:
@@ -950,10 +985,12 @@ s32 PFVOL_getvol(s8 drv_char, PF_VOL_INF* p_vinf) {
         if (err != 0) {
             if ((p_vol->flags & 0x08) == 0) {
                 err = PFVOL_DoMountVolume(p_vol);
-                if (err == 0) {
+                switch (err) {
+                case 0:
                     goto mount_ok;
+                default:
+                    goto mount_done;
                 }
-                goto mount_done;
             }
             goto mount_clear;
 mount_ok:
@@ -992,8 +1029,12 @@ mount_done:
 merge:
     err = 0;
 err_test:
-    if (err == 0) {
-        err = (p_vol->flags & 0x08) != 0 ? 0 : 9;
+    switch (err) {
+    case 0:
+        err = ((p_vol->flags & 0x08) != 0) ? 0 : 9;
+        break;
+    default:
+        break;
     }
     if (err != 0) {
         pf_vol_set.last_error = err;
@@ -1041,10 +1082,12 @@ s32 PFVOL_rmvvol(s8 drv_char) {
         if (err != 0) {
             if ((p_vol->flags & 0x08) == 0) {
                 err = PFVOL_DoMountVolume(p_vol);
-                if (err == 0) {
+                switch (err) {
+                case 0:
                     goto mount_ok;
+                default:
+                    goto mount_done;
                 }
-                goto mount_done;
             }
             goto mount_clear;
 mount_ok:
@@ -1084,10 +1127,10 @@ merge:
     err = 0;
 err_test:
     if (err == 0) {
-        if ((p_vol->flags & 0x08) == 0) {
-            err = 9;
-        } else {
+        if ((p_vol->flags & 0x08) != 0) {
             err = -(s32)((p_vol->flags >> 1) & 0x01) & 0x0B;
+        } else {
+            err = 9;
         }
     }
     if (err != 0) {
@@ -1142,10 +1185,12 @@ s32 PFVOL_getdev(s8 drv_char, PF_DEV_INF* p_inf) {
         if (err != 0) {
             if ((p_vol->flags & 0x08) == 0) {
                 err = PFVOL_DoMountVolume(p_vol);
-                if (err == 0) {
+                switch (err) {
+                case 0:
                     goto mount_ok;
+                default:
+                    goto mount_done;
                 }
-                goto mount_done;
             }
             goto mount_clear;
 mount_ok:
@@ -1184,8 +1229,12 @@ mount_done:
 merge:
     err = 0;
 err_test:
-    if (err == 0) {
-        err = (p_vol->flags & 0x08) != 0 ? 0 : 9;
+    switch (err) {
+    case 0:
+        err = ((p_vol->flags & 0x08) != 0) ? 0 : 9;
+        break;
+    default:
+        break;
     }
     if (err != 0) {
         pf_vol_set.last_error = err;
@@ -1231,10 +1280,12 @@ s32 PFVOL_buffering(s8 drv_char, u32 mode) {
         if (err != 0) {
             if ((p_vol->flags & 0x08) == 0) {
                 err = PFVOL_DoMountVolume(p_vol);
-                if (err == 0) {
+                switch (err) {
+                case 0:
                     goto mount_ok;
+                default:
+                    goto mount_done;
                 }
-                goto mount_done;
             }
             goto mount_clear;
 mount_ok:
@@ -1323,9 +1374,10 @@ err_test:
 }
 
 s32 PFVOL_attach(PF_DRV_TBL* p_tbl, s32 notify, u32 notify_param) {
+    s32 i;
     PF_VOLUME* p_vol;
     s32 err;
-    s32 i;
+    s32 err2;
 
     if (p_tbl->p_cache_cfg->fat_buffer_size == 0) {
         p_tbl->p_cache_cfg->fat_buffer_size = 1;
@@ -1360,12 +1412,18 @@ s32 PFVOL_attach(PF_DRV_TBL* p_tbl, s32 notify, u32 notify_param) {
     p_vol->tail_size = 1;
     p_vol->p_tail_buf = (u32*)p_vol->tail_area;
     err = PFDRV_init(p_vol);
-    if (err == 0) {
-        PFCACHE_SetCache(p_vol, p_tbl->p_cache_cfg->fat_pages, p_tbl->p_cache_cfg->data_pages,
-                         p_tbl->p_cache_cfg->num_fat_pages, p_tbl->p_cache_cfg->num_data_pages);
-        PFCACHE_SetFATBufferSize(p_vol, p_tbl->p_cache_cfg->fat_buffer_size);
-        PFCACHE_SetDataBufferSize(p_vol, p_tbl->p_cache_cfg->data_buffer_size);
+    switch (err) {
+    case 0:
+        goto init_ok;
+    default:
+        goto init_done;
     }
+init_ok:
+    PFCACHE_SetCache(p_vol, p_tbl->p_cache_cfg->fat_pages, p_tbl->p_cache_cfg->data_pages,
+                     p_tbl->p_cache_cfg->num_fat_pages, p_tbl->p_cache_cfg->num_data_pages);
+    PFCACHE_SetFATBufferSize(p_vol, p_tbl->p_cache_cfg->fat_buffer_size);
+    PFCACHE_SetDataBufferSize(p_vol, p_tbl->p_cache_cfg->data_buffer_size);
+init_done:
     if (err != 0) {
         pf_vol_set.last_error = err;
         return err;
@@ -1379,20 +1437,26 @@ s32 PFVOL_attach(PF_DRV_TBL* p_tbl, s32 notify, u32 notify_param) {
     if (err != 0) {
         p_tbl->flags |= 0x10;
         if ((p_vol->flags & 0x08) == 0) {
-            err = PFVOL_DoMountVolume(p_vol);
-            if (err != 0) {
+            err2 = PFVOL_DoMountVolume(p_vol);
+            switch (err2) {
+            case 0:
+                goto mount_ok;
+            default:
                 goto check;
             }
-            p_vol->fsi_flag &= ~0x07;
-            PFDRV_ClearUnmountRequested(p_vol);
-            pf_vol_set.num_mounted_volumes++;
         }
+        goto mount_clear;
+mount_ok:
+        p_vol->fsi_flag &= ~0x07;
+        PFDRV_ClearUnmountRequested(p_vol);
+        pf_vol_set.num_mounted_volumes++;
+mount_clear:
         PFDRV_ClearMountRequested(p_vol);
-        err = 0;
+        err2 = 0;
 check:
-        if (err != 0) {
-            pf_vol_set.last_error = err;
-            p_vol->last_error = err;
+        if (err2 != 0) {
+            pf_vol_set.last_error = err2;
+            p_vol->last_error = err2;
         } else {
             p_tbl->flags |= 2;
         }
@@ -1423,7 +1487,7 @@ s32 PFVOL_detach(s8 drv_char) {
         p_vol->last_error = err;
         return err;
     }
-    p_vol->flags &= ~0x03;
+    p_vol->flags &= ~0x01;
     pf_vol_set.num_attached_volumes--;
     return 0;
 }
@@ -1469,10 +1533,11 @@ s32 PFVOL_format(s8 drv_char, const u8* param) {
         if (err != 0) {
             if ((p_vol->flags & 0x08) == 0) {
                 err = PFVOL_DoMountVolume(p_vol);
-                if (err != 0) {
-                    goto mount_done;
-                } else {
+                switch (err) {
+                case 0:
                     goto mount_ok;
+                default:
+                    goto mount_done;
                 }
             }
             goto mount_clear;
@@ -1571,10 +1636,12 @@ s32 PFVOL_mount(s8 drv_char) {
         if (err != 0) {
             if ((p_vol->flags & 0x08) == 0) {
                 err = PFVOL_DoMountVolume(p_vol);
-                if (err == 0) {
+                switch (err) {
+                case 0:
                     goto mount_ok;
+                default:
+                    goto mount_done;
                 }
-                goto mount_done;
             }
             goto mount_clear;
 mount_ok:
@@ -1628,10 +1695,12 @@ err_test:
     }
     if ((p_vol->flags & 0x08) == 0) {
         err = PFVOL_DoMountVolume(p_vol);
-        if (err == 0) {
+        switch (err) {
+        case 0:
             goto mount_ok2;
+        default:
+            goto mount_done2;
         }
-        goto mount_done2;
     }
     goto mount_clear2;
 mount_ok2:
@@ -1684,10 +1753,12 @@ s32 PFVOL_unmount(s8 drv_char, u32 mode) {
         if (err != 0) {
             if ((p_vol->flags & 0x08) == 0) {
                 err = PFVOL_DoMountVolume(p_vol);
-                if (err == 0) {
+                switch (err) {
+                case 0:
                     goto mount_ok;
+                default:
+                    goto mount_done;
                 }
-                goto mount_done;
             }
             goto mount_clear;
 mount_ok:
@@ -1783,10 +1854,12 @@ s32 PFVOL_setupfsi(s8 drv_char, s32 mode) {
         if (err != 0) {
             if ((p_vol->flags & 0x08) == 0) {
                 err = PFVOL_DoMountVolume(p_vol);
-                if (err == 0) {
+                switch (err) {
+                case 0:
                     goto mount_ok;
+                default:
+                    goto mount_done;
                 }
-                goto mount_done;
             }
             goto mount_clear;
 mount_ok:
@@ -1825,8 +1898,12 @@ mount_done:
 merge:
     err = 0;
 err_test:
-    if (err == 0) {
-        err = (p_vol->flags & 0x08) != 0 ? 0 : 9;
+    switch (err) {
+    case 0:
+        err = ((p_vol->flags & 0x08) != 0) ? 0 : 9;
+        break;
+    default:
+        break;
     }
     if (err != 0) {
         pf_vol_set.last_error = err;
@@ -1886,10 +1963,12 @@ s32 PFVOL_setclstlink(s8 drv_char, u32 flag, PF_CLSTLNK_CFG* p_cfg) {
         if (err != 0) {
             if ((p_vol->flags & 0x08) == 0) {
                 err = PFVOL_DoMountVolume(p_vol);
-                if (err == 0) {
+                switch (err) {
+                case 0:
                     goto mount_ok;
+                default:
+                    goto mount_done;
                 }
-                goto mount_done;
             }
             goto mount_clear;
 mount_ok:
@@ -1928,8 +2007,12 @@ mount_done:
 merge:
     err = 0;
 err_test:
-    if (err == 0) {
-        err = (p_vol->flags & 0x08) != 0 ? 0 : 9;
+    switch (err) {
+    case 0:
+        err = ((p_vol->flags & 0x08) != 0) ? 0 : 9;
+        break;
+    default:
+        break;
     }
     if (err != 0) {
         pf_vol_set.last_error = err;
@@ -1983,10 +2066,12 @@ s32 PFVOL_sync(s8 drv_char, u32 mode) {
         if (err != 0) {
             if ((p_vol->flags & 0x08) == 0) {
                 err = PFVOL_DoMountVolume(p_vol);
-                if (err == 0) {
+                switch (err) {
+                case 0:
                     goto mount_ok;
+                default:
+                    goto mount_done;
                 }
-                goto mount_done;
             }
             goto mount_clear;
 mount_ok:
@@ -2091,10 +2176,12 @@ s32 PFVOL_settailbuf(s8 drv_char, u32 tail_size, u32* p_buf) {
         if (err != 0) {
             if ((p_vol->flags & 0x08) == 0) {
                 err = PFVOL_DoMountVolume(p_vol);
-                if (err == 0) {
+                switch (err) {
+                case 0:
                     goto mount_ok;
+                default:
+                    goto mount_done;
                 }
-                goto mount_done;
             }
             goto mount_clear;
 mount_ok:
@@ -2133,8 +2220,12 @@ mount_done:
 merge:
     err = 0;
 err_test:
-    if (err == 0) {
-        err = (p_vol->flags & 0x08) != 0 ? 0 : 9;
+    switch (err) {
+    case 0:
+        err = ((p_vol->flags & 0x08) != 0) ? 0 : 9;
+        break;
+    default:
+        break;
     }
     if (err != 0) {
         pf_vol_set.last_error = err;
