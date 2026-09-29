@@ -1946,14 +1946,18 @@ s32 ATERMi_AutoConfigThread(void) {
 }
 
 int ATERM_81404844(u16* destination, u16* source, u32 length, void* key, u32 keyLength) {
-    u32 expandedKey[64];
+    u32 expandedKey[76];
+    u64 expectedIv;
+    u64 counter;
     u32 stateWords[4];
     u8* destinationBytes = (u8*)destination;
     const u8* sourceBytes = (const u8*)source;
-    u32 blockCount;
-    u32 rounds;
-    u32 pass;
+    s32 blockCount;
+    s32 rounds;
+    s32 pass;
+    s32 blockIndex;
 
+    expectedIv = 0xA6A6A6A6A6A6A6A6ULL;
     if ((length & 7) != 0 || (keyLength & 7) != 0) {
         return 0;
     }
@@ -1964,39 +1968,48 @@ int ATERM_81404844(u16* destination, u16* source, u32 length, void* key, u32 key
 
     rounds = ATERM_81404BFC(expandedKey, key, keyLength << 3);
     memcpy(destinationBytes + 8, sourceBytes, length);
-    stateWords[0] = 0x4D4D4D4D;
-    stateWords[1] = 0x4D4D4D4D;
+    memcpy(stateWords, &expectedIv, 8);
     for (pass = 0; pass < 6; pass++) {
-        u32 blockIndex;
-        for (blockIndex = 1; blockIndex <= blockCount; blockIndex++) {
-            u64 counter = (u64)pass * blockCount + blockIndex;
+        u64 passCounter = (u64)blockCount * pass;
+        blockIndex = 1;
+        do {
             u8* stateBytes = (u8*)stateWords;
+            u8* blockData = destinationBytes + blockIndex * 8;
 
-            memcpy(stateBytes + 8, destinationBytes + blockIndex * 8, 8);
+            memcpy(stateBytes + 8, blockData, 8);
             ATERM_81405254(expandedKey, rounds, stateBytes, stateBytes);
-            stateBytes[0] ^= (u8)(counter >> 56);
-            stateBytes[1] ^= (u8)(counter >> 48);
-            stateBytes[2] ^= (u8)(counter >> 40);
-            stateBytes[3] ^= (u8)(counter >> 32);
-            stateBytes[4] ^= (u8)(counter >> 24);
-            stateBytes[5] ^= (u8)(counter >> 16);
-            stateBytes[6] ^= (u8)(counter >> 8);
-            stateBytes[7] ^= (u8)counter;
-        }
+            counter = passCounter + blockIndex;
+            stateBytes[0] ^= ((u8*)&counter)[0];
+            stateBytes[1] ^= ((u8*)&counter)[1];
+            stateBytes[2] ^= ((u8*)&counter)[2];
+            stateBytes[3] ^= ((u8*)&counter)[3];
+            stateBytes[4] ^= ((u8*)&counter)[4];
+            stateBytes[5] ^= ((u8*)&counter)[5];
+            stateBytes[6] ^= ((u8*)&counter)[6];
+            stateBytes[7] ^= ((u8*)&counter)[7];
+            memcpy(blockData, stateBytes + 8, 8);
+            blockIndex++;
+        } while (blockIndex <= blockCount);
     }
     memcpy(destinationBytes, stateWords, 8);
     return 1;
 }
 
 int ATERM_81404A18(u16* destination, u16* source, u32 length, void* key, u32 keyLength) {
-    u32 expandedKey[64];
+    u32 expandedKey[82];
+    u64 expectedIv;
+    u64 counter;
     u32 stateWords[4];
     u8* destinationBytes = (u8*)destination;
     const u8* sourceBytes = (const u8*)source;
-    u32 blockCount;
-    u32 rounds;
+    s32 blockCount;
+    s32 rounds;
     s32 pass;
+    s32 blockIndex;
+    int valid;
 
+    valid = 1;
+    expectedIv = 0xA6A6A6A6A6A6A6A6ULL;
     if ((length & 7) != 0 || (keyLength & 7) != 0) {
         return 0;
     }
@@ -2009,26 +2022,31 @@ int ATERM_81404A18(u16* destination, u16* source, u32 length, void* key, u32 key
     memcpy(stateWords, sourceBytes, 8);
     memcpy(destinationBytes, sourceBytes + 8, length - 1);
     for (pass = 5; pass >= 0; pass--) {
-        u32 blockIndex;
-        for (blockIndex = blockCount; blockIndex != 0; blockIndex--) {
-            u64 counter = (u64)(u32)pass * blockCount + blockIndex;
+        u64 passCounter = (u64)blockCount * pass;
+        blockIndex = blockCount;
+        do {
             u8* stateBytes = (u8*)stateWords;
-            u8* outputBlock = destinationBytes + (blockIndex - 1) * 8;
+            u8* blockData = destinationBytes + (blockIndex - 1) * 8;
 
-            memcpy(stateBytes + 8, outputBlock, 8);
+            counter = passCounter + blockIndex;
+            stateBytes[0] ^= ((u8*)&counter)[0];
+            stateBytes[1] ^= ((u8*)&counter)[1];
+            stateBytes[2] ^= ((u8*)&counter)[2];
+            stateBytes[3] ^= ((u8*)&counter)[3];
+            stateBytes[4] ^= ((u8*)&counter)[4];
+            stateBytes[5] ^= ((u8*)&counter)[5];
+            stateBytes[6] ^= ((u8*)&counter)[6];
+            stateBytes[7] ^= ((u8*)&counter)[7];
+            memcpy(stateBytes + 8, blockData, 8);
             ATERM_81405690(expandedKey, rounds, stateBytes, stateBytes);
-            stateBytes[0] ^= (u8)(counter >> 56);
-            stateBytes[1] ^= (u8)(counter >> 48);
-            stateBytes[2] ^= (u8)(counter >> 40);
-            stateBytes[3] ^= (u8)(counter >> 32);
-            stateBytes[4] ^= (u8)(counter >> 24);
-            stateBytes[5] ^= (u8)(counter >> 16);
-            stateBytes[6] ^= (u8)(counter >> 8);
-            stateBytes[7] ^= (u8)counter;
-            memcpy(outputBlock, stateBytes + 8, 8);
-        }
+            memcpy(blockData, stateBytes + 8, 8);
+            blockIndex--;
+        } while (blockIndex > 0);
     }
-    return stateWords[0] == 0x4D4D4D4D && stateWords[1] == 0x4D4D4D4D;
+    if (memcmp(&expectedIv, stateWords, 8) != 0) {
+        valid = 0;
+    }
+    return valid;
 }
 
 #define ATERM_AES_SUB_BYTE(value) (gAtermAesTables[4][(value)] & 0xFF)
