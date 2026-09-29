@@ -2507,13 +2507,15 @@ namespace ipl {
         int Setting::checkIPString(const wchar_t* text) {
             wchar_t zeroAddress[16] = L"000.000.000.000";
             if (memcmp(text, zeroAddress, sizeof(zeroAddress)) == 0) {
-                return 1;
+                goto valid;
             }
-            if (checkInputString(text)) {
-                return 1;
-            } else {
-                return 0;
+            if (checkInputString(text) == 0) {
+                goto invalid;
             }
+        valid:
+            return 1;
+        invalid:
+            return 0;
         }
 
         bool Setting::calcSafeMode() {
