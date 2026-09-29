@@ -1134,8 +1134,7 @@ pf_s32 PFDIR_closedir(PFDIR_DIR* dir) {
         ((PFDIR_VOLUME_DIRS*)volume)->last_error = error;
         return error;
     }
-    dir->p_sdd->num_handlers--;
-    if (dir->p_sdd->num_handlers == 0) {
+    if (--dir->p_sdd->num_handlers == 0) {
         dir->p_sdd->stat &= ~1;
     }
     dir->stat &= ~1;
