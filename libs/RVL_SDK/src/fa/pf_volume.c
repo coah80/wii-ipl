@@ -428,7 +428,7 @@ s32 PFVOL_p_getvol(PF_VOLUME* p_vol, PF_VOL_INF* p_vinf) {
 }
 
 s32 PFVOL_p_rmvvol(PF_VOLUME* p_vol) {
-    u8 del_code;
+    u8 del_code = *((const u8*)pf_vol_dummy_e5);
     u32 pos;
     u32 ppos;
     u32 written;
@@ -438,7 +438,6 @@ s32 PFVOL_p_rmvvol(PF_VOLUME* p_vol) {
     PF_DIR_ENT root;
     PF_DIR_ENT ent;
     s32 err;
-    del_code = *((const u8*)pf_vol_dummy_e5);
     err = PFENT_GetRootDir(p_vol, &root);
     if (err != 0) {
         return err;
@@ -465,16 +464,18 @@ s32 PFVOL_p_rmvvol(PF_VOLUME* p_vol) {
 s32 PFVOL_InitModule(u32 flag, u32 param) {
     s32 i;
     PF_VOLUME* p_vol;
+    u32 stat;
     if ((flag & 0x10000) != 0) {
         pf_vol_set.config |= 0x10000;
     } else {
         pf_vol_set.config &= ~0x10000;
     }
-    pf_vol_set.current_vol[0].stat |= 1;
+    stat = pf_vol_set.current_vol[0].stat | 1;
     pf_vol_set.current_vol[0].p_vol = &pf_vol_set.volumes[0];
     pf_vol_set.current_vol[1].p_vol = &pf_vol_set.volumes[0];
     pf_vol_set.current_vol[2].p_vol = &pf_vol_set.volumes[0];
     pf_vol_set.current_vol[3].p_vol = &pf_vol_set.volumes[0];
+    pf_vol_set.current_vol[0].stat = stat;
     pf_vol_set.num_attached_volumes = 0;
     pf_vol_set.num_mounted_volumes = 0;
     if ((flag & 0x10000) != 0) {
@@ -1364,6 +1365,7 @@ s32 PFVOL_detach(s8 drv_char) {
         return 0xA;
     }
     err = PFDRV_finalize(p_vol);
+    err = (err != 0) ? err : 0;
     if (err != 0) {
         pf_vol_set.last_error = err;
         p_vol->last_error = err;
@@ -1416,18 +1418,25 @@ s32 PFVOL_format(s8 drv_char, const u8* param) {
             if ((p_vol->flags & 0x08) == 0) {
                 err = PFVOL_DoMountVolume(p_vol);
                 if (err != 0) {
-                    goto check;
+                    goto mount_done;
                 } else {
-                    p_vol->fsi_flag &= ~0x07;
-                    PFDRV_ClearUnmountRequested(p_vol);
-                    pf_vol_set.num_mounted_volumes++;
+                    goto mount_ok;
                 }
             }
+            goto mount_clear;
+mount_ok:
+            p_vol->fsi_flag &= ~0x07;
+            PFDRV_ClearUnmountRequested(p_vol);
+            pf_vol_set.num_mounted_volumes++;
+mount_clear:
             PFDRV_ClearMountRequested(p_vol);
             err = 0;
-            if (err != 0) {
-                goto check;
+mount_done:
+            if (err == 0) {
+                goto mount_skip;
             }
+            goto check;
+mount_skip:;
         }
     } else {
         if (PFDRV_IsUnmountRequested(p_vol) != 0 && (p_vol->flags & 0x08) == 0) {
@@ -2046,7 +2055,7 @@ s32 PFVOL_setvolcfg(s8 drv_char, PF_VOL_CFG* p_cfg) {
         } else if ((p_cfg->flags & 0x20000) != 0) {
             pf_vol_set.config &= ~0x10000;
         }
-        return 0;
+        goto end;
     }
 
     p_vol = PFVOL_GetVolumeFromDrvChar(drv_char);
@@ -2076,11 +2085,13 @@ s32 PFVOL_setvolcfg(s8 drv_char, PF_VOL_CFG* p_cfg) {
         }
         if (PFDRV_IsMountRequested(p_vol) != 0) {
             if ((p_vol->flags & 0x08) == 0) {
-                if (PFVOL_DoMountVolume(p_vol) == 0) {
-                    p_vol->fsi_flag &= ~0x07;
-                    PFDRV_ClearUnmountRequested(p_vol);
-                    pf_vol_set.num_mounted_volumes++;
+                err = PFVOL_DoMountVolume(p_vol);
+                if (err != 0) {
+                    goto check;
                 }
+                p_vol->fsi_flag &= ~0x07;
+                PFDRV_ClearUnmountRequested(p_vol);
+                pf_vol_set.num_mounted_volumes++;
             }
             PFDRV_ClearMountRequested(p_vol);
         }
@@ -2133,6 +2144,7 @@ check:
     } else if ((p_cfg->file_config & 2) != 0) {
         p_vol->file_config &= ~1;
     }
+end:
     return 0;
 }
 
@@ -2213,7 +2225,12 @@ s32 PFVOL_setcode(PF_CHARCODE* p_codeset) {
         pf_vol_set.last_error = 0x24;
         return 0x24;
     }
-    pf_vol_set.codeset = *p_codeset;
+    pf_vol_set.codeset.oem2unicode = p_codeset->oem2unicode;
+    pf_vol_set.codeset.unicode2oem = p_codeset->unicode2oem;
+    pf_vol_set.codeset.oem_char_width = p_codeset->oem_char_width;
+    pf_vol_set.codeset.is_oem_mb_char = p_codeset->is_oem_mb_char;
+    pf_vol_set.codeset.unicode_char_width = p_codeset->unicode_char_width;
+    pf_vol_set.codeset.is_unicode_mb_char = p_codeset->is_unicode_mb_char;
     return 0;
 }
 
