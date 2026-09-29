@@ -202,6 +202,7 @@ pf_s32 PFDIR_DoFsexecOpenDir(PF_DIR_ENT* entry, PF_ENT_ITER* iter, PFDIR_DIR** o
     PFDIR_VOLUME_DIRS* volume_dirs = (PFDIR_VOLUME_DIRS*)entry->p_vol;
     PFDIR_SDD* sdd;
     PFDIR_DIR* dir;
+    PFDIR_DIR* scan_dir;
     pf_s32 i;
 
     *opened_dir = 0;
@@ -212,13 +213,15 @@ pf_s32 PFDIR_DoFsexecOpenDir(PF_DIR_ENT* entry, PF_ENT_ITER* iter, PFDIR_DIR** o
     if (sdd == 0) {
         return 0x15;
     }
-    dir = volume_dirs->udds;
-    for (i = 0; i < 3; i++, dir++) {
-        if ((dir->stat & 1) == 0) {
+    dir = 0;
+    scan_dir = volume_dirs->udds;
+    for (i = 0; i < 3; i++, scan_dir++) {
+        if ((scan_dir->stat & 1) == 0) {
+            dir = &volume_dirs->udds[i];
             break;
         }
     }
-    if (i == 3) {
+    if (dir == 0) {
         return 0x16;
     }
     dir->p_sdd = sdd;
