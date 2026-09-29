@@ -63,23 +63,54 @@ s32 NHTTPi_encodeUrlChar(char* destination, s8 character) {
     }
 }
 
-s32 NHTTPi_strToHex(const char* string, s32 length) {
-    s32 value;
-    BOOL started;
-    if(length>8) return -1;
-    if((length==8) & (*string>='7')) return -1;
-    value=0; started=FALSE;
-    for(; length>0; --length,++string) {
-        s8 character=LowerCase(*string);
-        if(character>='0' && character<='9') { value=(value<<4)+character-'0'; started=TRUE; }
-        else if(character>='a' && character<='f') { value=(value<<4)+character-'a'+10; started=TRUE; }
-        else {
-            if(started && (character==' ' || character==0)) break;
-            if(!started && character==' ') continue;
+s32 NHTTPi_strToHex(const char* string, s32 length)
+{
+    s32 result;
+    BOOL foundDigit;
+    char c;
+
+    if (length > 8)
+    {
+        return -1;
+    }
+    if ((length == 8) & (string[0] > '7'))
+    {
+        return -1;
+    }
+
+    result = 0;
+    foundDigit = FALSE;
+    while (length-- > 0)
+    {
+        c = ((*string >= 'A') & (*string <= 'Z'))
+            ? *string + ('a' - 'A')
+            : *string;
+
+        if (c >= '0' && c <= '9')
+        {
+            result = result * 16 + c - '0';
+            foundDigit = TRUE;
+        }
+        else if (c >= 'a' && c <= 'f')
+        {
+            result = result * 16 + c - 'a' + 10;
+            foundDigit = TRUE;
+        }
+        else if (foundDigit && (c == ' ' || c == '\0'))
+        {
+            break;
+        }
+        else if (!foundDigit && c == ' ')
+        {
+        }
+        else
+        {
             return -1;
         }
+        string++;
     }
-    return value;
+
+    return result;
 }
 
 s32 NHTTPi_strToInt(const char* string, s32 length) {
