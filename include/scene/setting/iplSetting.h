@@ -5,6 +5,10 @@
 
 #ifdef IPL_SETTING_IMPLEMENTATION
 #include <revolution/os.h>
+#include "layout/iplGuiManager.h"
+#include "layout/GUIManager.h"
+#include "iplwww/www_wiisetting.h"
+#include "system/iplKeyboard.h"
 #include "system/iplNand.h"
 #include "utility/iplThread.h"
 #endif
@@ -12,10 +16,19 @@
 namespace ipl {
     namespace scene {
 #ifdef IPL_SETTING_IMPLEMENTATION
-        class APEvent {
+        class Setting;
+        class APScanThread;
+
+        class APEvent : public ::gui::EventHandler {
         public:
-            u8 unknown[4];
-            u8 eventType;
+            APEvent(Setting* setting) : ::gui::EventHandler(), mpSetting(setting) {}
+
+            virtual void onEvent(u32 componentID, u32 event, void* data);
+
+            void setEventType(u8 eventType) { reinterpret_cast<u8&>(mpManager) = eventType; }
+
+        private:
+            Setting* mpSetting;
         };
 
         struct SettingAnimation {
@@ -33,6 +46,23 @@ namespace ipl {
             bool isAnimating();
             void getFuncMsgQ();
             void resetFuncMsgQ();
+            void createBrowser();
+            void initDirectUrl();
+            void initString();
+            void initWiiSettingData();
+            void initNickName();
+            void initSecurityKey();
+            void initSSID();
+            void initIP();
+            void initDNS();
+            void initProxy();
+            void initBasic();
+            void initMTU();
+            void initSecA();
+            void initVersion();
+            void start_point_event(const char* pageName);
+            void start_trig_event(const char* pageName);
+            void start_left_event(const char* pageName);
             int get_arw_no(const char* paneName);
             int get_ap_no(const char* buttonName);
             virtual void destroy();
@@ -84,24 +114,36 @@ namespace ipl {
             u8 mSettingData[0x16];
             u8 unk_0xBA[2];
             nand::LayoutFile* mpSettingLayoutFile;
-            u8 unk_0xC0[0xC];
+            layout::Object* mpChangeLayout;
+            layout::Object* mpMainLayout;
+            layout::Object* mpWaitLayout;
             SettingAnimation* mpFirstAnimation;
             SettingAnimation* mpSecondAnimation;
-            u8 unk_0xD4[0xC];
+            APEvent* mpEventHandler;
+            gui::PaneManager* mpPaneManager;
+            void* mpUSBAPThread;
             utility::ut_thread* mpAOSSThread;
             utility::ut_thread* mpRakuRakuThread;
-            u8 unk_0xE8[0x82C];
+            APScanThread* mpAPScanThread;
+            u8 unk_0xEC[0x818];
+            void* mpMem1BrowserBuffer;
+            u32 unk_0x908;
+            void* mpMem2BrowserBuffer;
+            void* mpBrowserStringBuffer;
             int unk_0x914;
             int unk_0x918;
             u8 unk_0x91C[4];
-            u8 unk_0x920[8];
+            void* mpBrowserData;
+            u32 unk_0x924;
             APEvent* mpAPEvent;
             u8 unk_0x92C;
             u8 unk_0x92D[3];
             int unk_0x930;
-            u8 unk_0x934[0x207];
-            u8 unk_0xB3B;
-            u8 unk_0xB3C[0x10];
+            www::wiisetting::SetStringBuf* mpStringBuffer;
+            u8 unk_0x938[0x202];
+            u8 unk_0xB3A;
+            u8 mBrowserCreated;
+            keyboard::Manager::State mKeyboardState;
             int mInitialArgument;
             int mAspectRatio;
             int mProgressiveMode;
@@ -109,11 +151,12 @@ namespace ipl {
             u8 mIsResetAcceptable;
             u8 unk_0xB5D[3];
             OSMessageQueue mFuncMessageQueue;
-            u8 unk_0xB80[0x14];
+            OSMessage mFuncMessages[5];
             int unk_0xB94;
             int mState;
             int unk_0xB9C;
-            u8 unk_0xBA0[0xC];
+            OSTime mCreatePageTime;
+            u32 unk_0xBA8;
             u8 unk_0xBAC;
             u8 unk_0xBAD[3];
             u8 unk_0xBB0[0x10];

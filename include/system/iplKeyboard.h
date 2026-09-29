@@ -63,8 +63,15 @@ namespace ipl {
                 textinput::MemoManager::StateType type;  // 0x00
                 KeyboardState iplType;                   // 0x04
                 bool pressOK;                            // 0x08
+#ifdef IPL_SETTING_IMPLEMENTATION
+                u8 reservedByte;
+#else
                 u8 unused_0x09;
+#endif
                 wchar_t* wcString;  // 0x0C
+#ifdef IPL_SETTING_IMPLEMENTATION
+                State& operator=(const State& other);
+#endif
             } State;
 
             Manager() : mpManager(NULL), mEvent(), mCurrentConChan(0), mbActivated(false), mpSaveFile(NULL) {}

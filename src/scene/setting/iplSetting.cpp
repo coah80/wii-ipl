@@ -2,15 +2,69 @@
 #include "scene/setting/iplSetting.h"
 
 #include "scene/setting/iplNCDSetting.h"
+#include "scene/setting/iplParental.h"
+#include "system/iplErrorHandler.h"
 #include "system/iplSystem.h"
 
 #include "iplwww/www_wiisetting.h"
+#include "iplwww/www_surface.h"
 
 #include <cstdio>
 #include <cstring>
+#include <new>
+#include <revolution/sc.h>
+#include <revolution/tpl.h>
+#include <revolution/vi.h>
+
+namespace ipl {
+    namespace keyboard {
+        Manager::State& Manager::State::operator=(const Manager::State& other) {
+            type = other.type;
+            iplType = other.iplType;
+            pressOK = other.pressOK;
+            reservedByte = other.reservedByte;
+            wcString = other.wcString;
+            return *this;
+        }
+    }
+}
 
 namespace ipl {
     namespace scene {
+        class APScanThread {
+        public:
+            APScanThread();
+        };
+
+        class USBAPThread {
+        public:
+            USBAPThread();
+        };
+
+        class AOSSThread {
+        public:
+            AOSSThread(EGG::Heap* heap);
+        };
+
+        class RakuRakuThread {
+        public:
+            RakuRakuThread(EGG::Heap* heap);
+        };
+
+        struct SettingAnimationBinding {
+            u16 animation;
+            u16 pane;
+        };
+
+        static const SettingAnimationBinding sSettingAnimationBindings[] = {
+            {0, 2},  {0, 3},  {1, 2},  {1, 3},  {2, 2},  {2, 3},  {3, 2},  {3, 3},  {4, 2},  {4, 3},
+            {5, 0},  {6, 0},  {7, 8},  {7, 9},  {7, 10}, {7, 11}, {8, 8},  {8, 9},  {8, 10}, {8, 11},
+            {9, 1},  {10, 1}, {11, 14}, {11, 15}, {11, 16}, {11, 17}, {11, 18}, {11, 19}, {12, 14}, {12, 15},
+            {12, 16}, {12, 17}, {12, 18}, {12, 19}, {13, 14}, {13, 15}, {13, 16}, {13, 17}, {13, 18}, {13, 19},
+            {14, 14}, {14, 15}, {14, 16}, {14, 17}, {14, 18}, {14, 19}, {15, 20}, {15, 21}, {15, 22}, {15, 23},
+            {15, 24}, {15, 25}, {16, 20}, {16, 21}, {16, 22}, {16, 23}, {16, 24}, {16, 25},
+        };
+
         const char* sSettingAPButtonNames[] = {"B_AP2", "B_AP3", "B_AP4", "B_AP5"};
 
         const char* sSettingArrowNames[] = {"B_ArwA", "B_ArwB"};
@@ -48,7 +102,7 @@ namespace ipl {
             mpWWWArchiveFile = 0;
             mpFontFile = 0;
             mpSettingLayoutFile = 0;
-            unk_0xB3B = 0;
+            mBrowserCreated = 0;
             setSceneParentFlags(3);
             unk_0x74 = 0;
             mInitialArgument = arg;
@@ -84,12 +138,12 @@ namespace ipl {
             OSMessage message = 0;
             if (mFuncMsgPending == 0 && OSReceiveMessage(&mFuncMessageQueue, &message, 0)) {
                 mFuncMsgPending = 1;
-                mpAPEvent->eventType = (u8)message;
+                mpAPEvent->setEventType((u8)message);
             }
         }
 
         void Setting::resetFuncMsgQ() {
-            mpAPEvent->eventType = 0;
+            mpAPEvent->setEventType(0);
             mFuncMsgPending = 0;
         }
 
@@ -129,56 +183,64 @@ namespace ipl {
         }
 
         void Setting::prepare() {
-            bs2::Manager* bs2Manager = System::getBS2Manager();
-            bs2Manager->abort();
-            while (bs2Manager->getIPLState() != 8) {
-                bs2Manager->update();
+            System::getBS2Manager()->abort();
+            while (System::getBS2Manager()->getIPLState() != 8) {
+                System::getBS2Manager()->update();
                 VIWaitForRetrace();
             }
 
             System::getUsbEtherMacAddr();
             mPrepareTick = OSGetTick();
             mpWWWLibraryFile = System::getNandManager()->readSharedAsync(
-                System::createMem1AppHeap(), "wwwlib-rvl.lz7", 2, 0, 0, 1, 2);
+                System::createMem1AppHeap(), "wwwlib-rvl.lz7", 2);
 
             char fontName[32];
             char htmlPath[64];
             char productArea = SCGetProductArea();
+            if (productArea == 6) {
+                goto koreanFont;
+            }
             if (productArea < 6) {
                 if (productArea != 4) {
                     if (productArea > 3) {
+                        goto europeFont;
+                    } else if (productArea >= 0) {
                         snprintf(fontName, sizeof(fontName), "WiiNTLG-Regular.ttc");
-                        snprintf(htmlPath, sizeof(htmlPath), "/html/%s/iplsetting.ash", "EU/EU");
-                        goto loadFiles;
-                    }
-                    if (productArea >= 0) {
-                        snprintf(fontName, sizeof(fontName), "WiiNTLG-Regular.ttc");
-                        snprintf(htmlPath, sizeof(htmlPath), "/html/%s/iplsetting.ash", "FIX/US");
+                        snprintf(htmlPath, sizeof(htmlPath), "/html/%s/iplsetting.ash", "US2");
                         goto loadFiles;
                     }
                 }
-            } else if (productArea == 6) {
-                snprintf(fontName, sizeof(fontName), "Wii-kr_Round Gothic B.ttf");
-                snprintf(htmlPath, sizeof(htmlPath), "/html/%s/iplsetting.ash", "FIX/US");
-                goto loadFiles;
             } else if (productArea == 11) {
-                snprintf(fontName, sizeof(fontName), "Wii-cn_HeiTiW5.ttf");
-                snprintf(htmlPath, sizeof(htmlPath), "/html/%s/iplsetting.ash", "FIX/US");
-                goto loadFiles;
+                goto chineseFont;
             }
 
             snprintf(fontName, sizeof(fontName), "WiiNTLG-Regular.ttc");
-            snprintf(htmlPath, sizeof(htmlPath), "/html/%s/iplsetting.ash", "FIX/US");
+            snprintf(htmlPath, sizeof(htmlPath), "/html/%s/iplsetting.ash", "US2");
+            goto loadFiles;
+
+        koreanFont:
+            snprintf(fontName, sizeof(fontName), "Wii-kr_Round Gothic B.ttf");
+            snprintf(htmlPath, sizeof(htmlPath), "/html/%s/iplsetting.ash", "US2");
+            goto loadFiles;
+
+        chineseFont:
+            snprintf(fontName, sizeof(fontName), "Wii-cn_HeiTiW5.ttf");
+            snprintf(htmlPath, sizeof(htmlPath), "/html/%s/iplsetting.ash", "US2");
+            goto loadFiles;
+
+        europeFont:
+            snprintf(fontName, sizeof(fontName), "WiiNTLG-Regular.ttc");
+            snprintf(htmlPath, sizeof(htmlPath), "/html/%s/iplsetting.ash", "TW2");
 
         loadFiles:
             mpSettingHTMLFile = System::getNandManager()->readAsync(
                 System::createMem1AppHeap(), htmlPath, 0, 0, false);
             mpWWWArchiveFile = System::getNandManager()->readAsync(
-                System::createMem1AppHeap(), "/www.arc", 0, 0, false);
+                System::getMem2App(), "/www.arc", 0, 0, false);
             mpFontFile = System::getNandManager()->readSharedAsync(
-                System::createMem1AppHeap(), fontName, 3, 0, 0, 1, 2);
+                System::getMem2App(), fontName, 3);
             mpBackgroundTPLFile = System::getNandManager()->readAsync(
-                System::createMem1AppHeap(), "/html/BG_16x9.tpl", 0, 0, false);
+                System::getMem2App(), "/html/BG_16x9.tpl", 0, 0, false);
             mpSettingLayoutFile = System::getNandManager()->readLayoutAsync(getSceneHeap(), "setting.ash", false);
 
             if (mInitialArgument == 2) {
@@ -190,6 +252,233 @@ namespace ipl {
             } else {
                 www::wiisetting::setInitSetupFlag(0);
             }
+        }
+
+        void Setting::create() {
+            nand::File* archiveFile = static_cast<nand::File*>(mpWWWArchiveFile);
+            nand::File* writtenArchive = System::getNandManager()->write(
+                getSceneHeap(), "/tmp/www.arc", archiveFile->getBuffer(), archiveFile->getLength(), 0x30);
+            if (writtenArchive->isFatalError()) {
+                System::getErrorHandler()->log("NAND", writtenArchive->checkData(), "iplSetting.cpp", 0x178);
+                System::getErrorHandler()->set(ErrorHandler::DEFAULT, 2, NULL, 0, -1);
+            }
+            if (writtenArchive != NULL) {
+                writtenArchive->write();
+            }
+
+            mpChangeLayout = new layout::Object(getSceneHeap(), mpSettingLayoutFile, "arc", "SceenChange_b.brlyt");
+            mpFirstAnimation = reinterpret_cast<SettingAnimation*>(mpChangeLayout->bind("SceenChange_b_Right.brlan"));
+            mpSecondAnimation = reinterpret_cast<SettingAnimation*>(mpChangeLayout->bind("SceenChange_b_Left.brlan"));
+            mpChangeLayout->finishBinding();
+
+            mpMainLayout = new layout::Object(getSceneHeap(), mpSettingLayoutFile, "arc", "my_AP_a.brlyt");
+            for (int index = 0; index < 58; index++) {
+                const SettingAnimationBinding& binding = sSettingAnimationBindings[index];
+                bool isSpecialAnimation = index == 10 || index == 20;
+                mpMainLayout->bindToGroup(sSettingAPAnimations[binding.animation], sSettingAPPaneNames[binding.pane], false,
+                                          isSpecialAnimation);
+            }
+            mpMainLayout->finishBinding();
+
+            mpWaitLayout = new layout::Object(getSceneHeap(), mpSettingLayoutFile, "arc", "it_Waiting_a.brlyt");
+            mpWaitLayout->bindToGroup("it_Waiting_a_Wait.brlan", "G_Wait", false, false);
+            mpWaitLayout->finishBinding();
+            mpWaitLayout->FindPaneByName("N_Wait")->SetVisible(false);
+
+            mpBrowserData = ::operator new(0x20);
+            void* apScanThreadMemory = ::operator new(0x380);
+            mpAPScanThread = apScanThreadMemory != NULL ? new (apScanThreadMemory) APScanThread() : NULL;
+            void* usbThreadMemory = ::operator new(0x14);
+            mpUSBAPThread = usbThreadMemory != NULL ? new (usbThreadMemory) USBAPThread() : NULL;
+            ncd::NCDSetting::init();
+            parental::Parental::init();
+
+            void* aossThreadMemory = ::operator new(0x5b0);
+            mpAOSSThread = aossThreadMemory != NULL
+                               ? reinterpret_cast<utility::ut_thread*>(new (aossThreadMemory) AOSSThread(getSceneHeap()))
+                               : NULL;
+            void* rakuThreadMemory = ::operator new(0x348);
+            mpRakuRakuThread = rakuThreadMemory != NULL
+                                   ? reinterpret_cast<utility::ut_thread*>(new (rakuThreadMemory) RakuRakuThread(getSceneHeap()))
+                                   : NULL;
+
+            www::wiisetting::initWiiSetting();
+            initWiiSettingData();
+            initString();
+            www::wiisetting::setStringBuf(mpStringBuffer);
+            OSInitMessageQueue(&mFuncMessageQueue, mFuncMessages, 5);
+            www::wiisetting::setMsgQueue(&mFuncMessageQueue);
+
+            mpMem1BrowserBuffer = getSceneHeap()->alloc(0x1000, 0x20);
+            unk_0x908 = 0;
+            mpMem2BrowserBuffer = getSceneHeap()->alloc(0x800, 4);
+            memset(mpMem2BrowserBuffer, 0, 0x800);
+            mpBrowserStringBuffer = getSceneHeap()->alloc(0x79, 4);
+            memset(mpBrowserStringBuffer, 0, 0x79);
+
+            mpEventHandler = new APEvent(this);
+            mpAPEvent = mpEventHandler;
+            mpPaneManager = new gui::PaneManager(mpEventHandler, mpMainLayout->getDrawInfo(), getSceneHeap(), NULL, false);
+            mpPaneManager->setupScene(mpMainLayout);
+            mpPaneManager->setAllBoundingBoxComponentTriggerTarget(false);
+
+            for (int index = 0; index < 4; index++) {
+                mpPaneManager->setTriggerTarget(mpMainLayout->FindPaneByName(sSettingAPButtonNames[index]), true);
+            }
+            for (int index = 0; index < 2; index++) {
+                mpPaneManager->setTriggerTarget(mpMainLayout->FindPaneByName(sSettingArrowNames[index]), true);
+            }
+
+            TPLBind(reinterpret_cast<TPLPalette*>(static_cast<nand::File*>(mpBackgroundTPLFile)->getBuffer()));
+            int tick = OSGetTick();
+            OSReport("*** prepare costs: %dms\n", (tick - mPrepareTick) / (OS_TIMER_CLOCK / 4000));
+            mPrepareTick = OSGetTick();
+        }
+
+        void Setting::createBrowser() {
+            static const char* urlFormats[] = {"marc:%s/%s/", "file:dvd/html/IPLSetting/%s/%s/"};
+            static const char* pagePaths[] = {
+                "index01.html", "Internet/Internet_index.html", "Setup/startup_index1.html",
+                "Update/Update_index.html", "index02.html", "Setup/ScreenSave.html",
+                "Country/US_Country_flame.html",
+            };
+            static const char* pageNames[] = {"Calendar", "Parental_Control", "Internet", "Wiiconnect24"};
+            static const char* regionCodes[] = {"JP/JP", "FIX/US", "EU/EU", "TW/TW", "KR/KR", "CN/CN"};
+            static const char* languageCodes[] = {"JPN", "ENG", "GER", "FRA", "SPA", "ITA", "DUT", "CHN", "KOR"};
+
+            EGG::Heap* mem1Heap = System::createMem1AppHeap();
+            u32 mem1Size = mem1Heap->getAllocatableSize(4);
+            EGG::Heap* mem2Heap = System::getMem2App();
+            u32 mem2Size = mem2Heap->getAllocatableSize(4) - 0x80000;
+            mem1Buffer_ = System::createMem1AppHeap()->alloc(mem1Size, 4);
+            mem2Buffer_ = mem2Heap->alloc(mem2Size, 4);
+            OSReport("Setting Scene: mem1: %d  mem2: %d\n", mem1Size, mem2Size);
+
+            nw4r::ut::Rect projection16x9;
+            nw4r::ut::Rect projection4x3;
+            System::getProjectionRect16x9(&projection16x9);
+            System::getProjectionRect4x3(&projection4x3);
+            int width = projection16x9.right - projection16x9.left;
+            int height = projection16x9.bottom - projection16x9.top;
+
+            char basePath[100];
+            char browserPath[100];
+            memset(basePath, 0, sizeof(basePath));
+            memset(browserPath, 0, sizeof(browserPath));
+            strcpy(basePath, urlFormats[0]);
+            int pageIndex = mInitialArgument;
+            if (pageIndex < 0 || pageIndex >= 7) {
+                pageIndex = 0;
+            }
+            strcat(basePath, pagePaths[pageIndex]);
+
+            int regionIndex = 1;
+            char productArea = SCGetProductArea();
+            if (productArea >= 0 && productArea < 4) {
+                regionIndex = productArea > 2 ? 2 : 0;
+            } else if (productArea == 6) {
+                regionIndex = 4;
+            } else if (productArea == 11) {
+                regionIndex = 5;
+            } else if (productArea >= 7 && productArea < 11) {
+                regionIndex = 2;
+            }
+
+            if (mInitialArgument == ARG_UNK_5) {
+                snprintf(browserPath, sizeof(browserPath), basePath, regionCodes[regionIndex],
+                         languageCodes[System::getLanguage()], pagePaths[pageIndex]);
+            } else if (mInitialArgument == ARG_UNK_6) {
+                int directPage = 0;
+                for (int index = 0; index < 4; index++) {
+                    if (strstr(reinterpret_cast<char*>(mpStringBuffer) + 0x60e, pageNames[index]) != NULL) {
+                        directPage = index;
+                        break;
+                    }
+                }
+                if (directPage == 0) {
+                    snprintf(browserPath, sizeof(browserPath), basePath, regionCodes[regionIndex],
+                             languageCodes[System::getLanguage()], "index01.html");
+                } else if (directPage == 1) {
+                    snprintf(browserPath, sizeof(browserPath), basePath, regionCodes[regionIndex],
+                             languageCodes[System::getLanguage()], "index02.html");
+                } else {
+                    snprintf(browserPath, sizeof(browserPath), basePath, regionCodes[regionIndex],
+                             languageCodes[System::getLanguage()], "index03.html");
+                }
+            } else {
+                snprintf(browserPath, sizeof(browserPath), basePath, regionCodes[regionIndex],
+                         languageCodes[System::getLanguage()]);
+            }
+
+            OSReport("***********************************\n");
+            OSReport(" RSO PLACED : %p %d\n", static_cast<nand::File*>(mpWWWLibraryFile)->getBuffer(),
+                     static_cast<nand::File*>(mpWWWLibraryFile)->getLength());
+            ICInvalidateRange(static_cast<nand::File*>(mpWWWLibraryFile)->getBuffer(),
+                              static_cast<nand::File*>(mpWWWLibraryFile)->getLength());
+            ext_ead::www::SurfaceManager::CreateManager(width, height, width, height, mem1Buffer_, mem1Size,
+                                                       mem2Buffer_, mem2Size,
+                                                       static_cast<nand::File*>(mpWWWLibraryFile)->getBuffer(),
+                                                       browserPath);
+            ext_ead::www::SurfaceManager::RegisterArcFile(static_cast<nand::File*>(mpWWWArchiveFile)->getBuffer());
+            ext_ead::www::SurfaceManager::RegisterIniFile(static_cast<nand::File*>(mpSettingHTMLFile)->getBuffer(),
+                                                          static_cast<nand::File*>(mpSettingHTMLFile)->getLength());
+            ext_ead::www::SurfaceManager::RegisterFontFile(0, static_cast<nand::File*>(mpFontFile)->getBuffer(),
+                                                           static_cast<nand::File*>(mpFontFile)->getLength());
+            ext_ead::www::SurfaceManager::StartThread();
+        }
+
+        void Setting::initDirectUrl() {
+            if (mInitialArgument != ARG_UNK_6) {
+                return;
+            }
+            const char* settingArgument = System::getNetSettingArg();
+            if (settingArgument != NULL) {
+                memcpy(reinterpret_cast<char*>(mpStringBuffer) + 0x60e, settingArgument, 0x80);
+            }
+        }
+
+        void Setting::initString() {
+            mpStringBuffer = reinterpret_cast<www::wiisetting::SetStringBuf*>(getSceneHeap()->alloc(0x64e, 4));
+            OSReport("HTML String Alloc Size:%d\n", 0x64e);
+            memset(mpStringBuffer, 0, 0x64e);
+            memset(unk_0x938, 0, 0x202);
+            initNickName();
+            initSecurityKey();
+            initSSID();
+            initIP();
+            initDNS();
+            initProxy();
+            initBasic();
+            initMTU();
+            initSecA();
+            initVersion();
+            initDirectUrl();
+        }
+
+        FaderSceneCommand Setting::calcFadein() {
+            if (System::hasCreatedAfter() && mBrowserCreated == 0) {
+                mBrowserCreated = 1;
+                createBrowser();
+                OSReport("............browser created\n");
+            }
+
+            if (mBrowserCreated == 0) {
+                OSReport("wait first init\n");
+                return FADER_SCN_CONTINUE;
+            }
+
+            ext_ead::www::SurfaceManager* surfaceManager = ext_ead::www::SurfaceManager::GetInstance();
+            ext_ead::www::BrowserThread* browserThread = surfaceManager->GetBrowserThread();
+            if (browserThread == NULL || browserThread->GetTextureBuffer(0, NULL) == NULL || !System::hasCreatedAfter()) {
+                return FADER_SCN_CONTINUE;
+            }
+
+            mKeyboardState = *System::getKeyboard()->getState();
+            System::getFader()->fadeIn();
+            mCreatePageTime = OSGetTime();
+            OSReport("*** create page costs: %dms\n",
+                     (OSGetTick() - mPrepareTick) / ((OS_TIMER_CLOCK / 4) / 1000));
+            return FADER_SCN_NEXT;
         }
 
         u16 Setting::getProfileID() {
@@ -235,5 +524,6 @@ namespace ipl {
         BOOL Setting::isResetAcceptable() const {
             return mIsResetAcceptable;
         }
+
     }  // namespace scene
 }  // namespace ipl
