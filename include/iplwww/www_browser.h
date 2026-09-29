@@ -122,6 +122,14 @@ extern WWWProtocolFinalizeFn WWWProtocolFinished;
 extern WWWProtocolFinalizeFn WWWProtocolFailed;
 extern WWWAddProtocolFn WWWAddProtocol;
 
+#ifdef IPL_SETTING_IMPLEMENTATION
+namespace ipl {
+    namespace scene {
+        class Setting;
+    }
+}
+#endif
+
 namespace www {
     namespace arcreader {
         class ArcContainer;
@@ -206,6 +214,9 @@ namespace ext_ead {
             WWWHandle* GetHandle() { return mpBrowserHandle; }
 
         private:
+#ifdef IPL_SETTING_IMPLEMENTATION
+            friend class ::ipl::scene::Setting;
+#endif
             static BOOL SNotifyCallback_(WWWHandle* wwwBrowser, WWWHandlewindow* wwwWindow, WWWEvent event, WWWHandleEventData* eventData);
             BOOL NotifyCallback_(WWWHandle* wwwBrowser, WWWHandlewindow* wwwWindow, WWWEvent event, WWWHandleEventData* eventData);
 
