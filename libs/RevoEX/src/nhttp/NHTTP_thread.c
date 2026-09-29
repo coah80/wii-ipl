@@ -1010,11 +1010,13 @@ static BOOL NHTTPi_ThreadParseHeaderProc(NHTTPThreadContext* context)
 
 static inline s32 NHTTPi_RecvChunkLine(void* mutex, NHTTPRequestInfo* request, s32 socket)
 {
-    s32 total = 0;
-    u32 index = 0;
+    u32 index;
+    s32 total;
     char recent[2];
-    recent[0] = 0;
-    recent[1] = 0;
+    total = 0;
+    recent[0] = total;
+    recent[1] = total;
+    index = 0;
     while (recent[index & 1] != '\r' || recent[(index - 1) & 1] != '\n')
     {
         s32 received = NHTTPi_SocRecv(mutex, request, socket, &recent[index & 1], 1, 0);
@@ -1027,6 +1029,7 @@ static inline s32 NHTTPi_RecvChunkLine(void* mutex, NHTTPRequestInfo* request, s
 
 static BOOL NHTTPi_ThreadRecvBodyProc(NHTTPThreadContext* context)
 {
+    char* recentChars;
     s32 remaining;
     void* system = NHTTPi_GetSystemInfoP();
     NHTTPRequestInfo* request = NHTTPi_GetReqInfoP(system)->reqQueue->request;
@@ -1080,8 +1083,9 @@ static BOOL NHTTPi_ThreadRecvBodyProc(NHTTPThreadContext* context)
             {
                 char recent[2];
                 s32 received;
-                recent[0] = 0;
-                recent[1] = 0;
+                recentChars = recent;
+                recentChars[0] = 0;
+                recentChars[1] = 0;
                 context->recvLength = 0;
                 while (context->recvLength < 0x100)
                 {
@@ -1090,9 +1094,9 @@ static BOOL NHTTPi_ThreadRecvBodyProc(NHTTPThreadContext* context)
                     received = NHTTPi_SocRecv(mutex, request, info->socket, buffer + context->recvLength, 1, 0);
                     if (received < 0) return FALSE;
                     length = context->recvLength;
-                    character = buffer[length];
-                    recent[length & 1] = character;
-                    if (character == ';' || (character == '\n' && recent[(length - 1) & 1] == '\r'))
+                    recentChars[length & 1] = buffer[length];
+                    character = recentChars[length & 1];
+                    if (character == ';' || (character == '\n' && recentChars[(length - 1) & 1] == '\r'))
                     {
                         if (character == '\n') --length;
                         else
