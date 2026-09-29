@@ -118,6 +118,10 @@ namespace ipl {
         int getLastResult() { return mLastResult; }
         /** @return If the dialog is moving onto the next state. */
         bool doingNextState() { return mbNextState; }
+#ifdef IPL_SDMEMORY_DIALOG_STATE_ACCESSOR
+        int getStateForSDMemory() const { return mState; }
+        int getResultForSDMemory() const { return mResult; }
+#endif
 
         /*=================*/
         /* DIALOG BUTTON 0 */

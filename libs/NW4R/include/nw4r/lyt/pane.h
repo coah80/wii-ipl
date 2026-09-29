@@ -88,7 +88,11 @@ namespace nw4r {
             PaneList& GetChildList() { return mChildList; }
 
             const math::VEC3& GetTranslate() { return mTranslate; }
+#ifdef IPL_SDMEMORY_SET_TRANSLATE_OUT_OF_LINE
+            void SetTranslate(const math::VEC3& translate);
+#else
             void SetTranslate(const math::VEC3& translate) { mTranslate = translate; }
+#endif
             void SetTranslate(const math::VEC2& translate) { SetTranslate(math::VEC3(translate.x, translate.y, 0.0f)); }
 
             const math::VEC3& GetRotate() const { return mRotate; }
