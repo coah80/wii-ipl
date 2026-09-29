@@ -295,7 +295,6 @@ extern void _savegpr_27();
 extern void _restgpr_27();
 extern void NCDiGetEnabledConfigList();
 extern NWC24Err AnalyzeScdErrors(s32* errorCode, u32 usage);
-extern void NWC24iMBoxCheck();
 extern void SCCheckStatus();
 extern void SCGetWCFlags();
 extern void SCGetEULA();
