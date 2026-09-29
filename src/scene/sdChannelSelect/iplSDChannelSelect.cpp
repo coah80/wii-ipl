@@ -1109,7 +1109,11 @@ namespace ipl {
         }
 
         void SDChannelSelect::destroyChannelObject(SDChannelObj* channel) {
+            EGG::Heap* heap = channel->getHeap();
             delete channel;
+            if (heap != NULL) {
+                heap->destroy();
+            }
         }
 
         bool SDChannelSelect::hasChannelObject(int page, int index) const {

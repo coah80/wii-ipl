@@ -10,9 +10,17 @@
 
 namespace ipl {
     namespace scene {
-        class SDChannelObj : public Base {
+        class SDChannelObj {
         public:
-            virtual ~SDChannelObj();
+            ~SDChannelObj();
+
+            EGG::Heap* getHeap() const { return mpHeap; }
+
+        private:
+            nw4r::ut::Link mListLink;
+            f32 mOffsetX;
+            f32 mOffsetY;
+            EGG::Heap* mpHeap;
         };
         extern "C" void iplSDChannelObj_813E3104(SDChannelObj* channel);
         extern "C" void iplSDChannelObj_813E322C(SDChannelObj* channel);
