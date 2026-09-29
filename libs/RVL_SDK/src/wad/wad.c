@@ -1185,7 +1185,7 @@ static s32 _WADUnpackBroadOn(WADBroadOnHeader* header, WADStream* stream, WADUnp
                 return -3005;
             }
         }
-        currentOffset += sectionSize;
+        currentOffset += header->certSize;
     }
 
     sectionSize = header->crlSize;
@@ -1205,7 +1205,7 @@ static s32 _WADUnpackBroadOn(WADBroadOnHeader* header, WADStream* stream, WADUnp
                 return -3005;
             }
         }
-        currentOffset += sectionSize;
+        currentOffset += header->crlSize;
     }
 
     sectionSize = header->ticketSize;
@@ -1223,14 +1223,14 @@ static s32 _WADUnpackBroadOn(WADBroadOnHeader* header, WADStream* stream, WADUnp
         if (bytesRead != alignedSize) {
             return -3005;
         }
-        currentOffset += sectionSize;
+        currentOffset += header->ticketSize;
     }
 
     sectionSize = header->titleMetaSize;
     if (sectionSize != 0) {
         info->metaSize = sectionSize;
         info->metaOffset = currentOffset;
-        currentOffset += sectionSize;
+        currentOffset += header->titleMetaSize;
     }
 
     sectionSize = header->fileListSize;
