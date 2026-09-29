@@ -623,6 +623,7 @@ static s32 pfd_sddrv_store_fat32_fsi_buf(u8* buf);
 static s32 pfd_sddrv_store_fat32_reserved_buf(u8* buf);
 
 s32 pfd_sddrv_calc_mbr_bpb(SDDRV_MBR_BPB* p) {
+    s32 i;
     const SDDRV_SIZE_DEPEND* p_tbl;
     SDDRV_FIELDS v;
     u32 total;
@@ -637,7 +638,6 @@ s32 pfd_sddrv_calc_mbr_bpb(SDDRV_MBR_BPB* p) {
     u32 new_fat;
     u32 data;
     u32 r0;
-    s32 i;
     s32 retry;
     s32 err;
     OSCalendarTime cal;
@@ -649,8 +649,9 @@ s32 pfd_sddrv_calc_mbr_bpb(SDDRV_MBR_BPB* p) {
     }
     pf_memset(&v, 0, 0x10);
     p_tbl = sddrv_size_depend_tbl;
+    i = 0;
     total = p->field_1C;
-    for (i = 0; i < 14; i++) {
+    for (; i < 14; i++) {
         if (p_tbl->cap_lo < total) {
             if (p_tbl->cap_hi >= total) { v.f8 = sddrv_size_depend_tbl[i].field_08; v.fC = sddrv_size_depend_tbl[i].field_0C; v.f10 = sddrv_size_depend_tbl[i].field_10; v.f14 = sddrv_size_depend_tbl[i].field_14; break; }
         }
