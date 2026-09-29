@@ -595,12 +595,15 @@ static u32 PFDIR_IsOpened(PF_DIR_ENT* p_ent) {
     s32 i;
 
     p_vol = p_ent->p_vol;
-    for (i = 0; i < 3; i++) {
-        if (((p_vol->sdds[i].stat & 1) != 0) && ((p_vol->sdds[i].stat & 2) != 0) &&
-            (p_vol == p_vol->sdds[i].dir_entry.p_vol) &&
-            (p_ent->entry_sector == p_vol->sdds[i].dir_entry.entry_sector) &&
-            (p_ent->entry_offset == p_vol->sdds[i].dir_entry.entry_offset)) {
-            return 1;
+    {
+        PF_SDD* p_sdd = p_vol->sdds;
+        for (i = 0; i < 3; i++, p_sdd++) {
+            if (((p_sdd->stat & 1) != 0) && ((p_sdd->stat & 2) != 0) &&
+                (p_vol == p_sdd->dir_entry.p_vol) &&
+                (p_ent->entry_sector == p_sdd->dir_entry.entry_sector) &&
+                (p_ent->entry_offset == p_sdd->dir_entry.entry_offset)) {
+                return 1;
+            }
         }
     }
     return 0;
@@ -624,7 +627,7 @@ s32 PFDIR_p_chmod(PF_VOLUME* p_vol, PF_STR* p_path_str, u8 attr) {
         return err;
     }
     is_dir = ent.attr & 0x10;
-    if (((is_dir == 0) && ((attr & 0x10) != 0)) || ((is_dir != 0) && ((attr & 0x10) == 0))) {
+    if (((is_dir != 0) && ((attr & 0x10) == 0)) || ((is_dir == 0) && ((attr & 0x10) != 0))) {
         return 0xA;
     }
     if ((attr & 0x40) != 0) {
@@ -1448,40 +1451,31 @@ s32 PFDIR_p_fsexec_chmod(PF_DTA* p_dta, PF_DIR_ENT* p_ent, u32 mode, u32 arg) {
     return 0;
 }
 
-typedef struct PF_ITER_HEAD {
-    u32 w[0xE];
-} PF_ITER_HEAD;
 
 s32 PFDIR_p_fsexec_remove(PF_DTA* p_dta, PF_DIR_ENT* p_ent, PF_ENT_ITER* p_iter) {
-    PF_ITER_HEAD iter_save;
-    u32 hint_save[3];
+    PF_ENT_ITER iter_save;
+    PF_FAT_HINT hint_save;
     u32 is_empty;
     u32 pos;
     s32 err;
-    s32 chain_arg;
     u32 start_cluster;
+    s32 chain_arg;
 
     if ((p_ent->attr & 1) != 0) {
         return 0x18;
     }
     if ((p_ent->attr & 0x10) != 0) {
-        if (PFVOL_CheckCurrentDir(p_ent->p_vol, p_ent->start_cluster) != 0) {
-            return 0x1C;
-        }
-        if (p_ent->start_cluster == 1) {
-            return 0x1C;
-        }
-        if (p_ent->p_vol->bpb.fat_type == 2 &&
-            p_ent->start_cluster == p_ent->p_vol->bpb.root_dir_cluster) {
+        if (PFVOL_CheckCurrentDir(p_ent->p_vol, p_ent->start_cluster) != 0 ||
+            p_ent->start_cluster == 1 ||
+            (p_ent->p_vol->bpb.fat_type == 2 &&
+             p_ent->start_cluster == p_ent->p_vol->bpb.root_dir_cluster)) {
             return 0x1C;
         }
         if (PFDIR_IsOpened(p_ent) != 0) {
             return 0x13;
         }
-        iter_save = *(PF_ITER_HEAD*)p_iter;
-        hint_save[0] = ((u32*)p_iter->ffd.p_hint)[0];
-        hint_save[1] = ((u32*)p_iter->ffd.p_hint)[1];
-        hint_save[2] = ((u32*)p_iter->ffd.p_hint)[2];
+        iter_save = *p_iter;
+        hint_save = *p_iter->ffd.p_hint;
         PFFAT_ResetFFD(&p_iter->ffd, &p_ent->start_cluster);
         err = PFENT_ITER_IteratorInitialize(p_iter, 0);
         if (err != 0) {
@@ -1494,8 +1488,8 @@ s32 PFDIR_p_fsexec_remove(PF_DTA* p_dta, PF_DIR_ENT* p_ent, PF_ENT_ITER* p_iter)
         if (is_empty == 0) {
             return 0x1D;
         }
-        *(PF_ITER_HEAD*)p_iter = iter_save;
-        p_iter->ffd.p_hint = (PF_FAT_HINT*)hint_save;
+        *p_iter = iter_save;
+        p_iter->ffd.p_hint = &hint_save;
         chain_arg = -1;
     } else {
         if (PFFILE_IsOpened(p_ent) != 0) {
