@@ -1,5 +1,7 @@
 #define IPL_SDMEMORY_SCROLLER_INIT_OUT_OF_LINE
+#define IPL_SDMEMORY_SET_TRANSLATE_OUT_OF_LINE
 #include "scene/sdChannelMemory/iplSDMemory.h"
+#undef IPL_SDMEMORY_SET_TRANSLATE_OUT_OF_LINE
 #undef IPL_SDMEMORY_SCROLLER_INIT_OUT_OF_LINE
 
 #include "system/iplSystem.h"
@@ -357,6 +359,109 @@ namespace ipl {
                     }
                 }
             }
+        }
+
+        bool SDMemory::calc() {
+            bool result = false;
+            s32 stateResult = updateState();
+            if (stateResult == 0) {
+                if (mScroller.calc(mDialogState == 10) == TRUE) {
+                    resetDialogPaneAnimations();
+                }
+
+                nw4r::math::VEC3 translation(0.0f, mScroller.get(), 0.0f);
+                mpDialogLayout->FindPaneByName("N_Memo")->SetTranslate(translation);
+
+                switch (mDialogState) {
+                case 0:
+                    onDialogState0();
+                    break;
+                case 1:
+                    mpPaneManagers[0]->update();
+                    mpPaneManagers[0]->calc();
+                    break;
+                case 2:
+                    onDialogState2();
+                    break;
+                case 3:
+                    result = onDialogState3();
+                    break;
+                case 4:
+                    onDialogState4();
+                    break;
+                case 5:
+                    mpPaneManagers[1]->update();
+                    mpPaneManagers[1]->calc();
+                    break;
+                case 6:
+                    onDialogState6();
+                    break;
+                case 7:
+                    onDialogState7();
+                    break;
+                case 8:
+                    onDialogState8();
+                    break;
+                case 9:
+                    onDialogState9();
+                    break;
+                case 10:
+                    onDialogState10();
+                    break;
+                case 11:
+                    onDialogState11();
+                    break;
+                case 12:
+                    onDialogState12();
+                    break;
+                case 13:
+                    onDialogState13();
+                    break;
+                case 14:
+                    onDialogState14();
+                    break;
+                case 15:
+                    onDialogState15();
+                    break;
+                case 16:
+                    onDialogState16();
+                    break;
+                case 17:
+                    onDialogState17();
+                    break;
+                case 18:
+                    onDialogState18();
+                    break;
+                case 19:
+                    onDialogState19();
+                    break;
+                case 20:
+                    result = onDialogState20();
+                    break;
+                case 21:
+                    onDialogState21();
+                    break;
+                case 22:
+                    result = onDialogState22();
+                    break;
+                case 23:
+                    onDialogState23();
+                    break;
+                case 24:
+                    result = onDialogState24();
+                    break;
+                case 25:
+                    result = true;
+                    break;
+                }
+            }
+
+            mpMainLayout->calc();
+            mpTitleLayout->calc();
+            mpDialogLayout->calc();
+            mpProgressLayout->calc();
+
+            return stateResult == 2 ? true : result;
         }
     }
 }

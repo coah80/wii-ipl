@@ -22,6 +22,7 @@ namespace ipl {
 
             void create(EGG::Heap* heap, nand::LayoutFile* layoutFile, NandSDCardManager* manager);
             void setTitleLists(const TitleRange& nandTitles, const TitleRange& sdTitles);
+            bool calc();
             void setScrollLimit();
             void updateSideArrows();
             void resetScrollArrows();
@@ -36,6 +37,30 @@ namespace ipl {
             void hideRightArrow();
 
         private:
+            s32 updateState();
+            void onDialogState0();
+            void onDialogState2();
+            bool onDialogState3();
+            void onDialogState4();
+            void onDialogState6();
+            void onDialogState7();
+            void onDialogState8();
+            void onDialogState9();
+            void onDialogState10();
+            void onDialogState11();
+            void onDialogState12();
+            void onDialogState13();
+            void onDialogState14();
+            void onDialogState15();
+            void onDialogState16();
+            void onDialogState17();
+            void onDialogState18();
+            void onDialogState19();
+            bool onDialogState20();
+            void onDialogState21();
+            bool onDialogState22();
+            void onDialogState23();
+            bool onDialogState24();
             void resetDialogPaneAnimations();
 
             layout::Object* mpMainLayout;
