@@ -12,80 +12,103 @@ namespace ipl {
             mControllerFlags[2] = 0;
             mControllerFlags[3] = 0;
             mpDialogLayout->getAnim(16)->initAnmFrame();
-            mpDialogLayout->getAnim(16)->initFrame();
-            mpDialogLayout->getAnim(16)->restart();
             mpDialogLayout->getAnim(14)->initAnmFrame();
-            mpDialogLayout->getAnim(14)->initFrame();
-            mpDialogLayout->getAnim(14)->restart();
             if (!mScroller.isDownEnd()) {
+                showUpArrow();
+            }
+        }
+
+        void SDMemory::updateScrollArrows(u32 previousDownEnd, u32 previousUpEnd, u32 downEnd, u32 upEnd) {
+            if (previousDownEnd != 1 && downEnd == 1) {
+                hideDownArrow();
+            }
+            if (previousDownEnd == 1 && downEnd != 1) {
+                showDownArrow();
+            }
+            if (previousUpEnd != 1 && upEnd == 1) {
+                hideUpArrow();
+            }
+            if (previousUpEnd == 1 && upEnd != 1) {
                 showUpArrow();
             }
         }
 
         void SDMemory::showDownArrow() {
             if (mControllerFlags[0] == 0) {
-                mpDialogLayout->getAnim(16)->initAnmFrame();
-                mpDialogLayout->getAnim(16)->initFrame();
-                mpDialogLayout->getAnim(16)->restart();
+                layout::Animator* initAnimation = mpDialogLayout->getAnim(16);
+                initAnimation->initAnmFrame();
+                layout::Animator* playAnimation = mpDialogLayout->getAnim(16);
+                playAnimation->initFrame();
+                playAnimation->restart();
                 mControllerFlags[0] = 1;
             }
         }
 
         void SDMemory::showUpArrow() {
             if (mControllerFlags[1] == 0) {
-                mpDialogLayout->getAnim(14)->initAnmFrame();
-                mpDialogLayout->getAnim(14)->initFrame();
-                mpDialogLayout->getAnim(14)->restart();
+                layout::Animator* initAnimation = mpDialogLayout->getAnim(14);
+                initAnimation->initAnmFrame();
+                layout::Animator* playAnimation = mpDialogLayout->getAnim(14);
+                playAnimation->initFrame();
+                playAnimation->restart();
                 mControllerFlags[1] = 1;
             }
         }
 
         void SDMemory::hideDownArrow() {
             if (mControllerFlags[0] != 0) {
-                mpDialogLayout->getAnim(17)->initAnmFrame();
-                mpDialogLayout->getAnim(17)->initFrame();
-                mpDialogLayout->getAnim(17)->restart();
+                layout::Animator* initAnimation = mpDialogLayout->getAnim(17);
+                initAnimation->initAnmFrame();
+                layout::Animator* playAnimation = mpDialogLayout->getAnim(17);
+                playAnimation->initFrame();
+                playAnimation->restart();
                 mControllerFlags[0] = 0;
             }
         }
 
         void SDMemory::hideUpArrow() {
             if (mControllerFlags[1] != 0) {
-                mpDialogLayout->getAnim(15)->initAnmFrame();
-                mpDialogLayout->getAnim(15)->initFrame();
-                mpDialogLayout->getAnim(15)->restart();
+                layout::Animator* initAnimation = mpDialogLayout->getAnim(15);
+                initAnimation->initAnmFrame();
+                layout::Animator* playAnimation = mpDialogLayout->getAnim(15);
+                playAnimation->initFrame();
+                playAnimation->restart();
                 mControllerFlags[1] = 0;
             }
         }
 
         void SDMemory::showLeftArrow() {
             if (mControllerFlags[2] == 0) {
-                mpDialogLayout->getAnim(19)->initFrame();
-                mpDialogLayout->getAnim(19)->restart();
+                layout::Animator* animation = mpDialogLayout->getAnim(19);
+                animation->initFrame();
+                animation->restart();
                 mControllerFlags[2] = 1;
             }
         }
 
         void SDMemory::showRightArrow() {
             if (mControllerFlags[3] == 0) {
-                mpDialogLayout->getAnim(21)->initFrame();
-                mpDialogLayout->getAnim(21)->restart();
+                layout::Animator* animation = mpDialogLayout->getAnim(21);
+                animation->initFrame();
+                animation->restart();
                 mControllerFlags[3] = 1;
             }
         }
 
         void SDMemory::hideLeftArrow() {
             if (mControllerFlags[2] != 0) {
-                mpDialogLayout->getAnim(20)->initFrame();
-                mpDialogLayout->getAnim(20)->restart();
+                layout::Animator* animation = mpDialogLayout->getAnim(20);
+                animation->initFrame();
+                animation->restart();
                 mControllerFlags[2] = 0;
             }
         }
 
         void SDMemory::hideRightArrow() {
             if (mControllerFlags[3] != 0) {
-                mpDialogLayout->getAnim(22)->initFrame();
-                mpDialogLayout->getAnim(22)->restart();
+                layout::Animator* animation = mpDialogLayout->getAnim(22);
+                animation->initFrame();
+                animation->restart();
                 mControllerFlags[3] = 0;
             }
         }

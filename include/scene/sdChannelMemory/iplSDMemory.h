@@ -15,6 +15,7 @@ namespace ipl {
             ~SDMemory();
 
             void resetScrollArrows();
+            void updateScrollArrows(u32 previousDownEnd, u32 previousUpEnd, u32 downEnd, u32 upEnd);
             void showDownArrow();
             void showUpArrow();
             void hideDownArrow();
@@ -75,7 +76,6 @@ namespace ipl {
             } mTitleListState;
             scroller mScroller;
             u32 mButtonState;
-            u32 mPageButtonState;
             u8 mControllerFlags[4];
             u32 mFinalState[3];
             u8 mFinalFlags[4];
