@@ -17,7 +17,11 @@ namespace ipl {
 
             virtual ~APScanThread();      // 0x08
             virtual void* Run();          // 0x0C
-            virtual void unk_0x2C() = 0;  // 0x2C
+#ifdef IPL_SETTING_IMPLEMENTATION
+            virtual void unk_0x2C();
+#else
+            virtual void unk_0x2C() = 0;
+#endif
 
             void setResultData(unsigned short* buffer);
             void setParam();

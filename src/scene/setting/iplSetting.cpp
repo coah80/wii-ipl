@@ -1,5 +1,6 @@
 #define IPL_SETTING_IMPLEMENTATION
 #include "scene/setting/iplSetting.h"
+#include "scene/setting/iplAPScanThread.h"
 
 #include "scene/setting/iplNCDSetting.h"
 #include "scene/setting/iplParental.h"
@@ -52,51 +53,64 @@ namespace ipl {
 
 namespace ipl {
     namespace scene {
-        class APScanThread {
-        public:
-            APScanThread();
-            void setResultData(unsigned short* buffer);
-            virtual ~APScanThread();
-            virtual void* Run();
-            virtual void Create(void* stack, u32 stackSize, int priority, bool startThread);
-            virtual void Resume();
-            virtual void Suspend();
-            virtual BOOL WaitForThreadExit();
-            virtual bool IsThreadTerminated();
-            virtual bool IsThreadSuspended();
-            virtual bool SetThreadPriority(int priority);
-            virtual void unk_0x2C();
-        };
-
         class USBAPThread {
         public:
             USBAPThread();
             bool is();
-            void setData(unsigned short* nickname, u8* result);
+            void setData(const wchar_t* nickname, u8* result);
             void Init(unsigned short* profile, u8* result);
             void cancel();
+
+        private:
+            wchar_t mNickname[10];
         };
 
-        class AOSSThread {
+        class AOSSThread : public utility::ut_thread {
         public:
             AOSSThread(EGG::Heap* heap);
+            virtual ~AOSSThread();
+            virtual void* Run();
             int start();
             int finish(NCDAossConfig* config, int* result);
             void cancel();
+
+        private:
+            int mResult;
+            int mPriority;
+            void* mpThreadStack;
+            void* mpHeapArea;
+            void* mpExpandedHeap;
+            u8 mStartParameters[0x26c];
         };
 
-        class RakuRakuThread {
+        class RakuRakuThread : public utility::ut_thread {
         public:
             RakuRakuThread(EGG::Heap* heap);
+            virtual ~RakuRakuThread();
+            virtual void* Run();
             int getState();
             int start();
             int finish(NCDApConfig* config, int* result);
             void cancel();
+
+        private:
+            int mResult;
+            int mState;
+            void* mpMessageQueue;
+            u32 mFlags;
+            void* mpHeapArea;
+            void* mpThreadStack;
+            int mMessage;
         };
 
         struct SettingAnimationBinding {
             u16 animation;
             u16 pane;
+        };
+
+        struct SettingSecAText {
+            wchar_t firstLine[16];
+            wchar_t wrappedLine[17];
         };
 
         static const SettingAnimationBinding sSettingAnimationBindings[] = {
@@ -306,7 +320,7 @@ namespace ipl {
                 System::getErrorHandler()->set(ErrorHandler::DEFAULT, 2, NULL, 0, -1);
             }
             if (writtenArchive != NULL) {
-                writtenArchive->write();
+                delete writtenArchive;
             }
 
             mpChangeLayout = new layout::Object(getSceneHeap(), mpSettingLayoutFile, "arc", "SceenChange_b.brlyt");
@@ -317,9 +331,8 @@ namespace ipl {
             mpMainLayout = new layout::Object(getSceneHeap(), mpSettingLayoutFile, "arc", "my_AP_a.brlyt");
             for (int index = 0; index < 58; index++) {
                 const SettingAnimationBinding& binding = sSettingAnimationBindings[index];
-                bool isSpecialAnimation = index == 10 || index == 20;
                 mpMainLayout->bindToGroup(sSettingAPAnimations[binding.animation], sSettingAPPaneNames[binding.pane], false,
-                                          isSpecialAnimation);
+                                          index == 20 || index == 10);
             }
             mpMainLayout->finishBinding();
 
@@ -328,22 +341,14 @@ namespace ipl {
             mpWaitLayout->finishBinding();
             mpWaitLayout->FindPaneByName("N_Wait")->SetVisible(false);
 
-            mpBrowserData = static_cast<ext_ead::www::ImeData*>(::operator new(0x20));
-            void* apScanThreadMemory = ::operator new(0x380);
-            mpAPScanThread = apScanThreadMemory != NULL ? new (apScanThreadMemory) APScanThread() : NULL;
-            void* usbThreadMemory = ::operator new(0x14);
-            mpUSBAPThread = usbThreadMemory != NULL ? new (usbThreadMemory) USBAPThread() : NULL;
+            mpBrowserData = new ext_ead::www::ImeData;
+            mpAPScanThread = new APScanThread();
+            mpUSBAPThread = new USBAPThread();
             ncd::NCDSetting::init();
             parental::Parental::init();
 
-            void* aossThreadMemory = ::operator new(0x5b0);
-            mpAOSSThread = aossThreadMemory != NULL
-                               ? reinterpret_cast<utility::ut_thread*>(new (aossThreadMemory) AOSSThread(getSceneHeap()))
-                               : NULL;
-            void* rakuThreadMemory = ::operator new(0x348);
-            mpRakuRakuThread = rakuThreadMemory != NULL
-                                   ? reinterpret_cast<utility::ut_thread*>(new (rakuThreadMemory) RakuRakuThread(getSceneHeap()))
-                                   : NULL;
+            mpAOSSThread = new AOSSThread(getSceneHeap());
+            mpRakuRakuThread = new RakuRakuThread(getSceneHeap());
 
             www::wiisetting::initWiiSetting();
             initWiiSettingData();
@@ -432,7 +437,7 @@ namespace ipl {
             } else if (mInitialArgument == ARG_UNK_6) {
                 int directPage = 0;
                 for (int index = 0; index < 4; index++) {
-                    if (strstr(reinterpret_cast<char*>(mpStringBuffer) + 0x60e, pageNames[index]) != NULL) {
+                    if (strstr(mpStringBuffer->netSettingArg, pageNames[index]) != NULL) {
                         directPage = index;
                         break;
                     }
@@ -475,7 +480,7 @@ namespace ipl {
             }
             const char* settingArgument = System::getNetSettingArg();
             if (settingArgument != NULL) {
-                memcpy(reinterpret_cast<char*>(mpStringBuffer) + 0x60e, settingArgument, 0x80);
+                memcpy(mpStringBuffer->netSettingArg, settingArgument, 0x80);
             }
         }
 
@@ -542,7 +547,7 @@ namespace ipl {
                 return;
             }
 
-            if (unk_0xB9C >= 10 && *(reinterpret_cast<char*>(mpStringBuffer) + 0x60e) == 0) {
+            if (unk_0xB9C >= 10 && mpStringBuffer->netSettingArg[0] == 0) {
                 packet.data.controller.irX = youngController->getDpdProjectionPos().x - projection.left;
                 packet.data.controller.irY = youngController->getDpdProjectionPos().y - projection.top;
                 u32 classicHold = youngController->getClassicHoldFlag();
@@ -2180,9 +2185,10 @@ namespace ipl {
             }
             if (containsWideCharacter && wcslen(reinterpret_cast<const wchar_t*>(unk_0x938)) > 0x10) {
                 char secondLine[0x22];
-                memcpy(secondLine, reinterpret_cast<char*>(text) + 0x20, 0x22);
-                memcpy(reinterpret_cast<char*>(text) + 0x22, secondLine, 0x22);
-                text[0x10] = L'\n';
+                SettingSecAText* lines = reinterpret_cast<SettingSecAText*>(text);
+                memcpy(secondLine, lines->wrappedLine, 0x22);
+                memcpy(&lines->wrappedLine[1], secondLine, 0x22);
+                lines->wrappedLine[0] = L'\n';
             }
         }
 
@@ -2197,8 +2203,9 @@ namespace ipl {
             }
             if (containsWideCharacter && wcslen(text) > 0x10) {
                 char secondLine[0x22];
-                memcpy(secondLine, reinterpret_cast<char*>(text) + 0x22, 0x22);
-                memcpy(reinterpret_cast<char*>(text) + 0x20, secondLine, 0x22);
+                SettingSecAText* lines = reinterpret_cast<SettingSecAText*>(text);
+                memcpy(secondLine, &lines->wrappedLine[1], 0x22);
+                memcpy(lines->wrappedLine, secondLine, 0x22);
             }
         }
 
@@ -3113,7 +3120,8 @@ namespace ipl {
                     resetFuncMsgQ();
                 } else {
                     OSReport("USB SCGetOwnerNickName:%d\n", result);
-                    static_cast<USBAPThread*>(mpUSBAPThread)->setData(nickname.name, &unk_0x91C[1]);
+                    static_cast<USBAPThread*>(mpUSBAPThread)->setData(
+                        reinterpret_cast<const wchar_t*>(nickname.name), &unk_0x91C[1]);
                     static_cast<USBAPThread*>(mpUSBAPThread)->Init(
                         reinterpret_cast<unsigned short*>(mpMem1BrowserBuffer),
                         reinterpret_cast<u8*>(mpMem2BrowserBuffer));
