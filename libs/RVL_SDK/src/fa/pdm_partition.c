@@ -59,8 +59,8 @@ s32 pdm_part_is_master_boot_sector(const u8* p_sector, u32 num_sector, u32* p_is
     p_num = sector_num;
     for (i = 0; i < 4; i++) {
         *p_start = 0;
-        *p_start = pe[0x1C6] + pe[0x1C8] * 0x10000 + pe[0x1C7] * 0x100 + pe[0x1C9] * 0x1000000;
-        *p_num = pe[0x1CA] + pe[0x1CC] * 0x10000 + pe[0x1CB] * 0x100 + pe[0x1CD] * 0x1000000;
+        *p_start = pe[0x1C9] * 0x1000000 + pe[0x1C8] * 0x10000 + pe[0x1C6] + pe[0x1C7] * 0x100;
+        *p_num = pe[0x1CD] * 0x1000000 + pe[0x1CC] * 0x10000 + pe[0x1CA] + pe[0x1CB] * 0x100;
         if (*p_start != 0 && *p_num != 0) {
             if (i == 0) {
                 *p_is_mbr = 1;
@@ -244,8 +244,8 @@ u32 pdm_part_chg_ltop(PDM_PARTITION* p_part, u32 lsector, u16 lbps) {
     if (lbps == bps) {
         return lsector + p_part->start_sector;
     }
-    shift = bps >> 9;
     offset = p_part->start_sector;
+    shift = bps >> 9;
     if (shift == 2) {
         offset <<= 1;
     } else if (shift == 4) {
