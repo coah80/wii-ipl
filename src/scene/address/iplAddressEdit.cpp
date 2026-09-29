@@ -1728,23 +1728,24 @@ void ipl::scene::AddressEdit::stt_wait_btn_fadein() {
 void ipl::scene::AddressEdit::stt_wait_btn_fadeout() {
     u32 index = mSelectedFriend;
     u32 friendType = mpFriendCache->getInfo(index).attr.status;
-    u32 friendFinished;
+    bool friendFinished;
     if (friendType == 2) {
         friendFinished = !mpCodeLayout->getAnim(0x15)->isPlaying();
     } else {
         friendFinished = !mpCodeLayout->getAnim(0x1b)->isPlaying();
     }
 
-    bool finished = friendFinished && !mpCodeLayout->getAnim(0x16)->isPlaying();
-    finished = finished && !mpCodeLayout->getAnim(0x17)->isPlaying();
+    friendFinished = (friendFinished & !mpCodeLayout->getAnim(0x16)->isPlaying()) != 0;
+    friendFinished = (friendFinished & !mpCodeLayout->getAnim(0x17)->isPlaying()) != 0;
 
-    if (finished) {
+    if (friendFinished) {
         nw4r::lyt::Pane* label = mpCodeLayout->getNW4RLyt()->GetRootPane()->FindPaneByName("T_card_msg_00", true);
         const wchar_t* message = ipl::System::getMessage(0x30);
         set_textbox(label, message);
         ipl::System::getDialog()->callS2Btn2(0x142, 0x141, true);
-        mpCodeLayout->getAnim(0x1c)->initFrame();
-        mpCodeLayout->getAnim(0x1c)->restart();
+        ipl::layout::Animator* animator = mpCodeLayout->getAnim(0x1c);
+        animator->initFrame();
+        animator->restart();
         mState = 4;
     }
 }
