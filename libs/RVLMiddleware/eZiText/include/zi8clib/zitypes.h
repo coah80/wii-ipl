@@ -315,6 +315,27 @@ struct __zi8_work_data_s {
     ziU8 unk_0x1B42[2];
 };
 
+typedef struct ziMatchParam {
+    ziU8 count;          // 0x00
+    ziU8 arr1[0xC];      // 0x01
+    ziU8 arrD[0xC];      // 0x0D
+    ziU8 arr19[4];       // 0x19
+    ziU8 arr1D[4];       // 0x1D
+    ziU8 pad_0x21;       // 0x21
+    ziU16 field22;       // 0x22
+    ziU8 length;         // 0x24
+    ziU8 nCand;          // 0x25
+    ziWChar phon[0x10];  // 0x26
+    ziWChar phon2[0x10]; // 0x46
+    ziWChar first;       // 0x66
+    ziWChar first2;      // 0x68
+    ziWChar comp;        // 0x6A
+    ziU8 nSeg;           // 0x6C
+    ziU8 segs1[0xC0];    // 0x6D
+    ziU8 segsD[0xC0];    // 0x12D
+    ziU8 pad_0x1ED;      // 0x1ED
+} ziMatchParam;
+
 #define ZI_WORK ((struct __zi8_work_data_s*)__zi8_work_data)
 #define ZI_NEED_WORK , ziPtr __zi8_work_data
 
