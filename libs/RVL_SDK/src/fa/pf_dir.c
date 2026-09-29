@@ -178,7 +178,7 @@ PFDIR_SDD* PFDIR_GetSDD(PF_VOLUME* volume, PF_DIR_ENT* entry) {
     pf_s32 remaining = 3;
 
     for (i = 0; remaining != 0; i++, free_candidate++, remaining--) {
-        if ((volume_dirs->sdds[i].stat & 1) == 0) {
+        if ((volume_dirs->sdds[i].stat & 1) == 0 || (volume_dirs->sdds[i].stat & 2) == 0) {
             if (first_free_sdd == 0) {
                 first_free_sdd = free_candidate;
             }
