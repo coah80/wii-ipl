@@ -81,6 +81,18 @@ typedef struct WADFileHeader {
     u8 reserved_0x60[0x20];
 } WADFileHeader;
 
+typedef struct WADBootImportParts {
+    s32 headerInfo[2];
+    u32 certificateSize;
+    void* certificates;
+    u32 crlSize;
+    void* crls;
+    u32 ticketSize;
+    void* ticket;
+    u32 titleMetaSize;
+    void* titleMeta;
+} WADBootImportParts;
+
 typedef struct WADBackupFileHeader {
     u32 magic;
     u32 fileSize;
@@ -2942,6 +2954,103 @@ static void _WADCleanTmpDir(MEMAllocator* allocator) {
     if (names != 0) {
         MEMFreeToAllocator(allocator, names);
     }
+}
+
+s32 WADImportDVDForBS(const char* path, void* buffer, u32 bufferSize) {
+    DVDFileInfo fileInfo;
+    WADBootImportParts parts;
+    WADHeader* header;
+    ESTitleMeta* titleMeta;
+    u8* readBuffer = buffer;
+    void* applicationData;
+    u32 paddedFileSize;
+    u32 sectionOffset;
+    u32 applicationSize;
+    BOOL fileOpened = FALSE;
+    s32 result;
+
+    if ((path == 0) || (buffer == 0)) {
+        result = -3000;
+        goto cleanup;
+    }
+    if (!DVDOpen(path, &fileInfo)) {
+        return -3004;
+    }
+    fileOpened = TRUE;
+    paddedFileSize = (fileInfo.length + 0x1F) & ~0x1F;
+    if (paddedFileSize > bufferSize) {
+        result = -3003;
+        goto cleanup;
+    }
+    if (((s32)readBuffer % 0x40) != 0) {
+        readBuffer += 0x20;
+    }
+    result = DVDReadPrio(&fileInfo, readBuffer, paddedFileSize, 0, 2);
+    if ((u32)result != paddedFileSize) {
+        result = -3005;
+        goto cleanup;
+    }
+
+    memset(&parts, 0, sizeof(parts));
+    header = (WADHeader*)readBuffer;
+    result = WAD_815C2F44(header, parts.headerInfo);
+    if (result != 2) {
+        OSReport("%s:%d Format should be iRD format: %s\n", "WADImportDVDForBS", 0x17D2,
+                 path);
+        result = -3000;
+        goto cleanup;
+    }
+    if (parts.headerInfo[0] == 3) {
+        sectionOffset = (header->hdrSize + 0x3F) & ~0x3F;
+        if (header->certSize != 0) {
+            parts.certificateSize = header->certSize;
+            parts.certificates = readBuffer + sectionOffset;
+            sectionOffset += (header->certSize + 0x3F) & ~0x3F;
+        }
+        if (header->crlSize != 0) {
+            parts.crlSize = header->crlSize;
+            parts.crls = readBuffer + sectionOffset;
+            sectionOffset += (header->crlSize + 0x3F) & ~0x3F;
+        }
+        if (header->ticketSize != 0) {
+            parts.ticketSize = header->ticketSize;
+            parts.ticket = readBuffer + sectionOffset;
+            sectionOffset += (header->ticketSize + 0x3F) & ~0x3F;
+        }
+        if (header->tmdSize != 0) {
+            parts.titleMetaSize = header->tmdSize;
+            parts.titleMeta = readBuffer + sectionOffset;
+            sectionOffset += (header->tmdSize + 0x3F) & ~0x3F;
+        }
+        titleMeta = parts.titleMeta;
+        applicationSize = ((u32)titleMeta->contents[0].size + 0xF) & ~0xF;
+        applicationData = readBuffer + sectionOffset;
+        if ((titleMeta == 0) || (titleMeta->head.titleId != ES_TITLE_ID(1, 1))) {
+            OSReport("%s:%d This function only works for boot2 import.\n", "WADImportDVDForBS",
+                     0x180D);
+            result = -3000;
+        } else {
+            result = ES_ImportBoot(parts.ticket, parts.certificates, parts.certificateSize,
+                                   parts.titleMeta, parts.titleMetaSize, parts.certificates,
+                                   parts.certificateSize, parts.crls, parts.crlSize, applicationData,
+                                   applicationSize);
+            if (result != 0) {
+                OSReport("%s: Import Boot Failed: %d\n", "WADImportDVDForBS", result);
+            } else {
+                OSReport("%s: Import Boot Successful\n", "WADImportDVDForBS");
+            }
+        }
+    } else {
+        OSReport("%s:%d This function only works for boot2 import.\n", "WADImportDVDForBS",
+                 0x1814);
+        result = -3000;
+    }
+
+cleanup:
+    if (fileOpened) {
+        DVDClose(&fileInfo);
+    }
+    return result;
 }
 
 extern const u8 ca_ppki[];
