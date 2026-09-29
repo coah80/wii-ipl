@@ -2027,11 +2027,11 @@ namespace ipl {
 
         void Setting::setProxy() {
             NCDProxyServerProfile proxy;
-            memset(&proxy, 0, sizeof(proxy));
+            const char* portString = mpStringBuffer->proxy.port;
             wchar_t portText[6];
             u32 port;
             memset(portText, 0, sizeof(portText));
-            utility::CharacterCode::UTF8ToUTF16(portText, mpStringBuffer->proxy.port, 6);
+            utility::CharacterCode::UTF8ToUTF16(portText, portString, 6);
             utility::CharacterCode::UTF16ToU32(&port, portText);
             proxy.port = port;
             if (proxy.port == 0) {
@@ -2039,38 +2039,35 @@ namespace ipl {
                 System::getDialog()->callBtn0(0x1be, 0xb4, false);
                 unk_0x74 = 2;
             } else {
-                int valid = ncd::NCDSetting::checkProxy(mpStringBuffer->proxy.server);
-                if (valid == 0) {
-                    www::wiisetting::setFuncResult(4);
-                    System::getDialog()->callBtn0(0x1be, 0xb4, false);
-                    unk_0x74 = 2;
-                } else {
+                if (ncd::NCDSetting::checkProxy(mpStringBuffer->proxy.server) != 0) {
                     www::wiisetting::setFuncResult(3);
+                    memset(proxy.server, 0, sizeof(proxy.server));
                     utility::CharacterCode::UTF8ToANSI(reinterpret_cast<u8*>(proxy.server),
                                                        mpStringBuffer->proxy.server);
                     ncd::NCDSetting::setProxy(&proxy);
+                } else {
+                    www::wiisetting::setFuncResult(4);
+                    System::getDialog()->callBtn0(0x1be, 0xb4, false);
+                    unk_0x74 = 2;
                 }
             }
         }
 
         void Setting::setBasic() {
-            int validUsername = ncd::NCDSetting::checkProxyBasic(mpStringBuffer->proxyBasic.uname);
-            int validPassword = validUsername == 0
-                                    ? 0
-                                    : ncd::NCDSetting::checkProxyBasic(mpStringBuffer->proxyBasic.pass);
-            if (validPassword == 0) {
-                www::wiisetting::setFuncResult(4);
-                System::getDialog()->callBtn0(0x1be, 0xb4, false);
-                unk_0x74 = 2;
-            } else {
+            if (ncd::NCDSetting::checkProxyBasic(mpStringBuffer->proxyBasic.uname) != 0 &&
+                ncd::NCDSetting::checkProxyBasic(mpStringBuffer->proxyBasic.pass) != 0) {
                 NCDProxyServerProfile proxy;
-                memset(&proxy, 0, sizeof(proxy));
                 www::wiisetting::setFuncResult(3);
+                memset(&proxy, 0, sizeof(proxy));
                 utility::CharacterCode::UTF8ToANSI(reinterpret_cast<u8*>(proxy.username),
                                                    mpStringBuffer->proxyBasic.uname);
                 utility::CharacterCode::UTF8ToANSI(reinterpret_cast<u8*>(proxy.password),
                                                    mpStringBuffer->proxyBasic.pass);
                 ncd::NCDSetting::setBasic(&proxy);
+            } else {
+                www::wiisetting::setFuncResult(4);
+                System::getDialog()->callBtn0(0x1be, 0xb4, false);
+                unk_0x74 = 2;
             }
         }
 
