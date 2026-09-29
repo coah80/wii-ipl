@@ -23,14 +23,15 @@ namespace ipl {
         }
 
         u16 Setting::getProfileID() {
-            if (mProfileIDMode < 3) {
-                return ncd::NCDSetting::getID();
-            }
-
-            u16 profileID = ncd::NCDSetting::getUseProfileID();
-            ncd::NCDSetting::initSetID(profileID & 0xFF);
-            if ((profileID & 0xFF) == 3) {
-                profileID = 0;
+            u16 profileID;
+            if (mProfileIDMode >= 3) {
+                profileID = ncd::NCDSetting::getUseProfileID();
+                ncd::NCDSetting::initSetID(profileID & 0xFF);
+                if ((u8)profileID == 3) {
+                    profileID = 0;
+                }
+            } else {
+                profileID = ncd::NCDSetting::getID();
             }
             return profileID;
         }
