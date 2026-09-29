@@ -215,8 +215,9 @@ pf_u16 PFPATH_GetNextCharOfPattern(PF_STR* p_pattern, pf_u32 name_kind) {
             pattern[1] = *p_pattern->p_head++;
             wc = PF_CODE_C_TO_WC_ARR(pattern, 0);
         } else {
-            wc = (pf_u16)(pf_u8)(pf_s8)pattern[0];
-            if ((pf_vol_set.config & 0x10000) == 0 && !VALID_PATH_CHAR(pattern[0], 0x02)) {
+            if ((pf_vol_set.config & 0x10000) != 0 || VALID_PATH_CHAR(pattern[0], 0x02)) {
+                wc = (pf_u16)(pf_u8)(pf_s8)pattern[0];
+            } else {
                 wc = '_';
             }
         }
@@ -233,30 +234,34 @@ pf_u16 PFPATH_GetNextCharOfPattern(PF_STR* p_pattern, pf_u32 name_kind) {
         }
         wc = ((pf_u8)pattern[1] << 8) + (pf_u8)pattern[0];
         if (name_kind == 0) {
-            pf_vol_set.codeset.unicode2oem(&wc, (pf_s8*)&tmp_wc);
+            PF_PATH_VOLUME_SET* volume = &pf_vol_set;
+
+            volume->codeset.unicode2oem(&wc, (pf_s8*)&tmp_wc);
             tmp_wc = (pf_u16)tmp_wc;
-            if (pf_vol_set.codeset.is_oem_mb_char((pf_u8)(tmp_wc >> 8), 1) != 0) {
+            if (volume->codeset.is_oem_mb_char((pf_u8)(tmp_wc >> 8), 1) != 0) {
                 wc = tmp_wc;
             } else {
-                wc = (pf_u16)((pf_u8)(tmp_wc >> 8));
-            }
-            if ((pf_vol_set.config & 0x10000) == 0 && !VALID_PATH_CHAR((pf_u8)(tmp_wc >> 8), 0x02)) {
-                wc = '_';
+                pattern[0] = (pf_u8)(tmp_wc >> 8);
+                if ((volume->config & 0x10000) != 0 || VALID_PATH_CHAR(pattern[0], 0x02)) {
+                    wc = (pf_u8)pattern[0];
+                } else {
+                    wc = '_';
+                }
             }
         }
     }
     wc = (wc >= 'a') && (wc <= 'z') ? wc - ' ' : wc;
-    if (name_kind == 1) {
+    if (name_kind != 0) {
         if (PFPATH_UNI_ConvertFWchar((pf_u16)wc, &twc) == 1) {
             wc = twc;
         }
     } else {
-        if ((wc & 0xFF00) == 0) {
+        if ((pf_u8)(wc >> 8) == 0) {
             pattern[0] = wc;
             pattern[1] = 0;
         } else {
-            pattern[0] = wc >> 8;
-            pattern[1] = wc;
+            pattern[0] = (pf_u8)(wc >> 8);
+            pattern[1] = (pf_u8)wc;
         }
         if (PFPATH_OEM_ConvertFWchar(pattern, &twc) == 1) {
             wc = twc;
@@ -322,7 +327,9 @@ pf_bool PFPATH_MatchFileNameWithPattern(const pf_s8* file_name, PF_STR* p_patter
     PF_FILE_NAME_ITER name;
     PF_STR pattern;
     pf_s8 sig[2];
+    pf_bool result;
 
+    result = PF_TRUE;
     name.buf = file_name;
     name.current = 0;
     name.kind = is_long_name;
@@ -342,31 +349,27 @@ pf_bool PFPATH_MatchFileNameWithPattern(const pf_s8* file_name, PF_STR* p_patter
     } else if ((pf_vol_set.setting & 0x02) == 0x02 && is_long_name == PF_FALSE &&
                PFSTR_StrNCmp(p_pattern, (pf_s8*)".", 1, 0, 1) != 0 && PFSTR_StrNCmp(p_pattern, (pf_s8*)"..", 1, 0, 2) != 0 &&
                PFPATH_CheckExtShortName(p_pattern, 1, PF_TRUE) == 0) {
-        return PF_FALSE;
+        result = PF_FALSE;
     }
-    if ((is_long_name == 0) && (name.index == 0) && (PFSTR_StrCmp(p_pattern, (pf_s8*)"*.") == 0)) {
-        while ((*file_name != 0) && (*file_name != 0x2E)) {
-            file_name++;
-        }
-        if (*file_name == 0) {
-            return 1U;
-        }
+    if (result == PF_TRUE) {
+        c_name = PFPATH_GetNextCharOfFileName(&name);
+        c_pat = PFPATH_GetNextCharOfPattern(&pattern, is_long_name);
+        result = PFPATH_DoMatchFileNameWithPattern(c_name, &name, c_pat, &pattern, is_long_name);
     }
-    c_name = PFPATH_GetNextCharOfFileName(&name);
-    c_pat = PFPATH_GetNextCharOfPattern(&pattern, is_long_name);
-    return PFPATH_DoMatchFileNameWithPattern(c_name, &name, c_pat, &pattern, is_long_name);
+    return result;
 }
 
 pf_s32 PFPATH_cmpNameImpl(const pf_s8* name, const pf_s8* pattern, pf_u32* matched_end) {
     pf_u16 name_char;
     pf_u16 pattern_char;
     pf_u16 converted_char;
-    pf_u32 name_width;
-    pf_u32 pattern_width;
+    pf_s32 name_width;
+    pf_s32 pattern_width;
+    PF_PATH_VOLUME_SET* volume = &pf_vol_set;
 
     while (*pattern != 0) {
-        pattern_width = pf_vol_set.codeset.oem_char_width(pattern);
-        name_width = pf_vol_set.codeset.oem_char_width(name);
+        pattern_width = volume->codeset.oem_char_width(pattern);
+        name_width = volume->codeset.oem_char_width(name);
         if (pattern_width == 1) {
             pattern_char = pf_toupper(*pattern);
         } else {
@@ -389,30 +392,28 @@ pf_s32 PFPATH_cmpNameImpl(const pf_s8* name, const pf_s8* pattern, pf_u32* match
                 return 1;
             }
         } else if (pattern_char == '*') {
-            for (;;) {
-                pattern_width = pf_vol_set.codeset.oem_char_width(pattern);
+            do {
+                pattern_width = volume->codeset.oem_char_width(pattern);
                 if (pattern_width == 1) {
                     pattern_char = pf_toupper(*pattern);
                 } else {
                     pattern_char = PF_GET_LE_U16((const pf_u8*)pattern);
                 }
                 pattern += pattern_width;
-                if (pattern_char != '*' && pattern_char != '?') {
-                    break;
-                }
-            }
+            } while (pattern_char == '*' || pattern_char == '?');
             if (pattern_char == 0) {
                 return 0;
             }
             while (name_char != 0) {
-                if (name_char == pattern_char &&
-                    PFPATH_cmpNameImpl(name + name_width, pattern, matched_end) == 0) {
-                    return 0;
+                if (name_char == pattern_char) {
+                    if (PFPATH_cmpNameImpl(name + name_width, pattern, matched_end) == 0) {
+                        return 0;
+                    }
                 }
                 if (*matched_end != 0) {
                     return 1;
                 }
-                name_width = pf_vol_set.codeset.oem_char_width(name);
+                name_width = volume->codeset.oem_char_width(name);
                 name += name_width;
                 if (name_width == 1) {
                     name_char = pf_toupper(*name);
