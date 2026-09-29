@@ -95,7 +95,7 @@ namespace textinput {
                     void refreshText(nw4r::lyt::Pane* root);
                     void setABCFlag(u32 flags);
                     wchar_t getWCCode(u32 index);
-                    wchar_t getWCCode(char* paneName);
+                    wchar_t getWCCode(char* paneName) NO_INLINE;
                     void setABCMode(u32 mode) {
                         if ((abcFlags & 15) != mode) {
                             abcFlags = (abcFlags & ~15) | (mode & 15);

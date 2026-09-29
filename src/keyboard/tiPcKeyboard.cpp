@@ -1876,22 +1876,23 @@ namespace textinput {
                 mpPaneManager->setAllComponentTriggerTarget(false);
                 mpPaneManager->setAllBoundingBoxComponentTriggerTarget(true);
                 createAnmPane_(allocator);
-                nw4rmanager::Layout* layout = this;
-                gui::PaneManager* manager = layout->getPaneManager();
                 const char* shiftBounding = "B_key_SHIFT";
                 const char* shiftPane = "P_key_SHIFT";
+                nw4rmanager::Layout* layout = this;
+                gui::PaneManager* manager = layout->getPaneManager();
                 mShiftButton.mpPaneComponent = manager->searchPaneComponent(shiftPane);
                 mShiftButton.mpBoundingComponent = manager->searchPaneComponent(shiftBounding);
                 mShiftButton.mpAnimation = static_cast<AnmPane*>(layout->searchAnmPane(shiftPane));
                 mShiftButton.mpBoundingComponent->setListener(&mShiftButton);
-                manager = layout->getPaneManager();
                 const char* capsBounding = "B_key_CAPS";
                 const char* capsPane = "P_key_CAPS";
+                layout = this;
+                manager = layout->getPaneManager();
                 mCapsButton.mpPaneComponent = manager->searchPaneComponent(capsPane);
                 mCapsButton.mpBoundingComponent = manager->searchPaneComponent(capsBounding);
                 mCapsButton.mpAnimation = static_cast<AnmPane*>(layout->searchAnmPane(capsPane));
                 mCapsButton.mpBoundingComponent->setListener(&mCapsButton);
-                mModePanel.Create(layout);
+                mModePanel.Create(this);
                 mShiftButton.mpBoundingComponent->setTriggerTarget(true);
                 mCapsButton.mpBoundingComponent->setTriggerTarget(true);
                 for (u32 i = 0; i < 5; i++)
@@ -1950,16 +1951,26 @@ namespace textinput {
                 setLineFeedButton(true);
                 setPredictLanguageButton(true);
                 setSignWindowButton(true);
-                SelectorPosition chineseTranslation = chinesePosition;
-                SelectorPosition koreanTranslation = koreanPosition;
+                nw4r::math::VEC3 koreanVector;
+                nw4r::math::VEC3 chineseVector;
+                SelectorPosition koreanTranslation;
+                SelectorPosition chineseTranslation;
+                chineseTranslation = chinesePosition;
+                koreanTranslation = koreanPosition;
                 if (meLanguage == CN) {
                     mModePanel.mpEnglishText->GetMaterial()->SetTexture(0, mModePanel.mDirectTexture);
                     mModePanel.mpHangulText->GetMaterial()->SetTexture(0, mModePanel.mPinyinTexture);
-                    mModePanel.mpModeSelect->SetTranslate(nw4r::math::VEC3(chineseTranslation.coordinates));
+                    chineseVector.x = chineseTranslation.coordinates[0];
+                    chineseVector.y = chineseTranslation.coordinates[1];
+                    chineseVector.z = chineseTranslation.coordinates[2];
+                    mModePanel.mpModeSelect->SetTranslate(chineseVector);
                 } else if (meLanguage == KR) {
                     mModePanel.mpEnglishText->GetMaterial()->SetTexture(0, mModePanel.mEnglishTexture);
                     mModePanel.mpHangulText->GetMaterial()->SetTexture(0, mModePanel.mHangulTexture);
-                    mModePanel.mpModeSelect->SetTranslate(nw4r::math::VEC3(koreanTranslation.coordinates));
+                    koreanVector.x = koreanTranslation.coordinates[0];
+                    koreanVector.y = koreanTranslation.coordinates[1];
+                    koreanVector.z = koreanTranslation.coordinates[2];
+                    mModePanel.mpModeSelect->SetTranslate(koreanVector);
                 }
                 searchAnmPane("P_key_SHIFT")->changeAnimation(0);
                 searchAnmPane("P_key_CAPS")->changeAnimation(0);
