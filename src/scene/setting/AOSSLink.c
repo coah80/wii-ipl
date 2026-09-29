@@ -173,7 +173,7 @@ s32 AOSSi_WLANGetBSSList(u32** out) {
     s32 lock;
     s32 err;
 
-    if (AOSSi_alloc == NULL || AOSSi_free == NULL) {
+    if (AOSSi_alloc == 0 || AOSSi_free == 0) {
         return -1;
     }
 
@@ -198,7 +198,7 @@ s32 AOSSi_WLANGetBSSList(u32** out) {
     }
 
     buf = AOSSi_Alloc(0x3200);
-    if (buf == NULL) {
+    if (buf == 0) {
         goto cleanup;
     }
     memset(buf, 0, 0x3200);
@@ -218,27 +218,27 @@ s32 AOSSi_WLANGetBSSList(u32** out) {
         }
 
         count = *(u16*)buf;
-        if (count != 0) {
-            break;
-        }
-
-        if (AOSSi_cancel_flag == 1) {
-            result = -1;
-            goto free;
-        }
-        rescan++;
-        if (rescan > 10) {
-            list = AOSSi_Alloc(0x58);
-            if (list == NULL) {
+        if (count == 0) {
+            if (AOSSi_cancel_flag == 1) {
                 result = -1;
                 goto free;
             }
-            list[0] = 0;
-            result = 0;
-            *out = list;
-            goto free;
+            rescan++;
+            if (rescan > 10) {
+                list = AOSSi_Alloc(0x58);
+                if (list == NULL) {
+                    result = -1;
+                    goto free;
+                }
+                list[0] = 0;
+                result = 0;
+                *out = list;
+                goto free;
+            }
+            AOSS_813FD18C(100);
+            continue;
         }
-        AOSS_813FD18C(100);
+        break;
     }
 
     list = AOSSi_Alloc((count - 1) * 0x54 + 0x58);
