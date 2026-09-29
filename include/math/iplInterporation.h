@@ -12,7 +12,7 @@ namespace ipl {
         template <typename T>
         class Interporation : public utility::FrameController {
         public:
-#ifdef IPL_BOARD_OBJECT_INLINE_INTERPOLATION_DTORS
+#if defined(IPL_BOARD_OBJECT_INLINE_INTERPOLATION_DTORS) || defined(IPL_SD_CHANNEL_SELECT_CPP)
             virtual ~Interporation();
 #endif
             void init(int playback, f32 maxFrame, f32 minFrame, const T& start, const T& end, f32 speed = 1.0f) {
@@ -50,7 +50,7 @@ namespace ipl {
             T get2() const { return (((mStart * (mMaxFrame - mFrame)) + (mEnd * mFrame)) / mMaxFrame); }
         };
 
-#if defined(IPL_CHANNEL_TITLE_NOVTABLE) || defined(IPL_SD_CHANNEL_TITLE_NOVTABLE)
+#if defined(IPL_CHANNEL_TITLE_NOVTABLE) || defined(IPL_SD_CHANNEL_TITLE_NOVTABLE) || defined(IPL_SD_CHANNEL_SELECT_CPP)
         template <typename T>
         class __declspec(novtable) HermiteIntp : public utility::FrameController {
         public:
@@ -141,12 +141,17 @@ namespace ipl {
         };
 
 #pragma dont_instantiate HermiteIntp<float>
+
 #else
         template <typename T>
         class HermiteIntp : public Interporation<T> {
         public:
             HermiteIntp() {}
+#ifdef IPL_SD_CHANNEL_SELECT_CPP
+            virtual ~HermiteIntp();
 
+            void init(const T& start, const T& end, f32 maxFrame, f32 param_5, f32 param_6, int playback = ANIM_TYPE_FORWARD, f32 speed = 1.0f);
+#else
             void init(const T& start, const T& end, f32 maxFrame, f32 param_5, f32 param_6, int playback = ANIM_TYPE_FORWARD, f32 speed = 1.0f) {
                 mStart = start;
                 mEnd = end;
@@ -154,6 +159,7 @@ namespace ipl {
                 unkVal0 = param_5;
                 unkVal1 = param_6;
             }
+#endif
 
             T get() const {
                 f32 var_f27 = mFrame;

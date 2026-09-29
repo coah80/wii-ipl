@@ -157,8 +157,8 @@ namespace ipl {
         extern "C" char lbl_81656620[] = "mn_DialogWindow_Background.brlyt";
         extern "C" char lbl_81656641[] = "mn_DialogWindow_Background_DialogIn.brlan";
         extern "C" char lbl_8165666B[] = "mn_DialogWindow_Background_DialogOut.brlan";
-        void SDMemory::create(EGG::Heap* heap, nand::LayoutFile* layoutFile, SDChannelSelect* chanSel) {
-            mpChanSelect = chanSel;
+        void SDMemory::create(EGG::Heap* heap, nand::LayoutFile* layoutFile, NandSDCardManager* manager) {
+            mpChanSelect = (SDChannelSelect*)manager;
 
             mpDialogA = new layout::Object(heap, layoutFile, "arc", lbl_81655CF8);
             mpDialogA->bindToGroup(lbl_81655D19, "G_InOut", false, true);
@@ -333,9 +333,9 @@ namespace ipl {
         }
 
         extern "C" char lbl_81656696[] = "WIPL_SE_INFO_WINDOW";
-        void SDMemory::startCheck(NandSDWorker::AppBlocksInfo* freeArea, NandSDWorker::AppBlocksInfo* needed) {
-            mFreeArea = *freeArea;
-            mNeededArea = *needed;
+        void SDMemory::setTitleLists(const TitleRange& nandTitles, const TitleRange& sdTitles) {
+            mFreeArea = *(NandSDWorker::AppBlocksInfo*)&nandTitles;
+            mNeededArea = *(NandSDWorker::AppBlocksInfo*)&sdTitles;
 
             mbDialogOpen = true;
             mCheckProgress = 0;
@@ -358,7 +358,7 @@ namespace ipl {
 
         extern "C" char lbl_816566AA[] = "N_Header";
         extern "C" char lbl_816566B3[] = "N_Footer";
-        void SDMemory::initScroller() {
+        void SDMemory::setScrollLimit() {
             nw4r::lyt::Pane* header = mpDialogC->FindPaneByName(lbl_816566AA);
             nw4r::lyt::Pane* body = mpDialogC->FindPaneByName("N_Body");
             nw4r::lyt::Pane* footer = mpDialogC->FindPaneByName(lbl_816566B3);
@@ -375,7 +375,7 @@ namespace ipl {
             mScroller.setDownLimit(limit);
         }
 
-        void SDMemory::resetEdgeAnims() {
+        void SDMemory::resetScrollArrows() {
             mbEdgePlayed[0] = false;
             mbEdgePlayed[1] = false;
             mbEdgePlayed[2] = false;
@@ -385,26 +385,26 @@ namespace ipl {
             mpDialogC->getAnim(0xE)->initAnmFrame();
 
             if (mScroller.isDownEnd() == false) {
-                playEdgeAnim1();
+                showDownArrow();
             }
         }
 
-        void SDMemory::updateEdgeAnims(u32 p1, u32 p2, u32 p3, u32 p4) {
+        void SDMemory::updateScrollArrows(u32 p1, u32 p2, u32 p3, u32 p4) {
             if (p1 != 1 && p3 == 1) {
-                playEdgeAnim0();
+                showUpArrow();
             }
             if (p1 == 1 && p3 != 1) {
-                stopEdgeAnim0();
+                hideDownArrow();
             }
             if (p2 != 1 && p4 == 1) {
-                playEdgeAnim1();
+                showDownArrow();
             }
             if (p2 == 1 && p4 != 1) {
-                stopEdgeAnim1();
+                hideUpArrow();
             }
         }
 
-        void SDMemory::playEdgeAnim0() {
+        void SDMemory::showUpArrow() {
             if (!mbEdgePlayed[1]) {
                 mpDialogC->getAnim(0xE)->initAnmFrame();
                 layout::Animator* pAnim = mpDialogC->getAnim(0xE);
@@ -414,7 +414,7 @@ namespace ipl {
             }
         }
 
-        void SDMemory::playEdgeAnim1() {
+        void SDMemory::showDownArrow() {
             if (!mbEdgePlayed[0]) {
                 mpDialogC->getAnim(0x10)->initAnmFrame();
                 layout::Animator* pAnim = mpDialogC->getAnim(0x10);
@@ -424,7 +424,7 @@ namespace ipl {
             }
         }
 
-        void SDMemory::stopEdgeAnim0() {
+        void SDMemory::hideDownArrow() {
             if (mbEdgePlayed[0]) {
                 mpDialogC->getAnim(0x11)->initAnmFrame();
                 layout::Animator* pAnim = mpDialogC->getAnim(0x11);
@@ -434,7 +434,7 @@ namespace ipl {
             }
         }
 
-        void SDMemory::stopEdgeAnim1() {
+        void SDMemory::hideUpArrow() {
             if (mbEdgePlayed[1]) {
                 mpDialogC->getAnim(0xF)->initAnmFrame();
                 layout::Animator* pAnim = mpDialogC->getAnim(0xF);
@@ -444,39 +444,39 @@ namespace ipl {
             }
         }
 
-        void SDMemory::updateEdgeArrows() {
+        void SDMemory::updateSideArrows() {
             controller::Interface* pCon = System::getMasterController();
 
             if (mScroller.getBInst().isActive() ? false : true) {
                 if (pCon->down(controller::BTN_UP)) {
-                    playEdgeAnim2();
+                    showLeftArrow();
                 }
                 if (!pCon->down(controller::BTN_UP)) {
-                    stopEdgeAnim2();
+                    hideLeftArrow();
                 }
                 if (pCon->down(controller::BTN_DOWN)) {
-                    playEdgeAnim3();
+                    showRightArrow();
                 }
                 if (!pCon->down(controller::BTN_DOWN)) {
-                    stopEdgeAnim3();
+                    hideRightArrow();
                 }
             } else {
                 if (mScroller.getBInst().isUp()) {
-                    playEdgeAnim2();
+                    showLeftArrow();
                 }
                 if (!mScroller.getBInst().isUp()) {
-                    stopEdgeAnim2();
+                    hideLeftArrow();
                 }
                 if (mScroller.getBInst().isDown()) {
-                    playEdgeAnim3();
+                    showRightArrow();
                 }
                 if (!mScroller.getBInst().isDown()) {
-                    stopEdgeAnim3();
+                    hideRightArrow();
                 }
             }
         }
 
-        void SDMemory::playEdgeAnim2() {
+        void SDMemory::showLeftArrow() {
             if (!mbEdgePlayed[2]) {
                 layout::Animator* pAnim = mpDialogC->getAnim(0x13);
                 pAnim->initFrame();
@@ -485,7 +485,7 @@ namespace ipl {
             }
         }
 
-        void SDMemory::playEdgeAnim3() {
+        void SDMemory::showRightArrow() {
             if (!mbEdgePlayed[3]) {
                 layout::Animator* pAnim = mpDialogC->getAnim(0x15);
                 pAnim->initFrame();
@@ -494,7 +494,7 @@ namespace ipl {
             }
         }
 
-        void SDMemory::stopEdgeAnim2() {
+        void SDMemory::hideLeftArrow() {
             if (mbEdgePlayed[2]) {
                 layout::Animator* pAnim = mpDialogC->getAnim(0x14);
                 pAnim->initFrame();
@@ -503,7 +503,7 @@ namespace ipl {
             }
         }
 
-        void SDMemory::stopEdgeAnim3() {
+        void SDMemory::hideRightArrow() {
             if (mbEdgePlayed[3]) {
                 layout::Animator* pAnim = mpDialogC->getAnim(0x16);
                 pAnim->initFrame();
@@ -512,7 +512,7 @@ namespace ipl {
             }
         }
 
-        void SDMemory::initArwAnims() {
+        void SDMemory::resetDialogPaneAnimations() {
 
             for (int i = 0; i < 4; i++) {
                 if (mScrFlags[i] != 0) {
@@ -546,13 +546,13 @@ namespace ipl {
             }
         }
 
-        BOOL SDMemory::waitEnd() {
+        BOOL SDMemory::calc() {
             int ret = 0;
-            int state = checkProgress();
+            int state = updateState();
 
             if (state == 0) {
                 if (mScroller.calc(mCheckProgress == 0xA) == 1) {
-                    initArwAnims();
+                    resetDialogPaneAnimations();
                 }
 
                 math::VEC3 pos(0.0f, mScroller.get(), 0.0f);
@@ -560,81 +560,81 @@ namespace ipl {
 
                 switch (mCheckProgress) {
                     case 0x00:
-                        state0();
+                        onDialogState0();
                         break;
                     case 0x01:
                         mpPaneMgrA->update();
                         mpPaneMgrA->calc();
                         break;
                     case 0x02:
-                        state2();
+                        onDialogState2();
                         break;
                     case 0x03:
-                        ret = state3();
+                        ret = onDialogState3();
                         break;
                     case 0x04:
-                        state4();
+                        onDialogState4();
                         break;
                     case 0x05:
                         mpPaneMgrB->update();
                         mpPaneMgrB->calc();
                         break;
                     case 0x06:
-                        state6();
+                        onDialogState6();
                         break;
                     case 0x07:
-                        state7();
+                        onDialogState7();
                         break;
                     case 0x08:
-                        state8();
+                        onDialogState8();
                         break;
                     case 0x09:
-                        state9();
+                        onDialogState9();
                         break;
                     case 0x0A:
-                        state10();
+                        onDialogState10();
                         break;
                     case 0x0B:
-                        state11();
+                        onDialogState11();
                         break;
                     case 0x0C:
-                        state12();
+                        onDialogState12();
                         break;
                     case 0x13:
-                        state13();
+                        onDialogState13();
                         break;
                     case 0x0D:
-                        state14();
+                        onDialogState14();
                         break;
                     case 0x0E:
-                        state15();
+                        onDialogState15();
                         break;
                     case 0x0F:
-                        state16();
+                        onDialogState16();
                         break;
                     case 0x10:
-                        state17();
+                        onDialogState17();
                         break;
                     case 0x11:
-                        state18();
+                        onDialogState18();
                         break;
                     case 0x12:
-                        state19();
+                        onDialogState19();
                         break;
                     case 0x14:
-                        ret = state20();
+                        ret = onDialogState20();
                         break;
                     case 0x15:
-                        state21();
+                        onDialogState21();
                         break;
                     case 0x16:
-                        ret = state22();
+                        ret = onDialogState22();
                         break;
                     case 0x17:
-                        state23();
+                        onDialogState23();
                         break;
                     case 0x18:
-                        ret = state24();
+                        ret = onDialogState24();
                         break;
                     case 0x19:
                         ret = 1;
@@ -650,7 +650,7 @@ namespace ipl {
             return state == 2 ? TRUE : ret;
         }
 
-        int SDMemory::checkProgress() {
+        int SDMemory::updateState() {
             int chstate = mpChanSelect->mSelState;
             int ret = 0;
 
@@ -738,10 +738,10 @@ namespace ipl {
 
                         mScroller.reset();
                         if (mbEdgePlayed[0]) {
-                            stopEdgeAnim0();
+                            hideDownArrow();
                         }
                         if (mbEdgePlayed[1]) {
-                            stopEdgeAnim1();
+                            hideUpArrow();
                         }
                         ret = 1;
                         break;
@@ -803,7 +803,7 @@ namespace ipl {
             }
             return ret;
         }
-        void SDMemory::state0() {
+        void SDMemory::onDialogState0() {
             if (!mpDialogA->isPlaying(-1)) {
                 for (int i = 0; i < 3; i++) {
                     mUnk30[i] = 0;
@@ -814,7 +814,7 @@ namespace ipl {
             }
         }
 
-        void SDMemory::state2() {
+        void SDMemory::onDialogState2() {
             if (!mpDialogA->isPlaying(-1)) {
                 mpDialogA->getAnim(1)->initAnmFrame();
                 layout::Animator* pAnim = mpDialogA->getAnim(1);
@@ -832,7 +832,7 @@ namespace ipl {
             }
         }
 
-        int SDMemory::state3() {
+        int SDMemory::onDialogState3() {
             if (!mpDialogA->isPlaying(-1)) {
                 switch (mDialogBtnType) {
                     case 0: {
@@ -864,7 +864,7 @@ namespace ipl {
             return 0;
         }
 
-        void SDMemory::state4() {
+        void SDMemory::onDialogState4() {
             if (!mpDialogB->isPlaying(-1)) {
                 if (mDialogResult == 4) {
                     for (int i = 0; i < 5; i++) {
@@ -883,7 +883,7 @@ namespace ipl {
             }
         }
 
-        void SDMemory::state6() {
+        void SDMemory::onDialogState6() {
             if (!mpDialogB->isPlaying(-1)) {
                 mCheckProgress = 7;
                 mpDialogB->getAnim(1)->initAnmFrame();
@@ -893,7 +893,7 @@ namespace ipl {
             }
         }
 
-        void SDMemory::state7() {
+        void SDMemory::onDialogState7() {
             if (!mpDialogB->isPlaying(-1)) {
                 switch (mDialogBtnType) {
                     case 4: {
@@ -916,7 +916,7 @@ namespace ipl {
         }
 
         extern "C" char lbl_81656780[] = "T_Header";
-        void SDMemory::state8() {
+        void SDMemory::onDialogState8() {
             if (System::getDialog()->getState() == 2) {
                 if (mCheckTime == 0) {
                     mCheckTime = OSGetTime();
@@ -956,13 +956,13 @@ namespace ipl {
                         mLineCount += (int)ceilf(-textRect.GetHeight() / pBody->GetSize().height);
                     }
 
-                    initScroller();
-                    resetEdgeAnims();
+                    setScrollLimit();
+                    resetScrollArrows();
                 }
             }
         }
 
-        void SDMemory::state9() {
+        void SDMemory::onDialogState9() {
             if (!mpDialogC->isPlaying(0)) {
                 for (int i = 0; i < 4; i++) {
                     mScrFlags[i] = 0;
@@ -972,10 +972,10 @@ namespace ipl {
             }
         }
 
-        void SDMemory::state10() {
+        void SDMemory::onDialogState10() {
             controller::Interface* pCon = System::getMasterController();
             if (mScroller.isActive()) {
-                updateEdgeArrows();
+                updateSideArrows();
                 BOOL idle = !mScroller.getBInst().isActive();
                 if (idle) {
                     if (pCon->down(controller::BTN_UP)) {
@@ -985,7 +985,7 @@ namespace ipl {
                     }
                 }
             }
-            updateEdgeAnims(!mbEdgePlayed[0], !mbEdgePlayed[1], mScroller.isUpEnd(), mScroller.isDownEnd());
+            updateScrollArrows(!mbEdgePlayed[0], !mbEdgePlayed[1], mScroller.isUpEnd(), mScroller.isDownEnd());
             BOOL idle2 = !mScroller.getBInst().isActive();
             if (idle2) {
                 mpPaneMgrC->update();
@@ -993,7 +993,7 @@ namespace ipl {
             }
         }
 
-        void SDMemory::state11() {
+        void SDMemory::onDialogState11() {
             if (!mpDialogC->isPlaying(4) && !mpDialogC->isPlaying(7)) {
                 switch (mDialogBtnType) {
                   case 2:
@@ -1004,10 +1004,10 @@ namespace ipl {
                     pAnim->initFrame();
                     pAnim->restart();
                     if (mbEdgePlayed[0]) {
-                        playEdgeAnim0();
+                        showUpArrow();
                     }
                     if (mbEdgePlayed[1]) {
-                        playEdgeAnim1();
+                        showDownArrow();
                     }
                     break;
                   }
@@ -1019,7 +1019,7 @@ namespace ipl {
         }
 
         extern "C" wchar_t lbl_8165678A[] = L"%ls\n%ls";
-        void SDMemory::state12() {
+        void SDMemory::onDialogState12() {
             if (!mpDialogC->isPlaying(1)) {
                 switch (mDialogBtnType) {
                     case 2: {
@@ -1042,7 +1042,7 @@ namespace ipl {
                                 break;
                             }
                         }
-                        if (mpChanSelect->iplSDChannelSelect_813DB530(&mCheckLists[2].ids, &mCheckLists[1].ids) != 0) {
+                        if (mpChanSelect->enqueueErrorNotice((u32)&mCheckLists[2].ids, (u32)&mCheckLists[1].ids) != 0) {
                             mCheckProgress = 0x13;
                             mDialogText[0] = 0;
                             unk_0x78 = 0;
@@ -1069,7 +1069,7 @@ namespace ipl {
             return FALSE;
         }
 
-        void SDMemory::state13() {
+        void SDMemory::onDialogState13() {
             if (!mpChanSelect->mpWorker->is_working()) {
                 int r = mpChanSelect->mpWorker->get_async_result();
                 if (r == 0) {
@@ -1092,7 +1092,7 @@ namespace ipl {
             }
         }
 
-        void SDMemory::state14() {
+        void SDMemory::onDialogState14() {
             if (System::getDialog()->getState() == 2) {
                 mDialogText[0] = 0;
                 const wchar_t* msg = System::getMessage(0xB1);
@@ -1100,7 +1100,7 @@ namespace ipl {
                 System::getDialog()->set_title(mDialogText);
                 if (findId(unk_0x80[unk_0x78], mIdListA, mField1340) != 0 ||
                     findId(unk_0x80[unk_0x78], mEntryList, mField1648) != 0) {
-                    if (mpChanSelect->iplSDChannelSelect_813DB478(unk_0x80[unk_0x78]) != 0) {
+                    if (mpChanSelect->enqueueMoveNotice((u32)this + unk_0x78 * 8, (u32)(unk_0x80[unk_0x78] >> 32), (u32)unk_0x80[unk_0x78]) != 0) {
                         mCheckProgress = 0xE;
                     } else {
                         System::getDialog()->terminate();
@@ -1121,7 +1121,7 @@ namespace ipl {
             }
         }
 
-        void SDMemory::state15() {
+        void SDMemory::onDialogState15() {
             f32 pos = 100.0f * (f32)unk_0x78 / (f32)mMsgCount;
             pos += (f32)(NandSDWorker::s_completion_pct / mMsgCount);
             if (pos >= 100.0f) {
@@ -1149,10 +1149,10 @@ namespace ipl {
             }
         }
 
-        void SDMemory::state16() {
+        void SDMemory::onDialogState16() {
             if (mMsgCount > unk_0x78) {
                 if (System::isReceiveScheduleStopped()) {
-                    if (mpChanSelect->iplSDChannelSelect_813DB4D4(unk_0x80[unk_0x78], 0) != 0) {
+                    if (mpChanSelect->enqueueStateNotice((u32)this + unk_0x78 * 8, (u32)(unk_0x80[unk_0x78] >> 32), (u32)unk_0x80[unk_0x78], 0) != 0) {
                         mCheckProgress = 0x10;
                     } else {
                         System::getDialog()->terminate();
@@ -1164,7 +1164,7 @@ namespace ipl {
             }
         }
 
-        void SDMemory::state17() {
+        void SDMemory::onDialogState17() {
             if (!mpChanSelect->mpWorker->is_working()) {
                 if (System::getDialog()->mProgBarFrame >= mUnk29E0) {
                     System::getChannelManager()->fn_8133AA50(unk_0x80[unk_0x78]);
@@ -1191,13 +1191,13 @@ namespace ipl {
             }
         }
 
-        void SDMemory::state18() {
+        void SDMemory::onDialogState18() {
             if (System::getDialog()->getState() == 2) {
                 mDialogText[0] = 0;
                 const wchar_t* msg = System::getMessage(0xB1);
                 swprintf(mDialogText, 0x107F, lbl_8165678A, (const wchar_t*)(unk_0x380 + unk_0x78 * 0x2A), msg);
                 System::getDialog()->set_title(mDialogText);
-                if (mpChanSelect->iplSDChannelSelect_813DB5EC(unk_0x80[unk_0x78]) != 0) {
+                if (mpChanSelect->enqueueDeleteNotice((u32)this + unk_0x78 * 8, (u32)(unk_0x80[unk_0x78] >> 32), (u32)unk_0x80[unk_0x78]) != 0) {
                     mCheckProgress = 0x12;
                 } else {
                     System::getDialog()->terminate();
@@ -1208,7 +1208,7 @@ namespace ipl {
             }
         }
 
-        void SDMemory::state19() {
+        void SDMemory::onDialogState19() {
             if (!mpChanSelect->mpWorker->is_working()) {
                 if (mpChanSelect->mpWorker->get_async_result() == 0) {
                     mCheckProgress = 0xD;
@@ -1221,7 +1221,7 @@ namespace ipl {
             }
         }
 
-        int SDMemory::state20() {
+        int SDMemory::onDialogState20() {
             if (System::getDialog()->getState() == 4) {
                 if (mbChecking && mState == 0) {
                     mbChecking = false;
@@ -1248,7 +1248,7 @@ namespace ipl {
         }
 
         extern "C" wchar_t lbl_8165679A[] = L"****";
-        void SDMemory::state21() {
+        void SDMemory::onDialogState21() {
             const wchar_t* msg = System::getMessage(mNextProgress);
             const wchar_t* found = wcsstr(msg, lbl_8165679A);
             wchar_t* buf1 = new (System::getMem2App(), -0x20) wchar_t[0x400];
@@ -1272,7 +1272,7 @@ namespace ipl {
             delete[] buf2;
         }
 
-        int SDMemory::state22() {
+        int SDMemory::onDialogState22() {
             if (System::getDialog()->getState() == 3 && System::getDialog()->mResult == 1) {
                 mpDialogBg->getAnim(1)->initAnmFrame();
                 layout::Animator* pAnim = mpDialogBg->getAnim(1);
@@ -1297,7 +1297,7 @@ namespace ipl {
             return 0;
         }
 
-        void SDMemory::state23() {
+        void SDMemory::onDialogState23() {
             switch (mNextProgress) {
                 case 0xBF:
                 case 0xB5: {
@@ -1312,7 +1312,7 @@ namespace ipl {
             mCheckProgress = 0x18;
         }
 
-        int SDMemory::state24() {
+        int SDMemory::onDialogState24() {
             if (System::getDialog()->getState() == 3) {
                 mpDialogBg->getAnim(1)->initAnmFrame();
                 layout::Animator* pAnim = mpDialogBg->getAnim(1);
@@ -1755,7 +1755,7 @@ namespace ipl {
                         mCheckLists[1].count = 0;
                         mCheckLists[2].ids = mIdListA;
                         mCheckLists[2].count = 0;
-                        mpChanSelect->iplSDChannelSelect_813DB58C(&mCheckLists[0], &mCheckLists[1], &mCheckLists[2]);
+                        mpChanSelect->enqueueCommandNotice((u32)&mCheckLists[0], (u32)&mCheckLists[1], (u32)&mCheckLists[2]);
                     }
                     if (idx == 4) {
                         snd::sSystem.startSE(lbl_816567EE);

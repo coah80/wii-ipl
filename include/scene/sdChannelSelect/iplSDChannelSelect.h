@@ -23,11 +23,26 @@ namespace ipl {
     class NandSDWorker;
 
     namespace scene {
-        static void copyRequest(s32* dst, const s32* src);
+        union SDChannelSelectCommandArguments {
+            u32 values[3];
+            NandSDWorker::AppBlocksInfo* appBlocks[3];
+            NandSDWorker::TitleIdList* titleLists[3];
+            void* pointers[3];
+        };
 
-        class SDCmdQueue {
+        struct SDChannelSelectCommand {
+            u32 type;                               // 0x00
+            u32 unknown_0x04;                       // 0x04
+            u64 titleId;                            // 0x08
+            SDChannelSelectCommandArguments arguments;  // 0x10
+            u32 unknown_0x1C;                       // 0x1C
+
+            void copyFrom(const SDChannelSelectCommand& other);
+        };
+
+        class SDChannelSelectCommandQueue {
         public:
-            BOOL push(const s32* req);
+            BOOL push(const SDChannelSelectCommand& command);
             BOOL pop();
 
             int getCount() const { return mCount; }
@@ -35,20 +50,20 @@ namespace ipl {
             friend class SDChannelSelect;
 
         private:
-            s32 mEntries[4][8];             // 0x00
-            s32 mCap;                       // 0x80
-            s32 mCount;                     // 0x84
-            s32 mRead;                      // 0x88
-            s32 mWrite;                     // 0x8C
+            SDChannelSelectCommand mEntries[4];     // 0x00
+            s32 mCap;                               // 0x80
+            s32 mCount;                             // 0x84
+            s32 mRead;                              // 0x88
+            s32 mWrite;                             // 0x8C
         };
 
-        class SDChanQueue {
+        class SDChannelSelectNoticeQueue {
         public:
-            BOOL push(const s32* req) {
+            BOOL push(const SDChannelSelectCommand& command) {
                 if (mCap == mCount) {
                     return FALSE;
                 }
-                copyRequest(&mEntries[mWrite][0], req);
+                mEntries[mWrite].copyFrom(command);
                 if (++mWrite >= mCap) {
                     mWrite = 0;
                 }
@@ -62,11 +77,11 @@ namespace ipl {
             friend class SDChannelSelect;
 
         private:
-            s32 mEntries[42][8];            // 0x00
-            s32 mCap;                       // 0x540
-            s32 mCount;                     // 0x544
-            s32 mRead;                      // 0x548
-            s32 mWrite;                     // 0x54C
+            SDChannelSelectCommand mEntries[42];    // 0x00
+            s32 mCap;                               // 0x540
+            s32 mCount;                             // 0x544
+            s32 mRead;                              // 0x548
+            s32 mWrite;                             // 0x54C
         };
 
         FADER_SCENE_CLASS(SDChannelSelect) {
@@ -94,28 +109,28 @@ namespace ipl {
             }
             SDChannelObj* getChanObj(int page, int index);
 
-            static void getChanPoint(nw4r::math::VEC3* out, const SDChannelSelect* sel, int index);
             int getSelectChan(int dir, int* pageOut, int* indexOut);
             void setSelectChan(int page, int index, SDChannelObj* chanObj);
             BOOL isAnyChanMoving();
             BOOL startChanAnime(int page);
             void getChanSelectState(int page, int index);
-            BOOL startNandCheck(u64 titleId, NandSDWorker::AppBlocksInfo* freeOut);
-            BOOL isAsyncDone(u32 titleId);
-            BOOL startNandAsync(u64 titleId, int flag);
             int startSDWorker(NandSDWorker::AppBlocksInfo* freeArea, NandSDWorker::AppBlocksInfo* needed, void* unk1, void* unk2, void* unk3, int type);
-            BOOL enqueueErrorNotice(u32 page, u32 index);
-            BOOL enqueueCommandNotice(u32 page, u32 index, u32 command);
-            BOOL enqueueMoveNotice(u32 controller, u32 page, u32 index);
-            BOOL enqueueStateNotice(u32 controller, u32 page, u32 index, u32 state);
-            BOOL enqueueDeleteNotice(u32 controller, u32 page, u32 index);
-            void startNandAsync2();
-            void startNandAsync3();
+            void clearCommandQueue();
+            void clearNoticeQueue();
+            BOOL enqueueResultNotice(u32 titleId);
+            BOOL enqueueChannelNotice(u32 channel, u32 highTitleId, u32 lowTitleId, u32 freeOut);
+            BOOL enqueueMoveNotice(u32 channel, u32 highTitleId, u32 lowTitleId);
+            BOOL enqueueStateNotice(u32 channel, u32 highTitleId, u32 lowTitleId, u32 state);
+            BOOL enqueueErrorNotice(u32 arg1, u32 arg2);
+            BOOL enqueueCommandNotice(u32 arg1, u32 arg2, u32 arg3);
+            BOOL enqueueDeleteNotice(u32 channel, u32 highTitleId, u32 lowTitleId);
             void processWorkerCommands();
             void handleWorkerStartup();
             void handleNandTitleCount();
             void handleNandTitleUsage();
             void handleSDTitleList();
+            static int compareTitleUsage(const void* a, const void* b);
+            static int compareTitleInfo(const void* a, const void* b);
             void iplSDChannelSelect_813DBFE0();
             void iplSDChannelSelect_813DFBBC();
             void iplSDChannelSelect_813DFAC0();
@@ -141,7 +156,7 @@ namespace ipl {
             layout::Object* mpAnimLayout2;          // 0x88
             layout::Object* mpAnimLayout3;          // 0x8C
             layout::Object* mpAnimLayout6;          // 0x90
-            SDChannelSelectEvent* mpEvent;          // 0x94
+            SDChannelSelectBtnEvent* mpEvent;       // 0x94
             int mState;                             // 0x98
             int mChanPage;                          // 0x9C
             int mChanCount;                         // 0xA0
@@ -176,8 +191,8 @@ namespace ipl {
             EGG::ExpHeap* mpCsHeap;                // 0x114
             channel::RsoThread* mpRsoThread;        // 0x118
             u8 unk_0x11C[0x4];                      // 0x11C
-            SDCmdQueue mCmdQueue;                   // 0x120
-            SDChanQueue mChanQueue;                 // 0x1B0
+            SDChannelSelectCommandQueue mCmdQueue; // 0x120
+            SDChannelSelectNoticeQueue mChanQueue;  // 0x1B0
             int mSelState;                          // 0x700
             s32 unk_0x704;                          // 0x704
             int mMountFlag;                         // 0x708
@@ -207,8 +222,8 @@ namespace ipl {
             s32 unk_0x75C;                          // 0x75C
             int mReqType;                           // 0x760
             nand::File* mpReqFile;                  // 0x764
-            s32 unk_0x768;                          // 0x768
-            int mReqParam;                          // 0x76C
+            u32 unk_0x768;                          // 0x768
+            u32 mReqParam;                          // 0x76C
             OSTime mLastTime;                       // 0x770
             nand::File* mpThumbData;                // 0x778
             u8 unk_0x77C;                           // 0x77C
@@ -219,7 +234,7 @@ namespace ipl {
         private:
             void enqueueStartNotice();
             BOOL enqueueFinishNotice();
-            BOOL enqueueNotice(u32 highTitleId, u32 lowTitleId, u32 result);
+            BOOL enqueueNotice(u32 titleId, u32 arg1, u32 arg2);
             BOOL enqueueLoadNotice();
             BOOL enqueuePageNotice();
             void handleNandTitleUsageComplete();
@@ -259,6 +274,7 @@ namespace ipl {
             void iplSDChannelSelect_813DFF2C();
             BOOL hasChannelObject(int page, int index) const;
             void iplSDChannelSelect_813E0848(SDChannelObj* chanObj);
+            static nw4r::math::VEC3 getChannelPanePosition(SDChannelSelect* scene, int index);
             void iplSDChannelSelect_813E1568();
             void iplSDChannelSelect_813E168C();
             void iplSDChannelSelect_813E1A30();

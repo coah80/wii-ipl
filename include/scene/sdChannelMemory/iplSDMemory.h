@@ -5,6 +5,7 @@
 
 #include "layout/iplGuiManager.h"
 #include "layout/iplLayout.h"
+#include "scene/channelEdit/iplNandSDCardManager.h"
 
 #include "scene/board/iplFocusObject.h"
 
@@ -27,48 +28,52 @@ namespace ipl {
             SDMemory();
             ~SDMemory();
 
-            void create(EGG::Heap* heap, nand::LayoutFile* layoutFile, SDChannelSelect* chanSel);
+            struct TitleRange {
+                ESTitleId* mpTitles;
+                u32 mCount;
+            };
 
-            void startCheck(NandSDWorker::AppBlocksInfo* freeArea, NandSDWorker::AppBlocksInfo* needed);
-            void initScroller();
-            void resetEdgeAnims();
-            void updateEdgeAnims(u32 p1, u32 p2, u32 p3, u32 p4);
-            void playEdgeAnim0();
-            void playEdgeAnim1();
-            void stopEdgeAnim0();
-            void stopEdgeAnim1();
-            void updateEdgeArrows();
-            void playEdgeAnim2();
-            void playEdgeAnim3();
-            void stopEdgeAnim2();
-            void stopEdgeAnim3();
-            void initArwAnims();
-            int checkProgress();
-            void state0();
-            void state2();
-            int state3();
-            void state4();
-            void state6();
-            void state7();
-            void state8();
-            void state9();
-            void state10();
-            void state11();
-            void state12();
+            void create(EGG::Heap* heap, nand::LayoutFile* layoutFile, NandSDCardManager* manager);
+            void setTitleLists(const TitleRange& nandTitles, const TitleRange& sdTitles);
+            void setScrollLimit();
+            void resetScrollArrows();
+            void updateScrollArrows(u32 previousDownEnd, u32 previousUpEnd, u32 downEnd, u32 upEnd);
+            void showDownArrow();
+            void showUpArrow();
+            void hideDownArrow();
+            void hideUpArrow();
+            void updateSideArrows();
+            void showLeftArrow();
+            void showRightArrow();
+            void hideLeftArrow();
+            void hideRightArrow();
+            void resetDialogPaneAnimations();
+            int updateState();
+            void onDialogState0();
+            void onDialogState2();
+            int onDialogState3();
+            void onDialogState4();
+            void onDialogState6();
+            void onDialogState7();
+            void onDialogState8();
+            void onDialogState9();
+            void onDialogState10();
+            void onDialogState11();
+            void onDialogState12();
             BOOL findId(u64 id, const u64* list, u32 n);
-            void state13();
-            void state14();
-            void state15();
-            void state16();
-            void state17();
-            void state18();
-            void state19();
-            int state20();
-            void state21();
-            int state22();
-            void state23();
-            int state24();
-            BOOL waitEnd();
+            void onDialogState13();
+            void onDialogState14();
+            void onDialogState15();
+            void onDialogState16();
+            void onDialogState17();
+            void onDialogState18();
+            void onDialogState19();
+            int onDialogState20();
+            void onDialogState21();
+            int onDialogState22();
+            void onDialogState23();
+            int onDialogState24();
+            BOOL calc();
             void draw();
             void drawProgress();
 

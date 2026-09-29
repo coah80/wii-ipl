@@ -1,3 +1,4 @@
+#define IPL_SD_CHANNEL_SELECT_CPP
 #include "scene/sdChannelSelect/iplSDChannelSelect.h"
 
 #include <cstring>
@@ -20,6 +21,8 @@
 #include "utility/iplCSFlags.h"
 #include "scene/sdButton/iplSDButton.h"
 
+#pragma dont_instantiate ipl::math::HermiteIntp<ipl::math::VEC3>
+
 namespace ipl {
     namespace math {
         static inline nw4r::math::VEC3 subHermitePoints(const VEC3& start, const VEC3& end) {
@@ -29,23 +32,43 @@ namespace ipl {
         }
 
         template <>
-        VEC3 HermiteIntp<VEC3>::get() const {
-            f32 var_f27 = mFrame;
-            f32 var_f28 = 1.0f / mMaxFrame;
-            VEC3 r(subHermitePoints(
-                mStart * (1.0f + ((var_f28 * (var_f28 * (var_f28 * (var_f27 * (2.0f * var_f27 * var_f27))))) -
-                                  (var_f28 * (var_f28 * (3.0f * var_f27 * var_f27))))),
-                mEnd * ((var_f28 * (var_f28 * (var_f28 * (var_f27 * (2.0f * var_f27 * var_f27))))) -
-                        (var_f28 * (var_f28 * (3.0f * var_f27 * var_f27))))));
-            f32 temp_f4 = var_f27 * var_f27;
-            f32 temp_f7 = var_f28 * (var_f28 * (var_f27 * temp_f4));
-            f32 temp_f3 = (unkVal0 * (var_f27 + (temp_f7 - (var_f28 * (2.0f * var_f27 * var_f27))))) +
-                          (unkVal1 * (temp_f7 - (var_f28 * temp_f4)));
-            r.x += temp_f3;
-            r.y += temp_f3;
-            r.z += temp_f3;
-            return r;
-        }
+        class HermiteIntp<VEC3> : public utility::FrameController {
+        public:
+            HermiteIntp() {}
+            virtual ~HermiteIntp();
+
+            void init(const VEC3& start, const VEC3& end, f32 maxFrame, f32 param_5, f32 param_6, int playback = ANIM_TYPE_FORWARD,
+                      f32 speed = 1.0f);
+
+            VEC3 get() const {
+                f32 var_f27 = mFrame;
+                f32 var_f28 = 1.0f / mMaxFrame;
+                nw4r::math::VEC3 r;
+                nw4r::math::VEC3Add(&r,
+                                    &(mStart * (1.0f + ((var_f28 * (var_f28 * (var_f28 * (var_f27 * (2.0f * var_f27 * var_f27))))) -
+                                                        (var_f28 * (var_f28 * (3.0f * var_f27 * var_f27)))))),
+                                    &(mEnd * ((var_f28 * (var_f28 * (var_f28 * (var_f27 * (2.0f * var_f27 * var_f27))))) -
+                                              (var_f28 * (var_f28 * (3.0f * var_f27 * var_f27))))));
+                VEC3 out(r);
+                f32 tan =
+                    unkVal0 * (var_f27 +
+                               (var_f28 * (var_f28 * (var_f27 * (var_f27 * var_f27))) -
+                                var_f28 * (2.0f * var_f27 * var_f27))) +
+                    unkVal1 * (var_f28 * (var_f28 * (var_f27 * (var_f27 * var_f27))) -
+                               var_f28 * (var_f27 * var_f27));
+                out.x += tan;
+                out.y += tan;
+                out.z += tan;
+                return out;
+            }
+
+        protected:
+            VEC3 mStart;
+            VEC3 mEnd;
+            f32 unkVal0;
+            f32 unkVal1;
+        };
+
     }  // namespace math
 
     namespace scene {
@@ -131,19 +154,9 @@ namespace ipl {
         // clang-format on
 
 
-        class SDChannelSelectEvent : public SDButtonEventHandlerBase {
+        class SDChannelSelectEvent : public ::gui::EventHandler {
         public:
             SDChannelSelectEvent(SDChannelSelect* scene) : mpScene(scene) {}
-
-        private:
-            virtual void onEventDerived(u32 compId, u32 event, const controller::Interface* con);
-
-            SDChannelSelect* mpScene;  // 0x0C
-        };
-
-        class SDChannelSelectBtnEvent : public ::gui::EventHandler {
-        public:
-            SDChannelSelectBtnEvent(SDChannelSelect* scene) : mpScene(scene) {}
 
         private:
             virtual void onEvent(u32 compId, u32 event, void* data);
@@ -151,9 +164,19 @@ namespace ipl {
             SDChannelSelect* mpScene;  // 0x0C
         };
 
+        class SDChannelSelectBtnEvent : public SDButtonEventHandlerBase {
+        public:
+            SDChannelSelectBtnEvent(SDChannelSelect* scene) : mpScene(scene) {}
+
+        private:
+            virtual void onEventDerived(u32 compId, u32 event, const controller::Interface* con);
+
+            SDChannelSelect* mpScene;  // 0x0C
+        };
+
         SDChannelSelect::SDChannelSelect(EGG::Heap* heap)
             : FaderSceneBase(heap) {
-            mpEvent = new SDChannelSelectEvent(this);
+            mpEvent = new SDChannelSelectBtnEvent(this);
             mState = 0;
 
             mChanSizeX = scChanSize[SCGetAspectRatio()][0];
@@ -218,8 +241,11 @@ namespace ipl {
             System::getProjectionRect4x3(&rect43);
             nw4r::ut::Rect rect169;
             System::getProjectionRect16x9(&rect169);
-            f32 scale = (rect169.right - rect169.left) / (rect43.right - rect43.left);
-            if (SCGetAspectRatio() != SC_ASPECT_RATIO_16x9) {
+            f32 w43 = rect43.right - rect43.left;
+            f32 w169 = rect169.right - rect169.left;
+            f32 scale = w169 / w43;
+            if (SCGetAspectRatio() == SC_ASPECT_RATIO_16x9) {
+            } else {
                 scale = 1.0f;
             }
             mAspectScale = scale;
@@ -303,8 +329,7 @@ namespace ipl {
                 OSReport(" ... wait for bs2 abord\n");
                 VIWaitForRetrace();
             }
-            u32 bs2AbortEnd = OSGetTick();
-            OSReport("*** BS2 abort costs: %dms\n", OSTicksToMilliseconds(bs2AbortEnd - bs2AbortStart));
+            OSReport("*** BS2 abort costs: %dms\n", OSTicksToMilliseconds(OSGetTick() - bs2AbortStart));
 
             System::getFader()->fadeIn();
             mState = 2;
@@ -313,38 +338,35 @@ namespace ipl {
         }
 
         void SDChannelSelect::enqueueStartNotice() {
-            s32 req[8];
-            req[0] = 1;
-            req[4] = 0;
-            req[5] = 0;
-            req[3] = 0;
-            req[2] = 0;
-            mCmdQueue.push(req);
+            SDChannelSelectCommand cmd;
+            cmd.type = 1;
+            cmd.arguments.values[0] = 0;
+            cmd.arguments.values[1] = 0;
+            cmd.titleId = 0;
+            mCmdQueue.push(cmd);
         }
 
         BOOL SDChannelSelect::enqueueFinishNotice() {
-            s32 req[8];
-            req[0] = 2;
-            req[4] = 0;
-            req[5] = 0;
-            req[3] = 0;
-            req[2] = 0;
-            mCmdQueue.push(req);
+            SDChannelSelectCommand cmd;
+            cmd.type = 2;
+            cmd.arguments.values[0] = 0;
+            cmd.arguments.values[1] = 0;
+            cmd.titleId = 0;
+            mCmdQueue.push(cmd);
             return TRUE;
         }
 
-        BOOL SDChannelSelect::enqueueNotice(int a, int b, int c) {
+        BOOL SDChannelSelect::enqueueNotice(u32 titleId, u32 arg1, u32 arg2) {
             if (mSelState != 6) {
                 return FALSE;
             }
             {
-                s32 req[8];
-                req[0] = 4;
-                req[4] = b;
-                req[5] = c;
-                req[3] = a;
-                req[2] = 0;
-                mChanQueue.push(req);
+                SDChannelSelectCommand cmd;
+                cmd.type = 4;
+                cmd.arguments.values[0] = arg1;
+                cmd.arguments.values[1] = arg2;
+                cmd.titleId = titleId;
+                mChanQueue.push(cmd);
                 return TRUE;
             }
         }
@@ -353,13 +375,12 @@ namespace ipl {
             if (mSelState != 6) {
                 return FALSE;
             }
-            s32 req[8];
-            req[0] = 8;
-            req[4] = 0;
-            req[5] = 0;
-            req[3] = 0;
-            req[2] = 0;
-            mCmdQueue.push(req);
+            SDChannelSelectCommand cmd;
+            cmd.type = 8;
+            cmd.arguments.values[0] = 0;
+            cmd.arguments.values[1] = 0;
+            cmd.titleId = 0;
+            mCmdQueue.push(cmd);
             return TRUE;
         }
 
@@ -367,117 +388,107 @@ namespace ipl {
             if (mSelState != 6) {
                 return FALSE;
             }
-            s32 req[8];
-            req[0] = 9;
-            req[4] = 0;
-            req[5] = 0;
-            req[3] = 0;
-            req[2] = 0;
-            mCmdQueue.push(req);
+            SDChannelSelectCommand cmd;
+            cmd.type = 9;
+            cmd.arguments.values[0] = 0;
+            cmd.arguments.values[1] = 0;
+            cmd.titleId = 0;
+            mCmdQueue.push(cmd);
             return TRUE;
         }
 
-        BOOL SDChannelSelect::isAsyncDone(u32 titleId) {
+        BOOL SDChannelSelect::enqueueResultNotice(u32 titleId) {
             if (mSelState != 6) {
                 return FALSE;
             }
-            s32 req[8];
-            req[3] = titleId;
-            req[0] = 5;
-            req[4] = 0;
-            req[5] = 0;
-            req[2] = 0;
-            mCmdQueue.push(req);
+            SDChannelSelectCommand cmd;
+            cmd.titleId = titleId;
+            cmd.type = 5;
+            cmd.arguments.values[0] = 0;
+            cmd.arguments.values[1] = 0;
+            mCmdQueue.push(cmd);
             return TRUE;
         }
 
-        BOOL SDChannelSelect::startNandCheck(u64 titleId, NandSDWorker::AppBlocksInfo* freeOut) {
+        BOOL SDChannelSelect::enqueueChannelNotice(u32 channel, u32 highTitleId, u32 lowTitleId, u32 freeOut) {
             if (mSelState != 6) {
                 return FALSE;
             }
-            s32 req[8];
-            req[0] = 0xA;
-            req[4] = (s32)freeOut;
-            req[5] = (s32)&unk_0x728;
-            req[3] = (s32)titleId;
-            req[2] = (s32)(titleId >> 32);
-            mCmdQueue.push(req);
+            SDChannelSelectCommand cmd;
+            cmd.type = 0xA;
+            cmd.arguments.values[0] = freeOut;
+            cmd.arguments.values[1] = (u32)&unk_0x728;
+            cmd.titleId = (((u64)highTitleId) << 32) | lowTitleId;
+            mCmdQueue.push(cmd);
             return TRUE;
         }
 
-        int SDChannelSelect::enqueueMoveNotice(u64 id) {
+        BOOL SDChannelSelect::enqueueMoveNotice(u32 channel, u32 highTitleId, u32 lowTitleId) {
             if (mSelState != 6) {
                 return FALSE;
             }
-            s32 req[8];
-            req[0] = 6;
-            req[4] = 0;
-            req[5] = 0;
-            req[3] = (s32)id;
-            req[2] = (s32)(id >> 32);
-            mCmdQueue.push(req);
+            SDChannelSelectCommand cmd;
+            cmd.type = 6;
+            cmd.arguments.values[0] = 0;
+            cmd.arguments.values[1] = 0;
+            cmd.titleId = (((u64)highTitleId) << 32) | lowTitleId;
+            mCmdQueue.push(cmd);
             return TRUE;
         }
 
-        BOOL SDChannelSelect::startNandAsync(u64 titleId, int flag) {
+        BOOL SDChannelSelect::enqueueStateNotice(u32 channel, u32 highTitleId, u32 lowTitleId, u32 state) {
             if (mSelState != 6) {
                 return FALSE;
             }
-            s32 req[8];
-            req[0] = 7;
-            req[4] = flag;
-            req[5] = 0;
-            req[3] = (s32)titleId;
-            req[2] = (s32)(titleId >> 32);
-            mCmdQueue.push(req);
+            SDChannelSelectCommand cmd;
+            cmd.type = 7;
+            cmd.arguments.values[0] = state;
+            cmd.arguments.values[1] = 0;
+            cmd.titleId = (((u64)highTitleId) << 32) | lowTitleId;
+            mCmdQueue.push(cmd);
             return TRUE;
         }
 
-        int SDChannelSelect::enqueueErrorNotice(void* p1, void* p2) {
+        BOOL SDChannelSelect::enqueueErrorNotice(u32 arg1, u32 arg2) {
             if (mSelState != 6) {
                 return FALSE;
             }
-            s32 req[8];
-            req[4] = (s32)p1;
-            req[0] = 0xB;
-            req[5] = (s32)p2;
-            req[3] = 0;
-            req[2] = 0;
-            mCmdQueue.push(req);
+            SDChannelSelectCommand cmd;
+            cmd.type = 0xB;
+            cmd.arguments.values[0] = arg1;
+            cmd.arguments.values[1] = arg2;
+            cmd.titleId = 0;
+            mCmdQueue.push(cmd);
             return TRUE;
         }
 
-        int SDChannelSelect::enqueueCommandNotice(void* p1, void* p2, void* p3) {
+        BOOL SDChannelSelect::enqueueCommandNotice(u32 arg1, u32 arg2, u32 arg3) {
             if (mSelState != 6) {
                 return FALSE;
             }
-            s32 req[8];
-            req[4] = (s32)p1;
-            req[0] = 0xC;
-            req[5] = (s32)p2;
-            req[6] = (s32)p3;
-            req[3] = 0;
-            req[2] = 0;
-            mCmdQueue.push(req);
+            SDChannelSelectCommand cmd;
+            cmd.type = 0xC;
+            cmd.arguments.values[0] = arg1;
+            cmd.arguments.values[1] = arg2;
+            cmd.arguments.values[2] = arg3;
+            cmd.titleId = 0;
+            mCmdQueue.push(cmd);
             return TRUE;
         }
 
-        int SDChannelSelect::enqueueDeleteNotice(u64 id) {
+        BOOL SDChannelSelect::enqueueDeleteNotice(u32 channel, u32 highTitleId, u32 lowTitleId) {
             if (mSelState != 6) {
                 return FALSE;
             }
-            s32 req[8];
-            req[0] = 0xD;
-            req[4] = 0;
-            req[5] = 0;
-            req[6] = 0;
-            req[3] = (s32)id;
-            req[2] = (s32)(id >> 32);
-            mCmdQueue.push(req);
+            SDChannelSelectCommand cmd;
+            cmd.type = 0xD;
+            cmd.arguments.values[0] = 0;
+            cmd.arguments.values[1] = 0;
+            cmd.arguments.values[2] = 0;
+            cmd.titleId = (((u64)highTitleId) << 32) | lowTitleId;
+            mCmdQueue.push(cmd);
             return TRUE;
         }
-
-        struct SDCmdQueueEntry { s32 v[8]; };
 
         void SDChannelSelect::processWorkerCommands() {
             switch (mSelState) {
@@ -486,8 +497,8 @@ namespace ipl {
             case 4:
                 unk_0x77E = 0;
             case 2:
-                startNandAsync2();
-                startNandAsync3();
+                clearCommandQueue();
+                clearNoticeQueue();
                 break;
             }
 
@@ -549,8 +560,8 @@ namespace ipl {
 
             if (mpWorker->is_working() == 0 && mMountFlag == 4) {
                 if (mCmdQueue.mCount != 0) {
-                    SDCmdQueueEntry cmd = *(SDCmdQueueEntry*)mCmdQueue.mEntries[mCmdQueue.mRead];
-                    switch (cmd.v[0]) {
+                    SDChannelSelectCommand cmd = mCmdQueue.mEntries[mCmdQueue.mRead];
+                    switch (cmd.type) {
                     case 1:
                         mpWorker->mount_sd_async();
                         mAsyncFlag = 0;
@@ -570,23 +581,23 @@ namespace ipl {
                         mAsyncFlag = 5;
                         break;
                     case 5:
-                        mpWorker->copy_sd_app_to_nand_async(cmd.v[3], 1);
+                        mpWorker->copy_sd_app_to_nand_async((u32)cmd.titleId, 1);
                         mAsyncFlag = 7;
                         break;
                     case 10:
                         mpWorker->check_for_sd_app_to_nand_async(
-                            *(u64*)&cmd.v[2], (NandSDWorker::AppBlocksInfo*)cmd.v[4],
-                            (NandSDWorker::AppBlocksInfo*)cmd.v[5]);
+                            cmd.titleId, (NandSDWorker::AppBlocksInfo*)cmd.arguments.values[0],
+                            (NandSDWorker::AppBlocksInfo*)cmd.arguments.values[1]);
                         mAsyncFlag = 8;
                         break;
                     case 6:
-                        mpWorker->copy_nand_app_to_sd_async(*(u64*)&cmd.v[2]);
+                        mpWorker->copy_nand_app_to_sd_async(cmd.titleId);
                         mAsyncFlag = 9;
                         break;
                     case 7: {
                         struct SDBufRec { u64 titleId; u64 extra; };
-                        u64 titleId = *(u64*)&cmd.v[2];
-                        mpWorker->delete_nand_app_async(titleId, cmd.v[4] != 0);
+                        u64 titleId = cmd.titleId;
+                        mpWorker->delete_nand_app_async(titleId, cmd.arguments.values[0] != 0);
                         mAsyncFlag = 10;
                         u32 i;
                         for (i = 0; i < (u32)unk_0x738; i++) {
@@ -604,30 +615,30 @@ namespace ipl {
                     }
                     case 0xB:
                         mpWorker->check_backup_fits_async(
-                            (NandSDWorker::TitleIdList*)cmd.v[4],
-                            (NandSDWorker::TitleIdList*)cmd.v[5]);
+                            (NandSDWorker::TitleIdList*)cmd.arguments.values[0],
+                            (NandSDWorker::TitleIdList*)cmd.arguments.values[1]);
                         mAsyncFlag = 0xB;
                         break;
                     case 0xC:
-                        mpWorker->iplNandSD_81348EA8((void*)cmd.v[4], (void*)cmd.v[5], (void*)cmd.v[6]);
+                        mpWorker->iplNandSD_81348EA8((void*)cmd.arguments.values[0], (void*)cmd.arguments.values[1], (void*)cmd.arguments.values[2]);
                         mAsyncFlag = 0xC;
                         break;
                     case 0xD:
-                        mpWorker->delete_sd_app_async(cmd.v[3]);
+                        mpWorker->delete_sd_app_async((u32)cmd.titleId);
                         mAsyncFlag = 0xD;
                         break;
                     }
-                    mResetState = cmd.v[0];
+                    mResetState = cmd.type;
                     mCmdQueue.pop();
                 } else if (mChanQueue.mCount != 0) {
-                    SDCmdQueueEntry entry = *(SDCmdQueueEntry*)mChanQueue.mEntries[mChanQueue.mRead];
-                    SDChannelObj* chanObj = getChanObj(entry.v[4], entry.v[5]);
+                    SDChannelSelectCommand entry = mChanQueue.mEntries[mChanQueue.mRead];
+                    SDChannelObj* chanObj = getChanObj(entry.arguments.values[0], entry.arguments.values[1]);
                     if (chanObj != NULL && (u32)(chanObj->mChanType - 1) <= 1) {
                         EGG::Heap* heap = EGG::FrmHeap::create(0x212B8, mpWorkHeap, 2);
-                        SDChannelObj* newChan = new (mpObjHeap, 4) SDChannelObj(heap, entry.v[4], entry.v[5]);
+                        SDChannelObj* newChan = new (mpObjHeap, 4) SDChannelObj(heap, entry.arguments.values[0], entry.arguments.values[1]);
                         mpPendingChan = newChan;
                         u8* thumb = (u8*)newChan->allocThumbBuffer();
-                        mpWorker->get_sd_app_meta_async(entry.v[3], thumb,
+                        mpWorker->get_sd_app_meta_async((u32)entry.titleId, thumb,
                             (NandSDWorker::SDAppMetaEntry*)&newChan->mTitleID);
                         mAsyncFlag = 3;
                     }
@@ -672,13 +683,13 @@ namespace ipl {
             }
         }
 
-        void SDChannelSelect::startNandAsync2() {
+        void SDChannelSelect::clearCommandQueue() {
             while (mCmdQueue.getCount() > 0) {
                 mCmdQueue.pop();
             }
         }
 
-        void SDChannelSelect::startNandAsync3() {
+        void SDChannelSelect::clearNoticeQueue() {
             while (mChanQueue.getCount() > 0) {
                 mChanQueue.pop();
             }
@@ -698,12 +709,11 @@ namespace ipl {
             int unk_0x0C;
         };
 
-        static int compareChanObj_813DBE6C(const ChanSortEntry8* a, const ChanSortEntry8* b);
 
         void SDChannelSelect::handleNandTitleUsage() {
             if (mpWorker->is_working() == 0) {
                 if (mpWorker->get_async_result() == 0) {
-                    qsort(mpBuf724, unk_0x738, 0x10, (int(*)(const void*,const void*))compareChanObj_813DBE6C);
+                    qsort(mpBuf724, unk_0x738, 0x10, compareTitleUsage);
                     int off = 0;
                     for (u32 i = 0; i < unk_0x738; i++) {
                         int* e = (int*)((char*)mpBuf724 + off);
@@ -719,7 +729,9 @@ namespace ipl {
             }
         }
 
-        static int compareChanObj_813DBE6C(const ChanSortEntry8* a, const ChanSortEntry8* b) {
+        int SDChannelSelect::compareTitleUsage(const void* pa, const void* pb) {
+            const ChanSortEntry8* a = (const ChanSortEntry8*)pa;
+            const ChanSortEntry8* b = (const ChanSortEntry8*)pb;
             if (a->mKey < b->mKey) {
                 return -1;
             }
@@ -729,8 +741,6 @@ namespace ipl {
         struct ChanSortEntry0 {
             u32 mKey;  // 0x00
         };
-
-        static int compareChanObj_813DBFB8(const ChanSortEntry0* a, const ChanSortEntry0* b);
 
         void SDChannelSelect::handleSDTitleList() {
             if (mpWorker->is_working() == 0) {
@@ -752,7 +762,7 @@ namespace ipl {
                             off1 += 8;
                             off2 += 4;
                         }
-                        qsort(mpBuf720, unk_0x734, 8, (int(*)(const void*,const void*))compareChanObj_813DBFB8);
+                        qsort(mpBuf720, unk_0x734, 8, compareTitleInfo);
                         enqueuePageNotice();
                         mAsyncFlag = 1;
                     } else if (mReqType == 0) {
@@ -763,7 +773,9 @@ namespace ipl {
             }
         }
 
-        static int compareChanObj_813DBFB8(const ChanSortEntry0* a, const ChanSortEntry0* b) {
+        int SDChannelSelect::compareTitleInfo(const void* pa, const void* pb) {
+            const ChanSortEntry0* a = (const ChanSortEntry0*)pa;
+            const ChanSortEntry0* b = (const ChanSortEntry0*)pb;
             if (a->mKey < b->mKey) {
                 return -1;
             }
@@ -787,7 +799,7 @@ namespace ipl {
                             for (int i = 0; i < mChanCount * 0xC; i++) {
                                 if (mpChanTable[i] != 0) {
                                     SDRec8* found = (SDRec8*)bsearch(&mpChanTable[i], mpBuf720, unk_0x734, 8,
-                                        (int(*)(const void*,const void*))compareChanObj_813DBFB8);
+                                        compareTitleInfo);
                                     if (found != NULL) {
                                         found->used = 1;
                                     } else {
@@ -982,8 +994,7 @@ namespace ipl {
 
         void SDChannelSelect::iplSDChannelSelect_813DC7EC(int dir, int focusedIndex) {
             const int targetPage = mChanPage + dir;
-            if (targetPage >= 0) {
-                if (mpChanTable != NULL) {
+            if (targetPage >= 0 && mpChanTable != NULL) {
                 int start;
                 int step;
                 switch (dir) {
@@ -1029,7 +1040,6 @@ namespace ipl {
                                 i);
                         }
                     }
-                }
                 }
             }
         }
@@ -1122,14 +1132,15 @@ namespace ipl {
                 }
                 if (mReqType == 0) {
                     switch (unk_0x75C) {
-                        case 0xA:
-                            unk_0x75C = 0xE;
-                            break;
                         case 7:
                             unk_0x75C = 8;
                             break;
+                        case 0xA:
+                            unk_0x75C = 0xE;
+                            break;
                     }
-                } else if (mReqType == 2) {
+                } else switch (mReqType) {
+                case 2:
                     switch (unk_0x75C) {
                     case 0:
                     case 1:
@@ -1157,30 +1168,7 @@ namespace ipl {
                         unk_0x75C = 0xb;
                         break;
                     }
-                } else if (mReqType < 2) {
-                    if (mReqType > 0) {
-                        switch (unk_0x75C) {
-                        case 0:
-                        case 1:
-                        case 2:
-                        case 7:
-                        case 8:
-                        case 0xd:
-                            unk_0x75C = 1;
-                            mReqType = 0;
-                            unk_0x768 = mReqParam;
-                            break;
-                        case 4:
-                            unk_0x75C = 5;
-                            break;
-                        case 10:
-                        case 0xe:
-                        case 0xf:
-                            unk_0x75C = 0xb;
-                            break;
-                        }
-                    }
-                } else if (mReqType == 8) {
+                case 8:
                     switch (unk_0x75C) {
                     case 0:
                     case 1:
@@ -1188,9 +1176,6 @@ namespace ipl {
                     case 0xd:
                         unk_0x75C = 8;
                         unk_0x768 = mReqParam;
-                        break;
-                    case 4:
-                        unk_0x75C = 5;
                         break;
                     case 8:
                         if (unk_0x768 != mReqParam) {
@@ -1207,7 +1192,32 @@ namespace ipl {
                             unk_0x75C = 0xb;
                         }
                         break;
+                    case 4:
+                        unk_0x75C = 5;
+                        break;
                     }
+                case 1:
+                    switch (unk_0x75C) {
+                    case 0:
+                    case 1:
+                    case 2:
+                    case 7:
+                    case 8:
+                    case 0xd:
+                        unk_0x75C = 1;
+                        mReqType = 0;
+                        unk_0x768 = mReqParam;
+                        break;
+                    case 4:
+                        unk_0x75C = 5;
+                        break;
+                    case 10:
+                    case 0xe:
+                    case 0xf:
+                        unk_0x75C = 0xb;
+                        break;
+                    }
+                    break;
                 }
                 layout::Animator* anim = NULL;
                 switch (unk_0x75C) {
@@ -1245,10 +1255,10 @@ namespace ipl {
         }
 
 
-        BOOL SDChannelSelect::setDialogMessage(int type, int param) {
+        BOOL SDChannelSelect::setDialogMessage(u32 state, u32 message) {
             if (mReqType == 0) {
-                mReqType = type;
-                mReqParam = param;
+                mReqType = state;
+                mReqParam = message;
                 return TRUE;
             }
             return FALSE;
@@ -1366,10 +1376,10 @@ namespace ipl {
                 for (int i = 0; i < 0xC; i++) {
                     const u8* entry = (const u8*)System::getChannelManager() + base + sChanOrder[i] * 0x70;
                     ESTitleId title;
-                    if (entry[0x24] == 0) {
-                        title = 0;
-                    } else {
+                    if (entry[0x24] != 0) {
                         title = *(ESTitleId*)(entry + 0x4C);
+                    } else {
+                        title = 0;
                     }
                     if (title != 0 && title != 0x48415A41ULL) {
                         int off = 0;
@@ -1445,7 +1455,7 @@ namespace ipl {
             int coff = 0x178;
             do {
                 ESTitleId title;
-                if (k < 0 || 0x2F < k) {
+                if (k < 0 || k >= 0x30) {
                     title = 0;
                 } else {
                     title = *(ESTitleId*)((char*)System::getSaveData() + 0x340 + coff);
@@ -1614,7 +1624,7 @@ namespace ipl {
             if (mState == 2 && mpLayout->isPlaying(0) == 0) {
                 SDButton* btn = (SDButton*)System::getSceneManager()->getScene(0x24);
                 if (btn != NULL) {
-                    btn->setEventHandler(mpEvent, NULL);
+                    setEventHandler__Q33ipl5scene8SDButtonFPQ23gui12EventHandlerPQ23gui12EventHandler(btn, mpEvent);
                     mState = 3;
                     if (mChanPage > 0) {
                         btn->initArrowAppearance(1, true);
@@ -1629,11 +1639,11 @@ namespace ipl {
                 }
             }
             if (mState == 3 && System::getFader()->getStatus() == EGG::Fader::PREPARE_OUT) {
-                if (*(int*)((char*)System::getSaveData() + 0x33C) == 0) {
-                    mState = 1;
-                } else {
+                if (*(int*)((char*)System::getSaveData() + 0x33C) != 0) {
                     unk_0x754 = 0;
                     mState = 0x18;
+                } else {
+                    mState = 1;
                 }
             }
             mpLayout->calc();
@@ -1751,8 +1761,8 @@ namespace ipl {
 
         void SDChannelSelect::initCalcFadeout() {
             if (mState == 4) {
-                startNandAsync2();
-                startNandAsync3();
+                clearCommandQueue();
+                clearNoticeQueue();
                 System::getFader()->fadeOut();
                 TVRCManager::getHandle()->setEnable(0);
                 System::getChannelManager()->refreshAsync();
@@ -1908,7 +1918,7 @@ namespace ipl {
             mpBtnLayout = new layout::Object(getSceneHeap(), mpChanLayoutFile, "arc", "help_Btn.brlyt");
             scPages1[3].layoutObj = mpBtnLayout;
 
-            SDChannelSelectBtnEvent* event = new SDChannelSelectBtnEvent(this);
+            SDChannelSelectEvent* event = new SDChannelSelectEvent(this);
             mpGui = new gui::PaneManager(event, mpLayout->getDrawInfo(), NULL, NULL);
             mpGui->createLayoutScene(*mpLayout->getNW4RLyt());
             mpGui->setAllComponentTriggerTarget(false);
@@ -2108,7 +2118,7 @@ namespace ipl {
                 setEventHandler__Q33ipl5scene8SDButtonFPQ23gui12EventHandlerPQ23gui12EventHandler(button, mpEvent);
                 TVRCManager::getHandle()->setEnable(1);
                 snd::getSystem()->startBGM("WIPL_BGM_MENU");
-                startNandAsync3();
+                clearNoticeQueue();
                 iplSDChannelSelect_813DC7EC(0, -1);
                 iplSDChannelSelect_813DC7EC(-1, -1);
                 iplSDChannelSelect_813DC7EC(1, -1);
@@ -2140,7 +2150,7 @@ namespace ipl {
             }
             updateChannelObjects();
             if (unk_0x77F != 0) {
-                startNandAsync3();
+                clearNoticeQueue();
                 iplSDChannelSelect_813DC7EC(0, index);
                 iplSDChannelSelect_813DC7EC(-1, -1);
                 iplSDChannelSelect_813DC7EC(1, -1);
@@ -2231,7 +2241,7 @@ namespace ipl {
                     chanObj->mChanType = 2;
                 }
             }
-            startNandAsync3();
+            clearNoticeQueue();
             iplSDChannelSelect_813DC7EC(0, -1);
             iplSDChannelSelect_813DC7EC(-1, -1);
             iplSDChannelSelect_813DC7EC(1, -1);
@@ -2239,9 +2249,9 @@ namespace ipl {
             iplSDChannelSelect_813DC7EC(2, -1);
         }
 
-        void SDChannelSelect::destroyChannelObject(void* node) {
-            EGG::Heap* heap = *(EGG::Heap**)((u8*)node + 0x10);
-            delete (SDChannelObj*)node;
+        void SDChannelSelect::destroyChannelObject(SDChannelObj* channel) {
+            EGG::Heap* heap = *(EGG::Heap**)((u8*)channel + 0x10);
+            delete channel;
             if (heap != NULL) {
                 heap->destroy();
             }
@@ -2331,7 +2341,7 @@ namespace ipl {
             }
         }
 
-        BOOL SDChannelSelect::hasChannelObject(int page, int index) {
+        BOOL SDChannelSelect::hasChannelObject(int page, int index) const {
             if (page == mChanPage) {
                 return TRUE;
             }
@@ -2371,8 +2381,8 @@ namespace ipl {
             return FALSE;
         }
 
-        BOOL SDChannelSelect::isChannelInCalc(int page, int index, int curPage) {
-            if (page - curPage <= -3 || page - curPage >= 3 || strcmp(scChanPaneNames[page - curPage + 2][index], "") == 0) {
+        BOOL SDChannelSelect::isChannelInCalc(int page, int index, int currentPage) const {
+            if (page - currentPage <= -3 || page - currentPage >= 3 || strcmp(scChanPaneNames[page - currentPage + 2][index], "") == 0) {
                 return FALSE;
             }
             return TRUE;
@@ -2482,9 +2492,9 @@ namespace ipl {
             mState = 0xE;
         }
 
-        nw4r::lyt::Pane* SDChannelSelect::getChannelBasePane(int page, int index, int curPage) {
-            if (isChannelInCalc(page, index, curPage) != 0) {
-                return mpLayout->GetRootPane()->FindPaneByName(scChanPaneNames[page - curPage + 2][index], true);
+        nw4r::lyt::Pane* SDChannelSelect::getChannelBasePane(int page, int index, int currentPage) const {
+            if (isChannelInCalc(page, index, currentPage) != 0) {
+                return mpLayout->GetRootPane()->FindPaneByName(scChanPaneNames[page - currentPage + 2][index], true);
             }
             return mpLayout->GetRootPane()->FindPaneByName("Picture_16", true);
         }
@@ -2607,7 +2617,7 @@ namespace ipl {
             nw4r::ut::Rect projRect;
             System::getProjectionRect(&projRect);
 
-            mVec = math::VEC3(lbl_81694AF0 * (frames[0].x + frames[1].x), lbl_81694AF0 * (frames[0].y + frames[2].y), lbl_81694AC8);
+            mVec = math::VEC3((frames[0].x + frames[1].x) * lbl_81694AF0, (frames[0].y + frames[2].y) * lbl_81694AF0, lbl_81694AC8);
             mVec2 = math::VEC2(projRect.GetWidth() / (frames[1].x - frames[0].x), projRect.GetHeight() / (frames[0].y - frames[2].y));
         }
 
@@ -2777,7 +2787,10 @@ namespace ipl {
                     s32 tmp = mpChanTable[selEntry];
                     mpChanTable[selEntry] = mpChanTable[dstEntry];
                     mpChanTable[dstEntry] = tmp;
-                    if (enqueueLoadNotice() != 0) {
+                    if (enqueueLoadNotice() == 0) {
+                        mpAnimLayout3->getAnim(1)->play();
+                        mState = 0x15;
+                    } else {
                         mFlag758 = 0;
                         mpSwapChanObj = getChanObj(mSelPage, mSelIndex);
                         if (mpSwapChanObj == NULL) {
@@ -2797,9 +2810,6 @@ namespace ipl {
                             otherObj->mpThumbAnim->setCurrentFrame(mpMoveAnim->getCurrentFrame());
                         }
                         mState = 0x14;
-                    } else {
-                        mpAnimLayout3->getAnim(1)->play();
-                        mState = 0x15;
                     }
                 }
             }
@@ -3030,7 +3040,8 @@ namespace ipl {
             }
         }
 
-        void SDChannelSelectEvent::onEventDerived(u32 compId, u32 event, const controller::Interface* con) {
+        void SDChannelSelectEvent::onEvent(u32 compId, u32 event, void* data) {
+            controller::Interface* con = (controller::Interface*)data;
             gui::PaneComponent* component = static_cast<gui::PaneComponent*>(mpManager->getComponent(compId));
             const char* paneName = component->getPane()->GetName();
 
@@ -3086,14 +3097,12 @@ namespace ipl {
             }
         }
 
-        void SDChannelSelectBtnEvent::onEvent(u32 compId, u32 event, void* data) {
+        void SDChannelSelectBtnEvent::onEventDerived(u32 compId, u32 event, const controller::Interface* con) {
             gui::PaneComponent* component = static_cast<gui::PaneComponent*>(mpManager->getComponent(compId));
             const char* paneName = component->getPane()->GetName();
 
-            controller::Interface* con = (controller::Interface*)data;
-
             if (mpScene->mState >= 0xF && (mpScene->mState < 0x11 || (mpScene->mState >= 0x16 && mpScene->mState < 0x18))) {
-                mpScene->iplSDChannelSelect_813E218C(paneName, event, con);
+                mpScene->iplSDChannelSelect_813E218C(paneName, event, (controller::Interface*)con);
                 return;
             }
             if (event == ::gui::EventHandler::ON_TRIG && mpScene->mState == 1 &&
@@ -3121,11 +3130,17 @@ namespace ipl {
 
         void SDChannelSelect::startResetting() {
             snd::getSystem()->resetAllSound();
-            startNandAsync2();
-            startNandAsync3();
+            clearCommandQueue();
+            clearNoticeQueue();
         }
 
-        BOOL SDChanQueue::pop() {
+        void SDChannelSelectCommand::copyFrom(const SDChannelSelectCommand& other) {
+            type = other.type;
+            titleId = other.titleId;
+            arguments = other.arguments;
+        }
+
+        BOOL SDChannelSelectNoticeQueue::pop() {
             BOOL ret = TRUE;
             if (mCount == 0) {
                 ret = FALSE;
@@ -3138,11 +3153,11 @@ namespace ipl {
             return ret;
         }
 
-        BOOL SDCmdQueue::push(const s32* req) {
+        BOOL SDChannelSelectCommandQueue::push(const SDChannelSelectCommand& command) {
             if (mCap == mCount) {
                 return FALSE;
             }
-            copyRequest(&mEntries[mWrite][0], req);
+            mEntries[mWrite].copyFrom(command);
             if (++mWrite >= mCap) {
                 mWrite = 0;
             }
@@ -3150,7 +3165,7 @@ namespace ipl {
             return TRUE;
         }
 
-        BOOL SDCmdQueue::pop() {
+        BOOL SDChannelSelectCommandQueue::pop() {
             BOOL ret = TRUE;
             if (mCount == 0) {
                 ret = FALSE;
@@ -3163,9 +3178,10 @@ namespace ipl {
             return ret;
         }
 
-        void SDChannelSelect::getChanPoint(nw4r::math::VEC3* out, const SDChannelSelect* sel, int index) {
-            *out = nw4r::math::VEC3(lbl_81694AC8, lbl_81694AC8, lbl_81694AC8);
-            PSMTXMultVec(sel->getCenterChannelPane(index)->GetGlobalMtx(), *out, *out);
+        nw4r::math::VEC3 SDChannelSelect::getChannelPanePosition(SDChannelSelect* scene, int index) {
+            nw4r::math::VEC3 position(lbl_81694AC8, lbl_81694AC8, lbl_81694AC8);
+            PSMTXMultVec(scene->getCenterChannelPane(index)->GetGlobalMtx(), position, position);
+            return position;
         }
     }
 }

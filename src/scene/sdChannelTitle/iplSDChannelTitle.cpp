@@ -168,9 +168,9 @@ namespace ipl {
 
             nw4r::math::VEC3 pos;
             nw4r::math::VEC3 pos2;
-            SDChannelSelect::getChanPoint(&pos, mpChanSelect, mChanIndex);
+            pos = SDChannelSelect::getChannelPanePosition(mpChanSelect, mChanIndex);
             mChanPosX = pos.x;
-            SDChannelSelect::getChanPoint(&pos2, mpChanSelect, mChanIndex);
+            pos2 = SDChannelSelect::getChannelPanePosition(mpChanSelect, mChanIndex);
             mChanPosY = pos2.y;
             mChanPosZ = 0.0f;
 
@@ -281,7 +281,7 @@ namespace ipl {
             mpCsHeaps[0] = EGG::ExpHeap::create(0x80000, System::getMem2App(), 6);
             mpCsHeaps[1] = EGG::ExpHeap::create(0x80000, System::getMem2App(), 6);
 
-            mSDMemory.create(getSceneHeap(), mpLayoutFile, mpChanSelect);
+            mSDMemory.create(getSceneHeap(), mpLayoutFile, (NandSDCardManager*)mpChanSelect);
         }
 
         void SDChannelTitle::calcCommon() {
@@ -914,7 +914,7 @@ namespace ipl {
                 if (mpChanSelect->getChanObj(mChanPage, mChanIndex)->getChanType() == 3) {
                     mChanState = 0x1A;
                     mErrMsgId = 0xAF;
-                } else if (mpChanSelect->startNandCheck(mTitleID, &mNandFree)) {
+                } else if (mpChanSelect->enqueueChannelNotice(mChanPage, (u32)(mTitleID >> 32), (u32)mTitleID, (u32)&mNandFree)) {
                     mChanState = 0x14;
                 } else {
                     mChanState = 0x1A;
@@ -950,8 +950,10 @@ namespace ipl {
                 NandSDWorker::AppBlocksInfo neededArg;
                 neededArg = needed;
                 freeAreaArg = freeArea;
-                mSDMemory.startCheck(&freeAreaArg, &neededArg);
-                mSDMemory.waitEnd();
+                SDMemory::TitleRange nandTitles = *(SDMemory::TitleRange*)&freeAreaArg;
+                SDMemory::TitleRange sdTitles = *(SDMemory::TitleRange*)&neededArg;
+                mSDMemory.setTitleLists(nandTitles, sdTitles);
+                mSDMemory.calc();
                 mbHbmEnable = true;
                 System::getHomeButtonMenu()->enable();
                 mChanState = 0x17;
@@ -970,7 +972,7 @@ namespace ipl {
         }
 
         void SDChannelTitle::calcNormalMemory() {
-            if (!mSDMemory.waitEnd()) {
+            if (!mSDMemory.calc()) {
                 return;
             }
 
@@ -1016,7 +1018,7 @@ namespace ipl {
             u64 tmpId = SCGetTmpTitleID();
             if (tmpId != 0 && mTitleID != tmpId) {
                 if (System::isReceiveScheduleStopped()) {
-                    if (mpChanSelect->startNandAsync(tmpId, 1)) {
+                    if (mpChanSelect->enqueueStateNotice((u32)tmpId, (u32)(tmpId >> 32), (u32)tmpId, 1)) {
                         mChanState = 0x10;
                     } else {
                         mChanState = 0x1A;
@@ -1056,7 +1058,7 @@ namespace ipl {
                 return;
             }
 
-            if (mpChanSelect->isAsyncDone((u32)mTitleID)) {
+            if (mpChanSelect->enqueueResultNotice((u32)mTitleID)) {
                 mChanState = 0x16;
             } else {
                 mChanState = 0x1A;
@@ -1540,10 +1542,10 @@ namespace ipl {
             chanObj = mpChanSelect->getChanObj(mChanPage, mChanIndex);
 
             nw4r::math::VEC3 pos;
-            SDChannelSelect::getChanPoint(&pos, mpChanSelect, mChanIndex);
+            pos = SDChannelSelect::getChannelPanePosition(mpChanSelect, mChanIndex);
             mChanPosX = pos.x;
             nw4r::math::VEC3 pos2;
-            SDChannelSelect::getChanPoint(&pos2, mpChanSelect, mChanIndex);
+            pos2 = SDChannelSelect::getChannelPanePosition(mpChanSelect, mChanIndex);
             mChanPosY = pos2.y;
 
             if (chanObj->isValid()) {
@@ -1602,8 +1604,8 @@ namespace ipl {
                 mbSDWorkDone = false;
                 mChanState = 0xD;
             } else {
-                mpChanSelect->startNandAsync2();
-                mpChanSelect->startNandAsync3();
+                mpChanSelect->clearCommandQueue();
+                mpChanSelect->clearNoticeQueue();
                 mbSDWorkDone = true;
                 mChanState = 0x13;
             }
