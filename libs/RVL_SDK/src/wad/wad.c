@@ -452,10 +452,10 @@ static s32 WAD_815BFFA8(WADImportLoopArgs* args) {
 }
 
 s32 _WADGetCidxCount(const ESContentMask* contentMask) {
-    s32 bitIndex = 0;
     s32 count = 0;
-    s32 groupIndex;
-    s32 bitMask = 1;
+    u32 bitMask = 1;
+    u32 bitIndex = 0;
+    u32 groupIndex;
 
     for (groupIndex = 0; groupIndex < 0x80; groupIndex++) {
         if ((contentMask->data[bitIndex >> 3] & (bitMask << (bitIndex & 7))) != 0) {
@@ -1137,12 +1137,13 @@ s32 WADCheckSavedataZD(const WADSaveDataFile* saveData) {
 }
 
 #pragma dont_inline on
-u32 _WADIsTerminated(const char* text, u32 maxLength) {
-    for (; maxLength > 0; maxLength--) {
-        if (*text == '\0') {
+static u32 _WADIsTerminated(const char* text, u32 maxLength) {
+    u32 index;
+
+    for (index = 0; index < maxLength; index++) {
+        if (text[index] == '\0') {
             return TRUE;
         }
-        text++;
     }
     return FALSE;
 }
