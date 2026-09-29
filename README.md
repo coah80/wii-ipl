@@ -55,7 +55,7 @@ Progress
 |:---:|:---:|:---:|:---:|
 | 80.98% | 72.11% | 56.76% | 86.16% |
 
-units 748/1027 complete, functions 10570/12563 matched. updated 2026-09-29 22:58 UTC from `test` by the self-hosted progress job
+units 748/1027 complete, functions 10570/12563 matched. updated 2026-09-29 23:00 UTC from `46d7abf8` by the self-hosted progress job
 
 decompiled = code with a C/C++ implementation (objdiff fuzzy), matched = byte-exact code, linked = code actually linked into the DOL, data = byte-exact data
 <!-- progress:end -->
