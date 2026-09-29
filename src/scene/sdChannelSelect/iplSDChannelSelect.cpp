@@ -43,27 +43,90 @@ namespace ipl {
             dst[6] = src[6];
         }
 
+        extern "C" char lbl_81696D80[];
+
+        extern "C" char lbl_81654088[] = "N_Ch_a04";
+        extern "C" char lbl_81654091[] = "N_Ch_a08";
+        extern "C" char lbl_8165409A[] = "N_Ch_a12";
+        extern "C" char lbl_816540A3[] = "N_Ch_b01";
+        extern "C" char lbl_816540AC[] = "N_Ch_b02";
+        extern "C" char lbl_816540B5[] = "N_Ch_b03";
+        extern "C" char lbl_816540BE[] = "N_Ch_b04";
+        extern "C" char lbl_816540C7[] = "N_Ch_b05";
+        extern "C" char lbl_816540D0[] = "N_Ch_b06";
+        extern "C" char lbl_816540D9[] = "N_Ch_b07";
+        extern "C" char lbl_816540E2[] = "N_Ch_b08";
+        extern "C" char lbl_816540EB[] = "N_Ch_b09";
+        extern "C" char lbl_816540F4[] = "N_Ch_b10";
+        extern "C" char lbl_816540FD[] = "N_Ch_b11";
+        extern "C" char lbl_81654106[] = "N_Ch_b12";
+        extern "C" char lbl_8165410F[] = "N_Ch_c01";
+        extern "C" char lbl_81654118[] = "N_Ch_c02";
+        extern "C" char lbl_81654121[] = "N_Ch_c03";
+        extern "C" char lbl_8165412A[] = "N_Ch_c04";
+        extern "C" char lbl_81654133[] = "N_Ch_c05";
+        extern "C" char lbl_8165413C[] = "N_Ch_c06";
+        extern "C" char lbl_81654145[] = "N_Ch_c07";
+        extern "C" char lbl_8165414E[] = "N_Ch_c08";
+        extern "C" char lbl_81654157[] = "N_Ch_c09";
+        extern "C" char lbl_81654160[] = "N_Ch_c10";
+        extern "C" char lbl_81654169[] = "N_Ch_c11";
+        extern "C" char lbl_81654172[] = "N_Ch_c12";
+        extern "C" char lbl_8165417B[] = "N_Ch_d01";
+        extern "C" char lbl_81654184[] = "N_Ch_d02";
+        extern "C" char lbl_8165418D[] = "N_Ch_d03";
+        extern "C" char lbl_81654196[] = "N_Ch_d04";
+        extern "C" char lbl_8165419F[] = "N_Ch_d05";
+        extern "C" char lbl_816541A8[] = "N_Ch_d06";
+        extern "C" char lbl_816541B1[] = "N_Ch_d07";
+        extern "C" char lbl_816541BA[] = "N_Ch_d08";
+        extern "C" char lbl_816541C3[] = "N_Ch_d09";
+        extern "C" char lbl_816541CC[] = "N_Ch_d10";
+        extern "C" char lbl_816541D5[] = "N_Ch_d11";
+        extern "C" char lbl_816541DE[] = "N_Ch_d12";
+        extern "C" char lbl_816541E7[] = "N_Ch_e01";
+        extern "C" char lbl_816541F0[] = "N_Ch_e05";
+        extern "C" char lbl_816541F9[] = "N_Ch_e09";
+
         static const char* scChanPaneNames[5][12] = {
-            {"", "", "", "N_Ch_a04", "", "", "", "N_Ch_a08", "", "", "", "N_Ch_a12"},
-            {"N_Ch_b01", "N_Ch_b02", "N_Ch_b03", "N_Ch_b04", "N_Ch_b05", "N_Ch_b06",
-             "N_Ch_b07", "N_Ch_b08", "N_Ch_b09", "N_Ch_b10", "N_Ch_b11", "N_Ch_b12"},
-            {"N_Ch_c01", "N_Ch_c02", "N_Ch_c03", "N_Ch_c04", "N_Ch_c05", "N_Ch_c06",
-             "N_Ch_c07", "N_Ch_c08", "N_Ch_c09", "N_Ch_c10", "N_Ch_c11", "N_Ch_c12"},
-            {"N_Ch_d01", "N_Ch_d02", "N_Ch_d03", "N_Ch_d04", "N_Ch_d05", "N_Ch_d06",
-             "N_Ch_d07", "N_Ch_d08", "N_Ch_d09", "N_Ch_d10", "N_Ch_d11", "N_Ch_d12"},
-            {"N_Ch_e01", "", "", "", "N_Ch_e05", "", "", "", "N_Ch_e09", "", "", ""},
+            {"", lbl_81696D80, lbl_81696D80, lbl_81654088, lbl_81696D80, lbl_81696D80, lbl_81696D80, lbl_81654091, lbl_81696D80, lbl_81696D80, lbl_81696D80, lbl_8165409A},
+            {lbl_816540A3, lbl_816540AC, lbl_816540B5, lbl_816540BE, lbl_816540C7, lbl_816540D0,
+             lbl_816540D9, lbl_816540E2, lbl_816540EB, lbl_816540F4, lbl_816540FD, lbl_81654106},
+            {lbl_8165410F, lbl_81654118, lbl_81654121, lbl_8165412A, lbl_81654133, lbl_8165413C,
+             lbl_81654145, lbl_8165414E, lbl_81654157, lbl_81654160, lbl_81654169, lbl_81654172},
+            {lbl_8165417B, lbl_81654184, lbl_8165418D, lbl_81654196, lbl_8165419F, lbl_816541A8,
+             lbl_816541B1, lbl_816541BA, lbl_816541C3, lbl_816541CC, lbl_816541D5, lbl_816541DE},
+            {lbl_816541E7, lbl_81696D80, lbl_81696D80, lbl_81696D80, lbl_816541F0, lbl_81696D80, lbl_81696D80, lbl_81696D80, lbl_816541F9, lbl_81696D80, lbl_81696D80, lbl_81696D80},
         };
+
+        extern "C" char lbl_816542F4[] = "BaseMask0";
+        extern "C" char lbl_816542FE[] = "BaseMask1";
+        extern "C" char lbl_81654308[] = "BaseMask2";
+        extern "C" char lbl_81654312[] = "BaseMask3";
+        extern "C" char lbl_8165431C[] = "BaseMask4";
 
         static const char* scBaseMaskPaneNames[5] = {
-            "BaseMask0", "BaseMask1", "BaseMask2", "BaseMask3", "BaseMask4",
+            lbl_816542F4, lbl_816542FE, lbl_81654308, lbl_81654312, lbl_8165431C,
         };
+
+        extern "C" char lbl_8165433C[] = "Picture_00";
+        extern "C" char lbl_81654347[] = "Picture_01";
+        extern "C" char lbl_81654352[] = "Picture_02";
+        extern "C" char lbl_8165435D[] = "Picture_03";
+        extern "C" char lbl_81654368[] = "Picture_04";
 
         static const char* scPicturePaneNames[5] = {
-            "Picture_00", "Picture_01", "Picture_02", "Picture_03", "Picture_04",
+            lbl_8165433C, lbl_81654347, lbl_81654352, lbl_8165435D, lbl_81654368,
         };
 
+        extern "C" char lbl_81696D81[] = "Edge0";
+        extern "C" char lbl_81696D87[] = "Edge1";
+        extern "C" char lbl_81696D8D[] = "Edge2";
+        extern "C" char lbl_81696D93[] = "Edge3";
+        extern "C" char lbl_81696D99[] = "Edge4";
+
         static const char* scEdgePaneNames[5] = {
-            "Edge0", "Edge1", "Edge2", "Edge3", "Edge4",
+            lbl_81696D81, lbl_81696D87, lbl_81696D8D, lbl_81696D93, lbl_81696D99,
         };
 
         static DialogWindow::Page scPages1[4] = {
@@ -79,11 +142,17 @@ namespace ipl {
             {0x9F, 0xA4, 0xA5, true, NULL, 74.0f, true},
         };
 
+        extern "C" char lbl_81654460[] = "N_Clock0";
+        extern "C" char lbl_81654469[] = "N_Clock1";
+        extern "C" char lbl_81654472[] = "N_Clock2";
+
         static const char* scClockPaneNames[3] = {
-            "N_Clock0", "N_Clock1", "N_Clock2",
+            lbl_81654460, lbl_81654469, lbl_81654472,
         };
 
-        static const char* scMaskPaneName = "ChMask";
+        extern "C" char lbl_81696D9F[] = "ChMask";
+        extern "C" const char* lbl_81696DA8 = lbl_81696D9F;
+        extern "C" wchar_t lbl_81696DAC[] = L"%d";
 
 
         static const f32 scChanSize[2][2] = {
@@ -266,17 +335,23 @@ namespace ipl {
         SDChannelSelect::~SDChannelSelect() {
         }
 
+        extern "C" char lbl_81654488[] = "sdChanSel.ash";
+        extern "C" char lbl_81654496[] = "corrupt_icon.ash";
+
         void SDChannelSelect::prepare() {
             System::getBS2Manager()->abort();
 
-            mpChanLayoutFile = System::getNandManager()->readLayoutAsync(getSceneHeap(), "sdChanSel.ash", false);
-            mpThumbData = System::getNandManager()->readAsync(getSceneHeap(), "corrupt_icon.ash", 0, 0, false);
+            mpChanLayoutFile = System::getNandManager()->readLayoutAsync(getSceneHeap(), lbl_81654488, false);
+            mpThumbData = System::getNandManager()->readAsync(getSceneHeap(), lbl_81654496, 0, 0, false);
 
             SDChannelObj* chanObj = NULL;
             while ((chanObj = (SDChannelObj*)nw4r::ut::List_GetNext(&mChanList, chanObj)) != NULL) {
                 chanObj->prepare();
             }
         }
+
+        extern "C" char lbl_816544A7[] = " ... wait for bs2 abord\n";
+        extern "C" char lbl_816544C0[] = "*** BS2 abort costs: %dms\n";
 
         void SDChannelSelect::create() {
             mpWorker = new (System::getMem2App(), 4) NandSDWorker();
@@ -312,10 +387,10 @@ namespace ipl {
             u32 bs2AbortStart = OSGetTick();
             while (System::getBS2Manager()->getIPLState() != bs2::IPL_STATE_8) {
                 System::getBS2Manager()->update();
-                OSReport(" ... wait for bs2 abord\n");
+                OSReport(lbl_816544A7);
                 VIWaitForRetrace();
             }
-            OSReport("*** BS2 abort costs: %dms\n", OSTicksToMilliseconds(OSGetTick() - bs2AbortStart));
+            OSReport(lbl_816544C0, OSTicksToMilliseconds(OSGetTick() - bs2AbortStart));
 
             System::getFader()->fadeIn();
             mState = 2;
@@ -1101,6 +1176,9 @@ namespace ipl {
             updateDialogAnimation();
         }
 
+        extern "C" char lbl_81654554[] = "T_TimerMes";
+        extern "C" char lbl_8165455F[] = "T_TimerMes_01";
+
         void SDChannelSelect::updateDialogAnimation() {
             if (!mpTimerAnim->isPlaying(-1) || mpTimerAnim->isPlaying(4)) {
                 switch (unk_0x75C) {
@@ -1212,7 +1290,7 @@ namespace ipl {
                 switch (unk_0x75C) {
                 case 2: {
                     nw4r::lyt::TextBox* pane = static_cast<nw4r::lyt::TextBox*>(
-                        mpTimerAnim->GetRootPane()->FindPaneByName("T_TimerMes"));
+                        mpTimerAnim->GetRootPane()->FindPaneByName(lbl_81654554));
                     pane->SetString(System::getMessage(unk_0x768), 0);
                     anim = mpTimerAnim->getAnim(0);
                     break;
@@ -1222,7 +1300,7 @@ namespace ipl {
                     break;
                 case 8: {
                     nw4r::lyt::TextBox* pane = static_cast<nw4r::lyt::TextBox*>(
-                        mpTimerAnim->GetRootPane()->FindPaneByName("T_TimerMes_01"));
+                        mpTimerAnim->GetRootPane()->FindPaneByName(lbl_8165455F));
                     pane->SetString(System::getMessage(unk_0x768), 0);
                     anim = mpTimerAnim->getAnim(2);
                     break;
@@ -1605,11 +1683,12 @@ namespace ipl {
 
         BOOL SDChannelSelect::isResetProcessDone() {
             if (mResetState >= 9) {
-                goto ret0;
-            }
-            if (mResetState >= 5) {
                 goto ret1;
             }
+            if (mResetState >= 5) {
+                goto ret0;
+            }
+            goto ret1;
 ret0:
             return FALSE;
 ret1:
@@ -1791,7 +1870,7 @@ ret1:
                 u16 efbHeight = System::getRenderModeObj()->efbHeight;
                 u16 fbWidth = System::getRenderModeObj()->fbWidth;
                 GXSetScissor(0, 0, fbWidth, efbHeight);
-                nw4r::lyt::Pane* maskPane = mpLayout->GetRootPane()->FindPaneByName(scMaskPaneName, true);
+                nw4r::lyt::Pane* maskPane = mpLayout->GetRootPane()->FindPaneByName(lbl_81696DA8, true);
                 maskPane->SetVisible(false);
                 mpLayout->draw();
                 nw4r::lyt::Pane* pagePane = mpAnimLayout6->GetRootPane()->FindPaneByName("TextBox_00", true);
@@ -1799,7 +1878,7 @@ ret1:
                 for (int i = 0; i < 3; i++) {
                     wchar_t text[0x15];
                     text[0x14] = L'\0';
-                    swprintf(text, 0x13, L"%d", mChanPage + i);
+                    swprintf(text, 0x13, lbl_81696DAC, mChanPage + i);
                     textBox->SetString(text, 0);
                     nw4r::lyt::Pane* pane = mpLayout->GetRootPane()->FindPaneByName(scClockPaneNames[i], true);
                     nw4r::math::MTX34 mtx(pane->GetGlobalMtx());
@@ -1880,8 +1959,11 @@ ret1:
             }
         }
 
+        extern "C" char lbl_81696DB2[] = "arc";
+        extern "C" char lbl_81696DB6[] = "G_Wait";
+
         void SDChannelSelect::createBaseLayout() {
-            mpLayout = new layout::Object(getSceneHeap(), mpChanLayoutFile, "arc", "mn_SdcardMenu_a.brlyt");
+            mpLayout = new layout::Object(getSceneHeap(), mpChanLayoutFile, lbl_81696DB2, "mn_SdcardMenu_a.brlyt");
             if (SCGetAspectRatio() == SC_ASPECT_RATIO_16x9) {
                 GXTexObj tex16x9;
                 GXTexObj tex16;
@@ -1899,19 +1981,19 @@ ret1:
             mpLayout->bind("mn_SdcardMenu_a.brlan");
             mpLayout->finishBinding();
 
-            mpAnimLayout6 = new layout::Object(getSceneHeap(), mpChanLayoutFile, "arc", "mn_SdcardMenu_Page.brlyt");
+            mpAnimLayout6 = new layout::Object(getSceneHeap(), mpChanLayoutFile, lbl_81696DB2, "mn_SdcardMenu_Page.brlyt");
 
-            mpTimerAnim = new layout::Object(getSceneHeap(), mpChanLayoutFile, "arc", "mn_Nocard.brlyt");
+            mpTimerAnim = new layout::Object(getSceneHeap(), mpChanLayoutFile, lbl_81696DB2, "mn_Nocard.brlyt");
             mpTimerAnim->bindToGroup("mn_Nocard_IN.brlan", "Group_00", false, true);
             mpTimerAnim->bindToGroup("mn_Nocard_Out.brlan", "Group_00", false, true);
             mpTimerAnim->bindToGroup("mn_Nocard_IN_02.brlan", "Group_01", false, true);
             mpTimerAnim->bindToGroup("mn_Nocard_Out_02.brlan", "Group_01", false, true);
-            mpTimerAnim->bindToGroup("mn_Nocard_Wait.brlan", "G_Wait", false, true);
+            mpTimerAnim->bindToGroup("mn_Nocard_Wait.brlan", lbl_81696DB6, false, true);
             mpTimerAnim->getAnim(0)->initAnmFrame();
             mpTimerAnim->getAnim(2)->initAnmFrame();
             mpTimerAnim->finishBinding();
 
-            mpBtnLayout = new layout::Object(getSceneHeap(), mpChanLayoutFile, "arc", "help_Btn.brlyt");
+            mpBtnLayout = new layout::Object(getSceneHeap(), mpChanLayoutFile, lbl_81696DB2, "help_Btn.brlyt");
             scPages1[3].layoutObj = mpBtnLayout;
 
             SDChannelSelectEvent* event = new SDChannelSelectEvent(this);
@@ -1925,6 +2007,7 @@ ret1:
                 mHandlers[i] = new math::HermiteIntp<math::VEC3>();
             }
         }
+
 
         void SDChannelSelect::updateChannelObjects() {
             SDChannelObj* chanObj = NULL;
@@ -2095,6 +2178,8 @@ ret1:
             }
         }
 
+        extern "C" char lbl_8165480F[] = "WIPL_BGM_MENU";
+
         void SDChannelSelect::iplSDChannelSelect_813DF558() {
             if (mHandlers[0]->isPlaying() && System::getSceneManager()->getScene(0x23) == NULL) {
                 SDButton* button = (SDButton*)System::getSceneManager()->getScene(0x24);
@@ -2108,12 +2193,13 @@ ret1:
                 if (mChanCount > 1 && mChanPage < mChanCount - 1) {
                     button->animation(0xE);
                     mbFlagC9 = 1;
+
                 } else {
                     mbFlagC9 = 0;
                 }
                 setEventHandler__Q33ipl5scene8SDButtonFPQ23gui12EventHandlerPQ23gui12EventHandler(button, mpEvent);
                 TVRCManager::getHandle()->setEnable(1);
-                snd::getSystem()->startBGM("WIPL_BGM_MENU");
+                snd::getSystem()->startBGM(lbl_8165480F);
                 clearNoticeQueue();
                 updateChannelNotices(0, -1);
                 updateChannelNotices(-1, -1);
@@ -2416,9 +2502,12 @@ ret1:
             return ret;
         }
 
+
+        extern "C" char lbl_8165481D[] = "WSD_SELECT";
+
         void SDChannelSelect::iplSDChannelSelect_813E0398(int state) {
             mState = state;
-            snd::getSystem()->startSE("WSD_SELECT");
+            snd::getSystem()->startSE(lbl_8165481D);
         }
 
         void SDChannelSelect::iplSDChannelSelect_813E03B0(int a) {
@@ -2434,6 +2523,8 @@ ret1:
             mState = a;
         }
 
+        extern "C" char lbl_81654828[] = "WIPL_SE_BT_PUSH";
+
         void SDChannelSelect::iplSDChannelSelect_813E0450(int page, int index) {
             SDChannelObj* chanObj = findChannelObject(page, index);
             iplSDChannelSelect_813E0BEC(&math::VEC3(chanObj->mpThumbLayout->GetRootPane()->GetTranslate()), 0);
@@ -2442,6 +2533,7 @@ ret1:
             if (mbFlagC8 != 0) {
                 button->animation(0xF);
             }
+
             if (mbFlagC9 != 0) {
                 button->animation(0x10);
             }
@@ -2449,9 +2541,11 @@ ret1:
             setEventHandler__Q33ipl5scene8SDButtonFPQ23gui12EventHandlerPQ23gui12EventHandler(button, NULL);
             mChanIndex = index;
             mState = 5;
-            snd::getSystem()->startSE("WIPL_SE_BT_PUSH");
+            snd::getSystem()->startSE(lbl_81654828);
             snd::getSystem()->stopBGM(5);
         }
+
+
 
         BOOL SDChannelSelect::isAnyChanMoving() {
             mpLayout->setMinFrame(200.0f, -1);
@@ -2626,44 +2720,48 @@ ret1:
             return i < 12 ? i : -1;
         }
 
+        extern "C" char lbl_81696DBE[] = "4x3";
+        extern "C" char lbl_81696DC2[] = "16x9";
+        extern "C" char lbl_81696DC7[] = "Wait_00";
+
         void SDChannelSelect::iplSDChannelSelect_813E11C4() {
-            mpAnimLayout4 = new layout::Object(getSceneHeap(), mpChanLayoutFile, "arc", "mn_SdcardMenu_d.brlyt");
+            mpAnimLayout4 = new layout::Object(getSceneHeap(), mpChanLayoutFile, lbl_81696DB2, "mn_SdcardMenu_d.brlyt");
             mpMoveAnim = mpAnimLayout4->bind("mn_SdcardMenu_d.brlan", true);
             f32 frame = (f32)(System::getRndm()->get_u16() % 2000);
             mpMoveAnim->play();
             mpAnimLayout4->finishBinding();
             mpMoveAnim->setCurrentFrame(frame);
 
-            mpAnimLayout1 = new layout::Object(getSceneHeap(), mpChanLayoutFile, "arc", "my_TVMask_a.brlyt");
+            mpAnimLayout1 = new layout::Object(getSceneHeap(), mpChanLayoutFile, lbl_81696DB2, "my_TVMask_a.brlyt");
             mpAnimLayout1->bind("my_TVMask_a_Apear.brlan", "Picture_00", false);
             mpAnimLayout1->bind("my_TVMask_a_Lost.brlan", "Picture_00", false, false);
             mpAnimLayout1->finishBinding();
             mpAnimLayout1->getAnim()->initAnmFrame();
 
-            mpAnimLayout2 = new layout::Object(getSceneHeap(), mpChanLayoutFile, "arc", "my_TVShade_a.brlyt");
-            mpAnimLayout2->bind("my_TVShade_a_Apear.brlan", "4x3", true);
-            mpAnimLayout2->bind("my_TVShade_a_Lost.brlan", "4x3", true, false);
+            mpAnimLayout2 = new layout::Object(getSceneHeap(), mpChanLayoutFile, lbl_81696DB2, "my_TVShade_a.brlyt");
+            mpAnimLayout2->bind("my_TVShade_a_Apear.brlan", lbl_81696DBE, true);
+            mpAnimLayout2->bind("my_TVShade_a_Lost.brlan", lbl_81696DBE, true, false);
             mpAnimLayout2->finishBinding();
             if (SCGetAspectRatio() == SC_ASPECT_RATIO_16x9) {
                 GXTexObj tex;
-                mpAnimLayout2->FindPaneByName("16x9")->GetMaterial()->GetTexture(&tex, GX_TEXMAP0);
-                mpAnimLayout2->FindPaneByName("4x3")->GetMaterial()->SetTexture(GX_TEXMAP0, tex);
+                mpAnimLayout2->FindPaneByName(lbl_81696DC2)->GetMaterial()->GetTexture(&tex, GX_TEXMAP0);
+                mpAnimLayout2->FindPaneByName(lbl_81696DBE)->GetMaterial()->SetTexture(GX_TEXMAP0, tex);
                 mpAnimLayout2->FindPaneByName("4x3_dummy")->GetMaterial()->SetTexture(GX_TEXMAP0, tex);
             }
             mpAnimLayout2->getAnim()->initAnmFrame();
 
-            mpAnimLayout3 = new layout::Object(getSceneHeap(), mpChanLayoutFile, "arc", "my_TVApear_a.brlyt");
+            mpAnimLayout3 = new layout::Object(getSceneHeap(), mpChanLayoutFile, lbl_81696DB2, "my_TVApear_a.brlyt");
             mpAnimLayout3->bind("my_TVApear_a_Apear.brlan", "Picture_00", false);
             mpAnimLayout3->bind("my_TVApear_a_Lost.brlan", "Picture_00", false, false);
             mpAnimLayout3->finishBinding();
             mpAnimLayout3->getAnim()->initAnmFrame();
 
-            mpAnimLayout5 = new layout::Object(getSceneHeap(), mpChanLayoutFile, "arc", "my_TVMask_a.brlyt");
+            mpAnimLayout5 = new layout::Object(getSceneHeap(), mpChanLayoutFile, lbl_81696DB2, "my_TVMask_a.brlyt");
             mpAnimLayout5->bind("my_TVMask_a_Lost.brlan", "Picture_00", false);
             mpAnimLayout5->finishBinding();
 
-            mDialogAnim = new layout::Object(getSceneHeap(), mpChanLayoutFile, "arc", "wait_icon.brlyt");
-            mDialogAnim->bind("wait_icon_wait_loop.brlan", "Wait_00", false);
+            mDialogAnim = new layout::Object(getSceneHeap(), mpChanLayoutFile, lbl_81696DB2, "wait_icon.brlyt");
+            mDialogAnim->bind("wait_icon_wait_loop.brlan", lbl_81696DC7, false);
             mDialogAnim->finishBinding();
             mDialogAnim->getAnim()->initAnmFrame();
 
@@ -2733,7 +2831,7 @@ ret1:
                 for (int i = 0; i < 0xC; i++) {
                     mpGui->initPane(getChannelPane(i));
                 }
-                snd::getSystem()->startSE("WSD_SELECT");
+                snd::getSystem()->startSE(lbl_8165481D);
             } else if (mChanPage < mChanCount - 1 && mFieldF8 >= 0xF) {
                 button->animation(8);
                 mpLayout->setMinFrame(40.0f, -1);
@@ -2750,7 +2848,7 @@ ret1:
                 for (int i = 0; i < 0xC; i++) {
                     mpGui->initPane(getChannelPane(i));
                 }
-                snd::getSystem()->startSE("WSD_SELECT");
+                snd::getSystem()->startSE(lbl_8165481D);
             }
         }
 
@@ -2892,6 +2990,8 @@ ret1:
             }
         }
 
+        extern "C" char lbl_8165497E[] = "WIPL_SE_CH_TARGETTING";
+
         int SDChannelSelect::iplSDChannelSelect_813E1FE8(const char* name, int event, controller::Interface* con) {
             if (con != NULL && con != System::getControllerManager()->getController(mCtrlChan)) {
                 return 1;
@@ -2907,9 +3007,10 @@ ret1:
                     }
                     break;
                 case 1:
+
                     if (iplSDChannelSelect_813E26DC(mChanPage, index) != 0 || (mChanPage == mSelPage && index == mSelIndex)) {
                         findChannelObject(mChanPage, index)->onPoint(2);
-                        snd::getSystem()->startSE("WIPL_SE_CH_TARGETTING");
+                        snd::getSystem()->startSE(lbl_8165497E);
                         con->rumble(1);
                     }
                     break;
@@ -2946,6 +3047,8 @@ ret1:
             }
         }
 
+        extern "C" char lbl_81654994[] = "WIPL_SE_CH_HOLD";
+
         void SDChannelSelect::iplSDChannelSelect_813E22F8(controller::Interface* con, int page, int index) {
             if (con->getChannel() >= 0) {
                 if (con->isValidDpd()) {
@@ -2968,15 +3071,20 @@ ret1:
                 mpAnimLayout2->getAnim(0)->play();
                 ((SDButton*)System::getSceneManager()->getScene(0x24))->disableBtn();
                 SDChannelObj* chanObj = NULL;
+
                 while ((chanObj = (SDChannelObj*)nw4r::ut::List_GetNext(&mChanList, chanObj)) != NULL) {
                     chanObj->onPinch(chanObj->mChanPage == page && chanObj->mChanIndex == index);
                 }
-                snd::getSystem()->startSEwithPos("WIPL_SE_CH_HOLD", mCursorPos.x);
+                snd::getSystem()->startSEwithPos(lbl_81654994, mCursorPos.x);
                 mState = 0xF;
             }
         }
 
+        extern "C" char lbl_816549A4[] = "WIPL_SE_CH_SET";
+        extern "C" char lbl_816549B3[] = "WIPL_SE_CH_NOT_MOVE";
+
         void SDChannelSelect::iplSDChannelSelect_813E24D8() {
+
             if (iplSDChannelSelect_813E26DC(mFieldF0, mFieldF4) != 0 && unk_0x105 == 0) {
                 nw4r::math::VEC3 translate = findChannelObject(mFieldF0, mFieldF4)->getTranslate();
                 mpAnimLayout3->GetRootPane()->SetTranslate(translate);
@@ -2984,11 +3092,12 @@ ret1:
                 mDialogAnim->GetRootPane()->SetTranslate(translate);
                 mDialogAnim->calcMtx();
                 mDialogAnim->getAnim(0)->play();
-                snd::getSystem()->startSEwithPos("WIPL_SE_CH_SET", mCursorPos.x);
+                snd::getSystem()->startSEwithPos(lbl_816549A4, mCursorPos.x);
                 mpAnimLayout1->getAnim(1)->play();
                 mState = 0x13;
+
             } else {
-                snd::getSystem()->startSEwithPos("WIPL_SE_CH_NOT_MOVE", mCursorPos.x);
+                snd::getSystem()->startSEwithPos(lbl_816549B3, mCursorPos.x);
                 mState = 0x11;
             }
             System::getPointer()->changeType(mCtrlChan, 0);
@@ -3018,6 +3127,9 @@ ret1:
             return mpChanTable[page * 12 + index] == 0;
         }
 
+        extern "C" char lbl_816549C7[] = "WIPL_SE_CH_DRAG";
+        extern "C" char lbl_816549D7[] = "WIPL_SE_DECIDE";
+
         void SDChannelSelect::iplSDChannelSelect_813E2750() {
             if (System::getControllerManager()->getController(mCtrlChan) != NULL &&
                 System::getControllerManager()->getController(mCtrlChan)->isValidDpd()) {
@@ -3036,11 +3148,12 @@ ret1:
 
                 if (val <= 0.0f) {
                     speed = 0.0f;
+
                 } else {
                     speed = (val * nw4r::math::FrSqrt(val));
                 }
 
-                snd::getSystem()->holdSEwithPosDis("WIPL_SE_CH_DRAG", pos.x, speed);
+                snd::getSystem()->holdSEwithPosDis(lbl_816549C7, pos.x, speed);
                 mCursorPos = pos;
             }
         }
@@ -3085,7 +3198,7 @@ ret1:
                         case 1: {
                             if (mpScene->mState == 1 && chanObj->isValid() != 0) {
                                 chanObj->onPoint(0);
-                                snd::getSystem()->startSE("WIPL_SE_CH_TARGETTING");
+                                snd::getSystem()->startSE(lbl_8165497E);
                                 ((controller::Interface*)con)->rumble(1);
                             }
                             break;
@@ -3114,15 +3227,16 @@ ret1:
                 System::getFader()->getStatus() == EGG::Fader::PREPARE_OUT &&
                 con != NULL && con->downTrg(controller::BTN_INTERACT)) {
                 SDButton* button = (SDButton*)System::getSceneManager()->getScene(0x24);
+
                 if (strcmp(paneName, SDButton::smButtonName[1]) == 0) {
                     mpScene->unk_0x754 = 0;
                     mpScene->mState = 0x1A;
                     button->animation(4);
-                    snd::getSystem()->startSE("WIPL_SE_DECIDE");
+                    snd::getSystem()->startSE(lbl_816549D7);
                 } else if (strcmp(paneName, SDButton::smButtonName[0]) == 0) {
                     setEventHandler__Q33ipl5scene8SDButtonFPQ23gui12EventHandlerPQ23gui12EventHandler(button, NULL);
                     mpScene->mState = 4;
-                    snd::getSystem()->startSE("WIPL_SE_DECIDE");
+                    snd::getSystem()->startSE(lbl_816549D7);
                 } else if (strcmp(paneName, SDButton::smButtonName[3]) == 0 && mpScene->mChanPage > 0) {
                     button->animation(7);
                     mpScene->iplSDChannelSelect_813E0398(8);

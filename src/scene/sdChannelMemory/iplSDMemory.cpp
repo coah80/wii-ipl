@@ -47,7 +47,7 @@ namespace ipl {
 
         void writeFourFlagBytes(u8* flags, u8 first, u8 second, u8 third, u8 fourth);
         void setTitleRowColors(nw4r::lyt::TextBox* textBox,
-                               const nw4r::ut::Color& first, const nw4r::ut::Color& second);
+                               const nw4r::ut::Color& first, const nw4r::ut::Color& second) NO_INLINE;
 
         class SDMemoryDialogAEvent : public ::gui::EventHandler {
         public:
@@ -1452,14 +1452,24 @@ namespace ipl {
                 utility::layout::set_string(pLetter, (const wchar_t*)(unk_0x380 + i * 0x2A));
 
                 if (matchIdx < (int)mField1648 && unk_0x80[i] == mEntryList[matchIdx]) {
-                    nw4r::ut::Color color;
+                    u8 flags[4];
+                    GXColor colors[3];
                     matchIdx++;
-                    writeFourFlagBytes((u8*)&color, 0x34, 0xBE, 0xED, 0xFF);
-                    setTitleRowColors(pLetter, color, color);
+                    writeFourFlagBytes(flags, 0x34, 0xBE, 0xED, 0xFF);
+                    colors[0].r = flags[0]; colors[0].g = flags[1]; colors[0].b = flags[2]; colors[0].a = flags[3];
+                    colors[1].r = flags[0]; colors[1].g = flags[1]; colors[1].b = flags[2]; colors[1].a = flags[3];
+                    colors[2].r = flags[0]; colors[2].g = flags[1]; colors[2].b = flags[2]; colors[2].a = flags[3];
+                    setTitleRowColors(pLetter, *(nw4r::ut::Color*)&colors[1],
+                                      *(nw4r::ut::Color*)&colors[2]);
                 } else {
-                    nw4r::ut::Color color;
-                    writeFourFlagBytes((u8*)&color, 0x64, 0x64, 0x64, 0xFF);
-                    setTitleRowColors(pLetter, color, color);
+                    u8 flags[4];
+                    GXColor colors[3];
+                    writeFourFlagBytes(flags, 0x64, 0x64, 0x64, 0xFF);
+                    colors[0].r = flags[0]; colors[0].g = flags[1]; colors[0].b = flags[2]; colors[0].a = flags[3];
+                    colors[1].r = flags[0]; colors[1].g = flags[1]; colors[1].b = flags[2]; colors[1].a = flags[3];
+                    colors[2].r = flags[0]; colors[2].g = flags[1]; colors[2].b = flags[2]; colors[2].a = flags[3];
+                    setTitleRowColors(pLetter, *(nw4r::ut::Color*)&colors[1],
+                                      *(nw4r::ut::Color*)&colors[2]);
                 }
 
                 nw4r::ut::Rect rect = mpDialogC->getTextDrawRect(lbl_816562B6);
