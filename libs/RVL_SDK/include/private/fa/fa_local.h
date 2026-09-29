@@ -89,20 +89,6 @@ typedef struct PF_DIR_ENT {
     u16 pad_23E;
 } PF_DIR_ENT;
 
-typedef struct PF_SDD {
-    u32 stat;               // 0x00
-    u32 num_handlers;       // 0x04
-    u8 pad_08[0x34];
-    PF_DIR_ENT dir_entry;   // 0x3C
-} PF_SDD;
-
-typedef struct PF_SDD_HANDLE {
-    u32 stat;          // 0x00
-    u32 pad_4;
-    PF_SDD* p_sdd;     // 0x08
-    u8 pad_C[0x24];
-} PF_SDD_HANDLE;
-
 typedef struct PF_CUR_DIR {
     u32 stat;              // 0x00
     s32 context_id;        // 0x04
@@ -147,13 +133,63 @@ typedef struct PF_FFD {
 
 typedef struct PF_ENT_ITER PF_ENT_ITER;
 
+typedef struct PF_DIRENT {
+    s8 lname[512];  // 0x00
+    s8 name[13];    // 0x200
+} PF_DIRENT;
+
+typedef struct PF_SDD {
+    u32 stat;               // 0x00
+    u16 num_handlers;       // 0x04
+    u16 pad_06;
+    PF_FFD ffd;             // 0x08
+    PF_DIR_ENT dir_entry;   // 0x40
+} PF_SDD;
+
+typedef struct PF_SDD_HANDLE {
+    u32 stat;          // 0x00
+    u32 pad_4;
+    PF_SDD* p_sdd;     // 0x08
+    u8 pad_C[0x24];
+} PF_SDD_HANDLE;
+
+typedef struct PF_FILE {
+    u32 stat;                  // 0x00
+    u8 pad_4[0x38];
+    PF_DIR_ENT dir_entry;      // 0x3C
+    u8 pad_27C[0x18];
+} PF_FILE;
+
+typedef struct PF_FSTAT {
+    u32 file_size;             // 0x00
+    u16 create_time;           // 0x04
+    u16 modify_time;           // 0x06
+    u16 modify_date;           // 0x08
+    u16 create_date;           // 0x0A
+    u16 access_date;           // 0x0C
+    u16 create_time_ms;        // 0x0E
+    u8 attr;                   // 0x10
+} PF_FSTAT;
+
+typedef struct PF_UDD {
+    u32 stat;               // 0x00
+    PF_SDD* p_sdd;          // 0x04
+    PF_FAT_HINT hint;       // 0x08
+    u32 field_14;           // 0x14
+    u32 field_18;           // 0x18
+    u32 field_1C;           // 0x1C
+} PF_UDD;
+
+
 typedef struct PF_VOLUME {
     PF_BPB bpb;                    // 0x00
     u32 num_free_clusters;         // 0x38
     u32 last_free_cluster;         // 0x3C
-    u8 pad_40[0xD0C];              // 0x40
+    PF_FILE file_handle[5];        // 0x40
+    u8 pad_D24[0x28];              // 0xD24
     PF_SDD_HANDLE dir_handle[5];   // 0xD4C
-    u8 pad_DDC[0x7E0];             // 0xDDC
+    PF_SDD sdds[3];                // 0xE3C
+    PF_UDD udds[3];                // 0x15BC
     u32 num_open_files;            // 0x161C
     u32 num_open_dirs;             // 0x1620
     u32 buffer_mode;               // 0x1624
@@ -162,7 +198,7 @@ typedef struct PF_VOLUME {
     u8 pad_162C[0x10];
     u32 fat_buffer_size;           // 0x163C
     u32 data_buffer_size;          // 0x1640
-    u32 pad_1644;
+    void* cache_signature;         // 0x1644
     s8 label[12];                  // 0x1648
     PF_CUR_DIR current_dir[4];     // 0x1654
     u32 tail_size;                 // 0x1F74
@@ -195,6 +231,30 @@ typedef struct PF_CUR_VOLUME {
     s32 context_id;    // 0x04
     PF_VOLUME* p_vol;  // 0x08
 } PF_CUR_VOLUME;
+
+typedef struct PF_DTA {
+    void* file;                // 0x00
+    void* dir;                 // 0x04
+    PF_VOLUME* vol;            // 0x08
+    u32 parent_start_cluster;  // 0x0C
+    u32 parent_pos;            // 0x10
+    u32 status;                // 0x14
+    u8 num_entry_LFNs;         // 0x18
+    u8 ordinal;                // 0x19
+    u8 check_sum;              // 0x1A
+    u8 attr;                   // 0x1B
+    s8 reg_exp[520];           // 0x1C
+    u16 time;                  // 0x224
+    u16 date;                  // 0x226
+    u32 file_size;             // 0x228
+    u8 attribute;              // 0x22C
+    s8 file_name[13];          // 0x22D
+    s8 long_name[520];         // 0x23A
+    u8 pad_442[2];
+    u16 reg_expW[260];         // 0x444
+    u16 file_nameW[13];        // 0x64C
+    u16 long_nameW[260];       // 0x666
+} PF_DTA;
 
 /* pf_vol_set global; offsets verified against base object */
 typedef struct PF_VOLUME_SET {
