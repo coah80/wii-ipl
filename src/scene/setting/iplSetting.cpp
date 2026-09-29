@@ -1874,16 +1874,22 @@ namespace ipl {
 
         void Setting::initSecurityKey() {
             memset(mpStringBuffer->securityKey, 0, sizeof(mpStringBuffer->securityKey));
-            u16 privacyMode = ncd::NCDSetting::getNCDPrivacyMode();
-            size_t keyLength = 0;
-            if (privacyMode == 2) {
-                keyLength = 13;
-            } else if (privacyMode < 2) {
-                if (privacyMode == 1) {
-                    keyLength = 5;
+            s32 privacyMode = ncd::NCDSetting::getNCDPrivacyMode();
+            size_t keyLength;
+            if (privacyMode != 2) {
+                if (privacyMode < 2) {
+                    if (privacyMode == 0) {
+                        keyLength = 0;
+                    } else {
+                        keyLength = 5;
+                    }
+                } else if (privacyMode < 7 && privacyMode > 3) {
+                    keyLength = 64;
+                } else {
+                    keyLength = 0;
                 }
-            } else if (privacyMode > 3 && privacyMode < 7) {
-                keyLength = 64;
+            } else {
+                keyLength = 13;
             }
             if (keyLength != 0) {
                 memcpy(mpStringBuffer->securityKey, ncd::NCDSetting::getPrivacy(), keyLength);
@@ -1893,9 +1899,10 @@ namespace ipl {
 
         void Setting::initSSID() {
             memset(mpStringBuffer->ssid, 0, sizeof(mpStringBuffer->ssid));
-            NCDApConfig* ssid = ncd::NCDSetting::getSSID();
-            utility::CharacterCode::ANSIToUTF8(mpStringBuffer->ssid, ssid->ssid, ssid->ssidLength);
-            OSReport("initHTMLText initString:%s length:%d\n", ssid->ssid, ssid->ssidLength);
+            u16 stringLength = ncd::NCDSetting::getSSID()->ssidLength;
+            utility::CharacterCode::ANSIToUTF8(mpStringBuffer->ssid, ncd::NCDSetting::getSSID()->ssid, stringLength);
+            u16 reportLength = ncd::NCDSetting::getSSID()->ssidLength;
+            OSReport("initHTMLText initString:%s length:%d\n", ncd::NCDSetting::getSSID()->ssid, reportLength);
         }
 
         void Setting::initIP() {
