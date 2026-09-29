@@ -1432,16 +1432,16 @@ namespace ipl {
         }
 
         void Setting::initKeyboard(const char* text) {
-            u8 formId = mpWiiSettingData->data[0x11];
-            OSReport("initKeyboard formId:%d\n", formId);
+            OSReport("initKeyboard formId:%d\n", mpWiiSettingData->data[0x11]);
             memset(unk_0x938, 0, sizeof(unk_0x938));
 
-            int productArea = SCGetProductArea();
+            int invalidInput = 0;
+            keyboard::Manager::KeyboardType keyboardType = keyboard::Manager::LETTER;
             int rowLimit = 0;
             int stringLimit = 0;
-            keyboard::Manager::KeyboardType keyboardType = keyboard::Manager::LETTER;
+            int productArea = SCGetProductArea();
 
-            switch (formId) {
+            switch (mpWiiSettingData->data[0x11]) {
                 case 1:
                     stringLimit = 10;
                     rowLimit = 6;
@@ -1457,7 +1457,15 @@ namespace ipl {
                     rowLimit = 7;
                     break;
                 case 3:
+                    stringLimit = 0x20;
+                    keyboardType = keyboard::Manager::NORMAL_WITHOUT_LINEFEED;
+                    rowLimit = 7;
+                    break;
                 case 12:
+                    stringLimit = 0x20;
+                    keyboardType = keyboard::Manager::NORMAL_WITHOUT_LINEFEED;
+                    rowLimit = 7;
+                    break;
                 case 13:
                     stringLimit = 0x20;
                     keyboardType = keyboard::Manager::NORMAL_WITHOUT_LINEFEED;
@@ -1501,7 +1509,9 @@ namespace ipl {
                     break;
             }
 
-            if (formId != 13 && formId != 2 && formId != 18 && formId != 19 && formId != 22) {
+            if (mpWiiSettingData->data[0x11] != 13 && mpWiiSettingData->data[0x11] != 2 &&
+                mpWiiSettingData->data[0x11] != 18 && mpWiiSettingData->data[0x11] != 19 &&
+                mpWiiSettingData->data[0x11] != 22) {
                 utility::CharacterCode::UTF8ToUTF16(reinterpret_cast<wchar_t*>(unk_0x938), text, 0x101);
             }
 
@@ -1509,10 +1519,11 @@ namespace ipl {
             OSReport("キーボード: %d %d %d %d\n", rowLimit, stringLimit, keyboardType, textLength);
             reinterpret_cast<wchar_t*>(unk_0x938)[stringLimit] = 0;
 
-            int invalidInput = 0;
-            if (formId >= 4 && formId <= 8) {
+            if (mpWiiSettingData->data[0x11] >= 4 && mpWiiSettingData->data[0x11] <= 8) {
                 invalidInput = checkIPString(reinterpret_cast<const wchar_t*>(unk_0x938));
-            } else if ((formId > 0 && formId < 4) || (formId >= 10 && formId <= 20) || formId == 22) {
+            } else if ((mpWiiSettingData->data[0x11] > 0 && mpWiiSettingData->data[0x11] < 4) ||
+                       (mpWiiSettingData->data[0x11] >= 10 && mpWiiSettingData->data[0x11] <= 20) ||
+                       mpWiiSettingData->data[0x11] == 22) {
                 invalidInput = checkInputString(reinterpret_cast<const wchar_t*>(unk_0x938));
             }
 
@@ -1522,7 +1533,7 @@ namespace ipl {
 
             keyboard::Manager* keyboardManager = System::getKeyboard();
             if (productArea == 11) {
-                keyboardManager->memoFrm()->setZiDictionary(keyboardManager->getZiSystemDic(), keyboardManager->getZiOemDic());
+                keyboardManager->memoFrm()->setZiDictionary(keyboardManager->getZiOemDic(), keyboardManager->getZiSystemDic());
             }
 
             keyboard::Manager::KeyboardSetting setting;
