@@ -1264,17 +1264,23 @@ void ipl::scene::AddressEditEvent::onEvent(u32 componentId, u32 event, void* dat
         static_cast< ::gui::PaneComponent*>(manager->getComponent(componentId));
     const char* paneName = component->getPane()->GetName();
 
-    if (signedEvent == 1) {
+    switch (signedEvent) {
+    case 1:
         if (data != NULL) {
             mpParent->start_point_event(paneName, static_cast<ipl::controller::Interface*>(data));
         }
-    } else if (signedEvent >= 1) {
-        if (signedEvent < 3) {
-            mpParent->start_left_event(paneName);
+        break;
+    case 2:
+        mpParent->start_left_event(paneName);
+        break;
+    case 0:
+        if (data != NULL &&
+            static_cast<ipl::controller::Interface*>(data)->downTrg(0x100800)) {
+            mpParent->start_trig_event(paneName);
         }
-    } else if (signedEvent >= 0 && data != NULL &&
-               static_cast<ipl::controller::Interface*>(data)->downTrg(0x100800)) {
-        mpParent->start_trig_event(paneName);
+        break;
+    default:
+        break;
     }
 }
 
@@ -1284,18 +1290,29 @@ void ipl::scene::AddressInputEvent::onEvent(u32 componentId, u32 event, void* da
     ::gui::PaneComponent* component =
         static_cast< ::gui::PaneComponent*>(manager->getComponent(componentId));
     const char* paneName = component->getPane()->GetName();
-    ipl::controller::Interface* controller = static_cast<ipl::controller::Interface*>(data);
 
-    if (signedEvent == 1) {
-        if (controller != NULL) {
-            mpParent->start_ipt_point_event(paneName, controller->getChannel());
+    switch (signedEvent) {
+    case 0:
+        if (data != NULL &&
+            static_cast<ipl::controller::Interface*>(data)->downTrg(0x100800)) {
+            mpParent->start_ipt_trig_event(
+                paneName, static_cast<ipl::controller::Interface*>(data)->getChannel());
         }
-    } else if (signedEvent >= 1) {
-        if (signedEvent < 3 && controller != NULL) {
-            mpParent->start_ipt_left_event(paneName, controller->getChannel());
+        break;
+    case 1:
+        if (data != NULL) {
+            mpParent->start_ipt_point_event(
+                paneName, static_cast<ipl::controller::Interface*>(data)->getChannel());
         }
-    } else if (signedEvent >= 0 && controller != NULL && controller->downTrg(0x100800)) {
-        mpParent->start_ipt_trig_event(paneName, controller->getChannel());
+        break;
+    case 2:
+        if (data != NULL) {
+            mpParent->start_ipt_left_event(
+                paneName, static_cast<ipl::controller::Interface*>(data)->getChannel());
+        }
+        break;
+    default:
+        break;
     }
 }
 
@@ -2438,8 +2455,8 @@ void ipl::scene::AddressEdit::start_ipt_trig_event(
         }
         setDefaultTitleText(mString.mValue, false);
         if (mString.mbValidMail != 0 &&
-            mString.isDupCode() == 0 &&
-            mString.isMyCode() == 0) {
+            !mString.isDupCode() &&
+            !mString.isMyCode()) {
             button->reserveAnm(0x10);
         } else {
             button->reserveAnm(0xc);
