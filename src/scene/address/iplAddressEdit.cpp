@@ -635,8 +635,7 @@ void ipl::scene::AddressEdit::stt_wait_decide_anm() {
 
     switch (mSelectedButton) {
     case 2: {
-        u32 friendIndex = mSelectedFriend;
-        if (mpFriendCache->getInfo(friendIndex).attr.status == 2) {
+        if (mpFriendCache->getInfo(mSelectedFriend).attr.status == 2) {
             ipl::layout::Animator* statusAnimator = mpCodeLayout->getAnim(0x15);
             statusAnimator->initFrame();
             statusAnimator->restart();
@@ -1035,26 +1034,28 @@ void ipl::scene::AddressEdit::stt_msg_no_mii() {
 }
 
 void ipl::scene::AddressEdit::stt_add_confirm_fadeout() {
-    if (!mpCodeLayout->getAnim(0x1e)->isPlaying()) {
-        ipl::scene::Button* button = static_cast<ipl::scene::Button*>(ipl::System::getScene(5));
-        switch (mSubState) {
-        case 5: {
-            ipl::layout::Animator* animator = mpNameLayout->getAnim(0);
-            animator->initFrame();
-            animator->restart();
-            mState = 0x1c;
-            break;
-        }
-        case 7:
-            add_friendinfo();
-            button->reserveText(1, 0x29);
-            static_cast<ipl::scene::Address*>(ipl::System::getScene(0x14))->reset_friend();
-            ipl::System::getDialog()->callBtn1(0x4a, 0x2e);
-            mState = 0x26;
-            break;
-        default:
-            break;
-        }
+    if (mpCodeLayout->getAnim(0x1e)->isPlaying()) {
+        return;
+    }
+
+    ipl::scene::Button* button = static_cast<ipl::scene::Button*>(ipl::System::getScene(5));
+    switch (mSubState) {
+    case 5: {
+        ipl::layout::Animator* animator = mpNameLayout->getAnim(0);
+        animator->initFrame();
+        animator->restart();
+        mState = 0x1c;
+        break;
+    }
+    case 7:
+        add_friendinfo();
+        button->reserveText(1, 0x29);
+        static_cast<ipl::scene::Address*>(ipl::System::getScene(0x14))->reset_friend();
+        ipl::System::getDialog()->callBtn1(0x4a, 0x2e);
+        mState = 0x26;
+        break;
+    default:
+        break;
     }
 }
 
@@ -1730,17 +1731,15 @@ void ipl::scene::AddressEdit::stt_wait_btn_fadein() {
 }
 
 void ipl::scene::AddressEdit::stt_wait_btn_fadeout() {
-    u32 index = mSelectedFriend;
-    u32 friendType = mpFriendCache->getInfo(index).attr.status;
     bool friendFinished;
-    if (friendType == 2) {
+    if (mpFriendCache->getInfo(mSelectedFriend).attr.status == 2) {
         friendFinished = !mpCodeLayout->getAnim(0x15)->isPlaying();
     } else {
         friendFinished = !mpCodeLayout->getAnim(0x1b)->isPlaying();
     }
 
-    friendFinished = (friendFinished & !mpCodeLayout->getAnim(0x16)->isPlaying()) != 0;
-    friendFinished = (friendFinished & !mpCodeLayout->getAnim(0x17)->isPlaying()) != 0;
+    friendFinished &= !mpCodeLayout->getAnim(0x16)->isPlaying();
+    friendFinished &= !mpCodeLayout->getAnim(0x17)->isPlaying();
 
     if (friendFinished) {
         nw4r::lyt::Pane* label = mpCodeLayout->getNW4RLyt()->GetRootPane()->FindPaneByName("T_card_msg_00", true);
@@ -2909,8 +2908,8 @@ void ipl::scene::AddressEdit::add_friendinfo() {
 }
 
 void ipl::scene::AddressEdit::get_friendinfo() {
-    const NWC24FriendInfo& friendInfo = mpFriendCache->getInfo(mSelectedFriend);
-    memcpy(&sFriendInfo__Q23ipl5scene, &friendInfo, sizeof(sFriendInfo__Q23ipl5scene));
+    memcpy(&sFriendInfo__Q23ipl5scene, &mpFriendCache->getInfo(mSelectedFriend),
+        sizeof(sFriendInfo__Q23ipl5scene));
     mString.setName(reinterpret_cast<const wchar_t*>(sFriendInfo__Q23ipl5scene.attr.name));
     const wchar_t* name = mString.mName;
     nw4r::lyt::Pane* namePane =
