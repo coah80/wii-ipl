@@ -185,15 +185,15 @@ u32 _WADIsTerminated(const char* text, u32 maxLength);
 extern s32 ES_GetBoot2Version(u32* version);
 
 s32 WADGetTitleVersionEx(char* path, ESTitleId* titleId, u16* titleVersion, WADLocation location, u32 offset) {
+    BOOL streamOpened;
     WADStream stream ALIGN32;
-    WADTitleMetadata metadata;
-    u8 headerBytes[0x20];
+    u8 headerBytes[0x20] ALIGN32;
+    WADTitleMetadata metadata ALIGN32;
     s32 headerInfo;
     WADTitleMetadata* metadataBuffer = &metadata;
     WADHeader* headerBuffer = (WADHeader*)headerBytes;
     s32 result;
     u32 titleDataOffset;
-    BOOL streamOpened;
     s32 type;
 
     streamOpened = FALSE;
