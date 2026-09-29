@@ -815,7 +815,7 @@ config.libs = [
             Object(NonMatching, "scene/memoryCard/iplMemoryCard.cpp"),
             Object(NonMatching, "scene/memoryCard/iplMemoryCardBase.cpp"),
             Object(NonMatching, "scene/memoryCard/iplMemoryCardManager.cpp"),
-            Object(NonMatching, "scene/memoryCard/iplGCSaveData.cpp"),
+            Object(Matching,    "scene/memoryCard/iplGCSaveData.cpp"),
             Object(NonMatching, "scene/memoryCard/iplGCWindow.cpp"),
         ]
     ),
