@@ -48,8 +48,8 @@ typedef struct PFDIR_SDD {
     pf_u16 num_handlers;
     pf_u16 alignment;
     PF_FFD ffd;
+    pf_u32 ffd_state;
     PF_DIR_ENT dir_entry;
-    pf_u32 state_tail;
 } PFDIR_SDD;
 
 typedef struct PFDIR_SFD {
