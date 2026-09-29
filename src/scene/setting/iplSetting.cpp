@@ -4,23 +4,29 @@
 #include "scene/setting/iplNCDSetting.h"
 #include "system/iplSystem.h"
 
+#include "iplwww/www_wiisetting.h"
+
+#include <cstdio>
+#include <cstring>
+
 namespace ipl {
     namespace scene {
-        static const char* sSettingAPButtonNames[] = {
-            "B_AP2", "B_AP3", "B_AP4", "B_AP5", "T_Name1", "T_Name2", "T_Name3", "T_Name4",
-            "T_Name5", "T_Name6", "N_AP1",  "N_AP2",  "N_AP3",  "N_AP4",  "N_AP5",  "N_AP6",
-        };
+        const char* sSettingAPButtonNames[] = {"B_AP2", "B_AP3", "B_AP4", "B_AP5"};
 
-        static const char* sSettingArrowNames[] = {"B_ArwA", "B_ArwB"};
+        const char* sSettingArrowNames[] = {"B_ArwA", "B_ArwB"};
 
-        static const char* sSettingAPPaneNames[] = {
+        const char* sSettingAPTextNames[] = {"T_Name1", "T_Name2", "T_Name3", "T_Name4", "T_Name5", "T_Name6"};
+
+        const char* sSettingAPNumberNames[] = {"N_AP1", "N_AP2", "N_AP3", "N_AP4", "N_AP5", "N_AP6"};
+
+        const char* sSettingAPPaneNames[] = {
             "G_ListUpDown", "G_ListInOut", "G_ArwA", "G_ArwB", "G_Denpa", "G_Lock",  "G_AP0",
             "G_AP1",        "G_AP2",       "G_AP3",  "G_AP4",  "G_AP5",   "G_AP6",   "G_AP7",
             "G_Denpa1",     "G_Denpa2",    "G_Denpa3", "G_Denpa4", "G_Denpa5", "G_Denpa6",
             "G_Lock1",      "G_Lock2",     "G_Lock3", "G_Lock4", "G_Lock5", "G_Lock6",
         };
 
-        static const char* sSettingAPAnimations[] = {
+        const char* sSettingAPAnimations[] = {
             "my_AP_a_ArwAppear.brlan", "my_AP_a_ArwLost.brlan", "my_AP_a_ArwFocusOn.brlan",
             "my_AP_a_ArwFocusOff.brlan", "my_AP_a_ArwSelect.brlan", "my_AP_a_ScrollUp.brlan",
             "my_AP_a_ScrollDown.brlan", "my_AP_a_BtnFocusOn.brlan", "my_AP_a_BtnFocusOff.brlan",
@@ -37,11 +43,11 @@ namespace ipl {
 
         Setting::Setting(EGG::Heap* heap, int arg) : FaderSceneBase(heap) {
             unk_0x5C = 0;
-            mpBrowserFile = 0;
-            mpLanguageFile = 0;
-            mpNandFile = 0;
-            mpStringFile = 0;
-            unk_0xBC = 0;
+            mpWWWLibraryFile = 0;
+            mpSettingHTMLFile = 0;
+            mpWWWArchiveFile = 0;
+            mpFontFile = 0;
+            mpSettingLayoutFile = 0;
             unk_0xB3B = 0;
             setSceneParentFlags(3);
             unk_0x74 = 0;
@@ -97,20 +103,20 @@ namespace ipl {
                 System::getMem2App()->free(mem2Buffer_);
                 mem2Buffer_ = 0;
             }
-            if (mpBrowserFile) {
-                delete mpBrowserFile;
+            if (mpWWWLibraryFile) {
+                delete mpWWWLibraryFile;
             }
-            if (mpLanguageFile) {
-                delete mpLanguageFile;
+            if (mpSettingHTMLFile) {
+                delete mpSettingHTMLFile;
             }
-            if (mpNandFile) {
-                delete mpNandFile;
+            if (mpWWWArchiveFile) {
+                delete mpWWWArchiveFile;
             }
-            if (mpStringFile) {
-                delete mpStringFile;
+            if (mpFontFile) {
+                delete mpFontFile;
             }
-            if (mpMessageFile) {
-                delete mpMessageFile;
+            if (mpBackgroundTPLFile) {
+                delete mpBackgroundTPLFile;
             }
             System::destroyMem1AppHeap();
             System::getBS2Manager()->restart();
@@ -120,6 +126,70 @@ namespace ipl {
         void Setting::destroy() {
             delete mpAOSSThread;
             delete mpRakuRakuThread;
+        }
+
+        void Setting::prepare() {
+            bs2::Manager* bs2Manager = System::getBS2Manager();
+            bs2Manager->abort();
+            while (bs2Manager->getIPLState() != 8) {
+                bs2Manager->update();
+                VIWaitForRetrace();
+            }
+
+            System::getUsbEtherMacAddr();
+            mPrepareTick = OSGetTick();
+            mpWWWLibraryFile = System::getNandManager()->readSharedAsync(
+                System::createMem1AppHeap(), "wwwlib-rvl.lz7", 2, 0, 0, 1, 2);
+
+            char fontName[32];
+            char htmlPath[64];
+            char productArea = SCGetProductArea();
+            if (productArea < 6) {
+                if (productArea != 4) {
+                    if (productArea > 3) {
+                        snprintf(fontName, sizeof(fontName), "WiiNTLG-Regular.ttc");
+                        snprintf(htmlPath, sizeof(htmlPath), "/html/%s/iplsetting.ash", "EU/EU");
+                        goto loadFiles;
+                    }
+                    if (productArea >= 0) {
+                        snprintf(fontName, sizeof(fontName), "WiiNTLG-Regular.ttc");
+                        snprintf(htmlPath, sizeof(htmlPath), "/html/%s/iplsetting.ash", "FIX/US");
+                        goto loadFiles;
+                    }
+                }
+            } else if (productArea == 6) {
+                snprintf(fontName, sizeof(fontName), "Wii-kr_Round Gothic B.ttf");
+                snprintf(htmlPath, sizeof(htmlPath), "/html/%s/iplsetting.ash", "FIX/US");
+                goto loadFiles;
+            } else if (productArea == 11) {
+                snprintf(fontName, sizeof(fontName), "Wii-cn_HeiTiW5.ttf");
+                snprintf(htmlPath, sizeof(htmlPath), "/html/%s/iplsetting.ash", "FIX/US");
+                goto loadFiles;
+            }
+
+            snprintf(fontName, sizeof(fontName), "WiiNTLG-Regular.ttc");
+            snprintf(htmlPath, sizeof(htmlPath), "/html/%s/iplsetting.ash", "FIX/US");
+
+        loadFiles:
+            mpSettingHTMLFile = System::getNandManager()->readAsync(
+                System::createMem1AppHeap(), htmlPath, 0, 0, false);
+            mpWWWArchiveFile = System::getNandManager()->readAsync(
+                System::createMem1AppHeap(), "/www.arc", 0, 0, false);
+            mpFontFile = System::getNandManager()->readSharedAsync(
+                System::createMem1AppHeap(), fontName, 3, 0, 0, 1, 2);
+            mpBackgroundTPLFile = System::getNandManager()->readAsync(
+                System::createMem1AppHeap(), "/html/BG_16x9.tpl", 0, 0, false);
+            mpSettingLayoutFile = System::getNandManager()->readLayoutAsync(getSceneHeap(), "setting.ash", false);
+
+            if (mInitialArgument == 2) {
+                memset(mSettingData, 0, sizeof(mSettingData));
+                mAspectRatio = 0;
+                www::wiisetting::setInitSetupFlag(1);
+            } else if (mInitialArgument == 5) {
+                www::wiisetting::setInitSetupFlag(1);
+            } else {
+                www::wiisetting::setInitSetupFlag(0);
+            }
         }
 
         u16 Setting::getProfileID() {
