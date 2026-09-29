@@ -121,6 +121,7 @@ namespace ipl {
 #ifdef IPL_SDMEMORY_DIALOG_STATE_ACCESSOR
         int getStateForSDMemory() const { return mState; }
         int getResultForSDMemory() const { return mResult; }
+        void setTitleForSDMemory(const wchar_t* text) { set_title(text); }
 #endif
 
         /*=================*/
