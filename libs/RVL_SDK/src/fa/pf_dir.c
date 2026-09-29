@@ -178,7 +178,7 @@ PFDIR_SDD* PFDIR_GetSDD(PF_VOLUME* volume, PF_DIR_ENT* entry) {
     pf_s32 remaining = 3;
 
     for (i = 0; remaining != 0; i++, free_candidate++, remaining--) {
-        if ((volume_dirs->sdds[i].stat & 1) == 0 || (volume_dirs->sdds[i].stat & 2) == 0) {
+        if ((volume_dirs->sdds[i].stat & 1) == 0) {
             if (first_free_sdd == 0) {
                 first_free_sdd = free_candidate;
             }
@@ -810,7 +810,7 @@ pf_s32 PFDIR_p_fsexec_chmod(PF_DTA* data, PF_DIR_ENT* entry, pf_u32 attributes, 
 
 pf_s32 PFDIR_p_fsexec_fopen(PF_DTA* data, PF_DIR_ENT* entry, PF_ENT_ITER* iter, pf_u32 flags,
                             pf_u32 mode) {
-    pf_s8 long_name[40];
+    pf_s8 long_name[13];
     pf_s32 error;
 
     if ((flags & 0x80000000) != 0) {
@@ -818,24 +818,26 @@ pf_s32 PFDIR_p_fsexec_fopen(PF_DTA* data, PF_DIR_ENT* entry, PF_ENT_ITER* iter, 
         entry->ordinal = data->ordinal;
         entry->check_sum = data->check_sum;
         if ((iter->buf[0xC] & 0x18) != 0) {
+            PFPATH_getLongNameformShortName(entry->short_name, long_name, iter->buf[0xC]);
+            PFPATH_transformInUnicode(entry->long_name, long_name);
+        } else {
             error = PFENT_ITER_GetLFNEntryName(iter);
             if (error != 0) {
                 return error;
             }
-        } else {
-            PFPATH_getLongNameformShortName(entry->short_name, long_name, entry->small_letter_flag);
-            PFPATH_transformInUnicode(entry->long_name, long_name);
         }
     }
     error = PFFILE_FsexecOpenFile(entry, iter, mode, data);
-    if (error == 0) {
-        ((PFDIR_VOLUME_DIRS*)data->p_vol)->num_opened_files++;
+    if (error != 0) {
+        return error;
     }
+    error = 0;
+    ((PFDIR_VOLUME_DIRS*)data->p_vol)->num_opened_files++;
     return error;
 }
 
 pf_s32 PFDIR_p_fsexec_opendir(PF_DTA* data, PF_DIR_ENT* entry, PF_ENT_ITER* iter, pf_u32 flags) {
-    pf_s8 long_name[40];
+    pf_s8 long_name[13];
     pf_s32 error;
 
     if ((flags & 0x80000000) != 0) {
@@ -843,19 +845,21 @@ pf_s32 PFDIR_p_fsexec_opendir(PF_DTA* data, PF_DIR_ENT* entry, PF_ENT_ITER* iter
         entry->ordinal = data->ordinal;
         entry->check_sum = data->check_sum;
         if ((iter->buf[0xC] & 0x18) != 0) {
+            PFPATH_getLongNameformShortName(entry->short_name, long_name, iter->buf[0xC]);
+            PFPATH_transformInUnicode(entry->long_name, long_name);
+        } else {
             error = PFENT_ITER_GetLFNEntryName(iter);
             if (error != 0) {
                 return error;
             }
-        } else {
-            PFPATH_getLongNameformShortName(entry->short_name, long_name, entry->small_letter_flag);
-            PFPATH_transformInUnicode(entry->long_name, long_name);
         }
     }
     error = PFDIR_DoFsexecOpenDir(entry, iter, (PFDIR_DIR**)&data->p_dir);
-    if (error == 0) {
-        ((PFDIR_VOLUME_DIRS*)data->p_vol)->num_opened_directories++;
+    if (error != 0) {
+        return error;
     }
+    error = 0;
+    ((PFDIR_VOLUME_DIRS*)data->p_vol)->num_opened_directories++;
     return error;
 }
 
@@ -875,12 +879,10 @@ pf_s32 PFDIR_p_fsexec(PF_DTA* data, pf_u32 flags, pf_u32 mode) {
     if ((flags & 0x26) == 0 && (flags & 1) == 0) {
         return 10;
     }
-    if ((flags & 0x26) != 0 || (flags & 1) != 0 || (flags & 0x10) != 0 || (flags & 0x20) != 0) {
-        if ((flags & 0x26) != 0 || (flags & 1) != 0 || ((flags & 0x10) != 0 && mode != 2)) {
-            error = PFVOL_CheckForWrite(data->p_vol);
-            if (error != 0) {
-                return error;
-            }
+    if ((flags & 0x26) != 0 || (flags & 1) != 0 || ((flags & 0x10) != 0 && mode != 2)) {
+        error = PFVOL_CheckForWrite(data->p_vol);
+        if (error != 0) {
+            return error;
         }
     }
     start_position = data->parent_pos - 1;
