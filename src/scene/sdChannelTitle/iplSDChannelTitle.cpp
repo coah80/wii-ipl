@@ -64,7 +64,7 @@ namespace ipl {
         extern "C" char lbl_81654FE2[] = "G_OutBtn";
         // clang-format on
 
-        static const char* scSDAnimGroups[] = {
+        static const char* scAnimGroups[] = {
             lbl_81654F98, lbl_81654FA4, lbl_81654FB0, lbl_81654FBD,
             lbl_81654FCA, lbl_81654FD6, lbl_81654FE2,
         };
@@ -78,7 +78,7 @@ namespace ipl {
         extern "C" char lbl_816550CD[] = "mn_SdcardMenuBanner_bc_OutBtn.brlan";
         // clang-format on
 
-        static const char* scSDAnimNames[] = {
+        static const char* scAnimNames[] = {
             lbl_81655008, lbl_81655033, lbl_8165505C,
             lbl_81655086, lbl_816550AA, lbl_816550CD,
         };
@@ -89,11 +89,11 @@ namespace ipl {
         extern "C" char lbl_8165512C[] = "banner_Loop.brlan";
         // clang-format on
 
-        static const char* scSDBannerAnims[] = {
+        static const char* scBannerAnims[] = {
             lbl_8165510C, lbl_81655119, lbl_8165512C,
         };
 
-        static const char* scSDWidePanes[][4] = {
+        static const char* scWidePanes[][4] = {
             {"Fre_a", "Fre_d", "Fre_i", "Fre_l"},
             {"Fre_e", "Fre_f", "Fre_g", "Fre_h"},
             {"Fre_b", "Fre_c", "Fre_j", "Fre_k"},
@@ -209,7 +209,7 @@ namespace ipl {
 
                 for (i = 0; i < 3; i++) {
                     for (j = 0; j < 4; j++) {
-                        mpLayout->FindPaneByName(scSDWidePanes[i][j])->GetMaterial()->SetTexture(0, texObj[i]);
+                        mpLayout->FindPaneByName(scWidePanes[i][j])->GetMaterial()->SetTexture(0, texObj[i]);
                     }
                 }
             }
@@ -219,17 +219,17 @@ namespace ipl {
 
             mGuiState = 1;
 
-            mFocusAnims[0].off = mpLayout->bindToGroup(scSDAnimNames[0], scSDAnimGroups[0], false, false);
-            mFocusAnims[0].on = mpLayout->bindToGroup(scSDAnimNames[1], scSDAnimGroups[0], false, true);
-            mFocusAnims[1].off = mpLayout->bindToGroup(scSDAnimNames[0], scSDAnimGroups[1], false, false);
-            mFocusAnims[1].on = mpLayout->bindToGroup(scSDAnimNames[1], scSDAnimGroups[1], false, true);
-            mpSelectAnimA = mpLayout->bindToGroup(scSDAnimNames[2], scSDAnimGroups[2], false, false);
-            mpSelectAnimB = mpLayout->bindToGroup(scSDAnimNames[2], scSDAnimGroups[3], false, false);
-            mpOffAnimA = mpLayout->bindToGroup(scSDAnimNames[3], scSDAnimGroups[4], false, false);
-            mpOffAnimB = mpLayout->bindToGroup(scSDAnimNames[3], scSDAnimGroups[5], false, false);
-            mpOnAnimA = mpLayout->bindToGroup(scSDAnimNames[4], scSDAnimGroups[4], false, false);
-            mpOnAnimB = mpLayout->bindToGroup(scSDAnimNames[4], scSDAnimGroups[5], false, false);
-            mpOutAnim = mpLayout->bindToGroup(scSDAnimNames[5], scSDAnimGroups[6], false, false);
+            mFocusAnims[0].off = mpLayout->bindToGroup(scAnimNames[0], scAnimGroups[0], false, false);
+            mFocusAnims[0].on = mpLayout->bindToGroup(scAnimNames[1], scAnimGroups[0], false, true);
+            mFocusAnims[1].off = mpLayout->bindToGroup(scAnimNames[0], scAnimGroups[1], false, false);
+            mFocusAnims[1].on = mpLayout->bindToGroup(scAnimNames[1], scAnimGroups[1], false, true);
+            mpSelectAnimA = mpLayout->bindToGroup(scAnimNames[2], scAnimGroups[2], false, false);
+            mpSelectAnimB = mpLayout->bindToGroup(scAnimNames[2], scAnimGroups[3], false, false);
+            mpOffAnimA = mpLayout->bindToGroup(scAnimNames[3], scAnimGroups[4], false, false);
+            mpOffAnimB = mpLayout->bindToGroup(scAnimNames[3], scAnimGroups[5], false, false);
+            mpOnAnimA = mpLayout->bindToGroup(scAnimNames[4], scAnimGroups[4], false, false);
+            mpOnAnimB = mpLayout->bindToGroup(scAnimNames[4], scAnimGroups[5], false, false);
+            mpOutAnim = mpLayout->bindToGroup(scAnimNames[5], scAnimGroups[6], false, false);
 
             mpLayout->finishBinding();
 
@@ -1469,18 +1469,18 @@ namespace ipl {
 
         void SDChannelTitle::bindBannerAnims() {
             for (int i = 0; i < 3; i++) {
-                if (mpBannerLayout->searchFile(scSDBannerAnims[i]) != NULL) {
+                if (mpBannerLayout->searchFile(scBannerAnims[i]) != NULL) {
                     if (i == 0) {
-                        mpBannerAnims[i] = mpBannerLayout->bind(scSDBannerAnims[i], true);
+                        mpBannerAnims[i] = mpBannerLayout->bind(scBannerAnims[i], true);
                         mpBannerAnims[i]->setAnmType(ANIM_TYPE_LOOP);
                     } else if (i == 1) {
-                        mpBannerAnims[i] = mpBannerLayout->bind(scSDBannerAnims[i], true);
+                        mpBannerAnims[i] = mpBannerLayout->bind(scBannerAnims[i], true);
                         mpBannerAnims[i]->setAnmType(ANIM_TYPE_FORWARD);
                     } else {
                         if (mpBannerAnims[1] == NULL) {
-                            mpBannerAnims[i] = mpBannerLayout->bind(scSDBannerAnims[i], true);
+                            mpBannerAnims[i] = mpBannerLayout->bind(scBannerAnims[i], true);
                         } else {
-                            mpBannerAnims[i] = mpBannerLayout->bind(scSDBannerAnims[i], false);
+                            mpBannerAnims[i] = mpBannerLayout->bind(scBannerAnims[i], false);
                         }
                         mpBannerAnims[i]->setAnmType(ANIM_TYPE_LOOP);
                     }
