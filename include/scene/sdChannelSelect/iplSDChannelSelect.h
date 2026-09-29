@@ -134,6 +134,9 @@ namespace ipl {
             void drawChannelObjects();
             bool isChannelInCalc(int page, int index, int currentPage) const;
             nw4r::lyt::Pane* getChannelBasePane(int page, int index, int currentPage) const;
+            nw4r::lyt::Pane* getCenterChannelPane(int index) const;
+            nw4r::lyt::Pane* getChannelPane(int index) const;
+            static math::VEC3 getChannelPanePosition(SDChannelSelect* scene, int index);
             void updateArrowVisibility();
             void processWorkerState();
             void updateDialogAnimation();

@@ -1329,6 +1329,20 @@ namespace ipl {
             return mpLayout->FindPaneByName("Picture_16");
         }
 
+        nw4r::lyt::Pane* SDChannelSelect::getCenterChannelPane(int index) const {
+            return mpLayout->FindPaneByName(mscChannelPaneNames[2][index]);
+        }
+
+        nw4r::lyt::Pane* SDChannelSelect::getChannelPane(int index) const {
+            return mpLayout->FindPaneByName(mscChannelPaneNames[2][index]);
+        }
+
+        math::VEC3 SDChannelSelect::getChannelPanePosition(SDChannelSelect* scene, int index) {
+            math::VEC3 position(0.0f, 0.0f, 0.0f);
+            MTXMultVec(scene->getCenterChannelPane(index)->GetGlobalMtx(), position, position);
+            return position;
+        }
+
         void SDChannelSelect::startResetting() {
             snd::getSystem()->resetAllSound();
             clearCommandQueue();
