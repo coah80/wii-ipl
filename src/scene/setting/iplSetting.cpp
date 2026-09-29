@@ -2631,38 +2631,44 @@ namespace ipl {
                 case 5:
                     mpPaneManager->init();
                     break;
-                case 6:
+                case 6: {
                     unk_0xB9C = 1;
                     if (!mpMainLayout->getAnim(unk_0x918)->isPlaying()) {
                         unk_0x78 = 5;
                         setAPDraw();
-                        mpMainLayout->getAnim(unk_0x91C[0] == 0 ? 0xb : 0xa)->initAnmFrame();
+                        if (unk_0x91C[0] != 0) {
+                            mpMainLayout->getAnim(0xa)->initAnmFrame();
+                        } else {
+                            mpMainLayout->getAnim(0xb)->initAnmFrame();
+                        }
                         if (unk_0x914 == 0) {
-                            mpMainLayout->FindPaneByName(sSettingAPNumberNames[0])->SetVisible(false);
+                            mpMainLayout->FindPaneByName("N_AP1")->SetVisible(false);
                         } else if (unk_0x914 == 1) {
-                            mpMainLayout->FindPaneByName(sSettingAPNumberNames[0])->SetVisible(true);
+                            mpMainLayout->FindPaneByName("N_AP1")->SetVisible(true);
                         }
                         if (mAPScanList.count == unk_0x914 + 4) {
-                            mpMainLayout->FindPaneByName(sSettingAPTextNames[1])->SetVisible(false);
+                            mpMainLayout->FindPaneByName("N_AP6")->SetVisible(false);
                         } else if (mAPScanList.count == unk_0x914 + 5) {
-                            mpMainLayout->FindPaneByName(sSettingAPTextNames[1])->SetVisible(true);
+                            mpMainLayout->FindPaneByName("N_AP6")->SetVisible(true);
                         }
-                        mpMainLayout->FindPaneByName(sSettingAPTextNames[0])->SetVisible(true);
-                        mpMainLayout->FindPaneByName(sSettingAPTextNames[1])->SetVisible(true);
+                        mpMainLayout->FindPaneByName("N_AP0")->SetVisible(true);
+                        mpMainLayout->FindPaneByName("N_AP7")->SetVisible(true);
                     }
                     break;
-                case 7:
+                }
+                case 7: {
                     unk_0xB9C = 1;
                     if (!mpMainLayout->getAnim(unk_0x918)->isPlaying()) {
                         updateScroll();
                         unk_0x78 = 6;
                     }
                     break;
+                }
                 case 8:
                     resetAP();
                     unk_0x91C[2] = 0;
                     break;
-                case 9:
+                case 9: {
                     if (!mpMainLayout->getAnim(unk_0x918)->isPlaying()) {
                         resetFuncMsgQ();
                         unk_0x78 = 1;
@@ -2672,6 +2678,7 @@ namespace ipl {
                         mpMainLayout->calc();
                     }
                     break;
+                }
             }
         }
 
