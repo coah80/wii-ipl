@@ -32,9 +32,6 @@ namespace ipl {
 
             virtual void onEvent(u32 componentID, u32 event, void* data);
 
-            void setEventType(u8 eventType) { reinterpret_cast<u8&>(mpManager) = eventType; }
-            u8 getEventType() const { return reinterpret_cast<const u8&>(mpManager); }
-
         private:
             Setting* mpSetting;
         };
@@ -168,7 +165,7 @@ namespace ipl {
             u8 unk_0x91C[4];
             ext_ead::www::ImeData* mpBrowserData;
             www::wiisetting::WiiData* mpWiiSettingData;
-            APEvent* mpAPEvent;
+            www::wiisetting::WiiFlag* mpWiiSettingFlag;
             u8 unk_0x92C;
             u8 unk_0x92D[3];
             int unk_0x930;

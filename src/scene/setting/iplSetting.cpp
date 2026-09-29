@@ -144,12 +144,12 @@ namespace ipl {
             OSMessage message = 0;
             if (mFuncMsgPending == 0 && OSReceiveMessage(&mFuncMessageQueue, &message, 0)) {
                 mFuncMsgPending = 1;
-                mpAPEvent->setEventType((u8)message);
+                mpWiiSettingFlag->smthMsgData = (u8)message;
             }
         }
 
         void Setting::resetFuncMsgQ() {
-            mpAPEvent->setEventType(0);
+            mpWiiSettingFlag->smthMsgData = 0;
             mFuncMsgPending = 0;
         }
 
@@ -323,7 +323,6 @@ namespace ipl {
             memset(mpBrowserStringBuffer, 0, 0x79);
 
             mpEventHandler = new APEvent(this);
-            mpAPEvent = mpEventHandler;
             mpPaneManager = new gui::PaneManager(mpEventHandler, mpMainLayout->getDrawInfo(), getSceneHeap(), NULL, false);
             mpPaneManager->setupScene(mpMainLayout);
             mpPaneManager->setAllBoundingBoxComponentTriggerTarget(false);
@@ -745,7 +744,7 @@ namespace ipl {
                         unk_0x74 = 0;
                         unk_0x91C[3] = 0;
                         resetFuncMsgQ();
-                        if (mpAPEvent->getEventType() != 'O') {
+                        if (mpWiiSettingFlag->smthMsgData != 'O') {
                             unk_0xB9C = 1;
                         }
                     }
@@ -768,7 +767,7 @@ namespace ipl {
             case 6:
                 if (System::getScene(0x1b) == NULL) {
                     unk_0x91C[3] = 0;
-                    if (mpAPEvent->getEventType() == 'O') {
+                    if (mpWiiSettingFlag->smthMsgData == 'O') {
                         if (!ncd::NCDSetting::getEnableFlag()) {
                             System::getDialog()->callBtn2(System::getRegion() == 2 ? 0x174 : 0x170,
                                                           0x146, 0x25);
@@ -817,7 +816,7 @@ namespace ipl {
                 break;
             case 9:
                 if (System::getDialog()->getLastResult() == 1) {
-                    if (mpAPEvent->getEventType() == 'O') {
+                    if (mpWiiSettingFlag->smthMsgData == 'O') {
                         www::wiisetting::setFuncResult(5);
                         resetFuncMsgQ();
                     } else {
@@ -825,7 +824,7 @@ namespace ipl {
                     }
                     unk_0x74 = 0;
                 } else if (System::getDialog()->getLastResult() == 2) {
-                    if (mpAPEvent->getEventType() == 'O') {
+                    if (mpWiiSettingFlag->smthMsgData == 'O') {
                         if (unk_0xB9C == 0) {
                             www::wiisetting::setFuncResult(2);
                         } else if (www::wiisetting::getFuncResult() == 0) {
@@ -861,7 +860,7 @@ namespace ipl {
             case 0xb:
                 if (System::getDialog()->getLastResult() >= 0) {
                     mProfileIDMode = 10;
-                    mpAPEvent->setEventType(0x54);
+                    mpWiiSettingFlag->smthMsgData = 0x54;
                     unk_0x74 = 0;
                 }
                 break;
@@ -894,7 +893,7 @@ namespace ipl {
                 break;
             case 0xe:
                 if (System::getDialog()->getLastResult() == 1) {
-                    mpAPEvent->setEventType(0x55);
+                    mpWiiSettingFlag->smthMsgData = 0x55;
                     unk_0x74 = 0;
                 } else if (System::getDialog()->getLastResult() == 2) {
                     if (unk_0xB9C == 0) {
@@ -947,7 +946,7 @@ namespace ipl {
                 calcSetting();
             }
 
-            switch (mpAPEvent->getEventType()) {
+            switch (mpWiiSettingFlag->smthMsgData) {
             case 1:
                 resetFuncMsgQ();
                 waitStart();
@@ -956,7 +955,7 @@ namespace ipl {
             case 4:
                 resetAP();
                 initAP();
-                mpAPEvent->setEventType(2);
+                mpWiiSettingFlag->smthMsgData = 2;
             case 2:
             case 3:
                 scanAP();
@@ -1010,24 +1009,25 @@ namespace ipl {
                 if (action == 0x1d || calcSafeMode()) {
                     if (!parental::Parental::checkFlags()) {
                         www::wiisetting::setFuncResult(1);
-                        if (mpAPEvent->getEventType() == 'N') {
+                        if (mpWiiSettingFlag->smthMsgData == 'N') {
                             unk_0x74 = 6;
                         }
                     } else {
                         createChildScene(0x1b, this, NULL, reinterpret_cast<void*>(1));
                         unk_0x74 = 5;
                     }
-                    if (mpAPEvent->getEventType() == 0x1d || mpAPEvent->getEventType() == 'M') {
+                    if (mpWiiSettingFlag->smthMsgData == 0x1d ||
+                        mpWiiSettingFlag->smthMsgData == 'M') {
                         resetFuncMsgQ();
                     } else {
-                        mpAPEvent->setEventType('O');
+                        mpWiiSettingFlag->smthMsgData = 'O';
                     }
                 }
                 break;
             case 0x1e:
                 memset(mpMem2BrowserBuffer, 0, 0x800);
                 memset(mpBrowserStringBuffer, 0, 0x79);
-                mpAPEvent->setEventType(0x23);
+                mpWiiSettingFlag->smthMsgData = 0x23;
             case '#':
                 setUSBAP();
                 break;
@@ -1119,7 +1119,7 @@ namespace ipl {
                 break;
             case 'Y':
                 mProfileIDMode = 2;
-                mpAPEvent->setEventType(0x54);
+                mpWiiSettingFlag->smthMsgData = 0x54;
                 break;
             case '[':
                 if (System::getHomeButtonMenu()->disable()) {
@@ -1249,6 +1249,17 @@ namespace ipl {
             }
 
             return FADER_SCN_CONTINUE;
+        }
+
+        void Setting::initWiiSettingData() {
+            mpWiiSettingData = www::wiisetting::getWiiSettingData();
+            mpWiiSettingFlag = www::wiisetting::getWiiSettingFlag();
+            mpWiiSettingData->data[0x3c] = parental::Parental::getCountry();
+            mpWiiSettingData->data[7] = 0x20 - (SCGetDisplayOffsetH() + 0x10);
+            mpWiiSettingData->data[0xb] = SCGetBtDpdSensibility();
+            mpWiiSettingData->data[6] = SCGetAspectRatio();
+            mpWiiSettingData->data[0x30] = SCGetLanguage();
+            mpWiiSettingData->data[0x2d] = parental::Parental::checkRating();
         }
 
         u16 Setting::getProfileID() {
