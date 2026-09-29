@@ -13,9 +13,6 @@ namespace textinput {
             virtual ~KeyboardBase() {}
             virtual void create(MEMAllocator* alloc) override;
             virtual void init() override;
-            virtual void setCommandReceiver(CommandReceiver* receiver) override;
-            virtual void sendCommand(u32 command, void*) override;
-            virtual void updateFromReceiver(u32, void*) override;
             virtual void onKey(u32, void*);
             virtual int getType();
             virtual void setLanguage(Language language);

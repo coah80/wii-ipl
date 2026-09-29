@@ -19,15 +19,9 @@ namespace textinput {
                 virtual ~Base() {}
                 virtual void create(MEMAllocator* allocator) override;
                 virtual void init() override;
-                virtual void setCommandReceiver(CommandReceiver* receiver) override;
-                virtual void sendCommand(u32 command, void* data) override;
-                virtual void updateFromReceiver(u32, void*) override;
                 virtual void onKey(u32, void*);
                 virtual int getType();
                 virtual void setLanguage(Language language) override;
-                virtual Language getLanguage() const override;
-                virtual void update() override;
-                virtual void onActive() override;
                 virtual bool isLocked();  // 0x38
                 virtual void setPage(u8 page);            // 0x3C
                 virtual u8 getPage();                     // 0x40
@@ -56,6 +50,10 @@ namespace textinput {
                 virtual ~LayoutByNW4R();
                 virtual void create(MEMAllocator* allocator) override;
                 virtual void init() override;
+                virtual void onKey(u32, void*) override;
+                virtual void movePrevSignPage() override;          // 0x44
+                virtual void moveNextSignPage() override;          // 0x48
+                virtual void close() override;                     // 0x4C
 
                 virtual void draw();                                                          // 0xD4
                 virtual void open(KeyboardBase* keyboard, bool flag);                         // 0xD8
