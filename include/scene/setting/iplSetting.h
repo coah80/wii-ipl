@@ -12,6 +12,9 @@
 #include "system/iplKeyboard.h"
 #include "system/iplNand.h"
 #include "utility/iplThread.h"
+extern "C" {
+#include <revolution/wd.h>
+}
 #endif
 
 namespace ipl {
@@ -39,6 +42,12 @@ namespace ipl {
         struct SettingAnimation {
             u8 unknown[0x14];
             int state;
+        };
+
+        struct SettingAPScanList {
+            u8 unknown[0x14];
+            u16 count;
+            u8 entries[0x802];
         };
 #endif
 
@@ -73,7 +82,7 @@ namespace ipl {
             void initHTMLText();
             void initMessage();
             void initKeyboard(const char* text);
-            int checkInputString(const wchar_t* text);
+            bool checkInputString(const wchar_t* text);
             int checkIPString(const wchar_t* text);
             void setDefaultBackString();
             void calcKeyboard();
@@ -95,10 +104,31 @@ namespace ipl {
             void setReSecA();
             void setMasterKey();
             void adjustSecA(wchar_t* text);
-            char checkTextNum(const char* text);
+            void reAdjustSecA();
+            u8 checkTextNum(const char* text);
             bool checkSpace();
             void convertIP(char* destination, const u8* address);
             void convertRevIP(u8* destination, const char* address);
+            void initScroll();
+            void updateScroll();
+            void setAPDraw();
+            int getRadioLevel(const WDBssDesc_* descriptor);
+            void setUseEULA_Init_();
+            void setUseEULA_Cancel_();
+            void setUseEULA_Start_();
+            void setUseEULA_WaitStopMotor_();
+            bool validateEULA_();
+            void setUpdate_Init_();
+            void setUpdate_WaitAcceptDialog_();
+            void setUpdate_ConnectTestStart_();
+            void setUpdate_ConnectTestCreateWait_();
+            void setUpdate_ConnectTestRun_();
+            void setUpdate_ConnectTestFailed_();
+            void setUpdate_SuccessDialog_();
+            void setUpdate_NoUpdateDialog_();
+            void setUpdate_EULAInit_();
+            void setUpdate_Reboot_();
+            void makeErrorMessage();
             bool calcSafeMode();
             void waitStart();
             void waitFinish();
@@ -179,7 +209,7 @@ namespace ipl {
             utility::ut_thread* mpAOSSThread;
             utility::ut_thread* mpRakuRakuThread;
             APScanThread* mpAPScanThread;
-            u8 unk_0xEC[0x818];
+            SettingAPScanList mAPScanList;
             void* mpMem1BrowserBuffer;
             u32 unk_0x908;
             void* mpMem2BrowserBuffer;

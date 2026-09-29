@@ -15,6 +15,7 @@
 #include "iplwww/www_trasition.h"
 
 #include <cstdio>
+#include <cstdlib>
 #include <cstring>
 #include <new>
 #include <revolution/sc.h>
@@ -23,6 +24,8 @@
 #include <revolution/wpad.h>
 #include <private/os/OSExec.h>
 #include <private/os/OSSram.h>
+
+extern "C" void __VISetAdjustingValues(s32 horizontal, s32 vertical);
 
 namespace ipl {
     class SensitivityDrawing {
@@ -49,6 +52,17 @@ namespace ipl {
         class APScanThread {
         public:
             APScanThread();
+            void setResultData(unsigned short* buffer);
+            virtual ~APScanThread();
+            virtual void* Run();
+            virtual void Create(void* stack, u32 stackSize, int priority, bool startThread);
+            virtual void Resume();
+            virtual void Suspend();
+            virtual BOOL WaitForThreadExit();
+            virtual bool IsThreadTerminated();
+            virtual bool IsThreadSuspended();
+            virtual bool SetThreadPriority(int priority);
+            virtual void unk_0x2C();
         };
 
         class USBAPThread {
@@ -1762,9 +1776,9 @@ namespace ipl {
         }
 
         void Setting::initNickName() {
-            BOOL hasNickname = SCGetOwnerNickName(reinterpret_cast<SCOwnerNickname*>(mSettingData));
-            OSReport("SCGetOwnerNickName:%d\n", hasNickname);
-            if (hasNickname) {
+            bool nicknameExists = SCGetOwnerNickName(reinterpret_cast<SCOwnerNickname*>(mSettingData)) != 0;
+            OSReport("SCGetOwnerNickName:%d\n", nicknameExists);
+            if (nicknameExists) {
                 SCOwnerNickname* ownerNickname = reinterpret_cast<SCOwnerNickname*>(mSettingData);
                 memcpy(unk_0x938, ownerNickname->name, ownerNickname->length * sizeof(wchar_t));
             }
@@ -1854,44 +1868,695 @@ namespace ipl {
                                                 sizeof(mpStringBuffer->parentalSecA));
         }
 
-        u16 Setting::getProfileID() {
-            u16 profileID;
-            if (mProfileIDMode >= 3) {
-                profileID = ncd::NCDSetting::getUseProfileID();
-                ncd::NCDSetting::initSetID(profileID & 0xFF);
-                if ((u8)profileID == 3) {
-                    profileID = 0;
-                }
-            } else {
-                profileID = ncd::NCDSetting::getID();
-            }
-            return profileID;
+        void Setting::initVersion() {
+            const char* versionSuffix[12] = {"J", "U", "E", "", "", "J", "K", "", "", "", "", "C"};
+            u32 versionData[24] = {
+                0x00010008, 0x48414B4A, 0x00010008, 0x48414B45, 0x00010008, 0x48414B50,
+                0, 0, 0, 0, 0, 0, 0x00010008, 0x48414B4A, 0x00010008, 0x48414B4B,
+                0, 0, 0, 0, 0, 0, 0x00010008, 0x48414B43,
+            };
+            u32 region = System::getRegion();
+            sprintf(mpStringBuffer->version, "Ver. %d.%d%s", 4, 3, versionSuffix[region]);
+            mUpdateTitleId = *reinterpret_cast<ESTitleId*>(&versionData[region * 2]);
         }
 
-        int Setting::getUpdateTiming() {
-            return mUpdateTiming;
+        void Setting::setDisPos() {
+            int displayPosition = 0x10 - mpWiiSettingData->data[7];
+            __VISetAdjustingValues(static_cast<char>(displayPosition), 0);
+        }
+
+        void Setting::setNickName() {
+            SCOwnerNickname* nickname = reinterpret_cast<SCOwnerNickname*>(mSettingData);
+            nickname->length = wcslen(reinterpret_cast<const wchar_t*>(unk_0x938));
+            if (checkTextNum(mpStringBuffer->nickname) == 3) {
+                memset(nickname, 0, sizeof(*nickname));
+                memcpy(nickname->name, unk_0x938, nickname->length * sizeof(wchar_t));
+                BOOL written = SCSetOwnerNickName(nickname);
+                OSReport("nicknameFlag:1 %d %s\n", written, nickname->name);
+            }
+        }
+
+        void Setting::setSecurityKey() {
+            int keyLength = ncd::NCDSetting::checkWEPKey(mpStringBuffer->securityKey);
+            if (keyLength < 0) {
+                System::getDialog()->callBtn0(0x1be, 0xb4, false);
+                unk_0x74 = 2;
+                www::wiisetting::setFuncResult(4);
+            } else {
+                www::wiisetting::setFuncResult(3);
+                ncd::NCDSetting::setPrivacy(reinterpret_cast<u8*>(mpStringBuffer->securityKey), keyLength);
+                OSReport("securityFlag:1 %s\n", mpStringBuffer->securityKey);
+            }
+        }
+
+        void Setting::setSSID() {
+            u8 ssid[0x61];
+            memset(ssid, 0, sizeof(ssid));
+            utility::CharacterCode::UTF8ToANSI(ssid, mpStringBuffer->ssid);
+            ncd::NCDSetting::setSSID(ssid);
+        }
+
+        void Setting::setIP() {
+            NCDIpProfile ip;
+            memset(&ip, 0, sizeof(ip));
+            convertRevIP(ip.addr, mpStringBuffer->ip.addr);
+            convertRevIP(ip.netmask, mpStringBuffer->ip.netmask);
+            convertRevIP(ip.gateway, mpStringBuffer->ip.gateway);
+            ncd::NCDSetting::setIP(&ip);
+        }
+
+        void Setting::setDNS() {
+            NCDIpProfile ip;
+            memset(&ip, 0, sizeof(ip));
+            convertRevIP(ip.dns1, mpStringBuffer->dns1);
+            convertRevIP(ip.dns2, mpStringBuffer->dns2);
+            ncd::NCDSetting::setDNS(&ip);
+        }
+
+        void Setting::setProxy() {
+            NCDProxyServerProfile proxy;
+            memset(&proxy, 0, sizeof(proxy));
+            wchar_t portText[6];
+            u32 port;
+            memset(portText, 0, sizeof(portText));
+            utility::CharacterCode::UTF8ToUTF16(portText, mpStringBuffer->proxy.port, 6);
+            utility::CharacterCode::UTF16ToU32(&port, portText);
+            proxy.port = port;
+            if (proxy.port == 0) {
+                www::wiisetting::setFuncResult(4);
+                System::getDialog()->callBtn0(0x1be, 0xb4, false);
+                unk_0x74 = 2;
+            } else {
+                int valid = ncd::NCDSetting::checkProxy(mpStringBuffer->proxy.server);
+                if (valid == 0) {
+                    www::wiisetting::setFuncResult(4);
+                    System::getDialog()->callBtn0(0x1be, 0xb4, false);
+                    unk_0x74 = 2;
+                } else {
+                    www::wiisetting::setFuncResult(3);
+                    utility::CharacterCode::UTF8ToANSI(reinterpret_cast<u8*>(proxy.server),
+                                                       mpStringBuffer->proxy.server);
+                    ncd::NCDSetting::setProxy(&proxy);
+                }
+            }
+        }
+
+        void Setting::setBasic() {
+            int validUsername = ncd::NCDSetting::checkProxyBasic(mpStringBuffer->proxyBasic.uname);
+            int validPassword = validUsername == 0
+                                    ? 0
+                                    : ncd::NCDSetting::checkProxyBasic(mpStringBuffer->proxyBasic.pass);
+            if (validPassword == 0) {
+                www::wiisetting::setFuncResult(4);
+                System::getDialog()->callBtn0(0x1be, 0xb4, false);
+                unk_0x74 = 2;
+            } else {
+                NCDProxyServerProfile proxy;
+                memset(&proxy, 0, sizeof(proxy));
+                www::wiisetting::setFuncResult(3);
+                utility::CharacterCode::UTF8ToANSI(reinterpret_cast<u8*>(proxy.username),
+                                                   mpStringBuffer->proxyBasic.uname);
+                utility::CharacterCode::UTF8ToANSI(reinterpret_cast<u8*>(proxy.password),
+                                                   mpStringBuffer->proxyBasic.pass);
+                ncd::NCDSetting::setBasic(&proxy);
+            }
+        }
+
+        void Setting::setMTU() {
+            wchar_t mtuText[6];
+            u32 mtu;
+            memset(mtuText, 0, sizeof(mtuText));
+            utility::CharacterCode::UTF8ToUTF16(mtuText, mpStringBuffer->adjMtu, 6);
+            utility::CharacterCode::UTF16ToU32(&mtu, mtuText);
+            mtu &= 0xffff;
+            if (mtu < 0x240 || mtu > 0x5dc) {
+                mtu = 0;
+            }
+            ncd::NCDSetting::setMTU(mtu);
+            mpWiiSettingData->data[0x36] = 0;
+        }
+
+        void Setting::setParePass() {
+            char password[5];
+            memset(password, 0, 5);
+            utility::CharacterCode::UTF8ToANSI(reinterpret_cast<u8*>(password), mpStringBuffer->parentalPass);
+            if (checkTextNum(password) == 3) {
+                parental::Parental::setPass(password);
+            }
+            memset(mpStringBuffer->parentalPass, 0, 5);
+        }
+
+        void Setting::setPareRePass() {
+            char password[16];
+            u8 result = 2;
+            memset(password, 0, 5);
+            utility::CharacterCode::UTF8ToANSI(reinterpret_cast<u8*>(password), mpStringBuffer->parentalRePass);
+            if (checkTextNum(password) == 3 && parental::Parental::checkPass(password)) {
+                result = 1;
+            }
+            www::wiisetting::setFuncResult(result);
+            memset(mpStringBuffer->parentalRePass, 0, 5);
+        }
+
+        void Setting::setPareJudgePass() {
+            char password[16];
+            u8 result = 2;
+            memset(password, 0, 5);
+            utility::CharacterCode::UTF8ToANSI(reinterpret_cast<u8*>(password), mpStringBuffer->parentalJudgePass);
+            if (checkTextNum(password) == 3 && parental::Parental::judgePass(password)) {
+                result = 1;
+            }
+            www::wiisetting::setFuncResult(result);
+            memset(mpStringBuffer->parentalJudgePass, 0, 5);
+        }
+
+        void Setting::setSecA() {
+            memset(unk_0x938, 0, sizeof(unk_0x938));
+            utility::CharacterCode::UTF8ToUTF16(reinterpret_cast<wchar_t*>(unk_0x938),
+                                                mpStringBuffer->parentalSecA, 0x44);
+            reAdjustSecA();
+            if (checkTextNum(NULL) == 3) {
+                parental::Parental::setSecA(reinterpret_cast<const wchar_t*>(unk_0x938));
+            }
+            memset(unk_0x938, 0, sizeof(unk_0x938));
+        }
+
+        void Setting::setReSecA() {
+            u8 result = 2;
+            memset(unk_0x938, 0, sizeof(unk_0x938));
+            utility::CharacterCode::UTF8ToUTF16(reinterpret_cast<wchar_t*>(unk_0x938),
+                                                mpStringBuffer->parentalReSecA, 0x44);
+            reAdjustSecA();
+            if (checkTextNum(NULL) == 3 && parental::Parental::judgeSecA(reinterpret_cast<const wchar_t*>(unk_0x938))) {
+                result = 1;
+            }
+            www::wiisetting::setFuncResult(result);
+            memset(unk_0x938, 0, sizeof(unk_0x938));
+        }
+
+        void Setting::setMasterKey() {
+            char masterKey[16];
+            u8 result = 2;
+            memset(masterKey, 0, 6);
+            if (checkTextNum(mpStringBuffer->masterKey) == 3) {
+                utility::CharacterCode::UTF8ToANSI(reinterpret_cast<u8*>(masterKey), mpStringBuffer->masterKey);
+                if (parental::Parental::judgeMaster(masterKey)) {
+                    result = 1;
+                }
+                www::wiisetting::setFuncResult(result);
+            }
+            memset(mpStringBuffer->masterKey, 0, 6);
+        }
+
+        u8 Setting::checkTextNum(const char* text) {
+            u8 formId = mpWiiSettingData->data[0x36];
+            u32 message = 0;
+            u8 result = 4;
+            if (formId < 13) {
+                if (formId == 2) {
+                    size_t length = wcslen(reinterpret_cast<const wchar_t*>(unk_0x938));
+                    if (length == 0) {
+                        message = 0x1c0;
+                    } else if (checkSpace()) {
+                        result = 3;
+                    } else {
+                        message = 0x1c1;
+                    }
+                } else if (formId > 9) {
+                    if (strlen(text) == 4) {
+                        result = 3;
+                    }
+                    message = 0x1ba;
+                }
+            } else if (formId == 15) {
+                if (strlen(text) == 5) {
+                    result = 3;
+                }
+                message = 0x1bc;
+            } else if (formId <= 14) {
+                u32 region = System::getRegion();
+                u32 minimum = 6;
+                if (region == 6) {
+                    minimum = 2;
+                } else if (region == 0 || region == 11) {
+                    minimum = 3;
+                }
+                size_t length = wcslen(reinterpret_cast<const wchar_t*>(unk_0x938));
+                if (length < minimum) {
+                    message = 0x1bb;
+                } else if (checkSpace()) {
+                    result = 3;
+                } else {
+                    message = 0x1c1;
+                }
+            }
+            www::wiisetting::setFuncResult(result);
+            if (result == 4) {
+                System::getDialog()->callBtn0(message, 0xb4, false);
+                unk_0x74 = 2;
+            }
+            return result;
+        }
+
+        bool Setting::checkSpace() {
+            const wchar_t* text = reinterpret_cast<const wchar_t*>(unk_0x938);
+            while (*text != 0) {
+                if (*text != L' ' && *text != 0x3000) {
+                    return true;
+                }
+                ++text;
+            }
+            return false;
+        }
+
+        void Setting::convertIP(char* destination, const u8* address) {
+            char ascii[20];
+            sprintf(ascii, "%03d.%03d.%03d.%03d", address[0], address[1], address[2], address[3]);
+            utility::CharacterCode::ANSIToUTF8(destination, reinterpret_cast<const u8*>(ascii));
+        }
+
+        void Setting::convertRevIP(u8* destination, const char* address) {
+            char ascii[20];
+            memset(ascii, 0, sizeof(ascii));
+            utility::CharacterCode::UTF8ToANSI(reinterpret_cast<u8*>(ascii), address);
+            char* component = ascii;
+            u32 count = 0;
+            for (char* current = ascii;; ++current) {
+                if (*current == '.' || *current == 0) {
+                    bool finished = *current == 0;
+                    *current = 0;
+                    u32 value = atoi(component);
+                    if (value > 0xff) {
+                        value = 0xff;
+                    }
+                    destination[count++] = value;
+                    if (finished || count == 4) {
+                        break;
+                    }
+                    component = current + 1;
+                }
+            }
+        }
+
+        void Setting::adjustSecA(wchar_t* text) {
+            bool containsWideCharacter = false;
+            for (u32 i = 0; text[i] != 0; ++i) {
+                if (text[i] > 0x7f) {
+                    containsWideCharacter = true;
+                    break;
+                }
+            }
+            if (containsWideCharacter && wcslen(reinterpret_cast<const wchar_t*>(unk_0x938)) > 0x10) {
+                char secondLine[0x34];
+                memcpy(secondLine, reinterpret_cast<char*>(text) + 0x20, 0x22);
+                memcpy(reinterpret_cast<char*>(text) + 0x22, secondLine, 0x22);
+                text[0x10] = L'\n';
+            }
+        }
+
+        void Setting::reAdjustSecA() {
+            wchar_t* text = reinterpret_cast<wchar_t*>(unk_0x938);
+            bool containsWideCharacter = false;
+            for (u32 i = 0; text[i] != 0; ++i) {
+                if (text[i] > 0x7f) {
+                    containsWideCharacter = true;
+                    break;
+                }
+            }
+            if (containsWideCharacter && wcslen(text) > 0x10) {
+                char secondLine[0x34];
+                memcpy(secondLine, reinterpret_cast<char*>(text) + 0x22, 0x22);
+                memcpy(reinterpret_cast<char*>(text) + 0x20, secondLine, 0x22);
+            }
+        }
+
+        void Setting::setDefaultBackString() {
+            switch (mpWiiSettingData->data[0x11]) {
+                case 1:
+                    reinterpret_cast<textinput::inputform::Base*>(System::getKeyboard()->memoFrm())->setString(System::getMessage(0x15c));
+                    break;
+                case 2:
+                    reinterpret_cast<textinput::inputform::Base*>(System::getKeyboard()->memoFrm())->setString(System::getMessage(0x153));
+                    break;
+                case 3:
+                    reinterpret_cast<textinput::inputform::Base*>(System::getKeyboard()->memoFrm())->setString(System::getMessage(0x152));
+                    break;
+                case 4:
+                    reinterpret_cast<textinput::inputform::Base*>(System::getKeyboard()->memoFrm())->setString(System::getMessage(0x14d));
+                    break;
+                case 5:
+                    reinterpret_cast<textinput::inputform::Base*>(System::getKeyboard()->memoFrm())->setString(System::getMessage(0x150));
+                    break;
+                case 6:
+                    reinterpret_cast<textinput::inputform::Base*>(System::getKeyboard()->memoFrm())->setString(System::getMessage(0x151));
+                    break;
+                case 7:
+                    reinterpret_cast<textinput::inputform::Base*>(System::getKeyboard()->memoFrm())->setString(System::getMessage(0x14e));
+                    break;
+                case 8:
+                    reinterpret_cast<textinput::inputform::Base*>(System::getKeyboard()->memoFrm())->setString(System::getMessage(0x14f));
+                    break;
+                case 10:
+                    reinterpret_cast<textinput::inputform::Base*>(System::getKeyboard()->memoFrm())->setString(System::getMessage(0x154));
+                    break;
+                case 11:
+                    reinterpret_cast<textinput::inputform::Base*>(System::getKeyboard()->memoFrm())->setString(System::getMessage(0x155));
+                    break;
+                case 12:
+                    reinterpret_cast<textinput::inputform::Base*>(System::getKeyboard()->memoFrm())->setString(System::getMessage(0x156));
+                    break;
+                case 13:
+                    reinterpret_cast<textinput::inputform::Base*>(System::getKeyboard()->memoFrm())->setString(System::getMessage(0x157));
+                    break;
+                case 14:
+                    reinterpret_cast<textinput::inputform::Base*>(System::getKeyboard()->memoFrm())->setString(System::getMessage(0x158));
+                    break;
+                case 15:
+                case 16:
+                case 17:
+                    reinterpret_cast<textinput::inputform::Base*>(System::getKeyboard()->memoFrm())->setString(System::getMessage(0x159));
+                    break;
+                case 18:
+                case 19:
+                    reinterpret_cast<textinput::inputform::Base*>(System::getKeyboard()->memoFrm())->setString(System::getMessage(0x15a));
+                    break;
+                case 20:
+                    reinterpret_cast<textinput::inputform::Base*>(System::getKeyboard()->memoFrm())->setString(System::getMessage(0x15b));
+                    break;
+                case 22:
+                    reinterpret_cast<textinput::inputform::Base*>(System::getKeyboard()->memoFrm())->setString(System::getMessage(0x153));
+                    break;
+            }
+        }
+
+        bool Setting::checkInputString(const wchar_t* text) {
+            return *text == 0;
+        }
+
+        int Setting::checkIPString(const wchar_t* text) {
+            wchar_t zeroAddress[16] = L"000.000.000.000";
+            return memcmp(text, zeroAddress, sizeof(zeroAddress)) == 0 || checkInputString(text);
+        }
+
+        bool Setting::calcSafeMode() {
+            if (System::getNwc24Manager() != NULL) {
+                return true;
+            }
+            if (unk_0x94 == 1) {
+                if (System::getDialog()->getLastResult() >= 0) {
+                    unk_0xB9C = 1;
+                    unk_0x74 = 0;
+                    unk_0x94 = 0;
+                }
+            } else if (unk_0x94 == 0) {
+                resetFuncMsgQ();
+                System::getDialog()->callBtn1(0x21, 0x2e);
+                www::wiisetting::setFuncResult(2);
+                unk_0x74 = 0x11;
+                unk_0x94 = 1;
+            }
+            return false;
+        }
+
+        void Setting::initAP() {
+            unk_0x78 = 1;
+            unk_0x914 = 0;
+            unk_0x918 = -1;
+        }
+
+        void Setting::resetAP() {
+            mpChangeLayout->getAnim(0x15)->initFrame();
+            mpChangeLayout->getAnim(0x15)->restart();
+            if (unk_0x914 != 0) {
+                mpChangeLayout->getAnim(2)->initFrame();
+                mpChangeLayout->getAnim(2)->restart();
+            }
+            if (mAPScanList.count != unk_0x914 + 4) {
+                mpChangeLayout->getAnim(3)->initFrame();
+                mpChangeLayout->getAnim(3)->restart();
+            }
+            for (int animation = 0x10; animation < 0x14; ++animation) {
+                mpChangeLayout->getAnim(animation)->initFrame();
+                mpChangeLayout->getAnim(animation)->restart();
+            }
+            initAP();
+            unk_0x918 = 0x15;
+            mpWiiSettingFlag->smthMsgData = 3;
+            unk_0x78 = 9;
+        }
+
+        void Setting::redrawAP() {
+            unk_0x78 = 4;
+            unk_0x914 = 0;
+            unk_0x918 = -1;
+            mpWiiSettingFlag->smthMsgData = 3;
+            mpChangeLayout->getAnim(0x14)->initFrame();
+            for (int animation = 0x10; animation < 0x14; ++animation) {
+                mpChangeLayout->getAnim(animation)->initFrame();
+                mpChangeLayout->getAnim(animation)->restart();
+            }
+            mpChangeLayout->calc();
+            unk_0x91C[2] = 0;
+        }
+
+        void Setting::scanAP() {
+            switch (unk_0x78) {
+                case 1:
+                    memset(&mAPScanList.count, 0, 0x800);
+                    mpAPScanThread->setResultData(reinterpret_cast<unsigned short*>(&mAPScanList.count));
+                    memset(mpMem1BrowserBuffer, 0, 0x1000);
+                    mpAPScanThread->Create(mpMem1BrowserBuffer, 0x1000, 0x12, true);
+                    unk_0x78 = 2;
+                    unk_0x91C[2] = 0;
+                    break;
+                case 2:
+                    if (unk_0x91C[2] == 1) {
+                        waitStart();
+                    }
+                    if (mpAPScanThread->IsThreadTerminated()) {
+                        mpAPScanThread->WaitForThreadExit();
+                        if (mAPScanList.count == 0) {
+                            www::wiisetting::setFuncResult(2);
+                            initAP();
+                            mpChangeLayout->getAnim(0x14)->initAnmFrame();
+                            mpChangeLayout->getAnim(0)->initAnmFrame();
+                            mpChangeLayout->getAnim(1)->initAnmFrame();
+                        } else {
+                            www::wiisetting::setFuncResult(1);
+                            setAPDraw();
+                            unk_0x78 = 3;
+                        }
+                        resetFuncMsgQ();
+                        unk_0xB9C = 0;
+                        waitFinish();
+                    }
+                    break;
+                case 3:
+                    if (mpWiiSettingFlag->smthMsgData == 3) {
+                        unk_0x78 = 4;
+                        unk_0x91C[2] = 0;
+                    }
+                    break;
+                case 4:
+                    initScroll();
+                    setAPDraw();
+                    mpPaneManager->update();
+                    break;
+                case 5:
+                    mpPaneManager->update();
+                    break;
+                case 6:
+                    unk_0xB9C = 1;
+                    if (!mpChangeLayout->getAnim(unk_0x918)->isPlaying()) {
+                        unk_0x78 = 5;
+                        setAPDraw();
+                        mpChangeLayout->getAnim(unk_0x91C[0] == 0 ? 0xb : 0xa)->initAnmFrame();
+                        if (unk_0x914 == 0) {
+                            mpChangeLayout->FindPaneByName(sSettingAPNumberNames[0])->SetVisible(false);
+                        } else if (unk_0x914 == 1) {
+                            mpChangeLayout->FindPaneByName(sSettingAPNumberNames[0])->SetVisible(true);
+                        }
+                        if (mAPScanList.count == unk_0x914 + 4) {
+                            mpChangeLayout->FindPaneByName(sSettingAPNumberNames[1])->SetVisible(false);
+                        } else if (mAPScanList.count == unk_0x914 + 5) {
+                            mpChangeLayout->FindPaneByName(sSettingAPNumberNames[1])->SetVisible(true);
+                        }
+                        mpChangeLayout->FindPaneByName(sSettingAPTextNames[0])->SetVisible(true);
+                        mpChangeLayout->FindPaneByName(sSettingAPTextNames[1])->SetVisible(true);
+                    }
+                    break;
+                case 7:
+                    unk_0xB9C = 1;
+                    if (!mpChangeLayout->getAnim(unk_0x918)->isPlaying()) {
+                        updateScroll();
+                        unk_0x78 = 6;
+                    }
+                    break;
+                case 8:
+                    resetAP();
+                    unk_0x91C[2] = 0;
+                    break;
+                case 9:
+                    if (!mpChangeLayout->getAnim(unk_0x918)->isPlaying()) {
+                        resetFuncMsgQ();
+                        unk_0x78 = 1;
+                        unk_0x918 = -1;
+                        mpPaneManager->update();
+                        mpChangeLayout->getAnim(0x14)->initFrame();
+                        mpChangeLayout->calc();
+                    }
+                    break;
+            }
+        }
+
+        void Setting::initScroll() {
+            if (unk_0x91C[2] == 0) {
+                return;
+            }
+            for (int index = 1; index <= 4; ++index) {
+                mpChangeLayout->FindPaneByName(sSettingAPNumberNames[index])->SetVisible(true);
+            }
+            u16 count = mAPScanList.count;
+            if (count == 2) {
+                mpChangeLayout->FindPaneByName(sSettingAPNumberNames[3])->SetVisible(false);
+            } else if (count < 2) {
+                if (count == 0) {
+                    mpChangeLayout->FindPaneByName(sSettingAPNumberNames[1])->SetVisible(false);
+                }
+                mpChangeLayout->FindPaneByName(sSettingAPNumberNames[2])->SetVisible(false);
+                mpChangeLayout->FindPaneByName(sSettingAPNumberNames[3])->SetVisible(false);
+            }
+            if (count < 4) {
+                for (int index = 4; index < 6; ++index) {
+                    mpChangeLayout->FindPaneByName(sSettingAPNumberNames[index])->SetVisible(false);
+                }
+                mpChangeLayout->FindPaneByName("N_AP7")->SetVisible(false);
+            }
+            mpChangeLayout->getAnim(0x14)->initFrame();
+            mpChangeLayout->getAnim(0x14)->restart();
+            mpChangeLayout->getAnim(0)->initAnmFrame();
+            mpChangeLayout->FindPaneByName(sSettingAPPaneNames[0])->SetVisible(false);
+            mpChangeLayout->FindPaneByName(sSettingAPPaneNames[1])->SetVisible(false);
+            if (count > unk_0x914 + 4) {
+                mpChangeLayout->FindPaneByName(sSettingAPPaneNames[3])->SetVisible(true);
+                mpChangeLayout->getAnim(1)->initFrame();
+                mpChangeLayout->getAnim(1)->restart();
+                for (int index = 1; index < 6; ++index) {
+                    mpChangeLayout->FindPaneByName(sSettingAPNumberNames[index])->SetVisible(true);
+                }
+            } else {
+                mpChangeLayout->FindPaneByName(sSettingAPPaneNames[3])->SetVisible(false);
+                for (int index = count + 1; index < 6; ++index) {
+                    mpChangeLayout->FindPaneByName(sSettingAPNumberNames[index])->SetVisible(false);
+                }
+            }
+            unk_0x78 = 6;
+            unk_0x918 = 0x14;
+            unk_0x91C[2] = 0;
+        }
+
+        void Setting::updateScroll() {
+            if (unk_0x91C[0] == 0) {
+                --unk_0x914;
+                if (unk_0x914 == 0) {
+                    mpChangeLayout->getAnim(2)->initFrame();
+                    mpChangeLayout->getAnim(2)->restart();
+                    mpChangeLayout->FindPaneByName(sSettingAPPaneNames[0])->SetVisible(false);
+                }
+                if (mAPScanList.count == unk_0x914 + 5) {
+                    mpChangeLayout->getAnim(1)->initFrame();
+                    mpChangeLayout->getAnim(1)->restart();
+                    mpChangeLayout->FindPaneByName(sSettingAPPaneNames[1])->SetVisible(true);
+                }
+            } else {
+                int previous = unk_0x914++;
+                if (mAPScanList.count == previous + 5) {
+                    mpChangeLayout->getAnim(3)->initFrame();
+                    mpChangeLayout->getAnim(3)->restart();
+                    mpChangeLayout->FindPaneByName(sSettingAPPaneNames[1])->SetVisible(false);
+                }
+                if (unk_0x914 == 1) {
+                    mpChangeLayout->getAnim(0)->initFrame();
+                    mpChangeLayout->getAnim(0)->restart();
+                    mpChangeLayout->FindPaneByName(sSettingAPPaneNames[0])->SetVisible(true);
+                }
+            }
+            mpChangeLayout->getAnim(10)->stop();
+            mpChangeLayout->getAnim(11)->stop();
+            unk_0x918 = unk_0x91C[0] + 10;
+            mpChangeLayout->getAnim(unk_0x918)->initFrame();
+            mpChangeLayout->getAnim(unk_0x918)->restart();
+        }
+
+        void Setting::setAPDraw() {
+            WDBssDesc_* descriptor = reinterpret_cast<WDBssDesc_*>(mAPScanList.entries);
+            u32 recordOffset = 2;
+            for (u32 index = 0; index <= mAPScanList.count; ++index) {
+                if (recordOffset > 0x800) {
+                    return;
+                }
+                descriptor = reinterpret_cast<WDBssDesc_*>(mAPScanList.entries + recordOffset - 2);
+                mpChangeLayout->getAnim(10)->stop();
+                mpChangeLayout->getAnim(11)->stop();
+                int privacyMode = WDGetPrivacyMode(descriptor);
+                char ssid[0x21];
+                wchar_t displayName[0x21];
+                memcpy(ssid, descriptor->ssid, 0x20);
+                ssid[0x20] = 0;
+                memset(displayName, 0, sizeof(displayName));
+                int row = index + 1 - unk_0x914;
+                if (row >= 0 && row < 6) {
+                    utility::CharacterCode::UTF8ToUTF16(displayName, ssid, 0x21);
+                    nw4r::lyt::TextBox* textBox = static_cast<nw4r::lyt::TextBox*>(
+                        mpChangeLayout->FindPaneByName(sSettingAPTextNames[row]));
+                    textBox->SetString(displayName);
+                    if (privacyMode == 0) {
+                        mpChangeLayout->getAnim(row + 0x2e)->initFrame();
+                        mpChangeLayout->getAnim(row + 0x2e)->restart();
+                        mpChangeLayout->getAnim(row + 0x34)->stop();
+                    } else {
+                        mpChangeLayout->getAnim(row + 0x34)->initFrame();
+                        mpChangeLayout->getAnim(row + 0x34)->restart();
+                        mpChangeLayout->getAnim(row + 0x2e)->stop();
+                    }
+                    for (int animation = row + 0x16; animation <= row + 0x28; animation += 6) {
+                        mpChangeLayout->getAnim(animation)->stop();
+                    }
+                    int signal = getRadioLevel(descriptor);
+                    mpChangeLayout->getAnim(row + signal * 6 + 0x16)->initFrame();
+                    mpChangeLayout->getAnim(row + signal * 6 + 0x16)->restart();
+                }
+                recordOffset += descriptor->length * 2;
+            }
         }
 
         int Setting::get_arw_no(const char* paneName) {
-            int result = -1;
-            for (int index = 0; index < 2; index++) {
+            for (int index = 0; index < 2; ++index) {
                 if (strcmp(sSettingArrowNames[index], paneName) == 0) {
-                    result = index;
-                    break;
+                    return index;
                 }
             }
-            return result;
+            return -1;
         }
 
         int Setting::get_ap_no(const char* buttonName) {
-            int result = -1;
-            for (int index = 0; index < 4; index++) {
+            for (int index = 0; index < 4; ++index) {
                 if (strcmp(sSettingAPButtonNames[index], buttonName) == 0) {
-                    result = index;
-                    break;
+                    return index;
                 }
             }
-            return result;
+            return -1;
+        }
+
+        int Setting::getRadioLevel(const WDBssDesc_* descriptor) {
+            u16 signal = descriptor->rssi & 0xff;
+            if (signal > 0xc3) {
+                return 3;
+            }
+            if (signal > 0xb4) {
+                return 2;
+            }
+            return signal < 0xab ? 0 : 1;
         }
 
         BOOL Setting::isResetAcceptable() const {
