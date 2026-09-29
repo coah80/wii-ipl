@@ -2,6 +2,7 @@
 #include "scene/setting/iplSetting.h"
 
 #include "scene/setting/iplNCDSetting.h"
+#include "system/iplSystem.h"
 
 namespace ipl {
     namespace scene {
@@ -36,10 +37,10 @@ namespace ipl {
 
         Setting::Setting(EGG::Heap* heap, int arg) : FaderSceneBase(heap) {
             unk_0x5C = 0;
-            unk_0x60 = 0;
-            unk_0x64 = 0;
-            unk_0x68 = 0;
-            unk_0x6C = 0;
+            mpBrowserFile = 0;
+            mpLanguageFile = 0;
+            mpNandFile = 0;
+            mpStringFile = 0;
             unk_0xBC = 0;
             unk_0xB3B = 0;
             setSceneParentFlags(3);
@@ -84,6 +85,41 @@ namespace ipl {
         void Setting::resetFuncMsgQ() {
             mpAPEvent->eventType = 0;
             mFuncMsgPending = 0;
+        }
+
+        Setting::~Setting() {
+            OSReport("***Destruct!!\n");
+            if (mem1Buffer_) {
+                System::createMem1AppHeap()->free(mem1Buffer_);
+                mem1Buffer_ = 0;
+            }
+            if (mem2Buffer_) {
+                System::getMem2App()->free(mem2Buffer_);
+                mem2Buffer_ = 0;
+            }
+            if (mpBrowserFile) {
+                delete mpBrowserFile;
+            }
+            if (mpLanguageFile) {
+                delete mpLanguageFile;
+            }
+            if (mpNandFile) {
+                delete mpNandFile;
+            }
+            if (mpStringFile) {
+                delete mpStringFile;
+            }
+            if (mpMessageFile) {
+                delete mpMessageFile;
+            }
+            System::destroyMem1AppHeap();
+            System::getBS2Manager()->restart();
+            OSReport(" ... bs2 manager restarted\n");
+        }
+
+        void Setting::destroy() {
+            delete mpAOSSThread;
+            delete mpRakuRakuThread;
         }
 
         u16 Setting::getProfileID() {

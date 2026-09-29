@@ -5,6 +5,8 @@
 
 #ifdef IPL_SETTING_IMPLEMENTATION
 #include <revolution/os.h>
+#include "system/iplNand.h"
+#include "utility/iplThread.h"
 #endif
 
 namespace ipl {
@@ -64,11 +66,11 @@ namespace ipl {
             int mUpdateTiming;
             u8 unk_0x5C;
             u8 unk_0x5D[3];
-            int unk_0x60;
-            int unk_0x64;
-            int unk_0x68;
-            int unk_0x6C;
-            u8 unk_0x70[4];
+            nand::Base* mpBrowserFile;
+            nand::Base* mpLanguageFile;
+            nand::Base* mpNandFile;
+            nand::Base* mpStringFile;
+            nand::Base* mpMessageFile;
             int unk_0x74;
             int unk_0x78;
             int unk_0x7C;
@@ -83,8 +85,8 @@ namespace ipl {
             SettingAnimation* mpFirstAnimation;
             SettingAnimation* mpSecondAnimation;
             u8 unk_0xD4[0xC];
-            void* mpResource1;
-            void* mpResource2;
+            utility::ut_thread* mpAOSSThread;
+            utility::ut_thread* mpRakuRakuThread;
             u8 unk_0xE8[0x82C];
             int unk_0x914;
             int unk_0x918;
