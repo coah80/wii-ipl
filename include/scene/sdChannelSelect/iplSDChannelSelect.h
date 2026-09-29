@@ -10,6 +10,14 @@
 
 namespace ipl {
     namespace scene {
+#ifdef IPL_SD_CHANNEL_SELECT_CPP
+        class SDChannelSelect;
+        namespace {
+            class SDChannelSelectEventHandler;
+            class SDChannelSelectButtonEventHandler;
+        }
+#endif
+
         class SDChannelObj {
         public:
             SDChannelObj(EGG::Heap* heap, int page, int index);
@@ -18,6 +26,7 @@ namespace ipl {
             EGG::Heap* getHeap() const { return mpHeap; }
             int getPage() const { return mPage; }
             int getIndex() const { return mIndex; }
+            nw4r::math::VEC3& getTranslate() const;
 
         private:
             friend class SDChannelSelect;
@@ -60,10 +69,16 @@ namespace ipl {
         extern "C" void iplSDChannelObj_813E311C(SDChannelObj* channel, EGG::ExpHeap* firstHeap,
                                                   EGG::ExpHeap* secondHeap);
         extern "C" void iplSDChannelObj_813E322C(SDChannelObj* channel);
+        extern "C" void iplSDChannelObj_813E32C8(SDChannelObj* channel);
+        extern "C" void iplSDChannelObj_813E34E0(SDChannelObj* channel);
         extern "C" void iplSDChannelObj_813E3178(SDChannelObj* channel, nw4r::lyt::Pane* pane);
         extern "C" void iplSDChannelObj_813E3180(SDChannelObj* channel, nand::LayoutFile* layoutFile);
         extern "C" void iplSDChannelObj_813E3304(SDChannelObj* channel);
         extern "C" void iplSDChannelObj_813E330C(SDChannelObj* channel);
+        extern "C" void iplSDChannelObj_813E3354(SDChannelObj* channel, int state);
+        extern "C" void iplSDChannelObj_813E33EC(SDChannelObj* channel, int state);
+        extern "C" void iplSDChannelObj_813E3480(SDChannelObj* channel, bool selected);
+        extern "C" void iplSDChannelObj_813E34E8(SDChannelObj* channel, int enabled);
         extern "C" void* iplSDChannelObj_813E3128(SDChannelObj* channel);
         extern "C" bool iplSDChannelObj_813E3330(SDChannelObj* channel);
 
@@ -142,6 +157,14 @@ namespace ipl {
             virtual FaderSceneCommand calcNormal();
             virtual FaderSceneCommand calcFadeout();
 
+            void onButtonEvent(const char* paneName, u32 event,
+                               const controller::Interface* controller);
+            BOOL onEventDerived(const char* paneName, u32 event,
+                                controller::Interface* controller);
+            bool collectTitlesByUsage(const s32* firstUsage, const s32* secondUsage,
+                                      ESTitleId* titleIds, char* titleNames,
+                                      u32* titleCount);
+
             static const char* mscChannelPaneNames[PAGE_COUNT][MAX_CHANNEL_INDEX];
             static const char* mscBasePaneNames[PAGE_COUNT];
             static const char* mscPicturePaneNames[PAGE_COUNT];
@@ -150,6 +173,10 @@ namespace ipl {
             static const char* mscMaskPaneName;
 
         private:
+#ifdef IPL_SD_CHANNEL_SELECT_CPP
+            friend class SDChannelSelectEventHandler;
+            friend class SDChannelSelectButtonEventHandler;
+#endif
             void enqueueStartNotice();
             bool enqueueFinishNotice();
             bool enqueueNotice(u32 highTitleId, u32 lowTitleId, u32 result);
@@ -167,16 +194,40 @@ namespace ipl {
             void calcChannelObjects();
             void updateChannelObjects();
             void updateChannelObject(SDChannelObj* channel);
+            void drawChannelTransitionObjects();
             void drawChannelObjects();
             bool isChannelInCalc(int page, int index, int currentPage) const;
             nw4r::lyt::Pane* getChannelBasePane(int page, int index, int currentPage) const;
+            int getCenterChannelIndex(const char* paneName) const;
             nw4r::lyt::Pane* getCenterChannelPane(int index) const;
             nw4r::lyt::Pane* getChannelPane(int index) const;
             static math::VEC3 getChannelPanePosition(SDChannelSelect* scene, int index);
             void calcPageAnimations();
+            void processNormalInput();
             void updateArrowVisibility();
             void processWorkerState();
             void updateDialogAnimation();
+            void initializeNormalPage();
+            void updatePageTransform();
+            void setChannelScissor(const SDChannelObj* channel) const;
+            bool isCurrentTitleUsageEnough(const s32* usage) const;
+            void getCurrentTitleUsage(s32* bytes, s32* blocks) const;
+            bool collectTitlesByChannelOrder(const s32* firstUsage, const s32* secondUsage,
+                                             ESTitleId* titleIds, char* titleNames,
+                                             u32* titleCount);
+            bool collectTitlesFromNandUsage(const s32* firstUsage, const s32* secondUsage,
+                                            ESTitleId* titleIds, char* titleNames,
+                                            u32* titleCount);
+            bool collectTitlesBySpecialChannels(const s32* firstUsage, const s32* secondUsage,
+                                                ESTitleId* titleIds, char* titleNames,
+                                                u32* titleCount);
+            bool collectTitlesForMode(const s32* firstUsage, const s32* secondUsage,
+                                      ESTitleId* titleIds, char* titleNames,
+                                      u32* titleCount, int searchMode);
+            bool findAdjacentChannel(int direction, int* page, int* index) const;
+            void setStateAndPlaySelectSound(int state) NO_INLINE;
+            void finishDialogOperation();
+            void finishDialogTransition();
             void processWorkerCommands();
             void handleWorkerStartup();
             void handleNandTitleCount();
@@ -210,9 +261,38 @@ namespace ipl {
             SDChannelObj* findChannelObject(int page, int index) const;
             void createChannelObject(int page, int index);
             void createBaseLayout();
-            void updateNoCardLayouts();
-            void createChannelThumbnails();
-
+            void createSceneLayouts();
+            BOOL isChannelMoveTarget(int page, int index) const;
+            void selectChannel(int page, int index);
+            BOOL prepareRestarting(int page);
+            void startPageTransition(int page, int index);
+            void setCurrentPageAndRefresh(int page, int index, SDChannelObj* keepChannel);
+            void handleFourPageDialog();
+            void handleThreePageDialog();
+            void setPageActionFrame();
+            void advancePageAnimation();
+            void finishPageScroll();
+            void finishCardDialog();
+            void flushSaveDataAndMountSD();
+            void startDrag(const controller::Interface* controller, int page, int index);
+            void finishDrag();
+            void moveDrag();
+            void updateDragState();
+            void updateDragPageTransition();
+            void finishDragWait();
+            void finishDragPageTransition();
+            void applyChannelMove();
+            void finishChannelMove();
+            void resetDragPreview();
+            void finishDragPageChange();
+            BOOL isPageCreated(int page) const;
+            void refreshPageObjects(int page, SDChannelObj* keepChannel, int noticeIndex);
+            void updateChannelObjectOrder(int page);
+            void moveChannelObjectsToDrawOrder(int page, int mode);
+            void setLayoutFrame(int state);
+            BOOL tellStartingZoomAnm();
+            void initPageAnimations(const math::VEC3& position, int direction);
+            static BOOL isChannelReady(const SDChannelObj* channel);
             nw4r::ut::List mChannelObjects;
             nand::LayoutFile* mpLayoutFile;
             layout::Object* mpLayout;
@@ -228,7 +308,7 @@ namespace ipl {
             int mCurrentChannelIndex;
             f32 mThumbOffsetX;
             f32 mThumbOffsetY;
-            nw4r::math::VEC3 mPosition;
+            math::VEC3 mPosition;
             math::VEC2 mScale;
             f32 mAspectRatioScale;
             bool mbLeftArrowVisible;
@@ -251,9 +331,9 @@ namespace ipl {
             bool mbButtonEnabled;
             bool mbDialogActive;
             u16 mInputFlags;
-            SDChannelObj* mpCurrentChannel;
+            void* mpCurrentChannel;
             layout::Object* mpStateLayout;
-            layout::Object* mpHelpLayout;
+            layout::Animator* mpHelpLayout;
             EGG::ExpHeap* mpRsoHeap;
             channel::RsoThread* mpRsoThread;
             u32 mCommandQueueState;
@@ -269,8 +349,8 @@ namespace ipl {
             ESTitleId32* mpSDTitleIds;
             SDChannelSelectTitleInfo* mpSDTitleInfo;
             NandSDWorker::TitleUsage* mpNandTitleInfo;
-            u32 mFirstTitleCount;
-            u32 mSecondTitleCount;
+            s32 mFirstTitleCount;
+            s32 mSecondTitleCount;
             SDChannelObj* mpCurrentLoadedChannel;
             u32 mSDTitleCount;
             u32 mNandTitleCount;
@@ -284,8 +364,8 @@ namespace ipl {
             u8 mbShowNoCardMessage;
             u8 mbOperationActive;
             u8 mbSDCardBroken;
-            u32 mOperationState;
-            u32 mDialogState;
+            int mOperationState;
+            int mDialogState;
             nand::File* mpSaveDataFile;
             u32 mAnimationState;
             u32 mAnimationTarget;

@@ -15,6 +15,11 @@
 #define SAVEDATA_VERSION 3
 
 namespace ipl {
+#ifdef IPL_SD_CHANNEL_SELECT_ACCESS
+    namespace scene {
+        class SDChannelSelect;
+    }
+#endif
     namespace channel {
         class Manager;
     }
@@ -54,6 +59,7 @@ namespace ipl {
             int getLastSDPrevPage() { return mLastSDPrevPage; }
             void setLastSDPrevPage(int page) { mLastSDPrevPage = page; }
             BOOL didntGotoSDMenu() const { return mData.didntGotoSDMenu; }
+            void setDidntGotoSDMenu(BOOL value) { mData.didntGotoSDMenu = value; }
 #endif
 
             bool hasPhotoMP3Dummy() { return mbPhotoMP3; }
@@ -68,6 +74,9 @@ namespace ipl {
             void iplSavedata_813596B8(ESTitleId titleId);
 
         private:
+#ifdef IPL_SD_CHANNEL_SELECT_ACCESS
+            friend class ipl::scene::SDChannelSelect;
+#endif
             BOOL checkValidApp(ESTitleId titleId);
 
             static void initManagerTask(void* work);
