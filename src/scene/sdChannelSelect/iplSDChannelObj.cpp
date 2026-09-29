@@ -354,6 +354,8 @@ namespace ipl {
             }
         }
 
+        extern "C" char lbl_81696E14[] = "Rso%d";
+
         void SDChannelObj::setLangPane(const layout::Object* layout) {
             int lang = System::getLanguage();
             const char* langGroup = scLangGroups[lang];
@@ -368,7 +370,7 @@ namespace ipl {
                     bool bVar3 = true;
                     for (int i = 0; i < 16; i++) {
                         char name[8];
-                        sprintf(name, "Rso%d", i);
+                        sprintf(name, lbl_81696E14, i);
                         if (strncmp(it->GetName(), name, 5) == 0) {
                             bVar3 = false;
                             break;

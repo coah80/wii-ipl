@@ -52,7 +52,7 @@ namespace ipl {
 
         static const wchar_t scUnknownTitle[] = L"???";
 
-        static const char* scBtnPanes[] = {lbl_81696E30, lbl_81696E37};
+        extern "C" const char* lbl_81696E40[] = {lbl_81696E30, lbl_81696E37};
 
         // clang-format off
         extern "C" char lbl_81654F98[] = "G_FocusBtnA";
@@ -239,8 +239,8 @@ namespace ipl {
 
             mpPaneManager->createLayoutScene(*mpLayout->getNW4RLyt());
             mpPaneManager->setAllComponentTriggerTarget(false);
-            mpPaneManager->getPaneComponentByPane(mpLayout->FindPaneByName(scBtnPanes[0]))->setTriggerTarget(true);
-            mpPaneManager->getPaneComponentByPane(mpLayout->FindPaneByName(scBtnPanes[1]))->setTriggerTarget(true);
+            mpPaneManager->getPaneComponentByPane(mpLayout->FindPaneByName(lbl_81696E40[0]))->setTriggerTarget(true);
+            mpPaneManager->getPaneComponentByPane(mpLayout->FindPaneByName(lbl_81696E40[1]))->setTriggerTarget(true);
 
             mpSubLayout = new layout::Object(getSceneHeap(), mpLayoutFile, "arc", lbl_816551C8);
             mpSubLayout->bind(lbl_816551E4, true);
@@ -830,7 +830,7 @@ namespace ipl {
 
                         for (int i = 0; i < 2; i++) {
                             mBtnFocusCount[i] = 0;
-                            mpPaneManager->initPane(mpLayout->GetRootPane()->FindPaneByName(scBtnPanes[i], true));
+                            mpPaneManager->initPane(mpLayout->GetRootPane()->FindPaneByName(lbl_81696E40[i], true));
                         }
 
                         System::startReceiveSchedule();
@@ -867,7 +867,7 @@ namespace ipl {
 
                         for (int i = 0; i < 2; i++) {
                             mBtnFocusCount[i] = 0;
-                            mpPaneManager->initPane(mpLayout->GetRootPane()->FindPaneByName(scBtnPanes[i], true));
+                            mpPaneManager->initPane(mpLayout->GetRootPane()->FindPaneByName(lbl_81696E40[i], true));
                         }
 
                         System::startReceiveSchedule();
@@ -1155,7 +1155,7 @@ namespace ipl {
 
             for (int i = 0; i < 2; i++) {
                 mBtnFocusCount[i] = 0;
-                mpPaneManager->initPane(mpLayout->GetRootPane()->FindPaneByName(scBtnPanes[i], true));
+                mpPaneManager->initPane(mpLayout->GetRootPane()->FindPaneByName(lbl_81696E40[i], true));
             }
 
             mChanState = 1;
@@ -1661,7 +1661,7 @@ namespace ipl {
             if (mGuiState == 0) {
                 mpOffAnimB->stop();
                 mpOnAnimB->play();
-                mpPaneManager->initPane(mpLayout->GetRootPane()->FindPaneByName(scBtnPanes[1], true));
+                mpPaneManager->initPane(mpLayout->GetRootPane()->FindPaneByName(lbl_81696E40[1], true));
                 mBtnFocusCount[1] = 0;
             }
             mGuiState = 1;
@@ -1801,14 +1801,14 @@ namespace ipl {
                 case ::gui::EventHandler::ON_TRIG:
                     if (mpScene->mChanState == 1) {
                         if (((controller::Interface*)data)->downTrg(controller::BTN_INTERACT)) {
-                            if (strcmp(name, scBtnPanes[0]) == 0) {
+                            if (strcmp(name, lbl_81696E40[0]) == 0) {
                                 layout::Animator* anim = mpScene->mpSelectAnimA;
                                 anim->initFrame();
                                 anim->restart();
                                 snd::getSystem()->startSE(lbl_81655478);
                                 mpScene->mChanState = 0xA;
                                 mpScene->calcNormalButtonWait();
-                            } else if (strcmp(name, scBtnPanes[1]) == 0) {
+                            } else if (strcmp(name, lbl_81696E40[1]) == 0) {
                                 if (mpScene->mGuiState != 2) {
                                     snd::getSystem()->startSE(lbl_81655488);
                                 } else {
@@ -1826,7 +1826,7 @@ namespace ipl {
                 case ::gui::EventHandler::ON_POINT: {
                     layout::Animator* anim;
                     for (int i = 0; i < 2; i++) {
-                        if (strcmp(name, scBtnPanes[i]) == 0) {
+                        if (strcmp(name, lbl_81696E40[i]) == 0) {
                             if (i == 0 || mpScene->mGuiState > 0) {
                                 ++mpScene->mBtnFocusCount[i];
                                 if (mpScene->mBtnFocusCount[i] <= 1) {
@@ -1844,7 +1844,7 @@ namespace ipl {
                 }
                 case ::gui::EventHandler::ON_LEFT:
                     for (int i = 0; i < 2; i++) {
-                        if (strcmp(name, scBtnPanes[i]) == 0) {
+                        if (strcmp(name, lbl_81696E40[i]) == 0) {
                             if (i == 0 || mpScene->mGuiState > 0) {
                                 if (mpScene->mBtnFocusCount[i] <= 0) {
                                     break;
