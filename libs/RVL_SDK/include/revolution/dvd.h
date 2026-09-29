@@ -150,7 +150,11 @@ typedef struct DVDErrorInfo {
 void DVDInit();
 
 BOOL DVDReadAbsAsyncPrio(DVDCommandBlock* block, void* addr, s32 length, u32 offset, DVDCommandCallback callback, s32 prio);
+#ifdef BS2_MACH_FIVE_ARG_READ
+BOOL DVDReadAbsAsyncForBS(DVDCommandBlock* block, void* addr, s32 length, u32 offset, DVDCommandCallback callback);
+#else
 BOOL DVDReadAbsAsyncForBS(DVDCommandBlock* block, void* addr, s32 length, u32 offset, DVDCommandCallback callback, s32 prio);
+#endif
 
 BOOL DVDReadDiskID(DVDCommandBlock* block, DVDDiskID* diskID, DVDCommandCallback callback);
 BOOL DVDCompareDiskID(const DVDDiskID* id1, const DVDDiskID* id2);
