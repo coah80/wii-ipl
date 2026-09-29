@@ -43,8 +43,6 @@ namespace ipl {
             dst[6] = src[6];
         }
 
-        extern "C" char lbl_81696D80[];
-
         extern "C" char lbl_81654088[] = "N_Ch_a04";
         extern "C" char lbl_81654091[] = "N_Ch_a08";
         extern "C" char lbl_8165409A[] = "N_Ch_a12";
@@ -89,34 +87,36 @@ namespace ipl {
         extern "C" char lbl_816541F9[] = "N_Ch_e09";
 
         static const char* scChanPaneNames[5][12] = {
-            {"", lbl_81696D80, lbl_81696D80, lbl_81654088, lbl_81696D80, lbl_81696D80, lbl_81696D80, lbl_81654091, lbl_81696D80, lbl_81696D80, lbl_81696D80, lbl_8165409A},
+            {"", "", "", lbl_81654088, "", "", "", lbl_81654091, "", "", "", lbl_8165409A},
             {lbl_816540A3, lbl_816540AC, lbl_816540B5, lbl_816540BE, lbl_816540C7, lbl_816540D0,
              lbl_816540D9, lbl_816540E2, lbl_816540EB, lbl_816540F4, lbl_816540FD, lbl_81654106},
             {lbl_8165410F, lbl_81654118, lbl_81654121, lbl_8165412A, lbl_81654133, lbl_8165413C,
              lbl_81654145, lbl_8165414E, lbl_81654157, lbl_81654160, lbl_81654169, lbl_81654172},
             {lbl_8165417B, lbl_81654184, lbl_8165418D, lbl_81654196, lbl_8165419F, lbl_816541A8,
              lbl_816541B1, lbl_816541BA, lbl_816541C3, lbl_816541CC, lbl_816541D5, lbl_816541DE},
-            {lbl_816541E7, lbl_81696D80, lbl_81696D80, lbl_81696D80, lbl_816541F0, lbl_81696D80, lbl_81696D80, lbl_81696D80, lbl_816541F9, lbl_81696D80, lbl_81696D80, lbl_81696D80},
+            {lbl_816541E7, "", "", "", lbl_816541F0, "", "", "", lbl_816541F9, "", "", ""},
         };
 
         extern "C" char lbl_816542F4[] = "BaseMask0";
         extern "C" char lbl_816542FE[] = "BaseMask1";
         extern "C" char lbl_81654308[] = "BaseMask2";
         extern "C" char lbl_81654312[] = "BaseMask3";
-        extern "C" char lbl_8165431C[] = "BaseMask4";
-
-        static const char* scBaseMaskPaneNames[5] = {
-            lbl_816542F4, lbl_816542FE, lbl_81654308, lbl_81654312, lbl_8165431C,
+        struct SDPaneNameList {
+            char name[0xC];
+            const char* ptrs[5];
+        };
+        extern "C" SDPaneNameList lbl_8165431C = {
+            "BaseMask4",
+            {lbl_816542F4, lbl_816542FE, lbl_81654308, lbl_81654312, lbl_8165431C.name},
         };
 
         extern "C" char lbl_8165433C[] = "Picture_00";
         extern "C" char lbl_81654347[] = "Picture_01";
         extern "C" char lbl_81654352[] = "Picture_02";
         extern "C" char lbl_8165435D[] = "Picture_03";
-        extern "C" char lbl_81654368[] = "Picture_04";
-
-        static const char* scPicturePaneNames[5] = {
-            lbl_8165433C, lbl_81654347, lbl_81654352, lbl_8165435D, lbl_81654368,
+        extern "C" SDPaneNameList lbl_81654368 = {
+            "Picture_04",
+            {lbl_8165433C, lbl_81654347, lbl_81654352, lbl_8165435D, lbl_81654368.name},
         };
 
         extern "C" char lbl_81696D81[] = "Edge0";
@@ -1689,10 +1689,10 @@ namespace ipl {
                 goto ret0;
             }
             goto ret1;
-ret0:
-            return FALSE;
 ret1:
             return TRUE;
+ret0:
+            return FALSE;
         }
 
         void SDChannelSelect::calcCommon() {
@@ -1860,7 +1860,7 @@ ret1:
                 }
                 utility::Graphics::setOrtho(0);
                 for (int i = 0; i < 5; i++) {
-                    nw4r::lyt::Pane* pane = mpLayout->GetRootPane()->FindPaneByName(scBaseMaskPaneNames[i], true);
+                    nw4r::lyt::Pane* pane = mpLayout->GetRootPane()->FindPaneByName(lbl_8165431C.ptrs[i], true);
                     pane->SetVisible(true);
                     mpLayout->draw(pane);
                     pane->SetVisible(false);
@@ -1972,7 +1972,7 @@ ret1:
                 nw4r::lyt::Pane* pane16 = mpLayout->GetRootPane()->FindPaneByName("Picture_16", true);
                 pane16->GetMaterial()->GetTexture(&tex16, GX_TEXMAP0);
                 for (int i = 0; i < 5; i++) {
-                    nw4r::lyt::Pane* pane = mpLayout->GetRootPane()->FindPaneByName(scPicturePaneNames[i], true);
+                    nw4r::lyt::Pane* pane = mpLayout->GetRootPane()->FindPaneByName(lbl_81654368.ptrs[i], true);
                     pane->GetMaterial()->SetTexture(GX_TEXMAP0, tex16x9);
                     nw4r::lyt::Pane* edgePane = mpLayout->GetRootPane()->FindPaneByName(scEdgePaneNames[i], true);
                     edgePane->GetMaterial()->SetTexture(GX_TEXMAP0, tex16);
