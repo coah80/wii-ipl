@@ -1140,13 +1140,15 @@ namespace ipl {
             }
 
             if (System::getDialog()->getLastResult() != -1) {
-                if (mErrorCode == 0) {
+                switch (mErrorCode) {
+                case 0:
                     mTransferFlags[0] = 1;
                     mDialogState = 25;
                     return true;
+                default:
+                    mDialogState = 23;
+                    break;
                 }
-
-                mDialogState = 23;
             }
 
             return false;
