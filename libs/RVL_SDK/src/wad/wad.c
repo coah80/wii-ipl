@@ -1696,13 +1696,12 @@ cleanup:
 }
 
 static s32 _WADCheckContents(ESTmdView* titleMeta, ESContentMask* contentMask) {
-    ESContentId installedContentIds[520] ALIGN32;
+    ESContentId installedContentIds[512] ALIGN32;
     u32 installedContentCount;
     u32 contentIndex;
     s32 result;
 
-    result = ES_ListTitleContentsOnCard(titleMeta->head.titleId, 0, &installedContentCount);
-    if (result == -106) {
+    if (ES_ListTitleContentsOnCard(titleMeta->head.titleId, 0, &installedContentCount) == -106) {
         result = -3002;
     } else {
         result = ES_ListTitleContentsOnCard(titleMeta->head.titleId, installedContentIds,
@@ -1710,19 +1709,19 @@ static s32 _WADCheckContents(ESTmdView* titleMeta, ESContentMask* contentMask) {
         if (result == 0) {
             memset(contentMask, 0, sizeof(*contentMask));
             for (contentIndex = 0; contentIndex < titleMeta->head.numContents; contentIndex++) {
-                ESCmdView* content = &titleMeta->contents[contentIndex];
                 u32 installedIndex;
 
-                if ((content->type & 0x8000) == 0) {
+                if ((titleMeta->contents[contentIndex].type & 0x8000) == 0) {
                     for (installedIndex = 0; installedIndex < installedContentCount;
                          installedIndex++) {
-                        if (installedContentIds[installedIndex] == content->cid) {
+                        if (installedContentIds[installedIndex] ==
+                            titleMeta->contents[contentIndex].cid) {
                             contentMask->data[contentIndex >> 3] |= 1 << (contentIndex & 7);
                             break;
                         }
                     }
                     if ((installedIndex == installedContentCount) &&
-                        ((content->type & 0x4000) == 0)) {
+                        ((titleMeta->contents[contentIndex].type & 0x4000) == 0)) {
                         result = -3002;
                         goto done;
                     }
@@ -2027,38 +2026,42 @@ static s32 _WADBackupGetSize(u32 flags, ESTmdView* titleMeta, ESContentMask* con
 static void* _WADMemAlloc(MEMAllocator* allocator, u32 size) {
     s32 allocationKind;
     u32 heapType;
-    void* buffer;
+    void* buffer = 0;
 
-    if ((allocator == 0) || (allocator->heap == 0)) {
-        return 0;
-    }
-    heapType = ((MEMiHeapHead*)allocator->heap)->magic;
-    switch (heapType) {
-    case 0x46524D48:
-        allocationKind = 1;
-        break;
-    case 0x45585048:
-        allocationKind = 0;
-        break;
-    case 0x554E5448:
-        allocationKind = 2;
-        break;
-    default:
-        allocationKind = 3;
-        break;
-    }
+    if ((allocator != 0) && (allocator->heap != 0)) {
+        heapType = ((MEMiHeapHead*)allocator->heap)->magic;
+        switch (heapType) {
+        case 0x45585048:
+            allocationKind = 0;
+            break;
+        case 0x46524D48:
+            allocationKind = 1;
+            break;
+        case 0x554E5448:
+            allocationKind = 2;
+            break;
+        default:
+            allocationKind = 3;
+            break;
+        }
 
-    if (allocationKind == 1) {
-        return MEMAllocFromFrmHeapEx(allocator->heap, size, 0x40);
-    }
-    if (allocationKind == 0) {
-        return MEMAllocFromExpHeapEx(allocator->heap, size, 0x40);
-    }
-    buffer = MEMAllocFromAllocator(allocator, size);
-    if (((u32)buffer & 0x3F) != 0) {
-        OSReport("%s: Memory Allocator must return 64B aligned memBlocks\n", "_WADMemAlloc");
-        MEMFreeToAllocator(allocator, buffer);
-        return 0;
+        switch (allocationKind) {
+        case 0:
+            buffer = MEMAllocFromExpHeapEx(allocator->heap, size, 0x40);
+            break;
+        case 1:
+            buffer = MEMAllocFromFrmHeapEx(allocator->heap, size, 0x40);
+            break;
+        case 2:
+        default:
+            buffer = MEMAllocFromAllocator(allocator, size);
+            if (((u32)buffer & 0x3F) != 0) {
+                OSReport("%s: Memory Allocator must return 64B aligned memBlocks\n", "_WADMemAlloc");
+                MEMFreeToAllocator(allocator, buffer);
+                buffer = 0;
+            }
+            break;
+        }
     }
     return buffer;
 }
