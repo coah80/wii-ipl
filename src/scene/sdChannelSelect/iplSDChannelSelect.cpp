@@ -1,4 +1,5 @@
 #define IPL_SD_CHANNEL_SELECT_CPP
+#include "scene/sdButton/iplSDButton.h"
 #include "scene/sdChannelSelect/iplSDChannelSelect.h"
 
 #include <cstring>
@@ -19,9 +20,6 @@
 #include "system/iplSaveDataManager.h"
 #include "system/iplChannelRsoThread.h"
 #include "utility/iplCSFlags.h"
-#include "scene/sdButton/iplSDButton.h"
-
-#pragma dont_instantiate ipl::math::HermiteIntp<ipl::math::VEC3>
 
 namespace ipl {
     namespace math {
@@ -30,44 +28,6 @@ namespace ipl {
             nw4r::math::VEC3Sub(&temp, &start, &end);
             return temp;
         }
-
-        template <>
-        class HermiteIntp<VEC3> : public utility::FrameController {
-        public:
-            HermiteIntp() {}
-            virtual ~HermiteIntp();
-
-            void init(const VEC3& start, const VEC3& end, f32 maxFrame, f32 param_5, f32 param_6, int playback = ANIM_TYPE_FORWARD,
-                      f32 speed = 1.0f);
-
-            VEC3 get() const {
-                f32 var_f27 = mFrame;
-                f32 var_f28 = 1.0f / mMaxFrame;
-                nw4r::math::VEC3 r;
-                nw4r::math::VEC3Add(&r,
-                                    &(mStart * (1.0f + ((var_f28 * (var_f28 * (var_f28 * (var_f27 * (2.0f * var_f27 * var_f27))))) -
-                                                        (var_f28 * (var_f28 * (3.0f * var_f27 * var_f27)))))),
-                                    &(mEnd * ((var_f28 * (var_f28 * (var_f28 * (var_f27 * (2.0f * var_f27 * var_f27))))) -
-                                              (var_f28 * (var_f28 * (3.0f * var_f27 * var_f27))))));
-                VEC3 out(r);
-                f32 tan =
-                    unkVal0 * (var_f27 +
-                               (var_f28 * (var_f28 * (var_f27 * (var_f27 * var_f27))) -
-                                var_f28 * (2.0f * var_f27 * var_f27))) +
-                    unkVal1 * (var_f28 * (var_f28 * (var_f27 * (var_f27 * var_f27))) -
-                               var_f28 * (var_f27 * var_f27));
-                out.x += tan;
-                out.y += tan;
-                out.z += tan;
-                return out;
-            }
-
-        protected:
-            VEC3 mStart;
-            VEC3 mEnd;
-            f32 unkVal0;
-            f32 unkVal1;
-        };
 
     }  // namespace math
 
@@ -131,22 +91,6 @@ namespace ipl {
             {85.0f, 48.0f},
         };
 
-        extern "C" const f32 lbl_81694AC8;
-        extern "C" const f32 lbl_81694ACC;
-        extern "C" const f32 lbl_81694AD0;
-        extern "C" const f32 lbl_81694AD4;
-        extern "C" const f32 lbl_81694AD8;
-        extern "C" const f32 lbl_81694ADC;
-        extern "C" const f32 lbl_81694AE0;
-        extern "C" const f32 lbl_81694AE4;
-        extern "C" const f32 lbl_81694AE8;
-        extern "C" const f32 lbl_81694AEC;
-        extern "C" const f32 lbl_81694AF0;
-        extern "C" const f32 lbl_81694AF4;
-        extern "C" const f32 lbl_81694AF8;
-        extern "C" const f32 lbl_81694B08;
-        extern "C" const f32 lbl_81694B0C;
-        extern "C" const f32 lbl_81694B10;
 
         // clang-format off
         extern "C" void setEventHandler__Q33ipl5scene8SDButtonFPQ23gui12EventHandlerPQ23gui12EventHandler(
@@ -173,6 +117,48 @@ namespace ipl {
 
             SDChannelSelect* mpScene;  // 0x0C
         };
+
+    }  // namespace scene
+
+    namespace math {
+        template <>
+        class HermiteIntp<VEC3> : public Interporation<VEC3> {
+        public:
+            HermiteIntp() {}
+            virtual ~HermiteIntp() {}
+
+            void init(const VEC3& start, const VEC3& end, f32 maxFrame, f32 param_5, f32 param_6, int playback = ANIM_TYPE_FORWARD,
+                      f32 speed = 1.0f);
+
+            VEC3 get() const {
+                f32 var_f27 = mFrame;
+                f32 var_f28 = 1.0f / mMaxFrame;
+                nw4r::math::VEC3 r;
+                nw4r::math::VEC3Add(&r,
+                                    &(mStart * (1.0f + ((var_f28 * (var_f28 * (var_f28 * (var_f27 * (2.0f * var_f27 * var_f27))))) -
+                                                        (var_f28 * (var_f28 * (3.0f * var_f27 * var_f27)))))),
+                                    &(mEnd * ((var_f28 * (var_f28 * (var_f28 * (var_f27 * (2.0f * var_f27 * var_f27))))) -
+                                              (var_f28 * (var_f28 * (3.0f * var_f27 * var_f27))))));
+                VEC3 out(r);
+                f32 tan =
+                    unkVal0 * (var_f27 +
+                               (var_f28 * (var_f27 * (var_f27 * (var_f27 * var_f27))) -
+                                var_f28 * (2.0f * var_f27 * var_f27))) +
+                    unkVal1 * (var_f28 * (var_f28 * (var_f27 * (var_f27 * var_f27))) -
+                               var_f28 * (var_f27 * var_f27));
+                out.x += tan;
+                out.y += tan;
+                out.z += tan;
+                return out;
+            }
+
+        protected:
+            f32 unkVal0;
+            f32 unkVal1;
+        };
+    }  // namespace math
+
+    namespace scene {
 
         SDChannelSelect::SDChannelSelect(EGG::Heap* heap)
             : FaderSceneBase(heap) {
@@ -232,9 +218,9 @@ namespace ipl {
 
             setSceneParentFlags(SCN_PARENTFLAG_DRAW | SCN_PARENTFLAG_CALC);
 
-            math::VEC3 vec(lbl_81694AC8, lbl_81694AC8, lbl_81694AC8);
+            math::VEC3 vec(0.0f, 0.0f, 0.0f);
             mVec = vec;
-            math::VEC2 vec2(lbl_81694ACC, lbl_81694ACC);
+            math::VEC2 vec2(1.0f, 1.0f);
             mVec2 = vec2;
 
             nw4r::ut::Rect rect43;
@@ -1549,12 +1535,12 @@ namespace ipl {
                     *indexOut = mChanIndex;
                     break;
                 }
-                const int chansPerPage = 0xC;
-                int page = i / chansPerPage;
+                int page = i / 0xC;
+                int index = i % 0xC;
                 if (mpChanTable[i] != 0) {
                     *pageOut = page;
                     ret = 1;
-                    *indexOut = i - page * chansPerPage;
+                    *indexOut = index;
                     break;
                 }
                 i += step;
@@ -2428,11 +2414,11 @@ namespace ipl {
 
         void SDChannelSelect::iplSDChannelSelect_813E03B0(int a) {
             if (a == 0xA) {
-                mpLayout->setMinFrame(lbl_81694AC8, -1);
-                mpLayout->setMaxFrame(lbl_81694AD4, -1);
+                mpLayout->setMinFrame(0.0f, -1);
+                mpLayout->setMaxFrame(20.0f, -1);
             } else {
-                mpLayout->setMinFrame(lbl_81694AD8, -1);
-                mpLayout->setMaxFrame(lbl_81694ADC, -1);
+                mpLayout->setMinFrame(40.0f, -1);
+                mpLayout->setMaxFrame(60.0f, -1);
             }
             mpLayout->setAnmType(0, -1);
             mpLayout->start(-1);
@@ -2460,8 +2446,8 @@ namespace ipl {
         }
 
         BOOL SDChannelSelect::isAnyChanMoving() {
-            mpLayout->setMinFrame(lbl_81694AE0, -1);
-            mpLayout->setMaxFrame(lbl_81694AE4, -1);
+            mpLayout->setMinFrame(200.0f, -1);
+            mpLayout->setMaxFrame(228.0f, -1);
             mpLayout->setAnmType(0, -1);
             mpLayout->start(-1);
             snd::getSystem()->startSE("WIPL_SE_CH_SELECT");
@@ -2484,7 +2470,7 @@ namespace ipl {
             mChanIndex = index;
             mpLayout->setAnmType(1, -1);
             mpLayout->start(-1);
-            nw4r::math::VEC3 v = nw4r::math::VEC3(lbl_81694AC8, lbl_81694AC8, lbl_81694AC8);
+            nw4r::math::VEC3 v = nw4r::math::VEC3(0.0f, 0.0f, 0.0f);
             nw4r::lyt::Pane* pane = getCenterChannelPane(index);
             PSMTXMultVec(pane->GetGlobalMtx(), v, v);
             math::VEC3 v2(v);
@@ -2529,46 +2515,46 @@ namespace ipl {
                 f32 right = mVec.x + rightScale;
                 f32 left = mVec.x + leftScale;
                 f32 top = mVec.y - topScale;
-                MTXOrtho(mtx, top, bottom, left, right, lbl_81694AE8, lbl_81694AEC);
-                nw4r::math::VEC4 vec4_in(vec.x, vec.y, lbl_81694AC8, lbl_81694ACC);
+                MTXOrtho(mtx, top, bottom, left, right, -100.0f, 100.0f);
+                nw4r::math::VEC4 vec4_in(vec.x, vec.y, 0.0f, 1.0f);
                 nw4r::math::VEC4 vec4;
                 nw4r::math::VEC4Transform(&vec4, &mtx, &vec4_in);
                 var_r0 = rMode->fbWidth;
                 var_r3 = rMode->efbHeight;
                 var_f29 = projRect.GetWidth();
-                var_f31 = ((lbl_81694ACC + vec4.x) * (f32)var_r0 * lbl_81694AF0) - ((mChanSizeX * mVec2.x) * ((f32)var_r0 / var_f29));
-                var_f30 = ((f32)var_r3 - ((lbl_81694ACC + vec4.y) * (f32)var_r3 * lbl_81694AF0)) - (mChanSizeY * mVec2.y);
-                var_f29 = lbl_81694AF4 * (mChanSizeX * mVec2.x) * ((f32)var_r0 / var_f29);
-                var_f1 = lbl_81694AF4 * (mChanSizeY * mVec2.y);
+                var_f31 = ((1.0f + vec4.x) * (f32)var_r0 * 0.5f) - ((mChanSizeX * mVec2.x) * ((f32)var_r0 / var_f29));
+                var_f30 = ((f32)var_r3 - ((1.0f + vec4.y) * (f32)var_r3 * 0.5f)) - (mChanSizeY * mVec2.y);
+                var_f29 = 2.0f * (mChanSizeX * mVec2.x) * ((f32)var_r0 / var_f29);
+                var_f1 = 2.0f * (mChanSizeY * mVec2.y);
             } else {
                 var_r0 = rMode->fbWidth;
                 var_r3 = rMode->efbHeight;
                 var_f29 = projRect.GetWidth();
-                var_f31 = ((f32)var_r0 * lbl_81694AF0) + ((vec.x - mChanSizeX) * ((f32)var_r0 / var_f29));
-                var_f30 = (((f32)var_r3 * lbl_81694AF0) - vec.y) - mChanSizeY;
-                var_f29 = lbl_81694AF4 * mChanSizeX * ((f32)var_r0 / var_f29);
-                var_f1 = lbl_81694AF4 * mChanSizeY;
+                var_f31 = ((f32)var_r0 * 0.5f) + ((vec.x - mChanSizeX) * ((f32)var_r0 / var_f29));
+                var_f30 = (((f32)var_r3 * 0.5f) - vec.y) - mChanSizeY;
+                var_f29 = 2.0f * mChanSizeX * ((f32)var_r0 / var_f29);
+                var_f1 = 2.0f * mChanSizeY;
             }
-            var_f31 -= lbl_81694ACC;
-            var_f30 -= lbl_81694ACC;
-            var_f29 += lbl_81694AF4;
-            var_f1 += lbl_81694AF4;
-            if (var_f31 >= var_r0 || (var_f31 + var_f29) <= lbl_81694AC8 || var_f30 >= var_r3 || (var_f30 + var_f1) <= lbl_81694AC8) {
+            var_f31 -= 1.0f;
+            var_f30 -= 1.0f;
+            var_f29 += 2.0f;
+            var_f1 += 2.0f;
+            if (var_f31 >= var_r0 || (var_f31 + var_f29) <= 0.0f || var_f30 >= var_r3 || (var_f30 + var_f1) <= 0.0f) {
                 GXSetScissor(0, 0, 0, 0);
             } else {
-                if (var_f31 < lbl_81694AC8) {
+                if (var_f31 < 0.0f) {
                     var_f29 += var_f31;
-                    var_f31 = lbl_81694AC8;
+                    var_f31 = 0.0f;
                 }
-                if (var_f30 < lbl_81694AC8) {
+                if (var_f30 < 0.0f) {
                     var_f1 += var_f30;
-                    var_f30 = lbl_81694AC8;
+                    var_f30 = 0.0f;
                 }
-                if ((var_f31 + var_f29) > lbl_81694AF8) {
-                    var_f29 -= (var_f31 + var_f29) - lbl_81694AF8;
+                if ((var_f31 + var_f29) > 1705.0f) {
+                    var_f29 -= (var_f31 + var_f29) - 1705.0f;
                 }
-                if ((var_f30 + var_f1) > lbl_81694AF8) {
-                    var_f1 -= (var_f30 + var_f1) - lbl_81694AF8;
+                if ((var_f30 + var_f1) > 1705.0f) {
+                    var_f1 -= (var_f30 + var_f1) - 1705.0f;
                 }
                 GXSetScissor(var_f31, var_f30, var_f29, var_f1);
             }
@@ -2578,25 +2564,25 @@ namespace ipl {
             nw4r::ut::Rect projRect;
             System::getProjectionRect(&projRect);
 
-            math::VEC3 vec0(projRect.left, -projRect.top, lbl_81694AC8);
-            math::VEC3 vec1(pos->x - mChanSizeX, pos->y + mChanSizeY, lbl_81694AC8);
-            math::VEC3 vec2(projRect.right, -projRect.top, lbl_81694AC8);
-            math::VEC3 vec3(pos->x + mChanSizeX, pos->y + mChanSizeY, lbl_81694AC8);
-            math::VEC3 vec4(projRect.left, -projRect.bottom, lbl_81694AC8);
-            math::VEC3 vec5(pos->x - mChanSizeX, pos->y - mChanSizeY, lbl_81694AC8);
-            math::VEC3 vec6(projRect.right, -projRect.bottom, lbl_81694AC8);
-            math::VEC3 vec7(pos->x + mChanSizeX, pos->y - mChanSizeY, lbl_81694AC8);
+            math::VEC3 vec0(projRect.left, -projRect.top, 0.0f);
+            math::VEC3 vec1(pos->x - mChanSizeX, pos->y + mChanSizeY, 0.0f);
+            math::VEC3 vec2(projRect.right, -projRect.top, 0.0f);
+            math::VEC3 vec3(pos->x + mChanSizeX, pos->y + mChanSizeY, 0.0f);
+            math::VEC3 vec4(projRect.left, -projRect.bottom, 0.0f);
+            math::VEC3 vec5(pos->x - mChanSizeX, pos->y - mChanSizeY, 0.0f);
+            math::VEC3 vec6(projRect.right, -projRect.bottom, 0.0f);
+            math::VEC3 vec7(pos->x + mChanSizeX, pos->y - mChanSizeY, 0.0f);
 
             if (a == 0) {
-                mHandlers[0]->init(vec0, vec1, lbl_81694B08, lbl_81694AC8, lbl_81694AC8, 0);
-                mHandlers[1]->init(vec2, vec3, lbl_81694B08, lbl_81694AC8, lbl_81694AC8, 0);
-                mHandlers[2]->init(vec4, vec5, lbl_81694B08, lbl_81694AC8, lbl_81694AC8, 0);
-                mHandlers[3]->init(vec6, vec7, lbl_81694B08, lbl_81694AC8, lbl_81694AC8, 0);
+                mHandlers[0]->init(vec0, vec1, 28.0f, 0.0f, 0.0f, 0);
+                mHandlers[1]->init(vec2, vec3, 28.0f, 0.0f, 0.0f, 0);
+                mHandlers[2]->init(vec4, vec5, 28.0f, 0.0f, 0.0f, 0);
+                mHandlers[3]->init(vec6, vec7, 28.0f, 0.0f, 0.0f, 0);
             } else {
-                mHandlers[0]->init(vec1, vec0, lbl_81694B08, lbl_81694AC8, lbl_81694AC8, 0);
-                mHandlers[1]->init(vec3, vec2, lbl_81694B08, lbl_81694AC8, lbl_81694AC8, 0);
-                mHandlers[2]->init(vec5, vec4, lbl_81694B08, lbl_81694AC8, lbl_81694AC8, 0);
-                mHandlers[3]->init(vec7, vec6, lbl_81694B08, lbl_81694AC8, lbl_81694AC8, 0);
+                mHandlers[0]->init(vec1, vec0, 28.0f, 0.0f, 0.0f, 0);
+                mHandlers[1]->init(vec3, vec2, 28.0f, 0.0f, 0.0f, 0);
+                mHandlers[2]->init(vec5, vec4, 28.0f, 0.0f, 0.0f, 0);
+                mHandlers[3]->init(vec7, vec6, 28.0f, 0.0f, 0.0f, 0);
             }
             for (int i = 0; i < 4; i++) {
                 mHandlers[i]->play();
@@ -2618,7 +2604,7 @@ namespace ipl {
             nw4r::ut::Rect projRect;
             System::getProjectionRect(&projRect);
 
-            mVec = math::VEC3((frames[0].x + frames[1].x) * lbl_81694AF0, (frames[0].y + frames[2].y) * lbl_81694AF0, lbl_81694AC8);
+            mVec = math::VEC3((frames[0].x + frames[1].x) * 0.5f, (frames[0].y + frames[2].y) * 0.5f, 0.0f);
             mVec2 = math::VEC2(projRect.GetWidth() / (frames[1].x - frames[0].x), projRect.GetHeight() / (frames[0].y - frames[2].y));
         }
 
@@ -2725,8 +2711,8 @@ namespace ipl {
             }
             if (mChanPage > 0 && mFieldFC >= 0xF) {
                 button->animation(7);
-                mpLayout->setMinFrame(lbl_81694AC8, -1);
-                mpLayout->setMaxFrame(lbl_81694AD4, -1);
+                mpLayout->setMinFrame(0.0f, -1);
+                mpLayout->setMaxFrame(20.0f, -1);
                 mpLayout->setAnmType(0, -1);
                 mpLayout->start(-1);
                 mState = 0x16;
@@ -2742,8 +2728,8 @@ namespace ipl {
                 snd::getSystem()->startSE("WSD_SELECT");
             } else if (mChanPage < mChanCount - 1 && mFieldF8 >= 0xF) {
                 button->animation(8);
-                mpLayout->setMinFrame(lbl_81694AD8, -1);
-                mpLayout->setMaxFrame(lbl_81694ADC, -1);
+                mpLayout->setMinFrame(40.0f, -1);
+                mpLayout->setMaxFrame(60.0f, -1);
                 mpLayout->setAnmType(0, -1);
                 mpLayout->start(-1);
                 mState = 0x17;
@@ -2948,7 +2934,7 @@ namespace ipl {
                 if (con->isValidDpd()) {
                     mCursorPos = con->getDpdPos();
                 } else {
-                    mCursorPos = nw4r::math::VEC2(lbl_81694AC8, lbl_81694AC8);
+                    mCursorPos = nw4r::math::VEC2(0.0f, 0.0f);
                 }
                 mCtrlChan = con->getChannel();
                 mSelPage = page;
@@ -3019,7 +3005,7 @@ namespace ipl {
             if (System::getControllerManager()->getController(mCtrlChan) != NULL &&
                 System::getControllerManager()->getController(mCtrlChan)->isValidDpd()) {
                 math::VEC2 pos = System::getControllerManager()->getController(mCtrlChan)->getDpdProjectionPos();
-                nw4r::math::VEC3 newPos(pos.x, -pos.y, lbl_81694AC8);
+                nw4r::math::VEC3 newPos(pos.x, -pos.y, 0.0f);
                 mpAnimLayout2->GetRootPane()->SetTranslate(newPos);
                 mpAnimLayout2->calcMtx();
 
@@ -3031,8 +3017,8 @@ namespace ipl {
 
                 f32 val = (delta.x * delta.x) + (delta.y * delta.y);
 
-                if (val <= lbl_81694AC8) {
-                    speed = lbl_81694AC8;
+                if (val <= 0.0f) {
+                    speed = 0.0f;
                 } else {
                     speed = (val * nw4r::math::FrSqrt(val));
                 }
@@ -3181,7 +3167,7 @@ namespace ipl {
         }
 
         nw4r::math::VEC3 SDChannelSelect::getChannelPanePosition(SDChannelSelect* scene, int index) {
-            nw4r::math::VEC3 position(lbl_81694AC8, lbl_81694AC8, lbl_81694AC8);
+            nw4r::math::VEC3 position(0.0f, 0.0f, 0.0f);
             PSMTXMultVec(scene->getCenterChannelPane(index)->GetGlobalMtx(), position, position);
             return position;
         }

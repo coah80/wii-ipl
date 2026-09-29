@@ -18,7 +18,7 @@ namespace ipl {
                 mpHeap(heap),
                 mbDisableCon(bDisableCon) {}
 
-#if defined(IPL_CHANNEL_TITLE_NOVTABLE) || defined(IPL_SD_CHANNEL_SELECT_CPP)
+#if defined(IPL_CHANNEL_TITLE_NOVTABLE)
                 virtual ~PaneManager();
 #else
                 virtual ~PaneManager() {}

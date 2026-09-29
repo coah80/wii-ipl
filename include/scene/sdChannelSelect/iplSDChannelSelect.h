@@ -89,6 +89,7 @@ namespace ipl {
             SDChannelSelect(EGG::Heap * heap);
             virtual ~SDChannelSelect();
 
+
             void prepare();
             void create();
 

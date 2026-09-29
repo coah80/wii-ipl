@@ -30,14 +30,14 @@ namespace gui {
         virtual void draw(Mtx& mtx) {}  // 0x14 (0x05)
         virtual void draw() {}          // 0x18 (0x06)
 
-#if defined(IPL_CHANNEL_TITLE_NOVTABLE) || defined(IPL_SD_CHANNEL_SELECT_CPP)
+#if defined(IPL_CHANNEL_TITLE_NOVTABLE)
         virtual ~Interface();     // 0x1C (0x07)
 #else
         virtual ~Interface() {}   // 0x1C (0x07)
 #endif
     };
 
-#if defined(IPL_CHANNEL_TITLE_NOVTABLE) || defined(IPL_SD_CHANNEL_SELECT_CPP)
+#if defined(IPL_CHANNEL_TITLE_NOVTABLE)
     class __declspec(novtable) EventHandler {
 #else
     class EventHandler {
