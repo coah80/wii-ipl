@@ -26,6 +26,8 @@ namespace textinput {
                 wchar_t GetWChar() const;
                 bool IsValid() const;
                 KeySet GetNext() const;
+                KeySet(const KeySet& other)
+                    : mpManager(other.mpManager), mKind(other.mKind), mIndex(other.mIndex), mDevice(other.mDevice), mCharacter(other.mCharacter) {}
             private:
                 const HKBManager* mpManager;
                 u8 mKind;
