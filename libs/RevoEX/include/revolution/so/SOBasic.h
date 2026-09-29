@@ -102,13 +102,16 @@ struct SOAddrInfo {
     SOAddrInfo* next;  // 0x20
 };
 
+#define SO_ENOTCONN -56
+
 int SOSocket(int pf, int type, int protocol);
+int __SOCreateSocket(int pf, int type, int protocol);
 int SOClose(int s);
 
 int SOConnect(int s, void* sockAddr);
 
 int SORecv(int s, void* buf, int len, int flags);
-int SOSend(int s, void* buf, int len, int flags);
+int SOSend(int s, const void* buf, int len, int flags);
 int SOFcntl(int s, int cmd, ...);
 
 int SOShutdown(int s, int how);

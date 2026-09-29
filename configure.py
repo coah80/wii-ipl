@@ -1053,19 +1053,19 @@ config.libs = [
         ]
     ),
     RevoEXLib("nhttp", [
-            Object(NonMatching, "nhttp/NHTTP_bgnend.c"),
-            Object(NonMatching, "nhttp/NHTTP_control.c"),
-            Object(NonMatching, "nhttp/NHTTP_list.c"),
-            Object(NonMatching, "nhttp/NHTTP_os_RVL.c"),
+            Object(Matching,    "nhttp/NHTTP_bgnend.c"),
+            Object(Matching,    "nhttp/NHTTP_control.c"),
+            Object(Matching,    "nhttp/NHTTP_list.c"),
+            Object(Matching,    "nhttp/NHTTP_os_RVL.c"),
             Object(NonMatching, "nhttp/NHTTP_recvbuf.c"),
-            Object(NonMatching, "nhttp/NHTTP_request.c"),
-            Object(NonMatching, "nhttp/NHTTP_response.c"),
+            Object(Matching,    "nhttp/NHTTP_request.c"),
+            Object(Matching,    "nhttp/NHTTP_response.c"),
             Object(NonMatching, "nhttp/NHTTP_socket_RVL.c"),
             Object(NonMatching, "nhttp/NHTTP_stdlib_RVL.c"),
             Object(NonMatching, "nhttp/NHTTP_thread.c"),
             Object(NonMatching, "nhttp/d_nhttp_private.c"),
-            Object(NonMatching, "nhttp/d_nhttp.c"),
-            Object(NonMatching, "nhttp/d_nhttp_common.c"),
+            Object(Matching,    "nhttp/d_nhttp.c"),
+            Object(Matching,    "nhttp/d_nhttp_common.c"),
         ]
     ),
     RevoEXLib("nwc24", [
