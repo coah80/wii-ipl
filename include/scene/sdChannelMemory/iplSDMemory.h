@@ -39,7 +39,11 @@ namespace ipl {
             void hideLeftArrow();
             void hideRightArrow();
 
+#ifdef IPL_SD_CHANNEL_TITLE_CPP
+        public:
+#else
         private:
+#endif
             s32 updateState();
             void drawTransferTitles();
             void onDialogState0();
@@ -149,8 +153,10 @@ namespace ipl {
             scroller mScroller;
             s32 mButtonState;
             u8 mControllerFlags[4];
+#ifndef IPL_SD_CHANNEL_TITLE_CPP
             u32 mFinalState[3];
             u8 mFinalFlags[4];
+#endif
         };
     }  // namespace scene
 }  // namespace ipl

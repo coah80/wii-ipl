@@ -97,6 +97,10 @@ namespace ipl {
             void startLeftEvent(const char* paneName);
 
             bool isActive() const;
+#ifdef IPL_SD_CHANNEL_TITLE_CPP
+            bool isLeftArrowVisible() const { return mbArrowVisible[ARROW_BTN_LEFT]; }
+            static const char* getButtonName(int button) { return smButtonName[button]; }
+#endif
 
 #ifdef IPL_SD_CHANNEL_SELECT_CPP
             void setEventHandler(::gui::EventHandler * event,
