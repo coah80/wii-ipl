@@ -13,6 +13,12 @@
 namespace textinput {
     namespace keyboard {
         namespace pctype {
+            struct SelectorPosition {
+                f32 coordinates[3];
+            };
+            extern SelectorPosition chinesePosition;
+            extern SelectorPosition koreanPosition;
+
             static const wchar_t* PREDICT_CAPTIONS[] = {L"", L"", L"Eng", L"Fra", L"Esp", L"EN", L"DE", L"FR", L"ES", L"IT", L"NL", L"CN", L"KR"};
 
             static const GridKey csGridKeyboard[] = {
@@ -1600,7 +1606,7 @@ namespace textinput {
             }
 
             void Base::setTranslateMode(TranslateMode mode) {
-                u32 keyMode;
+                u32 keyMode = mode;
                 switch (mode) {
                     case TM_Direct:
                         keyMode = 0;
@@ -1612,7 +1618,7 @@ namespace textinput {
                         keyMode = 2;
                         break;
                     default:
-                        return;
+                        break;
                 }
                 if (keyMode != (mKeyState.abcFlags & 15)) {
                     if (getLanguage() == KR || getLanguage() == CN)
@@ -1711,14 +1717,19 @@ namespace textinput {
                     util::replaceChar(name, sizeof(name), data->ascii[i].szPaneName, 0, 'T');
                     nw4r::lyt::TextBox* text = nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(root->FindPaneByName(name, true));
                     if (text != NULL) {
-                        wchar_t caption[2] = {getWCCode(i), 0};
+                        wchar_t caption[2];
+                        caption[0] = getWCCode(i);
+                        caption[1] = 0;
                         if (language == KR && (abcFlags & 15) == 1) {
-                            if (owner->isCapsOn())
-                                caption[0] = util::reverseLetterCaseW(caption[0]);
-                            if (caption[0] >= L'a' && caption[0] <= L'z')
-                                caption[0] = KOREAN_LOWER[caption[0] - L'a'];
-                            else if (caption[0] >= L'A' && caption[0] <= L'Z')
-                                caption[0] = KOREAN_UPPER[caption[0] - L'A'];
+                            bool caps = owner->isCapsOn();
+                            u32 character = caption[0];
+                            if (caps)
+                                character = util::reverseLetterCaseW(character);
+                            if (character >= L'a' && character <= L'z')
+                                character = KOREAN_LOWER[static_cast<wchar_t>(character) - L'a'];
+                            else if (character >= L'A' && character <= L'Z')
+                                character = KOREAN_UPPER[static_cast<wchar_t>(character) - L'A'];
+                            caption[0] = character;
                         }
                         text->SetString(caption);
                     }
@@ -1728,7 +1739,9 @@ namespace textinput {
                     util::replaceChar(name, sizeof(name), data->grid[i].paneName, 0, 'T');
                     nw4r::lyt::TextBox* text = nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(root->FindPaneByName(name, true));
                     if (text != NULL) {
-                        wchar_t caption[2] = {data->grid[i].codes[3 - ((aiuFlags & 15) == 0)], 0};
+                        wchar_t caption[2];
+                        caption[0] = data->grid[i].codes[(aiuFlags & 15) == 0 ? 2 : 3];
+                        caption[1] = 0;
                         text->SetString(caption);
                     }
                 }
@@ -1936,16 +1949,16 @@ namespace textinput {
                 setLineFeedButton(true);
                 setPredictLanguageButton(true);
                 setSignWindowButton(true);
-                const nw4r::math::VEC3 chinesePosition(-219.0f, -130.0f, 0.0f);
-                const nw4r::math::VEC3 koreanPosition(-209.0f, -90.0f, 0.0f);
+                SelectorPosition chineseTranslation = chinesePosition;
+                SelectorPosition koreanTranslation = koreanPosition;
                 if (meLanguage == CN) {
                     mModePanel.mpEnglishText->GetMaterial()->SetTexture(0, mModePanel.mDirectTexture);
                     mModePanel.mpHangulText->GetMaterial()->SetTexture(0, mModePanel.mPinyinTexture);
-                    mModePanel.mpModeSelect->SetTranslate(chinesePosition);
+                    mModePanel.mpModeSelect->SetTranslate(nw4r::math::VEC3(chineseTranslation.coordinates));
                 } else if (meLanguage == KR) {
                     mModePanel.mpEnglishText->GetMaterial()->SetTexture(0, mModePanel.mEnglishTexture);
                     mModePanel.mpHangulText->GetMaterial()->SetTexture(0, mModePanel.mHangulTexture);
-                    mModePanel.mpModeSelect->SetTranslate(koreanPosition);
+                    mModePanel.mpModeSelect->SetTranslate(nw4r::math::VEC3(koreanTranslation.coordinates));
                 }
                 searchAnmPane("P_key_SHIFT")->changeAnimation(0);
                 searchAnmPane("P_key_CAPS")->changeAnimation(0);
@@ -2020,12 +2033,17 @@ namespace textinput {
                     }
                 }
                 if (getLanguage() == KR || getLanguage() == CN) {
-                    if ((mKeyState.abcFlags & 15) == 0) {
-                        searchAnmPane("P_Mode_kr_eng")->changeAnimation(5);
-                        searchAnmPane("P_Mode_kr_han")->changeAnimation(0);
-                    } else {
-                        searchAnmPane("P_Mode_kr_eng")->changeAnimation(0);
-                        searchAnmPane("P_Mode_kr_han")->changeAnimation(5);
+                    switch (mKeyState.abcFlags & 15) {
+                        case 0: {
+                            searchAnmPane("P_Mode_kr_eng")->changeAnimation(5);
+                            searchAnmPane("P_Mode_kr_han")->changeAnimation(0);
+                            break;
+                        }
+                        default: {
+                            searchAnmPane("P_Mode_kr_eng")->changeAnimation(0);
+                            searchAnmPane("P_Mode_kr_han")->changeAnimation(5);
+                            break;
+                        }
                     }
                 }
                 mpLayout->Animate(0);
@@ -2088,7 +2106,8 @@ namespace textinput {
             }
 
             void LayoutByNW4R::onReleasedShift() {
-                mKeyState.setABCFlag(mKeyState.abcFlags & ~143);
+                u32 flags = mKeyState.abcFlags & ~143;
+                mKeyState.setABCFlag(flags);
                 if (mShiftButton.mbOn) {
                     mShiftButton.mbOn = false;
                     mShiftButton.mpAnimation->onAnmEvent(static_cast<AnmPane::AnmPaneEvent>(5));
@@ -2099,13 +2118,33 @@ namespace textinput {
                 getWCCode(static_cast<char*>(data));
                 if (event == 4 && getWCCode(static_cast<char*>(data)) == 0) {
                     switch (getControlKey(static_cast<char*>(data))) {
-                        case 0:
-                            mpEventObserver->onSE(static_cast<sound::SE>(9));
+                        case 3: {
+                            LayoutGather& gather = LayoutGather::Singleton::getInstance();
+                            if (!gather.isHoldingShift()) {
+                                if (mKeyState.abcFlags & ~15) {
+                                    mKeyState.abcFlags &= ~128;
+                                    mKeyState.refresh_();
+                                }
+                                if (mShiftButton.mbOn) {
+                                    mShiftButton.mbOn = false;
+                                    mShiftButton.mpAnimation->onAnmEvent(static_cast<AnmPane::AnmPaneEvent>(5));
+                                }
+                            }
+                            u8 caps = !gather.isCapsLock();
+                            gather.changeCapsLock(caps);
+                            mKeyState.abcFlags = ((mKeyState.abcFlags ^ 64) & 64) | (mKeyState.abcFlags & ~64);
+                            mKeyState.refresh_();
+                            mCapsButton.mbOn = (mKeyState.abcFlags >> 6) & 1;
+                            if (mCapsButton.mbOn)
+                                mCapsButton.mpAnimation->onAnmEvent(static_cast<AnmPane::AnmPaneEvent>(10));
+                            else
+                                mCapsButton.mpAnimation->onAnmEvent(static_cast<AnmPane::AnmPaneEvent>(11));
+                            mpEventObserver->onSE(static_cast<sound::SE>(13));
+
                             break;
-                        case 3:
-                            onPressedCaps();
-                            break;
-                        case 4:
+                        }
+                        case 4: {
+                            LayoutGather& shiftGather = LayoutGather::Singleton::getInstance();
                             if (mKeyState.abcFlags & ~15) {
                                 mKeyState.abcFlags &= ~64;
                                 mKeyState.refresh_();
@@ -2114,16 +2153,20 @@ namespace textinput {
                                 mCapsButton.mbOn = false;
                                 mCapsButton.mpAnimation->onAnmEvent(static_cast<AnmPane::AnmPaneEvent>(5));
                             }
-                            if (!LayoutGather::Singleton::getInstance().isHoldingShift()) {
+                            if (!shiftGather.isHoldingShift()) {
                                 mKeyState.abcFlags = ((mKeyState.abcFlags ^ 128) & 128) | (mKeyState.abcFlags & ~128);
                                 mKeyState.refresh_();
                             }
                             mShiftButton.mbOn = (mKeyState.abcFlags >> 7) & 1;
-                            if (!mShiftButton.mbOn)
-                                mShiftButton.mpAnimation->onAnmEvent(static_cast<AnmPane::AnmPaneEvent>(11));
-                            else
+                            if (mShiftButton.mbOn)
                                 mShiftButton.mpAnimation->onAnmEvent(static_cast<AnmPane::AnmPaneEvent>(10));
+                            else
+                                mShiftButton.mpAnimation->onAnmEvent(static_cast<AnmPane::AnmPaneEvent>(11));
                             mpEventObserver->onSE(static_cast<sound::SE>(13));
+                            break;
+                        }
+                        case 0:
+                            mpEventObserver->onSE(static_cast<sound::SE>(9));
                             break;
                         case 11:
                             if (!isABC()) {
@@ -2135,6 +2178,18 @@ namespace textinput {
                             if (isABC()) {
                                 mpEventObserver->onSE(static_cast<sound::SE>(13));
                                 searchAnmPane("W_JP_Chng_ABC")->changeAnimation(6);
+                            }
+                            break;
+                        case 18:
+                            if ((mKeyState.aiuFlags & 15) == 1) {
+                                mpEventObserver->onSE(static_cast<sound::SE>(13));
+                                searchAnmPane("P_katakana")->changeAnimation(6);
+                            }
+                            break;
+                        case 19:
+                            if ((mKeyState.aiuFlags & 15) == 0) {
+                                mpEventObserver->onSE(static_cast<sound::SE>(13));
+                                searchAnmPane("P_hiragana")->changeAnimation(6);
                             }
                             break;
                         case 15:
@@ -2158,18 +2213,6 @@ namespace textinput {
                                 searchAnmPane("P_Mode_direct")->changeAnimation(6);
                             if ((mKeyState.abcFlags & 15) == 1)
                                 searchAnmPane("P_Mode_roma_hira")->changeAnimation(6);
-                            break;
-                        case 18:
-                            if ((mKeyState.aiuFlags & 15) == 1) {
-                                mpEventObserver->onSE(static_cast<sound::SE>(13));
-                                searchAnmPane("P_katakana")->changeAnimation(6);
-                            }
-                            break;
-                        case 19:
-                            if ((mKeyState.aiuFlags & 15) == 0) {
-                                mpEventObserver->onSE(static_cast<sound::SE>(13));
-                                searchAnmPane("P_hiragana")->changeAnimation(6);
-                            }
                             break;
                     }
                 }
@@ -2303,7 +2346,7 @@ namespace textinput {
             }
 
             void LayoutByNW4R::sendInputWChar(wchar_t code, bool repeat) {
-                bool shift = (mKeyState.abcFlags & 128) != 0;
+                u32 shift = mKeyState.abcFlags & 128;
                 nw4r::lyt::Pane* last = NULL;
                 if (shift)
                     last = mAnmPaneFifo.getLast();
@@ -2492,14 +2535,19 @@ namespace textinput {
                     nw4rmanager::AnmPane* animation = NULL;
                     u8 key = keys.GetKey();
                     keys.GetWChar();
-                    if (key < 0x2c) {
-                        if (key == 0x2a && !(hkb.GetModifierState() & 4))
+                    switch (key) {
+                        case 0x2a:
+                            if (!(hkb.GetModifierState() & 4))
+                                animation = searchAnmPane("P_key_DELETE");
+                            break;
+                        case 0x2c:
+                            if (!(hkb.GetModifierState() & 8))
+                                animation = searchAnmPane("P_key_SPACE");
+                            break;
+                        case 0x4c:
                             animation = searchAnmPane("P_key_DELETE");
-                    } else if (key == 0x2c) {
-                        if (!(hkb.GetModifierState() & 8))
-                            animation = searchAnmPane("P_key_SPACE");
-                    } else if (key == 0x4c)
-                        animation = searchAnmPane("P_key_DELETE");
+                            break;
+                    }
                     if (animation != NULL)
                         animation->onAnmEvent(nw4rmanager::AnmPane::PE_0);
                     keys = keys.GetNext();
@@ -2559,8 +2607,7 @@ namespace textinput {
                         mCapsButton.mbOn = false;
                         mCapsButton.mpAnimation->onAnmEvent(static_cast<AnmPane::AnmPaneEvent>(5));
                     }
-                    const u8 caps = 0;
-                    LayoutGather::Singleton::getInstance().changeCapsLock(caps);
+                    LayoutGather::Singleton::getInstance().changeCapsLock(0);
                 }
                 if (visible)
                     initPaneLastDrawReceived();
@@ -2611,7 +2658,7 @@ namespace textinput {
                          util::strcmp("P_key_SPACE", animationName) || util::strcmp("P_Gkey_SPACE", animationName)) &&
                         component->isDragging(input->field_0x00)) {
                         u32 frames = mpKeyboard->getFlightDuration(input->field_0x00, name);
-                        if (frames > 29 && frames % 9 == 0) {
+                        if (frames >= 30 && frames % 9 == 0) {
                             animation->onAnmEvent(nw4rmanager::AnmPane::PE_0);
                             mpKeyboard->onKey(4, animationName);
                         }
@@ -3083,6 +3130,9 @@ namespace textinput {
 
             void Base::setInputModeJP(bool, u32, u32) {
             }
+
+            SelectorPosition chinesePosition = {{-219.0f, -130.0f, 0.0f}};
+            SelectorPosition koreanPosition = {{-209.0f, -90.0f, 0.0f}};
 
         }
     }
