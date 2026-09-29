@@ -50,6 +50,16 @@ Supported versions:
 
 Progress
 ========
+<!-- progress:start -->
+| Decompiled | Matched | Linked | Data |
+|:---:|:---:|:---:|:---:|
+| 80.98% | 72.11% | 56.76% | 86.16% |
+
+units 748/1027 complete, functions 10570/12563 matched. updated 2026-09-29 22:58 UTC from `test` by the self-hosted progress job
+
+decompiled = code with a C/C++ implementation (objdiff fuzzy), matched = byte-exact code, linked = code actually linked into the DOL, data = byte-exact data
+<!-- progress:end -->
+
 |        Version        |                                  Progress                                    |
 |-----------------------|------------------------------------------------------------------------------|
 | [Wii Menu 4.3U][V43U] | [![FuncBadgeV43U]][V43U] [![DecompBadgeV43U]][V43U] [![LinkBadgeV43U]][V43U] |

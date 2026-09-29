@@ -1,0 +1,62 @@
+name: README progress
+
+# runs on the self-hosted runner on cole's server so it doesn't use hosted minutes.
+# only push/schedule/manual triggers, never pull_request, so fork PRs can't reach this machine.
+on:
+  push:
+    branches: [main]
+    paths-ignore: [README.md]
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: readme-progress
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  progress:
+    runs-on: [self-hosted, wii-ipl-local]
+    timeout-minutes: 60
+    env:
+      ORIG_APP: /mnt/drive2/projects/wiichannels/wii-ipl/orig/43U/00000008.app
+      TOOL_CACHE: /mnt/drive2/projects/wiichannels/wii-ipl/build
+      NINJA: /home/cole/projects/tests/.venv/bin/ninja
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 1
+
+      - name: Prepare
+        run: |
+          mkdir -p build orig/43U
+          cp "$ORIG_APP" orig/43U/00000008.app
+          [ -d build/compilers ] || cp -a "$TOOL_CACHE/compilers" build/
+          [ -d build/tools ] || cp -a "$TOOL_CACHE/tools" build/
+
+      - name: Build
+        run: |
+          python3 configure.py --version 43U
+          "$NINJA"
+          "$NINJA" build/43U/ok
+
+      - name: Report
+        run: build/tools/objdiff-cli report generate -p . -o build/43U/report.json -f json
+
+      - name: Update README
+        run: python3 tools/update_readme_progress.py build/43U/report.json README.md "$GITHUB_SHA"
+
+      - name: Commit
+        run: |
+          if git diff --quiet README.md; then exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add README.md
+          git commit -m "docs: update progress [skip ci]"
+          git pull --rebase origin main || { git rebase --abort; echo "main moved, next run will update"; exit 0; }
+          git push origin HEAD:main
