@@ -756,10 +756,16 @@ namespace ipl {
                 }
                 break;
             case 3:
-                if (System::getDialog()->getLastResult() == 1 ||
-                    System::getDialog()->getLastResult() == 2) {
+                if (System::getDialog()->getLastResult() == 1) {
                     if (unk_0xB9C == 0) {
-                        www::wiisetting::setFuncResult(System::getDialog()->getLastResult());
+                        www::wiisetting::setFuncResult(1);
+                    } else if (www::wiisetting::getFuncResult() == 0) {
+                        unk_0x74 = 0;
+                    }
+                    unk_0xB9C = 1;
+                } else if (System::getDialog()->getLastResult() == 2) {
+                    if (unk_0xB9C == 0) {
+                        www::wiisetting::setFuncResult(2);
                     } else if (www::wiisetting::getFuncResult() == 0) {
                         unk_0x74 = 0;
                     }
@@ -827,9 +833,7 @@ namespace ipl {
                     SCSetWCFlags(SCGetWCFlags() & 0xfffffffe);
                     SCIdleModeInfo idleMode = {0, 0};
                     SCSetIdleMode(&idleMode);
-                    if (System::getNwc24Manager() != NULL) {
-                        System::getNwc24Manager()->enableLedNotification(TRUE);
-                    }
+                    System::getNwc24Manager()->enableLedNotification(TRUE);
                     SCSetEULA(0);
                     ncd::NCDSetting::adjustNWC24Flag();
                     parental::Parental::setCountry(mpWiiSettingData->data[0x3c]);
@@ -880,9 +884,7 @@ namespace ipl {
                     SCSetWCFlags(SCGetWCFlags() & 0xfffffffe);
                     SCIdleModeInfo idleMode = {0, 0};
                     SCSetIdleMode(&idleMode);
-                    if (System::getNwc24Manager() != NULL) {
-                        System::getNwc24Manager()->enableLedNotification(TRUE);
-                    }
+                    System::getNwc24Manager()->enableLedNotification(TRUE);
                     SCSetEULA(0);
                     ncd::NCDSetting::adjustNWC24Flag();
                     SCFlush();
@@ -904,9 +906,7 @@ namespace ipl {
                     SCSetWCFlags(SCGetWCFlags() & 0xfffffffe);
                     SCIdleModeInfo idleMode = {0, 0};
                     SCSetIdleMode(&idleMode);
-                    if (System::getNwc24Manager() != NULL) {
-                        System::getNwc24Manager()->enableLedNotification(TRUE);
-                    }
+                    System::getNwc24Manager()->enableLedNotification(TRUE);
                     SCSetEULA(0);
                     ncd::NCDSetting::adjustNWC24Flag();
                     SCFlush();
