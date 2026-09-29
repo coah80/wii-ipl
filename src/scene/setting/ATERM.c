@@ -1,0 +1,2345 @@
+#include <string.h>
+
+#include <revolution/ncd.h>
+#include <revolution/net/NETDigest.h>
+#include <revolution/os/OSAlarm.h>
+#include <revolution/os/OSMessage.h>
+#include <revolution/os.h>
+#include <revolution/so/SOBasic.h>
+#include <private/wd.h>
+
+static const u32 gAtermAesTables[10][256] = {
+    {
+        0xc66363a5, 0xf87c7c84, 0xee777799, 0xf67b7b8d, 0xfff2f20d, 0xd66b6bbd, 0xde6f6fb1, 0x91c5c554,
+        0x60303050, 0x02010103, 0xce6767a9, 0x562b2b7d, 0xe7fefe19, 0xb5d7d762, 0x4dababe6, 0xec76769a,
+        0x8fcaca45, 0x1f82829d, 0x89c9c940, 0xfa7d7d87, 0xeffafa15, 0xb25959eb, 0x8e4747c9, 0xfbf0f00b,
+        0x41adadec, 0xb3d4d467, 0x5fa2a2fd, 0x45afafea, 0x239c9cbf, 0x53a4a4f7, 0xe4727296, 0x9bc0c05b,
+        0x75b7b7c2, 0xe1fdfd1c, 0x3d9393ae, 0x4c26266a, 0x6c36365a, 0x7e3f3f41, 0xf5f7f702, 0x83cccc4f,
+        0x6834345c, 0x51a5a5f4, 0xd1e5e534, 0xf9f1f108, 0xe2717193, 0xabd8d873, 0x62313153, 0x2a15153f,
+        0x0804040c, 0x95c7c752, 0x46232365, 0x9dc3c35e, 0x30181828, 0x379696a1, 0x0a05050f, 0x2f9a9ab5,
+        0x0e070709, 0x24121236, 0x1b80809b, 0xdfe2e23d, 0xcdebeb26, 0x4e272769, 0x7fb2b2cd, 0xea75759f,
+        0x1209091b, 0x1d83839e, 0x582c2c74, 0x341a1a2e, 0x361b1b2d, 0xdc6e6eb2, 0xb45a5aee, 0x5ba0a0fb,
+        0xa45252f6, 0x763b3b4d, 0xb7d6d661, 0x7db3b3ce, 0x5229297b, 0xdde3e33e, 0x5e2f2f71, 0x13848497,
+        0xa65353f5, 0xb9d1d168, 0x00000000, 0xc1eded2c, 0x40202060, 0xe3fcfc1f, 0x79b1b1c8, 0xb65b5bed,
+        0xd46a6abe, 0x8dcbcb46, 0x67bebed9, 0x7239394b, 0x944a4ade, 0x984c4cd4, 0xb05858e8, 0x85cfcf4a,
+        0xbbd0d06b, 0xc5efef2a, 0x4faaaae5, 0xedfbfb16, 0x864343c5, 0x9a4d4dd7, 0x66333355, 0x11858594,
+        0x8a4545cf, 0xe9f9f910, 0x04020206, 0xfe7f7f81, 0xa05050f0, 0x783c3c44, 0x259f9fba, 0x4ba8a8e3,
+        0xa25151f3, 0x5da3a3fe, 0x804040c0, 0x058f8f8a, 0x3f9292ad, 0x219d9dbc, 0x70383848, 0xf1f5f504,
+        0x63bcbcdf, 0x77b6b6c1, 0xafdada75, 0x42212163, 0x20101030, 0xe5ffff1a, 0xfdf3f30e, 0xbfd2d26d,
+        0x81cdcd4c, 0x180c0c14, 0x26131335, 0xc3ecec2f, 0xbe5f5fe1, 0x359797a2, 0x884444cc, 0x2e171739,
+        0x93c4c457, 0x55a7a7f2, 0xfc7e7e82, 0x7a3d3d47, 0xc86464ac, 0xba5d5de7, 0x3219192b, 0xe6737395,
+        0xc06060a0, 0x19818198, 0x9e4f4fd1, 0xa3dcdc7f, 0x44222266, 0x542a2a7e, 0x3b9090ab, 0x0b888883,
+        0x8c4646ca, 0xc7eeee29, 0x6bb8b8d3, 0x2814143c, 0xa7dede79, 0xbc5e5ee2, 0x160b0b1d, 0xaddbdb76,
+        0xdbe0e03b, 0x64323256, 0x743a3a4e, 0x140a0a1e, 0x924949db, 0x0c06060a, 0x4824246c, 0xb85c5ce4,
+        0x9fc2c25d, 0xbdd3d36e, 0x43acacef, 0xc46262a6, 0x399191a8, 0x319595a4, 0xd3e4e437, 0xf279798b,
+        0xd5e7e732, 0x8bc8c843, 0x6e373759, 0xda6d6db7, 0x018d8d8c, 0xb1d5d564, 0x9c4e4ed2, 0x49a9a9e0,
+        0xd86c6cb4, 0xac5656fa, 0xf3f4f407, 0xcfeaea25, 0xca6565af, 0xf47a7a8e, 0x47aeaee9, 0x10080818,
+        0x6fbabad5, 0xf0787888, 0x4a25256f, 0x5c2e2e72, 0x381c1c24, 0x57a6a6f1, 0x73b4b4c7, 0x97c6c651,
+        0xcbe8e823, 0xa1dddd7c, 0xe874749c, 0x3e1f1f21, 0x964b4bdd, 0x61bdbddc, 0x0d8b8b86, 0x0f8a8a85,
+        0xe0707090, 0x7c3e3e42, 0x71b5b5c4, 0xcc6666aa, 0x904848d8, 0x06030305, 0xf7f6f601, 0x1c0e0e12,
+        0xc26161a3, 0x6a35355f, 0xae5757f9, 0x69b9b9d0, 0x17868691, 0x99c1c158, 0x3a1d1d27, 0x279e9eb9,
+        0xd9e1e138, 0xebf8f813, 0x2b9898b3, 0x22111133, 0xd26969bb, 0xa9d9d970, 0x078e8e89, 0x339494a7,
+        0x2d9b9bb6, 0x3c1e1e22, 0x15878792, 0xc9e9e920, 0x87cece49, 0xaa5555ff, 0x50282878, 0xa5dfdf7a,
+        0x038c8c8f, 0x59a1a1f8, 0x09898980, 0x1a0d0d17, 0x65bfbfda, 0xd7e6e631, 0x844242c6, 0xd06868b8,
+        0x824141c3, 0x299999b0, 0x5a2d2d77, 0x1e0f0f11, 0x7bb0b0cb, 0xa85454fc, 0x6dbbbbd6, 0x2c16163a
+    },
+    {
+        0xa5c66363, 0x84f87c7c, 0x99ee7777, 0x8df67b7b, 0x0dfff2f2, 0xbdd66b6b, 0xb1de6f6f, 0x5491c5c5,
+        0x50603030, 0x03020101, 0xa9ce6767, 0x7d562b2b, 0x19e7fefe, 0x62b5d7d7, 0xe64dabab, 0x9aec7676,
+        0x458fcaca, 0x9d1f8282, 0x4089c9c9, 0x87fa7d7d, 0x15effafa, 0xebb25959, 0xc98e4747, 0x0bfbf0f0,
+        0xec41adad, 0x67b3d4d4, 0xfd5fa2a2, 0xea45afaf, 0xbf239c9c, 0xf753a4a4, 0x96e47272, 0x5b9bc0c0,
+        0xc275b7b7, 0x1ce1fdfd, 0xae3d9393, 0x6a4c2626, 0x5a6c3636, 0x417e3f3f, 0x02f5f7f7, 0x4f83cccc,
+        0x5c683434, 0xf451a5a5, 0x34d1e5e5, 0x08f9f1f1, 0x93e27171, 0x73abd8d8, 0x53623131, 0x3f2a1515,
+        0x0c080404, 0x5295c7c7, 0x65462323, 0x5e9dc3c3, 0x28301818, 0xa1379696, 0x0f0a0505, 0xb52f9a9a,
+        0x090e0707, 0x36241212, 0x9b1b8080, 0x3ddfe2e2, 0x26cdebeb, 0x694e2727, 0xcd7fb2b2, 0x9fea7575,
+        0x1b120909, 0x9e1d8383, 0x74582c2c, 0x2e341a1a, 0x2d361b1b, 0xb2dc6e6e, 0xeeb45a5a, 0xfb5ba0a0,
+        0xf6a45252, 0x4d763b3b, 0x61b7d6d6, 0xce7db3b3, 0x7b522929, 0x3edde3e3, 0x715e2f2f, 0x97138484,
+        0xf5a65353, 0x68b9d1d1, 0x00000000, 0x2cc1eded, 0x60402020, 0x1fe3fcfc, 0xc879b1b1, 0xedb65b5b,
+        0xbed46a6a, 0x468dcbcb, 0xd967bebe, 0x4b723939, 0xde944a4a, 0xd4984c4c, 0xe8b05858, 0x4a85cfcf,
+        0x6bbbd0d0, 0x2ac5efef, 0xe54faaaa, 0x16edfbfb, 0xc5864343, 0xd79a4d4d, 0x55663333, 0x94118585,
+        0xcf8a4545, 0x10e9f9f9, 0x06040202, 0x81fe7f7f, 0xf0a05050, 0x44783c3c, 0xba259f9f, 0xe34ba8a8,
+        0xf3a25151, 0xfe5da3a3, 0xc0804040, 0x8a058f8f, 0xad3f9292, 0xbc219d9d, 0x48703838, 0x04f1f5f5,
+        0xdf63bcbc, 0xc177b6b6, 0x75afdada, 0x63422121, 0x30201010, 0x1ae5ffff, 0x0efdf3f3, 0x6dbfd2d2,
+        0x4c81cdcd, 0x14180c0c, 0x35261313, 0x2fc3ecec, 0xe1be5f5f, 0xa2359797, 0xcc884444, 0x392e1717,
+        0x5793c4c4, 0xf255a7a7, 0x82fc7e7e, 0x477a3d3d, 0xacc86464, 0xe7ba5d5d, 0x2b321919, 0x95e67373,
+        0xa0c06060, 0x98198181, 0xd19e4f4f, 0x7fa3dcdc, 0x66442222, 0x7e542a2a, 0xab3b9090, 0x830b8888,
+        0xca8c4646, 0x29c7eeee, 0xd36bb8b8, 0x3c281414, 0x79a7dede, 0xe2bc5e5e, 0x1d160b0b, 0x76addbdb,
+        0x3bdbe0e0, 0x56643232, 0x4e743a3a, 0x1e140a0a, 0xdb924949, 0x0a0c0606, 0x6c482424, 0xe4b85c5c,
+        0x5d9fc2c2, 0x6ebdd3d3, 0xef43acac, 0xa6c46262, 0xa8399191, 0xa4319595, 0x37d3e4e4, 0x8bf27979,
+        0x32d5e7e7, 0x438bc8c8, 0x596e3737, 0xb7da6d6d, 0x8c018d8d, 0x64b1d5d5, 0xd29c4e4e, 0xe049a9a9,
+        0xb4d86c6c, 0xfaac5656, 0x07f3f4f4, 0x25cfeaea, 0xafca6565, 0x8ef47a7a, 0xe947aeae, 0x18100808,
+        0xd56fbaba, 0x88f07878, 0x6f4a2525, 0x725c2e2e, 0x24381c1c, 0xf157a6a6, 0xc773b4b4, 0x5197c6c6,
+        0x23cbe8e8, 0x7ca1dddd, 0x9ce87474, 0x213e1f1f, 0xdd964b4b, 0xdc61bdbd, 0x860d8b8b, 0x850f8a8a,
+        0x90e07070, 0x427c3e3e, 0xc471b5b5, 0xaacc6666, 0xd8904848, 0x05060303, 0x01f7f6f6, 0x121c0e0e,
+        0xa3c26161, 0x5f6a3535, 0xf9ae5757, 0xd069b9b9, 0x91178686, 0x5899c1c1, 0x273a1d1d, 0xb9279e9e,
+        0x38d9e1e1, 0x13ebf8f8, 0xb32b9898, 0x33221111, 0xbbd26969, 0x70a9d9d9, 0x89078e8e, 0xa7339494,
+        0xb62d9b9b, 0x223c1e1e, 0x92158787, 0x20c9e9e9, 0x4987cece, 0xffaa5555, 0x78502828, 0x7aa5dfdf,
+        0x8f038c8c, 0xf859a1a1, 0x80098989, 0x171a0d0d, 0xda65bfbf, 0x31d7e6e6, 0xc6844242, 0xb8d06868,
+        0xc3824141, 0xb0299999, 0x775a2d2d, 0x111e0f0f, 0xcb7bb0b0, 0xfca85454, 0xd66dbbbb, 0x3a2c1616
+    },
+    {
+        0x63a5c663, 0x7c84f87c, 0x7799ee77, 0x7b8df67b, 0xf20dfff2, 0x6bbdd66b, 0x6fb1de6f, 0xc55491c5,
+        0x30506030, 0x01030201, 0x67a9ce67, 0x2b7d562b, 0xfe19e7fe, 0xd762b5d7, 0xabe64dab, 0x769aec76,
+        0xca458fca, 0x829d1f82, 0xc94089c9, 0x7d87fa7d, 0xfa15effa, 0x59ebb259, 0x47c98e47, 0xf00bfbf0,
+        0xadec41ad, 0xd467b3d4, 0xa2fd5fa2, 0xafea45af, 0x9cbf239c, 0xa4f753a4, 0x7296e472, 0xc05b9bc0,
+        0xb7c275b7, 0xfd1ce1fd, 0x93ae3d93, 0x266a4c26, 0x365a6c36, 0x3f417e3f, 0xf702f5f7, 0xcc4f83cc,
+        0x345c6834, 0xa5f451a5, 0xe534d1e5, 0xf108f9f1, 0x7193e271, 0xd873abd8, 0x31536231, 0x153f2a15,
+        0x040c0804, 0xc75295c7, 0x23654623, 0xc35e9dc3, 0x18283018, 0x96a13796, 0x050f0a05, 0x9ab52f9a,
+        0x07090e07, 0x12362412, 0x809b1b80, 0xe23ddfe2, 0xeb26cdeb, 0x27694e27, 0xb2cd7fb2, 0x759fea75,
+        0x091b1209, 0x839e1d83, 0x2c74582c, 0x1a2e341a, 0x1b2d361b, 0x6eb2dc6e, 0x5aeeb45a, 0xa0fb5ba0,
+        0x52f6a452, 0x3b4d763b, 0xd661b7d6, 0xb3ce7db3, 0x297b5229, 0xe33edde3, 0x2f715e2f, 0x84971384,
+        0x53f5a653, 0xd168b9d1, 0x00000000, 0xed2cc1ed, 0x20604020, 0xfc1fe3fc, 0xb1c879b1, 0x5bedb65b,
+        0x6abed46a, 0xcb468dcb, 0xbed967be, 0x394b7239, 0x4ade944a, 0x4cd4984c, 0x58e8b058, 0xcf4a85cf,
+        0xd06bbbd0, 0xef2ac5ef, 0xaae54faa, 0xfb16edfb, 0x43c58643, 0x4dd79a4d, 0x33556633, 0x85941185,
+        0x45cf8a45, 0xf910e9f9, 0x02060402, 0x7f81fe7f, 0x50f0a050, 0x3c44783c, 0x9fba259f, 0xa8e34ba8,
+        0x51f3a251, 0xa3fe5da3, 0x40c08040, 0x8f8a058f, 0x92ad3f92, 0x9dbc219d, 0x38487038, 0xf504f1f5,
+        0xbcdf63bc, 0xb6c177b6, 0xda75afda, 0x21634221, 0x10302010, 0xff1ae5ff, 0xf30efdf3, 0xd26dbfd2,
+        0xcd4c81cd, 0x0c14180c, 0x13352613, 0xec2fc3ec, 0x5fe1be5f, 0x97a23597, 0x44cc8844, 0x17392e17,
+        0xc45793c4, 0xa7f255a7, 0x7e82fc7e, 0x3d477a3d, 0x64acc864, 0x5de7ba5d, 0x192b3219, 0x7395e673,
+        0x60a0c060, 0x81981981, 0x4fd19e4f, 0xdc7fa3dc, 0x22664422, 0x2a7e542a, 0x90ab3b90, 0x88830b88,
+        0x46ca8c46, 0xee29c7ee, 0xb8d36bb8, 0x143c2814, 0xde79a7de, 0x5ee2bc5e, 0x0b1d160b, 0xdb76addb,
+        0xe03bdbe0, 0x32566432, 0x3a4e743a, 0x0a1e140a, 0x49db9249, 0x060a0c06, 0x246c4824, 0x5ce4b85c,
+        0xc25d9fc2, 0xd36ebdd3, 0xacef43ac, 0x62a6c462, 0x91a83991, 0x95a43195, 0xe437d3e4, 0x798bf279,
+        0xe732d5e7, 0xc8438bc8, 0x37596e37, 0x6db7da6d, 0x8d8c018d, 0xd564b1d5, 0x4ed29c4e, 0xa9e049a9,
+        0x6cb4d86c, 0x56faac56, 0xf407f3f4, 0xea25cfea, 0x65afca65, 0x7a8ef47a, 0xaee947ae, 0x08181008,
+        0xbad56fba, 0x7888f078, 0x256f4a25, 0x2e725c2e, 0x1c24381c, 0xa6f157a6, 0xb4c773b4, 0xc65197c6,
+        0xe823cbe8, 0xdd7ca1dd, 0x749ce874, 0x1f213e1f, 0x4bdd964b, 0xbddc61bd, 0x8b860d8b, 0x8a850f8a,
+        0x7090e070, 0x3e427c3e, 0xb5c471b5, 0x66aacc66, 0x48d89048, 0x03050603, 0xf601f7f6, 0x0e121c0e,
+        0x61a3c261, 0x355f6a35, 0x57f9ae57, 0xb9d069b9, 0x86911786, 0xc15899c1, 0x1d273a1d, 0x9eb9279e,
+        0xe138d9e1, 0xf813ebf8, 0x98b32b98, 0x11332211, 0x69bbd269, 0xd970a9d9, 0x8e89078e, 0x94a73394,
+        0x9bb62d9b, 0x1e223c1e, 0x87921587, 0xe920c9e9, 0xce4987ce, 0x55ffaa55, 0x28785028, 0xdf7aa5df,
+        0x8c8f038c, 0xa1f859a1, 0x89800989, 0x0d171a0d, 0xbfda65bf, 0xe631d7e6, 0x42c68442, 0x68b8d068,
+        0x41c38241, 0x99b02999, 0x2d775a2d, 0x0f111e0f, 0xb0cb7bb0, 0x54fca854, 0xbbd66dbb, 0x163a2c16
+    },
+    {
+        0x6363a5c6, 0x7c7c84f8, 0x777799ee, 0x7b7b8df6, 0xf2f20dff, 0x6b6bbdd6, 0x6f6fb1de, 0xc5c55491,
+        0x30305060, 0x01010302, 0x6767a9ce, 0x2b2b7d56, 0xfefe19e7, 0xd7d762b5, 0xababe64d, 0x76769aec,
+        0xcaca458f, 0x82829d1f, 0xc9c94089, 0x7d7d87fa, 0xfafa15ef, 0x5959ebb2, 0x4747c98e, 0xf0f00bfb,
+        0xadadec41, 0xd4d467b3, 0xa2a2fd5f, 0xafafea45, 0x9c9cbf23, 0xa4a4f753, 0x727296e4, 0xc0c05b9b,
+        0xb7b7c275, 0xfdfd1ce1, 0x9393ae3d, 0x26266a4c, 0x36365a6c, 0x3f3f417e, 0xf7f702f5, 0xcccc4f83,
+        0x34345c68, 0xa5a5f451, 0xe5e534d1, 0xf1f108f9, 0x717193e2, 0xd8d873ab, 0x31315362, 0x15153f2a,
+        0x04040c08, 0xc7c75295, 0x23236546, 0xc3c35e9d, 0x18182830, 0x9696a137, 0x05050f0a, 0x9a9ab52f,
+        0x0707090e, 0x12123624, 0x80809b1b, 0xe2e23ddf, 0xebeb26cd, 0x2727694e, 0xb2b2cd7f, 0x75759fea,
+        0x09091b12, 0x83839e1d, 0x2c2c7458, 0x1a1a2e34, 0x1b1b2d36, 0x6e6eb2dc, 0x5a5aeeb4, 0xa0a0fb5b,
+        0x5252f6a4, 0x3b3b4d76, 0xd6d661b7, 0xb3b3ce7d, 0x29297b52, 0xe3e33edd, 0x2f2f715e, 0x84849713,
+        0x5353f5a6, 0xd1d168b9, 0x00000000, 0xeded2cc1, 0x20206040, 0xfcfc1fe3, 0xb1b1c879, 0x5b5bedb6,
+        0x6a6abed4, 0xcbcb468d, 0xbebed967, 0x39394b72, 0x4a4ade94, 0x4c4cd498, 0x5858e8b0, 0xcfcf4a85,
+        0xd0d06bbb, 0xefef2ac5, 0xaaaae54f, 0xfbfb16ed, 0x4343c586, 0x4d4dd79a, 0x33335566, 0x85859411,
+        0x4545cf8a, 0xf9f910e9, 0x02020604, 0x7f7f81fe, 0x5050f0a0, 0x3c3c4478, 0x9f9fba25, 0xa8a8e34b,
+        0x5151f3a2, 0xa3a3fe5d, 0x4040c080, 0x8f8f8a05, 0x9292ad3f, 0x9d9dbc21, 0x38384870, 0xf5f504f1,
+        0xbcbcdf63, 0xb6b6c177, 0xdada75af, 0x21216342, 0x10103020, 0xffff1ae5, 0xf3f30efd, 0xd2d26dbf,
+        0xcdcd4c81, 0x0c0c1418, 0x13133526, 0xecec2fc3, 0x5f5fe1be, 0x9797a235, 0x4444cc88, 0x1717392e,
+        0xc4c45793, 0xa7a7f255, 0x7e7e82fc, 0x3d3d477a, 0x6464acc8, 0x5d5de7ba, 0x19192b32, 0x737395e6,
+        0x6060a0c0, 0x81819819, 0x4f4fd19e, 0xdcdc7fa3, 0x22226644, 0x2a2a7e54, 0x9090ab3b, 0x8888830b,
+        0x4646ca8c, 0xeeee29c7, 0xb8b8d36b, 0x14143c28, 0xdede79a7, 0x5e5ee2bc, 0x0b0b1d16, 0xdbdb76ad,
+        0xe0e03bdb, 0x32325664, 0x3a3a4e74, 0x0a0a1e14, 0x4949db92, 0x06060a0c, 0x24246c48, 0x5c5ce4b8,
+        0xc2c25d9f, 0xd3d36ebd, 0xacacef43, 0x6262a6c4, 0x9191a839, 0x9595a431, 0xe4e437d3, 0x79798bf2,
+        0xe7e732d5, 0xc8c8438b, 0x3737596e, 0x6d6db7da, 0x8d8d8c01, 0xd5d564b1, 0x4e4ed29c, 0xa9a9e049,
+        0x6c6cb4d8, 0x5656faac, 0xf4f407f3, 0xeaea25cf, 0x6565afca, 0x7a7a8ef4, 0xaeaee947, 0x08081810,
+        0xbabad56f, 0x787888f0, 0x25256f4a, 0x2e2e725c, 0x1c1c2438, 0xa6a6f157, 0xb4b4c773, 0xc6c65197,
+        0xe8e823cb, 0xdddd7ca1, 0x74749ce8, 0x1f1f213e, 0x4b4bdd96, 0xbdbddc61, 0x8b8b860d, 0x8a8a850f,
+        0x707090e0, 0x3e3e427c, 0xb5b5c471, 0x6666aacc, 0x4848d890, 0x03030506, 0xf6f601f7, 0x0e0e121c,
+        0x6161a3c2, 0x35355f6a, 0x5757f9ae, 0xb9b9d069, 0x86869117, 0xc1c15899, 0x1d1d273a, 0x9e9eb927,
+        0xe1e138d9, 0xf8f813eb, 0x9898b32b, 0x11113322, 0x6969bbd2, 0xd9d970a9, 0x8e8e8907, 0x9494a733,
+        0x9b9bb62d, 0x1e1e223c, 0x87879215, 0xe9e920c9, 0xcece4987, 0x5555ffaa, 0x28287850, 0xdfdf7aa5,
+        0x8c8c8f03, 0xa1a1f859, 0x89898009, 0x0d0d171a, 0xbfbfda65, 0xe6e631d7, 0x4242c684, 0x6868b8d0,
+        0x4141c382, 0x9999b029, 0x2d2d775a, 0x0f0f111e, 0xb0b0cb7b, 0x5454fca8, 0xbbbbd66d, 0x16163a2c
+    },
+    {
+        0x63636363, 0x7c7c7c7c, 0x77777777, 0x7b7b7b7b, 0xf2f2f2f2, 0x6b6b6b6b, 0x6f6f6f6f, 0xc5c5c5c5,
+        0x30303030, 0x01010101, 0x67676767, 0x2b2b2b2b, 0xfefefefe, 0xd7d7d7d7, 0xabababab, 0x76767676,
+        0xcacacaca, 0x82828282, 0xc9c9c9c9, 0x7d7d7d7d, 0xfafafafa, 0x59595959, 0x47474747, 0xf0f0f0f0,
+        0xadadadad, 0xd4d4d4d4, 0xa2a2a2a2, 0xafafafaf, 0x9c9c9c9c, 0xa4a4a4a4, 0x72727272, 0xc0c0c0c0,
+        0xb7b7b7b7, 0xfdfdfdfd, 0x93939393, 0x26262626, 0x36363636, 0x3f3f3f3f, 0xf7f7f7f7, 0xcccccccc,
+        0x34343434, 0xa5a5a5a5, 0xe5e5e5e5, 0xf1f1f1f1, 0x71717171, 0xd8d8d8d8, 0x31313131, 0x15151515,
+        0x04040404, 0xc7c7c7c7, 0x23232323, 0xc3c3c3c3, 0x18181818, 0x96969696, 0x05050505, 0x9a9a9a9a,
+        0x07070707, 0x12121212, 0x80808080, 0xe2e2e2e2, 0xebebebeb, 0x27272727, 0xb2b2b2b2, 0x75757575,
+        0x09090909, 0x83838383, 0x2c2c2c2c, 0x1a1a1a1a, 0x1b1b1b1b, 0x6e6e6e6e, 0x5a5a5a5a, 0xa0a0a0a0,
+        0x52525252, 0x3b3b3b3b, 0xd6d6d6d6, 0xb3b3b3b3, 0x29292929, 0xe3e3e3e3, 0x2f2f2f2f, 0x84848484,
+        0x53535353, 0xd1d1d1d1, 0x00000000, 0xedededed, 0x20202020, 0xfcfcfcfc, 0xb1b1b1b1, 0x5b5b5b5b,
+        0x6a6a6a6a, 0xcbcbcbcb, 0xbebebebe, 0x39393939, 0x4a4a4a4a, 0x4c4c4c4c, 0x58585858, 0xcfcfcfcf,
+        0xd0d0d0d0, 0xefefefef, 0xaaaaaaaa, 0xfbfbfbfb, 0x43434343, 0x4d4d4d4d, 0x33333333, 0x85858585,
+        0x45454545, 0xf9f9f9f9, 0x02020202, 0x7f7f7f7f, 0x50505050, 0x3c3c3c3c, 0x9f9f9f9f, 0xa8a8a8a8,
+        0x51515151, 0xa3a3a3a3, 0x40404040, 0x8f8f8f8f, 0x92929292, 0x9d9d9d9d, 0x38383838, 0xf5f5f5f5,
+        0xbcbcbcbc, 0xb6b6b6b6, 0xdadadada, 0x21212121, 0x10101010, 0xffffffff, 0xf3f3f3f3, 0xd2d2d2d2,
+        0xcdcdcdcd, 0x0c0c0c0c, 0x13131313, 0xecececec, 0x5f5f5f5f, 0x97979797, 0x44444444, 0x17171717,
+        0xc4c4c4c4, 0xa7a7a7a7, 0x7e7e7e7e, 0x3d3d3d3d, 0x64646464, 0x5d5d5d5d, 0x19191919, 0x73737373,
+        0x60606060, 0x81818181, 0x4f4f4f4f, 0xdcdcdcdc, 0x22222222, 0x2a2a2a2a, 0x90909090, 0x88888888,
+        0x46464646, 0xeeeeeeee, 0xb8b8b8b8, 0x14141414, 0xdededede, 0x5e5e5e5e, 0x0b0b0b0b, 0xdbdbdbdb,
+        0xe0e0e0e0, 0x32323232, 0x3a3a3a3a, 0x0a0a0a0a, 0x49494949, 0x06060606, 0x24242424, 0x5c5c5c5c,
+        0xc2c2c2c2, 0xd3d3d3d3, 0xacacacac, 0x62626262, 0x91919191, 0x95959595, 0xe4e4e4e4, 0x79797979,
+        0xe7e7e7e7, 0xc8c8c8c8, 0x37373737, 0x6d6d6d6d, 0x8d8d8d8d, 0xd5d5d5d5, 0x4e4e4e4e, 0xa9a9a9a9,
+        0x6c6c6c6c, 0x56565656, 0xf4f4f4f4, 0xeaeaeaea, 0x65656565, 0x7a7a7a7a, 0xaeaeaeae, 0x08080808,
+        0xbabababa, 0x78787878, 0x25252525, 0x2e2e2e2e, 0x1c1c1c1c, 0xa6a6a6a6, 0xb4b4b4b4, 0xc6c6c6c6,
+        0xe8e8e8e8, 0xdddddddd, 0x74747474, 0x1f1f1f1f, 0x4b4b4b4b, 0xbdbdbdbd, 0x8b8b8b8b, 0x8a8a8a8a,
+        0x70707070, 0x3e3e3e3e, 0xb5b5b5b5, 0x66666666, 0x48484848, 0x03030303, 0xf6f6f6f6, 0x0e0e0e0e,
+        0x61616161, 0x35353535, 0x57575757, 0xb9b9b9b9, 0x86868686, 0xc1c1c1c1, 0x1d1d1d1d, 0x9e9e9e9e,
+        0xe1e1e1e1, 0xf8f8f8f8, 0x98989898, 0x11111111, 0x69696969, 0xd9d9d9d9, 0x8e8e8e8e, 0x94949494,
+        0x9b9b9b9b, 0x1e1e1e1e, 0x87878787, 0xe9e9e9e9, 0xcececece, 0x55555555, 0x28282828, 0xdfdfdfdf,
+        0x8c8c8c8c, 0xa1a1a1a1, 0x89898989, 0x0d0d0d0d, 0xbfbfbfbf, 0xe6e6e6e6, 0x42424242, 0x68686868,
+        0x41414141, 0x99999999, 0x2d2d2d2d, 0x0f0f0f0f, 0xb0b0b0b0, 0x54545454, 0xbbbbbbbb, 0x16161616
+    },
+    {
+        0x51f4a750, 0x7e416553, 0x1a17a4c3, 0x3a275e96, 0x3bab6bcb, 0x1f9d45f1, 0xacfa58ab, 0x4be30393,
+        0x2030fa55, 0xad766df6, 0x88cc7691, 0xf5024c25, 0x4fe5d7fc, 0xc52acbd7, 0x26354480, 0xb562a38f,
+        0xdeb15a49, 0x25ba1b67, 0x45ea0e98, 0x5dfec0e1, 0xc32f7502, 0x814cf012, 0x8d4697a3, 0x6bd3f9c6,
+        0x038f5fe7, 0x15929c95, 0xbf6d7aeb, 0x955259da, 0xd4be832d, 0x587421d3, 0x49e06929, 0x8ec9c844,
+        0x75c2896a, 0xf48e7978, 0x99583e6b, 0x27b971dd, 0xbee14fb6, 0xf088ad17, 0xc920ac66, 0x7dce3ab4,
+        0x63df4a18, 0xe51a3182, 0x97513360, 0x62537f45, 0xb16477e0, 0xbb6bae84, 0xfe81a01c, 0xf9082b94,
+        0x70486858, 0x8f45fd19, 0x94de6c87, 0x527bf8b7, 0xab73d323, 0x724b02e2, 0xe31f8f57, 0x6655ab2a,
+        0xb2eb2807, 0x2fb5c203, 0x86c57b9a, 0xd33708a5, 0x302887f2, 0x23bfa5b2, 0x02036aba, 0xed16825c,
+        0x8acf1c2b, 0xa779b492, 0xf307f2f0, 0x4e69e2a1, 0x65daf4cd, 0x0605bed5, 0xd134621f, 0xc4a6fe8a,
+        0x342e539d, 0xa2f355a0, 0x058ae132, 0xa4f6eb75, 0x0b83ec39, 0x4060efaa, 0x5e719f06, 0xbd6e1051,
+        0x3e218af9, 0x96dd063d, 0xdd3e05ae, 0x4de6bd46, 0x91548db5, 0x71c45d05, 0x0406d46f, 0x605015ff,
+        0x1998fb24, 0xd6bde997, 0x894043cc, 0x67d99e77, 0xb0e842bd, 0x07898b88, 0xe7195b38, 0x79c8eedb,
+        0xa17c0a47, 0x7c420fe9, 0xf8841ec9, 0x00000000, 0x09808683, 0x322bed48, 0x1e1170ac, 0x6c5a724e,
+        0xfd0efffb, 0x0f853856, 0x3daed51e, 0x362d3927, 0x0a0fd964, 0x685ca621, 0x9b5b54d1, 0x24362e3a,
+        0x0c0a67b1, 0x9357e70f, 0xb4ee96d2, 0x1b9b919e, 0x80c0c54f, 0x61dc20a2, 0x5a774b69, 0x1c121a16,
+        0xe293ba0a, 0xc0a02ae5, 0x3c22e043, 0x121b171d, 0x0e090d0b, 0xf28bc7ad, 0x2db6a8b9, 0x141ea9c8,
+        0x57f11985, 0xaf75074c, 0xee99ddbb, 0xa37f60fd, 0xf701269f, 0x5c72f5bc, 0x44663bc5, 0x5bfb7e34,
+        0x8b432976, 0xcb23c6dc, 0xb6edfc68, 0xb8e4f163, 0xd731dcca, 0x42638510, 0x13972240, 0x84c61120,
+        0x854a247d, 0xd2bb3df8, 0xaef93211, 0xc729a16d, 0x1d9e2f4b, 0xdcb230f3, 0x0d8652ec, 0x77c1e3d0,
+        0x2bb3166c, 0xa970b999, 0x119448fa, 0x47e96422, 0xa8fc8cc4, 0xa0f03f1a, 0x567d2cd8, 0x223390ef,
+        0x87494ec7, 0xd938d1c1, 0x8ccaa2fe, 0x98d40b36, 0xa6f581cf, 0xa57ade28, 0xdab78e26, 0x3fadbfa4,
+        0x2c3a9de4, 0x5078920d, 0x6a5fcc9b, 0x547e4662, 0xf68d13c2, 0x90d8b8e8, 0x2e39f75e, 0x82c3aff5,
+        0x9f5d80be, 0x69d0937c, 0x6fd52da9, 0xcf2512b3, 0xc8ac993b, 0x10187da7, 0xe89c636e, 0xdb3bbb7b,
+        0xcd267809, 0x6e5918f4, 0xec9ab701, 0x834f9aa8, 0xe6956e65, 0xaaffe67e, 0x21bccf08, 0xef15e8e6,
+        0xbae79bd9, 0x4a6f36ce, 0xea9f09d4, 0x29b07cd6, 0x31a4b2af, 0x2a3f2331, 0xc6a59430, 0x35a266c0,
+        0x744ebc37, 0xfc82caa6, 0xe090d0b0, 0x33a7d815, 0xf104984a, 0x41ecdaf7, 0x7fcd500e, 0x1791f62f,
+        0x764dd68d, 0x43efb04d, 0xccaa4d54, 0xe49604df, 0x9ed1b5e3, 0x4c6a881b, 0xc12c1fb8, 0x4665517f,
+        0x9d5eea04, 0x018c355d, 0xfa877473, 0xfb0b412e, 0xb3671d5a, 0x92dbd252, 0xe9105633, 0x6dd64713,
+        0x9ad7618c, 0x37a10c7a, 0x59f8148e, 0xeb133c89, 0xcea927ee, 0xb761c935, 0xe11ce5ed, 0x7a47b13c,
+        0x9cd2df59, 0x55f2733f, 0x1814ce79, 0x73c737bf, 0x53f7cdea, 0x5ffdaa5b, 0xdf3d6f14, 0x7844db86,
+        0xcaaff381, 0xb968c43e, 0x3824342c, 0xc2a3405f, 0x161dc372, 0xbce2250c, 0x283c498b, 0xff0d9541,
+        0x39a80171, 0x080cb3de, 0xd8b4e49c, 0x6456c190, 0x7bcb8461, 0xd532b670, 0x486c5c74, 0xd0b85742
+    },
+    {
+        0x5051f4a7, 0x537e4165, 0xc31a17a4, 0x963a275e, 0xcb3bab6b, 0xf11f9d45, 0xabacfa58, 0x934be303,
+        0x552030fa, 0xf6ad766d, 0x9188cc76, 0x25f5024c, 0xfc4fe5d7, 0xd7c52acb, 0x80263544, 0x8fb562a3,
+        0x49deb15a, 0x6725ba1b, 0x9845ea0e, 0xe15dfec0, 0x02c32f75, 0x12814cf0, 0xa38d4697, 0xc66bd3f9,
+        0xe7038f5f, 0x9515929c, 0xebbf6d7a, 0xda955259, 0x2dd4be83, 0xd3587421, 0x2949e069, 0x448ec9c8,
+        0x6a75c289, 0x78f48e79, 0x6b99583e, 0xdd27b971, 0xb6bee14f, 0x17f088ad, 0x66c920ac, 0xb47dce3a,
+        0x1863df4a, 0x82e51a31, 0x60975133, 0x4562537f, 0xe0b16477, 0x84bb6bae, 0x1cfe81a0, 0x94f9082b,
+        0x58704868, 0x198f45fd, 0x8794de6c, 0xb7527bf8, 0x23ab73d3, 0xe2724b02, 0x57e31f8f, 0x2a6655ab,
+        0x07b2eb28, 0x032fb5c2, 0x9a86c57b, 0xa5d33708, 0xf2302887, 0xb223bfa5, 0xba02036a, 0x5ced1682,
+        0x2b8acf1c, 0x92a779b4, 0xf0f307f2, 0xa14e69e2, 0xcd65daf4, 0xd50605be, 0x1fd13462, 0x8ac4a6fe,
+        0x9d342e53, 0xa0a2f355, 0x32058ae1, 0x75a4f6eb, 0x390b83ec, 0xaa4060ef, 0x065e719f, 0x51bd6e10,
+        0xf93e218a, 0x3d96dd06, 0xaedd3e05, 0x464de6bd, 0xb591548d, 0x0571c45d, 0x6f0406d4, 0xff605015,
+        0x241998fb, 0x97d6bde9, 0xcc894043, 0x7767d99e, 0xbdb0e842, 0x8807898b, 0x38e7195b, 0xdb79c8ee,
+        0x47a17c0a, 0xe97c420f, 0xc9f8841e, 0x00000000, 0x83098086, 0x48322bed, 0xac1e1170, 0x4e6c5a72,
+        0xfbfd0eff, 0x560f8538, 0x1e3daed5, 0x27362d39, 0x640a0fd9, 0x21685ca6, 0xd19b5b54, 0x3a24362e,
+        0xb10c0a67, 0x0f9357e7, 0xd2b4ee96, 0x9e1b9b91, 0x4f80c0c5, 0xa261dc20, 0x695a774b, 0x161c121a,
+        0x0ae293ba, 0xe5c0a02a, 0x433c22e0, 0x1d121b17, 0x0b0e090d, 0xadf28bc7, 0xb92db6a8, 0xc8141ea9,
+        0x8557f119, 0x4caf7507, 0xbbee99dd, 0xfda37f60, 0x9ff70126, 0xbc5c72f5, 0xc544663b, 0x345bfb7e,
+        0x768b4329, 0xdccb23c6, 0x68b6edfc, 0x63b8e4f1, 0xcad731dc, 0x10426385, 0x40139722, 0x2084c611,
+        0x7d854a24, 0xf8d2bb3d, 0x11aef932, 0x6dc729a1, 0x4b1d9e2f, 0xf3dcb230, 0xec0d8652, 0xd077c1e3,
+        0x6c2bb316, 0x99a970b9, 0xfa119448, 0x2247e964, 0xc4a8fc8c, 0x1aa0f03f, 0xd8567d2c, 0xef223390,
+        0xc787494e, 0xc1d938d1, 0xfe8ccaa2, 0x3698d40b, 0xcfa6f581, 0x28a57ade, 0x26dab78e, 0xa43fadbf,
+        0xe42c3a9d, 0x0d507892, 0x9b6a5fcc, 0x62547e46, 0xc2f68d13, 0xe890d8b8, 0x5e2e39f7, 0xf582c3af,
+        0xbe9f5d80, 0x7c69d093, 0xa96fd52d, 0xb3cf2512, 0x3bc8ac99, 0xa710187d, 0x6ee89c63, 0x7bdb3bbb,
+        0x09cd2678, 0xf46e5918, 0x01ec9ab7, 0xa8834f9a, 0x65e6956e, 0x7eaaffe6, 0x0821bccf, 0xe6ef15e8,
+        0xd9bae79b, 0xce4a6f36, 0xd4ea9f09, 0xd629b07c, 0xaf31a4b2, 0x312a3f23, 0x30c6a594, 0xc035a266,
+        0x37744ebc, 0xa6fc82ca, 0xb0e090d0, 0x1533a7d8, 0x4af10498, 0xf741ecda, 0x0e7fcd50, 0x2f1791f6,
+        0x8d764dd6, 0x4d43efb0, 0x54ccaa4d, 0xdfe49604, 0xe39ed1b5, 0x1b4c6a88, 0xb8c12c1f, 0x7f466551,
+        0x049d5eea, 0x5d018c35, 0x73fa8774, 0x2efb0b41, 0x5ab3671d, 0x5292dbd2, 0x33e91056, 0x136dd647,
+        0x8c9ad761, 0x7a37a10c, 0x8e59f814, 0x89eb133c, 0xeecea927, 0x35b761c9, 0xede11ce5, 0x3c7a47b1,
+        0x599cd2df, 0x3f55f273, 0x791814ce, 0xbf73c737, 0xea53f7cd, 0x5b5ffdaa, 0x14df3d6f, 0x867844db,
+        0x81caaff3, 0x3eb968c4, 0x2c382434, 0x5fc2a340, 0x72161dc3, 0x0cbce225, 0x8b283c49, 0x41ff0d95,
+        0x7139a801, 0xde080cb3, 0x9cd8b4e4, 0x906456c1, 0x617bcb84, 0x70d532b6, 0x74486c5c, 0x42d0b857
+    },
+    {
+        0xa75051f4, 0x65537e41, 0xa4c31a17, 0x5e963a27, 0x6bcb3bab, 0x45f11f9d, 0x58abacfa, 0x03934be3,
+        0xfa552030, 0x6df6ad76, 0x769188cc, 0x4c25f502, 0xd7fc4fe5, 0xcbd7c52a, 0x44802635, 0xa38fb562,
+        0x5a49deb1, 0x1b6725ba, 0x0e9845ea, 0xc0e15dfe, 0x7502c32f, 0xf012814c, 0x97a38d46, 0xf9c66bd3,
+        0x5fe7038f, 0x9c951592, 0x7aebbf6d, 0x59da9552, 0x832dd4be, 0x21d35874, 0x692949e0, 0xc8448ec9,
+        0x896a75c2, 0x7978f48e, 0x3e6b9958, 0x71dd27b9, 0x4fb6bee1, 0xad17f088, 0xac66c920, 0x3ab47dce,
+        0x4a1863df, 0x3182e51a, 0x33609751, 0x7f456253, 0x77e0b164, 0xae84bb6b, 0xa01cfe81, 0x2b94f908,
+        0x68587048, 0xfd198f45, 0x6c8794de, 0xf8b7527b, 0xd323ab73, 0x02e2724b, 0x8f57e31f, 0xab2a6655,
+        0x2807b2eb, 0xc2032fb5, 0x7b9a86c5, 0x08a5d337, 0x87f23028, 0xa5b223bf, 0x6aba0203, 0x825ced16,
+        0x1c2b8acf, 0xb492a779, 0xf2f0f307, 0xe2a14e69, 0xf4cd65da, 0xbed50605, 0x621fd134, 0xfe8ac4a6,
+        0x539d342e, 0x55a0a2f3, 0xe132058a, 0xeb75a4f6, 0xec390b83, 0xefaa4060, 0x9f065e71, 0x1051bd6e,
+        0x8af93e21, 0x063d96dd, 0x05aedd3e, 0xbd464de6, 0x8db59154, 0x5d0571c4, 0xd46f0406, 0x15ff6050,
+        0xfb241998, 0xe997d6bd, 0x43cc8940, 0x9e7767d9, 0x42bdb0e8, 0x8b880789, 0x5b38e719, 0xeedb79c8,
+        0x0a47a17c, 0x0fe97c42, 0x1ec9f884, 0x00000000, 0x86830980, 0xed48322b, 0x70ac1e11, 0x724e6c5a,
+        0xfffbfd0e, 0x38560f85, 0xd51e3dae, 0x3927362d, 0xd9640a0f, 0xa621685c, 0x54d19b5b, 0x2e3a2436,
+        0x67b10c0a, 0xe70f9357, 0x96d2b4ee, 0x919e1b9b, 0xc54f80c0, 0x20a261dc, 0x4b695a77, 0x1a161c12,
+        0xba0ae293, 0x2ae5c0a0, 0xe0433c22, 0x171d121b, 0x0d0b0e09, 0xc7adf28b, 0xa8b92db6, 0xa9c8141e,
+        0x198557f1, 0x074caf75, 0xddbbee99, 0x60fda37f, 0x269ff701, 0xf5bc5c72, 0x3bc54466, 0x7e345bfb,
+        0x29768b43, 0xc6dccb23, 0xfc68b6ed, 0xf163b8e4, 0xdccad731, 0x85104263, 0x22401397, 0x112084c6,
+        0x247d854a, 0x3df8d2bb, 0x3211aef9, 0xa16dc729, 0x2f4b1d9e, 0x30f3dcb2, 0x52ec0d86, 0xe3d077c1,
+        0x166c2bb3, 0xb999a970, 0x48fa1194, 0x642247e9, 0x8cc4a8fc, 0x3f1aa0f0, 0x2cd8567d, 0x90ef2233,
+        0x4ec78749, 0xd1c1d938, 0xa2fe8cca, 0x0b3698d4, 0x81cfa6f5, 0xde28a57a, 0x8e26dab7, 0xbfa43fad,
+        0x9de42c3a, 0x920d5078, 0xcc9b6a5f, 0x4662547e, 0x13c2f68d, 0xb8e890d8, 0xf75e2e39, 0xaff582c3,
+        0x80be9f5d, 0x937c69d0, 0x2da96fd5, 0x12b3cf25, 0x993bc8ac, 0x7da71018, 0x636ee89c, 0xbb7bdb3b,
+        0x7809cd26, 0x18f46e59, 0xb701ec9a, 0x9aa8834f, 0x6e65e695, 0xe67eaaff, 0xcf0821bc, 0xe8e6ef15,
+        0x9bd9bae7, 0x36ce4a6f, 0x09d4ea9f, 0x7cd629b0, 0xb2af31a4, 0x23312a3f, 0x9430c6a5, 0x66c035a2,
+        0xbc37744e, 0xcaa6fc82, 0xd0b0e090, 0xd81533a7, 0x984af104, 0xdaf741ec, 0x500e7fcd, 0xf62f1791,
+        0xd68d764d, 0xb04d43ef, 0x4d54ccaa, 0x04dfe496, 0xb5e39ed1, 0x881b4c6a, 0x1fb8c12c, 0x517f4665,
+        0xea049d5e, 0x355d018c, 0x7473fa87, 0x412efb0b, 0x1d5ab367, 0xd25292db, 0x5633e910, 0x47136dd6,
+        0x618c9ad7, 0x0c7a37a1, 0x148e59f8, 0x3c89eb13, 0x27eecea9, 0xc935b761, 0xe5ede11c, 0xb13c7a47,
+        0xdf599cd2, 0x733f55f2, 0xce791814, 0x37bf73c7, 0xcdea53f7, 0xaa5b5ffd, 0x6f14df3d, 0xdb867844,
+        0xf381caaf, 0xc43eb968, 0x342c3824, 0x405fc2a3, 0xc372161d, 0x250cbce2, 0x498b283c, 0x9541ff0d,
+        0x017139a8, 0xb3de080c, 0xe49cd8b4, 0xc1906456, 0x84617bcb, 0xb670d532, 0x5c74486c, 0x5742d0b8
+    },
+    {
+        0xf4a75051, 0x4165537e, 0x17a4c31a, 0x275e963a, 0xab6bcb3b, 0x9d45f11f, 0xfa58abac, 0xe303934b,
+        0x30fa5520, 0x766df6ad, 0xcc769188, 0x024c25f5, 0xe5d7fc4f, 0x2acbd7c5, 0x35448026, 0x62a38fb5,
+        0xb15a49de, 0xba1b6725, 0xea0e9845, 0xfec0e15d, 0x2f7502c3, 0x4cf01281, 0x4697a38d, 0xd3f9c66b,
+        0x8f5fe703, 0x929c9515, 0x6d7aebbf, 0x5259da95, 0xbe832dd4, 0x7421d358, 0xe0692949, 0xc9c8448e,
+        0xc2896a75, 0x8e7978f4, 0x583e6b99, 0xb971dd27, 0xe14fb6be, 0x88ad17f0, 0x20ac66c9, 0xce3ab47d,
+        0xdf4a1863, 0x1a3182e5, 0x51336097, 0x537f4562, 0x6477e0b1, 0x6bae84bb, 0x81a01cfe, 0x082b94f9,
+        0x48685870, 0x45fd198f, 0xde6c8794, 0x7bf8b752, 0x73d323ab, 0x4b02e272, 0x1f8f57e3, 0x55ab2a66,
+        0xeb2807b2, 0xb5c2032f, 0xc57b9a86, 0x3708a5d3, 0x2887f230, 0xbfa5b223, 0x036aba02, 0x16825ced,
+        0xcf1c2b8a, 0x79b492a7, 0x07f2f0f3, 0x69e2a14e, 0xdaf4cd65, 0x05bed506, 0x34621fd1, 0xa6fe8ac4,
+        0x2e539d34, 0xf355a0a2, 0x8ae13205, 0xf6eb75a4, 0x83ec390b, 0x60efaa40, 0x719f065e, 0x6e1051bd,
+        0x218af93e, 0xdd063d96, 0x3e05aedd, 0xe6bd464d, 0x548db591, 0xc45d0571, 0x06d46f04, 0x5015ff60,
+        0x98fb2419, 0xbde997d6, 0x4043cc89, 0xd99e7767, 0xe842bdb0, 0x898b8807, 0x195b38e7, 0xc8eedb79,
+        0x7c0a47a1, 0x420fe97c, 0x841ec9f8, 0x00000000, 0x80868309, 0x2bed4832, 0x1170ac1e, 0x5a724e6c,
+        0x0efffbfd, 0x8538560f, 0xaed51e3d, 0x2d392736, 0x0fd9640a, 0x5ca62168, 0x5b54d19b, 0x362e3a24,
+        0x0a67b10c, 0x57e70f93, 0xee96d2b4, 0x9b919e1b, 0xc0c54f80, 0xdc20a261, 0x774b695a, 0x121a161c,
+        0x93ba0ae2, 0xa02ae5c0, 0x22e0433c, 0x1b171d12, 0x090d0b0e, 0x8bc7adf2, 0xb6a8b92d, 0x1ea9c814,
+        0xf1198557, 0x75074caf, 0x99ddbbee, 0x7f60fda3, 0x01269ff7, 0x72f5bc5c, 0x663bc544, 0xfb7e345b,
+        0x4329768b, 0x23c6dccb, 0xedfc68b6, 0xe4f163b8, 0x31dccad7, 0x63851042, 0x97224013, 0xc6112084,
+        0x4a247d85, 0xbb3df8d2, 0xf93211ae, 0x29a16dc7, 0x9e2f4b1d, 0xb230f3dc, 0x8652ec0d, 0xc1e3d077,
+        0xb3166c2b, 0x70b999a9, 0x9448fa11, 0xe9642247, 0xfc8cc4a8, 0xf03f1aa0, 0x7d2cd856, 0x3390ef22,
+        0x494ec787, 0x38d1c1d9, 0xcaa2fe8c, 0xd40b3698, 0xf581cfa6, 0x7ade28a5, 0xb78e26da, 0xadbfa43f,
+        0x3a9de42c, 0x78920d50, 0x5fcc9b6a, 0x7e466254, 0x8d13c2f6, 0xd8b8e890, 0x39f75e2e, 0xc3aff582,
+        0x5d80be9f, 0xd0937c69, 0xd52da96f, 0x2512b3cf, 0xac993bc8, 0x187da710, 0x9c636ee8, 0x3bbb7bdb,
+        0x267809cd, 0x5918f46e, 0x9ab701ec, 0x4f9aa883, 0x956e65e6, 0xffe67eaa, 0xbccf0821, 0x15e8e6ef,
+        0xe79bd9ba, 0x6f36ce4a, 0x9f09d4ea, 0xb07cd629, 0xa4b2af31, 0x3f23312a, 0xa59430c6, 0xa266c035,
+        0x4ebc3774, 0x82caa6fc, 0x90d0b0e0, 0xa7d81533, 0x04984af1, 0xecdaf741, 0xcd500e7f, 0x91f62f17,
+        0x4dd68d76, 0xefb04d43, 0xaa4d54cc, 0x9604dfe4, 0xd1b5e39e, 0x6a881b4c, 0x2c1fb8c1, 0x65517f46,
+        0x5eea049d, 0x8c355d01, 0x877473fa, 0x0b412efb, 0x671d5ab3, 0xdbd25292, 0x105633e9, 0xd647136d,
+        0xd7618c9a, 0xa10c7a37, 0xf8148e59, 0x133c89eb, 0xa927eece, 0x61c935b7, 0x1ce5ede1, 0x47b13c7a,
+        0xd2df599c, 0xf2733f55, 0x14ce7918, 0xc737bf73, 0xf7cdea53, 0xfdaa5b5f, 0x3d6f14df, 0x44db8678,
+        0xaff381ca, 0x68c43eb9, 0x24342c38, 0xa3405fc2, 0x1dc37216, 0xe2250cbc, 0x3c498b28, 0x0d9541ff,
+        0xa8017139, 0x0cb3de08, 0xb4e49cd8, 0x56c19064, 0xcb84617b, 0x32b670d5, 0x6c5c7448, 0xb85742d0
+    },
+    {
+        0x52525252, 0x09090909, 0x6a6a6a6a, 0xd5d5d5d5, 0x30303030, 0x36363636, 0xa5a5a5a5, 0x38383838,
+        0xbfbfbfbf, 0x40404040, 0xa3a3a3a3, 0x9e9e9e9e, 0x81818181, 0xf3f3f3f3, 0xd7d7d7d7, 0xfbfbfbfb,
+        0x7c7c7c7c, 0xe3e3e3e3, 0x39393939, 0x82828282, 0x9b9b9b9b, 0x2f2f2f2f, 0xffffffff, 0x87878787,
+        0x34343434, 0x8e8e8e8e, 0x43434343, 0x44444444, 0xc4c4c4c4, 0xdededede, 0xe9e9e9e9, 0xcbcbcbcb,
+        0x54545454, 0x7b7b7b7b, 0x94949494, 0x32323232, 0xa6a6a6a6, 0xc2c2c2c2, 0x23232323, 0x3d3d3d3d,
+        0xeeeeeeee, 0x4c4c4c4c, 0x95959595, 0x0b0b0b0b, 0x42424242, 0xfafafafa, 0xc3c3c3c3, 0x4e4e4e4e,
+        0x08080808, 0x2e2e2e2e, 0xa1a1a1a1, 0x66666666, 0x28282828, 0xd9d9d9d9, 0x24242424, 0xb2b2b2b2,
+        0x76767676, 0x5b5b5b5b, 0xa2a2a2a2, 0x49494949, 0x6d6d6d6d, 0x8b8b8b8b, 0xd1d1d1d1, 0x25252525,
+        0x72727272, 0xf8f8f8f8, 0xf6f6f6f6, 0x64646464, 0x86868686, 0x68686868, 0x98989898, 0x16161616,
+        0xd4d4d4d4, 0xa4a4a4a4, 0x5c5c5c5c, 0xcccccccc, 0x5d5d5d5d, 0x65656565, 0xb6b6b6b6, 0x92929292,
+        0x6c6c6c6c, 0x70707070, 0x48484848, 0x50505050, 0xfdfdfdfd, 0xedededed, 0xb9b9b9b9, 0xdadadada,
+        0x5e5e5e5e, 0x15151515, 0x46464646, 0x57575757, 0xa7a7a7a7, 0x8d8d8d8d, 0x9d9d9d9d, 0x84848484,
+        0x90909090, 0xd8d8d8d8, 0xabababab, 0x00000000, 0x8c8c8c8c, 0xbcbcbcbc, 0xd3d3d3d3, 0x0a0a0a0a,
+        0xf7f7f7f7, 0xe4e4e4e4, 0x58585858, 0x05050505, 0xb8b8b8b8, 0xb3b3b3b3, 0x45454545, 0x06060606,
+        0xd0d0d0d0, 0x2c2c2c2c, 0x1e1e1e1e, 0x8f8f8f8f, 0xcacacaca, 0x3f3f3f3f, 0x0f0f0f0f, 0x02020202,
+        0xc1c1c1c1, 0xafafafaf, 0xbdbdbdbd, 0x03030303, 0x01010101, 0x13131313, 0x8a8a8a8a, 0x6b6b6b6b,
+        0x3a3a3a3a, 0x91919191, 0x11111111, 0x41414141, 0x4f4f4f4f, 0x67676767, 0xdcdcdcdc, 0xeaeaeaea,
+        0x97979797, 0xf2f2f2f2, 0xcfcfcfcf, 0xcececece, 0xf0f0f0f0, 0xb4b4b4b4, 0xe6e6e6e6, 0x73737373,
+        0x96969696, 0xacacacac, 0x74747474, 0x22222222, 0xe7e7e7e7, 0xadadadad, 0x35353535, 0x85858585,
+        0xe2e2e2e2, 0xf9f9f9f9, 0x37373737, 0xe8e8e8e8, 0x1c1c1c1c, 0x75757575, 0xdfdfdfdf, 0x6e6e6e6e,
+        0x47474747, 0xf1f1f1f1, 0x1a1a1a1a, 0x71717171, 0x1d1d1d1d, 0x29292929, 0xc5c5c5c5, 0x89898989,
+        0x6f6f6f6f, 0xb7b7b7b7, 0x62626262, 0x0e0e0e0e, 0xaaaaaaaa, 0x18181818, 0xbebebebe, 0x1b1b1b1b,
+        0xfcfcfcfc, 0x56565656, 0x3e3e3e3e, 0x4b4b4b4b, 0xc6c6c6c6, 0xd2d2d2d2, 0x79797979, 0x20202020,
+        0x9a9a9a9a, 0xdbdbdbdb, 0xc0c0c0c0, 0xfefefefe, 0x78787878, 0xcdcdcdcd, 0x5a5a5a5a, 0xf4f4f4f4,
+        0x1f1f1f1f, 0xdddddddd, 0xa8a8a8a8, 0x33333333, 0x88888888, 0x07070707, 0xc7c7c7c7, 0x31313131,
+        0xb1b1b1b1, 0x12121212, 0x10101010, 0x59595959, 0x27272727, 0x80808080, 0xecececec, 0x5f5f5f5f,
+        0x60606060, 0x51515151, 0x7f7f7f7f, 0xa9a9a9a9, 0x19191919, 0xb5b5b5b5, 0x4a4a4a4a, 0x0d0d0d0d,
+        0x2d2d2d2d, 0xe5e5e5e5, 0x7a7a7a7a, 0x9f9f9f9f, 0x93939393, 0xc9c9c9c9, 0x9c9c9c9c, 0xefefefef,
+        0xa0a0a0a0, 0xe0e0e0e0, 0x3b3b3b3b, 0x4d4d4d4d, 0xaeaeaeae, 0x2a2a2a2a, 0xf5f5f5f5, 0xb0b0b0b0,
+        0xc8c8c8c8, 0xebebebeb, 0xbbbbbbbb, 0x3c3c3c3c, 0x83838383, 0x53535353, 0x99999999, 0x61616161,
+        0x17171717, 0x2b2b2b2b, 0x04040404, 0x7e7e7e7e, 0xbabababa, 0x77777777, 0xd6d6d6d6, 0x26262626,
+        0xe1e1e1e1, 0x69696969, 0x14141414, 0x63636363, 0x55555555, 0x21212121, 0x0c0c0c0c, 0x7d7d7d7d
+    }
+};
+static const u32 gAtermAesRoundConstants[10] = {
+    0x1000000, 0x2000000, 0x4000000, 0x8000000, 0x10000000,
+    0x20000000, 0x40000000, 0x80000000, 0x1b000000, 0x36000000
+};
+extern int SOBind(int socket, void* address);
+extern int SORecvFrom(int socket, void* buffer, int length, int flags, void* address);
+extern int SOSendTo(int socket, const void* buffer, int length, int flags, void* address);
+
+typedef struct {
+    NCDIpConfig ipConfig;
+    NCDIfConfig ifConfig;
+} AtermNetworkSettings;
+
+typedef struct {
+    u32 ssidLength;
+    u8 ssid[32];
+    u8 reserved[4];
+    u8 bssid[6];
+    u16 status;
+} AtermApRecord;
+
+typedef struct {
+    u32 count;
+    AtermApRecord entries[1];
+} AtermApRecordSet;
+
+typedef struct {
+    u16 sequence;
+    u16 length;
+    u16 checksum;
+    u8 payload[1];
+} AtermPacket;
+
+typedef struct {
+    u16 type;
+    u16 length;
+    u8 value[1];
+} AtermPacketOption;
+
+typedef struct {
+    u16 type;
+    u16 length;
+    u8 value[12];
+} AtermRequestOption16;
+
+typedef struct {
+    u16 type;
+    u16 length;
+    u8 value[20];
+} AtermRequestOption24;
+
+typedef struct {
+    u8 firstAddress[6];
+    u8 secondAddress[6];
+    char productName[4];
+} AtermAssociationRequest;
+
+typedef struct {
+    u8 length;
+    u8 family;
+    u16 port;
+    u32 address;
+} AtermSocketAddress;
+
+typedef struct {
+    s32 state;
+    s32 remainingTime;
+    s32 result;
+} AtermProgress;
+
+typedef struct {
+    u32 word0;
+    u32 word1;
+    u32 word2;
+    u32 word3;
+    u32 word4;
+    u32 word5;
+    u32 word6;
+    u32 word7;
+    u16 finalWord;
+} AtermSsidClear;
+
+typedef union {
+    AtermSsidClear clear;
+    char text[36];
+} AtermSsidBuffer;
+
+typedef struct {
+    u32 keyFormat;
+    u32 keyLength;
+    char key[32];
+} AtermWirelessKey;
+
+typedef struct {
+    u8 reserved000[0x100];
+    char ssid[32];
+    u8 reserved120[12];
+    s32 selectedSecurity;
+    u32 authAlgorithm;
+    u8 reserved134[0x28];
+    AtermWirelessKey wirelessKeys[4];
+    u8 sharedKey[0x48];
+    u8 trailingData[0x14];
+} AtermScanSettings;
+
+typedef struct {
+    char ssid[32];
+    u32 setupMode;
+    u32 securityMode;
+    u8 reserved028[0x80];
+    u8 keyMaterial[0x40];
+    u8 connectionPrefix[0x10];
+    u8 packetBuffer[0x800];
+    u16 responseLength;
+    u8 trailingData[6];
+} AtermConfigurationResult;
+
+typedef struct {
+    u8 data[0x818];
+} AtermThreadBuffer;
+
+typedef void (*AtermProgressCallback)(void*);
+typedef void* (*AtermAllocateCallback)(u32);
+typedef void (*AtermFreeCallback)(void*);
+
+AtermNetworkSettings gNetworkSettings;
+char gAccessPointName[0x24];
+AtermScanSettings gScanSettings;
+AtermConfigurationResult gAtermConfigurationResult;
+AtermThreadBuffer gAtermResponseBuffer;
+static OSThread sAtermThread;
+u32 gAtermDeadline = 0xFFFFFFFF;
+u32 gAtermScanLimit = 0x40;
+u32 gAtermScanBufferSize = 0x800;
+u32 gDefaultIpAddress = 0xC0A800B0;
+u32 gDefaultSubnetMask = 0xFFFFFF00;
+u32 gDefaultGateway = 0xC0A80001;
+u32 gDefaultPrimaryDns = 0xC0A80001;
+u32 gDefaultSecondaryDns = 0xC0A80001;
+char gAtermAossSsid[7] = "******";
+u32 gAtermUseSharedAddress = 1;
+char gAtermProductName[5] = "WARP";
+u32 gAtermCancelRequested;
+u8 gAtermSelectedBssid[8];
+u32 gAtermProtocolState;
+u8 gAtermAddressBuffer[8];
+u32 gAtermResponseMode;
+u8 gAtermMode;
+u32 gAtermReplyLength;
+u32 gAtermMessageLength;
+u32 gAtermSocketStarted;
+u32 gAtermSocketReady;
+u32 gAtermSelectedRecordIndex;
+u32 gAtermThreadStarted;
+void* gAtermAllocation;
+AtermFreeCallback gAtermRelease;
+AtermAllocateCallback gAtermAllocate;
+AtermProgressCallback gAtermProgressCallback;
+u32 gAtermResult;
+s32 gAtermState;
+
+void ATERM_8140684C(OSAlarm* alarm, OSContext* context);
+s32 ATERM_814038C8(void);
+int ATERM_81404844(u16* destination, u16* source, u32 length, void* key, u32 keyLength);
+int ATERM_81404A18(u16* destination, u16* source, u32 length, void* key, u32 keyLength);
+int ATERM_81404BFC(u32* expandedKey, const void* key, u32 keyBits);
+int ATERM_8140502C(u32* expandedKey, const void* key, u32 keyBits);
+void ATERM_81405254(const u32* expandedKey, u32 rounds, const u8* input, u8* output);
+void ATERM_81405690(const u32* expandedKey, u32 rounds, const u8* input, u8* output);
+int ATERM_814033F0(u16* response);
+
+int ATERM_814021BC(void) {
+    int status;
+    int waitCount = 0;
+    u32 convertedHost;
+    u32 timeoutTicks;
+    NCDIpConfig* ipConfig;
+    NCDIfConfig* ifConfig;
+    OSMessageQueue interfaceQueue;
+    OSMessage interfaceMessage;
+    OSMessage interfaceQueueBuffer;
+    OSAlarm interfaceAlarm;
+    OSMessageQueue hostQueue;
+    OSMessage hostMessage;
+    OSMessage hostQueueBuffer;
+    OSAlarm hostAlarm;
+
+    ipConfig = &gNetworkSettings.ipConfig;
+    memset(ipConfig, 0, sizeof(*ipConfig));
+    ipConfig->adjust.maxTransferUnit = 0x514;
+    ipConfig->adjust.tcpRetransTimeout = 100;
+    ipConfig->adjust.dhcpRetransCount = 4;
+    ipConfig->useDhcp = 0;
+    ipConfig->useProxy = 0;
+    memcpy(ipConfig->ip.addr, &gDefaultIpAddress, 4);
+    memcpy(ipConfig->ip.netmask, &gDefaultSubnetMask, 4);
+    memcpy(ipConfig->ip.gateway, &gDefaultGateway, 4);
+    memcpy(ipConfig->ip.dns1, &gDefaultPrimaryDns, 4);
+    memcpy(ipConfig->ip.dns2, &gDefaultSecondaryDns, 4);
+    NCDSetIpConfig(ipConfig);
+
+    ifConfig = &gNetworkSettings.ifConfig;
+    memset(ifConfig, 0, sizeof(*ifConfig));
+    ifConfig->selectedMedia = 1;
+    ifConfig->netif.wireless.rateset = 0;
+    ifConfig->netif.wireless.configMethod = 0;
+    ifConfig->netif.wireless.config.rakuraku.privacy.mode = 0;
+    ifConfig->netif.wireless.config.rakuraku.ssidLength = strlen(gAccessPointName);
+    memcpy(ifConfig->netif.wireless.config.rakuraku.ssid, gAccessPointName, 0x20);
+    status = NCDSetIfConfig(ifConfig);
+    if (status != 0) {
+        return -2;
+    }
+
+    while (NCDIsInterfaceDecided() == 0) {
+        if (waitCount > 500) {
+            return -2;
+        }
+        waitCount++;
+        OSInitMessageQueue(&interfaceQueue, &interfaceQueueBuffer, 1);
+        OSCreateAlarm(&interfaceAlarm);
+        OSSetAlarmTag(&interfaceAlarm, (u32)&interfaceQueue);
+        timeoutTicks = (__mulhwu(0x10624DD3, *(u32*)0x800000F8 >> 2) >> 6) * 10;
+        OSSetAlarm(&interfaceAlarm, timeoutTicks, ATERM_8140684C);
+        OSReceiveMessage(&interfaceQueue, &interfaceMessage, 1);
+    }
+
+    waitCount = 1;
+    gAtermSocketStarted = waitCount;
+    status = SOStartup();
+    if (status == 0) {
+        gAtermSocketReady = waitCount;
+    }
+    if (gAtermSocketReady != 0) {
+        for (;;) {
+            convertedHost = SOHtoNl(0);
+            if (SOGetHostID() != convertedHost) {
+                break;
+            }
+            OSInitMessageQueue(&hostQueue, &hostQueueBuffer, 1);
+            OSCreateAlarm(&hostAlarm);
+            OSSetAlarmTag(&hostAlarm, (u32)&hostQueue);
+            timeoutTicks = (__mulhwu(0x10624DD3, *(u32*)0x800000F8 >> 2) >> 6) * 10;
+            OSSetAlarm(&hostAlarm, timeoutTicks, ATERM_8140684C);
+            OSReceiveMessage(&hostQueue, &hostMessage, 1);
+        }
+    } else {
+        waitCount = -2;
+    }
+
+    return waitCount;
+}
+
+int ATERM_81402424(u16* resultBuffer, u32 resultBufferLength) {
+    int lockId;
+    int result = -2;
+    u16* scanBuffer = resultBuffer;
+    u32 scanBufferLength = resultBufferLength;
+    int startupRetries = 0;
+    int scanRetries = 0;
+    int cleanupRetries = 0;
+    int unlockRetries = 0;
+    int scanResult;
+    OSMessage startupQueueBuffer[1];
+    OSMessage startupMessage;
+    OSMessage scanQueueBuffer[1];
+    OSMessage scanMessage;
+    OSMessage cleanupQueueBuffer[1];
+    OSMessage cleanupMessage;
+    OSMessage unlockQueueBuffer[1];
+    OSMessage unlockMessage;
+    u32 scanStatus;
+    u8 interfaceMac[8];
+    OSMessageQueue startupQueue;
+    OSMessageQueue scanQueue;
+    OSMessageQueue cleanupQueue;
+    OSMessageQueue unlockQueue;
+    OSAlarm startupAlarm;
+    OSAlarm scanAlarm;
+    OSAlarm cleanupAlarm;
+    OSAlarm unlockAlarm;
+    WDScanParam scanParameters;
+    WD_Info interfaceInfo ATTRIBUTE_ALIGN(32);
+
+    lockId = NCDLockWirelessDriver();
+    if (lockId > 0) {
+
+    do {
+        scanResult = WD_Startup(3);
+        if (scanResult == 0) {
+            break;
+        }
+        if (startupRetries > 10) {
+            goto unlock_driver;
+        }
+        startupRetries++;
+        OSInitMessageQueue(&startupQueue, startupQueueBuffer, 1);
+        OSCreateAlarm(&startupAlarm);
+        OSSetAlarmTag(&startupAlarm, (u32)&startupQueue);
+        OSSetAlarm(&startupAlarm, (__mulhwu(0x10624DD3, *(u32*)0x800000F8 >> 2) >> 6) * 10,
+                   ATERM_8140684C);
+        OSReceiveMessage(&startupQueue, &startupMessage, 1);
+    } while (1);
+
+    WD_GetInfo(&interfaceInfo);
+    memcpy(interfaceMac, interfaceInfo.MAC, 6);
+    scanParameters.channelBit = interfaceInfo.enableChannel;
+    scanParameters.maxChannelTime = 0x1E;
+    memset(scanParameters.bssid, 0xFF, sizeof(scanParameters.bssid));
+    scanParameters.type = 0;
+    scanParameters.ssidLength = 0;
+    memset(scanParameters.ssid, 0, sizeof(scanParameters.ssid));
+    memset(scanParameters.ssidMask, 0xFF, sizeof(scanParameters.ssidMask));
+
+    for (;;) {
+        if (gAtermCancelRequested != 0) {
+            result = -8;
+            goto cleanup_driver;
+        }
+
+        scanResult = WD_Scan(&scanParameters, (u8*)scanBuffer, scanBufferLength & 0xFFFF);
+        if (scanResult != 0 && scanResult != -0x7FFF7FFC) {
+            goto cleanup_driver;
+        }
+
+        scanStatus = *scanBuffer;
+        if (scanStatus != 0) {
+            result = scanStatus;
+            goto cleanup_driver;
+        }
+
+        scanRetries++;
+        if (scanRetries > 10) {
+            result = 0;
+            goto cleanup_driver;
+        }
+
+        OSInitMessageQueue(&scanQueue, scanQueueBuffer, 1);
+        OSCreateAlarm(&scanAlarm);
+        OSSetAlarmTag(&scanAlarm, (u32)&scanQueue);
+        OSSetAlarm(&scanAlarm, (__mulhwu(0x10624DD3, *(u32*)0x800000F8 >> 2) >> 6) * 10,
+                   ATERM_8140684C);
+        OSReceiveMessage(&scanQueue, &scanMessage, 1);
+    }
+
+cleanup_driver:
+    while (WD_Cleanup() != 0) {
+        if (cleanupRetries > 10) {
+            result = -2;
+            goto unlock_driver;
+        }
+        cleanupRetries++;
+        OSInitMessageQueue(&cleanupQueue, cleanupQueueBuffer, 1);
+        OSCreateAlarm(&cleanupAlarm);
+        OSSetAlarmTag(&cleanupAlarm, (u32)&cleanupQueue);
+        OSSetAlarm(&cleanupAlarm, (__mulhwu(0x10624DD3, *(u32*)0x800000F8 >> 2) >> 6) * 10,
+                   ATERM_8140684C);
+        OSReceiveMessage(&cleanupQueue, &cleanupMessage, 1);
+    }
+
+unlock_driver:
+    while (NCDUnlockWirelessDriver(lockId) != 0) {
+        if (unlockRetries > 10) {
+            result = -2;
+            break;
+        }
+        unlockRetries++;
+        OSInitMessageQueue(&unlockQueue, unlockQueueBuffer, 1);
+        OSCreateAlarm(&unlockAlarm);
+        OSSetAlarmTag(&unlockAlarm, (u32)&unlockQueue);
+        OSSetAlarm(&unlockAlarm, (__mulhwu(0x10624DD3, *(u32*)0x800000F8 >> 2) >> 6) * 10,
+                   ATERM_8140684C);
+        OSReceiveMessage(&unlockQueue, &unlockMessage, 1);
+    }
+    }
+
+    return result;
+}
+
+int ATERM_8140276C(AtermApRecordSet* currentRecords, AtermApRecordSet* previousRecords,
+                   u32* changedIndex) {
+    AtermApRecord* currentRecord = currentRecords->entries;
+    AtermApRecord* previousRecord;
+    u32 currentIndex;
+    u32 previousIndex;
+    u32 resultIndex = 0;
+    u32 ssidLength;
+    size_t compareLength;
+    size_t aossLength;
+    size_t formattedSsidLength;
+    int found = 0;
+    int previousHasAoss = 0;
+    int currentHasAoss = 0;
+
+    for (currentIndex = 0; currentIndex < currentRecords->count; currentIndex++) {
+        AtermSsidBuffer ssidName;
+        ssidName.clear.word0 = 0;
+        ssidName.clear.word1 = 0;
+        ssidName.clear.word2 = 0;
+        ssidName.clear.word3 = 0;
+        ssidName.clear.word4 = 0;
+        ssidName.clear.word5 = 0;
+        ssidName.clear.word6 = 0;
+        ssidName.clear.word7 = 0;
+        ssidName.clear.finalWord = 0;
+        memcpy(ssidName.text, currentRecord->ssid, sizeof(currentRecord->ssid));
+        ssidName.text[currentRecord->ssidLength] = '\0';
+        previousRecord = previousRecords->entries;
+        for (previousIndex = 0; previousIndex < previousRecords->count; previousIndex++) {
+            ssidLength = currentRecord->ssidLength;
+            if (ssidLength == 0 || ssidLength > sizeof(currentRecord->ssid) ||
+                (ssidLength == 1 && (currentRecord->ssid[0] == '\0' ||
+                                     currentRecord->ssid[0] == ' '))) {
+                break;
+            }
+            compareLength = strlen(ssidName.text);
+            if (memcmp(ssidName.text, previousRecord->ssid, compareLength) == 0 &&
+                memcmp(currentRecord->bssid, previousRecord->bssid,
+                       sizeof(currentRecord->bssid)) == 0 &&
+                currentRecord->status != previousRecord->status && currentRecord->status == 0) {
+                found = 1;
+                break;
+            }
+            previousRecord++;
+        }
+        if (found) {
+            break;
+        }
+        currentRecord++;
+    }
+
+    if (!found) {
+        AtermSsidBuffer aossSsidName;
+
+        aossSsidName.clear.word0 = 0;
+        aossSsidName.clear.word1 = 0;
+        aossSsidName.clear.word2 = 0;
+        aossSsidName.clear.word3 = 0;
+        aossSsidName.clear.word4 = 0;
+        aossSsidName.clear.word5 = 0;
+        aossSsidName.clear.word6 = 0;
+        aossSsidName.clear.word7 = 0;
+        aossSsidName.clear.finalWord = 0;
+
+        currentRecord = currentRecords->entries;
+        previousRecord = previousRecords->entries;
+        for (previousIndex = 0; previousIndex < previousRecords->count; previousIndex++) {
+            memcpy(aossSsidName.text, previousRecord->ssid, sizeof(previousRecord->ssid));
+            aossSsidName.text[previousRecord->ssidLength] = '\0';
+            aossLength = strlen(gAtermAossSsid);
+            if (memcmp(aossSsidName.text, gAtermAossSsid, aossLength) == 0 &&
+                previousRecord->status == 0) {
+                previousHasAoss = 1;
+                break;
+            }
+            previousRecord++;
+        }
+
+        currentRecord = currentRecords->entries;
+        for (currentIndex = 0; currentIndex < currentRecords->count; currentIndex++) {
+            memcpy(aossSsidName.text, currentRecord->ssid, sizeof(currentRecord->ssid));
+            aossSsidName.text[currentRecord->ssidLength] = '\0';
+            aossLength = strlen(gAtermAossSsid);
+            formattedSsidLength = strlen(aossSsidName.text);
+            if (formattedSsidLength == aossLength) {
+                aossLength = strlen(gAtermAossSsid);
+                if (memcmp(aossSsidName.text, gAtermAossSsid, aossLength) == 0 &&
+                    currentRecord->status == 0) {
+                    currentHasAoss = 1;
+                    break;
+                }
+            }
+            currentRecord++;
+        }
+        if (currentHasAoss && !previousHasAoss) {
+            found = 1;
+        }
+    }
+
+    if (found) {
+        resultIndex = currentIndex;
+        *changedIndex = resultIndex;
+    }
+    return found;
+}
+
+int ATERM_81402A24(void) {
+    s32 result = -1;
+    s32 progressInfo[4] = {0, 0, 0, 0};
+    AtermApRecordSet* currentRecords = NULL;
+    AtermApRecordSet* previousRecords = NULL;
+    u8* rawScanBuffer = NULL;
+    u8* scanBuffer;
+    AtermApRecord* recordCursor;
+    u32 recordBytes = gAtermScanLimit * sizeof(AtermApRecord) + sizeof(u32);
+    u32 scanBufferBytes = gAtermScanBufferSize * 0x100;
+    u32 scanCount;
+    u32 recordIndex;
+    u32 iteration = 0;
+    u32 now;
+    char selectedMacText[32];
+
+    currentRecords = (AtermApRecordSet*)gAtermAllocate(recordBytes);
+    if (currentRecords == NULL) {
+        goto cleanup;
+    }
+    memset(currentRecords, 0, recordBytes);
+    previousRecords = (AtermApRecordSet*)gAtermAllocate(recordBytes);
+    if (previousRecords == NULL) {
+        goto cleanup;
+    }
+    memset(previousRecords, 0, recordBytes);
+    rawScanBuffer = (u8*)gAtermAllocate(scanBufferBytes + 0x40);
+    if (rawScanBuffer == NULL) {
+        goto cleanup;
+    }
+    scanBuffer = (u8*)(((u32)rawScanBuffer + 0x1F) & ~0x1F);
+
+    while (iteration < 300 && gAtermCancelRequested == 0) {
+        s64 currentTime = OSGetTime();
+        now = (u32)(currentTime / (OS_BUS_CLOCK / 4000));
+        if (gAtermDeadline <= now) {
+            break;
+        }
+
+        result = ATERM_81402424((u16*)scanBuffer, scanBufferBytes);
+        if (result < 0) {
+            goto cleanup;
+        }
+        if (gAtermCancelRequested != 0) {
+            break;
+        }
+        if (result >= (s32)gAtermScanLimit) {
+            result = -6;
+            goto cleanup;
+        }
+
+        scanCount = (u32)result;
+        currentRecords->count = scanCount;
+        {
+            u16* descriptorWords = (u16*)(scanBuffer + sizeof(u16));
+            recordCursor = currentRecords->entries;
+            recordIndex = 0;
+            while (recordIndex < scanCount) {
+                WDBssDesc* descriptor = (WDBssDesc*)descriptorWords;
+
+                memcpy(recordCursor->ssid, descriptor->ssid, sizeof(recordCursor->ssid));
+                if (descriptor->ssidLength <= sizeof(recordCursor->ssid)) {
+                    recordCursor->ssidLength = descriptor->ssidLength;
+                } else {
+                    recordCursor->ssidLength = 0;
+                }
+                recordCursor->ssid[recordCursor->ssidLength] = '\0';
+                recordCursor->status = (descriptor->capabilities >> 4) & 1;
+                memcpy(recordCursor->bssid, descriptor->bssid, sizeof(recordCursor->bssid));
+                descriptorWords += descriptor->length;
+                recordCursor++;
+                recordIndex++;
+            }
+        }
+
+        if (gAtermState != 1 &&
+            ATERM_8140276C(currentRecords, previousRecords, (u32*)&progressInfo[0])) {
+            gAtermSelectedRecordIndex = progressInfo[0];
+            strcpy(gAccessPointName, (char*)currentRecords->entries[progressInfo[0]].ssid);
+            memcpy(gAtermSelectedBssid,
+                   currentRecords->entries[progressInfo[0]].bssid,
+                   sizeof(currentRecords->entries[progressInfo[0]].bssid));
+            {
+                u8* addressCursor = gAtermSelectedBssid;
+                s32 addressIndex = 0;
+                s32 addressesRemaining = 6;
+                char* output = selectedMacText;
+
+                do {
+                    u8 addressByte = *addressCursor++;
+                    u8 highNibble = addressByte >> 4;
+                    u8 lowNibble = addressByte & 0xF;
+                    char* nextOutput = output + 2;
+
+                    if (highNibble < 10) {
+                        *output = highNibble + 0x30;
+                    } else {
+                        *output = highNibble + 0x37;
+                    }
+                    if (lowNibble < 10) {
+                        output[1] = lowNibble + 0x30;
+                    } else {
+                        output[1] = lowNibble + 0x37;
+                    }
+                    *nextOutput = '\0';
+                    if (addressIndex < 5) {
+                        *nextOutput = ':';
+                        nextOutput = output + 3;
+                    }
+                    addressIndex++;
+                    addressesRemaining--;
+                    output = nextOutput;
+                } while (addressesRemaining != 0);
+                *output = '\0';
+            }
+            break;
+        }
+
+        memcpy(previousRecords, currentRecords, recordBytes);
+        gAtermState = 2;
+        progressInfo[1] = 2;
+        if (gAtermDeadline == 0xFFFFFFFF) {
+            progressInfo[2] = -1;
+        } else {
+            s64 currentTime = OSGetTime();
+            now = (u32)(currentTime / (OS_BUS_CLOCK / 4000));
+            progressInfo[2] = gAtermDeadline - now;
+        }
+        progressInfo[3] = gAtermResult;
+        gAtermProgressCallback(&progressInfo[1]);
+        iteration++;
+    }
+
+    if (iteration < 300) {
+        s64 currentTime = OSGetTime();
+        now = (u32)(currentTime / (OS_BUS_CLOCK / 4000));
+        if (now <= gAtermDeadline) {
+            result = gAtermCancelRequested == 0 ? 1 : -8;
+            goto cleanup;
+        }
+    }
+    result = -3;
+
+cleanup:
+    if (rawScanBuffer != NULL) {
+        gAtermRelease(rawScanBuffer);
+    }
+    if (currentRecords != NULL) {
+        gAtermRelease(currentRecords);
+    }
+    if (previousRecords != NULL) {
+        gAtermRelease(previousRecords);
+    }
+    return result;
+}
+
+int ATERM_81402E40(u16* messageBuffer, u32 sequence, u16* payload, size_t payloadLength,
+                   void* encryptionKey) {
+    s32 byteLength;
+    u8* end;
+    u8* cursor;
+    u8* limit;
+    u32 checksum = 0;
+
+    memset(payload, 0, 8);
+    payload[0] = SOHtoNs((payloadLength - 8) & 0xFFFF);
+    if (encryptionKey != NULL) {
+        ATERM_81404844(messageBuffer + 3, payload, payloadLength, encryptionKey, 0x10);
+        payloadLength += 8;
+    } else {
+        memcpy(messageBuffer + 3, payload, payloadLength);
+    }
+    memset(messageBuffer, 0, 6);
+    messageBuffer[0] = SOHtoNs(sequence & 0xFFFF);
+    messageBuffer[1] = SOHtoNs(payloadLength & 0xFFFF);
+
+    end = (u8*)(messageBuffer + 3);
+    end += payloadLength;
+    cursor = (u8*)messageBuffer;
+    if ((u8*)messageBuffer < end) {
+        byteLength = end - (u8*)messageBuffer;
+        limit = end - 8;
+        if (byteLength > 8 && cursor <= end) {
+            for (; cursor < limit; cursor += 8) {
+                checksum += cursor[0];
+                checksum += cursor[1];
+                checksum += cursor[2];
+                checksum += cursor[3];
+                checksum += cursor[4];
+                checksum += cursor[5];
+                checksum += cursor[6];
+                checksum += cursor[7];
+            }
+        }
+        while (cursor < end) {
+            checksum += *cursor++;
+        }
+    }
+    *(u16*)end = SOHtoNs(checksum);
+    return (int)(end + sizeof(u16) - (u8*)messageBuffer);
+}
+
+int ATERM_81402FC0(AtermPacket* packet, u32* setupType) {
+    u8* cursor;
+    u8* end;
+    u8* limit;
+    u8* payload;
+    u8* value;
+    u16 checksum;
+    u16 messageType;
+    u32 payloadLength;
+    u16 optionType;
+    u16 optionLength;
+    u16 authenticationReady;
+    u16 networkReady;
+    u16 selectedMode;
+    AtermPacketOption* option;
+    s32 byteLength;
+
+    messageType = SONtoHs(packet->sequence);
+    payloadLength = SONtoHs(packet->length);
+    checksum = 0;
+    cursor = (u8*)packet;
+    end = packet->payload + payloadLength;
+    if (cursor < end) {
+        byteLength = end - cursor;
+        limit = end - 8;
+        if (byteLength > 8 && cursor <= end) {
+            for (; cursor < limit; cursor += 8) {
+                checksum += cursor[0];
+                checksum += cursor[1];
+                checksum += cursor[2];
+                checksum += cursor[3];
+                checksum += cursor[4];
+                checksum += cursor[5];
+                checksum += cursor[6];
+                checksum += cursor[7];
+            }
+        }
+        while (cursor < end) {
+            checksum += *cursor++;
+        }
+    }
+    if (checksum == SONtoHs(*(u16*)end)) {
+        payload = packet->payload;
+    } else {
+        payload = NULL;
+    }
+    authenticationReady = 0;
+    networkReady = 0;
+    selectedMode = 0;
+    if (payload == NULL) {
+        return 0;
+    }
+    if (messageType == 1) {
+        end = payload + payloadLength;
+        cursor = payload + 8;
+        while (cursor < end) {
+            option = (AtermPacketOption*)cursor;
+            optionType = SONtoHs(option->type);
+            optionLength = SONtoHs(option->length);
+            value = option->value;
+            cursor += (optionLength + 0x0B) & ~7;
+            switch (optionType) {
+            case 1:
+                authenticationReady = SONtoHs(*(u16*)value);
+                break;
+            case 2:
+                networkReady = SONtoHs(*(u16*)value);
+                break;
+            case 5:
+                selectedMode = SONtoHs(*(u16*)value);
+                break;
+            }
+        }
+        if (authenticationReady == 1 && networkReady == 1) {
+            *setupType = selectedMode >= 1;
+            return 1;
+        }
+    }
+    return 0;
+}
+
+int ATERM_814031DC(AtermAssociationRequest* request) {
+    u8 scanAddress[8];
+    u8 interfaceMacAddress[8];
+    char scanAddressText[32];
+    char interfaceMacText[36];
+    int addressOrder;
+
+    memcpy(request->productName, gAtermProductName, sizeof(request->productName));
+    memcpy(scanAddress, gAtermSelectedBssid, 6);
+    scanAddress[0] &= 0xFD;
+    NCDGetWirelessMacAddress(interfaceMacAddress);
+    memcpy(gAtermAddressBuffer, interfaceMacAddress, 6);
+    addressOrder = memcmp(scanAddress, interfaceMacAddress, 6);
+    if (addressOrder <= 0) {
+        memcpy(request->firstAddress, interfaceMacAddress, 6);
+        memcpy(request->secondAddress, scanAddress, 6);
+    } else {
+        memcpy(request->firstAddress, scanAddress, 6);
+        memcpy(request->secondAddress, interfaceMacAddress, 6);
+    }
+    if (gAtermUseSharedAddress != 0) {
+        int addressIndex;
+        char* textCursor = interfaceMacText;
+
+        for (addressIndex = 0; addressIndex < 6; addressIndex++) {
+            u8 addressByte = interfaceMacAddress[addressIndex];
+            s32 highNibble = (addressByte & 0xF0) >> 4;
+            s32 lowNibble = addressByte & 0xF;
+            char* nextText = textCursor + 2;
+
+            if (highNibble < 10) {
+                *textCursor = highNibble + 0x30;
+            } else {
+                *textCursor = highNibble + 0x37;
+            }
+            if (lowNibble < 10) {
+                textCursor[1] = lowNibble + 0x30;
+            } else {
+                textCursor[1] = lowNibble + 0x37;
+            }
+            *nextText = '\0';
+            if (addressIndex < 5) {
+                *nextText = ':';
+                nextText = textCursor + 3;
+            }
+            textCursor = nextText;
+        }
+        *textCursor = '\0';
+
+        textCursor = scanAddressText;
+        for (addressIndex = 0; addressIndex < 6; addressIndex++) {
+            u8 addressByte = scanAddress[addressIndex];
+            s32 highNibble = (addressByte & 0xF0) >> 4;
+            s32 lowNibble = addressByte & 0xF;
+            char* nextText = textCursor + 2;
+
+            if (highNibble < 10) {
+                *textCursor = highNibble + 0x30;
+            } else {
+                *textCursor = highNibble + 0x37;
+            }
+            if (lowNibble < 10) {
+                textCursor[1] = lowNibble + 0x30;
+            } else {
+                textCursor[1] = lowNibble + 0x37;
+            }
+            *nextText = '\0';
+            if (addressIndex < 5) {
+                *nextText = ':';
+                nextText = textCursor + 3;
+            }
+            textCursor = nextText;
+        }
+        *textCursor = '\0';
+    }
+    return 1;
+}
+
+int ATERM_814033F0(u16* response) {
+    u16* optionCursor = response + 4;
+    u16* responseEnd = (u16*)((u8*)optionCursor + SONtoHs(response[0]));
+    u16 optionType;
+    u16 optionLength;
+    u8* optionValue;
+    u32 value;
+    u32 result = 0;
+
+    for (;;) {
+        if (optionCursor < responseEnd) {
+            optionType = SONtoHs(optionCursor[0]);
+            optionLength = SONtoHs(optionCursor[1]);
+            optionValue = (u8*)(optionCursor + 2);
+            optionCursor = (u16*)((u8*)optionCursor + ((optionLength + 0x0B) & ~7));
+        } else {
+            break;
+        }
+
+        switch (optionType) {
+        case 0x201:
+            memset(gScanSettings.ssid, 0, sizeof(gScanSettings.ssid));
+            memcpy(gScanSettings.ssid, optionValue, optionLength);
+            result = 1;
+            break;
+        case 0x202:
+            gScanSettings.selectedSecurity = SONtoHs(*(u16*)optionValue);
+            break;
+        case 0x203:
+            value = SONtoHs(*(u16*)optionValue);
+            gScanSettings.wirelessKeys[0].keyFormat = value;
+            gScanSettings.wirelessKeys[1].keyFormat = value;
+            gScanSettings.wirelessKeys[2].keyFormat = value;
+            gScanSettings.wirelessKeys[3].keyFormat = value;
+            break;
+        case 0x204:
+            value = SONtoHs(*(u16*)optionValue);
+            gScanSettings.wirelessKeys[0].keyLength = value;
+            gScanSettings.wirelessKeys[1].keyLength = value;
+            gScanSettings.wirelessKeys[2].keyLength = value;
+            gScanSettings.wirelessKeys[3].keyLength = value;
+            break;
+        case 0x205:
+            gScanSettings.authAlgorithm = SONtoHs(*(u16*)optionValue);
+            break;
+        case 0x206:
+        case 0x207:
+        case 0x208:
+        case 0x209:
+        {
+            u32 keyIndex = optionType - 0x206;
+            char* key = gScanSettings.wirelessKeys[keyIndex].key;
+            memset(key, 0, sizeof(gScanSettings.wirelessKeys[keyIndex].key));
+            if (gScanSettings.wirelessKeys[0].keyFormat == 1) {
+                u32 byteIndex = 0;
+                if (optionLength != 0) {
+                    do {
+                    u8 sourceByte = optionValue[byteIndex++];
+                    u8 highNibble = sourceByte >> 4;
+                    u8 lowNibble = sourceByte & 0xF;
+
+                    if (highNibble < 10) {
+                        *key++ = highNibble + 0x30;
+                    } else {
+                        *key++ = highNibble + 0x37;
+                    }
+                    if (lowNibble < 10) {
+                        *key++ = lowNibble + 0x30;
+                    } else {
+                        *key++ = lowNibble + 0x37;
+                    }
+                    *key = '\0';
+                    } while (byteIndex < optionLength);
+                }
+            } else {
+                memcpy(key, optionValue, optionLength);
+            }
+            break;
+        }
+        case 0x20A:
+            memset(gScanSettings.sharedKey, 0, sizeof(gScanSettings.sharedKey));
+            memcpy(gScanSettings.sharedKey, optionValue, optionLength);
+            break;
+        }
+    }
+    return result;
+}
+
+int ATERM_81403614(u8* destination, const char* source, s32 length) {
+    s32 value = 0;
+    u32 characterIndex = 0;
+
+    while (length > 0) {
+        s32 character = *source++;
+
+        if (character < 'G') {
+            if (character < '0') {
+                return 0;
+            }
+            if (character < ':') {
+                value += character - '0';
+            } else {
+                if (character < 'A') {
+                    return 0;
+                }
+                value += character - '7';
+            }
+        } else {
+            if (character > 'f' || character < 'a') {
+                return 0;
+            }
+            value += character - 'W';
+        }
+
+        if ((characterIndex & 1) == 0) {
+            value <<= 4;
+        } else {
+            *destination++ = (u8)value;
+            value = 0;
+        }
+        characterIndex++;
+        length--;
+    }
+    return 1;
+}
+
+int ATERM_814036D8(void) {
+    s32 result = 1;
+    char* outputKey;
+    char* sourceKey;
+    s32 keyIndex;
+    size_t keyLength;
+    struct {
+        char text[32];
+        char terminator;
+    } keyText;
+
+    strcpy(gAtermConfigurationResult.ssid, gScanSettings.ssid);
+    if (gScanSettings.selectedSecurity == 2) {
+        gAtermConfigurationResult.setupMode = 4;
+        memcpy(gAtermConfigurationResult.keyMaterial, gScanSettings.sharedKey, 0x40);
+    } else if (gScanSettings.selectedSecurity < 2) {
+        if (gScanSettings.selectedSecurity == 0) {
+            gAtermConfigurationResult.setupMode = 0;
+        } else if (gScanSettings.authAlgorithm == 0) {
+            result = -7;
+        } else {
+            gAtermConfigurationResult.securityMode = gScanSettings.authAlgorithm;
+            outputKey = (char*)gAtermConfigurationResult.reserved028;
+            sourceKey = gScanSettings.wirelessKeys[0].key;
+            keyIndex = 0;
+
+            do {
+                memcpy(keyText.text, sourceKey, 0x20);
+                keyText.terminator = '\0';
+                keyLength = strlen(keyText.text);
+                switch (keyLength) {
+            case 0:
+                break;
+            case 5:
+                gAtermConfigurationResult.setupMode = 1;
+                memcpy(outputKey, keyText.text, 5);
+                break;
+            case 10:
+                gAtermConfigurationResult.setupMode = 1;
+                ATERM_81403614((u8*)outputKey, keyText.text, 10);
+                break;
+            case 13:
+                gAtermConfigurationResult.setupMode = 2;
+                memcpy(outputKey, keyText.text, 0xD);
+                break;
+            case 16:
+                gAtermConfigurationResult.setupMode = 3;
+                memcpy(outputKey, keyText.text, 0x10);
+                break;
+            case 26:
+                gAtermConfigurationResult.setupMode = 2;
+                ATERM_81403614((u8*)outputKey, keyText.text, 0x1A);
+                break;
+            case 32:
+                gAtermConfigurationResult.setupMode = 3;
+                ATERM_81403614((u8*)outputKey, keyText.text, 0x20);
+                break;
+            default:
+                result = -7;
+                break;
+                }
+                outputKey += 0x20;
+                sourceKey += 0x28;
+                keyIndex++;
+            } while (keyIndex < 4);
+        }
+    } else if (gScanSettings.selectedSecurity < 4) {
+        gAtermConfigurationResult.setupMode = 5;
+        memcpy(gAtermConfigurationResult.keyMaterial, gScanSettings.sharedKey, 0x40);
+    } else {
+        result = -7;
+    }
+    return result;
+}
+
+s32 ATERM_814038C8(void) {
+    OSMessageQueue waitQueue;
+    OSMessage waitBuffer[1];
+    OSMessage waitMessage;
+    OSAlarm waitAlarm;
+    AtermSocketAddress socketBindAddress;
+    AtermSocketAddress peerAddress;
+    u8* packetBuffer = gAtermConfigurationResult.packetBuffer;
+    u8* requestOptions = gAtermResponseBuffer.data;
+    u8 digest[16];
+    AtermRequestOption16* shortOption;
+    AtermRequestOption24* longOption;
+    u8* optionEnd;
+    s32 socket = -1;
+    s32 result = -5;
+    s32 failed = 0;
+    s32 retries = 0;
+    u32 lastSendTime = 0;
+    u32 now;
+    u32 requestLength;
+    s32 receivedLength;
+    s32 stateProgress[3];
+    u16 enabled;
+    u32 reciprocal = 0x10624DD3;
+
+    gAtermProtocolState = 1;
+    memset(&peerAddress, 0, sizeof(peerAddress));
+    for (;;) {
+        if (failed != 0 || gAtermCancelRequested != 0) {
+            if (socket >= 0) {
+                SOClose(socket);
+            }
+            if (gAtermCancelRequested != 0) {
+                result = -8;
+            }
+            return result;
+        }
+
+        OSInitMessageQueue(&waitQueue, waitBuffer, 1);
+        OSCreateAlarm(&waitAlarm);
+        OSSetAlarmTag(&waitAlarm, (u32)&waitQueue);
+        OSSetPeriodicAlarm(&waitAlarm, OS_BUS_CLOCK >> 2,
+                           (OS_BUS_CLOCK / 4000) * 500, ATERM_8140684C);
+        OSReceiveMessage(&waitQueue, &waitMessage, 1);
+
+        switch (gAtermProtocolState) {
+        case 1:
+            if (ATERM_81402A24() == 1) {
+                gAtermProtocolState = 2;
+            } else {
+                failed = 1;
+            }
+            break;
+        case 2:
+            if (ATERM_814021BC() == 1) {
+                now = (u32)(OSGetTime() / (__mulhwu(reciprocal, OS_BUS_CLOCK >> 2) >> 6));
+                if (gAtermDeadline < now + 10000) {
+                    gAtermDeadline = now + 10000;
+                }
+                gAtermProtocolState = 3;
+            } else {
+                result = -2;
+                failed = 1;
+            }
+            break;
+        case 3:
+            socket = SOSocket(2, 2, 0);
+            if (socket < 0) {
+                result = -2;
+                failed = 1;
+                break;
+            }
+            memset(&socketBindAddress, 0, sizeof(socketBindAddress));
+            socketBindAddress.length = 8;
+            socketBindAddress.family = 2;
+            socketBindAddress.port = SOHtoNs(0xE601);
+            if (SOBind(socket, &socketBindAddress) < 0) {
+                result = -2;
+                failed = 1;
+            } else {
+                gAtermProtocolState = 4;
+            }
+            break;
+        case 4:
+            now = (u32)(OSGetTime() / (__mulhwu(reciprocal, OS_BUS_CLOCK >> 2) >> 6));
+            if (now >= gAtermDeadline) {
+                SOClose(socket);
+                socket = -1;
+                result = -3;
+                failed = 1;
+                break;
+            }
+            memset(&peerAddress, 0, sizeof(peerAddress));
+            receivedLength = SORecvFrom(socket, packetBuffer,
+                                        sizeof(gAtermConfigurationResult.packetBuffer), 4,
+                                        &peerAddress);
+            if (receivedLength > 0 &&
+                ATERM_81402FC0((AtermPacket*)packetBuffer, &gAtermResponseMode)) {
+                now = (u32)(OSGetTime() / (__mulhwu(reciprocal, OS_BUS_CLOCK >> 2) >> 6));
+                gAtermDeadline = now + 30000;
+                gAtermProtocolState = 5;
+                stateProgress[0] = 4;
+                stateProgress[1] = 30000;
+                stateProgress[2] = gAtermResult;
+                (*gAtermProgressCallback)(stateProgress);
+            }
+            break;
+        case 5:
+            memset(requestOptions, 0,
+                   sizeof(AtermRequestOption16) * 3 + sizeof(AtermRequestOption24) * 2);
+            shortOption = (AtermRequestOption16*)requestOptions;
+            shortOption->type = SOHtoNs(1);
+            shortOption->length = SOHtoNs(2);
+            *(u16*)shortOption->value = SOHtoNs(1);
+            shortOption++;
+            shortOption->type = SOHtoNs(2);
+            shortOption->length = SOHtoNs(2);
+            *(u16*)shortOption->value = SOHtoNs(1);
+            shortOption++;
+            if (gAtermResponseMode != 0) {
+                shortOption->type = SOHtoNs(5);
+                shortOption->length = SOHtoNs(2);
+                *(u16*)shortOption->value = SOHtoNs(1);
+                shortOption++;
+            }
+            longOption = (AtermRequestOption24*)shortOption;
+            longOption->type = SOHtoNs(3);
+            longOption->length = SOHtoNs(7);
+            memcpy(longOption->value, gAtermProductName, 4);
+            longOption++;
+            if (gAtermResponseMode != 0) {
+                longOption->type = SOHtoNs(4);
+                longOption->length = SOHtoNs(6);
+                memcpy(longOption->value, gAtermAddressBuffer, 6);
+                longOption++;
+            }
+            optionEnd = (u8*)longOption;
+            requestLength = ATERM_81402E40((u16*)packetBuffer, 2,
+                                           (u16*)requestOptions,
+                                           optionEnd - requestOptions, 0);
+            gAtermMessageLength = requestLength;
+            if (SOSendTo(socket, packetBuffer, requestLength, 0, &peerAddress) < 0) {
+                result = -2;
+                failed = 1;
+                break;
+            }
+            lastSendTime = (u32)(OSGetTime() / (__mulhwu(reciprocal, OS_BUS_CLOCK >> 2) >> 6));
+            gAtermProtocolState = 6;
+            break;
+        case 6:
+            now = (u32)(OSGetTime() / (__mulhwu(reciprocal, OS_BUS_CLOCK >> 2) >> 6));
+            if (now >= gAtermDeadline) {
+                SOClose(socket);
+                socket = -1;
+                result = -4;
+                failed = 1;
+                break;
+            }
+            receivedLength = SORecvFrom(socket, packetBuffer,
+                                        sizeof(gAtermConfigurationResult.packetBuffer), 4,
+                                        &peerAddress);
+            if (receivedLength > 0 &&
+                ATERM_81402FC0((AtermPacket*)packetBuffer, &gAtermResponseMode) &&
+                ATERM_81404A18((u16*)packetBuffer, (u16*)packetBuffer, receivedLength,
+                               gAtermAddressBuffer, 0x10)) {
+                memcpy(digest, packetBuffer, sizeof(digest));
+                gAtermProtocolState = 7;
+                stateProgress[0] = 5;
+                stateProgress[1] = (s32)(gAtermDeadline - now);
+                stateProgress[2] = gAtermResult;
+                (*gAtermProgressCallback)(stateProgress);
+            } else if (now - lastSendTime >= 2000) {
+                if (++retries >= 10) {
+                    result = -2;
+                    failed = 1;
+                } else {
+                    gAtermProtocolState = 5;
+                }
+            }
+            break;
+        case 7:
+            memset(requestOptions, 0, sizeof(AtermRequestOption24));
+            longOption = (AtermRequestOption24*)requestOptions;
+            longOption->type = SOHtoNs(0x102);
+            longOption->length = SOHtoNs(8);
+            memcpy(longOption->value, digest, 8);
+            requestLength = ATERM_81402E40((u16*)packetBuffer, 4,
+                                           (u16*)requestOptions,
+                                           sizeof(AtermRequestOption24),
+                                           packetBuffer);
+            SOSendTo(socket, packetBuffer, requestLength, 0, &peerAddress);
+            gAtermProtocolState = 8;
+            lastSendTime = now;
+            break;
+        case 8:
+            receivedLength = SORecvFrom(socket, packetBuffer,
+                                        sizeof(gAtermConfigurationResult.packetBuffer), 4,
+                                        &peerAddress);
+            if (receivedLength > 0 &&
+                ATERM_81402FC0((AtermPacket*)packetBuffer, &gAtermResponseMode) &&
+                ATERM_814033F0((u16*)packetBuffer)) {
+                gAtermMode = (gScanSettings.ssid[0] & 0x80) != 0;
+                gAtermProtocolState = 9;
+                retries = 0;
+            } else if (now - lastSendTime >= 1000) {
+                if (++retries < 10) {
+                    gAtermProtocolState = 7;
+                } else {
+                    result = -2;
+                    failed = 1;
+                }
+            }
+            break;
+        case 9:
+            memset(requestOptions, 0, sizeof(AtermRequestOption16));
+            shortOption = (AtermRequestOption16*)requestOptions;
+            shortOption->type = SOHtoNs(0x301);
+            shortOption->length = SOHtoNs(1);
+            shortOption->value[0] = gAtermMode;
+            requestLength = ATERM_81402E40((u16*)packetBuffer, 6,
+                                           (u16*)requestOptions,
+                                           sizeof(AtermRequestOption16),
+                                           gAtermAddressBuffer);
+            SOSendTo(socket, packetBuffer, requestLength, 0, &peerAddress);
+            gAtermProtocolState = 10;
+            lastSendTime = now;
+            break;
+        case 10:
+            if (NCDGetLinkStatus() == 5) {
+                SOClose(socket);
+                socket = -1;
+                return ATERM_814036D8();
+            }
+            now = (u32)(OSGetTime() / (__mulhwu(reciprocal, OS_BUS_CLOCK >> 2) >> 6));
+            if (now - lastSendTime >= 1000) {
+                if (++retries >= 10) {
+                    result = -5;
+                    failed = 1;
+                } else {
+                    gAtermProtocolState = 9;
+                }
+            }
+            break;
+        default:
+            result = -5;
+            failed = 1;
+            break;
+        }
+    }
+}
+
+s32 ATERMi_AutoConfigThread(void) {
+    s32 result = ATERM_814038C8();
+    s32 progress[5];
+    u32 equalityMask;
+    s32 completedState;
+
+    gAtermResult = result;
+    if (gAtermSocketStarted != 0) {
+        gAtermSocketStarted = 0;
+    }
+    if (gAtermSocketReady != 0) {
+        gAtermSocketReady = 0;
+        SOCleanup();
+    }
+    equalityMask = ~(result - 1U | 1U - result);
+    gAtermDeadline = 0xFFFFFFFF;
+    completedState = ((s32)equalityMask >> 31) + 7;
+    gAtermState = completedState;
+    progress[0] = completedState;
+    progress[1] = -1;
+    progress[2] = gAtermResult;
+    (*gAtermProgressCallback)(progress);
+    return 0;
+}
+
+int ATERM_81404844(u16* destination, u16* source, u32 length, void* key, u32 keyLength) {
+    u32 expandedKey[64];
+    u32 stateWords[4];
+    u8* destinationBytes = (u8*)destination;
+    const u8* sourceBytes = (const u8*)source;
+    u32 blockCount;
+    u32 rounds;
+    u32 pass;
+
+    if ((length & 7) != 0 || (keyLength & 7) != 0) {
+        return 0;
+    }
+    blockCount = length >> 3;
+    if (blockCount < 2) {
+        return 0;
+    }
+
+    rounds = ATERM_81404BFC(expandedKey, key, keyLength << 3);
+    memcpy(destinationBytes + 8, sourceBytes, length);
+    stateWords[0] = 0x4D4D4D4D;
+    stateWords[1] = 0x4D4D4D4D;
+    for (pass = 0; pass < 6; pass++) {
+        u32 blockIndex;
+        for (blockIndex = 1; blockIndex <= blockCount; blockIndex++) {
+            u64 counter = (u64)pass * blockCount + blockIndex;
+            u8* stateBytes = (u8*)stateWords;
+
+            memcpy(stateBytes + 8, destinationBytes + blockIndex * 8, 8);
+            ATERM_81405254(expandedKey, rounds, stateBytes, stateBytes);
+            stateBytes[0] ^= (u8)(counter >> 56);
+            stateBytes[1] ^= (u8)(counter >> 48);
+            stateBytes[2] ^= (u8)(counter >> 40);
+            stateBytes[3] ^= (u8)(counter >> 32);
+            stateBytes[4] ^= (u8)(counter >> 24);
+            stateBytes[5] ^= (u8)(counter >> 16);
+            stateBytes[6] ^= (u8)(counter >> 8);
+            stateBytes[7] ^= (u8)counter;
+        }
+    }
+    memcpy(destinationBytes, stateWords, 8);
+    return 1;
+}
+
+int ATERM_81404A18(u16* destination, u16* source, u32 length, void* key, u32 keyLength) {
+    u32 expandedKey[64];
+    u32 stateWords[4];
+    u8* destinationBytes = (u8*)destination;
+    const u8* sourceBytes = (const u8*)source;
+    u32 blockCount;
+    u32 rounds;
+    s32 pass;
+
+    if ((length & 7) != 0 || (keyLength & 7) != 0) {
+        return 0;
+    }
+    blockCount = (length - 1) >> 3;
+    if (blockCount < 2) {
+        return 0;
+    }
+
+    rounds = ATERM_8140502C(expandedKey, key, keyLength << 3);
+    memcpy(stateWords, sourceBytes, 8);
+    memcpy(destinationBytes, sourceBytes + 8, length - 1);
+    for (pass = 5; pass >= 0; pass--) {
+        u32 blockIndex;
+        for (blockIndex = blockCount; blockIndex != 0; blockIndex--) {
+            u64 counter = (u64)(u32)pass * blockCount + blockIndex;
+            u8* stateBytes = (u8*)stateWords;
+            u8* outputBlock = destinationBytes + (blockIndex - 1) * 8;
+
+            memcpy(stateBytes + 8, outputBlock, 8);
+            ATERM_81405690(expandedKey, rounds, stateBytes, stateBytes);
+            stateBytes[0] ^= (u8)(counter >> 56);
+            stateBytes[1] ^= (u8)(counter >> 48);
+            stateBytes[2] ^= (u8)(counter >> 40);
+            stateBytes[3] ^= (u8)(counter >> 32);
+            stateBytes[4] ^= (u8)(counter >> 24);
+            stateBytes[5] ^= (u8)(counter >> 16);
+            stateBytes[6] ^= (u8)(counter >> 8);
+            stateBytes[7] ^= (u8)counter;
+            memcpy(outputBlock, stateBytes + 8, 8);
+        }
+    }
+    return stateWords[0] == 0x4D4D4D4D && stateWords[1] == 0x4D4D4D4D;
+}
+
+#define ATERM_AES_SUB_BYTE(value) (gAtermAesTables[4][(value)] & 0xFF)
+#define ATERM_AES_SUB_WORD(value) \
+    ((ATERM_AES_SUB_BYTE(((value) >> 24) & 0xFF) << 24) | \
+     (ATERM_AES_SUB_BYTE(((value) >> 16) & 0xFF) << 16) | \
+     (ATERM_AES_SUB_BYTE(((value) >> 8) & 0xFF) << 8) | \
+     ATERM_AES_SUB_BYTE((value) & 0xFF))
+
+#define ATERM_AES_READ_KEY_WORD(index) \
+    (((u32)keyBytes[(index) * 4] << 24) | \
+     ((u32)keyBytes[(index) * 4 + 1] << 16) | \
+     ((u32)keyBytes[(index) * 4 + 2] << 8) | \
+     keyBytes[(index) * 4 + 3])
+
+int ATERM_81404BFC(u32* expandedKey, const void* key, u32 keyBits) {
+    const u8* keyBytes = (const u8*)key;
+    u32* roundKey;
+    const u32* roundConstant;
+    u32 temp;
+
+    expandedKey[0] = ATERM_AES_READ_KEY_WORD(0);
+    expandedKey[1] = ATERM_AES_READ_KEY_WORD(1);
+    expandedKey[2] = ATERM_AES_READ_KEY_WORD(2);
+    expandedKey[3] = ATERM_AES_READ_KEY_WORD(3);
+
+    if (keyBits == 0x80) {
+        roundKey = expandedKey + 4;
+        roundConstant = gAtermAesRoundConstants;
+        do {
+            temp = roundKey[3];
+            temp = (temp << 8) | (temp >> 24);
+            temp = ATERM_AES_SUB_WORD(temp) ^ *roundConstant++;
+            roundKey[0] = roundKey[-4] ^ temp;
+            roundKey[1] = roundKey[-3] ^ roundKey[0];
+            roundKey[2] = roundKey[-2] ^ roundKey[1];
+            roundKey[3] = roundKey[-1] ^ roundKey[2];
+            roundKey += 4;
+        } while (roundKey < expandedKey + 44);
+        return 10;
+    }
+
+    expandedKey[4] = ATERM_AES_READ_KEY_WORD(4);
+    expandedKey[5] = ATERM_AES_READ_KEY_WORD(5);
+    if (keyBits == 0xC0) {
+        roundKey = expandedKey + 6;
+        roundConstant = gAtermAesRoundConstants;
+        do {
+            temp = roundKey[5];
+            temp = (temp << 8) | (temp >> 24);
+            temp = ATERM_AES_SUB_WORD(temp) ^ *roundConstant++;
+            roundKey[0] = roundKey[-6] ^ temp;
+            roundKey[1] = roundKey[-5] ^ roundKey[0];
+            roundKey[2] = roundKey[-4] ^ roundKey[1];
+            roundKey[3] = roundKey[-3] ^ roundKey[2];
+            roundKey[4] = roundKey[-2] ^ roundKey[0];
+            roundKey[5] = roundKey[-1] ^ roundKey[4];
+            roundKey += 6;
+        } while (roundKey < expandedKey + 54);
+        return 12;
+    }
+
+    expandedKey[6] = ATERM_AES_READ_KEY_WORD(6);
+    expandedKey[7] = ATERM_AES_READ_KEY_WORD(7);
+    if (keyBits == 0x100) {
+        roundKey = expandedKey + 8;
+        roundConstant = gAtermAesRoundConstants;
+        do {
+            temp = roundKey[7];
+            temp = (temp << 8) | (temp >> 24);
+            temp = ATERM_AES_SUB_WORD(temp) ^ *roundConstant++;
+            roundKey[0] = roundKey[-8] ^ temp;
+            roundKey[1] = roundKey[-7] ^ roundKey[0];
+            roundKey[2] = roundKey[-6] ^ roundKey[1];
+            roundKey[3] = roundKey[-5] ^ roundKey[2];
+            temp = ATERM_AES_SUB_WORD(roundKey[3]);
+            roundKey[4] = roundKey[-4] ^ temp;
+            roundKey[5] = roundKey[-3] ^ roundKey[4];
+            roundKey[6] = roundKey[-2] ^ roundKey[5];
+            roundKey[7] = roundKey[-1] ^ roundKey[6];
+            roundKey += 8;
+        } while (roundKey < expandedKey + 64);
+        return 14;
+    }
+    return 0;
+}
+
+#undef ATERM_AES_READ_KEY_WORD
+#undef ATERM_AES_SUB_WORD
+#undef ATERM_AES_SUB_BYTE
+#undef ATERM_AES_SUB_BYTE
+
+
+#define ATERM_AES_TRANSFORM_KEY(roundKey, index) \
+    { \
+        u32 word = (roundKey)[index]; \
+        u32 byte0 = gAtermAesTables[4][(word >> 24) & 0xFF] & 0xFF; \
+        u32 byte1 = gAtermAesTables[4][(word >> 16) & 0xFF] & 0xFF; \
+        u32 byte2 = gAtermAesTables[4][(word >> 8) & 0xFF] & 0xFF; \
+        u32 byte3 = gAtermAesTables[4][word & 0xFF] & 0xFF; \
+        (roundKey)[index] = gAtermAesTables[5][byte0] ^ gAtermAesTables[6][byte1] ^ \
+                            gAtermAesTables[7][byte2] ^ gAtermAesTables[8][byte3]; \
+    }
+
+int ATERM_8140502C(u32* expandedKey, const void* key, u32 keyBits) {
+    int rounds = ATERM_81404BFC(expandedKey, key, keyBits);
+    u32* firstRound = expandedKey;
+    u32* lastRound = expandedKey + rounds * 4;
+    u32* roundKey;
+    u32 roundCount;
+
+    while (firstRound < lastRound) {
+        u32 word0 = firstRound[0];
+        u32 word1 = firstRound[1];
+        u32 word2 = firstRound[2];
+        u32 word3 = firstRound[3];
+
+        firstRound[0] = lastRound[0];
+        firstRound[1] = lastRound[1];
+        firstRound[2] = lastRound[2];
+        firstRound[3] = lastRound[3];
+        lastRound[0] = word0;
+        lastRound[1] = word1;
+        lastRound[2] = word2;
+        lastRound[3] = word3;
+        firstRound += 4;
+        lastRound -= 4;
+    }
+
+    if (rounds > 1) {
+        roundKey = expandedKey + 4;
+        roundCount = rounds - 1;
+        do {
+            ATERM_AES_TRANSFORM_KEY(roundKey, 0);
+            ATERM_AES_TRANSFORM_KEY(roundKey, 1);
+            ATERM_AES_TRANSFORM_KEY(roundKey, 2);
+            ATERM_AES_TRANSFORM_KEY(roundKey, 3);
+            roundKey += 4;
+        } while (--roundCount != 0);
+    }
+    return rounds;
+}
+
+#undef ATERM_AES_TRANSFORM_KEY
+
+void ATERM_81405254(const u32* expandedKey, u32 rounds, const u8* input, u8* output) {
+    u32 state0 = ((u32)input[0] << 24) | ((u32)input[1] << 16) |
+                 ((u32)input[2] << 8) | input[3];
+    u32 state1 = ((u32)input[4] << 24) | ((u32)input[5] << 16) |
+                 ((u32)input[6] << 8) | input[7];
+    u32 state2 = ((u32)input[8] << 24) | ((u32)input[9] << 16) |
+                 ((u32)input[10] << 8) | input[11];
+    u32 state3 = ((u32)input[12] << 24) | ((u32)input[13] << 16) |
+                 ((u32)input[14] << 8) | input[15];
+    u32 roundIndex;
+
+    state0 ^= expandedKey[0];
+    state1 ^= expandedKey[1];
+    state2 ^= expandedKey[2];
+    state3 ^= expandedKey[3];
+
+    for (roundIndex = 1; roundIndex < rounds; roundIndex++) {
+        u32 next0 = gAtermAesTables[0][state0 >> 24] ^
+                    gAtermAesTables[1][(state1 >> 16) & 0xFF] ^
+                    gAtermAesTables[2][(state2 >> 8) & 0xFF] ^
+                    gAtermAesTables[3][state3 & 0xFF] ^ expandedKey[roundIndex * 4];
+        u32 next1 = gAtermAesTables[0][state1 >> 24] ^
+                    gAtermAesTables[1][(state2 >> 16) & 0xFF] ^
+                    gAtermAesTables[2][(state3 >> 8) & 0xFF] ^
+                    gAtermAesTables[3][state0 & 0xFF] ^ expandedKey[roundIndex * 4 + 1];
+        u32 next2 = gAtermAesTables[0][state2 >> 24] ^
+                    gAtermAesTables[1][(state3 >> 16) & 0xFF] ^
+                    gAtermAesTables[2][(state0 >> 8) & 0xFF] ^
+                    gAtermAesTables[3][state1 & 0xFF] ^ expandedKey[roundIndex * 4 + 2];
+        u32 next3 = gAtermAesTables[0][state3 >> 24] ^
+                    gAtermAesTables[1][(state0 >> 16) & 0xFF] ^
+                    gAtermAesTables[2][(state1 >> 8) & 0xFF] ^
+                    gAtermAesTables[3][state2 & 0xFF] ^ expandedKey[roundIndex * 4 + 3];
+
+        state0 = next0;
+        state1 = next1;
+        state2 = next2;
+        state3 = next3;
+    }
+
+    {
+        u32 result0 = (((gAtermAesTables[4][state0 >> 24] & 0xFF000000) |
+                        (gAtermAesTables[4][(state1 >> 16) & 0xFF] & 0x00FF0000) |
+                        (gAtermAesTables[4][(state2 >> 8) & 0xFF] & 0x0000FF00) |
+                        (gAtermAesTables[4][state3 & 0xFF] & 0x000000FF)) ^ expandedKey[rounds * 4]);
+        u32 result1 = (((gAtermAesTables[4][state1 >> 24] & 0xFF000000) |
+                        (gAtermAesTables[4][(state2 >> 16) & 0xFF] & 0x00FF0000) |
+                        (gAtermAesTables[4][(state3 >> 8) & 0xFF] & 0x0000FF00) |
+                        (gAtermAesTables[4][state0 & 0xFF] & 0x000000FF)) ^ expandedKey[rounds * 4 + 1]);
+        u32 result2 = (((gAtermAesTables[4][state2 >> 24] & 0xFF000000) |
+                        (gAtermAesTables[4][(state3 >> 16) & 0xFF] & 0x00FF0000) |
+                        (gAtermAesTables[4][(state0 >> 8) & 0xFF] & 0x0000FF00) |
+                        (gAtermAesTables[4][state1 & 0xFF] & 0x000000FF)) ^ expandedKey[rounds * 4 + 2]);
+        u32 result3 = (((gAtermAesTables[4][state3 >> 24] & 0xFF000000) |
+                        (gAtermAesTables[4][(state0 >> 16) & 0xFF] & 0x00FF0000) |
+                        (gAtermAesTables[4][(state1 >> 8) & 0xFF] & 0x0000FF00) |
+                        (gAtermAesTables[4][state2 & 0xFF] & 0x000000FF)) ^ expandedKey[rounds * 4 + 3]);
+
+        output[0] = result0 >> 24;
+        output[1] = result0 >> 16;
+        output[2] = result0 >> 8;
+        output[3] = result0;
+        output[4] = result1 >> 24;
+        output[5] = result1 >> 16;
+        output[6] = result1 >> 8;
+        output[7] = result1;
+        output[8] = result2 >> 24;
+        output[9] = result2 >> 16;
+        output[10] = result2 >> 8;
+        output[11] = result2;
+        output[12] = result3 >> 24;
+        output[13] = result3 >> 16;
+        output[14] = result3 >> 8;
+        output[15] = result3;
+    }
+}
+
+void ATERM_81405690(const u32* expandedKey, u32 rounds, const u8* input, u8* output) {
+    u32 state0 = ((u32)input[0] << 24) | ((u32)input[1] << 16) |
+                 ((u32)input[2] << 8) | input[3];
+    u32 state1 = ((u32)input[4] << 24) | ((u32)input[5] << 16) |
+                 ((u32)input[6] << 8) | input[7];
+    u32 state2 = ((u32)input[8] << 24) | ((u32)input[9] << 16) |
+                 ((u32)input[10] << 8) | input[11];
+    u32 state3 = ((u32)input[12] << 24) | ((u32)input[13] << 16) |
+                 ((u32)input[14] << 8) | input[15];
+    u32 roundIndex;
+
+    state0 ^= expandedKey[0];
+    state1 ^= expandedKey[1];
+    state2 ^= expandedKey[2];
+    state3 ^= expandedKey[3];
+
+    for (roundIndex = 1; roundIndex < rounds; roundIndex++) {
+        u32 next0 = gAtermAesTables[5][state0 >> 24] ^
+                    gAtermAesTables[6][(state3 >> 16) & 0xFF] ^
+                    gAtermAesTables[7][(state2 >> 8) & 0xFF] ^
+                    gAtermAesTables[8][state1 & 0xFF] ^ expandedKey[roundIndex * 4];
+        u32 next1 = gAtermAesTables[5][state1 >> 24] ^
+                    gAtermAesTables[6][(state0 >> 16) & 0xFF] ^
+                    gAtermAesTables[7][(state3 >> 8) & 0xFF] ^
+                    gAtermAesTables[8][state2 & 0xFF] ^ expandedKey[roundIndex * 4 + 1];
+        u32 next2 = gAtermAesTables[5][state2 >> 24] ^
+                    gAtermAesTables[6][(state1 >> 16) & 0xFF] ^
+                    gAtermAesTables[7][(state0 >> 8) & 0xFF] ^
+                    gAtermAesTables[8][state3 & 0xFF] ^ expandedKey[roundIndex * 4 + 2];
+        u32 next3 = gAtermAesTables[5][state3 >> 24] ^
+                    gAtermAesTables[6][(state2 >> 16) & 0xFF] ^
+                    gAtermAesTables[7][(state1 >> 8) & 0xFF] ^
+                    gAtermAesTables[8][state0 & 0xFF] ^ expandedKey[roundIndex * 4 + 3];
+
+        state0 = next0;
+        state1 = next1;
+        state2 = next2;
+        state3 = next3;
+    }
+
+    {
+        u32 result0 = (((gAtermAesTables[9][state0 >> 24] & 0xFF000000) |
+                        (gAtermAesTables[9][(state3 >> 16) & 0xFF] & 0x00FF0000) |
+                        (gAtermAesTables[9][(state2 >> 8) & 0xFF] & 0x0000FF00) |
+                        (gAtermAesTables[9][state1 & 0xFF] & 0x000000FF)) ^ expandedKey[rounds * 4]);
+        u32 result1 = (((gAtermAesTables[9][state1 >> 24] & 0xFF000000) |
+                        (gAtermAesTables[9][(state0 >> 16) & 0xFF] & 0x00FF0000) |
+                        (gAtermAesTables[9][(state3 >> 8) & 0xFF] & 0x0000FF00) |
+                        (gAtermAesTables[9][state2 & 0xFF] & 0x000000FF)) ^ expandedKey[rounds * 4 + 1]);
+        u32 result2 = (((gAtermAesTables[9][state2 >> 24] & 0xFF000000) |
+                        (gAtermAesTables[9][(state1 >> 16) & 0xFF] & 0x00FF0000) |
+                        (gAtermAesTables[9][(state0 >> 8) & 0xFF] & 0x0000FF00) |
+                        (gAtermAesTables[9][state3 & 0xFF] & 0x000000FF)) ^ expandedKey[rounds * 4 + 2]);
+        u32 result3 = (((gAtermAesTables[9][state3 >> 24] & 0xFF000000) |
+                        (gAtermAesTables[9][(state2 >> 16) & 0xFF] & 0x00FF0000) |
+                        (gAtermAesTables[9][(state1 >> 8) & 0xFF] & 0x0000FF00) |
+                        (gAtermAesTables[9][state0 & 0xFF] & 0x000000FF)) ^ expandedKey[rounds * 4 + 3]);
+
+        output[0] = result0 >> 24;
+        output[1] = result0 >> 16;
+        output[2] = result0 >> 8;
+        output[3] = result0;
+        output[4] = result1 >> 24;
+        output[5] = result1 >> 16;
+        output[6] = result1 >> 8;
+        output[7] = result1;
+        output[8] = result2 >> 24;
+        output[9] = result2 >> 16;
+        output[10] = result2 >> 8;
+        output[11] = result2;
+        output[12] = result3 >> 24;
+        output[13] = result3 >> 16;
+        output[14] = result3 >> 8;
+        output[15] = result3;
+    }
+}
+
+void ATERM_81405D0C(u32 state[4], const u8 block[64]);
+
+void ATERM_81405ACC(NETMD5Context* context, const void* input, u32 length) {
+    const u8* data = (const u8*)input;
+    u32 bufferIndex = (u32)(context->length >> 3) & 0x3F;
+    u32 bytesToFill = 64 - bufferIndex;
+    u32 copiedBytes;
+    u32 index;
+
+    context->length += (u64)length << 3;
+    if (length >= bytesToFill) {
+        u32 alignedBytes = bytesToFill & ~7U;
+
+        for (copiedBytes = 0; copiedBytes < alignedBytes; copiedBytes += 8) {
+            context->buffer8[bufferIndex + copiedBytes] = data[copiedBytes];
+            context->buffer8[bufferIndex + copiedBytes + 1] = data[copiedBytes + 1];
+            context->buffer8[bufferIndex + copiedBytes + 2] = data[copiedBytes + 2];
+            context->buffer8[bufferIndex + copiedBytes + 3] = data[copiedBytes + 3];
+            context->buffer8[bufferIndex + copiedBytes + 4] = data[copiedBytes + 4];
+            context->buffer8[bufferIndex + copiedBytes + 5] = data[copiedBytes + 5];
+            context->buffer8[bufferIndex + copiedBytes + 6] = data[copiedBytes + 6];
+            context->buffer8[bufferIndex + copiedBytes + 7] = data[copiedBytes + 7];
+        }
+        for (index = copiedBytes; index < bytesToFill; index++) {
+            context->buffer8[bufferIndex + index] = data[index];
+        }
+        ATERM_81405D0C(context->state, context->buffer8);
+        data += bytesToFill;
+        length -= bytesToFill;
+        while (length >= sizeof(context->buffer8)) {
+            ATERM_81405D0C(context->state, data);
+            data += sizeof(context->buffer8);
+            length -= sizeof(context->buffer8);
+        }
+        bufferIndex = 0;
+    }
+    if (length != 0) {
+        for (index = 0; index < length; index++) {
+            context->buffer8[bufferIndex + index] = data[index];
+        }
+    }
+}
+
+#define ATERM_MD5_STEP(A, B, C, D, WORD, CONSTANT, SHIFT, F) \
+    do { \
+        u32 value = (A) + (F) + (WORD) + (CONSTANT); \
+        (A) = (D); \
+        (D) = (C); \
+        (C) = (B); \
+        (B) += (value << (SHIFT)) | (value >> (32 - (SHIFT))); \
+    } while (0)
+
+void ATERM_81405D0C(u32 state[4], const u8 block[64]) {
+    u32 words[16];
+    u32 a = state[0];
+    u32 b = state[1];
+    u32 c = state[2];
+    u32 d = state[3];
+    u32 index;
+
+    for (index = 0; index < 2; index++) {
+        const u8* inputGroup = block + index * 32;
+        u32* wordGroup = words + index * 8;
+
+        wordGroup[0] = (u32)inputGroup[0] | ((u32)inputGroup[1] << 8) |
+                       ((u32)inputGroup[2] << 16) | ((u32)inputGroup[3] << 24);
+        wordGroup[1] = (u32)inputGroup[4] | ((u32)inputGroup[5] << 8) |
+                       ((u32)inputGroup[6] << 16) | ((u32)inputGroup[7] << 24);
+        wordGroup[2] = (u32)inputGroup[8] | ((u32)inputGroup[9] << 8) |
+                       ((u32)inputGroup[10] << 16) | ((u32)inputGroup[11] << 24);
+        wordGroup[3] = (u32)inputGroup[12] | ((u32)inputGroup[13] << 8) |
+                       ((u32)inputGroup[14] << 16) | ((u32)inputGroup[15] << 24);
+        wordGroup[4] = (u32)inputGroup[16] | ((u32)inputGroup[17] << 8) |
+                       ((u32)inputGroup[18] << 16) | ((u32)inputGroup[19] << 24);
+        wordGroup[5] = (u32)inputGroup[20] | ((u32)inputGroup[21] << 8) |
+                       ((u32)inputGroup[22] << 16) | ((u32)inputGroup[23] << 24);
+        wordGroup[6] = (u32)inputGroup[24] | ((u32)inputGroup[25] << 8) |
+                       ((u32)inputGroup[26] << 16) | ((u32)inputGroup[27] << 24);
+        wordGroup[7] = (u32)inputGroup[28] | ((u32)inputGroup[29] << 8) |
+                       ((u32)inputGroup[30] << 16) | ((u32)inputGroup[31] << 24);
+    }
+
+    ATERM_MD5_STEP(a, b, c, d, words[0], 0xd76aa478, 7, (b & c) | (~b & d));
+    ATERM_MD5_STEP(d, a, b, c, words[1], 0xe8c7b756, 12, (b & c) | (~b & d));
+    ATERM_MD5_STEP(c, d, a, b, words[2], 0x242070db, 17, (b & c) | (~b & d));
+    ATERM_MD5_STEP(b, c, d, a, words[3], 0xc1bdceee, 22, (b & c) | (~b & d));
+    ATERM_MD5_STEP(a, b, c, d, words[4], 0xf57c0faf, 7, (b & c) | (~b & d));
+    ATERM_MD5_STEP(d, a, b, c, words[5], 0x4787c62a, 12, (b & c) | (~b & d));
+    ATERM_MD5_STEP(c, d, a, b, words[6], 0xa8304613, 17, (b & c) | (~b & d));
+    ATERM_MD5_STEP(b, c, d, a, words[7], 0xfd469501, 22, (b & c) | (~b & d));
+    ATERM_MD5_STEP(a, b, c, d, words[8], 0x698098d8, 7, (b & c) | (~b & d));
+    ATERM_MD5_STEP(d, a, b, c, words[9], 0x8b44f7af, 12, (b & c) | (~b & d));
+    ATERM_MD5_STEP(c, d, a, b, words[10], 0xffff5bb1, 17, (b & c) | (~b & d));
+    ATERM_MD5_STEP(b, c, d, a, words[11], 0x895cd7be, 22, (b & c) | (~b & d));
+    ATERM_MD5_STEP(a, b, c, d, words[12], 0x6b901122, 7, (b & c) | (~b & d));
+    ATERM_MD5_STEP(d, a, b, c, words[13], 0xfd987193, 12, (b & c) | (~b & d));
+    ATERM_MD5_STEP(c, d, a, b, words[14], 0xa679438e, 17, (b & c) | (~b & d));
+    ATERM_MD5_STEP(b, c, d, a, words[15], 0x49b40821, 22, (b & c) | (~b & d));
+    ATERM_MD5_STEP(a, b, c, d, words[1], 0xf61e2562, 5, (d & b) | (~d & c));
+    ATERM_MD5_STEP(d, a, b, c, words[6], 0xc040b340, 9, (d & b) | (~d & c));
+    ATERM_MD5_STEP(c, d, a, b, words[11], 0x265e5a51, 14, (d & b) | (~d & c));
+    ATERM_MD5_STEP(b, c, d, a, words[0], 0xe9b6c7aa, 20, (d & b) | (~d & c));
+    ATERM_MD5_STEP(a, b, c, d, words[5], 0xd62f105d, 5, (d & b) | (~d & c));
+    ATERM_MD5_STEP(d, a, b, c, words[10], 0x02441453, 9, (d & b) | (~d & c));
+    ATERM_MD5_STEP(c, d, a, b, words[15], 0xd8a1e681, 14, (d & b) | (~d & c));
+    ATERM_MD5_STEP(b, c, d, a, words[4], 0xe7d3fbc8, 20, (d & b) | (~d & c));
+    ATERM_MD5_STEP(a, b, c, d, words[9], 0x21e1cde6, 5, (d & b) | (~d & c));
+    ATERM_MD5_STEP(d, a, b, c, words[14], 0xc33707d6, 9, (d & b) | (~d & c));
+    ATERM_MD5_STEP(c, d, a, b, words[3], 0xf4d50d87, 14, (d & b) | (~d & c));
+    ATERM_MD5_STEP(b, c, d, a, words[8], 0x455a14ed, 20, (d & b) | (~d & c));
+    ATERM_MD5_STEP(a, b, c, d, words[13], 0xa9e3e905, 5, (d & b) | (~d & c));
+    ATERM_MD5_STEP(d, a, b, c, words[2], 0xfcefa3f8, 9, (d & b) | (~d & c));
+    ATERM_MD5_STEP(c, d, a, b, words[7], 0x676f02d9, 14, (d & b) | (~d & c));
+    ATERM_MD5_STEP(b, c, d, a, words[12], 0x8d2a4c8a, 20, (d & b) | (~d & c));
+    ATERM_MD5_STEP(a, b, c, d, words[5], 0xfffa3942, 4, b ^ c ^ d);
+    ATERM_MD5_STEP(d, a, b, c, words[8], 0x8771f681, 11, b ^ c ^ d);
+    ATERM_MD5_STEP(c, d, a, b, words[11], 0x6d9d6122, 16, b ^ c ^ d);
+    ATERM_MD5_STEP(b, c, d, a, words[14], 0xfde5380c, 23, b ^ c ^ d);
+    ATERM_MD5_STEP(a, b, c, d, words[1], 0xa4beea44, 4, b ^ c ^ d);
+    ATERM_MD5_STEP(d, a, b, c, words[4], 0x4bdecfa9, 11, b ^ c ^ d);
+    ATERM_MD5_STEP(c, d, a, b, words[7], 0xf6bb4b60, 16, b ^ c ^ d);
+    ATERM_MD5_STEP(b, c, d, a, words[10], 0xbebfbc70, 23, b ^ c ^ d);
+    ATERM_MD5_STEP(a, b, c, d, words[13], 0x289b7ec6, 4, b ^ c ^ d);
+    ATERM_MD5_STEP(d, a, b, c, words[0], 0xeaa127fa, 11, b ^ c ^ d);
+    ATERM_MD5_STEP(c, d, a, b, words[3], 0xd4ef3085, 16, b ^ c ^ d);
+    ATERM_MD5_STEP(b, c, d, a, words[6], 0x04881d05, 23, b ^ c ^ d);
+    ATERM_MD5_STEP(a, b, c, d, words[9], 0xd9d4d039, 4, b ^ c ^ d);
+    ATERM_MD5_STEP(d, a, b, c, words[12], 0xe6db99e5, 11, b ^ c ^ d);
+    ATERM_MD5_STEP(c, d, a, b, words[15], 0x1fa27cf8, 16, b ^ c ^ d);
+    ATERM_MD5_STEP(b, c, d, a, words[2], 0xc4ac5665, 23, b ^ c ^ d);
+    ATERM_MD5_STEP(a, b, c, d, words[0], 0xf4292244, 6, c ^ (b | ~d));
+    ATERM_MD5_STEP(d, a, b, c, words[7], 0x432aff97, 10, c ^ (b | ~d));
+    ATERM_MD5_STEP(c, d, a, b, words[14], 0xab9423a7, 15, c ^ (b | ~d));
+    ATERM_MD5_STEP(b, c, d, a, words[5], 0xfc93a039, 21, c ^ (b | ~d));
+    ATERM_MD5_STEP(a, b, c, d, words[12], 0x655b59c3, 6, c ^ (b | ~d));
+    ATERM_MD5_STEP(d, a, b, c, words[3], 0x8f0ccc92, 10, c ^ (b | ~d));
+    ATERM_MD5_STEP(c, d, a, b, words[10], 0xffeff47d, 15, c ^ (b | ~d));
+    ATERM_MD5_STEP(b, c, d, a, words[1], 0x85845dd1, 21, c ^ (b | ~d));
+    ATERM_MD5_STEP(a, b, c, d, words[8], 0x6fa87e4f, 6, c ^ (b | ~d));
+    ATERM_MD5_STEP(d, a, b, c, words[15], 0xfe2ce6e0, 10, c ^ (b | ~d));
+    ATERM_MD5_STEP(c, d, a, b, words[6], 0xa3014314, 15, c ^ (b | ~d));
+    ATERM_MD5_STEP(b, c, d, a, words[13], 0x4e0811a1, 21, c ^ (b | ~d));
+    ATERM_MD5_STEP(a, b, c, d, words[4], 0xf7537e82, 6, c ^ (b | ~d));
+    ATERM_MD5_STEP(d, a, b, c, words[11], 0xbd3af235, 10, c ^ (b | ~d));
+    ATERM_MD5_STEP(c, d, a, b, words[2], 0x2ad7d2bb, 15, c ^ (b | ~d));
+    ATERM_MD5_STEP(b, c, d, a, words[9], 0xeb86d391, 21, c ^ (b | ~d));
+
+    state[0] += a;
+    state[1] += b;
+    state[2] += c;
+    state[3] += d;
+}
+#undef ATERM_MD5_STEP
+
+void ATERM_8140684C(OSAlarm* alarm, OSContext* context) {
+    OSMessageQueue* queue = (OSMessageQueue*)alarm->tag;
+    OSSendMessage(queue, NULL, 0);
+}
+
+int ATERMi_ApConfigStart(OSPriority priority, u32 scanLimit,
+                         AtermProgressCallback progressCallback,
+                         AtermAllocateCallback allocateCallback,
+                         AtermFreeCallback freeCallback, u32 stackSize) {
+    AtermProgress progress;
+
+    if (gAtermState > 0 && gAtermState < 6) {
+        return -10;
+    }
+
+    gAtermState = 7;
+    gAtermScanLimit = scanLimit;
+    gAtermScanBufferSize = stackSize;
+    gAtermProgressCallback = progressCallback;
+    gAtermAllocate = allocateCallback;
+    gAtermRelease = freeCallback;
+    gAtermAllocation = allocateCallback(stackSize);
+    if (gAtermAllocation == NULL) {
+        gAtermResult = -1;
+        return -1;
+    }
+
+    OSCreateThread(&sAtermThread, (void* (*)(void*))ATERMi_AutoConfigThread, NULL,
+                   (u8*)gAtermAllocation + (stackSize & ~7), stackSize, priority, 1);
+    gAtermState = 1;
+    gAtermDeadline = (u32)(OSGetTime() /
+                           (__mulhwu(0x10624DD3, OS_BUS_CLOCK >> 2) >> 6)) + 60000;
+    gAtermCancelRequested = 0;
+    memset(&gAtermConfigurationResult, 0, 0xE8);
+
+    progress.state = gAtermState;
+    if (gAtermDeadline == 0xFFFFFFFF) {
+        progress.remainingTime = -1;
+    } else {
+        progress.remainingTime = gAtermDeadline -
+                                 (u32)(OSGetTime() /
+                                       (__mulhwu(0x10624DD3, OS_BUS_CLOCK >> 2) >> 6));
+    }
+    progress.result = gAtermResult;
+    progressCallback(&progress);
+    OSResumeThread(&sAtermThread);
+    gAtermThreadStarted = 1;
+    return 1;
+}
+
+int ATERMi_ApConfigEnd(void) {
+    s32 initialState = gAtermState;
+
+    if (gAtermThreadStarted != 0) {
+        OSMessageQueue cancelQueue;
+        OSMessage cancelQueueBuffer;
+        OSMessage cancelMessage;
+        OSAlarm cancelAlarm;
+        OSMessageQueue joinQueue;
+        OSMessage joinQueueBuffer;
+        OSMessage joinMessage;
+        OSAlarm joinAlarm;
+
+        gAtermCancelRequested = 1;
+        while (gAtermState >= 1 && gAtermState <= 5) {
+            OSInitMessageQueue(&cancelQueue, &cancelQueueBuffer, 1);
+            OSCreateAlarm(&cancelAlarm);
+            OSSetAlarmTag(&cancelAlarm, (u32)&cancelQueue);
+            OSSetAlarm(&cancelAlarm,
+                       (__mulhwu(0x10624DD3, OS_BUS_CLOCK >> 2) >> 6) * 100,
+                       ATERM_8140684C);
+            OSReceiveMessage(&cancelQueue, &cancelMessage, 1);
+        }
+
+        OSInitMessageQueue(&joinQueue, &joinQueueBuffer, 1);
+        OSCreateAlarm(&joinAlarm);
+        OSSetAlarmTag(&joinAlarm, (u32)&joinQueue);
+        OSSetAlarm(&joinAlarm, 0x10624DD3, ATERM_8140684C);
+        OSReceiveMessage(&joinQueue, &joinMessage, 1);
+        while (OSIsThreadTerminated(&sAtermThread) == 0) {
+            OSJoinThread(&sAtermThread, NULL);
+        }
+
+        if (gAtermAllocation != NULL) {
+            gAtermRelease(gAtermAllocation);
+            gAtermAllocation = NULL;
+        }
+        gAtermThreadStarted = 0;
+        if (initialState != gAtermState) {
+            AtermProgress progress;
+            progress.state = gAtermState;
+            if (gAtermDeadline == 0xFFFFFFFF) {
+                progress.remainingTime = -1;
+            } else {
+                OSTime now = OSGetTime();
+                u32 busClock = OS_BUS_CLOCK >> 2;
+                u32 reciprocal = 0x10624DD3;
+                u32 ticksPerMillisecond = __mulhwu(reciprocal, busClock) >> 6;
+                u32 elapsedMilliseconds = (u32)(now / ticksPerMillisecond);
+                progress.remainingTime = gAtermDeadline - elapsedMilliseconds;
+            }
+            progress.result = gAtermResult;
+            gAtermProgressCallback(&progress);
+        }
+    }
+    return 1;
+}
+
+int ATERMi_ApConfigGetState(AtermProgress* progress) {
+    progress->state = gAtermState;
+    if (gAtermDeadline == 0xFFFFFFFF) {
+        progress->remainingTime = -1;
+    } else {
+        OSTime currentTime = OSGetTime();
+        u32 busClock = OS_BUS_CLOCK >> 2;
+        u32 reciprocal = 0x10624DD3;
+        u32 ticksPerMillisecond = __mulhwu(busClock, reciprocal) >> 6;
+        u32 elapsedMilliseconds = (u32)(currentTime / ticksPerMillisecond);
+        progress->remainingTime = gAtermDeadline - elapsedMilliseconds;
+    }
+    progress->result = gAtermResult;
+    return 1;
+}
+
+int ATERMi_ApConfigGetResult(void* result) {
+    memcpy(result, &gAtermConfigurationResult, 0xE8);
+    return 1;
+}
+
+int ATERMi_ApConfigGetVersion(void) {
+    return 0x106;
+}
