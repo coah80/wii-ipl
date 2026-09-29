@@ -10,7 +10,7 @@ namespace textinput {
         public:
             KeyboardBase() : meLanguage(JP) {}
 
-            virtual ~KeyboardBase();
+            virtual ~KeyboardBase() {}
             virtual void create(MEMAllocator* alloc) override;
             virtual void init() override;
             virtual void setCommandReceiver(CommandReceiver* receiver) override;

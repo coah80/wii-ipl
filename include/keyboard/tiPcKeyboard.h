@@ -29,7 +29,7 @@ namespace textinput {
                     virtual void onEvent(UIObj* uiObj, u32, void*) = 0;  // 0x08
                 };
 
-                UIObj(u32 ctrlNo, LayoutByNW4R* layout, Listener* listener) : unk_0x04(0), mCtrlNo(ctrlNo), mpLayout(layout) {
+                UIObj(u32 ctrlNo, LayoutByNW4R* layout, Listener* listener) : mCtrlNo(ctrlNo), mpLayout(layout) {
                     mpListener = listener;
                 }
 
@@ -38,7 +38,6 @@ namespace textinput {
                 virtual void onGUIEvent(gui::PaneComponent& pane, u32 event, nw4rmanager::TiEventHandler::Input* input);  // 0x18
 
             protected:
-                u32 unk_0x04;            // 0x04
                 u32 mCtrlNo;             // 0x08
                 LayoutByNW4R* mpLayout;  // 0x0C
                 Listener* mpListener;    // 0x10
@@ -94,7 +93,7 @@ namespace textinput {
                 virtual u32 getKeyType() const { return mKeyType; }                             // 0x28
 
             protected:
-                u32 mState;    // 0x2C
+                s32 mState;    // 0x2C
                 u32 mKeyType;  // 0x30
             };
 

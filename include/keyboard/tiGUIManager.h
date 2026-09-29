@@ -163,9 +163,9 @@ namespace textinput {
 
             bool mbInitialize;  // 0x04
 
-            bool mbPointed[GUI_POINTS_MAX];  // 0x08
+            bool mbPointed[GUI_POINTS_MAX];  // 0x05
 
-            bool mbDragging[GUI_POINTS_MAX];   // 0x10
+            bool mbDragging[GUI_POINTS_MAX];   // 0x0D
             Vec mDraggingPos[GUI_POINTS_MAX];  // 0x18
             int mDraggingButton;               // 0x78
 
@@ -173,10 +173,10 @@ namespace textinput {
 
             u16 mFlightDuration[GUI_POINTS_MAX];  // 0x80
 
-            bool mbTriggerTarget;  // 0x8A
+            bool mbTriggerTarget;  // 0x90
 
-            GUIManager* mpManager;     // 0x8C
-            EventHandler* mpListener;  // 0x90
+            GUIManager* mpManager;     // 0x94
+            EventHandler* mpListener;  // 0x98
         };
 
         class GUIManager : public GUIInterface {
@@ -300,15 +300,12 @@ namespace textinput {
 
             virtual void setPane(nw4r::lyt::Pane* pane) { mpPane = pane; }  // 0x68
             nw4r::lyt::Pane* getPane() { return mpPane; }
-            void setOwner(void* owner) { mpOwner = owner; }
 
             nw4r::lyt::TextBox* getTextPane() { return static_cast<nw4r::lyt::TextBox*>(mpPane); }
             nw4r::lyt::Picture* getPictPane() { return static_cast<nw4r::lyt::Picture*>(mpPane); }
             nw4r::lyt::Bounding* getBoundPane() { return static_cast<nw4r::lyt::Bounding*>(mpPane); }
 
         private:
-            u32 unk_0x94;             // 0x94
-            void* mpOwner;            // 0x98
             nw4r::lyt::Pane* mpPane;  // 0x9C
         };
     }  // namespace gui
