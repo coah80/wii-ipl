@@ -85,6 +85,28 @@ typedef struct WADFileEntry {
     char name[0x40];
 } WADFileEntry;
 
+typedef struct WADBackupSignature {
+    u8 header[0x40];
+    u8 firstCertificate[0x180];
+    u8 secondCertificate[0x180];
+} WADBackupSignature;
+
+typedef struct WADVerificationCertificateBundle {
+    u8 caProduction[0x400];
+    u8 msProduction[0x240];
+    u8 caDevelopment[0x400];
+    u8 msDevelopment[0x240];
+    u8 firstCertificate[0x180];
+    u8 secondCertificate[0x180];
+} WADVerificationCertificateBundle;
+
+typedef struct __attribute__((aligned(64))) WADVerificationWorkspace {
+    u8 reserved_0x00[0x40];
+    void* readBuffer[16];
+    u8 digest[0x40];
+    u8 hashContext[0xC0];
+} WADVerificationWorkspace;
+
 #pragma pack(push, 4)
 typedef struct WADFileMetadataView {
     u8 reserved_0x00[0x18C];
@@ -140,7 +162,9 @@ static s32 _WADUnpackBackup(WADHeader* header, WADStream* stream, WADUnpackInfo*
                             MEMAllocator* allocator, u32 offset, u32 flags);
 static s32 _WADUnpack(void* header, WADStream* stream, WADUnpackInfo* info, MEMAllocator* allocator,
                       u32 offset, u32 flags, u32 mode);
-static s32 WADVerify(WADStream* stream, MEMAllocator* allocator, u32 offset, u32 size);
+static s32 _WADHash(WADStream* stream, u32 offset, u32 size, void* context, void* buffer,
+                    u32 bufferSize, u32 flags, u32 mode, u32 chunkSize);
+s32 WADVerify(WADStream* stream, MEMAllocator* allocator, u32 offset, u32 size);
 s32 _WADGetCidxCount(const ESContentMask* contentMask);
 static s32 _WADGetCidx(const ESContentMask* contentMask, s32 contentNumber);
 static s32 _WADGetTransferId(void* transferId);
@@ -526,34 +550,31 @@ static s32 _WADGetCidx(const ESContentMask* contentMask, s32 contentNumber) {
 
     contentNumber++;
     for (groupIndex = 0; groupIndex < 0x80; groupIndex++) {
-        if ((contentMask->data[bitIndex >> 3] & (1 << (bitIndex & 7))) != 0) {
+        if ((contentMask->data[(s32)bitIndex >> 3] & (1 << (bitIndex & 7))) != 0) {
             contentNumber--;
         }
         if (contentNumber == 0) {
             return bitIndex;
         }
-        bitIndex++;
-        if ((contentMask->data[bitIndex >> 3] & (1 << (bitIndex & 7))) != 0) {
+        if ((contentMask->data[(s32)(bitIndex + 1) >> 3] & (1 << ((bitIndex + 1) & 7))) != 0) {
             contentNumber--;
         }
         if (contentNumber == 0) {
-            return bitIndex;
+            return bitIndex + 1;
         }
-        bitIndex++;
-        if ((contentMask->data[bitIndex >> 3] & (1 << (bitIndex & 7))) != 0) {
+        if ((contentMask->data[(s32)(bitIndex + 2) >> 3] & (1 << ((bitIndex + 2) & 7))) != 0) {
             contentNumber--;
         }
         if (contentNumber == 0) {
-            return bitIndex;
+            return bitIndex + 2;
         }
-        bitIndex++;
-        if ((contentMask->data[bitIndex >> 3] & (1 << (bitIndex & 7))) != 0) {
+        if ((contentMask->data[(s32)(bitIndex + 3) >> 3] & (1 << ((bitIndex + 3) & 7))) != 0) {
             contentNumber--;
         }
         if (contentNumber == 0) {
-            return bitIndex;
+            return bitIndex + 3;
         }
-        bitIndex++;
+        bitIndex += 4;
     }
     return -1;
 }
@@ -1353,6 +1374,94 @@ s32 WADCheckSavedataZD(const WADSaveDataFile* saveData) {
         }
     }
     return TRUE;
+}
+
+extern const u8 ca_ppki[];
+extern const u8 ms_ppki[];
+extern const u8 ca_dpki[];
+extern const u8 ms_dpki[];
+extern s32 SHA1Reset(void* context);
+extern s32 SHA1Result(void* context, void* digest);
+
+s32 WADVerify(WADStream* stream, MEMAllocator* allocator, u32 offset, u32 size) {
+    WADVerificationWorkspace workspace;
+    void* verificationBuffer = 0;
+    WADBackupSignature* backupSignature;
+    WADVerificationCertificateBundle* certificateBundle;
+    s32 result;
+
+    workspace.readBuffer[0] = 0;
+    if (size != WAD_ALIGN32(size)) {
+        result = -3000;
+    } else if (size <= 0x340) {
+        result = -3000;
+    } else {
+        workspace.readBuffer[0] = _WADMemAlloc(allocator, 0x8000);
+        if (workspace.readBuffer[0] == 0) {
+            result = -3003;
+        } else if (((u32)workspace.readBuffer[0] & 0x3F) != 0) {
+            result = -3007;
+        } else {
+            u32 hashSize = size - 0x340;
+
+            SHA1Reset(workspace.hashContext);
+            result = _WADHash(stream, offset, hashSize, workspace.hashContext,
+                              workspace.readBuffer[0], 0x8000, 0, 0, 0x1000);
+            if (result == 0) {
+                result = SHA1Result(workspace.hashContext, workspace.digest);
+                if (result == 0) {
+                    result = WADReadStream(stream, workspace.readBuffer, 0x340,
+                                           offset + hashSize);
+                    if (result == 0x340) {
+                        verificationBuffer = _WADMemAlloc(allocator, 0xF80);
+                        if (verificationBuffer == 0) {
+                            result = -3003;
+                        } else {
+                            backupSignature = workspace.readBuffer[0];
+                            certificateBundle = verificationBuffer;
+                            memcpy(certificateBundle->caProduction, ca_ppki, 0x400);
+                            memcpy(certificateBundle->msProduction, ms_ppki, 0x240);
+                            memcpy(certificateBundle->caDevelopment, ca_dpki, 0x400);
+                            memcpy(certificateBundle->msDevelopment, ms_dpki, 0x240);
+                            memcpy(certificateBundle->firstCertificate,
+                                   backupSignature->firstCertificate, 0x180);
+                            memcpy(certificateBundle->secondCertificate,
+                                   backupSignature->secondCertificate, 0x180);
+                            result = ES_VerifySign(workspace.digest, 0x14,
+                                                   workspace.readBuffer[0], verificationBuffer,
+                                                   0xF80);
+                        }
+                    } else {
+                        result = -3005;
+                    }
+                }
+            }
+        }
+    }
+
+    if (workspace.readBuffer[0] != 0) {
+        _WADMemFree(allocator, workspace.readBuffer[0]);
+    }
+    if (verificationBuffer != 0) {
+        _WADMemFree(allocator, verificationBuffer);
+    }
+    return result;
+}
+
+static void WAD_815C4A2C(WADImportTransfer* transfer, void* firstBuffer, void* secondBuffer,
+                         u32 chunkSize) {
+    transfer->chunkSize = chunkSize;
+    transfer->error = 0;
+    transfer->ready[1] = 0;
+    transfer->ready[0] = 0;
+    transfer->buffers[0] = firstBuffer;
+    transfer->buffers[1] = secondBuffer;
+    OSInitMutex(&transfer->mutex[0]);
+    OSInitMutex(&transfer->mutex[1]);
+    OSInitCond(&transfer->waitCond[0]);
+    OSInitCond(&transfer->waitCond[1]);
+    OSInitCond(&transfer->signalCond[0]);
+    OSInitCond(&transfer->signalCond[1]);
 }
 
 #pragma dont_inline on
