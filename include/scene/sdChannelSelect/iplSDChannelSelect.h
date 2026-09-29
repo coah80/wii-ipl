@@ -202,9 +202,9 @@ namespace ipl {
             u32* mpChannelTitleIds;
             u32 mPendingOperation;
             int mLastOperation;
-            layout::Object* mpHelpButtonLayout;
             layout::Object* mpErrorLayout;
             layout::Object* mpPointerLayout;
+            layout::Object* mpHelpButtonLayout;
             int mOperationResult;
             u8 mbOperationActive;
             u8 mbShowNoCardMessage;

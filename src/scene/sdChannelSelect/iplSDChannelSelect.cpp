@@ -30,18 +30,6 @@ namespace ipl {
                 SDChannelSelect* mpScene;
             };
 
-            class SDChannelSelectGuiEventHandler : public ::gui::EventHandler {
-            public:
-                explicit SDChannelSelectGuiEventHandler(SDChannelSelect* scene)
-                    : mpScene(scene) {
-                }
-
-                void onEvent(u32 compId, u32 event, void* data) override {
-                }
-
-            private:
-                SDChannelSelect* mpScene;
-            };
         }
 
         const char* SDChannelSelect::mscChannelPaneNames[PAGE_COUNT][MAX_CHANNEL_INDEX] = {
@@ -1064,11 +1052,11 @@ namespace ipl {
                                                 "mn_SdcardMenu_Page.brlyt");
             mpNoCardLayout = new layout::Object(getSceneHeap(), mpLayoutFile, "arc",
                                                 "mn_Nocard.brlyt");
-            mpNoCardLayout->bindToGroup("mn_Nocard_IN.brlan", "Group_00");
-            mpNoCardLayout->bindToGroup("mn_Nocard_Out.brlan", "Group_00");
-            mpNoCardLayout->bindToGroup("mn_Nocard_IN_02.brlan", "Group_01");
-            mpNoCardLayout->bindToGroup("mn_Nocard_Out_02.brlan", "Group_01");
-            mpNoCardLayout->bindToGroup("mn_Nocard_Wait.brlan", "G_Wait");
+            mpNoCardLayout->bindToGroup("mn_Nocard_IN.brlan", "Group_00", false, true);
+            mpNoCardLayout->bindToGroup("mn_Nocard_Out.brlan", "Group_00", false, true);
+            mpNoCardLayout->bindToGroup("mn_Nocard_IN_02.brlan", "Group_01", false, true);
+            mpNoCardLayout->bindToGroup("mn_Nocard_Out_02.brlan", "Group_01", false, true);
+            mpNoCardLayout->bindToGroup("mn_Nocard_Wait.brlan", "G_Wait", false, true);
             mpNoCardLayout->getAnim(0)->initAnmFrame();
             mpNoCardLayout->getAnim(2)->initAnmFrame();
             mpNoCardLayout->finishBinding();
