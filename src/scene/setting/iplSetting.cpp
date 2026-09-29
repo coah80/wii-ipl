@@ -7,10 +7,12 @@
 #include "system/iplErrorHandler.h"
 #include "system/iplSystem.h"
 #include "utility/iplWpad.h"
+#include "utility/iplCharacterCode.h"
 #include "sound/iplSound.h"
 
 #include "iplwww/www_wiisetting.h"
 #include "iplwww/www_surface.h"
+#include "iplwww/www_trasition.h"
 
 #include <cstdio>
 #include <cstring>
@@ -21,6 +23,13 @@
 #include <revolution/wpad.h>
 #include <private/os/OSExec.h>
 #include <private/os/OSSram.h>
+
+namespace ipl {
+    class SensitivityDrawing {
+    public:
+        static void draw(nand::File* file);
+    };
+}
 
 namespace ipl {
     namespace keyboard {
@@ -1251,6 +1260,82 @@ namespace ipl {
             return FADER_SCN_CONTINUE;
         }
 
+        void Setting::draw() {
+            if (!System::onDrawLayer(1)) {
+                return;
+            }
+
+            if (!mBrowserCreated) {
+                utility::Graphics::setOrtho(0);
+                nw4r::ut::Rect background(-1000.0f, -1000.0f, 1000.0f, 1000.0f);
+                GXColor color = {0, 0, 0, 0xFF};
+                utility::Graphics::drawPolygon(background, color);
+                return;
+            }
+
+            ext_ead::www::SurfaceManager* surface = ext_ead::www::SurfaceManager::GetInstance();
+            if (surface == NULL) {
+                return;
+            }
+
+            ext_ead::www::BrowserThread* browser = surface->GetBrowserThread();
+            if (browser == NULL || browser->GetTextureBuffer(0, NULL) == NULL) {
+                return;
+            }
+
+            WWWRect* wideRect = NULL;
+            WWWRect* standardRect = NULL;
+            void* wideBuffer = browser->GetTextureBuffer(1, &wideRect);
+            void* standardBuffer = browser->GetTextureBuffer(0, &standardRect);
+            if (wideBuffer == NULL || standardBuffer == NULL) {
+                return;
+            }
+
+            if (www::trasition::GetScrollState() != www::trasition::SCROLL_RESET) {
+                www::trasition::ResetScrollState();
+                OSReport("changed %p %p\n", standardBuffer, wideBuffer);
+                ext_ead::www::Heap::reportLeaHeap();
+            }
+
+            nw4r::ut::Rect projection4x3;
+            nw4r::ut::Rect projection16x9;
+            System::getProjectionRect4x3(&projection4x3);
+            System::getProjectionRect16x9(&projection16x9);
+
+            GXTexObj standardTexture;
+            GXTexObj wideTexture;
+            GXInitTexObj(&standardTexture, standardBuffer, standardRect->w, standardRect->h, GX_TF_RGBA8, GX_CLAMP, GX_CLAMP, GX_FALSE);
+            GXInitTexObj(&wideTexture, wideBuffer, wideRect->w, wideRect->h, GX_TF_RGBA8, GX_CLAMP, GX_CLAMP, GX_FALSE);
+            GXInitTexObjLOD(&standardTexture, GX_LINEAR, GX_LINEAR, 0.0f, 0.0f, 0.0f, GX_FALSE, GX_FALSE, GX_ANISO_1);
+            GXInitTexObjLOD(&wideTexture, GX_LINEAR, GX_LINEAR, 0.0f, 0.0f, 0.0f, GX_FALSE, GX_FALSE, GX_ANISO_1);
+
+            utility::Graphics::setOrtho(0);
+            GXColor color = {0xFF, 0xFF, 0xFF, (u8)(mState * 0xFF / 20)};
+            utility::Graphics::drawTexture(projection4x3, standardTexture, color, 1);
+            utility::Graphics::drawTexture(projection16x9, wideTexture, color, 1);
+
+            if (mpWiiSettingData->data[0x12] == 0x1E && unk_0x92C > 3) {
+                SensitivityDrawing::draw(static_cast<nand::File*>(mpBackgroundTPLFile));
+            }
+
+            mpChangeLayout->draw();
+            mpWaitLayout->draw();
+            if (mState == 0xC) {
+                unk_0xB9C = 1;
+            }
+
+            if (mpWiiSettingFlag->smthMsgData >= 2 && mpWiiSettingFlag->smthMsgData <= 7) {
+                u32 left;
+                u32 top;
+                u32 width;
+                u32 height;
+                GXGetScissor(&left, &top, &width, &height);
+                GXSetScissor(0, System::getRenderModeObj()->efbHeight / 2 - 0xA4, System::getRenderModeObj()->fbWidth, 0x132);
+                mpWaitLayout->draw();
+                GXSetScissor(left, top, width, height);
+            }
+        }
+
         void Setting::initWiiSettingData() {
             mpWiiSettingData = www::wiisetting::getWiiSettingData();
             mpWiiSettingFlag = www::wiisetting::getWiiSettingFlag();
@@ -1260,6 +1345,513 @@ namespace ipl {
             mpWiiSettingData->data[6] = SCGetAspectRatio();
             mpWiiSettingData->data[0x30] = SCGetLanguage();
             mpWiiSettingData->data[0x2d] = parental::Parental::checkRating();
+        }
+
+        void Setting::initHTMLText() {
+            OSReport("initHTMLText pageId:%d\n", mpWiiSettingData->data[0x12]);
+            memset(unk_0x938, 0, sizeof(unk_0x938));
+
+            switch (mpWiiSettingData->data[0x12]) {
+                case 2:
+                    initNickName();
+                    break;
+                case 3:
+                    initSecurityKey();
+                    break;
+                case 4:
+                    initSSID();
+                    break;
+                case 5:
+                    initIP();
+                    break;
+                case 6:
+                    initDNS();
+                    break;
+                case 7:
+                    initProxy();
+                    break;
+                case 8:
+                    initBasic();
+                    break;
+                case 9:
+                    initMTU();
+                    break;
+                case 10:
+                    memset(&mpStringBuffer->parentalPass, 0, sizeof(mpStringBuffer->parentalPass));
+                    break;
+                case 11:
+                    memset(&mpStringBuffer->parentalRePass, 0, sizeof(mpStringBuffer->parentalRePass));
+                    break;
+                case 12:
+                    memset(&mpStringBuffer->parentalJudgePass, 0, sizeof(mpStringBuffer->parentalJudgePass));
+                    break;
+                case 13:
+                    initSecA();
+                    break;
+                case 14:
+                    memset(&mpStringBuffer->parentalReSecA, 0, sizeof(mpStringBuffer->parentalReSecA));
+                    break;
+                case 15:
+                    memset(&mpStringBuffer->masterKey, 0, sizeof(mpStringBuffer->masterKey));
+                    break;
+                case 16:
+                    memset(&mpStringBuffer->asterisks, 0, sizeof(mpStringBuffer->asterisks));
+                    break;
+            }
+        }
+
+        void Setting::initMessage() {
+            OSReport("initMessage pageId:%d\n", mpWiiSettingData->data[0x12]);
+            mpWiiSettingData->data[0x12] = 0;
+        }
+
+        void Setting::initKeyboard(const char* text) {
+            u8 formId = mpWiiSettingData->data[0x11];
+            OSReport("initKeyboard formId:%d\n", formId);
+            memset(unk_0x938, 0, sizeof(unk_0x938));
+
+            int productArea = SCGetProductArea();
+            int rowLimit = 0;
+            int stringLimit = 0;
+            keyboard::Manager::KeyboardType keyboardType = keyboard::Manager::LETTER;
+
+            switch (formId) {
+                case 1:
+                    stringLimit = 10;
+                    rowLimit = 6;
+                    break;
+                case 2:
+                    if (ncd::NCDSetting::getPrivacyMode() == 1) {
+                        stringLimit = 0x1A;
+                        keyboardType = keyboard::Manager::NORMAL_WITHOUT_LINEFEED;
+                    } else {
+                        stringLimit = 0x40;
+                        keyboardType = keyboard::Manager::NORMAL_WITHOUT_LINEFEED_WITH_SIGN;
+                    }
+                    rowLimit = 7;
+                    break;
+                case 3:
+                case 12:
+                case 13:
+                    stringLimit = 0x20;
+                    keyboardType = keyboard::Manager::NORMAL_WITHOUT_LINEFEED;
+                    rowLimit = 7;
+                    break;
+                case 4:
+                case 5:
+                case 6:
+                case 7:
+                case 8:
+                    stringLimit = 0xF;
+                    rowLimit = 10;
+                    break;
+                case 10:
+                    stringLimit = 0xFF;
+                    keyboardType = keyboard::Manager::NUMERIC_WITH_DOT;
+                    rowLimit = 7;
+                    break;
+                case 11:
+                case 20:
+                    stringLimit = 5;
+                    rowLimit = 3;
+                    break;
+                case 14:
+                case 15:
+                case 16:
+                case 17:
+                    stringLimit = 4;
+                    rowLimit = 3;
+                    break;
+                case 18:
+                case 19:
+                    stringLimit = 0x20;
+                    keyboardType = keyboard::Manager::NORMAL_WITHOUT_LINEFEED;
+                    rowLimit = productArea == 11 || productArea == 6 ? 13 : 5;
+                    break;
+                case 22:
+                    stringLimit = 0x40;
+                    keyboardType = keyboard::Manager::NORMAL_WITHOUT_LINEFEED_WITH_SIGN;
+                    rowLimit = 7;
+                    break;
+            }
+
+            if (formId != 13 && formId != 2 && formId != 18 && formId != 19 && formId != 22) {
+                utility::CharacterCode::UTF8ToUTF16(reinterpret_cast<wchar_t*>(unk_0x938), text, 0x101);
+            }
+
+            size_t textLength = wcslen(reinterpret_cast<wchar_t*>(unk_0x938));
+            OSReport("キーボード: %d %d %d %d\n", rowLimit, stringLimit, keyboardType, textLength);
+            reinterpret_cast<wchar_t*>(unk_0x938)[stringLimit] = 0;
+
+            int invalidInput = 0;
+            if (formId >= 4 && formId <= 8) {
+                invalidInput = checkIPString(reinterpret_cast<const wchar_t*>(unk_0x938));
+            } else if ((formId > 0 && formId < 4) || (formId >= 10 && formId <= 20) || formId == 22) {
+                invalidInput = checkInputString(reinterpret_cast<const wchar_t*>(unk_0x938));
+            }
+
+            if (invalidInput != 0) {
+                memset(unk_0x938, 0, sizeof(unk_0x938));
+            }
+
+            keyboard::Manager* keyboardManager = System::getKeyboard();
+            if (productArea == 11) {
+                keyboardManager->memoFrm()->setZiDictionary(keyboardManager->getZiSystemDic(), keyboardManager->getZiOemDic());
+            }
+
+            keyboard::Manager::KeyboardSetting setting;
+            setting.type = keyboardType;
+            setting.wcString = reinterpret_cast<const wchar_t*>(unk_0x938);
+            setting.stringLimit = stringLimit;
+            setting.rowLimit = rowLimit;
+            keyboardManager->init();
+            keyboardManager->start(0, setting);
+
+            if (invalidInput != 0) {
+                setDefaultBackString();
+            } else {
+                reinterpret_cast<textinput::inputform::Base*>(keyboardManager->memoFrm())->setString(reinterpret_cast<const wchar_t*>(unk_0x938));
+            }
+        }
+
+        void Setting::calcKeyboard() {
+            u8 formId = mpWiiSettingData->data[0x11];
+            char* formText = NULL;
+            switch (formId) {
+                case 1:
+                    formText = mpStringBuffer->nickname;
+                    break;
+                case 2:
+                case 22:
+                    formText = mpStringBuffer->asterisks;
+                    break;
+                case 3:
+                    formText = mpStringBuffer->securityKey;
+                    break;
+                case 4:
+                    formText = mpStringBuffer->ip.addr;
+                    break;
+                case 5:
+                    formText = mpStringBuffer->ip.netmask;
+                    break;
+                case 6:
+                    formText = mpStringBuffer->ip.gateway;
+                    break;
+                case 7:
+                    formText = mpStringBuffer->dns1;
+                    break;
+                case 8:
+                    formText = mpStringBuffer->dns2;
+                    break;
+                case 10:
+                    formText = mpStringBuffer->proxy.server;
+                    break;
+                case 11:
+                    formText = mpStringBuffer->proxy.port;
+                    break;
+                case 12:
+                    formText = mpStringBuffer->proxyBasic.uname;
+                    break;
+                case 13:
+                    formText = mpStringBuffer->proxyBasic.pass;
+                    break;
+                case 14:
+                    formText = mpStringBuffer->adjMtu;
+                    break;
+                case 15:
+                    formText = mpStringBuffer->parentalPass;
+                    break;
+                case 16:
+                    formText = mpStringBuffer->parentalRePass;
+                    break;
+                case 17:
+                    formText = mpStringBuffer->parentalJudgePass;
+                    break;
+                case 18:
+                    formText = mpStringBuffer->parentalSecA;
+                    break;
+                case 19:
+                    formText = mpStringBuffer->parentalReSecA;
+                    break;
+                case 20:
+                    formText = mpStringBuffer->masterKey;
+                    break;
+            }
+
+            ext_ead::www::BrowserThread* browser = ext_ead::www::SurfaceManager::GetInstance()->GetBrowserThread();
+            if (mKeyboardState.iplType == keyboard::Manager::STATE_DISAPPEARING) {
+                if (!mKeyboardState.pressOK) {
+                    browser->CommitIme(mpBrowserData, formText);
+                } else {
+                    onTextInputOK();
+                    formId = mpWiiSettingData->data[0x11];
+                    OSReport("formID:%d %s\n", formId, formText);
+                    if (strlen(formText) == 0) {
+                        formText[0] = 0;
+                        browser->CommitIme(mpBrowserData, formText);
+                        memset(mpStringBuffer->asterisks, 0, sizeof(mpStringBuffer->asterisks));
+                    } else if (formId == 2 || formId == 22) {
+                        memcpy(mpStringBuffer->asterisks, mpStringBuffer->securityKey, sizeof(mpStringBuffer->securityKey));
+                        mpStringBuffer->asterisks[0x41] = 0;
+                        u32 index = 0;
+                        while (mpStringBuffer->asterisks[index] != 0) {
+                            mpStringBuffer->asterisks[index++] = '*';
+                        }
+                        if (index > 0x20) {
+                            mpStringBuffer->asterisks[0x20] = '\n';
+                            mpStringBuffer->asterisks[index] = '*';
+                        }
+                        browser->CommitIme(mpBrowserData, mpStringBuffer->asterisks);
+                    } else {
+                        browser->CommitIme(mpBrowserData, formText);
+                    }
+                }
+
+                mpWiiSettingData->data[0x11] = 0;
+                browser->DisposeImeData(mpBrowserData);
+            } else if (mKeyboardState.iplType < keyboard::Manager::STATE_VISIBLE) {
+                if (mKeyboardState.iplType < keyboard::Manager::STATE_APPEARING &&
+                    formId != 0 && formId != 9 && formId != 21 && formId <= 22) {
+                    if (System::getKeyboard()->memoMgr()->isVacancy()) {
+                        reinterpret_cast<textinput::inputform::Base*>(System::getKeyboard()->memoFrm())->setString(L"");
+                    } else {
+                        setDefaultBackString();
+                    }
+                }
+            } else if (mKeyboardState.iplType < keyboard::Manager::STATE_HIDDEN_AFTER_DISAPPEAR) {
+                reinterpret_cast<textinput::inputform::Base*>(System::getKeyboard()->memoFrm())->setString(L"");
+                unk_0x74 = 0;
+            }
+
+            mKeyboardState = *System::getKeyboard()->getState();
+        }
+
+        void Setting::calcSetting() {
+            u8 settingId = mpWiiSettingData->data[0x36];
+            OSReport("setstring:%d\n", settingId);
+            switch (settingId) {
+                case 1:
+                    setDisPos();
+                    break;
+                case 2:
+                    setNickName();
+                    break;
+                case 3:
+                    setSecurityKey();
+                    break;
+                case 4:
+                    setSSID();
+                    break;
+                case 5:
+                    setIP();
+                    break;
+                case 6:
+                    setDNS();
+                    break;
+                case 7:
+                    setProxy();
+                    break;
+                case 8:
+                    setBasic();
+                    break;
+                case 9:
+                    setMTU();
+                    break;
+                case 10:
+                    setParePass();
+                    break;
+                case 11:
+                    setPareRePass();
+                    break;
+                case 12:
+                    setPareJudgePass();
+                    break;
+                case 13:
+                    setSecA();
+                    break;
+                case 14:
+                    setReSecA();
+                    break;
+                case 15:
+                    setMasterKey();
+                    break;
+            }
+            mpWiiSettingData->data[0x36] = 0;
+        }
+
+        void Setting::onTextInputOK() {
+            u8 formId = mpWiiSettingData->data[0x11];
+            OSReport("Keyboard Confirm:%d\n", formId);
+            wcslen(mKeyboardState.wcString);
+
+            memset(unk_0x938, 0, sizeof(unk_0x938));
+            u8 convertedText[0x302];
+            memset(convertedText, 0, sizeof(convertedText));
+            memcpy(unk_0x938, mKeyboardState.wcString, sizeof(unk_0x938));
+
+            if (formId == 2 || formId == 22) {
+                utility::CharacterCode::UTF16ToANSI(convertedText, reinterpret_cast<const wchar_t*>(unk_0x938), 0x100);
+                size_t textLength = wcslen(reinterpret_cast<const wchar_t*>(unk_0x938));
+                memset(convertedText + textLength, 0, 0x100 - textLength);
+                memcpy(mpStringBuffer->securityKey, convertedText, sizeof(mpStringBuffer->securityKey));
+                return;
+            }
+
+            if (formId == 18 || formId == 19) {
+                adjustSecA(reinterpret_cast<wchar_t*>(unk_0x938));
+            }
+            utility::CharacterCode::UTF16ToUTF8(reinterpret_cast<char*>(convertedText),
+                                                reinterpret_cast<const wchar_t*>(unk_0x938), 0x301);
+
+            switch (formId) {
+                case 1:
+                    memcpy(mpStringBuffer->nickname, convertedText, sizeof(mpStringBuffer->nickname));
+                    break;
+                case 3:
+                    memcpy(mpStringBuffer->securityKey, convertedText, sizeof(mpStringBuffer->securityKey));
+                    break;
+                case 4:
+                    memcpy(mpStringBuffer->ip.addr, convertedText, sizeof(mpStringBuffer->ip.addr));
+                    break;
+                case 5:
+                    memcpy(mpStringBuffer->ip.netmask, convertedText, sizeof(mpStringBuffer->ip.netmask));
+                    break;
+                case 6:
+                    memcpy(mpStringBuffer->ip.gateway, convertedText, sizeof(mpStringBuffer->ip.gateway));
+                    break;
+                case 7:
+                    memcpy(mpStringBuffer->dns1, convertedText, sizeof(mpStringBuffer->dns1));
+                    break;
+                case 8:
+                    memcpy(mpStringBuffer->dns2, convertedText, sizeof(mpStringBuffer->dns2));
+                    break;
+                case 10:
+                    memcpy(mpStringBuffer->proxy.server, convertedText, sizeof(mpStringBuffer->proxy.server));
+                    break;
+                case 11:
+                    memcpy(mpStringBuffer->proxy.port, convertedText, sizeof(mpStringBuffer->proxy.port));
+                    break;
+                case 12:
+                    memcpy(mpStringBuffer->proxyBasic.uname, convertedText, sizeof(mpStringBuffer->proxyBasic.uname));
+                    break;
+                case 13:
+                    memcpy(mpStringBuffer->proxyBasic.pass, convertedText, sizeof(mpStringBuffer->proxyBasic.pass));
+                    break;
+                case 14:
+                    memcpy(mpStringBuffer->adjMtu, convertedText, sizeof(mpStringBuffer->adjMtu));
+                    break;
+                case 15:
+                    memcpy(mpStringBuffer->parentalPass, convertedText, sizeof(mpStringBuffer->parentalPass));
+                    break;
+                case 16:
+                    memcpy(mpStringBuffer->parentalRePass, convertedText, sizeof(mpStringBuffer->parentalRePass));
+                    break;
+                case 17:
+                    memcpy(mpStringBuffer->parentalJudgePass, convertedText, sizeof(mpStringBuffer->parentalJudgePass));
+                    break;
+                case 18:
+                    memcpy(mpStringBuffer->parentalSecA, convertedText, sizeof(mpStringBuffer->parentalSecA));
+                    break;
+                case 19:
+                    memcpy(mpStringBuffer->parentalReSecA, convertedText, sizeof(mpStringBuffer->parentalReSecA));
+                    break;
+                case 20:
+                    memcpy(mpStringBuffer->masterKey, convertedText, sizeof(mpStringBuffer->masterKey));
+                    break;
+            }
+        }
+
+        void Setting::initNickName() {
+            BOOL hasNickname = SCGetOwnerNickName(reinterpret_cast<SCOwnerNickname*>(mSettingData));
+            OSReport("SCGetOwnerNickName:%d\n", hasNickname);
+            if (hasNickname) {
+                SCOwnerNickname* ownerNickname = reinterpret_cast<SCOwnerNickname*>(mSettingData);
+                memcpy(unk_0x938, ownerNickname->name, ownerNickname->length * sizeof(wchar_t));
+            }
+            memset(mpStringBuffer->nickname, 0, sizeof(mpStringBuffer->nickname));
+            utility::CharacterCode::UTF16ToUTF8(mpStringBuffer->nickname,
+                                                reinterpret_cast<const wchar_t*>(unk_0x938),
+                                                sizeof(mpStringBuffer->nickname));
+        }
+
+        void Setting::initSecurityKey() {
+            memset(mpStringBuffer->securityKey, 0, sizeof(mpStringBuffer->securityKey));
+            u16 privacyMode = ncd::NCDSetting::getNCDPrivacyMode();
+            size_t keyLength = 0;
+            if (privacyMode == 2) {
+                keyLength = 13;
+            } else if (privacyMode < 2) {
+                if (privacyMode == 1) {
+                    keyLength = 5;
+                }
+            } else if (privacyMode > 3 && privacyMode < 7) {
+                keyLength = 64;
+            }
+            if (keyLength != 0) {
+                memcpy(mpStringBuffer->securityKey, ncd::NCDSetting::getPrivacy(), keyLength);
+            }
+            OSReport("privacy : %s\n", ncd::NCDSetting::getPrivacy());
+        }
+
+        void Setting::initSSID() {
+            memset(mpStringBuffer->ssid, 0, sizeof(mpStringBuffer->ssid));
+            NCDApConfig* ssid = ncd::NCDSetting::getSSID();
+            utility::CharacterCode::ANSIToUTF8(mpStringBuffer->ssid, ssid->ssid, ssid->ssidLength);
+            OSReport("initHTMLText initString:%s length:%d\n", ssid->ssid, ssid->ssidLength);
+        }
+
+        void Setting::initIP() {
+            memset(mpStringBuffer->ip.addr, 0, sizeof(mpStringBuffer->ip.addr));
+            memset(mpStringBuffer->ip.netmask, 0, sizeof(mpStringBuffer->ip.netmask));
+            memset(mpStringBuffer->ip.gateway, 0, sizeof(mpStringBuffer->ip.gateway));
+            NCDIpProfile* ip = ncd::NCDSetting::getIP();
+            convertIP(mpStringBuffer->ip.addr, ip->addr);
+            convertIP(mpStringBuffer->ip.netmask, ip->netmask);
+            convertIP(mpStringBuffer->ip.gateway, ip->gateway);
+        }
+
+        void Setting::initDNS() {
+            memset(mpStringBuffer->dns1, 0, sizeof(mpStringBuffer->dns1));
+            memset(mpStringBuffer->dns2, 0, sizeof(mpStringBuffer->dns2));
+            NCDIpProfile* ip = ncd::NCDSetting::getIP();
+            convertIP(mpStringBuffer->dns1, ip->dns1);
+            convertIP(mpStringBuffer->dns2, ip->dns2);
+        }
+
+        void Setting::initProxy() {
+            memset(mpStringBuffer->proxy.server, 0, sizeof(mpStringBuffer->proxy.server));
+            memset(mpStringBuffer->proxy.port, 0, sizeof(mpStringBuffer->proxy.port));
+            NCDProxyProfile* proxy = ncd::NCDSetting::getProxy();
+            memcpy(mpStringBuffer->proxy.server, proxy->http.server, sizeof(proxy->http.server));
+            sprintf(mpStringBuffer->proxy.port, "%d", proxy->http.port);
+        }
+
+        void Setting::initBasic() {
+            memset(mpStringBuffer->proxyBasic.uname, 0, sizeof(mpStringBuffer->proxyBasic.uname));
+            memset(mpStringBuffer->proxyBasic.pass, 0, sizeof(mpStringBuffer->proxyBasic.pass));
+            NCDProxyProfile* proxy = ncd::NCDSetting::getProxy();
+            memcpy(mpStringBuffer->proxyBasic.uname, proxy->http.username, sizeof(proxy->http.username));
+            memcpy(mpStringBuffer->proxyBasic.pass, proxy->http.password, sizeof(proxy->http.password));
+        }
+
+        void Setting::initMTU() {
+            memset(mpStringBuffer->adjMtu, 0, sizeof(mpStringBuffer->adjMtu));
+            char mtuText[20];
+            sprintf(mtuText, "%d", ncd::NCDSetting::getMTU());
+            utility::CharacterCode::ANSIToUTF8(mpStringBuffer->adjMtu,
+                                               reinterpret_cast<const u8*>(mtuText));
+        }
+
+        void Setting::initSecA() {
+            memset(mpStringBuffer->parentalSecA, 0, sizeof(mpStringBuffer->parentalSecA));
+            wchar_t answer[42];
+            memset(answer, 0, 0x44);
+            wcsncpy(answer, parental::Parental::getSecA(), 0x20);
+            memset(unk_0x938, 0, sizeof(unk_0x938));
+            wcsncpy(reinterpret_cast<wchar_t*>(unk_0x938), answer, 0x20);
+            adjustSecA(answer);
+            utility::CharacterCode::UTF16ToUTF8(mpStringBuffer->parentalSecA, answer,
+                                                sizeof(mpStringBuffer->parentalSecA));
         }
 
         u16 Setting::getProfileID() {
