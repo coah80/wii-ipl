@@ -13,7 +13,7 @@ namespace ipl {
         class SDMemory {
         public:
             struct TitleRange {
-                ESTitleId* mpTitles;
+                s32 mByteSize;
                 u32 mCount;
             };
 
@@ -62,6 +62,7 @@ namespace ipl {
             void onDialogState23();
             bool onDialogState24();
             void resetDialogPaneAnimations();
+            s32 getControlPaneIndex(const char* paneName);
 
             layout::Object* mpMainLayout;
             layout::Object* mpTitleLayout;

@@ -180,7 +180,11 @@ namespace ipl {
 
                 /*** TODO: These always generate a weak. Try and make them not do that. ***/
                 const nw4r::ut::Rect    getTextDrawRect(const nw4r::lyt::TextBox* textBox) const    { return textBox->GetTextDrawRect(mDrawInfo); }
+#ifdef IPL_SDMEMORY_GET_TEXT_DRAW_RECT_OUT_OF_LINE
+                const nw4r::ut::Rect    getTextDrawRect(const char* paneName) const;
+#else
                 const nw4r::ut::Rect    getTextDrawRect(const char* paneName) const                 { return getTextDrawRect(nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(mLayout.GetRootPane()->FindPaneByName(paneName))); }
+#endif
 
                 const nw4r::ut::Rect    getPaneRect(nw4r::lyt::Pane* pane) const                    { return pane->GetPaneRect(mDrawInfo); }
                 const nw4r::ut::Rect    getPaneRect(const char* paneName) const                     { return getPaneRect(mLayout.GetRootPane()->FindPaneByName(paneName)); }
