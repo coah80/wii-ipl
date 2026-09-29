@@ -36,7 +36,7 @@ namespace ipl {
         struct SDChannelSelectCommandQueue {
             SDChannelSelectCommand commands[4];
             u32 capacity;
-            u32 count;
+            int count;
             u32 readIndex;
             u32 writeIndex;
 
@@ -56,7 +56,7 @@ namespace ipl {
         struct SDChannelSelectNoticeQueue {
             SDChannelSelectCommand notices[42];
             u32 capacity;
-            u32 count;
+            int count;
             u32 readIndex;
             u32 writeIndex;
 
@@ -105,8 +105,9 @@ namespace ipl {
             bool enqueueChannelNotice(u32 controller, u32 page, u32 index, u32 value);
             bool enqueueMoveNotice(u32 controller, u32 page, u32 index);
             bool enqueueStateNotice(u32 controller, u32 page, u32 index, u32 state);
-            bool enqueueErrorNotice(u32 controller, u32 page, u32 index);
+            bool enqueueErrorNotice(u32 page, u32 index);
             bool enqueueCommandNotice(u32 page, u32 index, u32 command);
+            bool enqueueDeleteNotice(u32 controller, u32 page, u32 index);
             void clearCommandQueue();
             void clearNoticeQueue();
             void calcChannelObjects();
@@ -215,8 +216,8 @@ namespace ipl {
             u32 mAnimationTarget;
             OSTime mOperationStartTime;
             nand::File* mpCorruptIconFile;
-            u8 mbChannelLimitReached;
             u8 mbHazardTitleFound;
+            u8 mbChannelLimitReached;
             u8 mbInitialLoadComplete;
             u8 mbNeedsRefresh;
         };

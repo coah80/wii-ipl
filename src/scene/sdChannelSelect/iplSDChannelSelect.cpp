@@ -122,8 +122,8 @@ namespace ipl {
               mpSaveDataFile(NULL),
               mAnimationState(0),
               mAnimationTarget(0),
-              mbChannelLimitReached(false),
               mbHazardTitleFound(false),
+              mbChannelLimitReached(false),
               mbInitialLoadComplete(false),
               mbNeedsRefresh(false) {
             mCurrentPage = System::getSaveData()->getLastSDPrevPage();
@@ -303,13 +303,18 @@ namespace ipl {
             return mLastOperation == 6 && mCommandQueue.push(command);
         }
 
-        bool SDChannelSelect::enqueueErrorNotice(u32 controller, u32 page, u32 index) {
-            SDChannelSelectCommand command = {11, 0, {{page, index, 0}}};
+        bool SDChannelSelect::enqueueErrorNotice(u32 page, u32 index) {
+            SDChannelSelectCommand command = {11, 0, {{0, page, index}}};
             return mLastOperation == 6 && mCommandQueue.push(command);
         }
 
         bool SDChannelSelect::enqueueCommandNotice(u32 page, u32 index, u32 commandType) {
             SDChannelSelectCommand command = {12, 0, {{page, index, commandType}}};
+            return mLastOperation == 6 && mCommandQueue.push(command);
+        }
+
+        bool SDChannelSelect::enqueueDeleteNotice(u32 controller, u32 page, u32 index) {
+            SDChannelSelectCommand command = {13, index, {{page, 0, 0}}};
             return mLastOperation == 6 && mCommandQueue.push(command);
         }
 
@@ -373,7 +378,7 @@ namespace ipl {
                     }
                     mWorkerState = 4;
                 } else {
-                    System::getErrorHandler()->set(ErrorHandler::DEFAULT, 1);
+                    System::getErrorHandler()->set(ErrorHandler::DEFAULT, 2);
                 }
             }
         }
@@ -392,7 +397,7 @@ namespace ipl {
 
             mLastOperation = 14;
             if (mSDTitleCount == 0) {
-                if (mOperationResult == 0) {
+                if (mDialogState == 0) {
                     setDialogMessage(1, 0);
                     mWorkerCommand = 15;
                 }
@@ -410,7 +415,7 @@ namespace ipl {
                       compareTitleInfo);
                 enqueuePageNotice();
                 mWorkerCommand = 1;
-            } else if (mOperationResult == 0) {
+            } else if (mDialogState == 0) {
                 setDialogMessage(2, 0xc3);
                 mWorkerCommand = 15;
             }
@@ -431,7 +436,7 @@ namespace ipl {
                 static_cast<const NandSDWorker::TitleUsage*>(lhs);
             const NandSDWorker::TitleUsage* right =
                 static_cast<const NandSDWorker::TitleUsage*>(rhs);
-            if (left->size < right->size) {
+            if ((s32)left->size < (s32)right->size) {
                 return -1;
             }
             return left->size != right->size;
