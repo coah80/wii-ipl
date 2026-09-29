@@ -142,9 +142,7 @@ typedef struct AOSSDecryptionMessage {
     u8 checksum;
     u8 messageType;
     u8 manufacturerAddress[8];
-    u16 dataLength;
-    u16 keyNonce;
-    u8 data[0x5c0];
+    u8 data[0x5c4];
 } AOSSDecryptionMessage;
 
 typedef struct AOSSKeySchedule {
@@ -1437,7 +1435,7 @@ int AOSS_813FFD68(AOSSInitInput* input) {
         return -1;
     }
 
-    input->flags = s_runtime.flags & s_runtime.state;
+    input->flags = s_runtime.state & s_runtime.flags;
     memset(output, 0, sizeof(input->result));
 
     if ((input->flags & 1) != 0) {
@@ -1833,20 +1831,22 @@ int AOSS_81400830(AOSSDecryptionMessage* message) {
     u8 manufacturerAddress[8];
     AOSSKeySchedule schedule;
     u8* decryptedData;
-    u8* stateBytes;
+    u8* data;
+    const u8* in;
+    u8* out;
     u32 dataLength;
-    u32 controlFlags;
     u32 checksum;
-    u32 i;
+    s32 i;
     u32 pairCount;
+    u32 oddCount;
     u32 firstIndex;
     u32 secondIndex;
     u32 firstValue;
     u32 secondValue;
-    u32 swapValue;
-    u32 crcLimit;
     u32 crc;
     int result;
+
+    data = message->data;
 
     memcpy(manufacturerAddress, message->manufacturerAddress, sizeof(manufacturerAddress));
     result = AOSS_81401E80(manufacturerAddress, sizeof(manufacturerAddress), s_manufacturer,
@@ -1865,12 +1865,11 @@ int AOSS_81400830(AOSSDecryptionMessage* message) {
         memcpy(s_accessPointName, manufacturerAddress, sizeof(s_accessPointName));
     }
 
-    controlFlags = SONtoHs(message->controlFlags);
-    if ((controlFlags & 0xf) == 0) {
+    if ((SONtoHs(message->controlFlags) & 0xf) == 0) {
         return 0;
     }
 
-    dataLength = SONtoHs(message->dataLength);
+    dataLength = SONtoHs(*(u16*)data);
     decryptedData = AOSSi_Alloc(dataLength);
     if (decryptedData == 0) {
         s_errorCode = 2;
@@ -1878,55 +1877,63 @@ int AOSS_81400830(AOSSDecryptionMessage* message) {
     }
 
     checksum = message->checksum;
-    stateBytes = AOSSi_Alloc(dataLength);
-    if (stateBytes == 0) {
+    schedule.bytes = AOSSi_Alloc(dataLength);
+    if (schedule.bytes == 0) {
         s_errorCode = 2;
         result = -1;
     } else {
-        memcpy(s_packetState.keyNonce, &message->keyNonce, sizeof(message->keyNonce));
+        memcpy(s_packetState.keyNonce, data + 2, sizeof(s_packetState.keyNonce));
         memcpy(s_packetState.keyAddress, s_accessPointName, sizeof(s_accessPointName));
-        schedule.bytes = stateBytes;
         AOSS_81401C9C(&schedule, s_packetState.keyNonce,
                       sizeof(s_packetState.keyNonce) + sizeof(s_packetState.keyAddress), dataLength);
 
-        i = 0;
-        pairCount = dataLength >> 1;
-        while (pairCount != 0) {
-            firstIndex = ((schedule.i + 1) % schedule.length) & 0xff;
-            firstValue = schedule.bytes[firstIndex];
-            secondIndex = ((firstValue + schedule.j) % schedule.length) & 0xff;
-            secondValue = schedule.bytes[secondIndex];
-            schedule.bytes[secondIndex] = (u8)firstValue;
-            schedule.bytes[firstIndex] = (u8)secondValue;
-            decryptedData[i] = schedule.bytes[(firstValue + secondValue) % schedule.length] ^ message->data[i];
-            schedule.i = ((firstIndex + 1) % schedule.length) & 0xff;
-            firstIndex = schedule.bytes[schedule.i];
-            secondIndex = ((firstIndex + secondIndex) % schedule.length) & 0xff;
-            swapValue = schedule.bytes[secondIndex];
-            schedule.bytes[secondIndex] = (u8)firstIndex;
-            schedule.bytes[schedule.i] = (u8)swapValue;
-            decryptedData[i + 1] = schedule.bytes[(firstIndex + swapValue) % schedule.length] ^ message->data[i + 1];
-            schedule.j = secondIndex;
-            i += 2;
-            pairCount--;
-        }
-        if ((dataLength & 1) != 0) {
-            firstIndex = ((schedule.i + 1) % schedule.length) & 0xff;
-            firstValue = schedule.bytes[firstIndex];
-            secondIndex = ((firstValue + schedule.j) % schedule.length) & 0xff;
-            secondValue = schedule.bytes[secondIndex];
-            schedule.bytes[secondIndex] = (u8)firstValue;
-            schedule.bytes[firstIndex] = (u8)secondValue;
-            decryptedData[i] = schedule.bytes[(firstValue + secondValue) % schedule.length] ^ message->data[i];
-            schedule.i = firstIndex;
-            schedule.j = secondIndex;
+        if (dataLength != 0) {
+            in = data + 4;
+            out = decryptedData;
+            i = 0;
+            pairCount = dataLength >> 1;
+            while (pairCount != 0) {
+                firstIndex = ((schedule.i + 1) % schedule.length) & 0xff;
+                firstValue = schedule.bytes[firstIndex];
+                secondIndex = ((firstValue + schedule.j) % schedule.length) & 0xff;
+                secondValue = schedule.bytes[secondIndex];
+                schedule.i = firstIndex;
+                schedule.j = secondIndex;
+                schedule.bytes[secondIndex] = (u8)firstValue;
+                schedule.bytes[firstIndex] = (u8)secondValue;
+                out[0] = schedule.bytes[(firstValue + secondValue) % schedule.length] ^ in[0];
+                firstIndex = ((schedule.i + 1) % schedule.length) & 0xff;
+                firstValue = schedule.bytes[firstIndex];
+                secondIndex = ((firstValue + schedule.j) % schedule.length) & 0xff;
+                secondValue = schedule.bytes[secondIndex];
+                schedule.i = firstIndex;
+                schedule.j = secondIndex;
+                schedule.bytes[secondIndex] = (u8)firstValue;
+                schedule.bytes[firstIndex] = (u8)secondValue;
+                out[1] = schedule.bytes[(firstValue + secondValue) % schedule.length] ^ in[1];
+                in += 2;
+                out += 2;
+                i += 2;
+                pairCount--;
+            }
+            for (oddCount = dataLength & 1; oddCount != 0; oddCount--) {
+                firstIndex = ((schedule.i + 1) % schedule.length) & 0xff;
+                firstValue = schedule.bytes[firstIndex];
+                secondIndex = ((firstValue + schedule.j) % schedule.length) & 0xff;
+                secondValue = schedule.bytes[secondIndex];
+                schedule.i = firstIndex;
+                schedule.j = secondIndex;
+                schedule.bytes[secondIndex] = (u8)firstValue;
+                schedule.bytes[firstIndex] = (u8)secondValue;
+                out[0] = schedule.bytes[(firstValue + secondValue) % schedule.length] ^ in[0];
+                in++;
+                out++;
+            }
         }
 
         AOSS_81401DC0(0, s_crcTable);
         crc = 0xffffffff;
-        i = 0;
-        crcLimit = dataLength & ~7;
-        while (i < crcLimit) {
+        for (i = 0; i < (s32)dataLength - 8; i += 8) {
             crc = (crc >> 8) ^ s_crcTable[(crc ^ decryptedData[i]) & 0xff];
             crc = (crc >> 8) ^ s_crcTable[(crc ^ decryptedData[i + 1]) & 0xff];
             crc = (crc >> 8) ^ s_crcTable[(crc ^ decryptedData[i + 2]) & 0xff];
@@ -1935,17 +1942,16 @@ int AOSS_81400830(AOSSDecryptionMessage* message) {
             crc = (crc >> 8) ^ s_crcTable[(crc ^ decryptedData[i + 5]) & 0xff];
             crc = (crc >> 8) ^ s_crcTable[(crc ^ decryptedData[i + 6]) & 0xff];
             crc = (crc >> 8) ^ s_crcTable[(crc ^ decryptedData[i + 7]) & 0xff];
-            i += 8;
         }
-        while (i < dataLength) {
+        for (; i < (s32)dataLength; i++) {
             crc = (crc >> 8) ^ s_crcTable[(crc ^ decryptedData[i]) & 0xff];
-            i++;
         }
-        AOSSi_Free(stateBytes);
         if (((crc ^ 0xffffffff) & 0xff) == checksum) {
+            AOSSi_Free(schedule.bytes);
             result = 0;
         } else {
             s_errorCode = 0x12;
+            AOSSi_Free(schedule.bytes);
             result = -1;
         }
     }
@@ -1955,7 +1961,7 @@ int AOSS_81400830(AOSSDecryptionMessage* message) {
         return s_errorCode == 2 ? 100 : 200;
     }
 
-    memcpy(message->data, decryptedData, dataLength);
+    memcpy(data, decryptedData, dataLength);
     message->outputLength = SOHtoNs(dataLength);
     AOSSi_Free(decryptedData);
     return 0;
