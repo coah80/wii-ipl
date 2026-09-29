@@ -23,8 +23,8 @@ namespace textinput {
                     bool            updateRepeatKey_(input::HKBManager& hkbManager);
                     bool            updateTriggerKey_(input::HKBManager& hkbManager);
                     bool            updateTappingShift_(input::HKBManager& hkbManager);
-                    u16             convertWCCode(wchar_t wc) const;
                 public:
+                    u16             convertWCCode(wchar_t wc) const;
                     void            setLanguage(Destination destination, Language language);
                 private:
                     void controlKeyTriggeredHandler(input::HKBManager);

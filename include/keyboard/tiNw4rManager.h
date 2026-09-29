@@ -81,6 +81,10 @@ namespace textinput {
                     PE_5,
                     PE_6,
                     PE_7,
+                    PE_8,
+                    PE_9,
+                    PE_10,
+                    PE_11,
                     PE_Last,
                 } AnmPaneEvent;
 
@@ -154,41 +158,10 @@ namespace textinput {
                     init();
                 }
 
-                virtual void init() {                                           // 0x08
-                    for (int i = 0; i < MAX_COUNT; i++) {
-                        mpaFifo[i] = NULL;
-                    }
-                }
-
-                virtual void push(nw4r::lyt::Pane* pane)  {                     // 0x0C
-                    if (mpaFifo[MAX_COUNT-1] == NULL) {
-                        for (int i = 0; i < MAX_COUNT; i++) {
-                            if (mpaFifo[i] == NULL) {
-                                mpaFifo[i] = pane;
-                                return;
-                            }
-                        }
-                    }
-                    else {
-                        for (int i = 1; i < MAX_COUNT; i++) {
-                            mpaFifo[i-1] = mpaFifo[i];
-                            if (pane == mpaFifo[i-1]) {
-                                mpaFifo[i-1] = NULL;
-                            }
-                        }
-                        mpaFifo[MAX_COUNT-1] = pane;
-                    }
-                }
-
+                virtual void init();                                            // 0x08
+                virtual void push(nw4r::lyt::Pane* pane);                       // 0x0C
                 virtual nw4r::lyt::Pane*    get(int i)  { return mpaFifo[i]; }  // 0x10
-                virtual nw4r::lyt::Pane* getLast() {                            // 0x14
-                    for (int i = MAX_COUNT-1; i > -1; i++) {
-                        if (mpaFifo[i] != NULL) {
-                            return mpaFifo[i];
-                        }
-                    }
-                    return NULL;
-                }
+                virtual nw4r::lyt::Pane* getLast();                             // 0x14
 
                 virtual int                 getSize()   { return MAX_COUNT; }   // 0x18
 

@@ -191,11 +191,11 @@ send_arrow: {
                     mgr()->getToolBar()->isEnableKeytopChange() != 0) {
                     return true;
                 }
-                if (mgr()->getPCKeyboard()->vt_0x48() == 0) {
+                if (mgr()->getPCKeyboard()->isABC() == 0) {
                     if (mgr()->getToolBar()->isQwerty() != 0 && mgr()->getEventObserver() != 0) {
                         mgr()->getEventObserver()->onSE((sound::SE)0xD);
                     }
-                    mgr()->getPCKeyboard()->vt_0x4C(1);
+                    mgr()->getPCKeyboard()->setABC(true);
                 }
                 while (keySet.IsValid()) {
                     wchar_t wc = keySet.GetWChar();
@@ -342,7 +342,7 @@ ok_wc:;
                         case 0xE5:
                             field_0x14 = 0;
                             if (mgr()->getToolBar()->isQwerty() != 0 &&
-                                mgr()->getPCKeyboard()->field_0x3d != 0) {
+                                mgr()->getPCKeyboard()->mbLangKeyActive != 0) {
                                 sendCommand(0x2E, NULL);
                             }
                             return false;

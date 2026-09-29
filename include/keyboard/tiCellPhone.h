@@ -38,7 +38,7 @@ namespace textinput {
                 virtual void sendCommand(u32, void*) override;                           // 0x18
                 virtual void updateFromReceiver(u32, void*) override;                    // 0x1C
                 virtual void onKey(u32, void*);                                          // 0x20
-                virtual void getType();                                                  // 0x24
+                virtual int getType();                                                  // 0x24
                 virtual void setLanguage(Language language) override;                    // 0x28
                 virtual Language getLanguage() const override;                           // 0x2C
                 virtual void update() override;                                          // 0x30
@@ -64,6 +64,8 @@ namespace textinput {
                 virtual bool isAtokActive();                                             // 0x80
                 virtual void doInput();                                                  // 0x84
                 virtual void updateFixMode();                                            // 0x88
+
+                int getInputType() const;
 
             protected:
                 Manager* mgr() { return mpManager; }

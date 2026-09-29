@@ -23,7 +23,7 @@ namespace textinput {
                 virtual void sendCommand(u32 command, void* data) override;
                 virtual void updateFromReceiver(u32, void*) override;
                 virtual void onKey(u32, void*);
-                virtual void getType();
+                virtual int getType();
                 virtual void setLanguage(Language language) override;
                 virtual Language getLanguage() const override;
                 virtual void update() override;

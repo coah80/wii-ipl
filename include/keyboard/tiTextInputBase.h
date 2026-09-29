@@ -61,7 +61,10 @@ namespace textinput {
                 f32  y;     // 0x08
             } Scroll;
 
-            struct ChangePredictMode;
+            typedef struct ChangePredictMode {
+                u32 muLanguage;    // 0x00
+                u8  mbPredictOn;   // 0x04
+            } ChangePredictMode;
 
             virtual void    clearSender();
             virtual void    onCommand(INPUT_COMMAND command, void* data);

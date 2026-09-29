@@ -135,24 +135,24 @@ namespace textinput {
 
             virtual void setDraggingButton(u32 dragBtn) { mDraggingButton = dragBtn; }  // 0x3C
 
-            virtual u32 updatePointer(const GUIPointer& pointer) { return updatePointerImpl(pointer); }  // 0x40
-            virtual u32 updatePointer(int point, f32 x, f32 y, u32 trig, u32 hold, u32 release) {        // 0x44
+            virtual u32 updatePointer(const GUIPointer& pointer) { return updatePointerImpl(pointer); }  // 0x48
+            virtual u32 updatePointer(int point, f32 x, f32 y, u32 trig, u32 hold, u32 release) {        // 0x4C
                 GUIPointer pointer(point, x, y, hold, trig, release);
                 return updatePointerImpl(pointer);
             }
 
-            virtual bool isTriggerTarget() { return mbTriggerTarget; }                  // 0x48
-            virtual void setTriggerTarget(bool bEnable) { mbTriggerTarget = bEnable; }  // 0x4C
+            virtual bool isTriggerTarget() { return mbTriggerTarget; }                  // 0x50
+            virtual void setTriggerTarget(bool bEnable) { mbTriggerTarget = bEnable; }  // 0x54
 
             void setParentManager(GUIManager* manager) { mpManager = manager; }
             GUIManager* getParentManager() { return mpManager; }
 
-            virtual bool isVisible() { return true; }  // 0x50
+            virtual bool isVisible() { return true; }  // 0x58
 
-            virtual u16 getFlightDuration(int point) { return mFlightDuration[point]; }                       // 0x54
-            virtual void setFlightDuration(int point, u16 flightDir) { mFlightDuration[point] = flightDir; }  // 0x58
+            virtual u16 getFlightDuration(int point) { return mFlightDuration[point]; }                       // 0x5C
+            virtual void setFlightDuration(int point, u16 flightDir) { mFlightDuration[point] = flightDir; }  // 0x60
 
-            virtual bool contain(f32 x, f32 y) = 0;  // 0x5C
+            virtual bool contain(f32 x, f32 y) = 0;  // 0x64
 
             void setListener(EventHandler* listener) { mpListener = listener; }
 
@@ -294,18 +294,21 @@ namespace textinput {
 
             virtual void draw();  // 0x1C
 
-            virtual bool isVisible();  // 0x50
+            virtual bool isVisible();  // 0x58
 
-            virtual bool contain(f32 x, f32 y);  // 0x5C
+            virtual bool contain(f32 x, f32 y);  // 0x64
 
-            virtual void setPane(nw4r::lyt::Pane* pane) { mpPane = pane; }  // 0x60
+            virtual void setPane(nw4r::lyt::Pane* pane) { mpPane = pane; }  // 0x68
             nw4r::lyt::Pane* getPane() { return mpPane; }
+            void setOwner(void* owner) { mpOwner = owner; }
 
             nw4r::lyt::TextBox* getTextPane() { return static_cast<nw4r::lyt::TextBox*>(mpPane); }
             nw4r::lyt::Picture* getPictPane() { return static_cast<nw4r::lyt::Picture*>(mpPane); }
             nw4r::lyt::Bounding* getBoundPane() { return static_cast<nw4r::lyt::Bounding*>(mpPane); }
 
         private:
+            u32 unk_0x94;             // 0x94
+            void* mpOwner;            // 0x98
             nw4r::lyt::Pane* mpPane;  // 0x9C
         };
     }  // namespace gui

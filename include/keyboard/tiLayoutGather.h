@@ -19,9 +19,12 @@ namespace textinput {
         bool isHoldingShift() const {
             return isHWPressedShift() || isPressedShiftB();
         }
+        u8 isCapsLock() const { return mbCpasLock; }
         u8 isHWPressedShift() const { return mbPressedShift; }
         u8 isPressedShiftB() const { return mbPressedShiftB; }
         void setHWPressedShift(const u8& arg) { mbPressedShift = arg; }
+        void setPressedShiftB(const u8& arg) { mbPressedShiftB = arg; }
+        void clearPressedShift() { mbPressedShift = 0; mbPressedShiftB = 0; }
 
         class Singleton {
         public:

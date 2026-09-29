@@ -35,6 +35,7 @@ namespace textinput {
         class DeadKeyStream {
         public:
             static bool sbCompatibleFilterEnabled;
+            static wchar_t ToIndependentClass(wchar_t wc);
 
         private:
             KPRQueue mKPRQueue;  // 0x00
@@ -151,6 +152,8 @@ namespace textinput {
                 virtual void                enableSpaceByRight(bool rightWithSpace);
                 virtual void                onClose();
                 virtual bool                canConvert();
+
+                void*                       getCurrentString(bool flag);
 
                 virtual void                setString(const wchar_t* string);
 
