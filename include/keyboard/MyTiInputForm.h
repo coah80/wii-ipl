@@ -30,14 +30,32 @@ namespace textinput {
                         EM_Last
                     } EditMode;
 
+#ifdef MYTIMANAGER_IMPLEMENTATION
+                    InputForm(textinput::Manager* manager, nw4r::lyt::MultiArcResourceAccessor* multiArc,
+                              const char* layoutName, EventObserver* event, const char* fontName)
+                        : textinput::InputForm(manager, multiArc, layoutName, event, fontName),
+                          unk_0x308(NULL), unk_0x30C(NULL), unk_0x310(NULL), unk_0x314(NULL),
+                          mfScroll(0.0f), mfScrollFrom(0.0f), mfScrollTo(0.0f), mnLine(0),
+                          mDrawRect(), mDefaultDrawSize(), mDefaultBoundSize(), mExScrollAnm(),
+                          mpNigaoeObserver(NULL), mpDefaultNigaoe(NULL), mpSendString(NULL),
+                          mbEdited(false), mbGoodBye(false), mbEditScrollUp(false), mbEditScrollDown(false),
+                          mbCloseWithSend(false), mpScrollButton(NULL), mbScrollUp(false), mbScrollDown(false),
+                          meEditMode(EM_Disp) {}
+#endif
+
                     ~InputForm();
 
                     virtual void                    setScroll(f32 scroll);
                     virtual void                    setAddScroll(f32 scroll, bool up, bool down);
 
                     virtual f32                     getScroll()     { return mfScroll; }
+#ifdef MYTIMANAGER_IMPLEMENTATION
+                    virtual f32                     getScrollFrom();
+                    virtual f32                     getScrollTo();
+#else
                     virtual f32                     getScrollFrom() { return mfScrollFrom; }
                     virtual f32                     getScrollTo()   { return mfScrollTo; }
+#endif
 
                     virtual void                    open();
                     virtual void                    close();
@@ -90,7 +108,11 @@ namespace textinput {
                     void                            setEditScrollDown(bool editScrollDown)  { mbEditScrollUp = editScrollDown; }
                     void                            setCloseWithSend(bool closeWithSend)    { mbCloseWithSend = closeWithSend; }
 
+#ifdef MYTIMANAGER_IMPLEMENTATION
+                    void                            setEditMode(EditMode editMode);
+#else
                     void                            setEditMode(EditMode editMode)          { meEditMode = editMode; }
+#endif
                     
                     bool                            isEdited()                              { return mbEdited; }
                     bool                            isGoodBye()                             { return mbGoodBye; }
@@ -103,6 +125,9 @@ namespace textinput {
                     tistring::Decolated*            getSendString()                         { return mpSendString; }
 
                 private:
+#ifdef MYTIMANAGER_IMPLEMENTATION
+                    undefined4*             unk_0x308;
+#endif
                     undefined4*             unk_0x30C;
                     undefined4*             unk_0x310;
                     undefined4*             unk_0x314;
@@ -117,7 +142,11 @@ namespace textinput {
                     nw4r::lyt::Size         mDefaultBoundSize;  // 0x358
                     Mtx                     mDrawMtx;           // 0x360
                     Mtx                     mBoundMtx;          // 0x390
+#ifdef MYTIMANAGER_IMPLEMENTATION
+                    util::Animation         mExScrollAnm;       // 0x3C0
+#else
                     u8 /*todo*/             mExScrollAnm[32];   // 0x3C0
+#endif
                     NigaoeEventObserver*    mpNigaoeObserver;   // 0x3E0
                     GXTexObj*               mpDefaultNigaoe;    // 0x3E4
                     tistring::Decolated*    mpSendString;       // 0x3E8
