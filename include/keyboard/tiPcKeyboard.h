@@ -315,7 +315,7 @@ namespace textinput {
                 EventHandler* mpEventHandler;                        // 0xF0
                 predictlang::LayoutByNW4R* mpPredictLanguageDialog;  // 0xF4
                 signwindow::LayoutByNW4R* mpSignWindow;              // 0xF8
-                u8 mbLineFeed;                                       // 0xFC
+                bool mbLineFeed;                                     // 0xFC
                 u8 unk_0xFD[3];                                      // 0xFD
                 UIModifierButton mShiftButton;           // 0x100
                 UIModifierButton mCapsButton;            // 0x124

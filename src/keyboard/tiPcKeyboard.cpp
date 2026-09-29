@@ -861,8 +861,9 @@ static const PaneToAnimation csPaneToAnimation[129] = {
                 if (command != 0x1F) {
                     CommandReceiver::ChangePredictMode mode = {0, 0};
                     sendCommand(0x1F, &mode);
-                    if (command != 0x19 && command != 0x1A && command != 0x1C && command != 0x18 &&
-                        command != 0x14 && command != 0x13 && command != 0x23) {
+                    if (!(command == 0x19 || command == 0x1A || command == 0x1C || command == 0x18 ||
+                          command == 0x14 || command == 0x13 || command == 0x23) ||
+                        command == 0x24) {
                         if ((mKeyState.mAIUFlags & ~0xF) != 0) {
                             mKeyState.mAIUFlags &= 0xF;
                             mKeyState.refresh_();
@@ -1013,7 +1014,7 @@ static const PaneToAnimation csPaneToAnimation[129] = {
             }
 
             bool Base::isShiftOn() const {
-                return (mKeyState.mFlags & 0x100) != 0;
+                return (mKeyState.mFlags & 0x80) != 0;
             }
 
             bool Base::isCapsOn() const {
@@ -1086,7 +1087,7 @@ static const PaneToAnimation csPaneToAnimation[129] = {
                         mKeyState.mFlags = (mKeyState.mFlags & ~0xF) | 1;
                         mKeyState.refresh_();
                         break;
-                    case IM_08:
+                    case IM_07:
                         if ((mKeyState.mFlags & 0xF) == 2) {
                             return;
                         }
@@ -1255,8 +1256,8 @@ static const PaneToAnimation csPaneToAnimation[129] = {
             }
 
             void Base::KeyState::setABCFlag(u32 flag) {
-                if ((mFlags & ~0xF) != (flag & ~0xF)) {
-                    mFlags = (flag & ~0xF) | (mFlags & 0xF);
+                if ((mFlags & ~0xF) != flag) {
+                    mFlags = (mFlags & 0xF) | (flag & ~0xF);
                     if (mpBase != NULL) {
                         mpBase->refreshState();
                     }
@@ -1528,7 +1529,9 @@ static const PaneToAnimation csPaneToAnimation[129] = {
             void LayoutByNW4R::throwReleaseForAll() {
                 AnmPane* it = (AnmPane*)nw4r::ut::List_GetNext(&mAnmPanes, NULL);
                 for (; it != NULL; it = (AnmPane*)nw4r::ut::List_GetNext(&mAnmPanes, it)) {
-                    it->onAnmEvent(nw4rmanager::AnmPane::PE_5);
+                    if (it->getKeyType() == 0) {
+                        it->onAnmEvent((nw4rmanager::AnmPane::AnmPaneEvent)2);
+                    }
                 }
             }
 
@@ -2065,6 +2068,7 @@ static const PaneToAnimation csPaneToAnimation[129] = {
             }
 
             void LayoutByNW4R::setLanguage(Language language) {
+                meLanguage = language;
                 mKeyState.mLanguage = language;
                 mKeyState.refresh_();
                 this->init();
@@ -2093,8 +2097,10 @@ static const PaneToAnimation csPaneToAnimation[129] = {
             void LayoutByNW4R::updateFromReceiver(u32 command, void* data) {
                 Base::updateFromReceiver(command, data);
                 updateDakuten();
-                if (command == 0x1D) {
-                    updatePredictLanguage((CommandReceiver::ChangePredictMode*)data);
+                switch (command) {
+                    case 0x1D:
+                        updatePredictLanguage((CommandReceiver::ChangePredictMode*)data);
+                        break;
                 }
             }
 
@@ -2345,10 +2351,7 @@ static const PaneToAnimation csPaneToAnimation[129] = {
 
             void AnmPane::changeAnimation(u32 id) {
                 mState = id;
-                if (id == 0x10) {
-                    id = 2;
-                }
-                nw4rmanager::AnmPane::changeAnimation(id);
+                nw4rmanager::AnmPane::changeAnimation(id == 0x10 ? 2 : id);
             }
 
             AnmPane::~AnmPane() {
@@ -2393,7 +2396,22 @@ static const PaneToAnimation csPaneToAnimation[129] = {
             }
 
             bool ShiftCapsAnmPane::isFocused() const {
-                return mState > 0xA ? true : false;
+                switch (mState) {
+                    case 0:
+                    case 2:
+                    case 6:
+                    case 9:
+                    case 10:
+                        return 0;
+                    case 1:
+                    case 3:
+                    case 4:
+                    case 5:
+                    case 7:
+                    case 8:
+                    default:
+                        return 1;
+                }
             }
 
             void ShiftCapsAnmPane::onAnmEvent(AnmPaneEvent paneEvent) {
