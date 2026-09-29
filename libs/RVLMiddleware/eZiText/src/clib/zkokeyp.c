@@ -117,12 +117,12 @@ ziU32 Zi8_814834AC(ziGetParam* param, ziU16* remaining, ziU8* count,
     ziS32 tableB;
     ziU16 tableCount;
     ziU8 matched;
-    ziU32 j;
+    ziU32 j = 0;
     ziS32 i;
-    ziU8 candidateIndex;
+    ziU8 candidateIndex = 0;
     union {
-        ziU32 words[13];
-        ziU8 bytes[52];
+        ziU32 words[4];
+        ziU8 bytes[16];
     } local;
 
     matched = 0;
