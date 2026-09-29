@@ -533,6 +533,7 @@ NWC24Err NWC24iMBoxCloseMsg(NWC24File* pFile) {
 
 NWC24Err NWC24iMBoxCancelMsg(NWC24File* pFile, NWC24MsgBoxId id, u32 msgId) {
     NWC24Err closeResult;
+    NWC24Err mountResult;
     NWC24Err result;
     NWC24Err deleteResult;
     NWC24Err unmountResult;
@@ -541,21 +542,22 @@ NWC24Err NWC24iMBoxCancelMsg(NWC24File* pFile, NWC24MsgBoxId id, u32 msgId) {
 
     closeResult = NWC24FClose(pFile);
 
-    result = MountVFMBox(id);
-    if (result == NWC24_OK) {
+    mountResult = MountVFMBox(id);
+    if (mountResult != NWC24_OK) {
+        result = mountResult;
+    } else {
         pPath = NWC24WorkP->pathWork;
-
         result = GetMailPath(id, msgId, pPath);
-        if (result == NWC24_OK) {
+        if (result != NWC24_OK) {
+            goto forced;
+        } else {
             deleteResult = NWC24FDeleteVF(pPath);
             unmountResult = UnmountVFMBox();
-            result = unmountResult;
-            if (deleteResult != NWC24_OK) {
-                result = deleteResult;
-            }
+            result = deleteResult != NWC24_OK ? deleteResult : unmountResult;
         }
     }
 
+forced:
     forcedResult = UnmountVFMBoxForced();
 
     if (closeResult != NWC24_OK) {
@@ -803,10 +805,14 @@ static s32 CreateCtrlFile(NWC24MsgBoxId id, BOOL force) {
     u32 offset;
 
     result = GetCachedMBCHeader(id, &pHeader);
-    if (result == NWC24_OK && force == 0) {
+    if (result == NWC24_OK) {
+        if (force != 0) {
+            goto create;
+        }
         return result;
     }
 
+create:
     pPath = NWC24WorkP->pathWork;
     Mail_memset(pPath, 0, MBOX_PATH_MAX);
 
@@ -852,11 +858,11 @@ static s32 CreateCtrlFile(NWC24MsgBoxId id, BOOL force) {
     if (result != NWC24_OK) {
         fileResult = result;
     }
-    if (fileResult != NWC24_OK) {
-        return fileResult;
+    if (fileResult == NWC24_OK) {
+        return 1;
     }
 
-    return 1;
+    return fileResult;
 }
 
 static NWC24Err DeleteMsg(NWC24MsgBoxId id, u32 msgId, BOOL checkPermission) {
@@ -1449,6 +1455,17 @@ static NWC24Err CopyMsgObjToPrvFmt(const NWC24iMBCEntry* pSrc,
                                    NWC24iMsgObj* pDst) {
     int i;
 
+    u32 fromPtr = pSrc->fromField & 0xFFFFF;
+    u32 fromSize = pSrc->fromField >> 20;
+    u32 toPtr = pSrc->toField & 0xFFFFF;
+    u32 toSize = pSrc->toField >> 20;
+    u32 subjectPtr = pSrc->subject & 0xFFFFF;
+    u32 subjectSize = pSrc->subject >> 20;
+    u32 contentPtr = pSrc->contentType & 0xFFFFF;
+    u32 contentSize = pSrc->contentType >> 20;
+    u32 txPtr = pSrc->txEncoding & 0xFFFFF;
+    u32 txSize = pSrc->txEncoding >> 20;
+
     pDst->id = pSrc->id;
     pDst->flags = pSrc->flags;
     pDst->length = pSrc->length;
@@ -1464,20 +1481,16 @@ static NWC24Err CopyMsgObjToPrvFmt(const NWC24iMBCEntry* pSrc,
     pDst->numAttached = pSrc->numAttached;
     pDst->groupId = pSrc->groupId;
 
-    pDst->fromField.ptr = (const void*)(pSrc->fromField & 0xFFFFF);
-    pDst->fromField.size = pSrc->fromField >> 20;
-
-    pDst->toField.ptr = (const void*)(pSrc->toField & 0xFFFFF);
-    pDst->toField.size = pSrc->toField >> 20;
-
-    pDst->subject.ptr = (const void*)(pSrc->subject & 0xFFFFF);
-    pDst->subject.size = pSrc->subject >> 20;
-
-    pDst->contentType.ptr = (const void*)(pSrc->contentType & 0xFFFFF);
-    pDst->contentType.size = pSrc->contentType >> 20;
-
-    pDst->txEncoding.ptr = (const void*)(pSrc->txEncoding & 0xFFFFF);
-    pDst->txEncoding.size = pSrc->txEncoding >> 20;
+    pDst->fromField.ptr = (const void*)fromPtr;
+    pDst->fromField.size = fromSize;
+    pDst->toField.ptr = (const void*)toPtr;
+    pDst->toField.size = toSize;
+    pDst->subject.ptr = (const void*)subjectPtr;
+    pDst->subject.size = subjectSize;
+    pDst->contentType.ptr = (const void*)contentPtr;
+    pDst->contentType.size = contentSize;
+    pDst->txEncoding.ptr = (const void*)txPtr;
+    pDst->txEncoding.size = txSize;
 
     pDst->text = pSrc->text;
     pDst->dwcId = pSrc->dwcId;
