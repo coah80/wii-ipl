@@ -21,7 +21,7 @@ typedef struct NWC24MsgObjPrivate {
     u32 type;    // 0x04
     u32 length;  // 0x08
     u32 appId;   // 0x0C
-    u8 unk_0x10[0x4];
+    u32 unk_0x10;    // 0x10
     u32 tag;             // 0x14
     u32 ledPattern;      // 0x18
     NWC24UserId fromId;  // 0x20
