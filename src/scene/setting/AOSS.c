@@ -2521,7 +2521,6 @@ void AOSS_81401C9C(AOSSKeySchedule* schedule, const u8* key, u32 keyLength, u32 
     u32 index = 0;
     u32 keyIndex = 0;
     u32 swapIndex = 0;
-    u8 value;
 
     schedule->j = 0;
     schedule->i = 0;
@@ -2549,10 +2548,13 @@ void AOSS_81401C9C(AOSSKeySchedule* schedule, const u8* key, u32 keyLength, u32 
 
     index = 0;
     for (; index < stateLength; index++) {
-        value = state[index];
-        swapIndex = (swapIndex + value + key[keyIndex]) % stateLength;
-        state[index] = state[swapIndex];
+        u8 value = state[index];
+        u8 swapValue;
+
+        swapIndex = (swapIndex + value + key[keyIndex]) % schedule->length;
+        swapValue = state[swapIndex];
         state[swapIndex] = value;
+        state[index] = swapValue;
         keyIndex++;
         if (keyIndex >= keyLength) {
             keyIndex = 0;
