@@ -3137,8 +3137,9 @@ s32 WADImportDVDExForBS(const char* path, void* buffer, u32 bufferSize) {
         goto cleanup;
     }
     if (parts.ticket != 0) {
-        result = ES_ImportTicket(parts.ticket, parts.certificates, parts.certificateSize,
-                                 parts.crls, parts.crlSize, 1);
+        result = ES_ImportTicket(parts.ticket, parts.certificates,
+                                 parts.certificateSize, parts.crls,
+                                 parts.crlSize, 1);
         if (result != 0) {
             goto cleanup;
         }
@@ -3155,8 +3156,9 @@ s32 WADImportDVDExForBS(const char* path, void* buffer, u32 bufferSize) {
         contentCount = titleMeta->head.numContents;
     }
 
-    result = ES_ImportTitleInit(parts.titleMeta, parts.titleMetaSize, parts.certificates,
-                                parts.certificateSize, parts.crls, parts.crlSize,
+    result = ES_ImportTitleInit(parts.titleMeta, parts.titleMetaSize,
+                                parts.certificates, parts.certificateSize,
+                                parts.crls, parts.crlSize,
                                 parts.headerInfo[0], 1);
     if (result != 0) {
         ES_ImportTitleCancel();
@@ -3169,7 +3171,8 @@ s32 WADImportDVDExForBS(const char* path, void* buffer, u32 bufferSize) {
         u32 remainingContentSize;
 
         if (parts.headerInfo[1] >= 1) {
-            titleContentIndex = _WADGetCidx((ESContentMask*)parts.headerInfo, contentIndex);
+            titleContentIndex = _WADGetCidx((ESContentMask*)parts.headerInfo,
+                                            contentIndex);
             if ((titleContentIndex < 0) ||
                 (titleContentIndex >= titleMeta->head.numContents)) {
                 ES_ImportTitleCancel();
