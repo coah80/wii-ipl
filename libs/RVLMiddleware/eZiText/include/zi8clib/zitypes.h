@@ -215,8 +215,12 @@ struct __zi8_work_data_s {
     ziU8 unk_0x33C[0x1FC];
     ziU8 unk_0x538;
     ziU8 unk_0x539[0xCC7];
-    ziU32 userKeys[0x80];
-    ziU8 unk_0x1400[0x1A];
+    ziPtr userKeys[0x83];  // 0x1200
+    ziU8 unk_0x140C[4];
+    ziU32 unk_0x1410;
+    ziU8 unk_0x1414[4];
+    ziU8 unk_0x1418;
+    ziU8 unk_0x1419;
     ziU16 unk_0x141A;
     ziU8 unk_0x141C[0x458];
     ziU16 unk_0x1874;
