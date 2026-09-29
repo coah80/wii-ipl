@@ -24,6 +24,9 @@ typedef struct NWC24Date {
 
 void NWC24Date_Init(NWC24Date* date);
 
+NWC24Err NWC24iDateToMinutes(s32* pMinutes, const NWC24Date* pDate);
+NWC24Err NWC24iMinutesToDate(NWC24Date* pDate, s32 minutes);
+
 void NWC24iConvIdToStr(NWC24UserId addr, char* out);
 
 NWC24Err NWC24iCheckStringLength(const char* str, int minLen, int maxLen);

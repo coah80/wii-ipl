@@ -17,7 +17,10 @@ extern "C" {
 #define NWC24_MSG_RECIPIENT_MAX_ 8
 #define NWC24_MSG_ATTACHMENT_MAX_ 2
 
-typedef u64 NWC24iAddr;
+typedef union NWC24iAddr {
+    u64 id;
+    NWC24Data data;
+} NWC24iAddr;
 
 typedef enum NWC24MsgBoxId {
     NWC24_MSGBOX_SEND = 0,

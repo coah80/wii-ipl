@@ -10,8 +10,11 @@ extern "C" {
 #endif
 
 typedef struct NWC24Data {
-    const void* ptr;  // 0x00
-    u32 size;         // 0x04
+    union {
+        const void* ptr;  // 0x00
+        u32 offset;
+    };
+    u32 size;  // 0x04
 } NWC24Data;
 
 typedef struct NWC24Work NWC24Work;

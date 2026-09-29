@@ -1068,7 +1068,7 @@ static NWC24Err DuplicationCheck(NWC24iMBCHeader* pHeader,
                 isDuplicate = FALSE;
             }
 
-            if (pEntry->from != pMsg->from) {
+            if (pEntry->from.id != pMsg->from.id) {
                 isDuplicate = FALSE;
             }
         }
@@ -1490,7 +1490,7 @@ static NWC24Err CopyMsgObjToPrvFmt(const NWC24iMBCEntry* pSrc,
     }
 
     for (i = 0; i < NWC24_MSG_RECIPIENT_MAX_; i++) {
-        pDst->to[i] = 0;
+        pDst->to[i].id = 0;
     }
 
     return NWC24_OK;
