@@ -54,7 +54,7 @@ typedef struct WADUnpackInfo {
     u32 contentOffset;
     u32 metaSize;
     u32 metaOffset;
-    void* fileList;
+    u32 fileListSize;
     u32 fileOffset;
     u32 fileCount;
     void* contentIndex;
@@ -127,6 +127,7 @@ static s32 _WADUnpackBackup(WADHeader* header, WADStream* stream, WADUnpackInfo*
                             MEMAllocator* allocator, u32 offset, u32 flags);
 static s32 _WADUnpack(void* header, WADStream* stream, WADUnpackInfo* info, MEMAllocator* allocator,
                       u32 offset, u32 flags, u32 mode);
+static s32 WADVerify(WADStream* stream, MEMAllocator* allocator, u32 offset, u32 size);
 s32 _WADGetCidxCount(const ESContentMask* contentMask);
 static s32 _WADGetCidx(const ESContentMask* contentMask, s32 contentNumber);
 static s32 _WADGetTransferId(void* transferId);
@@ -357,7 +358,7 @@ s32 WADImportGetBlocks(char* path, MEMAllocator* allocator, WADLocation location
                             contentMeta++;
                         }
                     }
-                    if ((workspace.unpackInfo.fileList != 0) &&
+                    if ((workspace.unpackInfo.fileListSize != 0) &&
                         (workspace.unpackInfo.fileCount != 0)) {
                         transferId = _WADGetTransferId(workspace.transferId);
                         if ((fileListOut == 0) ||
@@ -1061,6 +1062,82 @@ static s32 _WADUnpackIRD(WADHeader* header, WADStream* stream, WADUnpackInfo* in
     if (header->metaSize != 0) {
         info->metaSize = header->metaSize;
         info->metaOffset = sectionOffset;
+    }
+    return 0;
+}
+
+static s32 _WADUnpackBackup(WADHeader* header, WADStream* stream, WADUnpackInfo* info,
+                            MEMAllocator* allocator, u32 offset, u32 flags) {
+    WADBackupHeader* backupHeader = (WADBackupHeader*)header;
+    ESDeviceId currentDeviceId;
+    s32 result;
+    u32 sectionOffset;
+    u32 alignedSize;
+
+    if (backupHeader->wadVersion != 1) {
+        return -3001;
+    }
+    if (backupHeader->hdrSize != sizeof(WADBackupHeader)) {
+        return -3001;
+    }
+    if (backupHeader->contentSize != 0) {
+        result = ES_GetDeviceId(&currentDeviceId);
+        if (result != 0) {
+            return result;
+        }
+        if (currentDeviceId != backupHeader->deviceId) {
+            return -3008;
+        }
+    }
+
+    info->cidxMode = backupHeader->wadVersion;
+    if (backupHeader->wadVersion >= 1) {
+        info->contentIndex = &backupHeader->cidx;
+    }
+    info->fileNames = backupHeader->deviceMac;
+    sectionOffset = (backupHeader->hdrSize + WAD_STREAM_ALIGNMENT - 1) &
+                    ~(WAD_STREAM_ALIGNMENT - 1);
+
+    if (backupHeader->tmdSize != 0) {
+        if ((flags & 4) == 0) {
+            info->sectionSize = backupHeader->tmdSize;
+            info->sectionOffset = sectionOffset;
+            alignedSize = WAD_ALIGN32(backupHeader->tmdSize);
+            info->titleMeta = _WADMemAlloc(allocator, alignedSize);
+            if (info->titleMeta == 0) {
+                return -3003;
+            }
+            info->titleMetaSize = 1;
+            result = WADReadStream(stream, (void**)&info->titleMeta, alignedSize,
+                                   offset + info->sectionOffset);
+            if (result != alignedSize) {
+                return -3005;
+            }
+            result = 0;
+        }
+        sectionOffset += (backupHeader->tmdSize + WAD_STREAM_ALIGNMENT - 1) &
+                         ~(WAD_STREAM_ALIGNMENT - 1);
+        if ((flags & 2) != 0) {
+            return 0;
+        }
+    }
+
+    if (backupHeader->contentSize != 0) {
+        info->contentSize = backupHeader->contentSize;
+        info->contentOffset = sectionOffset;
+        sectionOffset += (backupHeader->contentSize + WAD_STREAM_ALIGNMENT - 1) &
+                         ~(WAD_STREAM_ALIGNMENT - 1);
+    }
+    if (backupHeader->fileSize != 0) {
+        info->fileListSize = backupHeader->fileSize;
+        info->fileOffset = sectionOffset;
+        info->fileCount = backupHeader->numFiles;
+        if ((flags & 1) == 0) {
+            result = WADVerify(stream, allocator, offset, backupHeader->backupAreaLen);
+            if (result != 0) {
+                return result;
+            }
+        }
     }
     return 0;
 }
