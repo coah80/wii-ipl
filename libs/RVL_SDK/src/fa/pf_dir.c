@@ -47,9 +47,19 @@ typedef struct PFDIR_SDD {
     pf_u32 stat;
     pf_u16 num_handlers;
     pf_u16 alignment;
-    PFDIR_FFD ffd;
+    PF_FFD ffd;
     PF_DIR_ENT dir_entry;
+    pf_u32 state_tail;
 } PFDIR_SDD;
+
+typedef struct PFDIR_SFD {
+    pf_u32 stat;
+    pf_u16 num_handlers;
+    pf_u16 alignment;
+    PF_FFD ffd;
+    PF_DIR_ENT dir_entry;
+    pf_u8 lock_state[0x20];
+} PFDIR_SFD;
 
 typedef struct PFDIR_DIR {
     pf_u32 stat;
@@ -65,10 +75,29 @@ typedef struct PFDIR_READ_RESULT {
     pf_s8 short_name[0x200];
 } PFDIR_READ_RESULT;
 
+typedef struct PFDIR_FILE_STAT {
+    pf_u32 file_size;
+    pf_u16 access_date;
+    pf_u16 modify_time;
+    pf_u16 modify_date;
+    pf_u16 create_time;
+    pf_u16 create_date;
+    pf_u16 small_letter_flag;
+    pf_u8 attributes;
+} PFDIR_FILE_STAT;
+
 typedef struct PFDIR_VOLUME_DIRS {
-    pf_u8 volume_state[0xE3C];
+    pf_u8 volume_prefix[0x40];
+    PFDIR_SFD sfds[5];
+    pf_u8 volume_state[0xF0];
     PFDIR_SDD sdds[3];
     PFDIR_DIR udds[3];
+    pf_s32 num_opened_files;
+    pf_s32 num_opened_directories;
+    pf_u8 cache_state[0x20];
+    void* cache_signature;
+    pf_u8 volume_tail[0x1F80 - 0x1648];
+    pf_s32 last_error;
 } PFDIR_VOLUME_DIRS;
 
 extern pf_s32 PFENT_ITER_MoveTo(PF_ENT_ITER* iter, pf_u32 index, pf_u32 may_allocate);
@@ -79,7 +108,7 @@ extern pf_s32 PFENT_ITER_GetEntryOfPath(PF_ENT_ITER* iter, PF_DIR_ENT* entry, PF
 extern pf_s32 PFENT_GetRootDir(PF_VOLUME* volume, PF_DIR_ENT* entry);
 extern pf_s32 PFVOL_GetCurrentDir(PF_VOLUME* volume, PF_DIR_ENT* entry);
 extern pf_s32 PFVOL_SetCurrentDir(PF_VOLUME* volume, PF_DIR_ENT* entry);
-extern pf_s32 PFFAT_InitFFD(PFDIR_FFD* ffd, PFDIR_FAT_HINT* hint, PF_VOLUME* volume, pf_u32* start_cluster);
+extern pf_s32 PFFAT_InitFFD(void* ffd, void* hint, PF_VOLUME* volume, pf_u32* start_cluster);
 extern void PFFAT_InitHint(PFDIR_FAT_HINT* hint);
 extern pf_s32 PFSTR_StrNCmp(PFDIR_STR* path, const pf_s8* text, pf_u32 target, pf_s16 offset, pf_u16 count);
 extern pf_u16 PFSTR_StrNumChar(PFDIR_STR* path, pf_u32 code_mode);
@@ -590,4 +619,46 @@ pf_s32 PFDIR_p_rmdir(PF_VOLUME* volume, PFDIR_STR* path) {
         return error;
     }
     return PFFAT_FreeChain(&iter.ffd, entry.start_cluster, -1U, -1U);
+}
+
+pf_s32 PFDIR_p_fstat(PF_VOLUME* volume, PFDIR_STR* path, PFDIR_FILE_STAT* file_stat) {
+    PF_ENT_ITER iter;
+    PF_DIR_ENT entry;
+    PFDIR_VOLUME_DIRS* volume_dirs = (PFDIR_VOLUME_DIRS*)volume;
+    pf_u32 index;
+    pf_s32 error;
+
+    error = PFENT_ITER_GetEntryOfPath(&iter, &entry, volume, path, 0);
+    if (error != 0) {
+        return error;
+    }
+    if (volume_dirs->num_opened_files != 0) {
+        for (index = 0; index < 5; index++) {
+            PFDIR_SFD* sfd = &volume_dirs->sfds[index];
+            if ((sfd->stat & 3) == 3 && entry.p_vol == sfd->dir_entry.p_vol &&
+                entry.entry_sector == sfd->dir_entry.entry_sector &&
+                entry.entry_offset == sfd->dir_entry.entry_offset) {
+                file_stat->file_size = sfd->dir_entry.file_size;
+                file_stat->access_date = sfd->dir_entry.access_date;
+                file_stat->modify_time = sfd->dir_entry.modify_time;
+                file_stat->modify_date = sfd->dir_entry.modify_date;
+                file_stat->create_time = sfd->dir_entry.create_time;
+                file_stat->create_date = sfd->dir_entry.create_date;
+                file_stat->small_letter_flag = sfd->dir_entry.small_letter_flag;
+                file_stat->attributes = sfd->dir_entry.attr;
+                break;
+            }
+        }
+    }
+    if (volume_dirs->num_opened_files == 0 || index == 5) {
+        file_stat->file_size = (entry.attr & 0x10) == 0 ? entry.file_size : 0;
+        file_stat->access_date = entry.access_date;
+        file_stat->modify_time = entry.modify_time;
+        file_stat->modify_date = entry.modify_date;
+        file_stat->create_time = entry.create_time;
+        file_stat->create_date = entry.create_date;
+        file_stat->small_letter_flag = entry.small_letter_flag;
+        file_stat->attributes = entry.attr;
+    }
+    return 0;
 }
