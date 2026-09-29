@@ -232,24 +232,38 @@ namespace ipl {
         }
 
         void SDChannelSelect::enqueueStartNotice() {
-            SDChannelSelectCommand command = {1, 0, {{0, 0, 0}}};
+            SDChannelSelectCommand command;
+            command.type = 1;
+            command.titleId = 0;
+            command.arguments.values[0] = 0;
+            command.arguments.values[1] = 0;
+            command.arguments.values[2] = 0;
             mCommandQueue.push(command);
         }
 
         bool SDChannelSelect::enqueueFinishNotice() {
-            SDChannelSelectCommand command = {2, 0, {{0, 0, 0}}};
+            SDChannelSelectCommand command;
+            command.type = 2;
+            command.titleId = 0;
+            command.arguments.values[0] = 0;
+            command.arguments.values[1] = 0;
+            command.arguments.values[2] = 0;
             mCommandQueue.push(command);
             return true;
         }
 
-        bool SDChannelSelect::enqueueNotice(u32 highTitleId, u32 lowTitleId, u32 result) {
-            if (mLastOperation != 6) {
+        bool SDChannelSelect::enqueueNotice(u32 titleId, u32 argument0, u32 argument1) {
+            if (mCurrentSDState != 6) {
                 return false;
             }
 
-            if (mNoticeQueue.count != mNoticeQueue.capacity) {
-                SDChannelSelectCommand notice = {
-                    4, ((u64)highTitleId << 32) | lowTitleId, {{result, 0, 0}}};
+            if (mNoticeQueue.capacity != mNoticeQueue.count) {
+                SDChannelSelectCommand notice;
+                notice.type = 4;
+                notice.titleId = titleId;
+                notice.arguments.values[0] = argument0;
+                notice.arguments.values[1] = argument1;
+                notice.arguments.values[2] = 0;
                 mNoticeQueue.notices[mNoticeQueue.writeIndex].copyFrom(notice);
                 ++mNoticeQueue.writeIndex;
                 if (mNoticeQueue.writeIndex >= mNoticeQueue.capacity) {
@@ -261,49 +275,138 @@ namespace ipl {
         }
 
         bool SDChannelSelect::enqueueLoadNotice() {
-            SDChannelSelectCommand command = {8, 0, {{0, 0, 0}}};
-            return mLastOperation == 6 && mCommandQueue.push(command);
+            if (mCurrentSDState != 6) {
+                return false;
+            }
+
+            SDChannelSelectCommand command;
+            command.type = 8;
+            command.titleId = 0;
+            command.arguments.values[0] = 0;
+            command.arguments.values[1] = 0;
+            command.arguments.values[2] = 0;
+            mCommandQueue.push(command);
+            return true;
         }
 
         bool SDChannelSelect::enqueuePageNotice() {
-            SDChannelSelectCommand command = {9, 0, {{0, 0, 0}}};
-            return mLastOperation == 6 && mCommandQueue.push(command);
+            if (mCurrentSDState != 6) {
+                return false;
+            }
+
+            SDChannelSelectCommand command;
+            command.type = 9;
+            command.titleId = 0;
+            command.arguments.values[0] = 0;
+            command.arguments.values[1] = 0;
+            command.arguments.values[2] = 0;
+            mCommandQueue.push(command);
+            return true;
         }
 
         bool SDChannelSelect::enqueueResultNotice(u32 result) {
-            SDChannelSelectCommand command = {5, result, {{0, 0, 0}}};
-            return mLastOperation == 6 && mCommandQueue.push(command);
+            if (mCurrentSDState != 6) {
+                return false;
+            }
+
+            SDChannelSelectCommand command;
+            command.type = 5;
+            command.titleId = result;
+            command.arguments.values[0] = 0;
+            command.arguments.values[1] = 0;
+            command.arguments.values[2] = 0;
+            mCommandQueue.push(command);
+            return true;
         }
 
         bool SDChannelSelect::enqueueChannelNotice(u32 controller, u32 page, u32 index, u32 value) {
-            SDChannelSelectCommand command = {
-                10, ((u64)value << 32) | index, {{page, (u32)&mSecondTitleCount, 0}}};
-            return mLastOperation == 6 && mCommandQueue.push(command);
+            if (mCurrentSDState != 6) {
+                return false;
+            }
+
+            SDChannelSelectCommand command;
+            command.type = 10;
+            command.titleId = ((u64)page << 32) | index;
+            command.arguments.values[0] = value;
+            command.arguments.values[1] = (u32)&mFirstTitleCount;
+            command.arguments.values[2] = 0;
+            mCommandQueue.push(command);
+            return true;
         }
 
         bool SDChannelSelect::enqueueMoveNotice(u32 controller, u32 page, u32 index) {
-            SDChannelSelectCommand command = {6, ((u64)page << 32) | index, {{0, 0, 0}}};
-            return mLastOperation == 6 && mCommandQueue.push(command);
+            if (mCurrentSDState != 6) {
+                return false;
+            }
+
+            SDChannelSelectCommand command;
+            command.type = 6;
+            command.titleId = ((u64)page << 32) | index;
+            command.arguments.values[0] = 0;
+            command.arguments.values[1] = 0;
+            command.arguments.values[2] = 0;
+            mCommandQueue.push(command);
+            return true;
         }
 
         bool SDChannelSelect::enqueueStateNotice(u32 controller, u32 page, u32 index, u32 state) {
-            SDChannelSelectCommand command = {7, ((u64)page << 32) | index, {{state, 0, 0}}};
-            return mLastOperation == 6 && mCommandQueue.push(command);
+            if (mCurrentSDState != 6) {
+                return false;
+            }
+
+            SDChannelSelectCommand command;
+            command.type = 7;
+            command.titleId = ((u64)page << 32) | index;
+            command.arguments.values[0] = state;
+            command.arguments.values[1] = 0;
+            command.arguments.values[2] = 0;
+            mCommandQueue.push(command);
+            return true;
         }
 
         bool SDChannelSelect::enqueueErrorNotice(u32 page, u32 index) {
-            SDChannelSelectCommand command = {11, 0, {{0, page, index}}};
-            return mLastOperation == 6 && mCommandQueue.push(command);
+            if (mCurrentSDState != 6) {
+                return false;
+            }
+
+            SDChannelSelectCommand command;
+            command.type = 11;
+            command.titleId = 0;
+            command.arguments.values[0] = page;
+            command.arguments.values[1] = index;
+            command.arguments.values[2] = 0;
+            mCommandQueue.push(command);
+            return true;
         }
 
         bool SDChannelSelect::enqueueCommandNotice(u32 page, u32 index, u32 commandType) {
-            SDChannelSelectCommand command = {12, 0, {{page, index, commandType}}};
-            return mLastOperation == 6 && mCommandQueue.push(command);
+            if (mCurrentSDState != 6) {
+                return false;
+            }
+
+            SDChannelSelectCommand command;
+            command.type = 12;
+            command.titleId = 0;
+            command.arguments.values[0] = page;
+            command.arguments.values[1] = index;
+            command.arguments.values[2] = commandType;
+            mCommandQueue.push(command);
+            return true;
         }
 
         bool SDChannelSelect::enqueueDeleteNotice(u32 controller, u32 page, u32 index) {
-            SDChannelSelectCommand command = {13, index, {{page, 0, 0}}};
-            return mLastOperation == 6 && mCommandQueue.push(command);
+            if (mCurrentSDState != 6) {
+                return false;
+            }
+
+            SDChannelSelectCommand command;
+            command.type = 13;
+            command.titleId = ((u64)page << 32) | index;
+            command.arguments.values[0] = 0;
+            command.arguments.values[1] = 0;
+            command.arguments.values[2] = 0;
+            mCommandQueue.push(command);
+            return true;
         }
 
         void SDChannelSelect::clearCommandQueue() {
