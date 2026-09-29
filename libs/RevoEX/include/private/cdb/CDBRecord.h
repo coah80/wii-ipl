@@ -3,6 +3,7 @@
 
 #include <private/cdb/CDBAttr.h>
 #include <private/cdb/CDBBridge.h>
+#include <revolution/os.h>
 #include <revolution/types.h>
 
 #ifdef __cplusplus
@@ -10,13 +11,20 @@ extern "C" {
 #endif  // __cplusplus
 
 typedef struct _CDBRecordFile {
-    u8 unk_0x00[0x1C - 0x00];
-    int unk_0x1C;
+    union {
+        u8 unk_0x00[0x1C - 0x00];
+        struct {
+            OSMutex mutex;  // 0x00
+            BOOL used;      // 0x18
+        };
+    };
+    int unk_0x1C;  // 0x1C
     CDBAttr attr;              // 0x20
     CDBBridgeFile bridgeFile;  // 0x42C
     u8 unk_0x434[0x438 - 0x434];
     CDBRecordKey key;  // 0x438
-    u8 unk_0x468[0x480 - 0x468];
+    u32 unk_0x468;
+    u8 unk_0x46C[0x480 - 0x46C];
 } CDBRecordFile;
 
 enum {
