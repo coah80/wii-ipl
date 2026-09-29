@@ -2059,44 +2059,72 @@ void ATERM_81405690(const u32* expandedKey, u32 rounds, const u8* input, u8* out
 
 void ATERM_81405D0C(u32 state[4], const u8 block[64]);
 
-void ATERM_81405ACC(NETMD5Context* context, const void* input, u32 length) {
-    const u8* data = (const u8*)input;
-    u32 bufferIndex = (u32)(context->length >> 3) & 0x3F;
-    u32 bytesToFill = 64 - bufferIndex;
-    u32 copiedBytes;
+typedef struct {
+    u32 state[4];
+    u32 count[2];
+    u8 buffer[64];
+} AtermMd5Context;
+
+void ATERM_81405ACC(AtermMd5Context* context, const u8* input, u32 length) {
+    u8* dst;
+    const u8* src;
+    u32 i;
+    u32 j;
     u32 index;
+    u32 partLen;
 
-    context->length += (u64)length << 3;
-    if (length >= bytesToFill) {
-        u32 alignedBytes = bytesToFill & ~7U;
-
-        for (copiedBytes = 0; copiedBytes < alignedBytes; copiedBytes += 8) {
-            context->buffer8[bufferIndex + copiedBytes] = data[copiedBytes];
-            context->buffer8[bufferIndex + copiedBytes + 1] = data[copiedBytes + 1];
-            context->buffer8[bufferIndex + copiedBytes + 2] = data[copiedBytes + 2];
-            context->buffer8[bufferIndex + copiedBytes + 3] = data[copiedBytes + 3];
-            context->buffer8[bufferIndex + copiedBytes + 4] = data[copiedBytes + 4];
-            context->buffer8[bufferIndex + copiedBytes + 5] = data[copiedBytes + 5];
-            context->buffer8[bufferIndex + copiedBytes + 6] = data[copiedBytes + 6];
-            context->buffer8[bufferIndex + copiedBytes + 7] = data[copiedBytes + 7];
-        }
-        for (index = copiedBytes; index < bytesToFill; index++) {
-            context->buffer8[bufferIndex + index] = data[index];
-        }
-        ATERM_81405D0C(context->state, context->buffer8);
-        data += bytesToFill;
-        length -= bytesToFill;
-        while (length >= sizeof(context->buffer8)) {
-            ATERM_81405D0C(context->state, data);
-            data += sizeof(context->buffer8);
-            length -= sizeof(context->buffer8);
-        }
-        bufferIndex = 0;
+    i = context->count[0];
+    context->count[0] = i + (length << 3);
+    if (context->count[0] < (length << 3)) {
+        context->count[1]++;
     }
-    if (length != 0) {
-        for (index = 0; index < length; index++) {
-            context->buffer8[bufferIndex + index] = data[index];
+    context->count[1] += length >> 29;
+
+    index = (i >> 3) & 0x3f;
+    partLen = 64 - index;
+
+    if (length >= partLen) {
+        dst = &context->buffer[index];
+        src = input;
+        for (i = 0; i < partLen - 8; i += 8) {
+            dst[0] = src[0];
+            dst[1] = src[1];
+            dst[2] = src[2];
+            dst[3] = src[3];
+            dst[4] = src[4];
+            dst[5] = src[5];
+            dst[6] = src[6];
+            dst[7] = src[7];
+            dst += 8;
+            src += 8;
         }
+        for (; i < partLen; i++) {
+            *dst++ = *src++;
+        }
+        ATERM_81405D0C(context->state, context->buffer);
+        for (i = partLen; i + 63 < length; i += 64) {
+            ATERM_81405D0C(context->state, input + i);
+        }
+        index = 0;
+    } else {
+        i = 0;
+    }
+    dst = &context->buffer[index];
+    src = &input[i];
+    for (j = 0; j < length - i - 8; j += 8) {
+        dst[0] = src[0];
+        dst[1] = src[1];
+        dst[2] = src[2];
+        dst[3] = src[3];
+        dst[4] = src[4];
+        dst[5] = src[5];
+        dst[6] = src[6];
+        dst[7] = src[7];
+        dst += 8;
+        src += 8;
+    }
+    for (; j < length - i; j++) {
+        *dst++ = *src++;
     }
 }
 
