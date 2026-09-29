@@ -8,15 +8,21 @@
 
 #include <cstring>
 
+#include "global/decomp/utils.h"
+
 namespace ipl {
     namespace gui {
         class PaneComponent : public ::gui::PaneComponent {};
         class PaneManager : public ::gui::PaneManager {
             public:
+#ifdef IPL_GCW_PANEMANAGER_CTOR_OUT_OF_LINE
+                PaneManager(::gui::EventHandler* event, const nw4r::lyt::DrawInfo* drawInfo, EGG::Heap* heap, EGG::Allocator* allocator, bool bDisableCon = false) NO_INLINE;
+#else
                 PaneManager(::gui::EventHandler* event, const nw4r::lyt::DrawInfo* drawInfo, EGG::Heap* heap, EGG::Allocator* allocator, bool bDisableCon = false) :
                 ::gui::PaneManager(event, allocator, drawInfo),
                 mpHeap(heap),
                 mbDisableCon(bDisableCon) {}
+#endif
 
 #ifdef IPL_CHANNEL_TITLE_NOVTABLE
                 virtual ~PaneManager();

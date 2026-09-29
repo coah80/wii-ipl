@@ -7,6 +7,10 @@
 
 #include "utility/iplFrameController.h"
 
+#ifdef IPL_GCW_INTP_CTOR_OUT_OF_LINE
+#include "global/decomp/utils.h"
+#endif
+
 namespace ipl {
     namespace math {
         template <typename T>
@@ -37,6 +41,9 @@ namespace ipl {
         template <typename T>
         class LinearIntp : public Interporation<T> {
         public:
+#ifdef IPL_GCW_INTP_CTOR_OUT_OF_LINE
+            LinearIntp() NO_INLINE;
+#endif
 #ifdef IPL_BOARD_OBJECT_INLINE_INTERPOLATION_DTORS
             virtual ~LinearIntp();
 #endif
@@ -49,6 +56,7 @@ namespace ipl {
 
             T get2() const { return (((mStart * (mMaxFrame - mFrame)) + (mEnd * mFrame)) / mMaxFrame); }
         };
+
 
 #ifdef IPL_CHANNEL_TITLE_NOVTABLE
         template <typename T>

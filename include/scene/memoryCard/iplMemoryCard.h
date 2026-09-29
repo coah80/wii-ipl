@@ -3,14 +3,87 @@
 
 #include "iplSceneHeader.h"
 
+#include "scene/memoryCard/iplMemoryCardBase.h"
+#include "scene/memoryCard/iplMemoryCardManager.h"
+
+#include "math/iplMathTypes.h"
+
 namespace ipl {
     namespace scene {
-        SCENE_CLASS(MemoryCard) {
+        class GCSaveData;
+        class GCWindow;
+        class SavedataEditWindow;
+
+        class MemoryCard : public Base, public MemoryBase {
         public:
-            MemoryCard(EGG::Heap * heap);
+            MemoryCard(EGG::Heap* heap);
+            virtual ~MemoryCard();
+
+            virtual BOOL isResetAcceptable() const;
+
+            virtual void prepare();
+            virtual void create();
+            virtual void calc();
+            virtual void draw();
+
+            virtual void onPoint(const char* paneName, controller::Interface* controller);
+            virtual void onLeft(const char* paneName);
+            virtual void onTrig(const char* paneName);
+
+            void onFocus(void* data);
+            void onRelease();
+
+            MemoryCardManager* getManager() { return mpManager; }
 
         private:
-            u8 unk_0x54[0x7C];
+            enum {
+                SLOT_A = 0,
+                SLOT_B,
+            };
+
+            void on_fadein1st();
+            void on_fadein2nd();
+            void on_normal();
+            void on_scroll_r();
+            void on_scroll_l();
+            void on_change_tag1st();
+            void on_change_tag2nd();
+            void on_fadeout1st();
+            void on_fadeout2nd();
+            void on_error();
+            void on_insert_card();
+            void on_detach_card();
+
+            void start_savedata_fadein();
+            void start_savedata_fadeout();
+            void start_errormessage_fadein();
+            int  update_slot();
+
+            void show_arw();
+            void show_capacity(u8 slot);
+
+            void scroll_common();
+            void start_scroll_r();
+            void start_scroll_l();
+
+        private:
+            s32                mState;             // 0x88
+            s32                mPrevState;         // 0x8C
+            u8                 mSlot;              // 0x90
+            u8                 unk_0x91[3];        // 0x91
+            s32                mSlotState[2];      // 0x94
+            s16                mIconIndex;         // 0x9C
+            s16                mIconCount;         // 0x9E
+            u8                 mShowArwR;          // 0xA0
+            u8                 mShowArwL;          // 0xA1
+            u8                 unk_0xA2[2];        // 0xA2
+            MemoryCardManager* mpManager;          // 0xA4
+            MemoryBaseEvent*   mpEvent;            // 0xA8
+            nw4r::ut::List     mSaveDataList;      // 0xAC
+            nand::LayoutFile*  mBalloonLayoutFile;  // 0xB8
+            nw4r::ut::List     mBalloonList;       // 0xBC
+            GCSaveData*        mpFocusSaveData;    // 0xC8
+            GCWindow*          mpGCWindow;         // 0xCC
         };
     }  // namespace scene
 }  // namespace ipl
