@@ -2500,7 +2500,7 @@ s16 AOSS_81401BBC(void* buffer) {
     record->length = SOHtoNs(dataLength);
     dataLength = (s16)(dataLength + 6);
     roundedLength = (u32)((s32)dataLength + 1);
-    roundedLength += roundedLength >> 31;
+    roundedLength = (roundedLength >> 31) + roundedLength;
     dataLength = (s16)(roundedLength & ~1u);
     record->nextOffset = SOHtoNs(dataLength);
     record = (AOSSOptionRecord*)(dataLength + (u32)record);
