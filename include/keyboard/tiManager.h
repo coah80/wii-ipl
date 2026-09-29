@@ -73,7 +73,15 @@ namespace textinput {
             virtual void                                setDefaultPredictionJP(int num, const char** predicts);
             virtual void                                setFixedPredictionJP(int num, const char** predicts);
 
-            virtual void                                setTitleText(const wchar_t* titleText);
+            virtual void                                setTitleText(wchar_t* titleText);
+
+            void                                        setTitleText(const wchar_t* titleText) {
+                nw4r::lyt::Pane* pane = mpInputForm->getPane("T_title_text");
+                nw4r::lyt::TextBox* textBox = nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(pane);
+                if (textBox != NULL) {
+                    textBox->SetString(titleText, 0);
+                }
+            }
 
             virtual void                                start() {}
             virtual void                                end()   {}

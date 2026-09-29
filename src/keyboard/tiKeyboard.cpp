@@ -328,7 +328,7 @@ namespace textinput {
         }
     }
 
-    void Manager::setTitleText(const wchar_t* titleText) {
+    void Manager::setTitleText(wchar_t* titleText) {
         nw4r::lyt::Pane* pane = mpInputForm->getPane("T_title_text");
         nw4r::lyt::TextBox* textBox = nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(pane);
         if (textBox != NULL) {

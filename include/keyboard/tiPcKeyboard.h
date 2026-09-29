@@ -203,11 +203,12 @@ namespace textinput {
                 };
 
 #ifdef TI_PCTYPE_SAMPLE_CLASS
-                Base(Manager* manager) : mpManager(manager) {
+                Base(Manager* manager) {
                     mKeyState.mpLanguageDep = NULL;
                     mKeyState.mpBase = this;
                     mpAllocator = NULL;
                     mbOnlyQwerty = false;
+                    mpManager = manager;
                 }
 #endif
 

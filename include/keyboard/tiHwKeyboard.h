@@ -33,8 +33,8 @@ namespace textinput {
 
                     Manager*    mpManager;  // 0x10
                     u8          field_0x14; // 0x14
-                    u8          field_0x15; // 0x15
-                    u8          field_0x16; // 0x16
+                    bool        field_0x15; // 0x15
+                    bool        field_0x16; // 0x16
             };
 
             
