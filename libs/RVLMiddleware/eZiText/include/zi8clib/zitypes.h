@@ -162,9 +162,9 @@ typedef struct _ziGetParam {
     ziWChar firstCandidate;  // 0x1E
     ziU8 wordCandidates;     // 0x1F
 
-    ziU8 count;     // 0x20
     ziU8 letters;   // 0x21
-    ziU8* scratch;  // 0x22
+    ziU8 count;     // 0x22
+    ziU8* scratch;  // 0x24
 } ziGetParam;
 
 typedef struct _ziLanguageEntry {
@@ -175,15 +175,65 @@ typedef struct _ziLanguageEntry {
 struct __zi8_work_data_s {
     ziU8 unk_0x00;
     ziLanguageEntry* langEntries;  // 0x04
-    ziU32 unk_0x08;
+    ziU8 unk_0x08;
+    ziU8 unk_0x09;
+    ziU8 unk_0x0A;
+    ziU8 unk_0x0B;
     ziU32 unk_0x0C;
     ziU32 unk_0x10;
-    ziU32 unk_0x14;
+    ziU16 unk_0x14;
+    ziU8 unk_0x16;
+    ziU8 unk_0x17;
     ziU8 unk_0x18;
-    ziU8 unk_0x1C[0x108];
+    ziU8 unk_0x19;
+    ziU16 unk_0x1A;
+    ziU8 unk_0x1C[3];
+    ziU8 unk_0x1F;
+    ziU8 unk_0x20[0x104];
     ziU16* unk_0x124[1];
     ziU8* unk_0x128;
     ziU8 unk_0x12C;
+    ziU8 unk_0x12D[0x1F3];
+    ziU8 (*oemMatch)(ziU16 idx, ziWChar* buf, ziU8 len, ziPtr data); //0x320
+    ziU16 oemLen;  //0x324
+    ziU8 unk_0x326[2];
+    ziU32 oemIdx;  //0x328
+    ziPtr oemData; //0x32C
+    ziU8 unk_0x330[0x208];
+    ziU8 unk_0x538;
+    ziU8 unk_0x539[0xCC7];
+    ziU32 userKeys[0x80];
+    ziU8 unk_0x1400[0x1A];
+    ziU16 unk_0x141A;
+    ziU8 unk_0x141C[0x458];
+    ziU16 unk_0x1874;
+    ziU8 unk_0x1876[0x2B2];
+    union {
+        ziU32 word;
+        struct {
+            ziU32 msb : 1;
+        } bits;
+    } unk_0x1B28;
+    union {
+        ziU32 word;
+        struct {
+            ziU32 msb : 1;
+        } bits;
+    } unk_0x1B2C;
+    ziU8 unk_0x1B30;
+    ziU8 unk_0x1B31;
+    ziU16 unk_0x1B32;
+    ziU16 unk_0x1B34;
+    ziU16 unk_0x1B36;
+    ziU16 unk_0x1B38;
+    ziU8 unk_0x1B3A;
+    ziU8 unk_0x1B3B;
+    ziU8 unk_0x1B3C;
+    ziU8 unk_0x1B3D;
+    ziU8 unk_0x1B3E;
+    ziU8 unk_0x1B3F;
+    ziU16 unk_0x1B40;
+    ziU8 unk_0x1B42[2];
 };
 
 #define ZI_WORK ((struct __zi8_work_data_s*)__zi8_work_data)
