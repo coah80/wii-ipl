@@ -2731,18 +2731,19 @@ namespace ipl {
 
         void Setting::start_left_event(const char* pageName) {
             int accessPoint = get_ap_no(pageName);
-            int animation;
-            if (accessPoint == -1) {
-                int arrow = get_arw_no(pageName);
-                if (arrow == -1) {
-                    return;
-                }
-                animation = arrow + 6;
-            } else {
-                animation = accessPoint + 0x10;
+            if (accessPoint != -1) {
+                layout::Animator* animator = mpMainLayout->getAnim(accessPoint + 0x10);
+                animator->initFrame();
+                animator->restart();
+                return;
             }
-            mpMainLayout->getAnim(animation)->initFrame();
-            mpMainLayout->getAnim(animation)->restart();
+            int arrow = get_arw_no(pageName);
+            if (arrow == -1) {
+                return;
+            }
+            layout::Animator* animator = mpMainLayout->getAnim(arrow + 6);
+            animator->initFrame();
+            animator->restart();
         }
 
         void Setting::start_trig_event(const char* pageName) {
