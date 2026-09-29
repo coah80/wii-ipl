@@ -1191,7 +1191,7 @@ namespace ipl {
         }
 
         bool SDChannelSelectCommandQueue::push(const SDChannelSelectCommand& command) {
-            if (count == capacity) {
+            if (capacity == count) {
                 return false;
             }
 
@@ -1205,29 +1205,31 @@ namespace ipl {
         }
 
         bool SDChannelSelectCommandQueue::pop() {
+            bool result = true;
             if (count == 0) {
-                return false;
+                result = false;
+            } else {
+                ++readIndex;
+                if (readIndex >= capacity) {
+                    readIndex = 0;
+                }
+                --count;
             }
-
-            ++readIndex;
-            if (readIndex >= capacity) {
-                readIndex = 0;
-            }
-            --count;
-            return true;
+            return result;
         }
 
         bool SDChannelSelectNoticeQueue::pop() {
+            bool result = true;
             if (count == 0) {
-                return false;
+                result = false;
+            } else {
+                ++readIndex;
+                if (readIndex >= capacity) {
+                    readIndex = 0;
+                }
+                --count;
             }
-
-            ++readIndex;
-            if (readIndex >= capacity) {
-                readIndex = 0;
-            }
-            --count;
-            return true;
+            return result;
         }
     }
 }

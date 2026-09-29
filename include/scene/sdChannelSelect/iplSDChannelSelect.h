@@ -35,10 +35,10 @@ namespace ipl {
 
         struct SDChannelSelectCommandQueue {
             SDChannelSelectCommand commands[4];
-            u32 capacity;
+            int capacity;
             int count;
-            u32 readIndex;
-            u32 writeIndex;
+            int readIndex;
+            int writeIndex;
 
             SDChannelSelectCommandQueue(u32 capacity, u32 count, u32 readIndex, u32 writeIndex)
                 : capacity(capacity), count(count), readIndex(readIndex), writeIndex(writeIndex) {
@@ -55,10 +55,10 @@ namespace ipl {
 
         struct SDChannelSelectNoticeQueue {
             SDChannelSelectCommand notices[42];
-            u32 capacity;
+            int capacity;
             int count;
-            u32 readIndex;
-            u32 writeIndex;
+            int readIndex;
+            int writeIndex;
 
             SDChannelSelectNoticeQueue(u32 capacity, u32 count, u32 readIndex, u32 writeIndex)
                 : capacity(capacity), count(count), readIndex(readIndex), writeIndex(writeIndex) {
