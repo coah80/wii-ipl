@@ -1761,38 +1761,36 @@ s32 _WADGetCidxCount(const ESContentMask* contentMask) {
 static s32 _WADGetCidx(const ESContentMask* contentMask, u32 contentNumber) {
     u32 remaining = contentNumber + 1;
     u32 bitIndex = 0;
-    u32 groupIndex;
     u32 nextIndex;
 
-    for (groupIndex = 0; groupIndex < 0x80; groupIndex++) {
+    for (bitIndex = 0; bitIndex < 0x200; bitIndex += 4) {
         if ((contentMask->data[(s32)bitIndex >> 3] & (1 << (bitIndex & 7))) != 0) {
             remaining--;
         }
         if (remaining == 0) {
             return bitIndex;
         }
-        nextIndex = ++bitIndex;
+        nextIndex = bitIndex + 1;
         if ((contentMask->data[(s32)nextIndex >> 3] & (1 << (nextIndex & 7))) != 0) {
             remaining--;
         }
         if (remaining == 0) {
             return nextIndex;
         }
-        nextIndex = ++bitIndex;
+        nextIndex = bitIndex + 2;
         if ((contentMask->data[(s32)nextIndex >> 3] & (1 << (nextIndex & 7))) != 0) {
             remaining--;
         }
         if (remaining == 0) {
             return nextIndex;
         }
-        nextIndex = ++bitIndex;
+        nextIndex = bitIndex + 3;
         if ((contentMask->data[(s32)nextIndex >> 3] & (1 << (nextIndex & 7))) != 0) {
             remaining--;
         }
         if (remaining == 0) {
             return nextIndex;
         }
-        bitIndex++;
     }
     return -1;
 }
@@ -2066,13 +2064,10 @@ static void* _WADMemAlloc(MEMAllocator* allocator, u32 size) {
 }
 
 static void _WADMemFree(MEMAllocator* allocator, void* buffer) {
-    if (allocator != 0) {
-        if (allocator->heap != 0) {
-            if (buffer != 0) {
-                MEMFreeToAllocator(allocator, buffer);
-            }
-        }
+    if ((allocator == 0) || (allocator->heap == 0) || (buffer == 0)) {
+        return;
     }
+    MEMFreeToAllocator(allocator, buffer);
 }
 #pragma dont_inline reset
 
