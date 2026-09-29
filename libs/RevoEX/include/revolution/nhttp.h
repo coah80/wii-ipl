@@ -1,4 +1,3 @@
-
 #ifndef REVOLUTION_NHTTP_H
 #define REVOLUTION_NHTTP_H
 
@@ -6,49 +5,80 @@
 
 #include <revolution/nhttp/nhttp_err.h>
 
+#define NHTTP_HDRRECVBUF_INILEN 1024
+#define NHTTP_HDRRECVBUF_BLOCKSHIFT 9
+#define NHTTP_HDRRECVBUF_BLOCKLEN (1 << NHTTP_HDRRECVBUF_BLOCKSHIFT)
+#define NHTTP_HDRRECVBUF_BLOCKMASK (NHTTP_HDRRECVBUF_BLOCKLEN - 1)
+
 #ifdef __cplusplus
 extern "C" {
 #endif  // __cplusplus
 
-typedef struct {
-    u8 dummy[1];
-} NHTTPRequest;
-typedef struct {
-    u8 dummy[1];
-} NHTTPResponse;
-
-typedef int NHTTPConnection;
-
 typedef void* (*NHTTPAlloc)(u32 size, int align);
 typedef void (*NHTTPFree)(void* buf);
-
-typedef void (*NHTTPRequestCallback)(int, NHTTPResponse*);
 typedef void (*NHTTPCleanupCallback)();
 
-int NHTTPStartup(NHTTPAlloc alloc, NHTTPFree free, u32 priority);
-int NHTTPCleanupAsync(NHTTPCleanupCallback);
-int NHTTPGetError();
+typedef struct NHTTPRequestInfo NHTTPRequest;
+typedef struct NHTTPResponseInfo NHTTPResponse;
+typedef s32 NHTTPConnection;
 
-NHTTPRequest* NHTTPCreateRequest(char* url, undefined4, void* buf, u32 bufSize, NHTTPRequestCallback reqCallback, undefined4);
-NHTTPRequest* NHTTPCreateRequestEx(char* url, undefined4, void* buf, u32 bufSize, NHTTPRequestCallback reqCallback, undefined4, undefined4,
-                                   undefined4);
-int NHTTPDeleteRequest(NHTTPRequest* request);
+typedef enum NHTTPReqMethod {
+    NHTTP_REQMETHOD_GET,
+    NHTTP_REQMETHOD_POST,
+    NHTTP_REQMETHOD_HEAD,
+} NHTTPReqMethod;
+
+typedef enum NHTTPEncodingType {
+    NHTTP_ENCODING_TYPE_AUTO,
+    NHTTP_ENCODING_TYPE_URL,
+    NHTTP_ENCODING_TYPE_MULTIPART,
+    NHTTP_ENCODING_TYPE_MAX,
+} NHTTPEncodingType;
+
+typedef void (*NHTTPReqCallback)();
+typedef void* (*NHTTPResponseCallback)(void** buffer, void* data,
+                                       u32 contentLength, NHTTPAlloc alloc,
+                                       NHTTPFree free, void* userParam);
+typedef void (*NHTTPResponseCleanup)(void* buffer, NHTTPFree free,
+                                     void* userParam);
+
+s32 NHTTPStartup(NHTTPAlloc alloc, NHTTPFree free, u32 priority);
+void NHTTPCleanupAsync(NHTTPCleanupCallback callback);
+s32 NHTTPGetError(void);
+
+NHTTPRequest* NHTTPCreateRequest(const char* url, NHTTPReqMethod method,
+                               void* buffer, u32 bufferSize,
+                               NHTTPReqCallback callback, void* userParam);
+NHTTPRequest* NHTTPCreateRequestEx(const char* url, NHTTPReqMethod method,
+                                 void* buffer, u32 bufferSize,
+                                 NHTTPReqCallback callback, void* userParam,
+                                 NHTTPResponseCallback responseCallback,
+                                 NHTTPResponseCleanup cleanup);
+s32 NHTTPAddHeaderField(NHTTPRequest* request, const char* name,
+                        const char* value);
+s32 NHTTPAddPostDataRaw(NHTTPRequest* request, const void* data,
+                        u32 size, const char* label);
+s32 NHTTPDeleteRequest(NHTTPRequest* request);
 
 NHTTPConnection NHTTPSendRequestAsync(NHTTPRequest* request);
-int NHTTPCancelRequestAsync(NHTTPConnection connection);
+s32 NHTTPCancelRequestAsync(NHTTPConnection connection);
 
-void NHTTPGetProgress(u32* complete, u32* total);
+s32 NHTTPGetProgress(u32* complete, u32* total);
 
-int NHTTPDestroyResponse(NHTTPResponse* response);
-u32 NHTTPGetHeaderField(NHTTPResponse* response, const char* name, const char** value);
+void NHTTPDestroyResponse(NHTTPResponse* response);
+s32 NHTTPGetHeaderAll(NHTTPResponse* response, const char** header);
+s32 NHTTPGetHeaderField(NHTTPResponse* response, const char* name,
+                        const char** value);
 
-int NHTTPGetResultCode(NHTTPResponse* res);
+s32 NHTTPGetBodyAll(NHTTPResponse* response, void** buffer);
+s32 NHTTPGetResultCode(NHTTPResponse* response);
 
-int NHTTPSetVerifyOption(NHTTPRequest* request, u32 option);
-
-int NHTTPSetProxyDefault(NHTTPRequest* request);
-int NHTTPSetRootCADefault(NHTTPRequest* request);
-int NHTTPSetClientCertDefault(NHTTPRequest* request);
+s32 NHTTPSetVerifyOption(NHTTPRequest* request, u32 option);
+s32 NHTTPSetProxy(NHTTPRequest* request, const char* server, u16 port,
+                  const char* username, const char* password);
+s32 NHTTPSetProxyDefault(NHTTPRequest* request);
+s32 NHTTPSetClientCertDefault(NHTTPRequest* request);
+s32 NHTTPSetRootCADefault(NHTTPRequest* request);
 
 #ifdef __cplusplus
 }
