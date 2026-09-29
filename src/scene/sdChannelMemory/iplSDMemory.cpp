@@ -1,3 +1,4 @@
+#define IPL_SDMEMORY_SET_TEXT_COLORS
 #include "scene/sdChannelMemory/iplSDMemory.h"
 
 #include <cstring>
@@ -43,6 +44,10 @@ namespace ipl {
             lbl_81696F6E, lbl_81696F75, lbl_81655CD0, lbl_81655CDA,
         };
         // clang-format on
+
+        void writeFourFlagBytes(u8* flags, u8 first, u8 second, u8 third, u8 fourth);
+        void setTitleRowColors(nw4r::lyt::TextBox* textBox,
+                               const nw4r::ut::Color& first, const nw4r::ut::Color& second);
 
         class SDMemoryDialogAEvent : public ::gui::EventHandler {
         public:
@@ -1447,14 +1452,14 @@ namespace ipl {
                 utility::layout::set_string(pLetter, (const wchar_t*)(unk_0x380 + i * 0x2A));
 
                 if (matchIdx < (int)mField1648 && unk_0x80[i] == mEntryList[matchIdx]) {
-                    nw4r::ut::Color color(0x34, 0xBE, 0xED, 0xFF);
-                    nw4r::ut::Color color2(color);
+                    nw4r::ut::Color color;
                     matchIdx++;
-                    pLetter->SetTextColor(color, color);
+                    writeFourFlagBytes((u8*)&color, 0x34, 0xBE, 0xED, 0xFF);
+                    setTitleRowColors(pLetter, color, color);
                 } else {
-                    nw4r::ut::Color color(0x64, 0x64, 0x64, 0xFF);
-                    nw4r::ut::Color color2(color);
-                    pLetter->SetTextColor(color, color);
+                    nw4r::ut::Color color;
+                    writeFourFlagBytes((u8*)&color, 0x64, 0x64, 0x64, 0xFF);
+                    setTitleRowColors(pLetter, color, color);
                 }
 
                 nw4r::ut::Rect rect = mpDialogC->getTextDrawRect(lbl_816562B6);
@@ -1496,6 +1501,17 @@ namespace ipl {
             mpDialogC->draw("N_Move");
         }
 
+        void writeFourFlagBytes(u8* flags, u8 first, u8 second, u8 third, u8 fourth) {
+            flags[0] = first;
+            flags[1] = second;
+            flags[2] = third;
+            flags[3] = fourth;
+        }
+
+        void setTitleRowColors(nw4r::lyt::TextBox* textBox, const nw4r::ut::Color& first,
+                               const nw4r::ut::Color& second) {
+            textBox->SetTextColors(first, second);
+        }
 
         int SDMemory::findDialogAPane(const char* name) {
             int result = -1;

@@ -40,8 +40,8 @@ namespace ipl {
             BOOL isResetAcceptable();
             void startResetting();
 
-            SDChannelObj* getChanObj() {
-                return mpChanSelect->getChanObj();
+            SDChannelObj* findChannelObject() {
+                return mpChanSelect->findChannelObject();
             }
 
             bool isChanState(int state) const {

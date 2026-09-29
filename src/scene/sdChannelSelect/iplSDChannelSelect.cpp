@@ -244,7 +244,7 @@ namespace ipl {
 
             nw4r::ut::List_Init(&mChanList, 0);
 
-            iplSDChannelSelect_813DF834(mChanPage, 1);
+            createChannelList(mChanPage, 1);
 
             TVRCManager::getHandle()->setEnable(1);
 
@@ -300,10 +300,10 @@ namespace ipl {
             createBaseLayout();
 
             if (mChanPage < mChanCount - 1) {
-                iplSDChannelSelect_813DF834(mChanPage + 1, 0);
+                createChannelList(mChanPage + 1, 0);
             }
             if (0 < mChanPage) {
-                iplSDChannelSelect_813DF834(mChanPage - 1, 0);
+                createChannelList(mChanPage - 1, 0);
             }
 
             updateChannelObjects();
@@ -511,7 +511,7 @@ namespace ipl {
                     mSelPage = -1;
                     mSelIndex = -1;
                     mFlag758 = 1;
-                    iplSDChannelSelect_813DFAC0();
+                    refreshChannelList();
                     memset(mpChanTable, 0, mChanCount * 0x30);
                     memset(mpBuf720, 0, 0x4B00);
                     unk_0x734 = 0;
@@ -618,7 +618,7 @@ namespace ipl {
                     mCmdQueue.pop();
                 } else if (mChanQueue.mCount != 0) {
                     SDChannelSelectCommand entry = mChanQueue.mEntries[mChanQueue.mRead];
-                    SDChannelObj* chanObj = getChanObj(entry.arguments.values[0], entry.arguments.values[1]);
+                    SDChannelObj* chanObj = findChannelObject(entry.arguments.values[0], entry.arguments.values[1]);
                     if (chanObj != NULL && (u32)(chanObj->mChanType - 1) <= 1) {
                         EGG::Heap* heap = EGG::FrmHeap::create(0x212B8, mpWorkHeap, 2);
                         SDChannelObj* newChan = new (mpObjHeap, 4) SDChannelObj(heap, entry.arguments.values[0], entry.arguments.values[1]);
@@ -774,7 +774,7 @@ namespace ipl {
             u8 pad_5[3];
         };
 
-        void SDChannelSelect::iplSDChannelSelect_813DBFE0() {
+        void SDChannelSelect::handleSDTitleListResult() {
             if (mpWorker->is_working() == 0) {
                 mResetState = 0xE;
                 if (mReqType == 0) {
@@ -844,7 +844,7 @@ namespace ipl {
                         if (mChanCount * 0xC <= v1) {
                             mFlag75A = 1;
                         }
-                        iplSDChannelSelect_813DFBBC();
+                        refreshAfterSDTitleList();
                     }
                 }
             }
@@ -861,7 +861,7 @@ namespace ipl {
             }
         }
 
-        void SDChannelSelect::iplSDChannelSelect_813DC2F0() {
+        void SDChannelSelect::handleSDChannelUpdateComplete() {
             if (mpWorker->is_working() == 0) {
                 mResetState = 0xE;
                 int index = mpPendingChan->mChanIndex;
@@ -884,7 +884,7 @@ namespace ipl {
                         p->mChanType = 3;
                         p->mState = 2;
                     }
-                    SDChannelObj* old = getChanObj(page, index);
+                    SDChannelObj* old = findChannelObject(page, index);
                     if (old != NULL) {
                         nw4r::ut::List_Insert(&mChanList, old, mpPendingChan);
                         nw4r::ut::List_Remove(&mChanList, old);
@@ -978,7 +978,7 @@ namespace ipl {
             }
         }
 
-        void SDChannelSelect::iplSDChannelSelect_813DC7EC(int dir, int focusedIndex) {
+        void SDChannelSelect::updateChannelNotices(int dir, int focusedIndex) {
             const int targetPage = mChanPage + dir;
             if (targetPage < 0) {
                 return;
@@ -1001,7 +1001,7 @@ namespace ipl {
                 }
                 const int rowBase = targetPage * 0xC;
                 if (focusedIndex >= 0 && focusedIndex < 0xC) {
-                    SDChannelObj* chanObj = getChanObj(targetPage, focusedIndex);
+                    SDChannelObj* chanObj = findChannelObject(targetPage, focusedIndex);
                     const int tIdx = rowBase + focusedIndex;
                     if (
                         chanObj != NULL &&
@@ -1016,7 +1016,7 @@ namespace ipl {
                 }
                 for (int i = start; i < 0xC; i += step) {
                     if (focusedIndex != i) {
-                        SDChannelObj* chanObj = getChanObj(targetPage, i);
+                        SDChannelObj* chanObj = findChannelObject(targetPage, i);
                         const int tIdx = rowBase + i;
                         if (
                             chanObj != NULL &&
@@ -1062,10 +1062,10 @@ namespace ipl {
                 handleSDMountComplete();
                 break;
             case 5:
-                iplSDChannelSelect_813DBFE0();
+                handleSDTitleListResult();
                 break;
             case 3:
-                iplSDChannelSelect_813DC2F0();
+                handleSDChannelUpdateComplete();
                 break;
             case 7:
                 handleCopyComplete();
@@ -2115,11 +2115,11 @@ ret1:
                 TVRCManager::getHandle()->setEnable(1);
                 snd::getSystem()->startBGM("WIPL_BGM_MENU");
                 clearNoticeQueue();
-                iplSDChannelSelect_813DC7EC(0, -1);
-                iplSDChannelSelect_813DC7EC(-1, -1);
-                iplSDChannelSelect_813DC7EC(1, -1);
-                iplSDChannelSelect_813DC7EC(-2, -1);
-                iplSDChannelSelect_813DC7EC(2, -1);
+                updateChannelNotices(0, -1);
+                updateChannelNotices(-1, -1);
+                updateChannelNotices(1, -1);
+                updateChannelNotices(-2, -1);
+                updateChannelNotices(2, -1);
                 mState = 1;
             } else {
                 calcPageAnimations();
@@ -2128,13 +2128,13 @@ ret1:
         }
 
         void SDChannelSelect::iplSDChannelSelect_813DF6D0(int page, SDChannelObj* chanObj, int index) {
-            iplSDChannelSelect_813DF9C8(page, chanObj);
-            iplSDChannelSelect_813DF834(page, 0);
+            destroyUnusedChannelObjects(page, chanObj);
+            createChannelList(page, 0);
             if (page < mChanCount - 1) {
-                iplSDChannelSelect_813DF834(page + 1, 0);
+                createChannelList(page + 1, 0);
             }
             if (page > 0) {
-                iplSDChannelSelect_813DF834(page - 1, 0);
+                createChannelList(page - 1, 0);
             }
             iplSDChannelSelect_813DFCF0(page);
             SDChannelObj* obj = NULL;
@@ -2147,43 +2147,43 @@ ret1:
             updateChannelObjects();
             if (unk_0x77F != 0) {
                 clearNoticeQueue();
-                iplSDChannelSelect_813DC7EC(0, index);
-                iplSDChannelSelect_813DC7EC(-1, -1);
-                iplSDChannelSelect_813DC7EC(1, -1);
-                iplSDChannelSelect_813DC7EC(-2, -1);
-                iplSDChannelSelect_813DC7EC(2, -1);
+                updateChannelNotices(0, index);
+                updateChannelNotices(-1, -1);
+                updateChannelNotices(1, -1);
+                updateChannelNotices(-2, -1);
+                updateChannelNotices(2, -1);
             }
         }
 
-        void SDChannelSelect::iplSDChannelSelect_813DF834(int page, int unk) {
+        void SDChannelSelect::createChannelList(int page, bool unk) {
             for (int i = 0; i < 0xC; i++) {
-                if (unk != 0 || getChanObj(page, i) == NULL) {
-                    iplSDChannelSelect_813DF944(page, i);
+                if (unk != 0 || findChannelObject(page, i) == NULL) {
+                    createChannelObject(page, i);
                 }
             }
             if (page < mChanCount - 1) {
                 for (int i = 0; i < 0xC; i += 4) {
-                    if (unk != 0 || getChanObj(page + 1, i) == NULL) {
-                        iplSDChannelSelect_813DF944(page + 1, i);
+                    if (unk != 0 || findChannelObject(page + 1, i) == NULL) {
+                        createChannelObject(page + 1, i);
                     }
                 }
             }
             if (page > 0) {
                 for (int i = 3; i < 0xC; i += 4) {
-                    if (unk != 0 || getChanObj(page - 1, i) == NULL) {
-                        iplSDChannelSelect_813DF944(page - 1, i);
+                    if (unk != 0 || findChannelObject(page - 1, i) == NULL) {
+                        createChannelObject(page - 1, i);
                     }
                 }
             }
         }
 
-        void SDChannelSelect::iplSDChannelSelect_813DF944(int page, int index) {
+        void SDChannelSelect::createChannelObject(int page, int index) {
             EGG::Heap* heap = EGG::FrmHeap::create(0x212B8, mpWorkHeap, 2);
             SDChannelObj* chanObj = new (mpObjHeap, 4) SDChannelObj(heap, page, index);
             nw4r::ut::List_Append(&mChanList, chanObj);
         }
 
-        void SDChannelSelect::iplSDChannelSelect_813DF9C8(int page, SDChannelObj* keepObj) {
+        void SDChannelSelect::destroyUnusedChannelObjects(int page, SDChannelObj* keepObj) {
             int keepPage;
             int keepIndex;
             if (keepObj != NULL) {
@@ -2205,7 +2205,7 @@ ret1:
             }
         }
 
-        void SDChannelSelect::iplSDChannelSelect_813DFAC0() {
+        void SDChannelSelect::refreshChannelList() {
             SDChannelObj* chanObj = NULL;
             while (chanObj = (SDChannelObj*)nw4r::ut::List_GetNext(&mChanList, chanObj), chanObj != NULL) {
                 if (chanObj->isValid() != 0) {
@@ -2219,17 +2219,17 @@ ret1:
                     }
                 }
             }
-            iplSDChannelSelect_813DF834(mChanPage, 0);
+            createChannelList(mChanPage, 0);
             if (mChanPage < mChanCount - 1) {
-                iplSDChannelSelect_813DF834(mChanPage + 1, 0);
+                createChannelList(mChanPage + 1, 0);
             }
             if (mChanPage > 0) {
-                iplSDChannelSelect_813DF834(mChanPage - 1, 0);
+                createChannelList(mChanPage - 1, 0);
             }
             updateChannelObjects();
         }
 
-        void SDChannelSelect::iplSDChannelSelect_813DFBBC() {
+        void SDChannelSelect::refreshAfterSDTitleList() {
             SDChannelObj* chanObj = NULL;
             while (chanObj = (SDChannelObj*)nw4r::ut::List_GetNext(&mChanList, chanObj), chanObj != NULL) {
                 int entry = chanObj->mChanIndex + chanObj->mChanPage * 0xC;
@@ -2238,11 +2238,11 @@ ret1:
                 }
             }
             clearNoticeQueue();
-            iplSDChannelSelect_813DC7EC(0, -1);
-            iplSDChannelSelect_813DC7EC(-1, -1);
-            iplSDChannelSelect_813DC7EC(1, -1);
-            iplSDChannelSelect_813DC7EC(-2, -1);
-            iplSDChannelSelect_813DC7EC(2, -1);
+            updateChannelNotices(0, -1);
+            updateChannelNotices(-1, -1);
+            updateChannelNotices(1, -1);
+            updateChannelNotices(-2, -1);
+            updateChannelNotices(2, -1);
         }
 
         void SDChannelSelect::destroyChannelObject(SDChannelObj* channel) {
@@ -2272,7 +2272,7 @@ ret1:
                 } else if (dir == 1 && (i & 3) == 3) {
                     continue;
                 }
-                SDChannelObj* chanObj = getChanObj(idx, (int)i);
+                SDChannelObj* chanObj = findChannelObject(idx, (int)i);
                 if (chanObj != NULL) {
                     nw4r::ut::List_Remove(&mChanList, chanObj);
                     nw4r::ut::List_Append(&mChanList, chanObj);
@@ -2280,7 +2280,7 @@ ret1:
             }
             if (dir != 1 && idx + 1 < mChanCount) {
                 for (int i = 0; i < 0xC; i += 4) {
-                    SDChannelObj* chanObj = getChanObj(idx + 1, i);
+                    SDChannelObj* chanObj = findChannelObject(idx + 1, i);
                     if (chanObj != NULL) {
                         nw4r::ut::List_Remove(&mChanList, chanObj);
                         nw4r::ut::List_Append(&mChanList, chanObj);
@@ -2289,7 +2289,7 @@ ret1:
             }
             if (dir != -1 && idx - 1 >= 0) {
                 for (int i = 3; i < 0xC; i += 4) {
-                    SDChannelObj* chanObj = getChanObj(idx - 1, i);
+                    SDChannelObj* chanObj = findChannelObject(idx - 1, i);
                     if (chanObj != NULL) {
                         nw4r::ut::List_Remove(&mChanList, chanObj);
                         nw4r::ut::List_Append(&mChanList, chanObj);
@@ -2298,7 +2298,7 @@ ret1:
             }
         }
 
-        SDChannelObj* SDChannelSelect::getChanObj(int page, int index) {
+        SDChannelObj* SDChannelSelect::findChannelObject(int page, int index) const {
             SDChannelObj* chanObj = NULL;
             while ((chanObj = (SDChannelObj*)nw4r::ut::List_GetNext(&mChanList, chanObj)) != NULL) {
                 int chanPage = chanObj->mChanPage;
@@ -2387,7 +2387,7 @@ ret1:
         BOOL SDChannelSelect::iplSDChannelSelect_813E0294(int page) {
             BOOL ret;
             for (int i = 0; i < 0xC; i++) {
-                SDChannelObj* chanObj = getChanObj(page, i);
+                SDChannelObj* chanObj = findChannelObject(page, i);
                 if (chanObj == NULL || iplSDChannelSelect_813DF1E4(chanObj) == 0) {
                     ret = FALSE;
                     goto done;
@@ -2395,7 +2395,7 @@ ret1:
             }
             if (page + 1 < mChanCount) {
                 for (int i = 0; i < 0xC; i += 4) {
-                    SDChannelObj* chanObj = getChanObj(page + 1, i);
+                    SDChannelObj* chanObj = findChannelObject(page + 1, i);
                     if (chanObj == NULL || iplSDChannelSelect_813DF1E4(chanObj) == 0) {
                         ret = FALSE;
                         goto done;
@@ -2404,7 +2404,7 @@ ret1:
             }
             if (page - 1 >= 0) {
                 for (int i = 3; i < 0xC; i += 4) {
-                    SDChannelObj* chanObj = getChanObj(page - 1, i);
+                    SDChannelObj* chanObj = findChannelObject(page - 1, i);
                     if (chanObj == NULL || iplSDChannelSelect_813DF1E4(chanObj) == 0) {
                         ret = FALSE;
                         goto done;
@@ -2435,7 +2435,7 @@ ret1:
         }
 
         void SDChannelSelect::iplSDChannelSelect_813E0450(int page, int index) {
-            SDChannelObj* chanObj = getChanObj(page, index);
+            SDChannelObj* chanObj = findChannelObject(page, index);
             iplSDChannelSelect_813E0BEC(&math::VEC3(chanObj->mpThumbLayout->GetRootPane()->GetTranslate()), 0);
             chanObj->setCursorDecideAnim();
             SDButton* button = (SDButton*)System::getSceneManager()->getScene(0x24);
@@ -2792,12 +2792,12 @@ ret1:
                     return;
                 swap:
                     {
-                        mpSwapChanObj = getChanObj(mSelPage, mSelIndex);
+                        mpSwapChanObj = findChannelObject(mSelPage, mSelIndex);
                         if (mpSwapChanObj == NULL) {
-                            mpSwapChanObj = getChanObj(mFieldF0, mFieldF4);
+                            mpSwapChanObj = findChannelObject(mFieldF0, mFieldF4);
                             enqueueNotice(mpChanTable[dstEntry], mFieldF0, mFieldF4);
                         } else {
-                            SDChannelObj* otherObj = getChanObj(mFieldF0, mFieldF4);
+                            SDChannelObj* otherObj = findChannelObject(mFieldF0, mFieldF4);
                             mpSwapChanObj->setBasePane(getChannelBasePane(mFieldF0, mFieldF4, mChanPage));
                             otherObj->setBasePane(getChannelBasePane(mSelPage, mSelIndex, mChanPage));
                             s32 dstIndex = mFieldF4;
@@ -2826,8 +2826,8 @@ ret1:
                     mpSwapChanObj = NULL;
                 } else {
                     if (mSelPage != -1) {
-                        SDChannelObj* objA = getChanObj(mSelPage, mSelIndex);
-                        SDChannelObj* objB = getChanObj(mFieldF0, mFieldF4);
+                        SDChannelObj* objA = findChannelObject(mSelPage, mSelIndex);
+                        SDChannelObj* objB = findChannelObject(mFieldF0, mFieldF4);
                         SDChannelObj* next = (SDChannelObj*)nw4r::ut::List_GetNext(&mChanList, objB);
                         if (next == objA) {
                             next = objB;
@@ -2908,14 +2908,14 @@ ret1:
                     break;
                 case 1:
                     if (iplSDChannelSelect_813E26DC(mChanPage, index) != 0 || (mChanPage == mSelPage && index == mSelIndex)) {
-                        getChanObj(mChanPage, index)->onPoint(2);
+                        findChannelObject(mChanPage, index)->onPoint(2);
                         snd::getSystem()->startSE("WIPL_SE_CH_TARGETTING");
                         con->rumble(1);
                     }
                     break;
                 case 2:
                     if (iplSDChannelSelect_813E26DC(mChanPage, index) != 0 || (mChanPage == mSelPage && index == mSelIndex)) {
-                        getChanObj(mChanPage, index)->onLeft(2);
+                        findChannelObject(mChanPage, index)->onLeft(2);
                     }
                     break;
                 }
@@ -2978,7 +2978,7 @@ ret1:
 
         void SDChannelSelect::iplSDChannelSelect_813E24D8() {
             if (iplSDChannelSelect_813E26DC(mFieldF0, mFieldF4) != 0 && unk_0x105 == 0) {
-                nw4r::math::VEC3 translate = getChanObj(mFieldF0, mFieldF4)->getTranslate();
+                nw4r::math::VEC3 translate = findChannelObject(mFieldF0, mFieldF4)->getTranslate();
                 mpAnimLayout3->GetRootPane()->SetTranslate(translate);
                 mpAnimLayout3->getAnim(0)->play();
                 mDialogAnim->GetRootPane()->SetTranslate(translate);
@@ -3057,7 +3057,7 @@ ret1:
             if (result == 0) {
                 int index = mpScene->iplSDChannelSelect_813E114C(paneName);
                 if (index >= 0) {
-                    SDChannelObj* chanObj = mpScene->getChanObj(mpScene->mChanPage, index);
+                    SDChannelObj* chanObj = mpScene->findChannelObject(mpScene->mChanPage, index);
                     if (chanObj != NULL) {
                         switch (event) {
                         case ::gui::EventHandler::ON_TRIG: {

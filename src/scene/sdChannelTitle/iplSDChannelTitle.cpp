@@ -159,7 +159,7 @@ namespace ipl {
               mbCsThreadTerminated(false), mpCsHeap(NULL), mpSeHandle2(NULL) {
             mbHbmEnable = true;
 
-            SDChannelObj* chanObj = chanSel->getChanObj(mChanPage = chanSel->mChanPage, mChanIndex = chanSel->mChanIndex);
+            SDChannelObj* chanObj = chanSel->findChannelObject(mChanPage = chanSel->mChanPage, mChanIndex = chanSel->mChanIndex);
             if (chanObj != NULL) {
                 mTitleID = chanObj->getTitleID();
             }
@@ -512,7 +512,7 @@ namespace ipl {
                                 OSReport(lbl_8165539D);
                             }
 
-                            SDChannelObj* chanObj = mpChanSelect->getChanObj(mChanPage, mChanIndex);
+                            SDChannelObj* chanObj = mpChanSelect->findChannelObject(mChanPage, mChanIndex);
                             u64 titleId = chanObj->getTitleID();
                             wchar_t titleName[0x2A];
                             memcpy(&titleName[0], chanObj->getTitleName(0), 0x2A);
@@ -679,7 +679,7 @@ namespace ipl {
         }
 
         void SDChannelTitle::createThumbnailLayout() {
-            SDChannelObj* chanObj = mpChanSelect->getChanObj(mChanPage, mChanIndex);
+            SDChannelObj* chanObj = mpChanSelect->findChannelObject(mChanPage, mChanIndex);
             if (chanObj == NULL) {
                 return;
             }
@@ -755,7 +755,7 @@ namespace ipl {
                 return;
             }
 
-            SDChannelObj* chanObj = mpChanSelect->getChanObj(mChanPage, mChanIndex);
+            SDChannelObj* chanObj = mpChanSelect->findChannelObject(mChanPage, mChanIndex);
             mBannerTimer++;
 
             if (mpBannerFiles[1 - mBannerSel] != NULL && !mpBannerFiles[1 - mBannerSel]->isFinished()) {
@@ -907,7 +907,7 @@ namespace ipl {
                 mpOutAnim->initAnmFrame();
                 mpOutAnim->play();
 
-                if (mpChanSelect->getChanObj(mChanPage, mChanIndex)->getChanType() == 3) {
+                if (mpChanSelect->findChannelObject(mChanPage, mChanIndex)->getChanType() == 3) {
                     mChanState = 0x1A;
                     mErrMsgId = 0xAF;
                 } else if (mpChanSelect->enqueueChannelNotice(mChanPage, (u32)(mTitleID >> 32), (u32)mTitleID, (u32)&mNandFree)) {
@@ -1195,7 +1195,7 @@ namespace ipl {
                 return;
             }
 
-            SDChannelObj* chanObj = mpChanSelect->getChanObj(mChanPage, mChanIndex);
+            SDChannelObj* chanObj = mpChanSelect->findChannelObject(mChanPage, mChanIndex);
             if (chanObj->isValid()) {
                 setTitleID(chanObj);
             }
@@ -1524,14 +1524,14 @@ namespace ipl {
         void SDChannelTitle::selectChannel(int page, int index) {
             SDChannelObj* chanObj = NULL;
             if (mpThumbLayout != NULL) {
-                chanObj = mpChanSelect->getChanObj(mChanPage, mChanIndex);
+                chanObj = mpChanSelect->findChannelObject(mChanPage, mChanIndex);
             }
 
             mChanPage = page;
             mChanIndex = index;
             mpChanSelect->setSelectChan(page, index, chanObj);
 
-            chanObj = mpChanSelect->getChanObj(mChanPage, mChanIndex);
+            chanObj = mpChanSelect->findChannelObject(mChanPage, mChanIndex);
 
             mChanPosX = SDChannelSelect::getChannelPanePosition(mpChanSelect, mChanIndex).x;
             mChanPosY = SDChannelSelect::getChannelPanePosition(mpChanSelect, mChanIndex).y;

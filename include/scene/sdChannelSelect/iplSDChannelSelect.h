@@ -105,10 +105,16 @@ namespace ipl {
             BOOL isResetProcessDone();
             void startResetting();
 
-            SDChannelObj* getChanObj() {
+            SDChannelObj* findChannelObject() {
                 return NULL;
             }
-            SDChannelObj* getChanObj(int page, int index);
+            SDChannelObj* findChannelObject(int page, int index) const;
+            NandSDWorker::WorkSDState getSDState() const {
+                return static_cast<NandSDWorker::WorkSDState>(mSelState);
+            }
+            NandSDWorker* getWorker() {
+                return mpWorker;
+            }
 
             int getSelectChan(int dir, int* pageOut, int* indexOut);
             void setSelectChan(int page, int index, SDChannelObj* chanObj);
@@ -132,9 +138,9 @@ namespace ipl {
             void handleSDTitleList();
             static int compareTitleUsage(const void* a, const void* b);
             static int compareTitleInfo(const void* a, const void* b);
-            void iplSDChannelSelect_813DBFE0();
-            void iplSDChannelSelect_813DFBBC();
-            void iplSDChannelSelect_813DFAC0();
+            void handleSDTitleListResult();
+            void refreshAfterSDTitleList();
+            void refreshChannelList();
             BOOL getNandFree(NandSDWorker::AppBlocksInfo* freeOut);
             BOOL fn_813E05C0(int page);
             void fn_813E0624(int page, int index);
@@ -240,14 +246,14 @@ namespace ipl {
             BOOL enqueuePageNotice();
             void handleNandTitleUsageComplete();
             void handleSDMountComplete();
-            void iplSDChannelSelect_813DC2F0();
+            void handleSDChannelUpdateComplete();
             void handleSDCardReady();
             void handleCardCommand();
             void handleCopyComplete();
             void handleSDLocationUpdateComplete();
             void handleSDLocationReadComplete();
             void handleMoveComplete();
-            void iplSDChannelSelect_813DC7EC(int dir, int focusedIndex);
+            void updateChannelNotices(int dir, int focusedIndex);
             void processWorkerState();
             void updateDialogAnimation();
             void handleBackupFitComplete();
@@ -294,9 +300,9 @@ namespace ipl {
             void iplSDChannelSelect_813DF3E0();
             void iplSDChannelSelect_813DF50C();
             void iplSDChannelSelect_813DF6D0(int page, SDChannelObj* chanObj, int index);
-            void iplSDChannelSelect_813DF834(int page, int unk);
-            void iplSDChannelSelect_813DF944(int page, int index);
-            void iplSDChannelSelect_813DF9C8(int page, SDChannelObj* chanObj);
+            void createChannelList(int page, bool unk);
+            void createChannelObject(int page, int index);
+            void destroyUnusedChannelObjects(int page, SDChannelObj* chanObj);
             void destroyChannelObject(SDChannelObj* channel);
             void iplSDChannelSelect_813DFCF0(int idx);
             void iplSDChannelSelect_813DFD64(int idx, int dir);
