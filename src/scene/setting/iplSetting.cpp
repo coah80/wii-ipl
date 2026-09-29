@@ -1655,12 +1655,11 @@ namespace ipl {
 
         void Setting::calcKeyboard() {
             char* formText;
-            if (mKeyboardState.iplType == keyboard::Manager::STATE_DISAPPEARING) {
+            switch (mKeyboardState.iplType) {
+            case keyboard::Manager::STATE_DISAPPEARING:
                 if (mKeyboardState.pressOK) {
                     onTextInputOK();
-                    u8 formId = mpWiiSettingData->data[0x11];
-                    formText = NULL;
-                    switch (formId) {
+                    switch (mpWiiSettingData->data[0x11]) {
                         case 1:
                             formText = mpStringBuffer->nickname;
                             break;
@@ -1669,7 +1668,7 @@ namespace ipl {
                             formText = mpStringBuffer->securityKey;
                             break;
                         case 3:
-                            formText = mpStringBuffer->securityKey;
+                            formText = mpStringBuffer->ssid;
                             break;
                         case 4:
                             formText = mpStringBuffer->ip.addr;
@@ -1698,9 +1697,6 @@ namespace ipl {
                         case 13:
                             formText = mpStringBuffer->proxyBasic.pass;
                             break;
-                        case 14:
-                            formText = mpStringBuffer->adjMtu;
-                            break;
                         case 15:
                             formText = mpStringBuffer->parentalPass;
                             break;
@@ -1719,18 +1715,22 @@ namespace ipl {
                         case 20:
                             formText = mpStringBuffer->masterKey;
                             break;
+                        case 14:
+                            formText = mpStringBuffer->adjMtu;
+                            break;
                     }
-                    OSReport("formID:%d %s\n", formId, formText);
+                    OSReport("formID:%d %s\n", mpWiiSettingData->data[0x11], formText);
                     if (strlen(formText) == 0) {
                         formText[0] = 0;
                         ext_ead::www::SurfaceManager::GetInstance()->GetBrowserThread()->CommitIme(mpBrowserData, formText);
                         memset(mpStringBuffer->asterisks, 0, sizeof(mpStringBuffer->asterisks));
-                    } else if (formId == 2 || formId == 22) {
+                    } else if (mpWiiSettingData->data[0x11] == 2 || mpWiiSettingData->data[0x11] == 22) {
+                        int index = 0;
                         memcpy(mpStringBuffer->asterisks, mpStringBuffer->securityKey, sizeof(mpStringBuffer->securityKey));
                         mpStringBuffer->asterisks[0x41] = 0;
-                        u32 index = 0;
                         while (mpStringBuffer->asterisks[index] != 0) {
-                            mpStringBuffer->asterisks[index++] = '*';
+                            mpStringBuffer->asterisks[index] = '*';
+                            index++;
                         }
                         if (index > 0x20) {
                             mpStringBuffer->asterisks[0x20] = '\n';
@@ -1742,7 +1742,6 @@ namespace ipl {
                     }
                 } else {
                     u8 formId = mpWiiSettingData->data[0x11];
-                    formText = NULL;
                     switch (formId) {
                         case 1:
                             formText = mpStringBuffer->nickname;
@@ -1752,7 +1751,7 @@ namespace ipl {
                             formText = mpStringBuffer->asterisks;
                             break;
                         case 3:
-                            formText = mpStringBuffer->securityKey;
+                            formText = mpStringBuffer->ssid;
                             break;
                         case 4:
                             formText = mpStringBuffer->ip.addr;
@@ -1781,9 +1780,6 @@ namespace ipl {
                         case 13:
                             formText = mpStringBuffer->proxyBasic.pass;
                             break;
-                        case 14:
-                            formText = mpStringBuffer->adjMtu;
-                            break;
                         case 15:
                             formText = mpStringBuffer->parentalPass;
                             break;
@@ -1802,25 +1798,34 @@ namespace ipl {
                         case 20:
                             formText = mpStringBuffer->masterKey;
                             break;
+                        case 14:
+                            formText = mpStringBuffer->adjMtu;
+                            break;
                     }
                     ext_ead::www::SurfaceManager::GetInstance()->GetBrowserThread()->CommitIme(mpBrowserData, formText);
                 }
 
                 mpWiiSettingData->data[0x11] = 0;
                 ext_ead::www::SurfaceManager::GetInstance()->GetBrowserThread()->DisposeImeData(mpBrowserData);
-            } else if (mKeyboardState.iplType < keyboard::Manager::STATE_VISIBLE) {
-                u8 formId = mpWiiSettingData->data[0x11];
-                if (mKeyboardState.iplType < keyboard::Manager::STATE_APPEARING &&
-                    formId != 0 && formId != 9 && formId != 21 && formId <= 22) {
-                    if (System::getKeyboard()->memoMgr()->isVacancy()) {
-                        reinterpret_cast<textinput::inputform::Base*>(System::getKeyboard()->memoFrm())->setString(L"");
-                    } else {
-                        setDefaultBackString();
-                    }
-                }
-            } else if (mKeyboardState.iplType < keyboard::Manager::STATE_HIDDEN_AFTER_DISAPPEAR) {
-                reinterpret_cast<textinput::inputform::Base*>(System::getKeyboard()->memoFrm())->setString(L"");
+                break;
+            case keyboard::Manager::STATE_HIDDEN_AFTER_DISAPPEAR:
+                System::getKeyboard()->memoMgr()->setTitleText(NULL);
                 unk_0x74 = 0;
+                break;
+            case keyboard::Manager::STATE_HIDDEN:
+            case keyboard::Manager::STATE_APPEARING:
+                switch (mpWiiSettingData->data[0x11]) {
+                case 1: case 2: case 3: case 4: case 5: case 6: case 7: case 8:
+                case 10: case 11: case 12: case 13: case 14: case 15: case 16:
+                case 17: case 18: case 19: case 20: case 22:
+                    if (System::getKeyboard()->memoMgr()->isVacancy()) {
+                        setDefaultBackString();
+                    } else {
+                        System::getKeyboard()->memoMgr()->setTitleText(NULL);
+                    }
+                    break;
+                }
+                break;
             }
 
             mKeyboardState = *System::getKeyboard()->getState();
