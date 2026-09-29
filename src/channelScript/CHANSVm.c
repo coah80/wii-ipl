@@ -1533,8 +1533,8 @@ const char* vmErrorList[] = {
     "CHANS_VM_ERR_RESERVED_OPCODE",                 /* -923 */
 };
 
-const char* vmNoError = "CHANS_VM_OK";
-const char* vmUnknownError = "(unknown)";
+char vmNoError[] = "CHANS_VM_OK";
+char vmUnknownError[] = "(unknown)";
 
 CHANSVmNativeClass* CHANSVmFindNativeClass(CHANSVm* vm, const char* clsName) {
     CHANSVmPrivate* pVm = (CHANSVmPrivate*)vm;
@@ -2631,10 +2631,8 @@ VmMethodDefine(Date, GetRTC) {
     u32 bias = SCGetCounterBias();
     s64 ticks = OSCalendarTimeToTicks(cal);
     u64 t = ticks / (__OSBusClock / 4 / 1000);
-    u32 val;
     t = t / 1000;
-    val = (u32)(t - (unsigned int)bias);
-    return CHANSVmSetInteger(VmInst, VmReturnObj, val) == CHANS_VM_OK;
+    return CHANSVmSetInteger(VmInst, VmReturnObj, (u64)(t - bias) & 0xFFFFFFFFULL) == CHANS_VM_OK;
 }
 
 const CHANSVmMethodList VmDateMethodTbl[] = {
@@ -3200,7 +3198,7 @@ VmMethodDefine(String, Splice) {
         length = tempLen;
     }
 
-    newLen = length - start & ~-(s32)(start >= length);
+    newLen = start >= length ? 0 : length - start;
 
     if (CHANSVmNewObject(VmInst, vmFalse, VmReturnObj, CHANS_VM_OBJ_TYPE_STRING, newLen) != vmNull) {
         if (newLen != 0) {
