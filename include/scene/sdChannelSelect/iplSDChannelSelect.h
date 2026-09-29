@@ -28,7 +28,11 @@ namespace ipl {
             int getIndex() const { return mIndex; }
             nw4r::math::VEC3& getTranslate() const;
 
+#ifdef IPL_SD_CHANNEL_TITLE_CPP
+        public:
+#else
         private:
+#endif
             friend class SDChannelSelect;
 
             nw4r::ut::Link mListLink;
@@ -172,7 +176,11 @@ namespace ipl {
             static const char* mscClockPaneNames[3];
             static const char* mscMaskPaneName;
 
+#ifdef IPL_SD_CHANNEL_TITLE_CPP
+        public:
+#else
         private:
+#endif
 #ifdef IPL_SD_CHANNEL_SELECT_CPP
             friend class SDChannelSelectEventHandler;
             friend class SDChannelSelectButtonEventHandler;

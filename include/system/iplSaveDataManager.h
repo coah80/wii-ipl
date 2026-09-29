@@ -34,6 +34,9 @@ namespace ipl {
             void initManager();
 
             void setPrevPage(int prevPage);
+#ifdef IPL_SD_CHANNEL_TITLE_CPP
+            int& getSDPrevPage() { return mData.prevSDPage; }
+#endif
             void setChanInfo(int page, int index, const channel::SInfo& chanInfo);
             void setMemoSetting(const textinput::extend::savedata::MemoSetting& memoSetting);
 
