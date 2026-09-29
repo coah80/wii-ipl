@@ -29,6 +29,17 @@ typedef union WADTitleMetadata {
     u8 bytes[0x80];
 } WADTitleMetadata;
 
+typedef struct WADBroadOnHeader {
+    u32 headerSize;
+    u32 contentOffset;
+    u32 certSize;
+    u32 crlSize;
+    u32 ticketSize;
+    u32 titleMetaSize;
+    u32 contentSize;
+    u32 fileListSize;
+} WADBroadOnHeader;
+
 typedef struct WADUnpackInfo {
     s32 type;
     s32 headerInfo;
@@ -121,7 +132,7 @@ static s32 _WADGetTitleVer(WADHeader* header, ESTitleId* titleId, u16* titleVers
                            s32 headerInfo);
 static s32 _WADUnpackIRD(WADHeader* header, WADStream* stream, WADUnpackInfo* info,
                          MEMAllocator* allocator, u32 offset, u32 mode);
-static s32 _WADUnpackBroadOn(WADHeader* header, WADStream* stream, WADUnpackInfo* info,
+static s32 _WADUnpackBroadOn(WADBroadOnHeader* header, WADStream* stream, WADUnpackInfo* info,
                              MEMAllocator* allocator, u32 offset, u32 mode);
 static s32 _WADUnpackBackup(WADHeader* header, WADStream* stream, WADUnpackInfo* info,
                             MEMAllocator* allocator, u32 offset, u32 flags);
@@ -944,7 +955,8 @@ static s32 _WADUnpack(void* header, WADStream* stream, WADUnpackInfo* info, MEMA
                 result = _WADUnpackBackup(header, stream, info, allocator, offset, flags);
             }
         } else if (type == 1) {
-            result = _WADUnpackBroadOn(header, stream, info, allocator, offset, mode);
+            result = _WADUnpackBroadOn((WADBroadOnHeader*)header, stream, info, allocator, offset,
+                                       mode);
         } else {
             result = -3001;
         }
@@ -1063,6 +1075,106 @@ static s32 _WADUnpackIRD(WADHeader* header, WADStream* stream, WADUnpackInfo* in
         info->metaSize = header->metaSize;
         info->metaOffset = sectionOffset;
     }
+    return 0;
+}
+
+static s32 _WADUnpackBroadOn(WADBroadOnHeader* header, WADStream* stream, WADUnpackInfo* info,
+                             MEMAllocator* allocator, u32 offset, u32 mode) {
+    u32 currentOffset;
+    s32 sectionSize;
+    s32 alignedSize;
+    s32 bytesRead;
+
+    if ((header->crlSize == 0) && (header->ticketSize == 0)) {
+        return -3001;
+    }
+
+    currentOffset = header->headerSize;
+    sectionSize = header->certSize;
+    if (sectionSize != 0) {
+        info->size_0x0c = sectionSize;
+        info->offset_0x10 = currentOffset;
+        if (mode == 0) {
+            alignedSize = WAD_ALIGN32(sectionSize);
+            info->buffer_0x14 = _WADMemAlloc(allocator, alignedSize);
+            if (info->buffer_0x14 == 0) {
+                return -3003;
+            }
+            info->size_0x18 = 1;
+            bytesRead = WADReadStream(stream, &info->buffer_0x14, alignedSize,
+                                      offset + info->offset_0x10);
+            if (bytesRead != alignedSize) {
+                return -3005;
+            }
+        }
+        currentOffset += sectionSize;
+    }
+
+    sectionSize = header->crlSize;
+    if (sectionSize != 0) {
+        info->size_0x2c = sectionSize;
+        info->offset_0x30 = currentOffset;
+        if (mode == 0) {
+            alignedSize = WAD_ALIGN32(sectionSize);
+            info->buffer_0x34 = _WADMemAlloc(allocator, alignedSize);
+            if (info->buffer_0x34 == 0) {
+                return -3003;
+            }
+            info->size_0x38 = 1;
+            bytesRead = WADReadStream(stream, &info->buffer_0x34, alignedSize,
+                                      offset + info->offset_0x30);
+            if (bytesRead != alignedSize) {
+                return -3005;
+            }
+        }
+        currentOffset += sectionSize;
+    }
+
+    sectionSize = header->ticketSize;
+    if (sectionSize != 0) {
+        info->sectionSize = sectionSize;
+        info->sectionOffset = currentOffset;
+        alignedSize = WAD_ALIGN32(sectionSize);
+        info->titleMeta = _WADMemAlloc(allocator, alignedSize);
+        if (info->titleMeta == 0) {
+            return -3003;
+        }
+        info->titleMetaSize = 1;
+        bytesRead = WADReadStream(stream, (void**)&info->titleMeta, alignedSize,
+                                  offset + info->sectionOffset);
+        if (bytesRead != alignedSize) {
+            return -3005;
+        }
+        currentOffset += sectionSize;
+    }
+
+    sectionSize = header->titleMetaSize;
+    if (sectionSize != 0) {
+        info->metaSize = sectionSize;
+        info->metaOffset = currentOffset;
+        currentOffset += sectionSize;
+    }
+
+    sectionSize = header->fileListSize;
+    if (sectionSize != 0) {
+        info->size_0x1c = sectionSize;
+        info->offset_0x20 = currentOffset;
+        if (mode == 0) {
+            alignedSize = WAD_ALIGN32(sectionSize);
+            info->buffer_0x24 = _WADMemAlloc(allocator, alignedSize);
+            if (info->buffer_0x24 == 0) {
+                return -3003;
+            }
+            info->size_0x28 = 1;
+            bytesRead = WADReadStream(stream, &info->buffer_0x24, alignedSize,
+                                      offset + info->offset_0x20);
+            if (bytesRead != alignedSize) {
+                return -3005;
+            }
+        }
+    }
+
+    info->contentOffset = header->contentOffset;
     return 0;
 }
 
