@@ -27,7 +27,7 @@ typedef struct AOSSRuntimeState {
     u32 flags;
     u32 ipAddress;
     u32 subnetMask;
-    u8 active;
+    s8 active;
     u8 interfaceType;
     u8 reserved1[6];
 } AOSSRuntimeState;
@@ -258,7 +258,7 @@ static const u16 s_defaultOptions[4] = { 0xffff, 0xffff, 0, 0 };
 static void* s_accessPointList;
 static int* s_accessPointConfig;
 static u8 s_accessPointName[8];
-static u32 s_connectionState;
+static s32 s_connectionState;
 static u32 s_errorCode;
 static s32 s_socketStarted;
 static void* s_responseBuffer;
@@ -2380,6 +2380,7 @@ int AOSS_81401574(void* packet, AOSSRequestRecords* request, int socket) {
 
 int AOSS_81401778(void* packet, void* request, int socket) {
     AOSSHelloPacket* response = (AOSSHelloPacket*)s_responseBuffer;
+    AOSSHelloPayload* payload = &response->payload;
     AOSSRequestRecords* requestRecords = (AOSSRequestRecords*)request;
     AOSSHelloRecord hello;
     AOSSSocketAddress destination;
@@ -2394,7 +2395,7 @@ int AOSS_81401778(void* packet, void* request, int socket) {
     u32 secondByte;
     u8 value;
     u8 swap;
-    int responseLength;
+    s16 responseLength;
     int sequence;
     int encryptionResult;
 
@@ -2403,7 +2404,9 @@ int AOSS_81401778(void* packet, void* request, int socket) {
     memset(&hello, 0, sizeof(hello));
     memset(response, 0, 0x5dc);
     hello.data.fields.type = 2;
+    hello.data.fields.reserved01 = 0;
     hello.data.fields.length = SOHtoNs(4);
+    hello.data.fields.address = s_runtime.ipAddress;
     hello.data.fields.address = SOHtoNl(s_runtime.ipAddress);
     responseLength = 8;
 
@@ -2424,8 +2427,8 @@ int AOSS_81401778(void* packet, void* request, int socket) {
         schedule.bytes = (u8*)AOSSi_Alloc(8);
         if (schedule.bytes != 0) {
             nonce = (u16)rand();
-            memcpy(&response->payload.encrypted.key.nonce, &nonce, 2);
-            memcpy(s_packetState.keyNonce, response->payload.encrypted.key.nonceBytes, 2);
+            memcpy(&payload->encrypted.key.nonce, &nonce, 2);
+            memcpy(s_packetState.keyNonce, payload->encrypted.key.nonceBytes, 2);
             memcpy(s_packetState.keyAddress, s_accessPointName, 8);
             AOSS_81401C9C(&schedule, s_packetState.keyNonce,
                           sizeof(s_packetState.keyNonce) + sizeof(s_packetState.keyAddress), 8);
@@ -2438,7 +2441,7 @@ int AOSS_81401778(void* packet, void* request, int socket) {
                 schedule.bytes[schedule.j] = schedule.bytes[schedule.i];
                 schedule.bytes[schedule.i] = swap;
                 value = schedule.bytes[stateLength % schedule.length] ^ hello.data.bytes[index];
-                response->payload.bytes[index + 4] = value;
+                payload->bytes[index + 4] = value;
 
                 schedule.i = (schedule.i + 1) % schedule.length & 0xff;
                 secondByte = schedule.bytes[schedule.i];
@@ -2448,14 +2451,14 @@ int AOSS_81401778(void* packet, void* request, int socket) {
                 schedule.bytes[schedule.j] = schedule.bytes[schedule.i];
                 schedule.bytes[schedule.i] = swap;
                 value = schedule.bytes[stateLength % schedule.length] ^ hello.data.bytes[index + 1];
-                response->payload.bytes[index + 5] = value;
+                payload->bytes[index + 5] = value;
             }
             AOSSi_Free(schedule.bytes);
         }
-        response->payload.encrypted.length = SOHtoNs(8);
+        payload->encrypted.length = SOHtoNs(8);
         responseLength = 0x0c;
     } else {
-        memcpy(response->payload.bytes, &hello, 8);
+        memcpy(payload->bytes, &hello, 8);
     }
 
     memcpy(accessPointName, &requestRecords->records[1], 8);
