@@ -1275,15 +1275,12 @@ namespace ipl {
 
         FaderSceneCommand Setting::calcFadeout() {
             if (System::getFader()->getStatus() == EGG::Fader::PREPARE_IN) {
-                const u8 surfaceState = unk_0x5C;
-                if (surfaceState == 0) {
+                if (unk_0x5C == 0) {
                     unk_0x5C = 1;
                     ext_ead::www::SurfaceManager::GetInstance()->StopThreadAsync();
                     OSReport("!!!!!!!!!!!!! SCFlush !!!!!!!!!!!!!!\n");
                     SCFlush();
-                }
-                if (surfaceState != 0) {
-                    if (unk_0x7C == 5) {
+                } else if (unk_0x7C == 5) {
                         if (mInitialArgument == 2 || mInitialArgument == 5) {
                             SCSetConfigDoneFlag(TRUE);
                             SCSetConfigDoneFlag2(TRUE);
@@ -1319,7 +1316,8 @@ namespace ipl {
                         for (;;) {
                             OSReport(NULL);
                         }
-                    } else if (ext_ead::www::SurfaceManager::GetInstance()->IsThreadStopped()) {
+                } else if (unk_0x5C != 0 &&
+                           ext_ead::www::SurfaceManager::GetInstance()->IsThreadStopped()) {
                         OSReport("reserve destroy\n");
                         ext_ead::www::SurfaceManager::DisposeManager();
                         OSReport("reserve destroy done\n");
@@ -1336,7 +1334,6 @@ namespace ipl {
                         delete mpBrowserData;
                         return FADER_SCN_NEXT;
                     }
-                }
             }
 
             return FADER_SCN_CONTINUE;
@@ -3499,6 +3496,11 @@ namespace ipl {
 
         void Setting::cancelUSBAP() {
             switch (unk_0x84) {
+            case 1:
+            case 2:
+                static_cast<USBAPThread*>(mpUSBAPThread)->cancel();
+                unk_0x84 = 3;
+                break;
             case 3:
                 if (unk_0x91C[1] != 0 || static_cast<USBAPThread*>(mpUSBAPThread)->is()) {
                     www::wiisetting::setFuncResult(5);
@@ -3506,11 +3508,6 @@ namespace ipl {
                     unk_0x91C[1] = 0;
                     resetFuncMsgQ();
                 }
-                break;
-            case 1:
-            case 2:
-                static_cast<USBAPThread*>(mpUSBAPThread)->cancel();
-                unk_0x84 = 3;
                 break;
             default:
                 break;
