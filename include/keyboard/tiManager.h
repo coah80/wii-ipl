@@ -56,6 +56,9 @@ namespace textinput {
 
             virtual void                                setLanguage(Language language);
             virtual Language                            getLanguage() const { return meLanguage; }
+#ifdef MYTIMANAGER_IMPLEMENTATION
+            Language                                    getLanguageForMemo() const { return meLanguage; }
+#endif
 
             virtual void                                setDestination(Destination destination);
 
@@ -65,6 +68,30 @@ namespace textinput {
             virtual void                                setAnimationOn(bool flag);
             
             virtual void                                setAspectRatio(bool b4x3);
+
+#ifdef MYTIMANAGER_IMPLEMENTATION
+            MEMAllocator* getAllocatorForMemo() const { return mpAllocator; }
+            inputform::EditBuffer* getEditBufferForMemo() const { return mpEditBuffer; }
+            void setEditBufferForMemo(inputform::EditBuffer* editBuffer) { mpEditBuffer = editBuffer; }
+            void setHWKeyboardForMemo(keyboard::hwkey::HWKeyboard* keyboard) { mpHWKeyboard = keyboard; }
+            nw4r::lyt::MultiArcResourceAccessor* getMultiArcForMemo() const { return mpMultiArcResourceAccessor; }
+            EventObserver* getEventObserverForMemo() const { return mpEventObserver; }
+            InputForm* getInputFormForMemo() const { return mpInputForm; }
+            void setInputFormForMemo(InputForm* inputForm) { mpInputForm = inputForm; }
+            toolbar::LayoutByNW4R* getToolBarForMemo() const { return mpToolBar; }
+            candidatebox::LayoutByNW4R* getCandidateBoxForMemo() const { return mpCandidateBox; }
+            void setPCKeyboardForMemo(keyboard::pctype::LayoutByNW4R* keyboard) { mpPCKeyboard = keyboard; }
+            void setCellPhoneKeyboardForMemo(keyboard::cellphonetype::LayoutByNW4R* keyboard) { mpCellPhoneKeyboard = keyboard; }
+            void setCandidateBoxForMemo(candidatebox::LayoutByNW4R* candidateBox) { mpCandidateBox = candidateBox; }
+            void setToolBarForMemo(toolbar::LayoutByNW4R* toolBar) { mpToolBar = toolBar; }
+            void setPredictLanguageDialogForMemo(void* dialog) { mpPredictLanguageDialog = dialog; }
+            void setSignWindowForMemo(void* signWindow) { mpSignWindow = signWindow; }
+            void* getSignWindowForMemo() const { return mpSignWindow; }
+            keyboard::pctype::LayoutByNW4R* getPCKeyboardForMemo() const { return mpPCKeyboard; }
+            keyboard::cellphonetype::LayoutByNW4R* getCellPhoneKeyboardForMemo() const { return mpCellPhoneKeyboard; }
+            Destination getDestinationForMemo() const { return meDestination; }
+            void initAspect();
+#endif
 
             virtual void                                setSecretInputMode(bool secretInputMode) { mpInputForm->setSecretModeOn(secretInputMode); }
 #ifdef IPL_ADDRESS_EDIT_CPP

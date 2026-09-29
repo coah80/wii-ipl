@@ -14,7 +14,11 @@ namespace textinput {
             virtual void setCommandReceiver(CommandReceiver* receiver) override;
             virtual void sendCommand(u32 command, void*) override;
             virtual void updateFromReceiver(u32, void*) override;
+#ifdef MYTIMANAGER_IMPLEMENTATION
+            virtual void onKey(u32, void*);
+#else
             virtual void onKey(u32);
+#endif
             virtual void getType();
             virtual void setLanguage(Language language);
             virtual Language getLanguage() const;

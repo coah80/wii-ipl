@@ -16,6 +16,13 @@ namespace textinput {
                         T_Last,
                     } Type;
 
+#ifdef MYTIMANAGER_IMPLEMENTATION
+                    InputForm(textinput::Manager* manager, nw4r::lyt::MultiArcResourceAccessor* multiArc,
+                              const char* layoutName, EventObserver* event, const char* fontName)
+                        : textinput::MemoInputForm(manager, multiArc, layoutName, event, fontName),
+                          unk_0x400(0), mbPhotoDraw(false), meType(T_MailAddressSel) {}
+#endif
+
                     virtual nw4r::lyt::Material*    getPhotoPaneMaterial();
 
                     virtual void                    onPhotoTrig();

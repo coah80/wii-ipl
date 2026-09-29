@@ -28,6 +28,9 @@ namespace textinput {
                         CT_NumericWithSeparator,
                         CT_NormalWithoutLineFeedWithSign,
                         CT_PredictWithoutLineFeed,
+#ifdef MYTIMANAGER_IMPLEMENTATION
+                        CT_PredictBigText,
+#endif
 
                         CT_Last
                     } ConfigType;
@@ -78,7 +81,11 @@ namespace textinput {
                     virtual void                    start();
                     virtual void                    end();
 
+#ifdef MYTIMANAGER_IMPLEMENTATION
+                    virtual textinput::InputForm*   createInputForm();
+#else
                     virtual InputForm*              createInputForm();
+#endif
 
                     virtual void                    memoDraw();
 
@@ -93,8 +100,16 @@ namespace textinput {
 
                     virtual ConfigType              getConfigType() { return meConfigType; }
 
+#ifdef MYTIMANAGER_IMPLEMENTATION
+                    virtual void                    setSaveData();
+#else
                     virtual void                    setSaveData_();
+#endif
                     virtual void                    reflectSaveData();
+#ifdef MYTIMANAGER_IMPLEMENTATION
+                    void reflectSaveDataRev1();
+                    void reflectSaveDataDefault();
+#endif
 
                     virtual void                    configDefault();
                     virtual void                    configLetter();
@@ -111,10 +126,21 @@ namespace textinput {
                     virtual void                    configNormalWithoutLineFeedWithSign();
                     virtual void                    configPredictWithoutLineFeed();
                     virtual void                    configPredictBigText();
+#ifdef MYTIMANAGER_IMPLEMENTATION
+                    virtual textinput::MemoInputForm* createMemoInputForm();
+                    virtual textinput::LetterInputForm* createLetterInputForm();
+                    virtual textinput::InputForm* createBigTextInputForm();
+                    virtual void* createBG();
+#else
                     virtual void                    createMemoInputForm();
                     virtual void                    createLetterInputForm();
                     virtual void                    createBigTextInputForm();
                     virtual void                    createBG();
+#endif
+
+#ifdef MYTIMANAGER_IMPLEMENTATION
+                    void* getBackGround() const { return mpBackGround; }
+#endif
 
                 private:
                     State*                  mpCurrentState;                 // 0x40
@@ -135,6 +161,11 @@ namespace textinput {
 
             class State {
                 public:
+#ifdef MYTIMANAGER_IMPLEMENTATION
+                    State() : mpManager(NULL) {}
+                    Manager* getManager() const { return mpManager; }
+                    void setManager(Manager* manager) { mpManager = manager; }
+#endif
                     virtual ~State();
                     virtual Manager::StateType  getStateType();
 
@@ -152,6 +183,18 @@ namespace textinput {
 
                     virtual void                start();
                     virtual void                end();
+
+#ifdef MYTIMANAGER_IMPLEMENTATION
+                    virtual InputForm* InputForm();
+                    virtual keyboard::hwkey::HWKeyboard* HWKeyboard();
+                    virtual keyboard::pctype::LayoutByNW4R* PCKeyboard();
+                    virtual keyboard::cellphonetype::LayoutByNW4R* CellPhoneKeyboard();
+                    virtual void* SignKeyboard();
+                    virtual candidatebox::LayoutByNW4R* CandidateBox();
+                    virtual toolbar::LayoutByNW4R* ToolBar();
+                    virtual void* PredictLanguageSelectDialog();
+                    virtual void* BG();
+#endif
 
                 private:
                     Manager*    mpManager;  // 0x04

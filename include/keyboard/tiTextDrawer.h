@@ -9,7 +9,11 @@
 
 namespace textinput {
     namespace textdrawer {
+#ifdef MYTIMANAGER_IMPLEMENTATION
+        class Base : public nw4r::ut::CharWriter {
+#else
         class Base : nw4r::ut::CharWriter {
+#endif
             public:
                 typedef struct ViewPort {
                     f32 xOrig;  // 0x00

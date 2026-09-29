@@ -17,6 +17,9 @@ namespace textinput {
     namespace inputform {
         class EditBuffer {
             public:
+#ifdef MYTIMANAGER_IMPLEMENTATION
+                void create(MEMAllocator* allocator);
+#endif
                 ~EditBuffer();
 
             private:
@@ -167,6 +170,10 @@ namespace textinput {
 
                 virtual void                onSE(sound::SE seId);
 
+#ifdef MYTIMANAGER_IMPLEMENTATION
+                void                        dirtyCacheAll();
+#endif
+
                 virtual void                clear();
 
                 virtual u32                 calcCursorPos(f32 x, f32 y); 
@@ -228,6 +235,9 @@ namespace textinput {
 
         class LayoutByNW4R : public Base, public nw4rmanager::Layout {
             public:
+#ifdef MYTIMANAGER_IMPLEMENTATION
+                LayoutByNW4R(textinput::Manager*, nw4r::lyt::MultiArcResourceAccessor*, const char*, EventObserver*, const char*);
+#endif
                 ~LayoutByNW4R();
 
                 virtual void                init();
@@ -255,7 +265,11 @@ namespace textinput {
                 virtual void                visibleSeparator(bool flag);
 
             private:
+#ifdef MYTIMANAGER_IMPLEMENTATION
+                u8  unk_0x2C0[0x48];
+#else
                 u8  unk_0x2C0[0x4C];
+#endif
         };
     }
     typedef inputform::LayoutByNW4R InputForm;
