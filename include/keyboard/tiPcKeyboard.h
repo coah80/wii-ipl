@@ -265,7 +265,7 @@ namespace textinput {
 #ifdef TI_PCTYPE_SAMPLE_CLASS
                 LayoutByNW4R(Manager* manager, nw4r::lyt::MultiArcResourceAccessor* resAccessor, const char* arcName, EventObserver* observer)
                     : Base(manager), nw4rmanager::Layout(resAccessor, arcName, observer), mpEventHandler(NULL),
-                      mShiftButton(0, this, this), mCapsButton(1, this, this), mModePanel(2, this, this) {}
+                      mShiftButton(1, this, this), mCapsButton(0, this, this), mModePanel(2, this, this) {}
 #endif
 
                 virtual ~LayoutByNW4R();

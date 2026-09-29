@@ -93,8 +93,8 @@ namespace textinput {
             extern const KeySet csKeySetCNPinyin;
             extern const KeySet csKeySetHangul;
 
-            extern const wchar_t csSpaceZero[3];
-            extern const wchar_t csSpace[3];
+            extern const wchar_t* csSpaceZero;
+            extern const wchar_t* csSpace;
         }
     }
 }

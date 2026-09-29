@@ -171,11 +171,11 @@ namespace textinput {
         }
 
         u32 HKBManager::GetModifierState() const {
-            u32 modState = 0;
-            for (u8 i = 0; i < 2; i++) {
-                modState |= (mKeyStates[i].mModState & ~mKeyStates[i].mForceMask) |
-                            (mKeyStates[i].mForceMod & mKeyStates[i].mForceMask);
-            }
+            u32 modState = (mKeyStates[0].mModState & ~mKeyStates[0].mForceMask) |
+                           (mKeyStates[0].mForceMod & mKeyStates[0].mForceMask);
+            u32 modState1 = (mKeyStates[1].mModState & ~mKeyStates[1].mForceMask) |
+                            (mKeyStates[1].mForceMod & mKeyStates[1].mForceMask);
+            modState |= modState1;
             return modState;
         }
 

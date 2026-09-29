@@ -1036,12 +1036,6 @@ namespace textinput {
                 }
             }
 
-            void bg::Base::init() {
-            }
-
-            void bg::Base::create(MEMAllocator* allocator) {
-            }
-
             void AppearMemoState::end() {
             }
 
@@ -1081,6 +1075,13 @@ namespace textinput {
 
             DisappearMemoState::~DisappearMemoState() {
             }
+
+            void bg::Base::init() {
+            }
+
+            void bg::Base::create(MEMAllocator* allocator) {
+            }
         }
     }
+
 }

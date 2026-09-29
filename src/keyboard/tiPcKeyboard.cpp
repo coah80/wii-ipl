@@ -1487,9 +1487,6 @@ static const PaneToAnimation csPaneToAnimation[129] = {
             UIObj::~UIObj() {
             }
 
-            gui::EventHandler::~EventHandler() {
-            }
-
             UIModifierButton::~UIModifierButton() {
             }
 

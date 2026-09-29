@@ -70,7 +70,7 @@ namespace textinput {
 
             EventHandler() : muLatestEventCtrlNo(0) {}
 
-            virtual ~EventHandler();  // 0x08
+            virtual ~EventHandler() {}  // 0x08
 
             virtual void onEvent(GUIComponent& comp, u32 event, void* data);  // 0x0C
 
@@ -150,7 +150,7 @@ namespace textinput {
             virtual bool isVisible() { return true; }  // 0x58
 
             virtual u16 getFlightDuration(int point) { return mFlightDuration[point]; }                       // 0x5C
-            virtual void setFlightDuration(int point, u16 flightDir) { mFlightDuration[point] = flightDir; }  // 0x60
+            virtual void setFlightDuration(int point, u16 flightDir);  // 0x60
 
             virtual bool contain(f32 x, f32 y) = 0;  // 0x64
 

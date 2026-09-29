@@ -24,8 +24,12 @@ const u8 scKeyMap[136] = {
     0x11, 0x12, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
     0x06, 0x05, 0x07, 0x0b, 0x06, 0x05, 0x07, 0x0b, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 };
-static u32 scKeyRepeatData[2] = {8, 0};
-static u32 scTriggerData[2] = {8, 0};
+u32 scKeyRepeatData[2] = {8, 0};
+u32 scTriggerData[2] = {8, 0};
+
+u8 sbShiftInit = 0;
+u8 sbShiftOn = 1;
+u8 sbShiftOff = 0;
 extern "C" void SetCountry__Q39textinput5input10HKBManagerFUc();
 extern "C" textinput::input::HKBManager sInstance__Q39textinput5input10HKBManager;
 extern "C" void convertWCCode__Q49textinput8keyboard5hwkey10HWKeyboardCFw();
@@ -496,7 +500,7 @@ ok_wc:;
             }
 
             void HWKeyboard::init() {
-                LayoutGather::Singleton::getInstance().setHWPressedShift(false);
+                LayoutGather::Singleton::getInstance().setHWPressedShift(sbShiftInit);
 
                 u32 state = input::HKBManager::getInstance().GetModifierState();
                 input::HKBManager::getInstance().SetModifierState(state | 0x100, 0x700);
@@ -520,14 +524,14 @@ ok_wc:;
                 }
 
                 bool previousShift = gather.isHoldingShift();
-                bool shiftPressed = (state & 0x2) != 0;
 
-                gather.setHWPressedShift(shiftPressed);
-                if (shiftPressed) {
+                if (state & 0x2) {
+                    gather.setHWPressedShift(sbShiftOn);
                     if (!previousShift) {
                         mgr()->getPCKeyboard()->onPressedShift(true);
                     }
                 } else {
+                    gather.setHWPressedShift(sbShiftOff);
                     if (previousShift) {
                         if (!gather.isHoldingShift()) {
                             mgr()->getPCKeyboard()->onReleasedShift();

@@ -57,7 +57,7 @@ namespace textinput {
             virtual void                                setWCString(const wchar_t* string);
 
             virtual void                                setLanguage(Language language);
-            virtual Language                            getLanguage() const { return meLanguage; }
+            virtual Language                            getLanguage() const;
 
             virtual void                                setDestination(Destination destination);
 
@@ -85,10 +85,10 @@ namespace textinput {
             virtual const InputForm*                    getInputForm() const;
             
             virtual keyboard::hwkey::HWKeyboard*        getHWKeyboard()                         { return mpHWKeyboard; }
-            virtual const keyboard::hwkey::HWKeyboard*  getHWKeyboard() const                   { return mpHWKeyboard; }
+            virtual const keyboard::hwkey::HWKeyboard*  getHWKeyboard() const;
             
-            virtual keyboard::pctype::LayoutByNW4R*       getPCKeyboard()                         { return mpPCKeyboard; }
-            virtual const keyboard::pctype::LayoutByNW4R* getPCKeyboard() const                   { return mpPCKeyboard; }
+            virtual keyboard::pctype::LayoutByNW4R*       getPCKeyboard();
+            virtual const keyboard::pctype::LayoutByNW4R* getPCKeyboard() const;
             
             virtual keyboard::cellphonetype::LayoutByNW4R*       getCellPhoneKeyboard()                  { return mpCellPhoneKeyboard; }
             virtual const keyboard::cellphonetype::LayoutByNW4R* getCellPhoneKeyboard() const;
@@ -96,11 +96,11 @@ namespace textinput {
             virtual void*                               getSignKeyboard();
             virtual const void*                         getSignKeyboard() const;
             
-            virtual candidatebox::LayoutByNW4R*         getCandidateBox()                       { return mpCandidateBox; }
+            virtual candidatebox::LayoutByNW4R*         getCandidateBox();
             virtual const candidatebox::LayoutByNW4R*   getCandidateBox() const                 { return mpCandidateBox; }
             
-            virtual toolbar::LayoutByNW4R*              getToolBar()                            { return mpToolBar; }
-            virtual const toolbar::LayoutByNW4R*        getToolBar() const                      { return mpToolBar; }
+            virtual toolbar::LayoutByNW4R*              getToolBar();
+            virtual const toolbar::LayoutByNW4R*        getToolBar() const;
             
             virtual void*                               getPredictLanguageSelectDialog();
             virtual const void*                         getPredictLanguageSelectDialog() const;
