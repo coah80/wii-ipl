@@ -1540,8 +1540,8 @@ namespace textinput {
                     u32 count;
                     u32 type;
                 };
-                u32 flags = 0;
                 mState.rejected = false;
+                u32 flags = 0;
                 if (mKeyState.abcFlags & 64)
                     flags |= 2;
                 if (mKeyState.abcFlags & 128)
@@ -1563,7 +1563,7 @@ namespace textinput {
                     if (code != util::KBD_ConvertSmall(code))
                         conversions |= 128;
                     if ((mKeyState.aiuFlags & ~15) != conversions) {
-                        mKeyState.aiuFlags = (mKeyState.aiuFlags & 15) | conversions;
+                        mKeyState.aiuFlags = (mKeyState.aiuFlags & 15) | (conversions & ~15);
                         mKeyState.refresh_();
                     }
                 }
@@ -1813,7 +1813,7 @@ namespace textinput {
                 }
                 for (u16 i = 0; i < 56; i++) {
                     if (util::strcmp(data->grid[i].paneName, paneName))
-                        code = data->grid[i].codes[3 - ((aiuFlags & 15) == 0)];
+                        code = data->grid[i].codes[(aiuFlags & 15) == 0 ? 2 : 3];
                 }
                 return code;
             }
@@ -1902,6 +1902,7 @@ namespace textinput {
             }
 
             void LayoutByNW4R::createAnmPane_(MEMAllocator* allocator) {
+                const char* shared;
                 for (u16 i = 0; i < 129; i++) {
                     const PaneAnimation& entry = csPaneToAnimation[i];
                     AnmPane* pane = NULL;
@@ -1928,7 +1929,7 @@ namespace textinput {
                         }
                     }
                     nw4r::ut::List_Append(&mAnmPanes, pane);
-                    const char* shared = entry.sharedPane;
+                    shared = entry.sharedPane;
                     for (u16 j = 0; j < entry.count; j++) {
                         void* resource = mpMultiArcResourceAccessor->GetResource(0, entry.animations[j]->fileName);
                         AnimTransformPane* transform =
@@ -2346,10 +2347,12 @@ namespace textinput {
             }
 
             void LayoutByNW4R::sendInputWChar(wchar_t code, bool repeat) {
-                u32 shift = mKeyState.abcFlags & 128;
+                bool shift = false;
                 nw4r::lyt::Pane* last = NULL;
-                if (shift)
+                if (mKeyState.abcFlags & 128) {
                     last = mAnmPaneFifo.getLast();
+                    shift = true;
+                }
                 Base::sendInputWChar(code, repeat);
                 if (shift && last != NULL)
                     setPaneLastDrawReceived(last);
@@ -2433,12 +2436,14 @@ namespace textinput {
                 mKeyState.setABCMode(abcMode);
                 mKeyState.setAIUMode(aiuMode);
                 switch (static_cast<int>(abcMode)) {
-                    case 1:
-                    case 2:
-                        mpInitialLanguageData = &csJapanKanaInput;
-                        break;
                     case 0:
                         mpInitialLanguageData = &csLanguageDependencyData[getLanguage()];
+                        break;
+                    case 1:
+                        mpInitialLanguageData = &csJapanKanaInput;
+                        break;
+                    case 2:
+                        mpInitialLanguageData = &csJapanKanaInput;
                         break;
                 }
                 initLayout();
@@ -2505,25 +2510,33 @@ namespace textinput {
                     nw4rmanager::AnmPane* animation = NULL;
                     u8 key = keys.GetKey();
                     wchar_t code = keys.GetWChar();
-                    if (key != 0x2c) {
-                        if (key == 0x28 || key == 0x58) {
+                    switch (static_cast<int>(key)) {
+                        case 0x2c:
+                            break;
+                        case 0x28:
+                        case 0x58:
                             if (!(hkb.GetModifierState() & 4))
                                 animation = searchAnmPane("P_key_LF");
-                        } else {
+                            break;
+                        default: {
                             code = inputform::DeadKeyStream::ToIndependentClass(code);
                             code = static_cast<const Manager*>(mpManager)->getHWKeyboard()->convertWCCode(code);
                             if (static_cast<const Manager*>(mpManager)->getToolBar()->isQwerty()) {
                                 if (static_cast<const Manager*>(mpManager)->getPCKeyboard()->getTranslateMode() != TM_Direct &&
                                     mpManager->getLanguage() == KR) {
-                                    if (isCapsOn())
-                                        code = util::reverseLetterCaseW(code);
-                                    if (code >= L'a' && code <= L'z')
-                                        code = KOREAN_LOWER[code - L'a'];
-                                    else if (code >= L'A' && code <= L'Z')
-                                        code = KOREAN_UPPER[code - L'A'];
+                                    bool caps = isCapsOn();
+                                    u32 koreanCode = code;
+                                    if (caps)
+                                        koreanCode = util::reverseLetterCaseW(koreanCode);
+                                    if (koreanCode >= L'a' && koreanCode <= L'z')
+                                        koreanCode = KOREAN_LOWER[static_cast<u16>(koreanCode) - L'a'];
+                                    else if (koreanCode >= L'A' && koreanCode <= L'Z')
+                                        koreanCode = KOREAN_UPPER[static_cast<u16>(koreanCode) - L'A'];
+                                    code = koreanCode;
                                 }
                             }
                             animation = searchAnmPane(code);
+                            break;
                         }
                     }
                     if (animation != NULL)
@@ -2535,17 +2548,16 @@ namespace textinput {
                     nw4rmanager::AnmPane* animation = NULL;
                     u8 key = keys.GetKey();
                     keys.GetWChar();
-                    switch (key) {
+                    switch (static_cast<int>(key)) {
                         case 0x2a:
-                            if (!(hkb.GetModifierState() & 4))
-                                animation = searchAnmPane("P_key_DELETE");
+                            if (hkb.GetModifierState() & 4)
+                                break;
+                        case 0x4c:
+                            animation = searchAnmPane("P_key_DELETE");
                             break;
                         case 0x2c:
                             if (!(hkb.GetModifierState() & 8))
                                 animation = searchAnmPane("P_key_SPACE");
-                            break;
-                        case 0x4c:
-                            animation = searchAnmPane("P_key_DELETE");
                             break;
                     }
                     if (animation != NULL)
@@ -2625,43 +2637,51 @@ namespace textinput {
             void EventHandler::onTiEvent(gui::PaneComponent* component, u32 event, Input* input) {
                 nw4r::lyt::Pane* pane = component->getPane();
                 const char* name = pane->GetName();
-                if (!util::strcmp("B_key_SHIFT", name) && !util::strcmp("B_key_CAPS", name) && name[0] == 'B') {
-                    char animationName[17];
-                    util::replaceChar(animationName, sizeof(animationName), name, 0, 'P');
-                    if (strncmp(name + 5, "Chng", 4) == 0 || strncmp(name + 7, "Chng", 4) == 0 || strncmp(name + 7, "prdc", 4) == 0) {
-                        util::replaceChar(animationName, sizeof(animationName), name, 0, 'W');
-                    }
-                    nw4rmanager::AnmPane* animation = mpKeyboard->searchAnmPane(animationName);
-                    switch (static_cast<int>(event)) {
-                        case 1:
-                            if (animation != NULL)
-                                animation->onAnmEvent(nw4rmanager::AnmPane::PE_2);
-                            mpKeyboard->onKey(1, animationName);
-                            break;
+                if (!util::strcmp("B_key_SHIFT", name)) {
+                    switch (util::strcmp("B_key_CAPS", name)) {
                         case 0:
-                            if (animation != NULL) {
-                                mpEventObserver->onSE(static_cast<sound::SE>(4));
-                                mpKeyboard->setPaneLastDrawReceived(animation->getPane());
-                                animation->onAnmEvent(nw4rmanager::AnmPane::PE_1);
+                            if (name[0] == 'B') {
+                                char animationName[17];
+                                util::replaceChar(animationName, sizeof(animationName), name, 0, 'P');
+                                if (strncmp(name + 5, "Chng", 4) == 0 || strncmp(name + 7, "Chng", 4) == 0 || strncmp(name + 7, "prdc", 4) == 0) {
+                                    util::replaceChar(animationName, sizeof(animationName), name, 0, 'W');
+                                }
+                                nw4rmanager::AnmPane* animation = mpKeyboard->searchAnmPane(animationName);
+                                switch (static_cast<int>(event)) {
+                                    case 4:
+                                        if (input->field_0x0C & 0x800) {
+                                            if (animation != NULL)
+                                                animation->onAnmEvent(nw4rmanager::AnmPane::PE_0);
+                                            mpKeyboard->onKey(4, animationName);
+                                        }
+                                        break;
+                                    case 1:
+                                        if (animation != NULL)
+                                            animation->onAnmEvent(nw4rmanager::AnmPane::PE_2);
+                                        mpKeyboard->onKey(1, animationName);
+                                        break;
+                                    case 0:
+                                        if (animation != NULL) {
+                                            mpEventObserver->onSE(static_cast<sound::SE>(4));
+                                            mpKeyboard->setPaneLastDrawReceived(animation->getPane());
+                                            animation->onAnmEvent(nw4rmanager::AnmPane::PE_1);
+                                        }
+                                        break;
+                                }
+                                if (event == 2 && (input->field_0x10 & 0x800) && !(input->field_0x0C & 0x800) &&
+                                    (util::strcmp("P_key_DELETE", animationName) || util::strcmp("P_Gkey_DELETE", animationName) ||
+                                     util::strcmp("P_key_SPACE", animationName) || util::strcmp("P_Gkey_SPACE", animationName)) &&
+                                    component->isDragging(input->field_0x00)) {
+                                    u32 frames = mpKeyboard->getFlightDuration(input->field_0x00, name);
+                                    if (frames >= 30 && frames % 9 == 0) {
+                                        animation->onAnmEvent(nw4rmanager::AnmPane::PE_0);
+                                        mpKeyboard->onKey(4, animationName);
+                                    }
+                                }
                             }
                             break;
-                        case 4:
-                            if (input->field_0x0C & 0x800) {
-                                if (animation != NULL)
-                                    animation->onAnmEvent(nw4rmanager::AnmPane::PE_0);
-                                mpKeyboard->onKey(4, animationName);
-                            }
+                        default:
                             break;
-                    }
-                    if (event == 2 && (input->field_0x10 & 0x800) && !(input->field_0x0C & 0x800) &&
-                        (util::strcmp("P_key_DELETE", animationName) || util::strcmp("P_Gkey_DELETE", animationName) ||
-                         util::strcmp("P_key_SPACE", animationName) || util::strcmp("P_Gkey_SPACE", animationName)) &&
-                        component->isDragging(input->field_0x00)) {
-                        u32 frames = mpKeyboard->getFlightDuration(input->field_0x00, name);
-                        if (frames >= 30 && frames % 9 == 0) {
-                            animation->onAnmEvent(nw4rmanager::AnmPane::PE_0);
-                            mpKeyboard->onKey(4, animationName);
-                        }
                     }
                 }
             }
