@@ -1909,18 +1909,16 @@ namespace ipl {
             memset(mpStringBuffer->ip.addr, 0, sizeof(mpStringBuffer->ip.addr));
             memset(mpStringBuffer->ip.netmask, 0, sizeof(mpStringBuffer->ip.netmask));
             memset(mpStringBuffer->ip.gateway, 0, sizeof(mpStringBuffer->ip.gateway));
-            NCDIpProfile* ip = ncd::NCDSetting::getIP();
-            convertIP(mpStringBuffer->ip.addr, ip->addr);
-            convertIP(mpStringBuffer->ip.netmask, ip->netmask);
-            convertIP(mpStringBuffer->ip.gateway, ip->gateway);
+            convertIP(mpStringBuffer->ip.addr, ncd::NCDSetting::getIP()->addr);
+            convertIP(mpStringBuffer->ip.netmask, ncd::NCDSetting::getIP()->netmask);
+            convertIP(mpStringBuffer->ip.gateway, ncd::NCDSetting::getIP()->gateway);
         }
 
         void Setting::initDNS() {
             memset(mpStringBuffer->dns1, 0, sizeof(mpStringBuffer->dns1));
             memset(mpStringBuffer->dns2, 0, sizeof(mpStringBuffer->dns2));
-            NCDIpProfile* ip = ncd::NCDSetting::getIP();
-            convertIP(mpStringBuffer->dns1, ip->dns1);
-            convertIP(mpStringBuffer->dns2, ip->dns2);
+            convertIP(mpStringBuffer->dns1, ncd::NCDSetting::getIP()->dns1);
+            convertIP(mpStringBuffer->dns2, ncd::NCDSetting::getIP()->dns2);
         }
 
         void Setting::initProxy() {
