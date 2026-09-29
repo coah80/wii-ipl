@@ -214,8 +214,8 @@ ret:
 static ziU8 Zi8MatchROMdata1(ziWChar* keys, ziU8 count, ziU8 lang, ziWChar* out,
                              ziU16 maxLen, ziU8 flag8, ziU8 flag9, ziU8 grpIdx,
                              ziU8* grp, ziU8 x ZI_NEED_WORK) {
-    ziU8* p;
     ziU8 ret = 0;
+    ziU8* p;
 
     if (flag9 == 0) {
         ZI_WORK->unk_0x1764 = grp;
