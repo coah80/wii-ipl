@@ -19,6 +19,7 @@ namespace ipl {
         class Manager;
     }
     namespace scene {
+        class SDChannelSelect;
         class SDChannelTitle;
         class SDMemory;
     }
@@ -166,6 +167,7 @@ namespace ipl {
             friend BOOL iplSavedata_813597A0(void* manager, ESTitleId titleId);
             friend class scene::SDChannelTitle;
             friend class scene::SDMemory;
+            friend class scene::SDChannelSelect;
         };
     }  // namespace savedata
 }  // namespace ipl

@@ -787,14 +787,10 @@ namespace ipl {
                             }
                         }
                         if (System::getDialog()->getLastResult() != -1) {
-                            if (!mpDialogBg->isPlaying(1)) {
-                                if (System::getDialog()->getLastResult() != 1) {
-                                    if ((u32)(chstate - 1) <= 1) {
-                                        ret = 2;
-                                    } else {
-                                        ret = 1;
-                                    }
-                                }
+                            if (!mpDialogBg->isPlaying(1) && System::getDialog()->getLastResult() != 1 && (u32)(chstate - 1) <= 1) {
+                                ret = 2;
+                            } else {
+                                ret = 1;
                             }
                         }
                         break;

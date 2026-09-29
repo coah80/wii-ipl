@@ -153,6 +153,7 @@ namespace ipl {
             u8 unk_0x4E4[0x698 - 0x4E4];                       // 0x4E4
 
             friend class SDChannelSelect;
+            friend class SDChannelSelectEvent;
         };
     }  // namespace scene
 }  // namespace ipl

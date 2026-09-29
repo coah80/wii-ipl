@@ -1647,8 +1647,7 @@ namespace ipl {
                 System::getSaveData()->iplSavedata_813596B8(mTitleID);
             }
             System::getSaveData()->mData.prevSDPage = mChanPage;
-            EGG::Heap* mem2App = System::getMem2App();
-            mpSaveFile = System::getSaveData()->flushAsync(mem2App);
+            mpSaveFile = System::getSaveData()->flushAsync(System::getMem2App());
             __WPADReconnect(TRUE);
         }
 

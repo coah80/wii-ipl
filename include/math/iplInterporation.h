@@ -171,21 +171,6 @@ namespace ipl {
                 r = r + temp_f3;
 
                 return r;
-
-                /*f32 var_f27 = mMaxFrame;
-                f32 var_f28 = 1.0f / mMaxFrame;
-                T sp28 = mEnd * ((var_f28 * (var_f28 * (var_f28 * (var_f27 * (2.0f * var_f27 * var_f27))))) -
-                                 (var_f28 * (var_f28 * (3.0f * var_f27 * var_f27))));
-                T sp1C = mStart * (1.0f + ((var_f28 * (var_f28 * (var_f28 * (var_f27 * (2.0f * var_f27 * var_f27))))) -
-                                           (var_f28 * (var_f28 * (3.0f * var_f27 * var_f27)))));
-                T r = sp1C - sp28;
-
-                f32 temp_f4 = var_f27 * var_f27;
-                f32 temp_f7 = var_f28 * (var_f28 * (var_f27 * temp_f4));
-                f32 temp_f3 =
-                    (unkVal0 * (var_f27 + (temp_f7 - (var_f28 * (2.0f * var_f27 * var_f27))))) + (unkVal1 * (temp_f7 - (var_f28 * temp_f4)));
-                r = r + temp_f3;
-                return r;*/
             }
 
         protected:

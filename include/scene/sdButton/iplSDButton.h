@@ -159,6 +159,8 @@ namespace ipl {
             friend class SDChannelTitle;
             friend class SDChannelTitleEvent;
             friend class SDChannelTitleBtnEvent;
+            friend class SDChannelSelect;
+            friend class SDChannelSelectBtnEvent;
         };
     }  // namespace scene
 }  // namespace ipl
