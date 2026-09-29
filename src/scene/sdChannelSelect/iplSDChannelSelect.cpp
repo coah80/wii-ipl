@@ -424,7 +424,7 @@ namespace ipl {
         void SDChannelSelect::handleWorkerStartup() {
             if (!mpSDWorker->is_working()) {
                 if (mpSDWorker->get_async_result() == NandSDWorker::RESULT_OK) {
-                    if (mDialogState == 0) {
+                    if (mOperationState == 0) {
                         setDialogMessage(8, 0xaa);
                     }
                     enqueueFinishNotice();
@@ -742,9 +742,11 @@ namespace ipl {
 
             if (mWorkerState == 2) {
                 handleNandTitleCount();
-            } else if (mWorkerState == 1) {
-                handleWorkerStartup();
-            } else if (mWorkerState == 3) {
+            } else if (mWorkerState < 2) {
+                if (mWorkerState > 0) {
+                    handleWorkerStartup();
+                }
+            } else if (mWorkerState < 4) {
                 handleNandTitleUsage();
             }
 
@@ -796,7 +798,7 @@ namespace ipl {
                 break;
             }
 
-            if (mLastOperation != 6 && mState > 14 && mState < 24) {
+            if (mCurrentSDState != 6 && mState > 14 && mState < 24) {
                 mbDialogActive = true;
             }
 
