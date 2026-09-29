@@ -1552,80 +1552,76 @@ namespace ipl {
         }
 
         void Setting::calcKeyboard() {
-            u8 formId = mpWiiSettingData->data[0x11];
-            char* formText = NULL;
-            switch (formId) {
-                case 1:
-                    formText = mpStringBuffer->nickname;
-                    break;
-                case 2:
-                case 22:
-                    formText = mpStringBuffer->asterisks;
-                    break;
-                case 3:
-                    formText = mpStringBuffer->securityKey;
-                    break;
-                case 4:
-                    formText = mpStringBuffer->ip.addr;
-                    break;
-                case 5:
-                    formText = mpStringBuffer->ip.netmask;
-                    break;
-                case 6:
-                    formText = mpStringBuffer->ip.gateway;
-                    break;
-                case 7:
-                    formText = mpStringBuffer->dns1;
-                    break;
-                case 8:
-                    formText = mpStringBuffer->dns2;
-                    break;
-                case 10:
-                    formText = mpStringBuffer->proxy.server;
-                    break;
-                case 11:
-                    formText = mpStringBuffer->proxy.port;
-                    break;
-                case 12:
-                    formText = mpStringBuffer->proxyBasic.uname;
-                    break;
-                case 13:
-                    formText = mpStringBuffer->proxyBasic.pass;
-                    break;
-                case 14:
-                    formText = mpStringBuffer->adjMtu;
-                    break;
-                case 15:
-                    formText = mpStringBuffer->parentalPass;
-                    break;
-                case 16:
-                    formText = mpStringBuffer->parentalRePass;
-                    break;
-                case 17:
-                    formText = mpStringBuffer->parentalJudgePass;
-                    break;
-                case 18:
-                    formText = mpStringBuffer->parentalSecA;
-                    break;
-                case 19:
-                    formText = mpStringBuffer->parentalReSecA;
-                    break;
-                case 20:
-                    formText = mpStringBuffer->masterKey;
-                    break;
-            }
-
-            ext_ead::www::BrowserThread* browser = ext_ead::www::SurfaceManager::GetInstance()->GetBrowserThread();
+            char* formText;
             if (mKeyboardState.iplType == keyboard::Manager::STATE_DISAPPEARING) {
-                if (!mKeyboardState.pressOK) {
-                    browser->CommitIme(mpBrowserData, formText);
-                } else {
+                if (mKeyboardState.pressOK) {
                     onTextInputOK();
-                    formId = mpWiiSettingData->data[0x11];
+                    u8 formId = mpWiiSettingData->data[0x11];
+                    formText = NULL;
+                    switch (formId) {
+                        case 1:
+                            formText = mpStringBuffer->nickname;
+                            break;
+                        case 2:
+                        case 22:
+                            formText = mpStringBuffer->securityKey;
+                            break;
+                        case 3:
+                            formText = mpStringBuffer->securityKey;
+                            break;
+                        case 4:
+                            formText = mpStringBuffer->ip.addr;
+                            break;
+                        case 5:
+                            formText = mpStringBuffer->ip.netmask;
+                            break;
+                        case 6:
+                            formText = mpStringBuffer->ip.gateway;
+                            break;
+                        case 7:
+                            formText = mpStringBuffer->dns1;
+                            break;
+                        case 8:
+                            formText = mpStringBuffer->dns2;
+                            break;
+                        case 10:
+                            formText = mpStringBuffer->proxy.server;
+                            break;
+                        case 11:
+                            formText = mpStringBuffer->proxy.port;
+                            break;
+                        case 12:
+                            formText = mpStringBuffer->proxyBasic.uname;
+                            break;
+                        case 13:
+                            formText = mpStringBuffer->proxyBasic.pass;
+                            break;
+                        case 14:
+                            formText = mpStringBuffer->adjMtu;
+                            break;
+                        case 15:
+                            formText = mpStringBuffer->parentalPass;
+                            break;
+                        case 16:
+                            formText = mpStringBuffer->parentalRePass;
+                            break;
+                        case 17:
+                            formText = mpStringBuffer->parentalJudgePass;
+                            break;
+                        case 18:
+                            formText = mpStringBuffer->parentalSecA;
+                            break;
+                        case 19:
+                            formText = mpStringBuffer->parentalReSecA;
+                            break;
+                        case 20:
+                            formText = mpStringBuffer->masterKey;
+                            break;
+                    }
                     OSReport("formID:%d %s\n", formId, formText);
                     if (strlen(formText) == 0) {
                         formText[0] = 0;
-                        browser->CommitIme(mpBrowserData, formText);
+                        ext_ead::www::SurfaceManager::GetInstance()->GetBrowserThread()->CommitIme(mpBrowserData, formText);
                         memset(mpStringBuffer->asterisks, 0, sizeof(mpStringBuffer->asterisks));
                     } else if (formId == 2 || formId == 22) {
                         memcpy(mpStringBuffer->asterisks, mpStringBuffer->securityKey, sizeof(mpStringBuffer->securityKey));
@@ -1638,15 +1634,80 @@ namespace ipl {
                             mpStringBuffer->asterisks[0x20] = '\n';
                             mpStringBuffer->asterisks[index] = '*';
                         }
-                        browser->CommitIme(mpBrowserData, mpStringBuffer->asterisks);
+                        ext_ead::www::SurfaceManager::GetInstance()->GetBrowserThread()->CommitIme(mpBrowserData, mpStringBuffer->asterisks);
                     } else {
-                        browser->CommitIme(mpBrowserData, formText);
+                        ext_ead::www::SurfaceManager::GetInstance()->GetBrowserThread()->CommitIme(mpBrowserData, formText);
                     }
+                } else {
+                    u8 formId = mpWiiSettingData->data[0x11];
+                    formText = NULL;
+                    switch (formId) {
+                        case 1:
+                            formText = mpStringBuffer->nickname;
+                            break;
+                        case 2:
+                        case 22:
+                            formText = mpStringBuffer->asterisks;
+                            break;
+                        case 3:
+                            formText = mpStringBuffer->securityKey;
+                            break;
+                        case 4:
+                            formText = mpStringBuffer->ip.addr;
+                            break;
+                        case 5:
+                            formText = mpStringBuffer->ip.netmask;
+                            break;
+                        case 6:
+                            formText = mpStringBuffer->ip.gateway;
+                            break;
+                        case 7:
+                            formText = mpStringBuffer->dns1;
+                            break;
+                        case 8:
+                            formText = mpStringBuffer->dns2;
+                            break;
+                        case 10:
+                            formText = mpStringBuffer->proxy.server;
+                            break;
+                        case 11:
+                            formText = mpStringBuffer->proxy.port;
+                            break;
+                        case 12:
+                            formText = mpStringBuffer->proxyBasic.uname;
+                            break;
+                        case 13:
+                            formText = mpStringBuffer->proxyBasic.pass;
+                            break;
+                        case 14:
+                            formText = mpStringBuffer->adjMtu;
+                            break;
+                        case 15:
+                            formText = mpStringBuffer->parentalPass;
+                            break;
+                        case 16:
+                            formText = mpStringBuffer->parentalRePass;
+                            break;
+                        case 17:
+                            formText = mpStringBuffer->parentalJudgePass;
+                            break;
+                        case 18:
+                            formText = mpStringBuffer->parentalSecA;
+                            break;
+                        case 19:
+                            formText = mpStringBuffer->parentalReSecA;
+                            break;
+                        case 20:
+                            formText = mpStringBuffer->masterKey;
+                            break;
+                    }
+                    ext_ead::www::SurfaceManager::GetInstance()->GetBrowserThread()->CommitIme(mpBrowserData, formText);
                 }
 
                 mpWiiSettingData->data[0x11] = 0;
-                browser->DisposeImeData(mpBrowserData);
+                ext_ead::www::SurfaceManager::GetInstance()->GetBrowserThread()->DisposeImeData(mpBrowserData);
             } else if (mKeyboardState.iplType < keyboard::Manager::STATE_VISIBLE) {
+                u8 formId = mpWiiSettingData->data[0x11];
                 if (mKeyboardState.iplType < keyboard::Manager::STATE_APPEARING &&
                     formId != 0 && formId != 9 && formId != 21 && formId <= 22) {
                     if (System::getKeyboard()->memoMgr()->isVacancy()) {
@@ -1664,8 +1725,8 @@ namespace ipl {
         }
 
         void Setting::calcSetting() {
+            OSReport("setstring:%d\n", mpWiiSettingData->data[0x36]);
             u8 settingId = mpWiiSettingData->data[0x36];
-            OSReport("setstring:%d\n", settingId);
             switch (settingId) {
                 case 1:
                     setDisPos();
@@ -1717,19 +1778,19 @@ namespace ipl {
         }
 
         void Setting::onTextInputOK() {
-            u8 formId = mpWiiSettingData->data[0x11];
-            OSReport("Keyboard Confirm:%d\n", formId);
+            OSReport("Keyboard Confirm:%d\n", mpWiiSettingData->data[0x11]);
             wcslen(mKeyboardState.wcString);
 
             memset(unk_0x938, 0, sizeof(unk_0x938));
             u8 convertedText[0x302];
             memset(convertedText, 0, sizeof(convertedText));
             memcpy(unk_0x938, mKeyboardState.wcString, sizeof(unk_0x938));
+            u8 formId = mpWiiSettingData->data[0x11];
 
             if (formId == 2 || formId == 22) {
                 utility::CharacterCode::UTF16ToANSI(convertedText, reinterpret_cast<const wchar_t*>(unk_0x938), 0x100);
-                size_t textLength = wcslen(reinterpret_cast<const wchar_t*>(unk_0x938));
-                memset(convertedText + textLength, 0, 0x100 - textLength);
+                memset(convertedText + wcslen(reinterpret_cast<const wchar_t*>(unk_0x938)), 0,
+                       0x100 - wcslen(reinterpret_cast<const wchar_t*>(unk_0x938)));
                 memcpy(mpStringBuffer->securityKey, convertedText, sizeof(mpStringBuffer->securityKey));
                 return;
             }
@@ -1740,12 +1801,12 @@ namespace ipl {
             utility::CharacterCode::UTF16ToUTF8(reinterpret_cast<char*>(convertedText),
                                                 reinterpret_cast<const wchar_t*>(unk_0x938), 0x301);
 
-            switch (formId) {
+            switch (mpWiiSettingData->data[0x11]) {
                 case 1:
                     memcpy(mpStringBuffer->nickname, convertedText, sizeof(mpStringBuffer->nickname));
                     break;
                 case 3:
-                    memcpy(mpStringBuffer->securityKey, convertedText, sizeof(mpStringBuffer->securityKey));
+                    memcpy(mpStringBuffer->ssid, convertedText, sizeof(mpStringBuffer->ssid));
                     break;
                 case 4:
                     memcpy(mpStringBuffer->ip.addr, convertedText, sizeof(mpStringBuffer->ip.addr));
@@ -1774,9 +1835,6 @@ namespace ipl {
                 case 13:
                     memcpy(mpStringBuffer->proxyBasic.pass, convertedText, sizeof(mpStringBuffer->proxyBasic.pass));
                     break;
-                case 14:
-                    memcpy(mpStringBuffer->adjMtu, convertedText, sizeof(mpStringBuffer->adjMtu));
-                    break;
                 case 15:
                     memcpy(mpStringBuffer->parentalPass, convertedText, sizeof(mpStringBuffer->parentalPass));
                     break;
@@ -1794,6 +1852,9 @@ namespace ipl {
                     break;
                 case 20:
                     memcpy(mpStringBuffer->masterKey, convertedText, sizeof(mpStringBuffer->masterKey));
+                    break;
+                case 14:
+                    memcpy(mpStringBuffer->adjMtu, convertedText, sizeof(mpStringBuffer->adjMtu));
                     break;
             }
         }
