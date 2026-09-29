@@ -1976,13 +1976,14 @@ namespace ipl {
         }
 
         void Setting::setNickName() {
-            SCOwnerNickname* nickname = reinterpret_cast<SCOwnerNickname*>(mSettingData);
-            nickname->length = wcslen(reinterpret_cast<const wchar_t*>(unk_0x938));
+            reinterpret_cast<SCOwnerNickname*>(mSettingData)->length = wcslen(reinterpret_cast<const wchar_t*>(unk_0x938));
             if (checkTextNum(mpStringBuffer->nickname) == 3) {
-                memset(nickname, 0, sizeof(*nickname));
-                memcpy(nickname->name, unk_0x938, nickname->length * sizeof(wchar_t));
-                BOOL written = SCSetOwnerNickName(nickname);
-                OSReport("nicknameFlag:1 %d %s\n", written, nickname->name);
+                memset(mSettingData, 0, sizeof(reinterpret_cast<SCOwnerNickname*>(mSettingData)->name));
+                memcpy(mSettingData, unk_0x938,
+                       reinterpret_cast<SCOwnerNickname*>(mSettingData)->length * sizeof(wchar_t));
+                bool written = SCSetOwnerNickName(reinterpret_cast<SCOwnerNickname*>(mSettingData)) != 0;
+                OSReport("nicknameFlag:1 %d %s\n", written,
+                         reinterpret_cast<SCOwnerNickname*>(mSettingData)->name);
             }
         }
 
