@@ -137,6 +137,7 @@ namespace ipl {
             nw4r::lyt::Pane* getCenterChannelPane(int index) const;
             nw4r::lyt::Pane* getChannelPane(int index) const;
             static math::VEC3 getChannelPanePosition(SDChannelSelect* scene, int index);
+            void calcPageAnimations();
             void updateArrowVisibility();
             void processWorkerState();
             void updateDialogAnimation();

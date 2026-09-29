@@ -1343,6 +1343,13 @@ namespace ipl {
             return position;
         }
 
+        void SDChannelSelect::calcPageAnimations() {
+            for (int index = 0; index < 4; ++index) {
+                math::HermiteIntp<math::VEC3>* animation = mpPageAnimations[index];
+                animation->calc();
+            }
+        }
+
         void SDChannelSelect::startResetting() {
             snd::getSystem()->resetAllSound();
             clearCommandQueue();
