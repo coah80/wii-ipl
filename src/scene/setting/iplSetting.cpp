@@ -1924,17 +1924,18 @@ namespace ipl {
         void Setting::initProxy() {
             memset(mpStringBuffer->proxy.server, 0, sizeof(mpStringBuffer->proxy.server));
             memset(mpStringBuffer->proxy.port, 0, sizeof(mpStringBuffer->proxy.port));
-            NCDProxyProfile* proxy = ncd::NCDSetting::getProxy();
-            memcpy(mpStringBuffer->proxy.server, proxy->http.server, sizeof(proxy->http.server));
-            sprintf(mpStringBuffer->proxy.port, "%d", proxy->http.port);
+            memcpy(mpStringBuffer->proxy.server, ncd::NCDSetting::getProxy()->http.server,
+                   sizeof(ncd::NCDSetting::getProxy()->http.server));
+            sprintf(mpStringBuffer->proxy.port, "%d", ncd::NCDSetting::getProxy()->http.port);
         }
 
         void Setting::initBasic() {
             memset(mpStringBuffer->proxyBasic.uname, 0, sizeof(mpStringBuffer->proxyBasic.uname));
             memset(mpStringBuffer->proxyBasic.pass, 0, sizeof(mpStringBuffer->proxyBasic.pass));
-            NCDProxyProfile* proxy = ncd::NCDSetting::getProxy();
-            memcpy(mpStringBuffer->proxyBasic.uname, proxy->http.username, sizeof(proxy->http.username));
-            memcpy(mpStringBuffer->proxyBasic.pass, proxy->http.password, sizeof(proxy->http.password));
+            memcpy(mpStringBuffer->proxyBasic.uname, ncd::NCDSetting::getProxy()->http.username,
+                   sizeof(ncd::NCDSetting::getProxy()->http.username));
+            memcpy(mpStringBuffer->proxyBasic.pass, ncd::NCDSetting::getProxy()->http.password,
+                   sizeof(ncd::NCDSetting::getProxy()->http.password));
         }
 
         void Setting::initMTU() {
