@@ -1549,11 +1549,12 @@ namespace ipl {
                     *indexOut = mChanIndex;
                     break;
                 }
-                int page = i / 0xC;
+                const int chansPerPage = 0xC;
+                int page = i / chansPerPage;
                 if (mpChanTable[i] != 0) {
                     *pageOut = page;
                     ret = 1;
-                    *indexOut = i - page * 0xC;
+                    *indexOut = i - page * chansPerPage;
                     break;
                 }
                 i += step;
@@ -2787,10 +2788,7 @@ namespace ipl {
                     s32 tmp = mpChanTable[selEntry];
                     mpChanTable[selEntry] = mpChanTable[dstEntry];
                     mpChanTable[dstEntry] = tmp;
-                    if (enqueueLoadNotice() == 0) {
-                        mpAnimLayout3->getAnim(1)->play();
-                        mState = 0x15;
-                    } else {
+                    if (enqueueLoadNotice() != 0) {
                         mFlag758 = 0;
                         mpSwapChanObj = getChanObj(mSelPage, mSelIndex);
                         if (mpSwapChanObj == NULL) {
@@ -2800,8 +2798,9 @@ namespace ipl {
                             SDChannelObj* otherObj = getChanObj(mFieldF0, mFieldF4);
                             mpSwapChanObj->setBasePane(getChannelBasePane(mFieldF0, mFieldF4, mChanPage));
                             otherObj->setBasePane(getChannelBasePane(mSelPage, mSelIndex, mChanPage));
-                            mpSwapChanObj->mChanPage = mFieldF0;
-                            mpSwapChanObj->mChanIndex = mFieldF4;
+                            SDChannelObj* swapObj = mpSwapChanObj;
+                            swapObj->mChanPage = mFieldF0;
+                            swapObj->mChanIndex = mFieldF4;
                             otherObj->mChanPage = mSelPage;
                             otherObj->mChanIndex = mSelIndex;
                             mpSwapChanObj->calc();
@@ -2810,6 +2809,9 @@ namespace ipl {
                             otherObj->mpThumbAnim->setCurrentFrame(mpMoveAnim->getCurrentFrame());
                         }
                         mState = 0x14;
+                    } else {
+                        mpAnimLayout3->getAnim(1)->play();
+                        mState = 0x15;
                     }
                 }
             }
