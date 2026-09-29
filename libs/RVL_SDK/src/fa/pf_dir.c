@@ -7,9 +7,8 @@ void PFFAT_InitHint(PF_FAT_HINT* p_hint);
 s32 PFFAT_FreeChain(PF_FFD* p_ffd, u32 start_cluster, u32 chain_index, u32 size);
 
 /* pf_entry.c / pf_entry_iterator.c */
-static s8 dir_mark = '\\';
-static s8 dir_mark_move = '/';
-
+extern const s8 del_mark[];
+extern const s8 del_mark_move[];
 
 s32 PFDIR_p_fsnext(PF_DTA* p_dta);
 s32 PFDIR_p_readdir(PF_UDD* p_udd, PF_DIRENT* p_dirent);
@@ -791,7 +790,8 @@ s32 PFDIR_p_rename(PF_VOLUME* p_vol, PF_STR* p_path_str, PF_STR* p_new_path_str)
     PF_VOLUME* p_ent_vol;
     PF_DIR_ENT* p_ent2;
 
-    buf[0] = dir_mark;
+    buf2[0] = *((const s8*)del_mark);
+    buf[0] = '\\';
     err = 0;
     err2 = 0;
     num_lfn = 0;
@@ -1040,8 +1040,8 @@ s32 PFDIR_p_move(PF_VOLUME* p_vol, PF_STR* p_path_str, PF_STR* p_new_path_str) {
     PF_DIR_ENT* p_ent;
     u32* p_pos;
     u32 j;
-
-    buf[0] = dir_mark_move;
+    buf2[0] = *((const s8*)del_mark_move);
+    buf[0] = '/';
     err = 0;
     num_lfn = 0;
     err = PFENT_ITER_GetEntryOfPath(&iter, &entry, p_vol, p_path_str, 0);
@@ -2181,3 +2181,6 @@ s32 PFDIR_chdmod(PF_STR* p_path_str, u8 attr) {
     p_vol->cache_signature = NULL;
     return err;
 }
+
+const s8 del_mark[] = {0xE5};
+const s8 del_mark_move[] = {0xE5};
