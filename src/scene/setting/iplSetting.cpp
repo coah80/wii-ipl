@@ -2592,10 +2592,10 @@ namespace ipl {
                 case 4:
                     initScroll();
                     setAPDraw();
-                    mpPaneManager->update();
+                    mpPaneManager->init();
                     break;
                 case 5:
-                    mpPaneManager->update();
+                    mpPaneManager->init();
                     break;
                 case 6:
                     unk_0xB9C = 1;
@@ -2633,7 +2633,7 @@ namespace ipl {
                         resetFuncMsgQ();
                         unk_0x78 = 1;
                         unk_0x918 = -1;
-                        mpPaneManager->update();
+                        mpPaneManager->init();
                         mpMainLayout->getAnim(0x14)->initFrame();
                         mpMainLayout->calc();
                     }
@@ -2746,25 +2746,24 @@ namespace ipl {
             };
             int recordOffset = 2;
             for (int index = 0; index <= mAPScanList.count; ++index) {
-                WDBssDesc_* descriptor = mAPScanList.currentDescriptor;
-                int recordLength = descriptor->length * 2;
+                int recordLength = mAPScanList.currentDescriptor->length * 2;
                 recordOffset += recordLength;
                 if (recordOffset > 0x800) {
                     return;
                 }
                 mpMainLayout->getAnim(10)->stop();
                 mpMainLayout->getAnim(11)->stop();
-                u8 privacyMode = static_cast<u8>(WDGetPrivacyMode(descriptor));
+                u8 privacyMode = static_cast<u8>(WDGetPrivacyMode(mAPScanList.currentDescriptor));
                 char ssid[0x21];
                 wchar_t displayName[0x21];
-                memcpy(ssid, descriptor->ssid, 0x20);
+                memcpy(ssid, mAPScanList.currentDescriptor->ssid, 0x20);
                 ssid[0x20] = 0;
                 memset(displayName, 0, sizeof(displayName));
                 int row = index + 1 - unk_0x914;
                 if (row >= 0 && row <= 5) {
-                    utility::CharacterCode::UTF8ToUTF16(displayName, ssid, 0x21);
-                    nw4r::lyt::TextBox* textBox = static_cast<nw4r::lyt::TextBox*>(
+                    nw4r::lyt::TextBox* textBox = nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(
                         mpMainLayout->FindPaneByName(sSettingAPTextNames[row]));
+                    utility::CharacterCode::UTF8ToUTF16(displayName, ssid, 0x21);
                     textBox->SetString(displayName);
                     if (privacyMode == 0) {
                         mpMainLayout->getAnim(row + APPrivacyOpenAnimation)->initFrame();
@@ -2779,7 +2778,7 @@ namespace ipl {
                          animation <= row + APSignalAnimationEnd; animation += 6) {
                         mpMainLayout->getAnim(animation)->stop();
                     }
-                    int signal = getRadioLevel(descriptor);
+                    int signal = getRadioLevel(mAPScanList.currentDescriptor);
                     mpMainLayout->getAnim(row + signal * 6 + APSignalAnimationBase)->initFrame();
                     mpMainLayout->getAnim(row + signal * 6 + APSignalAnimationBase)->restart();
                 }
