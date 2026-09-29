@@ -950,6 +950,23 @@ namespace ipl {
             }
         }
 
+        void SDChannelSelect::updateChannelObjects() {
+            SDChannelObj* channel = NULL;
+            while (channel = static_cast<SDChannelObj*>(nw4r::ut::List_GetNext(&mChannelObjects, channel)),
+                   channel != NULL) {
+                updateChannelObject(channel);
+            }
+        }
+
+        void SDChannelSelect::updateChannelObject(SDChannelObj* channel) {
+            iplSDChannelObj_813E3104(channel);
+            iplSDChannelObj_813E311C(channel, mpDialogHeap, mpChannelHeap);
+            iplSDChannelObj_813E3178(channel,
+                                     getChannelBasePane(channel->getPage(), channel->getIndex(),
+                                                        mCurrentPage));
+            iplSDChannelObj_813E3180(channel, mpLayoutFile);
+        }
+
         void SDChannelSelect::calcChannelObjects() {
             SDChannelObj* channel = NULL;
             while (channel = static_cast<SDChannelObj*>(nw4r::ut::List_GetNext(&mChannelObjects, channel)),
@@ -1293,6 +1310,23 @@ namespace ipl {
             for (int index = 0; index < 4; ++index) {
                 mpPageAnimations[index] = new math::HermiteIntp<math::VEC3>();
             }
+        }
+
+        bool SDChannelSelect::isChannelInCalc(int page, int index, int currentPage) const {
+            int relativePage = page - currentPage;
+            if (relativePage <= -3 || relativePage >= 3 ||
+                strcmp(mscChannelPaneNames[relativePage + 2][index], "") == 0) {
+                return false;
+            }
+            return true;
+        }
+
+        nw4r::lyt::Pane* SDChannelSelect::getChannelBasePane(int page, int index,
+                                                             int currentPage) const {
+            if (isChannelInCalc(page, index, currentPage)) {
+                return mpLayout->FindPaneByName(mscChannelPaneNames[page - currentPage + 2][index]);
+            }
+            return mpLayout->FindPaneByName("Picture_16");
         }
 
         void SDChannelSelect::startResetting() {

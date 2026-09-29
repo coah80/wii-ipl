@@ -28,7 +28,11 @@ namespace ipl {
             int mIndex;
         };
         extern "C" void iplSDChannelObj_813E3104(SDChannelObj* channel);
+        extern "C" void iplSDChannelObj_813E311C(SDChannelObj* channel, EGG::ExpHeap* firstHeap,
+                                                  EGG::ExpHeap* secondHeap);
         extern "C" void iplSDChannelObj_813E322C(SDChannelObj* channel);
+        extern "C" void iplSDChannelObj_813E3178(SDChannelObj* channel, nw4r::lyt::Pane* pane);
+        extern "C" void iplSDChannelObj_813E3180(SDChannelObj* channel, nand::LayoutFile* layoutFile);
         extern "C" void iplSDChannelObj_813E3304(SDChannelObj* channel);
         extern "C" void iplSDChannelObj_813E330C(SDChannelObj* channel);
 
@@ -125,7 +129,11 @@ namespace ipl {
             void clearCommandQueue();
             void clearNoticeQueue();
             void calcChannelObjects();
+            void updateChannelObjects();
+            void updateChannelObject(SDChannelObj* channel);
             void drawChannelObjects();
+            bool isChannelInCalc(int page, int index, int currentPage) const;
+            nw4r::lyt::Pane* getChannelBasePane(int page, int index, int currentPage) const;
             void updateArrowVisibility();
             void processWorkerState();
             void updateDialogAnimation();
