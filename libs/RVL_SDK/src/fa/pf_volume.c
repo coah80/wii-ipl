@@ -667,10 +667,13 @@ merge:
 err_test:
     switch (err) {
     case 0:
-        if ((p_vol->flags & 0x08) != 0) {
+        switch (p_vol->flags & 0x08) {
+        default:
             err = -(s32)((p_vol->flags >> 1) & 0x01) & 0x0B;
-        } else {
+            break;
+        case 0:
             err = 9;
+            break;
         }
         break;
     default:
@@ -907,12 +910,19 @@ mount_done:
 merge:
     err = 0;
 err_test:
-    if (err == 0) {
-        if ((p_vol->flags & 0x08) == 0) {
-            err = 9;
-        } else {
+    switch (err) {
+    case 0:
+        switch (p_vol->flags & 0x08) {
+        default:
             err = -(s32)((p_vol->flags >> 1) & 0x01) & 0x0B;
+            break;
+        case 0:
+            err = 9;
+            break;
         }
+        break;
+    default:
+        break;
     }
     if (err != 0) {
         pf_vol_set.last_error = err;
@@ -1126,12 +1136,19 @@ mount_done:
 merge:
     err = 0;
 err_test:
-    if (err == 0) {
-        if ((p_vol->flags & 0x08) != 0) {
+    switch (err) {
+    case 0:
+        switch (p_vol->flags & 0x08) {
+        default:
             err = -(s32)((p_vol->flags >> 1) & 0x01) & 0x0B;
-        } else {
+            break;
+        case 0:
             err = 9;
+            break;
         }
+        break;
+    default:
+        break;
     }
     if (err != 0) {
         pf_vol_set.last_error = err;
@@ -1324,12 +1341,19 @@ mount_done:
 merge:
     err = 0;
 err_test:
-    if (err == 0) {
-        if ((p_vol->flags & 0x08) == 0) {
-            err = 9;
-        } else {
+    switch (err) {
+    case 0:
+        switch (p_vol->flags & 0x08) {
+        default:
             err = -(s32)((p_vol->flags >> 1) & 0x01) & 0x0B;
+            break;
+        case 0:
+            err = 9;
+            break;
         }
+        break;
+    default:
+        break;
     }
     if (err != 0) {
         pf_vol_set.last_error = err;
@@ -2110,12 +2134,19 @@ mount_done:
 merge:
     err = 0;
 err_test:
-    if (err == 0) {
-        if ((p_vol->flags & 0x08) == 0) {
-            err = 9;
-        } else {
+    switch (err) {
+    case 0:
+        switch (p_vol->flags & 0x08) {
+        default:
             err = -(s32)((p_vol->flags >> 1) & 0x01) & 0x0B;
+            break;
+        case 0:
+            err = 9;
+            break;
         }
+        break;
+    default:
+        break;
     }
     if (err != 0) {
         pf_vol_set.last_error = err;
