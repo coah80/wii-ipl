@@ -142,7 +142,7 @@ namespace ipl {
             u8 unk_0x88[8];
             int mFuncMsgPending;
             int unk_0x94;
-            u8 unk_0x98[8];
+            ESTitleId mUpdateTitleId;
             u32 mPrepareTick;
             u8 mSettingData[0x16];
             u8 unk_0xBA[2];

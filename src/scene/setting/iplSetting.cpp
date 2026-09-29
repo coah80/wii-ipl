@@ -19,6 +19,8 @@
 #include <revolution/tpl.h>
 #include <revolution/vi.h>
 #include <revolution/wpad.h>
+#include <private/os/OSExec.h>
+#include <private/os/OSSram.h>
 
 namespace ipl {
     namespace keyboard {
@@ -1181,6 +1183,71 @@ namespace ipl {
             mpMainLayout->calc();
             mpWaitLayout->calc();
             unk_0x91C[2] = 0;
+            return FADER_SCN_CONTINUE;
+        }
+
+        FaderSceneCommand Setting::calcFadeout() {
+            if (System::getFader()->getStatus() == EGG::Fader::PREPARE_IN) {
+                if (unk_0x5C == 0) {
+                    unk_0x5C = 1;
+                    ext_ead::www::SurfaceManager::GetInstance()->StopThreadAsync();
+                    OSReport("!!!!!!!!!!!!! SCFlush !!!!!!!!!!!!!!\n");
+                    SCFlush();
+                } else if (unk_0x7C == 5) {
+                if (mInitialArgument == 2 || mInitialArgument == 5) {
+                    SCSetConfigDoneFlag(TRUE);
+                    SCSetConfigDoneFlag2(TRUE);
+                    SCSetUpdateType(0);
+                    SCFlush();
+                }
+
+                    while (WPADGetStatus() != 0 ||
+                           System::getBS2Manager()->getIPLState() != bs2::IPL_STATE_8) {
+                        snd::getSystem()->calc();
+                        System::getBS2Manager()->update();
+                        VIWaitForRetrace();
+                        if (WPADGetStatus() != 0) {
+                            OSReport("wait for WPAD\n");
+                        }
+                        if (System::getBS2Manager()->getIPLState() != bs2::IPL_STATE_8) {
+                            OSReport("wait for BS2\n");
+                        }
+                    }
+
+                    VISetBlack(TRUE);
+                    VIFlush();
+                    VIWaitForRetrace();
+                    OSReport("VI Black\n");
+                    while (!__OSSyncSram()) {
+                        OSReport("sync sram\n");
+                    }
+                    while (!System::isReceiveScheduleStopped()) {
+                        OSReport("Wait ScheduleStopped\n");
+                        OSSleepMilliseconds(5);
+                    }
+                    __OSLaunchTitlelForSystem(mUpdateTitleId, 0, NULL);
+                    for (;;) {
+                        OSReport(NULL);
+                    }
+                } else if (ext_ead::www::SurfaceManager::GetInstance()->IsThreadStopped()) {
+                    OSReport("reserve destroy\n");
+                    ext_ead::www::SurfaceManager::DisposeManager();
+                    OSReport("reserve destroy done\n");
+                    if (mInitialArgument == 2 || mInitialArgument == 5) {
+                        SCSetConfigDoneFlag(TRUE);
+                        SCSetConfigDoneFlag2(TRUE);
+                        SCSetUpdateType(0);
+                        SCFlush();
+                        reserveAllSceneDestruction(0x1a, NULL);
+                    } else {
+                        System::reloadDownloadTask();
+                        reserveAllSceneDestruction(0x15, NULL);
+                    }
+                    delete mpBrowserData;
+                    return FADER_SCN_NEXT;
+                }
+            }
+
             return FADER_SCN_CONTINUE;
         }
 
