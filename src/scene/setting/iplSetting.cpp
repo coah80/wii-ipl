@@ -2734,8 +2734,7 @@ namespace ipl {
 
         void Setting::updateScroll() {
             if (unk_0x91C[0] == 0) {
-                --unk_0x914;
-                if (unk_0x914 == 0) {
+                if (--unk_0x914 == 0) {
                     layout::Animator* animation = mpMainLayout->getAnim(2);
                     animation->initFrame();
                     animation->restart();
