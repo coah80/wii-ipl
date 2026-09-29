@@ -391,14 +391,11 @@ void ipl::scene::AddressEdit::prepare() {
 
 void ipl::scene::AddressEdit::create() {
 
-    ipl::layout::Object* bLayout;
-    ipl::scene::Board* board = static_cast<ipl::scene::Board*>(ipl::System::getScene(4));
-    ipl::nand::LayoutFile* boardFile = board->getLayoutFile();
+    ipl::nand::LayoutFile* boardFile =
+        static_cast<ipl::scene::Board*>(ipl::System::getScene(4))->getLayoutFile();
 
-    bLayout = reinterpret_cast<ipl::layout::Object*>(__nw__FUl(0x580));
-    if (bLayout != NULL) {
-        bLayout = new (bLayout) ipl::layout::Object(getHeap(), boardFile, "arc", "th_Adress_b.brlyt");
-    }
+    ipl::layout::Object* bLayout =
+        new ipl::layout::Object(getHeap(), boardFile, "arc", "th_Adress_b.brlyt");
     bLayout->bindToGroup("th_Adress_b_card_strt.brlan", "card_strt_fnsh", false, true);
     bLayout->bindToGroup("th_Adress_b_btn_in.brlan", "crd_btn_00", false, true);
     bLayout->bindToGroup("th_Adress_b_btn_in.brlan", "crd_btn_10", false, false);
@@ -432,15 +429,9 @@ void ipl::scene::AddressEdit::create() {
     bLayout->bindToGroup("th_Adress_b_card_fnsh.brlan", "card_strt_fnsh", false, false);
     bLayout->finishBinding();
 
-    ipl::scene::AddressEditEvent* editEvent = static_cast<ipl::scene::AddressEditEvent*>(__nw__FUl(sizeof(ipl::scene::AddressEditEvent)));
-    if (editEvent != NULL) {
-        new (editEvent) ipl::scene::AddressEditEvent(this);
-    }
-    void* editManagerMemory = __nw__FUl(0x34);
-    ipl::gui::PaneManager* editManager = reinterpret_cast<ipl::gui::PaneManager*>(editManagerMemory);
-    if (editManagerMemory != NULL) {
-        editManager = new (editManagerMemory) ipl::gui::PaneManager(static_cast< ::gui::EventHandler*>(editEvent), bLayout->getDrawInfo(), NULL, NULL, false);
-    }
+    ipl::scene::AddressEditEvent* editEvent = new ipl::scene::AddressEditEvent(this);
+    ipl::gui::PaneManager* editManager = new ipl::gui::PaneManager(
+        static_cast< ::gui::EventHandler*>(editEvent), bLayout->getDrawInfo(), NULL, NULL, false);
     editManager->setupScene(bLayout);
     editManager->setAllComponentTriggerTarget(false);
     for (s32 i = 0; i < 5; i++) {
@@ -473,10 +464,8 @@ void ipl::scene::AddressEdit::create() {
         ->getNW4RLyt()->GetRootPane()->FindPaneByName("T_frnd_crd_00", true);
     set_textbox(textPane, L"");
 
-    ipl::layout::Object* cLayout = reinterpret_cast<ipl::layout::Object*>(__nw__FUl(0x580));
-    if (cLayout != NULL) {
-        cLayout = new (cLayout) ipl::layout::Object(getHeap(), boardFile, "arc", "th_Adress_c.brlyt");
-    }
+    ipl::layout::Object* cLayout =
+        new ipl::layout::Object(getHeap(), boardFile, "arc", "th_Adress_c.brlyt");
     cLayout->bindToGroup("th_Adress_c_card_strt.brlan", "G_card_strt_fnsh", false, true);
     cLayout->bindToGroup("th_Adress_c_question_alp_in.brlan", "G_question_00", false, true);
     cLayout->bindToGroup("th_Adress_c_name_alp_in.brlan", "G_name_00", false, true);
@@ -489,15 +478,9 @@ void ipl::scene::AddressEdit::create() {
     cLayout->bindToGroup("th_Adress_c_card_fnsh.brlan", "G_card_strt_fnsh", false, false);
     cLayout->finishBinding();
 
-    ipl::scene::AddressInputEvent* inputEvent = static_cast<ipl::scene::AddressInputEvent*>(__nw__FUl(sizeof(ipl::scene::AddressInputEvent)));
-    if (inputEvent != NULL) {
-        new (inputEvent) ipl::scene::AddressInputEvent(this);
-    }
-    void* inputManagerMemory = __nw__FUl(0x34);
-    ipl::gui::PaneManager* inputManager = reinterpret_cast<ipl::gui::PaneManager*>(inputManagerMemory);
-    if (inputManagerMemory != NULL) {
-        inputManager = new (inputManagerMemory) ipl::gui::PaneManager(static_cast< ::gui::EventHandler*>(inputEvent), cLayout->getDrawInfo(), NULL, NULL, false);
-    }
+    ipl::scene::AddressInputEvent* inputEvent = new ipl::scene::AddressInputEvent(this);
+    ipl::gui::PaneManager* inputManager = new ipl::gui::PaneManager(
+        static_cast< ::gui::EventHandler*>(inputEvent), cLayout->getDrawInfo(), NULL, NULL, false);
     inputManager->setupScene(cLayout);
     inputManager->setAllComponentTriggerTarget(false);
     textPane = cLayout->getNW4RLyt()->GetRootPane()->FindPaneByName(sInputPaneName, true);
@@ -506,10 +489,8 @@ void ipl::scene::AddressEdit::create() {
     mpInputEvent = inputEvent;
     mpInputGui = inputManager;
 
-    ipl::layout::Object* background = reinterpret_cast<ipl::layout::Object*>(__nw__FUl(0x580));
-    if (background != NULL) {
-        background = new (background) ipl::layout::Object(getHeap(), boardFile, "arc", "my_Back_a.brlyt");
-    }
+    ipl::layout::Object* background =
+        new ipl::layout::Object(getHeap(), boardFile, "arc", "my_Back_a.brlyt");
     mpBackgroundLayout = background;
     background->bind("my_Back_a_Apear.brlan", "Picture_00", false, true);
     (mpBackgroundLayout)
