@@ -23,8 +23,8 @@ typedef struct AOSSSocketAddress {
 typedef struct AOSSRuntimeState {
     void* config;
     u32 configLength;
-    u32 flags;
     u32 state;
+    u32 flags;
     u32 ipAddress;
     u32 subnetMask;
     u8 active;
@@ -127,7 +127,8 @@ typedef struct AOSSIncomingMessage {
     u16 opcode;
     u8 reserved08[2];
     u16 authType;
-    u8 reserved0c[3];
+    u16 flags;
+    u8 reserved0e;
     u8 messageType;
     AOSSPacketPayload payload;
 } AOSSIncomingMessage;
@@ -1609,46 +1610,37 @@ int AOSS_CheckAP(AOSSAccessPointRecord* list) {
 int AOSS_814001B4(int state, AOSSReceiveBuffer* packet, int* count, AOSSRequestRecords* request) {
     u16 messageLength = SONtoHs(packet->message.messageLength);
     int opcode;
-    int validationResult;
 
     if (messageLength < 1) {
-        goto reject_empty;
+        *count = *count + 1;
+        return state;
     }
     if (packet->message.messageType != 0x11) {
-        goto reject_type;
+        *count = *count + 1;
+        return state;
     }
-    validationResult = AOSS_81400830((AOSSDecryptionMessage*)&packet->message);
-    if (validationResult >= 1) {
-        goto reject_invalid;
+    if (AOSS_81400830((AOSSDecryptionMessage*)&packet->message) > 0) {
+        *count = *count + 1;
+        return state;
     }
     opcode = (u16)SONtoHs(packet->message.opcode);
-    if (opcode == 0x2010) {
+    switch (opcode) {
+    case 0x1010:
+        state = AOSS_814002F0(state, packet, count, request);
+        break;
+    case 0x2010:
         state = AOSS_814004D0(state, packet, count, request);
-    } else if (opcode < 0x2010) {
-        if (opcode == 0x1010) {
-            state = AOSS_814002F0(state, packet, count, request);
-        }
-    } else if (opcode == 0x3010) {
+        break;
+    case 0x3010:
         state = AOSS_814006A4(state, packet, count, request);
+        break;
     }
-    goto done;
-
-reject_empty:
-    *count = *count + 1;
-    goto done;
-reject_type:
-    *count = *count + 1;
-    goto done;
-reject_invalid:
-    *count = *count + 1;
-done:
     return state;
 }
 
 int AOSS_814002F0(int state, AOSSReceiveBuffer* packet, int* count, AOSSRequestRecords* request) {
     AOSSReplyPayload* reply;
     AOSSRequestRecord* requestRecord;
-    size_t manufacturerLength = strlen(s_manufacturer);
     int compareResult;
     u16 packetSequence;
     u16 requestSequence;
@@ -1665,7 +1657,7 @@ int AOSS_814002F0(int state, AOSSReceiveBuffer* packet, int* count, AOSSRequestR
     validationResult = 0;
     reply = &packet->message.payload.reply;
     requestRecord = &request->records[0];
-    AOSS_81401E80(&packet->message.payload.manufacturerAddress, 8, s_manufacturer, manufacturerLength);
+    AOSS_81401E80(&packet->message.payload.manufacturerAddress, 8, s_manufacturer, strlen(s_manufacturer));
     compareResult = memcmp(requestRecord->address,
                            packet->message.payload.manufacturerAddress, 6);
     if (compareResult != 0) {
@@ -1679,37 +1671,38 @@ int AOSS_814002F0(int state, AOSSReceiveBuffer* packet, int* count, AOSSRequestR
     }
     if (validationResult < 0) {
         *count = *count + 1;
-    } else {
-        status = SONtoHs(reply->status);
-        if (status == 0) {
-            *count = *count + 1;
-        } else if (reply->responseType == 7) {
-            if (SONtoHl(reply->data.address) == -2) {
-                s_errorCode = 0x14;
-            } else {
-                addressStatus = SONtoHl(reply->data.address);
-                s_errorCode = addressStatus == (u32)-3 ? 0x15 : 0x18;
-            }
-            state = -1;
-        } else if (reply->responseType == 1) {
-            parserResult = AOSS_81400E0C(&reply->data.optionRecord, s_networkBuffer);
-            if (parserResult < 0) {
-                if (parserResult == -2) {
-                    state = -1;
-                    s_errorCode = 0x16;
-                } else {
-                    *count = *count + 1;
-                }
-            } else {
-                packetSequence = SONtoHs(packet->message.payload.sequence);
-                s_operationState = (packetSequence & 0x10) != 0;
-                state = 1;
-                *count = 0;
-            }
-        } else {
-            *count = *count + 1;
-        }
+        return state;
     }
+    status = SONtoHs(reply->status);
+    if (status == 0) {
+        *count = *count + 1;
+        return state;
+    }
+    if (reply->responseType == 7) {
+        u32* addressPtr = &reply->data.address;
+        if (SONtoHl(*addressPtr) == -2) {
+            s_errorCode = 0x14;
+        } else {
+            addressStatus = SONtoHl(*addressPtr);
+            s_errorCode = addressStatus == (u32)-3 ? 0x15 : 0x18;
+        }
+        return -1;
+    }
+    if (reply->responseType == 1) {
+        parserResult = AOSS_81400E0C(&reply->data.optionRecord, s_networkBuffer);
+        if (parserResult < 0) {
+            if (parserResult == -2) {
+                s_errorCode = 0x16;
+                return -1;
+            }
+            *count = *count + 1;
+            return state;
+        }
+        s_operationState = (SONtoHs(packet->message.flags) & 0x10) != 0;
+        *count = 0;
+        return 1;
+    }
+    *count = *count + 1;
     return state;
 }
 
@@ -1770,7 +1763,7 @@ int AOSS_814004D0(int state, AOSSReceiveBuffer* packet, int* count, AOSSRequestR
                 *count = *count + 1;
                 return state;
             }
-            if ((s_runtime.state & s_runtime.flags) == 0) {
+            if ((s_runtime.flags & s_runtime.state) == 0) {
                 return state;
             }
             *count = 0;
@@ -2231,10 +2224,10 @@ int AOSS_814013AC(int state, const AOSSReplyOption* response, int responseLength
     AOSSStoredConfig* tkipConfig;
     AOSSStoredConfig* aesConfig;
     u8* networkSettings;
-    u32 flags = 0;
     u32 length;
-    s32 remainingLength = responseLength;
     int result;
+    u32 flags = 0;
+    s32 remainingLength = responseLength;
 
     if (remainingLength <= 0) {
         return -2;
@@ -2245,17 +2238,17 @@ int AOSS_814013AC(int state, const AOSSReplyOption* response, int responseLength
         if (responseRecord->fields.type == s_responseTypeByState[state]) {
             break;
         }
-        length = SONtoHs(responseRecord->fields.length);
-        remainingLength -= length + 4;
-        responseRecord = (const AOSSReplyOption*)&responseRecord->bytes[length + 4];
+        length = SONtoHs(responseRecord->fields.length) + 4;
+        remainingLength -= length;
+        responseRecord = (const AOSSReplyOption*)((u8*)responseRecord + length);
         if (remainingLength <= 0) {
             return -4;
         }
     }
 
     length = responseRecord->fields.length;
-    remainingLength = SONtoHs((u16)length);
     option = (const AOSSReplyOption*)&responseRecord->bytes[4];
+    remainingLength = SONtoHs((u16)length);
     configRecord = &((AOSSConfigData*)config)->records[state];
     networkSettings = ((AOSSNetworkBufferRecord*)networkData)[state + 3].bytes;
     wep40Config = (AOSSStoredConfig*)&configRecord->reserved00[8];
@@ -2283,23 +2276,27 @@ int AOSS_814013AC(int state, const AOSSReplyOption* response, int responseLength
             break;
         case 10:
             length = SONtoHs(option->fields.payload.network.networkLength);
-            if (length == 0 || option->fields.payload.network.networkType != 0x70) {
+            if ((s32)length <= 0) {
+                return -1;
+            }
+            if (option->fields.payload.network.networkType != 0x70) {
                 return -1;
             }
             memcpy(networkSettings, option->fields.payload.network.networkData, length);
             result = 0;
             break;
         default:
-            return -3;
+            result = -3;
+            break;
         }
 
         if (result != 0) {
             return result;
         }
 
-        length = SONtoHs(option->fields.length);
-        remainingLength -= length + 4;
-        option = (const AOSSReplyOption*)&option->bytes[length + 4];
+        length = SONtoHs(option->fields.length) + 4;
+        remainingLength -= length;
+        option = (const AOSSReplyOption*)((u8*)option + length);
     } while (remainingLength > 0);
 
     s_runtime.flags |= flags;
@@ -2335,10 +2332,11 @@ int AOSS_81401574(void* packet, AOSSRequestRecords* request, int socket) {
         }
         result = -1;
     } else {
-        s16 requestLength = recordLength + 4;
+        s16 requestLength;
 
         requestRecord->type = 0;
-        requestRecord->length = SOHtoNs(recordLength);
+        requestRecord->length = SOHtoNs((u16)recordLength);
+        requestLength = (s16)(recordLength + 4);
         memcpy(responsePayload, requestRecord, requestLength);
         encryptionResult = AOSS_81401E80(accessPointName, 8, s_manufacturer, 6);
         if (encryptionResult != 0) {
@@ -2364,7 +2362,8 @@ int AOSS_81401574(void* packet, AOSSRequestRecords* request, int socket) {
         SOHtoNl(s_runtime.ipAddress);
         destination.address = 0xffffffff;
         destination.length = 8;
-        SOSendTo(socket, response, requestLength + 0x18, 0, &destination);
+        requestLength += 0x18;
+        SOSendTo(socket, response, requestLength, 0, &destination);
         if (requestRecord != 0) {
             AOSSi_Free(requestRecord);
         }
@@ -2498,7 +2497,7 @@ s16 AOSS_81401BBC(void* buffer) {
     roundedLength += roundedLength >> 31;
     dataLength = (s16)(roundedLength & ~1u);
     record->nextOffset = SOHtoNs(dataLength);
-    record = (AOSSOptionRecord*)((u8*)record + dataLength);
+    record = (AOSSOptionRecord*)(dataLength + (u32)record);
     record->type = 0x60;
     record->reserved01 = 0;
     record->nextOffset = SOHtoNs(0);
