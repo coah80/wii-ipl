@@ -200,7 +200,9 @@ struct __zi8_work_data_s {
     ziU8 unk_0x326[2];
     ziU32 oemIdx;  //0x328
     ziPtr oemData; //0x32C
-    ziU8 unk_0x330[0x208];
+    ziU8 unk_0x330[8];
+    ziU32 unk_0x338;
+    ziU8 unk_0x33C[0x1FC];
     ziU8 unk_0x538;
     ziU8 unk_0x539[0xCC7];
     ziU32 userKeys[0x80];
