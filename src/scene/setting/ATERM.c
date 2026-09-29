@@ -613,14 +613,14 @@ int ATERM_81402424(u16* resultBuffer, u32 resultBufferLength) {
     int cleanupRetries = 0;
     int unlockRetries = 0;
     int scanResult;
-    OSMessage startupQueueBuffer[1];
     OSMessage startupMessage;
-    OSMessage scanQueueBuffer[1];
+    OSMessage startupQueueBuffer[1];
     OSMessage scanMessage;
-    OSMessage cleanupQueueBuffer[1];
+    OSMessage scanQueueBuffer[1];
     OSMessage cleanupMessage;
-    OSMessage unlockQueueBuffer[1];
+    OSMessage cleanupQueueBuffer[1];
     OSMessage unlockMessage;
+    OSMessage unlockQueueBuffer[1];
     u32 scanStatus;
     u8 interfaceMac[8];
     OSMessageQueue startupQueue;
@@ -631,7 +631,7 @@ int ATERM_81402424(u16* resultBuffer, u32 resultBufferLength) {
     OSAlarm scanAlarm;
     OSAlarm cleanupAlarm;
     OSAlarm unlockAlarm;
-    WDScanParam scanParameters;
+    WDScanParam scanParameters ATTRIBUTE_ALIGN(32);
     WD_Info interfaceInfo ATTRIBUTE_ALIGN(32);
 
     lockId = NCDLockWirelessDriver();
@@ -672,7 +672,7 @@ int ATERM_81402424(u16* resultBuffer, u32 resultBufferLength) {
 
         scanResult = WD_Scan(&scanParameters, (u8*)scanBuffer, scanBufferLength & 0xFFFF);
         if (scanResult != 0 && scanResult != -0x7FFF7FFC) {
-            goto cleanup_driver;
+            goto scan_failed;
         }
 
         scanStatus = *scanBuffer;
@@ -695,6 +695,8 @@ int ATERM_81402424(u16* resultBuffer, u32 resultBufferLength) {
         OSReceiveMessage(&scanQueue, &scanMessage, 1);
     }
 
+scan_failed:
+    result = -6;
 cleanup_driver:
     while (WD_Cleanup() != 0) {
         if (cleanupRetries > 10) {
