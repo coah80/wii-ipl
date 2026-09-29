@@ -56,7 +56,7 @@ void SensitivityDrawing::draw(nand::File* file) {
     utility::Graphics::setDefaultOrtho(0);
 
     GXSetScissor((u32)(ws * (0.5f * rect.left + fw2)),
-                 (u32)(hs * (fh2 - 720.0f * rect.top - 720.0f)),
+                 (u32)(hs * (fh2 + -720.0f * rect.top + -720.0f)),
                  (u32)(ws * (0.5f * (rect.right - rect.left))),
                  (u32)(hs * (0.5f * (rect.bottom - rect.top))));
 
@@ -109,10 +109,12 @@ void SensitivityDrawing::draw(nand::File* file) {
                 f32 s = 0.15f * (obj->size + 0x19);
 
                 nw4r::ut::Rect pos;
-                pos.left = xs * x - s;
-                pos.top = (s - ys * y) - -720.0f;
-                pos.right = xs * x + s;
-                pos.bottom = (-ys * y - s) - -720.0f;
+                f32 sx = xs * x;
+                f32 sy = ys * y;
+                pos.left = sx - s;
+                pos.top = (s - sy) - -720.0f;
+                pos.right = sx + s;
+                pos.bottom = (-sy - s) - -720.0f;
 
                 GXColor pointColor = {0xFF, 0xFF, 0xFF, 0xFF};
                 utility::Graphics::drawTexture(pos, texObj, pointColor, 2,
