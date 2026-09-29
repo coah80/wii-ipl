@@ -553,6 +553,7 @@ s32 _WADGetCidxCount(const ESContentMask* contentMask) {
 static s32 _WADGetCidx(const ESContentMask* contentMask, s32 contentNumber) {
     u32 bitIndex = 0;
     u32 groupIndex;
+    u32 nextIndex;
 
     contentNumber++;
     for (groupIndex = 0; groupIndex < 0x80; groupIndex++) {
@@ -562,23 +563,26 @@ static s32 _WADGetCidx(const ESContentMask* contentMask, s32 contentNumber) {
         if (contentNumber == 0) {
             return bitIndex;
         }
-        if ((contentMask->data[(s32)(bitIndex + 1) >> 3] & (1 << ((bitIndex + 1) & 7))) != 0) {
+        nextIndex = bitIndex + 1;
+        if ((contentMask->data[(s32)nextIndex >> 3] & (1 << (nextIndex & 7))) != 0) {
             contentNumber--;
         }
         if (contentNumber == 0) {
-            return bitIndex + 1;
+            return nextIndex;
         }
-        if ((contentMask->data[(s32)(bitIndex + 2) >> 3] & (1 << ((bitIndex + 2) & 7))) != 0) {
+        nextIndex++;
+        if ((contentMask->data[(s32)nextIndex >> 3] & (1 << (nextIndex & 7))) != 0) {
             contentNumber--;
         }
         if (contentNumber == 0) {
-            return bitIndex + 2;
+            return nextIndex;
         }
-        if ((contentMask->data[(s32)(bitIndex + 3) >> 3] & (1 << ((bitIndex + 3) & 7))) != 0) {
+        nextIndex++;
+        if ((contentMask->data[(s32)nextIndex >> 3] & (1 << (nextIndex & 7))) != 0) {
             contentNumber--;
         }
         if (contentNumber == 0) {
-            return bitIndex + 3;
+            return nextIndex;
         }
         bitIndex += 4;
     }
