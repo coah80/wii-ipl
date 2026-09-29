@@ -90,6 +90,7 @@ NWC24Err NWC24FDeleteVF(const char* path);
 NWC24Err NWC24MountVF(const char* drive, const char* fileName);
 NWC24Err NWC24UnmountVF(const char* drive);
 NWC24Err NWC24CheckSizeVF(const char* drive, u32* pSize);
+NWC24Err NWC24CreateVF(const char* path, u32 fileSize);
 
 NWC24Err NWC24FStreamInit(NWC24FileStream* stream, NWC24File* file, u32 baseOffset, u32 areaSize, char* buffer, u32 size);
 u32 NWC24FStreamGetSize(NWC24FileStream* stream);
