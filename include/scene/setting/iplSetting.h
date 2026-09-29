@@ -48,7 +48,10 @@ namespace ipl {
             u8 unknown[0x14];
             u16 count;
             u8 entries[0x7fe];
-            WDBssDesc_* currentDescriptor;
+            union {
+                WDBssDesc_* currentDescriptor;
+                u16* currentDescriptorWords;
+            };
         };
 #endif
 

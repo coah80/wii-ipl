@@ -393,10 +393,9 @@ namespace ipl {
         void Setting::createBrowser() {
             EGG::Heap* mem1Heap = System::createMem1AppHeap();
             u32 mem1Size = mem1Heap->getAllocatableSize(4);
-            EGG::Heap* mem2Heap = System::getMem2App();
-            u32 mem2Size = mem2Heap->getAllocatableSize(4) - 0x80000;
+            u32 mem2Size = static_cast<u32>(System::getMem2App()->getAllocatableSize(4) - 0x80000 - 2.6 * 1024 * 1024);
             mem1Buffer_ = System::createMem1AppHeap()->alloc(mem1Size, 4);
-            mem2Buffer_ = mem2Heap->alloc(mem2Size, 4);
+            mem2Buffer_ = System::getMem2App()->alloc(mem2Size, 4);
             OSReport("Setting Scene: mem1: %d  mem2: %d\n", mem1Size, mem2Size);
 
             nw4r::ut::Rect projection16x9;
@@ -409,12 +408,18 @@ namespace ipl {
             const char* urlFormats[] = {"marc:%s/%s/", "file:dvd/html/IPLSetting/%s/%s/"};
             const char* pagePaths[] = {
                 "index01.html", "Internet/Internet_index.html", "Setup/startup_index1.html",
-                "Update/Update_index.html", "index02.html", "Setup/ScreenSave.html",
-                "Country/US_Country_flame.html",
+                "Update/Update_index.html", "index02.html", "%s", "%s",
             };
-            const char* pageNames[] = {"Calendar", "Parental_Control", "Internet", "Wiiconnect24"};
-            const char* regionCodes[] = {"JP/JP", "FIX/US", "EU/EU", "TW/TW", "KR/KR", "CN/CN"};
-            const char* languageCodes[] = {"JPN", "ENG", "GER", "FRA", "SPA", "ITA", "DUT", "CHN", "KOR"};
+            const char* regionCodes[] = {"JP/JP", "FIX/US", "EU/EU", "", "", "TW/TW", "KR/KR",
+                                         "",       "",      "",      "", "CN/CN"};
+            const char* languageCodes[] = {"JPN", "ENG", "GER", "FRA", "SPA", "ITA",
+                                           "DUT", "CHN", "ENG", "KOR"};
+            const char* regionPages[] = {"Setup/ScreenSave.html", "Country/US_Country_flame.html",
+                                         "Setup/ScreenSave.html", "Setup/ScreenSave.html",
+                                         "Setup/ScreenSave.html", "Setup/ScreenSave.html",
+                                         "Setup/ScreenSave.html", "Setup/ScreenSave.html",
+                                         "Setup/ScreenSave.html", "Setup/ScreenSave.html",
+                                         "Setup/ScreenSave.html", "Calendar"};
 
             char basePath[100];
             char browserPath[100];
@@ -427,39 +432,59 @@ namespace ipl {
             }
             strcat(basePath, pagePaths[pageIndex]);
 
-            int regionIndex = 1;
-            char productArea = SCGetProductArea();
-            if (productArea >= 0 && productArea < 4) {
-                regionIndex = productArea > 2 ? 2 : 0;
-            } else if (productArea == 6) {
-                regionIndex = 4;
-            } else if (productArea == 11) {
-                regionIndex = 5;
-            } else if (productArea >= 7 && productArea < 11) {
-                regionIndex = 2;
+            s8 regionIndex = static_cast<s8>(SCGetProductArea());
+            if (regionIndex == 4) {
+                regionIndex = 1;
+            } else if (regionIndex >= 4) {
+                if (regionIndex == 11) {
+                } else if (regionIndex >= 11) {
+                    regionIndex = 1;
+                } else if (regionIndex >= 7) {
+                    regionIndex = 1;
+                }
+            } else {
+                if (regionIndex >= 3) {
+                    regionIndex = 2;
+                } else if (regionIndex >= 0) {
+                } else {
+                    regionIndex = 1;
+                }
             }
 
             if (mInitialArgument == ARG_UNK_5) {
                 snprintf(browserPath, sizeof(browserPath), basePath, regionCodes[regionIndex],
-                         languageCodes[System::getLanguage()], pagePaths[pageIndex]);
+                         languageCodes[System::getLanguage()], regionPages[regionIndex]);
             } else if (mInitialArgument == ARG_UNK_6) {
-                int directPage = 0;
-                for (int index = 0; index < 4; index++) {
-                    if (strstr(mpStringBuffer->netSettingArg, pageNames[index]) != NULL) {
-                        directPage = index;
+                const char* pageNames[] = {"Display", "Sound", "Parental_Control", "Internet",
+                                           "Wiiconnect24", "Update", "Update"};
+                int directPage;
+                for (directPage = 0; directPage < 7; directPage++) {
+                    if (strstr(mpStringBuffer->netSettingArg, pageNames[directPage]) != NULL) {
                         break;
                     }
                 }
-                if (directPage == 0) {
-                    snprintf(browserPath, sizeof(browserPath), basePath, regionCodes[regionIndex],
-                             languageCodes[System::getLanguage()], "index01.html");
-                } else if (directPage == 1) {
-                    snprintf(browserPath, sizeof(browserPath), basePath, regionCodes[regionIndex],
-                             languageCodes[System::getLanguage()], "index02.html");
-                } else {
-                    snprintf(browserPath, sizeof(browserPath), basePath, regionCodes[regionIndex],
-                             languageCodes[System::getLanguage()], "index03.html");
+                const char* directPagePath;
+                switch (directPage) {
+                case 0:
+                case 1:
+                case 2:
+                    directPagePath = "index01.html";
+                    break;
+                case 3:
+                case 4:
+                case 5:
+                    directPagePath = "index02.html";
+                    break;
+                case 6:
+                    directPagePath = "index03.html";
+                    break;
+                case 7:
+                default:
+                    directPagePath = "index01.html";
+                    break;
                 }
+                snprintf(browserPath, sizeof(browserPath), basePath, regionCodes[regionIndex],
+                         languageCodes[System::getLanguage()], directPagePath);
             } else {
                 snprintf(browserPath, sizeof(browserPath), basePath, regionCodes[regionIndex],
                          languageCodes[System::getLanguage()]);
@@ -554,12 +579,12 @@ namespace ipl {
                 } else {
                     packet.data.controller.irX = youngController->getDpdProjectionPos().x - projection.left;
                     packet.data.controller.irY = youngController->getDpdProjectionPos().y - projection.top;
-                    u32 classicHold = youngController->getClassicHoldFlag();
-                    u32 classicTrigger = youngController->getClassicTrigFlag();
-                    u32 classicRelease = youngController->getClassicReleaseFlag();
-                    packet.data.controller.btnHold = (classicHold << 16) | youngController->getHoldFlag();
-                    packet.data.controller.btnTrigger = (classicTrigger << 16) | youngController->getTrigFlag();
-                    packet.data.controller.btnRelease = (classicRelease << 16) | youngController->getReleaseFlag();
+                    u32 classicHold = youngController->getClassicHoldFlag() << 16;
+                    u32 classicTrigger = youngController->getClassicTrigFlag() << 16;
+                    u32 classicRelease = youngController->getClassicReleaseFlag() << 16;
+                    packet.data.controller.btnHold = classicHold | youngController->getHoldFlag();
+                    packet.data.controller.btnTrigger = classicTrigger | youngController->getTrigFlag();
+                    packet.data.controller.btnRelease = classicRelease | youngController->getReleaseFlag();
                 }
 
                 packet.type = 0;
@@ -567,12 +592,12 @@ namespace ipl {
                     ext_ead::www::SurfaceManager::GetInstance()->GetBrowserThread()->SendUIEvent(&packet);
                 }
             } else {
+                packet.type = 0;
                 packet.data.controller.irX = -1000.0f;
                 packet.data.controller.irY = -1000.0f;
                 packet.data.controller.btnHold = 0;
                 packet.data.controller.btnTrigger = 0;
                 packet.data.controller.btnRelease = 0;
-                packet.type = 0;
                 ext_ead::www::SurfaceManager::GetInstance()->GetBrowserThread()->SendUIEvent(&packet);
             }
         }
@@ -632,12 +657,10 @@ namespace ipl {
         bool Setting::updateScreenMode() {
             if (unk_0x91C[2] != 0) {
                 if (unk_0xB94 == 0) {
-                    if (mEuRgb60Mode == SCGetEuRgb60Mode()) {
-                        if (mProgressiveMode != SCGetProgressiveMode()) {
-                            unk_0xB94 = 2;
-                        }
-                    } else {
+                    if (mEuRgb60Mode != SCGetEuRgb60Mode()) {
                         unk_0xB94 = 3;
+                    } else if (mProgressiveMode != SCGetProgressiveMode()) {
+                        unk_0xB94 = 2;
                     }
 
                     if (unk_0xB94 != 0 && unk_0xB94 != 1) {
@@ -654,24 +677,27 @@ namespace ipl {
                     return true;
             }
 
-            if (unk_0xB94 == 1) {
+            switch (unk_0xB94) {
+            case 1:
                 if (System::getFader()->getStatus() == EGG::Fader::PREPARE_IN) {
                     System::getDialog()->terminate();
                     SCSetAspectRatio(mAspectRatio & 0xff);
                     SCFlush();
-                    if (System::getDialog()->getLastResult() < 0) {
+                    if (System::getDialog()->getLastResult() >= 0) {
+                        changeVideoMode();
+                        System::getKeyboard()->changeAspectRatio();
+                        System::getFader()->fadeIn();
+                    } else {
                         mState = 0;
                         return true;
                     }
-
-                    changeVideoMode();
-                    www::wiisetting::setStringBuf(mpStringBuffer);
-                    System::getFader()->fadeIn();
                 } else {
                     mState = 0;
                     return true;
                 }
-            } else if (unk_0xB94 > 0 && unk_0xB94 < 4) {
+                break;
+            case 2:
+            case 3:
                 if (System::getFader()->getStatus() == EGG::Fader::PREPARE_IN) {
                     changeVideoMode();
                     System::getFader()->fadeIn();
@@ -679,6 +705,9 @@ namespace ipl {
                     mState = 0;
                     return true;
                 }
+                break;
+            default:
+                break;
             }
 
             return false;
@@ -705,7 +734,7 @@ namespace ipl {
 
                 if (input != NULL) {
                     if (input->downTrg(0x100800) && mpWiiSettingData->data[0x12] == 0x1e &&
-                        unk_0x92C > 0x1e && unk_0x92C < 0x78) {
+                        unk_0x92C >= 0x1e && unk_0x92C < 0x78) {
                         unk_0x92C = 0x78;
                         www::wiisetting::setFuncResult(1);
                         mpWiiSettingData->data[0x37] = 1;
@@ -724,24 +753,25 @@ namespace ipl {
                     unk_0xBAC = 1;
                 }
 
-                if (System::getAspectRatio()) {
+                if (System::getFader()->getStatus() == EGG::Fader::PREPARE_OUT) {
                     updateController_();
                 }
 
-                ext_ead::www::BrowserThread* browserThread =
-                    ext_ead::www::SurfaceManager::GetInstance()->GetBrowserThread();
-                if (browserThread->ReceiveWindowEvent(mpBrowserData)) {
+                if (ext_ead::www::SurfaceManager::GetInstance()->GetBrowserThread()->ReceiveWindowEvent(
+                        mpBrowserData)) {
                     if (mpBrowserData->unk_0x00 == 0) {
                         OSReport("IME Created ");
                         if (mpBrowserData->text != NULL) {
                             OSReport("initKeyboard %s\n");
                             OSReport("initKeyboard %d\n", mpWiiSettingData->data[0x11]);
-                            if (mpWiiSettingData->data[0x11] == 0) {
-                                browserThread->CommitIme(mpBrowserData, mpBrowserData->text);
-                                browserThread->DisposeImeData(mpBrowserData);
-                            } else {
+                            if (mpWiiSettingData->data[0x11] != 0) {
                                 unk_0x74 = 1;
                                 initKeyboard(mpBrowserData->text);
+                            } else {
+                                ext_ead::www::SurfaceManager::GetInstance()->GetBrowserThread()->CommitIme(
+                                    mpBrowserData, mpBrowserData->text);
+                                ext_ead::www::SurfaceManager::GetInstance()->GetBrowserThread()->DisposeImeData(
+                                    mpBrowserData);
                             }
                         } else {
                             OSReport("NULL ptr\n");
@@ -2409,18 +2439,21 @@ namespace ipl {
             if (System::getNwc24Manager() != NULL) {
                 return true;
             }
-            if (unk_0x94 != 1) {
-                if (unk_0x94 < 1 && unk_0x94 >= 0) {
-                    resetFuncMsgQ();
-                    System::getDialog()->callBtn1(0x21, 0x2e);
-                    www::wiisetting::setFuncResult(2);
-                    unk_0x74 = 0x11;
-                    unk_0x94 = 1;
+            switch (unk_0x94) {
+            case 0:
+                resetFuncMsgQ();
+                System::getDialog()->callBtn1(0x21, 0x2e);
+                www::wiisetting::setFuncResult(2);
+                unk_0x74 = 0x11;
+                unk_0x94 = 1;
+                break;
+            case 1:
+                if (System::getDialog()->getLastResult() >= 0) {
+                    unk_0xB9C = 1;
+                    unk_0x74 = 0;
+                    unk_0x94 = 0;
                 }
-            } else if (System::getDialog()->getLastResult() >= 0) {
-                unk_0xB9C = 1;
-                unk_0x74 = 0;
-                unk_0x94 = 0;
+                break;
             }
             return false;
         }
@@ -2487,16 +2520,16 @@ namespace ipl {
                     }
                     if (mpAPScanThread->IsThreadTerminated()) {
                         mpAPScanThread->WaitForThreadExit();
-                        if (mAPScanList.count == 0) {
+                        if (mAPScanList.count != 0) {
+                            www::wiisetting::setFuncResult(1);
+                            setAPDraw();
+                            unk_0x78 = 3;
+                        } else {
                             www::wiisetting::setFuncResult(2);
                             initAP();
                             mpMainLayout->getAnim(0x14)->initAnmFrame();
                             mpMainLayout->getAnim(0)->initAnmFrame();
                             mpMainLayout->getAnim(1)->initAnmFrame();
-                        } else {
-                            www::wiisetting::setFuncResult(1);
-                            setAPDraw();
-                            unk_0x78 = 3;
                         }
                         resetFuncMsgQ();
                         unk_0xB9C = 0;
@@ -2565,9 +2598,12 @@ namespace ipl {
             if (unk_0x91C[2] == 0) {
                 return;
             }
-            for (int index = 1; index <= 4; ++index) {
-                mpMainLayout->FindPaneByName(sSettingAPNumberNames[index])->SetVisible(true);
-            }
+            mpMainLayout->FindPaneByName(sSettingAPNumberNames[1])->SetVisible(true);
+            mpMainLayout->FindPaneByName(sSettingAPNumberNames[2])->SetVisible(true);
+            mpMainLayout->FindPaneByName(sSettingAPNumberNames[3])->SetVisible(true);
+            mpMainLayout->FindPaneByName(sSettingAPNumberNames[4])->SetVisible(true);
+            mpMainLayout->FindPaneByName(sSettingAPNumberNames[0])->SetVisible(true);
+            mpMainLayout->FindPaneByName(sSettingAPNumberNames[5])->SetVisible(true);
             u16 count = mAPScanList.count;
             if (count == 2) {
                 mpMainLayout->FindPaneByName(sSettingAPNumberNames[3])->SetVisible(false);
@@ -2655,72 +2691,84 @@ namespace ipl {
 
         void Setting::setAPDraw() {
             mAPScanList.currentDescriptor = reinterpret_cast<WDBssDesc_*>(mAPScanList.entries);
-            u32 recordOffset = 2;
-            for (u32 index = 0; index <= mAPScanList.count; ++index) {
+            enum {
+                APPrivacyOpenAnimation = 0x2e,
+                APPrivacyProtectedAnimation = 0x34,
+                APSignalAnimationBase = 0x16,
+                APSignalAnimationEnd = 0x28,
+            };
+            int recordOffset = 2;
+            for (int index = 0; index <= mAPScanList.count; ++index) {
                 WDBssDesc_* descriptor = mAPScanList.currentDescriptor;
-                recordOffset += descriptor->length * 2;
+                int recordLength = descriptor->length * 2;
+                recordOffset += recordLength;
                 if (recordOffset > 0x800) {
                     return;
                 }
                 mpMainLayout->getAnim(10)->stop();
                 mpMainLayout->getAnim(11)->stop();
-                int privacyMode = WDGetPrivacyMode(descriptor);
+                u8 privacyMode = static_cast<u8>(WDGetPrivacyMode(descriptor));
                 char ssid[0x21];
                 wchar_t displayName[0x21];
                 memcpy(ssid, descriptor->ssid, 0x20);
                 ssid[0x20] = 0;
                 memset(displayName, 0, sizeof(displayName));
                 int row = index + 1 - unk_0x914;
-                if (row >= 0 && row < 6) {
+                if (row >= 0 && row <= 5) {
                     utility::CharacterCode::UTF8ToUTF16(displayName, ssid, 0x21);
                     nw4r::lyt::TextBox* textBox = static_cast<nw4r::lyt::TextBox*>(
                         mpMainLayout->FindPaneByName(sSettingAPTextNames[row]));
                     textBox->SetString(displayName);
                     if (privacyMode == 0) {
-                        mpMainLayout->getAnim(row + 0x2e)->initFrame();
-                        mpMainLayout->getAnim(row + 0x2e)->restart();
-                        mpMainLayout->getAnim(row + 0x34)->stop();
+                        mpMainLayout->getAnim(row + APPrivacyOpenAnimation)->initFrame();
+                        mpMainLayout->getAnim(row + APPrivacyOpenAnimation)->restart();
+                        mpMainLayout->getAnim(row + APPrivacyProtectedAnimation)->stop();
                     } else {
-                        mpMainLayout->getAnim(row + 0x34)->initFrame();
-                        mpMainLayout->getAnim(row + 0x34)->restart();
-                        mpMainLayout->getAnim(row + 0x2e)->stop();
+                        mpMainLayout->getAnim(row + APPrivacyProtectedAnimation)->initFrame();
+                        mpMainLayout->getAnim(row + APPrivacyProtectedAnimation)->restart();
+                        mpMainLayout->getAnim(row + APPrivacyOpenAnimation)->stop();
                     }
-                    for (int animation = row + 0x16; animation <= row + 0x28; animation += 6) {
+                    for (int animation = row + APSignalAnimationBase;
+                         animation <= row + APSignalAnimationEnd; animation += 6) {
                         mpMainLayout->getAnim(animation)->stop();
                     }
                     int signal = getRadioLevel(descriptor);
-                    mpMainLayout->getAnim(row + signal * 6 + 0x16)->initFrame();
-                    mpMainLayout->getAnim(row + signal * 6 + 0x16)->restart();
+                    mpMainLayout->getAnim(row + signal * 6 + APSignalAnimationBase)->initFrame();
+                    mpMainLayout->getAnim(row + signal * 6 + APSignalAnimationBase)->restart();
                 }
-                mAPScanList.currentDescriptor =
-                    reinterpret_cast<WDBssDesc_*>(mAPScanList.entries + recordOffset - 2);
+                mAPScanList.currentDescriptorWords += recordLength / sizeof(u16);
             }
         }
 
         int Setting::get_arw_no(const char* paneName) {
+            int result = -1;
             for (int index = 0; index < 2; ++index) {
                 if (strcmp(sSettingArrowNames[index], paneName) == 0) {
-                    return index;
+                    result = index;
+                    break;
                 }
             }
-            return -1;
+            return result;
         }
 
         int Setting::get_ap_no(const char* buttonName) {
+            int result = -1;
             for (int index = 0; index < 4; ++index) {
                 if (strcmp(sSettingAPButtonNames[index], buttonName) == 0) {
-                    return index;
+                    result = index;
+                    break;
                 }
             }
-            return -1;
+            return result;
         }
 
         void Setting::start_point_event(const char* pageName) {
+            enum { APPointAnimationOffset = 0xc };
             int accessPoint = get_ap_no(pageName);
             mpMainLayout->getAnim(10)->stop();
             mpMainLayout->getAnim(11)->stop();
             if (accessPoint != -1) {
-                layout::Animator* animator = mpMainLayout->getAnim(accessPoint + 0xc);
+                layout::Animator* animator = mpMainLayout->getAnim(accessPoint + APPointAnimationOffset);
                 animator->initFrame();
                 animator->restart();
                 mpWiiSettingData->data[0x37] = 2;
@@ -2740,9 +2788,10 @@ namespace ipl {
         }
 
         void Setting::start_left_event(const char* pageName) {
+            enum { APLeftAnimationOffset = 0x10 };
             int accessPoint = get_ap_no(pageName);
             if (accessPoint != -1) {
-                layout::Animator* animator = mpMainLayout->getAnim(accessPoint + 0x10);
+                layout::Animator* animator = mpMainLayout->getAnim(accessPoint + APLeftAnimationOffset);
                 animator->initFrame();
                 animator->restart();
                 return;
@@ -2758,17 +2807,18 @@ namespace ipl {
 
         void Setting::start_trig_event(const char* pageName) {
             int accessPoint = get_ap_no(pageName);
+            int recordOffset = 2;
             if (accessPoint != -1) {
-                u32 recordOffset = 2;
-                u32 index = 0;
+                int index = 0;
                 while (index <= mAPScanList.count) {
                     WDBssDesc_* descriptor = mAPScanList.currentDescriptor;
-                    recordOffset += descriptor->length * 2;
+                    int recordLength = descriptor->length * 2;
+                    recordOffset += recordLength;
                     if (recordOffset > 0x800) {
                         break;
                     }
                     if (index == accessPoint + unk_0x914 + 1) {
-                        int privacyMode = WDGetPrivacyMode(descriptor);
+                        u8 privacyMode = static_cast<u8>(WDGetPrivacyMode(descriptor));
                         char ssid[0x21];
                         memcpy(ssid, descriptor->ssid, 0x20);
                         ssid[0x20] = 0;
@@ -2778,14 +2828,17 @@ namespace ipl {
                                                            reinterpret_cast<const u8*>(ssid), 0x20);
                         ncd::NCDSetting::setSSID(reinterpret_cast<u8*>(ssid));
                         ncd::NCDSetting::setWDPrivacyMode(privacyMode);
-                        www::wiisetting::setFuncResult(privacyMode == 0 ? 2 : 1);
+                        if (privacyMode == 0) {
+                            www::wiisetting::setFuncResult(2);
+                        } else {
+                            www::wiisetting::setFuncResult(1);
+                        }
                         mpWiiSettingData->data[0x37] = 3;
                         setSE();
                         OSReport("SET DATA : %d %s %d\n", index, ssid, privacyMode);
                         break;
                     }
-                    mAPScanList.currentDescriptor =
-                        reinterpret_cast<WDBssDesc_*>(mAPScanList.entries + recordOffset - 2);
+                    mAPScanList.currentDescriptorWords += recordLength / sizeof(u16);
                     ++index;
                 }
                 unk_0x91C[2] = 0;
@@ -2817,26 +2870,33 @@ namespace ipl {
 
         int Setting::getRadioLevel(const WDBssDesc_* descriptor) {
             u16 signal = descriptor->rssi & 0xff;
-            if (signal > 0xc3) {
+            if (signal >= 0xc4) {
                 return 3;
             }
-            if (signal > 0xb4) {
+            if (signal >= 0xb5) {
                 return 2;
             }
-            return signal < 0xab ? 0 : 1;
+            u8 level = signal < 0xab ? 0 : 1;
+            return level;
         }
 
         void Setting::setUseEULA_() {
-            if (unk_0x7C == 2) {
+            if (unk_0x7C != 2) {
+                if (unk_0x7C < 2) {
+                    if (unk_0x7C != 0) {
+                        if (unk_0x7C >= 0) {
+                            setUseEULA_Start_();
+                        }
+                    } else {
+                        setUseEULA_Init_();
+                    }
+                } else if (unk_0x7C == 4) {
+                    setUseEULA_WaitStopMotor_();
+                } else if (unk_0x7C < 4 && !snd::getSystem()->isSEActive("WIPL_SE_DECIDE")) {
+                    unk_0x7C = 4;
+                }
+            } else {
                 setUseEULA_Cancel_();
-            } else if (unk_0x7C == 0) {
-                setUseEULA_Init_();
-            } else if (unk_0x7C == 1) {
-                setUseEULA_Start_();
-            } else if (unk_0x7C == 4) {
-                setUseEULA_WaitStopMotor_();
-            } else if (unk_0x7C < 4 && !snd::getSystem()->isSEActive("WIPL_SE_DECIDE")) {
-                unk_0x7C = 4;
             }
         }
 
@@ -2869,7 +2929,7 @@ namespace ipl {
             for (int channel = 0; channel < 4; ++channel) {
                 controller::Interface* input = System::getController(channel);
                 if (input != NULL) {
-                    input->rumble();
+                    input->cancelRumbling();
                 }
             }
             System::getBS2Manager()->abort();
@@ -2879,7 +2939,7 @@ namespace ipl {
 
         void Setting::setUseEULA_WaitStopMotor_() {
             __WPADReconnect(1);
-            mSettingData[0x39] = 1;
+            mpWiiSettingData->data[0x39] = 1;
             snd::getSystem()->stopAllSound(0x14);
             unk_0x7C = 5;
             resetFuncMsgQ();
@@ -3000,11 +3060,12 @@ namespace ipl {
         }
 
         void Setting::setUpdate_NoUpdateDialog_() {
-            if (System::getDialog()->getLastResult() >= 0) {
+            s32 lastResult = System::getDialog()->getLastResult();
+            if (lastResult >= 0) {
                 if (unk_0x92C == 0) {
                     System::getDialog()->callBtn1(0x167, 1);
                     ++unk_0x92C;
-                } else {
+                } else if (lastResult >= 0) {
                     mProfileIDMode = 10;
                 }
             }
@@ -3106,8 +3167,11 @@ namespace ipl {
                     break;
                 case 1:
                     if (System::getDialog()->getLastResult() == 2) {
-                        System::getDialog()->callBtn1Sml(System::getRegion() == 2 ? 0x177 : 0x176,
-                                                        System::getRegion() == 2 ? 0x179 : 0x178);
+                        if (static_cast<u32>(System::getRegion()) == 2) {
+                            System::getDialog()->callBtn1Sml(0x177, 0x179);
+                        } else {
+                            System::getDialog()->callBtn1Sml(0x176, 0x178);
+                        }
                         mUpdateTiming = 2;
                     } else if (System::getDialog()->getLastResult() == 1) {
                         www::wiisetting::setFuncResult(2);
@@ -3125,9 +3189,7 @@ namespace ipl {
                     break;
                 case 4: {
                     scene::NakamuraTest* test = static_cast<scene::NakamuraTest*>(System::getSceneManager()->getScene(0x19));
-                    if (test != NULL && test->amtTotal() != 0) {
-                        System::getDialog()->setProgBarLength(test->amtCompleted() * 100 / test->amtTotal());
-                    }
+                    System::getDialog()->setProgBarLength(test->amtCompleted() * 100 / test->amtTotal());
                     break;
                 }
                 case 5:
@@ -3152,7 +3214,7 @@ namespace ipl {
                     if (System::getDialog()->getLastResult() >= 0) {
                         mUpdateTiming = 9;
                         unk_0x92C = 0;
-                        if (mProgressiveMode == 2 || mProgressiveMode == 5) {
+                        if (mInitialArgument == 2 || mInitialArgument == 5) {
                             SCSetConfigDoneFlag(1);
                             SCSetConfigDoneFlag2(1);
                             SCFlush();
@@ -3177,6 +3239,8 @@ namespace ipl {
             }
         }
 
+        static const wchar_t errorFormat[] = L"\n%03d";
+
         void Setting::makeErrorMessage() {
             const wchar_t* prefix = System::getMessage(400);
             int messageId = getErrorNum();
@@ -3185,19 +3249,29 @@ namespace ipl {
             OSReport("error:%d\n", error);
             wchar_t errorText[8];
             wchar_t message[0x140];
-            swprintf(errorText, 8, L"\n%03d", error);
+            swprintf(errorText, 8, errorFormat, error);
             memset(message, 0, sizeof(message));
             size_t prefixLength = wcslen(prefix);
             wcsncat(message, prefix, prefixLength);
             size_t errorLength = wcslen(errorText);
             wcsncat(message + prefixLength, errorText, errorLength);
+            prefixLength += errorLength;
             size_t detailLength = wcslen(detail);
-            wcsncat(message + prefixLength + errorLength, detail, detailLength);
-            message[prefixLength + errorLength + detailLength] = 0;
-            bool connectTestError = mpWiiSettingFlag->smthMsgData == 9;
-            bool japaneseRegion = System::getRegion() == 2 && System::getLanguage() == 2 && getErrorNum() == 0x1b6;
-            if (connectTestError || mProfileIDMode == 0) {
-                if (japaneseRegion) {
+            wcsncat(message + prefixLength, detail, detailLength);
+            prefixLength += detailLength;
+            message[prefixLength] = 0;
+            if (mpWiiSettingFlag->smthMsgData == 9) {
+                if (static_cast<u32>(System::getRegion()) == 2 &&
+                    static_cast<u32>(System::getLanguage()) == 2 &&
+                    static_cast<u32>(getErrorNum()) == 0x1b6) {
+                    System::getDialog()->callBtn1(message, 0x2e, 46.0f);
+                } else {
+                    System::getDialog()->callBtn1(message, 0x2e);
+                }
+            } else if (mProfileIDMode == 0) {
+                if (static_cast<u32>(System::getRegion()) == 2 &&
+                    static_cast<u32>(System::getLanguage()) == 2 &&
+                    static_cast<u32>(getErrorNum()) == 0x1b6) {
                     System::getDialog()->callBtn1(message, 0x2e, 46.0f);
                 } else {
                     System::getDialog()->callBtn1(message, 0x2e);
@@ -3208,108 +3282,149 @@ namespace ipl {
         }
 
         int Setting::getErrorNum() {
-            int error = mpWiiSettingFlag->err;
-            if (error == 0x7d01) return System::getRegion() == 2 ? 0x1a5 : 0x191;
-            if (error == 0x7d02) return System::getRegion() == 2 ? 0x1a6 : 0x192;
-            if (error == 0x7d03) return System::getRegion() == 2 ? 0x1a7 : 0x193;
-            if (error < 33000) return System::getRegion() == 2 ? 0x1a8 : 0x194;
-            if (error < 0xc418) return System::getRegion() == 2 ? 0x1a9 : 0x195;
-            if (error < 0xc47c) return System::getRegion() == 2 ? 0x1aa : 0x196;
-            if (error < 0xc4e0) return System::getRegion() == 2 ? 0x1ab : 0x197;
-            if (error < 0xc544) return System::getRegion() == 2 ? 0x1ac : 0x198;
-            if (error < 0xc760) return System::getRegion() == 2 ? 0x1ad : 0x199;
-            if (error < 0xc76a) return System::getRegion() == 2 ? 0x1b8 : 0x1a4;
-            if (error < 0xc79c) return System::getRegion() == 2 ? 0x1ad : 0x199;
-            if (error < 0xc8c8) return System::getRegion() == 2 ? 0x1ae : 0x19a;
-            if (error < 0xc92c) return System::getRegion() == 2 ? 0x1af : 0x19b;
-            if (error < 0xcb84) return System::getRegion() == 2 ? 0x1b0 : 0x19c;
-            if (error < 0xcbe8) return System::getRegion() == 2 ? 0x1b1 : 0x19d;
-            if (error < 0xcc4c) return System::getRegion() == 2 ? 0x1b2 : 0x19e;
-            if (error < 0xcd14) return System::getRegion() == 2 ? 0x1b3 : 0x19f;
-            if (error < 0xcd78) return System::getRegion() == 2 ? 0x1b4 : 0x1a0;
-            if (error < 0xcddc) return System::getRegion() == 2 ? 0x1b5 : 0x1a1;
-            if (error < 0xce40) return System::getRegion() == 2 ? 0x1b6 : 0x1a2;
-            if (error < 55000) return System::getRegion() == 2 ? 0x1b7 : 0x1a3;
-            if (error > 100000) return 0x1c5;
-            return System::getRegion();
+            u32 result = System::getRegion();
+            if (result != 2) {
+                int error = mpWiiSettingFlag->err;
+                if (error == 0x7d01) result = 0x191;
+                else if (error == 0x7d02) result = 0x192;
+                else if (error == 0x7d03) result = 0x193;
+                else if (error < 33000) result = 0x194;
+                else if (error < 0xc418) result = 0x195;
+                else if (error < 0xc47c) result = 0x196;
+                else if (error < 0xc4e0) result = 0x197;
+                else if (error < 0xc544) result = 0x198;
+                else if (error < 0xc760) result = 0x199;
+                else if (error < 0xc76a) result = 0x1a4;
+                else if (error < 0xc79c) result = 0x199;
+                else if (error < 0xc8c8) result = 0x19a;
+                else if (error < 0xc92c) result = 0x19b;
+                else if (error < 0xcb84) result = 0x19c;
+                else if (error < 0xcbe8) result = 0x19d;
+                else if (error < 0xcc4c) result = 0x19e;
+                else if (error < 0xcd14) result = 0x19f;
+                else if (error < 0xcd78) result = 0x1a0;
+                else if (error < 0xcddc) result = 0x1a1;
+                else if (error < 0xce40) result = 0x1a2;
+                else if (error < 55000) result = 0x1a3;
+                else if (error > 100000) result = 0x1c5;
+            } else {
+                int error = mpWiiSettingFlag->err;
+                if (error == 0x7d01) result = 0x1a5;
+                else if (error == 0x7d02) result = 0x1a6;
+                else if (error == 0x7d03) result = 0x1a7;
+                else if (error < 33000) result = 0x1a8;
+                else if (error < 0xc418) result = 0x1a9;
+                else if (error < 0xc47c) result = 0x1aa;
+                else if (error < 0xc4e0) result = 0x1ab;
+                else if (error < 0xc544) result = 0x1ac;
+                else if (error < 0xc760) result = 0x1ad;
+                else if (error < 0xc76a) result = 0x1b8;
+                else if (error < 0xc79c) result = 0x1ad;
+                else if (error < 0xc8c8) result = 0x1ae;
+                else if (error < 0xc92c) result = 0x1af;
+                else if (error < 0xcb84) result = 0x1b0;
+                else if (error < 0xcbe8) result = 0x1b1;
+                else if (error < 0xcc4c) result = 0x1b2;
+                else if (error < 0xcd14) result = 0x1b3;
+                else if (error < 0xcd78) result = 0x1b4;
+                else if (error < 0xcddc) result = 0x1b5;
+                else if (error < 0xce40) result = 0x1b6;
+                else if (error < 55000) result = 0x1b7;
+                else if (error > 100000) result = 0x1c5;
+            }
+            return result;
         }
 
         void Setting::makeSupportCode() {
             const wchar_t* title = System::getMessage(0x16d);
             const wchar_t* codeLabel = System::getMessage(0x1b9);
             wchar_t supportCode[12];
-            wchar_t message[0x110];
-            swprintf(supportCode, 12, L"\n%03d", unk_0x930);
+            wchar_t message[0x100];
+            swprintf(supportCode, 12, errorFormat, unk_0x930);
             memset(message, 0, sizeof(message));
-            size_t titleLength = wcslen(title);
-            wcsncat(message, title, titleLength);
-            message[titleLength] = L'\n';
-            message[titleLength + 1] = 0;
+            size_t messageLength = wcslen(title);
+            wcsncat(message, title, messageLength);
+            message[messageLength] = L'\n';
+            ++messageLength;
+            message[messageLength] = 0;
             size_t labelLength = wcslen(codeLabel);
-            wcsncat(message + titleLength + 1, codeLabel, labelLength);
+            wcsncat(message + messageLength, codeLabel, labelLength);
+            messageLength += labelLength;
             size_t codeLength = wcslen(supportCode);
-            wcsncat(message + titleLength + 1 + labelLength, supportCode, codeLength);
-            message[titleLength + 1 + labelLength + codeLength] = 0;
+            wcsncat(message + messageLength, supportCode, codeLength);
+            messageLength += codeLength;
+            message[messageLength] = 0;
             System::getDialog()->callBtn2(message, 0x142, 0x141, true);
         }
 
         void Setting::setInitializeResult(bool initialized, int error) {
             waitFinish();
-            if (!initialized) {
-                if (error == -2) {
+            if (initialized) {
+                www::wiisetting::setFuncResult(1);
+            } else {
+                if (error < -2) {
+                    if (error == -5) {
+                        System::getErrorHandler()->set(ErrorHandler::DEFAULT, 1);
+                    }
+                } else if (error == -2) {
                     System::getErrorHandler()->log("NandSDWorker", error, "iplSetting.cpp", 0x13a7);
                     System::getErrorHandler()->set(ErrorHandler::DEFAULT, 2);
-                } else if (error == -5) {
-                    System::getErrorHandler()->set(ErrorHandler::DEFAULT, 1);
                 }
-            } else {
-                www::wiisetting::setFuncResult(1);
             }
         }
 
         void Setting::setUSBAP() {
-            if (unk_0x84 == 2) {
-                if (unk_0x91C[1] != 0) {
-                    www::wiisetting::setFuncResult(unk_0x91C[1]);
-                    unk_0x84 = 1;
-                    unk_0x91C[1] = 0;
-                    resetFuncMsgQ();
+            if (unk_0x84 != 2) {
+                if (unk_0x84 < 2) {
+                    if (unk_0x84 >= 1) {
+                        if (static_cast<USBAPThread*>(mpUSBAPThread)->is()) {
+                            bool result = SCGetOwnerNickName(reinterpret_cast<SCOwnerNickname*>(mSettingData));
+                            if (!result) {
+                                www::wiisetting::setFuncResult(2);
+                                resetFuncMsgQ();
+                            } else {
+                                OSReport("USB SCGetOwnerNickName:%d\n", result);
+                                static_cast<USBAPThread*>(mpUSBAPThread)->setData(
+                                    reinterpret_cast<const wchar_t*>(mSettingData), &unk_0x91C[1]);
+                                static_cast<USBAPThread*>(mpUSBAPThread)->Init(
+                                    reinterpret_cast<unsigned short*>(mpMem2BrowserBuffer),
+                                    reinterpret_cast<u8*>(mpBrowserStringBuffer));
+                                unk_0x84 = 2;
+                            }
+                        }
+                    }
                 }
-            } else if (unk_0x84 == 1 && static_cast<USBAPThread*>(mpUSBAPThread)->is()) {
-                SCOwnerNickname nickname;
-                int result = SCGetOwnerNickName(&nickname);
-                if (!result) {
-                    www::wiisetting::setFuncResult(2);
-                    resetFuncMsgQ();
-                } else {
-                    OSReport("USB SCGetOwnerNickName:%d\n", result);
-                    static_cast<USBAPThread*>(mpUSBAPThread)->setData(
-                        reinterpret_cast<const wchar_t*>(nickname.name), &unk_0x91C[1]);
-                    static_cast<USBAPThread*>(mpUSBAPThread)->Init(
-                        reinterpret_cast<unsigned short*>(mpMem1BrowserBuffer),
-                        reinterpret_cast<u8*>(mpMem2BrowserBuffer));
-                    unk_0x84 = 2;
+            } else if (unk_0x91C[1] != 0) {
+                www::wiisetting::setFuncResult(unk_0x91C[1]);
+                unk_0x84 = 1;
+                unk_0x91C[1] = 0;
+                resetFuncMsgQ();
                 }
-            }
         }
 
         void Setting::cancelUSBAP() {
-            if (unk_0x84 == 3) {
+            switch (unk_0x84) {
+            case 3:
                 if (unk_0x91C[1] != 0 || static_cast<USBAPThread*>(mpUSBAPThread)->is()) {
                     www::wiisetting::setFuncResult(5);
                     unk_0x84 = 1;
                     unk_0x91C[1] = 0;
                     resetFuncMsgQ();
                 }
-            } else if (unk_0x84 > 0 && unk_0x84 < 3) {
+                break;
+            case 1:
+            case 2:
                 static_cast<USBAPThread*>(mpUSBAPThread)->cancel();
                 unk_0x84 = 3;
+                break;
+            default:
+                break;
             }
         }
 
         void Setting::AOSSProcess() {
-            int error = mpWiiSettingFlag->err;
-            if (error == '"') {
+            u8 message = mpWiiSettingFlag->smthMsgData;
+            if (message == 0x22u) {
                 if (mAOSSState == 3) {
                     if (System::getDialog()->getLastResult() >= 0) {
                         mAOSSState = 0;
@@ -3323,11 +3438,10 @@ namespace ipl {
                 }
                 return;
             }
-            AOSSThread* thread = reinterpret_cast<AOSSThread*>(mpAOSSThread);
-            bool cancelled = error == '!';
+            bool cancelled = message == 0x21u;
             if (mAOSSState == 0) {
                 if (!snd::getSystem()->isSEActive("WIPL_SE_DECIDE")) {
-                    if (cancelled || thread->start() == 0) {
+                    if (cancelled || static_cast<AOSSThread*>(mpAOSSThread)->start() == 0) {
                         www::wiisetting::setFuncResult(cancelled ? 5 : 2);
                         resetFuncMsgQ();
                     } else {
@@ -3336,7 +3450,7 @@ namespace ipl {
                 }
             } else if (mAOSSState >= 0 && mAOSSState < 3) {
                 int result = 0;
-                if (thread->finish(&m_AOSSConfig, &result) != 0) {
+                if (static_cast<AOSSThread*>(mpAOSSThread)->finish(&m_AOSSConfig, &result) != 0) {
                     mAOSSState = 0;
                     if (cancelled) {
                         www::wiisetting::setFuncResult(5);
@@ -3351,18 +3465,15 @@ namespace ipl {
                     }
                     resetFuncMsgQ();
                 } else if (cancelled && mAOSSState != 2) {
-                    thread->cancel();
+                    static_cast<AOSSThread*>(mpAOSSThread)->cancel();
                     mAOSSState = 2;
                 }
             }
         }
 
         void Setting::RakuProcess() {
-            int command = mpWiiSettingFlag->smthMsgData;
-            int state = reinterpret_cast<RakuRakuThread*>(mpRakuRakuThread)->getState();
-            RakuRakuThread* thread = reinterpret_cast<RakuRakuThread*>(mpRakuRakuThread);
-            int result = 0;
-            if (command == ',') {
+            u8 command = mpWiiSettingFlag->smthMsgData;
+            if (command == 0x2cu) {
                 if (mRakuState != 1) {
                     System::getDialog()->callBtn1(0x1c3, 0x2e);
                     mRakuState = 1;
@@ -3374,38 +3485,43 @@ namespace ipl {
                 }
                 return;
             }
-            if (command == '+' && (state == 0 || state == 6 || state == 7 || state == 8)) {
-                if (thread->finish(NULL, NULL) != 0) {
+            bool cancelCommand = command == 0x2bu;
+            int state = static_cast<RakuRakuThread*>(mpRakuRakuThread)->getState();
+            int result = 0;
+            if (cancelCommand && (state == 0 || state == 6 || state == 7 || state == 8)) {
+                if (static_cast<RakuRakuThread*>(mpRakuRakuThread)->finish(NULL, NULL) != 0) {
                     www::wiisetting::setFuncResult(5);
                     resetFuncMsgQ();
                 } else {
-                    thread->cancel();
+                    static_cast<RakuRakuThread*>(mpRakuRakuThread)->cancel();
                 }
                 return;
             }
-            if (command != '+' && state == 0) {
-                if (!snd::getSystem()->isSEActive("WIPL_SE_DECIDE") && thread->start() == 0) {
+            if (!cancelCommand && state == 0) {
+                if (!snd::getSystem()->isSEActive("WIPL_SE_DECIDE") &&
+                    static_cast<RakuRakuThread*>(mpRakuRakuThread)->start() == 0) {
                     www::wiisetting::setFuncResult(2);
                     resetFuncMsgQ();
                 }
                 return;
             }
-            if (command != '+' && state == 5) {
-                if (command == ')') {
+            if (!cancelCommand && state == 5) {
+                if (mpWiiSettingFlag->smthMsgData == 0x29u) {
                     www::wiisetting::setFuncResult(1);
                     resetFuncMsgQ();
                 }
                 return;
             }
             if (state == 7) {
-                if (thread->finish(NULL, &result) != 0) {
+                if (static_cast<RakuRakuThread*>(mpRakuRakuThread)->finish(NULL, &result) != 0) {
                     www::wiisetting::setFuncResult(2);
                     resetFuncMsgQ();
                 }
                 return;
             }
             if (state > 4 && state < 7) {
-                if (thread->finish(&m_RakuConfig.cfg, &result) != 0) {
+                if (static_cast<RakuRakuThread*>(mpRakuRakuThread)->finish(
+                        &m_RakuConfig.cfg, &result) != 0) {
                     if (result == 1) {
                         ncd::NCDSetting::getData();
                         ncd::NCDSetting::getID();
@@ -3418,15 +3534,16 @@ namespace ipl {
                 }
                 return;
             }
-            if (state > 0 && state < 4 && command == '(') {
+            if (state > 0 && state < 4 && mpWiiSettingFlag->smthMsgData == 0x28u) {
                 www::wiisetting::setFuncResult(1);
                 resetFuncMsgQ();
             }
         }
 
         void Setting::waitStart() {
-            mpWaitLayout->getAnim(0)->initFrame();
-            mpWaitLayout->getAnim(0)->restart();
+            layout::Animator* animation = mpWaitLayout->getAnim(0);
+            animation->initFrame();
+            animation->restart();
             mpWaitLayout->FindPaneByName("G_Wait")->SetVisible(true);
             snd::getSystem()->startSE("WIPL_SE_COPYING");
         }
@@ -3442,15 +3559,14 @@ namespace ipl {
         }
 
         void Setting::setSE() {
-            u8& action = mpWiiSettingData->data[0x37];
-            u8& pendingAction = mpWiiSettingData->data[0x38];
-            if (unk_0xB9C < 10 && action == 2) {
-                action = 0;
+            if (unk_0xB9C < 10 && mpWiiSettingData->data[0x37] == 2) {
+                mpWiiSettingData->data[0x37] = 0;
             }
-            if ((action == 0 || action == 2) && pendingAction != 0) {
-                action = pendingAction;
+            if ((mpWiiSettingData->data[0x37] == 0 || mpWiiSettingData->data[0x37] == 2) &&
+                mpWiiSettingData->data[0x38] != 0) {
+                mpWiiSettingData->data[0x37] = mpWiiSettingData->data[0x38];
             }
-            switch (action) {
+            switch (mpWiiSettingData->data[0x37]) {
                 case 1:
                     snd::getSystem()->startSE("WIPL_SE_BT_PUSH");
                     break;
@@ -3494,32 +3610,37 @@ namespace ipl {
                     snd::getSystem()->startSE("WIPL_SE_CANCEL");
                     break;
             }
-            if (action == 2 || action == 0 || mpWiiSettingData->data[0x12] == 0x1e || pendingAction != 0) {
-                if (action == 2) {
-                    controller::Interface* controller = System::getYoungController();
-                    if (controller != NULL) {
-                        controller->rumble(0);
-                    }
-                }
-            } else {
+            if (mpWiiSettingData->data[0x37] != 2 && mpWiiSettingData->data[0x37] != 0 &&
+                mpWiiSettingData->data[0x12] != 0x1e && mpWiiSettingData->data[0x38] == 0) {
                 unk_0xB9C = 0;
+            } else if (mpWiiSettingData->data[0x37] == 2) {
+                controller::Interface* controller = System::getYoungController();
+                if (controller != NULL) {
+                    controller->rumble(0);
+                }
             }
-            action = 0;
-            pendingAction = 0;
+            mpWiiSettingData->data[0x37] = 0;
+            mpWiiSettingData->data[0x38] = 0;
         }
 
         void APEvent::onEvent(u32 componentID, u32 event, void* data) {
             gui::PaneComponent* component = static_cast<gui::PaneComponent*>(mpManager->getComponent(componentID));
             const char* paneName = component->getPane()->GetName();
-            if (event == ::gui::EventHandler::ON_POINT) {
+            switch (event) {
+            case ::gui::EventHandler::ON_POINT:
                 mpSetting->start_point_event(paneName);
-            } else if (event == ::gui::EventHandler::ON_TRIG) {
+                break;
+            case ::gui::EventHandler::ON_TRIG:
                 controller::Interface* input = static_cast<controller::Interface*>(data);
                 if (input->downTrg(0x100800)) {
                     mpSetting->start_trig_event(paneName);
                 }
-            } else if (event == ::gui::EventHandler::ON_LEFT) {
+                break;
+            case ::gui::EventHandler::ON_LEFT:
                 mpSetting->start_left_event(paneName);
+                break;
+            default:
+                break;
             }
         }
 
