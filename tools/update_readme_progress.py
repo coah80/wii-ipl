@@ -29,8 +29,7 @@ def main():
         f"| {pct(m, 'complete_code_percent'):.2f}% | {pct(m, 'matched_data_percent'):.2f}% |",
         "",
         f"units {m.get('complete_units')}/{m.get('total_units')} complete, "
-        f"functions {m.get('matched_functions')}/{m.get('total_functions')} matched. "
-        f"updated {stamp}" + (f" from `{commit}`" if commit else "") + " by the self-hosted progress job",
+        f"functions {m.get('matched_functions')}/{m.get('total_functions')} matched.",
         "",
         "decompiled = code with a C/C++ implementation (objdiff fuzzy), matched = byte-exact code, "
         "linked = code actually linked into the DOL, data = byte-exact data",
