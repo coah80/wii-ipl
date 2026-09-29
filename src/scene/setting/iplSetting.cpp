@@ -498,12 +498,10 @@ namespace ipl {
         }
 
         FaderSceneCommand Setting::calcFadein() {
-            if (System::hasCreatedAfter()) {
-                if (mBrowserCreated == 0) {
-                    mBrowserCreated = 1;
-                    createBrowser();
-                    OSReport("............browser created\n");
-                }
+            if (System::hasCreatedAfter() && mBrowserCreated == 0) {
+                mBrowserCreated = 1;
+                createBrowser();
+                OSReport("............browser created\n");
             } else if (mBrowserCreated == 0) {
                 OSReport("wait first init\n");
                 return FADER_SCN_CONTINUE;
@@ -511,16 +509,15 @@ namespace ipl {
 
             ext_ead::www::SurfaceManager* surfaceManager = ext_ead::www::SurfaceManager::GetInstance();
             ext_ead::www::BrowserThread* browserThread = surfaceManager->GetBrowserThread();
-            if (browserThread == NULL || browserThread->GetTextureBuffer(0, NULL) == NULL || !System::hasCreatedAfter()) {
-                return FADER_SCN_CONTINUE;
+            if (browserThread != NULL && browserThread->GetTextureBuffer(0, NULL) != NULL && System::hasCreatedAfter()) {
+                mKeyboardState = *System::getKeyboard()->getState();
+                System::getFader()->fadeIn();
+                mCreatePageTime = OSGetTime();
+                OSReport("*** create page costs: %dms\n",
+                         (OSGetTick() - mPrepareTick) / (OS_TIMER_CLOCK / 1000));
+                return FADER_SCN_NEXT;
             }
-
-            mKeyboardState = *System::getKeyboard()->getState();
-            System::getFader()->fadeIn();
-            mCreatePageTime = OSGetTime();
-            OSReport("*** create page costs: %dms\n",
-                     (OSGetTick() - mPrepareTick) / (OS_TIMER_CLOCK / 1000));
-            return FADER_SCN_NEXT;
+            return FADER_SCN_CONTINUE;
         }
 
         void Setting::updateController_() {
