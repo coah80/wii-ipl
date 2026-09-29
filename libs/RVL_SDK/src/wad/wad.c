@@ -172,7 +172,7 @@ static void WAD_815C4A2C(WADImportTransfer* transfer, void* firstBuffer, void* s
                          u32 chunkSize);
 s32 WADVerify(WADStream* stream, MEMAllocator* allocator, u32 offset, u32 size);
 s32 _WADGetCidxCount(const ESContentMask* contentMask);
-static s32 _WADGetCidx(const ESContentMask* contentMask, s32 contentNumber);
+static s32 _WADGetCidx(const ESContentMask* contentMask, u32 contentNumber);
 static s32 _WADGetTransferId(void* transferId);
 static void* _WADMemAlloc(MEMAllocator* allocator, u32 size);
 static void _WADMemFree(MEMAllocator* allocator, void* buffer);
@@ -550,41 +550,41 @@ s32 _WADGetCidxCount(const ESContentMask* contentMask) {
     return count;
 }
 
-static s32 _WADGetCidx(const ESContentMask* contentMask, s32 contentNumber) {
+static s32 _WADGetCidx(const ESContentMask* contentMask, u32 contentNumber) {
+    u32 remaining = contentNumber + 1;
     u32 bitIndex = 0;
     u32 groupIndex;
     u32 nextIndex;
 
-    contentNumber++;
     for (groupIndex = 0; groupIndex < 0x80; groupIndex++) {
         if ((contentMask->data[(s32)bitIndex >> 3] & (1 << (bitIndex & 7))) != 0) {
-            contentNumber--;
+            remaining--;
         }
-        if (contentNumber == 0) {
+        if (remaining == 0) {
             return bitIndex;
         }
-        nextIndex = bitIndex + 1;
+        nextIndex = ++bitIndex;
         if ((contentMask->data[(s32)nextIndex >> 3] & (1 << (nextIndex & 7))) != 0) {
-            contentNumber--;
+            remaining--;
         }
-        if (contentNumber == 0) {
+        if (remaining == 0) {
             return nextIndex;
         }
-        nextIndex++;
+        nextIndex = ++bitIndex;
         if ((contentMask->data[(s32)nextIndex >> 3] & (1 << (nextIndex & 7))) != 0) {
-            contentNumber--;
+            remaining--;
         }
-        if (contentNumber == 0) {
+        if (remaining == 0) {
             return nextIndex;
         }
-        nextIndex++;
+        nextIndex = ++bitIndex;
         if ((contentMask->data[(s32)nextIndex >> 3] & (1 << (nextIndex & 7))) != 0) {
-            contentNumber--;
+            remaining--;
         }
-        if (contentNumber == 0) {
+        if (remaining == 0) {
             return nextIndex;
         }
-        bitIndex += 4;
+        bitIndex++;
     }
     return -1;
 }
