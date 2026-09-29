@@ -42,6 +42,7 @@ namespace ipl {
             const NWC24FriendInfo& getInfo(int index) const { return mInfos[index]; }
 
             friend class Address;
+            friend class AddressEdit;
 
         private:
             NWC24FriendInfo mInfos[100];        // 0x0000
