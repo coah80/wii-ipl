@@ -147,19 +147,19 @@ namespace ipl {
 
         int RakuRakuThread::start() {
             SOLibraryConfig config;
+            MEMAllocator* alloc = &mAllocator;
 
             if (sStarted != 0 || mpWorkBuffer == NULL) {
                 return 0;
             }
 
             BOOL level = OSDisableInterrupts();
-            MEMAllocator* alloc = &mAllocator;
             OSTime t = OSGetTime();
             sStartTimeLo = (u32)t;
             sStartTimeHi = (u32)(t >> 32);
 
             mpExpHeap = MEMCreateExpHeapEx(mpWorkBuffer, 0x40000, 2);
-            MEMInitAllocatorForExpHeap(alloc, mpExpHeap, 0x20);
+            MEMInitAllocatorForExpHeap(&mAllocator, mpExpHeap, 0x20);
 
             mThreadPriority = OSGetThreadPriority(OSGetCurrentThread()) - 1;
 
