@@ -178,7 +178,7 @@ PFDIR_SDD* PFDIR_GetSDD(PF_VOLUME* volume, PF_DIR_ENT* entry) {
     pf_s32 remaining = 3;
 
     for (i = 0; remaining != 0; i++, free_candidate++, remaining--) {
-        if ((volume_dirs->sdds[i].stat & 1) == 0) {
+        if ((volume_dirs->sdds[i].stat & 1) == 0 || (volume_dirs->sdds[i].stat & 2) == 0) {
             if (first_free_sdd == 0) {
                 first_free_sdd = free_candidate;
             }
@@ -209,18 +209,19 @@ pf_s32 PFDIR_DoFsexecOpenDir(PF_DIR_ENT* entry, PF_ENT_ITER* iter, PFDIR_DIR** o
     if ((entry->attr & 0x10) == 0) {
         return 0x14;
     }
-    sdd = PFDIR_GetSDD(entry->p_vol, entry);
+    sdd = PFDIR_GetSDD((PF_VOLUME*)volume_dirs, entry);
     if (sdd == 0) {
         return 0x15;
     }
-    dir = 0;
     scan_dir = volume_dirs->udds;
     for (i = 0; i < 3; i++, scan_dir++) {
         if ((scan_dir->stat & 1) == 0) {
             dir = &volume_dirs->udds[i];
-            break;
+            goto directory_available;
         }
     }
+    dir = 0;
+directory_available:
     if (dir == 0) {
         return 0x16;
     }
@@ -240,8 +241,8 @@ pf_s32 PFDIR_p_opendir(PF_VOLUME* volume, PFDIR_STR* path, PFDIR_DIR** opened_di
     PF_DIR_ENT entry;
     PFDIR_SDD* sdd;
     PFDIR_DIR* dir;
-    pf_s32 error;
     pf_s32 i;
+    pf_s32 error;
 
     if ((PFSTR_StrNCmp(path, (const pf_s8*)"\\", 1, 0, 1) == 0 ||
          PFSTR_StrNCmp(path, (const pf_s8*)"/", 1, 0, 1) == 0) &&
@@ -287,16 +288,15 @@ open_directory:
     if (sdd == 0) {
         return 0x15;
     }
-    dir = ((PFDIR_VOLUME_DIRS*)volume)->udds;
-    i = 0;
-    do {
-        if ((dir->stat & 1) == 0) {
-            break;
+    for (i = 0; i < 3; i++) {
+        if ((((PFDIR_VOLUME_DIRS*)volume)->udds[i].stat & 1) == 0) {
+            dir = &((PFDIR_VOLUME_DIRS*)volume)->udds[i];
+            goto directory_available;
         }
-        i++;
-        dir++;
-    } while (i < 3);
-    if (i == 3) {
+    }
+    dir = 0;
+directory_available:
+    if (dir == 0) {
         return 0x16;
     }
     dir->p_sdd = sdd;
@@ -356,6 +356,7 @@ pf_s32 PFDIR_p_mkdir(PF_VOLUME* p_vol, PF_STR* p_path, pf_u32 option, PF_DTA* p_
     pf_u16 dirname_len;
     PF_DIR_ENT entry;
     PF_DIR_ENT parent_entry;
+    PF_ENT_ITER parent_iter;
     PF_FFD ffd;
     pf_u32 pos;
     PF_FAT_HINT fat_hint;
@@ -371,12 +372,13 @@ pf_s32 PFDIR_p_mkdir(PF_VOLUME* p_vol, PF_STR* p_path, pf_u32 option, PF_DTA* p_
     if (err != 0) {
         return err;
     }
-    err = VFiPFENT_GetParentEntryOfPath(&parent_entry, p_vol, &full_path);
+    err = PFENT_ITER_GetEntryOfPath(&parent_iter, &parent_entry, p_vol,
+                                    (PFDIR_STR*)&full_path, 1);
     if (err != 0) {
         return err;
     }
     if ((parent_entry.attr & 0x10) == 0) {
-        err = 0x14;
+        return 0x14;
     }
     if (p_dta != PF_NULL) {
         p_dta->parent_start_cluster = parent_entry.start_cluster;
@@ -682,8 +684,6 @@ extern pf_s32 PFCACHE_FlushFATCache(PF_VOLUME* volume);
 extern pf_s32 PFDIR_p_fsfirst(PF_VOLUME* volume, PF_STR* path, pf_u8 attributes, PF_DTA* data);
 extern pf_s32 PFDIR_p_fsnext(PF_DTA* data);
 extern pf_s32 PFDIR_p_fsexec(PF_DTA* data, pf_u32 flags, pf_u32 mode);
-extern pf_s32 PFDIR_p_rename(PF_VOLUME* volume, PF_STR* old_path, PF_STR* new_path);
-extern pf_s32 PFDIR_p_move(PF_VOLUME* volume, PF_STR* old_path, PF_STR* new_path);
 extern pf_s32 PFDIR_p_fsexec_chmod(PF_DTA* data, PF_DIR_ENT* entry, pf_u32 attributes, pf_u32 mode);
 extern pf_s32 PFDIR_p_fsexec_remove(PF_DTA* data, PF_DIR_ENT* entry, PF_ENT_ITER* iter);
 extern pf_s32 PFDIR_p_fsexec_fopen(PF_DTA* data, PF_DIR_ENT* entry, PF_ENT_ITER* iter, pf_u32 flags,
@@ -692,9 +692,12 @@ extern pf_s32 PFDIR_p_fsexec_opendir(PF_DTA* data, PF_DIR_ENT* entry, PF_ENT_ITE
 extern void PFFAT_FinalizeFFD(PF_FFD* ffd);
 extern pf_s32 PFENT_ITER_GetEntryOfPattern(PF_ENT_ITER* iter, PF_DIR_ENT* entry, PF_VOLUME* volume,
                                            PFDIR_STR* directory);
+extern pf_s32 PFENT_ITER_FindEntry(PF_ENT_ITER* iter, PF_DIR_ENT* entry, PFDIR_STR* pattern,
+                                   pf_u8 attributes, pf_u32 start, pf_u32* found);
 extern pf_s32 PFENT_findEntry(PFDIR_FFD* ffd, PF_DIR_ENT* entry, pf_u32 start, PFDIR_STR* pattern,
                               pf_u8 attributes, pf_u32* logical_position, pf_u32* entry_position);
 extern pf_u32 PFSTR_GetCodeMode(PFDIR_STR* path);
+extern const pf_s8* PFSTR_GetStrPos(PFDIR_STR* path, pf_u32 target);
 extern pf_s32 PFPATH_SplitPathPattern(PF_STR* path, PFDIR_STR* directory, PFDIR_STR* pattern);
 extern void PFPATH_SetSearchPattern(pf_s8* ansi_pattern, pf_u16* unicode_pattern, PFDIR_STR* pattern);
 extern pf_u16* pf_w_strcpy(pf_u16* destination, const pf_u16* source);
@@ -705,6 +708,201 @@ extern void PFPATH_getLongNameformShortName(pf_s8* short_name, pf_s8* long_name,
 extern pf_s32 PFFILE_FsexecOpenFile(PF_DIR_ENT* entry, PF_ENT_ITER* iter, pf_u32 mode, PF_DTA* data);
 extern pf_s32 PFPATH_cmpName(const pf_s8* short_name, PFDIR_STR* pattern, pf_u32 short_search);
 extern pf_s32 PFPATH_cmpNameUni(const pf_u16* name, PFDIR_STR* pattern);
+
+pf_s32 PFDIR_p_rename(PF_VOLUME* volume, PF_STR* old_path, PF_STR* new_path) {
+    PF_ENT_ITER source_iter;
+    PF_ENT_ITER destination_iter;
+    PF_DIR_ENT source_entry;
+    PF_DIR_ENT source_parent;
+    PF_DIR_ENT destination_parent;
+    PF_DIR_ENT existing_entry;
+    PFDIR_STR source_directory;
+    PFDIR_STR source_name;
+    PFDIR_STR destination_directory;
+    PFDIR_STR destination_name;
+    pf_s8 normalized_name[512];
+    const pf_s8* name;
+    pf_u32 entry_position;
+    pf_s32 error;
+
+    error = PFPATH_SplitPath((PFDIR_STR*)old_path, &source_directory, &source_name);
+    if (error != 0) {
+        return error;
+    }
+    if (PFSTR_GetCodeMode(&source_name) == 2) {
+        if (PFSTR_StrNumChar(&source_name, 1) > 0xFF) {
+            return 1;
+        }
+        error = PFPATH_transformFromUnicodeToNormal(
+            normalized_name, (const pf_u16*)PFSTR_GetStrPos(&source_name, 1));
+        if (error != 0) {
+            return error;
+        }
+        PFSTR_SetLocalStr(&source_name, (pf_u32)normalized_name);
+    }
+    error = PFENT_ITER_GetEntryOfPath(&source_iter, &source_parent, volume,
+                                      &source_directory, 1);
+    if (error != 0) {
+        return error;
+    }
+    PFFAT_InitFFD(&source_iter.ffd, 0, volume, &source_parent.start_cluster);
+    error = PFENT_ITER_IteratorInitialize(&source_iter, 0);
+    if (error != 0) {
+        return error;
+    }
+    error = PFENT_ITER_FindEntry(&source_iter, &source_entry, &source_name, 0x7F, 0,
+                                 &entry_position);
+    if (error != 0) {
+        return error;
+    }
+    if (entry_position == 0) {
+        return 3;
+    }
+    if ((source_entry.attr & 0x10) != 0) {
+        return 3;
+    }
+    if ((source_entry.attr & 1) != 0) {
+        return 0x18;
+    }
+    if (PFSTR_StrNCmp((PFDIR_STR*)new_path, (const pf_s8*)":", 1, 1, 1) == 0 &&
+        PFPATH_GetVolumeFromPath(new_path) != volume) {
+        return 0x1F;
+    }
+    error = PFPATH_SplitPath((PFDIR_STR*)new_path, &destination_directory,
+                             &destination_name);
+    if (error != 0) {
+        return error;
+    }
+    error = PFENT_ITER_GetEntryOfPath(&destination_iter, &destination_parent, volume,
+                                      &destination_directory, 1);
+    if (error != 0) {
+        return error;
+    }
+    if ((destination_parent.attr & 0x10) == 0) {
+        return 0x14;
+    }
+    if (source_iter.ffd.start_cluster != destination_parent.start_cluster) {
+        return 0x1F;
+    }
+    if (PFSTR_GetCodeMode(&destination_name) == 2) {
+        if (PFSTR_StrNumChar(&destination_name, 1) > 0xFF) {
+            return 1;
+        }
+        error = PFPATH_transformFromUnicodeToNormal(
+            normalized_name, (const pf_u16*)PFSTR_GetStrPos(&destination_name, 1));
+        if (error != 0) {
+            return error;
+        }
+        PFSTR_SetLocalStr(&destination_name, (pf_u32)normalized_name);
+    }
+    name = PFSTR_GetStrPos(&destination_name, 1);
+    error = PFENT_ITER_FindEntry(&destination_iter, &existing_entry, &destination_name,
+                                 0x7F, 0, &entry_position);
+    if (error == 0) {
+        return 8;
+    }
+    if (error != 3) {
+        return error;
+    }
+    error = PFPATH_parseShortName(&source_entry, name);
+    if (error != 0) {
+        return error;
+    }
+    source_entry.long_name[0] = 0;
+    return PFENT_updateEntry(&source_entry, 1);
+}
+
+pf_s32 PFDIR_p_move(PF_VOLUME* volume, PF_STR* old_path, PF_STR* new_path) {
+    PF_ENT_ITER source_iter;
+    PF_ENT_ITER destination_iter;
+    PF_DIR_ENT source_entry;
+    PF_DIR_ENT destination_entry;
+    PF_DIR_ENT existing_entry;
+    PFDIR_STR destination_directory;
+    PFDIR_STR destination_name;
+    PFDIR_VOLUME_DIRS* volume_dirs;
+    pf_s8 normalized_name[512];
+    pf_u32 entry_position;
+    pf_u32 index;
+    pf_s32 error;
+
+    error = PFENT_ITER_GetEntryOfPath(&source_iter, &source_entry, volume,
+                                      (PFDIR_STR*)old_path, 0);
+    if (error != 0) {
+        return error;
+    }
+    if (PFPATH_GetVolumeFromPath(new_path) != volume) {
+        return 0x1F;
+    }
+    error = PFPATH_SplitPath((PFDIR_STR*)new_path, &destination_directory,
+                             &destination_name);
+    if (error != 0) {
+        return error;
+    }
+    if (PFSTR_GetCodeMode(&destination_name) == 2) {
+        if (PFSTR_StrNumChar(&destination_name, 1) > 0xFF) {
+            return 1;
+        }
+        error = PFPATH_transformFromUnicodeToNormal(
+            normalized_name, (const pf_u16*)PFSTR_GetStrPos(&destination_name, 1));
+        if (error != 0) {
+            return error;
+        }
+        PFSTR_SetLocalStr(&destination_name, (pf_u32)normalized_name);
+    }
+    error = PFENT_ITER_GetEntryOfPath(&destination_iter, &destination_entry, volume,
+                                      &destination_directory, 1);
+    if (error != 0) {
+        return error;
+    }
+    if ((destination_entry.attr & 0x10) == 0) {
+        return 0x14;
+    }
+    if ((source_entry.attr & 1) != 0) {
+        return 0x18;
+    }
+    volume_dirs = (PFDIR_VOLUME_DIRS*)volume;
+    if ((source_entry.attr & 0x10) != 0) {
+        if (PFVOL_CheckCurrentDir(volume, source_entry.start_cluster) != 0 ||
+            source_entry.start_cluster == 1 ||
+            (volume->bpb.fat_type == FAT_32 &&
+             source_entry.start_cluster == volume->bpb.root_dir_cluster)) {
+            return 0x1C;
+        }
+        for (index = 0; index < 3; index++) {
+            PFDIR_SDD* sdd = &volume_dirs->sdds[index];
+            if ((sdd->stat & 1) != 0 && (sdd->stat & 2) != 0 &&
+                sdd->dir_entry.p_vol == source_entry.p_vol &&
+                sdd->dir_entry.entry_sector == source_entry.entry_sector &&
+                sdd->dir_entry.entry_offset == source_entry.entry_offset) {
+                return 0x13;
+            }
+        }
+    } else if (PFFILE_IsOpened(&source_entry) != 0) {
+        return 0x13;
+    }
+    PFFAT_InitFFD(&destination_iter.ffd, 0, volume, &destination_entry.start_cluster);
+    error = PFENT_ITER_IteratorInitialize(&destination_iter, 0);
+    if (error != 0) {
+        return error;
+    }
+    error = PFENT_ITER_FindEntry(&destination_iter, &existing_entry, &destination_name,
+                                 0x7F, 0, &entry_position);
+    if (error == 0) {
+        if (source_entry.entry_sector == existing_entry.entry_sector &&
+            source_entry.entry_offset == existing_entry.entry_offset) {
+            return 0;
+        }
+        return 8;
+    }
+    if (error != 3) {
+        return error;
+    }
+    if (source_iter.ffd.start_cluster != destination_entry.start_cluster) {
+        return 0x1F;
+    }
+    return PFDIR_p_rename(volume, old_path, new_path);
+}
 
 pf_s32 PFDIR_p_fsexec_remove(PF_DTA* data, PF_DIR_ENT* entry, PF_ENT_ITER* iter) {
     PFDIR_VOLUME_DIRS* volume_dirs = (PFDIR_VOLUME_DIRS*)entry->p_vol;
@@ -1118,7 +1316,7 @@ void PFDIR_opendir(PF_STR* path, PFDIR_DIR** dir) {
         pf_vol_set.last_error = error;
         ((PFDIR_VOLUME_DIRS*)volume)->last_error = error;
     } else {
-        volume_dirs->num_opened_directories++;
+        ((PFDIR_VOLUME_DIRS*)volume)->num_opened_directories++;
     }
 }
 
@@ -1180,11 +1378,13 @@ pf_s32 PFDIR_telldir(PFDIR_DIR* dir, pf_u32* position) {
     } else {
         sdd = dir->p_sdd;
         if ((sdd->stat & 1) == 0 || (sdd->stat & 2) == 0) {
+            pf_vol_set.last_error = 10;
+            ((PFDIR_VOLUME_DIRS*)volume)->last_error = 10;
             error = 10;
-            pf_vol_set.last_error = error;
-            ((PFDIR_VOLUME_DIRS*)volume)->last_error = error;
+        } else if (dir->end_position != 0) {
+            *position = dir->end_position;
         } else {
-            *position = dir->end_position != 0 ? dir->end_position : dir->next_position;
+            *position = dir->next_position;
         }
     }
     return error;
@@ -1198,9 +1398,9 @@ pf_s32 PFDIR_seekdir(PFDIR_DIR* dir, pf_u32 position) {
         pf_vol_set.last_error = error;
         ((PFDIR_VOLUME_DIRS*)volume)->last_error = error;
     } else if ((dir->p_sdd->stat & 1) == 0 || (dir->p_sdd->stat & 2) == 0) {
+        pf_vol_set.last_error = 10;
+        ((PFDIR_VOLUME_DIRS*)volume)->last_error = 10;
         error = 10;
-        pf_vol_set.last_error = error;
-        ((PFDIR_VOLUME_DIRS*)volume)->last_error = error;
     } else {
         dir->end_position = position;
     }
