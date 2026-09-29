@@ -317,6 +317,7 @@ namespace ipl {
                 config->ssidLength = strlen(wk->data.ssid);
 
                 ATERMResult* data = &wk->data;
+
                 if (data->type == 1) {
                     config->privacy.mode = 1;
                     config->privacy.wep40.keyId = data->keyId;
