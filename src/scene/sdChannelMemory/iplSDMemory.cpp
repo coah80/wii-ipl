@@ -1,6 +1,8 @@
 #define IPL_SDMEMORY_SCROLLER_INIT_OUT_OF_LINE
 #define IPL_SDMEMORY_SET_TRANSLATE_OUT_OF_LINE
+#define IPL_SDMEMORY_DIALOG_STATE_ACCESSOR
 #include "scene/sdChannelMemory/iplSDMemory.h"
+#undef IPL_SDMEMORY_DIALOG_STATE_ACCESSOR
 #undef IPL_SDMEMORY_SET_TRANSLATE_OUT_OF_LINE
 #undef IPL_SDMEMORY_SCROLLER_INIT_OUT_OF_LINE
 
@@ -462,6 +464,218 @@ namespace ipl {
             mpProgressLayout->calc();
 
             return stateResult == 2 ? true : result;
+        }
+
+        void SDMemory::onDialogState0() {
+            if (!mpMainLayout->isPlaying(-1)) {
+                for (int i = 0; i < 3; i++) {
+                    mPanelStates[i] = 0;
+                    mpPaneManagers[0]->initPane(mpMainLayout->getNW4RLyt()->GetRootPane()->FindPaneByName(sControlPaneNames[i], true));
+                }
+
+                mDialogState = 1;
+            }
+        }
+
+        void SDMemory::onDialogState2() {
+            if (!mpMainLayout->isPlaying(-1)) {
+                mpMainLayout->getAnim(1)->initAnmFrame();
+                mpMainLayout->getAnim(1)->play();
+
+                if (mProcessState == 2) {
+                    mpProgressLayout->getAnim(1)->initAnmFrame();
+                    mpProgressLayout->getAnim(1)->play();
+                    mTransferFlags[1] = 0;
+                }
+
+                mDialogState = 3;
+            }
+        }
+
+        void SDMemory::onDialogState4() {
+            if (!mpTitleLayout->isPlaying(-1)) {
+                if (mDisplayMode == 4) {
+                    for (int i = 0; i < 5; i++) {
+                        mTitlePanelStates[i] = 0;
+                        mpPaneManagers[1]->initPane(mpTitleLayout->FindPaneByName(sControlPaneNames[i + 3]));
+                    }
+                } else {
+                    for (int i = 1; i < 5; i++) {
+                        mTitlePanelStates[i] = 0;
+                        mpPaneManagers[1]->initPane(mpTitleLayout->FindPaneByName(sControlPaneNames[i + 7]));
+                    }
+                }
+
+                mDialogState = 5;
+            }
+        }
+
+        void SDMemory::onDialogState6() {
+            if (!mpTitleLayout->isPlaying(-1)) {
+                mDialogState = 7;
+                mpTitleLayout->getAnim(1)->initAnmFrame();
+                mpTitleLayout->getAnim(1)->play();
+            }
+        }
+
+        void SDMemory::onDialogState7() {
+            if (!mpTitleLayout->isPlaying(-1)) {
+                switch (mProcessState) {
+                case 4:
+                    mDialogState = 0;
+                    mpMainLayout->getAnim(0)->play();
+                    snd::getSystem()->startSE("WIPL_SE_BT_TARGETTING");
+                    break;
+                default:
+                    mTransferStartTime = 0;
+                    mTransferFrame = 0;
+                    System::getDialog()->callBtn0NoShade(0xCC, 0, true);
+                    mDialogState = 8;
+                    break;
+                }
+            }
+        }
+
+        void SDMemory::onDialogState9() {
+            if (!mpDialogLayout->isPlaying(0)) {
+                for (int i = 0; i < 4; i++) {
+                    mPanelAnimationStates[i] = 0;
+                    mpPaneManagers[2]->initPane(mpDialogLayout->getNW4RLyt()->GetRootPane()->FindPaneByName(sDialogPaneNames[i], true));
+                }
+
+                mDialogState = 10;
+            }
+        }
+
+        void SDMemory::onDialogState10() {
+            controller::Interface* masterController = System::getMasterController();
+            if (mScroller.isActive()) {
+                updateSideArrows();
+                if (mScroller.getBInst().isActive() ? false : true) {
+                    if (masterController->down(controller::BTN_UP)) {
+                        mScroller.scrollUpByCon();
+                    } else if (masterController->down(controller::BTN_DOWN)) {
+                        mScroller.scrollDownByCon();
+                    }
+                }
+            }
+
+            bool previousDownEnd = !!mControllerFlags[0];
+            bool previousUpEnd = !!mControllerFlags[1];
+            updateScrollArrows(previousDownEnd, previousUpEnd, mScroller.isUpEnd(), mScroller.isDownEnd());
+
+            if (mScroller.getBInst().isActive() ? false : true) {
+                mpPaneManagers[2]->update();
+            }
+            mpPaneManagers[2]->calc();
+        }
+
+        void SDMemory::onDialogState11() {
+            if (!mpDialogLayout->isPlaying(4) && !mpDialogLayout->isPlaying(7)) {
+                if (mProcessState < 4 && mProcessState >= 2) {
+                    mDialogState = 12;
+                    mpDialogLayout->getAnim(1)->initAnmFrame();
+                    mpDialogLayout->getAnim(1)->play();
+
+                    if (mControllerFlags[0] != 0) {
+                        hideDownArrow();
+                    }
+                    if (mControllerFlags[1] != 0) {
+                        hideUpArrow();
+                    }
+                } else {
+                    mDialogState = 10;
+                }
+            }
+        }
+
+        void SDMemory::onDialogState19() {
+            if (!mpNandSDCardManager->getWorker()->is_working()) {
+                if (mpNandSDCardManager->getWorker()->get_async_result() == 0) {
+                    mDialogState = 13;
+                } else {
+                    System::getDialog()->terminate();
+                    mDialogState = 20;
+                    mErrorCode = 1;
+                    mMessageId = 0xAE;
+                }
+            }
+        }
+
+        bool SDMemory::onDialogState20() {
+            DialogWindow* dialog = System::getDialog();
+            if (dialog->getStateForSDMemory() == 4 && mTransferFlags[1] && mErrorCode == 0) {
+                mTransferFlags[1] = 0;
+                mpProgressLayout->getAnim(1)->initAnmFrame();
+                mpProgressLayout->getAnim(1)->play();
+            }
+
+            if (System::getDialog()->getLastResult() != -1) {
+                if (mErrorCode == 0) {
+                    mTransferFlags[0] = 1;
+                    mDialogState = 25;
+                    return true;
+                }
+
+                mDialogState = 23;
+            }
+
+            return false;
+        }
+
+        bool SDMemory::onDialogState22() {
+            DialogWindow* dialog = System::getDialog();
+            if (dialog->getStateForSDMemory() == 3 && dialog->getResultForSDMemory() == 1) {
+                mpProgressLayout->getAnim(1)->initAnmFrame();
+                mpProgressLayout->getAnim(1)->play();
+                mTransferFlags[1] = 0;
+            }
+
+            if (System::getDialog()->getLastResult() != -1) {
+                if (System::getDialog()->getLastResult() == 1) {
+                    mErrorCode = 4;
+                    mDialogState = 25;
+                    return true;
+                }
+
+                mpMainLayout->getAnim(0)->initAnmFrame();
+                mpMainLayout->getAnim(0)->play();
+                snd::getSystem()->startSE("WIPL_SE_CANCEL");
+                mDialogState = 0;
+            }
+
+            return false;
+        }
+
+        void SDMemory::onDialogState23() {
+            switch (mMessageId) {
+            case 0xBF:
+            case 0xB5:
+                System::getDialog()->callBtn1NoShade(mMessageId, 0xA5);
+                break;
+            default:
+                System::getDialog()->callBtn1NoShade(mMessageId, 0x2E);
+                break;
+            }
+
+            mDialogState = 24;
+        }
+
+        bool SDMemory::onDialogState24() {
+            if (System::getDialog()->getStateForSDMemory() == 3) {
+                mpProgressLayout->getAnim(1)->initAnmFrame();
+                mpProgressLayout->getAnim(1)->play();
+                mTransferFlags[1] = 0;
+            }
+
+            if (System::getDialog()->getLastResult() != -1) {
+                mTransferFlags[0] = 1;
+                System::getHomeButtonMenu()->enable();
+                mDialogState = 25;
+                return true;
+            }
+
+            return false;
         }
     }
 }
