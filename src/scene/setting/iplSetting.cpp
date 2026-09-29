@@ -2453,12 +2453,13 @@ namespace ipl {
             unk_0x914 = 0;
             unk_0x918 = -1;
             mpWiiSettingFlag->smthMsgData = 3;
-            mpChangeLayout->getAnim(0x14)->initFrame();
-            for (int animation = 0x10; animation < 0x14; ++animation) {
-                mpChangeLayout->getAnim(animation)->initFrame();
-                mpChangeLayout->getAnim(animation)->restart();
+            mpMainLayout->getAnim(0x14)->initFrame();
+            for (int index = 0x10; index <= 0x13; ++index) {
+                layout::Animator* animation = mpMainLayout->getAnim(index);
+                animation->initFrame();
+                animation->restart();
             }
-            mpChangeLayout->calc();
+            mpMainLayout->calc();
             unk_0x91C[2] = 0;
         }
 
