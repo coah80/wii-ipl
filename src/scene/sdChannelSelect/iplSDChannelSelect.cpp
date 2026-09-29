@@ -11,6 +11,7 @@
 
 #include "scene/sdChannelSelect/iplSDChannelSelect.h"
 
+#include <stdio.h>
 #include <stdlib.h>
 
 namespace ipl {
@@ -807,6 +808,36 @@ namespace ipl {
             }
         }
 
+        void SDChannelSelect::drawChannelObjects() {
+            SDChannelObj* channel = NULL;
+            while (channel = static_cast<SDChannelObj*>(nw4r::ut::List_GetNext(&mChannelObjects, channel)),
+                   channel != NULL) {
+                iplSDChannelObj_813E330C(channel);
+            }
+        }
+
+        void SDChannelSelect::updateArrowVisibility() {
+            int leftPageOffset = (mState == 10 || mState == 22) ? 1 : 0;
+            int rightPageOffset = (mState == 11 || mState == 23) ? 1 : 0;
+            layout::Object* layout = mpLayout;
+
+            if (mCurrentPage <= leftPageOffset) {
+                layout->hide(mscEdgePaneNames[0]);
+                layout->hide(mscEdgePaneNames[1]);
+            } else {
+                layout->show(mscEdgePaneNames[0]);
+                layout->show(mscEdgePaneNames[1]);
+            }
+
+            if (mCurrentPage + rightPageOffset + 1 >= mPageCount) {
+                layout->hide(mscEdgePaneNames[3]);
+                layout->hide(mscEdgePaneNames[4]);
+            } else {
+                layout->show(mscEdgePaneNames[3]);
+                layout->show(mscEdgePaneNames[4]);
+            }
+        }
+
         FaderSceneCommand SDChannelSelect::calcFadein() {
             return mpLayout->isPlaying(0) ? FADER_SCN_CONTINUE : FADER_SCN_NEXT;
         }
@@ -870,6 +901,192 @@ namespace ipl {
                 command = (FaderSceneCommand)!System::getFader()->getStatus();
             }
             return command;
+        }
+
+        void SDChannelSelect::draw() {
+            bool onDrawLayer = System::onDrawLayer(DRAW_LAYER_DEFAULT);
+            if (mState == 13) {
+                if (onDrawLayer) {
+                    utility::Graphics::setOrtho();
+                    GXColor color = {0, 0, 0, 255};
+                    nw4r::ut::Rect projection;
+                    System::getProjectionRect(&projection);
+                    utility::Graphics::drawPolygon(projection, color);
+                }
+                return;
+            }
+
+            if (!onDrawLayer) {
+                return;
+            }
+
+            if (mState == 7 || mState == 12 || mState == 14) {
+                utility::Graphics::setOrthoTransAndScale(mPosition, mScale);
+            }
+            utility::Graphics::setOrtho();
+
+            for (int edge = 0; edge < PAGE_COUNT; ++edge) {
+                nw4r::lyt::Pane* pane = mpLayout->FindPaneByName(mscEdgePaneNames[edge]);
+                pane->SetVisible(true);
+                mpLayout->draw(pane);
+                pane->SetVisible(false);
+            }
+
+            drawChannelObjects();
+            updateArrowVisibility();
+
+            GXSetScissor(0, 0, System::getRenderModeObj()->fbWidth,
+                         System::getRenderModeObj()->efbHeight);
+
+            nw4r::lyt::Pane* mask = mpLayout->FindPaneByName(mscMaskPaneName);
+            mask->SetVisible(false);
+            mpLayout->draw();
+
+            nw4r::lyt::TextBox* pageText = static_cast<nw4r::lyt::TextBox*>(
+                mpDialogLayout->FindPaneByName("TextBox_00"));
+            for (int page = 0; page < 3; ++page) {
+                wchar_t pageNumber[20];
+                swprintf(pageNumber, 19, L"%d", mCurrentPage + page);
+                pageText->SetString(pageNumber, 0);
+                mpDialogLayout->draw();
+            }
+
+            drawChannelObjects();
+            mask->SetVisible(true);
+            mpLayout->draw(mask);
+            mpPageLayouts[1]->draw();
+            mpNoCardLayout->draw();
+        }
+
+        void SDChannelSelect::destroyChannelObject(SDChannelObj* channel) {
+            delete channel;
+        }
+
+        void SDChannelSelect::destroy() {
+            System::getBS2Manager()->restart();
+            System::getSaveData()->setLastSDPrevPage(mCurrentPage);
+
+            SDChannelObj* channel = NULL;
+            while (channel = static_cast<SDChannelObj*>(nw4r::ut::List_GetNext(&mChannelObjects, channel)),
+                   channel != NULL) {
+                nw4r::ut::List_Remove(&mChannelObjects, channel);
+                destroyChannelObject(channel);
+            }
+
+            if (mpRsoThread != NULL) {
+                delete mpRsoThread;
+                mpRsoThread = NULL;
+            }
+
+            if (mpThumbnailHeap != NULL) {
+                mpThumbnailHeap->destroy();
+            }
+            if (mpLayoutHeap != NULL) {
+                mpLayoutHeap->destroy();
+            }
+            if (mpDialogHeap != NULL) {
+                mpDialogHeap->destroy();
+            }
+            if (mpChannelHeap != NULL) {
+                mpChannelHeap->destroy();
+            }
+
+            if (mpSaveDataFile != NULL) {
+                while (!System::getSaveData()->isFinished(mpSaveDataFile)) {
+                    OSYieldThread();
+                }
+                delete mpSaveDataFile;
+                mpSaveDataFile = NULL;
+            }
+
+            if (mpSDWorker != NULL) {
+                if (!mpSDWorker->is_terminated()) {
+                    mpSDWorker->terminate_async();
+                    while (mpSDWorker->is_working()) {
+                        OSYieldThread();
+                    }
+                    while (!mpSDWorker->is_terminated()) {
+                        OSYieldThread();
+                    }
+                }
+
+                if (mpWorkerHeap != NULL) {
+                    mpWorkerHeap->destroy();
+                }
+                if (mpThumbnailWorkHeap != NULL) {
+                    mpThumbnailWorkHeap->destroy();
+                }
+
+                delete[] mpSDTitleIds;
+                delete[] mpSDTitleInfo;
+                delete[] mpChannelTitleIds;
+                delete[] mpNandTitleInfo;
+                delete mpSDWorker;
+                mpSDWorker = NULL;
+            }
+        }
+
+        void SDChannelSelect::createBaseLayout() {
+            GXTexObj widescreenTexture;
+            GXTexObj standardTexture;
+
+            mpLayout = new layout::Object(getSceneHeap(), mpLayoutFile, "arc",
+                                          "mn_SdcardMenu_a.brlyt");
+
+            if (SCGetAspectRatio() == SC_ASPECT_RATIO_16x9) {
+                mpLayout->FindPaneByName("ChangeTex16x9")
+                    ->GetMaterial()
+                    ->GetTexture(&widescreenTexture, GX_TEXMAP0);
+                mpLayout->FindPaneByName("Picture_16")
+                    ->GetMaterial()
+                    ->GetTexture(&standardTexture, GX_TEXMAP0);
+
+                for (int page = 0; page < PAGE_COUNT; ++page) {
+                    mpLayout->FindPaneByName(mscPicturePaneNames[page])
+                        ->GetMaterial()
+                        ->SetTexture(GX_TEXMAP0, widescreenTexture);
+                    mpLayout->FindPaneByName(mscEdgePaneNames[page])
+                        ->GetMaterial()
+                        ->SetTexture(GX_TEXMAP0, standardTexture);
+                }
+            }
+
+            mpLayout->bind("mn_SdcardMenu_a.brlan");
+            mpLayout->finishBinding();
+
+            mpDialogLayout = new layout::Object(getSceneHeap(), mpLayoutFile, "arc",
+                                                "mn_SdcardMenu_Page.brlyt");
+            mpNoCardLayout = new layout::Object(getSceneHeap(), mpLayoutFile, "arc",
+                                                "mn_Nocard.brlyt");
+            mpNoCardLayout->bindToGroup("mn_Nocard_IN.brlan", "Group_00");
+            mpNoCardLayout->bindToGroup("mn_Nocard_Out.brlan", "Group_00");
+            mpNoCardLayout->bindToGroup("mn_Nocard_IN_02.brlan", "Group_01");
+            mpNoCardLayout->bindToGroup("mn_Nocard_Out_02.brlan", "Group_01");
+            mpNoCardLayout->bindToGroup("mn_Nocard_Wait.brlan", "G_Wait");
+            mpNoCardLayout->getAnim(0)->initAnmFrame();
+            mpNoCardLayout->getAnim(2)->initAnmFrame();
+            mpNoCardLayout->finishBinding();
+
+            mpHelpButtonLayout = new layout::Object(getSceneHeap(), mpLayoutFile, "arc",
+                                                    "help_Btn.brlyt");
+
+            mpButtonEventHandler = new SDChannelSelectButtonEventHandler(this);
+            mpPaneManager = new gui::PaneManager(mpButtonEventHandler, mpLayout->getDrawInfo(),
+                                                NULL, NULL);
+            mpPaneManager->createLayoutScene(*mpLayout->getNW4RLyt());
+            mpPaneManager->setAllComponentTriggerTarget(false);
+
+            for (int index = 0; index < MAX_CHANNEL_INDEX; ++index) {
+                const char* paneName = mscChannelPaneNames[mCurrentPage % PAGE_COUNT][index];
+                if (paneName[0] != '\0') {
+                    mpPaneManager->getPaneComponentByPane(mpLayout->FindPaneByName(paneName))
+                        ->setTriggerTarget(true);
+                }
+            }
+
+            for (int index = 0; index < 4; ++index) {
+                mpPageAnimations[index] = new math::HermiteIntp<math::VEC3>();
+            }
         }
 
         void SDChannelSelect::startResetting() {

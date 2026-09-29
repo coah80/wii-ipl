@@ -52,6 +52,7 @@ namespace ipl {
 
 #ifdef IPL_SD_CHANNEL_SELECT_ACCESS
             int getLastSDPrevPage() { return mLastSDPrevPage; }
+            void setLastSDPrevPage(int page) { mLastSDPrevPage = page; }
             BOOL didntGotoSDMenu() const { return mData.didntGotoSDMenu; }
 #endif
 

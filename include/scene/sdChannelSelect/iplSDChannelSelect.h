@@ -10,9 +10,13 @@
 
 namespace ipl {
     namespace scene {
-        class SDChannelObj;
+        class SDChannelObj : public Base {
+        public:
+            virtual ~SDChannelObj();
+        };
         extern "C" void iplSDChannelObj_813E3104(SDChannelObj* channel);
         extern "C" void iplSDChannelObj_813E322C(SDChannelObj* channel);
+        extern "C" void iplSDChannelObj_813E330C(SDChannelObj* channel);
 
         union SDChannelSelectCommandArguments {
             u32 values[3];
@@ -106,6 +110,8 @@ namespace ipl {
             void clearCommandQueue();
             void clearNoticeQueue();
             void calcChannelObjects();
+            void drawChannelObjects();
+            void updateArrowVisibility();
             void processWorkerState();
             void updateDialogAnimation();
             void processWorkerCommands();
@@ -124,6 +130,7 @@ namespace ipl {
             static int compareTitleUsage(const void* lhs, const void* rhs);
             static int compareTitleInfo(const void* lhs, const void* rhs);
             void createChannelList(int page, bool force);
+            void destroyChannelObject(SDChannelObj* channel);
             bool hasChannelObject(int page, int index) const;
             void createChannelObject(int page, int index);
             void createBaseLayout();
