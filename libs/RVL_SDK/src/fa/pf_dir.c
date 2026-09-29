@@ -7,15 +7,6 @@ void PFFAT_InitHint(PF_FAT_HINT* p_hint);
 s32 PFFAT_FreeChain(PF_FFD* p_ffd, u32 start_cluster, u32 chain_index, u32 size);
 
 /* pf_entry.c / pf_entry_iterator.c */
-typedef struct PF_ENT_ITER {
-    u8 pad_00[0x8];
-    PF_FFD ffd;          // 0x08
-    u32 field_40;        // 0x40
-    u32 field_44;        // 0x44
-    u32 field_48;        // 0x48
-    u8 buf[0x200];       // 0x4C
-} PF_ENT_ITER;
-
 static s8 dir_mark = '\\';
 static s8 dir_mark_move = '/';
 
@@ -1093,12 +1084,12 @@ s32 PFDIR_p_move(PF_VOLUME* p_vol, PF_STR* p_path_str, PF_STR* p_new_path_str) {
     }
     start_cluster = entry.start_cluster;
     for (i = 0; i < 5; i++) {
-        PF_FILE* p_file = &p_vol->file_handle[i];
-        if ((p_file->stat & 1) == 0 || (p_file->stat & 2) == 0) {
+        PF_SFD* p_sfd_f = &p_vol->file_handle[i];
+        if ((p_sfd_f->stat & 1) == 0 || (p_sfd_f->stat & 2) == 0) {
             continue;
         }
-        if (p_file->dir_entry.p_vol == p_vol &&
-            p_file->dir_entry.entry_sector == (u32)(p_vol->bpb.first_data_sector + ((start_cluster - 2) << p_vol->bpb.log2_sectors_per_cluster))) {
+        if (p_sfd_f->dir_entry.p_vol == p_vol &&
+            p_sfd_f->dir_entry.entry_sector == (u32)(p_vol->bpb.first_data_sector + ((start_cluster - 2) << p_vol->bpb.log2_sectors_per_cluster))) {
             return 0x13;
         }
     }

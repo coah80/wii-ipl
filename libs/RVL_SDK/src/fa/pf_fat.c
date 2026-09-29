@@ -5,20 +5,6 @@
 
 typedef s32 (*PF_VOLUME_CB)(s32);
 
-typedef struct PF_CACHE_PAGE {
-    u16 stat;            // 0x00
-    u16 option;          // 0x02
-    u8* buffer;          // 0x04
-    u8* p_buf;           // 0x08
-    u8* p_mod_sbuf;      // 0x0C
-    u8* p_mod_ebuf;      // 0x10
-    u32 size;            // 0x14
-    u32 sector;          // 0x18
-    void* signature;     // 0x1C
-    struct PF_CACHE_PAGE* p_next;  // 0x20
-    struct PF_CACHE_PAGE* p_prev;  // 0x24
-} PF_CACHE_PAGE;
-
 typedef struct PF_CLUSTER_LINK_VOL {
     u16 flag;      // 0x00
     u16 interval;  // 0x02

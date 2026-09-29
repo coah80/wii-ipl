@@ -107,18 +107,24 @@ typedef struct PF_FAT_LAST_ACCESS {
 
 typedef struct PF_CLUSTER_LINK {
     u32* buffer;
+    u32 max_count;
     u16 interval;
     u16 interval_offset;
     u32 position;
-    u32 max_count;
     u32 save_index;
 } PF_CLUSTER_LINK;
 
 typedef struct PF_FAT_HINT {
-    u32 chain_index;
-    u32 cluster;
-    u32 start_cluster;
+    u32 chain_index;      // 0x00
+    u32 cluster;          // 0x04
+    u32 start_cluster;    // 0x08
 } PF_FAT_HINT;
+
+typedef struct PF_FILE_HINT {
+    u32 chain_index;      // 0x00
+    u32 cluster;          // 0x04
+    u32 start_cluster;    // 0x08
+} PF_FILE_HINT;
 
 typedef struct PF_FFD {
     u32 start_cluster;
@@ -131,12 +137,37 @@ typedef struct PF_FFD {
     struct PF_VOLUME* p_vol;
 } PF_FFD;
 
+typedef struct PF_CACHE_PAGE {
+    u16 stat;            // 0x00
+    u16 option;          // 0x02
+    u8* buffer;          // 0x04
+    u8* p_buf;           // 0x08
+    u8* p_mod_sbuf;      // 0x0C
+    u8* p_mod_ebuf;      // 0x10
+    u32 size;            // 0x14
+    u32 sector;          // 0x18
+    void* signature;     // 0x1C
+    struct PF_CACHE_PAGE* p_next;  // 0x20
+    struct PF_CACHE_PAGE* p_prev;  // 0x24
+} PF_CACHE_PAGE;
+
+
 typedef struct PF_ENT_ITER PF_ENT_ITER;
 
 typedef struct PF_DIRENT {
     s8 lname[512];  // 0x00
     s8 name[13];    // 0x200
 } PF_DIRENT;
+
+typedef struct PF_ENT_ITER {
+    u8 pad_00[0x8];
+    PF_FFD ffd;          // 0x08
+    u32 field_40;        // 0x40
+    u32 field_44;        // 0x44
+    u32 field_48;        // 0x48
+    u8 buf[0x24];        // 0x4C
+} PF_ENT_ITER;
+
 
 typedef struct PF_SDD {
     u32 stat;               // 0x00
@@ -153,12 +184,59 @@ typedef struct PF_SDD_HANDLE {
     u8 pad_C[0x24];
 } PF_SDD_HANDLE;
 
+typedef struct PF_FILE PF_FILE;
+typedef struct PF_LOCK {
+    u16 mode;                  // 0x00
+    u16 count;                 // 0x02
+    u32 wcount;                // 0x04
+    PF_FILE* owner;            // 0x08
+    s32 resource;              // 0x0C
+} PF_LOCK;
+
+typedef struct PF_SFD PF_SFD;
+struct PF_SFD {
+    u32 stat;                  // 0x00
+    PF_FFD ffd;                // 0x04
+    PF_DIR_ENT dir_entry;      // 0x3C
+    PF_LOCK lock;              // 0x27C
+    u8 pad_28C[0x0C];          // 0x28C
+    u16 num_handlers;          // 0x298
+    u16 pad_29A;
+};
+
+typedef struct PF_CURSOR {
+    u32 position;              // 0x00
+    u32 sector;                // 0x04
+    u32 file_sector_index;     // 0x08
+    u16 offset_in_sector;      // 0x0C
+    u16 pad_0E;
+} PF_CURSOR;
+
 typedef struct PF_FILE {
     u32 stat;                  // 0x00
-    u8 pad_4[0x38];
-    PF_DIR_ENT dir_entry;      // 0x3C
-    u8 pad_27C[0x18];
+    u32 open_mode;             // 0x04
+    PF_SFD* p_sfd;             // 0x08
+    PF_FILE_HINT hint;         // 0x0C
+    s32 last_error;            // 0x18
+    PF_CURSOR cursor;          // 0x1C
+    u16 lock_count;            // 0x2C
+    u16 pad_2E;
 } PF_FILE;
+
+typedef struct PF_INFO {
+    u32 file_size;       // 0x00
+    u32 io_pointer;      // 0x04
+    u32 empty_size;      // 0x08
+    u32 allocated_size;  // 0x0C
+    u32 lock_mode;       // 0x10
+    PF_FILE* lock_owner; // 0x14
+    u32 lock_count;      // 0x18
+    u32 lock_tcount;     // 0x1C
+    u8 pad_20[0x14];
+    u32 field_34;        // 0x34
+} PF_INFO;
+
+
 
 typedef struct PF_FSTAT {
     u32 file_size;             // 0x00
@@ -174,7 +252,7 @@ typedef struct PF_FSTAT {
 typedef struct PF_UDD {
     u32 stat;               // 0x00
     PF_SDD* p_sdd;          // 0x04
-    PF_FAT_HINT hint;       // 0x08
+    PF_FILE_HINT hint;      // 0x08
     u32 field_14;           // 0x14
     u32 field_18;           // 0x18
     u32 field_1C;           // 0x1C
@@ -185,8 +263,7 @@ typedef struct PF_VOLUME {
     PF_BPB bpb;                    // 0x00
     u32 num_free_clusters;         // 0x38
     u32 last_free_cluster;         // 0x3C
-    PF_FILE file_handle[5];        // 0x40
-    u8 pad_D24[0x28];              // 0xD24
+    PF_SFD file_handle[5];         // 0x40
     PF_SDD_HANDLE dir_handle[5];   // 0xD4C
     PF_SDD sdds[3];                // 0xE3C
     PF_UDD udds[3];                // 0x15BC
@@ -214,6 +291,8 @@ typedef struct PF_VOLUME {
     u8 pad_1F92[2];
     u16 clst_flag;                 // 0x1F94
     u16 clst_interval;             // 0x1F96
+    u32* clst_buffer;              // 0x1F98
+    u32 clst_link_max;             // 0x1F9C
     u32* clst_buf;                 // 0x1F98
     u32 clst_count;                // 0x1F9C
     void* p_part;                  // 0x1FA0
