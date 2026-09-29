@@ -17,7 +17,7 @@ namespace ipl {
             {"it_ObjCubeEdit_b_SaveDataFoucusOut.brlan", "G_Data"},
             {"it_ObjCubeEdit_b_SaveDataFlash.brlan", "G_DataFlash"},
         };
-        extern "C" const char* lbl_81696CA8 = "B_Data_00";
+        static const char* scDataPaneName = "B_Data_00";
 
 
         GCSaveData::GCSaveData(EGG::Heap* heap, nand::LayoutFile* layoutFile, const char* directory, const char* fileName,
@@ -32,9 +32,9 @@ namespace ipl {
             mpPaneManager->setupScene(mpLayout);
             mpPaneManager->setAllComponentTriggerTarget(false);
 
-            mpPaneManager->setTriggerTarget(mpLayout->FindPaneByName(lbl_81696CA8), true);
+            mpPaneManager->setTriggerTarget(mpLayout->FindPaneByName(scDataPaneName), true);
 
-            add_anmbutton(lbl_81696CA8, get_animation(2), get_animation(3), NULL);
+            add_anmbutton(scDataPaneName, get_animation(2), get_animation(3), NULL);
 
             setTranslate(translate);
         }
@@ -42,7 +42,7 @@ namespace ipl {
         void GCSaveData::calc() {
             mpLayout->calc();
             mpPaneManager->calc();
-            get_anmbutton(lbl_81696CA8)->calc();
+            get_anmbutton(scDataPaneName)->calc();
         }
 
         void GCSaveData::draw() {
@@ -90,9 +90,9 @@ namespace ipl {
                                                 ->getManager()
                                                 ->getComment(mSlot, mIndex, 0),
                                             0);
-                            get_anmbutton(lbl_81696CA8)->setBalloon(mpBalloon);
+                            get_anmbutton(scDataPaneName)->setBalloon(mpBalloon);
                         } else {
-                            get_anmbutton(lbl_81696CA8)->setBalloon(NULL);
+                            get_anmbutton(scDataPaneName)->setBalloon(NULL);
                         }
                     }
                     snd::getSystem()->startSE("WIPL_SE_BT_TARGETTING");
@@ -132,7 +132,7 @@ namespace ipl {
         }
 
         void GCSaveData::init() {
-            clear_button(lbl_81696CA8);
+            clear_button(scDataPaneName);
             if (mpBalloon != NULL) {
                 mpBalloon->terminate();
             }
