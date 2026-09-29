@@ -1169,44 +1169,38 @@ pf_s32 PFDIR_readdir(PFDIR_DIR* dir, PFDIR_READ_RESULT* result) {
 
 pf_s32 PFDIR_telldir(PFDIR_DIR* dir, pf_u32* position) {
     PF_VOLUME* volume = dir == 0 ? 0 : dir->p_sdd->dir_entry.p_vol;
+    PFDIR_SDD* sdd;
     pf_s32 error = PFVOL_CheckForWrite(volume);
 
     if (error != 0) {
         pf_vol_set.last_error = error;
         ((PFDIR_VOLUME_DIRS*)volume)->last_error = error;
-        return error;
-    }
-    if ((dir->p_sdd->stat & 1) == 0 || (dir->p_sdd->stat & 2) == 0) {
-        error = 10;
-        pf_vol_set.last_error = error;
-        ((PFDIR_VOLUME_DIRS*)volume)->last_error = error;
-        return error;
-    }
-    if (dir->end_position == 0) {
-        *position = dir->next_position;
     } else {
-        *position = dir->end_position;
+        sdd = dir->p_sdd;
+        if ((sdd->stat & 1) == 0 || (sdd->stat & 2) == 0) {
+            error = 10;
+            pf_vol_set.last_error = error;
+            ((PFDIR_VOLUME_DIRS*)volume)->last_error = error;
+        } else {
+            *position = dir->end_position != 0 ? dir->end_position : dir->next_position;
+        }
     }
-    return 0;
+    return error;
 }
 
 pf_s32 PFDIR_seekdir(PFDIR_DIR* dir, pf_u32 position) {
     PF_VOLUME* volume = dir == 0 ? 0 : dir->p_sdd->dir_entry.p_vol;
     pf_s32 error = PFVOL_CheckForWrite(volume);
 
-    if (error == 0) {
-        if ((dir->p_sdd->stat & 1) == 0 || (dir->p_sdd->stat & 2) == 0) {
-            error = 10;
-            pf_vol_set.last_error = error;
-            ((PFDIR_VOLUME_DIRS*)volume)->last_error = error;
-            return error;
-        }
-        dir->end_position = position;
-        return 0;
-    }
     if (error != 0) {
         pf_vol_set.last_error = error;
         ((PFDIR_VOLUME_DIRS*)volume)->last_error = error;
+    } else if ((dir->p_sdd->stat & 1) == 0 || (dir->p_sdd->stat & 2) == 0) {
+        error = 10;
+        pf_vol_set.last_error = error;
+        ((PFDIR_VOLUME_DIRS*)volume)->last_error = error;
+    } else {
+        dir->end_position = position;
     }
     return error;
 }
