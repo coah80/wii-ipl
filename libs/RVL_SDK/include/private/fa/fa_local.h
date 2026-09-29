@@ -106,11 +106,11 @@ typedef struct PF_FAT_LAST_ACCESS {
 } PF_FAT_LAST_ACCESS;
 
 typedef struct PF_CLUSTER_LINK {
-    u32* buffer;
     u32 max_count;
     u16 interval;
     u16 interval_offset;
     u32 position;
+    u32* buffer;
     u32 save_index;
 } PF_CLUSTER_LINK;
 
@@ -267,7 +267,7 @@ typedef struct PF_VOLUME {
     PF_SDD_HANDLE dir_handle[5];   // 0xD4C
     PF_SDD sdds[3];                // 0xE3C
     PF_UDD udds[3];                // 0x15BC
-    u32 num_open_files;            // 0x161C
+    s32 num_open_files;            // 0x161C
     u32 num_open_dirs;             // 0x1620
     u32 buffer_mode;               // 0x1624
     u16 cache_max_fat;             // 0x1628
