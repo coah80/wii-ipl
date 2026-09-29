@@ -2173,10 +2173,17 @@ int ATERM_8140502C(u32* expandedKey, const void* key, u32 keyBits) {
     int rounds = ATERM_81404BFC(expandedKey, key, keyBits);
     u32* firstRound = expandedKey;
     u32* lastRound = expandedKey + rounds * 4;
+    s32 front = 0;
+    s32 back = rounds * 4;
+    s32 roundCount;
+    const u32* table4;
+    const u32* table5;
+    const u32* table6;
+    const u32* table7;
+    const u32* table8;
     u32* roundKey;
-    u32 roundCount;
 
-    while (firstRound < lastRound) {
+    while (front < back) {
         u32 word0 = firstRound[0];
         u32 word1 = firstRound[1];
         u32 word2 = firstRound[2];
@@ -2192,18 +2199,55 @@ int ATERM_8140502C(u32* expandedKey, const void* key, u32 keyBits) {
         lastRound[3] = word3;
         firstRound += 4;
         lastRound -= 4;
+        front += 4;
+        back -= 4;
     }
 
+    table4 = gAtermAesTables[4];
+    table5 = gAtermAesTables[5];
+    table6 = gAtermAesTables[6];
+    table7 = gAtermAesTables[7];
+    table8 = gAtermAesTables[8];
+    roundKey = expandedKey + 4;
     if (rounds > 1) {
-        roundKey = expandedKey + 4;
-        roundCount = rounds - 1;
+        roundCount = rounds;
         do {
-            ATERM_AES_TRANSFORM_KEY(roundKey, 0);
-            ATERM_AES_TRANSFORM_KEY(roundKey, 1);
-            ATERM_AES_TRANSFORM_KEY(roundKey, 2);
-            ATERM_AES_TRANSFORM_KEY(roundKey, 3);
+            u32 word;
+            u32 byte0;
+            u32 byte1;
+            u32 byte2;
+            u32 byte3;
+
+            word = roundKey[0];
+            byte0 = table4[(word >> 24) & 0xFF] & 0xFF;
+            byte1 = table4[(word >> 16) & 0xFF] & 0xFF;
+            byte2 = table4[(word >> 8) & 0xFF] & 0xFF;
+            byte3 = table4[word & 0xFF] & 0xFF;
+            roundKey[0] = table5[byte0] ^ table6[byte1] ^ table7[byte2] ^ table8[byte3];
+
+            word = roundKey[1];
+            byte0 = table4[(word >> 24) & 0xFF] & 0xFF;
+            byte1 = table4[(word >> 16) & 0xFF] & 0xFF;
+            byte2 = table4[(word >> 8) & 0xFF] & 0xFF;
+            byte3 = table4[word & 0xFF] & 0xFF;
+            roundKey[1] = table5[byte0] ^ table6[byte1] ^ table7[byte2] ^ table8[byte3];
+
+            word = roundKey[2];
+            byte0 = table4[(word >> 24) & 0xFF] & 0xFF;
+            byte1 = table4[(word >> 16) & 0xFF] & 0xFF;
+            byte2 = table4[(word >> 8) & 0xFF] & 0xFF;
+            byte3 = table4[word & 0xFF] & 0xFF;
+            roundKey[2] = table5[byte0] ^ table6[byte1] ^ table7[byte2] ^ table8[byte3];
+
+            word = roundKey[3];
+            byte0 = table4[(word >> 24) & 0xFF] & 0xFF;
+            byte1 = table4[(word >> 16) & 0xFF] & 0xFF;
+            byte2 = table4[(word >> 8) & 0xFF] & 0xFF;
+            byte3 = table4[word & 0xFF] & 0xFF;
+            roundKey[3] = table5[byte0] ^ table6[byte1] ^ table7[byte2] ^ table8[byte3];
+
             roundKey += 4;
-        } while (--roundCount != 0);
+        } while (--roundCount != 1);
     }
     return rounds;
 }
@@ -2211,62 +2255,68 @@ int ATERM_8140502C(u32* expandedKey, const void* key, u32 keyBits) {
 #undef ATERM_AES_TRANSFORM_KEY
 
 void ATERM_81405254(const u32* expandedKey, u32 rounds, const u8* input, u8* output) {
-    u32 state0 = ((u32)input[0] << 24) | ((u32)input[1] << 16) |
-                 ((u32)input[2] << 8) | input[3];
-    u32 state1 = ((u32)input[4] << 24) | ((u32)input[5] << 16) |
-                 ((u32)input[6] << 8) | input[7];
-    u32 state2 = ((u32)input[8] << 24) | ((u32)input[9] << 16) |
-                 ((u32)input[10] << 8) | input[11];
-    u32 state3 = ((u32)input[12] << 24) | ((u32)input[13] << 16) |
-                 ((u32)input[14] << 8) | input[15];
-    u32 roundIndex;
+    u32 state0 = ((u32)input[0] << 24) ^ ((u32)input[1] << 16) ^
+                 ((u32)input[2] << 8) ^ (u32)input[3];
+    u32 state1 = ((u32)input[4] << 24) ^ ((u32)input[5] << 16) ^
+                 ((u32)input[6] << 8) ^ (u32)input[7];
+    u32 state2 = ((u32)input[8] << 24) ^ ((u32)input[9] << 16) ^
+                 ((u32)input[10] << 8) ^ (u32)input[11];
+    u32 state3 = ((u32)input[12] << 24) ^ ((u32)input[13] << 16) ^
+                 ((u32)input[14] << 8) ^ (u32)input[15];
+    const u32* rk = expandedKey;
+    const u32* t0 = gAtermAesTables[0];
+    const u32* t1 = gAtermAesTables[1];
+    const u32* t2 = gAtermAesTables[2];
+    const u32* t3 = gAtermAesTables[3];
+    const u32* sb = gAtermAesTables[4];
+    s32 pairCount = (s32)rounds >> 1;
 
-    state0 ^= expandedKey[0];
-    state1 ^= expandedKey[1];
-    state2 ^= expandedKey[2];
-    state3 ^= expandedKey[3];
+    state0 ^= rk[0];
+    state1 ^= rk[1];
+    state2 ^= rk[2];
+    state3 ^= rk[3];
 
-    for (roundIndex = 1; roundIndex < rounds; roundIndex++) {
-        u32 next0 = gAtermAesTables[0][state0 >> 24] ^
-                    gAtermAesTables[1][(state1 >> 16) & 0xFF] ^
-                    gAtermAesTables[2][(state2 >> 8) & 0xFF] ^
-                    gAtermAesTables[3][state3 & 0xFF] ^ expandedKey[roundIndex * 4];
-        u32 next1 = gAtermAesTables[0][state1 >> 24] ^
-                    gAtermAesTables[1][(state2 >> 16) & 0xFF] ^
-                    gAtermAesTables[2][(state3 >> 8) & 0xFF] ^
-                    gAtermAesTables[3][state0 & 0xFF] ^ expandedKey[roundIndex * 4 + 1];
-        u32 next2 = gAtermAesTables[0][state2 >> 24] ^
-                    gAtermAesTables[1][(state3 >> 16) & 0xFF] ^
-                    gAtermAesTables[2][(state0 >> 8) & 0xFF] ^
-                    gAtermAesTables[3][state1 & 0xFF] ^ expandedKey[roundIndex * 4 + 2];
-        u32 next3 = gAtermAesTables[0][state3 >> 24] ^
-                    gAtermAesTables[1][(state0 >> 16) & 0xFF] ^
-                    gAtermAesTables[2][(state1 >> 8) & 0xFF] ^
-                    gAtermAesTables[3][state2 & 0xFF] ^ expandedKey[roundIndex * 4 + 3];
-
+    for (;;) {
+        u32 next0 = t0[state0 >> 24] ^ t1[(state1 >> 16) & 0xFF] ^
+                    t2[(state2 >> 8) & 0xFF] ^ t3[state3 & 0xFF] ^ rk[4];
+        u32 next1 = t0[state1 >> 24] ^ t1[(state2 >> 16) & 0xFF] ^
+                    t2[(state3 >> 8) & 0xFF] ^ t3[state0 & 0xFF] ^ rk[5];
+        u32 next2 = t0[state2 >> 24] ^ t1[(state3 >> 16) & 0xFF] ^
+                    t2[(state0 >> 8) & 0xFF] ^ t3[state1 & 0xFF] ^ rk[6];
+        u32 next3 = t0[state3 >> 24] ^ t1[(state0 >> 16) & 0xFF] ^
+                    t2[(state1 >> 8) & 0xFF] ^ t3[state2 & 0xFF] ^ rk[7];
         state0 = next0;
         state1 = next1;
         state2 = next2;
         state3 = next3;
+        rk += 8;
+        if (--pairCount == 0) {
+            break;
+        }
+        {
+        u32 next0 = t0[state0 >> 24] ^ t1[(state1 >> 16) & 0xFF] ^
+                    t2[(state2 >> 8) & 0xFF] ^ t3[state3 & 0xFF] ^ rk[0];
+        u32 next1 = t0[state1 >> 24] ^ t1[(state2 >> 16) & 0xFF] ^
+                    t2[(state3 >> 8) & 0xFF] ^ t3[state0 & 0xFF] ^ rk[1];
+        u32 next2 = t0[state2 >> 24] ^ t1[(state3 >> 16) & 0xFF] ^
+                    t2[(state0 >> 8) & 0xFF] ^ t3[state1 & 0xFF] ^ rk[2];
+        u32 next3 = t0[state3 >> 24] ^ t1[(state0 >> 16) & 0xFF] ^
+                    t2[(state1 >> 8) & 0xFF] ^ t3[state2 & 0xFF] ^ rk[3];
+        state0 = next0;
+        state1 = next1;
+        state2 = next2;
+        state3 = next3;
+        }
     }
-
     {
-        u32 result0 = (((gAtermAesTables[4][state0 >> 24] & 0xFF000000) |
-                        (gAtermAesTables[4][(state1 >> 16) & 0xFF] & 0x00FF0000) |
-                        (gAtermAesTables[4][(state2 >> 8) & 0xFF] & 0x0000FF00) |
-                        (gAtermAesTables[4][state3 & 0xFF] & 0x000000FF)) ^ expandedKey[rounds * 4]);
-        u32 result1 = (((gAtermAesTables[4][state1 >> 24] & 0xFF000000) |
-                        (gAtermAesTables[4][(state2 >> 16) & 0xFF] & 0x00FF0000) |
-                        (gAtermAesTables[4][(state3 >> 8) & 0xFF] & 0x0000FF00) |
-                        (gAtermAesTables[4][state0 & 0xFF] & 0x000000FF)) ^ expandedKey[rounds * 4 + 1]);
-        u32 result2 = (((gAtermAesTables[4][state2 >> 24] & 0xFF000000) |
-                        (gAtermAesTables[4][(state3 >> 16) & 0xFF] & 0x00FF0000) |
-                        (gAtermAesTables[4][(state0 >> 8) & 0xFF] & 0x0000FF00) |
-                        (gAtermAesTables[4][state1 & 0xFF] & 0x000000FF)) ^ expandedKey[rounds * 4 + 2]);
-        u32 result3 = (((gAtermAesTables[4][state3 >> 24] & 0xFF000000) |
-                        (gAtermAesTables[4][(state0 >> 16) & 0xFF] & 0x00FF0000) |
-                        (gAtermAesTables[4][(state1 >> 8) & 0xFF] & 0x0000FF00) |
-                        (gAtermAesTables[4][state2 & 0xFF] & 0x000000FF)) ^ expandedKey[rounds * 4 + 3]);
+        u32 result0 = (sb[state0 >> 24] & 0xFF000000) ^ (sb[(state1 >> 16) & 0xFF] & 0x00FF0000) ^
+                      (sb[(state2 >> 8) & 0xFF] & 0x0000FF00) ^ (sb[state3 & 0xFF] & 0x000000FF) ^ rk[0];
+        u32 result1 = (sb[state1 >> 24] & 0xFF000000) ^ (sb[(state2 >> 16) & 0xFF] & 0x00FF0000) ^
+                      (sb[(state3 >> 8) & 0xFF] & 0x0000FF00) ^ (sb[state0 & 0xFF] & 0x000000FF) ^ rk[1];
+        u32 result2 = (sb[state2 >> 24] & 0xFF000000) ^ (sb[(state3 >> 16) & 0xFF] & 0x00FF0000) ^
+                      (sb[(state0 >> 8) & 0xFF] & 0x0000FF00) ^ (sb[state1 & 0xFF] & 0x000000FF) ^ rk[2];
+        u32 result3 = (sb[state3 >> 24] & 0xFF000000) ^ (sb[(state0 >> 16) & 0xFF] & 0x00FF0000) ^
+                      (sb[(state1 >> 8) & 0xFF] & 0x0000FF00) ^ (sb[state2 & 0xFF] & 0x000000FF) ^ rk[3];
 
         output[0] = result0 >> 24;
         output[1] = result0 >> 16;
@@ -2288,62 +2338,68 @@ void ATERM_81405254(const u32* expandedKey, u32 rounds, const u8* input, u8* out
 }
 
 void ATERM_81405690(const u32* expandedKey, u32 rounds, const u8* input, u8* output) {
-    u32 state0 = ((u32)input[0] << 24) | ((u32)input[1] << 16) |
-                 ((u32)input[2] << 8) | input[3];
-    u32 state1 = ((u32)input[4] << 24) | ((u32)input[5] << 16) |
-                 ((u32)input[6] << 8) | input[7];
-    u32 state2 = ((u32)input[8] << 24) | ((u32)input[9] << 16) |
-                 ((u32)input[10] << 8) | input[11];
-    u32 state3 = ((u32)input[12] << 24) | ((u32)input[13] << 16) |
-                 ((u32)input[14] << 8) | input[15];
-    u32 roundIndex;
+    u32 state0 = ((u32)input[0] << 24) ^ ((u32)input[1] << 16) ^
+                 ((u32)input[2] << 8) ^ (u32)input[3];
+    u32 state1 = ((u32)input[4] << 24) ^ ((u32)input[5] << 16) ^
+                 ((u32)input[6] << 8) ^ (u32)input[7];
+    u32 state2 = ((u32)input[8] << 24) ^ ((u32)input[9] << 16) ^
+                 ((u32)input[10] << 8) ^ (u32)input[11];
+    u32 state3 = ((u32)input[12] << 24) ^ ((u32)input[13] << 16) ^
+                 ((u32)input[14] << 8) ^ (u32)input[15];
+    const u32* rk = expandedKey;
+    const u32* t5 = gAtermAesTables[5];
+    const u32* t6 = gAtermAesTables[6];
+    const u32* t7 = gAtermAesTables[7];
+    const u32* t8 = gAtermAesTables[8];
+    const u32* sb = gAtermAesTables[9];
+    s32 pairCount = (s32)rounds >> 1;
 
-    state0 ^= expandedKey[0];
-    state1 ^= expandedKey[1];
-    state2 ^= expandedKey[2];
-    state3 ^= expandedKey[3];
+    state0 ^= rk[0];
+    state1 ^= rk[1];
+    state2 ^= rk[2];
+    state3 ^= rk[3];
 
-    for (roundIndex = 1; roundIndex < rounds; roundIndex++) {
-        u32 next0 = gAtermAesTables[5][state0 >> 24] ^
-                    gAtermAesTables[6][(state3 >> 16) & 0xFF] ^
-                    gAtermAesTables[7][(state2 >> 8) & 0xFF] ^
-                    gAtermAesTables[8][state1 & 0xFF] ^ expandedKey[roundIndex * 4];
-        u32 next1 = gAtermAesTables[5][state1 >> 24] ^
-                    gAtermAesTables[6][(state0 >> 16) & 0xFF] ^
-                    gAtermAesTables[7][(state3 >> 8) & 0xFF] ^
-                    gAtermAesTables[8][state2 & 0xFF] ^ expandedKey[roundIndex * 4 + 1];
-        u32 next2 = gAtermAesTables[5][state2 >> 24] ^
-                    gAtermAesTables[6][(state1 >> 16) & 0xFF] ^
-                    gAtermAesTables[7][(state0 >> 8) & 0xFF] ^
-                    gAtermAesTables[8][state3 & 0xFF] ^ expandedKey[roundIndex * 4 + 2];
-        u32 next3 = gAtermAesTables[5][state3 >> 24] ^
-                    gAtermAesTables[6][(state2 >> 16) & 0xFF] ^
-                    gAtermAesTables[7][(state1 >> 8) & 0xFF] ^
-                    gAtermAesTables[8][state0 & 0xFF] ^ expandedKey[roundIndex * 4 + 3];
-
+    for (;;) {
+        u32 next0 = t5[state0 >> 24] ^ t6[(state3 >> 16) & 0xFF] ^
+                    t7[(state2 >> 8) & 0xFF] ^ t8[state1 & 0xFF] ^ rk[4];
+        u32 next1 = t5[state1 >> 24] ^ t6[(state0 >> 16) & 0xFF] ^
+                    t7[(state3 >> 8) & 0xFF] ^ t8[state2 & 0xFF] ^ rk[5];
+        u32 next2 = t5[state2 >> 24] ^ t6[(state1 >> 16) & 0xFF] ^
+                    t7[(state0 >> 8) & 0xFF] ^ t8[state3 & 0xFF] ^ rk[6];
+        u32 next3 = t5[state3 >> 24] ^ t6[(state2 >> 16) & 0xFF] ^
+                    t7[(state1 >> 8) & 0xFF] ^ t8[state0 & 0xFF] ^ rk[7];
         state0 = next0;
         state1 = next1;
         state2 = next2;
         state3 = next3;
+        rk += 8;
+        if (--pairCount == 0) {
+            break;
+        }
+        {
+        u32 next0 = t5[state0 >> 24] ^ t6[(state3 >> 16) & 0xFF] ^
+                    t7[(state2 >> 8) & 0xFF] ^ t8[state1 & 0xFF] ^ rk[0];
+        u32 next1 = t5[state1 >> 24] ^ t6[(state0 >> 16) & 0xFF] ^
+                    t7[(state3 >> 8) & 0xFF] ^ t8[state2 & 0xFF] ^ rk[1];
+        u32 next2 = t5[state2 >> 24] ^ t6[(state1 >> 16) & 0xFF] ^
+                    t7[(state0 >> 8) & 0xFF] ^ t8[state3 & 0xFF] ^ rk[2];
+        u32 next3 = t5[state3 >> 24] ^ t6[(state2 >> 16) & 0xFF] ^
+                    t7[(state1 >> 8) & 0xFF] ^ t8[state0 & 0xFF] ^ rk[3];
+        state0 = next0;
+        state1 = next1;
+        state2 = next2;
+        state3 = next3;
+        }
     }
-
     {
-        u32 result0 = (((gAtermAesTables[9][state0 >> 24] & 0xFF000000) |
-                        (gAtermAesTables[9][(state3 >> 16) & 0xFF] & 0x00FF0000) |
-                        (gAtermAesTables[9][(state2 >> 8) & 0xFF] & 0x0000FF00) |
-                        (gAtermAesTables[9][state1 & 0xFF] & 0x000000FF)) ^ expandedKey[rounds * 4]);
-        u32 result1 = (((gAtermAesTables[9][state1 >> 24] & 0xFF000000) |
-                        (gAtermAesTables[9][(state0 >> 16) & 0xFF] & 0x00FF0000) |
-                        (gAtermAesTables[9][(state3 >> 8) & 0xFF] & 0x0000FF00) |
-                        (gAtermAesTables[9][state2 & 0xFF] & 0x000000FF)) ^ expandedKey[rounds * 4 + 1]);
-        u32 result2 = (((gAtermAesTables[9][state2 >> 24] & 0xFF000000) |
-                        (gAtermAesTables[9][(state1 >> 16) & 0xFF] & 0x00FF0000) |
-                        (gAtermAesTables[9][(state0 >> 8) & 0xFF] & 0x0000FF00) |
-                        (gAtermAesTables[9][state3 & 0xFF] & 0x000000FF)) ^ expandedKey[rounds * 4 + 2]);
-        u32 result3 = (((gAtermAesTables[9][state3 >> 24] & 0xFF000000) |
-                        (gAtermAesTables[9][(state2 >> 16) & 0xFF] & 0x00FF0000) |
-                        (gAtermAesTables[9][(state1 >> 8) & 0xFF] & 0x0000FF00) |
-                        (gAtermAesTables[9][state0 & 0xFF] & 0x000000FF)) ^ expandedKey[rounds * 4 + 3]);
+        u32 result0 = (sb[state0 >> 24] & 0xFF000000) ^ (sb[(state3 >> 16) & 0xFF] & 0x00FF0000) ^
+                      (sb[(state2 >> 8) & 0xFF] & 0x0000FF00) ^ (sb[state1 & 0xFF] & 0x000000FF) ^ rk[0];
+        u32 result1 = (sb[state1 >> 24] & 0xFF000000) ^ (sb[(state0 >> 16) & 0xFF] & 0x00FF0000) ^
+                      (sb[(state3 >> 8) & 0xFF] & 0x0000FF00) ^ (sb[state2 & 0xFF] & 0x000000FF) ^ rk[1];
+        u32 result2 = (sb[state2 >> 24] & 0xFF000000) ^ (sb[(state1 >> 16) & 0xFF] & 0x00FF0000) ^
+                      (sb[(state0 >> 8) & 0xFF] & 0x0000FF00) ^ (sb[state3 & 0xFF] & 0x000000FF) ^ rk[2];
+        u32 result3 = (sb[state3 >> 24] & 0xFF000000) ^ (sb[(state2 >> 16) & 0xFF] & 0x00FF0000) ^
+                      (sb[(state1 >> 8) & 0xFF] & 0x0000FF00) ^ (sb[state0 & 0xFF] & 0x000000FF) ^ rk[3];
 
         output[0] = result0 >> 24;
         output[1] = result0 >> 16;
@@ -2363,7 +2419,6 @@ void ATERM_81405690(const u32* expandedKey, u32 rounds, const u8* input, u8* out
         output[15] = result3;
     }
 }
-
 void ATERM_81405D0C(u32 state[4], const u8 block[64]);
 
 void ATERM_81405ACC(AtermMd5Context* context, const u8* input, u32 length) {
