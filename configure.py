@@ -878,8 +878,8 @@ config.libs = [
             Object(Matching,    "scene/setting/iplAOSSThread.cpp"),
             Object(NonMatching, "scene/setting/AOSSLink.c"),
             Object(NonMatching, "scene/setting/iplRakuRakuThread.cpp"),
-            Object(NonMatching, "scene/setting/AOSS.c"),
-            Object(NonMatching, "scene/setting/ATERM.c"),
+            Object(NonMatching, "scene/setting/AOSS.c", extra_cflags=["-O4,p", "-inline off"]),
+            Object(NonMatching, "scene/setting/ATERM.c", extra_cflags=["-O4,p", "-inline off"]),
         ]
     ),
     IPLSection("settingSelect", [

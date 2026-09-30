@@ -1850,13 +1850,10 @@ int AOSS_81400830(AOSSDecryptionMessage* message) {
     u32 controlFlags;
     u32 checksum;
     u32 i;
-    u32 pairCount;
     u32 firstIndex;
     u32 secondIndex;
     u32 firstValue;
     u32 secondValue;
-    u32 swapValue;
-    u32 crcLimit;
     u32 crc;
     u8* outputCursor;
     const u8* inputCursor;
@@ -1903,11 +1900,9 @@ int AOSS_81400830(AOSSDecryptionMessage* message) {
         AOSS_81401C9C(&schedule, s_packetState.keyNonce,
             sizeof(s_packetState.keyNonce) + sizeof(s_packetState.keyAddress), dataLength);
 
-        i = 0;
         outputCursor = decryptedData;
         inputCursor = message->payload.encrypted.data;
-        pairCount = dataLength >> 1;
-        while (pairCount != 0) {
+        for (i = 0; i < dataLength; i++) {
             firstIndex = ((schedule.i + 1) % schedule.length) & 0xff;
             firstValue = schedule.bytes[firstIndex];
             secondIndex = ((firstValue + schedule.j) % schedule.length) & 0xff;
@@ -1916,54 +1911,13 @@ int AOSS_81400830(AOSSDecryptionMessage* message) {
             schedule.j = secondIndex;
             schedule.bytes[secondIndex] = (u8)firstValue;
             schedule.bytes[firstIndex] = (u8)secondValue;
-            outputCursor[0] = schedule.bytes[(firstValue + secondValue) % schedule.length] ^ inputCursor[0];
-            schedule.i = ((firstIndex + 1) % schedule.length) & 0xff;
-            firstIndex = schedule.bytes[schedule.i];
-            secondIndex = ((firstIndex + secondIndex) % schedule.length) & 0xff;
-            swapValue = schedule.bytes[secondIndex];
-            schedule.bytes[secondIndex] = (u8)firstIndex;
-            schedule.bytes[schedule.i] = (u8)swapValue;
-            outputCursor[1] = schedule.bytes[(firstIndex + swapValue) % schedule.length] ^ inputCursor[1];
-            schedule.j = secondIndex;
-            outputCursor += 2;
-            inputCursor += 2;
-            i += 2;
-            pairCount--;
-        }
-        if ((dataLength & 1) != 0) {
-            firstIndex = ((schedule.i + 1) % schedule.length) & 0xff;
-            firstValue = schedule.bytes[firstIndex];
-            secondIndex = ((firstValue + schedule.j) % schedule.length) & 0xff;
-            secondValue = schedule.bytes[secondIndex];
-            schedule.i = firstIndex;
-            schedule.j = secondIndex;
-            schedule.bytes[secondIndex] = (u8)firstValue;
-            schedule.bytes[firstIndex] = (u8)secondValue;
-            outputCursor[0] = schedule.bytes[(firstValue + secondValue) % schedule.length] ^ inputCursor[0];
-            schedule.i = firstIndex;
-            schedule.j = secondIndex;
+            *outputCursor++ = schedule.bytes[(firstValue + secondValue) % schedule.length] ^ *inputCursor++;
         }
 
         AOSS_81401DC0(0, s_crcTable);
         crc = 0xffffffff;
-        i = 0;
-        crcLimit = dataLength - 8;
-        if ((s32)dataLength > 8 && (s32)dataLength >= 0 && (s32)dataLength <= 0x7ffffffe) {
-            while ((s32)i < (s32)crcLimit) {
-                crc = (crc >> 8) ^ s_crcTable[(crc ^ decryptedData[i]) & 0xff];
-                crc = (crc >> 8) ^ s_crcTable[(crc ^ decryptedData[i + 1]) & 0xff];
-                crc = (crc >> 8) ^ s_crcTable[(crc ^ decryptedData[i + 2]) & 0xff];
-                crc = (crc >> 8) ^ s_crcTable[(crc ^ decryptedData[i + 3]) & 0xff];
-                crc = (crc >> 8) ^ s_crcTable[(crc ^ decryptedData[i + 4]) & 0xff];
-                crc = (crc >> 8) ^ s_crcTable[(crc ^ decryptedData[i + 5]) & 0xff];
-                crc = (crc >> 8) ^ s_crcTable[(crc ^ decryptedData[i + 6]) & 0xff];
-                crc = (crc >> 8) ^ s_crcTable[(crc ^ decryptedData[i + 7]) & 0xff];
-                i += 8;
-            }
-        }
-        while (i < dataLength) {
+        for (i = 0; i < dataLength; i++) {
             crc = (crc >> 8) ^ s_crcTable[(crc ^ decryptedData[i]) & 0xff];
-            i++;
         }
         if (((crc ^ 0xffffffff) & 0xff) != checksum) {
             s_errorCode = 0x12;
@@ -2021,9 +1975,7 @@ int AOSS_81400E0C(const AOSSOptionRecord* packet, u8* settings) {
     const AOSSOptionRecord* record;
     s32 length;
     s32 index;
-    s32 bulkLimit;
     u32 value;
-    u32 remaining;
     u16 nextOffset;
     const u8* valueBytes;
 
@@ -2054,35 +2006,8 @@ int AOSS_81400E0C(const AOSSOptionRecord* packet, u8* settings) {
         case 5:
             value = 0;
             valueBytes = record->data;
-            index = 0;
-            if (length > 0) {
-                bulkLimit = length - 8;
-                if (length > 8) {
-                    int canUnroll = length >= 0 && length <= 0x7ffffffe;
-                    if (canUnroll) {
-                        if (bulkLimit > 0) {
-                            for (; index < bulkLimit; index += 8) {
-                                value = (value << 8) + valueBytes[0];
-                                value = (value << 8) + valueBytes[1];
-                                value = (value << 8) + valueBytes[2];
-                                value = (value << 8) + valueBytes[3];
-                                value = (value << 8) + valueBytes[4];
-                                value = (value << 8) + valueBytes[5];
-                                value = (value << 8) + valueBytes[6];
-                                value = (value << 8) + valueBytes[7];
-                                valueBytes += 8;
-                            }
-                        }
-                    }
-                }
-            }
-            remaining = length - index;
-            if ((int)index < (int)length) {
-                do {
-                    value = (value << 8) + *valueBytes;
-                    valueBytes++;
-                    remaining--;
-                } while (remaining != 0);
+            for (index = 0; index < length; index++) {
+                value = (value << 8) + *valueBytes++;
             }
             value = SONtoHl(value);
             s_runtime.ipAddress = value;
@@ -2090,35 +2015,8 @@ int AOSS_81400E0C(const AOSSOptionRecord* packet, u8* settings) {
         case 6:
             value = 0;
             valueBytes = record->data;
-            index = 0;
-            if (length > 0) {
-                bulkLimit = length - 8;
-                if (length > 8) {
-                    int canUnroll = length >= 0 && length <= 0x7ffffffe;
-                    if (canUnroll) {
-                        if (bulkLimit > 0) {
-                            for (; index < bulkLimit; index += 8) {
-                                value = (value << 8) + valueBytes[0];
-                                value = (value << 8) + valueBytes[1];
-                                value = (value << 8) + valueBytes[2];
-                                value = (value << 8) + valueBytes[3];
-                                value = (value << 8) + valueBytes[4];
-                                value = (value << 8) + valueBytes[5];
-                                value = (value << 8) + valueBytes[6];
-                                value = (value << 8) + valueBytes[7];
-                                valueBytes += 8;
-                            }
-                        }
-                    }
-                }
-            }
-            remaining = length - index;
-            if ((int)index < (int)length) {
-                do {
-                    value = (value << 8) + *valueBytes;
-                    valueBytes++;
-                    remaining--;
-                } while (remaining != 0);
+            for (index = 0; index < length; index++) {
+                value = (value << 8) + *valueBytes++;
             }
             value = SONtoHl(value);
             s_runtime.subnetMask = value;
@@ -2277,8 +2175,7 @@ int AOSS_814013AC(int state, const AOSSReplyOption* response, int responseLength
         if (responseRecord->fields.type == s_responseTypeByState[state]) {
             break;
         }
-        length = SONtoHs(responseRecord->fields.length);
-        length += 4;
+        length = SONtoHs(responseRecord->fields.length) + 4;
         remainingLength -= length;
         responseRecord = (const AOSSReplyOption*)&responseRecord->bytes[length];
         if (remainingLength <= 0) {
@@ -2334,8 +2231,7 @@ int AOSS_814013AC(int state, const AOSSReplyOption* response, int responseLength
             return result;
         }
 
-        length = SONtoHs(option->fields.length);
-        length += 4;
+        length = SONtoHs(option->fields.length) + 4;
         remainingLength -= length;
         option = (const AOSSReplyOption*)&option->bytes[length];
     } while (remainingLength > 0);
@@ -2559,23 +2455,8 @@ void AOSS_81401C9C(AOSSKeySchedule* schedule, const u8* key, u32 keyLength, u32 
     state = schedule->bytes;
     schedule->i = 0;
     schedule->length = stateLength;
-    if (stateLength != 0) {
-        if (stateLength > 8) {
-            for (; index < stateLength - 8; index += 8) {
-                state[index] = (u8)index;
-                state[index + 1] = (u8)(index + 1);
-                state[index + 2] = (u8)(index + 2);
-                state[index + 3] = (u8)(index + 3);
-                state[index + 4] = (u8)(index + 4);
-                state[index + 5] = (u8)(index + 5);
-                state[index + 6] = (u8)(index + 6);
-                state[index + 7] = (u8)(index + 7);
-            }
-        }
-
-        for (; index < stateLength; index++) {
-            state[index] = (u8)index;
-        }
+    for (index = 0; index < stateLength; index++) {
+        state[index] = (u8)index;
     }
     index = 0;
     for (; index < stateLength; index++) {
@@ -2599,22 +2480,13 @@ void AOSS_81401DC0(u32 seed, u32* table) {
 
     for (index = 0; index < 0x100; index++) {
         value = index;
-        if ((value & 1) != 0) value = (value >> 1) ^ 0xedb88320;
-        else value >>= 1;
-        if ((value & 1) != 0) value = (value >> 1) ^ 0xedb88320;
-        else value >>= 1;
-        if ((value & 1) != 0) value = (value >> 1) ^ 0xedb88320;
-        else value >>= 1;
-        if ((value & 1) != 0) value = (value >> 1) ^ 0xedb88320;
-        else value >>= 1;
-        if ((value & 1) != 0) value = (value >> 1) ^ 0xedb88320;
-        else value >>= 1;
-        if ((value & 1) != 0) value = (value >> 1) ^ 0xedb88320;
-        else value >>= 1;
-        if ((value & 1) != 0) value = (value >> 1) ^ 0xedb88320;
-        else value >>= 1;
-        if ((value & 1) != 0) value = (value >> 1) ^ 0xedb88320;
-        else value >>= 1;
+        {
+            u32 bit;
+            for (bit = 0; bit < 8; bit++) {
+                if ((value & 1) != 0) value = (value >> 1) ^ 0xedb88320;
+                else value >>= 1;
+            }
+        }
         *table++ = value;
     }
 }
@@ -2628,7 +2500,6 @@ int AOSS_81401E80(void* packet, s32 length, const char* key, int keyLength) {
     s32 index;
     s32 keyIndex;
     int result = -1;
-    int unrollAllowed;
 
     keyMask = (u8*)AOSSi_Alloc(halfLength);
     if (keyMask == 0) {
@@ -2652,27 +2523,8 @@ int AOSS_81401E80(void* packet, s32 length, const char* key, int keyLength) {
             }
         }
 
-        index = 0;
-        if (halfLength > 0) {
-            s32 bulkLimit = halfLength - 8;
-            if (halfLength > 8) {
-                unrollAllowed = halfLength >= 0 && halfLength <= 0x7ffffffe;
-                if (unrollAllowed != 0) {
-                    for (; index < bulkLimit; index += 8) {
-                        packetBytes[halfLength + index] ^= keyMask[index];
-                        packetBytes[halfLength + index + 1] ^= keyMask[index + 1];
-                        packetBytes[halfLength + index + 2] ^= keyMask[index + 2];
-                        packetBytes[halfLength + index + 3] ^= keyMask[index + 3];
-                        packetBytes[halfLength + index + 4] ^= keyMask[index + 4];
-                        packetBytes[halfLength + index + 5] ^= keyMask[index + 5];
-                        packetBytes[halfLength + index + 6] ^= keyMask[index + 6];
-                        packetBytes[halfLength + index + 7] ^= keyMask[index + 7];
-                    }
-                }
-            }
-            for (; index < halfLength; index++) {
-                packetBytes[halfLength + index] ^= keyMask[index];
-            }
+        for (index = 0; index < halfLength; index++) {
+            packetBytes[halfLength + index] ^= keyMask[index];
         }
 
         memcpy(temporary, packetBytes + halfLength, halfLength);
@@ -2715,8 +2567,9 @@ int AOSS_814020CC(void* settings, void* config) {
             OSSleepTicks((OSTime)(ticksPerMillisecond * 100));
         }
 
-        return 0;
+    } else {
+        return -1;
     }
 
-    return -1;
+    return 0;
 }

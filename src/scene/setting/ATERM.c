@@ -8,8 +8,7 @@
 #include <revolution/so/SOBasic.h>
 #include <private/wd.h>
 
-static const u32 gAtermAesTables[10][256] = {
-    {
+static const u32 gAtermAesEncryptTable0[256] = {
         0xc66363a5, 0xf87c7c84, 0xee777799, 0xf67b7b8d, 0xfff2f20d, 0xd66b6bbd, 0xde6f6fb1, 0x91c5c554,
         0x60303050, 0x02010103, 0xce6767a9, 0x562b2b7d, 0xe7fefe19, 0xb5d7d762, 0x4dababe6, 0xec76769a,
         0x8fcaca45, 0x1f82829d, 0x89c9c940, 0xfa7d7d87, 0xeffafa15, 0xb25959eb, 0x8e4747c9, 0xfbf0f00b,
@@ -42,8 +41,8 @@ static const u32 gAtermAesTables[10][256] = {
         0x2d9b9bb6, 0x3c1e1e22, 0x15878792, 0xc9e9e920, 0x87cece49, 0xaa5555ff, 0x50282878, 0xa5dfdf7a,
         0x038c8c8f, 0x59a1a1f8, 0x09898980, 0x1a0d0d17, 0x65bfbfda, 0xd7e6e631, 0x844242c6, 0xd06868b8,
         0x824141c3, 0x299999b0, 0x5a2d2d77, 0x1e0f0f11, 0x7bb0b0cb, 0xa85454fc, 0x6dbbbbd6, 0x2c16163a
-    },
-    {
+    };
+static const u32 gAtermAesEncryptTable1[256] = {
         0xa5c66363, 0x84f87c7c, 0x99ee7777, 0x8df67b7b, 0x0dfff2f2, 0xbdd66b6b, 0xb1de6f6f, 0x5491c5c5,
         0x50603030, 0x03020101, 0xa9ce6767, 0x7d562b2b, 0x19e7fefe, 0x62b5d7d7, 0xe64dabab, 0x9aec7676,
         0x458fcaca, 0x9d1f8282, 0x4089c9c9, 0x87fa7d7d, 0x15effafa, 0xebb25959, 0xc98e4747, 0x0bfbf0f0,
@@ -76,8 +75,8 @@ static const u32 gAtermAesTables[10][256] = {
         0xb62d9b9b, 0x223c1e1e, 0x92158787, 0x20c9e9e9, 0x4987cece, 0xffaa5555, 0x78502828, 0x7aa5dfdf,
         0x8f038c8c, 0xf859a1a1, 0x80098989, 0x171a0d0d, 0xda65bfbf, 0x31d7e6e6, 0xc6844242, 0xb8d06868,
         0xc3824141, 0xb0299999, 0x775a2d2d, 0x111e0f0f, 0xcb7bb0b0, 0xfca85454, 0xd66dbbbb, 0x3a2c1616
-    },
-    {
+    };
+static const u32 gAtermAesEncryptTable2[256] = {
         0x63a5c663, 0x7c84f87c, 0x7799ee77, 0x7b8df67b, 0xf20dfff2, 0x6bbdd66b, 0x6fb1de6f, 0xc55491c5,
         0x30506030, 0x01030201, 0x67a9ce67, 0x2b7d562b, 0xfe19e7fe, 0xd762b5d7, 0xabe64dab, 0x769aec76,
         0xca458fca, 0x829d1f82, 0xc94089c9, 0x7d87fa7d, 0xfa15effa, 0x59ebb259, 0x47c98e47, 0xf00bfbf0,
@@ -110,8 +109,8 @@ static const u32 gAtermAesTables[10][256] = {
         0x9bb62d9b, 0x1e223c1e, 0x87921587, 0xe920c9e9, 0xce4987ce, 0x55ffaa55, 0x28785028, 0xdf7aa5df,
         0x8c8f038c, 0xa1f859a1, 0x89800989, 0x0d171a0d, 0xbfda65bf, 0xe631d7e6, 0x42c68442, 0x68b8d068,
         0x41c38241, 0x99b02999, 0x2d775a2d, 0x0f111e0f, 0xb0cb7bb0, 0x54fca854, 0xbbd66dbb, 0x163a2c16
-    },
-    {
+    };
+static const u32 gAtermAesEncryptTable3[256] = {
         0x6363a5c6, 0x7c7c84f8, 0x777799ee, 0x7b7b8df6, 0xf2f20dff, 0x6b6bbdd6, 0x6f6fb1de, 0xc5c55491,
         0x30305060, 0x01010302, 0x6767a9ce, 0x2b2b7d56, 0xfefe19e7, 0xd7d762b5, 0xababe64d, 0x76769aec,
         0xcaca458f, 0x82829d1f, 0xc9c94089, 0x7d7d87fa, 0xfafa15ef, 0x5959ebb2, 0x4747c98e, 0xf0f00bfb,
@@ -144,8 +143,8 @@ static const u32 gAtermAesTables[10][256] = {
         0x9b9bb62d, 0x1e1e223c, 0x87879215, 0xe9e920c9, 0xcece4987, 0x5555ffaa, 0x28287850, 0xdfdf7aa5,
         0x8c8c8f03, 0xa1a1f859, 0x89898009, 0x0d0d171a, 0xbfbfda65, 0xe6e631d7, 0x4242c684, 0x6868b8d0,
         0x4141c382, 0x9999b029, 0x2d2d775a, 0x0f0f111e, 0xb0b0cb7b, 0x5454fca8, 0xbbbbd66d, 0x16163a2c
-    },
-    {
+    };
+static const u32 gAtermAesSubstitutionTable[256] = {
         0x63636363, 0x7c7c7c7c, 0x77777777, 0x7b7b7b7b, 0xf2f2f2f2, 0x6b6b6b6b, 0x6f6f6f6f, 0xc5c5c5c5,
         0x30303030, 0x01010101, 0x67676767, 0x2b2b2b2b, 0xfefefefe, 0xd7d7d7d7, 0xabababab, 0x76767676,
         0xcacacaca, 0x82828282, 0xc9c9c9c9, 0x7d7d7d7d, 0xfafafafa, 0x59595959, 0x47474747, 0xf0f0f0f0,
@@ -178,8 +177,8 @@ static const u32 gAtermAesTables[10][256] = {
         0x9b9b9b9b, 0x1e1e1e1e, 0x87878787, 0xe9e9e9e9, 0xcececece, 0x55555555, 0x28282828, 0xdfdfdfdf,
         0x8c8c8c8c, 0xa1a1a1a1, 0x89898989, 0x0d0d0d0d, 0xbfbfbfbf, 0xe6e6e6e6, 0x42424242, 0x68686868,
         0x41414141, 0x99999999, 0x2d2d2d2d, 0x0f0f0f0f, 0xb0b0b0b0, 0x54545454, 0xbbbbbbbb, 0x16161616
-    },
-    {
+    };
+static const u32 gAtermAesDecryptTable0[256] = {
         0x51f4a750, 0x7e416553, 0x1a17a4c3, 0x3a275e96, 0x3bab6bcb, 0x1f9d45f1, 0xacfa58ab, 0x4be30393,
         0x2030fa55, 0xad766df6, 0x88cc7691, 0xf5024c25, 0x4fe5d7fc, 0xc52acbd7, 0x26354480, 0xb562a38f,
         0xdeb15a49, 0x25ba1b67, 0x45ea0e98, 0x5dfec0e1, 0xc32f7502, 0x814cf012, 0x8d4697a3, 0x6bd3f9c6,
@@ -212,8 +211,8 @@ static const u32 gAtermAesTables[10][256] = {
         0x9cd2df59, 0x55f2733f, 0x1814ce79, 0x73c737bf, 0x53f7cdea, 0x5ffdaa5b, 0xdf3d6f14, 0x7844db86,
         0xcaaff381, 0xb968c43e, 0x3824342c, 0xc2a3405f, 0x161dc372, 0xbce2250c, 0x283c498b, 0xff0d9541,
         0x39a80171, 0x080cb3de, 0xd8b4e49c, 0x6456c190, 0x7bcb8461, 0xd532b670, 0x486c5c74, 0xd0b85742
-    },
-    {
+    };
+static const u32 gAtermAesDecryptTable1[256] = {
         0x5051f4a7, 0x537e4165, 0xc31a17a4, 0x963a275e, 0xcb3bab6b, 0xf11f9d45, 0xabacfa58, 0x934be303,
         0x552030fa, 0xf6ad766d, 0x9188cc76, 0x25f5024c, 0xfc4fe5d7, 0xd7c52acb, 0x80263544, 0x8fb562a3,
         0x49deb15a, 0x6725ba1b, 0x9845ea0e, 0xe15dfec0, 0x02c32f75, 0x12814cf0, 0xa38d4697, 0xc66bd3f9,
@@ -246,8 +245,8 @@ static const u32 gAtermAesTables[10][256] = {
         0x599cd2df, 0x3f55f273, 0x791814ce, 0xbf73c737, 0xea53f7cd, 0x5b5ffdaa, 0x14df3d6f, 0x867844db,
         0x81caaff3, 0x3eb968c4, 0x2c382434, 0x5fc2a340, 0x72161dc3, 0x0cbce225, 0x8b283c49, 0x41ff0d95,
         0x7139a801, 0xde080cb3, 0x9cd8b4e4, 0x906456c1, 0x617bcb84, 0x70d532b6, 0x74486c5c, 0x42d0b857
-    },
-    {
+    };
+static const u32 gAtermAesDecryptTable2[256] = {
         0xa75051f4, 0x65537e41, 0xa4c31a17, 0x5e963a27, 0x6bcb3bab, 0x45f11f9d, 0x58abacfa, 0x03934be3,
         0xfa552030, 0x6df6ad76, 0x769188cc, 0x4c25f502, 0xd7fc4fe5, 0xcbd7c52a, 0x44802635, 0xa38fb562,
         0x5a49deb1, 0x1b6725ba, 0x0e9845ea, 0xc0e15dfe, 0x7502c32f, 0xf012814c, 0x97a38d46, 0xf9c66bd3,
@@ -280,8 +279,8 @@ static const u32 gAtermAesTables[10][256] = {
         0xdf599cd2, 0x733f55f2, 0xce791814, 0x37bf73c7, 0xcdea53f7, 0xaa5b5ffd, 0x6f14df3d, 0xdb867844,
         0xf381caaf, 0xc43eb968, 0x342c3824, 0x405fc2a3, 0xc372161d, 0x250cbce2, 0x498b283c, 0x9541ff0d,
         0x017139a8, 0xb3de080c, 0xe49cd8b4, 0xc1906456, 0x84617bcb, 0xb670d532, 0x5c74486c, 0x5742d0b8
-    },
-    {
+    };
+static const u32 gAtermAesDecryptTable3[256] = {
         0xf4a75051, 0x4165537e, 0x17a4c31a, 0x275e963a, 0xab6bcb3b, 0x9d45f11f, 0xfa58abac, 0xe303934b,
         0x30fa5520, 0x766df6ad, 0xcc769188, 0x024c25f5, 0xe5d7fc4f, 0x2acbd7c5, 0x35448026, 0x62a38fb5,
         0xb15a49de, 0xba1b6725, 0xea0e9845, 0xfec0e15d, 0x2f7502c3, 0x4cf01281, 0x4697a38d, 0xd3f9c66b,
@@ -314,8 +313,8 @@ static const u32 gAtermAesTables[10][256] = {
         0xd2df599c, 0xf2733f55, 0x14ce7918, 0xc737bf73, 0xf7cdea53, 0xfdaa5b5f, 0x3d6f14df, 0x44db8678,
         0xaff381ca, 0x68c43eb9, 0x24342c38, 0xa3405fc2, 0x1dc37216, 0xe2250cbc, 0x3c498b28, 0x0d9541ff,
         0xa8017139, 0x0cb3de08, 0xb4e49cd8, 0x56c19064, 0xcb84617b, 0x32b670d5, 0x6c5c7448, 0xb85742d0
-    },
-    {
+    };
+static const u32 gAtermAesInverseSubstitutionTable[256] = {
         0x52525252, 0x09090909, 0x6a6a6a6a, 0xd5d5d5d5, 0x30303030, 0x36363636, 0xa5a5a5a5, 0x38383838,
         0xbfbfbfbf, 0x40404040, 0xa3a3a3a3, 0x9e9e9e9e, 0x81818181, 0xf3f3f3f3, 0xd7d7d7d7, 0xfbfbfbfb,
         0x7c7c7c7c, 0xe3e3e3e3, 0x39393939, 0x82828282, 0x9b9b9b9b, 0x2f2f2f2f, 0xffffffff, 0x87878787,
@@ -348,8 +347,8 @@ static const u32 gAtermAesTables[10][256] = {
         0xc8c8c8c8, 0xebebebeb, 0xbbbbbbbb, 0x3c3c3c3c, 0x83838383, 0x53535353, 0x99999999, 0x61616161,
         0x17171717, 0x2b2b2b2b, 0x04040404, 0x7e7e7e7e, 0xbabababa, 0x77777777, 0xd6d6d6d6, 0x26262626,
         0xe1e1e1e1, 0x69696969, 0x14141414, 0x63636363, 0x55555555, 0x21212121, 0x0c0c0c0c, 0x7d7d7d7d
-    }
-};
+    };
+
 static const u32 gAtermAesRoundConstants[10] = {
     0x1000000, 0x2000000, 0x4000000, 0x8000000, 0x10000000,
     0x20000000, 0x40000000, 0x80000000, 0x1b000000, 0x36000000
@@ -810,8 +809,8 @@ int ATERM_8140276C(AtermApRecordSet* currentRecords, AtermApRecordSet* previousR
 
     if (!found) {
         AtermSsidBuffer aossSsidName;
-        int previousHasAoss = 0;
         int currentHasAoss = 0;
+        int previousHasAoss = 0;
 
         aossSsidName.clear.word0 = 0;
         aossSsidName.clear.word1 = 0;
@@ -837,8 +836,7 @@ int ATERM_8140276C(AtermApRecordSet* currentRecords, AtermApRecordSet* previousR
             previousRecord++;
         }
 
-        currentRecord = currentRecords->entries;
-        for (; currentIndex < currentRecords->count; currentIndex++) {
+        for (currentIndex = 0; currentIndex < currentRecords->count; currentIndex++) {
             memcpy(aossSsidName.text, currentRecord->ssid, sizeof(currentRecord->ssid));
             aossSsidName.text[currentRecord->ssidLength] = '\0';
             aossLength = strlen(gAtermAossSsid);
@@ -1031,10 +1029,8 @@ cleanup:
 
 int ATERM_81402E40(u16* messageBuffer, u32 sequence, u16* payload, size_t payloadLength,
                    void* encryptionKey) {
-    s32 byteLength;
     u8* end;
     u8* cursor;
-    u8* limit;
     u32 checksum = 0;
 
     memset(payload, 0, 8);
@@ -1052,24 +1048,8 @@ int ATERM_81402E40(u16* messageBuffer, u32 sequence, u16* payload, size_t payloa
     end = (u8*)(messageBuffer + 3);
     end += payloadLength;
     cursor = (u8*)messageBuffer;
-    if ((u8*)messageBuffer < end) {
-        byteLength = end - (u8*)messageBuffer;
-        limit = end - 8;
-        if (byteLength > 8 && cursor <= end) {
-            for (; cursor < limit; cursor += 8) {
-                checksum += cursor[0];
-                checksum += cursor[1];
-                checksum += cursor[2];
-                checksum += cursor[3];
-                checksum += cursor[4];
-                checksum += cursor[5];
-                checksum += cursor[6];
-                checksum += cursor[7];
-            }
-        }
-        while (cursor < end) {
-            checksum += *cursor++;
-        }
+    for (; cursor < end; cursor++) {
+        checksum += *cursor;
     }
     *(u16*)end = SOHtoNs(checksum);
     return (int)(end + sizeof(u16) - (u8*)messageBuffer);
@@ -1078,7 +1058,6 @@ int ATERM_81402E40(u16* messageBuffer, u32 sequence, u16* payload, size_t payloa
 int ATERM_81402FC0(AtermPacket* packet, u32* setupType) {
     u8* cursor;
     u8* end;
-    u8* limit;
     u8* payload;
     u8* value;
     u32 checksum = 0;
@@ -1090,30 +1069,13 @@ int ATERM_81402FC0(AtermPacket* packet, u32* setupType) {
     s32 networkReady;
     s32 selectedMode;
     AtermPacketOption* option;
-    s32 byteLength;
 
     messageType = SONtoHs(packet->sequence);
     payloadLength = SONtoHs(packet->length);
     cursor = (u8*)packet;
     end = packet->payload + payloadLength;
-    if (cursor < end) {
-        byteLength = end - cursor;
-        limit = end - 8;
-        if (byteLength > 8 && cursor <= end) {
-            for (; cursor < limit; cursor += 8) {
-                checksum += cursor[0];
-                checksum += cursor[1];
-                checksum += cursor[2];
-                checksum += cursor[3];
-                checksum += cursor[4];
-                checksum += cursor[5];
-                checksum += cursor[6];
-                checksum += cursor[7];
-            }
-        }
-        while (cursor < end) {
-            checksum += *cursor++;
-        }
+    for (; cursor < end; cursor++) {
+        checksum += *cursor;
     }
     if ((u16)checksum != SONtoHs(*(u16*)end)) {
         payload = NULL;
@@ -1196,7 +1158,7 @@ int ATERM_814031DC(AtermAssociationRequest* request) {
             const u8* addressCursor = interfaceMacAddress;
             int addressIndex;
             char* textCursor = interfaceMacText;
-            for (addressIndex = 0; addressIndex < 6; addressIndex++) {
+            for (addressIndex = 0; ; addressIndex++) {
                 u8 addressByte = *addressCursor++;
                 char* encoded = textCursor;
                 s32 highNibble = (addressByte & 0xF0) >> 4;
@@ -1213,9 +1175,10 @@ int ATERM_814031DC(AtermAssociationRequest* request) {
                 }
                 *encoded = 0;
                 textCursor += encoded - textCursor;
-                if (addressIndex < 5) {
-                    *textCursor++ = ':';
+                if (addressIndex == 5) {
+                    break;
                 }
+                *textCursor++ = ':';
             }
             *textCursor = '\0';
         }
@@ -1223,7 +1186,7 @@ int ATERM_814031DC(AtermAssociationRequest* request) {
             const u8* addressCursor = scanAddress;
             int addressIndex;
             char* textCursor = scanAddressText;
-            for (addressIndex = 0; addressIndex < 6; addressIndex++) {
+            for (addressIndex = 0; ; addressIndex++) {
                 u8 addressByte = *addressCursor++;
                 char* encoded = textCursor;
                 s32 highNibble = (addressByte & 0xF0) >> 4;
@@ -1240,9 +1203,10 @@ int ATERM_814031DC(AtermAssociationRequest* request) {
                 }
                 *encoded = 0;
                 textCursor += encoded - textCursor;
-                if (addressIndex < 5) {
-                    *textCursor++ = ':';
+                if (addressIndex == 5) {
+                    break;
                 }
+                *textCursor++ = ':';
             }
             *textCursor = '\0';
         }
@@ -1333,7 +1297,7 @@ int ATERM_814033F0(u16* response) {
             optionType = SONtoHs(optionCursor[0]);
             optionLength = SONtoHs(optionCursor[1]);
             optionValue = (u8*)(optionCursor + 2);
-            optionCursor = (u16*)((u8*)optionCursor + ((optionLength + 0x0B) & ~7));
+            optionCursor = (u16*)(((optionLength + 0x0B) & ~7) + (u32)optionCursor);
         }
     } while (optionValue != NULL);
     return result;
@@ -1641,24 +1605,8 @@ s32 ATERM_814038C8(void) {
                 u8* cursor = packetBuffer;
                 u8* packetEnd = packet->payload + payloadLength;
                 u8* payload = packet->payload;
-                if (cursor < packetEnd) {
-                    s32 byteLength = packetEnd - cursor;
-                    u8* limit = packetEnd - 8;
-                    if (byteLength > 8 && cursor <= packetEnd) {
-                        for (; cursor < limit; cursor += 8) {
-                            checksum += cursor[0];
-                            checksum += cursor[1];
-                            checksum += cursor[2];
-                            checksum += cursor[3];
-                            checksum += cursor[4];
-                            checksum += cursor[5];
-                            checksum += cursor[6];
-                            checksum += cursor[7];
-                        }
-                    }
-                    while (cursor < packetEnd) {
-                        checksum += *cursor++;
-                    }
+                for (; cursor < packetEnd; cursor++) {
+                    checksum += *cursor;
                 }
                 if ((u16)checksum != SONtoHs(*(u16*)packetEnd)) {
                     payload = NULL;
@@ -1790,24 +1738,8 @@ s32 ATERM_814038C8(void) {
                 u8* cursor = packetBuffer;
                 u8* packetEnd = packet->payload + payloadLength;
                 u8* payload = packet->payload;
-                if (cursor < packetEnd) {
-                    s32 byteLength = packetEnd - cursor;
-                    u8* limit = packetEnd - 8;
-                    if (byteLength > 8 && cursor <= packetEnd) {
-                        for (; cursor < limit; cursor += 8) {
-                            checksum += cursor[0];
-                            checksum += cursor[1];
-                            checksum += cursor[2];
-                            checksum += cursor[3];
-                            checksum += cursor[4];
-                            checksum += cursor[5];
-                            checksum += cursor[6];
-                            checksum += cursor[7];
-                        }
-                    }
-                    while (cursor < packetEnd) {
-                        checksum += *cursor++;
-                    }
+                for (; cursor < packetEnd; cursor++) {
+                    checksum += *cursor;
                 }
                 if ((u16)checksum != SONtoHs(*(u16*)packetEnd)) {
                     payload = NULL;
@@ -2029,7 +1961,7 @@ int ATERM_81404A18(u16* destination, u16* source, u32 length, void* key, u32 key
     return result;
 }
 
-#define ATERM_AES_SUB_BYTE(value) (gAtermAesTables[4][(value)] & 0xFF)
+#define ATERM_AES_SUB_BYTE(value) (gAtermAesSubstitutionTable[(value)] & 0xFF)
 #define ATERM_AES_SUB_WORD(value) \
     ((ATERM_AES_SUB_BYTE(((value) >> 24) & 0xFF) << 24) | \
      (ATERM_AES_SUB_BYTE(((value) >> 16) & 0xFF) << 16) | \
@@ -2045,20 +1977,28 @@ int ATERM_81404A18(u16* destination, u16* source, u32 length, void* key, u32 key
 int ATERM_81404BFC(u32* expandedKey, const void* key, u32 keyBits) {
     const u8* keyBytes = (const u8*)key;
     u32* roundKey = expandedKey;
-    const u32* roundConstant;
 
     u32 keyWord;
+    u32 firstWord;
+    u32 secondWord;
+    u32 thirdWord;
+    u32 fourthWord;
     s32 generatedRounds = 0;
 
-    expandedKey[0] = (((u32)keyBytes[3] ^ ((u32)keyBytes[2] << 8)) ^ (((u32)keyBytes[0] << 24) ^ ((u32)keyBytes[1] << 16)));
-    expandedKey[1] = (((u32)keyBytes[7] ^ ((u32)keyBytes[6] << 8)) ^ (((u32)keyBytes[4] << 24) ^ ((u32)keyBytes[5] << 16)));
-    expandedKey[2] = (((u32)keyBytes[11] ^ ((u32)keyBytes[10] << 8)) ^ (((u32)keyBytes[8] << 24) ^ ((u32)keyBytes[9] << 16)));
-    expandedKey[3] = (((u32)keyBytes[15] ^ ((u32)keyBytes[14] << 8)) ^ (((u32)keyBytes[12] << 24) ^ ((u32)keyBytes[13] << 16)));
+    firstWord = (((u32)keyBytes[3] ^ ((u32)keyBytes[2] << 8)) ^ (((u32)keyBytes[0] << 24) ^ ((u32)keyBytes[1] << 16)));
+    secondWord = (((u32)keyBytes[7] ^ ((u32)keyBytes[6] << 8)) ^ (((u32)keyBytes[4] << 24) ^ ((u32)keyBytes[5] << 16)));
+    thirdWord = (((u32)keyBytes[11] ^ ((u32)keyBytes[10] << 8)) ^ (((u32)keyBytes[8] << 24) ^ ((u32)keyBytes[9] << 16)));
+    fourthWord = (((u32)keyBytes[15] ^ ((u32)keyBytes[14] << 8)) ^ (((u32)keyBytes[12] << 24) ^ ((u32)keyBytes[13] << 16)));
+    expandedKey[0] = firstWord;
+    expandedKey[1] = secondWord;
+    expandedKey[2] = thirdWord;
+    expandedKey[3] = fourthWord;
 
     if ((s32)keyBits == 0x80) {
         const u32* substitution;
+        const u32* roundConstant;
         roundConstant = gAtermAesRoundConstants;
-        substitution = gAtermAesTables[4];
+        substitution = gAtermAesSubstitutionTable;
         do {
             keyWord = roundKey[3];
             roundKey[4] = (*roundConstant++ ^ ((substitution[keyWord >> 24] & 0xFF) ^ (substitution[keyWord & 0xFF] & 0xFF00))) ^ ((roundKey[0] ^ (substitution[(keyWord >> 16) & 0xFF] & 0xFF000000)) ^ (substitution[(keyWord >> 8) & 0xFF] & 0xFF0000));
@@ -2076,8 +2016,9 @@ int ATERM_81404BFC(u32* expandedKey, const void* key, u32 keyBits) {
     expandedKey[5] = (((u32)keyBytes[23] ^ ((u32)keyBytes[22] << 8)) ^ (((u32)keyBytes[20] << 24) ^ ((u32)keyBytes[21] << 16)));
     if ((s32)keyBits == 0xC0) {
         const u32* substitution;
+        const u32* roundConstant;
         roundConstant = gAtermAesRoundConstants;
-        substitution = gAtermAesTables[4];
+        substitution = gAtermAesSubstitutionTable;
         do {
             keyWord = roundKey[5];
             roundKey[6] = (*roundConstant++ ^ ((substitution[keyWord >> 24] & 0xFF) ^ (substitution[keyWord & 0xFF] & 0xFF00))) ^ ((roundKey[0] ^ (substitution[(keyWord >> 16) & 0xFF] & 0xFF000000)) ^ (substitution[(keyWord >> 8) & 0xFF] & 0xFF0000));
@@ -2098,8 +2039,9 @@ int ATERM_81404BFC(u32* expandedKey, const void* key, u32 keyBits) {
     expandedKey[7] = (((u32)keyBytes[31] ^ ((u32)keyBytes[30] << 8)) ^ (((u32)keyBytes[28] << 24) ^ ((u32)keyBytes[29] << 16)));
     if ((s32)keyBits == 0x100) {
         const u32* substitution;
+        const u32* roundConstant;
         roundConstant = gAtermAesRoundConstants;
-        substitution = gAtermAesTables[4];
+        substitution = gAtermAesSubstitutionTable;
         do {
             keyWord = roundKey[7];
             roundKey[8] = (*roundConstant++ ^ ((substitution[keyWord >> 24] & 0xFF) ^ (substitution[keyWord & 0xFF] & 0xFF00))) ^ ((roundKey[0] ^ (substitution[(keyWord >> 16) & 0xFF] & 0xFF000000)) ^ (substitution[(keyWord >> 8) & 0xFF] & 0xFF0000));
@@ -2143,7 +2085,6 @@ int ATERM_81404BFC(u32* expandedKey, const void* key, u32 keyBits) {
     }
 
 int ATERM_8140502C(u32* expandedKey, const void* key, u32 keyBits) {
-    const u32 (*tables)[256] = gAtermAesTables;
     int rounds = ATERM_81404BFC(expandedKey, key, keyBits);
     u32* firstRound = expandedKey;
     u32* lastRound = expandedKey + rounds * 4;
@@ -2186,11 +2127,11 @@ int ATERM_8140502C(u32* expandedKey, const void* key, u32 keyBits) {
         const u32* inverseTable2;
         const u32* inverseTable3;
         const u32* substitutionTable;
-        substitutionTable = tables[4];
-        inverseTable3 = tables[8];
-        inverseTable2 = tables[7];
-        inverseTable0 = tables[5];
-        inverseTable1 = tables[6];
+        substitutionTable = gAtermAesSubstitutionTable;
+        inverseTable3 = gAtermAesDecryptTable3;
+        inverseTable2 = gAtermAesDecryptTable2;
+        inverseTable0 = gAtermAesDecryptTable0;
+        inverseTable1 = gAtermAesDecryptTable1;
         roundKey = expandedKey;
         for (roundCount = 1; roundCount < rounds; roundCount++) {
             ATERM_AES_TRANSFORM_KEY(roundKey, 4);
@@ -2206,6 +2147,7 @@ int ATERM_8140502C(u32* expandedKey, const void* key, u32 keyBits) {
 #undef ATERM_AES_TRANSFORM_KEY
 
 void ATERM_81405254(const u32* expandedKey, u32 rounds, const u8* input, u8* output) {
+    s32 roundPairs = (s32)rounds >> 1;
     u32 state0 = (((u32)input[2] << 8) ^ input[3]) ^
     (((u32)input[0] << 24) ^ ((u32)input[1] << 16)) ^ expandedKey[0];
     u32 state1 = (((u32)input[6] << 8) ^ input[7]) ^
@@ -2215,11 +2157,10 @@ void ATERM_81405254(const u32* expandedKey, u32 rounds, const u8* input, u8* out
     u32 state3 = (((u32)input[14] << 8) ^ input[15]) ^
     (((u32)input[12] << 24) ^ ((u32)input[13] << 16)) ^ expandedKey[3];
     u32 next0, next1, next2, next3;
-    s32 roundPairs = (s32)rounds >> 1;
-    const u32* roundTable3 = gAtermAesTables[3];
-    const u32* roundTable2 = gAtermAesTables[2];
-    const u32* roundTable0 = gAtermAesTables[0];
-    const u32* roundTable1 = gAtermAesTables[1];
+    const u32* roundTable3 = gAtermAesEncryptTable3;
+    const u32* roundTable2 = gAtermAesEncryptTable2;
+    const u32* roundTable0 = gAtermAesEncryptTable0;
+    const u32* roundTable1 = gAtermAesEncryptTable1;
 
     for (;;) {
         next0 = (roundTable3[state3 & 0xFF] ^ roundTable2[(state2 >> 8) & 0xFF]) ^
@@ -2245,7 +2186,7 @@ void ATERM_81405254(const u32* expandedKey, u32 rounds, const u8* input, u8* out
     }
 
     {
-        const u32* finalTable = gAtermAesTables[4];
+        const u32* finalTable = gAtermAesSubstitutionTable;
         u32 result0 = (((finalTable[next0 >> 24] & 0xFF000000) |
             (finalTable[(next1 >> 16) & 0xFF] & 0x00FF0000) |
             (finalTable[(next2 >> 8) & 0xFF] & 0x0000FF00) |
@@ -2283,6 +2224,7 @@ void ATERM_81405254(const u32* expandedKey, u32 rounds, const u8* input, u8* out
 }
 
 void ATERM_81405690(const u32* expandedKey, u32 rounds, const u8* input, u8* output) {
+    s32 roundPairs = (s32)rounds >> 1;
     u32 state0 = (((u32)input[2] << 8) ^ input[3]) ^
     (((u32)input[0] << 24) ^ ((u32)input[1] << 16)) ^ expandedKey[0];
     u32 state1 = (((u32)input[6] << 8) ^ input[7]) ^
@@ -2292,11 +2234,10 @@ void ATERM_81405690(const u32* expandedKey, u32 rounds, const u8* input, u8* out
     u32 state3 = (((u32)input[14] << 8) ^ input[15]) ^
     (((u32)input[12] << 24) ^ ((u32)input[13] << 16)) ^ expandedKey[3];
     u32 next0, next1, next2, next3;
-    s32 roundPairs = (s32)rounds >> 1;
-    const u32* roundTable3 = gAtermAesTables[8];
-    const u32* roundTable2 = gAtermAesTables[7];
-    const u32* roundTable0 = gAtermAesTables[5];
-    const u32* roundTable1 = gAtermAesTables[6];
+    const u32* roundTable3 = gAtermAesDecryptTable3;
+    const u32* roundTable2 = gAtermAesDecryptTable2;
+    const u32* roundTable0 = gAtermAesDecryptTable0;
+    const u32* roundTable1 = gAtermAesDecryptTable1;
 
     for (;;) {
         next0 = roundTable3[state1 & 0xFF] ^ roundTable2[(state2 >> 8) & 0xFF] ^ roundTable0[state0 >> 24] ^ roundTable1[(state3 >> 16) & 0xFF] ^ expandedKey[4];
@@ -2314,7 +2255,7 @@ void ATERM_81405690(const u32* expandedKey, u32 rounds, const u8* input, u8* out
     }
 
     {
-        const u32* finalTable = gAtermAesTables[9];
+        const u32* finalTable = gAtermAesInverseSubstitutionTable;
         u32 result0 = (((finalTable[next0 >> 24] & 0xFF000000) |
             (finalTable[(next3 >> 16) & 0xFF] & 0x00FF0000) |
             (finalTable[(next2 >> 8) & 0xFF] & 0x0000FF00) |
@@ -2367,32 +2308,8 @@ void ATERM_81405ACC(AtermMd5Context* context, const void* input, u32 length) {
     context->bitCountHigh += length >> 29;
     bytesToFill = 64 - bufferIndex;
     if (length >= bytesToFill) {
-        copiedBytes = 0;
-        if (bytesToFill != 0) {
-            u32 groupLimit = bytesToFill - 8;
-            if (bytesToFill > 8) {
-                const u8* inputCursor = data;
-                u8* bufferCursor = context->buffer8 + bufferIndex;
-                for (; copiedBytes < groupLimit; copiedBytes += 8) {
-                    bufferCursor[0] = inputCursor[0];
-                    bufferCursor[1] = inputCursor[1];
-                    bufferCursor[2] = inputCursor[2];
-                    bufferCursor[3] = inputCursor[3];
-                    bufferCursor[4] = inputCursor[4];
-                    bufferCursor[5] = inputCursor[5];
-                    bufferCursor[6] = inputCursor[6];
-                    bufferCursor[7] = inputCursor[7];
-                    inputCursor += 8;
-                    bufferCursor += 8;
-                }
-            }
-            {
-                const u8* inputCursor = data + copiedBytes;
-                u8* bufferCursor = context->buffer8 + bufferIndex + copiedBytes;
-                for (; copiedBytes < bytesToFill; copiedBytes++) {
-                    *bufferCursor++ = *inputCursor++;
-                }
-            }
+        for (copiedBytes = 0; copiedBytes < bytesToFill; copiedBytes++) {
+            context->buffer8[bufferIndex + copiedBytes] = data[copiedBytes];
         }
         ATERM_81405D0C(context->state, context->buffer8);
         for (copiedBytes = bytesToFill; copiedBytes + 63 < length; copiedBytes += 64) {
@@ -2402,70 +2319,32 @@ void ATERM_81405ACC(AtermMd5Context* context, const void* input, u32 length) {
     } else {
         copiedBytes = 0;
     }
-    if (length - copiedBytes != 0) {
-        u32 remainingBytes = length - copiedBytes;
-        u32 groupLimit = remainingBytes - 8;
-        index = 0;
-        if (remainingBytes > 8) {
-            const u8* inputCursor = data + copiedBytes;
-            u8* bufferCursor = context->buffer8 + bufferIndex;
-            for (; index < groupLimit; index += 8) {
-                bufferCursor[0] = inputCursor[0];
-                bufferCursor[1] = inputCursor[1];
-                bufferCursor[2] = inputCursor[2];
-                bufferCursor[3] = inputCursor[3];
-                bufferCursor[4] = inputCursor[4];
-                bufferCursor[5] = inputCursor[5];
-                bufferCursor[6] = inputCursor[6];
-                bufferCursor[7] = inputCursor[7];
-                inputCursor += 8;
-                bufferCursor += 8;
-            }
-        }
-        {
-            const u8* inputCursor = data + copiedBytes + index;
-            u8* bufferCursor = context->buffer8 + bufferIndex + index;
-            for (; index < remainingBytes; index++) {
-                *bufferCursor++ = *inputCursor++;
-            }
-        }
+    for (index = 0; index < length - copiedBytes; index++) {
+        context->buffer8[bufferIndex + index] = data[copiedBytes + index];
     }
 }
 
 #define ATERM_MD5_STEP(A, B, C, D, WORD, CONSTANT, SHIFT, F) \
     do { \
-        u32 value = (A) + (F) + (WORD) + (CONSTANT); \
-        (A) = (B) + ((value << (SHIFT)) | (value >> (32 - (SHIFT)))); \
+        (A) += (F) + (WORD) + (CONSTANT); \
+        (A) = ((A) << (SHIFT)) | ((A) >> (32 - (SHIFT))); \
+        (A) += (B); \
     } while (0)
 
 void ATERM_81405D0C(u32 state[4], const u8 block[64]) {
+    u32 byteIndex;
+    u32 index;
+    const u8* inputWord;
     u32 words[16];
     u32 a = state[0];
     u32 b = state[1];
     u32 c = state[2];
     u32 d = state[3];
-    u32 index;
 
-    for (index = 0; index < 2; index++) {
-        const u8* inputGroup = block + index * 32;
-        u32* wordGroup = words + index * 8;
-
-        wordGroup[0] = (u32)inputGroup[0] | ((u32)inputGroup[1] << 8) |
-                       ((u32)inputGroup[2] << 16) | ((u32)inputGroup[3] << 24);
-        wordGroup[1] = (u32)inputGroup[4] | ((u32)inputGroup[5] << 8) |
-                       ((u32)inputGroup[6] << 16) | ((u32)inputGroup[7] << 24);
-        wordGroup[2] = (u32)inputGroup[8] | ((u32)inputGroup[9] << 8) |
-                       ((u32)inputGroup[10] << 16) | ((u32)inputGroup[11] << 24);
-        wordGroup[3] = (u32)inputGroup[12] | ((u32)inputGroup[13] << 8) |
-                       ((u32)inputGroup[14] << 16) | ((u32)inputGroup[15] << 24);
-        wordGroup[4] = (u32)inputGroup[16] | ((u32)inputGroup[17] << 8) |
-                       ((u32)inputGroup[18] << 16) | ((u32)inputGroup[19] << 24);
-        wordGroup[5] = (u32)inputGroup[20] | ((u32)inputGroup[21] << 8) |
-                       ((u32)inputGroup[22] << 16) | ((u32)inputGroup[23] << 24);
-        wordGroup[6] = (u32)inputGroup[24] | ((u32)inputGroup[25] << 8) |
-                       ((u32)inputGroup[26] << 16) | ((u32)inputGroup[27] << 24);
-        wordGroup[7] = (u32)inputGroup[28] | ((u32)inputGroup[29] << 8) |
-                       ((u32)inputGroup[30] << 16) | ((u32)inputGroup[31] << 24);
+    for (index = 0, byteIndex = 0; byteIndex < 64; index++, byteIndex += 4) {
+        inputWord = block + byteIndex;
+        words[index] = (u32)block[byteIndex] | ((u32)inputWord[1] << 8) |
+            ((u32)inputWord[2] << 16) | ((u32)inputWord[3] << 24);
     }
 
     ATERM_MD5_STEP(a, b, c, d, words[0], 0xd76aa478, 7, (b & c) | (~b & d));
@@ -2484,22 +2363,22 @@ void ATERM_81405D0C(u32 state[4], const u8 block[64]) {
     ATERM_MD5_STEP(d, a, b, c, words[13], 0xfd987193, 12, (a & b) | (~a & c));
     ATERM_MD5_STEP(c, d, a, b, words[14], 0xa679438e, 17, (d & a) | (~d & b));
     ATERM_MD5_STEP(b, c, d, a, words[15], 0x49b40821, 22, (c & d) | (~c & a));
-    ATERM_MD5_STEP(a, b, c, d, words[1], 0xf61e2562, 5, (d & b) | (~d & c));
-    ATERM_MD5_STEP(d, a, b, c, words[6], 0xc040b340, 9, (c & a) | (~c & b));
-    ATERM_MD5_STEP(c, d, a, b, words[11], 0x265e5a51, 14, (b & d) | (~b & a));
-    ATERM_MD5_STEP(b, c, d, a, words[0], 0xe9b6c7aa, 20, (a & c) | (~a & d));
-    ATERM_MD5_STEP(a, b, c, d, words[5], 0xd62f105d, 5, (d & b) | (~d & c));
-    ATERM_MD5_STEP(d, a, b, c, words[10], 0x02441453, 9, (c & a) | (~c & b));
-    ATERM_MD5_STEP(c, d, a, b, words[15], 0xd8a1e681, 14, (b & d) | (~b & a));
-    ATERM_MD5_STEP(b, c, d, a, words[4], 0xe7d3fbc8, 20, (a & c) | (~a & d));
-    ATERM_MD5_STEP(a, b, c, d, words[9], 0x21e1cde6, 5, (d & b) | (~d & c));
-    ATERM_MD5_STEP(d, a, b, c, words[14], 0xc33707d6, 9, (c & a) | (~c & b));
-    ATERM_MD5_STEP(c, d, a, b, words[3], 0xf4d50d87, 14, (b & d) | (~b & a));
-    ATERM_MD5_STEP(b, c, d, a, words[8], 0x455a14ed, 20, (a & c) | (~a & d));
-    ATERM_MD5_STEP(a, b, c, d, words[13], 0xa9e3e905, 5, (d & b) | (~d & c));
-    ATERM_MD5_STEP(d, a, b, c, words[2], 0xfcefa3f8, 9, (c & a) | (~c & b));
-    ATERM_MD5_STEP(c, d, a, b, words[7], 0x676f02d9, 14, (b & d) | (~b & a));
-    ATERM_MD5_STEP(b, c, d, a, words[12], 0x8d2a4c8a, 20, (a & c) | (~a & d));
+    ATERM_MD5_STEP(a, b, c, d, words[1], 0xf61e2562, 5, (b & d) | (c & ~d));
+    ATERM_MD5_STEP(d, a, b, c, words[6], 0xc040b340, 9, (a & c) | (b & ~c));
+    ATERM_MD5_STEP(c, d, a, b, words[11], 0x265e5a51, 14, (d & b) | (a & ~b));
+    ATERM_MD5_STEP(b, c, d, a, words[0], 0xe9b6c7aa, 20, (c & a) | (d & ~a));
+    ATERM_MD5_STEP(a, b, c, d, words[5], 0xd62f105d, 5, (b & d) | (c & ~d));
+    ATERM_MD5_STEP(d, a, b, c, words[10], 0x02441453, 9, (a & c) | (b & ~c));
+    ATERM_MD5_STEP(c, d, a, b, words[15], 0xd8a1e681, 14, (d & b) | (a & ~b));
+    ATERM_MD5_STEP(b, c, d, a, words[4], 0xe7d3fbc8, 20, (c & a) | (d & ~a));
+    ATERM_MD5_STEP(a, b, c, d, words[9], 0x21e1cde6, 5, (b & d) | (c & ~d));
+    ATERM_MD5_STEP(d, a, b, c, words[14], 0xc33707d6, 9, (a & c) | (b & ~c));
+    ATERM_MD5_STEP(c, d, a, b, words[3], 0xf4d50d87, 14, (d & b) | (a & ~b));
+    ATERM_MD5_STEP(b, c, d, a, words[8], 0x455a14ed, 20, (c & a) | (d & ~a));
+    ATERM_MD5_STEP(a, b, c, d, words[13], 0xa9e3e905, 5, (b & d) | (c & ~d));
+    ATERM_MD5_STEP(d, a, b, c, words[2], 0xfcefa3f8, 9, (a & c) | (b & ~c));
+    ATERM_MD5_STEP(c, d, a, b, words[7], 0x676f02d9, 14, (d & b) | (a & ~b));
+    ATERM_MD5_STEP(b, c, d, a, words[12], 0x8d2a4c8a, 20, (c & a) | (d & ~a));
     ATERM_MD5_STEP(a, b, c, d, words[5], 0xfffa3942, 4, b ^ c ^ d);
     ATERM_MD5_STEP(d, a, b, c, words[8], 0x8771f681, 11, a ^ b ^ c);
     ATERM_MD5_STEP(c, d, a, b, words[11], 0x6d9d6122, 16, d ^ a ^ b);
@@ -2537,6 +2416,12 @@ void ATERM_81405D0C(u32 state[4], const u8 block[64]) {
     state[1] += b;
     state[2] += c;
     state[3] += d;
+    {
+        u8* wordBytes = (u8*)words;
+        for (index = 0; index < sizeof(words); index++) {
+            *wordBytes++ = 0;
+        }
+    }
 }
 #undef ATERM_MD5_STEP
 
