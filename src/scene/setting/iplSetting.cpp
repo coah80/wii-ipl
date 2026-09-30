@@ -31,6 +31,9 @@
 #include <private/os/OSSram.h>
 #include <private/wpad/WPADInternal.h>
 
+#undef abs
+extern "C" int abs(int value);
+
 extern "C" void __VISetAdjustingValues(s32 horizontal, s32 vertical);
 
 namespace ipl {
@@ -196,7 +199,7 @@ namespace ipl {
         }
 
         bool Setting::isAnimating() {
-            return mpSecondAnimation->state == 1 || mpFirstAnimation->state == 1 || mState != 20;
+            return mpSecondAnimation->isPlaying() || mpFirstAnimation->isPlaying() || mState != 20;
         }
 
         void Setting::getFuncMsgQ() {
@@ -337,8 +340,8 @@ namespace ipl {
             delete writtenArchive;
 
             mpChangeLayout = new layout::Object(getSceneHeap(), mpSettingLayoutFile, "arc", "SceenChange_b.brlyt");
-            mpFirstAnimation = reinterpret_cast<SettingAnimation*>(mpChangeLayout->bind("SceenChange_b_Right.brlan"));
-            mpSecondAnimation = reinterpret_cast<SettingAnimation*>(mpChangeLayout->bind("SceenChange_b_Left.brlan"));
+            mpFirstAnimation = mpChangeLayout->bind("SceenChange_b_Right.brlan");
+            mpSecondAnimation = mpChangeLayout->bind("SceenChange_b_Left.brlan");
             mpChangeLayout->finishBinding();
 
             mpMainLayout = new layout::Object(getSceneHeap(), mpSettingLayoutFile, "arc", "my_AP_a.brlyt");
@@ -499,10 +502,12 @@ namespace ipl {
             }
 
             OSReport("***********************************\n");
-            OSReport(" RSO PLACED : %p %d\n", static_cast<nand::File*>(mpWWWLibraryFile)->getBuffer(),
-                     static_cast<nand::File*>(mpWWWLibraryFile)->getLength());
+            OSReport("%s\n", browserPath);
+            OSReport("***********************************\n");
             ICInvalidateRange(static_cast<nand::File*>(mpWWWLibraryFile)->getBuffer(),
                               static_cast<nand::File*>(mpWWWLibraryFile)->getLength());
+            OSReport(" RSO PLACED : %p %d\n", static_cast<nand::File*>(mpWWWLibraryFile)->getBuffer(),
+                     static_cast<nand::File*>(mpWWWLibraryFile)->getLength());
             ext_ead::www::SurfaceManager::CreateManager(width, height, width, height, mem1Buffer_, mem1Size,
                                                        mem2Buffer_, mem2Size,
                                                        static_cast<nand::File*>(mpWWWLibraryFile)->getBuffer(),
@@ -639,7 +644,7 @@ namespace ipl {
                 }
             }
 
-            while (mpSecondAnimation->state == 1 || mpFirstAnimation->state == 1) {
+            while (mpSecondAnimation->isPlaying() || mpFirstAnimation->isPlaying()) {
                 mpChangeLayout->calc();
             }
 
@@ -1314,7 +1319,7 @@ namespace ipl {
                     }
                     __OSLaunchTitlelForSystem(mUpdateTitleId, 0, NULL);
                     for (;;) {
-                        OSReport(NULL);
+                        OSReport("hoge");
                     }
                 } else if (surfaceState != 0 && ext_ead::www::SurfaceManager::GetInstance()->IsThreadStopped()) {
                     OSReport("reserve destroy\n");
@@ -1379,8 +1384,8 @@ namespace ipl {
             }
 
             bool showBrowserWindow =
-                mpSecondAnimation->state == 1 || mpFirstAnimation->state == 1;
-            mpChangeLayout->FindPaneByName("hoge")->SetVisible(showBrowserWindow);
+                mpSecondAnimation->isPlaying() || mpFirstAnimation->isPlaying();
+            mpChangeLayout->FindPaneByName("N_Tra0")->SetVisible(showBrowserWindow);
 
             WWWRect* wideRect = NULL;
             WWWRect* standardRect = NULL;
@@ -1403,13 +1408,36 @@ namespace ipl {
             GXInitTexObjLOD(&wideTexture, GX_LINEAR, GX_LINEAR, 0.0f, 0.0f, 0.0f, GX_FALSE, GX_FALSE, GX_ANISO_1);
 
             if (browserScrollDirection != 0) {
-                mpChangeLayout->FindPaneByName("hoge")->SetVisible(true);
+                nw4r::lyt::Material* standardMaterial =
+                    mpChangeLayout->FindPaneByName("N_Tra0")->FindMaterialByName("Tex0");
+                nw4r::lyt::Material* firstWideMaterial =
+                    mpChangeLayout->FindPaneByName("N_Tra0")->FindMaterialByName("Tex1");
+                nw4r::lyt::Material* secondWideMaterial =
+                    mpChangeLayout->FindPaneByName("N_Tra0")->FindMaterialByName("Tex2");
+                standardMaterial->SetTexture(0, standardTexture);
+                firstWideMaterial->SetTexture(0, wideTexture);
+                secondWideMaterial->SetTexture(0, wideTexture);
+                mpChangeLayout->FindPaneByName("N_Tra0")->SetVisible(true);
+                if (browserScrollDirection == 1) {
+                    mpSecondAnimation->initFrame();
+                    mpSecondAnimation->restart();
+                } else {
+                    mpFirstAnimation->initFrame();
+                    mpFirstAnimation->restart();
+                }
+                mpChangeLayout->calc();
+                browserScrollDirection = 0;
             }
 
             utility::Graphics::setOrtho(0);
-            GXColor color = {0xFF, 0xFF, 0xFF, (u8)(mState * 0xFF / 20)};
-            utility::Graphics::drawTexture(projection4x3, standardTexture, color, 1);
-            utility::Graphics::drawTexture(projection16x9, wideTexture, color, 1);
+            GXColor opaqueColor = {0xFF, 0xFF, 0xFF, 0xFF};
+            GXColor fadeColor = {0xFF, 0xFF, 0xFF, (u8)(mState * 0xFF / 20)};
+            int screenWidth = abs(static_cast<int>(projection4x3.GetWidth()));
+            int screenHeight = abs(static_cast<int>(projection4x3.GetHeight()));
+            nw4r::ut::Rect screenRect(-screenWidth / 2, screenHeight / 2,
+                                      screenWidth / 2, -screenHeight / 2);
+            utility::Graphics::drawTexture(screenRect, standardTexture, opaqueColor, 1);
+            utility::Graphics::drawTexture(projection16x9, wideTexture, fadeColor, 1);
 
             if (mpWiiSettingData->data[0x12] == 0x1E && unk_0x92C > 3) {
                 SensitivityDrawing::draw(static_cast<nand::File*>(mpBackgroundTPLFile));
@@ -2477,7 +2505,10 @@ namespace ipl {
 
         int Setting::checkIPString(const wchar_t* text) {
             wchar_t zeroAddress[16] = L"000.000.000.000";
-            return memcmp(text, zeroAddress, sizeof(zeroAddress)) == 0 || checkInputString(text);
+            if (memcmp(text, zeroAddress, sizeof(zeroAddress)) == 0 || checkInputString(text)) {
+                return 1;
+            }
+            return 0;
         }
 
         bool Setting::calcSafeMode() {
@@ -2602,17 +2633,17 @@ namespace ipl {
                         setAPDraw();
                         mpMainLayout->getAnim(unk_0x91C[0] == 0 ? 0xb : 0xa)->initAnmFrame();
                         if (unk_0x914 == 0) {
-                            mpMainLayout->FindPaneByName(sSettingAPNumberNames[0])->SetVisible(false);
+                            mpMainLayout->FindPaneByName("N_AP1")->SetVisible(false);
                         } else if (unk_0x914 == 1) {
-                            mpMainLayout->FindPaneByName(sSettingAPNumberNames[0])->SetVisible(true);
+                            mpMainLayout->FindPaneByName("N_AP1")->SetVisible(true);
                         }
                         if (mAPScanList.count == unk_0x914 + 4) {
-                            mpMainLayout->FindPaneByName(sSettingAPNumberNames[1])->SetVisible(false);
+                            mpMainLayout->FindPaneByName("N_AP6")->SetVisible(false);
                         } else if (mAPScanList.count == unk_0x914 + 5) {
-                            mpMainLayout->FindPaneByName(sSettingAPNumberNames[1])->SetVisible(true);
+                            mpMainLayout->FindPaneByName("N_AP6")->SetVisible(true);
                         }
-                        mpMainLayout->FindPaneByName(sSettingAPTextNames[0])->SetVisible(true);
-                        mpMainLayout->FindPaneByName(sSettingAPTextNames[1])->SetVisible(true);
+                        mpMainLayout->FindPaneByName("N_AP0")->SetVisible(true);
+                        mpMainLayout->FindPaneByName("N_AP7")->SetVisible(true);
                     }
                     break;
                 case 7:
@@ -2643,44 +2674,45 @@ namespace ipl {
             if (unk_0x91C[2] == 0) {
                 return;
             }
-            mpMainLayout->FindPaneByName(sSettingAPNumberNames[1])->SetVisible(true);
-            mpMainLayout->FindPaneByName(sSettingAPNumberNames[2])->SetVisible(true);
-            mpMainLayout->FindPaneByName(sSettingAPNumberNames[3])->SetVisible(true);
-            mpMainLayout->FindPaneByName(sSettingAPNumberNames[4])->SetVisible(true);
-            mpMainLayout->FindPaneByName(sSettingAPNumberNames[0])->SetVisible(true);
-            mpMainLayout->FindPaneByName(sSettingAPNumberNames[5])->SetVisible(true);
-            u16 count = mAPScanList.count;
-            if (count == 2) {
-                mpMainLayout->FindPaneByName(sSettingAPNumberNames[3])->SetVisible(false);
-            } else if (count < 2) {
-                if (count == 0) {
-                    mpMainLayout->FindPaneByName(sSettingAPNumberNames[1])->SetVisible(false);
-                }
-                mpMainLayout->FindPaneByName(sSettingAPNumberNames[2])->SetVisible(false);
-                mpMainLayout->FindPaneByName(sSettingAPNumberNames[3])->SetVisible(false);
-            }
-            if (count < 4) {
-                for (int index = 4; index < 6; ++index) {
-                    mpMainLayout->FindPaneByName(sSettingAPNumberNames[index])->SetVisible(false);
-                }
+            mpMainLayout->FindPaneByName("N_AP2")->SetVisible(true);
+            mpMainLayout->FindPaneByName("N_AP3")->SetVisible(true);
+            mpMainLayout->FindPaneByName("N_AP4")->SetVisible(true);
+            mpMainLayout->FindPaneByName("N_AP5")->SetVisible(true);
+            mpMainLayout->FindPaneByName("N_AP6")->SetVisible(true);
+            mpMainLayout->FindPaneByName("N_AP7")->SetVisible(true);
+            switch (mAPScanList.count) {
+            case 0:
+                mpMainLayout->FindPaneByName("N_AP2")->SetVisible(false);
+            case 1:
+                mpMainLayout->FindPaneByName("N_AP3")->SetVisible(false);
+            case 2:
+                mpMainLayout->FindPaneByName("N_AP4")->SetVisible(false);
+            case 3:
+                mpMainLayout->FindPaneByName("N_AP5")->SetVisible(false);
+                mpMainLayout->FindPaneByName("N_AP6")->SetVisible(false);
                 mpMainLayout->FindPaneByName("N_AP7")->SetVisible(false);
+                break;
             }
-            mpMainLayout->getAnim(0x14)->initFrame();
-            mpMainLayout->getAnim(0x14)->restart();
+            layout::Animator* animation = mpMainLayout->getAnim(0x14);
+            animation->initFrame();
+            animation->restart();
             mpMainLayout->getAnim(0)->initAnmFrame();
-            mpMainLayout->FindPaneByName(sSettingAPPaneNames[0])->SetVisible(false);
-            mpMainLayout->FindPaneByName(sSettingAPPaneNames[1])->SetVisible(false);
-            if (count > unk_0x914 + 4) {
-                mpMainLayout->FindPaneByName(sSettingAPPaneNames[3])->SetVisible(true);
-                mpMainLayout->getAnim(1)->initFrame();
-                mpMainLayout->getAnim(1)->restart();
-                for (int index = 1; index < 6; ++index) {
-                    mpMainLayout->FindPaneByName(sSettingAPNumberNames[index])->SetVisible(true);
+            mpMainLayout->FindPaneByName(sSettingArrowNames[0])->SetVisible(false);
+            mpMainLayout->FindPaneByName(sSettingAPNumberNames[0])->SetVisible(false);
+            if (mAPScanList.count <= unk_0x914 + 4) {
+                mpMainLayout->FindPaneByName("N_ArwB")->SetVisible(false);
+                mpMainLayout->FindPaneByName(sSettingArrowNames[1])->SetVisible(false);
+                for (int index = mAPScanList.count + 1; index < 6; ++index) {
+                    mpMainLayout->FindPaneByName(sSettingAPNumberNames[index])->SetVisible(false);
                 }
             } else {
-                mpMainLayout->FindPaneByName(sSettingAPPaneNames[3])->SetVisible(false);
-                for (int index = count + 1; index < 6; ++index) {
-                    mpMainLayout->FindPaneByName(sSettingAPNumberNames[index])->SetVisible(false);
+                mpMainLayout->FindPaneByName("N_ArwB")->SetVisible(true);
+                mpMainLayout->FindPaneByName(sSettingArrowNames[1])->SetVisible(true);
+                animation = mpMainLayout->getAnim(1);
+                animation->initFrame();
+                animation->restart();
+                for (int index = 1; index < 6; ++index) {
+                    mpMainLayout->FindPaneByName(sSettingAPNumberNames[index])->SetVisible(true);
                 }
             }
             unk_0x78 = 6;
@@ -3005,12 +3037,12 @@ namespace ipl {
                 System::getDialog()->callBtn2(0x180, 0x2e, 0x25);
             } else if (result == 0) {
                 if (!utility::ESMisc::ContentExist(titleView, 1, &contentResult) && contentResult != 0) {
-                    System::getErrorHandler()->log("error", contentResult, "iplSetting.cpp", 0x10fc);
+                    System::getErrorHandler()->log("ES", contentResult, "iplSetting.cpp", 0x10fc);
                     System::getErrorHandler()->set(ErrorHandler::DEFAULT, 2);
                 }
                 valid = true;
             } else {
-                System::getErrorHandler()->log("error", result, "iplSetting.cpp", 0x10f1);
+                System::getErrorHandler()->log("ES", result, "iplSetting.cpp", 0x10f1);
                 System::getErrorHandler()->set(ErrorHandler::DEFAULT, 2);
             }
             if (titleView != NULL) {
@@ -3293,8 +3325,6 @@ namespace ipl {
             }
         }
 
-        static const wchar_t errorFormat[] = L"%d\n";
-
         void Setting::makeErrorMessage() {
             const wchar_t* prefix = System::getMessage(400);
             int messageId = getErrorNum();
@@ -3303,7 +3333,7 @@ namespace ipl {
             OSReport("error:%d\n", error);
             wchar_t errorText[8];
             wchar_t message[0x140];
-            swprintf(errorText, 8, errorFormat, error);
+            swprintf(errorText, 8, L"%d\n", error);
             memset(message, 0, sizeof(message));
             size_t prefixLength = wcslen(prefix);
             wcsncat(message, prefix, prefixLength);
@@ -3318,7 +3348,7 @@ namespace ipl {
                 if (static_cast<u32>(System::getRegion()) == 2 &&
                     static_cast<u32>(System::getLanguage()) == 2 &&
                     static_cast<u32>(getErrorNum()) == 0x1b6) {
-                    System::getDialog()->callBtn1(message, 0x2e, 46.0f);
+                    System::getDialog()->callBtn1(message, 0x2e, 78.0f);
                 } else {
                     System::getDialog()->callBtn1(message, 0x2e);
                 }
@@ -3326,7 +3356,7 @@ namespace ipl {
                 if (static_cast<u32>(System::getRegion()) == 2 &&
                     static_cast<u32>(System::getLanguage()) == 2 &&
                     static_cast<u32>(getErrorNum()) == 0x1b6) {
-                    System::getDialog()->callBtn1(message, 0x2e, 46.0f);
+                    System::getDialog()->callBtn1(message, 0x2e, 78.0f);
                 } else {
                     System::getDialog()->callBtn1(message, 0x2e);
                 }
@@ -3394,7 +3424,7 @@ namespace ipl {
             const wchar_t* codeLabel = System::getMessage(0x1b9);
             wchar_t supportCode[12];
             wchar_t message[0x100];
-            swprintf(supportCode, 12, errorFormat, unk_0x930);
+            swprintf(supportCode, 12, L"%d\n", unk_0x930);
             memset(message, 0, sizeof(message));
             size_t messageLength = wcslen(title);
             wcsncat(message, title, messageLength);

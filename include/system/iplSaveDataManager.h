@@ -65,6 +65,10 @@ namespace ipl {
             void setDidntGotoSDMenu(BOOL value) { mData.didntGotoSDMenu = value; }
 #endif
 
+#ifdef IPL_SDMEMORY_TITLE_CACHE_ACCESS
+            const ESTitleId* getTitleCache() const { return &mData.titleCache[0][0]; }
+#endif
+
             bool hasPhotoMP3Dummy() { return mbPhotoMP3; }
             bool hasPhoto2Title() { return mbPhoto2; }
             bool hasPhoto2DummyCheck() { return mbPhoto2Check; }

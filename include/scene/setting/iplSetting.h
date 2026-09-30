@@ -39,11 +39,6 @@ namespace ipl {
             Setting* mpSetting;
         };
 
-        struct SettingAnimation {
-            u8 unknown[0x14];
-            int state;
-        };
-
         struct SettingAPScanList {
             u8 unknown[0x14];
             u16 count;
@@ -86,7 +81,7 @@ namespace ipl {
             void initHTMLText();
             void initMessage();
             void initKeyboard(const char* text);
-            bool checkInputString(const wchar_t* text);
+            bool checkInputString(const wchar_t* text) NO_INLINE;
             int checkIPString(const wchar_t* text);
             void setDefaultBackString();
             void calcKeyboard();
@@ -158,7 +153,6 @@ namespace ipl {
             virtual void destroy();
             virtual void prepare();
             virtual void create();
-            virtual void calc();
             virtual void draw();
             virtual FaderSceneCommand calcFadein();
             virtual FaderSceneCommand calcNormal();
@@ -208,8 +202,8 @@ namespace ipl {
             layout::Object* mpChangeLayout;
             layout::Object* mpMainLayout;
             layout::Object* mpWaitLayout;
-            SettingAnimation* mpFirstAnimation;
-            SettingAnimation* mpSecondAnimation;
+            utility::FrameController* mpFirstAnimation;
+            utility::FrameController* mpSecondAnimation;
             APEvent* mpEventHandler;
             gui::PaneManager* mpPaneManager;
             void* mpUSBAPThread;
