@@ -1,3 +1,4 @@
+#include <stddef.h>
 #include <revolution/fa/types.h>
 #include <revolution/os.h>
 #include <revolution/sdi.h>
@@ -135,17 +136,17 @@ typedef union PFD_SDDRV_U16_BYTES {
     u8 bytes[2];
 } PFD_SDDRV_U16_BYTES;
 
-#define pfd_sddrv_store_le16(field, value) \
+#define pfd_sddrv_store_le16(buffer, field, offset, value) \
     do { \
         if (((u32)(field) & 1) != 0) { \
             (field)[0] = (u8)(value); \
             (field)[1] = (u8)((value) >> 8); \
         } else { \
-            *(u16*)(field) = (((value) & 0xff) << 8) | (((value) & 0xff00) >> 8); \
+            ((u16*)(buffer))[(offset) / 2 + (offset) % 2] = (((value) & 0xff) << 8) | (((value) & 0xff00) >> 8); \
         } \
     } while (0)
 
-#define pfd_sddrv_store_le32(field, value) \
+#define pfd_sddrv_store_le32(buffer, field, offset, value) \
     do { \
         if (((u32)(field) & 3) != 0) { \
             (field)[0] = (u8)(value); \
@@ -153,7 +154,7 @@ typedef union PFD_SDDRV_U16_BYTES {
             (field)[2] = (u8)((value) >> 16); \
             (field)[3] = (u8)((value) >> 24); \
         } else { \
-            *(u32*)(field) = (((value) & 0xff) << 24 | ((value) & 0xff00) << 8) | \
+            ((u32*)(buffer))[(offset) / 4 + (offset) % 4] = (((value) & 0xff) << 24 | ((value) & 0xff00) << 8) | \
                             (((value) & 0xff000000) >> 24 | ((value) & 0xff0000) >> 8); \
         } \
     } while (0)
@@ -864,11 +865,11 @@ s32 pfd_sddrv_calc_mbr_bpb(PFD_SDDRV_FORMAT_DATA* format_data) {
 
 
 s32 pfd_sddrv_store_bpb_buf(PFD_SDDRV_FORMAT_DATA* format_data, u8* sector_buffer) {
-    const PFD_SDDRV_SIZE_DEPEND* size_entry;
     PFD_SDDRV_SIZE_SETTINGS settings;
     PFD_SDDRV_BPB* boot_sector;
     u32 entry_index;
     u32 requested_sectors;
+    const PFD_SDDRV_SIZE_DEPEND* size_entry;
     u16 sectors_16;
     s32 result;
     u32 sectors_32;
@@ -914,21 +915,21 @@ s32 pfd_sddrv_store_bpb_buf(PFD_SDDRV_FORMAT_DATA* format_data, u8* sector_buffe
     boot_sector->jump[0] = 0xeb;
     boot_sector->jump[1] = 0;
     boot_sector->jump[2] = 0x90;
-    pfd_sddrv_store_le16(boot_sector->bytes_per_sector, 0x200);
+    pfd_sddrv_store_le16(sector_buffer, boot_sector->bytes_per_sector, offsetof(PFD_SDDRV_BPB, bytes_per_sector), 0x200);
     boot_sector->sectors_per_cluster = format_data->sectors_per_cluster;
-    pfd_sddrv_store_le16(boot_sector->reserved_sector_count, 1);
+    pfd_sddrv_store_le16(sector_buffer, boot_sector->reserved_sector_count, offsetof(PFD_SDDRV_BPB, reserved_sector_count), 1);
     boot_sector->fat_count = 2;
-    pfd_sddrv_store_le16(boot_sector->root_entry_count, 0x200);
-    pfd_sddrv_store_le16(boot_sector->total_sectors_16, (u16)sectors_16);
+    pfd_sddrv_store_le16(sector_buffer, boot_sector->root_entry_count, offsetof(PFD_SDDRV_BPB, root_entry_count), 0x200);
+    pfd_sddrv_store_le16(sector_buffer, boot_sector->total_sectors_16, offsetof(PFD_SDDRV_BPB, total_sectors_16), (u16)sectors_16);
     boot_sector->media_descriptor = 0xf8;
-    pfd_sddrv_store_le16(boot_sector->sectors_per_fat_16, (u16)format_data->sectors_per_fat);
-    pfd_sddrv_store_le16(boot_sector->sectors_per_track, (u16)settings.root_entries);
-    pfd_sddrv_store_le16(boot_sector->heads, (u16)settings.fat_copies);
-    pfd_sddrv_store_le32(boot_sector->hidden_sectors, format_data->partition_start_sector);
-    pfd_sddrv_store_le32(boot_sector->total_sectors_32, sectors_32);
+    pfd_sddrv_store_le16(sector_buffer, boot_sector->sectors_per_fat_16, offsetof(PFD_SDDRV_BPB, sectors_per_fat_16), (u16)format_data->sectors_per_fat);
+    pfd_sddrv_store_le16(sector_buffer, boot_sector->sectors_per_track, offsetof(PFD_SDDRV_BPB, sectors_per_track), (u16)settings.root_entries);
+    pfd_sddrv_store_le16(sector_buffer, boot_sector->heads, offsetof(PFD_SDDRV_BPB, heads), (u16)settings.fat_copies);
+    pfd_sddrv_store_le32(sector_buffer, boot_sector->hidden_sectors, offsetof(PFD_SDDRV_BPB, hidden_sectors), format_data->partition_start_sector);
+    pfd_sddrv_store_le32(sector_buffer, boot_sector->total_sectors_32, offsetof(PFD_SDDRV_BPB, total_sectors_32), sectors_32);
     boot_sector->drive_number = 0x80;
     boot_sector->extended_signature = 0x29;
-    pfd_sddrv_store_le32(boot_sector->volume_serial_number, format_data->volume_serial_number);
+    pfd_sddrv_store_le32(sector_buffer, boot_sector->volume_serial_number, offsetof(PFD_SDDRV_BPB, volume_serial_number), format_data->volume_serial_number);
     boot_sector->signature[0] = 0x55;
     boot_sector->signature[1] = 0xaa;
     return 0;
@@ -993,14 +994,14 @@ s32 pfd_sddrv_store_mbr_buf(PFD_SDDRV_FORMAT_DATA* format_data, u8* sector_buffe
     partition = &master_boot_record->partitions[0];
     partition->boot_indicator = 0;
     partition->start_head = start_head;
-    pfd_sddrv_store_le16(partition->start_sector_cylinder,
+    pfd_sddrv_store_le16(sector_buffer, partition->start_sector_cylinder, offsetof(PFD_SDDRV_MBR, partitions) + offsetof(PFD_SDDRV_PARTITION_ENTRY, start_sector_cylinder),
         ((start_cylinder & 0xff) << 8) + ((start_sector & 0x3f) | ((start_cylinder & 0x300) >> 2)));
     partition->partition_type = partition_type;
     partition->end_head = end_head;
-    pfd_sddrv_store_le16(partition->end_sector_cylinder,
+    pfd_sddrv_store_le16(sector_buffer, partition->end_sector_cylinder, offsetof(PFD_SDDRV_MBR, partitions) + offsetof(PFD_SDDRV_PARTITION_ENTRY, end_sector_cylinder),
         ((end_cylinder & 0xff) << 8) + ((end_sector & 0x3f) | ((end_cylinder & 0x300) >> 2)));
-    pfd_sddrv_store_le32(partition->first_sector, format_data->partition_start_sector);
-    pfd_sddrv_store_le32(partition->sector_count, format_data->partition_sector_count);
+    pfd_sddrv_store_le32(sector_buffer, partition->first_sector, offsetof(PFD_SDDRV_MBR, partitions) + offsetof(PFD_SDDRV_PARTITION_ENTRY, first_sector), format_data->partition_start_sector);
+    pfd_sddrv_store_le32(sector_buffer, partition->sector_count, offsetof(PFD_SDDRV_MBR, partitions) + offsetof(PFD_SDDRV_PARTITION_ENTRY, sector_count), format_data->partition_sector_count);
     master_boot_record->signature[0] = 0x55;
     master_boot_record->signature[1] = 0xaa;
     return 0;
@@ -1162,23 +1163,23 @@ s32 pfd_sddrv_calc_fat32_mbr_bpb(PFD_SDDRV_FORMAT_DATA* format_data) {
 
 s32 pfd_sddrv_store_fat32_mbr_buf(PFD_SDDRV_FORMAT_DATA* format_data, u8* sector_buffer) {
     PFD_SDDRV_SIZE_SETTINGS settings;
-    const PFD_SDDRV_SIZE_DEPEND* size_entry;
     PFD_SDDRV_MBR* master_boot_record;
     PFD_SDDRV_PARTITION_ENTRY* partition;
     u32 entry_index;
     u32 requested_sectors;
+    const PFD_SDDRV_SIZE_DEPEND* size_entry;
     s32 result;
     u32 cylinder_size;
-    u16 start_cylinder;
+    u8 partition_type;
     u8 start_head;
     u16 start_sector;
-    u16 end_cylinder;
+    u16 start_cylinder;
     u8 end_head;
     u16 end_sector;
+    u16 end_cylinder;
     u32 partition_end;
-    u8 partition_type;
 
-    if (format_data == 0) {
+    if (format_data == 0 || sector_buffer == 0) {
         return -30;
     }
     pf_memset(&settings, 0, 0x10);
@@ -1198,42 +1199,42 @@ s32 pfd_sddrv_store_fat32_mbr_buf(PFD_SDDRV_FORMAT_DATA* format_data, u8* sector
         OSReport("ERR Failed to get values with total sectors. pfd_sddrv_get_value_with_total_sectors()\n");
         return result;
     }
-    cylinder_size = settings.fat_copies * settings.root_entries;
-    partition_end = format_data->total_sectors - 1;
-    partition_type = 0x0b;
-    if (format_data->partition_start_sector <= 0xfb0400) {
-        start_cylinder = format_data->partition_start_sector / cylinder_size;
-        start_head = (format_data->partition_start_sector % cylinder_size) / settings.root_entries;
-        start_sector = format_data->partition_start_sector % settings.root_entries + 1;
-    } else {
-        start_cylinder = 0x3ff;
+    if (format_data->partition_start_sector > 0xfb0400) {
         start_head = 0xfe;
         start_sector = 0x3f;
-    }
-    if (partition_end <= 0xfb0400) {
-        end_cylinder = partition_end / cylinder_size;
-        end_head = (partition_end % cylinder_size) / settings.root_entries;
-        end_sector = partition_end % settings.root_entries + 1;
+        start_cylinder = 0x3ff;
     } else {
-        end_cylinder = 0x3ff;
+        start_cylinder = format_data->partition_start_sector / (settings.fat_copies * settings.root_entries);
+        start_head = (format_data->partition_start_sector % (settings.fat_copies * settings.root_entries)) / settings.root_entries;
+        start_sector = format_data->partition_start_sector % settings.root_entries + 1;
+    }
+    if (format_data->total_sectors > 0xfb0400) {
         end_head = 0xfe;
         end_sector = 0x3f;
+        end_cylinder = 0x3ff;
         partition_type = 0x0c;
+    } else {
+        partition_end = format_data->total_sectors - 1;
+        partition_type = 0x0b;
+        end_cylinder = partition_end / (settings.fat_copies * settings.root_entries);
+        end_head = (partition_end % (settings.fat_copies * settings.root_entries)) / settings.root_entries;
+        end_sector = partition_end % settings.root_entries + 1;
     }
     pf_memset(sector_buffer, 0, 0x200);
     master_boot_record = (PFD_SDDRV_MBR*)sector_buffer;
     partition = &master_boot_record->partitions[0];
     partition->boot_indicator = 0;
     partition->start_head = (u8)start_head;
-    pfd_sddrv_store_le16(partition->start_sector_cylinder,
+    pfd_sddrv_store_le16(sector_buffer, partition->start_sector_cylinder, offsetof(PFD_SDDRV_MBR, partitions) + offsetof(PFD_SDDRV_PARTITION_ENTRY, start_sector_cylinder),
                          ((start_cylinder & 0xff) << 8) + ((start_sector & 0x3f) | ((start_cylinder & 0x300) >> 2)));
     partition->partition_type = partition_type;
     partition->end_head = (u8)end_head;
-    pfd_sddrv_store_le16(partition->end_sector_cylinder,
+    pfd_sddrv_store_le16(sector_buffer, partition->end_sector_cylinder, offsetof(PFD_SDDRV_MBR, partitions) + offsetof(PFD_SDDRV_PARTITION_ENTRY, end_sector_cylinder),
                          ((end_cylinder & 0xff) << 8) + ((end_sector & 0x3f) | ((end_cylinder & 0x300) >> 2)));
-    pfd_sddrv_store_le32(partition->first_sector, format_data->partition_start_sector);
-    pfd_sddrv_store_le32(partition->sector_count, format_data->partition_sector_count);
-    pfd_sddrv_store_le16(master_boot_record->signature, 0xaa55);
+    pfd_sddrv_store_le32(sector_buffer, partition->first_sector, offsetof(PFD_SDDRV_MBR, partitions) + offsetof(PFD_SDDRV_PARTITION_ENTRY, first_sector), format_data->partition_start_sector);
+    pfd_sddrv_store_le32(sector_buffer, partition->sector_count, offsetof(PFD_SDDRV_MBR, partitions) + offsetof(PFD_SDDRV_PARTITION_ENTRY, sector_count), format_data->partition_sector_count);
+    master_boot_record->signature[0] = 0x55;
+    master_boot_record->signature[1] = 0xaa;
     return 0;
 }
 
@@ -1287,13 +1288,13 @@ s32 pfd_sddrv_store_fat32_fsi_buf(u8* sector_buffer) NO_INLINE {
 
 s32 pfd_sddrv_store_fat32_bpb_buf(PFD_SDDRV_FORMAT_DATA* format_data, u8* sector_buffer) {
     PFD_SDDRV_SIZE_SETTINGS settings;
-    const PFD_SDDRV_SIZE_DEPEND* size_entry;
     PFD_SDDRV_FAT32_BPB* boot_sector;
     u32 entry_index;
     u32 requested_sectors;
+    const PFD_SDDRV_SIZE_DEPEND* size_entry;
     s32 result;
 
-    if (format_data == 0) {
+    if (format_data == 0 || sector_buffer == 0) {
         return -30;
     }
     pf_memset(&settings, 0, 0x10);
@@ -1321,33 +1322,29 @@ s32 pfd_sddrv_store_fat32_bpb_buf(PFD_SDDRV_FORMAT_DATA* format_data, u8* sector
     boot_sector->jump[0] = 0xeb;
     boot_sector->jump[1] = 0;
     boot_sector->jump[2] = 0x90;
-    pfd_sddrv_store_le16(boot_sector->bytes_per_sector, 0x200);
+    pfd_sddrv_store_le16(sector_buffer, boot_sector->bytes_per_sector, offsetof(PFD_SDDRV_FAT32_BPB, bytes_per_sector), 0x200);
     boot_sector->sectors_per_cluster = format_data->sectors_per_cluster;
-    pfd_sddrv_store_le16(boot_sector->reserved_sector_count, format_data->reserved_sectors);
+    pfd_sddrv_store_le16(sector_buffer, boot_sector->reserved_sector_count, offsetof(PFD_SDDRV_FAT32_BPB, reserved_sector_count), format_data->reserved_sectors);
     boot_sector->fat_count = 2;
-    pfd_sddrv_store_le16(boot_sector->root_entry_count, 0);
-    pfd_sddrv_store_le16(boot_sector->total_sectors_16, 0);
+    pfd_sddrv_store_le16(sector_buffer, boot_sector->root_entry_count, offsetof(PFD_SDDRV_FAT32_BPB, root_entry_count), 0);
+    pfd_sddrv_store_le16(sector_buffer, boot_sector->total_sectors_16, offsetof(PFD_SDDRV_FAT32_BPB, total_sectors_16), 0);
     boot_sector->media_descriptor = 0xf8;
-    pfd_sddrv_store_le16(boot_sector->sectors_per_fat_16, 0);
-    pfd_sddrv_store_le16(boot_sector->sectors_per_track, (u16)settings.root_entries);
-    pfd_sddrv_store_le16(boot_sector->heads, (u16)settings.fat_copies);
-    pfd_sddrv_store_le32(boot_sector->hidden_sectors, format_data->partition_start_sector);
-    pfd_sddrv_store_le32(boot_sector->total_sectors_32, format_data->partition_sector_count);
-    pfd_sddrv_store_le32(boot_sector->sectors_per_fat_32, format_data->sectors_per_fat);
-    pfd_sddrv_store_le16(boot_sector->ext_flags, 0);
-    pfd_sddrv_store_le16(boot_sector->filesystem_version, 0);
-    pfd_sddrv_store_le32(boot_sector->root_cluster, 2);
-    pfd_sddrv_store_le16(boot_sector->fsinfo_sector, 1);
-    pfd_sddrv_store_le16(boot_sector->backup_boot_sector, 6);
+    pfd_sddrv_store_le16(sector_buffer, boot_sector->sectors_per_fat_16, offsetof(PFD_SDDRV_FAT32_BPB, sectors_per_fat_16), 0);
+    pfd_sddrv_store_le16(sector_buffer, boot_sector->sectors_per_track, offsetof(PFD_SDDRV_FAT32_BPB, sectors_per_track), (u16)settings.root_entries);
+    pfd_sddrv_store_le16(sector_buffer, boot_sector->heads, offsetof(PFD_SDDRV_FAT32_BPB, heads), (u16)settings.fat_copies);
+    pfd_sddrv_store_le32(sector_buffer, boot_sector->hidden_sectors, offsetof(PFD_SDDRV_FAT32_BPB, hidden_sectors), format_data->partition_start_sector);
+    pfd_sddrv_store_le32(sector_buffer, boot_sector->total_sectors_32, offsetof(PFD_SDDRV_FAT32_BPB, total_sectors_32), format_data->partition_sector_count);
+    pfd_sddrv_store_le32(sector_buffer, boot_sector->sectors_per_fat_32, offsetof(PFD_SDDRV_FAT32_BPB, sectors_per_fat_32), format_data->sectors_per_fat);
+    pfd_sddrv_store_le16(sector_buffer, boot_sector->ext_flags, offsetof(PFD_SDDRV_FAT32_BPB, ext_flags), 0);
+    pfd_sddrv_store_le16(sector_buffer, boot_sector->filesystem_version, offsetof(PFD_SDDRV_FAT32_BPB, filesystem_version), 0);
+    pfd_sddrv_store_le32(sector_buffer, boot_sector->root_cluster, offsetof(PFD_SDDRV_FAT32_BPB, root_cluster), 2);
+    pfd_sddrv_store_le16(sector_buffer, boot_sector->fsinfo_sector, offsetof(PFD_SDDRV_FAT32_BPB, fsinfo_sector), 1);
+    pfd_sddrv_store_le16(sector_buffer, boot_sector->backup_boot_sector, offsetof(PFD_SDDRV_FAT32_BPB, backup_boot_sector), 6);
     boot_sector->drive_number = 0x80;
     boot_sector->extended_signature = 0x29;
-    pfd_sddrv_store_le32(boot_sector->volume_serial_number, format_data->volume_serial_number);
-    if (((u32)boot_sector->signature & 1) != 0) {
-        boot_sector->signature[0] = 0x55;
-        boot_sector->signature[1] = 0xaa;
-    } else {
-        *(u16*)boot_sector->signature = 0x55aa;
-    }
+    pfd_sddrv_store_le32(sector_buffer, boot_sector->volume_serial_number, offsetof(PFD_SDDRV_FAT32_BPB, volume_serial_number), format_data->volume_serial_number);
+    boot_sector->signature[0] = 0x55;
+    boot_sector->signature[1] = 0xaa;
     return 0;
 }
 
