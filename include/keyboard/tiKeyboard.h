@@ -12,7 +12,7 @@ namespace textinput {
             KeyboardBase() : meLanguage(JP) {}
 #endif
             virtual ~KeyboardBase() {}
-#if !defined(TI_PC_KEYBOARD_IMPLEMENTATION) && !defined(TIMANAGER_IMPLEMENTATION) && !defined(TISIGNWINDOW_IMPLEMENTATION)
+#if !(defined(TI_PC_KEYBOARD_IMPLEMENTATION) || defined(TIHWKEYBOARD_IMPLEMENTATION)) && !defined(TIMANAGER_IMPLEMENTATION) && !defined(TISIGNWINDOW_IMPLEMENTATION)
             virtual void create(MEMAllocator* alloc) override;
             virtual void init() override;
             virtual void setCommandReceiver(CommandReceiver* receiver) override;
@@ -21,18 +21,18 @@ namespace textinput {
 #if !defined(TIMANAGER_IMPLEMENTATION) && !defined(TISIGNWINDOW_IMPLEMENTATION)
             virtual void updateFromReceiver(u32, void*) override;
 #endif
-#if defined(MYTIMANAGER_IMPLEMENTATION) || defined(TIINPUTFORM_IMPLEMENTATION) || defined(TI_PC_KEYBOARD_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION) || defined(TISIGNWINDOW_IMPLEMENTATION)
+#if defined(MYTIMANAGER_IMPLEMENTATION) || defined(TIINPUTFORM_IMPLEMENTATION) || (defined(TI_PC_KEYBOARD_IMPLEMENTATION) || defined(TIHWKEYBOARD_IMPLEMENTATION)) || defined(TIMANAGER_IMPLEMENTATION) || defined(TISIGNWINDOW_IMPLEMENTATION)
             virtual void onKey(u32, void*);
 #else
             virtual void onKey(u32);
 #endif
-#if defined(TI_PC_KEYBOARD_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION) || defined(TISIGNWINDOW_IMPLEMENTATION)
+#if (defined(TI_PC_KEYBOARD_IMPLEMENTATION) || defined(TIHWKEYBOARD_IMPLEMENTATION)) || defined(TIMANAGER_IMPLEMENTATION) || defined(TISIGNWINDOW_IMPLEMENTATION)
             virtual int getType();
 #else
             virtual void getType();
 #endif
             virtual void setLanguage(Language language);
-            #if defined(TI_PC_KEYBOARD_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION) || defined(TISIGNWINDOW_IMPLEMENTATION)
+            #if (defined(TI_PC_KEYBOARD_IMPLEMENTATION) || defined(TIHWKEYBOARD_IMPLEMENTATION)) || defined(TIMANAGER_IMPLEMENTATION) || defined(TISIGNWINDOW_IMPLEMENTATION)
 #ifdef TISIGNWINDOW_IMPLEMENTATION
             virtual Language getLanguage() const;
 #else

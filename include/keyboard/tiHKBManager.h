@@ -119,6 +119,9 @@ namespace textinput {
             KeySet GetTriggeredKeySet() const;
             KeySet GetReleasedKeySet() const;
             KeySet GetRepeatedKeySet() const;
+#ifdef TIHWKEYBOARD_IMPLEMENTATION
+            KeySet GetReleasedKeySet() const;
+#endif
             static void SetLedCB(_KBDEc result, void* userData);
             static void AttachCB(KBDDevEvent* event);
             static void DetachCB(KBDDevEvent* event);
@@ -148,15 +151,22 @@ namespace textinput {
             u32 GetModifierState() const;
             void SetModifierState(u32, u32);
 
-#if defined(TI_PC_KEYBOARD_IMPLEMENTATION) || defined(TISIGNWINDOW_IMPLEMENTATION)
+#if defined(TI_PC_KEYBOARD_IMPLEMENTATION) || defined(TISIGNWINDOW_IMPLEMENTATION) || defined(TIHWKEYBOARD_IMPLEMENTATION)
             class KeySet {
             public:
                 u8 GetKey() const;
+#ifdef TIHWKEYBOARD_IMPLEMENTATION
+                u32 GetWChar() const;
+#else
                 wchar_t GetWChar() const;
+#endif
                 bool IsValid() const;
                 KeySet GetNext() const;
                 KeySet(const KeySet& other)
                     : mpManager(other.mpManager), mKind(other.mKind), mIndex(other.mIndex), mDevice(other.mDevice), mCharacter(other.mCharacter) {}
+#ifdef TIHWKEYBOARD_IMPLEMENTATION
+                KeySet() : mpManager(NULL), mKind(0), mIndex(-1), mDevice(0), mCharacter(0) {}
+#endif
             private:
                 const HKBManager* mpManager;
                 u8 mKind;
@@ -166,6 +176,9 @@ namespace textinput {
             };
             KeySet GetTriggeredKeySet() const;
             KeySet GetRepeatedKeySet() const;
+#ifdef TIHWKEYBOARD_IMPLEMENTATION
+            KeySet GetReleasedKeySet() const;
+#endif
             void SetForceModifierState(u32 mask, u32 state);
 #else
             class KeySet {

@@ -18,7 +18,9 @@ namespace textinput {
                     LayoutByNW4R(nw4r::lyt::MultiArcResourceAccessor* multiArc, const char* layoutName, EventObserver* event)
                         : nw4rmanager::Layout(multiArc, layoutName, event) {}
 #endif
-#ifdef MYTIMANAGER_IMPLEMENTATION
+#if defined(MYTIMANAGER_MATCHING)
+                    virtual ~LayoutByNW4R() {}
+#elif defined(MYTIMANAGER_IMPLEMENTATION)
                     virtual ~LayoutByNW4R();
 #else
                     virtual ~LayoutByNW4R() {}

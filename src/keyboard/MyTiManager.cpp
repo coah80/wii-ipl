@@ -1,6 +1,6 @@
 #define MYTIMANAGER_IMPLEMENTATION
+#define MYTIMANAGER_MATCHING
 #include "keyboard/MyTiManager.h"
-#include "keyboard/MyTiBg.h"
 #include "keyboard/tiLanguageIndependentData.h"
 #include "keyboard/tiPredictLang.h"
 #include "keyboard/tiUtil.h"
@@ -75,7 +75,7 @@ public:
     void start();
     void end();
 
-private:
+protected:
     f32 mTime;
 };
 
@@ -93,16 +93,24 @@ public:
     void end();
 };
 
-class DisappearMemoState : public State {
+class DisappearMemoState : public AppearMemoState {
 public:
-    DisappearMemoState() : mTime(0.0f) {}
+    DisappearMemoState() {}
     Manager::StateType getStateType();
     void start();
     void calc();
 
-private:
-    f32 mTime;
 };
+
+}
+}
+}
+
+#include "keyboard/MyTiBg.h"
+
+namespace textinput {
+namespace extend {
+namespace memo {
 
 static DispMemoState sDispMemoState;
 static EditMemoState sEditMemoState;
@@ -173,271 +181,8 @@ Manager::~Manager() {
     setSignWindowForMemo(NULL);
 }
 
-State::~State() {}
-
-void DispMemoState::create() {}
-
-void DispMemoState::init() {
-    getManager()->getConfigType();
-}
-
-void DispMemoState::start() {
-    switch (getManager()->getConfigType()) {
-    case Manager::CT_Letter:
-    case Manager::CT_PhotoLetter:
-        InputForm()->setEditMode(InputForm::EM_Disp);
-        InputForm()->getLayout()->GetRootPane()->SetTranslate(
-            nw4r::math::VEC3(sLetterMemoPosition.x, sLetterMemoPosition.y, 0.0f));
-        break;
-    default:
-        break;
-    }
-}
-
-void DispMemoState::calc() {
-    Manager::ConfigType configType = getManager()->getConfigType();
-    switch (configType) {
-    case Manager::CT_Letter:
-    case Manager::CT_PhotoLetter:
-        InputForm()->calc();
-        break;
-    default:
-        break;
-    }
-}
-
-bool DispMemoState::updateInput(input::HKBManager& hkbManager) {
-    Manager::ConfigType configType = getManager()->getConfigType();
-    switch (configType) {
-    case Manager::CT_Letter:
-    case Manager::CT_PhotoLetter:
-        InputForm();
-        return InputForm()->updateInput(hkbManager);
-    default:
-        return false;
-    }
-}
-
-bool DispMemoState::updateInput(int chan, f32 x, f32 y, u32 trig, u32 hold, u32 release) {
-    Manager::ConfigType configType = getManager()->getConfigType();
-    switch (configType) {
-    case Manager::CT_Letter:
-    case Manager::CT_PhotoLetter: {
-        InputForm();
-        struct InputParameters {
-            int chan;
-            f32 x;
-            f32 y;
-            u32 trig;
-            u32 hold;
-            u32 release;
-        } inputParameters = {chan, x, y, trig, hold, release};
-        return InputForm()->updateInput(chan, x, y, trig, hold, release, &inputParameters);
-    }
-    default:
-        return false;
-    }
-}
-
-void AppearMemoState::init() {}
-
-void AppearMemoState::calc() {
-    InputForm()->calc();
-    if (ToolBar()->isQwerty()) {
-        PCKeyboard()->calc();
-    } else {
-        static_cast<keyboard::cellphonetype::Base*>(CellPhoneKeyboard())->calc();
-    }
-    if (CandidateBox()->isActive()) {
-        CandidateBox()->calc();
-    }
-    ToolBar()->calc();
-    static_cast<bg::LayoutByNW4R*>(BG())->calc();
-    if (mTime >= 30.0f) {
-        getManager()->setState(Manager::ST_Appearing);
-    }
-    mTime += 1.0f;
-}
-
-void AppearMemoState::draw() {
-    if (getManager()->getConfigType() != Manager::CT_Letter &&
-        getManager()->getConfigType() != Manager::CT_PhotoLetter) {
-        static_cast<bg::LayoutByNW4R*>(BG())->draw();
-    }
-    ToolBar()->draw();
-    if (getManager()->getConfigType() != Manager::CT_Letter &&
-        getManager()->getConfigType() != Manager::CT_PhotoLetter) {
-        InputForm()->draw();
-    }
-    if (CandidateBox()->isActive()) {
-        CandidateBox()->draw();
-    }
-    if (ToolBar()->isQwerty()) {
-        PCKeyboard()->draw();
-    } else {
-        static_cast<keyboard::cellphonetype::Base*>(CellPhoneKeyboard())->draw();
-    }
-}
-
-void AppearMemoState::start() {
-    mTime = 0.0f;
-    Manager::ConfigType configType = getManager()->getConfigType();
-    switch (configType) {
-    case Manager::CT_Letter:
-    case Manager::CT_PhotoLetter:
-        InputForm()->setEditMode(InputForm::EM_Appear);
-        break;
-    default:
-        break;
-    }
-}
-
-bool AppearMemoState::updateInput(int, f32, f32, u32, u32, u32) {
-    return false;
-}
-
-bool AppearMemoState::updateInput(input::HKBManager&) {
-    return false;
-}
-
-void EditMemoState::create() {}
-
-void EditMemoState::init() {}
-
-void EditMemoState::calc() {
-    if (ToolBar()->isQwerty()) {
-        PCKeyboard()->calc();
-    } else {
-        static_cast<keyboard::cellphonetype::Base*>(CellPhoneKeyboard())->calc();
-    }
-    ToolBar()->calc();
-    if (CandidateBox()->isActive()) {
-        CandidateBox()->calc();
-    }
-    InputForm()->calc();
-    if (static_cast<predictlang::LayoutByNW4R*>(PredictLanguageSelectDialog())->isActive()) {
-        static_cast<predictlang::LayoutByNW4R*>(PredictLanguageSelectDialog())->calc();
-    }
-    if (static_cast<SignWindowLayout*>(SignKeyboard())->isActive()) {
-        SignWindowLayout& signWindow = *static_cast<SignWindowLayout*>(SignKeyboard());
-        static_cast<nw4rmanager::Layout&>(signWindow).calc();
-    }
-    if (getManager()->getConfigType() != Manager::CT_Letter &&
-        getManager()->getConfigType() != Manager::CT_PhotoLetter) {
-        static_cast<bg::LayoutByNW4R*>(BG())->calc();
-    }
-}
-
-void EditMemoState::draw() {
-    GXSetZMode(GX_TRUE, GX_LEQUAL, GX_TRUE);
-    if (getManager()->getConfigType() != Manager::CT_Letter &&
-        getManager()->getConfigType() != Manager::CT_PhotoLetter) {
-        static_cast<bg::LayoutByNW4R*>(BG())->draw();
-    }
-    ToolBar()->draw();
-    if (getManager()->getConfigType() != Manager::CT_Letter &&
-        getManager()->getConfigType() != Manager::CT_PhotoLetter) {
-        InputForm()->draw();
-    }
-    if (CandidateBox()->isActive()) {
-        CandidateBox()->draw();
-    }
-    if (ToolBar()->isQwerty()) {
-        PCKeyboard()->draw();
-    } else {
-        static_cast<keyboard::cellphonetype::Base*>(CellPhoneKeyboard())->draw();
-    }
-    if (static_cast<predictlang::LayoutByNW4R*>(PredictLanguageSelectDialog())->isActive()) {
-        static_cast<predictlang::LayoutByNW4R*>(PredictLanguageSelectDialog())->draw();
-    }
-    if (static_cast<SignWindowLayout*>(SignKeyboard())->isActive()) {
-        static_cast<SignWindowLayout*>(SignKeyboard())->draw();
-    }
-}
-
-bool EditMemoState::updateInput(input::HKBManager& hkbManager) {
-    bool wasQwerty = ToolBar()->isQwerty();
-    if (static_cast<predictlang::LayoutByNW4R*>(PredictLanguageSelectDialog())->isActive()) {
-        return false;
-    }
-    HWKeyboard()->updateInput(hkbManager);
-    if (static_cast<SignWindowLayout*>(SignKeyboard())->isActive()) {
-        return static_cast<SignWindowLayout*>(SignKeyboard())->updateInput(hkbManager);
-    }
-    bool handled;
-    if (wasQwerty) {
-        handled = PCKeyboard()->updateInput(hkbManager);
-    } else {
-        handled = CellPhoneKeyboard()->updateInput(hkbManager);
-    }
-    if (wasQwerty != ToolBar()->isQwerty()) {
-        InputForm()->onCommand(static_cast<CommandReceiver::INPUT_COMMAND>(6), NULL);
-        CandidateBox()->checkValidation();
-        if (ToolBar()->isQwerty()) {
-            PCKeyboard()->onActive();
-        } else {
-            CellPhoneKeyboard()->onActive();
-        }
-    }
-    return handled;
-}
-
-void EditMemoState::start() {
-    switch (getManager()->getConfigType()) {
-    case Manager::CT_Letter:
-    case Manager::CT_PhotoLetter:
-        InputForm()->setEditMode(InputForm::EM_Edit);
-        InputForm()->getLayout()->GetRootPane()->SetTranslate(
-            nw4r::math::VEC3(sLetterMemoPosition.x, sLetterMemoPosition.y, 0.0f));
-        break;
-    default:
-        break;
-    }
-}
-
-bool EditMemoState::updateInput(int chan, f32 x, f32 y, u32 trig, u32 hold, u32 release) {
-    bool wasQwerty = ToolBar()->isQwerty();
-    struct InputParameters {
-        int chan;
-        f32 x;
-        f32 y;
-        u32 trig;
-        u32 hold;
-        u32 release;
-    } inputParameters = {chan, x, y, trig, hold, release};
-    HWKeyboard()->updateInput(chan, x, y, trig, hold, release, &inputParameters);
-    predictlang::LayoutByNW4R* predictDialog =
-        static_cast<predictlang::LayoutByNW4R*>(PredictLanguageSelectDialog());
-    if (predictDialog->isActive()) {
-        return predictDialog->updateInput(chan, x, y, trig, hold, release, &inputParameters);
-    }
-    bool inputHandled = InputForm()->updateInput(chan, x, y, trig, hold, release, &inputParameters);
-    if (static_cast<SignWindowLayout*>(SignKeyboard())->isActive()) {
-        return static_cast<SignWindowLayout*>(SignKeyboard())->updateInput(
-            chan, x, y, trig, hold, release, &inputParameters);
-    }
-    bool handled;
-    if (wasQwerty) {
-        handled = PCKeyboard()->updateInput(chan, x, y, trig, hold, release, &inputParameters);
-    } else {
-        handled = CellPhoneKeyboard()->updateInput(chan, x, y, trig, hold, release, &inputParameters);
-    }
-    bool toolbarHandled = ToolBar()->updateInput(chan, x, y, trig, hold, release, &inputParameters);
-    bool candidateHandled = false;
-    if (CandidateBox()->isActive()) {
-        candidateHandled = CandidateBox()->updateInput(chan, x, y, trig, hold, release, &inputParameters);
-    }
-    inputHandled = InputForm()->updateInput(chan, x, y, trig, hold, release, &inputParameters) || inputHandled;
-    if (wasQwerty != ToolBar()->isQwerty()) {
-        InputForm()->onCommand(static_cast<CommandReceiver::INPUT_COMMAND>(6), NULL);
-        CandidateBox()->checkValidation();
-        if (ToolBar()->isQwerty()) {
-            PCKeyboard()->onActive();
-        } else {
-            CellPhoneKeyboard()->onActive();
-        }
-    }
-    return handled | candidateHandled | inputHandled | toolbarHandled;
+inline void setPaneAlpha(nw4r::lyt::Pane* pane, s32 alpha) {
+    pane->SetAlpha(alpha);
 }
 
 void Manager::create(MEMAllocator*) {
@@ -606,153 +351,6 @@ void* Manager::createBG() {
                                          "fs_VK_bg_a.brlyt", eventObserver);
 }
 
-void Manager::start() {
-    if (meConfigType >= CT_Numeric) return;
-    if (meConfigType < CT_Letter) return;
-    static_cast<textinput::extend::memo::InputForm*>(getInputFormForMemo())->open();
-}
-
-void Manager::end() {
-    if (meConfigType >= CT_Numeric) return;
-    if (meConfigType < CT_Letter) return;
-    static_cast<textinput::extend::memo::InputForm*>(getInputFormForMemo())->close();
-}
-
-InputForm* State::InputForm() {
-    return static_cast<textinput::extend::memo::InputForm*>(getManager()->getInputForm());
-}
-
-f32 InputForm::getScrollFrom() {
-    return mfScrollFrom;
-}
-
-f32 InputForm::getScrollTo() {
-    return mfScrollTo;
-}
-
-keyboard::hwkey::HWKeyboard* State::HWKeyboard() {
-    return getManager()->getHWKeyboard();
-}
-
-keyboard::pctype::LayoutByNW4R* State::PCKeyboard() {
-    return getManager()->getPCKeyboard();
-}
-
-keyboard::cellphonetype::LayoutByNW4R* State::CellPhoneKeyboard() {
-    return getManager()->getCellPhoneKeyboard();
-}
-
-void* State::SignKeyboard() {
-    return getManager()->getSignKeyboard();
-}
-
-candidatebox::LayoutByNW4R* State::CandidateBox() {
-    return getManager()->getCandidateBox();
-}
-
-toolbar::LayoutByNW4R* State::ToolBar() {
-    return getManager()->getToolBar();
-}
-
-void* State::PredictLanguageSelectDialog() {
-    return getManager()->getPredictLanguageSelectDialog();
-}
-
-void* State::BG() {
-    return getManager()->getBackGround();
-}
-
-Manager::StateType DispMemoState::getStateType() {
-    return Manager::ST_Hidden;
-}
-
-void DispMemoState::draw() {}
-
-void DispMemoState::memoDraw() {
-    if (getManager()->getConfigType() == Manager::CT_Letter ||
-        getManager()->getConfigType() == Manager::CT_PhotoLetter) {
-        InputForm()->draw();
-    }
-}
-
-void DispMemoState::end() {}
-
-Manager::StateType AppearMemoState::getStateType() {
-    return Manager::ST_Appearing;
-}
-
-void AppearMemoState::memoDraw() {
-    if (getManager()->getConfigType() == Manager::CT_Letter ||
-        getManager()->getConfigType() == Manager::CT_PhotoLetter) {
-        InputForm()->draw();
-    }
-}
-
-void AppearMemoState::create() {}
-
-void AppearMemoState::end() {}
-
-Manager::StateType EditMemoState::getStateType() {
-    return Manager::ST_Visible;
-}
-
-void EditMemoState::memoDraw() {
-    if (getManager()->getConfigType() == Manager::CT_Letter ||
-        getManager()->getConfigType() == Manager::CT_PhotoLetter) {
-        InputForm()->draw();
-    }
-}
-
-void EditMemoState::end() {}
-
-Manager::StateType DisappearMemoState::getStateType() {
-    return Manager::ST_Disappearing;
-}
-
-void DisappearMemoState::calc() {
-    if (mTime >= 30.0f) {
-        getManager()->setState(Manager::ST_Disappearing);
-    }
-    InputForm()->calc();
-    if (ToolBar()->isQwerty()) {
-        PCKeyboard()->calc();
-    } else {
-        static_cast<keyboard::cellphonetype::Base*>(CellPhoneKeyboard())->calc();
-    }
-    ToolBar()->calc();
-    if (CandidateBox()->isActive()) {
-        CandidateBox()->calc();
-    }
-    static_cast<bg::LayoutByNW4R*>(BG())->calc();
-    f32 slideX = util::hermiteInterporation(
-        mTime, 0.0f, 0.0f, 0.0f, 30.0f, sHiddenMemoPosition.x, 0.0f);
-    nw4r::lyt::Pane* keyboardPane = PCKeyboard()->getLayout()->GetRootPane();
-    nw4r::math::VEC3 keyboardPosition = keyboardPane->GetTranslate();
-    keyboardPosition.x = slideX;
-    keyboardPane->SetTranslate(keyboardPosition);
-    mTime += 1.0f;
-}
-
-void DisappearMemoState::start() {
-    mTime = 0.0f;
-    Manager::ConfigType configType = getManager()->getConfigType();
-    switch (configType) {
-    case Manager::CT_Letter:
-    case Manager::CT_PhotoLetter:
-        InputForm()->setEditMode(InputForm::EM_Disappear);
-        getManager()->setSaveData();
-        break;
-    default:
-        InputForm()->onClose();
-        break;
-    }
-}
-
-void Manager::configNumericBigTextWithDot() {
-    configNumericWithDot();
-    meConfigType = CT_NumericBigTextWithDot;
-}
-
 void Manager::configDefault() {
     meConfigType = CT_Default;
     setPCKeyboardForMemo(static_cast<keyboard::pctype::LayoutByNW4R*>(mpDefaultPCKeyboard));
@@ -829,7 +427,7 @@ void Manager::configLetter() {
     reflectSaveData();
     limitStringLength(0x100);
     limitRowNum(0x10);
-    sLetterMemoPosition.y = 0.0f;
+    sLetterMemoPosition.y = 145.0f;
     getInputFormForMemo()->dirtyCacheAll();
 }
 
@@ -861,7 +459,7 @@ void Manager::configPhotoLetter() {
     reflectSaveData();
     limitStringLength(0x100);
     limitRowNum(0x10);
-    sLetterMemoPosition.y = 0.0f;
+    sLetterMemoPosition.y = 151.0f;
     getInputFormForMemo()->dirtyCacheAll();
 }
 
@@ -950,6 +548,17 @@ void Manager::configOnlyQwertyBigTextWithoutLineFeedAndSign() {
     getInputFormForMemo()->dirtyCacheAll();
 }
 
+void Manager::configNumericWithDot() {
+    configNumeric();
+    meConfigType = CT_NumericWithDot;
+    getCellPhoneKeyboardForMemo()->doNumericWithDotMode(true);
+}
+
+void Manager::configNumericBigTextWithDot() {
+    configNumericWithDot();
+    meConfigType = CT_NumericBigTextWithDot;
+}
+
 void Manager::configNormalBigTextWithoutLineFeedWithSign() {
     configDefault();
     setInputFormForMemo(mpBigTextInputForm);
@@ -987,12 +596,6 @@ void Manager::configNormalWithoutLineFeedWithSign() {
     getInputFormForMemo()->dirtyCacheAll();
 }
 
-void Manager::configNumericWithDot() {
-    configNumeric();
-    meConfigType = CT_NumericWithDot;
-    getCellPhoneKeyboardForMemo()->doNumericWithDotMode(true);
-}
-
 void Manager::configPredictWithoutLineFeed() {
     configDefault();
     meConfigType = CT_PredictWithoutLineFeed;
@@ -1005,6 +608,18 @@ void Manager::configPredictBigText() {
     meConfigType = CT_PredictBigText;
     setInputFormForMemo(mpBigTextInputForm);
     textinput::Manager::init();
+}
+
+void Manager::start() {
+    if (meConfigType >= CT_Numeric) return;
+    if (meConfigType < CT_Letter) return;
+    static_cast<textinput::extend::memo::InputForm*>(getInputFormForMemo())->open();
+}
+
+void Manager::end() {
+    if (meConfigType >= CT_Numeric) return;
+    if (meConfigType < CT_Letter) return;
+    static_cast<textinput::extend::memo::InputForm*>(getInputFormForMemo())->close();
 }
 
 void Manager::setSaveData() {
@@ -1027,15 +642,14 @@ void Manager::setSaveData() {
 
 void Manager::reflectSaveData() {
     s32 revision = (mMemoSetting.uRevisionAndType >> 4) & 0xF;
-    if (revision >= 1) {
-        if (revision <= 1) {
-            reflectSaveDataRev1();
-        } else {
-            reflectSaveDataDefault();
-        }
-    } else {
-        reflectSaveDataDefault();
+    switch (revision) {
+    case 0:
+        break;
+    case 1:
+        reflectSaveDataRev1();
+        return;
     }
+    reflectSaveDataDefault();
 }
 
 void Manager::reflectSaveDataRev1() {
@@ -1115,14 +729,514 @@ void Manager::SetFont(nw4r::lyt::FontRefLink* fontLink) {
     }
 }
 
+void DispMemoState::create() {}
+
+void DispMemoState::init() {
+    getManager()->getConfigType();
+}
+
+void DispMemoState::calc() {
+    Manager::ConfigType configType = getManager()->getConfigType();
+    switch (configType) {
+    case Manager::CT_Letter:
+    case Manager::CT_PhotoLetter:
+        InputForm()->calc();
+        break;
+    default:
+        break;
+    }
+}
+
+InputForm* State::InputForm() {
+    return static_cast<textinput::extend::memo::InputForm*>(getManager()->getInputForm());
+}
+
+void DispMemoState::draw() {}
+
+void DispMemoState::memoDraw() {
+    if (getManager()->getConfigType() == Manager::CT_Letter ||
+        getManager()->getConfigType() == Manager::CT_PhotoLetter) {
+        InputForm()->draw();
+    }
+}
+
+bool DispMemoState::updateInput(int chan, f32 x, f32 y, u32 trig, u32 hold, u32 release) {
+    Manager::ConfigType configType = getManager()->getConfigType();
+    switch (configType) {
+    case Manager::CT_Letter:
+    case Manager::CT_PhotoLetter: {
+        InputForm();
+        struct InputParameters {
+            int chan;
+            f32 x;
+            f32 y;
+            u32 trig;
+            u32 hold;
+            u32 release;
+        } inputParameters = {chan, x, y, trig, hold, release};
+        return InputForm()->updateInput(chan, x, y, trig, hold, release, &inputParameters);
+    }
+    default:
+        return false;
+    }
+}
+
+bool DispMemoState::updateInput(input::HKBManager& hkbManager) {
+    Manager::ConfigType configType = getManager()->getConfigType();
+    switch (configType) {
+    case Manager::CT_Letter:
+    case Manager::CT_PhotoLetter:
+        InputForm();
+        return InputForm()->updateInput(hkbManager);
+    default:
+        return false;
+    }
+}
+
+void DispMemoState::start() {
+    Manager::ConfigType configType = getManager()->getConfigType();
+    switch (configType) {
+    case Manager::CT_Letter:
+    case Manager::CT_PhotoLetter:
+        InputForm()->setEditMode(InputForm::EM_Disp);
+        InputForm()->getLayout()->GetRootPane()->SetTranslate(nw4r::math::VEC2(0.0f, sLetterMemoPosition.x));
+        InputForm()->getLayout()->GetRootPane()->SetAlpha(255);
+        break;
+    default:
+        InputForm()->getLayout()->GetRootPane()->SetTranslate(nw4r::math::VEC2(0.0f, sHiddenMemoPosition.x));
+        setPaneAlpha(InputForm()->getLayout()->GetRootPane(), static_cast<s32>(sAppearingMemoPosition.x));
+        break;
+    }
+    PCKeyboard()->getLayout()->GetRootPane()->SetTranslate(nw4r::math::VEC2(0.0f, sHiddenMemoPosition.x));
+    CellPhoneKeyboard()->getLayout()->GetRootPane()->SetTranslate(nw4r::math::VEC2(0.0f, sHiddenMemoPosition.x));
+    CandidateBox()->getLayout()->GetRootPane()->SetTranslate(nw4r::math::VEC2(0.0f, sHiddenMemoPosition.x));
+    ToolBar()->getUpArea()->SetTranslate(nw4r::math::VEC2(0.0f, sHiddenMemoPosition.x / 3.0f));
+    ToolBar()->getDownArea()->SetTranslate(nw4r::math::VEC2(0.0f, -sHiddenMemoPosition.x / 3.0f));
+    static_cast<bg::LayoutByNW4R*>(BG())->getLayout()->GetRootPane()->SetTranslate(nw4r::math::VEC2(0.0f, 0.0f));
+    setPaneAlpha(PCKeyboard()->getLayout()->GetRootPane(), static_cast<s32>(sAppearingMemoPosition.x));
+    setPaneAlpha(CellPhoneKeyboard()->getLayout()->GetRootPane(), static_cast<s32>(sAppearingMemoPosition.x));
+    setPaneAlpha(CandidateBox()->getLayout()->GetRootPane(), static_cast<s32>(sAppearingMemoPosition.x));
+    setPaneAlpha(ToolBar()->getUpArea(), static_cast<s32>(sAppearingMemoPosition.x));
+    setPaneAlpha(ToolBar()->getDownArea(), static_cast<s32>(sAppearingMemoPosition.x));
+    setPaneAlpha(static_cast<bg::LayoutByNW4R*>(BG())->getLayout()->GetRootPane(), static_cast<s32>(sAppearingMemoPosition.x));
+}
+
+keyboard::pctype::LayoutByNW4R* State::PCKeyboard() {
+    return getManager()->getPCKeyboard();
+}
+
+keyboard::cellphonetype::LayoutByNW4R* State::CellPhoneKeyboard() {
+    return getManager()->getCellPhoneKeyboard();
+}
+
+candidatebox::LayoutByNW4R* State::CandidateBox() {
+    return getManager()->getCandidateBox();
+}
+
+toolbar::LayoutByNW4R* State::ToolBar() {
+    return getManager()->getToolBar();
+}
+
+void* State::BG() {
+    return getManager()->getBackGround();
+}
+
+void AppearMemoState::create() {}
+
+void AppearMemoState::init() {}
+
+void AppearMemoState::calc() {
+    InputForm()->calc();
+    if (ToolBar()->isQwerty()) {
+        PCKeyboard()->calc();
+    } else {
+        static_cast<keyboard::cellphonetype::Base*>(CellPhoneKeyboard())->calc();
+    }
+    if (CandidateBox()->isActive()) {
+        CandidateBox()->calc();
+    }
+    ToolBar()->calc();
+    static_cast<bg::LayoutByNW4R*>(BG())->calc();
+    if (30.0f <= mTime) {
+        getManager()->changeState(Manager::STL_Transition);
+    }
+
+    f32 offset = textinput::util::hermiteInterporation(
+        mTime, 0.0f, sHiddenMemoPosition.x, 0.0f,
+        30.0f, sHiddenMemoPosition.y, 0.0f);
+    PCKeyboard()->getLayout()->GetRootPane()->SetTranslate(nw4r::math::VEC2(0.0f, offset));
+    CellPhoneKeyboard()->getLayout()->GetRootPane()->SetTranslate(nw4r::math::VEC2(0.0f, offset));
+    CandidateBox()->getLayout()->GetRootPane()->SetTranslate(nw4r::math::VEC2(0.0f, offset));
+    ToolBar()->getUpArea()->SetTranslate(
+        nw4r::math::VEC2(0.0f, offset / 3.0f));
+    ToolBar()->getDownArea()->SetTranslate(
+        nw4r::math::VEC2(0.0f, -offset / 3.0f));
+    static_cast<bg::LayoutByNW4R*>(BG())->getLayout()->GetRootPane()->SetTranslate(nw4r::math::VEC2(0.0f, 0.0f));
+
+    f32 alpha = textinput::util::hermiteInterporation(
+        mTime, 0.0f, sAppearingMemoPosition.x, 0.0f,
+        30.0f, sAppearingMemoPosition.y, 0.0f);
+    s32 alphaByte = static_cast<s32>(alpha);
+    setPaneAlpha(PCKeyboard()->getLayout()->GetRootPane(), alphaByte);
+    setPaneAlpha(CellPhoneKeyboard()->getLayout()->GetRootPane(), alphaByte);
+    setPaneAlpha(CandidateBox()->getLayout()->GetRootPane(), alphaByte);
+    setPaneAlpha(ToolBar()->getUpArea(), alphaByte);
+    setPaneAlpha(static_cast<bg::LayoutByNW4R*>(BG())->getLayout()->GetRootPane(), alphaByte);
+
+    Manager::ConfigType configType = getManager()->getConfigType();
+    switch (configType) {
+    case Manager::CT_Letter:
+    case Manager::CT_PhotoLetter: {
+        f32 letterOffset = textinput::util::hermiteInterporation(
+            mTime, 0.0f, sLetterMemoPosition.x, 0.0f,
+            30.0f, sLetterMemoPosition.y, 0.0f);
+        InputForm()->getLayout()->GetRootPane()->SetTranslate(
+            nw4r::math::VEC2(0.0f, letterOffset));
+        setPaneAlpha(InputForm()->getLayout()->GetRootPane(), 0xff);
+        MemoInputForm* inputForm = InputForm();
+        inputForm->setScroll(textinput::util::hermiteInterporation(
+            mTime, 0.0f, inputForm->getScrollFrom(), 0.0f,
+            30.0f, inputForm->getScrollTo(), 0.0f));
+        break;
+    }
+    default: {
+        InputForm()->getLayout()->GetRootPane()->SetTranslate(
+            nw4r::math::VEC2(0.0f, offset));
+        setPaneAlpha(InputForm()->getLayout()->GetRootPane(), alphaByte);
+    }
+    }
+    mTime += 1.0f;
+}
+
+f32 InputForm::getScrollFrom() {
+    return mfScrollFrom;
+}
+
+f32 InputForm::getScrollTo() {
+    return mfScrollTo;
+}
+
+void AppearMemoState::draw() {
+    if (getManager()->getConfigType() != Manager::CT_Letter &&
+        getManager()->getConfigType() != Manager::CT_PhotoLetter) {
+        static_cast<bg::LayoutByNW4R*>(BG())->draw();
+    }
+    ToolBar()->draw();
+    if (getManager()->getConfigType() != Manager::CT_Letter &&
+        getManager()->getConfigType() != Manager::CT_PhotoLetter) {
+        InputForm()->draw();
+    }
+    if (CandidateBox()->isActive()) {
+        CandidateBox()->draw();
+    }
+    if (ToolBar()->isQwerty()) {
+        PCKeyboard()->draw();
+    } else {
+        static_cast<keyboard::cellphonetype::Base*>(CellPhoneKeyboard())->draw();
+    }
+}
+
+void bg::LayoutByNW4R::draw() {
+    nw4rmanager::Layout::draw();
+}
+
+void AppearMemoState::memoDraw() {
+    if (getManager()->getConfigType() == Manager::CT_Letter ||
+        getManager()->getConfigType() == Manager::CT_PhotoLetter) {
+        InputForm()->draw();
+    }
+}
+
+bool AppearMemoState::updateInput(int, f32, f32, u32, u32, u32) {
+    return false;
+}
+
+bool AppearMemoState::updateInput(input::HKBManager&) {
+    return false;
+}
+
+void AppearMemoState::start() {
+    mTime = 0.0f;
+    Manager::ConfigType configType = getManager()->getConfigType();
+    switch (configType) {
+    case Manager::CT_Letter:
+    case Manager::CT_PhotoLetter:
+        InputForm()->setEditMode(InputForm::EM_Appear);
+        break;
+    default:
+        break;
+    }
+}
+
+void EditMemoState::create() {}
+
+void EditMemoState::init() {}
+
+void EditMemoState::calc() {
+    if (ToolBar()->isQwerty()) {
+        PCKeyboard()->calc();
+    } else {
+        static_cast<keyboard::cellphonetype::Base*>(CellPhoneKeyboard())->calc();
+    }
+    ToolBar()->calc();
+    if (CandidateBox()->isActive()) {
+        CandidateBox()->calc();
+    }
+    InputForm()->calc();
+    if (static_cast<predictlang::LayoutByNW4R*>(PredictLanguageSelectDialog())->isActive()) {
+        static_cast<predictlang::LayoutByNW4R*>(PredictLanguageSelectDialog())->calc();
+    }
+    if (static_cast<SignWindowLayout*>(SignKeyboard())->isActive()) {
+        SignWindowLayout& signWindow = *static_cast<SignWindowLayout*>(SignKeyboard());
+        static_cast<nw4rmanager::Layout&>(signWindow).calc();
+    }
+    if (getManager()->getConfigType() != Manager::CT_Letter &&
+        getManager()->getConfigType() != Manager::CT_PhotoLetter) {
+        static_cast<bg::LayoutByNW4R*>(BG())->calc();
+    }
+}
+
+void* State::PredictLanguageSelectDialog() {
+    return getManager()->getPredictLanguageSelectDialog();
+}
+
+void* State::SignKeyboard() {
+    return getManager()->getSignKeyboard();
+}
+
+void EditMemoState::draw() {
+    GXSetZMode(GX_TRUE, GX_LEQUAL, GX_TRUE);
+    if (getManager()->getConfigType() != Manager::CT_Letter &&
+        getManager()->getConfigType() != Manager::CT_PhotoLetter) {
+        static_cast<bg::LayoutByNW4R*>(BG())->draw();
+    }
+    ToolBar()->draw();
+    if (getManager()->getConfigType() != Manager::CT_Letter &&
+        getManager()->getConfigType() != Manager::CT_PhotoLetter) {
+        InputForm()->draw();
+    }
+    if (CandidateBox()->isActive()) {
+        CandidateBox()->draw();
+    }
+    if (ToolBar()->isQwerty()) {
+        PCKeyboard()->draw();
+    } else {
+        static_cast<keyboard::cellphonetype::Base*>(CellPhoneKeyboard())->draw();
+    }
+    if (static_cast<predictlang::LayoutByNW4R*>(PredictLanguageSelectDialog())->isActive()) {
+        static_cast<predictlang::LayoutByNW4R*>(PredictLanguageSelectDialog())->draw();
+    }
+    if (static_cast<SignWindowLayout*>(SignKeyboard())->isActive()) {
+        static_cast<SignWindowLayout*>(SignKeyboard())->draw();
+    }
+}
+
+void EditMemoState::memoDraw() {
+    if (getManager()->getConfigType() == Manager::CT_Letter ||
+        getManager()->getConfigType() == Manager::CT_PhotoLetter) {
+        InputForm()->draw();
+    }
+}
+
+bool EditMemoState::updateInput(int chan, f32 x, f32 y, u32 trig, u32 hold, u32 release) {
+    bool wasQwerty = ToolBar()->isQwerty();
+    struct InputParameters {
+        int chan;
+        f32 x;
+        f32 y;
+        u32 trig;
+        u32 hold;
+        u32 release;
+    } inputParameters = {chan, x, y, trig, hold, release};
+    HWKeyboard()->updateInput(chan, x, y, trig, hold, release, &inputParameters);
+    if (static_cast<predictlang::LayoutByNW4R*>(PredictLanguageSelectDialog())->isActive()) {
+        return static_cast<predictlang::LayoutByNW4R*>(PredictLanguageSelectDialog())->updateInput(chan, x, y, trig, hold, release, &inputParameters);
+    }
+    InputForm()->updateInputCommon(chan, trig, hold, release, &inputParameters);
+    if (static_cast<SignWindowLayout*>(SignKeyboard())->isActive()) {
+        return static_cast<SignWindowLayout*>(SignKeyboard())->updateInput(
+            chan, x, y, trig, hold, release, &inputParameters);
+    }
+    bool handled;
+    if (wasQwerty) {
+        handled = PCKeyboard()->updateInput(chan, x, y, trig, hold, release, &inputParameters);
+    } else {
+        handled = CellPhoneKeyboard()->updateInput(chan, x, y, trig, hold, release, &inputParameters);
+    }
+    bool toolbarHandled = ToolBar()->updateInput(chan, x, y, trig, hold, release, &inputParameters);
+    bool candidateHandled = false;
+    if (CandidateBox()->isActive()) {
+        candidateHandled = CandidateBox()->updateInput(chan, x, y, trig, hold, release, &inputParameters);
+    }
+    u32 inputHandled = 0;
+    if (!candidateHandled) {
+        inputHandled = InputForm()->updateInput(chan, x, y, trig, hold, release, &inputParameters);
+    } else {
+        InputForm()->updateInput(chan, (1.0f / 0.0f), (1.0f / 0.0f), trig, hold, release, &inputParameters);
+    }
+    handled = (handled | candidateHandled) | (inputHandled | toolbarHandled);
+    if (wasQwerty != ToolBar()->isQwerty()) {
+        InputForm()->onCommand(static_cast<CommandReceiver::INPUT_COMMAND>(6), NULL);
+        CandidateBox()->checkValidation();
+        if (ToolBar()->isQwerty()) {
+            PCKeyboard()->onActive();
+        } else {
+            CellPhoneKeyboard()->onActive();
+        }
+    }
+    return handled;
+}
+
+keyboard::hwkey::HWKeyboard* State::HWKeyboard() {
+    return getManager()->getHWKeyboard();
+}
+
+bool EditMemoState::updateInput(input::HKBManager& hkbManager) {
+    bool wasQwerty = ToolBar()->isQwerty();
+    if (static_cast<predictlang::LayoutByNW4R*>(PredictLanguageSelectDialog())->isActive()) {
+        return false;
+    }
+    HWKeyboard()->updateInput(hkbManager);
+    if (static_cast<SignWindowLayout*>(SignKeyboard())->isActive()) {
+        return static_cast<SignWindowLayout*>(SignKeyboard())->updateInput(hkbManager);
+    }
+    bool handled;
+    if (wasQwerty) {
+        handled = PCKeyboard()->updateInput(hkbManager);
+    } else {
+        handled = CellPhoneKeyboard()->updateInput(hkbManager);
+    }
+    if (wasQwerty != ToolBar()->isQwerty()) {
+        InputForm()->onCommand(static_cast<CommandReceiver::INPUT_COMMAND>(6), NULL);
+        CandidateBox()->checkValidation();
+        if (ToolBar()->isQwerty()) {
+            PCKeyboard()->onActive();
+        } else {
+            CellPhoneKeyboard()->onActive();
+        }
+    }
+    return handled;
+}
+
+void EditMemoState::start() {
+    if (getManager()->getConfigType() == Manager::CT_Letter ||
+        getManager()->getConfigType() == Manager::CT_PhotoLetter) {
+        InputForm()->setEditMode(InputForm::EM_Edit);
+        InputForm()->getLayout()->GetRootPane()->SetTranslate(nw4r::math::VEC2(0.0f, sLetterMemoPosition.y));
+        InputForm()->getLayout()->GetRootPane()->SetAlpha(255);
+    } else {
+        InputForm()->getLayout()->GetRootPane()->SetTranslate(nw4r::math::VEC2(0.0f, sHiddenMemoPosition.y));
+        setPaneAlpha(InputForm()->getLayout()->GetRootPane(), static_cast<s32>(sAppearingMemoPosition.y));
+    }
+    PCKeyboard()->getLayout()->GetRootPane()->SetTranslate(nw4r::math::VEC2(0.0f, sHiddenMemoPosition.y));
+    CellPhoneKeyboard()->getLayout()->GetRootPane()->SetTranslate(nw4r::math::VEC2(0.0f, sHiddenMemoPosition.y));
+    CandidateBox()->getLayout()->GetRootPane()->SetTranslate(nw4r::math::VEC2(0.0f, sHiddenMemoPosition.y));
+    ToolBar()->getUpArea()->SetTranslate(nw4r::math::VEC2(0.0f, sHiddenMemoPosition.y / 3.0f));
+    ToolBar()->getDownArea()->SetTranslate(nw4r::math::VEC2(0.0f, -sHiddenMemoPosition.y / 3.0f));
+    static_cast<bg::LayoutByNW4R*>(BG())->getLayout()->GetRootPane()->SetTranslate(nw4r::math::VEC2(0.0f, 0.0f));
+    setPaneAlpha(PCKeyboard()->getLayout()->GetRootPane(), static_cast<s32>(sAppearingMemoPosition.y));
+    setPaneAlpha(CellPhoneKeyboard()->getLayout()->GetRootPane(), static_cast<s32>(sAppearingMemoPosition.y));
+    setPaneAlpha(CandidateBox()->getLayout()->GetRootPane(), static_cast<s32>(sAppearingMemoPosition.y));
+    setPaneAlpha(ToolBar()->getUpArea(), static_cast<s32>(sAppearingMemoPosition.y));
+    setPaneAlpha(ToolBar()->getDownArea(), static_cast<s32>(sAppearingMemoPosition.y));
+    setPaneAlpha(static_cast<bg::LayoutByNW4R*>(BG())->getLayout()->GetRootPane(), static_cast<s32>(sAppearingMemoPosition.y));
+    PCKeyboard()->onActive();
+    CellPhoneKeyboard()->onActive();
+    if (ToolBar()->isQwerty()) PCKeyboard()->onActive();
+    else CellPhoneKeyboard()->onActive();
+}
+
+void DisappearMemoState::calc() {
+    if (30.0f <= mTime) {
+        getManager()->changeState(Manager::STL_Transition);
+    }
+    InputForm()->calc();
+
+    f32 offset = textinput::util::hermiteInterporation(
+        mTime, 0.0f, sHiddenMemoPosition.y, 0.0f,
+        30.0f, sHiddenMemoPosition.x, 0.0f);
+    PCKeyboard()->getLayout()->GetRootPane()->SetTranslate(nw4r::math::VEC2(0.0f, offset));
+    CellPhoneKeyboard()->getLayout()->GetRootPane()->SetTranslate(nw4r::math::VEC2(0.0f, offset));
+    CandidateBox()->getLayout()->GetRootPane()->SetTranslate(nw4r::math::VEC2(0.0f, offset));
+    ToolBar()->getUpArea()->SetTranslate(
+        nw4r::math::VEC2(0.0f, offset / 3.0f));
+    ToolBar()->getDownArea()->SetTranslate(
+        nw4r::math::VEC2(0.0f, -offset / 3.0f));
+    static_cast<bg::LayoutByNW4R*>(BG())->getLayout()->GetRootPane()->SetTranslate(nw4r::math::VEC2(0.0f, 0.0f));
+
+    f32 alpha = textinput::util::hermiteInterporation(
+        mTime, 0.0f, sAppearingMemoPosition.y, 0.0f,
+        30.0f, sAppearingMemoPosition.x, 0.0f);
+    s32 alphaByte = static_cast<s32>(alpha);
+    setPaneAlpha(PCKeyboard()->getLayout()->GetRootPane(), alphaByte);
+    setPaneAlpha(CellPhoneKeyboard()->getLayout()->GetRootPane(), alphaByte);
+    setPaneAlpha(CandidateBox()->getLayout()->GetRootPane(), alphaByte);
+    setPaneAlpha(ToolBar()->getUpArea(), alphaByte);
+    setPaneAlpha(ToolBar()->getDownArea(), alphaByte);
+    setPaneAlpha(static_cast<bg::LayoutByNW4R*>(BG())->getLayout()->GetRootPane(), alphaByte);
+
+    Manager::ConfigType configType = getManager()->getConfigType();
+    switch (configType) {
+    case Manager::CT_Letter:
+    case Manager::CT_PhotoLetter: {
+        f32 letterOffset = textinput::util::hermiteInterporation(
+            mTime, 0.0f, sLetterMemoPosition.y, 0.0f,
+            30.0f, sLetterMemoPosition.x, 0.0f);
+        InputForm()->getLayout()->GetRootPane()->SetTranslate(
+            nw4r::math::VEC2(0.0f, letterOffset));
+        setPaneAlpha(InputForm()->getLayout()->GetRootPane(), 0xff);
+        break;
+    }
+    default: {
+        InputForm()->getLayout()->GetRootPane()->SetTranslate(
+            nw4r::math::VEC2(0.0f, offset));
+        setPaneAlpha(InputForm()->getLayout()->GetRootPane(), alphaByte);
+    }
+    }
+    mTime += 1.0f;
+}
+
+void DisappearMemoState::start() {
+    mTime = 0.0f;
+    Manager::ConfigType configType = getManager()->getConfigType();
+    switch (configType) {
+    case Manager::CT_Letter:
+    case Manager::CT_PhotoLetter:
+        InputForm()->setEditMode(InputForm::EM_Disappear);
+        getManager()->setSaveData();
+        break;
+    default:
+        InputForm()->onClose();
+        break;
+    }
+}
+
 void bg::Base::init() {}
 
 void bg::Base::create(MEMAllocator*) {}
 
-bg::LayoutByNW4R::~LayoutByNW4R() {}
+void AppearMemoState::end() {}
 
-void bg::LayoutByNW4R::draw() {
-    nw4rmanager::Layout::draw();
+Manager::StateType DisappearMemoState::getStateType() {
+    return Manager::ST_Disappearing;
+}
+
+void EditMemoState::end() {}
+
+Manager::StateType EditMemoState::getStateType() {
+    return Manager::ST_Visible;
+}
+
+inline State::~State() {}
+
+Manager::StateType AppearMemoState::getStateType() {
+    return Manager::ST_Appearing;
+}
+
+void DispMemoState::end() {}
+
+Manager::StateType DispMemoState::getStateType() {
+    return Manager::ST_Hidden;
 }
 
 }

@@ -167,6 +167,25 @@ namespace textinput {
                     void setManager(Manager* manager) { mpManager = manager; }
 #endif
                     virtual ~State();
+#ifdef MYTIMANAGER_MATCHING
+                    virtual Manager::StateType  getStateType() = 0;
+
+                    virtual void                create() = 0;
+
+                    virtual void                init() = 0;
+
+                    virtual void                draw() = 0;
+                    virtual void                memoDraw() = 0;
+
+                    virtual void                calc() = 0;
+
+                    virtual bool                updateInput(int chan, f32 x, f32 y, u32 trig, u32 hold, u32 release) = 0;
+                    virtual bool                updateInput(input::HKBManager& hkbManager) = 0;
+
+                    virtual void                start() = 0;
+                    virtual void                end() = 0;
+
+#else
                     virtual Manager::StateType  getStateType();
 
                     virtual void                create();
@@ -184,6 +203,7 @@ namespace textinput {
                     virtual void                start();
                     virtual void                end();
 
+#endif
 #ifdef MYTIMANAGER_IMPLEMENTATION
                     virtual InputForm* InputForm();
                     virtual keyboard::hwkey::HWKeyboard* HWKeyboard();

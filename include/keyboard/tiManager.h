@@ -120,6 +120,9 @@ namespace textinput {
             virtual void                                start() {}
             virtual void                                end()   {}
 
+#ifdef TIHWKEYBOARD_IMPLEMENTATION
+            EventObserver* getEventObserverForHardware() const { return mpEventObserver; }
+#endif
             virtual InputForm*                          getInputForm()                          { return mpInputForm; }
             virtual const InputForm*                    getInputForm() const                    { return mpInputForm; }
             
