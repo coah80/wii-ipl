@@ -278,8 +278,11 @@ NWC24Err NWC24SetMsgSubjectAndTextPublic(NWC24MsgObj* msg, const u16* subject, u
     subjectWork = work + textWorkSize;
     textSourceSize = textSize;
     result = NWC24iConvertFromInternalEncoding(work, &textWorkSize, text, &textSourceSize, nwcWork->stringWork, 0x40, region, alternative);
-    if (result != NWC24_OK) {
-        goto done;
+    switch (result) {
+        case NWC24_OK:
+            break;
+        default:
+            goto done;
     }
 
     result = ENCIs7BitEncoding(&is7Bit, nwcWork->stringWork);
@@ -304,8 +307,11 @@ NWC24Err NWC24SetMsgSubjectAndTextPublic(NWC24MsgObj* msg, const u16* subject, u
         result = 0;
     }
     result = NWC24SetMsgText(msg, (char*)work, textWorkSize - 1, charset, result);
-    if (result != NWC24_OK) {
-        goto done;
+    switch (result) {
+        case NWC24_OK:
+            break;
+        default:
+            goto done;
     }
     if (charset == 0) {
         result = NWC24iSetMsgSubjectPlain(msg, subject, subjectSize, region, alternative, subjectWork, subjectWorkSize, charset, nwcWork->stringWork);
@@ -320,8 +326,6 @@ NWC24Err NWC24SetMsgSubjectAndTextPublic(NWC24MsgObj* msg, const u16* subject, u
             result = 3;
             break;
         case 3:
-            result = 2;
-            break;
         case 4:
             result = 2;
             break;
@@ -542,70 +546,74 @@ done:
 
 NWC24Err NWC24iDetectEncodingToSend(char* charset, u32 charsetSize, const u16* subject, u32 subjectSize, const u16* text, u32 textSize,
                                     NWC24EncodingRegion region) {
+    int endIndex;
+    u32 subjectBytes;
+    u32 textBytes;
+    int startIndex;
+    int lastIndex;
+    int index;
     const char** names;
     int numNames;
-    int index;
-    int lastIndex;
-    int endIndex;
-    int startIndex;
-    int subjectIndex;
     int result;
 
     index = 0;
+    startIndex = 0;
     lastIndex = -1;
-    if (region == 3) {
-        names = KoreanCharsets;
-        numNames = 3;
-    } else if (region < 3) {
-        if (region == 0) {
+    switch (region) {
+        case 0:
             names = JapaneseCharsets;
             numNames = 3;
-        } else if (region >= 0) {
+            break;
+        case 1:
+        case 2:
             names = WesternCharsets;
             numNames = 8;
-        } else {
+            break;
+        case 3:
+            names = KoreanCharsets;
+            numNames = 3;
+            break;
+        case 4:
+            names = ChineseCharsets;
+            numNames = 2;
+            break;
+        default:
             names = WesternCharsets;
             numNames = 8;
-        }
-    } else if (region < 5) {
-        names = ChineseCharsets;
-        numNames = 2;
-    } else {
-        names = WesternCharsets;
-        numNames = 8;
+            break;
     }
+    subjectBytes = subjectSize << 1;
+    textBytes = textSize << 1;
     endIndex = numNames - 1;
-    startIndex = 0;
-    do {
-        subjectIndex = index;
-        if (endIndex <= index) {
-            break;
-        }
-        result = ENCCheckEncoding(&index, names + startIndex, endIndex - startIndex, subject, subjectSize << 1);
+    while (index < endIndex) {
+        result = ENCCheckEncoding(&index, names + startIndex, endIndex - startIndex, subject, subjectBytes);
         if (result != ENC_OK) {
             return NWC24_ERR_NOT_SUPPORTED;
         }
         if (index == ENC_CHECK_ENCODING_NOT_FOUND) {
-            subjectIndex = numNames - 1;
+            index = numNames - 1;
             break;
         }
-        subjectIndex = startIndex + index;
-        if ((text == NULL) || (lastIndex == subjectIndex)) {
+        startIndex += index;
+        if ((text == NULL) || (lastIndex == startIndex)) {
+            index = startIndex;
             break;
         }
-        lastIndex = subjectIndex;
-        result = ENCCheckEncoding(&index, names + subjectIndex, endIndex - subjectIndex, text, textSize << 1);
+        result = ENCCheckEncoding(&index, names + startIndex, endIndex - startIndex, text, textBytes);
         if (result != ENC_OK) {
             return NWC24_ERR_NOT_SUPPORTED;
         }
         if (index == ENC_CHECK_ENCODING_NOT_FOUND) {
-            subjectIndex = numNames - 1;
+            index = numNames - 1;
             break;
         }
-        lastIndex = subjectIndex + index;
+        lastIndex = startIndex + index;
+        if (lastIndex == startIndex) {
+            index = lastIndex;
+            break;
+        }
         startIndex = lastIndex;
-    } while (lastIndex != subjectIndex);
-    index = subjectIndex;
+    }
     strncpy(charset, names[index], charsetSize - 1);
     charset[charsetSize - 1] = '\0';
     return NWC24_OK;
@@ -669,57 +677,62 @@ NWC24Err NWC24iSetMsgSubjectPlain(NWC24MsgObj* msg, const u16* subject, u32 subj
                                   u32 workSize, NWC24Charset charset, char* charsetName) {
     u32 workHalf;
     u32 secondSize;
+    u32 sourceOffset;
     u8* second;
     u32 subjectLength;
     u32 lineLength;
-    u32 sourceOffset;
     s32 copied;
     u32 i;
     NWC24Err result;
 
-    workHalf = workSize >> 1;
-    secondSize = workSize - workHalf;
-    second = work + workHalf;
+    secondSize = workSize - (workSize >> 1);
+    second = work + (workSize >> 1);
     subjectLength = subjectSize;
     lineLength = 0;
+    workHalf = workSize >> 1;
     result = NWC24iConvertFromInternalEncoding(work, &workHalf, subject, &subjectLength, charsetName, 0x40, region, alternative);
-    if (result == NWC24_OK) {
-        subjectLength = workHalf - 1;
-        for (i = 0; i < workHalf; i++) {
-            if ((work[i] == '\n') || (work[i] == '\r')) {
-                work[i] = ' ';
+    switch (result) {
+        default:
+            goto done;
+        case NWC24_OK:
+            subjectLength = workHalf - 1;
+            for (i = 0; i < workHalf; i++) {
+                if ((work[i] == '\n') || (work[i] == '\r')) {
+                    work[i] = ' ';
+                }
             }
-        }
-        NWC24iDetectBreakPoint(&lineLength, charset, work, subjectLength, 0x3F);
-        if (lineLength == subjectLength) {
-            result = NWC24SetMsgSubject(msg, (char*)work, subjectLength);
-        } else if (lineLength < secondSize) {
-            copied = NWC24iStrLCpy((char*)second, (char*)work, lineLength + 1);
-            workHalf = secondSize;
-            for (sourceOffset = lineLength; sourceOffset < subjectLength; sourceOffset += lineLength) {
-                if (workHalf - copied < 3) {
+            NWC24iDetectBreakPoint(&lineLength, charset, work, subjectLength, 0x3F);
+            if (lineLength == subjectLength) {
+                result = NWC24SetMsgSubject(msg, (char*)work, subjectLength);
+            } else {
+                workHalf = secondSize;
+                sourceOffset = lineLength;
+                if (workHalf <= sourceOffset) {
                     result = NWC24_ERR_OVERFLOW;
                     goto done;
                 }
-                second[copied] = '\r';
-                second[copied + 1] = '\n';
-                copied += 2;
-                if (work[sourceOffset] != ' ') {
-                    second[copied] = ' ';
-                    copied++;
+                copied = NWC24iStrLCpy((char*)second, (char*)work, lineLength + 1);
+                for (; sourceOffset < subjectLength; sourceOffset += lineLength) {
+                    if (workHalf - copied < 3) {
+                        result = NWC24_ERR_OVERFLOW;
+                        goto done;
+                    }
+                    second[copied++] = '\r';
+                    second[copied++] = '\n';
+                    if (work[sourceOffset] != ' ') {
+                        second[copied] = ' ';
+                        copied++;
+                    }
+                    NWC24iDetectBreakPoint(&lineLength, charset, work + sourceOffset, subjectLength - sourceOffset, 0x47);
+                    if (workHalf - copied <= lineLength) {
+                        result = NWC24_ERR_OVERFLOW;
+                        goto done;
+                    }
+                    copied += NWC24iStrLCpy((char*)second + copied, (char*)work + sourceOffset, lineLength + 1);
                 }
-                NWC24iDetectBreakPoint(&lineLength, charset, work + sourceOffset, subjectLength - sourceOffset, 0x47);
-                if (workHalf - copied <= lineLength) {
-                    result = NWC24_ERR_OVERFLOW;
-                    goto done;
-                }
-                copied += NWC24iStrLCpy((char*)second + copied, (char*)work + sourceOffset, lineLength + 1);
+                second[copied] = 0;
+                result = NWC24SetMsgSubject(msg, (char*)second, copied);
             }
-            second[copied] = 0;
-            result = NWC24SetMsgSubject(msg, (char*)second, copied);
-        } else {
-            result = NWC24_ERR_OVERFLOW;
-        }
     }
 
 done:
@@ -729,63 +742,72 @@ done:
 NWC24Err NWC24iSetMsgSubjectQP(NWC24MsgObj* msg, const u16* subject, u32 subjectSize, NWC24EncodingRegion region, u16 alternative, u8* work,
                                u32 workSize, NWC24Charset charset, char* charsetName) {
     u32 workHalf;
+    u32 sourceOffset;
     u32 secondSize;
     u8* second;
     u32 subjectLength;
     u32 lineLength;
     u32 outputLength;
-    u32 sourceOffset;
-    u32 nextOutput;
     u32 total;
+    u32 combinedLength;
     u32 i;
     u32 charsetLength;
     NWC24Err result;
 
-    workHalf = workSize >> 1;
-    secondSize = workSize - workHalf;
-    second = work + workHalf;
+    secondSize = workSize - (workSize >> 1);
+    second = work + (workSize >> 1);
     subjectLength = subjectSize;
     lineLength = 0;
+    workHalf = workSize >> 1;
     result = NWC24iConvertFromInternalEncoding(work, &workHalf, subject, &subjectLength, charsetName, 0x40, region, alternative);
-    if (result == NWC24_OK) {
-        subjectLength = workHalf - 1;
-        for (i = 0; i < workHalf; i++) {
-            if ((work[i] == '\n') || (work[i] == '\r')) {
-                work[i] = ' ';
-            }
-        }
-        charsetLength = strlen(charsetName);
-        NWC24iDetectBreakPoint(&lineLength, charset, work, subjectLength, (0x38 - charsetLength) / 3);
-        result = NWC24EncodeWord(second, secondSize, &outputLength, charsetName, 0x40, 'Q', work, lineLength);
-        sourceOffset = lineLength;
-        if (result == NWC24_OK) {
-            if (lineLength == subjectLength) {
-                result = NWC24SetMsgSubject(msg, (char*)second, outputLength - 1);
-            } else {
-                charsetLength = strlen(charsetName);
-                total = outputLength;
-                workHalf = secondSize;
-                for (; sourceOffset < subjectLength; sourceOffset += lineLength) {
-                    nextOutput = total - 1;
-                    if (workHalf - nextOutput < 3) {
-                        result = NWC24_ERR_OVERFLOW;
-                        goto done;
-                    }
-                    second[nextOutput] = '\r';
-                    second[total] = '\n';
-                    second[total + 1] = ' ';
-                    total += 2;
-                    NWC24iDetectBreakPoint(&lineLength, charset, work + sourceOffset, subjectLength - sourceOffset, (0x40 - charsetLength) / 3);
-                    result =
-                        NWC24EncodeWord(second + total, workHalf - total, &outputLength, charsetName, 0x40, 'Q', work + sourceOffset, lineLength);
-                    if (result != NWC24_OK) {
-                        goto done;
-                    }
-                    total += outputLength;
+    switch (result) {
+        default:
+            goto done;
+        case NWC24_OK:
+            subjectLength = workHalf - 1;
+            for (i = 0; i < workHalf; i++) {
+                if ((work[i] == '\n') || (work[i] == '\r')) {
+                    work[i] = ' ';
                 }
-                result = NWC24SetMsgSubject(msg, (char*)second, total - 1);
             }
-        }
+            charsetLength = strlen(charsetName);
+            NWC24iDetectBreakPoint(&lineLength, charset, work, subjectLength, (0x38 - charsetLength) / 3);
+            result = NWC24EncodeWord(second, secondSize, &outputLength, charsetName, 0x40, 'Q', work, lineLength);
+            switch (result) {
+                default:
+                    goto done;
+                case NWC24_OK:
+                    sourceOffset = lineLength;
+                    if (lineLength == subjectLength) {
+                        result = NWC24SetMsgSubject(msg, (char*)second, outputLength - 1);
+                    } else {
+                        charsetLength = (0x40 - strlen(charsetName)) / 3;
+                        total = outputLength - 1;
+                        workHalf = secondSize;
+                        for (; sourceOffset < subjectLength;) {
+                            if (workHalf - total < 3) {
+                                result = NWC24_ERR_OVERFLOW;
+                                goto done;
+                            }
+                            second[total++] = '\r';
+                            second[total++] = '\n';
+                            second[total++] = ' ';
+                            NWC24iDetectBreakPoint(&lineLength, charset, work + sourceOffset, subjectLength - sourceOffset, charsetLength);
+                            result = NWC24EncodeWord(second + total, workHalf - total, &outputLength, charsetName, 0x40, 'Q', work + sourceOffset,
+                                                     lineLength);
+                            switch (result) {
+                                case NWC24_OK:
+                                    break;
+                                default:
+                                    goto done;
+                            }
+                            combinedLength = total + outputLength;
+                            sourceOffset += lineLength;
+                            total = combinedLength - 1;
+                        }
+                        result = NWC24SetMsgSubject(msg, (char*)second, total);
+                    }
+            }
     }
 
 done:
