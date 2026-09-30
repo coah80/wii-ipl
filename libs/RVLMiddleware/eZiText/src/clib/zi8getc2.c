@@ -292,33 +292,37 @@ ziU8 _Zi8CheckCandidates(ziGetParam* parameters ZI_NEED_WORK) {
 ziU8 Zi8LangSupported(ziU8 language, ziPtr work);
 ziBool Zi8IsCharacter(ziWChar character, ziPtr work);
 ziU8 Zi8GetCharInfo(ziWChar character, ziWChar* output, ziU8 capacity, ziU8 type, ziPtr work);
-ziU8 Zi8GetKOcandidates(ziGetParam* parameters, ziPtr options, ziPtr work);
-ziU8 Zi8GetKoreanCandidates(ziGetParam* parameters, ziPtr options, ziPtr work);
-ziU8 Zi8Punctuation(ziGetParam* parameters, ziPtr options, ziPtr work);
-ziU8 Zi8GetChineseCandidates(ziGetParam* parameters, ziPtr options, ziPtr work);
-ziU8 Zi8Get1KeyPressCandidates(ziGetParam* parameters, ziPtr options, ziPtr work);
-ziU8 Zi8Get1KeyPressSpelling(ziGetParam* parameters, ziPtr options, ziPtr work);
-ziU8 Zi8GetSyllablesCandidates(ziGetParam* parameters, ziPtr options, ziPtr work);
-ziU8 Zi8AlphaGetCandidates(ziGetParam* parameters, ziPtr options, ziPtr work);
+ziU32 Zi8GetKOcandidates(ziGetParam* parameters, ziPtr options, ziPtr work);
+ziU32 Zi8GetKoreanCandidates(ziGetParam* parameters, ziPtr options, ziPtr work);
+ziU32 Zi8Punctuation(ziGetParam* parameters, ziPtr options, ziPtr work);
+ziU32 Zi8GetChineseCandidates(ziGetParam* parameters, ziPtr options, ziPtr work);
+ziU32 Zi8Get1KeyPressCandidates(ziGetParam* parameters, ziPtr options, ziPtr work);
+ziU32 Zi8Get1KeyPressSpelling(ziGetParam* parameters, ziPtr options, ziPtr work);
+ziU32 Zi8GetSyllablesCandidates(ziGetParam* parameters, ziPtr options, ziPtr work);
+ziU32 Zi8AlphaGetCandidates(ziGetParam* parameters, ziPtr options, ziPtr work);
 
 ziU32 Zi8GetCandidatesOrCount(ziGetParam* parameters, ZiCandidateOptions* options ZI_NEED_WORK) {
 
-  ziU8 savedElementCount;
-  ziU16 savedCharacter;
-  ziWChar* savedElements;
-  ziBool restoreCandidates;
-  int elementCount;
-  int error;
-  unsigned int candidateCount;
-  ziU8 savedOptions;
-  ziWChar* savedCandidates;
   ziU16 characterInfo[16];
-  ziU16 lastInfoCharacter;
+  struct {
+    ziU8 savedGetMode;
+    ziU8 savedElementCount;
+    ziU8 convertedElementCount;
+    ziBool restoreCandidates;
+    ziU8 savedOptions;
+    ziU16 savedCharacter;
+    ziU16 lastInfoCharacter;
+    ziWChar* savedElements;
+    ziWChar* savedCandidates;
+  } saved;
+  ziU8 outputIndex;
+  ziU16 error;
+  unsigned int candidateCount;
 
   error = 0;
-  savedOptions = 0;
-  savedCandidates = 0;
-  restoreCandidates = 0;
+  saved.savedOptions = 0;
+  saved.savedCandidates = 0;
+  saved.restoreCandidates = 0;
   if (options->lookupMode == '\0') {
     if (((ZI_WORK->unk_0x00 == '\t') && (parameters->elementCount != 0)) &&
        (((parameters->elements[parameters->elementCount - 1] == 0xEFF8 &&
@@ -330,13 +334,11 @@ ziU32 Zi8GetCandidatesOrCount(ziGetParam* parameters, ZiCandidateOptions* option
         parameters->letters = 0;
       }
       Zi8LogError(100,ZI_WORK);
-      goto finishCandidates;
+      return candidateCount;
     }
     if ((parameters->elementCount == 1) && (parameters->firstCandidate == 0)) {
-      elementCount = parameters->language;
-      if (elementCount == 0x11) goto latinSequence;
-      if (elementCount < 0x11) {
-        if (elementCount == 1) {
+      switch (parameters->language) {
+      case 1:
           if ((ZI_WORK->unk_0x00 == '\0') || (ZI_WORK->unk_0x01 == options->countOnly)) {
             switch(ZI_WORK->unk_0x00) {
             case '\0':
@@ -345,22 +347,22 @@ ziU32 Zi8GetCandidatesOrCount(ziGetParam* parameters, ZiCandidateOptions* option
                 ZI_WORK->unk_0x00 = '\x01';
               }
               break;
-            case '\x01':
-            case '\x03':
-            case '\x05':
-            case '\a':
-              if (parameters->elements[0] == 0xEF01) {
-                ZI_WORK->unk_0x00 = ZI_WORK->unk_0x00 + '\x01';
+            case '\x02':
+            case '\x04':
+            case '\x06':
+              if (parameters->elements[0] == 0xEF04) {
+                ++ZI_WORK->unk_0x00;
               }
               else {
                 ZI_WORK->unk_0x00 = '\0';
               }
               break;
-            case '\x02':
-            case '\x04':
-            case '\x06':
-              if (parameters->elements[0] == 0xEF04) {
-                ZI_WORK->unk_0x00 = ZI_WORK->unk_0x00 + '\x01';
+            case '\x01':
+            case '\x03':
+            case '\x05':
+            case '\a':
+              if (parameters->elements[0] == 0xEF01) {
+                ++ZI_WORK->unk_0x00;
               }
               else {
                 ZI_WORK->unk_0x00 = '\0';
@@ -376,7 +378,7 @@ ziU32 Zi8GetCandidatesOrCount(ziGetParam* parameters, ZiCandidateOptions* option
                   parameters->letters = 0;
                 }
                 Zi8LogError(100,ZI_WORK);
-                goto finishCandidates;
+                return candidateCount;
               }
             default:
               ZI_WORK->unk_0x00 = '\0';
@@ -385,12 +387,19 @@ ziU32 Zi8GetCandidatesOrCount(ziGetParam* parameters, ZiCandidateOptions* option
               ZI_WORK->unk_0x00 = '\x01';
             }
           }
-        }
-        else if ((elementCount == 0) || (elementCount < 0x10)) goto latinSequence;
-      }
-      else if (elementCount < 0x77) {
-        if (0x12 < elementCount) {
-latinSequence:
+        break;
+      case 0x10:
+      case 0x12:
+      case 0x77:
+      case 0x78:
+      case 0x79:
+      case 0x7A:
+      case 0x7B:
+      case 0x7C:
+      case 0x7D:
+        break;
+      case 0x11:
+      default:
           if ((ZI_WORK->unk_0x00 == '\0') || (ZI_WORK->unk_0x01 == options->countOnly)) {
             switch(ZI_WORK->unk_0x00) {
             case '\0':
@@ -465,7 +474,7 @@ latinSequence:
                   parameters->letters = 0;
                 }
                 Zi8LogError(100,ZI_WORK);
-                goto finishCandidates;
+                return candidateCount;
               }
             default:
               ZI_WORK->unk_0x00 = '\0';
@@ -474,23 +483,21 @@ latinSequence:
               ZI_WORK->unk_0x00 = '\x01';
             }
           }
-        }
+        break;
       }
-      else if (0x7d < elementCount) goto latinSequence;
     }
     else if (1 < parameters->elementCount) {
       ZI_WORK->unk_0x00 = '\0';
     }
   }
   ZI_WORK->unk_0x18 = parameters->subLanguage;
-  elementCount = Zi8GetFormatVersion(1,ZI_WORK);
-  ZI_WORK->unk_0x16 = elementCount & 2;
+  ZI_WORK->unk_0x16 = Zi8GetFormatVersion(1,ZI_WORK) & 2;
   options->maxCount = ZI_WORK->unk_0x10;
   options->maxWordLength = ZI_WORK->unk_0x0A;
   ZI_WORK->unk_0x0A = -1;
   if ((ziU8)Zi8LangSupported(parameters->language,ZI_WORK) == 0) {
     Zi8LogError(0x163,ZI_WORK);
-    candidateCount = 0;
+    return 0;
   }
   else {
     if (parameters->language == 0x10) {
@@ -498,7 +505,7 @@ latinSequence:
       candidateCount = 0;
     }
     else if (parameters->language == 0x12) {
-      if ((parameters->elementCount == 0) || (0xeff0 < parameters->elements[0])) {
+      if ((parameters->elementCount == 0) || (parameters->elements[0] >= 0xeff1)) {
         candidateCount = Zi8GetKOcandidates(parameters,options,ZI_WORK);
       }
       else {
@@ -512,29 +519,27 @@ latinSequence:
     else if ((parameters->language == 1) &&
             ((((parameters->getOptions & 0xbf) == 4 && (parameters->elementCount != 0)) &&
              ((ziU8)Zi8IsCharacter(parameters->elements[0],ZI_WORK) != 0)))) {
-      elementCount = Zi8GetCharInfo(parameters->elements[0],characterInfo,0x10,1,ZI_WORK);
-      if (elementCount == 0) {
-        parameters->unk_0x20 = 0;
-        parameters->count = 0;
-        parameters->letters = 0;
+      saved.convertedElementCount = Zi8GetCharInfo(parameters->elements[0],characterInfo,0x10,1,ZI_WORK);
+      if (saved.convertedElementCount == 0) {
+        parameters->letters = parameters->count = parameters->unk_0x20 = 0;
         candidateCount = 0;
         error = 900;
       }
       else {
-        lastInfoCharacter = characterInfo[elementCount - 1];
-        if ((0xf330 < lastInfoCharacter) && (lastInfoCharacter < 0xf336)) {
-          characterInfo[elementCount - 1] = 0xf360;
+        saved.lastInfoCharacter = characterInfo[saved.convertedElementCount - 1];
+        if ((saved.lastInfoCharacter >= 0xf331) && (saved.lastInfoCharacter <= 0xf335)) {
+          characterInfo[saved.convertedElementCount - 1] = 0xf360;
         }
-        savedElements = parameters->elements;
+        saved.savedElements = parameters->elements;
         parameters->elements = characterInfo;
-        savedElementCount = parameters->elementCount;
-        parameters->elementCount = elementCount;
-        elementCount = parameters->getMode;
+        saved.savedElementCount = parameters->elementCount;
+        parameters->elementCount = saved.convertedElementCount;
+        saved.savedGetMode = parameters->getMode;
         parameters->getMode = 1;
         candidateCount = Zi8GetChineseCandidates(parameters,options,ZI_WORK);
-        parameters->elements = savedElements;
-        parameters->elementCount = savedElementCount;
-        parameters->getMode = elementCount;
+        parameters->elements = saved.savedElements;
+        parameters->elementCount = saved.savedElementCount;
+        parameters->getMode = saved.savedGetMode;
         parameters->count = 1;
       }
     }
@@ -543,26 +548,21 @@ latinSequence:
       candidateCount = 0;
     }
     else if ((parameters->language == 1) && ((parameters->getMode == 3 || (parameters->getMode == 4)))) {
-      if ((parameters->getOptions & 0x80) == 0) {
-        if (parameters->elementCount == 0) {
-          candidateCount = Zi8GetChineseCandidates(parameters,options,ZI_WORK);
-        }
-        else {
-          candidateCount = Zi8Get1KeyPressCandidates(parameters,options,ZI_WORK);
-        }
-      }
-      else {
+      if ((parameters->getOptions & 0x80) != 0) {
         candidateCount = Zi8Get1KeyPressSpelling(parameters,options,ZI_WORK);
+      } else if (parameters->elementCount == 0) {
+        candidateCount = Zi8GetChineseCandidates(parameters,options,ZI_WORK);
+      } else {
+        candidateCount = Zi8Get1KeyPressCandidates(parameters,options,ZI_WORK);
       }
     }
     else if ((parameters->language == 1) &&
             ((((parameters->getMode == 7 || (parameters->getMode == 8)) || (parameters->getMode == 10)) || (parameters->getMode == 9)))) {
-      if (ZI_WORK->unk_0x16 == '\0') {
+      if (ZI_WORK->unk_0x16 != '\0') {
+        candidateCount = Zi8GetChineseCandidates(parameters,options,ZI_WORK);
+      } else {
         error = 0x708;
         candidateCount = 0;
-      }
-      else {
-        candidateCount = Zi8GetChineseCandidates(parameters,options,ZI_WORK);
       }
     }
     else if ((parameters->language == 1) && ((parameters->getMode == 0xb || (parameters->getMode == 0xe)))) {
@@ -575,52 +575,45 @@ latinSequence:
          && (((parameters->elements[parameters->elementCount - 1] == 0xF37A ||
               (parameters->elements[parameters->elementCount - 1] == 0xF363)) ||
              (parameters->elements[parameters->elementCount - 1] == 0xF373)))) {
-        savedCharacter = parameters->elements[parameters->elementCount];
-        elementCount = parameters->elementCount;
-        parameters->elements[elementCount] = 0xf368;
-        parameters->elementCount = elementCount + 1;
+        saved.savedCharacter = parameters->elements[parameters->elementCount];
+        parameters->elements[parameters->elementCount++] = 0xf368;
         candidateCount = Zi8GetChineseCandidates(parameters,options,ZI_WORK);
-        elementCount = parameters->elementCount;
-        parameters->elementCount = elementCount - 1;
-        parameters->elements[(ziU8)(elementCount - 1)] = savedCharacter;
+        parameters->elements[--parameters->elementCount] = saved.savedCharacter;
       }
     }
     else {
       ZI_WORK->unk_0x538 = parameters->language;
-      restoreCandidates = (parameters->getOptions & 0x80) == 0;
-      if (restoreCandidates) {
-        savedOptions = parameters->getOptions;
-        savedCandidates = parameters->candidates;
-        parameters->getOptions = parameters->getOptions | 0x81;
+      if ((parameters->getOptions & 0x80) == 0) {
+        saved.restoreCandidates = 1;
+        saved.savedOptions = parameters->getOptions;
+        saved.savedCandidates = parameters->candidates;
+        parameters->getOptions |= 0x81;
         parameters->candidates = (ziWChar*)&ZI_WORK->unk_0x338;
         options->capacity = 0x100;
       }
       if (parameters->getMode == 2) {
-        candidateCount = Zi8GetTableCount(parameters->language,0x1f,ZI_WORK);
-        if ((candidateCount & 0x200) == 0) {
+        if ((Zi8GetTableCount(parameters->language,0x1f,ZI_WORK) & 0x200) != 0) {
+          candidateCount = Zi8GetSyllablesCandidates(parameters,options,ZI_WORK);
+        } else {
           error = 0x44c;
           candidateCount = 0;
-        }
-        else {
-          candidateCount = Zi8GetSyllablesCandidates(parameters,options,ZI_WORK);
         }
       }
       else {
         candidateCount = Zi8AlphaGetCandidates(parameters,options,ZI_WORK);
       }
     }
-    if (restoreCandidates) {
-      parameters->getOptions = savedOptions;
-      parameters->candidates = savedCandidates;
-      for (elementCount = 0; elementCount < parameters->letters; elementCount = elementCount + 1) {
-        parameters->candidates[elementCount] = elementCount - 0x10;
+    if (saved.restoreCandidates) {
+      parameters->getOptions = saved.savedOptions;
+      parameters->candidates = saved.savedCandidates;
+      for (outputIndex = 0; outputIndex < parameters->letters; outputIndex++) {
+        parameters->candidates[outputIndex] = 0xFFF0 + outputIndex;
       }
     }
     if (error != 0) {
       Zi8LogError(error,ZI_WORK);
     }
   }
-finishCandidates:
   return candidateCount;
 }
 

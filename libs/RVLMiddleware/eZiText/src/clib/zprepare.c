@@ -8,17 +8,7 @@ ziU16 Zi8GetTableCount(ziU8, ziU8 ZI_NEED_WORK);
 ziU8 Zi8GetPyPhonetic(ziWChar*, ziU8, ziWChar*, ziWChar*, ziU8*, ziWChar*, ziWChar* ZI_NEED_WORK);
 ziU8 Zi8GetBpmfPhonetic(ziWChar*, ziU8, ziWChar*, ziWChar*, ziWChar*, ziWChar* ZI_NEED_WORK);
 
-ziBool Zi8PrepareMatch(ziGetParam* request, ziMatchParam* match, ziU8 skipMode ZI_NEED_WORK)
-
-{
-  ziU8 masks[12];
-  ziU8 strokes[12];
-  ziU8* component;
-  ziU8* componentIndex;
-  ziU8 strokePrefix[4];
-  ziU8 maskPrefix[4];
-  ziU8* phoneticTable;
-  ziWChar* phoneticInput;
+ziBool Zi8PrepareMatch(ziGetParam* request, ziMatchParam* match, ziU8 skipMode ZI_NEED_WORK) {
   ziU16 element;
   ziU16 phoneticCount;
   ziU16 phoneticInitial;
@@ -29,13 +19,24 @@ ziBool Zi8PrepareMatch(ziGetParam* request, ziMatchParam* match, ziU8 skipMode Z
   ziWChar final;
   ziWChar bestInitial;
   ziWChar bestFinal;
-  ziWChar previousFinal;
   ziWChar previousInitial;
+  ziWChar previousFinal;
   ziU8 elementCount;
   ziU8 elementIndex;
   ziU8 stroke;
   ziU8 contextMask;
   ziU8 mode;
+  ziU8 savedNibbles;
+  struct {
+    ziWChar* phoneticInput;
+    ziU8* phoneticTable;
+    ziU8 strokePrefix[4];
+    ziU8 maskPrefix[4];
+    ziU8* componentIndex;
+    ziU8* component;
+    ziU8 strokes[12];
+    ziU8 masks[12];
+  } buffers;
   ziU8 nibbles;
   ziU8 index;
 
@@ -60,12 +61,12 @@ ziBool Zi8PrepareMatch(ziGetParam* request, ziMatchParam* match, ziU8 skipMode Z
     match->comp = element = request->elements[0];
     if (Zi8IsComponent(element,__zi8_work_data) != 0) {
       elementIndex++;
-      component = (ziU8*)Zi8GetTableAddress(1,2,__zi8_work_data);
-      componentIndex = (ziU8*)Zi8GetTableAddress(1,6,__zi8_work_data);
-      componentIndex += (element - 0xef10) * 2;
-      match->field22 = (((ziU16)componentIndex[1] & 0x3f) << 8) + *componentIndex;
-      component += (ziU32)match->field22 * 8;
-      switch(*component & 0xf) {
+      buffers.component = (ziU8*)Zi8GetTableAddress(1,2,__zi8_work_data);
+      buffers.componentIndex = (ziU8*)Zi8GetTableAddress(1,6,__zi8_work_data);
+      buffers.componentIndex += (element - 0xef10) * 2;
+      match->field22 = (((ziU16)buffers.componentIndex[1] & 0x3f) << 8) + *buffers.componentIndex;
+      buffers.component += (ziU32)match->field22 * 8;
+      switch(*buffers.component & 0xf) {
       case 0:
       case 9:
       case 10:
@@ -96,18 +97,18 @@ ziBool Zi8PrepareMatch(ziGetParam* request, ziMatchParam* match, ziU8 skipMode Z
       case 8:
         match->comp = 0xEF00 + 2;
       }
-      for (index = 0; index < (component[5] >> 1) + 1; index++) {
+      for (index = 0; index < (buffers.component[5] >> 1) + 1; index++) {
         if (index < 4) {
-          match->arrD[index] = component[index];
+          match->arrD[index] = buffers.component[index];
           match->arr1[index] = 0xff;
         }
       }
-      if ((index != 0) && ((component[5] & 1) == 0)) {
+      if ((index != 0) && ((buffers.component[5] & 1) == 0)) {
         index--;
         match->arrD[index] &= 0xf0;
         match->arr1[index] = match->arr1[index] & 0xf0;
       }
-      nibbles = (ziU8)(component[5] + 1);
+      nibbles = (ziU8)(buffers.component[5] + 1);
       if (8 < nibbles) {
         nibbles++;
       }
@@ -117,18 +118,12 @@ ziBool Zi8PrepareMatch(ziGetParam* request, ziMatchParam* match, ziU8 skipMode Z
   match->arrD[0] &= 0xf;
   if (skipMode == '\0') {
     mode = 0;
-    if (((request->subLanguage & 0x80) == 0) && ((request->subLanguage & 0x40) == 0)) {
-      if ((request->subLanguage & 8) == 0) {
-        if (((request->subLanguage & 0x20) != 0) || ((request->subLanguage & 0x10) != 0)) {
-          mode = 2;
-        }
-      }
-      else {
-        mode = 4;
-      }
-    }
-    else {
+    if ((request->subLanguage & 0x80) != 0 || (request->subLanguage & 0x40) != 0) {
       mode = 1;
+    } else if ((request->subLanguage & 8) != 0) {
+      mode = 4;
+    } else if ((request->subLanguage & 0x20) != 0 || (request->subLanguage & 0x10) != 0) {
+      mode = 2;
     }
     if (mode == 0) {
       mode = request->subLanguage;
@@ -147,8 +142,8 @@ ziBool Zi8PrepareMatch(ziGetParam* request, ziMatchParam* match, ziU8 skipMode Z
   }
   if (((request->getMode == '\0') || (request->getMode == '\x10')) ||
      (request->getMode == '\x05')) {
-    Zi8Memcpy(masks,match->arr1,0xc);
-    Zi8Memcpy(strokes,match->arrD,0xc);
+    Zi8Memcpy(buffers.masks,match->arr1,0xc);
+    Zi8Memcpy(buffers.strokes,match->arrD,0xc);
     do {
       while (elementIndex < elementCount) {
         element = request->elements[elementIndex++];
@@ -175,70 +170,71 @@ ziBool Zi8PrepareMatch(ziGetParam* request, ziMatchParam* match, ziU8 skipMode Z
           nibbles++;
         }
         if ((nibbles & 1) != 0) {
-          strokes[nibbles >> 1] = strokes[nibbles >> 1] | stroke;
+          buffers.strokes[nibbles >> 1] = buffers.strokes[nibbles >> 1] | stroke;
           if (element == 0xef0b) {
-            masks[nibbles >> 1] = masks[nibbles >> 1] | 8;
+            buffers.masks[nibbles >> 1] = buffers.masks[nibbles >> 1] | 8;
           }
           else if (element == 0xef0a) {
-            masks[nibbles >> 1] = masks[nibbles >> 1] | 4;
+            buffers.masks[nibbles >> 1] = buffers.masks[nibbles >> 1] | 4;
           }
           else if (element != 0xef00) {
-            masks[nibbles >> 1] = masks[nibbles >> 1] | 7;
+            buffers.masks[nibbles >> 1] = buffers.masks[nibbles >> 1] | 7;
           }
                 } else {
-          strokes[nibbles >> 1] = strokes[nibbles >> 1] | (ziU8)(stroke << 4);
+          buffers.strokes[nibbles >> 1] = buffers.strokes[nibbles >> 1] | (ziU8)(stroke << 4);
           if (element == 0xef0b) {
-            masks[nibbles >> 1] = masks[nibbles >> 1] | 0x80;
+            buffers.masks[nibbles >> 1] = buffers.masks[nibbles >> 1] | 0x80;
           }
           else if (element == 0xef0a) {
-            masks[nibbles >> 1] = masks[nibbles >> 1] | 0x40;
+            buffers.masks[nibbles >> 1] = buffers.masks[nibbles >> 1] | 0x40;
           }
           else if (element != 0xef00) {
-            masks[nibbles >> 1] = masks[nibbles >> 1] | 0x70;
+            buffers.masks[nibbles >> 1] = buffers.masks[nibbles >> 1] | 0x70;
           }
-                }
+        }
         nibbles++;
       }
+      savedNibbles = nibbles;
       for (index = 0; index < 4; index++) {
-        maskPrefix[index] = masks[index];
-        strokePrefix[index] = strokes[index];
+        buffers.maskPrefix[index] = buffers.masks[index];
+        buffers.strokePrefix[index] = buffers.strokes[index];
       }
       if ((1 < nibbles) && (nibbles < 8)) {
-        if ((nibbles & 1) == 0) {
-          maskPrefix[nibbles >> 1] = maskPrefix[nibbles >> 1] | 0xf0;
-          strokePrefix[nibbles >> 1] = strokePrefix[nibbles >> 1] | 0xf0;
-        }
-        else {
-          maskPrefix[nibbles >> 1] = maskPrefix[nibbles >> 1] | 0xf;
-          strokePrefix[nibbles >> 1] = strokePrefix[nibbles >> 1] | 0xf;
+        index = nibbles >> 1;
+        if ((nibbles & 1) != 0) {
+          buffers.maskPrefix[index] = buffers.maskPrefix[index] | 0xf;
+          buffers.strokePrefix[index] = buffers.strokePrefix[index] | 0xf;
+        } else {
+          buffers.maskPrefix[index] = buffers.maskPrefix[index] | 0xf0;
+          buffers.strokePrefix[index] = buffers.strokePrefix[index] | 0xf0;
         }
       }
       if (match->nSeg == 0) {
-        Zi8Memcpy(match->arr1,masks,0xc);
-        Zi8Memcpy(match->arrD,strokes,0xc);
-        Zi8Memcpy(match->arr19,maskPrefix,4);
-        Zi8Memcpy(match->arr1D,strokePrefix,4);
-        match->length = nibbles;
+        Zi8Memcpy(match->arr1,buffers.masks,0xc);
+        Zi8Memcpy(match->arrD,buffers.strokes,0xc);
+        Zi8Memcpy(match->arr19,buffers.maskPrefix,4);
+        Zi8Memcpy(match->arr1D,buffers.strokePrefix,4);
+        match->length = savedNibbles;
       }
-      Zi8Memcpy(match->segs1 + match->nSeg * 12,masks,0xc);
-      Zi8Memcpy(match->segsD + match->nSeg * 12,strokes,0xc);
+      Zi8Memcpy((ziU8 (*)[12])match->segs1 + match->nSeg,buffers.masks,0xc);
+      Zi8Memcpy((ziU8 (*)[12])match->segsD + match->nSeg,buffers.strokes,0xc);
       match->nSeg++;
       if (((stroke != 0xff) || (elementCount <= elementIndex)) || (0xf < match->nSeg)) goto complete;
-      Zi8Memset(masks,0,0xc);
-      Zi8Memset(strokes,0,0xc);
-      masks[0] = match->arr1[0] & 0xf0;
-      strokes[0] = match->arrD[0] & 0xf0;
+      Zi8Memset(buffers.masks,0,0xc);
+      Zi8Memset(buffers.strokes,0,0xc);
+      buffers.masks[0] = match->arr1[0] & 0xf0;
+      buffers.strokes[0] = match->arrD[0] & 0xf0;
       nibbles = 1;
     } while (1);
   }
   match->length = nibbles;
   if (elementCount != 0) {
     if ((request->getMode == '\x01') || (request->getMode == '\f')) {
-      phoneticTable = (ziU8*)Zi8GetTableAddress(1,3,__zi8_work_data);
+      buffers.phoneticTable = (ziU8*)Zi8GetTableAddress(1,3,__zi8_work_data);
       phoneticCount = Zi8GetTableCount(1,3,__zi8_work_data);
     }
     else {
-      phoneticTable = (ziU8*)Zi8GetTableAddress(1,4,__zi8_work_data);
+      buffers.phoneticTable = (ziU8*)Zi8GetTableAddress(1,4,__zi8_work_data);
       phoneticCount = Zi8GetTableCount(1,4,__zi8_work_data);
     }
     if ((request->getMode == '\x01') || (request->getMode == '\f')) {
@@ -252,16 +248,16 @@ ziBool Zi8PrepareMatch(ziGetParam* request, ziMatchParam* match, ziU8 skipMode Z
       bestFinal = 0;
       previousInitial = 0;
       previousFinal = 0;
-      phoneticInput = request->elements;
+      buffers.phoneticInput = request->elements;
       match->nCand = 0;
       request->count = request->elementCount;
       phoneticLength = 1;
       for (index = 0; index < elementCount; index++) {
-        if (Zi8GetBpmfPhonetic(phoneticInput,phoneticLength & 0xff,&initial,&final,&bestInitial,&bestFinal,
+        if (Zi8GetBpmfPhonetic(buffers.phoneticInput,phoneticLength,&initial,&final,&bestInitial,&bestFinal,
                               __zi8_work_data) == 0) {
           if ((index == 0) ||
-             ((((1 < phoneticLength && (phoneticInput[phoneticLength - 2] == 0xF360)) &&
-               (phoneticInput[phoneticLength - 1] == 0xF360)) ||
+             ((((1 < phoneticLength && (buffers.phoneticInput[phoneticLength - 2] == 0xF360)) &&
+               (buffers.phoneticInput[phoneticLength - 1] == 0xF360)) ||
               (++match->nCand == 0x10)))) {
             initial = 0xffff;
             final = 0xffff;
@@ -270,7 +266,7 @@ ziBool Zi8PrepareMatch(ziGetParam* request, ziMatchParam* match, ziU8 skipMode Z
             match->nCand = 0;
             break;
           }
-          if (phoneticInput[phoneticLength - 1] == 0xF360) {
+          if (buffers.phoneticInput[phoneticLength - 1] == 0xF360) {
             match->nCand--;
             bestInitial = previousInitial;
             bestFinal = previousFinal;
@@ -279,9 +275,9 @@ ziBool Zi8PrepareMatch(ziGetParam* request, ziMatchParam* match, ziU8 skipMode Z
             goto savePhonetic;
           }
           if (match->nCand == 1) {
-            request->count = (ziS8)phoneticLength + -1;
+            request->count = phoneticLength - 1;
           }
-          phoneticInput = phoneticInput + phoneticLength - 1;
+          buffers.phoneticInput += phoneticLength - 1;
           phoneticLength = 0;
           index--;
         }
@@ -326,11 +322,9 @@ savePhonetic:
       }
       phoneticInitial = phoneticInitial & 0xfff8;
       phoneticMask = phoneticMask & 0xfff8;
-      phoneticLength = 0;
-      while ((phoneticLength < phoneticCount &&
-             (phoneticCode = (phoneticTable[phoneticLength * 2 + 1] << 8) | phoneticTable[phoneticLength * 2],
-             phoneticMask != (phoneticCode & phoneticInitial)))) {
-        phoneticLength++;
+      for (phoneticLength = 0; phoneticLength < phoneticCount; phoneticLength++) {
+        phoneticCode = (buffers.phoneticTable[phoneticLength * 2 + 1] << 8) | buffers.phoneticTable[phoneticLength * 2];
+        if (phoneticMask == (phoneticCode & phoneticInitial)) break;
       }
       if (phoneticLength == phoneticCount) {
         match->phon[0] = 0xFFFF;
