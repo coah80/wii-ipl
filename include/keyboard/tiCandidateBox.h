@@ -48,6 +48,9 @@ namespace textinput {
 
         class CandidateBoxCaller {
         public:
+#ifdef TIINPUTFORM_IMPLEMENTATION
+            CandidateBoxCaller() : mpCandidateBox(NULL) {}
+#endif
             // This candidate thing is a bit different from the dwarf
             class Candidates {
             public:

@@ -54,6 +54,10 @@ namespace textinput {
     class CommandSender;
     class CommandReceiver : public Base {
         public:
+#ifdef TIINPUTFORM_IMPLEMENTATION
+            CommandReceiver() { clearSender(); }
+            virtual ~CommandReceiver();
+#endif
 #if defined(MYTIINPUTFORM_IMPLEMENTATION) || defined(TIINPUTFORM_IMPLEMENTATION)
             struct Scroll {
                 bool absY;

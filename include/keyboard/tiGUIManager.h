@@ -92,6 +92,9 @@ namespace textinput {
                 EVENT_RELEASE
             };
 
+#ifdef TIINPUTFORM_IMPLEMENTATION
+            virtual void init();
+#else
             virtual void init() {  // 0x10
                 for (int i = 0; i < GUI_POINTS_MAX; i++) {
                     mbPointed[i] = false;
@@ -100,6 +103,7 @@ namespace textinput {
                     mFlightDuration[i] = 0;
                 }
             }
+#endif
 
             GUIComponent(u32 id)
                 : GUIInterface(), mbInitialize(false), mDraggingButton(0xFFFF), mID(id), mbTriggerTarget(false), mpManager(NULL), mpListener(NULL) {

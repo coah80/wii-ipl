@@ -3,6 +3,9 @@
 
 #include <revolution/types.h>
 #include <revolution/mem/allocator.h>
+#ifdef TIINPUTFORM_IMPLEMENTATION
+#include <revolution/kpr.h>
+#endif
 
 namespace textinput {
     namespace tistring {
@@ -58,8 +61,15 @@ namespace textinput {
         };
 
         class KanaStream {
+#ifdef TIINPUTFORM_IMPLEMENTATION
+        public:
+            KPRQueue mQueue;
+            wchar_t mPending;
+            wchar_t mOutput[5];
+#else
         private:
             u8 field_0x00[0x24];
+#endif
         };
 
         class Decolated : public StringBase {
@@ -71,6 +81,7 @@ namespace textinput {
 #endif
 
 #ifdef TIINPUTFORM_IMPLEMENTATION
+            virtual ~Decolated();
             enum TranslateMode { TM_Direct, TM_Kana, TM_Roman, TM_Hangul };
             virtual void clear();
             virtual void set(const wchar_t* string);
@@ -168,6 +179,8 @@ namespace textinput {
 #ifdef TIINPUTFORM_IMPLEMENTATION
         class WithAtok : public Decolated {
         public:
+            WithAtok(u16 maxLength) : Decolated(maxLength) {}
+            virtual ~WithAtok();
             virtual void pushBack(wchar_t ch);
             virtual void popBack();
             virtual void inputChar(wchar_t ch);
@@ -210,7 +223,7 @@ namespace textinput {
             virtual void setFixPrediction(int count, const char** predictions);
             virtual void setDefaultPrediction(int count, const char** predictions);
             virtual s16 getSelectedConverting();
-            virtual s16 getFixedPredictionNum();
+            virtual s32 getFixedPredictionNum();
         };
 #else
         class WithAtok : public StringBase {};

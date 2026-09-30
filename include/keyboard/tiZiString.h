@@ -13,6 +13,10 @@ namespace textinput {
         public:
             enum PredictLanguage { PL_Default };
             enum LetterMode { LM_Lower, LM_Normal, LM_Upper };
+            WithZi(u16 maxLength) : Decolated(maxLength), mbDictionaryOpen(false), mbContextChanged(false),
+                mCurrentWordLength(0), mpDictionaries(NULL), mpDictionaryWork(NULL), mInputLength(0),
+                mCandidateCount(0), mOemDictionaryId(0), mDictionaryLanguage(0xff), mSelectedCandidate(0),
+                mPredictLanguage(0), mLetterMode(2), mpHoldingKey(NULL), mbKoreanPartialConfirm(false) {}
             virtual ~WithZi();
             virtual void init();
             virtual void setInputting(wchar_t ch);
@@ -33,7 +37,7 @@ namespace textinput {
             void setCurrentWord(const wchar_t* string);
             void update();
             const wchar_t* getCurrentInput();
-            void getCurrentInput(wchar_t* buffer, u32 length);
+            s32 getCurrentInput(wchar_t* buffer, u32 length);
             void clearCandidates();
             void partialConfirmForKR();
         private:
@@ -52,6 +56,7 @@ namespace textinput {
             u32 mPredictLanguage;
             u32 mLetterMode;
             void* mpHoldingKey;
+            bool mbKoreanPartialConfirm;
         };
 #else
         class WithZi {

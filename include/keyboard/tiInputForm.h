@@ -17,21 +17,24 @@
 extern "C" wchar_t KPRGetChar(KPRQueue* queue);
 extern "C" void KPRPutChar(KPRQueue* queue, wchar_t character);
 extern "C" void KPRClearQueue(KPRQueue* queue);
+extern "C" void KPRInitRegionUS();
 extern "C" u8 KPRLookAhead(KPRQueue* queue, wchar_t* character, wchar_t* combining);
 #endif
 
 namespace textinput {
     namespace inputform {
 #ifdef TIINPUTFORM_IMPLEMENTATION
+        class Base;
         class EventHandler;
         class LayoutByNW4R;
 #endif
         class EditBuffer {
 #ifdef TIINPUTFORM_IMPLEMENTATION
             friend class LayoutByNW4R;
+            friend class Base;
 #endif
             public:
-#ifdef MYTIMANAGER_IMPLEMENTATION
+#if defined(MYTIMANAGER_IMPLEMENTATION) || defined(TIINPUTFORM_IMPLEMENTATION)
                 void create(MEMAllocator* allocator);
 #endif
 #ifdef TIINPUTFORM_IMPLEMENTATION
@@ -50,9 +53,11 @@ namespace textinput {
         class DeadKeyStream {
 #if defined(TIINPUTFORM_IMPLEMENTATION)
         public:
+            DeadKeyStream() { KPRInitRegionUS(); init(); }
             static wchar_t ToCombineClass(Language language, wchar_t code);
             static wchar_t ToIndependentClass(wchar_t code);
             inline wchar_t getChar();
+            void init();
             u8 lookAhead() { return KPRLookAhead(&mKPRQueue, NULL, NULL); }
             void putChar(wchar_t character) { KPRPutChar(&mKPRQueue, character); }
             bool isEmpty() const { return mKPRQueue.oCount == 0; }
@@ -114,7 +119,9 @@ namespace textinput {
                 class RowInfoManager {
 #ifdef TIINPUTFORM_IMPLEMENTATION
                     friend class LayoutByNW4R;
+                    friend class Base;
                 public:
+                    RowInfoManager(u16 maxLength) : mpInfo(NULL), mMaxLength(maxLength), mpAllocator(NULL) {}
                     void init();
                     ~RowInfoManager();
 #endif
@@ -133,6 +140,7 @@ namespace textinput {
                 void setCursorPos(tistring::Decolated* string, u32 pos);
                 void calcCursorTimer();
                 bool isAtokActive() const;
+                bool isVacancy() const;
                 void dirtyCacheAll();
                 tistring::Decolated* getCurrentString(bool inputting);
                 void moveCandidateToIdx(s32 index);
@@ -341,6 +349,9 @@ namespace textinput {
 
                 virtual nw4r::math::VEC2    getScale() const;
 
+#ifdef TIINPUTFORM_IMPLEMENTATION
+                void updateRepeatInput(u32 trig, u32 hold);
+#endif
                 virtual void                updateInputCommon(int chan, u32 trig, u32 hold, u32 release, void* data);
                 virtual bool                updateInput(int chan, f32 x, f32 y, u32 trig, u32 hold, u32 release, void* data);
                 virtual bool                updateInput(textinput::input::HKBManager& hkbManager);
