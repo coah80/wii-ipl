@@ -134,7 +134,15 @@ namespace ipl {
             VEC3& operator/=(f32 val) { return operator*=(1.f / val); }
             VEC3 operator+(const VEC3& rhs) const { return VEC3(x + rhs.x, y + rhs.y, z + rhs.z); }
             VEC3 operator+(f32 v) const { return VEC3(x + v, y + v, z + v); }
+#ifdef IPL_SD_CHANNEL_SELECT_CPP
+            nw4r::math::VEC3 operator-(const VEC3& rhs) const {
+                nw4r::math::VEC3 difference;
+                nw4r::math::VEC3Sub(&difference, this, &rhs);
+                return difference;
+            }
+#else
             VEC3 operator-(const VEC3& rhs) const { return VEC3(x - rhs.x, y - rhs.y, z - rhs.z); }
+#endif
             VEC3 operator*(f32 val) const { return VEC3(x * val, y * val, z * val); }
             VEC3 operator*(f64 val) const {
                 nw4r::math::VEC3 vecOut;

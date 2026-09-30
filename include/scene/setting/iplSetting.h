@@ -41,8 +41,13 @@ namespace ipl {
 
         struct SettingAPScanList {
             u8 unknown[0x14];
-            u16 count;
-            u8 entries[0x7fe];
+            union {
+                struct {
+                    u16 count;
+                    u8 entries[0x7fe];
+                };
+                u8 recordBuffer[0x800];
+            };
             union {
                 WDBssDesc_* currentDescriptor;
                 u16* currentDescriptorWords;

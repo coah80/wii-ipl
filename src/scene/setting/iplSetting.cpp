@@ -124,7 +124,7 @@ namespace ipl {
             wchar_t wrappedLine[17];
         };
 
-        static const SettingAnimationBinding sSettingAnimationBindings[] = {
+        static const SettingAnimationBinding scAnmTable[] = {
             {0, 2},  {0, 3},  {1, 2},  {1, 3},  {2, 2},  {2, 3},  {3, 2},  {3, 3},  {4, 2},  {4, 3},
             {5, 0},  {6, 0},  {7, 8},  {7, 9},  {7, 10}, {7, 11}, {8, 8},  {8, 9},  {8, 10}, {8, 11},
             {9, 1},  {10, 1}, {11, 14}, {11, 15}, {11, 16}, {11, 17}, {11, 18}, {11, 19}, {12, 14}, {12, 15},
@@ -347,7 +347,7 @@ namespace ipl {
             mpMainLayout = new layout::Object(getSceneHeap(), mpSettingLayoutFile, "arc", "my_AP_a.brlyt");
             for (int index = 0; index < 58; index++) {
                 bool initialAnimation = index == 20 || index == 10;
-                const SettingAnimationBinding& binding = sSettingAnimationBindings[index];
+                const SettingAnimationBinding& binding = scAnmTable[index];
                 const char* animation = sSettingAPAnimations[binding.animation];
                 const char* pane = sSettingAPPaneNames[binding.pane];
                 mpMainLayout->bindToGroup(animation, pane, false, initialAnimation);
@@ -2727,17 +2727,17 @@ namespace ipl {
                     layout::Animator* animation = mpMainLayout->getAnim(2);
                     animation->initFrame();
                     animation->restart();
-                    mpMainLayout->FindPaneByName(sSettingAPPaneNames[0])->SetVisible(false);
+                    mpMainLayout->FindPaneByName(sSettingArrowNames[0])->SetVisible(false);
                     for (int point = 0; point < 8; ++point) {
                         mpPaneManager->getPaneComponentByPane(
-                            mpMainLayout->FindPaneByName(sSettingAPPaneNames[0]))->setPointed(point, false);
+                            mpMainLayout->FindPaneByName(sSettingArrowNames[0]))->setPointed(point, false);
                     }
                 }
                 if (mAPScanList.count == unk_0x914 + 5) {
                     layout::Animator* animation = mpMainLayout->getAnim(1);
                     animation->initFrame();
                     animation->restart();
-                    mpMainLayout->FindPaneByName(sSettingAPPaneNames[1])->SetVisible(true);
+                    mpMainLayout->FindPaneByName(sSettingArrowNames[1])->SetVisible(true);
                 }
             } else {
                 ++unk_0x914;
@@ -2745,23 +2745,25 @@ namespace ipl {
                     layout::Animator* animation = mpMainLayout->getAnim(3);
                     animation->initFrame();
                     animation->restart();
-                    mpMainLayout->FindPaneByName(sSettingAPPaneNames[1])->SetVisible(false);
+                    mpMainLayout->FindPaneByName(sSettingArrowNames[1])->SetVisible(false);
                     for (int point = 0; point < 8; ++point) {
                         mpPaneManager->getPaneComponentByPane(
-                            mpMainLayout->FindPaneByName(sSettingAPPaneNames[1]))->setPointed(point, false);
+                            mpMainLayout->FindPaneByName(sSettingArrowNames[1]))->setPointed(point, false);
                     }
                 }
                 if (unk_0x914 == 1) {
                     layout::Animator* animation = mpMainLayout->getAnim(0);
                     animation->initFrame();
                     animation->restart();
-                    mpMainLayout->FindPaneByName(sSettingAPPaneNames[0])->SetVisible(true);
+                    mpMainLayout->FindPaneByName(sSettingArrowNames[0])->SetVisible(true);
                 }
             }
             mpMainLayout->getAnim(10)->stop();
             mpMainLayout->getAnim(11)->stop();
-            unk_0x918 = unk_0x91C[0] + 10;
-            layout::Animator* animation = mpMainLayout->getAnim(unk_0x918);
+            int scrollDirection = unk_0x91C[0];
+            layout::Object* scrollLayout = mpMainLayout;
+            unk_0x918 = scrollDirection + 10;
+            layout::Animator* animation = scrollLayout->getAnim(unk_0x918);
             animation->initFrame();
             animation->restart();
         }
@@ -2776,44 +2778,45 @@ namespace ipl {
             };
             int recordOffset = 2;
             for (int index = 0; index <= mAPScanList.count; ++index) {
-                WDBssDesc_* descriptor = mAPScanList.currentDescriptor;
-                int recordLength = descriptor->length * 2;
-                recordOffset += recordLength;
+                recordOffset += mAPScanList.currentDescriptor->length * 2;
                 if (recordOffset > 0x800) {
                     return;
                 }
                 mpMainLayout->getAnim(10)->stop();
                 mpMainLayout->getAnim(11)->stop();
-                u8 privacyMode = static_cast<u8>(WDGetPrivacyMode(descriptor));
+                u8 privacyMode = static_cast<u8>(WDGetPrivacyMode(mAPScanList.currentDescriptor));
                 char ssid[0x21];
                 wchar_t displayName[0x21];
-                memcpy(ssid, descriptor->ssid, 0x20);
+                memcpy(ssid, mAPScanList.currentDescriptor->ssid, 0x20);
                 ssid[0x20] = 0;
                 memset(displayName, 0, sizeof(displayName));
                 int row = index + 1 - unk_0x914;
                 if (row >= 0 && row <= 5) {
-                    utility::CharacterCode::UTF8ToUTF16(displayName, ssid, 0x21);
-                    nw4r::lyt::TextBox* textBox = static_cast<nw4r::lyt::TextBox*>(
+                    nw4r::lyt::TextBox* textBox = nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(
                         mpMainLayout->FindPaneByName(sSettingAPTextNames[row]));
+                    utility::CharacterCode::UTF8ToUTF16(displayName, ssid, 0x21);
                     textBox->SetString(displayName);
                     if (privacyMode == 0) {
-                        mpMainLayout->getAnim(row + APPrivacyOpenAnimation)->initFrame();
-                        mpMainLayout->getAnim(row + APPrivacyOpenAnimation)->restart();
+                        layout::Animator* selectedAnimation = mpMainLayout->getAnim(row + APPrivacyOpenAnimation);
+                        selectedAnimation->initFrame();
+                        selectedAnimation->restart();
                         mpMainLayout->getAnim(row + APPrivacyProtectedAnimation)->stop();
                     } else {
-                        mpMainLayout->getAnim(row + APPrivacyProtectedAnimation)->initFrame();
-                        mpMainLayout->getAnim(row + APPrivacyProtectedAnimation)->restart();
+                        layout::Animator* selectedAnimation = mpMainLayout->getAnim(row + APPrivacyProtectedAnimation);
+                        selectedAnimation->initFrame();
+                        selectedAnimation->restart();
                         mpMainLayout->getAnim(row + APPrivacyOpenAnimation)->stop();
                     }
-                    for (int animation = row + APSignalAnimationBase;
-                         animation <= row + APSignalAnimationEnd; animation += 6) {
-                        mpMainLayout->getAnim(animation)->stop();
-                    }
-                    int signal = getRadioLevel(descriptor);
-                    mpMainLayout->getAnim(row + signal * 6 + APSignalAnimationBase)->initFrame();
-                    mpMainLayout->getAnim(row + signal * 6 + APSignalAnimationBase)->restart();
+                    mpMainLayout->getAnim(row + APSignalAnimationBase + 0)->stop();
+                    mpMainLayout->getAnim(row + APSignalAnimationBase + 6)->stop();
+                    mpMainLayout->getAnim(row + APSignalAnimationBase + 12)->stop();
+                    mpMainLayout->getAnim(row + APSignalAnimationBase + 18)->stop();
+                    u8 signal = getRadioLevel(mAPScanList.currentDescriptor);
+                    layout::Animator* selectedAnimation = mpMainLayout->getAnim(row + signal * 6 + APSignalAnimationBase);
+                    selectedAnimation->initFrame();
+                    selectedAnimation->restart();
                 }
-                mAPScanList.currentDescriptorWords += recordLength / sizeof(u16);
+                mAPScanList.currentDescriptor = reinterpret_cast<WDBssDesc_*>(&mAPScanList.recordBuffer[recordOffset]);
             }
         }
 

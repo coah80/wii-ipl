@@ -163,6 +163,28 @@ namespace ipl {
                 unkVal1 = param_6;
             }
 
+#ifdef IPL_SD_CHANNEL_SELECT_CPP
+            T get() const {
+                f32 frame = mFrame;
+                f32 inverseDuration = 1.0f / mMaxFrame;
+                T result =
+                    (mStart * (1.0f + (inverseDuration * (inverseDuration *
+                        (inverseDuration * (frame * (2.0f * frame * frame)))) -
+                        inverseDuration * (inverseDuration * (3.0f * frame * frame))))) -
+                    (mEnd * (inverseDuration * (inverseDuration *
+                        (inverseDuration * (frame * (2.0f * frame * frame)))) -
+                        inverseDuration * (inverseDuration * (3.0f * frame * frame))));
+                f32 frameSquared = frame * frame;
+                f32 cubic = inverseDuration * (inverseDuration * (frame * frameSquared));
+                f32 tangent = unkVal0 * (frame + (cubic -
+                    inverseDuration * (2.0f * frame * frame))) +
+                    unkVal1 * (cubic - inverseDuration * frameSquared);
+                result.x += tangent;
+                result.y += tangent;
+                result.z += tangent;
+                return result;
+            }
+#else
             T get() const {
                 f32 var_f27 = mFrame;
                 f32 var_f28 = 1.0f / mMaxFrame;
@@ -195,6 +217,7 @@ namespace ipl {
                 r = r + temp_f3;
                 return r;*/
             }
+#endif
 
         protected:
             f32 unkVal0;
