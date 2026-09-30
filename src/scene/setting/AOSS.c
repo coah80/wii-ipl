@@ -45,6 +45,7 @@ typedef struct AOSSNetworkSettings {
     u32 manufacturerLength;
     u8 manufacturer[16];
     u32 gatewayAddress;
+  AOSSWaitSettings waitSettings;
     u32 ipAddress;
 } AOSSNetworkSettings;
 
@@ -259,7 +260,8 @@ static char s_manufacturer[] = "MELCO";
 static s32 s_operationState = -1;
 static const u8 s_messageId[8] = { 9, 8, 0, 0, 0, 0, 0, 0 };
 static u8 s_responseTypeByState[8] = { 9, 8, 0, 0, 0, 0, 0, 0 };
-static const u16 s_defaultOptions[4] = { 0xffff, 0xffff, 0, 0 };
+static const u16 s_defaultConnectWait[1] = { 0xffff };
+static const u16 s_defaultOptions[3] = { 0xffff, 0, 0 };
 
 static void* s_accessPointList;
 static int* s_accessPointConfig;
@@ -402,7 +404,6 @@ int AOSS_Init_old(AOSSInitInput* input)
   s16 remainingWait;
   short waitAttempt;
   int receivedPackets;
-  AOSSWaitSettings waitSettings;
   AOSSNetworkSettings settings;
   AOSSRequestRecords requestRecords;
   AOSSSocketAddress replyAddress;
@@ -416,9 +417,10 @@ int AOSS_Init_old(AOSSInitInput* input)
   u32 pollResultLow;
   u32 networkAddresses[5];
   u32 gatewayAddress;
+  AOSSWaitSettings waitSettings;
 
-  waitSettings.fields.connectWait = s_defaultOptions[0];
-  waitSettings.fields.responseWait = s_defaultOptions[1];
+  waitSettings.fields.connectWait = s_defaultConnectWait[0];
+  waitSettings.fields.responseWait = s_defaultOptions[0];
   waitSettings.value = 0;
   receivedPackets = 0;
   memset(&requestRecords,0,0x18);
