@@ -81,3 +81,24 @@ source name FrenchExcludePairs.
 
 Restored NonMatching, rebuilt main.dol, and confirmed SHA1
 26116613f624061ba99c8d1a299aaa6efa85670d. configure.py has no final changes.
+
+## Follow-up matching attempts, 2026-09-30
+
+Starting this continuation: 10/12 instruction-exact, code 5704/21664, data 0/564. Configuration stayed NonMatching throughout these attempts. Experiments were scoped to the named function and rejected variants were restored.
+
+Zi8ChangeWordCase:
+
+1. Replace the case enum with an integer flag: 44/44 instructions, the same eight register differences.
+2. Use a byte flag: 44/44, the same eight register differences.
+3. Declare and assign the byte flag separately: 44/44, the same eight register differences.
+4. Typed work parameter: 44/44, eleven register differences.
+5. Local typed work alias: 41/44; compiler combines work loads differently from the target.
+6. Local word cursor: 45/44; extra cursor setup. Rejected. The original enum declaration remains.
+
+Zi8AlphaGetCandidates:
+
+1. Reverse local declarations: 4452/3946 instructions, 44.43538%.
+2. Recover five state flags as bytes: 4452/3946, 44.341106%.
+3. Explicit switch for phonetic separators F331 through F335: 4450/3946, 44.217434%.
+
+All three candidate-engine scores were below the 44.43563% baseline. The stack frame remains 0x330 instead of 0x2B0, with branch, conversion and load differences throughout. No additional exact function was found; no source variant was retained.
