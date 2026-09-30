@@ -87,3 +87,71 @@ Final: retained the first 608/608 version, 97.804276%.
 
 No remaining function lacks three distinct source-level attempts. No other
 translation unit changes its output. Configure.py remains NonMatching.
+
+## Continuation after the first merge
+
+Baseline: 23/30 exact functions, 3248/9852 exact code bytes, all 1496 data
+bytes exact. Pool remains identical (43 strings). Every experiment below was
+built as the owned object and inspected with ctxdiff; discarded variants are
+absent from the final diff. Shared headers are unchanged in this continuation.
+
+### initCardThread
+
+1. Integer address temporaries for the allocated image/comment buffers:
+   167/167 instructions, unchanged 19 register differences. Reverted casts.
+2. Descending remaining-count loop with a byte index divided by sizeof(pointer):
+   168/167 instructions; added an index mask and changed allocation. Reverted.
+3. Named typed destination-entry pointers and reversed pointer-addition operands:
+   167/167, unchanged 19 register differences. Reverted.
+4. Compute both buffer offsets directly from the native file index instead of
+   maintaining two separate offset accumulators: 167/167, diffs 0. Retained.
+   Both pointer-array loops now match and obsolete offset locals are removed.
+
+### CardSequence_813D2C8C
+
+1. Reused one file-index variable for the mount scan, listing and delete cases:
+   301/301, 73 differences versus the baseline 78. Saved-register assignments
+   and response assembly ordering still differ. Reverted for the focused diff.
+2. With the unified index, changed thread validity and exit flags to bool:
+   301/301, same 73 differences. Reverted.
+3. Initialized the response union to zero, then assigned its command field:
+   302/301, additional packing instruction. Reverted.
+
+### CardSequence_813D3D14
+
+1. Separate scoped result for the copy-metadata phase: 608/608, 185 differences
+   versus baseline 186; still saved registers and branch destinations. Reverted.
+2. Copy-metadata phase as a single-iteration loop with explicit failure breaks
+   and a common result check: 608/608, 182 differences. Pool identical. Reverted.
+3. Moved move-stage initialization after the CARDDir assignment in that variant:
+   608/608, 189 differences. Reverted.
+
+### sendCardCopyCmd / sendCardMoveCmd / sendCardDeleteCmd
+
+All variants were applied to all three command functions.
+
+1. Real inline makeFileRequest packing helper shared by the three wrappers:
+   compiler kept it out of line; each wrapper became 29/21 instructions.
+   Reverted. This helper is different from the earlier sendFileCommand helper:
+   it only computes a packet and performs no shared-state writes or OS calls.
+2. Separate OSMessage request and BOOL nonblocking flags locals: 21/21,
+   unchanged two instruction-order differences. Reverted.
+3. Union file/slot fields followed by OR into its value: 21/21, nine differences
+   involving packing registers and the same ori/li ordering. Reverted.
+4. Template packet encoder specialized by command: inlined, 21/21, four
+   differences (two packing instructions and the same ori/li ordering). Reverted.
+
+### CardSequence_813D3424
+
+1. Named IconState reference spanning the whole function: 362/512 instructions;
+   compiler cached its address and eliminated many original global reloads.
+   Reverted.
+2. Named IconState reference limited to the animation/format loops: 438/512;
+   same address-caching issue within that region. Reverted.
+3. Extracted a real single-use inline readComment helper with sector-size and
+   range checks, read, copy and error clearing: inlined to 499/512, different
+   allocation/error boundaries. Reverted.
+
+Retained only the instruction-exact initCardThread change. Every remaining
+function has three new distinct attempts in this continuation. All data
+sections and the complete pool remain exact; no DOL link investigation.

@@ -270,8 +270,6 @@ void initCardThread() {
     u32 size;
     void* memory;
     MEMHeapHandle handle;
-    u32 offset;
-    u32 commentOffset;
     u32 index;
 
     if (sThread == 0) {
@@ -293,15 +291,9 @@ void initCardThread() {
         sThread->mountBuffers[1] = MEMAllocFromAllocator(&sAllocator_, 0xA000);
     }
 
-    offset = 0;
-    commentOffset = 0;
     for (index = 0; index < 127; index++) {
-        u8* image = sThread->images[0][0] + offset;
-        offset += 0x5A00;
-        sThread->images[0][index] = image;
-        char* comment = sThread->comments[0][0] + commentOffset;
-        commentOffset += 0x40;
-        sThread->comments[0][index] = comment;
+        sThread->images[0][index] = sThread->images[0][0] + index * 0x5A00;
+        sThread->comments[0][index] = sThread->comments[0][0] + index * 0x40;
     }
     for (index = 0; index < 127; index++) {
         sThread->images[1][index] = sThread->images[0][0] + (index + 127) * 0x5A00;
