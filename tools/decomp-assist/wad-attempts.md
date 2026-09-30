@@ -266,3 +266,171 @@ readability warnings (net, per file; must be 0 in the final result): 0
 review note: libs/RVL_SDK/src/wad/wad.c: possible pointer+offset into a blob (orchestrator reviews) (+4 net), e.g. if ((u32)WADReadStream(&stream, &readBuffer, (bootSize + 0x1F) & ~0x1F,
 GATE PASS
 ```
+
+# WAD matching attempts, round 3
+
+Baseline main 23067a34: 29/40 exact, code 10024/24500, data 64/528.
+
+| Function | Bytes | Objdiff before -> after | Instructions source/target | Positional diffs / nonregister |
+|---|---:|---|---|---|
+| WADImportGetBlocks | 1192 | 94.22147 -> 94.22147 | 286/298 | 275 / 260 |
+| WAD_815BFFA8 | 248 | 99.354836 -> 99.354836 | 62/62 | 8 / 0 |
+| WADImportEx | 4584 | 91.91536 -> 97.835075 | 1144/1146 | 327 / 79 |
+| WAD_815C1288 | 244 | 96.39344 -> 96.39344 | 61/61 | 34 / 0 |
+| WADBackupEx | 4248 | 93.373825 -> 96.98493 | 1059/1062 | 816 / 748 |
+| WADOpenStream | 812 | 99.50739 -> 100.0 | 203/203 | 0 / 0 |
+| _WADUnpackBackup | 452 | 99.02655 -> 100.0 | 113/113 | 0 / 0 |
+| _WADBackupGetSize | 620 | 99.90323 -> 100.0 | 155/155 | 0 / 0 |
+| WAD_815C43E0 | 248 | 99.354836 -> 99.354836 | 62/62 | 8 / 0 |
+| _WADHash | 776 | 98.5567 -> 98.5567 | 194/194 | 44 / 0 |
+| WADImportDVDExForBS | 1052 | 96.17871 -> 96.17871 | 260/263 | 243 / 233 |
+
+Fresh attempts (rejected variants were restored):
+
+```text
+Round 3 baseline main 23067a34: 29/40 exact, code 10024/24500, data 64/528. Pool and section audit first, closest functions next; all open functions receive fresh logged source attempts. Applying the unslop skill for authored reporting.
+_WADBackupGetSize: separate metadata/content subtotal from file-inclusive total; insns/diffs/nonregister (155, 155, 2, 0) -> (155, 155, 3, 0); objdiff 99.83871; retained False
+_WADBackupGetSize: compute aggregate only at total-size output after separate content/file outputs; insns/diffs/nonregister (155, 155, 2, 0) -> (155, 155, 10, 9); objdiff 97.3871; retained False
+_WADBackupGetSize: keep distinct total-size local rather than reassigning metadata accumulator; insns/diffs/nonregister (155, 155, 2, 0) -> (155, 155, 3, 0); objdiff 99.83871; retained False
+WADOpenStream: SD seek uses structured failure branch before the common handle check; insns/diffs/nonregister (202, 203, 47, 47) -> (202, 203, 47, 47); objdiff 99.50739; retained True
+WADOpenStream: SD write/read selection ends seek guard with an explicit empty success arm; insns/diffs/nonregister (202, 203, 47, 47) -> (203, 203, 0, 0); objdiff 100.0; retained True
+WADOpenStream: move SD seek return into a single outer write guard without a success goto; insns/diffs/nonregister (203, 203, 0, 0) -> (203, 203, 0, 0); objdiff 100.0; retained True
+.data: source 458, target 464, overlap mismatches 0; trailing target 000000000000
+.sdata: source 64, target 64, overlap mismatches 0; trailing target 
+WAD_815BFFA8: chunk byte count declared before descriptor/context state; insns/diffs/nonregister (62, 62, 8, 0) -> (62, 62, 24, 0); objdiff 97.66129; retained False
+WAD_815BFFA8: successful transfer status initialized before input descriptor/context load; insns/diffs/nonregister (62, 62, 8, 0) -> (62, 62, 8, 0); objdiff 99.354836; retained True
+WAD_815BFFA8: signed API byte-count temporary with unsigned remaining-size arithmetic; insns/diffs/nonregister (62, 62, 8, 0) -> (62, 62, 8, 0); objdiff 99.354836; retained True
+WAD_815C43E0: chunk byte count declared before descriptor/context state; insns/diffs/nonregister (62, 62, 8, 0) -> (62, 62, 24, 0); objdiff 97.66129; retained False
+WAD_815C43E0: successful transfer status initialized before input descriptor/context load; insns/diffs/nonregister (62, 62, 8, 0) -> (62, 62, 8, 0); objdiff 99.354836; retained True
+WAD_815C43E0: signed API byte-count temporary with unsigned remaining-size arithmetic; insns/diffs/nonregister (62, 62, 8, 0) -> (62, 62, 8, 0); objdiff 99.354836; retained True
+_WADUnpackBackup: translate skipped-metadata return as defined incoming header-address status held in r3; insns/diffs/nonregister (114, 113, 78, 73) -> (117, 113, 100, 97); objdiff 96.0177; retained False
+_WADUnpackBackup: initialize defined incoming status after header checks before optional device query; insns/diffs/nonregister (114, 113, 78, 73) -> (113, 113, 0, 0); objdiff 100.0; retained True
+_WADUnpackBackup: return success directly on metadata-only completion rather than preserving a mutable status; insns/diffs/nonregister (113, 113, 0, 0) -> (114, 113, 55, 45); objdiff 96.814156; retained False
+_WADUnpackBackup: target 815C360C-815C36F8 keeps incoming r3 on contentSize==0, nonzero tmdSize, and flags bits 4/2 both set. Explicitly initializing result from header after validation models that defined machine return without uninitialized C. Source 113/113, ctxdiff zero, 100%.
+Threads: all three fresh register-only variants reverted because no instruction improvement; original unsigned byte counts retained.
+_WADHash: declare read length before progress cursor and mutable read buffer; insns/diffs/nonregister (194, 194, 44, 0) -> (194, 194, 44, 0); objdiff 98.5567; retained True
+_WADHash: separate read length for synchronous chunks from thread-consumer chunks; insns/diffs/nonregister (194, 194, 44, 0) -> (194, 194, 44, 0); objdiff 98.5567; retained True
+_WADHash: use loop-header buffer swap for threaded producer traversal; insns/diffs/nonregister (194, 194, 44, 0) -> (194, 194, 44, 0); objdiff 98.5567; retained True
+WAD_815C1288: size local first in export consumer state; insns/diffs/nonregister (61, 61, 34, 0) -> (61, 61, 34, 0); objdiff 96.39344; retained True
+WAD_815C1288: export result initialized before descriptor and loop input loads; insns/diffs/nonregister (61, 61, 34, 0) -> (61, 61, 35, 0); objdiff 96.31148; retained False
+WAD_815C1288: chunk count local scoped to each transfer iteration; insns/diffs/nonregister (61, 61, 34, 0) -> (61, 61, 35, 0); objdiff 96.31148; retained False
+WADImportEx: stack-first: declare content count before stream ownership flags; insns/diffs/nonregister (1157, 1146, 1083, 1045) -> (1157, 1146, 1079, 1041); objdiff 91.927574; retained True
+WADImportEx: stack-first: declare thread stack owner before content descriptor and import flags; insns/diffs/nonregister (1157, 1146, 1079, 1041) -> (1157, 1146, 1078, 1040); objdiff 91.94067; retained True
+WADImportEx: report label uses mutable C string pointer type as SDK C convention; insns/diffs/nonregister (1157, 1146, 1078, 1040) -> (1157, 1146, 1078, 1040); objdiff 91.94067; retained True
+Round 3 progress: WADOpenStream and _WADUnpackBackup now instruction-exact and locally committed after quick gates. Five remaining register-only functions received three fresh variants each. Initial data audit still finds identical strings and all .sdata, with six terminal .data bytes absent. Work continues on the four instruction-count discrepancies.
+WADImportEx: inline helper for the two cancellation reports; (1157, 1146, 1078, 1040) -> (1157, 1146, 1078, 1040); 91.94067 -> 91.94067; outlined False; pool POOL IDENTICAL up to 18 (mine=18 base=18); retained False
+WADImportDVDExForBS: use adjusted read-buffer pointer for post-open allocation check; insns/diffs/nonregister (260, 263, 243, 233) -> (260, 263, 243, 233); objdiff 96.17871; retained True
+WADImportDVDExForBS: scope and compute aligned read size before the DVD call; insns/diffs/nonregister (260, 263, 243, 233) -> (259, 263, 238, 225); objdiff 94.277565; retained False
+WADImportDVDExForBS: iterate content descriptors with a for loop; insns/diffs/nonregister (260, 263, 243, 233) -> (260, 263, 243, 233); objdiff 96.17871; retained True
+WADImportGetBlocks: declare file-list ownership first to extend the actual allocation lifetime; insns/diffs/nonregister (286, 298, 275, 260) -> (286, 298, 276, 260); objdiff 93.93624; retained False
+WADImportGetBlocks: count content indices with an explicit while loop; insns/diffs/nonregister (286, 298, 275, 260) -> (286, 298, 275, 260); objdiff 94.22147; retained True
+WADImportGetBlocks: scope title metadata and the current content descriptor to their actual traversal; compilation failed; restored
+WADImportGetBlocks: scope metadata and content descriptors at the starts of traversal blocks; insns/diffs/nonregister (286, 298, 275, 260) -> (286, 298, 275, 260); objdiff 94.22147; retained True
+WADBackupEx: compute the metadata padding delta before random fill and recompute the write extent; insns/diffs/nonregister (1044, 1062, 1022, 994) -> (1047, 1062, 1026, 995); objdiff 94.089455; retained True
+WADBackupEx: select NAND transfer size with explicit greater-than if/else arms; insns/diffs/nonregister (1047, 1062, 1026, 995) -> (1048, 1062, 1030, 1002); objdiff 94.32957; retained True
+WADBackupEx: extract the low title-id word with its explicit unsigned mask for the random seed; insns/diffs/nonregister (1048, 1062, 1030, 1002) -> (1051, 1062, 1017, 985); objdiff 94.414314; retained True
+WADBackupEx: route file-header hash failure directly to global cleanup as target does; insns/diffs/nonregister (1051, 1062, 1017, 985) -> (1051, 1062, 1017, 985); objdiff 94.41902; retained True
+Restored equal-code hash, export loop, DVD import, and block-count variants; retained only instruction/fuzzy improvements.
+WADImportEx: initialize optional parsed title metadata alongside the import buffer owners; insns/diffs/nonregister (1157, 1146, 1078, 1040) -> (1157, 1146, 1078, 1040); objdiff 91.94067; retained True
+WADImportEx: declare parsed title metadata before the diagnostic name and other owners; insns/diffs/nonregister (1157, 1146, 1078, 1040) -> (1160, 1146, 1126, 1097); objdiff 90.84206; retained False
+WADImportEx: declare diagnostic function name after all actual import owner state; insns/diffs/nonregister (1157, 1146, 1078, 1040) -> (1157, 1146, 1078, 1040); objdiff 91.94067; retained True
+WADImportEx: use a signed header read-size local across the read and returned-size check; insns/diffs/nonregister (1157, 1146, 1078, 1040) -> (1158, 1146, 1098, 1063); objdiff 92.20768; retained True
+WADImportGetBlocks: inline shared import-buffer cleanup used by both actual import and block counting; (290, 298, 278, 263); objdiff 94.2047
+WADImportEx: inline shared import-buffer cleanup used by both actual import and block counting; (1158, 1146, 1098, 1063); objdiff 92.20768
+Shared cleanup helper trial restored pending instruction improvement and pool review.
+WADBackupEx: group backup-header construction and device-id query in a typed inline helper; (1051, 1062, 1017, 985); objdiff 94.33616
+WADImportEx: derive diagnostic function name from compiler function-name identifier; insns/diffs/nonregister (1158, 1146, 1098, 1063) -> (1158, 1146, 1098, 1063); objdiff 92.20768; retained True
+WADImportEx: retain a declaration for matched title metadata next to unpack workspace; insns/diffs/nonregister (1158, 1146, 1098, 1063) -> (1158, 1146, 1098, 1063); objdiff 92.20768; retained True
+WADImportEx: choose decrypted file chunks with explicit size limit branches; insns/diffs/nonregister (1158, 1146, 1098, 1063) -> (1159, 1146, 1088, 1046); objdiff 92.33857; retained True
+WADImportEx: compare decoded content index against metadata count in target less-than direction; insns/diffs/nonregister (1159, 1146, 1088, 1046) -> (1159, 1146, 1088, 1046); objdiff 92.364746; retained True
+WADBackupEx: hold the initialized header extent in the shared padded-size temporary for its write check; insns/diffs/nonregister (1051, 1062, 1017, 985) -> (1052, 1062, 1011, 980); objdiff 94.607346; retained True
+WADBackupEx: hold file-header write extent in padded-size temporary after the hash update; insns/diffs/nonregister (1052, 1062, 1011, 980) -> (1053, 1062, 1019, 990); objdiff 94.55085; retained False
+WADBackupEx: store regular-file classification before optional file-data export; insns/diffs/nonregister (1052, 1062, 1011, 980) -> (1054, 1062, 1023, 995); objdiff 94.39077; retained False
+WADImportEx: preserve the successful ES content descriptor status until the next real API result; insns/diffs/nonregister (1159, 1146, 1088, 1046) -> (1157, 1146, 1100, 1059); objdiff 92.00349; retained False
+WADImportEx: defer first file-header pointer initialization until transfer-id resolution succeeds; insns/diffs/nonregister (1159, 1146, 1088, 1046) -> (1159, 1146, 1088, 1046); objdiff 91.9555; retained False
+WADBackupEx: express the high title-id word as an unsigned masked extraction; insns/diffs/nonregister (1052, 1062, 1011, 980) -> (1054, 1062, 921, 890); objdiff 94.66384; retained True
+WADBackupEx: declare initialized size outputs before pointer owners and local work buffers; insns/diffs/nonregister (1054, 1062, 921, 890) -> (1044, 1062, 1004, 981); objdiff 92.659134; retained False
+WADBackupEx: keep the trailing path fill length including its terminator as one local; insns/diffs/nonregister (1054, 1062, 921, 890) -> (1054, 1062, 921, 890); objdiff 94.89548; retained True
+WADImportEx: give each cancellation diagnostic a real typed inline wrapper with local function-name lifetime; (1140, 1146, 910, 824); objdiff 95.26614
+Cancellation diagnostic wrappers retained: metadata now stays in a register; source shrinks 1159 to 1140 against target 1146; fuzzy 95.26614. Both wrappers inline; no new public functions or artificial code.
+WADImportEx: cast the unsigned stream byte count to signed for the signed header-size comparison; insns/diffs/nonregister (1140, 1146, 910, 824) -> (1140, 1146, 910, 823); objdiff 95.06283; retained False
+WADImportEx: assign an ES content descriptor to result only on failure before the common success reset; insns/diffs/nonregister (1140, 1146, 910, 824) -> (1141, 1146, 749, 613); objdiff 95.279236; retained True
+WADImportEx: write directory creation error as a nested success/error branch before existing-directory recovery; insns/diffs/nonregister (1141, 1146, 749, 613) -> (1141, 1146, 762, 626); objdiff 95.63264; retained True
+WADImportEx: pass function name to cancellation wrappers defined later in source-token order; (1160, 1146, 1096, 1063); objdiff 93.0
+WADImportEx: declare returned status before buffer ownership so it is the first initialized scalar; insns/diffs/nonregister (1141, 1146, 762, 626) -> (1141, 1146, 740, 603); objdiff 95.72513; retained True
+WADImportEx: place parsed title metadata first among local declarations after status; insns/diffs/nonregister (1141, 1146, 740, 603) -> (1141, 1146, 740, 603); objdiff 95.72513; retained True
+WADImportEx: give the fixed header extent unsigned storage while both read operands use signed comparison; insns/diffs/nonregister (1141, 1146, 740, 603) -> (1141, 1146, 740, 602); objdiff 95.77487; retained True
+WADImportEx: extend file-header buffer lifetime with its declaration next to the concrete file header; insns/diffs/nonregister (1141, 1146, 740, 602) -> (1143, 1146, 1095, 1058); objdiff 95.635254; retained False
+_WADBackupGetSize: add file bytes to the parenthesized metadata/content subtotal; insns/diffs/nonregister (155, 155, 2, 0) -> (155, 155, 3, 0); objdiff 99.83871; retained False
+_WADBackupGetSize: add file bytes to content plus metadata in the final aggregate expression; insns/diffs/nonregister (155, 155, 2, 0) -> (155, 155, 3, 0); objdiff 99.870964; retained False
+_WADBackupGetSize: add content bytes to file plus metadata in the final aggregate expression; insns/diffs/nonregister (155, 155, 2, 0) -> (155, 155, 3, 0); objdiff 99.83871; retained False
+WAD_815BFFA8: scope the current chunk byte count inside the transfer iteration; insns/diffs/nonregister (62, 62, 8, 0) -> (62, 62, 8, 0); objdiff 99.354836; retained True
+WAD_815BFFA8: clear buffer readiness after recording the real ES error flag; insns/diffs/nonregister (62, 62, 8, 0) -> (62, 62, 12, 4); objdiff 95.96774; retained False
+WAD_815C43E0: scope the current chunk byte count inside the transfer iteration; insns/diffs/nonregister (62, 62, 8, 0) -> (62, 62, 8, 0); objdiff 99.354836; retained True
+WAD_815C43E0: clear buffer readiness after recording the real ES error flag; insns/diffs/nonregister (62, 62, 8, 0) -> (62, 62, 12, 4); objdiff 95.96774; retained False
+WAD_815BFFA8: share typed inline readiness/error completion after ES transfer; (62, 62, 8, 0); objdiff 99.354836
+WAD_815C43E0: share typed inline readiness/error completion after ES transfer; (62, 62, 8, 0); objdiff 99.354836
+_WADBackupGetSize: combine content and file contributions in one compound addition; insns/diffs/nonregister (155, 155, 2, 0) -> (155, 155, 0, 0); objdiff 100.0; retained True
+WADImportEx: initialize the real file-header pointer before allocating the second file-transfer buffer; insns/diffs/nonregister (1141, 1146, 740, 602) -> (1142, 1146, 638, 474); objdiff 95.858635; retained True
+WADImportEx: initialize the current header pointer in the file-import loop scope; insns/diffs/nonregister (1142, 1146, 638, 474) -> (1140, 1146, 797, 688); objdiff 95.92496; retained True
+_WADBackupGetSize: combined compound update titleSize += contentSize + filesSize is instruction-exact (155/155, zero diffs); stopped further register attempts. Extra equal-code thread scope variants restored.
+WADImportEx: rejected separate per-loop header-pointer scope despite higher fuzzy score; retained outer pointer initialized before second file buffer, which preserves target slot and advances instruction count to 1142/1146.
+WADImportEx: join directory creation and existing-directory recovery at their common status check; insns/diffs/nonregister (1142, 1146, 638, 474) -> (1143, 1146, 900, 810); objdiff 97.23124; retained True
+WADImportEx: retain the size-query status when reading installed title metadata; insns/diffs/nonregister (1143, 1146, 900, 810) -> (1144, 1146, 509, 299); objdiff 97.3185; retained True
+WADImportEx: read each indexed installed-content field directly across the hash comparison call; insns/diffs/nonregister (1144, 1146, 509, 299) -> (1145, 1146, 989, 928); objdiff 97.680626; retained True
+WADImportEx: initialize the matched-content output index before allocating its actual metadata array; insns/diffs/nonregister (1145, 1146, 989, 928) -> (1145, 1146, 992, 935); objdiff 97.850784; retained True
+WADImportEx: pass the decoded header ticket type held in target r8 to ES_ImportTicket; insns/diffs/nonregister (1145, 1146, 992, 935) -> (1144, 1146, 327, 79); objdiff 97.835075; retained False
+WADImportEx: return diagnostics to direct reports after installed-content pointer lifetime and status corrections; (1164, 1146, 1101, 1067); objdiff 94.6178
+WADImportEx: retained decoded ES_ImportTicket type despite 0.016 fuzzy decrease. Target 815C02E0 loads headerInfo into r8 and 815C03BC passes it unchanged; literal zero was a real translation error. Source 1144/1146 now differs mainly in report pointer reloads and scheduling.
+WADImportEx: cancellation diagnostic message lifetime variant; (1144, 1146, 327, 79); objdiff 97.835075
+WADImportEx: cancellation diagnostic namehelper lifetime variant; (1144, 1146, 327, 79); objdiff 97.835075
+WADImportDVDExForBS: move buffer availability and alignment into typed inline preparation with real size output; (262, 263, 246, 236); objdiff 94.44867
+WADImportEx/data: use one actual named immutable diagnostic string shared by the two report wrappers; (1141, 1146, 1094, 1058); objdiff 96.5445; sections [{'name': '.data', 'size': '464', 'fuzzy_match_percent': 97.592995, 'metadata': {}}, {'name': '.sdata', 'size': '64', 'fuzzy_match_percent': 100.0, 'metadata': {}}, {'name': '.text', 'size': '24500', 'fuzzy_match_percent': 97.92686, 'metadata': {}}]
+WADBackupEx: order real ownership flags and thread-stack pointer by target stack slots; insns/diffs/nonregister (1054, 1062, 921, 890) -> (1054, 1062, 920, 889); objdiff 94.90866; retained True
+WADBackupEx: compare the masked high title-id word as an unsigned 32-bit field; insns/diffs/nonregister (1054, 1062, 920, 889) -> (1053, 1062, 1026, 1000); objdiff 95.06403; retained True
+WADBackupEx: encode installed-content availability with an explicit successful else arm; insns/diffs/nonregister (1053, 1062, 1026, 1000) -> (1053, 1062, 1026, 1000); objdiff 95.06403; retained True
+WADBackupEx: clear export status before validating the selected content descriptor; insns/diffs/nonregister (1053, 1062, 1026, 1000) -> (1054, 1062, 1032, 1007); objdiff 95.158195; retained True
+WADBackupEx: keep backup file header extent across hashing and stream write as one actual transfer size; insns/diffs/nonregister (1054, 1062, 1032, 1007) -> (1055, 1062, 1034, 1007); objdiff 95.29944; retained True
+WADBackupEx: write backup metadata size fields before file size/count in target address order; insns/diffs/nonregister (1055, 1062, 1034, 1007) -> (1055, 1062, 1034, 1009); objdiff 95.30697; retained True
+WADBackupEx: place the parsed title words in target scalar slots and initialize only while parsing a title path; insns/diffs/nonregister (1055, 1062, 1034, 1009) -> (1055, 1062, 1035, 1010); objdiff 95.70056; retained True
+WADBackupEx: compare selected title content index against the metadata bound in target direction; insns/diffs/nonregister (1055, 1062, 1035, 1010) -> (1055, 1062, 1034, 1009); objdiff 95.71469; retained True
+WADBackupEx: reset completed signing status before querying the second certificate; insns/diffs/nonregister (1055, 1062, 1034, 1009) -> (1056, 1062, 1032, 1006); objdiff 95.62053; retained False
+WADBackupEx: reset successful seek status before rewriting the finalized backup header; insns/diffs/nonregister (1055, 1062, 1034, 1009) -> (1056, 1062, 1032, 1006); objdiff 95.804146; retained True
+WADBackupEx: use the actual indexed backup-file record directly across path fill and copy calls; insns/diffs/nonregister (1056, 1062, 1032, 1006) -> (1057, 1062, 1022, 987); objdiff 96.10546; retained True
+WADBackupEx: initialize genuine backup owners and size outputs in target order without moving their stack declarations; insns/diffs/nonregister (1057, 1062, 1022, 987) -> (1058, 1062, 814, 751); objdiff 97.079094; retained True
+WADBackupEx: represent the serialized header as its real 128-byte buffer and a typed header view; insns/diffs/nonregister (1058, 1062, 814, 751) -> (1058, 1062, 814, 751); objdiff 97.079094; retained True
+WADBackupEx: restored equal-code header union and implicit availability fallthrough; retained target signing-status reset despite small fuzzy decrease. Final source/target (1059, 1062, 816, 748); objdiff 96.98493.
+Final audit: every initially open function has at least three fresh distinct compiled source trials; failed builds and no-change trials are additional, not counted as successful trials. Three new functions have identical instruction counts and ctxdiff zero. Four remaining functions are register-only. WADImportEx 1144/1146 retains two duplicated target pool-pointer reloads and scheduling differences; decoded ES_ImportTicket type and ES_GetTmd query status now follow target. WADBackupEx 1059/1062 retains header member-address folding, zero-status stores and dead file-type comparison scheduling. WADImportDVDExForBS 260/263 lacks target dead content-size load/compare and materialized null comparison. WADImportGetBlocks 286/298 lacks two unused target null owners and their dead cleanup guards; no dummy owner variables added.
+Data: normal literal pool remains identical (18 strings); all 458 overlapping .data bytes and all 64 .sdata bytes are identical. Target .data is 464 bytes with six additional terminal zero bytes; both objects have alignment 8. No .rodata/.sdata2/tables/vtables are present. Named immutable diagnostic string trial broke pool ordering and was restored. No padding, dummy data, section changes or forced retention added; tail origin remains uncertain. Gate pointer/blob review note is an integer padding-length calculation, not an address or string-blob offset.
+```
+
+Gate evidence:
+
+```text
+full build: ok
+main.dol sha1: 26116613f624061ba99c8d1a299aaa6efa85670d
+[libs/RVL_SDK/src/wad/wad] pool: IDENTICAL
+[libs/RVL_SDK/src/wad/wad] objdiff: code 11908/24500 data 64/528 functions 32/40 fuzzy 98.5322 linked code 0
+[libs/RVL_SDK/src/wad/wad] instruction-exact functions: 32/40
+[libs/RVL_SDK/src/wad/wad]   section .data size 464 match 99.34924
+[libs/RVL_SDK/src/wad/wad]   section .sdata size 64 match 100.0
+[libs/RVL_SDK/src/wad/wad]   section .text size 24500 match 98.53224
+[libs/RVL_SDK/src/wad/wad]   below 100: WADImportGetBlocks 94.22147
+[libs/RVL_SDK/src/wad/wad]   below 100: WAD_815BFFA8 99.354836
+[libs/RVL_SDK/src/wad/wad]   below 100: WADImportEx 97.835075
+[libs/RVL_SDK/src/wad/wad]   below 100: WAD_815C1288 96.39344
+[libs/RVL_SDK/src/wad/wad]   below 100: WADBackupEx 96.98493
+[libs/RVL_SDK/src/wad/wad]   below 100: WAD_815C43E0 99.354836
+[libs/RVL_SDK/src/wad/wad]   below 100: _WADHash 98.5567
+[libs/RVL_SDK/src/wad/wad]   below 100: WADImportDVDExForBS 96.17871
+[libs/RVL_SDK/src/wad/wad] baseline: code 10024/24500 data 64 functions 29 fuzzy 96.7618
+regressions vs baseline: 0
+global matched_code_percent: 86.00588 -> 86.06878
+global fuzzy_match_percent: 98.73286 -> 98.74735
+global complete_code_percent: 59.99415 -> 59.99415
+global matched_data_percent: 90.86673 -> 90.86673
+forbidden patterns added (net, per file): 0
+readability warnings (net, per file; must be 0 in the final result): 0
+review note: libs/RVL_SDK/src/wad/wad.c: possible pointer+offset into a blob (orchestrator reviews) (+1 net), e.g. paddedSize = ((titleMetaSize + 0x3F) & ~0x3F) - titleMetaSize;
+GATE PASS
+```
