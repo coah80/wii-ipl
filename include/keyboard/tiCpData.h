@@ -93,8 +93,13 @@ namespace textinput {
             extern const KeySet csKeySetCNPinyin;
             extern const KeySet csKeySetHangul;
 
+#ifdef TI_CELLPHONE_MATCH_LAYOUT
+            extern const wchar_t* csSpaceZero;
+            extern const wchar_t* csSpace;
+#else
             extern const wchar_t csSpaceZero[3];
             extern const wchar_t csSpace[3];
+#endif
         }
     }
 }

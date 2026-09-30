@@ -325,7 +325,14 @@ namespace textinput {
             class CellPhoneAnmPane : public nw4rmanager::AnmPane {
             public:
                 CellPhoneAnmPane(nw4r::lyt::Pane* pane, nw4rmanager::AnmObserver* observer)
+#ifdef TI_CELLPHONE_MATCH_LAYOUT
+                    : nw4rmanager::AnmPane(pane, observer), meState(ANM_Normal), meKeyType(KT_NormalButton) {
+                    init();
+                    changeAnimation(meState);
+                }
+#else
                     : nw4rmanager::AnmPane(pane, observer), meState(ANM_Normal), meKeyType(KT_NormalButton) {}
+#endif
 
                 virtual void init() override;
                 virtual void onAnmEvent(AnmPaneEvent event) override;
