@@ -53,7 +53,7 @@ Progress
 <!-- progress:start -->
 | Decompiled | Matched | Linked | Data |
 |:---:|:---:|:---:|:---:|
-| 97.17% | 83.64% | 58.20% | 89.94% |
+| 97.59% | 83.64% | 58.20% | 89.94% |
 
 units 778/1027 complete, functions 12026/12563 matched.
 
