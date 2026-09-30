@@ -20,8 +20,9 @@ def main():
         off, size = target["st_value"], target["st_size"]
         relocs = {}
         rt = e.get_section_by_name(".rela.text")
-        for r in rt.iter_relocations():
-            relocs[r["r_offset"]] = names[r["r_info_sym"]]
+        if rt is not None:
+            for r in rt.iter_relocations():
+                relocs[r["r_offset"]] = names[r["r_info_sym"]]
         data = e.get_section_by_name(".text").data()[off:off + size]
     md = Cs(CS_ARCH_PPC, CS_MODE_32 + CS_MODE_BIG_ENDIAN)
     md.detail = True
