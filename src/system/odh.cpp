@@ -32,8 +32,7 @@ struct SArDeconvTbl {
 };
 
 struct SArCDJ_HuffmanRequest {
-    u32* dcPredictor;
-    u32* acPredictor;
+    u32* predictors[2];
     u32* dcTable;
     u32* acTable;
     u8* bitstream;
@@ -761,8 +760,8 @@ s32 CArGBAOdh::cdj_c_initializeCompressOdh(SArCDJ_OdhMaster* master, u16* dimens
         master->blocksWide = (s32)dimensionMinusOne / 8 + 1;
         dimensionMinusOne = dimensions[1] - 1;
         master->blocksHigh = (s32)dimensionMinusOne / 8 + 1;
-        master->luminanceRequest.dcPredictor = &master->field20;
-        master->luminanceRequest.acPredictor = &master->field20;
+        master->luminanceRequest.predictors[0] = &master->field20;
+        master->luminanceRequest.predictors[1] = &master->field20;
         master->luminanceRequest.dcTable = (u32*)gArDC_L_Table;
         master->luminanceRequest.acTable = (u32*)gArDC_L_Table;
         master->luminanceRequest.bitstream = outputBuffer;
@@ -770,8 +769,8 @@ s32 CArGBAOdh::cdj_c_initializeCompressOdh(SArCDJ_OdhMaster* master, u16* dimens
         master->luminanceRequest.bitBuffer = &master->bitBuffer;
         master->luminanceRequest.bitCount = &master->bitCount;
         master->luminanceRequest.bytesConsumed = outputCapacity;
-        master->chrominanceRequest.dcPredictor = &master->field24;
-        master->chrominanceRequest.acPredictor = &master->field28;
+        master->chrominanceRequest.predictors[0] = &master->field24;
+        master->chrominanceRequest.predictors[1] = &master->field28;
         master->chrominanceRequest.dcTable = (u32*)gArDC_C_Table;
         master->chrominanceRequest.acTable = (u32*)gArDC_L_Table;
         master->chrominanceRequest.bitstream = outputBuffer;
@@ -922,11 +921,11 @@ void CArGBAOdh::cdj_c_setQuantizationTable(SArCDJ_OdhMaster* master, u32 quality
         for (int i = 0; i < 0x40; i++) {
             u32 scale = scales[scaleIndex];
             u8 coefficient = quantizationRow[i];
-            master->quantizationTables[tablePass * 64 + i] = 0x4000000 / (scale * (u32)coefficient);
+            master->quantizationTables[tableOffset + i] = 0x4000000 / (scale * (u32)coefficient);
             scaleIndex++;
         }
         tablePass = tablePass + 1;
-        tableOffset = tableOffset + 0x100;
+        tableOffset = tableOffset + 0x40;
         scaledTableOffset = scaledTableOffset + 0x40;
     } while (tablePass < 2);
 }
@@ -1075,83 +1074,81 @@ void CArGBAOdh::fdct_fast(u32* coefficients, u8* samples, u32 stride, u32* quant
     }
 
     int* buffer = (int*)coefficients;
-    int butterflyValueA = 0;
-    int butterflyValueB = 0;
     for (int row = 0; row < 8; row++) {
-        int evenSum = *buffer + buffer[7];
-        int evenDifference = *buffer - buffer[7];
-        int oddDifference = buffer[1] - buffer[6];
-        int butterflyValueB = buffer[1] + buffer[6];
-        int oddSum = buffer[2] - buffer[5];
-        int middleSum = oddDifference + evenDifference;
-        int butterflyValueA = buffer[2] + buffer[5];
-        int innerSum = buffer[3] + buffer[4];
-        int outerSum = butterflyValueB + butterflyValueA;
-        int oddBranch = (buffer[3] - buffer[4]) + oddSum;
-        int crossTerm = evenSum - innerSum;
-        evenSum = evenSum + innerSum;
-        *buffer = evenSum + outerSum;
-        buffer[4] = evenSum - outerSum;
-        butterflyValueB = ((butterflyValueB - butterflyValueA) + crossTerm) * 0xB5 >> 8;
-        buffer[2] = crossTerm + butterflyValueB;
-        butterflyValueA = (oddBranch - middleSum) * 0x62 >> 8;
-        buffer[6] = crossTerm - butterflyValueB;
-        oddBranch = butterflyValueA + (oddBranch * 0x8B >> 8);
-        butterflyValueA = butterflyValueA + (middleSum * 0x14E >> 8);
-        butterflyValueB = (oddSum + oddDifference) * 0xB5 >> 8;
-        oddDifference = evenDifference - butterflyValueB;
-        evenDifference = evenDifference + butterflyValueB;
-        buffer[5] = oddDifference + oddBranch;
-        buffer[3] = oddDifference - oddBranch;
-        buffer[1] = evenDifference + butterflyValueA;
-        buffer[7] = evenDifference - butterflyValueA;
+        int sum07 = buffer[0] + buffer[7];
+        int difference07 = buffer[0] - buffer[7];
+        int difference16 = buffer[1] - buffer[6];
+        int sum16 = buffer[1] + buffer[6];
+        int difference25 = buffer[2] - buffer[5];
+        int sum25 = buffer[2] + buffer[5];
+        int sum34 = buffer[3] + buffer[4];
+        int difference34 = buffer[3] - buffer[4];
+        int oddLower = difference34 + difference25;
+        int oddMiddle = difference25 + difference16;
+        int oddUpper = difference16 + difference07;
+        int evenOuterSum = sum07 + sum34;
+        int evenOuterDifference = sum07 - sum34;
+        int evenInnerSum = sum16 + sum25;
+        int evenInnerDifference = sum16 - sum25;
+        buffer[0] = evenOuterSum + evenInnerSum;
+        buffer[4] = evenOuterSum - evenInnerSum;
+        int evenRotation = (evenInnerDifference + evenOuterDifference) * 181 >> 8;
+        buffer[2] = evenOuterDifference + evenRotation;
+        buffer[6] = evenOuterDifference - evenRotation;
+        int oddRotation = (oddLower - oddUpper) * 98 >> 8;
+        int oddLeft = (oddLower * 139 >> 8) + oddRotation;
+        int oddRight = (oddUpper * 334 >> 8) + oddRotation;
+        int oddCenter = oddMiddle * 181 >> 8;
+        int oddSum = difference07 + oddCenter;
+        int oddDifference = difference07 - oddCenter;
+        buffer[5] = oddDifference + oddLeft;
+        buffer[3] = oddDifference - oddLeft;
+        buffer[1] = oddSum + oddRight;
+        buffer[7] = oddSum - oddRight;
         buffer += 8;
     }
 
     buffer = (int*)coefficients;
     for (int column = 0; column < 8; column++) {
-        int evenSum = *buffer + buffer[0x38];
-        int outerSum = *buffer - buffer[0x38];
-        int oddDifference = buffer[8] - buffer[0x30];
-        int butterflyValueB = buffer[8] + buffer[0x30];
-        int innerSum = buffer[0x10] - buffer[0x28];
-        int butterflyValueA = buffer[0x10] + buffer[0x28];
-        int evenDifference = oddDifference + outerSum;
-        int oddBranch = buffer[0x18] + buffer[0x20];
-        int middleSum = evenSum - oddBranch;
-        int crossTerm = (buffer[0x18] - buffer[0x20]) + innerSum;
-        int oddSum = butterflyValueB + butterflyValueA;
-        evenSum = evenSum + oddBranch;
-        *buffer = evenSum + oddSum;
-        buffer[0x20] = evenSum - oddSum;
-        butterflyValueB = ((butterflyValueB - butterflyValueA) + middleSum) * 0xB5 >> 8;
-        buffer[0x10] = middleSum + butterflyValueB;
-        butterflyValueA = (crossTerm - evenDifference) * 0x62 >> 8;
-        buffer[0x30] = middleSum - butterflyValueB;
-        oddBranch = butterflyValueA + (crossTerm * 0x8B >> 8);
-        butterflyValueA = butterflyValueA + (evenDifference * 0x14E >> 8);
-        butterflyValueB = (innerSum + oddDifference) * 0xB5 >> 8;
-        evenDifference = outerSum - butterflyValueB;
-        outerSum = outerSum + butterflyValueB;
-        buffer[0x28] = evenDifference + oddBranch;
-        buffer[0x18] = evenDifference - oddBranch;
-        buffer[8] = outerSum + butterflyValueA;
-        buffer[0x38] = outerSum - butterflyValueA;
+        int sum07 = buffer[0] + buffer[56];
+        int difference07 = buffer[0] - buffer[56];
+        int sum16 = buffer[8] + buffer[48];
+        int difference16 = buffer[8] - buffer[48];
+        int sum25 = buffer[16] + buffer[40];
+        int difference25 = buffer[16] - buffer[40];
+        int sum34 = buffer[24] + buffer[32];
+        int difference34 = buffer[24] - buffer[32];
+        int oddLower = difference34 + difference25;
+        int oddMiddle = difference25 + difference16;
+        int oddUpper = difference16 + difference07;
+        int evenOuterSum = sum07 + sum34;
+        int evenOuterDifference = sum07 - sum34;
+        int evenInnerSum = sum16 + sum25;
+        int evenInnerDifference = sum16 - sum25;
+        buffer[0] = evenOuterSum + evenInnerSum;
+        buffer[32] = evenOuterSum - evenInnerSum;
+        int evenRotation = (evenInnerDifference + evenOuterDifference) * 181 >> 8;
+        buffer[16] = evenOuterDifference + evenRotation;
+        buffer[48] = evenOuterDifference - evenRotation;
+        int oddRotation = (oddLower - oddUpper) * 98 >> 8;
+        int oddLeft = (oddLower * 139 >> 8) + oddRotation;
+        int oddRight = (oddUpper * 334 >> 8) + oddRotation;
+        int oddCenter = oddMiddle * 181 >> 8;
+        int oddSum = difference07 + oddCenter;
+        int oddDifference = difference07 - oddCenter;
+        buffer[40] = oddDifference + oddLeft;
+        buffer[24] = oddDifference - oddLeft;
+        buffer[8] = oddSum + oddRight;
+        buffer[56] = oddSum - oddRight;
         buffer++;
     }
 
-    int* coefficientColumn = (int*)coefficients;
-    int* quantizationColumn = (int*)quantizationTable;
     for (int columnIndex = 0; columnIndex < 8; columnIndex++) {
-        int* coefficientCursor = coefficientColumn;
-        int* quantizationCursor = quantizationColumn;
+        s32* inputColumn = (s32*)coefficients + columnIndex;
+        s32* quantizationColumn = (s32*)quantizationTable + columnIndex;
         for (int rowIndex = 0; rowIndex < 8; rowIndex++) {
-            *coefficientCursor = (*coefficientCursor * *quantizationCursor + 16384) >> 0xF;
-            coefficientCursor += 8;
-            quantizationCursor += 8;
+            inputColumn[rowIndex * 8] = (inputColumn[rowIndex * 8] * quantizationColumn[rowIndex * 8] + 16384) >> 15;
         }
-        coefficientColumn++;
-        quantizationColumn++;
     }
 }
 
@@ -1161,7 +1158,7 @@ s32 CArGBAOdh::huffmanCoder(u16* coefficientInput, SArCDJ_HuffmanRequest* reques
     this->outputCursor = request->bitstream + (request->bytesConsumed - *request->remaining);
 
     while (true) {
-        u32* predictor = isAcBlock == 0 ? request->dcPredictor : request->acPredictor;
+        u32* predictor = request->predictors[isAcBlock];
         u16* nextCoefficient = inputCursor + 2;
         u32 rawValue = (u32)*inputCursor << 16;
         s32 currentValue = (s32)rawValue >> 16;
@@ -1344,13 +1341,13 @@ s32 CArGBAOdh::cdj_d_initializeDecompressOdh(SArCDJ_OdhMaster* master, u8* workB
             master->field20 = 0;
             master->field24 = 0;
             master->field28 = 0;
-            master->luminanceRequest.dcPredictor = &master->field20;
-            master->luminanceRequest.acPredictor = &master->field20;
+            master->luminanceRequest.predictors[0] = &master->field20;
+            master->luminanceRequest.predictors[1] = &master->field20;
             master->luminanceRequest.bitstream = sourceData;
             master->luminanceRequest.bitCount = &master->bitCount;
             master->luminanceRequest.bytesConsumed = 0x10;
-            master->chrominanceRequest.dcPredictor = &master->field24;
-            master->chrominanceRequest.acPredictor = &master->field28;
+            master->chrominanceRequest.predictors[0] = &master->field24;
+            master->chrominanceRequest.predictors[1] = &master->field28;
             master->chrominanceRequest.bitstream = sourceData;
             master->chrominanceRequest.bitCount = &master->bitCount;
             master->chrominanceRequest.bytesConsumed = 0x10;
@@ -1385,6 +1382,7 @@ s32 CArGBAOdh::cdj_d_decompressLoop(SArCDJ_OdhMaster* master, int srcSize, int w
   int planeOffset;
   int blockRowSize;
   int naturalIndex;
+  int requiredBlockEnd;
 
   blockWidth = master->blocksWide;
   blockRowSize = (u32)blockWidth * 0x38;
@@ -1463,7 +1461,8 @@ s32 CArGBAOdh::cdj_d_decompressLoop(SArCDJ_OdhMaster* master, int srcSize, int w
       }
       planeOffset = (u32)master->blockX * 0x10 +
                ((u32)master->blockY << 6) * (u32)master->blocksWide * 2;
-      if (planeOffset + blockRowStride + 8 > workBufferSize) {
+      requiredBlockEnd = planeOffset + blockRowStride + 8;
+      if (requiredBlockEnd > workBufferSize) {
         statusOrOffset = -0x7ffffffa;
         goto finishBlock;
       }
@@ -1479,7 +1478,7 @@ s32 CArGBAOdh::cdj_d_decompressLoop(SArCDJ_OdhMaster* master, int srcSize, int w
         coefficientIndex = odh_natural_order[naturalIndex];
         master->coefficients[coefficientIndex] = master->dcCoefficients[naturalIndex];
       }
-      if (planeOffset + blockRowStride + 0x10 > workBufferSize) {
+      if (requiredBlockEnd + 8 > workBufferSize) {
         statusOrOffset = -0x7ffffffa;
         goto finishBlock;
       }
@@ -1608,7 +1607,8 @@ s32 CArGBAOdh::cdj_d_decompressLoop(SArCDJ_OdhMaster* master, int srcSize, int w
       }
       planeOffset = (u32)master->blockX * 0x10 +
                ((u32)master->blockY << 6) * (u32)master->blocksWide * 4;
-      if (planeOffset + blockRowStride + 8 > workBufferSize) {
+      requiredBlockEnd = planeOffset + blockRowStride + 8;
+      if (requiredBlockEnd > workBufferSize) {
         statusOrOffset = -0x7ffffffa;
         goto finishBlock;
       }
@@ -1641,7 +1641,8 @@ s32 CArGBAOdh::cdj_d_decompressLoop(SArCDJ_OdhMaster* master, int srcSize, int w
         master->coefficients[coefficientIndex] = master->dcCoefficients[naturalIndex];
       }
       planeOffset = planeOffset + (u32)master->blocksWide * 0x80 + -8;
-      if (planeOffset + blockRowStride + 8 > workBufferSize) {
+      requiredBlockEnd = planeOffset + blockRowStride + 8;
+      if (requiredBlockEnd > workBufferSize) {
         statusOrOffset = -0x7ffffffa;
         goto finishBlock;
       }
@@ -1657,7 +1658,7 @@ s32 CArGBAOdh::cdj_d_decompressLoop(SArCDJ_OdhMaster* master, int srcSize, int w
         coefficientIndex = odh_natural_order[naturalIndex];
         master->coefficients[coefficientIndex] = master->dcCoefficients[naturalIndex];
       }
-      if (planeOffset + blockRowStride + 0x10 > workBufferSize) {
+      if (requiredBlockEnd + 8 > workBufferSize) {
         statusOrOffset = -0x7ffffffa;
         goto finishBlock;
       }
@@ -1718,7 +1719,7 @@ finishBlock:
 
 void CArGBAOdh::cdj_d_setDequantizationTable(SArCDJ_OdhMaster* master, u32 qualityScale) {
     const u16* scales = (const u16*)gArAANScales;
-    int tableByteOffset = 0;
+    int quantizationOffset = 0;
     int standardTableOffset = 0;
     u32 tablePass = 0;
     int scaleIndex;
@@ -1743,13 +1744,13 @@ void CArGBAOdh::cdj_d_setDequantizationTable(SArCDJ_OdhMaster* master, u32 quali
             scaleIndex = tableIndex;
             u32 scale = scales[scaleIndex];
             u32 value = (boundedCoefficient * scale + 2048) >> 0xC;
-            u32* destination = master->quantizationTables + tablePass * 64;
+            u32* destination = master->quantizationTables + quantizationOffset;
             destination[tableIndex] = value;
             tableIndex++;
             standardTable++;
         }
         tablePass++;
-        tableByteOffset += 0x100;
+        quantizationOffset += 0x40;
         standardTableOffset += 0x40;
     } while (tablePass < 2);
 }
@@ -1913,10 +1914,10 @@ void CArGBAOdh::LineDeconv21(u8* dest, u8* y, u8* cb, u8* cr, u16 width, u16 hei
 
         if (format == 0) {
             outputOffset = (pixelIndex & 0x1FFFFFFC) * 8 + (pixelIndex & 3) * 2;
-            redValue = ((redValue & 0xF8) << 8 | (greenValue & 0xFC) << 3) | (blueValue >> 3);
+            s32 packedPixel = ((redValue & 0xF8) << 8 | (greenValue & 0xFC) << 3) | (blueValue >> 3);
+            dest[outputOffset] = packedPixel >> 8;
             pixelOutput = dest + outputOffset;
-            pixelOutput[0] = redValue >> 8;
-            pixelOutput[1] = redValue;
+            pixelOutput[1] = packedPixel;
         } else if (format == 1) {
             outputOffset = (pixelIndex & 0x0FFFFFFC) * 0x10 + (pixelIndex & 3) * 2;
             pixelOutput = dest + outputOffset;
@@ -1937,9 +1938,9 @@ void CArGBAOdh::LineDeconv21(u8* dest, u8* y, u8* cb, u8* cr, u16 width, u16 hei
         blueValue = ScaleLimit((u32)lumaValue + table->blue[cbValue]);
 
         if (format == 0) {
-            redValue = ((redValue & 0xF8) << 8 | (greenValue & 0xFC) << 3) | (blueValue >> 3);
-            pixelOutput[2] = redValue >> 8;
-            pixelOutput[3] = redValue;
+            s32 packedPixel = ((redValue & 0xF8) << 8 | (greenValue & 0xFC) << 3) | (blueValue >> 3);
+            pixelOutput[2] = packedPixel >> 8;
+            pixelOutput[3] = packedPixel;
         } else if (format == 1) {
             pixelOutput[2] = 0xFF;
             pixelOutput[3] = redValue;
@@ -2183,7 +2184,8 @@ s32 CArGBAOdh::huffmanDecoder(u32* coefficientOutput, SArCDJ_HuffmanRequest* req
                     tableIndex = tableIndex + decodedSymbol;
                 } else {
                     if ((tableEntry & 0x4000) != 0) {
-                        valueCategory = huffmanTables[0][tableIndex + decodedSymbol + 1];
+                        u32 leafIndex = tableIndex + decodedSymbol + 1;
+                        valueCategory = huffmanTables[0][leafIndex];
                         break;
                     }
                     tableIndex = tableIndex + decodedSymbol + 1;
@@ -2201,14 +2203,15 @@ s32 CArGBAOdh::huffmanDecoder(u32* coefficientOutput, SArCDJ_HuffmanRequest* req
             } else {
                 bitBuffer = 0;
             }
-            u32* predictor = component == 2 ? request->acPredictor : request->dcPredictor;
+            u32** predictors = request->predictors;
+            u32* predictor = predictors[component >> 1];
             bitCountAndMask = bitOffset + bitIndex + valueCategory;
             tableIndex = (u32)(bitCountAndMask >> 3);
             decodedSymbol = 1;
             bitIndex = (int)bitBuffer + *predictor;
             *coefficientOutput = bitIndex;
-            *predictor = bitIndex;
-            for (u32 byteIndex = 0; byteIndex < tableIndex; byteIndex++) {
+            *predictors[component >> 1] = bitIndex;
+            while (bitCountAndMask >= 8) {
                 sourceCursor++;
                 bytesConsumed++;
                 bitCountAndMask -= 8;
@@ -2248,7 +2251,7 @@ s32 CArGBAOdh::huffmanDecoder(u32* coefficientOutput, SArCDJ_HuffmanRequest* req
                 if (valueCategory == 7) {
                     bitCountAndMask += bitIndex;
                     tableIndex = (u32)(bitCountAndMask >> 3);
-                    for (u32 byteIndex = 0; byteIndex < tableIndex; byteIndex++) {
+                    while (bitCountAndMask >= 8) {
                         sourceCursor++;
                         bytesConsumed++;
                         bitCountAndMask -= 8;
@@ -2271,7 +2274,7 @@ s32 CArGBAOdh::huffmanDecoder(u32* coefficientOutput, SArCDJ_HuffmanRequest* req
                 }
                 bitCountAndMask = bitCountAndMask + bitIndex + valueCategory;
                 tableIndex = (u32)(bitCountAndMask >> 3);
-                for (u32 byteIndex = 0; byteIndex < tableIndex; byteIndex++) {
+                while (bitCountAndMask >= 8) {
                     sourceCursor++;
                     bytesConsumed++;
                     bitCountAndMask -= 8;
@@ -2323,7 +2326,7 @@ s32 CArGBAOdh::huffmanDecoder(u32* coefficientOutput, SArCDJ_HuffmanRequest* req
                 coefficientOutput[decodedSymbol] = bitBuffer;
                 tableIndex = (u32)(bitCountAndMask >> 3);
                 decodedSymbol = decodedSymbol + 1;
-                for (u32 byteIndex = 0; byteIndex < tableIndex; byteIndex++) {
+                while (bitCountAndMask >= 8) {
                     sourceCursor++;
                     bytesConsumed++;
                     bitCountAndMask -= 8;
