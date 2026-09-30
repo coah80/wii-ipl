@@ -135,23 +135,35 @@ typedef union PFD_SDDRV_U16_BYTES {
     u8 bytes[2];
 } PFD_SDDRV_U16_BYTES;
 
-static inline void pfd_sddrv_store_le16(u8* field, u16 value) {
-    if (((u32)field & 1) != 0) {
-        field[0] = (u8)value;
-        field[1] = (u8)(value >> 8);
-    } else {
-        *(u16*)field = (u16)((value >> 8) | (value << 8));
-    }
-}
+#define pfd_sddrv_store_le16(field, value) \
+    do { \
+        if (((u32)(field) & 1) != 0) { \
+            (field)[0] = (u8)(value); \
+            (field)[1] = (u8)((value) >> 8); \
+        } else { \
+            *(u16*)(field) = (((value) & 0xff) << 8) | (((value) & 0xff00) >> 8); \
+        } \
+    } while (0)
 
-static inline void pfd_sddrv_store_le32(u8* field, u32 value) {
-    if (((u32)field & 3) != 0) {
-        field[0] = (u8)value;
-        field[1] = (u8)(value >> 8);
-        field[2] = (u8)(value >> 16);
-        field[3] = (u8)(value >> 24);
-    } else {
-        *(u32*)field = (value << 24) | ((value & 0xff00) << 8) | ((value >> 8) & 0xff00) | (value >> 24);
+#define pfd_sddrv_store_le32(field, value) \
+    do { \
+        if (((u32)(field) & 3) != 0) { \
+            (field)[0] = (u8)(value); \
+            (field)[1] = (u8)((value) >> 8); \
+            (field)[2] = (u8)((value) >> 16); \
+            (field)[3] = (u8)((value) >> 24); \
+        } else { \
+            *(u32*)(field) = (((value) & 0xff) << 24 | ((value) & 0xff00) << 8) | \
+                            (((value) & 0xff000000) >> 24 | ((value) & 0xff0000) >> 8); \
+        } \
+    } while (0)
+
+static inline void pfd_sddrv_copy_bytes(u8* destination, const u8* source, u32 size) {
+    u32 index;
+    if (destination != 0 && source != 0) {
+        for (index = 0; index < size; index++) {
+            destination[index] = source[index];
+        }
     }
 }
 
@@ -456,7 +468,7 @@ s32 pfd_sddrv_finalize(FADisk* disk) {
     if (disk == 0) {
         return -30;
     }
-    if ((g_pfd_sddrv_info.flags & 2) != 0) {
+    if ((g_pfd_sddrv_info.flags & 2) == 2) {
         clear_mount_flag();
     }
     if ((g_pfd_sddrv_info.flags & 1) != 0) {
@@ -742,109 +754,108 @@ s32 pfd_sddrv_calc_mbr_bpb(PFD_SDDRV_FORMAT_DATA* format_data) {
     u32 fat_entry_bits;
     u32 fat_sectors;
     u32 next_fat_sectors;
-    u64 total_sectors;
-    u64 reserved_sectors;
-    u64 fixed_sectors;
-    u64 start_sector;
-    u64 current_start;
-    u64 clusters;
-    u64 cluster_count_plus_one;
-    u64 candidate_fat_sectors;
+    u32 total_sectors;
+    u8 sectors_per_cluster;
+    u32 reserved_sectors;
+    u32 fixed_sectors;
+    u32 start_sector;
+    u32 current_start;
+    u32 clusters;
+    u32 candidate_fat_sectors;
     u32 reserve_count;
-    int moved_start;
+    int moved_start = 0;
+    s32 result;
     OSCalendarTime current_time;
 
     if (format_data == 0) {
         return -30;
     }
-    pf_memset(&settings, 0, 0x10);
+    pf_memset(&settings, 0, sizeof(settings));
     size_entry = sddrv_size_depend_tbl;
-    for (entry_index = 0; entry_index < 14; entry_index++, size_entry++) {
-        if (size_entry->min_sectors < format_data->total_sectors && format_data->total_sectors <= size_entry->max_sectors) {
-            settings.reserved_sectors = size_entry->reserved_sectors;
-            settings.fat_copies = size_entry->fat_copies;
-            settings.root_entries = size_entry->root_entries;
-            settings.sectors_per_cluster = size_entry->sectors_per_cluster;
+    for (entry_index = 0; entry_index < 14; size_entry++, entry_index++) {
+        if (size_entry->min_sectors < format_data->total_sectors && size_entry->max_sectors >= format_data->total_sectors) {
+            settings.reserved_sectors = sddrv_size_depend_tbl[entry_index].reserved_sectors;
+            settings.fat_copies = sddrv_size_depend_tbl[entry_index].fat_copies;
+            settings.root_entries = sddrv_size_depend_tbl[entry_index].root_entries;
+            settings.sectors_per_cluster = sddrv_size_depend_tbl[entry_index].sectors_per_cluster;
             break;
         }
     }
-    if (entry_index == 14) {
+    result = entry_index == 14 ? -30 : 0;
+    if (result != 0) {
         OSReport("ERR Failed to get values with total sectors. pfd_sddrv_get_value_with_total_sectors()\n");
-        return -30;
+        return result;
     }
-    format_data->sectors_per_cluster = settings.sectors_per_cluster;
+    sectors_per_cluster = settings.sectors_per_cluster;
+    format_data->sectors_per_cluster = sectors_per_cluster;
     total_sectors = format_data->total_sectors;
-    clusters = total_sectors / settings.sectors_per_cluster;
-    if (total_sectors % settings.sectors_per_cluster != 0) {
-        clusters++;
-    }
+    clusters = total_sectors / sectors_per_cluster;
     if (clusters < 0x1005) {
         fat_entry_bits = 12;
-    } else {
-        if (clusters > 0xfff4) {
-            return -31;
-        }
+    } else if (clusters < 0xfff5) {
         fat_entry_bits = 16;
+    } else {
+        return -31;
+    }
+    if (total_sectors % sectors_per_cluster != 0) {
+        clusters++;
     }
     candidate_fat_sectors = clusters * fat_entry_bits;
-    fat_sectors = (u32)(candidate_fat_sectors >> 12);
+    fat_sectors = candidate_fat_sectors >> 12;
     if ((candidate_fat_sectors & 0xfff) != 0) {
         fat_sectors++;
     }
     reserved_sectors = settings.reserved_sectors;
     for (;;) {
-        u64 previous_fat_sectors = fat_sectors;
-        fixed_sectors = previous_fat_sectors * 2 + 0x21;
+        fixed_sectors = fat_sectors * 2 + 0x21;
         reserve_count = 1;
         current_start = reserved_sectors;
-        do {
+        for (;;) {
             start_sector = current_start - fixed_sectors;
-            if ((s64)start_sector >= 1) {
+            if ((s32)start_sector > 0) {
                 break;
             }
-            reserve_count++;
             current_start += reserved_sectors;
-        } while (1);
-        current_start = (u64)reserve_count * reserved_sectors;
-        start_sector = current_start - fixed_sectors;
-        moved_start = 0;
+            reserve_count++;
+        }
+        current_start = reserve_count * reserved_sectors;
         for (;;) {
-            for (;;) {
-                if (!moved_start && reserved_sectors != (u32)start_sector) {
-                    start_sector += reserved_sectors;
-                }
-                moved_start = 0;
-                clusters = ((total_sectors - start_sector) - fixed_sectors) / settings.sectors_per_cluster;
-                cluster_count_plus_one = clusters + 1;
-                if (cluster_count_plus_one >= 0xfe5 && cluster_count_plus_one <= 0x1004) {
-                    break;
-                }
+            if (moved_start == 0 && reserved_sectors != start_sector) {
+                start_sector += reserved_sectors;
+            }
+            moved_start = 0;
+            clusters = (total_sectors - start_sector - fixed_sectors) / sectors_per_cluster + 1;
+            if (clusters >= 0xfe5 && clusters < 0x1005) {
                 current_start += reserved_sectors;
                 start_sector = current_start - fixed_sectors;
+                continue;
             }
-            candidate_fat_sectors = clusters * fat_entry_bits + 2;
-            next_fat_sectors = (u32)(candidate_fat_sectors >> 12);
+            candidate_fat_sectors = (clusters - 1) * fat_entry_bits + 2;
+            next_fat_sectors = candidate_fat_sectors >> 12;
             if ((candidate_fat_sectors & 0xfff) != 0) {
                 next_fat_sectors++;
             }
-            if (next_fat_sectors <= previous_fat_sectors) {
+            if (next_fat_sectors <= fat_sectors) {
                 break;
             }
             start_sector += reserved_sectors;
             moved_start = 1;
         }
-        fat_sectors = next_fat_sectors;
-        if (fat_sectors == previous_fat_sectors) {
+        if (next_fat_sectors == fat_sectors) {
             break;
         }
+        fat_sectors = next_fat_sectors;
     }
     format_data->sectors_per_fat = fat_sectors;
-    format_data->partition_start_sector = (u32)start_sector;
-    format_data->partition_sector_count = format_data->total_sectors - (u32)start_sector;
-    if (((format_data->partition_sector_count - (fat_sectors * 2 + 0x21)) / format_data->sectors_per_cluster + 1) < 0xff5) {
+    format_data->partition_start_sector = start_sector;
+    format_data->partition_sector_count = format_data->total_sectors - start_sector;
+    clusters = (format_data->partition_sector_count - (fat_sectors * 2 + 0x21)) / format_data->sectors_per_cluster + 1;
+    if (clusters < 0xff5) {
         format_data->fat_type = 0;
-    } else {
+    } else if (clusters >= 0xff5) {
         format_data->fat_type = 1;
+    } else {
+        return -31;
     }
     OSTicksToCalendarTime(OSGetTime(), &current_time);
     format_data->volume_serial_number = ((((current_time.year - 1900) & 0x7f) << 9) |
@@ -856,48 +867,56 @@ s32 pfd_sddrv_calc_mbr_bpb(PFD_SDDRV_FORMAT_DATA* format_data) {
     return 0;
 }
 
+
 s32 pfd_sddrv_store_bpb_buf(PFD_SDDRV_FORMAT_DATA* format_data, u8* sector_buffer) {
     const PFD_SDDRV_SIZE_DEPEND* size_entry;
     PFD_SDDRV_SIZE_SETTINGS settings;
     PFD_SDDRV_BPB* boot_sector;
     u32 entry_index;
-    u32 sectors_16;
+    u16 sectors_16;
+    s32 result;
     u32 sectors_32;
 
-    if (format_data == 0 || sector_buffer == 0) {
+    if (format_data == 0) {
         return -30;
     }
-    size_entry = sddrv_size_depend_tbl;
     pf_memset(&settings, 0, 0x10);
-    for (entry_index = 0; entry_index < 14; entry_index++, size_entry++) {
-        if (size_entry->min_sectors < format_data->total_sectors && format_data->total_sectors <= size_entry->max_sectors) {
-            settings.reserved_sectors = size_entry->reserved_sectors;
-            settings.fat_copies = size_entry->fat_copies;
-            settings.root_entries = size_entry->root_entries;
-            settings.sectors_per_cluster = size_entry->sectors_per_cluster;
+    size_entry = sddrv_size_depend_tbl;
+    for (entry_index = 0; entry_index < 14; size_entry++, entry_index++) {
+        if (size_entry->min_sectors < format_data->total_sectors && size_entry->max_sectors >= format_data->total_sectors) {
+            settings.reserved_sectors = sddrv_size_depend_tbl[entry_index].reserved_sectors;
+            settings.fat_copies = sddrv_size_depend_tbl[entry_index].fat_copies;
+            settings.root_entries = sddrv_size_depend_tbl[entry_index].root_entries;
+            settings.sectors_per_cluster = sddrv_size_depend_tbl[entry_index].sectors_per_cluster;
             break;
         }
     }
-    if (entry_index == 14) {
+    result = entry_index == 14 ? -30 : 0;
+    if (result != 0) {
         OSReport("ERR Failed to get values with total sectors. pfd_sddrv_get_value_with_total_sectors()\n");
-        return -30;
+        return result;
     }
-    if (format_data->partition_sector_count == 0) {
-        return -30;
-    }
-    if (format_data->partition_sector_count <= 0xffff) {
-        sectors_16 = format_data->partition_sector_count;
+    sectors_32 = format_data->partition_sector_count;
+    if (sectors_32 != 0 && sectors_32 < 0x10000) {
+        sectors_16 = sectors_32;
         sectors_32 = 0;
-    } else {
+    } else if (sectors_32 >= 0x10000) {
         sectors_16 = 0;
-        sectors_32 = format_data->partition_sector_count;
+    } else {
+        return -30;
     }
     pf_memset(sector_buffer, 0, 0x200);
     boot_sector = (PFD_SDDRV_BPB*)sector_buffer;
+    pfd_sddrv_copy_bytes(boot_sector->oem_name, (const u8*)"        ", 8);
+    pfd_sddrv_copy_bytes(boot_sector->volume_label, (const u8*)"NO NAME    ", 11);
+    if (format_data->fat_type == 0) {
+        pfd_sddrv_copy_bytes(boot_sector->file_system_type, (const u8*)"FAT12   ", 8);
+    } else {
+        pfd_sddrv_copy_bytes(boot_sector->file_system_type, (const u8*)"FAT16   ", 8);
+    }
     boot_sector->jump[0] = 0xeb;
     boot_sector->jump[1] = 0;
     boot_sector->jump[2] = 0x90;
-    pf_memcpy(boot_sector->oem_name, "        ", 8);
     pfd_sddrv_store_le16(boot_sector->bytes_per_sector, 0x200);
     boot_sector->sectors_per_cluster = format_data->sectors_per_cluster;
     pfd_sddrv_store_le16(boot_sector->reserved_sector_count, 1);
@@ -913,13 +932,8 @@ s32 pfd_sddrv_store_bpb_buf(PFD_SDDRV_FORMAT_DATA* format_data, u8* sector_buffe
     boot_sector->drive_number = 0x80;
     boot_sector->extended_signature = 0x29;
     pfd_sddrv_store_le32(boot_sector->volume_serial_number, format_data->volume_serial_number);
-    pf_memcpy(boot_sector->volume_label, "NO NAME    ", 11);
-    if (format_data->fat_type == 0) {
-        pf_memcpy(boot_sector->file_system_type, "FAT12   ", 8);
-    } else {
-        pf_memcpy(boot_sector->file_system_type, "FAT16   ", 8);
-    }
-    pfd_sddrv_store_le16(boot_sector->signature, 0xaa55);
+    boot_sector->signature[0] = 0x55;
+    boot_sector->signature[1] = 0xaa;
     return 0;
 }
 
@@ -929,51 +943,63 @@ s32 pfd_sddrv_store_mbr_buf(PFD_SDDRV_FORMAT_DATA* format_data, u8* sector_buffe
     PFD_SDDRV_MBR* master_boot_record;
     PFD_SDDRV_PARTITION_ENTRY* partition;
     u32 entry_index;
+    s32 result;
+    u8 start_head;
+    u8 end_head;
+    u8 partition_type;
     u32 sectors_per_cylinder;
-    u32 start_cylinder;
-    u32 end_cylinder;
-    u32 start_sector;
-    u32 end_sector;
+    u16 start_cylinder;
+    u16 end_cylinder;
+    u16 start_sector;
+    u16 end_sector;
 
-    if (format_data == 0 || sector_buffer == 0) {
+    if (format_data == 0) {
         return -30;
     }
-    size_entry = sddrv_size_depend_tbl;
     pf_memset(&settings, 0, 0x10);
-    for (entry_index = 0; entry_index < 14; entry_index++, size_entry++) {
-        if (size_entry->min_sectors < format_data->total_sectors && format_data->total_sectors <= size_entry->max_sectors) {
-            settings.reserved_sectors = size_entry->reserved_sectors;
-            settings.fat_copies = size_entry->fat_copies;
-            settings.root_entries = size_entry->root_entries;
-            settings.sectors_per_cluster = size_entry->sectors_per_cluster;
+    size_entry = sddrv_size_depend_tbl;
+    for (entry_index = 0; entry_index < 14; size_entry++, entry_index++) {
+        if (size_entry->min_sectors < format_data->total_sectors && size_entry->max_sectors >= format_data->total_sectors) {
+            settings.reserved_sectors = sddrv_size_depend_tbl[entry_index].reserved_sectors;
+            settings.fat_copies = sddrv_size_depend_tbl[entry_index].fat_copies;
+            settings.root_entries = sddrv_size_depend_tbl[entry_index].root_entries;
+            settings.sectors_per_cluster = sddrv_size_depend_tbl[entry_index].sectors_per_cluster;
             break;
         }
     }
-    if (entry_index == 14 || format_data->partition_sector_count == 0) {
-        return -30;
+    result = entry_index == 14 ? -30 : 0;
+    if (result != 0) {
+        OSReport("ERR Failed to get values with total sectors. pfd_sddrv_get_value_with_total_sectors()\n");
+        return result;
     }
     sectors_per_cylinder = settings.fat_copies * settings.root_entries;
     start_cylinder = format_data->partition_start_sector / sectors_per_cylinder;
     end_cylinder = (format_data->total_sectors - 1) / sectors_per_cylinder;
     start_sector = format_data->partition_start_sector % settings.root_entries + 1;
     end_sector = (format_data->total_sectors - 1) % settings.root_entries + 1;
+    start_head = (format_data->partition_start_sector % sectors_per_cylinder) / settings.root_entries;
+    end_head = ((format_data->total_sectors - 1) % sectors_per_cylinder) / settings.root_entries;
+    if (format_data->partition_sector_count == 0) {
+        return -30;
+    }
+    if (format_data->partition_sector_count != 0 && format_data->partition_sector_count < 0x7fa8) {
+        partition_type = 1;
+    } else if (format_data->partition_sector_count >= 0x7fa8 && format_data->partition_sector_count < 0x10000) {
+        partition_type = 4;
+    } else {
+        partition_type = 6;
+    }
     pf_memset(sector_buffer, 0, 0x200);
     master_boot_record = (PFD_SDDRV_MBR*)sector_buffer;
     partition = &master_boot_record->partitions[0];
     partition->boot_indicator = 0;
-    partition->start_head = (format_data->partition_start_sector / settings.root_entries) % settings.fat_copies;
-    partition->start_sector_cylinder[0] = (u8)((start_sector & 0x3f) | ((start_cylinder >> 2) & 0xc0));
-    partition->start_sector_cylinder[1] = (u8)start_cylinder;
-    if (format_data->partition_sector_count < 0x7fa8) {
-        partition->partition_type = 1;
-    } else if (format_data->partition_sector_count > 0xffff) {
-        partition->partition_type = 6;
-    } else {
-        partition->partition_type = 4;
-    }
-    partition->end_head = ((format_data->total_sectors - 1) / settings.root_entries) % settings.fat_copies;
-    partition->end_sector_cylinder[0] = (u8)((end_sector & 0x3f) | ((end_cylinder >> 2) & 0xc0));
-    partition->end_sector_cylinder[1] = (u8)end_cylinder;
+    partition->start_head = start_head;
+    pfd_sddrv_store_le16(partition->start_sector_cylinder,
+        ((start_cylinder & 0xff) << 8) + ((start_sector & 0x3f) | ((start_cylinder & 0x300) >> 2)));
+    partition->partition_type = partition_type;
+    partition->end_head = end_head;
+    pfd_sddrv_store_le16(partition->end_sector_cylinder,
+        ((end_cylinder & 0xff) << 8) + ((end_sector & 0x3f) | ((end_cylinder & 0x300) >> 2)));
     pfd_sddrv_store_le32(partition->first_sector, format_data->partition_start_sector);
     pfd_sddrv_store_le32(partition->sector_count, format_data->partition_sector_count);
     master_boot_record->signature[0] = 0x55;
@@ -1055,7 +1081,7 @@ s32 pfd_sddrv_calc_fat32_mbr_bpb(PFD_SDDRV_FORMAT_DATA* format_data) {
     pf_memset(&settings, 0, 0x10);
     total_sectors = format_data->total_sectors;
     size_entry = sddrv_size_depend_tbl;
-    for (entry_index = 0; entry_index < 14; entry_index++, size_entry++) {
+    for (entry_index = 0; entry_index < 14; size_entry++, entry_index++) {
         if (size_entry->min_sectors >= total_sectors) {
             continue;
         }
@@ -1075,9 +1101,10 @@ s32 pfd_sddrv_calc_fat32_mbr_bpb(PFD_SDDRV_FORMAT_DATA* format_data) {
     }
     sectors_per_cluster = settings.sectors_per_cluster;
     format_data->sectors_per_cluster = sectors_per_cluster;
+    total_sectors = format_data->total_sectors;
     cluster_count = total_sectors / sectors_per_cluster;
     fat_sectors = (cluster_count >> 7) & 0xfffff;
-    if ((cluster_count & 0x7f) != 0) {
+    if ((cluster_count * 32 & 0xfe0) != 0) {
         fat_sectors++;
     }
     fat_sector_count = fat_sectors * 2;
@@ -1099,7 +1126,7 @@ s32 pfd_sddrv_calc_fat32_mbr_bpb(PFD_SDDRV_FORMAT_DATA* format_data) {
         for (;;) {
             cluster_count = (available_sectors - data_start_sector) / sectors_per_cluster + 2;
             calculated_fat_sectors = (cluster_count >> 7) & 0xfffff;
-            if ((cluster_count & 0x7f) != 0) {
+            if ((cluster_count * 32 & 0xfe0) != 0) {
                 calculated_fat_sectors++;
             }
             if (calculated_fat_sectors <= fat_sectors) {
@@ -1138,23 +1165,24 @@ s32 pfd_sddrv_store_fat32_mbr_buf(PFD_SDDRV_FORMAT_DATA* format_data, u8* sector
     PFD_SDDRV_MBR* master_boot_record;
     PFD_SDDRV_PARTITION_ENTRY* partition;
     u32 entry_index;
+    s32 result;
     u32 cylinder_size;
-    u32 start_cylinder;
-    u32 start_head;
-    u32 start_sector;
-    u32 end_cylinder;
-    u32 end_head;
-    u32 end_sector;
+    u16 start_cylinder;
+    u8 start_head;
+    u16 start_sector;
+    u16 end_cylinder;
+    u8 end_head;
+    u16 end_sector;
     u32 partition_end;
     u8 partition_type;
 
-    if (format_data == 0 || sector_buffer == 0) {
+    if (format_data == 0) {
         return -30;
     }
     pf_memset(&settings, 0, 0x10);
     size_entry = sddrv_size_depend_tbl;
     for (entry_index = 0; entry_index < 14; size_entry++, entry_index++) {
-        if (size_entry->min_sectors < format_data->total_sectors && format_data->total_sectors <= size_entry->max_sectors) {
+        if (size_entry->min_sectors < format_data->total_sectors && size_entry->max_sectors >= format_data->total_sectors) {
             settings.reserved_sectors = sddrv_size_depend_tbl[entry_index].reserved_sectors;
             settings.fat_copies = sddrv_size_depend_tbl[entry_index].fat_copies;
             settings.root_entries = sddrv_size_depend_tbl[entry_index].root_entries;
@@ -1162,9 +1190,10 @@ s32 pfd_sddrv_store_fat32_mbr_buf(PFD_SDDRV_FORMAT_DATA* format_data, u8* sector
             break;
         }
     }
-    if (entry_index == 14) {
+    result = entry_index == 14 ? -30 : 0;
+    if (result != 0) {
         OSReport("ERR Failed to get values with total sectors. pfd_sddrv_get_value_with_total_sectors()\n");
-        return -30;
+        return result;
     }
     cylinder_size = settings.fat_copies * settings.root_entries;
     partition_end = format_data->total_sectors - 1;
@@ -1194,11 +1223,11 @@ s32 pfd_sddrv_store_fat32_mbr_buf(PFD_SDDRV_FORMAT_DATA* format_data, u8* sector
     partition->boot_indicator = 0;
     partition->start_head = (u8)start_head;
     pfd_sddrv_store_le16(partition->start_sector_cylinder,
-                         (u16)((start_cylinder << 8) | ((start_sector & 0x3f) | ((start_cylinder >> 2) & 0xc0))));
+                         ((start_cylinder & 0xff) << 8) + ((start_sector & 0x3f) | ((start_cylinder & 0x300) >> 2)));
     partition->partition_type = partition_type;
     partition->end_head = (u8)end_head;
     pfd_sddrv_store_le16(partition->end_sector_cylinder,
-                         (u16)((end_cylinder << 8) | ((end_sector & 0x3f) | ((end_cylinder >> 2) & 0xc0))));
+                         ((end_cylinder & 0xff) << 8) + ((end_sector & 0x3f) | ((end_cylinder & 0x300) >> 2)));
     pfd_sddrv_store_le32(partition->first_sector, format_data->partition_start_sector);
     pfd_sddrv_store_le32(partition->sector_count, format_data->partition_sector_count);
     pfd_sddrv_store_le16(master_boot_record->signature, 0xaa55);
@@ -1258,36 +1287,38 @@ s32 pfd_sddrv_store_fat32_bpb_buf(PFD_SDDRV_FORMAT_DATA* format_data, u8* sector
     const PFD_SDDRV_SIZE_DEPEND* size_entry;
     PFD_SDDRV_FAT32_BPB* boot_sector;
     u32 entry_index;
-    u32 sector_value;
+    s32 result;
 
-    if (format_data == 0 || sector_buffer == 0) {
+    if (format_data == 0) {
         return -30;
     }
     pf_memset(&settings, 0, 0x10);
     size_entry = sddrv_size_depend_tbl;
-    for (entry_index = 0; entry_index < 14; entry_index++, size_entry++) {
-        if (size_entry->min_sectors < format_data->total_sectors && format_data->total_sectors <= size_entry->max_sectors) {
-            settings.reserved_sectors = size_entry->reserved_sectors;
-            settings.fat_copies = size_entry->fat_copies;
-            settings.root_entries = size_entry->root_entries;
-            settings.sectors_per_cluster = size_entry->sectors_per_cluster;
+    for (entry_index = 0; entry_index < 14; size_entry++, entry_index++) {
+        if (size_entry->min_sectors < format_data->total_sectors && size_entry->max_sectors >= format_data->total_sectors) {
+            settings.reserved_sectors = sddrv_size_depend_tbl[entry_index].reserved_sectors;
+            settings.fat_copies = sddrv_size_depend_tbl[entry_index].fat_copies;
+            settings.root_entries = sddrv_size_depend_tbl[entry_index].root_entries;
+            settings.sectors_per_cluster = sddrv_size_depend_tbl[entry_index].sectors_per_cluster;
             break;
         }
     }
-    if (entry_index == 14) {
+    result = entry_index == 14 ? -30 : 0;
+    if (result != 0) {
         OSReport("ERR Failed to get values with total sectors. pfd_sddrv_get_value_with_total_sectors()\n");
-        return -30;
+        return result;
     }
     pf_memset(sector_buffer, 0, 0x200);
     boot_sector = (PFD_SDDRV_FAT32_BPB*)sector_buffer;
+    pfd_sddrv_copy_bytes(boot_sector->oem_name, (const u8*)"        ", 8);
+    pfd_sddrv_copy_bytes(boot_sector->volume_label, (const u8*)"NO NAME    ", 11);
+    pfd_sddrv_copy_bytes(boot_sector->filesystem_type, (const u8*)"FAT32   ", 8);
     boot_sector->jump[0] = 0xeb;
     boot_sector->jump[1] = 0;
     boot_sector->jump[2] = 0x90;
-    pf_memcpy(boot_sector->oem_name, "        ", 8);
     pfd_sddrv_store_le16(boot_sector->bytes_per_sector, 0x200);
     boot_sector->sectors_per_cluster = format_data->sectors_per_cluster;
-    sector_value = format_data->reserved_sectors;
-    pfd_sddrv_store_le16(boot_sector->reserved_sector_count, (u16)sector_value);
+    pfd_sddrv_store_le16(boot_sector->reserved_sector_count, format_data->reserved_sectors);
     boot_sector->fat_count = 2;
     pfd_sddrv_store_le16(boot_sector->root_entry_count, 0);
     pfd_sddrv_store_le16(boot_sector->total_sectors_16, 0);
@@ -1306,8 +1337,6 @@ s32 pfd_sddrv_store_fat32_bpb_buf(PFD_SDDRV_FORMAT_DATA* format_data, u8* sector
     boot_sector->drive_number = 0x80;
     boot_sector->extended_signature = 0x29;
     pfd_sddrv_store_le32(boot_sector->volume_serial_number, format_data->volume_serial_number);
-    pf_memcpy(boot_sector->volume_label, "NO NAME    ", 11);
-    pf_memcpy(boot_sector->filesystem_type, "FAT32   ", 8);
     if (((u32)boot_sector->signature & 1) != 0) {
         boot_sector->signature[0] = 0x55;
         boot_sector->signature[1] = 0xaa;
@@ -1325,11 +1354,11 @@ static s32 pfd_sddrv_store_fat32_reserved_buf(u8* sector_buffer) {
     }
     pf_memset(sector_buffer, 0, 0x200);
     reserved_boot_sector = (PFD_SDDRV_RESERVED_BOOT_SECTOR*)sector_buffer;
-    if (((u32)reserved_boot_sector->signature.bytes & 1) == 0) {
-        reserved_boot_sector->signature.value = 0x55aa;
-    } else {
+    if (((u32)reserved_boot_sector->signature.bytes & 1) != 0) {
         reserved_boot_sector->signature.bytes[0] = 0x55;
         reserved_boot_sector->signature.bytes[1] = 0xaa;
+    } else {
+        reserved_boot_sector->signature.value = 0x55aa;
     }
     return 0;
 }
@@ -1337,7 +1366,6 @@ static s32 pfd_sddrv_store_fat32_reserved_buf(u8* sector_buffer) {
 s32 pfd_sddrv_build_fat32_mbr_bpb(u32 total_sectors) {
     PFD_SDDRV_FORMAT_DATA format_data;
     s32 result;
-    u32 partition_start_sector;
     pf_memset(&format_data, 0, 0x20);
     format_data.total_sectors = total_sectors;
     result = pfd_sddrv_calc_fat32_mbr_bpb(&format_data);
@@ -1350,19 +1378,18 @@ s32 pfd_sddrv_build_fat32_mbr_bpb(u32 total_sectors) {
         OSReport("ERR Failed to store BPB values to buf. pfd_sddrv_store_fat32_bpb_buf()\n");
         return result;
     }
-    partition_start_sector = format_data.partition_start_sector;
     if (g_pfd_sddrv_info.media_inserted == 0) {
         return -33;
     }
     if (g_pfd_sddrv_info.media_ejected != 0) {
         return -33;
     }
-    result = ISD_WriteBlock(g_pfd_sddrv_info.device, partition_start_sector, g_pfd_sddrv_buf, 1);
+    result = ISD_WriteBlock(g_pfd_sddrv_info.device, format_data.partition_start_sector, g_pfd_sddrv_buf, 1);
     if (result != 0) {
         OSReport("ERR Failed to write BPB fields. ISD_WriteBlock()\n");
         return -36;
     }
-    result = ISD_WriteBlock(g_pfd_sddrv_info.device, partition_start_sector + 6, g_pfd_sddrv_buf, 1);
+    result = ISD_WriteBlock(g_pfd_sddrv_info.device, format_data.partition_start_sector + 6, g_pfd_sddrv_buf, 1);
     if (result != 0) {
         OSReport("ERR Failed to write BPB fields. ISD_WriteBlock()\n");
         return -36;
@@ -1378,12 +1405,12 @@ s32 pfd_sddrv_build_fat32_mbr_bpb(u32 total_sectors) {
     if (g_pfd_sddrv_info.media_ejected != 0) {
         return -33;
     }
-    result = ISD_WriteBlock(g_pfd_sddrv_info.device, partition_start_sector + 1, g_pfd_sddrv_buf, 1);
+    result = ISD_WriteBlock(g_pfd_sddrv_info.device, format_data.partition_start_sector + 1, g_pfd_sddrv_buf, 1);
     if (result != 0) {
         OSReport("ERR Failed to write BPB fields. ISD_WriteBlock()\n");
         return -36;
     }
-    result = ISD_WriteBlock(g_pfd_sddrv_info.device, partition_start_sector + 7, g_pfd_sddrv_buf, 1);
+    result = ISD_WriteBlock(g_pfd_sddrv_info.device, format_data.partition_start_sector + 7, g_pfd_sddrv_buf, 1);
     if (result != 0) {
         OSReport("ERR Failed to write BPB fields. ISD_WriteBlock()\n");
         return -36;
@@ -1400,12 +1427,12 @@ s32 pfd_sddrv_build_fat32_mbr_bpb(u32 total_sectors) {
     if (g_pfd_sddrv_info.media_ejected != 0) {
         return -33;
     }
-    result = ISD_WriteBlock(g_pfd_sddrv_info.device, partition_start_sector + 2, g_pfd_sddrv_buf, 1);
+    result = ISD_WriteBlock(g_pfd_sddrv_info.device, format_data.partition_start_sector + 2, g_pfd_sddrv_buf, 1);
     if (result != 0) {
         OSReport("ERR Failed to write BPB fields. ISD_WriteBlock()\n");
         return -36;
     }
-    result = ISD_WriteBlock(g_pfd_sddrv_info.device, partition_start_sector + 8, g_pfd_sddrv_buf, 1);
+    result = ISD_WriteBlock(g_pfd_sddrv_info.device, format_data.partition_start_sector + 8, g_pfd_sddrv_buf, 1);
     if (result != 0) {
         OSReport("ERR Failed to write BPB fields. ISD_WriteBlock()\n");
         return -36;

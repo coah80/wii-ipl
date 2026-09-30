@@ -116,11 +116,12 @@ static BOOL OnShutdown(BOOL final, u32 event)
         if ((s32)event >= 0) {
             goto beginShutdown;
         }
-        goto returnTrue;
+        return final;
     }
     if ((s32)event >= 7) {
-        goto returnTrue;
+        return final;
     }
+    goto returnTrue;
 beginShutdown:
     if (first) {
         VISetRGBModeImm();
@@ -137,8 +138,8 @@ beginShutdown:
         flushFlag3in1 = 1;
         NextBufAddr = HorVer.bufAddr;
         OSRestoreInterrupts(enabled);
-        first = FALSE;
         previousRetraceCount = retraceCount;
+        first = FALSE;
         return FALSE;
     }
     if (previousRetraceCount == retraceCount) {
@@ -228,8 +229,9 @@ position_interrupt:
         OSClearContext(&exceptionContext);
         OSSetCurrentContext(&exceptionContext);
         if (PositionCallback != 0) {
-            previousVertical = __VIRegs[22] & 0x7FF;
+            vertical = __VIRegs[22] & 0x7FF;
             do {
+                previousVertical = vertical;
                 horizontal = __VIRegs[23] & 0x7FF;
                 vertical = __VIRegs[22] & 0x7FF;
             } while (previousVertical != vertical);
@@ -253,14 +255,14 @@ position_interrupt:
         u32 vertical;
         u32 currentLine;
 
-        previousVertical = __VIRegs[22] & 0x7FF;
+        vertical = __VIRegs[22] & 0x7FF;
         do {
+            previousVertical = vertical;
             horizontal = __VIRegs[23] & 0x7FF;
             vertical = __VIRegs[22] & 0x7FF;
         } while (previousVertical != vertical);
-        currentLine = ((vertical - 1) << 1) +
-                      (horizontal - 1) / CurrTiming->hlw;
-        if (CurrTiming->nhlines > currentLine) {
+        currentLine = (CurrTiming->nhlines / 2) + 1;
+        if (vertical != 1 && vertical != currentLine) {
             vsync_timing_err_cnt++;
         }
     }
@@ -560,10 +562,16 @@ void __VIInit(VITVMode mode)
     vct = (currentTiming->nhlines / 2) + 1;
     __VIRegs[25] = hct;
     __VIRegs[24] = vct | 0x1000;
-    if (tv >= 4) {
+    switch (tv) {
+    case VI_PAL:
+    case VI_MPAL:
+    case VI_DEBUG:
+        break;
+    default:
         tv = 0;
+        break;
     }
-    if ((nonInter & 2) == 0) {
+    if (nonInter <= 1) {
         __VIRegs[1] = (nonInter << 2) | 1 | (tv << 8);
         __VIRegs[54] = 0;
     } else {
@@ -582,6 +590,8 @@ void VIInit(void)
     u32 value;
     u32 tv;
     u32 bootromTv;
+    u32 scanMode;
+    u32 field;
 
     if (IsInitialized != 0) {
         return;
@@ -618,12 +628,14 @@ void VIInit(void)
     bootromTv = *(u32*)0x800000CC;
     displayConfig = __VIRegs[1];
     enabled = OSDisableInterrupts();
-    if ((__VIRegs[54] & 1) != 0) {
-        HorVer.nonInter = 2;
+    if ((u32)(__VIRegs[54] & 1) == 1U) {
+        scanMode = 2;
     } else {
-        HorVer.nonInter = (__VIRegs[1] & 4) != 0;
+        field = (__VIRegs[1] >> 2) & 1;
+        scanMode = ((0U - field) | field) >> 31;
     }
     OSRestoreInterrupts(enabled);
+    HorVer.nonInter = scanMode;
     tv = (displayConfig >> 8) & 3;
     HorVer.tv = tv;
     if (bootromTv == 5 || (bootromTv == 1 && tv == 0)) {
@@ -815,7 +827,7 @@ static void setHorizontalRegs(VITiming* currentTiming, u16 displayPosX,
 #pragma dont_inline reset
 
 #pragma dont_inline on
-static void setVerticalRegs(u16 displayPosY, u16 displaySizeY, u8 equ,
+static void setVerticalRegs(s32 displayPosY, s32 displaySizeY, u8 equ,
                             u16 acv, u16 prbOdd, u16 prbEven, u16 psbOdd,
                             u16 psbEven, int black)
 {
@@ -824,10 +836,10 @@ static void setVerticalRegs(u16 displayPosY, u16 displaySizeY, u8 equ,
     u16 actualPsbOdd;
     u16 actualPsbEven;
     u16 actualAcv;
-    u16 d;
-    u16 c;
+    s32 d;
+    s32 c;
 
-    if (equ >= 10) {
+    if (HorVer.nonInter == 2 || HorVer.nonInter == 3) {
         c = 1;
         d = 2;
     } else {
@@ -853,10 +865,10 @@ static void setVerticalRegs(u16 displayPosY, u16 displaySizeY, u8 equ,
         actualPsbEven += 2;
         actualAcv = 0;
     }
-    regs[0] = equ | (actualAcv << 4);
     MARK_CHANGED(0);
-    regs[7] = (u16)(u32)actualPrbOdd;
+    regs[7] = actualPrbOdd;
     MARK_CHANGED(7);
+    regs[0] = equ | (actualAcv << 4);
     regs[6] = (u16)(u32)actualPsbOdd;
     MARK_CHANGED(6);
     regs[9] = (u16)(u32)actualPrbEven;
@@ -1012,10 +1024,10 @@ void VIConfigure(const GXRenderModeObj* renderMode)
         OSReport("mode in real games!!!                  \n");
         OSReport("***************************************\n");
     }
-    if (((tvInBootrom == 1 || tvInBootrom == 5) &&
-         tvInGame != 1 && tvInGame != 5) ||
-        ((tvInBootrom != 1 && tvInBootrom != 5) &&
-         (tvInGame == 1 || tvInGame == 5))) {
+    if (((tvInBootrom != 1 && tvInBootrom != 5) &&
+         (tvInGame == 1 || tvInGame == 5)) ||
+        ((tvInBootrom == 1 || tvInBootrom == 5) &&
+         tvInGame != 1 && tvInGame != 5)) {
         OSPanic("vi.c", 0xA57,
                 "VIConfigure(): Tried to change mode from (%d) to (%d), which is forbidden\n",
                 tvInBootrom, tvInGame);
@@ -1058,7 +1070,7 @@ void VIConfigure(const GXRenderModeObj* renderMode)
         register1 = (register1 & ~(1 << 2)) | ((HorVer.nonInter & 1) << 2);
     }
     register1 = (register1 & ~(1 << 3)) | (HorVer.threeD << 3);
-    if (HorVer.tv == VI_TVMODE_PAL_INT || HorVer.tv == VI_TVMODE_PAL_DS) {
+    if (HorVer.tv == VI_DEBUG_PAL || HorVer.tv == VI_EURGB60) {
         register1 &= ~(3 << 8);
     } else {
         register1 = (register1 & ~(3 << 8)) | (HorVer.tv << 8);
@@ -1066,8 +1078,7 @@ void VIConfigure(const GXRenderModeObj* renderMode)
     regs[1] = register1;
     MARK_CHANGED(1);
     register54 = regs[54];
-    if ((s32)renderMode->viTVmode == VI_TVMODE_NTSC_PROG ||
-        (s32)renderMode->viTVmode == 3) {
+    if (HorVer.nonInter == 2 || HorVer.nonInter == 3) {
         register54 |= 1;
     } else {
         register54 &= ~1;
@@ -1319,51 +1330,61 @@ void __VIDisplayPositionToXY(u32 horizontalCount, u32 verticalCount,
                ((horizontalCount - 1) / currentTiming->hlw);
     if (HorVer.nonInter == 0) {
         if (halfLine < currentTiming->nhlines) {
-            fieldStart = currentTiming->prbOdd + currentTiming->equ * 3;
+            fieldStart = ((u32)currentTiming->equ << 2) - currentTiming->equ;
             fieldEnd = currentTiming->nhlines - currentTiming->psbOdd;
-            if (halfLine < fieldStart || halfLine >= fieldEnd) {
+            if (halfLine < fieldStart + currentTiming->prbOdd) {
+                *pixelY = -1;
+            } else if (halfLine >= fieldEnd) {
                 *pixelY = -1;
             } else {
-                *pixelY = (halfLine - fieldStart) / 2;
+                *pixelY = (halfLine - fieldStart - currentTiming->prbOdd) & ~1U;
             }
         } else {
             fieldLine = halfLine - currentTiming->nhlines;
-            fieldStart = currentTiming->prbEven + currentTiming->equ * 3;
+            fieldStart = ((u32)currentTiming->equ << 2) - currentTiming->equ;
             fieldEnd = currentTiming->nhlines - currentTiming->psbEven;
-            if (fieldLine < fieldStart || fieldLine >= fieldEnd) {
+            if (fieldLine < fieldStart + currentTiming->prbEven) {
+                *pixelY = -1;
+            } else if (fieldLine >= fieldEnd) {
                 *pixelY = -1;
             } else {
-                *pixelY = ((fieldLine - fieldStart) / 2) + 1;
+                *pixelY = ((fieldLine - fieldStart - currentTiming->prbEven) & ~1U) + 1;
             }
         }
     } else if (HorVer.nonInter == 1) {
         if (halfLine >= currentTiming->nhlines) {
             halfLine -= currentTiming->nhlines;
         }
-        fieldStart = currentTiming->prbOdd + currentTiming->equ * 3;
+        fieldStart = ((u32)currentTiming->equ << 2) - currentTiming->equ;
         fieldEnd = currentTiming->nhlines - currentTiming->psbOdd;
-        if (halfLine < fieldStart || halfLine >= fieldEnd) {
+        if (halfLine < fieldStart + currentTiming->prbOdd) {
+            *pixelY = -1;
+        } else if (halfLine >= fieldEnd) {
             *pixelY = -1;
         } else {
-            *pixelY = (halfLine - fieldStart) / 2;
+            *pixelY = (halfLine - fieldStart - currentTiming->prbOdd) & ~1U;
         }
     } else if (HorVer.nonInter == 2) {
         if (halfLine < currentTiming->nhlines) {
-            fieldStart = currentTiming->prbOdd + currentTiming->equ * 3;
+            fieldStart = ((u32)currentTiming->equ << 2) - currentTiming->equ;
             fieldEnd = currentTiming->nhlines - currentTiming->psbOdd;
-            if (halfLine < fieldStart || halfLine >= fieldEnd) {
+            if (halfLine < fieldStart + currentTiming->prbOdd) {
+                *pixelY = -1;
+            } else if (halfLine >= fieldEnd) {
                 *pixelY = -1;
             } else {
-                *pixelY = (halfLine - fieldStart) / 2;
+                *pixelY = halfLine - fieldStart - currentTiming->prbOdd;
             }
         } else {
             fieldLine = halfLine - currentTiming->nhlines;
-            fieldStart = currentTiming->prbEven + currentTiming->equ * 3;
+            fieldStart = ((u32)currentTiming->equ << 2) - currentTiming->equ;
             fieldEnd = currentTiming->nhlines - currentTiming->psbEven;
-            if (fieldLine < fieldStart || fieldLine >= fieldEnd) {
+            if (fieldLine < fieldStart + currentTiming->prbEven) {
+                *pixelY = -1;
+            } else if (fieldLine >= fieldEnd) {
                 *pixelY = -1;
             } else {
-                *pixelY = (fieldLine - fieldStart) / 2;
+                *pixelY = (fieldLine - fieldStart - currentTiming->prbEven) & ~1U;
             }
         }
     }

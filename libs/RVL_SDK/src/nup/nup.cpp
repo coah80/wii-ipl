@@ -40,7 +40,7 @@ struct NUPAuditRecord {
 };
 
 struct NUPSignedAuditData {
-    u32 titleId;
+    u32 format;
     NUPAuditRecord auditRecord;
     ESSignature signature;
     u8 signatureCertificate[0x180];
@@ -165,40 +165,37 @@ static ESError __nupHttpBufferFlushES(u8* buffer, unsigned long size, unsigned l
     return result;
 }
 
+static inline char* __nupFindTag(char* response, const char* endTag, const char* startTag,
+                                char** value, size_t* length) {
+    char* start;
+    char* end;
+    if (response != 0 && (start = strstr(response, startTag)) != 0 &&
+        (end = strstr(start, endTag)) != 0) {
+        *value = start + strlen(startTag);
+        *length = end - *value;
+        return end + strlen(endTag);
+    }
+    return 0;
+}
+
 static s32 __nupParseServerInfo(NUPContextInfo* context, char* response, char* messageId,
                                unsigned long long deviceId) {
     s32 result = 0;
     char* start;
-    char* end;
     char* afterEnd;
     char* cursor;
     size_t valueLength;
     size_t titleCount;
 
-    if (response == 0) {
-        result = -5004;
-        goto done;
-    }
     {
         const char* versionEndTag = "</Version>";
         const char* versionStartTag = "<Version>";
-        start = strstr(response, versionStartTag);
-        if (start == 0) {
-            result = -5004;
-            goto done;
-        }
-        end = strstr(start, versionEndTag);
-        if (end == 0) {
-            afterEnd = 0;
-        } else {
-            afterEnd = end + strlen(versionEndTag);
-        }
+        afterEnd = __nupFindTag(response, versionEndTag, versionStartTag,
+                                &start, &valueLength);
         if (afterEnd == 0) {
             result = -5004;
             goto done;
         }
-        start += strlen(versionStartTag);
-        valueLength = end - start;
         if (valueLength != strlen("1.0") || strncmp(start, "1.0", valueLength) != 0) {
             result = -5004;
             goto done;
@@ -208,22 +205,12 @@ static s32 __nupParseServerInfo(NUPContextInfo* context, char* response, char* m
     {
         const char* deviceIdEndTag = "</DeviceId>";
         const char* deviceIdStartTag = "<DeviceId>";
-        start = strstr(response, deviceIdStartTag);
-        if (start == 0) {
-            result = -5004;
-            goto done;
-        }
-        end = strstr(start, deviceIdEndTag);
-        if (end == 0) {
-            afterEnd = 0;
-        } else {
-            afterEnd = end + strlen(deviceIdEndTag);
-        }
+        afterEnd = __nupFindTag(response, deviceIdEndTag, deviceIdStartTag,
+                                &start, &valueLength);
         if (afterEnd == 0) {
             result = -5004;
             goto done;
         }
-        start += strlen(deviceIdStartTag);
         if (strtoull(start, 0, 10) != deviceId) {
             result = -5004;
             goto done;
@@ -233,23 +220,12 @@ static s32 __nupParseServerInfo(NUPContextInfo* context, char* response, char* m
     {
         const char* messageIdEndTag = "</MessageId>";
         const char* messageIdStartTag = "<MessageId>";
-        start = strstr(response, messageIdStartTag);
-        if (start == 0) {
-            result = -5004;
-            goto done;
-        }
-        end = strstr(start, messageIdEndTag);
-        if (end == 0) {
-            afterEnd = 0;
-        } else {
-            afterEnd = end + strlen(messageIdEndTag);
-        }
+        afterEnd = __nupFindTag(response, messageIdEndTag, messageIdStartTag,
+                                &start, &valueLength);
         if (afterEnd == 0) {
             result = -5004;
             goto done;
         }
-        start += strlen(messageIdStartTag);
-        valueLength = end - start;
         if (valueLength != strlen(messageId) || strncmp(start, messageId, valueLength) != 0) {
             result = -5004;
             goto done;
@@ -259,23 +235,12 @@ static s32 __nupParseServerInfo(NUPContextInfo* context, char* response, char* m
     {
         const char* errorCodeEndTag = "</ErrorCode>";
         const char* errorCodeStartTag = "<ErrorCode>";
-        start = strstr(response, errorCodeStartTag);
-        if (start == 0) {
-            result = -5004;
-            goto done;
-        }
-        end = strstr(start, errorCodeEndTag);
-        if (end == 0) {
-            afterEnd = 0;
-        } else {
-            afterEnd = end + strlen(errorCodeEndTag);
-        }
+        afterEnd = __nupFindTag(response, errorCodeEndTag, errorCodeStartTag,
+                                &start, &valueLength);
         if (afterEnd == 0) {
             result = -5004;
             goto done;
         }
-        start += strlen(errorCodeStartTag);
-        valueLength = end - start;
         if (valueLength != strlen("0") || strncmp(start, "0", valueLength) != 0) {
             result = -5004;
             goto done;
@@ -285,23 +250,12 @@ static s32 __nupParseServerInfo(NUPContextInfo* context, char* response, char* m
     {
         const char* uploadAuditEndTag = "</UploadAuditData>";
         const char* uploadAuditStartTag = "<UploadAuditData>";
-        start = strstr(response, uploadAuditStartTag);
-        if (start == 0) {
-            result = -5004;
-            goto done;
-        }
-        end = strstr(start, uploadAuditEndTag);
-        if (end == 0) {
-            afterEnd = 0;
-        } else {
-            afterEnd = end + strlen(uploadAuditEndTag);
-        }
+        afterEnd = __nupFindTag(response, uploadAuditEndTag, uploadAuditStartTag,
+                                &start, &valueLength);
         if (afterEnd == 0) {
             result = -5004;
             goto done;
         }
-        start += strlen(uploadAuditStartTag);
-        valueLength = end - start;
         if (valueLength != strlen("0") || (*start != '0' && *start != '1')) {
             result = -5004;
             goto done;
@@ -312,23 +266,12 @@ static s32 __nupParseServerInfo(NUPContextInfo* context, char* response, char* m
     {
         const char* contentPrefixEndTag = "</ContentPrefixURL>";
         const char* contentPrefixStartTag = "<ContentPrefixURL>";
-        start = strstr(response, contentPrefixStartTag);
-        if (start == 0) {
-            result = -5004;
-            goto done;
-        }
-        end = strstr(start, contentPrefixEndTag);
-        if (end == 0) {
-            afterEnd = 0;
-        } else {
-            afterEnd = end + strlen(contentPrefixEndTag);
-        }
+        afterEnd = __nupFindTag(response, contentPrefixEndTag, contentPrefixStartTag,
+                                &start, &valueLength);
         if (afterEnd == 0) {
             result = -5004;
             goto done;
         }
-        start += strlen(contentPrefixStartTag);
-        valueLength = end - start;
         if (valueLength == 0) {
             result = -5004;
             goto done;
@@ -345,23 +288,12 @@ static s32 __nupParseServerInfo(NUPContextInfo* context, char* response, char* m
     {
         const char* uncachedPrefixEndTag = "</UncachedContentPrefixURL>";
         const char* uncachedPrefixStartTag = "<UncachedContentPrefixURL>";
-        start = strstr(response, uncachedPrefixStartTag);
-        if (start == 0) {
-            result = -5004;
-            goto done;
-        }
-        end = strstr(start, uncachedPrefixEndTag);
-        if (end == 0) {
-            afterEnd = 0;
-        } else {
-            afterEnd = end + strlen(uncachedPrefixEndTag);
-        }
+        afterEnd = __nupFindTag(response, uncachedPrefixEndTag, uncachedPrefixStartTag,
+                                &start, &valueLength);
         if (afterEnd == 0) {
             result = -5004;
             goto done;
         }
-        start += strlen(uncachedPrefixStartTag);
-        valueLength = end - start;
         if (valueLength == 0) {
             result = -5004;
             goto done;
@@ -383,25 +315,14 @@ static s32 __nupParseServerInfo(NUPContextInfo* context, char* response, char* m
         const char* versionEndTag = "</Version>";
         const char* versionStartTag = "<Version>";
         for (;;) {
-            char* titleStart = strstr(cursor, titleIdStartTag);
-            if (titleStart == 0) {
+            cursor = __nupFindTag(cursor, titleIdEndTag, titleIdStartTag, &start, &valueLength);
+            if (cursor == 0) {
                 break;
             }
-            char* titleEnd = strstr(titleStart, titleIdEndTag);
-            if (titleEnd == 0) {
+            cursor = __nupFindTag(cursor, versionEndTag, versionStartTag, &start, &valueLength);
+            if (cursor == 0) {
                 break;
             }
-            afterEnd = titleEnd + strlen(titleIdEndTag);
-            char* versionStart = strstr(afterEnd, versionStartTag);
-            if (versionStart == 0) {
-                break;
-            }
-            char* versionEnd = strstr(versionStart, versionEndTag);
-            if (versionEnd == 0) {
-                break;
-            }
-            afterEnd = versionEnd + strlen(versionEndTag);
-            cursor = afterEnd;
             titleCount++;
         }
     }
@@ -419,45 +340,34 @@ static s32 __nupParseServerInfo(NUPContextInfo* context, char* response, char* m
         const char* versionEndTag = "</Version>";
         const char* versionStartTag = "<Version>";
         for (;;) {
-            char* titleStart = strstr(cursor, titleIdStartTag);
-            if (titleStart == 0) {
+            char* titleStart;
+            char* versionStart;
+            size_t titleLength;
+            size_t versionLength;
+            char* parsedEnd;
+            cursor = __nupFindTag(cursor, titleIdEndTag, titleIdStartTag,
+                                  &titleStart, &titleLength);
+            if (cursor == 0) {
                 break;
             }
-            char* titleEnd = strstr(titleStart, titleIdEndTag);
-            if (titleEnd == 0) {
-                result = -5004;
-                goto done;
+            cursor = __nupFindTag(cursor, versionEndTag, versionStartTag,
+                                  &versionStart, &versionLength);
+            if (cursor == 0) {
+                break;
             }
-            afterEnd = titleEnd + strlen(titleIdEndTag);
-            titleStart += strlen(titleIdStartTag);
-            char* versionStart = strstr(afterEnd, versionStartTag);
-            if (versionStart == 0) {
-                result = -5004;
-                goto done;
-            }
-            char* versionEnd = strstr(versionStart, versionEndTag);
-            if (versionEnd == 0) {
-                result = -5004;
-                goto done;
-            }
-            versionStart += strlen(versionStartTag);
-            afterEnd = versionEnd + strlen(versionEndTag);
-
-            char* parsedEnd;
             unsigned long long titleId = strtoull(titleStart, &parsedEnd, 16);
-            if (parsedEnd != titleEnd) {
+            if (parsedEnd != titleStart + titleLength) {
                 result = -5004;
                 goto done;
             }
             unsigned long version = strtoul(versionStart, &parsedEnd, 10);
-            if (parsedEnd != versionEnd || version > 0xffff) {
+            if (parsedEnd != versionStart + versionLength || (u16)version != version) {
                 result = -5004;
                 goto done;
             }
-            NUPTitleInfo* title = &context->titles[context->titleCount++];
-            title->titleId = titleId;
-            title->serverVersion = version;
-            cursor = afterEnd;
+            context->titles[context->titleCount].titleId = titleId;
+            context->titles[context->titleCount].serverVersion = version;
+            context->titleCount++;
         }
     }
 
@@ -531,13 +441,12 @@ static s32 __nupGetServerInfo(char* serverAddress, char* messageId, unsigned lon
                      systemVersion, auditData != 0 ? auditData : "");
             result = __nupHttpPostFull(endpoint, headers, request, &responseData, &responseSize, 0, 0, 0);
             if (result == 0) {
-                char* responseCopy = (char*)nup::__nupMalloc(responseSize + 1);
-                *response = responseCopy;
-                if (responseCopy == 0) {
+                *response = (char*)nup::__nupMalloc(responseSize + 1);
+                if (*response == 0) {
                     result = -5000;
                 } else {
-                    strncpy(responseCopy, (char*)responseData, responseSize);
-                    responseCopy[responseSize] = '\0';
+                    strncpy(*response, (char*)responseData, responseSize);
+                    (*response)[responseSize] = '\0';
                 }
             }
         }
@@ -576,25 +485,28 @@ static s32 __nupGetTicketViews(ESTitleId titleId, ESTicketView** ticketViews, u3
     return result;
 }
 
+#pragma dont_inline on
 static u32 __nupSetAuditState(u8 state) {
+    const char* auditPath = "NUPAUDIT";
     s32 result;
     if (state != 0) {
-        result = NANDDelete("NUPAUDIT");
-        if (result != 0 && result != -12) {
-            result -= 6000;
-        } else {
-            result = 0;
+        result = NANDDelete(auditPath);
+        if (result != 0) {
+            if (result == -12) {
+                result = 0;
+            } else {
+                result -= 6000;
+            }
         }
     } else {
-        result = NANDCreateDir("NUPAUDIT", 0x30, 3);
-        if (result != 0 && result != -6) {
-            result -= 6000;
-        } else {
-            result = 0;
+        result = NANDCreateDir(auditPath, 0x30, 3);
+        if (result != 0) {
+            result = result == -6 ? 0 : result - 6000;
         }
     }
     return result;
 }
+#pragma dont_inline reset
 
 static void __nupBase64Encode(u8* output, u8* input, unsigned long length) {
     const char* alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
@@ -637,7 +549,7 @@ static void __nupBase64Encode(u8* output, u8* input, unsigned long length) {
 
 static s32 __nupGetAuditData(NUPContextInfo* context, char** auditData) {
     s32 result = 0;
-    ESTitleId selectedTitle = 0;
+    u32 auditFormat = 0;
     ESTicketView* ticketViews = 0;
     u32 viewCount;
     u32 selected = 0;
@@ -651,7 +563,7 @@ static s32 __nupGetAuditData(NUPContextInfo* context, char** auditData) {
     char deviceInfo[0x21];
     u32 i;
 
-    for (i = 0; i < context->ownedTitleCount && selected == 0; i++) {
+    for (i = 0; selected == 0 && i < context->ownedTitleCount; i++) {
         ESTitleId ownedTitleId = context->ownedTitleIds[i];
         if (ownedTitleId != 0x0000000100000002ULL && ownedTitleId != 0x0000000100000100ULL &&
             ownedTitleId != 0x0000000100000101ULL) {
@@ -667,7 +579,6 @@ static s32 __nupGetAuditData(NUPContextInfo* context, char** auditData) {
             for (selectedIndex = 0; selectedIndex < viewCount; selectedIndex++) {
                 if (ticketViews[selectedIndex].reserved.empty_0x00[46] != 0) {
                     selected = 1;
-                    selectedTitle = ownedTitleId;
                     break;
                 }
             }
@@ -680,12 +591,12 @@ static s32 __nupGetAuditData(NUPContextInfo* context, char** auditData) {
         unsigned long productCodeSize = 0;
         if (productCode != 0) {
             memcpy(deviceInfo, productCode, 5);
-            deviceInfo[5] = '\0';
+            deviceInfo[4] = '\0';
             productCodeSize = strlen(deviceInfo);
         }
         if (SCGetProductSNString(deviceInfo + productCodeSize, sizeof(deviceInfo) - productCodeSize) == 0) {
             memset(deviceInfo + productCodeSize, 0, sizeof(deviceInfo) - productCodeSize);
-            strncpy(deviceInfo + productCodeSize, __nupStatusMessage[4], sizeof(deviceInfo) - productCodeSize);
+            strncpy(deviceInfo + productCodeSize, "", sizeof(deviceInfo) - productCodeSize);
         }
         deviceInfo[0x20] = '\0';
 
@@ -711,7 +622,7 @@ static s32 __nupGetAuditData(NUPContextInfo* context, char** auditData) {
                             if (signedData == 0) {
                                 result = -5000;
                             } else {
-                                memcpy(&signedData->titleId, &selectedTitle, sizeof(selectedTitle));
+                                memcpy(&signedData->format, &auditFormat, sizeof(auditFormat));
                                 memcpy(&signedData->auditRecord, auditRecord, sizeof(NUPAuditRecord));
                                 memcpy(signedData->signature, signature, sizeof(signature));
                                 memcpy(signedData->signatureCertificate, signatureCertificate, 0x180);
@@ -755,8 +666,9 @@ done:
     return result;
 }
 
+#pragma dont_inline on
 static s32 __nupGetTmdView(ESTitleId titleId, ESTmdView** tmdView) {
-    u32 tmdViewSize = 0;
+    u32 tmdViewSize;
     s32 result;
     ESTmdView* view = 0;
     result = ES_GetTmdView(titleId, 0, &tmdViewSize);
@@ -775,9 +687,10 @@ static s32 __nupGetTmdView(ESTitleId titleId, ESTmdView** tmdView) {
     *tmdView = view;
     return result;
 }
+#pragma dont_inline reset
 
 static s32 __nupGetBootVersion(NUPContextInfo* context, ESTitleVersion* title) {
-    s32 result = 0;
+    s32 result;
     ESTmdView* tmdView = 0;
 
     if (title->titleId == 0x0000000100000001ULL) {
@@ -812,43 +725,50 @@ static s32 __nupGetBootVersion(NUPContextInfo* context, ESTitleVersion* title) {
             result = 0;
         }
 
-        if (result >= 0) {
+        if (result < 0) {
+            goto done;
+        }
+        if (tmdView != 0) {
             result = ES_ListTitleContentsOnCard(title->titleId, 0, &title->contentCount);
             if (result == -0x6a) {
                 result = 0;
-            } else if (result == 0 && tmdView != 0 && title->contentCount != 0) {
-                title->contentIds = (ESContentId*)nup::__nupMalloc(title->contentCount * sizeof(ESContentId));
-                if (title->contentIds == 0) {
-                    result = -5000;
-                    title->contentCount = 0;
-                } else {
-                    result = ES_ListTitleContentsOnCard(title->titleId, title->contentIds, &title->contentCount);
-                    if (result != 0) {
-                        nup::__nupFree(title->contentIds);
-                        title->contentIds = 0;
+            } else if (result == 0) {
+                if (title->contentCount != 0) {
+                    title->contentIds = (ESContentId*)nup::__nupMalloc(title->contentCount * sizeof(ESContentId));
+                    if (title->contentIds == 0) {
+                        result = -5000;
                         title->contentCount = 0;
                     } else {
-                        u32 contentIndex;
-                        for (contentIndex = 0; contentIndex < tmdView->head.numContents; contentIndex++) {
-                            u32 installedIndex;
-                            for (installedIndex = 0; installedIndex < title->contentCount; installedIndex++) {
-                                if (title->contentIds[installedIndex] == tmdView->contents[contentIndex].cid) {
-                                    break;
-                                }
-                            }
-                            if (installedIndex == title->contentCount) {
+                        result = ES_ListTitleContentsOnCard(title->titleId, title->contentIds, &title->contentCount);
+                        if (result != 0) {
+                            nup::__nupFree(title->contentIds);
+                            title->contentIds = 0;
+                            title->contentCount = 0;
+                        }
+                    }
+                }
+                if (result == 0 && title->contentCount >= tmdView->head.numContents) {
+                    s32 contentIndex;
+                    for (contentIndex = 0; contentIndex < tmdView->head.numContents; contentIndex++) {
+                        u32 installedIndex;
+                        for (installedIndex = 0; installedIndex < title->contentCount; installedIndex++) {
+                            if (title->contentIds[installedIndex] == tmdView->contents[contentIndex].cid) {
                                 break;
                             }
                         }
-                        if (contentIndex == tmdView->head.numContents) {
-                            title->hasContent = 1;
+                        if (installedIndex == title->contentCount) {
+                            break;
                         }
+                    }
+                    if (contentIndex >= tmdView->head.numContents) {
+                        title->hasContent = 1;
                     }
                 }
             }
         }
     }
 
+done:
     if (tmdView != 0) {
         nup::__nupFree(tmdView);
     }
@@ -959,8 +879,7 @@ static s32 __nupGetTmd(NUPTitleInfo* title, char* contentPrefixUrl) {
 }
 
 static s32 __nupGetTitleSize(NUPTitleInfo* title) {
-    ESTmdView* tmdView = (ESTmdView*)title->tmdView;
-    u32 contentIndex;
+    s32 contentIndex;
     s32 result = 0;
     title->progressStep += 2;
     if (title->hasTicket == 0) {
@@ -970,9 +889,13 @@ static s32 __nupGetTitleSize(NUPTitleInfo* title) {
         title->progressStep += 4;
     }
     title->progressStep += 5;
-    title->installedContentSize += 0x18000 + ((title->tmdSize + 0x3fff) & 0xffffc000);
-    for (contentIndex = 0; contentIndex < tmdView->head.numContents; contentIndex++) {
-        ESContentMeta* content = (ESContentMeta*)&tmdView->contents[contentIndex];
+    title->installedContentSize += 0x4000;
+    title->installedContentSize += (title->tmdSize + 0x3fff) & 0xffffc000;
+    title->installedContentSize += 0x8000;
+    title->installedContentSize += 0x4000;
+    title->installedContentSize += 0x4000;
+    for (contentIndex = 0; contentIndex < ((ESTmdView*)title->tmdView)->head.numContents; contentIndex++) {
+        ESCmdView* content = &((ESTmdView*)title->tmdView)->contents[contentIndex];
         u32 ownedIndex;
         ownedIndex = 0;
         if (title->contentCount != 0 && title->contentIds != 0) {
@@ -984,7 +907,7 @@ static s32 __nupGetTitleSize(NUPTitleInfo* title) {
         }
         if (title->contentIds == 0 || ownedIndex == title->contentCount ||
             title->titleId == 0x0000000100000001ULL) {
-            if (content->size > 0xfffffff0ULL) {
+            if (content->size >= 0xfffffff0ULL) {
                 result = -0x1394;
                 break;
             }
@@ -999,11 +922,11 @@ static s32 __nupGetTitleSize(NUPTitleInfo* title) {
 static s32 __nupGetContentFull(NUPContextInfo* context, NUPTitleInfo* title, char* contentPrefixUrl,
                                unsigned long contentId) {
     ESTmdView* tmdView = (ESTmdView*)title->tmdView;
-    u32 contentIndex;
+    s32 contentIndex;
     s32 result;
-    char* url = 0;
     u8* response = 0;
     unsigned long responseSize = 0;
+    char* url = 0;
 
     for (contentIndex = 0; contentIndex < tmdView->head.numContents; contentIndex++) {
         if (tmdView->contents[contentIndex].cid == contentId) {
@@ -1013,8 +936,8 @@ static s32 __nupGetContentFull(NUPContextInfo* context, NUPTitleInfo* title, cha
     if (contentIndex >= tmdView->head.numContents) {
         result = -0x1389;
     } else {
-        unsigned long contentSize = tmdView->contents[contentIndex].size;
-        unsigned long alignedSize = (contentSize + 0xf) & 0xfffffff0;
+        u64 contentSize = tmdView->contents[contentIndex].size;
+        unsigned long alignedSize = (u32)((contentSize + 0xf) & ~0xfULL);
         unsigned long urlSize = strlen(contentPrefixUrl) + 0x28;
         url = (char*)nup::__nupMalloc(urlSize);
         if (url == 0) {
@@ -1024,8 +947,8 @@ static s32 __nupGetContentFull(NUPContextInfo* context, NUPTitleInfo* title, cha
             result = __nupHttpGetFull(url, &response, &responseSize, alignedSize,
                                       __nupUpdateStatusIncr, context);
             if (result == 0) {
-                title->content = response;
                 title->contentSize = responseSize;
+                title->content = response;
             }
         }
     }
@@ -1036,6 +959,21 @@ static s32 __nupGetContentFull(NUPContextInfo* context, NUPTitleInfo* title, cha
         nup::__nupFree(response);
     }
     return result;
+}
+
+static inline BOOL __nupHasContent(const NUPTitleInfo* title, ESContentId contentId) {
+    if (title->contentCount == 0 || title->contentIds == 0) {
+        return FALSE;
+    }
+    ESContentId* installedContent = title->contentIds;
+    u32 index;
+    for (index = 0; index < title->contentCount; index++) {
+        if (contentId == *installedContent) {
+            break;
+        }
+        installedContent++;
+    }
+    return index < title->contentCount;
 }
 
 static s32 __nupGetContentIncr(NUPContextInfo* context, NUPTitleInfo* title, char* contentPrefixUrl) {
@@ -1049,23 +987,13 @@ static s32 __nupGetContentIncr(NUPContextInfo* context, NUPTitleInfo* title, cha
     } else {
         for (contentIndex = 0; contentIndex < ((ESTmdView*)title->tmdView)->head.numContents; contentIndex++) {
             ESContentId contentId = ((ESTmdView*)title->tmdView)->contents[contentIndex].cid;
-            u32 ownedIndex = 0;
-            int alreadyInstalled = 0;
-            if (title->contentCount != 0 && title->contentIds != 0) {
-                for (; ownedIndex < title->contentCount; ownedIndex++) {
-                    if (title->contentIds[ownedIndex] == contentId) {
-                        alreadyInstalled = 1;
-                        break;
-                    }
-                }
-            }
-            if (alreadyInstalled == 0) {
+            if (!__nupHasContent(title, contentId)) {
                 snprintf(url, urlSize, "%s/%016llx/%08x", contentPrefixUrl, title->titleId, contentId);
                 unsigned long contentSize = ((ESTmdView*)title->tmdView)->contents[contentIndex].size;
                 ESFd fd = ES_ImportContentBegin(title->titleId, contentId);
-                if (fd < 0) {
+                result = fd;
+                if (result < 0) {
                     ES_ImportContentEnd(fd);
-                    result = fd;
                     break;
                 }
                 result = __nupHttpGetIncr(url, (contentSize + 0xf) & 0xfffffff0,
@@ -1159,224 +1087,294 @@ static void __nupCleanup(NUPContextInfo* context) {
 
 static s32 __nupUpdateTitle(NUPContextInfo* context, NUPTitleInfo* title, char* contentPrefixUrl,
                             char* uncachedContentPrefixUrl) {
-    s32 result = 0;
+    s32 result;
     if (title->titleId == 0x0000000100000001ULL) {
         result = __nupGetTicket(title, contentPrefixUrl);
-        if (result == 0) {
-            ESTmdView* tmdView = (ESTmdView*)title->tmdView;
-            if (tmdView->head.numContents != 1) {
-                result = -0x1389;
-            } else {
-                result = __nupGetContentFull(context, title, contentPrefixUrl, tmdView->contents[0].cid);
-                if (result == 0) {
-                    result = ES_ImportBoot((ESTicket*)title->ticket, title->ticketCertificate,
-                                           title->ticketCertificateSize, (ESTitleMeta*)title->tmd,
-                                           title->tmdSize, title->tmdCertificate, title->tmdCertificateSize,
-                                           0, 0, title->content, title->contentSize);
-                }
-            }
+        if (result != 0) {
+            goto done;
         }
+        ESTmdView* tmdView = (ESTmdView*)title->tmdView;
+        if (tmdView->head.numContents != 1) {
+            result = -0x1389;
+            goto done;
+        }
+        result = __nupGetContentFull(context, title, uncachedContentPrefixUrl, tmdView->contents[0].cid);
+        if (result != 0) {
+            goto done;
+        }
+        result = ES_ImportBoot((ESTicket*)title->ticket, title->ticketCertificate,
+                               title->ticketCertificateSize, (ESTitleMeta*)title->tmd,
+                               title->tmdSize, title->tmdCertificate, title->tmdCertificateSize,
+                               0, 0, title->content, title->contentSize);
     } else {
         ISFSStats stats;
         result = ISFS_GetStats(&stats);
-        if (result == 0) {
-            if (stats.freeBlocks >= (title->installedContentSize >> 14) &&
-                stats.freeInodes >= title->progressStep) {
-                result = 1;
-            }
+        if (result == 0 && stats.freeBlocks >= (title->installedContentSize >> 14) &&
+            title->progressStep <= stats.freeInodes) {
+            result = 1;
         }
         if (result == 0) {
             result = -0x1392;
-        } else if (result > 0) {
-            result = __nupGetTicket(title, contentPrefixUrl);
+            goto done;
         }
-        if (result == 0) {
-            result = ES_ImportTicket((ESTicket*)title->ticket, title->ticketCertificate,
-                                     title->ticketCertificateSize, 0, 0, 0);
+        if (result < 0) {
+            goto done;
         }
-        if (result == 0) {
-            result = ES_ImportTitleInit((ESTitleMeta*)title->tmd, title->tmdSize, title->tmdCertificate,
-                                        title->tmdCertificateSize, 0, 0, 0, 1);
-            if (result != 0) {
-                ES_ImportTitleCancel();
-            }
+        result = __nupGetTicket(title, contentPrefixUrl);
+        if (result != 0) {
+            goto done;
         }
-        if (result == 0) {
-            result = __nupGetContentIncr(context, title, uncachedContentPrefixUrl);
-            if (result != 0) {
-                ES_ImportTitleCancel();
-            }
+        result = ES_ImportTicket((ESTicket*)title->ticket, title->ticketCertificate,
+                                 title->ticketCertificateSize, 0, 0, 0);
+        if (result != 0) {
+            goto done;
         }
-        if (result == 0) {
-            result = ES_ImportTitleDone();
+        result = ES_ImportTitleInit((ESTitleMeta*)title->tmd, title->tmdSize, title->tmdCertificate,
+                                    title->tmdCertificateSize, 0, 0, 0, 1);
+        if (result != 0) {
+            ES_ImportTitleCancel();
+            goto done;
         }
+        result = __nupGetContentIncr(context, title, uncachedContentPrefixUrl);
+        if (result != 0) {
+            ES_ImportTitleCancel();
+            goto done;
+        }
+        result = ES_ImportTitleDone();
     }
     if (result == 0) {
         __nupCleanupTitleInfo(title);
         title->updateRequired = 0;
     }
+done:
     return result;
 }
 
 extern "C" void* __nupOp(void* argument) {
     NUPContextInfo* context = (NUPContextInfo*)argument;
-    u8* response;
-    ESTmdView* tmdView;
-    char* auditData;
+    u8* response = 0;
+    ESTmdView* tmdView = 0;
+    char* auditData = 0;
+    NUPTitleInfo* bootTitle = 0;
+    NUPTitleInfo* menuTitle = 0;
+    NUPTitleInfo* systemTitle = 0;
     u32 deviceId;
     u32 bootVersion;
+    u16 serverBootVersion = 0;
     u16 bootTitleVersion;
     u16 systemMenuVersion;
     ESTitleId systemMenuTitleId;
-    char messageId[0x50];
+    char messageId[0x15];
     NANDStatus auditStatus;
-    s32 result = 0;
+    s32 result;
     u32 i;
+    BOOL needsAudit;
 
-    response = 0;
-    tmdView = 0;
-    auditData = 0;
-    snprintf(messageId, 0x15, "%llu", OSGetTime());
+    snprintf(messageId, sizeof(messageId), "%llu", OSGetTime());
     result = ES_GetDeviceId(&deviceId);
+    if (result != 0) {
+        goto done;
+    }
+    result = ES_GetBoot2Version(&bootVersion);
     if (result == 0) {
-        result = ES_GetBoot2Version(&bootVersion);
-        if (result == 0 && (bootVersion & 0xffff) != bootVersion) {
+        serverBootVersion = bootVersion;
+        if (serverBootVersion != bootVersion) {
             result = -0x1389;
         }
     }
-    if (result >= 0) {
-        result = __nupGetTmdView(0x0000000100000002ULL, &tmdView);
-        if (result >= 0) {
-            bootTitleVersion = tmdView->head.titleVersion;
-            systemMenuTitleId = tmdView->head.sysVersion;
-            nup::__nupFree(tmdView);
-            tmdView = 0;
-            result = __nupGetTmdView(systemMenuTitleId, &tmdView);
-            if (result >= 0) {
-                systemMenuVersion = tmdView->head.titleVersion;
-            }
+    if (result < 0) {
+        goto done;
+    }
+    result = __nupGetTmdView(0x0000000100000002ULL, &tmdView);
+    if (result < 0) {
+        goto done;
+    }
+    bootTitleVersion = tmdView->head.titleVersion;
+    systemMenuTitleId = tmdView->head.sysVersion;
+    nup::__nupFree(tmdView);
+    tmdView = 0;
+    result = __nupGetTmdView(systemMenuTitleId, &tmdView);
+    if (result < 0) {
+        goto done;
+    }
+    systemMenuVersion = tmdView->head.titleVersion;
+    nup::__nupFree(tmdView);
+    tmdView = 0;
+    result = ES_ListOwnedTitles(0, &context->ownedTitleCount);
+    if (result == 0) {
+        context->ownedTitleIds = (ESTitleId*)nup::__nupMalloc(context->ownedTitleCount * sizeof(ESTitleId));
+        if (context->ownedTitleIds != 0) {
+            result = ES_ListOwnedTitles(context->ownedTitleIds, &context->ownedTitleCount);
+        } else {
+            result = -5000;
         }
     }
-    if (result >= 0) {
-        nup::__nupFree(tmdView);
-        tmdView = 0;
+    if (result != 0) {
+        goto done;
     }
-    if (result >= 0) {
-        result = ES_ListOwnedTitles(0, &context->ownedTitleCount);
-        if (result == 0) {
-            context->ownedTitleIds = (ESTitleId*)nup::__nupMalloc(context->ownedTitleCount * sizeof(ESTitleId));
-            if (context->ownedTitleIds == 0) {
-                result = -5000;
-            } else {
-                result = ES_ListOwnedTitles(context->ownedTitleIds, &context->ownedTitleCount);
-            }
+    needsAudit = TRUE;
+    if (NANDGetStatus("NUPAUDIT", &auditStatus) == 0) {
+        needsAudit = FALSE;
+    }
+    if (needsAudit) {
+        result = __nupGetAuditData(context, &auditData);
+        if (result != 0) {
+            goto done;
         }
     }
-    s32 auditResult = 0;
-    if (result >= 0) {
-        auditResult = NANDGetStatus("NUPAUDIT", &auditStatus);
-        if (auditResult != 0) {
-            result = __nupGetAuditData(context, &auditData);
-        }
-    }
-    if (result >= 0) {
-        OSLockMutex(&context->mutex);
-        context->progress.result = 2;
-        context->progress.message = __nupStatusMessage[2];
-        OSUnlockMutex(&context->mutex);
-        result = __nupGetServerInfo((char*)context->serverAddress, messageId, deviceId,
-                                    (char*)context->productArea, (char*)context->countryCode,
-                                    context->systemVersion, auditData, bootVersion, systemMenuVersion,
-                                    systemMenuTitleId, 0, (char**)&response);
+    OSLockMutex(&context->mutex);
+    context->progress.result = 2;
+    context->progress.message = __nupStatusMessage[2];
+    OSUnlockMutex(&context->mutex);
+    result = __nupGetServerInfo((char*)context->serverAddress, messageId,
+                                0x0000000100000000ULL | deviceId,
+                                (char*)context->productArea, (char*)context->countryCode,
+                                context->systemVersion, auditData, serverBootVersion, bootTitleVersion,
+                                systemMenuTitleId, systemMenuVersion, (char**)&response);
+    if (result != 0) {
+        goto done;
     }
     if (auditData != 0) {
         nup::__nupFree(auditData);
-        auditData = 0;
     }
-    if (result >= 0) {
-        result = __nupParseServerInfo(context, (char*)response, messageId, deviceId);
+    auditData = 0;
+    result = __nupParseServerInfo(context, (char*)response, messageId,
+                                 0x0000000100000000ULL | deviceId);
+    if (result != 0) {
+        goto done;
     }
-    if (result >= 0 && ((auditResult != 0) != (context->uploadAuditData != 0))) {
+    if (needsAudit != context->uploadAuditData) {
         result = __nupSetAuditState(context->uploadAuditData);
         if (result != 0) {
             result = 0;
         }
     }
-    if (response != 0) {
-        nup::__nupFree(response);
-        response = 0;
-    }
-    if (result >= 0) {
-        for (i = 0; i < context->titleCount; i++) {
-            NUPTitleInfo* title = &context->titles[i];
-            result = __nupGetBootVersion(context, (ESTitleVersion*)title);
-            if (result >= 0) {
-                title->updateRequired =
-                    !title->hasTicket || !title->hasTmd || !title->hasContent ||
-                    title->serverVersion < title->installedVersion;
-                if (title->updateRequired != 0) {
-                    context->updateCount++;
-                }
-                result = title->updateRequired;
+    for (i = 0; i < context->titleCount; i++) {
+        NUPTitleInfo* title = &context->titles[i];
+        result = __nupGetBootVersion(context, (ESTitleVersion*)title);
+        if (result == 0) {
+            if (title->hasTicket && title->hasTmd && title->hasContent &&
+                title->installedVersion >= title->serverVersion) {
+                title->updateRequired = 0;
+            } else {
+                title->updateRequired = 1;
             }
+        }
+        if (result >= 0) {
+            result = title->updateRequired;
+        }
+        if (result < 0) {
+            goto done;
+        }
+        if (result != 0) {
+            context->updateCount++;
+        }
+    }
+    for (i = 0; i < context->titleCount; i++) {
+        NUPTitleInfo* title = &context->titles[i];
+        if (title->updateRequired != 0) {
+            result = __nupGetTmd(title, context->uncachedContentPrefixUrl);
             if (result < 0) {
+                goto done;
+            }
+        }
+    }
+    for (i = 0; i < context->titleCount; i++) {
+        NUPTitleInfo* title = &context->titles[i];
+        if (title->updateRequired != 0) {
+            result = __nupGetTitleSize(title);
+            if (result < 0) {
+                goto done;
+            }
+            context->downloadedBytes += context->titles[i].updateContentSize;
+        }
+    }
+    {
+        u64 totalBytes = context->downloadedBytes;
+        OSLockMutex(&context->mutex);
+        context->progress.totalBytes = totalBytes;
+        context->progress.completedBytes = 0;
+        OSUnlockMutex(&context->mutex);
+    }
+    OSLockMutex(&context->mutex);
+    context->progress.result = 3;
+    context->progress.message = __nupStatusMessage[3];
+    OSUnlockMutex(&context->mutex);
+    for (i = 0; i < context->titleCount; i++) {
+        NUPTitleInfo* title = &context->titles[i];
+        if (title->titleId == 0x0000000100000001ULL) {
+            bootTitle = title;
+        } else if (title->titleId == 0x0000000100000002ULL) {
+            menuTitle = title;
+        } else if (title->titleId == systemMenuTitleId) {
+            systemTitle = title;
+        }
+        if (bootTitle != 0 && menuTitle != 0 && systemTitle != 0) {
+            break;
+        }
+    }
+    if (menuTitle != 0 && menuTitle->updateRequired != 0) {
+        ESTitleId requiredSystemTitle = ((ESTmdView*)menuTitle->tmdView)->head.sysVersion;
+        for (i = 0; i < context->titleCount; i++) {
+            if (context->titles[i].titleId == requiredSystemTitle) {
+                systemTitle = &context->titles[i];
                 break;
             }
         }
     }
-    if (result >= 0) {
-        for (i = 0; i < context->titleCount; i++) {
-            NUPTitleInfo* title = &context->titles[i];
-            if (title->updateRequired != 0) {
-                result = __nupGetTmd(title, context->uncachedContentPrefixUrl);
-                if (result < 0) {
-                    break;
-                }
+    if (bootTitle != 0 && bootTitle->updateRequired != 0) {
+        result = __nupUpdateTitle(context, bootTitle, context->uncachedContentPrefixUrl,
+                                 context->contentPrefixUrl);
+        if (result < 0) {
+            goto done;
+        }
+    }
+    if (systemTitle != 0 && systemTitle->updateRequired != 0) {
+        result = __nupUpdateTitle(context, systemTitle, context->uncachedContentPrefixUrl,
+                                 context->contentPrefixUrl);
+        if (result < 0) {
+            goto done;
+        }
+    }
+    if (menuTitle != 0 && menuTitle->updateRequired != 0) {
+        result = __nupUpdateTitle(context, menuTitle, context->uncachedContentPrefixUrl,
+                                 context->contentPrefixUrl);
+        if (result < 0) {
+            goto done;
+        }
+    }
+    for (i = 0; i < context->titleCount; i++) {
+        NUPTitleInfo* title = &context->titles[i];
+        if (title->updateRequired != 0) {
+            result = __nupUpdateTitle(context, title, context->uncachedContentPrefixUrl,
+                                     context->contentPrefixUrl);
+            if (result < 0) {
+                goto done;
             }
         }
     }
-    if (result >= 0) {
-        for (i = 0; i < context->titleCount; i++) {
-            NUPTitleInfo* title = &context->titles[i];
-            if (title->updateRequired != 0) {
-                result = __nupGetTitleSize(title);
-                if (result < 0) {
-                    break;
-                }
-                context->progress.totalBytes += title->updateContentSize;
-                context->downloadedBytes += title->installedContentSize;
-            }
-        }
+done:
+    if (tmdView != 0) {
+        nup::__nupFree(tmdView);
     }
-    if (result >= 0) {
-        OSLockMutex(&context->mutex);
-        context->progress.totalBytes = context->downloadedBytes;
-        context->progress.completedBytes = 0;
-        OSUnlockMutex(&context->mutex);
-        OSLockMutex(&context->mutex);
-        context->progress.result = 3;
-        context->progress.message = __nupStatusMessage[3];
-        OSUnlockMutex(&context->mutex);
-        for (i = 0; i < context->titleCount; i++) {
-            NUPTitleInfo* title = &context->titles[i];
-            if (title->updateRequired != 0) {
-                result = __nupUpdateTitle(context, title, context->contentPrefixUrl,
-                                          context->uncachedContentPrefixUrl);
-                if (result < 0) {
-                    break;
-                }
-            }
-        }
+    if (response != 0) {
+        nup::__nupFree(response);
+    }
+    if (auditData != 0) {
+        nup::__nupFree(auditData);
     }
     __nupCleanup(context);
-    OSLockMutex(&context->mutex);
-    context->progress.result = result < 0 ? result : 0;
-    if (result < 0) {
-        context->progress.message = __nupStatusMessage[5];
-    } else {
+    if (result >= 0) {
+        OSLockMutex(&context->mutex);
+        context->progress.result = 0;
         context->progress.message = __nupStatusMessage[0];
+        OSUnlockMutex(&context->mutex);
+    } else {
+        OSLockMutex(&context->mutex);
+        context->progress.result = result;
+        context->progress.message = __nupStatusMessage[5];
+        OSUnlockMutex(&context->mutex);
     }
-    OSUnlockMutex(&context->mutex);
     return 0;
 }
 
