@@ -8,7 +8,7 @@
 #include <revolution/so/SOBasic.h>
 #include <private/wd.h>
 
-static OSThread AtermThread;
+
 
 static const u32 gAtermAesTables[4][256] = {
     {
@@ -483,13 +483,15 @@ typedef struct {
 
 typedef void (*AtermProgressCallback)(void*);
 typedef void* (*AtermAllocateCallback)(u32);
-AtermThreadBuffer gAtermResponseBuffer;
 typedef void (*AtermFreeCallback)(void*);
 
 AtermNetworkSettings gNetworkSettings;
 char gAccessPointName[0x24];
 AtermScanSettings gScanSettings;
 AtermConfigurationResult gAtermConfigurationResult;
+AtermThreadBuffer gAtermResponseBuffer;
+static OSThread AtermThread;
+AtermThreadBuffer gAtermResponseBuffer;
 u32 gAtermDeadline = 0xFFFFFFFF;
 u32 gAtermScanLimit = 0x40;
 u32 gAtermScanBufferSize = 0x800;
@@ -498,12 +500,12 @@ u32 gDefaultSubnetMask = 0xFFFFFF00;
 u32 gDefaultGateway = 0xC0A80001;
 u32 gDefaultPrimaryDns = 0xC0A80001;
 u32 gDefaultSecondaryDns = 0xC0A80001;
-static const u8 sAtermOptionName[7] = {6, 0, 1, 2, 3, 4, 5};
+static const u8 sAtermOptionName[8] = {6, 0, 1, 2, 3, 4, 5, 0};
 
 char gAtermAossSsid[7] = "******";
 u8* gAtermOptionBuffer = (u8*)&gAtermResponseBuffer;
 u32 gAtermUseSharedAddress = 1;
-char gAtermProductName[5] = "WARP";
+char gAtermProductName[8] = "WARP";
 u32 gAtermCancelRequested;
 u8 gAtermSelectedBssid[8];
 u32 gAtermProtocolState;

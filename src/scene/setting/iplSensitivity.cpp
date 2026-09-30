@@ -29,16 +29,14 @@ typedef struct DPDObj {
     s16 id;    // 0x6
 } DPDObj;
 
-extern const u8 sFrameColor[4];
-extern const u8 sPointColor[4];
+static const u8 sFrameColor[4] = {0x60, 0x60, 0x60, 0xC0};
+static const u8 sPointColor[4] = {0xFF, 0xFF, 0xFF, 0xFF};
 
 void SensitivityDrawing::draw(nand::File* file) {
     GXRenderModeObj mode = *System::getRenderModeObj();
 
     nw4r::ut::Rect rect(0.0f, 0.0f, 0.0f, 0.0f);
     System::getProjectionRect(&rect);
-
-    GXColor color = {0x60, 0x60, 0x60, 0xC0};
 
     u32 left;
     u32 top;
@@ -49,14 +47,17 @@ void SensitivityDrawing::draw(nand::File* file) {
     f32 w = rect.right - rect.left;
     f32 h = rect.bottom - rect.top;
     f32 fw2 = 0.5f * w;
+    f32 fh2 = 0.5f * h;
+    f32 ys = (0.5f * (rect.bottom - rect.top)) / 768.0f;
+    f32 xs = (0.5f * (rect.right - rect.left)) * 0.0009765625f;
+    GXColor color = {sFrameColor[0], sFrameColor[1], sFrameColor[2], sFrameColor[3]};
     f32 ws = mode.fbWidth / w;
     f32 hs = mode.efbHeight / h;
-    f32 fh2 = 0.5f * h;
 
     utility::Graphics::setDefaultOrtho(0);
 
     GXSetScissor((u32)(ws * (0.5f * rect.left + fw2)),
-                 (u32)(hs * (fh2 + -720.0f * rect.top + -720.0f)),
+                 (u32)(hs * (fh2 + 0.5f * rect.top + -45.0f)),
                  (u32)(ws * (0.5f * (rect.right - rect.left))),
                  (u32)(hs * (0.5f * (rect.bottom - rect.top))));
 
@@ -67,9 +68,6 @@ void SensitivityDrawing::draw(nand::File* file) {
         GXTexObj texObj;
         TPLGetGXTexObjFromPalette((TPLPalette*)file->getBuffer(), &texObj, 1);
         GXInitTexObjWrapMode(&texObj, GX_MIRROR, GX_MIRROR);
-
-        f32 ys = (0.5f * (rect.bottom - rect.top)) / 768.0f;
-        f32 xs = (0.5f * (rect.right - rect.left)) * 0.0009765625f;
 
         s32 index = WPADGetLatestIndexInBuf(controller->getChannel());
 
@@ -106,17 +104,18 @@ void SensitivityDrawing::draw(nand::File* file) {
             if (obj->size != 0) {
                 s32 x = obj->x - 0x200;
                 s32 y = obj->y - 0x180;
-                f32 s = 0.15f * (obj->size + 0x19);
+                f32 s = 0.15f * ((u32)obj->size + 0x19);
 
                 nw4r::ut::Rect pos;
                 f32 sx = xs * x;
                 f32 sy = ys * y;
                 pos.left = sx - s;
-                pos.top = (s - sy) - -720.0f;
+                pos.top = (s - sy) - -45.0f;
                 pos.right = sx + s;
-                pos.bottom = (-sy - s) - -720.0f;
+                pos.bottom = (-sy - s) - -45.0f;
 
-                GXColor pointColor = {0xFF, 0xFF, 0xFF, 0xFF};
+                GXColor pointColor = {sPointColor[0], sPointColor[1],
+                                      sPointColor[2], sPointColor[3]};
                 utility::Graphics::drawTexture(pos, texObj, pointColor, 2,
                                                utility::Graphics::ORI_NONE);
             }

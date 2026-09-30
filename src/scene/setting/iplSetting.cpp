@@ -427,8 +427,8 @@ namespace ipl {
             nw4r::ut::Rect projection4x3;
             System::getProjectionRect16x9(&projection16x9);
             System::getProjectionRect4x3(&projection4x3);
-            int width = projection16x9.right - projection16x9.left;
-            int height = projection16x9.bottom - projection16x9.top;
+            int width = projection4x3.right - projection4x3.left;
+            int height = projection4x3.bottom - projection4x3.top;
 
             const char* urlFormats[] = {"marc:%s/%s/", "file:dvd/html/IPLSetting/%s/%s/"};
             const char* pagePaths[] = {
@@ -451,29 +451,23 @@ namespace ipl {
             memset(basePath, 0, sizeof(basePath));
             memset(browserPath, 0, sizeof(browserPath));
             strcpy(basePath, urlFormats[0]);
-            int pageIndex = mInitialArgument;
-            if (pageIndex < 0 || pageIndex >= 7) {
-                pageIndex = 0;
-            }
-            strcat(basePath, pagePaths[pageIndex]);
+            strcat(basePath, pagePaths[mInitialArgument]);
 
             s8 regionIndex = static_cast<s8>(SCGetProductArea());
-            if (regionIndex == 4) {
+            switch (regionIndex) {
+            case 0:
+            case 1:
+            case 2:
+            case 5:
+            case 6:
+            case 11:
+                break;
+            case 3:
+                regionIndex = 2;
+                break;
+            default:
                 regionIndex = 1;
-            } else if (regionIndex >= 4) {
-                if (regionIndex == 11) {
-                } else if (regionIndex >= 11) {
-                    regionIndex = 1;
-                } else if (regionIndex >= 7) {
-                    regionIndex = 1;
-                }
-            } else {
-                if (regionIndex >= 3) {
-                    regionIndex = 2;
-                } else if (regionIndex >= 0) {
-                } else {
-                    regionIndex = 1;
-                }
+                break;
             }
 
             if (mInitialArgument == ARG_UNK_5) {
@@ -504,7 +498,6 @@ namespace ipl {
                     directPagePath = "index03.html";
                     break;
                 case 7:
-                default:
                     directPagePath = "index01.html";
                     break;
                 }
@@ -586,7 +579,7 @@ namespace ipl {
         }
 
         void Setting::updateController_() {
-            nw4r::ut::Rect projection;
+            nw4r::ut::Rect projection(0.0f, 0.0f, 0.0f, 0.0f);
             System::getProjectionRect4x3(&projection);
 
             if (isAnimating()) {

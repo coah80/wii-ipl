@@ -1342,12 +1342,9 @@ LAB_000126f0:
   s_socket = -1;
   if (s_socketStarted == 1) {
     s_socketStarted = 0;
-    state = SOCleanup();
-    if (-1 < state) goto LAB_00012730;
-    state = -1;
+    state = SOCleanup() < 0 ? -1 : 0;
   }
   else {
-LAB_00012730:
     state = 0;
   }
   if (state != 0) {
@@ -1397,10 +1394,7 @@ LAB_00012730:
     goto LAB_00012878;
   }
   else {
-    if (AOSS_813FFD68(input) == 0) {
-      resultCode = 0;
-    }
-    else {
+    if (AOSS_813FFD68(input) != 0) {
       input->status = 6;
       if (s_accessPointConfig != NULL) {
         AOSSi_Free(s_accessPointConfig);
@@ -1411,6 +1405,9 @@ LAB_00012730:
         s_accessPointList = 0;
       }
       resultCode = 0xffffffff;
+    }
+    else {
+      resultCode = 0;
     }
     goto LAB_00012878;
   }
@@ -2703,3 +2700,4 @@ int AOSS_814020CC(void* settings, void* config) {
 
     return -1;
 }
+
