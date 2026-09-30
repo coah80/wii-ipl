@@ -65,12 +65,17 @@ private:
 
 class SavedataEditWindow : public MemoryBase {
 public:
+    SavedataEditWindow(EGG::Heap* heap, nand::LayoutFile* layoutFile, const char* directory, const char* fileName);
     virtual void init();
     virtual void calc();
     virtual void draw();
     virtual void destroy();
 
 private:
+    void add_animation(const char* fileName, const char* groupName) {
+        AnmName animation = {fileName, groupName};
+        MemoryBase::add_animation(&animation, 1);
+    }
     void on_normal();
     void on_fadein();
     void on_fadeout1st();

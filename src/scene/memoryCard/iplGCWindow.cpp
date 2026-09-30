@@ -745,12 +745,15 @@ void GCWindow::onMemEvent(long event, u8 cardState) {
                 set_textbox("T_Message_00", 0xe5);
                 break;
             }
+            goto process_complete;
+        case 0x15:
+            return;
+
+        process_complete:
             System::getHomeButtonMenu()->enable();
             mWaiting = false;
             show_button_ok();
             mState = 0xe;
-            break;
-        case 0x15:
             break;
         }
     }
@@ -767,18 +770,31 @@ void GCWindow::stop_wait_anim() {
     snd::sSystem.startSE("WIPL_SE_COPY_FINISH");
 }
 
-static const MemoryBase::AnmName scDataAnmName[10] = {
-    {"it_DataDetail_a_SeenIn.brlan", "G_Mask"},
-    {"it_DataDetail_a_SeenOut.brlan", "G_Mask"},
-    {"it_DataDetail_a_DelFoucusIn.brlan", "G_Del"},
-    {"it_DataDetail_a_DelFoucusOut.brlan", "G_Del"},
-    {"it_DataDetail_a_DelFlash.brlan", "G_DelFlash"},
-    {"it_DataDetail_a_SelectOut.brlan", "G_Select"},
-    {"it_DataDetail_a_SeenOutYes.brlan", "G_Mask"},
-    {"it_DataDetail_a_SeenOutYesOk.brlan", "G_Mask"},
-    {"it_DataDetail_a_SeenOutNo.brlan", "G_Mask"},
-    {"it_DataDetail_a_Wait.brlan", "G_Wait"},
-};
+SavedataEditWindow::SavedataEditWindow(EGG::Heap* heap, nand::LayoutFile* layoutFile,
+                                         const char* directory, const char* fileName)
+    : mState(0), mActive(false) {
+    mpLayout = new layout::Object(heap, layoutFile, directory, fileName);
+    add_animation("it_DataDetail_a_SeenIn.brlan", scAnmName[0].groupName);
+    add_animation("it_DataDetail_a_SeenOut.brlan", scAnmName[0].groupName);
+    add_animation("it_DataDetail_a_DelFoucusIn.brlan", scAnmName[8].groupName);
+    add_animation("it_DataDetail_a_DelFoucusOut.brlan", scAnmName[8].groupName);
+    add_animation("it_DataDetail_a_DelFlash.brlan", scAnmName[10].groupName);
+    add_animation("it_DataDetail_a_SelectOut.brlan", scAnmName[11].groupName);
+    add_animation("it_DataDetail_a_SeenOutYes.brlan", scAnmName[0].groupName);
+    add_animation("it_DataDetail_a_SeenOutYesOk.brlan", scAnmName[0].groupName);
+    add_animation("it_DataDetail_a_SeenOutNo.brlan", scAnmName[0].groupName);
+    add_animation("it_DataDetail_a_Wait.brlan", scAnmName[15].groupName);
+    mpLayout->finishBinding();
+    set_visible("N_Wait", false);
+    set_visible("T_Block_01", false);
+    mpEvent = new MemoryBaseEvent(this);
+    mpPaneManager = new gui::PaneManager(mpEvent, mpLayout->getDrawInfo(), NULL, NULL, true);
+    mpPaneManager->setupScene(mpLayout);
+    mpPaneManager->setAllComponentTriggerTarget(false);
+    mpPaneManager->setTriggerTarget(mpLayout->FindPaneByName(scButtonName[2]), true);
+    add_anmbutton(scButtonName[2], get_animation(2), get_animation(3), get_animation(4));
+    set_textbox("T_Del_00", 0xbd);
+}
 
 void SavedataEditWindow::calc() {
     mpLayout->calc();
