@@ -13,14 +13,32 @@
 #include "tiZiString.h"
 #include "tiSEId.h"
 
+#ifdef TIINPUTFORM_IMPLEMENTATION
+extern "C" wchar_t KPRGetChar(KPRQueue* queue);
+extern "C" void KPRPutChar(KPRQueue* queue, wchar_t character);
+extern "C" void KPRClearQueue(KPRQueue* queue);
+extern "C" u8 KPRLookAhead(KPRQueue* queue, wchar_t* character, wchar_t* combining);
+#endif
+
 namespace textinput {
     namespace inputform {
+#ifdef TIINPUTFORM_IMPLEMENTATION
+        class EventHandler;
+        class LayoutByNW4R;
+#endif
         class EditBuffer {
+#ifdef TIINPUTFORM_IMPLEMENTATION
+            friend class LayoutByNW4R;
+#endif
             public:
 #ifdef MYTIMANAGER_IMPLEMENTATION
                 void create(MEMAllocator* allocator);
 #endif
+#ifdef TIINPUTFORM_IMPLEMENTATION
+                virtual ~EditBuffer();
+#else
                 ~EditBuffer();
+#endif
 
             private:
                 void*           mpString;       // 0x04
@@ -30,7 +48,19 @@ namespace textinput {
         };
 
         class DeadKeyStream {
-#ifdef TI_PC_KEYBOARD_IMPLEMENTATION
+#if defined(TIINPUTFORM_IMPLEMENTATION)
+        public:
+            static wchar_t ToCombineClass(Language language, wchar_t code);
+            static wchar_t ToIndependentClass(wchar_t code);
+            inline wchar_t getChar();
+            u8 lookAhead() { return KPRLookAhead(&mKPRQueue, NULL, NULL); }
+            void putChar(wchar_t character) { KPRPutChar(&mKPRQueue, character); }
+            bool isEmpty() const { return mKPRQueue.oCount == 0; }
+            void clear() { KPRClearQueue(&mKPRQueue); }
+        private:
+            static bool sbCompatibleFilterEnabled;
+            static inline bool isCompatible(wchar_t character);
+#elif defined(TI_PC_KEYBOARD_IMPLEMENTATION)
         public:
             static wchar_t ToIndependentClass(wchar_t code);
 #endif
@@ -82,6 +112,12 @@ namespace textinput {
 
                 // TODO - location
                 class RowInfoManager {
+#ifdef TIINPUTFORM_IMPLEMENTATION
+                    friend class LayoutByNW4R;
+                public:
+                    void init();
+                    ~RowInfoManager();
+#endif
                 private:
                     Info_* mpInfo;              // 0x00
                     u16 mMaxLength;             // 0x04
@@ -89,6 +125,33 @@ namespace textinput {
                 };
 
                 virtual ~Base();
+#ifdef TIINPUTFORM_IMPLEMENTATION
+                Base(Manager* manager);
+                virtual void create(MEMAllocator* allocator);
+                virtual void init();
+                virtual void onCommand(INPUT_COMMAND command, void* data);
+                void setCursorPos(tistring::Decolated* string, u32 pos);
+                void calcCursorTimer();
+                bool isAtokActive() const;
+                void dirtyCacheAll();
+                tistring::Decolated* getCurrentString(bool inputting);
+                void moveCandidateToIdx(s32 index);
+                void onPressDownHWKB();
+                void onPressLeftHWKB();
+                void onPressRightHWKB();
+                void toggleAtokMode_(u8 operation);
+                void onSpaceKeyHWKB(u32 modifiers);
+                void onHKBCtrlCode(HVKCode code, u32 modifiers);
+                void confirmInput_();
+                void confirmInputting_(wchar_t character, bool direct, u16 letterMode, bool confirmOnly, void* holdingKey);
+                void inputCharZi_(wchar_t character, u32 modifiers);
+                void inputCharDefault_(wchar_t character, u32 modifiers);
+                void inputInputting_(wchar_t character);
+                inline bool hasZiPredictions() const;
+                inline bool usesZiPrediction() const;
+                inline void resetPredictionContext();
+                inline void resetInputRelation();
+#endif
 
                 virtual void                create(MEMAllocator* allocator, EditBuffer* editBuffer);
 
@@ -199,15 +262,17 @@ namespace textinput {
 
                 virtual void                makeUpCursorPos(CursorPos* cursorPos, u32 pos, s32 startLine, s32 endLine);
 
-#ifdef MYTIINPUTFORM_IMPLEMENTATION
+#if defined(MYTIINPUTFORM_IMPLEMENTATION) || defined(TIINPUTFORM_IMPLEMENTATION)
             protected:
+#ifndef TIINPUTFORM_IMPLEMENTATION
                 void setCursorPos(tistring::Decolated* string, u32 pos);
-                void resetRelation();
                 void calcCursorTimer();
+#endif
+                void resetRelation();
 #else
             private:
 #endif
-#ifdef MYTIINPUTFORM_IMPLEMENTATION
+#if defined(MYTIINPUTFORM_IMPLEMENTATION) || defined(TIINPUTFORM_IMPLEMENTATION)
                 nw4r::ut::Rect mRect;
 #else
                 Rect mRect;
@@ -254,8 +319,12 @@ namespace textinput {
         };
 
         class LayoutByNW4R : public Base, public nw4rmanager::Layout {
+#ifdef TIINPUTFORM_IMPLEMENTATION
+            friend class EventHandler;
+            inline const nw4r::lyt::Pane* getLanguageTextPane() const;
+#endif
             public:
-#ifdef MYTIMANAGER_IMPLEMENTATION
+#if defined(MYTIMANAGER_IMPLEMENTATION) || defined(TIINPUTFORM_IMPLEMENTATION)
                 LayoutByNW4R(textinput::Manager*, nw4r::lyt::MultiArcResourceAccessor*, const char*, EventObserver*, const char*);
 #endif
                 ~LayoutByNW4R();
@@ -284,7 +353,7 @@ namespace textinput {
 
                 virtual void                visibleSeparator(bool flag);
 
-#ifdef MYTIINPUTFORM_IMPLEMENTATION
+#if defined(MYTIINPUTFORM_IMPLEMENTATION) || defined(TIINPUTFORM_IMPLEMENTATION)
             protected:
                 const void* mpLayoutData;
                 const void* mpLanguageData;

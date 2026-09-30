@@ -16,7 +16,7 @@ namespace textinput {
             virtual void sendCommand(u32 command, void*) override;
 #endif
             virtual void updateFromReceiver(u32, void*) override;
-#if defined(MYTIMANAGER_IMPLEMENTATION) || defined(TI_PC_KEYBOARD_IMPLEMENTATION)
+#if defined(MYTIMANAGER_IMPLEMENTATION) || defined(TIINPUTFORM_IMPLEMENTATION) || defined(TI_PC_KEYBOARD_IMPLEMENTATION)
             virtual void onKey(u32, void*);
 #else
             virtual void onKey(u32);
