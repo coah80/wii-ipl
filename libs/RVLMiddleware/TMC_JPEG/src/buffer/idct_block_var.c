@@ -89,7 +89,7 @@ void TMCJPEGDEC_IdctBlock_Lumi(s32* block, u8* conv_row_ptr, u16 pitch, s32 zigz
                 n = (b1 + b7) + ((b5 + b3) + m);
                 o = x + m;
                 p = z + p_part;
-                q = p + x;
+                q = x + p;
                 dst[0] = w + n;
                 dst[7] = w - n;
                 dst[1] = v + o;
@@ -159,10 +159,10 @@ void TMCJPEGDEC_IdctBlock_Lumi(s32* block, u8* conv_row_ptr, u16 pitch, s32 zigz
             z_factor = ((b5 - b3) + (b1 - b7)) * 0x62 >> 8;
             m_part = ((b1 - b7) * 0x14E >> 8) - z_factor;
 
-            n = b1 + b7 + b5 + b3 + m_part;
+            n = (b1 + b7) + ((b5 + b3) + m_part);
             o = x + m_part;
-            p = z_factor + ((b5 - b3) * 0x8B >> 8);
-            q = p + x;
+            p = ((b5 - b3) * 0x8B >> 8) + z_factor;
+            q = x + p;
 
             out[0] = scalingClampU8(w + n);
             out[r] = scalingClampU8(w - n);
@@ -272,7 +272,7 @@ void TMCJPEGDEC_IdctBlock_Col(s32* block, u8* conv_row_ptr, u16 pitch, s32 zigza
         }
     zero_fill:
         dst = tmp + done;
-        for (; done < 0x39; done += 8) {
+        for (; done <= 0x38; done += 8) {
             memset(dst, 0, 0x20);
             dst += 8;
         }
@@ -347,7 +347,7 @@ mode_gt_2:
     }
 
     dst = tmp + done;
-    for (; done < 0x39; done += 8) {
+    for (; done <= 0x38; done += 8) {
         memset(dst, 0, 0x20);
         dst += 8;
     }
