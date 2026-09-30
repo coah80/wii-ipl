@@ -20,11 +20,11 @@ typedef struct HMACContext {
 } HMACContext;
 
 void NETHMACInit(HMACContext* context, const DigestInterface* interface, const void* key, u32 length) {
-    const char* function = "NETHMACInit";
     u8 innerKey[64];
     u32 i;
     u32 keyLength;
     void* work = context->digestContext;
+    const char* function = "NETHMACInit";
     context->interface = *interface;
     if (context->interface.contextSize > 96 || context->interface.blockSize > 64) {
         OSReport("%s(%d):[warning in %s]", "hmac.c", 100, function);

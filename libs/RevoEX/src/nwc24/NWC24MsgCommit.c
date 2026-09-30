@@ -4,7 +4,7 @@
 #include <revolution/nwc24.h>
 
 static char MultiPartDivider[64];
-BOOL LoopBackEnable = TRUE;
+BOOL LoopBackEnable[2] = {TRUE, FALSE};
 static NWC24File* m_pFile;
 
 static NWC24Err NWC24CommitMsgInternal(NWC24MsgObjPrivate* msg, NWC24MBoxType type);
@@ -177,7 +177,7 @@ NWC24Err NWC24CommitMsg(NWC24MsgObj* object) {
         return NWC24_ERR_LIB_NOT_OPENED;
     if (!(msg->type & 0x100) || (msg->type & 0x200))
         return NWC24_ERR_PROTECTED;
-    if (LoopBackEnable && (msg->type & 1)) {
+    if (LoopBackEnable[0] && (msg->type & 1)) {
         NWC24GetMyUserId(&myId);
         if (msg->numTo == 1 && msg->toIds[0] == myId)
             loopback = TRUE;
@@ -327,7 +327,7 @@ static NWC24Err NWC24CommitMsgInternal(NWC24MsgObjPrivate* msg, NWC24MBoxType ty
             buffer = NWC24WorkP->stringWork;
             Mail_memset(buffer, 0, 1024);
             Mail_sprintf(buffer, "\r\n--%s", MultiPartDivider);
-            Mail_strcat(buffer, "\r\n");
+            Mail_strcat(buffer, "\r\n\0");
             CHECK_WRITE(WriteString(msg, buffer));
         }
         CHECK_WRITE(WriteContentTypeField(msg));
@@ -346,7 +346,7 @@ static NWC24Err NWC24CommitMsgInternal(NWC24MsgObjPrivate* msg, NWC24MBoxType ty
             buffer = NWC24WorkP->stringWork;
             Mail_memset(buffer, 0, 1024);
             Mail_sprintf(buffer, "\r\n--%s", MultiPartDivider);
-            Mail_strcat(buffer, "\r\n");
+            Mail_strcat(buffer, "\r\n\0");
             CHECK_WRITE(WriteString(msg, buffer));
             CHECK_WRITE(WriteMIMEAttachHeader(msg, index));
             attached[index].ptr = (const void*)msg->length;

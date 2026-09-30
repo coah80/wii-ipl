@@ -180,11 +180,11 @@ void AESiEncryptBlock(AESContext* context, u32* output, const u32* input) {
     const u32* key = context->keys + 4;
     u32 a=input[0]^context->keys[0], b=input[1]^context->keys[1], c=input[2]^context->keys[2], d=input[3]^context->keys[3];
     while (--rounds != 0) {
-        u32 nextA=ENCRYPT(a,b,c,d)^key[0];
-        u32 nextB=ENCRYPT(b,c,d,a)^key[1];
-        u32 nextC=ENCRYPT(c,d,a,b)^key[2];
-        u32 nextD=ENCRYPT(d,a,b,c)^key[3];
-        a=nextA; b=nextB; c=nextC; d=nextD;
+        u32 nextA=ENCRYPT(a,b,c,d);
+        u32 nextB=ENCRYPT(b,c,d,a);
+        u32 nextC=ENCRYPT(c,d,a,b);
+        u32 nextD=ENCRYPT(d,a,b,c);
+        a=nextA^key[0]; b=nextB^key[1]; c=nextC^key[2]; d=nextD^key[3];
         key += 4;
     }
     output[0] = SUBSTITUTE(AESiSubShiftTable,a,b,c,d)^key[0];
@@ -203,15 +203,16 @@ void AESiDecryptBlock(AESContext* context, u32* output, const u32* input) {
         u32 round;
         for (round=1; round<context->rounds; ++round) {
             u32 word;
+            u32* keys=context->keys + round*4;
             for (word=0; word<4; ++word) {
-                u32 value=context->keys[round*4+word];
+                u32 value=keys[word];
                 u32 twice=DOUBLE_BYTES(value);
                 u32 four=DOUBLE_BYTES(twice);
                 u32 eight=DOUBLE_BYTES(four)^value;
                 u32 mixed=eight ^ (four ^ ROTATE(eight,8));
                 mixed ^= twice ^ ROTATE(mixed,8);
                 mixed ^= value ^ ROTATE(mixed,8);
-                context->keys[round*4+word]=mixed;
+                keys[word]=mixed;
             }
         }
         context->needsTransform=0;
@@ -219,11 +220,11 @@ void AESiDecryptBlock(AESContext* context, u32* output, const u32* input) {
     a=input[0]^key[0]; b=input[1]^key[1]; c=input[2]^key[2]; d=input[3]^key[3];
     key-=4;
     while (--rounds != 0) {
-        u32 nextA=DECRYPT(a,d,c,b)^key[0];
-        u32 nextB=DECRYPT(b,a,d,c)^key[1];
-        u32 nextC=DECRYPT(c,b,a,d)^key[2];
-        u32 nextD=DECRYPT(d,c,b,a)^key[3];
-        a=nextA; b=nextB; c=nextC; d=nextD;
+        u32 nextA=DECRYPT(a,d,c,b);
+        u32 nextB=DECRYPT(b,a,d,c);
+        u32 nextC=DECRYPT(c,b,a,d);
+        u32 nextD=DECRYPT(d,c,b,a);
+        a=nextA^key[0]; b=nextB^key[1]; c=nextC^key[2]; d=nextD^key[3];
         key-=4;
     }
     output[0]=SUBSTITUTE_XOR(AESiInvSubShiftTable,a,d,c,b)^key[0];
