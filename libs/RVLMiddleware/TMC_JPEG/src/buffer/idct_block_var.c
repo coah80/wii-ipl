@@ -7,17 +7,21 @@ static u8 clampU8(s32 v) {
     if (v < 256 && v > -1) {
         ok = 1;
     }
-    return (ok) ? v : ((v < 0) ? 0 : 255);
+    return ok ? v : 255 & ~(v >> 31);
 }
 
 static s8 clampS8(s32 v) {
-    return (v < 128 && v > -129) ? (s8)v : (v > 0) ? 127 : -128;
+    s32 inRange = 0;
+    if (v < 128 && v > -129) {
+        inRange = 1;
+    }
+    return inRange ? (s8)v : (v > 0) ? 127 : -128;
 }
 
 static s32 scalingClampU8(s32 val) {
-    s32 result = 0;
+    s32 result;
     if (val >> 19 != 0)
-        result &= ~(val >> 31) & 0xFF;
+        result = ~(val >> 31) & 0xFF;
     else
         result = (val >> 11);
     return result;
@@ -38,8 +42,8 @@ void TMCJPEGDEC_IdctBlock_Lumi(s32* block, u8* conv_row_ptr, u16 pitch, s32 zigz
     iter = (u32)(r + 7) >> 3;
     dst = tmp;
     done = 0;
-    if (r > 0) {
-        for (; iter > 0; iter--) {
+    {
+        for (; done < r; done += 8) {
             u32 ac;
             b4 = block[4];
             b6 = block[6];
@@ -49,7 +53,13 @@ void TMCJPEGDEC_IdctBlock_Lumi(s32* block, u8* conv_row_ptr, u16 pitch, s32 zigz
             b5 = block[5];
             b3 = block[3];
 
-            ac = (u32)b4 | (u32)b6 | (u32)b2 | (u32)b1 | (u32)b7 | (u32)b5 | (u32)b3;
+            ac = (u32)b4;
+            ac |= (u32)b6;
+            ac |= (u32)b2;
+            ac |= (u32)b1;
+            ac |= (u32)b7;
+            ac |= (u32)b5;
+            ac |= (u32)b3;
             if (ac == 0) {
                 s32 val = block[0];
                 dst[7] = val;
@@ -64,7 +74,7 @@ void TMCJPEGDEC_IdctBlock_Lumi(s32* block, u8* conv_row_ptr, u16 pitch, s32 zigz
                 t = (b2 - b6) * 0xB5 >> 8;
                 a = block[0] - b4;
                 d = block[0] + b4;
-                u = t + b6 + b2;
+                u = t + (b6 + b2);
                 v = a + t;
                 e = a - t;
                 w = d + u;
@@ -76,10 +86,13 @@ void TMCJPEGDEC_IdctBlock_Lumi(s32* block, u8* conv_row_ptr, u16 pitch, s32 zigz
                 x = x_factor * 0xB5 >> 8;
                 z = z_factor * 0x62 >> 8;
                 m = m_part - z;
-                n = b1 + b7 + b5 + b3 + m;
+                n = (b1 + b7) + ((b5 + b3) + m);
                 o = x + m;
                 p = z + p_part;
                 q = p + x;
+                dst[0] = w + n;
+                dst[7] = w - n;
+                dst[1] = v + o;
                 dst[6] = v - o;
                 dst[2] = e + q;
                 dst[5] = e - q;
@@ -88,12 +101,11 @@ void TMCJPEGDEC_IdctBlock_Lumi(s32* block, u8* conv_row_ptr, u16 pitch, s32 zigz
             }
             block += 8;
             dst += 8;
-            done += 8;
         }
     }
 
     dst = tmp + done;
-    for (; done < 0x38; done += 8) {
+    for (; done <= 0x38; done += 8) {
         memset(dst, 0, 0x20);
         dst += 8;
     }
@@ -114,7 +126,13 @@ void TMCJPEGDEC_IdctBlock_Lumi(s32* block, u8* conv_row_ptr, u16 pitch, s32 zigz
         b5 = dst[0x28];
         b3 = dst[0x18];
 
-        ac = (u32)b4 | (u32)b6 | (u32)b2 | (u32)b1 | (u32)b7 | (u32)b5 | (u32)b3;
+        ac = (u32)b4;
+            ac |= (u32)b6;
+            ac |= (u32)b2;
+            ac |= (u32)b1;
+            ac |= (u32)b7;
+            ac |= (u32)b5;
+            ac |= (u32)b3;
         out = conv_row_ptr + i;
         if (ac == 0) {
             u8 val = clampU8((*dst >> 11) + 0x80);
@@ -128,13 +146,14 @@ void TMCJPEGDEC_IdctBlock_Lumi(s32* block, u8* conv_row_ptr, u16 pitch, s32 zigz
             out[0] = val;
         } else {
             t = (b2 - b6) * 0xB5 >> 8;
-            a = *dst - b4;
-            d = *dst + b4;
-            u = t + b6 + b2;
+            a = (*dst + 0x40000) - b4;
+            d = (*dst + 0x40000) + b4;
+            u = t + (b6 + b2);
             v = a + t;
             e = a - t;
             w = d + u;
-            x = ((b1 + b7) - (b5 + b3)) * 0xB5 >> 8;
+            x_factor = (b1 + b7) - (b5 + b3);
+            x = x_factor * 0xB5 >> 8;
             y = d - u;
 
             z_factor = ((b5 - b3) + (b1 - b7)) * 0x62 >> 8;
@@ -296,7 +315,7 @@ mode_gt_2:
                 t = (b2 - b6) * 0xB5 >> 8;
                 a = block[0] - b4;
                 d = block[0] + b4;
-                u = t + b6 + b2;
+                u = t + (b6 + b2);
                 v = a + t;
                 e = a - t;
                 w = d + u;
@@ -308,10 +327,13 @@ mode_gt_2:
                 x = x_factor * 0xB5 >> 8;
                 z = z_factor * 0x62 >> 8;
                 m = m_part - z;
-                n = b1 + b7 + b5 + b3 + m;
+                n = (b1 + b7) + ((b5 + b3) + m);
                 o = x + m;
                 p = z + p_part;
                 q = p + x;
+                dst[0] = w + n;
+                dst[7] = w - n;
+                dst[1] = v + o;
                 dst[6] = v - o;
                 dst[2] = e + q;
                 dst[5] = e - q;
@@ -365,15 +387,17 @@ epilogue:
             t = (b2 - b6) * 0xB5 >> 8;
             a = *dst - b4;
             d = *dst + b4;
-            u = t + b6 + b2;
+            u = t + (b6 + b2);
             v = a + t;
             e = a - t;
             w = d + u;
-            x = ((b1 + b7) - (b5 + b3)) * 0xB5 >> 8;
+            x_factor = (b1 + b7) - (b5 + b3);
+            x = x_factor * 0xB5 >> 8;
             y = d - u;
-            z = ((b5 - b3) + (b1 - b7)) * 0x62 >> 8;
+            z_factor = (b5 - b3) + (b1 - b7);
+            z = z_factor * 0x62 >> 8;
             m = ((b1 - b7) * 0x14E >> 8) - z;
-            n = b1 + b7 + b5 + b3 + m;
+            n = (b1 + b7) + ((b5 + b3) + m);
             o = x + m;
 
             p = z + ((b5 - b3) * 0x8B >> 8);

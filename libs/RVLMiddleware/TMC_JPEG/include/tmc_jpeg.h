@@ -106,7 +106,15 @@ typedef struct {
     u16 outputHeight;   // 0x2A
     u32 convWidth;      // 0x2C
     u32 convHeight;     // 0x30
+#ifdef TMC_JPEG_PLANAR_OUTPUT
+    u32 chromaWidth;
+    u32 chromaHeight;
+    u8* pLumaBuffer;
+    u8* pCbBuffer;
+    u8* pCrBuffer;
+#else
     u8 unk_0x34[0x14];  // 0x34
+#endif
     void* pTexBuffer;   // 0x48
     u8 unk_0x4C[0x67C];
     TMCCJPEGDecWork* pWorkBuf;  // 0x6C8
