@@ -25,7 +25,7 @@ ziU8 Zi8_814813FC(ziWChar character, ziU8* result, ziU16* index, ziPtr workData)
 
 ziU8 Zi8_81481E6C(ziU16* resultIndex, ziU16* input, ziU8 type, ziU16 count, ziPtr workData);
 
-ziU8 Zi8GetKoreanCandidates(ziGetParam* params, ziU8* argument,
+ziU32 Zi8GetKoreanCandidates(ziGetParam* params, ziU8* argument,
                             ziPtr workData) {
     struct {
         ziU8 characterIndex;
@@ -44,7 +44,7 @@ ziU8 Zi8GetKoreanCandidates(ziGetParam* params, ziU8* argument,
         ziU8* table1;
     } state;
     ziU16 buffer[100];
-    unsigned int result;
+    ziU32 result;
     ziU16 currentCharacter;
     ziU8* selectedTable;
 
@@ -52,7 +52,7 @@ ziU8 Zi8GetKoreanCandidates(ziGetParam* params, ziU8* argument,
     result = 0;
     state.characterIndex = 0xFF;
     state.currentCandidate = params->firstCandidate;
-    params->unk_0x20 = params->count = params->letters = 0;
+    params->letters = params->count = params->unk_0x20 = 0;
     if ((argument != 0) && (*argument != 0)) {
         Zi8LogError(0x7D0, workData);
         return 0;
