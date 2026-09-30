@@ -748,7 +748,8 @@ s32 pfd_sddrv_get_total_sectors(u32* sectors, u16* bytes_per_sector) {
         multiplier = (csd[2] >> 8) & 0xf;
         minimum_multiplier = multiplier >= 9 ? multiplier : 9;
         max_multiplier = minimum_multiplier <= 11 ? minimum_multiplier : 11;
-        multiplier_factor = 1 << (u16)(max_multiplier - 9);
+        multiplier_factor = 1;
+        multiplier_factor <<= (u16)(max_multiplier - 9);
         *sectors = cluster_blocks * multiplier_factor;
     } else {
         *sectors = ((csd[1] >> 8 & 0x3fffff) + 1) * 0x400;
@@ -968,7 +969,6 @@ s32 pfd_sddrv_store_mbr_buf(PFD_SDDRV_FORMAT_DATA* format_data, u8* sector_buffe
     u8 end_head;
     u16 end_sector;
     u16 end_cylinder;
-    u32 sectors_per_cylinder;
 
     if (format_data == 0) {
         return -30;
@@ -990,13 +990,12 @@ s32 pfd_sddrv_store_mbr_buf(PFD_SDDRV_FORMAT_DATA* format_data, u8* sector_buffe
         OSReport("ERR Failed to get values with total sectors. pfd_sddrv_get_value_with_total_sectors()\n");
         return result;
     }
-    sectors_per_cylinder = settings.fat_copies * settings.root_entries;
-    start_cylinder = format_data->partition_start_sector / sectors_per_cylinder;
-    end_cylinder = (format_data->total_sectors - 1) / sectors_per_cylinder;
+    start_cylinder = format_data->partition_start_sector / (settings.fat_copies * settings.root_entries);
+    start_head = (format_data->partition_start_sector % (settings.fat_copies * settings.root_entries)) / settings.root_entries;
     start_sector = format_data->partition_start_sector % settings.root_entries + 1;
+    end_cylinder = (format_data->total_sectors - 1) / (settings.fat_copies * settings.root_entries);
+    end_head = ((format_data->total_sectors - 1) % (settings.fat_copies * settings.root_entries)) / settings.root_entries;
     end_sector = (format_data->total_sectors - 1) % settings.root_entries + 1;
-    start_head = (format_data->partition_start_sector % sectors_per_cylinder) / settings.root_entries;
-    end_head = ((format_data->total_sectors - 1) % sectors_per_cylinder) / settings.root_entries;
     if (format_data->partition_sector_count == 0) {
         return -30;
     }
