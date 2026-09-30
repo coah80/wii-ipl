@@ -92,8 +92,8 @@ vmU16 CHANSVmGetSourceLine(CHANSVm* vm) {
             }
         }
 
-        if ((u8*)curEntry + lineOffset + 1 < (u8*)ctx->pDbg + ctx->pDbg->regionSize) {
-            u8* lineData = (u8*)curEntry + lineOffset;
+        if ((u8*)ctx->pDbg->pLineTbl + lineOffset + 1 < (u8*)ctx->pDbg + ctx->pDbg->regionSize) {
+            u8* lineData = (u8*)ctx->pDbg->pLineTbl + lineOffset;
             return VM_READ_BE_U16(lineData, 0);
         }
     }
@@ -347,7 +347,7 @@ vmPtr CHANSVmNewObjData(CHANSVm* vm, CHANSVmObjHdr* object, u32 length) {
             if (chunk == vmNull) {
                 chunk = CHANSVmAlloc(vm, 0x4000);
                 if (chunk == vmNull) {
-                    goto error;
+                    goto no_entry;
                 }
                 pVm->pChunks[chunkIdx] = chunk;
             }
@@ -365,6 +365,7 @@ vmPtr CHANSVmNewObjData(CHANSVm* vm, CHANSVmObjHdr* object, u32 length) {
             chunkIdx++;
             u.off += 4;
         }
+    no_entry:
         u.off = 0;
         goto check_entry;
     }
@@ -513,9 +514,10 @@ void CHANSVmStrCpyToU16FromU8(vmWString output, vmString input, vmSize length) {
     while (length > 0) {
         u8 val;
         u32 offset = VM_STR_LENGTH(--length);
+        u8* dest = (u8*)output + offset;
         val = *--src;
-        ((u8*)output)[offset + 1] = val;
-        ((u8*)output)[offset] = 0;
+        dest[1] = val;
+        dest[0] = 0;
     }
 }
 
@@ -4160,23 +4162,21 @@ VmMethodDefine(Blob, CopyRangeFrom) {
 
     if (CHANSVm_81450D14(destBlob, destOffObj->value.int_v, &destOff) != 0 && CHANSVm_81450D14(srcBlob, srcOffObj->value.int_v, &srcOff) != 0) {
         count = CHANSVm_81451314(srcBlob, countObj, srcOff);
-        if ((s64)destBlob->size >= (s64)count) {
-            u32 available = destBlob->size - destOff;
-            if ((s64)count >= (s64)available) {
+        {
+            u32 destinationOffset = destOff;
+            if ((s64)count >= 0 && (s64)(destBlob->size - destinationOffset) >= (s64)count) {
                 okFlag = vmTrue;
             }
         }
 
         if (okFlag) {
-            okFlag = vmFalse;
-            if ((s64)count >= 0) {
-                u32 available = srcBlob->size - srcOff;
-                if ((s64)count >= (s64)available) {
-                    okFlag = vmTrue;
-                }
+            vmBoolInt sourceValid = vmFalse;
+            u32 sourceOffset = srcOff;
+            if ((s64)count >= 0 && (s64)(srcBlob->size - sourceOffset) >= (s64)count) {
+                sourceValid = vmTrue;
             }
 
-            if (okFlag) {
+            if (sourceValid) {
                 memmove(destBlob->pData + destOff, srcBlob->pData + srcOff, count);
                 return CHANSVmSetInteger(VmInst, VmReturnObj, (vmInteger)(u64)count) == CHANS_VM_OK;
             }
@@ -6980,7 +6980,7 @@ static CHANSVmErr VmCallMethod(CHANSVm* vm, u32 instructionSize, u32 callType, u
     CHANSVmNativeClass* target;
     u32 pushEnd, headerCount;
     u32 newPc;
-    void* pConstObj;
+    const u8* instruction;
     CHANSVmObjHdr localBuf;
     u32 pushDepth;
     CHANSVmFunction funcPtr;
@@ -7044,7 +7044,7 @@ static CHANSVmErr VmCallMethod(CHANSVm* vm, u32 instructionSize, u32 callType, u
         u32 pc = pVm->pActiveCtx->pc;
 
         newPc = pc + instructionSize;
-        pConstObj = (void*)(pVm->pActiveCtx->pDbg->pData + pc);
+        instruction = pVm->pActiveCtx->pDbg->pData + pc;
 
         if (newPc < pc || newPc > pVm->pActiveCtx->pDbg->codeSize) {
             return CHANS_VM_ERR_CODE_RANGE;
@@ -7060,8 +7060,7 @@ static CHANSVmErr VmCallMethod(CHANSVm* vm, u32 instructionSize, u32 callType, u
         target = vmNull;
     } else {
         CHANSVmExecutionCtx* ec = pVm->pActiveCtx;
-        // TODO: what's the actual type of the object here? avoid raw ptr access
-        u32 methodId = *((u16*)pConstObj + 1);
+        u32 methodId = VM_READ_BE_U16(instruction, 1);
         u32 methodCount;
 
         if (ec->pDbg->pMethodTbl == vmNull) {
@@ -7112,7 +7111,7 @@ static CHANSVmErr VmCallMethod(CHANSVm* vm, u32 instructionSize, u32 callType, u
             entry = entry->pNext;
         }
     } else {
-        pushDepth = *((u8*)pConstObj + instructionSize - 1);
+        pushDepth = instruction[instructionSize - 1];
         if (retVal != 0) {
             CHANSVmNativeMethod* node = target->pNativeMethods;
 
@@ -7408,7 +7407,7 @@ CHANSVmErr CHANSVmStep(CHANSVm* vm, int stepCount) {
                                 break;
                             }
                             case VM_OPKIND_EQ: {
-                                convTbl = (u8*)VmResultTypeTbl.arith;
+                                convTbl = (u8*)VmResultTypeTbl.eq;
                                 break;
                             }
                             case VM_OPKIND_BIT:
@@ -7724,7 +7723,8 @@ CHANSVmErr CHANSVmStep(CHANSVm* vm, int stepCount) {
                         return CHANS_VM_ERR_CODE_RANGE;
                     }
                     pAcc = &pVm->accumulator;
-                    if (CHANSVmDeleteObject(vm, pAcc) == CHANS_VM_OK) {
+                    result = CHANSVmDeleteObject(vm, pAcc);
+                    if (result == CHANS_VM_OK) {
                         imm16Val = VM_READ_BE_U16(operandBuf, 0);
                         ctx = pVm->pActiveCtx;
                         dbg = ctx->pDbg;
@@ -7738,10 +7738,9 @@ CHANSVmErr CHANSVmStep(CHANSVm* vm, int stepCount) {
                     break;
 
                 load_str_ok:
-                    // result is not initialized in this code path?
                     pAcc->type = CHANS_VM_OBJ_TYPE_STRING;
                     pAcc->hasData = vmTrue;
-                    pAcc->value.wstring_v = (vmWStringObjVal*)&dbg->pStringTbl[imm16Val];
+                    pAcc->value.wstring_v = (vmWStringObjVal*)&ctx->pDbg->pStringTbl[imm16Val];
                     break;
                 }
 
@@ -7886,37 +7885,30 @@ CHANSVmErr CHANSVmStep(CHANSVm* vm, int stepCount) {
                 }
 
                 case CHANS_VM_OP_NEW_ARRAY: {
+                    CHANSVmObjHdr* accumulator;
+                    CHANSVmErr arrayResult;
                     opSize = 3;
                     operandBuf = VmGetOperand(vm, 1, 3);
                     if (operandBuf == vmNull) {
                         return CHANS_VM_ERR_CODE_RANGE;
                     }
                     imm16Val = VM_READ_BE_U16(operandBuf, 0);
-                    {
-                        CHANSVmObjHdr* pAcc = &pVm->accumulator;
-                        if (CHANSVmDeleteObject(vm, pAcc) != CHANS_VM_OK) {
-                            // result not initialized in this code path
-                            break;
-                        }
-                        if (VmPushFuncReturnInfo(vm, imm16Val, imm16Val, 0) != CHANS_VM_OK) {
-                            // result not initialized in this code path
-                            break;
-                        }
-
-                        pAcc->type = CHANS_VM_TYPE_ARRAY;
-                        pAcc->parentCls = pVm->pArrayCls;
-
-                        if (CHANSVmNewObjData(vm, pAcc, 0x18) != vmNull) {
-                            if (imm16Val != 0) {
-                                result = VmArrayExpandCommon(vm, pAcc, imm16Val, 0, vmTrue);
+                    accumulator = &pVm->accumulator;
+                    arrayResult = CHANSVmDeleteObject(vm, accumulator);
+                    if (arrayResult == CHANS_VM_OK) {
+                        arrayResult = VmPushFuncReturnInfo(vm, imm16Val, imm16Val, 0);
+                        if (arrayResult == CHANS_VM_OK) {
+                            accumulator->type = CHANS_VM_TYPE_ARRAY;
+                            accumulator->parentCls = pVm->pArrayCls;
+                            if (CHANSVmNewObjData(vm, accumulator, sizeof(ArrayChunk)) == vmNull ||
+                                (imm16Val != 0 && VmArrayExpandCommon(vm, accumulator, imm16Val, 0, vmTrue) == 0)) {
+                                arrayResult = CHANS_VM_ERR_CALL_NEW_ARRAY;
+                            } else {
+                                arrayResult = VmReturnWithValue(vm, 0);
                             }
-                        } else {
-                            result = CHANS_VM_ERR_CALL_NEW_ARRAY;
-                            break;
                         }
-
-                        result = VmReturnWithValue(vm, 0);
                     }
+                    result = arrayResult;
                     break;
                 }
 
