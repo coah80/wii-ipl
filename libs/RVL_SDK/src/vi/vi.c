@@ -36,24 +36,56 @@ static u32 IsInitialized;
 static u32 vsync_timing_err_cnt;
 static u32 vsync_timing_test_flag;
 
-static VITiming timing[11] = {
-    { 6, 240, 24, 25, 3, 2, 12, 13, 12, 13, 520, 519, 520, 519, 525, 429, 64, 71, 105, 162, 373, 122, 412 },
-    { 6, 240, 24, 24, 4, 4, 12, 12, 12, 12, 520, 520, 520, 520, 526, 429, 64, 71, 105, 162, 373, 122, 412 },
-    { 5, 287, 35, 36, 1, 0, 13, 12, 11, 10, 619, 618, 617, 620, 625, 432, 64, 75, 106, 172, 380, 133, 420 },
-    { 5, 287, 33, 33, 2, 2, 13, 11, 13, 11, 619, 621, 619, 621, 624, 432, 64, 75, 106, 172, 380, 133, 420 },
-    { 6, 240, 24, 25, 3, 2, 16, 15, 14, 13, 518, 517, 516, 519, 525, 429, 64, 78, 112, 162, 373, 122, 412 },
-    { 6, 240, 24, 24, 4, 4, 16, 14, 16, 14, 518, 520, 518, 520, 526, 429, 64, 78, 112, 162, 373, 122, 412 },
-    { 12, 480, 48, 48, 6, 6, 24, 24, 24, 24, 1038, 1038, 1038, 1038, 1050, 429, 64, 71, 105, 162, 373, 122, 412 },
-    { 12, 480, 44, 44, 10, 10, 24, 24, 24, 24, 1038, 1038, 1038, 1038, 1050, 429, 64, 71, 105, 168, 379, 122, 412 },
-    { 6, 241, 24, 25, 1, 0, 12, 13, 12, 13, 520, 519, 520, 519, 525, 429, 64, 71, 105, 159, 370, 122, 412 },
-    { 12, 480, 48, 48, 6, 6, 24, 24, 24, 24, 1038, 1038, 1038, 1038, 1050, 429, 64, 71, 105, 180, 391, 122, 412 },
-    { 10, 576, 62, 62, 6, 6, 20, 20, 20, 20, 1240, 1240, 1240, 1240, 1250, 432, 64, 75, 106, 172, 380, 122, 412 },
-};
+typedef struct VIFilterModes {
+    u16 filterTaps[25];
+    GXRenderModeObj palProgressive[3];
+} VIFilterModes;
 
-static u16 taps[25] = {
-    0x01F0, 0x01DC, 0x01AE, 0x0174, 0x0129, 0x00DB, 0x008E, 0x0046, 0x000C,
-    0x00E2, 0x00CB, 0x00C0, 0x00C4, 0x00CF, 0x00DE, 0x00EC, 0x00FC, 0x0008,
-    0x000F, 0x0013, 0x0013, 0x000F, 0x000C, 0x0008, 0x0001,
+typedef struct VIHardwareConfig {
+    VITiming timings[11];
+    VIFilterModes filters;
+} VIHardwareConfig;
+
+static VIHardwareConfig hardwareConfig = {
+    {
+        { 6, 240, 24, 25, 3, 2, 12, 13, 12, 13, 520, 519, 520, 519, 525, 429, 64, 71, 105, 162, 373, 122, 412 },
+        { 6, 240, 24, 24, 4, 4, 12, 12, 12, 12, 520, 520, 520, 520, 526, 429, 64, 71, 105, 162, 373, 122, 412 },
+        { 5, 287, 35, 36, 1, 0, 13, 12, 11, 10, 619, 618, 617, 620, 625, 432, 64, 75, 106, 172, 380, 133, 420 },
+        { 5, 287, 33, 33, 2, 2, 13, 11, 13, 11, 619, 621, 619, 621, 624, 432, 64, 75, 106, 172, 380, 133, 420 },
+        { 6, 240, 24, 25, 3, 2, 16, 15, 14, 13, 518, 517, 516, 519, 525, 429, 64, 78, 112, 162, 373, 122, 412 },
+        { 6, 240, 24, 24, 4, 4, 16, 14, 16, 14, 518, 520, 518, 520, 526, 429, 64, 78, 112, 162, 373, 122, 412 },
+        { 12, 480, 48, 48, 6, 6, 24, 24, 24, 24, 1038, 1038, 1038, 1038, 1050, 429, 64, 71, 105, 162, 373, 122, 412 },
+        { 12, 480, 44, 44, 10, 10, 24, 24, 24, 24, 1038, 1038, 1038, 1038, 1050, 429, 64, 71, 105, 168, 379, 122, 412 },
+        { 6, 241, 24, 25, 1, 0, 12, 13, 12, 13, 520, 519, 520, 519, 525, 429, 64, 71, 105, 159, 370, 122, 412 },
+        { 12, 480, 48, 48, 6, 6, 24, 24, 24, 24, 1038, 1038, 1038, 1038, 1050, 429, 64, 71, 105, 180, 391, 122, 412 },
+        { 10, 576, 62, 62, 6, 6, 20, 20, 20, 20, 1240, 1240, 1240, 1240, 1250, 432, 64, 75, 106, 172, 380, 122, 412 },
+    },
+    {
+        {
+            0x01F0, 0x01DC, 0x01AE, 0x0174, 0x0129,
+            0x00DB, 0x008E, 0x0046, 0x000C, 0x00E2,
+            0x00CB, 0x00C0, 0x00C4, 0x00CF, 0x00DE,
+            0x00EC, 0x00FC, 0x0008, 0x000F, 0x0013,
+            0x0013, 0x000F, 0x000C, 0x0008, 0x0001,
+        },
+        {
+            {
+                6, 640, 528, 528, 40, 23, 640, 528, 0, 0, 0,
+                {{6, 6}, {6, 6}, {6, 6}, {6, 6}, {6, 6}, {6, 6}, {6, 6}, {6, 6}, {6, 6}, {6, 6}, {6, 6}, {6, 6}},
+                {0, 0, 21, 22, 21, 0, 0},
+            },
+            {
+                6, 640, 528, 528, 40, 23, 640, 528, 0, 0, 0,
+                {{6, 6}, {6, 6}, {6, 6}, {6, 6}, {6, 6}, {6, 6}, {6, 6}, {6, 6}, {6, 6}, {6, 6}, {6, 6}, {6, 6}},
+                {8, 8, 10, 12, 10, 8, 8},
+            },
+            {
+                6, 640, 264, 524, 40, 23, 640, 524, 0, 0, 1,
+                {{3, 2}, {9, 6}, {3, 10}, {3, 2}, {9, 6}, {3, 10}, {9, 2}, {3, 6}, {9, 10}, {9, 2}, {3, 6}, {9, 10}},
+                {4, 8, 12, 16, 12, 8, 4},
+            },
+        },
+    },
 };
 
 static VIRetraceCallback PreCB;
@@ -105,6 +137,7 @@ static BOOL OnShutdown(BOOL final, u32 event)
     static u32 previousRetraceCount;
     BOOL enabled;
     s32 registerIndex;
+    u64 registerMask;
 
     if (final) {
         goto returnTrue;
@@ -132,7 +165,8 @@ beginShutdown:
         while (changed != 0) {
             registerIndex = cntlzd(changed);
             shdwRegs[registerIndex] = regs[registerIndex];
-            changed &= ~__shl2i((u64)1, 63 - registerIndex);
+            registerMask = __shl2i((u64)1, 63 - registerIndex);
+            changed &= ~registerMask;
         }
         flushFlag = 1;
         flushFlag3in1 = 1;
@@ -478,38 +512,38 @@ static VITiming* getTiming(VITVMode mode)
 {
     switch (mode) {
     case 0:
-        return &timing[0];
+        return &hardwareConfig.timings[0];
     case 1:
-        return &timing[1];
+        return &hardwareConfig.timings[1];
     case 4:
-        return &timing[2];
+        return &hardwareConfig.timings[2];
     case 5:
-        return &timing[3];
+        return &hardwareConfig.timings[3];
     case 20:
-        return &timing[0];
+        return &hardwareConfig.timings[0];
     case 21:
-        return &timing[1];
+        return &hardwareConfig.timings[1];
     case 8:
-        return &timing[4];
+        return &hardwareConfig.timings[4];
     case 9:
-        return &timing[5];
+        return &hardwareConfig.timings[5];
     case 2:
     case 10:
     case 22:
-        return &timing[6];
+        return &hardwareConfig.timings[6];
     case 3:
     case 11:
-        return &timing[7];
+        return &hardwareConfig.timings[7];
     case 16:
-        return &timing[2];
+        return &hardwareConfig.timings[2];
     case 17:
-        return &timing[3];
+        return &hardwareConfig.timings[3];
     case 24:
-        return &timing[8];
+        return &hardwareConfig.timings[8];
     case 26:
-        return &timing[9];
+        return &hardwareConfig.timings[9];
     case 6:
-        return &timing[10];
+        return &hardwareConfig.timings[10];
     case 28:
     case 29:
     case 30:
@@ -608,20 +642,20 @@ void VIInit(void)
     shdwChangeMode = 0;
     flushFlag = 0;
     flushFlag3in1 = 0;
-    __VIRegs[39] = taps[0] | ((taps[1] & 0x3F) << 10);
-    __VIRegs[38] = (taps[1] >> 6) | (taps[2] << 4);
-    __VIRegs[41] = taps[3] | ((taps[4] & 0x3F) << 10);
-    __VIRegs[40] = (taps[4] >> 6) | (taps[5] << 4);
-    __VIRegs[43] = taps[6] | ((taps[7] & 0x3F) << 10);
-    __VIRegs[42] = (taps[7] >> 6) | (taps[8] << 4);
-    __VIRegs[45] = taps[9] | (taps[10] << 8);
-    __VIRegs[44] = taps[11] | (taps[12] << 8);
-    __VIRegs[47] = taps[13] | (taps[14] << 8);
-    __VIRegs[46] = taps[15] | (taps[16] << 8);
-    __VIRegs[49] = taps[17] | (taps[18] << 8);
-    __VIRegs[48] = taps[19] | (taps[20] << 8);
-    __VIRegs[51] = taps[21] | (taps[22] << 8);
-    __VIRegs[50] = taps[23] | (taps[24] << 8);
+    __VIRegs[39] = hardwareConfig.filters.filterTaps[0] | ((hardwareConfig.filters.filterTaps[1] & 0x3F) << 10);
+    __VIRegs[38] = (hardwareConfig.filters.filterTaps[1] >> 6) | (hardwareConfig.filters.filterTaps[2] << 4);
+    __VIRegs[41] = hardwareConfig.filters.filterTaps[3] | ((hardwareConfig.filters.filterTaps[4] & 0x3F) << 10);
+    __VIRegs[40] = (hardwareConfig.filters.filterTaps[4] >> 6) | (hardwareConfig.filters.filterTaps[5] << 4);
+    __VIRegs[43] = hardwareConfig.filters.filterTaps[6] | ((hardwareConfig.filters.filterTaps[7] & 0x3F) << 10);
+    __VIRegs[42] = (hardwareConfig.filters.filterTaps[7] >> 6) | (hardwareConfig.filters.filterTaps[8] << 4);
+    __VIRegs[45] = hardwareConfig.filters.filterTaps[9] | (hardwareConfig.filters.filterTaps[10] << 8);
+    __VIRegs[44] = hardwareConfig.filters.filterTaps[11] | (hardwareConfig.filters.filterTaps[12] << 8);
+    __VIRegs[47] = hardwareConfig.filters.filterTaps[13] | (hardwareConfig.filters.filterTaps[14] << 8);
+    __VIRegs[46] = hardwareConfig.filters.filterTaps[15] | (hardwareConfig.filters.filterTaps[16] << 8);
+    __VIRegs[49] = hardwareConfig.filters.filterTaps[17] | (hardwareConfig.filters.filterTaps[18] << 8);
+    __VIRegs[48] = hardwareConfig.filters.filterTaps[19] | (hardwareConfig.filters.filterTaps[20] << 8);
+    __VIRegs[51] = hardwareConfig.filters.filterTaps[21] | (hardwareConfig.filters.filterTaps[22] << 8);
+    __VIRegs[50] = hardwareConfig.filters.filterTaps[23] | (hardwareConfig.filters.filterTaps[24] << 8);
     __VIRegs[56] = 0x280;
     displayOffsetH = SCGetDisplayOffsetH();
     displayOffsetV = 0;
@@ -803,11 +837,14 @@ static void setHorizontalRegs(VITiming* currentTiming, u16 displayPosX,
     u32 hbs;
     u32 hbeLow;
     u32 hbeHigh;
+    u64 pending = changed;
 
     regs[3] = currentTiming->hlw;
-    MARK_CHANGED(3);
+    pending |= 1ULL << 60;
+    changed = pending;
     regs[2] = currentTiming->hce | (currentTiming->hcs << 8);
-    MARK_CHANGED(2);
+    pending |= 1ULL << 61;
+    changed = pending;
     if (HorVer.tv == 8) {
         hbe = currentTiming->hbe640 + 0xAC;
         hbs = currentTiming->hbs640;
@@ -819,9 +856,11 @@ static void setHorizontalRegs(VITiming* currentTiming, u16 displayPosX,
     hbeLow = hbe & 0x1FF;
     hbeHigh = hbe >> 9;
     regs[5] = currentTiming->hsy | (hbeLow << 7);
-    MARK_CHANGED(5);
+    pending |= 1ULL << 58;
+    changed = pending;
     regs[4] = hbeHigh | (hbs * 2);
-    MARK_CHANGED(4);
+    pending |= 1ULL << 59;
+    changed = pending;
 }
 
 #pragma dont_inline reset
@@ -1140,6 +1179,7 @@ void VIFlush(void)
 {
     BOOL enabled;
     s32 registerIndex;
+    u64 registerMask;
 
     enabled = OSDisableInterrupts();
     shdwChangeMode = shdwChangeMode | changeMode;
@@ -1148,7 +1188,8 @@ void VIFlush(void)
     while (changed != 0) {
         registerIndex = cntlzd(changed);
         shdwRegs[registerIndex] = regs[registerIndex];
-        changed &= ~__shl2i((u64)1, 63 - registerIndex);
+        registerMask = __shl2i((u64)1, 63 - registerIndex);
+        changed &= ~registerMask;
     }
     flushFlag = 1;
     flushFlag3in1 = 1;
