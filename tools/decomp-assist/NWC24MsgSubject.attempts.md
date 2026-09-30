@@ -98,3 +98,82 @@ NWC24iSetMsgSubjectQP 88.4375%: word-size accounting, folding control flow and a
 NWC24iSetMsgSubjectBase64 81.94853%: conversion/encoding status flow and folding allocation
 
 Retained: 5/12 exact functions; 1840/5352 code bytes; 232/232 data bytes.
+
+## Continuation 2026-09-30
+
+Baseline: 5/12 exact functions; 1840/5352 code bytes; 232/232 data bytes.
+
+NWC24ReadMsgTextPublic | inline status-acceptance helper | (97.14286, -9999) | src 0x110 base 0x118 insns 68/70
+NWC24ReadMsgTextPublic | successful reader branch before exceptional branch | (97.14286, -9999) | src 0x110 base 0x118 insns 68/70
+NWC24ReadMsgTextPublic | subject conversion status separate from reader status | (97.14286, -9999) | src 0x110 base 0x118 insns 68/70
+NWC24ReadMsgSubjectPublic | inline status-acceptance helper | (96.15385, -9999) | src 0x190 base 0x1a0 insns 100/104
+NWC24ReadMsgSubjectPublic | walk subject through separate character pointer | (95.94231, -9999) | src 0x190 base 0x1a0 insns 100/104
+NWC24ReadMsgSubjectPublic | signed decoded capacity temporary | (96.15385, -9999) | src 0x190 base 0x1a0 insns 100/104
+NWC24SetMsgSubjectAndTextPublic | status switches | (96.52631, -9999) | src 0x304 base 0x2f8 insns 193/190
+NWC24SetMsgSubjectAndTextPublic | grouped regional cases | (97.07895, -9999) | src 0x2f0 base 0x2f8 insns 188/190
+NWC24SetMsgSubjectAndTextPublic | switches and grouped regional cases | (98.23684, -65) | src 0x2f8 base 0x2f8 insns 190/190
+NWC24SetMsgSubjectAndTextPublic | work pointer declared before message alias | (98.23684, -65) | src 0x2f8 base 0x2f8 insns 190/190
+NWC24SetMsgSubjectAndTextPublic | late work pointer initialization | (0, -9999) | [1/1] MWCC build/43U/src/libs/RevoEX/src/nwc24/NWC24MsgSubject.o
+NWC24SetMsgSubjectAndTextPublic | derive subject buffer after text conversion | (98.23684, -65) | src 0x2f8 base 0x2f8 insns 190/190
+NWC24SetMsgSubjectAndTextPublic | retain charset pointer instead of work object | (98.23684, -65) | src 0x2f8 base 0x2f8 insns 190/190
+NWC24SetMsgSubjectAndTextPublic | declare input buffer partitions before work pointer | (98.23684, -65) | src 0x2f8 base 0x2f8 insns 190/190
+NWC24SetMsgSubjectAndTextPublic | assign work pointer inside detection argument | (98.23684, -65) | src 0x2f8 base 0x2f8 insns 190/190
+NWC24iSetMsgSubjectPlain | conversion status switch | (0, -9999) | [1/1] MWCC build/43U/src/libs/RevoEX/src/nwc24/NWC24MsgSubject.o
+NWC24iSetMsgSubjectPlain | prepare fold capacity before fit test | (92.096, -96) | src 0x1f4 base 0x1f4 insns 125/125
+NWC24iSetMsgSubjectPlain | capture consumed first line before copy | (91.296, -9999) | src 0x1f0 base 0x1f4 insns 124/125
+NWC24iSetMsgSubjectQP | signed encoded word length | (88.4375, -9999) | src 0x22c base 0x240 insns 139/144
+NWC24iSetMsgSubjectQP | capture fold capacity before charset length | (88.4375, -9999) | src 0x22c base 0x240 insns 139/144
+NWC24iSetMsgSubjectQP | normalize via moving source pointer | (87.986115, -9999) | src 0x22c base 0x240 insns 139/144
+NWC24iSetMsgSubjectBase64 | signed encoded word length | (81.94853, -9999) | src 0x20c base 0x220 insns 131/136
+NWC24iSetMsgSubjectBase64 | multiply line length before shifting | (81.42647, -9999) | src 0x20c base 0x220 insns 131/136
+NWC24iSetMsgSubjectBase64 | capture remaining input after fold capacity check | (79.94118, -9999) | src 0x20c base 0x220 insns 131/136
+NWC24iDetectEncodingToSend | text status stored in search convergence index | (72.23853, -9999) | src 0x18c base 0x1b4 insns 99/109
+NWC24iDetectEncodingToSend | encoding checks use status switches | (72.376144, -9999) | src 0x18c base 0x1b4 insns 99/109
+NWC24iDetectEncodingToSend | region table selected with switch | (82.55963, -9999) | src 0x198 base 0x1b4 insns 102/109
+NWC24iDetectEncodingToSend | store selected index at each search exit | (96.04587, -46) | src 0x1b4 base 0x1b4 insns 109/109
+NWC24iDetectEncodingToSend | exit index plus cached byte sizes | (93.99083, -47) | src 0x1b4 base 0x1b4 insns 109/109
+NWC24iSetMsgSubjectPlain | explicit fold overflow first and postincrement writes | (99.144, -20) | src 0x1f4 base 0x1f4 insns 125/125
+NWC24iSetMsgSubjectPlain | postincrement writes with initial source cursor | (94.944, -9999) | src 0x1f0 base 0x1f4 insns 124/125
+NWC24iDetectEncodingToSend | initialize search start before region dispatch | (96.60551, -32) | src 0x1b4 base 0x1b4 insns 109/109
+NWC24iDetectEncodingToSend | byte count locals after region selection | (96.27523, -47) | src 0x1b4 base 0x1b4 insns 109/109
+NWC24iDetectEncodingToSend | order table count and search locals by lifetime | (96.04587, -46) | src 0x1b4 base 0x1b4 insns 109/109
+NWC24iSetMsgSubjectPlain | source offset declared before second buffer | (99.904, -2) | src 0x1f4 base 0x1f4 insns 125/125
+NWC24iSetMsgSubjectPlain | line length initialized before buffer capacity | (99.0, -23) | src 0x1f4 base 0x1f4 insns 125/125
+NWC24iSetMsgSubjectPlain | fold pointer declared after counters | (99.904, -2) | src 0x1f4 base 0x1f4 insns 125/125
+NWC24iSetMsgSubjectPlain | zero break length before source size initialization | (99.904, -2) | src 0x1f4 base 0x1f4 insns 125/125
+NWC24iSetMsgSubjectPlain | zero break length before partition pointer initialization | (99.904, -2) | src 0x1f4 base 0x1f4 insns 125/125
+NWC24iSetMsgSubjectPlain | initialize source and break sizes before work capacity | (99.76, -6) | src 0x1f4 base 0x1f4 insns 125/125
+NWC24iDetectEncodingToSend | cache byte lengths before end index | (98.073395, -34) | src 0x1b4 base 0x1b4 insns 109/109
+NWC24iDetectEncodingToSend | byte lengths and table local order | (98.073395, -34) | src 0x1b4 base 0x1b4 insns 109/109
+NWC24iDetectEncodingToSend | search start variable declared after previous index | (96.60551, -32) | src 0x1b4 base 0x1b4 insns 109/109
+NWC24iSetMsgSubjectPlain | break length initialized at declaration | (99.76, -6) | src 0x1f4 base 0x1f4 insns 125/125
+NWC24iSetMsgSubjectPlain | break length declared first | (99.768, -20) | src 0x1f4 base 0x1f4 insns 125/125
+NWC24iSetMsgSubjectPlain | input length declared after break length | (99.808, -14) | src 0x1f4 base 0x1f4 insns 125/125
+NWC24iSetMsgSubjectPlain | work capacity initialized at declaration | (99.904, -2) | src 0x1f4 base 0x1f4 insns 125/125
+NWC24iDetectEncodingToSend | locals ordered by independent search roles | (100.0, 0) | src 0x1b4 base 0x1b4 insns 109/109
+NWC24iSetMsgSubjectPlain | partition capacity computed after break initialization | (100.0, 0) | src 0x1f4 base 0x1f4 insns 125/125
+NWC24iSetMsgSubjectQP | running output count excludes terminator and cached fold limit | (96.30556, -28) | src 0x240 base 0x240 insns 144/144
+NWC24iSetMsgSubjectQP | source cursor lifetime and partition initialization | (99.34028, -16) | src 0x240 base 0x240 insns 144/144
+NWC24iSetMsgSubjectQP | fold limit before source offset declaration | (99.34028, -16) | src 0x240 base 0x240 insns 144/144
+NWC24iSetMsgSubjectQP | source cursor declared before capacity variable | (99.34028, -16) | src 0x240 base 0x240 insns 144/144
+NWC24iSetMsgSubjectQP | running output computed through temporary before cursor advance | (99.548615, -12) | src 0x240 base 0x240 insns 144/144
+NWC24iSetMsgSubjectQP | fold limit replaces exhausted partition capacity | (99.548615, -12) | src 0x240 base 0x240 insns 144/144
+NWC24iSetMsgSubjectQP | source offset declared after output word size | (99.270836, -20) | src 0x240 base 0x240 insns 144/144
+NWC24iSetMsgSubjectQP | capacity declared after folded buffer | (99.548615, -12) | src 0x240 base 0x240 insns 144/144
+
+Retained continuation: encoding detection stores each selected charset index
+at its actual search exit and caches input byte lengths. Plain folding uses
+the explicit overflow branch and increments its output cursor for CR/LF.
+Both functions are instruction-exact. SubjectAndText has matching control
+flow but different saved-register allocation. QP caches its fold limit and
+tracks the output length without the terminator; 144/144 instructions remain,
+with twelve differences from the capacity/source-cursor register exchange.
+All prior exact functions and all charset tables and strings are preserved.
+
+## Remaining functions
+
+NWC24iSetMsgSubjectQP, 99.548615%: 144/144 instructions; twelve register differences from capacity/source-offset allocation.
+NWC24SetMsgSubjectAndTextPublic, 98.23684%: 190/190 instructions; 65 saved-register differences.
+NWC24ReadMsgTextPublic, 97.14286%: 68/70 instructions; overflow-status branch lowering omits two target branches.
+NWC24ReadMsgSubjectPublic, 96.15385%: 100/104 instructions; two overflow-status blocks each omit two target branches.
+NWC24iSetMsgSubjectBase64, 81.94853%: 131/136 instructions; conversion-status branches and folded-output accumulation differ.
