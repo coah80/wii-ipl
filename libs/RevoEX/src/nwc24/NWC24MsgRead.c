@@ -30,7 +30,7 @@ NWC24Err NWC24ReadMsgField(const NWC24MsgObj* msg, char* fieldName, u8* output, 
     NWC24Err closeResult;
     if (!NWC24IsMsgLibOpened() && !NWC24IsMsgLibOpenedByTool())
         return NWC24_ERR_LIB_NOT_OPENED;
-    if (!(msg->data[1] & 0x200))
+    if (!(privateMsg->type & 0x200))
         return NWC24_ERR_PROTECTED;
     result = SelectMBox(privateMsg, &type);
     switch (result) {

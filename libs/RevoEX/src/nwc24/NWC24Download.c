@@ -577,7 +577,7 @@ NWC24Err NWC24IterateDlTaskEx(NWC24DlIterateWork* dlIterateWork, NWC24DlId* dlIt
         state->initialized = 0;
     }
 
-    state->comparisonValue = descending ? 0x80000001 : 0x7fffffff;
+    state->comparisonValue = (state->sortMode & 0x80000000) ? 0x80000001 : 0x7fffffff;
     result = NWC24IterateDlTask(&taskId, TRUE);
     while (result >= NWC24_OK) {
         value = getValue(taskId);
@@ -615,7 +615,7 @@ NWC24Err NWC24UpdateDlTask(NWC24DlTask* dlTask) {
     task = (DlTaskData*)dlTask;
     taskId = task->id;
     header = GetCachedDlHeader();
-    if (taskId == 0xffff || taskId >= header->maxTaskCount) {
+    if (taskId != 0xffff && taskId >= header->maxTaskCount) {
         return NWC24_ERR_INVALID_VALUE;
     }
 
@@ -1364,7 +1364,11 @@ NWC24Err AddTaskInternal(NWC24DlTask* dlTask, u16 taskCount, u16 maxTaskCount) {
         return result;
     }
     task = (DlTaskData*)dlTask;
+    header = GetCachedDlHeader();
     taskId = task->id;
+    if (taskId >= header->maxTaskCount && taskId != 0xffff) {
+        return NWC24_ERR_INVALID_VALUE;
+    }
     url = task->url;
     result = NWC24iCheckStringLength(url, 7, 0x100);
     if (result >= NWC24_OK && strncmp(url, "http://", 7) != 0 && strncmp(url, "https://", 8) != 0) {
