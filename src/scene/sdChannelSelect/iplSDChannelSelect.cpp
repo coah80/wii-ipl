@@ -454,7 +454,6 @@ namespace ipl {
             case 3:
             case 4:
                 mbInitialLoadComplete = false;
-                break;
             case 2:
                 clearCommandQueue();
                 clearNoticeQueue();
@@ -476,7 +475,14 @@ namespace ipl {
                     goto process_worker;
                 }
             }
-            if (mCurrentSDState < 5 && mCurrentSDState >= 1 && mDialogState == 0) {
+            switch (mCurrentSDState) {
+            case 1:
+            case 2:
+            case 3:
+            case 4: {
+                if (mDialogState != 0) {
+                    return;
+                }
                 mSourcePage = -1;
                 mSourceIndex = -1;
                 mbShowNoCardMessage = true;
@@ -511,6 +517,10 @@ namespace ipl {
                 default:
                     break;
                 }
+                            break;
+            }
+            default:
+                break;
             }
 
         process_worker:
@@ -518,7 +528,7 @@ namespace ipl {
                 return;
             }
 
-            if (mCommandQueue.count > 0) {
+            if (mCommandQueue.count != 0) {
                 SDChannelSelectCommand command =
                     mCommandQueue.commands[mCommandQueue.readIndex];
 
@@ -533,10 +543,24 @@ namespace ipl {
                     mpSDWorker->list_sd_app_async(mpSDTitleIds);
                     mWorkerCommand = 2;
                     break;
+                case 8:
+                    mpSDWorker->update_sd_app_location_async(mpChannelTitleIds);
+                    mWorkerCommand = 4;
+                    break;
+                case 9:
+                    mpSDWorker->read_sd_app_location_async(mpChannelTitleIds);
+                    mWorkerCommand = 5;
+                    break;
                 case 5:
                     mpSDWorker->copy_sd_app_to_nand_async(
                         static_cast<ESTitleId32>(command.titleId), true);
                     mWorkerCommand = 7;
+                    break;
+                case 10:
+                    mpSDWorker->check_for_sd_app_to_nand_async(
+                        static_cast<ESTitleId>(command.titleId),
+                        command.arguments.appBlocks[0], command.arguments.appBlocks[1]);
+                    mWorkerCommand = 8;
                     break;
                 case 6:
                     mpSDWorker->copy_nand_app_to_sd_async(
@@ -546,39 +570,27 @@ namespace ipl {
                 case 7: {
                     mpSDWorker->delete_nand_app_async(
                         static_cast<ESTitleId>(command.titleId),
-                        command.arguments.values[2] != 0);
+                        command.arguments.values[0] != 0);
                     mWorkerCommand = 10;
+                    u32 titleCount = mNandTitleCount;
                     u32 index = 0;
-                    if (mNandTitleCount > 0) {
-                        do {
-                            if (mpNandTitleInfo[index].curTitleId == command.titleId) {
-                                break;
-                            }
-                            ++index;
-                        } while (index < mNandTitleCount);
+                    for (; index < titleCount; ++index) {
+                        if (mpNandTitleInfo[index].curTitleId == command.titleId) {
+                            break;
+                        }
                     }
                     if (index < mNandTitleCount) {
-                        for (; index + 1 < mNandTitleCount; ++index) {
-                            mpNandTitleInfo[index] = mpNandTitleInfo[index + 1];
+                        for (; index < mNandTitleCount - 1; ++index) {
+                            NandSDWorker::TitleUsage& currentTitle = mpNandTitleInfo[index];
+                            NandSDWorker::TitleUsage& nextTitle = mpNandTitleInfo[index + 1];
+                            currentTitle.curTitleId = nextTitle.curTitleId;
+                            currentTitle.size = nextTitle.size;
+                            currentTitle.inode = nextTitle.inode;
                         }
                         --mNandTitleCount;
                     }
                     break;
                 }
-                case 8:
-                    mpSDWorker->update_sd_app_location_async(mpChannelTitleIds);
-                    mWorkerCommand = 4;
-                    break;
-                case 9:
-                    mpSDWorker->read_sd_app_location_async(mpChannelTitleIds);
-                    mWorkerCommand = 5;
-                    break;
-                case 10:
-                    mpSDWorker->check_for_sd_app_to_nand_async(
-                        static_cast<ESTitleId>(command.titleId),
-                        command.arguments.appBlocks[0], command.arguments.appBlocks[1]);
-                    mWorkerCommand = 8;
-                    break;
                 case 11:
                     mpSDWorker->check_backup_fits_async(
                         command.arguments.titleLists[0], command.arguments.titleLists[1]);
@@ -601,22 +613,21 @@ namespace ipl {
 
                 mLastOperation = command.type;
                 mCommandQueue.pop();
-            } else if (mNoticeQueue.count > 0) {
+            } else if (mNoticeQueue.count != 0) {
                 SDChannelSelectCommand notice =
                     mNoticeQueue.notices[mNoticeQueue.readIndex];
                 SDChannelObj* channel = findChannelObject(
-                    notice.arguments.values[1], notice.arguments.values[2]);
-                if (channel != NULL && channel->mStateFlags >= 1 &&
-                    channel->mStateFlags <= 2) {
+                    notice.arguments.values[0], notice.arguments.values[1]);
+                if (channel != NULL && static_cast<u32>(channel->mStateFlags) - 1 <= 1) {
                     EGG::FrmHeap* objectHeap = EGG::FrmHeap::create(
                         0x212b8, mpLayoutHeap, 2);
                     SDChannelObj* loadedChannel =
                         new (mpThumbnailHeap, 4) SDChannelObj(
-                            objectHeap, notice.arguments.values[1],
-                            notice.arguments.values[2]);
+                            objectHeap, notice.arguments.values[0],
+                            notice.arguments.values[1]);
                     mpCurrentLoadedChannel = loadedChannel;
                     mpSDWorker->get_sd_app_meta_async(
-                        notice.arguments.values[0],
+                        static_cast<ESTitleId32>(notice.titleId),
                         static_cast<u8*>(iplSDChannelObj_813E3128(loadedChannel)),
                         &loadedChannel->mAppMeta);
                     mWorkerCommand = 3;
@@ -846,39 +857,40 @@ namespace ipl {
             }
 
             mLastOperation = 14;
-            SDChannelObj* channel = mpCurrentLoadedChannel;
-            int page = channel->mPage;
-            int index = channel->mIndex;
+            int page = mpCurrentLoadedChannel->mPage;
+            int index = mpCurrentLoadedChannel->mIndex;
             if (!isChannelInCalc(page, index, mCurrentPage) ||
                 static_cast<u32>(mCurrentSDState) - 1 <= 1) {
-                destroyChannelObject(channel);
+                destroyChannelObject(mpCurrentLoadedChannel);
                 mWorkerCommand = 1;
                 mpCurrentLoadedChannel = NULL;
                 return;
             }
 
             if (mpSDWorker->get_async_result() >= 0) {
-                channel->mStateFlags = 0;
-                channel->mState = 2;
-                DCFlushRange(iplSDChannelObj_813E3128(channel), 0x19000);
+                SDChannelObj* completed = mpCurrentLoadedChannel;
+                completed->mStateFlags = 0;
+                completed->mState = 2;
+                DCFlushRange(iplSDChannelObj_813E3128(mpCurrentLoadedChannel), 0x19000);
             } else {
-                memcpy(iplSDChannelObj_813E3128(channel),
+                memcpy(iplSDChannelObj_813E3128(mpCurrentLoadedChannel),
                        mpCorruptIconFile->getBuffer(), mpCorruptIconFile->getLength());
-                memset(&channel->mAppMeta, 0, sizeof(channel->mAppMeta));
-                channel->mStateFlags = 3;
-                channel->mState = 2;
+                memset(&mpCurrentLoadedChannel->mAppMeta, 0, sizeof(mpCurrentLoadedChannel->mAppMeta));
+                SDChannelObj* completed = mpCurrentLoadedChannel;
+                completed->mStateFlags = 3;
+                completed->mState = 2;
             }
 
             SDChannelObj* previous = findChannelObject(page, index);
             if (previous != NULL) {
-                nw4r::ut::List_Insert(&mChannelObjects, previous, channel);
+                nw4r::ut::List_Insert(&mChannelObjects, previous, mpCurrentLoadedChannel);
                 nw4r::ut::List_Remove(&mChannelObjects, previous);
                 destroyChannelObject(previous);
             } else {
-                nw4r::ut::List_Append(&mChannelObjects, channel);
+                nw4r::ut::List_Append(&mChannelObjects, mpCurrentLoadedChannel);
             }
 
-            updateChannelObject(channel);
+            updateChannelObject(mpCurrentLoadedChannel);
             if (mCurrentPage == page) {
                 mpPaneManager->initPane(getChannelPane(index));
             }
@@ -1145,113 +1157,121 @@ namespace ipl {
                 break;
             }
 
-            switch (mDialogState) {
-            case 0:
-                if (mOperationState != 10) {
-                    if (mOperationState < 10 && mOperationState == 7) {
-                        mOperationState = 8;
-                    }
-                } else {
-                    mOperationState = 14;
-                }
-                break;
-            case 2:
+            if (mDialogState == 0) {
                 switch (mOperationState) {
-                case 0:
-                case 1:
                 case 7:
-                case 13:
-                    mOperationState = 2;
-                    mAnimationState = mAnimationTarget;
-                    break;
-                case 2:
-                    if (mAnimationState != mAnimationTarget) {
-                        mAnimationState = mAnimationTarget;
-                    }
-                    mDialogState = 0;
-                    break;
-                case 4:
-                    if (mAnimationState == mAnimationTarget) {
-                        mDialogState = 0;
-                    } else {
-                        mOperationState = 5;
-                    }
-                    break;
-                case 10:
-                case 14:
-                case 15:
-                    mOperationState = 11;
-                    break;
-                }
-                break;
-            case 1:
-                switch (mOperationState) {
-                case 0:
-                case 1:
-                case 2:
-                case 7:
-                case 8:
-                case 13:
-                    mOperationState = 1;
-                    mDialogState = 0;
-                    mAnimationState = mAnimationTarget;
-                    break;
-                case 4:
-                    mOperationState = 5;
-                    break;
-                case 10:
-                case 14:
-                case 15:
-                    mOperationState = 11;
-                    break;
-                }
-                break;
-            case 8:
-                switch (mOperationState) {
-                case 0:
-                case 1:
-                case 7:
-                case 13:
                     mOperationState = 8;
-                    mAnimationState = mAnimationTarget;
-                    break;
-                case 4:
-                    mOperationState = 5;
-                    break;
-                case 8:
-                    if (mAnimationState != mAnimationTarget) {
-                        mAnimationState = mAnimationTarget;
-                    }
-                    mDialogState = 0;
                     break;
                 case 10:
-                case 14:
-                case 15:
-                    if (mAnimationState == mAnimationTarget) {
-                        mDialogState = 0;
-                    } else {
-                        mOperationState = 11;
-                    }
+                    mOperationState = 14;
                     break;
                 }
-                break;
-            default:
-                break;
+            } else {
+                switch (mDialogState) {
+                case 2:
+                    switch (mOperationState) {
+                    case 0:
+                    case 1:
+                    case 7:
+                    case 13:
+                        mOperationState = 2;
+                        mAnimationState = mAnimationTarget;
+                        break;
+                    case 2:
+                        if (mAnimationState != mAnimationTarget) {
+                            mAnimationState = mAnimationTarget;
+                        }
+                        mDialogState = 0;
+                        break;
+                    case 4:
+                        if (mAnimationState == mAnimationTarget) {
+                            mDialogState = 0;
+                        } else {
+                            mOperationState = 5;
+                        }
+                        break;
+                    case 10:
+                    case 14:
+                    case 15:
+                        mOperationState = 11;
+                        break;
+                    }
+                    break;
+                case 8:
+                    switch (mOperationState) {
+                    case 0:
+                    case 1:
+                    case 7:
+                    case 13:
+                        mOperationState = 8;
+                        mAnimationState = mAnimationTarget;
+                        break;
+                    case 8:
+                        if (mAnimationState != mAnimationTarget) {
+                            mAnimationState = mAnimationTarget;
+                        }
+                        mDialogState = 0;
+                        break;
+                    case 10:
+                    case 14:
+                    case 15:
+                        if (mAnimationState == mAnimationTarget) {
+                            mDialogState = 0;
+                        } else {
+                            mOperationState = 11;
+                        }
+                        break;
+                    case 4:
+                        mOperationState = 5;
+                        break;
+                    }
+                    break;
+                case 1:
+                    switch (mOperationState) {
+                    case 0:
+                    case 1:
+                    case 2:
+                    case 7:
+                    case 8:
+                    case 13:
+                        mOperationState = 1;
+                        mDialogState = 0;
+                        mAnimationState = mAnimationTarget;
+                        break;
+                    case 4:
+                        mOperationState = 5;
+                        break;
+                    case 10:
+                    case 14:
+                    case 15:
+                        mOperationState = 11;
+                        break;
+                    }
+                    break;
+                default:
+                    break;
+                }
             }
 
             layout::Animator* animator = NULL;
             switch (mOperationState) {
             case 2:
-                static_cast<nw4r::lyt::TextBox*>(mpNoCardLayout->FindPaneByName("T_TimerMes"))
-                    ->SetString(System::getMessage(mAnimationState), 0);
+                {
+                    nw4r::lyt::TextBox* messagePane = static_cast<nw4r::lyt::TextBox*>(
+                        mpNoCardLayout->FindPaneByName("T_TimerMes"));
+                    messagePane->SetString(System::getMessage(mAnimationState), 0);
+                }
                 animator = mpNoCardLayout->getAnim(0);
                 break;
             case 5:
                 animator = mpNoCardLayout->getAnim(1);
                 break;
             case 8:
-                static_cast<nw4r::lyt::TextBox*>(mpNoCardLayout->FindPaneByName("T_TimerMes_01"))
-                    ->SetString(System::getMessage(mAnimationState), 0);
+                {
+                    nw4r::lyt::TextBox* messagePane = static_cast<nw4r::lyt::TextBox*>(
+                        mpNoCardLayout->FindPaneByName("T_TimerMes_01"));
+                    messagePane->SetString(System::getMessage(mAnimationState), 0);
+                }
                 animator = mpNoCardLayout->getAnim(2);
                 break;
             case 11:
@@ -3024,8 +3044,8 @@ namespace ipl {
                 return;
             }
 
-            int sourceSlot = mSourcePage * MAX_CHANNEL_INDEX + mSourceIndex;
             int destinationSlot = mDestinationPage * MAX_CHANNEL_INDEX + mDestinationIndex;
+            int sourceSlot = mSourcePage * MAX_CHANNEL_INDEX + mSourceIndex;
             u32 sourceTitleId = mpChannelTitleIds[sourceSlot];
             u32 destinationTitleId = mpChannelTitleIds[destinationSlot];
             mpChannelTitleIds[sourceSlot] = destinationTitleId;
@@ -3039,6 +3059,7 @@ namespace ipl {
                 transitionAnimator = mpPageLayouts[2]->getAnim(1);
                 transitionAnimator->play();
                 mState = 21;
+                return;
             }
 
             mpCurrentChannel = findChannelObject(mSourcePage, mSourceIndex);
@@ -3055,10 +3076,16 @@ namespace ipl {
                 iplSDChannelObj_813E3178(
                     destination, getChannelBasePane(mSourcePage, mSourceIndex, mCurrentPage));
 
-                static_cast<SDChannelObj*>(mpCurrentChannel)->mPage = mDestinationPage;
-                static_cast<SDChannelObj*>(mpCurrentChannel)->mIndex = mDestinationIndex;
-                destination->mPage = mSourcePage;
-                destination->mIndex = mSourceIndex;
+                SDChannelObj* current;
+                int destinationIndex = mDestinationIndex;
+                current = static_cast<SDChannelObj*>(mpCurrentChannel);
+                int destinationPage = mDestinationPage;
+                current->mPage = destinationPage;
+                current->mIndex = destinationIndex;
+                int sourceIndex = mSourceIndex;
+                int sourcePage = mSourcePage;
+                destination->mPage = sourcePage;
+                destination->mIndex = sourceIndex;
 
                 iplSDChannelObj_813E322C(static_cast<SDChannelObj*>(mpCurrentChannel));
                 iplSDChannelObj_813E322C(destination);
