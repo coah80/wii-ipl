@@ -6,6 +6,9 @@
 #include "system/iplMessage.h"
 
 namespace ipl {
+#ifdef IPL_SETTING_IMPLEMENTATION
+    namespace scene { class Setting; }
+#endif
     namespace message {
         class Manager {
         public:
@@ -16,6 +19,9 @@ namespace ipl {
             void setResource(u8* msgData) const { mpMessage->setResource(msgData); }
 
         private:
+#ifdef IPL_SETTING_IMPLEMENTATION
+            friend class scene::Setting;
+#endif
             void initMessage();
 
             Message* mpMessage;  // 0x00
