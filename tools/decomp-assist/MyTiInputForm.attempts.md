@@ -25,3 +25,16 @@ The initial source had 42 instruction-exact functions. Correcting the guarded ba
 The unit remains `NonMatching`. All original code functions match; data has separate unresolved differences and no linking claim is made. All shared-header changes are guarded by `MYTIINPUTFORM_IMPLEMENTATION`, defined only in this source file.
 
 The default gate merge-base is `112e4e1a`, for which the supplied tools have no baseline report. Gates use the available parent snapshot explicitly: `--base 0aca3c76`. No supplied baseline or tool was edited. Regression checks against that snapshot remain zero.
+
+## Final state (second pass)
+
+All 84 target functions at objdiff 100.0; `.text`/`.rodata`/`.sdata`/`.sdata2` all 100%; `.data` content byte-identical (0 diffs, 1616B) but scores 69.06% — the remaining 31% is symbol-name pairing only: base `.data` carries extraction-generated `lbl_8166xxxx`/`jumptable_8166xxxx` names while MWCC emits anonymous `@NNNN` labels for literal strings/jump tables; the same residual family documented for tiManager (.data 92.998%).
+
+Mechanisms verified this pass:
+- MWCC weak-vtable emission = reverse class-declaration order within a TU; reordering memo's local class decls landed all 7 vtables at byte-identical addresses.
+- `gui::EventHandler` model: `~EventHandler` inline `{}` in every TU (base dtor folds to 16 insns); the other three virtuals decl-only everywhere with the single out-of-line impls in tiPcKeyboard.cpp.
+- InputForm's six trailing zero vtable slots = six impl-guarded pure photo hooks (`getPhotoPaneMaterial`/`onPhotoTrig`/`onPhotoPoint`/`onPhotoLeft`/`isPhotoScaledUp`/`setPhotoDraw`), proven by letter::InputForm's vtable overriding the inherited slots with real impls at identical positions.
+- MWCC emits `@N@fn` adjustor thunks WEAK in every TU whose emitted vtable references them (scratch-tested); the base .o shows them UNDEF because the linker attributes each weak thunk to one object — unfixable .o-level divergence, identical to the fused-name artifact at symbols.txt:5832.
+- 32 extra weak fn defs in our .o vs base (thunks + inline virtuals) are not counted by objdiff; the unit's function/code metrics are unaffected.
+
+AnmPane's 48B extraction label vs 44B real extent: the trailing 4B "zero" is an unlabeled adjacent object merged into the extraction extent, not a vtable slot (subclass vts are 44B without it). Content already identical.

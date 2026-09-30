@@ -1606,7 +1606,7 @@ namespace textinput {
             }
 
             void Base::setTranslateMode(TranslateMode mode) {
-                u32 keyMode = mode;
+                u32 keyMode;
                 switch (mode) {
                     case TM_Direct:
                         keyMode = 0;
@@ -3165,6 +3165,18 @@ namespace textinput {
             SelectorPosition chinesePosition = {{-219.0f, -130.0f, 0.0f}};
             SelectorPosition koreanPosition = {{-209.0f, -90.0f, 0.0f}};
 
+        }
+    }
+    namespace gui {
+        void EventHandler::onEvent(GUIComponent&, u32, void*) {
+        }
+
+        void EventHandler::setLatestEventCtrlNo(int ctrlNo) {
+            muLatestEventCtrlNo = ctrlNo;
+        }
+
+        int EventHandler::getLatestEventCtrlNo() {
+            return muLatestEventCtrlNo;
         }
     }
 }

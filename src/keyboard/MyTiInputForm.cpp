@@ -20,6 +20,15 @@ protected:
 namespace extend {
 namespace memo {
 
+class EventHandler : public inputform::EventHandler {
+public:
+    EventHandler(InputForm* form) : inputform::EventHandler(form), mpMemoForm(form) {}
+    virtual ~EventHandler() {}
+    virtual void onTiEvent(gui::PaneComponent*, u32, Input*);
+private:
+    InputForm* mpMemoForm;
+};
+
 class AnmPane : public nw4rmanager::AnmPane {
 protected:
     AnmPane(nw4r::lyt::Pane* pane, nw4rmanager::AnmObserver* observer)
@@ -28,8 +37,8 @@ public:
     virtual ~AnmPane();
     virtual void init();
     virtual void changeAnimation(u32 id);
-    virtual u32 getState();
     virtual u32 getKeyType() const;
+    virtual u32 getState();
 protected:
     u32 meState;
     u32 meKeyType;
@@ -49,14 +58,6 @@ public:
     virtual void onAnmEvent(AnmPaneEvent event);
 };
 
-class SimpleAnmPane : public nw4rmanager::AnmPane {
-public:
-    SimpleAnmPane(nw4r::lyt::Pane* pane, nw4rmanager::AnmObserver* observer) : nw4rmanager::AnmPane(pane, observer) {}
-    virtual ~SimpleAnmPane() {}
-    virtual void init();
-    virtual void changeAnimation(u32 id);
-};
-
 class ScrollButton {
 public:
     ScrollButton(TiLayout* layout) : muGroup(0), muAnimation(0), mpLayout(layout), mbLeftPressed(false), mbRightPressed(false) {}
@@ -74,13 +75,12 @@ private:
     bool mbRightPressed;
 };
 
-class EventHandler : public inputform::EventHandler {
+class SimpleAnmPane : public nw4rmanager::AnmPane {
 public:
-    EventHandler(InputForm* form) : inputform::EventHandler(form), mpMemoForm(form) {}
-    virtual ~EventHandler() {}
-    virtual void onTiEvent(gui::PaneComponent*, u32, Input*);
-private:
-    InputForm* mpMemoForm;
+    SimpleAnmPane(nw4r::lyt::Pane* pane, nw4rmanager::AnmObserver* observer) : nw4rmanager::AnmPane(pane, observer) {}
+    virtual ~SimpleAnmPane() {}
+    virtual void init();
+    virtual void changeAnimation(u32 id);
 };
 
 static const char* scPaneName[] = {
@@ -483,6 +483,8 @@ void InputForm::setScroll(f32 scroll) {
     mfDrawScrollY = meEditMode == EM_Edit ? -mfScroll : 0.0f;
 }
 
+extern "C" __declspec(section ".sdata") const f32 lbl_81697508 = 0.0f;
+
 static nw4r::math::VEC2 transformedOrigin(const nw4r::ut::Rect& rect, const Mtx& matrix) {
     nw4r::math::VEC3 position;
     position.x = rect.left;
@@ -519,7 +521,7 @@ void InputForm::calc() {
     if (meEditMode == EM_Edit) {
         height = 2.0f * getLineHeight();
         boundY = (mDefaultBoundTrans.y - (height - mDefaultBoundSize.height) / 2.0f) - mfScroll;
-    } else mfDrawScrollY = 0.0f;
+    } else mfDrawScrollY = lbl_81697508;
     mpBoundPane->SetSize(nw4r::lyt::Size(mpBoundPane->GetSize().width, height));
     mpBoundPane->SetTranslate(nw4r::math::VEC2(mDefaultBoundTrans.x, boundY));
     mpBoundPane->CalculateMtx(mDrawInfo);

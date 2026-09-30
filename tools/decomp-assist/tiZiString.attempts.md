@@ -43,3 +43,17 @@ Remaining: pooled buffer base setup and callee-saved register assignments, with 
 3. Unsigned source/destination indices, store via length - 1: 56/56, same differences.
 4. Remove the now-unused destination index: retained readable implementation; no output change.
 Remaining: copy-loop address strength reduction, scheduling and caller-register assignments; 86.69643%.
+
+## clearCandidates — session 3
+
+Base binds the first static array (ElementBuffer) to r31 via lis/addi and
+recomputes every memset arg as `addi r3,r31,off`; mine CSEs the
+CandidatesBuffer base into a 4th callee reg (addi r31,r29,0x200). Tried:
+`&arr[i]` vs `arr+i` args, cast forms, memset reorder — all invariant.
+Same reverse-bind family: base binds globals high, this low.
+
+## update — session 3
+
+446v448, same family: base binds this->r28, global->r31 (savegpr_24 both);
+mine rotates this->r29+ and gains 2 body insns. All-diff regions are pure
+reg-name permutations; no structural gap found.

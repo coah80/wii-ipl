@@ -115,8 +115,8 @@ void WithZi::clearCandidates() {
         mCandidateCount = 0;
         memset(ElementBuffer, 0, 0x1fe);
         memset(CandidatesBuffer, 0, 0x200);
-        memset(CandidatesBuffer + 0x100, 0, 0x1fe);
-        memset(CandidatesBuffer + 0x200, 0, 0x200);
+        memset(&CandidatesBuffer[0x100], 0, 0x1fe);
+        memset(&CandidatesBuffer[0x200], 0, 0x200);
         memset(CandidatedWord, 0, 0x1400);
         memset(&mSearch, 0, sizeof(mSearch) + sizeof(mSearchState));
         mSearch.language = getPredictLanguage();

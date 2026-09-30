@@ -214,3 +214,18 @@ textinput::keyboard::pctype::LayoutByNW4R::updateInput(textinput::input::HKBMana
 textinput::keyboard::pctype::EventHandler::onTiEvent(textinput::gui::PaneComponent*, unsigned long, textinput::nw4rmanager::TiEventHandler::Input*): objdiff 88.83249; src 0x310 base 0x314 insns 196/197 | --- replace mine 17:18 base 17:18 |   M   17 bne 692 |   B   17 bne 696
 
 @236@onEvent__Q49textinput8keyboard6pctype12LayoutByNW4RFPQ49textinput8keyboard6pctype5: objdiff None; target name absent; canonical thunk name differs
+
+## Third pass (setTranslateMode solved, updateInput narrowing)
+- setTranslateMode: SOLVED 105/105 diffs 0 — `u32 keyMode;` declared UNINITIALIZED with 3-case
+  switch and NO default: invalid-mode paths reach the compare with stale r31 (original UB).
+- updateInput(HKBManager&): 227/227 insns, 1 diff @109 — base clrlwi r26,r3 (s16->u16
+  conversion materialized) vs mine mr; MWCC lazy-width elides the mask since the lha value
+  is already provably 16-bit. Tried: wchar_t/u16/int/u16-code/&0xFFFF/(u16) casts —
+  all elided or regressed. Documented lazy-width tie-break.
+- @236@onEvent thunk: present in mine (8B, addi+b) but base symtab name is TRUNCATED
+  mid-mangle ("...pctype5" ~87 chars, no UIObjUlPv tail) — extraction name cap,
+  unmatchable by name. Same family as fused-name artifact.
+- Data: .rodata/.data/.sdata2 byte-identical; .sdata/.bss/.sbss differ only by trailing
+  zero pads (name/pad family). matched_data 32% is a name-pairing artifact.
+- Unit state: 136/141 fns 100; getControlKey/onPressedShift/onReleasedShift remain
+  documented reg-permutation tie-breaks (5+ forms each).

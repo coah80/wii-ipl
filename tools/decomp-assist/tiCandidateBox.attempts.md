@@ -39,3 +39,12 @@ Measured trials:
 - static initializer attempt 1: src 0x64 base 0x64 insns 25/25; diffs 0: []
 - static initializer attempt 2: src 0x64 base 0x64 insns 25/25; diffs 22: [1, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21]
 - static initializer attempt 3: src 0x64 base 0x64 insns 25/25; diffs 0: []
+
+## LayoutByNW4R::create — session 3
+
+The inlined UITextArea::Init loop: base carries `this+i*4` as an incremented
+pointer (mr r26,r31; lwz 0x11c(r26); r26+=4) covering both adjacent arrays via
++0x50; mine recomputes `add r3,r31,r30` per iter. Tried explicit pointer-walk
+(`p = mpTextBoxPane; p != end; ++p`, `p[NUM_PANES]` for bounding, two-pointer
+p+e) — MWCC materializes both array bases instead; index form is the least
+bad. Strength-reduction tie; create stays 351v352.

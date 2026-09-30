@@ -15,3 +15,16 @@ Initial reconstruction uses the sibling tiString and tiUtil headers, real member
 
 ## character predicates
 The sibling util declarations return bool, while target callers normalize an integer result. Guarded u32 declarations preserve every other translation unit and make all three predicates 16/16 with zero differences.
+
+## inputChar mode==3 block — session 3
+
+Base emits `input[0]=0` direct store, dead `cmplwi ch,0xa`, then `input[i]=ch`
+via indexed `sthx` with i=0 in a reg, `i++`, `input[i]=0`, `count=i`,
+`mOutput[0]=0`. For the indexed stores to survive, the index must be a variable
+MWCC cannot constant-fold yet provably zero. Tried and ALL fold to direct
+stores: u16/int/u32 index locals, `i++`/`++i` mutation, if/else identical arms,
+`(ch==10)?10:ch` ternary (keeps compare but adds select insns), function-scope
+shared `inputIndex` across the goto boundary, `static_cast<u8>` index casts,
+`input[i&0xff]`, do-while(0) loop form. MWCC const-props through all of them.
+The dead `cmplwi` + indexed-store pair has no reachable source form; retained
+the readable direct-store version (125v136 insns).

@@ -122,7 +122,16 @@ namespace textinput {
                     virtual void                    onCommandOnEditMode(INPUT_COMMAND command, void* arg);
 
                     virtual void                    doAutoScroll();
-                    
+
+#if defined(MYTIINPUTFORM_IMPLEMENTATION) || defined(MYTILETTERFORM_IMPLEMENTATION)
+                    virtual nw4r::lyt::Material*    getPhotoPaneMaterial() = 0;
+                    virtual void                    onPhotoTrig() = 0;
+                    virtual void                    onPhotoPoint() = 0;
+                    virtual void                    onPhotoLeft() = 0;
+                    virtual bool                    isPhotoScaledUp() = 0;
+                    virtual void                    setPhotoDraw(bool draw) = 0;
+#endif
+
                     /* For letter writing */
                     
                     void                            setEdited(bool edited)                  { mbEdited = edited; }
