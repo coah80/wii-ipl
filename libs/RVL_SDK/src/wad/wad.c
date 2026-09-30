@@ -2078,24 +2078,24 @@ static void _WADFreeMemory(WADUnpackInfo* info, MEMAllocator* allocator) {
 }
 
 static void _WADRandPad(void* buffer, u32 size) {
-    u32* words = buffer;
     u32 wordCount = size >> 2;
     u32 remainder = size & 3;
+    u32* words = buffer;
     u32 wordIndex;
 
     if (size == 0) {
         return;
     }
     for (wordIndex = 0; wordIndex < wordCount; wordIndex++) {
-        words[wordIndex] = ((u32)rand() << 17) | ((u32)rand() << 2) | (rand() & 3);
+        *words++ = ((u32)rand() << 17) | ((u32)rand() << 2) | (rand() & 3);
     }
     if (remainder != 0) {
         u32 randomWord = ((u32)rand() << 17) | ((u32)rand() << 2) | (rand() & 3);
-        u8* tail = (u8*)&words[wordCount];
+        u8* tail = (u8*)words;
         u8* randomBytes = (u8*)&randomWord;
         u32 byteIndex;
 
-        for (byteIndex = 0; byteIndex < size - wordCount * 4; byteIndex++) {
+        for (byteIndex = 0; byteIndex < remainder; byteIndex++) {
             *tail++ = *randomBytes++;
         }
     }
@@ -2340,33 +2340,47 @@ s32 WADWriteStream(WADStream* stream, void* buffer, u32 size) {
 }
 
 s32 WADSeekStream(WADStream* stream, u32 offset, s32 origin) {
+    WADFileInfoView info;
     s32 result;
-    void* readBuffer;
-    size_t readSize;
 
     if ((stream == 0) || (origin < 0) || (origin > 2)) {
         return -3000;
     }
     if (stream->location == WAD_LOCATION_SD_CARD) {
-        WADFileInfoView info;
-        if (stream->handle.fa == 0) {
-            return -3000;
-        }
-        result = FAFseek(stream->handle.fa, offset, origin);
-        if ((result == 0) && (FAFinfo(stream->handle.fa, &info.info) == 0)) {
+        goto sd;
+    }
+    if (stream->location >= WAD_LOCATION_SD_CARD) {
+        goto cnt;
+    }
+    if (stream->location >= WAD_LOCATION_NAND) {
+        goto nand;
+    }
+    goto err;
+cnt:
+    if (stream->location == WAD_LOCATION_CNT_NAND) {
+        goto cntnand;
+    }
+    if (stream->location >= WAD_LOCATION_CNT_NAND) {
+        goto err;
+    }
+    return contentSeekDVD(&stream->handle.contentDvd, offset, origin);
+cntnand:
+    return contentSeekNAND(&stream->handle.contentNand, offset, origin);
+nand:
+    return NANDSeek(&stream->handle.nand, offset, origin);
+sd:
+    if (stream->handle.fa == 0) {
+        return -3000;
+    }
+    result = FAFseek(stream->handle.fa, offset, origin);
+    if (result == 0) {
+        result = FAFinfo(stream->handle.fa, &info.info);
+        if (result == 0) {
             result = info.fields.fileSize;
         }
-        return result;
     }
-    if (stream->location < WAD_LOCATION_SD_CARD) {
-        if (stream->location > WAD_LOCATION_DVD) {
-            return NANDSeek(&stream->handle.nand, offset, origin);
-        }
-    } else if (stream->location == WAD_LOCATION_CNT_NAND) {
-        return contentSeekNAND(&stream->handle.contentNand, offset, origin);
-    } else if (stream->location < WAD_LOCATION_CNT_NAND) {
-        return contentSeekDVD(&stream->handle.contentDvd, offset, origin);
-    }
+    return result;
+err:
     return -3000;
 }
 
@@ -2697,6 +2711,8 @@ static s32 _WADUnpackBackup(WADHeader* header, WADStream* stream, WADUnpackInfo*
     s32 result;
     u32 sectionOffset;
     u32 alignedSize;
+    u16 wadVersion;
+    u32 tmdSize;
 
     if (backupHeader->wadVersion != 1) {
         return -3001;
@@ -2706,7 +2722,10 @@ static s32 _WADUnpackBackup(WADHeader* header, WADStream* stream, WADUnpackInfo*
     }
     if (backupHeader->contentSize != 0) {
         result = ES_GetDeviceId(&currentDeviceId);
-        if (result != 0) {
+        switch (result) {
+        case 0:
+            break;
+        default:
             return result;
         }
         if (currentDeviceId != backupHeader->deviceId) {
@@ -2714,19 +2733,21 @@ static s32 _WADUnpackBackup(WADHeader* header, WADStream* stream, WADUnpackInfo*
         }
     }
 
-    info->cidxMode = backupHeader->wadVersion;
-    if (backupHeader->wadVersion >= 1) {
+    wadVersion = backupHeader->wadVersion;
+    info->cidxMode = wadVersion;
+    if (wadVersion >= 1) {
         info->contentIndex = &backupHeader->cidx;
     }
     info->fileNames = backupHeader->deviceMac;
+    tmdSize = backupHeader->tmdSize;
     sectionOffset = (backupHeader->hdrSize + WAD_STREAM_ALIGNMENT - 1) &
                     ~(WAD_STREAM_ALIGNMENT - 1);
 
-    if (backupHeader->tmdSize != 0) {
+    if (tmdSize != 0) {
         if ((flags & 4) == 0) {
-            info->sectionSize = backupHeader->tmdSize;
+            info->sectionSize = tmdSize;
             info->sectionOffset = sectionOffset;
-            alignedSize = WAD_ALIGN32(backupHeader->tmdSize);
+            alignedSize = WAD_ALIGN32(tmdSize);
             info->titleMeta = _WADMemAlloc(allocator, alignedSize);
             if (info->titleMeta == 0) {
                 return -3003;
