@@ -895,7 +895,7 @@ s32 CArGBAOdh::cdj_c_flashBuffer(SArCDJ_OdhMaster* master) {
 void CArGBAOdh::cdj_c_setQuantizationTable(SArCDJ_OdhMaster* master, u32 qualityScale) {
     u8 scaledQuantization[128];
     u32 tablePass = 0;
-    int tableOffset = 0;
+    u32 tableOffset = 0;
 
     do {
         for (int i = 0; i < 0x40; i++) {
@@ -918,19 +918,27 @@ void CArGBAOdh::cdj_c_setQuantizationTable(SArCDJ_OdhMaster* master, u32 quality
     const u16* scales = (const u16*)gArAANScales;
     do {
         int scaleIndex = 0;
-        u32* destination = master->quantizationTables + tableOffset / 4;
         u8* quantizationRow = scaledQuantization + scaledTableOffset;
         for (int i = 0; i < 0x40; i++) {
             u32 scale = scales[scaleIndex];
             u8 coefficient = quantizationRow[i];
-            *destination = 0x4000000 / (scale * (u32)coefficient);
+            master->quantizationTables[tablePass * 64 + i] = 0x4000000 / (scale * (u32)coefficient);
             scaleIndex++;
-            destination++;
         }
         tablePass = tablePass + 1;
         tableOffset = tableOffset + 0x100;
         scaledTableOffset = scaledTableOffset + 0x40;
     } while (tablePass < 2);
+}
+
+void CArGBAOdh::cdj_c_makeHeader(SArCDJ_OdhMaster* master, u32 size) {
+    master->data[0] = 'A';
+    master->data[1] = 'J';
+    master->data[2] = 'P';
+    master->data[3] = 'G';
+    *(u32*)&master->data[4] = master->width | (u32)master->height << 11 | (u32)master->quality << 24;
+    *(u32*)&master->data[8] = size;
+    *(u32*)&master->data[12] = 0;
 }
 
 s32 CArGBAOdh::cdj_c_colorConv(SArCDJ_OdhMaster* master, u8* sourceData, int format) {
@@ -1363,7 +1371,7 @@ s32 CArGBAOdh::cdj_d_initializeDecompressOdh(SArCDJ_OdhMaster* master, u8* workB
 }
 
 s32 CArGBAOdh::cdj_d_decompressLoop(SArCDJ_OdhMaster* master, int srcSize, int workSize) {
-  int sourceLimit = srcSize;
+  u32 sourceLimit = srcSize;
   int workBufferSize = workSize;
 
   u8 xSampling;
@@ -1372,14 +1380,12 @@ s32 CArGBAOdh::cdj_d_decompressLoop(SArCDJ_OdhMaster* master, int srcSize, int w
   int blockRowStride;
   int rowStride;
   int blockStride;
-  u32 decoderAddress;
   int statusOrOffset;
   u16 blockX;
   int planeOffset;
   int blockRowSize;
   int naturalIndex;
 
-  decoderAddress = (u32)this;
   blockWidth = master->blocksWide;
   blockRowSize = (u32)blockWidth * 0x38;
   rowStride = (u32)blockWidth << 3;
@@ -1388,8 +1394,8 @@ s32 CArGBAOdh::cdj_d_decompressLoop(SArCDJ_OdhMaster* master, int srcSize, int w
   do {
     xSampling = master->xSampling;
     if ((xSampling == 1U) && (master->ySampling == 1U)) {
-      statusOrOffset = huffmanDecoder__9CArGBAOdhFPUlP21SArCDJ_HuffmanRequestPPUsiUl
-                        (decoderAddress,(u32)master->dcCoefficients,(u32)&master->luminanceRequest,(u32)&hufftreePtr,0,sourceLimit);
+      statusOrOffset = huffmanDecoder
+                        (master->dcCoefficients, &master->luminanceRequest, (u16**)hufftreePtr.tables, 0, sourceLimit);
       master->chrominanceRequest.bitstream = master->luminanceRequest.bitstream;
       master->chrominanceRequest.bytesConsumed = master->luminanceRequest.bytesConsumed;
       if (statusOrOffset != 0) return statusOrOffset;
@@ -1402,13 +1408,13 @@ s32 CArGBAOdh::cdj_d_decompressLoop(SArCDJ_OdhMaster* master, int srcSize, int w
               (u32)master->blockX * 8;
       if (statusOrOffset + blockRowSize + 8 > workBufferSize) {
         statusOrOffset = -0x7ffffffa;
-        goto LAB_0001239c;
+        goto finishBlock;
       }
-      idct_fast__9CArGBAOdhFPCUcPUlPUlPUcUl
-                (decoderAddress,(u32)range_limit,(u32)master->quantizationTables,(u32)master->coefficients,(int)master->workBuffer + statusOrOffset,
+      idct_fast
+                (range_limit,master->quantizationTables,master->coefficients,master->workBuffer + statusOrOffset,
                  rowStride);
-      statusOrOffset = huffmanDecoder__9CArGBAOdhFPUlP21SArCDJ_HuffmanRequestPPUsiUl
-                        (decoderAddress,(u32)master->dcCoefficients,(u32)&master->chrominanceRequest,(u32)(u32)&hufftreePtr.tables[2],1,sourceLimit);
+      statusOrOffset = huffmanDecoder
+                        (master->dcCoefficients, &master->chrominanceRequest, (u16**)(hufftreePtr.tables + 2), 1, sourceLimit);
       if (statusOrOffset != 0) return statusOrOffset;
       statusOrOffset = 0;
       for (naturalIndex = 0; naturalIndex < 0x40; naturalIndex++) {
@@ -1420,13 +1426,13 @@ s32 CArGBAOdh::cdj_d_decompressLoop(SArCDJ_OdhMaster* master, int srcSize, int w
                (u32)master->blockX * 8);
       if (statusOrOffset + blockRowSize + 8 > workBufferSize) {
         statusOrOffset = -0x7ffffffa;
-        goto LAB_0001239c;
+        goto finishBlock;
       }
-      idct_fast__9CArGBAOdhFPCUcPUlPUlPUcUl
-                (decoderAddress,(u32)range_limit,(u32)(master->quantizationTables + 64),(u32)master->coefficients,(int)master->workBuffer + statusOrOffset,
+      idct_fast
+                (range_limit,master->quantizationTables + 64,master->coefficients,master->workBuffer + statusOrOffset,
                  rowStride);
-      statusOrOffset = huffmanDecoder__9CArGBAOdhFPUlP21SArCDJ_HuffmanRequestPPUsiUl
-                        (decoderAddress,(u32)master->dcCoefficients,(u32)&master->chrominanceRequest,(u32)(u32)&hufftreePtr.tables[2],2,sourceLimit);
+      statusOrOffset = huffmanDecoder
+                        (master->dcCoefficients, &master->chrominanceRequest, (u16**)(hufftreePtr.tables + 2), 2, sourceLimit);
       master->luminanceRequest.bitstream = master->chrominanceRequest.bitstream;
       master->luminanceRequest.bytesConsumed = master->chrominanceRequest.bytesConsumed;
       if (statusOrOffset != 0) return statusOrOffset;
@@ -1440,15 +1446,15 @@ s32 CArGBAOdh::cdj_d_decompressLoop(SArCDJ_OdhMaster* master, int srcSize, int w
               ((u32)master->blockY << 6) * (u32)master->blocksWide);
       if (statusOrOffset + blockRowSize + 8 > workBufferSize) {
         statusOrOffset = -0x7ffffffa;
-        goto LAB_0001239c;
+        goto finishBlock;
       }
-      idct_fast__9CArGBAOdhFPCUcPUlPUlPUcUl
-                (decoderAddress,(u32)range_limit,(u32)(master->quantizationTables + 64),(u32)master->coefficients,(int)master->workBuffer + statusOrOffset,
+      idct_fast
+                (range_limit,master->quantizationTables + 64,master->coefficients,master->workBuffer + statusOrOffset,
                  rowStride);
     }
     else if ((xSampling == 2U) && (master->ySampling == 1U)) {
-      statusOrOffset = huffmanDecoder__9CArGBAOdhFPUlP21SArCDJ_HuffmanRequestPPUsiUl
-                        (decoderAddress,(u32)master->dcCoefficients,(u32)&master->luminanceRequest,(u32)&hufftreePtr,0,sourceLimit);
+      statusOrOffset = huffmanDecoder
+                        (master->dcCoefficients, &master->luminanceRequest, (u16**)hufftreePtr.tables, 0, sourceLimit);
       if (statusOrOffset != 0) return statusOrOffset;
       statusOrOffset = 0;
       for (naturalIndex = 0; naturalIndex < 0x40; naturalIndex++) {
@@ -1459,13 +1465,13 @@ s32 CArGBAOdh::cdj_d_decompressLoop(SArCDJ_OdhMaster* master, int srcSize, int w
                ((u32)master->blockY << 6) * (u32)master->blocksWide * 2;
       if (planeOffset + blockRowStride + 8 > workBufferSize) {
         statusOrOffset = -0x7ffffffa;
-        goto LAB_0001239c;
+        goto finishBlock;
       }
-      idct_fast__9CArGBAOdhFPCUcPUlPUlPUcUl
-                (decoderAddress,(u32)range_limit,(u32)master->quantizationTables,(u32)master->coefficients,(int)master->workBuffer + planeOffset
+      idct_fast
+                (range_limit,master->quantizationTables,master->coefficients,master->workBuffer + planeOffset
                  ,blockStride);
-      statusOrOffset = huffmanDecoder__9CArGBAOdhFPUlP21SArCDJ_HuffmanRequestPPUsiUl
-                        (decoderAddress,(u32)master->dcCoefficients,(u32)&master->luminanceRequest,(u32)&hufftreePtr,0,sourceLimit);
+      statusOrOffset = huffmanDecoder
+                        (master->dcCoefficients, &master->luminanceRequest, (u16**)hufftreePtr.tables, 0, sourceLimit);
       master->chrominanceRequest.bitstream = master->luminanceRequest.bitstream;
       if (statusOrOffset != 0) return statusOrOffset;
       statusOrOffset = 0;
@@ -1475,13 +1481,13 @@ s32 CArGBAOdh::cdj_d_decompressLoop(SArCDJ_OdhMaster* master, int srcSize, int w
       }
       if (planeOffset + blockRowStride + 0x10 > workBufferSize) {
         statusOrOffset = -0x7ffffffa;
-        goto LAB_0001239c;
+        goto finishBlock;
       }
-      idct_fast__9CArGBAOdhFPCUcPUlPUlPUcUl
-                (decoderAddress,(u32)range_limit,(u32)master->quantizationTables,(u32)master->coefficients,
-                 planeOffset + (int)master->workBuffer + 8,blockStride);
-      statusOrOffset = huffmanDecoder__9CArGBAOdhFPUlP21SArCDJ_HuffmanRequestPPUsiUl
-                        (decoderAddress,(u32)master->dcCoefficients,(u32)&master->chrominanceRequest,(u32)(u32)&hufftreePtr.tables[2],1,sourceLimit);
+      idct_fast
+                (range_limit,master->quantizationTables,master->coefficients,
+                 planeOffset + master->workBuffer + 8,blockStride);
+      statusOrOffset = huffmanDecoder
+                        (master->dcCoefficients, &master->chrominanceRequest, (u16**)(hufftreePtr.tables + 2), 1, sourceLimit);
       if (statusOrOffset != 0) return statusOrOffset;
       statusOrOffset = 0;
       for (naturalIndex = 0; naturalIndex < 0x40; naturalIndex++) {
@@ -1493,13 +1499,13 @@ s32 CArGBAOdh::cdj_d_decompressLoop(SArCDJ_OdhMaster* master, int srcSize, int w
               (u32)master->blocksHigh * ((u32)master->blocksWide << 7);
       if (statusOrOffset + blockRowSize + 8 > workBufferSize) {
         statusOrOffset = -0x7ffffffa;
-        goto LAB_0001239c;
+        goto finishBlock;
       }
-      idct_fast__9CArGBAOdhFPCUcPUlPUlPUcUl
-                (decoderAddress,(u32)range_limit,(u32)(master->quantizationTables + 64),(u32)master->coefficients,(int)master->workBuffer + statusOrOffset,
+      idct_fast
+                (range_limit,master->quantizationTables + 64,master->coefficients,master->workBuffer + statusOrOffset,
                  rowStride);
-      statusOrOffset = huffmanDecoder__9CArGBAOdhFPUlP21SArCDJ_HuffmanRequestPPUsiUl
-                        (decoderAddress,(u32)master->dcCoefficients,(u32)&master->chrominanceRequest,(u32)(u32)&hufftreePtr.tables[2],2,sourceLimit);
+      statusOrOffset = huffmanDecoder
+                        (master->dcCoefficients, &master->chrominanceRequest, (u16**)(hufftreePtr.tables + 2), 2, sourceLimit);
       master->luminanceRequest.bitstream = master->chrominanceRequest.bitstream;
       if (statusOrOffset != 0) return statusOrOffset;
       statusOrOffset = 0;
@@ -1512,15 +1518,15 @@ s32 CArGBAOdh::cdj_d_decompressLoop(SArCDJ_OdhMaster* master, int srcSize, int w
                ((u32)master->blockY << 6) * (u32)master->blocksWide);
       if (statusOrOffset + blockRowSize + 8 > workBufferSize) {
         statusOrOffset = -0x7ffffffa;
-        goto LAB_0001239c;
+        goto finishBlock;
       }
-      idct_fast__9CArGBAOdhFPCUcPUlPUlPUcUl
-                (decoderAddress,(u32)range_limit,(u32)(master->quantizationTables + 64),(u32)master->coefficients,(int)master->workBuffer + statusOrOffset,
+      idct_fast
+                (range_limit,master->quantizationTables + 64,master->coefficients,master->workBuffer + statusOrOffset,
                  rowStride);
     }
     else if ((xSampling == 1U) && (master->ySampling == 2U)) {
-      statusOrOffset = huffmanDecoder__9CArGBAOdhFPUlP21SArCDJ_HuffmanRequestPPUsiUl
-                        (decoderAddress,(u32)master->dcCoefficients,(u32)&master->luminanceRequest,(u32)&hufftreePtr,0,sourceLimit);
+      statusOrOffset = huffmanDecoder
+                        (master->dcCoefficients, &master->luminanceRequest, (u16**)hufftreePtr.tables, 0, sourceLimit);
       if (statusOrOffset != 0) return statusOrOffset;
       statusOrOffset = 0;
       for (naturalIndex = 0; naturalIndex < 0x40; naturalIndex++) {
@@ -1531,13 +1537,13 @@ s32 CArGBAOdh::cdj_d_decompressLoop(SArCDJ_OdhMaster* master, int srcSize, int w
                ((u32)master->blockY << 6) * (u32)master->blocksWide * 2;
       if (planeOffset + blockRowSize + 8 > workBufferSize) {
         statusOrOffset = -0x7ffffffa;
-        goto LAB_0001239c;
+        goto finishBlock;
       }
-      idct_fast__9CArGBAOdhFPCUcPUlPUlPUcUl
-                (decoderAddress,(u32)range_limit,(u32)master->quantizationTables,(u32)master->coefficients,(int)master->workBuffer + planeOffset
+      idct_fast
+                (range_limit,master->quantizationTables,master->coefficients,master->workBuffer + planeOffset
                  ,rowStride);
-      statusOrOffset = huffmanDecoder__9CArGBAOdhFPUlP21SArCDJ_HuffmanRequestPPUsiUl
-                        (decoderAddress,(u32)master->dcCoefficients,(u32)&master->luminanceRequest,(u32)&hufftreePtr,0,sourceLimit);
+      statusOrOffset = huffmanDecoder
+                        (master->dcCoefficients, &master->luminanceRequest, (u16**)hufftreePtr.tables, 0, sourceLimit);
       master->chrominanceRequest.bitstream = master->luminanceRequest.bitstream;
       if (statusOrOffset != 0) return statusOrOffset;
       statusOrOffset = 0;
@@ -1548,13 +1554,13 @@ s32 CArGBAOdh::cdj_d_decompressLoop(SArCDJ_OdhMaster* master, int srcSize, int w
       planeOffset = planeOffset + (u32)master->blocksWide * 0x40;
       if (planeOffset + blockRowSize + 8 > workBufferSize) {
         statusOrOffset = -0x7ffffffa;
-        goto LAB_0001239c;
+        goto finishBlock;
       }
-      idct_fast__9CArGBAOdhFPCUcPUlPUlPUcUl
-                (decoderAddress,(u32)range_limit,(u32)master->quantizationTables,(u32)master->coefficients,(int)master->workBuffer + planeOffset
+      idct_fast
+                (range_limit,master->quantizationTables,master->coefficients,master->workBuffer + planeOffset
                  ,rowStride);
-      statusOrOffset = huffmanDecoder__9CArGBAOdhFPUlP21SArCDJ_HuffmanRequestPPUsiUl
-                        (decoderAddress,(u32)master->dcCoefficients,(u32)&master->chrominanceRequest,(u32)(u32)&hufftreePtr.tables[2],1,sourceLimit);
+      statusOrOffset = huffmanDecoder
+                        (master->dcCoefficients, &master->chrominanceRequest, (u16**)(hufftreePtr.tables + 2), 1, sourceLimit);
       if (statusOrOffset != 0) return statusOrOffset;
       statusOrOffset = 0;
       for (naturalIndex = 0; naturalIndex < 0x40; naturalIndex++) {
@@ -1566,13 +1572,13 @@ s32 CArGBAOdh::cdj_d_decompressLoop(SArCDJ_OdhMaster* master, int srcSize, int w
               ((u32)master->blockY << 6) * (u32)master->blocksWide);
       if (statusOrOffset + blockRowSize + 8 > workBufferSize) {
         statusOrOffset = -0x7ffffffa;
-        goto LAB_0001239c;
+        goto finishBlock;
       }
-      idct_fast__9CArGBAOdhFPCUcPUlPUlPUcUl
-                (decoderAddress,(u32)range_limit,(u32)(master->quantizationTables + 64),(u32)master->coefficients,(int)master->workBuffer + statusOrOffset,
+      idct_fast
+                (range_limit,master->quantizationTables + 64,master->coefficients,master->workBuffer + statusOrOffset,
                  rowStride);
-      statusOrOffset = huffmanDecoder__9CArGBAOdhFPUlP21SArCDJ_HuffmanRequestPPUsiUl
-                        (decoderAddress,(u32)master->dcCoefficients,(u32)&master->chrominanceRequest,(u32)(u32)&hufftreePtr.tables[2],2,sourceLimit);
+      statusOrOffset = huffmanDecoder
+                        (master->dcCoefficients, &master->chrominanceRequest, (u16**)(hufftreePtr.tables + 2), 2, sourceLimit);
       master->luminanceRequest.bitstream = master->chrominanceRequest.bitstream;
       if (statusOrOffset != 0) return statusOrOffset;
       statusOrOffset = 0;
@@ -1585,15 +1591,15 @@ s32 CArGBAOdh::cdj_d_decompressLoop(SArCDJ_OdhMaster* master, int srcSize, int w
                ((u32)master->blockY << 6) * (u32)master->blocksWide);
       if (statusOrOffset + blockRowSize + 8 > workBufferSize) {
         statusOrOffset = -0x7ffffffa;
-        goto LAB_0001239c;
+        goto finishBlock;
       }
-      idct_fast__9CArGBAOdhFPCUcPUlPUlPUcUl
-                (decoderAddress,(u32)range_limit,(u32)(master->quantizationTables + 64),(u32)master->coefficients,(int)master->workBuffer + statusOrOffset,
+      idct_fast
+                (range_limit,master->quantizationTables + 64,master->coefficients,master->workBuffer + statusOrOffset,
                  rowStride);
     }
     else if ((xSampling == 2U) && (master->ySampling == 2U)) {
-      statusOrOffset = huffmanDecoder__9CArGBAOdhFPUlP21SArCDJ_HuffmanRequestPPUsiUl
-                        (decoderAddress,(u32)master->dcCoefficients,(u32)&master->luminanceRequest,(u32)&hufftreePtr,0,sourceLimit);
+      statusOrOffset = huffmanDecoder
+                        (master->dcCoefficients, &master->luminanceRequest, (u16**)hufftreePtr.tables, 0, sourceLimit);
       if (statusOrOffset != 0) return statusOrOffset;
       statusOrOffset = 0;
       for (naturalIndex = 0; naturalIndex < 0x40; naturalIndex++) {
@@ -1604,13 +1610,13 @@ s32 CArGBAOdh::cdj_d_decompressLoop(SArCDJ_OdhMaster* master, int srcSize, int w
                ((u32)master->blockY << 6) * (u32)master->blocksWide * 4;
       if (planeOffset + blockRowStride + 8 > workBufferSize) {
         statusOrOffset = -0x7ffffffa;
-        goto LAB_0001239c;
+        goto finishBlock;
       }
-      idct_fast__9CArGBAOdhFPCUcPUlPUlPUcUl
-                (decoderAddress,(u32)range_limit,(u32)master->quantizationTables,(u32)master->coefficients,(int)master->workBuffer + planeOffset
+      idct_fast
+                (range_limit,master->quantizationTables,master->coefficients,master->workBuffer + planeOffset
                  ,blockStride);
-      statusOrOffset = huffmanDecoder__9CArGBAOdhFPUlP21SArCDJ_HuffmanRequestPPUsiUl
-                        (decoderAddress,(u32)master->dcCoefficients,(u32)&master->luminanceRequest,(u32)&hufftreePtr,0,sourceLimit);
+      statusOrOffset = huffmanDecoder
+                        (master->dcCoefficients, &master->luminanceRequest, (u16**)hufftreePtr.tables, 0, sourceLimit);
       if (statusOrOffset != 0) return statusOrOffset;
       statusOrOffset = 0;
       for (naturalIndex = 0; naturalIndex < 0x40; naturalIndex++) {
@@ -1621,13 +1627,13 @@ s32 CArGBAOdh::cdj_d_decompressLoop(SArCDJ_OdhMaster* master, int srcSize, int w
       planeOffset = nextOffset;
       if (nextOffset + blockRowStride + 8 > workBufferSize) {
         statusOrOffset = -0x7ffffffa;
-        goto LAB_0001239c;
+        goto finishBlock;
       }
-      idct_fast__9CArGBAOdhFPCUcPUlPUlPUcUl
-                (decoderAddress,(u32)range_limit,(u32)master->quantizationTables,(u32)master->coefficients,(int)master->workBuffer + nextOffset
+      idct_fast
+                (range_limit,master->quantizationTables,master->coefficients,master->workBuffer + nextOffset
                  ,blockStride);
-      statusOrOffset = huffmanDecoder__9CArGBAOdhFPUlP21SArCDJ_HuffmanRequestPPUsiUl
-                        (decoderAddress,(u32)master->dcCoefficients,(u32)&master->luminanceRequest,(u32)&hufftreePtr,0,sourceLimit);
+      statusOrOffset = huffmanDecoder
+                        (master->dcCoefficients, &master->luminanceRequest, (u16**)hufftreePtr.tables, 0, sourceLimit);
       if (statusOrOffset != 0) return statusOrOffset;
       statusOrOffset = 0;
       for (naturalIndex = 0; naturalIndex < 0x40; naturalIndex++) {
@@ -1637,13 +1643,13 @@ s32 CArGBAOdh::cdj_d_decompressLoop(SArCDJ_OdhMaster* master, int srcSize, int w
       planeOffset = planeOffset + (u32)master->blocksWide * 0x80 + -8;
       if (planeOffset + blockRowStride + 8 > workBufferSize) {
         statusOrOffset = -0x7ffffffa;
-        goto LAB_0001239c;
+        goto finishBlock;
       }
-      idct_fast__9CArGBAOdhFPCUcPUlPUlPUcUl
-                (decoderAddress,(u32)range_limit,(u32)master->quantizationTables,(u32)master->coefficients,(int)master->workBuffer + planeOffset
+      idct_fast
+                (range_limit,master->quantizationTables,master->coefficients,master->workBuffer + planeOffset
                  ,blockStride);
-      statusOrOffset = huffmanDecoder__9CArGBAOdhFPUlP21SArCDJ_HuffmanRequestPPUsiUl
-                        (decoderAddress,(u32)master->dcCoefficients,(u32)&master->luminanceRequest,(u32)&hufftreePtr,0,sourceLimit);
+      statusOrOffset = huffmanDecoder
+                        (master->dcCoefficients, &master->luminanceRequest, (u16**)hufftreePtr.tables, 0, sourceLimit);
       master->chrominanceRequest.bitstream = master->luminanceRequest.bitstream;
       if (statusOrOffset != 0) return statusOrOffset;
       statusOrOffset = 0;
@@ -1653,13 +1659,13 @@ s32 CArGBAOdh::cdj_d_decompressLoop(SArCDJ_OdhMaster* master, int srcSize, int w
       }
       if (planeOffset + blockRowStride + 0x10 > workBufferSize) {
         statusOrOffset = -0x7ffffffa;
-        goto LAB_0001239c;
+        goto finishBlock;
       }
-      idct_fast__9CArGBAOdhFPCUcPUlPUlPUcUl
-                (decoderAddress,(u32)range_limit,(u32)master->quantizationTables,(u32)master->coefficients,
-                 planeOffset + (int)master->workBuffer + 8,blockStride);
-      statusOrOffset = huffmanDecoder__9CArGBAOdhFPUlP21SArCDJ_HuffmanRequestPPUsiUl
-                        (decoderAddress,(u32)master->dcCoefficients,(u32)&master->chrominanceRequest,(u32)(u32)&hufftreePtr.tables[2],1,sourceLimit);
+      idct_fast
+                (range_limit,master->quantizationTables,master->coefficients,
+                 planeOffset + master->workBuffer + 8,blockStride);
+      statusOrOffset = huffmanDecoder
+                        (master->dcCoefficients, &master->chrominanceRequest, (u16**)(hufftreePtr.tables + 2), 1, sourceLimit);
       if (statusOrOffset != 0) return statusOrOffset;
       statusOrOffset = 0;
       for (naturalIndex = 0; naturalIndex < 0x40; naturalIndex++) {
@@ -1671,13 +1677,13 @@ s32 CArGBAOdh::cdj_d_decompressLoop(SArCDJ_OdhMaster* master, int srcSize, int w
                ((u32)master->blockY << 6) * (u32)master->blocksWide);
       if (statusOrOffset + blockRowSize + 8 > workBufferSize) {
         statusOrOffset = -0x7ffffffa;
-        goto LAB_0001239c;
+        goto finishBlock;
       }
-      idct_fast__9CArGBAOdhFPCUcPUlPUlPUcUl
-                (decoderAddress,(u32)range_limit,(u32)(master->quantizationTables + 64),(u32)master->coefficients,(int)master->workBuffer + statusOrOffset,
+      idct_fast
+                (range_limit,master->quantizationTables + 64,master->coefficients,master->workBuffer + statusOrOffset,
                  rowStride);
-      statusOrOffset = huffmanDecoder__9CArGBAOdhFPUlP21SArCDJ_HuffmanRequestPPUsiUl
-                        (decoderAddress,(u32)master->dcCoefficients,(u32)&master->chrominanceRequest,(u32)(u32)&hufftreePtr.tables[2],2,sourceLimit);
+      statusOrOffset = huffmanDecoder
+                        (master->dcCoefficients, &master->chrominanceRequest, (u16**)(hufftreePtr.tables + 2), 2, sourceLimit);
       master->luminanceRequest.bitstream = master->chrominanceRequest.bitstream;
       if (statusOrOffset != 0) return statusOrOffset;
       statusOrOffset = 0;
@@ -1690,10 +1696,10 @@ s32 CArGBAOdh::cdj_d_decompressLoop(SArCDJ_OdhMaster* master, int srcSize, int w
               ((u32)master->blockY << 6) * (u32)master->blocksWide);
       if (statusOrOffset + blockRowSize + 8 > workBufferSize) {
         statusOrOffset = -0x7ffffffa;
-        goto LAB_0001239c;
+        goto finishBlock;
       }
-      idct_fast__9CArGBAOdhFPCUcPUlPUlPUcUl
-                (decoderAddress,(u32)range_limit,(u32)(master->quantizationTables + 64),(u32)master->coefficients,(int)master->workBuffer + statusOrOffset,
+      idct_fast
+                (range_limit,master->quantizationTables + 64,master->coefficients,master->workBuffer + statusOrOffset,
                  rowStride);
     }
     blockX = master->blockX + 1;
@@ -1704,7 +1710,7 @@ s32 CArGBAOdh::cdj_d_decompressLoop(SArCDJ_OdhMaster* master, int srcSize, int w
     }
   } while (master->blockY < master->blocksHigh);
   statusOrOffset = 0;
-LAB_0001239c:
+finishBlock:
   return statusOrOffset;
 }
 
@@ -1737,7 +1743,7 @@ void CArGBAOdh::cdj_d_setDequantizationTable(SArCDJ_OdhMaster* master, u32 quali
             scaleIndex = tableIndex;
             u32 scale = scales[scaleIndex];
             u32 value = (boundedCoefficient * scale + 2048) >> 0xC;
-            u32* destination = master->quantizationTables + tableByteOffset / 4;
+            u32* destination = master->quantizationTables + tablePass * 64;
             destination[tableIndex] = value;
             tableIndex++;
             standardTable++;
@@ -1748,27 +1754,9 @@ void CArGBAOdh::cdj_d_setDequantizationTable(SArCDJ_OdhMaster* master, u32 quali
     } while (tablePass < 2);
 }
 
-void CArGBAOdh::cdj_c_makeHeader(SArCDJ_OdhMaster* master, u32 size) {
-    master->data[0] = 'A';
-    master->data[1] = 'J';
-    master->data[2] = 'P';
-    master->data[3] = 'G';
-    *(u32*)&master->data[4] = master->width | (u32)master->height << 11 | (u32)master->quality << 24;
-    *(u32*)&master->data[8] = size;
-    *(u32*)&master->data[12] = 0;
-}
 
-s32 CArGBAOdh::ScaleLimit(s32 scale) {
-    s32 newScale = scale;
 
-    if (newScale < 0) {
-        newScale = 0;
-    } else if (scale > 255) {
-        newScale = 255;
-    }
 
-    return newScale;
-}
 
 s32 CArGBAOdh::cdj_d_colorDeconv(SArCDJ_OdhMaster* master, u8* destination, int outputFormat) {
     u16 width = master->width;
@@ -1893,11 +1881,20 @@ void CArGBAOdh::LineDeconv11(u8* dest, u8* y, u8* cb, u8* cr, u16 width, u16 hei
     }
 }
 
+s32 CArGBAOdh::ScaleLimit(s32 scale) {
+    s32 newScale = scale;
+
+    if (newScale < 0) {
+        newScale = 0;
+    } else if (scale > 255) {
+        newScale = 255;
+    }
+
+    return newScale;
+}
+
 void CArGBAOdh::LineDeconv21(u8* dest, u8* y, u8* cb, u8* cr, u16 width, u16 height,
                              const SArDeconvTbl* table, int format) {
-    u8 crValue;
-    u8 lumaValue;
-    u8 cbValue;
     s32 redValue;
     u32 greenValue;
     s32 blueValue;
@@ -1907,9 +1904,9 @@ void CArGBAOdh::LineDeconv21(u8* dest, u8* y, u8* cb, u8* cr, u16 width, u16 hei
     u8* destinationCb = dest + (s32)width * height;
     u8* destinationCr = dest + (s32)width * height * 2;
     for (pixelIndex = 0; (s32)pixelIndex < (s32)(width & 0xFFFF); pixelIndex += 2) {
-        crValue = *cr;
-        lumaValue = *y;
-        cbValue = *cb;
+        u8 crValue = *cr;
+        u8 lumaValue = *y;
+        u8 cbValue = *cb;
         redValue = ScaleLimit((u32)lumaValue + table->luma[crValue]);
         greenValue = ScaleLimit((u32)lumaValue + (table->cbGreen[cbValue] + table->crGreen[crValue] >> 16));
         blueValue = ScaleLimit((u32)lumaValue + table->blue[cbValue]);
@@ -1990,7 +1987,7 @@ void CArGBAOdh::LineDeconv12(u8* dest, u8* y, u8* cb, u8* cr, u16 width, u16 hei
 
         if (format == 0) {
             outputOffset = (pixelIndex & 0x1FFFFFFC) * 8 + (pixelIndex & 3) * 2;
-            redValue = blueValue >> 3 | (redValue & 0xF8) << 8 | (greenValue & 0xFC) << 3;
+            redValue = ((redValue & 0xF8) << 8 | (greenValue & 0xFC) << 3) | (blueValue >> 3);
             pixelOutput = dest + outputOffset;
             *pixelOutput = redValue >> 8;
             pixelOutput[1] = redValue;
@@ -2014,7 +2011,7 @@ void CArGBAOdh::LineDeconv12(u8* dest, u8* y, u8* cb, u8* cr, u16 width, u16 hei
         nextBlueValue = ScaleLimit((u32)lumaValue + table->blue[cbValue]);
 
         if (format == 0) {
-            redValue = nextBlueValue >> 3 | (redValue & 0xF8) << 8 | (greenValue & 0xFC) << 3;
+            redValue = ((redValue & 0xF8) << 8 | (greenValue & 0xFC) << 3) | (nextBlueValue >> 3);
             pixelOutput[8] = redValue >> 8;
             pixelOutput[9] = redValue;
         } else if (format == 1) {
