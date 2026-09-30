@@ -857,12 +857,13 @@ int ATERM_81402A24(void) {
     u8* rawScanBuffer = NULL;
     u8* scanBuffer;
     AtermApRecord* recordCursor;
-    u32 recordBytes = gAtermScanLimit * sizeof(AtermApRecord) + sizeof(u32);
+    u32 recordBytes = gAtermScanLimit * sizeof(AtermApRecord) + sizeof(AtermApRecordSet);
     u32 scanBufferBytes = gAtermScanBufferSize * 0x100;
     u32 scanCount;
     u32 recordIndex;
     u32 iteration = 0;
     u32 now;
+    u32 reciprocal = 0x10624DD3;
     char selectedMacText[32];
 
     currentRecords = (AtermApRecordSet*)gAtermAllocate(recordBytes);
@@ -883,7 +884,7 @@ int ATERM_81402A24(void) {
 
     while (iteration < 300 && gAtermCancelRequested == 0) {
         s64 currentTime = OSGetTime();
-        now = (u32)(currentTime / (OS_BUS_CLOCK / 4000));
+        now = (u32)(currentTime / (__mulhwu(reciprocal, OS_BUS_CLOCK >> 2) >> 6));
         if (gAtermDeadline <= now) {
             break;
         }
@@ -974,7 +975,7 @@ int ATERM_81402A24(void) {
             progressInfo[2] = -1;
         } else {
             s64 currentTime = OSGetTime();
-            now = (u32)(currentTime / (OS_BUS_CLOCK / 4000));
+            now = (u32)(currentTime / (__mulhwu(reciprocal, OS_BUS_CLOCK >> 2) >> 6));
             progressInfo[2] = gAtermDeadline - now;
         }
         progressInfo[3] = gAtermResult;
@@ -984,7 +985,7 @@ int ATERM_81402A24(void) {
 
     if (iteration < 300) {
         s64 currentTime = OSGetTime();
-        now = (u32)(currentTime / (OS_BUS_CLOCK / 4000));
+        now = (u32)(currentTime / (__mulhwu(reciprocal, OS_BUS_CLOCK >> 2) >> 6));
         if (now <= gAtermDeadline) {
             result = gAtermCancelRequested == 0 ? 1 : -8;
             goto cleanup;
@@ -1008,8 +1009,8 @@ cleanup:
 int ATERM_81402E40(u16* messageBuffer, u32 sequence, u16* payload, size_t payloadLength,
                    void* encryptionKey) {
     s32 byteLength;
-    u8* end;
     u8* cursor;
+    u8* end;
     u8* limit;
     u32 checksum = 0;
 
@@ -1219,15 +1220,11 @@ int ATERM_814033F0(u16* response) {
     u32 value;
     u32 result = 0;
 
-    for (;;) {
-        if (optionCursor < responseEnd) {
-            optionType = SONtoHs(optionCursor[0]);
-            optionLength = SONtoHs(optionCursor[1]);
-            optionValue = (u8*)(optionCursor + 2);
-            optionCursor = (u16*)((u8*)optionCursor + ((optionLength + 0x0B) & ~7));
-        } else {
-            break;
-        }
+    while (optionCursor < responseEnd) {
+        optionType = SONtoHs(optionCursor[0]);
+        optionLength = SONtoHs(optionCursor[1]);
+        optionValue = (u8*)(optionCursor + 2);
+        optionCursor = (u16*)((u8*)optionCursor + ((optionLength + 0x0B) & ~7));
 
         switch (optionType) {
         case 0x201:
@@ -1300,31 +1297,34 @@ int ATERM_814033F0(u16* response) {
 
 int ATERM_81403614(u8* destination, const char* source, s32 length) {
     s32 value = 0;
-    u32 characterIndex = 0;
+    s32 characterIndex = 0;
 
     while (length > 0) {
         s32 character = *source;
 
-        if (character < 'G') {
-            if (character < ':') {
-                if (character < '0') {
-                    return 0;
-                }
-                value += character - '0';
-            } else {
-                if (character < 'A') {
-                    return 0;
-                }
-                value += character - '7';
-            }
-        } else {
+        if (character >= 'G') {
             if (character >= 'g') {
-                return 0;
+                goto fail;
             }
             if (character < 'a') {
-                return 0;
+                goto fail;
+            } else {
+                value += character - 'W';
             }
-            value += character - 'W';
+        } else {
+            if (character < ':') {
+                if (character < '0') {
+                    goto fail;
+                } else {
+                    value += character - '0';
+                }
+            } else {
+                if (character < 'A') {
+                    goto fail;
+                } else {
+                    value += character - '7';
+                }
+            }
         }
         if (characterIndex % 2 == 0) {
             value <<= 4;
@@ -1337,6 +1337,8 @@ int ATERM_81403614(u8* destination, const char* source, s32 length) {
         length--;
     }
     return 1;
+fail:
+    return 0;
 }
 
 int ATERM_814036D8(void) {
@@ -2511,31 +2513,31 @@ void ATERM_81405D0C(u32 state[4], const u8 block[64]) {
     u32 d = state[3];
     u32 index;
 
-    for (index = 0; index < 2; index++) {
-        const u8* inputGroup = block + index * 32;
+    for (index = 0; index < 16; index += 8) {
+        const u8* inputGroup = block + index * 4;
 
-        words[index * 8 + 0] =
+        words[index + 0] =
             (u32)inputGroup[0] | ((u32)inputGroup[1] << 8) |
             ((u32)inputGroup[2] << 16) | ((u32)inputGroup[3] << 24);
-        words[index * 8 + 1] =
+        words[index + 1] =
             (u32)inputGroup[4] | ((u32)inputGroup[5] << 8) |
             ((u32)inputGroup[6] << 16) | ((u32)inputGroup[7] << 24);
-        words[index * 8 + 2] =
+        words[index + 2] =
             (u32)inputGroup[8] | ((u32)inputGroup[9] << 8) |
             ((u32)inputGroup[10] << 16) | ((u32)inputGroup[11] << 24);
-        words[index * 8 + 3] =
+        words[index + 3] =
             (u32)inputGroup[12] | ((u32)inputGroup[13] << 8) |
             ((u32)inputGroup[14] << 16) | ((u32)inputGroup[15] << 24);
-        words[index * 8 + 4] =
+        words[index + 4] =
             (u32)inputGroup[16] | ((u32)inputGroup[17] << 8) |
             ((u32)inputGroup[18] << 16) | ((u32)inputGroup[19] << 24);
-        words[index * 8 + 5] =
+        words[index + 5] =
             (u32)inputGroup[20] | ((u32)inputGroup[21] << 8) |
             ((u32)inputGroup[22] << 16) | ((u32)inputGroup[23] << 24);
-        words[index * 8 + 6] =
+        words[index + 6] =
             (u32)inputGroup[24] | ((u32)inputGroup[25] << 8) |
             ((u32)inputGroup[26] << 16) | ((u32)inputGroup[27] << 24);
-        words[index * 8 + 7] =
+        words[index + 7] =
             (u32)inputGroup[28] | ((u32)inputGroup[29] << 8) |
             ((u32)inputGroup[30] << 16) | ((u32)inputGroup[31] << 24);
     }
