@@ -289,7 +289,7 @@ ziBool Zi8SecMatchComp(ziPtr nodeAddress, ziMatchParam* matchAddress, ziPtr dict
 extern ziU16 Zi8MatchAltSound(ziPtr soundTable, ziU16 soundCode, ziPtr pCodeTable, ziU16 index, ziU16 mask, ziU16 value, ziU8 flag ZI_NEED_WORK);
 ziU16 Zi8GetPCode(ziU8* table, ziU8* node);
 
-ziBool Zi8MatchPhonetic(ziPtr pCodeTable, ziPtr dictionary, ziPtr soundTable, ziU16 soundCode, ziU32 tableAddress, ziU8* node, ziU16* masks, ziU16* values, ziU16* count, ziU8** resultNode, ziU8** stringOffset, ziU8 partialMode, ziU8 strictMode, ziU8 numParts, ziU16 partMask, ziU16 partValue, ziU8 flag, ziU8 altMode, ziU16 initialCode, ziU16* resultCode, ziU8 lastMode ZI_NEED_WORK) {
+ziBool Zi8MatchPhonetic(ziPtr pCodeTable, ziU8* dictionary, ziPtr soundTable, ziU16 soundCode, ziU32 tableAddress, ziU8* node, ziU16* masks, ziU16* values, ziU16* count, ziU8** resultNode, ziU8** stringOffset, ziU8 partialMode, ziU8 strictMode, ziU8 numParts, ziU16 partMask, ziU16 partValue, ziU8 flag, ziU8 altMode, ziU16 initialCode, ziU16* resultCode, ziU8 lastMode ZI_NEED_WORK) {
     struct {
         ziBool hasString;
         ziU8 partIndex;
@@ -345,7 +345,7 @@ match_code:
         } else {
             traversal.soundIndex = initialCode;
         }
-        sound = (ziU8*)(tableAddress + node[0xA] * 0x100 + ((node[9] & 0xF) * 0x10000 + node[0xB]));
+        sound = (ziU8*)(tableAddress + ((node[9] & 0xF) * 0x10000 + (node[0xB] + node[0xA] * 0x100)));
         if (ZI_WORK->unk_0x16 != 0) {
             switch (sound[0] & 7) {
             case 2:
@@ -374,7 +374,8 @@ match_code:
             *count = traversal.remaining;
             return 1;
         }
-        do {
+next_group:
+        {
             traversal.nextCode = *sound++;
             traversal.partCount = traversal.nextCode & 0xF;
             if ((traversal.nextCode & flag) == 0) {
@@ -398,8 +399,8 @@ match_code:
                     if (traversal.hasString) {
                         goto phonetic_skip;
                     }
-                    traversal.code = Zi8GetPCode((ziU8*)pCodeTable, (ziU8*)&((DictionaryNode*)dictionary)[traversal.dictionaryIndex & 0x7FFF]);
-                    if (((traversal.code & masks[traversal.partIndex]) != values[traversal.partIndex]) && (altMode == 0) && (((DictionaryNode*)dictionary)[traversal.dictionaryIndex & 0x7FFF].header & 0x80) != 0) {
+                    traversal.code = Zi8GetPCode((ziU8*)pCodeTable, dictionary + (traversal.dictionaryIndex & 0x7FFF) * sizeof(DictionaryNode));
+                    if (((traversal.code & masks[traversal.partIndex]) != values[traversal.partIndex]) && (altMode == 0) && (dictionary[(traversal.dictionaryIndex & 0x7FFF) * sizeof(DictionaryNode)] & 0x80) != 0) {
                         traversal.code = Zi8MatchAltSound(soundTable, soundCode, pCodeTable, traversal.dictionaryIndex & 0x7FFF, masks[traversal.partIndex], values[traversal.partIndex], flag, ZI_WORK);
                     }
                     if ((traversal.code & masks[traversal.partIndex]) == values[traversal.partIndex]) {
@@ -427,9 +428,9 @@ phonetic_matched:
                     }
                 } while ((traversal.dictionaryIndex & 0x8000) == 0);
             }
-        } while ((traversal.nextCode & 0x80) == 0);
-
-        goto next_node;
+        }
+        if ((traversal.nextCode & 0x80) != 0) goto next_node;
+        goto next_group;
 check_code:
         if (*values == (traversal.code & *masks)) goto match_code;
         goto next_node;
@@ -478,7 +479,7 @@ ziU8 Zi8GetPyPhonetic(ziWChar* text, ziU8 count, ziU16* initial, ziU16* final, z
     outputIndex = 0;
     *bestInitial = 0;
     *bestFinal = 0;
-    while ((outputIndex <= 0xf) && (count != 0)) {
+    while (count != 0) {
         initial[outputIndex] = 0;
         final[outputIndex] = 0;
         value = *current;
@@ -705,6 +706,7 @@ finish_final:
             }
         }
         outputIndex++;
+        if (outputIndex > 0xf) break;
     }
     if ((result > 1) && (text[*resultCount - 1] >= 0xF341) && (text[*resultCount - 1] <= 0xF35A)) {
         *resultCount = *resultCount - 1;

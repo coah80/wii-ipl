@@ -219,7 +219,7 @@ ziBool Zi8PrepareMatch(ziGetParam* request, ziMatchParam* match, ziU8 skipMode Z
       Zi8Memcpy((ziU8 (*)[12])match->segs1 + match->nSeg,buffers.masks,0xc);
       Zi8Memcpy((ziU8 (*)[12])match->segsD + match->nSeg,buffers.strokes,0xc);
       match->nSeg++;
-      if (((stroke != 0xff) || (elementCount <= elementIndex)) || (0xf < match->nSeg)) goto complete;
+      if (stroke != 0xff || elementIndex >= elementCount || match->nSeg >= 0x10) goto complete;
       Zi8Memset(buffers.masks,0,0xc);
       Zi8Memset(buffers.strokes,0,0xc);
       buffers.masks[0] = match->arr1[0] & 0xf0;
@@ -289,7 +289,7 @@ savePhonetic:
           if (match->nCand == 1) {
             request->count = phoneticLength - 1;
           }
-          buffers.phoneticInput += phoneticLength - 1;
+          buffers.phoneticInput = buffers.phoneticInput + phoneticLength - 1;
           phoneticLength = 0;
           index--;
         }

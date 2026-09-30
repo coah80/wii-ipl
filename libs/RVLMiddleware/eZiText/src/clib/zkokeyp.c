@@ -458,7 +458,7 @@ search_table:
                     if (1 < param->elementCount) {
                         for (search.keyByte = 0;
                             (ziS32)search.keyByte < (int)param->elementCount / 2;
-                            search.keyByte = search.keyByte + 1) {
+                            search.keyByte++) {
                             if (search.packedKeys.bytes[search.keyByte] != search.entry->keyBytes[search.keyByte]) {
                                 search.matches = ZI8_FALSE;
                                 break;
