@@ -68,6 +68,14 @@ namespace ipl {
 #ifdef IPL_SDMEMORY_TITLE_CACHE_ACCESS
             const ESTitleId* getTitleCache() const { return &mData.titleCache[0][0]; }
 #endif
+#ifdef IPL_SD_CHANNEL_SELECT_CPP
+            ESTitleId getCachedTitle(int index) const {
+                if (index < 0 || index >= MAX_CHANNEL_TOTAL) {
+                    return 0;
+                }
+                return (&mData.titleCache[0][0])[index];
+            }
+#endif
 
             bool hasPhotoMP3Dummy() { return mbPhotoMP3; }
             bool hasPhoto2Title() { return mbPhoto2; }

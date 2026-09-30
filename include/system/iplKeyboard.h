@@ -37,23 +37,41 @@ namespace ipl {
                 LETTER,
                 PHOTO_LETTER,
                 NUMERIC,
+#ifdef IPL_SETTING_IMPLEMENTATION
+                NORMAL_WITHOUT_LINEFEED = 2,
+                NORMAL_WITHOUT_LINEFEED_WITH_SIGN = 4,
+                NORMAL_BIGTEXT_WITHOUT_LINEFEED = 6,
+#else
                 NORMAL_WITHOUT_LINEFEED,
                 NORMAL_WITHOUT_LINEFEED_WITH_SIGN,
                 NORMAL_BIGTEXT_WITHOUT_LINEFEED,
+#endif
                 ONLY_QWERTY_WITHOUT_LINEFEED_AND_SIGN,
                 ONLY_QWERTY_BIGTEXT_WITHOUT_LINEFEED_AND_SIGN,
+#ifdef IPL_SETTING_IMPLEMENTATION
+                NUMERIC_WITH_DOT = 16,
+                NUMERIC_BIGTEXT_WITH_DOT = 10,
+#else
                 NUMERIC_WITH_DOT,
                 NUMERIC_BIGTEXT_WITH_DOT,
+#endif
                 NORMAL_BIGTEXT_WITHOUT_LINEFEED_WITH_SIGN,
                 NUMERIC_WITH_SEPERATOR,
                 PREDICT_WITHOUT_LINEFEED,
             } KeyboardType;
 
             typedef struct KeyboardSetting {
+#ifdef IPL_SETTING_IMPLEMENTATION
+                u32 rowLimit;
+                const wchar_t* wcString;
+                u32 stringLimit;
+                KeyboardType type;
+#else
                 KeyboardType type;        // 0x00
                 const wchar_t* wcString;  // 0x04
                 u32 stringLimit;          // 0x08
                 u32 rowLimit;             // 0x0C
+#endif
 #ifdef IPL_ADDRESS_EDIT_CPP
                 KeyboardSetting(KeyboardType keyboardType, const wchar_t* value, u32 limit, u32 rows);
 #endif

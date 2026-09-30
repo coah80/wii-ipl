@@ -400,8 +400,8 @@ namespace ipl {
             nw4r::ut::Rect projection4x3;
             System::getProjectionRect16x9(&projection16x9);
             System::getProjectionRect4x3(&projection4x3);
-            int width = projection16x9.right - projection16x9.left;
-            int height = projection16x9.bottom - projection16x9.top;
+            int width = projection4x3.right - projection4x3.left;
+            int height = projection4x3.bottom - projection4x3.top;
 
             const char* urlFormats[] = {"marc:%s/%s/", "file:dvd/html/IPLSetting/%s/%s/"};
             const char* pagePaths[] = {
@@ -425,28 +425,18 @@ namespace ipl {
             memset(browserPath, 0, sizeof(browserPath));
             strcpy(basePath, urlFormats[0]);
             int pageIndex = mInitialArgument;
-            if (pageIndex < 0 || pageIndex >= 7) {
-                pageIndex = 0;
-            }
             strcat(basePath, pagePaths[pageIndex]);
 
             s8 regionIndex = static_cast<s8>(SCGetProductArea());
-            if (regionIndex == 4) {
+            switch (regionIndex) {
+            case 0: case 1: case 2: case 5: case 6: case 11:
+                break;
+            case 3:
+                regionIndex = 2;
+                break;
+            default:
                 regionIndex = 1;
-            } else if (regionIndex >= 4) {
-                if (regionIndex == 11) {
-                } else if (regionIndex >= 11) {
-                    regionIndex = 1;
-                } else if (regionIndex >= 7) {
-                    regionIndex = 1;
-                }
-            } else {
-                if (regionIndex >= 3) {
-                    regionIndex = 2;
-                } else if (regionIndex >= 0) {
-                } else {
-                    regionIndex = 1;
-                }
+                break;
             }
 
             if (mInitialArgument == ARG_UNK_5) {
@@ -785,7 +775,7 @@ namespace ipl {
                     if (mpBrowserData->unk_0x00 == 0) {
                         OSReport("IME Created ");
                         if (mpBrowserData->text != NULL) {
-                            OSReport("initKeyboard %s\n");
+                            OSReport("initKeyboard %s\n", mpBrowserData->text);
                             OSReport("initKeyboard %d\n", mpWiiSettingData->data[0x11]);
                             if (mpWiiSettingData->data[0x11] != 0) {
                                 unk_0x74 = 1;
@@ -806,9 +796,6 @@ namespace ipl {
             }
 
             switch (unk_0x74) {
-            case 1:
-                calcKeyboard();
-                break;
             case 2:
                 if (System::getDialog()->getLastResult() >= 0) {
                     unk_0xB9C = 1;
@@ -834,54 +821,63 @@ namespace ipl {
                 }
                 break;
             case 4:
-                mpWiiSettingData->data[0x12] = 1;
+                unk_0x92C = 1;
                 if (System::getHomeButtonMenu()->disable() &&
                     System::getDialog()->getLastResult() >= 0) {
                     unk_0x74 = 0;
                 }
                 break;
-            case 5:
-                if (System::getScene(0x1b) == NULL) {
-                    if (unk_0x91C[3] == 1) {
-                        unk_0x74 = 0;
-                        unk_0x91C[3] = 0;
-                        resetFuncMsgQ();
-                        if (mpWiiSettingFlag->smthMsgData != 'O') {
-                            unk_0xB9C = 1;
-                        }
-                    }
-                } else {
+            case 5: {
+                scene::ParentalDialog* parentalDialog =
+                    static_cast<scene::ParentalDialog*>(System::getScene(0x1b));
+                if (parentalDialog != NULL) {
                     unk_0x91C[3] = 1;
-                    scene::ParentalDialog* parentalDialog =
-                        static_cast<scene::ParentalDialog*>(System::getScene(0x1b));
-                    scene::ParentalDialog::Result result = parentalDialog->getResult();
-                    if (result == scene::ParentalDialog::RESULT_OVER_ATTEMPTS) {
-                        www::wiisetting::setFuncResult(2);
-                    } else if (result == scene::ParentalDialog::RESULT_SUCCESS) {
+                    switch (parentalDialog->getResult()) {
+                    case scene::ParentalDialog::RESULT_SUCCESS:
                         unk_0x74 = 6;
                         www::wiisetting::setFuncResult(1);
-                    } else if (result > scene::ParentalDialog::RESULT_OVER_ATTEMPTS &&
-                               result <= scene::ParentalDialog::RESULT_CANCELLED) {
+                        break;
+                    case scene::ParentalDialog::RESULT_OVER_ATTEMPTS:
                         www::wiisetting::setFuncResult(2);
+                        break;
+                    case scene::ParentalDialog::RESULT_CANCELLED:
+                        www::wiisetting::setFuncResult(2);
+                        break;
+                    }
+                } else if (unk_0x91C[3] == 1) {
+                    unk_0x74 = 0;
+                    unk_0x91C[3] = 0;
+                    resetFuncMsgQ();
+                    if (mpWiiSettingFlag->smthMsgData != 0x4fU) {
+                        unk_0xB9C = 1;
                     }
                 }
                 break;
+            }
             case 6:
                 if (System::getScene(0x1b) == NULL) {
                     unk_0x91C[3] = 0;
-                    if (mpWiiSettingFlag->smthMsgData == 'O') {
-                        if (!ncd::NCDSetting::getEnableFlag()) {
-                            System::getDialog()->callBtn2(System::getRegion() == 2 ? 0x174 : 0x170,
-                                                          0x146, 0x25);
-                            unk_0x74 = 9;
-                        } else if (SCGetEULA() == 0) {
-                            System::getDialog()->callBtn2(System::getRegion() == 2 ? 0x175 : 0x172,
-                                                          0x2e, 0x25);
-                            unk_0x74 = 0xe;
+                    if (mpWiiSettingFlag->smthMsgData == 0x4fU) {
+                        if (ncd::NCDSetting::getEnableFlag()) {
+                            if (SCGetEULA() != 0) {
+                                www::wiisetting::setFuncResult(6);
+                                unk_0x74 = 0;
+                                resetFuncMsgQ();
+                            } else {
+                                if (static_cast<u32>(System::getRegion()) != 2) {
+                                    System::getDialog()->callBtn2(0x172, 0x2e, 0x25);
+                                } else {
+                                    System::getDialog()->callBtn2(0x175, 0x2e, 0x25);
+                                }
+                                unk_0x74 = 0xe;
+                            }
                         } else {
-                            www::wiisetting::setFuncResult(6);
-                            unk_0x74 = 0;
-                            resetFuncMsgQ();
+                            if (static_cast<u32>(System::getRegion()) != 2) {
+                                System::getDialog()->callBtn2(0x170, 0x146, 0x25);
+                            } else {
+                                System::getDialog()->callBtn2(0x174, 0x146, 0x25);
+                            }
+                            unk_0x74 = 9;
                         }
                     } else {
                         unk_0x74 = 0;
@@ -907,40 +903,13 @@ namespace ipl {
                     unk_0xB9C = 1;
                 }
                 break;
-            case 8:
-                ++unk_0x92C;
-                if (unk_0x92C == 0xb4) {
-                    unk_0xB94 = 1;
-                    unk_0x92C = 0;
-                }
-                break;
-            case 9:
-                if (System::getDialog()->getLastResult() == 1) {
-                    if (mpWiiSettingFlag->smthMsgData == 'O') {
-                        www::wiisetting::setFuncResult(5);
-                        resetFuncMsgQ();
-                    } else {
-                        www::wiisetting::setFuncResult(6);
-                    }
-                    unk_0x74 = 0;
-                } else if (System::getDialog()->getLastResult() == 2) {
-                    if (mpWiiSettingFlag->smthMsgData == 'O') {
-                        if (unk_0xB9C == 0) {
-                            www::wiisetting::setFuncResult(2);
-                        } else if (www::wiisetting::getFuncResult() == 0) {
-                            unk_0x74 = 0;
-                            resetFuncMsgQ();
-                        }
-                        unk_0xB9C = 1;
-                    } else {
-                        unk_0x74 = 0;
-                        www::wiisetting::setFuncResult(2);
-                    }
-                }
-                break;
             case 10:
                 if (System::getDialog()->getLastResult() == 2) {
-                    System::getDialog()->callBtn1(0x172, 1);
+                    if (static_cast<u32>(System::getRegion()) != 2) {
+                        System::getDialog()->callBtn1(0x172, 1);
+                    } else {
+                        System::getDialog()->callBtn1(0x175, 1);
+                    }
                     unk_0x74 = 0xb;
                     SCSetWCFlags(SCGetWCFlags() & 0xfffffffe);
                     SCIdleModeInfo idleMode = {0, 0};
@@ -948,6 +917,10 @@ namespace ipl {
                     System::getNwc24Manager()->enableLedNotification(TRUE);
                     SCSetEULA(0);
                     ncd::NCDSetting::adjustNWC24Flag();
+                    if (mInitialArgument == 2 || mInitialArgument == 5) {
+                        SCSetConfigDoneFlag(TRUE);
+                        SCSetConfigDoneFlag2(TRUE);
+                    }
                     SCFlush();
                 } else if (System::getDialog()->getLastResult() == 1) {
                     mProfileIDMode = 0;
@@ -971,7 +944,11 @@ namespace ipl {
                     SCSetEULA(0);
                     ncd::NCDSetting::adjustNWC24Flag();
                     SCFlush();
-                    System::getDialog()->callBtn1(0x170, 0x2e);
+                    if (static_cast<u32>(System::getRegion()) != 2) {
+                        System::getDialog()->callBtn1(0x170, 0x2e);
+                    } else {
+                        System::getDialog()->callBtn1(0x174, 0x2e);
+                    }
                     unk_0x74 = 9;
                 } else if (System::getDialog()->getLastResult() == 1) {
                     unk_0xB9C = 1;
@@ -1001,6 +978,40 @@ namespace ipl {
                     unk_0xB9C = 1;
                 }
                 break;
+            case 1:
+                calcKeyboard();
+                break;
+            case 8:
+                ++unk_0x92C;
+                if (unk_0x92C == 0xb4) {
+                    unk_0xB94 = 1;
+                    unk_0x92C = 0;
+                }
+                break;
+            case 9:
+                if (System::getDialog()->getLastResult() == 1) {
+                    if (mpWiiSettingFlag->smthMsgData == 0x4fU) {
+                        www::wiisetting::setFuncResult(5);
+                        resetFuncMsgQ();
+                    } else {
+                        www::wiisetting::setFuncResult(6);
+                    }
+                    unk_0x74 = 0;
+                } else if (System::getDialog()->getLastResult() == 2) {
+                    if (mpWiiSettingFlag->smthMsgData == 0x4fU) {
+                        if (unk_0xB9C == 0) {
+                            www::wiisetting::setFuncResult(2);
+                        } else if (www::wiisetting::getFuncResult() == 0) {
+                            unk_0x74 = 0;
+                            resetFuncMsgQ();
+                        }
+                        unk_0xB9C = 1;
+                    } else {
+                        unk_0x74 = 0;
+                        www::wiisetting::setFuncResult(2);
+                    }
+                }
+                break;
             case 0x11:
                 calcSafeMode();
                 break;
@@ -1014,22 +1025,23 @@ namespace ipl {
                         System::getDialog()->callBtn1(0x1bf, 0x2e);
                         unk_0x74 = 4;
                     } else if (unk_0x92C == 3) {
-                        TPLBind(NULL);
-                    } else if (unk_0x92C == 0x55 || unk_0x92C == 0x5a) {
+                        System::getPointer()->setVisible(false);
+                    } else if (unk_0x92C == 0x55) {
                         BOOL interruptLevel = OSDisableInterrupts();
-                        WPADSetSensorBarPower(unk_0x92C == 0x5a);
+                        WPADSetSensorBarPower(FALSE);
                         OSRestoreInterrupts(interruptLevel);
-                        if (unk_0x92C == 0x5a) {
-                            unk_0x92C = 0x1e;
-                        }
+                    } else if (unk_0x92C == 0x5a) {
+                        BOOL interruptLevel = OSDisableInterrupts();
+                        WPADSetSensorBarPower(TRUE);
+                        OSRestoreInterrupts(interruptLevel);
+                        unk_0x92C = 0x1e;
                     } else if (unk_0x92C == 0x96) {
                         BOOL interruptLevel = OSDisableInterrupts();
                         WPADSetSensorBarPower(TRUE);
                         OSRestoreInterrupts(interruptLevel);
                         System::getHomeButtonMenu()->enable();
                         mpWiiSettingData->data[0x12] = 0;
-                        TPLBind(reinterpret_cast<TPLPalette*>(
-                            static_cast<nand::File*>(mpBackgroundTPLFile)->getBuffer()));
+                        System::getPointer()->setVisible(true);
                         unk_0x92C = 0;
                     }
                 } else if (action < 0x1f) {
@@ -1048,77 +1060,8 @@ namespace ipl {
                 waitStart();
                 createChildScene(0x19, this, NULL, NULL);
                 break;
-            case 4:
-                resetAP();
-                initAP();
-                mpWiiSettingFlag->smthMsgData = 2;
-            case 2:
-            case 3:
-                scanAP();
-                break;
-            case 5:
-                resetAP();
-                break;
-            case 6:
-                initAP();
-                resetFuncMsgQ();
-                break;
-            case 7:
-                redrawAP();
-                break;
             case 9:
                 setNUP();
-                break;
-            case 0x17:
-                parental::Parental::clearMiss();
-            case 'Z':
-                System::getHomeButtonMenu()->enable();
-                resetFuncMsgQ();
-                break;
-            case 0x18:
-                ncd::NCDSetting::write();
-            case ']':
-                mIsResetAcceptable = 0;
-                resetFuncMsgQ();
-                break;
-            case 0x1a:
-                System::getDialog()->callBtn2(System::getRegion() == 2 ? 0x160 : 0x15f,
-                                              0x2e, 0x13b);
-                unk_0x74 = 3;
-                resetFuncMsgQ();
-                break;
-            case 0x1c:
-                if (mAspectRatio != mpWiiSettingData->data[6]) {
-                    mAspectRatio = mpWiiSettingData->data[6];
-                    if (mAspectRatio == 1) {
-                        System::getDialog()->callBtn0(0x1bd, 0, false);
-                    } else if (mAspectRatio == 0) {
-                        System::getDialog()->callBtn0(0x1c9, 0, false);
-                    }
-                    unk_0x74 = 8;
-                }
-                resetFuncMsgQ();
-                break;
-            case 0x1d:
-            case 'M':
-            case 'N':
-                if (action == 0x1d || calcSafeMode()) {
-                    if (!parental::Parental::checkFlags()) {
-                        www::wiisetting::setFuncResult(1);
-                        if (mpWiiSettingFlag->smthMsgData == 'N') {
-                            unk_0x74 = 6;
-                        }
-                    } else {
-                        createChildScene(0x1b, this, NULL, reinterpret_cast<void*>(1));
-                        unk_0x74 = 5;
-                    }
-                    if (mpWiiSettingFlag->smthMsgData == 0x1d ||
-                        mpWiiSettingFlag->smthMsgData == 'M') {
-                        resetFuncMsgQ();
-                    } else {
-                        mpWiiSettingFlag->smthMsgData = 'O';
-                    }
-                }
                 break;
             case 0x1e:
                 memset(mpMem2BrowserBuffer, 0, 0x800);
@@ -1142,31 +1085,94 @@ namespace ipl {
             case ',':
                 RakuProcess();
                 break;
-            case '4':
-                if (System::getHomeButtonMenu()->disable() && unk_0x5C == 0) {
-                    controller::Interface* youngController = System::getYoungController();
-                    if (youngController != NULL && youngController->downTrg(0x100800)) {
+            case '4': {
+                controller::Interface* youngController = System::getYoungController();
+                if (!System::getResetHandler()->isResetting()) {
+                    System::getHomeButtonMenu()->disable();
+                    if (unk_0x5C == 0 && youngController != NULL &&
+                        youngController->downTrg(0x100800)) {
                         resetFuncMsgQ();
                         System::getHomeButtonMenu()->enable();
                         www::wiisetting::setFuncResult(5);
                     }
                 }
                 break;
+            }
+            case 4:
+                resetAP();
+                initAP();
+                mpWiiSettingFlag->smthMsgData = 2;
+            case 2:
+            case 3:
+                scanAP();
+                break;
+            case 5:
+                resetAP();
+                break;
+            case 7:
+                redrawAP();
+                break;
+            case 6:
+                initAP();
+                resetFuncMsgQ();
+                break;
+            case 0x1c:
+                if (mAspectRatio != mpWiiSettingData->data[6]) {
+                    mAspectRatio = mpWiiSettingData->data[6];
+                    if (mAspectRatio == 1U) {
+                        System::getDialog()->callBtn0(0x1bd, 0, false);
+                    } else if (mAspectRatio == 0) {
+                        System::getDialog()->callBtn0(0x1c9, 0, false);
+                    }
+                    unk_0x74 = 8;
+                }
+                resetFuncMsgQ();
+                break;
+            case 0x1a:
+                if (static_cast<u32>(System::getRegion()) != 2) {
+                    System::getDialog()->callBtn2(0x15f, 0x2e, 0x13b);
+                } else {
+                    System::getDialog()->callBtn2(0x160, 0x2e, 0x13b);
+                }
+                unk_0x74 = 3;
+                resetFuncMsgQ();
+                break;
+            case 0x1d:
+            case 'M':
+            case 'N':
+                if (mpWiiSettingFlag->smthMsgData == 0x1d || calcSafeMode()) {
+                    if (static_cast<u8>(parental::Parental::checkFlags()) != 0) {
+                        createChildScene(0x1b, this, NULL, reinterpret_cast<void*>(1));
+                        unk_0x74 = 5;
+                    } else {
+                        www::wiisetting::setFuncResult(1);
+                        if (mpWiiSettingFlag->smthMsgData == 0x4eU) {
+                            unk_0x74 = 6;
+                        }
+                    }
+                    if (mpWiiSettingFlag->smthMsgData == 0x1d ||
+                        mpWiiSettingFlag->smthMsgData == 0x4dU) {
+                        resetFuncMsgQ();
+                    } else {
+                        mpWiiSettingFlag->smthMsgData = 'O';
+                    }
+                }
+                break;
             case 'P':
                 SCSetLanguage(mpWiiSettingData->data[0x30]);
                 if (SCGetConfigDoneFlag() == 0 && SCGetConfigDoneFlag2() == 0 &&
-                    System::getRegion() == 2) {
-                    if (mpWiiSettingData->data[0x30] == 3) {
-                        mpWiiSettingData->data[0x3c] = 0x68;
-                        parental::Parental::setCountry(0x68);
-                    } else {
+                    static_cast<u32>(System::getRegion()) == 2) {
+                    if (mpWiiSettingData->data[0x30] != 3) {
                         mpWiiSettingData->data[0x3c] = 0x40;
                         parental::Parental::setCountry(0x40);
+                    } else {
+                        mpWiiSettingData->data[0x3c] = 0x68;
+                        parental::Parental::setCountry(0x68);
                     }
                 }
                 SCFlush();
                 System::getKeyboard()->setLanguage(SCGetLanguage());
-                parental::Parental::init();
+                System::getMessageManager()->initMessage();
                 System::reloadDownloadTask();
                 resetFuncMsgQ();
                 break;
@@ -1183,7 +1189,7 @@ namespace ipl {
                     parental::Parental::setCountry(mpWiiSettingData->data[0x3c]);
                     parental::Parental::clear();
                     www::wiisetting::setFuncResult(1);
-                } else if (mpWiiSettingData->data[0x3c] == parental::Parental::getCountry()) {
+                } else if (mpWiiSettingData->data[0x3c] == static_cast<u8>(parental::Parental::getCountry())) {
                     www::wiisetting::setFuncResult(1);
                 } else {
                     System::getDialog()->callBtn2(0x1c4, 0x2e, 0x13b);
@@ -1217,6 +1223,12 @@ namespace ipl {
                 mProfileIDMode = 2;
                 mpWiiSettingFlag->smthMsgData = 0x54;
                 break;
+            case 0x17:
+                parental::Parental::clearMiss();
+            case 'Z':
+                System::getHomeButtonMenu()->enable();
+                resetFuncMsgQ();
+                break;
             case '[':
                 if (System::getHomeButtonMenu()->disable()) {
                     resetFuncMsgQ();
@@ -1226,6 +1238,12 @@ namespace ipl {
                 mIsResetAcceptable = 1;
                 resetFuncMsgQ();
                 break;
+            case 0x18:
+                ncd::NCDSetting::write();
+            case ']':
+                mIsResetAcceptable = 0;
+                resetFuncMsgQ();
+                break;
             case '^':
                 System::getHomeButtonMenu()->enable();
                 mIsResetAcceptable = 1;
@@ -1233,7 +1251,7 @@ namespace ipl {
                 break;
             case '_':
                 if (System::getHomeButtonMenu()->disable()) {
-                mIsResetAcceptable = 0;
+                    mIsResetAcceptable = 0;
                     resetFuncMsgQ();
                 }
                 break;
@@ -1272,6 +1290,7 @@ namespace ipl {
                 setSE();
             }
             if (mpWiiSettingData->data[0x39] != 0) {
+                System::getFader()->fadeOut();
                 return FADER_SCN_NEXT;
             }
 
@@ -1596,26 +1615,21 @@ namespace ipl {
             keyboard::Manager::KeyboardType keyboardType = keyboard::Manager::LETTER;
             int rowLimit = 0;
             int stringLimit = 0;
-            int productArea = SCGetProductArea();
+            int productArea = static_cast<s8>(SCGetProductArea());
 
             switch (mpWiiSettingData->data[0x11]) {
                 case 1:
                     stringLimit = 10;
                     rowLimit = 6;
                     break;
-                case 2:
-                    if (ncd::NCDSetting::getPrivacyMode() == 1) {
-                        stringLimit = 0x1A;
-                        keyboardType = keyboard::Manager::NORMAL_WITHOUT_LINEFEED;
-                    } else {
-                        stringLimit = 0x40;
-                        keyboardType = keyboard::Manager::NORMAL_WITHOUT_LINEFEED_WITH_SIGN;
-                    }
-                    rowLimit = 7;
-                    break;
                 case 3:
                     stringLimit = 0x20;
                     keyboardType = keyboard::Manager::NORMAL_WITHOUT_LINEFEED;
+                    rowLimit = 7;
+                    break;
+                case 10:
+                    stringLimit = 0xFF;
+                    keyboardType = keyboard::Manager::NUMERIC_WITH_DOT;
                     rowLimit = 7;
                     break;
                 case 12:
@@ -1623,10 +1637,15 @@ namespace ipl {
                     keyboardType = keyboard::Manager::NORMAL_WITHOUT_LINEFEED;
                     rowLimit = 7;
                     break;
-                case 13:
+                case 18:
+                case 19:
                     stringLimit = 0x20;
                     keyboardType = keyboard::Manager::NORMAL_WITHOUT_LINEFEED;
-                    rowLimit = 7;
+                    if (productArea == 11 || productArea == 6) {
+                        rowLimit = 13;
+                    } else {
+                        rowLimit = 5;
+                    }
                     break;
                 case 4:
                 case 5:
@@ -1635,11 +1654,6 @@ namespace ipl {
                 case 8:
                     stringLimit = 0xF;
                     rowLimit = 10;
-                    break;
-                case 10:
-                    stringLimit = 0xFF;
-                    keyboardType = keyboard::Manager::NUMERIC_WITH_DOT;
-                    rowLimit = 7;
                     break;
                 case 11:
                 case 20:
@@ -1653,18 +1667,27 @@ namespace ipl {
                     stringLimit = 4;
                     rowLimit = 3;
                     break;
-                case 18:
-                case 19:
+                case 2:
+                    if (static_cast<u16>(ncd::NCDSetting::getPrivacyMode()) == 1) {
+                        stringLimit = 0x1A;
+                        keyboardType = keyboard::Manager::NORMAL_WITHOUT_LINEFEED;
+                    } else {
+                        stringLimit = 0x40;
+                        keyboardType = keyboard::Manager::NORMAL_WITHOUT_LINEFEED_WITH_SIGN;
+                    }
+                    rowLimit = 7;
+                    break;
+                case 13:
                     stringLimit = 0x20;
                     keyboardType = keyboard::Manager::NORMAL_WITHOUT_LINEFEED;
-                    rowLimit = productArea == 11 || productArea == 6 ? 13 : 5;
+                    rowLimit = 7;
                     break;
                 case 22:
                     stringLimit = 0x40;
                     keyboardType = keyboard::Manager::NORMAL_WITHOUT_LINEFEED_WITH_SIGN;
                     rowLimit = 7;
                     break;
-            }
+                        }
 
             if (mpWiiSettingData->data[0x11] != 13 && mpWiiSettingData->data[0x11] != 2 &&
                 mpWiiSettingData->data[0x11] != 18 && mpWiiSettingData->data[0x11] != 19 &&
@@ -1676,12 +1699,16 @@ namespace ipl {
             OSReport("キーボード: %d %d %d %d\n", rowLimit, stringLimit, keyboardType, textLength);
             reinterpret_cast<wchar_t*>(unk_0x938)[stringLimit] = 0;
 
-            if (mpWiiSettingData->data[0x11] >= 4 && mpWiiSettingData->data[0x11] <= 8) {
-                invalidInput = checkIPString(reinterpret_cast<const wchar_t*>(unk_0x938));
-            } else if ((mpWiiSettingData->data[0x11] > 0 && mpWiiSettingData->data[0x11] < 4) ||
-                       (mpWiiSettingData->data[0x11] >= 10 && mpWiiSettingData->data[0x11] <= 20) ||
-                       mpWiiSettingData->data[0x11] == 22) {
-                invalidInput = checkInputString(reinterpret_cast<const wchar_t*>(unk_0x938));
+            switch (mpWiiSettingData->data[0x11]) {
+            case 1: case 2: case 3:
+            case 10: case 11: case 12: case 13:
+            case 14: case 15: case 16: case 17:
+            case 18: case 19: case 20: case 22:
+                invalidInput = checkInputString(unk_0x938);
+                break;
+            case 4: case 5: case 6: case 7: case 8:
+                invalidInput = checkIPString(unk_0x938);
+                break;
             }
 
             if (invalidInput != 0) {
@@ -1698,19 +1725,22 @@ namespace ipl {
             setting.wcString = reinterpret_cast<const wchar_t*>(unk_0x938);
             setting.stringLimit = stringLimit;
             setting.rowLimit = rowLimit;
-            keyboardManager->init();
             keyboardManager->start(0, setting);
 
             if (invalidInput != 0) {
                 setDefaultBackString();
             } else {
-                reinterpret_cast<textinput::inputform::Base*>(keyboardManager->memoFrm())->setString(reinterpret_cast<const wchar_t*>(unk_0x938));
+                keyboardManager->baseMgr()->setTitleText(L"");
+            }
+            if (mpWiiSettingData->data[0x11] == 17) {
+                System::getKeyboard()->baseMgr()->setSecretInputMode(true);
             }
         }
 
         void Setting::calcKeyboard() {
             char* formText;
-            if (mKeyboardState.iplType == keyboard::Manager::STATE_DISAPPEARING) {
+            switch (mKeyboardState.iplType) {
+            case keyboard::Manager::STATE_DISAPPEARING: {
                 if (mKeyboardState.pressOK) {
                     onTextInputOK();
                     u8 formId = mpWiiSettingData->data[0x11];
@@ -1724,7 +1754,7 @@ namespace ipl {
                             formText = mpStringBuffer->securityKey;
                             break;
                         case 3:
-                            formText = mpStringBuffer->securityKey;
+                            formText = mpStringBuffer->ssid;
                             break;
                         case 4:
                             formText = mpStringBuffer->ip.addr;
@@ -1753,9 +1783,6 @@ namespace ipl {
                         case 13:
                             formText = mpStringBuffer->proxyBasic.pass;
                             break;
-                        case 14:
-                            formText = mpStringBuffer->adjMtu;
-                            break;
                         case 15:
                             formText = mpStringBuffer->parentalPass;
                             break;
@@ -1774,16 +1801,19 @@ namespace ipl {
                         case 20:
                             formText = mpStringBuffer->masterKey;
                             break;
-                    }
+                                            case 14:
+                            formText = mpStringBuffer->adjMtu;
+                            break;
+}
                     OSReport("formID:%d %s\n", formId, formText);
                     if (strlen(formText) == 0) {
                         formText[0] = 0;
                         ext_ead::www::SurfaceManager::GetInstance()->GetBrowserThread()->CommitIme(mpBrowserData, formText);
                         memset(mpStringBuffer->asterisks, 0, sizeof(mpStringBuffer->asterisks));
-                    } else if (formId == 2 || formId == 22) {
+                    } else if (mpWiiSettingData->data[0x11] == 2 || mpWiiSettingData->data[0x11] == 22) {
                         memcpy(mpStringBuffer->asterisks, mpStringBuffer->securityKey, sizeof(mpStringBuffer->securityKey));
                         mpStringBuffer->asterisks[0x41] = 0;
-                        u32 index = 0;
+                        s32 index = 0;
                         while (mpStringBuffer->asterisks[index] != 0) {
                             mpStringBuffer->asterisks[index++] = '*';
                         }
@@ -1807,7 +1837,7 @@ namespace ipl {
                             formText = mpStringBuffer->asterisks;
                             break;
                         case 3:
-                            formText = mpStringBuffer->securityKey;
+                            formText = mpStringBuffer->ssid;
                             break;
                         case 4:
                             formText = mpStringBuffer->ip.addr;
@@ -1836,9 +1866,6 @@ namespace ipl {
                         case 13:
                             formText = mpStringBuffer->proxyBasic.pass;
                             break;
-                        case 14:
-                            formText = mpStringBuffer->adjMtu;
-                            break;
                         case 15:
                             formText = mpStringBuffer->parentalPass;
                             break;
@@ -1857,25 +1884,39 @@ namespace ipl {
                         case 20:
                             formText = mpStringBuffer->masterKey;
                             break;
-                    }
+                                            case 14:
+                            formText = mpStringBuffer->adjMtu;
+                            break;
+}
                     ext_ead::www::SurfaceManager::GetInstance()->GetBrowserThread()->CommitIme(mpBrowserData, formText);
                 }
 
                 mpWiiSettingData->data[0x11] = 0;
                 ext_ead::www::SurfaceManager::GetInstance()->GetBrowserThread()->DisposeImeData(mpBrowserData);
-            } else if (mKeyboardState.iplType < keyboard::Manager::STATE_VISIBLE) {
+
+                break;
+            }
+            case keyboard::Manager::STATE_HIDDEN_AFTER_DISAPPEAR: {
+                System::getKeyboard()->baseMgr()->setTitleText(L"");
+                unk_0x74 = 0;
+
+                break;
+            }
+            case keyboard::Manager::STATE_HIDDEN:
+            case keyboard::Manager::STATE_APPEARING: {
                 u8 formId = mpWiiSettingData->data[0x11];
-                if (mKeyboardState.iplType < keyboard::Manager::STATE_APPEARING &&
-                    formId != 0 && formId != 9 && formId != 21 && formId <= 22) {
-                    if (System::getKeyboard()->memoMgr()->isVacancy()) {
-                        reinterpret_cast<textinput::inputform::Base*>(System::getKeyboard()->memoFrm())->setString(L"");
+                if (formId >= 1 && formId <= 22 && formId != 9 && formId != 21) {
+                    if (!System::getKeyboard()->memoMgr()->isVacancy()) {
+                        System::getKeyboard()->baseMgr()->setTitleText(L"");
                     } else {
                         setDefaultBackString();
                     }
                 }
-            } else if (mKeyboardState.iplType < keyboard::Manager::STATE_HIDDEN_AFTER_DISAPPEAR) {
-                reinterpret_cast<textinput::inputform::Base*>(System::getKeyboard()->memoFrm())->setString(L"");
-                unk_0x74 = 0;
+
+                break;
+            }
+            default:
+                break;
             }
 
             mKeyboardState = *System::getKeyboard()->getState();
@@ -2668,7 +2709,7 @@ namespace ipl {
                 case 4:
                     initScroll();
                     setAPDraw();
-                    mpPaneManager->update();
+                    mpPaneManager->init();
                     break;
                 case 5:
                     mpPaneManager->update();
@@ -2678,7 +2719,11 @@ namespace ipl {
                     if (!mpMainLayout->getAnim(unk_0x918)->isPlaying()) {
                         unk_0x78 = 5;
                         setAPDraw();
-                        mpMainLayout->getAnim(unk_0x91C[0] == 0 ? 0xb : 0xa)->initAnmFrame();
+                        if (unk_0x91C[0] != 0) {
+                            mpMainLayout->getAnim(0xa)->initAnmFrame();
+                        } else {
+                            mpMainLayout->getAnim(0xb)->initAnmFrame();
+                        }
                         if (unk_0x914 == 0) {
                             mpMainLayout->FindPaneByName("N_AP1")->SetVisible(false);
                         } else if (unk_0x914 == 1) {
@@ -2709,7 +2754,7 @@ namespace ipl {
                         resetFuncMsgQ();
                         unk_0x78 = 1;
                         unk_0x918 = -1;
-                        mpPaneManager->update();
+                        mpPaneManager->init();
                         mpMainLayout->getAnim(0x14)->initFrame();
                         mpMainLayout->calc();
                     }
@@ -3085,15 +3130,15 @@ namespace ipl {
                 unk_0x74 = 0xd;
                 resetFuncMsgQ();
                 System::getDialog()->callBtn2(0x180, 0x2e, 0x25);
-            } else if (result == 0) {
+            } else if (result != 0) {
+                System::getErrorHandler()->log("ES", result, "iplSetting.cpp", 0x10f1);
+                System::getErrorHandler()->set(ErrorHandler::DEFAULT, 2);
+            } else {
                 if (!utility::ESMisc::ContentExist(titleView, 1, &contentResult) && contentResult != 0) {
                     System::getErrorHandler()->log("ES", contentResult, "iplSetting.cpp", 0x10fc);
                     System::getErrorHandler()->set(ErrorHandler::DEFAULT, 2);
                 }
                 valid = true;
-            } else {
-                System::getErrorHandler()->log("ES", result, "iplSetting.cpp", 0x10f1);
-                System::getErrorHandler()->set(ErrorHandler::DEFAULT, 2);
             }
             if (titleView != NULL) {
                 System::getMem1Root()->free(titleView);
@@ -3476,17 +3521,17 @@ namespace ipl {
             wchar_t message[0x100];
             swprintf(supportCode, 12, L"%d\n", unk_0x930);
             memset(message, 0, sizeof(message));
-            size_t messageLength = wcslen(title);
-            wcsncat(message, title, messageLength);
-            message[messageLength] = L'\n';
-            ++messageLength;
+            size_t segmentLength = wcslen(title);
+            wcsncat(message, title, segmentLength);
+            message[segmentLength] = L'\n';
+            size_t messageLength = segmentLength + 1;
             message[messageLength] = 0;
-            size_t labelLength = wcslen(codeLabel);
-            wcsncat(message + messageLength, codeLabel, labelLength);
-            messageLength += labelLength;
-            size_t codeLength = wcslen(supportCode);
-            wcsncat(message + messageLength, supportCode, codeLength);
-            messageLength += codeLength;
+            segmentLength = wcslen(codeLabel);
+            wcsncat(message + messageLength, codeLabel, segmentLength);
+            messageLength += segmentLength;
+            segmentLength = wcslen(supportCode);
+            wcsncat(message + messageLength, supportCode, segmentLength);
+            messageLength += segmentLength;
             message[messageLength] = 0;
             System::getDialog()->callBtn2(message, 0x142, 0x141, true);
         }

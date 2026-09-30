@@ -1412,28 +1412,28 @@ namespace ipl {
             for (int page = MAX_CHANNEL_PAGE - 1; page >= 0; --page) {
                 for (int order = 0; order < MAX_CHANNEL_INDEX; ++order) {
                     int channelIndex = channelOrder[order];
-                    if (!System::getChannelManager()->mChannels[page][channelIndex].loadedBnr) {
-                        continue;
+                    ESTitleId titleId;
+                    const channel::SEntry& channelInfo =
+                        System::getChannelManager()->mChannels[page][channelIndex];
+                    if (channelInfo.loadedBnr) {
+                        titleId = ES_TITLE_ID(channelInfo.info.titleType, channelInfo.info.titleCode);
+                    } else {
+                        titleId = 0;
                     }
-
-                    ESTitleId titleId = ES_TITLE_ID(
-                        System::getChannelManager()->mChannels[page][channelIndex].info.titleType,
-                        System::getChannelManager()->mChannels[page][channelIndex].info.titleCode);
                     if (titleId == 0 || titleId == 0x48415A41) {
                         continue;
                     }
 
                     for (u32 usageIndex = 0; usageIndex < mNandTitleCount; ++usageIndex) {
-                        NandSDWorker::TitleUsage& usage = mpNandTitleInfo[usageIndex];
-                        if (usage.curTitleId != titleId) {
+                        if (mpNandTitleInfo[usageIndex].curTitleId != titleId) {
                             continue;
                         }
 
-                        bytes += usage.size;
-                        blocks += usage.inode;
-                        titleIds[*titleCount] = titleId;
+                        bytes += mpNandTitleInfo[usageIndex].size;
+                        blocks += mpNandTitleInfo[usageIndex].inode;
+                        titleIds[*titleCount] = mpNandTitleInfo[usageIndex].curTitleId;
                         wchar_t* titleName =
-                            System::getChannelManager()->getTitleName(page, channelIndex, 0);
+                            System::getChannelManager()->getTitleName(page, channelOrder[order], 0);
                         memcpy(titleNames + *titleCount * 0x2a, titleName, 0x2a);
                         ++*titleCount;
 
@@ -1454,11 +1454,11 @@ namespace ipl {
             const s32* firstUsage, const s32* secondUsage, ESTitleId* titleIds,
             char* titleNames, u32* titleCount) {
             int hateUsageIndex = -1;
-            int hatePage = 0;
-            int hateChannelIndex = 0;
+            int hatePage = -1;
+            int hateChannelIndex = -1;
             int hadeUsageIndex = -1;
-            int hadePage = 0;
-            int hadeChannelIndex = 0;
+            int hadePage = -1;
+            int hadeChannelIndex = -1;
             s32 bytes;
             s32 blocks;
             getCurrentTitleUsage(&bytes, &blocks);
@@ -1478,8 +1478,7 @@ namespace ipl {
 
             *titleCount = 0;
             for (int usageIndex = mNandTitleCount - 1; usageIndex >= 0; --usageIndex) {
-                NandSDWorker::TitleUsage& usage = mpNandTitleInfo[usageIndex];
-                ESTitleId titleId = usage.curTitleId;
+                ESTitleId titleId = mpNandTitleInfo[usageIndex].curTitleId;
                 if (titleId == 0x48415A41 || titleId == ES_TITLE_ID(0x00010001, 0x48415445) || titleId == ES_TITLE_ID(0x00010001, 0x48414445)) {
                     continue;
                 }
@@ -1493,8 +1492,8 @@ namespace ipl {
                     continue;
                 }
 
-                bytes += usage.size;
-                blocks += usage.inode;
+                bytes += mpNandTitleInfo[usageIndex].size;
+                blocks += mpNandTitleInfo[usageIndex].inode;
                 titleIds[*titleCount] = titleId;
                 wchar_t* titleName = System::getChannelManager()->getTitleName(
                     page, channelIndex, 0);
@@ -1506,9 +1505,8 @@ namespace ipl {
                 }
             }
 
-            ESTitleId* cachedTitles = &System::getSaveData()->mData.titleCache[0][0];
             for (int cacheIndex = MAX_CHANNEL_TOTAL - 1; cacheIndex >= 0; --cacheIndex) {
-                ESTitleId titleId = cachedTitles[cacheIndex];
+                ESTitleId titleId = System::getSaveData()->getCachedTitle(cacheIndex);
                 int page;
                 int channelIndex;
                 if (System::getChannelManager()->hasChannel(titleId, &page, &channelIndex) == 0) {
@@ -1516,14 +1514,13 @@ namespace ipl {
                 }
 
                 for (u32 usageIndex = 0; usageIndex < mNandTitleCount; ++usageIndex) {
-                    NandSDWorker::TitleUsage& usage = mpNandTitleInfo[usageIndex];
-                    if (usage.curTitleId != titleId) {
+                    if (mpNandTitleInfo[usageIndex].curTitleId != titleId) {
                         continue;
                     }
 
-                    bytes += usage.size;
-                    blocks += usage.inode;
-                    titleIds[*titleCount] = titleId;
+                    bytes += mpNandTitleInfo[usageIndex].size;
+                    blocks += mpNandTitleInfo[usageIndex].inode;
+                    titleIds[*titleCount] = mpNandTitleInfo[usageIndex].curTitleId;
                     wchar_t* titleName = System::getChannelManager()->getTitleName(
                         page, channelIndex, 0);
                     memcpy(titleNames + *titleCount * 0x2a, titleName, 0x2a);
@@ -1536,9 +1533,8 @@ namespace ipl {
             }
 
             if (hadeUsageIndex >= 0) {
-                NandSDWorker::TitleUsage& usage = mpNandTitleInfo[hadeUsageIndex];
-                bytes += usage.size;
-                blocks += usage.inode;
+                bytes += mpNandTitleInfo[hadeUsageIndex].size;
+                blocks += mpNandTitleInfo[hadeUsageIndex].inode;
                 titleIds[*titleCount] = ES_TITLE_ID(0x00010001, 0x48414445);
                 wchar_t* titleName =
                     System::getChannelManager()->getTitleName(
@@ -1552,9 +1548,8 @@ namespace ipl {
             }
 
             if (hateUsageIndex >= 0) {
-                NandSDWorker::TitleUsage& usage = mpNandTitleInfo[hateUsageIndex];
-                bytes += usage.size;
-                blocks += usage.inode;
+                bytes += mpNandTitleInfo[hateUsageIndex].size;
+                blocks += mpNandTitleInfo[hateUsageIndex].inode;
                 titleIds[*titleCount] = ES_TITLE_ID(0x00010001, 0x48415445);
                 wchar_t* titleName =
                     System::getChannelManager()->getTitleName(
@@ -1595,42 +1590,39 @@ namespace ipl {
         }
 
         bool SDChannelSelect::findAdjacentChannel(int direction, int* page, int* index) const {
-            int currentPage = mCurrentPage;
-            int currentIndex = mCurrentChannelIndex;
-            int pageSize = MAX_CHANNEL_INDEX;
-            int currentSlot = currentPage * pageSize + currentIndex;
+            int currentPage;
+            int slotCount;
+            int currentSlot;
+            currentPage = mCurrentPage;
+            currentSlot = currentPage * MAX_CHANNEL_INDEX + mCurrentChannelIndex;
             int step = direction == 1 ? -1 : 1;
-            int slotCount = mPageCount * pageSize;
+            slotCount = mPageCount * MAX_CHANNEL_INDEX;
             int slot = currentSlot + step;
-
-            if (slot < 0) {
-                slot = slotCount - 1;
-            }
-            if (slot >= slotCount) {
-                slot = 0;
-            }
-
-            while (slot != currentSlot) {
-                int candidatePage = slot / pageSize;
-                int candidateIndex = slot % pageSize;
-                if (mpChannelTitleIds[slot] != 0) {
-                    *page = candidatePage;
-                    *index = candidateIndex;
-                    return true;
-                }
-
-                slot += step;
+            bool found;
+            for (;;) {
                 if (slot < 0) {
                     slot = slotCount - 1;
                 }
                 if (slot >= slotCount) {
                     slot = 0;
                 }
+                if (slot == currentSlot) {
+                    *page = currentPage;
+                    found = false;
+                    *index = mCurrentChannelIndex;
+                    break;
+                }
+                int candidatePage = slot / MAX_CHANNEL_INDEX;
+                int candidateIndex = slot % MAX_CHANNEL_INDEX;
+                if (mpChannelTitleIds[slot] != 0) {
+                    *page = candidatePage;
+                    found = true;
+                    *index = candidateIndex;
+                    break;
+                }
+                slot += step;
             }
-
-            *page = currentPage;
-            *index = currentIndex;
-            return false;
+            return found;
         }
 
         void SDChannelSelect::setCurrentPageAndRefresh(int page, int index,
@@ -3440,11 +3432,6 @@ namespace ipl {
             switch (state) {
             case 15:
             case 16:
-            case 17:
-            case 18:
-            case 19:
-            case 20:
-            case 21:
             case 22:
             case 23:
                 mpScene->onButtonEvent(paneName, event, con);
@@ -3478,12 +3465,11 @@ namespace ipl {
                                 }
 
                                 if (strcmp(paneName,
-                                           SDButton::smButtonName[SDButton::BTN_ARROW_LEFT]) == 0) {
-                                    if (mpScene->mCurrentPage > 0) {
-                                        button->animation(7);
-                                        mpScene->setStateAndPlaySelectSound(8);
-                                        return;
-                                    }
+                                           SDButton::smButtonName[SDButton::BTN_ARROW_LEFT]) == 0 &&
+                                    mpScene->mCurrentPage > 0) {
+                                    button->animation(7);
+                                    mpScene->setStateAndPlaySelectSound(8);
+                                    return;
                                 }
 
                                 if (strcmp(paneName,
