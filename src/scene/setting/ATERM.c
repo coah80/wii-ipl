@@ -518,7 +518,7 @@ char gAtermAossSsid[7] = "******";
 extern u32 gAtermUseSharedAddress;
 extern char gAtermProductName[5];
 u32 gAtermCancelRequested;
-u8 gAtermSelectedBssid[8];
+u8 gAtermSelectedBssid[6];
 u32 gAtermProtocolState;
 u8 gAtermAddressBuffer[8];
 u32 gAtermResponseMode;
@@ -761,13 +761,13 @@ int ATERM_8140276C(AtermApRecordSet* currentRecords, AtermApRecordSet* previousR
     AtermApRecord* currentRecord = currentRecords->entries;
     AtermApRecord* previousRecord = previousRecords->entries;
     u32 currentIndex = 0;
-    u32 previousIndex;
+    int found = 0;
     int result = 0;
     u32 ssidLength;
     size_t compareLength;
     size_t aossLength;
     size_t formattedSsidLength;
-    int found = 0;
+    u32 previousIndex;
 
 
     for (; currentIndex < currentRecords->count; currentIndex++) {
@@ -900,7 +900,7 @@ int ATERM_81402A24(void) {
 
     while (iteration < 300 && gAtermCancelRequested == 0) {
         s64 currentTime = OSGetTime();
-        now = (u32)(currentTime / (__mulhwu(0x10624DD3, OS_BUS_CLOCK >> 2) >> 6));
+        now = (u32)OSTicksToMilliseconds(currentTime);
         if (gAtermDeadline <= now) {
             break;
         }
@@ -959,7 +959,7 @@ int ATERM_81402A24(void) {
                 s32 addressIndex = 0;
                 char* output = selectedMacText;
 
-                for (addressIndex = 0; addressIndex < 6; addressIndex++) {
+                for (addressIndex = 0; ; addressIndex++) {
                     u8 addressByte = *addressCursor++;
                     char* encoded = output;
                     s32 highNibble = (addressByte & 0xF0) >> 4;
@@ -976,9 +976,10 @@ int ATERM_81402A24(void) {
                     }
                     *encoded = 0;
                     output += encoded - output;
-                    if (addressIndex < 5) {
-                        *output++ = ':';
+                    if (addressIndex == 5) {
+                        break;
                     }
+                    *output++ = ':';
                 }
                 *output = '\0';
             }
@@ -992,7 +993,7 @@ int ATERM_81402A24(void) {
             progressInfo[2] = -1;
         } else {
             s64 currentTime = OSGetTime();
-            now = (u32)(currentTime / (__mulhwu(0x10624DD3, OS_BUS_CLOCK >> 2) >> 6));
+            now = (u32)OSTicksToMilliseconds(currentTime);
             progressInfo[2] = gAtermDeadline - now;
         }
         progressInfo[3] = gAtermResult;
@@ -1003,7 +1004,7 @@ int ATERM_81402A24(void) {
     if (iteration >= 300) {
         result = -3;
     } else {
-        now = (u32)(OSGetTime() / (__mulhwu(0x10624DD3, OS_BUS_CLOCK >> 2) >> 6));
+        now = (u32)OSTicksToMilliseconds(OSGetTime());
         if (now > gAtermDeadline) {
             result = -3;
         } else {
@@ -1216,10 +1217,11 @@ int ATERM_814031DC(AtermAssociationRequest* request) {
 
 int ATERM_814033F0(u16* response) {
     u16* optionCursor = response + 4;
+    u8* optionValue;
     u16* responseEnd;
     u32 optionType;
     s32 optionLength;
-    u8* optionValue;
+    char* key;
     u32 value;
     s32 result = 0;
 
@@ -1258,7 +1260,7 @@ int ATERM_814033F0(u16* response) {
         case 0x209:
             {
                 u32 keyIndex = optionType - 0x206;
-                char* key = gScanSettings.wirelessKeys[keyIndex].key;
+                key = gScanSettings.wirelessKeys[keyIndex].key;
                 memset(key, 0, sizeof(gScanSettings.wirelessKeys[keyIndex].key));
                 if (gScanSettings.wirelessKeys[0].keyFormat == 1) {
                     s32 byteIndex;
@@ -1337,11 +1339,11 @@ int ATERM_81403614(u8* destination, const char* source, s32 length) {
 
 int ATERM_814036D8(void) {
     s32 result = 1;
-    char* outputKey;
     char* sourceKey;
+    char* outputKey;
+    char* keyString;
     s32 keyIndex;
     size_t keyLength;
-    char* keyString;
     struct {
         char text[32];
         char terminator;
@@ -1357,15 +1359,15 @@ int ATERM_814036D8(void) {
             result = -7;
         } else {
             gAtermConfigurationResult.securityMode = gScanSettings.authAlgorithm;
-            outputKey = (char*)gAtermConfigurationResult.reserved028;
             sourceKey = gScanSettings.wirelessKeys[0].key;
+            keyString = keyText.text;
+            outputKey = (char*)gAtermConfigurationResult.reserved028;
             keyIndex = 0;
 
             do {
                 memcpy(keyText.text, sourceKey, 0x20);
                 keyText.terminator = '\0';
-                keyString = keyText.text;
-                keyLength = strlen(keyString);
+                keyLength = strlen(keyText.text);
                 switch (keyLength) {
                 case 0:
                     break;
@@ -1397,8 +1399,8 @@ int ATERM_814036D8(void) {
                     result = -7;
                     break;
                 }
-                outputKey += 0x20;
                 sourceKey += 0x28;
+                outputKey += 0x20;
                 keyIndex++;
             } while (keyIndex < 4);
         }
@@ -1860,11 +1862,14 @@ int ATERM_81404844(u16* destination, u16* source, u32 length, void* key, u32 key
     union { u32 words[4]; u8 bytes[16]; } block;
     union { u64 value; u8 bytes[8]; } counter;
     u32 initialValue[2];
+    u8* outputBlock;
+    s32 blockOffset;
     u8* destinationBytes;
     const u8* sourceBytes;
-    s32 blockCount;
     u32 rounds;
+    s32 blockCount;
     s32 pass;
+    s32 blockIndex;
     int result = 1;
 
     initialValue[1] = 0xA6A6A6A6;
@@ -1883,12 +1888,12 @@ int ATERM_81404844(u16* destination, u16* source, u32 length, void* key, u32 key
     memcpy(destinationBytes + 8, sourceBytes, length);
     memcpy(block.bytes, initialValue, sizeof(initialValue));
     for (pass = 0; pass < 6; pass++) {
-        s32 blockIndex;
-        for (blockIndex = 1; blockIndex <= blockCount; blockIndex++) {
+        for (blockIndex = 1, blockOffset = 8; blockIndex <= blockCount; blockIndex++, blockOffset += 8) {
             u64 passBase = (u64)(s64)blockCount * (u64)(s64)pass;
             u8* stateBytes = block.bytes;
 
-            memcpy(stateBytes + 8, destinationBytes + blockIndex * 8, 8);
+            outputBlock = destinationBytes + blockOffset;
+            memcpy(stateBytes + 8, outputBlock, 8);
             ATERM_81405254(expandedKey, rounds, stateBytes, stateBytes);
             counter.value = (u64)(s64)blockIndex + passBase;
             stateBytes[0] ^= counter.bytes[0];
@@ -1899,7 +1904,7 @@ int ATERM_81404844(u16* destination, u16* source, u32 length, void* key, u32 key
             stateBytes[5] ^= counter.bytes[5];
             stateBytes[6] ^= counter.bytes[6];
             stateBytes[7] ^= counter.bytes[7];
-            memcpy(destinationBytes + blockIndex * 8, stateBytes + 8, 8);
+            memcpy(outputBlock, stateBytes + 8, 8);
         }
     }
     memcpy(destinationBytes, block.words, 8);
@@ -1913,9 +1918,11 @@ int ATERM_81404A18(u16* destination, u16* source, u32 length, void* key, u32 key
     u32 initialValue[2];
     u8* destinationBytes;
     const u8* sourceBytes;
+    u8* outputBlock;
+    s32 blockIndex;
+    s32 pass;
     s32 blockCount;
     u32 rounds;
-    s32 pass;
     int result = 1;
 
     initialValue[1] = 0xA6A6A6A6;
@@ -1934,11 +1941,9 @@ int ATERM_81404A18(u16* destination, u16* source, u32 length, void* key, u32 key
     memcpy(block.words, sourceBytes, 8);
     memcpy(destinationBytes, sourceBytes + 8, length - 1);
     for (pass = 5; pass >= 0; pass--) {
-        s32 blockIndex;
         for (blockIndex = blockCount; blockIndex > 0; blockIndex--) {
             u64 passBase = (u64)(s64)blockCount * (u64)(s64)pass;
             u8* stateBytes = block.bytes;
-            u8* outputBlock;
 
             counter.value = (u64)(s64)blockIndex + passBase;
             outputBlock = destinationBytes + (blockIndex - 1) * 8;
@@ -1979,10 +1984,10 @@ int ATERM_81404BFC(u32* expandedKey, const void* key, u32 keyBits) {
     u32* roundKey = expandedKey;
 
     u32 keyWord;
+    u32 fourthWord;
     u32 firstWord;
     u32 secondWord;
     u32 thirdWord;
-    u32 fourthWord;
     s32 generatedRounds = 0;
 
     firstWord = (((u32)keyBytes[3] ^ ((u32)keyBytes[2] << 8)) ^ (((u32)keyBytes[0] << 24) ^ ((u32)keyBytes[1] << 16)));
@@ -2091,10 +2096,10 @@ int ATERM_8140502C(u32* expandedKey, const void* key, u32 keyBits) {
     u32* roundKey;
     s32 roundCount;
 
-    s32 firstIndex = 0;
     s32 lastIndex = rounds * 4;
+    s32 firstIndex = 0;
 
-    while (lastIndex > firstIndex) {
+    while (firstIndex < lastIndex) {
         firstIndex += 4;
         lastIndex -= 4;
         {
@@ -2187,21 +2192,21 @@ void ATERM_81405254(const u32* expandedKey, u32 rounds, const u8* input, u8* out
 
     {
         const u32* finalTable = gAtermAesSubstitutionTable;
-        u32 result0 = (((finalTable[next0 >> 24] & 0xFF000000) |
-            (finalTable[(next1 >> 16) & 0xFF] & 0x00FF0000) |
-            (finalTable[(next2 >> 8) & 0xFF] & 0x0000FF00) |
+        u32 result0 = (((finalTable[next0 >> 24] & 0xFF000000) ^
+            (finalTable[(next1 >> 16) & 0xFF] & 0x00FF0000) ^
+            (finalTable[(next2 >> 8) & 0xFF] & 0x0000FF00) ^
             (finalTable[next3 & 0xFF] & 0x000000FF)) ^ expandedKey[0]);
-        u32 result1 = (((finalTable[next1 >> 24] & 0xFF000000) |
-            (finalTable[(next2 >> 16) & 0xFF] & 0x00FF0000) |
-            (finalTable[(next3 >> 8) & 0xFF] & 0x0000FF00) |
+        u32 result1 = (((finalTable[next1 >> 24] & 0xFF000000) ^
+            (finalTable[(next2 >> 16) & 0xFF] & 0x00FF0000) ^
+            (finalTable[(next3 >> 8) & 0xFF] & 0x0000FF00) ^
             (finalTable[next0 & 0xFF] & 0x000000FF)) ^ expandedKey[1]);
-        u32 result2 = (((finalTable[next2 >> 24] & 0xFF000000) |
-            (finalTable[(next3 >> 16) & 0xFF] & 0x00FF0000) |
-            (finalTable[(next0 >> 8) & 0xFF] & 0x0000FF00) |
+        u32 result2 = (((finalTable[next2 >> 24] & 0xFF000000) ^
+            (finalTable[(next3 >> 16) & 0xFF] & 0x00FF0000) ^
+            (finalTable[(next0 >> 8) & 0xFF] & 0x0000FF00) ^
             (finalTable[next1 & 0xFF] & 0x000000FF)) ^ expandedKey[2]);
-        u32 result3 = (((finalTable[next3 >> 24] & 0xFF000000) |
-            (finalTable[(next0 >> 16) & 0xFF] & 0x00FF0000) |
-            (finalTable[(next1 >> 8) & 0xFF] & 0x0000FF00) |
+        u32 result3 = (((finalTable[next3 >> 24] & 0xFF000000) ^
+            (finalTable[(next0 >> 16) & 0xFF] & 0x00FF0000) ^
+            (finalTable[(next1 >> 8) & 0xFF] & 0x0000FF00) ^
             (finalTable[next2 & 0xFF] & 0x000000FF)) ^ expandedKey[3]);
 
         output[0] = result0 >> 24;
@@ -2256,21 +2261,21 @@ void ATERM_81405690(const u32* expandedKey, u32 rounds, const u8* input, u8* out
 
     {
         const u32* finalTable = gAtermAesInverseSubstitutionTable;
-        u32 result0 = (((finalTable[next0 >> 24] & 0xFF000000) |
-            (finalTable[(next3 >> 16) & 0xFF] & 0x00FF0000) |
-            (finalTable[(next2 >> 8) & 0xFF] & 0x0000FF00) |
+        u32 result0 = (((finalTable[next0 >> 24] & 0xFF000000) ^
+            (finalTable[(next3 >> 16) & 0xFF] & 0x00FF0000) ^
+            (finalTable[(next2 >> 8) & 0xFF] & 0x0000FF00) ^
             (finalTable[next1 & 0xFF] & 0x000000FF)) ^ expandedKey[0]);
-        u32 result1 = (((finalTable[next1 >> 24] & 0xFF000000) |
-            (finalTable[(next0 >> 16) & 0xFF] & 0x00FF0000) |
-            (finalTable[(next3 >> 8) & 0xFF] & 0x0000FF00) |
+        u32 result1 = (((finalTable[next1 >> 24] & 0xFF000000) ^
+            (finalTable[(next0 >> 16) & 0xFF] & 0x00FF0000) ^
+            (finalTable[(next3 >> 8) & 0xFF] & 0x0000FF00) ^
             (finalTable[next2 & 0xFF] & 0x000000FF)) ^ expandedKey[1]);
-        u32 result2 = (((finalTable[next2 >> 24] & 0xFF000000) |
-            (finalTable[(next1 >> 16) & 0xFF] & 0x00FF0000) |
-            (finalTable[(next0 >> 8) & 0xFF] & 0x0000FF00) |
+        u32 result2 = (((finalTable[next2 >> 24] & 0xFF000000) ^
+            (finalTable[(next1 >> 16) & 0xFF] & 0x00FF0000) ^
+            (finalTable[(next0 >> 8) & 0xFF] & 0x0000FF00) ^
             (finalTable[next3 & 0xFF] & 0x000000FF)) ^ expandedKey[2]);
-        u32 result3 = (((finalTable[next3 >> 24] & 0xFF000000) |
-            (finalTable[(next2 >> 16) & 0xFF] & 0x00FF0000) |
-            (finalTable[(next1 >> 8) & 0xFF] & 0x0000FF00) |
+        u32 result3 = (((finalTable[next3 >> 24] & 0xFF000000) ^
+            (finalTable[(next2 >> 16) & 0xFF] & 0x00FF0000) ^
+            (finalTable[(next1 >> 8) & 0xFF] & 0x0000FF00) ^
             (finalTable[next0 & 0xFF] & 0x000000FF)) ^ expandedKey[3]);
 
         output[0] = result0 >> 24;
@@ -2457,9 +2462,7 @@ int ATERMi_ApConfigStart(OSPriority priority, u32 scanLimit,
     gAtermState = 1;
     {
         OSTime currentTime = OSGetTime();
-        u32 busClock = OS_BUS_CLOCK >> 2;
-        u32 reciprocal = 0x10624DD3;
-        gAtermDeadline = (u32)(currentTime / (__mulhwu(busClock, reciprocal) >> 6)) + 60000;
+        gAtermDeadline = (u32)OSTicksToMilliseconds(currentTime) + 60000;
     }
     gAtermCancelRequested = 0;
     memset(&gAtermConfigurationResult, 0, 0xE8);
@@ -2499,7 +2502,7 @@ int ATERMi_ApConfigEnd(void) {
             OSCreateAlarm(&cancelAlarm);
             OSSetAlarmTag(&cancelAlarm, (u32)&cancelQueue);
             OSSetAlarm(&cancelAlarm,
-                       (__mulhwu(0x10624DD3, OS_BUS_CLOCK >> 2) >> 6) * 100,
+                       OSMillisecondsToTicks(100),
                        ATERM_8140684C);
             OSReceiveMessage(&cancelQueue, &cancelMessage, 1);
         }
@@ -2508,7 +2511,7 @@ int ATERMi_ApConfigEnd(void) {
         OSCreateAlarm(&joinAlarm);
         OSSetAlarmTag(&joinAlarm, (u32)&joinQueue);
         OSSetAlarm(&joinAlarm,
-                   (__mulhwu(0x10624DD3, OS_BUS_CLOCK >> 2) >> 6) * 500,
+                   OSMillisecondsToTicks(500),
                    ATERM_8140684C);
         OSReceiveMessage(&joinQueue, &joinMessage, 1);
         while (OSIsThreadTerminated(&sAtermThread) == 0) {
@@ -2527,10 +2530,7 @@ int ATERMi_ApConfigEnd(void) {
                 progress.remainingTime = -1;
             } else {
                 OSTime now = OSGetTime();
-                u32 busClock = OS_BUS_CLOCK >> 2;
-                u32 reciprocal = 0x10624DD3;
-                u32 ticksPerMillisecond = __mulhwu(reciprocal, busClock) >> 6;
-                u32 elapsedMilliseconds = (u32)(now / ticksPerMillisecond);
+                u32 elapsedMilliseconds = (u32)OSTicksToMilliseconds(now);
                 progress.remainingTime = gAtermDeadline - elapsedMilliseconds;
             }
             progress.result = gAtermResult;
@@ -2546,10 +2546,7 @@ int ATERMi_ApConfigGetState(AtermProgress* progress) {
         progress->remainingTime = -1;
     } else {
         OSTime currentTime = OSGetTime();
-        u32 busClock = OS_BUS_CLOCK >> 2;
-        u32 reciprocal = 0x10624DD3;
-        u32 ticksPerMillisecond = __mulhwu(busClock, reciprocal) >> 6;
-        u32 elapsedMilliseconds = (u32)(currentTime / ticksPerMillisecond);
+        u32 elapsedMilliseconds = (u32)OSTicksToMilliseconds(currentTime);
         progress->remainingTime = gAtermDeadline - elapsedMilliseconds;
     }
     progress->result = gAtermResult;
