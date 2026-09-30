@@ -741,20 +741,27 @@ s32 pfd_sddrv_get_total_sectors(u32* sectors, u16* bytes_per_sector) {
     return 0;
 }
 
+static inline u32 pfd_sddrv_encode_serial(s32 year, s32 month, s32 day, s32 hour, s32 minute, s32 second) {
+    u32 date;
+    u32 time;
+    date = (day & 0x1f) | ((month & 0xf) << 5) | (((year - 1900) & 0x7f) << 9);
+    time = (second & 0x1f) | ((minute & 0x3f) << 5) | ((hour & 0x1f) << 11);
+    return (date << 16) + time;
+}
+
 s32 pfd_sddrv_calc_mbr_bpb(PFD_SDDRV_FORMAT_DATA* format_data) {
-    const PFD_SDDRV_SIZE_DEPEND* size_entry;
     PFD_SDDRV_SIZE_SETTINGS settings;
     u32 entry_index;
     u32 requested_sectors;
-    u32 fat_entry_bits;
-    u32 fat_sectors;
-    u32 next_fat_sectors;
-    u32 total_sectors;
-    u8 sectors_per_cluster;
+    const PFD_SDDRV_SIZE_DEPEND* size_entry;
+    u32 current_start;
     u32 reserved_sectors;
+    u32 total_sectors;
+    u32 fat_sectors;
+    u32 fat_entry_bits;
     u32 fixed_sectors;
     u32 start_sector;
-    u32 current_start;
+    u32 next_fat_sectors;
     u32 clusters;
     u32 candidate_fat_sectors;
     u32 reserve_count;
@@ -782,10 +789,9 @@ s32 pfd_sddrv_calc_mbr_bpb(PFD_SDDRV_FORMAT_DATA* format_data) {
         OSReport("ERR Failed to get values with total sectors. pfd_sddrv_get_value_with_total_sectors()\n");
         return result;
     }
-    sectors_per_cluster = settings.sectors_per_cluster;
-    format_data->sectors_per_cluster = sectors_per_cluster;
+    format_data->sectors_per_cluster = settings.sectors_per_cluster;
     total_sectors = format_data->total_sectors;
-    clusters = total_sectors / sectors_per_cluster;
+    clusters = total_sectors / format_data->sectors_per_cluster;
     if (clusters < 0x1005) {
         fat_entry_bits = 12;
     } else if (clusters < 0xfff5) {
@@ -793,7 +799,7 @@ s32 pfd_sddrv_calc_mbr_bpb(PFD_SDDRV_FORMAT_DATA* format_data) {
     } else {
         return -31;
     }
-    if (total_sectors % sectors_per_cluster != 0) {
+    if (total_sectors % format_data->sectors_per_cluster != 0) {
         clusters++;
     }
     candidate_fat_sectors = clusters * fat_entry_bits;
@@ -820,7 +826,7 @@ s32 pfd_sddrv_calc_mbr_bpb(PFD_SDDRV_FORMAT_DATA* format_data) {
                 start_sector += reserved_sectors;
             }
             moved_start = 0;
-            clusters = (total_sectors - start_sector - fixed_sectors) / sectors_per_cluster + 1;
+            clusters = (total_sectors - start_sector - fixed_sectors) / format_data->sectors_per_cluster + 1;
             if (clusters >= 0xfe5 && clusters < 0x1005) {
                 current_start += reserved_sectors;
                 start_sector = current_start - fixed_sectors;
@@ -845,7 +851,7 @@ s32 pfd_sddrv_calc_mbr_bpb(PFD_SDDRV_FORMAT_DATA* format_data) {
     format_data->sectors_per_fat = fat_sectors;
     format_data->partition_start_sector = start_sector;
     format_data->partition_sector_count = format_data->total_sectors - start_sector;
-    clusters = (format_data->partition_sector_count - (fat_sectors * 2 + 0x21)) / format_data->sectors_per_cluster + 1;
+    clusters = (format_data->partition_sector_count - (format_data->sectors_per_fat * 2 + 0x21)) / format_data->sectors_per_cluster + 1;
     if (clusters < 0xff5) {
         format_data->fat_type = 0;
     } else if (clusters >= 0xff5) {
@@ -854,12 +860,8 @@ s32 pfd_sddrv_calc_mbr_bpb(PFD_SDDRV_FORMAT_DATA* format_data) {
         return -31;
     }
     OSTicksToCalendarTime(OSGetTime(), &current_time);
-    format_data->volume_serial_number = ((((current_time.year - 1900) & 0x7f) << 9) |
-                                         ((current_time.mon & 0xf) << 5) |
-                                         (current_time.mday & 0x1f)) * 0x10000 +
-                                        (((current_time.hour & 0x1f) << 11) |
-                                         ((current_time.min & 0x3f) << 5) |
-                                         (current_time.sec & 0x1f));
+    format_data->volume_serial_number = pfd_sddrv_encode_serial(current_time.year, current_time.mon, current_time.mday,
+                                                               current_time.hour, current_time.min, current_time.sec);
     return 0;
 }
 
@@ -936,21 +938,21 @@ s32 pfd_sddrv_store_bpb_buf(PFD_SDDRV_FORMAT_DATA* format_data, u8* sector_buffe
 }
 
 s32 pfd_sddrv_store_mbr_buf(PFD_SDDRV_FORMAT_DATA* format_data, u8* sector_buffer) {
-    const PFD_SDDRV_SIZE_DEPEND* size_entry;
     PFD_SDDRV_SIZE_SETTINGS settings;
     PFD_SDDRV_MBR* master_boot_record;
     PFD_SDDRV_PARTITION_ENTRY* partition;
     u32 entry_index;
     u32 requested_sectors;
+    const PFD_SDDRV_SIZE_DEPEND* size_entry;
     s32 result;
-    u8 start_head;
-    u8 end_head;
     u8 partition_type;
-    u32 sectors_per_cylinder;
-    u16 start_cylinder;
-    u16 end_cylinder;
+    u8 start_head;
     u16 start_sector;
+    u16 start_cylinder;
+    u8 end_head;
     u16 end_sector;
+    u16 end_cylinder;
+    u32 sectors_per_cylinder;
 
     if (format_data == 0) {
         return -30;
@@ -1056,8 +1058,9 @@ s32 pfd_sddrv_build_mbr_bpb(u32 total_sectors) {
 }
 
 s32 pfd_sddrv_calc_fat32_mbr_bpb(PFD_SDDRV_FORMAT_DATA* format_data) {
-    u32 available_sectors;
+    u8 sectors_per_cluster;
     u32 fat_sector_count;
+    u32 available_sectors;
     u32 fat_sectors;
     u32 cluster_count;
     u32 entry_index;
@@ -1070,10 +1073,7 @@ s32 pfd_sddrv_calc_fat32_mbr_bpb(PFD_SDDRV_FORMAT_DATA* format_data) {
     u32 attempts;
     s32 result;
     u32 next_data_region;
-    u32 date;
-    u32 time;
     u32 total_sectors;
-    u8 sectors_per_cluster;
     OSCalendarTime current_time;
 
     if (format_data == 0) {
@@ -1149,15 +1149,10 @@ s32 pfd_sddrv_calc_fat32_mbr_bpb(PFD_SDDRV_FORMAT_DATA* format_data) {
     format_data->sectors_per_fat = fat_sectors;
     format_data->reserved_sectors = reserved_sectors;
     format_data->partition_start_sector = 0x2000;
-    format_data->partition_sector_count = total_sectors - 0x2000;
+    format_data->partition_sector_count = format_data->total_sectors - 0x2000;
     OSTicksToCalendarTime(OSGetTime(), &current_time);
-    time = ((current_time.hour & 0x1f) << 11) |
-           ((current_time.min & 0x3f) << 5) |
-           (current_time.sec & 0x1f);
-    date = (((current_time.year - 1900) & 0x7f) << 9) |
-           ((current_time.mon & 0xf) << 5) |
-           (current_time.mday & 0x1f);
-    format_data->volume_serial_number = time + date * 0x10000;
+    format_data->volume_serial_number = pfd_sddrv_encode_serial(current_time.year, current_time.mon, current_time.mday,
+                                                               current_time.hour, current_time.min, current_time.sec);
     return 0;
 }
 
