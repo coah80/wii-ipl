@@ -93,3 +93,13 @@ forbidden patterns added (net, per file): 0
 readability warnings (net, per file; must be 0 in the final result): 0
 GATE PASS
 ```
+
+## Follow-up matching attempts, 2026-09-30
+
+Starting this continuation: 4/9 instruction-exact, code 2588/21460, data 1160/1388. Configuration stayed NonMatching throughout these attempts. All experiments were scoped to the named function, built as 43U and measured with ctxdiff. Rejected variants were restored.
+
+- Zi8SpellingZY: reversed scalar declarations (123/123, ten differences); expressed the final-row access with pointer arithmetic (123/123, six differences); used a typed four-byte row structure (123/123, six differences). Retained the six-difference baseline.
+- Zi8SpellingPY: moved tone declaration first (158/157); used a signed tone (159/157); changed the spelling scans to postfix increments (158/157). None removed the register-held tone or restored the target stack slot.
+- MatchAltSound1Key: reversed scalar declarations (339/341); made the signed midpoint sum explicit (339/341); changed backward-search decrement to assignment (339/341). None fixed table-load/search ordering.
+- Zi8Get1KeyPressSpelling: unsigned terminator equality (1571/1700, 59.628235%); reverse local declarations (1572/1700, 59.968235%); integer expansion count and integer boolean conversions (1536/1700, 59.57353%). All scored below the starting 59.97%; retained the baseline.
+- Zi8Get1KeyPressCandidates: reverse local declarations (2775/2397, 53.831455%); while-form terminator trimming (2773/2397, 53.523155%); explicit unsigned charset result (2775/2397, 53.775135%). Retained the small fuzzy-score improvement from reversing the candidate function declarations; instruction count and the target stack-layout mismatch remain unchanged. This is a partial improvement, not an exact match. No additional exact function was found.
