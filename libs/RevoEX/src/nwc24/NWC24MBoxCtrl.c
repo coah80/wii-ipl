@@ -243,10 +243,11 @@ BOOL NWC24iIsMsgObjReadable(const MBCEntry* entry) {
 NWC24Err NWC24GetMsgIdList(NWC24MBoxType type, u32* ids, u32 maxLength) {
     MBCHeader* header;
     NWC24File file;
-    NWC24Err result, err, closeResult;
-    u32 count, offset;
+    NWC24Err result;
     char* path;
-    u32* next;
+    NWC24Err err, closeResult;
+    u32 offset;
+    u32 count;
     MBCEntry* entry;
     if (!NWC24IsMsgLibOpened() && !NWC24IsMsgLibOpenedByTool())
         return NWC24_ERR_LIB_NOT_OPENED;
@@ -262,7 +263,6 @@ NWC24Err NWC24GetMsgIdList(NWC24MBoxType type, u32* ids, u32 maxLength) {
     if (result != NWC24_OK)
         return result;
     count = 0;
-    next = ids;
     for (offset = 128; offset < header->fileSize; offset += 128) {
         err = NWC24FSeek(&file, offset, NWC24_SEEK_BEG);
         if (err != NWC24_OK) {
@@ -275,7 +275,7 @@ NWC24Err NWC24GetMsgIdList(NWC24MBoxType type, u32* ids, u32 maxLength) {
             break;
         }
         if (entry->msgId != 0 && entry->msgId <= 1000000) {
-            *next++ = entry->msgId;
+            ids[count] = entry->msgId;
             ++count;
             if (count == header->numMessages) {
                 result = NWC24_OK;
@@ -560,28 +560,30 @@ static inline void GetOldestMsgId(const MBCHeader* header, u32* id) {
 }
 
 NWC24Err NWC24iMBoxCheck(NWC24MBoxType type, u32 size) {
-    u32 oldestId;
     u32 required;
-    MBCHeader* header;
+    struct {
+        u32 oldestId;
+        MBCHeader* header;
+    } mailbox;
     NWC24Err err;
     if (size >= 0x31C00)
         return NWC24_ERR_OVERFLOW;
     required = size + 0x4000;
-    err = GetCachedMBCHeader(type, &header);
+    err = GetCachedMBCHeader(type, &mailbox.header);
     if (err != NWC24_OK)
         return err;
     if (type == NWC24_MBOX_TYPE_SEND) {
-        if (header->numMessages >= header->capacity)
+        if (mailbox.header->numMessages >= mailbox.header->capacity)
             return NWC24_ERR_FULL;
-        if (header->freeBytes <= required)
+        if (mailbox.header->freeBytes <= required)
             return NWC24_ERR_FULL;
     } else if (type == NWC24_MBOX_TYPE_RECV) {
-        while (header->numMessages >= header->capacity || header->freeBytes <= required) {
-            GetOldestMsgId(header, &oldestId);
-            err = DeleteMsg(type, oldestId, FALSE);
+        while (mailbox.header->numMessages >= mailbox.header->capacity || mailbox.header->freeBytes <= required) {
+            GetOldestMsgId(mailbox.header, &mailbox.oldestId);
+            err = DeleteMsg(type, mailbox.oldestId, FALSE);
             if (err != NWC24_OK)
                 return err;
-            err = GetCachedMBCHeader(type, &header);
+            err = GetCachedMBCHeader(type, &mailbox.header);
             if (err != NWC24_OK)
                 return err;
         }
@@ -664,13 +666,14 @@ static inline int CompareMsgId(u32 left, u32 right) {
 static NWC24Err DeleteMsg(NWC24MBoxType type, u32 id, BOOL protect) {
     MBCHeader* header;
     NWC24File file;
-    MBCEntry* entry;
-    char* path;
+    NWC24Err result;
     u32 count = 0;
+    u32 offset;
     u32 foundOffset = 0;
     u32 oldest = 0;
-    u32 offset;
-    NWC24Err err, result, clearResult, deleteResult, writeResult, closeResult;
+    MBCEntry* entry;
+    char* path;
+    NWC24Err err, deleteResult, closeResult;
     if (!NWC24IsMsgLibOpened() && !NWC24IsMsgLibOpenedByTool())
         return NWC24_ERR_LIB_NOT_OPENED;
     entry = (MBCEntry*)NWC24WorkP->unk_0x1800;
@@ -687,11 +690,15 @@ static NWC24Err DeleteMsg(NWC24MBoxType type, u32 id, BOOL protect) {
     result = NWC24_ERR_NOT_FOUND;
     for (offset = 128; offset < header->fileSize; offset += 128) {
         err = NWC24FSeek(&file, offset, NWC24_SEEK_BEG);
-        if (err != NWC24_OK)
+        if (err != NWC24_OK) {
+            result = err;
             break;
+        }
         err = NWC24FRead(entry, 128, &file);
-        if (err != NWC24_OK)
+        if (err != NWC24_OK) {
+            result = err;
             break;
+        }
         if (entry->msgId == 0)
             continue;
         ++count;
@@ -699,12 +706,12 @@ static NWC24Err DeleteMsg(NWC24MBoxType type, u32 id, BOOL protect) {
             if (protect) {
                 if ((entry->type & 2) && entry->appId == 0) {
                     if (NWC24GetAppId() != 0x48414541) {
-                        err = NWC24_ERR_PROTECTED;
+                        result = NWC24_ERR_PROTECTED;
                         break;
                     }
                 } else if ((entry->appId & 0xFFFFFF00) != (NWC24GetAppId() & 0xFFFFFF00)) {
                     if (!(entry->type & 8) || NWC24GetAppId() != 0x48414541) {
-                        err = NWC24_ERR_PROTECTED;
+                        result = NWC24_ERR_PROTECTED;
                         break;
                     }
                 }
@@ -714,41 +721,43 @@ static NWC24Err DeleteMsg(NWC24MBoxType type, u32 id, BOOL protect) {
         } else if (oldest == 0 || CompareMsgId(oldest, entry->msgId) > 0)
             oldest = entry->msgId;
     }
-    if (offset >= header->fileSize)
-        err = result;
+    err = result;
     if (err == NWC24_ERR_NOT_FOUND && header->numMessages != count) {
         header->numMessages = count;
-        if (NWC24FSeek(&file, 0, NWC24_SEEK_BEG) == NWC24_OK)
-            NWC24FWrite(header, 128, &file);
+        WriteMBCHeader(header, &file);
     }
     if (err != NWC24_OK) {
         NWC24FClose(&file);
         return id == 0 ? NWC24_ERR_INVALID_VALUE : err;
     }
     header->oldestId = oldest;
-    clearResult = ClearMBCEntry(header, &file, foundOffset);
+    protect = ClearMBCEntry(header, &file, foundOffset);
     deleteResult = DeleteMsgFile(type, id);
-    if (clearResult != NWC24_OK)
-        deleteResult = clearResult;
-    writeResult = NWC24FSeek(&file, 0, NWC24_SEEK_BEG);
-    if (writeResult == NWC24_OK)
-        writeResult = NWC24FWrite(header, 128, &file);
+    if (protect != NWC24_OK)
+        deleteResult = protect;
+    type = WriteMBCHeader(header, &file);
     if (deleteResult != NWC24_OK)
-        writeResult = deleteResult;
+        type = deleteResult;
     closeResult = NWC24FClose(&file);
-    return writeResult != NWC24_OK ? writeResult : closeResult;
+    return type != NWC24_OK ? type : closeResult;
 }
 
 static NWC24Err DuplicationCheck(MBCHeader* header, const NWC24MsgObjPrivate* msg, NWC24File* file, NWC24MBoxType type) {
-    MBCEntry* entry;
-    u32 count = 0, oldest = 0, duplicateId = 0, duplicateOffset = 0;
+    NWC24Err err = NWC24_OK;
     u32 offset;
+    u32 count = 0;
+    u32 duplicateId = 0;
+    u32 duplicateOffset = 0;
+    u32 oldest = 0;
+    MBCEntry* entry;
     BOOL candidate;
-    NWC24Err err = NWC24_OK, clearResult, deleteResult;
+    NWC24Err clearResult, deleteResult;
     if (type == NWC24_MBOX_TYPE_SEND)
         return NWC24_OK;
     entry = (MBCEntry*)NWC24WorkP->unk_0x1800;
-    for (offset = 128; offset < header->fileSize && count < header->numMessages; offset += 128) {
+    for (offset = 128; offset < header->fileSize; offset += 128) {
+        if (count >= header->numMessages)
+            break;
         err = NWC24FSeek(file, offset, NWC24_SEEK_BEG);
         if (err != NWC24_OK)
             break;
@@ -758,31 +767,40 @@ static NWC24Err DuplicationCheck(MBCHeader* header, const NWC24MsgObjPrivate* ms
         if (entry->msgId == 0)
             continue;
         ++count;
-        candidate = entry->msgId != msg->msgId;
+        candidate = TRUE;
+        if (entry->msgId == msg->msgId)
+            candidate = FALSE;
         if (entry->type & msg->type & 1) {
             if (entry->appId != msg->appId)
                 candidate = FALSE;
             if (entry->fromId != msg->fromId)
                 candidate = FALSE;
         }
-        if (candidate && (((msg->tag & 0xFFFF) && (entry->tag & 0xFFFF) == (msg->tag & 0xFFFF)) ||
-                          (msg->unk_0x1C != 0 && entry->crc == msg->unk_0x1C && entry->type == msg->type && entry->length == msg->length &&
-                           entry->flags == msg->unk_0x10 && entry->date == msg->unk_0x28))) {
-            duplicateOffset = offset;
-            duplicateId = entry->msgId;
-        } else {
-            if (oldest == 0 || CompareMsgId(oldest, entry->msgId) > 0)
-                oldest = entry->msgId;
+        if (candidate) {
+            if ((msg->tag & 0xFFFF) && (entry->tag & 0xFFFF) == (msg->tag & 0xFFFF)) {
+                duplicateId = entry->msgId;
+                duplicateOffset = offset;
+                continue;
+            }
+            if (msg->unk_0x1C != 0 && entry->crc == msg->unk_0x1C && entry->type == msg->type && entry->length == msg->length &&
+                entry->flags == msg->unk_0x10 && (s32)entry->date == (s32)msg->unk_0x28) {
+                duplicateId = entry->msgId;
+                duplicateOffset = offset;
+                continue;
+            }
         }
+        if (oldest == 0 || CompareMsgId(oldest, entry->msgId) > 0)
+            oldest = entry->msgId;
     }
     if (err != NWC24_OK)
         return err;
     header->oldestId = oldest;
-    if (duplicateId == 0)
-        return err;
-    clearResult = ClearMBCEntry(header, file, duplicateOffset);
-    deleteResult = DeleteMsgFile(type, duplicateId);
-    return clearResult != NWC24_OK ? clearResult : deleteResult;
+    if (duplicateId != 0) {
+        clearResult = ClearMBCEntry(header, file, duplicateOffset);
+        deleteResult = DeleteMsgFile(type, duplicateId);
+        return clearResult != NWC24_OK ? clearResult : deleteResult;
+    }
+    return err;
 }
 
 static NWC24Err GetCachedMBCHeader(NWC24MBoxType type, MBCHeader** header) {
