@@ -1933,30 +1933,30 @@ void ipl::scene::AddressEdit::stt_add_code_input() {
 }
 
 void ipl::scene::AddressEdit::stt_add_code_fadeout() {
-    ipl::layout::Animator* pane = mpNameLayout->getAnim(5);
+    ipl::utility::FrameController* pane = mpNameLayout->getAnim(5);
     if (!pane->isPlaying()) {
         pane = mpNameLayout->getAnim(6);
         if (!pane->isPlaying()) {
             nw4r::lyt::Pane* label = (mpNameLayout)->getNW4RLyt()->GetRootPane()->FindPaneByName(
                 reinterpret_cast<const char*>("T_question_00"), true);
             set_textbox(label, ipl::System::getMessage(0x32));
-            label = (mpNameLayout)->getNW4RLyt()->GetRootPane()->FindPaneByName(
+            nw4r::lyt::Pane* messageLabel = (mpNameLayout)->getNW4RLyt()->GetRootPane()->FindPaneByName(
                 reinterpret_cast<const char*>("T_msg_00"), true);
-            set_textbox(label, ipl::System::getMessage(0x49));
-            label = (mpNameLayout)->getNW4RLyt()->GetRootPane()->FindPaneByName(
+            set_textbox(messageLabel, ipl::System::getMessage(0x49));
+            nw4r::lyt::Pane* nameLabel = (mpNameLayout)->getNW4RLyt()->GetRootPane()->FindPaneByName(
                     reinterpret_cast<const char*>("T_name_00"), true);
-            set_textbox(label, mString.mName);
-            pane = mpNameLayout->getAnim(1);
-            pane->initFrame();
-            pane->restart();
+            set_textbox(nameLabel, mString.mName);
+            ipl::utility::FrameController* fade = mpNameLayout->getAnim(1);
+            fade->initFrame();
+            fade->restart();
             if (mString.mName[0] != 0) {
-                pane = mpNameLayout->getAnim(2);
-                pane->initFrame();
-                pane->restart();
+                ipl::utility::FrameController* nameFade = mpNameLayout->getAnim(2);
+                nameFade->initFrame();
+                nameFade->restart();
             } else {
-                pane = mpNameLayout->getAnim(3);
-                pane->initFrame();
-                pane->restart();
+                ipl::utility::FrameController* nameFade = mpNameLayout->getAnim(3);
+                nameFade->initFrame();
+                nameFade->restart();
             }
             ipl::System::getKeyboard()->init();
             mState = 0x18;
