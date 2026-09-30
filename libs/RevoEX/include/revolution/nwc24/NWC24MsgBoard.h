@@ -104,7 +104,7 @@ NWC24Err NWC24ReadMsgMBOptOutFlag(const NWC24MsgObj* msg, BOOL* mbOptOutFlag, u3
 NWC24Err NWC24ReadMsgFromAddr(const NWC24MsgObj* msg, char* addr, u32 addrLen);
 NWC24Err NWC24ReadMsgSubject(const NWC24MsgObj* msg, char* subject, u32 subjectLen);
 NWC24Err NWC24ReadMsgText(const NWC24MsgObj* msg, char* text, u32 textLen, NWC24Charset* charset, NWC24Encoding* encoding);
-#ifdef NWC24_MSG_SUBJECT
+#if defined(NWC24_MSG_SUBJECT) || defined(NWC24_MSG_READ)
 NWC24Err NWC24ReadMsgTextEx(const NWC24MsgObj* msg, char* text, u32 textLen, char* name, u32 nameLen);
 #else
 NWC24Err NWC24ReadMsgTextEx(const NWC24MsgObj* msg, char* text, u32 textLen, const char* name, u32 nameLen, NWC24Charset* charset,

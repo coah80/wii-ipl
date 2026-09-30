@@ -21,7 +21,9 @@ typedef struct NWC24MsgObjPrivate {
     u32 type;    // 0x04
     u32 length;  // 0x08
     u32 appId;   // 0x0C
-#if defined(NWC24_MBOX_CTRL) || defined(NWC24_MSG_COMMIT)
+#ifdef NWC24_MSG_READ
+    u32 headerSize;
+#elif defined(NWC24_MBOX_CTRL) || defined(NWC24_MSG_COMMIT)
     u32 unk_0x10;
 #else
     u8 unk_0x10[0x4];
