@@ -749,12 +749,10 @@ unlock_driver:
 int ATERM_8140276C(AtermApRecordSet* currentRecords, AtermApRecordSet* previousRecords,
                    u32* changedIndex) {
     AtermApRecord* currentRecord = currentRecords->entries;
+    AtermApRecord* prevEntries = previousRecords->entries;
     AtermApRecord* previousRecord;
     u32 currentIndex;
     u32 previousIndex;
-    u32 resultIndex = 0;
-    u32 ssidLength;
-    size_t compareLength;
     size_t aossLength;
     size_t formattedSsidLength;
     int found = 0;
@@ -774,16 +772,15 @@ int ATERM_8140276C(AtermApRecordSet* currentRecords, AtermApRecordSet* previousR
         ssidName.clear.finalWord = 0;
         memcpy(ssidName.text, currentRecord->ssid, sizeof(currentRecord->ssid));
         ssidName.text[currentRecord->ssidLength] = '\0';
-        previousRecord = previousRecords->entries;
+        previousRecord = prevEntries;
         for (previousIndex = 0; previousIndex < previousRecords->count; previousIndex++) {
-            ssidLength = currentRecord->ssidLength;
-            if (ssidLength == 0 || ssidLength > sizeof(currentRecord->ssid) ||
-                (ssidLength == 1 && (currentRecord->ssid[0] == '\0' ||
-                                     currentRecord->ssid[0] == ' '))) {
+            if (currentRecord->ssidLength == 0 ||
+                currentRecord->ssidLength > sizeof(currentRecord->ssid) ||
+                (currentRecord->ssidLength == 1 &&
+                 (currentRecord->ssid[0] == '\0' || currentRecord->ssid[0] == ' '))) {
                 break;
             }
-            compareLength = strlen(ssidName.text);
-            if (memcmp(ssidName.text, previousRecord->ssid, compareLength) == 0 &&
+            if (memcmp(ssidName.text, previousRecord->ssid, strlen(ssidName.text)) == 0 &&
                 memcmp(currentRecord->bssid, previousRecord->bssid,
                        sizeof(currentRecord->bssid)) == 0 &&
                 currentRecord->status != previousRecord->status && currentRecord->status == 0) {
@@ -847,8 +844,7 @@ int ATERM_8140276C(AtermApRecordSet* currentRecords, AtermApRecordSet* previousR
     }
 
     if (found) {
-        resultIndex = currentIndex;
-        *changedIndex = resultIndex;
+        *changedIndex = currentIndex;
     }
     return found;
 }
@@ -1318,28 +1314,29 @@ int ATERM_81403614(u8* destination, const char* source, s32 length) {
     while (length > 0) {
         s32 character = *source;
 
-        if (character >= 'G') {
-            if (character >= 'g') {
-                goto fail;
-            }
-            if (character < 'a') {
-                goto fail;
+        if (character < 'G') {
+            if (character < ':') {
+                if (character >= '0') {
+                    value += character - '0';
+                } else {
+                    goto fail;
+                }
             } else {
-                value += character - 'W';
+                if (character >= 'A') {
+                    value += character - '7';
+                } else {
+                    goto fail;
+                }
             }
         } else {
-            if (character < ':') {
-                if (character < '0') {
-                    goto fail;
+            if (character < 'g') {
+                if (character >= 'a') {
+                    value += character - 'W';
                 } else {
-                    value += character - '0';
+                    goto fail;
                 }
             } else {
-                if (character < 'A') {
-                    goto fail;
-                } else {
-                    value += character - '7';
-                }
+                goto fail;
             }
         }
         if (characterIndex % 2 == 0) {
