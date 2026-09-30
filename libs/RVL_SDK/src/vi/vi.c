@@ -257,10 +257,9 @@ position_interrupt:
         PreCB(retraceCount);
     }
     if (vsync_timing_test_flag != 0) {
-        u32 previousVertical;
-        u32 horizontal;
         u32 vertical;
-        u32 currentLine;
+        u32 horizontal;
+        u32 previousVertical;
 
         vertical = __VIRegs[22] & 0x7FF;
         do {
@@ -268,8 +267,7 @@ position_interrupt:
             horizontal = __VIRegs[23] & 0x7FF;
             vertical = __VIRegs[22] & 0x7FF;
         } while (previousVertical != vertical);
-        currentLine = (CurrTiming->nhlines / 2) + 1;
-        if (vertical != 1 && vertical != currentLine) {
+        if (vertical != 1 && vertical != (CurrTiming->nhlines / 2) + 1) {
             vsync_timing_err_cnt++;
         }
     }
@@ -580,10 +578,8 @@ static void ImportAdjustingValues(void)
 void VIInit(void)
 {
     u16 displayConfig;
-    u32 __VIDimmingFlag_Enable_old;
     u32 __VIDVDStopFlag_Enable_old;
     s32 format;
-    BOOL flag;
     u32 value;
     u32 tv;
     u32 bootromTv;
@@ -676,12 +672,7 @@ void VIInit(void)
     g_current_time_to_dim = 0;
     __VIDimming_All_Clear = 1;
     __VIDimmingState = 0;
-    flag = TRUE;
-    __VIDimmingFlag_Enable_old = __VIDimmingFlag_Enable;
-    if (SCGetScreenSaverMode() == 0) {
-        flag = FALSE;
-    }
-    __VIDimmingFlag_Enable = flag;
+    VIEnableDimming(TRUE);
     __VIDVDStopFlag_Enable_old = __VIDVDStopFlag_Enable;
     __VIDVDStopFlag_Enable = FALSE;
     __VISetRevolutionModeSimple();
@@ -989,6 +980,8 @@ void VIConfigure(const GXRenderModeObj* renderMode)
     VITiming* currentTiming;
     u32 register1;
     u32 register54;
+    u16 originalRegister1;
+    u32 originalRegister54;
     BOOL enabled;
     u32 nonInter;
     u32 tvInBootrom;
@@ -1041,18 +1034,18 @@ void VIConfigure(const GXRenderModeObj* renderMode)
     HorVer.timing = currentTiming;
     AdjustPosition(currentTiming->acv);
     setInterruptRegs(currentTiming);
-    register1 = regs[1];
-    register54 = regs[54];
+    originalRegister1 = regs[1];
+    originalRegister54 = regs[54];
     if (HorVer.nonInter == 2 || HorVer.nonInter == 3) {
-        register1 = (register1 & ~4) | (1 << 2);
+        register1 = ((u32)originalRegister1 & ~4) | (1 << 2);
         if (HorVer.tv == 8) {
-            register54 = register54 & ~1;
+            register54 = (u32)originalRegister54 & ~1;
         } else {
-            register54 = (register54 & ~1) | 1;
+            register54 = ((u32)originalRegister54 & ~1) | 1;
         }
     } else {
-        register1 = (register1 & ~4) | ((HorVer.nonInter & 1) << 2);
-        register54 = register54 & ~1;
+        register1 = ((u32)originalRegister1 & ~4) | ((HorVer.nonInter & 1) << 2);
+        register54 = (u32)originalRegister54 & ~1;
     }
     register1 = (register1 & ~8) | (HorVer.threeD << 3);
     if (HorVer.tv == VI_PAL || HorVer.tv == VI_MPAL || HorVer.tv == 3) {
@@ -1187,7 +1180,7 @@ static u32 getCurrentHalfLine(void)
             break;
         }
     }
-    return ((verticalCount - 1) * 2) + ((horizontalCount - 1) / CurrTiming->hlw);
+    return ((horizontalCount - 1) / CurrTiming->hlw) + ((verticalCount - 1) * 2);
 }
 
 static u32 getCurrentFieldEvenOdd(void)
