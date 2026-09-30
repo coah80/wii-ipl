@@ -1852,13 +1852,15 @@ s32 PFFAT_RefreshFSINFO(PF_VOLUME* volume)
     s32 alreadyAllocated;
     u32 completedBytes;
     s32 error;
+    s32 error2;
 
     error = 0;
     if ((volume->fsi_flag & 4) != 0) {
-        error = PFCACHE_AllocateDataPage(volume, -1, &page,
-                                         &alreadyAllocated);
-        if (error != 0) { goto finished; }
-        {
+        error2 = PFCACHE_AllocateDataPage(volume, -1, &page,
+                                          &alreadyAllocated);
+        if (error2 != 0) {
+            return error2;
+        } else {
             error = PFSEC_ReadData(
                 volume, page->p_buf, volume->bpb.fs_info_sector, 0,
                 volume->bpb.bytes_per_sector, &completedBytes, 0);

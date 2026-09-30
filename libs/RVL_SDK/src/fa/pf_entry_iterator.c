@@ -347,7 +347,7 @@ pf_s32 PFENT_ITER_DoGetEntry(PFITER_ENT_ITER* p_iter, PF_DIR_ENT* p_ent, PF_VOLU
         if (err != 0) {
             return err;
         }
-        if (PFSTR_StrNumChar(p_path, 1) == 1 && (PFSTR_StrNCmp(p_path, (pf_s8*)"\0", 2, 0, 1) == 0)) {
+        if (PFSTR_StrNumChar(p_path, 1) == 1 && (PFSTR_StrNCmp(p_path, (pf_s8*)"\0\0\0", 2, 0, 1) == 0)) {
             return 0;
         }
     } else {
@@ -366,7 +366,7 @@ pf_s32 PFENT_ITER_DoGetEntry(PFITER_ENT_ITER* p_iter, PF_DIR_ENT* p_ent, PF_VOLU
         if (err != 0) {
             return err;
         }
-        if (no_look_last_token != 0 && (PFSTR_StrNCmp(&token, (pf_s8*)"\0", 2, 0, 1) == 0)) {
+        if (no_look_last_token != 0 && (PFSTR_StrNCmp(&token, (pf_s8*)"\0\0\0", 2, 0, 1) == 0)) {
             break;
         }
 
@@ -424,7 +424,7 @@ pf_s32 PFENT_ITER_DoGetEntry(PFITER_ENT_ITER* p_iter, PF_DIR_ENT* p_ent, PF_VOLU
             }
             if ((p_ent->attr & 0x10) == 0 || p_ent->short_name[0] != '.') {
                 p_ent->path_len = (PFSTR_StrNumChar(&token, 1) + 1) + p_ent->path_len;
-                if ((PFSTR_StrNCmp(&token, (pf_s8*)"\0", 2, 0, 1) != 0)) {
+                if ((PFSTR_StrNCmp(&token, (pf_s8*)"\0\0\0", 2, 0, 1) != 0)) {
                     p_ent->path_len -= PFSTR_StrNumChar(&token, 2);
                 }
             }
@@ -689,7 +689,7 @@ pf_s32 PFENT_ITER_FindEntry(PFITER_ENT_ITER* p_iter, PF_DIR_ENT* p_ent, PF_STR* 
     if (PFSTR_StrNCmp(p_pattern, (pf_s8*)"\\", 1, 0, 1) == 0 || PFSTR_StrNCmp(p_pattern, (pf_s8*)"/", 1, 0, 1) == 0) {
         err = PFENT_GetRootDir(p_iter->p_vol, p_ent);
         if (err != 0) return err;
-        if (PFSTR_StrNumChar(p_pattern, 1) == 1 && PFSTR_StrNCmp(p_pattern, (pf_s8*)"\0", 2, 0, 1) == 0) return 0;
+        if (PFSTR_StrNumChar(p_pattern, 1) == 1 && PFSTR_StrNCmp(p_pattern, (pf_s8*)"\0\0\0", 2, 0, 1) == 0) return 0;
     } else {
         err = PFVOL_GetCurrentDir(p_iter->p_vol, p_ent);
         if (err != 0) return err;

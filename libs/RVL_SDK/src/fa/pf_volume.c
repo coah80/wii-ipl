@@ -224,6 +224,9 @@ typedef struct PFVOL_SET {
 
 PFVOL_SET pf_vol_set;
 
+static s8 default_volume_label[12] = "NO NAME    ";
+static const u8 deleted_entry_mark[8] = {0xE5};
+
 extern s32 PFDRV_mount(PFVOL_VOLUME* volume);
 extern s32 PFDRV_unmount(PFVOL_VOLUME* volume, u32 mode);
 extern s32 PFDRV_format(PFVOL_VOLUME* volume, const u8* format_options);
@@ -370,12 +373,7 @@ static inline s32 finalize_volume(PFVOL_VOLUME* volume) {
     return 0;
 }
 static inline s32 copy_codeset(const PFVOL_CHARCODE* code_set) {
-    pf_vol_set.codeset.oem2unicode = code_set->oem2unicode;
-    pf_vol_set.codeset.unicode2oem = code_set->unicode2oem;
-    pf_vol_set.codeset.oem_char_width = code_set->oem_char_width;
-    pf_vol_set.codeset.is_oem_mb_char = code_set->is_oem_mb_char;
-    pf_vol_set.codeset.unicode_char_width = code_set->unicode_char_width;
-    pf_vol_set.codeset.is_unicode_mb_char = code_set->is_unicode_mb_char;
+    pf_vol_set.codeset = *code_set;
     return 0;
 }
 s32 PFVOL_DoMountVolume(PFVOL_VOLUME* volume) {
@@ -500,7 +498,9 @@ s32 PFVOL_p_setvol(PFVOL_VOLUME* volume, const s8* label) {
     s32 error;
 
     error = PFENT_GetRootDir(volume, &root_entry);
-    if (error == 0) {
+    if (error != 0) {
+        return error;
+    } else {
         PFFAT_InitFFD(&ffd, &hint, volume, &root_entry.start_cluster);
         PFSTR_InitStr(&path, "*", 1);
         PFSTR_SetLocalStr(&path, 0);
@@ -514,7 +514,7 @@ s32 PFVOL_p_setvol(PFVOL_VOLUME* volume, const s8* label) {
                     entry.start_cluster = 0;
                 }
             } else {
-                PFSTR_InitStr(&path, "", 1);
+                PFSTR_InitStr(&path, "\0\0\0", 1);
                 PFSTR_SetLocalStr(&path, 0);
                 error = PFENT_allocateEntry(&entry, 1, &ffd, previous_cluster, &path);
                 if (error != 0) {
@@ -584,7 +584,7 @@ s32 PFVOL_p_rmvvol(PFVOL_VOLUME* volume) {
     u32 logical_position;
     u32 entry_position;
     u32 processed;
-    u8 deleted = (u8)"\xE5"[0];
+    u8 deleted = deleted_entry_mark[0];
     s32 error;
 
     error = PFENT_GetRootDir(volume, &root_entry);
@@ -913,7 +913,7 @@ s32 PFVOL_getvol(s8 drive, PFVOL_VOLUME_INFO* volume_info) {
     } else {
         volume = &pf_vol_set.volumes[volume_index];
     }
-    if (pf_memcmp(volume->label, "NO NAME    ", 11) == 0) {
+    if (pf_memcmp(volume->label, default_volume_label, 11) == 0) {
         pf_vol_set.last_error = 3;
         volume->last_error = 3;
         return 3;
@@ -945,7 +945,7 @@ s32 PFVOL_rmvvol(s8 drive) {
     } else {
         volume = &pf_vol_set.volumes[volume_index];
     }
-    if (pf_memcmp(volume->label, "NO NAME    ", 11) == 0) {
+    if (pf_memcmp(volume->label, default_volume_label, 11) == 0) {
         pf_vol_set.last_error = 3;
         volume->last_error = 3;
         return 3;
@@ -956,7 +956,7 @@ s32 PFVOL_rmvvol(s8 drive) {
         volume->last_error = error;
         return error;
     }
-    error = PFDRV_StoreVolumeLabelToBPB(volume, (const s8*)"NO NAME    ");
+    error = PFDRV_StoreVolumeLabelToBPB(volume, default_volume_label);
     if (error != 0) {
         pf_vol_set.last_error = error;
         volume->last_error = error;
@@ -1536,3 +1536,4 @@ s32 PFVOL_setencode(u32 mode) {
     pf_vol_set.setting = pf_vol_set.setting & ~3 | mode;
     return 0;
 }
+
