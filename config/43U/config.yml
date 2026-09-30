@@ -11,12 +11,23 @@ splits: 'config/43U/splits.txt'
 ldscript_template: 'config/ldscript_ipl2.lcf'
 
 force_active:
+  - fprintf
+  - leap_days
+  - __msl_time2tm
+  - __tm2time
+  - clock
+  - mktime
+  - localtime
+  - emit
+  - __MSL_ISO8601NewYear
+  - __MSL_ISO8601Week
+  - strftime
   - labs
+  - atol
   - itoa
   - strpbrk
   - strspn
   - strcspn
-  - atol
   - padding__Q23ipl5scene
   - lbl_81695063
   - lbl_81695067

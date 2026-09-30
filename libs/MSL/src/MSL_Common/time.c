@@ -248,6 +248,8 @@ static char* find_name(const char* names, int index) {
     return extracted_name;
 }
 
+#pragma exceptions off
+
 char* asctime(const struct tm* timeptr) {
     static char asctime_result[26];
     char* result = asctime_result;
@@ -283,6 +285,8 @@ char* ctime(const time_t* timer) {
     return result;
 }
 
+#pragma exceptions on
+
 static time_t time(time_t* timer) {
     time_t result = __get_time();
 
@@ -311,6 +315,8 @@ static struct tm* gmtime(const time_t* timer) {
     gmtime_tm.tm_isdst = 0;
     return &gmtime_tm;
 }
+
+#pragma exceptions on
 
 struct tm* localtime(const time_t* timer) {
     static struct tm localtime_tm;
