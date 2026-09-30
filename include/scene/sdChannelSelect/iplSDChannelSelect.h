@@ -28,7 +28,7 @@ namespace ipl {
             int getIndex() const { return mIndex; }
             nw4r::math::VEC3& getTranslate() const;
 
-#ifdef IPL_SD_CHANNEL_TITLE_CPP
+#if defined(IPL_SD_CHANNEL_TITLE_CPP) || defined(IPL_SD_CHANNEL_OBJ_CPP)
         public:
 #else
         private:
@@ -39,12 +39,20 @@ namespace ipl {
             EGG::ExpHeap* mpDialogHeap;
             EGG::ExpHeap* mpChannelHeap;
             EGG::Heap* mpHeap;
+#ifdef IPL_SD_CHANNEL_OBJ_CPP
+            int mState;
+#else
             u32 mState;
+#endif
             int mPage;
             int mIndex;
             nand::LayoutFile* mpLayoutFile;
             nw4r::lyt::Pane* mpPane;
+#ifdef IPL_SD_CHANNEL_OBJ_CPP
+            nand::File* mpPaneAnimator;
+#else
             layout::Animator* mpPaneAnimator;
+#endif
             layout::Object* mpBaseLayout;
             layout::Animator* mpBaseAnimator;
             layout::Object* mpPageLayout;
@@ -58,7 +66,11 @@ namespace ipl {
             int mDialogTimer;
             int mAnimationState;
             nw4r::lyt::Group* mpNewMessageGroup;
+#ifdef IPL_SD_CHANNEL_OBJ_CPP
+            layout::Animator* mpNewMessageAnimator;
+#else
             int mNewMessageCount;
+#endif
             u8 mbNewMessageGroupActive;
             int mNewMessageState;
             int mNewMessageFrame;
@@ -176,7 +188,7 @@ namespace ipl {
             static const char* mscClockPaneNames[3];
             static const char* mscMaskPaneName;
 
-#ifdef IPL_SD_CHANNEL_TITLE_CPP
+#if defined(IPL_SD_CHANNEL_TITLE_CPP) || defined(IPL_SD_CHANNEL_OBJ_CPP)
         public:
 #else
         private:
