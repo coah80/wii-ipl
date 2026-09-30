@@ -69,7 +69,7 @@ typedef struct {
 } KBDChannel;
 
 typedef struct {
-    u32 callbackAddress;
+    USBKBDCmdLEDCallback callbackAddress;
     void* callbackArg;
 } KBDLEDCallbackData;
 
@@ -563,19 +563,21 @@ static inline u32 kbdChannelFlags(u32 channel) {
 
 static void kbd_led_handler(BOOL success, void* callbackArg) {
     u32 index;
+    u32 err;
     index = (u32)callbackArg;
 
     kbdCmdBuf[index].device = 0;
-    if (((USBKBDCmdLEDCallback)kbdLCBuf[index].callbackAddress) == NULL) {
+    if (kbdLCBuf[index].callbackAddress == (USBKBDCmdLEDCallback)(u32)kbdCmdBuf[index].device) {
         return;
     }
     switch (success) {
-    case TRUE:
-        ((USBKBDCmdLEDCallback)kbdLCBuf[index].callbackAddress)(0, kbdLCBuf[index].callbackArg);
-        break;
     default:
-        ((USBKBDCmdLEDCallback)kbdLCBuf[index].callbackAddress)(7, kbdLCBuf[index].callbackArg);
+        err = 7;
+        break;
+    case TRUE:
+        err = 0;
     }
+    kbdLCBuf[index].callbackAddress(err, kbdLCBuf[index].callbackArg);
 }
 
 USBKBDErr KBDSetLedsAsync(u32 channel, u32 leds, USBKBDCmdLEDCallback callback, void* callbackArg) {
@@ -604,7 +606,7 @@ USBKBDErr KBDSetLedsAsync(u32 channel, u32 leds, USBKBDCmdLEDCallback callback, 
     if (index == 12) {
         return 7;
     }
-    kbdLCBuf[index].callbackAddress = (u32)callback;
+    kbdLCBuf[index].callbackAddress = callback;
     kbdLCBuf[index].callbackArg = callbackArg;
     result = USBKBDSetLEDAsync((u32)kbdData[channel].device, ledBits,
                                (USBKBDCmdLEDAsync*)&kbdCmdBuf[index],
