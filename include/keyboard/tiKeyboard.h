@@ -15,8 +15,11 @@ namespace textinput {
 #if !(defined(TI_PC_KEYBOARD_IMPLEMENTATION) || defined(TIHWKEYBOARD_IMPLEMENTATION)) && !defined(TIMANAGER_IMPLEMENTATION) && !defined(TISIGNWINDOW_IMPLEMENTATION)
             virtual void create(MEMAllocator* alloc) override;
             virtual void init() override;
+
+#ifndef TI_CELLPHONE_MATCH_LAYOUT
             virtual void setCommandReceiver(CommandReceiver* receiver) override;
             virtual void sendCommand(u32 command, void*) override;
+#endif
 #endif
 #if !defined(TIMANAGER_IMPLEMENTATION) && !defined(TISIGNWINDOW_IMPLEMENTATION)
             virtual void updateFromReceiver(u32, void*) override;

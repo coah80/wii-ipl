@@ -54,14 +54,16 @@ namespace textinput {
     namespace keyboard {
         namespace cellphonetype {
 
+            struct InputModeEnabled { bool enabled; };
+
             struct LanguageDependencyData {
                 u32 flags;
                 const KeySet* keySets[5];
             };
 
             static const wchar_t* csszPredictLanguage[] = {
-                L"Eng", L"Eng", L"Fra", L"Esp", L"EN", L"DE", L"FR",
-                L"ES", L"IT", L"NL", L"CN", L"KR", L""
+                L"", L"", L"Eng", L"Fra", L"Esp", L"EN", L"DE",
+                L"FR", L"ES", L"IT", L"NL", L"CN", L"KR"
             };
 
             struct PaneNameToControlKey {
@@ -89,72 +91,24 @@ namespace textinput {
                 const char* animationKey;
             };
 
-            struct TogglePaneName {
-                char name[16];
-            };
-
-            struct NumericModePaneNames {
-                char predictionEuropeanMode[16];
-                char othersEuropean[16];
-                char smallCandidateChange[16];
-                char othersJapanese[16];
-                char predictionJapanese[16];
-                char spaceJapanese[16];
-                char key09[12];
-                char key11[12];
-            };
-
             static const char* csNormalAnimationKey = "W_CPkey_00";
             static const char* csToggleAnimationKey = "W_ChngTag_00";
             static const char* csEuropeanAnimationKey = "W_othersBT_EU";
 
             static PaneNameToAnimationKey csPaneNameNormalAnimationKey[] = {
-                {"W_CPkey_00", NULL}, {"W_CPkey_01", NULL}, {"W_CPkey_02", NULL},
-                {"W_CPkey_03", NULL}, {"W_CPkey_04", NULL}, {"W_CPkey_05", NULL},
-                {"W_CPkey_06", NULL}, {"W_CPkey_07", NULL}, {"W_CPkey_08", NULL},
-                {"W_CPkey_09", NULL}, {"W_CPkey_10", NULL}, {"W_CPkey_11", NULL},
-                {"W_CPkey_LF", NULL}, {"W_CPkey_DELETE", NULL}, {"W_spaceBT_JP", NULL},
-                {"W_othersBT_JP", NULL}, {"W_othersBT_EU", NULL},
+                {"W_CPkey_00", NULL}, {"W_CPkey_01", csNormalAnimationKey}, {"W_CPkey_02", csNormalAnimationKey},
+                {"W_CPkey_03", csNormalAnimationKey}, {"W_CPkey_04", csNormalAnimationKey}, {"W_CPkey_05", csNormalAnimationKey},
+                {"W_CPkey_06", csNormalAnimationKey}, {"W_CPkey_07", csNormalAnimationKey}, {"W_CPkey_08", csNormalAnimationKey},
+                {"W_CPkey_09", csNormalAnimationKey}, {"W_CPkey_10", csNormalAnimationKey}, {"W_CPkey_11", csNormalAnimationKey},
+                {"W_CPkey_LF", csNormalAnimationKey}, {"W_CPkey_DELETE", csNormalAnimationKey}, {"W_spaceBT_JP", csNormalAnimationKey},
+                {"W_othersBT_JP", csEuropeanAnimationKey}, {"W_othersBT_EU", NULL},
                 {"W_prdcModeBT_EU", NULL}, {"W_smlCptChngeBT", NULL},
             };
 
             static PaneNameToAnimationKey csPaneNameToggleAnimationKey[] = {
-                {"W_ChngTag_00", NULL}, {"W_ChngTag_01", NULL},
-                {"W_ChngTag_02", NULL}, {"W_ChngTag_03", NULL},
+                {"W_ChngTag_00", NULL}, {"W_ChngTag_01", csToggleAnimationKey},
+                {"W_ChngTag_02", csToggleAnimationKey}, {"W_ChngTag_03", csToggleAnimationKey},
             };
-
-            struct TexturePaneNames {
-                char names[3][16];
-            };
-
-            static TexturePaneNames csTexturePaneNames = {
-                {"P_spaceBT_JP", "P_spaceBT_CN", "P_spaceBT_KR"},
-            };
-
-            struct AnimationKeyInitializer {
-                AnimationKeyInitializer() {
-                    csPaneNameNormalAnimationKey[1].animationKey = csNormalAnimationKey;
-                    csPaneNameNormalAnimationKey[2].animationKey = csNormalAnimationKey;
-                    csPaneNameNormalAnimationKey[3].animationKey = csNormalAnimationKey;
-                    csPaneNameNormalAnimationKey[4].animationKey = csNormalAnimationKey;
-                    csPaneNameNormalAnimationKey[5].animationKey = csNormalAnimationKey;
-                    csPaneNameNormalAnimationKey[6].animationKey = csNormalAnimationKey;
-                    csPaneNameNormalAnimationKey[7].animationKey = csNormalAnimationKey;
-                    csPaneNameNormalAnimationKey[8].animationKey = csNormalAnimationKey;
-                    csPaneNameNormalAnimationKey[9].animationKey = csNormalAnimationKey;
-                    csPaneNameNormalAnimationKey[10].animationKey = csNormalAnimationKey;
-                    csPaneNameNormalAnimationKey[11].animationKey = csNormalAnimationKey;
-                    csPaneNameNormalAnimationKey[12].animationKey = csNormalAnimationKey;
-                    csPaneNameNormalAnimationKey[13].animationKey = csNormalAnimationKey;
-                    csPaneNameNormalAnimationKey[14].animationKey = csNormalAnimationKey;
-                    csPaneNameNormalAnimationKey[15].animationKey = csEuropeanAnimationKey;
-                    csPaneNameToggleAnimationKey[1].animationKey = csToggleAnimationKey;
-                    csPaneNameToggleAnimationKey[2].animationKey = csToggleAnimationKey;
-                    csPaneNameToggleAnimationKey[3].animationKey = csToggleAnimationKey;
-                }
-            };
-
-            static AnimationKeyInitializer sAnimationKeyInitializer;
 
             static const PaneNameToControlKey csPaneNameToControlKey[] = {
                 {"B_CPkey_LF", 0},
@@ -177,6 +131,9 @@ namespace textinput {
                 {2, "fs_VK_cellPhone_a_Focus-OUT.brlan"},
                 {4, "fs_VK_cellPhone_a_Pushed.brlan"},
                 {3, "fs_VK_cellPhone_a_Roll_over.brlan"},
+            };
+
+            static const AnimationFileForControlKey csAnimationFileForToggleKey[] = {
                 {0, "fs_VK_cellPhone_a_normal.brlan"},
                 {1, "fs_VK_cellPhone_a_Focus-IN.brlan"},
                 {2, "fs_VK_cellPhone_a_Focus-OUT.brlan"},
@@ -240,6 +197,16 @@ namespace textinput {
                 return NULL;
             }
 
+            static inline s32 findCellPhoneControlKey(const char* paneName) {
+                for (u16 index = 0; index < 12; ++index) {
+                    if (util::strcmp(csPaneNameToControlKey[index].name, paneName)) {
+                        return csPaneNameToControlKey[index].controlKey;
+                    }
+                }
+                return 0x1B;
+            }
+
+
             void Base::onKey(u32 event, void* data) {
                 struct KeyEvent { const char* paneName; u8 state; };
                 struct ConfirmInput {
@@ -255,26 +222,19 @@ namespace textinput {
                 const char* paneName = static_cast<KeyEvent*>(data)->paneName;
                 if (event == gui::EventHandler::ON_TRIG) {
                     u8 state = static_cast<KeyEvent*>(data)->state;
-                    s32 controlKey = 0x1B;
-                    for (u16 index = 0; index < 12; index++) {
-                        if (util::strcmp(csPaneNameToControlKey[index].name, paneName)) {
-                            controlKey = csPaneNameToControlKey[index].controlKey;
-                            break;
-                        }
-                    }
+                    s32 controlKey = findCellPhoneControlKey(paneName);
                     if (controlKey != 0x1B) {
                         onCtrlKey_(static_cast<VKeyCode>(controlKey));
                     } else if (!isZiActive() || getLanguage() == CN ||
                         (getLanguage() == KR && mCurrentInputMode != 0) || getInputType() == 1) {
-                        LanguageDependencyData* inputModeTable = static_cast<LanguageDependencyData*>(mpInputModeTable);
                         if (mHoldingButton == NULL) {
                             u32 inputMode = mCurrentInputMode;
-                            if (getLanguage() == JP && inputMode == IM_02) {
+                            if (getLanguage() == JP && static_cast<s32>(inputMode) == IM_02) {
                                 if (!mbUpperCaseMode) { inputMode = IM_04; }
-                            } else if (inputModeTable->keySets[inputMode]->uType == KEY_TYPE_ABC_UPPER && !mbUpperCaseMode) {
+                            } else if (static_cast<const LanguageDependencyData*>(mpInputModeTable)->keySets[inputMode]->uType == KEY_TYPE_ABC_UPPER && !mbUpperCaseMode) {
                                 inputMode = IM_01;
                             }
-                            const PaneNameToCharCode* keys = inputModeTable->keySets[inputMode]->pPaneNameToCharCode;
+                            const PaneNameToCharCode* keys = static_cast<const LanguageDependencyData*>(mpInputModeTable)->keySets[inputMode]->pPaneNameToCharCode;
                             mHoldingButton = findKeyForPane(keys, paneName);
                             if (state) {
                                 mPreviousInputMode = 15;
@@ -283,7 +243,7 @@ namespace textinput {
                         } else {
                             if (state) { mPreviousInputMode--; }
                             else { mPreviousInputMode++; }
-                            if (mPreviousInputMode == 16) { mPreviousInputMode = 0; }
+                            if (static_cast<s32>(mPreviousInputMode) == 16) { mPreviousInputMode = 0; }
                             else if (static_cast<s32>(mPreviousInputMode) < 0) {
                                 mPreviousInputMode = 15;
                                 while (mHoldingButton->wc[mPreviousInputMode] == 0) { mPreviousInputMode--; }
@@ -320,7 +280,7 @@ namespace textinput {
                                 commandData.character = character;
                                 commandData.letterMode = mCurrentInputMode;
                                 commandData.holdingKey = mHoldingButton;
-                                bool convertSpace = false;
+                                bool convertSpace;
                                 sendCommand(0x20, &convertSpace);
                                 if (character == L'0' && getLanguage() != KR) {
                                     if (convertSpace) { sendCommand(6, NULL); }
@@ -331,12 +291,11 @@ namespace textinput {
                                     mPreviousInputMode = 0;
                                     mHoldingButton = NULL;
                                 } else {
-                                    const LanguageDependencyData* table = static_cast<const LanguageDependencyData*>(mpInputModeTable);
-                                    const PaneNameToCharCode* currentKeys = table->keySets[mCurrentInputMode]->pPaneNameToCharCode;
+                                    const PaneNameToCharCode* currentKeys = static_cast<const LanguageDependencyData*>(mpInputModeTable)->keySets[mCurrentInputMode]->pPaneNameToCharCode;
                                     commandData.holdingKey = findKeyForPane(currentKeys, paneName);
-                                    if (table->keySets[mCurrentInputMode]->uType == KEY_TYPE_ABC_UPPER && !mbAbcMode) {
+                                    if (static_cast<const LanguageDependencyData*>(mpInputModeTable)->keySets[mCurrentInputMode]->uType == KEY_TYPE_ABC_UPPER && !mbAbcMode) {
                                         commandData.letterMode = IM_01;
-                                        currentKeys = table->keySets[IM_01]->pPaneNameToCharCode;
+                                        currentKeys = static_cast<const LanguageDependencyData*>(mpInputModeTable)->keySets[IM_01]->pPaneNameToCharCode;
                                         commandData.holdingKey = findKeyForPane(currentKeys, paneName);
                                     }
                                     commandData.character = convertToZiCellphoneInput_(commandData.character);
@@ -441,7 +400,7 @@ namespace textinput {
                 }
 
                 if (mode == IM_00) {
-                    struct ActiveMode { bool enabled; } activeData = {true};
+                    InputModeEnabled activeData = {true};
                     sendCommand(0x13, &activeData);
                 }
                 if (mode == IM_01) {
@@ -525,7 +484,7 @@ namespace textinput {
                 sendCommand(0x12, &commandData);
 
                 if (mCurrentInputMode == IM_00) {
-                    struct ActiveMode { bool enabled; } activeData = {true};
+                    InputModeEnabled activeData = {true};
                     sendCommand(0x13, &activeData);
                 }
 
@@ -571,16 +530,16 @@ namespace textinput {
 
             wchar_t Base::convertToZiCellphoneInput_(wchar_t value) {
                 switch (value) {
-                    case L'0': return 0xEFF1;
-                    case L'1': return 0xEFF2;
-                    case L'2': return 0xEFF3;
-                    case L'3': return 0xEFF4;
-                    case L'4': return 0xEFF5;
-                    case L'5': return 0xEFF6;
-                    case L'6': return 0xEFF7;
-                    case L'7': return 0xEFF8;
-                    case L'8': return 0xEFF9;
-                    case L'9': return 0xEFFA;
+                    case L'1': return 0xEFF1;
+                    case L'2': return 0xEFF2;
+                    case L'3': return 0xEFF3;
+                    case L'4': return 0xEFF4;
+                    case L'5': return 0xEFF5;
+                    case L'6': return 0xEFF6;
+                    case L'7': return 0xEFF7;
+                    case L'8': return 0xEFF8;
+                    case L'9': return 0xEFF9;
+                    case L'0': return 0xEFFA;
                     default: return value;
                 }
             }
@@ -636,22 +595,6 @@ namespace textinput {
 
             EventHandler::~EventHandler() {}
 
-            static TogglePaneName csPaneNameTogglePanes[] = {
-                {"W_ChngTag_00"}, {"W_ChngTag_01"},
-                {"W_ChngTag_02"}, {"W_ChngTag_03"},
-            };
-
-            static NumericModePaneNames csNumericModePaneNames = {
-                "W_prdcModeBT_EU",
-                "W_othersBT_EU",
-                "W_smlCptChngeBT",
-                "W_othersBT_JP",
-                "W_CPkey_Prdc_JP",
-                "W_spaceBT_JP",
-                "W_CPkey_09",
-                "W_CPkey_11",
-            };
-
             void LayoutByNW4R::create(MEMAllocator* allocator) {
                 Base::create(allocator);
                 mpEventHandler = new (MEMAllocFromAllocator(allocator, sizeof(EventHandler))) EventHandler(this);
@@ -660,57 +603,49 @@ namespace textinput {
                 mpPaneManager->setAllBoundingBoxComponentTriggerTarget(true);
 
                 for (u16 i = 0; i < sizeof(csPaneNameNormalAnimationKey) / sizeof(csPaneNameNormalAnimationKey[0]); ++i) {
-                    void* paneMemory = MEMAllocFromAllocator(allocator, sizeof(CellPhoneAnmPane));
-                    CellPhoneAnmPane* pane = static_cast<CellPhoneAnmPane*>(paneMemory);
-                    if (paneMemory) {
-                        pane = new (paneMemory) CellPhoneAnmPane(getPane(csPaneNameNormalAnimationKey[i].name), NULL);
-                    }
+                    CellPhoneAnmPane* pane = new (MEMAllocFromAllocator(allocator, sizeof(CellPhoneAnmPane)))
+                        CellPhoneAnmPane(getPane(csPaneNameNormalAnimationKey[i].name), NULL);
                     nw4r::ut::List_Append(&mAnmPanes, pane);
                     const PaneNameToAnimationKey& paneName = csPaneNameNormalAnimationKey[i];
                     const char* animationKey = paneName.animationKey;
 
                     for (u16 j = 0; j < 5; ++j) {
-                        const AnimationFileForControlKey& animation = csAninationFileForControlKey[j];
-                        void* resource = mpMultiArcResourceAccessor->GetResource(0, animation.filename);
+                        void* resource = mpMultiArcResourceAccessor->GetResource(0, csAninationFileForControlKey[j].filename);
                         AnimTransformPane* transform = static_cast<AnimTransformPane*>(
                             getLayout()->CreateAnimTransform(resource, mpMultiArcResourceAccessor));
                         if (animationKey) {
-                            pane->forceAddAnimation(allocator, animation.animation, transform,
+                            pane->forceAddAnimation(allocator, csAninationFileForControlKey[j].animation, transform,
                                                     paneName.animationKey, false, true);
                         } else {
-                            pane->addAnimation(allocator, animation.animation, transform, false, true);
+                            pane->addAnimation(allocator, csAninationFileForControlKey[j].animation, transform, false, true);
                         }
                     }
                 }
 
                 for (u16 i = 0; i < sizeof(csPaneNameToggleAnimationKey) / sizeof(csPaneNameToggleAnimationKey[0]); ++i) {
-                    void* paneMemory = MEMAllocFromAllocator(allocator, sizeof(CellPhoneControlAnmPane));
-                    CellPhoneControlAnmPane* pane = static_cast<CellPhoneControlAnmPane*>(paneMemory);
-                    if (paneMemory) {
-                        pane = new (paneMemory) CellPhoneControlAnmPane(getPane(csPaneNameToggleAnimationKey[i].name), NULL);
-                    }
+                    CellPhoneControlAnmPane* pane = new (MEMAllocFromAllocator(allocator, sizeof(CellPhoneControlAnmPane)))
+                        CellPhoneControlAnmPane(getPane(csPaneNameToggleAnimationKey[i].name), NULL);
                     nw4r::ut::List_Append(&mAnmPanes, pane);
                     const PaneNameToAnimationKey& paneName = csPaneNameToggleAnimationKey[i];
                     const char* animationKey = paneName.animationKey;
 
                     for (u16 j = 0; j < 6; ++j) {
-                        const AnimationFileForControlKey& animation = csAninationFileForControlKey[j];
-                        void* resource = mpMultiArcResourceAccessor->GetResource(0, animation.filename);
+                        void* resource = mpMultiArcResourceAccessor->GetResource(0, csAnimationFileForToggleKey[j].filename);
                         AnimTransformPane* transform = static_cast<AnimTransformPane*>(
                             getLayout()->CreateAnimTransform(resource, mpMultiArcResourceAccessor));
                         if (animationKey) {
-                            pane->forceAddAnimation(allocator, animation.animation, transform,
+                            pane->forceAddAnimation(allocator, csAnimationFileForToggleKey[j].animation, transform,
                                                     paneName.animationKey, false, true);
                         } else {
-                            pane->addAnimation(allocator, animation.animation, transform, false, true);
+                            pane->addAnimation(allocator, csAnimationFileForToggleKey[j].animation, transform, false, true);
                         }
                     }
                 }
 
                 nw4r::lyt::Pane* rootPane = mpLayout->GetRootPane();
-                rootPane->FindPaneByName(csTexturePaneNames.names[0], true)->GetMaterial()->GetTexture(&mTextures[0], 0);
-                rootPane->FindPaneByName(csTexturePaneNames.names[1], true)->GetMaterial()->GetTexture(&mTextures[1], 0);
-                rootPane->FindPaneByName(csTexturePaneNames.names[2], true)->GetMaterial()->GetTexture(&mTextures[2], 0);
+                rootPane->FindPaneByName("P_spaceBT_JP", true)->GetMaterial()->GetTexture(&mTextures[0], 0);
+                rootPane->FindPaneByName("P_spaceBT_CN", true)->GetMaterial()->GetTexture(&mTextures[1], 0);
+                rootPane->FindPaneByName("P_spaceBT_KR", true)->GetMaterial()->GetTexture(&mTextures[2], 0);
                 init();
                 setLanguage(getLanguage());
             }
@@ -728,10 +663,10 @@ namespace textinput {
                 doNumericMode(false);
                 setPredictLanguageButton(true);
                 setSignWindowButton(true);
-                setVisible(csPaneNameTogglePanes[0].name, true);
-                setVisible(csPaneNameTogglePanes[1].name, true);
-                setVisible(csPaneNameTogglePanes[2].name, true);
-                setVisible(csPaneNameTogglePanes[3].name, true);
+                setVisible("W_ChngTag_00", true);
+                setVisible("W_ChngTag_01", true);
+                setVisible("W_ChngTag_02", true);
+                setVisible("W_ChngTag_03", true);
 
                 for (int i = 0; i < 4; ++i) {
                     const char* paneName = csPaneNameToggleAnimationKey[i].name;
@@ -752,43 +687,43 @@ namespace textinput {
                 }
 
                 if (getLanguage() == JP) {
-                    setVisible(csNumericModePaneNames.predictionEuropeanMode, false);
-                    setVisible(csNumericModePaneNames.othersEuropean, false);
-                    setVisible(csNumericModePaneNames.smallCandidateChange, true);
-                    setVisible(csNumericModePaneNames.othersJapanese, true);
-                    setVisible(csNumericModePaneNames.predictionJapanese, true);
-                    setVisible(csNumericModePaneNames.spaceJapanese, true);
-                    setVisible(csNumericModePaneNames.key09, true);
-                    setVisible(csNumericModePaneNames.key11, true);
+                    setVisible("W_prdcModeBT_EU", false);
+                    setVisible("W_othersBT_EU", false);
+                    setVisible("W_smlCptChngeBT", true);
+                    setVisible("W_othersBT_JP", true);
+                    setVisible("W_CPkey_Prdc_JP", true);
+                    setVisible("W_spaceBT_JP", true);
+                    setVisible("W_CPkey_09", true);
+                    setVisible("W_CPkey_11", true);
                 } else if (getLanguage() == CN) {
-                    setVisible(csNumericModePaneNames.predictionEuropeanMode, true);
-                    setVisible(csNumericModePaneNames.othersEuropean, true);
-                    setVisible(csNumericModePaneNames.smallCandidateChange, false);
-                    setVisible(csNumericModePaneNames.othersJapanese, false);
-                    setVisible(csNumericModePaneNames.predictionJapanese, false);
-                    setVisible(csNumericModePaneNames.spaceJapanese, true);
-                    setVisible(csNumericModePaneNames.key09, true);
-                    setVisible(csNumericModePaneNames.key11, false);
+                    setVisible("W_prdcModeBT_EU", true);
+                    setVisible("W_othersBT_EU", true);
+                    setVisible("W_smlCptChngeBT", false);
+                    setVisible("W_othersBT_JP", false);
+                    setVisible("W_CPkey_Prdc_JP", false);
+                    setVisible("W_spaceBT_JP", true);
+                    setVisible("W_CPkey_09", true);
+                    setVisible("W_CPkey_11", false);
                     setPredictLanguageButton(false);
                 } else if (getLanguage() == KR) {
-                    setVisible(csNumericModePaneNames.predictionEuropeanMode, true);
-                    setVisible(csNumericModePaneNames.othersEuropean, true);
-                    setVisible(csNumericModePaneNames.smallCandidateChange, false);
-                    setVisible(csNumericModePaneNames.othersJapanese, false);
-                    setVisible(csNumericModePaneNames.predictionJapanese, false);
-                    setVisible(csNumericModePaneNames.spaceJapanese, true);
-                    setVisible(csNumericModePaneNames.key09, false);
-                    setVisible(csNumericModePaneNames.key11, false);
+                    setVisible("W_prdcModeBT_EU", true);
+                    setVisible("W_othersBT_EU", true);
+                    setVisible("W_smlCptChngeBT", false);
+                    setVisible("W_othersBT_JP", false);
+                    setVisible("W_CPkey_Prdc_JP", false);
+                    setVisible("W_spaceBT_JP", true);
+                    setVisible("W_CPkey_09", false);
+                    setVisible("W_CPkey_11", false);
                     setPredictLanguageButton(false);
                 } else {
-                    setVisible(csNumericModePaneNames.predictionEuropeanMode, true);
-                    setVisible(csNumericModePaneNames.othersEuropean, true);
-                    setVisible(csNumericModePaneNames.smallCandidateChange, false);
-                    setVisible(csNumericModePaneNames.othersJapanese, false);
-                    setVisible(csNumericModePaneNames.predictionJapanese, false);
-                    setVisible(csNumericModePaneNames.spaceJapanese, false);
-                    setVisible(csNumericModePaneNames.key09, false);
-                    setVisible(csNumericModePaneNames.key11, false);
+                    setVisible("W_prdcModeBT_EU", true);
+                    setVisible("W_othersBT_EU", true);
+                    setVisible("W_smlCptChngeBT", false);
+                    setVisible("W_othersBT_JP", false);
+                    setVisible("W_CPkey_Prdc_JP", false);
+                    setVisible("W_spaceBT_JP", false);
+                    setVisible("W_CPkey_09", false);
+                    setVisible("W_CPkey_11", false);
                 }
 
                 changeInputMode(static_cast<InputMode>(mCurrentInputMode));
@@ -798,11 +733,11 @@ namespace textinput {
                 sendCommand(0x1F, &predictMode);
                 updatePredictLanguage(&predictMode);
 
-                static_cast<nw4rmanager::Layout*>(this)->initPaneLastDrawReceived();
+                initPaneLastDrawReceived();
                 mpLayout->Animate(0);
                 mpLayout->CalculateMtx(mDrawInfo);
 
-                nw4r::lyt::Pane* spacePane = mpLayout->GetRootPane()->FindPaneByName(csTexturePaneNames.names[0], true);
+                nw4r::lyt::Pane* spacePane = mpLayout->GetRootPane()->FindPaneByName("P_spaceBT_JP", true);
                 nw4r::lyt::Pane* henkanPane = mpLayout->GetRootPane()->FindPaneByName("P_HENKAN_JP", true);
                 spacePane->SetVisible(true);
                 henkanPane->SetVisible(false);
@@ -822,14 +757,6 @@ namespace textinput {
 
             void LayoutByNW4R::update() {}
 
-            static inline s32 findCellPhoneControlKey(const char* paneName) {
-                for (u16 index = 0; index < 12; ++index) {
-                    if (util::strcmp(csPaneNameToControlKey[index].name, paneName)) {
-                        return csPaneNameToControlKey[index].controlKey;
-                    }
-                }
-                return 0x1B;
-            }
 
             void LayoutByNW4R::onKey(u32 event, void* data) {
                 Base::onKey(event, data);
@@ -842,7 +769,6 @@ namespace textinput {
                         controlKey = findCellPhoneControlKey(paneName);
                         if (controlKey != 0x1B) {
                             switch (controlKey) {
-                            case 9:
                             case 11:
                             case 13:
                             case 18:
@@ -871,27 +797,8 @@ namespace textinput {
                     }
                 }
             }
-
             void LayoutByNW4R::onActive() {
-                u32 commandData = 0;
-                u8 inactiveData[4];
-                sendCommand(0x12, &commandData);
-
-                if (static_cast<s32>(mCurrentInputMode) == IM_00) {
-                    struct ActiveMode { bool enabled; } activeData = {true};
-                    sendCommand(0x13, &activeData);
-                }
-                if (static_cast<s32>(mCurrentInputMode) == IM_01) {
-                    inactiveData[0] = 0;
-                    sendCommand(0x13, inactiveData);
-                }
-
-                if (static_cast<s32>(mCurrentInputMode) == IM_00) {
-                    sendCommand(6, NULL);
-                    changeInputMode(static_cast<InputMode>(mCurrentInputMode));
-                }
-
-                updateFixMode();
+                Base::onActive();
                 nw4rmanager::Layout::init();
             }
 
@@ -902,7 +809,7 @@ namespace textinput {
             void LayoutByNW4R::calc() {
                 nw4rmanager::Layout::calc();
 
-                nw4r::lyt::Pane* spacePane = mpLayout->GetRootPane()->FindPaneByName(csTexturePaneNames.names[0]);
+                nw4r::lyt::Pane* spacePane = mpLayout->GetRootPane()->FindPaneByName("P_spaceBT_JP");
                 nw4r::lyt::Pane* henkanPane = mpLayout->GetRootPane()->FindPaneByName("P_HENKAN_JP");
                 bool canConvert = mpManager->getInputForm()->canConvert();
                 if (canConvert) {
@@ -928,22 +835,22 @@ namespace textinput {
 
                 if (!enabled) { return; }
                 {
-                    setVisible(csNumericModePaneNames.smallCandidateChange, !enabled);
-                    setVisible(csNumericModePaneNames.key09, !enabled);
+                    setVisible("W_smlCptChngeBT", !enabled);
+                    setVisible("W_CPkey_09", !enabled);
                     setVisible("P_CPkey_dakuten", !enabled);
-                    setVisible(csNumericModePaneNames.smallCandidateChange, !enabled);
-                    setVisible(csNumericModePaneNames.predictionEuropeanMode, !enabled);
-                    setVisible(csNumericModePaneNames.othersEuropean, !enabled);
-                    setVisible(csNumericModePaneNames.spaceJapanese, !enabled);
-                    setVisible(csNumericModePaneNames.smallCandidateChange, !enabled);
-                    setVisible(csNumericModePaneNames.othersJapanese, !enabled);
-                    setVisible(csNumericModePaneNames.predictionJapanese, !enabled);
-                    setVisible(csNumericModePaneNames.key09, !enabled);
-                    setVisible(csNumericModePaneNames.key11, !enabled);
-                    setVisible(csPaneNameTogglePanes[0].name, !enabled);
-                    setVisible(csPaneNameTogglePanes[1].name, !enabled);
-                    setVisible(csPaneNameTogglePanes[2].name, !enabled);
-                    setVisible(csPaneNameTogglePanes[3].name, !enabled);
+                    setVisible("W_smlCptChngeBT", !enabled);
+                    setVisible("W_prdcModeBT_EU", !enabled);
+                    setVisible("W_othersBT_EU", !enabled);
+                    setVisible("W_spaceBT_JP", !enabled);
+                    setVisible("W_smlCptChngeBT", !enabled);
+                    setVisible("W_othersBT_JP", !enabled);
+                    setVisible("W_CPkey_Prdc_JP", !enabled);
+                    setVisible("W_CPkey_09", !enabled);
+                    setVisible("W_CPkey_11", !enabled);
+                    setVisible("W_ChngTag_00", !enabled);
+                    setVisible("W_ChngTag_01", !enabled);
+                    setVisible("W_ChngTag_02", !enabled);
+                    setVisible("W_ChngTag_03", !enabled);
                 }
             }
 
@@ -973,8 +880,7 @@ namespace textinput {
             void LayoutByNW4R::doNumericWithDotMode(bool enabled) {
                 doNumericMode(enabled);
                 setString("T_CPkey_11", L".");
-                const NumericModePaneNames& paneNames = csNumericModePaneNames;
-                setVisible(paneNames.key11, enabled);
+                setVisible("W_CPkey_11", enabled);
                 mbNumericWithDotMode = true;
             }
 
@@ -1036,22 +942,22 @@ namespace textinput {
 
 
             void LayoutByNW4R::setPredictLanguageButton(bool enabled) {
-                setVisible(csNumericModePaneNames.predictionEuropeanMode, enabled);
+                setVisible("W_prdcModeBT_EU", enabled);
             }
 
             void LayoutByNW4R::setSignWindowButton(bool enabled) {
                 if (!enabled) {
-                    setVisible(csNumericModePaneNames.othersEuropean, enabled);
-                    setVisible(csNumericModePaneNames.othersJapanese, enabled);
+                    setVisible("W_othersBT_EU", enabled);
+                    setVisible("W_othersBT_JP", enabled);
                     return;
                 }
                 {
-                    setVisible(csNumericModePaneNames.othersEuropean, false);
-                    setVisible(csNumericModePaneNames.othersJapanese, false);
+                    setVisible("W_othersBT_EU", false);
+                    setVisible("W_othersBT_JP", false);
                     if (getLanguage() == JP) {
-                        setVisible(csNumericModePaneNames.othersJapanese, true);
+                        setVisible("W_othersBT_JP", true);
                     } else {
-                        setVisible(csNumericModePaneNames.othersEuropean, true);
+                        setVisible("W_othersBT_EU", true);
                     }
                 }
             }
@@ -1059,7 +965,7 @@ namespace textinput {
             void LayoutByNW4R::setLangKeyActive(bool enabled) {
                 Base::setLangKeyActive(enabled);
                 if (getLanguage() == KR || getLanguage() == CN) {
-                    setVisible(csPaneNameTogglePanes[0].name, enabled);
+                    setVisible("W_ChngTag_00", enabled);
                     setVisible("T_ChngTag_00", enabled);
                 }
             }
@@ -1136,30 +1042,9 @@ namespace textinput {
             }
 
             void LayoutByNW4R::changeInputMode(InputMode mode) {
-                u8 inactiveData[4];
-                mCurrentInputMode = mode;
-                if (getLanguage()) {
-                    mbUpperCaseMode = true;
-                    mbAbcMode = true;
-                }
+                Base::changeInputMode(mode);
 
-                if (mpManager->getCandidateBox()) {
-                    mpManager->getCandidateBox()->checkValidation();
-                }
-
-                if (mode == IM_00) {
-                    struct ActiveMode { bool enabled; } activeData = {true};
-                    sendCommand(0x13, &activeData);
-                }
-                if (mode == IM_01) {
-                    inactiveData[0] = 0;
-                    sendCommand(0x13, inactiveData);
-                }
-
-                updateFixMode();
-                sendCommand(0x29, NULL);
-
-                                if (getLanguage() == JP) {
+                if (getLanguage() == JP) {
                     if (!mbUpperCaseMode && mode == IM_02) {
                         mode = IM_04;
                     }
@@ -1167,35 +1052,34 @@ namespace textinput {
                     switch (mode) {
                     case IM_00:
                     case IM_01:
-                        setVisible(csNumericModePaneNames.smallCandidateChange, false);
-                        setVisible(csNumericModePaneNames.key09, true);
-                        setVisible(csNumericModePaneNames.spaceJapanese, true);
-                        setVisible(csNumericModePaneNames.smallCandidateChange, false);
+                        setVisible("W_smlCptChngeBT", false);
+                        setVisible("W_CPkey_09", true);
+                        setVisible("P_CPkey_dakuten", true);
+                        setVisible("W_smlCptChngeBT", false);
                         break;
                     case IM_02:
                     case IM_04:
-                        setVisible(csNumericModePaneNames.smallCandidateChange, true);
-                        setVisible(csNumericModePaneNames.key09, false);
-                        setVisible(csNumericModePaneNames.spaceJapanese, false);
-                        setVisible(csNumericModePaneNames.smallCandidateChange, true);
+                        setVisible("W_smlCptChngeBT", true);
+                        setVisible("W_CPkey_09", false);
+                        setVisible("P_CPkey_dakuten", false);
+                        setVisible("W_smlCptChngeBT", true);
                         break;
                     case IM_03:
-                        setVisible(csNumericModePaneNames.smallCandidateChange, false);
-                        setVisible(csNumericModePaneNames.key09, true);
-                        setVisible(csNumericModePaneNames.spaceJapanese, false);
-                        setVisible(csNumericModePaneNames.smallCandidateChange, false);
+                        setVisible("W_smlCptChngeBT", false);
+                        setVisible("W_CPkey_09", true);
+                        setVisible("P_CPkey_dakuten", false);
+                        setVisible("W_smlCptChngeBT", false);
                         break;
                     default:
                         break;
                     }
                 } else {
-                    setVisible(csNumericModePaneNames.spaceJapanese, false);
+                    setVisible("P_CPkey_dakuten", false);
                 }
 
                 changeKeyTop(static_cast<const LanguageDependencyData*>(mpInputModeTable)
                                  ->keySets[mode]->pPaneNameToCharCode);
-                nw4rmanager::Layout* layout = this;
-                layout->initPaneLastDrawReceived();
+                initPaneLastDrawReceived();
             }
 
             void LayoutByNW4R::changeKeyTop(const PaneNameToCharCode* keys) {
@@ -1252,11 +1136,11 @@ namespace textinput {
                 KeyboardBase::setLanguage(language);
                 nw4r::lyt::Pane* rootPane = mpLayout->GetRootPane();
                 if (language == JP) {
-                    rootPane->FindPaneByName(csTexturePaneNames.names[0], true)->GetMaterial()->SetTexture(0, mTextures[0]);
+                    rootPane->FindPaneByName("P_spaceBT_JP", true)->GetMaterial()->SetTexture(0, mTextures[0]);
                 } else if (language == CN) {
-                    rootPane->FindPaneByName(csTexturePaneNames.names[0], true)->GetMaterial()->SetTexture(0, mTextures[1]);
+                    rootPane->FindPaneByName("P_spaceBT_JP", true)->GetMaterial()->SetTexture(0, mTextures[1]);
                 } else if (language == KR) {
-                    rootPane->FindPaneByName(csTexturePaneNames.names[0], true)->GetMaterial()->SetTexture(0, mTextures[2]);
+                    rootPane->FindPaneByName("P_spaceBT_JP", true)->GetMaterial()->SetTexture(0, mTextures[2]);
                 }
 
                 if (mpLayout) {
@@ -1428,7 +1312,7 @@ namespace textinput {
                         changeAnimation(ANM_Pushed);
                     }
                     break;
-                case ANM_FocusOut:
+                case ANM_RollOver:
                     if (event == PE_2) {
                         changeAnimation(ANM_FocusOut);
                     }
@@ -1436,7 +1320,7 @@ namespace textinput {
                         changeAnimation(ANM_Pushed);
                     }
                     break;
-                case ANM_RollOver:
+                case ANM_FocusOut:
                     if (event == PE_4) {
                         changeAnimation(ANM_Normal);
                     }
