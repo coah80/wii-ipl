@@ -130,11 +130,18 @@ typedef struct EZTXGetParam {
     wchar_t* candidates;     // 0x18
     u8 maxCandidates;        // 0x1C
     wchar_t firstCandidate;  // 0x1E
+#ifndef TIZISTRING_IMPLEMENTATION
     u8 wordCandidates;       // 0x1F
+#endif
 
     u8 count;     // 0x20
     u8 letters;   // 0x21
+#ifdef TIZISTRING_IMPLEMENTATION
+    u8 completion;
+    u8* scratch;
+#else
     u8* scratch;  // 0x22
+#endif
 } EZTXGetParam;
 
 u16 EZTXGetGlobalDataSize();
