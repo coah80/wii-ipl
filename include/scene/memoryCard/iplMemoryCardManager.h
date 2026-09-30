@@ -90,7 +90,11 @@ namespace ipl {
 #else
             u16             getBlocks(u8 slot, s16 index);
 #endif
+#ifdef IPL_MEMORY_CARD_CPP
+            u32             getFreeBlocks(u8 slot);
+#else
             u16             getFreeBlocks(u8 slot);
+#endif
 
             void setEventHandler(MemCardEventHandler* eventHandler) {
                 mpEventHandler = eventHandler;
