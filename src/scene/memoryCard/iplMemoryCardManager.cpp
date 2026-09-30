@@ -81,11 +81,10 @@ long MemoryCardManager::isSlotWrongDevice(u8 slot) {
 
 void MemoryCardManager::sort_file_array(u8 slot) {
     CardDirectory* dirs = reinterpret_cast<CardDirectory*>(memorycard::getCardDirState());
-    memorycard::FileInfo* directory = &dirs[slot][0];
     for (long file = 0; file < 0x7f; file++) {
-        if (directory[file].fileNo != 0) {
+        if (dirs[slot][file].fileNo != 0) {
             mFile[slot][file].fileNo = file;
-            mFile[slot][file].sortKey = directory[file].key;
+            mFile[slot][file].sortKey = dirs[slot][file].key;
             mFile[slot][file].unk_0x08 = 0;
         } else {
             mFile[slot][file].fileNo = file;
@@ -376,7 +375,7 @@ GXTexObj* MemoryCardManager::_create_icon(u8 slot, s16 file, long start) {
         GXLoadTexObj(&mFileCell[slot][file].icon, GX_TEXMAP0);
     } else if ((int)icon->iconFmt[start] == GX_TF_C8) {
         GXInitTexObjCI(&mFileCell[slot][file].icon, reinterpret_cast<u8*>(icon) + icon->iconOffset[start], 0x20, 0x20, GX_TF_C8, GX_CLAMP, GX_CLAMP, GX_FALSE, GX_TLUT0);
-        GXInitTlutObj(&mFileCell[slot][file].iconTlut, reinterpret_cast<u8*>(icon) + icon->iconTlutOffset, GX_TL_RGB5A3, 0x100);
+        GXInitTlutObj(&mFileCell[slot][file].iconTlut, reinterpret_cast<u8*>(icon) + icons[slot][file].iconTlutOffset, GX_TL_RGB5A3, 0x100);
         GXLoadTlut(&mFileCell[slot][file].iconTlut, GX_TLUT0);
         GXLoadTexObj(&mFileCell[slot][file].icon, GX_TEXMAP0);
     } else {
@@ -387,20 +386,20 @@ GXTexObj* MemoryCardManager::_create_icon(u8 slot, s16 file, long start) {
 
 const wchar_t* MemoryCardManager::getComment(u8 slot, s16 index, int which) {
     int file = mFile[slot][index].fileNo;
-    wchar_t* dest = mFileCell[slot][file].comment[which];
-    wmemset(dest, 0, 0x40);
+    wmemset(mFileCell[slot][file].comment[which], 0, 0x40);
     char comment[33] = {0};
     const char* comments = memorycard::getIconComment(slot, file);
     memcpy(comment, comments + which * 0x20, 0x20);
-    char* end = comment + 0x1f;
-    char* tail = end;
+    const u8* encoded = reinterpret_cast<const u8*>(comment);
+    char* tail = comment + 0x1f;
+    char* end = tail;
     for (; *end == ' ' || *end == '\n' || *end == 0;) {
         *tail = 0;
         end--;
         tail--;
     }
     if (SCGetLanguage() == 0) {
-        utility::CharacterCode::shiftJISToUTF16(dest, reinterpret_cast<const u8*>(comment), 0x20);
+        utility::CharacterCode::shiftJISToUTF16(mFileCell[slot][file].comment[which], encoded, 0x20);
         for (int pos = 0x1f;
              mFileCell[slot][file].comment[which][pos] == 0x20 ||
              mFileCell[slot][file].comment[which][pos] == 0x3000 ||
@@ -409,7 +408,7 @@ const wchar_t* MemoryCardManager::getComment(u8 slot, s16 index, int which) {
             mFileCell[slot][file].comment[which][pos--] = 0;
         }
     } else {
-        utility::CharacterCode::ANSIToUTF16(dest, reinterpret_cast<const u8*>(comment), 0x20);
+        utility::CharacterCode::ANSIToUTF16(mFileCell[slot][file].comment[which], encoded, 0x20);
     }
     bool found = false;
     int count = 0;
@@ -429,10 +428,10 @@ GXTexObj* MemoryCardManager::create_banner(u8 slot, s16 index) {
     CardDirectory* dirs = reinterpret_cast<CardDirectory*>(memorycard::getCardDirState());
     CardIcons* icons = reinterpret_cast<CardIcons*>(memorycard::getIconStateArray());
     int file = mFile[slot][index].fileNo;
-    memorycard::IconState* icon = &icons[slot][file];
-    if (dirs[slot][file].fileNo == 0 || !icon->bannerEnable) {
+    if (dirs[slot][file].fileNo == 0 || !icons[slot][file].bannerEnable) {
         return NULL;
     }
+    memorycard::IconState* icon = &icons[slot][file];
     if ((int)icon->bannerType == GX_TF_RGB5A3) {
         GXInitTexObj(&mFileCell[slot][file].banner, reinterpret_cast<u8*>(icon) + icon->bannerOffset,
                      0x60, 0x20, GX_TF_RGB5A3, GX_CLAMP, GX_CLAMP, GX_FALSE);
@@ -440,7 +439,7 @@ GXTexObj* MemoryCardManager::create_banner(u8 slot, s16 index) {
     } else if ((int)icon->bannerType == GX_TF_C8) {
         GXInitTexObjCI(&mFileCell[slot][file].banner, reinterpret_cast<u8*>(icon) + icon->bannerOffset,
                        0x60, 0x20, GX_TF_C8, GX_CLAMP, GX_CLAMP, GX_FALSE, GX_TLUT0);
-        GXInitTlutObj(&mFileCell[slot][file].bannerTlut, reinterpret_cast<u8*>(icon) + icon->bannerTlutOffset, GX_TL_RGB5A3, 0x100);
+        GXInitTlutObj(&mFileCell[slot][file].bannerTlut, reinterpret_cast<u8*>(icon) + icons[slot][file].bannerTlutOffset, GX_TL_RGB5A3, 0x100);
         GXLoadTlut(&mFileCell[slot][file].bannerTlut, GX_TLUT0);
         GXLoadTexObj(&mFileCell[slot][file].banner, GX_TEXMAP0);
     }
