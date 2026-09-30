@@ -154,6 +154,8 @@ namespace ipl {
 
         const char* sSettingAPNumberNames[] = {"N_AP1", "N_AP2", "N_AP3", "N_AP4", "N_AP5", "N_AP6"};
 
+        extern "C" __declspec(section ".sdata") const char* lbl_81697010[];
+
         const char* sSettingAPPaneNames[] = {
             "G_ListUpDown", "G_ListInOut", "G_ArwA", "G_ArwB", "G_Denpa", "G_Lock",  "G_AP0",
             "G_AP1",        "G_AP2",       "G_AP3",  "G_AP4",  "G_AP5",   "G_AP6",   "G_AP7",
@@ -2859,17 +2861,17 @@ namespace ipl {
                     layout::Animator* animation = mpMainLayout->getAnim(2);
                     animation->initFrame();
                     animation->restart();
-                    mpMainLayout->FindPaneByName(sSettingAPPaneNames[0])->SetVisible(false);
+                    mpMainLayout->FindPaneByName(lbl_81697010[0])->SetVisible(false);
                     for (int point = 0; point < 8; ++point) {
                         mpPaneManager->getPaneComponentByPane(
-                            mpMainLayout->FindPaneByName(sSettingAPPaneNames[0]))->setPointed(point, false);
+                            mpMainLayout->FindPaneByName(lbl_81697010[0]))->setPointed(point, false);
                     }
                 }
                 if (mAPScanList.count == unk_0x914 + 5) {
                     layout::Animator* animation = mpMainLayout->getAnim(1);
                     animation->initFrame();
                     animation->restart();
-                    mpMainLayout->FindPaneByName(sSettingAPPaneNames[1])->SetVisible(true);
+                    mpMainLayout->FindPaneByName(lbl_81697010[1])->SetVisible(true);
                 }
             } else {
                 ++unk_0x914;
@@ -2877,22 +2879,23 @@ namespace ipl {
                     layout::Animator* animation = mpMainLayout->getAnim(3);
                     animation->initFrame();
                     animation->restart();
-                    mpMainLayout->FindPaneByName(sSettingAPPaneNames[1])->SetVisible(false);
+                    mpMainLayout->FindPaneByName(lbl_81697010[1])->SetVisible(false);
                     for (int point = 0; point < 8; ++point) {
                         mpPaneManager->getPaneComponentByPane(
-                            mpMainLayout->FindPaneByName(sSettingAPPaneNames[1]))->setPointed(point, false);
+                            mpMainLayout->FindPaneByName(lbl_81697010[1]))->setPointed(point, false);
                     }
                 }
                 if (unk_0x914 == 1) {
                     layout::Animator* animation = mpMainLayout->getAnim(0);
                     animation->initFrame();
                     animation->restart();
-                    mpMainLayout->FindPaneByName(sSettingAPPaneNames[0])->SetVisible(true);
+                    mpMainLayout->FindPaneByName(lbl_81697010[0])->SetVisible(true);
                 }
             }
             mpMainLayout->getAnim(10)->stop();
             mpMainLayout->getAnim(11)->stop();
-            unk_0x918 = unk_0x91C[0] + 10;
+            u8 scrollDirection = unk_0x91C[0];
+            unk_0x918 = scrollDirection + 0xa;
             layout::Animator* animation = mpMainLayout->getAnim(unk_0x918);
             animation->initFrame();
             animation->restart();
