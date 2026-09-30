@@ -788,7 +788,7 @@ namespace ipl {
                     if (mpBrowserData->unk_0x00 == 0) {
                         OSReport("IME Created ");
                         if (mpBrowserData->text) {
-                            OSReport("initKeyboard %s\n");
+                            OSReport("initKeyboard %s\n", mpBrowserData->text);
                             OSReport("initKeyboard %d\n", mpWiiSettingData->data[0x11]);
                             if (mpWiiSettingData->data[0x11] != 0) {
                                 unk_0x74 = 1;
@@ -3164,25 +3164,25 @@ namespace ipl {
         bool Setting::validateEULA_() {
             bool valid = false;
             ESTmdView* titleView = NULL;
-            s32 result = utility::ESMisc::GetTmdView(System::getMem1Root(), mUpdateTitleId, &titleView);
+            s32 result = utility::ESMisc::GetTmdView(System::getTreasureHeap(), mUpdateTitleId, &titleView);
             if (result == -0x401 || result == -0x6a) {
                 unk_0x7C = 0;
                 unk_0x74 = 0xd;
                 resetFuncMsgQ();
                 System::getDialog()->callBtn2(0x180, 0x2e, 0x25);
             } else if (result != 0) {
-                System::getErrorHandler()->log(NULL, result, "ES", 0x10f1);
+                System::getErrorHandler()->log("ES", result, "iplSetting.cpp", 0x10f1);
                 System::getErrorHandler()->set(ErrorHandler::DEFAULT, 2);
             } else {
                 result = 0;
                 if (!utility::ESMisc::ContentExist(titleView, 1, &result) && result != 0) {
-                    System::getErrorHandler()->log(NULL, result, "ES", 0x10fc);
+                    System::getErrorHandler()->log("ES", result, "iplSetting.cpp", 0x10fc);
                     System::getErrorHandler()->set(ErrorHandler::DEFAULT, 2);
                 }
                 valid = true;
             }
             if (titleView != NULL) {
-                System::getMem1Root()->free(titleView);
+                System::getTreasureHeap()->free(titleView);
             }
             return valid;
         }
