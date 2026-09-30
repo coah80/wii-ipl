@@ -129,10 +129,9 @@ void ipl::scene::AddressEdit::reset_gui() {
     for (s32 i = 0; i < 5; ++i) {
         if (mPointCount[i] > 0) {
             ipl::layout::Animator* animator = mpCodeLayout->getAnim(i + 0xb);
-            animator->initFrame();
-            animator->restart();
+            animator->play();
+            mPointCount[i] = 0;
         }
-        mPointCount[i] = 0;
     }
 }
 
@@ -825,7 +824,7 @@ state_at_or_after_disappearing:
     goto state_visible;
 
 state_disappearing: {
-        bool nameWasEmpty = mString.mName[0] == 0;
+        BOOL nameWasEmpty = mString.mName[0] == 0;
         if (state->pressOK) {
             mString.setName(state->wcString);
             nw4r::lyt::Pane* pane = mpNameLayout->getNW4RLyt()->GetRootPane()->FindPaneByName(
@@ -1800,7 +1799,7 @@ state_at_or_after_disappearing:
     goto state_hidden_after_disappear;
 
 state_disappearing: {
-        bool nameWasEmpty = mString.mName[0] == 0;
+        BOOL nameWasEmpty = mString.mName[0] == 0;
         if (state->pressOK) {
             mString.setName(state->wcString);
             ipl::layout::Object* layout =
@@ -1858,7 +1857,7 @@ void ipl::scene::AddressEdit::stt_add_code_input() {
     ipl::scene::Button* button = static_cast<ipl::scene::Button*>(ipl::System::getScene(5));
     switch (state->iplType) {
     case ipl::keyboard::Manager::STATE_DISAPPEARING: {
-        bool codeWasEmpty = mString.mValue[0] == 0;
+        BOOL codeWasEmpty = mString.mValue[0] == 0;
         if (state->pressOK) {
             if (mMode == 1) {
                 mString.setWiiNo(state->wcString);
