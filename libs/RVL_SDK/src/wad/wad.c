@@ -148,9 +148,8 @@ typedef struct WADVerificationCertificateBundle {
 } WADVerificationCertificateBundle;
 
 typedef struct WADVerificationWorkspace {
-    void* readBuffer[16];
     u8 digest[0x40];
-    u8 hashContext[0xC0];
+    u8 hashContext[0x80];
 } WADVerificationWorkspace;
 
 #pragma pack(push, 4)
@@ -611,7 +610,7 @@ s32 WADImportEx(char* path, MEMAllocator* allocator, WADLocation location, u32 o
     s32 titleVersion;
     u32 contentSize;
     u32 chunkSize;
-    u32 readSize;
+    size_t readSize;
     u32 bootSize;
     u32 alignedSize;
     u32 callbackDone;
@@ -1244,7 +1243,7 @@ s32 WADBackupEx(u64 titleId, u32 ticketId, MEMAllocator* allocator, char* path, 
     u32 sizeRemaining;
     u32 bufferIndex;
     u32 chunkSize;
-    u32 readSize;
+    size_t readSize;
     s32 result = 0;
     s32 streamOpened = FALSE;
     s32 titleExportStarted = FALSE;
@@ -1785,63 +1784,27 @@ static void _WADMemFree(MEMAllocator* allocator, void* buffer) {
 #pragma dont_inline reset
 
 s32 _WADGetCidxCount(const ESContentMask* contentMask) {
+    u32 bitIndex;
     s32 count = 0;
-    u32 bitIndex = 0;
-    u32 groupIndex;
 
-    for (groupIndex = 0; groupIndex < 0x80; groupIndex++) {
+    for (bitIndex = 0; bitIndex < 0x200; bitIndex++) {
         if ((contentMask->data[bitIndex >> 3] & (1 << (bitIndex & 7))) != 0) {
             count++;
         }
-        bitIndex++;
-        if ((contentMask->data[bitIndex >> 3] & (1 << (bitIndex & 7))) != 0) {
-            count++;
-        }
-        bitIndex++;
-        if ((contentMask->data[bitIndex >> 3] & (1 << (bitIndex & 7))) != 0) {
-            count++;
-        }
-        bitIndex++;
-        if ((contentMask->data[bitIndex >> 3] & (1 << (bitIndex & 7))) != 0) {
-            count++;
-        }
-        bitIndex++;
     }
     return count;
 }
 
 static s32 _WADGetCidx(const ESContentMask* contentMask, u32 contentNumber) {
+    s32 bitIndex;
     u32 remaining = contentNumber + 1;
-    s32 bitIndex = 0;
-    s32 nextIndex;
 
-    for (bitIndex = 0; bitIndex < 0x200; bitIndex += 4) {
+    for (bitIndex = 0; bitIndex < 0x200; bitIndex++) {
         if ((contentMask->data[bitIndex >> 3] & (1 << (bitIndex & 7))) != 0) {
             remaining--;
         }
         if (remaining == 0) {
             return bitIndex;
-        }
-        nextIndex = bitIndex + 1;
-        if ((contentMask->data[nextIndex >> 3] & (1 << (nextIndex & 7))) != 0) {
-            remaining--;
-        }
-        if (remaining == 0) {
-            return nextIndex;
-        }
-        nextIndex = bitIndex + 2;
-        if ((contentMask->data[nextIndex >> 3] & (1 << (nextIndex & 7))) != 0) {
-            remaining--;
-        }
-        if (remaining == 0) {
-            return nextIndex;
-        }
-        nextIndex = bitIndex + 3;
-        if ((contentMask->data[nextIndex >> 3] & (1 << (nextIndex & 7))) != 0) {
-            remaining--;
-        }
-        if (remaining == 0) {
-            return nextIndex;
         }
     }
     return -1;
@@ -2124,16 +2087,16 @@ static void _WADRandPad(void* buffer, u32 size) {
         return;
     }
     for (wordIndex = 0; wordIndex < wordCount; wordIndex++) {
-        words[wordIndex] = ((u32)rand() << 2) | ((u32)rand() << 17) | (rand() & 3);
+        words[wordIndex] = ((u32)rand() << 17) | ((u32)rand() << 2) | (rand() & 3);
     }
     if (remainder != 0) {
-        u32 randomWord = ((u32)rand() << 2) | ((u32)rand() << 17) | (rand() & 3);
+        u32 randomWord = ((u32)rand() << 17) | ((u32)rand() << 2) | (rand() & 3);
         u8* tail = (u8*)&words[wordCount];
         u8* randomBytes = (u8*)&randomWord;
         u32 byteIndex;
 
-        for (byteIndex = 0; byteIndex < remainder; byteIndex++) {
-            tail[byteIndex] = randomBytes[byteIndex];
+        for (byteIndex = 0; byteIndex < size - wordCount * 4; byteIndex++) {
+            *tail++ = *randomBytes++;
         }
     }
 }
@@ -2159,32 +2122,26 @@ s32 WADOpenStream(WADLocation location, const char* path, WADStream* stream, u32
     switch (location) {
     case WAD_LOCATION_CNT_DVD: {
         WADContentPath* contentPath = (WADContentPath*)path;
-        s32 result;
         if (write != 0) {
-            result = -3004;
-        } else {
-            result = contentOpenDVD(contentPath->handle, contentPath->name,
-                                    &stream->handle.contentDvd);
-            if (result != 0) {
-                result = -3004;
-            }
+            return -3004;
         }
-        return result;
+        if (contentOpenDVD(contentPath->handle, contentPath->name,
+                           &stream->handle.contentDvd) != 0) {
+            return -3004;
+        }
+        return 0;
     }
 
     case WAD_LOCATION_CNT_NAND: {
         WADContentPath* contentPath = (WADContentPath*)path;
-        s32 result;
         if (write != 0) {
-            result = -3004;
-        } else {
-            result = contentOpenNAND(contentPath->handle, contentPath->name,
-                                     &stream->handle.contentNand);
-            if (result != 0) {
-                result = -3004;
-            }
+            return -3004;
         }
-        return result;
+        if (contentOpenNAND(contentPath->handle, contentPath->name,
+                            &stream->handle.contentNand) != 0) {
+            return -3004;
+        }
+        return 0;
     }
 
     case (WADLocation)0:
@@ -2210,10 +2167,8 @@ s32 WADOpenStream(WADLocation location, const char* path, WADStream* stream, u32
     case WAD_LOCATION_NAND:
         {
             s32 result;
-            if (write == 0) {
-                return NANDPrivateOpen(path, &stream->handle.nand, 1) == 0 ? 0 : -3004;
-            }
-            result = NANDPrivateOpen(path, &stream->handle.nand, 3);
+            if (write != 0) {
+                result = NANDPrivateOpen(path, &stream->handle.nand, 3);
             if (result == -12) {
                 result = NANDPrivateCreate(path, 0x3F, 0);
                 if (result != 0) {
@@ -2227,6 +2182,7 @@ s32 WADOpenStream(WADLocation location, const char* path, WADStream* stream, u32
             result = NANDSeek(&stream->handle.nand, offset, 0);
             if (result == -8) {
                 u8 zeroes[0x4000] ALIGN32;
+                u32 writeSize;
                 u32 fileSize;
 
                 fileSize = NANDSeek(&stream->handle.nand, 0, 2);
@@ -2236,34 +2192,37 @@ s32 WADOpenStream(WADLocation location, const char* path, WADStream* stream, u32
                 memset(zeroes, 0, sizeof(zeroes));
                 fileSize = offset - fileSize;
                 while (fileSize != 0) {
-                    u32 writeSize = fileSize;
-                    if (writeSize > sizeof(zeroes)) {
-                        writeSize = sizeof(zeroes);
+                    writeSize = sizeof(zeroes);
+                    if (fileSize < sizeof(zeroes)) {
+                        writeSize = fileSize;
                     }
-                    if (NANDWrite(&stream->handle.nand, zeroes, writeSize) != writeSize) {
+                    if ((u32)NANDWrite(&stream->handle.nand, zeroes, writeSize) != writeSize) {
                         return -3004;
                     }
                     fileSize -= writeSize;
                 }
                 result = NANDSeek(&stream->handle.nand, offset, 0);
             }
-            return result == offset ? 0 : -3004;
+                return result == offset ? 0 : -3004;
+            } else {
+                return NANDPrivateOpen(path, &stream->handle.nand, 1) == 0 ? 0 : -3004;
+            }
         }
 
     case WAD_LOCATION_SD_CARD: {
-        if (write == 0) {
-            stream->handle.fa = FAFopen(path, "r");
-        } else {
-            stream->handle.fa = FAFopen(path, "r+");
+        if (write != 0) {
+            stream->handle.fa = FAFopen(path, "w");
             if (stream->handle.fa == 0) {
                 stream->handle.fa = FACreate(path, 0);
             }
             if (stream->handle.fa == 0) {
                 return -3004;
             }
-            if ((offset != 0) && (WADSeekStream(stream, offset, 0) != offset)) {
+            if ((offset != 0) && ((u32)WADSeekStream(stream, offset, 0) != offset)) {
                 return -3004;
             }
+        } else {
+            stream->handle.fa = FAFopen(path, "r");
         }
         return stream->handle.fa == 0 ? -3004 : 0;
     }
@@ -2356,27 +2315,34 @@ s32 WADWriteStream(WADStream* stream, void* buffer, u32 size) {
 
     if ((stream == 0) || (buffer == 0)) {
         result = -3000;
-    } else if (stream->location != WAD_LOCATION_NAND) {
-        if (stream->location == (WADLocation)0) {
+    } else {
+        switch (stream->location) {
+        case (WADLocation)0:
             memcpy(stream->handle.memoryBase, buffer, size);
-        } else if ((stream->location > WAD_LOCATION_NAND) &&
-                   (stream->location < WAD_LOCATION_CNT_DVD)) {
+            break;
+        case WAD_LOCATION_NAND:
+            result = NANDWrite(&stream->handle.nand, buffer, size);
+            break;
+        case WAD_LOCATION_SD_CARD:
             if (stream->handle.fa == 0) {
                 result = -3000;
             } else {
                 result = FAFwrite(buffer, 1, size, stream->handle.fa);
             }
-        } else {
+            break;
+        case WAD_LOCATION_CNT_DVD:
+        case WAD_LOCATION_CNT_NAND:
             result = -3000;
+            break;
         }
-    } else {
-        result = NANDWrite(&stream->handle.nand, buffer, size);
     }
     return result;
 }
 
 s32 WADSeekStream(WADStream* stream, u32 offset, s32 origin) {
     s32 result;
+    void* readBuffer;
+    size_t readSize;
 
     if ((stream == 0) || (origin < 0) || (origin > 2)) {
         return -3000;
@@ -3237,7 +3203,7 @@ s32 WADImportDVDExForBS(const char* path, void* buffer, u32 bufferSize) {
         remainingContentSize = ((u32)contentMeta->size + 0xF) & ~0xF;
         while (remainingContentSize != 0) {
             u32 chunkSize = remainingContentSize;
-            u32 readSize;
+            size_t readSize;
 
             if (chunkSize > remainingBufferSize) {
                 chunkSize = remainingBufferSize;
@@ -3321,35 +3287,43 @@ static s32 WAD_815C43E0(WADHashThreadArgs* args) {
 
 static s32 _WADHash(WADStream* stream, u32 offset, u32 size, void* context, void* buffer,
                     u32 chunkSize, void* secondBuffer, void* threadStack, u32 threadStackSize) {
-    s32 result = 0;
+    s32 result;
+    void* readBuffer;
+    u32 completed = 0;
 
     if ((stream == 0) || (context == 0) || (buffer == 0)) {
-        return -3000;
+        result = -3000;
+        goto done;
     }
     if (size != WAD_ALIGN32(size)) {
-        return -3000;
+        result = -3000;
+        goto done;
     }
     if (((u32)buffer & 0x1F) != 0) {
-        return -3007;
+        result = -3007;
+        goto done;
     }
     if (chunkSize != WAD_ALIGN32(chunkSize)) {
-        return -3000;
+        result = -3000;
+        goto done;
     }
+    result = 0;
+
     if ((secondBuffer == 0) || (threadStack == 0)) {
-        u32 completed = 0;
+        size_t readSize;
 
         while (size != 0) {
-            void* readBuffer = buffer;
-            u32 readSize = size;
-
-            if (chunkSize < size) {
+            readSize = size;
+            if (size > chunkSize) {
                 readSize = chunkSize;
             }
-            result = WADReadStream(stream, &readBuffer, readSize, offset + completed);
-            if ((u32)result != readSize) {
+            readBuffer = buffer;
+            if ((u32)WADReadStream(stream, &readBuffer, readSize,
+                                   offset + completed) != readSize) {
                 result = -3005;
                 break;
             }
+            result = 0;
             result = SHA1Input(context, readBuffer, readSize);
             if (result != 0) {
                 break;
@@ -3361,27 +3335,25 @@ static s32 _WADHash(WADStream* stream, u32 offset, u32 size, void* context, void
         WADImportTransfer transfer;
         WADHashThreadArgs args;
         OSThread thread;
-        s32 threadResult = 0;
-        u32 completed = 0;
         u32 bufferIndex = 0;
-        BOOL readFailed = FALSE;
+        OSMutex* mutex;
+        size_t readSize;
 
         WAD_815C4A2C(&transfer, buffer, secondBuffer, chunkSize);
         args.context = context;
         args.size = size;
         args.transfer = &transfer;
         if (!OSCreateThread(&thread, (void* (*)(void*))WAD_815C43E0, &args,
-                            (u8*)threadStack + threadStackSize, threadStackSize,
-                            OSGetThreadPriority(OSGetCurrentThread()), 0)) {
-            return -3009;
+                          (u8*)threadStack + threadStackSize, threadStackSize,
+                          OSGetThreadPriority(OSGetCurrentThread()), 0)) {
+            result = -3009;
+            goto done;
         }
         OSResumeThread(&thread);
         while ((size != 0) && (transfer.error == 0)) {
-            void* readBuffer;
-            u32 readSize = size;
-            OSMutex* mutex = &transfer.mutex[bufferIndex];
-
-            if (chunkSize < size) {
+            readSize = size;
+            mutex = &transfer.mutex[bufferIndex];
+            if (size > chunkSize) {
                 readSize = chunkSize;
             }
             OSLockMutex(mutex);
@@ -3393,18 +3365,17 @@ static s32 _WADHash(WADStream* stream, u32 offset, u32 size, void* context, void
                 break;
             }
             readBuffer = transfer.buffers[bufferIndex];
-            result = WADReadStream(stream, &readBuffer, readSize, offset + completed);
+            result = WADReadStream(stream, &readBuffer, readSize,
+                                   offset + completed);
             if ((u32)result != readSize) {
                 OSMutex* otherMutex = &transfer.mutex[bufferIndex ^ 1];
-
                 OSLockMutex(otherMutex);
                 OSCancelThread(&thread);
                 OSJoinThread(&thread, 0);
                 OSUnlockMutex(otherMutex);
                 OSUnlockMutex(mutex);
                 result = -3005;
-                readFailed = TRUE;
-                break;
+                goto done;
             }
             transfer.ready[bufferIndex] = readSize;
             OSUnlockMutex(mutex);
@@ -3413,75 +3384,80 @@ static s32 _WADHash(WADStream* stream, u32 offset, u32 size, void* context, void
             size -= readSize;
             bufferIndex ^= 1;
         }
-        if (!readFailed) {
-            if (!OSJoinThread(&thread, &threadResult)) {
-                result = -3009;
-            } else {
-                result = threadResult;
-            }
+        if (OSJoinThread(&thread, &result) == 0) {
+            return -3009;
         }
     }
+done:
     return result;
 }
 
 s32 WADVerify(WADStream* stream, MEMAllocator* allocator, u32 offset, u32 size) {
     WADVerificationWorkspace workspace ALIGN64;
-    void* verificationBuffer = 0;
-    WADBackupSignature* backupSignature;
-    WADVerificationCertificateBundle* certificateBundle;
     s32 result;
+    void* readBuffer = 0;
+    void* firstBuffer = 0;
+    void* buffer2 = 0;
+    void* buffer3 = 0;
+    u32 signatureOffset;
+    void* verificationBuffer = 0;
+    WADVerificationCertificateBundle* certificateBundle;
 
-    workspace.readBuffer[0] = 0;
     if (size != WAD_ALIGN32(size)) {
         result = -3000;
     } else if (size <= 0x340) {
         result = -3000;
     } else {
-        workspace.readBuffer[0] = _WADMemAlloc(allocator, 0x8000);
-        if (workspace.readBuffer[0] == 0) {
+        firstBuffer = _WADMemAlloc(allocator, 0x8000);
+        if (firstBuffer == 0) {
             result = -3003;
-        } else if (((u32)workspace.readBuffer[0] & 0x3F) != 0) {
+        } else if (((u32)firstBuffer & 0x3F) != 0) {
             result = -3007;
         } else {
-            u32 hashSize = size - 0x340;
-
+            size -= 0x340;
+            signatureOffset = offset + size;
             SHA1Reset(workspace.hashContext);
-            result = _WADHash(stream, offset, hashSize, workspace.hashContext,
-                              workspace.readBuffer[0], 0x8000, 0, 0, 0x1000);
+            result = _WADHash(stream, offset, size, workspace.hashContext,
+                              firstBuffer, 0x8000, 0, 0, 0x1000);
             if (result == 0) {
                 result = SHA1Result(workspace.hashContext, workspace.digest);
                 if (result == 0) {
-                    result = WADReadStream(stream, workspace.readBuffer, 0x340,
-                                           offset + hashSize);
-                    if (result == 0x340) {
+                    readBuffer = firstBuffer;
+                    result = WADReadStream(stream, &readBuffer, 0x340,
+                                           signatureOffset);
+                    if (result != 0x340) {
+                        result = -3005;
+                    } else {
                         verificationBuffer = _WADMemAlloc(allocator, 0xF80);
                         if (verificationBuffer == 0) {
                             result = -3003;
                         } else {
-                            backupSignature = workspace.readBuffer[0];
                             certificateBundle = verificationBuffer;
                             memcpy(certificateBundle->caProduction, ca_ppki, 0x400);
                             memcpy(certificateBundle->msProduction, ms_ppki, 0x240);
                             memcpy(certificateBundle->caDevelopment, ca_dpki, 0x400);
                             memcpy(certificateBundle->msDevelopment, ms_dpki, 0x240);
                             memcpy(certificateBundle->firstCertificate,
-                                   backupSignature->firstCertificate, 0x180);
+                                   ((WADBackupSignature*)readBuffer)->firstCertificate, 0x180);
                             memcpy(certificateBundle->secondCertificate,
-                                   backupSignature->secondCertificate, 0x180);
-                            result = ES_VerifySign(workspace.digest, 0x14,
-                                                   workspace.readBuffer[0], verificationBuffer,
-                                                   0xF80);
+                                   ((WADBackupSignature*)readBuffer)->secondCertificate, 0x180);
+                            result = ES_VerifySign(workspace.digest, 0x14, readBuffer,
+                                                   verificationBuffer, 0xF80);
                         }
-                    } else {
-                        result = -3005;
                     }
                 }
             }
         }
     }
 
-    if (workspace.readBuffer[0] != 0) {
-        _WADMemFree(allocator, workspace.readBuffer[0]);
+    if (firstBuffer != 0) {
+        _WADMemFree(allocator, firstBuffer);
+    }
+    if (buffer2 != 0) {
+        _WADMemFree(allocator, buffer2);
+    }
+    if (buffer3 != 0) {
+        _WADMemFree(allocator, buffer3);
     }
     if (verificationBuffer != 0) {
         _WADMemFree(allocator, verificationBuffer);
@@ -3489,6 +3465,7 @@ s32 WADVerify(WADStream* stream, MEMAllocator* allocator, u32 offset, u32 size) 
     return result;
 }
 
+#pragma dont_inline on
 void WAD_815C4A2C(WADImportTransfer* transfer, void* firstBuffer, void* secondBuffer,
                   u32 chunkSize) {
     transfer->chunkSize = chunkSize;
@@ -3504,6 +3481,7 @@ void WAD_815C4A2C(WADImportTransfer* transfer, void* firstBuffer, void* secondBu
     OSInitCond(&transfer->signalCond[0]);
     OSInitCond(&transfer->signalCond[1]);
 }
+#pragma dont_inline reset
 
 #pragma dont_inline on
 static u32 _WADIsTerminated(const char* text, u32 maxLength) {
