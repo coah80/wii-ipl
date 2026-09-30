@@ -489,9 +489,9 @@ namespace ipl {
                                                        mem2Buffer_, mem2Size,
                                                        static_cast<nand::File*>(mpWWWLibraryFile)->getBuffer(),
                                                        browserPath);
-            ext_ead::www::SurfaceManager::RegisterArcFile(static_cast<nand::File*>(mpWWWArchiveFile)->getBuffer());
-            ext_ead::www::SurfaceManager::RegisterIniFile(static_cast<nand::File*>(mpSettingHTMLFile)->getBuffer(),
-                                                          static_cast<nand::File*>(mpSettingHTMLFile)->getLength());
+            ext_ead::www::SurfaceManager::RegisterArcFile(static_cast<nand::File*>(mpSettingHTMLFile)->getBuffer());
+            ext_ead::www::SurfaceManager::RegisterIniFile(static_cast<nand::File*>(mpWWWArchiveFile)->getBuffer(),
+                                                          static_cast<nand::File*>(mpWWWArchiveFile)->getLength());
             ext_ead::www::SurfaceManager::RegisterFontFile(0, static_cast<nand::File*>(mpFontFile)->getBuffer(),
                                                            static_cast<nand::File*>(mpFontFile)->getLength());
             ext_ead::www::SurfaceManager::StartThread();
@@ -3122,9 +3122,8 @@ namespace ipl {
 
         bool Setting::validateEULA_() {
             ESTmdView* titleView = NULL;
-            s32 contentResult = 0;
-            s32 result = utility::ESMisc::GetTmdView(System::getMem1Root(), mUpdateTitleId, &titleView);
             bool valid = false;
+            s32 result = utility::ESMisc::GetTmdView(System::getMem1Root(), mUpdateTitleId, &titleView);
             if (result == -0x401 || result == -0x6a) {
                 unk_0x7C = 0;
                 unk_0x74 = 0xd;
@@ -3134,8 +3133,9 @@ namespace ipl {
                 System::getErrorHandler()->log("ES", result, "iplSetting.cpp", 0x10f1);
                 System::getErrorHandler()->set(ErrorHandler::DEFAULT, 2);
             } else {
-                if (!utility::ESMisc::ContentExist(titleView, 1, &contentResult) && contentResult != 0) {
-                    System::getErrorHandler()->log("ES", contentResult, "iplSetting.cpp", 0x10fc);
+                result = 0;
+                if (!utility::ESMisc::ContentExist(titleView, 1, &result) && result != 0) {
+                    System::getErrorHandler()->log("ES", result, "iplSetting.cpp", 0x10fc);
                     System::getErrorHandler()->set(ErrorHandler::DEFAULT, 2);
                 }
                 valid = true;
@@ -3554,31 +3554,32 @@ namespace ipl {
         }
 
         void Setting::setUSBAP() {
-            if (unk_0x84 != 2) {
-                if (unk_0x84 < 2) {
-                    if (unk_0x84 >= 1) {
-                        if (static_cast<USBAPThread*>(mpUSBAPThread)->is()) {
-                            bool result = SCGetOwnerNickName(reinterpret_cast<SCOwnerNickname*>(mSettingData));
-                            if (!result) {
-                                www::wiisetting::setFuncResult(2);
-                                resetFuncMsgQ();
-                            } else {
-                                OSReport("USB SCGetOwnerNickName:%d\n", result);
-                                static_cast<USBAPThread*>(mpUSBAPThread)->setData(
-                                    reinterpret_cast<const wchar_t*>(mSettingData), &unk_0x91C[1]);
-                                static_cast<USBAPThread*>(mpUSBAPThread)->Init(
-                                    reinterpret_cast<unsigned short*>(mpMem2BrowserBuffer),
-                                    reinterpret_cast<u8*>(mpBrowserStringBuffer));
-                                unk_0x84 = 2;
-                            }
-                        }
+            switch (unk_0x84) {
+            case 1:
+                if (static_cast<USBAPThread*>(mpUSBAPThread)->is()) {
+                    bool result = SCGetOwnerNickName(reinterpret_cast<SCOwnerNickname*>(mSettingData));
+                    if (result) {
+                        OSReport("USB SCGetOwnerNickName:%d\n", result);
+                        static_cast<USBAPThread*>(mpUSBAPThread)->setData(
+                            reinterpret_cast<const wchar_t*>(mSettingData), &unk_0x91C[1]);
+                        static_cast<USBAPThread*>(mpUSBAPThread)->Init(
+                            reinterpret_cast<unsigned short*>(mpMem2BrowserBuffer),
+                            reinterpret_cast<u8*>(mpBrowserStringBuffer));
+                        unk_0x84 = 2;
+                    } else {
+                        www::wiisetting::setFuncResult(2);
+                        resetFuncMsgQ();
                     }
                 }
-            } else if (unk_0x91C[1] != 0) {
-                www::wiisetting::setFuncResult(unk_0x91C[1]);
-                unk_0x84 = 1;
-                unk_0x91C[1] = 0;
-                resetFuncMsgQ();
+                break;
+            case 2:
+                if (unk_0x91C[1] != 0) {
+                    www::wiisetting::setFuncResult(unk_0x91C[1]);
+                    unk_0x84 = 1;
+                    unk_0x91C[1] = 0;
+                    resetFuncMsgQ();
+                }
+                break;
             }
         }
 
