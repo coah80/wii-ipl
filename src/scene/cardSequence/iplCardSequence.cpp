@@ -84,7 +84,7 @@ void sendCardFormatCmd(u8 slot) {
 }
 
 void sendCardCopyCmd(u8 slot, s16 fileNo) {
-    u32 message = ((u8)fileNo << 24) | ((slot & 1) << 16);
+    u32 message = ((u32)fileNo & 0xFF) << 24 | ((slot & 1) << 16);
     sThread->sourceSlot = slot;
     sThread->lastCommand = 2;
     sThread->lastResult = -21;
@@ -94,7 +94,7 @@ void sendCardCopyCmd(u8 slot, s16 fileNo) {
 }
 
 void sendCardMoveCmd(u8 slot, s16 fileNo) {
-    u32 message = ((u8)fileNo << 24) | ((slot & 1) << 16);
+    u32 message = ((u32)fileNo & 0xFF) << 24 | ((slot & 1) << 16);
     sThread->sourceSlot = slot;
     sThread->lastCommand = 3;
     sThread->lastResult = -21;
@@ -104,7 +104,7 @@ void sendCardMoveCmd(u8 slot, s16 fileNo) {
 }
 
 void sendCardDeleteCmd(u8 slot, s16 fileNo) {
-    u32 message = ((u8)fileNo << 24) | ((slot & 1) << 16);
+    u32 message = ((u32)fileNo & 0xFF) << 24 | ((slot & 1) << 16);
     sThread->sourceSlot = slot;
     sThread->lastCommand = 4;
     sThread->lastResult = -21;
@@ -805,19 +805,19 @@ iconSpeedDone:
                     sThread->icons[slot][fileNo].iconOffset[iconCount + 1] =
                         paletteSize + sThread->icons[slot][fileNo].iconOffset[iconCount];
                 } else {
-                    sThread->icons[0][0].iconTlutOffset =
+                    sThread->icons[slot][fileNo].iconTlutOffset =
                         paletteSize + sThread->icons[slot][fileNo].iconOffset[iconCount];
                 }
                 iconImageSize += paletteSize;
                 sThread->icons[slot][fileNo].unk_0x02 =
                     sThread->icons[slot][fileNo].unk_0x02 + 1;
-                iconCount = iconCount + 1;
-                shift += 2;
             } else {
                 sThread->icons[slot][fileNo].iconTlutOffset =
                     sThread->icons[slot][fileNo].iconOffset[iconCount];
                 break;
             }
+            ++iconCount;
+            shift += 2;
         }
         if (hasTlut) {
             iconImageSize += 0x200;
