@@ -67,6 +67,7 @@ namespace ipl {
 
 #ifdef IPL_SDMEMORY_TITLE_CACHE_ACCESS
             const ESTitleId* getTitleCache() const { return &mData.titleCache[0][0]; }
+            ESTitleId getTitleCacheEntry(int index) const { return (&mData.titleCache[0][0])[index]; }
 #endif
 #ifdef IPL_SD_CHANNEL_SELECT_CPP
             ESTitleId getCachedTitle(int index) const {
