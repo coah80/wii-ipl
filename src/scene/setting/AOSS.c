@@ -938,90 +938,7 @@ LAB_00012148:
       s_errorCode = 0x11;
     }
     timeoutMilliseconds = -1;
-  }
-LAB_000126f0:
-  if (s_socket != -1) {
-    SOClose(s_socket);
-  }
-  s_socket = -1;
-  if (s_socketStarted == 1) {
-    s_socketStarted = 0;
-    state = SOCleanup();
-    if (-1 < state) goto LAB_00012730;
-    state = -1;
-  }
-  else {
-LAB_00012730:
-    state = 0;
-  }
-  if (state != 0) {
-    input->status = 0xf;
-    if (s_accessPointConfig != NULL) {
-      AOSSi_Free(s_accessPointConfig);
-      s_accessPointConfig = NULL;
-    }
-    if (s_accessPointList != 0) {
-      AOSSi_Free(s_accessPointList);
-      s_accessPointList = 0;
-    }
-    resultCode = 0xffffffff;
-    goto LAB_00012878;
-  }
-  if (timeoutMilliseconds != 0) {
-    if (s_errorCode == 0x11) {
-      errorStatus = 5;
-    }
-    else if (s_errorCode < 0x11) {
-      if (s_errorCode == 0xf) {
-        errorStatus = 3;
-      }
-      else if (0xe < s_errorCode) {
-        errorStatus = 4;
-      }
-      else {
-        errorStatus = 0xf;
-      }
-    }
-    else {
-      if (s_errorCode == 0x15) {
-        errorStatus = 8;
-      }
-      else if ((s_errorCode < 0x15) && (0x13 < s_errorCode)) {
-        errorStatus = 7;
-      }
-      else {
-        errorStatus = 0xf;
-      }
-    }
-    input->status = errorStatus;
-    if (s_accessPointConfig != NULL) {
-      AOSSi_Free(s_accessPointConfig);
-      s_accessPointConfig = NULL;
-    }
-    if (s_accessPointList != 0) {
-      AOSSi_Free(s_accessPointList);
-      s_accessPointList = 0;
-    }
-    resultCode = 0xffffffff;
-    goto LAB_00012878;
-  }
-  else {
-    if (AOSS_813FFD68(input) == 0) {
-      resultCode = 0;
-    }
-    else {
-      input->status = 6;
-      if (s_accessPointConfig != NULL) {
-        AOSSi_Free(s_accessPointConfig);
-        s_accessPointConfig = NULL;
-      }
-      if (s_accessPointList != 0) {
-        AOSSi_Free(s_accessPointList);
-        s_accessPointList = 0;
-      }
-      resultCode = 0xffffffff;
-    }
-    goto LAB_00012878;
+    goto LAB_000126f0;
   }
 code_r0x00012580:
   input->status = 0xf;
@@ -1416,6 +1333,91 @@ LAB_00011e70:
       resultCode = 0xffffffff;
     }
   }
+LAB_000126f0:
+  if (s_socket != -1) {
+    SOClose(s_socket);
+  }
+  s_socket = -1;
+  if (s_socketStarted == 1) {
+    s_socketStarted = 0;
+    state = SOCleanup();
+    if (-1 < state) goto LAB_00012730;
+    state = -1;
+  }
+  else {
+LAB_00012730:
+    state = 0;
+  }
+  if (state != 0) {
+    input->status = 0xf;
+    if (s_accessPointConfig != NULL) {
+      AOSSi_Free(s_accessPointConfig);
+      s_accessPointConfig = NULL;
+    }
+    if (s_accessPointList != 0) {
+      AOSSi_Free(s_accessPointList);
+      s_accessPointList = 0;
+    }
+    resultCode = 0xffffffff;
+    goto LAB_00012878;
+  }
+  if (timeoutMilliseconds != 0) {
+    if (s_errorCode == 0x11) {
+      errorStatus = 5;
+    }
+    else if (s_errorCode < 0x11) {
+      if (s_errorCode == 0xf) {
+        errorStatus = 3;
+      }
+      else if (0xe < s_errorCode) {
+        errorStatus = 4;
+      }
+      else {
+        errorStatus = 0xf;
+      }
+    }
+    else {
+      if (s_errorCode == 0x15) {
+        errorStatus = 8;
+      }
+      else if ((s_errorCode < 0x15) && (0x13 < s_errorCode)) {
+        errorStatus = 7;
+      }
+      else {
+        errorStatus = 0xf;
+      }
+    }
+    input->status = errorStatus;
+    if (s_accessPointConfig != NULL) {
+      AOSSi_Free(s_accessPointConfig);
+      s_accessPointConfig = NULL;
+    }
+    if (s_accessPointList != 0) {
+      AOSSi_Free(s_accessPointList);
+      s_accessPointList = 0;
+    }
+    resultCode = 0xffffffff;
+    goto LAB_00012878;
+  }
+  else {
+    if (AOSS_813FFD68(input) == 0) {
+      resultCode = 0;
+    }
+    else {
+      input->status = 6;
+      if (s_accessPointConfig != NULL) {
+        AOSSi_Free(s_accessPointConfig);
+        s_accessPointConfig = NULL;
+      }
+      if (s_accessPointList != 0) {
+        AOSSi_Free(s_accessPointList);
+        s_accessPointList = 0;
+      }
+      resultCode = 0xffffffff;
+    }
+    goto LAB_00012878;
+  }
+
 LAB_00012878:
   return (int)resultCode;}
 
