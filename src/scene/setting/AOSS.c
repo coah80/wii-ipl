@@ -2312,9 +2312,9 @@ int AOSS_81401574(void* packet, AOSSRequestRecords* request, int socket) {
 int AOSS_81401778(void* packet, void* request, int socket) {
     AOSSHelloPacket* response = (AOSSHelloPacket*)s_responseBuffer;
     AOSSRequestRecords* requestRecords = (AOSSRequestRecords*)request;
-    AOSSHelloRecord hello;
     AOSSSocketAddress destination;
     AOSSKeySchedule schedule;
+    AOSSHelloRecord hello;
     u8 accessPointName[8];
     u8 checksum;
     u16 nonce;
@@ -2522,7 +2522,9 @@ int AOSS_81401E80(void* packet, s32 length, char* key, int keyLength) {
         }
 
         for (index = 0; index < halfLength; index++) {
-            packetHalf[index] = packetHalf[index] ^ keyMask[index];
+            u8 inputByte = packetHalf[index];
+            inputByte ^= keyMask[index];
+            packetHalf[index] = inputByte;
         }
 
         memcpy(temporary, packetHalf, halfLength);

@@ -522,7 +522,7 @@ char gAtermAossSsid[7] = "******";
 extern u32 gAtermUseSharedAddress;
 extern char gAtermProductName[5];
 u32 gAtermCancelRequested;
-u8 gAtermSelectedBssid[6];
+u8 gAtermSelectedBssid[8];
 u32 gAtermProtocolState;
 u8 gAtermAddressBuffer[8];
 u32 gAtermResponseMode;
@@ -1007,9 +1007,7 @@ int ATERM_81402A24(void) {
         iteration++;
     }
 
-    if (iteration >= 300) {
-        result = -3;
-    } else {
+    if (iteration < 300) {
         now = (u32)OSTicksToMilliseconds(OSGetTime());
         if (now > gAtermDeadline) {
             result = -3;
@@ -1019,6 +1017,8 @@ int ATERM_81402A24(void) {
                 result = -8;
             }
         }
+    } else {
+        result = -3;
     }
 
 cleanup:
@@ -1434,7 +1434,6 @@ s32 ATERM_814038C8(void) {
     AtermSocketAddress socketBindAddress;
     AtermSocketAddress peerAddress;
     AtermThreadBuffer* response = (AtermThreadBuffer*)&gAtermConfigurationResult.responseLength;
-    void* connectionKey = gAtermConfigurationResult.connectionPrefix;
     void* sessionKey = gAtermResponseBuffer.session.keyMaterial;
     AtermMd5Context digestContext;
     u8 digestLength[8];
@@ -1520,7 +1519,7 @@ s32 ATERM_814038C8(void) {
                 break;
             }
             peerAddress.length = 8;
-            ATERM_814031DC((AtermAssociationRequest*)connectionKey);
+            ATERM_814031DC((AtermAssociationRequest*)gAtermConfigurationResult.connectionPrefix);
             receivedLength = SORecvFrom(socket, gAtermConfigurationResult.packetBuffer,
                 sizeof(gAtermConfigurationResult.packetBuffer), 4, &peerAddress);
             if (receivedLength > 0 &&
@@ -1622,9 +1621,9 @@ s32 ATERM_814038C8(void) {
                     payloadLength = 0;
                 } else if (sequence != 3) {
                     payloadLength = 0;
-                } else if (connectionKey != NULL) {
+                } else if (gAtermConfigurationResult.connectionPrefix != NULL) {
                     ATERM_81404A18((u16*)response->authentication.payload, (u16*)payload,
-                        payloadLength, connectionKey, 16);
+                        payloadLength, gAtermConfigurationResult.connectionPrefix, 16);
                     payloadLength -= 8;
                 } else {
                     memcpy(response->authentication.payload, payload, payloadLength);
@@ -1723,7 +1722,7 @@ s32 ATERM_814038C8(void) {
                 gAtermReplyLength = (u8*)(option + 1) - response->data;
                 response->authentication.decoded.length = gAtermReplyLength - 8;
                 gAtermMessageLength = ATERM_81402E40((u16*)gAtermConfigurationResult.packetBuffer, 4,
-                    (u16*)response->data, gAtermReplyLength, connectionKey);
+                    (u16*)response->data, gAtermReplyLength, gAtermConfigurationResult.connectionPrefix);
                 sendAddress.length = 8;
                 sendAddress.family = 2;
                 sendAddress.address = 0xFFFFFFFF;
@@ -1893,7 +1892,7 @@ int ATERM_81404844(u16* destination, u16* source, u32 length, void* key, u32 key
     memcpy(destinationBytes + 8, sourceBytes, length);
     memcpy(block.bytes, initialValue, sizeof(initialValue));
     for (pass = 0; pass < 6; pass++) {
-        for (blockIndex = 1, blockOffset = 8; blockIndex <= blockCount; blockIndex++, blockOffset += 8) {
+        for (blockOffset = 8, blockIndex = 1; blockIndex <= blockCount; blockIndex++, blockOffset += 8) {
             u64 passBase = (u64)(s64)blockCount * (u64)(s64)pass;
             u8* stateBytes = block.bytes;
 
