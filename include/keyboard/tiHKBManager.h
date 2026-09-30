@@ -22,7 +22,7 @@ namespace textinput {
             u32 GetModifierState() const;
             void SetModifierState(u32, u32);
 
-#ifdef TI_PC_KEYBOARD_IMPLEMENTATION
+#if defined(TI_PC_KEYBOARD_IMPLEMENTATION) || defined(TISIGNWINDOW_IMPLEMENTATION)
             class KeySet {
             public:
                 u8 GetKey() const;
