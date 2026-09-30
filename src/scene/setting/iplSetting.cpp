@@ -2755,8 +2755,10 @@ namespace ipl {
                     mpPaneManager->update();
                     break;
                 case 6: {
+                    int animIdx = unk_0x918;
                     unk_0xB9C = 1;
-                    if (!mpMainLayout->getAnim(unk_0x918)->isPlaying()) {
+                    volatile layout::Animator* anim = mpMainLayout->getAnim(animIdx);
+                    if (!anim->isPlaying()) {
                         unk_0x78 = 5;
                         setAPDraw();
                         if (unk_0x91C[0] != 0) {
@@ -2780,8 +2782,10 @@ namespace ipl {
                     break;
                 }
                 case 7: {
+                    int animIdx = unk_0x918;
                     unk_0xB9C = 1;
-                    if (!mpMainLayout->getAnim(unk_0x918)->isPlaying()) {
+                    volatile layout::Animator* anim = mpMainLayout->getAnim(animIdx);
+                    if (!anim->isPlaying()) {
                         updateScroll();
                         unk_0x78 = 6;
                     }
@@ -2792,7 +2796,9 @@ namespace ipl {
                     unk_0x91C[2] = 0;
                     break;
                 case 9: {
-                    if (!mpMainLayout->getAnim(unk_0x918)->isPlaying()) {
+                    int animIdx = unk_0x918;
+                    volatile layout::Animator* anim = mpMainLayout->getAnim(animIdx);
+                    if (!anim->isPlaying()) {
                         resetFuncMsgQ();
                         unk_0x78 = 1;
                         unk_0x918 = -1;

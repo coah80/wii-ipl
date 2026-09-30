@@ -56,6 +56,7 @@ namespace ipl {
             void stop() { mState = ANIM_STATE_STOP; }
 
             bool isPlaying() const { return mState == ANIM_STATE_PLAY; }
+            bool isPlaying() const volatile { return mState == ANIM_STATE_PLAY; }
 
         protected:
             f32 mMaxFrame;  // 0x04
