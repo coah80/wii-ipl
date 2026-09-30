@@ -158,6 +158,8 @@ static s32 kp_cl_trigger_min = 30;
 static s32 kp_cl_trigger_max = 180;
 static f32 kp_rm_acc_max = 3.4f;
 static f32 kp_fs_acc_max = 2.1f;
+static const WPADAccGravityUnit kp_default_gravity_core = {1, 1, 1};
+static const WPADAccGravityUnit kp_default_gravity_fs = {1, 1, 1};
 f32 sensor_bar_angle_degrees = 24.0f;
 
 static Vec2 icenter_org;
@@ -1478,6 +1480,7 @@ s32 KPADRead(s32 chan, KPADStatus* statuses, u32 count) {
     }
     latestSample = kpad->ringData[sampleIndex];
     OSRestoreInterrupts(interruptState);
+    gravity = kp_default_gravity_core;
     WPADGetAccGravityUnit(chan, WPAD_ACC_GRAVITY_UNIT_CORE, &gravity);
     if (gravity.z * gravity.x * gravity.y != 0) {
         kpad->value4DC = 1.0f / gravity.x;
@@ -1488,6 +1491,7 @@ s32 KPADRead(s32 chan, KPADStatus* statuses, u32 count) {
         kpad->value4E0 = 0.01f;
         kpad->value4E4 = 0.01f;
     }
+    gravity = kp_default_gravity_fs;
     WPADGetAccGravityUnit(chan, WPAD_ACC_GRAVITY_UNIT_FS, &gravity);
     if (gravity.z * gravity.x * gravity.y != 0) {
         kpad->value4E8 = 1.0f / gravity.x;
@@ -1766,6 +1770,9 @@ static void KPADiSamplingCallback(s32 chan) {
             kpad->sensorHeightPending = 0;
         }
         switch (device) {
+        case 0:
+        case 0xFB:
+        case 0xFC:
         case 0xFF:
             tier = 0;
             break;
@@ -1776,8 +1783,7 @@ static void KPADiSamplingCallback(s32 chan) {
             tier = 4;
             break;
         default:
-            tier = 0;
-            break;
+            goto end;
         }
         if (kpad->dpdEnable != 0) {
             tier++;
@@ -1800,6 +1806,7 @@ static void KPADiSamplingCallback(s32 chan) {
             WPADSetDataFormat(chan, dpdModeTable[tableIndex + 1]);
         }
     }
+end:
     if (kpad->samplingCallback != 0) {
         kpad->samplingCallback(chan);
     }
