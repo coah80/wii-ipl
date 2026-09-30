@@ -1905,24 +1905,30 @@ int AOSS_81400830(AOSSDecryptionMessage* message) {
             i = 0;
             pairCount = dataLength >> 1;
             while (pairCount != 0) {
-                firstIndex = ((schedule.i + 1) % schedule.length) & 0xff;
-                firstValue = schedule.bytes[firstIndex];
-                secondIndex = ((firstValue + schedule.j) % schedule.length) & 0xff;
-                secondValue = schedule.bytes[secondIndex];
-                schedule.i = firstIndex;
-                schedule.j = secondIndex;
-                schedule.bytes[secondIndex] = (u8)firstValue;
-                schedule.bytes[firstIndex] = (u8)secondValue;
-                out[0] = schedule.bytes[(firstValue + secondValue) % schedule.length] ^ in[0];
-                firstIndex = ((schedule.i + 1) % schedule.length) & 0xff;
-                firstValue = schedule.bytes[firstIndex];
-                secondIndex = ((firstValue + schedule.j) % schedule.length) & 0xff;
-                secondValue = schedule.bytes[secondIndex];
-                schedule.i = firstIndex;
-                schedule.j = secondIndex;
-                schedule.bytes[secondIndex] = (u8)firstValue;
-                schedule.bytes[firstIndex] = (u8)secondValue;
-                out[1] = schedule.bytes[(firstValue + secondValue) % schedule.length] ^ in[1];
+                {
+                    u8* schedBytes = schedule.bytes;
+                    firstIndex = ((schedule.i + 1) % schedule.length) & 0xff;
+                    firstValue = schedBytes[firstIndex];
+                    secondIndex = ((firstValue + schedule.j) % schedule.length) & 0xff;
+                    secondValue = schedBytes[secondIndex];
+                    schedule.i = firstIndex;
+                    schedule.j = secondIndex;
+                    schedBytes[secondIndex] = (u8)firstValue;
+                    schedBytes[firstIndex] = (u8)secondValue;
+                    out[0] = schedBytes[(firstValue + secondValue) % schedule.length] ^ in[0];
+                }
+                {
+                    u8* schedBytes = schedule.bytes;
+                    firstIndex = ((schedule.i + 1) % schedule.length) & 0xff;
+                    firstValue = schedBytes[firstIndex];
+                    secondIndex = ((firstValue + schedule.j) % schedule.length) & 0xff;
+                    secondValue = schedBytes[secondIndex];
+                    schedule.i = firstIndex;
+                    schedule.j = secondIndex;
+                    schedBytes[secondIndex] = (u8)firstValue;
+                    schedBytes[firstIndex] = (u8)secondValue;
+                    out[1] = schedBytes[(firstValue + secondValue) % schedule.length] ^ in[1];
+                }
                 in += 2;
                 out += 2;
                 i += 2;
@@ -1930,15 +1936,18 @@ int AOSS_81400830(AOSSDecryptionMessage* message) {
             }
             oddCount &= 1;
             while (oddCount != 0) {
-                firstIndex = ((schedule.i + 1) % schedule.length) & 0xff;
-                firstValue = schedule.bytes[firstIndex];
-                secondIndex = ((firstValue + schedule.j) % schedule.length) & 0xff;
-                secondValue = schedule.bytes[secondIndex];
-                schedule.i = firstIndex;
-                schedule.j = secondIndex;
-                schedule.bytes[secondIndex] = (u8)firstValue;
-                schedule.bytes[firstIndex] = (u8)secondValue;
-                out[0] = schedule.bytes[(firstValue + secondValue) % schedule.length] ^ in[0];
+                {
+                    u8* schedBytes = schedule.bytes;
+                    firstIndex = ((schedule.i + 1) % schedule.length) & 0xff;
+                    firstValue = schedBytes[firstIndex];
+                    secondIndex = ((firstValue + schedule.j) % schedule.length) & 0xff;
+                    secondValue = schedBytes[secondIndex];
+                    schedule.i = firstIndex;
+                    schedule.j = secondIndex;
+                    schedBytes[secondIndex] = (u8)firstValue;
+                    schedBytes[firstIndex] = (u8)secondValue;
+                    out[0] = schedBytes[(firstValue + secondValue) % schedule.length] ^ in[0];
+                }
                 in++;
                 out++;
                 oddCount--;
