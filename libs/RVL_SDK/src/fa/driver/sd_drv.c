@@ -219,9 +219,19 @@ const PFD_SDDRV_SIZE_DEPEND sddrv_size_depend_tbl[14] = {
     {0x007e0000, 0x04000000, 0x00002000, 0x000000ff, 0x0000003f, 0x40},
 };
 
+static inline void update_media_drive(void) {
+    s8 drive;
+    if (g_pfd_sddrv_info.drive == 0 && pfd_get_media_drv_char(g_pfd_sddrv_info.disk, &drive, 1) == 1) {
+        g_pfd_sddrv_info.drive = drive;
+    }
+}
+
+static inline void clear_mount_flag(void) {
+    g_pfd_sddrv_info.flags &= ~2;
+}
+
 s32 pfd_st_inter_callback(s32 status, void* data) {
     s32 result;
-    s8 drive;
 
     if ((status & 1) != 1) {
         return 0;
@@ -234,9 +244,7 @@ s32 pfd_st_inter_callback(s32 status, void* data) {
         }
     }
     if (g_pfd_sddrv_info.disk != 0) {
-        if (g_pfd_sddrv_info.drive == 0 && pfd_get_media_drv_char(g_pfd_sddrv_info.disk, &drive, 1) == 1) {
-            g_pfd_sddrv_info.drive = drive;
-        }
+        update_media_drive();
         pdm_disk_notify_media_insert(g_pfd_sddrv_info.disk);
         if (g_pfd_sddrv_info.drive != 0 && g_attach_func != 0) {
             g_attach_func(g_pfd_sddrv_info.drive);
@@ -249,7 +257,6 @@ s32 pfd_st_inter_callback(s32 status, void* data) {
 
 s32 pfd_st_removal_callback(s32 status, void* data) {
     s32 result;
-    s8 drive;
 
     if ((status & 2) != 2) {
         return 0;
@@ -263,9 +270,7 @@ s32 pfd_st_removal_callback(s32 status, void* data) {
         }
     }
     if (g_pfd_sddrv_info.disk != 0) {
-        if (g_pfd_sddrv_info.drive == 0 && pfd_get_media_drv_char(g_pfd_sddrv_info.disk, &drive, 1) == 1) {
-            g_pfd_sddrv_info.drive = drive;
-        }
+        update_media_drive();
         pdm_disk_notify_media_eject(g_pfd_sddrv_info.disk);
         if (g_pfd_sddrv_info.drive != 0 && g_detach_func != 0) {
             g_detach_func(g_pfd_sddrv_info.drive);
@@ -315,16 +320,7 @@ s32 pfd_sddrv_init(FADisk* disk) {
         g_pfd_sddrv_info.media_inserted = 1;
     }
     g_pfd_sddrv_info.device = device;
-    if (g_pfd_sddrv_info.media_inserted == 0) {
-        g_event = 1;
-        sd_result = ISD_RegisterDeviceIntrHandler(device, (SDDevIntrCallback)pfd_st_inter_callback, &g_event);
-        if (sd_result != 0) {
-            OSReport("ERR:Failed to regist intr handler1 [ret = 0x%x] pfd_sddrv_init()\n", sd_result);
-            ISD_UnmountCard(device);
-            g_pfd_sddrv_info.device = 0;
-            return -42;
-        }
-    } else {
+    if (g_pfd_sddrv_info.media_inserted != 0) {
         g_event = 2;
         sd_result = ISD_RegisterDeviceIntrHandler(device, (SDDevIntrCallback)pfd_st_removal_callback, &g_event);
         if (sd_result != 0) {
@@ -333,9 +329,18 @@ s32 pfd_sddrv_init(FADisk* disk) {
             g_pfd_sddrv_info.device = 0;
             return -42;
         }
+    } else {
+        g_event = 1;
+        sd_result = ISD_RegisterDeviceIntrHandler(device, (SDDevIntrCallback)pfd_st_inter_callback, &g_event);
+        if (sd_result != 0) {
+            OSReport("ERR:Failed to regist intr handler1 [ret = 0x%x] pfd_sddrv_init()\n", sd_result);
+            ISD_UnmountCard(device);
+            g_pfd_sddrv_info.device = 0;
+            return -42;
+        }
     }
-    g_pfd_sddrv_info.flags |= 1;
     g_pfd_sddrv_info.disk = disk;
+    g_pfd_sddrv_info.flags |= 1;
     return 0;
 }
 
@@ -440,7 +445,7 @@ s32 pfd_sddrv_unmount(FADisk* disk) {
         return -30;
     }
     if ((g_pfd_sddrv_info.flags & 2) != 0) {
-        g_pfd_sddrv_info.flags &= ~2;
+        clear_mount_flag();
     }
     return 0;
 }
@@ -452,12 +457,12 @@ s32 pfd_sddrv_finalize(FADisk* disk) {
         return -30;
     }
     if ((g_pfd_sddrv_info.flags & 2) != 0) {
-        g_pfd_sddrv_info.flags = g_pfd_sddrv_info.flags & 0xfffffffd;
+        clear_mount_flag();
     }
     if ((g_pfd_sddrv_info.flags & 1) != 0) {
         result = ISD_UnregisterDeviceIntrHandler(g_pfd_sddrv_info.device);
         if (result != 0) {
-            OSReport("WARNING Faild to UnregisterDeviceIntrHandler sd card [ret = %d]\n");
+            OSReport("WARNING Faild to UnregisterDeviceIntrHandler sd card [ret = %d]\n", result);
         }
         result = ISD_UnmountCard(g_pfd_sddrv_info.device);
         if (result != 0) {
@@ -558,6 +563,7 @@ s32 pfd_sddrv_is_media_insert(void) {
 
 static s32 pfd_sddrv_physical_read(u32 blocks, u8* buffer, u32 sector, u32 bytes_per_sector, u32* blocks_read) {
     s32 result;
+    u32 current_sector;
     u32 completed;
     u8* current_buffer;
     if ((g_pfd_sddrv_info.flags & 2) == 0) {
@@ -572,49 +578,49 @@ static s32 pfd_sddrv_physical_read(u32 blocks, u8* buffer, u32 sector, u32 bytes
         return -30;
     }
     *blocks_read = 0xffffffff;
+    current_sector = sector;
     if (((u32)buffer & 0x1f) == 0) {
         if (g_pfd_sddrv_info.media_inserted == 0) {
             *blocks_read = 0;
             return -33;
         }
         if (blocks == 1) {
-            result = ISD_ReadBlock(g_pfd_sddrv_info.device, sector, buffer, 1);
+            result = ISD_ReadBlock(g_pfd_sddrv_info.device, current_sector, buffer, blocks);
             if (result != 0) {
                 OSReport("INFO Failed to read SD card1 [ret = 0x%x] pfd_sddrv_physical_read()\n", result);
                 *blocks_read = 0;
                 return -37;
             }
         } else {
-            result = ISD_ReadMultiBlock(g_pfd_sddrv_info.device, sector, buffer, blocks);
+            result = ISD_ReadMultiBlock(g_pfd_sddrv_info.device, current_sector, buffer, blocks);
             if (result != 0) {
                 OSReport("INFO Failed to read SD card2 [ret = 0x%x] pfd_sddrv_physical_read()\n", result);
                 *blocks_read = 0;
                 return -37;
             }
         }
-        *blocks_read = blocks;
-        return 0;
-    }
-    for (completed = 0, current_buffer = buffer; completed < blocks; current_buffer += bytes_per_sector, sector++, completed++) {
-        if (g_pfd_sddrv_info.media_inserted == 0) {
-            if (completed == 0) {
+    } else {
+        for (completed = 0, current_buffer = buffer; completed < blocks; current_buffer += bytes_per_sector, current_sector++, completed++) {
+            if (g_pfd_sddrv_info.media_inserted == 0) {
+                if (completed != 0) {
+                    *blocks_read = completed;
+                    return 0;
+                }
                 *blocks_read = 0;
                 return -33;
             }
-            *blocks_read = completed;
-            return 0;
-        }
-        result = ISD_ReadBlock(g_pfd_sddrv_info.device, sector, g_pfd_sddrv_buf, 1);
-        if (result != 0) {
-            OSReport("INFO Failed to read SD card3 [ret = 0x%x] pfd_sddrv_physical_read()\n", result);
-            if (completed == 0) {
+            result = ISD_ReadBlock(g_pfd_sddrv_info.device, current_sector, g_pfd_sddrv_buf, 1);
+            if (result != 0) {
+                OSReport("INFO Failed to read SD card3 [ret = 0x%x] pfd_sddrv_physical_read()\n", result);
+                if (completed != 0) {
+                    *blocks_read = completed;
+                    return 0;
+                }
                 *blocks_read = 0;
                 return -37;
             }
-            *blocks_read = completed;
-            return 0;
+            pf_memcpy(current_buffer, g_pfd_sddrv_buf, bytes_per_sector);
         }
-        pf_memcpy(current_buffer, g_pfd_sddrv_buf, bytes_per_sector);
     }
     *blocks_read = blocks;
     return 0;
@@ -622,6 +628,7 @@ static s32 pfd_sddrv_physical_read(u32 blocks, u8* buffer, u32 sector, u32 bytes
 
 s32 pfd_sddrv_physical_write(u32 blocks, u8* buffer, u32 sector, u32 bytes_per_sector, u32* blocks_written) {
     s32 result;
+    u32 current_sector;
     u32 completed;
     u8* current_buffer;
     if ((g_pfd_sddrv_info.flags & 2) == 0) {
@@ -636,48 +643,48 @@ s32 pfd_sddrv_physical_write(u32 blocks, u8* buffer, u32 sector, u32 bytes_per_s
         return -30;
     }
     *blocks_written = 0xffffffff;
+    current_sector = sector;
     if (((u32)buffer & 0x1f) == 0) {
         if (g_pfd_sddrv_info.media_inserted == 0) {
             *blocks_written = 0;
             return -33;
         }
         if (blocks == 1) {
-            result = ISD_WriteBlock(g_pfd_sddrv_info.device, sector, buffer, 1);
+            result = ISD_WriteBlock(g_pfd_sddrv_info.device, current_sector, buffer, blocks);
             if (result != 0) {
                 OSReport("INFO Failed to write SD card1 [ret = 0x%x] pfd_sddrv_physical_write()\n", result);
                 *blocks_written = 0;
                 return -36;
             }
         } else {
-            result = ISD_WriteMultiBlock(g_pfd_sddrv_info.device, sector, buffer, blocks);
+            result = ISD_WriteMultiBlock(g_pfd_sddrv_info.device, current_sector, buffer, blocks);
             if (result != 0) {
                 OSReport("INFO Failed to write SD card2 [ret = 0x%x] pfd_sddrv_physical_write()\n", result);
                 *blocks_written = 0;
                 return -36;
             }
         }
-        *blocks_written = blocks;
-        return 0;
-    }
-    for (completed = 0, current_buffer = buffer; completed < blocks; current_buffer += bytes_per_sector, sector++, completed++) {
-        if (g_pfd_sddrv_info.media_inserted == 0) {
-            if (completed == 0) {
+    } else {
+        for (completed = 0, current_buffer = buffer; completed < blocks; current_buffer += bytes_per_sector, current_sector++, completed++) {
+            if (g_pfd_sddrv_info.media_inserted == 0) {
+                if (completed != 0) {
+                    *blocks_written = completed;
+                    return 0;
+                }
                 *blocks_written = 0;
                 return -33;
             }
-            *blocks_written = completed;
-            return 0;
-        }
-        pf_memcpy(g_pfd_sddrv_buf, current_buffer, bytes_per_sector);
-        result = ISD_WriteBlock(g_pfd_sddrv_info.device, sector, g_pfd_sddrv_buf, 1);
-        if (result != 0) {
-            OSReport("INFO Failed to write SD card3 [ret = 0x%x] pfd_sddrv_physical_write()\n", result);
-            if (completed == 0) {
+            pf_memcpy(g_pfd_sddrv_buf, current_buffer, bytes_per_sector);
+            result = ISD_WriteBlock(g_pfd_sddrv_info.device, current_sector, g_pfd_sddrv_buf, 1);
+            if (result != 0) {
+                OSReport("INFO Failed to write SD card3 [ret = 0x%x] pfd_sddrv_physical_write()\n", result);
+                if (completed != 0) {
+                    *blocks_written = completed;
+                    return 0;
+                }
                 *blocks_written = 0;
                 return -36;
             }
-            *blocks_written = completed;
-            return 0;
         }
     }
     *blocks_written = blocks;
@@ -688,6 +695,7 @@ s32 pfd_sddrv_get_total_sectors(u32* sectors, u16* bytes_per_sector) {
     s32 result;
     u32 csd[4];
     u32 c_size;
+    u32 cluster_blocks;
     u32 read_block_length;
     u16 multiplier;
     u16 minimum_multiplier;
@@ -708,6 +716,7 @@ s32 pfd_sddrv_get_total_sectors(u32* sectors, u16* bytes_per_sector) {
         read_block_length = ((csd[1] >> 7) & 7) + 2;
         read_block_size = 1 << read_block_length;
         c_size = (((csd[2] & 3) << 10 | csd[1] >> 22) + 1);
+        cluster_blocks = c_size * read_block_size;
         multiplier = (csd[2] >> 8) & 0xf;
         minimum_multiplier = 9;
         if (multiplier >= 9) {
@@ -717,8 +726,8 @@ s32 pfd_sddrv_get_total_sectors(u32* sectors, u16* bytes_per_sector) {
         if (minimum_multiplier <= 11) {
             max_multiplier = minimum_multiplier;
         }
-        multiplier_factor = 1 << (max_multiplier - 9);
-        *sectors = c_size * read_block_size * multiplier_factor;
+        multiplier_factor = 1 << (u16)(max_multiplier - 9);
+        *sectors = cluster_blocks * multiplier_factor;
     } else {
         *sectors = ((csd[1] >> 8 & 0x3fffff) + 1) * 0x400;
     }
@@ -1423,32 +1432,33 @@ s32 pfd_sddrv_build_fat32_mbr_bpb(u32 total_sectors) {
 s32 pfd_sddrv_full_format(void) {
     s32 result;
     u32 retry_count;
-    u32 status;
-    u32 total_sectors;
     u16 bytes_per_sector;
+    u32 total_sectors;
+    u32 status;
 
     retry_count = 0;
-    while (retry_count < 5) {
+    do {
         if (g_pfd_sddrv_info.media_inserted == 0) {
             return -33;
         }
         result = ISD_ResetDevice(g_pfd_sddrv_info.device);
         if (result == 0) {
+            g_pfd_sddrv_info.media_ejected = 0;
             break;
         }
         OSReport("ERROR Failed to SD Card Reset [ret = 0x%x]. pfd_sddrv_full_format()\n", result);
         retry_count++;
-    }
+    } while (retry_count < 5);
     if (retry_count == 5) {
         return -38;
     }
-    g_pfd_sddrv_info.media_ejected = 0;
     if (g_pfd_sddrv_info.media_ejected != 0) {
         return -33;
     }
     result = ISD_GetDeviceStatus(g_pfd_sddrv_info.device, &status);
     if (result != 0) {
-        return result;
+        OSReport("ERR Failed to get sd card status. [ret = 0x%x]\n", result);
+        return -39;
     }
     if ((status & 4) != 0) {
         return -32;
@@ -1466,17 +1476,17 @@ s32 pfd_sddrv_full_format(void) {
             return -34;
         }
         result = pfd_sddrv_build_mbr_bpb(total_sectors);
-    } else {
-        if ((status & 0x10000) == 0 || (status & 0x100000) == 0) {
-            return -31;
-        }
+    } else if ((status & 0x10000) != 0 && (status & 0x100000) != 0) {
         if (total_sectors > 0x4000000) {
             return -34;
         }
         result = pfd_sddrv_build_fat32_mbr_bpb(total_sectors);
+    } else {
+        return -31;
     }
     if (result != 0) {
         OSReport("ERR Failed to build up and write MBR and BPB fields.\n");
+        return result;
     }
-    return result;
+    return 0;
 }

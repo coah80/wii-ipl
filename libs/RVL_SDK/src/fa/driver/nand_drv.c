@@ -420,7 +420,7 @@ s32 fa_nanddrv_NotifyNANDFile(const char* path, u32 size) {
         if (pf_strcmp(info->path, path) == 0) { return 0; }
         if (nanddisk_info[index].disk == 0) {
             pf_strcpy(info->path, path);
-            info->file_size = size;
+            nanddisk_info[index].file_size = size;
             break;
         }
     }

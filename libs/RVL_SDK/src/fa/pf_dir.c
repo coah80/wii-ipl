@@ -209,8 +209,8 @@ PFDIR_SDD* PFDIR_GetSDD(PF_VOLUME* volume, PF_DIR_ENT* entry) {
                    entry->entry_offset == volume_dirs->sdds[i].dir_entry.entry_offset) {
             return &volume_dirs->sdds[i];
         }
-        free_candidate++;
         i++;
+        free_candidate++;
     }
     if (first_free_sdd == 0) {
         return 0;
@@ -1304,7 +1304,7 @@ void PFDIR_move(PF_STR* old_path, PF_STR* new_path) {
     volume_dirs->cache_signature = 0;
 }
 
-void PFDIR_opendir(PF_STR* path, PFDIR_DIR** dir) {
+pf_s32 PFDIR_opendir(PF_STR* path, PFDIR_DIR** dir) {
     PF_VOLUME* volume = PFPATH_GetVolumeFromPath(path);
     PFDIR_VOLUME_DIRS* volume_dirs = (PFDIR_VOLUME_DIRS*)volume;
     pf_s32 error = PFVOL_CheckForRead(volume);
@@ -1312,7 +1312,7 @@ void PFDIR_opendir(PF_STR* path, PFDIR_DIR** dir) {
     if (error != 0) {
         pf_vol_set.last_error = error;
         ((PFDIR_VOLUME_DIRS*)volume)->last_error = error;
-        return;
+        return error;
     }
     error = PFDIR_p_opendir(volume, (PFDIR_STR*)path, dir);
     if (error != 0) {
@@ -1321,6 +1321,7 @@ void PFDIR_opendir(PF_STR* path, PFDIR_DIR** dir) {
     } else {
         ((PFDIR_VOLUME_DIRS*)volume)->num_opened_directories += 1;
     }
+    return error;
 }
 
 pf_s32 PFDIR_closedir(PFDIR_DIR* dir) {
