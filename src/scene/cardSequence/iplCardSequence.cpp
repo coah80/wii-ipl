@@ -1,1299 +1,1231 @@
-#define IPL_CARD_SEQUENCE_CPP
-#include "iplSystem.h"
-#include "iplMemoryCardLib.h"
+#include <iplMemoryCardLib.h>
 
-#include <revolution.h>
+#include <cstring>
+#include <cstdio>
+
 #include <revolution/card.h>
-#include <revolution/mem/allocator.h>
 #include <private/card.h>
-#include <egg/core/eggHeap.h>
+
+#include <revolution/os.h>
+
+#include <revolution/mem.h>
+
+#include <revolution/dvd.h>
+
+#include <system/iplSystem.h>
 
 namespace ipl {
-namespace memorycard {
+    namespace memorycard {
+        enum {
+            MSG_CMD_PROBE = 0,
+            MSG_CMD_FORMAT = 1,
+            MSG_CMD_COPY = 2,
+            MSG_CMD_MOVE = 3,
+            MSG_CMD_DELETE = 4,
+            MSG_CMD_DETACH = 9,
+            MSG_CMD_STATE = 10,
+            MSG_CMD_EXIT = 11,
+            MSG_CMD_BLOCKS = 12,
+        };
 
-struct CardThreadState {
-    CardState slots[2];
-    FileInfo files[2][127];
-    void* mountBuffers[2];
-    s32 mounted[2];
-    OSMessageQueue responses;
-    OSMessageQueue requests;
-    OSMessage responseMessages[16];
-    OSMessage requestMessages[16];
-    OSThread thread;
-    u8 stack[0x8000];
-    char temporaryFileName[32];
-    CARDFileInfo sourceFile;
-    CARDFileInfo destinationFile;
-    void* transferBuffer;
-    IconState icons[2][127];
-    u8* images[2][127];
-    char* comments[2][127];
-    u8 commentBuffer[0x400] ATTRIBUTE_ALIGN(32);
-    u8* imageReadBuffer;
-    s32 lastCommand;
-    s32 lastResult;
-    s32 completionResult;
-    s32 scanComplete;
-    s32 scanPending;
-    s32 writePending;
-    u8 sourceSlot;
-    u8 valid;
-    u8 destinationFileNo;
-    u8 stopRequested;
-};
+        typedef struct CardThreadData {
+            /* 0x0000 */ CardState      cardState[2];
+            /* 0x0028 */ FileInfo       dirState[2][0x7F];
+            /* 0x0C10 */ void*          workBuf[2];
+            /* 0x0C18 */ u32            mounted[2];
+            /* 0x0C20 */ OSMessageQueue replyQueue;
+            /* 0x0C40 */ OSMessageQueue cmdQueue;
+            /* 0x0C60 */ OSMessage      replyMsgBuf[0x10];
+            /* 0x0CA0 */ OSMessage      cmdMsgBuf[0x10];
+            /* 0x0CE0 */ OSThread       thread;
+            /* 0x0FF8 */ u8             threadStack[0x8000];
+            /* 0x8FF8 */ char           fileNameBuf[0x20];
+            /* 0x9018 */ CARDFileInfo   srcFile;
+            /* 0x902C */ CARDFileInfo   dstFile;
+            /* 0x9040 */ u8*            copyBuf;
+            /* 0x9044 */ IconState      iconState[2][0x7F];
+            /* 0xCFC4 */ u8*            iconDataPtr[2][0x7F];
+            /* 0xD3BC */ char*          commentPtr[2][0x7F];
+            /* 0xD7B4 */ u32            unk_D7B4[3];
+            /* 0xD7C0 */ u8             commentTmp[0x400];
+            /* 0xDBC0 */ u8*            dirFileBuf;
+            /* 0xDBC4 */ s32            sendCmd;
+            /* 0xDBC8 */ s32            lastError;
+            /* 0xDBCC */ s32            cmdResult;
+            /* 0xDBD0 */ u32            blockInfoDone;
+            /* 0xDBD4 */ u32            scanDone;
+            /* 0xDBD8 */ u32            writePending;
+            /* 0xDBDC */ u8             srcSlot;
+            /* 0xDBDD */ u8             threadValid;
+            /* 0xDBDE */ u8             replyStatus;
+            /* 0xDBDF */ u8             stopSent;
+        } CardThreadData;  // 0xDBE0
 
-MEMAllocator sAllocator_;
-static CardThreadState* sThread;
-extern "C" void* CardSequence_813D2C8C();
-static char sCardSlotName[3] = "AB";
+        MEMAllocator sAllocator_;
 
-FileInfo* getCardDirState() {
-    return sThread->files[0];
-}
+        static CardThreadData* sThread;
+        u32 sUnkFlag;
 
-CardState* getCardSlotState() {
-    return sThread->slots;
-}
+        extern "C" s32 CardSequence_813D233C(s32 result);
+        extern "C" BOOL   CardSequence_813D205C(u8 slot);
+        extern "C" void CardSequence_813D222C(u8 slot);
+        extern "C" void CardSequence_813D2A74(u8 slot, s16 fileNo);
+        extern "C" void CardSequence_813D2B40(u8 slot);
+        extern "C" void* CardSequence_813D2C8C(void* arg);
+        extern "C" void CardSequence_813D3140();
+        extern "C" s32 CardSequence_813D320C(u8 slot, s32 result);
+        extern "C" s32 CardSequence_813D32A8(u8 slot, s32 cmd, s32 result);
+        extern "C" void CardSequence_813D3380(u8 slot, s32 cmd, u8 status);
+        extern "C" void CardSequence_813D33D8(u8 slot);
+        extern "C" s32 CardSequence_813D3424(u8 slot, s16 fileNo, CARDDir* dir);
+        extern "C" void CardSequence_813D3C24(s32 chan, s32 result);
+        extern "C" s32 CardSequence_813D3C38(u8 slot, s16 fileNo);
+        extern "C" void CardSequence_813D3D14(u8 slot, s16 fileNo, s32 cmd);
 
-long getCardLastSrcSlot() {
-    return sThread->sourceSlot;
-}
+        FileInfo* getCardDirState() {
+            return &sThread->dirState[0][0];
+        }
 
-long getCardLastSendCmd() {
-    return sThread->lastCommand;
-}
+        CardState* getCardSlotState() {
+            return sThread->cardState;
+        }
 
-long getCardLastCMDFCmdResult() {
-    return sThread->completionResult;
-}
+        long getCardLastSrcSlot() {
+            return sThread->srcSlot;
+        }
 
-extern "C" s32 CardSequence_813D205C(u8 slot) {
-    sThread->sourceSlot = slot;
-    sThread->lastCommand = 9;
-    sThread->lastResult = -21;
-    return OSSendMessage(&sThread->requests, (OSMessage)(slot << 16 | 9), 0);
-}
+        long getCardLastSendCmd() {
+            return sThread->sendCmd;
+        }
 
-void sendCardFormatCmd(u8 slot) {
-    sThread->sourceSlot = slot;
-    sThread->lastCommand = 1;
-    sThread->lastResult = -21;
-    sThread->completionResult = -21;
-    OSSendMessage(&sThread->requests, (OSMessage)(slot << 16 | 1), 0);
-}
+        long getCardLastCMDFCmdResult() {
+            return sThread->cmdResult;
+        }
 
-void sendCardCopyCmd(u8 slot, s16 fileNo) {
-    u32 message = ((u32)fileNo & 0xFF) << 24 | ((slot & 1) << 16);
-    sThread->sourceSlot = slot;
-    sThread->lastCommand = 2;
-    sThread->lastResult = -21;
-    sThread->completionResult = -21;
-    message |= 2;
-    OSSendMessage(&sThread->requests, (OSMessage)message, 0);
-}
+        extern "C" BOOL CardSequence_813D205C(u8 slot) {
+            sThread->srcSlot = slot;
+            sThread->sendCmd = MSG_CMD_DETACH;
+            sThread->lastError = -0x15;
+            return OSSendMessage(&sThread->cmdQueue, (OSMessage)((slot << 16) | MSG_CMD_DETACH), 0);
+        }
 
-void sendCardMoveCmd(u8 slot, s16 fileNo) {
-    u32 message = ((u32)fileNo & 0xFF) << 24 | ((slot & 1) << 16);
-    sThread->sourceSlot = slot;
-    sThread->lastCommand = 3;
-    sThread->lastResult = -21;
-    sThread->completionResult = -21;
-    message |= 3;
-    OSSendMessage(&sThread->requests, (OSMessage)message, 0);
-}
+        void sendCardFormatCmd(u8 slot) {
+            sThread->srcSlot = slot;
+            sThread->sendCmd = MSG_CMD_FORMAT;
+            sThread->lastError = -0x15;
+            sThread->cmdResult = -0x15;
+            OSSendMessage(&sThread->cmdQueue, (OSMessage)((slot << 16) | MSG_CMD_FORMAT), 0);
+        }
 
-void sendCardDeleteCmd(u8 slot, s16 fileNo) {
-    u32 message = ((u32)fileNo & 0xFF) << 24 | ((slot & 1) << 16);
-    sThread->sourceSlot = slot;
-    sThread->lastCommand = 4;
-    sThread->lastResult = -21;
-    sThread->completionResult = -21;
-    message |= 4;
-    OSSendMessage(&sThread->requests, (OSMessage)message, 0);
-}
+        void sendCardCopyCmd(u8 slot, s16 fileNo) {
+            u32 msg = (fileNo << 24) | ((slot & 1) << 16);
+            msg |= MSG_CMD_COPY;
+            sThread->srcSlot = slot;
+            sThread->sendCmd = MSG_CMD_COPY;
+            sThread->lastError = -0x15;
+            sThread->cmdResult = -0x15;
+            OSSendMessage(&sThread->cmdQueue, (OSMessage)msg, 0);
+        }
 
-void sendCardThreadStopCmd() NO_INLINE {
-    CardSequence_813D205C(0);
-    CardSequence_813D205C(1);
-    OSSendMessage(&sThread->requests, (OSMessage)0xB, 0);
-}
+        void sendCardMoveCmd(u8 slot, s16 fileNo) {
+            u32 msg = (fileNo << 24) | ((slot & 1) << 16);
+            msg |= MSG_CMD_MOVE;
+            sThread->srcSlot = slot;
+            sThread->sendCmd = MSG_CMD_MOVE;
+            sThread->lastError = -0x15;
+            sThread->cmdResult = -0x15;
+            OSSendMessage(&sThread->cmdQueue, (OSMessage)msg, 0);
+        }
 
-extern "C" void CardSequence_813D222C(u8 slot) {
-    s32 result;
+        void sendCardDeleteCmd(u8 slot, s16 fileNo) {
+            u32 msg = (fileNo << 24) | ((slot & 1) << 16);
+            msg |= MSG_CMD_DELETE;
+            sThread->srcSlot = slot;
+            sThread->sendCmd = MSG_CMD_DELETE;
+            sThread->lastError = -0x15;
+            sThread->cmdResult = -0x15;
+            OSSendMessage(&sThread->cmdQueue, (OSMessage)msg, 0);
+        }
 
-    if (sThread->valid == 1) {
-        result = CARDProbe(slot);
-        if (result != 0) {
+        void sendCardThreadStopCmd() __attribute__((never_inline)) {
+            CardSequence_813D205C(0);
+            CardSequence_813D205C(1);
+            OSSendMessage(&sThread->cmdQueue, (OSMessage)MSG_CMD_EXIT, 0);
+        }
 
-            if (sThread->slots[slot].state < 2) {
-                sThread->sourceSlot = slot;
-                sThread->lastCommand = 0;
-                sThread->lastResult = -21;
-                if (OSSendMessage(&sThread->requests,
-                                  (OSMessage)(slot << 16), 0)) {
-                    sThread->slots[slot].state = 3;
-                    sThread->slots[slot].changed = 0;
+        extern "C" void CardSequence_813D222C(u8 slot) {
+            s32 probed;
+
+            if (sThread->threadValid != 1) {
+                return;
+            }
+            probed = CARDProbe(slot);
+            if (probed) {
+                if (sThread->cardState[slot].state < 2) {
+                    sThread->srcSlot = slot;
+                    sThread->sendCmd = 0;
+                    sThread->lastError = -0x15;
+                    if (OSSendMessage(&sThread->cmdQueue, (OSMessage)((slot << 16) | MSG_CMD_PROBE), 0)) {
+                        sThread->cardState[slot].state = 3;
+                        sThread->cardState[slot].changed = 0;
+                    }
+                    return;
                 }
-                goto done;
+            }
+            if (!probed && sThread->cardState[slot].state > 2) {
+                if (CardSequence_813D205C(slot)) {
+                    sThread->cardState[slot].changed = 0;
+                }
             }
         }
-        if (result == 0) {
-            if (sThread->slots[slot].state > 2 && CardSequence_813D205C(slot)) {
-                sThread->slots[slot].changed = 0;
-            }
-        }
-    }
-done:
-    return;
-}
 
-extern "C" s32 CardSequence_813D233C(s32 result) {
-    switch (result) {
-    case 0:
-        return 0;
-    case -2:
-        return -28;
-    case -3:
-        return -28;
-    case -4:
-        return -28;
-    case -5:
-        return -28;
-    case -6:
-        return -28;
-    case -7:
-        return -24;
-    case -8:
-        return -25;
-    case -9:
-        return -25;
-    case -10:
-        return -28;
-    case -11:
-        return -28;
-    case -12:
-        return -28;
-    case -13:
-        return -28;
-    case -27:
-        return -27;
-    default:
-        return -28;
-    }
-}
-
-void probeCard() {
-    OSMessage message;
-
-    CardSequence_813D222C(0);
-    CardSequence_813D222C(1);
-    while (OSReceiveMessage(&sThread->responses, &message, 0)) {
-        s16 slot = (s16)(((u32)message >> 16) & 1);
-        s8 command = (u8)(u32)message;
-
-        if (command == 10) {
-            goto updateSlotState;
-        }
-        if (command != 11) {
-            goto checkCommand;
-        }
-updateSlotState:
-        {
-            sThread->valid = (u32)message >> 8;
-            continue;
-        }
-checkCommand:
-        if (command == 12) {
-            sThread->scanComplete = 1;
-            sThread->scanPending = 1;
-            continue;
-        } else {
-
-            switch ((s8)(((u32)message << 16) >> 24)) {
-            case -27:
-            case -7:
+        extern "C" s32 CardSequence_813D233C(s32 result) {
+            switch (result) {
             case 0:
-                OSReport("ready or exit\n");
-
-                sThread->slots[slot].state = 4;
-                break;
-            case -9:
-            case -8:
-                OSReport("Card hasn't enough space\n");
-
-                sThread->slots[slot].state = 4;
-                break;
+                return 0;
             case -2:
-                OSReport("Wrong Device\n");
-
-                sThread->slots[slot].state = 5;
-                break;
-            case -6:
-                OSReport("Broken Card\n");
-
-                sThread->slots[slot].state = 6;
-                break;
-            case -13:
-                OSReport("Other Language\n");
-
-                sThread->slots[slot].state = 8;
-                break;
+                return -0x1C;
             case -3:
-                OSReport("Detach Card\n");
-
-                sThread->slots[slot].state = 0;
-                break;
+                return -0x1C;
+            case -4:
+                return -0x1C;
+            case -5:
+                return -0x1C;
+            case -6:
+                return -0x1C;
+            case -7:
+                return -0x18;
+            case -8:
+                return -0x19;
+            case -9:
+                return -0x19;
+            case -0xA:
+                return -0x1C;
+            case -0xB:
+                return -0x1C;
+            case -0xC:
+                return -0x1C;
+            case -0xD:
+                return -0x1C;
+            case -0x1B:
+                return -0x1B;
             default:
-                OSReport("Other Error\n");
+                return -0x1C;
+            }
+        }
 
-                sThread->slots[slot].state = 10;
-                break;
+        void probeCard() {
+            OSMessage msg;
+
+            CardSequence_813D222C(0);
+            CardSequence_813D222C(1);
+
+            while (OSReceiveMessage(&sThread->replyQueue, &msg, 0)) {
+                s16 slot = (s16)(((u32)msg >> 16) & 1);
+
+                if ((s8)((u32)msg & 0xFF) == MSG_CMD_STATE || (s8)((u32)msg & 0xFF) == MSG_CMD_EXIT) {
+                    sThread->threadValid = (u8)(((u32)msg >> 8) & 0xFF);
+                    continue;
+                }
+                if ((s8)((u32)msg & 0xFF) == MSG_CMD_BLOCKS) {
+                    sThread->blockInfoDone = 1;
+                    sThread->scanDone = 1;
+                    continue;
+                }
+
+                switch ((s8)(((u32)msg >> 8) & 0xFF)) {
+                case 0:
+                case -0x1B:
+                case -7:
+                    OSReport("ready or exit\n");
+                    sThread->cardState[slot].state = 4;
+                    break;
+                case -9:
+                case -8:
+                    OSReport("Card hasn't enough space\n");
+                    sThread->cardState[slot].state = 4;
+                    break;
+                case -2:
+                    OSReport("Wrong Device\n");
+                    sThread->cardState[slot].state = 5;
+                    break;
+                case -6:
+                    OSReport("Broken Card\n");
+                    sThread->cardState[slot].state = 6;
+                    break;
+                case -0xD:
+                    OSReport("Other Language\n");
+                    sThread->cardState[slot].state = 8;
+                    break;
+                case -3:
+                    OSReport("Detach Card\n");
+                    sThread->cardState[slot].state = 0;
+                    break;
+                default:
+                    OSReport("Other Error\n");
+                    sThread->cardState[slot].state = 10;
+                    break;
+                }
+
+                sThread->lastError = CardSequence_813D233C((s8)(((u32)msg >> 8) & 0xFF));
+
+                if ((s8)((u32)msg & 0xFF) != 0 && (s8)((u32)msg & 0xFF) != MSG_CMD_DETACH) {
+                    sThread->cmdResult = CardSequence_813D233C((s8)(((u32)msg >> 8) & 0xFF));
+                    if (sThread->srcSlot != (s16)(((u32)msg >> 16) & 1)) {
+                        sThread->replyStatus = (u8)((u32)msg >> 24);
+                    }
+                }
+
+                OSReport("set slot state : ErrorCode: %d\n", sThread->lastError);
+                sThread->cardState[slot].changed = 1;
+                sThread->scanDone = 0;
+            }
+        }
+
+        void initCardThread() {
+            if (sThread == NULL) {
+                u32           size = System::createMem1AppHeap()->getAllocatableSize(4);
+                void*         buf  = System::createMem1AppHeap()->alloc(size, 4);
+                MEMHeapHandle hh   = MEMCreateExpHeapEx(buf, size, 0);
+                MEMInitAllocatorForExpHeap(&sAllocator_, hh, 0x20);
+                sAllocator_.heapParam2 = (u32)buf;
+                OSReport("HEAP CREATE: %p %d\n", buf, size);
+
+                sThread = (CardThreadData*)MEMAllocFromAllocator(&sAllocator_, sizeof(CardThreadData));
+                memset(sThread, 0, sizeof(CardThreadData));
+
+                sThread->iconDataPtr[0][0] = (u8*)MEMAllocFromAllocator(&sAllocator_, 0x594C00);
+                sThread->commentPtr[0][0]  = (char*)MEMAllocFromAllocator(&sAllocator_, 0x3F80);
+                sThread->dirFileBuf        = (u8*)MEMAllocFromAllocator(&sAllocator_, 0x5A00);
+                sThread->copyBuf           = (u8*)MEMAllocFromAllocator(&sAllocator_, 0x40000);
+                sThread->workBuf[0]        = MEMAllocFromAllocator(&sAllocator_, 0xA000);
+                sThread->workBuf[1]        = MEMAllocFromAllocator(&sAllocator_, 0xA000);
             }
 
-            sThread->lastResult = CardSequence_813D233C((s8)(((u32)message << 16) >> 24));
-            if ((s8)(u8)(u32)message != 0 && (s8)(u8)(u32)message != 9) {
-                sThread->completionResult = CardSequence_813D233C((s8)(((u32)message << 16) >> 24));
-                if (sThread->sourceSlot != (s16)(((u32)message >> 16) & 1)) {
-                    sThread->destinationFileNo = (u32)message >> 24;
+            for (int i = 0; i < 0x7F; i++) {
+                sThread->iconDataPtr[0][i] = sThread->iconDataPtr[0][0] + i * 0x5A00;
+                sThread->commentPtr[0][i]  = sThread->commentPtr[0][0] + i * 0x40;
+            }
+            for (int i = 0; i < 0x7F; i++) {
+                sThread->iconDataPtr[1][i] = sThread->iconDataPtr[0][0] + (i + 0x7F) * 0x5A00;
+                sThread->commentPtr[1][i]  = sThread->commentPtr[0][0] + (i + 0x7F) * 0x40;
+            }
+
+            OSInitMessageQueue(&sThread->replyQueue, sThread->replyMsgBuf, 0x10);
+            OSInitMessageQueue(&sThread->cmdQueue, sThread->cmdMsgBuf, 0x10);
+            OSCreateThread(&sThread->thread, CardSequence_813D2C8C, NULL,
+                           sThread->threadStack + sizeof(sThread->threadStack),
+                           sizeof(sThread->threadStack), 0x11, 0);
+            OSResumeThread(&sThread->thread);
+
+            OSSendMessage(&sThread->cmdQueue, (OSMessage)MSG_CMD_STATE, 0);
+            OSReport("initCardThread successfully\n");
+        }
+
+        bool shutdownCardThread() {
+            bool ret = true;
+
+            if (sThread != NULL) {
+                ret = false;
+                if (sThread->stopSent == 0) {
+                    sendCardThreadStopCmd();
+                    sThread->stopSent = 1;
+                }
+                if (OSIsThreadTerminated(&sThread->thread)) {
+                    void* val;
+                    OSJoinThread(&sThread->thread, &val);
+
+                    MEMFreeToAllocator(&sAllocator_, sThread->workBuf[1]);
+                    MEMFreeToAllocator(&sAllocator_, sThread->workBuf[0]);
+                    MEMFreeToAllocator(&sAllocator_, sThread->copyBuf);
+                    MEMFreeToAllocator(&sAllocator_, sThread->dirFileBuf);
+                    MEMFreeToAllocator(&sAllocator_, sThread->iconDataPtr[0][0]);
+                    MEMFreeToAllocator(&sAllocator_, sThread->commentPtr[0][0]);
+                    MEMFreeToAllocator(&sAllocator_, sThread);
+                    sThread = NULL;
+
+                    MEMDestroyExpHeap((MEMHeapHandle)sAllocator_.heap);
+                    System::createMem1AppHeap()->free((void*)sAllocator_.heapParam2);
+                    System::destroyMem1AppHeap();
+                    OSReport("HEAP DESTROY\n");
+                    ret = true;
                 }
             }
-            OSReport("set slot state : ErrorCode: %d\n", sThread->lastResult);
-            sThread->slots[slot].changed = 1;
-            sThread->scanPending = 0;
+
+            return ret;
         }
-    }
-}
 
-void initCardThread() {
-    EGG::Heap* heap;
-    u32 size;
-    void* memory;
-    MEMHeapHandle handle;
-    u32 index;
-
-    if (sThread == 0) {
-        heap = System::createMem1AppHeap();
-        size = heap->getAllocatableSize(4);
-        heap = System::createMem1AppHeap();
-        memory = heap->alloc(size, 4);
-        handle = MEMCreateExpHeapEx(memory, size, 0);
-        MEMInitAllocatorForExpHeap(&sAllocator_, handle, 32);
-        sAllocator_.heapParam2 = (u32)memory;
-        OSReport("HEAP CREATE: %p %d\n", memory, size);
-        sThread = (CardThreadState*)MEMAllocFromAllocator(&sAllocator_, sizeof(CardThreadState));
-        memset(sThread, 0, sizeof(CardThreadState));
-        sThread->images[0][0] = (u8*)MEMAllocFromAllocator(&sAllocator_, 0x594C00);
-        sThread->comments[0][0] = (char*)MEMAllocFromAllocator(&sAllocator_, 0x3F80);
-        sThread->imageReadBuffer = (u8*)MEMAllocFromAllocator(&sAllocator_, 0x5A00);
-        sThread->transferBuffer = MEMAllocFromAllocator(&sAllocator_, 0x40000);
-        sThread->mountBuffers[0] = MEMAllocFromAllocator(&sAllocator_, 0xA000);
-        sThread->mountBuffers[1] = MEMAllocFromAllocator(&sAllocator_, 0xA000);
-    }
-
-    for (index = 0; index < 127; index++) {
-        sThread->images[0][index] = sThread->images[0][0] + index * 0x5A00;
-        sThread->comments[0][index] = sThread->comments[0][0] + index * 0x40;
-    }
-    for (index = 0; index < 127; index++) {
-        sThread->images[1][index] = sThread->images[0][0] + (index + 127) * 0x5A00;
-        sThread->comments[1][index] = sThread->comments[0][0] + (index + 127) * 0x40;
-    }
-
-    OSInitMessageQueue(&sThread->responses, sThread->responseMessages, 0x10);
-    OSInitMessageQueue(&sThread->requests, sThread->requestMessages, 0x10);
-    OSCreateThread(&sThread->thread, (void* (*)(void*))CardSequence_813D2C8C, 0,
-                   sThread->stack + sizeof(sThread->stack), 0x8000, 0x11, 0);
-    OSResumeThread(&sThread->thread);
-    OSSendMessage(&sThread->requests, (OSMessage)10, 0);
-    OSReport("initCardThread successfully\n");
-}
-
-BOOL shutdownCardThread() {
-    s32 result = 1;
-
-    if (sThread != 0) {
-        result = 0;
-        if (sThread->stopRequested == 0) {
-            sendCardThreadStopCmd();
-            sThread->stopRequested = 1;
+        IconState* getIconStateArray() {
+            return &sThread->iconState[0][0];
         }
-        if (OSIsThreadTerminated(&sThread->thread)) {
-            void* threadResult;
-            OSJoinThread(&sThread->thread, &threadResult);
-            MEMFreeToAllocator(&sAllocator_, sThread->mountBuffers[1]);
-            MEMFreeToAllocator(&sAllocator_, sThread->mountBuffers[0]);
-            MEMFreeToAllocator(&sAllocator_, sThread->transferBuffer);
-            MEMFreeToAllocator(&sAllocator_, sThread->imageReadBuffer);
-            MEMFreeToAllocator(&sAllocator_, sThread->images[0][0]);
-            MEMFreeToAllocator(&sAllocator_, sThread->comments[0][0]);
-            MEMFreeToAllocator(&sAllocator_, sThread);
-            sThread = 0;
-            MEMDestroyExpHeap((MEMHeapHandle)sAllocator_.heap);
-            System::createMem1AppHeap()->free((void*)sAllocator_.heapParam2);
-            System::destroyMem1AppHeap();
-            OSReport("HEAP DESTROY\n");
-            result = 1;
+
+        const char* getIconComment(u8 slot, s16 fileNo) {
+            return sThread->commentPtr[slot][fileNo];
         }
-    }
 
-    return result;
-}
-
-IconState* getIconStateArray() {
-    return sThread->icons[0];
-}
-
-const char* getIconComment(u8 slot, s16 index) {
-    return sThread->comments[slot][index];
-}
-
-extern "C" void CardSequence_813D2A74(s32 slot, s32 index) {
-    BOOL interrupts = OSDisableInterrupts();
-    sThread->files[slot][index].fileNo = 0;
-    sThread->files[slot][index].size = 0;
-    sThread->files[slot][index].canCopy = 1;
-    sThread->files[slot][index].canMove = 1;
-    sThread->files[slot][index].unk_0x06 = 0;
-    sThread->icons[slot][index].unk_0x01 = 0;
-    sThread->icons[slot][index].bannerEnable = 0;
-    OSRestoreInterrupts(interrupts);
-}
-
-extern "C" void CardSequence_813D2B40(s32 slot) {
-    u16 memSize;
-    u32 sectorSize;
-    s32 freeBytes;
-    s32 freeFiles;
-    s32 result = CARDGetMemSize(slot, &memSize);
-    if (result < 0) {
-        OSReport("Get Memsize Error-%d: %d: %d\n", slot, result, memSize);
-    }
-    result = CARDGetSectorSize(slot, &sectorSize);
-    if (result < 0) {
-        OSReport("Get Sector Error- %d: %d\n", result, sectorSize);
-    }
-    result = CARDFreeBlocks(slot, &freeBytes, &freeFiles);
-    if (result < 0) {
-        OSReport("Get FreeBlocks Error- %d %d\n", result, freeBytes);
-    }
-    if (CARDGetResultCode(slot) >= 0) {
-        BOOL interrupts = OSDisableInterrupts();
-
-        sThread->slots[slot].unk_0x0C = ((u32)memSize << 17) / sectorSize - 5;
-        sThread->slots[slot].key = sectorSize;
-        sThread->slots[slot].unk_0x0E = freeFiles;
-        sThread->slots[slot].freeBlocks = freeBytes / sectorSize;
-        OSRestoreInterrupts(interrupts);
-        OSReport("%d:%dbytes sectorsize , %d blocks , %d freeEntry\n", slot,
-                 sThread->slots[slot].key, sThread->slots[slot].freeBlocks,
-                 sThread->slots[slot].unk_0x0E);
-    }
-}
-
-extern "C" s32 CardSequence_813D320C(s32 slot, s32 result);
-extern "C" s32 CardSequence_813D32A8(s32 slot, s32 state, s32 result);
-extern "C" void CardSequence_813D3380(s32 slot, s32 state, s32 fileNo);
-extern "C" void CardSequence_813D33D8(s32 slot);
-extern "C" s32 CardSequence_813D3424(s32 slot, s32 fileNo, CARDDir* dir);
-extern "C" void CardSequence_813D3D14(s32 slot, s16 fileNo, s32 command);
-
-static inline void sendValidityResponse(u32 command, u32 valid) {
-    union {
-        u32 value;
-        struct { u32 upper : 16; u32 valid : 8; u32 command : 8; } fields;
-    } reply;
-    reply.value = command;
-    reply.fields.valid = valid;
-    OSSendMessage(&sThread->responses, (OSMessage)reply.value, 1);
-}
-
-extern "C" void* CardSequence_813D2C8C() {
-    struct CardThreadLocals {
-        u8 compareName[6];
-        u32 message;
-        CARDDir freeDir;
-        CARDDir mountDir;
-        CARDDir listingDir;
-        char fileName[33];
-    } local;
-    BOOL brokenFile;
-    BOOL exitThread = FALSE;
-    u32 validState = TRUE;
-    u32 command;
-    s16 fileNo;
-    u8 slot;
-    s32 result;
-    s32 file;
-    u32 listingFile;
-    s32 outerSlot;
-    s32 freeFile;
-    s32 freeBlocks;
-
-    sThread->mounted[0] = 0;
-    sThread->mounted[1] = 0;
-    goto loopCheck;
-loopStart:
-        OSReceiveMessage(&sThread->requests, (OSMessage*)&local.message, 1);
-        OSReport("CARD THREAD: Message received %d\n", (s8)(u8)local.message);
-        if (validState != TRUE) {
-            goto loopCheck;
+        extern "C" void CardSequence_813D2A74(u8 slot, s16 fileNo) {
+            int intr = OSDisableInterrupts();
+            sThread->dirState[slot][fileNo].fileNo = 0;
+            sThread->dirState[slot][fileNo].size = 0;
+            sThread->dirState[slot][fileNo].canCopy = 1;
+            sThread->dirState[slot][fileNo].canMove = 1;
+            sThread->dirState[slot][fileNo].unk_0x06 = 0;
+            sThread->iconState[slot][fileNo].unk_0x01 = 0;
+            sThread->iconState[slot][fileNo].bannerEnable = 0;
+            OSRestoreInterrupts(intr);
         }
-        command = local.message & 0xFF;
 
-        switch ((s8)command) {
-        case 10:
-            validState = TRUE;
-            OSReport("card thread valid state changed:%d\n", 1);
-            sendValidityResponse(command, validState);
-            break;
-        case 11:
-            exitThread = TRUE;
-            break;
-        case 0: {
-            slot = (local.message >> 16) & 1;
-            command = (local.message >> 14) & 4;
-            result = CARDMount(slot, sThread->mountBuffers[command / 4], 0);
+        extern "C" void CardSequence_813D2B40(u8 slot) {
+            u32 sectorSize;
+            s32 bytes;
+            s32 files;
+            u16 memSize;
+            s32 result;
+
+            result = CARDGetMemSize(slot, &memSize);
             if (result < 0) {
-                result = CardSequence_813D320C(slot, result);
-                if (result != 0) {
-                    goto mountContinue;
-                }
-                break;
+                OSReport("Get Memsize Error-%d: %d: %d\n", slot, result, memSize);
             }
+
+            result = CARDGetSectorSize(slot, &sectorSize);
+            if (result < 0) {
+                OSReport("Get Sector Error- %d: %d\n", result, sectorSize);
+            }
+
+            result = CARDFreeBlocks(slot, &bytes, &files);
+            if (result < 0) {
+                OSReport("Get FreeBlocks Error- %d %d\n", result, bytes);
+            }
+
+            if (CARDGetResultCode(slot) >= 0) {
+                int intr = OSDisableInterrupts();
+                sThread->cardState[slot].unk_0x0C = (u16)((memSize << 17) / sectorSize - 5);
+                sThread->cardState[slot].key = sectorSize;
+                sThread->cardState[slot].unk_0x0E = (u16)files;
+                sThread->cardState[slot].freeBlocks = (u16)(bytes / sectorSize);
+                OSRestoreInterrupts(intr);
+                OSReport("%d:%dbytes sectorsize , %d blocks , %d freeEntry\n", slot,
+                         sThread->cardState[slot].key, sThread->cardState[slot].freeBlocks,
+                         sThread->cardState[slot].unk_0x0E);
+            }
+        }
+
+        extern "C" void* CardSequence_813D2C8C(void* arg) {
+            u8        zero[8];
+            int       done = 0;
+            u32       valid = 1;
+            OSMessage msg;
+
+            sThread->mounted[0] = 0;
+            sThread->mounted[1] = 0;
+
+            while (done == 0) {
+                if (!OSReceiveMessage(&sThread->cmdQueue, &msg, OS_MESSAGE_BLOCK)) {
+                    continue;
+                }
+                OSReport("CARD THREAD: Message received %d\n", (s8)((u32)msg & 0xFF));
+
+                if (valid == 1) {
+                    s8  cmd    = (s8)((u32)msg & 0xFF);
+                    u8  slot   = (u8)(((u32)msg >> 16) & 1);
+                    s16 fileNo = (s16)((u32)msg >> 24);
+
+                    switch (cmd) {
+                    case MSG_CMD_STATE:
+                        valid = 1;
+                        OSReport("card thread valid state changed:%d\n", 1);
+                        OSSendMessage(&sThread->replyQueue, (OSMessage)(cmd | (valid << 8)), 1);
+                        break;
+                    case MSG_CMD_PROBE: {
+                        s32 result = CARDMount(slot, sThread->workBuf[((u32)msg >> 16) & 1], 0);
+                        if (result < 0) {
+                            if (CardSequence_813D320C(slot, result) == 0) {
+                                continue;
+                            }
+                        }
+                        else {
+                            result = CARDCheck(slot);
+                            if (result < 0) {
+                                goto mount_error;
+                            }
+                        }
+
+                        CardSequence_813D33D8(slot);
+                        for (s16 i = 0; i < 0x7F; i++) {
+                            CARDDir dir;
+
+                            result = __CARDGetStatusEx(slot, i, &dir);
+                            if (result < 0) {
+                                if (CardSequence_813D320C(slot, result) == 0) {
+                                    goto next;
+                                }
+                                continue;
+                            }
+                            else {
+                                zero[0] = 0;
+                                zero[1] = 0;
+                                zero[2] = 0;
+                                zero[3] = 0;
+                                zero[4] = 0;
+                                zero[5] = 0;
+                                if (strncmp((const char*)dir.fileName, "Broken File", 0xB) == 0 &&
+                                    memcmp(dir.gameName, zero + 2, 4) == 0 &&
+                                    memcmp(dir.company, zero, 2) == 0) {
+                                    result = CARDFastDelete(slot, i);
+                                    if (result < 0) {
+                                        goto mount_error;
+                                    }
+                                }
+                                else {
+                                    result = CardSequence_813D3424(slot, i, &dir);
+                                    if (result < 0) {
+                                        goto mount_error;
+                                    }
+                                }
+                            }
+                        }
+
+                        CardSequence_813D2B40(slot);
+                        sThread->mounted[slot] = 1;
+                        CardSequence_813D3380(slot, 0, 0);
+                        OSReport("Slot %c\n", (s8)("AB"[slot]));
+
+                        for (u16 i = 0; i < 0x7F; i++) {
+                            CARDDir dir;
+                            char    name[CARD_FILENAME_MAX + 1];
+
+                            if (__CARDGetStatusEx(slot, i, &dir) == 0) {
+                                memcpy(name, dir.fileName, CARD_FILENAME_MAX);
+                                name[CARD_FILENAME_MAX] = 0;
+                                OSReport("%d - %s: %d blocks\n", i, name, dir.length);
+                            }
+                        }
+                        break;
+                    mount_error:
+                        OSReport("MountError\n");
+                        CardSequence_813D32A8(slot, 0, result);
+                        break;
+                    }
+                    case MSG_CMD_FORMAT: {
+                        s32 result = CARDFormat(slot);
+                        if (result < 0) {
+                            CardSequence_813D32A8(slot, MSG_CMD_FORMAT, result);
+                        }
+                        else {
+                            sThread->mounted[slot & 1] = 1;
+                            CardSequence_813D2B40(slot);
+                            CardSequence_813D3380(slot, MSG_CMD_FORMAT, 0);
+                        }
+                        break;
+                    }
+                    case MSG_CMD_COPY:
+                        CardSequence_813D3D14(slot, fileNo, MSG_CMD_COPY);
+                        break;
+                    case MSG_CMD_MOVE:
+                        CardSequence_813D3D14(slot, fileNo, MSG_CMD_MOVE);
+                        break;
+                    case MSG_CMD_DELETE: {
+                        s32 result = CARDFastDelete(slot, fileNo);
+                        if (result < 0) {
+                            CardSequence_813D32A8(slot, MSG_CMD_DELETE, result);
+                        }
+                        else {
+                            CardSequence_813D2A74(slot, fileNo);
+                            CardSequence_813D2B40(slot);
+                            CardSequence_813D3380(slot, MSG_CMD_DELETE, (u8)fileNo);
+                        }
+                        break;
+                    }
+                    case MSG_CMD_DETACH:
+                        CardSequence_813D32A8(slot, MSG_CMD_DETACH, -3);
+                        break;
+                    case MSG_CMD_EXIT:
+                        done = 1;
+                        break;
+                    case MSG_CMD_BLOCKS: {
+                        for (u8 s = 0; s < 2; s++) {
+                            if (sThread->mounted[s] != 0) {
+                                s16 used = 0;
+                                for (s16 i = 0; i < 0x7F; i++) {
+                                    CARDDir dir;
+                                    s32     result = __CARDGetStatusEx(s, i, &dir);
+                                    if (result < 0) {
+                                        if (result != -4) {
+                                            used = -1;
+                                            break;
+                                        }
+                                    }
+                                    else {
+                                        if (memcmp(dir.gameName, (void*)0x80000000, 4) == 0 &&
+                                            memcmp(dir.company, (void*)0x80000004, 2) == 0) {
+                                            used += dir.length;
+                                        }
+                                    }
+                                }
+                                sThread->cardState[s].unk_0x12 = used;
+                            }
+                        }
+                        CardSequence_813D3380(0, MSG_CMD_BLOCKS, 0);
+                        break;
+                    }
+                    default:
+                        break;
+                    }
+                }
+            next:;
+            }
+            return NULL;
+        }
+
+        extern "C" void CardSequence_813D3140() {
+            for (s32 slot = 0; slot < 2; slot++) {
+                for (s16 fileNo = 0; fileNo < 0x7F; fileNo++) {
+                    sThread->dirState[slot][fileNo].unk_0x06 = 0;
+                    if (sThread->mounted[slot] == 0 || sThread->mounted[slot ^ 1] == 0)
+                        continue;
+                    if (CardSequence_813D3C38((u8)slot, fileNo) >= 0)
+                        continue;
+                    sThread->dirState[slot][fileNo].unk_0x06 = 1;
+                }
+            }
+        }
+
+        extern "C" s32 CardSequence_813D320C(u8 slot, s32 result) {
+            if (result == -5) {
+                goto reply;
+            }
+            if (result >= -5) {
+                goto upper;
+            }
+            if (result >= -6) {
+                goto check;
+            }
+            goto reply;
+        upper:
+            if (result >= -3) {
+                goto reply;
+            }
+            return 1;
+        check:
             result = CARDCheck(slot);
             if (result < 0) {
-                goto mountError;
+                return CardSequence_813D32A8(slot, 0, result);
             }
-
-        mountContinue:
-            CardSequence_813D33D8(slot);
-            for (file = 0; file < 0x7F; ++file) {
-                result = __CARDGetStatusEx(slot, (s16)file, &local.mountDir);
-                if (result < 0) {
-                    result = CardSequence_813D320C(slot, result);
-                    if (result != 0) {
-                        continue;
-                    }
-                    goto loopCheck;
-                } else {
-                    local.compareName[0] = 0;
-                    local.compareName[1] = 0;
-                    local.compareName[2] = 0;
-                    local.compareName[3] = 0;
-                    local.compareName[4] = 0;
-                    local.compareName[5] = 0;
-                    if (strncmp((const char*)local.mountDir.fileName, "Broken File", 0xB) == 0 &&
-                        memcmp(local.mountDir.gameName, local.compareName + 2, 4) == 0 &&
-                        memcmp(local.mountDir.company, local.compareName, 2) == 0) {
-                        brokenFile = TRUE;
-                    } else {
-                        brokenFile = FALSE;
-                    }
-                    if (brokenFile) {
-                        result = CARDFastDelete(slot, (s16)file);
-                        if (result < 0) {
-                            goto mountError;
-                        }
-                    } else {
-                        result = CardSequence_813D3424(slot, (s16)file, &local.mountDir);
-                        if (result < 0) {
-                            goto mountError;
-                        }
-                    }
-                }
-            }
-            CardSequence_813D2B40(slot);
-            sThread->mounted[command / 4] = 1;
-            CardSequence_813D3380(slot, 0, 0);
-            OSReport("Slot %c\n", sCardSlotName[slot]);
-            for (listingFile = 0; listingFile < 0x7F; ++listingFile) {
-                if (__CARDGetStatusEx(slot, (u16)listingFile, &local.listingDir) == 0) {
-                    memcpy(local.fileName, local.listingDir.fileName, 0x20);
-                    local.fileName[0x20] = 0;
-                    OSReport("%d - %s: %d blocks\n", (u16)listingFile, local.fileName,
-                             local.listingDir.length);
-                }
-            }
-            break;
-
-        mountError:
-            OSReport("MountError\n");
-            CardSequence_813D32A8(slot, 0, result);
-            break;
-        }
-        case 9:
-            CardSequence_813D32A8((local.message >> 16) & 1, 9, -3);
-            break;
-        case 1: {
-            slot = (local.message >> 16) & 1;
-            result = CARDFormat(slot);
-            if (result < 0) {
-                CardSequence_813D32A8(slot, 1, result);
-            } else {
-                sThread->mounted[slot] = 1;
-                CardSequence_813D2B40(slot);
-                CardSequence_813D3380(slot, 1, 0);
-            }
-            break;
-        }
-        case 2:
-            CardSequence_813D3D14((local.message >> 16) & 1,
-                                   (s16)(u8)(local.message >> 24), (s8)command);
-            break;
-        case 3:
-            CardSequence_813D3D14((local.message >> 16) & 1,
-                                   (s16)(u8)(local.message >> 24), (s8)command);
-            break;
-        case 4: {
-            slot = (local.message >> 16) & 1;
-            fileNo = (s16)(local.message >> 24);
-            result = CARDFastDelete(slot, fileNo);
-            if (result < 0) {
-                CardSequence_813D32A8(slot, 4, result);
-            } else {
-                CardSequence_813D2A74(slot, fileNo);
-                CardSequence_813D2B40(slot);
-                CardSequence_813D3380(slot, 4, (u8)fileNo);
-            }
-            break;
-        }
-        case 12:
-            outerSlot = 0;
-
-            do {
-                if (sThread->mounted[outerSlot] != 0) {
-                    freeBlocks = 0;
-                    for (freeFile = 0; freeFile < 0x7F; ++freeFile) {
-                        result = __CARDGetStatusEx(outerSlot, freeFile, &local.freeDir);
-                        if (result < 0 && result != -4) {
-                            freeBlocks = -1;
-                            break;
-                        }
-                        if (result == 0 &&
-                            memcmp(local.freeDir.gameName, (void*)0x80000000, 4) == 0 &&
-                            memcmp(local.freeDir.company, (void*)0x80000004, 2) == 0) {
-                            freeBlocks += local.freeDir.length;
-                        }
-                    }
-                    sThread->slots[outerSlot].unk_0x12 = freeBlocks;
-                }
-                ++outerSlot;
-
-            } while (outerSlot < 2);
-            CardSequence_813D3380(0, 0xC, 0);
-            break;
-        default:
-            break;
-        }
-loopCheck:
-    if (!exitThread) {
-        goto loopStart;
-    }
-    return 0;
-}
-
-extern "C" s32 CardSequence_813D3C38(s32 slot, s16 fileNo);
-
-extern "C" void CardSequence_813D3140() {
-    u32 slot = 0;
-    s32 fileNo;
-
-    s32 flagValue = 1;
-    do {
-        fileNo = 0;
-
-        do {
-            sThread->files[slot][fileNo].unk_0x06 = 0;
-            if (sThread->mounted[slot] != 0 &&
-                sThread->mounted[slot ^ 1] != 0 &&
-                CardSequence_813D3C38((u8)slot, (s16)fileNo) < 0) {
-                sThread->files[slot][fileNo].unk_0x06 = flagValue;
-            }
-            ++fileNo;
-
-        } while (fileNo < 0x7F);
-        ++slot;
-
-    } while ((s32)slot < 2);
-}
-
-extern "C" s32 CardSequence_813D320C(s32 slot, s32 result) {
-    if (result == -5) {
-        goto reportError;
-    }
-    if (result >= -5) {
-        goto positiveResult;
-    }
-    if (result >= -6) {
-        goto repairedCard;
-    }
-    goto reportError;
-
-positiveResult:
-    if (result < -3) {
-        return 1;
-    }
-    goto reportError;
-
-repairedCard:
-    {
-        result = CARDCheck(slot);
-        if (result < 0) {
+            OSReport("CardThread:Broken Card Repaired\n");
+            return 1;
+        reply:
             return CardSequence_813D32A8(slot, 0, result);
         }
-        OSReport("CardThread:Broken Card Repaired\n");
-        return 1;
-    }
 
-reportError:
-    return CardSequence_813D32A8(slot, 0, result);
-}
-
-extern "C" s32 CardSequence_813D32A8(s32 slot, s32 state, s32 result) {
-    if (result != -7 && result != -27 && result != -8 && result != -9 &&
-        (CardSequence_813D33D8(slot), result != -6) && result != -13) {
-        OSReport("DEBUG: UnmountCard %d \n", slot);
-        CARDUnmount(slot);
-        sThread->mounted[slot & 0xFF] = 0;
-    }
-    OSReport("DEBUG: CardThread error %d %d\n", state, result);
-    CardSequence_813D3140();
-    OSSendMessage(&sThread->responses,
-                  (OSMessage)(((slot & 1) << 16) | ((result & 0xFF) << 8) | (state & 0xFF)), 1);
-    return 0;
-}
-
-extern "C" void CardSequence_813D3380(s32 slot, s32 state, s32 fileNo) {
-    CardSequence_813D3140();
-    OSMessageQueue* queue = &sThread->responses;
-    union CardThreadMessage {
-        u32 value;
-        struct {
-            u32 fileNo : 8;
-            u32 padding0 : 7;
-            u32 slot : 1;
-            u32 padding1 : 8;
-            u32 state : 8;
-        } fields;
-    } message;
-    message.value = (u32)fileNo << 24;
-    message.fields.slot = slot;
-    message.fields.state = state;
-    OSSendMessage(queue, (OSMessage)message.value, 1);
-}
-
-extern "C" void CardSequence_813D33D8(s32 slot) {
-    s32 file = 0;
-    do {
-        CardSequence_813D2A74(slot, (s16)file);
-        file = file + 1;
-    } while (file < 0x7F);
-}
-
-extern "C" s32 CardSequence_813D3424(s32 slot, s32 fileNo, CARDDir* dir) {
-    struct CardSequenceFileData {
-        s32 commentSectorSize;
-        s32 sectorSize;
-        CARDFileInfo fileInfo;
-    } local;
-    s32 result = CARDFastOpen(slot, fileNo, &local.fileInfo);
-    if (result < 0) {
-        return result;
-    }
-
-    u32 bannerImageSize = 0;
-    u8 format = dir->bannerFormat & 3;
-    u32 iconAddress = dir->iconAddr;
-    u32 iconAddressBase = iconAddress & 0xFFFFFE00;
-    s32 iconAddressOffset = iconAddress - iconAddressBase;
-
-    switch (format) {
-    case 1: {
-        bannerImageSize = 0xE00;
-        sThread->icons[slot][fileNo].bannerEnable = 1;
-        sThread->icons[slot][fileNo].bannerType = 9;
-        sThread->icons[slot][fileNo].bannerOffset =
-            (s32)sThread->images[slot][fileNo] -
-            (s32)&sThread->icons[slot][fileNo];
-        sThread->icons[slot][fileNo].bannerTlutOffset =
-            sThread->icons[slot][fileNo].bannerOffset + 0xC00;
-        sThread->icons[slot][fileNo].iconOffset[0] =
-            sThread->icons[slot][fileNo].bannerTlutOffset + 0x200;
-        break;
-    }
-    case 2: {
-        bannerImageSize = 0x1800;
-        sThread->icons[slot][fileNo].bannerEnable = 1;
-        sThread->icons[slot][fileNo].bannerType = 5;
-        sThread->icons[slot][fileNo].bannerOffset =
-            (s32)sThread->images[slot][fileNo] -
-            (s32)&sThread->icons[slot][fileNo];
-        sThread->icons[slot][fileNo].iconOffset[0] =
-            sThread->icons[slot][fileNo].bannerOffset + 0x1800;
-        break;
-    }
-    default: {
-        sThread->icons[slot][fileNo].bannerEnable = 0;
-        sThread->icons[slot][fileNo].bannerType = 0;
-        sThread->icons[slot][fileNo].iconOffset[0] =
-            (s32)sThread->images[slot][fileNo] -
-            (s32)&sThread->icons[slot][fileNo];
-        break;
-    }
-    }
-
-    s32 shift = 0;
-    s32 iconImageSize = 0;
-    s32 iconCount = 0;
-    s32 icon;
-    sThread->icons[slot][fileNo].unk_0x02 = 0;
-    sThread->icons[slot][fileNo].anmMax = 0;
-    sThread->icons[slot][fileNo].anmFrameBits = dir->iconSpeed;
-    sThread->icons[slot][fileNo].unk_0x06 =
-        (dir->iconSpeed & 3) << 2;
-    for (icon = 0; icon < 8; ++icon) {
-        s32 iconSpeed = (dir->iconSpeed >> shift) & 3;
-        if (iconSpeed != 0) {
-            sThread->icons[slot][fileNo].anmMax =
-                sThread->icons[slot][fileNo].anmMax + (iconSpeed << 2);
-        } else {
-            sThread->icons[slot][fileNo].unk_0x07 =
-                (u8)(((dir->iconSpeed >> ((iconCount - 1) * 2)) << 2) & 0xC);
-            goto iconSpeedDone;
+        extern "C" s32 CardSequence_813D32A8(u8 slot, s32 cmd, s32 result) {
+            if (result != -7 && result != -0x1B && result != -8 && result != -9) {
+                CardSequence_813D33D8(slot);
+                if (result != -6 && result != -0xD) {
+                    OSReport("DEBUG: UnmountCard %d \n", slot);
+                    CARDUnmount(slot);
+                    sThread->mounted[slot] = 0;
+                }
+            }
+            OSReport("DEBUG: CardThread error %d %d\n", cmd, result);
+            CardSequence_813D3140();
+            OSSendMessage(&sThread->replyQueue,
+                          (OSMessage)(((u8)cmd) | ((result & 0xFF) << 8) | ((slot & 1) << 16)), 1);
+            return 0;
         }
-        iconCount = iconCount + 1;
-        shift = shift + 2;
-    }
-    sThread->icons[slot][fileNo].unk_0x07 =
-        ((u16)dir->iconSpeed >> 0xC) & 0xC;
 
-iconSpeedDone:
-    if ((dir->iconSpeed & 3) == 0 || (dir->iconFormat & 3) == 0) {
-        iconImageSize = 0;
-        sThread->icons[slot][fileNo].unk_0x01 = 0;
-    } else {
-        BOOL hasTlut = FALSE;
-        iconCount = 0;
-        shift = 0;
-        for (icon = 0; icon < 8; ++icon) {
-            if (((dir->iconSpeed >> shift) & 3) != 0) {
-                s32 iconFormat = (dir->iconFormat >> shift) & 3;
-                s32 paletteSize;
-                switch (iconFormat) {
-                case 1:
-                    paletteSize = 0x400;
-                    hasTlut = TRUE;
-                    sThread->icons[slot][fileNo].iconFmt[iconCount] = 9;
-                    break;
-                case 2:
-                    paletteSize = 0x800;
-                    sThread->icons[slot][fileNo].iconFmt[iconCount] = 5;
-                    break;
-                case 0: {
-                    paletteSize = 0;
-                    u8* iconPalette =
-                        &sThread->icons[slot][fileNo].iconFmt[iconCount];
-                    *iconPalette = iconPalette[-1];
-                    break;
-                }
-                default:
-                    paletteSize = 0;
-                    break;
-                }
-                if (iconCount < 7) {
-                    sThread->icons[slot][fileNo].iconOffset[iconCount + 1] =
-                        paletteSize + sThread->icons[slot][fileNo].iconOffset[iconCount];
-                } else {
-                    sThread->icons[slot][fileNo].iconTlutOffset =
-                        paletteSize + sThread->icons[slot][fileNo].iconOffset[iconCount];
-                }
-                iconImageSize += paletteSize;
-                sThread->icons[slot][fileNo].unk_0x02 =
-                    sThread->icons[slot][fileNo].unk_0x02 + 1;
-            } else {
-                sThread->icons[slot][fileNo].iconTlutOffset =
-                    sThread->icons[slot][fileNo].iconOffset[iconCount];
+        extern "C" void CardSequence_813D3380(u8 slot, s32 cmd, u8 status) {
+            CardSequence_813D3140();
+            OSSendMessage(&sThread->replyQueue,
+                          (OSMessage)(((status & 0xFF) << 24) | ((slot & 1) << 16) | (cmd & 0xFF)), 1);
+        }
+
+        extern "C" void CardSequence_813D33D8(u8 slot) {
+            for (s16 i = 0; i < 0x7F; i++) {
+                CardSequence_813D2A74(slot, i);
+            }
+        }
+
+        extern "C" s32 CardSequence_813D3424(u8 slot, s16 fileNo, CARDDir* dir) {
+            CARDFileInfo file;
+            s32          result;
+            u32          dataSize;
+            u32          iconBytes;
+            u32          iconAddrBase;
+            u32          iconAddrOff;
+            u32          sectorSize;
+            u32          fileSize;
+            s32          readLen;
+            s32          commentBase;
+            s32          commentOff;
+            s32          tlut;
+
+            result = CARDFastOpen(slot, fileNo, &file);
+            if (result < 0) {
+                return result;
+            }
+
+            iconAddrBase = dir->iconAddr & ~0x1FF;
+            iconAddrOff = dir->iconAddr - iconAddrBase;
+
+            dataSize = 0;
+            switch (dir->bannerFormat & CARD_STAT_BANNER_MASK) {
+            case CARD_STAT_BANNER_C8:
+                sThread->iconState[slot][fileNo].bannerEnable = 1;
+                sThread->iconState[slot][fileNo].bannerType = 9;
+                sThread->iconState[slot][fileNo].bannerOffset = (u32)(sThread->iconDataPtr[slot][fileNo] - (u8*)&sThread->iconState[slot][fileNo]);
+                sThread->iconState[slot][fileNo].bannerTlutOffset = sThread->iconState[slot][fileNo].bannerOffset + 0xC00;
+                sThread->iconState[slot][fileNo].iconOffset[0] = sThread->iconState[slot][fileNo].bannerTlutOffset + 0x200;
+                dataSize = 0xE00;
+                break;
+            case CARD_STAT_BANNER_RGB5A3:
+                sThread->iconState[slot][fileNo].bannerEnable = 1;
+                sThread->iconState[slot][fileNo].bannerType = 5;
+                sThread->iconState[slot][fileNo].bannerOffset = (u32)(sThread->iconDataPtr[slot][fileNo] - (u8*)&sThread->iconState[slot][fileNo]);
+                sThread->iconState[slot][fileNo].iconOffset[0] = sThread->iconState[slot][fileNo].bannerOffset + 0x1800;
+                dataSize = 0x1800;
+                break;
+            default:
+                sThread->iconState[slot][fileNo].bannerEnable = 0;
+                sThread->iconState[slot][fileNo].bannerType = 0;
+                sThread->iconState[slot][fileNo].iconOffset[0] = (u32)(sThread->iconDataPtr[slot][fileNo] - (u8*)&sThread->iconState[slot][fileNo]);
                 break;
             }
-            ++iconCount;
-            shift += 2;
-        }
-        if (hasTlut) {
-            iconImageSize += 0x200;
-        }
-        sThread->icons[slot][fileNo].unk_0x01 = 1;
-        sThread->icons[slot][fileNo].anmType = dir->bannerFormat & 4;
-        sThread->icons[slot][fileNo].anmDelta = 1;
-    }
 
-    s32 totalImageSize = bannerImageSize + iconImageSize;
-    u32 transferSize = (totalImageSize + iconAddressOffset + 0x1FF) & 0xFFFFFE00;
-    result = CARDGetSectorSize(slot, (u32*)&local.sectorSize);
-    if (result < 0) {
-        result = 0;
-        sThread->icons[slot][fileNo].bannerEnable = 0;
-        sThread->icons[slot][fileNo].unk_0x01 = 0;
-    } else {
-        u32 fileSize = (u32)dir->length * local.sectorSize;
-        if (iconAddressBase > fileSize) {
-            result = 0;
-            sThread->icons[slot][fileNo].bannerEnable = 0;
-            sThread->icons[slot][fileNo].unk_0x01 = 0;
-        } else if (iconAddressBase + transferSize > fileSize) {
-            result = 0;
-            sThread->icons[slot][fileNo].bannerEnable = 0;
-            sThread->icons[slot][fileNo].unk_0x01 = 0;
-        } else if (totalImageSize > 0) {
-            result = CARDRead(&local.fileInfo, sThread->imageReadBuffer,
-                              transferSize, iconAddressBase);
-            if (result < 0) {
-                goto closeFile;
-            }
-            memcpy(sThread->images[slot][fileNo],
-                   (u8*)sThread->imageReadBuffer + iconAddressOffset,
-                   totalImageSize);
-            DCStoreRange(sThread->images[slot][fileNo], transferSize);
-        }
-    }
+            sThread->iconState[slot][fileNo].unk_0x02 = 0;
+            tlut = 0;
+            iconBytes = 0;
+            sThread->iconState[slot][fileNo].anmMax = 0;
+            sThread->iconState[slot][fileNo].anmFrameBits = dir->iconSpeed;
+            sThread->iconState[slot][fileNo].unk_0x06 = (dir->iconSpeed & 3) << 2;
 
-    iconAddress = dir->commentAddr;
-    iconAddressBase = iconAddress & 0xFFFFFE00;
-    s32 commentDataOffset = iconAddress - iconAddressBase;
-    s32 imageSize = ((iconAddress + 0x23F) & 0xFFFFFE00) - iconAddressBase;
-    result = CARDGetSectorSize(slot, (u32*)&local.commentSectorSize);
-    if (result < 0) {
-        goto clearComment;
-    }
-    if ((s32)iconAddressBase >= 0) {
-        u32 fileSize = (u32)dir->length * local.commentSectorSize;
-        if (iconAddressBase <= fileSize) {
-            u32 endOffset = iconAddressBase + imageSize;
-            if ((s32)endOffset >= 0 && endOffset <= fileSize) {
-                result = CARDRead(&local.fileInfo, sThread->commentBuffer, imageSize,
-                                  iconAddressBase);
-                if (result < 0) {
-                    goto clearComment;
+            for (int i = 0; i < CARD_ICON_MAX; i++) {
+                if ((dir->iconSpeed >> (i * 2)) & 3) {
+                    sThread->iconState[slot][fileNo].anmMax += (((dir->iconSpeed >> (i * 2)) & 3) << 2);
                 }
-                memset(sThread->comments[slot][fileNo], 0, 0x40);
-                memcpy(sThread->comments[slot][fileNo],
-                       sThread->commentBuffer + commentDataOffset, 0x40);
-                result = 0;
-                goto commentDone;
-            }
-        }
-    }
-    result = 0;
-    goto clearComment;
-
-clearComment:
-    memset(sThread->comments[slot][fileNo], 0, 0x40);
-
-commentDone:
-    if (result >= 0) {
-        goto closeFileSuccess;
-    }
-closeFile:
-    return result;
-
-closeFileSuccess:
-    result = CARDClose(&local.fileInfo);
-    if (result < 0) {
-        return result;
-    }
-
-    sThread->files[slot][fileNo].fileNo = 1;
-    sThread->files[slot][fileNo].size = dir->length;
-    sThread->files[slot][fileNo].key = dir->time;
-    sThread->files[slot][fileNo].canCopy = ((dir->permission >> 3) & 1) ^ 1;
-    sThread->files[slot][fileNo].canMove = ((dir->permission >> 4) & 1) ^ 1;
-    return 0;
-}
-
-extern "C" void CardSequence_813D3C24(s32, s32) {
-    sThread->writePending = 0;
-}
-
-extern "C" s32 CardSequence_813D3C38(s32 slot, s16 fileNo) {
-    CARDDir sourceDir;
-    CARDDir otherDir;
-    s32 result = __CARDGetStatusEx(slot, fileNo, &sourceDir);
-    if (result < 0) {
-        return result;
-    }
-
-    s32 file = 0;
-    do {
-        s32 otherResult = __CARDGetStatusEx(slot ^ 1, file, &otherDir);
-        if (otherResult < 0 && otherResult != -4) {
-            return otherResult;
-        }
-        if (otherResult == 0 && memcmp(sourceDir.gameName, otherDir.gameName, 4) == 0 &&
-            memcmp(sourceDir.company, otherDir.company, 2) == 0 &&
-            memcmp(sourceDir.fileName, otherDir.fileName, 0x20) == 0) {
-            return -7;
-        }
-        file = file + 1;
-    } while (file < 0x7F);
-    return 0;
-}
-
-extern "C" void CardSequence_813D3D14(s32 slot, s16 fileNo, s32 command) {
-    CARDDir createStatus;
-    CARDDir checkedStatus;
-    CARDDir ioStatus;
-    CARDDir sourceStatus;
-    CARDDir renamedStatus;
-    CARDDir moveStatus;
-    s16 destinationFileNo = -1;
-    s32 destinationSlot;
-    u32 destinationSectorSize;
-    u32 sourceSectorSize;
-    s32 commonSectorSize;
-    BOOL temporaryCreated = FALSE;
-    BOOL metadataCopied = FALSE;
-    BOOL cancelSent;
-    s32 result;
-    s32 sectorError;
-    s32 statusResult;
-    s32 stage;
-
-    result = CardSequence_813D3C38(slot, fileNo);
-
-    if (result < 0) {
-        CardSequence_813D32A8(slot, command, result);
-        goto finish;
-    }
-
-    commonSectorSize = 0;
-    result = CARDGetSectorSize(0, &sourceSectorSize);
-    if (result < 0) {
-        sectorError = result;
-        goto sectorSizeCheck;
-    }
-    result = CARDGetSectorSize(1, &destinationSectorSize);
-    if (result < 0) {
-        sectorError = result;
-        goto sectorSizeCheck;
-    }
-    if (sourceSectorSize != destinationSectorSize) {
-        sectorError = -27;
-    } else {
-        commonSectorSize = sourceSectorSize;
-        sectorError = 0;
-    }
-sectorSizeCheck:
-    if (sectorError >= 0) {
-        goto sectorSizeDone;
-    }
-sectorSizeError:
-    CardSequence_813D32A8(slot, command, sectorError);
-    goto finish;
-sectorSizeDone:
-    ;
-
-    result = 0;
-    statusResult = __CARDGetStatusEx(slot, fileNo, &checkedStatus);
-    if (statusResult >= 0) {
-        switch (command) {
-        case 2:
-            if (checkedStatus.permission & 8) {
-                result = -10;
-            }
-            break;
-        case 3:
-            if (checkedStatus.permission & 0x10) {
-                result = -10;
-            }
-            break;
-        }
-    } else {
-        result = CARDGetResultCode(slot);
-    }
-    if (result < 0) {
-        CardSequence_813D32A8(slot, command, result);
-        goto finish;
-    }
-
-    result = __CARDGetStatusEx(slot, fileNo, &createStatus);
-    if (result < 0) {
-        goto cleanup;
-    }
-
-    destinationSlot = slot ^ 1;
-    u32 createSize = (u32)createStatus.length * commonSectorSize;
-    {
-        s32 attempt = 0;
-        do {
-            sprintf(sThread->temporaryFileName, "Broken File%03d", attempt);
-            result = CARDCreate(destinationSlot, sThread->temporaryFileName,
-                                createSize, &sThread->destinationFile);
-            if (result < 0 && result != -7) {
-                OSReport("Can't Create temp File with Error.");
-                destinationFileNo = result;
-                goto createDone;
-            }
-            ++attempt;
-        } while (result != 0 && attempt < 0x80);
-        if (attempt < 0x80) {
-            destinationFileNo = sThread->destinationFile.fileNo;
-        } else {
-            destinationFileNo = -0x80;
-        }
-createDone:
-        ;
-    }
-    if (destinationFileNo < 0) {
-        CardSequence_813D32A8(destinationSlot, command, destinationFileNo);
-        goto finish;
-    }
-
-    temporaryCreated = TRUE;
-    stage = 0;
-    cancelSent = FALSE;
-    {
-        u32 sectorSize;
-        u32 maxBlocks;
-        s32 block;
-        s32 ioResult;
-
-        ioResult = __CARDGetStatusEx(slot, fileNo, &ioStatus);
-        if (ioResult < 0) {
-            goto copyIoFailure;
-        }
-        stage = 1;
-        ioResult = CARDGetSectorSize(slot, &sectorSize);
-        if (ioResult < 0) {
-            goto copyIoFailure;
-        }
-        maxBlocks = 0x40000 / sectorSize;
-        stage = 2;
-        ioResult = CARDFastOpen(slot, fileNo, &sThread->sourceFile);
-        if (ioResult < 0) {
-            goto copyIoFailure;
-        }
-        block = 0;
-        stage = 3;
-        for (; block < ioStatus.length; block += maxBlocks) {
-            u32 blocksRemaining = (u32)ioStatus.length - block;
-            u32 blocks = blocksRemaining > maxBlocks ? maxBlocks : blocksRemaining;
-            s32 offset = block * sectorSize;
-            s32 size = blocks * sectorSize;
-            ioResult = CARDRead(&sThread->sourceFile,
-                                sThread->transferBuffer, size, offset);
-            if (ioResult < 0) {
-                goto copyIoFailure;
-            }
-            sThread->writePending = 1;
-            ioResult = CARDWriteAsync(&sThread->destinationFile,
-                                      sThread->transferBuffer, size, offset,
-                                      CardSequence_813D3C24);
-            if (ioResult < 0) {
-                goto copyIoFailure;
-            }
-            while (sThread->writePending != 0) {
-                if (CARDProbe(slot) == 0 && !cancelSent) {
-                    CARDCancel(&sThread->destinationFile);
-                    cancelSent = TRUE;
+                else {
+                    sThread->iconState[slot][fileNo].unk_0x07 = (((dir->iconSpeed >> ((i - 1) * 2)) & 3) << 2);
+                    goto icons_done;
                 }
             }
-        }
-        stage = 4;
-        ioResult = CARDClose(&sThread->sourceFile);
-        if (ioResult < 0) {
-            goto copyIoFailure;
-        }
-        stage = 5;
-        ioResult = CARDClose(&sThread->destinationFile);
-        if (ioResult >= 0) {
-            result = 0;
-            goto copyIoDone;
-        }
+            sThread->iconState[slot][fileNo].unk_0x07 = ((dir->iconSpeed >> 14) & 3) << 2;
+        icons_done:;
 
-copyIoFailure:
-        switch (stage) {
-        case 0:
-            OSReport("Can't get status of Copy source File.\n");
-            break;
-        case 1:
-            OSReport("Can't get sector size of Copy source card.\n");
-            break;
-        case 2:
-            OSReport("Can't Open Copy source File.\n");
-            break;
-        case 3:
-            OSReport("Can't read or write data.\n");
-            break;
-        case 4:
-            OSReport("Can't Close Copy src File.\n");
-            break;
-        case 5:
-            OSReport("Can't Close Copy dst File.\n");
-            break;
-        }
-        CARDFastDelete(destinationSlot, sThread->destinationFile.fileNo);
-        result = ioResult;
-copyIoDone:
-        ;
-    }
+            if ((dir->iconSpeed & 3) == 0 || (dir->iconFormat & 3) == 0) {
+                sThread->iconState[slot][fileNo].unk_0x01 = 0;
+            }
+            else {
+                for (int i = 0; i < CARD_ICON_MAX; i++) {
+                    s32 size;
+                    if ((dir->iconSpeed >> (i * 2)) & 3) {
+                    switch ((dir->iconFormat >> (i * 2)) & 3) {
+                    case CARD_STAT_ICON_C8:
+                        sThread->iconState[slot][fileNo].iconFmt[i] = 9;
+                        size = 0x400;
+                        tlut = 1;
+                        break;
+                    case CARD_STAT_ICON_RGB5A3:
+                        sThread->iconState[slot][fileNo].iconFmt[i] = 5;
+                        size = 0x800;
+                        break;
+                    default:
+                        sThread->iconState[slot][fileNo].iconFmt[i] = sThread->iconState[slot][fileNo].iconFmt[i - 1];
+                        size = 0;
+                        break;
+                    }
+                    if (i < CARD_ICON_MAX - 1) {
+                        sThread->iconState[slot][fileNo].iconOffset[i + 1] = sThread->iconState[slot][fileNo].iconOffset[i] + size;
+                    }
+                    else {
+                        sThread->iconState[slot][fileNo].iconTlutOffset = sThread->iconState[slot][fileNo].iconOffset[i] + size;
+                    }
+                    iconBytes += size;
+                    sThread->iconState[slot][fileNo].unk_0x02++;
+                    }
+                    else {
+                        sThread->iconState[slot][fileNo].iconTlutOffset = sThread->iconState[slot][fileNo].iconOffset[i];
+                        goto icons_tail;
+                    }
+                }
+            icons_tail:
+                if (tlut) {
+                    iconBytes += 0x200;
+                }
+                sThread->iconState[slot][fileNo].unk_0x01 = 1;
+                sThread->iconState[slot][fileNo].anmType = dir->bannerFormat & 4;
+                sThread->iconState[slot][fileNo].anmDelta = 1;
+            }
 
-    if (result >= 0) {
-        if (command == 2) {
-            result = __CARDGetStatusEx(slot, fileNo, &sourceStatus);
-            if (result < 0) {
-                OSReport("Can't get status for src file\n");
-            } else {
-                ++sourceStatus.copyTimes;
-                result = __CARDSetStatusEx(slot, fileNo, &sourceStatus);
+            {
+                s32 total = dataSize + iconBytes;
+                readLen = ((total + iconAddrOff + 0x1FF) & ~0x1FF);
+                result = CARDGetSectorSize(slot, &sectorSize);
                 if (result < 0) {
-                    OSReport("Can't set status for src file %d\n", result);
-                } else {
-                    u32 oldTime = sourceStatus.time;
-                    sourceStatus.time = (u32)(OSGetTime() / (*(u32*)0x800000F8 >> 2));
-                    result = __CARDSetStatusEx(destinationSlot, destinationFileNo,
-                                               &sourceStatus);
-                    if (result < 0) {
-                        OSReport("Can't set status for dst file (src file copyTimes--)\n");
-                        if (result != -3) {
-                            --sourceStatus.copyTimes;
-                        }
-                        sourceStatus.time = oldTime;
-                        s32 restoreResult = __CARDSetStatusEx(slot, fileNo, &sourceStatus);
-                        if (restoreResult < 0) {
-                            OSReport("Can't set status for src file(src file copyTimes--)\n");
-                        }
-                    } else {
-                        metadataCopied = TRUE;
-                        result = CardSequence_813D3424(destinationSlot, destinationFileNo,
-                                                      &sourceStatus);
-                        if (result < 0) {
-                            OSReport("Can't read icon for move dstfile\n");
-                        } else {
+                    sThread->iconState[slot][fileNo].bannerEnable = 0;
+                    sThread->iconState[slot][fileNo].unk_0x01 = 0;
+                    result = 0;
+                }
+                else {
+                    fileSize = dir->length * sectorSize;
+                    if (iconAddrBase > fileSize) {
+                        sThread->iconState[slot][fileNo].bannerEnable = 0;
+                        sThread->iconState[slot][fileNo].unk_0x01 = 0;
+                        result = 0;
+                    }
+                    else if (iconAddrBase + readLen > fileSize) {
+                        sThread->iconState[slot][fileNo].bannerEnable = 0;
+                        sThread->iconState[slot][fileNo].unk_0x01 = 0;
+                        result = 0;
+                    }
+                    else if (total > 0) {
+                        result = CARDRead(&file, sThread->dirFileBuf, readLen, iconAddrBase);
+                        if (result >= 0) {
+                            memcpy(sThread->iconDataPtr[slot][fileNo], sThread->dirFileBuf + iconAddrOff, total);
+                            DCStoreRange(sThread->iconDataPtr[slot][fileNo], readLen);
                             result = 0;
                         }
-                        if (result < 0) {
-                            goto cleanup;
-                        }
+                    }
+                    else {
+                        result = 0;
                     }
                 }
             }
-        } else if (command == 3) {
-            s16 attempt = 0;
-            s32 stage = 0;
-            result = __CARDGetStatusEx(slot, fileNo, &moveStatus);
+            if (result < 0) {
+                return result;
+            }
+
+            {
+                u32 caddr = dir->commentAddr;
+                commentBase = caddr & ~0x1FF;
+                commentOff = caddr - commentBase;
+                readLen = ((caddr + 0x23F) & ~0x1FF) - commentBase;
+                result = CARDGetSectorSize(slot, &sectorSize);
+                if (result >= 0) {
+                    fileSize = dir->length * sectorSize;
+                    if (commentBase < 0 || commentBase > fileSize) {
+                        result = 0;
+                    }
+                    else if (commentBase + readLen < 0 || commentBase + readLen > fileSize) {
+                        result = 0;
+                    }
+                    else {
+                        result = CARDRead(&file, sThread->commentTmp, readLen, commentBase);
+                        if (result >= 0) {
+                            memset(sThread->commentPtr[slot][fileNo], 0, 0x40);
+                            memcpy(sThread->commentPtr[slot][fileNo], sThread->commentTmp + commentOff, 0x40);
+                            result = 0;
+                        }
+                    }
+                }
+                if (result < 0) {
+                    memset(sThread->commentPtr[slot][fileNo], 0, 0x40);
+                    return result;
+                }
+            }
+
+            result = CARDClose(&file);
+            if (result < 0) {
+                return result;
+            }
+
+            sThread->dirState[slot][fileNo].fileNo = 1;
+            sThread->dirState[slot][fileNo].size = dir->length;
+            sThread->dirState[slot][fileNo].key = dir->time;
+            sThread->dirState[slot][fileNo].canCopy = ((dir->permission >> 3) & 1) ^ 1;
+            sThread->dirState[slot][fileNo].canMove = ((dir->permission >> 4) & 1) ^ 1;
+            return 0;
+        }
+
+        extern "C" void CardSequence_813D3C24(s32 chan, s32 result) {
+            sThread->writePending = 0;
+        }
+
+        extern "C" s32 CardSequence_813D3C38(u8 slot, s16 fileNo) {
+            CARDDir dir;
+            CARDDir otherDir;
+            s32     result;
+
+            result = __CARDGetStatusEx(slot, fileNo, &dir);
+            if (result < 0) {
+                return result;
+            }
+
+            slot ^= 1;
+            for (int i = 0; i < 0x7F; i++) {
+                result = __CARDGetStatusEx(slot, i, &otherDir);
+                if (result < 0) {
+                    if (result != -4) {
+                        return result;
+                    }
+                }
+                if (result != 0) {
+                    continue;
+                }
+                if (memcmp(dir.gameName, otherDir.gameName, 4) == 0 &&
+                    memcmp(dir.company, otherDir.company, 2) == 0 &&
+                    memcmp(dir.fileName, otherDir.fileName, CARD_FILENAME_MAX) == 0) {
+                    return -7;
+                }
+            }
+            return 0;
+        }
+
+        extern "C" void CardSequence_813D3D14(u8 slot, s16 fileNo, s32 cmd) {
+            s32     result;
+            s16     dstFileNo = -1;
+            s32     srcOpened = 0;
+            s32     srcKept = 0;
+            CARDDir dir2;
+            CARDDir dir;
+            CARDDir dir3;
+            CARDDir dir4;
+            CARDDir marker;
+            CARDDir dir5;
+            u32     sectorSize1, sectorSize0;
+            u32     sectorSize;
+            u32     sectorSize2;
+            s32     stage;
+            s32     err;
+            BOOL    cancelled;
+            u32     per;
+
+            result = CardSequence_813D3C38(slot, fileNo);
+            if (result < 0) {
+                CardSequence_813D32A8(slot, cmd, result);
+                return;
+            }
+
+            sectorSize = 0;
+            result = CARDGetSectorSize(0, &sectorSize0);
+            if (result < 0) {
+                err = result;
+            }
+            else {
+                result = CARDGetSectorSize(1, &sectorSize1);
+                if (result < 0) {
+                    err = result;
+                }
+                else if (sectorSize0 != sectorSize1) {
+                    err = -0x1B;
+                }
+                else {
+                    sectorSize = sectorSize0;
+                    err = 0;
+                }
+            }
+            if (err < 0) {
+                CardSequence_813D32A8(slot, cmd, err);
+                return;
+            }
+
+            err = 0;
+            result = __CARDGetStatusEx(slot, fileNo, &dir);
+            if (result >= 0) {
+                switch (cmd) {
+                case MSG_CMD_COPY:
+                    if (dir.permission & 8) {
+                        err = -0xA;
+                    }
+                    break;
+                case MSG_CMD_MOVE:
+                    if (dir.permission & 0x10) {
+                        err = -0xA;
+                    }
+                    break;
+                }
+            }
+            else {
+                err = CARDGetResultCode(slot);
+            }
+            if (err < 0) {
+                CardSequence_813D32A8(slot, cmd, err);
+                return;
+            }
+
+            result = __CARDGetStatusEx(slot, fileNo, &dir2);
+            if (result < 0) {
+                goto cleanup;
+            }
+
+            {
+                u32 blocks = dir2.length * sectorSize;
+                int  i;
+                for (i = 0; ; ) {
+                    sprintf(sThread->fileNameBuf, "Broken File%03d", i);
+                    result = CARDCreate((u8)(slot ^ 1), sThread->fileNameBuf, blocks, &sThread->dstFile);
+                    if (result >= 0 || result == -7) {
+                        i++;
+                        if (result != 0 && i < 0x80) {
+                            continue;
+                        }
+                        break;
+                    }
+                    OSReport("Can't Create temp File with Error.");
+                    dstFileNo = (s16)result;
+                    break;
+                }
+                if (i < 0x80) {
+                    dstFileNo = (s16)sThread->dstFile.fileNo;
+                }
+                else {
+                    dstFileNo = -0x80;
+                }
+            }
+            if (dstFileNo < 0) {
+                CardSequence_813D32A8((u8)(slot ^ 1), cmd, dstFileNo);
+                return;
+            }
+
+            srcOpened = 1;
+            stage = 0;
+            cancelled = FALSE;
+            result = __CARDGetStatusEx(slot, fileNo, &dir3);
             if (result >= 0) {
                 stage = 1;
-                renamedStatus = moveStatus;
-                memset(renamedStatus.company, 0, 2);
-                memset(renamedStatus.gameName, 0, 4);
-                memset(renamedStatus.fileName, 0, 0x20);
-                do {
-                    sprintf((char*)renamedStatus.fileName, "Broken File%03d", attempt);
-                    result = __CARDSetStatusEx(slot, fileNo, &renamedStatus);
-                    if (result < 0 && result != -7) {
-                        goto moveStatusError;
-                    }
-                    ++attempt;
-                } while (result != 0 && attempt < 0x80);
+                result = CARDGetSectorSize(slot, &sectorSize2);
+            }
+            if (result >= 0) {
                 stage = 2;
-                result = __CARDSetStatusEx(destinationSlot, destinationFileNo,
-                                           &moveStatus);
+                per = 0x40000 / sectorSize2;
+                result = CARDFastOpen(slot, fileNo, &sThread->srcFile);
+            }
+            if (result >= 0) {
+                stage = 3;
+                {
+                    u32  offset = 0;
+
+                    while (offset < dir3.length) {
+                        u32 count = dir3.length - offset;
+                        u32 bytes;
+                        if (count > per) {
+                            count = per;
+                        }
+                        bytes = count * sectorSize2;
+                        result = CARDRead(&sThread->srcFile, sThread->copyBuf, bytes, offset * sectorSize2);
+                        if (result < 0) {
+                            break;
+                        }
+                        sThread->writePending = 1;
+                        result = CARDWriteAsync(&sThread->dstFile, sThread->copyBuf, bytes,
+                                                offset * sectorSize2, CardSequence_813D3C24);
+                        if (result < 0) {
+                            break;
+                        }
+                        while (sThread->writePending != 0) {
+                            if (CARDProbe(slot) == 0 && !cancelled) {
+                                CARDCancel(&sThread->dstFile);
+                                cancelled = TRUE;
+                            }
+                        }
+                        offset += per;
+                    }
+                }
+            }
+            if (result >= 0) {
+                stage = 4;
+                result = CARDClose(&sThread->srcFile);
+            }
+            if (result >= 0) {
+                stage = 5;
+                result = CARDClose(&sThread->dstFile);
+            }
+            if (result < 0) {
+                switch (stage) {
+                case 0:
+                    OSReport("Can't get status of Copy source File.\n");
+                    break;
+                case 1:
+                    OSReport("Can't get sector size of Copy source card.\n");
+                    break;
+                case 2:
+                    OSReport("Can't Open Copy source File.\n");
+                    break;
+                case 3:
+                    OSReport("Can't read or write data.\n");
+                    break;
+                case 4:
+                    OSReport("Can't Close Copy src File.\n");
+                    break;
+                case 5:
+                    OSReport("Can't Close Copy dst File.\n");
+                    break;
+                }
+                CARDFastDelete((u8)(slot ^ 1), sThread->dstFile.fileNo);
+            }
+
+            if (result < 0) {
+                goto cleanup;
+            }
+
+            if (cmd == MSG_CMD_COPY) {
+                u32 savedTime;
+
+                result = __CARDGetStatusEx(slot, fileNo, &dir4);
                 if (result < 0) {
-                    s32 setResult = result;
+                    OSReport("Can't get status for src file\n");
+                    goto err_tail;
+                }
+                dir4.copyTimes++;
+                result = __CARDSetStatusEx(slot, fileNo, &dir4);
+                if (result < 0) {
+                    OSReport("Can't set status for src file %d\n", result);
+                    goto err_tail;
+                }
+                savedTime = dir4.time;
+                dir4.time = OSGetTime() / (*(u32*)0x800000F8 >> 2);
+                result = __CARDSetStatusEx((u8)(slot ^ 1), dstFileNo, &dir4);
+                if (result < 0) {
+                    OSReport("Can't set status for dst file (src file copyTimes--)\n");
+                    if (result != -3) {
+                        dir4.copyTimes--;
+                    }
+                    dir4.time = savedTime;
+                    result = __CARDSetStatusEx(slot, fileNo, &dir4);
+                    if (result < 0) {
+                        OSReport("Can't set status for src file(src file copyTimes--)\n");
+                    }
+                    goto err_tail;
+                }
+                srcKept = 1;
+                result = CardSequence_813D3424((u8)(slot ^ 1), dstFileNo, &dir4);
+                if (result < 0) {
+                    OSReport("Can't read icon for move dstfile\n");
+                    goto err_tail;
+                }
+                result = 0;
+            err_tail:
+                if (result < 0) {
+                    goto cleanup;
+                }
+                goto success;
+            }
+
+            if (cmd == MSG_CMD_MOVE) {
+                int i;
+
+                stage = 0;
+                result = __CARDGetStatusEx(slot, fileNo, &dir5);
+                if (result < 0) {
+                    goto move_err;
+                }
+                marker = dir5;
+                memset(marker.company, 0, 2);
+                memset(marker.gameName, 0, 4);
+                memset(marker.fileName, 0, CARD_FILENAME_MAX);
+
+                stage = 1;
+                for (i = 0; ; ) {
+                    sprintf((char*)marker.fileName, "Broken File%03d", i);
+                    result = __CARDSetStatusEx(slot, fileNo, &marker);
+                    if (result >= 0 || result == -7) {
+                        i++;
+                        if (result != 0 && i < 0x80) {
+                            continue;
+                        }
+                        break;
+                    }
+                    goto move_err;
+                }
+
+                stage = 2;
+                result = __CARDSetStatusEx((u8)(slot ^ 1), dstFileNo, &dir5);
+                if (result < 0) {
                     if (result == -3) {
                         CARDFastDelete(slot, fileNo);
                         CardSequence_813D2A74(slot, fileNo);
-                    } else {
-                        s32 restoreResult = __CARDSetStatusEx(slot, fileNo, &moveStatus);
-                        if (restoreResult < 0) {
-                            OSReport("Can't repair src file - carddir\n");
-                        }
+                        goto move_err;
                     }
-                    result = setResult;
-                } else {
-                    metadataCopied = TRUE;
-                    stage = 3;
-                    result = CARDFastDelete(slot, fileNo);
-                    if (result >= 0) {
-                        CardSequence_813D2A74(slot, fileNo);
-                        stage = 4;
-                        result = __CARDGetStatusEx(destinationSlot,
-                                                   destinationFileNo, &moveStatus);
-                        if (result >= 0) {
-                            stage = 5;
-                            if ((result = CardSequence_813D3424(
-                                     destinationSlot, destinationFileNo, &moveStatus)) < 0) {
-                                goto moveStatusError;
-                            }
-                            result = 0;
-                            goto moveStatusDone;
-                        }
+                    result = __CARDSetStatusEx(slot, fileNo, &dir5);
+                    if (result < 0) {
+                        OSReport("Can't repair src file - carddir\n");
                     }
+                    goto move_err;
+                }
+
+                stage = 3;
+                srcKept = 1;
+                result = CARDFastDelete(slot, fileNo);
+                if (result < 0) {
+                    goto move_err;
+                }
+                CardSequence_813D2A74(slot, fileNo);
+
+                stage = 4;
+                result = __CARDGetStatusEx((u8)(slot ^ 1), dstFileNo, &dir5);
+                if (result < 0) {
+                    goto move_err;
+                }
+
+                stage = 5;
+                result = CardSequence_813D3424((u8)(slot ^ 1), dstFileNo, &dir5);
+                if (result < 0) {
+                    goto move_err;
+                }
+                result = 0;
+                goto move_done;
+
+            move_err:
+                switch (stage) {
+                case 0:
+                    OSReport("Cant' get status for src file.\n");
+                    break;
+                case 1:
+                    OSReport("Can't set status for src file\n");
+                    break;
+                case 2:
+                    OSReport("Can't rename dst file\n");
+                    break;
+                case 3:
+                    OSReport("Can't Delete src file\n");
+                    break;
+                case 4:
+                    OSReport("Cant' get status for dst file.\n");
+                    break;
+                case 5:
+                    OSReport("Can't read icon for move dstfile\n");
+                    break;
+                }
+            move_done:
+                if (result < 0) {
+                    goto cleanup;
                 }
             }
-moveStatusError:
-            switch (stage) {
-            case 0:
-                OSReport("Cant' get status for src file.\n");
-                break;
-            case 1:
-                OSReport("Can't set status for src file\n");
-                break;
-            case 2:
-                OSReport("Can't rename dst file\n");
-                break;
-            case 3:
-                OSReport("Can't Delete src file\n");
-                break;
-            case 4:
-                OSReport("Cant' get status for dst file.\n");
-                break;
-            case 5:
-                OSReport("Can't read icon for move dstfile\n");
-                break;
+
+        success:
+            CardSequence_813D2B40(slot);
+            CardSequence_813D2B40(slot ^ 1);
+            CardSequence_813D3380(slot, 0, (u8)fileNo);
+            CardSequence_813D3380((u8)(slot ^ 1), cmd, (u8)dstFileNo);
+            return;
+
+        cleanup:
+            {
+                u8  other = slot ^ 1;
+                s32 code = CARDGetResultCode(other);
+                if (code < 0) {
+                    CardSequence_813D32A8(other, cmd, code);
+                }
+                else {
+                    if (srcOpened && !srcKept) {
+                        CARDFastDelete(other, dstFileNo);
+                    }
+                    if (srcKept) {
+                        if (__CARDGetStatusEx(other, dstFileNo, &dir2) == 0) {
+                            CardSequence_813D3424(other, dstFileNo, &dir2);
+                        }
+                    }
+                    CardSequence_813D2B40(other);
+                    CardSequence_813D3380(other, 0, (u8)fileNo);
+                }
             }
-moveStatusDone:
-            ;
-        }
-    }
-
-    if (result >= 0) {
-        CardSequence_813D2B40(slot);
-        CardSequence_813D2B40(destinationSlot);
-        CardSequence_813D3380(slot, 0, fileNo & 0xFF);
-        CardSequence_813D3380(destinationSlot, command, destinationFileNo & 0xFF);
-        goto finish;
-    }
-
-cleanup:
-    destinationSlot = slot ^ 1;
-    result = CARDGetResultCode(destinationSlot);
-    if (result < 0) {
-        CardSequence_813D32A8(destinationSlot, command, result);
-    } else {
-        if (temporaryCreated && !metadataCopied) {
-            CARDFastDelete(destinationSlot, destinationFileNo);
-        }
-        if (metadataCopied) {
-            if (__CARDGetStatusEx(destinationSlot, destinationFileNo,
-                                  &createStatus) == 0) {
-                CardSequence_813D3424(destinationSlot, destinationFileNo, &createStatus);
+            {
+                s32 code = CARDGetResultCode(slot);
+                if (code < 0) {
+                    CardSequence_813D32A8(slot, cmd, code);
+                    return;
+                }
+                CardSequence_813D2B40(slot);
+                CardSequence_813D3380(slot, 0, (u8)fileNo);
             }
         }
-        CardSequence_813D2B40(destinationSlot);
-        CardSequence_813D3380(destinationSlot, 0, fileNo & 0xFF);
-    }
-    result = CARDGetResultCode(slot);
-    if (result < 0) {
-        CardSequence_813D32A8(slot, command, result);
-    } else {
-        CardSequence_813D2B40(slot);
-        CardSequence_813D3380(slot, 0, fileNo & 0xFF);
-    }
-
-finish:
-    return;
-}
-
-}
-}
+    }  // namespace memorycard
+}  // namespace ipl
