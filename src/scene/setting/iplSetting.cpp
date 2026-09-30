@@ -176,7 +176,7 @@ namespace ipl {
 
         void* Setting::mem1Buffer_;
         void* Setting::mem2Buffer_;
-        static s32 browserScrollDirection;
+        s32 browserScrollDirection;
 
         Setting::Setting(EGG::Heap* heap, int arg) : FaderSceneBase(heap) {
             unk_0x5C = 0;
@@ -1386,6 +1386,18 @@ namespace ipl {
             return FADER_SCN_CONTINUE;
         }
 
+        extern __declspec(section ".sdata2") u8 sBackgroundColorR = 0x00;
+        extern __declspec(section ".sdata2") u8 sBackgroundColorG = 0x00;
+        extern __declspec(section ".sdata2") u8 sBackgroundColorB = 0x00;
+        extern __declspec(section ".sdata2") u8 sBackgroundColorA = 0xFF;
+        extern __declspec(section ".sdata2") u8 sBrowserWhiteR = 0xFF;
+        extern __declspec(section ".sdata2") u8 sBrowserWhiteG = 0xFF;
+        extern __declspec(section ".sdata2") u8 sBrowserWhiteB = 0xFF;
+        extern __declspec(section ".sdata2") u8 sBrowserWhiteA = 0xFF;
+        extern __declspec(section ".sdata2") u8 sBrowserFadeR = 0xFF;
+        extern __declspec(section ".sdata2") u8 sBrowserFadeG = 0xFF;
+        extern __declspec(section ".sdata2") u8 sBrowserFadeB = 0xFF;
+
         void Setting::draw() {
             if (!System::onDrawLayer(1)) {
                 return;
@@ -1394,7 +1406,7 @@ namespace ipl {
             if (!mBrowserCreated) {
                 utility::Graphics::setOrtho(0);
                 nw4r::ut::Rect background(-1000.0f, -1000.0f, 1000.0f, 1000.0f);
-                GXColor color = {0, 0, 0, 0xFF};
+                GXColor color = *(GXColor*)&sBackgroundColorR;
                 utility::Graphics::drawPolygon(background, color);
                 return;
             }
@@ -1506,8 +1518,9 @@ namespace ipl {
                 }
 
                 utility::Graphics::setOrtho(0);
-                GXColor white = {0xFF, 0xFF, 0xFF, 0xFF};
-                GXColor alpha = {0xFF, 0xFF, 0xFF, (u8)(mState * 0xFF / 20)};
+                GXColor white = *(GXColor*)&sBrowserWhiteR;
+                GXColor alpha = {sBrowserFadeR, sBrowserFadeG, sBrowserFadeB,
+                                 (u8)(mState * 0xFF / 20)};
                 utility::Graphics::drawTexture(centeredRect, wideTexture, white, 1);
 
                 bool hasContent = false;
@@ -3890,8 +3903,6 @@ namespace ipl {
         }
 
         BOOL Setting::isResetAcceptable() const {
-            static s32 unkStatic1;
-            static const f32 unkStatic3 = 0.0f;
             return mIsResetAcceptable;
         }
 
