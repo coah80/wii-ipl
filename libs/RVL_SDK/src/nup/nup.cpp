@@ -400,7 +400,8 @@ static s32 __nupGetServerInfo(char* serverAddress, char* messageId, unsigned lon
     } else {
         snprintf(endpoint, endpointSize, "https://%s/nus/services/NetUpdateSOAP", serverAddress);
         requestSize = strlen(messageId) + strlen(productArea);
-        requestSize += strlen(countryCode) + 0x449;
+        requestSize += strlen(countryCode);
+        requestSize += 0x449;
         if (auditData != 0) {
             requestSize += strlen(auditData);
         }
@@ -899,6 +900,8 @@ static inline BOOL __nupHasContent(const NUPTitleInfo* title, ESContentId conten
 }
 
 static s32 __nupGetTitleSize(NUPTitleInfo* title) {
+    ESTmdView* tmdView = (ESTmdView*)title->tmdView;
+    ESCmdView* content;
     s32 contentIndex;
     s32 result = 0;
     title->progressStep += 2;
@@ -914,8 +917,8 @@ static s32 __nupGetTitleSize(NUPTitleInfo* title) {
     title->installedContentSize += 0x8000;
     title->installedContentSize += 0x4000;
     title->installedContentSize += 0x4000;
-    for (contentIndex = 0; contentIndex < ((ESTmdView*)title->tmdView)->head.numContents; contentIndex++) {
-        ESCmdView* content = &((ESTmdView*)title->tmdView)->contents[contentIndex];
+    for (contentIndex = 0; contentIndex < tmdView->head.numContents; contentIndex++) {
+        content = &tmdView->contents[contentIndex];
         ESContentId cid = content->cid;
         if (!__nupHasContent(title, cid) ||
             title->titleId == 0x0000000100000001ULL) {
