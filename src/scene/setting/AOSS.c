@@ -2518,6 +2518,7 @@ s16 AOSS_81401BBC(void* buffer) {
 
 void AOSS_81401C9C(AOSSKeySchedule* schedule, const u8* key, u32 keyLength, u32 stateLength) {
     u8* state;
+    u8* cur;
     u32 index;
     u32 keyIndex;
     u32 swapIndex;
@@ -2532,14 +2533,15 @@ void AOSS_81401C9C(AOSSKeySchedule* schedule, const u8* key, u32 keyLength, u32 
         unrolledLimit = stateLength - 8;
         if (stateLength > 8) {
             for (; index < unrolledLimit; index += 8) {
-                state[index] = (u8)index;
-                state[index + 1] = (u8)(index + 1);
-                state[index + 2] = (u8)(index + 2);
-                state[index + 3] = (u8)(index + 3);
-                state[index + 4] = (u8)(index + 4);
-                state[index + 5] = (u8)(index + 5);
-                state[index + 6] = (u8)(index + 6);
-                state[index + 7] = (u8)(index + 7);
+                cur = state + index;
+                cur[0] = (u8)index;
+                cur[1] = (u8)(index + 1);
+                cur[2] = (u8)(index + 2);
+                cur[3] = (u8)(index + 3);
+                cur[4] = (u8)(index + 4);
+                cur[5] = (u8)(index + 5);
+                cur[6] = (u8)(index + 6);
+                cur[7] = (u8)(index + 7);
             }
         }
 
