@@ -658,3 +658,25 @@ Orig tree: root cmpwi 0x132; left {11a};{111};{103};{128};{11c-edge};{12d}; righ
   + folded {112} + range {a000..a003} -> 12 nodes + else -> root {132}.
 - Residual (~6 insns): dead-blr cluster count, {103} leaf `bltlr` vs `blr`,
   body regalloc (r6 vs r8 homes in readU32-assemble bounds-checks).
+
+## Session findings (if-else/switch emission, unroll)
+
+- MWCC if-else vs switch on if-tag dispatch: `if (tag == X) return;` emits
+  `cmpwi; beqlr` (folded conditional return, no body). `case X: return;` in a
+  switch emits the same leaf PLUS a dead `blr` body per case (+1 insn each).
+- MWCC switch case-source-order controls body emission ORDER (not tree shape):
+  orig's IFD1 bodies appear as {11a,11b,128,103,201,202} — reordering cases to
+  that sequence matched orig's body layout (fuzzy 87.5 -> 95.9).
+- `case X: ;` empty arms fall into the next arm / switch-exit; adjacent empty
+  labels merge into ONE range-node ({a000-a003} -> `cmpw 0xa004; bgelr`).
+  Converting all return-arms to `;` over-merged the left tree (lost 3 folds).
+- `case X: break;` emits `beq -> epilogue`, not the beqlr fold — kills the leaf.
+- Large constants (>0x7fff): orig materializes `lis r6,1` + `addi r0,r6,-N`
+  and merges `==`/`>=` compares into `cmpw; beqlr; bge`. MWCC prefers `cmplwi`
+  for `==` regardless of u16/s16 decl or (u16) casts — prevents the merge.
+- MWCC loop unroll: single `for (; iter > 0; iter--)` under an `if (iter > 0)`
+  guard produces orig's native x2 unroll (`rlwinm.` halve + `mtctr` pairs +
+  `andi.`/`mtctr`/`bdnz` remainder) — replaces hand-written pairs+do-while.
+  `if (r > 0)` (pre-shift var) gives `cmpwi r5` + `srwi` (orig's form) but the
+  inner for-guard re-tests -> double branch. `for(inner=r;inner>0;inner-=8)`
+  gives one `cmpwi r` guard but folds `done=iter<<3` to `rlwinm` on pre-shift.
