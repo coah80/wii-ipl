@@ -7971,12 +7971,12 @@ CHANSVmErr CHANSVmStep(CHANSVm* vm, int stepCount) {
             }
             imm16Val = (opcodeVal << 8 | operandBuf[1]) & 0x1FFF;
             switch (opcodeVal & CHANS_VM_OP_SYMBOL_STORE) {
-                case CHANS_VM_OP_SYMBOL_STORE: {
+                case 0: {
                     foundObj = CHANSVm_81455654(vm, imm16Val);
                     result = VmStore(vm, &pVm->accumulator, foundObj);
                     break;
                 }
-                case 0: {
+                case CHANS_VM_OP_SYMBOL_STORE: {
                     foundObj = CHANSVm_81455654(vm, imm16Val);
                     result = VmStore(vm, foundObj, &pVm->accumulator);
                     break;
@@ -8000,10 +8000,6 @@ CHANSVmErr CHANSVmStep(CHANSVm* vm, int stepCount) {
                         isTypeMatch = 0;
                         if (pVm->accumulator.type == stackTop->type) {
                             switch (stackTop->type) {
-                                case CHANS_VM_OBJ_TYPE_BLANK: {
-                                    isTypeMatch = 1;
-                                    goto end_branch_check;
-                                }
                                 case CHANS_VM_OBJ_TYPE_INTEGER: {
                                     u32 low1 = *(u32*)stackTop;
                                     u32 low2 = *(u32*)&pVm->accumulator;
@@ -8023,26 +8019,23 @@ CHANSVmErr CHANSVmStep(CHANSVm* vm, int stepCount) {
                                 case CHANS_VM_OBJ_TYPE_STRING: {
                                     u32 len1, len2;
                                     CHANSVmObjHdr* stackObj = (CHANSVmObjHdr*)pVm->pObjStackTopBuf;
-                                    s32 cmpResult;
                                     u32 strEqual;
+                                    isTypeMatch = 0;
                                     len1 = stackObj->value.wstring_v->len;
                                     len2 = pVm->accumulator.value.wstring_v->len;
                                     if (len1 == len2) {
                                         strEqual = 0;
-                                        if (len1 == 0) {
+                                        if (len1 == 0 || memcmp(stackObj->value.wstring_v->spData, pVm->accumulator.value.wstring_v->spData, len1) == 0) {
                                             strEqual = 1;
-                                            goto end_branch_check;
-                                        } else {
-                                            cmpResult = 0;
-                                            cmpResult = memcmp(stackObj->value.wstring_v->spData, pVm->accumulator.value.wstring_v->spData, len1);
-                                            if (cmpResult == 0) {
-                                                strEqual = 1;
-                                            }
                                         }
                                         if (strEqual) {
                                             isTypeMatch = 1;
                                         }
                                     }
+                                    goto end_branch_check;
+                                }
+                                case CHANS_VM_OBJ_TYPE_BLANK: {
+                                    isTypeMatch = 1;
                                     goto end_branch_check;
                                 }
                                 case CHANS_VM_TYPE_ARRAY:
