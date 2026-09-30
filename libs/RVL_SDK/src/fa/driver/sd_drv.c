@@ -328,11 +328,11 @@ s32 pfd_sddrv_init(FADisk* disk) {
         OSReport("ERR Failed to get sd card status. [ret = 0x%x]\n", sd_result);
         return 21;
     }
-    if ((status & 1) != 0) {
+    if ((status & 1) == 1) {
         g_pfd_sddrv_info.media_inserted = 1;
     }
     g_pfd_sddrv_info.device = device;
-    if (g_pfd_sddrv_info.media_inserted != 0) {
+    if (g_pfd_sddrv_info.media_inserted == 1) {
         g_event = 2;
         sd_result = ISD_RegisterDeviceIntrHandler(device, (SDDevIntrCallback)pfd_st_removal_callback, &g_event);
         if (sd_result != 0) {
@@ -483,8 +483,7 @@ s32 pfd_sddrv_finalize(FADisk* disk) {
         g_pfd_sddrv_info.device = 0;
     }
     g_pfd_sddrv_info.flags = g_pfd_sddrv_info.flags & 0xfffffffe;
-    g_pfd_sddrv_info.media_inserted = 0;
-    g_pfd_sddrv_info.media_ejected = 0;
+    g_pfd_sddrv_info.media_inserted = g_pfd_sddrv_info.media_ejected = 0;
     g_pfd_sddrv_info.disk = 0;
     g_pfd_sddrv_info.drive = 0;
     return 0;
@@ -730,14 +729,8 @@ s32 pfd_sddrv_get_total_sectors(u32* sectors, u16* bytes_per_sector) {
         c_size = (((csd[2] & 3) << 10 | csd[1] >> 22) + 1);
         cluster_blocks = c_size * read_block_size;
         multiplier = (csd[2] >> 8) & 0xf;
-        minimum_multiplier = 9;
-        if (multiplier >= 9) {
-            minimum_multiplier = multiplier;
-        }
-        max_multiplier = 11;
-        if (minimum_multiplier <= 11) {
-            max_multiplier = minimum_multiplier;
-        }
+        minimum_multiplier = multiplier >= 9 ? multiplier : 9;
+        max_multiplier = minimum_multiplier <= 11 ? minimum_multiplier : 11;
         multiplier_factor = 1 << (u16)(max_multiplier - 9);
         *sectors = cluster_blocks * multiplier_factor;
     } else {
@@ -751,6 +744,7 @@ s32 pfd_sddrv_calc_mbr_bpb(PFD_SDDRV_FORMAT_DATA* format_data) {
     const PFD_SDDRV_SIZE_DEPEND* size_entry;
     PFD_SDDRV_SIZE_SETTINGS settings;
     u32 entry_index;
+    u32 requested_sectors;
     u32 fat_entry_bits;
     u32 fat_sectors;
     u32 next_fat_sectors;
@@ -771,9 +765,10 @@ s32 pfd_sddrv_calc_mbr_bpb(PFD_SDDRV_FORMAT_DATA* format_data) {
         return -30;
     }
     pf_memset(&settings, 0, sizeof(settings));
+    requested_sectors = format_data->total_sectors;
     size_entry = sddrv_size_depend_tbl;
     for (entry_index = 0; entry_index < 14; size_entry++, entry_index++) {
-        if (size_entry->min_sectors < format_data->total_sectors && size_entry->max_sectors >= format_data->total_sectors) {
+        if (size_entry->min_sectors < requested_sectors && size_entry->max_sectors >= requested_sectors) {
             settings.reserved_sectors = sddrv_size_depend_tbl[entry_index].reserved_sectors;
             settings.fat_copies = sddrv_size_depend_tbl[entry_index].fat_copies;
             settings.root_entries = sddrv_size_depend_tbl[entry_index].root_entries;
@@ -873,6 +868,7 @@ s32 pfd_sddrv_store_bpb_buf(PFD_SDDRV_FORMAT_DATA* format_data, u8* sector_buffe
     PFD_SDDRV_SIZE_SETTINGS settings;
     PFD_SDDRV_BPB* boot_sector;
     u32 entry_index;
+    u32 requested_sectors;
     u16 sectors_16;
     s32 result;
     u32 sectors_32;
@@ -881,9 +877,10 @@ s32 pfd_sddrv_store_bpb_buf(PFD_SDDRV_FORMAT_DATA* format_data, u8* sector_buffe
         return -30;
     }
     pf_memset(&settings, 0, 0x10);
+    requested_sectors = format_data->total_sectors;
     size_entry = sddrv_size_depend_tbl;
     for (entry_index = 0; entry_index < 14; size_entry++, entry_index++) {
-        if (size_entry->min_sectors < format_data->total_sectors && size_entry->max_sectors >= format_data->total_sectors) {
+        if (size_entry->min_sectors < requested_sectors && size_entry->max_sectors >= requested_sectors) {
             settings.reserved_sectors = sddrv_size_depend_tbl[entry_index].reserved_sectors;
             settings.fat_copies = sddrv_size_depend_tbl[entry_index].fat_copies;
             settings.root_entries = sddrv_size_depend_tbl[entry_index].root_entries;
@@ -943,6 +940,7 @@ s32 pfd_sddrv_store_mbr_buf(PFD_SDDRV_FORMAT_DATA* format_data, u8* sector_buffe
     PFD_SDDRV_MBR* master_boot_record;
     PFD_SDDRV_PARTITION_ENTRY* partition;
     u32 entry_index;
+    u32 requested_sectors;
     s32 result;
     u8 start_head;
     u8 end_head;
@@ -957,9 +955,10 @@ s32 pfd_sddrv_store_mbr_buf(PFD_SDDRV_FORMAT_DATA* format_data, u8* sector_buffe
         return -30;
     }
     pf_memset(&settings, 0, 0x10);
+    requested_sectors = format_data->total_sectors;
     size_entry = sddrv_size_depend_tbl;
     for (entry_index = 0; entry_index < 14; size_entry++, entry_index++) {
-        if (size_entry->min_sectors < format_data->total_sectors && size_entry->max_sectors >= format_data->total_sectors) {
+        if (size_entry->min_sectors < requested_sectors && size_entry->max_sectors >= requested_sectors) {
             settings.reserved_sectors = sddrv_size_depend_tbl[entry_index].reserved_sectors;
             settings.fat_copies = sddrv_size_depend_tbl[entry_index].fat_copies;
             settings.root_entries = sddrv_size_depend_tbl[entry_index].root_entries;
@@ -1061,6 +1060,7 @@ s32 pfd_sddrv_calc_fat32_mbr_bpb(PFD_SDDRV_FORMAT_DATA* format_data) {
     u32 fat_sectors;
     u32 cluster_count;
     u32 entry_index;
+    u32 requested_sectors;
     const PFD_SDDRV_SIZE_DEPEND* size_entry;
     PFD_SDDRV_SIZE_SETTINGS settings;
     u32 reserved_sectors = 0;
@@ -1079,13 +1079,14 @@ s32 pfd_sddrv_calc_fat32_mbr_bpb(PFD_SDDRV_FORMAT_DATA* format_data) {
         return -30;
     }
     pf_memset(&settings, 0, 0x10);
+    requested_sectors = format_data->total_sectors;
     total_sectors = format_data->total_sectors;
     size_entry = sddrv_size_depend_tbl;
     for (entry_index = 0; entry_index < 14; size_entry++, entry_index++) {
-        if (size_entry->min_sectors >= total_sectors) {
+        if (size_entry->min_sectors >= requested_sectors) {
             continue;
         }
-        if (size_entry->max_sectors < total_sectors) {
+        if (size_entry->max_sectors < requested_sectors) {
             continue;
         }
         settings.reserved_sectors = sddrv_size_depend_tbl[entry_index].reserved_sectors;
@@ -1165,6 +1166,7 @@ s32 pfd_sddrv_store_fat32_mbr_buf(PFD_SDDRV_FORMAT_DATA* format_data, u8* sector
     PFD_SDDRV_MBR* master_boot_record;
     PFD_SDDRV_PARTITION_ENTRY* partition;
     u32 entry_index;
+    u32 requested_sectors;
     s32 result;
     u32 cylinder_size;
     u16 start_cylinder;
@@ -1180,9 +1182,10 @@ s32 pfd_sddrv_store_fat32_mbr_buf(PFD_SDDRV_FORMAT_DATA* format_data, u8* sector
         return -30;
     }
     pf_memset(&settings, 0, 0x10);
+    requested_sectors = format_data->total_sectors;
     size_entry = sddrv_size_depend_tbl;
     for (entry_index = 0; entry_index < 14; size_entry++, entry_index++) {
-        if (size_entry->min_sectors < format_data->total_sectors && size_entry->max_sectors >= format_data->total_sectors) {
+        if (size_entry->min_sectors < requested_sectors && size_entry->max_sectors >= requested_sectors) {
             settings.reserved_sectors = sddrv_size_depend_tbl[entry_index].reserved_sectors;
             settings.fat_copies = sddrv_size_depend_tbl[entry_index].fat_copies;
             settings.root_entries = sddrv_size_depend_tbl[entry_index].root_entries;
@@ -1287,15 +1290,17 @@ s32 pfd_sddrv_store_fat32_bpb_buf(PFD_SDDRV_FORMAT_DATA* format_data, u8* sector
     const PFD_SDDRV_SIZE_DEPEND* size_entry;
     PFD_SDDRV_FAT32_BPB* boot_sector;
     u32 entry_index;
+    u32 requested_sectors;
     s32 result;
 
     if (format_data == 0) {
         return -30;
     }
     pf_memset(&settings, 0, 0x10);
+    requested_sectors = format_data->total_sectors;
     size_entry = sddrv_size_depend_tbl;
     for (entry_index = 0; entry_index < 14; size_entry++, entry_index++) {
-        if (size_entry->min_sectors < format_data->total_sectors && size_entry->max_sectors >= format_data->total_sectors) {
+        if (size_entry->min_sectors < requested_sectors && size_entry->max_sectors >= requested_sectors) {
             settings.reserved_sectors = sddrv_size_depend_tbl[entry_index].reserved_sectors;
             settings.fat_copies = sddrv_size_depend_tbl[entry_index].fat_copies;
             settings.root_entries = sddrv_size_depend_tbl[entry_index].root_entries;

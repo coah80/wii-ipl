@@ -361,7 +361,11 @@ static s32 __nupParseServerInfo(NUPContextInfo* context, char* response, char* m
                 goto done;
             }
             unsigned long version = strtoul(versionStart, &parsedEnd, 10);
-            if (parsedEnd != versionStart + versionLength || (u16)version != version) {
+            if (parsedEnd != versionStart + versionLength) {
+                result = -5004;
+                goto done;
+            }
+            if ((u16)version != version) {
                 result = -5004;
                 goto done;
             }
@@ -378,15 +382,15 @@ done:
 static s32 __nupGetServerInfo(char* serverAddress, char* messageId, unsigned long long deviceId,
                               char* productArea, char* countryCode, unsigned long systemVersion,
                               char* auditData, unsigned short bootVersion, unsigned short systemMenuVersion,
-                              unsigned long long systemMenuTitleId, unsigned short currentTitleVersion,
+                              unsigned long long currentTitleId, unsigned short currentTitleVersion,
                               char** response) {
     s32 result;
+    char* request = 0;
     u8* responseData = 0;
     unsigned long responseSize = 0;
     char headers[0x56] =
         "User-Agent: wii libnup/1.0\r\n"
         "SOAPAction: \"urn:nus.wsapi.broadon.com/GetSystemUpdate\"\r\n";
-    char* request = 0;
     char* endpoint = 0;
     unsigned long requestSize;
     unsigned long endpointSize;
@@ -397,7 +401,9 @@ static s32 __nupGetServerInfo(char* serverAddress, char* messageId, unsigned lon
         result = -5000;
     } else {
         snprintf(endpoint, endpointSize, "https://%s/nus/services/NetUpdateSOAP", serverAddress);
-        requestSize = strlen(messageId) + strlen(productArea) + strlen(countryCode) + 0x449;
+        requestSize = strlen(messageId);
+        requestSize += strlen(productArea);
+        requestSize += strlen(countryCode) + 0x449;
         if (auditData != 0) {
             requestSize += strlen(auditData);
         }
@@ -436,8 +442,8 @@ static s32 __nupGetServerInfo(char* serverAddress, char* messageId, unsigned lon
                      "  </soapenv:Envelope>\n",
                      messageId, deviceId, productArea, countryCode,
                      (unsigned long long)0x0000000100000001ULL, bootVersion,
-                     systemMenuTitleId, systemMenuVersion,
-                     (unsigned long long)0x0000000100000002ULL, currentTitleVersion,
+                     (unsigned long long)0x0000000100000002ULL, systemMenuVersion,
+                     currentTitleId, currentTitleVersion,
                      systemVersion, auditData != 0 ? auditData : "");
             result = __nupHttpPostFull(endpoint, headers, request, &responseData, &responseSize, 0, 0, 0);
             if (result == 0) {
@@ -878,6 +884,21 @@ static s32 __nupGetTmd(NUPTitleInfo* title, char* contentPrefixUrl) {
     return result;
 }
 
+static inline BOOL __nupHasContent(const NUPTitleInfo* title, ESContentId contentId) {
+    if (title->contentCount == 0 || title->contentIds == 0) {
+        return FALSE;
+    }
+    ESContentId* installedContent = title->contentIds;
+    u32 index;
+    for (index = 0; index < title->contentCount; index++) {
+        if (contentId == *installedContent) {
+            break;
+        }
+        installedContent++;
+    }
+    return index < title->contentCount;
+}
+
 static s32 __nupGetTitleSize(NUPTitleInfo* title) {
     s32 contentIndex;
     s32 result = 0;
@@ -896,16 +917,7 @@ static s32 __nupGetTitleSize(NUPTitleInfo* title) {
     title->installedContentSize += 0x4000;
     for (contentIndex = 0; contentIndex < ((ESTmdView*)title->tmdView)->head.numContents; contentIndex++) {
         ESCmdView* content = &((ESTmdView*)title->tmdView)->contents[contentIndex];
-        u32 ownedIndex;
-        ownedIndex = 0;
-        if (title->contentCount != 0 && title->contentIds != 0) {
-            for (; ownedIndex < title->contentCount; ownedIndex++) {
-                if (title->contentIds[ownedIndex] == content->cid) {
-                    break;
-                }
-            }
-        }
-        if (title->contentIds == 0 || ownedIndex == title->contentCount ||
+        if (!__nupHasContent(title, content->cid) ||
             title->titleId == 0x0000000100000001ULL) {
             if (content->size >= 0xfffffff0ULL) {
                 result = -0x1394;
@@ -921,15 +933,16 @@ static s32 __nupGetTitleSize(NUPTitleInfo* title) {
 
 static s32 __nupGetContentFull(NUPContextInfo* context, NUPTitleInfo* title, char* contentPrefixUrl,
                                unsigned long contentId) {
-    ESTmdView* tmdView = (ESTmdView*)title->tmdView;
+    ESTmdView* tmdView;
     s32 contentIndex;
     s32 result;
+    char* url = 0;
     u8* response = 0;
     unsigned long responseSize = 0;
-    char* url = 0;
+    tmdView = (ESTmdView*)title->tmdView;
 
     for (contentIndex = 0; contentIndex < tmdView->head.numContents; contentIndex++) {
-        if (tmdView->contents[contentIndex].cid == contentId) {
+        if (contentId == ((ESTmdView*)title->tmdView)->contents[contentIndex].cid) {
             break;
         }
     }
@@ -937,8 +950,10 @@ static s32 __nupGetContentFull(NUPContextInfo* context, NUPTitleInfo* title, cha
         result = -0x1389;
     } else {
         u64 contentSize = tmdView->contents[contentIndex].size;
-        unsigned long alignedSize = (u32)((contentSize + 0xf) & ~0xfULL);
-        unsigned long urlSize = strlen(contentPrefixUrl) + 0x28;
+        unsigned long urlSize;
+        unsigned long alignedSize;
+        alignedSize = (u32)((contentSize + 0xf) & ~0xfULL);
+        urlSize = strlen(contentPrefixUrl) + 0x28;
         url = (char*)nup::__nupMalloc(urlSize);
         if (url == 0) {
             result = -5000;
@@ -961,23 +976,8 @@ static s32 __nupGetContentFull(NUPContextInfo* context, NUPTitleInfo* title, cha
     return result;
 }
 
-static inline BOOL __nupHasContent(const NUPTitleInfo* title, ESContentId contentId) {
-    if (title->contentCount == 0 || title->contentIds == 0) {
-        return FALSE;
-    }
-    ESContentId* installedContent = title->contentIds;
-    u32 index;
-    for (index = 0; index < title->contentCount; index++) {
-        if (contentId == *installedContent) {
-            break;
-        }
-        installedContent++;
-    }
-    return index < title->contentCount;
-}
-
 static s32 __nupGetContentIncr(NUPContextInfo* context, NUPTitleInfo* title, char* contentPrefixUrl) {
-    u32 contentIndex;
+    s32 contentIndex;
     s32 result = 0;
     unsigned long urlSize = strlen(contentPrefixUrl) + 0x28;
     char* url = (char*)nup::__nupMalloc(urlSize);
@@ -1106,6 +1106,9 @@ static s32 __nupUpdateTitle(NUPContextInfo* context, NUPTitleInfo* title, char* 
                                title->ticketCertificateSize, (ESTitleMeta*)title->tmd,
                                title->tmdSize, title->tmdCertificate, title->tmdCertificateSize,
                                0, 0, title->content, title->contentSize);
+        if (result != 0) {
+            goto done;
+        }
     } else {
         ISFSStats stats;
         result = ISFS_GetStats(&stats);
@@ -1163,7 +1166,7 @@ extern "C" void* __nupOp(void* argument) {
     u16 serverBootVersion = 0;
     u16 bootTitleVersion;
     u16 systemMenuVersion;
-    ESTitleId systemMenuTitleId;
+    ESTitleId currentTitleId;
     char messageId[0x15];
     NANDStatus auditStatus;
     s32 result;
@@ -1190,10 +1193,10 @@ extern "C" void* __nupOp(void* argument) {
         goto done;
     }
     bootTitleVersion = tmdView->head.titleVersion;
-    systemMenuTitleId = tmdView->head.sysVersion;
+    currentTitleId = tmdView->head.sysVersion;
     nup::__nupFree(tmdView);
     tmdView = 0;
-    result = __nupGetTmdView(systemMenuTitleId, &tmdView);
+    result = __nupGetTmdView(currentTitleId, &tmdView);
     if (result < 0) {
         goto done;
     }
@@ -1230,7 +1233,7 @@ extern "C" void* __nupOp(void* argument) {
                                 0x0000000100000000ULL | deviceId,
                                 (char*)context->productArea, (char*)context->countryCode,
                                 context->systemVersion, auditData, serverBootVersion, bootTitleVersion,
-                                systemMenuTitleId, systemMenuVersion, (char**)&response);
+                                currentTitleId, systemMenuVersion, (char**)&response);
     if (result != 0) {
         goto done;
     }
@@ -1306,7 +1309,7 @@ extern "C" void* __nupOp(void* argument) {
             bootTitle = title;
         } else if (title->titleId == 0x0000000100000002ULL) {
             menuTitle = title;
-        } else if (title->titleId == systemMenuTitleId) {
+        } else if (title->titleId == currentTitleId) {
             systemTitle = title;
         }
         if (bootTitle != 0 && menuTitle != 0 && systemTitle != 0) {
