@@ -1,34 +1,33 @@
 #include <revolution/fa.h>
 
-typedef struct PF_API_STRING {
-    const s8* head;
-    const s8* tail;
-    const s8* current;
+typedef struct PFF2_STR {
+    const s8* p_head;
+    const s8* p_tail;
+    const s8* p_current;
     u32 code_mode;
-} PF_API_STRING;
+} PFF2_STR;
 
-typedef struct PF_API_VOLUME_SET {
+typedef struct PFF2_VOL_SET {
     u8 reserved[0x40];
     s32 last_error;
-} PF_API_VOLUME_SET;
+} PFF2_VOL_SET;
 
-extern PF_API_VOLUME_SET pf_vol_set;
-extern s32 PFSTR_InitStr(PF_API_STRING* string, const s8* text, u32 mode);
-extern s32 PFAPI_convertReturnValue(s32 error);
-
-extern s32 PFDIR_opendir(PF_API_STRING* path, FADIR** directory);
-extern void* PFAPI_convertReturnValue2NULL(s32 error, void* stream);
+extern PFF2_VOL_SET pf_vol_set;
+extern s32 PFSTR_InitStr(PFF2_STR* path, const s8* text, u32 code_mode);
+extern s32 PFDIR_opendir(PFF2_STR* path, FADIR** result);
+extern FAFILE* PFAPI_convertReturnValue2NULL(s32 err, FAFILE* p_stream);
 
 FADIR* pf2_opendir(const char* path) {
-    PF_API_STRING path_string;
-    FADIR* directory;
-    s32 error;
+    FADIR* p_dir;
+    PFF2_STR path_str;
+    s32 err;
 
-    error = PFSTR_InitStr(&path_string, (const s8*)path, 1);
-    if (error == 0) {
-        error = PFDIR_opendir(&path_string, &directory);
+    err = PFSTR_InitStr(&path_str, (const s8*)path, 1);
+    if (err == 0) {
+        err = PFDIR_opendir(&path_str, &p_dir);
     } else {
-        pf_vol_set.last_error = error;
+        pf_vol_set.last_error = err;
     }
-    return PFAPI_convertReturnValue2NULL(error, directory);
+    p_dir = PFAPI_convertReturnValue2NULL(err, p_dir);
+    return p_dir;
 }

@@ -653,7 +653,10 @@ pf_s32 PFENT_MakeRootDir(PF_VOLUME* p_vol) {
     default:
         return 7;
     }
-    PFDRV_LoadVolumeLabelFromBuf(p_vol, (pf_u8*)"NO NAME    ");
+    {
+        static pf_u8 default_volume_label[16] = "NO NAME    ";
+        PFDRV_LoadVolumeLabelFromBuf(p_vol, default_volume_label);
+    }
     return 0;
 }
 
@@ -722,7 +725,8 @@ pf_s32 PFENT_RemoveEntry(PF_DIR_ENT* p_ent, PFENTRY_ENT_ITER* p_iter) {
     pf_u16 entry_offset;
     pf_u32 i;
     PF_VOLUME* p_vol = PF_NULL;
-    const pf_u8 dir_fb_free[1] = {0xE5};
+    pf_u8 dir_fb_free[8] = {0xE5};
+    pf_u8 del = dir_fb_free[0];
 
     p_vol = p_ent->p_vol;
     entry_sector = p_ent->entry_sector;
@@ -735,7 +739,7 @@ pf_s32 PFENT_RemoveEntry(PF_DIR_ENT* p_ent, PFENTRY_ENT_ITER* p_iter) {
             }
             entry_sector = p_iter->sector;
             entry_offset = p_iter->offset;
-            err = PFSEC_WriteData(p_vol, (pf_u8*)&dir_fb_free, entry_sector, entry_offset, 1, &success_size, 0);
+            err = PFSEC_WriteData(p_vol, &del, entry_sector, entry_offset, 1, &success_size, 0);
             if (err != 0) {
                 return err;
             }
@@ -744,7 +748,7 @@ pf_s32 PFENT_RemoveEntry(PF_DIR_ENT* p_ent, PFENTRY_ENT_ITER* p_iter) {
             }
         }
     }
-    err = PFSEC_WriteData(p_vol, (pf_u8*)&dir_fb_free, p_ent->entry_sector, p_ent->entry_offset, 1, &success_size, 0);
+    err = PFSEC_WriteData(p_vol, &del, p_ent->entry_sector, p_ent->entry_offset, 1, &success_size, 0);
     if (err != 0) {
         return err;
     }

@@ -1,8 +1,12 @@
 #include <revolution/fa.h>
 
-extern s32 PFDIR_readdir(FADIR* directory, void* result);
-extern s32 PFAPI_convertReturnValue(s32 error);
+typedef struct FADirEnt FADirEnt;
 
-s32 pf2_readdir(FADIR* directory, void* result) {
-    return PFAPI_convertReturnValue(PFDIR_readdir(directory, result));
+extern s32 PFDIR_readdir(FADIR* dir, FADirEnt* result);
+extern s32 PFAPI_convertReturnValue(s32 err);
+
+FAError pf2_readdir(FADIR* dir, FADirEnt* result) {
+    s32 err = PFDIR_readdir(dir, result);
+    err = PFAPI_convertReturnValue(err);
+    return err;
 }
