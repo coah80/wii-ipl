@@ -754,36 +754,37 @@ static void TMCJPEGDEC_converterYUV444toRGB565edge(TMCCJPEGDecWork* work, s32 x,
 }
 
 static void TMCJPEGDEC_converterYUV400toRGB565(TMCCJPEGDecWork* work, s32 x, s32 y) {
-    u8* luminance = work->convBuf + 4;
+    s32 column;
+    s32 tileRow;
     TMCCJPEGDecState* state = work->pState;
-    u32 tileWidth = state->convWidth >> 2;
     u8* texture = state->pTexBuffer;
-    s32 width;
-    s32 height;
-    width = 8 / state->scaleFactor;
-    height = 8 / state->scaleFactor;
+    u8* luminance = work->convBuf + 4;
+    u32 tileWidth = state->convWidth >> 2;
+    s32 width = 8 / state->scaleFactor;
+    s32 height = 8 / state->scaleFactor;
     {
         s32 xEnd = x + width;
         s32 yEnd = y + height;
-        s32 lumaSkip = 8 - width;
-        for (; y < yEnd; y++) {
-            s32 tileRow = (y >> 2) * tileWidth;
-            u16* output = (u16*)(texture + ((y & 3) << 3));
-            s32 column;
+        s32 row;
+        width = 8 - width;
+        for (row = y; row < yEnd; row++) {
+            u16* output;
+            tileRow = (row >> 2) * tileWidth;
+            output = (u16*)(texture + ((row & 3) << 3));
             for (column = x; column < xEnd; column += 1) {
                 s32 value = *luminance++;
-                s32 red, green, blue;
+                s32 green, blue;
                 if (value >> 8) {
-                    blue = (value > 255) ? 255 : value & ~(value >> 31);
-                    green = (value > 255) ? 255 : value & ~(value >> 31);
-                    red = (value > 255) ? 255 : value & ~(value >> 31);
+                    blue = value > 255 ? 255 : value < 0 ? 0 : value;
+                    green = value > 255 ? 255 : value < 0 ? 0 : value;
+                    value = value > 255 ? 255 : value < 0 ? 0 : value;
                 } else {
-                    red = green = blue = value;
+                    green = blue = value;
                 }
                 output[(column & 3) + (((column >> 2) + tileRow) << 4)] =
-                    ((blue & 0xF8) >> 3) + ((red & 0xF8) << 8) + ((green & 0xFC) << 3);
+                    ((blue & 0xF8) >> 3) + (((value & 0xF8) << 8) + ((green & 0xFC) << 3));
             }
-            luminance += lumaSkip;
+            luminance += width;
         }
     }
 }
