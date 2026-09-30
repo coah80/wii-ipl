@@ -521,6 +521,7 @@ static wchar_t* double2hex(long double num, wchar_t* buff, print_format format) 
     unsigned snum;
     long exp;
     print_format exp_format;
+    print_format* exp_fmt_ptr = &exp_format;
     int hex_precision;
     int mantissa_bit;
     decform form;
@@ -595,7 +596,7 @@ static wchar_t* double2hex(long double num, wchar_t* buff, print_format format) 
 
     exp = snum - 0x3FF;
 
-    p = long2str(exp, buff, exp_format);
+    p = long2str(exp, buff, *exp_fmt_ptr);
     if (format.conversion_char == 'a')
         *--p = 'p';
     else
@@ -617,7 +618,7 @@ static wchar_t* double2hex(long double num, wchar_t* buff, print_format format) 
             working_byte = (*(q + mantissa_byte)) >> (7 - (mantissa_bit & 7));
 
             if ((mantissa_bit & ~7) != ((mantissa_bit - 4) & ~7)) {
-                working_byte |= (unsigned char)(((*(q + (mantissa_byte - 1))) << 8) >> (7 - ((mantissa_bit) & 7)));
+                working_byte |= (((*(q + (mantissa_byte - 1))) << 8) >> (7 - ((mantissa_bit) & 7)));
             }
 
             if (!TARGET_FLOAT_IMPLICIT_J_BIT) {
@@ -628,14 +629,14 @@ static wchar_t* double2hex(long double num, wchar_t* buff, print_format format) 
             }
             
             if ((working_byte &= 0xF) < 10) {
-                working_byte = (unsigned char)(working_byte + '0');
+                working_byte += '0';
             }
             else
                 if (format.conversion_char == 'a') {
-                    working_byte = (unsigned char)(working_byte + 'a' - 10);
+                    working_byte += 'a' - 10;
                 }
                 else {
-                    working_byte = (unsigned char)(working_byte + 'A' - 10);
+                    working_byte += 'A' - 10;
                 }
         }
         else {
@@ -970,6 +971,7 @@ static int __wpformatter(void* (*write_proc)(void*, const wchar_t*, size_t),
     const wchar_t* format_ptr;
     const wchar_t* curr_format;
     print_format format;
+    print_format* fmt_ptr = &format;
     signed long long_num;
     signed long long long_long_num;
     long double long_double_num;
@@ -1027,11 +1029,11 @@ static int __wpformatter(void* (*write_proc)(void*, const wchar_t*, size_t),
             if (format.argument_options == long_long_argument ||
                 format.argument_options == intmax_argument)
             {
-                if (!(buff_ptr = longlong2str(long_long_num, buff + 512, format))) {
+                if (!(buff_ptr = longlong2str(long_long_num, buff + 512, *fmt_ptr))) {
                     goto conversion_error;
                 }
             } else {
-                if (!(buff_ptr = long2str(long_num, buff + 512, format))) {
+                if (!(buff_ptr = long2str(long_num, buff + 512, *fmt_ptr))) {
                     goto conversion_error;
                 }
             }
@@ -1069,11 +1071,11 @@ static int __wpformatter(void* (*write_proc)(void*, const wchar_t*, size_t),
                 || format.argument_options == intmax_argument
                )
             {
-                if (!(buff_ptr = longlong2str(long_long_num, buff + 512, format))) {
+                if (!(buff_ptr = longlong2str(long_long_num, buff + 512, *fmt_ptr))) {
                     goto conversion_error;
                 }
             } else {
-                if (!(buff_ptr = long2str(long_num, buff + 512, format))) {
+                if (!(buff_ptr = long2str(long_num, buff + 512, *fmt_ptr))) {
                     goto conversion_error;
                 }
             }
@@ -1093,7 +1095,7 @@ static int __wpformatter(void* (*write_proc)(void*, const wchar_t*, size_t),
                 long_double_num = va_arg(args, double);
             }
 
-            if (!(buff_ptr = float2str(long_double_num, buff + 512, format))) {
+            if (!(buff_ptr = float2str(long_double_num, buff + 512, *fmt_ptr))) {
                 goto conversion_error;
             }
 
@@ -1108,7 +1110,7 @@ static int __wpformatter(void* (*write_proc)(void*, const wchar_t*, size_t),
                 long_double_num = va_arg(args, double);
             }
 
-            if (!(buff_ptr = double2hex(long_double_num, buff + 512, format))) {
+            if (!(buff_ptr = double2hex(long_double_num, buff + 512, *fmt_ptr))) {
                 goto conversion_error;
             }
 
@@ -1124,7 +1126,8 @@ static int __wpformatter(void* (*write_proc)(void*, const wchar_t*, size_t),
                 }
 
                 if (format.alternate_form) {
-                    num_chars = (unsigned char)*wcs_ptr++;
+                    wchar_t first = *wcs_ptr++;
+                    num_chars = (unsigned char)first;
 
                     if (format.precision_specified && num_chars > format.precision) {
                         num_chars = format.precision;
@@ -1150,7 +1153,7 @@ static int __wpformatter(void* (*write_proc)(void*, const wchar_t*, size_t),
                 }
 
                 if (format.alternate_form) {
-                    num_chars = (unsigned char)*wcs_ptr++;
+                    num_chars = (unsigned char)*(const wchar_t*)wcs_ptr;
 
                     if (format.precision_specified && num_chars > format.precision) {
                         num_chars = format.precision;
@@ -1222,7 +1225,7 @@ static int __wpformatter(void* (*write_proc)(void*, const wchar_t*, size_t),
             num_chars = 1;
             break;
 
-        case 0xFF:
+        case 0xFFFF:
         default:
         conversion_error:
             num_chars = wcslen(curr_format);
