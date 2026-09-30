@@ -23,6 +23,15 @@ namespace textinput {
                           unk_0x400(0), mbPhotoDraw(false), meType(T_MailAddressSel) {}
 #endif
 
+#ifdef MYTILETTERFORM_IMPLEMENTATION
+                    virtual ~InputForm();
+                    virtual void create(MEMAllocator*, inputform::EditBuffer*);
+                    virtual void drawBody();
+                    virtual void drawFooter();
+                    virtual void open();
+                    virtual void close();
+                    virtual bool isWholePaneInAnimation();
+#endif
                     virtual nw4r::lyt::Material*    getPhotoPaneMaterial();
 
                     virtual void                    onPhotoTrig();
@@ -38,7 +47,11 @@ namespace textinput {
                     void                            resizePhotoPane(f32 width, f32 height);
 
                 private:
+#ifdef MYTILETTERFORM_IMPLEMENTATION
+                    bool mbPhotoScaledUp;
+#else
                     u8      unk_0x400;
+#endif
                     bool    mbPhotoDraw;    // 0x401
                     Type    meType;         // 0x404
             };

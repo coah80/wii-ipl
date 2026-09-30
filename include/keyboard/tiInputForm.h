@@ -145,6 +145,11 @@ namespace textinput {
 #ifdef TISIGNWINDOW_IMPLEMENTATION
                 bool isAtokActive() const;
 #endif
+#ifdef MYTILETTERFORM_IMPLEMENTATION
+                virtual void create(MEMAllocator* allocator);
+                virtual void init();
+                virtual void onCommand(INPUT_COMMAND command, void* data);
+#endif
                 virtual ~Base();
 #if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION)
                 Base(Manager* manager);
@@ -284,7 +289,7 @@ namespace textinput {
 
                 virtual void                makeUpCursorPos(CursorPos* cursorPos, u32 pos, s32 startLine, s32 endLine);
 
-#if defined(MYTIINPUTFORM_IMPLEMENTATION) || defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION)
+#if defined(MYTIINPUTFORM_IMPLEMENTATION) || defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION) || defined(MYTILETTERFORM_IMPLEMENTATION)
             protected:
 #if !defined(TIINPUTFORM_IMPLEMENTATION) && !defined(TIMANAGER_IMPLEMENTATION)
                 void setCursorPos(tistring::Decolated* string, u32 pos);
@@ -294,7 +299,7 @@ namespace textinput {
 #else
             private:
 #endif
-#if defined(MYTIINPUTFORM_IMPLEMENTATION) || defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION)
+#if defined(MYTIINPUTFORM_IMPLEMENTATION) || defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION) || defined(MYTILETTERFORM_IMPLEMENTATION)
                 nw4r::ut::Rect mRect;
 #else
                 Rect mRect;
@@ -379,13 +384,13 @@ namespace textinput {
                 virtual void                setRootPaneScaleFor16x9();
                 virtual void                setRootPaneScaleFor4x3();
 
-#if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION)
+#if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION) || defined(MYTILETTERFORM_IMPLEMENTATION)
                 virtual void                onSE(sound::SE seId);
 #endif
 
                 virtual void                visibleSeparator(bool flag);
 
-#if defined(MYTIINPUTFORM_IMPLEMENTATION) || defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION)
+#if defined(MYTIINPUTFORM_IMPLEMENTATION) || defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION) || defined(MYTILETTERFORM_IMPLEMENTATION)
             protected:
                 const void* mpLayoutData;
                 const void* mpLanguageData;
