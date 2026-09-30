@@ -26,7 +26,7 @@ ziU8 Zi8_814813FC(ziWChar character, ziU8* result, ziU16* index, ziPtr workData)
 ziU8 Zi8_81481E6C(ziU16* resultIndex, ziU16* input, ziU8 type, ziU16 count, ziPtr workData);
 
 ziU32 Zi8GetKoreanCandidates(ziGetParam* params, ziU8* argument,
-                            ziPtr workData) {
+    ziPtr workData) {
     struct {
         ziU8 characterIndex;
         ziU8 matched;
@@ -44,7 +44,7 @@ ziU32 Zi8GetKoreanCandidates(ziGetParam* params, ziU8* argument,
         ziU8* table1;
     } state;
     ziU16 buffer[100];
-    ziU32 result;
+    ziU8 result;
     ziU16 currentCharacter;
     ziU8* selectedTable;
 
@@ -72,13 +72,13 @@ ziU32 Zi8GetKoreanCandidates(ziGetParam* params, ziU8* argument,
     state.tableCount31 = Zi8GetTableCount(ZI8_LANG_KO, 0x31, workData);
 
     for (state.elementIndex = 0; state.elementIndex < params->elementCount;
-         state.elementIndex++) {
+        state.elementIndex++) {
         currentCharacter = params->elements[state.elementIndex];
 
         if ((currentCharacter >= 0x61) && (currentCharacter <= 0x7A)) {
             buffer[state.elementIndex] = state.table1[(currentCharacter - 0x61) * 2];
         } else if ((currentCharacter >= 0x41) && (currentCharacter <= 0x5A)) {
-            buffer[state.elementIndex] = state.table1[(currentCharacter - 0x41) * 2 + 1];
+            buffer[state.elementIndex] = (state.table1 + (currentCharacter - 0x41) * 2)[1];
         } else {
             state.matched = 0;
             for (; state.table2[state.matched * 3] != 0; state.matched++) {
@@ -86,8 +86,8 @@ ziU32 Zi8GetKoreanCandidates(ziGetParam* params, ziU8* argument,
             }
             if (state.table2[state.matched * 3] != 0) {
                 buffer[state.elementIndex] =
-                    ((ziU16)state.table2[state.matched * 3 + 1] << 8) |
-                    state.table2[state.matched * 3 + 2];
+                ((ziU16)(state.table2 + state.matched * 3)[1] << 8) |
+                (state.table2 + state.matched * 3)[2];
             } else {
                 Zi8LogError(0x161, workData);
                 return 0;
@@ -98,13 +98,13 @@ ziU32 Zi8GetKoreanCandidates(ziGetParam* params, ziU8* argument,
     result = 0;
     for (currentCharacter = 0; currentCharacter < state.elementIndex; currentCharacter++) {
         if (Zi8_814813FC(buffer[currentCharacter], &state.characterIndex,
-                         &state.inputIndex, workData) != 0) {
+            &state.inputIndex, workData) != 0) {
             state.matched = Zi8_81481E6C(&state.nextIndex,
-                                         buffer + currentCharacter + 1,
-                                         state.characterIndex,
-                                         (state.elementIndex - currentCharacter) - 1,
-                                         workData);
-            if ((((struct __zi8_work_data_s*)workData)->unk_0x1B30 == 1) && (state.characterIndex < 0x1F)) {
+                buffer + currentCharacter + 1,
+                state.characterIndex,
+                (state.elementIndex - currentCharacter) - 1,
+                workData);
+            if ((((struct __zi8_work_data_s*)workData)->unk_0x1B30 == 1)) {
                 switch (state.characterIndex) {
                 case 1:
                     selectedTable = (ziU8*)Zi8GetTableAddress(ZI8_LANG_KO, 0x1E, workData);
@@ -170,37 +170,30 @@ ziU32 Zi8GetKoreanCandidates(ziGetParam* params, ziU8* argument,
         } else {
             state.matched = 0;
         }
-        if (state.matched == 0) {
-            if (state.currentCandidate == 0) {
-                for (state.index = 0; state.index < state.tableCount31; state.index++) {
-                    if (((ziU16)state.table31[(state.index * 3)] == buffer[currentCharacter]) &&
-                        ((ziU16)state.table31[(state.index * 3) + 1] == buffer[currentCharacter + 1])) {
-                        if (currentCharacter == 0) {
-                            params->count = 1;
-                        }
-                        params->candidates[result] =
-                            state.tableCount0 + state.table31[(state.index * 3) + 2];
-                        result++;
-                        currentCharacter++;
-                        break;
-                    }
-                }
-                if (state.index == state.tableCount31) {
-                    params->candidates[result] = buffer[currentCharacter];
-                    if (buffer[currentCharacter] < 0xFF) {
-                        if (currentCharacter == 0) {
-                            params->count = 1;
-                        }
-                        params->candidates[result] += state.tableCount0;
-                        result++;
-                    }
-                }
+        if (state.matched != 0) {
+            if (state.tableCount6 == 0) {
+                state.nextIndex += state.inputIndex * state.tableCount3;
+            }
+            if (state.currentCandidate != 0) {
+                state.currentCandidate--;
             } else {
+                params->candidates[(ziU8)result] =
+                ((ziU16)selectedTable[state.nextIndex * 2] << 8) | (selectedTable + state.nextIndex * 2)[1];
+                if ((state.tableCount6 != 0) && (((struct __zi8_work_data_s*)workData)->unk_0x1B30 == 0)) {
+                    params->candidates[(ziU8)result] += state.inputIndex * state.tableCount3;
+                }
+                result++;
+            }
+            if (currentCharacter == 0) {
+                params->count = state.matched + 1;
+            }
+            currentCharacter += state.matched;
+        } else {
+            if (state.currentCandidate != 0) {
                 state.index = 0;
-                while ((state.index < state.tableCount31) &&
-                       (((ziU16)state.table31[(state.index * 3)] != buffer[currentCharacter]) ||
-                        ((ziU16)state.table31[(state.index * 3) + 1] != buffer[currentCharacter + 1]))) {
-                    state.index++;
+                for (; state.index < state.tableCount31; state.index++) {
+                    if (state.table31[state.index * 3] == buffer[currentCharacter] &&
+                        (state.table31 + state.index * 3)[1] == buffer[currentCharacter + 1]) break;
                 }
                 if (state.index == state.tableCount31) {
                     state.currentCandidate--;
@@ -208,25 +201,30 @@ ziU32 Zi8GetKoreanCandidates(ziGetParam* params, ziU8* argument,
                 if (currentCharacter == 0) {
                     params->count = 1;
                 }
-            }
-        } else {
-            if (state.tableCount6 == 0) {
-                state.nextIndex += state.inputIndex * state.tableCount3;
-            }
-            if (state.currentCandidate == 0) {
-                params->candidates[result] =
-                    (selectedTable[state.nextIndex * 2] << 8) | selectedTable[state.nextIndex * 2 + 1];
-                if ((state.tableCount6 != 0) && (((struct __zi8_work_data_s*)workData)->unk_0x1B30 == 0)) {
-                    params->candidates[result] += state.inputIndex * state.tableCount3;
-                }
-                result++;
             } else {
-                state.currentCandidate--;
+                for (state.index = 0; state.index < state.tableCount31; state.index++) {
+                    if ((state.table31[(state.index * 3)] == buffer[currentCharacter]) &&
+                        ((state.table31 + state.index * 3)[1] == buffer[currentCharacter + 1])) {
+                        if (currentCharacter == 0) {
+                            params->count = 1;
+                        }
+                        params->candidates[(ziU8)result] =
+                        state.tableCount0 + (state.table31 + state.index * 3)[2];
+                        result++;
+                        currentCharacter++;
+                        break;
+                    }
+                }
+                if (state.index == state.tableCount31) {
+                    if ((params->candidates[(ziU8)result] = buffer[currentCharacter]) < 0xFF) {
+                        if (currentCharacter == 0) {
+                            params->count = 1;
+                        }
+                        params->candidates[(ziU8)result] += state.tableCount0;
+                        result++;
+                    }
+                }
             }
-            if (currentCharacter == 0) {
-                params->count = state.matched + 1;
-            }
-            currentCharacter += state.matched;
         }
         if (result >= params->maxCandidates) {
             break;

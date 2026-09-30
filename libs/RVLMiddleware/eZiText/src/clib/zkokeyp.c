@@ -231,7 +231,7 @@ ziU32 Zi8_814834AC(ziGetParam* param, ziU16* remaining, ziU8* count,
                         Zi8_81483308(param, param->candidates[filter.compactIndex], inserted, ZI_WORK);
                     }
                 }
-                *remaining -= (ziU8)matched;
+                *remaining = *remaining - matched;
                 *count = 0;
             }
         }
@@ -285,8 +285,8 @@ ziU32 Zi8GetKOcandidates(ziGetParam* param, ZiKoreanCandidateOptions* options ZI
 
     search.previousIndex = 0xFFFF;
     search.resultCount = 0;
-    search.packedKeys.bytes[4] = 0;
     search.packedKeys.firstWord = 0;
+    search.packedKeys.bytes[4] = 0;
     search.remainingLetters = 0;
     search.wordIndex = 0;
     search.candidateCount = 0;
@@ -317,15 +317,15 @@ ziU32 Zi8GetKOcandidates(ziGetParam* param, ZiKoreanCandidateOptions* options ZI
             if (((search.keyIndex = Zi8_8148302C(param->currentWord[0], keyTable, ZI_WORK)) != 0xFFFF) &&
                 ((((ZiKoreanKeyEntry*)(((search.keyIndex << 3) + search.keyIndex) + keyTable))->keyBytes[4] & 8) != 0)) {
                 search.wordOffset = ((ZiKoreanKeyEntry*)(((search.keyIndex << 3) + search.keyIndex) + keyTable))->childLow |
-                    ((((ZiKoreanKeyEntry*)(((search.keyIndex << 3) + search.keyIndex) + keyTable))->keyBytes[4] & 3) << 16 |
-                     ((ZiKoreanKeyEntry*)(((search.keyIndex << 3) + search.keyIndex) + keyTable))->childHigh << 8);
+                ((((ZiKoreanKeyEntry*)(((search.keyIndex << 3) + search.keyIndex) + keyTable))->keyBytes[4] & 3) << 16 |
+                    ((ZiKoreanKeyEntry*)(((search.keyIndex << 3) + search.keyIndex) + keyTable))->childHigh << 8);
                 search.remainingLetters = param->wordCharCount - 1;
                 search.wordIndex = 1;
                 wordNode = search.wordTable + search.wordOffset;
 match_word:
                 while (search.remainingLetters != 0) {
                     search.keyIndex = Zi8_8148302C(param->currentWord[search.wordIndex], (ziU8*)keyTable, ZI_WORK);
-                    if (search.keyIndex == (ziU16)((*wordNode & 0x1F) << 8 | wordNode[1])) {
+                    if (search.keyIndex == (((ziU16)*wordNode & 0x1F) << 8 | (ziU16)wordNode[1])) {
                         --search.remainingLetters;
                         ++search.wordIndex;
                         if ((*wordNode & 0x40) != 0) {
@@ -341,9 +341,9 @@ match_word:
                     }
                 }
                 if (search.remainingLetters == 0) {
-                    search.keyIndex = (*wordNode & 0x1F) << 8 | wordNode[1];
-                    search.character = (ziU16)(((ZiKoreanKeyEntry*)(((search.keyIndex << 3) + search.keyIndex) + keyTable))->characterHigh << 8 |
-                                       ((ZiKoreanKeyEntry*)(((search.keyIndex << 3) + search.keyIndex) + keyTable))->characterLow);
+                    search.keyIndex = ((ziU16)*wordNode & 0x1F) << 8 | (ziU16)wordNode[1];
+                    search.character = (ziU16)((ziU16)((ZiKoreanKeyEntry*)(((search.keyIndex << 3) + search.keyIndex) + keyTable))->characterHigh << 8 |
+                        ((ZiKoreanKeyEntry*)(((search.keyIndex << 3) + search.keyIndex) + keyTable))->characterLow);
                     if (param->wordCharCount == 1) {
                         if (search.keyIndex == search.previousIndex) {
                             for (; (*wordNode & 0x40) == 0; wordNode = wordNode + 2) {
@@ -355,55 +355,46 @@ match_word:
                         }
                         search.previousIndex = search.keyIndex;
                         if (param->elementCount == 0) {
-                            if (search.remainingCandidates == 0) {
+                            if (search.remainingCandidates != 0) {
+                                --search.remainingCandidates;
+                            } else {
                                 if (options->countOnly != 0) {
-                                    ++search.prefixCount;
-                                    if ((ziS32)search.prefixCount < (ziS32)options->maxCount) {
+                                    if (++search.prefixCount < (ziS32)options->maxCount) {
                                         goto skip_word;
                                     }
                                     return options->maxCount;
                                 }
-                                param->candidates[search.candidateCount] = search.character;
-                                ++search.candidateCount;
+                                param->candidates[search.candidateCount++] = search.character;
                                 ++param->unk_0x20;
                                 if (++param->letters >= param->maxCandidates) {
                                     return param->letters;
                                 }
-                            } else {
-                                --search.remainingCandidates;
                             }
                         } else {
-                            param->candidates[search.candidateCount] = search.character;
-                            ++search.candidateCount;
+                            param->candidates[search.candidateCount++] = search.character;
                             ++param->unk_0x20;
                             if (++param->letters >= param->maxCandidates) {
                                 Zi8_814834AC(param, &search.remainingCandidates, &search.candidateCount, &search.inserted, ZI_WORK);
                                 param->unk_0x20 = search.candidateCount;
                                 param->letters = search.candidateCount;
-                                if (param->maxCandidates <= search.candidateCount) {
-                                    if (options->countOnly == 0) {
-                                        return search.candidateCount;
-                                    }
-                                    search.prefixCount += search.candidateCount;
-                                    if ((ziS32)options->maxCount <= (ziS32)search.prefixCount) {
-                                        return options->maxCount;
-                                    }
+                                if (search.candidateCount < param->maxCandidates) goto skip_word;
+                                if (options->countOnly != 0) {
+                                    if ((search.prefixCount += search.candidateCount) >= (ziS32)options->maxCount) return options->maxCount;
                                     param->unk_0x20 = 0;
                                     param->letters = 0;
                                     search.candidateCount = 0;
+                                } else {
+                                    return search.candidateCount;
                                 }
                             }
                         }
                     } else {
-                        for (search.candidateIndex = 0;
-                             (search.candidateIndex < search.candidateCount &&
-                              (search.character != param->candidates[search.candidateIndex]));
-                             search.candidateIndex = search.candidateIndex + 1) {
+                        for (search.candidateIndex = 0; search.candidateIndex < search.candidateCount; search.candidateIndex++) {
+                            if (search.character == param->candidates[search.candidateIndex]) break;
                         }
                         if ((search.candidateIndex == search.candidateCount) &&
                             (Zi8_814833F0(param, search.character, ZI_WORK) == 0)) {
-                            param->candidates[search.candidateCount] = search.character;
-                            ++search.candidateCount;
+                            param->candidates[search.candidateCount++] = search.character;
                             ++param->unk_0x20;
                             if (++param->letters < param->maxCandidates) {
                                 goto skip_word;
@@ -411,17 +402,14 @@ match_word:
                             Zi8_814834AC(param, &search.remainingCandidates, &search.candidateCount, &search.inserted, ZI_WORK);
                             param->unk_0x20 = search.candidateCount;
                             param->letters = search.candidateCount;
-                            if (param->maxCandidates <= search.candidateCount) {
-                                if (options->countOnly == 0) {
-                                    return search.candidateCount;
-                                }
-                                search.prefixCount += search.candidateCount;
-                                if ((ziS32)options->maxCount <= (ziS32)search.prefixCount) {
-                                    return options->maxCount;
-                                }
+                            if (search.candidateCount < param->maxCandidates) goto skip_word;
+                            if (options->countOnly != 0) {
+                                if ((search.prefixCount += search.candidateCount) >= (ziS32)options->maxCount) return options->maxCount;
                                 param->unk_0x20 = 0;
                                 param->letters = 0;
                                 search.candidateCount = 0;
+                            } else {
+                                return search.candidateCount;
                             }
                         }
                     }
@@ -444,18 +432,21 @@ search_table:
         if (search.candidateCount != 0) {
             Zi8_814834AC(param, &search.remainingCandidates, &search.candidateCount, &search.inserted, ZI_WORK);
             if (options->countOnly != 0) {
-                search.prefixCount += search.candidateCount;
-                if (search.prefixCount >= (ziS32)options->maxCount) return options->maxCount;
+                if ((search.prefixCount += search.candidateCount) >= (ziS32)options->maxCount) return options->maxCount;
                 search.resultCount = search.prefixCount;
             }
             param->unk_0x20 = search.candidateCount;
             param->letters = search.candidateCount;
         }
-        if (param->elementCount < 10) {
-            if ((param->elementCount == 0) || (options->countOnly != 0)) {
-                search.matchPass = 1;
-            } else {
+        if (param->elementCount > 9) {
+            param->letters = 0;
+            return 0;
+        }
+        {
+            if (param->elementCount != 0 && options->countOnly == 0) {
                 search.matchPass = 0;
+            } else {
+                search.matchPass = 1;
             }
             search.tableCount = Zi8GetTableCount(ZI8_LANG_KO, 9, ZI_WORK);
             Zi8_81483118(param, search.packedKeys.bytes);
@@ -466,8 +457,8 @@ search_table:
                     search.keyByte = 0;
                     if (1 < param->elementCount) {
                         for (search.keyByte = 0;
-                             (ziU32)search.keyByte < (int)param->elementCount / 2;
-                             search.keyByte = search.keyByte + 1) {
+                            (ziS32)search.keyByte < (int)param->elementCount / 2;
+                            search.keyByte = search.keyByte + 1) {
                             if (search.packedKeys.bytes[search.keyByte] != search.entry->keyBytes[search.keyByte]) {
                                 search.matches = ZI8_FALSE;
                                 break;
@@ -476,7 +467,7 @@ search_table:
                     }
                     if ((search.matches && ((param->elementCount % 2) != 0)) &&
                         ((search.packedKeys.bytes[search.keyByte] & 0xF0) !=
-                         (search.entry->keyBytes[search.keyByte] & 0xF0))) {
+                        (search.entry->keyBytes[search.keyByte] & 0xF0))) {
                         search.matches = ZI8_FALSE;
                     }
                     if (search.matches) {
@@ -499,17 +490,15 @@ search_table:
                             if (++search.resultCount >= (ziS32)options->maxCount) return options->maxCount;
                         } else {
                             param->candidates[search.candidateCount++] =
-                                (ziU16)((ziU16)((ZiKoreanKeyEntry*)(((search.tableIndex << 3) + search.tableIndex) + keyTable))->characterHigh << 8 |
-                                        ((ZiKoreanKeyEntry*)(((search.tableIndex << 3) + search.tableIndex) + keyTable))->characterLow);
+                            (ziU16)((ziU16)((ZiKoreanKeyEntry*)(((search.tableIndex << 3) + search.tableIndex) + keyTable))->characterHigh << 8 |
+                                ((ZiKoreanKeyEntry*)(((search.tableIndex << 3) + search.tableIndex) + keyTable))->characterLow);
                             if (++param->letters >= param->maxCandidates) return param->letters;
                         }
                     }
 next_entry:
                     ;
                 }
-                } while (++search.matchPass < 2);
-        } else {
-            param->letters = 0;
+            } while (++search.matchPass < 2);
         }
         if (options->countOnly != 0) return search.resultCount;
         return param->letters;
