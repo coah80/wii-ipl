@@ -290,138 +290,139 @@ extern ziU16 Zi8MatchAltSound(ziPtr soundTable, ziU16 soundCode, ziPtr pCodeTabl
 ziU16 Zi8GetPCode(ziU8* table, ziU8* node);
 
 ziBool Zi8MatchPhonetic(ziPtr pCodeTable, ziPtr dictionary, ziPtr soundTable, ziU16 soundCode, ziU32 tableAddress, ziU8* node, ziU16* masks, ziU16* values, ziU16* count, ziU8** resultNode, ziU8** stringOffset, ziS8 partialMode, ziU8 strictMode, ziU8 numParts, ziU16 partMask, ziU16 partValue, ziU8 flag, ziU8 altMode, ziU16 initialCode, ziU16* resultCode, ziU8 lastMode ZI_NEED_WORK) {
-    ziBool hasString;
-    ziU32 matchedParts;
-    ziU32 altModeActive;
-    ziU8 partCode;
-    ziU8 partCount;
-    ziU8 partIndex;
-    ziU16 soundIndex;
-    ziU16 remaining;
-    ziU16 code;
-    ziU16 dictionaryIndex;
-    ziU8 nextCode;
+    struct {
+        ziBool hasString;
+        ziU8 partIndex;
+        ziU8 partCount;
+        ziU8 nextCode;
+        ziU8 matchedParts;
+        ziU16 dictionaryIndex;
+        ziU16 soundIndex;
+        ziU16 remaining;
+        ziU16 code;
+    } traversal;
     ziU8* sound;
-    ziU8* nextPart;
 
     if (*stringOffset != 0) {
-        hasString = 1;
+        traversal.hasString = 1;
     } else {
-        hasString = 0;
+        traversal.hasString = 0;
     }
-    if (*count == 0) {
-        remaining = 1;
+    if (*count != 0) {
+        traversal.remaining = *count;
     } else {
-        remaining = *count;
+        traversal.remaining = 1;
     }
-    matchedParts = 0;
-    altModeActive = altMode;
+    traversal.matchedParts = 0;
     if ((lastMode != 0) && (numParts > 1)) {
-        altModeActive = 1;
+        altMode = 1;
     }
-    while (remaining-- != 0) {
-        if ((node[0] & flag) != 0) {
-            code = Zi8GetPCode((ziU8*)pCodeTable, node);
-            if ((*values != (code & *masks)) && (altModeActive == 0) && ((node[0] & 0x80) != 0)) {
-                if (*count != 0) {
-                    soundIndex = (initialCode - remaining) - 1;
-                } else {
-                    soundIndex = initialCode;
-                }
-                code = Zi8MatchAltSound(soundTable, soundCode, pCodeTable, soundIndex, *masks, *values, flag, ZI_WORK);
-            }
-            if ((*values == (code & *masks)) && (partValue != (code & partMask))) {
-                matchedParts = 1;
-                sound = (ziU8*)((tableAddress + ((node[9] & 0xF) * 0x10000)) + node[0xB] + node[0xA] * 0x100);
-                if (ZI_WORK->unk_0x16 != 0) {
-                    switch (sound[0] & 7) {
-                    case 2:
-                        sound += 2;
-                        break;
-                    case 3:
-                    case 4:
-                        sound += 3;
-                        break;
-                    case 5:
-                        sound += 4;
-                        break;
-                    default:
-                        sound++;
-                        break;
-                    }
-                }
-                if ((sound[0] & 0x80) != 0) {
-                    sound += ((sound[0] & 0x7F) >> 4) + 1;
-                } else if (numParts > 1) {
-                    goto next_node;
-                }
-                if (((ziU8)matchedParts == numParts) || (numParts == 0)) {
-                    *resultNode = node;
-                    *resultCode = ((ziU16)node[6] << 8) + node[7];
-                    *count = remaining;
-                    return 1;
-                }
-                do {
-                    nextCode = *sound++;
-                    partCount = nextCode & 0xF;
-                    if ((nextCode & flag) == 0) {
-                        for (; partCount != 0; partCount--) {
-                            for (sound++; (*sound & 0x80) == 0; sound += 2) {
-                            }
-                            sound++;
-                        }
-                    }
-                    for (; partCount != 0; partCount--) {
-                        partIndex = 1;
-                        if (hasString && (*stringOffset < sound)) {
-                            hasString = 0;
-                        }
-                        nextPart = sound;
-                        if (!hasString) {
-                            *stringOffset = sound;
-                        }
-                        do {
-                            partCode = nextPart[1];
-                            dictionaryIndex = ((ziU16)partCode << 8) | nextPart[0];
-                            sound = nextPart + 2;
-                            if (hasString) {
-                                goto phonetic_skip;
-                            }
-                            code = Zi8GetPCode((ziU8*)pCodeTable, (ziU8*)dictionary + (dictionaryIndex & 0x7FFF) * 0xC);
-                            if (((code & masks[partIndex]) != values[partIndex]) && (altModeActive == 0) && (((ziU8*)dictionary)[(dictionaryIndex & 0x7FFF) * 0xC] & 0x80) != 0) {
-                                code = Zi8MatchAltSound(soundTable, soundCode, pCodeTable, dictionaryIndex & 0x7FFF, masks[partIndex], values[partIndex], flag, ZI_WORK);
-                            }
-                            if ((code & masks[partIndex]) != values[partIndex]) {
-                                goto phonetic_skip;
-                            }
-                            partIndex++;
-                            if (partIndex == numParts) {
-                                if ((partialMode != 0) && ((strictMode == 0 && (partCode & 0x80) != 0) || (strictMode != 0 && (partCode & 0x80) == 0))) {
-                                    goto phonetic_skip;
-                                }
-                                *resultNode = node;
-                                code = ((ziU16)node[6] << 8) + node[7];
-                                *resultCode = code;
-                                *count = remaining;
-                                return 1;
-                            }
-                            nextPart = sound;
-                        } while ((partCode & 0x80) == 0);
-                        continue;
-phonetic_skip:
-                        if ((partCode & 0x80) == 0) {
-                            nextPart += 3;
-                            while ((*nextPart & 0x80) == 0) {
-                                nextPart += 2;
-                            }
-                            sound = nextPart + 1;
-                        }
-                    }
-                } while ((nextCode & 0x80) == 0);
-            }
-        }
+    while (traversal.remaining-- != 0) {
+        if ((node[0] & flag) != 0) goto decode_node;
 next_node:
         node += 0xC;
+        continue;
+decode_node:
+        traversal.code = Zi8GetPCode((ziU8*)pCodeTable, node);
+        if ((*values != (traversal.code & *masks)) && (altMode == 0) && ((node[0] & 0x80) != 0)) {
+            if (*count != 0) {
+                traversal.soundIndex = (initialCode - traversal.remaining) - 1;
+            } else {
+                traversal.soundIndex = initialCode;
+            }
+            traversal.code = Zi8MatchAltSound(soundTable, soundCode, pCodeTable, traversal.soundIndex, *masks, *values, flag, ZI_WORK);
+        }
+        goto check_code;
+match_code:
+        if (partValue == (traversal.code & partMask)) goto next_node;
+        traversal.matchedParts = 1;
+        sound = (ziU8*)(((node[9] & 0xF) * 0x10000 + node[0xB]) + (tableAddress + node[0xA] * 0x100));
+        if (ZI_WORK->unk_0x16 != 0) {
+            switch (sound[0] & 7) {
+            case 2:
+                sound += 2;
+                break;
+            case 3:
+            case 4:
+                sound += 3;
+                break;
+            case 5:
+                sound += 4;
+                break;
+            default:
+                sound++;
+                break;
+            }
+        }
+        if ((sound[0] & 0x80) != 0) {
+            sound += ((sound[0] & 0x7F) >> 4) + 1;
+        } else if (numParts > 1) {
+            goto next_node;
+        }
+        if (((ziU8)traversal.matchedParts == numParts) || (numParts == 0)) {
+            *resultNode = node;
+            *resultCode = ((ziU16)node[6] << 8) + node[7];
+            *count = traversal.remaining;
+            return 1;
+        }
+        do {
+            traversal.nextCode = *sound++;
+            traversal.partCount = traversal.nextCode & 0xF;
+            if ((traversal.nextCode & flag) == 0) {
+                for (; traversal.partCount != 0; traversal.partCount--) {
+                    for (sound++; (*sound & 0x80) == 0; sound += 2) {
+                    }
+                    sound++;
+                }
+            }
+            for (; traversal.partCount != 0; traversal.partCount--) {
+                traversal.partIndex = 1;
+                if (traversal.hasString && (*stringOffset < sound)) {
+                    traversal.hasString = 0;
+                }
+                if (!traversal.hasString) {
+                    *stringOffset = sound;
+                }
+                do {
+                    traversal.dictionaryIndex = sound[0] | ((ziU16)sound[1] << 8);
+                    sound += 2;
+                    if (traversal.hasString) {
+                        goto phonetic_skip;
+                    }
+                    traversal.code = Zi8GetPCode((ziU8*)pCodeTable, (ziU8*)dictionary + (traversal.dictionaryIndex & 0x7FFF) * 0xC);
+                    if (((traversal.code & masks[traversal.partIndex]) != values[traversal.partIndex]) && (altMode == 0) && (((ziU8*)dictionary)[(traversal.dictionaryIndex & 0x7FFF) * 0xC] & 0x80) != 0) {
+                        traversal.code = Zi8MatchAltSound(soundTable, soundCode, pCodeTable, traversal.dictionaryIndex & 0x7FFF, masks[traversal.partIndex], values[traversal.partIndex], flag, ZI_WORK);
+                    }
+                    if ((traversal.code & masks[traversal.partIndex]) != values[traversal.partIndex]) {
+                        goto phonetic_skip;
+                    }
+                    traversal.partIndex++;
+                    if (traversal.partIndex == numParts) {
+                        if ((partialMode != 0) && ((strictMode == 0 && (traversal.dictionaryIndex & 0x8000) != 0) || (strictMode != 0 && (traversal.dictionaryIndex & 0x8000) == 0))) {
+                            goto phonetic_skip;
+                        }
+                        *resultNode = node;
+                        *resultCode = ((ziU16)node[6] << 8) + node[7];
+                        *count = traversal.remaining;
+                        return 1;
+                    }
+                } while ((traversal.dictionaryIndex & 0x8000) == 0);
+                continue;
+phonetic_skip:
+                if ((traversal.dictionaryIndex & 0x8000) == 0) {
+                    sound++;
+                    while ((*sound & 0x80) == 0) {
+                        sound += 2;
+                    }
+                    sound++;
+                }
+            }
+        } while ((traversal.nextCode & 0x80) == 0);
+
+        goto next_node;
+check_code:
+        if (*values == (traversal.code & *masks)) goto match_code;
+        goto next_node;
     }
     return 0;
 }
@@ -436,7 +437,6 @@ ziU8 Zi8GetPyPhonetic(ziWChar* text, ziU8 count, ziU16* initial, ziU16* final, z
     ziBool partial;
     ziU8 result;
     ziU8 outputIndex;
-    ziU8 partCount;
     ziU16 value;
     ziU8 index;
     ziWChar converted[256];
@@ -445,13 +445,15 @@ ziU8 Zi8GetPyPhonetic(ziWChar* text, ziU8 count, ziU16* initial, ziU16* final, z
 
     current = converted;
     result = 0;
+    partial = 0;
     *resultCount = 0;
     if (count == 0) {
         Zi8LogError(0x135, ZI_WORK);
         return 0;
     }
-    convertedCount = 0;
-    for (index = 0; index < count; index++) {
+    index = 0;
+    convertedCount = index;
+    for (; index < count; index++) {
         if (((text[index] >= 0xF341) && (text[index] <= 0xF35A)) || ((text[index] >= 0x41) && (text[index] <= 0x5A))) {
             if ((convertedCount != 0) && (current[convertedCount - 1] != 0xF360) && (current[convertedCount - 1] != 0x27)) {
                 current[convertedCount] = 0x27;

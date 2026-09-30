@@ -31,7 +31,6 @@ ziU8 Zi8GetKoreanCandidates(ziGetParam* params, ziU8* argument,
         ziU8 characterIndex;
         ziU8 matched;
         ziU8 elementIndex;
-        ziU8 reserved;
         ziU16 index;
         ziU16 currentCandidate;
         ziU16 inputIndex;
@@ -53,9 +52,7 @@ ziU8 Zi8GetKoreanCandidates(ziGetParam* params, ziU8* argument,
     result = 0;
     state.characterIndex = 0xFF;
     state.currentCandidate = params->firstCandidate;
-    params->unk_0x20 = 0;
-    params->count = 0;
-    params->letters = 0;
+    params->unk_0x20 = params->count = params->letters = 0;
     if ((argument != 0) && (*argument != 0)) {
         Zi8LogError(0x7D0, workData);
         return 0;
@@ -87,24 +84,23 @@ ziU8 Zi8GetKoreanCandidates(ziGetParam* params, ziU8* argument,
             for (; state.table2[state.matched * 3] != 0; state.matched++) {
                 if (currentCharacter == state.table2[state.matched * 3]) break;
             }
-            if (state.table2[(state.matched * 3)] == 0) {
+            if (state.table2[state.matched * 3] != 0) {
+                buffer[state.elementIndex] =
+                    ((ziU16)state.table2[state.matched * 3 + 1] << 8) |
+                    state.table2[state.matched * 3 + 2];
+            } else {
                 Zi8LogError(0x161, workData);
                 return 0;
             }
-            buffer[state.elementIndex] =
-                (state.table2[(state.matched * 3) + 1] << 8) |
-                state.table2[(state.matched * 3) + 2];
         }
     }
 
+    result = 0;
     for (currentCharacter = 0; currentCharacter < state.elementIndex; currentCharacter++) {
-        state.inputIndex = 0;
-        if (Zi8_814813FC(buffer[currentCharacter], (ziU8*)&state.characterIndex,
-                         (ziU16*)&state.inputIndex, workData) == 0) {
-            state.matched = 0;
-        } else {
-            state.matched = Zi8_81481E6C((ziU16*)&state.nextIndex,
-                                         &buffer[currentCharacter + 1],
+        if (Zi8_814813FC(buffer[currentCharacter], &state.characterIndex,
+                         &state.inputIndex, workData) != 0) {
+            state.matched = Zi8_81481E6C(&state.nextIndex,
+                                         buffer + currentCharacter + 1,
                                          state.characterIndex,
                                          (state.elementIndex - currentCharacter) - 1,
                                          workData);
@@ -171,6 +167,8 @@ ziU8 Zi8GetKoreanCandidates(ziGetParam* params, ziU8* argument,
                     break;
                 }
             }
+        } else {
+            state.matched = 0;
         }
         if (state.matched == 0) {
             if (state.currentCandidate == 0) {

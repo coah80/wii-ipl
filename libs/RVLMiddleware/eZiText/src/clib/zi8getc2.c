@@ -114,173 +114,167 @@ static ziU16 Zi8GetEngineSignature(ziU8* destination, ziPtr work) {
 
 static ziBool Zi8AlphaSignature(ziGetParam* parameters, ziBool countOnly ZI_NEED_WORK) {
     ziU16 secondLength;
-    ziU16 firstLength;
-    ziU8* second;
-    ziU8* first;
-    ziU8 engine[32];
+    struct { ziU16 length; ziU8* second; ziU8* first; } signatures;
     ziU8 dictionary[32];
+    ziU8 engine[32];
     ziU16 length;
-    ziU16 candidateCount;
+    ziU8* current;
     ziWChar* output = parameters->candidates;
-    second = 0;
-    firstLength = 0;
+
+    signatures.first = 0;
+    signatures.second = 0;
+    signatures.length = 0;
     secondLength = 0;
     Zi8LogError(100, ZI_WORK);
     parameters->letters = 0;
     length = Zi8GetDataSignature(dictionary, 0x20, parameters->language, ZI_WORK);
-    if (length == 0 || length < parameters->elementCount) {
-        first = engine;
+    if (length != 0 && parameters->elementCount <= length) {
+        signatures.first = dictionary;
+        signatures.second = engine;
+        signatures.length = length;
     } else {
-        first = dictionary;
-        second = engine;
-        firstLength = length;
+        signatures.first = engine;
     }
     length = Zi8GetEngineSignature(engine, ZI_WORK);
     if (length < parameters->elementCount) {
-        if (firstLength == 0) {
+        if (signatures.length != 0) {
+            signatures.second = 0;
+            length = 1;
+        } else {
             Zi8ReplaceLastError(500, ZI_WORK);
             return 0;
         }
-        second = 0;
-        candidateCount = 1;
-    } else if (firstLength == 0) {
-        candidateCount = 1;
-        firstLength = length;
-    } else {
-        candidateCount = 2;
+    } else if (signatures.length != 0) {
         secondLength = length;
+        length = 2;
+    } else {
+        signatures.length = length;
+        length = 1;
     }
-    if (parameters->firstCandidate < candidateCount) {
-        candidateCount -= parameters->firstCandidate;
-        if (!countOnly) {
-            if (parameters->maxCandidates < candidateCount) {
-                candidateCount = parameters->maxCandidates;
-            }
-            parameters->letters = candidateCount;
-            if (!(parameters->getOptions & 0x80)) {
-                ZI_WORK->unk_0x538 = parameters->language;
-                parameters->candidates[0] = 0xfff0;
-                output = (ziWChar*)&ZI_WORK->unk_0x338;
-            }
-            if (parameters->firstCandidate != 0) {
-                first = second;
-                firstLength = secondLength;
-            }
-            if (ZI_WORK->unk_0x0A < firstLength) {
-                firstLength = ZI_WORK->unk_0x0A;
-            }
-            if ((parameters->elementCount < ZI_WORK->unk_0x140C[0] ||
-                 (parameters->getOptions & 0x7e) == 2) &&
-                parameters->elementCount < firstLength) {
-                firstLength = parameters->elementCount;
-            }
-            while (firstLength-- != 0) {
-                *output++ = *first++;
-            }
-            *output++ = 0;
-            if (parameters->letters == 2) {
-                if (ZI_WORK->unk_0x0A < secondLength) {
-                    secondLength = ZI_WORK->unk_0x0A;
-                }
-                if ((parameters->elementCount < ZI_WORK->unk_0x140C[0] ||
-                     (parameters->getOptions & 0x7e) == 2) &&
-                    parameters->elementCount < secondLength) {
-                    secondLength = parameters->elementCount;
-                }
-                while (secondLength-- != 0) {
-                    *output++ = *second++;
-                }
-                *output++ = 0;
-            }
-            *output = 0;
-            ZI_WORK->unk_0x0A = 0xff;
-            return 1;
-        }
-        parameters->letters = candidateCount;
+    if (parameters->firstCandidate >= length) {
+        Zi8ReplaceLastError(501, ZI_WORK);
+        return 0;
+    }
+    length = length - parameters->firstCandidate;
+    if (countOnly != 0) {
+        parameters->letters = length;
         ZI_WORK->unk_0x0A = 0xff;
         return 1;
     }
-    Zi8ReplaceLastError(501, ZI_WORK);
-    return 0;
+    if (parameters->maxCandidates < length) length = parameters->maxCandidates;
+    parameters->letters = length;
+    if ((parameters->getOptions & 0x80) == 0) {
+        ZI_WORK->unk_0x538 = parameters->language;
+        parameters->candidates[0] = 0xfff0;
+        output = (ziWChar*)&ZI_WORK->unk_0x338;
+    }
+    if (parameters->firstCandidate != 0) {
+        current = signatures.second;
+        length = secondLength;
+    } else {
+        current = signatures.first;
+        length = signatures.length;
+    }
+    if (length > ZI_WORK->unk_0x0A) length = ZI_WORK->unk_0x0A;
+    if ((parameters->elementCount < ZI_WORK->unk_0x140C[0] ||
+         (parameters->getOptions & 0x7e) == 2) && length > parameters->elementCount) {
+        length = parameters->elementCount;
+    }
+    while (length-- != 0) *output++ = (ziU8)*current++;
+    *output++ = 0;
+    if (parameters->letters == 2) {
+        current = signatures.second;
+        length = secondLength;
+        if (length > ZI_WORK->unk_0x0A) length = ZI_WORK->unk_0x0A;
+        if ((parameters->elementCount < ZI_WORK->unk_0x140C[0] ||
+             (parameters->getOptions & 0x7e) == 2) && length > parameters->elementCount) {
+            length = parameters->elementCount;
+        }
+        while (length-- != 0) *output++ = (ziU8)*current++;
+        *output++ = 0;
+    }
+    *output++ = 0;
+    ZI_WORK->unk_0x0A = 0xff;
+    return 1;
 }
 
 static ziBool Zi8ZhSignature(ziGetParam* parameters, ziBool countOnly ZI_NEED_WORK) {
     ziWChar* output = parameters->candidates;
     ziU8* current = 0;
     ziU16 copied;
-    ziU8 engine[32];
     ziU8 dictionary[32];
+    ziU8 engine[32];
     ziU16 dataLength;
-    ziU32 engineLength;
-    ziU32 candidateCount;
-    ziU8 available;
+    ziU16 engineLength;
+    ziU16 length;
+
     Zi8LogError(100, ZI_WORK);
     parameters->letters = 0;
     dataLength = Zi8GetDataSignature(dictionary, 0x20, parameters->language, ZI_WORK);
     engineLength = Zi8GetEngineSignature(engine, ZI_WORK);
-    if (!(parameters->context & 0x10)) {
-        candidateCount = dataLength + engineLength;
+    if ((parameters->context & 0x10) != 0) {
+        length = 0;
+        if (dataLength != 0) length++;
+        if (engineLength != 0) length++;
     } else {
-        candidateCount = dataLength != 0;
-        if (engineLength != 0) candidateCount++;
+        length = dataLength + engineLength;
     }
-    if (parameters->firstCandidate < candidateCount) {
-        available = candidateCount - parameters->firstCandidate;
-        if (!countOnly) {
-            if (parameters->maxCandidates < (ziU16)(candidateCount - parameters->firstCandidate)) {
-                available = parameters->maxCandidates;
-            }
-            parameters->letters = available;
-            if (!(parameters->context & 0x10)) {
-                copied = 0;
-                if (dataLength != 0) {
-                    if (parameters->firstCandidate < dataLength) {
-                        candidateCount = dataLength - parameters->firstCandidate;
-                        current = dictionary + parameters->firstCandidate;
-                    } else {
-                        candidateCount = 0;
-                    }
-                    if (parameters->letters < candidateCount) candidateCount = parameters->letters;
-                    copied = candidateCount;
-                    while (candidateCount-- != 0) *output++ = *current++;
-                }
-                current = engine;
-                if (dataLength <= parameters->firstCandidate) {
-                    dataLength += engineLength - parameters->firstCandidate;
-                    current += engineLength - dataLength;
-                    engineLength = dataLength;
-                }
-                if ((int)(parameters->letters - copied) < (int)engineLength) {
-                    engineLength = parameters->letters - copied;
-                }
-                while (engineLength-- != 0) *output++ = *current++;
-            } else {
-                if (parameters->firstCandidate == 0 && dataLength != 0) {
-                    current = dictionary;
-                } else {
-                    if (parameters->firstCandidate != 0 && dataLength == 0) {
-                        Zi8ReplaceLastError(500, ZI_WORK);
-                        return 0;
-                    }
-                    current = engine;
-                    dataLength = engineLength;
-                }
-                while (dataLength-- != 0) *output++ = *current++;
-                *output = 0x20;
-                if (parameters->letters == 2) {
-                    current = engine;
-                    while (++output, engineLength-- != 0) *output = *current++;
-                    *output = 0x20;
-                }
-            }
-            return 1;
-        }
-        parameters->letters = available;
+    if (parameters->firstCandidate >= length) {
+        Zi8ReplaceLastError(502, ZI_WORK);
+        return 0;
+    }
+    length = length - parameters->firstCandidate;
+    if (countOnly != 0) {
+        parameters->letters = length;
         ZI_WORK->unk_0x0A = 0xff;
         return 1;
     }
-    Zi8ReplaceLastError(502, ZI_WORK);
-    return 0;
+    if (parameters->maxCandidates < length) length = parameters->maxCandidates;
+    parameters->letters = length;
+    if ((parameters->context & 0x10) != 0) {
+        if (parameters->firstCandidate != 0 || dataLength == 0) {
+            if (parameters->firstCandidate != 0 && dataLength == 0) {
+                Zi8ReplaceLastError(500, ZI_WORK);
+                return 0;
+            }
+            current = engine;
+            length = engineLength;
+        } else {
+            current = dictionary;
+            length = dataLength;
+        }
+        while (length-- != 0) *output++ = (ziU8)*current++;
+        *output++ = 0x20;
+        if (parameters->letters == 2) {
+            current = engine;
+            length = engineLength;
+            while (length-- != 0) *output++ = (ziU8)*current++;
+            *output++ = 0x20;
+        }
+    } else {
+        copied = 0;
+        if (dataLength != 0) {
+            if (parameters->firstCandidate >= dataLength) {
+                length = 0;
+            } else {
+                length = dataLength - parameters->firstCandidate;
+                current = dictionary + parameters->firstCandidate;
+            }
+            if (parameters->letters < length) length = parameters->letters;
+            copied = length;
+            while (length-- != 0) *output++ = (ziU8)*current++;
+        }
+        current = engine;
+        if (parameters->firstCandidate >= dataLength) {
+            length = dataLength + (engineLength - parameters->firstCandidate);
+            current += engineLength - length;
+        } else {
+            length = engineLength;
+        }
+        if (parameters->letters - copied < length) length = parameters->letters - copied;
+        while (length-- != 0) *output++ = (ziU8)*current++;
+    }
+    return 1;
 }
 
 ziU8 _Zi8GetCandidates(ziGetParam* parameters ZI_NEED_WORK) {
@@ -313,7 +307,7 @@ ziU32 Zi8GetCandidatesOrCount(ziGetParam* parameters, ZiCandidateOptions* option
   ziU16 savedCharacter;
   ziWChar* savedElements;
   ziBool restoreCandidates;
-  ziU8 elementCount;
+  int elementCount;
   int error;
   unsigned int candidateCount;
   ziU8 savedOptions;
@@ -665,9 +659,8 @@ ziBool Zi8IsDupWChar(ziWChar character ZI_NEED_WORK) {
 }
 
 ziBool Zi8IsDupWordW(ziWChar* word, ziU8 length ZI_NEED_WORK) {
-    ziU8 slot;
+    unsigned int slot;
     ziBool duplicate = 0;
-    unsigned int position;
     int index;
     int character;
     if (word == 0 || length == 0) {
@@ -681,21 +674,19 @@ ziBool Zi8IsDupWordW(ziWChar* word, ziU8 length ZI_NEED_WORK) {
     for (index = 0; index < ZI_WORK->unk_0x539; index++) {
         slot = ZI_WORK->unk_0x53A[index];
         for (character = 0; character < length; character++) {
-            if (word[character] != ZI_WORK->unk_0x57A[slot * 21 + character]) break;
+            if (word[character] != ((ziWChar (*)[21])ZI_WORK->unk_0x57A)[slot][character]) break;
         }
-        if (character >= length && ZI_WORK->unk_0x57A[slot * 21 + character] == 0) {
+        if (character >= length && ((ziWChar (*)[21])ZI_WORK->unk_0x57A)[slot][character] == 0) {
             duplicate = 1;
             break;
         }
     }
     if (!duplicate) {
         if (ZI_WORK->unk_0x539 < 64) {
-            position = ZI_WORK->unk_0x539;
-            ZI_WORK->unk_0x53A[ZI_WORK->unk_0x539] = ZI_WORK->unk_0x539;
+            slot = ZI_WORK->unk_0x53A[ZI_WORK->unk_0x539] = ZI_WORK->unk_0x539;
             ZI_WORK->unk_0x539++;
         } else {
             slot = ZI_WORK->unk_0x53A[0];
-            position = slot;
             for (index = 1; index < ZI_WORK->unk_0x539; index++) {
                 ZI_WORK->unk_0x53A[index - 1] = ZI_WORK->unk_0x53A[index];
             }
@@ -703,16 +694,15 @@ ziBool Zi8IsDupWordW(ziWChar* word, ziU8 length ZI_NEED_WORK) {
         }
     } else {
         slot = ZI_WORK->unk_0x53A[index];
-        position = slot;
         for (; index < ZI_WORK->unk_0x539 - 1; index++) {
             ZI_WORK->unk_0x53A[index] = ZI_WORK->unk_0x53A[index + 1];
         }
         ZI_WORK->unk_0x53A[index] = slot;
     }
-    for (index = 0; index < length; index++) {
-        ZI_WORK->unk_0x57A[position * 21 + index] = word[index];
+    for (character = 0; character < length; character++) {
+        ((ziWChar (*)[21])ZI_WORK->unk_0x57A)[slot][character] = word[character];
     }
-    ZI_WORK->unk_0x57A[position * 21 + index] = 0;
+    ((ziWChar (*)[21])ZI_WORK->unk_0x57A)[slot][character] = 0;
     Zi8LogError(100, ZI_WORK);
     return duplicate;
 }
