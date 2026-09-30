@@ -311,7 +311,7 @@ Zi8UInt Zi8SpellingPY(ziU16 *output,Zi8UInt key,ziU8 includeTone)
   return length;
 }
 
-ziU8 Zi8IsMatch1Key(ziU16 *input,Zi8UInt inputLength,Zi8UInt key,ziU8 requireFull,ziU8 usePinyin,Zi8UInt tone)
+ziU8 Zi8IsMatch1Key(ziU16 *input,Zi8UInt inputLength,Zi8UInt key,ziU8 requireFull,ziU8 usePinyin,ziU8 tone)
 {
   ziU16 spelling[16];
   Zi8UInt spellingLength;
@@ -330,7 +330,7 @@ ziU8 Zi8IsMatch1Key(ziU16 *input,Zi8UInt inputLength,Zi8UInt key,ziU8 requireFul
   if ((requireFull != 0) && ((inputLength & 0xff) != (spellingLength & 0xff))) {
     return 0;
   }
-  if (((tone & 0xff) == 0) && ((inputLength & 0xff) > (spellingLength & 0xff))) {
+  if ((tone == 0) && ((inputLength & 0xff) > (spellingLength & 0xff))) {
     switch (input[(inputLength & 0xff) - 1]) {
     case 0xeff1:
     case 0xeff2:
@@ -943,8 +943,7 @@ Zi8UInt Zi8Get1KeyPressSpelling(Zi8OneKeyParam *params,Zi8OneKeyOptions *options
                 *output |= 0xf300;
                 output++;
               } else {
-                *output = 0xf360;
-                output++;
+                *output++ = 0xf360;
               }
             }
             tableIndex++;

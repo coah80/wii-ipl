@@ -164,3 +164,75 @@ Final rejected variants (restored the committed higher score after each):
 Final retained alpha engine: 84.70755%, frame 0x2b0, 3978/3946 instructions. Every body region is present. Scalar slots remain four bytes below target; the original stores a workspace snapshot at stack 0x20 that is never loaded. Tried used generic snapshots and typed field views; they altered call or field register allocation and lowered the score. No unused snapshot or padding was introduced. Remaining structural differences include phonetic range-load reuse, result copies, punctuation/dictionary branches and cursor scheduling. Case conversion retains eight register swaps in 44/44 instructions, 99.09091%; multiple formal, selector, cursor and loop variants do not resolve them. Ten of twelve functions remain exact.
 
 Final full gate over both owned units: GATE PASS, full build ok, original DOL hash 26116613f624061ba99c8d1a299aaa6efa85670d, both pools identical, zero regressions, zero added forbidden patterns and zero readability warnings. zi81key exact functions 4/9 -> 5/9, exact code 2588 -> 3952 of 21460 bytes, exact data 1208/1388 unchanged, weighted fuzzy 96.5146% -> 97.1719%. zi8alpha exact functions 10/12 unchanged, exact code 5704/21664 and exact data 72/564 unchanged, weighted fuzzy 86.7764% -> 88.8508%. These are partial matching improvements; the remaining functions are not claimed exact.
+
+## Address-order continuation from 131d8f74, 2026-09-30
+
+Entry open functions, largest first: Zi8AlphaGetCandidates, 15784 bytes,
+84.70755%, 3978/3946 instructions; Zi8ChangeWordCase, 176 bytes, 99.09091%,
+44/44 instructions and eight register differences. Entry unit exact functions
+10/12, exact code 5704/21664, exact data 72/564, pool identical.
+
+Frame-first experiments, rejected and restored:
+
+- A typed workspace field view in scalar declaration order: 84.04105%,
+  3979/3946. It changes parameter allocation and does not recover the snapshot.
+- A generic helper workspace used for all helper calls: 83.70933%, 3990/3946.
+  Scalar offsets agree, but target register moves become stack loads.
+- A snapshot used once for duplicate-buffer initialization: 84.86721%,
+  3979/3946. Rejected despite the small score gain: its main effect is occupying
+  the target's unused workspace slot, without evidence for that source use.
+- Scoped phonetic-character local and nested range comparisons: 82.6779%,
+  3980/3946, introduces a frame pointer. Rejected.
+- Five-case phonetic separator switch: 84.68272%, 3979/3946. Its range dispatch
+  agrees structurally after accounting for the unresolved scalar offsets, but
+  register changes lower the whole-function score. Rejected for now.
+- Full-width table-count return with explicit halfword casts: 84.361885%,
+  3979/3946. It does not recover the missing call-result copies. Rejected.
+- A switch on the context table flag: 84.68221%, 3979/3946, extra branch.
+- Native signed-long scalar types: exactly the original 84.70755%, 3978/3946.
+
+Re-translated the punctuation dictionary and shared remembered/prefix append
+blocks at target 81467B08..81467C4C. The target tests the value of the wide
+character assignment, emits the nonzero case first, merges both history scans
+before appending, and increments the append index before storing word length.
+Retained these complete blocks: 85.41105%, 3980/3946, frame 0x2b0. Quick gate
+PASS, identical pool, zero regressions, zero forbidden/style patterns.
+
+Case-conversion register-only trials: byte-address workspace, unsigned-long
+selector, renamed selector, renamed workspace and renamed word each retain
+44/44 instructions and the same eight r29/r30 differences. A const byte
+workspace conflicts with the helper's writable generic argument. All rejected;
+the original readable case-conversion function remains.
+
+The earliest engine obstacle is still the target's dead workspace store at
+stack 0x20. No unused local or artificial stack placeholder was retained.
+Later differences include call-result copies, signed comparisons, dispatches
+and output cursor scheduling. This engine is not registers-only or exact.
+
+Further block audit in this run:
+
+- Recovered Zi8MatchUWDdata's halfword current-word length formal from the
+  target's r6 narrowing at 81467A48. Removed the unsigned prefix-count
+  comparison, restored EFF1 as the lower punctuation bound, and reversed the
+  failed apostrophe branch to the target's retry-first form: 85.46452%,
+  3981/3946 instructions. Other functions unchanged.
+- Two contiguous next-dictionary switches: 85.34263%, 3978/3946; first switch
+  alone: 85.37557%, 3978/3946. Both reduce instruction count but lower the
+  whole score, so rejected.
+- Recovered signed length/count comparisons with operands in target order and
+  ordinary null-pointer comparison: 85.79067%, 3979/3946. Retained.
+- Retried the phonetic separator switch after these fixes: 85.829956%,
+  3980/3946. Retained. The range-dispatch instructions now agree from the
+  function entry through normalization, apart from the unresolved workspace
+  snapshot, scalar offsets and register choices. Missing call-result copies
+  and the safe early dictionary-index initialization remain distinct gaps.
+
+Final full gate over both units: GATE PASS. Full clean 43U build passes, DOL
+SHA1 26116613f624061ba99c8d1a299aaa6efa85670d, identical pools, zero
+regressions, zero forbidden patterns and zero readability warnings. Alpha
+remains 10/12 instruction-exact, code 5704/21664 and data 72/564; weighted
+fuzzy 88.850815% -> 89.66857%. Engine 84.70755% -> 85.829956%, 3980/3946
+instructions, frame 0x2b0; case conversion unchanged and registers-only.
+The requested exact-count improvement and complete retranslation are not
+achieved. The unresolved snapshot prevents instruction alignment at the top;
+no artificial snapshot was retained to bypass that obstacle.

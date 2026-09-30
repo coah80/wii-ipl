@@ -305,7 +305,7 @@ ziU8 Zi8LangSupported(ziU8 language, ziPtr work);
 ziU8 Zi8MatchOEMdata(ziWChar* elements, ziU8 count, ziU8 language, ziWChar* word, ziU16 capacity, ziU8 mode, ziU8 status, ziPtr work);
 ziU8 Zi8MatchPUDdata(ziWChar* elements, ziU8 count, ziU8 language, ziWChar* word, ziU16 capacity, ziU8 mode, ziU8 status, ziPtr work);
 ziU8 Zi8MatchROMdata(ziWChar* elements, ziU8 count, ziU8 language, ziWChar* word, ziU16 capacity, ziU8 mode, ziU8 status, ziBool reservedMode, ziBool exactLength, ziPtr work);
-ziU8 Zi8MatchUWDdata(ziWChar* elements, ziU8 count, ziWChar* currentWord, ziU8 currentLength, ziU8 language, ziWChar* word, ziU16 capacity, ziU8 mode, ziU8 status, ziPtr work);
+ziU8 Zi8MatchUWDdata(ziWChar* elements, ziU8 count, ziWChar* currentWord, ziU16 currentLength, ziU8 language, ziWChar* word, ziU16 capacity, ziU8 mode, ziU8 status, ziPtr work);
 void Zi8Memset(ziPtr destination, ziU32 value, ziU32 count);
 ziU16 Zi8WCharCount(ziWChar* word, ziPtr work);
 ziBool Zi8ZHCheckSpelling(ziWChar* word, ziWChar* elements, ziU8 count, ziPtr work);
@@ -414,7 +414,12 @@ int Zi8AlphaGetCandidates(ziGetParam* parameters, ziPtr optionData, ziPtr workDa
     phoneticInput = ZI8_TRUE;
     for (elementIndex = 0; elementIndex < elementCount; elementIndex++) {
       normalizedElements[elementIndex] = elements[elementIndex];
-      if ((int)elements[elementIndex] < 0xf336 && (int)elements[elementIndex] >= 0xf331) {
+      switch ((int)elements[elementIndex]) {
+      case 0xf331:
+      case 0xf332:
+      case 0xf333:
+      case 0xf334:
+      case 0xf335:
         phoneticSeparator = ZI8_TRUE;
         phoneticInput = ZI8_FALSE;
         if ((language == 0x7d) || ((language == 0x79 || (language == 0x7a)))) {
@@ -887,7 +892,7 @@ selectDictionary:
               if ((((matchMode == 0) && (currentVowelRestriction)) &&
                   ((2 < (int)elementCount &&
                    ((((ZiAlphaWork*)workData)->language == language &&
-                    ((unsigned int)((ZiAlphaWork*)workData)->prefixCount == elementCount - 1)))))) &&
+                    (((ZiAlphaWork*)workData)->prefixCount == elementCount - 1)))))) &&
                  (elements[elementCount - 1] == 0xeff1)) {
                 wordLength = 0;
               }
@@ -942,15 +947,15 @@ selectDictionary:
                 }
                 if (wordLength != 0) goto filterVowelCandidate;
                 dictionaryStatus[dictionaryKind] = 1;
-                if (elements[apostropheIndex] < 0xEFF1) goto finishDictionaryPass;
-                goto retryDictionary;
+                if (elements[apostropheIndex] >= 0xEFF1) goto retryDictionary;
+                goto finishDictionaryPass;
               }
 filterVowelCandidate:
               if ((wordLength != 0) && (prefixVowelRestriction)) {
                 if ((*wordCursor >= 0x30) && (*wordCursor <= 0x39)) {
                   wordLength = 0;
                 } else {
-                  if (((elementCount == 1) && (dictionaryKind != 10)) && (0xeff0 < *wordCursor)) {
+                  if (((elementCount == 1) && (dictionaryKind != 10)) && (*wordCursor >= 0xeff1)) {
                     punctuationCandidate = ZI8_TRUE;
                     goto finishDictionaryPass;
                   }
@@ -1017,60 +1022,52 @@ filterVowelCandidate:
               }
               break;
             case 10:
-              index = *punctuationCursor;
-              *wordCursor = index;
-              if (index == 0) {
+              if ((*wordCursor = *punctuationCursor) != 0) {
+                punctuationCursor++;
+                wordLength = 1;
+              } else {
                 wordLength = 0;
               }
-              else {
-                punctuationCursor = punctuationCursor + 1;
-                wordLength = 1;
+              break;
+            case 11:
+              if (prefixCount != 0) break;
+              if (retryPunctuation) {
+                for (index = 0; index < parameters->elementCount - 1; index++) {
+                  wordCursor[index] = ((ZiAlphaWork*)workData)->prefix[index];
+                  if (wordCursor[index] == 0) break;
+                }
+                if (index < parameters->elementCount - 1) {
+                  wordLength = 0;
+                  break;
+                }
+              } else {
+                for (index = 0; index < ((ZiAlphaWork*)workData)->rememberedCount; index++) {
+                  wordCursor[index] = ((ZiAlphaWork*)workData)->rememberedWord[index];
+                  if (wordCursor[index] == 0) break;
+                }
+                if (index < ((ZiAlphaWork*)workData)->rememberedCount) {
+                  wordLength = 0;
+                  break;
+                }
+              }
+              if ((wordCursor[index++] = *punctuationCursor) != 0) {
+                punctuationCursor++;
+                wordLength = index;
+              } else {
+                wordLength = 0;
               }
               break;
-            case 0xb:
-              if (prefixCount == 0) {
-                if (retryPunctuation) {
-                  for (index = 0;
-                      index < parameters->elementCount - 1; index++) {
-                    wordCursor[index] = ((ZiAlphaWork*)workData)->prefix[index];
-                    if (wordCursor[index] == 0) break;
-                  }
-                  if (index < (int)(parameters->elementCount - 1)) {
-                    wordLength = 0;
-                  }
-                  else {
-appendPunctuation:
-                    wordLength = index + 1;
-                    wordCursor[index] = *punctuationCursor;
-                    if (wordCursor[index] == 0) {
-                      wordLength = 0;
-                    }
-                    else {
-                      punctuationCursor = punctuationCursor + 1;
-                    }
-                  }
-                }
-                else {
-                  for (index = 0;
-                      index < ((ZiAlphaWork*)workData)->rememberedCount; index++) {
-                    wordCursor[index] = ((ZiAlphaWork*)workData)->rememberedWord[index];
-                    if (wordCursor[index] == 0) break;
-                  }
-                  if ((int)(unsigned int)((ZiAlphaWork*)workData)->rememberedCount <= index) goto appendPunctuation;
-                  wordLength = 0;
-                }
-              }
             }
             dictionaryStatus[dictionaryKind] = 1;
             if (wordLength == 0) {
               dictionaryStatus[dictionaryKind] = 2;
               if ((((((((ZiAlphaWork*)workData)->prefixEnabled != '\0') && (!retryPunctuation)) && (parameters->elementCount != 0)) &&
-                   (((int)(parameters->elementCount - 1) <= (int)(unsigned int)((ZiAlphaWork*)workData)->requiredLength &&
+                   ((((ZiAlphaWork*)workData)->requiredLength >= parameters->elementCount - 1 &&
                     (parameters->elements[parameters->elementCount - 1] == 0xEFF1)))) &&
                   (((((ZiAlphaWork*)workData)->prefixEnabled != '\x01' ||
                     (((ZiAlphaWork*)workData)->requiredLength != parameters->elementCount)) &&
                    (((((ZiAlphaWork*)workData)->prefixLength == '\0' ||
-                     ((unsigned int)parameters->elementCount <= ((ZiAlphaWork*)workData)->prefixLength + 1)) && (dictionaryExact != 0)))
+                     (((ZiAlphaWork*)workData)->prefixLength + 1 >= parameters->elementCount)) && (dictionaryExact != 0)))
                    ))) && ((((completionAllowed && (prefixCount == 0)) && (dictionaryKind != 0xb)) &&
                            ((((int)dictionaryIndex < (int)(unsigned int)((ZiAlphaWork*)workData)->dictionaryCount &&
                              (((ZiAlphaOptions*)optionData)->lookupMode == '\0')) &&
@@ -1089,10 +1086,10 @@ appendPunctuation:
               }
               if ((((((dictionaryExact == 0) || (!completionAllowed)) || (prefixCount != 0)) ||
                    ((dictionaryKind == 0xb ||
-                    ((int)(unsigned int)((ZiAlphaWork*)workData)->dictionaryCount <= (int)dictionaryIndex)))) ||
-                  (elements == (ziU16 *)0x0)) ||
+                    (dictionaryIndex >= ((ZiAlphaWork*)workData)->dictionaryCount)))) ||
+                  (elements == 0)) ||
                  ((((elementCount == 0 || (elements[elementCount - 1] != 0xeff1)) ||
-                   (((unsigned int)((ZiAlphaWork*)workData)->rememberedCount != parameters->elementCount - 1 ||
+                   ((((ZiAlphaWork*)workData)->rememberedCount != parameters->elementCount - 1 ||
                     (((((ZiAlphaWork*)workData)->rememberedWord[0] == 0 || (((ZiAlphaOptions*)optionData)->lookupMode != '\0')) ||
                      (((ZiAlphaWork*)workData)->dictionaries[language] != 0)))))) ||
                   (languagePassCount == 2)))) break;

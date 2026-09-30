@@ -179,3 +179,74 @@ Final rejected variants (restored the committed higher score after each):
 Final retained scores: alternate sound 100%, ZY 99.756096%, PY 97.54777%, spelling 97.867645%, candidates 95.355446%. All large bodies are complete. ZY retains six table-address register differences; PY retains a register-held tone rather than the target halfword stack slot; spelling retains helper-result copies and output-cursor scheduling differences; candidates retain helper-result copies, matcher argument narrowing and counter/output scheduling. Each remaining function has more than three distinct source-level attempts recorded. Five of nine functions are instruction-exact.
 
 Final full gate over both owned units: GATE PASS, full build ok, original DOL hash 26116613f624061ba99c8d1a299aaa6efa85670d, both pools identical, zero regressions, zero added forbidden patterns and zero readability warnings. zi81key exact functions 4/9 -> 5/9, exact code 2588 -> 3952 of 21460 bytes, exact data 1208/1388 unchanged, weighted fuzzy 96.5146% -> 97.1719%. zi8alpha exact functions 10/12 unchanged, exact code 5704/21664 and exact data 72/564 unchanged, weighted fuzzy 86.7764% -> 88.8508%. These are partial matching improvements; the remaining functions are not claimed exact.
+
+## Address-order continuation from 131d8f74, 2026-09-30
+
+Entry open functions, largest first:
+
+- Zi8Get1KeyPressCandidates: 9588 bytes, 95.355446%, 2386/2397 instructions.
+- Zi8Get1KeyPressSpelling: 6800 bytes, 97.867645%, 1700/1700 instructions.
+- Zi8SpellingPY: 628 bytes, 97.54777%, 158/157 instructions.
+- Zi8SpellingZY: 492 bytes, 99.756096%, 123/123 and six register differences.
+
+Entry unit: 5/9 instruction-exact, exact code 3952/21460, data 1208/1388.
+The two large frames already agree, 0x140 and 0x90 respectively. Pools are
+identical. All rejected variants below were restored before final validation.
+
+Candidate call and output audit:
+
+1. Recovered the byte sixth argument of Zi8IsMatch1Key from the target's literal
+   argument narrowing. The initial formal change alone added a redundant byte
+   normalization in the matcher. Replaced its masked zero test with the typed
+   byte zero test: matcher again 97/97, diffs 0, objdiff 100%. Candidates improve
+   to 95.39716%, 2387/2397. Retained; quick gate PASS, zero regressions.
+2. Halfword key and byte length matcher formals with ordinary typed uses:
+   matcher stays exact, candidates 95.26784%, 2398/2397. Halfword key alone gives
+   the same result. Rejected; byte sixth argument remains.
+3. Explicit halfword casts of nested Zi8GetPCode results: unchanged 95.39716%.
+   Explicit halfword masks: 94.456406%, 2391/2397. Rejected.
+4. Preincrement total count inside OEM/PUD/phrase capacity comparisons:
+   95.106384%, 2384/2397. Removes target-redundant reloads but perturbs other
+   call-result copies; rejected.
+5. Byte duplicate-bit result and return in Zi8SetFindCand: helper remains
+   50/50, diffs 0, 100%; candidates 94.73383%, 2395/2397. Explicit byte casts at
+   the callers produce the same candidate code. Rejected in favor of the
+   higher candidate score; original helper remains exact and unchanged.
+
+Spelling call and cursor audit:
+
+1. Postincrement compound store for non-apostrophe conversion: 96.723526%,
+   1697/1700. The target pointer scheduling is closer, but new helper copies
+   and register differences lower the score. Rejected.
+2. Constant-first language-support comparisons: unchanged 97.867645%,
+   1700/1700, with the same two missing fallback-call result copies.
+3. Put the converted-candidate index increment in the for header: 97.75%,
+   1700/1700, eight structural groups instead of six. Rejected.
+4. Explicit converted-character OR assignment: unchanged 97.867645%.
+5. Postincrement only the apostrophe replacement, as at 814620C8..814620D4:
+   97.92647%, 1699/1700, five structural groups. Retained. The remaining gaps
+   are fallback-call copies and non-apostrophe cursor scheduling.
+
+ZY register-only attempts: flattened row indexing 125/123, rejected;
+row pointer dereference 123/123 and the same six register differences; generic
+output formal 123/123 with 115 differences, rejected. Full-width initial/final
+indices with explicit halfword normalization separately and together each
+retain 99.756096%, 123/123 and the same six table-address register differences.
+No variant was retained.
+
+PY attempts: initialize length before decoded components, 97.038216%, 158/157;
+signed tone, 94.55414%, 158/157; decode tone after spelling rows, 94.968155%,
+158/157; for-loop scans, unchanged 97.54777%, 158/157. No variant recovers the
+original halfword tone slot at stack 0x8 without a register-backed tone.
+No artificial tone-storage object or volatile qualifier was introduced.
+
+All four open functions have at least three distinct measured source-level
+attempts in this run. Only ZY is registers-only. No new exact function is
+claimed; both units remain NonMatching. The existing complete function bodies
+remain present, and no shared header or other unit was edited.
+
+Final full gate over both units: GATE PASS. Full clean 43U build passes, DOL
+SHA1 26116613f624061ba99c8d1a299aaa6efa85670d, both pools identical, zero
+regressions, zero forbidden patterns and zero readability warnings. One-key
+unit remains 5/9 instruction-exact, code 3952/21460 and data 1208/1388;
+weighted fuzzy 97.17185% -> 97.20914%. Exact-count completion is not achieved.
