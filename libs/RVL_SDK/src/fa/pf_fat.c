@@ -358,8 +358,8 @@ s32 PFFAT_FindClusterLink(PFFAT_FFD* file, u32 chainIndex, u32* cluster,
     u32 nextCluster;
     s32 error;
 
-    *found = 0;
     nextCluster = -1;
+    *found = 0;
     if (file->cluster_link.position == 0) {
         return 0;
     }
@@ -388,6 +388,7 @@ s32 PFFAT_FindClusterLink(PFFAT_FFD* file, u32 chainIndex, u32* cluster,
                                                   &nextCluster);
                     break;
                 default:
+                    nextCluster = -1;
                     error = 15;
                     break;
                 }
@@ -486,6 +487,7 @@ s32 PFFAT_ReadCluster(PFFAT_FFD* file, u32 cluster, u32 chainIndex,
                       u32* nextCluster, u32* checkClusterLink)
 {
     s32 error;
+    u32 value;
 
     *nextCluster = -1;
     if (file->cluster_link.buffer != 0 && *checkClusterLink == 1) {
@@ -515,28 +517,29 @@ s32 PFFAT_ReadCluster(PFFAT_FFD* file, u32 cluster, u32 chainIndex,
         if (error != 0) {
             return error;
         }
-        if (*nextCluster == 0) {
+        value = *nextCluster;
+        if (value == 0) {
             return 13;
         }
-        if (*nextCluster == -1) {
+        if (value == -1) {
             return 6;
         }
-    }
-    if (file->cluster_link.buffer != 0 &&
-        *nextCluster != fat_special_values[file->p_vol->bpb.fat_type].eoc2) {
+        if (file->cluster_link.buffer != 0 &&
+        value != fat_special_values[file->p_vol->bpb.fat_type].eoc2) {
         if (file->cluster_link.max_count > file->cluster_link.position &&
             file->cluster_link.max_count != 0) {
             if (chainIndex == file->cluster_link.position *
                                   (file->cluster_link.interval + 1)) {
                 file->cluster_link.interval_offset = 0;
                 file->cluster_link.buffer[file->cluster_link.position] =
-                    *nextCluster;
+                    value;
                 file->cluster_link.position++;
             } else {
                 file->cluster_link.interval_offset++;
             }
             file->cluster_link.save_index = chainIndex;
         }
+    }
     }
     return 0;
 }
@@ -546,6 +549,7 @@ s32 PFFAT_ReadClusterWithBuf(PFFAT_FFD* file, u32 cluster, u32 chainIndex,
                              PF_CACHE_PAGE* page)
 {
     s32 error;
+    u32 value;
 
     *nextCluster = -1;
     if (file->cluster_link.buffer != 0 && *checkClusterLink == 1) {
@@ -576,28 +580,29 @@ s32 PFFAT_ReadClusterWithBuf(PFFAT_FFD* file, u32 cluster, u32 chainIndex,
         if (error != 0) {
             return error;
         }
-        if (*nextCluster == 0) {
+        value = *nextCluster;
+        if (value == 0) {
             return 13;
         }
-        if (*nextCluster == -1) {
+        if (value == -1) {
             return 6;
         }
-    }
-    if (file->cluster_link.buffer != 0 &&
-        *nextCluster != fat_special_values[file->p_vol->bpb.fat_type].eoc2) {
+        if (file->cluster_link.buffer != 0 &&
+        value != fat_special_values[file->p_vol->bpb.fat_type].eoc2) {
         if (file->cluster_link.max_count > file->cluster_link.position &&
             file->cluster_link.max_count != 0) {
             if (chainIndex == file->cluster_link.position *
                                   (file->cluster_link.interval + 1)) {
                 file->cluster_link.interval_offset = 0;
                 file->cluster_link.buffer[file->cluster_link.position] =
-                    *nextCluster;
+                    value;
                 file->cluster_link.position++;
             } else {
                 file->cluster_link.interval_offset++;
             }
             file->cluster_link.save_index = chainIndex;
         }
+    }
     }
     return 0;
 }
@@ -608,6 +613,7 @@ s32 PFFAT_WriteCluster(PFFAT_FFD* file, u32 cluster, u32 chainIndex,
     u32 accessCluster;
     u32 position;
     u32 divisor;
+    u32* linkBuffer;
     u32 precedingIndex;
     s32 error;
 
@@ -641,14 +647,15 @@ s32 PFFAT_WriteCluster(PFFAT_FFD* file, u32 cluster, u32 chainIndex,
     if (error != 0) {
         return error;
     }
-    if (file->cluster_link.buffer != 0 && useClusterLink == 1) {
+    linkBuffer = file->cluster_link.buffer;
+    if (linkBuffer != 0 && useClusterLink == 1) {
         if (nextCluster == 0) {
             divisor = file->cluster_link.interval + 1;
             position = chainIndex / divisor;
 
             if (file->cluster_link.max_count >= position) {
                 if (chainIndex % divisor == 0) {
-                    file->cluster_link.buffer[position] = 0;
+                    linkBuffer[position] = 0;
                 }
                 if (file->cluster_link.save_index >= chainIndex) {
                     precedingIndex = chainIndex - 1;
@@ -694,6 +701,7 @@ s32 PFFAT_WriteClusterWithBuf(PFFAT_FFD* file, u32 cluster, u32 chainIndex,
     u32 accessCluster;
     u32 position;
     u32 divisor;
+    u32* linkBuffer;
     u32 precedingIndex;
     s32 error;
 
@@ -729,14 +737,15 @@ s32 PFFAT_WriteClusterWithBuf(PFFAT_FFD* file, u32 cluster, u32 chainIndex,
     if (error != 0) {
         return error;
     }
-    if (file->cluster_link.buffer != 0 && useClusterLink == 1) {
+    linkBuffer = file->cluster_link.buffer;
+    if (linkBuffer != 0 && useClusterLink == 1) {
         if (nextCluster == 0) {
             divisor = file->cluster_link.interval + 1;
             position = chainIndex / divisor;
 
             if (file->cluster_link.max_count >= position) {
                 if (chainIndex % divisor == 0) {
-                    file->cluster_link.buffer[position] = 0;
+                    linkBuffer[position] = 0;
                 }
                 if (file->cluster_link.save_index >= chainIndex) {
                     precedingIndex = chainIndex - 1;
@@ -1108,14 +1117,25 @@ s32 PFFAT_GetClusterAllocatedInChain(PFFAT_FFD* file, u32 initialCluster,
     return 0;
 }
 
+static inline s32 find_cluster_in_chain(PFFAT_FFD* file, u32 index, u32 mode, u32 count, u32 useFirst, u32* cluster) {
+    u32 firstCluster;
+    u32 lastCluster;
+    u32 candidate;
+    s32 error = PFFAT_GetClusterInChain(file, index, mode, count, &firstCluster, &lastCluster);
+    if (error != 0) { return error; }
+    candidate = useFirst ? firstCluster : lastCluster;
+    if (candidate >= 2 && candidate < file->p_vol->bpb.num_clusters + 2) { *cluster = candidate; }
+    return 0;
+}
+
 s32 PFFAT_GetClusterSpecified(PFFAT_FFD* file, u32 chainIndex,
                               u32 mayAllocate, u32* cluster)
 {
     PFFAT_HINT* hint;
     u32 fatType;
     u32 found;
-    u32 locateEnd;
     u32 locateStart;
+    u32 locateEnd;
     s32 error;
 
     fatType = file->p_vol->bpb.fat_type;
@@ -1144,20 +1164,7 @@ s32 PFFAT_GetClusterSpecified(PFFAT_FFD* file, u32 chainIndex,
         }
     }
     *cluster = -1;
-    error = PFFAT_GetClusterInChain(file, chainIndex, mayAllocate != 0, 0,
-                                    &locateStart, &locateEnd);
-    if (error == 0) {
-        goto cluster_lookup_succeeded;
-    }
-    goto cluster_lookup_complete;
-
-cluster_lookup_succeeded:
-    if (locateEnd >= 2 && locateEnd < file->p_vol->bpb.num_clusters + 2) {
-        *cluster = locateEnd;
-    }
-    error = 0;
-
-cluster_lookup_complete:
+    error = find_cluster_in_chain(file, chainIndex, mayAllocate != 0, 0, 0, cluster);
     if (error != 0) {
         return error;
     }
@@ -1173,10 +1180,10 @@ cluster_lookup_complete:
 s32 PFFAT_GetClusterAllocated(PFFAT_FFD* file, u32 chainIndex,
                               u32 numClusters, u32* cluster)
 {
-    u32 fatType;
     PFFAT_HINT* hint;
-    u32 locateEnd;
+    u32 fatType;
     u32 locateStart;
+    u32 locateEnd;
     s32 error;
 
     fatType = file->p_vol->bpb.fat_type;
@@ -1189,15 +1196,7 @@ s32 PFFAT_GetClusterAllocated(PFFAT_FFD* file, u32 chainIndex,
         *file->p_start_cluster = file->p_vol->bpb.root_dir_cluster;
     }
     *cluster = -1;
-    error = PFFAT_GetClusterInChain(file, chainIndex, 2, numClusters,
-                                    &locateStart, &locateEnd);
-    if (error == 0) {
-        if (locateStart >= 2 &&
-            locateStart < file->p_vol->bpb.num_clusters + 2) {
-            *cluster = locateStart;
-        }
-        error = 0;
-    }
+    error = find_cluster_in_chain(file, chainIndex, 2, numClusters, 1, cluster);
     if (error != 0) {
         return error;
     }
@@ -1225,17 +1224,18 @@ s32 PFFAT_GetSector(PFFAT_FFD* file, u32 fileSectorIndex, u32 mode,
                     u32 size, u32* sector)
 {
     PF_VOLUME* volume;
+    u32 fatType;
     u32 chainIndex;
     u32 cluster;
-    u32 numDivide;
     u32 numRemainder;
-    u32 numSectors;
+    u32 numDivide;
     u32 numClusters;
+    u32 numSectors;
     s32 error;
 
     volume = file->p_vol;
-    if (*file->p_start_cluster == 1 &&
-        (u32)volume->bpb.fat_type <= FAT_16) {
+    fatType = volume->bpb.fat_type;
+    if (*file->p_start_cluster == 1 && fatType <= FAT_16) {
         error = PFFAT_GetSectorInRootDirRegion(volume, fileSectorIndex, sector);
         if (error != 0) {
             return error;
@@ -1244,13 +1244,12 @@ s32 PFFAT_GetSector(PFFAT_FFD* file, u32 fileSectorIndex, u32 mode,
     }
     chainIndex = fileSectorIndex >> volume->bpb.log2_sectors_per_cluster;
     if (mode == 2) {
-        numDivide = size / volume->bpb.bytes_per_sector;
-        numRemainder = (size % volume->bpb.bytes_per_sector) != 0;
-        numSectors = numDivide + numRemainder;
+        numSectors = (size / volume->bpb.bytes_per_sector) +
+                     ((size % volume->bpb.bytes_per_sector) != 0);
         numDivide = numSectors / volume->bpb.sectors_per_cluster;
         numRemainder =
             (numSectors % volume->bpb.sectors_per_cluster) != 0;
-        numClusters = numDivide + numRemainder;
+        numClusters = numRemainder + numDivide;
         error = PFFAT_GetClusterAllocated(file, chainIndex, numClusters,
                                           &cluster);
         if (error != 0) {
@@ -1375,7 +1374,8 @@ s32 PFFAT_CountAllocatedClusters(PFFAT_FFD* file, u32 size,
         *numAllocatedClusters = file->p_hint->chain_index;
         cluster = file->p_hint->cluster;
         chainIndex = file->p_hint->chain_index + 1;
-        size -= file->p_hint->chain_index * bytesPerCluster;
+        size -= file->p_hint->chain_index *
+                (file->p_vol->bpb.bytes_per_sector * file->p_vol->bpb.sectors_per_cluster);
     } else {
         cluster = *file->p_start_cluster;
         chainIndex = 1;
@@ -1520,9 +1520,9 @@ s32 PFFAT_FreeChain(PFFAT_FFD* file, u32 startCluster, u32 chainIndex,
         }
         if (nextCluster == 0) {
             s32 firstFlushError;
-            u32 fatSector;
-            u16 fatIndex;
             PF_CACHE_PAGE* flushPage;
+            u16 fatIndex;
+            u32 fatSector;
 
             firstFlushError = 0;
             flushPage = page;
@@ -1857,7 +1857,8 @@ s32 PFFAT_RefreshFSINFO(PF_VOLUME* volume)
     if ((volume->fsi_flag & 4) != 0) {
         error = PFCACHE_AllocateDataPage(volume, -1, &page,
                                          &alreadyAllocated);
-        if (error == 0) {
+        if (error != 0) { goto finished; }
+        {
             error = PFSEC_ReadData(
                 volume, page->p_buf, volume->bpb.fs_info_sector, 0,
                 volume->bpb.bytes_per_sector, &completedBytes, 0);
@@ -1896,6 +1897,7 @@ s32 PFFAT_RefreshFSINFO(PF_VOLUME* volume)
             PFCACHE_FreeDataPage(volume, page);
         }
     }
+finished:
     return error;
 }
 
