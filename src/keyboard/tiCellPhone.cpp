@@ -1,3 +1,5 @@
+#define TI_CELLPHONE_MATCH_LAYOUT
+#define TI_CELLPHONE_HKB_KEYSET
 #define TI_CELLPHONE_IMPLEMENTATION
 #define TI_CELLPHONE_SAMPLE_CLASS
 #define MYTIMANAGER_IMPLEMENTATION
@@ -231,164 +233,136 @@ namespace textinput {
 
             void Base::calc() {}
 
+            static inline const PaneNameToCharCode* findKeyForPane(const PaneNameToCharCode* keys, const char* paneName) {
+                for (u16 index = 0; index < 12; index++) {
+                    if (util::strcmp(keys[index].szPaneName, paneName)) { return &keys[index]; }
+                }
+                return NULL;
+            }
+
             void Base::onKey(u32 event, void* data) {
-                struct KeyEvent {
-                    const char* paneName;
-                    u8 state;
+                struct KeyEvent { const char* paneName; u8 state; };
+                struct ConfirmInput {
+                    wchar_t character;
+                    u16 letterMode;
+                    bool direct;
+                    bool held;
+                    bool confirmOnly;
+                    bool silent;
+                    const PaneNameToCharCode* holdingKey;
                 };
-
-                struct KeyInputData {
-                    u16 character;
-                    u16 inputMode;
-                    u32 state;
-                    const PaneNameToCharCode* pane;
-                };
-
-                const KeyEvent& keyEvent = *static_cast<const KeyEvent*>(data);
-
-                if (!mbInputModeLocked && event == gui::EventHandler::ON_TRIG) {
-                    u32 controlKey;
-                    u16 i;
-                    for (i = 0; i < 12; ++i) {
-                        if (util::strcmp(csPaneNameToControlKey[i].name, keyEvent.paneName)) {
-                            controlKey = csPaneNameToControlKey[i].controlKey;
-                            goto controlKeyFound;
+                if (mbInputModeLocked) { return; }
+                const char* paneName = static_cast<KeyEvent*>(data)->paneName;
+                if (event == gui::EventHandler::ON_TRIG) {
+                    u8 state = static_cast<KeyEvent*>(data)->state;
+                    s32 controlKey = 0x1B;
+                    for (u16 index = 0; index < 12; index++) {
+                        if (util::strcmp(csPaneNameToControlKey[index].name, paneName)) {
+                            controlKey = csPaneNameToControlKey[index].controlKey;
+                            break;
                         }
                     }
-                    controlKey = 0x1B;
-
-                controlKeyFound:
                     if (controlKey != 0x1B) {
                         onCtrlKey_(static_cast<VKeyCode>(controlKey));
-                    } else {
-                        bool useKeySetInput = isZiActive();
-                        if (!useKeySetInput) {
-                            Language language = getLanguage();
-                            if (language == CN) {
-                                useKeySetInput = true;
-                            } else if (getLanguage() == KR && mHoldingButton != 0) {
-                                useKeySetInput = true;
-                            } else if (getInputType() == 1) {
-                                useKeySetInput = true;
+                    } else if (!isZiActive() || getLanguage() == CN ||
+                        (getLanguage() == KR && mCurrentInputMode != 0) || getInputType() == 1) {
+                        LanguageDependencyData* inputModeTable = static_cast<LanguageDependencyData*>(mpInputModeTable);
+                        if (mHoldingButton == NULL) {
+                            u32 inputMode = mCurrentInputMode;
+                            if (getLanguage() == JP && inputMode == IM_02) {
+                                if (!mbUpperCaseMode) { inputMode = IM_04; }
+                            } else if (inputModeTable->keySets[inputMode]->uType == KEY_TYPE_ABC_UPPER && !mbUpperCaseMode) {
+                                inputMode = IM_01;
+                            }
+                            const PaneNameToCharCode* keys = inputModeTable->keySets[inputMode]->pPaneNameToCharCode;
+                            mHoldingButton = findKeyForPane(keys, paneName);
+                            if (state) {
+                                mPreviousInputMode = 15;
+                                while (mHoldingButton->wc[mPreviousInputMode] == 0) { mPreviousInputMode--; }
+                            } else { mPreviousInputMode = 0; }
+                        } else {
+                            if (state) { mPreviousInputMode--; }
+                            else { mPreviousInputMode++; }
+                            if (mPreviousInputMode == 16) { mPreviousInputMode = 0; }
+                            else if (static_cast<s32>(mPreviousInputMode) < 0) {
+                                mPreviousInputMode = 15;
+                                while (mHoldingButton->wc[mPreviousInputMode] == 0) { mPreviousInputMode--; }
+                            }
+                            if (mHoldingButton->wc[mPreviousInputMode] == 0) { mPreviousInputMode = 0; }
+                        }
+                        if (mHoldingButton) {
+                            ConfirmInput commandData = {0};
+                            commandData.character = mHoldingButton->wc[mPreviousInputMode];
+                            commandData.holdingKey = mHoldingButton;
+                            if (getInputType() == 1 && mHoldingButton->wc[1] != L'0' && mHoldingButton->wc[0] != L' ') {
+                                commandData.direct = true;
+                            }
+                            if (getLanguage() == KR && mCurrentInputMode != 0) { commandData.direct = true; }
+                            if (getLanguage() == CN && mCurrentInputMode != 0) { commandData.direct = true; }
+                            if (mHoldingButton->wc[1] == 0) {
+                                if (mbNumericWithDotMode && commandData.character == L'*') { commandData.character = L'.'; }
+                                sendCommand(5, &commandData);
+                                mPreviousInputMode = 0;
+                                mHoldingButton = NULL;
+                            } else {
+                                if (getLanguage() == JP && commandData.character == L' ' &&
+                                    getInputMode() != IM_04 && getInputMode() != IM_02) { commandData.character = 0x3000; }
+                                sendCommand(3, &commandData);
                             }
                         }
-
-                        if (useKeySetInput) {
-                            LanguageDependencyData* inputModeTable = static_cast<LanguageDependencyData*>(mpInputModeTable);
-                            const KeySet* keySet = inputModeTable->keySets[mCurrentInputMode];
-
-                            if (mHoldingButton == 0) {
-                                if (getLanguage() == JP && mCurrentInputMode == IM_02 && !mbUpperCaseMode) {
-                                    mCurrentInputMode = IM_04;
-                                } else if (keySet->uType == KEY_TYPE_ABC_UPPER && !mbUpperCaseMode) {
-                                    mCurrentInputMode = IM_01;
-                                }
-
-                                keySet = inputModeTable->keySets[mCurrentInputMode];
-                                for (u16 i = 0; i < 12; ++i) {
-                                    if (util::strcmp(keySet->pPaneNameToCharCode[i].szPaneName, keyEvent.paneName)) {
-                                        mHoldingButton = &keySet->pPaneNameToCharCode[i];
-                                        break;
-                                    }
-                                }
-
-                                const PaneNameToCharCode* pane = mHoldingButton;
-                                if (keyEvent.state) {
-                                    mPreviousInputMode = 15;
-                                    while (pane && pane->wc[mPreviousInputMode] == 0) {
-                                        --mPreviousInputMode;
-                                    }
+                    } else {
+                        const PaneNameToCharCode* keys = csKeySetNumber.pPaneNameToCharCode;
+                        for (u16 index = 0; index < 12; index++) {
+                            const PaneNameToCharCode* pane = &keys[index];
+                            if (util::strcmp(pane->szPaneName, paneName)) {
+                                wchar_t character = pane->wc[0];
+                                ConfirmInput commandData = {0};
+                                commandData.character = character;
+                                commandData.letterMode = mCurrentInputMode;
+                                commandData.holdingKey = mHoldingButton;
+                                bool convertSpace = false;
+                                sendCommand(0x20, &convertSpace);
+                                if (character == L'0' && getLanguage() != KR) {
+                                    if (convertSpace) { sendCommand(6, NULL); }
+                                    ConfirmInput spaceInput = {L' ', 0, true, false, true, false, NULL};
+                                    spaceInput.letterMode = mCurrentInputMode;
+                                    spaceInput.holdingKey = mHoldingButton;
+                                    sendCommand(5, &spaceInput);
+                                    mPreviousInputMode = 0;
+                                    mHoldingButton = NULL;
                                 } else {
-                                    mPreviousInputMode = 0;
-                                }
-                            } else if (keyEvent.state) {
-                                --mPreviousInputMode;
-                                if (static_cast<s32>(mPreviousInputMode) < 0) {
-                                    mPreviousInputMode = 15;
-                                    const PaneNameToCharCode* pane = mHoldingButton;
-                                    while (pane->wc[mPreviousInputMode] == 0) {
-                                        --mPreviousInputMode;
+                                    const LanguageDependencyData* table = static_cast<const LanguageDependencyData*>(mpInputModeTable);
+                                    const PaneNameToCharCode* currentKeys = table->keySets[mCurrentInputMode]->pPaneNameToCharCode;
+                                    commandData.holdingKey = findKeyForPane(currentKeys, paneName);
+                                    if (table->keySets[mCurrentInputMode]->uType == KEY_TYPE_ABC_UPPER && !mbAbcMode) {
+                                        commandData.letterMode = IM_01;
+                                        currentKeys = table->keySets[IM_01]->pPaneNameToCharCode;
+                                        commandData.holdingKey = findKeyForPane(currentKeys, paneName);
                                     }
-                                }
-                            } else {
-                                ++mPreviousInputMode;
-                                if (mPreviousInputMode == 16) {
-                                    mPreviousInputMode = 0;
-                                }
-                            }
-
-                            const PaneNameToCharCode* pane = mHoldingButton;
-                            if (pane && pane->wc[mPreviousInputMode] == 0) {
-                                mPreviousInputMode = 0;
-                            }
-
-                            if (pane) {
-                                KeyInputData commandData = {0, 0, 0, NULL};
-                                commandData.character = pane->wc[mPreviousInputMode];
-                                commandData.inputMode = mCurrentInputMode;
-                                commandData.pane = pane;
-
-                                keySet = inputModeTable->keySets[mCurrentInputMode];
-                                if (getInputType() == 1 && pane->wc[1] != 0x30 && pane->wc[0] != 0x20) {
-                                    commandData.state = 1;
-                                }
-                                if (getLanguage() == KR && mCurrentInputMode != 0) {
-                                    commandData.state = 1;
-                                }
-                                if (getLanguage() == CN && mCurrentInputMode != 0) {
-                                    commandData.state = 1;
-                                }
-
-                                if (keySet->uNum == 0) {
-                                    if (mbNumericWithDotMode && commandData.character == 0x2A) {
-                                        commandData.character = 0x2E;
-                                    }
+                                    commandData.character = convertToZiCellphoneInput_(commandData.character);
                                     sendCommand(5, &commandData);
-                                    mPreviousInputMode = 0;
-                                    mHoldingButton = 0;
-                                } else {
-                                    if (!isZiActive() && commandData.character == 0x20 &&
-                                        getInputMode() != IM_04 && getInputMode() != IM_02) {
-                                        commandData.character = 0x3000;
-                                    }
-                                    sendCommand(3, &commandData);
-                                }
-                            }
-                        } else {
-                            const KeySet& numberKeySet = csKeySetNumber;
-                            for (u16 i = 0; i < 12; ++i) {
-                                const PaneNameToCharCode& pane = numberKeySet.pPaneNameToCharCode[i];
-                                if (util::strcmp(pane.szPaneName, keyEvent.paneName)) {
-                                    KeyInputData commandData = {pane.wc[0], static_cast<u16>(mCurrentInputMode), 0, NULL};
-                                    sendCommand(0x20, &commandData);
-
-                                    if (getLanguage() == KR && pane.wc[0] == 0x30) {
-                                        break;
-                                    }
-
-                                    if (mbNumericWithDotMode && commandData.character == 0x2A) {
-                                        commandData.character = 0x2E;
-                                    } else {
-                                        commandData.character = convertToZiCellphoneInput_(commandData.character);
-                                    }
-                                    sendCommand(5, &commandData);
-                                    break;
                                 }
                             }
                         }
                     }
                 }
-
-                if (event == gui::EventHandler::ON_LEFT && mHoldingButton != 0) {
-                    const PaneNameToCharCode* pane = mHoldingButton;
-                    if (util::strcmp(keyEvent.paneName, pane->szPaneName)) {
-                        u16 character = pane->wc[mPreviousInputMode];
+                if (event == gui::EventHandler::ON_LEFT && mHoldingButton != NULL) {
+                    if (util::strcmp(paneName, mHoldingButton->szPaneName)) {
+                        wchar_t character = mHoldingButton->wc[mPreviousInputMode];
                         if (character != 0x309B && character != 0x309C) {
-                            KeyInputData commandData = {character, static_cast<u16>(mCurrentInputMode), 0, pane};
+                            if (getLanguage() == JP && character == L' ' && getInputMode() != IM_04 && getInputMode() != IM_02) {
+                                character = 0x3000;
+                            }
+                            ConfirmInput commandData = {0, 0, false, false, true, false, NULL};
+                            commandData.character = character;
+                            commandData.holdingKey = mHoldingButton;
+                            if (getInputType() == 1) { commandData.direct = true; }
+                            if (getLanguage() == KR && mCurrentInputMode != 0) { commandData.direct = true; }
+                            if (getLanguage() == CN && mCurrentInputMode != 0) { commandData.direct = true; }
                             sendCommand(5, &commandData);
                         }
                         mPreviousInputMode = 0;
-                        mHoldingButton = 0;
+                        mHoldingButton = NULL;
                     }
                 }
             }
@@ -456,8 +430,6 @@ namespace textinput {
             bool Base::onClose() {}
 
             void Base::changeInputMode(InputMode mode) {
-                u8 activeData[4];
-                u8 inactiveData[4];
                 mCurrentInputMode = mode;
                 if (getLanguage()) {
                     mbUpperCaseMode = true;
@@ -469,12 +441,12 @@ namespace textinput {
                 }
 
                 if (mode == IM_00) {
-                    activeData[0] = 1;
-                    sendCommand(0x13, activeData);
+                    struct ActiveMode { bool enabled; } activeData = {true};
+                    sendCommand(0x13, &activeData);
                 }
                 if (mode == IM_01) {
-                    inactiveData[0] = 0;
-                    sendCommand(0x13, inactiveData);
+                    struct InactiveMode { bool enabled; } inactiveData = {false};
+                    sendCommand(0x13, &inactiveData);
                 }
 
                 updateFixMode();
@@ -550,18 +522,16 @@ namespace textinput {
 
             void Base::onActive() {
                 u32 commandData = 0;
-                u8 activeData[4];
-                u8 inactiveData[4];
                 sendCommand(0x12, &commandData);
 
                 if (mCurrentInputMode == IM_00) {
-                    activeData[0] = 1;
-                    sendCommand(0x13, activeData);
+                    struct ActiveMode { bool enabled; } activeData = {true};
+                    sendCommand(0x13, &activeData);
                 }
 
                 if (static_cast<s32>(mCurrentInputMode) == IM_01) {
-                    inactiveData[0] = 0;
-                    sendCommand(0x13, inactiveData);
+                    struct InactiveMode { bool enabled; } inactiveData = {false};
+                    sendCommand(0x13, &inactiveData);
                 }
 
                 if (mCurrentInputMode == IM_00) {
@@ -690,24 +660,21 @@ namespace textinput {
                 mpPaneManager->setAllBoundingBoxComponentTriggerTarget(true);
 
                 for (u16 i = 0; i < sizeof(csPaneNameNormalAnimationKey) / sizeof(csPaneNameNormalAnimationKey[0]); ++i) {
-                    const PaneNameToAnimationKey& paneName = csPaneNameNormalAnimationKey[i];
                     void* paneMemory = MEMAllocFromAllocator(allocator, sizeof(CellPhoneAnmPane));
-                    CellPhoneAnmPane* pane;
+                    CellPhoneAnmPane* pane = static_cast<CellPhoneAnmPane*>(paneMemory);
                     if (paneMemory) {
-                        pane = new (paneMemory) CellPhoneAnmPane(getPane(paneName.name), NULL);
-                        pane->init();
-                        pane->changeAnimation(pane->getAnimationState());
-                    } else {
-                        pane = NULL;
+                        pane = new (paneMemory) CellPhoneAnmPane(getPane(csPaneNameNormalAnimationKey[i].name), NULL);
                     }
                     nw4r::ut::List_Append(&mAnmPanes, pane);
+                    const PaneNameToAnimationKey& paneName = csPaneNameNormalAnimationKey[i];
+                    const char* animationKey = paneName.animationKey;
 
                     for (u16 j = 0; j < 5; ++j) {
                         const AnimationFileForControlKey& animation = csAninationFileForControlKey[j];
                         void* resource = mpMultiArcResourceAccessor->GetResource(0, animation.filename);
                         AnimTransformPane* transform = static_cast<AnimTransformPane*>(
                             getLayout()->CreateAnimTransform(resource, mpMultiArcResourceAccessor));
-                        if (paneName.animationKey) {
+                        if (animationKey) {
                             pane->forceAddAnimation(allocator, animation.animation, transform,
                                                     paneName.animationKey, false, true);
                         } else {
@@ -717,24 +684,21 @@ namespace textinput {
                 }
 
                 for (u16 i = 0; i < sizeof(csPaneNameToggleAnimationKey) / sizeof(csPaneNameToggleAnimationKey[0]); ++i) {
-                    const PaneNameToAnimationKey& paneName = csPaneNameToggleAnimationKey[i];
                     void* paneMemory = MEMAllocFromAllocator(allocator, sizeof(CellPhoneControlAnmPane));
-                    CellPhoneControlAnmPane* pane;
+                    CellPhoneControlAnmPane* pane = static_cast<CellPhoneControlAnmPane*>(paneMemory);
                     if (paneMemory) {
-                        pane = new (paneMemory) CellPhoneControlAnmPane(getPane(paneName.name), NULL);
-                        pane->init();
-                        pane->changeAnimation(pane->getAnimationState());
-                    } else {
-                        pane = NULL;
+                        pane = new (paneMemory) CellPhoneControlAnmPane(getPane(csPaneNameToggleAnimationKey[i].name), NULL);
                     }
                     nw4r::ut::List_Append(&mAnmPanes, pane);
+                    const PaneNameToAnimationKey& paneName = csPaneNameToggleAnimationKey[i];
+                    const char* animationKey = paneName.animationKey;
 
                     for (u16 j = 0; j < 6; ++j) {
                         const AnimationFileForControlKey& animation = csAninationFileForControlKey[j];
                         void* resource = mpMultiArcResourceAccessor->GetResource(0, animation.filename);
                         AnimTransformPane* transform = static_cast<AnimTransformPane*>(
                             getLayout()->CreateAnimTransform(resource, mpMultiArcResourceAccessor));
-                        if (paneName.animationKey) {
+                        if (animationKey) {
                             pane->forceAddAnimation(allocator, animation.animation, transform,
                                                     paneName.animationKey, false, true);
                         } else {
@@ -743,14 +707,12 @@ namespace textinput {
                     }
                 }
 
-                for (u32 i = 0; i < 3; ++i) {
-                    nw4r::lyt::Material* material = mpLayout->GetRootPane()->FindPaneByName(csTexturePaneNames.names[i], true)->GetMaterial();
-                    material->GetTexture(&mTextures[i], 0);
-                }
-
+                nw4r::lyt::Pane* rootPane = mpLayout->GetRootPane();
+                rootPane->FindPaneByName(csTexturePaneNames.names[0], true)->GetMaterial()->GetTexture(&mTextures[0], 0);
+                rootPane->FindPaneByName(csTexturePaneNames.names[1], true)->GetMaterial()->GetTexture(&mTextures[1], 0);
+                rootPane->FindPaneByName(csTexturePaneNames.names[2], true)->GetMaterial()->GetTexture(&mTextures[2], 0);
                 init();
-                onActive();
-                changeInputMode(static_cast<InputMode>(mCurrentInputMode));
+                setLanguage(getLanguage());
             }
 
             void LayoutByNW4R::init() {
@@ -778,14 +740,14 @@ namespace textinput {
                     strncpy(textPaneName, paneName, strlen(paneName));
                     textPaneName[0] = 'T';
 
-                    nw4r::lyt::Pane* textPane = getPane(textPaneName);
+                    nw4r::lyt::TextBox* textPane = static_cast<nw4r::lyt::TextBox*>(getPane(textPaneName));
                     nw4r::lyt::Pane* buttonPane = getPane(paneName);
                     const KeySet* keySet = static_cast<const LanguageDependencyData*>(mpInputModeTable)->keySets[i];
                     if (keySet == NULL) {
                         buttonPane->SetVisible(false);
                     } else {
                         buttonPane->SetVisible(true);
-                        static_cast<nw4r::lyt::TextBox*>(textPane)->SetString(keySet->szKeySetName, 0);
+                        textPane->SetString(static_cast<const LanguageDependencyData*>(mpInputModeTable)->keySets[i]->szKeySetName, 0);
                     }
                 }
 
@@ -807,7 +769,7 @@ namespace textinput {
                     setVisible(csNumericModePaneNames.spaceJapanese, true);
                     setVisible(csNumericModePaneNames.key09, true);
                     setVisible(csNumericModePaneNames.key11, false);
-                    setLineFeedButton(false);
+                    setPredictLanguageButton(false);
                 } else if (getLanguage() == KR) {
                     setVisible(csNumericModePaneNames.predictionEuropeanMode, true);
                     setVisible(csNumericModePaneNames.othersEuropean, true);
@@ -817,7 +779,7 @@ namespace textinput {
                     setVisible(csNumericModePaneNames.spaceJapanese, true);
                     setVisible(csNumericModePaneNames.key09, false);
                     setVisible(csNumericModePaneNames.key11, false);
-                    setLineFeedButton(false);
+                    setPredictLanguageButton(false);
                 } else {
                     setVisible(csNumericModePaneNames.predictionEuropeanMode, true);
                     setVisible(csNumericModePaneNames.othersEuropean, true);
@@ -836,7 +798,7 @@ namespace textinput {
                 sendCommand(0x1F, &predictMode);
                 updatePredictLanguage(&predictMode);
 
-                nw4rmanager::Layout::initPaneLastDrawReceived();
+                static_cast<nw4rmanager::Layout*>(this)->initPaneLastDrawReceived();
                 mpLayout->Animate(0);
                 mpLayout->CalculateMtx(mDrawInfo);
 
@@ -860,26 +822,24 @@ namespace textinput {
 
             void LayoutByNW4R::update() {}
 
+            static inline s32 findCellPhoneControlKey(const char* paneName) {
+                for (u16 index = 0; index < 12; ++index) {
+                    if (util::strcmp(csPaneNameToControlKey[index].name, paneName)) {
+                        return csPaneNameToControlKey[index].controlKey;
+                    }
+                }
+                return 0x1B;
+            }
+
             void LayoutByNW4R::onKey(u32 event, void* data) {
                 Base::onKey(event, data);
 
                 if (!mbInputModeLocked) {
                     s32 controlKey;
                     bool isTrigger = event == gui::EventHandler::ON_TRIG;
-                    u16 i;
                     const char* paneName = *static_cast<const char**>(data);
                     if (isTrigger) {
-                        i = 0;
-                        while (i < 12) {
-                            if (util::strcmp(csPaneNameToControlKey[i].name, paneName)) {
-                                controlKey = csPaneNameToControlKey[i].controlKey;
-                                goto controlKeyFound;
-                            }
-                            ++i;
-                        }
-                        controlKey = 0x1B;
-
-                    controlKeyFound:
+                        controlKey = findCellPhoneControlKey(paneName);
                         if (controlKey != 0x1B) {
                             switch (controlKey) {
                             case 9:
@@ -915,12 +875,11 @@ namespace textinput {
             void LayoutByNW4R::onActive() {
                 u32 commandData = 0;
                 u8 inactiveData[4];
-                u8 activeData[4];
                 sendCommand(0x12, &commandData);
 
                 if (static_cast<s32>(mCurrentInputMode) == IM_00) {
-                    activeData[0] = 1;
-                    sendCommand(0x13, activeData);
+                    struct ActiveMode { bool enabled; } activeData = {true};
+                    sendCommand(0x13, &activeData);
                 }
                 if (static_cast<s32>(mCurrentInputMode) == IM_01) {
                     inactiveData[0] = 0;
@@ -967,10 +926,12 @@ namespace textinput {
                     }
                 }
 
-                if (enabled) {
+                if (!enabled) { return; }
+                {
                     setVisible(csNumericModePaneNames.smallCandidateChange, !enabled);
                     setVisible(csNumericModePaneNames.key09, !enabled);
                     setVisible("P_CPkey_dakuten", !enabled);
+                    setVisible(csNumericModePaneNames.smallCandidateChange, !enabled);
                     setVisible(csNumericModePaneNames.predictionEuropeanMode, !enabled);
                     setVisible(csNumericModePaneNames.othersEuropean, !enabled);
                     setVisible(csNumericModePaneNames.spaceJapanese, !enabled);
@@ -1012,7 +973,8 @@ namespace textinput {
             void LayoutByNW4R::doNumericWithDotMode(bool enabled) {
                 doNumericMode(enabled);
                 setString("T_CPkey_11", L".");
-                setVisible(csNumericModePaneNames.key11, enabled);
+                const NumericModePaneNames& paneNames = csNumericModePaneNames;
+                setVisible(paneNames.key11, enabled);
                 mbNumericWithDotMode = true;
             }
 
@@ -1020,62 +982,58 @@ namespace textinput {
                 mbLineFeedButton = enabled;
                 setVisible("W_CPkey_LF", mbLineFeedButton);
             }
-
             bool LayoutByNW4R::updateInput(input::HKBManager& hkbManager) {
                 if (mpManager->getToolBar()->isEnableKeytopChange()) {
-                    const input::HKBManager::KeySet& keySet = hkbManager.GetTriggeredKeySet();
-                    if (keySet.IsValid()) {
+                    const input::HKBManager::KeySet& triggeredKey = hkbManager.GetTriggeredKeySet();
+                    if (triggeredKey.IsValid()) {
                         if (mHoldingButton) {
-                            u32 keyData[2] = {reinterpret_cast<u32>(mHoldingButton), 0};
-                            onKey(1, keyData);
+                            struct KeyEvent { const char* paneName; u32 state; } keyEvent = {NULL, 0};
+                            keyEvent.paneName = mHoldingButton->szPaneName;
+                            onKey(gui::EventHandler::ON_LEFT, &keyEvent);
                         }
-
                         changeAnimationAllToNormal();
                         mpManager->getToolBar()->setQwertyWithSE(true);
-                        if (mpManager->getPCKeyboard()->isABC()) {
-                            return false;
-                        }
-                        mpManager->getPCKeyboard()->setABC(true);
-                        return false;
+                        if (!mpManager->getPCKeyboard()->isABC()) { mpManager->getPCKeyboard()->setABC(true); }
                     }
-                    return false;
-                }
-
-                {
-                    input::HKBManager::KeySet triggeredKey(hkbManager.GetTriggeredKeySet());
-                    while (triggeredKey.IsValid()) {
-                        u32 key = triggeredKey.GetKey();
+                } else {
+                    input::HKBManager::KeySet keySet(hkbManager.GetTriggeredKeySet());
+                    while (keySet.IsValid()) {
                         nw4rmanager::AnmPane* pane = NULL;
-                        if (key == 0x58 || key == 0x28) {
-                            if (!(hkbManager.GetModifierState() & 4)) {
-                                pane = searchAnmPane("W_CPkey_LF");
-                            }
-                        } else {
-                            pane = searchAnmPane(triggeredKey.GetWChar());
+                        u8 key = keySet.GetKey();
+                        u32 character = keySet.GetWChar();
+                        switch (key) {
+                        case 0x58:
+                        case 0x28:
+                            if (!(hkbManager.GetModifierState() & 4)) { pane = searchAnmPane("W_CPkey_LF"); }
+                            break;
+                        default:
+                            pane = searchAnmPane(static_cast<wchar_t>(character));
+                            break;
                         }
-                        if (pane) {
-                            pane->onAnmEvent(nw4rmanager::AnmPane::PE_0);
-                        }
-                        triggeredKey = triggeredKey.GetNext();
+                        if (pane) { pane->onAnmEvent(nw4rmanager::AnmPane::PE_0); }
+                        keySet = keySet.GetNext();
                     }
-                }
-
-                {
-                    input::HKBManager::KeySet repeatedKey(hkbManager.GetRepeatedKeySet());
-                    while (repeatedKey.IsValid()) {
-                        u32 key = repeatedKey.GetKey();
+                    keySet = hkbManager.GetRepeatedKeySet();
+                    while (keySet.IsValid()) {
                         nw4rmanager::AnmPane* pane = NULL;
-                        if (key == 0x4C || (key == 0x2A && !(hkbManager.GetModifierState() & 4))) {
+                        u8 key = keySet.GetKey();
+                        keySet.GetWChar();
+                        switch (key) {
+                        case 0x2A:
+                            if (hkbManager.GetModifierState() & 4) { break; }
+                        case 0x4C:
                             pane = searchAnmPane("W_CPkey_DELETE");
+                            break;
+                        default:
+                            break;
                         }
-                        if (pane) {
-                            pane->onAnmEvent(nw4rmanager::AnmPane::PE_0);
-                        }
-                        repeatedKey = repeatedKey.GetNext();
+                        if (pane) { pane->onAnmEvent(nw4rmanager::AnmPane::PE_0); }
+                        keySet = keySet.GetNext();
                     }
                 }
                 return false;
             }
+
 
             void LayoutByNW4R::setPredictLanguageButton(bool enabled) {
                 setVisible(csNumericModePaneNames.predictionEuropeanMode, enabled);
@@ -1085,7 +1043,9 @@ namespace textinput {
                 if (!enabled) {
                     setVisible(csNumericModePaneNames.othersEuropean, enabled);
                     setVisible(csNumericModePaneNames.othersJapanese, enabled);
-                } else {
+                    return;
+                }
+                {
                     setVisible(csNumericModePaneNames.othersEuropean, false);
                     setVisible(csNumericModePaneNames.othersJapanese, false);
                     if (getLanguage() == JP) {
@@ -1176,7 +1136,6 @@ namespace textinput {
             }
 
             void LayoutByNW4R::changeInputMode(InputMode mode) {
-                u8 activeData[4];
                 u8 inactiveData[4];
                 mCurrentInputMode = mode;
                 if (getLanguage()) {
@@ -1189,8 +1148,8 @@ namespace textinput {
                 }
 
                 if (mode == IM_00) {
-                    activeData[0] = 1;
-                    sendCommand(0x13, activeData);
+                    struct ActiveMode { bool enabled; } activeData = {true};
+                    sendCommand(0x13, &activeData);
                 }
                 if (mode == IM_01) {
                     inactiveData[0] = 0;
@@ -1200,14 +1159,14 @@ namespace textinput {
                 updateFixMode();
                 sendCommand(0x29, NULL);
 
-                u32 keySetIndex = mode;
-                if (getLanguage() == JP) {
-                    if (static_cast<s32>(keySetIndex) == IM_02 && !mbUpperCaseMode) {
-                        keySetIndex = IM_04;
+                                if (getLanguage() == JP) {
+                    if (!mbUpperCaseMode && mode == IM_02) {
+                        mode = IM_04;
                     }
 
-                    switch (keySetIndex) {
+                    switch (mode) {
                     case IM_00:
+                    case IM_01:
                         setVisible(csNumericModePaneNames.smallCandidateChange, false);
                         setVisible(csNumericModePaneNames.key09, true);
                         setVisible(csNumericModePaneNames.spaceJapanese, true);
@@ -1234,8 +1193,9 @@ namespace textinput {
                 }
 
                 changeKeyTop(static_cast<const LanguageDependencyData*>(mpInputModeTable)
-                                 ->keySets[keySetIndex]->pPaneNameToCharCode);
-                nw4rmanager::Layout::initPaneLastDrawReceived();
+                                 ->keySets[mode]->pPaneNameToCharCode);
+                nw4rmanager::Layout* layout = this;
+                layout->initPaneLastDrawReceived();
             }
 
             void LayoutByNW4R::changeKeyTop(const PaneNameToCharCode* keys) {
@@ -1252,7 +1212,8 @@ namespace textinput {
             }
 
             void LayoutByNW4R::changeSpaceKeyTop(const PaneNameToCharCode* keys) {
-                if (getLanguage() != JP) {
+                if (getLanguage() == JP) { return; }
+                {
                     char textPaneName[17];
                     util::replaceChar(textPaneName, sizeof(textPaneName), keys[10].szPaneName, 0, 'T');
                     nw4r::lyt::Pane* pane = mpLayout->GetRootPane()->FindPaneByName(textPaneName, true);
@@ -1349,44 +1310,36 @@ namespace textinput {
                 mpSignWindow->open(static_cast<KeyboardBase*>(this), isNumericMode);
                 throwReleaseForAll();
             }
-
+            static inline bool isNormalCellPhoneKey(const char* paneName) {
+                for (int index = 0; index < 12; ++index) {
+                    if (util::strcmp(paneName, csPaneNameNormalKey[index])) { return true; }
+                }
+                return false;
+            }
             void EventHandler::onTiEvent(gui::PaneComponent* paneComponent, u32 event, Input* input) {
                 const char* paneName = paneComponent->getPane()->GetName();
                 if (paneName[0] == 'B') {
                     char animationName[17];
                     util::replaceChar(animationName, sizeof(animationName), paneName, 0, 'W');
                     CellPhoneAnmPane* animation = static_cast<CellPhoneAnmPane*>(mpLayoutByNW4R->searchAnmPane(animationName));
-                    if (animation != NULL) {
-                        switch (event) {
-                        case gui::EventHandler::ON_TRIG: {
-                            bool pressed = (input->field_0x0C & 0x1000) != 0;
-                            bool normalKey = false;
-                            if (!pressed && (input->field_0x0C & 0x800)) {
-                                for (u32 i = 0; i < 12; ++i) {
-                                    if (util::strcmp(paneName, csPaneNameNormalKey[i])) {
-                                        normalKey = true;
-                                        break;
-                                    }
-                                }
-                                pressed = normalKey;
-                            }
-
-                            if (pressed) {
+                    if (animation) {
+                        switch (static_cast<s32>(event)) {
+                        case gui::EventHandler::ON_TRIG:
+                            if ((input->field_0x0C & 0x800) ||
+                                ((input->field_0x0C & 0x400) && isNormalCellPhoneKey(paneName))) {
                                 if (animation->getKeyType() == KT_ControlButton) {
                                     nw4r::ut::List& panes = mpLayoutByNW4R->getAnmPaneList();
                                     CellPhoneAnmPane* other = static_cast<CellPhoneAnmPane*>(nw4r::ut::List_GetNext(&panes, NULL));
                                     while (other) {
                                         if (other != animation && other->getKeyType() == KT_ControlButton) {
-                                            other->changeAnimation(ANM_05);
+                                            other->onAnmEvent(nw4rmanager::AnmPane::PE_5);
                                         }
                                         other = static_cast<CellPhoneAnmPane*>(nw4r::ut::List_GetNext(&panes, other));
                                     }
-                                    animation->changeAnimation(ANM_Normal);
                                 }
                                 animation->onAnmEvent(nw4rmanager::AnmPane::PE_0);
                             }
                             break;
-                        }
                         case gui::EventHandler::ON_LEFT:
                             animation->onAnmEvent(nw4rmanager::AnmPane::PE_2);
                             break;
@@ -1400,53 +1353,46 @@ namespace textinput {
                         }
                     }
                 }
-
                 struct KeyEvent {
                     const char* paneName;
                     u8 state;
                     u8 repeat;
                 } keyEvent = {paneName, 0, 0};
-
                 if (event == gui::EventHandler::ON_TRIG) {
-                    if (input->field_0x0C & 0x1000) {
-                        mpLayoutByNW4R->onKey(event, &keyEvent);
-                    } else if (input->field_0x0C & 0x800) {
-                        for (u32 i = 0; i < 12; ++i) {
-                            if (util::strcmp(paneName, csPaneNameNormalKey[i])) {
-                                keyEvent.state = 1;
-                                mpLayoutByNW4R->onKey(event, &keyEvent);
-                                paneComponent->setFlightDuration(input->field_0x00, 0);
-                                break;
-                            }
-                        }
+                    if (input->field_0x0C & 0x800) {
+                        keyEvent.state = 0;
+                        mpLayoutByNW4R->onKey(gui::EventHandler::ON_TRIG, &keyEvent);
+                    } else if ((input->field_0x0C & 0x400) && isNormalCellPhoneKey(paneName)) {
+                        keyEvent.state = 1;
+                        mpLayoutByNW4R->onKey(gui::EventHandler::ON_TRIG, &keyEvent);
+                        paneComponent->setFlightDuration(input->field_0x00, 0);
                     }
-                } else if (event == gui::EventHandler::ON_LEFT) {
-                    mpLayoutByNW4R->onKey(event, &keyEvent);
                 }
-
-                if (event == gui::EventHandler::ON_MOVE && (input->field_0x10 & 0x1000) &&
-                    !(input->field_0x0C & 0x1000) &&
-                    (util::strcmp(paneName, csPaneNameNormalKey[13]) ||
-                     util::strcmp(paneName, csPaneNameNormalKey[16]))) {
-                    if (paneComponent->isDragging(input->field_0x00)) {
-                        u32 duration = mpLayoutByNW4R->getFlightDuration(input->field_0x00, paneName);
-                        if (duration >= 30 && duration % 9 == 0) {
-                            char animationName[17];
-                            util::replaceChar(animationName, sizeof(animationName), paneName, 0, 'W');
-                            CellPhoneAnmPane* animation = static_cast<CellPhoneAnmPane*>(mpLayoutByNW4R->searchAnmPane(animationName));
-                            if (animation) {
-                                animation->changeAnimation(ANM_Normal);
-                            }
-                            keyEvent.state = 1;
-                            mpLayoutByNW4R->onKey(gui::EventHandler::ON_TRIG, &keyEvent);
-                        }
+                if (event == gui::EventHandler::ON_LEFT) {
+                    mpLayoutByNW4R->onKey(gui::EventHandler::ON_LEFT, &keyEvent);
+                }
+                if (event == gui::EventHandler::ON_MOVE && (input->field_0x10 & 0x800) &&
+                    !(input->field_0x0C & 0x800) &&
+                    (util::strcmp(csPaneNameNormalKey[13], paneName) || util::strcmp(csPaneNameNormalKey[16], paneName)) &&
+                    paneComponent->isDragging(input->field_0x00)) {
+                    u32 duration = mpLayoutByNW4R->getFlightDuration(input->field_0x00, paneName);
+                    if (duration >= 30 && duration % 9 == 0) {
+                        char animationName[17];
+                        util::replaceChar(animationName, sizeof(animationName), paneName, 0, 'W');
+                        CellPhoneAnmPane* animation = static_cast<CellPhoneAnmPane*>(mpLayoutByNW4R->searchAnmPane(animationName));
+                        animation->onAnmEvent(nw4rmanager::AnmPane::PE_0);
+                        mpLayoutByNW4R->onKey(gui::EventHandler::ON_TRIG, &keyEvent);
                     }
-                    if (mpLayoutByNW4R->getFlightDuration(input->field_0x00, paneName) == 90) {
-                        keyEvent.repeat = 1;
-                        mpLayoutByNW4R->onKey(gui::EventHandler::ON_LEFT, &keyEvent);
-                    }
+                }
+                if (event == gui::EventHandler::ON_MOVE && mpLayoutByNW4R->getFlightDuration(input->field_0x00, paneName) == 90) {
+                    keyEvent.repeat = 1;
+                    mpLayoutByNW4R->onKey(gui::EventHandler::ON_LEFT, &keyEvent);
                 }
             }
+
+
+
+
 
             void CellPhoneAnmPane::init() {
                 meState = ANM_Normal;

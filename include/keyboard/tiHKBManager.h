@@ -151,6 +151,26 @@ namespace textinput {
             u32 GetModifierState() const;
             void SetModifierState(u32, u32);
 
+#if defined(TI_CELLPHONE_HKB_KEYSET)
+            class KeySet {
+            public:
+                u8 GetKey() const;
+                u32 GetWChar() const;
+                bool IsValid() const;
+                KeySet GetNext() const;
+                KeySet(const KeySet& other)
+                    : mpManager(other.mpManager), mKind(other.mKind), mIndex(other.mIndex),
+                      mDevice(other.mDevice), mCharacter(other.mCharacter) {}
+            private:
+                const HKBManager* mpManager;
+                u8 mKind;
+                s8 mIndex;
+                u8 mDevice;
+                u16 mCharacter;
+            };
+            KeySet GetTriggeredKeySet() const;
+            KeySet GetRepeatedKeySet() const;
+#else
 #if defined(TI_PC_KEYBOARD_IMPLEMENTATION) || defined(TISIGNWINDOW_IMPLEMENTATION) || defined(TIHWKEYBOARD_IMPLEMENTATION)
             class KeySet {
             public:
@@ -202,6 +222,7 @@ namespace textinput {
             KeySet GetRepeatedKeySet() const;
 #endif
 
+#endif
 #endif
         private:
             u8 unk_0x00[0xFC];
