@@ -351,6 +351,10 @@ namespace textinput {
                 virtual void                setRootPaneScaleFor16x9();
                 virtual void                setRootPaneScaleFor4x3();
 
+#ifdef TIINPUTFORM_IMPLEMENTATION
+                virtual void                onSE(sound::SE seId);
+#endif
+
                 virtual void                visibleSeparator(bool flag);
 
 #if defined(MYTIINPUTFORM_IMPLEMENTATION) || defined(TIINPUTFORM_IMPLEMENTATION)

@@ -72,6 +72,9 @@ namespace textinput {
 
 #ifdef TIINPUTFORM_IMPLEMENTATION
             enum TranslateMode { TM_Direct, TM_Kana, TM_Roman, TM_Hangul };
+            virtual void clear();
+            virtual void set(const wchar_t* string);
+            virtual void setLength(u16 length);
             void setTranslateMode(TranslateMode mode);
             TranslateMode getTranslateMode() const { return static_cast<TranslateMode>(mTranslateMode); }
             void inputString(const wchar_t* string, TranslateMode mode);

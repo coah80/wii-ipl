@@ -82,9 +82,15 @@ namespace textinput {
                 virtual u32                 getEndPos() const;
 
                 // todo
+#ifdef TIINPUTFORM_IMPLEMENTATION
+                virtual void                setDrawModifyScopeLine(s32 startLine, s32 endLine);
+                virtual void                setDrawCacheScopeLine(s32 startLine, s32 endLine);
+                virtual void                modifyCursorCache(s32 line, u32 position, f32 x, f32 y, f32 width, f32 height);
+#else
                 virtual void                setDrawModifyScopeLine();
                 virtual void                setDrawCacheScopeLine();
                 virtual void                modifyCursorCache();
+#endif
 #ifdef TIINPUTFORM_IMPLEMENTATION
                 virtual bool                isEnableCursorCache() const;
 #else

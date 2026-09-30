@@ -59,3 +59,36 @@ Every measured state retained the original 20-string pool. The first gate lacked
 - `Base::onCursor`: final centered-space variation initializes the real offset before width locals and puts scale/half-width operands first: 473/473, seven differences. Restored the five-difference version.
 
 - Final clean full gate: GATE PASS; pool IDENTICAL; instruction-exact 206/221 (baseline 175/221); objdiff functions 208/221 (baseline 176/221); code 28300/50656 (baseline 19124/50656); data 868/3772 (baseline 864/3772); zero regressions, forbidden additions and readability warnings. Full build passes and DOL SHA1 is 26116613f624061ba99c8d1a299aaa6efa85670d. Partial result: 46 existing asm bodies remain and data is below 100%. Every remaining report-nonmatching entry has at least three logged source-level attempts.
+
+## Continuation from merged main
+- Left/right HWKB guard: zero-case/default-break switch produces 265/264 and 276/275 with an extra branch; explicit if/else yields 263/264 and 274/275, dropping the required branch; integer switch with 0 and 1 cases adds five instructions; negated boolean switch adds boolean normalization and swaps registers; moving the body into default retains the extra branch. Restored the two-difference original.
+- Cursor centering continuation: reversed multiplication nesting retained five differences; half-width accumulator moved work before scale query, 17 differences; scale-first accumulator gave seven differences; declaring the offset before widths retained five. Restored best source.
+- Space-key Atok continuation: false-case switch gave 604/603 with one extra branch; false initializer plus positive assignment gave 602/603; explicit forward labels retained 603/603 and the same seven block-order differences. Restored best source.
+- Data reconstruction: replacing EditBuffer destructor asm with typed C++ is 61/61, diffs 0, and emits its real vtable. EventHandler declaration moved before animation classes restores all three animation/event vtable offsets. Decolated clear/set/setLength overrides and draw-cache method signatures corrected under the unit macro. Moving genuine candidate/kana color definitions to the table group, using ordinary Korean/Chinese pane literals, and restoring the original true hyphen initializer makes every .sdata byte identical. Quick gate passes with zero regressions.
+- Layout language continuation: separate name temporary retains 237/237 and 22 root-load scheduling differences; duplicating the pane query across explicit branches gives 252/237; reusing the existing text-name variable with separate if/else retains 237/237 and the same 22 differences. Restored original helper form.
+- Continuation void Base::onPressUp(): true case kana guard: src 0x3d8 base 0x3d8 insns 246/246; diffs 2:.
+- Continuation void Base::onPressUp(): zero case kana guard: src 0x3dc base 0x3d8 insns 247/246; 17 displayed differing instructions.
+- Continuation void Base::onPressUp(): loop kana guard: src 0x3dc base 0x3d8 insns 247/246; 19 displayed differing instructions.
+- Continuation void Base::onPressDown(): true case kana guard: src 0x3d8 base 0x3d8 insns 246/246; diffs 2:.
+- Continuation void Base::onPressDown(): zero case kana guard: src 0x3dc base 0x3d8 insns 247/246; 17 displayed differing instructions.
+- Continuation void Base::onPressDown(): loop kana guard: src 0x3dc base 0x3d8 insns 247/246; 19 displayed differing instructions.
+- Continuation void Base::onPressDownHWKB(): local selected index: src 0x428 base 0x438 insns 266/270; 36 displayed differing instructions.
+- Continuation void Base::onPressDownHWKB(): initialize selected index: src 0x428 base 0x438 insns 266/270; 36 displayed differing instructions.
+- Continuation void Base::onPressDownHWKB(): positive kana switch: src 0x42c base 0x438 insns 267/270; 37 displayed differing instructions.
+- Continuation u32 Base::calcCursorPos(: loop declaration: src 0x518 base 0x518 insns 326/326; diffs 81:.
+- Continuation u32 Base::calcCursorPos(: scale assignment: src 0x520 base 0x518 insns 328/326; 154 displayed differing instructions.
+- Continuation u32 Base::calcCursorPos(: defer vertical coordinate: src 0x51c base 0x518 insns 327/326; 145 displayed differing instructions.
+- Continuation u32 Base::isOverRowLimit(: scale assignment: src 0x3b4 base 0x3b8 insns 237/238; 223 displayed differing instructions.
+- Continuation u32 Base::isOverRowLimit(: defer scale width: src 0x3b0 base 0x3b8 insns 236/238; 220 displayed differing instructions.
+- Continuation u32 Base::isOverRowLimit(: glyph field initialization: src 0x3c0 base 0x3b8 insns 240/238; 196 displayed differing instructions.
+- Continuation void Base::onCommand(: fresh fixed string queries: src 0x2020 base 0x2014 insns 2056/2053; 1455 displayed differing instructions.
+- Continuation void Base::onCommand(: defer translate mode query: src 0x2020 base 0x2014 insns 2056/2053; 1455 displayed differing instructions.
+- Continuation void Base::onCommand(: uncached fixed predicate: src 0x2014 base 0x2014 insns 2053/2053; diffs 1985:.
+- Continuation void LayoutByNW4R::create(: cache row-list pointer: src 0x590 base 0x590 insns 356/356; diffs 205:.
+- Continuation LayoutByNW4R::create animation switch: first experiment failed to compile because its case scope was wrong; corrected and measured below.
+- Continuation void LayoutByNW4R::create(: query animation id from record: src 0x5a4 base 0x590 insns 361/356; 303 displayed differing instructions.
+- Animation-pane switch retried with corrected case scope: 357/356; original conditional retained. Cached row-list pointer is retained: 356/356, 205 differences, objdiff 88.91854% versus 88.11798%; no regressions. Removing explicit placement-allocation checks gave 354/356 and was restored.
+- Additional cursor experiments: reusing either box-edge variable as the marker offset gave seven differences; a real inline space-centering helper gave ten differences and changed stack temporary order. Restored the five-difference source.
+- Nine additional asm conversions are instruction-exact: initZiString 14/14, resetContextPredict_ 27/27, resetRelation 23/23, textinput Base init 1/1, drawer getLine 3/3, StringBase hasCandidate 5/5, inputform Base create allocator overload 1/1, Decolated set 19/19, Decolated clear 20/20. Layout onSE 5/5 and EditBuffer destructor 61/61 are also exact C++. The allocator overload and base initializer faithfully retain their original empty bodies.
+- Data limits: ordinary literal pool and .rodata/.sdata/.sdata2 are identical. Vtable relocation comparison now agrees except the reference cursor-cache concatenated symbol. EditBuffer vtable target size includes four trailing bytes and textinput Base vtable includes 28 trailing bytes without relocations; no padding was added. Other zero-filled weak data and anonymous jump-table differences remain.
+- Final clean full gate: GATE PASS, pool IDENTICAL, zero regressions/forbidden additions/readability warnings; instruction-exact 206/221 unchanged, objdiff exact 208/221 unchanged, code 28300/50656 unchanged, data 868 -> 908/3772, fuzzy 97.1980 -> 97.2205. Eleven existing asm bodies converted instruction-exact to C++; 41 asm bodies remain. Linking was not changed. The literal pane tables have 100% .rodata and .sdata.

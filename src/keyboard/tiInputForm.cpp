@@ -40,6 +40,15 @@ enum KeyType {
     KT_NormalButton
 };
 
+class EventHandler : public nw4rmanager::TiEventHandler {
+public:
+    EventHandler(LayoutByNW4R* form) : mpInputForm(form) {}
+    virtual ~EventHandler();
+    virtual void onTiEvent(gui::PaneComponent* component, u32 event, Input* input);
+private:
+    LayoutByNW4R* mpInputForm;
+};
+
 class AnmPane : public nw4rmanager::AnmPane {
 public:
     AnmPane(nw4r::lyt::Pane* pane, nw4rmanager::AnmObserver* observer) : nw4rmanager::AnmPane(pane, observer), meState(ANM_Normal) {}
@@ -60,14 +69,7 @@ public:
     virtual void onAnmEvent(AnmPaneEvent event);
 };
 
-class EventHandler : public nw4rmanager::TiEventHandler {
-public:
-    EventHandler(LayoutByNW4R* form) : mpInputForm(form) {}
-    virtual ~EventHandler();
-    virtual void onTiEvent(gui::PaneComponent* component, u32 event, Input* input);
-private:
-    LayoutByNW4R* mpInputForm;
-};
+
 
 nw4r::ut::Color csUnInputedWCharColor(200, 50, 50, 255);
 nw4r::ut::Color csCharColor(20, 20, 20, 255);
@@ -922,54 +924,18 @@ void Base::dirtyCacheAll() {
     dirtyCursorCache();
     dirtyDrawCache();
 }
-extern "C" asm void initZiString__Q39textinput9inputform4BaseFv() {
-    nofralloc
-    stwu r1, -0x10(r1)
-    mflr r0
-    stw r0, 0x14(r1)
-    stw r31, 0xc(r1)
-    mr r31, r3
-    lwz r3, 0x16c(r3)
-    bl clearCandidates__Q39textinput8tistring6WithZiFv
-    li r0, 0
-    stb r0, 0x1f4(r31)
-    lwz r31, 0xc(r1)
-    lwz r0, 0x14(r1)
-    mtlr r0
-    addi r1, r1, 0x10
-    blr
+void Base::initZiString() {
+    mpZiString->clearCandidates();
+    mbZuSelected = false;
 }
-extern "C" asm void resetContextPredict___Q39textinput9inputform4BaseFv() {
-    nofralloc
-    stwu r1, -0x10(r1)
-    mflr r0
-    li r4, 0
-    stw r0, 0x14(r1)
-    stw r31, 0xc(r1)
-    mr r31, r3
-    bl getCurrentString__Q39textinput9inputform4BaseFb
-    lwz r3, 0x16c(r31)
-    cmpwi r3, 0
-    beq resetContextPredict_L1
-    lwz r0, 0x1f0(r31)
-    cmpwi r0, 8
-    bne resetContextPredict_L1
-    li r4, 0
-    bl setCurrentWord__Q39textinput8tistring6WithZiFPCw
-    lwz r3, 0x16c(r31)
-    bl update__Q39textinput8tistring6WithZiFv
-    lwz r12, 0(r31)
-    mr r3, r31
-    lwz r12, 0xd8(r12)
-    mtctr r12
-    bctrl
-resetContextPredict_L1:
-    lwz r0, 0x14(r1)
-    lwz r31, 0xc(r1)
-    mtlr r0
-    addi r1, r1, 0x10
-    blr
+void Base::resetContextPredict_() {
+    getCurrentString(false);
+    resetPredictionContext();
 }
+
+static GXColor kanaBackground = {128, 255, 128, 255};
+static GXColor candidateBackground = {255, 210, 12, 255};
+const char* csScrollButtonAnimationTarget = lbl_8165C820;
 
 struct InputFormAnimationFile {
     u32 id;
@@ -996,19 +962,19 @@ extern "C" const void* csVisiblePaneUEJ__Q29textinput9inputform[9] = {
     0,
     0,
     0,
-    lbl_816973A4,
-    lbl_816973AC,
+    "N_KOR",
+    "N_CHN",
     0,
     0,
 };
 
 extern "C" const void* csVisiblePaneKOR__Q29textinput9inputform[9] = {
     (const void*)0x00010002,
-    lbl_816973A4,
+    "N_KOR",
     0,
     0,
     0,
-    lbl_816973AC,
+    "N_CHN",
     lbl_8165C8C0,
     0,
     0,
@@ -1016,11 +982,11 @@ extern "C" const void* csVisiblePaneKOR__Q29textinput9inputform[9] = {
 
 extern "C" const void* csVisiblePaneCHN__Q29textinput9inputform[10] = {
     (const void*)0x00010002,
-    lbl_816973AC,
+    "N_CHN",
     0,
     0,
     0,
-    lbl_816973A4,
+    "N_KOR",
     lbl_8165C8C0,
     0,
     0,
@@ -1084,7 +1050,7 @@ extern "C" const f64 lbl_81694D80 = 4503599627370496.0;
 extern "C" const f32 lbl_81694D88 = 15.0f;
 extern "C" f32 lbl_81698D1C;
 
-bool mbHyphen;
+bool mbHyphen = true;
 
 #pragma push
 #pragma section const_type ".data"
@@ -1097,8 +1063,6 @@ struct ButtonAnimations {
     const char* bindingName;
     const InputFormAnimationFile* files[12];
 };
-
-const char* csScrollButtonAnimationTarget = lbl_8165C820;
 
 const ButtonAnimations csButtonAnimations[] = {
     {KT_NormalButton, lbl_8165C820, 8, NULL, {
@@ -1786,20 +1750,21 @@ void LayoutByNW4R::create(MEMAllocator* allocator, EditBuffer* editBuffer) {
     mriManager.mpAllocator = allocator;
     mriManager.mpInfo = static_cast<Info_*>(MEMAllocFromAllocator(allocator, (mriManager.mMaxLength + 2) * sizeof(Info_)));
     mriManager.init();
-    Info_* selected = &mriManager.mpInfo[mriManager.mpInfo[mriManager.mMaxLength].Next];
+    Info_* rows = mriManager.mpInfo;
+    Info_* selected = &rows[rows[mriManager.mMaxLength].Next];
     u16 previous = selected->Back;
     u16 next = selected->Next;
-    u16 selectedIndex = mriManager.mpInfo[next].Back;
-    mriManager.mpInfo[next].Back = previous;
-    mriManager.mpInfo[previous].Next = next;
+    u16 selectedIndex = rows[next].Back;
+    rows[next].Back = previous;
+    rows[previous].Next = next;
     selected->Back = selectedIndex;
     selected->Next = selectedIndex;
-    Info_* listEnd = &mriManager.mpInfo[mriManager.mpInfo[static_cast<u16>(mriManager.mMaxLength + 1)].Back];
+    Info_* listEnd = &rows[rows[static_cast<u16>(mriManager.mMaxLength + 1)].Back];
     next = listEnd->Next;
-    selected->Back = mriManager.mpInfo[next].Back;
+    selected->Back = rows[next].Back;
     selected->Next = next;
     listEnd->Next = selectedIndex;
-    mriManager.mpInfo[next].Back = selectedIndex;
+    rows[next].Back = selectedIndex;
     selected->StrCount = 0;
     selected->DispRowCount = 1;
     mpCursorLine = selected;
@@ -2392,31 +2357,9 @@ extern "C" asm void deselectCandidate__Q39textinput9inputform4BaseFv() {
     blr
 }
 
-extern "C" asm void resetRelation__Q39textinput9inputform4BaseFv() {
-    nofralloc
-    stwu r1, -0x10(r1)
-    mflr r0
-    stw r0, 0x14(r1)
-    stw r31, 0xc(r1)
-    mr r31, r3
-    lwz r3, 0x1d4(r3)
-    lwz r12, 0(r3)
-    lwz r12, 0x6c(r12)
-    mtctr r12
-    bctrl
-    li r0, 0
-    stb r0, 0x15(r3)
-    stb r0, 0x16(r3)
-    lwz r3, 0x168(r31)
-    lwz r12, 0(r3)
-    lwz r12, 0x128(r12)
-    mtctr r12
-    bctrl
-    lwz r0, 0x14(r1)
-    lwz r31, 0xc(r1)
-    mtlr r0
-    addi r1, r1, 0x10
-    blr
+void Base::resetRelation() {
+    mpManager->getHWKeyboard()->resetQuoteState();
+    mpUnfixString->resetRelation();
 }
 
 extern "C" asm void init__Q39textinput9inputform4BaseFv() {
@@ -4528,11 +4471,11 @@ extern "C" asm void __ct__Q39textinput9inputform4BaseFPQ29textinput7Manager() {
 
 
 
-extern "C" asm void init__Q29textinput4BaseFv() {
-    nofralloc
-    blr
 }
 
+void Base::init() {}
+
+namespace inputform {
 
 
 
@@ -4551,12 +4494,14 @@ extern "C" asm void init__Q29textinput4BaseFv() {
 
 
 
-extern "C" asm void getLine__Q39textinput10textdrawer4BaseFv() {
-    nofralloc
-    lwz r3, 0xa0(r3)
-    addi r3, r3, 1
-    blr
+
 }
+
+int textdrawer::Base::getLine() {
+    return muLine + 1;
+}
+
+namespace inputform {
 
 
 
@@ -4586,26 +4531,22 @@ extern "C" asm void getKanaBuffer__Q39textinput8tistring9DecolatedFv() {
 
 
 
-extern "C" asm void hasCandidate__Q39textinput8tistring10StringBaseCFv() {
-    nofralloc
-    lhz r3, 0x10(r3)
-    neg r0, r3
-    or r0, r0, r3
-    srwi r3, r0, 31
-    blr
 }
 
-
-
-
-
-
-
-
-extern "C" asm void create__Q39textinput9inputform4BaseFP12MEMAllocator() {
-    nofralloc
-    blr
+bool tistring::StringBase::hasCandidate() const {
+    return mwcCandidate != 0;
 }
+
+namespace inputform {
+
+
+
+
+
+
+
+
+void Base::create(MEMAllocator*) {}
 
 extern "C" asm void setVIWidth__Q39textinput10textdrawer4BaseFf() {
     nofralloc
@@ -4644,13 +4585,8 @@ f32 textinput::util::Animation::getValue() {
 
 namespace inputform {
 
-extern "C" asm void onSE__Q39textinput9inputform12LayoutByNW4RFQ39textinput5sound2SE() {
-    nofralloc
-    lwz r3, 0x22c(r3)
-    lwz r12, 0(r3)
-    lwz r12, 0x14(r12)
-    mtctr r12
-    bctr
+void LayoutByNW4R::onSE(sound::SE seId) {
+    mpEventObserver->onSE(seId);
 }
 extern "C" asm void addSender__Q29textinput15CommandReceiverFPQ29textinput13CommandSender() {
     nofralloc
@@ -4784,51 +4720,27 @@ u32 textdrawer::Base::getStartPos() const {
 }
 
 namespace inputform {
-extern "C" asm void set__Q39textinput8tistring9DecolatedFPCw() {
-    nofralloc
-    stwu r1, -0x10(r1)
-    mflr r0
-    stw r0, 0x14(r1)
-    stw r31, 0xc(r1)
-    mr r31, r3
-    bl set__Q39textinput8tistring10StringBaseFPCw
-    lwz r12, 0(r31)
-    mr r3, r31
-    lwz r12, 0x1c(r12)
-    mtctr r12
-    bctrl
-    clrlwi r0, r3, 16
-    stw r0, 0x18(r31)
-    stw r0, 0x1c(r31)
-    lwz r31, 0xc(r1)
-    lwz r0, 0x14(r1)
-    mtlr r0
-    addi r1, r1, 0x10
-    blr
 }
-extern "C" asm void clear__Q39textinput8tistring9DecolatedFv() {
-    nofralloc
-    stwu r1, -0x10(r1)
-    mflr r0
-    stw r0, 0x14(r1)
-    stw r31, 0xc(r1)
-    mr r31, r3
-    bl clear__Q39textinput8tistring10StringBaseFv
-    li r0, 0
-    mr r3, r31
-    stw r0, 0x18(r31)
-    stw r0, 0x1c(r31)
-    stb r0, 0x20(r31)
-    lwz r12, 0(r31)
-    lwz r12, 0xb8(r12)
-    mtctr r12
-    bctrl
-    lwz r0, 0x14(r1)
-    lwz r31, 0xc(r1)
-    mtlr r0
-    addi r1, r1, 0x10
-    blr
+
+void tistring::Decolated::set(const wchar_t* string) {
+    StringBase::set(string);
+    u32 length = getLength();
+    mCursorStart = length;
+    mCursorEnd = length;
 }
+
+namespace inputform {
+}
+
+void tistring::Decolated::clear() {
+    StringBase::clear();
+    mCursorStart = 0;
+    mCursorEnd = 0;
+    mbSustain = false;
+    initKanaConverter();
+}
+
+namespace inputform {
 extern "C" asm void init__Q49textinput9inputform4Base14RowInfoManagerFv() {
     nofralloc
     li r8, 0
@@ -5028,73 +4940,22 @@ create_EditBuffer_L3:
     addi r1, r1, 0x20
     blr
 }
-extern "C" asm void __dt__Q39textinput9inputform10EditBufferFv() {
-    nofralloc
-    stwu r1, -0x10(r1)
-    mflr r0
-    cmpwi r3, 0
-    stw r0, 0x14(r1)
-    stw r31, 0xc(r1)
-    mr r31, r4
-    stw r30, 8(r1)
-    mr r30, r3
-    beq __dt_EditBuffer_L1
-    lwz r0, 4(r3)
-    lis r4, __vt__Q39textinput9inputform10EditBuffer@ha
-    addi r4, r4, __vt__Q39textinput9inputform10EditBuffer@l
-    cmpwi r0, 0
-    stw r4, 0(r3)
-    beq __dt_EditBuffer_L2
-    mr r3, r0
-    li r4, -1
-    lwz r12, 0(r3)
-    lwz r12, 8(r12)
-    mtctr r12
-    bctrl
-    lwz r3, 0x10(r30)
-    lwz r4, 4(r30)
-    bl MEMFreeToAllocator
-__dt_EditBuffer_L2:
-    lwz r3, 8(r30)
-    cmpwi r3, 0
-    beq __dt_EditBuffer_L3
-    lwz r12, 0(r3)
-    li r4, -1
-    lwz r12, 8(r12)
-    mtctr r12
-    bctrl
-    lwz r3, 0x10(r30)
-    lwz r4, 8(r30)
-    bl MEMFreeToAllocator
-__dt_EditBuffer_L3:
-    lwz r3, 0xc(r30)
-    cmpwi r3, 0
-    beq __dt_EditBuffer_L4
-    lwz r12, 0(r3)
-    li r4, -1
-    lwz r12, 8(r12)
-    mtctr r12
-    bctrl
-    lwz r3, 0x10(r30)
-    lwz r4, 0xc(r30)
-    bl MEMFreeToAllocator
-__dt_EditBuffer_L4:
-    li r0, 0
-    cmpwi r31, 0
-    stw r0, 4(r30)
-    stw r0, 8(r30)
-    stw r0, 0xc(r30)
-    ble __dt_EditBuffer_L1
-    mr r3, r30
-    bl __dl__FPv
-__dt_EditBuffer_L1:
-    mr r3, r30
-    lwz r31, 0xc(r1)
-    lwz r30, 8(r1)
-    lwz r0, 0x14(r1)
-    mtlr r0
-    addi r1, r1, 0x10
-    blr
+EditBuffer::~EditBuffer() {
+    if (mpString) {
+        static_cast<tistring::Decolated*>(mpString)->~Decolated();
+        MEMFreeToAllocator(mpAllocator, mpString);
+    }
+    if (mpUnfixString) {
+        static_cast<tistring::WithAtok*>(mpUnfixString)->~WithAtok();
+        MEMFreeToAllocator(mpAllocator, mpUnfixString);
+    }
+    if (mpZiString) {
+        static_cast<tistring::WithZi*>(mpZiString)->~WithZi();
+        MEMFreeToAllocator(mpAllocator, mpZiString);
+    }
+    mpString = NULL;
+    mpUnfixString = NULL;
+    mpZiString = NULL;
 }
 extern "C" asm void updateInputCommon__Q39textinput9inputform12LayoutByNW4RFiUlUlUlPv() {
     nofralloc
@@ -5504,7 +5365,6 @@ bool Base::onCursor(CursorPos* cursor) {
         glyph.rect.bottom = 0.0f;
         glyph.character = candidate;
         calcRect(glyph);
-        static GXColor candidateBackground = {255, 210, 12, 255};
         f32 left = glyph.rect.left + GetCursorX();
         f32 top = glyph.rect.top + GetCursorY();
         f32 right = glyph.rect.right + GetCursorX();
@@ -5567,7 +5427,6 @@ bool Base::onCursor(CursorPos* cursor) {
         glyph.character = character;
         calcRect(glyph);
         if (meLanguage == JP) {
-            static GXColor kanaBackground = {128, 255, 128, 255};
             f32 left = glyph.rect.left + GetCursorX();
             f32 top = glyph.rect.top + GetCursorY();
             f32 right = glyph.rect.right + GetCursorX();
