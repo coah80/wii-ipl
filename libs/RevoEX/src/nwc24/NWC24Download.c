@@ -632,7 +632,7 @@ NWC24Err NWC24IterateDlTaskEx(NWC24DlIterateWork* dlIterateWork, NWC24DlId* dlIt
         result = NWC24IterateDlTask(&taskId, TRUE);
         while (result >= NWC24_OK) {
             value = getValue(taskId);
-            if (value == state->comparisonValue && (s32)taskId > (s32)state->comparisonId) {
+            if (value == state->comparisonValue && (s32)state->comparisonId < (s32)taskId) {
                 *dlIterateId = taskId;
                 state->comparisonValue = value;
                 state->selectedValue = value;
@@ -653,16 +653,16 @@ NWC24Err NWC24IterateDlTaskEx(NWC24DlIterateWork* dlIterateWork, NWC24DlId* dlIt
         {
         s32 selectedValue = state->selectedValue;
         if (descending) {
-            passesSelected = value < selectedValue;
+            passesSelected = selectedValue > value;
         } else {
-            passesSelected = value > selectedValue;
+            passesSelected = selectedValue < value;
         }
         if (passesSelected) {
             s32 comparisonValue = state->comparisonValue;
             if (descending) {
-                bestCandidate = value > comparisonValue;
+                bestCandidate = comparisonValue < value;
             } else {
-                bestCandidate = value < comparisonValue;
+                bestCandidate = comparisonValue > value;
             }
             if (bestCandidate) {
                 *dlIterateId = taskId;
@@ -912,7 +912,7 @@ NWC24Err NWC24ManageDlTaskListForMenu() {
     result = ReadDlTaskInline(taskPointer, 2);
     if (result == NWC24_ERR_NOT_FOUND) { return NWC24_OK; }
     if (result < NWC24_OK) { return result; }
-    return RemoveDlTask(taskPointer);
+    return RemoveDlTask(&task);
 }
 
 NWC24Err NWC24GetDlOptOutFlags(NWC24DlTask* dlTask, u8* dlOptOutFlags) {

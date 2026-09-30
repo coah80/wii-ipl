@@ -505,8 +505,12 @@ NWC24Err NWC24ReadMsgAttached(const NWC24MsgObj* msg, u32 index, u8* output, u32
     }
     decodedSize = 0;
     result = ReadBase64Data(&file, &privateMsg->attached[index], output, capacity, &decodedSize);
-    if (result == NWC24_OK && decodedSize != privateMsg->attachedSize[index])
-        result = NWC24_ERR_FORMAT;
+    switch (result) {
+        case NWC24_OK:
+            if (decodedSize != privateMsg->attachedSize[index]) { result = NWC24_ERR_FORMAT; }
+            break;
+        default: break;
+    }
     closeResult = NWC24iMBoxCloseMsg(&file);
     if (result == NWC24_OK)
         result = closeResult;
