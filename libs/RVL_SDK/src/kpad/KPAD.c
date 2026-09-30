@@ -130,9 +130,9 @@ typedef struct KPADInside {
 static KPADInside inside_kpads[4];
 f32 initial_rotation_matrix[16];
 
-static const char kpadVersion[] = "<< RVL_SDK - KPAD \trelease build: Apr 20 2010 11:20:37 (0x4199_60831) >>";
+static char kpadVersion[] = "<< RVL_SDK - KPAD \trelease build: Apr 20 2010 11:20:37 (0x4199_60831) >>";
 const char* __KPADVersion = kpadVersion;
-static const u8 dpdModeTable[12] = {0, 1, 3, 2, 0, 4, 1, 5, 0, 7, 1, 8};
+static u8 dpdModeTable[12] = {0, 1, 3, 2, 0, 4, 1, 5, 0, 7, 1, 8};
 
 static f32 idist_org = 1.0f;
 static Vec2 iaccXY_nrm_hori = {0.0f, -1.0f};
@@ -1113,9 +1113,8 @@ static void read_kpad_stick(KPADInside* kpad, KPADSample* status) {
         clamp = clamp_stick_circle;
     }
     device = status->device;
-    format = status->dataFormat;
-    switch (device) {
-    case 1:
+    if (device == 1) {
+        format = status->dataFormat;
         if ((u8)(format + 0xFD) <= 2) {
             if (kpad->flag51E != 0) {
                 kpad->flag51E = 0;
@@ -1128,11 +1127,9 @@ static void read_kpad_stick(KPADInside* kpad, KPADSample* status) {
             }
             clamp(&extension->fs.stick, status->extension.fs.stickX, status->extension.fs.stickY, kp_fs_fstick_min, kp_fs_fstick_max);
         }
-        break;
-    case 2:
-        if ((u8)(format + 0xFA) > 2) {
-            break;
-        }
+    } else if (device == 2) {
+        format = status->dataFormat;
+        if ((u8)(format + 0xFA) <= 2) {
         if (kpad->flag51E != 0) {
             kpad->flag51E = 0;
             extension->cl.lstick = Vec2_0;
@@ -1156,16 +1153,12 @@ static void read_kpad_stick(KPADInside* kpad, KPADSample* status) {
         }
         if (status->extension.cl.triggerR <= kp_cl_trigger_min) {
             extension->cl.rtrigger = 0.0f;
-            break;
-        }
-        if (status->extension.cl.triggerR >= kp_cl_trigger_max) {
+        } else if (status->extension.cl.triggerR >= kp_cl_trigger_max) {
             extension->cl.rtrigger = 1.0f;
-            break;
+        } else {
+            extension->cl.rtrigger = (f32)(status->extension.cl.triggerR - kp_cl_trigger_min) / (kp_cl_trigger_max - kp_cl_trigger_min);
         }
-        extension->cl.rtrigger = (f32)(status->extension.cl.triggerR - kp_cl_trigger_min) / (kp_cl_trigger_max - kp_cl_trigger_min);
-        break;
-    default:
-        break;
+        }
     }
 }
 
