@@ -5,6 +5,7 @@
 #include "keyboard/tiLayoutGather.h"
 
 #include <revolution/mtx.h>
+#include <nw4r/math/triangular.h>
 #include <wchar.h>
 #include <new>
 
@@ -89,8 +90,8 @@ extern "C" asm void GetFontHeight__Q34nw4r2ut10CharWriterCFv();
 extern "C" asm void GetFont__Q34nw4r2ut10CharWriterCFv();
 extern "C" asm void SetFixedWidth__Q34nw4r2ut10CharWriterFf();
 extern "C" asm void EnableFixedWidth__Q34nw4r2ut10CharWriterFb();
-extern "C" asm void KPRInitQueue();
-extern "C" asm void KPRSetMode();
+extern "C" void KPRInitQueue(KPRQueue* queue);
+extern "C" void KPRSetMode(KPRQueue* queue, KPRMode mode);
 extern "C" asm void create__Q39textinput10textdrawer4BaseFP12MEMAllocator();
 extern "C" asm void init__Q49textinput9inputform4Base14RowInfoManagerFv();
 extern "C" asm void MEMAllocFromAllocator();
@@ -112,7 +113,7 @@ extern "C" asm void addCandidate__Q39textinput12candidatebox18CandidateBoxCaller
 extern "C" asm void updateCandidate__Q39textinput12candidatebox18CandidateBoxCallerFv();
 extern "C" asm void setCurrentWord__Q39textinput8tistring6WithZiFPCw();
 extern "C" asm void update__Q39textinput8tistring6WithZiFv();
-extern "C" asm void wcsnicmp();
+extern "C" int wcsnicmp(const wchar_t* left, const wchar_t* right, u32 length);
 extern "C" asm void List_Append__Q24nw4r2utFPQ34nw4r2ut4ListPv();
 extern "C" asm void List_GetNext__Q24nw4r2utFPCQ34nw4r2ut4ListPCv();
 extern "C" asm void List_Remove__Q24nw4r2utFPQ34nw4r2ut4ListPv();
@@ -159,8 +160,10 @@ extern "C" void _restgpr_20();
 extern "C" void _savegpr_27();
 extern "C" void _restgpr_27();
 extern "C" asm void __ct__Q34nw4r2ut10CharWriterFv();
-extern "C" asm void memset();
-extern "C" asm void KPRInitRegionUS();
+
+
+
+
 extern "C" asm void __vt__Q29textinput15CommandReceiver();
 extern "C" asm void __vt__Q39textinput10textdrawer4Base();
 extern "C" asm void __vt__Q39textinput9inputform4Base();
@@ -170,444 +173,86 @@ extern "C" asm void __vt__Q39textinput9inputform10EditBuffer();
 extern "C" asm void __vt__Q39textinput8tistring9Decolated();
 extern "C" asm void __vt__Q39textinput8tistring8WithAtok();
 extern "C" asm void __vt__Q39textinput8tistring6WithZi();
-extern "C" asm void moveCandidateToIdx__Q39textinput9inputform4BaseFl() {
-    nofralloc
-    stwu r1, -0x20(r1)
-    mflr r0
-    stw r0, 0x24(r1)
-    stw r31, 0x1c(r1)
-    stw r30, 0x18(r1)
-    mr r30, r4
-    stw r29, 0x14(r1)
-    mr r29, r3
-    lbz r0, 0x178(r3)
-    cmpwi r0, 0
-    beq moveCandidateToIdx_L_set
-    lwz r3, 0x1d4(r3)
-    lwz r12, 0(r3)
-    lwz r12, 0x8c(r12)
-    mtctr r12
-    bctrl
-    lwz r12, 0(r3)
-    lwz r12, 0x104(r12)
-    mtctr r12
-    bctrl
-    cmpwi r3, 0
-    bne moveCandidateToIdx_L_done
-    lwz r0, 0x174(r29)
-    cmpwi r0, 1
-    bne moveCandidateToIdx_L_mid
-    lwz r3, 0x168(r29)
-    lwz r12, 0(r3)
-    lwz r12, 0x13c(r12)
-    mtctr r12
-    bctrl
-    cmpwi r3, 0
-    beq moveCandidateToIdx_L_select
-    lwz r3, 0x168(r29)
-    lwz r12, 0(r3)
-    lwz r12, 0xdc(r12)
-    mtctr r12
-    bctrl
-    cmpwi r3, 0
-    bne moveCandidateToIdx_L_select
-    lwz r3, 0x168(r29)
-    li r4, 0
-    lwz r12, 0(r3)
-    lwz r12, 0x60(r12)
-    mtctr r12
-    bctrl
-    lwz r3, 0x168(r29)
-    lwz r12, 0(r3)
-    lwz r12, 0xe0(r12)
-    mtctr r12
-    bctrl
-    mr r31, r3
-    lwz r3, 0x164(r29)
-    lwz r12, 0(r3)
-    lwz r12, 0x7c(r12)
-    mtctr r12
-    bctrl
-    lwz r3, 0x164(r29)
-    mr r4, r31
-    lwz r12, 0(r3)
-    lwz r12, 0x60(r12)
-    mtctr r12
-    bctrl
-    lwz r3, 0x164(r29)
-    lwz r12, 0(r3)
-    lwz r12, 0x7c(r12)
-    mtctr r12
-    bctrl
-    lwz r3, 0x168(r29)
-    li r4, 0
-    lwz r12, 0(r3)
-    lwz r12, 0x114(r12)
-    mtctr r12
-    bctrl
-moveCandidateToIdx_L_select:
-    lwz r3, 0x168(r29)
-    mr r4, r30
-    lwz r12, 0(r3)
-    lwz r12, 0xf0(r12)
-    mtctr r12
-    bctrl
-    b moveCandidateToIdx_L_after
-moveCandidateToIdx_L_mid:
-    lwz r3, 0x16c(r29)
-    mr r4, r30
-    lwz r12, 0(r3)
-    lwz r12, 0xe8(r12)
-    mtctr r12
-    bctrl
-moveCandidateToIdx_L_after:
-    lwz r3, 0x1d4(r29)
-    lwz r12, 0(r3)
-    lwz r12, 0x8c(r12)
-    mtctr r12
-    bctrl
-    mr r4, r30
-    addi r3, r3, 0xe4
-    bl ChangeSelectedText__Q39textinput12candidatebox10UITextAreaFl
-    b moveCandidateToIdx_L_done
-moveCandidateToIdx_L_set:
-    li r0, 1
-    stw r0, 0x1b0(r3)
-moveCandidateToIdx_L_done:
-    lwz r0, 0x24(r1)
-    lwz r31, 0x1c(r1)
-    lwz r30, 0x18(r1)
-    lwz r29, 0x14(r1)
-    mtlr r0
-    addi r1, r1, 0x20
-    blr
+void Base::moveCandidateToIdx(s32 index) {
+    if (mbPredictOn) {
+        if (mpManager->getCandidateBox()->isInScroll()) return;
+        if (mePredictMode == PM_Atok) {
+            if (mpUnfixString->getFixedPredictionNum() && !mpUnfixString->isConverting()) {
+                mpUnfixString->confirm(NULL);
+                wchar_t* confirmed = mpUnfixString->getConfirmedWCString();
+                mpString->getCursorPos();
+                mpString->confirm(confirmed);
+                mpString->getCursorPos();
+                mpUnfixString->enableConfirmedString(false);
+            }
+            mpUnfixString->setSelectedCandidate(index);
+        } else {
+            mpZiString->setSelectedCandidate(index);
+        }
+        mpManager->getCandidateBox()->getTextArea().ChangeSelectedText(index);
+    } else {
+        meScrollFlag = SF_ScrollOn;
+    }
 }
-extern "C" asm void confirmInput___Q39textinput9inputform4BaseFv() {
-    nofralloc
-    stwu r1, -0x20(r1)
-    mflr r0
-    stw r0, 0x24(r1)
-    stw r31, 0x1c(r1)
-    stw r30, 0x18(r1)
-    mr r30, r3
-    lbz r0, 0x178(r3)
-    cmpwi r0, 0
-    bne confirmInput_L_atok
-    lwz r3, 0x164(r3)
-    lwz r12, 0(r3)
-    lwz r12, 0xc0(r12)
-    mtctr r12
-    bctrl
-    cmpwi r3, 0
-    bne confirmInput_L_end
-    lwz r3, 0x164(r30)
-    lwz r12, 0(r3)
-    lwz r12, 0x7c(r12)
-    mtctr r12
-    bctrl
-    lwz r3, 0x164(r30)
-    lwz r12, 0(r3)
-    lwz r12, 0xc4(r12)
-    mtctr r12
-    bctrl
-    lwz r3, 0x164(r30)
-    lwz r12, 0(r3)
-    lwz r12, 0x7c(r12)
-    mtctr r12
-    bctrl
-    b confirmInput_L_end
-confirmInput_L_atok:
-    lwz r0, 0x174(r3)
-    cmpwi r0, 1
-    bne confirmInput_L_zi
-    lwz r3, 0x168(r3)
-    lwz r12, 0(r3)
-    lwz r12, 0xf4(r12)
-    mtctr r12
-    bctrl
-    cmpwi r3, 0
-    beq confirmInput_L_atok_empty
-    lwz r3, 0x168(r30)
-    lwz r12, 0(r3)
-    lwz r12, 0xf8(r12)
-    mtctr r12
-    bctrl
-    stw r3, 8(r1)
-    mr r3, r30
-    addi r5, r1, 8
-    li r4, 0x15
-    lwz r12, 0(r30)
-    lwz r12, 0x18(r12)
-    mtctr r12
-    bctrl
-    b confirmInput_L_end
-confirmInput_L_atok_empty:
-    lwz r3, 0x168(r30)
-    li r4, 0
-    lwz r12, 0(r3)
-    lwz r12, 0x60(r12)
-    mtctr r12
-    bctrl
-    lwz r3, 0x168(r30)
-    lwz r12, 0(r3)
-    lwz r12, 0xe0(r12)
-    mtctr r12
-    bctrl
-    mr r31, r3
-    lwz r3, 0x164(r30)
-    lwz r12, 0(r3)
-    lwz r12, 0x7c(r12)
-    mtctr r12
-    bctrl
-    lwz r3, 0x164(r30)
-    mr r4, r31
-    lwz r12, 0(r3)
-    lwz r12, 0x60(r12)
-    mtctr r12
-    bctrl
-    lwz r3, 0x164(r30)
-    lwz r12, 0(r3)
-    lwz r12, 0x7c(r12)
-    mtctr r12
-    bctrl
-    lwz r3, 0x168(r30)
-    li r4, 0
-    lwz r12, 0(r3)
-    lwz r12, 0x114(r12)
-    mtctr r12
-    bctrl
-    b confirmInput_L_end
-confirmInput_L_zi:
-    lwz r3, 0x16c(r3)
-    lwz r12, 0(r3)
-    lwz r12, 0xe0(r12)
-    mtctr r12
-    bctrl
-    mr r31, r3
-    lwz r3, 0x16c(r30)
-    lwz r12, 0(r3)
-    lwz r12, 0xe4(r12)
-    mtctr r12
-    bctrl
-    clrlwi. r0, r3, 0x10
-    beq confirmInput_L_clear
-    lwz r3, 0x164(r30)
-    lwz r12, 0(r3)
-    lwz r12, 0x7c(r12)
-    mtctr r12
-    bctrl
-    lwz r3, 0x164(r30)
-    mr r4, r31
-    lwz r12, 0(r3)
-    lwz r12, 0x54(r12)
-    mtctr r12
-    bctrl
-    lwz r3, 0x164(r30)
-    lwz r12, 0(r3)
-    lwz r12, 0x7c(r12)
-    mtctr r12
-    bctrl
-    lwz r0, 0x1f0(r30)
-    cmpwi r0, 8
-    bne confirmInput_L_clear
-    lwz r3, 0x16c(r30)
-    mr r4, r31
-    bl setCurrentWord__Q39textinput8tistring6WithZiFPCw
-confirmInput_L_clear:
-    lwz r3, 0x16c(r30)
-    bl clearCandidates__Q39textinput8tistring6WithZiFv
-    lwz r0, 0x1f0(r30)
-    li r3, 0
-    stb r3, 0x1f4(r30)
-    cmpwi r0, 8
-    bne confirmInput_L_end
-    lwz r3, 0x16c(r30)
-    bl update__Q39textinput8tistring6WithZiFv
-confirmInput_L_end:
-    lwz r0, 0x24(r1)
-    lwz r31, 0x1c(r1)
-    lwz r30, 0x18(r1)
-    mtlr r0
-    addi r1, r1, 0x20
-    blr
+void Base::confirmInput_() {
+    if (!mbPredictOn) {
+        if (!mpString->isKanaFix()) {
+            mpString->getCursorPos();
+            mpString->confirmKana();
+            mpString->getCursorPos();
+        }
+    } else if (mePredictMode == PM_Atok) {
+        if (mpUnfixString->isCandidateSelected()) {
+            s32 selected = mpUnfixString->getSelectedCandidate();
+            onCommand(static_cast<INPUT_COMMAND>(21), &selected);
+        } else {
+            mpUnfixString->confirm(NULL);
+            wchar_t* confirmed = mpUnfixString->getConfirmedWCString();
+            mpString->getCursorPos();
+            mpString->confirm(confirmed);
+            mpString->getCursorPos();
+            mpUnfixString->enableConfirmedString(false);
+        }
+    } else {
+        const wchar_t* selected = mpZiString->getCurrentSelected();
+        if (mpZiString->getInputStringLength()) {
+            mpString->getCursorPos();
+            mpString->inputString(selected);
+            mpString->getCursorPos();
+            if (meLanguage == CN) mpZiString->setCurrentWord(selected);
+        }
+        mpZiString->clearCandidates();
+        mbZuSelected = false;
+        if (meLanguage == CN) mpZiString->update();
+    }
 }
-extern "C" asm void inputInputting___Q39textinput9inputform4BaseFw() {
-    nofralloc
-    stwu r1, -0x20(r1)
-    mflr r0
-    stw r0, 0x24(r1)
-    stw r31, 0x1c(r1)
-    stw r30, 0x18(r1)
-    mr r30, r4
-    li r4, 0
-    stw r29, 0x14(r1)
-    mr r29, r3
-    bl getCurrentString__Q39textinput9inputform4BaseFb
-    addis r4, r30, 1
-    mr r31, r3
-    addi r0, r4, -0x309b
-    clrlwi r0, r0, 0x10
-    cmplwi r0, 1
-    bgt inputInputting_L_command
-    lwz r12, 0(r29)
-    mr r3, r29
-    li r4, 0x1b
-    li r5, 0
-    lwz r12, 0x18(r12)
-    mtctr r12
-    bctrl
-    b inputInputting_L_end
-inputInputting_L_command:
-    lbz r3, 0x178(r29)
-    cmpwi r3, 0
-    beq inputInputting_L_atok_empty
-    lwz r0, 0x174(r29)
-    cmpwi r0, 1
-    bne inputInputting_L_atok_empty
-    lwz r3, 0x168(r29)
-    lwz r12, 0(r3)
-    lwz r12, 0xf4(r12)
-    mtctr r12
-    bctrl
-    cmpwi r3, 0
-    beq inputInputting_L_direct_input
-    lwz r12, 0(r29)
-    mr r3, r29
-    li r4, 6
-    li r5, 0
-    lwz r12, 0x18(r12)
-    mtctr r12
-    bctrl
-inputInputting_L_direct_input:
-    lwz r3, 0x168(r29)
-    mr r4, r30
-    lwz r12, 0(r3)
-    lwz r12, 0x100(r12)
-    mtctr r12
-    bctrl
-    b inputInputting_L_end
-inputInputting_L_atok_empty:
-    cmpwi r3, 0
-    beq inputInputting_L_skip_atok
-    lwz r12, 0(r29)
-    mr r3, r29
-    lwz r12, 0x114(r12)
-    mtctr r12
-    bctrl
-    cmpwi r3, 0xb
-    bne inputInputting_L_skip_atok
-    lwz r3, 0x1d4(r29)
-    lwz r12, 0(r3)
-    lwz r12, 0x8c(r12)
-    mtctr r12
-    bctrl
-    lwz r12, 0(r3)
-    lwz r12, 0x4c(r12)
-    mtctr r12
-    bctrl
-    cmpwi r3, 0
-    bne inputInputting_L_skip_atok
-    mr r3, r30
-    bl isAlphabet__Q29textinput4utilFw
-    cmpwi r3, 0
-    bne inputInputting_L_zi_input
-    cmplwi r30, 0x31
-    blt inputInputting_L_keyboard_mode
-    cmplwi r30, 0x35
-    bgt inputInputting_L_keyboard_mode
-inputInputting_L_zi_input:
-    lwz r3, 0x16c(r29)
-    mr r4, r30
-    lwz r12, 0(r3)
-    lwz r12, 0xd4(r12)
-    mtctr r12
-    bctrl
-    b inputInputting_L_end
-inputInputting_L_keyboard_mode:
-    lbz r0, 0x178(r29)
-    cmpwi r0, 0
-    bne inputInputting_L_predict_mode
-    li r0, 0
-    b inputInputting_L_input_check
-inputInputting_L_predict_mode:
-    lwz r0, 0x174(r29)
-    cmpwi r0, 1
-    beq inputInputting_L_input_false
-    lwz r3, 0x16c(r29)
-    lwz r12, 0(r3)
-    lwz r12, 0xd8(r12)
-    mtctr r12
-    bctrl
-    cmpwi r3, 0
-    ble inputInputting_L_input_false
-    li r0, 1
-    b inputInputting_L_input_check
-inputInputting_L_input_false:
-    li r0, 0
-inputInputting_L_input_check:
-    cmpwi r0, 0
-    beq inputInputting_L_manager
-    lwz r3, 0x16c(r29)
-    lwz r12, 0(r3)
-    lwz r12, 0xe4(r12)
-    mtctr r12
-    bctrl
-    clrlwi. r0, r3, 0x10
-    beq inputInputting_L_manager
-    lwz r0, 0x1f0(r29)
-    cmpwi r0, 8
-    bne inputInputting_L_get_current
-    lwz r3, 0x16c(r29)
-    lwz r12, 0(r3)
-    lwz r12, 0x48(r12)
-    mtctr r12
-    bctrl
-    cmpwi r3, 0
-    bne inputInputting_L_manager
-inputInputting_L_get_current:
-    mr r3, r29
-    bl getCurrentString__Q39textinput9inputform4BaseFb
-inputInputting_L_manager:
-    lwz r3, 0x16c(r29)
-    mr r4, r30
-    lwz r12, 0(r3)
-    lwz r12, 0xd4(r12)
-    mtctr r12
-    bctrl
-    lwz r3, 0x16c(r29)
-    li r4, -1
-    lwz r12, 0(r3)
-    lwz r12, 0xe8(r12)
-    mtctr r12
-    bctrl
-    b inputInputting_L_done
-inputInputting_L_skip_atok:
-    lwz r12, 0(r31)
-    mr r3, r31
-    mr r4, r30
-    lwz r12, 0x40(r12)
-    mtctr r12
-    bctrl
-inputInputting_L_end:
-    cmpwi r30, 0
-    beq inputInputting_L_return
-    lwz r12, 0(r29)
-    mr r3, r29
-    li r4, 0xa
-    lwz r12, 0x178(r12)
-    mtctr r12
-    bctrl
-inputInputting_L_return:
-    li r0, 1
-    stw r0, 0x1b0(r29)
-inputInputting_L_done:
-    lwz r0, 0x24(r1)
-    lwz r31, 0x1c(r1)
-    lwz r30, 0x18(r1)
-    lwz r29, 0x14(r1)
-    mtlr r0
-    addi r1, r1, 0x20
-    blr
+void Base::inputInputting_(wchar_t character) {
+    tistring::Decolated* current = getCurrentString(false);
+    if (static_cast<u16>(character + 0xcf65) <= 1) {
+        onCommand(static_cast<INPUT_COMMAND>(27), NULL);
+    } else if (mbPredictOn && mePredictMode == PM_Atok) {
+        if (mpUnfixString->isCandidateSelected()) onCommand(static_cast<INPUT_COMMAND>(6), NULL);
+        mpUnfixString->setInputting(character);
+    } else {
+        if (mbPredictOn && getPredictMode() == PM_11 && !mpManager->getCandidateBox()->isInvalid()) {
+            if (util::isAlphabet(character) || (character >= L'1' && character <= L'5')) {
+                mpZiString->setInputting(character);
+            } else {
+                bool predictions;
+                if (!mbPredictOn) predictions = false;
+                else if (mePredictMode != PM_Atok && mpZiString->getCurrentNumPredicted() > 0) predictions = true;
+                else predictions = false;
+                if (predictions && mpZiString->getInputStringLength() != 0 && (meLanguage != CN || !mpZiString->hasCandidate())) confirmInput_();
+                mpZiString->setInputting(character);
+                mpZiString->setSelectedCandidate(-1);
+                return;
+            }
+        } else {
+            current->setCandidate(character);
+        }
+    }
+    if (character != 0) onSE(static_cast<sound::SE>(10));
+    meScrollFlag = SF_ScrollOn;
 }
 void Base::inputCharDefault_(wchar_t character, u32 modifiers) {
     tistring::WithAtok* unfix;
@@ -638,154 +283,7 @@ void Base::inputCharDefault_(wchar_t character, u32 modifiers) {
     else if (character != L'\n') onSE(static_cast<sound::SE>(10));
     meScrollFlag = SF_ScrollOn;
 }
-extern "C" asm void calc__Q39textinput9inputform12LayoutByNW4RFv() {
-    nofralloc
-    stwu r1, -0x20(r1)
-    mflr r0
-    stw r0, 0x24(r1)
-    stw r31, 0x1c(r1)
-    lis r31, lbl_8165C820@ha
-    addi r31, r31, lbl_8165C820@l
-    stw r30, 0x18(r1)
-    stw r29, 0x14(r1)
-    stw r28, 0x10(r1)
-    mr r28, r3
-    bl calc__Q39textinput9inputform4BaseFv
-    addi r3, r28, 0x218
-    bl calc__Q39textinput11nw4rmanager6LayoutFv
-    lwz r12, 0x218(r28)
-    addi r3, r28, 0x218
-    lwz r4, 0x2c4(r28)
-    li r30, 0
-    lwz r12, 0x2c(r12)
-    li r29, 0
-    lwz r4, 4(r4)
-    mtctr r12
-    bctrl
-    cmpwi r3, 0
-    beq calcLayout_L_text
-    lwz r12, 0x218(r28)
-    addi r3, r28, 0x218
-    lwz r4, 0x2c4(r28)
-    lwz r12, 0x54(r12)
-    lwz r4, 4(r4)
-    lbz r5, 0x2ce(r28)
-    mtctr r12
-    bctrl
-    b calcLayout_L_animation
-calcLayout_L_text:
-    lwz r12, 0x218(r28)
-    addi r3, r28, 0x218
-    addi r4, r31, 0x418
-    lbz r5, 0x2ce(r28)
-    lwz r12, 0x54(r12)
-    mtctr r12
-    bctrl
-calcLayout_L_animation:
-    lwz r12, 0x18c(r28)
-    addi r3, r28, 0x18c
-    lwz r12, 0x14(r12)
-    mtctr r12
-    bctrl
-    cmpwi r3, 0
-    bne calcLayout_L_done
-    lfs f1, lbl_81694D28(r0)
-    lfs f0, 0x188(r28)
-    fcmpo cr0, f1, f0
-    ble calcLayout_L_scroll_x
-    li r30, 1
-calcLayout_L_scroll_x:
-    lfs f1, 0xc8(r28)
-    lfs f0, 0x188(r28)
-    fcmpo cr0, f1, f0
-    bge calcLayout_L_scroll_y
-    li r29, 1
-calcLayout_L_scroll_y:
-    lbz r0, 0x2cc(r28)
-    cmplw r0, r30
-    beq calcLayout_L_second_flag
-    cmpwi r30, 0
-    stb r30, 0x2cc(r28)
-    beq calcLayout_L_first_disable
-    lwz r12, 0x218(r28)
-    addi r3, r28, 0x218
-    addi r4, r31, 0x3f4
-    lwz r12, 0x60(r12)
-    mtctr r12
-    bctrl
-    lwz r12, 0(r3)
-    li r4, 6
-    lwz r12, 0x10(r12)
-    mtctr r12
-    bctrl
-    lwz r3, 0x228(r28)
-    addi r4, r31, 0x3f4
-    bl searchPaneComponent__Q39textinput3gui11PaneManagerFPCc
-    lwz r12, 0(r3)
-    lwz r12, 0x10(r12)
-    mtctr r12
-    bctrl
-    b calcLayout_L_second_flag
-calcLayout_L_first_disable:
-    lwz r12, 0x218(r28)
-    addi r3, r28, 0x218
-    addi r4, r31, 0x3f4
-    lwz r12, 0x60(r12)
-    mtctr r12
-    bctrl
-    lwz r12, 0(r3)
-    li r4, 7
-    lwz r12, 0x10(r12)
-    mtctr r12
-    bctrl
-calcLayout_L_second_flag:
-    lbz r0, 0x2cd(r28)
-    cmplw r0, r29
-    beq calcLayout_L_done
-    cmpwi r29, 0
-    stb r29, 0x2cd(r28)
-    beq calcLayout_L_second_disable
-    lwz r12, 0x218(r28)
-    addi r3, r28, 0x218
-    addi r4, r31, 0x408
-    lwz r12, 0x60(r12)
-    mtctr r12
-    bctrl
-    lwz r12, 0(r3)
-    li r4, 6
-    lwz r12, 0x10(r12)
-    mtctr r12
-    bctrl
-    lwz r3, 0x228(r28)
-    addi r4, r31, 0x408
-    bl searchPaneComponent__Q39textinput3gui11PaneManagerFPCc
-    lwz r12, 0(r3)
-    lwz r12, 0x10(r12)
-    mtctr r12
-    bctrl
-    b calcLayout_L_done
-calcLayout_L_second_disable:
-    lwz r12, 0x218(r28)
-    addi r3, r28, 0x218
-    addi r4, r31, 0x408
-    lwz r12, 0x60(r12)
-    mtctr r12
-    bctrl
-    lwz r12, 0(r3)
-    li r4, 7
-    lwz r12, 0x10(r12)
-    mtctr r12
-    bctrl
-calcLayout_L_done:
-    lwz r0, 0x24(r1)
-    lwz r31, 0x1c(r1)
-    lwz r30, 0x18(r1)
-    lwz r29, 0x14(r1)
-    lwz r28, 0x10(r1)
-    mtlr r0
-    addi r1, r1, 0x20
-    blr
-}
+
 extern "C" asm void draw__Q39textinput9inputform12LayoutByNW4RFv() {
     nofralloc
     stwu r1, -0x50(r1)
@@ -906,19 +404,10 @@ extern "C" asm void draw__Q39textinput9inputform12LayoutByNW4RFv() {
 void Base::calcCursorTimer() {
     muCursorTimer += 8;
 }
-extern "C" asm bool isAtokActive__Q39textinput9inputform4BaseCFv() {
-    nofralloc
-    lbz r0, 0x178(r3)
-    cmpwi r0, 0
-    bne isAtokActive_L1
-    li r3, 0
-    blr
-isAtokActive_L1:
-    lwz r3, 0x174(r3)
-    addi r0, r3, -1
-    cntlzw r0, r0
-    srwi r3, r0, 5
-    blr
+bool Base::isAtokActive() const {
+    u32 enabled = mbPredictOn;
+    if (enabled == 0) return false;
+    return mePredictMode == PM_Atok;
 }
 void Base::dirtyCacheAll() {
     dirtyCursorCache();
@@ -1015,10 +504,7 @@ extern "C" const void* csLanguageDependencyDataCHN__Q29textinput9inputform[4] = 
 };
 #pragma section data_type ".data"
 
-extern "C" const u32 pppURLCheck[10] = {
-    0x00680074, 0x00740070, 0x003A002F, 0x002F0000, 0x00000000,
-    0x00680074, 0x00740070, 0x0073003A, 0x002F002F, 0x00000000
-};
+extern "C" const wchar_t pppURLCheck[2][10] = {L"http://", L"https://"};
 
 extern "C" const u32 lbl_816152D0[4] = {0x00200000, 0, 0, 0};
 #pragma pop
@@ -1048,7 +534,7 @@ extern "C" const f32 lbl_81694D74 = 127.0f;
 extern "C" const f32 lbl_81694D78 = 14592.0f;
 extern "C" const f64 lbl_81694D80 = 4503599627370496.0;
 extern "C" const f32 lbl_81694D88 = 15.0f;
-extern "C" f32 lbl_81698D1C;
+f32 sfColorPhase;
 
 bool mbHyphen = true;
 
@@ -1845,7 +1331,33 @@ void LayoutByNW4R::init() {
     for (u16 index = 0; index < visibility->visibleCount; ++index) setVisible(visibility->visibleNames[index], true);
     for (u16 index = 0; index < visibility->hiddenCount; ++index) setVisible(visibility->hiddenNames[index], false);
 }
-extern "C" const char lbl_8165D2A0[] = "N_separateBarAll";
+void LayoutByNW4R::calc() {
+    Base::calc();
+    nw4rmanager::Layout::calc();
+    bool up = false;
+    bool down = false;
+    const char* separator = static_cast<const LanguagePaneData*>(mpLanguageData)->separator;
+    if (getPane(separator)) setVisible(static_cast<const LanguagePaneData*>(mpLanguageData)->separator, mbRepeat);
+    else setVisible("N_separateBarAll", mbRepeat);
+    if (!mScrollAnm.isActive()) {
+        if (0.0f > mfScrollY) up = true;
+        if (mfMinScrollY < mfScrollY) down = true;
+        if (mbUpVisible != up) {
+            mbUpVisible = up;
+            if (up) {
+                searchAnmPane("P_txtScrll_UP")->onAnmEvent(nw4rmanager::AnmPane::PE_6);
+                mpPaneManager->searchPaneComponent("P_txtScrll_UP")->init();
+            } else searchAnmPane("P_txtScrll_UP")->onAnmEvent(nw4rmanager::AnmPane::PE_7);
+        }
+        if (mbDownVisible != down) {
+            mbDownVisible = down;
+            if (down) {
+                searchAnmPane("P_txtScrll_DOWN")->onAnmEvent(nw4rmanager::AnmPane::PE_6);
+                mpPaneManager->searchPaneComponent("P_txtScrll_DOWN")->init();
+            } else searchAnmPane("P_txtScrll_DOWN")->onAnmEvent(nw4rmanager::AnmPane::PE_7);
+        }
+    }
+}
 void LayoutByNW4R::setLanguage(Language language) {
     Base::setLanguage(language);
     if (language == CN) mpLanguageData = csLanguageDependencyDataCHN__Q29textinput9inputform;
@@ -2340,21 +1852,10 @@ void textinput::util::Animation::startAnm(f32 start, f32 end, f32 duration, Anim
 
 namespace inputform {
 
-extern "C" asm void deselectCandidate__Q39textinput9inputform4BaseFv() {
-    nofralloc
-    lbz r0, 0x178(r3)
-    cmpwi r0, 0
-    beqlr
-    lwz r0, 0x174(r3)
-    cmpwi r0, 1
-    bnelr
-    lwz r3, 0x168(r3)
-    li r4, -1
-    lwz r12, 0(r3)
-    lwz r12, 0xf0(r12)
-    mtctr r12
-    bctr
-    blr
+void Base::deselectCandidate() {
+    if (!mbPredictOn) return;
+    if (mePredictMode != PM_Atok) return;
+    mpUnfixString->setSelectedCandidate(-1);
 }
 
 void Base::resetRelation() {
@@ -2362,89 +1863,30 @@ void Base::resetRelation() {
     mpUnfixString->resetRelation();
 }
 
-extern "C" asm void init__Q39textinput9inputform4BaseFv() {
-    nofralloc
-    stwu r1, -0x20(r1)
-    mflr r0
-    lfs f0, lbl_81694D28(r0)
-    stw r0, 0x24(r1)
-    li r0, 0xff
-    stw r31, 0x1c(r1)
-    li r31, 0
-    stw r30, 0x18(r1)
-    mr r30, r3
-    stw r31, 0x170(r3)
-    stfs f0, 0x17c(r3)
-    stfs f0, 0x180(r3)
-    stfs f0, 0x184(r3)
-    stfs f0, 0x188(r3)
-    stfs f0, 0x1ac(r3)
-    stfs f0, 0x1c4(r3)
-    stb r0, 0x1c8(r3)
-    addi r3, r3, 0x1d8
-    bl KPRInitQueue
-    addi r3, r30, 0x1d8
-    li r4, 2
-    bl KPRSetMode
-    addi r3, r30, 0x10
-    bl GetFont__Q34nw4r2ut10CharWriterCFv
-    lwz r12, 0(r3)
-    lwz r12, 0xc(r12)
-    mtctr r12
-    bctrl
-    xoris r3, r3, 0x8000
-    lis r0, 0x4330
-    stw r3, 0xc(r1)
-    addi r3, r30, 0x10
-    lfd f1, lbl_81694D30(r0)
-    stw r0, 8(r1)
-    lfd f0, 8(r1)
-    fsubs f1, f0, f1
-    bl SetFixedWidth__Q34nw4r2ut10CharWriterFf
-    addi r3, r30, 0x10
-    li r4, 0
-    bl EnableFixedWidth__Q34nw4r2ut10CharWriterFb
-    lwz r12, 0(r30)
-    mr r3, r30
-    li r4, 1
-    lwz r12, 0x130(r12)
-    mtctr r12
-    bctrl
-    lwz r3, 0x1d4(r30)
-    lwz r12, 0(r3)
-    lwz r12, 0x6c(r12)
-    mtctr r12
-    bctrl
-    stb r31, 0x15(r3)
-    stb r31, 0x16(r3)
-    lwz r3, 0x168(r30)
-    lwz r12, 0(r3)
-    lwz r12, 0x128(r12)
-    mtctr r12
-    bctrl
-    lwz r12, 0(r30)
-    mr r3, r30
-    lwz r12, 0xd8(r12)
-    mtctr r12
-    bctrl
-    lwz r12, 0x5c(r30)
-    addi r3, r30, 0x10
-    lwz r12, 0x90(r12)
-    mtctr r12
-    bctrl
-    lwz r12, 0x5c(r30)
-    addi r3, r30, 0x10
-    lwz r12, 0x94(r12)
-    mtctr r12
-    bctrl
-    lfs f0, 0x188(r30)
-    stfs f0, 0x100(r30)
-    lwz r31, 0x1c(r1)
-    lwz r30, 0x18(r1)
-    lwz r0, 0x24(r1)
-    mtlr r0
-    addi r1, r1, 0x20
-    blr
+inline void DeadKeyStream::init() {
+    KPRInitQueue(&mKPRQueue);
+    KPRSetMode(&mKPRQueue, KPR_MODE_DEADKEY);
+}
+
+void Base::init() {
+    meInputMode = IM_Direct;
+    mfCursorX = 0.0f;
+    mfCursorY = 0.0f;
+    mfScrollX = 0.0f;
+    mfScrollY = 0.0f;
+    mfSustainTimer = 0.0f;
+    mfCursorTimer = 0.0f;
+    muGlobalAlpha = 255;
+    mDKStream.init();
+    SetFixedWidth(GetFont()->GetWidth());
+    EnableFixedWidth(false);
+    enableSpaceByRight(true);
+    mpManager->getHWKeyboard()->resetQuoteState();
+    mpUnfixString->resetRelation();
+    updateCandidateState_();
+    dirtyDrawCache();
+    dirtyCursorCache();
+    mfDrawScrollY = mfScrollY;
 }
 
 extern "C" asm void create__Q39textinput9inputform4BaseFP12MEMAllocatorPQ39textinput9inputform10EditBuffer() {
@@ -2651,364 +2093,79 @@ getCurrentString_Lend:
     blr
 }
 
-extern "C" asm bool isVacancy__Q39textinput9inputform4BaseCFv() {
-    nofralloc
-    stwu r1, -0x30(r1)
-    mflr r0
-    stw r0, 0x34(r1)
-    stw r31, 0x2c(r1)
-    mr r31, r3
-    lwz r3, 0x164(r3)
-    lwz r12, 0(r3)
-    lwz r12, 0x1c(r12)
-    mtctr r12
-    bctrl
-    clrlwi. r0, r3, 16
-    bne isVacancy_L1
-    lwz r3, 0x164(r31)
-    lwz r12, 0(r3)
-    lwz r12, 0xc0(r12)
-    mtctr r12
-    bctrl
-    cmpwi r3, 0
-    bne isVacancy_L2
-isVacancy_L1:
-    li r3, 0
-    b isVacancy_Lend
-isVacancy_L2:
-    lwz r0, 0x174(r31)
-    cmpwi r0, 1
-    bne isVacancy_L3
-    lwz r3, 0x168(r31)
-    lwz r12, 0(r3)
-    lwz r12, 0xd0(r12)
-    mtctr r12
-    bctrl
-    cmpwi r3, 0
-    bne isVacancy_L4
-    li r3, 0
-    b isVacancy_Lend
-isVacancy_L4:
-    lwz r3, 0x164(r31)
-    lwz r12, 0(r3)
-    lwz r12, 0x1c(r12)
-    mtctr r12
-    bctrl
-    clrlwi. r0, r3, 16
-    beq isVacancy_L5
-    li r3, 0
-    b isVacancy_Lend
-isVacancy_L5:
-    lwz r3, 0x168(r31)
-    lwz r12, 0(r3)
-    lwz r12, 0xf4(r12)
-    mtctr r12
-    bctrl
-    cmpwi r3, 0
-    beq isVacancy_L6
-    li r3, 0
-    b isVacancy_Lend
-isVacancy_L3:
-    cmpwi r0, 0xc
-    bne isVacancy_L7
-    li r3, 1
-    b isVacancy_Lend
-isVacancy_L7:
-    cmpwi r0, 0
-    beq isVacancy_L6
-    lwz r3, 0x16c(r31)
-    lwz r12, 0(r3)
-    lwz r12, 0x1c(r12)
-    mtctr r12
-    bctrl
-    clrlwi. r0, r3, 16
-    beq isVacancy_L8
-    li r3, 0
-    b isVacancy_Lend
-isVacancy_L8:
-    lwz r3, 0x16c(r31)
-    addi r4, r1, 8
-    li r5, 0x10
-    bl getCurrentInput__Q39textinput8tistring6WithZiFPwUl
-    cmpwi r3, 0
-    ble isVacancy_L9
-    li r3, 0
-    b isVacancy_Lend
-isVacancy_L9:
-    lbz r3, 0x1f5(r31)
-    lbz r0, 0x1f4(r31)
-    or. r0, r3, r0
-    beq isVacancy_L6
-    lwz r3, 0x16c(r31)
-    lwz r12, 0(r3)
-    lwz r12, 0xe0(r12)
-    mtctr r12
-    bctrl
-    cmpwi r3, 0
-    beq isVacancy_L6
-    lhz r0, 0(r3)
-    cmplwi r0, 0xfffe
-    beq isVacancy_L6
-    li r3, 0
-    b isVacancy_Lend
-isVacancy_L6:
-    li r3, 1
-isVacancy_Lend:
-    lwz r0, 0x34(r1)
-    lwz r31, 0x2c(r1)
-    mtlr r0
-    addi r1, r1, 0x30
-    blr
+bool Base::isVacancy() const {
+    if (mpString->getLength() != 0 || !mpString->isKanaFix()) return false;
+    if (mePredictMode == PM_Atok) {
+        if (!mpUnfixString->isFix()) return false;
+        if (mpString->getLength() != 0) return false;
+        if (mpUnfixString->isCandidateSelected()) return false;
+    } else {
+        if (mePredictMode == PM_12) return true;
+        if (mePredictMode != PM_Off) {
+            if (mpZiString->getLength() != 0) return false;
+            wchar_t input[16];
+            if (mpZiString->getCurrentInput(input, 16) > 0) return false;
+            if (mbCursorSelected | mbZuSelected) {
+                const wchar_t* selected = mpZiString->getCurrentSelected();
+                if (selected && *selected != 0xfffe) return false;
+            }
+        }
+    }
+    return true;
 }
 
-extern "C" asm void notifyChangeMode__Q39textinput9inputform4BaseFv() {
-    nofralloc
-    stwu r1, -0x10(r1)
-    mflr r0
-    stw r0, 0x14(r1)
-    stw r31, 0xc(r1)
-    mr r31, r3
-    lwz r0, 0x174(r3)
-    cmpwi r0, 1
-    bne notifyChangeMode_L1
-    lwz r3, 0x1d4(r3)
-    lwz r12, 0(r3)
-    lwz r12, 0x94(r12)
-    mtctr r12
-    bctrl
-    lwz r12, 0(r3)
-    lwz r12, 0x10(r12)
-    mtctr r12
-    bctrl
-    cmpwi r3, 0
-    beq notifyChangeMode_L2
-    lwz r3, 0x1d4(r31)
-    lwz r12, 0(r3)
-    lwz r12, 0x74(r12)
-    mtctr r12
-    bctrl
-    lwz r12, 0(r3)
-    lwz r12, 0x48(r12)
-    mtctr r12
-    bctrl
-    cmpwi r3, 0
-    beq notifyChangeMode_L2
-    lwz r3, 0x1d4(r31)
-    lwz r12, 0(r3)
-    lwz r12, 0x74(r12)
-    mtctr r12
-    bctrl
-    lwz r12, 0(r3)
-    lwz r12, 0x58(r12)
-    mtctr r12
-    bctrl
-    cmpwi r3, 0
-    beq notifyChangeMode_L3
-notifyChangeMode_L2:
-    lwz r3, 0x1d4(r31)
-    lwz r12, 0(r3)
-    lwz r12, 0x94(r12)
-    mtctr r12
-    bctrl
-    lwz r12, 0(r3)
-    lwz r12, 0x10(r12)
-    mtctr r12
-    bctrl
-    cmpwi r3, 0
-    bne notifyChangeMode_L3
-    lwz r3, 0x1d4(r31)
-    lwz r12, 0(r3)
-    lwz r12, 0x7c(r12)
-    mtctr r12
-    bctrl
-    lwz r12, 0(r3)
-    lwz r12, 0x40(r12)
-    mtctr r12
-    bctrl
-notifyChangeMode_L3:
-    lwz r3, 0x168(r31)
-    lwz r12, 0(r3)
-    lwz r12, 0x124(r12)
-    mtctr r12
-    bctrl
-    clrlwi. r0, r3, 16
-    bne notifyChangeMode_L4
-    lwz r12, 0(r31)
-    mr r3, r31
-    lwz r12, 0xd8(r12)
-    mtctr r12
-    bctrl
-    b notifyChangeMode_L4
-notifyChangeMode_L1:
-    cmpwi r0, 0xc
-    bne notifyChangeMode_L5
-    lwz r3, 0x1d4(r3)
-    lwz r12, 0(r3)
-    lwz r12, 0x94(r12)
-    mtctr r12
-    bctrl
-    lwz r12, 0(r3)
-    lwz r12, 0x10(r12)
-    mtctr r12
-    bctrl
-    cmpwi r3, 0
-    li r4, 0xb
-    beq notifyChangeMode_L6
-    li r4, 0xa
-notifyChangeMode_L6:
-    lwz r3, 0x16c(r31)
-    lwz r12, 0(r3)
-    lwz r12, 0xf0(r12)
-    mtctr r12
-    bctrl
-    b notifyChangeMode_L4
-notifyChangeMode_L5:
-    cmpwi r0, 0xb
-    bne notifyChangeMode_L4
-    lbz r0, 0x178(r3)
-    cmpwi r0, 0
-    beq notifyChangeMode_L4
-    lwz r3, 0x16c(r3)
-    li r4, 0
-    bl setCurrentWord__Q39textinput8tistring6WithZiFPCw
-notifyChangeMode_L4:
-    lwz r0, 0x14(r1)
-    lwz r31, 0xc(r1)
-    mtlr r0
-    addi r1, r1, 0x10
-    blr
+void Base::notifyChangeMode() {
+    if (mePredictMode == PM_Atok) {
+        if (mpManager->getToolBar()->isQwerty()) {
+            if (mpManager->getPCKeyboard()->isABC()) {
+                if (!mpManager->getPCKeyboard()->getTranslateMode()) goto checkInput;
+            }
+        }
+        if (!mpManager->getToolBar()->isQwerty()) mpManager->getCellPhoneKeyboard()->getInputMode();
+checkInput:
+        if (mpUnfixString->getInputStringLength() == 0) updateCandidateState_();
+    } else if (mePredictMode == PM_12) {
+        tistring::WithZi::PredictLanguage language;
+        if (mpManager->getToolBar()->isQwerty()) language = static_cast<tistring::WithZi::PredictLanguage>(10);
+        else language = static_cast<tistring::WithZi::PredictLanguage>(11);
+        mpZiString->setPredictLaunguage(language);
+    } else if (mePredictMode == PM_11) {
+        if (mbPredictOn) mpZiString->setCurrentWord(NULL);
+    }
 }
 
-extern "C" asm void updateCandidateState___Q39textinput9inputform4BaseFv() {
-    nofralloc
-    stwu r1, -0xa0(r1)
-    mflr r0
-    stw r0, 0xa4(r1)
-    stw r31, 0x9c(r1)
-    stw r30, 0x98(r1)
-    stw r29, 0x94(r1)
-    mr r29, r3
-    lbz r0, 0x178(r3)
-    cmpwi r0, 0
-    beq updateCandidateState_Lend
-    lwz r0, 0x174(r3)
-    cmpwi r0, 1
-    bne updateCandidateState_L1
-    lwz r3, 0x168(r3)
-    lwz r12, 0(r3)
-    lwz r12, 0x110(r12)
-    mtctr r12
-    bctrl
-    cmpwi r3, 0
-    beq updateCandidateState_L2
-    lwz r3, 0x168(r29)
-    lwz r12, 0(r3)
-    lwz r12, 0xe0(r12)
-    mtctr r12
-    bctrl
-    mr r31, r3
-    lwz r3, 0x164(r29)
-    lwz r12, 0(r3)
-    lwz r12, 0x7c(r12)
-    mtctr r12
-    bctrl
-    lwz r3, 0x164(r29)
-    mr r4, r31
-    lwz r12, 0(r3)
-    lwz r12, 0x60(r12)
-    mtctr r12
-    bctrl
-    lwz r3, 0x164(r29)
-    lwz r12, 0(r3)
-    lwz r12, 0x7c(r12)
-    mtctr r12
-    bctrl
-    lwz r3, 0x168(r29)
-    li r4, 0
-    lwz r12, 0(r3)
-    lwz r12, 0x114(r12)
-    mtctr r12
-    bctrl
-    lwz r12, 0(r29)
-    mr r3, r29
-    li r4, 9
-    lwz r12, 0x178(r12)
-    mtctr r12
-    bctrl
-updateCandidateState_L2:
-    li r0, 0
-    mr r3, r29
-    stb r0, 8(r1)
-    addi r5, r1, 8
-    li r4, 0x23
-    bl onCommand__Q29textinput15CommandReceiverFQ39textinput15CommandReceiver13INPUT_COMMANDPv
-    addi r3, r29, 0x118
-    bl resetCandidate__Q39textinput12candidatebox18CandidateBoxCallerFv
-    lbz r0, 8(r1)
-    cmpwi r0, 0
-    bne updateCandidateState_Lend
-    lwz r3, 0x168(r29)
-    lwz r12, 0(r3)
-    lwz r12, 0xe4(r12)
-    mtctr r12
-    bctrl
-    mr r31, r3
-    li r30, 0
-    b updateCandidateState_L3
-updateCandidateState_L4:
-    lwz r3, 0x168(r29)
-    mr r4, r30
-    addi r5, r1, 0x10
-    lwz r12, 0(r3)
-    lwz r12, 0xe8(r12)
-    mtctr r12
-    bctrl
-    addi r3, r29, 0x118
-    addi r4, r1, 0x10
-    bl addCandidate__Q39textinput12candidatebox18CandidateBoxCallerFPCw
-    addi r30, r30, 1
-updateCandidateState_L3:
-    cmpw r30, r31
-    blt updateCandidateState_L4
-    addi r3, r29, 0x118
-    bl updateCandidate__Q39textinput12candidatebox18CandidateBoxCallerFv
-    b updateCandidateState_Lend
-updateCandidateState_L1:
-    addi r3, r3, 0x118
-    bl resetCandidate__Q39textinput12candidatebox18CandidateBoxCallerFv
-    lwz r3, 0x16c(r29)
-    lwz r12, 0(r3)
-    lwz r12, 0xd8(r12)
-    mtctr r12
-    bctrl
-    mr r31, r3
-    li r30, 0
-    b updateCandidateState_L5
-updateCandidateState_L6:
-    lwz r3, 0x16c(r29)
-    mr r4, r30
-    addi r5, r1, 0x10
-    lwz r12, 0(r3)
-    lwz r12, 0xdc(r12)
-    mtctr r12
-    bctrl
-    addi r3, r29, 0x118
-    addi r4, r1, 0x10
-    bl addCandidate__Q39textinput12candidatebox18CandidateBoxCallerFPCw
-    addi r30, r30, 1
-updateCandidateState_L5:
-    cmpw r30, r31
-    blt updateCandidateState_L6
-    addi r3, r29, 0x118
-    bl updateCandidate__Q39textinput12candidatebox18CandidateBoxCallerFv
-updateCandidateState_Lend:
-    lwz r0, 0xa4(r1)
-    lwz r31, 0x9c(r1)
-    lwz r30, 0x98(r1)
-    lwz r29, 0x94(r1)
-    mtlr r0
-    addi r1, r1, 0xa0
-    blr
+void Base::updateCandidateState_() {
+    if (!mbPredictOn) return;
+    wchar_t prediction[64];
+    if (mePredictMode == PM_Atok) {
+        if (mpUnfixString->hasConfirmedString()) {
+            const wchar_t* confirmed = mpUnfixString->getConfirmedWCString();
+            mpString->getCursorPos();
+            mpString->confirm(confirmed);
+            mpString->getCursorPos();
+            mpUnfixString->enableConfirmedString(false);
+            onSE(static_cast<sound::SE>(9));
+        }
+        bool suppress = false;
+        CommandReceiver::onCommand(static_cast<INPUT_COMMAND>(35), &suppress);
+        candidatebox::CandidateBoxCaller::resetCandidate();
+        if (!suppress) {
+            int count = mpUnfixString->getCurrentNumPredicted();
+            for (int index = 0; index < count; ++index) {
+                mpUnfixString->getPredicted(index, prediction);
+                candidatebox::CandidateBoxCaller::addCandidate(prediction);
+            }
+            candidatebox::CandidateBoxCaller::updateCandidate();
+        }
+    } else {
+        candidatebox::CandidateBoxCaller::resetCandidate();
+        int count = mpZiString->getCurrentNumPredicted();
+        for (int index = 0; index < count; ++index) {
+            mpZiString->getPredicted(index, prediction);
+            candidatebox::CandidateBoxCaller::addCandidate(prediction);
+        }
+        candidatebox::CandidateBoxCaller::updateCandidate();
+    }
 }
 
 extern "C" asm void moveCursorUp__Q39textinput9inputform4BaseFv() {
@@ -3109,108 +2266,20 @@ moveCursorUp_L4:
     blr
 }
 
-extern "C" asm void moveCursorDown__Q39textinput9inputform4BaseFv() {
-    nofralloc
-    stwu r1, -0x20(r1)
-    mflr r0
-    stw r0, 0x24(r1)
-    stw r31, 0x1c(r1)
-    mr r31, r3
-    lfs f2, 0x180(r3)
-    lfs f1, 0x188(r3)
-    lfs f0, 0xc8(r3)
-    fsubs f1, f2, f1
-    fneg f1, f1
-    fcmpo cr0, f1, f0
-    bge moveCursorDown_L1
-    lwz r3, 0x164(r3)
-    addi r4, r1, 0xc
-    addi r5, r1, 8
-    lwz r12, 0(r3)
-    lwz r12, 0x80(r12)
-    mtctr r12
-    bctrl
-    lwz r3, 0x164(r31)
-    lwz r12, 0(r3)
-    lwz r12, 0x1c(r12)
-    mtctr r12
-    bctrl
-    lwz r0, 0xc(r1)
-    clrlwi r3, r3, 16
-    cmplw r0, r3
-    bne moveCursorDown_L2
-    lwz r3, 0x164(r31)
-    lwz r12, 0(r3)
-    lwz r12, 0x1c(r12)
-    mtctr r12
-    bctrl
-    lwz r0, 8(r1)
-    clrlwi r3, r3, 16
-    cmplw r0, r3
-    bne moveCursorDown_L2
-    lwz r12, 0(r31)
-    mr r3, r31
-    li r4, 6
-    lwz r12, 0x178(r12)
-    mtctr r12
-    bctrl
-    b moveCursorDown_L3
-moveCursorDown_L2:
-    lwz r12, 0(r31)
-    mr r3, r31
-    li r4, 5
-    lwz r12, 0x178(r12)
-    mtctr r12
-    bctrl
-moveCursorDown_L3:
-    lwz r3, 0x164(r31)
-    lwz r12, 0(r3)
-    lwz r12, 0x1c(r12)
-    mtctr r12
-    bctrl
-    clrlwi r4, r3, 16
-    lwz r3, 0x164(r31)
-    lwz r12, 0(r3)
-    lwz r12, 0x6c(r12)
-    mtctr r12
-    bctrl
-    b moveCursorDown_L4
-moveCursorDown_L1:
-    lwz r12, 0x5c(r3)
-    lwz r12, 0x28(r12)
-    mtctr r12
-    addi r3, r3, 0x10
-    bctrl
-    lfs f0, 0x180(r31)
-    mr r3, r31
-    lwz r12, 0(r31)
-    fadds f2, f0, f1
-    lfs f0, lbl_81694D38(r0)
-    lwz r12, 0x180(r12)
-    lfs f1, 0x17c(r31)
-    fadds f2, f0, f2
-    mtctr r12
-    bctrl
-    mr r4, r3
-    lwz r3, 0x164(r31)
-    lwz r12, 0(r3)
-    lwz r12, 0x6c(r12)
-    mtctr r12
-    bctrl
-    lwz r12, 0(r31)
-    mr r3, r31
-    li r4, 5
-    lwz r12, 0x178(r12)
-    mtctr r12
-    bctrl
-moveCursorDown_L4:
-    li r0, 1
-    stw r0, 0x1b0(r31)
-    lwz r31, 0x1c(r1)
-    lwz r0, 0x24(r1)
-    mtlr r0
-    addi r1, r1, 0x20
-    blr
+void Base::moveCursorDown() {
+    if (-(mfCursorY - mfScrollY) < mfMinScrollY) {
+        u32 start, end;
+        mpString->getCursorPos(&start, &end);
+        if (start == mpString->getLength() && end == mpString->getLength()) onSE(static_cast<sound::SE>(6));
+        else onSE(static_cast<sound::SE>(5));
+        mpString->setCursorPos(mpString->getLength());
+    } else {
+        f32 lineHeight = getLineHeight();
+        f32 y = mfCursorY + lineHeight;
+        mpString->setCursorPos(calcCursorPos(mfCursorX, 1.0f + y));
+        onSE(static_cast<sound::SE>(5));
+    }
+    meScrollFlag = SF_ScrollOn;
 }
 
 void Base::confirmInputting_(wchar_t character, bool direct, u16 letterMode, bool confirmOnly, void* holdingKey) {
@@ -4199,7 +3268,7 @@ calc_L3:
     lwz r12, 0xc(r12)
     mtctr r12
     bctrl
-    lfs f1, lbl_81698D1C(r0)
+    lfs f1, sfColorPhase(r0)
     lfs f0, lbl_81694D40(r0)
     fmuls f1, f0, f1
     bl SinFIdx__Q24nw4r4mathFf
@@ -4276,7 +3345,7 @@ calc_L4:
     stb r0, 0x1c1(r30)
     bl hermiteInterporation__Q29textinput4utilFfffffff
     fctiwz f1, f1
-    lfs f2, lbl_81698D1C(r0)
+    lfs f2, sfColorPhase(r0)
     lfs f0, lbl_81694D40(r0)
     stfd f1, 0x18(r1)
     fmuls f1, f0, f2
@@ -4301,12 +3370,12 @@ calc_L4:
     stb r0, 0x1c3(r30)
 calc_L7:
     lwz r3, 0x214(r30)
-    lfs f1, lbl_81698D1C(r0)
+    lfs f1, sfColorPhase(r0)
     lfs f0, lbl_81694D58(r0)
     addi r0, r3, 8
     stw r0, 0x214(r30)
     fadds f0, f1, f0
-    stfs f0, lbl_81698D1C(r0)
+    stfs f0, sfColorPhase(r0)
     psq_l f31, 0x38(r1), 0, 0
     lfd f31, 0x30(r1)
     lwz r31, 0x2c(r1)
@@ -4323,140 +3392,14 @@ Base::RowInfoManager::~RowInfoManager() {
 
 Base::~Base() {}
 
-extern "C" asm void __ct__Q39textinput9inputform4BaseFPQ29textinput7Manager() {
-    nofralloc
-    stwu r1, -0x20(r1)
-    mflr r0
-    stw r0, 0x24(r1)
-    addi r11, r1, 0x20
-    bl _savegpr_27
-    lis r12, __vt__Q29textinput15CommandReceiver@ha
-    mr r31, r3
-    addi r12, r12, __vt__Q29textinput15CommandReceiver@l
-    mr r27, r4
-    stw r12, 0(r3)
-    lwz r12, 0x14(r12)
-    mtctr r12
-    bctrl
-    addi r28, r31, 0x10
-    mr r3, r28
-    bl __ct__Q34nw4r2ut10CharWriterFv
-    lfs f1, lbl_81694D28(r0)
-    lis r4, __vt__Q39textinput10textdrawer4Base@ha
-    li r29, 0
-    lfs f0, lbl_81694D2C(r0)
-    lis r3, 1
-    addi r4, r4, __vt__Q39textinput10textdrawer4Base@l
-    subi r0, r3, 1
-    li r30, 1
-    stw r4, 0x4c(r28)
-    addi r3, r28, 0xf8
-    li r4, 0
-    li r5, 0xc
-    stw r29, 0x50(r28)
-    stfs f1, 0x88(r28)
-    stfs f1, 0x8c(r28)
-    stfs f1, 0x90(r28)
-    stfs f1, 0x94(r28)
-    stfs f0, 0x98(r28)
-    stb r29, 0x9c(r28)
-    stb r29, 0x9d(r28)
-    stw r29, 0xa0(r28)
-    stfs f1, 0xa4(r28)
-    stfs f1, 0xa8(r28)
-    stfs f1, 0xac(r28)
-    stfs f1, 0xb0(r28)
-    stfs f1, 0xb4(r28)
-    stfs f1, 0xb8(r28)
-    stw r29, 0xbc(r28)
-    stw r0, 0xc0(r28)
-    stb r29, 0xc8(r28)
-    stw r29, 0xcc(r28)
-    stw r29, 0xd0(r28)
-    stw r29, 0xd4(r28)
-    stw r29, 0xd8(r28)
-    stw r29, 0xdc(r28)
-    stw r29, 0xe0(r28)
-    stb r29, 0xe4(r28)
-    stfs f1, 0xe8(r28)
-    stfs f1, 0xec(r28)
-    stfs f1, 0xf0(r28)
-    stw r29, 0xf4(r28)
-    stb r29, 0x104(r28)
-    stb r30, 0x105(r28)
-    bl memset
-    lis r10, __vt__Q39textinput9inputform4Base@ha
-    lfs f0, lbl_81694D28(r0)
-    addi r10, r10, __vt__Q39textinput9inputform4Base@l
-    lis r6, __vt__Q39textinput4util9Animation@ha
-    addi r9, r10, 0x20
-    li r7, 2
-    addi r8, r10, 0xb8
-    addi r6, r6, __vt__Q39textinput4util9Animation@l
-    li r5, 0x400
-    li r4, 0x270f
-    li r3, 0xff
-    li r0, -1
-    stw r29, 0x11c(r31)
-    stw r10, 0(r31)
-    stw r9, 0x5c(r31)
-    stw r8, 0x118(r31)
-    stfs f0, 0x120(r31)
-    stfs f0, 0x124(r31)
-    stfs f0, 0x128(r31)
-    stfs f0, 0x12c(r31)
-    stw r29, 0x164(r31)
-    stw r29, 0x168(r31)
-    stw r29, 0x16c(r31)
-    stw r29, 0x170(r31)
-    stw r7, 0x174(r31)
-    stb r29, 0x178(r31)
-    stb r30, 0x179(r31)
-    stb r30, 0x17a(r31)
-    stfs f0, 0x17c(r31)
-    stfs f0, 0x180(r31)
-    stfs f0, 0x184(r31)
-    stfs f0, 0x188(r31)
-    stw r6, 0x18c(r31)
-    stfs f0, 0x19c(r31)
-    stb r29, 0x1a0(r31)
-    stb r29, 0x1a1(r31)
-    stw r29, 0x1a4(r31)
-    stfs f0, 0x1ac(r31)
-    stw r29, 0x1b0(r31)
-    stw r29, 0x1b4(r31)
-    stw r5, 0x1b8(r31)
-    stw r4, 0x1bc(r31)
-    stfs f0, 0x1c4(r31)
-    stb r3, 0x1c8(r31)
-    stw r0, 0x1cc(r31)
-    stw r29, 0x1d0(r31)
-    stw r27, 0x1d4(r31)
-    bl KPRInitRegionUS
-    addi r3, r31, 0x1d8
-    bl KPRInitQueue
-    addi r3, r31, 0x1d8
-    li r4, 2
-    bl KPRSetMode
-    lwz r0, 0x1b8(r31)
-    addi r11, r1, 0x20
-    stw r30, 0x1f0(r31)
-    mr r3, r31
-    stb r29, 0x1f4(r31)
-    stb r29, 0x1f5(r31)
-    stw r29, 0x1f8(r31)
-    sth r0, 0x1fc(r31)
-    stw r29, 0x200(r31)
-    stw r29, 0x204(r31)
-    sth r29, 0x20c(r31)
-    stb r30, 0x20e(r31)
-    stw r29, 0x210(r31)
-    stw r29, 0x214(r31)
-    bl _restgpr_27
-    lwz r0, 0x24(r1)
-    mtlr r0
-    addi r1, r1, 0x20
-    blr
+Base::Base(Manager* manager) : CommandReceiver(), textdrawer::Base(), candidatebox::CandidateBoxCaller(),
+    mpString(NULL), mpUnfixString(NULL), mpZiString(NULL), meInputMode(IM_Direct), mePredictMode(PM_USEn),
+    mbPredictOn(false), mbDoWordWrap(true), mbRightWithSpace(true), mfCursorX(0.0f), mfCursorY(0.0f),
+    mfScrollX(0.0f), mfScrollY(0.0f), mScrollAnm(), mfSustainTimer(0.0f), meScrollFlag(SF_NoScroll),
+    muWordWrapCounter(0), muLimitStringLength(1024), muLimitRowNum(9999), mfCursorTimer(0.0f), muGlobalAlpha(255),
+    mCharColor(0xffffffff), mpAllocator(NULL), mpManager(manager), mDKStream(), meLanguage(USA),
+    mbZuSelected(false), mbCursorSelected(false), mriManager(muLimitStringLength), mpCursorLine(NULL),
+    mCursorLinePos(0), mbLineDraw(true), muSpecifyLineDrawCount(0), muCursorTimer(0) {
 }
 
 
@@ -4521,11 +3464,13 @@ bool textinput::util::Animation::isActive() {
 }
 
 namespace inputform {
-extern "C" asm void getKanaBuffer__Q39textinput8tistring9DecolatedFv() {
-    nofralloc
-    addi r3, r3, 0x42
-    blr
 }
+
+wchar_t* tistring::Decolated::getKanaBuffer() {
+    return mKanaStream.mOutput;
+}
+
+namespace inputform {
 
 
 
@@ -4548,11 +3493,13 @@ namespace inputform {
 
 void Base::create(MEMAllocator*) {}
 
-extern "C" asm void setVIWidth__Q39textinput10textdrawer4BaseFf() {
-    nofralloc
-    stfs f1, 0x98(r3)
-    blr
 }
+
+void textdrawer::Base::setVIWidth(f32 width) {
+    mfVIWidth = width;
+}
+
+namespace inputform {
 
 
 
@@ -4588,114 +3535,43 @@ namespace inputform {
 void LayoutByNW4R::onSE(sound::SE seId) {
     mpEventObserver->onSE(seId);
 }
-extern "C" asm void addSender__Q29textinput15CommandReceiverFPQ29textinput13CommandSender() {
-    nofralloc
-    addi r3, r3, 4
-    b List_Append__Q24nw4r2utFPQ34nw4r2ut4ListPv
 }
-extern "C" asm void isInScroll__Q39textinput12candidatebox12LayoutByNW4RFv() {
-    nofralloc
-    addi r3, r3, 0xe4
-    b IsScrolling__Q39textinput12candidatebox10UITextAreaFv
+
+void CommandReceiver::addSender(CommandSender* sender) {
+    nw4r::ut::List_Append(&mSenderList, sender);
 }
-extern "C" asm void __dt__Q39textinput8tistring9DecolatedFv() {
-    nofralloc
-    stwu r1, -0x10(r1)
-    mflr r0
-    cmpwi r3, 0
-    stw r0, 0x14(r1)
-    stw r31, 0xc(r1)
-    mr r31, r4
-    stw r30, 8(r1)
-    mr r30, r3
-    beq __dt_Decolated_L1
-    li r4, 0
-    bl __dt__Q39textinput8tistring10StringBaseFv
-    cmpwi r31, 0
-    ble __dt_Decolated_L1
-    mr r3, r30
-    bl __dl__FPv
-__dt_Decolated_L1:
-    mr r3, r30
-    lwz r31, 0xc(r1)
-    lwz r30, 8(r1)
-    lwz r0, 0x14(r1)
-    mtlr r0
-    addi r1, r1, 0x10
-    blr
+
+namespace inputform {
 }
-extern "C" asm void __dt__Q39textinput8tistring8WithAtokFv() {
-    nofralloc
-    stwu r1, -0x10(r1)
-    mflr r0
-    cmpwi r3, 0
-    stw r0, 0x14(r1)
-    stw r31, 0xc(r1)
-    mr r31, r4
-    stw r30, 8(r1)
-    mr r30, r3
-    beq __dt_WithAtok_L1
-    beq __dt_WithAtok_L2
-    li r4, 0
-    bl __dt__Q39textinput8tistring10StringBaseFv
-__dt_WithAtok_L2:
-    cmpwi r31, 0
-    ble __dt_WithAtok_L1
-    mr r3, r30
-    bl __dl__FPv
-__dt_WithAtok_L1:
-    mr r3, r30
-    lwz r31, 0xc(r1)
-    lwz r30, 8(r1)
-    lwz r0, 0x14(r1)
-    mtlr r0
-    addi r1, r1, 0x10
-    blr
+
+bool candidatebox::LayoutByNW4R::isInScroll() {
+    return mTextArea.IsScrolling();
 }
-extern "C" asm void __dt__Q29textinput15CommandReceiverFv() {
-    nofralloc
-    stwu r1, -0x10(r1)
-    mflr r0
-    cmpwi r3, 0
-    stw r0, 0x14(r1)
-    stw r31, 0xc(r1)
-    mr r31, r3
-    beq __dt_CommandReceiver_L1
-    cmpwi r4, 0
-    ble __dt_CommandReceiver_L1
-    bl __dl__FPv
-__dt_CommandReceiver_L1:
-    mr r3, r31
-    lwz r31, 0xc(r1)
-    lwz r0, 0x14(r1)
-    mtlr r0
-    addi r1, r1, 0x10
-    blr
+
+namespace inputform {
 }
-extern "C" asm bool isKanaFix__Q39textinput8tistring9DecolatedCFv() {
-    nofralloc
-    stwu r1, -0x10(r1)
-    mflr r0
-    stw r0, 0x14(r1)
-    lwz r0, 0x24(r3)
-    cmpwi r0, 3
-    bne isKanaFix_L1
-    li r3, 1
-    b isKanaFix_L2
-isKanaFix_L1:
-    li r4, 0
-    li r5, 0
-    addi r3, r3, 0x28
-    bl KPRLookAhead
-    clrlwi r0, r3, 24
-    cntlzw r0, r0
-    srwi r3, r0, 5
-isKanaFix_L2:
-    lwz r0, 0x14(r1)
-    mtlr r0
-    addi r1, r1, 0x10
-    blr
+
+tistring::Decolated::~Decolated() {}
+
+namespace inputform {
 }
+
+tistring::WithAtok::~WithAtok() {}
+
+namespace inputform {
+}
+
+CommandReceiver::~CommandReceiver() {}
+
+namespace inputform {
+}
+
+bool tistring::Decolated::isKanaFix() const {
+    if (static_cast<s32>(mTranslateMode) == TM_Hangul) return true;
+    return KPRLookAhead(const_cast<KPRQueue*>(&mKanaStream.mQueue), NULL, NULL) == 0;
+}
+
+namespace inputform {
 }
 
 void textinput::util::Animation::calc() {
@@ -4801,144 +3677,23 @@ LayoutByNW4R::~LayoutByNW4R() {
     }
 }
 
-extern "C" asm void create__Q39textinput9inputform10EditBufferFP12MEMAllocator() {
-    nofralloc
-    stwu r1, -0x20(r1)
-    mflr r0
-    stw r0, 0x24(r1)
-    stw r31, 0x1c(r1)
-    stw r30, 0x18(r1)
-    stw r29, 0x14(r1)
-    mr r29, r4
-    stw r28, 0x10(r1)
-    mr r28, r3
-    stw r4, 0x10(r3)
-    li r4, 0x4c
-    mr r3, r29
-    bl MEMAllocFromAllocator
-    cmpwi r3, 0
-    mr r30, r3
-    beq create_EditBuffer_L1
-    li r0, 0x400
-    lis r12, __vt__Q39textinput8tistring9Decolated@ha
-    sth r0, 4(r3)
-    li r0, 0
-    addi r12, r12, __vt__Q39textinput8tistring9Decolated@l
-    sth r0, 6(r3)
-    stw r0, 8(r3)
-    stw r0, 0xc(r3)
-    sth r0, 0x10(r3)
-    stw r0, 0x14(r3)
-    stw r12, 0(r3)
-    stw r0, 0x18(r3)
-    stw r0, 0x1c(r3)
-    stb r0, 0x20(r3)
-    stw r0, 0x24(r3)
-    lwz r12, 0xb8(r12)
-    mtctr r12
-    bctrl
-create_EditBuffer_L1:
-    stw r30, 4(r28)
-    mr r3, r30
-    mr r4, r29
-    lwz r12, 0(r30)
-    lwz r12, 0xc(r12)
-    mtctr r12
-    bctrl
-    mr r3, r29
-    li r4, 0x4c
-    bl MEMAllocFromAllocator
-    cmpwi r3, 0
-    mr r30, r3
-    beq create_EditBuffer_L2
-    li r0, 0x400
-    lis r12, __vt__Q39textinput8tistring9Decolated@ha
-    sth r0, 4(r3)
-    li r0, 0
-    addi r12, r12, __vt__Q39textinput8tistring9Decolated@l
-    sth r0, 6(r3)
-    stw r0, 8(r3)
-    stw r0, 0xc(r3)
-    sth r0, 0x10(r3)
-    stw r0, 0x14(r3)
-    stw r12, 0(r3)
-    stw r0, 0x18(r3)
-    stw r0, 0x1c(r3)
-    stb r0, 0x20(r3)
-    stw r0, 0x24(r3)
-    lwz r12, 0xb8(r12)
-    mtctr r12
-    bctrl
-    lis r3, __vt__Q39textinput8tistring8WithAtok@ha
-    addi r3, r3, __vt__Q39textinput8tistring8WithAtok@l
-    stw r3, 0(r30)
-create_EditBuffer_L2:
-    stw r30, 8(r28)
-    mr r3, r30
-    mr r4, r29
-    lwz r12, 0(r30)
-    lwz r12, 0xc(r12)
-    mtctr r12
-    bctrl
-    mr r3, r29
-    li r4, 0xac
-    bl MEMAllocFromAllocator
-    cmpwi r3, 0
-    mr r30, r3
-    beq create_EditBuffer_L3
-    li r0, 0x400
-    lis r12, __vt__Q39textinput8tistring9Decolated@ha
-    sth r0, 4(r3)
-    li r31, 0
-    addi r12, r12, __vt__Q39textinput8tistring9Decolated@l
-    sth r31, 6(r3)
-    stw r31, 8(r3)
-    stw r31, 0xc(r3)
-    sth r31, 0x10(r3)
-    stw r31, 0x14(r3)
-    stw r12, 0(r3)
-    stw r31, 0x18(r3)
-    stw r31, 0x1c(r3)
-    stb r31, 0x20(r3)
-    stw r31, 0x24(r3)
-    lwz r12, 0xb8(r12)
-    mtctr r12
-    bctrl
-    lis r4, __vt__Q39textinput8tistring6WithZi@ha
-    li r3, 0xff
-    addi r4, r4, __vt__Q39textinput8tistring6WithZi@l
-    li r0, 2
-    stw r4, 0(r30)
-    stb r31, 0x78(r30)
-    stb r31, 0x79(r30)
-    stw r31, 0x7c(r30)
-    stw r31, 0x80(r30)
-    stw r31, 0x84(r30)
-    sth r31, 0x88(r30)
-    stw r31, 0x8c(r30)
-    stw r31, 0x90(r30)
-    stb r3, 0x94(r30)
-    stw r31, 0x98(r30)
-    stw r31, 0x9c(r30)
-    stw r0, 0xa0(r30)
-    stw r31, 0xa4(r30)
-    stb r31, 0xa8(r30)
-create_EditBuffer_L3:
-    stw r30, 0xc(r28)
-    mr r3, r30
-    mr r4, r29
-    lwz r12, 0(r30)
-    lwz r12, 0xc(r12)
-    mtctr r12
-    bctrl
-    lwz r0, 0x24(r1)
-    lwz r31, 0x1c(r1)
-    lwz r30, 0x18(r1)
-    lwz r29, 0x14(r1)
-    lwz r28, 0x10(r1)
-    mtlr r0
-    addi r1, r1, 0x20
-    blr
+void EditBuffer::create(MEMAllocator* allocator) {
+    mpAllocator = allocator;
+    void* memory = MEMAllocFromAllocator(allocator, sizeof(tistring::Decolated));
+    tistring::Decolated* fixed = static_cast<tistring::Decolated*>(memory);
+    fixed = new (memory) tistring::Decolated(1024);
+    mpString = fixed;
+    fixed->create(allocator);
+    memory = MEMAllocFromAllocator(allocator, sizeof(tistring::WithAtok));
+    tistring::WithAtok* atok = static_cast<tistring::WithAtok*>(memory);
+    atok = new (memory) tistring::WithAtok(1024);
+    mpUnfixString = atok;
+    atok->create(allocator);
+    memory = MEMAllocFromAllocator(allocator, sizeof(tistring::WithZi));
+    tistring::WithZi* zi = static_cast<tistring::WithZi*>(memory);
+    zi = new (memory) tistring::WithZi(1024);
+    mpZiString = zi;
+    zi->create(allocator);
 }
 EditBuffer::~EditBuffer() {
     if (mpString) {
@@ -4957,115 +3712,46 @@ EditBuffer::~EditBuffer() {
     mpUnfixString = NULL;
     mpZiString = NULL;
 }
-extern "C" asm void updateInputCommon__Q39textinput9inputform12LayoutByNW4RFiUlUlUlPv() {
-    nofralloc
-    stwu r1, -0x10(r1)
-    mflr r0
-    mr r4, r5
-    mr r5, r6
-    stw r0, 0x14(r1)
-    stw r31, 0xc(r1)
-    mr r31, r3
-    bl updateRepeatInput__Q39textinput9inputform12LayoutByNW4RFUlUl
-    lwz r0, 0x304(r31)
-    rlwinm. r0, r0, 0, 19, 19
-    beq updateInputCommon_L1
-    lwz r12, 0(r31)
-    mr r3, r31
-    li r4, 1
-    li r5, 0
-    lwz r12, 0x18(r12)
-    mtctr r12
-    bctrl
-updateInputCommon_L1:
-    lwz r0, 0x14(r1)
-    lwz r31, 0xc(r1)
-    mtlr r0
-    addi r1, r1, 0x10
-    blr
+void LayoutByNW4R::updateInputCommon(int chan, u32 trig, u32 hold, u32 release, void* data) {
+    updateRepeatInput(trig, hold);
+    if (mRepeatButtons & 0x1000) onCommand(static_cast<INPUT_COMMAND>(1), NULL);
 }
-extern "C" asm void updateRepeatInput__Q39textinput9inputform12LayoutByNW4RFUlUl() {
-    nofralloc
-    clrlwi. r0, r5, 31
-    stw r4, 0x304(r3)
-    beq updateRepeatInput_L1
-    lwz r0, 0x2f4(r3)
-    subic. r0, r0, 1
-    stw r0, 0x2f4(r3)
-    bne updateRepeatInput_L2
-    ori r4, r4, 1
-    li r0, 9
-    stw r4, 0x304(r3)
-    stw r0, 0x2f4(r3)
-    b updateRepeatInput_L2
-updateRepeatInput_L1:
-    li r0, 0x1e
-    stw r0, 0x2f4(r3)
-updateRepeatInput_L2:
-    rlwinm. r0, r5, 0, 30, 30
-    beq updateRepeatInput_L3
-    lwz r0, 0x2f8(r3)
-    subic. r0, r0, 1
-    stw r0, 0x2f8(r3)
-    bne updateRepeatInput_L4
-    lwz r4, 0x304(r3)
-    li r0, 9
-    stw r0, 0x2f8(r3)
-    ori r0, r4, 2
-    stw r0, 0x304(r3)
-    b updateRepeatInput_L4
-updateRepeatInput_L3:
-    li r0, 0x1e
-    stw r0, 0x2f8(r3)
-updateRepeatInput_L4:
-    rlwinm. r0, r5, 0, 28, 28
-    beq updateRepeatInput_L5
-    lwz r0, 0x2ec(r3)
-    subic. r0, r0, 1
-    stw r0, 0x2ec(r3)
-    bne updateRepeatInput_L6
-    lwz r4, 0x304(r3)
-    li r0, 9
-    stw r0, 0x2ec(r3)
-    ori r0, r4, 8
-    stw r0, 0x304(r3)
-    b updateRepeatInput_L6
-updateRepeatInput_L5:
-    li r0, 0x1e
-    stw r0, 0x2ec(r3)
-updateRepeatInput_L6:
-    rlwinm. r0, r5, 0, 29, 29
-    beq updateRepeatInput_L7
-    lwz r0, 0x2f0(r3)
-    subic. r0, r0, 1
-    stw r0, 0x2f0(r3)
-    bne updateRepeatInput_L8
-    lwz r4, 0x304(r3)
-    li r0, 9
-    stw r0, 0x2f0(r3)
-    ori r0, r4, 4
-    stw r0, 0x304(r3)
-    b updateRepeatInput_L8
-updateRepeatInput_L7:
-    li r0, 0x1e
-    stw r0, 0x2f0(r3)
-updateRepeatInput_L8:
-    rlwinm. r0, r5, 0, 19, 19
-    beq updateRepeatInput_L9
-    lwz r0, 0x2fc(r3)
-    subic. r0, r0, 1
-    stw r0, 0x2fc(r3)
-    bnelr
-    lwz r4, 0x304(r3)
-    li r0, 9
-    stw r0, 0x2fc(r3)
-    ori r0, r4, 0x1000
-    stw r0, 0x304(r3)
-    blr
-updateRepeatInput_L9:
-    li r0, 0x1e
-    stw r0, 0x2fc(r3)
-    blr
+void LayoutByNW4R::updateRepeatInput(u32 trig, u32 hold) {
+    mRepeatButtons = trig;
+    if (hold & 1) {
+        if (--mLeftRepeat == 0) {
+            mRepeatButtons |= 1;
+            mLeftRepeat = 9;
+        }
+    } else mLeftRepeat = 30;
+    if (hold & 2) {
+        if (--mRightRepeat == 0) {
+            trig = mRepeatButtons;
+            mRightRepeat = 9;
+            mRepeatButtons = trig | 2;
+        }
+    } else mRightRepeat = 30;
+    if (hold & 8) {
+        if (--mUpRepeat == 0) {
+            trig = mRepeatButtons;
+            mUpRepeat = 9;
+            mRepeatButtons = trig | 8;
+        }
+    } else mUpRepeat = 30;
+    if (hold & 4) {
+        if (--mDownRepeat == 0) {
+            trig = mRepeatButtons;
+            mDownRepeat = 9;
+            mRepeatButtons = trig | 4;
+        }
+    } else mDownRepeat = 30;
+    if (hold & 0x1000) {
+        if (--mDeleteRepeat == 0) {
+            trig = mRepeatButtons;
+            mDeleteRepeat = 9;
+            mRepeatButtons = trig | 0x1000;
+        }
+    } else mDeleteRepeat = 30;
 }
 wchar_t DeadKeyStream::ToCombineClass(Language language, wchar_t code) {
     switch (language) {
@@ -5094,63 +3780,19 @@ wchar_t DeadKeyStream::ToCombineClass(Language language, wchar_t code) {
     }
     return code;
 }
-extern "C" asm void init__Q39textinput3gui12GUIComponentFv() {
-    nofralloc
-    lbz r0, 4(r3)
-    cmpwi r0, 0
-    bnelr
-    lfs f0, lbl_81694D28(r0)
-    li r0, 0
-    stb r0, 5(r3)
-    stfs f0, 0x18(r3)
-    stfs f0, 0x1c(r3)
-    stfs f0, 0x20(r3)
-    stb r0, 0xd(r3)
-    sth r0, 0x80(r3)
-    stb r0, 6(r3)
-    stfs f0, 0x24(r3)
-    stfs f0, 0x28(r3)
-    stfs f0, 0x2c(r3)
-    stb r0, 0xe(r3)
-    sth r0, 0x82(r3)
-    stb r0, 7(r3)
-    stfs f0, 0x30(r3)
-    stfs f0, 0x34(r3)
-    stfs f0, 0x38(r3)
-    stb r0, 0xf(r3)
-    sth r0, 0x84(r3)
-    stb r0, 8(r3)
-    stfs f0, 0x3c(r3)
-    stfs f0, 0x40(r3)
-    stfs f0, 0x44(r3)
-    stb r0, 0x10(r3)
-    sth r0, 0x86(r3)
-    stb r0, 9(r3)
-    stfs f0, 0x48(r3)
-    stfs f0, 0x4c(r3)
-    stfs f0, 0x50(r3)
-    stb r0, 0x11(r3)
-    sth r0, 0x88(r3)
-    stb r0, 0xa(r3)
-    stfs f0, 0x54(r3)
-    stfs f0, 0x58(r3)
-    stfs f0, 0x5c(r3)
-    stb r0, 0x12(r3)
-    sth r0, 0x8a(r3)
-    stb r0, 0xb(r3)
-    stfs f0, 0x60(r3)
-    stfs f0, 0x64(r3)
-    stfs f0, 0x68(r3)
-    stb r0, 0x13(r3)
-    sth r0, 0x8c(r3)
-    stb r0, 0xc(r3)
-    stfs f0, 0x6c(r3)
-    stfs f0, 0x70(r3)
-    stfs f0, 0x74(r3)
-    stb r0, 0x14(r3)
-    sth r0, 0x8e(r3)
-    blr
 }
+void gui::GUIComponent::init() {
+    if (mbInitialize) return;
+    for (int point = 0; point < GUI_POINTS_MAX; ++point) {
+        mbPointed[point] = false;
+        mDraggingPos[point].x = 0.0f;
+        mDraggingPos[point].y = 0.0f;
+        mDraggingPos[point].z = 0.0f;
+        mbDragging[point] = false;
+        mFlightDuration[point] = 0;
+    }
+}
+namespace inputform {
 
 bool Base::isEditMode() {
     switch (mePredictMode) {
@@ -5638,46 +4280,12 @@ bool Base::doWordWrap(const wchar_t* string, u32 pos, f32 width) {
     return false;
 }
 
-asm void Base::doLineFeed() {
-    nofralloc
-    stwu r1, -0x30(r1)
-    mflr r0
-    stw r0, 0x34(r1)
-    stfd f31, 0x20(r1)
-    psq_st f31, 0x28(r1), 0, 0
-    stw r31, 0x1c(r1)
-    mr r31, r3
-    lwz r4, 0xb0(r3)
-    addi r0, r4, 1
-    stw r0, 0xb0(r3)
-    lwz r12, 0x5c(r3)
-    lwz r12, 0x28(r12)
-    mtctr r12
-    addi r3, r3, 0x10
-    bctrl
-    fmr f31, f1
-    addi r3, r31, 0x10
-    bl GetCursorY__Q34nw4r2ut10CharWriterCFv
-    fadds f1, f1, f31
-    addi r3, r31, 0x10
-    bl SetCursorY__Q34nw4r2ut10CharWriterFf
-    lwz r12, 0(r31)
-    mr r3, r31
-    lwz r12, 0x188(r12)
-    mtctr r12
-    bctrl
-    stw r3, 8(r1)
-    addi r3, r31, 0x10
-    stw r4, 0xc(r1)
-    lfs f1, 8(r1)
-    bl SetCursorX__Q34nw4r2ut10CharWriterFf
-    psq_l f31, 0x28(r1), 0, 0
-    lwz r0, 0x34(r1)
-    lfd f31, 0x20(r1)
-    lwz r31, 0x1c(r1)
-    mtlr r0
-    addi r1, r1, 0x30
-    blr
+void Base::doLineFeed() {
+    ++muLine;
+    f32 height = getLineHeight();
+    f32 cursorY = GetCursorY();
+    SetCursorY(cursorY + height);
+    SetCursorX(getScale().x);
 }
 
 asm bool Base::isOverLine(const DrawInfo& drawInfo) {
@@ -5735,153 +4343,32 @@ asm bool Base::isOverLine(const DrawInfo& drawInfo) {
     blr
 }
 
-asm void Base::drawFixString(u32) {
-    nofralloc
-    stwu r1, -0x20(r1)
-    mflr r0
-    lfs f0, lbl_81694D28(r0)
-    stw r0, 0x24(r1)
-    stw r31, 0x1c(r1)
-    stw r30, 0x18(r1)
-    mr r30, r3
-    stw r4, 0xc(r1)
-    addi r4, r1, 8
-    stfs f0, 0x10(r1)
-    stfs f0, 0x14(r1)
-    lbz r5, 0x1c8(r3)
-    lbz r0, 0x1cc(r3)
-    stb r5, 0x1cf(r3)
-    stb r0, 8(r1)
-    lbz r0, 0x1cd(r3)
-    stb r0, 9(r1)
-    lbz r0, 0x1ce(r3)
-    stb r0, 0xa(r1)
-    lbz r0, 0x1cf(r3)
-    addi r3, r3, 0x10
-    stb r0, 0xb(r1)
-    bl SetTextColor__Q34nw4r2ut10CharWriterFQ34nw4r2ut5Color
-    lwz r3, 0x164(r30)
-    lwz r12, 0(r3)
-    lwz r12, 0x1c(r12)
-    mtctr r12
-    bctrl
-    clrlwi r31, r3, 16
-    lwz r3, 0x164(r30)
-    lwz r12, 0(r3)
-    lwz r12, 0x3c(r12)
-    mtctr r12
-    bctrl
-    mr r4, r3
-    mr r6, r31
-    addi r3, r30, 0x10
-    li r5, 0
-    bl setDrawString__Q39textinput10textdrawer4BaseFPCwUlUl
-    addi r3, r30, 0x10
-    addi r4, r1, 0xc
-    bl draw__Q39textinput10textdrawer4BaseFPQ49textinput10textdrawer4Base9CursorPos
-    lwz r12, 0(r30)
-    mr r3, r30
-    lfs f1, 0x10(r1)
-    lwz r12, 0x164(r12)
-    lfs f2, 0x14(r1)
-    mtctr r12
-    bctrl
-    lwz r0, 0x24(r1)
-    lwz r31, 0x1c(r1)
-    lwz r30, 0x18(r1)
-    mtlr r0
-    addi r1, r1, 0x20
-    blr
+void Base::drawFixString(u32 position) {
+    CursorPos cursor;
+    cursor.fCursorX = 0.0f;
+    cursor.fCursorY = 0.0f;
+    cursor.uCursorPos = position;
+    mCharColor.a = muGlobalAlpha;
+    SetTextColor(mCharColor);
+    u32 length = mpString->getLength();
+    textdrawer::Base::setDrawString(mpString->getWCString(), 0, length);
+    textdrawer::Base::draw(&cursor);
+    drawCursor(cursor.fCursorX, cursor.fCursorY);
 }
 
-asm void Base::draw() {
-    nofralloc
-    stwu r1, -0x50(r1)
-    mflr r0
-    stw r0, 0x54(r1)
-    stw r31, 0x4c(r1)
-    stw r30, 0x48(r1)
-    mr r30, r3
-    lwz r12, 0(r3)
-    lwz r12, 0x188(r12)
-    mtctr r12
-    bctrl
-    stw r3, 0x18(r1)
-    addi r3, r30, 0x10
-    lfs f2, 0x188(r30)
-    stw r4, 0x1c(r1)
-    lfs f1, 0x18(r1)
-    bl SetCursor__Q34nw4r2ut10CharWriterFff
-    lwz r12, 0(r30)
-    mr r3, r30
-    lwz r12, 0x188(r12)
-    mtctr r12
-    bctrl
-    lfs f0, lbl_81694D28(r0)
-    stw r3, 0x10(r1)
-    stfs f0, 0x30(r1)
-    stfs f0, 0x34(r1)
-    stfs f0, 0x38(r1)
-    stfs f0, 0x3c(r1)
-    lwz r12, 0(r30)
-    stw r3, 0x28(r1)
-    mr r3, r30
-    lwz r12, 0x184(r12)
-    stw r4, 0x14(r1)
-    stw r4, 0x2c(r1)
-    mtctr r12
-    bctrl
-    stw r3, 0x20(r1)
-    lfs f1, 0x28(r1)
-    stw r4, 0x24(r1)
-    lfs f5, 0x20(r1)
-    lfs f4, 0x24(r1)
-    stfs f5, 0x30(r1)
-    lfs f0, 0x2c(r1)
-    stfs f4, 0x3c(r1)
-    lfs f3, 0x128(r30)
-    lfs f2, 0x120(r30)
-    stw r3, 8(r1)
-    fsubs f2, f3, f2
-    stw r4, 0xc(r1)
-    fmuls f1, f1, f2
-    fadds f1, f5, f1
-    stfs f1, 0x38(r1)
-    lfs f2, 0x124(r30)
-    lfs f1, 0x12c(r30)
-    fsubs f1, f2, f1
-    fmuls f0, f0, f1
-    fadds f0, f4, f0
-    stfs f0, 0x34(r1)
-    lwz r3, 0x164(r30)
-    lwz r12, 0(r3)
-    lwz r12, 0x7c(r12)
-    mtctr r12
-    bctrl
-    lwz r12, 0x5c(r30)
-    mr r31, r3
-    addi r3, r30, 0x10
-    addi r4, r1, 0x30
-    lwz r12, 0x20(r12)
-    mtctr r12
-    bctrl
-    lwz r12, 0(r30)
-    mr r3, r30
-    mr r4, r31
-    lwz r12, 0x174(r12)
-    mtctr r12
-    bctrl
-    lwz r12, 0x5c(r30)
-    addi r3, r30, 0x10
-    lwz r12, 0x24(r12)
-    mtctr r12
-    bctrl
-    lwz r0, 0x54(r1)
-    lwz r31, 0x4c(r1)
-    lwz r30, 0x48(r1)
-    mtlr r0
-    addi r1, r1, 0x50
-    blr
+void Base::draw() {
+    SetCursor(getScale().x, mfScrollY);
+    nw4r::math::VEC2 scale = getScale();
+    nw4r::ut::Rect clip(0.0f, 0.0f, 0.0f, 0.0f);
+    nw4r::math::VEC2 origin = getGlobalLeftTopPos();
+    clip.left = origin.x;
+    clip.bottom = origin.y;
+    clip.right = origin.x + scale.x * (mRect.right - mRect.left);
+    clip.top = origin.y + scale.y * (mRect.top - mRect.bottom);
+    u32 position = mpString->getCursorPos();
+    beginDraw(clip);
+    drawFixString(position);
+    endDraw();
 }
 
 asm void Base::drawCursor(f32, f32) {
@@ -5958,183 +4445,38 @@ asm void Base::drawCursor(f32, f32) {
     blr
 }
 
-extern "C" asm void doScroll__Q39textinput9inputform4BaseFPQ39textinput15CommandReceiver6Scroll() {
-    nofralloc
-    stwu r1, -0x10(r1)
-    mflr r0
-    stw r0, 0x14(r1)
-    stw r31, 0xc(r1)
-    mr r31, r4
-    stw r30, 8(r1)
-    mr r30, r3
-    lwz r12, 0x18c(r3)
-    lwz r12, 0x14(r12)
-    mtctr r12
-    addi r3, r3, 0x18c
-    bctrl
-    cmpwi r3, 0
-    bne doScroll_L1
-    lbz r0, 0(r31)
-    cmpwi r0, 0
-    beq doScroll_L2
-    lfs f0, 4(r31)
-    stfs f0, 0x184(r30)
-    lfs f0, 8(r31)
-    stfs f0, 0x188(r30)
-    stfs f0, 0x100(r30)
-    b doScroll_L3
-doScroll_L2:
-    lfs f2, 0x184(r30)
-    addi r3, r30, 0x18c
-    lfs f0, 4(r31)
-    li r4, 0
-    lfs f1, 0x188(r30)
-    li r5, 0
-    fadds f0, f2, f0
-    lfs f3, lbl_81694D88(r0)
-    stfs f0, 0x184(r30)
-    lwz r12, 0x18c(r30)
-    lfs f0, 8(r31)
-    lwz r12, 8(r12)
-    fadds f2, f1, f0
-    mtctr r12
-    bctrl
-doScroll_L3:
-    lwz r12, 0(r30)
-    mr r3, r30
-    li r4, 0xb
-    lwz r12, 0x178(r12)
-    mtctr r12
-    bctrl
-doScroll_L1:
-    lwz r0, 0x14(r1)
-    lwz r31, 0xc(r1)
-    lwz r30, 8(r1)
-    mtlr r0
-    addi r1, r1, 0x10
-    blr
+void Base::doScroll(Scroll* scroll) {
+    if (mScrollAnm.isActive()) return;
+    if (scroll->absY) {
+        mfScrollX = scroll->x;
+        mfScrollY = scroll->y;
+        mfDrawScrollY = mfScrollY;
+    } else {
+        mfScrollX += scroll->x;
+        mScrollAnm.startAnm(mfScrollY, mfScrollY + scroll->y, 15.0f, NULL, NULL);
+    }
+    onSE(static_cast<sound::SE>(11));
 }
 
-asm void Base::doBeforeDrawProcess(const wchar_t*, u32, const DrawInfo&) {
-    nofralloc
-    stwu r1, -0x60(r1)
-    mflr r0
-    stw r0, 0x64(r1)
-    stfd f31, 0x50(r1)
-    psq_st f31, 0x58(r1), 0, 0
-    stfd f30, 0x40(r1)
-    psq_st f30, 0x48(r1), 0, 0
-    stfd f29, 0x30(r1)
-    psq_st f29, 0x38(r1), 0, 0
-    stw r31, 0x2c(r1)
-    mr r31, r6
-    stw r30, 0x28(r1)
-    mr r30, r5
-    stw r29, 0x24(r1)
-    mr r29, r4
-    stw r28, 0x20(r1)
-    mr r28, r3
-    addi r3, r3, 0x10
-    bl GetCursorX__Q34nw4r2ut10CharWriterCFv
-    lwz r12, 0(r28)
-    mr r3, r28
-    mr r4, r29
-    mr r5, r30
-    lwz r12, 0x170(r12)
-    mtctr r12
-    bctrl
-    cmpwi r3, 0
-    beq doBeforeDrawProcess_L1
-    lwz r12, 0(r28)
-    mr r3, r28
-    lwz r12, 0x158(r12)
-    mtctr r12
-    bctrl
-doBeforeDrawProcess_L1:
-    lwz r12, 0(r28)
-    mr r3, r28
-    mr r4, r31
-    lwz r12, 0x160(r12)
-    mtctr r12
-    bctrl
-    cmpwi r3, 0
-    beq doBeforeDrawProcess_L2
-    lwz r4, 0xb0(r28)
-    addi r3, r28, 0x10
-    addi r0, r4, 1
-    stw r0, 0xb0(r28)
-    lwz r12, 0x5c(r28)
-    lwz r12, 0x28(r12)
-    mtctr r12
-    bctrl
-    fmr f31, f1
-    addi r3, r28, 0x10
-    bl GetCursorY__Q34nw4r2ut10CharWriterCFv
-    fadds f1, f1, f31
-    addi r3, r28, 0x10
-    bl SetCursorY__Q34nw4r2ut10CharWriterFf
-    lwz r12, 0(r28)
-    mr r3, r28
-    lwz r12, 0x188(r12)
-    mtctr r12
-    bctrl
-    stw r3, 0x10(r1)
-    addi r3, r28, 0x10
-    stw r4, 0x14(r1)
-    lfs f1, 0x10(r1)
-    bl SetCursorX__Q34nw4r2ut10CharWriterFf
-doBeforeDrawProcess_L2:
-    lwz r3, 0x164(r28)
-    addi r4, r1, 0xc
-    addi r5, r1, 8
-    lwz r12, 0(r3)
-    lwz r12, 0x8c(r12)
-    mtctr r12
-    bctrl
-    lwz r0, 0xc(r1)
-    cmplw r30, r0
-    blt doBeforeDrawProcess_L3
-    lwz r0, 8(r1)
-    cmplw r30, r0
-    bge doBeforeDrawProcess_L3
-    addi r3, r28, 0x10
-    bl GetCursorX__Q34nw4r2ut10CharWriterCFv
-    lfs f0, 0(r31)
-    addi r3, r28, 0x10
-    fadds f31, f0, f1
-    bl GetCursorY__Q34nw4r2ut10CharWriterCFv
-    lfs f0, 4(r31)
-    addi r3, r28, 0x10
-    fadds f30, f0, f1
-    bl GetCursorX__Q34nw4r2ut10CharWriterCFv
-    lfs f0, 8(r31)
-    addi r3, r28, 0x10
-    fadds f29, f0, f1
-    bl GetCursorY__Q34nw4r2ut10CharWriterCFv
-    lfs f0, 0xc(r31)
-    fmr f2, f30
-    fmr f3, f29
-    lfs f5, lbl_81694D28(r0)
-    fadds f4, f0, f1
-    lfs f6, lbl_81694D38(r0)
-    fmr f1, f31
-    addi r3, r28, 0x1c0
-    bl drawBox___Q29textinput5debugFffffffR8_GXColor
-doBeforeDrawProcess_L3:
-    psq_l f31, 0x58(r1), 0, 0
-    lfd f31, 0x50(r1)
-    psq_l f30, 0x48(r1), 0, 0
-    lfd f30, 0x40(r1)
-    psq_l f29, 0x38(r1), 0, 0
-    lfd f29, 0x30(r1)
-    lwz r31, 0x2c(r1)
-    lwz r30, 0x28(r1)
-    lwz r29, 0x24(r1)
-    lwz r0, 0x64(r1)
-    lwz r28, 0x20(r1)
-    mtlr r0
-    addi r1, r1, 0x60
-    blr
+void Base::doBeforeDrawProcess(const wchar_t* string, u32 position, const DrawInfo& info) {
+    f32 cursorX = GetCursorX();
+    if (doWordWrap(string, position, cursorX)) doLineFeed();
+    if (isOverLine(info)) {
+        ++muLine;
+        f32 height = getLineHeight();
+        f32 cursorY = GetCursorY();
+        SetCursorY(cursorY + height);
+        SetCursorX(getScale().x);
+    }
+    u32 start, end;
+    mpString->getSelected(start, end);
+    if (position >= start && position < end) {
+        f32 left = info.rect.left + GetCursorX();
+        f32 top = info.rect.top + GetCursorY();
+        f32 right = info.rect.right + GetCursorX();
+        f32 bottom = info.rect.bottom + GetCursorY();
+        debug::drawBox_(left, top, right, bottom, 0.0f, 1.0f, mSelectedColor);
+    }
 }
 
 void Base::finishDraw(u32) {}
@@ -6367,7 +4709,7 @@ bool WithAtok::hasConfirmedString() { return false; }
 int WithAtok::getCurrentNumPredicted() { return 0; }
 bool WithAtok::isCandidateSelected() { return false; }
 s32 WithAtok::getSelectedCandidate() { return 0; }
-s16 WithAtok::getFixedPredictionNum() { return 0; }
+s32 WithAtok::getFixedPredictionNum() { return 0; }
 wchar_t WithAtok::getInputStringLength() { return 0; }
 bool WithAtok::moveCursorLeft() { return false; }
 bool WithAtok::moveCursorRight() { return false; }
