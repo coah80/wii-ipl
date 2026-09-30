@@ -93,7 +93,11 @@ namespace textinput {
             void initAspect();
 #endif
 
+#ifdef IPL_TI_MANAGER_OUT_OF_LINE
+            virtual void                                setSecretInputMode(bool secretInputMode);
+#else
             virtual void                                setSecretInputMode(bool secretInputMode) { mpInputForm->setSecretModeOn(secretInputMode); }
+#endif
 #ifdef IPL_ADDRESS_EDIT_CPP
             void enableKSXFilter(bool compatibleFilter);
 #endif
@@ -106,7 +110,11 @@ namespace textinput {
             virtual void                                start() {}
             virtual void                                end()   {}
 
+#ifdef IPL_TI_MANAGER_OUT_OF_LINE
+            virtual InputForm*                          getInputForm();
+#else
             virtual InputForm*                          getInputForm()                          { return mpInputForm; }
+#endif
             virtual const InputForm*                    getInputForm() const                    { return mpInputForm; }
             
             virtual keyboard::hwkey::HWKeyboard*        getHWKeyboard()                         { return mpHWKeyboard; }

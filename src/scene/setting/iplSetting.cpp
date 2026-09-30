@@ -1,5 +1,14 @@
 #define IPL_SETTING_IMPLEMENTATION
 #define IPL_CHANNEL_TITLE_NOVTABLE
+#define IPL_SCENE_BASE_VIRTS_OUT_OF_LINE
+#define IPL_FADER_SCENE_BASE_VIRTS_OUT_OF_LINE
+#define IPL_GUI_VIRTS_OUT_OF_LINE
+#define IPL_LYT_PANE_SETVISIBLE_OUT_OF_LINE
+#define IPL_LYT_PANE_RTTI_OUT_OF_LINE
+#define IPL_TI_MANAGER_OUT_OF_LINE
+#define IPL_TI_TEXTDRAWER_OUT_OF_LINE
+#define IPL_SOUND_RECT_OUT_OF_LINE
+#define IPL_CONTROLLER_TRIVIAL_RECT_DTOR
 #include "scene/setting/iplSetting.h"
 #include "scene/setting/iplAPScanThread.h"
 
@@ -18,6 +27,16 @@
 #include "iplwww/www_surface.h"
 #include "iplwww/www_window.h"
 #include "iplwww/www_trasition.h"
+
+#undef IPL_SCENE_BASE_VIRTS_OUT_OF_LINE
+#undef IPL_FADER_SCENE_BASE_VIRTS_OUT_OF_LINE
+#undef IPL_GUI_VIRTS_OUT_OF_LINE
+#undef IPL_LYT_PANE_SETVISIBLE_OUT_OF_LINE
+#undef IPL_LYT_PANE_RTTI_OUT_OF_LINE
+#undef IPL_TI_MANAGER_OUT_OF_LINE
+#undef IPL_TI_TEXTDRAWER_OUT_OF_LINE
+#undef IPL_SOUND_RECT_OUT_OF_LINE
+#undef IPL_CONTROLLER_TRIVIAL_RECT_DTOR
 
 #include <cstdio>
 #include <cstdlib>
@@ -3646,34 +3665,40 @@ namespace ipl {
                 return;
             }
             bool cancelled = message == 0x21u;
-            if (mAOSSState == 0) {
-                if (!snd::getSystem()->isSEActive("WIPL_SE_DECIDE")) {
-                    if (cancelled || static_cast<AOSSThread*>(mpAOSSThread)->start() == 0) {
-                        www::wiisetting::setFuncResult(cancelled ? 5 : 2);
+            switch (mAOSSState) {
+                case 0:
+                    if (!snd::getSystem()->isSEActive("WIPL_SE_DECIDE")) {
+                        if (!cancelled && static_cast<AOSSThread*>(mpAOSSThread)->start() != 0) {
+                            mAOSSState = 1;
+                        } else {
+                            www::wiisetting::setFuncResult(cancelled ? 5 : 2);
+                            resetFuncMsgQ();
+                        }
+                    }
+                    break;
+                case 1:
+                case 2: {
+                    int result;
+                    if (static_cast<AOSSThread*>(mpAOSSThread)->finish(&m_AOSSConfig, &result) != 0) {
+                        mAOSSState = 0;
+                        if (cancelled) {
+                            www::wiisetting::setFuncResult(5);
+                        } else if (result != 0) {
+                            OSReport("m_AOSSThread : Terminated with Error(%d)\n", result);
+                            www::wiisetting::setFuncResult(2);
+                        } else {
+                            ncd::NCDSetting::getData();
+                            ncd::NCDSetting::getID();
+                            ncd::NCDSetting::setAOSSParams(m_AOSSConfig);
+                            www::wiisetting::setFuncResult(1);
+                        }
+                        mAOSSState = 0;
                         resetFuncMsgQ();
-                    } else {
-                        mAOSSState = 1;
+                    } else if (cancelled && mAOSSState != 2) {
+                        static_cast<AOSSThread*>(mpAOSSThread)->cancel();
+                        mAOSSState = 2;
                     }
-                }
-            } else if (mAOSSState >= 0 && mAOSSState < 3) {
-                int result = 0;
-                if (static_cast<AOSSThread*>(mpAOSSThread)->finish(&m_AOSSConfig, &result) != 0) {
-                    mAOSSState = 0;
-                    if (cancelled) {
-                        www::wiisetting::setFuncResult(5);
-                    } else if (result == 0) {
-                        ncd::NCDSetting::getData();
-                        ncd::NCDSetting::getID();
-                        ncd::NCDSetting::setAOSSParams(m_AOSSConfig);
-                        www::wiisetting::setFuncResult(1);
-                    } else {
-                        OSReport("m_AOSSThread : Terminated with Error(%d)\n", result);
-                        www::wiisetting::setFuncResult(2);
-                    }
-                    resetFuncMsgQ();
-                } else if (cancelled && mAOSSState != 2) {
-                    static_cast<AOSSThread*>(mpAOSSThread)->cancel();
-                    mAOSSState = 2;
+                    break;
                 }
             }
         }

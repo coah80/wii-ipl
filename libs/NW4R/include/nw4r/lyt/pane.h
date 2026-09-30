@@ -48,7 +48,12 @@ namespace nw4r {
             Pane(const res::Pane* pBlock);
             virtual ~Pane();  // 0x08
 
+#ifdef IPL_LYT_PANE_RTTI_OUT_OF_LINE
+            virtual const nw4r::ut::detail::RuntimeTypeInfo* GetRuntimeTypeInfo() const;
+            static const nw4r::ut::detail::RuntimeTypeInfo typeInfo;
+#else
             NW4R_UT_RUNTIME_TYPEINFO;
+#endif
 
             virtual void CalculateMtx(const DrawInfo& drawInfo);  // 0x10
 
@@ -105,7 +110,11 @@ namespace nw4r {
             void SetSize(const Size& size) { mSize = size; }
 
             bool IsVisible() { return detail::TestBit(mFlag, BIT_VISIBLE); };
+#ifdef IPL_LYT_PANE_SETVISIBLE_OUT_OF_LINE
+            void SetVisible(bool visible);
+#else
             void SetVisible(bool visible) { detail::SetBit(&mFlag, BIT_VISIBLE, visible); };
+#endif
 
             bool IsInfluencedAlpha() { return detail::TestBit(mFlag, BIT_INFLUENCED_ALPHA); };
             void SetInfluencedAlpha(bool visible) { detail::SetBit(&mFlag, BIT_INFLUENCED_ALPHA, visible); };

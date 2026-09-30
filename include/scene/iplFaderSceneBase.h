@@ -31,6 +31,11 @@ namespace ipl {
 
             virtual void calc();
 
+#ifdef IPL_FADER_SCENE_BASE_VIRTS_OUT_OF_LINE
+            virtual void initCalcNormal();  // 0x4C
+            virtual void initCalcFadeout();  // 0x50
+            virtual void calcCommon();  // 0x54
+#else
             virtual void initCalcNormal() {
             }  // 0x4C
             virtual void initCalcFadeout() {
@@ -38,6 +43,7 @@ namespace ipl {
 
             virtual void calcCommon() {
             }  // 0x54
+#endif
 
             virtual FaderSceneCommand calcFadein() {
                 return FADER_SCN_NEXT;
@@ -49,8 +55,12 @@ namespace ipl {
                 return FADER_SCN_NEXT;
             }  // 0x60
 
+#ifdef IPL_FADER_SCENE_BASE_VIRTS_OUT_OF_LINE
+            virtual void calcCommonAfter();  // 0x64
+#else
             virtual void calcCommonAfter() {
             }  // 0x64
+#endif
 
             int getSceneFadeState() {
                 return mScnFadeState;

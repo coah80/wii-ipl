@@ -55,7 +55,11 @@ namespace textinput {
 
                 virtual nw4r::math::VEC2    getScale() const = 0;
 
+#ifdef IPL_TI_TEXTDRAWER_OUT_OF_LINE
+                virtual void                setSecretModeOn(bool secretMode);
+#else
                 virtual void                setSecretModeOn(bool secretMode)    { mbSecretMode = secretMode; }
+#endif
 
                 virtual void                doBeforeDrawProcess(const wchar_t*, u32, const DrawInfo& drawInfo);
                 virtual void                doAfterDrawProcess(const wchar_t*, u32, const DrawInfo& drawInfo);

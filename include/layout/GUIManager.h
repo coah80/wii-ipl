@@ -56,10 +56,16 @@ namespace gui {
 
         virtual void onEvent(u32 compId, u32 event, void* data) {}  // 0x08 (0x02)
 
+#ifdef IPL_GUI_VIRTS_OUT_OF_LINE
+        virtual void setManager(Manager* manager);  // 0x0C (0x03)
+        virtual void setLatestEventCtrlNo(int ctrlNo);  // 0x10 (0x04)
+        virtual int getLatestEventCtrlNo();               // 0x14 (0x05)
+#else
         virtual void setManager(Manager* manager) { mpManager = manager; }  // 0x0C (0x03)
 
         virtual void setLatestEventCtrlNo(int ctrlNo) { mLatestCtrlNum = ctrlNo; }  // 0x10 (0x04)
         virtual int getLatestEventCtrlNo() { return mLatestCtrlNum; }               // 0x14 (0x05)
+#endif
 
     protected:
         Manager* mpManager;  // 0x04
@@ -85,7 +91,11 @@ namespace gui {
         virtual bool isPointed(int point) { return mbPointed[point]; }    // 0x24 (0x09)
         virtual bool isDragging(int point) { return mbDragging[point]; }  // 0x28 (0x0A)
 
+#ifdef IPL_GUI_VIRTS_OUT_OF_LINE
+        virtual void setPointed(int point, bool bEnable);  // 0x2C (0x0B)
+#else
         virtual void setPointed(int point, bool bEnable) { mbPointed[point] = bEnable; }  // 0x2C (0x0B)
+#endif
 
         virtual void onPoint(int point) { mFlightDuration[point] = 0; }   // 0x30 (0x0C)
         virtual void offPoint(int point) { mFlightDuration[point] = 0; }  // 0x34 (0x0D)
@@ -252,7 +262,11 @@ namespace gui {
         virtual bool contain(f32 x, f32 y);  // 0x68 (0x1A)
 
         virtual void setPane(nw4r::lyt::Pane* pane) { mpPane = pane; }  // 0x6C (0x1B)
+#ifdef IPL_GUI_VIRTS_OUT_OF_LINE
+        virtual nw4r::lyt::Pane* getPane();           // 0x70 (0x1C)
+#else
         virtual nw4r::lyt::Pane* getPane() { return mpPane; }           // 0x70 (0x1C)
+#endif
 
     private:
         nw4r::lyt::Pane* mpPane;  // 0x88
