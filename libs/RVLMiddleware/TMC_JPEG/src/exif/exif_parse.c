@@ -499,33 +499,6 @@ static void TMCJPEGDEC_IFD1_tag_parse(TMCCJPEGDecExifData* pInfo, u16 byteOrder,
     s32 tag = readU16(entry, byteOrder);
 
     switch (tag) {
-        case 0x0103: {
-            pInfo->compressionIfd1 = readU16(entry + 8, byteOrder);
-            return;
-        }
-        case 0x0111: {
-            return;
-        }
-        case 0x012D: {
-            return;
-        }
-        case 0x0132: {
-            return;
-        }
-        case 0x0213: {
-            return;
-        }
-        case 0x8769: {
-            return;
-        }
-        case 0x9000: {
-            return;
-        }
-        case 0x9101: {
-            return;
-        }
-
-
         case 0x011A: {
             u32 offset;
             const u8* p;
@@ -574,8 +547,10 @@ static void TMCJPEGDEC_IFD1_tag_parse(TMCCJPEGDecExifData* pInfo, u16 byteOrder,
             pInfo->resUnitIfd1 = readU16(entry + 8, byteOrder);
             return;
         }
-
-
+        case 0x0103: {
+            pInfo->compressionIfd1 = readU16(entry + 8, byteOrder);
+            return;
+        }
         case 0x0201: {
             pInfo->thumbnailOffset = readU32(entry + 8, byteOrder);
             return;
@@ -584,6 +559,20 @@ static void TMCJPEGDEC_IFD1_tag_parse(TMCCJPEGDecExifData* pInfo, u16 byteOrder,
             pInfo->thumbnailLength = readU32(entry + 8, byteOrder);
             return;
         }
+        case 0x0111:
+            return;
+        case 0x012D:
+            return;
+        case 0x0132:
+            return;
+        case 0x0213:
+            return;
+        case 0x8769:
+            return;
+        case 0x9000:
+            return;
+        case 0x9101:
+            return;
         case 0x0112: ;
         case 0xA000:
         case 0xA001:
