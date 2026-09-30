@@ -592,7 +592,7 @@ NWC24Err NWC24iMBoxCheck(NWC24MBoxType type, u32 size) {
     return NWC24_OK;
 }
 
-NWC24Err NWC24iMBoxSetLastUIDL(NWC24MBoxType type, const char* uidl) {
+NWC24Err NWC24iMBoxSetLastUIDL(u32 type, const char* uidl) {
     MBCHeader* header;
     NWC24Err err = GetCachedMBCHeader(type, &header);
     if (err != NWC24_OK)

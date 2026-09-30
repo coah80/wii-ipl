@@ -11,6 +11,8 @@ extern "C" {
 
 NWC24Err NWC24iOpenMBox();
 
+NWC24Err NWC24iMBoxSetLastUIDL(u32 ctrlId, const char* uidl);
+
 #ifdef __cplusplus
 }
 #endif
