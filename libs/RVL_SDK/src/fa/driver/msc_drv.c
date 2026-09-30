@@ -1,7 +1,7 @@
 #include <revolution/fa.h>
 
-static FAEjectCallback g_detach_func;
 static FAInsertCallback g_attach_func;
+static FAEjectCallback g_detach_func;
 
 extern s32 uhf_msc_is_media_insert(void);
 
