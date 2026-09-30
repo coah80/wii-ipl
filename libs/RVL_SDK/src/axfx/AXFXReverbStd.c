@@ -23,7 +23,7 @@ BOOL AXFXReverbStdSettings(AXFX_REVERBSTD* fx) {
 }
 
 void AXFXReverbStdCallback(void* chans, void* context) {
-    AXFXReverbStdExpCallback((AXFX_BUFFERUPDATE*)chans, (AXFX_REVERBSTD_EXP*)context);
+    AXFXReverbStdExpCallback((AXFX_BUS*)chans, (AXFX_REVERBSTD_EXP*)context);
 }
 
 static void __ParamConvert(AXFX_REVERBSTD* fx) {

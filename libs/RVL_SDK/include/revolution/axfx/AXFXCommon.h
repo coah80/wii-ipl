@@ -7,6 +7,8 @@
 extern "C" {
 #endif
 
+#define AXFX_STEREO_CHANNEL_MAX 3
+
 typedef struct AXFX_BUS {
     s32* left;      // 0x00
     s32* right;     // 0x04
@@ -18,6 +20,13 @@ typedef struct AXFX_BUFFERUPDATE {
     s32* right;     // 0x04
     s32* surround;  // 0x08
 } AXFX_BUFFERUPDATE;
+
+typedef struct AXFX_BUS_DPL2 {
+    s32* left;            // 0x00
+    s32* right;           // 0x04
+    s32* left_surround;   // 0x08
+    s32* right_surround;  // 0x0C
+} AXFX_BUS_DPL2;
 
 typedef struct AXFX_BUFFERUPDATE_DPL2 {
     s32* left;            // 0x00

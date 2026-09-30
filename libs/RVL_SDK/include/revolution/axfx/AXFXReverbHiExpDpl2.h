@@ -49,13 +49,13 @@ typedef struct AXFX_REVERBHI_EXP_DPL2 {
     f32 crosstalk;        // 0x15C
     f32 earlyGain;        // 0x160
     f32 fusedGain;        // 0x164
-    AXFX_BUS* busIn;      // 0x168
-    AXFX_BUS* busOut;     // 0x16C
+    AXFX_BUS_DPL2* busIn;  // 0x168
+    AXFX_BUS_DPL2* busOut; // 0x16C
     f32 outGain;          // 0x170
     f32 sendGain;         // 0x174
 } AXFX_REVERBHI_EXP_DPL2;
 
-u32 AXFXReverbHiExpGetMemSizeDpl2(const AXFX_REVERBHI_EXP_DPL2* fx);
+u32 AXFXReverbHiExpGetMemSizeDpl2(AXFX_REVERBHI_EXP_DPL2* fx);
 BOOL AXFXReverbHiExpInitDpl2(AXFX_REVERBHI_EXP_DPL2* fx);
 void AXFXReverbHiExpShutdownDpl2(AXFX_REVERBHI_EXP_DPL2* fx);
 BOOL AXFXReverbHiExpSettingsDpl2(AXFX_REVERBHI_EXP_DPL2* fx);
