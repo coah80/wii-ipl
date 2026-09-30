@@ -2,20 +2,20 @@
 #define TEXTINPUT_CELL_PHONE_H
 
 #include "tiNw4rManager.h"
-#if defined(MYTIMANAGER_IMPLEMENTATION) || defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION)
+#if defined(MYTIMANAGER_IMPLEMENTATION) || defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIHWKEYBOARD_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION)
 #include "tiKeyboard.h"
 #endif
 
 namespace textinput {
     namespace keyboard {
         namespace cellphonetype {
-#if defined(MYTIMANAGER_IMPLEMENTATION) || defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION)
+#if defined(MYTIMANAGER_IMPLEMENTATION) || defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIHWKEYBOARD_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION)
             class Base : public textinput::keyboard::KeyboardBase {
 #else
             class Base {
 #endif
             public:
-#if defined(MYTIMANAGER_IMPLEMENTATION) || defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION)
+#if defined(MYTIMANAGER_IMPLEMENTATION) || defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIHWKEYBOARD_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION)
                 enum InputMode {
                     IM_00,
                     IM_01,
@@ -31,6 +31,8 @@ namespace textinput {
                 virtual void onKey(u32, void*) override;
 #ifdef TIMANAGER_IMPLEMENTATION
                 Base(Manager* manager) : mpManager(manager) {}
+                virtual int getType() override;
+#elif defined(TIHWKEYBOARD_IMPLEMENTATION)
                 virtual int getType() override;
 #else
                 virtual void getType() override;
@@ -79,7 +81,7 @@ namespace textinput {
 
                 virtual void vt_0x4C();
                 virtual void vt_0x50();
-#if defined(MYTIMANAGER_IMPLEMENTATION) || defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION)
+#if defined(MYTIMANAGER_IMPLEMENTATION) || defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIHWKEYBOARD_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION)
                 virtual void doNumericMode(bool);
 #else
                 virtual void vt_0x54();
@@ -95,11 +97,11 @@ namespace textinput {
 
                 // TODO enum?
                 int getInputType() const;
-#if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION)
+#if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIHWKEYBOARD_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION)
                 void resetHoldingButton();
 #endif
 
-#if defined(MYTIMANAGER_IMPLEMENTATION) || defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION)
+#if defined(MYTIMANAGER_IMPLEMENTATION) || defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIHWKEYBOARD_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION)
             private:
                 u32 mPreviousInputMode;
                 u32 mCurrentInputMode;
@@ -123,7 +125,7 @@ namespace textinput {
 
             class LayoutByNW4R : public Base, public nw4rmanager::Layout {
             public:
-#if defined(MYTIMANAGER_IMPLEMENTATION) || defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION)
+#if defined(MYTIMANAGER_IMPLEMENTATION) || defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIHWKEYBOARD_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION)
 #ifdef TIMANAGER_IMPLEMENTATION
                 LayoutByNW4R(Manager* manager, nw4r::lyt::MultiArcResourceAccessor* accessor, EventObserver* observer, const char* layoutName)
                     : Base(manager), nw4rmanager::Layout(accessor, layoutName, observer), mpEventHandler(NULL) {}
@@ -162,7 +164,7 @@ namespace textinput {
 
                 void onPressedShift(bool shift);
                 void onReleasedShift();
-#if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION)
+#if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIHWKEYBOARD_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION)
                 bool hasLineFeedButton() const { return mbLineFeedButton; }
             private:
                 bool mbLineFeedButton;
@@ -176,7 +178,7 @@ namespace textinput {
 #endif
             public:
 #endif
-#if defined(MYTIMANAGER_IMPLEMENTATION) || defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION)
+#if defined(MYTIMANAGER_IMPLEMENTATION) || defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIHWKEYBOARD_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION)
                 virtual bool updateInput(int chan, f32 x, f32 y, u32 trig, u32 hold, u32 release, void* data) override;
                 virtual bool updateInput(input::HKBManager& hkbManager) override;
 #endif

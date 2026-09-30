@@ -25,7 +25,7 @@ namespace textinput {
 #endif
 
                     virtual void    init();
-#ifdef TI_PC_KEYBOARD_IMPLEMENTATION
+#if defined(TI_PC_KEYBOARD_IMPLEMENTATION) || defined(TIHWKEYBOARD_IMPLEMENTATION)
                     wchar_t convertWCCode(wchar_t code) const;
 #endif
 
@@ -40,6 +40,11 @@ namespace textinput {
                     void resetQuoteState() { mbSingleQuoteClosing = 0; mbDoubleQuoteClosing = 0; }
 #endif
                 private:
+#ifdef TIHWKEYBOARD_IMPLEMENTATION
+                    bool updateRepeatKey_(input::HKBManager&);
+                    bool updateTriggerKey_(input::HKBManager&);
+                    bool updateTappingShift_(input::HKBManager&);
+#endif
                     void            updateShift(input::HKBManager& hkbManager);
                     void controlKeyTriggeredHandler(input::HKBManager);
 
@@ -51,8 +56,13 @@ namespace textinput {
                     u8 mbSingleQuoteClosing;
                     u8 mbDoubleQuoteClosing;
 #else
+#ifdef TIHWKEYBOARD_IMPLEMENTATION
+                    bool field_0x15;
+                    bool field_0x16;
+#else
                     u8          field_0x15; // 0x15
                     u8          field_0x16; // 0x16
+#endif
 #endif
             };
 

@@ -58,8 +58,13 @@ namespace textinput {
             virtual void setQwertyWithSE(bool qwerty);
             virtual bool isEnableKeytopChange() const;
             virtual void enableKeytopChange(bool enable);
+#ifdef MYTIMANAGER_MATCHING
+            virtual nw4r::lyt::Pane* getDownArea();
+            virtual nw4r::lyt::Pane* getUpArea();
+#else
             virtual nw4r::lyt::Pane* getUpArea();
             virtual nw4r::lyt::Pane* getDownArea();
+#endif
             virtual void setOKButtonVisible(bool visible);
             virtual void setCancelButtonVisible(bool visible);
             virtual void setOKButtonCaption(const wchar_t* caption);

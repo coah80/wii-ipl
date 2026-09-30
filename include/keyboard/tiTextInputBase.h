@@ -70,7 +70,7 @@ namespace textinput {
                 INPUT_COMMAND_37 = 37,
             } INPUT_COMMAND;
 
-#if defined(TI_PC_KEYBOARD_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION) || defined(TISIGNWINDOW_IMPLEMENTATION)
+#if (defined(TI_PC_KEYBOARD_IMPLEMENTATION) || defined(TIHWKEYBOARD_IMPLEMENTATION)) || defined(TIMANAGER_IMPLEMENTATION) || defined(TISIGNWINDOW_IMPLEMENTATION)
             struct ChangePredictMode { u32 mode; bool enabled; };
 #endif
             virtual void    clearSender();
@@ -86,7 +86,7 @@ namespace textinput {
             CommandSender() : mpCommandReceiver(NULL) {}
 
             virtual void    setCommandReceiver(CommandReceiver* cmdRecv);
-            #if defined(TI_PC_KEYBOARD_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION)
+            #if (defined(TI_PC_KEYBOARD_IMPLEMENTATION) || defined(TIHWKEYBOARD_IMPLEMENTATION)) || defined(TIMANAGER_IMPLEMENTATION)
             virtual void sendCommand(u32 command, void* data) {
                 if (mpCommandReceiver != NULL) mpCommandReceiver->onCommand(static_cast<CommandReceiver::INPUT_COMMAND>(command), data);
             }

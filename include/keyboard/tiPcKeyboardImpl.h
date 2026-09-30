@@ -226,6 +226,12 @@ namespace textinput {
                 State mState;
                 const LanguageData* mpInitialLanguageData;
                 KeyState mKeyState;
+#ifdef TIHWKEYBOARD_IMPLEMENTATION
+            public:
+                KeyState& hardwareKeyState() { return mKeyState; }
+                bool hardwareLanguageKeyActive() const { return mbLanguageKeyActive; }
+            protected:
+#endif
                 MEMAllocator* mpAllocator;
                 bool mbOnlyQwerty;
                 bool mbLanguageKeyActive;
