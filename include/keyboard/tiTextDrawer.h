@@ -6,13 +6,13 @@
 
 #include <nw4r/ut/CharWriter.h>
 #include <nw4r/ut/Rect.h>
-#ifdef TIINPUTFORM_IMPLEMENTATION
+#if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION)
 #include <string.h>
 #endif
 
 namespace textinput {
     namespace textdrawer {
-#if defined(MYTIMANAGER_IMPLEMENTATION) || defined(MYTIINPUTFORM_IMPLEMENTATION) || defined(TIINPUTFORM_IMPLEMENTATION)
+#if defined(MYTIMANAGER_IMPLEMENTATION) || defined(MYTIINPUTFORM_IMPLEMENTATION) || defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION)
         class Base : public nw4r::ut::CharWriter {
 #else
         class Base : nw4r::ut::CharWriter {
@@ -34,7 +34,7 @@ namespace textinput {
                 } CursorPos;
 
                 typedef struct DrawInfo {
-#ifdef TIINPUTFORM_IMPLEMENTATION
+#if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION)
                     nw4r::ut::Rect rect;
                     wchar_t character;
 #else
@@ -42,7 +42,7 @@ namespace textinput {
 #endif
                 } DrawInfo;
 
-#ifdef TIINPUTFORM_IMPLEMENTATION
+#if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION)
                 Base() : mpDrawAllocator(NULL), mfViewX(0.0f), mfViewY(0.0f), mfViewWidth(0.0f), mfViewHeight(0.0f),
                     mfVIWidth(640.0f), mbAspect4x3(false), mbDrawClipped(false), muLine(0), mfLineSpacing(0.0f),
                     mfCharacterSpacing(0.0f), mfFontWidth(0.0f), mfFontHeight(0.0f), mfModifyStartY(0.0f), mfMinScrollY(0.0f),
@@ -94,7 +94,7 @@ namespace textinput {
                 virtual u32                 getEndPos() const;
 
                 // todo
-#ifdef TIINPUTFORM_IMPLEMENTATION
+#if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION)
                 virtual void                setDrawModifyScopeLine(s32 startLine, s32 endLine);
                 virtual void                setDrawCacheScopeLine(s32 startLine, s32 endLine);
                 virtual void                modifyCursorCache(s32 line, u32 position, f32 x, f32 y, f32 width, f32 height);
@@ -103,12 +103,12 @@ namespace textinput {
                 virtual void                setDrawCacheScopeLine();
                 virtual void                modifyCursorCache();
 #endif
-#ifdef TIINPUTFORM_IMPLEMENTATION
+#if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION)
                 virtual bool                isEnableCursorCache() const;
 #else
                 virtual void                isEnableCursorCache();
 #endif
-#ifdef TIINPUTFORM_IMPLEMENTATION
+#if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION)
                 virtual u32                 getDrawModifyStartLine() const;
                 virtual u32                 getDrawModifyEndLine() const;
 #else
@@ -119,7 +119,7 @@ namespace textinput {
                 virtual void                dirtyDrawCache();
                 virtual void                dirtyCursorCache();
 
-#ifdef TIINPUTFORM_IMPLEMENTATION
+#if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION)
             protected:
                 MEMAllocator* mpDrawAllocator;
                 u8 mDrawConfiguration[0x34];
@@ -145,7 +145,7 @@ namespace textinput {
                 u8      unk_0x50[0x78];
 #endif
                 bool    mbSecretMode;   // 0xC8
-#ifdef TIINPUTFORM_IMPLEMENTATION
+#if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION)
                 u32 muDrawModifyStartLine;
                 u32 muDrawModifyEndLine;
                 u32 muDrawModifyStartPos;

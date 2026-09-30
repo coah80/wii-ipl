@@ -1,14 +1,14 @@
 #ifndef TEXTINPUT_ZI_STRING_H
 #define TEXTINPUT_ZI_STRING_H
 
-#ifdef TIINPUTFORM_IMPLEMENTATION
+#if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION)
 #include "tiString.h"
 #include <eztx.h>
 #endif
 
 namespace textinput {
     namespace tistring {
-        #ifdef TIINPUTFORM_IMPLEMENTATION
+        #if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION)
         class WithZi : public Decolated {
         public:
             enum PredictLanguage { PL_Default };

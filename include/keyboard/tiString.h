@@ -3,7 +3,7 @@
 
 #include <revolution/types.h>
 #include <revolution/mem/allocator.h>
-#ifdef TIINPUTFORM_IMPLEMENTATION
+#if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION)
 #include <revolution/kpr.h>
 #endif
 
@@ -39,7 +39,7 @@ namespace textinput {
                 virtual wchar_t*    getWCString() const             { return mpszString; }
 
                 virtual void        setCandidate(wchar_t candidate) { mwcCandidate = candidate; }
-                #ifdef TIINPUTFORM_IMPLEMENTATION
+                #if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION)
                 virtual wchar_t     getCandidate() const            { return mwcCandidate; }
 #else
                 virtual wchar_t     getCandidate()                  { return mwcCandidate; }
@@ -61,7 +61,7 @@ namespace textinput {
         };
 
         class KanaStream {
-#ifdef TIINPUTFORM_IMPLEMENTATION
+#if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION)
         public:
             KPRQueue mQueue;
             wchar_t mPending;
@@ -74,13 +74,13 @@ namespace textinput {
 
         class Decolated : public StringBase {
         public:
-#ifdef TIINPUTFORM_IMPLEMENTATION
+#if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION)
             Decolated(u16 maxLen) : StringBase(maxLen), mCursorStart(0), mCursorEnd(0), mbSustain(false), mTranslateMode(0) { initKanaConverter(); }
 #else
             Decolated(u16 maxLen) : StringBase(maxLen), field_0x18(0), field_0x1C(0), field_0x20(0), field_0x24(0) { initKanaConverter(); }
 #endif
 
-#ifdef TIINPUTFORM_IMPLEMENTATION
+#if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION)
             virtual ~Decolated();
             enum TranslateMode { TM_Direct, TM_Kana, TM_Roman, TM_Hangul };
             virtual void clear();
@@ -103,7 +103,7 @@ namespace textinput {
             virtual u32 getCursorPos() const;
             virtual void getCursorPos(u32* start, u32* end);
             virtual bool canBackSpace();
-#ifdef TIINPUTFORM_IMPLEMENTATION
+#if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION)
             virtual bool deleteForward();
 #else
             virtual void deleteForward();
@@ -162,7 +162,7 @@ namespace textinput {
 #endif
 
         private:
-#ifdef TIINPUTFORM_IMPLEMENTATION
+#if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION)
             u32 mCursorStart;
             u32 mCursorEnd;
             bool mbSustain;
@@ -176,7 +176,7 @@ namespace textinput {
             KanaStream mKanaStream;  // 0x28
         };
 
-#ifdef TIINPUTFORM_IMPLEMENTATION
+#if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION)
         class WithAtok : public Decolated {
         public:
             WithAtok(u16 maxLength) : Decolated(maxLength) {}

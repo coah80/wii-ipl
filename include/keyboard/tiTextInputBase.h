@@ -39,7 +39,7 @@ namespace textinput {
         f32  y;     // 0x08
     } Scroll;
 
-#ifdef TIINPUTFORM_IMPLEMENTATION
+#if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION)
     enum HVKCode { HVK_None = 0 };
 #endif
 
@@ -54,11 +54,11 @@ namespace textinput {
     class CommandSender;
     class CommandReceiver : public Base {
         public:
-#ifdef TIINPUTFORM_IMPLEMENTATION
+#if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION)
             CommandReceiver() { clearSender(); }
             virtual ~CommandReceiver();
 #endif
-#if defined(MYTIINPUTFORM_IMPLEMENTATION) || defined(TIINPUTFORM_IMPLEMENTATION)
+#if defined(MYTIINPUTFORM_IMPLEMENTATION) || defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION)
             struct Scroll {
                 bool absY;
                 f32 x;
@@ -70,7 +70,7 @@ namespace textinput {
                 INPUT_COMMAND_37 = 37,
             } INPUT_COMMAND;
 
-#ifdef TI_PC_KEYBOARD_IMPLEMENTATION
+#if defined(TI_PC_KEYBOARD_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION)
             struct ChangePredictMode { u32 mode; bool enabled; };
 #endif
             virtual void    clearSender();
@@ -86,7 +86,7 @@ namespace textinput {
             CommandSender() : mpCommandReceiver(NULL) {}
 
             virtual void    setCommandReceiver(CommandReceiver* cmdRecv);
-            #ifdef TI_PC_KEYBOARD_IMPLEMENTATION
+            #if defined(TI_PC_KEYBOARD_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION)
             virtual void sendCommand(u32 command, void* data) {
                 if (mpCommandReceiver != NULL) mpCommandReceiver->onCommand(static_cast<CommandReceiver::INPUT_COMMAND>(command), data);
             }

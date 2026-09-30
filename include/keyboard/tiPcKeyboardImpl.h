@@ -17,6 +17,61 @@ namespace textinput {
     }
     namespace keyboard {
         namespace signwindow {
+#ifdef TIMANAGER_IMPLEMENTATION
+            struct LanguageDependencyData;
+            class Base : public KeyboardBase {
+            public:
+                Base(Manager* manager) : mpAllocator(NULL), mpManager(manager) {}
+                virtual ~Base();
+                virtual void create(MEMAllocator* allocator);
+                virtual void init();
+                virtual int getType();
+                virtual void setLanguage(Language language);
+                virtual bool isLocked();
+                virtual void setPage(u8 page);
+                virtual u8 getPage();
+                virtual void movePrevSignPage();
+                virtual void moveNextSignPage();
+                virtual void close();
+            private:
+                u32 mInputState;
+                const LanguageDependencyData* mpLanguageData;
+                MEMAllocator* mpAllocator;
+                Manager* mpManager;
+            };
+            class EventHandler;
+            class LayoutByNW4R : public Base, public nw4rmanager::Layout, public nw4rmanager::AnmObserver {
+            public:
+                LayoutByNW4R(Manager* manager, nw4r::lyt::MultiArcResourceAccessor* accessor, EventObserver* observer, const char* layoutName)
+                    : Base(manager), nw4rmanager::Layout(accessor, layoutName, observer), mbActive(false), mbInput(false), mpEventHandler(NULL), mpCaller(NULL) {}
+                virtual ~LayoutByNW4R();
+                virtual void create(MEMAllocator* allocator);
+                virtual void init();
+                virtual void onKey(u32 event, void* data);
+                virtual void movePrevSignPage();
+                virtual void moveNextSignPage();
+                virtual void close();
+                virtual void draw();
+                virtual void open(KeyboardBase* keyboard, bool repeat);
+                virtual bool isActive();
+                virtual void onChangeAnmState(AnmEvent event, nw4rmanager::AnmPane* pane, nw4rmanager::Anim* animation);
+                virtual bool updateInput(int chan, f32 x, f32 y, u32 trig, u32 hold, u32 release, void* data);
+                virtual bool updateInput(input::HKBManager& hkb);
+                virtual void throwReleaseForAll();
+                virtual void resetAnmSignWindow();
+                virtual void setSignKeyTop(u16 first, u16 count);
+                virtual void setPageNumber(u16 page);
+                virtual void endToClose();
+                virtual void startToInput();
+                virtual void movePrevSignWindow();
+                virtual void moveNextSignWindow();
+            private:
+                bool mbActive;
+                bool mbInput;
+                EventHandler* mpEventHandler;
+                KeyboardBase* mpCaller;
+            };
+#else
             class Base : public KeyboardBase {
             public:
                 virtual bool isLocked();
@@ -32,7 +87,9 @@ namespace textinput {
                 virtual void open(KeyboardBase* keyboard, bool repeat);
                 virtual bool isActive();
             };
+#endif
         }
+
         namespace pctype {
 
             struct GridKey {
@@ -117,6 +174,19 @@ namespace textinput {
                     const LanguageData* data;
                     Base* owner;
                 };
+#ifdef TIMANAGER_IMPLEMENTATION
+                Base(Manager* manager) {
+                    mKeyState.abcFlags = 0;
+                    mKeyState.inputType = 0;
+                    mKeyState.aiuFlags = 0;
+                    mKeyState.language = USA;
+                    mKeyState.data = NULL;
+                    mKeyState.owner = this;
+                    mpAllocator = NULL;
+                    mbOnlyQwerty = false;
+                    mpManager = manager;
+                }
+#endif
                 virtual ~Base();
                 virtual void create(MEMAllocator* allocator);
                 virtual inline void init();
@@ -219,6 +289,11 @@ namespace textinput {
             };
             class LayoutByNW4R : public Base, public nw4rmanager::Layout, public UIObj::Listener {
             public:
+#ifdef TIMANAGER_IMPLEMENTATION
+                LayoutByNW4R(Manager* manager, nw4r::lyt::MultiArcResourceAccessor* accessor, EventObserver* observer, const char* layoutName)
+                    : Base(manager), nw4rmanager::Layout(accessor, layoutName, observer), mpKeyboardEventHandler(NULL),
+                      mShiftButton(1, this, this), mCapsButton(0, this, this), mModePanel(2, this, this) {}
+#endif
                 virtual ~LayoutByNW4R();
                 virtual void create(MEMAllocator* allocator);
                 virtual void init();

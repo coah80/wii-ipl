@@ -28,11 +28,20 @@ namespace textinput {
             virtual void    onEvent(nw4r::lyt::Pane* pane, u32 event) {}                        // 0x10
 
             virtual void    onSE(sound::SE seId)    {}
+#ifdef TIMANAGER_IMPLEMENTATION
+            virtual void onOK();
+            virtual void onCancel();
+            virtual void onOutOfLength();
+#else
             virtual void    onOK()                  { printf("OK!\n"); }
             virtual void    onCancel()              { printf("Cancel!\n"); }
             virtual void    onOutOfLength()         { printf("OutOfLength\n"); }
+#endif
     };
     
+#ifdef TIMANAGER_IMPLEMENTATION
+    namespace predictlang { class LayoutByNW4R; }
+#endif
     class Manager : public Base {
         public:
             Manager(MEMAllocator* allocator, nw4r::lyt::MultiArcResourceAccessor* multiArc, textinput::EventObserver* event);
@@ -94,14 +103,19 @@ namespace textinput {
 #endif
 
             virtual void                                setSecretInputMode(bool secretInputMode) { mpInputForm->setSecretModeOn(secretInputMode); }
-#ifdef IPL_ADDRESS_EDIT_CPP
+#if defined(IPL_ADDRESS_EDIT_CPP) || defined(TIMANAGER_IMPLEMENTATION)
             void enableKSXFilter(bool compatibleFilter);
 #endif
 
             virtual void                                setDefaultPredictionJP(int num, const char** predicts);
             virtual void                                setFixedPredictionJP(int num, const char** predicts);
 
+#ifdef TIMANAGER_IMPLEMENTATION
+            virtual void setTitleText(wchar_t* titleText);
+            void initAspect();
+#else
             virtual void                                setTitleText(const wchar_t* titleText);
+#endif
 
             virtual void                                start() {}
             virtual void                                end()   {}
@@ -146,7 +160,7 @@ namespace textinput {
             void                                        enableCompatibleFilter(bool compatibleFilter);
 
             bool                                        isVacancy() const;
-#ifdef TIINPUTFORM_IMPLEMENTATION
+#if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION)
             bool isPredictTurning() const;
             void startPredictTurnOn(bool enabled);
 #endif
@@ -163,9 +177,14 @@ namespace textinput {
             InputForm*                              mpInputForm;                // 0x1C
             candidatebox::LayoutByNW4R*             mpCandidateBox;             // 0x20
             toolbar::LayoutByNW4R*                  mpToolBar;                  // 0x24
+#ifdef TIMANAGER_IMPLEMENTATION
+            predictlang::LayoutByNW4R* mpPredictLanguageDialog;
+            keyboard::signwindow::LayoutByNW4R* mpSignWindow;
+#else
             void*                                   mpPredictLanguageDialog;    // 0x28
             void*                                   mpSignWindow;               // 0x2C
 
+#endif
             EventObserver*                          mpEventObserver;            // 0x30
 
             Destination                             meDestination;              // 0x34
