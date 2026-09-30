@@ -366,6 +366,7 @@ extern int SOSendTo(int socket, const void* buffer, int length, int flags, void*
 typedef struct {
     NCDIpConfig ipConfig;
     NCDIfConfig ifConfig;
+    u8 pad_0x922[2];
 } AtermNetworkSettings;
 
 typedef struct {
@@ -566,14 +567,16 @@ int ATERM_814021BC(void) {
     memcpy(ipConfig->ip.dns2, &gDefaultSecondaryDns, 4);
     NCDSetIpConfig(ipConfig);
 
+    memset(&gNetworkSettings.ifConfig, 0, sizeof(gNetworkSettings.ifConfig));
     ifConfig = &gNetworkSettings.ifConfig;
-    memset(ifConfig, 0, sizeof(*ifConfig));
     ifConfig->selectedMedia = 1;
     ifConfig->netif.wireless.rateset = 0;
     ifConfig->netif.wireless.configMethod = 0;
     ifConfig->netif.wireless.config.rakuraku.privacy.mode = 0;
-    ifConfig->netif.wireless.config.rakuraku.ssidLength = strlen(gAccessPointName);
-    memcpy(ifConfig->netif.wireless.config.rakuraku.ssid, gAccessPointName, 0x20);
+    ifConfig->netif.wireless.config.rakuraku.ssidLength =
+        strlen(gAccessPointName);
+    memcpy(ifConfig->netif.wireless.config.rakuraku.ssid,
+           gAccessPointName, 0x20);
     status = NCDSetIfConfig(ifConfig);
     if (status != 0) {
         return -2;
