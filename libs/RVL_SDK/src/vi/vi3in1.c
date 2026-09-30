@@ -110,16 +110,15 @@ void __VISetRevolutionMode(void);
 void __VISetRevolutionModeSimple(void);
 void VISetMacrovision(s32 type);
 
-#define COPY_ACP(dst, src) \
-    do { \
-        u32 copyIndex; \
-        u8* destination = (dst); \
-        const u8* source = (src); \
-        destination[0] = 0x40; \
-        for (copyIndex = 0; copyIndex < 0x1a; copyIndex++) { \
-            destination[copyIndex + 1] = source[copyIndex]; \
-        } \
-    } while (0)
+static inline void VICopyACP(u8* destination, const u8* source) {
+    u32 index;
+    destination[0] = 0x40;
+    for (index = 0; index < 0x1a; index++) {
+        destination[index + 1] = source[index];
+    }
+}
+
+#define COPY_ACP(dst, src) VICopyACP((dst), (src))
 
 static u8 __wd0 = 0xff;
 static u8 __wd1 = 0xff;

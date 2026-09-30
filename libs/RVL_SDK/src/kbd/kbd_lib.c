@@ -558,6 +558,10 @@ static void kbdSendKey(KBDKeyEventData* event) {
     }
 }
 
+static inline u32 kbdChannelFlags(u32 channel) {
+    return kbdData[channel].flags;
+}
+
 static void kbd_led_handler(BOOL success, void* callbackArg) {
     u32 index;
     u32 result;
@@ -591,7 +595,7 @@ USBKBDErr KBDSetLedsAsync(u32 channel, u32 leds, USBKBDCmdLEDCallback callback, 
     if (channel >= 4) {
         return 4;
     }
-    if ((s32)kbdData[channel].flags == 1 || (s32)kbdData[channel].flags == 4) {
+    if ((s32)kbdData[(u8)channel].flags == 1 || (s32)kbdData[(u8)channel].flags == 4) {
         return 5;
     }
     ledBits = leds;
@@ -611,10 +615,12 @@ USBKBDErr KBDSetLedsAsync(u32 channel, u32 leds, USBKBDCmdLEDCallback callback, 
     result = USBKBDSetLEDAsync((u32)kbdData[channel].device, ledBits,
                                (USBKBDCmdLEDAsync*)&kbdCmdBuf[index],
                                kbd_led_handler, (void*)index);
-    if (result != 0) {
+    switch (result) {
+    case 0:
+        return 0;
+    default:
         return 7;
     }
-    return 0;
 }
 
 USBKBDErr KBDSetLeds(u32 channel, u32 leds) {
@@ -627,16 +633,18 @@ USBKBDErr KBDSetLeds(u32 channel, u32 leds) {
     if (channel >= 4) {
         return 4;
     }
-    if ((s32)kbdData[channel].flags == 1 || (s32)kbdData[channel].flags == 4) {
+    if ((s32)kbdChannelFlags(channel) == 1 || (s32)kbdChannelFlags(channel) == 4) {
         return 5;
     }
     leds &= 0xff;
     interrupts = OSDisableInterrupts();
-    for (index = 0; index < 12; index++) {
+    index = 0;
+    while (index < 12) {
         if ((kbdCmdBuf + index)->device == 0) {
             kbdCmdBuf[index].device = (u32)kbdData[channel].device;
             break;
         }
+        index++;
     }
     OSRestoreInterrupts(interrupts);
     if (index == 12) {
@@ -645,10 +653,12 @@ USBKBDErr KBDSetLeds(u32 channel, u32 leds) {
     result = USBKBDSetLED((u32)kbdData[channel].device, leds,
                           (USBKBDCmdLED*)&kbdCmdBuf[index]);
     kbdCmdBuf[index].device = 0;
-    if (result == 0) {
+    switch (result) {
+    default:
+        return 7;
+    case 0:
         return 0;
     }
-    return 7;
 }
 
 void kbdInitMap(u32 country, u8 codeCount, u8 flags, u16* keyMap, u16* modifierMap,
@@ -846,11 +856,11 @@ u16 KBDTranslateHidCode(u32 keyCode, u32 modifiers, s32 country) {
     u16* table;
     u32 keyIndex;
     u16 entry;
-    u32 mask;
-    u32 offset;
+    s32 mask;
+    s32 offset;
     s32 group;
     u32 shiftFlag;
-    u32 shift;
+    u16 activeFlag;
 
     if (kbdInitialized == FALSE) {
         return 0xFFFF;
@@ -890,13 +900,13 @@ u16 KBDTranslateHidCode(u32 keyCode, u32 modifiers, s32 country) {
         group = 1;
         offset = 0;
     } else {
-        if ((modifiers & 0x20) == 0x20 || (modifiers & 5) == 5) {
+        if ((modifiers & 0x20) != 0 || (s32)(modifiers & 5) == 5) {
             group = map->altIndex;
             shiftFlag = 0x40;
-        } else if ((modifiers & 0x40) == 0x40) {
+        } else if ((modifiers & 0x40) != 0) {
             group = map->lockIndex;
             shiftFlag = 4;
-        } else if ((modifiers & 0x80) == 0x80) {
+        } else if ((modifiers & 0x80) != 0) {
             group = map->shiftIndex;
             shiftFlag = 0x10;
         } else {
@@ -907,18 +917,19 @@ u16 KBDTranslateHidCode(u32 keyCode, u32 modifiers, s32 country) {
         if ((modifiers & 0x800) == 0 && (modifiers & 0x1D) != 0) {
             offset = 0;
         } else {
-            shift = (modifiers >> 1) & 1;
-            offset = (shiftFlag << shift) & 0xFFFF;
+            offset = (modifiers >> 1) & 1;
+            shiftFlag <<= offset;
+            activeFlag = shiftFlag;
 
-            if (mask == 0 && (offset & entry) != 0) {
-                offset = shift ^ ((modifiers >> 9) & 1);
-            } else if (mask == 0x8000 && (offset & entry) != 0) {
-                offset = 0;
-                if ((modifiers & 0x100) != 0 && shift == 0) {
-                    offset = 1;
+            if (mask == 0 && (entry & activeFlag) != 0) {
+                offset = offset ^ ((modifiers >> 9) & 1);
+            } else if (mask == 0x8000 && (entry & activeFlag) != 0) {
+                u32 numLockShift = 0;
+                if ((s32)(modifiers & 0x100) == 0x100 && offset == 0) {
+                    numLockShift = 1;
                 }
+                offset = numLockShift;
             } else {
-                offset = shift;
                 if (mask == 0x4000 && group == 1 && (modifiers & 0x200) != 0) {
                     group = map->lockIndex;
                 }
@@ -949,6 +960,6 @@ u16 KBDTranslateHidCode(u32 keyCode, u32 modifiers, s32 country) {
 
     }
 
-    return table[keyIndex + offset + group];
+    return table[keyIndex + (offset + group)];
 
 }

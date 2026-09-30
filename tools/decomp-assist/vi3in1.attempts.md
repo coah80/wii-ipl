@@ -49,3 +49,37 @@ String pools identical. Data 1512/1512 bytes in objdiff.
 
 All data sections remain 100%; the ACP command-first assignment preserves pool contents and reaches 866/866 instructions, but allocation still differs.
 No new instruction-exact functions yet; retained source experiments remain uncommitted pending an exact-function gain.
+
+
+# Continuation from e81a2616
+
+## VISetMacrovision
+
+1. load type byte before first watchdog byte: 99.48529%; `src 0x110 base 0x110 insns 68/68; diffs 7: [8, 9, 11, 37, 39, 40, 46]`.
+2. combine volume mask expression before assigning new watchdog byte: 96.617645%; `src 0x110 base 0x110 insns 68/68; diffs 22: [5, 8, 9, 11, 21, 22, 24, 25, 26, 28, 29, 30, 32, 33, 34, 35, 36, 37, 38, 39]`.
+3. word mode temporary and reversed watchdog load order: 98.52941%; `src 0x110 base 0x110 insns 68/68; diffs 9: [8, 9, 10, 11, 37, 38, 39, 40, 46]`.
+
+## __VISetMacrovision
+
+1. inline packet copy with command first: 96.93187%; `src 0xd88 base 0xd88 insns 866/866; diffs 418: [31, 33, 35, 37, 39, 40, 41, 42, 43, 44, 45, 46, 47, 49, 51, 53, 55, 57, 59, 60]`.
+2. inline packet copy with command after payload: 94.26905%; `src 0xd80 base 0xd88 insns 864/866; --- insert mine 8:8 base 8:9`.
+3. inline pointer walk command and payload copy: 96.77598%; `src 0xd88 base 0xd88 insns 866/866; diffs 435: [31, 33, 35, 37, 39, 40, 41, 42, 43, 44, 45, 46, 47, 49, 51, 53, 55, 57, 59, 60]`.
+
+## __VISetRevolutionModeSimple
+
+1. derive ACP block as fixed size byte memcpy before prefix: 77.56929%; `src 0x354 base 0x42c insns 213/267; --- replace mine 8:9 base 8:12`.
+2. retain shared enable value across power clock and filter transfers: 97.05618%; `src 0x424 base 0x42c insns 265/267; --- delete mine 9:10 base 9:9`.
+3. typed ACP payload view before control transactions: build rejected (#   Error:                    ^^^^^^^^^^).
+4. ACP payload pointer initialized after packet declarations: 97.05618%; `src 0x424 base 0x42c insns 265/267; --- delete mine 9:10 base 9:9`.
+
+Target blocks were re-derived from vi3in1.s: each ACP packet has the command byte and 26 ascending byte copies, three unrolled groups of eight and two tail bytes. The simple-mode routine preserves power/clock enable across transfers before zeroing later command fields. The inline copy retains 866 instructions and reduces register differences from 435 to 418; other matched functions and data remain unchanged. Three public-mode variations and four simple-mode variations were evaluated.
+All extracted data sections remain exact. There are no ASCII pools or missing tables to insert.
+
+## Additional packet-copy derivation attempts
+
+1. command prefix before constant size memcpy: 13.75866%; source and objdiff evidence sol-low-r3-vi-macro-copy-1.source/.json in /tmp.
+2. constant size memcpy before command prefix: 19.581985%; source and objdiff evidence sol-low-r3-vi-macro-copy-2.source/.json in /tmp.
+3. initialize packet prefix then copy payload: 27.85104%; source and objdiff evidence sol-low-r3-vi-macro-copy-3.source/.json in /tmp.
+1. explicit eight byte groups with prefix before payload: 96.77598%; source and objdiff evidence sol-low-r3-vi-block-loop-1.source/.json in /tmp.
+2. explicit eight byte groups with prefix after payload: 94.26905%; source and objdiff evidence sol-low-r3-vi-block-loop-2.source/.json in /tmp.
+3. indexed pointer dereference byte loop: 96.77598%; source and objdiff evidence sol-low-r3-vi-block-loop-3.source/.json in /tmp.

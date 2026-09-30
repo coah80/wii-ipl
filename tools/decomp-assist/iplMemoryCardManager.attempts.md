@@ -171,3 +171,80 @@ Final instruction evidence:
 
 A unit-only guarded u32 getBlocks return declaration was tested: same 25/25 instructions and nine epilogue-scheduling differences. Header and macro restored. No target or source data sections.
 No new instruction-exact functions yet; retained source experiments remain uncommitted pending an exact-function gain.
+
+
+# Continuation from e81a2616
+
+## _create_icon__Q33ipl5scene17MemoryCardManagerFUcsl
+
+1. recompute CI palette state from original array after GX initialization: 87.55%; `src 0x190 base 0x190 insns 100/100; diffs 37: [19, 20, 22, 23, 24, 34, 39, 40, 42, 44, 45, 46, 47, 48, 57, 59, 63, 64, 65, 66]`.
+2. array row texture view with recomputed palette field: 59.71%; `src 0x17c base 0x190 insns 95/100; --- replace mine 5:7 base 5:7`.
+3. branch result texture lifetime follows RGB and CI target joins: 85.3%; `src 0x194 base 0x190 insns 101/100; --- replace mine 5:9 base 5:9`.
+
+## create_banner__Q33ipl5scene17MemoryCardManagerFUcs
+
+1. reload CI palette offset from source array after initializer: 84.43396%; `src 0x1a8 base 0x1a8 insns 106/106; diffs 66: [9, 16, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 32, 33, 34, 35, 36, 37, 38, 39]`.
+2. defer cached icon until directory and banner validity blocks: 90.42453%; `src 0x1a8 base 0x1a8 insns 106/106; diffs 70: [5, 6, 9, 11, 14, 16, 17, 18, 19, 23, 24, 25, 26, 27, 32, 33, 34, 35, 36, 37]`.
+3. row texture view and array palette reload: 58.31132%; `src 0x184 base 0x1a8 insns 97/106; --- replace mine 0:1 base 0:1`.
+
+## getComment__Q33ipl5scene17MemoryCardManagerFUcsi
+
+1. trim write pointer allocated before read pointer as target r4 then r3: 93.21138%; `src 0x1e8 base 0x1ec insns 122/123; --- replace mine 10:11 base 10:11`.
+2. retain encoded buffer pointer across language query and both converter blocks: 96.544716%; `src 0x1ec base 0x1ec insns 123/123; diffs 35: [10, 12, 13, 14, 19, 20, 21, 22, 23, 24, 35, 44, 45, 46, 47, 48, 49, 50, 51, 52]`.
+3. retain file cell base across conversion and final line truncation: 83.0813%; `src 0x1c4 base 0x1ec insns 113/123; --- replace mine 0:1 base 0:1`.
+4. encoded pointer established before ASCII trim block as target: 98.57723%; `src 0x1ec base 0x1ec insns 123/123; diffs 26: [10, 12, 13, 14, 19, 20, 21, 22, 23, 24, 35, 44, 45, 46, 48, 49, 51, 62, 63, 66]`.
+5. encoded pointer established before source copy: 95.56911%; `src 0x1ec base 0x1ec insns 123/123; diffs 31: [10, 12, 13, 14, 19, 20, 21, 22, 23, 24, 35, 38, 39, 41, 42, 43, 44, 45, 46, 48]`.
+6. encoded pointer established before SDK comment getter: 95.89431%; `src 0x1ec base 0x1ec insns 123/123; diffs 37: [10, 12, 13, 14, 15, 16, 19, 20, 21, 22, 23, 24, 34, 35, 36, 37, 38, 39, 40, 41]`.
+7. direct destination arrays for wide clear and both converters: 98.94309%; `src 0x1ec base 0x1ec insns 123/123; diffs 20: [10, 12, 14, 19, 20, 21, 23, 24, 45, 46, 48, 49, 51, 62, 66, 67, 86, 90, 91, 117]`.
+8. cell row view only for destination pointer creation: 98.57723%; `src 0x1ec base 0x1ec insns 123/123; diffs 26: [10, 12, 13, 14, 19, 20, 21, 22, 23, 24, 35, 44, 45, 46, 48, 49, 51, 62, 63, 66]`.
+9. unsigned file and read pointer initialized first: 98.455284%; `src 0x1ec base 0x1ec insns 123/123; diffs 27: [10, 12, 13, 14, 19, 20, 21, 22, 23, 24, 35, 44, 45, 46, 48, 49, 50, 51, 62, 63]`.
+
+## update_icon_anm__Q33ipl5scene17MemoryCardManagerFv
+
+1. compound counter store then reload for upper and lower bound blocks: 96.54762%; `src 0x14c base 0x150 insns 83/84; --- replace mine 10:11 base 10:11`.
+2. load signed frame before signed delta addition: 96.72619%; `src 0x14c base 0x150 insns 83/84; --- replace mine 10:11 base 10:11`.
+3. shared cell view for ping pong and wrap stores: 94.32143%; `src 0x150 base 0x150 insns 84/84; diffs 44: [10, 18, 19, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41]`.
+
+## update_file_array__Q33ipl5scene17MemoryCardManagerFUc
+
+1. command range predicate directly from member: 99.72222%; `src 0x168 base 0x168 insns 90/90; diffs 4: [15, 16, 17, 20]`.
+2. unsigned command temporary matching range comparison: 99.72222%; `src 0x168 base 0x168 insns 90/90; diffs 4: [15, 16, 17, 20]`.
+3. const manager view for range load: 99.72222%; `src 0x168 base 0x168 insns 90/90; diffs 4: [15, 16, 17, 20]`.
+
+## sort_file_array__Q33ipl5scene17MemoryCardManagerFUc
+
+1. direct slot directory indexing instead of row local: 100.0%; `src 0xcc base 0xcc insns 51/51; diffs 0: []`.
+
+## isBannerEnable__Q33ipl5scene17MemoryCardManagerFUcs
+
+1. return direct byte comparison: 92.30769%; `src 0x68 base 0x68 insns 26/26; diffs 8: [11, 12, 13, 14, 15, 16, 17, 18]`.
+2. explicit zero failure block and success return: 92.30769%; `src 0x68 base 0x68 insns 26/26; diffs 8: [11, 12, 13, 14, 15, 16, 17, 18]`.
+3. const state reference and conditional bool result: 92.30769%; `src 0x68 base 0x68 insns 26/26; diffs 8: [11, 12, 13, 14, 15, 16, 17, 18]`.
+
+## getBlocks__Q33ipl5scene17MemoryCardManagerFUcs
+
+1. signed file temporary before size load: 92.0%; `src 0x64 base 0x64 insns 25/25; diffs 9: [11, 12, 13, 14, 15, 16, 17, 18, 19]`.
+2. const directory row view for size lookup: 92.0%; `src 0x64 base 0x64 insns 25/25; diffs 9: [11, 12, 13, 14, 15, 16, 17, 18, 19]`.
+3. file reference and size result temporary: 91.0%; `src 0x64 base 0x64 insns 25/25; diffs 9: [11, 12, 13, 14, 15, 16, 17, 18, 19]`.
+
+## create_icon__Q33ipl5scene17MemoryCardManagerFUcs
+
+1. derive loop signed postincrement shift from target extsh and sraw: 86.05882%; `src 0xcc base 0xcc insns 51/51; diffs 20: [16, 17, 19, 20, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 34, 36, 37, 38, 39, 42]`.
+2. signed previous frame temporary retains 16 bit conversion: 86.05882%; `src 0xcc base 0xcc insns 51/51; diffs 20: [16, 17, 19, 20, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 34, 36, 37, 38, 39, 42]`.
+3. cache icon and counter outside loop, signed direct shift: 86.05882%; `src 0xcc base 0xcc insns 51/51; diffs 20: [16, 17, 18, 19, 20, 21, 22, 23, 25, 26, 27, 28, 29, 30, 34, 36, 37, 38, 39, 42]`.
+
+## isMoveEnable__Q33ipl5scene17MemoryCardManagerFUcUlPl
+
+1. derive failure state initial value from card state instead of zero: 88.89831%; `src 0x1e4 base 0x1d8 insns 121/118; --- replace mine 7:8 base 7:8`.
+2. extend initialized failure state lifetime to entry: 88.72881%; `src 0x1dc base 0x1d8 insns 119/118; --- replace mine 13:14 base 13:14`.
+3. default unknown state and switch state failure blocks: 88.79661%; `src 0x1ec base 0x1d8 insns 123/118; --- insert mine 13:13 base 13:14`.
+
+## isCopyEnable__Q33ipl5scene17MemoryCardManagerFUcUlPl
+
+1. derive failure state initial value from card state instead of zero: 88.89831%; `src 0x1e4 base 0x1d8 insns 121/118; --- replace mine 7:8 base 7:8`.
+2. extend initialized failure state lifetime to entry: 88.72881%; `src 0x1dc base 0x1d8 insns 119/118; --- replace mine 13:14 base 13:14`.
+3. default unknown state and switch state failure blocks: 88.79661%; `src 0x1ec base 0x1d8 insns 123/118; --- insert mine 13:13 base 13:14`.
+
+Target blocks were re-derived from iplMemoryCardManager.s: move/copy have a success predicate then repeated failure checks; initialized failure state adds two instructions. Icon frame selection performs signed frame extension before each duration shift. RGB and CI paths have separate texture lifetimes; the CI path reloads the palette field from the original state array after GX initialization. The banner validity block precedes caching the full icon entry. Comment conversion keeps the encoded buffer pointer live before trimming and across the language call.
+sort_file_array is now 51/51 instructions with zero differences; unused directory row local removed and the match rechecked. CI palette array reloads produce the exact 100- and 106-instruction counts for the icon and banner routines. All ten remaining functions have at least three distinct source attempts in this continuation.
+Neither original nor rebuilt object contains data, rodata, sdata, bss, vtables or an ASCII string pool. There is no unit data to reconstruct.
