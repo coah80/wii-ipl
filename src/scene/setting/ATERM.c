@@ -553,12 +553,12 @@ int ATERM_814021BC(void) {
     OSMessage hostQueueBuffer;
     OSAlarm hostAlarm;
 
+    memset(&gNetworkSettings.ipConfig, 0, sizeof(gNetworkSettings.ipConfig));
     ipConfig = &gNetworkSettings.ipConfig;
-    memset(ipConfig, 0, sizeof(*ipConfig));
     ipConfig->adjust.maxTransferUnit = 0x514;
     ipConfig->adjust.tcpRetransTimeout = 100;
     ipConfig->adjust.dhcpRetransCount = 4;
-    ipConfig->useDhcp = 0;
+    gNetworkSettings.ipConfig.useDhcp = 0;
     ipConfig->useProxy = 0;
     memcpy(ipConfig->ip.addr, &gDefaultIpAddress, 4);
     memcpy(ipConfig->ip.netmask, &gDefaultSubnetMask, 4);
@@ -569,14 +569,14 @@ int ATERM_814021BC(void) {
 
     memset(&gNetworkSettings.ifConfig, 0, sizeof(gNetworkSettings.ifConfig));
     ifConfig = &gNetworkSettings.ifConfig;
-    ifConfig->selectedMedia = 1;
+    gNetworkSettings.ifConfig.selectedMedia = 1;
     ifConfig->netif.wireless.rateset = 0;
     ifConfig->netif.wireless.configMethod = 0;
     ifConfig->netif.wireless.config.rakuraku.privacy.mode = 0;
     ifConfig->netif.wireless.config.rakuraku.ssidLength =
-        strlen(gAccessPointName);
+        strlen((char*)(&gNetworkSettings + 1));
     memcpy(ifConfig->netif.wireless.config.rakuraku.ssid,
-           gAccessPointName, 0x20);
+           (char*)(&gNetworkSettings + 1), 0x20);
     status = NCDSetIfConfig(ifConfig);
     if (status != 0) {
         return -2;
@@ -602,11 +602,7 @@ int ATERM_814021BC(void) {
         gAtermSocketReady = waitCount;
     }
     if (gAtermSocketReady != 0) {
-        for (;;) {
-            convertedHost = SOHtoNl(0);
-            if (SOGetHostID() != convertedHost) {
-                break;
-            }
+        while (SOGetHostID() == (convertedHost = SOHtoNl(0))) {
             OSInitMessageQueue(&hostQueue, &hostQueueBuffer, 1);
             OSCreateAlarm(&hostAlarm);
             OSSetAlarmTag(&hostAlarm, (u32)&hostQueue);
