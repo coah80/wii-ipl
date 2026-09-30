@@ -1430,7 +1430,7 @@ s32 WADBackupEx(u64 titleId, u32 ticketId, MEMAllocator* allocator, char* path, 
         for (contentIndex = 0; contentIndex < currentContentCount; contentIndex++) {
             s32 tmdIndex = _WADGetCidx(&existingContentMask, contentIndex);
             ESContentMeta* content;
-            if ((tmdIndex < 0) || (titleMeta->head.numContents <= tmdIndex)) {
+            if ((tmdIndex < 0) || (tmdIndex >= (s32)titleMeta->head.numContents)) {
                 result = -3009;
                 goto cleanup;
             }
@@ -1693,12 +1693,13 @@ cleanup:
 }
 
 static s32 _WADCheckContents(ESTmdView* titleMeta, ESContentMask* contentMask) {
+    s32 result;
     ESContentId installedContentIds[512] ALIGN32;
     u32 installedContentCount;
     u32 contentIndex;
-    s32 result;
 
-    if (ES_ListTitleContentsOnCard(titleMeta->head.titleId, 0, &installedContentCount) == -106) {
+    result = ES_ListTitleContentsOnCard(titleMeta->head.titleId, 0, &installedContentCount);
+    if (result == -106) {
         result = -3002;
     } else {
         result = ES_ListTitleContentsOnCard(titleMeta->head.titleId, installedContentIds,
@@ -2013,24 +2014,27 @@ static s32 _WADBackupGetSize(u32 flags, ESTmdView* titleMeta, ESContentMask* con
     u32 selectedCount;
     u32 contentIndex;
     u32 fileIndex;
-    s32 result = 0;
+    u32 useCidx;
+    u32 total;
+    s32 result;
 
     if ((titleMeta != 0) && (titleMetaSize != 0)) {
-        if (((flags & 1) != 0) || ((flags & 0x20) != 0)) {
+        useCidx = flags & 1;
+        if ((useCidx != 0) || ((flags & 0x20) != 0)) {
             result = ES_GetTmdSizeFromView(titleMeta, titleMetaSize);
             if (result != 0) {
                 return result;
             }
-            titleSize += (*titleMetaSize + 0x3F) & ~0x3F;
+            titleSize = ((*titleMetaSize + 0x3F) & ~0x3F) + 0x80;
         }
-        if ((flags & 1) != 0) {
+        if (useCidx != 0) {
             selectedCount = _WADGetCidxCount(contentMask);
             for (contentIndex = 0; contentIndex < selectedCount; contentIndex++) {
                 s32 tmdIndex = _WADGetCidx(contentMask, contentIndex);
-                if ((tmdIndex < 0) || (titleMeta->head.numContents <= tmdIndex)) {
+                if ((tmdIndex < 0) || (tmdIndex >= (s32)titleMeta->head.numContents)) {
                     return -3009;
                 }
-                contentSize += (titleMeta->contents[tmdIndex].size + 0x3F) & ~0x3F;
+                contentSize += ((u32)titleMeta->contents[tmdIndex].size + 0x3F) & ~0x3F;
             }
         }
     } else if ((titleMeta == 0) && (titleMetaSize != 0)) {
@@ -2041,9 +2045,7 @@ static s32 _WADBackupGetSize(u32 flags, ESTmdView* titleMeta, ESContentMask* con
             filesSize += 0x80 + ((files[fileIndex].fileSize + 0x3F) & ~0x3F);
         }
     }
-    if (titleMetaSize != 0) {
-        *titleMetaSize = titleSize;
-    }
+    total = titleSize + contentSize + filesSize;
     if (contentDataSize != 0) {
         *contentDataSize = contentSize;
     }
@@ -2051,9 +2053,9 @@ static s32 _WADBackupGetSize(u32 flags, ESTmdView* titleMeta, ESContentMask* con
         *fileDataSize = filesSize;
     }
     if (totalSize != 0) {
-        *totalSize = titleSize + contentSize + filesSize;
+        *totalSize = total;
     }
-    return result;
+    return 0;
 }
 #pragma dont_inline reset
 
