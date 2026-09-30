@@ -14,11 +14,16 @@ typedef struct UpdateThreadData {
     u8 stack[4096];
 } UpdateThreadData;
 
-static u32 Flags0[BS2_UPDATE_ENTRY_COUNT];
-static u32 Flags1[BS2_UPDATE_ENTRY_COUNT];
-static UpdateThreadData Thread;
-static BS2UpdateHeader UpdateHeader0 ALIGN32;
-static BS2UpdateHeader UpdateHeader1 ALIGN32;
+typedef struct {
+    u32 Flags0[BS2_UPDATE_ENTRY_COUNT];
+    u32 Flags1[BS2_UPDATE_ENTRY_COUNT];
+    UpdateThreadData Thread;
+    BS2UpdateHeader UpdateHeader0 ALIGN32;
+    BS2UpdateHeader UpdateHeader1;
+} BS2UpdateWork;
+
+static BS2UpdateWork sWorkArea;
+
 
 #define UPDATE_DISC_ENTRIES ((BS2UpdateEntry*)0x80480000)
 
@@ -26,25 +31,25 @@ s32 WADCheckImport(u64 titleId, u16 titleVersion);
 s32 WADImportDVDForBS(const char* path, void* buffer, u32 length);
 s32 WADImportDVDExForBS(const char* path, void* buffer, u32 length);
 
-static BS2UpdateEntry* pEntries;
-static u32 EntriesCount;
-static u32* pFlags;
-static void* MemAllocator;
-int State;
-BS2UpdateEntry* CurrentEntry;
-static u32 RebootRequired;
-static BOOL ContainsSeatTitles;
-static u32 UpdateImportState;
-static u32 UpdateImportResult;
-u32 StartUpdate;
-u32 CancelUpdate;
-static u32 UpdateProgress;
-static s32 rc;
-static u64 VersionIOS;
-static u32 VersionMEM2;
-static u32 VersionES;
-static u32 ConsoleType;
 static void* FatalFunc;
+static u32 ConsoleType;
+static u32 VersionES;
+static u32 VersionMEM2;
+static u64 VersionIOS;
+static s32 rc;
+static u32 UpdateProgress;
+u32 CancelUpdate;
+u32 StartUpdate;
+static u32 UpdateImportResult;
+static u32 UpdateImportState;
+static BOOL ContainsSeatTitles;
+static u32 RebootRequired;
+BS2UpdateEntry* CurrentEntry;
+int State;
+static void* MemAllocator;
+static u32* pFlags;
+static u32 EntriesCount;
+static BS2UpdateEntry* pEntries;
 
 #pragma force_active on
 char* getSuffix(const char* path) {
@@ -59,6 +64,7 @@ char* getSuffix(const char* path) {
 static void* UpdateThread(void* argument);
 
 void BS2UpdateInit(void* allocator) {
+    BS2UpdateWork* wk = &sWorkArea;
     BS2Report("initialize BS2Update\n");
     ConsoleType = OSGetConsoleType();
     VersionES = __OSGetHollywoodRev();
@@ -74,14 +80,15 @@ void BS2UpdateInit(void* allocator) {
     EntriesCount = 0;
     memset(UPDATE_DISC_ENTRIES, 0, 0x40000);
     memset(EntriesToImport, 0, 0x40000);
-    memset(Flags1, 0, sizeof(Flags1));
+    memset(wk->Flags1, 0, sizeof(wk->Flags1));
     BS2Report("Create update thread\n");
-    OSCreateThread(&Thread.thread, UpdateThread, NULL, Thread.stack + sizeof(Thread.stack),
-                   sizeof(Thread.stack), 31, 1);
-    OSResumeThread(&Thread.thread);
+    OSCreateThread(&wk->Thread.thread, UpdateThread, NULL, wk->Thread.stack + sizeof(wk->Thread.stack),
+                   sizeof(wk->Thread.stack), 31, 1);
+    OSResumeThread(&wk->Thread.thread);
 }
 
 static void* UpdateThread(void* argument) {
+    BS2UpdateWork* wk = &sWorkArea;
     BOOL missingFile;
     u32 selectedCount;
     u32 requiredBytes;
@@ -174,7 +181,7 @@ product_region_checked:
         goto selection_done;
     }
     strcpy(scratch.updatePath, "__update.inf");
-    strcat(scratch.updatePath, "-");
+    strcat(scratch.updatePath, ".");
     strcat(scratch.updatePath, scratch.productArea);
     if (DVDConvertPathToEntrynum(scratch.updatePath) < 0) {
         switch (SCGetProductArea()) {
@@ -202,35 +209,35 @@ product_region_checked:
         selectedCount = 0;
         goto selection_done;
     }
-    if (DVDReadPrio(&scratch.file, &UpdateHeader0, sizeof(UpdateHeader0), 0, 2) < 0) {
+    if (DVDReadPrio(&scratch.file, &wk->UpdateHeader0, sizeof(wk->UpdateHeader0), 0, 2) < 0) {
         BS2Report("Error: failed to read update information header.");
         selectedCount = 0;
         goto selection_done;
     }
-    if (UpdateHeader0.wadCount == 0) {
+    if (wk->UpdateHeader0.wadCount == 0) {
         BS2Report("Error: no entry.");
         selectedCount = 0;
         goto selection_done;
     }
-    if (UpdateHeader0.wadCount > 32) {
+    if (wk->UpdateHeader0.wadCount > 32) {
         BS2Report("Error: found too many entries.");
         selectedCount = 0;
         goto selection_done;
     }
-    UpdateHeader0.wadCount += UpdateHeader0.extraCount;
-    if (UpdateHeader0.wadCount > BS2_UPDATE_ENTRY_COUNT) {
+    wk->UpdateHeader0.wadCount += wk->UpdateHeader0.extraCount;
+    if (wk->UpdateHeader0.wadCount > BS2_UPDATE_ENTRY_COUNT) {
         BS2Report("Error: found too many extra entries.");
         selectedCount = 0;
         goto selection_done;
     }
-    if (DVDReadPrio(&scratch.file, UPDATE_DISC_ENTRIES, UpdateHeader0.wadCount * sizeof(BS2UpdateEntry), 32, 2) < 0) {
+    if (DVDReadPrio(&scratch.file, UPDATE_DISC_ENTRIES, wk->UpdateHeader0.wadCount * sizeof(BS2UpdateEntry), 32, 2) < 0) {
         BS2Report("Error: failed to read update information.");
         selectedCount = 0;
         goto selection_done;
     }
     {
         BS2UpdateEntry *discEntries = UPDATE_DISC_ENTRIES;
-        for (index = 0; index < UpdateHeader0.wadCount; index++) {
+        for (index = 0; index < wk->UpdateHeader0.wadCount; index++) {
             if ((discEntries[index].attr & 1) == 0) {
                 continue;
             }
@@ -261,17 +268,17 @@ product_region_checked:
                 selectedCount++;
             } else if (WADCheckImport(discEntries[index].titleId, discEntries[index].titleVersion) == 0) {
                 BS2Report("%s is already installed\n", discEntries[index].path);
-                Flags1[index] = 0;
+                *(wk->Flags1 + index) = 0;
             } else {
                 BS2Report("%s\n", discEntries[index].path);
                 memcpy(&EntriesToImport[selectedCount], &discEntries[index], sizeof(BS2UpdateEntry));
                 selectedCount++;
-                Flags1[index] = 1;
+                *(wk->Flags1 + index) = 1;
             }
         }
     }
     strcpy(scratch.seatPath, "__seatholder.inf");
-    strcat(scratch.seatPath, "-");
+    strcat(scratch.seatPath, ".");
     strcat(scratch.seatPath, scratch.productArea);
     if (DVDConvertPathToEntrynum(scratch.seatPath) < 0) {
         switch (SCGetProductArea()) {
@@ -296,26 +303,26 @@ product_region_checked:
         BS2Report("Error: failed to open update information file.");
         goto seats_done;
     }
-    if (DVDReadPrio(&scratch.file, &UpdateHeader1, sizeof(UpdateHeader1), 0, 2) < 0) {
+    if (DVDReadPrio(&scratch.file, &wk->UpdateHeader1, sizeof(wk->UpdateHeader1), 0, 2) < 0) {
         BS2Report("Error: failed to read update information header.");
         goto seats_done;
     }
-    if ((UpdateHeader1.wadCount | UpdateHeader1.extraCount) == 0) {
+    if ((wk->UpdateHeader1.wadCount | wk->UpdateHeader1.extraCount) == 0) {
         BS2Report("Error: no entry.");
         goto seats_done;
     }
-    UpdateHeader1.wadCount += UpdateHeader1.extraCount;
-    if (UpdateHeader0.wadCount + UpdateHeader1.wadCount > BS2_UPDATE_ENTRY_COUNT) {
+    wk->UpdateHeader1.wadCount += wk->UpdateHeader1.extraCount;
+    if (wk->UpdateHeader0.wadCount + wk->UpdateHeader1.wadCount > BS2_UPDATE_ENTRY_COUNT) {
         BS2Report("Error: found too many extra entries.");
         goto seats_done;
     }
-    seatEntries = &UPDATE_DISC_ENTRIES[UpdateHeader0.wadCount];
+    seatEntries = &UPDATE_DISC_ENTRIES[wk->UpdateHeader0.wadCount];
     selectedSeats = &EntriesToImport[selectedCount];
-    if (DVDReadPrio(&scratch.file, seatEntries, UpdateHeader1.wadCount * sizeof(BS2UpdateEntry), 32, 2) < 0) {
+    if (DVDReadPrio(&scratch.file, seatEntries, wk->UpdateHeader1.wadCount * sizeof(BS2UpdateEntry), 32, 2) < 0) {
         BS2Report("Error: failed to read update information.");
         goto seats_done;
     }
-    for (index = 0; index < UpdateHeader1.wadCount; index++) {
+    for (index = 0; index < wk->UpdateHeader1.wadCount; index++) {
         OSReport("type = %d\n", seatEntries[index].type);
         OSReport("attribute = %d\n", seatEntries[index].attr);
         OSReport("size = %d\n", seatEntries[index].size);
@@ -324,7 +331,7 @@ product_region_checked:
         OSReport("path = %64s\n", seatEntries[index].path);
         OSReport("titleId = %llx\n", seatEntries[index].titleId);
         OSReport("titleVersion = %d\n", seatEntries[index].titleVersion);
-        Flags0[index] = 0;
+        *(wk->Flags0 + index) = 0;
         if ((seatEntries[index].attr & 1) == 0) {
             continue;
         }
@@ -360,19 +367,19 @@ product_region_checked:
             continue;
         }
         if (SCGetWwwRestriction() && ((u32)(seatEntries[index].titleId & 0xFFFFFFFFULL) & 0xFFFFFF00) == 0x48414400) {
-            Flags0[index] = 0;
+            *(wk->Flags0 + index) = 0;
             OSReport("Internet CH is restricted!\n");
             continue;
         }
         if (SCGetProductGameRegion() == 2 && (SCGetSimpleAddressID() >> 24) != 110 &&
             (u32)(seatEntries[index].titleId & 0xFFFFFFFFULL) == 0x48434A50) {
-            Flags0[index] = 0;
+            *(wk->Flags0 + index) = 0;
             OSReport("BBCi CH is only for UK!\n");
             continue;
         }
         BS2Report("%s\n", seatEntries[index].path);
         memcpy(&selectedSeats[selectedSeatCount], &seatEntries[index], sizeof(BS2UpdateEntry));
-        Flags0[index] = 1;
+        *(wk->Flags0 + index) = 1;
         channelCount++;
         selectedSeatCount++;
         requiredBytes += seatEntries[index].size;
@@ -399,14 +406,14 @@ product_region_checked:
             BS2Report("No enough blank channel.");
             goto seats_done;
         }
-        for (index = 0; index < UpdateHeader1.wadCount; index++) {
-            Flags1[UpdateHeader0.wadCount + index] = Flags0[index];
-            if (Flags0[index] == 1) {
+        for (index = 0; index < wk->UpdateHeader1.wadCount; index++) {
+            wk->Flags1[wk->UpdateHeader0.wadCount + index] = *(wk->Flags0 + index);
+            if (*(wk->Flags0 + index) == 1) {
                 selectedCount++;
             }
         }
         ContainsSeatTitles = TRUE;
-        UpdateHeader0.wadCount += UpdateHeader1.wadCount;
+        wk->UpdateHeader0.wadCount += wk->UpdateHeader1.wadCount;
     }
 seats_done:
     if (missingFile) {
@@ -415,11 +422,11 @@ seats_done:
         goto selection_done;
     }
     pEntries = EntriesToImport;
-    pFlags = Flags1;
+    pFlags = wk->Flags1;
     {
         BS2UpdateEntry *discEntries = UPDATE_DISC_ENTRIES;
-        for (index = 0; index < UpdateHeader0.wadCount; index++) {
-            if (Flags1[index] == 1) {
+        for (index = 0; index < wk->UpdateHeader0.wadCount; index++) {
+            if (*(wk->Flags1 + index) == 1) {
                 BS2Report("File: %s\n", discEntries[index].path);
                 BS2Report("Name: %s\n", discEntries[index].dataName);
                 BS2Report("Info: %s\n", discEntries[index].dataMeta);
@@ -443,9 +450,9 @@ selection_done:
         BS2UpdateEntry *discEntries = UPDATE_DISC_ENTRIES;
         for (;;) {
             if (StartUpdate != 0) {
-                if (UpdateProgress < UpdateHeader0.wadCount) {
+                if (UpdateProgress < wk->UpdateHeader0.wadCount) {
                     BS2Report("Progress : %d\n", UpdateProgress);
-                    if (Flags1[UpdateProgress] == 1) {
+                    if (wk->Flags1[UpdateProgress] == 1) {
                         BS2Report("Import : %s\n", discEntries[UpdateProgress].path);
                         State = 2;
                         CurrentEntry = &discEntries[UpdateProgress];
@@ -467,7 +474,7 @@ selection_done:
                                 NANDLoggingAddMessageAsync(NULL, "BS2 error. [%d] titleID: 0x%016llx %s line: %d",
                                                            rc, discEntries[UpdateProgress].titleId, "BS2Update.c", 0x3F5);
                                 State = 5;
-                                UpdateProgress = UpdateHeader0.wadCount + 1;
+                                UpdateProgress = wk->UpdateHeader0.wadCount + 1;
                                 break;
                             }
                             if ((discEntries[UpdateProgress].attr & 2) != 0) {
@@ -488,7 +495,7 @@ selection_done:
                                 NANDLoggingAddMessageAsync(NULL, "BS2 error. [%d] titleID: 0x%016llx %s line: %d",
                                                            rc, discEntries[UpdateProgress].titleId, "BS2Update.c", 0x40F);
                                 State = 5;
-                                UpdateProgress = UpdateHeader0.wadCount + 1;
+                                UpdateProgress = wk->UpdateHeader0.wadCount + 1;
                                 break;
                             }
                             if ((discEntries[UpdateProgress].attr & 2) != 0) {
@@ -500,7 +507,7 @@ selection_done:
                         BS2Report("Not import : %s\n", discEntries[UpdateProgress].path);
                         UpdateProgress++;
                     }
-                } else if (UpdateProgress == UpdateHeader0.wadCount) {
+                } else if (UpdateProgress == wk->UpdateHeader0.wadCount) {
                     if (RebootRequired != 0) {
                         State = 4;
                     } else {
