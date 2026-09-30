@@ -1,0 +1,22 @@
+full build: ok
+main.dol sha1: 26116613f624061ba99c8d1a299aaa6efa85670d
+[src/iplwww/www_wiisetting] pool: IDENTICAL
+[src/iplwww/www_wiisetting] objdiff: code 3740/6176 data 3856/3856 functions 20/21 fuzzy 99.9450 linked code 0
+[src/iplwww/www_wiisetting] instruction-exact functions: 20/21
+[src/iplwww/www_wiisetting]   section .bss size 104 match 100.0
+[src/iplwww/www_wiisetting]   section .data size 2576 match 100.0
+[src/iplwww/www_wiisetting]   section .rodata size 792 match 100.0
+[src/iplwww/www_wiisetting]   section .sbss size 32 match 100.0
+[src/iplwww/www_wiisetting]   section .sdata size 320 match 100.0
+[src/iplwww/www_wiisetting]   section .sdata2 size 32 match 100.0
+[src/iplwww/www_wiisetting]   section .text size 6176 match 99.94495
+[src/iplwww/www_wiisetting]   below 100: Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue 99.86043
+[src/iplwww/www_wiisetting] baseline: code 2448/6176 data 1280 functions 19 fuzzy 99.7960
+regressions vs baseline: 0
+global matched_code_percent: 83.80901 -> 83.86043
+global fuzzy_match_percent: 97.60954 -> 97.60986
+global complete_code_percent: 58.20100 -> 58.20100
+global matched_data_percent: 90.15434 -> 90.31366
+forbidden patterns added (net, per file): 0
+readability warnings (net, per file; must be 0 in the final result): 0
+GATE PASS

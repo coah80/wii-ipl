@@ -261,15 +261,15 @@ namespace www {
                         val->data.jsStr = pString->adjMtu;
                         break;
                     }
-                    case FORM_ID_PARENTAL_JUDGE_PASS: {
+                    case FORM_ID_PARENTAL_SEC_ANSWER: {
                         val->data.jsStr = pString->parentalSecA;
                         break;
                     }
-                    case FORM_ID_PARENTAL_SEC_ANSWER: {
+                    case FORM_ID_MASTER_KEY: {
                         val->data.jsStr = ipl::parental::Parental::getRequestNum();
                         break;
                     }
-                    case FORM_ID_PARENTAL_RE_SEC_ANSWER: {
+                    case FORM_ID_VERSION: {
                         val->data.jsStr = pString->version;
                         break;
                     }
@@ -569,9 +569,10 @@ namespace www {
                     u32 restrictionsByte = val->data.jsDouble;
                     u32 newRestrictions;
                     u8 oldRestrictions = sWiiData.data[bytePropIdx];
-                    newRestrictions = oldRestrictions | (restrictionsByte & 0x7F);
                     if ((restrictionsByte & 0x80) != 0) {
                         newRestrictions = oldRestrictions & ~(restrictionsByte & 0x7F);
+                    } else {
+                        newRestrictions = oldRestrictions | (restrictionsByte & 0x7F);
                     }
                     sWiiData.data[bytePropIdx] = newRestrictions;
                     writeBackID = bytePropIdx;
@@ -952,7 +953,7 @@ namespace www {
             switch (funcID) {
                 case 0x17:
                 case 0x1A:
-                case 0x1B:
+                case 0x1D:
                 case 0x4D:
                 case 0x4E:
                 case 0x4F:
