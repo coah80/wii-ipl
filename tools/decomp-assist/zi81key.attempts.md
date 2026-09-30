@@ -138,3 +138,44 @@ Additional near-match source trials in this continuation:
 Retained PY component initialization in declaration order: 97.54777% versus 97.038216% at entry, 158/157 instructions. Initializing length first restored the lower baseline score; constant tone worsened it. Quick gate PASS, zero regressions. ZY retains six table-base register differences; no rejected source variant remains.
 
 Final full gate over zi81key and zi8alpha: PASS, original DOL hash, identical pools, zero regressions, zero net forbidden patterns and readability warnings. zi81key remains 4/9 instruction-exact; exact code 2588/21460, exact data 1208/1388, weighted fuzzy 96.51463%. Entry exact data was 1160/1388. Final function scores: ZY 99.756096%, PY 97.54777%, alternate sound 99.82404%, spelling 96.82353%, candidates 94.64998%; the four exact functions remain exact. Both large bodies cover all original block regions. Remaining differences and rejected source variants are recorded above; no new exact function is claimed.
+
+## Exactness continuation from a3b04ad9, 2026-09-30
+
+Entry 4/9 instruction-exact. MatchAltSound1Key had 341/341 instructions, twelve differences exchanging the workspace and phonetic-table registers r25/r26. Recovered the shared generic workspace formal and cast only its field accesses to the local workspace structure. This preserves the API's original workspace type, with no extra pointer local. Result: objdiff 100.0%, 341/341 instructions, ctxdiff diffs 0. All other function scores unchanged. Quick gate PASS, identical pool, zero regressions.
+
+Further exactness variants in this continuation (rejected unless explicitly retained):
+
+- Zi8SpellingZY: unsigned long length; 99.756096%, src 0x1ec base 0x1ec insns 123/123.
+- Zi8SpellingZY: index before table pointer in address expression; 99.756096%, src 0x1ec base 0x1ec insns 123/123.
+- Zi8SpellingZY: signed length counter; 99.756096%, src 0x1ec base 0x1ec insns 123/123.
+- Zi8SpellingPY: full-width tone switch expression; 97.54777%, src 0x278 base 0x274 insns 158/157.
+- Zi8SpellingPY: repeated halfword normalization at tone switch; 97.54777%, src 0x278 base 0x274 insns 158/157.
+- Zi8SpellingPY: full-width include-tone formal with byte test; 97.54777%, src 0x278 base 0x274 insns 158/157.
+- Zi8SpellingPY: halfword key formal; 93.598724%, src 0x280 base 0x274 insns 160/157.
+- Zi8SpellingPY: unsigned long tone temporary; 97.19745%, src 0x274 base 0x274 insns 157/157.
+- Zi8SpellingPY: signed tone temporary; 97.19745%, src 0x274 base 0x274 insns 157/157.
+- Zi8Get1KeyPressSpelling: generic workspace parameter with typed field access; 96.82353%, src 0x1a80 base 0x1a90 insns 1696/1700.
+- Zi8Get1KeyPressSpelling: restore phonetic output candidate-loop increment; 96.882355%, src 0x1a84 base 0x1a90 insns 1697/1700.
+
+ZY additionally tried generic output formal, unsigned-long and signed length counters, reversed index/table address operands and a typed final-spelling row structure: all retained 123/123 instructions and the same six differences, 99.756096%. Restored the ordinary two-dimensional table.
+
+Retained the missing tableIndex increment after each converted phonetic candidate. The target increments this index before advancing past the string terminator; without it the source loop could fail to terminate. Spelling now 96.882355%, 1697/1700 instructions, frame 0x90. Quick gate PASS, zero regressions, identical pool.
+
+Spelling follow-up variants: combined terminator-trimming while condition fell to 96.16765%; unsigned-long total counter and const phonetic-table pointer retained 96.882355%. Separating the two phonetic conversion stores from their pointer increments raised the score to 97.74117%, 1701/1700 instructions; first strict divergence moved from +0x20 to +0xa0 (branch displacement). Retained after quick gate PASS with zero regressions and identical pool.
+
+Candidate workspace generic-formal variant retained 94.64998%, 2381/2397. Recovered Zi8IsDupWordW's three-argument prototype from its matched definition in zi8getc2.c: ziBool return, wide-string pointer, byte length and generic workspace. This supplies the original byte-argument narrowing at length-one calls and removes old-style-call promotion. Candidates rose to 94.779305%; spelling rose to 97.867645%, with all five exact functions preserved. Quick gate PASS, zero regressions.
+
+Spelling postfix-compound-store retry fell to 96.805885%; capturing an element pointer before advancing fell to 95.17765% and enlarged the frame. Both rejected.
+
+Candidate prefix-filter branch now emits the matching case before the failing case, as in the target. 94.87901%, 2384/2397 instructions, frame 0x140. Quick gate PASS, zero regressions; retained.
+
+Candidate endian decoding: shift the explicitly narrowed high byte before adding the low byte, replacing multiplication by 0x100 in the sorted ordinal and ordinary character paths. This restores two target narrowing instructions and high-byte-first evaluation. 95.355446%, 2386/2397 instructions. Explicit duplicate-return byte casts did not change the prior score. Quick gate PASS, zero regressions; shift expressions retained.
+
+Final rejected variants (restored the committed higher score after each):
+
+- Zi8Get1KeyPressCandidates: prefix total candidate increment inside capacity comparison; 95.06467%, src 0x253c base 0x2574 insns 2383/2397.
+- Zi8Get1KeyPressSpelling: merge nested language fallback conditions into else if; 97.867645%, src 0x1a90 base 0x1a90 insns 1700/1700.
+
+Final retained scores: alternate sound 100%, ZY 99.756096%, PY 97.54777%, spelling 97.867645%, candidates 95.355446%. All large bodies are complete. ZY retains six table-address register differences; PY retains a register-held tone rather than the target halfword stack slot; spelling retains helper-result copies and output-cursor scheduling differences; candidates retain helper-result copies, matcher argument narrowing and counter/output scheduling. Each remaining function has more than three distinct source-level attempts recorded. Five of nine functions are instruction-exact.
+
+Final full gate over both owned units: GATE PASS, full build ok, original DOL hash 26116613f624061ba99c8d1a299aaa6efa85670d, both pools identical, zero regressions, zero added forbidden patterns and zero readability warnings. zi81key exact functions 4/9 -> 5/9, exact code 2588 -> 3952 of 21460 bytes, exact data 1208/1388 unchanged, weighted fuzzy 96.5146% -> 97.1719%. zi8alpha exact functions 10/12 unchanged, exact code 5704/21664 and exact data 72/564 unchanged, weighted fuzzy 86.7764% -> 88.8508%. These are partial matching improvements; the remaining functions are not claimed exact.

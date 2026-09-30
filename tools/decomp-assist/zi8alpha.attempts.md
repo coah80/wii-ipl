@@ -132,3 +132,35 @@ Highlighted-output audit: recovered the element-index length slot, the last-high
 Dictionary-mode dispatch audit: replaced the reconstructed comparison chain with the target's switch, in address order: punctuation, OEM, UWD, alternate sound, completion/default, ROM/PUD. Restored the forward dictionary-kind scan with a body break and initialized scan position only on the dual-language path. 81.71363%, 3978/3946 instructions. Recovered previous-count-before-clear order, ordinary-dictionary-before-terminal-punctuation order and the secondary-pass skip switch: 81.86037%. Quick gate PASS, identical pool, zero regressions and readability warnings. Every engine exit and dictionary/prefix/suffix pass remains present.
 
 Final full gate over both units: PASS. Alpha remains 10/12 instruction-exact; exact code 5704/21664, exact data 72/564, weighted fuzzy 86.776405%. Final engine score 81.86037%, 3978/3946 instructions, frame 0x2b0; first strict divergence +0x40, before the target's retry-flag initialization. Case conversion remains 99.09091% with eight register differences. All 330 emitted rodata bytes equal the target prefix; its remaining six bytes are trailing alignment, which was not reproduced with padding objects. The target's workspace-copy slot and some field meanings remain unresolved. All source functions are complete; no additional exact function or linked-unit completion is claimed.
+
+## Exactness continuation from a3b04ad9, 2026-09-30
+
+Entry engine 81.86037%, case conversion 99.09091%; unit 10/12 exact. Both units remain NonMatching. Workspace snapshot used for dictionary/helper calls restored the target scalar slot offsets but scored 81.77065%; making it const scored 81.71845%. A scoped phonetic-character cache scored 80.372025% and introduced a frame-pointer register. Rejected all three variants; no unused copy was added.
+
+Flattened terminal-punctuation selection before the shared dictionary body rather than jumping backward from the loop tail: 82.4108%, 3975/3946 instructions. Target slots 0x84 at +0x1288 and +0x18e8 control the two punctuation/ROM mode checks; corrected those checks to use the corresponding current restriction variable instead of slot 0x88. Recovered word-length-first comparison, failure branch direction, digit-before-vowel branch and the explicit failed-length reset: 82.60162%. Recovered signed result limit and direct keyboard-layout tests; removed redundant dictionary-return casts: 82.613785%, 3976/3946, frame 0x2b0. Quick gate PASS, identical pool, zero regressions.
+
+Finalization pass: restored count-only zero output before normal letters, the trailing punctuation loop's body break and decrement/count order, terminal dictionary-count branch direction and the stack-resident count-loop comparison. 84.43994%; reversed the prefix-history update and encoded-output/null branch: 84.59275%, 3978/3946 instructions. Arrays and frame still match. A keyboard-layout workspace alias scored 84.66067%, but was rejected: it primarily occupied the unused target word while adding a redundant alias, rather than recovering a demonstrated local use. The retained source has no added workspace placeholder. Quick gate PASS, zero regressions.
+
+Further exactness variants in this continuation (rejected unless explicitly retained):
+
+- Zi8ChangeWordCase: full-width language formal; 99.09091%, src 0xb0 base 0xb0 insns 44/44.
+- Zi8ChangeWordCase: generic word buffer with typed cursor; 95.454544%, src 0xb4 base 0xb0 insns 45/44.
+- Zi8ChangeWordCase: const workspace pointer parameter; 99.09091%, src 0xb0 base 0xb0 insns 44/44.
+- Zi8ChangeWordCase: case flag initialized separately; 99.09091%, src 0xb0 base 0xb0 insns 44/44.
+
+Nested phonetic range bounds left 84.59275% unchanged. Restored target positive web-prefix branch before the ordinary hyphen fallback: 84.599594%, 3978/3946, frame 0x2b0. Quick gate PASS, zero regressions; retained.
+
+Removing the early dictionary-index initialization scored 84.626205%, but rejected after source review: early jumps to finalization can read the index before the dictionary loop initializes it. The safe initialization remains. Swapped the remembered-length comparison operands to match target load order and branch sense: 84.65154%, 3978/3946 instructions. Quick gate PASS, zero regressions; retained.
+
+Direct tests for all vowel and punctuation helpers together fell to 84.5593%; rejected. Isolating the initial punctuation test avoids reusing the main index temporary for this Boolean result and raises 84.65154% to 84.70755%, 3978/3946, frame 0x2b0. Quick gate PASS, zero regressions; retained. Full-width case selector with explicit byte call argument remains 44/44, eight register differences, 99.09091%; rejected.
+
+Final rejected variants (restored the committed higher score after each):
+
+- Zi8ChangeWordCase: read-only workspace formal with generic helper argument; 99.09091%, src 0xb0 base 0xb0 insns 44/44.
+- Zi8AlphaGetCandidates: signed remembered length comparison against input minus one; 84.59503%, src 0x3e28 base 0x3da8 insns 3978/3946.
+- Zi8AlphaGetCandidates: typed workspace local for structure field access; 84.00431%, src 0x3e2c base 0x3da8 insns 3979/3946.
+- Zi8AlphaGetCandidates: typed workspace field view in recovered scalar declaration order; 84.04105%, src 0x3e2c base 0x3da8 insns 3979/3946.
+
+Final retained alpha engine: 84.70755%, frame 0x2b0, 3978/3946 instructions. Every body region is present. Scalar slots remain four bytes below target; the original stores a workspace snapshot at stack 0x20 that is never loaded. Tried used generic snapshots and typed field views; they altered call or field register allocation and lowered the score. No unused snapshot or padding was introduced. Remaining structural differences include phonetic range-load reuse, result copies, punctuation/dictionary branches and cursor scheduling. Case conversion retains eight register swaps in 44/44 instructions, 99.09091%; multiple formal, selector, cursor and loop variants do not resolve them. Ten of twelve functions remain exact.
+
+Final full gate over both owned units: GATE PASS, full build ok, original DOL hash 26116613f624061ba99c8d1a299aaa6efa85670d, both pools identical, zero regressions, zero added forbidden patterns and zero readability warnings. zi81key exact functions 4/9 -> 5/9, exact code 2588 -> 3952 of 21460 bytes, exact data 1208/1388 unchanged, weighted fuzzy 96.5146% -> 97.1719%. zi8alpha exact functions 10/12 unchanged, exact code 5704/21664 and exact data 72/564 unchanged, weighted fuzzy 86.7764% -> 88.8508%. These are partial matching improvements; the remaining functions are not claimed exact.
