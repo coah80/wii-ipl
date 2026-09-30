@@ -1,9 +1,10 @@
 #include <revolution/fa.h>
 #include <revolution/os.h>
 
-char* __FAVersion = "<< RVL_SDK - FA \trelease build: Apr 20 2010 11:20:14 (0x4199_60831) >>";
-s32 FAFileSysInitialized;
+char lbl_81690A00[] = "<< RVL_SDK - FA \trelease build: Apr 20 2010 11:20:14 (0x4199_60831) >>";
+char* __FAVersion[2] = {lbl_81690A00, NULL};
 s32 FAInInitializing;
+s32 FAFileSysInitialized;
 extern s32 FADiskInitialized;
 extern s32 pdm_init_diskmanager(s32 config, void* parameter);
 extern s32 pfstub_init_prfile2(s32 config, void* parameter);
@@ -31,6 +32,6 @@ FAError FAInit(int flag) {
         }
     }
     FAInInitializing = 0;
-    OSRegisterVersion(__FAVersion);
+    OSRegisterVersion(__FAVersion[0]);
     return 0;
 }
