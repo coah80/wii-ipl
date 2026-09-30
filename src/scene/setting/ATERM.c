@@ -2500,11 +2500,9 @@ void ATERM_81405ACC(AtermMd5Context* context, const u8* input, u32 length) {
 
 #define ATERM_MD5_STEP(A, B, C, D, WORD, CONSTANT, SHIFT, F) \
     do { \
-        u32 value = ((WORD) + (CONSTANT)) + (A) + (F); \
-        (A) = (D); \
-        (D) = (C); \
-        (C) = (B); \
-        (B) += (value << (SHIFT)) | (value >> (32 - (SHIFT))); \
+        (A) += (F) + (WORD) + (CONSTANT); \
+        (A) = ((A) << (SHIFT)) | ((A) >> (32 - (SHIFT))); \
+        (A) += (B); \
     } while (0)
 
 void ATERM_81405D0C(u32 state[4], const u8 block[64]) {
@@ -2513,110 +2511,95 @@ void ATERM_81405D0C(u32 state[4], const u8 block[64]) {
     u32 b = state[1];
     u32 c = state[2];
     u32 d = state[3];
-    u32 index = 0;
     u32 offset = 0;
     u32 i;
+    u32 j = 0;
 
     for (i = 0; i < 2; i++) {
-        words[index++] =
-            (u32)block[offset + 0] | ((u32)block[offset + 1] << 8) |
-            ((u32)block[offset + 2] << 16) | ((u32)block[offset + 3] << 24);
-
-        words[index++] =
-            (u32)block[offset + 4] | ((u32)block[offset + 5] << 8) |
-            ((u32)block[offset + 6] << 16) | ((u32)block[offset + 7] << 24);
-
-        words[index++] =
-            (u32)block[offset + 8] | ((u32)block[offset + 9] << 8) |
-            ((u32)block[offset + 10] << 16) | ((u32)block[offset + 11] << 24);
-
-        words[index++] =
-            (u32)block[offset + 12] | ((u32)block[offset + 13] << 8) |
-            ((u32)block[offset + 14] << 16) | ((u32)block[offset + 15] << 24);
-
-        words[index++] =
-            (u32)block[offset + 16] | ((u32)block[offset + 17] << 8) |
-            ((u32)block[offset + 18] << 16) | ((u32)block[offset + 19] << 24);
-
-        words[index++] =
-            (u32)block[offset + 20] | ((u32)block[offset + 21] << 8) |
-            ((u32)block[offset + 22] << 16) | ((u32)block[offset + 23] << 24);
-
-        words[index++] =
-            (u32)block[offset + 24] | ((u32)block[offset + 25] << 8) |
-            ((u32)block[offset + 26] << 16) | ((u32)block[offset + 27] << 24);
-
-        words[index++] =
-            (u32)block[offset + 28] | ((u32)block[offset + 29] << 8) |
-            ((u32)block[offset + 30] << 16) | ((u32)block[offset + 31] << 24);
-
+        const u8* in = block + offset;
+        words[j++] = (u32)in[0] | ((u32)in[1] << 8) |
+            ((u32)in[2] << 16) | ((u32)in[3] << 24);
+        words[j++] = (u32)in[4] | ((u32)in[5] << 8) |
+            ((u32)in[6] << 16) | ((u32)in[7] << 24);
+        words[j++] = (u32)in[8] | ((u32)in[9] << 8) |
+            ((u32)in[10] << 16) | ((u32)in[11] << 24);
+        words[j++] = (u32)in[12] | ((u32)in[13] << 8) |
+            ((u32)in[14] << 16) | ((u32)in[15] << 24);
+        words[j++] = (u32)in[16] | ((u32)in[17] << 8) |
+            ((u32)in[18] << 16) | ((u32)in[19] << 24);
+        words[j++] = (u32)in[20] | ((u32)in[21] << 8) |
+            ((u32)in[22] << 16) | ((u32)in[23] << 24);
+        words[j++] = (u32)in[24] | ((u32)in[25] << 8) |
+            ((u32)in[26] << 16) | ((u32)in[27] << 24);
+        words[j++] = (u32)in[28] | ((u32)in[29] << 8) |
+            ((u32)in[30] << 16) | ((u32)in[31] << 24);
         offset += 32;
     }
 
     ATERM_MD5_STEP(a, b, c, d, words[0], 0xd76aa478, 7, (b & c) | (~b & d));
-    ATERM_MD5_STEP(d, a, b, c, words[1], 0xe8c7b756, 12, (b & c) | (~b & d));
-    ATERM_MD5_STEP(c, d, a, b, words[2], 0x242070db, 17, (b & c) | (~b & d));
-    ATERM_MD5_STEP(b, c, d, a, words[3], 0xc1bdceee, 22, (b & c) | (~b & d));
+    ATERM_MD5_STEP(d, a, b, c, words[1], 0xe8c7b756, 12, (a & b) | (~a & c));
+    ATERM_MD5_STEP(c, d, a, b, words[2], 0x242070db, 17, (d & a) | (~d & b));
+    ATERM_MD5_STEP(b, c, d, a, words[3], 0xc1bdceee, 22, (c & d) | (~c & a));
     ATERM_MD5_STEP(a, b, c, d, words[4], 0xf57c0faf, 7, (b & c) | (~b & d));
-    ATERM_MD5_STEP(d, a, b, c, words[5], 0x4787c62a, 12, (b & c) | (~b & d));
-    ATERM_MD5_STEP(c, d, a, b, words[6], 0xa8304613, 17, (b & c) | (~b & d));
-    ATERM_MD5_STEP(b, c, d, a, words[7], 0xfd469501, 22, (b & c) | (~b & d));
+    ATERM_MD5_STEP(d, a, b, c, words[5], 0x4787c62a, 12, (a & b) | (~a & c));
+    ATERM_MD5_STEP(c, d, a, b, words[6], 0xa8304613, 17, (d & a) | (~d & b));
+    ATERM_MD5_STEP(b, c, d, a, words[7], 0xfd469501, 22, (c & d) | (~c & a));
     ATERM_MD5_STEP(a, b, c, d, words[8], 0x698098d8, 7, (b & c) | (~b & d));
-    ATERM_MD5_STEP(d, a, b, c, words[9], 0x8b44f7af, 12, (b & c) | (~b & d));
-    ATERM_MD5_STEP(c, d, a, b, words[10], 0xffff5bb1, 17, (b & c) | (~b & d));
-    ATERM_MD5_STEP(b, c, d, a, words[11], 0x895cd7be, 22, (b & c) | (~b & d));
+    ATERM_MD5_STEP(d, a, b, c, words[9], 0x8b44f7af, 12, (a & b) | (~a & c));
+    ATERM_MD5_STEP(c, d, a, b, words[10], 0xffff5bb1, 17, (d & a) | (~d & b));
+    ATERM_MD5_STEP(b, c, d, a, words[11], 0x895cd7be, 22, (c & d) | (~c & a));
     ATERM_MD5_STEP(a, b, c, d, words[12], 0x6b901122, 7, (b & c) | (~b & d));
-    ATERM_MD5_STEP(d, a, b, c, words[13], 0xfd987193, 12, (b & c) | (~b & d));
-    ATERM_MD5_STEP(c, d, a, b, words[14], 0xa679438e, 17, (b & c) | (~b & d));
-    ATERM_MD5_STEP(b, c, d, a, words[15], 0x49b40821, 22, (b & c) | (~b & d));
-    ATERM_MD5_STEP(a, b, c, d, words[1], 0xf61e2562, 5, (d & b) | (~d & c));
-    ATERM_MD5_STEP(d, a, b, c, words[6], 0xc040b340, 9, (d & b) | (~d & c));
-    ATERM_MD5_STEP(c, d, a, b, words[11], 0x265e5a51, 14, (d & b) | (~d & c));
-    ATERM_MD5_STEP(b, c, d, a, words[0], 0xe9b6c7aa, 20, (d & b) | (~d & c));
-    ATERM_MD5_STEP(a, b, c, d, words[5], 0xd62f105d, 5, (d & b) | (~d & c));
-    ATERM_MD5_STEP(d, a, b, c, words[10], 0x02441453, 9, (d & b) | (~d & c));
-    ATERM_MD5_STEP(c, d, a, b, words[15], 0xd8a1e681, 14, (d & b) | (~d & c));
-    ATERM_MD5_STEP(b, c, d, a, words[4], 0xe7d3fbc8, 20, (d & b) | (~d & c));
-    ATERM_MD5_STEP(a, b, c, d, words[9], 0x21e1cde6, 5, (d & b) | (~d & c));
-    ATERM_MD5_STEP(d, a, b, c, words[14], 0xc33707d6, 9, (d & b) | (~d & c));
-    ATERM_MD5_STEP(c, d, a, b, words[3], 0xf4d50d87, 14, (d & b) | (~d & c));
-    ATERM_MD5_STEP(b, c, d, a, words[8], 0x455a14ed, 20, (d & b) | (~d & c));
-    ATERM_MD5_STEP(a, b, c, d, words[13], 0xa9e3e905, 5, (d & b) | (~d & c));
-    ATERM_MD5_STEP(d, a, b, c, words[2], 0xfcefa3f8, 9, (d & b) | (~d & c));
-    ATERM_MD5_STEP(c, d, a, b, words[7], 0x676f02d9, 14, (d & b) | (~d & c));
-    ATERM_MD5_STEP(b, c, d, a, words[12], 0x8d2a4c8a, 20, (d & b) | (~d & c));
+    ATERM_MD5_STEP(d, a, b, c, words[13], 0xfd987193, 12, (a & b) | (~a & c));
+    ATERM_MD5_STEP(c, d, a, b, words[14], 0xa679438e, 17, (d & a) | (~d & b));
+    ATERM_MD5_STEP(b, c, d, a, words[15], 0x49b40821, 22, (c & d) | (~c & a));
+    ATERM_MD5_STEP(a, b, c, d, words[1], 0xf61e2562, 5, (b & d) | (c & ~d));
+    ATERM_MD5_STEP(d, a, b, c, words[6], 0xc040b340, 9, (a & c) | (b & ~c));
+    ATERM_MD5_STEP(c, d, a, b, words[11], 0x265e5a51, 14, (d & b) | (a & ~b));
+    ATERM_MD5_STEP(b, c, d, a, words[0], 0xe9b6c7aa, 20, (c & a) | (d & ~a));
+    ATERM_MD5_STEP(a, b, c, d, words[5], 0xd62f105d, 5, (b & d) | (c & ~d));
+    ATERM_MD5_STEP(d, a, b, c, words[10], 0x02441453, 9, (a & c) | (b & ~c));
+    ATERM_MD5_STEP(c, d, a, b, words[15], 0xd8a1e681, 14, (d & b) | (a & ~b));
+    ATERM_MD5_STEP(b, c, d, a, words[4], 0xe7d3fbc8, 20, (c & a) | (d & ~a));
+    ATERM_MD5_STEP(a, b, c, d, words[9], 0x21e1cde6, 5, (b & d) | (c & ~d));
+    ATERM_MD5_STEP(d, a, b, c, words[14], 0xc33707d6, 9, (a & c) | (b & ~c));
+    ATERM_MD5_STEP(c, d, a, b, words[3], 0xf4d50d87, 14, (d & b) | (a & ~b));
+    ATERM_MD5_STEP(b, c, d, a, words[8], 0x455a14ed, 20, (c & a) | (d & ~a));
+    ATERM_MD5_STEP(a, b, c, d, words[13], 0xa9e3e905, 5, (b & d) | (c & ~d));
+    ATERM_MD5_STEP(d, a, b, c, words[2], 0xfcefa3f8, 9, (a & c) | (b & ~c));
+    ATERM_MD5_STEP(c, d, a, b, words[7], 0x676f02d9, 14, (d & b) | (a & ~b));
+    ATERM_MD5_STEP(b, c, d, a, words[12], 0x8d2a4c8a, 20, (c & a) | (d & ~a));
     ATERM_MD5_STEP(a, b, c, d, words[5], 0xfffa3942, 4, b ^ c ^ d);
-    ATERM_MD5_STEP(d, a, b, c, words[8], 0x8771f681, 11, b ^ c ^ d);
-    ATERM_MD5_STEP(c, d, a, b, words[11], 0x6d9d6122, 16, b ^ c ^ d);
-    ATERM_MD5_STEP(b, c, d, a, words[14], 0xfde5380c, 23, b ^ c ^ d);
+    ATERM_MD5_STEP(d, a, b, c, words[8], 0x8771f681, 11, a ^ b ^ c);
+    ATERM_MD5_STEP(c, d, a, b, words[11], 0x6d9d6122, 16, d ^ a ^ b);
+    ATERM_MD5_STEP(b, c, d, a, words[14], 0xfde5380c, 23, c ^ d ^ a);
     ATERM_MD5_STEP(a, b, c, d, words[1], 0xa4beea44, 4, b ^ c ^ d);
-    ATERM_MD5_STEP(d, a, b, c, words[4], 0x4bdecfa9, 11, b ^ c ^ d);
-    ATERM_MD5_STEP(c, d, a, b, words[7], 0xf6bb4b60, 16, b ^ c ^ d);
-    ATERM_MD5_STEP(b, c, d, a, words[10], 0xbebfbc70, 23, b ^ c ^ d);
+    ATERM_MD5_STEP(d, a, b, c, words[4], 0x4bdecfa9, 11, a ^ b ^ c);
+    ATERM_MD5_STEP(c, d, a, b, words[7], 0xf6bb4b60, 16, d ^ a ^ b);
+    ATERM_MD5_STEP(b, c, d, a, words[10], 0xbebfbc70, 23, c ^ d ^ a);
     ATERM_MD5_STEP(a, b, c, d, words[13], 0x289b7ec6, 4, b ^ c ^ d);
-    ATERM_MD5_STEP(d, a, b, c, words[0], 0xeaa127fa, 11, b ^ c ^ d);
-    ATERM_MD5_STEP(c, d, a, b, words[3], 0xd4ef3085, 16, b ^ c ^ d);
-    ATERM_MD5_STEP(b, c, d, a, words[6], 0x04881d05, 23, b ^ c ^ d);
+    ATERM_MD5_STEP(d, a, b, c, words[0], 0xeaa127fa, 11, a ^ b ^ c);
+    ATERM_MD5_STEP(c, d, a, b, words[3], 0xd4ef3085, 16, d ^ a ^ b);
+    ATERM_MD5_STEP(b, c, d, a, words[6], 0x04881d05, 23, c ^ d ^ a);
     ATERM_MD5_STEP(a, b, c, d, words[9], 0xd9d4d039, 4, b ^ c ^ d);
-    ATERM_MD5_STEP(d, a, b, c, words[12], 0xe6db99e5, 11, b ^ c ^ d);
-    ATERM_MD5_STEP(c, d, a, b, words[15], 0x1fa27cf8, 16, b ^ c ^ d);
-    ATERM_MD5_STEP(b, c, d, a, words[2], 0xc4ac5665, 23, b ^ c ^ d);
+    ATERM_MD5_STEP(d, a, b, c, words[12], 0xe6db99e5, 11, a ^ b ^ c);
+    ATERM_MD5_STEP(c, d, a, b, words[15], 0x1fa27cf8, 16, d ^ a ^ b);
+    ATERM_MD5_STEP(b, c, d, a, words[2], 0xc4ac5665, 23, c ^ d ^ a);
     ATERM_MD5_STEP(a, b, c, d, words[0], 0xf4292244, 6, c ^ (b | ~d));
-    ATERM_MD5_STEP(d, a, b, c, words[7], 0x432aff97, 10, c ^ (b | ~d));
-    ATERM_MD5_STEP(c, d, a, b, words[14], 0xab9423a7, 15, c ^ (b | ~d));
-    ATERM_MD5_STEP(b, c, d, a, words[5], 0xfc93a039, 21, c ^ (b | ~d));
+    ATERM_MD5_STEP(d, a, b, c, words[7], 0x432aff97, 10, b ^ (a | ~c));
+    ATERM_MD5_STEP(c, d, a, b, words[14], 0xab9423a7, 15, a ^ (d | ~b));
+    ATERM_MD5_STEP(b, c, d, a, words[5], 0xfc93a039, 21, d ^ (c | ~a));
     ATERM_MD5_STEP(a, b, c, d, words[12], 0x655b59c3, 6, c ^ (b | ~d));
-    ATERM_MD5_STEP(d, a, b, c, words[3], 0x8f0ccc92, 10, c ^ (b | ~d));
-    ATERM_MD5_STEP(c, d, a, b, words[10], 0xffeff47d, 15, c ^ (b | ~d));
-    ATERM_MD5_STEP(b, c, d, a, words[1], 0x85845dd1, 21, c ^ (b | ~d));
+    ATERM_MD5_STEP(d, a, b, c, words[3], 0x8f0ccc92, 10, b ^ (a | ~c));
+    ATERM_MD5_STEP(c, d, a, b, words[10], 0xffeff47d, 15, a ^ (d | ~b));
+    ATERM_MD5_STEP(b, c, d, a, words[1], 0x85845dd1, 21, d ^ (c | ~a));
     ATERM_MD5_STEP(a, b, c, d, words[8], 0x6fa87e4f, 6, c ^ (b | ~d));
-    ATERM_MD5_STEP(d, a, b, c, words[15], 0xfe2ce6e0, 10, c ^ (b | ~d));
-    ATERM_MD5_STEP(c, d, a, b, words[6], 0xa3014314, 15, c ^ (b | ~d));
-    ATERM_MD5_STEP(b, c, d, a, words[13], 0x4e0811a1, 21, c ^ (b | ~d));
+    ATERM_MD5_STEP(d, a, b, c, words[15], 0xfe2ce6e0, 10, b ^ (a | ~c));
+    ATERM_MD5_STEP(c, d, a, b, words[6], 0xa3014314, 15, a ^ (d | ~b));
+    ATERM_MD5_STEP(b, c, d, a, words[13], 0x4e0811a1, 21, d ^ (c | ~a));
     ATERM_MD5_STEP(a, b, c, d, words[4], 0xf7537e82, 6, c ^ (b | ~d));
-    ATERM_MD5_STEP(d, a, b, c, words[11], 0xbd3af235, 10, c ^ (b | ~d));
-    ATERM_MD5_STEP(c, d, a, b, words[2], 0x2ad7d2bb, 15, c ^ (b | ~d));
-    ATERM_MD5_STEP(b, c, d, a, words[9], 0xeb86d391, 21, c ^ (b | ~d));
+    ATERM_MD5_STEP(d, a, b, c, words[11], 0xbd3af235, 10, b ^ (a | ~c));
+    ATERM_MD5_STEP(c, d, a, b, words[2], 0x2ad7d2bb, 15, a ^ (d | ~b));
+    ATERM_MD5_STEP(b, c, d, a, words[9], 0xeb86d391, 21, d ^ (c | ~a));
 
     state[0] += a;
     state[1] += b;
@@ -2625,40 +2608,39 @@ void ATERM_81405D0C(u32 state[4], const u8 block[64]) {
 
     {
         u8* clear = (u8*)block;
-        u32 i;
-        for (i = 0; i < 64; i += 32) {
-            clear[i + 0] = 0;
-            clear[i + 1] = 0;
-            clear[i + 2] = 0;
-            clear[i + 3] = 0;
-            clear[i + 4] = 0;
-            clear[i + 5] = 0;
-            clear[i + 6] = 0;
-            clear[i + 7] = 0;
-            clear[i + 8] = 0;
-            clear[i + 9] = 0;
-            clear[i + 10] = 0;
-            clear[i + 11] = 0;
-            clear[i + 12] = 0;
-            clear[i + 13] = 0;
-            clear[i + 14] = 0;
-            clear[i + 15] = 0;
-            clear[i + 16] = 0;
-            clear[i + 17] = 0;
-            clear[i + 18] = 0;
-            clear[i + 19] = 0;
-            clear[i + 20] = 0;
-            clear[i + 21] = 0;
-            clear[i + 22] = 0;
-            clear[i + 23] = 0;
-            clear[i + 24] = 0;
-            clear[i + 25] = 0;
-            clear[i + 26] = 0;
-            clear[i + 27] = 0;
-            clear[i + 28] = 0;
-            clear[i + 29] = 0;
-            clear[i + 30] = 0;
-            clear[i + 31] = 0;
+        for (j = 0; j < 64; j += 32) {
+            clear[j + 0] = 0;
+            clear[j + 1] = 0;
+            clear[j + 2] = 0;
+            clear[j + 3] = 0;
+            clear[j + 4] = 0;
+            clear[j + 5] = 0;
+            clear[j + 6] = 0;
+            clear[j + 7] = 0;
+            clear[j + 8] = 0;
+            clear[j + 9] = 0;
+            clear[j + 10] = 0;
+            clear[j + 11] = 0;
+            clear[j + 12] = 0;
+            clear[j + 13] = 0;
+            clear[j + 14] = 0;
+            clear[j + 15] = 0;
+            clear[j + 16] = 0;
+            clear[j + 17] = 0;
+            clear[j + 18] = 0;
+            clear[j + 19] = 0;
+            clear[j + 20] = 0;
+            clear[j + 21] = 0;
+            clear[j + 22] = 0;
+            clear[j + 23] = 0;
+            clear[j + 24] = 0;
+            clear[j + 25] = 0;
+            clear[j + 26] = 0;
+            clear[j + 27] = 0;
+            clear[j + 28] = 0;
+            clear[j + 29] = 0;
+            clear[j + 30] = 0;
+            clear[j + 31] = 0;
         }
     }
 }
