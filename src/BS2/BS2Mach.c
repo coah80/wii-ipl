@@ -1045,8 +1045,8 @@ void BS2NANDDivideCallback(s32 result, NANDCommandBlock *block) {
     } else if (result < 0) {
         NandCompletion(result, block);
     } else {
-        NandTransferred += result;
-        NandBuffer += result;
+        NandTransferred = NandTransferred + result;
+        NandBuffer = NandBuffer + result;
         if (NandLength - NandTransferred > 0x40000) {
             if (NandOperation == 1) {
                 BS2Report("NANDWriteAsync buf:0x%08X, length:0x%08X\n", NandBuffer, 0x40000);
@@ -1059,7 +1059,7 @@ void BS2NANDDivideCallback(s32 result, NANDCommandBlock *block) {
                 NandCompletion(ret, block);
             }
         } else {
-            if (NandLength - NandTransferred != 0) {
+            if (NandLength != NandTransferred) {
                 if (NandOperation == 1) {
                     BS2Report("NANDWriteAsync buf:0x%08X, length:0x%08X\n", NandBuffer, NandLength - NandTransferred);
                     ret = NANDWriteAsync(NandFile, (void *)NandBuffer, NandLength - NandTransferred, BS2NANDDivideCallback, block);
@@ -1084,12 +1084,17 @@ void BS2NANDDivideReadAsync(NANDFileInfo *info, void *buffer, u32 length, NANDCa
     NandTransferred = 0;
     NandFile = info;
     NandBuffer = (u8 *)buffer;
-    if (NandLength > 0x40000) {
+    switch (NandLength > 0x40000) {
+    default: {
         BS2Report("NANDReadAsync buf:0x%08X, length:0x%08X\n", NandBuffer, 0x40000);
         NANDReadAsync(NandFile, (void *)NandBuffer, 0x40000, BS2NANDDivideCallback, block);
-    } else {
+        break;
+    }
+    case 0: {
         BS2Report("NANDReadAsync buf:0x%08X, length:0x%08X\n", NandBuffer, NandLength);
         NANDReadAsync(NandFile, (void *)NandBuffer, NandLength, BS2NANDDivideCallback, block);
+        break;
+    }
     }
 }
 
@@ -1100,17 +1105,21 @@ void BS2NANDDivideWriteAsync(NANDFileInfo *info, const void *buffer, u32 length,
     NandTransferred = 0;
     NandFile = info;
     NandBuffer = (u8 *)buffer;
-    if (NandLength > 0x40000) {
+    switch (NandLength > 0x40000) {
+    default: {
         BS2Report("NANDWriteAsync buf:0x%08X, length:0x%08X\n", NandBuffer, 0x40000);
         NANDWriteAsync(NandFile, (void *)NandBuffer, 0x40000, BS2NANDDivideCallback, block);
-    } else {
+        break;
+    }
+    case 0: {
         BS2Report("NANDWriteAsync buf:0x%08X, length:0x%08X\n", NandBuffer, NandLength);
         NANDWriteAsync(NandFile, (void *)NandBuffer, NandLength, BS2NANDDivideCallback, block);
+        break;
+    }
     }
 }
 
 BOOL CheckBS2CommandStatus() {
-    DVDGameTOC *dataToc;
     if (CheckDVDCommandStatus(&Block) == 0) {
         BS2Report("DVD command is issuing\n");
         return 0;
@@ -1193,14 +1202,13 @@ BOOL CheckBS2CommandStatus() {
         if (BS2BootCaching != 0) {
             BS2Report("Write partition ifno\n");
             NandPending = 1;
-            dataToc = (DVDGameTOC *)DataToc;
             CacheCommandComplete = 1;
-            CacheLength += OSRoundUp32B(dataToc->partitionCount * sizeof(DVDPartitionInfo)) + 32;
+            CacheLength += OSRoundUp32B(((DVDGameTOC *)DataToc)->partitionCount * sizeof(DVDPartitionInfo)) + 32;
             if ((unsigned int)CacheLength > 0xb00000) {
                 BS2NANDCallback(-1, NULL);
                 return 1;
             } else {
-                BS2NANDDivideWriteAsync(&BS2CacheFileInfo, &PartitionInfoBuf, OSRoundUp32B(dataToc->partitionCount * sizeof(DVDPartitionInfo)) + 32, BS2NANDCallback, &BS2NandBlock);
+                BS2NANDDivideWriteAsync(&BS2CacheFileInfo, &PartitionInfoBuf, OSRoundUp32B(((DVDGameTOC *)DataToc)->partitionCount * sizeof(DVDPartitionInfo)) + 32, BS2NANDCallback, &BS2NandBlock);
                 return 0;
             }
         }
@@ -1352,7 +1360,6 @@ BS2State BS2Tick() {
     u64 currentTime;
     BOOL regionMatches;
     char productRegion;
-    DVDPartitionInfo *partition;
     u32 iosHigh;
     char *ticketByte;
     u32 entryCount;
@@ -1594,27 +1601,23 @@ invalidGcRegion:
         status = CheckBS2CommandStatus();
         if (status == 0)
             break;
-        partition = (DVDPartitionInfo *)PartitionInfoBuf;
         PartitionCursor = (u32)&PartitionInfoBuf;
         UpdatePartition = 0;
         GamePartition = 0;
         for (titleCode = 0; titleCode < (*(DVDGameTOC **)&GameToc)->partitionCount; titleCode = titleCode + 1) {
-            BS2Report("gamePartition ... 0x%08X\n", (u32)partition->partition);
+            BS2Report("gamePartition ... 0x%08X\n", (u32)((DVDPartitionInfo *)PartitionCursor)->partition);
             BS2Report("type          ... 0x%08X\n", ((DVDPartitionInfo *)PartitionCursor)->partitionType);
             if (((DVDPartitionInfo *)PartitionCursor)->partitionType == 0)
                 GamePartition = PartitionCursor;
             if (((DVDPartitionInfo *)PartitionCursor)->partitionType == 1)
                 UpdatePartition = PartitionCursor;
-            partition = (DVDPartitionInfo *)PartitionCursor + 1;
-            PartitionCursor = (u32)partition;
+            PartitionCursor = (u32)((DVDPartitionInfo *)PartitionCursor + 1);
         }
-        partition = (DVDPartitionInfo *)PartitionInfoBuf + 4;
         PartitionCursor = (u32)((DVDPartitionInfo *)PartitionInfoBuf + 4);
         for (titleCode = 0; titleCode < ((DVDGameTOC *)DataToc)->partitionCount; titleCode = titleCode + 1) {
-            BS2Report("gamePartition ... 0x%08X\n", (u32)partition->partition);
+            BS2Report("gamePartition ... 0x%08X\n", (u32)((DVDPartitionInfo *)PartitionCursor)->partition);
             BS2Report("type          ... 0x%08X\n", ((DVDPartitionInfo *)PartitionCursor)->partitionType);
-            partition = (DVDPartitionInfo *)PartitionCursor + 1;
-            PartitionCursor = (u32)partition;
+            PartitionCursor = (u32)((DVDPartitionInfo *)PartitionCursor + 1);
         }
         State = BS2_STT_19;
     }
