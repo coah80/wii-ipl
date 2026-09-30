@@ -963,8 +963,7 @@ pf_s32 PFDIR_p_rename(PF_VOLUME* volume, PF_STR* old_path, PF_STR* new_path) {
         destination_entry.num_entry_LFNs = 0;
         PFENT_getcurrentDateTimeForEnt(&destination_entry.access_date, &time);
         error = PFENT_updateEntry(&destination_entry, 1);
-        if (error == 0) { return allocation_error; }
-        return error;
+        goto finish_rename;
     }
     if (source_entry.num_entry_LFNs != 0 && (source_entry.small_letter_flag & 0x18) == 0) {
         saved_initial_char = source_entry.long_name[0];
@@ -1036,7 +1035,8 @@ pf_s32 PFDIR_p_rename(PF_VOLUME* volume, PF_STR* old_path, PF_STR* new_path) {
         update_entry->entry_sector = sector;
     }
     error = PFENT_updateEntry(update_entry, 1);
-    if (error != 0) { return error; }
+finish_rename:
+    if (error != 0) { allocation_error = error; }
     return allocation_error;
 }
 pf_s32 PFDIR_p_move(PF_VOLUME* volume, PF_STR* old_path, PF_STR* new_path) {
@@ -1116,8 +1116,9 @@ pf_s32 PFDIR_p_move(PF_VOLUME* volume, PF_STR* old_path, PF_STR* new_path) {
             }
         }
         destination_entry.start_cluster = destination_parent.start_cluster;
-        while (destination_entry.start_cluster != 1 && destination_entry.start_cluster != 0) {
+        for (;;) {
             pf_u32 parent_cluster;
+            if (destination_entry.start_cluster == 1 || destination_entry.start_cluster == 0) { break; }
             PFFAT_InitFFD(&destination_iter.ffd, &destination_hint, volume, &destination_entry.start_cluster);
             PFSTR_InitStr(&parent_name, (const pf_s8*)"..", 1);
             PFSTR_SetLocalStr(&parent_name, 0);
@@ -1181,7 +1182,7 @@ pf_s32 PFDIR_p_move(PF_VOLUME* volume, PF_STR* old_path, PF_STR* new_path) {
     if (allocation_error != 0) {
         if (source_entry.num_entry_LFNs != 0 && (source_entry.small_letter_flag & 0x18) == 0) {
             source_entry.long_name[0] = saved_initial_char;
-            source_entry.entry_offset -= source_entry.num_entry_LFNs * 32;
+            source_entry.entry_offset -= (source_entry.num_entry_LFNs & 0xff) * 32;
         }
         update_entry = &source_entry;
     } else {

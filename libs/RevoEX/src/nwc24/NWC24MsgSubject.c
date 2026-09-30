@@ -821,8 +821,8 @@ NWC24Err NWC24iSetMsgSubjectBase64(NWC24MsgObj* msg, const u16* subject, u32 sub
     u8* second;
     u32 subjectLength;
     u32 lineLength;
-    u32 outputLength;
     u32 sourceOffset;
+    u32 outputLength;
     u32 total;
     u32 charsetLength;
     NWC24Err result;
@@ -832,42 +832,41 @@ NWC24Err NWC24iSetMsgSubjectBase64(NWC24MsgObj* msg, const u16* subject, u32 sub
     second = work + workHalf;
     charsetLength = strlen(charsetName);
     lineLength = ((0x36 - charsetLength) * 3) >> 2;
-    if (workHalf < lineLength) {
+    if (lineLength > workHalf) {
         result = NWC24_ERR_OVERFLOW;
     } else {
-        outputLength = lineLength + 1;
+        workHalf = lineLength + 1;
         subjectLength = subjectSize;
-        result = NWC24iConvertFromInternalEncoding(work, &outputLength, subject, &subjectLength, charsetName, 0x40, region, alternative);
-        if (((result == NWC24_OK) || (result == NWC24_ERR_OVERFLOW)) &&
-            ((result = NWC24EncodeWord(second, secondSize, &outputLength, charsetName, 0x40, 'B', work, outputLength - 1)) == NWC24_OK)) {
+        result = NWC24iConvertFromInternalEncoding(work, &workHalf, subject, &subjectLength, charsetName, 0x40, region, alternative);
+        switch (result) { case NWC24_OK: case NWC24_ERR_OVERFLOW: break; default: goto done; }
+        result = NWC24EncodeWord(second, secondSize, &outputLength, charsetName, 0x40, 'B', work, workHalf - 1);
+        switch (result) { case NWC24_OK: break; default: goto done; }
+        {
             sourceOffset = subjectLength;
             if (sourceOffset == subjectSize) {
                 result = NWC24SetMsgSubject(msg, (char*)second, outputLength - 1);
             } else {
                 charsetLength = strlen(charsetName);
                 lineLength = (((0x3E - charsetLength) * 3) >> 2) + 1;
-                total = outputLength;
+                total = outputLength - 1;
                 for (; sourceOffset < subjectSize; sourceOffset += subjectLength) {
                     subjectLength = subjectSize - sourceOffset;
                     workHalf = lineLength;
-                    if (secondSize - (total - 1) < 3) {
+                    if (secondSize - total < 3) {
                         result = NWC24_ERR_OVERFLOW;
                         goto done;
                     }
-                    second[total - 1] = '\r';
-                    second[total] = '\n';
-                    second[total + 1] = ' ';
-                    total += 2;
+                    second[total++] = '\r';
+                    second[total++] = '\n';
+                    second[total++] = ' ';
                     result = NWC24iConvertFromInternalEncoding(work, &workHalf, subject + sourceOffset, &subjectLength, charsetName, 0x40, region,
                                                                alternative);
-                    if (((result != NWC24_OK) && (result != NWC24_ERR_OVERFLOW)) ||
-                        ((result = NWC24EncodeWord(second + total, secondSize - total, &outputLength, charsetName, 0x40, 'B', work, workHalf - 1)) !=
-                         NWC24_OK)) {
-                        goto done;
-                    }
-                    total += outputLength;
+                    switch (result) { case NWC24_OK: case NWC24_ERR_OVERFLOW: break; default: goto done; }
+                    result = NWC24EncodeWord(second + total, secondSize - total, &outputLength, charsetName, 0x40, 'B', work, workHalf - 1);
+                    switch (result) { case NWC24_OK: break; default: goto done; }
+                    total = total + outputLength - 1;
                 }
-                result = NWC24SetMsgSubject(msg, (char*)second, total - 1);
+                result = NWC24SetMsgSubject(msg, (char*)second, total);
             }
         }
     }

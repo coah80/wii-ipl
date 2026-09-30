@@ -306,7 +306,7 @@ static NWC24Err NWC24CommitMsgInternal(NWC24MsgObjPrivate* msg, NWC24MBoxType ty
             CHECK_WRITE(WriteIconNewField(msg));
             if (msg->msgBoardFlags.raw != 0) {
                 CHECK_WRITE(WriteMBNoReplyField(msg));
-                CHECK_WRITE(WriteMBRegDateField(msg, msg->msgBoardFlags.raw & 0xFFFF));
+                { u16 dateFlags = msg->msgBoardFlags.raw; CHECK_WRITE(WriteMBRegDateField(msg, dateFlags)); }
                 CHECK_WRITE(WriteMBDelayField(msg, msg->msgBoardFlags.raw & 0xFF0000));
             }
         }
@@ -334,9 +334,8 @@ static NWC24Err NWC24CommitMsgInternal(NWC24MsgObjPrivate* msg, NWC24MBoxType ty
         if (!(msg->type & 0x10000))
             msg->unk_0x10 = msg->length;
         text.ptr = (const void*)msg->length;
-        err = WritePlainText(msg);
-        if (err == NWC24_ERR_NULL)
-            err = NWC24_OK;
+        { NWC24Err textResult = WritePlainText(msg);
+        err = textResult == NWC24_ERR_NULL ? NWC24_OK : textResult; }
         if (err != NWC24_OK) {
             NWC24FClose(&file);
             result = err;
