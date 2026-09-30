@@ -1,0 +1,43 @@
+MSL restoration, 43U, baseline 0 exact functions and 0 matched code/data in all six units.
+Sources: zeldaret/tp MSL printf/wprintf; public Mario Strikers Charged MSL decimal/scanning/strtold references in /tmp/mscharged-new; time reference experiments in /tmp. All measurements were rebuilt locally.
+
+printf long2str: corrected 32-bit minimum constant; 138/138 instructions, zero differences.
+printf float2str: removed unnecessary short narrowing from exponent update; 500/500 instructions, zero differences.
+printf double2hex:
+1. Deferred output pointer initialization until after width validation: 242/242, 97 differences.
+2. Moved output pointer declaration after decimal: 242/242, same 97 differences.
+3. Copied incoming format into a local format: 244/242 and larger frame; rejected.
+4. Reconstructed the actual zero-value path and ordinary literal 0x0p0 from target assembly.
+5. Corrected unconditional exponent subtraction and explicit byte narrowing based on target assembly. Remaining struct argument copies use floating loads/stores instead of integer loads/stores; conversion-loop scheduling differs.
+printf __pformatter:
+1. Moved format declaration after buffers: 535/535, same 321 differences.
+2. Initialized format to zero: 540/535, additional stores; rejected.
+3. Copied parsed format before dispatch, with both locals declared at function entry: 515/535 after target semantic fixes, larger frame; rejected.
+4. Removed hex-prefix zero-fill handling absent from this binary. Remaining mismatch is by-value struct copy code generation; target has 535 instructions, source 511.
+
+wprintf double2hex:
+1. Used the Charged reference implementation: 246/242, different frame/scheduling; rejected.
+2. Deferred output pointer initialization: 243/242, register and copy differences remained.
+3. Moved output pointer declaration after decimal: 243/242, unchanged differences.
+4. Reconstructed zero-value output and unconditional exponent subtraction from target assembly. Explicit byte narrowing improved conversion instructions; struct-copy and loop scheduling remain open.
+wprintf __wpformatter:
+1. Initialized local format: 596/593, additional stores; rejected.
+2. Moved format declaration after buffers: 591/593, changed scheduling; rejected.
+3. Copied parsed format before dispatch: 595/593, larger frame; rejected.
+4. Corrected the imported narrow Pascal-string branch to read and advance its actual input pointer, eliminating an uninitialized output-pointer read.
+5. Removed hex-prefix zero-fill handling absent from the target. Remaining struct-copy code generation and register scheduling differ.
+wprintf __wStringWrite: used the real callback result from wmemcpy; 27/27 instructions, zero differences.
+
+ansi_fp: all ten functions have zero ctxdiff differences. Exception metadata enabled for this unit, using the same setting as matching MSL siblings. Code 6512/6512 and data 780/780.
+
+time strftime:
+1. Assigned default calendar fields individually: 906/913, scheduling differences; rejected.
+2. Initialized the default calendar at declaration: 913/913, 34 remaining string-offset differences; retained.
+3. Moved format-pointer declaration before locale: 913/913, 76 differences; rejected.
+4. Replaced imported pooled-string address arithmetic with ordinary literals. Reconstructed real asctime/ctime formatting to account for the original literals, rather than retaining fake calls with missing format arguments.
+5. With ordinary source-token order restored, strftime has 913/913 instructions and zero ctxdiff differences. Keeping the shared asctime result local to asctime restored the target BSS symbols; exception records for the additional real library functions still differ at unit level. No padding or forced placement was added.
+
+scanf: all four functions have zero ctxdiff differences, code 5484/5484 and data 388/388. The formatter retains its actual secure-mode parameter.
+strtold: __strtold has 1277/1277 instructions and strtod 44/44, both zero differences. Removed the imported inline qualifier from the public strtod wrapper so the real target symbol is emitted. Code 5284/5284 and data 112/112.
+
+Exception metadata settings change only owned NonMatching units; configure.py status flags remain NonMatching. Clean gates require the original DOL SHA1 and zero baseline regressions. Raw instruction-exact counts can be lower than objdiff exact counts because the varargs conditional branch to an external register-save helper is compared without relocation normalization by gate.py. These counts are reported separately; they were not patched or hidden.
