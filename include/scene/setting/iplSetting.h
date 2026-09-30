@@ -28,16 +28,7 @@ namespace ipl {
 #ifdef IPL_SETTING_IMPLEMENTATION
         class Setting;
         class APScanThread;
-
-        class APEvent : public ::gui::EventHandler {
-        public:
-            APEvent(Setting* setting) : ::gui::EventHandler(), mpSetting(setting) {}
-
-            virtual void onEvent(u32 componentID, u32 event, void* data);
-
-        private:
-            Setting* mpSetting;
-        };
+        class APEvent;
 
         struct SettingAnimation {
             u8 unknown[0x14];
@@ -158,7 +149,6 @@ namespace ipl {
             virtual void destroy();
             virtual void prepare();
             virtual void create();
-            virtual void calc();
             virtual void draw();
             virtual FaderSceneCommand calcFadein();
             virtual FaderSceneCommand calcNormal();
@@ -262,6 +252,18 @@ namespace ipl {
 #endif
 
         };
+
+#ifdef IPL_SETTING_IMPLEMENTATION
+        class APEvent : public ::gui::EventHandler {
+        public:
+            APEvent(Setting* setting) : ::gui::EventHandler(), mpSetting(setting) {}
+
+            virtual void onEvent(u32 componentID, u32 event, void* data);
+
+        private:
+            Setting* mpSetting;
+        };
+#endif
     }  // namespace scene
 }  // namespace ipl
 

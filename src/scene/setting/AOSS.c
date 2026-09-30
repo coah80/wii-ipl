@@ -2517,36 +2517,40 @@ s16 AOSS_81401BBC(void* buffer) {
 }
 
 void AOSS_81401C9C(AOSSKeySchedule* schedule, const u8* key, u32 keyLength, u32 stateLength) {
-    u8* state = schedule->bytes;
-    u32 index = 0;
-    u32 keyIndex = 0;
-    u32 swapIndex = 0;
+    u8* state;
+    u32 index;
+    u32 keyIndex;
+    u32 swapIndex;
+    u32 unrolledLimit;
 
     schedule->j = 0;
+    state = schedule->bytes;
     schedule->i = 0;
     schedule->length = stateLength;
-    if (stateLength == 0) {
-        return;
-    }
+    index = 0;
+    if (stateLength != 0) {
+        unrolledLimit = stateLength - 8;
+        if (stateLength > 8) {
+            for (; index < unrolledLimit; index += 8) {
+                state[index] = (u8)index;
+                state[index + 1] = (u8)(index + 1);
+                state[index + 2] = (u8)(index + 2);
+                state[index + 3] = (u8)(index + 3);
+                state[index + 4] = (u8)(index + 4);
+                state[index + 5] = (u8)(index + 5);
+                state[index + 6] = (u8)(index + 6);
+                state[index + 7] = (u8)(index + 7);
+            }
+        }
 
-    if (stateLength > 8) {
-        for (; index < stateLength - 8; index += 8) {
+        for (; index < stateLength; index++) {
             state[index] = (u8)index;
-            state[index + 1] = (u8)(index + 1);
-            state[index + 2] = (u8)(index + 2);
-            state[index + 3] = (u8)(index + 3);
-            state[index + 4] = (u8)(index + 4);
-            state[index + 5] = (u8)(index + 5);
-            state[index + 6] = (u8)(index + 6);
-            state[index + 7] = (u8)(index + 7);
         }
     }
 
-    for (; index < stateLength; index++) {
-        state[index] = (u8)index;
-    }
-
     index = 0;
+    swapIndex = 0;
+    keyIndex = 0;
     for (; index < stateLength; index++) {
         u8 value = state[index];
         u8 swapValue;

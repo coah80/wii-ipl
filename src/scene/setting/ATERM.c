@@ -2509,35 +2509,44 @@ void ATERM_81405D0C(u32 state[4], const u8 block[64]) {
     u32 b = state[1];
     u32 c = state[2];
     u32 d = state[3];
-    u32 index;
+    u32 index = 0;
+    u32 offset = 0;
+    u32 i;
 
-    for (index = 0; index < 16; index += 8) {
-        const u8* inputGroup = block + index * 4;
+    for (i = 0; i < 2; i++) {
+        words[index++] =
+            (u32)block[offset + 0] | ((u32)block[offset + 1] << 8) |
+            ((u32)block[offset + 2] << 16) | ((u32)block[offset + 3] << 24);
 
-        words[index + 0] =
-            (u32)inputGroup[0] | ((u32)inputGroup[1] << 8) |
-            ((u32)inputGroup[2] << 16) | ((u32)inputGroup[3] << 24);
-        words[index + 1] =
-            (u32)inputGroup[4] | ((u32)inputGroup[5] << 8) |
-            ((u32)inputGroup[6] << 16) | ((u32)inputGroup[7] << 24);
-        words[index + 2] =
-            (u32)inputGroup[8] | ((u32)inputGroup[9] << 8) |
-            ((u32)inputGroup[10] << 16) | ((u32)inputGroup[11] << 24);
-        words[index + 3] =
-            (u32)inputGroup[12] | ((u32)inputGroup[13] << 8) |
-            ((u32)inputGroup[14] << 16) | ((u32)inputGroup[15] << 24);
-        words[index + 4] =
-            (u32)inputGroup[16] | ((u32)inputGroup[17] << 8) |
-            ((u32)inputGroup[18] << 16) | ((u32)inputGroup[19] << 24);
-        words[index + 5] =
-            (u32)inputGroup[20] | ((u32)inputGroup[21] << 8) |
-            ((u32)inputGroup[22] << 16) | ((u32)inputGroup[23] << 24);
-        words[index + 6] =
-            (u32)inputGroup[24] | ((u32)inputGroup[25] << 8) |
-            ((u32)inputGroup[26] << 16) | ((u32)inputGroup[27] << 24);
-        words[index + 7] =
-            (u32)inputGroup[28] | ((u32)inputGroup[29] << 8) |
-            ((u32)inputGroup[30] << 16) | ((u32)inputGroup[31] << 24);
+        words[index++] =
+            (u32)block[offset + 4] | ((u32)block[offset + 5] << 8) |
+            ((u32)block[offset + 6] << 16) | ((u32)block[offset + 7] << 24);
+
+        words[index++] =
+            (u32)block[offset + 8] | ((u32)block[offset + 9] << 8) |
+            ((u32)block[offset + 10] << 16) | ((u32)block[offset + 11] << 24);
+
+        words[index++] =
+            (u32)block[offset + 12] | ((u32)block[offset + 13] << 8) |
+            ((u32)block[offset + 14] << 16) | ((u32)block[offset + 15] << 24);
+
+        words[index++] =
+            (u32)block[offset + 16] | ((u32)block[offset + 17] << 8) |
+            ((u32)block[offset + 18] << 16) | ((u32)block[offset + 19] << 24);
+
+        words[index++] =
+            (u32)block[offset + 20] | ((u32)block[offset + 21] << 8) |
+            ((u32)block[offset + 22] << 16) | ((u32)block[offset + 23] << 24);
+
+        words[index++] =
+            (u32)block[offset + 24] | ((u32)block[offset + 25] << 8) |
+            ((u32)block[offset + 26] << 16) | ((u32)block[offset + 27] << 24);
+
+        words[index++] =
+            (u32)block[offset + 28] | ((u32)block[offset + 29] << 8) |
+            ((u32)block[offset + 30] << 16) | ((u32)block[offset + 31] << 24);
+
+        offset += 32;
     }
 
     ATERM_MD5_STEP(a, b, c, d, words[0], 0xd76aa478, 7, (b & c) | (~b & d));
