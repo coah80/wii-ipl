@@ -21,10 +21,24 @@ typedef struct NWC24MsgObjPrivate {
     u32 type;    // 0x04
     u32 length;  // 0x08
     u32 appId;   // 0x0C
+#ifdef NWC24_MBOX_CTRL
+    u32 unk_0x10;
+#else
     u8 unk_0x10[0x4];
+#endif
     u32 tag;             // 0x14
     u32 ledPattern;      // 0x18
+#ifdef NWC24_MBOX_CTRL
+    u32 unk_0x1C;
+#endif
+#ifdef NWC24_MBOX_CTRL
+    union {
+        NWC24UserId fromId;
+        struct { u32 fromIdHigh, fromIdLow; };
+    };
+#else
     NWC24UserId fromId;  // 0x20
+#endif
     u32 unk_0x28;
     u32 unk_0x2C;
     NWC24Data unk_0x30;
