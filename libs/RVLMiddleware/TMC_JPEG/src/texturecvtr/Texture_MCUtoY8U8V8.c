@@ -1,151 +1,103 @@
 #define TMC_JPEG_PLANAR_OUTPUT
 #include <tmc_jpeg_internal.h>
 
-static void TMCJPEG_814EFEAC(TMCCJPEGDecWork*, s32, s32);
-static void TMCJPEG_814F043C(TMCCJPEGDecWork*, s32, s32);
-static void TMCJPEG_814F0A58(TMCCJPEGDecWork*, s32, s32);
-static void TMCJPEG_814F11C4(TMCCJPEGDecWork*, s32, s32);
-static void TMCJPEG_814F17E0(TMCCJPEGDecWork*, s32, s32);
-static void TMCJPEG_814F1F48(TMCCJPEGDecWork*, s32, s32);
-static void TMCJPEG_814F2570(TMCCJPEGDecWork*, s32, s32);
-static void TMCJPEG_814F2B50(TMCCJPEGDecWork*, s32, s32);
-static void TMCJPEG_814F3158(TMCCJPEGDecWork*, s32, s32);
-static void TMCJPEG_814F32E4(TMCCJPEGDecWork*, s32, s32);
-static void TMCJPEG_814F34A4(TMCCJPEGDecWork*, s32, s32);
-static void TMCJPEG_814F372C(TMCCJPEGDecWork*, s32, s32);
+static void TMCJPEGDEC_converterYUV411toY8U8V8(TMCCJPEGDecWork*, s32, s32);
+static void TMCJPEGDEC_converterYUV411toY8U8V8edge(TMCCJPEGDecWork*, s32, s32);
+static void TMCJPEGDEC_converterYUV422toY8U8V8(TMCCJPEGDecWork*, s32, s32);
+static void TMCJPEGDEC_converterYUV422toY8U8V8edge(TMCCJPEGDecWork*, s32, s32);
+static void TMCJPEGDEC_converterYUV420toY8U8V8(TMCCJPEGDecWork*, s32, s32);
+static void TMCJPEGDEC_converterYUV420toY8U8V8edge(TMCCJPEGDecWork*, s32, s32);
+static void TMCJPEGDEC_converterYUV211toY8U8V8(TMCCJPEGDecWork*, s32, s32);
+static void TMCJPEGDEC_converterYUV211toY8U8V8edge(TMCCJPEGDecWork*, s32, s32);
+static void TMCJPEGDEC_converterYUV444toY8U8V8(TMCCJPEGDecWork*, s32, s32);
+static void TMCJPEGDEC_converterYUV444toY8U8V8edge(TMCCJPEGDecWork*, s32, s32);
+static void TMCJPEGDEC_converterYUV400toY8U8V8(TMCCJPEGDecWork*, s32, s32);
+static void TMCJPEGDEC_converterYUV400toY8U8V8edge(TMCCJPEGDecWork*, s32, s32);
 
 s32 TMCJPEGDEC_set_converterY8U8V8(TMCCJPEGDecWork* work) {
-    u8* buffer;
-    s32 componentCount;
-    TMCCJPEGDecState* state;
+    u8* ob;
+    s32 cc;
+    TMCCJPEGDecState* st;
 
-    buffer = work->convBuf;
-    componentCount = work->componentCount;
-    state = work->pState;
+    ob = work->convBuf;
+    cc = work->componentCount;
+    st = work->pState;
 
-    switch (componentCount) {
+    switch (cc) {
         case 0: {
-            u8 mode;
-            u8* firstRow;
-            u8* secondRow;
-            u8* thirdRow;
-            u8* fourthRow;
-            u8* cbBlock;
-            u8* crBlock;
+            u8 mode = work->idctMode;
+            u8* ptr = ob + 4;
+            u8* p1 = ptr + mode;
+            u8* p2 = p1 + mode;
+            u8* p3 = p2 + mode;
 
-            mode = work->idctMode;
-            firstRow = buffer + 4;
-            work->pConverterFunc = TMCJPEG_814EFEAC;
-            work->pConverterFuncEdge = TMCJPEG_814F043C;
-            secondRow = firstRow + mode;
-            thirdRow = secondRow + mode;
-            fourthRow = thirdRow + mode;
-            cbBlock = buffer + 260;
-            crBlock = buffer + 324;
-            work->pConvRowPtrs[0] = firstRow;
-            work->pConvRowPtrs[1] = secondRow;
-            work->pConvRowPtrs[2] = thirdRow;
-            work->pConvRowPtrs[3] = fourthRow;
-            work->pConvRowPtrs[5] = cbBlock;
-            work->pConvRowPtrs[6] = crBlock;
-            work->pitch = 32;
+            work->pConverterFunc = TMCJPEGDEC_converterYUV411toY8U8V8;
+            work->pConverterFuncEdge = TMCJPEGDEC_converterYUV411toY8U8V8edge;
+            work->pConvRowPtrs[0] = (void*)ptr;
+            work->pConvRowPtrs[1] = (void*)p1;
+            work->pConvRowPtrs[2] = (void*)p2;
+            work->pConvRowPtrs[3] = (void*)p3;
+            work->pConvRowPtrs[5] = (void*)(ob + 0x104);
+            work->pConvRowPtrs[6] = (void*)(ob + 0x144);
+            work->pitch = 0x20;
             work->converterFlags = 0;
             break;
         }
         case 1: {
-            u8 mode;
-            u8* firstRow;
-            u8* secondRow;
-            u8* cbBlock;
-            u8* crBlock;
-
-            mode = work->idctMode;
-            firstRow = buffer + 4;
-            work->pConverterFunc = TMCJPEG_814F0A58;
-            work->pConverterFuncEdge = TMCJPEG_814F11C4;
-            secondRow = firstRow + mode;
-            cbBlock = buffer + 132;
-            crBlock = buffer + 196;
-            work->pConvRowPtrs[0] = firstRow;
-            work->pConvRowPtrs[1] = secondRow;
-            work->pConvRowPtrs[5] = cbBlock;
-            work->pConvRowPtrs[6] = crBlock;
-            work->pitch = 16;
+            u8 mode = work->idctMode;
+            u8* ptr = ob + 4;
+            work->pConverterFunc = TMCJPEGDEC_converterYUV422toY8U8V8;
+            work->pConverterFuncEdge = TMCJPEGDEC_converterYUV422toY8U8V8edge;
+            work->pConvRowPtrs[0] = (void*)ptr;
+            work->pConvRowPtrs[1] = (void*)(ptr + mode);
+            work->pConvRowPtrs[5] = (void*)(ob + 0x84);
+            work->pConvRowPtrs[6] = (void*)(ob + 0xC4);
+            work->pitch = 0x10;
             work->converterFlags = 0;
             break;
         }
         case 2: {
-            u8 mode;
-            u8* firstRow;
-            u8* secondRow;
-            u8* thirdRow;
-            u8* fourthRow;
-            u8* cbBlock;
-            u8* crBlock;
-
-            mode = work->idctMode;
-            firstRow = buffer + 4;
-            work->pConverterFunc = TMCJPEG_814F17E0;
-            work->pConverterFuncEdge = TMCJPEG_814F1F48;
-            secondRow = firstRow + mode;
-            thirdRow = firstRow + mode * 16;
-            fourthRow = thirdRow + mode;
-            cbBlock = buffer + 260;
-            crBlock = buffer + 324;
-            work->pConvRowPtrs[0] = firstRow;
-            work->pConvRowPtrs[1] = secondRow;
-            work->pConvRowPtrs[2] = thirdRow;
-            work->pConvRowPtrs[3] = fourthRow;
-            work->pConvRowPtrs[5] = cbBlock;
-            work->pConvRowPtrs[6] = crBlock;
-            work->pitch = 16;
+            u8 mode = work->idctMode;
+            u8* ptr = ob + 4;
+            work->pConverterFunc = TMCJPEGDEC_converterYUV420toY8U8V8;
+            work->pConverterFuncEdge = TMCJPEGDEC_converterYUV420toY8U8V8edge;
+            work->pConvRowPtrs[0] = (void*)ptr;
+            work->pConvRowPtrs[1] = (void*)(ptr + mode);
+            work->pConvRowPtrs[2] = (void*)(ptr + mode * 16);
+            work->pConvRowPtrs[3] = (void*)(ptr + mode * 16 + mode);
+            work->pConvRowPtrs[5] = (void*)(ob + 0x104);
+            work->pConvRowPtrs[6] = (void*)(ob + 0x144);
+            work->pitch = 0x10;
             work->converterFlags = 0;
             break;
         }
         case 3: {
-            u8 mode;
-            u8* firstRow;
-            u8* secondRow;
-            u8* cbBlock;
-            u8* crBlock;
-
-            mode = work->idctMode;
-            firstRow = buffer + 4;
-            work->pConverterFunc = TMCJPEG_814F2570;
-            work->pConverterFuncEdge = TMCJPEG_814F2B50;
-            secondRow = firstRow + mode * 8;
-            cbBlock = buffer + 132;
-            crBlock = buffer + 196;
-            work->pConvRowPtrs[0] = firstRow;
-            work->pConvRowPtrs[1] = secondRow;
-            work->pConvRowPtrs[5] = cbBlock;
-            work->pConvRowPtrs[6] = crBlock;
-            work->pitch = 8;
+            u8 mode = work->idctMode;
+            u8* ptr = ob + 4;
+            work->pConverterFunc = TMCJPEGDEC_converterYUV211toY8U8V8;
+            work->pConverterFuncEdge = TMCJPEGDEC_converterYUV211toY8U8V8edge;
+            work->pConvRowPtrs[0] = (void*)ptr;
+            work->pConvRowPtrs[1] = (void*)(ptr + mode * 8);
+            work->pConvRowPtrs[5] = (void*)(ob + 0x84);
+            work->pConvRowPtrs[6] = (void*)(ob + 0xC4);
+            work->pitch = 0x08;
             work->converterFlags = 0;
             break;
         }
         case 4: {
-            TMCConverterFunc* converter;
-            TMCConverterFunc* edgeConverter;
-            converter = TMCJPEG_814F3158;
-            edgeConverter = TMCJPEG_814F32E4;
-            work->pConvRowPtrs[0] = buffer + 4;
-            work->pConvRowPtrs[5] = buffer + 0x44;
-            work->pConvRowPtrs[6] = buffer + 0x84;
-            work->pConverterFunc = converter;
-            work->pConverterFuncEdge = edgeConverter;
+            work->pConverterFunc = TMCJPEGDEC_converterYUV444toY8U8V8;
+            work->pConverterFuncEdge = TMCJPEGDEC_converterYUV444toY8U8V8edge;
+            work->pConvRowPtrs[0] = (void*)(ob + 4);
+            work->pConvRowPtrs[5] = (void*)(ob + 0x44);
+            work->pConvRowPtrs[6] = (void*)(ob + 0x84);
             work->pitch = 0x08;
             work->converterFlags = 0;
             break;
         }
         case 5: {
-            TMCConverterFunc* converter;
-            TMCConverterFunc* edgeConverter;
-            converter = TMCJPEG_814F34A4;
-            edgeConverter = TMCJPEG_814F372C;
-            work->pConvRowPtrs[0] = buffer + 4;
-            work->pConverterFunc = converter;
-            work->pConverterFuncEdge = edgeConverter;
+            work->pConverterFunc = TMCJPEGDEC_converterYUV400toY8U8V8;
+            work->pConverterFuncEdge = TMCJPEGDEC_converterYUV400toY8U8V8edge;
+            work->pConvRowPtrs[0] = (void*)(ob + 4);
             work->pitch = 0x08;
             work->converterFlags = 0;
             break;
@@ -156,707 +108,986 @@ s32 TMCJPEGDEC_set_converterY8U8V8(TMCCJPEGDecWork* work) {
     }
 
     {
-        s32 width = state->jpegWidth;
-        s32 height = state->jpegHeight;
-        state->convWidth = ((u32)width / 8 + (width % 8 != 0)) * 8;
-        state->convHeight = ((u32)height / 4 + (height % 4 != 0)) * 4;
-        width = state->outputWidth;
-        height = state->outputHeight;
-        state->chromaWidth = ((u32)width / 8 + (width % 8 != 0)) * 8;
-        state->chromaHeight = ((u32)height / 4 + (height % 4 != 0)) * 4;
+        u32 fw = st->jpegWidth;
+        u32 fh = st->jpegHeight;
+        u32 ow = st->outputWidth;
+        u32 oh = st->outputHeight;
+        s32 bw = (s32)(((fw << 29) - (fw >> 31)) * 8 + (fw >> 31));
+        s32 bh = (s32)(((fh << 30) - (fh >> 31)) * 4 + (fh >> 31));
+        s32 bw2 = (s32)(((ow << 29) - (ow >> 31)) * 8 + (ow >> 31));
+        s32 bh2 = (s32)(((oh << 30) - (oh >> 31)) * 4 + (oh >> 31));
+        {
+            s32 nb = -bw;
+            s32 nb2 = -bh;
+            s32 nb3 = -bw2;
+            s32 nb4 = -bh2;
+            bw = ((nb | bw) >> 31) + (fw >> 3);
+            bh = ((nb2 | bh) >> 31) + (fh >> 2);
+            bw2 = ((nb3 | bw2) >> 31) + (ow >> 3);
+            bh2 = ((nb4 | bh2) >> 31) + (oh >> 2);
+        }
+        st->convWidth = bw << 3;
+        st->convHeight = bh << 2;
+        st->chromaWidth = bw2 << 3;
+        st->chromaHeight = bh2 << 2;
     }
     return 0;
 }
+static void TMCJPEGDEC_converterYUV411toY8U8V8(TMCCJPEGDecWork* work, s32 x, s32 y) {
+    TMCCJPEGDecState* st;
+    u32 bw;
+    u32 bw2;
+    u8* out0;
+    u8* out1;
+    u8* out2;
+    s32 ss;
+    s32 step;
+    s32 ystep;
+    s32 x_end;
+    s32 y_end;
+    s32 cstep;
+    s32 xc;
+    s32 xc_end;
+    s32 yc;
+    s32 yc_end;
+    u8* y_row;
+    u8* u_row;
+    u8* v_row;
+    s32 skip;
+    s32 cskip;
+    s32 stride;
+    s32 cstride;
+    s32 x_pos;
+    s32 xc_pos;
+    s32 row_base;
+    s32 crow_base;
+    u8* oy;
+    u8* ou;
+    u8* ov;
+    s32 xo;
+    s32 off;
 
-static void TMCJPEG_814EFEAC(TMCCJPEGDecWork* work, s32 x, s32 y) {
-    s32 rowSkip;
-    u8* output;
-    u32 tileRow;
-    s32 chromaYEnd;
-    u8* lumaTexture;
-    TMCCJPEGDecState* state;
-    u8* luminance;
-    s32 column;
-    s32 row;
-    u8* cbTexture;
-    s32 xEnd;
-    s32 height;
-    u8* crTexture;
-    s32 yEnd;
-    u8* cb;
-    u8* cr;
-    u32 tileWidth;
-    s32 width;
 
-    row = y;
-    luminance = work->convBuf + 4;
-    cb = &work->convBuf[260];
-    cr = &work->convBuf[324];
-    state = work->pState;
-    tileWidth = state->convWidth >> 3;
-    lumaTexture = state->pLumaBuffer;
-    cbTexture = state->pCbBuffer;
-    crTexture = state->pCrBuffer;
-    width = 32 / state->scaleFactor;
-    height = 8 / state->scaleFactor;
-    xEnd = x + width;
-    yEnd = y + height;
-    rowSkip = 32 - width;
-    for (; row < yEnd; row++) {
-        output = lumaTexture + ((row & 3) << 3);
-        tileRow = (row >> 2) * tileWidth;
-        for (column = x; column < xEnd; column += 4) {
-            (output + (column & 7))[(s32)(((column >> 3) + tileRow) << 5)] = luminance[0];
-            (output + ((column + 1) & 7))[(s32)((((column + 1) >> 3) + tileRow) << 5)] = luminance[1];
-            (output + ((column + 2) & 7))[(s32)((((column + 2) >> 3) + tileRow) << 5)] = luminance[2];
-            (output + ((column + 3) & 7))[(s32)((((column + 3) >> 3) + tileRow) << 5)] = luminance[3];
-            luminance += 4;
+    st = work->pState;
+    y_row = work->convBuf + 4;
+    u_row = work->convBuf + 0x104;
+    v_row = work->convBuf + 0x144;
+    bw = st->convWidth;
+    bw2 = st->chromaWidth;
+    out0 = (u8*)st->pLumaBuffer;
+    out1 = (u8*)st->pCbBuffer;
+    out2 = (u8*)st->pCrBuffer;
+    ss = st->scaleFactor;
+    step = 0x20 / ss;
+    ystep = 0x08 / ss;
+
+    x_end = x + step;
+    y_end = y + ystep;
+    skip = 0x20 - step;
+    stride = bw >> 3;
+
+    for (; y < y_end; y++) {
+        row_base = (y >> 2) * stride;
+        oy = out0 + ((y & 3) << 3);
+        for (x_pos = x; x_pos < x_end; x_pos += 4) {
+            off = ((x_pos >> 3) + row_base) << 5;
+            xo = x_pos & 7;
+            oy[off + xo] = y_row[0];
+            off = (((x_pos + 1) >> 3) + row_base) << 5;
+            xo = (x_pos + 1) & 7;
+            oy[off + xo] = y_row[1];
+            off = (((x_pos + 2) >> 3) + row_base) << 5;
+            xo = (x_pos + 2) & 7;
+            oy[off + xo] = y_row[2];
+            off = (((x_pos + 3) >> 3) + row_base) << 5;
+            xo = (x_pos + 3) & 7;
+            oy[off + xo] = y_row[3];
+            y_row += 4;
         }
-        luminance += rowSkip;
+        y_row += skip;
     }
-    tileWidth = state->chromaWidth >> 3;
-    x = (u32)x >> 2;
-    width = 8 / state->scaleFactor;
-    height = 8 / state->scaleFactor;
-    xEnd = x + width;
-    chromaYEnd = y + height;
-    for (; y < chromaYEnd; y++) {
-        for (column = x; column < xEnd; column += 1) {
-            (cbTexture + ((y & 3) << 3) + (column & 7))[(s32)(((column >> 3) + (y >> 2) * tileWidth) << 5)] = *cb + 128;
-            cb++;
-            (crTexture + ((y & 3) << 3) + (column & 7))[(s32)(((column >> 3) + (y >> 2) * tileWidth) << 5)] = *cr + 128;
-            cr++;
+
+    xc = (u32)x >> 2;
+    cstep = 0x08 / ss;
+    xc_end = xc + cstep;
+    yc = y;
+    yc_end = y_end;
+    cskip = 8 - cstep;
+    cstride = bw2 >> 3;
+
+    for (; yc < yc_end; yc++) {
+        crow_base = (yc >> 2) * cstride;
+        ou = out1 + ((yc & 3) << 3);
+        ov = out2 + ((yc & 3) << 3);
+        for (xc_pos = xc; xc_pos < xc_end; xc_pos++) {
+            off = ((xc_pos >> 3) + crow_base) << 5;
+            xo = xc_pos & 7;
+            ou[off + xo] = *u_row++ + 0x80;
+            ov[off + xo] = *v_row++ + 0x80;
         }
-        cb += 8 - width;
-        cr += 8 - width;
+        u_row += cskip;
+        v_row += cskip;
     }
 }
 
-static void TMCJPEG_814F043C(TMCCJPEGDecWork* work, s32 x, s32 y) {
-    TMCCJPEGDecState* state;
-    u8* lumaTexture;
-    u8* luminance;
-    s32 column;
-    s32 row;
-    s32 chromaEnd;
-    u8* cbTexture;
-    u8* crTexture;
-    u32 tileRow;
-    s32 height;
-    s32 yEnd;
-    u8* output;
-    u8* cb;
-    u8* cr;
-    s32 width;
-    s32 tileOffset;
-    s32 xEnd;
-    u32 tileWidth;
+static void TMCJPEGDEC_converterYUV411toY8U8V8edge(TMCCJPEGDecWork* work, s32 x, s32 y) {
+    TMCCJPEGDecState* st;
+    u32 bw;
+    u32 bw2;
+    u8* out0;
+    u8* out1;
+    u8* out2;
+    s32 ss;
+    s32 step;
+    s32 ystep;
+    s32 x_end;
+    s32 y_end;
+    s32 cstep;
+    s32 xc;
+    s32 xc_end;
+    s32 yc;
+    s32 yc_end;
+    u8* y_row;
+    u8* u_row;
+    u8* v_row;
+    s32 skip;
+    s32 cskip;
+    s32 stride;
+    s32 cstride;
+    s32 x_pos;
+    s32 xc_pos;
+    s32 row_base;
+    s32 crow_base;
+    u8* oy;
+    u8* ou;
+    u8* ov;
+    s32 xo;
+    s32 off;
 
-    luminance = work->convBuf + 4;
-    cb = &work->convBuf[260];
-    cr = &work->convBuf[324];
-    state = work->pState;
-    tileWidth = state->convWidth >> 3;
-    lumaTexture = state->pLumaBuffer;
-    cbTexture = state->pCbBuffer;
-    crTexture = state->pCrBuffer;
-    if (state->dataSizeX == (u32)x) {
-        width = state->stepXExt;
+
+    st = work->pState;
+    y_row = work->convBuf + 4;
+    u_row = work->convBuf + 0x104;
+    v_row = work->convBuf + 0x144;
+    bw = st->convWidth;
+    bw2 = st->chromaWidth;
+    out0 = (u8*)st->pLumaBuffer;
+    out1 = (u8*)st->pCbBuffer;
+    out2 = (u8*)st->pCrBuffer;
+
+    if (st->dataSizeX == x) {
+        step = st->stepXExt;
     } else {
-        width = 32 / state->scaleFactor;
+        step = 0x20 / st->scaleFactor;
     }
-    if (state->dataSizeY == (u32)y) {
-        height = state->stepYExt;
+    if (st->dataSizeY == y) {
+        ystep = st->stepYExt;
     } else {
-        height = 8 / state->scaleFactor;
+        ystep = 0x08 / st->scaleFactor;
     }
-    xEnd = x + width;
-    yEnd = y + height;
-    for (row = y; row < yEnd; row++) {
-        for (column = x; column < xEnd; column += 1) {
-            tileRow = (row >> 2) * tileWidth;
-            tileOffset = ((column >> 3) + tileRow) << 5;
-            output = lumaTexture + ((row & 3) << 3) + (column & 7);
-            output[tileOffset] = *luminance++;
+
+    x_end = x + step;
+    y_end = y + ystep;
+    skip = 0x20 - step;
+    stride = bw >> 3;
+
+    for (; y < y_end; y++) {
+        row_base = (y >> 2) * stride;
+        oy = out0 + ((y & 3) << 3);
+        for (x_pos = x; x_pos < x_end; x_pos++) {
+            off = ((x_pos >> 3) + row_base) << 5;
+            xo = x_pos & 7;
+            oy[off + xo] = *y_row++;
         }
-        luminance += 32 - width;
+        y_row += skip;
     }
-    x = (u32)x >> 2;
-    width = (width + 3) >> 2;
-    xEnd = x + width;
-    tileWidth = state->chromaWidth >> 3;
-    chromaEnd = y + height;
-    for (; y < chromaEnd; y++) {
-        for (column = x; column < xEnd; column += 1) {
-            (cbTexture + ((y & 3) << 3) + (column & 7))[(s32)(((column >> 3) + (y >> 2) * tileWidth) << 5)] = *cb + 128;
-            cb++;
-            (crTexture + ((y & 3) << 3) + (column & 7))[(s32)(((column >> 3) + (y >> 2) * tileWidth) << 5)] = *cr + 128;
-            cr++;
+
+    xc = (u32)x >> 2;
+    cstep = (step + 3) >> 2;
+    xc_end = xc + cstep;
+    yc = y;
+    yc_end = y_end;
+    cskip = 8 - cstep;
+    cstride = bw2 >> 3;
+
+    for (; yc < yc_end; yc++) {
+        crow_base = (yc >> 2) * cstride;
+        ou = out1 + ((yc & 3) << 3);
+        ov = out2 + ((yc & 3) << 3);
+        for (xc_pos = xc; xc_pos < xc_end; xc_pos++) {
+            off = ((xc_pos >> 3) + crow_base) << 5;
+            xo = xc_pos & 7;
+            ou[off + xo] = *u_row++ + 0x80;
+            ov[off + xo] = *v_row++ + 0x80;
         }
-        cb += 8 - width;
-        cr += 8 - width;
+        u_row += cskip;
+        v_row += cskip;
     }
 }
 
-static void TMCJPEG_814F0A58(TMCCJPEGDecWork* work, s32 x, s32 y) {
-    s32 chromaYEnd;
-    u8* lumaTexture;
-    u8* luminance;
-    s32 column;
-    s32 row;
-    TMCCJPEGDecState* state;
-    s32 width;
-    s32 height;
-    u8* cbTexture;
-    s32 xEnd;
-    u8* crTexture;
-    s32 yEnd;
-    u8* cb;
-    u32 tileWidth;
-    u8* cr;
+static void TMCJPEGDEC_converterYUV422toY8U8V8(TMCCJPEGDecWork* work, s32 x, s32 y) {
+    TMCCJPEGDecState* st;
+    u32 bw;
+    u32 bw2;
+    u8* out0;
+    u8* out1;
+    u8* out2;
+    s32 ss;
+    s32 step;
+    s32 ystep;
+    s32 x_end;
+    s32 y_end;
+    s32 cstep;
+    s32 xc;
+    s32 xc_end;
+    s32 yc;
+    s32 yc_end;
+    u8* y_row;
+    u8* u_row;
+    u8* v_row;
+    s32 skip;
+    s32 cskip;
+    s32 stride;
+    s32 cstride;
+    s32 x_pos;
+    s32 xc_pos;
+    s32 row_base;
+    s32 crow_base;
+    u8* oy;
+    u8* ou;
+    u8* ov;
+    s32 xo;
+    s32 off;
 
-    row = y;
-    luminance = work->convBuf + 4;
-    cb = &work->convBuf[132];
-    cr = &work->convBuf[196];
-    state = work->pState;
-    tileWidth = state->convWidth >> 3;
-    lumaTexture = state->pLumaBuffer;
-    cbTexture = state->pCbBuffer;
-    crTexture = state->pCrBuffer;
-    width = 16 / state->scaleFactor;
-    height = 8 / state->scaleFactor;
-    xEnd = x + width;
-    yEnd = y + height;
-    for (; row < yEnd; row++) {
-        for (column = x; column < xEnd; column += 2) {
-            (lumaTexture + ((row & 3) << 3) + (column & 7))[(s32)(((column >> 3) + (row >> 2) * tileWidth) << 5)] = *luminance++;
-            (lumaTexture + ((row & 3) << 3) + ((column + 1) & 7))[(s32)((((column + 1) >> 3) + (row >> 2) * tileWidth) << 5)] = *luminance++;
+
+    st = work->pState;
+    y_row = work->convBuf + 4;
+    u_row = work->convBuf + 0x84;
+    v_row = work->convBuf + 0xC4;
+    bw = st->convWidth;
+    bw2 = st->chromaWidth;
+    out0 = (u8*)st->pLumaBuffer;
+    out1 = (u8*)st->pCbBuffer;
+    out2 = (u8*)st->pCrBuffer;
+    ss = st->scaleFactor;
+    step = 0x10 / ss;
+    ystep = 0x08 / ss;
+
+    x_end = x + step;
+    y_end = y + ystep;
+    skip = 0x10 - step;
+    stride = bw >> 3;
+
+    for (; y < y_end; y++) {
+        row_base = (y >> 2) * stride;
+        oy = out0 + ((y & 3) << 3);
+        for (x_pos = x; x_pos < x_end; x_pos += 2) {
+            oy[(((x_pos >> 3) + row_base) << 5) + (x_pos & 7)] = *y_row++;
+            oy[((((x_pos + 1) >> 3) + row_base) << 5) + ((x_pos + 1) & 7)] = *y_row++;
         }
-        luminance += 16 - width;
+        y_row += skip;
     }
-    x = (u32)x >> 1;
-    width = 8 / state->scaleFactor;
-    height = 8 / state->scaleFactor;
-    xEnd = x + width;
-    chromaYEnd = y + height;
-    tileWidth = state->chromaWidth >> 3;
-    for (row = y; row < chromaYEnd; row++) {
-        for (column = x; column < xEnd; column += 1) {
-            (cbTexture + ((row & 3) << 3) + (column & 7))[(s32)(((column >> 3) + (row >> 2) * tileWidth) << 5)] = *cb + 128;
-            cb++;
-            (crTexture + ((row & 3) << 3) + (column & 7))[(s32)(((column >> 3) + (row >> 2) * tileWidth) << 5)] = *cr + 128;
-            cr++;
+
+    xc = (u32)x >> 1;
+    cstep = 0x08 / ss;
+    xc_end = xc + cstep;
+    yc = y;
+    yc_end = y_end;
+    cskip = 8 - cstep;
+    cstride = bw2 >> 3;
+
+    for (; yc < yc_end; yc++) {
+        crow_base = (yc >> 2) * cstride;
+        ou = out1 + ((yc & 3) << 3);
+        ov = out2 + ((yc & 3) << 3);
+        for (xc_pos = xc; xc_pos < xc_end; xc_pos++) {
+            off = ((xc_pos >> 3) + crow_base) << 5;
+            xo = xc_pos & 7;
+            ou[off + xo] = *u_row++ + 0x80;
+            ov[off + xo] = *v_row++ + 0x80;
         }
-        cb += 8 - width;
-        cr += 8 - width;
+        u_row += cskip;
+        v_row += cskip;
     }
 }
 
-static void TMCJPEG_814F11C4(TMCCJPEGDecWork* work, s32 x, s32 y) {
-    TMCCJPEGDecState* state;
-    u8* lumaTexture;
-    u8* luminance;
-    s32 column;
-    s32 row;
-    s32 chromaEnd;
-    u8* cbTexture;
-    u8* crTexture;
-    u32 tileRow;
-    s32 height;
-    s32 yEnd;
-    u8* output;
-    u8* cb;
-    u8* cr;
-    s32 width;
-    s32 tileOffset;
-    s32 xEnd;
-    u32 tileWidth;
+static void TMCJPEGDEC_converterYUV422toY8U8V8edge(TMCCJPEGDecWork* work, s32 x, s32 y) {
+    TMCCJPEGDecState* st;
+    u32 bw;
+    u32 bw2;
+    u8* out0;
+    u8* out1;
+    u8* out2;
+    s32 ss;
+    s32 step;
+    s32 ystep;
+    s32 x_end;
+    s32 y_end;
+    s32 cstep;
+    s32 xc;
+    s32 xc_end;
+    s32 yc;
+    s32 yc_end;
+    u8* y_row;
+    u8* u_row;
+    u8* v_row;
+    s32 skip;
+    s32 cskip;
+    s32 stride;
+    s32 cstride;
+    s32 x_pos;
+    s32 xc_pos;
+    s32 row_base;
+    s32 crow_base;
+    u8* oy;
+    u8* ou;
+    u8* ov;
+    s32 xo;
+    s32 off;
 
-    luminance = work->convBuf + 4;
-    cb = &work->convBuf[132];
-    cr = &work->convBuf[196];
-    state = work->pState;
-    tileWidth = state->convWidth >> 3;
-    lumaTexture = state->pLumaBuffer;
-    cbTexture = state->pCbBuffer;
-    crTexture = state->pCrBuffer;
-    if (state->dataSizeX == (u32)x) {
-        width = state->stepXExt;
+
+    st = work->pState;
+    y_row = work->convBuf + 4;
+    u_row = work->convBuf + 0x84;
+    v_row = work->convBuf + 0xC4;
+    bw = st->convWidth;
+    bw2 = st->chromaWidth;
+    out0 = (u8*)st->pLumaBuffer;
+    out1 = (u8*)st->pCbBuffer;
+    out2 = (u8*)st->pCrBuffer;
+
+    if (st->dataSizeX == x) {
+        step = st->stepXExt;
     } else {
-        width = 16 / state->scaleFactor;
+        step = 0x10 / st->scaleFactor;
     }
-    if (state->dataSizeY == (u32)y) {
-        height = state->stepYExt;
+    if (st->dataSizeY == y) {
+        ystep = st->stepYExt;
     } else {
-        height = 8 / state->scaleFactor;
+        ystep = 0x08 / st->scaleFactor;
     }
-    xEnd = x + width;
-    yEnd = y + height;
-    for (row = y; row < yEnd; row++) {
-        for (column = x; column < xEnd; column += 1) {
-            tileRow = (row >> 2) * tileWidth;
-            tileOffset = ((column >> 3) + tileRow) << 5;
-            output = lumaTexture + ((row & 3) << 3) + (column & 7);
-            output[tileOffset] = *luminance++;
+
+    x_end = x + step;
+    y_end = y + ystep;
+    skip = 0x10 - step;
+    stride = bw >> 3;
+
+    for (; y < y_end; y++) {
+        row_base = (y >> 2) * stride;
+        oy = out0 + ((y & 3) << 3);
+        for (x_pos = x; x_pos < x_end; x_pos++) {
+            off = ((x_pos >> 3) + row_base) << 5;
+            xo = x_pos & 7;
+            oy[off + xo] = *y_row++;
         }
-        luminance += 16 - width;
+        y_row += skip;
     }
-    x = (u32)x >> 1;
-    width = (width + 1) >> 1;
-    xEnd = x + width;
-    tileWidth = state->chromaWidth >> 3;
-    chromaEnd = y + height;
-    for (; y < chromaEnd; y++) {
-        for (column = x; column < xEnd; column += 1) {
-            (cbTexture + ((y & 3) << 3) + (column & 7))[(s32)(((column >> 3) + (y >> 2) * tileWidth) << 5)] = *cb + 128;
-            cb++;
-            (crTexture + ((y & 3) << 3) + (column & 7))[(s32)(((column >> 3) + (y >> 2) * tileWidth) << 5)] = *cr + 128;
-            cr++;
+
+    xc = (u32)x >> 1;
+    cstep = (step + 1) >> 1;
+    xc_end = xc + cstep;
+    yc = y;
+    yc_end = y_end;
+    cskip = 8 - cstep;
+    cstride = bw2 >> 3;
+
+    for (; yc < yc_end; yc++) {
+        crow_base = (yc >> 2) * cstride;
+        ou = out1 + ((yc & 3) << 3);
+        ov = out2 + ((yc & 3) << 3);
+        for (xc_pos = xc; xc_pos < xc_end; xc_pos++) {
+            off = ((xc_pos >> 3) + crow_base) << 5;
+            xo = xc_pos & 7;
+            ou[off + xo] = *u_row++ + 0x80;
+            ov[off + xo] = *v_row++ + 0x80;
         }
-        cb += 8 - width;
-        cr += 8 - width;
+        u_row += cskip;
+        v_row += cskip;
     }
 }
 
-static void TMCJPEG_814F17E0(TMCCJPEGDecWork* work, s32 x, s32 y) {
-    s32 chromaYEnd;
-    u8* lumaTexture;
-    s32 height;
-    u8* luminance;
-    s32 column;
-    u8* cbTexture;
-    s32 row;
-    u8* crTexture;
-    s32 xEnd;
-    u8* cb;
-    TMCCJPEGDecState* state;
-    s32 yEnd;
-    s32 width;
-    u8* cr;
-    u32 tileWidth;
+static void TMCJPEGDEC_converterYUV420toY8U8V8(TMCCJPEGDecWork* work, s32 x, s32 y) {
+    TMCCJPEGDecState* st;
+    u32 bw;
+    u32 bw2;
+    u8* out0;
+    u8* out1;
+    u8* out2;
+    s32 ss;
+    s32 step;
+    s32 ystep;
+    s32 x_end;
+    s32 y_end;
+    s32 cstep;
+    s32 xc;
+    s32 xc_end;
+    s32 yc;
+    s32 yc_end;
+    u8* y_row;
+    u8* u_row;
+    u8* v_row;
+    s32 skip;
+    s32 cskip;
+    s32 stride;
+    s32 cstride;
+    s32 x_pos;
+    s32 xc_pos;
+    s32 row_base;
+    s32 crow_base;
+    u8* oy;
+    u8* ou;
+    u8* ov;
+    s32 xo;
+    s32 off;
 
-    row = y;
-    luminance = work->convBuf + 4;
-    cb = &work->convBuf[260];
-    cr = &work->convBuf[324];
-    state = work->pState;
-    tileWidth = state->convWidth >> 3;
-    lumaTexture = state->pLumaBuffer;
-    cbTexture = state->pCbBuffer;
-    crTexture = state->pCrBuffer;
-    width = 16 / state->scaleFactor;
-    height = 16 / state->scaleFactor;
-    xEnd = x + width;
-    yEnd = y + height;
-    for (; row < yEnd; row++) {
-        for (column = x; column < xEnd; column += 2) {
-            (lumaTexture + ((row & 3) << 3) + (column & 7))[(s32)(((column >> 3) + (row >> 2) * tileWidth) << 5)] = *luminance++;
-            (lumaTexture + ((row & 3) << 3) + ((column + 1) & 7))[(s32)((((column + 1) >> 3) + (row >> 2) * tileWidth) << 5)] = *luminance++;
+
+    st = work->pState;
+    y_row = work->convBuf + 4;
+    u_row = work->convBuf + 0x104;
+    v_row = work->convBuf + 0x144;
+    bw = st->convWidth;
+    bw2 = st->chromaWidth;
+    out0 = (u8*)st->pLumaBuffer;
+    out1 = (u8*)st->pCbBuffer;
+    out2 = (u8*)st->pCrBuffer;
+    ss = st->scaleFactor;
+    step = 0x10 / ss;
+    ystep = 0x10 / ss;
+
+    x_end = x + step;
+    y_end = y + ystep;
+    skip = 0x10 - step;
+    stride = bw >> 3;
+
+    for (; y < y_end; y++) {
+        row_base = (y >> 2) * stride;
+        oy = out0 + ((y & 3) << 3);
+        for (x_pos = x; x_pos < x_end; x_pos += 2) {
+            off = ((x_pos >> 3) + row_base) << 5;
+            xo = x_pos & 7;
+            oy[off + xo] = y_row[0];
+            off = (((x_pos + 1) >> 3) + row_base) << 5;
+            xo = (x_pos + 1) & 7;
+            oy[off + xo] = y_row[1];
+            y_row += 2;
         }
-        luminance += 16 - width;
+        y_row += skip;
     }
-    x = (u32)x >> 1;
-    y = (u32)y >> 1;
-    width = 8 / state->scaleFactor;
-    height = 8 / state->scaleFactor;
-    xEnd = x + width;
-    chromaYEnd = y + height;
-    tileWidth = state->chromaWidth >> 3;
-    for (; y < chromaYEnd; y++) {
-        for (column = x; column < xEnd; column += 1) {
-            (cbTexture + ((y & 3) << 3) + (column & 7))[(s32)(((column >> 3) + (y >> 2) * tileWidth) << 5)] = *cb + 128;
-            cb++;
-            (crTexture + ((y & 3) << 3) + (column & 7))[(s32)(((column >> 3) + (y >> 2) * tileWidth) << 5)] = *cr + 128;
-            cr++;
+
+    xc = (u32)x >> 1;
+    cstep = 0x08 / ss;
+    xc_end = xc + cstep;
+    yc = (u32)y >> 1;
+    yc_end = yc + (0x08 / ss);
+    cskip = 8 - cstep;
+    cstride = bw2 >> 3;
+
+    for (; yc < yc_end; yc++) {
+        crow_base = (yc >> 2) * cstride;
+        ou = out1 + ((yc & 3) << 3);
+        ov = out2 + ((yc & 3) << 3);
+        for (xc_pos = xc; xc_pos < xc_end; xc_pos++) {
+            off = ((xc_pos >> 3) + crow_base) << 5;
+            xo = xc_pos & 7;
+            ou[off + xo] = *u_row++ + 0x80;
+            ov[off + xo] = *v_row++ + 0x80;
         }
-        cb += 8 - width;
-        cr += 8 - width;
+        u_row += cskip;
+        v_row += cskip;
     }
 }
 
-static void TMCJPEG_814F1F48(TMCCJPEGDecWork* work, s32 x, s32 y) {
-    TMCCJPEGDecState* state;
-    u8* lumaTexture;
-    u8* luminance;
-    s32 column;
-    s32 row;
-    s32 chromaEnd;
-    u8* cbTexture;
-    u8* crTexture;
-    u32 tileRow;
-    s32 height;
-    s32 width;
-    u8* output;
-    u8* cb;
-    u8* cr;
-    s32 xEnd;
-    s32 tileOffset;
-    s32 yEnd;
-    u32 tileWidth;
+static void TMCJPEGDEC_converterYUV420toY8U8V8edge(TMCCJPEGDecWork* work, s32 x, s32 y) {
+    TMCCJPEGDecState* st;
+    u32 bw;
+    u32 bw2;
+    u8* out0;
+    u8* out1;
+    u8* out2;
+    s32 ss;
+    s32 step;
+    s32 ystep;
+    s32 x_end;
+    s32 y_end;
+    s32 cstep;
+    s32 xc;
+    s32 xc_end;
+    s32 yc;
+    s32 yc_end;
+    u8* y_row;
+    u8* u_row;
+    u8* v_row;
+    s32 skip;
+    s32 cskip;
+    s32 stride;
+    s32 cstride;
+    s32 x_pos;
+    s32 xc_pos;
+    s32 row_base;
+    s32 crow_base;
+    u8* oy;
+    u8* ou;
+    u8* ov;
+    s32 xo;
+    s32 off;
 
-    luminance = work->convBuf + 4;
-    cb = &work->convBuf[260];
-    cr = &work->convBuf[324];
-    state = work->pState;
-    tileWidth = state->convWidth >> 3;
-    lumaTexture = state->pLumaBuffer;
-    cbTexture = state->pCbBuffer;
-    crTexture = state->pCrBuffer;
-    if (state->dataSizeX == (u32)x) {
-        width = state->stepXExt;
+
+    st = work->pState;
+    y_row = work->convBuf + 4;
+    u_row = work->convBuf + 0x104;
+    v_row = work->convBuf + 0x144;
+    bw = st->convWidth;
+    bw2 = st->chromaWidth;
+    out0 = (u8*)st->pLumaBuffer;
+    out1 = (u8*)st->pCbBuffer;
+    out2 = (u8*)st->pCrBuffer;
+
+    if (st->dataSizeX == x) {
+        step = st->stepXExt;
     } else {
-        width = 16 / state->scaleFactor;
+        step = 0x10 / st->scaleFactor;
     }
-    if (state->dataSizeY == (u32)y) {
-        height = state->stepYExt;
+    if (st->dataSizeY == y) {
+        ystep = st->stepYExt;
     } else {
-        height = 16 / state->scaleFactor;
+        ystep = 0x10 / st->scaleFactor;
     }
-    xEnd = x + width;
-    yEnd = y + height;
-    for (row = y; row < yEnd; row++) {
-        for (column = x; column < xEnd; column += 1) {
-            tileRow = (row >> 2) * tileWidth;
-            tileOffset = ((column >> 3) + tileRow) << 5;
-            output = lumaTexture + ((row & 3) << 3) + (column & 7);
-            output[tileOffset] = *luminance++;
+
+    x_end = x + step;
+    y_end = y + ystep;
+    skip = 0x10 - step;
+    stride = bw >> 3;
+
+    for (; y < y_end; y++) {
+        row_base = (y >> 2) * stride;
+        oy = out0 + ((y & 3) << 3);
+        for (x_pos = x; x_pos < x_end; x_pos++) {
+            off = ((x_pos >> 3) + row_base) << 5;
+            xo = x_pos & 7;
+            oy[off + xo] = *y_row++;
         }
-        luminance += 16 - width;
+        y_row += skip;
     }
-    y = (u32)y >> 1;
-    x = (u32)x >> 1;
-    width = (width + 1) >> 1;
-    xEnd = x + width;
-    tileWidth = state->chromaWidth >> 3;
-    chromaEnd = y + ((height + 1) >> 1);
-    for (; y < chromaEnd; y++) {
-        for (column = x; column < xEnd; column += 1) {
-            (cbTexture + ((y & 3) << 3) + (column & 7))[(s32)(((column >> 3) + (y >> 2) * tileWidth) << 5)] = *cb + 128;
-            cb++;
-            (crTexture + ((y & 3) << 3) + (column & 7))[(s32)(((column >> 3) + (y >> 2) * tileWidth) << 5)] = *cr + 128;
-            cr++;
+
+    xc = (u32)x >> 1;
+    cstep = (step + 1) >> 1;
+    xc_end = xc + cstep;
+    yc = (u32)y >> 1;
+    yc_end = yc + ((ystep + 1) >> 1);
+    cskip = 8 - cstep;
+    cstride = bw2 >> 3;
+
+    for (; yc < yc_end; yc++) {
+        crow_base = (yc >> 2) * cstride;
+        ou = out1 + ((yc & 3) << 3);
+        ov = out2 + ((yc & 3) << 3);
+        for (xc_pos = xc; xc_pos < xc_end; xc_pos++) {
+            off = ((xc_pos >> 3) + crow_base) << 5;
+            xo = xc_pos & 7;
+            ou[off + xo] = *u_row++ + 0x80;
+            ov[off + xo] = *v_row++ + 0x80;
         }
-        cb += 8 - width;
-        cr += 8 - width;
+        u_row += cskip;
+        v_row += cskip;
     }
 }
 
-static void TMCJPEG_814F2570(TMCCJPEGDecWork* work, s32 x, s32 y) {
-    u8* lumaTexture;
-    TMCCJPEGDecState* state;
-    u8* luminance;
-    s32 column;
-    s32 row;
-    s32 chromaEnd;
-    u8* cbTexture;
-    u8* crTexture;
-    u32 tileRow;
-    s32 height;
-    s32 yEnd;
-    u8* output;
-    u8* cb;
-    u8* cr;
-    s32 xEnd;
-    s32 tileOffset;
-    s32 width;
-    u32 tileWidth;
+static void TMCJPEGDEC_converterYUV211toY8U8V8(TMCCJPEGDecWork* work, s32 x, s32 y) {
+    TMCCJPEGDecState* st;
+    u32 bw;
+    u32 bw2;
+    u8* out0;
+    u8* out1;
+    u8* out2;
+    s32 ss;
+    s32 step;
+    s32 ystep;
+    s32 x_end;
+    s32 y_end;
+    s32 cstep;
+    s32 xc;
+    s32 xc_end;
+    s32 yc;
+    s32 yc_end;
+    u8* y_row;
+    u8* u_row;
+    u8* v_row;
+    s32 skip;
+    s32 cskip;
+    s32 stride;
+    s32 cstride;
+    s32 x_pos;
+    s32 xc_pos;
+    s32 row_base;
+    s32 crow_base;
+    u8* oy;
+    u8* ou;
+    u8* ov;
+    s32 xo;
+    s32 off;
 
-    luminance = work->convBuf + 4;
-    cb = &work->convBuf[132];
-    cr = &work->convBuf[196];
-    state = work->pState;
-    tileWidth = state->convWidth >> 3;
-    lumaTexture = state->pLumaBuffer;
-    cbTexture = state->pCbBuffer;
-    crTexture = state->pCrBuffer;
-    width = 8 / state->scaleFactor;
-    height = 16 / state->scaleFactor;
-    xEnd = x + width;
-    yEnd = y + height;
-    for (row = y; row < yEnd; row++) {
-        for (column = x; column < xEnd; column += 1) {
-            tileRow = (row >> 2) * tileWidth;
-            tileOffset = ((column >> 3) + tileRow) << 5;
-            output = lumaTexture + ((row & 3) << 3) + (column & 7);
-            output[tileOffset] = *luminance++;
+
+    st = work->pState;
+    y_row = work->convBuf + 4;
+    u_row = work->convBuf + 0x84;
+    v_row = work->convBuf + 0xC4;
+    bw = st->convWidth;
+    bw2 = st->chromaWidth;
+    out0 = (u8*)st->pLumaBuffer;
+    out1 = (u8*)st->pCbBuffer;
+    out2 = (u8*)st->pCrBuffer;
+    ss = st->scaleFactor;
+    step = 0x08 / ss;
+    ystep = 0x10 / ss;
+
+    x_end = x + step;
+    y_end = y + ystep;
+    skip = 0x08 - step;
+    stride = bw >> 3;
+
+    for (; y < y_end; y++) {
+        row_base = (y >> 2) * stride;
+        oy = out0 + ((y & 3) << 3);
+        for (x_pos = x; x_pos < x_end; x_pos++) {
+            off = ((x_pos >> 3) + row_base) << 5;
+            xo = x_pos & 7;
+            oy[off + xo] = *y_row++;
         }
-        luminance += 8 - width;
+        y_row += skip;
     }
-    y = (u32)y >> 1;
-    tileWidth = state->chromaWidth >> 3;
-    chromaEnd = y + 8 / state->scaleFactor;
-    for (; y < chromaEnd; y++) {
-        for (column = x; column < xEnd; column += 1) {
-            (cbTexture + ((y & 3) << 3) + (column & 7))[(s32)(((column >> 3) + (y >> 2) * tileWidth) << 5)] = *cb + 128;
-            cb++;
-            (crTexture + ((y & 3) << 3) + (column & 7))[(s32)(((column >> 3) + (y >> 2) * tileWidth) << 5)] = *cr + 128;
-            cr++;
+
+    cstep = step;
+    xc_end = x + cstep;
+    yc = (u32)y >> 1;
+    yc_end = yc + (0x08 / ss);
+    cskip = 8 - cstep;
+    cstride = bw2 >> 3;
+
+    for (; yc < yc_end; yc++) {
+        crow_base = (yc >> 2) * cstride;
+        ou = out1 + ((yc & 3) << 3);
+        ov = out2 + ((yc & 3) << 3);
+        for (xc_pos = x; xc_pos < xc_end; xc_pos++) {
+            off = ((xc_pos >> 3) + crow_base) << 5;
+            xo = xc_pos & 7;
+            ou[off + xo] = *u_row++ + 0x80;
+            ov[off + xo] = *v_row++ + 0x80;
         }
-        cb += 8 - width;
-        cr += 8 - width;
+        u_row += cskip;
+        v_row += cskip;
     }
 }
 
-static void TMCJPEG_814F2B50(TMCCJPEGDecWork* work, s32 x, s32 y) {
-    u32 chromaTileWidth;
-    TMCCJPEGDecState* state;
-    u8* lumaTexture;
-    u8* luminance;
-    s32 column;
-    s32 row;
-    s32 chromaEnd;
-    u8* cbTexture;
-    u8* crTexture;
-    u32 tileRow;
-    s32 height;
-    s32 yEnd;
-    u8* output;
-    u8* cb;
-    u8* cr;
-    s32 xEnd;
-    s32 tileOffset;
-    s32 width;
-    u32 tileWidth;
+static void TMCJPEGDEC_converterYUV211toY8U8V8edge(TMCCJPEGDecWork* work, s32 x, s32 y) {
+    TMCCJPEGDecState* st;
+    u32 bw;
+    u32 bw2;
+    u8* out0;
+    u8* out1;
+    u8* out2;
+    s32 ss;
+    s32 step;
+    s32 ystep;
+    s32 x_end;
+    s32 y_end;
+    s32 cstep;
+    s32 xc;
+    s32 xc_end;
+    s32 yc;
+    s32 yc_end;
+    u8* y_row;
+    u8* u_row;
+    u8* v_row;
+    s32 skip;
+    s32 cskip;
+    s32 stride;
+    s32 cstride;
+    s32 x_pos;
+    s32 xc_pos;
+    s32 row_base;
+    s32 crow_base;
+    u8* oy;
+    u8* ou;
+    u8* ov;
+    s32 xo;
+    s32 off;
 
-    luminance = work->convBuf + 4;
-    cb = &work->convBuf[132];
-    cr = &work->convBuf[196];
-    state = work->pState;
-    tileWidth = state->convWidth >> 3;
-    lumaTexture = state->pLumaBuffer;
-    cbTexture = state->pCbBuffer;
-    crTexture = state->pCrBuffer;
-    if (state->dataSizeX == (u32)x) {
-        width = state->stepXExt;
+
+    st = work->pState;
+    y_row = work->convBuf + 4;
+    u_row = work->convBuf + 0x84;
+    v_row = work->convBuf + 0xC4;
+    bw = st->convWidth;
+    bw2 = st->chromaWidth;
+    out0 = (u8*)st->pLumaBuffer;
+    out1 = (u8*)st->pCbBuffer;
+    out2 = (u8*)st->pCrBuffer;
+
+    if (st->dataSizeX == x) {
+        step = st->stepXExt;
     } else {
-        width = 8 / state->scaleFactor;
+        step = 0x08 / st->scaleFactor;
     }
-    if (state->dataSizeY == (u32)y) {
-        height = state->stepYExt;
+    if (st->dataSizeY == y) {
+        ystep = st->stepYExt;
     } else {
-        height = 16 / state->scaleFactor;
+        ystep = 0x10 / st->scaleFactor;
     }
-    xEnd = x + width;
-    yEnd = y + height;
-    for (row = y; row < yEnd; row++) {
-        for (column = x; column < xEnd; column += 1) {
-            tileRow = (row >> 2) * tileWidth;
-            tileOffset = ((column >> 3) + tileRow) << 5;
-            output = lumaTexture + ((row & 3) << 3) + (column & 7);
-            output[tileOffset] = *luminance++;
+
+    x_end = x + step;
+    y_end = y + ystep;
+    skip = 0x08 - step;
+    stride = bw >> 3;
+
+    for (; y < y_end; y++) {
+        row_base = (y >> 2) * stride;
+        oy = out0 + ((y & 3) << 3);
+        for (x_pos = x; x_pos < x_end; x_pos++) {
+            off = ((x_pos >> 3) + row_base) << 5;
+            xo = x_pos & 7;
+            oy[off + xo] = *y_row++;
         }
-        luminance += 8 - width;
+        y_row += skip;
     }
-    y = (u32)y >> 1;
-    chromaTileWidth = state->chromaWidth >> 3;
-    chromaEnd = y + ((height + 1) >> 1);
-    for (; y < chromaEnd; y++) {
-        for (column = x; column < xEnd; column += 1) {
-            (cbTexture + ((y & 3) << 3) + (column & 7))[(s32)(((column >> 3) + (y >> 2) * chromaTileWidth) << 5)] = *cb + 128;
-            cb++;
-            (crTexture + ((y & 3) << 3) + (column & 7))[(s32)(((column >> 3) + (y >> 2) * chromaTileWidth) << 5)] = *cr + 128;
-            cr++;
+
+    cstep = step;
+    xc_end = x + cstep;
+    yc = (u32)y >> 1;
+    yc_end = yc + ((ystep + 1) >> 1);
+    cskip = 8 - cstep;
+    cstride = bw2 >> 3;
+
+    for (; yc < yc_end; yc++) {
+        crow_base = (yc >> 2) * cstride;
+        ou = out1 + ((yc & 3) << 3);
+        ov = out2 + ((yc & 3) << 3);
+        for (xc_pos = x; xc_pos < xc_end; xc_pos++) {
+            off = ((xc_pos >> 3) + crow_base) << 5;
+            xo = xc_pos & 7;
+            ou[off + xo] = *u_row++ + 0x80;
+            ov[off + xo] = *v_row++ + 0x80;
         }
-        cb += 8 - width;
-        cr += 8 - width;
+        u_row += cskip;
+        v_row += cskip;
     }
 }
 
-static void TMCJPEG_814F3158(TMCCJPEGDecWork* work, s32 x, s32 y) {
-    s32 rowSkip;
-    u8* output;
-    s32 height;
-    s32 tileRow;
-    u8* cbOutput;
-    TMCCJPEGDecState* state;
-    u8* crOutput;
-    s32 pixelOffset;
-    s32 tileOffset;
-    u8* lumaTexture;
-    s32 width;
-    u32 rowOffset;
-    u8* cbTexture;
-    u8* crTexture;
-    u8* luminance;
-    u8* cb;
-    u8* cr;
-    s32 column;
-    s32 xEnd;
-    s32 yEnd;
-    u32 tileWidth;
+static void TMCJPEGDEC_converterYUV444toY8U8V8(TMCCJPEGDecWork* work, s32 x, s32 y) {
+    TMCCJPEGDecState* st;
+    u32 bw;
+    u8* out0;
+    u8* out1;
+    u8* out2;
+    s32 ss;
+    s32 step;
+    s32 ystep;
+    s32 x_end;
+    s32 y_end;
+    u8* y_row;
+    u8* u_row;
+    u8* v_row;
+    s32 skip;
+    s32 stride;
+    s32 x_pos;
+    s32 row_base;
+    u8* oy;
+    u8* ou;
+    u8* ov;
+    s32 xo;
+    s32 off;
 
-    luminance = work->convBuf + 4;
-    cb = &work->convBuf[68];
-    cr = &work->convBuf[132];
-    state = work->pState;
-    tileWidth = state->convWidth >> 3;
-    lumaTexture = state->pLumaBuffer;
-    cbTexture = state->pCbBuffer;
-    crTexture = state->pCrBuffer;
-    width = 8 / state->scaleFactor;
-    height = 8 / state->scaleFactor;
-    xEnd = x + width;
-    yEnd = y + height;
-    rowSkip = 8 - width;
-    for (; y < yEnd; y++) {
-        tileRow = (y >> 2) * tileWidth;
-        rowOffset = (y & 3) << 3;
-        output = lumaTexture + rowOffset;
-        cbOutput = cbTexture + rowOffset;
-        crOutput = crTexture + rowOffset;
-        for (column = x; column < xEnd;) {
-            tileOffset = ((column >> 3) + tileRow) << 5;
-            pixelOffset = column++ & 7;
-            (output + pixelOffset)[tileOffset] = *luminance++;
-            (cbOutput + pixelOffset)[tileOffset] = *cb++ + 128;
-            (crOutput + pixelOffset)[tileOffset] = *cr++ + 128;
+    st = work->pState;
+    y_row = work->convBuf + 4;
+    u_row = work->convBuf + 0x44;
+    v_row = work->convBuf + 0x84;
+    bw = st->convWidth;
+    out0 = (u8*)st->pLumaBuffer;
+    out1 = (u8*)st->pCbBuffer;
+    out2 = (u8*)st->pCrBuffer;
+    ss = st->scaleFactor;
+    step = 0x08 / ss;
+    ystep = step;
+
+    x_end = x + step;
+    y_end = y + ystep;
+    skip = 0x08 - step;
+    stride = bw >> 3;
+
+    for (; y < y_end; y++) {
+        row_base = (y >> 2) * stride;
+        oy = out0 + ((y & 3) << 3);
+        ou = out1 + ((y & 3) << 3);
+        ov = out2 + ((y & 3) << 3);
+        for (x_pos = x; x_pos < x_end; x_pos++) {
+            off = ((x_pos >> 3) + row_base) << 5;
+            xo = x_pos & 7;
+            oy[off + xo] = *y_row++;
+            ou[off + xo] = *u_row++ + 0x80;
+            ov[off + xo] = *v_row++ + 0x80;
         }
-        luminance += rowSkip;
-        cb += rowSkip;
-        cr += rowSkip;
+        y_row += skip;
+        u_row += skip;
+        v_row += skip;
     }
 }
 
-static void TMCJPEG_814F32E4(TMCCJPEGDecWork* work, s32 x, s32 y) {
-    s32 rowSkip;
-    u8* output;
-    s32 height;
-    s32 tileRow;
-    u8* cbOutput;
-    TMCCJPEGDecState* state;
-    u8* crOutput;
-    s32 pixelOffset;
-    s32 tileOffset;
-    u8* lumaTexture;
-    s32 width;
-    u32 rowOffset;
-    u8* cbTexture;
-    u8* crTexture;
-    u8* luminance;
-    u8* cb;
-    u8* cr;
-    s32 column;
-    s32 xEnd;
-    s32 yEnd;
-    u32 tileWidth;
+static void TMCJPEGDEC_converterYUV444toY8U8V8edge(TMCCJPEGDecWork* work, s32 x, s32 y) {
+    TMCCJPEGDecState* st;
+    u32 bw;
+    u8* out0;
+    u8* out1;
+    u8* out2;
+    s32 ss;
+    s32 step;
+    s32 ystep;
+    s32 x_end;
+    s32 y_end;
+    u8* y_row;
+    u8* u_row;
+    u8* v_row;
+    s32 skip;
+    s32 stride;
+    s32 x_pos;
+    s32 row_base;
+    u8* oy;
+    u8* ou;
+    u8* ov;
+    s32 xo;
+    s32 off;
 
-    luminance = work->convBuf + 4;
-    cb = &work->convBuf[68];
-    cr = &work->convBuf[132];
-    state = work->pState;
-    tileWidth = state->convWidth >> 3;
-    lumaTexture = state->pLumaBuffer;
-    cbTexture = state->pCbBuffer;
-    crTexture = state->pCrBuffer;
-    if (state->dataSizeX == (u32)x) {
-        width = state->stepXExt;
+    st = work->pState;
+    y_row = work->convBuf + 4;
+    u_row = work->convBuf + 0x44;
+    v_row = work->convBuf + 0x84;
+    bw = st->convWidth;
+    out0 = (u8*)st->pLumaBuffer;
+    out1 = (u8*)st->pCbBuffer;
+    out2 = (u8*)st->pCrBuffer;
+
+    if (st->dataSizeX == x) {
+        step = st->stepXExt;
     } else {
-        width = 8 / state->scaleFactor;
+        step = 0x08 / st->scaleFactor;
     }
-    if (state->dataSizeY == (u32)y) {
-        height = state->stepYExt;
+    if (st->dataSizeY == y) {
+        ystep = st->stepYExt;
     } else {
-        height = 8 / state->scaleFactor;
+        ystep = 0x08 / st->scaleFactor;
     }
-    xEnd = x + width;
-    yEnd = y + height;
-    rowSkip = 8 - width;
-    for (; y < yEnd; y++) {
-        tileRow = (y >> 2) * tileWidth;
-        rowOffset = (y & 3) << 3;
-        output = lumaTexture + rowOffset;
-        cbOutput = cbTexture + rowOffset;
-        crOutput = crTexture + rowOffset;
-        for (column = x; column < xEnd;) {
-            tileOffset = ((column >> 3) + tileRow) << 5;
-            pixelOffset = column++ & 7;
-            (output + pixelOffset)[tileOffset] = *luminance++;
-            (cbOutput + pixelOffset)[tileOffset] = *cb++ + 128;
-            (crOutput + pixelOffset)[tileOffset] = *cr++ + 128;
+
+    x_end = x + step;
+    y_end = y + ystep;
+    skip = 0x08 - step;
+    stride = bw >> 3;
+
+    for (; y < y_end; y++) {
+        row_base = (y >> 2) * stride;
+        oy = out0 + ((y & 3) << 3);
+        ou = out1 + ((y & 3) << 3);
+        ov = out2 + ((y & 3) << 3);
+        for (x_pos = x; x_pos < x_end; x_pos++) {
+            off = ((x_pos >> 3) + row_base) << 5;
+            xo = x_pos & 7;
+            oy[off + xo] = *y_row++;
+            ou[off + xo] = *u_row++ + 0x80;
+            ov[off + xo] = *v_row++ + 0x80;
         }
-        luminance += rowSkip;
-        cb += rowSkip;
-        cr += rowSkip;
+        y_row += skip;
+        u_row += skip;
+        v_row += skip;
     }
 }
 
-static void TMCJPEG_814F34A4(TMCCJPEGDecWork* work, s32 x, s32 y) {
-    s32 height;
-    u8* lumaTexture;
-    u8* luminance;
-    s32 column;
-    s32 xEnd;
-    s32 yEnd;
-    u8* output;
-    s32 width;
-    TMCCJPEGDecState* state;
-    u32 tileRow;
-    u32 tileWidth;
-    s32 tileOffset;
-    s32 row;
+static void TMCJPEGDEC_converterYUV400toY8U8V8(TMCCJPEGDecWork* work, s32 x, s32 y) {
+    TMCCJPEGDecState* st;
+    u32 bw;
+    u8* out0;
+    s32 ss;
+    s32 step;
+    s32 ystep;
+    s32 x_end;
+    s32 y_end;
+    u8* y_row;
+    s32 skip;
+    s32 stride;
+    s32 x_pos;
+    s32 row_base;
+    u8* oy;
+    s32 xo;
+    s32 off;
 
-    luminance = work->convBuf + 4;
-    state = work->pState;
-    tileWidth = state->convWidth >> 3;
-    lumaTexture = state->pLumaBuffer;
-    width = 8 / state->scaleFactor;
-    height = 8 / state->scaleFactor;
-    {
-        xEnd = x + width;
-        yEnd = y + height;
-        for (row = y; row < yEnd; row++) {
-            for (column = x; column < xEnd; column += 1) {
-                tileRow = (row >> 2) * tileWidth;
-                tileOffset = ((column >> 3) + tileRow) << 5;
-                output = lumaTexture + ((row & 3) << 3) + (column & 7);
-                output[tileOffset] = *luminance++;
-            }
-            luminance += 8 - width;
+    st = work->pState;
+    y_row = work->convBuf + 4;
+    bw = st->convWidth;
+    out0 = (u8*)st->pLumaBuffer;
+    ss = st->scaleFactor;
+    step = 0x08 / ss;
+    ystep = step;
+
+    x_end = x + step;
+    y_end = y + ystep;
+    skip = 0x08 - step;
+    stride = bw >> 3;
+
+    for (; y < y_end; y++) {
+        row_base = (y >> 2) * stride;
+        oy = out0 + ((y & 3) << 3);
+        for (x_pos = x; x_pos < x_end; x_pos++) {
+            off = ((x_pos >> 3) + row_base) << 5;
+            xo = x_pos & 7;
+            oy[off + xo] = *y_row++;
         }
+        y_row += skip;
     }
 }
 
-static void TMCJPEG_814F372C(TMCCJPEGDecWork* work, s32 x, s32 y) {
-    s32 height;
-    u8* lumaTexture;
-    u8* luminance;
-    s32 column;
-    s32 xEnd;
-    s32 yEnd;
-    u8* output;
-    s32 width;
-    TMCCJPEGDecState* state;
-    u32 tileRow;
-    u32 tileWidth;
-    s32 tileOffset;
-    s32 row;
+static void TMCJPEGDEC_converterYUV400toY8U8V8edge(TMCCJPEGDecWork* work, s32 x, s32 y) {
+    TMCCJPEGDecState* st;
+    u32 bw;
+    u8* out0;
+    s32 ss;
+    s32 step;
+    s32 ystep;
+    s32 x_end;
+    s32 y_end;
+    u8* y_row;
+    s32 skip;
+    s32 stride;
+    s32 x_pos;
+    s32 row_base;
+    u8* oy;
+    s32 xo;
+    s32 off;
 
-    luminance = work->convBuf + 4;
-    state = work->pState;
-    tileWidth = state->convWidth >> 3;
-    lumaTexture = state->pLumaBuffer;
-    if (state->dataSizeX == (u32)x) {
-        width = state->stepXExt;
+    st = work->pState;
+    y_row = work->convBuf + 4;
+    bw = st->convWidth;
+    out0 = (u8*)st->pLumaBuffer;
+
+    if (st->dataSizeX == x) {
+        step = st->stepXExt;
     } else {
-        width = 8 / state->scaleFactor;
+        step = 0x08 / st->scaleFactor;
     }
-    if (state->dataSizeY == (u32)y) {
-        height = state->stepYExt;
+    if (st->dataSizeY == y) {
+        ystep = st->stepYExt;
     } else {
-        height = 8 / state->scaleFactor;
+        ystep = 0x08 / st->scaleFactor;
     }
-    {
-        xEnd = x + width;
-        yEnd = y + height;
-        for (row = y; row < yEnd; row++) {
-            for (column = x; column < xEnd; column += 1) {
-                tileRow = (row >> 2) * tileWidth;
-                tileOffset = ((column >> 3) + tileRow) << 5;
-                output = lumaTexture + ((row & 3) << 3) + (column & 7);
-                output[tileOffset] = *luminance++;
-            }
-            luminance += 8 - width;
+
+    x_end = x + step;
+    y_end = y + ystep;
+    skip = 0x08 - step;
+    stride = bw >> 3;
+
+    for (; y < y_end; y++) {
+        row_base = (y >> 2) * stride;
+        oy = out0 + ((y & 3) << 3);
+        for (x_pos = x; x_pos < x_end; x_pos++) {
+            off = ((x_pos >> 3) + row_base) << 5;
+            xo = x_pos & 7;
+            oy[off + xo] = *y_row++;
         }
+        y_row += skip;
     }
 }
