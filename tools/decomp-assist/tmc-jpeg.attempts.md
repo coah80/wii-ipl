@@ -508,3 +508,139 @@ review note: libs/RVLMiddleware/TMC_JPEG/src/texturecvtr/Texture_MCUtoRGBA8.c: p
 review note: libs/RVLMiddleware/TMC_JPEG/src/texturecvtr/Texture_MCUtoY8U8V8.c: possible pointer+offset into a blob (orchestrator reviews) (+10 net), e.g. work->pConvRowPtrs[5] = (void*)(ob + 0x104);
 GATE PASS
 ```
+
+## Follow-up: smallest RGB565 converter
+
+Baseline main: f34c0b3a. The requested first target was TMCJPEGDEC_converterYUV400toRGB565, 280 bytes. No other function or translation unit was changed while this target remained non-exact. The other functions retain the earlier logged attempts above.
+
+The retained source reaches 99.21429% objdiff, 70/70 instructions, with nine register-only instruction differences. This is partial progress, not an exact function. Exact functions and exact code bytes do not increase.
+
+| Attempt family | Observed result |
+| --- | --- |
+| Reuse the luminance value for red; explicit clamp branches | 68/70 instructions. High clamp assignments still preceded their branches. |
+| Three-way saturation using negative-value ternaries | 70/70. The clamp branch directions and distances become exact. |
+| Associate packing as blue plus the red/green sum | The compiler schedules the blue/red add first. All channel calculations and their registers become exact. |
+| Hoist row variables; retain a separate row cursor | 70/70, nine remaining register-only differences. |
+| Loop forms: while, body increment, preincrement | The same nine register differences remain. A guarded do loop grows to 77 instructions. |
+| Pointer arithmetic versus indexed stores; typed 4x4 texture tiles | Direct pointer/index forms retain the register plateau. Typed tiles grow to 74 instructions. |
+| Inline color/index/store helpers | All helpers inline away; the same nine differences remain. No helper is retained. |
+| Local declaration scopes and initialization orders | Best remains nine differences. Hoisting additional declarations or metadata into structs worsens allocation. |
+| Signed long/int choices, explicit scale/dimension temporaries | Best remains nine differences. Parameter int variants fail type checking and are discarded. |
+| Separate packing temporaries and operand orders | Best remains nine differences. Separate red clamping changes the register allocation and scheduling. |
+
+Successful built variants measured: 1152. Compile failures were discarded rather than measured against stale objects. Incorrect experimental self-sum of green was discarded. All experiments built only the RGB565 object.
+
+Remaining instruction differences for the retained converter:
+
+```text
+9 srwi: tile stride r9 instead of r12
+16 rlwinm: row offset r12 instead of r26
+17 mullw: reads tile stride r9 instead of r12
+18 mr: column r3 instead of r9
+19 add: row output r12 instead of r3, offset r12 instead of r26
+51 clrlwi: column r3 instead of r9
+52 srawi: column r3 instead of r9
+57 addi: column r3 instead of r9
+61 sthx: row output r12 instead of r3
+```
+
+Follow-up data audit after building the retained source. All allocated non-code sections are absent in both target and source objects. There are no tables, strings, vtables, or data ordering changes to make.
+
+```text
+texturecvtr/Texture_MCUtoRGB565 allocated data sections target/source: [[], []]
+texturecvtr/Texture_MCUtoRGBA8 allocated data sections target/source: [[], []]
+texturecvtr/Texture_MCUtoY8U8V8 allocated data sections target/source: [[], []]
+buffer/idct_block_var allocated data sections target/source: [[], []]
+b65/iqdec_b65_frv32 allocated data sections target/source: [[], []]
+exif/exif_parse allocated data sections target/source: [[], []]
+```
+
+Follow-up full gate, all six requested units, regressions 0. The retained converter improves from 82.57143% to 99.21429%; instruction-exact totals remain 3/48 and matched code remains 1348/37764 bytes. This gate pass does not satisfy the new-exact-function completion condition.
+
+```text
+full build: ok
+main.dol sha1: 26116613f624061ba99c8d1a299aaa6efa85670d
+[libs/RVLMiddleware/TMC_JPEG/src/texturecvtr/Texture_MCUtoRGB565] pool: IDENTICAL
+[libs/RVLMiddleware/TMC_JPEG/src/texturecvtr/Texture_MCUtoRGB565] objdiff: code None/6184 data None/None functions 0/13 fuzzy 80.1514 linked code 0
+[libs/RVLMiddleware/TMC_JPEG/src/texturecvtr/Texture_MCUtoRGB565] instruction-exact functions: 0/13
+[libs/RVLMiddleware/TMC_JPEG/src/texturecvtr/Texture_MCUtoRGB565]   section .text size 6184 match 80.15136
+[libs/RVLMiddleware/TMC_JPEG/src/texturecvtr/Texture_MCUtoRGB565]   below 100: TMCJPEGDEC_set_converterRGB565 93.63529
+[libs/RVLMiddleware/TMC_JPEG/src/texturecvtr/Texture_MCUtoRGB565]   below 100: TMCJPEGDEC_converterYUV411toRGB565 72.79723
+[libs/RVLMiddleware/TMC_JPEG/src/texturecvtr/Texture_MCUtoRGB565]   below 100: TMCJPEGDEC_converterYUV411toRGB565edge 80.92453
+[libs/RVLMiddleware/TMC_JPEG/src/texturecvtr/Texture_MCUtoRGB565]   below 100: TMCJPEGDEC_converterYUV422toRGB565 76.58088
+[libs/RVLMiddleware/TMC_JPEG/src/texturecvtr/Texture_MCUtoRGB565]   below 100: TMCJPEGDEC_converterYUV422toRGB565edge 80.794395
+[libs/RVLMiddleware/TMC_JPEG/src/texturecvtr/Texture_MCUtoRGB565]   below 100: TMCJPEGDEC_converterYUV420toRGB565 77.375885
+[libs/RVLMiddleware/TMC_JPEG/src/texturecvtr/Texture_MCUtoRGB565]   below 100: TMCJPEGDEC_converterYUV420toRGB565edge 83.289474
+[libs/RVLMiddleware/TMC_JPEG/src/texturecvtr/Texture_MCUtoRGB565]   below 100: TMCJPEGDEC_converterYUV211toRGB565 73.05102
+[libs/RVLMiddleware/TMC_JPEG/src/texturecvtr/Texture_MCUtoRGB565]   below 100: TMCJPEGDEC_converterYUV211toRGB565edge 77.23853
+[libs/RVLMiddleware/TMC_JPEG/src/texturecvtr/Texture_MCUtoRGB565]   below 100: TMCJPEGDEC_converterYUV444toRGB565 73.50549
+[libs/RVLMiddleware/TMC_JPEG/src/texturecvtr/Texture_MCUtoRGB565]   below 100: TMCJPEGDEC_converterYUV444toRGB565edge 76.48077
+[libs/RVLMiddleware/TMC_JPEG/src/texturecvtr/Texture_MCUtoRGB565]   below 100: TMCJPEGDEC_converterYUV400toRGB565 99.21429
+[libs/RVLMiddleware/TMC_JPEG/src/texturecvtr/Texture_MCUtoRGB565]   below 100: TMCJPEGDEC_converterYUV400toRGB565edge 84.216866
+[libs/RVLMiddleware/TMC_JPEG/src/texturecvtr/Texture_MCUtoRGB565] baseline: code None/6184 data None functions 0 fuzzy 79.3978
+[libs/RVLMiddleware/TMC_JPEG/src/texturecvtr/Texture_MCUtoRGBA8] pool: IDENTICAL
+[libs/RVLMiddleware/TMC_JPEG/src/texturecvtr/Texture_MCUtoRGBA8] objdiff: code None/6596 data None/None functions 0/13 fuzzy 73.7611 linked code 0
+[libs/RVLMiddleware/TMC_JPEG/src/texturecvtr/Texture_MCUtoRGBA8] instruction-exact functions: 0/13
+[libs/RVLMiddleware/TMC_JPEG/src/texturecvtr/Texture_MCUtoRGBA8]   section .text size 6596 match 73.76107
+[libs/RVLMiddleware/TMC_JPEG/src/texturecvtr/Texture_MCUtoRGBA8]   below 100: TMCJPEGDEC_set_converterRGBA8 93.63529
+[libs/RVLMiddleware/TMC_JPEG/src/texturecvtr/Texture_MCUtoRGBA8]   below 100: TMCJPEGDEC_converterYUV411toRGBA8 65.8719
+[libs/RVLMiddleware/TMC_JPEG/src/texturecvtr/Texture_MCUtoRGBA8]   below 100: TMCJPEGDEC_converterYUV411toRGBA8edge 71.54464
+[libs/RVLMiddleware/TMC_JPEG/src/texturecvtr/Texture_MCUtoRGBA8]   below 100: TMCJPEGDEC_converterYUV422toRGBA8 66.48649
+[libs/RVLMiddleware/TMC_JPEG/src/texturecvtr/Texture_MCUtoRGBA8]   below 100: TMCJPEGDEC_converterYUV422toRGBA8edge 68.61062
+[libs/RVLMiddleware/TMC_JPEG/src/texturecvtr/Texture_MCUtoRGBA8]   below 100: TMCJPEGDEC_converterYUV420toRGBA8 69.745094
+[libs/RVLMiddleware/TMC_JPEG/src/texturecvtr/Texture_MCUtoRGBA8]   below 100: TMCJPEGDEC_converterYUV420toRGBA8edge 74.191666
+[libs/RVLMiddleware/TMC_JPEG/src/texturecvtr/Texture_MCUtoRGBA8]   below 100: TMCJPEGDEC_converterYUV211toRGBA8 69.48077
+[libs/RVLMiddleware/TMC_JPEG/src/texturecvtr/Texture_MCUtoRGBA8]   below 100: TMCJPEGDEC_converterYUV211toRGBA8edge 73.96522
+[libs/RVLMiddleware/TMC_JPEG/src/texturecvtr/Texture_MCUtoRGBA8]   below 100: TMCJPEGDEC_converterYUV444toRGBA8 70.08247
+[libs/RVLMiddleware/TMC_JPEG/src/texturecvtr/Texture_MCUtoRGBA8]   below 100: TMCJPEGDEC_converterYUV444toRGBA8edge 73.11818
+[libs/RVLMiddleware/TMC_JPEG/src/texturecvtr/Texture_MCUtoRGBA8]   below 100: TMCJPEGDEC_converterYUV400toRGBA8 84.27631
+[libs/RVLMiddleware/TMC_JPEG/src/texturecvtr/Texture_MCUtoRGBA8]   below 100: TMCJPEGDEC_converterYUV400toRGBA8edge 85.5618
+[libs/RVLMiddleware/TMC_JPEG/src/texturecvtr/Texture_MCUtoRGBA8] baseline: code None/6596 data None functions 0 fuzzy 73.7611
+[libs/RVLMiddleware/TMC_JPEG/src/texturecvtr/Texture_MCUtoY8U8V8] pool: IDENTICAL
+[libs/RVLMiddleware/TMC_JPEG/src/texturecvtr/Texture_MCUtoY8U8V8] objdiff: code None/15948 data None/None functions 0/13 fuzzy 48.8432 linked code 0
+[libs/RVLMiddleware/TMC_JPEG/src/texturecvtr/Texture_MCUtoY8U8V8] instruction-exact functions: 0/13
+[libs/RVLMiddleware/TMC_JPEG/src/texturecvtr/Texture_MCUtoY8U8V8]   section .text size 15948 match 48.84324
+[libs/RVLMiddleware/TMC_JPEG/src/texturecvtr/Texture_MCUtoY8U8V8]   below 100: TMCJPEGDEC_set_converterY8U8V8 92.54082
+[libs/RVLMiddleware/TMC_JPEG/src/texturecvtr/Texture_MCUtoY8U8V8]   below 100: TMCJPEG_814EFEAC 52.233147
+[libs/RVLMiddleware/TMC_JPEG/src/texturecvtr/Texture_MCUtoY8U8V8]   below 100: TMCJPEG_814F043C 51.3555
+[libs/RVLMiddleware/TMC_JPEG/src/texturecvtr/Texture_MCUtoY8U8V8]   below 100: TMCJPEG_814F0A58 43.534737
+[libs/RVLMiddleware/TMC_JPEG/src/texturecvtr/Texture_MCUtoY8U8V8]   below 100: TMCJPEG_814F11C4 51.3555
+[libs/RVLMiddleware/TMC_JPEG/src/texturecvtr/Texture_MCUtoY8U8V8]   below 100: TMCJPEG_814F17E0 41.890297
+[libs/RVLMiddleware/TMC_JPEG/src/texturecvtr/Texture_MCUtoY8U8V8]   below 100: TMCJPEG_814F1F48 46.809643
+[libs/RVLMiddleware/TMC_JPEG/src/texturecvtr/Texture_MCUtoY8U8V8]   below 100: TMCJPEG_814F2570 47.06383
+[libs/RVLMiddleware/TMC_JPEG/src/texturecvtr/Texture_MCUtoY8U8V8]   below 100: TMCJPEG_814F2B50 52.95078
+[libs/RVLMiddleware/TMC_JPEG/src/texturecvtr/Texture_MCUtoY8U8V8]   below 100: TMCJPEG_814F3158 None
+[libs/RVLMiddleware/TMC_JPEG/src/texturecvtr/Texture_MCUtoY8U8V8]   below 100: TMCJPEG_814F32E4 None
+[libs/RVLMiddleware/TMC_JPEG/src/texturecvtr/Texture_MCUtoY8U8V8]   below 100: TMCJPEG_814F34A4 60.037037
+[libs/RVLMiddleware/TMC_JPEG/src/texturecvtr/Texture_MCUtoY8U8V8]   below 100: TMCJPEG_814F372C 62.89143
+[libs/RVLMiddleware/TMC_JPEG/src/texturecvtr/Texture_MCUtoY8U8V8] baseline: code None/15948 data None functions 0 fuzzy 48.8432
+[libs/RVLMiddleware/TMC_JPEG/src/buffer/idct_block_var] pool: IDENTICAL
+[libs/RVLMiddleware/TMC_JPEG/src/buffer/idct_block_var] objdiff: code None/2844 data None/None functions 0/2 fuzzy 66.9142 linked code 0
+[libs/RVLMiddleware/TMC_JPEG/src/buffer/idct_block_var] instruction-exact functions: 0/2
+[libs/RVLMiddleware/TMC_JPEG/src/buffer/idct_block_var]   section .text size 2844 match 66.91421
+[libs/RVLMiddleware/TMC_JPEG/src/buffer/idct_block_var]   below 100: TMCJPEGDEC_IdctBlock_Lumi 63.07782
+[libs/RVLMiddleware/TMC_JPEG/src/buffer/idct_block_var]   below 100: TMCJPEGDEC_IdctBlock_Col 69.0859
+[libs/RVLMiddleware/TMC_JPEG/src/buffer/idct_block_var] baseline: code None/2844 data None functions 0 fuzzy 66.9142
+[libs/RVLMiddleware/TMC_JPEG/src/b65/iqdec_b65_frv32] pool: IDENTICAL
+[libs/RVLMiddleware/TMC_JPEG/src/b65/iqdec_b65_frv32] objdiff: code None/1104 data None/None functions 0/1 fuzzy 84.6413 linked code 0
+[libs/RVLMiddleware/TMC_JPEG/src/b65/iqdec_b65_frv32] instruction-exact functions: 0/1
+[libs/RVLMiddleware/TMC_JPEG/src/b65/iqdec_b65_frv32]   section .text size 1104 match 84.641304
+[libs/RVLMiddleware/TMC_JPEG/src/b65/iqdec_b65_frv32]   below 100: TMCJPEGDEC_decode_iquant 84.641304
+[libs/RVLMiddleware/TMC_JPEG/src/b65/iqdec_b65_frv32] baseline: code None/1104 data None functions 0 fuzzy 84.6413
+[libs/RVLMiddleware/TMC_JPEG/src/exif/exif_parse] pool: IDENTICAL
+[libs/RVLMiddleware/TMC_JPEG/src/exif/exif_parse] objdiff: code 1348/5088 data None/None functions 3/6 fuzzy 92.7036 linked code 0
+[libs/RVLMiddleware/TMC_JPEG/src/exif/exif_parse] instruction-exact functions: 3/6
+[libs/RVLMiddleware/TMC_JPEG/src/exif/exif_parse]   section .text size 5088 match 92.70361
+[libs/RVLMiddleware/TMC_JPEG/src/exif/exif_parse]   below 100: TMCJPEGDEC_exif_parse 98.113205
+[libs/RVLMiddleware/TMC_JPEG/src/exif/exif_parse]   below 100: TMCJPEGDEC_IFD0_tag_parse 85.50728
+[libs/RVLMiddleware/TMC_JPEG/src/exif/exif_parse]   below 100: TMCJPEGDEC_IFD1_tag_parse 92.10744
+[libs/RVLMiddleware/TMC_JPEG/src/exif/exif_parse] baseline: code 1348/5088 data None functions 3 fuzzy 92.7036
+regressions vs baseline: 0
+global matched_code_percent: 82.26412 -> 82.26412
+global fuzzy_match_percent: 94.05748 -> 94.05904
+global complete_code_percent: 57.93924 -> 57.93924
+global matched_data_percent: 89.35397 -> 89.35397
+forbidden patterns added (net, per file): 0
+readability warnings (net, per file; must be 0 in the final result): 0
+GATE PASS
+```
