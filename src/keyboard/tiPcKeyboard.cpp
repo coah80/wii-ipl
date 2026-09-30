@@ -1652,7 +1652,7 @@ namespace textinput {
                     abcFlags &= ~15;
                     refresh_();
                 }
-                if (static_cast<u32>(language - CN) <= 1 && (abcFlags & 15) == 2) {
+                if (static_cast<u32>(language - CN) <= 1 && getABCMode() == 2) {
                     if ((abcFlags & 15) != 1) {
                         abcFlags = (abcFlags & ~15) | 1;
                         refresh_();
@@ -1763,7 +1763,7 @@ namespace textinput {
                 if (abcFlags & 128)
                     modifiers |= 2;
                 wchar_t code = data->ascii[index].wc[modifiers];
-                if (inputType == 0 && (abcFlags & 15) == 0) {
+                if (inputType == 0 && getABCMode() == 0) {
                     if (code == 0x3001)
                         code = L',';
                     else if (code == 0x3002)
@@ -1774,7 +1774,7 @@ namespace textinput {
                         code = L'[';
                     else if (code == 0x300d)
                         code = L']';
-                } else if (owner->getLanguage() == CN && (abcFlags & 15) == 1) {
+                } else if (owner->getLanguage() == CN && getABCMode() == 1) {
                     if (code == L'[')
                         code = 0x300a;
                     else if (code == L']')
@@ -1868,6 +1868,14 @@ namespace textinput {
             EventHandler::~EventHandler() {
             }
 
+            inline void UIModifierButton::Create(nw4rmanager::Layout* layout, const char* pane, const char* bounding) {
+                gui::PaneManager* manager = layout->getPaneManager();
+                mpPaneComponent = manager->searchPaneComponent(pane);
+                mpBoundingComponent = manager->searchPaneComponent(bounding);
+                mpAnimation = static_cast<AnmPane*>(layout->searchAnmPane(pane));
+                mpBoundingComponent->setListener(this);
+            }
+
             void LayoutByNW4R::create(MEMAllocator* allocator) {
                 Base::create(allocator);
                 void* storage = MEMAllocFromAllocator(allocator, sizeof(EventHandler));
@@ -1876,22 +1884,8 @@ namespace textinput {
                 mpPaneManager->setAllComponentTriggerTarget(false);
                 mpPaneManager->setAllBoundingBoxComponentTriggerTarget(true);
                 createAnmPane_(allocator);
-                const char* shiftBounding = "B_key_SHIFT";
-                const char* shiftPane = "P_key_SHIFT";
-                nw4rmanager::Layout* layout = this;
-                gui::PaneManager* manager = layout->getPaneManager();
-                mShiftButton.mpPaneComponent = manager->searchPaneComponent(shiftPane);
-                mShiftButton.mpBoundingComponent = manager->searchPaneComponent(shiftBounding);
-                mShiftButton.mpAnimation = static_cast<AnmPane*>(layout->searchAnmPane(shiftPane));
-                mShiftButton.mpBoundingComponent->setListener(&mShiftButton);
-                const char* capsBounding = "B_key_CAPS";
-                const char* capsPane = "P_key_CAPS";
-                layout = this;
-                manager = layout->getPaneManager();
-                mCapsButton.mpPaneComponent = manager->searchPaneComponent(capsPane);
-                mCapsButton.mpBoundingComponent = manager->searchPaneComponent(capsBounding);
-                mCapsButton.mpAnimation = static_cast<AnmPane*>(layout->searchAnmPane(capsPane));
-                mCapsButton.mpBoundingComponent->setListener(&mCapsButton);
+                mShiftButton.Create(this, "P_key_SHIFT", "B_key_SHIFT");
+                mCapsButton.Create(this, "P_key_CAPS", "B_key_CAPS");
                 mModePanel.Create(this);
                 mShiftButton.mpBoundingComponent->setTriggerTarget(true);
                 mCapsButton.mpBoundingComponent->setTriggerTarget(true);
@@ -2101,24 +2095,30 @@ namespace textinput {
                 gather.changeCapsLock(caps);
                 mKeyState.abcFlags = ((mKeyState.abcFlags ^ 64) & 64) | (mKeyState.abcFlags & ~64);
                 mKeyState.refresh_();
-                mCapsButton.mbOn = (mKeyState.abcFlags >> 6) & 1;
-                if (mCapsButton.mbOn)
-                    mCapsButton.mpAnimation->onAnmEvent(static_cast<AnmPane::AnmPaneEvent>(10));
-                else
-                    mCapsButton.mpAnimation->onAnmEvent(static_cast<AnmPane::AnmPaneEvent>(11));
+                mCapsButton.SetState((mKeyState.abcFlags >> 6) & 1, 11);
                 mpEventObserver->onSE(static_cast<sound::SE>(13));
             }
 
+            inline void UIModifierButton::SetState(bool enabled, u32 inactiveAnimation) {
+                mbOn = enabled;
+                if (mbOn)
+                    mpAnimation->onAnmEvent(static_cast<AnmPane::AnmPaneEvent>(10));
+                else
+                    mpAnimation->onAnmEvent(static_cast<AnmPane::AnmPaneEvent>(inactiveAnimation));
+            }
+
             void LayoutByNW4R::onPressedShift(bool sound) {
-                mKeyState.setABCFlag((mKeyState.abcFlags & ~15) | 128);
-                mShiftButton.mbOn = true;
-                mShiftButton.mpAnimation->onAnmEvent(static_cast<AnmPane::AnmPaneEvent>(10));
+                u32 flags = mKeyState.getABCFlag();
+                flags |= 128;
+                mKeyState.setABCFlag(flags);
+                mShiftButton.SetState(true, 5);
                 if (sound)
                     mpEventObserver->onSE(static_cast<sound::SE>(13));
             }
 
             void LayoutByNW4R::onReleasedShift() {
-                u32 flags = mKeyState.abcFlags & ~143;
+                u32 flags = mKeyState.getABCFlag();
+                flags &= ~128;
                 mKeyState.setABCFlag(flags);
                 if (mShiftButton.mbOn) {
                     mShiftButton.mbOn = false;

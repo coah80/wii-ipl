@@ -94,6 +94,8 @@ namespace textinput {
                     void refresh_();
                     void refreshText(nw4r::lyt::Pane* root);
                     void setABCFlag(u32 flags);
+                    u32 getABCFlag() const { return abcFlags & ~15; }
+                    u32 getABCMode() const { return abcFlags & 15; }
                     wchar_t getWCCode(u32 index);
                     wchar_t getWCCode(char* paneName) NO_INLINE;
                     void setABCMode(u32 mode) {
@@ -188,6 +190,8 @@ namespace textinput {
             class UIModifierButton : public UIObj {
             public:
                 UIModifierButton(u32 id, LayoutByNW4R* layout, Listener* listener);
+                inline void Create(nw4rmanager::Layout* layout, const char* pane, const char* bounding);
+                inline void SetState(bool enabled, u32 inactiveAnimation);
                 virtual ~UIModifierButton();
                 virtual void onGUIEvent(gui::PaneComponent& component, u32 event, nw4rmanager::TiEventHandler::Input* input);
                 gui::PaneComponent* mpPaneComponent;
