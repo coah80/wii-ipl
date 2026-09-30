@@ -1030,40 +1030,50 @@ namespace ipl {
                 return;
             }
 
-            int firstIndex;
             int indexStep;
-            if (pageOffset == 2) {
+            int pageTitleIndex;
+            int firstIndex;
+            switch (pageOffset) {
+            case -2:
+                firstIndex = 3;
+                indexStep = 4;
+                break;
+            case 2:
                 firstIndex = 0;
                 indexStep = 4;
-            } else if (pageOffset < 2) {
-                if (pageOffset == -2) {
-                    firstIndex = 3;
-                    indexStep = 4;
-                } else {
-                    firstIndex = 0;
-                    indexStep = 1;
-                }
-            } else {
+                break;
+            default:
                 firstIndex = 0;
                 indexStep = 1;
+                break;
             }
 
-            int pageTitleIndex = page * 12;
-            SDChannelObj* channel;
-            if (index >= 0 && index < 12 &&
-                (channel = findChannelObject(page, index)) != NULL && channel->mState == 2 &&
-                mpChannelTitleIds[pageTitleIndex + index] != 0) {
-                enqueueNotice(mpChannelTitleIds[pageTitleIndex + index], page, index);
+            pageTitleIndex = page * 12;
+            if (index >= 0 && index < 12) {
+                SDChannelObj* channel = findChannelObject(page, index);
+                if (channel != NULL) {
+                    int titleIndex = pageTitleIndex + index;
+                    if (channel->mStateFlags == 2) {
+                        ESTitleId titleId = mpChannelTitleIds[titleIndex];
+                        if (titleId != 0) {
+                            enqueueNotice(titleId, page, index);
+                        }
+                    }
+                }
             }
 
-            for (int channelIndex = firstIndex; channelIndex < 12;
-                 channelIndex += indexStep) {
-                if (channelIndex != index &&
-                    (channel = findChannelObject(page, channelIndex)) != NULL &&
-                    channel->mState == 2 &&
-                    mpChannelTitleIds[pageTitleIndex + channelIndex] != 0) {
-                    enqueueNotice(mpChannelTitleIds[pageTitleIndex + channelIndex], page,
-                                  channelIndex);
+            for (; firstIndex < 12; firstIndex += indexStep) {
+                if (index != firstIndex) {
+                    SDChannelObj* channel = findChannelObject(page, firstIndex);
+                    if (channel != NULL) {
+                        int titleIndex = pageTitleIndex + firstIndex;
+                        if (channel->mStateFlags == 2) {
+                            ESTitleId titleId = mpChannelTitleIds[titleIndex];
+                            if (titleId != 0) {
+                                enqueueNotice(titleId, page, firstIndex);
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -1135,10 +1145,18 @@ namespace ipl {
             }
 
             if (mCurrentSDState != 6) {
-                if (mState < 24) {
-                    if (mState >= 15) {
-                        mbDialogActive = true;
-                    }
+                switch (mState) {
+                case 15:
+                case 16:
+                case 17:
+                case 18:
+                case 19:
+                case 20:
+                case 21:
+                case 22:
+                case 23:
+                    mbDialogActive = true;
+                    break;
                 }
             }
 
@@ -1955,11 +1973,7 @@ namespace ipl {
                 System::getFader()->fadeOut();
                 TVRCManager::getHandle()->setEnable(FALSE);
                 System::getChannelManager()->refreshAsync();
-                reserveAllSceneDestruction(
-                    4, System::isSafeMode()
-                           ? NULL
-                           : reinterpret_cast<void*>(
-                                 System::getNwc24ManagerForce()->received()));
+                reserveAllSceneDestruction(4, reinterpret_cast<void*>(System::getNwc24Manager()->received()));
             }
         }
 
@@ -2269,12 +2283,20 @@ namespace ipl {
                 if (keepChannel != NULL && page == keepPage && index == keepIndex) {
                     continue;
                 }
-                if (mState < 0x18) {
-                    if (mState >= 0xF) {
-                        if (page == mSourcePage && index == mSourceIndex) {
-                            continue;
-                        }
+                switch (mState) {
+                case 15:
+                case 16:
+                case 17:
+                case 18:
+                case 19:
+                case 20:
+                case 21:
+                case 22:
+                case 23:
+                    if (page == mSourcePage && index == mSourceIndex) {
+                        continue;
                     }
+                    break;
                 }
                 if (!isChannelInCalc(page, index, currentPage)) {
                     SDChannelObj* previous = static_cast<SDChannelObj*>(
