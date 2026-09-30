@@ -15,9 +15,16 @@ static u16 readU16(const u8* p, u16 byteOrder) {
     return (u16)(raw >> 8 & 0xFF | (raw & 0xFF) << 8);
 }
 
+static u16 readExifU16(const u8* data, u16 byteOrder) {
+    u32 value = data[0] | data[1] << 8;
+    if (byteOrder == 0x4949) {
+        return (u16)value;
+    }
+    return (u16)(value >> 8 & 255 | (value & 255) << 8);
+}
+
 static u32 readU32(const u8* p, u16 byteOrder) {
-    u32 raw = p[0] | p[1] << 8;
-    raw = raw | p[3] << 24 | p[2] << 16;
+    u32 raw = p[1] << 8 | p[0] | p[2] << 16 | p[3] << 24;
     if (byteOrder == 0x4949) {
         return raw;
     }
@@ -26,9 +33,9 @@ static u32 readU32(const u8* p, u16 byteOrder) {
 
 s32 TMCCJPEGDecGetOffsetEXIF(u32* pOffset, u32* pSize, TMCCJPEGDecInitParam* pParam) {
     TMCCJPEGDecWork* work;
-    u16 marker;
-    u32 dataSize;
     u16 segSize;
+    u32 dataSize;
+    u16 marker;
     s32 result;
     u8 sig[4];
 
@@ -108,62 +115,26 @@ s32 TMCCJPEGDecGetOffsetEXIF(u32* pOffset, u32* pSize, TMCCJPEGDecInitParam* pPa
             continue;
         }
 
-        if (marker >= 0xFFD9) {
-            if (marker == 0xFFD9) {
+        switch (marker) {
+            case 0xFFC0:
+            case 0xFFC2:
+            case 0xFFC4:
+            case 0xFFDB:
+            case 0xFFDC:
+            case 0xFFDD:
+            case 0xFFFE:
+                result = TMCJPEGDEC_move_ptr(segSize, work);
+                if (result < 0) {
+                    return result;
+                }
+                break;
+            case 0xFFDA:
                 return -2;
-            }
-
-            if (marker == 0xFFFE) {
-                result = TMCJPEGDEC_move_ptr(segSize, work);
-                if (result < 0) {
-                    return result;
-                }
-                continue;
-            }
-
-            if (marker >= 0xFFDE)
+            case 0xFFD9:
+                return -2;
+            default:
                 return -0x2F;
-
-            if (marker >= 0xFFDB) {
-                result = TMCJPEGDEC_move_ptr(segSize, work);
-                if (result < 0) {
-                    return result;
-                }
-                continue;
-            }
-
-            return -2;
         }
-
-        if (marker >= 0xFFC2) {
-            if (marker == 0xFFC2) {
-                result = TMCJPEGDEC_move_ptr(segSize, work);
-                if (result < 0) {
-                    return result;
-                }
-                continue;
-            }
-
-            if (marker == 0xFFC4) {
-                result = TMCJPEGDEC_move_ptr(segSize, work);
-                if (result < 0) {
-                    return result;
-                }
-                continue;
-            }
-
-            return -0x2F;
-        }
-
-        if (marker == 0xFFC0) {
-            result = TMCJPEGDEC_move_ptr(segSize, work);
-            if (result < 0) {
-                return result;
-            }
-            continue;
-        }
-
-        return -0x2F;
     }
 }
 
@@ -271,114 +242,103 @@ _error:
 }
 
 static s32 TMCJPEGDEC_exif_parse(const u8* data, u32 size, TMCCJPEGDecExifData* pInfo) {
-    u32 ifd0Offset;
-    u32 ifd1Offset;
-    u32 exifIfdOffset;
-    u16 count;
-    u32 entriesSize;
-    u32 i;
-    const u8* p;
-    s32 sval;
     u16 byteOrder;
-    u32 raw;
-
+    u32 ifdOffset;
     pInfo->thumbnailData = (u8*)data;
     pInfo->dataEnd = (u8*)data + size;
     pInfo->nextIfdOffset = 0;
-
     if (size < 8) {
         return -161;
     }
-
-    raw = data[0] | data[1] << 8;
-    byteOrder = raw;
+    byteOrder = data[0] | data[1] << 8;
     if (byteOrder != 0x4D4D && byteOrder != 0x4949) {
         return -161;
     }
-
-    if (readU16(data + 2, byteOrder) != 0x002A) {
+    if (readExifU16(data + 2, byteOrder) != 42) {
         return -161;
     }
-
-    ifd0Offset = readU32(data + 4, byteOrder);
-    if (ifd0Offset > size) {
+    ifdOffset = readU32(data + 4, byteOrder);
+    if (size < ifdOffset) {
         return -161;
     }
-
-    sval = size - (u16)ifd0Offset;
-    if (sval < 2) {
-        return -161;
-    }
-
-    p = data + (u16)ifd0Offset;
-    count = readU16(p, byteOrder);
-    entriesSize = count * 12;
-    sval = (u32)(sval - 2);
-    if (sval < entriesSize) {
-        return -161;
-    }
-
-    p += 2;
-    for (i = 0; i < count; i++) {
-        TMCJPEGDEC_IFD0_tag_parse(pInfo, byteOrder, p);
-        p += 12;
-    }
-
-    sval -= entriesSize;
-    if (sval < 4) {
-        return -161;
-    }
-
-    ifd1Offset = readU32(p, byteOrder);
-    if (ifd1Offset != 0) {
-        if (ifd1Offset > size) {
+    {
+        const u8* entries = data + ifdOffset;
+        u16 remaining = size - (u16)ifdOffset;
+        u16 count;
+        s32 entriesSize;
+        u16 index;
+        if (remaining < 2) {
             return -161;
         }
-
-        sval = size - (u16)ifd1Offset;
-        if (sval < 2) {
-            return -161;
-        }
-
-        p = data + (u16)ifd1Offset;
-        count = readU16(p, byteOrder);
+        count = readExifU16(entries, byteOrder);
         entriesSize = count * 12;
-        sval = (u32)(sval - 2);
-        if (sval < entriesSize) {
+        entries += 2;
+        remaining -= 2;
+        if (remaining < entriesSize) {
             return -161;
         }
-
-        p += 2;
-        for (i = 0; i < count; i++) {
-            TMCJPEGDEC_IFD1_tag_parse(pInfo, byteOrder, p);
-            p += 12;
+        for (index = 0; index < count; index++) {
+            TMCJPEGDEC_IFD0_tag_parse(pInfo, byteOrder, entries);
+            entries += 12;
+        }
+        remaining -= entriesSize;
+        if (remaining < 4) {
+            return -161;
+        }
+        ifdOffset = readU32(entries, byteOrder);
+    }
+    if (ifdOffset == 0) {
+        return 0;
+    }
+    if (size < ifdOffset) {
+        return -161;
+    }
+    {
+        const u8* entries = data + ifdOffset;
+        u16 remaining = size - (u16)ifdOffset;
+        u16 count;
+        s32 entriesSize;
+        u16 index;
+        if (remaining < 2) {
+            return -161;
+        }
+        count = readExifU16(entries, byteOrder);
+        entriesSize = count * 12;
+        entries += 2;
+        remaining -= 2;
+        if (remaining < entriesSize) {
+            return -161;
+        }
+        for (index = 0; index < count; index++) {
+            TMCJPEGDEC_IFD1_tag_parse(pInfo, byteOrder, entries);
+            entries += 12;
         }
     }
-
-    exifIfdOffset = pInfo->nextIfdOffset;
-    if (exifIfdOffset == 0 || exifIfdOffset > size) {
+    ifdOffset = pInfo->nextIfdOffset;
+    if (size < ifdOffset) {
         return -161;
     }
-
-    sval = size - (u16)exifIfdOffset;
-    if (sval < 2) {
-        return -161;
+    {
+        const u8* entries = data + ifdOffset;
+        u16 remaining = size - (u16)ifdOffset;
+        u16 count;
+        s32 entriesSize;
+        u16 index;
+        if (remaining < 2) {
+            return -161;
+        }
+        count = readExifU16(entries, byteOrder);
+        entriesSize = count * 12;
+        entries += 2;
+        remaining -= 2;
+        if (remaining < entriesSize) {
+            return -161;
+        }
+        for (index = 0; index < count; index++) {
+            TMCJPEGDEC_IFD0_tag_parse(pInfo, byteOrder, entries);
+            entries += 12;
+        }
     }
-
-    p = data + (u16)exifIfdOffset;
-    count = readU16(p, byteOrder);
-    entriesSize = count * 12;
-    sval = (u32)(sval - 2);
-    if (sval < entriesSize) {
-        return -161;
-    }
-
-    p += 2;
-    for (i = 0; i < count; i++) {
-        TMCJPEGDEC_IFD0_tag_parse(pInfo, byteOrder, p);
-        p += 12;
-    }
-
     return 0;
 }
 
@@ -391,7 +351,9 @@ static void TMCJPEGDEC_IFD0_tag_parse(TMCCJPEGDecExifData* pInfo, u16 byteOrder,
 
     switch (tag) {
         case 0x0103:
-        case 0x0111: {
+        case 0x0111:
+        case 0x0201:
+        case 0x0202: {
             return;
         }
         case 0x0112: {
@@ -401,18 +363,18 @@ static void TMCJPEGDEC_IFD0_tag_parse(TMCCJPEGDecExifData* pInfo, u16 byteOrder,
         case 0x011A: {
             u32 offset = readU32(entry + 8, byteOrder);
             const u8* p = pInfo->thumbnailData + offset;
-            if (p < pInfo->thumbnailData) {
+            if (pInfo->thumbnailData > p) {
                 return;
             }
-            if (p + 4 > pInfo->dataEnd) {
+            if (p > pInfo->dataEnd - 4) {
                 return;
             }
             pInfo->xResNum = readU32(p, byteOrder);
             p = (const u8*)(pInfo->thumbnailData + offset + 4);
-            if (p < pInfo->thumbnailData) {
+            if (pInfo->thumbnailData > p) {
                 return;
             }
-            if (p + 4 > pInfo->dataEnd) {
+            if (p > pInfo->dataEnd - 4) {
                 return;
             }
             pInfo->xResDen = readU32(p, byteOrder);
@@ -421,18 +383,18 @@ static void TMCJPEGDEC_IFD0_tag_parse(TMCCJPEGDecExifData* pInfo, u16 byteOrder,
         case 0x011B: {
             u32 offset = readU32(entry + 8, byteOrder);
             const u8* p = pInfo->thumbnailData + offset;
-            if (p < pInfo->thumbnailData) {
+            if (pInfo->thumbnailData > p) {
                 return;
             }
-            if (p + 4 > pInfo->dataEnd) {
+            if (p > pInfo->dataEnd - 4) {
                 return;
             }
             pInfo->yResNum = readU32(p, byteOrder);
             p = (const u8*)(pInfo->thumbnailData + offset + 4);
-            if (p < pInfo->thumbnailData) {
+            if (pInfo->thumbnailData > p) {
                 return;
             }
-            if (p + 4 > pInfo->dataEnd) {
+            if (p > pInfo->dataEnd - 4) {
                 return;
             }
             pInfo->yResDen = readU32(p, byteOrder);
@@ -444,19 +406,19 @@ static void TMCJPEGDEC_IFD0_tag_parse(TMCCJPEGDecExifData* pInfo, u16 byteOrder,
         }
         case 0x012D: {
             u32 offset = readU32(entry + 8, byteOrder);
-            const u8* p = pInfo->thumbnailData + offset;
-            u32 j;
-            u32 i;
-            for (j = 0; j < 3; j++) {
-                for (i = 0; i < 256; i++) {
-                    if (p < pInfo->thumbnailData) {
-                        return;
+            u32 channel;
+            u32 index;
+            for (channel = 0; channel < 3; channel++) {
+                for (index = 0; index < 256; index++) {
+                    const u8* p = pInfo->thumbnailData + offset;
+                    if (pInfo->thumbnailData > p) {
+                        break;
                     }
-                    if (p + 2 > pInfo->dataEnd) {
-                        return;
+                    if (p > pInfo->dataEnd - 2) {
+                        break;
                     }
-                    pInfo->transferFunc[j][i] = readU16(p, byteOrder);
-                    p += 2;
+                    pInfo->transferFunc[channel][index] = readU16(p, byteOrder);
+                    offset += 2;
                 }
             }
             return;
@@ -464,17 +426,18 @@ static void TMCJPEGDEC_IFD0_tag_parse(TMCCJPEGDecExifData* pInfo, u16 byteOrder,
         case 0x0132: {
             u32 offset = readU32(entry + 8, byteOrder);
             const u8* p = pInfo->thumbnailData + offset;
-            if (p < pInfo->thumbnailData) {
+            if (pInfo->thumbnailData > p) {
                 return;
             }
-            if (p + 20 > pInfo->dataEnd) {
+            if (p > pInfo->dataEnd - 20) {
                 return;
             }
-            *(u32*)(pInfo->dateTime + 0) = *(u32*)(p + 0);
-            *(u32*)(pInfo->dateTime + 4) = *(u32*)(p + 4);
-            *(u32*)(pInfo->dateTime + 8) = *(u32*)(p + 8);
-            *(u32*)(pInfo->dateTime + 12) = *(u32*)(p + 12);
-            *(u32*)(pInfo->dateTime + 16) = *(u32*)(p + 16);
+            {
+                u32 index;
+                for (index = 0; index < 20; index++) {
+                    pInfo->dateTime[index] = p[index];
+                }
+            }
             return;
         }
         case 0x0213: {
@@ -538,52 +501,54 @@ static void TMCJPEGDEC_IFD1_tag_parse(TMCCJPEGDecExifData* pInfo, u16 byteOrder,
     switch (tag) {
         case 0x0132:
         case 0x0111:
+        case 0x0112:
         case 0x012D:
         case 0x0213:
         case 0x8769:
         case 0x9000:
-        case 0x9101: {
-            return;
-        }
-        case 0x0103: {
-            pInfo->compressionIfd1 = readU16(entry + 8, byteOrder);
+        case 0x9101:
+        case 0xA003: {
             return;
         }
         case 0x011A: {
-            u32 offset = readU32(entry + 8, byteOrder);
-            const u8* p = pInfo->thumbnailData + offset;
-            if (p < pInfo->thumbnailData) {
+            u32 offset;
+            const u8* p;
+            offset = readU32(entry + 8, byteOrder);
+            p = pInfo->thumbnailData + offset;
+            if (pInfo->thumbnailData > p) {
                 return;
             }
-            if (p + 4 > pInfo->dataEnd) {
+            if (p > pInfo->dataEnd - 4) {
                 return;
             }
             pInfo->xResNumIfd1 = readU32(p, byteOrder);
             p = (const u8*)(pInfo->thumbnailData + offset + 4);
-            if (p < pInfo->thumbnailData) {
+            if (pInfo->thumbnailData > p) {
                 return;
             }
-            if (p + 4 > pInfo->dataEnd) {
+            if (p > pInfo->dataEnd - 4) {
                 return;
             }
             pInfo->xResDenIfd1 = readU32(p, byteOrder);
             return;
         }
         case 0x011B: {
-            u32 offset = readU32(entry + 8, byteOrder);
-            const u8* p = pInfo->thumbnailData + offset;
-            if (p < pInfo->thumbnailData) {
+            u32 offset;
+            const u8* p;
+            offset = readU32(entry + 8, byteOrder);
+            p = pInfo->thumbnailData + offset;
+            if (pInfo->thumbnailData > p) {
                 return;
             }
-            if (p + 4 > pInfo->dataEnd) {
+            if (p > pInfo->dataEnd - 4) {
                 return;
             }
             pInfo->planarConfigIfd1 = readU32(p, byteOrder);
             p = (const u8*)(pInfo->thumbnailData + offset + 4);
-            if (p < pInfo->thumbnailData) {
+            if (pInfo->thumbnailData > p) {
                 return;
             }
-            if (p + 4 > pInfo->dataEnd) {
+            if (p > pInfo->dataEnd - 4) {
                 return;
             }
             pInfo->yResDenIfd1 = readU32(p, byteOrder);
@@ -591,6 +556,10 @@ static void TMCJPEGDEC_IFD1_tag_parse(TMCCJPEGDecExifData* pInfo, u16 byteOrder,
         }
         case 0x0128: {
             pInfo->resUnitIfd1 = readU16(entry + 8, byteOrder);
+            return;
+        }
+        case 0x0103: {
+            pInfo->compressionIfd1 = readU16(entry + 8, byteOrder);
             return;
         }
         case 0x0201: {

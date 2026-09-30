@@ -1,13 +1,30 @@
+#include <string.h>
 #include <tmc_jpeg_internal.h>
 
+typedef struct {
+    u16 bitLength;
+    u16 symbol;
+} TMCHuffmanEntry;
+
+static TMCHuffmanEntry readHuffmanEntry(const TMCHuffmanEntry* entries, u32 index) {
+    return entries[index];
+}
+
+static TMCHuffmanEntry readHuffmanLimit(const TMCHuffmanEntry* entries) {
+    TMCHuffmanEntry limit;
+    limit.bitLength = entries->bitLength;
+    limit.symbol = entries->symbol;
+    return limit;
+}
+
 s32 TMCJPEGDEC_decode_iquant(s32* block, u8* conv_row_ptr, u32* dc_predict_row_ptr, TMCCJPEGDecWork* work) {
-    volatile u32 ac_comb;
-    u16* ac_fast;
+    TMCHuffmanEntry acEntry;
+    const TMCHuffmanEntry* ac_fast;
     u8* huff_sym;
     u32* huff_tbl;
     s32 bit_pos;
     u32 bit_data;
-    u16* dc_fast;
+    const TMCHuffmanEntry* dc_fast;
     s32 r;
     s32 blk0;
     s32 idx;
@@ -19,29 +36,23 @@ s32 TMCJPEGDEC_decode_iquant(s32* block, u8* conv_row_ptr, u32* dc_predict_row_p
     const u8* zztbl;
 
     bit_pos = work->bitCount;
-    dc_fast = work->pDCFast;
+    dc_fast = (const TMCHuffmanEntry*)work->pDCFast;
 
     if (bit_pos <= 8) {
         r = TMCJPEGDEC_load_buff(work);
         if (r < 0) {
             return r;
         }
-        bit_pos = work->bitCount;
     }
 
+    bit_pos = work->bitCount;
     bit_data = work->bitBuf;
     tmp = bit_pos - 8;
     tmp = ((bit_data >> tmp) & 0xFF) << 2;
     {
-        u16* dc_entry = (u16*)((u8*)dc_fast + tmp);
-        r = dc_entry[0];
-        extra = dc_entry[1];
-    }
-
-    {
-        volatile u32 dc_comb;
-        *(u16*)&dc_comb = r;
-        *((u16*)&dc_comb + 1) = extra;
+        TMCHuffmanEntry dcEntry = readHuffmanEntry(dc_fast, tmp >> 2);
+        r = dcEntry.bitLength;
+        extra = dcEntry.symbol;
     }
 
     if (r != 0) {
@@ -51,7 +62,7 @@ s32 TMCJPEGDEC_decode_iquant(s32* block, u8* conv_row_ptr, u32* dc_predict_row_p
     } else {
         u32 code;
         unsigned int i;
-        u16* entry;
+        const TMCHuffmanEntry* entry;
         s32 thresh;
         s32 offs;
 
@@ -71,13 +82,13 @@ s32 TMCJPEGDEC_decode_iquant(s32* block, u8* conv_row_ptr, u32* dc_predict_row_p
         work->bitCount = bit_pos;
 
         i = 9;
-        entry = (u16*)((u8*)huff_tbl + 0x24);
+        entry = (const TMCHuffmanEntry*)huff_tbl + 9;
 
         goto dc_entry;
 
         while (1) {
             i++;
-            entry += 2;
+            entry++;
             if (i > 16) {
                 r = TMCC_ERROR_OVERFLOW;
                 goto dc_end;
@@ -91,27 +102,17 @@ s32 TMCJPEGDEC_decode_iquant(s32* block, u8* conv_row_ptr, u32* dc_predict_row_p
             code |= (bit_data >> bit_pos) & 1;
 
         dc_entry:
-            thresh = entry[0];
-            offs = entry[1];
-
             {
-                volatile u16 p[2];
-                p[0] = thresh;
-                p[1] = offs;
-                tmp = *(u32*)p;
-            }
-
-            {
-                volatile u32 cw;
-                cw = tmp;
-                thresh = *(u16*)&cw;
+                TMCHuffmanEntry decoded = readHuffmanLimit(entry);
+                thresh = decoded.bitLength;
+                offs = decoded.symbol;
             }
 
             if (code > (u32)thresh) {
                 continue;
             }
 
-            code = code - entry[0] + offs;
+            code = code - entry->bitLength + offs;
             r = huff_sym[code & 0xFF];
             break;
         }
@@ -138,21 +139,19 @@ s32 TMCJPEGDEC_decode_iquant(s32* block, u8* conv_row_ptr, u32* dc_predict_row_p
         bit_pos -= r;
         work->bitCount = bit_pos;
         extra = extra & (bit_data >> bit_pos);
-        if ((s32)tmp >> 1 <= extra) {
-            extra = extra;
-        } else {
-            extra = extra - (tmp - 1);
+        if (extra < (s32)tmp >> 1) {
+            extra -= tmp - 1;
         }
         dc_predict_row_ptr[0] += extra;
     }
 
     *block = dc_predict_row_ptr[0] * blk0;
 
-    ac_fast = work->pACFast;
+    ac_fast = (const TMCHuffmanEntry*)work->pACFast;
     huff_tbl = work->pACHuffTbl;
     huff_sym = work->pACHuffSym;
 
-    memset((u8*)block + 4, 0, 0xFC);
+    memset(block + 1, 0, 0xFC);
 
     bit_pos = work->bitCount;
     idx = 1;
@@ -166,25 +165,19 @@ s32 TMCJPEGDEC_decode_iquant(s32* block, u8* conv_row_ptr, u32* dc_predict_row_p
     zztbl = TMCJPEGDEC_Zigzag_data;
     bit_data = work->bitBuf;
     t = bit_pos - 8;
-    {
-        u32 tbl_idx = ((bit_data >> t) & 0xFF) << 2;
-        s32 thresh_val = ac_fast[tbl_idx >> 1];
-        s32 offs_val = *(u16*)((u8*)ac_fast + tbl_idx + 2);
-        *(u16*)&ac_comb = thresh_val;
-        *((u16*)&ac_comb + 1) = offs_val;
-    }
+    acEntry = readHuffmanEntry(ac_fast, (bit_data >> t) & 0xFF);
 
     while (idx < 64) {
-        s32 ac_thresh = *(u16*)&ac_comb;
+        s32 ac_thresh = acEntry.bitLength;
         if (ac_thresh != 0) {
             bit_pos = work->bitCount;
             bit_pos -= ac_thresh;
             work->bitCount = bit_pos;
-            r = *((u16*)&ac_comb + 1);
+            r = acEntry.symbol;
         } else {
             u32 code;
             unsigned int i;
-            u16* entry;
+            const TMCHuffmanEntry* entry;
             s32 thresh;
             s32 offs;
 
@@ -202,13 +195,13 @@ s32 TMCJPEGDEC_decode_iquant(s32* block, u8* conv_row_ptr, u32* dc_predict_row_p
             work->bitCount = bit_pos;
 
             i = 9;
-            entry = (u16*)((u8*)work->pACHuffTbl + 0x24);
+            entry = (const TMCHuffmanEntry*)huff_tbl + 9;
 
             goto ac_entry_huff;
 
             while (1) {
                 i++;
-                entry += 2;
+                entry++;
                 if (i > 16) {
                     r = TMCC_ERROR_OVERFLOW;
                     goto ac_end;
@@ -222,27 +215,17 @@ s32 TMCJPEGDEC_decode_iquant(s32* block, u8* conv_row_ptr, u32* dc_predict_row_p
                 code |= (bit_data >> bit_pos) & 1;
 
             ac_entry_huff:
-                thresh = entry[0];
-                offs = entry[1];
-
                 {
-                    volatile u16 p[2];
-                    p[0] = thresh;
-                    p[1] = offs;
-                    tmp = *(u32*)p;
-                }
-
-                {
-                    volatile u32 cw;
-                    cw = tmp;
-                    thresh = *(u16*)&cw;
+                    TMCHuffmanEntry decoded = readHuffmanLimit(entry);
+                    thresh = decoded.bitLength;
+                    offs = decoded.symbol;
                 }
 
                 if (code > (u32)thresh) {
                     continue;
                 }
 
-                code = code - entry[0] + offs;
+                code = code - entry->bitLength + offs;
                 r = huff_sym[code & 0xFF];
                 break;
             }
@@ -278,19 +261,11 @@ s32 TMCJPEGDEC_decode_iquant(s32* block, u8* conv_row_ptr, u32* dc_predict_row_p
             bit_pos -= t;
             work->bitCount = bit_pos;
             t = bit_pos - 8;
-            {
-                u32 next_tbl = ((bit_data >> t) & 0xFF) << 2;
-                s32 next_th = ac_fast[next_tbl >> 1];
-                s32 next_of = *(u16*)((u8*)ac_fast + next_tbl + 2);
-                extra = extra & (bit_data >> bit_pos);
-                *(u16*)&ac_comb = next_th;
-                *((u16*)&ac_comb + 1) = next_of;
-            }
+            extra = extra & (bit_data >> bit_pos);
+            acEntry = readHuffmanEntry(ac_fast, (bit_data >> t) & 0xFF);
 
-            if ((s32)tmp >> 1 <= extra) {
-                extra = extra;
-            } else {
-                extra = extra - (tmp - 1);
+            if (extra < (s32)tmp >> 1) {
+                extra -= tmp - 1;
             }
 
             q = ((s32*)conv_row_ptr)[zz];
@@ -312,12 +287,7 @@ s32 TMCJPEGDEC_decode_iquant(s32* block, u8* conv_row_ptr, u32* dc_predict_row_p
             bit_pos = work->bitCount;
             t = bit_pos - 8;
             tmp = ((bit_data >> t) & 0xFF) << 2;
-            {
-                s32 next_thresh = ac_fast[tmp >> 1];
-                s32 next_offs = *(u16*)((u8*)ac_fast + tmp + 2);
-                *(u16*)&ac_comb = next_thresh;
-                *((u16*)&ac_comb + 1) = next_offs;
-            }
+            acEntry = readHuffmanEntry(ac_fast, tmp >> 2);
 
             idx += 16;
         }
