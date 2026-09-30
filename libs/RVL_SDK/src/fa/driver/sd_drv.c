@@ -3,13 +3,14 @@
 #include <revolution/sdi.h>
 
 typedef struct PFD_SDDRV_INFO {
-    u32 flags;
+    volatile u32 flags;
     u32 bytes_per_sector;
-    SDDev* device;
+    SDDev* volatile device;
     FADisk* disk;
-    u32 media_inserted;
+    volatile u32 media_inserted;
     u32 media_ejected;
     s8 drive;
+    u32 reserved;
 } PFD_SDDRV_INFO;
 
 typedef union PFD_SDDEV_STORAGE {
@@ -32,9 +33,16 @@ PFD_SDDRV_INFO g_pfd_sddrv_info;
 PFD_SDDEV_STORAGE g_pfd_sddev;
 u8 g_pfd_sddrv_buf[0x200];
 
-static FAInsertCallback g_attach_func;
-static FAEjectCallback g_detach_func;
+u32 pfd_sddrv_reserved;
 u32 g_event;
+u32 pfd_sddrv_work0;
+u32 pfd_sddrv_work1;
+u32 pfd_sddrv_work2;
+u32 pfd_sddrv_work3;
+u32 pfd_sddrv_work4;
+u32 pfd_sddrv_work5;
+static FAEjectCallback g_detach_func;
+static FAInsertCallback g_attach_func;
 
 extern u8 pfd_get_media_drv_char(FADisk*, s8*, u32);
 extern void pdm_disk_notify_media_insert(FADisk*);
@@ -233,12 +241,12 @@ const PFD_SDDRV_SIZE_DEPEND sddrv_size_depend_tbl[14] = {
 
 static inline void update_media_drive(void) {
     s8 drive;
-    if (g_pfd_sddrv_info.drive == 0 && pfd_get_media_drv_char(g_pfd_sddrv_info.disk, &drive, 1) == 1) {
+    if (g_pfd_sddrv_info.drive == 0 && pfd_get_media_drv_char(*(FADisk* volatile*)&g_pfd_sddrv_info.disk, &drive, 1) == 1) {
         g_pfd_sddrv_info.drive = drive;
     }
 }
 
-static inline void clear_mount_flag(void) {
+static void clear_mount_flag(void) {
     g_pfd_sddrv_info.flags &= ~2;
 }
 
@@ -259,7 +267,7 @@ s32 pfd_st_inter_callback(s32 status, void* data) {
         update_media_drive();
         pdm_disk_notify_media_insert(g_pfd_sddrv_info.disk);
         if (g_pfd_sddrv_info.drive != 0 && g_attach_func != 0) {
-            g_attach_func(g_pfd_sddrv_info.drive);
+            g_attach_func(*(s8 volatile*)&g_pfd_sddrv_info.drive);
         }
     }
     g_pfd_sddrv_info.media_inserted = 1;
@@ -285,7 +293,7 @@ s32 pfd_st_removal_callback(s32 status, void* data) {
         update_media_drive();
         pdm_disk_notify_media_eject(g_pfd_sddrv_info.disk);
         if (g_pfd_sddrv_info.drive != 0 && g_detach_func != 0) {
-            g_detach_func(g_pfd_sddrv_info.drive);
+            g_detach_func(*(s8 volatile*)&g_pfd_sddrv_info.drive);
         }
     }
     return 0;
@@ -296,15 +304,16 @@ s32 pfd_sddrv_init(FADisk* disk) {
     SDDev* device;
     u32 status;
 
-    if (disk == 0) {
+    if (disk == (FADisk*)(status = 0)) {
         return -30;
     }
     if ((g_pfd_sddrv_info.flags & 1) != 0) {
         OSReport("INFO SD Card driver is already initialize. pfd_sddrv_init()\n");
-        if (disk == g_pfd_sddrv_info.disk) {
-            return 0;
+        sd_result = 0;
+        if (disk != g_pfd_sddrv_info.disk) {
+            sd_result = -44;
         }
-        return -44;
+        return sd_result;
     }
     if ((g_pfd_sddrv_info.flags & 4) == 0) {
         g_pfd_sddrv_info.bytes_per_sector = 0x200;
@@ -328,11 +337,11 @@ s32 pfd_sddrv_init(FADisk* disk) {
         OSReport("ERR Failed to get sd card status. [ret = 0x%x]\n", sd_result);
         return 21;
     }
-    if ((status & 1) == 1) {
+    if ((status & 1) != 0) {
         g_pfd_sddrv_info.media_inserted = 1;
     }
     g_pfd_sddrv_info.device = device;
-    if (g_pfd_sddrv_info.media_inserted == 1) {
+    if (g_pfd_sddrv_info.media_inserted != 0) {
         g_event = 2;
         sd_result = ISD_RegisterDeviceIntrHandler(device, (SDDevIntrCallback)pfd_st_removal_callback, &g_event);
         if (sd_result != 0) {
@@ -351,7 +360,7 @@ s32 pfd_sddrv_init(FADisk* disk) {
             return -42;
         }
     }
-    g_pfd_sddrv_info.disk = disk;
+    *(FADisk* volatile*)&g_pfd_sddrv_info.disk = disk;
     g_pfd_sddrv_info.flags |= 1;
     return 0;
 }
@@ -463,15 +472,14 @@ s32 pfd_sddrv_unmount(FADisk* disk) {
 }
 
 s32 pfd_sddrv_finalize(FADisk* disk) {
-    s32 result;
-
     if (disk == 0) {
         return -30;
     }
-    if ((g_pfd_sddrv_info.flags & 2) == 2) {
+    if ((g_pfd_sddrv_info.flags & 2) != 0) {
         clear_mount_flag();
     }
     if ((g_pfd_sddrv_info.flags & 1) != 0) {
+        s32 result;
         result = ISD_UnregisterDeviceIntrHandler(g_pfd_sddrv_info.device);
         if (result != 0) {
             OSReport("WARNING Faild to UnregisterDeviceIntrHandler sd card [ret = %d]\n", result);
@@ -482,10 +490,10 @@ s32 pfd_sddrv_finalize(FADisk* disk) {
         }
         g_pfd_sddrv_info.device = 0;
     }
-    g_pfd_sddrv_info.flags = g_pfd_sddrv_info.flags & 0xfffffffe;
-    g_pfd_sddrv_info.media_inserted = g_pfd_sddrv_info.media_ejected = 0;
-    g_pfd_sddrv_info.disk = 0;
-    g_pfd_sddrv_info.drive = 0;
+    g_pfd_sddrv_info.flags = g_pfd_sddrv_info.flags & ~1;
+    g_pfd_sddrv_info.media_inserted = 0;
+    *(FADisk* volatile*)&g_pfd_sddrv_info.disk = 0;
+    *(s8 volatile*)&g_pfd_sddrv_info.drive = 0;
     return 0;
 }
 
@@ -557,7 +565,7 @@ s32 pfd_sddrv_is_media_insert(void) {
     s8 drive;
 
     if ((g_pfd_sddrv_info.flags & 1) != 0) {
-        if (g_pfd_sddrv_info.drive == 0 && pfd_get_media_drv_char(g_pfd_sddrv_info.disk, &drive, 1) == 1) {
+        if (g_pfd_sddrv_info.drive == 0 && pfd_get_media_drv_char(*(FADisk* volatile*)&g_pfd_sddrv_info.disk, &drive, 1) == 1) {
             g_pfd_sddrv_info.drive = drive;
         }
         if (g_pfd_sddrv_info.media_inserted != 0) {
@@ -573,8 +581,8 @@ s32 pfd_sddrv_is_media_insert(void) {
 }
 
 static s32 pfd_sddrv_physical_read(u32 blocks, u8* buffer, u32 sector, u32 bytes_per_sector, u32* blocks_read) {
-    s32 result;
     u32 current_sector;
+    s32 result;
     u32 completed;
     u8* current_buffer;
     if ((g_pfd_sddrv_info.flags & 2) == 0) {
@@ -638,8 +646,8 @@ static s32 pfd_sddrv_physical_read(u32 blocks, u8* buffer, u32 sector, u32 bytes
 }
 
 s32 pfd_sddrv_physical_write(u32 blocks, u8* buffer, u32 sector, u32 bytes_per_sector, u32* blocks_written) {
-    s32 result;
     u32 current_sector;
+    s32 result;
     u32 completed;
     u8* current_buffer;
     if ((g_pfd_sddrv_info.flags & 2) == 0) {
@@ -731,7 +739,7 @@ s32 pfd_sddrv_get_total_sectors(u32* sectors, u16* bytes_per_sector) {
         multiplier = (csd[2] >> 8) & 0xf;
         minimum_multiplier = multiplier >= 9 ? multiplier : 9;
         max_multiplier = minimum_multiplier <= 11 ? minimum_multiplier : 11;
-        multiplier_factor = 1 << (u16)(max_multiplier - 9);
+        multiplier_factor = (u16)1 << (u16)(max_multiplier - 9);
         *sectors = cluster_blocks * multiplier_factor;
     } else {
         *sectors = ((csd[1] >> 8 & 0x3fffff) + 1) * 0x400;
@@ -844,7 +852,7 @@ s32 pfd_sddrv_calc_mbr_bpb(PFD_SDDRV_FORMAT_DATA* format_data) {
     format_data->sectors_per_fat = fat_sectors;
     format_data->partition_start_sector = start_sector;
     format_data->partition_sector_count = format_data->total_sectors - start_sector;
-    clusters = (format_data->partition_sector_count - (fat_sectors * 2 + 0x21)) / format_data->sectors_per_cluster + 1;
+    clusters = (format_data->partition_sector_count - (next_fat_sectors * 2 + 0x21)) / format_data->sectors_per_cluster + 1;
     if (clusters < 0xff5) {
         format_data->fat_type = 0;
     } else if (clusters >= 0xff5) {
@@ -853,12 +861,12 @@ s32 pfd_sddrv_calc_mbr_bpb(PFD_SDDRV_FORMAT_DATA* format_data) {
         return -31;
     }
     OSTicksToCalendarTime(OSGetTime(), &current_time);
-    format_data->volume_serial_number = ((((current_time.year - 1900) & 0x7f) << 9) |
+    format_data->volume_serial_number = ((current_time.mday & 0x1f) |
                                          ((current_time.mon & 0xf) << 5) |
-                                         (current_time.mday & 0x1f)) * 0x10000 +
-                                        (((current_time.hour & 0x1f) << 11) |
+                                         (((current_time.year - 1900) & 0x7f) << 9)) * 0x10000 +
+                                        ((current_time.sec & 0x1f) |
                                          ((current_time.min & 0x3f) << 5) |
-                                         (current_time.sec & 0x1f));
+                                         ((current_time.hour & 0x1f) << 11));
     return 0;
 }
 
