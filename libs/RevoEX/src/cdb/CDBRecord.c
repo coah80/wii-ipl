@@ -812,10 +812,10 @@ CDBErr CDBRecordBackupToSD(CDBRecord* record) {
 }
 
 CDBErr CDBRecordBackupToSD_(CDBRecord* record) {
+    CDBRecordFile* file;
     CDBErr err;
     CDBRecord sdRecord;
     CDBCryptBuf* cryptBuf;
-    CDBRecordFile* file;
     u32 encryptSize;
 
     sdRecord.cryptBuf = NULL;
@@ -958,6 +958,7 @@ CDBErr CDBRecordEncrypt(CDBRecord* record, u8* buffer, CDBRecordKey* key, u32 si
     u32 dataSize;
     u32 fileSize;
     u32 cryptSize;
+    CDBRecordKey* ckey = key;
     u8 iv[CDB_ATTR_BUF_KEY_IV_LEN];
     u8 digest[NET_SHA1_DIGEST_SIZE] ATTRIBUTE_ALIGN(64);
     char keyBlob[0x40];
@@ -1022,7 +1023,7 @@ CDBErr CDBRecordEncrypt(CDBRecord* record, u8* buffer, CDBRecordKey* key, u32 si
             err = CDB_ERROR_26;
         }
         else {
-            CDBAttrSetKeyStr(&recordFile->attr, key);
+            CDBAttrSetKeyStr(&recordFile->attr, ckey);
             err = CDB_ERROR_OK;
         }
         if (err != CDB_ERROR_OK) {
@@ -1143,11 +1144,11 @@ CDBErr CDBRecordEncrypt(CDBRecord* record, u8* buffer, CDBRecordKey* key, u32 si
 
 CDBErr CDBRecordDecrypt(CDBRecord* record, u8* buffer, u32 size, u32* fileSize, char* wiiIdKey) {
     CDBErr err;
-    CDBRecordFile* file = (CDBRecordFile*)record->file;
     u32 dataSize;
     u32 outFileSize;
     u32 realFileSize;
     int tell;
+    CDBRecordFile* file = (CDBRecordFile*)record->file;
     u8 iv[CDB_ATTR_BUF_KEY_IV_LEN];
     u8 digest[NET_SHA1_DIGEST_SIZE] ATTRIBUTE_ALIGN(64);
     char keyBlob[0x40];
