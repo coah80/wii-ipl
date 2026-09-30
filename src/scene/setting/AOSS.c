@@ -383,7 +383,6 @@ cleanup_done:
 }
 int AOSS_Init_old(AOSSInitInput* input)
 {
-  u64 tickRemainder;
   AOSSReceiveBuffer* packetBuffer;
   AOSSPacketHeader* packetWords;
   s16 initialSleep;
@@ -398,24 +397,25 @@ int AOSS_Init_old(AOSSInitInput* input)
   int timeoutSeconds;
   int timeoutMilliseconds;
   u32 responseSleep;
-  u64 timeoutTicks;
   int initializationResult = 0;
-  short attemptCount;
+  u16 attemptCount;
   u16 remainingWait;
-  short waitAttempt;
+  u16 waitAttempt;
   int receivedPackets;
+  u64 tickRemainder;
   AOSSNetworkSettings settings;
   AOSSRequestRecords requestRecords;
-  AOSSSocketAddress replyAddress;
-  u8 messageIdentity[8] ATTRIBUTE_ALIGN(32);
-  AOSSSocketAddress socketAddress;
+  u32 networkAddresses[5];
+  s32 pollArguments[4];
+  AOSSSocketAddress receivedAddress;
+  u64 timeoutTicks;
+  AOSSSocketAddress socketAddress ATTRIBUTE_ALIGN(32);
+  u8 messageIdentity[8];
+  AOSSSocketAddress replyAddress ATTRIBUTE_ALIGN(8);
   int pollSeconds;
   int pollSubseconds;
-  AOSSSocketAddress receivedAddress;
-  s32 pollArguments[4];
   u32 pollResultHigh;
   u32 pollResultLow;
-  u32 networkAddresses[5];
   u32 gatewayAddress;
   AOSSWaitSettings waitSettings;
 
@@ -600,6 +600,18 @@ int AOSS_Init_old(AOSSInitInput* input)
           }
           resultCode = 0xffffffff;
         }
+        else if (state != 0) {
+          input->status = 0xf;
+          if ((s32)s_accessPointConfig != 0) {
+            AOSSi_Free(s_accessPointConfig);
+            s_accessPointConfig = NULL;
+          }
+          if ((s32)s_accessPointList != 0) {
+            AOSSi_Free(s_accessPointList);
+            s_accessPointList = 0;
+          }
+          resultCode = 0xffffffff;
+        }
         else {
           s_accessPointConfig = (int *)AOSSi_Alloc(0x58);
           if ((s32)s_accessPointConfig == 0) {
@@ -651,7 +663,7 @@ LAB_00011698:
       resultCode = 0xffffffff;
       goto LAB_00012878;
     }
-    if ((state == 0) && (*(u32*)s_accessPointConfig == 1)) goto LAB_000116a4;
+    if ((state == 0) && ((state != 0) || (*(u32*)s_accessPointConfig == 1))) goto LAB_000116a4;
     remainingWait = waitSettings.fields.responseWait;
     for (; remainingWait != 0; remainingWait = remainingWait - initialSleep) {
       if (AOSSi_cancel_flag == 1) {
