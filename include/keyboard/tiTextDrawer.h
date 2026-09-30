@@ -6,17 +6,10 @@
 
 #include <nw4r/ut/CharWriter.h>
 #include <nw4r/ut/Rect.h>
-#if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION) || defined(TITEXTDRAWER_IMPLEMENTATION) || defined(MYTILETTERFORM_IMPLEMENTATION)
-#include <string.h>
-#endif
 
 namespace textinput {
     namespace textdrawer {
-#if defined(MYTIMANAGER_IMPLEMENTATION) || defined(MYTIINPUTFORM_IMPLEMENTATION) || defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION) || defined(TITEXTDRAWER_IMPLEMENTATION) || defined(MYTILETTERFORM_IMPLEMENTATION)
-        class Base : public nw4r::ut::CharWriter {
-#else
         class Base : nw4r::ut::CharWriter {
-#endif
             public:
                 typedef struct ViewPort {
                     f32 xOrig;  // 0x00
@@ -34,23 +27,9 @@ namespace textinput {
                 } CursorPos;
 
                 typedef struct DrawInfo {
-#if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION) || defined(TITEXTDRAWER_IMPLEMENTATION) || defined(MYTILETTERFORM_IMPLEMENTATION)
-                    nw4r::ut::Rect rect;
-                    wchar_t character;
-#else
                     u8  unk_0x00[32];
-#endif
                 } DrawInfo;
 
-#if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION)
-                Base() : mpDrawAllocator(NULL), mfViewX(0.0f), mfViewY(0.0f), mfViewWidth(0.0f), mfViewHeight(0.0f),
-                    mfVIWidth(640.0f), mbAspect4x3(false), mbDrawClipped(false), muLine(0), mfLineSpacing(0.0f),
-                    mfCharacterSpacing(0.0f), mfFontWidth(0.0f), mfFontHeight(0.0f), mfModifyStartY(0.0f), mfMinScrollY(0.0f),
-                    muDrawStartPos(0), muDrawEndPos(65535), mbSecretMode(false), muDrawModifyStartLine(0), muDrawModifyEndLine(0),
-                    muDrawModifyStartPos(0), muDrawModifyEndPos(0), muCachedStartPos(0), muCachedEndPos(0), mbDrawCache(false),
-                    mfCachedCursorX(0.0f), mfCachedCursorY(0.0f), mfDrawScrollY(0.0f), muCachedCursorPosition(0),
-                    mbCursorCache(false), mbMaintainCursorCache(true) { memset(&mCachedCursor, 0, sizeof(mCachedCursor)); }
-#endif
                 virtual void                create(MEMAllocator* allocator);
                 virtual void                draw(CursorPos* cursorPos);
                 virtual void                draw();
@@ -72,7 +51,7 @@ namespace textinput {
 
                 virtual nw4r::math::VEC2    getScale() const = 0;
 
-                virtual void                setSecretModeOn(bool secretMode)    { mbSecretMode = secretMode; }
+                virtual void                setSecretModeOn(bool secretMode);
 
                 virtual void                doBeforeDrawProcess(const wchar_t*, u32, const DrawInfo& drawInfo);
                 virtual void                doAfterDrawProcess(const wchar_t*, u32, const DrawInfo& drawInfo);
@@ -94,116 +73,20 @@ namespace textinput {
                 virtual u32                 getEndPos() const;
 
                 // todo
-#if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION) || defined(TITEXTDRAWER_IMPLEMENTATION) || defined(MYTILETTERFORM_IMPLEMENTATION) || defined(MYTIINPUTFORM_IMPLEMENTATION)
-                virtual void                setDrawModifyScopeLine(s32 startLine, s32 endLine);
-                virtual void                setDrawCacheScopeLine(s32 startLine, s32 endLine);
-                virtual void                modifyCursorCache(s32 line, u32 position, f32 x, f32 y, f32 width, f32 height);
-#else
                 virtual void                setDrawModifyScopeLine();
                 virtual void                setDrawCacheScopeLine();
-                virtual void                modifyCursorCache();
-#endif
-#if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION) || defined(TITEXTDRAWER_IMPLEMENTATION) || defined(MYTILETTERFORM_IMPLEMENTATION) || defined(MYTIINPUTFORM_IMPLEMENTATION)
+                virtual void                modifyCursorCache(s32, u32, f32, f32, f32, f32);
                 virtual bool                isEnableCursorCache() const;
-#else
-                virtual void                isEnableCursorCache();
-#endif
-#if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION) || defined(TITEXTDRAWER_IMPLEMENTATION) || defined(MYTILETTERFORM_IMPLEMENTATION) || defined(MYTIINPUTFORM_IMPLEMENTATION)
-                virtual u32                 getDrawModifyStartLine() const;
-                virtual u32                 getDrawModifyEndLine() const;
-#else
                 virtual void                getDrawModifyStartLine();
                 virtual void                getDrawModifyEndLine();
-#endif
                 virtual u32                 getDrawCacheStartPos() const;
                 virtual void                dirtyDrawCache();
                 virtual void                dirtyCursorCache();
 
-#ifdef TITEXTDRAWER_IMPLEMENTATION
-            protected:
-                const wchar_t* mpDrawString;
-                ViewPort mSavedViewport;
-                f32 mSavedProjection[7];
-                nw4r::ut::Rect mProjectionRect;
-                f32 mfVIWidth;
-                bool mbAspect4x3;
-                bool mbDrawClipped;
-                s32 muLine;
-                f32 mfLineSpacing;
-                f32 mfCharacterSpacing;
-                f32 mfFontWidth;
-                f32 mfFontHeight;
-                f32 mfModifyStartY;
-                f32 mfMinScrollY;
-                u32 muDrawStartPos;
-                u32 muDrawEndPos;
-                u32 muDrawCacheStartPos;
-                bool mbSecretMode;
-                s32 muDrawModifyStartLine;
-                s32 muDrawModifyEndLine;
-                s32 muDrawModifyStartPos;
-                s32 muDrawModifyEndPos;
-                u32 muCachedStartPos;
-                u32 muCachedEndPos;
-                bool mbDrawCache;
-                f32 mfCachedCursorX;
-                f32 mfCachedCursorY;
-                f32 mfDrawScrollY;
-                s32 mnCachedCursorLine;
-                CursorPos mCachedCursor;
-                bool mbCursorCache;
-                bool mbMaintainCursorCache;
-#else
-#if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION) || defined(TITEXTDRAWER_IMPLEMENTATION) || defined(MYTILETTERFORM_IMPLEMENTATION)
-            protected:
-                MEMAllocator* mpDrawAllocator;
-                u8 mDrawConfiguration[0x34];
-                f32 mfViewX;
-                f32 mfViewY;
-                f32 mfViewWidth;
-                f32 mfViewHeight;
-                f32 mfVIWidth;
-                bool mbAspect4x3;
-                bool mbDrawClipped;
-                u32 muLine;
-                f32 mfLineSpacing;
-                f32 mfCharacterSpacing;
-                f32 mfFontWidth;
-                f32 mfFontHeight;
-                f32 mfModifyStartY;
-                f32 mfMinScrollY;
-                u32 muDrawStartPos;
-                u32 muDrawEndPos;
-                u32 muDrawCacheStartPos;
-#else
             private:
                 u8      unk_0x50[0x78];
-#endif
                 bool    mbSecretMode;   // 0xC8
-#if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION) || defined(TITEXTDRAWER_IMPLEMENTATION) || defined(MYTILETTERFORM_IMPLEMENTATION)
-                u32 muDrawModifyStartLine;
-                u32 muDrawModifyEndLine;
-                u32 muDrawModifyStartPos;
-                u32 muDrawModifyEndPos;
-                u32 muCachedStartPos;
-                u32 muCachedEndPos;
-                bool mbDrawCache;
-                f32 mfCachedCursorX;
-                f32 mfCachedCursorY;
-                f32 mfDrawScrollY;
-                u32 muCachedCursorPosition;
-                CursorPos mCachedCursor;
-                bool mbCursorCache;
-                bool mbMaintainCursorCache;
-#elif defined(MYTIINPUTFORM_IMPLEMENTATION)
-            protected:
-                u8 mDrawState[0x27];
-                f32 mfDrawScrollY;
-                u8 mDrawCacheState[0x14];
-#else
                 u8      unk_0xCC[0x3C];
-#endif
-#endif
         };
     }
 }

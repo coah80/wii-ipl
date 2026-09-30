@@ -13,43 +13,17 @@
 #include "tiZiString.h"
 #include "tiSEId.h"
 
-#if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION)
-extern "C" wchar_t KPRGetChar(KPRQueue* queue);
-extern "C" void KPRPutChar(KPRQueue* queue, wchar_t character);
-extern "C" void KPRClearQueue(KPRQueue* queue);
-extern "C" void KPRInitRegionUS();
-extern "C" u8 KPRLookAhead(KPRQueue* queue, wchar_t* character, wchar_t* combining);
-#endif
-
 namespace textinput {
-#ifdef TIMANAGER_IMPLEMENTATION
-    class Manager;
-#endif
     namespace inputform {
-#if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION)
-        class Base;
-        class EventHandler;
-        class LayoutByNW4R;
-#endif
         class EditBuffer {
-#ifdef TIMANAGER_IMPLEMENTATION
-            friend class textinput::Manager;
-        public:
-            EditBuffer() : mpString(NULL), mpUnfixString(NULL), mpZiString(NULL), mpAllocator(NULL) {}
-#endif
-#if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION)
-            friend class LayoutByNW4R;
-            friend class Base;
-#endif
             public:
-#if defined(MYTIMANAGER_IMPLEMENTATION) || defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION)
-                void create(MEMAllocator* allocator);
-#endif
-#if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION)
+                EditBuffer() : mpString(NULL), mpUnfixString(NULL), mpZiString(NULL), mpAllocator(NULL) {}
+
                 virtual ~EditBuffer();
-#else
-                ~EditBuffer();
-#endif
+                virtual void create(MEMAllocator* allocator);
+
+                void*           getString() const { return mpString; }
+                void*           getZiString() const { return mpZiString; }
 
             private:
                 void*           mpString;       // 0x04
@@ -59,27 +33,10 @@ namespace textinput {
         };
 
         class DeadKeyStream {
-#if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION)
         public:
-            DeadKeyStream() { KPRInitRegionUS(); init(); }
-            static wchar_t ToCombineClass(Language language, wchar_t code);
-            static wchar_t ToIndependentClass(wchar_t code);
-            inline wchar_t getChar();
-            void init();
-            u8 lookAhead() { return KPRLookAhead(&mKPRQueue, NULL, NULL); }
-            void putChar(wchar_t character) { KPRPutChar(&mKPRQueue, character); }
-            bool isEmpty() const { return mKPRQueue.oCount == 0; }
-            void clear() { KPRClearQueue(&mKPRQueue); }
-        private:
-#ifdef TIMANAGER_IMPLEMENTATION
-            friend class textinput::Manager;
-#endif
             static bool sbCompatibleFilterEnabled;
-            static inline bool isCompatible(wchar_t character);
-#elif defined(TI_PC_KEYBOARD_IMPLEMENTATION)
-        public:
-            static wchar_t ToIndependentClass(wchar_t code);
-#endif
+            static wchar_t ToIndependentClass(wchar_t wc);
+
         private:
             KPRQueue mKPRQueue;  // 0x00
         };
@@ -128,57 +85,17 @@ namespace textinput {
 
                 // TODO - location
                 class RowInfoManager {
-#if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION)
-                    friend class LayoutByNW4R;
-                    friend class Base;
-                public:
-                    RowInfoManager(u16 maxLength) : mpInfo(NULL), mMaxLength(maxLength), mpAllocator(NULL) {}
-                    void init();
-                    ~RowInfoManager();
-#endif
                 private:
                     Info_* mpInfo;              // 0x00
                     u16 mMaxLength;             // 0x04
                     MEMAllocator* mpAllocator;  // 0x08
                 };
 
-#ifdef TISIGNWINDOW_IMPLEMENTATION
-                bool isAtokActive() const;
-#endif
-#if defined(MYTILETTERFORM_IMPLEMENTATION) || defined(MYTIINPUTFORM_IMPLEMENTATION)
-                virtual void create(MEMAllocator* allocator);
-                virtual void init();
-                virtual void onCommand(INPUT_COMMAND command, void* data);
-#endif
                 virtual ~Base();
-#if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION)
-                Base(Manager* manager);
-                virtual void create(MEMAllocator* allocator);
-                virtual void init();
-                virtual void onCommand(INPUT_COMMAND command, void* data);
-                void setCursorPos(tistring::Decolated* string, u32 pos);
-                void calcCursorTimer();
-                bool isAtokActive() const;
-                bool isVacancy() const;
-                void dirtyCacheAll();
-                tistring::Decolated* getCurrentString(bool inputting);
-                void moveCandidateToIdx(s32 index);
-                void onPressDownHWKB();
-                void onPressLeftHWKB();
-                void onPressRightHWKB();
-                void toggleAtokMode_(u8 operation);
-                void onSpaceKeyHWKB(u32 modifiers);
-                void onHKBCtrlCode(HVKCode code, u32 modifiers);
-                void confirmInput_();
-                void confirmInputting_(wchar_t character, bool direct, u16 letterMode, bool confirmOnly, void* holdingKey);
-                void inputCharZi_(wchar_t character, u32 modifiers);
-                void inputCharDefault_(wchar_t character, u32 modifiers);
-                void inputInputting_(wchar_t character);
-                inline bool hasZiPredictions() const;
-                inline bool usesZiPrediction() const;
-                inline void resetPredictionContext();
-                inline void resetInputRelation();
-#endif
+
+                virtual void                create(MEMAllocator* allocator);
+                virtual void                init();
+                virtual void                onCommand(INPUT_COMMAND command, void* data);
 
                 virtual void                create(MEMAllocator* allocator, EditBuffer* editBuffer);
 
@@ -226,6 +143,7 @@ namespace textinput {
 
                 void                        initZiString();
                 void                        resetContextPredict_();
+                void                        dirtyCacheAll();
 
                 void                        notifyChangeMode();
 
@@ -234,12 +152,9 @@ namespace textinput {
 
                 virtual void                enableSpaceByRight(bool rightWithSpace);
                 virtual void                onClose();
-                #ifdef TI_PC_KEYBOARD_IMPLEMENTATION
-                tistring::WithAtok* getCurrentString(bool fixed);
-                virtual bool canConvert() { return getCurrentString(false) == mpUnfixString; }
-#else
                 virtual bool                canConvert();
-#endif
+
+                void*                       getCurrentString(bool flag);
 
                 virtual void                setString(const wchar_t* string);
 
@@ -269,10 +184,6 @@ namespace textinput {
 
                 virtual void                onSE(sound::SE seId);
 
-#ifdef MYTIMANAGER_IMPLEMENTATION
-                void                        dirtyCacheAll();
-#endif
-
                 virtual void                clear();
 
                 virtual u32                 calcCursorPos(f32 x, f32 y); 
@@ -289,21 +200,11 @@ namespace textinput {
 
                 virtual void                makeUpCursorPos(CursorPos* cursorPos, u32 pos, s32 startLine, s32 endLine);
 
-#if defined(MYTIINPUTFORM_IMPLEMENTATION) || defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION) || defined(MYTILETTERFORM_IMPLEMENTATION)
-            protected:
-#if !defined(TIINPUTFORM_IMPLEMENTATION) && !defined(TIMANAGER_IMPLEMENTATION)
-                void setCursorPos(tistring::Decolated* string, u32 pos);
-                void calcCursorTimer();
-#endif
-                void resetRelation();
-#else
+                bool                        isVacancy() const;
+                bool                        isPredictOn() const { return mbPredictOn; }
+
             private:
-#endif
-#if defined(MYTIINPUTFORM_IMPLEMENTATION) || defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION) || defined(MYTILETTERFORM_IMPLEMENTATION)
-                nw4r::ut::Rect mRect;
-#else
-                Rect mRect;
-#endif
+                Rect mRect;                         // 0x120
                 nw4r::math::MTX34 mMtx;             // 0x130
                 Destination meDestination;          // 0x160
                 tistring::Decolated* mpString;      // 0x164
@@ -311,9 +212,6 @@ namespace textinput {
                 tistring::WithZi* mpZiString;       // 0x16C
                 InputMode meInputMode;              // 0x170
                 PredictMode mePredictMode;          // 0x174
-#ifdef TIMANAGER_IMPLEMENTATION
-                friend class textinput::Manager;
-#endif
                 bool mbPredictOn;                   // 0x178
                 bool mbDoWordWrap;                  // 0x179
                 bool mbRightWithSpace;              // 0x17A
@@ -349,14 +247,9 @@ namespace textinput {
         };
 
         class LayoutByNW4R : public Base, public nw4rmanager::Layout {
-#if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION)
-            friend class EventHandler;
-            inline const nw4r::lyt::Pane* getLanguageTextPane() const;
-#endif
             public:
-#if defined(MYTIMANAGER_IMPLEMENTATION) || defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION)
-                LayoutByNW4R(textinput::Manager*, nw4r::lyt::MultiArcResourceAccessor*, const char*, EventObserver*, const char*);
-#endif
+                LayoutByNW4R(Manager* manager, nw4r::lyt::MultiArcResourceAccessor* resAccessor, const char* arcName,
+                             EventObserver* observer, const char* subName);
                 ~LayoutByNW4R();
 
                 virtual void                init();
@@ -371,9 +264,6 @@ namespace textinput {
 
                 virtual nw4r::math::VEC2    getScale() const;
 
-#if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION)
-                void updateRepeatInput(u32 trig, u32 hold);
-#endif
                 virtual void                updateInputCommon(int chan, u32 trig, u32 hold, u32 release, void* data);
                 virtual bool                updateInput(int chan, f32 x, f32 y, u32 trig, u32 hold, u32 release, void* data);
                 virtual bool                updateInput(textinput::input::HKBManager& hkbManager);
@@ -384,38 +274,21 @@ namespace textinput {
                 virtual void                setRootPaneScaleFor16x9();
                 virtual void                setRootPaneScaleFor4x3();
 
-#if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION) || defined(MYTILETTERFORM_IMPLEMENTATION) || defined(MYTIINPUTFORM_IMPLEMENTATION)
-                virtual void                onSE(sound::SE seId);
-#endif
-
                 virtual void                visibleSeparator(bool flag);
 
-#if defined(MYTIINPUTFORM_IMPLEMENTATION) || defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION) || defined(MYTILETTERFORM_IMPLEMENTATION)
-            protected:
-                const void* mpLayoutData;
-                const void* mpLanguageData;
-                const char* mpFontName;
-                bool mbUpVisible;
-                bool mbDownVisible;
-                bool mbRepeat;
-                nw4rmanager::TiEventHandler* mpInputEventHandler;
-                nw4r::ut::ResFont mFont;
-                int mUpRepeat;
-                int mDownRepeat;
-                int mLeftRepeat;
-                int mRightRepeat;
-                int mDeleteRepeat;
-                int mConfirmRepeat;
-                u32 mRepeatButtons;
-#else
             private:
-#ifdef MYTIMANAGER_IMPLEMENTATION
                 u8  unk_0x2C0[0x48];
-#else
-                u8  unk_0x2C0[0x4C];
-#endif
-#endif
         };
+
+#ifdef TI_INPUTFORM_SAMPLE_CLASS
+        class Sample : public LayoutByNW4R {
+        public:
+            Sample(Manager* manager, nw4r::lyt::MultiArcResourceAccessor* resAccessor, const char* arcName,
+                   EventObserver* observer, const char* subName)
+                : LayoutByNW4R(manager, resAccessor, arcName, observer, subName) {}
+            virtual ~Sample();
+        };
+#endif
     }
     typedef inputform::LayoutByNW4R InputForm;
     typedef inputform::Base InputFormBase;

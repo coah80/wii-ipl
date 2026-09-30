@@ -1,534 +1,552 @@
-#define TIHKBMANAGER_IMPLEMENTATION
 #include "keyboard/tiHKBManager.h"
-#include <revolution/os.h>
-
-extern "C" {
-_KBDEc KBDSetLedsAsync(u8, u8, void (*)(_KBDEc, void*), void*);
-void KBDSetLockProcessing(u8, int);
-int KBDSetCountry(u8, u32);
-int KBDSetModState(u8, u32);
-_KBDEc KBDSetLeds(u8, u8);
-u16 KBDTranslateHidCode(u8, u32, u32);
-void KBDInitRegionUS();
-void KBDInit();
-void KBDSetAttachCallback(void (*)(KBDDevEvent*));
-void KBDSetDetachCallback(void (*)(KBDDevEvent*));
-void KBDSetKeyCallback(void (*)(KBDKeyEvent*));
-}
 
 namespace textinput {
-namespace input {
+    namespace input {
 
-HKBManager HKBManager::sInstance;
+        HKBManager HKBManager::sInstance;
 
-// KBD callbacks encode the device in the first byte of the opaque pointer value.
-struct LedCallbackData {
-    union {
-        void* pointer;
-        u8 device;
-    };
-    u32 leds;
-};
+        void HKBManager::SetLedCB(KBDEc result, void* arg) {
+            if (result == KBD_EC_OK) {
+                u8 packet[8];
+                void* data = arg;
+                *(u32*)(packet + 4) = 0;
+                packet[0] = *(u8*)&data;
 
-void HKBManager::SetLedCB(_KBDEc result, void* userData) {
-    if (result == KBD_EC_BUSY) {
-        LedCallbackData received;
-        received.pointer = userData;
-        LedCallbackData callback;
-        callback.device = received.device;
-        const u8 leds = callback.leds = 0;
-        u32 interrupts = OSDisableInterrupts();
-        u32 mask = 1 << received.device;
-        sInstance.retryDevices &= ~mask;
-        OSRestoreInterrupts(interrupts);
-        if (KBDSetLedsAsync(received.device, leds, SetLedCB, callback.pointer) == KBD_EC_BUSY) {
-            interrupts = OSDisableInterrupts();
-            sInstance.retryDevices |= mask;
-            OSRestoreInterrupts(interrupts);
-        }
-    }
-}
+                u32 intr = OSDisableInterrupts();
+                u32 bit = 1 << *(u8*)&data;
+                sInstance.mPendingLeds &= ~bit;
+                OSRestoreInterrupts(intr);
 
-void HKBManager::KBDListenerOwn::OnAttach(KBDDevEvent* event) {
-    HKBManager* owner;
-    u8 device;
-    if (event->device >= 2) {
-        KBDSetLockProcessing(event->device, 0);
-        device = event->device;
-        owner = manager;
-        LedCallbackData callback;
-        callback.device = device;
-        const u8 leds = callback.leds = 0;
-        u32 interrupts = OSDisableInterrupts();
-        u32 mask = 1 << device;
-        owner->retryDevices &= ~mask;
-        OSRestoreInterrupts(interrupts);
-        if (KBDSetLedsAsync(device, leds, SetLedCB, callback.pointer) == KBD_EC_BUSY) {
-            interrupts = OSDisableInterrupts();
-            owner->retryDevices |= mask;
-            OSRestoreInterrupts(interrupts);
-        }
-    } else {
-        manager->attached[event->device] = 1;
-        KBDSetLockProcessing(event->device, 0);
-        manager->states[event->device].retryLeds = 1;
-    }
-}
-
-void HKBManager::KBDListenerOwn::OnDetach(KBDDevEvent* event) {
-    u8 device = event->device;
-    if (device >= 2) return;
-    HKBManager* owner = manager;
-    owner->attached[device] = 0;
-    owner->states[device].Clear();
-}
-
-void HKBManager::KBDListenerOwn::OnKeyEvent(KBDKeyEvent* event) {
-    if (event->device >= 2) return;
-    if (event->flags & 2) return;
-    manager->states[event->device].NotifyEvent(event->flags & 1, event->key);
-}
-
-void HKBManager::AttachCB(KBDDevEvent* event) {
-    KBDListenerOwn* current = &sInstance.listener;
-    while (current != 0) {
-        current->OnAttach(event);
-        current = current->next;
-        if (current == &sInstance.listener) break;
-    }
-}
-
-void HKBManager::DetachCB(KBDDevEvent* event) {
-    KBDListenerOwn* current = &sInstance.listener;
-    while (current != 0) {
-        current->OnDetach(event);
-        current = current->next;
-        if (current == &sInstance.listener) break;
-    }
-}
-
-void HKBManager::KeyEventCB(KBDKeyEvent* event) {
-    KBDListenerOwn* current = &sInstance.listener;
-    while (current != 0) {
-        current->OnKeyEvent(event);
-        current = current->next;
-        if (current == &sInstance.listener) break;
-    }
-}
-
-HKBManager::HKBManager()
-    : initialized(0), lockState(0), retryDevices(0), allowedCharacters(0),
-      allowedCharacterCount(0), listener(this) {
-    for (u32 device = 0; device < 2; device++) {
-        attached[device] = 0;
-        states[static_cast<u8>(device)].Initialize(static_cast<u8>(device));
-    }
-}
-
-HKBManager::KBDListenerOwn::~KBDListenerOwn() {}
-
-void HKBManager::Initialize() {
-    if (initialized == 0) {
-        initialized = 1;
-        KBDInitRegionUS();
-        KBDInit();
-        if (listener.previous == 0) {
-            KBDSetAttachCallback(AttachCB);
-            KBDSetDetachCallback(DetachCB);
-            KBDSetKeyCallback(KeyEventCB);
-        }
-        u32 device = 0;
-        do {
-            KBDSetCountry(static_cast<u8>(device), states[static_cast<u8>(device)].country);
-            device++;
-        } while (device < 2);
-    }
-}
-
-void HKBManager::ClearState() {
-    for (u32 device = 0; device < 2; device++) {
-        states[static_cast<u8>(device)].Clear();
-    }
-}
-
-u32 HKBManager::GetModifierState() const {
-    u32 modifiers = states[0].modifiers;
-    u32 mask = states[0].forceMask;
-    modifiers &= ~mask;
-    modifiers |= states[0].forceState & mask;
-    u32 forceMask;
-    u32 force;
-    force = states[1].modifiers;
-    forceMask = states[1].forceMask;
-    force &= ~forceMask;
-    force |= states[1].forceState & forceMask;
-    return modifiers | force;
-}
-void HKBManager::SetCountry(u8 country) {
-    KeyState_* state;
-    u32 device = 0;
-    do {
-        state = &states[static_cast<u8>(device)];
-        state->country = country;
-        KBDSetCountry(device & 0xff, country);
-        KBDSetModState(state->device, state->modifiers);
-        u32 modifiers = state->modifiers;
-        u8 leds = 0;
-        if ((modifiers & 0x100) != 0) {
-            leds |= 1;
-        }
-        if ((modifiers & 0x200) != 0) {
-            leds |= 2;
-        }
-        if ((modifiers & 0x400) != 0) {
-            leds |= 4;
-        }
-        if (KBDSetLeds(state->device, leds) == 7) {
-            state->retryLeds = 1;
-        }
-        device++;
-    } while (device < 2);
-}
-
-void HKBManager::SetModifierState(u32 state, u32 mask) {
-    lockState = lockState & ~mask | state & mask;
-    KeyState_* slot;
-    u32 modifiers;
-    u32 global;
-    u32 device = 0;
-    do {
-        slot = &states[static_cast<u8>(device)];
-        modifiers = slot->modifiers;
-        global = lockState & 0x700;
-        bool changed = global != (modifiers & 0x700);
-        slot->modifiers &= ~0x700;
-        slot->modifiers |= lockState;
-        if (changed &&
-            attached[static_cast<u8>(device)] != 0) {
-            KBDSetModState(slot->device, slot->modifiers);
-            modifiers = slot->modifiers;
-            u8 leds = 0;
-            if ((modifiers & 0x100) != 0) {
-                leds |= 1;
-            }
-            if ((modifiers & 0x200) != 0) {
-                leds |= 2;
-            }
-            if ((modifiers & 0x400) != 0) {
-                leds |= 4;
-            }
-            if (KBDSetLeds(slot->device, leds) == 7) {
-                slot->retryLeds = 1;
-            }
-        }
-        device++;
-    } while (device < 2);
-}
-
-void HKBManager::SetForceModifierState(u32 state, u32 mask) {
-    states[0].forceState = state;
-    states[0].forceMask = mask;
-    states[1].forceState = state;
-    states[1].forceMask = mask;
-}
-
-void HKBManager::Update() {
-    if (initialized != 0) {
-        u32 mask;
-        u32 device = 2;
-        do {
-            u8 shiftIndex = static_cast<u8>(device);
-            mask = 1 << shiftIndex;
-            if ((retryDevices & mask) != 0) {
-                LedCallbackData callback;
-                callback.device = static_cast<u8>(device);
-                const u8 leds = callback.leds = 0;
-                u32 interrupts = OSDisableInterrupts();
-                retryDevices &= ~mask;
-                OSRestoreInterrupts(interrupts);
-                if (KBDSetLedsAsync(device & 0xff, leds,
-                                    SetLedCB,
-                                    callback.pointer) == 7) {
-                    interrupts = OSDisableInterrupts();
-                    retryDevices |= mask;
-                    OSRestoreInterrupts(interrupts);
-                }
-            }
-            device++;
-        } while (device < 4);
-        u32 updateIndex = 0;
-        do {
-            states[updateIndex & 0xff].Update();
-            updateIndex++;
-        } while (updateIndex < 2);
-    }
-}
-
-HKBManager::KeySet HKBManager::GetTriggeredKeySet() const {
-    KeySet keys;
-    keys.manager = this;
-    keys.type = 1;
-    keys.index = -1;
-    keys.device = 0;
-    keys.vcode = 0;
-    return keys.GetNext();
-}
-
-HKBManager::KeySet HKBManager::GetReleasedKeySet() const {
-    KeySet keys;
-    keys.manager = this;
-    keys.type = 2;
-    keys.index = -1;
-    keys.device = 0;
-    keys.vcode = 0;
-    return keys.GetNext();
-}
-
-HKBManager::KeySet HKBManager::GetRepeatedKeySet() const {
-    KeySet keys;
-    keys.manager = this;
-    keys.type = 3;
-    keys.index = -1;
-    keys.device = 0;
-    keys.vcode = 0;
-    return keys.GetNext();
-}
-
-void HKBManager::KeyState_::NotifyEvent(u8 down, u8 code) {
-    u32 index;
-    s32 found = -1;
-    if (down == 1) {
-        for (index = 0; index < 8; index++) {
-            if ((pending & (1 << index)) != 0) {
-                if (code == pendingKeys[index]) { found = index; break; }
-            } else {
-                found = index;
-                break;
-            }
-        }
-        if (found >= 0) {
-            pendingKeys[found] = code;
-            pending |= 1 << found;
-        }
-    } else {
-        for (index = 0; index < 8; index++) {
-            if ((pending & (1 << index)) && code == pendingKeys[index]) {
-                found = index;
-                break;
-            }
-        }
-        if (found >= 0) pending &= ~(1 << found);
-    }
-}
-
-void HKBManager::KeyState_::Update() {
-    u32 interrupts = OSDisableInterrupts();
-    previous = current;
-    current = pending;
-    for (u32 slot = 0; slot < 8; slot++) {
-        previousKeys[slot] = currentKeys[slot];
-        currentKeys[slot] = pendingKeys[slot];
-    }
-    OSRestoreInterrupts(interrupts);
-    UpdateModState_();
-    u32 bit;
-    u32 index;
-    u32 heldKeys = current;
-    triggered = 0;
-    held = heldKeys;
-    for (index = 0; index < 8; index++) {
-        bit = 1 << index;
-        if ((current & bit) != 0) {
-            if ((previous & bit) == 0 || previousKeys[index] != currentKeys[index]) {
-                triggered |= bit;
-            }
-        }
-    }
-    released = 0;
-    for (index = 0; index < 8; index++) {
-        bit = 1 << index;
-        if ((previous & bit) != 0) {
-            if ((current & bit) == 0 || previousKeys[index] != currentKeys[index]) {
-                released |= bit;
-            }
-        }
-    }
-    repeated = 0;
-    for (index = 0; index < 8; index++) {
-        bit = 1 << index;
-        if ((current & bit) != 0) {
-            if ((triggered & bit) != 0) {
-                repeatDelay[index] = 30;
-                repeated |= bit;
-            }
-            repeatDelay[index]--;
-            if (repeatDelay[index] == 0) {
-                repeatDelay[index] = 8;
-                repeated |= bit;
-            }
-        }
-    }
-}
-
-void HKBManager::KeyState_::UpdateModState_() {
-    u32 index;
-    u32 oldModifiers = modifiers;
-    modifiers = oldModifiers & 0xffffffd0;
-    index = 0;
-    for (; index < 8; index++) {
-        u32 keySet;
-        u8 slot;
-        keySet = current;
-        slot = index;
-        if ((keySet & (1 << slot)) != 0) {
-            u8 code = currentKeys[slot];
-            if (code == 0xe5 || code == 0xe1) {
-                modifiers |= 2;
-            } else if (code == 0xe4 || code == 0xe0) {
-                modifiers |= 1;
-            } else if (code == 0xe7 || code == 0xe3) {
-                modifiers |= 8;
-            } else if (code == 0xe2) {
-                modifiers |= 4;
-            } else if (code == 0xe6) {
-                if (static_cast<s32>(country) == 0xf ||
-                    static_cast<s32>(country) == 0x21) {
-                    modifiers |= 4;
-                } else {
-                    modifiers |= 0x20;
+                if (KBDSetLedsAsync(*(u8*)&data, 0, SetLedCB, (void*)*(u32*)packet) == KBD_EC_OK) {
+                    intr = OSDisableInterrupts();
+                    sInstance.mPendingLeds |= bit;
+                    OSRestoreInterrupts(intr);
                 }
             }
         }
-    }
-    if ((oldModifiers & 0x700) != (modifiers & 0x700) || retryLeds != 0) {
-        retryLeds = 0;
-        KBDSetModState(device, modifiers);
-        u32 modifiers = this->modifiers;
-        u8 leds = 0;
-        if ((modifiers & 0x100) != 0) {
-            leds |= 1;
-        }
-        if ((modifiers & 0x200) != 0) {
-            leds |= 2;
-        }
-        if ((modifiers & 0x400) != 0) {
-            leds |= 4;
-        }
-        if (KBDSetLeds(device, leds) == 7) {
-            retryLeds = 1;
-        }
-    }
-}
 
-u8 HKBManager::KeySet::GetKey() const {
-    if (!CheckValidity()) return 0;
-    switch (type) {
-    case 0: return manager->states[device].currentKeys[index];
-    case 1: return manager->states[device].currentKeys[index];
-    case 2: return manager->states[device].previousKeys[index];
-    case 3: return manager->states[device].currentKeys[index];
-    }
-    return 0;
-}
+        void HKBManager::KBDListenerOwn::OnAttach(KBDDevEvent* event) {
+            if (event->chan >= 2) {
+                KBDSetLockProcessing(event->chan, 0);
+                u8 chan = event->chan;
+                u8 packet[8];
+                *(u32*)(packet + 4) = 0;
+                HKBManager* mgr = mpManager;
+                packet[0] = chan;
 
-u32 HKBManager::KeySet::GetWChar() const {
-    s32 code = GetVCode();
-    if (static_cast<u16>(code) >= 0xf130 && static_cast<u16>(code) <= 0xf139) {
-        code = code - 0xf100 & 0xffff;
-    } else {
-        u32 lowCode = code & 0xffff;
-        if (lowCode == 0xf10d) {
-            code = 0xf1cd;
-        } else if (lowCode >= 0xf100 && lowCode <= 0xf13f) {
-            code = code - 0xf100 & 0xffff;
-        } else if ((static_cast<u32>(code) & 0xffff) >= 0xf140 && (static_cast<u32>(code) & 0xffff) <= 0xf17f) {
-            code = code + 0x40 & 0xffff;
-        }
-    }
-    u16 character = code;
-    if ((character & 0xf000) == 0xf000) {
-        code = 0;
-    } else if ((static_cast<u32>(code) & 0xffff) == 0xeeee) {
-        code = 0;
-    } else if ((static_cast<u32>(code) & 0xffff) < 0x20) {
-        code = 0;
-    }
-    u32 index = 0;
-    const HKBManager* owner = manager;
-    if (owner->allowedCharacters == 0) return code;
-    u32 count = owner->allowedCharacterCount;
-    if (count == 0) return code;
-    for (; index < count; index++) {
-        if ((static_cast<u32>(code) & 0xffff) == owner->allowedCharacters[index]) return code;
-    }
-    return 0;
-}
+                u32 intr = OSDisableInterrupts();
+                mgr->mPendingLeds &= ~(1 << chan);
+                OSRestoreInterrupts(intr);
 
-u32 HKBManager::KeySet::GetVCode() const {
-    u32 modifiers;
-    if (!CheckValidity()) return 0;
-    if (vcode) return vcode;
-    u32 first = manager->states[0].modifiers;
-    u32 mask = manager->states[0].forceMask;
-    first &= ~mask;
-    first |= manager->states[0].forceState & mask;
-    u32 secondMask;
-    u32 second;
-    second = manager->states[1].modifiers;
-    secondMask = manager->states[1].forceMask;
-    second &= ~secondMask;
-    second |= manager->states[1].forceState & secondMask;
-    modifiers = first | second;
-    if ((modifiers & 0xd) != 0 && (modifiers & 5) != 5) return 0;
-    switch (type) {
-    case 0:
-    case 1:
-    case 3:
-        if ((manager->states[device].current & (1 << index)) != 0) {
-            vcode = KBDTranslateHidCode(manager->states[device].currentKeys[index], modifiers,
-                                      manager->states[device].country);
-        }
-        break;
-    case 2:
-        if ((manager->states[device].previous & (1 << index)) != 0) {
-            vcode = KBDTranslateHidCode(manager->states[device].previousKeys[index], modifiers,
-                                      manager->states[device].country);
-        }
-        break;
-    }
-    return vcode;
-}
-
-u32 HKBManager::KeySet::IsValid() const {
-    return CheckValidity();
-}
-
-HKBManager::KeySet HKBManager::KeySet::GetNext() const {
-    KeySet next(manager, type);
-    if (manager != 0) {
-        next.device = device;
-        while (next.device < 2) {
-            u32 keyFlags = 0;
-            switch (type) {
-            case 0: keyFlags = manager->states[next.device].held; break;
-            case 1: keyFlags = manager->states[next.device].triggered; break;
-            case 2: keyFlags = manager->states[next.device].released; break;
-            case 3: keyFlags = manager->states[next.device].repeated; break;
+                if (KBDSetLedsAsync(chan, 0, SetLedCB, (void*)*(u32*)packet) == KBD_EC_OK) {
+                    intr = OSDisableInterrupts();
+                    mgr->mPendingLeds |= (1 << chan);
+                    OSRestoreInterrupts(intr);
+                }
             }
-            next.index = index + 1;
-            while (next.index < 8) {
-                if ((keyFlags & (1 << next.index)) != 0) return next;
-                next.index++;
+            else {
+                mpManager->mAttached[event->chan] = 1;
+                KBDSetLockProcessing(event->chan, 0);
+                mpManager->mKeyStates[event->chan].mLedOK = 1;
             }
-            next.index = -1;
-            next.device++;
         }
-    }
-    return next;
-}
 
+        void HKBManager::KBDListenerOwn::OnDetach(KBDDevEvent* event) {
+            if (event->chan >= 2) {
+                return;
+            }
+            KeyState_* state = &mpManager->mKeyStates[event->chan];
+            mpManager->mAttached[event->chan] = 0;
+            state->mMaskWork = 0;
+            state->mTrigMask = 0;
+            state->mRelMask = 0;
+            state->mRepMask = 0;
+            state->mCurMask = 0;
+            state->mInputMask = 0;
+            state->mModState &= 0x700;
+            state->mForceMask = 0;
+            state->mForceMod = 0;
+            state->mLedOK = 0;
+        }
 
-HKBManager::~HKBManager() {}
+        void HKBManager::KBDListenerOwn::OnKeyEvent(KBDKeyEvent* event) {
+            u8 chan = event->chan;
+            if (chan >= 2) {
+                return;
+            }
+            if (event->mods & 0x2) {
+                return;
+            }
+            mpManager->mKeyStates[chan].NotifyEvent(event->mods & 1, event->key);
+        }
 
-}
-}
+        void HKBManager::AttachCB(KBDDevEvent* event) {
+            KBDListener* listener = &sInstance.mListener;
+            KBDListener* head = listener;
+            while (listener != NULL) {
+                listener->OnAttach(event);
+                listener = listener->mpNext;
+                if (listener == head) {
+                    break;
+                }
+            }
+        }
+
+        void HKBManager::DetachCB(KBDDevEvent* event) {
+            KBDListener* listener = &sInstance.mListener;
+            KBDListener* head = listener;
+            while (listener != NULL) {
+                listener->OnDetach(event);
+                listener = listener->mpNext;
+                if (listener == head) {
+                    break;
+                }
+            }
+        }
+
+        void HKBManager::KeyEventCB(KBDKeyEvent* event) {
+            KBDListener* listener = &sInstance.mListener;
+            KBDListener* head = listener;
+            while (listener != NULL) {
+                listener->OnKeyEvent(event);
+                listener = listener->mpNext;
+                if (listener == head) {
+                    break;
+                }
+            }
+        }
+
+        HKBManager::~HKBManager() {}
+
+        HKBManager::HKBManager() :
+            mInitialized(0), mModState(0), mPendingLeds(0),
+            mpKeyTable(NULL), mKeyTableNum(0), mListener(this) {
+            for (u8 i = 0; i < 2; i++) {
+                mAttached[i] = 0;
+                mKeyStates[i].mMaskWork = 0;
+                mKeyStates[i].mTrigMask = 0;
+                mKeyStates[i].mRelMask = 0;
+                mKeyStates[i].mRepMask = 0;
+                mKeyStates[i].mCurMask = 0;
+                mKeyStates[i].mInputMask = 0;
+                mKeyStates[i].mForceMask = 0;
+                mKeyStates[i].mForceMod = 0;
+                mKeyStates[i].mLedOK = 0;
+                mKeyStates[i].mKbdChan = i;
+                mKeyStates[i].mCountry = 0xF;
+                mKeyStates[i].mModState = 0;
+            }
+        }
+
+        void HKBManager::Initialize() {
+            if (mInitialized != 0) {
+                return;
+            }
+            mInitialized = 1;
+            KBDInitRegionUS();
+            KBDInit();
+            if (mListener.unk_0x04 == 0) {
+                KBDSetAttachCallback(AttachCB);
+                KBDSetDetachCallback(DetachCB);
+                KBDSetKeyCallback(KeyEventCB);
+            }
+            for (u8 i = 0; i < 2; i++) {
+                KBDSetCountry(i, mKeyStates[i].mCountry);
+            }
+        }
+
+        void HKBManager::ClearState() {
+            for (u8 i = 0; i < 2; i++) {
+                mKeyStates[i].mMaskWork = 0;
+                mKeyStates[i].mTrigMask = 0;
+                mKeyStates[i].mRelMask = 0;
+                mKeyStates[i].mRepMask = 0;
+                mKeyStates[i].mCurMask = 0;
+                mKeyStates[i].mInputMask = 0;
+                mKeyStates[i].mModState &= 0x700;
+                mKeyStates[i].mForceMask = 0;
+                mKeyStates[i].mForceMod = 0;
+                mKeyStates[i].mLedOK = 0;
+            }
+        }
+
+        u32 HKBManager::GetModifierState() const {
+            u32 modState = (mKeyStates[0].mModState & ~mKeyStates[0].mForceMask) |
+                           (mKeyStates[0].mForceMod & mKeyStates[0].mForceMask);
+            u32 modState1 = (mKeyStates[1].mModState & ~mKeyStates[1].mForceMask) |
+                            (mKeyStates[1].mForceMod & mKeyStates[1].mForceMask);
+            modState |= modState1;
+            return modState;
+        }
+
+        void HKBManager::SetCountry(u8 country) {
+            for (u8 i = 0; i < 2; i++) {
+                mKeyStates[i].mCountry = country;
+                KBDSetCountry(i, country);
+                KBDSetModState(mKeyStates[i].mKbdChan, mKeyStates[i].mModState);
+
+                u8 leds = 0;
+                if (mKeyStates[i].mModState & 0x100) {
+                    leds |= 1;
+                }
+                if (mKeyStates[i].mModState & 0x200) {
+                    leds |= 2;
+                }
+                if (mKeyStates[i].mModState & 0x400) {
+                    leds |= 4;
+                }
+                if (KBDSetLeds(mKeyStates[i].mKbdChan, leds) == KBD_EC_OK) {
+                    mKeyStates[i].mLedOK = 1;
+                }
+            }
+        }
+
+        void HKBManager::SetModifierState(u32 state, u32 mask) {
+            mModState = (mModState & ~mask) | (state & mask);
+            for (u8 i = 0; i < 2; i++) {
+                u32 newLeds = mModState & 0x700;
+                u32 oldLeds = mKeyStates[i].mModState & 0x700;
+                mKeyStates[i].mModState &= ~0x700;
+                mKeyStates[i].mModState |= mModState;
+                u32 changed = (oldLeds - newLeds) | (newLeds - oldLeds);
+                if (changed && mAttached[i]) {
+                    KBDSetModState(mKeyStates[i].mKbdChan, mKeyStates[i].mModState);
+
+                    u8 leds = 0;
+                    if (mKeyStates[i].mModState & 0x100) {
+                        leds |= 1;
+                    }
+                    if (mKeyStates[i].mModState & 0x200) {
+                        leds |= 2;
+                    }
+                    if (mKeyStates[i].mModState & 0x400) {
+                        leds |= 4;
+                    }
+                    if (KBDSetLeds(mKeyStates[i].mKbdChan, leds) == KBD_EC_OK) {
+                        mKeyStates[i].mLedOK = 1;
+                    }
+                }
+            }
+        }
+
+        void HKBManager::SetForceModifierState(u32 state, u32 mask) {
+            mKeyStates[0].mForceMod = state;
+            mKeyStates[0].mForceMask = mask;
+            mKeyStates[1].mForceMod = state;
+            mKeyStates[1].mForceMask = mask;
+        }
+
+        void HKBManager::Update() {
+            if (mInitialized == 0) {
+                return;
+            }
+            for (u8 chan = 2; chan < 4; chan++) {
+                u32 bit = 1 << chan;
+                if (mPendingLeds & bit) {
+                    u8 packet[8];
+                    packet[0] = chan;
+                    *(u32*)(packet + 4) = 0;
+
+                    u32 intr = OSDisableInterrupts();
+                    mPendingLeds &= ~bit;
+                    OSRestoreInterrupts(intr);
+
+                    if (KBDSetLedsAsync(chan, 0, SetLedCB, (void*)*(u32*)packet) == KBD_EC_OK) {
+                        intr = OSDisableInterrupts();
+                        mPendingLeds |= bit;
+                        OSRestoreInterrupts(intr);
+                    }
+                }
+            }
+            for (u8 i = 0; i < 2; i++) {
+                mKeyStates[i].Update();
+            }
+        }
+
+        HKBManager::KeySet HKBManager::GetTriggeredKeySet() const {
+            KeySet keySet(this, 1);
+            return keySet.GetNext();
+        }
+
+        HKBManager::KeySet HKBManager::GetReleasedKeySet() const {
+            KeySet keySet(this, 2);
+            return keySet.GetNext();
+        }
+
+        HKBManager::KeySet HKBManager::GetRepeatedKeySet() const {
+            KeySet keySet(this, 3);
+            return keySet.GetNext();
+        }
+
+        void HKBManager::KeyState_::NotifyEvent(u8 type, u8 key) {
+            int i;
+            int index = -1;
+            if (type == 1) {
+                for (i = 0; i < 8; i++) {
+                    if ((mInputMask & (1 << i)) != 0) {
+                        if (mCurKeys[i] == key) {
+                            index = i;
+                            break;
+                        }
+                    }
+                    else {
+                        index = i;
+                        break;
+                    }
+                }
+                if (index < 0) {
+                    return;
+                }
+                mCurKeys[index] = key;
+                mInputMask |= (1 << index);
+            }
+            else {
+                for (i = 0; i < 8; i++) {
+                    if ((mInputMask & (1 << i)) != 0 && mCurKeys[i] == key) {
+                        index = i;
+                        break;
+                    }
+                }
+                if (index < 0) {
+                    return;
+                }
+                mInputMask &= ~(1 << index);
+            }
+        }
+
+        void HKBManager::KeyState_::Update() {
+            u32 intr = OSDisableInterrupts();
+            u8 releasedKeys[8];
+            u8 prevKeys[8];
+            mPrevMask = mCurMask;
+            mCurMask = mInputMask;
+            for (int i = 0; i < 8; i++) {
+                releasedKeys[i] = mPrevKeys[i];
+                prevKeys[i] = mCurKeys[i];
+            }
+            for (int i = 0; i < 8; i++) {
+                mReleasedKeys[i] = releasedKeys[i];
+                mPrevKeys[i] = prevKeys[i];
+            }
+            OSRestoreInterrupts(intr);
+
+            UpdateModState_();
+
+            mMaskWork = mCurMask;
+            mTrigMask = 0;
+            for (int i = 0; i < 8; i++) {
+                u32 bit = 1 << i;
+                if ((mCurMask & bit) &&
+                    (!(mPrevMask & bit) || mReleasedKeys[i] != mPrevKeys[i])) {
+                    mTrigMask |= bit;
+                }
+            }
+
+            mRelMask = 0;
+            for (int i = 0; i < 8; i++) {
+                u32 bit = 1 << i;
+                if ((mPrevMask & bit) &&
+                    (!(mCurMask & bit) || mReleasedKeys[i] != mPrevKeys[i])) {
+                    mRelMask |= bit;
+                }
+            }
+
+            mRepMask = 0;
+            for (int i = 0; i < 8; i++) {
+                u32 bit = 1 << i;
+                if (mCurMask & bit) {
+                    if (mTrigMask & bit) {
+                        mRepeatCtr[i] = 30;
+                        mRepMask |= bit;
+                    }
+                    if (--mRepeatCtr[i] == 0) {
+                        mRepeatCtr[i] = 8;
+                        mRepMask |= bit;
+                    }
+                }
+            }
+        }
+
+        void HKBManager::KeyState_::UpdateModState_() {
+            u32 oldMod = mModState;
+            mModState &= ~0x2F;
+            for (u8 i = 0; i < 8; i++) {
+                if ((mCurMask & (1 << i)) == 0) {
+                    continue;
+                }
+                u8 key = mPrevKeys[i];
+                if (key == 0xE5 || key == 0xE1) {
+                    mModState |= 2;
+                }
+                else if (key == 0xE4 || key == 0xE0) {
+                    mModState |= 1;
+                }
+                else if (key == 0xE7 || key == 0xE3) {
+                    mModState |= 8;
+                }
+                else if (key == 0xE2) {
+                    mModState |= 4;
+                }
+                else if (key == 0xE6) {
+                    if (mCountry == 0xF || mCountry == 0x21) {
+                        mModState |= 4;
+                    }
+                    else {
+                        mModState |= 0x20;
+                    }
+                }
+            }
+
+            if ((oldMod & 0x700) != (mModState & 0x700) || mLedOK != 0) {
+                mLedOK = 0;
+                KBDSetModState(mKbdChan, mModState);
+
+                u8 leds = 0;
+                if (mModState & 0x100) {
+                    leds |= 1;
+                }
+                if (mModState & 0x200) {
+                    leds |= 2;
+                }
+                if (mModState & 0x400) {
+                    leds |= 4;
+                }
+                if (KBDSetLeds(mKbdChan, leds) == KBD_EC_OK) {
+                    mLedOK = 1;
+                }
+            }
+        }
+
+        u8 HKBManager::KeySet::GetKey() const {
+            if (!IsValid()) {
+                return 0;
+            }
+            switch (mType) {
+                case 0: return mpManager->mKeyStates[mSubIndex].mPrevKeys[mIndex];
+                case 1: return mpManager->mKeyStates[mSubIndex].mPrevKeys[mIndex];
+                case 2: return mpManager->mKeyStates[mSubIndex].mReleasedKeys[mIndex];
+                case 3: return mpManager->mKeyStates[mSubIndex].mPrevKeys[mIndex];
+            }
+            return 0;
+        }
+
+        wchar_t HKBManager::KeySet::GetWChar() const {
+            wchar_t vcode = GetVCode();
+            if (vcode >= 0xF130 && vcode <= 0xF139) {
+                vcode = vcode - 0xF100;
+            }
+            else if (vcode == 0xF10D) {
+                vcode = 0x10000 - 0xE33;
+            }
+            else if (vcode >= 0xF100 && vcode <= 0xF13F) {
+                vcode = vcode - 0xF100;
+            }
+            else if (vcode >= 0xF140 && vcode <= 0xF17F) {
+                vcode = vcode + 0x40;
+            }
+            if ((vcode & 0xF000) == 0xF000) {
+                return 0;
+            }
+            if (vcode == 0xEEEE) {
+                return 0;
+            }
+            if (vcode < 0x20) {
+                return 0;
+            }
+            if (mpManager->mpKeyTable != NULL) {
+                if (mpManager->mKeyTableNum != 0) {
+                    for (u32 i = 0; i < mpManager->mKeyTableNum; i++) {
+                        if (mpManager->mpKeyTable[i] == vcode) {
+                            return vcode;
+                        }
+                    }
+                    return 0;
+                }
+            }
+            return vcode;
+        }
+
+        wchar_t HKBManager::KeySet::GetVCode() const {
+            if (!IsValid()) {
+                return 0;
+            }
+            if (mVCode != 0) {
+                return mVCode;
+            }
+
+            u32 mods = mpManager->GetModifierState();
+            if ((mods & 0xD) != 0 && (mods & 5) != 5) {
+                return 0;
+            }
+
+            switch (mType) {
+                case 0:
+                case 1:
+                case 3:
+                    if ((mpManager->mKeyStates[mSubIndex].mCurMask & (1 << mIndex)) != 0) {
+                        mVCode = KBDTranslateHidCode(
+                            mpManager->mKeyStates[mSubIndex].mPrevKeys[mIndex],
+                            mpManager->mKeyStates[mSubIndex].mCountry);
+                    }
+                    break;
+                case 2:
+                    if ((mpManager->mKeyStates[mSubIndex].mPrevMask & (1 << mIndex)) != 0) {
+                        mVCode = KBDTranslateHidCode(
+                            mpManager->mKeyStates[mSubIndex].mReleasedKeys[mIndex],
+                            mpManager->mKeyStates[mSubIndex].mCountry);
+                    }
+                    break;
+            }
+            return mVCode;
+        }
+
+        bool HKBManager::KeySet::IsValid() const {
+            if (mpManager == NULL) {
+                return false;
+            }
+            s8 index = mIndex;
+            if (index < 0 || index >= 8) {
+                return false;
+            }
+            u8 subIndex = mSubIndex;
+            if (subIndex >= 2) {
+                return false;
+            }
+            switch (mType) {
+                case 0: return (mpManager->mKeyStates[subIndex].mMaskWork & (1 << index)) != 0;
+                case 1: return (mpManager->mKeyStates[subIndex].mTrigMask & (1 << index)) != 0;
+                case 2: return (mpManager->mKeyStates[subIndex].mRelMask & (1 << index)) != 0;
+                case 3: return (mpManager->mKeyStates[subIndex].mRepMask & (1 << index)) != 0;
+            }
+            return false;
+        }
+
+        HKBManager::KeySet HKBManager::KeySet::GetNext() const {
+            KeySet next(mpManager, mType);
+            if (mpManager == NULL) {
+                return next;
+            }
+            next.mSubIndex = mSubIndex;
+            while (next.mSubIndex < 2) {
+                u32 mask = 0;
+                switch (mType) {
+                    case 0: mask = mpManager->mKeyStates[next.mSubIndex].mMaskWork; break;
+                    case 1: mask = mpManager->mKeyStates[next.mSubIndex].mTrigMask; break;
+                    case 2: mask = mpManager->mKeyStates[next.mSubIndex].mRelMask; break;
+                    case 3: mask = mpManager->mKeyStates[next.mSubIndex].mRepMask; break;
+                }
+                next.mIndex = mIndex + 1;
+                while (next.mIndex < 8) {
+                    if (mask & (1 << next.mIndex)) {
+                        return next;
+                    }
+                    next.mIndex++;
+                }
+                next.mIndex = -1;
+                next.mSubIndex++;
+            }
+            return next;
+        }
+
+    }  // namespace input
+}  // namespace textinput

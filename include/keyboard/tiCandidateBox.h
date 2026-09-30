@@ -48,9 +48,6 @@ namespace textinput {
 
         class CandidateBoxCaller {
         public:
-#ifdef TIINPUTFORM_IMPLEMENTATION
-            CandidateBoxCaller() : mpCandidateBox(NULL) {}
-#endif
             // This candidate thing is a bit different from the dwarf
             class Candidates {
             public:
@@ -77,9 +74,11 @@ namespace textinput {
 
         class Base : public CommandSender {
         public:
-#ifdef TIMANAGER_IMPLEMENTATION
-            Base(Manager* manager) : mpCandidates(NULL), mpAllocator(NULL), mbOn(false), mbInvalid(true), meLanguage(USA), mpManager(manager) {}
+#ifdef TI_CANDIDATEBOX_SAMPLE_CLASS
+            Base(Manager* manager)
+                : mpCandidates(NULL), mpAllocator(NULL), mbOn(false), mbInvalid(true), meLanguage(USA), mpManager(manager) {}
 #endif
+
             virtual ~Base();
             virtual void create(MEMAllocator* allocator) override;
             virtual void init() override {}
@@ -114,9 +113,8 @@ namespace textinput {
 
         class EventHandler : public nw4rmanager::TiEventHandler {
         public:
-#ifdef TIMANAGER_IMPLEMENTATION
             EventHandler(LayoutByNW4R* layout) : mpLayoutByNW4R(layout) {}
-#endif
+
             virtual void onTiEvent(gui::PaneComponent* paneComponent, u32 event, Input* input) override;  // 0x18
 
             LayoutByNW4R* mpLayoutByNW4R;  // 0xC
@@ -290,13 +288,13 @@ namespace textinput {
         // TODO
         class LayoutByNW4R : public Base, public nw4rmanager::Layout, public UIObj::Listener {
         public:
-#ifdef TIMANAGER_IMPLEMENTATION
-            LayoutByNW4R(Manager* manager, nw4r::lyt::MultiArcResourceAccessor* accessor, EventObserver* observer, const char* layoutName)
-                : Base(manager), nw4rmanager::Layout(accessor, layoutName, observer), mEventHandler(this), mpTiString(NULL),
-                  mTextArea(0, this, this), mLeftScroll(1, this, this), mRightScroll(2, this, this), mOnOffButton(3, this, this),
-                  mTextWindow(4, this, this), mbActive(true) {}
-            const UIOnOffButton& getOnOffButton() const { return mOnOffButton; }
+#ifdef TI_CANDIDATEBOX_SAMPLE_CLASS
+            LayoutByNW4R(Manager* manager, nw4r::lyt::MultiArcResourceAccessor* resAccessor, const char* arcName, EventObserver* observer)
+                : Base(manager), nw4rmanager::Layout(resAccessor, arcName, observer), mEventHandler(this),
+                  mpTiString(NULL), mTextArea(0, this, this), mLeftScroll(1, this, this), mRightScroll(2, this, this),
+                  mOnOffButton(3, this, this), mTextWindow(4, this, this), mbActive(true) {}
 #endif
+
             virtual ~LayoutByNW4R();
             virtual void create(MEMAllocator* allocator) override;
             virtual void init() override;
@@ -325,11 +323,7 @@ namespace textinput {
             virtual u16 getScroll() { return mTextArea.GetDispOffset(); }                    // 0x100
             virtual bool isInScroll();                                                       // 0x104
             virtual void setActive(bool active);                                             // 0x108
-            #ifdef TI_PC_KEYBOARD_IMPLEMENTATION
-            virtual bool isActive() const { return mbActive; }
-#else
-            virtual bool isActive() const;
-#endif                                                   // 0x10C
+            virtual bool isActive() const;                                                   // 0x10C
             virtual void setSelectedTextPane(int pane) { mTextArea.SetSelectedText(pane); }  // 0x110
             virtual void setFocusedTextPane(int pane) { mTextArea.SetFocusedText(pane); }    // 0x114
             virtual int getFocusedTextPane() { return mTextArea.GetFocusedText(); }          // 0x118
@@ -339,12 +333,12 @@ namespace textinput {
             virtual void cancelStateFocusIn();                                               // 0x128
             virtual void onEvent(UIObj*, u32, void*) override;                               // 0x12C
 
-#ifdef TIINPUTFORM_IMPLEMENTATION
-            UITextArea& getTextArea() { return mTextArea; }
-#endif
             void onPressedShift(bool shift);
             void onReleasedShift();
             void startTurnOn(bool);
+
+            UIOnOffButton& getOnOffButton() { return mOnOffButton; }
+            const UIOnOffButton& getOnOffButton() const { return mOnOffButton; }
 
         private:
             void createAnmPane_(MEMAllocator* allocator);
@@ -408,6 +402,17 @@ namespace textinput {
 
             virtual void onAnmEvent(AnmPaneEvent paneEvent) override;  // 0x10
         };
+
+#ifdef TI_CANDIDATEBOX_SAMPLE_CLASS
+        class Sample : public LayoutByNW4R {
+        public:
+            Sample(Manager* manager, nw4r::lyt::MultiArcResourceAccessor* resAccessor, const char* arcName, EventObserver* observer)
+                : LayoutByNW4R(manager, resAccessor, arcName, observer) {}
+            virtual ~Sample();
+        };
+#else
+        class Sample {};
+#endif
     }  // namespace candidatebox
 }  // namespace textinput
 

@@ -109,7 +109,7 @@ namespace textinput {
                 : GUIInterface(), mbInitialize(false), mDraggingButton(0xFFFF), mID(id), mbTriggerTarget(false), mpManager(NULL), mpListener(NULL) {
                 init();
             }
-            virtual ~GUIComponent() {}  // 0x08
+            virtual ~GUIComponent();  // 0x08
 
             virtual u32 getID() { return mID; }  // 0x20
 
@@ -139,24 +139,24 @@ namespace textinput {
 
             virtual void setDraggingButton(u32 dragBtn) { mDraggingButton = dragBtn; }  // 0x3C
 
-            virtual u32 updatePointer(const GUIPointer& pointer) { return updatePointerImpl(pointer); }  // 0x40
-            virtual u32 updatePointer(int point, f32 x, f32 y, u32 trig, u32 hold, u32 release) {        // 0x44
+            virtual u32 updatePointer(const GUIPointer& pointer) { return updatePointerImpl(pointer); }  // 0x48
+            virtual u32 updatePointer(int point, f32 x, f32 y, u32 trig, u32 hold, u32 release) {        // 0x4C
                 GUIPointer pointer(point, x, y, hold, trig, release);
                 return updatePointerImpl(pointer);
             }
 
-            virtual bool isTriggerTarget() { return mbTriggerTarget; }                  // 0x48
-            virtual void setTriggerTarget(bool bEnable) { mbTriggerTarget = bEnable; }  // 0x4C
+            virtual bool isTriggerTarget() { return mbTriggerTarget; }                  // 0x50
+            virtual void setTriggerTarget(bool bEnable) { mbTriggerTarget = bEnable; }  // 0x54
 
             void setParentManager(GUIManager* manager) { mpManager = manager; }
             GUIManager* getParentManager() { return mpManager; }
 
-            virtual bool isVisible() { return true; }  // 0x50
+            virtual bool isVisible() { return true; }  // 0x58
 
-            virtual u16 getFlightDuration(int point) { return mFlightDuration[point]; }                       // 0x54
-            virtual void setFlightDuration(int point, u16 flightDir) { mFlightDuration[point] = flightDir; }  // 0x58
+            virtual u16 getFlightDuration(int point);                                                             // 0x5C
+            virtual void setFlightDuration(int point, u16 flightDir);  // 0x60
 
-            virtual bool contain(f32 x, f32 y) = 0;  // 0x5C
+            virtual bool contain(f32 x, f32 y) = 0;  // 0x64
 
             void setListener(EventHandler* listener) { mpListener = listener; }
 
@@ -167,9 +167,9 @@ namespace textinput {
 
             bool mbInitialize;  // 0x04
 
-            bool mbPointed[GUI_POINTS_MAX];  // 0x08
+            bool mbPointed[GUI_POINTS_MAX];  // 0x05
 
-            bool mbDragging[GUI_POINTS_MAX];   // 0x10
+            bool mbDragging[GUI_POINTS_MAX];   // 0x0D
             Vec mDraggingPos[GUI_POINTS_MAX];  // 0x18
             int mDraggingButton;               // 0x78
 
@@ -177,10 +177,10 @@ namespace textinput {
 
             u16 mFlightDuration[GUI_POINTS_MAX];  // 0x80
 
-            bool mbTriggerTarget;  // 0x8A
+            bool mbTriggerTarget;  // 0x90
 
-            GUIManager* mpManager;     // 0x8C
-            EventHandler* mpListener;  // 0x90
+            GUIManager* mpManager;     // 0x94
+            EventHandler* mpListener;  // 0x98
         };
 
         class GUIManager : public GUIInterface {
@@ -298,11 +298,11 @@ namespace textinput {
 
             virtual void draw();  // 0x1C
 
-            virtual bool isVisible();  // 0x50
+            virtual bool isVisible();  // 0x58
 
-            virtual bool contain(f32 x, f32 y);  // 0x5C
+            virtual bool contain(f32 x, f32 y);  // 0x64
 
-            virtual void setPane(nw4r::lyt::Pane* pane) { mpPane = pane; }  // 0x60
+            virtual void setPane(nw4r::lyt::Pane* pane) { mpPane = pane; }  // 0x68
             nw4r::lyt::Pane* getPane() { return mpPane; }
 
             nw4r::lyt::TextBox* getTextPane() { return static_cast<nw4r::lyt::TextBox*>(mpPane); }

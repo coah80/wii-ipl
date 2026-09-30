@@ -3,9 +3,6 @@
 
 #include <revolution/types.h>
 #include <revolution/mem/allocator.h>
-#if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION) || defined(TISTRING_IMPLEMENTATION) || defined(TIZISTRING_IMPLEMENTATION)
-#include <revolution/kpr.h>
-#endif
 
 namespace textinput {
     namespace tistring {
@@ -36,23 +33,15 @@ namespace textinput {
 
                 virtual void        setLength(u16);
 
-                virtual wchar_t*    getWCString() const             { return mpszString; }
+                virtual wchar_t*    getWCString() const;
 
                 virtual void        setCandidate(wchar_t candidate) { mwcCandidate = candidate; }
-                #if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION) || defined(TISTRING_IMPLEMENTATION) || defined(TIZISTRING_IMPLEMENTATION)
                 virtual wchar_t     getCandidate() const            { return mwcCandidate; }
-#else
-                virtual wchar_t     getCandidate()                  { return mwcCandidate; }
-#endif
                 virtual bool        hasCandidate() const;
 
                 virtual wchar_t     getLastWChar();
 
-#if defined(TISTRING_IMPLEMENTATION) || defined(TIZISTRING_IMPLEMENTATION)
-            protected:
-#else
             private:
-#endif
                 u16             muMaxLength;    // 0x04
                 u16             muLength;       // 0x06
 
@@ -65,56 +54,36 @@ namespace textinput {
         };
 
         class KanaStream {
-#if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION) || defined(TISTRING_IMPLEMENTATION) || defined(TIZISTRING_IMPLEMENTATION)
-        public:
-            KPRQueue mQueue;
-            wchar_t mPending;
-            wchar_t mOutput[5];
-#else
         private:
             u8 field_0x00[0x24];
-#endif
         };
 
         class Decolated : public StringBase {
         public:
-#if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION) || defined(TISTRING_IMPLEMENTATION) || defined(TIZISTRING_IMPLEMENTATION)
-            Decolated(u16 maxLen) : StringBase(maxLen), mCursorStart(0), mCursorEnd(0), mbSustain(false), mTranslateMode(0) { initKanaConverter(); }
-#else
             Decolated(u16 maxLen) : StringBase(maxLen), field_0x18(0), field_0x1C(0), field_0x20(0), field_0x24(0) { initKanaConverter(); }
-#endif
 
-#if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION) || defined(TISTRING_IMPLEMENTATION) || defined(TIZISTRING_IMPLEMENTATION)
-            virtual ~Decolated();
-            enum TranslateMode { TM_Direct, TM_Kana, TM_Roman, TM_Hangul };
             virtual void clear();
             virtual void set(const wchar_t* string);
-            virtual void setLength(u16 length);
-            void setTranslateMode(TranslateMode mode);
-            TranslateMode getTranslateMode() const { return static_cast<TranslateMode>(mTranslateMode); }
-            void inputString(const wchar_t* string, TranslateMode mode);
-            virtual void inputChar(wchar_t ch);
-            virtual void inputString(const wchar_t* string);
+            virtual void setLength(u16);
+
+            virtual void inputChar(wchar_t);
+            virtual void inputString(const wchar_t*);
             virtual void deleteChar();
             virtual void backSpace();
-            virtual void confirm(const wchar_t* string);
-            virtual bool moveCursorRight();
-            virtual bool moveCursorLeft();
-            virtual void setCursorPos(u32 pos);
+            virtual void confirm(const wchar_t*);
+            virtual void moveCursorRight();
+            virtual void moveCursorLeft();
+            virtual void setCursorPos(u32);
             virtual void onSustain();
             virtual void offSustain();
             virtual bool isOnSustain();
             virtual u32 getCursorPos() const;
-            virtual void getCursorPos(u32* start, u32* end);
+            virtual void getCursorPos(u32*, u32*);
             virtual bool canBackSpace();
-#if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION) || defined(TISTRING_IMPLEMENTATION) || defined(TIZISTRING_IMPLEMENTATION)
-            virtual bool deleteForward();
-#else
             virtual void deleteForward();
-#endif
-            virtual void getSelected(u32& start, u32& end);
+            virtual void getSelected(u32&, u32&);
             virtual wchar_t getWCharAtCursor();
-            virtual void replaceAtCursor(wchar_t ch);
+            virtual void replaceAtCursor(wchar_t);
             virtual bool isDakuten();
             virtual void converDakuten();
             virtual bool isHandaku();
@@ -124,123 +93,64 @@ namespace textinput {
             virtual void converSmall();
             virtual bool atTheBeginningOfASentence();
             virtual void initKanaConverter();
-            virtual wchar_t* getKanaBuffer();
+            virtual void* getKanaBuffer();
             virtual bool isKanaFix() const;
             virtual void confirmKana();
             virtual void clearKana();
-            virtual void EnableKSXFilter(bool enable);
-#else
-            virtual void inputChar();
-            virtual void inputString();
-            virtual void deleteChar();
-            virtual void backSpace();
-            virtual void confirm();
-            virtual void moveCursorRight();
-            virtual void moveCursorLeft();
-            virtual void setCursorPos();
-            virtual void onSustain();
-            virtual void offSustain();
-            virtual void isOnSustain();
-            virtual void getCursorPos();
-            virtual void getCursorPos(u32*, u32*);
-            virtual void canBackSpace();
-            virtual void deleteForward();
-            virtual void getSelected();
-            virtual void getWCharAtCursor();
-            virtual void replaceAtCursor();
-            virtual void isDakuten();
-            virtual void converDakuten();
-            virtual void isHandaku();
-            virtual void converHandaku();
-            virtual void convertAll();
-            virtual void isSmall();
-            virtual void converSmall();
-            virtual bool atTheBeginningOfASentence();
-            virtual void initKanaConverter();
-            virtual void getKanaBuffer();
-            virtual void isKanaFix();
-            virtual void confirmKana();
-            virtual void clearKana();
-            virtual void EnableKSXFilter();
+            virtual void EnableKSXFilter(bool);
 
-#endif
-
-#if defined(TISTRING_IMPLEMENTATION) || defined(TIZISTRING_IMPLEMENTATION)
-        protected:
-#else
         private:
-#endif
-#if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION) || defined(TISTRING_IMPLEMENTATION) || defined(TIZISTRING_IMPLEMENTATION)
-            u32 mCursorStart;
-            u32 mCursorEnd;
-#if defined(TISTRING_IMPLEMENTATION) || defined(TIZISTRING_IMPLEMENTATION)
-            u8 mbSustain;
-            s32 mTranslateMode;
-#else
-            bool mbSustain;
-            u32 mTranslateMode;
-#endif
-#else
             u32 field_0x18;          // 0x18
             u32 field_0x1C;          // 0x1C
             u8 field_0x20;           // 0x20
             u32 field_0x24;          // 0x24
-#endif
             KanaStream mKanaStream;  // 0x28
         };
 
-#if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION) || defined(TISTRING_IMPLEMENTATION) || defined(TIZISTRING_IMPLEMENTATION)
         class WithAtok : public Decolated {
         public:
-            WithAtok(u16 maxLength) : Decolated(maxLength) {}
-            virtual ~WithAtok();
+            struct DrawInfo;
+
+            ~WithAtok();
+
             virtual void pushBack(wchar_t ch);
             virtual void popBack();
-            virtual void inputChar(wchar_t ch);
+            virtual void inputChar(wchar_t);
             virtual void backSpace();
-            virtual void confirm(const wchar_t* string);
-            virtual bool moveCursorRight();
-            virtual bool moveCursorLeft();
-            virtual void getCursorPos(u32* start, u32* end);
-            struct DrawInfo {
-                const wchar_t* string;
-                u32 start;
-                u32 end;
-                u32 selectedStart;
-                u32 selectedEnd;
-            };
+            virtual void confirm(const wchar_t*);
+            virtual void moveCursorRight();
+            virtual void moveCursorLeft();
+            virtual void getCursorPos(u32*, u32*);
+
             virtual bool isFix();
-            virtual void setFix(bool fix);
+            virtual void setFix(bool);
             virtual void initConverting();
             virtual bool isConverting();
             virtual wchar_t* getConfirmedWCString() const;
             virtual int getCurrentNumPredicted();
-            virtual void getPredicted(int index, wchar_t* string);
-            virtual void commitPredicted(int index);
-            virtual void setSelectedCandidate(s32 index);
+            virtual bool getPredicted(int, wchar_t*);
+            virtual void commitPredicted(int);
+            virtual void setSelectedCandidate(long);
             virtual bool isCandidateSelected();
-            virtual s32 getSelectedCandidate();
+            virtual int getSelectedCandidate();
             virtual void init();
-            virtual void setInputting(wchar_t ch);
-            virtual void getDrawString(DrawInfo& info);
-            virtual void openDictionary(void* atok, int atokSize, void* apot, int apotSize, void* nintendo, int nintendoSize);
+            virtual void setInputting(wchar_t);
+            virtual void getDrawString(DrawInfo&);
+            virtual void openDictionary(void*, int, void*, int, void*, int);
             virtual void closeDictionary();
             virtual bool hasConfirmedString();
-            virtual void enableConfirmedString(bool enable);
+            virtual void enableConfirmedString(bool);
             virtual void startConverting();
             virtual bool isDictionaryOpened();
-            virtual void changeKanaMode(bool kana);
-            virtual wchar_t getInputStringLength();
+            virtual void changeKanaMode(bool);
+            virtual int getInputStringLength();
             virtual void resetRelation();
-            virtual void setFixMode(bool fixed);
-            virtual void setFixPrediction(int count, const char** predictions);
-            virtual void setDefaultPrediction(int count, const char** predictions);
-            virtual s16 getSelectedConverting();
-            virtual s32 getFixedPredictionNum();
+            virtual void setFixMode(bool);
+            virtual void setFixPrediction(int, const char* const*);
+            virtual void setDefaultPrediction(int, const char* const*);
+            virtual int getSelectedConverting();
+            virtual int getFixedPredictionNum();
         };
-#else
-        class WithAtok : public StringBase {};
-#endif
     }
 }
 

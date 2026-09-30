@@ -14,17 +14,11 @@ namespace textinput {
 
             class LayoutByNW4R : public Base, public nw4rmanager::Layout {
                 public:
-#ifdef MYTIMANAGER_IMPLEMENTATION
-                    LayoutByNW4R(nw4r::lyt::MultiArcResourceAccessor* multiArc, const char* layoutName, EventObserver* event)
-                        : nw4rmanager::Layout(multiArc, layoutName, event) {}
-#endif
-#if defined(MYTIMANAGER_MATCHING)
+                    LayoutByNW4R(nw4r::lyt::MultiArcResourceAccessor* resAccessor, const char* layoutBinName,
+                                 EventObserver* event)
+                        : nw4rmanager::Layout(resAccessor, layoutBinName, event) {}
+
                     virtual ~LayoutByNW4R() {}
-#elif defined(MYTIMANAGER_IMPLEMENTATION)
-                    virtual ~LayoutByNW4R();
-#else
-                    virtual ~LayoutByNW4R() {}
-#endif
 
                     virtual void    create(MEMAllocator* allocator);
                     virtual void    init();

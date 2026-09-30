@@ -7,7 +7,13 @@ namespace textinput {
     namespace extend {
         namespace savedata {
             typedef struct MemoSetting {
-                u8          uRevisionAndType;           // 0x00
+                union {
+                    u8  uRevisionAndType;               // 0x00
+                    struct {
+                        u8  uType       : 4;            // 0x00:11110000
+                        u8  uRevision   : 4;            // 0x00:00001111
+                    };
+                };
 
                 union {
                     struct {

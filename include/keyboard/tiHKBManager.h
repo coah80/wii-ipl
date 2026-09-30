@@ -4,232 +4,158 @@
 #include <revolution/types.h>
 
 #include <revolution/mem/allocator.h>
+#include <revolution/os.h>
 
 #include "keyboard/tiCpData.h"
-#ifdef TIHKBMANAGER_IMPLEMENTATION
-#include <revolution/kbd.h>
-enum _KBDEc { KBD_EC_BUSY = 7 };
-#endif
+
+typedef enum _KBDEc {
+    KBD_EC_0 = 0,
+    KBD_EC_1,
+    KBD_EC_2,
+    KBD_EC_3,
+    KBD_EC_4,
+    KBD_EC_5,
+    KBD_EC_6,
+    KBD_EC_OK,
+} KBDEc;
+
+typedef struct _KBDDevEvent {
+    u8 chan;
+    u8 unk_0x01[0x1F];
+} KBDDevEvent;
+
+typedef struct _KBDKeyEvent {
+    u8  chan;
+    u8  key;
+    u8  unk_0x02[2];
+    u32 mods;
+} KBDKeyEvent;
+
+extern "C" {
+void    KBDInitRegionUS(void);
+void    KBDInit(void);
+void    KBDSetAttachCallback(void (*cb)(KBDDevEvent*));
+void    KBDSetDetachCallback(void (*cb)(KBDDevEvent*));
+void    KBDSetKeyCallback(void (*cb)(KBDKeyEvent*));
+int     KBDSetLedsAsync(u8 chan, u8 leds, void (*cb)(KBDEc, void*), void* arg);
+int     KBDSetLeds(u8 chan, u8 leds);
+int     KBDSetModState(u8 chan, u32 mods);
+int     KBDSetCountry(u8 chan, u32 country);
+int     KBDSetLockProcessing(u8 chan, int lock);
+u16     KBDTranslateHidCode(u8 key, u32 country);
+}
 
 namespace textinput {
     namespace input {
-#ifdef TIHKBMANAGER_IMPLEMENTATION
+
         class HKBManager {
         public:
-            class KeyState_ {
-            public:
-                void NotifyEvent(u8 down, u8 code);
-                void Update();
-                void UpdateModState_();
-                void Clear() {
-                    held = 0;
-                    triggered = 0;
-                    released = 0;
-                    repeated = 0;
-                    current = 0;
-                    pending = 0;
-                    modifiers &= 0x700;
-                    forceMask = 0;
-                    forceState = 0;
-                    retryLeds = 0;
-                }
-                void Initialize(u8 channel) {
-                    held = 0;
-                    triggered = 0;
-                    released = 0;
-                    repeated = 0;
-                    current = 0;
-                    pending = 0;
-                    forceMask = 0;
-                    forceState = 0;
-                    retryLeds = 0;
-                    device = channel;
-                    country = 0xf;
-                    modifiers = 0;
-                }
-                u8 device;
-                u32 held, triggered, released, repeated;
-                u32 previous, current, pending;
-                u32 modifiers, forceState, forceMask;
-                s32 country;
-                u8 retryLeds;
-                u8 previousKeys[8], currentKeys[8], pendingKeys[8];
-                u32 repeatDelay[8];
-            };
+            HKBManager();
+            ~HKBManager();
+
+            static HKBManager& getInstance() { return sInstance; }
+
+            void Initialize();
+            void Update();
+
+            u32  GetModifierState() const;
+            void SetModifierState(u32 state, u32 mask);
+            void SetForceModifierState(u32 state, u32 mask);
+            void SetCountry(u8 country);
+            void ClearState();
+
             class KeySet {
             public:
-                KeySet() {}
-                KeySet(const HKBManager* owner, u8 kind)
-                    : manager(owner), type(kind), index(-1), device(0), vcode(0) {}
-                u8 GetKey() const;
-                u32 GetWChar() const;
-                u32 GetVCode() const;
-                u32 IsValid() const;
-                bool CheckValidity() const {
-                    if (!manager) return false;
-                    s8 keyIndex = index;
-                    if (keyIndex < 0 || keyIndex >= 8) return false;
-                    u8 keyDevice = device;
-                    if (keyDevice >= 2) return false;
-                    switch (type) {
-                    case 0: return (manager->states[keyDevice].held & (1 << keyIndex)) != 0;
-                    case 1: return (manager->states[keyDevice].triggered & (1 << keyIndex)) != 0;
-                    case 2: return (manager->states[keyDevice].released & (1 << keyIndex)) != 0;
-                    case 3: return (manager->states[keyDevice].repeated & (1 << keyIndex)) != 0;
-                    }
-                    return false;
-                }
-                KeySet GetNext() const;
-                const HKBManager* manager;
-                u8 type;
-                s8 index;
-                u8 device;
-                mutable u16 vcode;
+                KeySet(const HKBManager* manager, u8 type) :
+                    mpManager(manager), mType(type),
+                    mIndex(-1), mSubIndex(0), mVCode(0) {}
+
+                u8      GetKey() const;
+                wchar_t GetWChar() const;
+                wchar_t GetVCode() const;
+                bool    IsValid() const;
+                KeySet  GetNext() const;
+
+                const HKBManager* mpManager;    // 0x00
+                u8                mType;        // 0x04
+                s8                mIndex;       // 0x05
+                u8                mSubIndex;    // 0x06
+                mutable u16       mVCode;       // 0x08
             };
-            class KBDListenerOwn;
-            class KBDListenerLinks {
+
+            KeySet GetTriggeredKeySet() const;
+            KeySet GetReleasedKeySet() const;
+            KeySet GetRepeatedKeySet() const;
+
+        private:
+            class KeyState_ {
             public:
-                KBDListenerLinks() : previous(0), next(0) {}
-                virtual ~KBDListenerLinks() {}
-                virtual void OnAttach(KBDDevEvent*) = 0;
-                virtual void OnDetach(KBDDevEvent*) = 0;
-                virtual void OnKeyEvent(KBDKeyEvent*) = 0;
-                KBDListenerOwn* previous;
-                KBDListenerOwn* next;
+                void NotifyEvent(u8 type, u8 key);
+                void Update();
+                void UpdateModState_();
+
+                u8  mKbdChan;           // 0x00
+                u8  pad_0x01[3];
+                u32 mMaskWork;          // 0x04
+                u32 mTrigMask;          // 0x08
+                u32 mRelMask;           // 0x0C
+                u32 mRepMask;           // 0x10
+                u32 mPrevMask;          // 0x14
+                u32 mCurMask;           // 0x18
+                u32 mInputMask;         // 0x1C
+                u32 mModState;          // 0x20
+                u32 mForceMod;          // 0x24
+                u32 mForceMask;         // 0x28
+                s32 mCountry;           // 0x2C
+                u8  mLedOK;             // 0x30
+                u8  mReleasedKeys[8];   // 0x31
+                u8  mPrevKeys[8];       // 0x39
+                u8  mCurKeys[8];        // 0x41
+                u8  pad_0x49[3];
+                u32 mRepeatCtr[8];      // 0x4C
             };
-            class KBDListenerOwn : public KBDListenerLinks {
+
+            class KBDListener {
             public:
-                KBDListenerOwn(HKBManager* owner) : manager(owner) {}
-                virtual ~KBDListenerOwn();
+                KBDListener() : unk_0x04(0), mpNext(NULL) {}
+                virtual ~KBDListener() {}
+                virtual void OnAttach(KBDDevEvent* event) {}
+                virtual void OnDetach(KBDDevEvent* event) {}
+                virtual void OnKeyEvent(KBDKeyEvent* event) {}
+
+                u32          unk_0x04;
+                KBDListener* mpNext;
+            };
+
+            class KBDListenerOwn : public KBDListener {
+            public:
+                KBDListenerOwn(HKBManager* manager) : mpManager(manager) {}
+
                 virtual void OnAttach(KBDDevEvent* event);
                 virtual void OnDetach(KBDDevEvent* event);
                 virtual void OnKeyEvent(KBDKeyEvent* event);
-                HKBManager* manager;
+
+                HKBManager* mpManager;   // 0x0C
             };
-            HKBManager() __attribute__((never_inline));
-            ~HKBManager();
-            static HKBManager& getInstance() { return sInstance; }
-            void Initialize();
-            void ClearState();
-            u32 GetModifierState() const;
-            void SetCountry(u8 country);
-            void SetModifierState(u32 state, u32 mask);
-            void SetForceModifierState(u32 state, u32 mask);
-            void Update();
-            KeySet GetTriggeredKeySet() const;
-            KeySet GetReleasedKeySet() const;
-            KeySet GetRepeatedKeySet() const;
-#ifdef TIHWKEYBOARD_IMPLEMENTATION
-            KeySet GetReleasedKeySet() const;
-#endif
-            static void SetLedCB(_KBDEc result, void* userData);
+
+            static void SetLedCB(KBDEc result, void* arg);
             static void AttachCB(KBDDevEvent* event);
             static void DetachCB(KBDDevEvent* event);
             static void KeyEventCB(KBDKeyEvent* event);
-        private:
-            u8 initialized;
-            u8 attached[2];
-            u32 lockState;
-            u32 retryDevices;
-            const wchar_t* allowedCharacters;
-            u32 allowedCharacterCount;
-            KeyState_ states[2];
-            KBDListenerOwn listener;
-            static HKBManager sInstance;
-        };
-#else
-        class HKBManager {
-        public:
-#ifdef TIMANAGER_IMPLEMENTATION
-                void ClearState();
-#endif
-            static HKBManager& getInstance() { return sInstance; }
 
-            void Initialize();
-            void Update();
-
-            u32 GetModifierState() const;
-            void SetModifierState(u32, u32);
-
-#if defined(TI_CELLPHONE_HKB_KEYSET)
-            class KeySet {
-            public:
-                u8 GetKey() const;
-                u32 GetWChar() const;
-                bool IsValid() const;
-                KeySet GetNext() const;
-                KeySet(const KeySet& other)
-                    : mpManager(other.mpManager), mKind(other.mKind), mIndex(other.mIndex),
-                      mDevice(other.mDevice), mCharacter(other.mCharacter) {}
-            private:
-                const HKBManager* mpManager;
-                u8 mKind;
-                s8 mIndex;
-                u8 mDevice;
-                u16 mCharacter;
-            };
-            KeySet GetTriggeredKeySet() const;
-            KeySet GetRepeatedKeySet() const;
-#else
-#if defined(TI_PC_KEYBOARD_IMPLEMENTATION) || defined(TISIGNWINDOW_IMPLEMENTATION) || defined(TIHWKEYBOARD_IMPLEMENTATION)
-            class KeySet {
-            public:
-                u8 GetKey() const;
-#ifdef TIHWKEYBOARD_IMPLEMENTATION
-                u32 GetWChar() const;
-#else
-                wchar_t GetWChar() const;
-#endif
-                bool IsValid() const;
-                KeySet GetNext() const;
-                KeySet(const KeySet& other)
-                    : mpManager(other.mpManager), mKind(other.mKind), mIndex(other.mIndex), mDevice(other.mDevice), mCharacter(other.mCharacter) {}
-#ifdef TIHWKEYBOARD_IMPLEMENTATION
-                KeySet() : mpManager(NULL), mKind(0), mIndex(-1), mDevice(0), mCharacter(0) {}
-#endif
-            private:
-                const HKBManager* mpManager;
-                u8 mKind;
-                s8 mIndex;
-                u8 mDevice;
-                u16 mCharacter;
-            };
-            KeySet GetTriggeredKeySet() const;
-            KeySet GetRepeatedKeySet() const;
-#ifdef TIHWKEYBOARD_IMPLEMENTATION
-            KeySet GetReleasedKeySet() const;
-#endif
-            void SetForceModifierState(u32 mask, u32 state);
-#else
-            class KeySet {
-            private:
-                keyboard::cellphonetype::PaneNameToCharCode* pPaneNameToCharCode;  // 0x00
-                wchar_t szKeySetName[17];                                          // 0x04
-                u16 uNum;                                                          // 0x26
-                u16 uType;                                                         // 0x28
-
-#ifdef TI_CELLPHONE_IMPLEMENTATION
-            public:
-                bool IsValid() const;
-                u32 GetKey() const;
-                wchar_t GetWChar() const;
-                KeySet GetNext() const;
-#endif
-            };
-
-#ifdef TI_CELLPHONE_IMPLEMENTATION
-            KeySet GetTriggeredKeySet() const;
-            KeySet GetRepeatedKeySet() const;
-#endif
-
-#endif
-#endif
-        private:
-            u8 unk_0x00[0xFC];
+            u8            mInitialized;         // 0x00
+            u8            mAttached[2];         // 0x01
+            u8            pad_0x03;
+            u32           mModState;            // 0x04
+            u32           mPendingLeds;         // 0x08
+            const wchar_t* mpKeyTable;          // 0x0C
+            u32           mKeyTableNum;         // 0x10
+            KeyState_     mKeyStates[2];        // 0x14
+            KBDListenerOwn mListener;           // 0xEC
 
             static HKBManager sInstance;
         };
-#endif
+
     }  // namespace input
 }  // namespace textinput
 

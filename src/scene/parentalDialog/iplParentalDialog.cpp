@@ -14,6 +14,10 @@
 
 namespace ipl {
     namespace scene {
+        inline void textinput::textdrawer::Base::setSecretModeOn(bool secretMode) {
+            mbSecretMode = secretMode;
+        }
+
         // clang-format off
         const char* ParentalDialog::smButtonName[ParentalDialog::BTN_MAX] = {
             "B_BtnA",
@@ -166,9 +170,9 @@ namespace ipl {
                 case keyboard::Manager::STATE_APPEARING: {
                     if (state->wcString != NULL) {
                         if (*state->wcString == 0) {
-                            System::getKeyboard()->memoMgr()->setTitleText(System::getMessage(MESG_PARENTAL_DLG_NO_PIN));
+                            System::getKeyboard()->memoMgr()->setTitleText(const_cast<wchar_t*>(System::getMessage(MESG_PARENTAL_DLG_NO_PIN)));
                         } else {
-                            System::getKeyboard()->memoMgr()->setTitleText(L"");
+                            System::getKeyboard()->memoMgr()->setTitleText(const_cast<wchar_t*>(L""));
                         }
                     }
                     break;
@@ -316,7 +320,7 @@ namespace ipl {
 
                         System::getKeyboard()->start(chan, setting);
                         System::getKeyboard()->memoMgr()->setSecretInputMode(true);
-                        System::getKeyboard()->memoMgr()->setTitleText(System::getMessage(MESG_PARENTAL_DLG_NO_PIN));
+                        System::getKeyboard()->memoMgr()->setTitleText(const_cast<wchar_t*>(System::getMessage(MESG_PARENTAL_DLG_NO_PIN)));
 
                         mState = STATE_WAIT_INPUT;
 

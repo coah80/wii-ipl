@@ -3,6 +3,7 @@
 
 #include "tiManager.h"
 
+#include "MyTiBg.h"
 #include "MyTiInputForm.h"
 #include "MyTiLetterForm.h"
 
@@ -28,9 +29,7 @@ namespace textinput {
                         CT_NumericWithSeparator,
                         CT_NormalWithoutLineFeedWithSign,
                         CT_PredictWithoutLineFeed,
-#ifdef MYTIMANAGER_IMPLEMENTATION
                         CT_PredictBigText,
-#endif
 
                         CT_Last
                     } ConfigType;
@@ -81,11 +80,7 @@ namespace textinput {
                     virtual void                    start();
                     virtual void                    end();
 
-#ifdef MYTIMANAGER_IMPLEMENTATION
-                    virtual textinput::InputForm*   createInputForm();
-#else
-                    virtual InputForm*              createInputForm();
-#endif
+                    virtual textinput::InputForm*    createInputForm();
 
                     virtual void                    memoDraw();
 
@@ -100,16 +95,8 @@ namespace textinput {
 
                     virtual ConfigType              getConfigType() { return meConfigType; }
 
-#ifdef MYTIMANAGER_IMPLEMENTATION
-                    virtual void                    setSaveData();
-#else
                     virtual void                    setSaveData_();
-#endif
                     virtual void                    reflectSaveData();
-#ifdef MYTIMANAGER_IMPLEMENTATION
-                    void reflectSaveDataRev1();
-                    void reflectSaveDataDefault();
-#endif
 
                     virtual void                    configDefault();
                     virtual void                    configLetter();
@@ -126,21 +113,13 @@ namespace textinput {
                     virtual void                    configNormalWithoutLineFeedWithSign();
                     virtual void                    configPredictWithoutLineFeed();
                     virtual void                    configPredictBigText();
-#ifdef MYTIMANAGER_IMPLEMENTATION
-                    virtual textinput::MemoInputForm* createMemoInputForm();
-                    virtual textinput::LetterInputForm* createLetterInputForm();
-                    virtual textinput::InputForm* createBigTextInputForm();
-                    virtual void* createBG();
-#else
-                    virtual void                    createMemoInputForm();
-                    virtual void                    createLetterInputForm();
-                    virtual void                    createBigTextInputForm();
-                    virtual void                    createBG();
-#endif
+                    virtual InputForm*              createMemoInputForm();
+                    virtual letter::InputForm*      createLetterInputForm();
+                    virtual textinput::InputForm*    createBigTextInputForm();
+                    virtual bg::LayoutByNW4R*       createBG();
 
-#ifdef MYTIMANAGER_IMPLEMENTATION
-                    void* getBackGround() const { return mpBackGround; }
-#endif
+                    void                            reflectSaveDataRev1();
+                    void                            reflectSaveDataDefault();
 
                 private:
                     State*                  mpCurrentState;                 // 0x40
@@ -149,25 +128,22 @@ namespace textinput {
                     MemoInputForm*          mpMemoInputForm;                // 0x50
                     LetterInputForm*        mpLetterInputForm;              // 0x54
                     textinput::InputForm*   mpBigTextInputForm;             // 0x58
-                    void*                   mpDefaultPCKeyboard;            // 0x5C
-                    void*                   mpDefaultCellPhoneKeyboard;     // 0x60
+                    keyboard::pctype::LayoutByNW4R*        mpDefaultPCKeyboard;            // 0x5C
+                    keyboard::cellphonetype::LayoutByNW4R* mpDefaultCellPhoneKeyboard;     // 0x60
                     textinput::InputForm*   mpDefaultInputForm;             // 0x64
-                    void*                   mpDefaultCandidateBox;          // 0x68
-                    void*                   mpDefaultToolBar;               // 0x6C
-                    void*                   mpDefaultPredictLanguageDialog; // 0x70
-                    void*                   mpDefaultSignWindow;            // 0x74
-                    void*                   mpBackGround;                   // 0x78
+                    candidatebox::LayoutByNW4R*   mpDefaultCandidateBox;          // 0x68
+                    toolbar::LayoutByNW4R*        mpDefaultToolBar;               // 0x6C
+                    predictlang::LayoutByNW4R*    mpDefaultPredictLanguageDialog; // 0x70
+                    keyboard::signwindow::LayoutByNW4R*  mpDefaultSignWindow;       // 0x74
+                    bg::LayoutByNW4R*         mpBackGround;                   // 0x78
+
+                    friend class State;
             };
 
             class State {
                 public:
-#ifdef MYTIMANAGER_IMPLEMENTATION
                     State() : mpManager(NULL) {}
-                    Manager* getManager() const { return mpManager; }
-                    void setManager(Manager* manager) { mpManager = manager; }
-#endif
                     virtual ~State();
-#ifdef MYTIMANAGER_MATCHING
                     virtual Manager::StateType  getStateType() = 0;
 
                     virtual void                create() = 0;
@@ -185,11 +161,49 @@ namespace textinput {
                     virtual void                start() = 0;
                     virtual void                end() = 0;
 
-#else
+                    virtual InputForm*                          InputForm();
+                    virtual keyboard::hwkey::HWKeyboard*        HWKeyboard();
+                    virtual keyboard::pctype::LayoutByNW4R*     PCKeyboard();
+                    virtual keyboard::cellphonetype::LayoutByNW4R* CellPhoneKeyboard();
+                    virtual keyboard::signwindow::LayoutByNW4R* SignKeyboard();
+                    virtual candidatebox::LayoutByNW4R*         CandidateBox();
+                    virtual toolbar::LayoutByNW4R*              ToolBar();
+                    virtual predictlang::LayoutByNW4R*          PredictLanguageSelectDialog();
+                    virtual bg::LayoutByNW4R*                   BG();
+
+                protected:
+                    Manager*    mpManager;  // 0x04
+
+                    friend class Manager;
+            };
+
+            class DispMemoState : public State {
+                public:
+                    virtual ~DispMemoState();
                     virtual Manager::StateType  getStateType();
 
                     virtual void                create();
+                    virtual void                init();
 
+                    virtual void                draw();
+                    virtual void                memoDraw();
+
+                    virtual void                calc();
+
+                    virtual bool                updateInput(int chan, f32 x, f32 y, u32 trig, u32 hold, u32 release);
+                    virtual bool                updateInput(input::HKBManager& hkbManager);
+
+                    virtual void                start();
+                    virtual void                end();
+            };
+
+            class AppearMemoState : public State {
+                public:
+                    AppearMemoState() : mfAnim(0.0f) {}
+                    virtual ~AppearMemoState();
+                    virtual Manager::StateType  getStateType();
+
+                    virtual void                create();
                     virtual void                init();
 
                     virtual void                draw();
@@ -203,21 +217,38 @@ namespace textinput {
                     virtual void                start();
                     virtual void                end();
 
-#endif
-#ifdef MYTIMANAGER_IMPLEMENTATION
-                    virtual InputForm* InputForm();
-                    virtual keyboard::hwkey::HWKeyboard* HWKeyboard();
-                    virtual keyboard::pctype::LayoutByNW4R* PCKeyboard();
-                    virtual keyboard::cellphonetype::LayoutByNW4R* CellPhoneKeyboard();
-                    virtual void* SignKeyboard();
-                    virtual candidatebox::LayoutByNW4R* CandidateBox();
-                    virtual toolbar::LayoutByNW4R* ToolBar();
-                    virtual void* PredictLanguageSelectDialog();
-                    virtual void* BG();
-#endif
+                protected:
+                    f32     mfAnim;     // 0x08
+            };
 
-                private:
-                    Manager*    mpManager;  // 0x04
+            class EditMemoState : public State {
+                public:
+                    virtual ~EditMemoState();
+                    virtual Manager::StateType  getStateType();
+
+                    virtual void                create();
+                    virtual void                init();
+
+                    virtual void                draw();
+                    virtual void                memoDraw();
+
+                    virtual void                calc();
+
+                    virtual bool                updateInput(int chan, f32 x, f32 y, u32 trig, u32 hold, u32 release);
+                    virtual bool                updateInput(input::HKBManager& hkbManager);
+
+                    virtual void                start();
+                    virtual void                end();
+            };
+
+            class DisappearMemoState : public AppearMemoState {
+                public:
+                    virtual ~DisappearMemoState();
+                    virtual Manager::StateType  getStateType();
+
+                    virtual void                calc();
+
+                    virtual void                start();
             };
         }
     }

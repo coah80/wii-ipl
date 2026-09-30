@@ -7,9 +7,6 @@
 
 namespace textinput {
     namespace util {
-#ifdef TIINPUTFORM_IMPLEMENTATION
-        wchar_t HankakuToZenkaku(wchar_t ch);
-#endif
         wchar_t toWLower(wchar_t ch);
         wchar_t toWUpper(wchar_t ch);
 
@@ -20,15 +17,9 @@ namespace textinput {
         wchar_t KBD_ConvertSmall(wchar_t ch);
         wchar_t KBD_ConvertAll(wchar_t ch);
 
-#ifdef TISTRING_IMPLEMENTATION
-        u32     KBD_IsDakuten(wchar_t ch);
-        u32     KBD_IsHandaku(wchar_t ch);
-        u32     KBD_IsSmall(wchar_t ch);
-#else
         bool    KBD_IsDakuten(wchar_t ch);
         bool    KBD_IsHandaku(wchar_t ch);
         bool    KBD_IsSmall(wchar_t ch);
-#endif
 
         bool    strcmp(const char* s1, const char* s2);
         void    replaceChar(char* dest, u32 destLen, const char* src, int replaceIdx, char newCh);
@@ -55,11 +46,10 @@ namespace textinput {
         public:
             Animation() : mfAnimationTime(0.0f), mbInAnimation(false), mbSE(false), mpAnimObserver(NULL) {}
 
-#ifdef TIINPUTFORM_IMPLEMENTATION
-            virtual void startAnm(f32 start, f32 end, f32 duration, AnimObserver* observer, void* data);
-#else
-            virtual void startAnm(AnimObserver*, f32, f32, f32, void*);
-#endif  // 0x08
+            virtual void startAnm(f32, f32, f32, AnimObserver*, void*);  // 0x08
+            void startAnm(AnimObserver* observer, f32 start, f32 end, f32 frame, void* arg) {
+                startAnm(start, end, frame, observer, arg);
+            }
             virtual void calc();                                         // 0x0C
             virtual f32 getValue();                                      // 0x10
             virtual bool isActive();                                     // 0x14

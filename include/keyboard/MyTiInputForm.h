@@ -3,6 +3,7 @@
 
 #include "tiInputForm.h"
 #include "tiString.h"
+#include "tiUtil.h"
 
 #include <nw4r/lyt/pane.h>
 
@@ -20,10 +21,6 @@ namespace textinput {
                     virtual void    moveNigaoeButton()  {}
             };
 
-#if defined(MYTIINPUTFORM_IMPLEMENTATION) || defined(MYTILETTERFORM_IMPLEMENTATION)
-            class ScrollButton;
-#endif
-
             class InputForm : public textinput::InputForm {
                 public:
                     typedef enum EditMode {
@@ -34,51 +31,24 @@ namespace textinput {
                         EM_Last
                     } EditMode;
 
-#ifdef MYTIMANAGER_IMPLEMENTATION
-                    InputForm(textinput::Manager* manager, nw4r::lyt::MultiArcResourceAccessor* multiArc,
-                              const char* layoutName, EventObserver* event, const char* fontName)
-                        : textinput::InputForm(manager, multiArc, layoutName, event, fontName),
+                    InputForm(Manager* manager, nw4r::lyt::MultiArcResourceAccessor* resAccessor, const char* arcName,
+                              EventObserver* observer, const char* subName)
+                        : textinput::InputForm(manager, resAccessor, arcName, observer, subName),
                           unk_0x308(NULL), unk_0x30C(NULL), unk_0x310(NULL), unk_0x314(NULL),
                           mfScroll(0.0f), mfScrollFrom(0.0f), mfScrollTo(0.0f), mnLine(0),
-                          mDrawRect(), mDefaultDrawSize(), mDefaultBoundSize(), mExScrollAnm(),
+                          mDrawRect(0.0f, 0.0f, 0.0f, 0.0f), mDefaultDrawSize(0.0f, 0.0f), mDefaultBoundSize(0.0f, 0.0f),
                           mpNigaoeObserver(NULL), mpDefaultNigaoe(NULL), mpSendString(NULL),
-                          mbEdited(false), mbGoodBye(false), mbEditScrollUp(false), mbEditScrollDown(false),
-                          mbCloseWithSend(false), mpScrollButton(NULL), mbScrollUp(false), mbScrollDown(false),
-                          meEditMode(EM_Disp) {}
-#endif
+                          mbEdited(false), mbGoodBye(false), mbEditScrollUp(false), mbEditScrollDown(false), mbCloseWithSend(false),
+                          mpScrollButton(NULL), mbScrollUp(false), mbScrollDown(false), meEditMode(EM_Disp) {}
 
                     ~InputForm();
-#if defined(MYTIINPUTFORM_IMPLEMENTATION) || defined(MYTILETTERFORM_IMPLEMENTATION)
-                    virtual void moveCursorUp();
-                    virtual void moveCursorDown();
-                    virtual void onCommand(INPUT_COMMAND command, void* data);
-                    virtual void create(MEMAllocator* allocator, inputform::EditBuffer* editBuffer);
-                    virtual bool updateInput(int chan, f32 x, f32 y, u32 trig, u32 hold, u32 release, void* data);
-                    virtual bool updateInput(input::HKBManager& hkbManager);
-                    virtual void init();
-                    virtual void draw();
-                    virtual void calc();
-                    virtual void doScroll(Scroll* scroll);
-                    virtual u32 calcCursorPos(f32 x, f32 y);
-                    virtual void drawCursor(f32 x, f32 y);
-                    virtual nw4r::math::VEC2 getScale() const;
-                    virtual void preDraw(u32 pos);
-                    virtual void doLineFeed();
-                    virtual void finishDraw(u32 pos);
-                    virtual bool isInScroll();
-#endif
 
                     virtual void                    setScroll(f32 scroll);
                     virtual void                    setAddScroll(f32 scroll, bool up, bool down);
 
                     virtual f32                     getScroll()     { return mfScroll; }
-#ifdef MYTIMANAGER_IMPLEMENTATION
-                    virtual f32                     getScrollFrom();
-                    virtual f32                     getScrollTo();
-#else
                     virtual f32                     getScrollFrom() { return mfScrollFrom; }
                     virtual f32                     getScrollTo()   { return mfScrollTo; }
-#endif
 
                     virtual void                    open();
                     virtual void                    close();
@@ -122,16 +92,7 @@ namespace textinput {
                     virtual void                    onCommandOnEditMode(INPUT_COMMAND command, void* arg);
 
                     virtual void                    doAutoScroll();
-
-#if defined(MYTIINPUTFORM_IMPLEMENTATION) || defined(MYTILETTERFORM_IMPLEMENTATION)
-                    virtual nw4r::lyt::Material*    getPhotoPaneMaterial() = 0;
-                    virtual void                    onPhotoTrig() = 0;
-                    virtual void                    onPhotoPoint() = 0;
-                    virtual void                    onPhotoLeft() = 0;
-                    virtual bool                    isPhotoScaledUp() = 0;
-                    virtual void                    setPhotoDraw(bool draw) = 0;
-#endif
-
+                    
                     /* For letter writing */
                     
                     void                            setEdited(bool edited)                  { mbEdited = edited; }
@@ -140,11 +101,7 @@ namespace textinput {
                     void                            setEditScrollDown(bool editScrollDown)  { mbEditScrollUp = editScrollDown; }
                     void                            setCloseWithSend(bool closeWithSend)    { mbCloseWithSend = closeWithSend; }
 
-#if defined(MYTIMANAGER_IMPLEMENTATION) || defined(MYTIINPUTFORM_IMPLEMENTATION) || defined(MYTILETTERFORM_IMPLEMENTATION)
                     void                            setEditMode(EditMode editMode);
-#else
-                    void                            setEditMode(EditMode editMode)          { meEditMode = editMode; }
-#endif
                     
                     bool                            isEdited()                              { return mbEdited; }
                     bool                            isGoodBye()                             { return mbGoodBye; }
@@ -156,24 +113,11 @@ namespace textinput {
 
                     tistring::Decolated*            getSendString()                         { return mpSendString; }
 
-#ifdef MYTILETTERFORM_IMPLEMENTATION
-                protected:
-#else
                 private:
-#endif
-#if defined(MYTIINPUTFORM_IMPLEMENTATION) || defined(MYTILETTERFORM_IMPLEMENTATION)
-                    nw4r::lyt::Pane* mpMemoPane;
-                    nw4r::lyt::Pane* mpMemoRootPane;
-                    nw4r::lyt::Pane* mpBoundPane;
-                    nw4r::lyt::Pane* mpDrawPane;
-#else
-#ifdef MYTIMANAGER_IMPLEMENTATION
                     undefined4*             unk_0x308;
-#endif
                     undefined4*             unk_0x30C;
                     undefined4*             unk_0x310;
                     undefined4*             unk_0x314;
-#endif
                     f32                     mfScroll;           // 0x318
                     f32                     mfScrollFrom;       // 0x31C
                     f32                     mfScrollTo;         // 0x320
@@ -185,11 +129,7 @@ namespace textinput {
                     nw4r::lyt::Size         mDefaultBoundSize;  // 0x358
                     Mtx                     mDrawMtx;           // 0x360
                     Mtx                     mBoundMtx;          // 0x390
-#if defined(MYTIMANAGER_IMPLEMENTATION) || defined(MYTIINPUTFORM_IMPLEMENTATION) || defined(MYTILETTERFORM_IMPLEMENTATION)
                     util::Animation         mExScrollAnm;       // 0x3C0
-#else
-                    u8 /*todo*/             mExScrollAnm[32];   // 0x3C0
-#endif
                     NigaoeEventObserver*    mpNigaoeObserver;   // 0x3E0
                     GXTexObj*               mpDefaultNigaoe;    // 0x3E4
                     tistring::Decolated*    mpSendString;       // 0x3E8
@@ -199,11 +139,7 @@ namespace textinput {
                     bool                    mbEditScrollDown;   // 0x3EF
                     bool                    mbCloseWithSend;    // 0x3F0
                     u8                      padding[3];         // 0x3F1
-#if defined(MYTIINPUTFORM_IMPLEMENTATION) || defined(MYTILETTERFORM_IMPLEMENTATION)
-                    ScrollButton* mpScrollButton;
-#else
-                    undefined4*             mpScrollButton;
-#endif
+                    undefined4*             mpScrollButton;     // 0x3F4
                     bool                    mbScrollUp;         // 0x3F8
                     bool                    mbScrollDown;       // 0x3F9
                     EditMode                meEditMode;         // 0x3FC

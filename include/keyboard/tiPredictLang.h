@@ -14,17 +14,13 @@ namespace textinput {
 
         class Base : public CommandSender {
         public:
-#if defined(TI_PREDICTLANG_SAMPLE_CLASS) || defined(TIMANAGER_IMPLEMENTATION)
+#ifdef TI_PREDICTLANG_SAMPLE_CLASS
             Base(Manager* manager) : mePredictMode(inputform::Base::PM_USEn), mpAllocator(NULL), mpManager(manager) {}
 #endif
 
-#ifdef TIMANAGER_IMPLEMENTATION
-            virtual ~Base();
-            virtual void init();
-            virtual void create(MEMAllocator* allocator) override;
-#else
+            virtual ~Base() {}
             virtual void create(MEMAllocator* allocator) override { mpAllocator = allocator; }
-#endif
+            virtual void init();
             virtual void setPredictMode(inputform::Base::PredictMode mode) { mePredictMode = mode; }
 
         protected:
@@ -38,20 +34,16 @@ namespace textinput {
 
         class LayoutByNW4R : public Base, public nw4rmanager::Layout, public nw4rmanager::AnmObserver {
         public:
-#ifdef TIMANAGER_IMPLEMENTATION
-            LayoutByNW4R(Manager* manager, nw4r::lyt::MultiArcResourceAccessor* resAccessor, EventObserver* observer, const char* layoutName)
-                : Base(manager), nw4rmanager::Layout(resAccessor, layoutName, observer), mbActive(false), mbInput(false),
-                  mpEventHandler(NULL), meDestination(DST_US), mpCaller(NULL) {}
-#elif defined(TI_PREDICTLANG_SAMPLE_CLASS)
-            LayoutByNW4R(Manager* manager, nw4r::lyt::MultiArcResourceAccessor* resAccessor, EventObserver* observer)
-                : Base(manager), nw4rmanager::Layout(resAccessor, "fs_prdicSelWidw_a.brlyt", observer), mbActive(false), mbInput(false),
+#ifdef TI_PREDICTLANG_SAMPLE_CLASS
+            LayoutByNW4R(Manager* manager, nw4r::lyt::MultiArcResourceAccessor* resAccessor, const char* arcName, EventObserver* observer)
+                : Base(manager), nw4rmanager::Layout(resAccessor, arcName, observer), mbActive(false), mbInput(false),
                   mpEventHandler(NULL), meDestination(DST_US), mpCaller(NULL) {}
 #endif
 
             virtual ~LayoutByNW4R();
             virtual void create(MEMAllocator* allocator) override;
-            virtual void init() override;
             virtual void draw() override;
+            virtual void init() override;
 
             virtual void open(inputform::Base::PredictMode predictMode, keyboard::KeyboardBase* keyboard);
             virtual void endToOpen();
@@ -78,21 +70,12 @@ namespace textinput {
             keyboard::KeyboardBase* mpCaller;  // 0xD4
         };
 
-#if defined(TI_PREDICTLANG_SAMPLE_CLASS) || defined(TIMANAGER_IMPLEMENTATION)
+#ifdef TI_PREDICTLANG_SAMPLE_CLASS
         class Sample : public LayoutByNW4R {
         public:
-#ifdef TIMANAGER_IMPLEMENTATION
-            Sample(Manager* manager, nw4r::lyt::MultiArcResourceAccessor* resAccessor, EventObserver* observer, const char* layoutName)
-                : LayoutByNW4R(manager, resAccessor, observer, layoutName) {}
-#else
-            Sample(Manager* manager, nw4r::lyt::MultiArcResourceAccessor* resAccessor, EventObserver* observer)
-                : LayoutByNW4R(manager, resAccessor, observer) {}
-#endif
-#ifdef TIMANAGER_IMPLEMENTATION
-            virtual ~Sample();
-#else
+            Sample(Manager* manager, nw4r::lyt::MultiArcResourceAccessor* resAccessor, const char* arcName, EventObserver* observer)
+                : LayoutByNW4R(manager, resAccessor, arcName, observer) {}
             virtual ~Sample() {}
-#endif
         };
 #endif
 

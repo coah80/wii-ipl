@@ -10,7 +10,7 @@ namespace textinput {
     namespace toolbar {
         class Base {
         public:
-#if defined(TI_TOOLBAR_SAMPLE_CLASS) || defined(TIMANAGER_IMPLEMENTATION)
+#ifdef TI_TOOLBAR_SAMPLE_CLASS
             Base(Manager* manager) : mQwerty(true), meLanguage(USA), mpAllocator(NULL), mpManager(manager) {}
 #endif
 
@@ -35,20 +35,16 @@ namespace textinput {
 
         class LayoutByNW4R : public Base, public nw4rmanager::Layout {
         public:
-#ifdef TIMANAGER_IMPLEMENTATION
-            LayoutByNW4R(Manager* manager, nw4r::lyt::MultiArcResourceAccessor* resAccessor, EventObserver* observer, const char* layoutName)
-                : Base(manager), nw4rmanager::Layout(resAccessor, layoutName, observer), mpEventHandler(NULL),
-                  mbIsEnableQwertyChg(false) {}
-#elif defined(TI_TOOLBAR_SAMPLE_CLASS)
-            LayoutByNW4R(Manager* manager, nw4r::lyt::MultiArcResourceAccessor* resAccessor, EventObserver* observer)
-                : Base(manager), nw4rmanager::Layout(resAccessor, "fs_VK_toolbar_a.brlyt", observer), mpEventHandler(NULL),
+#ifdef TI_TOOLBAR_SAMPLE_CLASS
+            LayoutByNW4R(Manager* manager, nw4r::lyt::MultiArcResourceAccessor* resAccessor, const char* arcName, EventObserver* observer)
+                : Base(manager), nw4rmanager::Layout(resAccessor, arcName, observer), mpEventHandler(NULL),
                   mbIsEnableQwertyChg(false) {}
 #endif
 
             virtual ~LayoutByNW4R();
             virtual void create(MEMAllocator* allocator) override;
-            virtual void init() override;
             virtual void draw() override;
+            virtual void init() override;
 
             virtual void setQwerty(bool qwerty) override;
             virtual void setLanguage(Language language) override;
@@ -56,19 +52,10 @@ namespace textinput {
             virtual void onOK();
             virtual void onCancel();
             virtual void setQwertyWithSE(bool qwerty);
-#ifdef TI_CELLPHONE_IMPLEMENTATION
-            virtual bool isEnableKeytopChange() const { return mbIsEnableQwertyChg; }
-#else
             virtual bool isEnableKeytopChange() const;
-#endif
             virtual void enableKeytopChange(bool enable);
-#ifdef MYTIMANAGER_MATCHING
-            virtual nw4r::lyt::Pane* getDownArea();
-            virtual nw4r::lyt::Pane* getUpArea();
-#else
             virtual nw4r::lyt::Pane* getUpArea();
             virtual nw4r::lyt::Pane* getDownArea();
-#endif
             virtual void setOKButtonVisible(bool visible);
             virtual void setCancelButtonVisible(bool visible);
             virtual void setOKButtonCaption(const wchar_t* caption);
@@ -130,21 +117,12 @@ namespace textinput {
             KeyType meKeyType;  // 0x30
         };
 
-#if defined(TI_TOOLBAR_SAMPLE_CLASS) || defined(TIMANAGER_IMPLEMENTATION)
+#ifdef TI_TOOLBAR_SAMPLE_CLASS
         class Sample : public LayoutByNW4R {
         public:
-#ifdef TIMANAGER_IMPLEMENTATION
-            Sample(Manager* manager, nw4r::lyt::MultiArcResourceAccessor* resAccessor, EventObserver* observer, const char* layoutName)
-                : LayoutByNW4R(manager, resAccessor, observer, layoutName) {}
-#else
-            Sample(Manager* manager, nw4r::lyt::MultiArcResourceAccessor* resAccessor, EventObserver* observer)
-                : LayoutByNW4R(manager, resAccessor, observer) {}
-#endif
-#ifdef TIMANAGER_IMPLEMENTATION
-            virtual ~Sample();
-#else
+            Sample(Manager* manager, nw4r::lyt::MultiArcResourceAccessor* resAccessor, const char* arcName, EventObserver* observer)
+                : LayoutByNW4R(manager, resAccessor, arcName, observer) {}
             virtual ~Sample() {}
-#endif
         };
 #else
         class Sample {};
