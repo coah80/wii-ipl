@@ -1,8 +1,10 @@
 #include <revolution/fa.h>
 
-extern s32 PFDIR_seekdir(FADIR* directory, u32 position);
-extern s32 PFAPI_convertReturnValue(s32 error);
+extern s32 PFDIR_seekdir(FADIR* dir, u32 position);
+extern s32 PFAPI_convertReturnValue(s32 err);
 
-s32 pf2_rewinddir(FADIR* directory) {
-    return PFAPI_convertReturnValue(PFDIR_seekdir(directory, 0));
+FAError pf2_rewinddir(FADIR* dir) {
+    s32 err = PFDIR_seekdir(dir, 0);
+    err = PFAPI_convertReturnValue(err);
+    return err;
 }
