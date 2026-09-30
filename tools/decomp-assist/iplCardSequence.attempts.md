@@ -155,3 +155,70 @@ All variants were applied to all three command functions.
 Retained only the instruction-exact initCardThread change. Every remaining
 function has three new distinct attempts in this continuation. All data
 sections and the complete pool remain exact; no DOL link investigation.
+
+## Continuation after the second merge
+
+Baseline: 24/30 exact functions, 3916/9852 exact code bytes, 1496/1496 data
+bytes. The pool is identical at 43 strings. The three long functions were
+examined in decreasing baseline score; command packing experiments followed.
+Every variant below was built as the owned object and inspected with ctxdiff.
+
+### CardSequence_813D2C8C
+
+1. Unified mount, listing and delete file indices and widened the slot local
+   to u32: 301/301 instructions, 70 differences versus the baseline 78.
+   Saved registers and validity-response scheduling still differ. Reverted.
+2. Reused the slot and result locals for the free-space scan rather than
+   separate outerSlot/freeBlocks locals: 301/301, 69 differences. Reverted.
+3. Made the validity flag u8 and passed its value to the validity report:
+   301/301, unchanged 78 differences. Reverted.
+
+### CardSequence_813D3D14
+
+1. Native bool flags for temporary creation, metadata completion and cancel:
+   608/608 instructions, unchanged 186 differences. Reverted.
+2. Scoped permissionResult for the initial permission check, independent of
+   the transfer result: 608/608, 177 differences. Initial saved-register
+   assignments, metadata joins and cleanup conversions remain different.
+   Reverted for the focused final diff.
+3. With the scoped permission result, used a full-width destination result,
+   explicit s16 conversions when accepting the creation result and at file
+   APIs: 608/608, same 177 differences. Reverted.
+
+### sendCardCopyCmd / sendCardMoveCmd / sendCardDeleteCmd
+
+Each variant was applied to all three commands. The final mask expression
+was checked independently for each symbol: 21/21 instructions, diffs 0.
+
+1. Packed the slot first in a union value, then assigned its file byte:
+   21/21, 11 differences in packing registers and instruction ordering.
+2. Shared inline sendFileRequest helper for the final OR and nonblocking
+   queue send: inlined, 21/21, unchanged two scheduling differences.
+3. Signed message temporary: 21/21, unchanged two differences.
+4. Separate masked slot temporary: 21/21, eight packing/scheduling differences.
+5. Explicit file-byte temporary: 21/21, unchanged two differences.
+6. Separate initial slot assignment and OR of the shifted file byte:
+   21/21, 11 differences. Reverted.
+7. Explicit unsigned file mask before shifting, replacing the narrowing byte
+   cast: 21/21, diffs 0 for Copy, Move and Delete. Retained. Both express the
+   same file-byte truncation; the mask produces the original li/ori order.
+
+### CardSequence_813D3424
+
+1. Corrected the eighth-icon palette destination to icons[slot][fileNo].
+   The original at 813D384C adds the selected icon offset before storing
+   iconTlutOffset at 813D385C. The previous icons[0][0] destination was wrong.
+   499/512 instructions; objdiff improves from 87.23633% to 87.92969%.
+   Retained this behavior correction.
+2. Moved iconCount and shift increments to the common bottom of the format
+   loop: 499/512, objdiff improves further to 89.44531%. The source now
+   expresses the shared loop continuation directly. Retained.
+3. Extracted the sector-size checks, image read/copy and invalid-image clearing
+   into a real inline readCardImages helper: inlined to 480/512 instructions.
+   Pool identical; more original error-path instructions were optimized away.
+   Reverted.
+
+The final diff retains three exact command functions and the palette destination
+correction and shared loop continuation. All remaining functions have at least
+three new distinct attempts.
+Shared headers and configure.py are unchanged. All data sections remain exact.
