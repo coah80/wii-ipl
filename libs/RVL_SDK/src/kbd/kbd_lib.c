@@ -564,16 +564,21 @@ static inline u32 kbdChannelFlags(u32 channel) {
 
 static void kbd_led_handler(BOOL success, void* callbackArg) {
     u32 index;
+    u32 err;
     index = (u32)callbackArg;
     kbdCmdBuf[index].device = 0;
     if (kbdLCBuf[index].callbackAddress == (USBKBDCmdLEDCallback)(u32)kbdCmdBuf[index].device) {
         return;
     }
-    if (success == TRUE) {
-        kbdLCBuf[index].callbackAddress(0, kbdLCBuf[index].callbackArg);
-    } else {
-        kbdLCBuf[index].callbackAddress(7, kbdLCBuf[index].callbackArg);
+    switch (success) {
+    default:
+        err = 7;
+        break;
+    case TRUE:
+        err = 0;
+        break;
     }
+    kbdLCBuf[index].callbackAddress(err, kbdLCBuf[index].callbackArg);
 }
 
 USBKBDErr KBDSetLedsAsync(u32 channel, u32 leds, USBKBDCmdLEDCallback callback, void* callbackArg) {
