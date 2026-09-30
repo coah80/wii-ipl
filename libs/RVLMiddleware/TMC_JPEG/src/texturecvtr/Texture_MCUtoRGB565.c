@@ -247,8 +247,8 @@ static void TMCJPEGDEC_converterYUV411toRGB565edge(TMCCJPEGDecWork* work, s32 x,
                 }
                 {
                     s32 value = luminance[0];
-                    s32 red = value + redOffset;
                     s32 green = value + greenOffset;
+                    s32 red = value + redOffset;
                     s32 blue = value + blueOffset;
                     if ((blue | red | green) >> 8) {
                         blue = (blue > 255) ? 255 : blue & ~(blue >> 31);
@@ -334,8 +334,8 @@ static void TMCJPEGDEC_converterYUV422toRGB565(TMCCJPEGDecWork* work, s32 x, s32
 static void TMCJPEGDEC_converterYUV422toRGB565edge(TMCCJPEGDecWork* work, s32 x, s32 y) {
     s32 column;
     u8* luminance = work->convBuf + 4;
-    u8* cb = work->convBuf + 132;
-    u8* cr = work->convBuf + 196;
+    s8* cb = (s8*) work->convBuf + 132;
+    s8* cr = (s8*) work->convBuf + 196;
     TMCCJPEGDecState* state = work->pState;
     u32 tileWidth = state->convWidth >> 2;
     u8* texture = state->pTexBuffer;
@@ -461,8 +461,8 @@ static void TMCJPEGDEC_converterYUV420toRGB565(TMCCJPEGDecWork* work, s32 x, s32
 
 static void TMCJPEGDEC_converterYUV420toRGB565edge(TMCCJPEGDecWork* work, s32 x, s32 y) {
     u8* luminance = work->convBuf + 4;
-    u8* cb = work->convBuf + 260;
-    u8* cr = work->convBuf + 324;
+    s8* cb = (s8*) work->convBuf + 260;
+    s8* cr = (s8*) work->convBuf + 324;
     TMCCJPEGDecState* state = work->pState;
     u32 tileWidth = state->convWidth >> 2;
     u8* texture = state->pTexBuffer;
@@ -554,8 +554,8 @@ static void TMCJPEGDEC_converterYUV211toRGB565(TMCCJPEGDecWork* work, s32 x, s32
                 }
                 {
                     s32 value = luminance[0];
-                    s32 red = value + redOffset;
                     s32 green = value + greenOffset;
+                    s32 red = value + redOffset;
                     s32 blue = value + blueOffset;
                     if ((blue | red | green) >> 8) {
                         blue = (blue > 255) ? 255 : blue & ~(blue >> 31);
@@ -618,8 +618,8 @@ static void TMCJPEGDEC_converterYUV211toRGB565edge(TMCCJPEGDecWork* work, s32 x,
                 }
                 {
                     s32 value = luminance[0];
-                    s32 red = value + redOffset;
                     s32 green = value + greenOffset;
+                    s32 red = value + redOffset;
                     s32 blue = value + blueOffset;
                     if ((blue | red | green) >> 8) {
                         blue = (blue > 255) ? 255 : blue & ~(blue >> 31);
@@ -687,20 +687,17 @@ static void TMCJPEGDEC_converterYUV444toRGB565(TMCCJPEGDecWork* work, s32 x, s32
             red = value + ((crValue * 359) >> 8);
             blue = value + ((cbValue * 454) >> 8);
             if ((blue | red | green) >> 8) {
+                blue &= ~(blue >> 31);
                 if (blue > 255) {
                     blue = 255;
-                } else {
-                    blue &= ~(blue >> 31);
                 }
+                green &= ~(green >> 31);
                 if (green > 255) {
                     green = 255;
-                } else {
-                    green &= ~(green >> 31);
                 }
+                red &= ~(red >> 31);
                 if (red > 255) {
                     red = 255;
-                } else {
-                    red &= ~(red >> 31);
                 }
             }
             output[(column & 3) + (((column >> 2) + tileRow) << 4)] =
@@ -764,20 +761,17 @@ static void TMCJPEGDEC_converterYUV444toRGB565edge(TMCCJPEGDecWork* work, s32 x,
             red = value + ((crValue * 359) >> 8);
             blue = value + ((cbValue * 454) >> 8);
             if ((blue | red | green) >> 8) {
+                blue &= ~(blue >> 31);
                 if (blue > 255) {
                     blue = 255;
-                } else {
-                    blue &= ~(blue >> 31);
                 }
+                green &= ~(green >> 31);
                 if (green > 255) {
                     green = 255;
-                } else {
-                    green &= ~(green >> 31);
                 }
+                red &= ~(red >> 31);
                 if (red > 255) {
                     red = 255;
-                } else {
-                    red &= ~(red >> 31);
                 }
             }
             output[(column & 3) + (((column >> 2) + tileRow) << 4)] =
