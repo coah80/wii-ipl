@@ -75,26 +75,20 @@ NWC24Err NWC24ReadMsgSubjectPublic(const NWC24MsgObj* msg, u16* subject, u32* su
                         truncated = TRUE;
                     }
                     result = NWC24ReadMsgSubject(msg, (char*)work, subjectDataSize);
-                    switch (result) {
-                        case NWC24_ERR_OVERFLOW:
-                            truncated = TRUE;
-                            break;
-                        case NWC24_OK:
-                            break;
-                        default:
-                            goto done;
+                    if (result != NWC24_OK && result != NWC24_ERR_OVERFLOW) {
+                        goto done;
+                    }
+                    if (result == NWC24_ERR_OVERFLOW) {
+                        truncated = TRUE;
                     }
                     charsetBuffer = NWC24WorkP->stringWork;
                     result =
                         NWC24DecodeMIMEHeaderFieldBody((u8*)charsetBuffer, 0x40, decodedData, decodedCapacity, &decodedSize, work, subjectDataSize);
-                    switch (result) {
-                        case NWC24_ERR_OVERFLOW:
-                            truncated = TRUE;
-                            break;
-                        case NWC24_OK:
-                            break;
-                        default:
-                            goto done;
+                    if (result != NWC24_OK && result != NWC24_ERR_OVERFLOW) {
+                        goto done;
+                    }
+                    if (result == NWC24_ERR_OVERFLOW) {
+                        truncated = TRUE;
                     }
                     *subjectSize = originalSize;
                     result =
@@ -147,10 +141,10 @@ NWC24Err NWC24ReadMsgTextPublic(const NWC24MsgObj* msg, u16* text, u32* textSize
                     charsetBuffer = NWC24WorkP->stringWork + 0x20;
                     result = NWC24ReadMsgTextEx(msg, (char*)work, textDataSize, charsetBuffer, 0x40);
                     switch (result) {
+                        case NWC24_OK:
+                            break;
                         case NWC24_ERR_OVERFLOW:
                             truncated = TRUE;
-                            break;
-                        case NWC24_OK:
                             break;
                         default:
                             goto done;
