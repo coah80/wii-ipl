@@ -7171,3 +7171,168 @@ diffs 186: [5, 6, 7, 8, 9, 10, 11, 12, 17, 18, 22, 42, 46, 47, 50, 51, 53, 57, 6
    599 M clrlwi r5, r30, 0x18
        B clrlwi r5, r26, 0x18
 ```
+
+## BS2, KPAD, and WAD block reconstruction
+
+Baseline 94e6d862. Attempt candidates and full instruction diffs: /tmp/sol-med-attempts. Each initially open function has at least three distinct compiling attempts. Each attempt built its object, checked the string pool, ran ctxdiff, and generated objdiff.
+
+| Unit | Function | Attempt | Change | Result |
+| --- | --- | --- | --- | --- |
+| src/BS2/BS2Mach | BS2Tick | 1 | translate case 0 deadline blocks in target address order | 74.78608 -> 75.32371; src 0x1dc4 base 0x1e50 insns 1905/1940; kept |
+| src/BS2/BS2Mach | BS2Tick | 2 | translate case 2 cache deadline blocks in target address order | 75.32371 -> 75.74536; src 0x1dc4 base 0x1e50 insns 1905/1940; kept |
+| src/BS2/BS2Mach | BS2Tick | 3 | use signed time temporary for signed deadline comparisons | 75.74536 -> 75.74536; src 0x1dc4 base 0x1e50 insns 1905/1940; reverted |
+| src/BS2/BS2Mach | BS2Tick | 4 | translate disc signature checks as direct short-circuit branches | 75.74536 -> 76.66908; src 0x1db8 base 0x1e50 insns 1902/1940; kept |
+| src/BS2/BS2Mach | BS2Tick | 5 | load country code only after command completion block | 76.66908 -> 76.22113; src 0x1db8 base 0x1e50 insns 1902/1940; reverted |
+| src/BS2/BS2Mach | BS2Tick | 6 | translate unsigned disk audio byte and defer load until configured check | 76.66908 -> 76.16392; src 0x1dac base 0x1e50 insns 1899/1940; reverted |
+| src/BS2/BS2Mach | CheckBS2CommandStatus | 1 | translate cache length update before completion flag | 80.13300 -> 80.10838; src 0x60c base 0x658 insns 387/406; reverted |
+| src/BS2/BS2Mach | CheckBS2CommandStatus | 2 | translate partition byte accumulation in target addition order | 80.13300 -> 80.69704; src 0x610 base 0x658 insns 388/406; kept |
+| src/BS2/BS2Mach | CheckBS2CommandStatus | 3 | translate success state as early branch before failure callback | 80.69704 -> 57.50246; src 0x610 base 0x658 insns 388/406; reverted |
+| src/BS2/BS2Mach | BS2StartGame | 1 | translate initial idle polling block as command state field | 95.49618 -> 93.94402; src 0x644 base 0x624 insns 401/393; reverted |
+| src/BS2/BS2Mach | BS2StartGCGame | 1 | translate initial idle polling block as command state field | 98.24561 -> 95.57018; src 0x38c base 0x390 insns 227/228; reverted |
+| src/BS2/BS2Mach | BS2StartGCGame | 2 | translate time multiplication in target operand order | 98.24561 -> 98.11404; src 0x38c base 0x390 insns 227/228; reverted |
+| src/BS2/BS2Mach | BS2StartGCGame | 3 | translate reset register through a named value temporary | 98.24561 -> 98.24561; src 0x38c base 0x390 insns 227/228; reverted |
+| src/BS2/BS2Mach | BS2StartGame | 2 | translate low-read completion loops as target empty polling blocks | 95.49618 -> 98.54962; src 0x614 base 0x624 insns 389/393; rejected after semantic review; original polling restored before commit |
+| src/BS2/BS2Mach | BS2StartGame | 3 | translate DI control update with direct bit expression | 98.54962 -> 98.05344; src 0x614 base 0x624 insns 389/393; reverted |
+| src/BS2/BS2Mach | BS2NANDDivideReadAsync | 1 | translate request with the argument buffer rather than reloaded global | 60.31915 -> 47.87234; src 0xc0 base 0xbc insns 48/47; reverted |
+| src/BS2/BS2Mach | BS2NANDDivideReadAsync | 2 | translate initial block limit with a chunk-length temporary | compile failed |
+| src/BS2/BS2Mach | BS2NANDDivideReadAsync | 3 | translate request setup stores in target scheduling order | 60.31915 -> 60.31915; src 0xb4 base 0xbc insns 45/47; reverted |
+| src/BS2/BS2Mach | BS2NANDDivideWriteAsync | 1 | translate request with the argument buffer rather than reloaded global | 60.31915 -> 47.87234; src 0xc0 base 0xbc insns 48/47; reverted |
+| src/BS2/BS2Mach | BS2NANDDivideWriteAsync | 2 | translate initial block limit with a chunk-length temporary | compile failed |
+| src/BS2/BS2Mach | BS2NANDDivideWriteAsync | 3 | translate request setup stores in target scheduling order | 60.31915 -> 60.31915; src 0xb4 base 0xbc insns 45/47; reverted |
+| src/BS2/BS2Mach | BS2NANDDivideCallback | 1 | translate negative and cancelled blocks as early returns | 85.03906 -> 85.03906; src 0x1dc base 0x200 insns 119/128; reverted |
+| src/BS2/BS2Mach | BS2NANDDivideCallback | 2 | translate transferred byte and buffer updates in target load order | 85.03906 -> 85.00000; src 0x1dc base 0x200 insns 119/128; reverted |
+| src/BS2/BS2Mach | BS2NANDDivideCallback | 3 | translate remaining byte calculation through a named temporary | compile failed |
+| src/BS2/BS2Mach | Run | 1 | translate cache clearing as a count-controlled for loop | 0.00000 -> 0.88372; src 0x78 base 0xac insns 30/43; kept |
+| src/BS2/BS2Mach | BS2NANDDivideReadAsync | 4 | declare chunk length at block start then translate initial limit | 60.31915 -> 52.44681; src 0xc0 base 0xbc insns 48/47; reverted |
+| src/BS2/BS2Mach | BS2NANDDivideWriteAsync | 4 | declare chunk length at block start then translate initial limit | 60.31915 -> 52.44681; src 0xc0 base 0xbc insns 48/47; reverted |
+| src/BS2/BS2Mach | BS2NANDDivideCallback | 4 | declare remaining byte temporary at function start | 85.03906 -> 70.85938; src 0x1dc base 0x200 insns 119/128; reverted |
+| src/BS2/BS2Mach | Run | 2 | translate cache clearing with indexed iteration | 0.88372 -> 0.00000; src 0x84 base 0xac insns 33/43; reverted |
+| src/BS2/BS2Mach | Run | 3 | translate entry call using a named function pointer | 0.88372 -> 0.88372; src 0x78 base 0xac insns 30/43; reverted |
+| libs/RVL_SDK/src/kpad/KPAD | KPADRead | 1 | translate sample cursor as signed ring index | 83.57952 -> 83.53595; src 0x75c base 0x72c insns 471/459; reverted |
+| libs/RVL_SDK/src/kpad/KPAD | KPADRead | 2 | translate target zero result initialization before status check | 83.57952 -> 83.57952; src 0x75c base 0x72c insns 471/459; reverted |
+| libs/RVL_SDK/src/kpad/KPAD | KPADRead | 3 | translate reverse-copy pointer from count before decrement | 83.57952 -> 83.50109; src 0x764 base 0x72c insns 473/459; reverted |
+| libs/RVL_SDK/src/kpad/KPAD | KPADGetProjectionPos | 1 | translate target multiplication operand order | 96.57895 -> 95.52631; src 0x4c base 0x4c insns 19/19; reverted |
+| libs/RVL_SDK/src/kpad/KPAD | KPADGetProjectionPos | 2 | translate scale factor at point of final multiply | 96.57895 -> 95.78947; src 0x4c base 0x4c insns 19/19; reverted |
+| libs/RVL_SDK/src/kpad/KPAD | KPADGetProjectionPos | 3 | translate scale double before spatial temporaries | 96.57895 -> 95.00000; src 0x4c base 0x4c insns 19/19; reverted |
+| libs/RVL_SDK/src/kpad/KPAD | KPADSetSensorHeight | 1 | translate diagonal square before center assignments | 99.23077 -> 99.23077; src 0xd0 base 0xd0 insns 52/52; reverted |
+| libs/RVL_SDK/src/kpad/KPAD | KPADSetSensorHeight | 2 | translate kpad base after dimensions are prepared | 99.23077 -> 99.23077; src 0xd0 base 0xd0 insns 52/52; reverted |
+| libs/RVL_SDK/src/kpad/KPAD | KPADSetSensorHeight | 3 | translate diagonal expression without squared temporaries | 99.23077 -> 99.23077; src 0xd0 base 0xd0 insns 52/52; reverted |
+| libs/RVL_SDK/src/kpad/KPAD | read_kpad_acc | 1 | translate format dispatch as switch in target comparison tree | 65.73500 -> 65.40000; src 0x648 base 0x640 insns 402/400; reverted |
+| libs/RVL_SDK/src/kpad/KPAD | read_kpad_acc | 2 | load previous acceleration after raw clamping blocks | 65.73500 -> 66.56500; src 0x640 base 0x640 insns 400/400; reverted |
+| libs/RVL_SDK/src/kpad/KPAD | read_kpad_acc | 3 | translate clamp branches with explicit target rejection direction | 65.73500 -> 65.73500; src 0x640 base 0x640 insns 400/400; reverted |
+| libs/RVL_SDK/src/kpad/KPAD | KPADGetProjectionPos | 4 | translate projection expressions directly from straight-line target | 96.57895 -> 96.05263; src 0x4c base 0x4c insns 19/19; reverted |
+| libs/RVL_SDK/src/kpad/KPAD | KPADGetProjectionPos | 5 | translate scaled vector then apply horizontal projection | 96.57895 -> 96.31579; src 0x4c base 0x4c insns 19/19; reverted |
+| libs/RVL_SDK/src/kpad/KPAD | get_ring_buffer_by_kpad1_style | 1 | translate metadata comparison using a signed promoted byte | 99.58334 -> 98.95834; src 0x180 base 0x180 insns 96/96; reverted |
+| libs/RVL_SDK/src/kpad/KPAD | get_ring_buffer_by_kpad1_style | 2 | translate ring traversal as remaining count loop | 99.58334 -> 98.01041; src 0x17c base 0x180 insns 95/96; reverted |
+| libs/RVL_SDK/src/kpad/KPAD | get_ring_buffer_by_kpad1_style | 3 | translate interrupt token before ring-loop locals | 99.58334 -> 100.00000; src 0x180 base 0x180 insns 96/96; reverted |
+| libs/RVL_SDK/src/kpad/KPAD | reset_kpad | 1 | translate acceleration copy as named vector components | 69.37607 -> 63.94872; src 0x1b0 base 0x1d4 insns 108/117; reverted |
+| libs/RVL_SDK/src/kpad/KPAD | reset_kpad | 2 | translate object invalidation as descending indexed loops | 69.37607 -> 58.18803; src 0x1d8 base 0x1d4 insns 118/117; reverted |
+| libs/RVL_SDK/src/kpad/KPAD | reset_kpad | 3 | translate sensor distance quotient after stored reference scale | 69.37607 -> 69.37607; src 0x1f8 base 0x1d4 insns 126/117; reverted |
+| libs/RVL_SDK/src/kpad/KPAD | calc_acc_horizon | 1 | translate smoothing addition operand order | 95.89109 -> 95.89109; src 0x190 base 0x194 insns 100/101; reverted |
+| libs/RVL_SDK/src/kpad/KPAD | calc_acc_horizon | 2 | translate normalized axes from loaded acceleration locals | 95.89109 -> 93.26733; src 0x188 base 0x194 insns 98/101; reverted |
+| libs/RVL_SDK/src/kpad/KPAD | calc_acc_horizon | 3 | translate magnitude rejection as early returns | 95.89109 -> 96.98020; src 0x194 base 0x194 insns 101/101; reverted |
+| libs/RVL_SDK/src/kpad/KPAD | get_ring_buffer_by_kpad1_style | 4 | recheck exact candidate with exact-code measure priority | 99.58334 -> 100.00000; unit 82.437195 -> 82.44945; src 0x180 base 0x180 insns 96/96; reverted |
+| libs/RVL_SDK/src/kpad/KPAD | calc_acc_horizon | 4 | recheck target-sized early-return candidate against code measures | 95.89109 -> 96.98020; unit 82.437195 -> 82.470894; src 0x194 base 0x194 insns 101/101; reverted |
+| libs/RVL_SDK/src/kpad/KPAD | get_ring_buffer_by_kpad1_style | 5 | recheck exact candidate using gate pool fallback for absent .data | 99.58334 -> 100.00000; unit 82.437195 -> 82.44945; src 0x180 base 0x180 insns 96/96; kept |
+| libs/RVL_SDK/src/kpad/KPAD | calc_acc_horizon | 5 | recheck early-return candidate with gate pool fallback | 95.89109 -> 96.98020; unit 82.44945 -> 82.48315; src 0x194 base 0x194 insns 101/101; kept |
+| libs/RVL_SDK/src/kpad/KPAD | read_kpad_acc | 4 | recheck delayed previous acceleration load with gate pool fallback | 65.73500 -> 66.56500; unit 82.48315 -> 82.58486; src 0x640 base 0x640 insns 400/400; kept |
+| libs/RVL_SDK/src/kpad/KPAD | read_kpad_dpd | 1 | translate object coordinates in target multiply operand order | 73.54317 -> 73.54317; unit 82.58486 -> 82.58486; src 0x464 base 0x458 insns 281/278; reverted |
+| libs/RVL_SDK/src/kpad/KPAD | read_kpad_dpd | 2 | translate reverse object copy as target do-while bound | 73.54317 -> 73.54317; unit 82.58486 -> 82.58486; src 0x464 base 0x458 insns 281/278; reverted |
+| libs/RVL_SDK/src/kpad/KPAD | read_kpad_dpd | 3 | translate invalidation loop with descending bound | 73.54317 -> 72.41727; unit 82.58486 -> 82.48897; src 0x480 base 0x458 insns 288/278; reverted |
+| libs/RVL_SDK/src/kpad/KPAD | calc_dpd_variable | 1 | translate initial horizon through a vector stack local | 73.56000 -> 77.84800; unit 82.58486 -> 82.9133; src 0x3bc base 0x3e8 insns 239/250; kept |
+| libs/RVL_SDK/src/kpad/KPAD | calc_dpd_variable | 2 | translate rotated coordinates in target multiply order | 77.84800 -> 80.02400; unit 82.9133 -> 83.07996; src 0x3bc base 0x3e8 insns 239/250; kept |
+| libs/RVL_SDK/src/kpad/KPAD | calc_dpd_variable | 3 | translate distance speed absolute value with one store | 80.02400 -> 78.34800; unit 83.07996 -> 82.95159; src 0x3b4 base 0x3e8 insns 237/250; reverted |
+| libs/RVL_SDK/src/kpad/KPAD | select_2obj_first | 1 | translate pair-search basic blocks as target pointer traversal | 72.86066 -> 76.18033; unit 83.07996 -> 83.20404; src 0x1f4 base 0x1e8 insns 125/122; kept |
+| libs/RVL_SDK/src/kpad/KPAD | select_2obj_first | 2 | translate outer-loop bound to exclude object without successors | 76.18033 -> 76.13934; unit 83.20404 -> 83.202515; src 0x1f4 base 0x1e8 insns 125/122; reverted |
+| libs/RVL_SDK/src/kpad/KPAD | select_2obj_first | 3 | translate normalization into explicit length before reciprocal | 76.18033 -> 76.18033; unit 83.20404 -> 83.20404; src 0x1f4 base 0x1e8 insns 125/122; reverted |
+| libs/RVL_SDK/src/kpad/KPAD | select_2obj_continue | 1 | translate pair-search basic blocks as target pointer traversal | 86.34782 -> 89.39130; unit 83.20404 -> 83.33272; src 0x22c base 0x228 insns 139/138; kept |
+| libs/RVL_SDK/src/kpad/KPAD | select_2obj_continue | 2 | translate outer-loop bound to exclude object without successors | 89.39130 -> 89.35507; unit 83.33272 -> 83.33119; src 0x22c base 0x228 insns 139/138; reverted |
+| libs/RVL_SDK/src/kpad/KPAD | select_2obj_continue | 3 | translate normalization into explicit length before reciprocal | 89.39130 -> 89.39130; unit 83.33272 -> 83.33272; src 0x22c base 0x228 insns 139/138; reverted |
+| libs/RVL_SDK/src/kpad/KPAD | select_1obj_first | 1 | translate candidate vector copy as named component stores | 73.02752 -> 88.52293; unit 83.33272 -> 83.85018; src 0x1b4 base 0x1b4 insns 109/109; kept |
+| libs/RVL_SDK/src/kpad/KPAD | select_1obj_first | 2 | translate object record copies as struct assignments | 88.52293 -> 90.83486; unit 83.85018 -> 83.92739; src 0x1b4 base 0x1b4 insns 109/109; kept |
+| libs/RVL_SDK/src/kpad/KPAD | select_1obj_first | 3 | translate offset scaling in target operand order | 90.83486 -> 90.83486; unit 83.92739 -> 83.92739; src 0x1b4 base 0x1b4 insns 109/109; reverted |
+| libs/RVL_SDK/src/kpad/KPAD | select_1obj_continue | 1 | translate pointer loops with explicit increments in bodies | 80.07527 -> 80.07527; unit 83.92739 -> 83.92739; src 0x17c base 0x174 insns 95/93; reverted |
+| libs/RVL_SDK/src/kpad/KPAD | select_1obj_continue | 2 | translate distance scale multiplication in target operand order | 80.07527 -> 80.18279; unit 83.92739 -> 83.93045; src 0x17c base 0x174 insns 95/93; kept |
+| libs/RVL_SDK/src/kpad/KPAD | select_1obj_continue | 3 | translate negative validity return with a conditional expression | 80.18279 -> 76.88172; unit 83.93045 -> 83.836395; src 0x178 base 0x174 insns 94/93; reverted |
+| libs/RVL_SDK/src/kpad/KPAD | read_kpad_stick | 1 | translate data-format load inside each extension branch | 95.34810 -> 96.58227; unit 83.93045 -> 83.9902; src 0x274 base 0x278 insns 157/158; kept |
+| libs/RVL_SDK/src/kpad/KPAD | read_kpad_stick | 2 | translate classic trigger ratio with signed limit temporaries | 96.58227 -> 87.76582; unit 83.9902 -> 83.563416; src 0x264 base 0x278 insns 153/158; reverted |
+| libs/RVL_SDK/src/kpad/KPAD | read_kpad_stick | 3 | translate clamp selection as conditional initializer | 96.58227 -> 96.58227; unit 83.9902 -> 83.9902; src 0x274 base 0x278 insns 157/158; reverted |
+| libs/RVL_SDK/src/kpad/KPAD | KPADInit | 1 | translate repeat defaults from initialized delay field | 72.46487 -> 72.46487; unit 83.9902 -> 83.9902; src 0x320 base 0x2e4 insns 200/185; reverted |
+| libs/RVL_SDK/src/kpad/KPAD | KPADInit | 2 | translate channel setup as pointer-bound loop | 72.46487 -> 68.34595; unit 83.9902 -> 83.75674; src 0x318 base 0x2e4 insns 198/185; reverted |
+| libs/RVL_SDK/src/kpad/KPAD | KPADInit | 3 | translate angular multiplication in target operand order | 72.46487 -> 72.35676; unit 83.9902 -> 83.98407; src 0x320 base 0x2e4 insns 200/185; reverted |
+| libs/RVL_SDK/src/kpad/KPAD | KPADiSamplingCallback | 1 | translate ring index as promoted unsigned byte | 88.14835 -> 88.14835; unit 83.9902 -> 83.9902; src 0x2d8 base 0x2d8 insns 182/182; reverted |
+| libs/RVL_SDK/src/kpad/KPAD | KPADiSamplingCallback | 2 | translate classic format tier in target switch value order | 88.14835 -> 88.14835; unit 83.9902 -> 83.9902; src 0x2d8 base 0x2d8 insns 182/182; reverted |
+| libs/RVL_SDK/src/kpad/KPAD | KPADiSamplingCallback | 3 | translate minimum sensor span with target conditional expression | 88.14835 -> 89.30220; unit 83.9902 -> 84.054535; src 0x2d8 base 0x2d8 insns 182/182; kept |
+| src/BS2/BS2Update | UpdateThread | 1 | translate target stack workspace in actual address order | compile failed |
+| src/BS2/BS2Update | UpdateThread | 2 | translate product-region basic blocks as boolean assignment | 84.05586 -> 82.34611; unit 84.19941 -> 82.65844; src 0xd88 base 0xe44 insns 866/913; reverted |
+| src/BS2/BS2Update | UpdateThread | 3 | translate initialization stores in target block order | 84.05586 -> 84.42607; unit 84.19941 -> 84.53307; src 0xd80 base 0xe44 insns 864/913; kept |
+| src/BS2/BS2Update | BS2UpdateInit | 1 | translate thread argument with named thread pointer | 79.87500 -> 79.87500; unit 84.53307 -> 84.53307; src 0x11c base 0x120 insns 71/72; reverted |
+| src/BS2/BS2Update | BS2UpdateInit | 2 | translate stack end as address of final stack element | 79.87500 -> 79.87500; unit 84.53307 -> 84.53307; src 0x11c base 0x120 insns 71/72; reverted |
+| src/BS2/BS2Update | BS2UpdateInit | 3 | translate zeroing length from selected update-entry array | 79.87500 -> 79.87500; unit 84.53307 -> 84.53307; src 0x11c base 0x120 insns 71/72; reverted |
+| src/BS2/BS2Update | UpdateThread | 4 | correct workspace member references and retest target stack layout | 84.42607 -> 84.39869; unit 84.53307 -> 84.50839; src 0xd80 base 0xe44 insns 864/913; reverted |
+| src/BS2/BS2Update | UpdateThread | 5 | translate title-region byte as promoted unsigned local | 84.42607 -> 84.51698; unit 84.53307 -> 84.615005; src 0xd70 base 0xe44 insns 860/913; kept |
+| src/BS2/BS2Update | UpdateThread | 6 | translate region rejection at each switch exit block | 84.51698 -> 83.96276; unit 84.615005 -> 84.1155; src 0xd9c base 0xe44 insns 871/913; reverted |
+| libs/RVL_SDK/src/wad/wad | WADImportEx | 1 | translate result local before pointer workspace declarations | 72.73997 -> 72.68935; unit 85.703674 -> 85.69421; src 0x11ac base 0x11e8 insns 1131/1146; reverted |
+| libs/RVL_SDK/src/wad/wad | WADImportEx | 2 | translate open-state initialization with declarations in target order | 72.73997 -> 72.73909; unit 85.703674 -> 85.70351; src 0x11ac base 0x11e8 insns 1131/1146; reverted |
+| libs/RVL_SDK/src/wad/wad | WADImportEx | 3 | translate transfer counters at their owning block boundaries | 72.73997 -> 72.73997; unit 85.703674 -> 85.703674; src 0x11ac base 0x11e8 insns 1131/1146; reverted |
+| libs/RVL_SDK/src/wad/wad | WADBackupEx | 1 | translate missing file-header stack copy before hash and write blocks | 67.81261 -> 68.01507; unit 85.703674 -> 85.73878; src 0xe14 base 0x1098 insns 901/1062; kept |
+| libs/RVL_SDK/src/wad/wad | WADBackupEx | 2 | translate current-directory validation before file enumeration | 68.01507 -> 68.56780; unit 85.73878 -> 85.83461; src 0xe28 base 0x1098 insns 906/1062; kept |
+| libs/RVL_SDK/src/wad/wad | WADBackupEx | 3 | translate file enumeration counts in target local declaration order | 68.56780 -> 68.56027; unit 85.83461 -> 85.833305; src 0xe28 base 0x1098 insns 906/1062; reverted |
+| libs/RVL_SDK/src/wad/wad | _WADGetCidx | 1 | translate bit traversal as simple loop for compiler unrolling | 99.14286 -> 96.96429; unit 85.83461 -> 82.64359; src 0xe0 base 0xe0 insns 56/56; reverted |
+| libs/RVL_SDK/src/wad/wad | _WADGetCidx | 2 | translate requested ordinal using a signed countdown | 99.14286 -> 99.14286; unit 85.83461 -> 85.83461; src 0xe0 base 0xe0 insns 56/56; reverted |
+| libs/RVL_SDK/src/wad/wad | _WADGetCidx | 3 | translate decrement inside explicit set-bit branch | 99.14286 -> 99.14286; unit 85.83461 -> 85.83461; src 0xe0 base 0xe0 insns 56/56; reverted |
+| libs/RVL_SDK/src/wad/wad | _WADGetCidxCount | 1 | translate bit count as simple loop for compiler unrolling | 95.05000 -> 96.62500; unit 85.83461 -> 83.40865; src 0xa0 base 0xa0 insns 40/40; reverted |
+| libs/RVL_SDK/src/wad/wad | _WADGetCidxCount | 2 | translate bit index as signed target shift operand | 95.05000 -> 89.17500; unit 85.83461 -> 85.79624; src 0xa0 base 0xa0 insns 40/40; reverted |
+| libs/RVL_SDK/src/wad/wad | _WADGetCidxCount | 3 | translate bit tests as conditional count addition | 95.05000 -> 1.55000; unit 85.83461 -> 82.16131; src 0xd0 base 0xa0 insns 52/40; reverted |
+| libs/RVL_SDK/src/wad/wad | WAD_815BFFA8 | 1 | translate transfer locals in target fd/result/count declaration order | 97.17742 -> 96.66129; unit 85.83461 -> 85.82939; src 0xf8 base 0xf8 insns 62/62; reverted |
+| libs/RVL_SDK/src/wad/wad | WAD_815BFFA8 | 2 | translate chunk selection with conditional minimum | 97.17742 -> 94.51613; unit 85.83461 -> 85.80767; src 0xf4 base 0xf8 insns 61/62; reverted |
+| libs/RVL_SDK/src/wad/wad | WAD_815BFFA8 | 3 | translate alternating buffer as arithmetic toggle | 97.17742 -> 96.37096; unit 85.83461 -> 85.82645; src 0xf8 base 0xf8 insns 62/62; reverted |
+| libs/RVL_SDK/src/wad/wad | WAD_815C1288 | 1 | translate transfer locals in target fd/result/count declaration order | 96.39344 -> 96.27869; unit 85.83461 -> 85.833466; src 0xf4 base 0xf4 insns 61/61; reverted |
+| libs/RVL_SDK/src/wad/wad | WAD_815C1288 | 2 | translate chunk selection with conditional minimum | 96.39344 -> 94.50819; unit 85.83461 -> 85.815834; src 0xf0 base 0xf4 insns 60/61; reverted |
+| libs/RVL_SDK/src/wad/wad | WAD_815C1288 | 3 | translate alternating buffer as arithmetic toggle | 96.39344 -> 95.57377; unit 85.83461 -> 85.82645; src 0xf4 base 0xf4 insns 61/61; reverted |
+| libs/RVL_SDK/src/wad/wad | WAD_815C43E0 | 1 | translate transfer locals in target fd/result/count declaration order | 97.17742 -> 97.17742; unit 85.83461 -> 85.83461; src 0xf8 base 0xf8 insns 62/62; reverted |
+| libs/RVL_SDK/src/wad/wad | WAD_815C43E0 | 2 | translate chunk selection with conditional minimum | 97.17742 -> 94.51613; unit 85.83461 -> 85.80767; src 0xf4 base 0xf8 insns 61/62; reverted |
+| libs/RVL_SDK/src/wad/wad | WAD_815C43E0 | 3 | translate alternating buffer as arithmetic toggle | 97.17742 -> 96.37096; unit 85.83461 -> 85.82645; src 0xf8 base 0xf8 insns 62/62; reverted |
+| libs/RVL_SDK/src/wad/wad | _WADUnpackBackup | 1 | translate result initialization before content section blocks | 95.84071 -> 96.37168; unit 85.83461 -> 85.844406; src 0x1c8 base 0x1c4 insns 114/113; kept |
+| libs/RVL_SDK/src/wad/wad | _WADUnpackBackup | 2 | translate verification failure as shared return branch | 96.37168 -> 97.34513; unit 85.844406 -> 85.862366; src 0x1c4 base 0x1c4 insns 113/113; kept |
+| libs/RVL_SDK/src/wad/wad | _WADUnpackBackup | 3 | translate device comparison with target operand order | 97.34513 -> 97.25664; unit 85.862366 -> 85.86073; src 0x1c4 base 0x1c4 insns 113/113; reverted |
+| libs/RVL_SDK/src/wad/wad | _WADCheckContents | 1 | translate result local ahead of frame buffer declaration | 96.70588 -> 96.70588; unit 85.862366 -> 85.862366; src 0x154 base 0x154 insns 85/85; reverted |
+| libs/RVL_SDK/src/wad/wad | _WADCheckContents | 2 | translate required-content rejection as nested target branch | 96.70588 -> 96.70588; unit 85.862366 -> 85.862366; src 0x154 base 0x154 insns 85/85; reverted |
+| libs/RVL_SDK/src/wad/wad | _WADCheckContents | 3 | translate result as direct failure and success returns | 96.70588 -> 96.30589; unit 85.862366 -> 85.85682; src 0x154 base 0x154 insns 85/85; reverted |
+| libs/RVL_SDK/src/wad/wad | WADOpenStream | 1 | translate content-open success blocks as explicit zero returns | 88.52217 -> 90.54680; unit 85.862366 -> 85.92947; src 0x32c base 0x32c insns 203/203; kept |
+| libs/RVL_SDK/src/wad/wad | WADOpenStream | 2 | translate NAND read-open block after write-open path | 90.54680 -> 98.09360; unit 85.92947 -> 86.17959; src 0x330 base 0x32c insns 204/203; kept |
+| libs/RVL_SDK/src/wad/wad | WADOpenStream | 3 | translate NAND zero-fill chunk with target min expression | 98.09360 -> 98.33991; unit 86.17959 -> 86.18775; src 0x330 base 0x32c insns 204/203; kept |
+| libs/RVL_SDK/src/wad/wad | _WADRandPad | 1 | translate size test before quotient and remainder calculations | 87.30769 -> 93.78022; unit 86.18775 -> 86.28392; src 0x164 base 0x16c insns 89/91; kept |
+| libs/RVL_SDK/src/wad/wad | _WADRandPad | 2 | translate random word components with target evaluation temporaries | 93.78022 -> 77.20879; unit 86.28392 -> 86.03771; src 0x154 base 0x16c insns 85/91; reverted |
+| libs/RVL_SDK/src/wad/wad | _WADRandPad | 3 | translate tail copy by indexed bytes from random word | 93.78022 -> 69.34066; unit 86.28392 -> 85.920815; src 0x154 base 0x16c insns 85/91; reverted |
+| libs/RVL_SDK/src/wad/wad | WADImportGetBlocks | 1 | derive content pointer from address-order index on both branches | 76.88926 -> 77.91275; unit 86.28392 -> 86.33372; src 0x424 base 0x4a8 insns 265/298; kept |
+| libs/RVL_SDK/src/wad/wad | WADImportGetBlocks | 2 | accumulate rounded content blocks before inode stores | 77.91275 -> 83.90604; unit 86.33372 -> 86.625305; src 0x424 base 0x4a8 insns 265/298; kept |
+| libs/RVL_SDK/src/wad/wad | WADImportGetBlocks | 3 | use positive selected-content bound and direct file header address | 83.90604 -> 83.95637; unit 86.625305 -> 86.627754; src 0x424 base 0x4a8 insns 265/298; kept |
+| libs/RVL_SDK/src/wad/wad | _WADBackupGetFiles | 1 | initialize directory count immediately before the API output call | 96.01893 -> 95.70347; unit 86.627754 -> 86.61143; src 0x4f8 base 0x4f4 insns 318/317; reverted |
+| libs/RVL_SDK/src/wad/wad | _WADBackupGetFiles | 2 | declare result before path and count locals to align frame slots | 96.01893 -> 96.22398; unit 86.627754 -> 86.63837; src 0x4f4 base 0x4f4 insns 317/317; kept |
+| libs/RVL_SDK/src/wad/wad | _WADBackupGetFiles | 3 | advance output file and count in target store order | 96.22398 -> 95.62460; unit 86.63837 -> 86.607346; src 0x4f4 base 0x4f4 insns 317/317; reverted |
+| libs/RVL_SDK/src/wad/wad | _WADBackupGetSize | 1 | limit ES result lifetime and return successful status directly | 86.77419 -> 87.80645; unit 86.63837 -> 86.66449; src 0x280 base 0x26c insns 160/155; kept |
+| libs/RVL_SDK/src/wad/wad | _WADBackupGetSize | 2 | put content index on left side of target bounds comparison | 87.80645 -> 87.90323; unit 86.66449 -> 86.66694; src 0x280 base 0x26c insns 160/155; kept |
+| libs/RVL_SDK/src/wad/wad | _WADBackupGetSize | 3 | iterate backup file pointer instead of indexing the file array | 87.90323 -> 85.54839; unit 86.66694 -> 86.607346; src 0x274 base 0x26c insns 157/155; reverted |
+| libs/RVL_SDK/src/wad/wad | _WADHash | 1 | initialize status after alignment validation before hash loops | 88.89175 -> 92.34021; unit 86.66694 -> 86.77616; src 0x304 base 0x308 insns 193/194; kept |
+| libs/RVL_SDK/src/wad/wad | _WADHash | 2 | declare status before inout read pointer for target frame slots | 92.34021 -> 92.42268; unit 86.77616 -> 86.77878; src 0x304 base 0x308 insns 193/194; kept |
+| libs/RVL_SDK/src/wad/wad | _WADHash | 3 | use conditional minimum in synchronous and asynchronous read blocks | 92.42268 -> 96.08247; unit 86.77878 -> 86.89469; src 0x304 base 0x308 insns 193/194; kept |
+| libs/RVL_SDK/src/wad/wad | WADVerify | 1 | preserve allocation ownership separately from stream inout pointer | 86.86395 -> 89.21769; unit 86.89469 -> 86.95119; src 0x21c base 0x24c insns 135/147; kept |
+| libs/RVL_SDK/src/wad/wad | WADVerify | 2 | declare signature offset before result to align scalar lifetimes | 89.21769 -> 89.21769; unit 86.95119 -> 86.95119; src 0x21c base 0x24c insns 135/147; reverted |
+| libs/RVL_SDK/src/wad/wad | WADVerify | 3 | flatten hash and signature rejection blocks to target cleanup branches | 89.21769 -> 89.21769; unit 86.95119 -> 86.95119; src 0x21c base 0x24c insns 135/147; reverted |
+| libs/RVL_SDK/src/wad/wad | WADImportDVDExForBS | 1 | keep successful header classification out of import status | 89.33079 -> 89.63879; unit 86.95119 -> 86.96441; src 0x40c base 0x41c insns 259/263; kept |
+| libs/RVL_SDK/src/wad/wad | WADImportDVDExForBS | 2 | delay content buffer derivation until after capacity validation | 89.63879 -> 89.04182; unit 86.96441 -> 86.938774; src 0x40c base 0x41c insns 259/263; reverted |
+| libs/RVL_SDK/src/wad/wad | WADImportDVDExForBS | 3 | use target bounded chunk expression for DVD content reads | 89.63879 -> 89.79088; unit 86.96441 -> 86.97094; src 0x410 base 0x41c insns 260/263; kept |
+| libs/RVL_SDK/src/wad/wad | _WADGetCidx | 4 | advance selected mask index once per unrolled block as target asm | 99.14286 -> 92.89286; unit 86.97094 -> 86.913795; src 0xe0 base 0xe0 insns 56/56; reverted |
+| libs/RVL_SDK/src/wad/wad | WADOpenStream | 4 | return successful status through common switch exit for NAND read | 98.33991 -> 98.38916; unit 86.97094 -> 86.97257; src 0x330 base 0x32c insns 204/203; kept |
+| libs/RVL_SDK/src/wad/wad | WADOpenStream | 5 | translate DVD open rejection as sequential early returns | 98.38916 -> 97.41379; unit 86.97257 -> 86.94025; src 0x328 base 0x32c insns 202/203; reverted |
+| libs/RVL_SDK/src/wad/wad | WADOpenStream | 6 | align read-size comparison operand order in zero-fill loop | 98.38916 -> 98.33991; unit 86.97257 -> 86.97094; src 0x330 base 0x32c insns 204/203; reverted |
+
+Source review: the BS2StartGame empty-poll variant was restored because MWCC hoisted the completion load. The _WADBackupGetSize local-result transformation accidentally changed its ES failure return; that return is restored and all final measurements are regenerated after the correction.
+Source review: read_kpad_stick now loads dataFormat in both device branches. The earlier retained branch-local experiment missed the classic-controller assignment; its old measurements are superseded by the final gate.
+| libs/RVL_SDK/src/wad/wad | WADOpenStream | 7 | preserve zero NAND open result through direct read-path return | 98.38916 -> 98.85714; unit 86.9889 -> 87.00441; src 0x32c base 0x32c insns 203/203; kept |
+| libs/RVL_SDK/src/wad/wad | WADOpenStream | 8 | spell DVD success after rejection to preserve target branch direction | 98.85714 -> 98.89162; unit 87.00441 -> 87.005554; src 0x32c base 0x32c insns 203/203; kept |
+| libs/RVL_SDK/src/wad/wad | WADOpenStream | 9 | branch to successful NAND seek return instead of conditional select | 98.89162 -> 98.89162; unit 87.005554 -> 87.005554; src 0x32c base 0x32c insns 203/203; reverted |
+| libs/RVL_SDK/src/wad/wad | WADOpenStream | 10 | keep SD offset validation as nested seek block from target | 98.89162 -> 98.89162; unit 87.005554 -> 87.005554; src 0x32c base 0x32c insns 203/203; reverted |
+| libs/RVL_SDK/src/wad/wad | WADOpenStream | 11 | name NAND write and SD seek results before bounded comparisons | compile failed |
+| libs/RVL_SDK/src/wad/wad | WADOpenStream | 12 | compare target read status to zero directly at NAND cleanup | 98.89162 -> 98.84236; unit 87.005554 -> 87.00392; src 0x32c base 0x32c insns 203/203; reverted |

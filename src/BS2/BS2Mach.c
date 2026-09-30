@@ -294,11 +294,11 @@ extern vu32 __DVDLayoutFormat;
 
 void Run(u32 entryPoint, void *start, u32 blockCount, u32 argument) {
     u8 *block = start;
-    do {
+    for (; blockCount != 0; --blockCount) {
         DCZeroRange(block, 32);
         DCFlushRange(block, 32);
         block += 32;
-    } while (--blockCount != 0);
+    }
     ((void (*)(u32))entryPoint)(argument);
 }
 
@@ -1195,7 +1195,8 @@ BOOL CheckBS2CommandStatus() {
             partCount = ((DVDGameTOC *)DataToc)->partitionCount;
             chunkLength = OSRoundUp32B(partCount * sizeof(DVDPartitionInfo)) + 32;
             CacheCommandComplete = 1;
-            CacheLength = CacheLength + chunkLength;
+            CacheLength = CacheLength + OSRoundUp32B(partCount * sizeof(DVDPartitionInfo));
+            CacheLength += 32;
             if ((unsigned int)CacheLength > 0xb00000) {
                 BS2NANDCallback(-1, NULL);
                 return 1;
@@ -1374,12 +1375,12 @@ BS2State BS2Tick() {
             State = BS2_STT_3;
             currentTime = __OSGetSystemTime();
             ResetTime = currentTime;
-            if (BS2WaitSpinup == 0 || BS2BootFromCache != 0) {
+            if (BS2WaitSpinup != 0 && BS2BootFromCache == 0) {
                 currentTime = __OSGetSystemTime();
-                SpinupDeadline = currentTime;
+                SpinupDeadline = (u64)((OS_BUS_CLOCK >> 2) * 5) + currentTime;
             } else {
                 currentTime = __OSGetSystemTime();
-                SpinupDeadline = currentTime + (u64)((OS_BUS_CLOCK >> 2) * 5);
+                SpinupDeadline = currentTime;
             }
         }
         break;
@@ -1398,12 +1399,12 @@ BS2State BS2Tick() {
         AudioBufferUnconfigured = 1;
         currentTime = __OSGetSystemTime();
         ResetTime = currentTime;
-        if (BS2BootFromCache == 0) {
-            currentTime = __OSGetSystemTime();
-            SpinupDeadline = currentTime + (u64)((OS_BUS_CLOCK >> 2) * 7);
-        } else {
+        if (BS2BootFromCache != 0) {
             currentTime = __OSGetSystemTime();
             SpinupDeadline = currentTime;
+        } else {
+            currentTime = __OSGetSystemTime();
+            SpinupDeadline = (u64)((OS_BUS_CLOCK >> 2) * 7) + currentTime;
         }
         __OSClearRTCFlags();
         DVDResetAsync(&Block, BS2DVDCallback);
@@ -1481,9 +1482,9 @@ BS2State BS2Tick() {
         memcpy((void *)0x80000000, &DiskID, 0x20);
         if ((*(u32 *)0x80000018) == 0x5d1c9ea3) {
             status = strncmp((char *)0x80000000, "RAAE", 4);
-            if ((((status == 0) || (status = strncmp((char *)0x80000000, "408", 3), status == 0)) ||
-                 (status = strncmp((char *)0x80000000, "410", 3), status == 0)) ||
-                (status = strncmp((char *)0x80000000, "410", 3), status == 0))
+            if (status == 0 || strncmp((char *)0x80000000, "408", 3) == 0 ||
+                strncmp((char *)0x80000000, "410", 3) == 0 ||
+                strncmp((char *)0x80000000, "410", 3) == 0)
                 regionMatches = FALSE;
             else
                 regionMatches = TRUE;
