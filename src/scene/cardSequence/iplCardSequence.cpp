@@ -1,4 +1,5 @@
 #include <iplMemoryCardLib.h>
+#include <global/decomp/utils.h>
 
 #include <cstring>
 #include <cstdio>
@@ -75,7 +76,7 @@ namespace ipl {
         extern "C" void CardSequence_813D3140();
         extern "C" s32 CardSequence_813D320C(u8 slot, s32 result);
         extern "C" s32 CardSequence_813D32A8(u8 slot, s32 cmd, s32 result);
-        extern "C" void CardSequence_813D3380(u8 slot, s32 cmd, u8 status);
+        extern "C" void CardSequence_813D3380(u8 slot, s32 cmd, u8 status) NO_INLINE;
         extern "C" void CardSequence_813D33D8(u8 slot);
         extern "C" s32 CardSequence_813D3424(u8 slot, s16 fileNo, CARDDir* dir);
         extern "C" void CardSequence_813D3C24(s32 chan, s32 result);
@@ -411,37 +412,40 @@ namespace ipl {
         }
 
         extern "C" void* CardSequence_813D2C8C(void* arg) {
+            OSMessage msg;
             u8        zero[8];
             int       done = 0;
-            u32       valid = 1;
-            OSMessage msg;
+            u8        valid = 1;
 
             sThread->mounted[0] = 0;
             sThread->mounted[1] = 0;
 
             while (done == 0) {
-                if (!OSReceiveMessage(&sThread->cmdQueue, &msg, OS_MESSAGE_BLOCK)) {
-                    continue;
-                }
+                OSReceiveMessage(&sThread->cmdQueue, &msg, OS_MESSAGE_BLOCK);
                 OSReport("CARD THREAD: Message received %d\n", (s8)((u32)msg & 0xFF));
 
                 if (valid == 1) {
-                    s8  cmd    = (s8)((u32)msg & 0xFF);
-                    u8  slot   = (u8)(((u32)msg >> 16) & 1);
-                    s16 fileNo = (s16)((u32)msg >> 24);
-
-                    switch (cmd) {
+                    u8 cmd = (u8)((u32)msg & 0xFF);
+                    switch ((s8)cmd) {
                     case MSG_CMD_STATE:
-                        valid = 1;
                         OSReport("card thread valid state changed:%d\n", 1);
-                        OSSendMessage(&sThread->replyQueue, (OSMessage)(cmd | (valid << 8)), 1);
+                        OSSendMessage(&sThread->replyQueue, (OSMessage)((valid << 8) | cmd), 1);
+                        valid = 1;
+                        break;
+                    case MSG_CMD_EXIT:
+                        done = 1;
                         break;
                     case MSG_CMD_PROBE: {
-                        s32 result = CARDMount(slot, sThread->workBuf[((u32)msg >> 16) & 1], 0);
+                        char    name[CARD_FILENAME_MAX + 1];
+                        CARDDir dir2;
+                        CARDDir dir;
+                        u8  slot   = (u8)(((u32)msg >> 16) & 1);
+                        s32 result = CARDMount(slot, sThread->workBuf[slot], 0);
                         if (result < 0) {
-                            if (CardSequence_813D320C(slot, result) == 0) {
-                                continue;
+                            if (CardSequence_813D320C(slot, result) != 0) {
+                                goto scan;
                             }
+                            goto next;
                         }
                         else {
                             result = CARDCheck(slot);
@@ -449,28 +453,29 @@ namespace ipl {
                                 goto mount_error;
                             }
                         }
+                    scan:
 
                         CardSequence_813D33D8(slot);
                         for (s16 i = 0; i < 0x7F; i++) {
-                            CARDDir dir;
-
                             result = __CARDGetStatusEx(slot, i, &dir);
                             if (result < 0) {
-                                if (CardSequence_813D320C(slot, result) == 0) {
-                                    goto next;
+                                if (CardSequence_813D320C(slot, result) != 0) {
+                                    continue;
                                 }
-                                continue;
+                                goto next;
                             }
                             else {
+                                s32 isBrokenFile;
                                 zero[0] = 0;
                                 zero[1] = 0;
                                 zero[2] = 0;
                                 zero[3] = 0;
                                 zero[4] = 0;
                                 zero[5] = 0;
-                                if (strncmp((const char*)dir.fileName, "Broken File", 0xB) == 0 &&
-                                    memcmp(dir.gameName, zero + 2, 4) == 0 &&
-                                    memcmp(dir.company, zero, 2) == 0) {
+                                isBrokenFile = strncmp((const char*)dir.fileName, "Broken File", 0xB) == 0 &&
+                                               memcmp(dir.gameName, zero + 2, 4) == 0 &&
+                                               memcmp(dir.company, zero, 2) == 0;
+                                if (isBrokenFile) {
                                     result = CARDFastDelete(slot, i);
                                     if (result < 0) {
                                         goto mount_error;
@@ -491,13 +496,10 @@ namespace ipl {
                         OSReport("Slot %c\n", (s8)("AB"[slot]));
 
                         for (u16 i = 0; i < 0x7F; i++) {
-                            CARDDir dir;
-                            char    name[CARD_FILENAME_MAX + 1];
-
-                            if (__CARDGetStatusEx(slot, i, &dir) == 0) {
-                                memcpy(name, dir.fileName, CARD_FILENAME_MAX);
+                            if (__CARDGetStatusEx(slot, i, &dir2) == 0) {
+                                memcpy(name, dir2.fileName, CARD_FILENAME_MAX);
                                 name[CARD_FILENAME_MAX] = 0;
-                                OSReport("%d - %s: %d blocks\n", i, name, dir.length);
+                                OSReport("%d - %s: %d blocks\n", i, name, dir2.length);
                             }
                         }
                         break;
@@ -506,7 +508,11 @@ namespace ipl {
                         CardSequence_813D32A8(slot, 0, result);
                         break;
                     }
+                    case MSG_CMD_DETACH:
+                        CardSequence_813D32A8((u8)(((u32)msg >> 16) & 1), MSG_CMD_DETACH, -3);
+                        break;
                     case MSG_CMD_FORMAT: {
+                        u8  slot   = (u8)(((u32)msg >> 16) & 1);
                         s32 result = CARDFormat(slot);
                         if (result < 0) {
                             CardSequence_813D32A8(slot, MSG_CMD_FORMAT, result);
@@ -519,12 +525,14 @@ namespace ipl {
                         break;
                     }
                     case MSG_CMD_COPY:
-                        CardSequence_813D3D14(slot, fileNo, MSG_CMD_COPY);
+                        CardSequence_813D3D14((u8)(((u32)msg >> 16) & 1), (s16)((u32)msg >> 24), MSG_CMD_COPY);
                         break;
                     case MSG_CMD_MOVE:
-                        CardSequence_813D3D14(slot, fileNo, MSG_CMD_MOVE);
+                        CardSequence_813D3D14((u8)(((u32)msg >> 16) & 1), (s16)((u32)msg >> 24), MSG_CMD_MOVE);
                         break;
                     case MSG_CMD_DELETE: {
+                        u8  slot   = (u8)(((u32)msg >> 16) & 1);
+                        s16 fileNo = (s16)((u32)msg >> 24);
                         s32 result = CARDFastDelete(slot, fileNo);
                         if (result < 0) {
                             CardSequence_813D32A8(slot, MSG_CMD_DELETE, result);
@@ -536,30 +544,21 @@ namespace ipl {
                         }
                         break;
                     }
-                    case MSG_CMD_DETACH:
-                        CardSequence_813D32A8(slot, MSG_CMD_DETACH, -3);
-                        break;
-                    case MSG_CMD_EXIT:
-                        done = 1;
-                        break;
                     case MSG_CMD_BLOCKS: {
-                        for (u8 s = 0; s < 2; s++) {
+                        for (s32 s = 0; s < 2; s++) {
                             if (sThread->mounted[s] != 0) {
-                                s16 used = 0;
-                                for (s16 i = 0; i < 0x7F; i++) {
+                                s32 used = 0;
+                                for (s32 i = 0; i < 0x7F; i++) {
                                     CARDDir dir;
                                     s32     result = __CARDGetStatusEx(s, i, &dir);
-                                    if (result < 0) {
-                                        if (result != -4) {
-                                            used = -1;
-                                            break;
-                                        }
+                                    if (result < 0 && result != -4) {
+                                        used = -1;
+                                        break;
                                     }
-                                    else {
-                                        if (memcmp(dir.gameName, (void*)0x80000000, 4) == 0 &&
-                                            memcmp(dir.company, (void*)0x80000004, 2) == 0) {
-                                            used += dir.length;
-                                        }
+                                    if (result == 0 &&
+                                        memcmp(dir.gameName, (void*)0x80000000, 4) == 0 &&
+                                        memcmp(dir.company, (void*)0x80000004, 2) == 0) {
+                                        used += dir.length;
                                     }
                                 }
                                 sThread->cardState[s].unk_0x12 = used;
@@ -579,11 +578,11 @@ namespace ipl {
 
         extern "C" void CardSequence_813D3140() {
             for (s32 slot = 0; slot < 2; slot++) {
-                for (s16 fileNo = 0; fileNo < 0x7F; fileNo++) {
+                for (s32 fileNo = 0; fileNo < 0x7F; fileNo++) {
                     sThread->dirState[slot][fileNo].unk_0x06 = 0;
                     if (sThread->mounted[slot] == 0 || sThread->mounted[slot ^ 1] == 0)
                         continue;
-                    if (CardSequence_813D3C38((u8)slot, fileNo) >= 0)
+                    if (CardSequence_813D3C38((u8)slot, (s16)fileNo) >= 0)
                         continue;
                     sThread->dirState[slot][fileNo].unk_0x06 = 1;
                 }
@@ -629,11 +628,11 @@ namespace ipl {
             OSReport("DEBUG: CardThread error %d %d\n", cmd, result);
             CardSequence_813D3140();
             OSSendMessage(&sThread->replyQueue,
-                          (OSMessage)(((u8)cmd) | ((result & 0xFF) << 8) | ((slot & 1) << 16)), 1);
+                          (OSMessage)(((slot & 1) << 16) | ((result & 0xFF) << 8) | (cmd & 0xFF)), 1);
             return 0;
         }
 
-        extern "C" void CardSequence_813D3380(u8 slot, s32 cmd, u8 status) {
+        extern "C" void CardSequence_813D3380(u8 slot, s32 cmd, u8 status) NO_INLINE {
             CardSequence_813D3140();
             OSSendMessage(&sThread->replyQueue,
                           (OSMessage)(((status & 0xFF) << 24) | ((slot & 1) << 16) | (cmd & 0xFF)), 1);
@@ -652,7 +651,6 @@ namespace ipl {
             u32          iconBytes;
             u32          iconAddrBase;
             u32          iconAddrOff;
-            u32          sectorSize;
             u32          fileSize;
             s32          readLen;
             s32          commentBase;
@@ -727,7 +725,7 @@ namespace ipl {
                         sThread->iconState[slot][fileNo].iconFmt[i] = 5;
                         size = 0x800;
                         break;
-                    default:
+                    case 0:
                         sThread->iconState[slot][fileNo].iconFmt[i] = sThread->iconState[slot][fileNo].iconFmt[i - 1];
                         size = 0;
                         break;
@@ -756,6 +754,7 @@ namespace ipl {
             }
 
             {
+                u32 sectorSize;
                 s32 total = dataSize + iconBytes;
                 readLen = ((total + iconAddrOff + 0x1FF) & ~0x1FF);
                 result = CARDGetSectorSize(slot, &sectorSize);
@@ -794,6 +793,7 @@ namespace ipl {
             }
 
             {
+                u32 sectorSize;
                 u32 caddr = dir->commentAddr;
                 commentBase = caddr & ~0x1FF;
                 commentOff = caddr - commentBase;
@@ -871,7 +871,7 @@ namespace ipl {
 
         extern "C" void CardSequence_813D3D14(u8 slot, s16 fileNo, s32 cmd) {
             s32     result;
-            s16     dstFileNo = -1;
+            s32     dstFileNo = -1;
             s32     srcOpened = 0;
             s32     srcKept = 0;
             CARDDir dir2;
@@ -952,15 +952,15 @@ namespace ipl {
                 for (i = 0; ; ) {
                     sprintf(sThread->fileNameBuf, "Broken File%03d", i);
                     result = CARDCreate((u8)(slot ^ 1), sThread->fileNameBuf, blocks, &sThread->dstFile);
-                    if (result >= 0 || result == -7) {
-                        i++;
-                        if (result != 0 && i < 0x80) {
-                            continue;
-                        }
-                        break;
+                    if (result < 0 && result != -7) {
+                        OSReport("Can't Create temp File with Error.");
+                        dstFileNo = (s16)result;
+                        goto have_file;
                     }
-                    OSReport("Can't Create temp File with Error.");
-                    dstFileNo = (s16)result;
+                    i++;
+                    if (result != 0 && i < 0x80) {
+                        continue;
+                    }
                     break;
                 }
                 if (i < 0x80) {
@@ -970,6 +970,7 @@ namespace ipl {
                     dstFileNo = -0x80;
                 }
             }
+        have_file:
             if (dstFileNo < 0) {
                 CardSequence_813D32A8((u8)(slot ^ 1), cmd, dstFileNo);
                 return;
@@ -991,7 +992,7 @@ namespace ipl {
             if (result >= 0) {
                 stage = 3;
                 {
-                    u32  offset = 0;
+                    s32  offset = 0;
 
                     while (offset < dir3.length) {
                         u32 count = dir3.length - offset;
@@ -1000,13 +1001,16 @@ namespace ipl {
                             count = per;
                         }
                         bytes = count * sectorSize2;
-                        result = CARDRead(&sThread->srcFile, sThread->copyBuf, bytes, offset * sectorSize2);
-                        if (result < 0) {
-                            break;
+                        {
+                            u32 addr = offset * sectorSize2;
+                            result = CARDRead(&sThread->srcFile, sThread->copyBuf, bytes, addr);
+                            if (result < 0) {
+                                break;
+                            }
+                            sThread->writePending = 1;
+                            result = CARDWriteAsync(&sThread->dstFile, sThread->copyBuf, bytes,
+                                                    addr, CardSequence_813D3C24);
                         }
-                        sThread->writePending = 1;
-                        result = CARDWriteAsync(&sThread->dstFile, sThread->copyBuf, bytes,
-                                                offset * sectorSize2, CardSequence_813D3C24);
                         if (result < 0) {
                             break;
                         }
@@ -1020,15 +1024,16 @@ namespace ipl {
                     }
                 }
             }
-            if (result >= 0) {
-                stage = 4;
-                result = CARDClose(&sThread->srcFile);
-            }
+            stage = 4;
+            result = CARDClose(&sThread->srcFile);
             if (result >= 0) {
                 stage = 5;
                 result = CARDClose(&sThread->dstFile);
             }
-            if (result < 0) {
+            if (result >= 0) {
+                result = 0;
+            }
+            else {
                 switch (stage) {
                 case 0:
                     OSReport("Can't get status of Copy source File.\n");
@@ -1100,7 +1105,7 @@ namespace ipl {
             }
 
             if (cmd == MSG_CMD_MOVE) {
-                int i;
+                s16 i;
 
                 stage = 0;
                 result = __CARDGetStatusEx(slot, fileNo, &dir5);
@@ -1134,8 +1139,7 @@ namespace ipl {
                         CardSequence_813D2A74(slot, fileNo);
                         goto move_err;
                     }
-                    result = __CARDSetStatusEx(slot, fileNo, &dir5);
-                    if (result < 0) {
+                    if (__CARDSetStatusEx(slot, fileNo, &dir5) < 0) {
                         OSReport("Can't repair src file - carddir\n");
                     }
                     goto move_err;
