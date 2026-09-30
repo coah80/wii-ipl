@@ -1,38 +1,41 @@
-#define PF_FA_STR_LAYOUT
-#define VFiPFAPI_ParseOpenModeString PFAPI_ParseOpenModeString
-#define VFiPFAPI_convertReturnValue2NULL PFAPI_convertReturnValue2NULL
-#define VFiPFFILE_fopen PFFILE_fopen
-#define VFiPFSTR_InitStr PFSTR_InitStr
-#include <private/vf/PrFILE2/standard/pf_fopen.h>
+#include <revolution/fa.h>
 
-typedef struct PFAPI_GLOBAL_STATE {
-    pf_u8 volume_state[0x40];
-    pf_s32 last_error;
-} PFAPI_GLOBAL_STATE;
-extern PFAPI_GLOBAL_STATE pf_vol_set;
+typedef struct PFF2_STR {
+    const s8* p_head;
+    const s8* p_tail;
+    const s8* p_current;
+    u32 code_mode;
+} PFF2_STR;
 
+typedef struct PFF2_VOL_SET {
+    u8 reserved[0x40];
+    s32 last_error;
+} PFF2_VOL_SET;
 
-#include <private/vf/PrFILE2/fatfs/pf_volume.h>
-#include <private/vf/PrFILE2/standard/pf_api_util.h>
+extern PFF2_VOL_SET pf_vol_set;
+extern s32 PFAPI_ParseOpenModeString(const char* mode_str);
+extern s32 PFSTR_InitStr(PFF2_STR* path, const s8* text, u32 code_mode);
+extern s32 PFFILE_fopen(PFF2_STR* path, s32 mode, FAFILE** result);
+extern FAFILE* PFAPI_convertReturnValue2NULL(s32 err, FAFILE* p_stream);
 
-PF_FILE* pf2_fopen(const pf_ch8* path, const pf_ch8* mode) {
-    pf_u32 open_mode;
-    PF_FILE* p_file;
-    PF_STR path_str;
-    pf_s32 err;
+FAFILE* pf2_fopen(const char* path, const char* mode) {
+    u32 open_mode;
+    FAFILE* p_file;
+    PFF2_STR path_str;
+    s32 err;
 
-    open_mode = VFiPFAPI_ParseOpenModeString(mode);
+    open_mode = PFAPI_ParseOpenModeString(mode);
     if (open_mode == 0) {
         pf_vol_set.last_error = 10;
-        p_file = PF_NULL;
+        p_file = NULL;
     } else {
-        err = VFiPFSTR_InitStr(&path_str, (pf_s8*)path, 1U);
+        err = PFSTR_InitStr(&path_str, (const s8*)path, 1);
         if (err == 0) {
-            err = VFiPFFILE_fopen(&path_str, open_mode, &p_file);
+            err = PFFILE_fopen(&path_str, open_mode, &p_file);
         } else {
             pf_vol_set.last_error = err;
         }
-        p_file = VFiPFAPI_convertReturnValue2NULL(err, p_file);
+        p_file = PFAPI_convertReturnValue2NULL(err, p_file);
     }
     return p_file;
 }
