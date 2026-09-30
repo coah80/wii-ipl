@@ -97,3 +97,74 @@ The source .sdata is 140 bytes versus the target's 152 bytes, including trailing
 section alignment. No extra object, packed string blob, alignment directive,
 symbol-size change, or placement trick was introduced to cover these gaps.
 Total matched data is 72/904 bytes. These data-layout differences remain open.
+
+## Continuation round: merged baseline
+
+Baseline: 11/18 instruction-exact by ctxdiff/gate, 13/18 objdiff-exact,
+3364/8532 matched code bytes, 72/904 matched data bytes; pool identical.
+
+WriteToField now matches 100%, 90/90 instructions, zero differences. Reusing
+one cursor for buffer initialization and recipient writing resolves the four
+initial buffer register differences. WriteQPData now matches 100%, 60/60
+instructions, zero differences: initializing remaining before total resolves
+the nine callee-saved register differences.
+
+### Remaining functions: new attempts
+
+- WriteMIMEAttachHeader: materializing the aggregate template count before the
+  MIME-name call gives 92.82609%, 91/92 instructions. Sequential MIME-count
+  additions give 99.61957%, 92/92, six differences. Reusing total for the
+  template sum gives 97.065216%, thirteen differences. Reusing typeLength or
+  mimeLength for the first formatted count leaves six differences. Aggregating
+  all template counts before the MIME call gives 92.88043%, 91/92. Reversing
+  the template operands gives 99.565216%. Assigning the complete size with
+  the template subtotal first retains 99.61957% and reduces the differences
+  to five; this is retained. Reverse declarations, accumulating into
+  typeLength, and accumulating into dispositionLength do not improve it.
+  All five surviving differences concern the template subtotal's register
+  allocation and addition order; the instruction count remains 92/92.
+- NWC24CommitMsgInternal: explicit success initialization for absent board
+  fields leaves 94.72672%, 818/827. Caching masked registration/delay values
+  gives 95.272064%, 816/827. Assigning the open status directly to result
+  gives 94.351875%, 817/827. Loading optional command/tag/DWC/icon buffers after
+  their predicates gives 96.60217%, 816/827. Separate inline message-board
+  writers give 98.16203%, 822/827. Crediting attachment bytes only on successful
+  encoding gives 99.0387%, 825/827. An inline optional extra-header writer
+  restores 827/827 and gives 99.546555%, 64 differences. Reordering helper
+  count/buffer/status declarations gives 99.78839%, 24 differences. Casting
+  the final attachment-index comparison to signed while keeping the scan
+  unsigned gives 99.86095%, 23 differences. Declaring message-ID status before
+  its count gives 99.891174%, eighteen differences. Passing board masks into
+  the formatting helpers, reversing those arguments, signed masked values,
+  an unsigned message-ID count, and a scoped
+  plain-text status do not resolve the remaining allocation differences.
+  A separate multipart-buffer scope experiment failed compilation and was
+  discarded. Final cleanup removes the unused outer count and restores
+  consistent message-first arguments and signed counts without changing
+  the retained output. Remaining eighteen differences are register choices
+  in the registration/delay field writers and plain-text error handling.
+- CheckMsgBoxSpace: grouping base64 line overhead leaves 85.57399%, 223/223,
+  75 differences. An unsigned attachment index gives 78.57399%, 214/223.
+  Returning the mailbox status directly gives 83.33184%, 218/223. All three
+  were discarded. The remaining differences are allocation/scheduling in
+  the eight-way unrolled size estimate; the original signed scan and final
+  unsigned capacity comparison are retained.
+
+### Data: new attempts
+
+A named const subject line-ending array is still pooled by MWCC and leaves
+.data at 678 bytes, .sdata at 140, and matched data at 72/904. Mutable month
+string pointers produce the same layout and score. Making the month pointer
+array const moves its 48 bytes to .rodata and shrinks .data to 630, without
+improving matched data. All three experiments were discarded. String order
+remains identical. The previously recorded scalar-size, duplicate-CRLF,
+month relocation, symbol-grouping, and trailing-alignment differences remain
+unresolved; no padding, forced placement, or artificial data was added.
+
+### Retained result
+
+15/18 instruction-exact and objdiff-exact functions, 3964/8532 matched code
+bytes, 72/904 matched data bytes. Restoring the internal function's target
+size also makes the two previously misnormalized cr1 functions compare at
+zero differences. Every remaining function has at least three distinct
+source-level attempts recorded above for this continuation.
