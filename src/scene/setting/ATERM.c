@@ -1383,13 +1383,12 @@ int ATERM_814036D8(void) {
     } keyText;
 
     strcpy(gAtermConfigurationResult.ssid, gScanSettings.ssid);
-    if (gScanSettings.selectedSecurity == 2) {
-        gAtermConfigurationResult.setupMode = 4;
-        memcpy(gAtermConfigurationResult.keyMaterial, gScanSettings.sharedKey, 0x40);
-    } else if (gScanSettings.selectedSecurity < 2) {
-        if (gScanSettings.selectedSecurity == 0) {
-            gAtermConfigurationResult.setupMode = 0;
-        } else if (gScanSettings.authAlgorithm == 0) {
+    switch (gScanSettings.selectedSecurity) {
+    case 0:
+        gAtermConfigurationResult.setupMode = 0;
+        break;
+    case 1:
+        if (gScanSettings.authAlgorithm == 0) {
             result = -7;
         } else {
             gAtermConfigurationResult.securityMode = gScanSettings.authAlgorithm;
@@ -1437,11 +1436,18 @@ int ATERM_814036D8(void) {
                 keyIndex++;
             } while (keyIndex < 4);
         }
-    } else if (gScanSettings.selectedSecurity < 4) {
+        break;
+    case 2:
+        gAtermConfigurationResult.setupMode = 4;
+        memcpy(gAtermConfigurationResult.keyMaterial, gScanSettings.sharedKey, 0x40);
+        break;
+    case 3:
         gAtermConfigurationResult.setupMode = 5;
         memcpy(gAtermConfigurationResult.keyMaterial, gScanSettings.sharedKey, 0x40);
-    } else {
+        break;
+    default:
         result = -7;
+        break;
     }
     return result;
 }
