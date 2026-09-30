@@ -19,3 +19,33 @@ String pools identical. Data 1512/1512 bytes in objdiff.
 1. Indexed ACP copy, original assignment order: 265/267 instructions, 96.82022%; saved constant register and byte-copy allocation differ.
 2. Masked WSS operands and command-first caption assignment: 265/267; WSS and caption differences removed. Retained.
 3. Explicit ACP byte copies: 266/267, 78.92135%; enlarged frame and save set. Rejected.
+
+# Continuation from eaee2295
+
+## __VISetRevolutionModeSimple
+1. Store ACP command before the ascending byte transfer: 97.05618%; src 0x424 base 0x42c insns 265/267
+2. Initialize power and clock command arrays at declaration: 94.29588%; src 0x428 base 0x42c insns 266/267
+3. Use signed ACP index and store command first: 97.05618%; src 0x424 base 0x42c insns 265/267
+
+## VISetMacrovision
+1. Copy old type after volume masking: 99.48529%; src 0x110 base 0x110 insns 68/68
+2. Load type before first byte, combine new flag operands: 99.48529%; src 0x110 base 0x110 insns 68/68
+3. Express mode dispatch as a structured switch: 99.48529%; src 0x110 base 0x110 insns 68/68
+4. Use word-sized intermediates for newType: 94.85294%; src 0x10c base 0x110 insns 67/68
+5. Use word-sized intermediates for newType, oldType: 94.85294%; src 0x10c base 0x110 insns 67/68
+6. Use word-sized intermediates for newType, oldWd0: 94.85294%; src 0x10c base 0x110 insns 67/68
+7. Use word-sized intermediates for oldWd0: 99.48529%; src 0x110 base 0x110 insns 68/68
+8. Use word-sized intermediates for newType, oldWd2: 94.85294%; src 0x10c base 0x110 insns 67/68
+9. Use word-sized intermediates for oldWd0, mode: 98.60294%; src 0x110 base 0x110 insns 68/68
+10. Use word-sized intermediates for oldType, mode: 98.60294%; src 0x110 base 0x110 insns 68/68
+11. Load WSS state in oldWd2,oldType,oldWd0 order: 99.411766%; src 0x110 base 0x110 insns 68/68
+12. Load WSS state in oldType,oldWd2,oldWd0 order: 99.411766%; src 0x110 base 0x110 insns 68/68
+13. Load WSS state in oldWd2,oldWd0,oldType order: 99.411766%; src 0x110 base 0x110 insns 68/68
+
+## __VISetMacrovision
+1. Descending remaining-byte count and advancing source/destination: 94.26905%
+2. Assign command byte before indexed ACP transfer: 96.77598%
+3. Signed copy index and named per-byte value: 94.26905%
+
+All data sections remain 100%; the ACP command-first assignment preserves pool contents and reaches 866/866 instructions, but allocation still differs.
+No new instruction-exact functions yet; retained source experiments remain uncommitted pending an exact-function gain.

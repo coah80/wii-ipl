@@ -115,10 +115,10 @@ void VISetMacrovision(s32 type);
         u32 copyIndex; \
         u8* destination = (dst); \
         const u8* source = (src); \
+        destination[0] = 0x40; \
         for (copyIndex = 0; copyIndex < 0x1a; copyIndex++) { \
             destination[copyIndex + 1] = source[copyIndex]; \
         } \
-        destination[0] = 0x40; \
     } while (0)
 
 static u8 __wd0 = 0xff;

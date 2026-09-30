@@ -401,24 +401,28 @@ const wchar_t* MemoryCardManager::getComment(u8 slot, s16 index, int which) {
     }
     if (SCGetLanguage() == 0) {
         utility::CharacterCode::shiftJISToUTF16(dest, reinterpret_cast<const u8*>(comment), 0x20);
-        for (int pos = 0x1f; dest[pos] == 0x20 || dest[pos] == 0x3000 || dest[pos] == 10 || dest[pos] == 0; pos--) {
-            dest[pos] = 0;
+        for (int pos = 0x1f;
+             mFileCell[slot][file].comment[which][pos] == 0x20 ||
+             mFileCell[slot][file].comment[which][pos] == 0x3000 ||
+             mFileCell[slot][file].comment[which][pos] == 10 ||
+             mFileCell[slot][file].comment[which][pos] == 0;) {
+            mFileCell[slot][file].comment[which][pos--] = 0;
         }
     } else {
         utility::CharacterCode::ANSIToUTF16(dest, reinterpret_cast<const u8*>(comment), 0x20);
     }
     bool found = false;
     int count = 0;
-    while (dest[count] != 0 && count < 0x20) {
+    while (mFileCell[slot][file].comment[which][count] != 0 && count < 0x20) {
         if (found) {
-            dest[count] = 0;
-        } else if (dest[count] == 10 || dest[count] == 0xd0a) {
-            dest[count] = 0;
+            mFileCell[slot][file].comment[which][count] = 0;
+        } else if (mFileCell[slot][file].comment[which][count] == 10 || mFileCell[slot][file].comment[which][count] == 0xd0a) {
+            mFileCell[slot][file].comment[which][count] = 0;
             found = true;
         }
         count++;
     }
-    return dest;
+    return mFileCell[slot][file].comment[which];
 }
 
 GXTexObj* MemoryCardManager::create_banner(u8 slot, s16 index) {
