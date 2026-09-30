@@ -20,6 +20,10 @@ namespace ipl {
                 return mState == STATE_WAIT_CHILD;
             }
 
+#ifdef IPL_MEMORYCARD_BASE_IMPLEMENTATION
+            int getMemoryCardTransitionState() const { return mState; }
+#endif
+
         private:
             enum {
                 // Base
