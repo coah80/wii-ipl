@@ -22,13 +22,12 @@ namespace input {
 HKBManager HKBManager::sInstance;
 
 // KBD callbacks encode the device in the first byte of the opaque pointer value.
-union LedCallbackData {
-    void* pointer;
-    u8 device;
-    struct {
+struct LedCallbackData {
+    union {
+        void* pointer;
         u8 device;
-        u32 leds;
-    } request;
+    };
+    u32 leds;
 };
 
 void HKBManager::SetLedCB(_KBDEc result, void* userData) {
@@ -36,9 +35,8 @@ void HKBManager::SetLedCB(_KBDEc result, void* userData) {
         LedCallbackData received;
         received.pointer = userData;
         LedCallbackData callback;
-        callback.request.device = received.device;
-        callback.request.leds = 0;
-        const u8 leds = callback.request.leds;
+        callback.device = received.device;
+        const u8 leds = callback.leds = 0;
         u32 interrupts = OSDisableInterrupts();
         u32 mask = 1 << received.device;
         sInstance.retryDevices &= ~mask;
@@ -59,9 +57,8 @@ void HKBManager::KBDListenerOwn::OnAttach(KBDDevEvent* event) {
         device = event->device;
         owner = manager;
         LedCallbackData callback;
-        callback.request.device = device;
-        callback.request.leds = 0;
-        const u8 leds = callback.request.leds;
+        callback.device = device;
+        const u8 leds = callback.leds = 0;
         u32 interrupts = OSDisableInterrupts();
         u32 mask = 1 << device;
         owner->retryDevices &= ~mask;
@@ -244,9 +241,8 @@ void HKBManager::Update() {
             mask = 1 << shiftIndex;
             if ((retryDevices & mask) != 0) {
                 LedCallbackData callback;
-                callback.request.device = static_cast<u8>(device);
-                callback.request.leds = 0;
-                const u8 leds = callback.request.leds;
+                callback.device = static_cast<u8>(device);
+                const u8 leds = callback.leds = 0;
                 u32 interrupts = OSDisableInterrupts();
                 retryDevices &= ~mask;
                 OSRestoreInterrupts(interrupts);
@@ -329,22 +325,10 @@ void HKBManager::KeyState_::Update() {
     u32 interrupts = OSDisableInterrupts();
     previous = current;
     current = pending;
-    previousKeys[0] = currentKeys[0];
-    currentKeys[0] = pendingKeys[0];
-    previousKeys[1] = currentKeys[1];
-    currentKeys[1] = pendingKeys[1];
-    previousKeys[2] = currentKeys[2];
-    currentKeys[2] = pendingKeys[2];
-    previousKeys[3] = currentKeys[3];
-    currentKeys[3] = pendingKeys[3];
-    previousKeys[4] = currentKeys[4];
-    currentKeys[4] = pendingKeys[4];
-    previousKeys[5] = currentKeys[5];
-    currentKeys[5] = pendingKeys[5];
-    previousKeys[6] = currentKeys[6];
-    currentKeys[6] = pendingKeys[6];
-    previousKeys[7] = currentKeys[7];
-    currentKeys[7] = pendingKeys[7];
+    for (u32 slot = 0; slot < 8; slot++) {
+        previousKeys[slot] = currentKeys[slot];
+        currentKeys[slot] = pendingKeys[slot];
+    }
     OSRestoreInterrupts(interrupts);
     UpdateModState_();
     u32 bit;
@@ -448,8 +432,8 @@ u8 HKBManager::KeySet::GetKey() const {
 }
 
 u32 HKBManager::KeySet::GetWChar() const {
-    u32 code = GetVCode();
-    if ((code & 0xffff) >= 0xf130 && (code & 0xffff) <= 0xf139) {
+    s32 code = GetVCode();
+    if (static_cast<u16>(code) >= 0xf130 && static_cast<u16>(code) <= 0xf139) {
         code = code - 0xf100 & 0xffff;
     } else {
         u32 lowCode = code & 0xffff;
@@ -457,24 +441,25 @@ u32 HKBManager::KeySet::GetWChar() const {
             code = 0xf1cd;
         } else if (lowCode >= 0xf100 && lowCode <= 0xf13f) {
             code = code - 0xf100 & 0xffff;
-        } else if ((code & 0xffff) >= 0xf140 && (code & 0xffff) <= 0xf17f) {
+        } else if ((static_cast<u32>(code) & 0xffff) >= 0xf140 && (static_cast<u32>(code) & 0xffff) <= 0xf17f) {
             code = code + 0x40 & 0xffff;
         }
     }
     u16 character = code;
     if ((character & 0xf000) == 0xf000) {
         code = 0;
-    } else if ((code & 0xffff) == 0xeeee) {
+    } else if ((static_cast<u32>(code) & 0xffff) == 0xeeee) {
         code = 0;
-    } else if ((code & 0xffff) < 0x20) {
+    } else if ((static_cast<u32>(code) & 0xffff) < 0x20) {
         code = 0;
     }
+    u32 index = 0;
     const HKBManager* owner = manager;
     if (owner->allowedCharacters == 0) return code;
     u32 count = owner->allowedCharacterCount;
     if (count == 0) return code;
-    for (u32 index = 0; index < count; index++) {
-        if ((code & 0xffff) == owner->allowedCharacters[index]) return code;
+    for (; index < count; index++) {
+        if ((static_cast<u32>(code) & 0xffff) == owner->allowedCharacters[index]) return code;
     }
     return 0;
 }

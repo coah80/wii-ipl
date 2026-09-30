@@ -5,7 +5,7 @@ The pool is empty and identical from the first object build. All fields and
 calls use typed keyboard declarations. Only TIHKBMANAGER_IMPLEMENTATION selects
 the added layouts; existing keyboard guard branches remain unchanged.
 
-## Remaining functions, in object order
+## First pass attempts, in object order
 
 ### SetLedCB
 1. Initialized pointer union followed by device byte: 41/41 instructions,
@@ -76,7 +76,7 @@ the added layouts; existing keyboard guard branches remain unchanged.
 5. Inline the same CheckValidity helper used by GetKey/GetVCode:
    70/70, 12 differences, retained. Index/device registers are exchanged.
 
-## Exact functions
+## First pass exact functions
 
 All other functions are C++ and instruction-exact. Important successful
 changes: sequential Clear stores; callback traversal compares its next node
@@ -104,3 +104,73 @@ Changed files:
 - include/keyboard/tiHKBManager.h
 - libs/RVL_SDK/include/revolution/kbd.h
 - tools/decomp-assist/tiHKBManager.attempts.md
+
+## Continuation at 21/29 exact
+
+Baseline code 3664/6116, data 292/292. The empty string pool remains identical.
+The five still-open functions were visited closest first; each has at least
+three new source variations in this pass.
+
+### KeyState_::UpdateModState_ — still open
+1. Signed loop counter: 104/104 instructions, same seven register differences.
+2. Initialize key mask and widened byte slot in one declaration each:
+   104/104, ten differences.
+3. Hoist key mask and byte slot outside the loop: 104/104, ten differences.
+Retained the original seven-difference version.
+
+### KeySet::IsValid — still open
+1. Direct validity body with the shifted bit as the left operand:
+   70/70, 18 register differences.
+2. Declare the signed index before the owner alias: 70/70, 12 differences.
+3. Widen device/index to signed words and compare device as unsigned:
+   70/70, 14 differences.
+Retained the shared CheckValidity helper, 12 differences.
+
+### KBDListenerOwn::OnDetach — still open
+1. Widen device to u32: 22/22, four register differences, unchanged.
+2. Inline DetachDevice helper combining attached flag and state clearing:
+   22/22, five differences.
+3. Name the state reference inside that helper before flag clearing:
+   22/22, six differences.
+Removed the experimental helper and retained the four-difference version.
+
+### KeyState_::Update — still open
+1. Replace the eight explicit key snapshots with a normal loop:
+   183/183, same 44 register differences. Retained for readability.
+2. Signed event/repeat loop index: 183/183, same 44 differences.
+3. Local bit temporaries and negated unchanged-key predicates:
+   183/183, 47 differences.
+
+### KeySet::GetWChar — improved, still open
+1. Signed virtual code with explicitly unsigned mask comparisons:
+   76/77 instructions, one repeated narrowing still absent.
+2. Inline normalization helper returning each normalized value:
+   75/77, unchanged from baseline.
+3. u16 intermediate character and do/while whitelist traversal:
+   74/77, rejected.
+4. Distinguish the initial 16-bit key range from the signed normalization
+   intermediate and subsequent unsigned masks: 77/77, nine whitelist-loop
+   register differences. Retained.
+5. Hoist whitelist index declaration: 77/77, unchanged.
+6. Initialize that index before the owner alias: 77/77, unchanged.
+7. Signed whitelist index: 77/77, unchanged.
+8. Count down remaining whitelist entries: 76/77, rejected.
+9. Unsigned main code and signed normalization intermediate:
+   77/77, same nine differences, rejected in favor of attempt 4.
+
+### LED operations — three new exact functions
+1. Widen the asynchronous LED argument and snapshot to u32:
+   SetLedCB 41/41 with two differences, OnAttach 61/61 with three,
+   HKBManager::Update 55/55 with three.
+2. Move the LED mask outside the opaque-pointer/device union, making the
+   request a struct: identical differences and counts.
+3. Snapshot the value assigned when clearing the request's LED mask:
+   all three functions reach zero differences.
+4. Restore the original byte API argument and byte snapshot:
+   all three remain exact, without emitted LED constant objects.
+The mask field supplies the call argument through the assignment result;
+there is no separate literal argument or unused request-mask initialization.
+
+Data sections remain 100%. No shared header changes are retained in this
+continuation. A quick gate reports 24/29 exact, code 4292/6116,
+data 292/292, fuzzy 99.7057, and zero regressions or source warnings.
