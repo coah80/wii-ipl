@@ -572,23 +572,7 @@ namespace ipl {
                         static_cast<ESTitleId>(command.titleId),
                         command.arguments.values[0] != 0);
                     mWorkerCommand = 10;
-                    u32 titleCount = mNandTitleCount;
-                    u32 index = 0;
-                    for (; index < titleCount; ++index) {
-                        if (mpNandTitleInfo[index].curTitleId == command.titleId) {
-                            break;
-                        }
-                    }
-                    if (index < mNandTitleCount) {
-                        for (; index < mNandTitleCount - 1; ++index) {
-                            NandSDWorker::TitleUsage& currentTitle = mpNandTitleInfo[index];
-                            NandSDWorker::TitleUsage& nextTitle = mpNandTitleInfo[index + 1];
-                            currentTitle.curTitleId = nextTitle.curTitleId;
-                            currentTitle.size = nextTitle.size;
-                            currentTitle.inode = nextTitle.inode;
-                        }
-                        --mNandTitleCount;
-                    }
+                    removeNandTitleInfo(command.titleId);
                     break;
                 }
                 case 11:
@@ -2678,10 +2662,7 @@ namespace ipl {
             mpLayout->setAnmType(ANIM_TYPE_BACKWARD, -1);
             mpLayout->start(-1);
 
-            nw4r::math::VEC3 position(0.0f, 0.0f, 0.0f);
-            nw4r::lyt::Pane* pane = getCenterChannelPane(index);
-            PSMTXMultVec(pane->GetGlobalMtx(), position, position);
-            math::VEC3 animationPosition(position);
+            math::VEC3 animationPosition(getPageTransitionPosition(index));
             initPageAnimations(animationPosition, 1);
             updatePageTransform();
             mState = 14;
@@ -3200,27 +3181,32 @@ namespace ipl {
 
             int index = getCenterChannelIndex(paneName);
             if (index >= 0) {
-                s32 eventType = event;
-                if (eventType != 2) {
-                    if (eventType >= 2) {
-                        if (eventType == 5 && !controller->pinch()) {
-                            mDestinationIndex = index;
-                            mDestinationPage = mCurrentPage;
-                            mbButtonEnabled = true;
-                        }
-                    } else if (eventType >= 1) {
-                        if (isChannelMoveTarget(mCurrentPage, index) ||
-                            (mCurrentPage == mSourcePage && index == mSourceIndex)) {
-                            SDChannelObj* channel = findChannelObject(mCurrentPage, index);
-                            iplSDChannelObj_813E3354(channel, 2);
-                            snd::getSystem()->startSE("WIPL_SE_CH_TARGETTING");
-                            controller->rumble(1);
-                        }
+                switch (static_cast<s32>(event)) {
+                case 5:
+                    if (!controller->pinch()) {
+                        mDestinationIndex = index;
+                        mDestinationPage = mCurrentPage;
+                        mbButtonEnabled = true;
                     }
-                } else if (isChannelMoveTarget(mCurrentPage, index) ||
-                           (mCurrentPage == mSourcePage && index == mSourceIndex)) {
-                    SDChannelObj* channel = findChannelObject(mCurrentPage, index);
-                    iplSDChannelObj_813E33EC(channel, 2);
+                    break;
+                case 1:
+                    if (isChannelMoveTarget(mCurrentPage, index) ||
+                        (mCurrentPage == mSourcePage && index == mSourceIndex)) {
+                        SDChannelObj* channel = findChannelObject(mCurrentPage, index);
+                        iplSDChannelObj_813E3354(channel, 2);
+                        snd::getSystem()->startSE("WIPL_SE_CH_TARGETTING");
+                        controller->rumble(1);
+                    }
+                    break;
+                case 2:
+                    if (isChannelMoveTarget(mCurrentPage, index) ||
+                        (mCurrentPage == mSourcePage && index == mSourceIndex)) {
+                        SDChannelObj* channel = findChannelObject(mCurrentPage, index);
+                        iplSDChannelObj_813E33EC(channel, 2);
+                    }
+                    break;
+                default:
+                    break;
                 }
             }
 
@@ -3236,10 +3222,9 @@ namespace ipl {
 
             switch (event) {
             case ::gui::EventHandler::ON_LEFT:
-                if (strcmp(paneName, SDButton::smButtonName[SDButton::BTN_ARROW_LEFT]) == 0) {
-                    if (mCurrentPage > 0) {
-                        mPendingIndex = -1;
-                    }
+                if (strcmp(paneName, SDButton::smButtonName[SDButton::BTN_ARROW_LEFT]) == 0 &&
+                    mCurrentPage > 0) {
+                    mPendingIndex = -1;
                 } else if (strcmp(paneName, SDButton::smButtonName[SDButton::BTN_ARROW_RIGHT]) == 0) {
                     if (mCurrentPage < mPageCount - 1) {
                         mPendingPage = -1;
@@ -3247,8 +3232,9 @@ namespace ipl {
                 }
                 break;
             case ::gui::EventHandler::ON_POINT:
-                if (strcmp(paneName, SDButton::smButtonName[SDButton::BTN_ARROW_LEFT]) == 0) {
-                    if (mCurrentPage > 0 && mPendingIndex < 0) {
+                if (strcmp(paneName, SDButton::smButtonName[SDButton::BTN_ARROW_LEFT]) == 0 &&
+                    mCurrentPage > 0) {
+                    if (mPendingIndex < 0) {
                         mPendingIndex = 0;
                     }
                 } else if (strcmp(paneName, SDButton::smButtonName[SDButton::BTN_ARROW_RIGHT]) == 0) {

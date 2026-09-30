@@ -46,16 +46,6 @@ extern "C" bool iplSDChannelSelect_813DB58C(ipl::scene::SDChannelSelect* channel
                                              ESTitleId** names);
 
 namespace ipl {
-    namespace utility {
-        void Scroller::init() {
-            mState = 0;
-            mScroll = 0.0f;
-            unk_0x3C = 0.0f;
-            mUpLimit = 0.0f;
-            mDownLimit = 0.0f;
-        }
-    }
-
     namespace scene {
         typedef ::gui::Component GuiComponent;
         typedef ::gui::PaneComponent GuiPaneComponent;
@@ -284,38 +274,19 @@ namespace ipl {
             mScroller.setDownLimit(downLimit);
         }
 
-        void SDMemory::updateSideArrows() {
-            controller::Interface* masterController = System::getMasterController();
+    }
 
-            if (mScroller.getBInst().isActive() ? false : true) {
-                if (masterController->down(controller::BTN_UP)) {
-                    showLeftArrow();
-                }
-                if (!masterController->down(controller::BTN_UP)) {
-                    hideLeftArrow();
-                }
-                if (masterController->down(controller::BTN_DOWN)) {
-                    showRightArrow();
-                }
-                if (!masterController->down(controller::BTN_DOWN)) {
-                    hideRightArrow();
-                }
-            } else {
-                if (mScroller.getBInst().isUp()) {
-                    showLeftArrow();
-                }
-                if (!mScroller.getBInst().isUp()) {
-                    hideLeftArrow();
-                }
-                if (mScroller.getBInst().isDown()) {
-                    showRightArrow();
-                }
-                if (!mScroller.getBInst().isDown()) {
-                    hideRightArrow();
-                }
-            }
+    namespace utility {
+        void Scroller::init() {
+            mState = 0;
+            mScroll = 0.0f;
+            unk_0x3C = 0.0f;
+            mUpLimit = 0.0f;
+            mDownLimit = 0.0f;
         }
+    }
 
+    namespace scene {
         void SDMemory::resetScrollArrows() {
             mControllerFlags[0] = 0;
             mControllerFlags[1] = 0;
@@ -384,6 +355,38 @@ namespace ipl {
                 playAnimation->initFrame();
                 playAnimation->restart();
                 mControllerFlags[1] = 0;
+            }
+        }
+
+        void SDMemory::updateSideArrows() {
+            controller::Interface* masterController = System::getMasterController();
+
+            if (mScroller.getBInst().isActive() ? false : true) {
+                if (masterController->down(controller::BTN_UP)) {
+                    showLeftArrow();
+                }
+                if (!masterController->down(controller::BTN_UP)) {
+                    hideLeftArrow();
+                }
+                if (masterController->down(controller::BTN_DOWN)) {
+                    showRightArrow();
+                }
+                if (!masterController->down(controller::BTN_DOWN)) {
+                    hideRightArrow();
+                }
+            } else {
+                if (mScroller.getBInst().isUp()) {
+                    showLeftArrow();
+                }
+                if (!mScroller.getBInst().isUp()) {
+                    hideLeftArrow();
+                }
+                if (mScroller.getBInst().isDown()) {
+                    showRightArrow();
+                }
+                if (!mScroller.getBInst().isDown()) {
+                    hideRightArrow();
+                }
             }
         }
 
@@ -779,7 +782,6 @@ namespace ipl {
         }
 
 
-
         void SDMemory::onDialogState8() {
             if (System::getDialog()->getStateForSDMemory() == 2) {
                 if (mTransferStartTime == 0) {
@@ -806,20 +808,19 @@ namespace ipl {
                 animation->initFrame();
                 animation->restart();
 
-                nw4r::lyt::Pane* headerPane = mpDialogLayout->FindPaneByName("T_Header");
-                static_cast<nw4r::lyt::TextBox*>(headerPane)->SetString(System::getMessage(0xBE), 0);
+                nw4r::lyt::TextBox* titleText = static_cast<nw4r::lyt::TextBox*>(mpDialogLayout->FindPaneByName("T_Header"));
+                titleText->SetString(System::getMessage(0xBE), 0);
 
                 mButtonState = 0;
                 nw4r::lyt::Pane* titlePane = mpDialogLayout->FindPaneByName("N_Body");
-                nw4r::lyt::Pane* bodyPane = mpDialogLayout->FindPaneByName("T_Letter");
-                bodyPane->SetAlpha(0xFF);
+                titleText = static_cast<nw4r::lyt::TextBox*>(mpDialogLayout->FindPaneByName("T_Letter"));
+                titleText->SetAlpha(0xFF);
 
                 for (u32 i = 0; i < mTitleCount; i++) {
-                    utility::layout::set_string(bodyPane, mTitleNames[i]);
+                    utility::layout::set_string(titleText, mTitleNames[i]);
                     nw4r::ut::Rect textRect = mpDialogLayout->getTextDrawRect("T_Letter");
                     f32 lineCount = -(textRect.bottom - textRect.top) / titlePane->GetSize().height;
-                    f32 roundedLineCount = ceil(lineCount);
-                    mButtonState += static_cast<s32>(roundedLineCount);
+                    mButtonState += static_cast<s32>(static_cast<f32>(ceil(lineCount)));
                 }
 
                 setScrollLimit();
