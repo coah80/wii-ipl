@@ -20,7 +20,7 @@ namespace textinput {
                     virtual void    moveNigaoeButton()  {}
             };
 
-#ifdef MYTIINPUTFORM_IMPLEMENTATION
+#if defined(MYTIINPUTFORM_IMPLEMENTATION) || defined(MYTILETTERFORM_IMPLEMENTATION)
             class ScrollButton;
 #endif
 
@@ -48,7 +48,7 @@ namespace textinput {
 #endif
 
                     ~InputForm();
-#ifdef MYTIINPUTFORM_IMPLEMENTATION
+#if defined(MYTIINPUTFORM_IMPLEMENTATION) || defined(MYTILETTERFORM_IMPLEMENTATION)
                     virtual void moveCursorUp();
                     virtual void moveCursorDown();
                     virtual void onCommand(INPUT_COMMAND command, void* data);
@@ -131,7 +131,7 @@ namespace textinput {
                     void                            setEditScrollDown(bool editScrollDown)  { mbEditScrollUp = editScrollDown; }
                     void                            setCloseWithSend(bool closeWithSend)    { mbCloseWithSend = closeWithSend; }
 
-#if defined(MYTIMANAGER_IMPLEMENTATION) || defined(MYTIINPUTFORM_IMPLEMENTATION)
+#if defined(MYTIMANAGER_IMPLEMENTATION) || defined(MYTIINPUTFORM_IMPLEMENTATION) || defined(MYTILETTERFORM_IMPLEMENTATION)
                     void                            setEditMode(EditMode editMode);
 #else
                     void                            setEditMode(EditMode editMode)          { meEditMode = editMode; }
@@ -147,8 +147,12 @@ namespace textinput {
 
                     tistring::Decolated*            getSendString()                         { return mpSendString; }
 
+#ifdef MYTILETTERFORM_IMPLEMENTATION
+                protected:
+#else
                 private:
-#ifdef MYTIINPUTFORM_IMPLEMENTATION
+#endif
+#if defined(MYTIINPUTFORM_IMPLEMENTATION) || defined(MYTILETTERFORM_IMPLEMENTATION)
                     nw4r::lyt::Pane* mpMemoPane;
                     nw4r::lyt::Pane* mpMemoRootPane;
                     nw4r::lyt::Pane* mpBoundPane;
@@ -172,7 +176,7 @@ namespace textinput {
                     nw4r::lyt::Size         mDefaultBoundSize;  // 0x358
                     Mtx                     mDrawMtx;           // 0x360
                     Mtx                     mBoundMtx;          // 0x390
-#if defined(MYTIMANAGER_IMPLEMENTATION) || defined(MYTIINPUTFORM_IMPLEMENTATION)
+#if defined(MYTIMANAGER_IMPLEMENTATION) || defined(MYTIINPUTFORM_IMPLEMENTATION) || defined(MYTILETTERFORM_IMPLEMENTATION)
                     util::Animation         mExScrollAnm;       // 0x3C0
 #else
                     u8 /*todo*/             mExScrollAnm[32];   // 0x3C0
@@ -186,7 +190,7 @@ namespace textinput {
                     bool                    mbEditScrollDown;   // 0x3EF
                     bool                    mbCloseWithSend;    // 0x3F0
                     u8                      padding[3];         // 0x3F1
-#ifdef MYTIINPUTFORM_IMPLEMENTATION
+#if defined(MYTIINPUTFORM_IMPLEMENTATION) || defined(MYTILETTERFORM_IMPLEMENTATION)
                     ScrollButton* mpScrollButton;
 #else
                     undefined4*             mpScrollButton;

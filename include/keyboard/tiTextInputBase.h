@@ -58,7 +58,7 @@ namespace textinput {
             CommandReceiver() { clearSender(); }
             virtual ~CommandReceiver();
 #endif
-#if defined(MYTIINPUTFORM_IMPLEMENTATION) || defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION)
+#if defined(MYTIINPUTFORM_IMPLEMENTATION) || defined(MYTILETTERFORM_IMPLEMENTATION) || defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION)
             struct Scroll {
                 bool absY;
                 f32 x;

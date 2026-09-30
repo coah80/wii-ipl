@@ -14,7 +14,7 @@ namespace textinput {
         class TiEventHandler : public gui::EventHandler {
             public:
                 typedef struct Input {
-#if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION) || defined(TISIGNWINDOW_IMPLEMENTATION)
+#if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION) || defined(TISIGNWINDOW_IMPLEMENTATION) || defined(MYTILETTERFORM_IMPLEMENTATION)
                     u32 controller;
                     f32 x;
                     f32 y;
