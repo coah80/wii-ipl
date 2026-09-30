@@ -1263,30 +1263,33 @@ pf_s32 PFFILE_p_divide(PF_VOLUME* volume, PFDIR_STR* source_path, PFDIR_STR* des
     }
     source_entry.file_size = split_size;
     error = PFENT_updateEntry(&source_entry, 1);
-    if (error == 0) {
-        if ((((PFFILE_VOLUME_DIRS*)volume)->cache_control & 4) == 0 ||
-            PFCACHE_FlushDataCacheSpecific(volume, 0) == 0) {
-        error = PFCLUSTER_DivideFile(&source_iter, &destination_iter, &source_entry_copy,
-                                     &destination_entry, split_size);
+    if (error != 0) {
+        return error;
+    }
+    if ((((PFFILE_VOLUME_DIRS*)volume)->cache_control & 4) != 0) {
+        error = PFCACHE_FlushDataCacheSpecific(volume, 0);
         if (error != 0) {
-            PFCACHE_FlushFATCache(volume);
-            source_entry.file_size = original_size;
-            source_entry.start_cluster = original_start_cluster;
-            PFENT_updateEntry(&source_entry, 1);
-            PFENT_ITER_GetEntryOfPath(&destination_iter, &destination_entry, volume,
-                                      destination_path, 0);
-            PFENT_RemoveEntry(&destination_entry, &destination_iter);
             return error;
         }
-        destination_entry.modify_time = source_entry.modify_time;
-        destination_entry.modify_date = source_entry.modify_date;
-        destination_entry.access_date = source_entry.access_date;
-        destination_entry.attr = source_entry.attr;
-        error = PFENT_updateEntry(&destination_entry, 1);
-        return error & (-error | error) >> 31;
-        }
     }
-    return error;
+    error = PFCLUSTER_DivideFile(&source_iter, &destination_iter, &source_entry_copy,
+                                 &destination_entry, split_size);
+    if (error != 0) {
+        PFCACHE_FlushFATCache(volume);
+        source_entry.file_size = original_size;
+        source_entry.start_cluster = original_start_cluster;
+        PFENT_updateEntry(&source_entry, 1);
+        PFENT_ITER_GetEntryOfPath(&destination_iter, &destination_entry, volume,
+                                  destination_path, 0);
+        PFENT_RemoveEntry(&destination_entry, &destination_iter);
+        return error;
+    }
+    destination_entry.modify_date = source_entry.modify_date;
+    destination_entry.modify_time = source_entry.modify_time;
+    destination_entry.access_date = source_entry.access_date;
+    destination_entry.attr = source_entry.attr;
+    error = PFENT_updateEntry(&destination_entry, 1);
+    return error & (-error | error) >> 31;
 }
 
 pf_s32 PFFILE_p_cinsert(PF_VOLUME* volume, PFDIR_STR* path, pf_u32 cluster_index,
