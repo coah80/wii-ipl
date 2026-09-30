@@ -187,7 +187,20 @@ namespace textinput {
                 wchar_t szKeySetName[17];                                          // 0x04
                 u16 uNum;                                                          // 0x26
                 u16 uType;                                                         // 0x28
+
+#ifdef TI_CELLPHONE_IMPLEMENTATION
+            public:
+                bool IsValid() const;
+                u32 GetKey() const;
+                wchar_t GetWChar() const;
+                KeySet GetNext() const;
+#endif
             };
+
+#ifdef TI_CELLPHONE_IMPLEMENTATION
+            KeySet GetTriggeredKeySet() const;
+            KeySet GetRepeatedKeySet() const;
+#endif
 
 #endif
         private:

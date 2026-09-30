@@ -65,7 +65,11 @@ namespace textinput {
                 virtual void init() override;
                 virtual void updateFromReceiver(u32, void*) override;
                 virtual void onKey(u32, void*) override;
+#ifdef TI_CELLPHONE_IMPLEMENTATION
+                virtual u32 getType() override;
+#else
                 virtual void getType() override;
+#endif
                 virtual void setLanguage(Language) override;
                 virtual void onActive() override;
                 virtual void inputCharCode(u16);

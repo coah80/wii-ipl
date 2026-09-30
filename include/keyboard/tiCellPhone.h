@@ -6,9 +6,44 @@
 #include "tiKeyboard.h"
 #endif
 
+#ifdef TI_CELLPHONE_IMPLEMENTATION
+#include <revolution/gx.h>
+#endif
+
 namespace textinput {
+    class Manager;
+#ifdef TI_CELLPHONE_SAMPLE_CLASS
+    class EventObserver;
+#endif
+    namespace predictlang {
+        class LayoutByNW4R;
+    }
+    namespace keyboard {
+#ifdef TI_CELLPHONE_IMPLEMENTATION
+        enum VKeyCode {
+            VK_LINE_FEED = 0,
+            VK_DELETE = 1,
+            VK_SIGN_INPUT = 9,
+            VK_PREDICT_LANGUAGE = 10,
+            VK_INPUT_MODE_02 = 11,
+            VK_INPUT_MODE_03 = 13,
+            VK_INPUT_MODE_00 = 18,
+            VK_INPUT_MODE_01 = 19,
+            VK_TOGGLE_ABC_MODE = 23,
+        };
+#endif
+        namespace signwindow {
+            class LayoutByNW4R;
+        }
+    }
+
     namespace keyboard {
         namespace cellphonetype {
+            class EventHandler;
+#ifdef TI_CELLPHONE_IMPLEMENTATION
+            class CellPhoneAnmPane;
+            struct PaneNameToCharCode;
+#endif
 #if defined(MYTIMANAGER_IMPLEMENTATION) || defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIHWKEYBOARD_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION)
             class Base : public textinput::keyboard::KeyboardBase {
 #else
@@ -16,6 +51,9 @@ namespace textinput {
 #endif
             public:
 #if defined(MYTIMANAGER_IMPLEMENTATION) || defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIHWKEYBOARD_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION)
+#if defined(MYTIMANAGER_IMPLEMENTATION) && defined(TI_CELLPHONE_SAMPLE_CLASS)
+                Base(Manager* manager) : mPreviousInputMode(0), mCurrentInputMode(0), mpManager(manager) {}
+#endif
                 enum InputMode {
                     IM_00,
                     IM_01,
@@ -31,6 +69,10 @@ namespace textinput {
                 virtual void onKey(u32, void*) override;
 #ifdef TIMANAGER_IMPLEMENTATION
                 Base(Manager* manager) : mpManager(manager) {}
+#endif
+#if defined(TI_CELLPHONE_IMPLEMENTATION)
+                virtual u32 getType() override;
+#elif defined(TI_PC_KEYBOARD_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION) || defined(TISIGNWINDOW_IMPLEMENTATION)
                 virtual int getType() override;
 #elif defined(TIHWKEYBOARD_IMPLEMENTATION)
                 virtual int getType() override;
@@ -59,6 +101,9 @@ namespace textinput {
                 virtual bool isAtokActive();
                 virtual void doInput();
                 virtual void updateFixMode();
+#ifdef TI_CELLPHONE_IMPLEMENTATION
+                wchar_t convertToZiCellphoneInput_(wchar_t value);
+#endif
 #else
                 virtual void vt_0x08();
                 virtual void vt_0x0C();
@@ -102,7 +147,11 @@ namespace textinput {
 #endif
 
 #if defined(MYTIMANAGER_IMPLEMENTATION) || defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIHWKEYBOARD_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION)
+#if defined(MYTIMANAGER_IMPLEMENTATION) && defined(TI_CELLPHONE_IMPLEMENTATION)
+            protected:
+#else
             private:
+#endif
                 u32 mPreviousInputMode;
                 u32 mCurrentInputMode;
                 bool mbInputModeLocked;
@@ -111,15 +160,26 @@ namespace textinput {
                 bool mbUpperCaseMode;
                 bool mbAbcMode;
                 bool mbLanguageKeyMode;
+#ifdef TI_CELLPHONE_IMPLEMENTATION
+                const PaneNameToCharCode* mHoldingButton;
+#else
                 u32 mHoldingButton;
+#endif
                 void* mpInputModeTable;
                 MEMAllocator* mpAllocator;
-#ifdef TIMANAGER_IMPLEMENTATION
+#ifdef TI_CELLPHONE_IMPLEMENTATION
                 Manager* mpManager;
+                bool mInputState;
+#elif defined(TIMANAGER_IMPLEMENTATION)
+                Manager* mpManager;
+                u32 mInputState;
 #else
                 void* mpInputSettings;
-#endif
                 u32 mInputState;
+#endif
+#ifdef TI_CELLPHONE_IMPLEMENTATION
+                void onCtrlKey_(VKeyCode keyCode);
+#endif
 #endif
             };
 
@@ -151,9 +211,18 @@ namespace textinput {
                 virtual void setPredictLanguageDialog(predictlang::LayoutByNW4R* dialog);
                 virtual void setSignWindow(signwindow::LayoutByNW4R* window);
 #else
+#if defined(MYTIMANAGER_IMPLEMENTATION) && defined(TI_CELLPHONE_SAMPLE_CLASS)
+                LayoutByNW4R(Manager* manager, nw4r::lyt::MultiArcResourceAccessor* resAccessor, EventObserver* observer)
+                    : Base(manager), nw4rmanager::Layout(resAccessor, "fs_VK_cellPhone_a.brlyt", observer), mpSignWindow(NULL) {}
+#endif
                 virtual void doNumericMode(bool);
+#ifdef TI_CELLPHONE_IMPLEMENTATION
+                virtual void setPredictLanguageDialog(predictlang::LayoutByNW4R*);
+                virtual void setSignWindow(signwindow::LayoutByNW4R*);
+#else
                 virtual void setPredictLanguageDialog(void*);
                 virtual void setSignWindow(void*);
+#endif
 #endif
                 virtual void doNumericWithDotMode(bool);
                 virtual void setLineFeedButton(bool);
@@ -182,7 +251,41 @@ namespace textinput {
                 virtual bool updateInput(int chan, f32 x, f32 y, u32 trig, u32 hold, u32 release, void* data) override;
                 virtual bool updateInput(input::HKBManager& hkbManager) override;
 #endif
-#ifdef TIMANAGER_IMPLEMENTATION
+#ifdef TI_CELLPHONE_IMPLEMENTATION
+                virtual ~LayoutByNW4R();
+                virtual void create(MEMAllocator* allocator) override;
+                virtual void init() override;
+                virtual void draw() override;
+                virtual void calc() override;
+                virtual void update() override;
+                virtual void onKey(u32 key, void* data) override;
+                virtual void onActive() override;
+                virtual void updateFromReceiver(u32 command, void* data) override;
+                virtual void changeInputMode(InputMode mode) override;
+                virtual void changePredictLanguage() override;
+                virtual void setAbcMode(bool enabled) override;
+                virtual void goSignInputMode() override;
+                virtual void setInputMode(InputMode mode) override;
+                virtual void setLanguage(Language language) override;
+                virtual void setCommandReceiver(CommandReceiver* receiver) override;
+
+                virtual CellPhoneAnmPane* getAnmPane(InputMode mode);
+                virtual void throwReleaseForAll();
+                virtual void changeAnimationAllToNormal();
+                virtual void updatePredictLanguage(CommandReceiver::ChangePredictMode* mode);
+                virtual void changeKeyTop(const PaneNameToCharCode* keys);
+                virtual void changeSpaceKeyTop(const PaneNameToCharCode* keys);
+                void setUpperCaseJP(bool enabled);
+                void setLangKeyActive(bool enabled);
+                void resetHoldingButton();
+
+            private:
+                bool mbLineFeedButton;
+                GXTexObj mTextures[3];
+                EventHandler* mpEventHandler;
+                predictlang::LayoutByNW4R* mpPredictLanguageDialog;
+                signwindow::LayoutByNW4R* mpSignWindow;
+#elif defined(TIMANAGER_IMPLEMENTATION)
                 virtual nw4rmanager::AnmPane* getAnmPane(InputMode mode);
                 virtual void throwReleaseForAll();
                 virtual void changeAnimationAllToNormal();
@@ -191,6 +294,71 @@ namespace textinput {
                 virtual void changeSpaceKeyTop(const struct PaneNameToCharCode* table);
 #endif
             };
+
+#ifdef TI_CELLPHONE_SAMPLE_CLASS
+            class Sample : public LayoutByNW4R {
+            public:
+                Sample(Manager* manager, nw4r::lyt::MultiArcResourceAccessor* resAccessor, EventObserver* observer)
+                    : LayoutByNW4R(manager, resAccessor, observer) {}
+                virtual ~Sample() {}
+            };
+#endif
+
+#ifdef TI_CELLPHONE_IMPLEMENTATION
+            enum Animation {
+                ANM_Normal,
+                ANM_FocusIn,
+                ANM_FocusOut,
+                ANM_RollOver,
+                ANM_Pushed,
+                ANM_05,
+                ANM_06,
+                ANM_ToggleOff,
+                ANM_Last,
+            };
+
+            enum KeyType {
+                KT_NormalButton,
+                KT_ControlButton,
+            };
+
+            class CellPhoneAnmPane : public nw4rmanager::AnmPane {
+            public:
+                CellPhoneAnmPane(nw4r::lyt::Pane* pane, nw4rmanager::AnmObserver* observer)
+                    : nw4rmanager::AnmPane(pane, observer), meState(ANM_Normal), meKeyType(KT_NormalButton) {}
+
+                virtual void init() override;
+                virtual void onAnmEvent(AnmPaneEvent event) override;
+                virtual void changeAnimation(u32 id) override;
+                virtual KeyType getKeyType() const;
+                u32 getAnimationState() const { return meState; }
+                virtual ~CellPhoneAnmPane();
+
+            protected:
+                Animation meState;
+                KeyType meKeyType;
+            };
+
+            class CellPhoneControlAnmPane : public CellPhoneAnmPane {
+            public:
+                CellPhoneControlAnmPane(nw4r::lyt::Pane* pane, nw4rmanager::AnmObserver* observer)
+                    : CellPhoneAnmPane(pane, observer) { meKeyType = KT_ControlButton; }
+
+                virtual void onAnmEvent(AnmPaneEvent event) override;
+                virtual ~CellPhoneControlAnmPane();
+            };
+
+            class EventHandler : public nw4rmanager::TiEventHandler {
+            public:
+                EventHandler(LayoutByNW4R* layout) : mpLayoutByNW4R(layout) {}
+                virtual ~EventHandler();
+                virtual void onTiEvent(gui::PaneComponent* pane, u32 event, Input* input) override;
+
+            private:
+                LayoutByNW4R* mpLayoutByNW4R;
+            };
+
+#endif
 
         }  // namespace cellphonetype
     }  // namespace keyboard
