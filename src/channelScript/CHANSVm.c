@@ -4164,17 +4164,13 @@ VmMethodDefine(Blob, CopyRangeFrom) {
         count = CHANSVm_81451314(srcBlob, countObj, srcOff);
         {
             u32 destinationOffset = destOff;
-            if ((s64)count >= 0 && (s64)(destBlob->size - destinationOffset) >= (s64)count) {
-                okFlag = vmTrue;
-            }
+            okFlag = (s64)count >= 0 && (s64)(destBlob->size - destinationOffset) >= (s64)count;
         }
 
         if (okFlag) {
             vmBoolInt sourceValid = vmFalse;
             u32 sourceOffset = srcOff;
-            if ((s64)count >= 0 && (s64)(srcBlob->size - sourceOffset) >= (s64)count) {
-                sourceValid = vmTrue;
-            }
+            sourceValid = (s64)count >= 0 && (s64)(srcBlob->size - sourceOffset) >= (s64)count;
 
             if (sourceValid) {
                 memmove(destBlob->pData + destOff, srcBlob->pData + srcOff, count);
