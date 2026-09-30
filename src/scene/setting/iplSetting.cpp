@@ -3612,7 +3612,7 @@ namespace ipl {
                     break;
                 case 2: {
                     if (unk_0x91C[1] != 0) {
-                        www::wiisetting::setFuncResult(unk_0x91C[1]);
+                        www::wiisetting::setFuncResult(*(volatile const u8*)&unk_0x91C[1]);
                         unk_0x84 = 1;
                         unk_0x91C[1] = 0;
                         resetFuncMsgQ();
