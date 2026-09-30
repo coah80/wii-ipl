@@ -757,3 +757,656 @@ TMCJPEGDEC_IdctBlock_Col: 69.112335%; IDCT butterflies, sparse path and register
 libs/RVLMiddleware/TMC_JPEG/src/b65/iqdec_b65_frv32
 
 TMCJPEGDEC_decode_iquant: 87.576090%; AC Huffman loop scheduling and register allocation; 277/276 instructions.
+
+## Planar converter block translation after 99cfa80f
+
+Only Texture_MCUtoY8U8V8 is owned this round. Original has 196, 356, 391, 475, 391, 474, 394, 376, 386 instructions for the nine open functions. Source starts at 195, 338, 391, 477, 391, 475, 400, 376, 385. Four previously exact loops are preserved. Original has no data sections; pool must remain empty. Tests start with the smallest setter and proceed through the converter functions by target size.
+TMCJPEGDEC_set_converterY8U8V8, inline-buffer-base: 780/784 bytes, 92.739800 percent, 175 positional non-register differences, first [1, 2, 3, 4, 5, 6, 7, 8].
+TMCJPEGDEC_set_converterY8U8V8, structured-conversion-buffer: 780/784 bytes, 92.739800 percent, 175 positional non-register differences, first [1, 2, 3, 4, 5, 6, 7, 8].
+TMCJPEGDEC_set_converterY8U8V8, conversion-buffer-address-arithmetic: 780/784 bytes, 92.739800 percent, 175 positional non-register differences, first [1, 2, 3, 4, 5, 6, 7, 8].
+TMCJPEGDEC_set_converterY8U8V8, setup-cases-address-order: 780/784 bytes, 92.540820 percent, 183 positional non-register differences, first [1, 2, 3, 4, 5, 6, 7, 8].
+Setter block audit covers dispatch 0x000-0x048, six case blocks through 0x228, dimension rounding 0x230-0x304, and epilogue. All real stores and arithmetic are present. The first unresolved difference is the folded conversion-buffer base: source omits target addi at 0x004. Inline accessor, structured buffer view, integer buffer address and source-token store order do not retain it. Rejected variants restored; this is recorded as a structural mismatch, not a register tie-break.
+TMCJPEG_814EFEAC, luma-and-chroma-address-blocks: 1120/1424 bytes, 52.044945 percent, 257 positional non-register differences, first [1, 2, 3, 5, 7, 8, 14, 15].
+TMCJPEG_814EFEAC, luma-four-pixel-loop: 1412/1424 bytes, 57.643257 percent, 232 positional non-register differences, first [3, 5, 7, 8, 14, 15, 16, 24].
+TMCJPEG_814EFEAC, frame-and-row-initialization: 1412/1424 bytes, 57.643257 percent, 232 positional non-register differences, first [3, 5, 7, 8, 14, 15, 16, 24].
+TMCJPEG_814EFEAC, luma-stores-with-signed-tile-offsets: 1412/1424 bytes, 73.766850 percent, 154 positional non-register differences, first [3, 5, 7, 8, 14, 15, 16, 24].
+TMCJPEG_814EFEAC, local-order-0: 1412/1424 bytes, 74.811800 percent, 151 positional non-register differences, first [3, 5, 7, 8, 24, 25, 26, 149].
+TMCJPEG_814EFEAC, local-order-29: 1412/1424 bytes, 75.050560 percent, 149 positional non-register differences, first [7, 8, 24, 25, 26, 149, 153, 154].
+TMCJPEG_814EFEAC, local-order-32: 1412/1424 bytes, 75.078650 percent, 149 positional non-register differences, first [7, 8, 24, 25, 26, 149, 153, 154].
+TMCJPEG_814EFEAC, local-order-40: 1412/1424 bytes, 75.134834 percent, 149 positional non-register differences, first [7, 8, 24, 25, 26, 149, 153, 154].
+TMCJPEG_814EFEAC, local-order-48: 1412/1424 bytes, 75.443820 percent, 149 positional non-register differences, first [7, 8, 24, 25, 26, 149, 153, 154].
+TMCJPEG_814EFEAC, local-order-67: 1412/1424 bytes, 75.696630 percent, 149 positional non-register differences, first [7, 8, 24, 25, 26, 149, 153, 154].
+TMCJPEG_814EFEAC, local-order-139: 1412/1424 bytes, 75.514046 percent, 146 positional non-register differences, first [7, 8, 149, 153, 154, 155, 157, 158].
+TMCJPEG_814EFEAC, local-order-149: 1412/1424 bytes, 75.570220 percent, 146 positional non-register differences, first [7, 8, 149, 153, 154, 155, 157, 158].
+TMCJPEG_814EFEAC, local-order-152: 1412/1424 bytes, 75.612360 percent, 146 positional non-register differences, first [7, 8, 149, 153, 154, 155, 157, 158].
+TMCJPEG_814EFEAC, local-order-167: 1412/1424 bytes, 75.823040 percent, 146 positional non-register differences, first [7, 8, 149, 153, 154, 155, 157, 158].
+TMCJPEG_814EFEAC, local-order-176: 1412/1424 bytes, 75.991570 percent, 146 positional non-register differences, first [7, 8, 149, 153, 154, 155, 157, 158].
+TMCJPEG_814EFEAC, local-order-retained: 1412/1424 bytes, 75.991570 percent, 146 positional non-register differences, first [7, 8, 149, 153, 154, 155, 157, 158].
+411 normal was discarded because 338/356 instructions exceeded the five percent threshold. Fresh translation restores the signed tile-offset arithmetic and four-pixel luma loop. Source now has a 0x60-byte frame, 353/356 instructions; luma store blocks use the target opcodes. Early initializer scheduling is being aligned by real local declaration order before the chroma blocks are finalized.
+TMCJPEG_814EFEAC, chroma-hoisted-address-blocks: 1416/1424 bytes, 75.831460 percent, 185 positional non-register differences, first [5, 6, 7, 8, 9, 10, 11, 12].
+TMCJPEG_814EFEAC, chroma-add-assignment-counter: 1412/1424 bytes, 75.991570 percent, 146 positional non-register differences, first [7, 8, 149, 153, 154, 155, 157, 158].
+TMCJPEG_814EFEAC, chroma-signed-row-product: 1324/1424 bytes, 59.615170 percent, 289 positional non-register differences, first [14, 15, 16, 20, 24, 25, 26, 27].
+TMCJPEG_814EFEAC, chroma-signed-samples: 1412/1424 bytes, 75.991570 percent, 146 positional non-register differences, first [7, 8, 149, 153, 154, 155, 157, 158].
+TMCJPEG_814EFEAC, chroma-counter-retained: 1412/1424 bytes, 75.991570 percent, 146 positional non-register differences, first [7, 8, 149, 153, 154, 155, 157, 158].
+TMCJPEG_814EFEAC, separate-luma-and-chroma-row-products: 1416/1424 bytes, 77.174160 percent, 185 positional non-register differences, first [7, 8, 149, 153, 154, 155, 157, 158].
+TMCJPEG_814EFEAC, separate-chroma-offset-temporaries: 1416/1424 bytes, 77.174160 percent, 185 positional non-register differences, first [7, 8, 149, 153, 154, 155, 157, 158].
+TMCJPEG_814EFEAC, chroma-tile-offset-before-row-output: 1416/1424 bytes, 77.174160 percent, 185 positional non-register differences, first [7, 8, 149, 153, 154, 155, 157, 158].
+TMCJPEG_814EFEAC, chroma-exact-grayscale-address-shape: 1416/1424 bytes, 77.174160 percent, 185 positional non-register differences, first [7, 8, 149, 153, 154, 155, 157, 158].
+TMCJPEG_814EFEAC, chroma-byte-address-values: 1416/1424 bytes, 77.132020 percent, 185 positional non-register differences, first [7, 8, 149, 153, 154, 155, 157, 158].
+TMCJPEG_814EFEAC, chroma-width-signed-row-unsigned: 1416/1424 bytes, 77.174160 percent, 185 positional non-register differences, first [7, 8, 149, 153, 154, 155, 157, 158].
+TMCJPEG_814EFEAC, chroma-bounds-and-skip-own-lifetimes: 1416/1424 bytes, 76.441010 percent, 181 positional non-register differences, first [7, 8, 149, 153, 154, 155, 157, 158].
+TMCJPEG_814EFEAC, separate-chroma-bounds-retained: 1416/1424 bytes, 76.441010 percent, 181 positional non-register differences, first [7, 8, 149, 153, 154, 155, 157, 158].
+TMCJPEG_814EFEAC, chroma-sample-load-temporaries: 1416/1424 bytes, 76.252810 percent, 192 positional non-register differences, first [5, 6, 7, 8, 9, 10, 11, 12].
+TMCJPEG_814EFEAC, chroma-load-store-pointer-walk: 1424/1424 bytes, 88.000000 percent, 30 positional non-register differences, first [5, 6, 7, 8, 9, 10, 11, 12].
+TMCJPEG_814EFEAC, chroma-direct-load-before-increment: 1424/1424 bytes, 88.000000 percent, 30 positional non-register differences, first [5, 6, 7, 8, 9, 10, 11, 12].
+TMCJPEG_814EFEAC, local-order-0: 1424/1424 bytes, 88.210670 percent, 30 positional non-register differences, first [5, 6, 7, 8, 9, 10, 11, 12].
+TMCJPEG_814EFEAC, local-order-1: 1424/1424 bytes, 88.252810 percent, 29 positional non-register differences, first [5, 6, 7, 8, 9, 10, 11, 13].
+TMCJPEG_814EFEAC, local-order-17: 1424/1424 bytes, 89.606740 percent, 20 positional non-register differences, first [153, 155, 236, 238, 239, 242, 244, 245].
+TMCJPEG_814EFEAC, local-order-21: 1424/1424 bytes, 89.606740 percent, 20 positional non-register differences, first [153, 155, 236, 238, 239, 242, 244, 245].
+TMCJPEG_814EFEAC, local-order-22: 1424/1424 bytes, 89.901690 percent, 20 positional non-register differences, first [153, 155, 236, 238, 239, 242, 244, 245].
+TMCJPEG_814EFEAC, local-order-52: 1424/1424 bytes, 90.126400 percent, 20 positional non-register differences, first [153, 155, 236, 238, 239, 242, 244, 245].
+TMCJPEG_814EFEAC, local-order-55: 1424/1424 bytes, 90.168540 percent, 20 positional non-register differences, first [153, 155, 236, 238, 239, 242, 244, 245].
+TMCJPEG_814EFEAC, local-order-60: 1424/1424 bytes, 90.323040 percent, 20 positional non-register differences, first [153, 155, 236, 238, 239, 242, 244, 245].
+TMCJPEG_814EFEAC, local-order-72: 1424/1424 bytes, 90.603935 percent, 20 positional non-register differences, first [153, 155, 236, 238, 239, 242, 244, 245].
+TMCJPEG_814EFEAC, local-order-73: 1424/1424 bytes, 90.814606 percent, 20 positional non-register differences, first [153, 155, 236, 238, 239, 242, 244, 245].
+TMCJPEG_814EFEAC, local-order-85: 1424/1424 bytes, 90.898880 percent, 20 positional non-register differences, first [153, 155, 236, 238, 239, 242, 244, 245].
+TMCJPEG_814EFEAC, local-order-137: 1424/1424 bytes, 90.969100 percent, 20 positional non-register differences, first [153, 155, 236, 238, 239, 242, 244, 245].
+TMCJPEG_814EFEAC, local-order-207: 1424/1424 bytes, 91.221910 percent, 20 positional non-register differences, first [153, 155, 236, 238, 239, 242, 244, 245].
+TMCJPEG_814EFEAC, local-order-301: 1424/1424 bytes, 91.278090 percent, 20 positional non-register differences, first [153, 155, 236, 238, 239, 242, 244, 245].
+TMCJPEG_814EFEAC, local-order-302: 1424/1424 bytes, 91.362360 percent, 20 positional non-register differences, first [153, 155, 236, 238, 239, 242, 244, 245].
+TMCJPEG_814EFEAC, local-order-retained: 1424/1424 bytes, 91.362360 percent, 20 positional non-register differences, first [153, 155, 236, 238, 239, 242, 244, 245].
+411 normal now has 356/356 instructions and the target 0x60 frame. The crucial correction is loading/storing each chroma byte before advancing its source pointer, instead of advancing inside the store expression. Initial dispatch/setup and luma blocks now differ only in register operands. Remaining work is two chroma setup schedules and the unrolled chroma address schedule around target instructions 236-268.
+TMCJPEG_814EFEAC, chroma-cr-address-after-cb-store: 1424/1424 bytes, 91.362360 percent, 20 positional non-register differences, first [153, 155, 236, 238, 239, 242, 244, 245].
+TMCJPEG_814EFEAC, chroma-skip-before-tile-width: 1424/1424 bytes, 91.362360 percent, 20 positional non-register differences, first [153, 155, 236, 238, 239, 242, 244, 245].
+TMCJPEG_814EFEAC, chroma-both-input-walks-after-stores: 1424/1424 bytes, 91.300560 percent, 22 positional non-register differences, first [153, 155, 236, 238, 239, 242, 244, 245].
+TMCJPEG_814EFEAC, unsigned-chroma-pixel-offset: 1424/1424 bytes, 91.362360 percent, 20 positional non-register differences, first [153, 155, 236, 238, 239, 242, 244, 245].
+TMCJPEG_814EFEAC, shared-chroma-row-offset: 1436/1424 bytes, 86.612360 percent, 193 positional non-register differences, first [152, 153, 154, 155, 156, 157, 158, 159].
+TMCJPEG_814EFEAC, pixel-address-before-row-address: 1424/1424 bytes, 91.362360 percent, 20 positional non-register differences, first [153, 155, 236, 238, 239, 242, 244, 245].
+TMCJPEG_814EFEAC, pixel-pointer-direct-byte-store: 1424/1424 bytes, 91.362360 percent, 20 positional non-register differences, first [153, 155, 236, 238, 239, 242, 244, 245].
+TMCJPEG_814EFEAC, complete-411-translation-retained: 1424/1424 bytes, 91.362360 percent, 20 positional non-register differences, first [153, 155, 236, 238, 239, 242, 244, 245].
+TMCJPEG_814F2570, 211-frame-and-luma-address-blocks: 1492/1504 bytes, 73.462770 percent, 223 positional non-register differences, first [9, 10, 11, 12, 13, 14, 15, 16].
+TMCJPEG_814F2570, 211-luma-exact-grayscale-pointer-walk: 1492/1504 bytes, 73.462770 percent, 223 positional non-register differences, first [9, 10, 11, 12, 13, 14, 15, 16].
+TMCJPEG_814F2570, 211-chroma-row-product-lifetime: 1504/1504 bytes, 80.691490 percent, 62 positional non-register differences, first [18, 20, 81, 83, 85, 88, 89, 90].
+TMCJPEG_814F2570, local-order-8: 1504/1504 bytes, 80.710106 percent, 56 positional non-register differences, first [81, 83, 85, 88, 89, 90, 92, 93].
+TMCJPEG_814F2570, local-order-12: 1504/1504 bytes, 80.896280 percent, 56 positional non-register differences, first [81, 83, 85, 88, 89, 90, 92, 93].
+TMCJPEG_814F2570, local-order-30: 1504/1504 bytes, 80.936170 percent, 56 positional non-register differences, first [81, 83, 85, 88, 89, 90, 92, 93].
+TMCJPEG_814F2570, local-order-35: 1504/1504 bytes, 81.162230 percent, 56 positional non-register differences, first [81, 83, 85, 88, 89, 90, 92, 93].
+TMCJPEG_814F2570, local-order-115: 1504/1504 bytes, 81.135635 percent, 56 positional non-register differences, first [81, 83, 85, 88, 89, 90, 92, 93].
+TMCJPEG_814F2570, local-order-retained: 1504/1504 bytes, 81.135635 percent, 56 positional non-register differences, first [81, 83, 85, 88, 89, 90, 92, 93].
+TMCJPEG_814F2B50, 211-edge-width-height-and-complete-loops: 1544/1544 bytes, 76.779790 percent, 65 positional non-register differences, first [36, 37, 94, 96, 98, 101, 102, 103].
+TMCJPEG_814F043C, 411-edge-width-rounding-and-complete-loops: 1580/1564 bytes, 74.404090 percent, 359 positional non-register differences, first [13, 15, 16, 17, 18, 19, 20, 21].
+TMCJPEG_814F2B50, local-order-0: 1544/1544 bytes, 77.038860 percent, 65 positional non-register differences, first [36, 37, 94, 96, 98, 101, 102, 103].
+TMCJPEG_814F2B50, local-order-retained: 1544/1544 bytes, 77.038860 percent, 65 positional non-register differences, first [36, 37, 94, 96, 98, 101, 102, 103].
+211 normal and edge have been translated through both luma and chroma loops. Both now have target sizes, 1504 and 1544 bytes, and 0x60-byte frames. The normal chroma loop retains the original luma width/bounds and reloads only its height; edge chroma height rounds upward. Separate luma/chroma tile products avoid incorrect hoisting. 411 edge has also been rewritten through its scalar luma and quarter-width chroma phases; its first build is four instructions long and is being aligned.
+TMCJPEG_814F043C, local-order-6: 1580/1564 bytes, 74.595910 percent, 359 positional non-register differences, first [13, 15, 16, 17, 18, 19, 20, 21].
+TMCJPEG_814F043C, local-order-104: 1580/1564 bytes, 74.800514 percent, 359 positional non-register differences, first [13, 15, 16, 17, 18, 19, 20, 21].
+TMCJPEG_814F043C, local-order-retained: 1580/1564 bytes, 74.800514 percent, 359 positional non-register differences, first [13, 15, 16, 17, 18, 19, 20, 21].
+TMCJPEG_814F043C, separate-chroma: 1564/1564 bytes, 85.130430 percent, 60 positional non-register differences, first [33, 35, 187, 188, 189, 190, 191, 192].
+TMCJPEG_814F2570, separate-chroma-offset: 1504/1504 bytes, 90.287230 percent, 22 positional non-register differences, first [220, 221, 222, 224, 225, 226, 227, 242].
+TMCJPEG_814F2B50, separate-chroma-offset: 1544/1544 bytes, 88.062180 percent, 30 positional non-register differences, first [36, 37, 246, 247, 248, 250, 252, 254].
+TMCJPEG_814F0A58, 422-two-pixel-luma-and-chroma-blocks: 1888/1900 bytes, 85.631580 percent, 411 positional non-register differences, first [21, 22, 23, 24, 26, 27, 29, 30].
+TMCJPEG_814EFEAC, chroma-baseline: 1424/1424 bytes, 91.362360 percent, 20 positional non-register differences, first [153, 155, 236, 238, 239, 242, 244, 245].
+TMCJPEG_814EFEAC, chromaTileRow-s32: 1424/1424 bytes, 91.362360 percent, 20 positional non-register differences, first [153, 155, 236, 238, 239, 242, 244, 245].
+TMCJPEG_814EFEAC, chromaTileWidth-s32: 1424/1424 bytes, 91.362360 percent, 20 positional non-register differences, first [153, 155, 236, 238, 239, 242, 244, 245].
+TMCJPEG_814EFEAC, chromaTileOffset-u32: 1424/1424 bytes, 91.362360 percent, 20 positional non-register differences, first [153, 155, 236, 238, 239, 242, 244, 245].
+TMCJPEG_814EFEAC, chroma-add-reversed: 1424/1424 bytes, 91.334270 percent, 20 positional non-register differences, first [153, 155, 236, 238, 239, 242, 244, 245].
+TMCJPEG_814EFEAC, chroma-postincrement-column: 980/1424 bytes, 44.064606 percent, 164 positional non-register differences, first [0, 4, 43, 44, 47, 48, 50, 51].
+TMCJPEG_814EFEAC, chroma-bases-before-tile: 1424/1424 bytes, 92.205055 percent, 16 positional non-register differences, first [153, 155, 224, 226, 228, 229, 230, 234].
+TMCJPEG_814EFEAC, chroma-pixel-first: 1424/1424 bytes, 92.205055 percent, 16 positional non-register differences, first [153, 155, 224, 226, 228, 229, 230, 234].
+TMCJPEG_814EFEAC, chroma-signed-byte-source: 1424/1424 bytes, 91.362360 percent, 20 positional non-register differences, first [153, 155, 236, 238, 239, 242, 244, 245].
+TMCJPEG_814EFEAC, chroma-retained: 1424/1424 bytes, 92.205055 percent, 16 positional non-register differences, first [153, 155, 224, 226, 228, 229, 230, 234].
+TMCJPEG_814F0A58, 422-two-offset-temporaries: 1896/1900 bytes, 79.282104 percent, 421 positional non-register differences, first [12, 13, 14, 15, 16, 17, 18, 19].
+TMCJPEG_814EFEAC, chroma-order-baseline: 1424/1424 bytes, 92.205055 percent, 16 positional non-register differences, first [153, 155, 224, 226, 228, 229, 230, 234].
+TMCJPEG_814EFEAC, chroma-dependency-order-0: 1424/1424 bytes, 92.143260 percent, 18 positional non-register differences, first [153, 155, 224, 226, 228, 229, 230, 234].
+TMCJPEG_814EFEAC, chroma-dependency-order-1: 1424/1424 bytes, 92.143260 percent, 18 positional non-register differences, first [153, 155, 224, 226, 228, 229, 230, 234].
+TMCJPEG_814EFEAC, chroma-dependency-order-2: 1424/1424 bytes, 92.205055 percent, 16 positional non-register differences, first [153, 155, 224, 226, 228, 229, 230, 234].
+TMCJPEG_814EFEAC, chroma-dependency-order-3: 1424/1424 bytes, 92.143260 percent, 18 positional non-register differences, first [153, 155, 224, 226, 228, 229, 230, 234].
+TMCJPEG_814EFEAC, chroma-dependency-order-4: 1424/1424 bytes, 92.205055 percent, 16 positional non-register differences, first [153, 155, 224, 226, 228, 229, 230, 234].
+TMCJPEG_814EFEAC, chroma-dependency-order-5: 1424/1424 bytes, 92.143260 percent, 18 positional non-register differences, first [153, 155, 224, 226, 228, 229, 230, 234].
+TMCJPEG_814EFEAC, chroma-dependency-order-6: 1424/1424 bytes, 92.143260 percent, 18 positional non-register differences, first [153, 155, 224, 226, 228, 229, 230, 234].
+TMCJPEG_814EFEAC, chroma-dependency-order-7: 1424/1424 bytes, 92.205055 percent, 16 positional non-register differences, first [153, 155, 224, 226, 228, 229, 230, 234].
+TMCJPEG_814EFEAC, chroma-dependency-order-8: 1424/1424 bytes, 92.143260 percent, 18 positional non-register differences, first [153, 155, 224, 226, 228, 229, 230, 234].
+TMCJPEG_814EFEAC, chroma-dependency-order-9: 1424/1424 bytes, 92.143260 percent, 18 positional non-register differences, first [153, 155, 224, 226, 228, 229, 230, 234].
+TMCJPEG_814EFEAC, chroma-dependency-order-10: 1424/1424 bytes, 92.143260 percent, 18 positional non-register differences, first [153, 155, 224, 226, 228, 229, 230, 234].
+TMCJPEG_814EFEAC, chroma-dependency-order-11: 1424/1424 bytes, 92.205055 percent, 16 positional non-register differences, first [153, 155, 224, 226, 228, 229, 230, 234].
+TMCJPEG_814EFEAC, chroma-dependency-order-12: 1424/1424 bytes, 92.143260 percent, 18 positional non-register differences, first [153, 155, 224, 226, 228, 229, 230, 234].
+TMCJPEG_814EFEAC, chroma-dependency-order-13: 1424/1424 bytes, 92.143260 percent, 18 positional non-register differences, first [153, 155, 224, 226, 228, 229, 230, 234].
+TMCJPEG_814EFEAC, chroma-dependency-order-14: 1424/1424 bytes, 92.205055 percent, 16 positional non-register differences, first [153, 155, 224, 226, 228, 229, 230, 234].
+TMCJPEG_814EFEAC, chroma-dependency-order-15: 1424/1424 bytes, 92.143260 percent, 18 positional non-register differences, first [153, 155, 224, 226, 228, 229, 230, 234].
+TMCJPEG_814EFEAC, chroma-dependency-order-16: 1424/1424 bytes, 92.143260 percent, 18 positional non-register differences, first [153, 155, 224, 226, 228, 229, 230, 234].
+TMCJPEG_814EFEAC, chroma-dependency-order-17: 1424/1424 bytes, 92.143260 percent, 18 positional non-register differences, first [153, 155, 224, 226, 228, 229, 230, 234].
+TMCJPEG_814EFEAC, chroma-dependency-order-18: 1424/1424 bytes, 92.143260 percent, 18 positional non-register differences, first [153, 155, 224, 226, 228, 229, 230, 234].
+TMCJPEG_814EFEAC, chroma-dependency-order-19: 1424/1424 bytes, 92.205055 percent, 16 positional non-register differences, first [153, 155, 224, 226, 228, 229, 230, 234].
+TMCJPEG_814EFEAC, chroma-dependency-order-20: 1424/1424 bytes, 92.143260 percent, 18 positional non-register differences, first [153, 155, 224, 226, 228, 229, 230, 234].
+TMCJPEG_814EFEAC, chroma-dependency-order-21: 1424/1424 bytes, 92.143260 percent, 18 positional non-register differences, first [153, 155, 224, 226, 228, 229, 230, 234].
+TMCJPEG_814EFEAC, chroma-dependency-order-22: 1424/1424 bytes, 92.143260 percent, 18 positional non-register differences, first [153, 155, 224, 226, 228, 229, 230, 234].
+TMCJPEG_814EFEAC, chroma-dependency-order-23: 1424/1424 bytes, 91.300560 percent, 22 positional non-register differences, first [153, 155, 236, 238, 239, 242, 244, 245].
+TMCJPEG_814EFEAC, chroma-dependency-order-24: 1424/1424 bytes, 92.143260 percent, 18 positional non-register differences, first [153, 155, 224, 226, 228, 229, 230, 234].
+TMCJPEG_814EFEAC, chroma-dependency-order-25: 1424/1424 bytes, 92.205055 percent, 16 positional non-register differences, first [153, 155, 224, 226, 228, 229, 230, 234].
+TMCJPEG_814EFEAC, chroma-dependency-order-26: 1424/1424 bytes, 92.143260 percent, 18 positional non-register differences, first [153, 155, 224, 226, 228, 229, 230, 234].
+TMCJPEG_814EFEAC, chroma-dependency-order-27: 1424/1424 bytes, 92.143260 percent, 18 positional non-register differences, first [153, 155, 224, 226, 228, 229, 230, 234].
+TMCJPEG_814EFEAC, chroma-dependency-order-28: 1424/1424 bytes, 92.205055 percent, 16 positional non-register differences, first [153, 155, 224, 226, 228, 229, 230, 234].
+TMCJPEG_814EFEAC, chroma-dependency-order-29: 1424/1424 bytes, 92.143260 percent, 18 positional non-register differences, first [153, 155, 224, 226, 228, 229, 230, 234].
+TMCJPEG_814EFEAC, chroma-dependency-order-30: 1424/1424 bytes, 92.143260 percent, 18 positional non-register differences, first [153, 155, 224, 226, 228, 229, 230, 234].
+TMCJPEG_814EFEAC, chroma-dependency-order-31: 1424/1424 bytes, 92.205055 percent, 16 positional non-register differences, first [153, 155, 224, 226, 228, 229, 230, 234].
+TMCJPEG_814EFEAC, chroma-dependency-order-32: 1424/1424 bytes, 92.205055 percent, 16 positional non-register differences, first [153, 155, 224, 226, 228, 229, 230, 234].
+TMCJPEG_814EFEAC, chroma-dependency-order-33: 1424/1424 bytes, 92.205055 percent, 16 positional non-register differences, first [153, 155, 224, 226, 228, 229, 230, 234].
+TMCJPEG_814EFEAC, chroma-dependency-order-34: 1424/1424 bytes, 92.205055 percent, 16 positional non-register differences, first [153, 155, 224, 226, 228, 229, 230, 234].
+TMCJPEG_814EFEAC, chroma-dependency-order-retained: 1424/1424 bytes, 92.205055 percent, 16 positional non-register differences, first [153, 155, 224, 226, 228, 229, 230, 234].
+TMCJPEG_814F0A58, 422-luma-variants-baseline: 1896/1900 bytes, 79.282104 percent, 421 positional non-register differences, first [12, 13, 14, 15, 16, 17, 18, 19].
+TMCJPEG_814F0A58, 422-recompute-row-for-second-byte: 1364/1900 bytes, 56.738950 percent, 325 positional non-register differences, first [3, 4, 5, 6, 7, 8, 9, 10].
+TMCJPEG_814F0A58, 422-inline-row-product: 1360/1900 bytes, 55.757896 percent, 322 positional non-register differences, first [3, 4, 5, 6, 7, 8, 9, 10].
+TMCJPEG_814F0A58, 422-two-distinct-row-products: 1360/1900 bytes, 55.757896 percent, 322 positional non-register differences, first [3, 4, 5, 6, 7, 8, 9, 10].
+TMCJPEG_814F0A58, 422-direct-signed-row-product: 1876/1900 bytes, 70.677895 percent, 424 positional non-register differences, first [0, 1, 2, 3, 4, 7, 8, 9].
+TMCJPEG_814F0A58, 422-luma-variants-retained: 1896/1900 bytes, 79.282104 percent, 421 positional non-register differences, first [12, 13, 14, 15, 16, 17, 18, 19].
+TMCJPEG_814F0A58, luma-chroma-reuse-baseline: 1896/1900 bytes, 79.282104 percent, 421 positional non-register differences, first [12, 13, 14, 15, 16, 17, 18, 19].
+TMCJPEG_814F0A58, reuse-chromaTileRow: 1892/1900 bytes, 75.292630 percent, 402 positional non-register differences, first [12, 13, 14, 15, 16, 17, 18, 19].
+TMCJPEG_814F0A58, reuse-chromaTileOffset: 1364/1900 bytes, 56.877895 percent, 320 positional non-register differences, first [3, 4, 5, 6, 7, 8, 9, 10].
+TMCJPEG_814F0A58, reuse-chromaPixelOffset: 1364/1900 bytes, 57.684210 percent, 326 positional non-register differences, first [3, 4, 5, 6, 7, 8, 9, 10].
+TMCJPEG_814F0A58, reuse-chromaTileWidth: 1896/1900 bytes, 79.082110 percent, 421 positional non-register differences, first [12, 13, 14, 15, 16, 17, 18, 19].
+TMCJPEG_814F0A58, reuse-chromaTileRow,chromaTileOffset: 1360/1900 bytes, 52.197895 percent, 321 positional non-register differences, first [3, 4, 5, 6, 7, 8, 9, 10].
+TMCJPEG_814F0A58, reuse-chromaTileRow,chromaPixelOffset: 1360/1900 bytes, 53.435790 percent, 325 positional non-register differences, first [3, 4, 5, 6, 7, 8, 9, 10].
+TMCJPEG_814F0A58, reuse-chromaTileRow,chromaTileWidth: 1892/1900 bytes, 75.292630 percent, 402 positional non-register differences, first [12, 13, 14, 15, 16, 17, 18, 19].
+TMCJPEG_814F0A58, reuse-chromaTileOffset,chromaPixelOffset: 1364/1900 bytes, 54.513683 percent, 324 positional non-register differences, first [3, 4, 5, 6, 7, 8, 9, 10].
+TMCJPEG_814F0A58, reuse-chromaTileOffset,chromaTileWidth: 1364/1900 bytes, 57.360000 percent, 318 positional non-register differences, first [3, 4, 5, 6, 7, 8, 9, 10].
+TMCJPEG_814F0A58, reuse-chromaPixelOffset,chromaTileWidth: 1364/1900 bytes, 58.040000 percent, 325 positional non-register differences, first [3, 4, 5, 6, 7, 8, 9, 10].
+TMCJPEG_814F0A58, reuse-chromaTileRow,chromaTileOffset,chromaPixelOffset: 1360/1900 bytes, 51.671577 percent, 325 positional non-register differences, first [3, 4, 5, 6, 7, 8, 9, 10].
+TMCJPEG_814F0A58, reuse-chromaTileRow,chromaTileOffset,chromaTileWidth: 1360/1900 bytes, 52.197895 percent, 321 positional non-register differences, first [3, 4, 5, 6, 7, 8, 9, 10].
+TMCJPEG_814F0A58, reuse-chromaTileRow,chromaPixelOffset,chromaTileWidth: 1360/1900 bytes, 53.435790 percent, 325 positional non-register differences, first [3, 4, 5, 6, 7, 8, 9, 10].
+TMCJPEG_814F0A58, reuse-chromaTileOffset,chromaPixelOffset,chromaTileWidth: 1364/1900 bytes, 55.069473 percent, 322 positional non-register differences, first [3, 4, 5, 6, 7, 8, 9, 10].
+TMCJPEG_814F0A58, luma-chroma-reuse-retained: 1896/1900 bytes, 79.282104 percent, 421 positional non-register differences, first [12, 13, 14, 15, 16, 17, 18, 19].
+TMCJPEG_814EFEAC, chroma-shape-baseline: 1424/1424 bytes, 92.205055 percent, 16 positional non-register differences, first [153, 155, 224, 226, 228, 229, 230, 234].
+TMCJPEG_814EFEAC, chroma-row-pointer-and-indexed-pixel: 1424/1424 bytes, 92.205055 percent, 16 positional non-register differences, first [153, 155, 224, 226, 228, 229, 230, 234].
+TMCJPEG_814EFEAC, chroma-unsigned-row-offset: 1436/1424 bytes, 87.595505 percent, 193 positional non-register differences, first [152, 153, 154, 155, 156, 157, 158, 159].
+TMCJPEG_814EFEAC, chroma-signed-row-offset: 1436/1424 bytes, 87.595505 percent, 193 positional non-register differences, first [152, 153, 154, 155, 156, 157, 158, 159].
+TMCJPEG_814EFEAC, chroma-row-plus-pixel-integer: 1424/1424 bytes, 92.205055 percent, 16 positional non-register differences, first [153, 155, 224, 226, 228, 229, 230, 234].
+TMCJPEG_814EFEAC, chroma-offset-address-all-integer: 1424/1424 bytes, 85.002810 percent, 67 positional non-register differences, first [153, 155, 215, 216, 217, 218, 220, 221].
+TMCJPEG_814EFEAC, chroma-shape-retained: 1424/1424 bytes, 92.205055 percent, 16 positional non-register differences, first [153, 155, 224, 226, 228, 229, 230, 234].
+TMCJPEG_814EFEAC, lifetime-baseline: 1424/1424 bytes, 92.205055 percent, 16 positional non-register differences, first [153, 155, 224, 226, 228, 229, 230, 234].
+TMCJPEG_814EFEAC, reuse-chromaRowSkip: 1424/1424 bytes, 92.893260 percent, 11 positional non-register differences, first [153, 155, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, reuse-chromaXEnd: 1424/1424 bytes, 92.893260 percent, 11 positional non-register differences, first [153, 155, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, reuse-chromaYEnd: 1424/1424 bytes, 92.205055 percent, 16 positional non-register differences, first [153, 155, 224, 226, 228, 229, 230, 234].
+TMCJPEG_814EFEAC, reuse-chromaTileOffset: 1424/1424 bytes, 92.205055 percent, 16 positional non-register differences, first [153, 155, 224, 226, 228, 229, 230, 234].
+TMCJPEG_814EFEAC, reuse-chromaPixelOffset: 1424/1424 bytes, 92.205055 percent, 16 positional non-register differences, first [153, 155, 224, 226, 228, 229, 230, 234].
+TMCJPEG_814EFEAC, inner-scope-chromaTileRow: 1424/1424 bytes, 92.205055 percent, 16 positional non-register differences, first [153, 155, 224, 226, 228, 229, 230, 234].
+TMCJPEG_814EFEAC, lifetime-baseline: 1424/1424 bytes, 92.205055 percent, 16 positional non-register differences, first [153, 155, 224, 226, 228, 229, 230, 234].
+TMCJPEG_814EFEAC, reuse-chromaRowSkip: 1424/1424 bytes, 92.893260 percent, 11 positional non-register differences, first [153, 155, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, reuse-chromaXEnd: 1424/1424 bytes, 92.893260 percent, 11 positional non-register differences, first [153, 155, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, reuse-chromaYEnd: 1424/1424 bytes, 92.205055 percent, 16 positional non-register differences, first [153, 155, 224, 226, 228, 229, 230, 234].
+TMCJPEG_814EFEAC, reuse-chromaTileOffset: 1424/1424 bytes, 92.205055 percent, 16 positional non-register differences, first [153, 155, 224, 226, 228, 229, 230, 234].
+TMCJPEG_814EFEAC, reuse-chromaPixelOffset: 1424/1424 bytes, 92.205055 percent, 16 positional non-register differences, first [153, 155, 224, 226, 228, 229, 230, 234].
+TMCJPEG_814EFEAC, lifetime-retained: 1424/1424 bytes, 92.893260 percent, 11 positional non-register differences, first [153, 155, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814F0A58, 422-pair-baseline: 1896/1900 bytes, 79.282104 percent, 421 positional non-register differences, first [12, 13, 14, 15, 16, 17, 18, 19].
+TMCJPEG_814F0A58, 422-distinct-offset: 1908/1900 bytes, 69.225266 percent, 427 positional non-register differences, first [0, 1, 2, 3, 4, 5, 6, 7].
+TMCJPEG_814F0A58, 422-distinct-pixel: 1896/1900 bytes, 79.282104 percent, 421 positional non-register differences, first [12, 13, 14, 15, 16, 17, 18, 19].
+TMCJPEG_814F0A58, 422-distinct-output: 1896/1900 bytes, 74.730530 percent, 426 positional non-register differences, first [12, 13, 14, 15, 16, 17, 18, 19].
+TMCJPEG_814F0A58, 422-distinct-offset-pixel: 1908/1900 bytes, 69.225266 percent, 427 positional non-register differences, first [0, 1, 2, 3, 4, 5, 6, 7].
+TMCJPEG_814F0A58, 422-distinct-offset-output: 1896/1900 bytes, 85.368420 percent, 422 positional non-register differences, first [21, 22, 23, 24, 26, 27, 29, 30].
+TMCJPEG_814F0A58, 422-distinct-all: 1896/1900 bytes, 85.852630 percent, 423 positional non-register differences, first [21, 22, 23, 24, 26, 27, 29, 30].
+TMCJPEG_814F0A58, 422-pair-retained: 1896/1900 bytes, 79.282104 percent, 421 positional non-register differences, first [12, 13, 14, 15, 16, 17, 18, 19].
+TMCJPEG_814F0A58, 422-scoped-baseline: 1896/1900 bytes, 79.282104 percent, 421 positional non-register differences, first [12, 13, 14, 15, 16, 17, 18, 19].
+TMCJPEG_814F0A58, 422-inner-tileRow: 1896/1900 bytes, 79.608420 percent, 421 positional non-register differences, first [12, 13, 14, 15, 16, 17, 18, 19].
+TMCJPEG_814F0A58, 422-inner-tileOffset: 1896/1900 bytes, 79.282104 percent, 421 positional non-register differences, first [12, 13, 14, 15, 16, 17, 18, 19].
+TMCJPEG_814F0A58, 422-inner-tileRow,tileOffset,pixelOffset,output: 1896/1900 bytes, 79.608420 percent, 421 positional non-register differences, first [12, 13, 14, 15, 16, 17, 18, 19].
+TMCJPEG_814F0A58, 422-inline-second-row-product: 1360/1900 bytes, 55.757896 percent, 322 positional non-register differences, first [3, 4, 5, 6, 7, 8, 9, 10].
+TMCJPEG_814F0A58, 422-inline-first-row-product: 1360/1900 bytes, 55.757896 percent, 322 positional non-register differences, first [3, 4, 5, 6, 7, 8, 9, 10].
+TMCJPEG_814F0A58, 422-scoped-retained: 1896/1900 bytes, 79.608420 percent, 421 positional non-register differences, first [12, 13, 14, 15, 16, 17, 18, 19].
+TMCJPEG_814F11C4, 422-edge-complete-scalar-loop-port: 1564/1564 bytes, 85.130430 percent, 60 positional non-register differences, first [33, 35, 187, 188, 189, 190, 191, 192].
+TMCJPEG_814F17E0, 420-normal-complete-double-byte-loop-port: 1892/1896 bytes, 80.681435 percent, 419 positional non-register differences, first [11, 12, 13, 14, 15, 16, 17, 18].
+TMCJPEG_814F1F48, 420-edge-complete-scalar-loop-port: 1576/1576 bytes, 88.033000 percent, 30 positional non-register differences, first [33, 35, 180, 182, 183, 184, 185, 188].
+TMCJPEG_814EFEAC, remove-obsolete-luma-temporaries: 1424/1424 bytes, 92.893260 percent, 11 positional non-register differences, first [153, 155, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, local-order-29: 1424/1424 bytes, 93.005615 percent, 11 positional non-register differences, first [153, 155, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, local-order-111: 1424/1424 bytes, 93.342700 percent, 11 positional non-register differences, first [153, 155, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, local-order-retained: 1424/1424 bytes, 93.342700 percent, 11 positional non-register differences, first [153, 155, 234, 235, 236, 238, 239, 244].
+TMCJPEGDEC_set_converterY8U8V8, setup-type-baseline: 780/784 bytes, 92.739800 percent, 175 positional non-register differences, first [1, 2, 3, 4, 5, 6, 7, 8].
+TMCJPEGDEC_set_converterY8U8V8, conversion-buffer-array-decay: 780/784 bytes, 92.739800 percent, 175 positional non-register differences, first [1, 2, 3, 4, 5, 6, 7, 8].
+TMCJPEGDEC_set_converterY8U8V8, conversion-buffer-void-base: 780/784 bytes, 92.739800 percent, 175 positional non-register differences, first [1, 2, 3, 4, 5, 6, 7, 8].
+TMCJPEGDEC_set_converterY8U8V8, conversion-buffer-byte-zero-address: 780/784 bytes, 92.739800 percent, 175 positional non-register differences, first [1, 2, 3, 4, 5, 6, 7, 8].
+TMCJPEGDEC_set_converterY8U8V8, conversion-buffer-word-base: 780/784 bytes, 92.739800 percent, 175 positional non-register differences, first [1, 2, 3, 4, 5, 6, 7, 8].
+TMCJPEGDEC_set_converterY8U8V8, setup-type-retained: 780/784 bytes, 92.739800 percent, 175 positional non-register differences, first [1, 2, 3, 4, 5, 6, 7, 8].
+TMCJPEG_814F043C, row-skip-baseline: 1564/1564 bytes, 85.130430 percent, 60 positional non-register differences, first [33, 35, 187, 188, 189, 190, 191, 192].
+TMCJPEG_814F043C, inline-rowSkip: 1564/1564 bytes, 86.473145 percent, 58 positional non-register differences, first [187, 188, 189, 190, 191, 192, 260, 261].
+TMCJPEG_814F043C, inline-chromaRowSkip: 1564/1564 bytes, 90.933500 percent, 20 positional non-register differences, first [33, 35, 272, 274, 275, 278, 280, 281].
+TMCJPEG_814F043C, row-skip-retained: 1564/1564 bytes, 90.933500 percent, 20 positional non-register differences, first [33, 35, 272, 274, 275, 278, 280, 281].
+TMCJPEG_814F2B50, row-skip-baseline: 1544/1544 bytes, 88.062180 percent, 30 positional non-register differences, first [36, 37, 246, 247, 248, 250, 252, 254].
+TMCJPEG_814F2B50, row-skip-baseline: 1544/1544 bytes, 88.062180 percent, 30 positional non-register differences, first [36, 37, 246, 247, 248, 250, 252, 254].
+TMCJPEG_814F2B50, inline-rowSkip: 1544/1544 bytes, 89.981865 percent, 24 positional non-register differences, first [246, 247, 248, 250, 252, 254, 256, 258].
+TMCJPEG_814F2B50, row-skip-retained: 1544/1544 bytes, 89.981865 percent, 24 positional non-register differences, first [246, 247, 248, 250, 252, 254, 256, 258].
+TMCJPEG_814EFEAC, row-skip-baseline: 1424/1424 bytes, 93.342700 percent, 11 positional non-register differences, first [153, 155, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, inline-rowSkip: 1424/1424 bytes, 92.500000 percent, 16 positional non-register differences, first [153, 155, 224, 226, 228, 229, 230, 234].
+TMCJPEG_814EFEAC, row-skip-retained: 1424/1424 bytes, 93.342700 percent, 11 positional non-register differences, first [153, 155, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814F043C, row-skip-baseline: 1564/1564 bytes, 90.933500 percent, 20 positional non-register differences, first [33, 35, 272, 274, 275, 278, 280, 281].
+TMCJPEG_814F043C, inline-rowSkip: 1564/1564 bytes, 91.790280 percent, 18 positional non-register differences, first [272, 274, 275, 278, 280, 281, 282, 284].
+TMCJPEG_814F043C, row-skip-retained: 1564/1564 bytes, 91.790280 percent, 18 positional non-register differences, first [272, 274, 275, 278, 280, 281, 282, 284].
+TMCJPEG_814EFEAC, 411-second-phase-baseline: 1424/1424 bytes, 93.342700 percent, 11 positional non-register differences, first [153, 155, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, 411-chroma-height-from-width: 1424/1424 bytes, 93.342700 percent, 11 positional non-register differences, first [153, 155, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, 411-chroma-direct-height-bound: 1424/1424 bytes, 93.342700 percent, 11 positional non-register differences, first [153, 155, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, 411-skip-before-chroma-bounds: 1424/1424 bytes, 93.342700 percent, 11 positional non-register differences, first [153, 155, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, 411-chroma-inline-row-skip: 1424/1424 bytes, 94.676960 percent, 11 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, 411-separate-chroma-width: 1424/1424 bytes, 93.342700 percent, 11 positional non-register differences, first [153, 155, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, 411-second-phase-retained: 1424/1424 bytes, 94.676960 percent, 11 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, sample-temporary-baseline: 1424/1424 bytes, 94.676960 percent, 11 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, samples-u32-before-address: 1424/1424 bytes, 94.676960 percent, 11 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, samples-u32-before-store: 1424/1424 bytes, 94.676960 percent, 11 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, samples-u32-both-before-address: 1396/1424 bytes, 66.089890 percent, 190 positional non-register differences, first [0, 3, 4, 5, 6, 7, 8, 146].
+TMCJPEG_814EFEAC, samples-s32-before-address: 1424/1424 bytes, 94.676960 percent, 11 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, samples-s32-before-store: 1424/1424 bytes, 94.676960 percent, 11 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, samples-s32-both-before-address: 1396/1424 bytes, 66.089890 percent, 190 positional non-register differences, first [0, 3, 4, 5, 6, 7, 8, 146].
+TMCJPEG_814EFEAC, samples-u8-before-address: 1424/1424 bytes, 94.676960 percent, 11 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, samples-u8-before-store: 1424/1424 bytes, 94.676960 percent, 11 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, samples-u8-both-before-address: 1400/1424 bytes, 67.244385 percent, 190 positional non-register differences, first [0, 3, 4, 5, 6, 7, 8, 146].
+TMCJPEG_814EFEAC, sample-temporary-retained: 1424/1424 bytes, 94.676960 percent, 11 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, scoped-phase-baseline: 1424/1424 bytes, 94.676960 percent, 11 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, chroma-phase-scope: 1424/1424 bytes, 93.539330 percent, 11 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, both-phase-scope: 1424/1424 bytes, 93.539330 percent, 11 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, initialized-chroma-phase-scope: 1420/1424 bytes, 86.460670 percent, 44 positional non-register differences, first [3, 5, 146, 147, 148, 149, 150, 151].
+TMCJPEG_814EFEAC, row-unsigned-product-phase-scope: 1424/1424 bytes, 94.662920 percent, 11 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, scoped-phase-retained: 1424/1424 bytes, 94.676960 percent, 11 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, chroma-order-baseline: 1424/1424 bytes, 94.676960 percent, 11 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, chroma-dependency-order-0: 1424/1424 bytes, 94.587080 percent, 13 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, chroma-dependency-order-1: 1424/1424 bytes, 94.587080 percent, 13 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, chroma-dependency-order-2: 1424/1424 bytes, 94.676960 percent, 11 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, chroma-dependency-order-3: 1424/1424 bytes, 94.587080 percent, 13 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, chroma-dependency-order-4: 1424/1424 bytes, 94.676960 percent, 11 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, chroma-dependency-order-5: 1424/1424 bytes, 94.587080 percent, 13 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, chroma-dependency-order-6: 1424/1424 bytes, 94.587080 percent, 13 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, chroma-dependency-order-7: 1424/1424 bytes, 94.676960 percent, 11 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, chroma-dependency-order-8: 1424/1424 bytes, 94.587080 percent, 13 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, chroma-dependency-order-9: 1424/1424 bytes, 94.587080 percent, 13 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, chroma-dependency-order-10: 1424/1424 bytes, 94.587080 percent, 13 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, chroma-dependency-order-11: 1424/1424 bytes, 94.676960 percent, 11 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, chroma-dependency-order-12: 1424/1424 bytes, 94.587080 percent, 13 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, chroma-dependency-order-13: 1424/1424 bytes, 94.587080 percent, 13 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, chroma-dependency-order-14: 1424/1424 bytes, 94.676960 percent, 11 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, chroma-dependency-order-15: 1424/1424 bytes, 94.587080 percent, 13 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, chroma-dependency-order-16: 1424/1424 bytes, 94.587080 percent, 13 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, chroma-dependency-order-17: 1424/1424 bytes, 94.587080 percent, 13 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, chroma-dependency-order-18: 1424/1424 bytes, 94.587080 percent, 13 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, chroma-dependency-order-19: 1424/1424 bytes, 94.676960 percent, 11 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, chroma-dependency-order-20: 1424/1424 bytes, 94.587080 percent, 13 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, chroma-dependency-order-21: 1424/1424 bytes, 94.587080 percent, 13 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, chroma-dependency-order-22: 1424/1424 bytes, 94.587080 percent, 13 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, chroma-dependency-order-23: 1424/1424 bytes, 94.609550 percent, 15 positional non-register differences, first [153, 156, 234, 235, 239, 242, 246, 248].
+TMCJPEG_814EFEAC, chroma-dependency-order-24: 1424/1424 bytes, 94.587080 percent, 13 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, chroma-dependency-order-25: 1424/1424 bytes, 94.676960 percent, 11 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, chroma-dependency-order-26: 1424/1424 bytes, 94.587080 percent, 13 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, chroma-dependency-order-27: 1424/1424 bytes, 94.587080 percent, 13 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, chroma-dependency-order-28: 1424/1424 bytes, 94.676960 percent, 11 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, chroma-dependency-order-29: 1424/1424 bytes, 94.587080 percent, 13 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, chroma-dependency-order-30: 1424/1424 bytes, 94.587080 percent, 13 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, chroma-dependency-order-31: 1424/1424 bytes, 94.676960 percent, 11 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, chroma-dependency-order-32: 1424/1424 bytes, 94.676960 percent, 11 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, chroma-dependency-order-33: 1424/1424 bytes, 94.676960 percent, 11 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, chroma-dependency-order-34: 1424/1424 bytes, 94.676960 percent, 11 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, chroma-dependency-order-35: 1424/1424 bytes, 94.587080 percent, 13 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, chroma-dependency-order-36: 1424/1424 bytes, 94.676960 percent, 11 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, chroma-dependency-order-37: 1424/1424 bytes, 94.676960 percent, 11 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, chroma-dependency-order-38: 1424/1424 bytes, 94.699440 percent, 13 positional non-register differences, first [153, 156, 234, 235, 239, 242, 246, 248].
+TMCJPEG_814EFEAC, chroma-dependency-order-39: 1424/1424 bytes, 94.676960 percent, 11 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, chroma-dependency-order-40: 1424/1424 bytes, 94.587080 percent, 13 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, chroma-dependency-order-41: 1424/1424 bytes, 94.676960 percent, 11 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, chroma-dependency-order-42: 1424/1424 bytes, 94.587080 percent, 13 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, chroma-dependency-order-43: 1424/1424 bytes, 94.699440 percent, 13 positional non-register differences, first [153, 156, 234, 235, 239, 242, 246, 248].
+TMCJPEG_814EFEAC, chroma-dependency-order-44: 1424/1424 bytes, 94.587080 percent, 13 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, chroma-dependency-order-45: 1424/1424 bytes, 94.587080 percent, 13 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, chroma-dependency-order-46: 1424/1424 bytes, 94.587080 percent, 13 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, chroma-dependency-order-47: 1424/1424 bytes, 94.699440 percent, 13 positional non-register differences, first [153, 156, 234, 235, 239, 242, 246, 248].
+TMCJPEG_814EFEAC, chroma-dependency-order-48: 1424/1424 bytes, 94.587080 percent, 13 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, chroma-dependency-order-49: 1424/1424 bytes, 94.587080 percent, 13 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, chroma-dependency-order-50: 1424/1424 bytes, 94.587080 percent, 13 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, chroma-dependency-order-51: 1424/1424 bytes, 94.676960 percent, 11 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, chroma-dependency-order-52: 1424/1424 bytes, 94.587080 percent, 13 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, chroma-dependency-order-53: 1424/1424 bytes, 94.587080 percent, 13 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, chroma-dependency-order-54: 1424/1424 bytes, 94.587080 percent, 13 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, chroma-dependency-order-55: 1424/1424 bytes, 94.676960 percent, 11 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, chroma-dependency-order-56: 1424/1424 bytes, 94.587080 percent, 13 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, chroma-dependency-order-57: 1424/1424 bytes, 94.676960 percent, 11 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, chroma-dependency-order-58: 1424/1424 bytes, 94.676960 percent, 11 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, chroma-dependency-order-59: 1424/1424 bytes, 94.676960 percent, 11 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, chroma-dependency-order-60: 1424/1424 bytes, 94.609550 percent, 15 positional non-register differences, first [153, 156, 234, 235, 239, 242, 246, 248].
+TMCJPEG_814EFEAC, chroma-dependency-order-61: 1424/1424 bytes, 94.587080 percent, 13 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, chroma-dependency-order-62: 1424/1424 bytes, 94.676960 percent, 11 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, chroma-dependency-order-63: 1424/1424 bytes, 94.676960 percent, 11 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, chroma-dependency-order-64: 1424/1424 bytes, 94.609550 percent, 15 positional non-register differences, first [153, 156, 234, 235, 239, 242, 246, 248].
+TMCJPEG_814EFEAC, chroma-dependency-order-65: 1424/1424 bytes, 94.587080 percent, 13 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, chroma-dependency-order-66: 1424/1424 bytes, 94.609550 percent, 15 positional non-register differences, first [153, 156, 234, 235, 239, 242, 246, 248].
+TMCJPEG_814EFEAC, chroma-dependency-order-67: 1424/1424 bytes, 94.587080 percent, 13 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, chroma-dependency-order-68: 1424/1424 bytes, 94.676960 percent, 11 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, chroma-dependency-order-69: 1424/1424 bytes, 94.587080 percent, 13 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, chroma-dependency-order-70: 1424/1424 bytes, 94.676960 percent, 11 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, chroma-dependency-order-71: 1424/1424 bytes, 94.587080 percent, 13 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, chroma-dependency-order-72: 1424/1424 bytes, 94.587080 percent, 13 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, chroma-dependency-order-73: 1424/1424 bytes, 94.609550 percent, 15 positional non-register differences, first [153, 156, 234, 235, 239, 242, 246, 248].
+TMCJPEG_814EFEAC, chroma-dependency-order-74: 1424/1424 bytes, 94.699440 percent, 13 positional non-register differences, first [153, 156, 234, 235, 239, 242, 246, 248].
+TMCJPEG_814EFEAC, chroma-dependency-order-75: 1424/1424 bytes, 94.587080 percent, 13 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, chroma-dependency-order-76: 1424/1424 bytes, 94.587080 percent, 13 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, chroma-dependency-order-77: 1424/1424 bytes, 94.676960 percent, 11 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, chroma-dependency-order-78: 1424/1424 bytes, 94.609550 percent, 15 positional non-register differences, first [153, 156, 234, 235, 239, 242, 246, 248].
+TMCJPEG_814EFEAC, chroma-dependency-order-79: 1424/1424 bytes, 94.587080 percent, 13 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, chroma-dependency-order-80: 1424/1424 bytes, 94.676960 percent, 11 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, chroma-dependency-order-81: 1424/1424 bytes, 94.676960 percent, 11 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, chroma-dependency-order-82: 1424/1424 bytes, 94.587080 percent, 13 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, chroma-dependency-order-83: 1424/1424 bytes, 94.587080 percent, 13 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, chroma-dependency-order-retained: 1424/1424 bytes, 94.676960 percent, 11 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+Round 3 progress: all eight pixel converters have full luma and chroma translations; scalar luma phases now align except registers after separating luma/chroma offset lifetimes. Edge 411 luma setup and all luma blocks align except registers after moving row skips to their loop-end expressions. Chroma unroll scheduling remains structural, not a register-only match. Setter still lacks one common buffer-base instruction. No data sections exist in the original unit. Continuing the remaining structural differences.
+TMCJPEG_814F0A58, 422-inline-tile_offset: 1360/1900 bytes, 55.757896 percent, 322 positional non-register differences, first [3, 4, 5, 6, 7, 8, 9, 10].
+TMCJPEG_814F0A58, 422-inline-tile_offset: 1360/1900 bytes, 55.757896 percent, 322 positional non-register differences, first [3, 4, 5, 6, 7, 8, 9, 10].
+TMCJPEG_814F0A58, 422-inline-pixel_address: 1360/1900 bytes, 55.757896 percent, 322 positional non-register differences, first [3, 4, 5, 6, 7, 8, 9, 10].
+TMCJPEG_814F0A58, 422-inline-rejected-restored: 1896/1900 bytes, 79.608420 percent, 421 positional non-register differences, first [12, 13, 14, 15, 16, 17, 18, 19].
+TMCJPEG_814F11C4, 422-edge-411-aligned-luma-port: 1564/1564 bytes, 91.790280 percent, 18 positional non-register differences, first [272, 274, 275, 278, 280, 281, 282, 284].
+TMCJPEG_814F1F48, 420-edge-411-aligned-luma-port: 1576/1576 bytes, 92.596440 percent, 21 positional non-register differences, first [180, 182, 183, 184, 185, 188, 189, 190].
+TMCJPEG_814F0A58, 422-pair-rebuild-baseline: 1896/1900 bytes, 79.608420 percent, 421 positional non-register differences, first [12, 13, 14, 15, 16, 17, 18, 19].
+TMCJPEG_814F0A58, 422-pair-indexed-signed-offsets: 1888/1900 bytes, 84.661050 percent, 412 positional non-register differences, first [19, 20, 21, 22, 23, 24, 26, 27].
+TMCJPEG_814F0A58, 422-pair-unsigned-output-row-temporary: 1888/1900 bytes, 84.661050 percent, 412 positional non-register differences, first [19, 20, 21, 22, 23, 24, 26, 27].
+TMCJPEG_814F0A58, 422-pair-duplicate-row-address: 1888/1900 bytes, 84.503160 percent, 412 positional non-register differences, first [19, 20, 21, 22, 23, 24, 26, 27].
+TMCJPEG_814F0A58, 422-pair-counter-before-pointer: 1888/1900 bytes, 84.661050 percent, 412 positional non-register differences, first [19, 20, 21, 22, 23, 24, 26, 27].
+TMCJPEG_814F0A58, 422-pair-row-in-for-initializer: 1888/1900 bytes, 84.661050 percent, 412 positional non-register differences, first [19, 20, 21, 22, 23, 24, 26, 27].
+TMCJPEG_814F0A58, 422-pair-index-pointer-bias: 1900/1900 bytes, 65.418945 percent, 252 positional non-register differences, first [0, 1, 2, 3, 8, 11, 12, 13].
+TMCJPEG_814F0A58, 422-pair-rebuild-retained: 1900/1900 bytes, 65.418945 percent, 252 positional non-register differences, first [0, 1, 2, 3, 8, 11, 12, 13].
+TMCJPEG_814F0A58, 422-combined-index-baseline: 1896/1900 bytes, 79.608420 percent, 421 positional non-register differences, first [12, 13, 14, 15, 16, 17, 18, 19].
+TMCJPEG_814F0A58, 422-tile-index-before-byte-offset: 1360/1900 bytes, 55.757896 percent, 322 positional non-register differences, first [3, 4, 5, 6, 7, 8, 9, 10].
+TMCJPEG_814F0A58, 422-signed-tile-index-before-byte-offset: 1360/1900 bytes, 55.757896 percent, 322 positional non-register differences, first [3, 4, 5, 6, 7, 8, 9, 10].
+TMCJPEG_814F0A58, 422-tile-offset-shift-assignment: 1360/1900 bytes, 58.524210 percent, 322 positional non-register differences, first [3, 4, 5, 6, 7, 8, 9, 10].
+TMCJPEG_814F0A58, 422-row-product-multiply-assignment: 1360/1900 bytes, 56.109474 percent, 322 positional non-register differences, first [3, 4, 5, 6, 7, 8, 9, 10].
+TMCJPEG_814F0A58, 422-combined-index-retained: 1896/1900 bytes, 79.608420 percent, 421 positional non-register differences, first [12, 13, 14, 15, 16, 17, 18, 19].
+TMCJPEG_814F0A58, 422-row-types-baseline: 1896/1900 bytes, 79.608420 percent, 421 positional non-register differences, first [12, 13, 14, 15, 16, 17, 18, 19].
+TMCJPEG_814F0A58, 422-types-s32-s32-s32: 1876/1900 bytes, 70.778946 percent, 423 positional non-register differences, first [0, 1, 2, 3, 8, 9, 10, 11].
+TMCJPEG_814F0A58, 422-types-s32-s32-u32: 1896/1900 bytes, 79.608420 percent, 421 positional non-register differences, first [12, 13, 14, 15, 16, 17, 18, 19].
+TMCJPEG_814F0A58, 422-types-s32-u32-s32: 1896/1900 bytes, 79.608420 percent, 421 positional non-register differences, first [12, 13, 14, 15, 16, 17, 18, 19].
+TMCJPEG_814F0A58, 422-types-s32-u32-u32: 1876/1900 bytes, 70.778946 percent, 423 positional non-register differences, first [0, 1, 2, 3, 8, 9, 10, 11].
+TMCJPEG_814F0A58, 422-types-u32-s32-s32: 1876/1900 bytes, 70.778946 percent, 423 positional non-register differences, first [0, 1, 2, 3, 8, 9, 10, 11].
+TMCJPEG_814F0A58, 422-types-u32-s32-u32: 1896/1900 bytes, 79.608420 percent, 421 positional non-register differences, first [12, 13, 14, 15, 16, 17, 18, 19].
+TMCJPEG_814F0A58, 422-types-u32-u32-u32: 1876/1900 bytes, 70.778946 percent, 423 positional non-register differences, first [0, 1, 2, 3, 8, 9, 10, 11].
+TMCJPEG_814F0A58, 422-row-types-retained: 1896/1900 bytes, 79.608420 percent, 421 positional non-register differences, first [12, 13, 14, 15, 16, 17, 18, 19].
+TMCJPEG_814F0A58, 422-output-pair-baseline: 1896/1900 bytes, 79.608420 percent, 421 positional non-register differences, first [12, 13, 14, 15, 16, 17, 18, 19].
+TMCJPEG_814F0A58, 422-second-output: 1896/1900 bytes, 84.313680 percent, 424 positional non-register differences, first [19, 20, 21, 22, 23, 24, 26, 27].
+TMCJPEG_814F0A58, 422-inner-second-output: 1896/1900 bytes, 84.313680 percent, 424 positional non-register differences, first [19, 20, 21, 22, 23, 24, 26, 27].
+TMCJPEG_814F0A58, 422-two-tile-offsets: 1888/1900 bytes, 84.661050 percent, 412 positional non-register differences, first [19, 20, 21, 22, 23, 24, 26, 27].
+TMCJPEG_814F0A58, 422-direct-tile-offset-and-next-output: 1896/1900 bytes, 84.313680 percent, 424 positional non-register differences, first [19, 20, 21, 22, 23, 24, 26, 27].
+TMCJPEG_814F0A58, 422-output-pair-retained: 1896/1900 bytes, 84.313680 percent, 424 positional non-register differences, first [19, 20, 21, 22, 23, 24, 26, 27].
+TMCJPEG_814F0A58, local-order-0: 1896/1900 bytes, 84.576840 percent, 424 positional non-register differences, first [19, 20, 21, 22, 23, 24, 26, 27].
+TMCJPEG_814F0A58, local-order-27: 1896/1900 bytes, 84.534740 percent, 424 positional non-register differences, first [19, 20, 21, 22, 23, 24, 26, 27].
+TMCJPEG_814F0A58, local-order-34: 1896/1900 bytes, 83.400000 percent, 423 positional non-register differences, first [21, 22, 23, 24, 26, 27, 29, 30].
+TMCJPEG_814F0A58, local-order-38: 1896/1900 bytes, 83.547370 percent, 423 positional non-register differences, first [21, 22, 23, 24, 26, 27, 29, 30].
+TMCJPEG_814F0A58, local-order-47: 1896/1900 bytes, 83.463160 percent, 423 positional non-register differences, first [21, 22, 23, 24, 26, 27, 29, 30].
+TMCJPEG_814F0A58, local-order-53: 1896/1900 bytes, 84.568420 percent, 423 positional non-register differences, first [21, 22, 23, 24, 26, 27, 29, 30].
+TMCJPEG_814F0A58, local-order-55: 1896/1900 bytes, 85.284210 percent, 423 positional non-register differences, first [21, 22, 23, 24, 26, 27, 29, 30].
+TMCJPEG_814F0A58, local-order-68: 1896/1900 bytes, 85.673680 percent, 423 positional non-register differences, first [21, 22, 23, 24, 26, 27, 29, 30].
+TMCJPEG_814F0A58, local-order-211: 1896/1900 bytes, 85.600000 percent, 423 positional non-register differences, first [21, 22, 23, 24, 26, 27, 29, 30].
+TMCJPEG_814F0A58, local-order-retained: 1896/1900 bytes, 85.600000 percent, 423 positional non-register differences, first [21, 22, 23, 24, 26, 27, 29, 30].
+TMCJPEG_814F0A58, row-skip-baseline: 1896/1900 bytes, 85.600000 percent, 423 positional non-register differences, first [21, 22, 23, 24, 26, 27, 29, 30].
+TMCJPEG_814F0A58, inline-rowSkip: 1896/1900 bytes, 87.608420 percent, 413 positional non-register differences, first [33, 36, 37, 38, 39, 40, 41, 42].
+TMCJPEG_814F0A58, inline-chromaRowSkip: 1896/1900 bytes, 86.351580 percent, 427 positional non-register differences, first [21, 22, 23, 24, 26, 27, 29, 30].
+TMCJPEG_814F0A58, row-skip-retained: 1896/1900 bytes, 87.608420 percent, 413 positional non-register differences, first [33, 36, 37, 38, 39, 40, 41, 42].
+TMCJPEG_814EFEAC, chroma-walk-baseline: 1424/1424 bytes, 94.676960 percent, 11 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, for-preincrement: 1424/1424 bytes, 94.676960 percent, 11 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, for-assignment: 1424/1424 bytes, 94.676960 percent, 11 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, while: 1424/1424 bytes, 94.676960 percent, 11 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, samples-postincrement: 1416/1424 bytes, 76.280900 percent, 183 positional non-register differences, first [3, 5, 149, 153, 154, 155, 156, 157].
+TMCJPEG_814EFEAC, cb-row-walk: 1436/1424 bytes, 82.522470 percent, 173 positional non-register differences, first [149, 151, 153, 154, 156, 157, 158, 159].
+TMCJPEG_814EFEAC, both-row-walks: 1420/1424 bytes, 75.707860 percent, 191 positional non-register differences, first [3, 5, 149, 153, 154, 155, 156, 157].
+TMCJPEG_814EFEAC, chroma-walk-retained: 1424/1424 bytes, 94.676960 percent, 11 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814F0A58, 422-full-expression-baseline: 1896/1900 bytes, 87.608420 percent, 413 positional non-register differences, first [33, 36, 37, 38, 39, 40, 41, 42].
+TMCJPEG_814F0A58, 422-full-expression-pixel-pointer: 1900/1900 bytes, 90.250530 percent, 40 positional non-register differences, first [178, 179, 180, 181, 182, 183, 184, 185].
+TMCJPEG_814F0A58, 422-full-expression-tile-pointer: 1912/1900 bytes, 66.654740 percent, 420 positional non-register differences, first [0, 1, 2, 3, 4, 5, 6, 7].
+TMCJPEG_814F0A58, 422-full-expression-all-integer: 1900/1900 bytes, 90.250530 percent, 40 positional non-register differences, first [178, 179, 180, 181, 182, 183, 184, 185].
+TMCJPEG_814F0A58, 422-full-expression-row-product-temp: 1896/1900 bytes, 87.776840 percent, 413 positional non-register differences, first [33, 36, 37, 38, 39, 40, 41, 42].
+TMCJPEG_814F0A58, 422-full-expression-retained: 1900/1900 bytes, 90.250530 percent, 40 positional non-register differences, first [178, 179, 180, 181, 182, 183, 184, 185].
+TMCJPEG_814F17E0, 420-complete-inline-pixel-addresses: 1896/1896 bytes, 88.487340 percent, 62 positional non-register differences, first [176, 177, 178, 179, 180, 181, 182, 183].
+TMCJPEG_814F0A58, luma-source-walk-baseline: 1900/1900 bytes, 90.250530 percent, 40 positional non-register differences, first [178, 179, 180, 181, 182, 183, 184, 185].
+TMCJPEG_814F0A58, luma-two-input-postincrements: 1900/1900 bytes, 93.852630 percent, 18 positional non-register differences, first [355, 357, 358, 361, 363, 364, 365, 367].
+TMCJPEG_814F0A58, luma-two-input-separate-increments: 1900/1900 bytes, 90.250530 percent, 40 positional non-register differences, first [178, 179, 180, 181, 182, 183, 184, 185].
+TMCJPEG_814F0A58, luma-second-input-preincrement: 1900/1900 bytes, 93.873690 percent, 18 positional non-register differences, first [355, 357, 358, 361, 363, 364, 365, 367].
+TMCJPEG_814F0A58, luma-source-walk-retained: 1900/1900 bytes, 93.873690 percent, 18 positional non-register differences, first [355, 357, 358, 361, 363, 364, 365, 367].
+TMCJPEG_814EFEAC, chroma-complete-expression-baseline: 1424/1424 bytes, 94.676960 percent, 11 positional non-register differences, first [153, 156, 234, 235, 236, 238, 239, 244].
+TMCJPEG_814EFEAC, chroma-full-inline-postincrements: 1416/1424 bytes, 76.747190 percent, 177 positional non-register differences, first [149, 153, 154, 155, 156, 157, 158, 159].
+TMCJPEG_814EFEAC, chroma-full-inline-separate-increments: 1424/1424 bytes, 99.255615 percent, 2 positional non-register differences, first [153, 156].
+TMCJPEG_814EFEAC, chroma-full-inline-row-product-temp: 1420/1424 bytes, 94.115166 percent, 166 positional non-register differences, first [146, 147, 148, 149, 150, 151, 153, 154].
+TMCJPEG_814EFEAC, chroma-complete-expression-retained: 1424/1424 bytes, 99.255615 percent, 2 positional non-register differences, first [153, 156].
+TMCJPEG_814F0A58, chroma-complete-expression-baseline: 1900/1900 bytes, 93.873690 percent, 18 positional non-register differences, first [355, 357, 358, 361, 363, 364, 365, 367].
+TMCJPEG_814F0A58, chroma-full-inline-postincrements: 1892/1900 bytes, 81.338950 percent, 175 positional non-register differences, first [268, 273, 274, 276, 277, 278, 279, 280].
+TMCJPEG_814F0A58, chroma-full-inline-separate-increments: 1900/1900 bytes, 95.094734 percent, 11 positional non-register differences, first [343, 344, 345, 347, 348, 349, 351, 354].
+TMCJPEG_814F0A58, chroma-full-inline-row-product-temp: 1896/1900 bytes, 90.947365 percent, 186 positional non-register differences, first [270, 271, 272, 274, 277, 280, 281, 282].
+TMCJPEG_814F0A58, chroma-complete-expression-retained: 1900/1900 bytes, 95.094734 percent, 11 positional non-register differences, first [343, 344, 345, 347, 348, 349, 351, 354].
+TMCJPEG_814F0A58, 422-inline-input-postincrements-and-chroma: 1900/1900 bytes, 95.073685 percent, 11 positional non-register differences, first [343, 344, 345, 347, 348, 349, 351, 354].
+TMCJPEG_814F043C, chroma-complete-expression-baseline: 1564/1564 bytes, 91.790280 percent, 18 positional non-register differences, first [272, 274, 275, 278, 280, 281, 282, 284].
+TMCJPEG_814F043C, chroma-full-inline-postincrements: 1552/1564 bytes, 75.601020 percent, 187 positional non-register differences, first [178, 180, 182, 183, 184, 185, 186, 187].
+TMCJPEG_814F043C, chroma-full-inline-separate-increments: 1564/1564 bytes, 93.657290 percent, 11 positional non-register differences, first [260, 261, 262, 264, 265, 266, 268, 271].
+TMCJPEG_814F043C, chroma-full-inline-row-product-temp: 1556/1564 bytes, 88.974430 percent, 98 positional non-register differences, first [183, 184, 185, 187, 188, 189, 191, 192].
+TMCJPEG_814F043C, chroma-complete-expression-retained: 1564/1564 bytes, 93.657290 percent, 11 positional non-register differences, first [260, 261, 262, 264, 265, 266, 268, 271].
+TMCJPEG_814F2570, chroma-complete-expression-baseline: 1504/1504 bytes, 90.287230 percent, 22 positional non-register differences, first [220, 221, 222, 224, 225, 226, 227, 242].
+TMCJPEG_814F2570, chroma-full-inline-postincrements: 1492/1504 bytes, 75.986700 percent, 346 positional non-register differences, first [9, 10, 11, 12, 13, 14, 15, 16].
+TMCJPEG_814F2570, chroma-full-inline-separate-increments: 1504/1504 bytes, 93.723404 percent, 11 positional non-register differences, first [242, 243, 244, 246, 247, 248, 250, 253].
+TMCJPEG_814F2570, chroma-full-inline-row-product-temp: 1496/1504 bytes, 84.914894 percent, 333 positional non-register differences, first [20, 21, 22, 23, 24, 26, 27, 28].
+TMCJPEG_814F2570, chroma-complete-expression-retained: 1504/1504 bytes, 93.723404 percent, 11 positional non-register differences, first [242, 243, 244, 246, 247, 248, 250, 253].
+TMCJPEG_814F2B50, chroma-complete-expression-baseline: 1544/1544 bytes, 89.981865 percent, 24 positional non-register differences, first [246, 247, 248, 250, 252, 254, 256, 258].
+TMCJPEG_814F2B50, chroma-full-inline-postincrements: 1532/1544 bytes, 71.722800 percent, 326 positional non-register differences, first [27, 28, 32, 33, 34, 35, 36, 37].
+TMCJPEG_814F2B50, chroma-full-inline-separate-increments: 1544/1544 bytes, 99.041450 percent, 0 positional non-register differences, first [].
+TMCJPEG_814F2B50, chroma-full-inline-row-product-temp: 1536/1544 bytes, 78.129530 percent, 241 positional non-register differences, first [27, 28, 33, 34, 35, 36, 37, 38].
+TMCJPEG_814F2B50, chroma-complete-expression-retained: 1544/1544 bytes, 99.041450 percent, 0 positional non-register differences, first [].
+Round 3 breakthrough: the grouped luma loops require the whole tile address expression in each byte store; extra address temporaries changed the compiler unroll and invariant-hoisting stages. Postincrementing the two luma inputs makes the complete 422 luma phase align except registers. Chroma similarly requires complete address expressions but separate source-pointer increments. This gives 211 edge 386/386 instructions with zero positional non-register differences, and 411 normal 356/356 with only two setup schedules still open.
+TMCJPEG_814F2B50, local-order-5: 1544/1544 bytes, 99.093260 percent, 0 positional non-register differences, first [].
+TMCJPEG_814F2B50, local-order-13: 1544/1544 bytes, 99.183940 percent, 0 positional non-register differences, first [].
+TMCJPEG_814F2B50, local-order-25: 1544/1544 bytes, 99.404144 percent, 0 positional non-register differences, first [].
+TMCJPEG_814F2B50, local-order-51: 1544/1544 bytes, 99.443010 percent, 0 positional non-register differences, first [].
+TMCJPEG_814F2B50, local-order-83: 1544/1544 bytes, 99.481865 percent, 0 positional non-register differences, first [].
+TMCJPEG_814F2B50, local-order-117: 1544/1544 bytes, 99.689120 percent, 0 positional non-register differences, first [].
+TMCJPEG_814F2B50, local-order-614: 1544/1544 bytes, 99.922280 percent, 0 positional non-register differences, first [].
+TMCJPEG_814F2B50, local-order-retained: 1544/1544 bytes, 99.922280 percent, 0 positional non-register differences, first [].
+TMCJPEG_814EFEAC, 411-skip-shape-baseline: 1424/1424 bytes, 99.255615 percent, 2 positional non-register differences, first [153, 156].
+TMCJPEG_814EFEAC, 411-new-s32-chroma-skip: 1424/1424 bytes, 92.387640 percent, 13 positional non-register differences, first [153, 155, 224, 225, 226, 228, 229, 230].
+TMCJPEG_814EFEAC, 411-new-u32-chroma-skip: 1424/1424 bytes, 92.387640 percent, 13 positional non-register differences, first [153, 155, 224, 225, 226, 228, 229, 230].
+TMCJPEG_814EFEAC, 411-reused-skip-after-address-simplification: 1424/1424 bytes, 93.286514 percent, 13 positional non-register differences, first [153, 155, 224, 225, 226, 228, 229, 230].
+TMCJPEG_814EFEAC, 411-reused-skip-at-row-end: 1436/1424 bytes, 89.356740 percent, 195 positional non-register differences, first [146, 147, 148, 149, 150, 152, 153, 154].
+TMCJPEG_814EFEAC, 411-width-becomes-row-skip: 1424/1424 bytes, 93.286514 percent, 13 positional non-register differences, first [153, 155, 224, 225, 226, 228, 229, 230].
+TMCJPEG_814EFEAC, 411-unsigned-shared-skip: 1424/1424 bytes, 93.258430 percent, 13 positional non-register differences, first [153, 155, 224, 225, 226, 228, 229, 230].
+TMCJPEG_814EFEAC, 411-skip-shape-retained: 1424/1424 bytes, 99.255615 percent, 2 positional non-register differences, first [153, 156].
+TMCJPEG_814F2B50, 211-edge-height-register-baseline: 1544/1544 bytes, 99.922280 percent, 0 positional non-register differences, first [].
+TMCJPEG_814F2B50, 211-edge-height-in-bound: 1544/1544 bytes, 100.000000 percent, 0 positional non-register differences, first [].
+TMCJPEG_814F2B50, 211-edge-new-chroma-height: 1544/1544 bytes, 100.000000 percent, 0 positional non-register differences, first [].
+TMCJPEG_814F2B50, 211-edge-width-read-before-height: 1544/1544 bytes, 100.000000 percent, 0 positional non-register differences, first [].
+TMCJPEG_814F2B50, 211-edge-height-two-statements: 1544/1544 bytes, 100.000000 percent, 0 positional non-register differences, first [].
+TMCJPEG_814F2B50, 211-edge-height-register-retained: 1544/1544 bytes, 100.000000 percent, 0 positional non-register differences, first [].
+TMCJPEG_814F043C, lifetime-baseline: 1564/1564 bytes, 93.657290 percent, 11 positional non-register differences, first [260, 261, 262, 264, 265, 266, 268, 271].
+TMCJPEG_814F043C, reuse-chromaXEnd: 1564/1564 bytes, 94.539640 percent, 11 positional non-register differences, first [260, 261, 262, 264, 265, 266, 268, 271].
+TMCJPEG_814F043C, lifetime-retained: 1564/1564 bytes, 94.539640 percent, 11 positional non-register differences, first [260, 261, 262, 264, 265, 266, 268, 271].
+TMCJPEG_814F2570, lifetime-baseline: 1504/1504 bytes, 93.723404 percent, 11 positional non-register differences, first [242, 243, 244, 246, 247, 248, 250, 253].
+TMCJPEG_814F2570, lifetime-retained: 1504/1504 bytes, 93.723404 percent, 11 positional non-register differences, first [242, 243, 244, 246, 247, 248, 250, 253].
+TMCJPEG_814F0A58, lifetime-baseline: 1900/1900 bytes, 95.073685 percent, 11 positional non-register differences, first [343, 344, 345, 347, 348, 349, 351, 354].
+TMCJPEG_814F0A58, reuse-chromaXEnd: 1900/1900 bytes, 94.989470 percent, 11 positional non-register differences, first [343, 344, 345, 347, 348, 349, 351, 354].
+TMCJPEG_814F0A58, reuse-chromaYEnd: 1900/1900 bytes, 95.073685 percent, 11 positional non-register differences, first [343, 344, 345, 347, 348, 349, 351, 354].
+TMCJPEG_814F0A58, lifetime-retained: 1900/1900 bytes, 95.073685 percent, 11 positional non-register differences, first [343, 344, 345, 347, 348, 349, 351, 354].
+TMCJPEG_814F0A58, chroma-column-baseline: 1900/1900 bytes, 95.073685 percent, 11 positional non-register differences, first [343, 344, 345, 347, 348, 349, 351, 354].
+TMCJPEG_814F0A58, new-chroma-column: 1900/1900 bytes, 93.673680 percent, 11 positional non-register differences, first [343, 344, 345, 347, 348, 349, 351, 354].
+TMCJPEG_814F0A58, scoped-chroma-column: 1900/1900 bytes, 93.673680 percent, 11 positional non-register differences, first [343, 344, 345, 347, 348, 349, 351, 354].
+TMCJPEG_814F0A58, chroma-column-retained: 1900/1900 bytes, 95.073685 percent, 11 positional non-register differences, first [343, 344, 345, 347, 348, 349, 351, 354].
+TMCJPEG_814F043C, chroma-column-baseline: 1564/1564 bytes, 94.539640 percent, 11 positional non-register differences, first [260, 261, 262, 264, 265, 266, 268, 271].
+TMCJPEG_814F043C, new-chroma-column: 1564/1564 bytes, 93.657290 percent, 11 positional non-register differences, first [260, 261, 262, 264, 265, 266, 268, 271].
+TMCJPEG_814F043C, scoped-chroma-column: 1564/1564 bytes, 93.657290 percent, 11 positional non-register differences, first [260, 261, 262, 264, 265, 266, 268, 271].
+TMCJPEG_814F043C, chroma-column-retained: 1564/1564 bytes, 94.539640 percent, 11 positional non-register differences, first [260, 261, 262, 264, 265, 266, 268, 271].
+TMCJPEG_814F2570, chroma-column-baseline: 1504/1504 bytes, 93.723404 percent, 11 positional non-register differences, first [242, 243, 244, 246, 247, 248, 250, 253].
+TMCJPEG_814F2570, new-chroma-column: 1504/1504 bytes, 93.164894 percent, 11 positional non-register differences, first [242, 243, 244, 246, 247, 248, 250, 253].
+TMCJPEG_814F2570, scoped-chroma-column: 1504/1504 bytes, 93.164894 percent, 11 positional non-register differences, first [242, 243, 244, 246, 247, 248, 250, 253].
+TMCJPEG_814F2570, chroma-column-retained: 1504/1504 bytes, 93.723404 percent, 11 positional non-register differences, first [242, 243, 244, 246, 247, 248, 250, 253].
+TMCJPEG_814EFEAC, 411-second-phase-baseline: 1424/1424 bytes, 99.255615 percent, 2 positional non-register differences, first [153, 156].
+TMCJPEG_814EFEAC, 411-chroma-height-from-width: 1424/1424 bytes, 99.255615 percent, 2 positional non-register differences, first [153, 156].
+TMCJPEG_814EFEAC, 411-chroma-direct-height-bound: 1424/1424 bytes, 99.255615 percent, 2 positional non-register differences, first [153, 156].
+TMCJPEG_814EFEAC, 411-skip-before-chroma-bounds: 1424/1424 bytes, 99.255615 percent, 2 positional non-register differences, first [153, 156].
+TMCJPEG_814EFEAC, 411-chroma-inline-row-skip: 1424/1424 bytes, 99.255615 percent, 2 positional non-register differences, first [153, 156].
+TMCJPEG_814EFEAC, 411-separate-chroma-width: 1424/1424 bytes, 99.255615 percent, 2 positional non-register differences, first [153, 156].
+TMCJPEG_814EFEAC, 411-second-phase-retained: 1424/1424 bytes, 99.255615 percent, 2 positional non-register differences, first [153, 156].
+TMCJPEG_814EFEAC, 411-height-stride-baseline: 1424/1424 bytes, 99.255615 percent, 2 positional non-register differences, first [153, 156].
+TMCJPEG_814EFEAC, 411-chroma-stride-from-height: 1424/1424 bytes, 99.255615 percent, 2 positional non-register differences, first [153, 156].
+TMCJPEG_814EFEAC, 411-chroma-one-dimension: 1424/1424 bytes, 99.255615 percent, 2 positional non-register differences, first [153, 156].
+TMCJPEG_814EFEAC, 411-chroma-new-height: 1424/1424 bytes, 99.255615 percent, 2 positional non-register differences, first [153, 156].
+TMCJPEG_814EFEAC, 411-chroma-only-width: 1424/1424 bytes, 99.255615 percent, 2 positional non-register differences, first [153, 156].
+TMCJPEG_814EFEAC, 411-height-stride-retained: 1424/1424 bytes, 99.255615 percent, 2 positional non-register differences, first [153, 156].
+TMCJPEG_814EFEAC, 411-width-read-order-baseline: 1424/1424 bytes, 99.255615 percent, 2 positional non-register differences, first [153, 156].
+TMCJPEG_814EFEAC, 411-chroma-width-read-before-x: 1424/1424 bytes, 99.719100 percent, 0 positional non-register differences, first [].
+TMCJPEG_814EFEAC, 411-chroma-width-read-before-width: 1424/1424 bytes, 99.719100 percent, 0 positional non-register differences, first [].
+TMCJPEG_814EFEAC, 411-chroma-width-read-before-height: 1424/1424 bytes, 99.255615 percent, 2 positional non-register differences, first [153, 156].
+TMCJPEG_814EFEAC, 411-chroma-width-read-before-chromaXEnd: 1424/1424 bytes, 99.255615 percent, 2 positional non-register differences, first [153, 156].
+TMCJPEG_814EFEAC, 411-chroma-width-read-before-chromaYEnd: 1424/1424 bytes, 99.255615 percent, 2 positional non-register differences, first [153, 156].
+TMCJPEG_814EFEAC, 411-width-read-order-retained: 1424/1424 bytes, 99.719100 percent, 0 positional non-register differences, first [].
+TMCJPEG_814EFEAC, pairwise-declaration-baseline: 1424/1424 bytes, 99.719100 percent, 0 positional non-register differences, first [].
+TMCJPEG_814EFEAC, pairwise-declaration-retained: 1424/1424 bytes, 99.719100 percent, 0 positional non-register differences, first [].
+TMCJPEG_814EFEAC, chroma-column-baseline: 1424/1424 bytes, 99.719100 percent, 0 positional non-register differences, first [].
+TMCJPEG_814EFEAC, new-chroma-column: 1424/1424 bytes, 98.820220 percent, 0 positional non-register differences, first [].
+TMCJPEG_814EFEAC, scoped-chroma-column: 1424/1424 bytes, 98.820220 percent, 0 positional non-register differences, first [].
+TMCJPEG_814EFEAC, chroma-column-retained: 1424/1424 bytes, 99.719100 percent, 0 positional non-register differences, first [].
+TMCJPEG_814F043C, exact-template-baseline: 1564/1564 bytes, 94.539640 percent, 11 positional non-register differences, first [260, 261, 262, 264, 265, 266, 268, 271].
+TMCJPEG_814F043C, exact-211-edge-shape-port: 1564/1564 bytes, 99.475700 percent, 0 positional non-register differences, first [].
+TMCJPEG_814F11C4, exact-template-baseline: 1564/1564 bytes, 91.790280 percent, 18 positional non-register differences, first [272, 274, 275, 278, 280, 281, 282, 284].
+TMCJPEG_814F11C4, exact-211-edge-shape-port: 1564/1564 bytes, 99.475700 percent, 0 positional non-register differences, first [].
+TMCJPEG_814F1F48, exact-template-baseline: 1576/1576 bytes, 92.596440 percent, 21 positional non-register differences, first [180, 182, 183, 184, 185, 188, 189, 190].
+TMCJPEG_814F1F48, exact-211-edge-shape-port: 1576/1576 bytes, 99.555840 percent, 0 positional non-register differences, first [].
+TMCJPEG_814F2570, exact-template-baseline: 1504/1504 bytes, 93.723404 percent, 11 positional non-register differences, first [242, 243, 244, 246, 247, 248, 250, 253].
+TMCJPEG_814F2570, exact-211-edge-shape-port: 1504/1504 bytes, 99.587770 percent, 0 positional non-register differences, first [].
+TMCJPEG_814F17E0, 420-complete-422-luma-and-chroma-port: 1896/1896 bytes, 93.424050 percent, 17 positional non-register differences, first [353, 354, 358, 360, 362, 364, 366, 367].
+TMCJPEG_814F0A58, chroma-read-order-baseline: 1900/1900 bytes, 95.073685 percent, 11 positional non-register differences, first [343, 344, 345, 347, 348, 349, 351, 354].
+TMCJPEG_814F0A58, chroma-width-read-before-x: 1900/1900 bytes, 95.073685 percent, 11 positional non-register differences, first [343, 344, 345, 347, 348, 349, 351, 354].
+TMCJPEG_814F0A58, chroma-width-read-before-width: 1900/1900 bytes, 95.073685 percent, 11 positional non-register differences, first [343, 344, 345, 347, 348, 349, 351, 354].
+TMCJPEG_814F0A58, chroma-width-read-before-height: 1900/1900 bytes, 95.073685 percent, 11 positional non-register differences, first [343, 344, 345, 347, 348, 349, 351, 354].
+TMCJPEG_814F0A58, chroma-width-read-before-chromaXEnd: 1900/1900 bytes, 95.073685 percent, 11 positional non-register differences, first [343, 344, 345, 347, 348, 349, 351, 354].
+TMCJPEG_814F0A58, chroma-width-read-before-chromaYEnd: 1900/1900 bytes, 95.073685 percent, 11 positional non-register differences, first [343, 344, 345, 347, 348, 349, 351, 354].
+TMCJPEG_814F0A58, chroma-read-order-retained: 1900/1900 bytes, 95.073685 percent, 11 positional non-register differences, first [343, 344, 345, 347, 348, 349, 351, 354].
+TMCJPEG_814F17E0, chroma-read-order-baseline: 1896/1896 bytes, 93.424050 percent, 17 positional non-register differences, first [353, 354, 358, 360, 362, 364, 366, 367].
+TMCJPEG_814F17E0, chroma-width-read-before-x: 1896/1896 bytes, 93.424050 percent, 17 positional non-register differences, first [353, 354, 358, 360, 362, 364, 366, 367].
+TMCJPEG_814F17E0, chroma-width-read-before-y: 1896/1896 bytes, 93.424050 percent, 17 positional non-register differences, first [353, 354, 358, 360, 362, 364, 366, 367].
+TMCJPEG_814F17E0, chroma-width-read-before-width: 1896/1896 bytes, 93.424050 percent, 17 positional non-register differences, first [353, 354, 358, 360, 362, 364, 366, 367].
+TMCJPEG_814F17E0, chroma-width-read-before-height: 1896/1896 bytes, 93.424050 percent, 17 positional non-register differences, first [353, 354, 358, 360, 362, 364, 366, 367].
+TMCJPEG_814F17E0, chroma-width-read-before-chromaXEnd: 1896/1896 bytes, 93.424050 percent, 17 positional non-register differences, first [353, 354, 358, 360, 362, 364, 366, 367].
+TMCJPEG_814F17E0, chroma-width-read-before-chromaYEnd: 1896/1896 bytes, 93.424050 percent, 17 positional non-register differences, first [353, 354, 358, 360, 362, 364, 366, 367].
+TMCJPEG_814F17E0, chroma-read-order-retained: 1896/1896 bytes, 93.424050 percent, 17 positional non-register differences, first [353, 354, 358, 360, 362, 364, 366, 367].
+TMCJPEG_814F0A58, row-skip-baseline: 1900/1900 bytes, 95.073685 percent, 11 positional non-register differences, first [343, 344, 345, 347, 348, 349, 351, 354].
+TMCJPEG_814F0A58, inline-chromaRowSkip: 1900/1900 bytes, 98.547370 percent, 2 positional non-register differences, first [274, 275].
+TMCJPEG_814F0A58, row-skip-retained: 1900/1900 bytes, 98.547370 percent, 2 positional non-register differences, first [274, 275].
+TMCJPEG_814F17E0, row-skip-baseline: 1896/1896 bytes, 93.424050 percent, 17 positional non-register differences, first [353, 354, 358, 360, 362, 364, 366, 367].
+TMCJPEG_814F17E0, inline-chromaRowSkip: 1896/1896 bytes, 98.997890 percent, 0 positional non-register differences, first [].
+TMCJPEG_814F17E0, row-skip-retained: 1896/1896 bytes, 98.997890 percent, 0 positional non-register differences, first [].
+TMCJPEG_814F0A58, chroma-read-order-baseline: 1900/1900 bytes, 98.547370 percent, 2 positional non-register differences, first [274, 275].
+TMCJPEG_814F0A58, chroma-width-read-before-x: 1900/1900 bytes, 98.547370 percent, 2 positional non-register differences, first [274, 275].
+TMCJPEG_814F0A58, chroma-width-read-before-width: 1900/1900 bytes, 98.547370 percent, 2 positional non-register differences, first [274, 275].
+TMCJPEG_814F0A58, chroma-width-read-before-height: 1900/1900 bytes, 98.547370 percent, 2 positional non-register differences, first [274, 275].
+TMCJPEG_814F0A58, chroma-width-read-before-chromaXEnd: 1900/1900 bytes, 98.547370 percent, 2 positional non-register differences, first [274, 275].
+TMCJPEG_814F0A58, chroma-width-read-before-chromaYEnd: 1900/1900 bytes, 98.547370 percent, 2 positional non-register differences, first [274, 275].
+TMCJPEG_814F0A58, chroma-read-order-retained: 1900/1900 bytes, 98.547370 percent, 2 positional non-register differences, first [274, 275].
+TMCJPEG_814F0A58, stride-expression-baseline: 1900/1900 bytes, 98.547370 percent, 2 positional non-register differences, first [274, 275].
+TMCJPEG_814F0A58, chroma-stride-8 + (-width): 1900/1900 bytes, 98.547370 percent, 2 positional non-register differences, first [274, 275].
+TMCJPEG_814F0A58, chroma-stride-(-width) + 8: 1900/1900 bytes, 98.547370 percent, 2 positional non-register differences, first [274, 275].
+TMCJPEG_814F0A58, chroma-stride-(u32)(8 - width): 1900/1900 bytes, 98.547370 percent, 2 positional non-register differences, first [274, 275].
+TMCJPEG_814F0A58, chroma-stride-(s32)(8 - width): 1900/1900 bytes, 98.547370 percent, 2 positional non-register differences, first [274, 275].
+TMCJPEG_814F0A58, chroma-pointer-subtract-width-minus-eight: 1900/1900 bytes, 93.073685 percent, 15 positional non-register differences, first [274, 275, 343, 344, 345, 347, 348, 349].
+TMCJPEG_814F0A58, chroma-next-row-index: 1900/1900 bytes, 98.547370 percent, 2 positional non-register differences, first [274, 275].
+TMCJPEG_814F0A58, stride-expression-retained: 1900/1900 bytes, 98.547370 percent, 2 positional non-register differences, first [274, 275].
+TMCJPEGDEC_set_converterY8U8V8, setter-pointer-form-baseline: 780/784 bytes, 92.739800 percent, 175 positional non-register differences, first [1, 2, 3, 4, 5, 6, 7, 8].
+TMCJPEGDEC_set_converterY8U8V8, setter-void-pointer-arithmetic: compiler rejected the pointer expression. Reverted.
+TMCJPEGDEC_set_converterY8U8V8, setter-signed-byte-base: 780/784 bytes, 92.739800 percent, 175 positional non-register differences, first [1, 2, 3, 4, 5, 6, 7, 8].
+TMCJPEGDEC_set_converterY8U8V8, setter-conversion-buffer-array-pointer: 780/784 bytes, 92.739800 percent, 175 positional non-register differences, first [1, 2, 3, 4, 5, 6, 7, 8].
+TMCJPEGDEC_set_converterY8U8V8, setter-pointer-form-retained: 780/784 bytes, 92.739800 percent, 175 positional non-register differences, first [1, 2, 3, 4, 5, 6, 7, 8].
+TMCJPEG_814F0A58, 422-chroma-header-baseline: 1900/1900 bytes, 98.547370 percent, 2 positional non-register differences, first [274, 275].
+TMCJPEG_814F0A58, 422-direct-chroma-height-bound: 1900/1900 bytes, 98.547370 percent, 2 positional non-register differences, first [274, 275].
+TMCJPEG_814F0A58, 422-chroma-only-width-value: 1900/1900 bytes, 98.547370 percent, 2 positional non-register differences, first [274, 275].
+TMCJPEG_814F0A58, 422-separate-chroma-width: 1900/1900 bytes, 98.547370 percent, 2 positional non-register differences, first [274, 275].
+TMCJPEG_814F0A58, 422-separate-chroma-height: 1900/1900 bytes, 98.547370 percent, 2 positional non-register differences, first [274, 275].
+TMCJPEG_814F0A58, 422-unsigned-chroma-width: 1900/1900 bytes, 98.547370 percent, 2 positional non-register differences, first [274, 275].
+TMCJPEG_814F0A58, 422-reverse-bound-definition-order: 1900/1900 bytes, 98.547370 percent, 2 positional non-register differences, first [274, 275].
+TMCJPEG_814F0A58, 422-chroma-header-retained: 1900/1900 bytes, 98.547370 percent, 2 positional non-register differences, first [274, 275].
+TMCJPEG_814F0A58, local-order-8: 1900/1900 bytes, 98.578950 percent, 2 positional non-register differences, first [274, 275].
+TMCJPEG_814F0A58, local-order-10: 1900/1900 bytes, 98.610530 percent, 2 positional non-register differences, first [274, 275].
+TMCJPEG_814F0A58, local-order-27: 1900/1900 bytes, 98.884210 percent, 2 positional non-register differences, first [274, 275].
+TMCJPEG_814F0A58, local-order-46: 1900/1900 bytes, 98.915790 percent, 2 positional non-register differences, first [274, 275].
+TMCJPEG_814F0A58, local-order-67: 1900/1900 bytes, 98.936844 percent, 2 positional non-register differences, first [274, 275].
+TMCJPEG_814F0A58, local-order-76: 1900/1900 bytes, 99.200000 percent, 2 positional non-register differences, first [274, 275].
+TMCJPEG_814F0A58, local-order-87: 1900/1900 bytes, 99.231580 percent, 2 positional non-register differences, first [274, 275].
+TMCJPEG_814F0A58, local-order-280: 1900/1900 bytes, 99.263160 percent, 2 positional non-register differences, first [274, 275].
+TMCJPEG_814F0A58, local-order-361: 1900/1900 bytes, 99.368420 percent, 2 positional non-register differences, first [274, 275].
+TMCJPEG_814F0A58, local-order-retained: 1900/1900 bytes, 99.368420 percent, 2 positional non-register differences, first [274, 275].
+Round 3 progress: TMCJPEG_814F2B50 is now objdiff 100.0 percent; its remaining five scratch-register differences disappeared when chroma height was calculated directly in the bound. Porting that exact source to 411 edge, 422 edge, 420 edge and 211 normal makes all four instruction counts match with only register operands remaining. Normal 411 is also down to only register operands; normal 420 now has 474/474 instructions and only register operands. Normal 422 has 475/475 with two chroma-setup instruction schedules still open. Setter retains the known buffer-address folding and store-order barrier.
+TMCJPEGDEC_set_converterY8U8V8, setter-inline-buffer-argument: 780/784 bytes, 92.765305 percent, 175 positional non-register differences, first [1, 2, 3, 4, 5, 6, 7, 8].
+TMCJPEGDEC_set_converterY8U8V8, setter-inline-buffer-argument-rejected: 780/784 bytes, 92.739800 percent, 175 positional non-register differences, first [1, 2, 3, 4, 5, 6, 7, 8].
+TMCJPEG_814EFEAC, tile-width-form-baseline: 1424/1424 bytes, 99.719100 percent, 0 positional non-register differences, first [].
+TMCJPEG_814EFEAC, reuse-luma-tile-width: 1424/1424 bytes, 99.648880 percent, 0 positional non-register differences, first [].
+TMCJPEG_814EFEAC, signed-chroma-tile-width: 1436/1424 bytes, 74.404495 percent, 314 positional non-register differences, first [0, 4, 12, 13, 15, 16, 17, 18].
+TMCJPEG_814EFEAC, chroma-width-load-and-shift: 1424/1424 bytes, 99.691010 percent, 0 positional non-register differences, first [].
+TMCJPEG_814EFEAC, chroma-width-byte-count-temporary: 1424/1424 bytes, 99.719100 percent, 0 positional non-register differences, first [].
+TMCJPEG_814EFEAC, chroma-width-load-unsigned-division: 1424/1424 bytes, 99.719100 percent, 0 positional non-register differences, first [].
+TMCJPEG_814EFEAC, tile-width-form-retained: 1424/1424 bytes, 99.719100 percent, 0 positional non-register differences, first [].
+TMCJPEG_814F0A58, tile-width-form-baseline: 1900/1900 bytes, 99.368420 percent, 2 positional non-register differences, first [274, 275].
+TMCJPEG_814F0A58, reuse-luma-tile-width: 1900/1900 bytes, 99.326320 percent, 2 positional non-register differences, first [274, 275].
+TMCJPEG_814F0A58, signed-chroma-tile-width: 1900/1900 bytes, 63.692630 percent, 300 positional non-register differences, first [0, 1, 2, 3, 4, 5, 6, 7].
+TMCJPEG_814F0A58, chroma-width-load-and-shift: 1900/1900 bytes, 98.894740 percent, 2 positional non-register differences, first [272, 274].
+TMCJPEG_814F0A58, chroma-width-byte-count-temporary: 1900/1900 bytes, 99.368420 percent, 2 positional non-register differences, first [274, 275].
+TMCJPEG_814F0A58, chroma-width-load-unsigned-division: 1900/1900 bytes, 99.368420 percent, 2 positional non-register differences, first [274, 275].
+TMCJPEG_814F0A58, tile-width-form-retained: 1900/1900 bytes, 99.368420 percent, 2 positional non-register differences, first [274, 275].
+TMCJPEG_814F0A58, inline-stride-baseline: 1900/1900 bytes, 99.368420 percent, 2 positional non-register differences, first [274, 275].
+TMCJPEG_814F0A58, inline-row-skip-at-row-end: 1900/1900 bytes, 99.368420 percent, 2 positional non-register differences, first [274, 275].
+TMCJPEG_814F0A58, inline-row-skip-before-loop: 1900/1900 bytes, 94.494736 percent, 11 positional non-register differences, first [343, 344, 345, 347, 348, 349, 351, 354].
+TMCJPEG_814F0A58, inline-stride-retained: 1900/1900 bytes, 99.368420 percent, 2 positional non-register differences, first [274, 275].
+TMCJPEG_814F0A58, chroma-header-skip-baseline: 1900/1900 bytes, 99.368420 percent, 2 positional non-register differences, first [274, 275].
+TMCJPEG_814F0A58, scoped-const-skip: 1912/1900 bytes, 91.098946 percent, 194 positional non-register differences, first [265, 266, 267, 268, 269, 271, 272, 273].
+TMCJPEG_814F0A58, scoped-skip: 1912/1900 bytes, 91.098946 percent, 194 positional non-register differences, first [265, 266, 267, 268, 269, 271, 272, 273].
+TMCJPEG_814F0A58, outer-skip: 1912/1900 bytes, 91.098946 percent, 194 positional non-register differences, first [265, 266, 267, 268, 269, 271, 272, 273].
+TMCJPEG_814F0A58, chroma-header-skip-retained: 1900/1900 bytes, 99.368420 percent, 2 positional non-register differences, first [274, 275].
+TMCJPEG_814EFEAC, chroma-constant-width-baseline: 1424/1424 bytes, 99.719100 percent, 0 positional non-register differences, first [].
+TMCJPEG_814EFEAC, scoped-const-u32-chroma-tile-width: 1424/1424 bytes, 98.932590 percent, 0 positional non-register differences, first [].
+TMCJPEG_814EFEAC, scoped-u32-chroma-tile-width: 1424/1424 bytes, 98.932590 percent, 0 positional non-register differences, first [].
+TMCJPEG_814EFEAC, chroma-constant-width-retained: 1424/1424 bytes, 99.719100 percent, 0 positional non-register differences, first [].
+TMCJPEG_814F0A58, chroma-constant-width-baseline: 1900/1900 bytes, 99.368420 percent, 2 positional non-register differences, first [274, 275].
+TMCJPEG_814F0A58, scoped-const-u32-chroma-tile-width: 1900/1900 bytes, 98.052635 percent, 2 positional non-register differences, first [274, 275].
+TMCJPEG_814F0A58, scoped-u32-chroma-tile-width: 1900/1900 bytes, 98.052635 percent, 2 positional non-register differences, first [274, 275].
+TMCJPEG_814F0A58, chroma-constant-width-retained: 1900/1900 bytes, 99.368420 percent, 2 positional non-register differences, first [274, 275].
+TMCJPEGDEC_set_converterY8U8V8, setter-case-translation-baseline: 780/784 bytes, 92.739800 percent, 175 positional non-register differences, first [1, 2, 3, 4, 5, 6, 7, 8].
+TMCJPEGDEC_set_converterY8U8V8, setter-cases-through-1: 780/784 bytes, 92.744896 percent, 177 positional non-register differences, first [1, 2, 3, 4, 5, 6, 7, 8].
+TMCJPEGDEC_set_converterY8U8V8, setter-cases-through-3: 780/784 bytes, 92.785710 percent, 179 positional non-register differences, first [1, 2, 3, 4, 5, 6, 7, 8].
+TMCJPEGDEC_set_converterY8U8V8, setter-cases-through-5: 780/784 bytes, 92.540820 percent, 183 positional non-register differences, first [1, 2, 3, 4, 5, 6, 7, 8].
+TMCJPEGDEC_set_converterY8U8V8, setter-case-translation-retained: 780/784 bytes, 92.785710 percent, 179 positional non-register differences, first [1, 2, 3, 4, 5, 6, 7, 8].
+TMCJPEGDEC_set_converterY8U8V8, setter-temporary-case-baseline: 780/784 bytes, 92.785710 percent, 179 positional non-register differences, first [1, 2, 3, 4, 5, 6, 7, 8].
+TMCJPEGDEC_set_converterY8U8V8, setter-address-order-temporaries-through-1: 780/784 bytes, 92.734695 percent, 179 positional non-register differences, first [1, 2, 3, 4, 5, 6, 7, 8].
+TMCJPEGDEC_set_converterY8U8V8, setter-address-order-temporaries-through-3: 780/784 bytes, 92.683670 percent, 179 positional non-register differences, first [1, 2, 3, 4, 5, 6, 7, 8].
+TMCJPEGDEC_set_converterY8U8V8, setter-address-order-temporaries-through-5: 780/784 bytes, 92.438774 percent, 183 positional non-register differences, first [1, 2, 3, 4, 5, 6, 7, 8].
+TMCJPEGDEC_set_converterY8U8V8, setter-address-order-temporaries-retained: 780/784 bytes, 92.785710 percent, 179 positional non-register differences, first [1, 2, 3, 4, 5, 6, 7, 8].
+TMCJPEGDEC_set_converterY8U8V8, setter-address-dispatch-baseline: 780/784 bytes, 92.785710 percent, 179 positional non-register differences, first [1, 2, 3, 4, 5, 6, 7, 8].
+TMCJPEGDEC_set_converterY8U8V8, setter-address-ordered-branch-blocks: 780/784 bytes, 92.785710 percent, 179 positional non-register differences, first [1, 2, 3, 4, 5, 6, 7, 8].
+TMCJPEG_814F0A58, one-plane-skip-baseline: 1900/1900 bytes, 99.368420 percent, 2 positional non-register differences, first [274, 275].
+TMCJPEG_814F0A58, one-plane-cb-skip-8 - width: 1900/1900 bytes, 99.010530 percent, 0 positional non-register differences, first [].
+TMCJPEG_814F0A58, one-plane-cb-skip-8 - height: 1912/1900 bytes, 97.741050 percent, 193 positional non-register differences, first [0, 3, 268, 270, 271, 272, 273, 274].
+TMCJPEG_814F0A58, one-plane-cr-skip-8 - width: 1900/1900 bytes, 99.010530 percent, 0 positional non-register differences, first [].
+TMCJPEG_814F0A58, one-plane-cr-skip-8 - height: 1912/1900 bytes, 97.698944 percent, 193 positional non-register differences, first [0, 3, 268, 270, 271, 272, 273, 274].
+TMCJPEG_814F0A58, one-plane-skip-retained: 1900/1900 bytes, 99.010530 percent, 0 positional non-register differences, first [].
+TMCJPEGDEC_set_converterY8U8V8, setter-initializer-baseline: 780/784 bytes, 92.785710 percent, 179 positional non-register differences, first [1, 2, 3, 4, 5, 6, 7, 8].
+TMCJPEGDEC_set_converterY8U8V8, setter-buffer-initializer: 780/784 bytes, 92.785710 percent, 179 positional non-register differences, first [1, 2, 3, 4, 5, 6, 7, 8].
+TMCJPEGDEC_set_converterY8U8V8, setter-all-initializers: 780/784 bytes, 92.785710 percent, 179 positional non-register differences, first [1, 2, 3, 4, 5, 6, 7, 8].
+TMCJPEGDEC_set_converterY8U8V8, setter-const buffer-initializer: 780/784 bytes, 92.785710 percent, 179 positional non-register differences, first [1, 2, 3, 4, 5, 6, 7, 8].
+TMCJPEGDEC_set_converterY8U8V8, setter-const all-initializers: 780/784 bytes, 92.785710 percent, 179 positional non-register differences, first [1, 2, 3, 4, 5, 6, 7, 8].
+TMCJPEGDEC_set_converterY8U8V8, setter-initializer-retained: 780/784 bytes, 92.785710 percent, 179 positional non-register differences, first [1, 2, 3, 4, 5, 6, 7, 8].
+Byte audit: [('TMCJPEG_814F2B50', 1544, '90cafddeb6c5e9cc7a1697de26afc992a99a15b2dd43c77827e4ba2c74416b6f'), ('TMCJPEG_814F3158', 396, 'ebff8cfa476f8b73a0e25774de6ed1894610b7bfeb01dba893d52ec77630be24'), ('TMCJPEG_814F32E4', 448, '0285055cc73aa0c067bf01d154c35507e4b7d5e15b415513ab79574b4942553c'), ('TMCJPEG_814F34A4', 648, '2d24887255337ced3949a4cd8df4d806620a7ab69e61a4c2b3c882037c044f2c'), ('TMCJPEG_814F372C', 700, '2ae15e8409df7cc2ca3ed0b394c7850dc30209078f3888253095c969b5463a8c')]. The external ctxdiff normalization misreads the first operand of CR-qualified branches as an immediate; its branch displacement differences are spurious when raw bytes are equal. Tools and baseline reports were not changed.
+TMCJPEGDEC_set_converterY8U8V8, final-readable-pointer-stores: 780/784 bytes, 92.785710 percent, 179 positional non-register differences, first [1, 2, 3, 4, 5, 6, 7, 8].
+TMCJPEG_814EFEAC, final-readable-four-pixel-expression: 1424/1424 bytes, 99.719100 percent, 0 positional non-register differences, first [].
+TMCJPEG_814F0A58, final-aligned-chroma-header: 1900/1900 bytes, 99.010530 percent, 0 positional non-register differences, first [].
+Round 3 current result: all eight converter bodies were translated through their epilogues and now have target instruction counts. Seven differ only in registers and 211 edge is byte-identical. Setter was translated/reviewed through all six cases, dimension rounding and epilogue, but remains 195/196 instructions because the compiler folds its buffer-base address into individual case addresses; its store scheduling also differs. Forty-plus ordinary source variations were logged for that barrier; no artificial address preservation was used.
+
+## Round 3 final source and instruction audit
+
+Before sizes were rebuilt from the starting source, then current source was restored and rebuilt. Register-normalized comparisons use actual relative branch destinations; byte-exact results compare complete function byte ranges with original ELF sections. Original allocated data sections: {}.
+
+| Function | Source bytes before -> after (target) | Fuzzy before -> after | Remaining |
+|---|---|---|---|
+| TMCJPEGDEC_set_converterY8U8V8 | 780 -> 780 (784) | 92.739800 -> 92.785710 | buffer-base folding and case store scheduling; 195/196 instructions |
+| TMCJPEG_814EFEAC | 1352 -> 1424 (1424) | 53.101124 -> 99.719100 | register allocation only |
+| TMCJPEG_814F043C | 1564 -> 1564 (1564) | 57.682865 -> 99.475700 | register allocation only |
+| TMCJPEG_814F0A58 | 1908 -> 1900 (1900) | 45.195790 -> 99.010530 | register allocation only |
+| TMCJPEG_814F11C4 | 1564 -> 1564 (1564) | 57.682865 -> 99.475700 | register allocation only |
+| TMCJPEG_814F17E0 | 1900 -> 1896 (1896) | 44.407173 -> 98.997890 | register allocation only |
+| TMCJPEG_814F1F48 | 1600 -> 1576 (1576) | 52.167510 -> 99.555840 | register allocation only |
+| TMCJPEG_814F2570 | 1504 -> 1504 (1504) | 52.587765 -> 99.587770 | register allocation only |
+| TMCJPEG_814F2B50 | 1544 -> 1544 (1544) | 55.795338 -> 100.000000 | byte-identical |
+| TMCJPEG_814F3158 | 396 -> 396 (396) | 100.000000 -> 100.000000 | byte-identical |
+| TMCJPEG_814F32E4 | 448 -> 448 (448) | 100.000000 -> 100.000000 | byte-identical |
+| TMCJPEG_814F34A4 | 648 -> 648 (648) | 100.000000 -> 100.000000 | byte-identical |
+| TMCJPEG_814F372C | 700 -> 700 (700) | 100.000000 -> 100.000000 | byte-identical |
+
+Raw byte-identical functions: 5/13; exact code bytes 2192 -> 3736; allocated data bytes 0 -> 0. Seven open converters now match instruction counts and normalized operations throughout. The setter remains open with the recorded folding/scheduling barrier.
+Baseline-count correction: rebuilding the exact starting commit source confirms 211 edge started at 386 instructions (1544 bytes), rather than the 385 written in the initial round note. The before/after table above uses that verified build.
+
+Final non-quick gate: PASS; clean full build, original DOL hash, identical empty pool, zero regressions, zero added forbidden patterns, zero readability warnings. Fresh clean-build byte comparison confirms 5/13 exact; register-normalized complete instruction sequences match 12/13, with setter the only structural remainder. External instruction-exact 2/13 is the previously logged branch-normalization issue; full raw byte evidence and objdiff agree on 5/13.
