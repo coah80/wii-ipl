@@ -513,7 +513,7 @@ static u32 __nupSetAuditState(u8 state) {
 #pragma dont_inline reset
 
 static void __nupBase64Encode(u8* output, u8* input, unsigned long length) {
-    static const char alphabet[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+    static char alphabet[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
     u8* end = input + length;
     u32 value = 0;
     u32 count = 0;
