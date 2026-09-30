@@ -59,6 +59,10 @@ namespace ipl {
             void start_errormessage_fadein();
             int  update_slot();
 
+#ifdef IPL_MEMORY_CARD_CPP
+            bool can_scroll_r() const { return mIconCount > 30 && mState == 2; }
+            bool can_scroll_l() const { return mIconIndex >= 0 && mState == 2; }
+#endif
             void show_arw();
             void show_capacity(u8 slot);
 

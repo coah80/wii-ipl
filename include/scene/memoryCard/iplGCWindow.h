@@ -9,6 +9,9 @@
 namespace ipl {
 namespace scene {
 class GCWindow : public MemoryBase, public MemCardEventHandler {
+#ifdef IPL_MEMORY_CARD_CPP
+    friend class MemoryCard;
+#endif
 public:
     GCWindow(EGG::Heap*, nand::LayoutFile*, const char*, const char*);
     virtual ~GCWindow();
