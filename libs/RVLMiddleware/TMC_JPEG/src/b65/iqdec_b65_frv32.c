@@ -140,7 +140,7 @@ s32 TMCJPEGDEC_decode_iquant(s32* block, u8* conv_row_ptr, u32* dc_predict_row_p
         work->bitCount = bit_pos;
         extra = extra & (bit_data >> bit_pos);
         if (extra < (s32)tmp >> 1) {
-            extra -= tmp - 1;
+            extra = extra + 1 - tmp;
         }
         dc_predict_row_ptr[0] += extra;
     }
@@ -265,7 +265,7 @@ s32 TMCJPEGDEC_decode_iquant(s32* block, u8* conv_row_ptr, u32* dc_predict_row_p
             acEntry = readHuffmanEntry(ac_fast, (bit_data >> t) & 0xFF);
 
             if (extra < (s32)tmp >> 1) {
-                extra -= tmp - 1;
+                extra = extra + 1 - tmp;
             }
 
             q = ((s32*)conv_row_ptr)[zz];

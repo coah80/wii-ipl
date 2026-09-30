@@ -124,6 +124,7 @@ s32 TMCJPEGDEC_set_converterY8U8V8(TMCCJPEGDecWork* work) {
 }
 
 static void TMCJPEG_814EFEAC(TMCCJPEGDecWork* work, s32 x, s32 y) {
+    s32 column;
     u8* luminance = work->convBuf + 4;
     s8* cb = (s8*)&work->convBuf[260];
     s8* cr = (s8*)&work->convBuf[324];
@@ -140,9 +141,8 @@ static void TMCJPEG_814EFEAC(TMCCJPEGDecWork* work, s32 x, s32 y) {
         s32 yEnd = y + height;
         s32 row;
         for (row = y; row < yEnd; row++) {
-            s32 tileRow = (row >> 2) * tileWidth;
+            u32 tileRow = (row >> 2) * tileWidth;
             u8* output = lumaTexture + ((row & 3) << 3);
-            s32 column;
             for (column = x; column < xEnd; column += 4) {
                 output[((column) & 7) + ((((column) >> 3) + tileRow) << 5)] = luminance[0];
                 output[((column + 1) & 7) + ((((column + 1) >> 3) + tileRow) << 5)] = luminance[1];
@@ -159,11 +159,10 @@ static void TMCJPEG_814EFEAC(TMCCJPEGDecWork* work, s32 x, s32 y) {
         yEnd = y + height;
         tileWidth = state->chromaWidth >> 3;
         for (; y < yEnd; y++) {
-            s32 tileRow = (y >> 2) * tileWidth;
-            u8* cbOutput = cbTexture + ((y & 3) << 3);
-            u8* crOutput = crTexture + ((y & 3) << 3);
-            s32 column;
             for (column = x; column < xEnd; column++) {
+                u32 tileRow = (y >> 2) * tileWidth;
+                u8* cbOutput = cbTexture + ((y & 3) << 3);
+                u8* crOutput = crTexture + ((y & 3) << 3);
                 cbOutput[(column & 7) + (((column >> 3) + tileRow) << 5)] = *cb++ + 128;
                 crOutput[(column & 7) + (((column >> 3) + tileRow) << 5)] = *cr++ + 128;
             }
@@ -174,6 +173,7 @@ static void TMCJPEG_814EFEAC(TMCCJPEGDecWork* work, s32 x, s32 y) {
 }
 
 static void TMCJPEG_814F043C(TMCCJPEGDecWork* work, s32 x, s32 y) {
+    s32 column;
     u8* luminance = work->convBuf + 4;
     s8* cb = (s8*)&work->convBuf[260];
     s8* cr = (s8*)&work->convBuf[324];
@@ -198,9 +198,8 @@ static void TMCJPEG_814F043C(TMCCJPEGDecWork* work, s32 x, s32 y) {
         s32 yEnd = y + height;
         s32 row;
         for (row = y; row < yEnd; row++) {
-            s32 tileRow = (row >> 2) * tileWidth;
+            u32 tileRow = (row >> 2) * tileWidth;
             u8* output = lumaTexture + ((row & 3) << 3);
-            s32 column;
             for (column = x; column < xEnd; column += 1) {
                 output[((column) & 7) + ((((column) >> 3) + tileRow) << 5)] = luminance[0];
                 luminance += 1;
@@ -213,10 +212,9 @@ static void TMCJPEG_814F043C(TMCCJPEGDecWork* work, s32 x, s32 y) {
         yEnd = y + height;
         tileWidth = state->chromaWidth >> 3;
         for (; y < yEnd; y++) {
-            s32 tileRow = (y >> 2) * tileWidth;
+            u32 tileRow = (y >> 2) * tileWidth;
             u8* cbOutput = cbTexture + ((y & 3) << 3);
             u8* crOutput = crTexture + ((y & 3) << 3);
-            s32 column;
             for (column = x; column < xEnd; column++) {
                 cbOutput[(column & 7) + (((column >> 3) + tileRow) << 5)] = *cb++ + 128;
                 crOutput[(column & 7) + (((column >> 3) + tileRow) << 5)] = *cr++ + 128;
@@ -228,6 +226,7 @@ static void TMCJPEG_814F043C(TMCCJPEGDecWork* work, s32 x, s32 y) {
 }
 
 static void TMCJPEG_814F0A58(TMCCJPEGDecWork* work, s32 x, s32 y) {
+    s32 column;
     u8* luminance = work->convBuf + 4;
     s8* cb = (s8*)&work->convBuf[132];
     s8* cr = (s8*)&work->convBuf[196];
@@ -244,9 +243,8 @@ static void TMCJPEG_814F0A58(TMCCJPEGDecWork* work, s32 x, s32 y) {
         s32 yEnd = y + height;
         s32 row;
         for (row = y; row < yEnd; row++) {
-            s32 tileRow = (row >> 2) * tileWidth;
+            u32 tileRow = (row >> 2) * tileWidth;
             u8* output = lumaTexture + ((row & 3) << 3);
-            s32 column;
             for (column = x; column < xEnd; column += 2) {
                 output[((column) & 7) + ((((column) >> 3) + tileRow) << 5)] = luminance[0];
                 output[((column + 1) & 7) + ((((column + 1) >> 3) + tileRow) << 5)] = luminance[1];
@@ -261,10 +259,9 @@ static void TMCJPEG_814F0A58(TMCCJPEGDecWork* work, s32 x, s32 y) {
         yEnd = y + height;
         tileWidth = state->chromaWidth >> 3;
         for (; y < yEnd; y++) {
-            s32 tileRow = (y >> 2) * tileWidth;
+            u32 tileRow = (y >> 2) * tileWidth;
             u8* cbOutput = cbTexture + ((y & 3) << 3);
             u8* crOutput = crTexture + ((y & 3) << 3);
-            s32 column;
             for (column = x; column < xEnd; column++) {
                 cbOutput[(column & 7) + (((column >> 3) + tileRow) << 5)] = *cb++ + 128;
                 crOutput[(column & 7) + (((column >> 3) + tileRow) << 5)] = *cr++ + 128;
@@ -276,6 +273,7 @@ static void TMCJPEG_814F0A58(TMCCJPEGDecWork* work, s32 x, s32 y) {
 }
 
 static void TMCJPEG_814F11C4(TMCCJPEGDecWork* work, s32 x, s32 y) {
+    s32 column;
     u8* luminance = work->convBuf + 4;
     s8* cb = (s8*)&work->convBuf[132];
     s8* cr = (s8*)&work->convBuf[196];
@@ -300,9 +298,8 @@ static void TMCJPEG_814F11C4(TMCCJPEGDecWork* work, s32 x, s32 y) {
         s32 yEnd = y + height;
         s32 row;
         for (row = y; row < yEnd; row++) {
-            s32 tileRow = (row >> 2) * tileWidth;
+            u32 tileRow = (row >> 2) * tileWidth;
             u8* output = lumaTexture + ((row & 3) << 3);
-            s32 column;
             for (column = x; column < xEnd; column += 1) {
                 output[((column) & 7) + ((((column) >> 3) + tileRow) << 5)] = luminance[0];
                 luminance += 1;
@@ -315,10 +312,9 @@ static void TMCJPEG_814F11C4(TMCCJPEGDecWork* work, s32 x, s32 y) {
         yEnd = y + height;
         tileWidth = state->chromaWidth >> 3;
         for (; y < yEnd; y++) {
-            s32 tileRow = (y >> 2) * tileWidth;
+            u32 tileRow = (y >> 2) * tileWidth;
             u8* cbOutput = cbTexture + ((y & 3) << 3);
             u8* crOutput = crTexture + ((y & 3) << 3);
-            s32 column;
             for (column = x; column < xEnd; column++) {
                 cbOutput[(column & 7) + (((column >> 3) + tileRow) << 5)] = *cb++ + 128;
                 crOutput[(column & 7) + (((column >> 3) + tileRow) << 5)] = *cr++ + 128;
@@ -346,7 +342,7 @@ static void TMCJPEG_814F17E0(TMCCJPEGDecWork* work, s32 x, s32 y) {
         s32 yEnd = y + height;
         s32 row;
         for (row = y; row < yEnd; row++) {
-            s32 tileRow = (row >> 2) * tileWidth;
+            u32 tileRow = (row >> 2) * tileWidth;
             u8* output = lumaTexture + ((row & 3) << 3);
             s32 column;
             for (column = x; column < xEnd; column += 2) {
@@ -364,7 +360,7 @@ static void TMCJPEG_814F17E0(TMCCJPEGDecWork* work, s32 x, s32 y) {
         yEnd = y + height;
         tileWidth = state->chromaWidth >> 3;
         for (; y < yEnd; y++) {
-            s32 tileRow = (y >> 2) * tileWidth;
+            u32 tileRow = (y >> 2) * tileWidth;
             u8* cbOutput = cbTexture + ((y & 3) << 3);
             u8* crOutput = crTexture + ((y & 3) << 3);
             s32 column;
@@ -379,6 +375,7 @@ static void TMCJPEG_814F17E0(TMCCJPEGDecWork* work, s32 x, s32 y) {
 }
 
 static void TMCJPEG_814F1F48(TMCCJPEGDecWork* work, s32 x, s32 y) {
+    s32 column;
     u8* luminance = work->convBuf + 4;
     s8* cb = (s8*)&work->convBuf[260];
     s8* cr = (s8*)&work->convBuf[324];
@@ -403,9 +400,8 @@ static void TMCJPEG_814F1F48(TMCCJPEGDecWork* work, s32 x, s32 y) {
         s32 yEnd = y + height;
         s32 row;
         for (row = y; row < yEnd; row++) {
-            s32 tileRow = (row >> 2) * tileWidth;
+            u32 tileRow = (row >> 2) * tileWidth;
             u8* output = lumaTexture + ((row & 3) << 3);
-            s32 column;
             for (column = x; column < xEnd; column += 1) {
                 output[((column) & 7) + ((((column) >> 3) + tileRow) << 5)] = luminance[0];
                 luminance += 1;
@@ -420,10 +416,9 @@ static void TMCJPEG_814F1F48(TMCCJPEGDecWork* work, s32 x, s32 y) {
         yEnd = y + height;
         tileWidth = state->chromaWidth >> 3;
         for (; y < yEnd; y++) {
-            s32 tileRow = (y >> 2) * tileWidth;
+            u32 tileRow = (y >> 2) * tileWidth;
             u8* cbOutput = cbTexture + ((y & 3) << 3);
             u8* crOutput = crTexture + ((y & 3) << 3);
-            s32 column;
             for (column = x; column < xEnd; column++) {
                 cbOutput[(column & 7) + (((column >> 3) + tileRow) << 5)] = *cb++ + 128;
                 crOutput[(column & 7) + (((column >> 3) + tileRow) << 5)] = *cr++ + 128;
@@ -435,6 +430,7 @@ static void TMCJPEG_814F1F48(TMCCJPEGDecWork* work, s32 x, s32 y) {
 }
 
 static void TMCJPEG_814F2570(TMCCJPEGDecWork* work, s32 x, s32 y) {
+    s32 column;
     u8* luminance = work->convBuf + 4;
     s8* cb = (s8*)&work->convBuf[132];
     s8* cr = (s8*)&work->convBuf[196];
@@ -451,9 +447,8 @@ static void TMCJPEG_814F2570(TMCCJPEGDecWork* work, s32 x, s32 y) {
         s32 yEnd = y + height;
         s32 row;
         for (row = y; row < yEnd; row++) {
-            s32 tileRow = (row >> 2) * tileWidth;
+            u32 tileRow = (row >> 2) * tileWidth;
             u8* output = lumaTexture + ((row & 3) << 3);
-            s32 column;
             for (column = x; column < xEnd; column += 1) {
                 output[((column) & 7) + ((((column) >> 3) + tileRow) << 5)] = luminance[0];
                 luminance += 1;
@@ -467,10 +462,9 @@ static void TMCJPEG_814F2570(TMCCJPEGDecWork* work, s32 x, s32 y) {
         yEnd = y + height;
         tileWidth = state->chromaWidth >> 3;
         for (; y < yEnd; y++) {
-            s32 tileRow = (y >> 2) * tileWidth;
+            u32 tileRow = (y >> 2) * tileWidth;
             u8* cbOutput = cbTexture + ((y & 3) << 3);
             u8* crOutput = crTexture + ((y & 3) << 3);
-            s32 column;
             for (column = x; column < xEnd; column++) {
                 cbOutput[(column & 7) + (((column >> 3) + tileRow) << 5)] = *cb++ + 128;
                 crOutput[(column & 7) + (((column >> 3) + tileRow) << 5)] = *cr++ + 128;
@@ -482,6 +476,7 @@ static void TMCJPEG_814F2570(TMCCJPEGDecWork* work, s32 x, s32 y) {
 }
 
 static void TMCJPEG_814F2B50(TMCCJPEGDecWork* work, s32 x, s32 y) {
+    s32 column;
     u8* luminance = work->convBuf + 4;
     s8* cb = (s8*)&work->convBuf[132];
     s8* cr = (s8*)&work->convBuf[196];
@@ -506,9 +501,8 @@ static void TMCJPEG_814F2B50(TMCCJPEGDecWork* work, s32 x, s32 y) {
         s32 yEnd = y + height;
         s32 row;
         for (row = y; row < yEnd; row++) {
-            s32 tileRow = (row >> 2) * tileWidth;
+            u32 tileRow = (row >> 2) * tileWidth;
             u8* output = lumaTexture + ((row & 3) << 3);
-            s32 column;
             for (column = x; column < xEnd; column += 1) {
                 output[((column) & 7) + ((((column) >> 3) + tileRow) << 5)] = luminance[0];
                 luminance += 1;
@@ -521,10 +515,9 @@ static void TMCJPEG_814F2B50(TMCCJPEGDecWork* work, s32 x, s32 y) {
         yEnd = y + height;
         tileWidth = state->chromaWidth >> 3;
         for (; y < yEnd; y++) {
-            s32 tileRow = (y >> 2) * tileWidth;
+            u32 tileRow = (y >> 2) * tileWidth;
             u8* cbOutput = cbTexture + ((y & 3) << 3);
             u8* crOutput = crTexture + ((y & 3) << 3);
-            s32 column;
             for (column = x; column < xEnd; column++) {
                 cbOutput[(column & 7) + (((column >> 3) + tileRow) << 5)] = *cb++ + 128;
                 crOutput[(column & 7) + (((column >> 3) + tileRow) << 5)] = *cr++ + 128;
@@ -536,50 +529,91 @@ static void TMCJPEG_814F2B50(TMCCJPEGDecWork* work, s32 x, s32 y) {
 }
 
 static void TMCJPEG_814F3158(TMCCJPEGDecWork* work, s32 x, s32 y) {
-    u8* luminance = work->convBuf + 4;
-    s8* cb = (s8*)&work->convBuf[68];
-    s8* cr = (s8*)&work->convBuf[132];
-    TMCCJPEGDecState* state = work->pState;
-    u32 tileWidth = state->convWidth >> 3;
-    u8* lumaTexture = state->pLumaBuffer;
-    u8* cbTexture = state->pCbBuffer;
-    u8* crTexture = state->pCrBuffer;
-    s32 width, height;
+    s32 rowSkip;
+    u8* output;
+    s32 height;
+    s32 tileRow;
+    u8* cbOutput;
+    TMCCJPEGDecState* state;
+    u8* crOutput;
+    s32 pixelOffset;
+    s32 tileOffset;
+    u8* lumaTexture;
+    s32 width;
+    u32 rowOffset;
+    u8* cbTexture;
+    u8* crTexture;
+    u8* luminance;
+    u8* cb;
+    u8* cr;
+    s32 column;
+    s32 xEnd;
+    s32 yEnd;
+    u32 tileWidth;
+
+    luminance = work->convBuf + 4;
+    cb = &work->convBuf[68];
+    cr = &work->convBuf[132];
+    state = work->pState;
+    tileWidth = state->convWidth >> 3;
+    lumaTexture = state->pLumaBuffer;
+    cbTexture = state->pCbBuffer;
+    crTexture = state->pCrBuffer;
     width = 8 / state->scaleFactor;
     height = 8 / state->scaleFactor;
-    {
-        s32 xEnd = x + width;
-        s32 yEnd = y + height;
-        s32 row;
-        for (row = y; row < yEnd; row++) {
-            s32 tileRow = (row >> 2) * tileWidth;
-            u8* output = lumaTexture + ((row & 3) << 3);
-            s32 column;
-            u8* cbOutput = cbTexture + ((row & 3) << 3);
-            u8* crOutput = crTexture + ((row & 3) << 3);
-            for (column = x; column < xEnd; column += 1) {
-                output[((column) & 7) + ((((column) >> 3) + tileRow) << 5)] = luminance[0];
-                cbOutput[(column & 7) + (((column >> 3) + tileRow) << 5)] = *cb++ + 128;
-                crOutput[(column & 7) + (((column >> 3) + tileRow) << 5)] = *cr++ + 128;
-                luminance += 1;
-            }
-            luminance += 8 - width;
-            cb += 8 - width;
-            cr += 8 - width;
+    xEnd = x + width;
+    yEnd = y + height;
+    rowSkip = 8 - width;
+    for (; y < yEnd; y++) {
+        tileRow = (y >> 2) * tileWidth;
+        rowOffset = (y & 3) << 3;
+        output = lumaTexture + rowOffset;
+        cbOutput = cbTexture + rowOffset;
+        crOutput = crTexture + rowOffset;
+        for (column = x; column < xEnd;) {
+            tileOffset = ((column >> 3) + tileRow) << 5;
+            pixelOffset = column++ & 7;
+            (output + pixelOffset)[tileOffset] = *luminance++;
+            (cbOutput + pixelOffset)[tileOffset] = *cb++ + 128;
+            (crOutput + pixelOffset)[tileOffset] = *cr++ + 128;
         }
+        luminance += rowSkip;
+        cb += rowSkip;
+        cr += rowSkip;
     }
 }
 
 static void TMCJPEG_814F32E4(TMCCJPEGDecWork* work, s32 x, s32 y) {
-    u8* luminance = work->convBuf + 4;
-    s8* cb = (s8*)&work->convBuf[68];
-    s8* cr = (s8*)&work->convBuf[132];
-    TMCCJPEGDecState* state = work->pState;
-    u32 tileWidth = state->convWidth >> 3;
-    u8* lumaTexture = state->pLumaBuffer;
-    u8* cbTexture = state->pCbBuffer;
-    u8* crTexture = state->pCrBuffer;
-    s32 width, height;
+    s32 rowSkip;
+    u8* output;
+    s32 height;
+    s32 tileRow;
+    u8* cbOutput;
+    TMCCJPEGDecState* state;
+    u8* crOutput;
+    s32 pixelOffset;
+    s32 tileOffset;
+    u8* lumaTexture;
+    s32 width;
+    u32 rowOffset;
+    u8* cbTexture;
+    u8* crTexture;
+    u8* luminance;
+    u8* cb;
+    u8* cr;
+    s32 column;
+    s32 xEnd;
+    s32 yEnd;
+    u32 tileWidth;
+
+    luminance = work->convBuf + 4;
+    cb = &work->convBuf[68];
+    cr = &work->convBuf[132];
+    state = work->pState;
+    tileWidth = state->convWidth >> 3;
+    lumaTexture = state->pLumaBuffer;
+    cbTexture = state->pCbBuffer;
+    crTexture = state->pCrBuffer;
     if (state->dataSizeX == (u32)x) {
         width = state->stepXExt;
     } else {
@@ -590,48 +624,58 @@ static void TMCJPEG_814F32E4(TMCCJPEGDecWork* work, s32 x, s32 y) {
     } else {
         height = 8 / state->scaleFactor;
     }
-    {
-        s32 xEnd = x + width;
-        s32 yEnd = y + height;
-        s32 row;
-        for (row = y; row < yEnd; row++) {
-            s32 tileRow = (row >> 2) * tileWidth;
-            u8* output = lumaTexture + ((row & 3) << 3);
-            s32 column;
-            u8* cbOutput = cbTexture + ((row & 3) << 3);
-            u8* crOutput = crTexture + ((row & 3) << 3);
-            for (column = x; column < xEnd; column += 1) {
-                output[((column) & 7) + ((((column) >> 3) + tileRow) << 5)] = luminance[0];
-                cbOutput[(column & 7) + (((column >> 3) + tileRow) << 5)] = *cb++ + 128;
-                crOutput[(column & 7) + (((column >> 3) + tileRow) << 5)] = *cr++ + 128;
-                luminance += 1;
-            }
-            luminance += 8 - width;
-            cb += 8 - width;
-            cr += 8 - width;
+    xEnd = x + width;
+    yEnd = y + height;
+    rowSkip = 8 - width;
+    for (; y < yEnd; y++) {
+        tileRow = (y >> 2) * tileWidth;
+        rowOffset = (y & 3) << 3;
+        output = lumaTexture + rowOffset;
+        cbOutput = cbTexture + rowOffset;
+        crOutput = crTexture + rowOffset;
+        for (column = x; column < xEnd;) {
+            tileOffset = ((column >> 3) + tileRow) << 5;
+            pixelOffset = column++ & 7;
+            (output + pixelOffset)[tileOffset] = *luminance++;
+            (cbOutput + pixelOffset)[tileOffset] = *cb++ + 128;
+            (crOutput + pixelOffset)[tileOffset] = *cr++ + 128;
         }
+        luminance += rowSkip;
+        cb += rowSkip;
+        cr += rowSkip;
     }
 }
 
 static void TMCJPEG_814F34A4(TMCCJPEGDecWork* work, s32 x, s32 y) {
-    u8* luminance = work->convBuf + 4;
-    TMCCJPEGDecState* state = work->pState;
-    u32 tileWidth = state->convWidth >> 3;
-    u8* lumaTexture = state->pLumaBuffer;
-    s32 width, height;
+    s32 height;
+    u8* lumaTexture;
+    u8* luminance;
+    s32 column;
+    s32 xEnd;
+    s32 yEnd;
+    u8* output;
+    s32 width;
+    TMCCJPEGDecState* state;
+    u32 tileRow;
+    u32 tileWidth;
+    s32 tileOffset;
+    s32 row;
+
+    luminance = work->convBuf + 4;
+    state = work->pState;
+    tileWidth = state->convWidth >> 3;
+    lumaTexture = state->pLumaBuffer;
     width = 8 / state->scaleFactor;
     height = 8 / state->scaleFactor;
     {
-        s32 xEnd = x + width;
-        s32 yEnd = y + height;
-        s32 row;
+        xEnd = x + width;
+        yEnd = y + height;
         for (row = y; row < yEnd; row++) {
-            s32 tileRow = (row >> 2) * tileWidth;
-            u8* output = lumaTexture + ((row & 3) << 3);
-            s32 column;
             for (column = x; column < xEnd; column += 1) {
-                output[((column) & 7) + ((((column) >> 3) + tileRow) << 5)] = luminance[0];
-                luminance += 1;
+                tileRow = (row >> 2) * tileWidth;
+                tileOffset = ((column >> 3) + tileRow) << 5;
+                output = lumaTexture + ((row & 3) << 3) + (column & 7);
+                output[tileOffset] = *luminance++;
             }
             luminance += 8 - width;
         }
@@ -639,11 +683,24 @@ static void TMCJPEG_814F34A4(TMCCJPEGDecWork* work, s32 x, s32 y) {
 }
 
 static void TMCJPEG_814F372C(TMCCJPEGDecWork* work, s32 x, s32 y) {
-    u8* luminance = work->convBuf + 4;
-    TMCCJPEGDecState* state = work->pState;
-    u32 tileWidth = state->convWidth >> 3;
-    u8* lumaTexture = state->pLumaBuffer;
-    s32 width, height;
+    s32 height;
+    u8* lumaTexture;
+    u8* luminance;
+    s32 column;
+    s32 xEnd;
+    s32 yEnd;
+    u8* output;
+    s32 width;
+    TMCCJPEGDecState* state;
+    u32 tileRow;
+    u32 tileWidth;
+    s32 tileOffset;
+    s32 row;
+
+    luminance = work->convBuf + 4;
+    state = work->pState;
+    tileWidth = state->convWidth >> 3;
+    lumaTexture = state->pLumaBuffer;
     if (state->dataSizeX == (u32)x) {
         width = state->stepXExt;
     } else {
@@ -655,16 +712,14 @@ static void TMCJPEG_814F372C(TMCCJPEGDecWork* work, s32 x, s32 y) {
         height = 8 / state->scaleFactor;
     }
     {
-        s32 xEnd = x + width;
-        s32 yEnd = y + height;
-        s32 row;
+        xEnd = x + width;
+        yEnd = y + height;
         for (row = y; row < yEnd; row++) {
-            s32 tileRow = (row >> 2) * tileWidth;
-            u8* output = lumaTexture + ((row & 3) << 3);
-            s32 column;
             for (column = x; column < xEnd; column += 1) {
-                output[((column) & 7) + ((((column) >> 3) + tileRow) << 5)] = luminance[0];
-                luminance += 1;
+                tileRow = (row >> 2) * tileWidth;
+                tileOffset = ((column >> 3) + tileRow) << 5;
+                output = lumaTexture + ((row & 3) << 3) + (column & 7);
+                output[tileOffset] = *luminance++;
             }
             luminance += 8 - width;
         }
