@@ -15,12 +15,10 @@ extern "C" void* KPADGetWPADRingBuffer(s32 chan);
 extern "C" void* KPADGetWPADFSRingBuffer(s32 chan);
 extern "C" void* KPADGetWPADCLRingBuffer(s32 chan);
 
-namespace ipl {
+extern __declspec(section ".sdata2") const GXColor sFrameColor;
+extern __declspec(section ".sdata2") const GXColor sPointColor;
 
-class SensitivityDrawing {
-public:
-    static void draw(nand::File* file);
-};
+namespace ipl {
 
 typedef struct DPDObj {
     s16 x;     // 0x0
@@ -29,8 +27,14 @@ typedef struct DPDObj {
     s16 id;    // 0x6
 } DPDObj;
 
-static const u8 sFrameColor[4] = {0x60, 0x60, 0x60, 0xC0};
-static const u8 sPointColor[4] = {0xFF, 0xFF, 0xFF, 0xFF};
+class SensitivityDrawing {
+public:
+    static void draw(nand::File* file);
+
+private:
+    static void drawDpdObjects(DPDObj* first, DPDObj* last,
+                               const GXTexObj& texObj, f32 xs, f32 ys);
+};
 
 void SensitivityDrawing::draw(nand::File* file) {
     GXRenderModeObj mode = *System::getRenderModeObj();
@@ -44,24 +48,19 @@ void SensitivityDrawing::draw(nand::File* file) {
     u32 height;
     GXGetScissor(&left, &top, &width, &height);
 
-    f32 w = rect.right - rect.left;
-    f32 h = rect.bottom - rect.top;
-    f32 fw2 = 0.5f * w;
-    f32 fh2 = 0.5f * h;
-    f32 ys = (0.5f * (rect.bottom - rect.top)) / 768.0f;
-    f32 xs = (0.5f * (rect.right - rect.left)) * 0.0009765625f;
-    GXColor color = {sFrameColor[0], sFrameColor[1], sFrameColor[2], sFrameColor[3]};
-    f32 ws = mode.fbWidth / w;
-    f32 hs = mode.efbHeight / h;
+    f32 fw2 = 0.5f * (rect.right - rect.left);
+    f32 fh2 = 0.5f * (rect.bottom - rect.top);
+    f32 ws = mode.fbWidth / (rect.right - rect.left);
+    f32 hs = mode.efbHeight / (rect.bottom - rect.top);
 
     utility::Graphics::setDefaultOrtho(0);
 
     GXSetScissor((u32)(ws * (0.5f * rect.left + fw2)),
-                 (u32)(hs * (fh2 + 0.5f * rect.top + -45.0f)),
-                 (u32)(ws * (0.5f * (rect.right - rect.left))),
-                 (u32)(hs * (0.5f * (rect.bottom - rect.top))));
+                 (u32)(hs * (0.5f * rect.top + fh2 + -45.0f)),
+                 (u32)(ws * ((rect.right - rect.left) * 0.5f)),
+                 (u32)(hs * ((rect.bottom - rect.top) * 0.5f)));
 
-    utility::Graphics::drawPolygon(rect, color);
+    utility::Graphics::drawPolygon(rect, sFrameColor);
 
     controller::Interface* controller = System::getYoungController();
     if (controller != NULL && controller->getKPADStatus() != NULL) {
@@ -100,29 +99,38 @@ void SensitivityDrawing::draw(nand::File* file) {
             }
         }
 
-        for (DPDObj* obj = last; obj >= first; obj--) {
-            if (obj->size != 0) {
-                s32 x = obj->x - 0x200;
-                s32 y = obj->y - 0x180;
-                f32 s = 0.15f * ((u32)obj->size + 0x19);
-
-                nw4r::ut::Rect pos;
-                f32 sx = xs * x;
-                f32 sy = ys * y;
-                pos.left = sx - s;
-                pos.top = (s - sy) - -45.0f;
-                pos.right = sx + s;
-                pos.bottom = (-sy - s) - -45.0f;
-
-                GXColor pointColor = {sPointColor[0], sPointColor[1],
-                                      sPointColor[2], sPointColor[3]};
-                utility::Graphics::drawTexture(pos, texObj, pointColor, 2,
-                                               utility::Graphics::ORI_NONE);
-            }
-        }
+        f32 ys = (0.5f * (rect.bottom - rect.top)) / 768.0f;
+        f32 xs = (0.5f * (rect.right - rect.left)) * 0.0009765625f;
+        drawDpdObjects(first, last, texObj, xs, ys);
     }
 
     GXSetScissor(left, top, width, height);
+}
+
+extern __declspec(section ".sdata2") const GXColor sFrameColor = {0x60, 0x60, 0x60, 0xC0};
+extern __declspec(section ".sdata2") const GXColor sPointColor = {0xFF, 0xFF, 0xFF, 0xFF};
+
+inline void SensitivityDrawing::drawDpdObjects(DPDObj* first, DPDObj* last,
+                                               const GXTexObj& texObj, f32 xs,
+                                               f32 ys) {
+    for (DPDObj* obj = last; obj >= first; obj--) {
+        if (obj->size != 0) {
+            s32 x = obj->x - 0x200;
+            s32 y = obj->y - 0x180;
+            f32 s = 0.15f * (obj->size + 0x19);
+
+            nw4r::ut::Rect pos;
+            f32 sx = xs * x;
+            f32 sy = ys * y;
+            pos.left = sx - s;
+            pos.top = (-sy + s) - -45.0f;
+            pos.right = sx + s;
+            pos.bottom = (-sy - s) - -45.0f;
+
+            utility::Graphics::drawTexture(pos, texObj, sPointColor, 2,
+                                           utility::Graphics::ORI_NONE);
+        }
+    }
 }
 
 }  // namespace ipl
