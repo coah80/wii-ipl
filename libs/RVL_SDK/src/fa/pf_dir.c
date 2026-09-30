@@ -480,17 +480,19 @@ pf_s32 PFDIR_p_mkdir(PF_VOLUME* volume, PF_STR* path, pf_u32 option, PF_DTA* dat
     PFDIR_FAT_HINT hint;
     pf_u32 previous_chain[2];
     pf_u32 found;
-    pf_u32 position;
+    pf_u32 page_size;
+    PF_CACHE_PAGE* page;
+    pf_u8 lfn_count = 0;
     pf_u32 sector = 0;
     pf_u32 written;
-    PF_CACHE_PAGE* page;
-    pf_u32 page_size;
+    pf_u32 position;
+    pf_u32 entry_sector;
     pf_u16 filename_length;
     pf_u16 original_offset;
-    pf_u8 lfn_count = 0;
     pf_u8 checksum;
     pf_u32 cluster;
     pf_u32 index;
+    pf_u32 lfn_index;
     pf_u32* next_sector;
     pf_s32 error;
 
@@ -553,7 +555,7 @@ pf_s32 PFDIR_p_mkdir(PF_VOLUME* volume, PF_STR* path, pf_u32 option, PF_DTA* dat
     entry.modify_date = entry.create_date;
     original_offset = entry.entry_offset;
     if (entry.long_name[0] != 0 && (entry.small_letter_flag & 0x18) == 0) {
-        lfn_count = filename_length / 13 + (filename_length % 13 != 0);
+        lfn_count = (pf_u32)filename_length / 13 + ((pf_u32)filename_length % 13 != 0);
         error = PFENT_allocateEntryPos(&entry, lfn_count + 1, &ffd, previous_chain, &filename, &position);
         if (error != 0) { return error; }
         if ((pf_vol_set.setting & 2) == 2) { PFPATH_AdjustExtShortName(entry.short_name, position); }
@@ -602,22 +604,22 @@ pf_s32 PFDIR_p_mkdir(PF_VOLUME* volume, PF_STR* path, pf_u32 option, PF_DTA* dat
     PFCACHE_FreeDataPage(volume, page);
     if (error != 0) { return error; }
     entry.num_entry_LFNs = lfn_count;
-    sector = entry.entry_sector;
+    entry_sector = entry.entry_sector;
     checksum = PFENT_CalcCheckSum(&entry);
     if ((parent_entry.small_letter_flag & 0x18) == 0) {
         next_sector = previous_chain;
-        for (index = lfn_count; index >= 1; index--) {
-            PFENT_storeLFNEntryFieldsToBuf(entry_buffer, &entry, index, checksum, index == lfn_count);
-            error = PFSEC_WriteData(volume, entry_buffer, sector, entry.entry_offset, 32, &written, 0);
+        for (lfn_index = lfn_count; lfn_index >= 1; lfn_index--) {
+            PFENT_storeLFNEntryFieldsToBuf(entry_buffer, &entry, lfn_index, checksum, lfn_index == lfn_count);
+            error = PFSEC_WriteData(volume, entry_buffer, entry_sector, entry.entry_offset, 32, &written, 0);
             if (error != 0) { return error; }
             if (written != 32) { return 0x11; }
             entry.entry_offset += 32;
             if (entry.entry_offset >= volume->bpb.bytes_per_sector) {
                 entry.entry_offset = 0;
-                sector = *next_sector++;
+                entry_sector = *next_sector++;
             }
         }
-        entry.entry_sector = sector;
+        entry.entry_sector = entry_sector;
     }
     entry.start_cluster = cluster;
     error = PFENT_updateEntry(&entry, 0);
@@ -657,7 +659,7 @@ pf_s32 PFDIR_p_chdir(PF_VOLUME* p_vol, PFDIR_STR* p_path_str) {
     PF_DIR_ENT entry_dir;
 
     if (((PFSTR_StrNCmp(p_path_str, (pf_s8*)"\\", 1U, 0, 1U) == 0) || (PFSTR_StrNCmp(p_path_str, (pf_s8*)"/", 1U, 0, 1U) == 0)) &&
-        (PFSTR_StrNCmp(p_path_str, (pf_s8*)"\0", 1U, 1, 1U) == 0)) {
+        (PFSTR_StrNCmp(p_path_str, (pf_s8*)"", 1U, 1, 1U) == 0)) {
         err = PFENT_GetRootDir(p_vol, &entry_dir);
         if (err != 0) {
             return err;
@@ -897,10 +899,11 @@ pf_s32 PFDIR_p_rename(PF_VOLUME* volume, PF_STR* old_path, PF_STR* new_path) {
     if (error != 0) { return error; }
     error = PFENT_ITER_FindEntry(&source_iter, &source_entry, &source_name, 0x7F, 0, &found);
     if (error != 0) { return error; }
-    if (found == 0 || (source_entry.attr & 8) != 0) { return 3; }
+    if (found == 0) { return 3; }
+    if ((source_entry.attr & 8) != 0) { return 3; }
     if ((source_entry.attr & 1) != 0) { return 0x18; }
     if (PFSTR_StrNCmp((PFDIR_STR*)new_path, (const pf_s8*)":", 1, 1, 1) == 0 &&
-        PFPATH_GetVolumeFromPath(new_path) != volume) { return 0x1F; }
+        volume != PFPATH_GetVolumeFromPath(new_path)) { return 0x1F; }
     error = PFPATH_SplitPath((PFDIR_STR*)new_path, &directory, &destination_name);
     if (error != 0) { return error; }
     if (PFSTR_GetCodeMode(&destination_name) == 2) {
@@ -960,8 +963,8 @@ pf_s32 PFDIR_p_rename(PF_VOLUME* volume, PF_STR* old_path, PF_STR* new_path) {
         destination_entry.num_entry_LFNs = 0;
         PFENT_getcurrentDateTimeForEnt(&destination_entry.access_date, &time);
         error = PFENT_updateEntry(&destination_entry, 1);
-        if (error != 0) { return error; }
-        return allocation_error;
+        if (error == 0) { return allocation_error; }
+        return error;
     }
     if (source_entry.num_entry_LFNs != 0 && (source_entry.small_letter_flag & 0x18) == 0) {
         saved_initial_char = source_entry.long_name[0];
@@ -1004,7 +1007,7 @@ pf_s32 PFDIR_p_rename(PF_VOLUME* volume, PF_STR* old_path, PF_STR* new_path) {
     if (allocation_error != 0) {
         if (source_entry.num_entry_LFNs != 0 && (source_entry.small_letter_flag & 0x18) == 0) {
             source_entry.long_name[0] = saved_initial_char;
-            source_entry.entry_offset -= source_entry.num_entry_LFNs * 32;
+            source_entry.entry_offset -= (pf_u16)(source_entry.num_entry_LFNs * 32);
         }
         update_entry = &source_entry;
     } else {
