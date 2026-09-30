@@ -9,7 +9,7 @@
 
 namespace textinput {
     namespace textdrawer {
-#if defined(MYTIMANAGER_IMPLEMENTATION) || defined(MYTIINPUTFORM_IMPLEMENTATION)
+#if defined(MYTIMANAGER_IMPLEMENTATION) || defined(MYTIINPUTFORM_IMPLEMENTATION) || defined(TIINPUTFORM_IMPLEMENTATION)
         class Base : public nw4r::ut::CharWriter {
 #else
         class Base : nw4r::ut::CharWriter {
@@ -31,7 +31,12 @@ namespace textinput {
                 } CursorPos;
 
                 typedef struct DrawInfo {
+#ifdef TIINPUTFORM_IMPLEMENTATION
+                    nw4r::ut::Rect rect;
+                    wchar_t character;
+#else
                     u8  unk_0x00[32];
+#endif
                 } DrawInfo;
 
                 virtual void                create(MEMAllocator* allocator);
@@ -80,17 +85,51 @@ namespace textinput {
                 virtual void                setDrawModifyScopeLine();
                 virtual void                setDrawCacheScopeLine();
                 virtual void                modifyCursorCache();
+#ifdef TIINPUTFORM_IMPLEMENTATION
+                virtual bool                isEnableCursorCache() const;
+#else
                 virtual void                isEnableCursorCache();
+#endif
+#ifdef TIINPUTFORM_IMPLEMENTATION
+                virtual u32                 getDrawModifyStartLine() const;
+                virtual u32                 getDrawModifyEndLine() const;
+#else
                 virtual void                getDrawModifyStartLine();
                 virtual void                getDrawModifyEndLine();
+#endif
                 virtual u32                 getDrawCacheStartPos() const;
                 virtual void                dirtyDrawCache();
                 virtual void                dirtyCursorCache();
 
+#ifdef TIINPUTFORM_IMPLEMENTATION
+            protected:
+                u8 mDrawConfiguration[0x50];
+                u32 muLine;
+                f32 mfLineSpacing;
+                f32 mfCharacterSpacing;
+                f32 mfFontWidth;
+                f32 mfFontHeight;
+                u32 muModifyStartLine;
+                u32 muModifyEndLine;
+                u32 muDrawStartPos;
+                u32 muDrawEndPos;
+                u32 muDrawCacheStartPos;
+#else
             private:
                 u8      unk_0x50[0x78];
+#endif
                 bool    mbSecretMode;   // 0xC8
-#ifdef MYTIINPUTFORM_IMPLEMENTATION
+#ifdef TIINPUTFORM_IMPLEMENTATION
+                u32 muDrawModifyStartLine;
+                u32 muDrawModifyEndLine;
+                u32 muDrawModifyStartPos;
+                u32 muDrawModifyEndPos;
+                u32 muCachedStartPos;
+                u32 muCachedEndPos;
+                bool mbDrawCache;
+                u8 mCursorCacheConfiguration[0x1F];
+                bool mbCursorCache;
+#elif defined(MYTIINPUTFORM_IMPLEMENTATION)
             protected:
                 u8 mDrawState[0x27];
                 f32 mfDrawScrollY;

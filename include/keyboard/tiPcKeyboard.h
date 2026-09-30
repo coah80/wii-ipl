@@ -7,7 +7,7 @@
 
 #include "tiNw4rManager.h"
 #include "tiTextInputBase.h"
-#ifdef MYTIMANAGER_IMPLEMENTATION
+#if defined(MYTIMANAGER_IMPLEMENTATION) || defined(TIINPUTFORM_IMPLEMENTATION)
 #include "tiKeyboard.h"
 #endif
 
@@ -18,7 +18,7 @@ namespace textinput {
 
         namespace pctype {
 
-#ifdef MYTIMANAGER_IMPLEMENTATION
+#if defined(MYTIMANAGER_IMPLEMENTATION) || defined(TIINPUTFORM_IMPLEMENTATION)
             class UIObj {
             public:
                 class Listener {
@@ -29,7 +29,7 @@ namespace textinput {
 #endif
 
             // TODO
-#ifdef MYTIMANAGER_IMPLEMENTATION
+#if defined(MYTIMANAGER_IMPLEMENTATION) || defined(TIINPUTFORM_IMPLEMENTATION)
             class Base : public textinput::keyboard::KeyboardBase {
 #else
             class Base : public CommandSender {
@@ -37,6 +37,10 @@ namespace textinput {
             public:
                 enum TranslateMode {
                     TM_00,
+#ifdef TIINPUTFORM_IMPLEMENTATION
+                    TM_Kana,
+                    TM_Roman,
+#endif
                 };
 
                 enum InputType {
@@ -47,7 +51,7 @@ namespace textinput {
                     IT_04,
                 };
 
-#ifdef MYTIMANAGER_IMPLEMENTATION
+#if defined(MYTIMANAGER_IMPLEMENTATION) || defined(TIINPUTFORM_IMPLEMENTATION)
                 enum InputMode {
                     IM_00,
                     IM_01,
@@ -126,7 +130,7 @@ namespace textinput {
                 virtual void updateFixMode();
 #endif
 
-#ifdef MYTIMANAGER_IMPLEMENTATION
+#if defined(MYTIMANAGER_IMPLEMENTATION) || defined(TIINPUTFORM_IMPLEMENTATION)
             private:
                 u8 mKeyboardInputFlags[8];
                 const void* mpKeyStateTable;
@@ -136,6 +140,9 @@ namespace textinput {
                 u32 mCurrentInputType;
                 u32 mInputState;
                 const void* mpLanguageData;
+#ifdef TIINPUTFORM_IMPLEMENTATION
+                MEMAllocator* mpAllocator;
+#endif
                 bool mbOnlyQwerty;
                 bool mbLanguageKeyActive;
                 u16 mKeyboardFlags;
@@ -143,6 +150,10 @@ namespace textinput {
                 void* mpCurrentKeyState;
 
             public:
+#ifdef TIINPUTFORM_IMPLEMENTATION
+                bool isQwertyOnly() const { return mbOnlyQwerty; }
+                bool isLanguageKeyActive() const { return mbLanguageKeyActive; }
+#endif
                 u32 getTranslateModeForMemo() const { return mTranslateMode; }
                 u32 getABCInputModeForMemo() const { return mABCInputMode; }
                 u32 getAIUInputModeForMemo() const { return mAIUInputMode; }
@@ -151,14 +162,14 @@ namespace textinput {
 
             // TODO
             class LayoutByNW4R : public Base, public nw4rmanager::Layout
-#ifdef MYTIMANAGER_IMPLEMENTATION
+#if defined(MYTIMANAGER_IMPLEMENTATION) || defined(TIINPUTFORM_IMPLEMENTATION)
                                 , public UIObj::Listener
 #endif
             {
             public:
                 // TODO - ...
 
-#ifdef MYTIMANAGER_IMPLEMENTATION
+#if defined(MYTIMANAGER_IMPLEMENTATION) || defined(TIINPUTFORM_IMPLEMENTATION)
                 virtual void draw();
                 virtual void calc();
                 virtual void setPredictLanguageDialog(void*);
@@ -171,7 +182,15 @@ namespace textinput {
 
                 void onPressedShift(bool shift);
                 void onReleasedShift();
-#ifdef MYTIMANAGER_IMPLEMENTATION
+#ifdef TIINPUTFORM_IMPLEMENTATION
+                bool hasLineFeedButton() const { return mbLineFeedButton; }
+            private:
+                void* mpPredictLanguageDialog;
+                void* mpSignWindow;
+                bool mbLineFeedButton;
+            public:
+#endif
+#if defined(MYTIMANAGER_IMPLEMENTATION) || defined(TIINPUTFORM_IMPLEMENTATION)
                 virtual bool updateInput(int chan, f32 x, f32 y, u32 trig, u32 hold, u32 release, void* data) override;
                 virtual bool updateInput(input::HKBManager& hkbManager) override;
 #endif

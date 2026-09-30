@@ -146,6 +146,10 @@ namespace textinput {
             void                                        enableCompatibleFilter(bool compatibleFilter);
 
             bool                                        isVacancy() const;
+#ifdef TIINPUTFORM_IMPLEMENTATION
+            bool isPredictTurning() const;
+            void startPredictTurnOn(bool enabled);
+#endif
 
         private:
             MEMAllocator*                           mpAllocator;                // 0x04

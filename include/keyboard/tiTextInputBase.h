@@ -39,6 +39,10 @@ namespace textinput {
         f32  y;     // 0x08
     } Scroll;
 
+#ifdef TIINPUTFORM_IMPLEMENTATION
+    enum HVKCode { HVK_None = 0 };
+#endif
+
     class Base {
         public :
             virtual ~Base() {}
@@ -50,7 +54,7 @@ namespace textinput {
     class CommandSender;
     class CommandReceiver : public Base {
         public:
-#ifdef MYTIINPUTFORM_IMPLEMENTATION
+#if defined(MYTIINPUTFORM_IMPLEMENTATION) || defined(TIINPUTFORM_IMPLEMENTATION)
             struct Scroll {
                 bool absY;
                 f32 x;

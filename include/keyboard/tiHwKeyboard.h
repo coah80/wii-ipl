@@ -25,6 +25,9 @@ namespace textinput {
 #endif
                     virtual bool    updateInput(input::HKBManager& hkbManager);
                         
+#ifdef TIINPUTFORM_IMPLEMENTATION
+                    void resetQuoteState() { mbSingleQuoteClosing = 0; mbDoubleQuoteClosing = 0; }
+#endif
                 private:
                     void            updateShift(input::HKBManager& hkbManager);
                     void controlKeyTriggeredHandler(input::HKBManager);
@@ -33,8 +36,13 @@ namespace textinput {
 
                     Manager*    mpManager;  // 0x10
                     u8          field_0x14; // 0x14
+#ifdef TIINPUTFORM_IMPLEMENTATION
+                    u8 mbSingleQuoteClosing;
+                    u8 mbDoubleQuoteClosing;
+#else
                     u8          field_0x15; // 0x15
                     u8          field_0x16; // 0x16
+#endif
             };
 
             

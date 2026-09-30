@@ -2,20 +2,20 @@
 #define TEXTINPUT_CELL_PHONE_H
 
 #include "tiNw4rManager.h"
-#ifdef MYTIMANAGER_IMPLEMENTATION
+#if defined(MYTIMANAGER_IMPLEMENTATION) || defined(TIINPUTFORM_IMPLEMENTATION)
 #include "tiKeyboard.h"
 #endif
 
 namespace textinput {
     namespace keyboard {
         namespace cellphonetype {
-#ifdef MYTIMANAGER_IMPLEMENTATION
+#if defined(MYTIMANAGER_IMPLEMENTATION) || defined(TIINPUTFORM_IMPLEMENTATION)
             class Base : public textinput::keyboard::KeyboardBase {
 #else
             class Base {
 #endif
             public:
-#ifdef MYTIMANAGER_IMPLEMENTATION
+#if defined(MYTIMANAGER_IMPLEMENTATION) || defined(TIINPUTFORM_IMPLEMENTATION)
                 enum InputMode {
                     IM_00,
                     IM_01,
@@ -74,7 +74,7 @@ namespace textinput {
 
                 virtual void vt_0x4C();
                 virtual void vt_0x50();
-#ifdef MYTIMANAGER_IMPLEMENTATION
+#if defined(MYTIMANAGER_IMPLEMENTATION) || defined(TIINPUTFORM_IMPLEMENTATION)
                 virtual void doNumericMode(bool);
 #else
                 virtual void vt_0x54();
@@ -90,8 +90,11 @@ namespace textinput {
 
                 // TODO enum?
                 int getInputType() const;
+#ifdef TIINPUTFORM_IMPLEMENTATION
+                void resetHoldingButton();
+#endif
 
-#ifdef MYTIMANAGER_IMPLEMENTATION
+#if defined(MYTIMANAGER_IMPLEMENTATION) || defined(TIINPUTFORM_IMPLEMENTATION)
             private:
                 u32 mPreviousInputMode;
                 u32 mCurrentInputMode;
@@ -111,7 +114,7 @@ namespace textinput {
 
             class LayoutByNW4R : public Base, public nw4rmanager::Layout {
             public:
-#ifdef MYTIMANAGER_IMPLEMENTATION
+#if defined(MYTIMANAGER_IMPLEMENTATION) || defined(TIINPUTFORM_IMPLEMENTATION)
                 virtual void doNumericMode(bool);
                 virtual void setPredictLanguageDialog(void*);
                 virtual void setSignWindow(void*);
@@ -124,7 +127,13 @@ namespace textinput {
 
                 void onPressedShift(bool shift);
                 void onReleasedShift();
-#ifdef MYTIMANAGER_IMPLEMENTATION
+#ifdef TIINPUTFORM_IMPLEMENTATION
+                bool hasLineFeedButton() const { return mbLineFeedButton; }
+            private:
+                bool mbLineFeedButton;
+            public:
+#endif
+#if defined(MYTIMANAGER_IMPLEMENTATION) || defined(TIINPUTFORM_IMPLEMENTATION)
                 virtual bool updateInput(int chan, f32 x, f32 y, u32 trig, u32 hold, u32 release, void* data) override;
                 virtual bool updateInput(input::HKBManager& hkbManager) override;
 #endif

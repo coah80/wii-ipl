@@ -14,12 +14,22 @@ namespace textinput {
         class TiEventHandler : public gui::EventHandler {
             public:
                 typedef struct Input {
+#ifdef TIINPUTFORM_IMPLEMENTATION
+                    u32 controller;
+                    f32 x;
+                    f32 y;
+                    u32 trigger;
+                    u32 hold;
+                    u32 release;
+                    u8 remaining[8];
+#else
                     // todo
                     u32 field_0x00; // 0x00
                     u8  dummy[8];
                     u32 field_0x0C; // 0x0C
                     u32 field_0x10; // 0x10
                     u8  dummy2[12];
+#endif
                 } Input;
 
                 virtual void    onEvent(gui::GUIComponent& comp, u32 event, void* data);                    // 0x0C

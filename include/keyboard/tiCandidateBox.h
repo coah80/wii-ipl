@@ -323,6 +323,9 @@ namespace textinput {
             virtual void cancelStateFocusIn();                                               // 0x128
             virtual void onEvent(UIObj*, u32, void*) override;                               // 0x12C
 
+#ifdef TIINPUTFORM_IMPLEMENTATION
+            UITextArea& getTextArea() { return mTextArea; }
+#endif
             void onPressedShift(bool shift);
             void onReleasedShift();
             void startTurnOn(bool);

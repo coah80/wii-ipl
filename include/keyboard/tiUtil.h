@@ -7,6 +7,9 @@
 
 namespace textinput {
     namespace util {
+#ifdef TIINPUTFORM_IMPLEMENTATION
+        wchar_t HankakuToZenkaku(wchar_t ch);
+#endif
         wchar_t toWLower(wchar_t ch);
         wchar_t toWUpper(wchar_t ch);
 
@@ -46,7 +49,11 @@ namespace textinput {
         public:
             Animation() : mfAnimationTime(0.0f), mbInAnimation(false), mbSE(false), mpAnimObserver(NULL) {}
 
-            virtual void startAnm(AnimObserver*, f32, f32, f32, void*);  // 0x08
+#ifdef TIINPUTFORM_IMPLEMENTATION
+            virtual void startAnm(f32 start, f32 end, f32 duration, AnimObserver* observer, void* data);
+#else
+            virtual void startAnm(AnimObserver*, f32, f32, f32, void*);
+#endif  // 0x08
             virtual void calc();                                         // 0x0C
             virtual f32 getValue();                                      // 0x10
             virtual bool isActive();                                     // 0x14

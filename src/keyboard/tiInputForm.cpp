@@ -1,10 +1,81 @@
+#define TIINPUTFORM_IMPLEMENTATION
 #include "keyboard/tiInputForm.h"
 #include "keyboard/tiManager.h"
+#include "keyboard/tiDebug.h"
+#include "keyboard/tiLayoutGather.h"
 
 #include <revolution/mtx.h>
+#include <wchar.h>
+#include <new>
 
 namespace textinput {
 namespace inputform {
+
+struct VisiblePanes {
+    u16 visibleCount;
+    u16 hiddenCount;
+    const char* visibleNames[4];
+    const char* hiddenNames[4];
+};
+
+struct LanguagePaneData {
+    const VisiblePanes* visibility;
+    const char* separator;
+    const char* textBox;
+    const char* title;
+};
+
+enum Animation {
+    ANM_Normal,
+    ANM_FocusIn,
+    ANM_FocusOut,
+    ANM_RollOver,
+    ANM_Pushed,
+    ANM_FadeIn,
+    ANM_FadeOut,
+    ANM_Off
+};
+
+enum KeyType {
+    KT_NormalButton
+};
+
+class AnmPane : public nw4rmanager::AnmPane {
+public:
+    AnmPane(nw4r::lyt::Pane* pane, nw4rmanager::AnmObserver* observer) : nw4rmanager::AnmPane(pane, observer), meState(ANM_Normal) {}
+    virtual void init();
+    virtual void changeAnimation(u32 id);
+    virtual KeyType getKeyType() const;
+    virtual Animation getState();
+
+protected:
+    Animation meState;
+    KeyType meKeyType;
+};
+
+class NormalButtonAnmPane : public AnmPane {
+public:
+    NormalButtonAnmPane(nw4r::lyt::Pane* pane, nw4rmanager::AnmObserver* observer) : AnmPane(pane, observer) { meKeyType = KT_NormalButton; }
+    virtual ~NormalButtonAnmPane();
+    virtual void onAnmEvent(AnmPaneEvent event);
+};
+
+class EventHandler : public nw4rmanager::TiEventHandler {
+public:
+    EventHandler(LayoutByNW4R* form) : mpInputForm(form) {}
+    virtual ~EventHandler();
+    virtual void onTiEvent(gui::PaneComponent* component, u32 event, Input* input);
+private:
+    LayoutByNW4R* mpInputForm;
+};
+
+nw4r::ut::Color csUnInputedWCharColor(200, 50, 50, 255);
+nw4r::ut::Color csCharColor(20, 20, 20, 255);
+nw4r::ut::Color csZiStringColorLeft(255, 50, 50, 255);
+nw4r::ut::Color csZiStringNonSelectColorRight(192, 192, 192, 255);
+nw4r::ut::Color csZiStringColorRight(50, 100, 50, 255);
+nw4r::ut::Color csUnderlateColor(100, 200, 200, 255);
+nw4r::ut::Color csUnInputedWCharColorSpace(255, 20, 20, 255);
 
 extern "C" asm void GetCursorY__Q34nw4r2ut10CharWriterCFv();
 extern "C" asm void GetCursorX__Q34nw4r2ut10CharWriterCFv();
@@ -39,7 +110,6 @@ extern "C" asm void addCandidate__Q39textinput12candidatebox18CandidateBoxCaller
 extern "C" asm void updateCandidate__Q39textinput12candidatebox18CandidateBoxCallerFv();
 extern "C" asm void setCurrentWord__Q39textinput8tistring6WithZiFPCw();
 extern "C" asm void update__Q39textinput8tistring6WithZiFv();
-extern "C" asm void wcslen();
 extern "C" asm void wcsnicmp();
 extern "C" asm void List_Append__Q24nw4r2utFPQ34nw4r2ut4ListPv();
 extern "C" asm void List_GetNext__Q24nw4r2utFPCQ34nw4r2ut4ListPCv();
@@ -52,7 +122,6 @@ extern "C" asm void __dt__Q34nw4r2ut10CharWriterFv();
 extern "C" asm void __ct__Q39textinput11nw4rmanager6LayoutFPQ34nw4r3lyt24MultiArcResourceAccessorPCcPQ29textinput13EventObserver();
 extern "C" asm void __ct__Q34nw4r2ut7ResFontFv();
 extern "C" asm void __dt__Q39textinput8tistring10StringBaseFv();
-extern "C" asm void KPRLookAhead();
 extern "C" asm void set__Q39textinput8tistring10StringBaseFPCw();
 extern "C" asm void clear__Q39textinput8tistring10StringBaseFv();
 extern "C" asm void updateRepeatInput__Q39textinput9inputform12LayoutByNW4RFUlUl();
@@ -538,152 +607,34 @@ inputInputting_L_done:
     addi r1, r1, 0x20
     blr
 }
-extern "C" asm void inputCharDefault___Q39textinput9inputform4BaseFwUl() {
-    nofralloc
-    stwu r1, -0x20(r1)
-    mflr r0
-    stw r0, 0x24(r1)
-    addi r11, r1, 0x20
-    bl _savegpr_27
-    mr r28, r4
-    mr r27, r3
-    mr r29, r5
-    li r4, 1
-    bl getCurrentString__Q39textinput9inputform4BaseFb
-    lwz r31, 0x168(r27)
-    mr r30, r3
-    mr r3, r27
-    li r4, 0
-    bl getCurrentString__Q39textinput9inputform4BaseFb
-    cmplw r3, r31
-    bne inputCharDefault_L_language
-    lwz r12, 0(r31)
-    mr r3, r31
-    lwz r12, 0xdc(r12)
-    mtctr r12
-    bctrl
-    cmpwi r3, 0
-    bne inputCharDefault_L_language
-    lwz r3, 0x168(r27)
-    lwz r12, 0(r3)
-    lwz r12, 0xf8(r12)
-    mtctr r12
-    bctrl
-    cmpwi r3, 0
-    blt inputCharDefault_L_language
-    mr r3, r27
-    bl confirmInputting___Q39textinput9inputform4BaseFwbUsbPv
-inputCharDefault_L_language:
-    lwz r0, 0x1f0(r27)
-    cmpwi r0, 9
-    bne inputCharDefault_L_string
-    lwz r3, 0x1d4(r27)
-    lwz r12, 0(r3)
-    lwz r12, 0x74(r12)
-    mtctr r12
-    bctrl
-    lwz r12, 0(r3)
-    lwz r12, 0x58(r12)
-    mtctr r12
-    bctrl
-    cmpwi r3, 0
-    beq inputCharDefault_L_string
-    mr r3, r28
-    bl reverseLetterCaseW__Q29textinput4utilFw
-    cmpwi r3, 0
-    beq inputCharDefault_L_string
-    rlwinm. r0, r29, 0, 0x1e, 0x1e
-    beq inputCharDefault_L_string
-    mr r3, r28
-    bl reverseLetterCaseW__Q29textinput4utilFw
-    mr r28, r3
-inputCharDefault_L_string:
-    lwz r3, 0x164(r27)
-    cmplw r3, r30
-    bne inputCharDefault_L_post_string
-    lwz r12, 0(r3)
-    lwz r12, 0x7c(r12)
-    mtctr r12
-    bctrl
-    lwz r3, 0x164(r27)
-    clrlwi r4, r28, 0x10
-    lwz r12, 0(r3)
-    lwz r12, 0x50(r12)
-    mtctr r12
-    bctrl
-    lwz r3, 0x164(r27)
-    lwz r12, 0(r3)
-    lwz r12, 0x7c(r12)
-    mtctr r12
-    bctrl
-    lwz r0, 0x1f0(r27)
-    cmpwi r0, 8
-    bne inputCharDefault_L_post_string_cont
-    lbz r0, 0x178(r27)
-    cmpwi r0, 0
-    bne inputCharDefault_L_predict
-    li r0, 0
-    b inputCharDefault_L_predict_check
-inputCharDefault_L_predict:
-    lwz r0, 0x174(r27)
-    cmpwi r0, 1
-    beq inputCharDefault_L_predict_false
-    lwz r3, 0x16c(r27)
-    lwz r12, 0(r3)
-    lwz r12, 0xd8(r12)
-    mtctr r12
-    bctrl
-    cmpwi r3, 0
-    ble inputCharDefault_L_predict_false
-    li r0, 1
-    b inputCharDefault_L_predict_check
-inputCharDefault_L_predict_false:
-    li r0, 0
-inputCharDefault_L_predict_check:
-    cmpwi r0, 0
-    beq inputCharDefault_L_post_string_cont
-    lwz r3, 0x16c(r27)
-    li r4, 0
-    bl setCurrentWord__Q39textinput8tistring6WithZiFPCw
-    lwz r3, 0x16c(r27)
-    bl update__Q39textinput8tistring6WithZiFv
-    b inputCharDefault_L_post_string_cont
-inputCharDefault_L_post_string:
-    lwz r12, 0(r30)
-    mr r3, r30
-    clrlwi r4, r28, 0x10
-    lwz r12, 0x50(r12)
-    mtctr r12
-    bctrl
-inputCharDefault_L_post_string_cont:
-    clrlwi r0, r28, 0x10
-    cmplwi r0, 0x20
-    bne inputCharDefault_L_newline
-    lwz r12, 0(r27)
-    mr r3, r27
-    li r4, 9
-    lwz r12, 0x178(r12)
-    mtctr r12
-    bctrl
-    b inputCharDefault_L_set
-inputCharDefault_L_newline:
-    cmplwi r0, 0xa
-    beq inputCharDefault_L_set
-    lwz r12, 0(r27)
-    mr r3, r27
-    li r4, 0xa
-    lwz r12, 0x178(r12)
-    mtctr r12
-    bctrl
-inputCharDefault_L_set:
-    li r0, 1
-    addi r11, r1, 0x20
-    stw r0, 0x1b0(r27)
-    bl _restgpr_27
-    lwz r0, 0x24(r1)
-    mtlr r0
-    addi r1, r1, 0x20
-    blr
+void Base::inputCharDefault_(wchar_t character, u32 modifiers) {
+    tistring::WithAtok* unfix;
+    tistring::Decolated* current = getCurrentString(true);
+    unfix = mpUnfixString;
+    if (getCurrentString(false) == unfix && !unfix->isConverting() && mpUnfixString->getSelectedCandidate() >= 0) {
+        confirmInput_();
+    }
+    if (meLanguage == KR && mpManager->getPCKeyboard()->getTranslateMode() != keyboard::pctype::Base::TM_00) {
+        if (util::isAlphabet(character) && (modifiers & 2)) character = util::reverseLetterCaseW(character);
+    }
+    if (mpString == current) {
+        mpString->getCursorPos();
+        mpString->inputChar(character);
+        mpString->getCursorPos();
+        if (meLanguage == CN) {
+            bool predicted;
+            if (!mbPredictOn) predicted = false;
+            else if (mePredictMode != PM_Atok && mpZiString->getCurrentNumPredicted() > 0) predicted = true;
+            else predicted = false;
+            if (predicted) {
+                mpZiString->setCurrentWord(NULL);
+                mpZiString->update();
+            }
+        }
+    } else current->inputChar(character);
+    if (character == L' ') onSE(static_cast<sound::SE>(9));
+    else if (character != L'\n') onSE(static_cast<sound::SE>(10));
+    meScrollFlag = SF_ScrollOn;
 }
 extern "C" asm void calc__Q39textinput9inputform12LayoutByNW4RFv() {
     nofralloc
@@ -950,12 +901,8 @@ extern "C" asm void draw__Q39textinput9inputform12LayoutByNW4RFv() {
     addi r1, r1, 0x50
     blr
 }
-extern "C" asm void calcCursorTimer__Q39textinput9inputform4BaseFv() {
-    nofralloc
-    lwz r4, 0x214(r3)
-    addi r0, r4, 8
-    stw r0, 0x214(r3)
-    blr
+void Base::calcCursorTimer() {
+    muCursorTimer += 8;
 }
 extern "C" asm bool isAtokActive__Q39textinput9inputform4BaseCFv() {
     nofralloc
@@ -971,28 +918,9 @@ isAtokActive_L1:
     srwi r3, r0, 5
     blr
 }
-extern "C" asm void dirtyCacheAll__Q39textinput9inputform4BaseFv() {
-    nofralloc
-    stwu r1, -0x10(r1)
-    mflr r0
-    stw r0, 0x14(r1)
-    stw r31, 0xc(r1)
-    mr r31, r3
-    lwz r12, 0x5c(r3)
-    lwz r12, 0x94(r12)
-    mtctr r12
-    addi r3, r3, 0x10
-    bctrl
-    lwz r12, 0x5c(r31)
-    addi r3, r31, 0x10
-    lwz r12, 0x90(r12)
-    mtctr r12
-    bctrl
-    lwz r0, 0x14(r1)
-    lwz r31, 0xc(r1)
-    mtlr r0
-    addi r1, r1, 0x10
-    blr
+void Base::dirtyCacheAll() {
+    dirtyCursorCache();
+    dirtyDrawCache();
 }
 extern "C" asm void initZiString__Q39textinput9inputform4BaseFv() {
     nofralloc
@@ -1162,39 +1090,27 @@ bool mbHyphen;
 #pragma section const_type ".data"
 extern "C" const char lbl_8165C820[] = "P_txtScrll_UP";
 extern "C" const char lbl_8165C830[] = "P_txtScrll_DOWN";
-extern "C" const void* lbl_8165C840[32] = {
-    0,
-    lbl_8165C820,
-    (const void*)0x00000008,
-    0,
-    csAninationFile__Q29textinput9inputform,
-    csAninationFile__Q29textinput9inputform + 1,
-    csAninationFile__Q29textinput9inputform + 2,
-    csAninationFile__Q29textinput9inputform + 3,
-    csAninationFile__Q29textinput9inputform + 4,
-    csAninationFile__Q29textinput9inputform + 5,
-    csAninationFile__Q29textinput9inputform + 6,
-    0,
-    0,
-    0,
-    0,
-    0,
-    lbl_8165C830,
-    (const void*)0x00000008,
-    0,
-    csAninationFile__Q29textinput9inputform,
-    csAninationFile__Q29textinput9inputform + 1,
-    csAninationFile__Q29textinput9inputform + 2,
-    csAninationFile__Q29textinput9inputform + 3,
-    csAninationFile__Q29textinput9inputform + 4,
-    csAninationFile__Q29textinput9inputform + 5,
-    csAninationFile__Q29textinput9inputform + 6,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
+struct ButtonAnimations {
+    KeyType type;
+    const char* paneName;
+    u32 count;
+    const char* bindingName;
+    const InputFormAnimationFile* files[12];
+};
+
+const char* csScrollButtonAnimationTarget = lbl_8165C820;
+
+const ButtonAnimations csButtonAnimations[] = {
+    {KT_NormalButton, lbl_8165C820, 8, NULL, {
+        &csAninationFile__Q29textinput9inputform[0], &csAninationFile__Q29textinput9inputform[1],
+        &csAninationFile__Q29textinput9inputform[2], &csAninationFile__Q29textinput9inputform[3],
+        &csAninationFile__Q29textinput9inputform[4], &csAninationFile__Q29textinput9inputform[5],
+        &csAninationFile__Q29textinput9inputform[6], &csAninationFile__Q29textinput9inputform[7]}},
+    {KT_NormalButton, lbl_8165C830, 8, csScrollButtonAnimationTarget, {
+        &csAninationFile__Q29textinput9inputform[0], &csAninationFile__Q29textinput9inputform[1],
+        &csAninationFile__Q29textinput9inputform[2], &csAninationFile__Q29textinput9inputform[3],
+        &csAninationFile__Q29textinput9inputform[4], &csAninationFile__Q29textinput9inputform[5],
+        &csAninationFile__Q29textinput9inputform[6], &csAninationFile__Q29textinput9inputform[7]}}
 };
 extern "C" const char lbl_8165C8C0[] = "N_JPNUSAEUR";
 extern "C" const char lbl_8165C8CC[] = "N_separateBarAll";
@@ -1206,12 +1122,29 @@ extern "C" const char lbl_8165C928[] = "T_title_textKOR";
 extern "C" const char lbl_8165C938[] = "N_separateBarCHN";
 extern "C" const char lbl_8165C950[] = "T_2l_TextBoxCHN";
 extern "C" const char lbl_8165C960[] = "T_title_textCHN";
-extern "C" const u16 lbl_8165C970[16] = {
-    0x00a4, 0x00ac, 0x00af, 0x00b2, 0x00b3, 0x00b6, 0x00b8, 0x00b9,
-    0x00bc, 0x00bd, 0x00be, 0x00d0, 0x00de, 0x00f0, 0x00fe, 0x0000,
-};
+bool DeadKeyStream::sbCompatibleFilterEnabled = true;
 
-extern "C" u16 ToIndependentClass__Q39textinput9inputform13DeadKeyStreamFw(u16 code) {
+inline bool DeadKeyStream::isCompatible(wchar_t character) {
+    const wchar_t excluded[] = {
+        0x00a4, 0x00ac, 0x00af, 0x00b2, 0x00b3, 0x00b6, 0x00b8, 0x00b9,
+        0x00bc, 0x00bd, 0x00be, 0x00d0, 0x00de, 0x00f0, 0x00fe, 0x0000
+    };
+    if (character < excluded[0] || character > excluded[14]) return true;
+    for (u32 index = 0; index < 15; ++index) {
+        if (character == excluded[index]) return false;
+    }
+    return true;
+}
+
+inline wchar_t DeadKeyStream::getChar() {
+    wchar_t character = KPRGetChar(&mKPRQueue);
+    if (sbCompatibleFilterEnabled) {
+        while (!isCompatible(character)) character = KPRGetChar(&mKPRQueue);
+    }
+    return character;
+}
+
+wchar_t DeadKeyStream::ToIndependentClass(wchar_t code) {
     if (code < 0x300 || code > 0x330) {
         return code;
     }
@@ -1283,45 +1216,848 @@ void Base::setLanguage(Language language) {
     }
 }
 
-extern "C" const char lbl_8165CBE0[] = "T_2l_TextBox";
-extern "C" const char lbl_8165D258[] = "RevoIpl_RodinNTLGProM_32_I4.brfnt";
-extern "C" const char lbl_8165D27C[] = "P_txtScrll_UP";
-extern "C" const char lbl_8165D28C[] = "P_txtScrll_DOWN";
+struct CharacterInput {
+    wchar_t character;
+    u32 modifiers;
+    bool keyboardMode;
+    bool deadKey;
+};
+
+struct ConfirmInput {
+    wchar_t character;
+    u16 letterMode;
+    bool direct;
+    bool held;
+    bool confirmOnly;
+    bool silent;
+    void* holdingKey;
+};
+
+struct PredictionState {
+    Base::PredictMode mode;
+    bool enabled;
+};
+
+struct ControlInput {
+    HVKCode code;
+    u32 modifiers;
+};
+
+inline bool Base::hasZiPredictions() const {
+    if (!mbPredictOn) return false;
+    if (mePredictMode != PM_Atok && mpZiString->getCurrentNumPredicted() > 0) return true;
+    return false;
+}
+
+inline bool Base::usesZiPrediction() const {
+    if (!mbPredictOn) return false;
+    if (mePredictMode == PM_Atok) return false;
+    if (meLanguage == CN && static_cast<const Manager*>(mpManager)->getCandidateBox()->isInvalid()) return false;
+    return true;
+}
+
+inline void Base::resetPredictionContext() {
+    if (mpZiString && meLanguage == CN) {
+        mpZiString->setCurrentWord(NULL);
+        mpZiString->update();
+        updateCandidateState_();
+    }
+}
+
+inline void Base::resetInputRelation() {
+    mpManager->getHWKeyboard()->resetQuoteState();
+    mpUnfixString->resetRelation();
+    updateCandidateState_();
+}
+
+void Base::onCommand(INPUT_COMMAND command, void* data) {
+    CommandReceiver::onCommand(command, data);
+    tistring::Decolated* current = getCurrentString(false);
+    tistring::Decolated* fixed = mpString;
+    bool currentIsFixed = current == fixed;
+    switch (command) {
+    case 40:
+        if (current == mpUnfixString) {
+            if (LayoutGather::Singleton::getInstance().isHoldingShift()) onPressUp();
+            else onPressDown();
+            return;
+        }
+        if (mDKStream.lookAhead()) mDKStream.putChar(0xffff);
+        else mDKStream.putChar(L' ');
+        if (mDKStream.isEmpty()) onSE(static_cast<sound::SE>(10));
+        {
+            tistring::WithAtok* unfix = mpUnfixString;
+            if (getCurrentString(false) == unfix) unfix->isConverting();
+        }
+        for (;;) {
+            wchar_t character = mDKStream.getChar();
+            if (!character) break;
+            if (usesZiPrediction()) inputCharZi_(character, 0);
+            else inputCharDefault_(character, 0);
+        }
+        break;
+    case 0: {
+        CharacterInput* input = static_cast<CharacterInput*>(data);
+        wchar_t character = input->character;
+        u32 modifiers = input->modifiers;
+        tistring::Decolated::TranslateMode savedMode = current->getTranslateMode();
+        bool savedFix = false;
+        bool savedKana = false;
+        if (input->keyboardMode) {
+            tistring::Decolated::TranslateMode keyboardMode = static_cast<tistring::Decolated::TranslateMode>(mpManager->getPCKeyboard()->getTranslateMode());
+            bool direct = mpManager->getPCKeyboard()->getTranslateMode() == keyboard::pctype::Base::TM_00;
+            bool kana = mpManager->getPCKeyboard()->getTranslateMode() == keyboard::pctype::Base::TM_Kana;
+            tistring::Decolated* active = getCurrentString(false);
+            savedMode = active->getTranslateMode();
+            if (active == mpString) {
+                tistring::Decolated::TranslateMode mode = keyboardMode;
+                if (meLanguage == KR) {
+                    if (mode != tistring::Decolated::TM_Direct) mode = tistring::Decolated::TM_Hangul;
+                } else if (meLanguage == CN) mode = tistring::Decolated::TM_Direct;
+                mpString->getCursorPos();
+                mpString->setTranslateMode(mode);
+                mpString->getCursorPos();
+            } else active->setTranslateMode(keyboardMode);
+            bool useAtok;
+            if (!mbPredictOn) useAtok = false;
+            else useAtok = mePredictMode == PM_Atok;
+            if (useAtok) {
+                mpUnfixString->setFixMode(direct);
+                mpUnfixString->changeKanaMode(kana);
+            }
+        }
+        if (input->deadKey) character = DeadKeyStream::ToCombineClass(meLanguage, character);
+        if (character == L' ' && mDKStream.lookAhead()) mDKStream.putChar(0xffff);
+        else mDKStream.putChar(character);
+        if (mDKStream.isEmpty()) onSE(static_cast<sound::SE>(10));
+        {
+            tistring::WithAtok* unfix = mpUnfixString;
+            if (getCurrentString(false) == unfix) unfix->isConverting();
+        }
+        for (;;) {
+            wchar_t queued = mDKStream.getChar();
+            if (!queued) break;
+            if (usesZiPrediction()) inputCharZi_(queued, modifiers);
+            else inputCharDefault_(queued, modifiers);
+        }
+        if (current == mpZiString) mbZuSelected = false;
+        if (input->keyboardMode) {
+            tistring::Decolated* active = getCurrentString(false);
+            if (active == mpString) {
+                tistring::Decolated::TranslateMode mode = savedMode;
+                if (meLanguage == KR) {
+                    if (mode != tistring::Decolated::TM_Direct) mode = tistring::Decolated::TM_Hangul;
+                } else if (meLanguage == CN) mode = tistring::Decolated::TM_Direct;
+                mpString->getCursorPos();
+                mpString->setTranslateMode(mode);
+                mpString->getCursorPos();
+            } else active->setTranslateMode(savedMode);
+            bool useAtok;
+            if (!mbPredictOn) useAtok = false;
+            else useAtok = mePredictMode == PM_Atok;
+            if (useAtok) {
+                mpUnfixString->setFixMode(savedFix);
+                mpUnfixString->changeKanaMode(savedKana);
+            }
+        }
+        if (checkHeadOfSentence(true)) onCommand(static_cast<INPUT_COMMAND>(33), NULL);
+        break;
+    }
+    case 1:
+        if (!current->canBackSpace()) onSE(static_cast<sound::SE>(8));
+        else onSE(static_cast<sound::SE>(7));
+        if (current == mpString) {
+            resetInputRelation();
+            mpString->getCursorPos();
+            mpString->backSpace();
+            if (mpManager->getCellPhoneKeyboard()) mpManager->getCellPhoneKeyboard()->resetHoldingButton();
+            mpString->getCursorPos();
+            getCurrentString(false);
+            resetPredictionContext();
+        } else if (current == mpZiString) {
+            mbZuSelected = false;
+            current->backSpace();
+            if (mpManager->getCellPhoneKeyboard()) mpManager->getCellPhoneKeyboard()->resetHoldingButton();
+        } else {
+            if (!mpUnfixString->isConverting()) {
+                mpUnfixString->backSpace();
+                if (mpManager->getCellPhoneKeyboard()) mpManager->getCellPhoneKeyboard()->resetHoldingButton();
+            }
+            updateCandidateState_();
+        }
+        meScrollFlag = SF_ScrollByBS;
+        if (checkHeadOfSentence(true)) onCommand(static_cast<INPUT_COMMAND>(33), NULL);
+        break;
+    case 2:
+        if (!currentIsFixed) {
+            onSE(static_cast<sound::SE>(8));
+            return;
+        }
+        if (!fixed->deleteForward()) onSE(static_cast<sound::SE>(8));
+        else onSE(static_cast<sound::SE>(7));
+        break;
+    case 7:
+        if (currentIsFixed) {
+            if (meLanguage == KR) {
+                tistring::Decolated* active = getCurrentString(false);
+                if (!active->isKanaFix()) {
+                    mpString->getCursorPos();
+                    mpString->inputChar(L'\n');
+                    mpString->getCursorPos();
+                    if (meLanguage == CN && hasZiPredictions()) {
+                        mpZiString->setCurrentWord(NULL);
+                        mpZiString->update();
+                    }
+                }
+            }
+            resetInputRelation();
+            bool lineFeed;
+            if (!mpManager->getToolBar()->isQwerty()) lineFeed = mpManager->getCellPhoneKeyboard()->hasLineFeedButton();
+            else lineFeed = mpManager->getPCKeyboard()->hasLineFeedButton();
+            bool allowed = true;
+            if (mpString->isKanaFix()) {
+                bool withinLimit = false;
+                if (lineFeed && static_cast<u32>(getLine() + 1) <= muLimitRowNum) withinLimit = true;
+                if (!withinLimit) allowed = false;
+            }
+            bool atLimit = true;
+            if (static_cast<u32>(getLine() + 1) <= muLimitRowNum && !mpManager->getCandidateBox()->isActive()) atLimit = false;
+            if (!allowed) {
+                if (atLimit) onSE(static_cast<sound::SE>(8));
+                return;
+            }
+            onSE(static_cast<sound::SE>(9));
+            mpString->getCursorPos();
+            mpString->inputChar(L'\n');
+            mpString->getCursorPos();
+            if (meLanguage == CN && hasZiPredictions()) {
+                mpZiString->setCurrentWord(NULL);
+                mpZiString->update();
+            }
+        } else if (current == mpZiString) {
+            onSE(static_cast<sound::SE>(9));
+            if (getPredictMode() == PM_11 || getPredictMode() == PM_12) confirmInput_();
+            else if (!(mbCursorSelected | mbZuSelected) && mpManager->getToolBar()->isQwerty()) {
+                if (mbPredictOn && mePredictMode != PM_Atok) {
+                    wchar_t input[64];
+                    mpZiString->getCurrentInput(input, 64);
+                    mpString->getCursorPos();
+                    mpString->inputString(input);
+                    mpString->getCursorPos();
+                    mpZiString->clearCandidates();
+                    mbZuSelected = false;
+                    getCurrentString(false);
+                    resetPredictionContext();
+                }
+            } else confirmInput_();
+        } else {
+            onSE(static_cast<sound::SE>(9));
+            if (!mpUnfixString->isConverting()) confirmInput_();
+            else {
+                mpUnfixString->commitPredicted(mpUnfixString->getSelectedConverting());
+                updateCandidateState_();
+            }
+        }
+        meScrollFlag = SF_ScrollOn;
+        if (checkHeadOfSentence(true)) onCommand(static_cast<INPUT_COMMAND>(33), NULL);
+        break;
+    case 6:
+        confirmInput_();
+        meScrollFlag = SF_ScrollOn;
+        break;
+    case 3:
+        if (mePredictMode == PM_11 && current == mpZiString) mbZuSelected = false;
+        inputInputting_(*static_cast<wchar_t*>(data));
+        break;
+    case 5: {
+        ConfirmInput* input = static_cast<ConfirmInput*>(data);
+        if (!input->character) return;
+        confirmInputting_(input->character, input->direct, input->letterMode, input->confirmOnly, input->holdingKey);
+        if (!input->silent) {
+            if (!input->confirmOnly) onSE(static_cast<sound::SE>(10));
+            else onSE(static_cast<sound::SE>(9));
+        }
+        meScrollFlag = SF_ScrollOn;
+        if (checkHeadOfSentence(true)) onCommand(static_cast<INPUT_COMMAND>(33), NULL);
+        break;
+    }
+    case 8:
+        if (currentIsFixed) onPressLeft();
+        else onHKBCtrlCode(static_cast<HVKCode>(31), 0);
+        return;
+    case 9:
+        if (currentIsFixed) onPressRight();
+        else onHKBCtrlCode(static_cast<HVKCode>(32), 0);
+        return;
+    case 10: onPressUp(); return;
+    case 11: onPressDown(); return;
+    case 14:
+        if (currentIsFixed && current->isKanaFix()) {
+            nw4r::math::VEC2 origin = getGlobalLeftTopPos();
+            nw4r::math::VEC2* cursor = static_cast<nw4r::math::VEC2*>(data);
+            current->setCursorPos(calcCursorPos(cursor->x - origin.x, cursor->y - origin.y));
+            onSE(static_cast<sound::SE>(5));
+            onCommand(static_cast<INPUT_COMMAND>(12), NULL);
+            resetInputRelation();
+        } else {
+            onSE(static_cast<sound::SE>(9));
+            onCommand(static_cast<INPUT_COMMAND>(6), NULL);
+        }
+        return;
+    case 15:
+        if (current->isOnSustain()) {
+            nw4r::math::VEC2 origin = getGlobalLeftTopPos();
+            nw4r::math::VEC2* cursor = static_cast<nw4r::math::VEC2*>(data);
+            current->setCursorPos(calcCursorPos(cursor->x - origin.x, cursor->y - origin.y));
+            onCommand(static_cast<INPUT_COMMAND>(13), NULL);
+        }
+        return;
+    case 16:
+        if (current->isOnSustain()) {
+            nw4r::math::VEC2 origin = getGlobalLeftTopPos();
+            u32 previous, end;
+            current->getCursorPos(&previous, &end);
+            nw4r::math::VEC2* cursor = static_cast<nw4r::math::VEC2*>(data);
+            u32 position = calcCursorPos(cursor->x - origin.x, cursor->y - origin.y);
+            current->setCursorPos(position);
+            if (previous != position) onSE(static_cast<sound::SE>(5));
+            meScrollFlag = SF_ScrollOn;
+        }
+        return;
+    case 17:
+        if (data && *static_cast<bool*>(data)) {
+            mpUnfixString->confirm(NULL);
+            onCommand(static_cast<INPUT_COMMAND>(6), NULL);
+            resetCandidate();
+            updateCandidate();
+        }
+        break;
+    case 18: {
+        tistring::Decolated::TranslateMode mode = *static_cast<tistring::Decolated::TranslateMode*>(data);
+        if (meLanguage != JP && meLanguage != KR) mode = tistring::Decolated::TM_Direct;
+        tistring::Decolated::TranslateMode fixedMode = mode;
+        if (meLanguage == KR) {
+            if (mode != tistring::Decolated::TM_Direct) fixedMode = tistring::Decolated::TM_Hangul;
+        } else if (meLanguage == CN) fixedMode = tistring::Decolated::TM_Direct;
+        fixed->getCursorPos();
+        mpString->setTranslateMode(fixedMode);
+        mpString->getCursorPos();
+        mpUnfixString->setTranslateMode(mode);
+        break;
+    }
+    case 19: mpUnfixString->changeKanaMode(*static_cast<bool*>(data)); break;
+    case 20: mpUnfixString->setFixMode(*static_cast<bool*>(data)); break;
+    case 21: {
+        s32 index = *static_cast<s32*>(data);
+        if (mbPredictOn) {
+            if (mePredictMode == PM_Atok) {
+                if (!mpUnfixString->isConverting()) {
+                    wchar_t predicted[96];
+                    mpUnfixString->getPredicted(index, predicted);
+                    mpString->getCursorPos();
+                    mpString->inputString(predicted, tistring::Decolated::TM_Direct);
+                    mpString->getCursorPos();
+                    mpUnfixString->commitPredicted(index);
+                } else mpUnfixString->commitPredicted(index);
+            } else {
+                wchar_t predicted[64];
+                mpZiString->getPredicted(index, predicted);
+                mpString->getCursorPos();
+                mpString->inputString(predicted);
+                mpString->getCursorPos();
+                mpZiString->clearCandidates();
+                mbZuSelected = false;
+                if (meLanguage == CN) {
+                    mpZiString->setCurrentWord(predicted);
+                    mpZiString->update();
+                }
+            }
+        }
+        meScrollFlag = SF_ScrollOn;
+        break;
+    }
+    case 22:
+        moveCandidateToIdx(*static_cast<s32*>(data));
+        meScrollFlag = SF_ScrollOn;
+        return;
+    case 23:
+        if (!mbPredictOn) break;
+        if (mePredictMode == PM_Atok) mpUnfixString->setSelectedCandidate(-1);
+        else if (mePredictMode == PM_11) {
+            mpZiString->setSelectedCandidate(-1);
+            mbZuSelected = false;
+        }
+        meScrollFlag = SF_ScrollOn;
+        return;
+    case 24: doScroll(static_cast<Scroll*>(data)); return;
+    case 25: current->converDakuten(); onSE(static_cast<sound::SE>(10)); break;
+    case 26: current->converHandaku(); onSE(static_cast<sound::SE>(10)); break;
+    case 27: current->convertAll(); break;
+    case 28: current->converSmall(); onSE(static_cast<sound::SE>(10)); break;
+    case 29: {
+        PredictionState* prediction = static_cast<PredictionState*>(data);
+        mePredictMode = prediction->mode;
+        bool enabled = prediction->enabled != false;
+        if (mbPredictOn != enabled) {
+            mbPredictOn = enabled;
+            if (meLanguage == KR) mpManager->getPCKeyboard()->refreshState();
+        }
+        tistring::Decolated::TranslateMode fixedMode = mpString->getTranslateMode();
+        tistring::Decolated::TranslateMode unfixMode = mpUnfixString->getTranslateMode();
+        mpString->initKanaConverter();
+        mpUnfixString->initKanaConverter();
+        if (meLanguage == KR) {
+            if (fixedMode != tistring::Decolated::TM_Direct) fixedMode = tistring::Decolated::TM_Hangul;
+        } else if (meLanguage == CN) fixedMode = tistring::Decolated::TM_Direct;
+        mpString->getCursorPos();
+        mpString->setTranslateMode(fixedMode);
+        mpString->getCursorPos();
+        mpUnfixString->setTranslateMode(unfixMode);
+        switch (mePredictMode) {
+        case PM_Atok:
+            if (!mbPredictOn) {
+                if (mpUnfixString->isDictionaryOpened() && current == mpUnfixString) {
+                    mpUnfixString->confirm(NULL);
+                    wchar_t* confirmed = mpUnfixString->getConfirmedWCString();
+                    mpString->getCursorPos();
+                    mpString->confirm(confirmed);
+                    mpString->getCursorPos();
+                    mpUnfixString->enableConfirmedString(false);
+                }
+            } else resetInputRelation();
+            return;
+        case PM_USEn: mpZiString->setPredictLaunguage(static_cast<tistring::WithZi::PredictLanguage>(0)); break;
+        case PM_USFr: mpZiString->setPredictLaunguage(static_cast<tistring::WithZi::PredictLanguage>(1)); break;
+        case PM_USSp: mpZiString->setPredictLaunguage(static_cast<tistring::WithZi::PredictLanguage>(2)); break;
+        case PM_En: mpZiString->setPredictLaunguage(static_cast<tistring::WithZi::PredictLanguage>(3)); break;
+        case PM_De: mpZiString->setPredictLaunguage(static_cast<tistring::WithZi::PredictLanguage>(4)); break;
+        case PM_Fr: mpZiString->setPredictLaunguage(static_cast<tistring::WithZi::PredictLanguage>(5)); break;
+        case PM_Sp: mpZiString->setPredictLaunguage(static_cast<tistring::WithZi::PredictLanguage>(6)); break;
+        case PM_It: mpZiString->setPredictLaunguage(static_cast<tistring::WithZi::PredictLanguage>(7)); break;
+        case PM_Nl: mpZiString->setPredictLaunguage(static_cast<tistring::WithZi::PredictLanguage>(8)); break;
+        case PM_11: mpZiString->setPredictLaunguage(static_cast<tistring::WithZi::PredictLanguage>(9)); break;
+        case PM_12:
+            mpZiString->setPredictLaunguage(static_cast<tistring::WithZi::PredictLanguage>(mpManager->getToolBar()->isQwerty() ? 10 : 11));
+            break;
+        }
+        onCommand(static_cast<INPUT_COMMAND>(30), NULL);
+        return;
+    }
+    case 30: {
+        mpUnfixString->confirm(NULL);
+        wchar_t* confirmed = mpUnfixString->getConfirmedWCString();
+        mpString->getCursorPos();
+        mpString->confirm(confirmed);
+        mpString->getCursorPos();
+        mpUnfixString->enableConfirmedString(false);
+        mpZiString->clearCandidates();
+        mbZuSelected = false;
+        getCurrentString(false);
+        resetPredictionContext();
+        resetCandidate();
+        return;
+    }
+    case 31: {
+        PredictionState* prediction = static_cast<PredictionState*>(data);
+        prediction->mode = mePredictMode;
+        prediction->enabled = mbPredictOn;
+        return;
+    }
+    case 32: *static_cast<bool*>(data) = hasZiPredictions(); return;
+    case 36: {
+        u32 length = *static_cast<u32*>(data);
+        if (length < fixed->getLength()) mpString->getLength();
+        mpString->setLength(static_cast<u16>(length));
+        return;
+    }
+    case 38: {
+        ControlInput* input = static_cast<ControlInput*>(data);
+        onHKBCtrlCode(input->code, input->modifiers);
+        return;
+    }
+    case 39: mDKStream.clear(); return;
+    case 41: notifyChangeMode(); return;
+    case 42: onPressLeftHWKB(); return;
+    case 43: onPressRightHWKB(); return;
+    case 44: onPressUp(); return;
+    case 45: onPressDownHWKB(); return;
+    case 46:
+        if (meLanguage == CN && !mpManager->getPCKeyboard()->isQwertyOnly() && mpManager->getPCKeyboard()->isLanguageKeyActive()) {
+            if (mpManager->getPCKeyboard()->getTranslateMode() == keyboard::pctype::Base::TM_00) mpManager->getPCKeyboard()->setTranslateMode(keyboard::pctype::Base::TM_Kana);
+            else mpManager->getPCKeyboard()->setTranslateMode(keyboard::pctype::Base::TM_00);
+        }
+        break;
+    case 47: return;
+    default: break;
+    }
+    updateCandidateState_();
+}
+
+void Base::onHKBCtrlCode(HVKCode code, u32 modifiers) {
+    tistring::Decolated* current = getCurrentString(false);
+    switch (code) {
+    case 2:
+        if (mePredictMode == PM_Atok) toggleAtokMode_(0);
+        break;
+    case 17:
+        if (mePredictMode == PM_Atok) {
+            if (mpManager->getPCKeyboard()->getTranslateMode() == keyboard::pctype::Base::TM_Kana) {
+                mpManager->getPCKeyboard()->setTranslateMode(keyboard::pctype::Base::TM_Roman);
+            } else if (mpManager->getPCKeyboard()->getTranslateMode() == keyboard::pctype::Base::TM_Roman) {
+                mpManager->getPCKeyboard()->setTranslateMode(keyboard::pctype::Base::TM_Kana);
+            }
+            toggleAtokMode_(1);
+        } else if (meLanguage == KR && !mpManager->getPCKeyboard()->isQwertyOnly() && mpManager->getPCKeyboard()->isLanguageKeyActive()) {
+            if (mpManager->getPCKeyboard()->getTranslateMode() == keyboard::pctype::Base::TM_00) {
+                mpManager->getPCKeyboard()->setTranslateMode(keyboard::pctype::Base::TM_Kana);
+            } else {
+                mpManager->getPCKeyboard()->setTranslateMode(keyboard::pctype::Base::TM_00);
+            }
+        }
+        break;
+    case 18:
+        if (mePredictMode == PM_Atok) {
+            if (mpManager->getPCKeyboard()->getTranslateMode() == keyboard::pctype::Base::TM_00 && !mbPredictOn) {
+                if (!mpManager->getPCKeyboard()->isQwertyOnly()) onSE(static_cast<sound::SE>(6));
+            } else toggleAtokMode_(2);
+        }
+        break;
+    case 36:
+        if (mePredictMode == PM_Atok) toggleAtokMode_(0);
+        else if (static_cast<u32>(meLanguage) - CN <= 1) {
+            if (!mpManager->getPCKeyboard()->isQwertyOnly() && mpManager->getPCKeyboard()->isLanguageKeyActive()) {
+                if (mpManager->getPCKeyboard()->getTranslateMode() == keyboard::pctype::Base::TM_00) {
+                    mpManager->getPCKeyboard()->setTranslateMode(keyboard::pctype::Base::TM_Kana);
+                } else {
+                    mpManager->getPCKeyboard()->setTranslateMode(keyboard::pctype::Base::TM_00);
+                }
+            }
+        } else if (mePredictMode != PM_Off && mpManager->getCandidateBox()->isActive()) {
+            mpManager->startPredictTurnOn(!mbPredictOn);
+        }
+        break;
+    case 1:
+        if (current == mpUnfixString) updateCandidateState_();
+        break;
+    case 9:
+        onCommand(static_cast<INPUT_COMMAND>(7), NULL);
+        onCommand(static_cast<INPUT_COMMAND>(39), NULL);
+        break;
+    case 8:
+        onSpaceKeyHWKB(modifiers);
+        break;
+    case 29:
+        onCommand(static_cast<INPUT_COMMAND>(44), NULL);
+        break;
+    case 30:
+        onCommand(static_cast<INPUT_COMMAND>(45), NULL);
+        break;
+    case 31:
+        onCommand(static_cast<INPUT_COMMAND>(42), NULL);
+        break;
+    case 32:
+        onCommand(static_cast<INPUT_COMMAND>(43), NULL);
+        break;
+    case 16:
+        if (mePredictMode == PM_Atok) {
+            if (mpManager->getPCKeyboard()->getTranslateMode() == keyboard::pctype::Base::TM_Kana) {
+                mpManager->getPCKeyboard()->setTranslateMode(keyboard::pctype::Base::TM_Roman);
+            } else if (mpManager->getPCKeyboard()->getTranslateMode() == keyboard::pctype::Base::TM_Roman) {
+                mpManager->getPCKeyboard()->setTranslateMode(keyboard::pctype::Base::TM_Kana);
+            } else if (!mpManager->getPCKeyboard()->isQwertyOnly()) {
+                mpManager->getPCKeyboard()->setTranslateMode(keyboard::pctype::Base::TM_Kana);
+            }
+        }
+        break;
+    }
+}
+
+LayoutByNW4R::LayoutByNW4R(Manager* manager, nw4r::lyt::MultiArcResourceAccessor* accessor, const char* layout, EventObserver* observer, const char* fontName)
+    : Base(manager), nw4rmanager::Layout(accessor, layout, observer), mpLayoutData("T_2l_TextBox"),
+      mpLanguageData(csLanguageDependencyDataUEJ__Q29textinput9inputform), mpFontName(fontName),
+      mbUpVisible(false), mbDownVisible(false), mbRepeat(false), mpInputEventHandler(NULL) {}
+
+void LayoutByNW4R::create(MEMAllocator* allocator, EditBuffer* editBuffer) {
+    mpAllocator = allocator;
+    textdrawer::Base::create(allocator);
+    mpString = static_cast<tistring::Decolated*>(editBuffer->mpString);
+    mpUnfixString = static_cast<tistring::WithAtok*>(editBuffer->mpUnfixString);
+    mpZiString = static_cast<tistring::WithZi*>(editBuffer->mpZiString);
+    mriManager.mpAllocator = allocator;
+    mriManager.mpInfo = static_cast<Info_*>(MEMAllocFromAllocator(allocator, (mriManager.mMaxLength + 2) * sizeof(Info_)));
+    mriManager.init();
+    Info_* selected = &mriManager.mpInfo[mriManager.mpInfo[mriManager.mMaxLength].Next];
+    u16 previous = selected->Back;
+    u16 next = selected->Next;
+    u16 selectedIndex = mriManager.mpInfo[next].Back;
+    mriManager.mpInfo[next].Back = previous;
+    mriManager.mpInfo[previous].Next = next;
+    selected->Back = selectedIndex;
+    selected->Next = selectedIndex;
+    Info_* listEnd = &mriManager.mpInfo[mriManager.mpInfo[static_cast<u16>(mriManager.mMaxLength + 1)].Back];
+    next = listEnd->Next;
+    selected->Back = mriManager.mpInfo[next].Back;
+    selected->Next = next;
+    listEnd->Next = selectedIndex;
+    mriManager.mpInfo[next].Back = selectedIndex;
+    selected->StrCount = 0;
+    selected->DispRowCount = 1;
+    mpCursorLine = selected;
+    void* handlerMemory = MEMAllocFromAllocator(allocator, sizeof(EventHandler));
+    mpInputEventHandler = handlerMemory ? new (handlerMemory) EventHandler(this) : NULL;
+    nw4rmanager::Layout::createWithEventHandler(allocator, mpInputEventHandler);
+    if (!mpFontName) {
+        mpFontName = "RevoIpl_RodinNTLGProM_32_I4.brfnt";
+        mFont.SetResource(mpMultiArcResourceAccessor->GetResource(0, mpFontName, NULL));
+        mFont.SetAlternateChar(0xe06b);
+        setFont(mFont);
+    } else {
+        mpMultiArcResourceAccessor->GetFont(mpFontName)->SetAlternateChar(0xe06b);
+        setFont(*mpMultiArcResourceAccessor->GetFont(mpFontName));
+    }
+    nw4r::lyt::TextBox* textBox = static_cast<nw4r::lyt::TextBox*>(mpLayout->GetRootPane()->FindPaneByName(static_cast<const char*>(mpLayoutData), true));
+    textBox->SetString(L"", 0);
+    mfCharacterSpacing = textBox->GetCharSpace();
+    mfLineSpacing = textBox->GetLineSpace();
+    mfFontWidth = textBox->GetFontSize().width;
+    mfFontHeight = textBox->GetFontSize().height;
+    mRect = textBox->GetPaneRect(mDrawInfo);
+    AdjustPaneMtx(mMtx.m, mDrawInfo, textBox->GetGlobalMtx());
+    csCharColor = textBox->GetTextColor(0);
+    setVisible("N_2line", true);
+    mpPaneManager->setAllComponentTriggerTarget(false);
+    mpPaneManager->setAllBoundingBoxComponentTriggerTarget(true);
+    nw4r::lyt::Pane* pane = mpLayout->GetRootPane()->FindPaneByName(static_cast<const LanguagePaneData*>(mpLanguageData)->textBox, true);
+    if (!pane) pane = mpLayout->GetRootPane()->FindPaneByName(getLanguageTextPane() ? static_cast<const LanguagePaneData*>(mpLanguageData)->textBox : "T_2l_TextBox", true);
+    mpPaneManager->getPaneComponentByPane(pane)->setTriggerTarget(true);
+    for (u32 buttonIndex = 0; buttonIndex < 2; ++buttonIndex) {
+        nw4rmanager::AnmPane* animationPane = NULL;
+        if (csButtonAnimations[static_cast<u16>(buttonIndex)].type == KT_NormalButton) {
+            void* memory = MEMAllocFromAllocator(allocator, sizeof(NormalButtonAnmPane));
+            if (memory) animationPane = new (memory) NormalButtonAnmPane(getPane(csButtonAnimations[static_cast<u16>(buttonIndex)].paneName), NULL);
+        }
+        nw4r::ut::List_Append(&mAnmPanes, animationPane);
+        const char* bindingName = csButtonAnimations[static_cast<u16>(buttonIndex)].bindingName;
+        u32 count = csButtonAnimations[static_cast<u16>(buttonIndex)].count;
+        for (u16 animationIndex = 0; animationIndex < count; ++animationIndex) {
+            const InputFormAnimationFile* file = csButtonAnimations[static_cast<u16>(buttonIndex)].files[animationIndex];
+            void* resource = mpMultiArcResourceAccessor->GetResource(0, file->fileName, NULL);
+            AnimTransformPane* transform = static_cast<AnimTransformPane*>(getLayout()->CreateAnimTransform(resource, mpMultiArcResourceAccessor));
+            if (!bindingName) animationPane->addAnimation(allocator, file->id, transform, false, true);
+            else animationPane->forceAddAnimation(allocator, file->id, transform, bindingName, false, true);
+        }
+    }
+    init();
+}
+inline const nw4r::lyt::Pane* LayoutByNW4R::getLanguageTextPane() const {
+    return getPane(static_cast<const LanguagePaneData*>(mpLanguageData)->textBox);
+}
+
+void LayoutByNW4R::init() {
+    Base::init();
+    searchAnmPane("P_txtScrll_UP")->changeAnimation(7);
+    searchAnmPane("P_txtScrll_DOWN")->changeAnimation(7);
+    mbUpVisible = false;
+    mbDownVisible = false;
+    mUpRepeat = 0;
+    mDownRepeat = 0;
+    mLeftRepeat = 0;
+    mRightRepeat = 0;
+    mRepeatButtons = 0;
+    mCharColor = csCharColor;
+    visibleSeparator(false);
+    nw4r::lyt::TextBox* textBox = static_cast<nw4r::lyt::TextBox*>(mpLayout->GetRootPane()->FindPaneByName(static_cast<const char*>(mpLayoutData), true));
+    textBox->SetString(L"", 0);
+    mfCharacterSpacing = textBox->GetCharSpace();
+    mfLineSpacing = textBox->GetLineSpace();
+    mfFontWidth = textBox->GetFontSize().width;
+    mfFontHeight = textBox->GetFontSize().height;
+    mRect = textBox->GetPaneRect(mDrawInfo);
+    AdjustPaneMtx(mMtx.m, mDrawInfo, textBox->GetGlobalMtx());
+    mpLayout->Animate(0);
+    mpLayout->CalculateMtx(mDrawInfo);
+    const VisiblePanes* visibility = static_cast<const LanguagePaneData*>(mpLanguageData)->visibility;
+    for (u16 index = 0; index < visibility->visibleCount; ++index) setVisible(visibility->visibleNames[index], true);
+    for (u16 index = 0; index < visibility->hiddenCount; ++index) setVisible(visibility->hiddenNames[index], false);
+}
 extern "C" const char lbl_8165D2A0[] = "N_separateBarAll";
-extern "C" const char lbl_8165D2B0[] = "T_title_text";
-extern "C" const char lbl_8165D2C0[] = "OutOfLength\n";
-extern "C" const char lbl_8165D2D0[] = "Error#004\nAn error has occurred.\nThe system files are corrupted.";
+void LayoutByNW4R::setLanguage(Language language) {
+    Base::setLanguage(language);
+    if (language == CN) mpLanguageData = csLanguageDependencyDataCHN__Q29textinput9inputform;
+    else if (language == KR) mpLanguageData = csLanguageDependencyDataKOR__Q29textinput9inputform;
+    else mpLanguageData = csLanguageDependencyDataUEJ__Q29textinput9inputform;
+    const char* textName;
+    if (!getLanguageTextPane()) textName = "T_2l_TextBox";
+    else textName = static_cast<const LanguagePaneData*>(mpLanguageData)->textBox;
+    mpLayoutData = textName;
+    if (::strcmp(static_cast<const char*>(mpLayoutData), "T_2l_TextBox") != 0) setVisible("T_2l_TextBox", false);
+    nw4r::lyt::Pane* pane = mpLayout->GetRootPane()->FindPaneByName(getLanguageTextPane() ? static_cast<const LanguagePaneData*>(mpLanguageData)->textBox : "T_2l_TextBox", true);
+    static_cast<nw4r::lyt::TextBox*>(pane)->SetString(L"", 0);
+    const VisiblePanes* visibility = static_cast<const LanguagePaneData*>(mpLanguageData)->visibility;
+    for (u16 index = 0; index < visibility->visibleCount; ++index) setVisible(visibility->visibleNames[index], true);
+    for (u16 index = 0; index < visibility->hiddenCount; ++index) setVisible(visibility->hiddenNames[index], false);
+    pane = mpLayout->GetRootPane()->FindPaneByName(getLanguageTextPane() ? static_cast<const LanguagePaneData*>(mpLanguageData)->textBox : "T_2l_TextBox", true);
+    mpPaneManager->getPaneComponentByPane(pane)->setTriggerTarget(true);
+    if (getPane("T_title_text")) {
+        nw4r::lyt::TextBox* title = nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(getPane("T_title_text"));
+        const char* titleName = static_cast<const LanguagePaneData*>(mpLanguageData)->title;
+        if (getPane(titleName)) {
+            nw4r::lyt::TextBox* languageTitle = nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(getPane(static_cast<const LanguagePaneData*>(mpLanguageData)->title));
+            title->SetCharSpace(languageTitle->GetCharSpace());
+            title->SetLineSpace(languageTitle->GetLineSpace());
+            title->SetFontSize(languageTitle->GetFontSize());
+            title->SetTranslate(languageTitle->GetTranslate());
+            title->SetSize(languageTitle->GetSize());
+        }
+    }
+}
+
+void LayoutByNW4R::onCommand(INPUT_COMMAND command, void* data) {
+    mpEventObserver->onInput(command, data);
+    mpEventObserver->onCommand(command, data);
+    Base::onCommand(command, data);
+    if (command == 31) return;
+    u32 limit = muLimitStringLength;
+    if (meLanguage == KR) {
+        u32 start, end;
+        mpString->getCursorPos(&start, &end);
+        if (start >= limit && !mpString->isKanaFix()) {
+            mpString->clearKana();
+            onSE(static_cast<sound::SE>(8));
+        }
+        if (!mpString->isKanaFix()) limit = muLimitStringLength - 1;
+    }
+    if (limit < mpString->getLength()) {
+        u32 start, end;
+        mpString->getCursorPos(&start, &end);
+        if (start > limit || end > limit) {
+            onSE(static_cast<sound::SE>(8));
+            Base::onCommand(static_cast<INPUT_COMMAND>(36), &limit);
+        }
+    }
+    switch (command) {
+        case 32:
+        case 33:
+        case 35:
+            break;
+        default: {
+            u32 trimLimit = limit;
+            if (trimLimit < mpString->getLength()) {
+                if (mpString->getLength() > trimLimit) mpString->getLength();
+                mpString->setLength(static_cast<u16>(trimLimit));
+                mpEventObserver->onOutOfLength();
+                if (command == 6 || command == 5 || command == 0 || command == 38 || command == 21 || command == 7) {
+                    onSE(static_cast<sound::SE>(8));
+                }
+            }
+            break;
+        }
+    }
+    u32 excessPos = isOverRowLimit(muLimitRowNum, mpString->getWCString());
+    u32 rowLimit = excessPos;
+    if (excessPos) {
+        if (mpString->getLength() > excessPos) mpString->getLength();
+        mpString->setLength(static_cast<u16>(excessPos));
+        mpEventObserver->onOutOfLength();
+        onSE(static_cast<sound::SE>(8));
+        Base::onCommand(static_cast<INPUT_COMMAND>(36), &rowLimit);
+        if (meLanguage == KR && !mpString->isKanaFix()) {
+            rowLimit = isOverRowLimit(muLimitRowNum, mpString->getWCString());
+            if (rowLimit) mpString->clearKana();
+        }
+    }
+}
+
+
 #pragma pop
 
-enum Animation {
-    ANM_Normal
-};
-
-enum KeyType {
-    KT_NormalButton
-};
-
-class AnmPane : public nw4rmanager::AnmPane {
-public:
-    virtual void init();
-    virtual void changeAnimation(u32 id);
-    virtual KeyType getKeyType() const;
-    virtual Animation getState();
-
-protected:
-    Animation meState;
-    KeyType meKeyType;
-};
-
-class NormalButtonAnmPane : public AnmPane {
-public:
-    virtual ~NormalButtonAnmPane();
-};
-
-class EventHandler : public nw4rmanager::TiEventHandler {
-public:
-    virtual ~EventHandler();
-};
+void EventHandler::onTiEvent(gui::PaneComponent* component, u32 event, Input* input) {
+    char animationName[17];
+    const char* name = component->getPane()->GetName();
+    nw4r::math::VEC2 cursor;
+    cursor.x = input->x;
+    cursor.y = -input->y;
+    if (name[0] == 'B') {
+        util::replaceChar(animationName, 17, name, 0, 'P');
+        if (event == 4 && (input->trigger & 0x800) && !mpInputForm->isInScroll()) {
+            if (mpInputForm->isAbleToUp() && util::strcmp("P_txtScrll_UP", animationName)) {
+                textdrawer::Base::CursorPos movement = {0, 0.0f, 0.0f};
+                movement.fCursorY = mpInputForm->getLineHeight();
+                mpInputForm->onCommand(static_cast<CommandReceiver::INPUT_COMMAND>(24), &movement);
+                mpInputForm->searchAnmPane(animationName)->onAnmEvent(nw4rmanager::AnmPane::PE_0);
+            } else if (mpInputForm->isAbleToDown() && util::strcmp("P_txtScrll_DOWN", animationName)) {
+                textdrawer::Base::CursorPos movement = {0, 0.0f, 0.0f};
+                movement.fCursorY = -mpInputForm->getLineHeight();
+                mpInputForm->onCommand(static_cast<CommandReceiver::INPUT_COMMAND>(24), &movement);
+                mpInputForm->searchAnmPane(animationName)->onAnmEvent(nw4rmanager::AnmPane::PE_0);
+            }
+        }
+        if (event == 2 && (input->hold & 0x800) && !(input->trigger & 0x800)) {
+            if (mpInputForm->isAbleToUp() && util::strcmp("P_txtScrll_UP", animationName)) {
+                if (component->isDragging(input->controller)) {
+                    u32 duration = mpInputForm->getFlightDuration(input->controller, name);
+                    if (duration >= 60 && duration % 20 == 0) {
+                        textdrawer::Base::CursorPos movement = {0, 0.0f, 0.0f};
+                        movement.fCursorY = mpInputForm->getLineHeight();
+                        mpInputForm->onCommand(static_cast<CommandReceiver::INPUT_COMMAND>(24), &movement);
+                        mpInputForm->searchAnmPane(animationName)->onAnmEvent(nw4rmanager::AnmPane::PE_0);
+                    }
+                }
+            } else if (mpInputForm->isAbleToDown() && util::strcmp("P_txtScrll_DOWN", animationName)) {
+                if (component->isDragging(input->controller)) {
+                    u32 duration = mpInputForm->getFlightDuration(input->controller, name);
+                    if (duration >= 60 && duration % 20 == 0) {
+                        textdrawer::Base::CursorPos movement = {0, 0.0f, 0.0f};
+                        movement.fCursorY = -mpInputForm->getLineHeight();
+                        mpInputForm->onCommand(static_cast<CommandReceiver::INPUT_COMMAND>(24), &movement);
+                        mpInputForm->searchAnmPane(animationName)->onAnmEvent(nw4rmanager::AnmPane::PE_0);
+                    }
+                }
+            }
+        }
+        AnmPane* animation = static_cast<AnmPane*>(mpInputForm->searchAnmPane(animationName));
+        if (animation) {
+            switch (event) {
+            case 1: animation->onAnmEvent(nw4rmanager::AnmPane::PE_2); break;
+            case 0:
+                if (animation->getState() != ANM_Off) {
+                    mpEventObserver->onSE(static_cast<sound::SE>(4));
+                    animation->onAnmEvent(nw4rmanager::AnmPane::PE_1);
+                }
+                break;
+            }
+        }
+    } else if (name[0] == 'P') {
+        AnmPane* animation = static_cast<AnmPane*>(mpInputForm->searchAnmPane(name));
+        if (animation) {
+            switch (event) {
+            case 0:
+                if (animation->getState() != ANM_Off) {
+                    mpEventObserver->onSE(static_cast<sound::SE>(4));
+                    animation->onAnmEvent(nw4rmanager::AnmPane::PE_1);
+                }
+                break;
+            case 1:
+                if (animation->getState() != ANM_Off) {
+                    mpEventObserver->onSE(static_cast<sound::SE>(4));
+                    animation->onAnmEvent(nw4rmanager::AnmPane::PE_2);
+                }
+                break;
+            }
+        }
+    } else {
+        const char* textPane;
+        LayoutByNW4R* form = mpInputForm;
+        const nw4rmanager::Layout& layout = *form;
+        if (layout.getPane(static_cast<const LanguagePaneData*>(form->mpLanguageData)->textBox)) textPane = static_cast<const LanguagePaneData*>(form->mpLanguageData)->textBox;
+        else textPane = "T_2l_TextBox";
+        if (util::strcmp(name, textPane)) {
+            if (event == 4 && (input->trigger & 0x800)) mpInputForm->onCommand(static_cast<CommandReceiver::INPUT_COMMAND>(14), &cursor);
+            if (event == 5 && (input->release & 0x800)) mpInputForm->onCommand(static_cast<CommandReceiver::INPUT_COMMAND>(15), &cursor);
+            if (event == 2 && (input->hold & 0x800)) mpInputForm->onCommand(static_cast<CommandReceiver::INPUT_COMMAND>(16), &cursor);
+        }
+    }
+}
 
 void Base::enableSpaceByRight(bool rightWithSpace) {
     mbRightWithSpace = rightWithSpace;
@@ -1623,29 +2359,21 @@ autoScroll_Lend:
     blr
 }
 
-extern "C" asm void startAnm__Q39textinput4util9AnimationFfffPQ39textinput4util12AnimObserverPv() {
-    nofralloc
-    lfs f0, lbl_81694D28(r0)
-    li r6, 1
-    li r0, 0
-    cmpwi r4, 0
-    stfs f1, 4(r3)
-    stfs f2, 8(r3)
-    stfs f3, 0x10(r3)
-    stfs f0, 0xc(r3)
-    stb r6, 0x14(r3)
-    stw r4, 0x18(r3)
-    stw r5, 0x1c(r3)
-    stb r0, 0x15(r3)
-    beqlr
-    mr r3, r4
-    li r4, 0
-    lwz r12, 0(r3)
-    lwz r12, 8(r12)
-    mtctr r12
-    bctr
-    blr
 }
+
+void textinput::util::Animation::startAnm(f32 start, f32 end, f32 duration, AnimObserver* observer, void* data) {
+    mfStartPoint = start;
+    mfEndPoint = end;
+    mfAnimationTime = duration;
+    mfCurrentFrame = 0.0f;
+    mbInAnimation = true;
+    mpAnimObserver = observer;
+    mpData = data;
+    mbSE = false;
+    if (observer) observer->onAnmEvent(AnimObserver::AE_0, data);
+}
+
+namespace inputform {
 
 extern "C" asm void deselectCandidate__Q39textinput9inputform4BaseFv() {
     nofralloc
@@ -2542,6 +3270,565 @@ moveCursorDown_L4:
     blr
 }
 
+void Base::confirmInputting_(wchar_t character, bool direct, u16 letterMode, bool confirmOnly, void* holdingKey) {
+    tistring::Decolated* current = getCurrentString(true);
+    if (!character) return;
+    if (mbPredictOn && getPredictMode() == PM_11) {
+        if (!mpManager->getCandidateBox()->isInvalid() && !util::isAlphabet(character) && (character < L'1' || character > L'5')) {
+            mpString->getCursorPos();
+            mpString->inputChar(character);
+            mpString->getCursorPos();
+            if (meLanguage == CN) {
+                bool predictions;
+                if (!mbPredictOn) predictions = false;
+                else if (mePredictMode != PM_Atok && mpZiString->getCurrentNumPredicted() > 0) predictions = true;
+                else predictions = false;
+                if (predictions) {
+                    mpZiString->setCurrentWord(NULL);
+                    mpZiString->update();
+                }
+            }
+            if (meLanguage == CN) {
+                mpZiString->clearCandidates();
+                mbZuSelected = false;
+                mpZiString->update();
+            } else confirmInput_();
+            return;
+        }
+    }
+    if (direct) {
+        mpString->getCursorPos();
+        mpString->inputChar(character);
+        mpString->getCursorPos();
+        if (meLanguage == CN) {
+            bool predictions;
+            if (!mbPredictOn) predictions = false;
+            else if (mePredictMode != PM_Atok && mpZiString->getCurrentNumPredicted() > 0) predictions = true;
+            else predictions = false;
+            if (predictions) {
+                mpZiString->setCurrentWord(NULL);
+                mpZiString->update();
+            }
+        }
+    } else {
+        if (current == mpZiString) {
+            if (!mpZiString->getInputStringLength()) {
+                mpZiString->changeLetterMode(static_cast<tistring::WithZi::LetterMode>(letterMode));
+                mpZiString->setCellPhoneHoldingkey(holdingKey);
+            }
+            if (mpZiString->getInputStringLength() >= 32) {
+                onCommand(static_cast<INPUT_COMMAND>(6), NULL);
+                mpZiString->changeLetterMode(static_cast<tistring::WithZi::LetterMode>(letterMode));
+                mpZiString->inputChar(character);
+                onSE(static_cast<sound::SE>(9));
+                updateCandidateState_();
+                return;
+            }
+        } else if (current == mpUnfixString) {
+            if (confirmOnly && !mpUnfixString->hasCandidate()) return;
+        } else if (mbPredictOn && mePredictMode == PM_Atok && current != mpUnfixString && character == L' ') {
+            character = 0x3000;
+            mpUnfixString->setCandidate(0);
+        }
+        if (current == mpString) {
+            mpString->getCursorPos();
+            mpString->inputChar(character);
+            mpString->getCursorPos();
+            if (meLanguage == CN) {
+                bool predictions;
+                if (!mbPredictOn) predictions = false;
+                else if (mePredictMode != PM_Atok && mpZiString->getCurrentNumPredicted() > 0) predictions = true;
+                else predictions = false;
+                if (predictions) {
+                    mpZiString->setCurrentWord(NULL);
+                    mpZiString->update();
+                }
+            }
+        } else {
+            current->inputChar(character);
+            if (meLanguage == KR && mpManager->getToolBar()->isQwerty()) {
+                wchar_t predicted[64];
+                mpZiString->getPredicted(0, predicted);
+                if (wcslen(predicted) >= 2) {
+                    predicted[1] = 0;
+                    mpString->getCursorPos();
+                    mpString->inputString(predicted);
+                    mpString->getCursorPos();
+                    mpZiString->partialConfirmForKR();
+                }
+            }
+        }
+        onSE(static_cast<sound::SE>(10));
+    }
+}
+
+void Base::inputCharZi_(wchar_t character, u32 modifiers) {
+    if (meLanguage != KR && (modifiers & 3)) character = util::toWLower(character);
+    bool direct = false;
+    if (character == L' ') direct = true;
+    if (meLanguage == CN) {
+        if (!util::isAlphabet(character) && (character < L'1' || character > L'5' || !mpZiString->getInputStringLength())) direct = true;
+    } else if (meLanguage == KR) {
+        if (util::isAlphabet(character)) {
+            if (getCurrentString(true) == mpZiString && (modifiers & 2)) character = util::reverseLetterCaseW(character);
+        } else direct = true;
+    }
+    if (direct) {
+        bool predictions;
+        if (!mbPredictOn) predictions = false;
+        else if (mePredictMode != PM_Atok && mpZiString->getCurrentNumPredicted() > 0) predictions = true;
+        else predictions = false;
+        if (predictions) confirmInput_();
+        mpString->getCursorPos();
+        mpString->inputChar(character);
+        mpString->getCursorPos();
+        if (meLanguage == CN) {
+            if (!mbPredictOn) predictions = false;
+            else if (mePredictMode != PM_Atok && mpZiString->getCurrentNumPredicted() > 0) predictions = true;
+            else predictions = false;
+            if (predictions) {
+                mpZiString->setCurrentWord(NULL);
+                mpZiString->update();
+            }
+        }
+        onSE(static_cast<sound::SE>(9));
+    } else {
+        u16 letterMode;
+        switch (modifiers & 3) {
+        case 1: letterMode = 0; break;
+        case 2: letterMode = 2; break;
+        default: letterMode = 1; break;
+        }
+        confirmInputting_(character, false, letterMode, false, NULL);
+    }
+    meScrollFlag = SF_ScrollOn;
+}
+
+void Base::toggleAtokMode_(u8 operation) {
+    bool allowed;
+    if (!mpManager->getToolBar()->isEnableKeytopChange() && !mpManager->getToolBar()->isQwerty()) {
+        allowed = false;
+    } else allowed = !mpManager->getPCKeyboard()->isQwertyOnly();
+    if (!allowed) return;
+    bool enabled;
+    if (mpManager->getCandidateBox()->isActive()) {
+        if (mpManager->isPredictTurning()) return;
+        enabled = !mbPredictOn;
+        if (mpManager->getPCKeyboard()->getTranslateMode() == keyboard::pctype::Base::TM_00) enabled = true;
+    } else {
+        enabled = mpManager->getPCKeyboard()->getTranslateMode() == keyboard::pctype::Base::TM_00;
+    }
+    if (enabled && operation == 2) enabled = false;
+    else if (!enabled && operation == 1) enabled = true;
+    if (enabled) {
+        if (mpManager->getPCKeyboard()->getTranslateMode() == keyboard::pctype::Base::TM_00) {
+            mpManager->getPCKeyboard()->setTranslateMode(keyboard::pctype::Base::TM_Kana);
+        }
+    } else {
+        mpManager->getPCKeyboard()->setTranslateMode(keyboard::pctype::Base::TM_00);
+    }
+    if (mpManager->getCandidateBox()->isActive() && mbPredictOn != enabled) {
+        mpManager->startPredictTurnOn(!mbPredictOn);
+    }
+}
+
+void Base::onSpaceKeyHWKB(u32 modifiers) {
+    tistring::Decolated* current = getCurrentString(false);
+    if (modifiers & 8) {
+        if (static_cast<u32>(meLanguage) - CN <= 1 && !mpManager->getPCKeyboard()->isQwertyOnly() && mpManager->getPCKeyboard()->isLanguageKeyActive()) {
+            if (mpManager->getPCKeyboard()->getTranslateMode() == keyboard::pctype::Base::TM_00) {
+                mpManager->getPCKeyboard()->setTranslateMode(keyboard::pctype::Base::TM_Kana);
+            } else mpManager->getPCKeyboard()->setTranslateMode(keyboard::pctype::Base::TM_00);
+        }
+        return;
+    }
+    bool useZi;
+    if (!mbPredictOn) useZi = false;
+    else if (mePredictMode == PM_Atok) useZi = false;
+    else if (meLanguage == CN && static_cast<const Manager*>(mpManager)->getCandidateBox()->isInvalid()) useZi = false;
+    else useZi = true;
+    if (useZi) {
+        bool predicted;
+        if (!mbPredictOn) predicted = false;
+        else if (mePredictMode != PM_Atok && mpZiString->getCurrentNumPredicted() > 0) predicted = true;
+        else predicted = false;
+        if (predicted) {
+            if (!(mbCursorSelected | mbZuSelected) && mpManager->getToolBar()->isQwerty()) {
+                if (meLanguage != CN && meLanguage != KR && mbPredictOn && mePredictMode != PM_Atok) {
+                    wchar_t input[64];
+                    mpZiString->getCurrentInput(input, 64);
+                    mpString->getCursorPos();
+                    mpString->inputString(input);
+                    mpString->getCursorPos();
+                    mpZiString->clearCandidates();
+                    mbZuSelected = false;
+                    getCurrentString(false);
+                    if (mpZiString && meLanguage == CN) {
+                        mpZiString->setCurrentWord(NULL);
+                        mpZiString->update();
+                        updateCandidateState_();
+                    }
+                }
+            } else confirmInput_();
+            updateCandidateState_();
+        }
+    } else {
+        bool useAtok;
+        if (!mbPredictOn) useAtok = false;
+        else useAtok = mePredictMode == PM_Atok;
+        if (useAtok && current == mpUnfixString) {
+            if (!mpUnfixString->isKanaFix()) mpUnfixString->confirmKana();
+            if (mpUnfixString->isConverting()) {
+                if (!mpManager->getCandidateBox()->isInScroll()) {
+                    if (modifiers & 2) {
+                        tistring::Decolated* active = getCurrentString(false);
+                        if (active == mpUnfixString) {
+                            s32 selected = static_cast<s16>(mpUnfixString->getSelectedConverting() - 1);
+                            if (selected >= mpUnfixString->getCurrentNumPredicted()) selected = 0;
+                            else if (selected < 0) selected = static_cast<s16>(mpUnfixString->getCurrentNumPredicted() - 1);
+                            moveCandidateToIdx(selected);
+                            mpManager->getCandidateBox()->getTextArea().ScrollToSelectedText();
+                        }
+                    } else {
+                        tistring::Decolated* active = getCurrentString(false);
+                        if (active == mpUnfixString) {
+                            s32 selected = static_cast<s16>(mpUnfixString->getSelectedConverting() + 1);
+                            if (selected >= mpUnfixString->getCurrentNumPredicted()) selected = 0;
+                            else if (selected < 0) selected = static_cast<s16>(mpUnfixString->getCurrentNumPredicted() - 1);
+                            moveCandidateToIdx(selected);
+                            mpManager->getCandidateBox()->getTextArea().ScrollToSelectedText();
+                        }
+                    }
+                    onSE(static_cast<sound::SE>(6));
+                    mpManager->getCandidateBox()->getTextArea().ScrollToSelectedText();
+                }
+            } else {
+                if (mpUnfixString->getInputStringLength()) {
+                    mpUnfixString->startConverting();
+                    updateCandidateState_();
+                    moveCandidateToIdx(0);
+                    mpManager->getCandidateBox()->getTextArea().ScrollToSelectedText();
+                    onCommand(static_cast<INPUT_COMMAND>(47), NULL);
+                }
+            }
+            return;
+        }
+    }
+    if (mDKStream.lookAhead()) mDKStream.putChar(0xffff);
+    else mDKStream.putChar(L' ');
+    if (!mbPredictOn) useZi = false;
+    else if (mePredictMode == PM_Atok) useZi = false;
+    else if (meLanguage == CN && static_cast<const Manager*>(mpManager)->getCandidateBox()->isInvalid()) useZi = false;
+    else useZi = true;
+    if (useZi) {
+        wchar_t character;
+        for (;;) {
+            character = mDKStream.getChar();
+            if (!character) break;
+            inputCharZi_(character, modifiers);
+        }
+    } else {
+        wchar_t character;
+        for (;;) {
+            character = mDKStream.getChar();
+            if (!character) break;
+            inputCharDefault_(character, modifiers);
+        }
+    }
+    updateCandidateState_();
+}
+
+
+void Base::onPressUp() {
+    tistring::Decolated* current = getCurrentString(false);
+    if (mpZiString == current) return;
+    if (mpUnfixString == current) {
+        if (!mpUnfixString->isKanaFix()) mpUnfixString->confirmKana();
+        if (mpUnfixString->isConverting()) {
+            if (!mpManager->getCandidateBox()->isInScroll()) {
+                tistring::Decolated* active = getCurrentString(false);
+                if (active == mpUnfixString) {
+                    s32 selected = static_cast<s16>(mpUnfixString->getSelectedConverting() - 1);
+                    if (selected >= mpUnfixString->getCurrentNumPredicted()) selected = 0;
+                    else if (selected < 0) selected = static_cast<s16>(mpUnfixString->getCurrentNumPredicted() - 1);
+                    moveCandidateToIdx(selected);
+                    mpManager->getCandidateBox()->getTextArea().ScrollToSelectedText();
+                }
+                onSE(static_cast<sound::SE>(6));
+            }
+        } else if (mpUnfixString->getInputStringLength()) {
+            mpUnfixString->startConverting();
+            updateCandidateState_();
+            moveCandidateToIdx(0);
+            mpManager->getCandidateBox()->getTextArea().ScrollToSelectedText();
+            onCommand(static_cast<INPUT_COMMAND>(47), NULL);
+        }
+    } else if (current == mpString) {
+        if (meLanguage == KR && !getCurrentString(false)->isKanaFix()) {
+            mpString->getCursorPos();
+            mpString->inputChar(L'\n');
+            mpString->getCursorPos();
+            if (meLanguage == CN) {
+                bool predictions;
+                if (!mbPredictOn) predictions = false;
+                else if (mePredictMode != PM_Atok && mpZiString->getCurrentNumPredicted() > 0) predictions = true;
+                else predictions = false;
+                if (predictions) {
+                    mpZiString->setCurrentWord(NULL);
+                    mpZiString->update();
+                }
+            }
+        }
+        if (!current->hasCandidate()) {
+            if (!current->isKanaFix()) return;
+            mpManager->getHWKeyboard()->resetQuoteState();
+            mpUnfixString->resetRelation();
+            updateCandidateState_();
+            if (mpUnfixString->getCandidate() != L' ') {
+                moveCursorUp();
+                onCommand(static_cast<INPUT_COMMAND>(47), NULL);
+            }
+        }
+    }
+}
+
+void Base::onPressDown() {
+    tistring::Decolated* current = getCurrentString(false);
+    if (mpZiString == current) return;
+    if (mpUnfixString == current) {
+        if (!mpUnfixString->isKanaFix()) mpUnfixString->confirmKana();
+        if (mpUnfixString->isConverting()) {
+            if (!mpManager->getCandidateBox()->isInScroll()) {
+                tistring::Decolated* active = getCurrentString(false);
+                if (active == mpUnfixString) {
+                    s32 selected = static_cast<s16>(mpUnfixString->getSelectedConverting() + 1);
+                    if (selected >= mpUnfixString->getCurrentNumPredicted()) selected = 0;
+                    else if (selected < 0) selected = static_cast<s16>(mpUnfixString->getCurrentNumPredicted() - 1);
+                    moveCandidateToIdx(selected);
+                    mpManager->getCandidateBox()->getTextArea().ScrollToSelectedText();
+                }
+                onSE(static_cast<sound::SE>(6));
+            }
+        } else if (mpUnfixString->getInputStringLength()) {
+            mpUnfixString->startConverting();
+            updateCandidateState_();
+            moveCandidateToIdx(0);
+            mpManager->getCandidateBox()->getTextArea().ScrollToSelectedText();
+            onCommand(static_cast<INPUT_COMMAND>(47), NULL);
+        }
+    } else if (current == mpString) {
+        if (meLanguage == KR && !getCurrentString(false)->isKanaFix()) {
+            mpString->getCursorPos();
+            mpString->inputChar(L'\n');
+            mpString->getCursorPos();
+            if (meLanguage == CN) {
+                bool predictions;
+                if (!mbPredictOn) predictions = false;
+                else if (mePredictMode != PM_Atok && mpZiString->getCurrentNumPredicted() > 0) predictions = true;
+                else predictions = false;
+                if (predictions) {
+                    mpZiString->setCurrentWord(NULL);
+                    mpZiString->update();
+                }
+            }
+        }
+        if (!current->hasCandidate()) {
+            if (!current->isKanaFix()) return;
+            mpManager->getHWKeyboard()->resetQuoteState();
+            mpUnfixString->resetRelation();
+            updateCandidateState_();
+            if (mpUnfixString->getCandidate() != L' ') {
+                moveCursorDown();
+                onCommand(static_cast<INPUT_COMMAND>(47), NULL);
+            }
+        }
+    }
+}
+
+void Base::onPressDownHWKB() {
+    tistring::Decolated* current = getCurrentString(false);
+    s32 selected;
+    u32 modifiers = input::HKBManager::getInstance().GetModifierState();
+    if (current == mpString) {
+        mpManager->getHWKeyboard()->resetQuoteState();
+        mpUnfixString->resetRelation();
+        updateCandidateState_();
+        if (meLanguage == KR && !getCurrentString(false)->isKanaFix()) {
+            mpString->getCursorPos();
+            mpString->inputChar(L'\n');
+            mpString->getCursorPos();
+            if (meLanguage == CN) {
+                bool predictions;
+                if (!mbPredictOn) predictions = false;
+                else if (mePredictMode != PM_Atok && mpZiString->getCurrentNumPredicted() > 0) predictions = true;
+                else predictions = false;
+                if (predictions) {
+                    mpZiString->setCurrentWord(NULL);
+                    mpZiString->update();
+                }
+            }
+        }
+        if (!current->hasCandidate()) {
+            if (!current->isKanaFix()) return;
+            if (mpUnfixString->getCandidate() == L' ') return;
+            moveCursorDown();
+            onCommand(static_cast<INPUT_COMMAND>(47), NULL);
+        }
+    } else if (mpUnfixString == current) {
+        if (!mpUnfixString->isKanaFix()) mpUnfixString->confirmKana();
+        if (mpUnfixString->isConverting()) {
+            if (modifiers & 2) {
+                mpUnfixString->commitPredicted(mpUnfixString->getSelectedConverting());
+                updateCandidateState_();
+            } else {
+                if (!mpManager->getCandidateBox()->isInScroll()) {
+                    tistring::Decolated* active = getCurrentString(false);
+                    if (active == mpUnfixString) {
+                        selected = static_cast<s16>(mpUnfixString->getSelectedConverting() + 1);
+                        if (selected >= mpUnfixString->getCurrentNumPredicted()) selected = 0;
+                        else if (selected < 0) selected = static_cast<s16>(mpUnfixString->getCurrentNumPredicted() - 1);
+                        moveCandidateToIdx(selected);
+                        mpManager->getCandidateBox()->getTextArea().ScrollToSelectedText();
+                    }
+                    onSE(static_cast<sound::SE>(6));
+                }
+            }
+        } else {
+            if (mpUnfixString->getInputStringLength()) {
+                mpUnfixString->startConverting();
+                updateCandidateState_();
+                moveCandidateToIdx(0);
+                mpManager->getCandidateBox()->getTextArea().ScrollToSelectedText();
+                onCommand(static_cast<INPUT_COMMAND>(47), NULL);
+            }
+        }
+    }
+}
+
+void Base::onPressLeftHWKB() {
+    tistring::Decolated* current = getCurrentString(false);
+    input::HKBManager::getInstance().GetModifierState();
+    current->getCursorPos();
+    if (current == mpString) {
+        if (meLanguage == KR) {
+            if (!getCurrentString(false)->isKanaFix()) {
+                mpString->getCursorPos();
+                mpString->inputChar(L'\n');
+                mpString->getCursorPos();
+                if (meLanguage == CN) {
+                    bool predictions;
+                    if (!mbPredictOn) predictions = false;
+                    else if (mePredictMode != PM_Atok && mpZiString->getCurrentNumPredicted() > 0) predictions = true;
+                    else predictions = false;
+                    if (predictions) {
+                        mpZiString->setCurrentWord(NULL);
+                        mpZiString->update();
+                    }
+                }
+            }
+            current->getCursorPos();
+        }
+        if (current->hasCandidate()) return;
+        switch (current->isKanaFix()) {
+        case true: break;
+        default: return;
+        }
+        mpManager->getHWKeyboard()->resetQuoteState();
+        mpUnfixString->resetRelation();
+        updateCandidateState_();
+        if (current->moveCursorLeft()) onSE(static_cast<sound::SE>(5));
+        else onSE(static_cast<sound::SE>(6));
+    } else if (current == mpUnfixString) {
+        if (mpManager->getCandidateBox()->isInScroll()) return;
+        if (mpUnfixString->getCurrentNumPredicted() <= 0) return;
+        if (mpUnfixString->isConverting()) {
+            onPressLeft();
+            return;
+        }
+        s32 selected = static_cast<s16>(mpUnfixString->getSelectedCandidate() - 1);
+        if (selected < -1) selected = 0;
+        else if (selected < 0) selected = static_cast<s16>(mpUnfixString->getCurrentNumPredicted() - 1);
+        moveCandidateToIdx(selected);
+        mpManager->getCandidateBox()->getTextArea().ScrollToSelectedText();
+        onSE(static_cast<sound::SE>(6));
+    } else if (current == mpZiString) {
+        if (mpManager->getCandidateBox()->isInScroll()) return;
+        bool selectedAlready = mbZuSelected;
+        mbZuSelected = true;
+        if (mpZiString->getCurrentNumPredicted() < 0) return;
+        s32 selected = mpZiString->getSelectedCandidateIndex();
+        if (selectedAlready) --selected;
+        if (selected < 0) selected = mpZiString->getCurrentNumPredicted() - 1;
+        moveCandidateToIdx(selected);
+        mpManager->getCandidateBox()->getTextArea().ScrollToSelectedText();
+        onSE(static_cast<sound::SE>(6));
+    }
+    meScrollFlag = SF_ScrollOn;
+}
+
+void Base::onPressRightHWKB() {
+    tistring::Decolated* current = getCurrentString(false);
+    input::HKBManager::getInstance().GetModifierState();
+    current->getCursorPos();
+    if (current == mpString) {
+        if (meLanguage == KR) {
+            if (!getCurrentString(false)->isKanaFix()) {
+                mpString->getCursorPos();
+                mpString->inputChar(L'\n');
+                mpString->getCursorPos();
+                if (meLanguage == CN) {
+                    bool predictions;
+                    if (!mbPredictOn) predictions = false;
+                    else if (mePredictMode != PM_Atok && mpZiString->getCurrentNumPredicted() > 0) predictions = true;
+                    else predictions = false;
+                    if (predictions) {
+                        mpZiString->setCurrentWord(NULL);
+                        mpZiString->update();
+                    }
+                }
+            }
+            current->getCursorPos();
+        }
+        if (current->hasCandidate()) return;
+        switch (current->isKanaFix()) {
+        case true: break;
+        default: return;
+        }
+        mpManager->getHWKeyboard()->resetQuoteState();
+        mpUnfixString->resetRelation();
+        updateCandidateState_();
+        if (current->moveCursorRight()) onSE(static_cast<sound::SE>(6));
+        else onSE(static_cast<sound::SE>(5));
+    } else if (current == mpUnfixString) {
+        if (mpManager->getCandidateBox()->isInScroll()) return;
+        if (mpUnfixString->getCurrentNumPredicted() <= 0) return;
+        if (mpUnfixString->isConverting()) {
+            current->moveCursorRight();
+            onSE(static_cast<sound::SE>(6));
+            updateCandidateState_();
+        } else {
+            s32 selected = static_cast<s16>(mpUnfixString->getSelectedCandidate() + 1);
+            if (selected >= mpUnfixString->getCurrentNumPredicted()) selected = 0;
+            moveCandidateToIdx(selected);
+            mpManager->getCandidateBox()->getTextArea().ScrollToSelectedText();
+            onSE(static_cast<sound::SE>(6));
+        }
+    } else if (current == mpZiString) {
+        if (mpManager->getCandidateBox()->isInScroll()) return;
+        bool selectedAlready = mbZuSelected;
+        mbZuSelected = true;
+        if (mpZiString->getCurrentNumPredicted() < 0) return;
+        s32 selected = mpZiString->getSelectedCandidateIndex();
+        if (selectedAlready) ++selected;
+        if (selected >= mpZiString->getCurrentNumPredicted()) selected = 0;
+        if (selected < 0) selected = 0;
+        moveCandidateToIdx(selected);
+        mpManager->getCandidateBox()->getTextArea().ScrollToSelectedText();
+        onSE(static_cast<sound::SE>(6));
+    }
+    meScrollFlag = SF_ScrollOn;
+}
+
 extern "C" asm void onPressLeft__Q39textinput9inputform4BaseFv() {
     nofralloc
     stwu r1, -0x10(r1)
@@ -3087,41 +4374,11 @@ calc_L7:
     blr
 }
 
-extern "C" asm void __dt__Q39textinput9inputform4BaseFv() {
-    nofralloc
-    stwu r1, -0x10(r1)
-    mflr r0
-    cmpwi r3, 0
-    stw r0, 0x14(r1)
-    stw r31, 0xc(r1)
-    mr r31, r4
-    stw r30, 8(r1)
-    mr r30, r3
-    beq baseDestructor_L1
-    addic. r0, r3, 0x1f8
-    beq baseDestructor_L2
-    lwz r3, 0x200(r3)
-    lwz r4, 0x1f8(r30)
-    bl MEMFreeToAllocator
-baseDestructor_L2:
-    addic. r3, r30, 0x10
-    beq baseDestructor_L3
-    li r4, 0
-    bl __dt__Q34nw4r2ut10CharWriterFv
-baseDestructor_L3:
-    cmpwi r31, 0
-    ble baseDestructor_L1
-    mr r3, r30
-    bl __dl__FPv
-baseDestructor_L1:
-    mr r3, r30
-    lwz r31, 0xc(r1)
-    lwz r30, 8(r1)
-    lwz r0, 0x14(r1)
-    mtlr r0
-    addi r1, r1, 0x10
-    blr
+Base::RowInfoManager::~RowInfoManager() {
+    MEMFreeToAllocator(mpAllocator, mpInfo);
 }
+
+Base::~Base() {}
 
 extern "C" asm void __ct__Q39textinput9inputform4BaseFPQ29textinput7Manager() {
     nofralloc
@@ -3259,239 +4516,76 @@ extern "C" asm void __ct__Q39textinput9inputform4BaseFPQ29textinput7Manager() {
     blr
 }
 
-extern "C" asm void EnableKSXFilter__Q39textinput8tistring9DecolatedFb() {
-    nofralloc
-    blr
-}
-extern "C" asm void backSpace__Q39textinput8tistring8WithAtokFv() {
-    nofralloc
-    blr
-}
-extern "C" asm void changeKanaMode__Q39textinput8tistring8WithAtokFb() {
-    nofralloc
-    blr
-}
-extern "C" asm void closeDictionary__Q39textinput8tistring8WithAtokFv() {
-    nofralloc
-    blr
-}
-extern "C" asm void commitPredicted__Q39textinput8tistring8WithAtokFi() {
-    nofralloc
-    blr
-}
-extern "C" asm void confirm__Q39textinput8tistring8WithAtokFPCw() {
-    nofralloc
-    blr
-}
-extern "C" asm void deleteChar__Q39textinput8tistring9DecolatedFv() {
-    nofralloc
-    blr
-}
-extern "C" asm void enableConfirmedString__Q39textinput8tistring8WithAtokFb() {
-    nofralloc
-    blr
-}
-extern "C" asm void getCursorPos__Q39textinput8tistring8WithAtokFPUlPUl() {
-    nofralloc
-    blr
-}
-extern "C" asm void getDrawString__Q39textinput8tistring8WithAtokFRQ49textinput8tistring8WithAtok8DrawInfo() {
-    nofralloc
-    blr
-}
-extern "C" asm void getPredicted__Q39textinput8tistring8WithAtokFiPw() {
-    nofralloc
-    blr
-}
-extern "C" asm void initConverting__Q39textinput8tistring8WithAtokFv() {
-    nofralloc
-    blr
-}
+
+
+
+
+
+
+
+
+
+
+
+
 extern "C" asm void init__Q29textinput4BaseFv() {
     nofralloc
     blr
 }
-extern "C" asm void init__Q39textinput8tistring8WithAtokFv() {
-    nofralloc
-    blr
-}
-extern "C" asm void inputChar__Q39textinput8tistring8WithAtokFw() {
-    nofralloc
-    blr
-}
-extern "C" asm void openDictionary__Q39textinput8tistring8WithAtokFPviPviPvi() {
-    nofralloc
-    blr
-}
-extern "C" asm void popBack__Q39textinput8tistring8WithAtokFv() {
-    nofralloc
-    blr
-}
-extern "C" asm void pushBack__Q39textinput8tistring8WithAtokFw() {
-    nofralloc
-    blr
-}
-extern "C" asm void resetRelation__Q39textinput8tistring8WithAtokFv() {
-    nofralloc
-    blr
-}
-extern "C" asm void setDefaultPrediction__Q39textinput8tistring8WithAtokFiPPCc() {
-    nofralloc
-    blr
-}
-extern "C" asm void setFixMode__Q39textinput8tistring8WithAtokFb() {
-    nofralloc
-    blr
-}
-extern "C" asm void setFixPrediction__Q39textinput8tistring8WithAtokFiPPCc() {
-    nofralloc
-    blr
-}
-extern "C" asm void setFix__Q39textinput8tistring8WithAtokFb() {
-    nofralloc
-    blr
-}
-extern "C" asm void setInputting__Q39textinput8tistring8WithAtokFw() {
-    nofralloc
-    blr
-}
-extern "C" asm void setSelectedCandidate__Q39textinput8tistring8WithAtokFl() {
-    nofralloc
-    blr
-}
-extern "C" asm void startConverting__Q39textinput8tistring8WithAtokFv() {
-    nofralloc
-    blr
-}
 
-extern "C" asm void dirtyDrawCache__Q39textinput10textdrawer4BaseFv() {
-    nofralloc
-    li r0, 0
-    stb r0, 0xe4(r3)
-    blr
-}
-extern "C" asm void dirtyCursorCache__Q39textinput10textdrawer4BaseFv() {
-    nofralloc
-    li r0, 0
-    stb r0, 0x104(r3)
-    blr
-}
-extern "C" asm void getCursorPos__Q39textinput8tistring9DecolatedCFv() {
-    nofralloc
-    lwz r3, 0x18(r3)
-    blr
-}
-extern "C" asm void getCellPhoneKeyboard__Q29textinput7ManagerFv() {
-    nofralloc
-    lwz r3, 0x18(r3)
-    blr
-}
-extern "C" asm void isConverting__Q39textinput8tistring8WithAtokFv() {
-    nofralloc
-    li r3, 0
-    blr
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 extern "C" asm void getLine__Q39textinput10textdrawer4BaseFv() {
     nofralloc
     lwz r3, 0xa0(r3)
     addi r3, r3, 1
     blr
 }
-extern "C" asm void getSelectedConverting__Q39textinput8tistring8WithAtokFv() {
-    nofralloc
-    li r3, 0
-    blr
+
+
+
+
+
+
+
+
+
+
+
+
 }
-extern "C" asm void isOnSustain__Q39textinput8tistring9DecolatedFv() {
-    nofralloc
-    lbz r3, 0x20(r3)
-    blr
+
+bool textinput::util::Animation::isActive() {
+    return mbInAnimation;
 }
-extern "C" asm void setSelectedCandidate__Q39textinput8tistring6WithZiFl() {
-    nofralloc
-    stw r4, 0x98(r3)
-    blr
-}
-extern "C" asm void isDictionaryOpened__Q39textinput8tistring8WithAtokFv() {
-    nofralloc
-    li r3, 0
-    blr
-}
-extern "C" asm void getConfirmedWCString__Q39textinput8tistring8WithAtokCFv() {
-    nofralloc
-    li r3, 0
-    blr
-}
-extern "C" asm void setPredictLaunguage__Q39textinput8tistring6WithZiFQ49textinput8tistring6WithZi15PredictLanguage() {
-    nofralloc
-    stw r4, 0x9c(r3)
-    blr
-}
-extern "C" asm void hasConfirmedString__Q39textinput8tistring8WithAtokFv() {
-    nofralloc
-    li r3, 0
-    blr
-}
-extern "C" asm void getCurrentNumPredicted__Q39textinput8tistring8WithAtokFv() {
-    nofralloc
-    li r3, 0
-    blr
-}
-extern "C" asm void getCurrentNumPredicted__Q39textinput8tistring6WithZiFv() {
-    nofralloc
-    lwz r3, 0x8c(r3)
-    blr
-}
-extern "C" asm void getDrawModifyEndLine__Q39textinput10textdrawer4BaseCFv() {
-    nofralloc
-    lwz r3, 0xd0(r3)
-    blr
-}
-extern "C" asm void getEndPos__Q39textinput10textdrawer4BaseCFv() {
-    nofralloc
-    lwz r3, 0xc0(r3)
-    blr
-}
-extern "C" asm void getLength__Q39textinput8tistring10StringBaseCFv() {
-    nofralloc
-    lhz r3, 0x6(r3)
-    blr
-}
-extern "C" asm void isActive__Q39textinput4util9AnimationFv() {
-    nofralloc
-    lbz r3, 0x14(r3)
-    blr
-}
+
+namespace inputform {
 extern "C" asm void getKanaBuffer__Q39textinput8tistring9DecolatedFv() {
     nofralloc
     addi r3, r3, 0x42
     blr
 }
-extern "C" asm void getCandidate__Q39textinput8tistring10StringBaseCFv() {
-    nofralloc
-    lhz r3, 0x10(r3)
-    blr
-}
-extern "C" asm void getInputStringLength__Q39textinput8tistring6WithZiFv() {
-    nofralloc
-    lhz r3, 0x88(r3)
-    blr
-}
-extern "C" asm void isCandidateSelected__Q39textinput8tistring8WithAtokFv() {
-    nofralloc
-    li r3, 0
-    blr
-}
-extern "C" asm void getSelectedCandidate__Q39textinput8tistring8WithAtokFv() {
-    nofralloc
-    li r3, 0
-    blr
-}
-extern "C" asm void isInvalid__Q39textinput12candidatebox4BaseCFv() {
-    nofralloc
-    lbz r3, 0x19(r3)
-    blr
-}
+
+
+
+
+
 extern "C" asm void hasCandidate__Q39textinput8tistring10StringBaseCFv() {
     nofralloc
     lhz r3, 0x10(r3)
@@ -3500,119 +4594,56 @@ extern "C" asm void hasCandidate__Q39textinput8tistring10StringBaseCFv() {
     srwi r3, r0, 31
     blr
 }
-extern "C" asm void setCandidate__Q39textinput8tistring10StringBaseFw() {
-    nofralloc
-    sth r4, 0x10(r3)
-    blr
-}
-extern "C" asm void changeLetterMode__Q39textinput8tistring6WithZiFQ49textinput8tistring6WithZi10LetterMode() {
-    nofralloc
-    stw r4, 0xa0(r3)
-    blr
-}
-extern "C" asm void setCellPhoneHoldingkey__Q39textinput8tistring6WithZiFPv() {
-    nofralloc
-    stw r4, 0xa4(r3)
-    blr
-}
-extern "C" asm void isFix__Q39textinput8tistring8WithAtokFv() {
-    nofralloc
-    li r3, 1
-    blr
-}
-extern "C" asm void getCandidateBox__Q29textinput7ManagerCFv() {
-    nofralloc
-    lwz r3, 0x20(r3)
-    blr
-}
-extern "C" asm void getFixedPredictionNum__Q39textinput8tistring8WithAtokFv() {
-    nofralloc
-    li r3, 0
-    blr
-}
-extern "C" asm void getInputStringLength__Q39textinput8tistring8WithAtokFv() {
-    nofralloc
-    li r3, 0
-    blr
-}
-extern "C" asm void getHWKeyboard__Q29textinput7ManagerFv() {
-    nofralloc
-    lwz r3, 0x10(r3)
-    blr
-}
+
+
+
+
+
+
+
+
 extern "C" asm void create__Q39textinput9inputform4BaseFP12MEMAllocator() {
     nofralloc
     blr
 }
-extern "C" asm void getDrawModifyStartLine__Q39textinput10textdrawer4BaseCFv() {
-    nofralloc
-    lwz r3, 0xcc(r3)
-    blr
-}
-extern "C" asm void getStartPos__Q39textinput10textdrawer4BaseCFv() {
-    nofralloc
-    lwz r3, 0xbc(r3)
-    blr
-}
+
 extern "C" asm void setVIWidth__Q39textinput10textdrawer4BaseFf() {
     nofralloc
     stfs f1, 0x98(r3)
     blr
 }
-extern "C" asm void setCandidateBox__Q39textinput12candidatebox18CandidateBoxCallerFPQ39textinput12candidatebox4Base() {
-    nofralloc
-    stw r4, 4(r3)
-    blr
+
+
+
 }
-extern "C" asm void moveCursorLeft__Q39textinput8tistring8WithAtokFv() {
-    nofralloc
-    li r3, 0
-    blr
+
+void textinput::util::Animation::stop() {
+    mbInAnimation = false;
 }
-extern "C" asm void moveCursorRight__Q39textinput8tistring8WithAtokFv() {
-    nofralloc
-    li r3, 0
-    blr
+
+namespace inputform {
 }
-extern "C" asm void stop__Q39textinput4util9AnimationFv() {
-    nofralloc
-    li r0, 0
-    stb r0, 0x14(r3)
-    blr
+
+bool textinput::util::Animation::isSEFlag() {
+    return mbSE;
 }
-extern "C" asm void isSEFlag__Q39textinput4util9AnimationFv() {
-    nofralloc
-    lbz r3, 0x15(r3)
-    blr
+
+namespace inputform {
 }
-extern "C" asm void setSEFlag__Q39textinput4util9AnimationFb() {
-    nofralloc
-    stb r4, 0x15(r3)
-    blr
+
+void textinput::util::Animation::setSEFlag(bool flag) {
+    mbSE = flag;
 }
-extern "C" asm void getValue__Q39textinput4util9AnimationFv() {
-    nofralloc
-    lfs f2, lbl_81694D28(r0)
-    lfs f1, 0xc(r3)
-    fmr f4, f2
-    lfs f3, 0x4(r3)
-    fmr f7, f2
-    lfs f5, 0x10(r3)
-    lfs f6, 0x8(r3)
-    b hermiteInterporation__Q29textinput4utilFfffffff
+
+namespace inputform {
 }
-extern "C" asm u32 getDrawCacheStartPos__Q39textinput10textdrawer4BaseCFv() {
-    nofralloc
-    lbz r0, 0xe4(r3)
-    cmpwi r0, 0
-    beq getDrawCacheStartPos_L1
-    lwz r3, 0xdc(r3)
-    blr
-getDrawCacheStartPos_L1:
-    lis r3, 0x8000
-    subi r3, r3, 1
-    blr
+
+f32 textinput::util::Animation::getValue() {
+    return hermiteInterporation(mfCurrentFrame, 0.0f, mfStartPoint, 0.0f, mfAnimationTime, mfEndPoint, 0.0f);
 }
+
+namespace inputform {
+
 extern "C" asm void onSE__Q39textinput9inputform12LayoutByNW4RFQ39textinput5sound2SE() {
     nofralloc
     lwz r3, 0x22c(r3)
@@ -3729,45 +4760,30 @@ isKanaFix_L2:
     addi r1, r1, 0x10
     blr
 }
-extern "C" asm void calc__Q39textinput4util9AnimationFv() {
-    nofralloc
-    stwu r1, -0x10(r1)
-    mflr r0
-    stw r0, 0x14(r1)
-    stw r31, 0xc(r1)
-    mr r31, r3
-    lbz r0, 0x14(r3)
-    cmpwi cr1, r0, 0
-    beq cr1, calc_Animation_L4
-    lfs f1, 0xc(r3)
-    lfs f0, 0x10(r3)
-    fcmpo cr0, f1, f0
-    bge calc_Animation_L1
-    lfs f0, lbl_81694D38(r0)
-    fadds f0, f0, f1
-    stfs f0, 0xc(r3)
-    b calc_Animation_L4
-calc_Animation_L1:
-    beq cr1, calc_Animation_L3
-    lwz r3, 0x18(r3)
-    cmpwi r3, 0
-    beq calc_Animation_L3
-    lwz r12, 0(r3)
-    li r4, 1
-    lwz r5, 0x1c(r31)
-    lwz r12, 8(r12)
-    mtctr r12
-    bctrl
-calc_Animation_L3:
-    li r0, 0
-    stb r0, 0x14(r31)
-calc_Animation_L4:
-    lwz r0, 0x14(r1)
-    lwz r31, 0xc(r1)
-    mtlr r0
-    addi r1, r1, 0x10
-    blr
 }
+
+void textinput::util::Animation::calc() {
+    if (mbInAnimation) {
+        if (mfCurrentFrame < mfAnimationTime) {
+            mfCurrentFrame = 1.0f + mfCurrentFrame;
+        } else {
+            if (mbInAnimation && mpAnimObserver) {
+                mpAnimObserver->onAnmEvent(AnimObserver::AE_1, mpData);
+            }
+            mbInAnimation = false;
+        }
+    }
+}
+
+bool textdrawer::Base::isEnableCursorCache() const {
+    return mbCursorCache;
+}
+
+u32 textdrawer::Base::getStartPos() const {
+    return muDrawStartPos;
+}
+
+namespace inputform {
 extern "C" asm void set__Q39textinput8tistring9DecolatedFPCw() {
     nofralloc
     stwu r1, -0x10(r1)
@@ -3857,162 +4873,22 @@ init_RowInfo_L1:
     sth r0, 2(r4)
     blr
 }
-asm nw4r::math::VEC2 LayoutByNW4R::getScale() const {
-    nofralloc
-    stwu r1, -0x10(r1)
-    mflr r0
-    lwz r6, 0x21c(r3)
-    li r5, 1
-    stw r0, 0x14(r1)
-    lwz r4, 0x2c0(r3)
-    lwz r3, 0x10(r6)
-    lwz r12, 0(r3)
-    lwz r12, 0x3c(r12)
-    mtctr r12
-    bctrl
-    lwz r0, 0x14(r1)
-    mr r4, r3
-    lwz r3, 0x44(r3)
-    lwz r4, 0x48(r4)
-    mtlr r0
-    addi r1, r1, 0x10
-    blr
+nw4r::math::VEC2 LayoutByNW4R::getScale() const {
+    return mpLayout->GetRootPane()->FindPaneByName(static_cast<const char*>(mpLayoutData), true)->GetScale();
 }
-extern "C" asm void __dt__Q39textinput9inputform12LayoutByNW4RFv() {
-    nofralloc
-    stwu r1, -0x20(r1)
-    mflr r0
-    cmpwi r3, 0
-    stw r0, 0x24(r1)
-    stw r31, 0x1c(r1)
-    stw r30, 0x18(r1)
-    mr r30, r4
-    stw r29, 0x14(r1)
-    mr r29, r3
-    beq __dt_Layout_L1
-    lwz r7, 0x2d0(r3)
-    lis r6, __vt__Q39textinput9inputform12LayoutByNW4R@ha
-    addi r6, r6, __vt__Q39textinput9inputform12LayoutByNW4R@l
-    addi r5, r6, 0x20
-    cmpwi r7, 0
-    addi r4, r6, 0xb8
-    addi r0, r6, 0x1a8
-    stw r6, 0(r3)
-    stw r5, 0x5c(r3)
-    stw r4, 0x118(r3)
-    stw r0, 0x218(r3)
-    beq __dt_Layout_L2
-    lwz r12, 0(r7)
-    mr r3, r7
-    li r4, -1
-    lwz r12, 8(r12)
-    mtctr r12
-    bctrl
-    lwz r3, 0x1d0(r29)
-    lwz r4, 0x2d0(r29)
-    bl MEMFreeToAllocator
-__dt_Layout_L2:
-    addi r3, r29, 0x284
-    li r4, 0
-    bl List_GetNext__Q24nw4r2utFPCQ34nw4r2ut4ListPCv
-    mr r31, r3
-    b __dt_Layout_L4
-__dt_Layout_L3:
-    mr r4, r31
-    addi r3, r29, 0x284
-    bl List_Remove__Q24nw4r2utFPQ34nw4r2ut4ListPv
-    lwz r4, 0x1d0(r29)
-    mr r3, r31
-    bl destroy__Q39textinput11nw4rmanager7AnmPaneFP12MEMAllocator
-    addi r3, r29, 0x284
-    li r4, 0
-    bl List_GetNext__Q24nw4r2utFPCQ34nw4r2ut4ListPCv
-    mr r31, r3
-__dt_Layout_L4:
-    cmpwi r31, 0
-    bne __dt_Layout_L3
-    addi r3, r29, 0x2d4
-    li r4, -1
-    bl __dt__Q34nw4r2ut7ResFontFv
-    addi r3, r29, 0x218
-    li r4, 0
-    bl __dt__Q39textinput11nw4rmanager6LayoutFv
-    cmpwi r29, 0
-    beq __dt_Layout_L5
-    addic. r0, r29, 0x1f8
-    beq __dt_Layout_L6
-    lwz r3, 0x200(r29)
-    lwz r4, 0x1f8(r29)
-    bl MEMFreeToAllocator
-__dt_Layout_L6:
-    addic. r3, r29, 0x10
-    beq __dt_Layout_L5
-    li r4, 0
-    bl __dt__Q34nw4r2ut10CharWriterFv
-__dt_Layout_L5:
-    cmpwi r30, 0
-    ble __dt_Layout_L1
-    mr r3, r29
-    bl __dl__FPv
-__dt_Layout_L1:
-    lwz r31, 0x1c(r1)
-    mr r3, r29
-    lwz r30, 0x18(r1)
-    lwz r29, 0x14(r1)
-    lwz r0, 0x24(r1)
-    mtlr r0
-    addi r1, r1, 0x20
-    blr
+LayoutByNW4R::~LayoutByNW4R() {
+    if (mpInputEventHandler) {
+        mpInputEventHandler->~TiEventHandler();
+        MEMFreeToAllocator(mpAllocator, mpInputEventHandler);
+    }
+    nw4rmanager::AnmPane* pane = static_cast<nw4rmanager::AnmPane*>(nw4r::ut::List_GetNext(&mAnmPanes, NULL));
+    while (pane) {
+        nw4r::ut::List_Remove(&mAnmPanes, pane);
+        pane->destroy(mpAllocator);
+        pane = static_cast<nw4rmanager::AnmPane*>(nw4r::ut::List_GetNext(&mAnmPanes, NULL));
+    }
 }
-extern "C" asm void __ct__Q39textinput9inputform12LayoutByNW4RFPQ29textinput7ManagerPQ34nw4r3lyt24MultiArcResourceAccessorPCcPQ29textinput13EventObserverPCc() {
-    nofralloc
-    stwu r1, -0x20(r1)
-    mflr r0
-    stw r0, 0x24(r1)
-    addi r11, r1, 0x20
-    bl _savegpr_27
-    mr r27, r3
-    mr r28, r5
-    mr r29, r6
-    mr r30, r7
-    mr r31, r8
-    bl __ct__Q39textinput9inputform4BaseFPQ29textinput7Manager
-    mr r4, r28
-    mr r5, r29
-    mr r6, r30
-    addi r3, r27, 0x218
-    bl __ct__Q39textinput11nw4rmanager6LayoutFPQ34nw4r3lyt24MultiArcResourceAccessorPCcPQ29textinput13EventObserver
-    lis r6, __vt__Q39textinput9inputform12LayoutByNW4R@ha
-    li r0, 0
-    addi r6, r6, __vt__Q39textinput9inputform12LayoutByNW4R@l
-    lis r5, lbl_8165CBE0@ha
-    lis r4, csLanguageDependencyDataUEJ__Q29textinput9inputform@ha
-    stw r6, 0(r27)
-    addi r3, r6, 0x20
-    addi r7, r6, 0xb8
-    addi r6, r6, 0x1a8
-    addi r5, r5, lbl_8165CBE0@l
-    addi r4, r4, csLanguageDependencyDataUEJ__Q29textinput9inputform@l
-    stw r3, 0x5c(r27)
-    addi r3, r27, 0x2d4
-    stw r7, 0x118(r27)
-    stw r6, 0x218(r27)
-    stw r5, 0x2c0(r27)
-    stw r4, 0x2c4(r27)
-    stw r31, 0x2c8(r27)
-    stb r0, 0x2cc(r27)
-    stb r0, 0x2cd(r27)
-    stb r0, 0x2ce(r27)
-    stw r0, 0x2d0(r27)
-    bl __ct__Q34nw4r2ut7ResFontFv
-    addi r11, r1, 0x20
-    mr r3, r27
-    bl _restgpr_27
-    lwz r0, 0x24(r1)
-    mtlr r0
-    addi r1, r1, 0x20
-    blr
-}
+
 extern "C" asm void create__Q39textinput9inputform10EditBufferFP12MEMAllocator() {
     nofralloc
     stwu r1, -0x20(r1)
@@ -4330,93 +5206,32 @@ updateRepeatInput_L9:
     stw r0, 0x2fc(r3)
     blr
 }
-extern "C" asm void ToCombineClass__Q39textinput9inputform13DeadKeyStreamFQ29textinput8Languagew() {
-    nofralloc
-    cmpwi r3, 5
-    beq ToCombineClass_L9
-    bge ToCombineClass_L1
-    cmpwi r3, 3
-    beq ToCombineClass_L2
-    bge ToCombineClass_L3
-    b ToCombineClass_L9
-ToCombineClass_L1:
-    cmpwi r3, 7
-    beq ToCombineClass_L8
-    bge ToCombineClass_L9
-    b ToCombineClass_L4
-ToCombineClass_L3:
-    cmplwi r4, 0xb4
-    bne ToCombineClass_L3a
-    li r3, 0x301
-    blr
-ToCombineClass_L3a:
-    cmplwi r4, 0x60
-    bne ToCombineClass_L9
-    li r3, 0x300
-    blr
-ToCombineClass_L2:
-    cmplwi r4, 0x5e
-    bne ToCombineClass_L2a
-    li r3, 0x302
-    blr
-ToCombineClass_L2a:
-    cmplwi r4, 0xa8
-    bne ToCombineClass_L9
-    li r3, 0x308
-    blr
-ToCombineClass_L4:
-    cmplwi r4, 0x60
-    bne ToCombineClass_L4a
-    li r3, 0x300
-    blr
-ToCombineClass_L4a:
-    cmplwi r4, 0xb4
-    bne ToCombineClass_L4b
-    li r3, 0x301
-    blr
-ToCombineClass_L4b:
-    cmplwi r4, 0x5e
-    bne ToCombineClass_L4c
-    li r3, 0x302
-    blr
-ToCombineClass_L4c:
-    cmplwi r4, 0x7e
-    bne ToCombineClass_L4d
-    li r3, 0x303
-    blr
-ToCombineClass_L4d:
-    cmplwi r4, 0xa8
-    bne ToCombineClass_L9
-    li r3, 0x308
-    blr
-ToCombineClass_L8:
-    cmplwi r4, 0x60
-    bne ToCombineClass_L8a
-    li r3, 0x300
-    blr
-ToCombineClass_L8a:
-    cmplwi r4, 0x5e
-    bne ToCombineClass_L8b
-    li r3, 0x302
-    blr
-ToCombineClass_L8b:
-    cmplwi r4, 0x7e
-    bne ToCombineClass_L8c
-    li r3, 0x303
-    blr
-ToCombineClass_L8c:
-    cmplwi r4, 0x27
-    bne ToCombineClass_L8d
-    li r3, 0x30d
-    blr
-ToCombineClass_L8d:
-    cmplwi r4, 0x22
-    bne ToCombineClass_L9
-    li r3, 0x30e
-    blr
-ToCombineClass_L9:
-    mr r3, r4
-    blr
+wchar_t DeadKeyStream::ToCombineClass(Language language, wchar_t code) {
+    switch (language) {
+        case DE:
+            if (code == 0xb4) return 0x301;
+            if (code == 0x60) return 0x300;
+            break;
+        case FR:
+            if (code == 0x5e) return 0x302;
+            if (code == 0xa8) return 0x308;
+            break;
+        case SP:
+            if (code == 0x60) return 0x300;
+            if (code == 0xb4) return 0x301;
+            if (code == 0x5e) return 0x302;
+            if (code == 0x7e) return 0x303;
+            if (code == 0xa8) return 0x308;
+            break;
+        case NL:
+            if (code == 0x60) return 0x300;
+            if (code == 0x5e) return 0x302;
+            if (code == 0x7e) return 0x303;
+            if (code == 0x27) return 0x30d;
+            if (code == 0x22) return 0x30e;
+            break;
+    }
+    return code;
 }
 extern "C" asm void init__Q39textinput3gui12GUIComponentFv() {
     nofralloc
@@ -4476,115 +5291,37 @@ extern "C" asm void init__Q39textinput3gui12GUIComponentFv() {
     blr
 }
 
-asm bool Base::isEditMode() {
-    nofralloc
-    stwu r1, -0x10(r1)
-    mflr r0
-    stw r0, 0x14(r1)
-    lwz r0, 0x174(r3)
-    cmpwi r0, 2
-    bge isEditMode_L1
-    cmpwi r0, 0
-    bge isEditMode_L2
-isEditMode_L1:
-    lwz r3, 0x16c(r3)
-    lwz r12, 0(r3)
-    lwz r12, 0xec(r12)
-    mtctr r12
-    bctrl
-    cmpwi r3, 0
-    bne isEditMode_L2
-    li r3, 0
-    b isEditMode_L3
-isEditMode_L2:
-    li r3, 1
-isEditMode_L3:
-    lwz r0, 0x14(r1)
-    mtlr r0
-    addi r1, r1, 0x10
-    blr
+bool Base::isEditMode() {
+    switch (mePredictMode) {
+    case PM_Off:
+    case PM_Atok:
+        break;
+    default:
+        if (!mpZiString->isFix()) return false;
+        break;
+    }
+    return true;
 }
 
-asm bool Base::checkHeadOfSentence(bool checkSpace) {
-    nofralloc
-    stwu r1, -0x20(r1)
-    mflr r0
-    stw r0, 0x24(r1)
-    addi r5, r1, 8
-    stw r31, 0x1c(r1)
-    stw r30, 0x18(r1)
-    mr r30, r4
-    li r4, 0x20
-    stw r29, 0x14(r1)
-    mr r29, r3
-    lwz r12, 0(r3)
-    lwz r12, 0x18(r12)
-    mtctr r12
-    bctrl
-    lbz r0, 8(r1)
-    cmpwi r0, 0
-    beq checkHeadOfSentence_L1
-    li r3, 0
-    b checkHeadOfSentence_L7
-checkHeadOfSentence_L1:
-    lwz r3, 0x164(r29)
-    li r31, 0
-    lwz r12, 0(r3)
-    lwz r12, 0x7c(r12)
-    mtctr r12
-    bctrl
-    cmplwi r3, 1
-    bge checkHeadOfSentence_L2
-    li r3, 1
-    b checkHeadOfSentence_L7
-checkHeadOfSentence_L2:
-    cmpwi r30, 0
-    beq checkHeadOfSentence_L5
-    lwz r3, 0x164(r29)
-    lwz r12, 0(r3)
-    lwz r12, 0x90(r12)
-    mtctr r12
-    bctrl
-    clrlwi r0, r3, 0x10
-    cmpwi r0, 0x20
-    beq checkHeadOfSentence_L4
-    bge checkHeadOfSentence_L3
-    cmpwi r0, 0xa
-    beq checkHeadOfSentence_L4
-checkHeadOfSentence_L3:
-    li r3, 0
-    b checkHeadOfSentence_L7
-checkHeadOfSentence_L4:
-    lwz r3, 0x164(r29)
-    lwz r12, 0(r3)
-    lwz r12, 0x68(r12)
-    mtctr r12
-    bctrl
-    mr r31, r3
-checkHeadOfSentence_L5:
-    lwz r3, 0x164(r29)
-    lwz r12, 0(r3)
-    lwz r12, 0xb4(r12)
-    mtctr r12
-    bctrl
-    cmpwi r31, 0
-    mr r31, r3
-    beq checkHeadOfSentence_L6
-    lwz r3, 0x164(r29)
-    lwz r12, 0(r3)
-    lwz r12, 0x64(r12)
-    mtctr r12
-    bctrl
-checkHeadOfSentence_L6:
-    mr r3, r31
-checkHeadOfSentence_L7:
-    lwz r0, 0x24(r1)
-    lwz r31, 0x1c(r1)
-    lwz r30, 0x18(r1)
-    lwz r29, 0x14(r1)
-    mtlr r0
-    addi r1, r1, 0x20
-    blr
+bool Base::checkHeadOfSentence(bool checkSpace) {
+    bool externallyHandled;
+    onCommand(static_cast<INPUT_COMMAND>(32), &externallyHandled);
+    if (externallyHandled) return false;
+    bool moved = false;
+    if (mpString->getCursorPos() < 1) return true;
+    if (checkSpace) {
+        switch (mpString->getWCharAtCursor()) {
+        case L' ':
+        case L'\n':
+            break;
+        default:
+            return false;
+        }
+        moved = mpString->moveCursorLeft();
+    }
+    bool beginning = mpString->atTheBeginningOfASentence();
+    if (moved) mpString->moveCursorRight();
+    return beginning;
 }
 
 void Base::setLineDrawInfo(bool lineDraw, u32 lineCount) {
@@ -4600,41 +5337,20 @@ void Base::limitStringLength(u32 limitStringLength) {
     muLimitStringLength = limitStringLength;
 }
 
-asm void Base::setAtokDictionary(void*, int, void*, int, void*, int) {
-    nofralloc
-    lwz r3, 0x168(r3)
-    lwz r12, 0(r3)
-    lwz r12, 0x108(r12)
-    mtctr r12
-    bctr
+void Base::setAtokDictionary(void* atok, int atokSize, void* apot, int apotSize, void* nintendo, int nintendoSize) {
+    mpUnfixString->openDictionary(atok, atokSize, apot, apotSize, nintendo, nintendoSize);
 }
 
-extern "C" asm void setCursorPos__Q39textinput9inputform4BaseFPQ39textinput8tistring9DecolatedUl() {
-    nofralloc
-    mr r3, r4
-    mr r4, r5
-    lwz r12, 0(r3)
-    lwz r12, 0x6c(r12)
-    mtctr r12
-    bctr
+void Base::setCursorPos(tistring::Decolated* string, u32 pos) {
+    string->setCursorPos(pos);
 }
 
-asm void Base::closeAtokDictionary() {
-    nofralloc
-    lwz r3, 0x168(r3)
-    lwz r12, 0(r3)
-    lwz r12, 0x10c(r12)
-    mtctr r12
-    bctr
+void Base::closeAtokDictionary() {
+    mpUnfixString->closeDictionary();
 }
 
-asm bool Base::isAtokDictionaryOpened() {
-    nofralloc
-    lwz r3, 0x168(r3)
-    lwz r12, 0(r3)
-    lwz r12, 0x11c(r12)
-    mtctr r12
-    bctr
+bool Base::isAtokDictionaryOpened() {
+    return mpUnfixString->isDictionaryOpened();
 }
 
 void Base::limitRowNum(u32 limitRowNum) {
@@ -4658,6 +5374,286 @@ void Base::setFont(const nw4r::ut::Font& font) {
 void Base::clear() {
     init();
     mpString->clear();
+}
+
+u32 Base::isOverRowLimit(u32 limit, const wchar_t* string) {
+    const wchar_t* current = string;
+    if (!*string) return 0;
+    f32 cursorX = getScale().x;
+    nw4r::math::VEC2 scale = getScale();
+    f32 scaleX = scale.x;
+    u32 pos = 0;
+    u32 rows = 0;
+    muWordWrapCounter = 0;
+    bool kanaHandled = false;
+    mbHyphen = false;
+    u32 cursorStart, cursorEnd;
+    mpString->getCursorPos(&cursorStart, &cursorEnd);
+    for (;;) {
+        DrawInfo info;
+        info.rect.left = 0.0f;
+        info.rect.top = 0.0f;
+        info.rect.right = 0.0f;
+        info.rect.bottom = 0.0f;
+        bool kana = false;
+        const wchar_t* character = current;
+        if (meLanguage == KR && !kanaHandled && cursorStart == pos) {
+            kanaHandled = true;
+            character = mpString->getKanaBuffer();
+            if (*character) kana = true;
+        }
+        if (!kana) {
+            if (!*current) return 0;
+            character = current;
+        }
+        info.character = *character;
+        calcRect(info);
+        f32 right = cursorX + scaleX * (info.rect.right - info.rect.left);
+        if (kana) {
+            if (right >= scaleX * (mRect.right - mRect.left)) {
+                cursorX = getScale().x;
+                ++rows;
+                if (rows >= limit) return pos;
+            } else {
+                cursorX = right;
+            }
+            continue;
+        }
+        if (doWordWrap(string, pos, cursorX)) {
+            ++rows;
+            if (rows >= limit) {
+                while (pos < muWordWrapCounter) {
+                    f32 advance = scaleX * (info.rect.right - info.rect.left);
+                    if (cursorX + advance >= scaleX * (mRect.right - mRect.left)) return pos;
+                    ++current;
+                    cursorX += advance;
+                    info.character = *current;
+                    calcRect(info);
+                    ++pos;
+                }
+                return muWordWrapCounter - 1;
+            }
+            cursorX = getScale().x;
+        } else if (right >= scaleX * (mRect.right - mRect.left)) {
+            cursorX = getScale().x;
+            ++rows;
+            if (rows >= limit) return pos;
+        }
+        if (*current == L'\n') {
+            cursorX = getScale().x;
+            ++rows;
+            if (rows >= limit) return pos;
+            if (!current[1]) return 0;
+        } else {
+            cursorX += scaleX * (info.rect.right - info.rect.left);
+        }
+        ++pos;
+        ++current;
+    }
+}
+
+bool Base::onCursor(CursorPos* cursor) {
+    bool positioned = false;
+    nw4r::ut::Color savedColor = GetTextColor();
+    SetupGX();
+    const wchar_t* kana = mpString->getKanaBuffer();
+    wchar_t candidate = mpString->getCandidate();
+    if (mbPredictOn && mePredictMode != PM_Atok) {
+        const wchar_t* predicted = mpZiString->getCurrentSelected();
+        if (getPredictMode() == PM_11) {
+            if (mbCursorSelected) mbZuSelected = true;
+            if (!(mbCursorSelected | mbZuSelected)) predicted = mpZiString->getCurrentInput();
+        }
+        if (predicted) {
+            u16 index = 0;
+            SetTextColor(csZiStringColorLeft);
+            for (; *predicted;) {
+                if (!(mbCursorSelected | mbZuSelected) && index == mpZiString->getInputStringLength()) {
+                    positioned = true;
+                    cursor->fCursorX = GetCursorX();
+                    cursor->fCursorY = GetCursorY();
+                }
+                if (getPredictMode() != PM_11 && mpZiString->getInputStringLength() <= index) {
+                    if (mbCursorSelected | mbZuSelected) SetTextColor(csZiStringColorRight);
+                    else SetTextColor(csZiStringNonSelectColorRight);
+                }
+                if (*predicted == 0xFFFE) SetTextColor(csZiStringColorLeft);
+                DrawInfo glyph;
+                glyph.rect.left = 0.0f;
+                glyph.rect.top = 0.0f;
+                glyph.rect.right = 0.0f;
+                glyph.rect.bottom = 0.0f;
+                glyph.character = *predicted;
+                calcRect(glyph);
+                f32 width = glyph.rect.right - glyph.rect.left;
+                f32 fieldWidth = mRect.right - mRect.left;
+                f32 cursorX = GetCursorX();
+                if (cursorX + width >= fieldWidth) doLineFeed();
+                Print(*predicted);
+                MoveCursorX(mfCharacterSpacing);
+                ++predicted;
+                ++index;
+            }
+        }
+    }
+    if (meDestination == DST_JP && candidate) {
+        DrawInfo glyph;
+        glyph.rect.left = 0.0f;
+        glyph.rect.top = 0.0f;
+        glyph.rect.right = 0.0f;
+        glyph.rect.bottom = 0.0f;
+        glyph.character = candidate;
+        calcRect(glyph);
+        static GXColor candidateBackground = {255, 210, 12, 255};
+        f32 left = glyph.rect.left + GetCursorX();
+        f32 top = glyph.rect.top + GetCursorY();
+        f32 right = glyph.rect.right + GetCursorX();
+        f32 bottomEdge = GetCursorY() + GetFontHeight();
+        candidateBackground.a = muGlobalAlpha;
+        debug::drawBox_(left, top, right, bottomEdge, 0.0f, 1.0f, candidateBackground);
+        SetupGX();
+        SetTextColor(mCharColor);
+        switch (candidate) {
+        case L' ':
+        case 0x3000: {
+            DrawInfo space;
+            DrawInfo marker;
+            space.rect.left = 0.0f;
+            space.rect.top = 0.0f;
+            space.rect.right = 0.0f;
+            space.rect.bottom = 0.0f;
+            marker.rect.left = 0.0f;
+            marker.rect.top = 0.0f;
+            marker.rect.right = 0.0f;
+            marker.rect.bottom = 0.0f;
+            space.character = candidate;
+            marker.character = 0xE057;
+            calcRect(space);
+            calcRect(marker);
+            f32 markerWidth = marker.rect.right - marker.rect.left;
+            f32 spaceWidth = space.rect.right - space.rect.left;
+            f32 offset = ((spaceWidth - markerWidth) * 0.5f) * getScale().x;
+            MoveCursorX(offset);
+            Print(0xE057);
+            MoveCursorX(offset);
+            break;
+        }
+        default:
+            Print(candidate);
+            break;
+        }
+        MoveCursorX(mfCharacterSpacing);
+    }
+    if (meDestination != DST_JP) {
+        wchar_t pending = mpString->getCandidate();
+        if (pending) {
+            SetTextColor(csUnInputedWCharColor);
+            if (pending == L' ') {
+                SetTextColor(csUnInputedWCharColorSpace);
+                pending = 0xE057;
+            }
+            Print(pending);
+            MoveCursorX(mfCharacterSpacing);
+        }
+    }
+    for (; *kana; ++kana) {
+        wchar_t character = *kana;
+        if (mbPredictOn) character = util::HankakuToZenkaku(character);
+        DrawInfo glyph;
+        glyph.rect.left = 0.0f;
+        glyph.rect.top = 0.0f;
+        glyph.rect.right = 0.0f;
+        glyph.rect.bottom = 0.0f;
+        glyph.character = character;
+        calcRect(glyph);
+        if (meLanguage == JP) {
+            static GXColor kanaBackground = {128, 255, 128, 255};
+            f32 left = glyph.rect.left + GetCursorX();
+            f32 top = glyph.rect.top + GetCursorY();
+            f32 right = glyph.rect.right + GetCursorX();
+            f32 bottomEdge = GetCursorY() + GetFontHeight();
+            kanaBackground.a = muGlobalAlpha;
+            debug::drawBox_(left, top, right, bottomEdge, 0.0f, 1.0f, kanaBackground);
+            SetupGX();
+            mCharColor.a = muGlobalAlpha;
+            SetTextColor(mCharColor);
+        } else if (meLanguage == KR) {
+            SetupGX();
+            mCharColor.a = muGlobalAlpha;
+            SetTextColor(csZiStringColorLeft);
+            if (isOverLine(glyph)) {
+                ++muLine;
+                SetCursorY(GetCursorY() + getLineHeight());
+                SetCursorX(getScale().x);
+            }
+        }
+        Print(character);
+        MoveCursorX(mfCharacterSpacing);
+    }
+    SetTextColor(savedColor);
+    return positioned;
+}
+
+u32 Base::calcCursorPos(f32 x, f32 y) {
+    f32 localY = y - mfScrollY;
+    const wchar_t* string = mpString->getWCString();
+    if (!*string) return 0;
+    f32 cursorX = getScale().x;
+    f32 lineTop = 0.0f;
+    f32 lineBottom = lineTop;
+    nw4r::math::VEC2 scale = getScale();
+    u32 pos = 0;
+    muWordWrapCounter = 0;
+    mbHyphen = false;
+    while (*string) {
+        DrawInfo info;
+        info.rect.left = 0.0f;
+        info.rect.top = 0.0f;
+        info.rect.right = 0.0f;
+        info.rect.bottom = 0.0f;
+        info.character = *string;
+        calcRect(info);
+        lineBottom = lineTop + scale.y * (info.rect.bottom - info.rect.top);
+        f32 right = cursorX + scale.x * (info.rect.right - info.rect.left);
+        if (doWordWrap(mpString->getWCString(), pos, cursorX)) {
+            if (localY >= lineTop && localY <= lineBottom) {
+                if (pos != 0) return pos - 1;
+                return pos;
+            }
+            lineTop += scale.y * getLineHeight();
+            cursorX = getScale().x;
+            lineBottom = lineTop + scale.y * (info.rect.bottom - info.rect.top);
+            right = cursorX + scale.x * (info.rect.right - info.rect.left);
+        }
+        if (right >= scale.x * (mRect.right - mRect.left)) {
+            if (localY >= lineTop && localY <= lineBottom) return pos;
+            lineTop += scale.y * getLineHeight();
+            cursorX = getScale().x;
+            lineBottom = lineTop + scale.y * (info.rect.bottom - info.rect.top);
+            right = cursorX + scale.x * (info.rect.right - info.rect.left);
+        }
+        if (x <= info.rect.left && localY >= lineTop && localY <= lineBottom) return pos;
+        if (*string == L'\n') {
+            if (localY >= lineTop && localY <= lineBottom) return pos;
+            lineTop += scale.y * getLineHeight();
+            cursorX = getScale().x;
+            lineBottom = lineTop + scale.y * (info.rect.bottom - info.rect.top);
+            if (!string[1] && localY >= lineTop && localY <= lineBottom) return pos + 1;
+        } else {
+            if (cursorX <= x && x < right && localY >= lineTop && localY < lineBottom) {
+                if (cursorX + (right - cursorX) * 0.5f > x) return pos;
+                return pos + 1;
+            }
+            cursorX += scale.x * (info.rect.right - info.rect.left);
+        }
+        ++string;
+        ++pos;
+        if (!*string && localY >= lineTop && localY <= lineBottom) return pos;
+    }
+    if (lineTop + (lineBottom - lineTop) * 0.5f <= localY) {
+        return Base::calcCursorPos(x, 1.0f + lineTop + mfScrollY);
+    }
+    return Base::calcCursorPos(x, 1.0f);
 }
 
 nw4r::math::VEC2 Base::getGlobalLeftTopPos() const {
@@ -5316,6 +6312,43 @@ Animation AnmPane::getState() {
 
 NormalButtonAnmPane::~NormalButtonAnmPane() {}
 
+void NormalButtonAnmPane::onAnmEvent(AnmPaneEvent event) {
+    if (event == PE_6 && meState == ANM_Off) {
+        changeAnimation(ANM_FadeIn);
+    } else if (event == PE_7 && meState != ANM_Off) {
+        changeAnimation(ANM_FadeOut);
+    } else if (event == PE_0) {
+        changeAnimation(ANM_Pushed);
+    }
+    switch (meState) {
+        case ANM_FocusOut:
+            if (event == PE_4) changeAnimation(ANM_Normal);
+            if (event == PE_1) changeAnimation(ANM_FocusIn);
+            break;
+        case ANM_Normal:
+            if (event == PE_1) changeAnimation(ANM_FocusIn);
+            break;
+        case ANM_FocusIn:
+            if (event == PE_4) changeAnimation(ANM_RollOver);
+            if (event == PE_2) changeAnimation(ANM_FocusOut);
+            break;
+        case ANM_RollOver:
+            if (event == PE_2) changeAnimation(ANM_FocusOut);
+            break;
+        case ANM_FadeIn:
+            if (event == PE_4) changeAnimation(ANM_Normal);
+            if (event == PE_1) changeAnimation(ANM_FocusIn);
+            break;
+        case ANM_Pushed:
+            if (event == PE_4) changeAnimation(ANM_RollOver);
+            if (event == PE_2) changeAnimation(ANM_FocusOut);
+            break;
+        case ANM_FadeOut:
+            if (event == PE_4) changeAnimation(ANM_Off);
+            break;
+    }
+}
+
 EventHandler::~EventHandler() {}
 
 wchar_t Base::getCandidate() const {
@@ -5326,35 +6359,11 @@ void* Base::getAtokString() {
     return mpUnfixString;
 }
 
-asm u32 Base::getCursorPos() {
-    nofralloc
-    stwu r1, -0x20(r1)
-    mflr r0
-    stw r0, 0x24(r1)
-    addi r4, r1, 0x10
-    addi r5, r1, 8
-    stw r31, 0x1c(r1)
-    mr r31, r3
-    lwz r3, 0x164(r3)
-    lwz r12, 0(r3)
-    lwz r12, 0x80(r12)
-    mtctr r12
-    bctrl
-    lwz r3, 0x168(r31)
-    addi r4, r1, 0xc
-    addi r5, r1, 8
-    lwz r12, 0(r3)
-    lwz r12, 0x80(r12)
-    mtctr r12
-    bctrl
-    lwz r3, 0x10(r1)
-    lwz r0, 0xc(r1)
-    lwz r31, 0x1c(r1)
-    add r3, r3, r0
-    lwz r0, 0x24(r1)
-    mtlr r0
-    addi r1, r1, 0x20
-    blr
+u32 Base::getCursorPos() {
+    u32 fixedStart, unfixedStart, end;
+    mpString->getCursorPos(&fixedStart, &end);
+    mpUnfixString->getCursorPos(&unfixedStart, &end);
+    return fixedStart + unfixedStart;
 }
 
 wchar_t* Base::getWCString() const {
@@ -5409,16 +6418,36 @@ nw4r::math::VEC2 Base::getScale() const {
     return nw4r::math::VEC2(1.0f, 1.0f);
 }
 
-asm bool LayoutByNW4R::isAbleToUp() {
-    nofralloc
-    lbz r3, 0x2cc(r3)
-    blr
+bool LayoutByNW4R::isAbleToUp() {
+    return mbUpVisible;
 }
 
-asm bool LayoutByNW4R::isAbleToDown() {
-    nofralloc
-    lbz r3, 0x2cd(r3)
-    blr
+bool LayoutByNW4R::isAbleToDown() {
+    return mbDownVisible;
+}
+
+bool LayoutByNW4R::updateInput(int chan, f32 x, f32 y, u32 trig, u32 hold, u32 release, void* data) {
+    u32 buttons = mRepeatButtons;
+    if (buttons & 1) onCommand(static_cast<INPUT_COMMAND>(8), NULL);
+    if (buttons & 2) onCommand(static_cast<INPUT_COMMAND>(9), NULL);
+    if (buttons & 8) onCommand(static_cast<INPUT_COMMAND>(10), NULL);
+    if (buttons & 4) onCommand(static_cast<INPUT_COMMAND>(11), NULL);
+    bool handled = nw4rmanager::Layout::updateInput(chan, x, y, trig, hold, release, data);
+    if ((release & 0x800) && mpString->isOnSustain()) {
+        onCommand(static_cast<INPUT_COMMAND>(13), NULL);
+    }
+    if (!handled && (hold & 0x800) && mpString->isOnSustain()) {
+        nw4r::math::VEC2 point;
+        point.x = x;
+        point.y = y;
+        if (-y < getGlobalLeftTopPos().y + (mRect.top - mRect.bottom) / 2.0f) {
+            point.y = getGlobalLeftTopPos().y - 1.0f;
+        } else {
+            point.y = 1.0f + ((mRect.top - mRect.bottom) + getGlobalLeftTopPos().y);
+        }
+        onCommand(static_cast<INPUT_COMMAND>(16), &point);
+    }
+    return handled;
 }
 
 bool LayoutByNW4R::updateInput(textinput::input::HKBManager& hkbManager) {
@@ -5426,7 +6455,7 @@ bool LayoutByNW4R::updateInput(textinput::input::HKBManager& hkbManager) {
 }
 
 void LayoutByNW4R::visibleSeparator(bool flag) {
-    unk_0x2C0[0x0E] = flag;
+    mbRepeat = flag;
 }
 
 void LayoutByNW4R::setRootPaneScaleFor16x9() {
@@ -5443,3 +6472,75 @@ void LayoutByNW4R::setRootPaneScaleFor4x3() {
 }
 
 void textinput::Base::create(MEMAllocator*) {}
+
+namespace textinput {
+namespace tistring {
+
+void WithAtok::backSpace() {}
+void WithAtok::changeKanaMode(bool kana) {}
+void WithAtok::closeDictionary() {}
+void WithAtok::commitPredicted(int index) {}
+void WithAtok::confirm(const wchar_t* string) {}
+void WithAtok::enableConfirmedString(bool enable) {}
+void WithAtok::getCursorPos(u32* start, u32* end) {}
+void WithAtok::getDrawString(DrawInfo& info) {}
+void WithAtok::getPredicted(int index, wchar_t* string) {}
+void WithAtok::initConverting() {}
+void WithAtok::init() {}
+void WithAtok::inputChar(wchar_t ch) {}
+void WithAtok::openDictionary(void* atok, int atokSize, void* apot, int apotSize, void* nintendo, int nintendoSize) {}
+void WithAtok::popBack() {}
+void WithAtok::pushBack(wchar_t ch) {}
+void WithAtok::resetRelation() {}
+void WithAtok::setDefaultPrediction(int count, const char** predictions) {}
+void WithAtok::setFixMode(bool fixed) {}
+void WithAtok::setFixPrediction(int count, const char** predictions) {}
+void WithAtok::setFix(bool fix) {}
+void WithAtok::setInputting(wchar_t ch) {}
+void WithAtok::setSelectedCandidate(s32 index) {}
+void WithAtok::startConverting() {}
+bool WithAtok::isFix() { return true; }
+bool WithAtok::isConverting() { return false; }
+s16 WithAtok::getSelectedConverting() { return 0; }
+bool WithAtok::isDictionaryOpened() { return false; }
+wchar_t* WithAtok::getConfirmedWCString() const { return NULL; }
+bool WithAtok::hasConfirmedString() { return false; }
+int WithAtok::getCurrentNumPredicted() { return 0; }
+bool WithAtok::isCandidateSelected() { return false; }
+s32 WithAtok::getSelectedCandidate() { return 0; }
+s16 WithAtok::getFixedPredictionNum() { return 0; }
+wchar_t WithAtok::getInputStringLength() { return 0; }
+bool WithAtok::moveCursorLeft() { return false; }
+bool WithAtok::moveCursorRight() { return false; }
+void Decolated::EnableKSXFilter(bool enable) {}
+void Decolated::deleteChar() {}
+
+}
+}
+
+namespace textinput {
+namespace tistring {
+u32 Decolated::getCursorPos() const { return mCursorStart; }
+bool Decolated::isOnSustain() { return mbSustain; }
+void WithZi::setSelectedCandidate(s32 index) { mSelectedCandidate = index; }
+void WithZi::setPredictLaunguage(PredictLanguage language) { mPredictLanguage = language; }
+int WithZi::getCurrentNumPredicted() { return mCandidateCount; }
+u16 WithZi::getInputStringLength() { return mInputLength; }
+void WithZi::changeLetterMode(LetterMode mode) { mLetterMode = mode; }
+void WithZi::setCellPhoneHoldingkey(void* key) { mpHoldingKey = key; }
+}
+namespace candidatebox {
+bool Base::isInvalid() const { return mbInvalid; }
+}
+namespace textdrawer {
+u32 Base::getEndPos() const { return muDrawEndPos; }
+u32 Base::getDrawModifyStartLine() const { return muDrawModifyStartLine; }
+u32 Base::getDrawModifyEndLine() const { return muDrawModifyEndLine; }
+void Base::dirtyDrawCache() { mbDrawCache = false; }
+void Base::dirtyCursorCache() { mbCursorCache = false; }
+u32 Base::getDrawCacheStartPos() const {
+    if (mbDrawCache) return muCachedStartPos;
+    return 0x7fffffff;
+}
+}
+}
