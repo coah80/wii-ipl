@@ -41,8 +41,7 @@ int __nupRegisterAllocator(MEMAllocator* allocator) {
     } else {
         if (((MEMHeapHandle)allocator->heap)->magic != 0x45585048) {
             result = -5011;
-        }
-        if (((MEMHeapHandle)allocator->heap)->magic == 0x45585048) {
+        } else {
             __mem = allocator;
         }
     }
