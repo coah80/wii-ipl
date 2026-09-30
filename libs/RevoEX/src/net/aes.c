@@ -173,6 +173,8 @@ static const u32 AESiDecryptTable[] = {
 #define DECRYPT(a,b,c,d) (ROTATE(AESiDecryptTable[(a)>>24],24) ^ ROTATE(AESiDecryptTable[((b)>>16)&255],16) ^ ROTATE(AESiDecryptTable[((c)>>8)&255],8) ^ AESiDecryptTable[(d)&255])
 #define SUBSTITUTE(table,a,b,c,d) (((u32)table[(a)>>24]<<24) | ((u32)table[((b)>>16)&255]<<16) | ((u32)table[((c)>>8)&255]<<8) | table[(d)&255])
 
+#define SUBSTITUTE_XOR(table,a,b,c,d) (((u32)table[(a)>>24]<<24) ^ ((u32)table[((b)>>16)&255]<<16) ^ ((u32)table[((c)>>8)&255]<<8) ^ table[(d)&255])
+
 void AESiEncryptBlock(AESContext* context, u32* output, const u32* input) {
     u32 rounds = context->rounds;
     const u32* key = context->keys + 4;
@@ -224,10 +226,10 @@ void AESiDecryptBlock(AESContext* context, u32* output, const u32* input) {
         a=nextA; b=nextB; c=nextC; d=nextD;
         key-=4;
     }
-    output[0]=SUBSTITUTE(AESiInvSubShiftTable,a,d,c,b)^key[0];
-    output[1]=SUBSTITUTE(AESiInvSubShiftTable,b,a,d,c)^key[1];
-    output[2]=SUBSTITUTE(AESiInvSubShiftTable,c,b,a,d)^key[2];
-    output[3]=SUBSTITUTE(AESiInvSubShiftTable,d,c,b,a)^key[3];
+    output[0]=SUBSTITUTE_XOR(AESiInvSubShiftTable,a,d,c,b)^key[0];
+    output[1]=SUBSTITUTE_XOR(AESiInvSubShiftTable,b,a,d,c)^key[1];
+    output[2]=SUBSTITUTE_XOR(AESiInvSubShiftTable,c,b,a,d)^key[2];
+    output[3]=SUBSTITUTE_XOR(AESiInvSubShiftTable,d,c,b,a)^key[3];
 }
 
 BOOL NETAESCreateEx(AESContext* context, const void* key, u32 keyLength, const void* iv, const AESBlockMode* mode) {
@@ -247,9 +249,9 @@ BOOL NETAESCreateEx(AESContext* context, const void* key, u32 keyLength, const v
         value=schedule[words-1];
         for(index=words; index<(context->rounds+1)*4; ++index) {
             if (index%words == 0) {
-                value=SUBSTITUTE(AESiSubShiftTable,value<<8,value<<8,value<<8, value>>24) ^ ((u32)AESiRoundKeyRcon0[index/words-1]<<24);
+                value=SUBSTITUTE_XOR(AESiSubShiftTable,value<<8,value<<8,value<<8,value>>24) ^ ((u32)AESiRoundKeyRcon0[index/words-1]<<24);
             } else if(words>6 && index%words==4) {
-                value=SUBSTITUTE(AESiSubShiftTable,value,value,value,value);
+                value=SUBSTITUTE_XOR(AESiSubShiftTable,value,value,value,value);
             }
             value ^= schedule[index-words];
             schedule[index]=value;

@@ -48,11 +48,14 @@ s32 SOGetHostID(void) {
 }
 
 SOHostEnt* SOGetHostByName(const char* name) {
+    HostReply* reply;
+    int result;
+    int size;
+    int length;
+    SOHostEnt* host;
     s32 rm;
     char* request;
-    HostReply* reply;
-    int result,size,length;
-    SOHostEnt* host=NULL;
+    host = NULL;
     if((result=SOiPrepare(NULL,&rm))==0) {
         if(!name) result=-28;
         else {
