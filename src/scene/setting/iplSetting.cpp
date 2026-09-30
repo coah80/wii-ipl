@@ -50,19 +50,6 @@ namespace ipl {
 }
 
 namespace ipl {
-    namespace keyboard {
-        Manager::State& Manager::State::operator=(const Manager::State& other) {
-            type = other.type;
-            iplType = other.iplType;
-            pressOK = other.pressOK;
-            reservedByte = other.reservedByte;
-            wcString = other.wcString;
-            return *this;
-        }
-    }
-}
-
-namespace ipl {
     namespace scene {
         class USBAPThread {
         public:
@@ -571,6 +558,24 @@ namespace ipl {
             return FADER_SCN_CONTINUE;
         }
 
+    }
+}
+
+namespace ipl {
+    namespace keyboard {
+        Manager::State& Manager::State::operator=(const Manager::State& other) {
+            type = other.type;
+            iplType = other.iplType;
+            pressOK = other.pressOK;
+            reservedByte = other.reservedByte;
+            wcString = other.wcString;
+            return *this;
+        }
+    }
+}
+
+namespace ipl {
+    namespace scene {
         void Setting::updateController_() {
             nw4r::ut::Rect projection;
             System::getProjectionRect4x3(&projection);
@@ -1362,16 +1367,22 @@ namespace ipl {
             }
 
             ext_ead::www::BrowserThread* browser = surface->GetBrowserThread();
-            if (browser == NULL || browser->GetTextureBuffer(0, NULL) == NULL) {
+            if (browser == NULL) {
+                return;
+            }
+            if (browser->GetTextureBuffer(0, NULL) == NULL) {
                 return;
             }
 
             ext_ead::www::BrowserWindow* browserWindow =
                 static_cast<ext_ead::www::BrowserWindow*>(browser->mpBrowserWindows[0]);
-            if (browserWindow != NULL && browserWindow->unk_0x2C4[3] != 0) {
+            if ((browserWindow != NULL ? browserWindow->unk_0x2C4[3] : 0) != 0) {
                 unk_0x91C[2] = 1;
                 mState = 0;
-                browserWindow->unk_0x2C4[3] = 0;
+                browserWindow = static_cast<ext_ead::www::BrowserWindow*>(browser->mpBrowserWindows[0]);
+                if (browserWindow != NULL) {
+                    browserWindow->unk_0x2C4[3] = 0;
+                }
                 www::trasition::ScrollState scrollState = www::trasition::GetScrollState();
                 browserScrollDirection = scrollState == www::trasition::SCROLL_LEFT
                                              ? 1
@@ -1383,80 +1394,116 @@ namespace ipl {
                 ext_ead::www::Heap::reportLeaHeap();
             }
 
-            bool showBrowserWindow =
-                mpSecondAnimation->isPlaying() || mpFirstAnimation->isPlaying();
-            mpChangeLayout->FindPaneByName("N_Tra0")->SetVisible(showBrowserWindow);
+            if (!mpSecondAnimation->isPlaying() && !mpFirstAnimation->isPlaying()) {
+                mpChangeLayout->FindPaneByName("N_Tra0")->SetVisible(false);
+            } else {
+                mpChangeLayout->FindPaneByName("N_Tra0")->SetVisible(true);
+            }
 
             WWWRect* wideRect = NULL;
             WWWRect* standardRect = NULL;
             void* wideBuffer = browser->GetTextureBuffer(1, &wideRect);
             void* standardBuffer = browser->GetTextureBuffer(0, &standardRect);
-            if (wideBuffer == NULL || standardBuffer == NULL) {
-                return;
-            }
-
             nw4r::ut::Rect projection4x3;
-            nw4r::ut::Rect projection16x9;
             System::getProjectionRect4x3(&projection4x3);
-            System::getProjectionRect16x9(&projection16x9);
-
-            GXTexObj standardTexture;
-            GXTexObj wideTexture;
-            GXInitTexObj(&standardTexture, standardBuffer, standardRect->w, standardRect->h, GX_TF_RGBA8, GX_CLAMP, GX_CLAMP, GX_FALSE);
-            GXInitTexObj(&wideTexture, wideBuffer, wideRect->w, wideRect->h, GX_TF_RGBA8, GX_CLAMP, GX_CLAMP, GX_FALSE);
-            GXInitTexObjLOD(&standardTexture, GX_LINEAR, GX_LINEAR, 0.0f, 0.0f, 0.0f, GX_FALSE, GX_FALSE, GX_ANISO_1);
-            GXInitTexObjLOD(&wideTexture, GX_LINEAR, GX_LINEAR, 0.0f, 0.0f, 0.0f, GX_FALSE, GX_FALSE, GX_ANISO_1);
-
-            if (browserScrollDirection != 0) {
-                nw4r::lyt::Material* standardMaterial =
-                    mpChangeLayout->FindPaneByName("N_Tra0")->FindMaterialByName("Tex0");
-                nw4r::lyt::Material* firstWideMaterial =
-                    mpChangeLayout->FindPaneByName("N_Tra0")->FindMaterialByName("Tex1");
-                nw4r::lyt::Material* secondWideMaterial =
-                    mpChangeLayout->FindPaneByName("N_Tra0")->FindMaterialByName("Tex2");
-                standardMaterial->SetTexture(0, standardTexture);
-                firstWideMaterial->SetTexture(0, wideTexture);
-                secondWideMaterial->SetTexture(0, wideTexture);
-                mpChangeLayout->FindPaneByName("N_Tra0")->SetVisible(true);
-                if (browserScrollDirection == 1) {
-                    mpSecondAnimation->initFrame();
-                    mpSecondAnimation->restart();
-                } else {
-                    mpFirstAnimation->initFrame();
-                    mpFirstAnimation->restart();
-                }
-                mpChangeLayout->calc();
-                browserScrollDirection = 0;
-            }
-
-            utility::Graphics::setOrtho(0);
-            GXColor opaqueColor = {0xFF, 0xFF, 0xFF, 0xFF};
-            GXColor fadeColor = {0xFF, 0xFF, 0xFF, (u8)(mState * 0xFF / 20)};
             int screenWidth = abs(static_cast<int>(projection4x3.GetWidth()));
             int screenHeight = abs(static_cast<int>(projection4x3.GetHeight()));
-            nw4r::ut::Rect screenRect(-screenWidth / 2, screenHeight / 2,
-                                      screenWidth / 2, -screenHeight / 2);
-            utility::Graphics::drawTexture(screenRect, standardTexture, opaqueColor, 1);
-            utility::Graphics::drawTexture(projection16x9, wideTexture, fadeColor, 1);
+            nw4r::ut::Rect screenRect = projection4x3;
+            screenRect.left = -screenWidth / 2;
+            screenRect.top = screenHeight / 2;
+            screenRect.right = screenWidth / 2;
+            screenRect.bottom = -screenHeight / 2;
 
-            if (mpWiiSettingData->data[0x12] == 0x1E && unk_0x92C > 3) {
-                SensitivityDrawing::draw(static_cast<nand::File*>(mpBackgroundTPLFile));
-            }
+            if (wideBuffer != NULL && standardBuffer != NULL) {
+                GXTexObj wideTexture;
+                GXTexObj standardTexture;
+                GXInitTexObj(&wideTexture, wideBuffer, wideRect->w, wideRect->h, GX_TF_RGB565, GX_CLAMP, GX_CLAMP, GX_FALSE);
+                GXInitTexObj(&standardTexture, standardBuffer, standardRect->w, standardRect->h, GX_TF_RGB565, GX_CLAMP, GX_CLAMP, GX_FALSE);
+                GXInitTexObjLOD(&wideTexture, GX_LINEAR, GX_LINEAR, 0.0f, 0.0f, 0.0f, GX_FALSE, GX_FALSE, GX_ANISO_1);
+                GXInitTexObjLOD(&standardTexture, GX_LINEAR, GX_LINEAR, 0.0f, 0.0f, 0.0f, GX_FALSE, GX_FALSE, GX_ANISO_1);
+                GXTexObj sideTexture;
+                TPLGetGXTexObjFromPalette(reinterpret_cast<TPLPalette*>(static_cast<nand::File*>(mpBackgroundTPLFile)->getBuffer()), &sideTexture, 0);
+                TPLDescriptor* sideDescriptor = TPLGet(reinterpret_cast<TPLPalette*>(static_cast<nand::File*>(mpBackgroundTPLFile)->getBuffer()), 0);
 
-            mpChangeLayout->draw();
-            mpWaitLayout->draw();
-            if (mState == 0xC) {
-                unk_0xB9C = 1;
+                nw4r::ut::Rect projection16x9;
+                System::getProjectionRect16x9(&projection16x9);
+                int wideWidth = abs(static_cast<int>(projection16x9.GetWidth()));
+                int wideHeight = abs(static_cast<int>(projection16x9.GetHeight()));
+                f32 wideLeft = -wideWidth / 2;
+                f32 wideTop = wideHeight / 2;
+                f32 wideRight = wideWidth / 2;
+                nw4r::ut::Rect leftSide(wideLeft, wideTop,
+                    wideLeft + sideDescriptor->textureHeader->width,
+                    wideTop - sideDescriptor->textureHeader->height);
+                nw4r::ut::Rect rightSide(wideRight - sideDescriptor->textureHeader->width,
+                    wideTop, wideRight, wideTop - sideDescriptor->textureHeader->height);
+
+                if (browserScrollDirection != 0) {
+                    nw4r::lyt::Material* wideMaterial =
+                        mpChangeLayout->FindPaneByName("N_Tra0")->FindMaterialByName("Tex0");
+                    nw4r::lyt::Material* firstStandardMaterial =
+                        mpChangeLayout->FindPaneByName("N_Tra0")->FindMaterialByName("Tex1");
+                    nw4r::lyt::Material* secondStandardMaterial =
+                        mpChangeLayout->FindPaneByName("N_Tra0")->FindMaterialByName("Tex2");
+                    wideMaterial->SetTexture(0, wideTexture);
+                    firstStandardMaterial->SetTexture(0, standardTexture);
+                    secondStandardMaterial->SetTexture(0, standardTexture);
+                    mpChangeLayout->FindPaneByName("N_Tra0")->SetVisible(true);
+                    if (browserScrollDirection == 1) {
+                        utility::FrameController* animation = mpSecondAnimation;
+                        animation->initFrame();
+                        animation->restart();
+                    } else {
+                        utility::FrameController* animation = mpFirstAnimation;
+                        animation->initFrame();
+                        animation->restart();
+                    }
+                    mpChangeLayout->calc();
+                    browserScrollDirection = 0;
+                }
+
+                if (unk_0x74 == 8 && mState != 20) {
+                    mState = 0;
+                }
+                utility::Graphics::setOrtho(0);
+                GXColor opaqueColor = {0xFF, 0xFF, 0xFF, 0xFF};
+                GXColor fadeColor = {0xFF, 0xFF, 0xFF, (u8)(mState * 0xFF / 20)};
+                utility::Graphics::drawTexture(screenRect, wideTexture, opaqueColor, 1);
+                bool hasWidePixels = false;
+                int pixelWords = wideRect->w * wideRect->h * 2 / 4;
+                for (int pixel = 0; pixel < pixelWords; ++pixel) {
+                    if (static_cast<const u32*>(wideBuffer)[pixel] != 0) {
+                        hasWidePixels = true;
+                        break;
+                    }
+                }
+                if (hasWidePixels) {
+                    utility::Graphics::drawTexture(rightSide, sideTexture, opaqueColor, 1);
+                    utility::Graphics::drawTexture(leftSide, sideTexture, opaqueColor, 1);
+                }
+                utility::Graphics::drawTexture(screenRect, standardTexture, fadeColor, 1);
+                utility::Graphics::drawTexture(rightSide, sideTexture, fadeColor, 1);
+                utility::Graphics::drawTexture(leftSide, sideTexture, fadeColor, 1);
+
+                if (mpWiiSettingData->data[0x12] == 0x1E && unk_0x92C > 3) {
+                    SensitivityDrawing::draw(static_cast<nand::File*>(mpBackgroundTPLFile));
+                }
+                mpChangeLayout->draw();
+                mpWaitLayout->draw();
+                if (mState == 0xC) {
+                    unk_0xB9C = 1;
+                }
             }
 
             if (mpWiiSettingFlag->smthMsgData >= 2 && mpWiiSettingFlag->smthMsgData <= 7) {
+                GXRenderModeObj renderMode = *System::getRenderModeObj();
                 u32 left;
                 u32 top;
                 u32 width;
                 u32 height;
                 GXGetScissor(&left, &top, &width, &height);
-                GXSetScissor(0, System::getRenderModeObj()->efbHeight / 2 - 0xA4, System::getRenderModeObj()->fbWidth, 0x132);
-                mpWaitLayout->draw();
+                GXSetScissor(0, renderMode.efbHeight / 2 - 0xA4, renderMode.fbWidth, 0x132);
+                mpMainLayout->draw();
                 GXSetScissor(left, top, width, height);
             }
         }

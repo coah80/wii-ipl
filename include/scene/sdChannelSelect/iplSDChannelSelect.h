@@ -312,6 +312,33 @@ namespace ipl {
             void setLayoutFrame(int state);
             BOOL tellStartingZoomAnm();
             void initPageAnimations(const math::VEC3& position, int direction);
+#ifdef IPL_SD_CHANNEL_SELECT_CPP
+            void removeNandTitleInfo(ESTitleId titleId) {
+                u32 titleCount = mNandTitleCount;
+                u32 index = 0;
+                for (; index < titleCount; ++index) {
+                    if (mpNandTitleInfo[index].curTitleId == titleId) {
+                        break;
+                    }
+                }
+                if (index < mNandTitleCount) {
+                    for (; index < mNandTitleCount - 1; ++index) {
+                        NandSDWorker::TitleUsage& nextTitle = mpNandTitleInfo[index + 1];
+                        NandSDWorker::TitleUsage& currentTitle = mpNandTitleInfo[index];
+                        currentTitle.curTitleId = nextTitle.curTitleId;
+                        currentTitle.size = nextTitle.size;
+                        currentTitle.inode = nextTitle.inode;
+                    }
+                    --mNandTitleCount;
+                }
+            }
+            nw4r::math::VEC3 getPageTransitionPosition(int index) const {
+                nw4r::math::VEC3 position(0.0f, 0.0f, 0.0f);
+                nw4r::lyt::Pane* pane = getCenterChannelPane(index);
+                PSMTXMultVec(pane->GetGlobalMtx(), position, position);
+                return position;
+            }
+#endif
             static BOOL isChannelReady(const SDChannelObj* channel);
             nw4r::ut::List mChannelObjects;
             nand::LayoutFile* mpLayoutFile;

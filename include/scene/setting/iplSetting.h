@@ -29,6 +29,9 @@ namespace ipl {
         class Setting;
         class APScanThread;
 
+#ifdef IPL_SETTING_IMPLEMENTATION
+        class APEvent;
+#else
         class APEvent : public ::gui::EventHandler {
         public:
             APEvent(Setting* setting) : ::gui::EventHandler(), mpSetting(setting) {}
@@ -38,6 +41,7 @@ namespace ipl {
         private:
             Setting* mpSetting;
         };
+#endif
 
         struct SettingAPScanList {
             u8 unknown[0x14];
@@ -261,6 +265,17 @@ namespace ipl {
 #endif
 
         };
+#ifdef IPL_SETTING_IMPLEMENTATION
+        class APEvent : public ::gui::EventHandler {
+        public:
+            APEvent(Setting* setting) : ::gui::EventHandler(), mpSetting(setting) {}
+
+            virtual void onEvent(u32 componentID, u32 event, void* data);
+
+        private:
+            Setting* mpSetting;
+        };
+#endif
     }  // namespace scene
 }  // namespace ipl
 
