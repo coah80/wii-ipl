@@ -445,28 +445,16 @@ extern "C" const InputFormAnimationFile csAninationFile__Q29textinput9inputform[
 };
 
 #pragma section data_type ".rodata"
-extern "C" const void* csVisiblePaneUEJ__Q29textinput9inputform[9] = {
-    (const void*)0x00010002,
-    lbl_8165C8C0,
-    0,
-    0,
-    0,
-    "N_KOR",
-    "N_CHN",
-    0,
-    0,
+extern "C" const VisiblePanes csVisiblePaneUEJ__Q29textinput9inputform = {
+    1, 2,
+    {lbl_8165C8C0, NULL, NULL, NULL},
+    {"N_KOR", "N_CHN", NULL, NULL},
 };
 
-extern "C" const void* csVisiblePaneKOR__Q29textinput9inputform[9] = {
-    (const void*)0x00010002,
-    "N_KOR",
-    0,
-    0,
-    0,
-    "N_CHN",
-    lbl_8165C8C0,
-    0,
-    0,
+extern "C" const VisiblePanes csVisiblePaneKOR__Q29textinput9inputform = {
+    1, 2,
+    {"N_KOR", NULL, NULL, NULL},
+    {"N_CHN", lbl_8165C8C0, NULL, NULL},
 };
 
 extern "C" const void* csVisiblePaneCHN__Q29textinput9inputform[10] = {
@@ -482,22 +470,22 @@ extern "C" const void* csVisiblePaneCHN__Q29textinput9inputform[10] = {
     0,
 };
 
-extern "C" const void* csLanguageDependencyDataUEJ__Q29textinput9inputform[4] = {
-    csVisiblePaneUEJ__Q29textinput9inputform,
+extern "C" const LanguagePaneData csLanguageDependencyDataUEJ__Q29textinput9inputform = {
+    &csVisiblePaneUEJ__Q29textinput9inputform,
     lbl_8165C8CC,
     lbl_8165C8E0,
     lbl_8165C8F0,
 };
 
-extern "C" const void* csLanguageDependencyDataKOR__Q29textinput9inputform[4] = {
-    csVisiblePaneKOR__Q29textinput9inputform,
+extern "C" const LanguagePaneData csLanguageDependencyDataKOR__Q29textinput9inputform = {
+    &csVisiblePaneKOR__Q29textinput9inputform,
     lbl_8165C900,
     lbl_8165C918,
     lbl_8165C928,
 };
 
-extern "C" const void* csLanguageDependencyDataCHN__Q29textinput9inputform[4] = {
-    csVisiblePaneCHN__Q29textinput9inputform,
+extern "C" const LanguagePaneData csLanguageDependencyDataCHN__Q29textinput9inputform = {
+    reinterpret_cast<const VisiblePanes*>(csVisiblePaneCHN__Q29textinput9inputform),
     lbl_8165C938,
     lbl_8165C950,
     lbl_8165C960,
@@ -1224,7 +1212,7 @@ void Base::onHKBCtrlCode(HVKCode code, u32 modifiers) {
 
 LayoutByNW4R::LayoutByNW4R(Manager* manager, nw4r::lyt::MultiArcResourceAccessor* accessor, const char* layout, EventObserver* observer, const char* fontName)
     : Base(manager), nw4rmanager::Layout(accessor, layout, observer), mpLayoutData("T_2l_TextBox"),
-      mpLanguageData(csLanguageDependencyDataUEJ__Q29textinput9inputform), mpFontName(fontName),
+      mpLanguageData(&csLanguageDependencyDataUEJ__Q29textinput9inputform), mpFontName(fontName),
       mbUpVisible(false), mbDownVisible(false), mbRepeat(false), mpInputEventHandler(NULL) {}
 
 void LayoutByNW4R::create(MEMAllocator* allocator, EditBuffer* editBuffer) {
@@ -1360,9 +1348,9 @@ void LayoutByNW4R::calc() {
 }
 void LayoutByNW4R::setLanguage(Language language) {
     Base::setLanguage(language);
-    if (language == CN) mpLanguageData = csLanguageDependencyDataCHN__Q29textinput9inputform;
-    else if (language == KR) mpLanguageData = csLanguageDependencyDataKOR__Q29textinput9inputform;
-    else mpLanguageData = csLanguageDependencyDataUEJ__Q29textinput9inputform;
+    if (language == CN) mpLanguageData = &csLanguageDependencyDataCHN__Q29textinput9inputform;
+    else if (language == KR) mpLanguageData = &csLanguageDependencyDataKOR__Q29textinput9inputform;
+    else mpLanguageData = &csLanguageDependencyDataUEJ__Q29textinput9inputform;
     const char* textName;
     if (!getLanguageTextPane()) textName = "T_2l_TextBox";
     else textName = static_cast<const LanguagePaneData*>(mpLanguageData)->textBox;
@@ -1966,131 +1954,27 @@ create_L1:
     blr
 }
 
-extern "C" asm void getCurrentString__Q39textinput9inputform4BaseFb() {
-    nofralloc
-    stwu r1, -0x10(r1)
-    mflr r0
-    stw r0, 0x14(r1)
-    stw r31, 0xc(r1)
-    mr r31, r4
-    stw r30, 8(r1)
-    mr r30, r3
-    lbz r0, 0x178(r3)
-    cmpwi r0, 0
-    bne getCurrentString_L1
-    lwz r3, 0x164(r3)
-    b getCurrentString_Lend
-getCurrentString_L1:
-    lwz r0, 0x1f0(r3)
-    cmpwi r0, 9
-    bne getCurrentString_L2
-    lwz r3, 0x1d4(r3)
-    lwz r12, 0(r3)
-    lwz r12, 0x94(r12)
-    mtctr r12
-    bctrl
-    lwz r12, 0(r3)
-    lwz r12, 0x10(r12)
-    mtctr r12
-    bctrl
-    cmpwi r3, 0
-    beq getCurrentString_L3
-    lwz r3, 0x1d4(r30)
-    lwz r12, 0(r3)
-    lwz r12, 0x74(r12)
-    mtctr r12
-    bctrl
-    lwz r12, 0(r3)
-    lwz r12, 0x58(r12)
-    mtctr r12
-    bctrl
-    cmpwi r3, 0
-    bne getCurrentString_L2
-    lwz r3, 0x164(r30)
-    b getCurrentString_Lend
-getCurrentString_L3:
-    lwz r3, 0x1d4(r30)
-    lwz r12, 0(r3)
-    lwz r12, 0x7c(r12)
-    mtctr r12
-    bctrl
-    lwz r12, 0(r3)
-    lwz r12, 0x40(r12)
-    mtctr r12
-    bctrl
-    cmpwi r3, 0
-    beq getCurrentString_L2
-    lwz r3, 0x164(r30)
-    b getCurrentString_Lend
-getCurrentString_L2:
-    lwz r0, 0x1f0(r30)
-    cmpwi r0, 8
-    bne getCurrentString_L4
-    lwz r3, 0x1d4(r30)
-    lwz r12, 0(r3)
-    lwz r12, 0x8c(r12)
-    mtctr r12
-    bctrl
-    lwz r12, 0(r3)
-    lwz r12, 0x4c(r12)
-    mtctr r12
-    bctrl
-    cmpwi r3, 0
-    bne getCurrentString_L5
-    lwz r3, 0x1d4(r30)
-    lwz r12, 0(r3)
-    lwz r12, 0x8c(r12)
-    mtctr r12
-    bctrl
-    lwz r12, 0(r3)
-    lwz r12, 0x10c(r12)
-    mtctr r12
-    bctrl
-    cmpwi r3, 0
-    bne getCurrentString_L4
-getCurrentString_L5:
-    lwz r3, 0x164(r30)
-    b getCurrentString_Lend
-getCurrentString_L4:
-    lwz r0, 0x174(r30)
-    cmpwi r0, 1
-    beq getCurrentString_L6
-    b getCurrentString_L7
-getCurrentString_L6:
-    lwz r3, 0x168(r30)
-    lwz r12, 0(r3)
-    lwz r12, 0xd0(r12)
-    mtctr r12
-    bctrl
-    cmpwi r3, 0
-    beq getCurrentString_L8
-    cmpwi r31, 0
-    beq getCurrentString_L9
-getCurrentString_L8:
-    lwz r3, 0x168(r30)
-    b getCurrentString_Lend
-getCurrentString_L7:
-    lwz r3, 0x16c(r30)
-    lwz r12, 0(r3)
-    lwz r12, 0xec(r12)
-    mtctr r12
-    bctrl
-    cmpwi r3, 0
-    beq getCurrentString_L10
-    cmpwi r31, 0
-    beq getCurrentString_L9
-getCurrentString_L10:
-    lwz r3, 0x16c(r30)
-    b getCurrentString_Lend
-getCurrentString_L9:
-    lwz r3, 0x164(r30)
-getCurrentString_Lend:
-    lwz r0, 0x14(r1)
-    lwz r31, 0xc(r1)
-    lwz r30, 8(r1)
-    mtlr r0
-    addi r1, r1, 0x10
-    blr
+tistring::Decolated* Base::getCurrentString(bool inputting) {
+    if (!mbPredictOn) return mpString;
+    if (meLanguage == KR) {
+        if (mpManager->getToolBar()->isQwerty()) {
+            if (mpManager->getPCKeyboard()->getTranslateMode() == 0) return mpString;
+        } else {
+            if (mpManager->getCellPhoneKeyboard()->getInputMode() != 0) return mpString;
+        }
+    }
+    if (meLanguage == CN) {
+        if (mpManager->getCandidateBox()->isInvalid() || !mpManager->getCandidateBox()->isActive()) return mpString;
+    }
+    switch (mePredictMode) {
+    case PM_Atok:
+        if (!mpUnfixString->isFix() || inputting) return mpUnfixString;
+        break;
+    default:
+        if (!mpZiString->isFix() || inputting) return mpZiString;
+        break;
+    }
+    return mpString;
 }
 
 bool Base::isVacancy() const {
@@ -2168,102 +2052,23 @@ void Base::updateCandidateState_() {
     }
 }
 
-extern "C" asm void moveCursorUp__Q39textinput9inputform4BaseFv() {
-    nofralloc
-    stwu r1, -0x30(r1)
-    mflr r0
-    stw r0, 0x34(r1)
-    stfd f31, 0x20(r1)
-    psq_st f31, 0x28(r1), 0, 0
-    lfs f0, lbl_81694D28(r0)
-    stw r31, 0x1c(r1)
-    mr r31, r3
-    lfs f31, 0x180(r3)
-    lfs f1, 0x188(r3)
-    fsubs f1, f31, f1
-    fneg f1, f1
-    fcmpo cr0, f1, f0
-    cror eq, gt, eq
-    bne moveCursorUp_L1
-    lwz r3, 0x164(r3)
-    addi r4, r1, 0xc
-    addi r5, r1, 8
-    lwz r12, 0(r3)
-    lwz r12, 0x80(r12)
-    mtctr r12
-    bctrl
-    lwz r0, 0xc(r1)
-    cmpwi r0, 0
-    bne moveCursorUp_L2
-    lwz r0, 8(r1)
-    cmpwi r0, 0
-    bne moveCursorUp_L2
-    lwz r12, 0(r31)
-    mr r3, r31
-    li r4, 6
-    lwz r12, 0x178(r12)
-    mtctr r12
-    bctrl
-    b moveCursorUp_L3
-moveCursorUp_L2:
-    lwz r12, 0(r31)
-    mr r3, r31
-    li r4, 5
-    lwz r12, 0x178(r12)
-    mtctr r12
-    bctrl
-moveCursorUp_L3:
-    lwz r3, 0x164(r31)
-    li r4, 0
-    lwz r12, 0(r3)
-    lwz r12, 0x6c(r12)
-    mtctr r12
-    bctrl
-    b moveCursorUp_L4
-moveCursorUp_L1:
-    fcmpo cr0, f31, f0
-    cror eq, gt, eq
-    bne moveCursorUp_L5
-    b moveCursorUp_L6
-moveCursorUp_L5:
-    fmr f31, f0
-moveCursorUp_L6:
-    lwz r12, 0x5c(r3)
-    lwz r12, 0x28(r12)
-    mtctr r12
-    addi r3, r3, 0x10
-    bctrl
-    fsubs f2, f31, f1
-    lwz r12, 0(r31)
-    lfs f0, lbl_81694D38(r0)
-    mr r3, r31
-    lwz r12, 0x180(r12)
-    fadds f2, f0, f2
-    lfs f1, 0x17c(r31)
-    mtctr r12
-    bctrl
-    mr r4, r3
-    lwz r3, 0x164(r31)
-    lwz r12, 0(r3)
-    lwz r12, 0x6c(r12)
-    mtctr r12
-    bctrl
-    lwz r12, 0(r31)
-    mr r3, r31
-    li r4, 5
-    lwz r12, 0x178(r12)
-    mtctr r12
-    bctrl
-moveCursorUp_L4:
-    li r0, 1
-    stw r0, 0x1b0(r31)
-    psq_l f31, 0x28(r1), 0, 0
-    lfd f31, 0x20(r1)
-    lwz r31, 0x1c(r1)
-    lwz r0, 0x34(r1)
-    mtlr r0
-    addi r1, r1, 0x30
-    blr
+void Base::moveCursorUp() {
+    f32 y = mfCursorY;
+    if (-(mfCursorY - mfScrollY) >= 0.0f) {
+        u32 start, end;
+        mpString->getCursorPos(&start, &end);
+        if (start == 0 && end == 0) onSE(static_cast<sound::SE>(6));
+        else onSE(static_cast<sound::SE>(5));
+        mpString->setCursorPos(0);
+    } else {
+        y = mfCursorY >= 0.0f ? mfCursorY : 0.0f;
+        f32 lineHeight = getLineHeight();
+        f32 targetY = 1.0f + (y - lineHeight);
+        u32 position = calcCursorPos(mfCursorX, targetY);
+        mpString->setCursorPos(position);
+        onSE(static_cast<sound::SE>(5));
+    }
+    meScrollFlag = SF_ScrollOn;
 }
 
 void Base::moveCursorDown() {
@@ -2486,7 +2291,8 @@ void Base::onSpaceKeyHWKB(u32 modifiers) {
         }
     } else {
         bool useAtok;
-        if (!mbPredictOn) useAtok = false;
+        u32 enabled = mbPredictOn;
+        if (enabled == 0) useAtok = false;
         else useAtok = mePredictMode == PM_Atok;
         if (useAtok && current == mpUnfixString) {
             if (!mpUnfixString->isKanaFix()) mpUnfixString->confirmKana();
@@ -4371,78 +4177,15 @@ void Base::draw() {
     endDraw();
 }
 
-asm void Base::drawCursor(f32, f32) {
-    nofralloc
-    stwu r1, -0x50(r1)
-    mflr r0
-    stw r0, 0x54(r1)
-    stfd f31, 0x40(r1)
-    psq_st f31, 0x48(r1), 0, 0
-    lis r7, 0x4330
-    lfd f4, lbl_81694D80(r0)
-    stw r31, 0x3c(r1)
-    mr r31, r3
-    lfs f3, lbl_81694D70(r0)
-    lbz r0, 0x1c8(r3)
-    stw r7, 0x10(r1)
-    stw r0, 0x14(r1)
-    lfd f0, 0x10(r1)
-    stfs f1, 0x17c(r3)
-    fsubs f1, f0, f4
-    lfs f0, lbl_81694D40(r0)
-    stfs f2, 0x180(r3)
-    lbz r6, lbl_81694D6C(r0)
-    fdivs f31, f1, f3
-    lbz r5, lbl_81694D6D(r0)
-    lbz r4, lbl_81694D6E(r0)
-    lbz r0, lbl_81694D6F(r0)
-    stb r6, 8(r1)
-    stb r5, 9(r1)
-    stb r4, 0xa(r1)
-    stb r0, 0xb(r1)
-    lwz r0, 0x214(r3)
-    stw r7, 0x18(r1)
-    stw r0, 0x1c(r1)
-    lfd f1, 0x18(r1)
-    fsubs f1, f1, f4
-    fmuls f1, f0, f1
-    bl SinFIdx__Q24nw4r4mathFf
-    lfs f2, lbl_81694D74(r0)
-    addi r3, r31, 0x10
-    fmuls f0, f2, f1
-    fadds f0, f2, f0
-    fmuls f0, f31, f0
-    fctiwz f0, f0
-    stfd f0, 0x20(r1)
-    lwz r0, 0x24(r1)
-    stb r0, 0xb(r1)
-    lfs f1, 0xa0(r31)
-    lfs f0, 0x98(r31)
-    fsubs f31, f1, f0
-    bl GetFontHeight__Q34nw4r2ut10CharWriterCFv
-    lfs f0, lbl_81694D78(r0)
-    addi r4, r1, 8
-    lfs f6, 0x180(r31)
-    fdivs f0, f0, f31
-    lfs f2, lbl_81694D58(r0)
-    lfs f5, lbl_81694D28(r0)
-    fctiwz f0, f0
-    fadds f4, f6, f1
-    lfs f1, 0x17c(r31)
-    stfd f0, 0x28(r1)
-    fmr f3, f1
-    fsubs f4, f4, f2
-    lwz r3, 0x2c(r1)
-    fadds f2, f2, f6
-    clrlwi r3, r3, 24
-    bl drawLine___Q29textinput5debugFfffffUcR8_GXColor
-    psq_l f31, 0x48(r1), 0, 0
-    lwz r0, 0x54(r1)
-    lfd f31, 0x40(r1)
-    lwz r31, 0x3c(r1)
-    mtlr r0
-    addi r1, r1, 0x50
-    blr
+void Base::drawCursor(f32 x, f32 y) {
+    f32 opacity = static_cast<u32>(muGlobalAlpha) / 255.0f;
+    mfCursorX = x;
+    mfCursorY = y;
+    GXColor color = {lbl_81694D6C, lbl_81694D6D, lbl_81694D6E, lbl_81694D6F};
+    f32 pulse = nw4r::math::SinFIdx(0.7111111f * muCursorTimer);
+    color.a = static_cast<s32>(opacity * (127.0f + 127.0f * pulse));
+    f32 width = mfViewWidth - mfViewX;
+    debug::drawLine_(mfCursorX, 2.0f + mfCursorY, mfCursorX, (mfCursorY + GetFontHeight()) - 2.0f, 0.0f, static_cast<u8>(14592.0f / width), color);
 }
 
 void Base::doScroll(Scroll* scroll) {
