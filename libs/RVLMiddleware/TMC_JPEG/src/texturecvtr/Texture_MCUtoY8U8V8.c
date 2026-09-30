@@ -165,7 +165,7 @@ static void TMCJPEGDEC_converterYUV411toY8U8V8(TMCCJPEGDecWork* work, s32 x, s32
     u8* ou;
     u8* ov;
     s32 xo;
-    s32 off;
+    u32 off;
 
 
     st = work->pState;
@@ -262,7 +262,7 @@ static void TMCJPEGDEC_converterYUV411toY8U8V8edge(TMCCJPEGDecWork* work, s32 x,
     u8* ou;
     u8* ov;
     s32 xo;
-    s32 off;
+    u32 off;
 
 
     st = work->pState;
@@ -357,7 +357,7 @@ static void TMCJPEGDEC_converterYUV422toY8U8V8(TMCCJPEGDecWork* work, s32 x, s32
     u8* ou;
     u8* ov;
     s32 xo;
-    s32 off;
+    u32 off;
 
 
     st = work->pState;
@@ -443,7 +443,7 @@ static void TMCJPEGDEC_converterYUV422toY8U8V8edge(TMCCJPEGDecWork* work, s32 x,
     u8* ou;
     u8* ov;
     s32 xo;
-    s32 off;
+    u32 off;
 
 
     st = work->pState;
@@ -538,7 +538,7 @@ static void TMCJPEGDEC_converterYUV420toY8U8V8(TMCCJPEGDecWork* work, s32 x, s32
     u8* ou;
     u8* ov;
     s32 xo;
-    s32 off;
+    u32 off;
 
 
     st = work->pState;
@@ -629,7 +629,7 @@ static void TMCJPEGDEC_converterYUV420toY8U8V8edge(TMCCJPEGDecWork* work, s32 x,
     u8* ou;
     u8* ov;
     s32 xo;
-    s32 off;
+    u32 off;
 
 
     st = work->pState;
@@ -724,7 +724,7 @@ static void TMCJPEGDEC_converterYUV211toY8U8V8(TMCCJPEGDecWork* work, s32 x, s32
     u8* ou;
     u8* ov;
     s32 xo;
-    s32 off;
+    u32 off;
 
 
     st = work->pState;
@@ -810,7 +810,7 @@ static void TMCJPEGDEC_converterYUV211toY8U8V8edge(TMCCJPEGDecWork* work, s32 x,
     u8* ou;
     u8* ov;
     s32 xo;
-    s32 off;
+    u32 off;
 
 
     st = work->pState;
@@ -894,7 +894,7 @@ static void TMCJPEGDEC_converterYUV444toY8U8V8(TMCCJPEGDecWork* work, s32 x, s32
     u8* ou;
     u8* ov;
     s32 xo;
-    s32 off;
+    u32 off;
 
     st = work->pState;
     y_row = work->convBuf + 4;
@@ -953,7 +953,7 @@ static void TMCJPEGDEC_converterYUV444toY8U8V8edge(TMCCJPEGDecWork* work, s32 x,
     u8* ou;
     u8* ov;
     s32 xo;
-    s32 off;
+    u32 off;
 
     st = work->pState;
     y_row = work->convBuf + 4;
@@ -1014,7 +1014,7 @@ static void TMCJPEGDEC_converterYUV400toY8U8V8(TMCCJPEGDecWork* work, s32 x, s32
     s32 row_base;
     u8* oy;
     s32 xo;
-    s32 off;
+    u32 off;
 
     st = work->pState;
     y_row = work->convBuf + 4;
@@ -1057,7 +1057,7 @@ static void TMCJPEGDEC_converterYUV400toY8U8V8edge(TMCCJPEGDecWork* work, s32 x,
     s32 row_base;
     u8* oy;
     s32 xo;
-    s32 off;
+    u32 off;
 
     st = work->pState;
     y_row = work->convBuf + 4;
