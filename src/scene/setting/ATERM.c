@@ -1326,32 +1326,38 @@ int ATERM_81403614(u8* destination, const char* source, s32 length) {
         if (character < 'G') {
             if (character < ':') {
                 if (character >= '0') {
-                    value += character - '0';
-                } else {
-                    goto fail;
+                    goto digit;
                 }
-            } else {
-                if (character >= 'A') {
-                    value += character - '7';
-                } else {
-                    goto fail;
-                }
-            }
-        } else {
-            if (character < 'g') {
-                if (character >= 'a') {
-                    value += character - 'W';
-                } else {
-                    goto fail;
-                }
-            } else {
                 goto fail;
             }
+            if (character >= 'A') {
+                goto upper;
+            }
+            goto fail;
         }
+        if (character < 'g') {
+            if (character >= 'a') {
+                goto lower;
+            }
+            goto fail;
+        }
+        goto fail;
+    digit:
+        value += character - '0';
+        goto parity;
+    lower:
+        value += character - 'W';
+        goto parity;
+    upper:
+        value += character - '7';
+        goto parity;
+    fail:
+        return 0;
+    parity:
         if (characterIndex % 2 == 0) {
             value <<= 4;
         } else {
-            destination[characterIndex / 2] = (u8)value;
+            destination[((characterIndex < 0) + characterIndex) >> 1] = (u8)value;
             value = 0;
         }
         characterIndex++;
@@ -1359,8 +1365,6 @@ int ATERM_81403614(u8* destination, const char* source, s32 length) {
         length--;
     }
     return 1;
-fail:
-    return 0;
 }
 
 int ATERM_814036D8(void) {
@@ -2735,9 +2739,9 @@ int ATERMi_ApConfigGetState(AtermProgress* progress) {
         progress->remainingTime = -1;
     } else {
         OSTime currentTime = OSGetTime();
-        u32 busClock = OS_BUS_CLOCK >> 2;
         u32 reciprocal = 0x10624DD3;
-        u32 ticksPerMillisecond = __mulhwu(busClock, reciprocal) >> 6;
+        u32 busClock = OS_BUS_CLOCK >> 2;
+        u32 ticksPerMillisecond = __mulhwu(reciprocal, busClock) >> 6;
         u32 elapsedMilliseconds = (u32)(currentTime / ticksPerMillisecond);
         progress->remainingTime = gAtermDeadline - elapsedMilliseconds;
     }
