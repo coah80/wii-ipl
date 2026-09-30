@@ -86,10 +86,26 @@ CDBErr CDBRecordClose(CDBRecord* record);
 CDBErr CDBRecordGetDataSize(CDBRecord* record, u32* recordSize);
 CDBErr CDBRecordGetId(CDBRecord* record, CDBId* id);
 
+#ifdef CDB_RECORD_IMPLEMENTATION
+void CDBRecordGetCalendarTimeForce(CDBRecord* record, int* year, int* month, int* day, int* hour, int* min, int* sec);
+#else
 CDBErr CDBRecordGetCalendarTimeForce(CDBRecord* record, int* year, int* month, int* day, int* hour, int* min, int* sec);
+#endif
+#ifdef CDB_RECORD_IMPLEMENTATION
+void CDBRecordGetKeyForce(CDBRecord* record, CDBRecordKey* recordKey);
+#else
 CDBErr CDBRecordGetKeyForce(CDBRecord* record, CDBRecordKey* recordKey);
+#endif
+#ifdef CDB_RECORD_IMPLEMENTATION
+void CDBRecordGetTypeForce(CDBRecord* record, char* type);
+#else
 CDBErr CDBRecordGetTypeForce(CDBRecord* record, char* type);
+#endif
+#ifdef CDB_RECORD_IMPLEMENTATION
+void CDBRecordGetGameCodeForce(CDBRecord* record, char* gcStr);
+#else
 CDBErr CDBRecordGetGameCodeForce(CDBRecord* record, char* gcStr);
+#endif
 
 CDBErr CDBRecordRemove(CDBRecord* record);
 

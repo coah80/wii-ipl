@@ -4,19 +4,32 @@
 #include <private/cdb/CDBAttr.h>
 #include <private/cdb/CDBBridge.h>
 #include <revolution/types.h>
+#ifdef CDB_RECORD_IMPLEMENTATION
+#include <revolution/os.h>
+#endif
 
 #ifdef __cplusplus
 extern "C" {
 #endif  // __cplusplus
 
 typedef struct _CDBRecordFile {
+#ifdef CDB_RECORD_IMPLEMENTATION
+    OSMutex mutex;
+    BOOL used;
+#else
     u8 unk_0x00[0x1C - 0x00];
+#endif
     int unk_0x1C;
     CDBAttr attr;              // 0x20
     CDBBridgeFile bridgeFile;  // 0x42C
     u8 unk_0x434[0x438 - 0x434];
     CDBRecordKey key;  // 0x438
+#ifdef CDB_RECORD_IMPLEMENTATION
+    u32 database;
+    u8 reserved[0x480 - 0x46C];
+#else
     u8 unk_0x468[0x480 - 0x468];
+#endif
 } CDBRecordFile;
 
 enum {
