@@ -1,0 +1,28 @@
+full build: ok
+main.dol sha1: 26116613f624061ba99c8d1a299aaa6efa85670d
+[src/scene/address/iplAddressEdit] pool: IDENTICAL
+[src/scene/address/iplAddressEdit] objdiff: code 20040/27112 data 368/2560 functions 86/94 fuzzy 99.2653 linked code 0
+[src/scene/address/iplAddressEdit] instruction-exact functions: 86/94
+[src/scene/address/iplAddressEdit]   section .bss size 320 match 100.0
+[src/scene/address/iplAddressEdit]   section .data size 2152 match 99.906975
+[src/scene/address/iplAddressEdit]   section .rodata size 40 match 98.591545
+[src/scene/address/iplAddressEdit]   section .sdata size 24 match 100.0
+[src/scene/address/iplAddressEdit]   section .sdata2 size 24 match 100.0
+[src/scene/address/iplAddressEdit]   section .text size 27112 match 99.26527
+[src/scene/address/iplAddressEdit]   below 100: create__Q33ipl5scene11AddressEditFv 97.44634
+[src/scene/address/iplAddressEdit]   below 100: stt_wait_decide_anm__Q33ipl5scene11AddressEditFv 99.97362
+[src/scene/address/iplAddressEdit]   below 100: stt_wait_btn_fadeout__Q33ipl5scene11AddressEditFv 99.73404
+[src/scene/address/iplAddressEdit]   below 100: start_point_event__Q33ipl5scene11AddressEditFPCcPQ33ipl10controller9Interface 99.34066
+[src/scene/address/iplAddressEdit]   below 100: start_left_event__Q33ipl5scene11AddressEditFPCc 83.291664
+[src/scene/address/iplAddressEdit]   below 100: get_friendinfo__Q33ipl5scene11AddressEditFv 88.03571
+[src/scene/address/iplAddressEdit]   below 100: update_friendinfo__Q33ipl5scene11AddressEditFv 99.42105
+[src/scene/address/iplAddressEdit]   below 100: set_err_msg__Q33ipl5scene11AddressEditFPwUl8NWC24Err 98.666664
+[src/scene/address/iplAddressEdit] baseline: code 19596/27112 data 368 functions 85 fuzzy 99.2594
+regressions vs baseline: 0
+global matched_code_percent: 84.10455 -> 84.11938
+global fuzzy_match_percent: 97.69411 -> 97.69416
+global complete_code_percent: 58.20100 -> 58.20100
+global matched_data_percent: 90.31366 -> 90.31366
+forbidden patterns added (net, per file): 0
+readability warnings (net, per file; must be 0 in the final result): 0
+GATE PASS
