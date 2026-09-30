@@ -6,14 +6,17 @@ extern s32 NCDiGetEnabledConfigList(u32* list0, u32* list1, u32* list2);
 s32 GetStartupErrorCode(s32 err, s32 type);
 
 s32 NETiGetConnectionTypeFromConfigList(u32 config0, u32 config1, u32 config2) {
-    s32 i;
     u32 mask;
+    s32 i;
     s32 ret = 0x63;
 
     if (config0 != 0) {
         if (config1 == 0 && config2 == 0) {
-            for (i = 0, mask = 1; i < 32; i++, mask <<= 1) {
-                if (config0 & mask) {
+            for (mask = 1, i = 0; i < 32; i++, mask <<= 1) {
+                switch (config0 & mask) {
+                case 0:
+                    break;
+                default:
                     goto find0;
                 }
             }
@@ -24,8 +27,11 @@ s32 NETiGetConnectionTypeFromConfigList(u32 config0, u32 config1, u32 config2) {
         }
     } else if (config1 != 0) {
         if (config2 == 0) {
-            for (i = 0, mask = 1; i < 32; i++, mask <<= 1) {
-                if (config1 & mask) {
+            for (mask = 1, i = 0; i < 32; i++, mask <<= 1) {
+                switch (config1 & mask) {
+                case 0:
+                    break;
+                default:
                     goto find1;
                 }
             }
@@ -35,8 +41,11 @@ s32 NETiGetConnectionTypeFromConfigList(u32 config0, u32 config1, u32 config2) {
             goto end;
         }
     } else if (config2 != 0) {
-        for (i = 0, mask = 1; i < 32; i++, mask <<= 1) {
-            if (config2 & mask) {
+        for (mask = 1, i = 0; i < 32; i++, mask <<= 1) {
+            switch (config2 & mask) {
+            case 0:
+                break;
+            default:
                 goto find2;
             }
         }
