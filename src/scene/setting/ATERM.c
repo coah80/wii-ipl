@@ -868,18 +868,22 @@ int ATERM_81402A24(void) {
     u32 iteration = 0;
     u32 now;
     u32 reciprocal = 0x10624DD3;
-    char selectedMacText[32];
+    char selectedMacText[48];
 
     currentRecords = (AtermApRecordSet*)gAtermAllocate(recordBytes);
+    if (currentRecords != NULL) {
+        memset(currentRecords, 0, recordBytes);
+    }
     if (currentRecords == NULL) {
         goto cleanup;
     }
-    memset(currentRecords, 0, recordBytes);
     previousRecords = (AtermApRecordSet*)gAtermAllocate(recordBytes);
+    if (previousRecords != NULL) {
+        memset(previousRecords, 0, recordBytes);
+    }
     if (previousRecords == NULL) {
         goto cleanup;
     }
-    memset(previousRecords, 0, recordBytes);
     rawScanBuffer = (u8*)gAtermAllocate(scanBufferBytes + 0x40);
     if (rawScanBuffer == NULL) {
         goto cleanup;
@@ -938,35 +942,32 @@ int ATERM_81402A24(void) {
                    sizeof(currentRecords->entries[progressInfo[0]].bssid));
             {
                 u8* addressCursor = gAtermSelectedBssid;
-                s32 addressIndex = 0;
-                s32 addressesRemaining = 6;
+                s32 addressIndex;
                 char* output = selectedMacText;
 
-                do {
+                for (addressIndex = 0; addressIndex < 6; addressIndex++) {
                     u8 addressByte = *addressCursor++;
-                    u8 highNibble = addressByte >> 4;
-                    u8 lowNibble = addressByte & 0xF;
-                    char* nextOutput = output + 2;
+                    s32 highNibble = (addressByte & 0xF0) >> 4;
+                    s32 lowNibble = addressByte & 0xF;
+                    char* nextOutput = output;
 
-                    if (highNibble < 10) {
-                        *output = highNibble + 0x30;
+                    if (highNibble <= 9) {
+                        *nextOutput++ = highNibble + 0x30;
                     } else {
-                        *output = highNibble + 0x37;
+                        *nextOutput++ = highNibble + 0x37;
                     }
-                    if (lowNibble < 10) {
-                        output[1] = lowNibble + 0x30;
+                    if (lowNibble <= 9) {
+                        *nextOutput++ = lowNibble + 0x30;
                     } else {
-                        output[1] = lowNibble + 0x37;
+                        *nextOutput++ = lowNibble + 0x37;
                     }
                     *nextOutput = '\0';
+                    output += nextOutput - output;
                     if (addressIndex < 5) {
-                        *nextOutput = ':';
-                        nextOutput = output + 3;
+                        *output = ':';
+                        output++;
                     }
-                    addressIndex++;
-                    addressesRemaining--;
-                    output = nextOutput;
-                } while (addressesRemaining != 0);
+                }
                 *output = '\0';
             }
             break;
@@ -991,11 +992,16 @@ int ATERM_81402A24(void) {
         s64 currentTime = OSGetTime();
         now = (u32)(currentTime / (__mulhwu(reciprocal, OS_BUS_CLOCK >> 2) >> 6));
         if (now <= gAtermDeadline) {
-            result = gAtermCancelRequested == 0 ? 1 : -8;
-            goto cleanup;
+            goto found;
         }
     }
     result = -3;
+    goto cleanup;
+found:
+    result = 1;
+    if (gAtermCancelRequested != 0) {
+        result = -8;
+    }
 
 cleanup:
     if (rawScanBuffer != NULL) {
