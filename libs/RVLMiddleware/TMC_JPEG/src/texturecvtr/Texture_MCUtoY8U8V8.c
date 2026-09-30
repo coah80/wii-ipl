@@ -216,14 +216,11 @@ static void TMCJPEGDEC_converterYUV411toY8U8V8(TMCCJPEGDecWork* work, s32 x, s32
     cstride = bw2 >> 3;
 
     for (; yc < yc_end; yc++) {
-        crow_base = (yc >> 2) * cstride;
-        ou = out1 + ((yc & 3) << 3);
-        ov = out2 + ((yc & 3) << 3);
         for (xc_pos = xc; xc_pos < xc_end; xc_pos++) {
-            off = ((xc_pos >> 3) + crow_base) << 5;
+            off = ((xc_pos >> 3) + (yc >> 2) * cstride) << 5;
             xo = xc_pos & 7;
-            ou[off + xo] = *u_row++ + 0x80;
-            ov[off + xo] = *v_row++ + 0x80;
+            out1[((yc & 3) << 3) + off + xo] = *u_row++ + 0x80;
+            out2[((yc & 3) << 3) + off + xo] = *v_row++ + 0x80;
         }
         u_row += cskip;
         v_row += cskip;
@@ -311,14 +308,11 @@ static void TMCJPEGDEC_converterYUV411toY8U8V8edge(TMCCJPEGDecWork* work, s32 x,
     cstride = bw2 >> 3;
 
     for (; yc < yc_end; yc++) {
-        crow_base = (yc >> 2) * cstride;
-        ou = out1 + ((yc & 3) << 3);
-        ov = out2 + ((yc & 3) << 3);
         for (xc_pos = xc; xc_pos < xc_end; xc_pos++) {
-            off = ((xc_pos >> 3) + crow_base) << 5;
+            off = ((xc_pos >> 3) + (yc >> 2) * cstride) << 5;
             xo = xc_pos & 7;
-            ou[off + xo] = *u_row++ + 0x80;
-            ov[off + xo] = *v_row++ + 0x80;
+            out1[((yc & 3) << 3) + off + xo] = *u_row++ + 0x80;
+            out2[((yc & 3) << 3) + off + xo] = *v_row++ + 0x80;
         }
         u_row += cskip;
         v_row += cskip;
@@ -397,14 +391,11 @@ static void TMCJPEGDEC_converterYUV422toY8U8V8(TMCCJPEGDecWork* work, s32 x, s32
     cstride = bw2 >> 3;
 
     for (; yc < yc_end; yc++) {
-        crow_base = (yc >> 2) * cstride;
-        ou = out1 + ((yc & 3) << 3);
-        ov = out2 + ((yc & 3) << 3);
         for (xc_pos = xc; xc_pos < xc_end; xc_pos++) {
-            off = ((xc_pos >> 3) + crow_base) << 5;
+            off = ((xc_pos >> 3) + (yc >> 2) * cstride) << 5;
             xo = xc_pos & 7;
-            ou[off + xo] = *u_row++ + 0x80;
-            ov[off + xo] = *v_row++ + 0x80;
+            out1[((yc & 3) << 3) + off + xo] = *u_row++ + 0x80;
+            out2[((yc & 3) << 3) + off + xo] = *v_row++ + 0x80;
         }
         u_row += cskip;
         v_row += cskip;
@@ -492,14 +483,11 @@ static void TMCJPEGDEC_converterYUV422toY8U8V8edge(TMCCJPEGDecWork* work, s32 x,
     cstride = bw2 >> 3;
 
     for (; yc < yc_end; yc++) {
-        crow_base = (yc >> 2) * cstride;
-        ou = out1 + ((yc & 3) << 3);
-        ov = out2 + ((yc & 3) << 3);
         for (xc_pos = xc; xc_pos < xc_end; xc_pos++) {
-            off = ((xc_pos >> 3) + crow_base) << 5;
+            off = ((xc_pos >> 3) + (yc >> 2) * cstride) << 5;
             xo = xc_pos & 7;
-            ou[off + xo] = *u_row++ + 0x80;
-            ov[off + xo] = *v_row++ + 0x80;
+            out1[((yc & 3) << 3) + off + xo] = *u_row++ + 0x80;
+            out2[((yc & 3) << 3) + off + xo] = *v_row++ + 0x80;
         }
         u_row += cskip;
         v_row += cskip;
@@ -583,14 +571,11 @@ static void TMCJPEGDEC_converterYUV420toY8U8V8(TMCCJPEGDecWork* work, s32 x, s32
     cstride = bw2 >> 3;
 
     for (; yc < yc_end; yc++) {
-        crow_base = (yc >> 2) * cstride;
-        ou = out1 + ((yc & 3) << 3);
-        ov = out2 + ((yc & 3) << 3);
         for (xc_pos = xc; xc_pos < xc_end; xc_pos++) {
-            off = ((xc_pos >> 3) + crow_base) << 5;
+            off = ((xc_pos >> 3) + (yc >> 2) * cstride) << 5;
             xo = xc_pos & 7;
-            ou[off + xo] = *u_row++ + 0x80;
-            ov[off + xo] = *v_row++ + 0x80;
+            out1[((yc & 3) << 3) + off + xo] = *u_row++ + 0x80;
+            out2[((yc & 3) << 3) + off + xo] = *v_row++ + 0x80;
         }
         u_row += cskip;
         v_row += cskip;
@@ -678,14 +663,11 @@ static void TMCJPEGDEC_converterYUV420toY8U8V8edge(TMCCJPEGDecWork* work, s32 x,
     cstride = bw2 >> 3;
 
     for (; yc < yc_end; yc++) {
-        crow_base = (yc >> 2) * cstride;
-        ou = out1 + ((yc & 3) << 3);
-        ov = out2 + ((yc & 3) << 3);
         for (xc_pos = xc; xc_pos < xc_end; xc_pos++) {
-            off = ((xc_pos >> 3) + crow_base) << 5;
+            off = ((xc_pos >> 3) + (yc >> 2) * cstride) << 5;
             xo = xc_pos & 7;
-            ou[off + xo] = *u_row++ + 0x80;
-            ov[off + xo] = *v_row++ + 0x80;
+            out1[((yc & 3) << 3) + off + xo] = *u_row++ + 0x80;
+            out2[((yc & 3) << 3) + off + xo] = *v_row++ + 0x80;
         }
         u_row += cskip;
         v_row += cskip;
