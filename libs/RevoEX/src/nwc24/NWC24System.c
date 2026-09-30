@@ -8,7 +8,7 @@ static s32 nwc24ShtFd = -1;
 static s32 nwc24ShtRetryRest = 0;
 static OSShutdownFunctionInfo ShutdownFuncInfo;
 BOOL NWC24Shutdown(BOOL final, u32 event);
-NWC24Err NWC24iMBoxSetLastUIDL(NWC24MBoxType type, const char* uidl);
+NWC24Err NWC24iMBoxSetLastUIDL(u32 type, const char* uidl);
 
 NWC24Err NWC24EnableLedNotification(BOOL enable) {
     u8 led = 0;

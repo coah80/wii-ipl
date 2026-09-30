@@ -28,5 +28,6 @@
 #include <private/nwc24/NWC24MsgObj.h>
 
 NWC24Err NWC24iPrepareShutdown();
+BOOL NWC24Shutdown(BOOL final, u32 event);
 
 #endif  // REVOLUTION_NWC24_H
