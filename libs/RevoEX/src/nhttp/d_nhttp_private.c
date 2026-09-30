@@ -23,11 +23,10 @@ s32 NHTTP_SendRequestAsync(void*, NHTTPRequestInfo*);
 void NHTTPi_WaitForCompletion(NHTTPConnectionInfo*);
 
 NHTTPConnectionInfo* NHTTPCreateConnection(const char* url, s32 method, void* buffer, u32 size, NHTTPConnectionCallback callback, void* userParam) {
-
     NHTTPConnectionInfo* connection;
-    void* mutex;
     NHTTPBgnEndInfo* info;
     void* system;
+    void* mutex;
     system=NHTTPi_GetSystemInfoP();
     info=NHTTPi_GetBgnEndInfoP(system);
     mutex=NHTTPi_GetMutexInfoP(system);

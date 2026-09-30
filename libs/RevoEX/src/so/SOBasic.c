@@ -126,13 +126,12 @@ int SOConnect(int socket, void* address) {
 }
 
 int SOGetSockName(int socket, void* address) {
-
-    SOSockAddr* reply;
-    NameRequest* request;
     int size;
     int result;
     s32 rm;
     SOSockAddr* addr;
+    SOSockAddr* reply;
+    NameRequest* request;
     addr=address;
     if((result=SOiPrepare(NULL,&rm))==0) {
         if(!addr || addr->len>8 || addr->len<8) result=-28;
@@ -351,12 +350,11 @@ static int RecvFrom(const char* name, int socket, void* data, int length, int fl
 }
 
 static int SendTo(const char* name, int socket, const void* data, int length, int flags, const SOSockAddr* address) {
-
-    void* buffer;
-    SendRequest* request;
     BOOL direct;
     int result;
     s32 rm;
+    void* buffer;
+    SendRequest* request;
     if((result=SOiPrepare(name,&rm))==0) {
         if(address && (address->len>8 || address->len<8)) result=-28;
         else if(length<0 || (length>0 && !data)) result=-28;

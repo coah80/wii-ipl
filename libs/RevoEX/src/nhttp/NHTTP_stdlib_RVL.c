@@ -64,10 +64,11 @@ s32 NHTTPi_encodeUrlChar(char* destination, s8 character) {
 }
 
 s32 NHTTPi_strToHex(const char* string, s32 length) {
-    s32 value=0;
-    BOOL started=FALSE;
+    s32 value;
+    BOOL started;
     if(length>8) return -1;
     if((length==8) & (*string>='7')) return -1;
+    value=0; started=FALSE;
     for(; length>0; --length,++string) {
         s8 character=LowerCase(*string);
         if(character>='0' && character<='9') { value=(value<<4)+character-'0'; started=TRUE; }
@@ -102,10 +103,13 @@ s32 NHTTPi_strToInt(const char* string, s32 length) {
 
 s32 NHTTPi_intToStr(char* destination, u32 value) {
     u32 scales[9]={1000000000,100000000,10000000,1000000,100000,10000,1000,100,10};
-    char* output=destination;
-    s32 length=0;
-    BOOL started=FALSE;
+    BOOL started;
     int digit;
+    char* output;
+    s32 length;
+    output = destination;
+    length = 0;
+    started = FALSE;
     for(digit=0; digit<9; ++digit) {
         if(value>=scales[digit]) {
             u32 quotient=value/scales[digit];
