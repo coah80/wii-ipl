@@ -93,7 +93,11 @@ namespace nw4r {
 #else
             void SetTranslate(const math::VEC3& translate) { mTranslate = translate; }
 #endif
+#ifdef IPL_SDMEMORY_SET_TRANSLATE_OUT_OF_LINE
+            void SetTranslate(const math::VEC2& translate);
+#else
             void SetTranslate(const math::VEC2& translate) { SetTranslate(math::VEC3(translate.x, translate.y, 0.0f)); }
+#endif
 
             const math::VEC3& GetRotate() const { return mRotate; }
             void SetRotate(const math::VEC3& rotate) { mRotate = rotate; }

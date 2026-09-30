@@ -1,3 +1,4 @@
+#define IPL_SDMEMORY_TITLE_CACHE_ACCESS
 #define IPL_SDMEMORY_SCROLLER_INIT_OUT_OF_LINE
 #define IPL_SDMEMORY_SET_TRANSLATE_OUT_OF_LINE
 #define IPL_SDMEMORY_DIALOG_STATE_ACCESSOR
@@ -60,6 +61,8 @@ namespace ipl {
         typedef ::gui::PaneComponent GuiPaneComponent;
         typedef controller::Interface ControllerInterface;
 
+        void writeFourFlagBytes(u8* flags, u8 first, u8 second, u8 third, u8 fourth);
+
         void setTitleRowColors(nw4r::lyt::TextBox* textBox, const nw4r::ut::Color& first,
                                const nw4r::ut::Color& second);
 
@@ -78,7 +81,7 @@ namespace ipl {
         void SDMemory::create(EGG::Heap* heap, nand::LayoutFile* layoutFile, SDChannelSelect* channelSelect) {
             mpSDChannelSelect = channelSelect;
 
-            mpMainLayout = new (heap) layout::Object(heap, layoutFile, "arc", "mn_DialogWindow_ChChange_a.brlyt");
+            mpMainLayout = new layout::Object(heap, layoutFile, "arc", "mn_DialogWindow_ChChange_a.brlyt");
             mpMainLayout->bindToGroup("mn_DialogWindow_ChChange_a_DialogIn.brlan", "G_InOut", false, true);
             mpMainLayout->bindToGroup("mn_DialogWindow_ChChange_a_DialogOut.brlan", "G_InOut", false, true);
             mpMainLayout->bindToGroup("mn_DialogWindow_ChChange_a_FocusBtn_on.brlan", "G_FocusBtnA", false, true);
@@ -105,7 +108,7 @@ namespace ipl {
             textBox = nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(mpMainLayout->FindPaneByName("T_BtnA"));
             textBox->SetString(System::getMessage(0x25));
 
-            mpTitleLayout = new (heap) layout::Object(heap, layoutFile, "arc", "mn_DialogWindow_ChChange_b.brlyt");
+            mpTitleLayout = new layout::Object(heap, layoutFile, "arc", "mn_DialogWindow_ChChange_b.brlyt");
             mpTitleLayout->bindToGroup("mn_DialogWindow_ChChange_b_DialogIn.brlan", "G_InOut", false, true);
             mpTitleLayout->bindToGroup("mn_DialogWindow_ChChange_b_DialogOut.brlan", "G_InOut", false, true);
             mpTitleLayout->bindToGroup("mn_DialogWindow_ChChange_b_FocusBtn_on.brlan", "G_FocusBtnA", false, true);
@@ -150,7 +153,27 @@ namespace ipl {
             textBox = nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(mpTitleLayout->FindPaneByName("TextBox_07"));
             textBox->SetString(System::getMessage(0xBA));
 
-            mpDialogLayout = new (heap) layout::Object(heap, layoutFile, "arc", "mn_DialogWindow_ChChange_c.brlyt");
+            const ESTitleId* cachedTitles = System::getSaveData()->getTitleCache();
+            s32 cachedTitleCount = 0;
+            for (s32 i = 0; i < 48; ++i) {
+                if (cachedTitles[i] == 0) {
+                    break;
+                }
+                ++cachedTitleCount;
+            }
+            if (cachedTitleCount >= 5) {
+                mpTitleLayout->FindPaneByName("N_Btn_3")->SetVisible(false);
+                mpTitleLayout->FindPaneByName("N_Btn_4")->SetVisible(true);
+                mDisplayMode = 4;
+            } else {
+                mpTitleLayout->FindPaneByName("N_Btn_3")->SetVisible(true);
+                mpTitleLayout->FindPaneByName("N_Btn_4")->SetVisible(false);
+                mDisplayMode = 3;
+            }
+            textBox = nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(mpTitleLayout->FindPaneByName("T_BtnA"));
+            textBox->SetString(System::getMessage(0xA5));
+
+            mpDialogLayout = new layout::Object(heap, layoutFile, "arc", "mn_DialogWindow_ChChange_c.brlyt");
             static_cast<nw4r::lyt::TextBox*>(mpDialogLayout->FindPaneByName("T_Letter"))->AllocStringBuffer(0x840);
             mpDialogLayout->bindToGroup("mn_DialogWindow_ChChange_c_Dialog_FadeIn.brlan", "G_Fede", false, true);
             mpDialogLayout->bindToGroup("mn_DialogWindow_ChChange_c_Dialog_FadeOut.brlan", "G_Fede", false, true);
@@ -190,7 +213,7 @@ namespace ipl {
             textBox = nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(mpDialogLayout->FindPaneByName("T_CalExit_00"));
             textBox->SetString(System::getMessage(0xC4));
 
-            mpProgressLayout = new (heap) layout::Object(heap, layoutFile, "arc", "mn_DialogWindow_Background.brlyt");
+            mpProgressLayout = new layout::Object(heap, layoutFile, "arc", "mn_DialogWindow_Background.brlyt");
             mpProgressLayout->bindToGroup("mn_DialogWindow_Background_DialogIn.brlan", "G_InOut", false, true);
             mpProgressLayout->bindToGroup("mn_DialogWindow_Background_DialogOut.brlan", "G_InOut", false, true);
             mpProgressLayout->finishBinding();
@@ -245,20 +268,14 @@ namespace ipl {
 
         void SDMemory::setScrollLimit() {
             nw4r::lyt::Pane* headerPane = mpDialogLayout->FindPaneByName("N_Header");
-            nw4r::lyt::Pane* buttonPane = mpDialogLayout->FindPaneByName("T_BtnA");
+            nw4r::lyt::Pane* buttonPane = mpDialogLayout->FindPaneByName("N_Body");
             nw4r::lyt::Pane* footerPane = mpDialogLayout->FindPaneByName("N_Footer");
 
             nw4r::ut::Rect projection;
             System::getProjectionRect(&projection);
 
-            f32 itemCount = static_cast<f32>(mButtonState);
-            f32 buttonHeight = buttonPane->GetSize().height;
-            f32 headerHeight = headerPane->GetSize().height;
-            f32 footerHeight = footerPane->GetSize().height;
-            f32 contentHeight = headerHeight + footerHeight;
-            f32 itemHeight = itemCount * buttonHeight;
-            f32 contentHeightWithItems = itemHeight + contentHeight;
-            f32 downLimit = contentHeightWithItems - projection.GetHeight() + 1.0f;
+            f32 downLimit = 160.0f + (static_cast<f32>(mButtonState) * buttonPane->GetSize().height +
+                (headerPane->GetSize().height + footerPane->GetSize().height) - projection.GetHeight());
             if (downLimit < 0.0f) {
                 downLimit = 0.0f;
             }
@@ -743,6 +760,26 @@ namespace ipl {
             }
         }
 
+        void SDMemory::onDialogState7() {
+            if (!mpTitleLayout->isPlaying(-1)) {
+                switch (mProcessState) {
+                case 4:
+                    mDialogState = 0;
+                    mpMainLayout->getAnim(0)->play();
+                    snd::getSystem()->startSE("WIPL_SE_INFO_WINDOW");
+                    break;
+                default:
+                    mTransferStartTime = 0;
+                    mTransferFrame = 0;
+                    System::getDialog()->callBtn0NoShade(0xCC, 0, true);
+                    mDialogState = 8;
+                    break;
+                }
+            }
+        }
+
+
+
         void SDMemory::onDialogState8() {
             if (System::getDialog()->getStateForSDMemory() == 2) {
                 if (mTransferStartTime == 0) {
@@ -789,26 +826,6 @@ namespace ipl {
                 resetScrollArrows();
             }
         }
-
-        void SDMemory::onDialogState7() {
-            if (!mpTitleLayout->isPlaying(-1)) {
-                switch (mProcessState) {
-                case 4:
-                    mDialogState = 0;
-                    mpMainLayout->getAnim(0)->play();
-                    snd::getSystem()->startSE("WIPL_SE_INFO_WINDOW");
-                    break;
-                default:
-                    mTransferStartTime = 0;
-                    mTransferFrame = 0;
-                    System::getDialog()->callBtn0NoShade(0xCC, 0, true);
-                    mDialogState = 8;
-                    break;
-                }
-            }
-        }
-
-
 
         void SDMemory::onDialogState9() {
             if (!mpDialogLayout->isPlaying(0)) {
@@ -1230,23 +1247,25 @@ namespace ipl {
         }
 
         void SDMemory::drawTransferTitles() {
-            nw4r::lyt::Pane* memoPane = mpDialogLayout->FindPaneByName("N_Memo");
-            nw4r::lyt::Pane* headerPane = mpDialogLayout->FindPaneByName("header_header");
+            const nw4r::math::VEC3& translation = mpDialogLayout->FindPaneByName("N_Memo")->GetTranslate();
+            nw4r::math::VEC3 memoPosition(translation.x, translation.y, translation.z);
+            mpDialogLayout->FindPaneByName("header_header");
             nw4r::lyt::Pane* bodyPane = mpDialogLayout->FindPaneByName("header_body");
 
-            f32 bodyY = headerPane->GetTranslate().y;
-            if (bodyY < 0.0f) {
+            f32 bodyY = memoPosition.y;
+            if (bodyY < 500.0f) {
                 mpDialogLayout->draw("header_header");
             }
 
+            u8 alpha = mpDialogLayout->FindPaneByName("N_Memo")->GetAlpha();
             nw4r::ut::LinkList<nw4r::lyt::Pane, offsetof(nw4r::lyt::detail::PaneBase, mLink)>::Iterator child =
                 bodyPane->GetChildList().GetBeginIter();
             while (child != bodyPane->GetChildList().GetEndIter()) {
-                child->SetAlpha(memoPane->GetAlpha());
+                child->SetAlpha(alpha);
                 ++child;
             }
 
-            u32 lineCount = 0;
+            s32 lineCount = 0;
             f32 messageOffset = 0.0f;
             f32 bodyHeight = bodyPane->GetSize().height;
             if (mNandTitleCount != 0) {
@@ -1260,17 +1279,18 @@ namespace ipl {
                 const wchar_t* messageLine = System::getMessage(0xCB);
                 nw4r::lyt::TextBox* messageText = static_cast<nw4r::lyt::TextBox*>(
                     mpDialogLayout->FindPaneByName("T_Header_body"));
-                u32 lineIndex = 0;
-                while (lineIndex <= lineCount) {
+                s32 totalLines = lineCount + 1;
+                s32 lineIndex = 0;
+                while (lineIndex < totalLines) {
                     const wchar_t* lineEnd = wcsstr(messageLine, L"\n");
-                    if (lineEnd != NULL) {
+                    if (lineEnd == NULL) {
+                        utility::layout::set_string(messageText, messageLine);
+                    } else {
                         u32 lineLength = static_cast<u32>(lineEnd - messageLine);
                         wcsncpy(mCurrentTitleName, messageLine, lineLength);
                         mCurrentTitleName[lineLength] = L'\0';
                         utility::layout::set_string(messageText, mCurrentTitleName);
                         messageLine = lineEnd + 1;
-                    } else {
-                        utility::layout::set_string(messageText, messageLine);
                     }
 
                     if (bodyY < 500.0f) {
@@ -1286,64 +1306,87 @@ namespace ipl {
             }
 
             messageOffset += bodyHeight;
-            f32 titleOffset = messageOffset;
+            f32 backgroundOffset = 40.0f + messageOffset;
+            f32 titleOffset = 79.5f + messageOffset;
 
-            nw4r::lyt::TextBox* titleSizePane = static_cast<nw4r::lyt::TextBox*>(
-                mpDialogLayout->FindPaneByName("T_Letter"));
+            nw4r::lyt::Pane* titleSizePane = mpDialogLayout->FindPaneByName("N_Body");
             f32 rowHeight = titleSizePane->GetSize().height;
             nw4r::lyt::PaneList::Iterator titleChild = titleSizePane->GetChildList().GetBeginIter();
             while (titleChild != titleSizePane->GetChildList().GetEndIter()) {
-                titleChild->SetAlpha(memoPane->GetAlpha());
+                titleChild->SetAlpha(alpha);
                 ++titleChild;
             }
 
             nw4r::lyt::TextBox* titleText = static_cast<nw4r::lyt::TextBox*>(
                 mpDialogLayout->FindPaneByName("T_Letter"));
-            titleText->SetAlpha(memoPane->GetAlpha());
+            titleText->SetAlpha(alpha);
 
-            nw4r::ut::Color activeTitleColor(0x34, 0xBE, 0xED, 0xFF);
-            nw4r::ut::Color inactiveTitleColor(0x64, 0x64, 0x64, 0xFF);
+            u32 nandTitleIndex = 0;
             for (u32 titleIndex = 0; titleIndex < mTitleCount; ++titleIndex) {
                 utility::layout::set_string(titleText, mTitleNames[titleIndex]);
-                if (titleIndex < mNandTitleCount && mTitleIds[titleIndex] == mNandTitleIds[titleIndex]) {
+                if (nandTitleIndex < mNandTitleCount && mTitleIds[titleIndex] == mNandTitleIds[nandTitleIndex]) {
+                    nw4r::ut::Color activeTitleColor;
+                    writeFourFlagBytes(&activeTitleColor.r, 0x34, 0xBE, 0xED, 0xFF);
+                    ++nandTitleIndex;
                     setTitleRowColors(titleText, activeTitleColor, activeTitleColor);
                 } else {
+                    nw4r::ut::Color inactiveTitleColor;
+                    writeFourFlagBytes(&inactiveTitleColor.r, 0x64, 0x64, 0x64, 0xFF);
                     setTitleRowColors(titleText, inactiveTitleColor, inactiveTitleColor);
                 }
 
-                nw4r::ut::Rect textRect = mpDialogLayout->getTextDrawRect("T_Header_body");
+                nw4r::ut::Rect textRect = mpDialogLayout->getTextDrawRect("T_Letter");
                 f32 rowTop = textRect.bottom - textRect.top;
-                u32 visibleRows = static_cast<u32>(ceil(-rowTop / rowHeight));
-                for (u32 row = 0; row < visibleRows; ++row) {
-                    f32 rowOffset = titleOffset + static_cast<f32>(row) * rowHeight;
-                    f32 rowY = bodyY + rowOffset;
+                s32 visibleRows = static_cast<s32>(static_cast<f32>(ceil(-rowTop / titleSizePane->GetSize().height)));
+                for (s32 row = 0; row < visibleRows; ++row) {
+                    f32 rowY = bodyY + backgroundOffset;
                     if (rowY > -500.0f && rowY < 500.0f) {
-                        nw4r::math::VEC2 translation(0.0f, rowOffset);
-                        titleText->SetTranslate(translation);
-                        titleText->CalculateMtx(*mpDialogLayout->getDrawInfo());
-                        mpDialogLayout->draw(titleText);
+                        nw4r::math::VEC2 translation(0.0f, backgroundOffset);
+                        titleSizePane->SetTranslate(translation);
+                        titleSizePane->CalculateMtx(*mpDialogLayout->getDrawInfo());
+                        mpDialogLayout->draw(titleSizePane);
                     }
+                    backgroundOffset -= rowHeight;
+                }
+                if (bodyY + titleOffset > -500.0f && bodyY + titleOffset < 500.0f) {
+                    nw4r::math::VEC2 translation(0.0f, titleOffset);
+                    titleText->SetTranslate(translation);
+                    titleText->CalculateMtx(*mpDialogLayout->getDrawInfo());
+                    mpDialogLayout->draw(titleText);
                 }
                 titleOffset -= rowHeight * static_cast<f32>(visibleRows);
             }
 
+            backgroundOffset += rowHeight;
             nw4r::lyt::Pane* footerPane = mpDialogLayout->FindPaneByName("N_Footer");
             nw4r::lyt::PaneList::Iterator footerChild = footerPane->GetChildList().GetBeginIter();
             while (footerChild != footerPane->GetChildList().GetEndIter()) {
-                footerChild->SetAlpha(memoPane->GetAlpha());
+                footerChild->SetAlpha(alpha);
                 ++footerChild;
             }
 
-            if (bodyY + titleOffset > -500.0f) {
-                nw4r::math::VEC2 translation(0.0f, titleOffset);
+            if (bodyY + backgroundOffset > -500.0f) {
+                nw4r::math::VEC2 translation(0.0f, backgroundOffset);
                 footerPane->SetTranslate(translation);
                 footerPane->CalculateMtx(*mpDialogLayout->getDrawInfo());
                 mpDialogLayout->draw(footerPane);
             }
 
-            mpDialogLayout->draw("header_body");
             mpDialogLayout->draw("N_TopBtn_00");
-            mpDialogLayout->draw("N_Memo");
+            mpDialogLayout->draw("N_Back");
+            mpDialogLayout->draw("N_Move");
+        }
+
+        void writeFourFlagBytes(u8* flags, u8 first, u8 second, u8 third, u8 fourth) {
+            flags[0] = first;
+            flags[1] = second;
+            flags[2] = third;
+            flags[3] = fourth;
+        }
+
+        void setTitleRowColors(nw4r::lyt::TextBox* textBox, const nw4r::ut::Color& first,
+                               const nw4r::ut::Color& second) {
+            textBox->SetTextColors(first, second);
         }
 
         s32 SDMemory::getControlPaneIndex(const char* paneName) {
@@ -1788,16 +1831,5 @@ namespace ipl {
             }
         }
 
-        void writeFourFlagBytes(u8* flags, u8 first, u8 second, u8 third, u8 fourth) {
-            flags[0] = first;
-            flags[1] = second;
-            flags[2] = third;
-            flags[3] = fourth;
-        }
-
-        void setTitleRowColors(nw4r::lyt::TextBox* textBox, const nw4r::ut::Color& first,
-                               const nw4r::ut::Color& second) {
-            textBox->SetTextColors(first, second);
-        }
     }
 }
