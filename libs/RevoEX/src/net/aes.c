@@ -372,7 +372,7 @@ s32 NETAESCreateEx(NETAESContext* ctx, const u8* key, u32 keyLen, const u8* iv, 
     } else {
     ctx->flags |= 0x00800000;
     ctx->mode = mode;
-    ctx->flags = (ctx->flags & 0x00FFFFFF) | ((keyLen / 4 + 6) << 24);
+    ctx->flags = (ctx->flags & 0x00FFFFFF) | ((keyLen >> 2) + 6) << 24;
     memcpy(ctx->iv, iv, 0x10);
     w = ctx->rk;
     memcpy(w, key, keyLen);
