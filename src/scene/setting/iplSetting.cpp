@@ -2832,17 +2832,17 @@ namespace ipl {
             numberAnim->initFrame();
             numberAnim->restart();
             mpMainLayout->getAnim(0)->initAnmFrame();
-            mpMainLayout->FindPaneByName(sSettingArrowNames[0])->SetVisible(false);
-            mpMainLayout->FindPaneByName(sSettingAPTextNames[0])->SetVisible(false);
+            mpMainLayout->FindPaneByName(lbl_81697010[0])->SetVisible(false);
+            mpMainLayout->FindPaneByName(sSettingAPNumberNames[0])->SetVisible(false);
             if (mAPScanList.count <= unk_0x914 + 4) {
                 mpMainLayout->FindPaneByName(NULL)->SetVisible(false);
-                mpMainLayout->FindPaneByName(sSettingAPNumberNames[1])->SetVisible(false);
+                mpMainLayout->FindPaneByName(lbl_81697010[1])->SetVisible(false);
                 for (int index = mAPScanList.count + 1; index < 6; ++index) {
                     mpMainLayout->FindPaneByName(sSettingAPNumberNames[index])->SetVisible(false);
                 }
             } else {
                 mpMainLayout->FindPaneByName(NULL)->SetVisible(true);
-                mpMainLayout->FindPaneByName(sSettingAPNumberNames[1])->SetVisible(true);
+                mpMainLayout->FindPaneByName(lbl_81697010[1])->SetVisible(true);
                 utility::FrameController* scrollAnim = mpMainLayout->getAnim(1);
                 scrollAnim->initFrame();
                 scrollAnim->restart();
