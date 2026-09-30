@@ -1138,10 +1138,10 @@ int ATERM_81402FC0(AtermPacket* packet, u32* setupType) {
 }
 
 int ATERM_814031DC(AtermAssociationRequest* request, AtermSocketAddress* address) {
+    char interfaceMacText[24];
+    char scanAddressText[32];
     u8 scanAddress[8];
     u8 interfaceMacAddress[8];
-    char scanAddressText[32];
-    char interfaceMacText[36];
     int addressOrder;
 
     memcpy(request->productName, gAtermProductName, sizeof(request->productName));
@@ -1161,54 +1161,60 @@ int ATERM_814031DC(AtermAssociationRequest* request, AtermSocketAddress* address
         int addressIndex;
         char* textCursor = interfaceMacText;
 
-        for (addressIndex = 0; addressIndex < 6; addressIndex++) {
-            u8 addressByte = interfaceMacAddress[addressIndex];
-            s32 highNibble = (addressByte & 0xF0) >> 4;
-            s32 lowNibble = addressByte & 0xF;
-            char* nextText = textCursor + 2;
+        {
+            u8* macCursor = interfaceMacAddress;
+            for (addressIndex = 0; addressIndex < 6; addressIndex++) {
+                u8 addressByte = *macCursor++;
+                s32 highNibble = (addressByte & 0xF0) >> 4;
+                s32 lowNibble = addressByte & 0xF;
+                char* nextText = textCursor;
 
-            if (highNibble < 10) {
-                *textCursor = highNibble + 0x30;
-            } else {
-                *textCursor = highNibble + 0x37;
+                if (highNibble <= 9) {
+                    *nextText++ = highNibble + 0x30;
+                } else {
+                    *nextText++ = highNibble + 0x37;
+                }
+                if (lowNibble <= 9) {
+                    *nextText++ = lowNibble + 0x30;
+                } else {
+                    *nextText++ = lowNibble + 0x37;
+                }
+                *nextText = '\0';
+                textCursor += nextText - textCursor;
+                if (addressIndex < 5) {
+                    *textCursor = ':';
+                    textCursor++;
+                }
             }
-            if (lowNibble < 10) {
-                textCursor[1] = lowNibble + 0x30;
-            } else {
-                textCursor[1] = lowNibble + 0x37;
-            }
-            *nextText = '\0';
-            if (addressIndex < 5) {
-                *nextText = ':';
-                nextText = textCursor + 3;
-            }
-            textCursor = nextText;
         }
         *textCursor = '\0';
 
         textCursor = scanAddressText;
-        for (addressIndex = 0; addressIndex < 6; addressIndex++) {
-            u8 addressByte = scanAddress[addressIndex];
-            s32 highNibble = (addressByte & 0xF0) >> 4;
-            s32 lowNibble = addressByte & 0xF;
-            char* nextText = textCursor + 2;
+        {
+            u8* macCursor = scanAddress;
+            for (addressIndex = 0; addressIndex < 6; addressIndex++) {
+                u8 addressByte = *macCursor++;
+                s32 highNibble = (addressByte & 0xF0) >> 4;
+                s32 lowNibble = addressByte & 0xF;
+                char* nextText = textCursor;
 
-            if (highNibble < 10) {
-                *textCursor = highNibble + 0x30;
-            } else {
-                *textCursor = highNibble + 0x37;
+                if (highNibble <= 9) {
+                    *nextText++ = highNibble + 0x30;
+                } else {
+                    *nextText++ = highNibble + 0x37;
+                }
+                if (lowNibble <= 9) {
+                    *nextText++ = lowNibble + 0x30;
+                } else {
+                    *nextText++ = lowNibble + 0x37;
+                }
+                *nextText = '\0';
+                textCursor += nextText - textCursor;
+                if (addressIndex < 5) {
+                    *textCursor = ':';
+                    textCursor++;
+                }
             }
-            if (lowNibble < 10) {
-                textCursor[1] = lowNibble + 0x30;
-            } else {
-                textCursor[1] = lowNibble + 0x37;
-            }
-            *nextText = '\0';
-            if (addressIndex < 5) {
-                *nextText = ':';
-                nextText = textCursor + 3;
-            }
-            textCursor = nextText;
         }
         *textCursor = '\0';
     }
@@ -2678,7 +2684,9 @@ int ATERMi_ApConfigEnd(void) {
         OSInitMessageQueue(&joinQueue, &joinQueueBuffer, 1);
         OSCreateAlarm(&joinAlarm);
         OSSetAlarmTag(&joinAlarm, (u32)&joinQueue);
-        OSSetAlarm(&joinAlarm, 0x10624DD3, ATERM_8140684C);
+        OSSetAlarm(&joinAlarm,
+                   (__mulhwu(0x10624DD3, OS_BUS_CLOCK >> 2) >> 6) * 500,
+                   ATERM_8140684C);
         OSReceiveMessage(&joinQueue, &joinMessage, 1);
         while (OSIsThreadTerminated(&AtermThread) == 0) {
             OSJoinThread(&AtermThread, NULL);
