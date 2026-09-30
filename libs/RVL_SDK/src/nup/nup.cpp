@@ -922,7 +922,8 @@ static s32 __nupGetTitleSize(NUPTitleInfo* title) {
     title->installedContentSize += 0x4000;
     for (contentIndex = 0; contentIndex < ((ESTmdView*)title->tmdView)->head.numContents; contentIndex++) {
         ESCmdView* content = &((ESTmdView*)title->tmdView)->contents[contentIndex];
-        if (!__nupHasContent(title, content->cid) ||
+        ESContentId contentId = content->cid;
+        if (!__nupHasContent(title, contentId) ||
             title->titleId == 0x0000000100000001ULL) {
             if (content->size > 0xffffffefULL) {
                 result = -0x1394;
@@ -1171,10 +1172,9 @@ static inline s32 __nupGetBoot2Version(u16* version) {
     u32 bootVersion;
     s32 result = ES_GetBoot2Version(&bootVersion);
     if (result == 0) {
-        *version = bootVersion;
-        if (*version != bootVersion) {
-            result = -0x1389;
-        }
+        u16 checkedVersion = bootVersion;
+        *version = checkedVersion;
+        result = checkedVersion == bootVersion ? result : -0x1389;
     }
     return result;
 }
@@ -1349,11 +1349,12 @@ extern "C" void* __nupOp(void* argument) {
     OSUnlockMutex(&context->mutex);
     for (i = 0; i < context->titleCount; i++) {
         NUPTitleInfo* title = &context->titles[i];
-        if (title->titleId == 0x0000000100000001ULL) {
+        ESTitleId titleId = title->titleId;
+        if (titleId == 0x0000000100000001ULL) {
             bootTitle = title;
-        } else if (title->titleId == 0x0000000100000002ULL) {
+        } else if (titleId == 0x0000000100000002ULL) {
             menuTitle = title;
-        } else if (title->titleId == currentTitleId) {
+        } else if (titleId == currentTitleId) {
             systemTitle = title;
         }
         if (bootTitle != 0 && menuTitle != 0 && systemTitle != 0) {
