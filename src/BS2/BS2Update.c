@@ -102,9 +102,11 @@ static void* UpdateThread(void* argument) {
     BS2UpdateEntry* selectedSeats;
     u32 selectedSeatCount;
     BOOL regionValid;
-    u8 titleRegion;
+    u32 titleRegion;
 
     BS2Report("Start update thread\n");
+    StartUpdate = 0;
+    CancelUpdate = 0;
     missingFile = FALSE;
     selectedCount = 0;
     requiredBytes = 0;
@@ -114,8 +116,6 @@ static void* UpdateThread(void* argument) {
     freeBlocks = 0;
     freeInodes = 0;
     selectedSeatCount = 0;
-    StartUpdate = 0;
-    CancelUpdate = 0;
     State = 0;
     ContainsSeatTitles = FALSE;
     if (ES_GetTitleId(&titleId) != 0) {

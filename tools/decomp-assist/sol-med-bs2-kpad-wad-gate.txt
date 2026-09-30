@@ -1,0 +1,87 @@
+full build: ok
+main.dol sha1: 26116613f624061ba99c8d1a299aaa6efa85670d
+[src/BS2/BS2Mach] pool: IDENTICAL
+[src/BS2/BS2Mach] objdiff: code 4052/16980 data 155504/158528 functions 21/29 fuzzy 84.6464 linked code 0
+[src/BS2/BS2Mach] instruction-exact functions: 21/29
+[src/BS2/BS2Mach]   section .bss size 155232 match 100.0
+[src/BS2/BS2Mach]   section .data size 3024 match None
+[src/BS2/BS2Mach]   section .sbss size 240 match 100.0
+[src/BS2/BS2Mach]   section .sdata size 32 match 100.0
+[src/BS2/BS2Mach]   section .text size 16980 match 84.64641
+[src/BS2/BS2Mach]   below 100: Run 0.88372093
+[src/BS2/BS2Mach]   below 100: BS2StartGame 95.496185
+[src/BS2/BS2Mach]   below 100: BS2StartGCGame 98.24561
+[src/BS2/BS2Mach]   below 100: BS2NANDDivideCallback 85.03906
+[src/BS2/BS2Mach]   below 100: BS2NANDDivideReadAsync 60.31915
+[src/BS2/BS2Mach]   below 100: BS2NANDDivideWriteAsync 60.31915
+[src/BS2/BS2Mach]   below 100: CheckBS2CommandStatus 80.697044
+[src/BS2/BS2Mach]   below 100: BS2Tick 76.669075
+[src/BS2/BS2Mach] baseline: code 4052/16980 data 155504 functions 21 fuzzy 83.7230
+[libs/RVL_SDK/src/kpad/KPAD] pool: IDENTICAL
+[libs/RVL_SDK/src/kpad/KPAD] objdiff: code 2404/13056 data 7712/8032 functions 14/29 fuzzy 84.0867 linked code 0
+[libs/RVL_SDK/src/kpad/KPAD] instruction-exact functions: 14/29
+[libs/RVL_SDK/src/kpad/KPAD]   section .bss size 7680 match 100.0
+[libs/RVL_SDK/src/kpad/KPAD]   section .data size 88 match None
+[libs/RVL_SDK/src/kpad/KPAD]   section .sbss size 32 match 100.0
+[libs/RVL_SDK/src/kpad/KPAD]   section .sdata size 112 match 94.545456
+[libs/RVL_SDK/src/kpad/KPAD]   section .sdata2 size 120 match 85.71429
+[libs/RVL_SDK/src/kpad/KPAD]   section .text size 13056 match 84.0867
+[libs/RVL_SDK/src/kpad/KPAD]   below 100: reset_kpad 69.37607
+[libs/RVL_SDK/src/kpad/KPAD]   below 100: KPADGetProjectionPos 96.57895
+[libs/RVL_SDK/src/kpad/KPAD]   below 100: KPADSetSensorHeight 99.23077
+[libs/RVL_SDK/src/kpad/KPAD]   below 100: calc_acc_horizon 96.9802
+[libs/RVL_SDK/src/kpad/KPAD]   below 100: read_kpad_acc 66.565
+[libs/RVL_SDK/src/kpad/KPAD]   below 100: select_2obj_first 76.18033
+[libs/RVL_SDK/src/kpad/KPAD]   below 100: select_2obj_continue 89.391304
+[libs/RVL_SDK/src/kpad/KPAD]   below 100: select_1obj_first 90.83486
+[libs/RVL_SDK/src/kpad/KPAD]   below 100: select_1obj_continue 80.18279
+[libs/RVL_SDK/src/kpad/KPAD]   below 100: calc_dpd_variable 80.024
+[libs/RVL_SDK/src/kpad/KPAD]   below 100: read_kpad_dpd 73.54317
+[libs/RVL_SDK/src/kpad/KPAD]   below 100: read_kpad_stick 97.24683
+[libs/RVL_SDK/src/kpad/KPAD]   below 100: KPADRead 83.57952
+[libs/RVL_SDK/src/kpad/KPAD]   below 100: KPADInit 72.46487
+[libs/RVL_SDK/src/kpad/KPAD]   below 100: KPADiSamplingCallback 89.3022
+[libs/RVL_SDK/src/kpad/KPAD] baseline: code 2020/13056 data 7712 functions 13 fuzzy 82.4372
+[src/BS2/BS2Update] pool: IDENTICAL
+[src/BS2/BS2Update] objdiff: code 112/4052 data None/10488 functions 8/10 fuzzy 84.6150 linked code 0
+[src/BS2/BS2Update] instruction-exact functions: 8/10
+[src/BS2/BS2Update]   section .bss size 9056 match 72.9682
+[src/BS2/BS2Update]   section .data size 1328 match None
+[src/BS2/BS2Update]   section .sbss size 80 match 78.947365
+[src/BS2/BS2Update]   section .sdata size 24 match 94.117645
+[src/BS2/BS2Update]   section .text size 4052 match 84.615005
+[src/BS2/BS2Update]   below 100: BS2UpdateInit 79.875
+[src/BS2/BS2Update]   below 100: UpdateThread 84.516975
+[src/BS2/BS2Update] baseline: code 112/4052 data None functions 8 fuzzy 84.1994
+[libs/RVL_SDK/src/wad/wad] pool: IDENTICAL
+[libs/RVL_SDK/src/wad/wad] objdiff: code 7080/24500 data 64/528 functions 23/40 fuzzy 87.0056 linked code 0
+[libs/RVL_SDK/src/wad/wad] instruction-exact functions: 23/40
+[libs/RVL_SDK/src/wad/wad]   section .data size 464 match 99.34924
+[libs/RVL_SDK/src/wad/wad]   section .sdata size 64 match 100.0
+[libs/RVL_SDK/src/wad/wad]   section .text size 24500 match 87.005554
+[libs/RVL_SDK/src/wad/wad]   below 100: WADImportGetBlocks 83.956375
+[libs/RVL_SDK/src/wad/wad]   below 100: WAD_815BFFA8 97.17742
+[libs/RVL_SDK/src/wad/wad]   below 100: WADImportEx 72.73997
+[libs/RVL_SDK/src/wad/wad]   below 100: WAD_815C1288 96.39344
+[libs/RVL_SDK/src/wad/wad]   below 100: WADBackupEx 68.567795
+[libs/RVL_SDK/src/wad/wad]   below 100: _WADCheckContents 96.70588
+[libs/RVL_SDK/src/wad/wad]   below 100: WADOpenStream 98.891624
+[libs/RVL_SDK/src/wad/wad]   below 100: _WADUnpackBackup 97.34513
+[libs/RVL_SDK/src/wad/wad]   below 100: _WADGetCidxCount 95.05
+[libs/RVL_SDK/src/wad/wad]   below 100: _WADGetCidx 99.14286
+[libs/RVL_SDK/src/wad/wad]   below 100: _WADBackupGetFiles 96.223976
+[libs/RVL_SDK/src/wad/wad]   below 100: _WADBackupGetSize 88.548386
+[libs/RVL_SDK/src/wad/wad]   below 100: _WADRandPad 93.78022
+[libs/RVL_SDK/src/wad/wad]   below 100: WAD_815C43E0 97.17742
+[libs/RVL_SDK/src/wad/wad]   below 100: _WADHash 96.08247
+[libs/RVL_SDK/src/wad/wad]   below 100: WADVerify 89.21769
+[libs/RVL_SDK/src/wad/wad]   below 100: WADImportDVDExForBS 89.79088
+[libs/RVL_SDK/src/wad/wad] baseline: code 7080/24500 data 64 functions 23 fuzzy 85.7037
+regressions vs baseline: 0
+global matched_code_percent: 84.60095 -> 84.61377
+global fuzzy_match_percent: 97.98296 -> 98.00660
+global complete_code_percent: 58.20100 -> 58.20100
+global matched_data_percent: 90.32545 -> 90.32545
+forbidden patterns added (net, per file): 0
+readability warnings (net, per file; must be 0 in the final result): 0
+GATE PASS
