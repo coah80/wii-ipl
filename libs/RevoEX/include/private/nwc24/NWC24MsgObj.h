@@ -21,19 +21,22 @@ typedef struct NWC24MsgObjPrivate {
     u32 type;    // 0x04
     u32 length;  // 0x08
     u32 appId;   // 0x0C
-#ifdef NWC24_MBOX_CTRL
+#if defined(NWC24_MBOX_CTRL) || defined(NWC24_MSG_COMMIT)
     u32 unk_0x10;
 #else
     u8 unk_0x10[0x4];
 #endif
     u32 tag;             // 0x14
     u32 ledPattern;      // 0x18
-#ifdef NWC24_MBOX_CTRL
+#if defined(NWC24_MBOX_CTRL) || defined(NWC24_MSG_COMMIT)
     u32 unk_0x1C;
 #endif
-#ifdef NWC24_MBOX_CTRL
+#if defined(NWC24_MBOX_CTRL) || defined(NWC24_MSG_COMMIT)
     union {
         NWC24UserId fromId;
+#ifdef NWC24_MSG_COMMIT
+        NWC24Data fromAddr;
+#endif
         struct { u32 fromIdHigh, fromIdLow; };
     };
 #else
