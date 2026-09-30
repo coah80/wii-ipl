@@ -37,7 +37,7 @@ static u8 _devType[WPAD_MAX_CONTROLLERS];
 static u8 _devMode[WPAD_MAX_CONTROLLERS];
 static u8 _devCmpt[WPAD_MAX_CONTROLLERS];
 static u8 _retryCnt[WPAD_MAX_CONTROLLERS];
-static u8 checkBuffer[21];
+static u8 checkBuffer[24];
 static f32 rolag[WPAD_MAX_CONTROLLERS];
 static f32 calibX[WPAD_MAX_CONTROLLERS];
 static f32 calibY[WPAD_MAX_CONTROLLERS];
@@ -739,8 +739,7 @@ void __a1_21_user_data(u8 chan, u8* data) {
         if (base + p_wpd->wmReadLength == addr + len) {
             DEBUGPrint("base addr: %08x\n", p_wpd->wmReadAddress);
             DEBUGPrint("length   : %d\n", p_wpd->wmReadLength);
-            status = WPAD_ERR_TRANSFER;
-            status &= p_wpd->wmReadHadError >> 31;
+            status = (p_wpd->wmReadHadError < 0) ? WPAD_ERR_TRANSFER : 0;
             DEBUGPrint("i2c = %04x\n", i2c);
             DEBUGPrint("enc = %d\n", p_wpd->unk_0x98D);
 
@@ -824,8 +823,7 @@ void __a1_22_ack(u8 chan, u8* data) {
 
     DEBUGPrint("ack --> report ID = %02x, error code = %d\n", type, err);
 
-    status = WPAD_ERR_TRANSFER;
-    status &= ~-((__cntlzw(err) >> 5) & 1);
+    status = (err == 0) ? 0 : WPAD_ERR_TRANSFER;
 
     p_status->err = WPAD_ERR_BUSY;
     p_status->dev = p_wpd->devType;

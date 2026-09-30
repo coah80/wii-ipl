@@ -1037,7 +1037,7 @@ config.libs = [
     ),
     RevoEXLib("ncd", [
             Object(Matching,    "ncd/ncdsystem.c"),
-            Object(NonMatching, "ncd/ncdsleep.c"),
+            Object(Matching, "ncd/ncdsleep.c"),
         ]
     ),
     RevoEXLib("net", [
@@ -1552,7 +1552,7 @@ config.libs = [
     ),
     RVLSDKLib("wpad", [
             Object(Matching,    "wpad/WPAD.c"),
-            Object(NonMatching, "wpad/WPADHIDParser.c"),
+            Object(Matching,    "wpad/WPADHIDParser.c"),
             Object(Matching,    "wpad/WPADMem.c"),
             Object(Matching,    "wpad/WPADEncrypt.c"),
             Object(Matching,    "wpad/debug_msg.c"),
