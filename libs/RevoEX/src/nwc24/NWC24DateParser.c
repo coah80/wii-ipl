@@ -176,7 +176,8 @@ s32 ConvertDateToDays(u16 year, u8 month, u8 day) {
     }
 
 validDate:
-    daysOfYear = day - 1 + DAYS_OF_YEAR[month - 1];
+    daysOfYear = day - 1;
+    daysOfYear += DAYS_OF_YEAR[month - 1];
     if (month >= 3) {
         isLeapYear = 0;
         if ((year % 4 == 0 && year % 100 != 0) || year % 400 == 0) {
