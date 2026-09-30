@@ -20,9 +20,15 @@ namespace textinput {
         wchar_t KBD_ConvertSmall(wchar_t ch);
         wchar_t KBD_ConvertAll(wchar_t ch);
 
+#ifdef TISTRING_IMPLEMENTATION
+        u32     KBD_IsDakuten(wchar_t ch);
+        u32     KBD_IsHandaku(wchar_t ch);
+        u32     KBD_IsSmall(wchar_t ch);
+#else
         bool    KBD_IsDakuten(wchar_t ch);
         bool    KBD_IsHandaku(wchar_t ch);
         bool    KBD_IsSmall(wchar_t ch);
+#endif
 
         bool    strcmp(const char* s1, const char* s2);
         void    replaceChar(char* dest, u32 destLen, const char* src, int replaceIdx, char newCh);

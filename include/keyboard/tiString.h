@@ -3,7 +3,7 @@
 
 #include <revolution/types.h>
 #include <revolution/mem/allocator.h>
-#if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION)
+#if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION) || defined(TISTRING_IMPLEMENTATION) || defined(TIZISTRING_IMPLEMENTATION)
 #include <revolution/kpr.h>
 #endif
 
@@ -39,7 +39,7 @@ namespace textinput {
                 virtual wchar_t*    getWCString() const             { return mpszString; }
 
                 virtual void        setCandidate(wchar_t candidate) { mwcCandidate = candidate; }
-                #if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION)
+                #if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION) || defined(TISTRING_IMPLEMENTATION) || defined(TIZISTRING_IMPLEMENTATION)
                 virtual wchar_t     getCandidate() const            { return mwcCandidate; }
 #else
                 virtual wchar_t     getCandidate()                  { return mwcCandidate; }
@@ -48,7 +48,11 @@ namespace textinput {
 
                 virtual wchar_t     getLastWChar();
 
+#if defined(TISTRING_IMPLEMENTATION) || defined(TIZISTRING_IMPLEMENTATION)
+            protected:
+#else
             private:
+#endif
                 u16             muMaxLength;    // 0x04
                 u16             muLength;       // 0x06
 
@@ -61,7 +65,7 @@ namespace textinput {
         };
 
         class KanaStream {
-#if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION)
+#if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION) || defined(TISTRING_IMPLEMENTATION) || defined(TIZISTRING_IMPLEMENTATION)
         public:
             KPRQueue mQueue;
             wchar_t mPending;
@@ -74,13 +78,13 @@ namespace textinput {
 
         class Decolated : public StringBase {
         public:
-#if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION)
+#if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION) || defined(TISTRING_IMPLEMENTATION) || defined(TIZISTRING_IMPLEMENTATION)
             Decolated(u16 maxLen) : StringBase(maxLen), mCursorStart(0), mCursorEnd(0), mbSustain(false), mTranslateMode(0) { initKanaConverter(); }
 #else
             Decolated(u16 maxLen) : StringBase(maxLen), field_0x18(0), field_0x1C(0), field_0x20(0), field_0x24(0) { initKanaConverter(); }
 #endif
 
-#if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION)
+#if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION) || defined(TISTRING_IMPLEMENTATION) || defined(TIZISTRING_IMPLEMENTATION)
             virtual ~Decolated();
             enum TranslateMode { TM_Direct, TM_Kana, TM_Roman, TM_Hangul };
             virtual void clear();
@@ -103,7 +107,7 @@ namespace textinput {
             virtual u32 getCursorPos() const;
             virtual void getCursorPos(u32* start, u32* end);
             virtual bool canBackSpace();
-#if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION)
+#if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION) || defined(TISTRING_IMPLEMENTATION) || defined(TIZISTRING_IMPLEMENTATION)
             virtual bool deleteForward();
 #else
             virtual void deleteForward();
@@ -161,12 +165,21 @@ namespace textinput {
 
 #endif
 
+#if defined(TISTRING_IMPLEMENTATION) || defined(TIZISTRING_IMPLEMENTATION)
+        protected:
+#else
         private:
-#if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION)
+#endif
+#if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION) || defined(TISTRING_IMPLEMENTATION) || defined(TIZISTRING_IMPLEMENTATION)
             u32 mCursorStart;
             u32 mCursorEnd;
+#if defined(TISTRING_IMPLEMENTATION) || defined(TIZISTRING_IMPLEMENTATION)
+            u8 mbSustain;
+            s32 mTranslateMode;
+#else
             bool mbSustain;
             u32 mTranslateMode;
+#endif
 #else
             u32 field_0x18;          // 0x18
             u32 field_0x1C;          // 0x1C
@@ -176,7 +189,7 @@ namespace textinput {
             KanaStream mKanaStream;  // 0x28
         };
 
-#if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION)
+#if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION) || defined(TISTRING_IMPLEMENTATION) || defined(TIZISTRING_IMPLEMENTATION)
         class WithAtok : public Decolated {
         public:
             WithAtok(u16 maxLength) : Decolated(maxLength) {}
