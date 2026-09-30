@@ -3,6 +3,7 @@
 
 #include <revolution/types.h>
 #include <revolution/mem/allocator.h>
+#include <revolution/kpr.h>
 
 namespace textinput {
     namespace tistring {
@@ -41,7 +42,7 @@ namespace textinput {
 
                 virtual wchar_t     getLastWChar();
 
-            private:
+            protected:
                 u16             muMaxLength;    // 0x04
                 u16             muLength;       // 0x06
 
@@ -54,13 +55,18 @@ namespace textinput {
         };
 
         class KanaStream {
-        private:
-            u8 field_0x00[0x24];
+        public:
+            KPRQueue mQueue;
+            wchar_t mPending;
+            wchar_t mOutput[5];
         };
 
         class Decolated : public StringBase {
         public:
-            Decolated(u16 maxLen) : StringBase(maxLen), field_0x18(0), field_0x1C(0), field_0x20(0), field_0x24(0) { initKanaConverter(); }
+            enum TranslateMode { TM_Direct, TM_Kana, TM_Roman, TM_Hangul };
+
+            Decolated(u16 maxLen) : StringBase(maxLen), mCursorStart(0), mCursorEnd(0), mbSustain(false), mTranslateMode(0) { initKanaConverter(); }
+            virtual ~Decolated();
 
             virtual void clear();
             virtual void set(const wchar_t* string);
@@ -71,8 +77,8 @@ namespace textinput {
             virtual void deleteChar();
             virtual void backSpace();
             virtual void confirm(const wchar_t*);
-            virtual void moveCursorRight();
-            virtual void moveCursorLeft();
+            virtual bool moveCursorRight();
+            virtual bool moveCursorLeft();
             virtual void setCursorPos(u32);
             virtual void onSustain();
             virtual void offSustain();
@@ -80,7 +86,7 @@ namespace textinput {
             virtual u32 getCursorPos() const;
             virtual void getCursorPos(u32*, u32*);
             virtual bool canBackSpace();
-            virtual void deleteForward();
+            virtual bool deleteForward();
             virtual void getSelected(u32&, u32&);
             virtual wchar_t getWCharAtCursor();
             virtual void replaceAtCursor(wchar_t);
@@ -99,11 +105,15 @@ namespace textinput {
             virtual void clearKana();
             virtual void EnableKSXFilter(bool);
 
+            void setTranslateMode(TranslateMode mode);
+            TranslateMode getTranslateMode() const { return static_cast<TranslateMode>(mTranslateMode); }
+            void inputString(const wchar_t* string, TranslateMode mode);
+
         private:
-            u32 field_0x18;          // 0x18
-            u32 field_0x1C;          // 0x1C
-            u8 field_0x20;           // 0x20
-            u32 field_0x24;          // 0x24
+            u32 mCursorStart;        // 0x18
+            u32 mCursorEnd;          // 0x1C
+            u8  mbSustain;           // 0x20
+            u32 mTranslateMode;      // 0x24
             KanaStream mKanaStream;  // 0x28
         };
 
@@ -118,8 +128,8 @@ namespace textinput {
             virtual void inputChar(wchar_t);
             virtual void backSpace();
             virtual void confirm(const wchar_t*);
-            virtual void moveCursorRight();
-            virtual void moveCursorLeft();
+            virtual bool moveCursorRight();
+            virtual bool moveCursorLeft();
             virtual void getCursorPos(u32*, u32*);
 
             virtual bool isFix();

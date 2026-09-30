@@ -490,7 +490,7 @@ void EventHandler::onTiEvent(gui::PaneComponent* paneComponent, u32 event, Input
     s32 eventType = event;
     const char* name = paneComponent->getPane()->GetName();
     if (!mpLayoutByNW4R->isLocked() || event != 4) {
-        if (event == 4 && (input->trigger & 0x800) != 0) {
+        if (event == 4 && (input->field_0x0C & 0x800) != 0) {
             mpLayoutByNW4R->onKey(4, const_cast<char*>(name));
         }
         if (name[0] == 'B') {
@@ -502,7 +502,7 @@ void EventHandler::onTiEvent(gui::PaneComponent* paneComponent, u32 event, Input
             if (pane != NULL) {
                 switch (eventType) {
                 case 4:
-                    if ((input->trigger & 0x800) != 0) {
+                    if ((input->field_0x0C & 0x800) != 0) {
                         pane->onAnmEvent(nw4rmanager::AnmPane::PE_0);
                     }
                     break;

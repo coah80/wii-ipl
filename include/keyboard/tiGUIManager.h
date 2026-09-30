@@ -72,10 +72,10 @@ namespace textinput {
 
             virtual ~EventHandler() {}  // 0x08
 
-            virtual void onEvent(GUIComponent& comp, u32 event, void* data);  // 0x0C
+            virtual void onEvent(GUIComponent& comp, u32 event, void* data) {}  // 0x0C
 
-            virtual void setLatestEventCtrlNo(int ctrlNo);  // 0x10
-            virtual int getLatestEventCtrlNo();             // 0x14
+            virtual void setLatestEventCtrlNo(int ctrlNo) { muLatestEventCtrlNo = ctrlNo; }  // 0x10
+            virtual int getLatestEventCtrlNo() { return muLatestEventCtrlNo; }               // 0x14
 
         protected:
             int muLatestEventCtrlNo;  // 0x04
@@ -92,9 +92,6 @@ namespace textinput {
                 EVENT_RELEASE
             };
 
-#ifdef TIINPUTFORM_IMPLEMENTATION
-            virtual void init();
-#else
             virtual void init() {  // 0x10
                 for (int i = 0; i < GUI_POINTS_MAX; i++) {
                     mbPointed[i] = false;
@@ -103,7 +100,6 @@ namespace textinput {
                     mFlightDuration[i] = 0;
                 }
             }
-#endif
 
             GUIComponent(u32 id)
                 : GUIInterface(), mbInitialize(false), mDraggingButton(0xFFFF), mID(id), mbTriggerTarget(false), mpManager(NULL), mpListener(NULL) {

@@ -134,6 +134,7 @@ namespace textinput {
                 virtual void                setAtokDictionary(void* atokDict, int atokDictSize, void* apotDict, int apotDictSize, void* nintendoDict, int nintendoDictSize);
                 virtual void                closeAtokDictionary();
                 virtual bool                isAtokDictionaryOpened();
+                bool                        isAtokActive() const;
 
                 void setZiDictionary(void* ziOemDict, void* ziDict)  { 
                     mpZiString->openDictionary(ziDict, ziOemDict);
@@ -203,8 +204,12 @@ namespace textinput {
                 bool                        isVacancy() const;
                 bool                        isPredictOn() const { return mbPredictOn; }
 
-            private:
-                Rect mRect;                         // 0x120
+            protected:
+                void setCursorPos(tistring::Decolated* string, u32 pos);
+                void calcCursorTimer();
+                void resetRelation();
+
+                nw4r::ut::Rect mRect;               // 0x120
                 nw4r::math::MTX34 mMtx;             // 0x130
                 Destination meDestination;          // 0x160
                 tistring::Decolated* mpString;      // 0x164
@@ -276,8 +281,10 @@ namespace textinput {
 
                 virtual void                visibleSeparator(bool flag);
 
-            private:
-                u8  unk_0x2C0[0x48];
+            protected:
+                u8  unk_0x2C0[0x10];
+                nw4rmanager::TiEventHandler* mpInputEventHandler; // 0x2D0
+                u8  unk_0x2D4[0x34];
         };
 
 #ifdef TI_INPUTFORM_SAMPLE_CLASS

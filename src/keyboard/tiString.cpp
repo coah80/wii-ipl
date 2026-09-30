@@ -1,6 +1,7 @@
 #define TISTRING_IMPLEMENTATION
 #include "keyboard/tiString.h"
 #include "keyboard/tiUtil.h"
+#include <revolution/kpr.h>
 #include <wchar.h>
 
 extern "C" {

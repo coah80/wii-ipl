@@ -21,6 +21,8 @@ namespace textinput {
                     virtual void    moveNigaoeButton()  {}
             };
 
+            class ScrollButton;
+
             class InputForm : public textinput::InputForm {
                 public:
                     typedef enum EditMode {
@@ -34,7 +36,7 @@ namespace textinput {
                     InputForm(Manager* manager, nw4r::lyt::MultiArcResourceAccessor* resAccessor, const char* arcName,
                               EventObserver* observer, const char* subName)
                         : textinput::InputForm(manager, resAccessor, arcName, observer, subName),
-                          unk_0x308(NULL), unk_0x30C(NULL), unk_0x310(NULL), unk_0x314(NULL),
+                          mpMemoPane(NULL), mpMemoRootPane(NULL), mpBoundPane(NULL), mpDrawPane(NULL),
                           mfScroll(0.0f), mfScrollFrom(0.0f), mfScrollTo(0.0f), mnLine(0),
                           mDrawRect(0.0f, 0.0f, 0.0f, 0.0f), mDefaultDrawSize(0.0f, 0.0f), mDefaultBoundSize(0.0f, 0.0f),
                           mpNigaoeObserver(NULL), mpDefaultNigaoe(NULL), mpSendString(NULL),
@@ -92,6 +94,24 @@ namespace textinput {
                     virtual void                    onCommandOnEditMode(INPUT_COMMAND command, void* arg);
 
                     virtual void                    doAutoScroll();
+
+                    virtual void                    create(MEMAllocator* allocator, inputform::EditBuffer* editBuffer);
+                    virtual void                    moveCursorUp();
+                    virtual void                    moveCursorDown();
+                    virtual void                    onCommand(CommandReceiver::INPUT_COMMAND command, void* arg);
+                    virtual bool                    updateInput(int chan, f32 x, f32 y, u32 trig, u32 hold, u32 release, void* data);
+                    virtual bool                    updateInput(textinput::input::HKBManager& hkbManager);
+                    virtual void                    init();
+                    virtual void                    draw();
+                    virtual void                    calc();
+                    virtual void                    doScroll(CommandReceiver::Scroll* scroll);
+                    virtual u32                     calcCursorPos(f32 x, f32 y);
+                    virtual void                    drawCursor(f32 x, f32 y);
+                    virtual nw4r::math::VEC2        getScale() const;
+                    virtual void                    preDraw(u32);
+                    virtual void                    doLineFeed();
+                    virtual void                    finishDraw(u32);
+                    virtual bool                    isInScroll();
                     
                     /* For letter writing */
                     
@@ -113,11 +133,11 @@ namespace textinput {
 
                     tistring::Decolated*            getSendString()                         { return mpSendString; }
 
-                private:
-                    undefined4*             unk_0x308;
-                    undefined4*             unk_0x30C;
-                    undefined4*             unk_0x310;
-                    undefined4*             unk_0x314;
+                protected:
+                    nw4r::lyt::Pane*        mpMemoPane;         // 0x308
+                    nw4r::lyt::Pane*        mpMemoRootPane;     // 0x30C
+                    nw4r::lyt::Pane*        mpBoundPane;        // 0x310
+                    nw4r::lyt::Pane*        mpDrawPane;         // 0x314
                     f32                     mfScroll;           // 0x318
                     f32                     mfScrollFrom;       // 0x31C
                     f32                     mfScrollTo;         // 0x320
@@ -139,9 +159,11 @@ namespace textinput {
                     bool                    mbEditScrollDown;   // 0x3EF
                     bool                    mbCloseWithSend;    // 0x3F0
                     u8                      padding[3];         // 0x3F1
-                    undefined4*             mpScrollButton;     // 0x3F4
+                    ScrollButton*           mpScrollButton;     // 0x3F4
                     bool                    mbScrollUp;         // 0x3F8
                     bool                    mbScrollDown;       // 0x3F9
+                    bool                    mbUpVisible;        // 0x3FA
+                    bool                    mbDownVisible;      // 0x3FB
                     EditMode                meEditMode;         // 0x3FC
             };
         }

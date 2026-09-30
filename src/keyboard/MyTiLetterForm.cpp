@@ -259,7 +259,7 @@ void EventHandler::onTiEvent(gui::PaneComponent* paneComponent, u32 event, Input
     nw4r::lyt::Pane* pane = paneComponent->getPane();
     const char* paneName = pane->GetName();
     if (paneName[0] == 'B') {
-        if (event == gui::GUIComponent::EVENT_TRIG && (input->trigger & 0x800) &&
+        if (event == gui::GUIComponent::EVENT_TRIG && (input->field_0x0C & 0x800) &&
             util::strcmp("B_Pic", paneName)) {
             static_cast<InputForm*>(mpMemoForm)->onPhotoTrig();
         }

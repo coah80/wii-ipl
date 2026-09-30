@@ -19,7 +19,16 @@ namespace textinput {
                     InputForm(Manager* manager, nw4r::lyt::MultiArcResourceAccessor* resAccessor, const char* arcName,
                               EventObserver* observer, const char* subName)
                         : MemoInputForm(manager, resAccessor, arcName, observer, subName),
-                          unk_0x400(0), mbPhotoDraw(false), meType(T_MailAddressSel) {}
+                          mbPhotoScaledUp(false), mbPhotoDraw(false), meType(T_MailAddressSel) {}
+
+                    ~InputForm();
+
+                    virtual void                    create(MEMAllocator* allocator, inputform::EditBuffer* editBuffer);
+                    virtual void                    drawBody();
+                    virtual void                    drawFooter();
+                    virtual void                    open();
+                    virtual void                    close();
+                    virtual bool                    isWholePaneInAnimation();
 
                     virtual nw4r::lyt::Material*    getPhotoPaneMaterial();
 
@@ -36,7 +45,7 @@ namespace textinput {
                     void                            resizePhotoPane(f32 width, f32 height);
 
                 private:
-                    u8      unk_0x400;
+                    bool    mbPhotoScaledUp; // 0x400
                     bool    mbPhotoDraw;    // 0x401
                     Type    meType;         // 0x404
             };

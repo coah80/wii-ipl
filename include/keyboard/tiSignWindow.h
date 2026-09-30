@@ -4,19 +4,25 @@
 #include "tiKeyboard.h"
 #include "tiNw4rManager.h"
 #include "tiTextInputBase.h"
+#include "tiSwData.h"
 
 namespace textinput {
     class Manager;
 
     namespace keyboard {
         namespace signwindow {
+            struct LanguageDependency {
+                u8 count;
+                const PaneNameToCharCodeInSignMode* keys;
+            };
+
             class Base : public KeyboardBase {
             public:
 #ifdef TI_SIGNWINDOW_SAMPLE_CLASS
-                Base(Manager* manager) : unk_0x1C(0), mpManager(manager) {}
+                Base(Manager* manager) : mpAllocator(NULL), mpManager(manager) {}
 #endif
 
-                virtual ~Base() {}
+                virtual ~Base();
                 virtual void create(MEMAllocator* allocator) override;
                 virtual void init() override;
                 virtual void onKey(u32, void*);
@@ -30,10 +36,13 @@ namespace textinput {
                 virtual void close();                     // 0x4C
 
             protected:
-                u32 unk_0x14;         // 0x14
-                u32 unk_0x18;         // 0x18
-                u32 unk_0x1C;         // 0x1C
-                Manager* mpManager;   // 0x20
+                u8 mInputFlags;                                // 0x14
+                bool mbLocked;                                 // 0x15
+                bool mbRepeat;                                 // 0x16
+                u8 muPage;                                     // 0x17
+                const LanguageDependency* mpLanguageDependency; // 0x18
+                MEMAllocator* mpAllocator;                     // 0x1C
+                Manager* mpManager;                            // 0x20
             };
 
             class AnmPane;
@@ -43,8 +52,8 @@ namespace textinput {
             public:
 #ifdef TI_SIGNWINDOW_SAMPLE_CLASS
                 LayoutByNW4R(Manager* manager, nw4r::lyt::MultiArcResourceAccessor* resAccessor, const char* arcName, EventObserver* observer)
-                    : Base(manager), nw4rmanager::Layout(resAccessor, arcName, observer), unk_0xD0(0), unk_0xD1(0),
-                      mpEventHandler(NULL), unk_0xD8(0) {}
+                    : Base(manager), nw4rmanager::Layout(resAccessor, arcName, observer), mbActive(false), mbInput(false),
+                      mpEventHandler(NULL), mpKeyboard(NULL) {}
 #endif
 
                 virtual ~LayoutByNW4R();
@@ -72,10 +81,10 @@ namespace textinput {
                 virtual void moveNextSignWindow();                                            // 0x108
 
             private:
-                bool unk_0xD0;               // 0xD0
-                bool unk_0xD1;               // 0xD1
+                bool mbActive;               // 0xD0
+                bool mbInput;                // 0xD1
                 EventHandler* mpEventHandler;  // 0xD4
-                u32 unk_0xD8;                // 0xD8
+                KeyboardBase* mpKeyboard;    // 0xD8
             };
 
 #ifdef TI_SIGNWINDOW_SAMPLE_CLASS
@@ -88,6 +97,55 @@ namespace textinput {
 #else
             class Sample {};
 #endif
+
+            class EventHandler : public nw4rmanager::TiEventHandler {
+            public:
+                explicit EventHandler(LayoutByNW4R* layout) : mpLayoutByNW4R(layout) {}
+                virtual ~EventHandler();
+                virtual void onTiEvent(gui::PaneComponent*, u32, Input*) override;
+                LayoutByNW4R* mpLayoutByNW4R;
+            };
+
+            class AnmPane : public nw4rmanager::AnmPane {
+            public:
+                AnmPane(nw4r::lyt::Pane* pane, nw4rmanager::AnmObserver* observer)
+                    : nw4rmanager::AnmPane(pane, observer), muAnimation(0) {}
+                inline virtual ~AnmPane();
+                virtual void init() override;
+                virtual void changeAnimation(u32) override;
+                virtual u32 getKeyType() const;
+
+            protected:
+                s32 muAnimation;
+                u32 muKeyType;
+            };
+
+            class CellPhoneSignAllAnmPane : public AnmPane {
+            public:
+                CellPhoneSignAllAnmPane(nw4r::lyt::Pane* pane, nw4rmanager::AnmObserver* observer)
+                    : AnmPane(pane, observer) { muKeyType = 0; }
+                virtual ~CellPhoneSignAllAnmPane();
+                virtual void init() override;
+                virtual void onAnmEvent(AnmPaneEvent) override;
+            };
+
+            class CellPhoneSignScrollAnmPane : public AnmPane {
+            public:
+                CellPhoneSignScrollAnmPane(nw4r::lyt::Pane* pane, nw4rmanager::AnmObserver* observer)
+                    : AnmPane(pane, observer) { muKeyType = 1; }
+                virtual ~CellPhoneSignScrollAnmPane();
+                virtual void init() override;
+                virtual void onAnmEvent(AnmPaneEvent) override;
+            };
+
+            class CellPhoneSignButtonPane : public AnmPane {
+            public:
+                CellPhoneSignButtonPane(nw4r::lyt::Pane* pane, nw4rmanager::AnmObserver* observer)
+                    : AnmPane(pane, observer) { muKeyType = 2; }
+                virtual ~CellPhoneSignButtonPane();
+                virtual void init() override;
+                virtual void onAnmEvent(AnmPaneEvent) override;
+            };
 
         }  // namespace signwindow
     }  // namespace keyboard
