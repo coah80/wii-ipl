@@ -774,7 +774,7 @@ namespace ipl {
                         mpBrowserData)) {
                     if (mpBrowserData->unk_0x00 == 0) {
                         OSReport("IME Created ");
-                        if (mpBrowserData->text != NULL) {
+                        if (mpBrowserData->text) {
                             OSReport("initKeyboard %s\n");
                             OSReport("initKeyboard %d\n", mpWiiSettingData->data[0x11]);
                             if (mpWiiSettingData->data[0x11] != 0) {
@@ -796,9 +796,6 @@ namespace ipl {
             }
 
             switch (unk_0x74) {
-            case 1:
-                calcKeyboard();
-                break;
             case 2:
                 if (System::getDialog()->getLastResult() >= 0) {
                     unk_0xB9C = 1;
@@ -824,7 +821,7 @@ namespace ipl {
                 }
                 break;
             case 4:
-                mpWiiSettingData->data[0x12] = 1;
+                unk_0x92C = 1;
                 if (System::getHomeButtonMenu()->disable() &&
                     System::getDialog()->getLastResult() >= 0) {
                     unk_0x74 = 0;
@@ -837,21 +834,24 @@ namespace ipl {
                 if (parentalDialog != NULL) {
                     unk_0x91C[3] = 1;
                     scene::ParentalDialog::Result result = parentalDialog->getResult();
-                    if (result == scene::ParentalDialog::RESULT_OVER_ATTEMPTS) {
-                        www::wiisetting::setFuncResult(2);
-                    } else if (result == scene::ParentalDialog::RESULT_SUCCESS) {
+                    switch (result) {
+                    case scene::ParentalDialog::RESULT_SUCCESS:
                         unk_0x74 = 6;
                         www::wiisetting::setFuncResult(1);
-                    } else if (result > scene::ParentalDialog::RESULT_OVER_ATTEMPTS &&
-                               result <= scene::ParentalDialog::RESULT_CANCELLED) {
+                        break;
+                    case scene::ParentalDialog::RESULT_OVER_ATTEMPTS:
                         www::wiisetting::setFuncResult(2);
+                        break;
+                    case scene::ParentalDialog::RESULT_CANCELLED:
+                        www::wiisetting::setFuncResult(2);
+                        break;
                     }
                 } else {
                     if (unk_0x91C[3] == 1) {
                         unk_0x74 = 0;
                         unk_0x91C[3] = 0;
                         resetFuncMsgQ();
-                        if (mpWiiSettingFlag->smthMsgData != 'O') {
+                        if ((u32)mpWiiSettingFlag->smthMsgData != 'O') {
                             unk_0xB9C = 1;
                         }
                     }
@@ -861,25 +861,27 @@ namespace ipl {
             case 6:
                 if (System::getScene(0x1b) == NULL) {
                     unk_0x91C[3] = 0;
-                    if (mpWiiSettingFlag->smthMsgData == 'O') {
-                        if (!ncd::NCDSetting::getEnableFlag()) {
-                            if (System::getRegion() == 2) {
-                                System::getDialog()->callBtn2(0x174, 0x146, 0x25);
+                    if ((u32)mpWiiSettingFlag->smthMsgData == 'O') {
+                        if (ncd::NCDSetting::getEnableFlag()) {
+                            if (SCGetEULA() != 0) {
+                                www::wiisetting::setFuncResult(6);
+                                unk_0x74 = 0;
+                                resetFuncMsgQ();
                             } else {
+                                if (System::getRegion() != 2u) {
+                                    System::getDialog()->callBtn2(0x172, 0x2e, 0x25);
+                                } else {
+                                    System::getDialog()->callBtn2(0x175, 0x2e, 0x25);
+                                }
+                                unk_0x74 = 0xe;
+                            }
+                        } else {
+                            if (System::getRegion() != 2u) {
                                 System::getDialog()->callBtn2(0x170, 0x146, 0x25);
+                            } else {
+                                System::getDialog()->callBtn2(0x174, 0x146, 0x25);
                             }
                             unk_0x74 = 9;
-                        } else if (SCGetEULA() == 0) {
-                            if (System::getRegion() == 2) {
-                                System::getDialog()->callBtn2(0x175, 0x2e, 0x25);
-                            } else {
-                                System::getDialog()->callBtn2(0x172, 0x2e, 0x25);
-                            }
-                            unk_0x74 = 0xe;
-                        } else {
-                            www::wiisetting::setFuncResult(6);
-                            unk_0x74 = 0;
-                            resetFuncMsgQ();
                         }
                     } else {
                         unk_0x74 = 0;
@@ -905,43 +907,12 @@ namespace ipl {
                     unk_0xB9C = 1;
                 }
                 break;
-            case 8:
-                ++unk_0x92C;
-                if (unk_0x92C == 0xb4) {
-                    unk_0xB94 = 1;
-                    unk_0x92C = 0;
-                }
-                break;
-            case 9:
-                if (System::getDialog()->getLastResult() == 1) {
-                    if (mpWiiSettingFlag->smthMsgData == 'O') {
-                        www::wiisetting::setFuncResult(5);
-                        resetFuncMsgQ();
-                    } else {
-                        www::wiisetting::setFuncResult(6);
-                    }
-                    unk_0x74 = 0;
-                } else if (System::getDialog()->getLastResult() == 2) {
-                    if (mpWiiSettingFlag->smthMsgData == 'O') {
-                        if (unk_0xB9C == 0) {
-                            www::wiisetting::setFuncResult(2);
-                        } else if (www::wiisetting::getFuncResult() == 0) {
-                            unk_0x74 = 0;
-                            resetFuncMsgQ();
-                        }
-                        unk_0xB9C = 1;
-                    } else {
-                        unk_0x74 = 0;
-                        www::wiisetting::setFuncResult(2);
-                    }
-                }
-                break;
             case 10:
                 if (System::getDialog()->getLastResult() == 2) {
-                    if (System::getRegion() == 2) {
-                        System::getDialog()->callBtn1(0x174, 1);
-                    } else {
+                    if (System::getRegion() != 2u) {
                         System::getDialog()->callBtn1(0x172, 1);
+                    } else {
+                        System::getDialog()->callBtn1(0x175, 1);
                     }
                     unk_0x74 = 0xb;
                     SCSetWCFlags(SCGetWCFlags() & 0xfffffffe);
@@ -977,10 +948,10 @@ namespace ipl {
                     SCSetEULA(0);
                     ncd::NCDSetting::adjustNWC24Flag();
                     SCFlush();
-                    if (System::getRegion() == 2) {
-                        System::getDialog()->callBtn1(0x174, 0x2e);
-                    } else {
+                    if (System::getRegion() != 2u) {
                         System::getDialog()->callBtn1(0x170, 0x2e);
+                    } else {
+                        System::getDialog()->callBtn1(0x174, 0x2e);
                     }
                     unk_0x74 = 9;
                 } else if (System::getDialog()->getLastResult() == 1) {
@@ -1009,6 +980,40 @@ namespace ipl {
                         unk_0x74 = 0;
                     }
                     unk_0xB9C = 1;
+                }
+                break;
+            case 1:
+                calcKeyboard();
+                break;
+            case 8:
+                ++unk_0x92C;
+                if (unk_0x92C == 0xb4) {
+                    unk_0xB94 = 1;
+                    unk_0x92C = 0;
+                }
+                break;
+            case 9:
+                if (System::getDialog()->getLastResult() == 1) {
+                    if ((u32)mpWiiSettingFlag->smthMsgData == 'O') {
+                        www::wiisetting::setFuncResult(5);
+                        resetFuncMsgQ();
+                    } else {
+                        www::wiisetting::setFuncResult(6);
+                    }
+                    unk_0x74 = 0;
+                } else if (System::getDialog()->getLastResult() == 2) {
+                    if ((u32)mpWiiSettingFlag->smthMsgData == 'O') {
+                        if (unk_0xB9C == 0) {
+                            www::wiisetting::setFuncResult(2);
+                        } else if (www::wiisetting::getFuncResult() == 0) {
+                            unk_0x74 = 0;
+                            resetFuncMsgQ();
+                        }
+                        unk_0xB9C = 1;
+                    } else {
+                        unk_0x74 = 0;
+                        www::wiisetting::setFuncResult(2);
+                    }
                 }
                 break;
             case 0x11:
@@ -1059,80 +1064,8 @@ namespace ipl {
                 waitStart();
                 createChildScene(0x19, this, NULL, NULL);
                 break;
-            case 4:
-                resetAP();
-                initAP();
-                mpWiiSettingFlag->smthMsgData = 2;
-            case 2:
-            case 3:
-                scanAP();
-                break;
-            case 5:
-                resetAP();
-                break;
-            case 6:
-                initAP();
-                resetFuncMsgQ();
-                break;
-            case 7:
-                redrawAP();
-                break;
             case 9:
                 setNUP();
-                break;
-            case 0x17:
-                parental::Parental::clearMiss();
-            case 'Z':
-                System::getHomeButtonMenu()->enable();
-                resetFuncMsgQ();
-                break;
-            case 0x18:
-                ncd::NCDSetting::write();
-            case ']':
-                mIsResetAcceptable = 0;
-                resetFuncMsgQ();
-                break;
-            case 0x1a:
-                if (System::getRegion() == 2) {
-                    System::getDialog()->callBtn2(0x160, 0x2e, 0x13b);
-                } else {
-                    System::getDialog()->callBtn2(0x15f, 0x2e, 0x13b);
-                }
-                unk_0x74 = 3;
-                resetFuncMsgQ();
-                break;
-            case 0x1c:
-                if (mAspectRatio != mpWiiSettingData->data[6]) {
-                    mAspectRatio = mpWiiSettingData->data[6];
-                    if (mAspectRatio == 1) {
-                        System::getDialog()->callBtn0(0x1bd, 0, false);
-                    } else if (mAspectRatio == 0) {
-                        System::getDialog()->callBtn0(0x1c9, 0, false);
-                    }
-                    unk_0x74 = 8;
-                }
-                resetFuncMsgQ();
-                break;
-            case 0x1d:
-            case 'M':
-            case 'N':
-                if (action == 0x1d || calcSafeMode()) {
-                    if (!parental::Parental::checkFlags()) {
-                        www::wiisetting::setFuncResult(1);
-                        if (mpWiiSettingFlag->smthMsgData == 'N') {
-                            unk_0x74 = 6;
-                        }
-                    } else {
-                        createChildScene(0x1b, this, NULL, reinterpret_cast<void*>(1));
-                        unk_0x74 = 5;
-                    }
-                    if (mpWiiSettingFlag->smthMsgData == 0x1d ||
-                        mpWiiSettingFlag->smthMsgData == 'M') {
-                        resetFuncMsgQ();
-                    } else {
-                        mpWiiSettingFlag->smthMsgData = 'O';
-                    }
-                }
                 break;
             case 0x1e:
                 memset(mpMem2BrowserBuffer, 0, 0x800);
@@ -1157,25 +1090,89 @@ namespace ipl {
                 RakuProcess();
                 break;
             case '4':
-                if (System::getHomeButtonMenu()->disable() && unk_0x5C == 0) {
-                    controller::Interface* youngController = System::getYoungController();
-                    if (youngController != NULL && youngController->downTrg(0x100800)) {
+            {
+                controller::Interface* youngController = System::getYoungController();
+                if (!System::getResetHandler()->isResetting()) {
+                    System::getHomeButtonMenu()->disable();
+                    if (unk_0x5C == 0 && youngController != NULL &&
+                        youngController->downTrg(0x100800)) {
                         resetFuncMsgQ();
                         System::getHomeButtonMenu()->enable();
                         www::wiisetting::setFuncResult(5);
                     }
                 }
                 break;
+            }
+            case 4:
+                resetAP();
+                initAP();
+                mpWiiSettingFlag->smthMsgData = 2;
+            case 2:
+            case 3:
+                scanAP();
+                break;
+            case 5:
+                resetAP();
+                break;
+            case 7:
+                redrawAP();
+                break;
+            case 6:
+                initAP();
+                resetFuncMsgQ();
+                break;
+            case 0x1c:
+                if (mAspectRatio != mpWiiSettingData->data[6]) {
+                    mAspectRatio = mpWiiSettingData->data[6];
+                    if (mAspectRatio == 1u) {
+                        System::getDialog()->callBtn0(0x1bd, 0, false);
+                    } else if (mAspectRatio == 0) {
+                        System::getDialog()->callBtn0(0x1c9, 0, false);
+                    }
+                    unk_0x74 = 8;
+                }
+                resetFuncMsgQ();
+                break;
+            case 0x1a:
+                if (System::getRegion() != 2u) {
+                    System::getDialog()->callBtn2(0x15f, 0x2e, 0x13b);
+                } else {
+                    System::getDialog()->callBtn2(0x160, 0x2e, 0x13b);
+                }
+                unk_0x74 = 3;
+                resetFuncMsgQ();
+                break;
+            case 0x1d:
+            case 'M':
+            case 'N':
+                if (mpWiiSettingFlag->smthMsgData == 0x1d || calcSafeMode()) {
+                    if ((u8)parental::Parental::checkFlags() != 0) {
+                        createChildScene(0x1b, this, NULL, reinterpret_cast<void*>(1));
+                        unk_0x74 = 5;
+                    } else {
+                        www::wiisetting::setFuncResult(1);
+                        if ((u32)mpWiiSettingFlag->smthMsgData == 'N') {
+                            unk_0x74 = 6;
+                        }
+                    }
+                    if ((u32)mpWiiSettingFlag->smthMsgData == 0x1d ||
+                        (u32)mpWiiSettingFlag->smthMsgData == 'M') {
+                        resetFuncMsgQ();
+                    } else {
+                        mpWiiSettingFlag->smthMsgData = 'O';
+                    }
+                }
+                break;
             case 'P':
                 SCSetLanguage(mpWiiSettingData->data[0x30]);
                 if (SCGetConfigDoneFlag() == 0 && SCGetConfigDoneFlag2() == 0 &&
-                    System::getRegion() == 2) {
-                    if (mpWiiSettingData->data[0x30] == 3) {
-                        mpWiiSettingData->data[0x3c] = 0x68;
-                        parental::Parental::setCountry(0x68);
-                    } else {
+                    System::getRegion() == 2u) {
+                    if (mpWiiSettingData->data[0x30] != 3) {
                         mpWiiSettingData->data[0x3c] = 0x40;
                         parental::Parental::setCountry(0x40);
+                    } else {
+                        mpWiiSettingData->data[0x3c] = 0x68;
+                        parental::Parental::setCountry(0x68);
                     }
                 }
                 SCFlush();
@@ -1197,7 +1194,7 @@ namespace ipl {
                     parental::Parental::setCountry(mpWiiSettingData->data[0x3c]);
                     parental::Parental::clear();
                     www::wiisetting::setFuncResult(1);
-                } else if (mpWiiSettingData->data[0x3c] == parental::Parental::getCountry()) {
+                } else if (mpWiiSettingData->data[0x3c] == (u8)parental::Parental::getCountry()) {
                     www::wiisetting::setFuncResult(1);
                 } else {
                     System::getDialog()->callBtn2(0x1c4, 0x2e, 0x13b);
@@ -1231,6 +1228,12 @@ namespace ipl {
                 mProfileIDMode = 2;
                 mpWiiSettingFlag->smthMsgData = 0x54;
                 break;
+            case 0x17:
+                parental::Parental::clearMiss();
+            case 'Z':
+                System::getHomeButtonMenu()->enable();
+                resetFuncMsgQ();
+                break;
             case '[':
                 if (System::getHomeButtonMenu()->disable()) {
                     resetFuncMsgQ();
@@ -1238,6 +1241,12 @@ namespace ipl {
                 break;
             case '\\':
                 mIsResetAcceptable = 1;
+                resetFuncMsgQ();
+                break;
+            case 0x18:
+                ncd::NCDSetting::write();
+            case ']':
+                mIsResetAcceptable = 0;
                 resetFuncMsgQ();
                 break;
             case '^':
