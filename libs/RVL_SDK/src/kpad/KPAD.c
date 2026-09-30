@@ -154,8 +154,8 @@ static u32 kp_fs_fstick_min = 15;
 static u32 kp_fs_fstick_max = 71;
 static u32 kp_cl_stick_min = 60;
 static u32 kp_cl_stick_max = 308;
-static u32 kp_cl_trigger_min = 30;
-static u32 kp_cl_trigger_max = 180;
+static s32 kp_cl_trigger_min = 30;
+static s32 kp_cl_trigger_max = 180;
 static f32 kp_rm_acc_max = 3.4f;
 static f32 kp_fs_acc_max = 2.1f;
 f32 sensor_bar_angle_degrees = 24.0f;
@@ -1108,13 +1108,12 @@ static void read_kpad_stick(KPADInside* kpad, KPADSample* status) {
     StickClamp clamp = clamp_stick_cross;
     KPADEXStatus* extension = &kpad->status.ex_status;
     u8 device;
-    u8 format;
     if (kp_stick_clamp_cross != 0) {
         clamp = clamp_stick_circle;
     }
     device = status->device;
     if (device == 1) {
-        format = status->dataFormat;
+        u8 format = status->dataFormat;
         if ((u8)(format + 0xFD) <= 2) {
             if (kpad->flag51E != 0) {
                 kpad->flag51E = 0;
@@ -1128,7 +1127,7 @@ static void read_kpad_stick(KPADInside* kpad, KPADSample* status) {
             clamp(&extension->fs.stick, status->extension.fs.stickX, status->extension.fs.stickY, kp_fs_fstick_min, kp_fs_fstick_max);
         }
     } else if (device == 2) {
-        format = status->dataFormat;
+        u8 format = status->dataFormat;
         if ((u8)(format + 0xFA) <= 2) {
         if (kpad->flag51E != 0) {
             kpad->flag51E = 0;
@@ -1143,20 +1142,20 @@ static void read_kpad_stick(KPADInside* kpad, KPADSample* status) {
             kpad->repeatCurrent2 = kpad->repeatDelay;
         }
         clamp(&extension->cl.lstick, status->extension.cl.lStickX, status->extension.cl.lStickY, kp_cl_stick_min, kp_cl_stick_max);
-        clamp(&extension->cl.rstick, (s8)status->extension.cl.rStickX, (s8)status->extension.cl.rStickY, kp_cl_stick_min, kp_cl_stick_max);
+        clamp(&extension->cl.rstick, status->extension.cl.rStickX, status->extension.cl.rStickY, kp_cl_stick_min, kp_cl_stick_max);
         if (status->extension.cl.triggerL <= kp_cl_trigger_min) {
             extension->cl.ltrigger = 0.0f;
         } else if (status->extension.cl.triggerL >= kp_cl_trigger_max) {
             extension->cl.ltrigger = 1.0f;
         } else {
-            extension->cl.ltrigger = (f32)(status->extension.cl.triggerL - kp_cl_trigger_min) / (kp_cl_trigger_max - kp_cl_trigger_min);
+            extension->cl.ltrigger = (f32)(status->extension.cl.triggerL - kp_cl_trigger_min) / (f32)(kp_cl_trigger_max - kp_cl_trigger_min);
         }
         if (status->extension.cl.triggerR <= kp_cl_trigger_min) {
             extension->cl.rtrigger = 0.0f;
         } else if (status->extension.cl.triggerR >= kp_cl_trigger_max) {
             extension->cl.rtrigger = 1.0f;
         } else {
-            extension->cl.rtrigger = (f32)(status->extension.cl.triggerR - kp_cl_trigger_min) / (kp_cl_trigger_max - kp_cl_trigger_min);
+            extension->cl.rtrigger = (f32)(status->extension.cl.triggerR - kp_cl_trigger_min) / (f32)(kp_cl_trigger_max - kp_cl_trigger_min);
         }
         }
     }
