@@ -15,12 +15,7 @@ static s8 clampS8(s32 v) {
 }
 
 static s32 scalingClampU8(s32 val) {
-    s32 result = 0;
-    if (val >> 19 != 0)
-        result &= ~(val >> 31) & 0xFF;
-    else
-        result = (val >> 11);
-    return result;
+    return (val >> 19 != 0) ? (0xFF & ~(val >> 31)) : (val >> 11);
 }
 
 void TMCJPEGDEC_IdctBlock_Lumi(s32* block, u8* conv_row_ptr, u16 pitch, s32 zigzag) {
@@ -38,7 +33,7 @@ void TMCJPEGDEC_IdctBlock_Lumi(s32* block, u8* conv_row_ptr, u16 pitch, s32 zigz
     iter = (u32)(r + 7) >> 3;
     dst = tmp;
     done = 0;
-    if (r > 0) {
+    {
         for (; iter > 0; iter--) {
             u32 ac;
             b4 = block[4];
@@ -80,9 +75,12 @@ void TMCJPEGDEC_IdctBlock_Lumi(s32* block, u8* conv_row_ptr, u16 pitch, s32 zigz
                 o = x + m;
                 p = z + p_part;
                 q = p + x;
+                dst[0] = w + n;
+                dst[1] = v + o;
                 dst[6] = v - o;
                 dst[2] = e + q;
                 dst[5] = e - q;
+                dst[7] = w - n;
                 dst[3] = y + p;
                 dst[4] = y - p;
             }
@@ -128,8 +126,8 @@ void TMCJPEGDEC_IdctBlock_Lumi(s32* block, u8* conv_row_ptr, u16 pitch, s32 zigz
             out[0] = val;
         } else {
             t = (b2 - b6) * 0xB5 >> 8;
-            a = *dst - b4;
-            d = *dst + b4;
+            a = (*dst + 0x40000) - b4;
+            d = (*dst + 0x40000) + b4;
             u = t + b6 + b2;
             v = a + t;
             e = a - t;
@@ -188,25 +186,24 @@ void TMCJPEGDEC_IdctBlock_Col(s32* block, u8* conv_row_ptr, u16 pitch, s32 zigza
         done = 0;
         iter = (r + 7) >> 3;
         if (r > 0) {
-            inner = (r + 7) >> 4;
             done = iter << 3;
-            if (inner != 0) {
-                for (; inner > 0; inner--) {
+            for (inner = iter >> 1; inner > 0; inner--) {
+                    s32 b0;
                     t = block[1] * 0xB5 >> 8;
                     v = block[1] * 0x62 >> 8;
                     u = v + t;
                     z = (block[1] * 0x14E >> 8) - v;
                     m = block[1] + z;
                     n = t + z;
-                    b1 = block[0] + m;
-                    dst[0] = b1;
-                    dst[7] = block[0] - m;
-                    dst[1] = block[0] + n;
-                    dst[6] = block[0] - n;
-                    dst[2] = block[0] + u;
-                    dst[5] = block[0] - u;
-                    dst[3] = block[0] + v;
-                    dst[4] = block[0] - v;
+                    b0 = block[0];
+                    dst[0] = b0 + m;
+                    dst[7] = b0 - m;
+                    dst[1] = b0 + n;
+                    dst[6] = b0 - n;
+                    dst[2] = b0 + u;
+                    dst[5] = b0 - u;
+                    dst[3] = b0 + v;
+                    dst[4] = b0 - v;
 
                     t = block[9] * 0xB5 >> 8;
                     v = block[9] * 0x62 >> 8;
@@ -214,39 +211,36 @@ void TMCJPEGDEC_IdctBlock_Col(s32* block, u8* conv_row_ptr, u16 pitch, s32 zigza
                     z = (block[9] * 0x14E >> 8) - v;
                     m = block[9] + z;
                     n = t + z;
-                    b2 = block[8] + m;
-                    dst[8] = b2;
-                    dst[15] = block[8] - m;
-                    dst[9] = block[8] + n;
-                    dst[14] = block[8] - n;
-                    dst[10] = block[8] + u;
-                    dst[13] = block[8] - u;
-                    dst[11] = block[8] + v;
-                    dst[12] = block[8] - v;
+                    b0 = block[8];
+                    dst[8] = b0 + m;
+                    dst[15] = b0 - m;
+                    dst[9] = b0 + n;
+                    dst[14] = b0 - n;
+                    dst[10] = b0 + u;
+                    dst[13] = b0 - u;
+                    dst[11] = b0 + v;
+                    dst[12] = b0 - v;
                     dst += 0x10;
                     block += 0x10;
                 }
-                iter = iter & 1;
-                if (iter == 0) {
-                    goto zero_fill;
-                }
-            }
-            for (; iter > 0; iter--) {
+            iter = iter & 1;
+            if (iter != 0) {
+                s32 b0;
                 t = block[1] * 0xB5 >> 8;
                 v = block[1] * 0x62 >> 8;
                 u = v + t;
                 z = (block[1] * 0x14E >> 8) - v;
                 m = block[1] + z;
                 n = t + z;
-                b1 = block[0] + m;
-                dst[0] = b1;
-                dst[7] = block[0] - m;
-                dst[1] = block[0] + n;
-                dst[6] = block[0] - n;
-                dst[2] = block[0] + u;
-                dst[5] = block[0] - u;
-                dst[3] = block[0] + v;
-                dst[4] = block[0] - v;
+                b0 = block[0];
+                dst[0] = b0 + m;
+                dst[7] = b0 - m;
+                dst[1] = b0 + n;
+                dst[6] = b0 - n;
+                dst[2] = b0 + u;
+                dst[5] = b0 - u;
+                dst[3] = b0 + v;
+                dst[4] = b0 - v;
                 dst += 8;
                 block += 8;
             }
@@ -312,9 +306,12 @@ mode_gt_2:
                 o = x + m;
                 p = z + p_part;
                 q = p + x;
+                dst[0] = w + n;
+                dst[1] = v + o;
                 dst[6] = v - o;
                 dst[2] = e + q;
                 dst[5] = e - q;
+                dst[7] = w - n;
                 dst[3] = y + p;
                 dst[4] = y - p;
             }

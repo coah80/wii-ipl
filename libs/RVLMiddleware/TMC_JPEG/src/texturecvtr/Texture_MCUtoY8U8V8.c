@@ -918,12 +918,12 @@ static void TMCJPEGDEC_converterYUV444toY8U8V8(TMCCJPEGDecWork* work, s32 x, s32
         oy = out0 + ((y & 3) << 3);
         ou = out1 + ((y & 3) << 3);
         ov = out2 + ((y & 3) << 3);
-        for (x_pos = x; x_pos < x_end; x_pos++) {
+        for (x_pos = x; x_pos != x_end; x_pos++) {
             off = ((x_pos >> 3) + row_base) << 5;
             xo = x_pos & 7;
-            oy[off + xo] = *y_row++;
-            ou[off + xo] = *u_row++ + 0x80;
-            ov[off + xo] = *v_row++ + 0x80;
+            oy[xo + off] = *y_row++;
+            ou[xo + off] = *u_row++ + 0x80;
+            ov[xo + off] = *v_row++ + 0x80;
         }
         y_row += skip;
         u_row += skip;
@@ -985,7 +985,7 @@ static void TMCJPEGDEC_converterYUV444toY8U8V8edge(TMCCJPEGDecWork* work, s32 x,
         oy = out0 + ((y & 3) << 3);
         ou = out1 + ((y & 3) << 3);
         ov = out2 + ((y & 3) << 3);
-        for (x_pos = x; x_pos < x_end; x_pos++) {
+        for (x_pos = x; x_pos != x_end; x_pos++) {
             off = ((x_pos >> 3) + row_base) << 5;
             xo = x_pos & 7;
             oy[off + xo] = *y_row++;
