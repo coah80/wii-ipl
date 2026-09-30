@@ -468,8 +468,29 @@ typedef struct {
 } AtermConfigurationResult;
 
 typedef struct {
+    u16 length;
+    u8 header[6];
+    u8 options[0x7F8];
+} AtermDecodedPayload;
+
+typedef union {
     u8 data[0x818];
+    struct {
+        union {
+            u8 payload[0x800];
+            AtermDecodedPayload decoded;
+        };
+        u8 challenge[8];
+        u8 digest[16];
+    } authentication;
 } AtermThreadBuffer;
+
+typedef struct {
+    u32 state[4];
+    u32 bitCountLow;
+    u32 bitCountHigh;
+    u8 buffer8[64];
+} AtermMd5Context;
 
 typedef void (*AtermProgressCallback)(void*);
 typedef void* (*AtermAllocateCallback)(u32);
@@ -513,6 +534,8 @@ s32 gAtermState;
 
 void ATERM_8140684C(OSAlarm* alarm, OSContext* context);
 s32 ATERM_814038C8(void);
+void ATERM_81405ACC(AtermMd5Context* context, const void* input, u32 length);
+extern u8 gAtermDigestFill[64];
 int ATERM_81404844(u16* destination, u16* source, u32 length, void* key, u32 keyLength);
 int ATERM_81404A18(u16* destination, u16* source, u32 length, void* key, u32 keyLength);
 int ATERM_81404BFC(u32* expandedKey, const void* key, u32 keyBits);
@@ -584,17 +607,15 @@ int ATERM_814021BC(void) {
         gAtermSocketReady = waitCount;
     }
     if (gAtermSocketReady != 0) {
-        for (;;) {
-            convertedHost = SOHtoNl(0);
-            if (SOGetHostID() != convertedHost) {
-                break;
-            }
+        convertedHost = SOHtoNl(0);
+        while (SOGetHostID() == convertedHost) {
             OSInitMessageQueue(&hostQueue, &hostQueueBuffer, 1);
             OSCreateAlarm(&hostAlarm);
             OSSetAlarmTag(&hostAlarm, (u32)&hostQueue);
             timeoutTicks = (__mulhwu(0x10624DD3, *(u32*)0x800000F8 >> 2) >> 6) * 10;
             OSSetAlarm(&hostAlarm, timeoutTicks, ATERM_8140684C);
             OSReceiveMessage(&hostQueue, &hostMessage, 1);
+            convertedHost = SOHtoNl(0);
         }
     } else {
         waitCount = -2;
@@ -735,7 +756,7 @@ unlock_driver:
 int ATERM_8140276C(AtermApRecordSet* currentRecords, AtermApRecordSet* previousRecords,
                    u32* changedIndex) {
     AtermApRecord* currentRecord = currentRecords->entries;
-    AtermApRecord* previousRecord;
+    AtermApRecord* previousRecord = previousRecords->entries;
     u32 currentIndex;
     u32 previousIndex;
     u32 resultIndex = 0;
@@ -744,8 +765,7 @@ int ATERM_8140276C(AtermApRecordSet* currentRecords, AtermApRecordSet* previousR
     size_t aossLength;
     size_t formattedSsidLength;
     int found = 0;
-    int previousHasAoss = 0;
-    int currentHasAoss = 0;
+
 
     for (currentIndex = 0; currentIndex < currentRecords->count; currentIndex++) {
         AtermSsidBuffer ssidName;
@@ -760,7 +780,6 @@ int ATERM_8140276C(AtermApRecordSet* currentRecords, AtermApRecordSet* previousR
         ssidName.clear.finalWord = 0;
         memcpy(ssidName.text, currentRecord->ssid, sizeof(currentRecord->ssid));
         ssidName.text[currentRecord->ssidLength] = '\0';
-        previousRecord = previousRecords->entries;
         for (previousIndex = 0; previousIndex < previousRecords->count; previousIndex++) {
             ssidLength = currentRecord->ssidLength;
             if (ssidLength == 0 || ssidLength > sizeof(currentRecord->ssid) ||
@@ -782,10 +801,13 @@ int ATERM_8140276C(AtermApRecordSet* currentRecords, AtermApRecordSet* previousR
             break;
         }
         currentRecord++;
+        previousRecord = previousRecords->entries;
     }
 
     if (!found) {
         AtermSsidBuffer aossSsidName;
+        int previousHasAoss = 0;
+        int currentHasAoss = 0;
 
         aossSsidName.clear.word0 = 0;
         aossSsidName.clear.word1 = 0;
@@ -851,7 +873,7 @@ int ATERM_81402A24(void) {
     u32 scanBufferBytes = gAtermScanBufferSize * 0x100;
     u32 scanCount;
     u32 recordIndex;
-    u32 iteration = 0;
+    s32 iteration = 0;
     u32 now;
     char selectedMacText[32];
 
@@ -873,7 +895,7 @@ int ATERM_81402A24(void) {
 
     while (iteration < 300 && gAtermCancelRequested == 0) {
         s64 currentTime = OSGetTime();
-        now = (u32)(currentTime / (OS_BUS_CLOCK / 4000));
+        now = (u32)(currentTime / (__mulhwu(0x10624DD3, OS_BUS_CLOCK >> 2) >> 6));
         if (gAtermDeadline <= now) {
             break;
         }
@@ -964,7 +986,7 @@ int ATERM_81402A24(void) {
             progressInfo[2] = -1;
         } else {
             s64 currentTime = OSGetTime();
-            now = (u32)(currentTime / (OS_BUS_CLOCK / 4000));
+            now = (u32)(currentTime / (__mulhwu(0x10624DD3, OS_BUS_CLOCK >> 2) >> 6));
             progressInfo[2] = gAtermDeadline - now;
         }
         progressInfo[3] = gAtermResult;
@@ -974,7 +996,7 @@ int ATERM_81402A24(void) {
 
     if (iteration < 300) {
         s64 currentTime = OSGetTime();
-        now = (u32)(currentTime / (OS_BUS_CLOCK / 4000));
+        now = (u32)(currentTime / (__mulhwu(0x10624DD3, OS_BUS_CLOCK >> 2) >> 6));
         if (now <= gAtermDeadline) {
             result = gAtermCancelRequested == 0 ? 1 : -8;
             goto cleanup;
@@ -1048,9 +1070,9 @@ int ATERM_81402FC0(AtermPacket* packet, u32* setupType) {
     u8* payload;
     u8* value;
     u16 checksum;
-    u16 messageType;
+    u32 messageType;
     u32 payloadLength;
-    u16 optionType;
+    u32 optionType;
     u16 optionLength;
     u16 authenticationReady;
     u16 networkReady;
@@ -1147,17 +1169,17 @@ int ATERM_814031DC(AtermAssociationRequest* request) {
         char* textCursor = interfaceMacText;
 
         for (addressIndex = 0; addressIndex < 6; addressIndex++) {
-            u8 addressByte = interfaceMacAddress[addressIndex];
+            u8 addressByte = *(interfaceMacAddress + addressIndex);
             s32 highNibble = (addressByte & 0xF0) >> 4;
             s32 lowNibble = addressByte & 0xF;
             char* nextText = textCursor + 2;
 
-            if (highNibble < 10) {
+            if (highNibble <= 9) {
                 *textCursor = highNibble + 0x30;
             } else {
                 *textCursor = highNibble + 0x37;
             }
-            if (lowNibble < 10) {
+            if (lowNibble <= 9) {
                 textCursor[1] = lowNibble + 0x30;
             } else {
                 textCursor[1] = lowNibble + 0x37;
@@ -1173,17 +1195,17 @@ int ATERM_814031DC(AtermAssociationRequest* request) {
 
         textCursor = scanAddressText;
         for (addressIndex = 0; addressIndex < 6; addressIndex++) {
-            u8 addressByte = scanAddress[addressIndex];
+            u8 addressByte = *(scanAddress + addressIndex);
             s32 highNibble = (addressByte & 0xF0) >> 4;
             s32 lowNibble = addressByte & 0xF;
             char* nextText = textCursor + 2;
 
-            if (highNibble < 10) {
+            if (highNibble <= 9) {
                 *textCursor = highNibble + 0x30;
             } else {
                 *textCursor = highNibble + 0x37;
             }
-            if (lowNibble < 10) {
+            if (lowNibble <= 9) {
                 textCursor[1] = lowNibble + 0x30;
             } else {
                 textCursor[1] = lowNibble + 0x37;
@@ -1203,8 +1225,8 @@ int ATERM_814031DC(AtermAssociationRequest* request) {
 int ATERM_814033F0(u16* response) {
     u16* optionCursor = response + 4;
     u16* responseEnd = (u16*)((u8*)optionCursor + SONtoHs(response[0]));
-    u16 optionType;
-    u16 optionLength;
+    u32 optionType;
+    u32 optionLength;
     u8* optionValue;
     u32 value;
     u32 result = 0;
@@ -1326,6 +1348,7 @@ int ATERM_814036D8(void) {
     char* sourceKey;
     s32 keyIndex;
     size_t keyLength;
+    char* keyString;
     struct {
         char text[32];
         char terminator;
@@ -1349,33 +1372,34 @@ int ATERM_814036D8(void) {
             do {
                 memcpy(keyText.text, sourceKey, 0x20);
                 keyText.terminator = '\0';
-                keyLength = strlen(keyText.text);
+                keyString = keyText.text;
+                keyLength = strlen(keyString);
                 switch (keyLength) {
             case 0:
                 break;
             case 5:
                 gAtermConfigurationResult.setupMode = 1;
-                memcpy(outputKey, keyText.text, 5);
+                memcpy(outputKey, keyString, 5);
                 break;
             case 10:
                 gAtermConfigurationResult.setupMode = 1;
-                ATERM_81403614((u8*)outputKey, keyText.text, 10);
+                ATERM_81403614((u8*)outputKey, keyString, 10);
                 break;
             case 13:
                 gAtermConfigurationResult.setupMode = 2;
-                memcpy(outputKey, keyText.text, 0xD);
+                memcpy(outputKey, keyString, 0xD);
                 break;
             case 16:
                 gAtermConfigurationResult.setupMode = 3;
-                memcpy(outputKey, keyText.text, 0x10);
+                memcpy(outputKey, keyString, 0x10);
                 break;
             case 26:
                 gAtermConfigurationResult.setupMode = 2;
-                ATERM_81403614((u8*)outputKey, keyText.text, 0x1A);
+                ATERM_81403614((u8*)outputKey, keyString, 0x1A);
                 break;
             case 32:
                 gAtermConfigurationResult.setupMode = 3;
-                ATERM_81403614((u8*)outputKey, keyText.text, 0x20);
+                ATERM_81403614((u8*)outputKey, keyString, 0x20);
                 break;
             default:
                 result = -7;
@@ -1404,7 +1428,9 @@ s32 ATERM_814038C8(void) {
     AtermSocketAddress peerAddress;
     u8* packetBuffer = gAtermConfigurationResult.packetBuffer;
     u8* requestOptions = gAtermResponseBuffer.data;
-    u8 digest[16];
+    AtermMd5Context digestContext;
+    u8 digestLength[8];
+    u8 optionIds[7] = { 6, 0, 1, 2, 3, 4, 5 };
     AtermRequestOption16* shortOption;
     AtermRequestOption24* longOption;
     u8* optionEnd;
@@ -1436,8 +1462,9 @@ s32 ATERM_814038C8(void) {
         OSInitMessageQueue(&waitQueue, waitBuffer, 1);
         OSCreateAlarm(&waitAlarm);
         OSSetAlarmTag(&waitAlarm, (u32)&waitQueue);
-        OSSetPeriodicAlarm(&waitAlarm, OS_BUS_CLOCK >> 2,
-                           (OS_BUS_CLOCK / 4000) * 500, ATERM_8140684C);
+        OSSetAlarm(&waitAlarm,
+                   (__mulhwu(reciprocal, OS_BUS_CLOCK >> 2) >> 6) * 500,
+                   ATERM_8140684C);
         OSReceiveMessage(&waitQueue, &waitMessage, 1);
 
         switch (gAtermProtocolState) {
@@ -1523,7 +1550,7 @@ s32 ATERM_814038C8(void) {
             longOption = (AtermRequestOption24*)shortOption;
             longOption->type = SOHtoNs(3);
             longOption->length = SOHtoNs(7);
-            memcpy(longOption->value, gAtermProductName, 4);
+            memcpy(longOption->value, optionIds, sizeof(optionIds));
             longOption++;
             if (gAtermResponseMode != 0) {
                 longOption->type = SOHtoNs(4);
@@ -1556,16 +1583,77 @@ s32 ATERM_814038C8(void) {
             receivedLength = SORecvFrom(socket, packetBuffer,
                                         sizeof(gAtermConfigurationResult.packetBuffer), 4,
                                         &peerAddress);
-            if (receivedLength > 0 &&
-                ATERM_81402FC0((AtermPacket*)packetBuffer, &gAtermResponseMode) &&
-                ATERM_81404A18((u16*)packetBuffer, (u16*)packetBuffer, receivedLength,
-                               gAtermAddressBuffer, 0x10)) {
-                memcpy(digest, packetBuffer, sizeof(digest));
-                gAtermProtocolState = 7;
-                stateProgress[0] = 5;
-                stateProgress[1] = (s32)(gAtermDeadline - now);
-                stateProgress[2] = gAtermResult;
-                (*gAtermProgressCallback)(stateProgress);
+            if (receivedLength > 0) {
+                AtermPacket* packet = (AtermPacket*)packetBuffer;
+                u16 sequence = SONtoHs(packet->sequence);
+                u16 payloadLength = SONtoHs(packet->length);
+                u8* packetEnd = packet->payload + payloadLength;
+                u8* cursor = packetBuffer;
+                u32 checksum = 0;
+                u32 optionType = 0;
+
+                while (cursor < packetEnd) {
+                    checksum += *cursor++;
+                }
+                if ((u16)checksum == SONtoHs(*(u16*)packetEnd) && sequence == 3) {
+                    AtermPacketOption* option;
+                    u8* optionEnd;
+                    ATERM_81404A18((u16*)gAtermResponseBuffer.authentication.payload,
+                                   (u16*)packet->payload, payloadLength,
+                                   gAtermConfigurationResult.connectionPrefix, 0x10);
+                    payloadLength -= 8;
+                    option = (AtermPacketOption*)
+                        gAtermResponseBuffer.authentication.decoded.options;
+                    optionEnd = (u8*)option + SONtoHs(
+                        gAtermResponseBuffer.authentication.decoded.length);
+                    if ((u8*)option < optionEnd) {
+                        optionType = SONtoHs(option->type);
+                        SONtoHs(option->length);
+                    }
+                    if (payloadLength != 0 && optionType == 0x101) {
+                        u32 authenticationTime = (u32)(OSGetTime() /
+                            (__mulhwu(reciprocal, OS_BUS_CLOCK >> 2) >> 6));
+                        u32 index;
+                        u32 digestBytes;
+                        u32 bitCount[2];
+                        memcpy(gAtermResponseBuffer.authentication.challenge,
+                               option->value, 8);
+                        digestContext.state[0] = 0x67452301;
+                        digestContext.state[1] = 0xEFCDAB89;
+                        digestContext.state[2] = 0x98BADCFE;
+                        digestContext.state[3] = 0x10325476;
+                        digestContext.bitCountLow = 0;
+                        digestContext.bitCountHigh = 0;
+                        ATERM_81405ACC(&digestContext, &authenticationTime, sizeof(authenticationTime));
+                        bitCount[0] = digestContext.bitCountLow;
+                        bitCount[1] = digestContext.bitCountHigh;
+                        for (index = 0; index < 2; index++) {
+                            digestLength[index * 4] = bitCount[index];
+                            digestLength[index * 4 + 1] = bitCount[index] >> 8;
+                            digestLength[index * 4 + 2] = bitCount[index] >> 16;
+                            digestLength[index * 4 + 3] = bitCount[index] >> 24;
+                        }
+                        digestBytes = (digestContext.bitCountLow >> 3) & 0x3F;
+                        ATERM_81405ACC(&digestContext, gAtermDigestFill,
+                            digestBytes < 56 ? 56 - digestBytes : 120 - digestBytes);
+                        ATERM_81405ACC(&digestContext, digestLength, sizeof(digestLength));
+                        for (index = 0; index < 4; index++) {
+                            gAtermResponseBuffer.authentication.digest[index * 4] = digestContext.state[index];
+                            gAtermResponseBuffer.authentication.digest[index * 4 + 1] = digestContext.state[index] >> 8;
+                            gAtermResponseBuffer.authentication.digest[index * 4 + 2] = digestContext.state[index] >> 16;
+                            gAtermResponseBuffer.authentication.digest[index * 4 + 3] = digestContext.state[index] >> 24;
+                        }
+                        memset(&digestContext, 0, sizeof(digestContext));
+                        gAtermProtocolState = 7;
+                        gAtermState = 5;
+                        gAtermDeadline = 0xFFFFFFFF;
+                        retries = 0;
+                        stateProgress[0] = 5;
+                        stateProgress[1] = -1;
+                        stateProgress[2] = gAtermResult;
+                        (*gAtermProgressCallback)(stateProgress);
+                    }
+                }
             } else if (now - lastSendTime >= 2000) {
                 if (++retries >= 10) {
                     result = -2;
@@ -1580,7 +1668,7 @@ s32 ATERM_814038C8(void) {
             longOption = (AtermRequestOption24*)requestOptions;
             longOption->type = SOHtoNs(0x102);
             longOption->length = SOHtoNs(8);
-            memcpy(longOption->value, digest, 8);
+            memcpy(longOption->value, gAtermResponseBuffer.authentication.digest, 8);
             requestLength = ATERM_81402E40((u16*)packetBuffer, 4,
                                            (u16*)requestOptions,
                                            sizeof(AtermRequestOption24),
@@ -1646,9 +1734,11 @@ s32 ATERM_814038C8(void) {
     }
 }
 
+u8 gAtermDigestFill[64] = { 0x80 };
+
 s32 ATERMi_AutoConfigThread(void) {
     s32 result = ATERM_814038C8();
-    s32 progress[5];
+    AtermProgress progress;
     u32 equalityMask;
     s32 completedState;
 
@@ -1664,22 +1754,26 @@ s32 ATERMi_AutoConfigThread(void) {
     gAtermDeadline = 0xFFFFFFFF;
     completedState = ((s32)equalityMask >> 31) + 7;
     gAtermState = completedState;
-    progress[0] = completedState;
-    progress[1] = -1;
-    progress[2] = gAtermResult;
-    (*gAtermProgressCallback)(progress);
+    progress.state = completedState;
+    progress.remainingTime = -1;
+    progress.result = gAtermResult;
+    (*gAtermProgressCallback)(&progress);
     return 0;
 }
 
 int ATERM_81404844(u16* destination, u16* source, u32 length, void* key, u32 keyLength) {
-    u32 expandedKey[64];
-    u32 stateWords[4];
+    u32 expandedKey[80];
+    u32 initialValue[2];
+    union { u32 words[4]; u8 bytes[16]; } block;
+    union { s64 value; u8 bytes[8]; } counter;
     u8* destinationBytes = (u8*)destination;
     const u8* sourceBytes = (const u8*)source;
-    u32 blockCount;
+    s32 blockCount;
     u32 rounds;
-    u32 pass;
+    s32 pass;
 
+    initialValue[0] = 0xA6A6A6A6;
+    initialValue[1] = 0xA6A6A6A6;
     if ((length & 7) != 0 || (keyLength & 7) != 0) {
         return 0;
     }
@@ -1690,39 +1784,44 @@ int ATERM_81404844(u16* destination, u16* source, u32 length, void* key, u32 key
 
     rounds = ATERM_81404BFC(expandedKey, key, keyLength << 3);
     memcpy(destinationBytes + 8, sourceBytes, length);
-    stateWords[0] = 0x4D4D4D4D;
-    stateWords[1] = 0x4D4D4D4D;
+    memcpy(block.bytes, initialValue, sizeof(initialValue));
     for (pass = 0; pass < 6; pass++) {
-        u32 blockIndex;
+        s32 blockIndex;
         for (blockIndex = 1; blockIndex <= blockCount; blockIndex++) {
-            u64 counter = (u64)pass * blockCount + blockIndex;
-            u8* stateBytes = (u8*)stateWords;
+            s64 passBase = (s64)pass * blockCount;
+            u8* stateBytes = block.bytes;
 
             memcpy(stateBytes + 8, destinationBytes + blockIndex * 8, 8);
             ATERM_81405254(expandedKey, rounds, stateBytes, stateBytes);
-            stateBytes[0] ^= (u8)(counter >> 56);
-            stateBytes[1] ^= (u8)(counter >> 48);
-            stateBytes[2] ^= (u8)(counter >> 40);
-            stateBytes[3] ^= (u8)(counter >> 32);
-            stateBytes[4] ^= (u8)(counter >> 24);
-            stateBytes[5] ^= (u8)(counter >> 16);
-            stateBytes[6] ^= (u8)(counter >> 8);
-            stateBytes[7] ^= (u8)counter;
+            counter.value = passBase + blockIndex;
+            stateBytes[0] ^= counter.bytes[0];
+            stateBytes[1] ^= counter.bytes[1];
+            stateBytes[2] ^= counter.bytes[2];
+            stateBytes[3] ^= counter.bytes[3];
+            stateBytes[4] ^= counter.bytes[4];
+            stateBytes[5] ^= counter.bytes[5];
+            stateBytes[6] ^= counter.bytes[6];
+            stateBytes[7] ^= counter.bytes[7];
+            memcpy(destinationBytes + blockIndex * 8, stateBytes + 8, 8);
         }
     }
-    memcpy(destinationBytes, stateWords, 8);
+    memcpy(destinationBytes, block.words, 8);
     return 1;
 }
 
 int ATERM_81404A18(u16* destination, u16* source, u32 length, void* key, u32 keyLength) {
-    u32 expandedKey[64];
-    u32 stateWords[4];
+    u32 expandedKey[80];
+    u32 initialValue[2];
+    union { u32 words[4]; u8 bytes[16]; } block;
+    union { s64 value; u8 bytes[8]; } counter;
     u8* destinationBytes = (u8*)destination;
     const u8* sourceBytes = (const u8*)source;
-    u32 blockCount;
+    s32 blockCount;
     u32 rounds;
     s32 pass;
 
+    initialValue[0] = 0xA6A6A6A6;
+    initialValue[1] = 0xA6A6A6A6;
     if ((length & 7) != 0 || (keyLength & 7) != 0) {
         return 0;
     }
@@ -1732,29 +1831,30 @@ int ATERM_81404A18(u16* destination, u16* source, u32 length, void* key, u32 key
     }
 
     rounds = ATERM_8140502C(expandedKey, key, keyLength << 3);
-    memcpy(stateWords, sourceBytes, 8);
+    memcpy(block.words, sourceBytes, 8);
     memcpy(destinationBytes, sourceBytes + 8, length - 1);
     for (pass = 5; pass >= 0; pass--) {
-        u32 blockIndex;
+        s32 blockIndex;
         for (blockIndex = blockCount; blockIndex != 0; blockIndex--) {
-            u64 counter = (u64)(u32)pass * blockCount + blockIndex;
-            u8* stateBytes = (u8*)stateWords;
+            s64 passBase = (s64)pass * blockCount;
+            u8* stateBytes = block.bytes;
             u8* outputBlock = destinationBytes + (blockIndex - 1) * 8;
 
             memcpy(stateBytes + 8, outputBlock, 8);
+            counter.value = passBase + blockIndex;
+            stateBytes[0] ^= counter.bytes[0];
+            stateBytes[1] ^= counter.bytes[1];
+            stateBytes[2] ^= counter.bytes[2];
+            stateBytes[3] ^= counter.bytes[3];
+            stateBytes[4] ^= counter.bytes[4];
+            stateBytes[5] ^= counter.bytes[5];
+            stateBytes[6] ^= counter.bytes[6];
+            stateBytes[7] ^= counter.bytes[7];
             ATERM_81405690(expandedKey, rounds, stateBytes, stateBytes);
-            stateBytes[0] ^= (u8)(counter >> 56);
-            stateBytes[1] ^= (u8)(counter >> 48);
-            stateBytes[2] ^= (u8)(counter >> 40);
-            stateBytes[3] ^= (u8)(counter >> 32);
-            stateBytes[4] ^= (u8)(counter >> 24);
-            stateBytes[5] ^= (u8)(counter >> 16);
-            stateBytes[6] ^= (u8)(counter >> 8);
-            stateBytes[7] ^= (u8)counter;
             memcpy(outputBlock, stateBytes + 8, 8);
         }
     }
-    return stateWords[0] == 0x4D4D4D4D && stateWords[1] == 0x4D4D4D4D;
+    return memcmp(block.bytes, initialValue, sizeof(initialValue)) == 0;
 }
 
 #define ATERM_AES_SUB_BYTE(value) (gAtermAesTables[4][(value)] & 0xFF)
@@ -1765,16 +1865,17 @@ int ATERM_81404A18(u16* destination, u16* source, u32 length, void* key, u32 key
      ATERM_AES_SUB_BYTE((value) & 0xFF))
 
 #define ATERM_AES_READ_KEY_WORD(index) \
-    (((u32)keyBytes[(index) * 4] << 24) | \
-     ((u32)keyBytes[(index) * 4 + 1] << 16) | \
-     ((u32)keyBytes[(index) * 4 + 2] << 8) | \
+    (((u32)keyBytes[(index) * 4] << 24) ^ \
+     ((u32)keyBytes[(index) * 4 + 1] << 16) ^ \
+     ((u32)keyBytes[(index) * 4 + 2] << 8) ^ \
      keyBytes[(index) * 4 + 3])
 
 int ATERM_81404BFC(u32* expandedKey, const void* key, u32 keyBits) {
     const u8* keyBytes = (const u8*)key;
-    u32* roundKey;
+    u32* roundKey = expandedKey;
     const u32* roundConstant;
-    u32 temp;
+    u32 keyWord;
+    s32 generatedRounds = 0;
 
     expandedKey[0] = ATERM_AES_READ_KEY_WORD(0);
     expandedKey[1] = ATERM_AES_READ_KEY_WORD(1);
@@ -1782,61 +1883,74 @@ int ATERM_81404BFC(u32* expandedKey, const void* key, u32 keyBits) {
     expandedKey[3] = ATERM_AES_READ_KEY_WORD(3);
 
     if (keyBits == 0x80) {
-        roundKey = expandedKey + 4;
         roundConstant = gAtermAesRoundConstants;
         do {
-            temp = roundKey[3];
-            temp = (temp << 8) | (temp >> 24);
-            temp = ATERM_AES_SUB_WORD(temp) ^ *roundConstant++;
-            roundKey[0] = roundKey[-4] ^ temp;
-            roundKey[1] = roundKey[-3] ^ roundKey[0];
-            roundKey[2] = roundKey[-2] ^ roundKey[1];
-            roundKey[3] = roundKey[-1] ^ roundKey[2];
+            keyWord = roundKey[3];
+            roundKey[4] = roundKey[0] ^
+                (gAtermAesTables[4][(keyWord >> 16) & 0xFF] & 0xFF000000) ^
+                (gAtermAesTables[4][(keyWord >> 8) & 0xFF] & 0x00FF0000) ^
+                (gAtermAesTables[4][keyWord & 0xFF] & 0x0000FF00) ^
+                (gAtermAesTables[4][keyWord >> 24] & 0x000000FF) ^ *roundConstant++;
+            roundKey[5] = roundKey[1] ^ roundKey[4];
+            roundKey[6] = roundKey[2] ^ roundKey[5];
+            roundKey[7] = roundKey[3] ^ roundKey[6];
             roundKey += 4;
-        } while (roundKey < expandedKey + 44);
+        } while (++generatedRounds < 10);
         return 10;
     }
 
     expandedKey[4] = ATERM_AES_READ_KEY_WORD(4);
     expandedKey[5] = ATERM_AES_READ_KEY_WORD(5);
     if (keyBits == 0xC0) {
-        roundKey = expandedKey + 6;
         roundConstant = gAtermAesRoundConstants;
         do {
-            temp = roundKey[5];
-            temp = (temp << 8) | (temp >> 24);
-            temp = ATERM_AES_SUB_WORD(temp) ^ *roundConstant++;
-            roundKey[0] = roundKey[-6] ^ temp;
-            roundKey[1] = roundKey[-5] ^ roundKey[0];
-            roundKey[2] = roundKey[-4] ^ roundKey[1];
-            roundKey[3] = roundKey[-3] ^ roundKey[2];
-            roundKey[4] = roundKey[-2] ^ roundKey[0];
-            roundKey[5] = roundKey[-1] ^ roundKey[4];
+            keyWord = roundKey[5];
+            roundKey[6] = roundKey[0] ^
+                (gAtermAesTables[4][(keyWord >> 16) & 0xFF] & 0xFF000000) ^
+                (gAtermAesTables[4][(keyWord >> 8) & 0xFF] & 0x00FF0000) ^
+                (gAtermAesTables[4][keyWord & 0xFF] & 0x0000FF00) ^
+                (gAtermAesTables[4][keyWord >> 24] & 0x000000FF) ^ *roundConstant++;
+            roundKey[7] = roundKey[1] ^ roundKey[6];
+            roundKey[8] = roundKey[2] ^ roundKey[7];
+            roundKey[9] = roundKey[3] ^ roundKey[8];
+            if (++generatedRounds == 8) {
+                return 12;
+            }
+            roundKey[10] = roundKey[4] ^ roundKey[9];
+            roundKey[11] = roundKey[5] ^ roundKey[10];
             roundKey += 6;
-        } while (roundKey < expandedKey + 54);
+        } while (1);
         return 12;
     }
 
     expandedKey[6] = ATERM_AES_READ_KEY_WORD(6);
     expandedKey[7] = ATERM_AES_READ_KEY_WORD(7);
     if (keyBits == 0x100) {
-        roundKey = expandedKey + 8;
         roundConstant = gAtermAesRoundConstants;
         do {
-            temp = roundKey[7];
-            temp = (temp << 8) | (temp >> 24);
-            temp = ATERM_AES_SUB_WORD(temp) ^ *roundConstant++;
-            roundKey[0] = roundKey[-8] ^ temp;
-            roundKey[1] = roundKey[-7] ^ roundKey[0];
-            roundKey[2] = roundKey[-6] ^ roundKey[1];
-            roundKey[3] = roundKey[-5] ^ roundKey[2];
-            temp = ATERM_AES_SUB_WORD(roundKey[3]);
-            roundKey[4] = roundKey[-4] ^ temp;
-            roundKey[5] = roundKey[-3] ^ roundKey[4];
-            roundKey[6] = roundKey[-2] ^ roundKey[5];
-            roundKey[7] = roundKey[-1] ^ roundKey[6];
+            keyWord = roundKey[7];
+            roundKey[8] = roundKey[0] ^
+                (gAtermAesTables[4][(keyWord >> 16) & 0xFF] & 0xFF000000) ^
+                (gAtermAesTables[4][(keyWord >> 8) & 0xFF] & 0x00FF0000) ^
+                (gAtermAesTables[4][keyWord & 0xFF] & 0x0000FF00) ^
+                (gAtermAesTables[4][keyWord >> 24] & 0x000000FF) ^ *roundConstant++;
+            roundKey[9] = roundKey[1] ^ roundKey[8];
+            roundKey[10] = roundKey[2] ^ roundKey[9];
+            roundKey[11] = roundKey[3] ^ roundKey[10];
+            if (++generatedRounds == 7) {
+                return 14;
+            }
+            keyWord = roundKey[11];
+            roundKey[12] = roundKey[4] ^
+                (gAtermAesTables[4][keyWord >> 24] & 0xFF000000) ^
+                (gAtermAesTables[4][(keyWord >> 16) & 0xFF] & 0x00FF0000) ^
+                (gAtermAesTables[4][(keyWord >> 8) & 0xFF] & 0x0000FF00) ^
+                (gAtermAesTables[4][keyWord & 0xFF] & 0x000000FF);
+            roundKey[13] = roundKey[5] ^ roundKey[12];
+            roundKey[14] = roundKey[6] ^ roundKey[13];
+            roundKey[15] = roundKey[7] ^ roundKey[14];
             roundKey += 8;
-        } while (roundKey < expandedKey + 64);
+        } while (1);
         return 14;
     }
     return 0;
@@ -1867,19 +1981,11 @@ int ATERM_8140502C(u32* expandedKey, const void* key, u32 keyBits) {
     u32 roundCount;
 
     while (firstRound < lastRound) {
-        u32 word0 = firstRound[0];
-        u32 word1 = firstRound[1];
-        u32 word2 = firstRound[2];
-        u32 word3 = firstRound[3];
-
-        firstRound[0] = lastRound[0];
-        firstRound[1] = lastRound[1];
-        firstRound[2] = lastRound[2];
-        firstRound[3] = lastRound[3];
-        lastRound[0] = word0;
-        lastRound[1] = word1;
-        lastRound[2] = word2;
-        lastRound[3] = word3;
+        u32 word;
+        word = firstRound[0]; firstRound[0] = lastRound[0]; lastRound[0] = word;
+        word = firstRound[1]; firstRound[1] = lastRound[1]; lastRound[1] = word;
+        word = firstRound[2]; firstRound[2] = lastRound[2]; lastRound[2] = word;
+        word = firstRound[3]; firstRound[3] = lastRound[3]; lastRound[3] = word;
         firstRound += 4;
         lastRound -= 4;
     }
@@ -1901,14 +2007,14 @@ int ATERM_8140502C(u32* expandedKey, const void* key, u32 keyBits) {
 #undef ATERM_AES_TRANSFORM_KEY
 
 void ATERM_81405254(const u32* expandedKey, u32 rounds, const u8* input, u8* output) {
-    u32 state0 = ((u32)input[0] << 24) | ((u32)input[1] << 16) |
-                 ((u32)input[2] << 8) | input[3];
-    u32 state1 = ((u32)input[4] << 24) | ((u32)input[5] << 16) |
-                 ((u32)input[6] << 8) | input[7];
-    u32 state2 = ((u32)input[8] << 24) | ((u32)input[9] << 16) |
-                 ((u32)input[10] << 8) | input[11];
-    u32 state3 = ((u32)input[12] << 24) | ((u32)input[13] << 16) |
-                 ((u32)input[14] << 8) | input[15];
+    u32 state0 = ((u32)input[0] << 24) ^ ((u32)input[1] << 16) |
+                 ((u32)input[2] << 8) ^ input[3];
+    u32 state1 = ((u32)input[4] << 24) ^ ((u32)input[5] << 16) |
+                 ((u32)input[6] << 8) ^ input[7];
+    u32 state2 = ((u32)input[8] << 24) ^ ((u32)input[9] << 16) |
+                 ((u32)input[10] << 8) ^ input[11];
+    u32 state3 = ((u32)input[12] << 24) ^ ((u32)input[13] << 16) |
+                 ((u32)input[14] << 8) ^ input[15];
     u32 roundIndex;
 
     state0 ^= expandedKey[0];
@@ -1978,14 +2084,14 @@ void ATERM_81405254(const u32* expandedKey, u32 rounds, const u8* input, u8* out
 }
 
 void ATERM_81405690(const u32* expandedKey, u32 rounds, const u8* input, u8* output) {
-    u32 state0 = ((u32)input[0] << 24) | ((u32)input[1] << 16) |
-                 ((u32)input[2] << 8) | input[3];
-    u32 state1 = ((u32)input[4] << 24) | ((u32)input[5] << 16) |
-                 ((u32)input[6] << 8) | input[7];
-    u32 state2 = ((u32)input[8] << 24) | ((u32)input[9] << 16) |
-                 ((u32)input[10] << 8) | input[11];
-    u32 state3 = ((u32)input[12] << 24) | ((u32)input[13] << 16) |
-                 ((u32)input[14] << 8) | input[15];
+    u32 state0 = ((u32)input[0] << 24) ^ ((u32)input[1] << 16) |
+                 ((u32)input[2] << 8) ^ input[3];
+    u32 state1 = ((u32)input[4] << 24) ^ ((u32)input[5] << 16) |
+                 ((u32)input[6] << 8) ^ input[7];
+    u32 state2 = ((u32)input[8] << 24) ^ ((u32)input[9] << 16) |
+                 ((u32)input[10] << 8) ^ input[11];
+    u32 state3 = ((u32)input[12] << 24) ^ ((u32)input[13] << 16) |
+                 ((u32)input[14] << 8) ^ input[15];
     u32 roundIndex;
 
     state0 ^= expandedKey[0];
@@ -2056,43 +2162,64 @@ void ATERM_81405690(const u32* expandedKey, u32 rounds, const u8* input, u8* out
 
 void ATERM_81405D0C(u32 state[4], const u8 block[64]);
 
-void ATERM_81405ACC(NETMD5Context* context, const void* input, u32 length) {
+void ATERM_81405ACC(AtermMd5Context* context, const void* input, u32 length) {
     const u8* data = (const u8*)input;
-    u32 bufferIndex = (u32)(context->length >> 3) & 0x3F;
+    u32 bufferIndex = (context->bitCountLow >> 3) & 0x3F;
     u32 bytesToFill = 64 - bufferIndex;
     u32 copiedBytes;
     u32 index;
 
-    context->length += (u64)length << 3;
+    context->bitCountLow += length << 3;
+    if (context->bitCountLow < (length << 3)) {
+        context->bitCountHigh++;
+    }
+    context->bitCountHigh += length >> 29;
     if (length >= bytesToFill) {
-        u32 alignedBytes = bytesToFill & ~7U;
-
-        for (copiedBytes = 0; copiedBytes < alignedBytes; copiedBytes += 8) {
-            context->buffer8[bufferIndex + copiedBytes] = data[copiedBytes];
-            context->buffer8[bufferIndex + copiedBytes + 1] = data[copiedBytes + 1];
-            context->buffer8[bufferIndex + copiedBytes + 2] = data[copiedBytes + 2];
-            context->buffer8[bufferIndex + copiedBytes + 3] = data[copiedBytes + 3];
-            context->buffer8[bufferIndex + copiedBytes + 4] = data[copiedBytes + 4];
-            context->buffer8[bufferIndex + copiedBytes + 5] = data[copiedBytes + 5];
-            context->buffer8[bufferIndex + copiedBytes + 6] = data[copiedBytes + 6];
-            context->buffer8[bufferIndex + copiedBytes + 7] = data[copiedBytes + 7];
-        }
-        for (index = copiedBytes; index < bytesToFill; index++) {
-            context->buffer8[bufferIndex + index] = data[index];
+        copiedBytes = 0;
+        if (bytesToFill != 0) {
+            u32 groupLimit = bytesToFill - 8;
+            if (bytesToFill > 8) {
+                for (; copiedBytes < groupLimit; copiedBytes += 8) {
+                    context->buffer8[bufferIndex + copiedBytes + 0] = data[copiedBytes + 0];
+                    context->buffer8[bufferIndex + copiedBytes + 1] = data[copiedBytes + 1];
+                    context->buffer8[bufferIndex + copiedBytes + 2] = data[copiedBytes + 2];
+                    context->buffer8[bufferIndex + copiedBytes + 3] = data[copiedBytes + 3];
+                    context->buffer8[bufferIndex + copiedBytes + 4] = data[copiedBytes + 4];
+                    context->buffer8[bufferIndex + copiedBytes + 5] = data[copiedBytes + 5];
+                    context->buffer8[bufferIndex + copiedBytes + 6] = data[copiedBytes + 6];
+                    context->buffer8[bufferIndex + copiedBytes + 7] = data[copiedBytes + 7];
+                }
+            }
+            for (; copiedBytes < bytesToFill; copiedBytes++) {
+                context->buffer8[bufferIndex + copiedBytes] = data[copiedBytes];
+            }
         }
         ATERM_81405D0C(context->state, context->buffer8);
-        data += bytesToFill;
-        length -= bytesToFill;
-        while (length >= sizeof(context->buffer8)) {
-            ATERM_81405D0C(context->state, data);
-            data += sizeof(context->buffer8);
-            length -= sizeof(context->buffer8);
+        for (copiedBytes = bytesToFill; copiedBytes + 63 < length; copiedBytes += 64) {
+            ATERM_81405D0C(context->state, data + copiedBytes);
         }
         bufferIndex = 0;
+    } else {
+        copiedBytes = 0;
     }
-    if (length != 0) {
-        for (index = 0; index < length; index++) {
-            context->buffer8[bufferIndex + index] = data[index];
+    if (length - copiedBytes != 0) {
+        u32 remainingBytes = length - copiedBytes;
+        u32 groupLimit = remainingBytes - 8;
+        index = 0;
+        if (remainingBytes > 8) {
+            for (; index < groupLimit; index += 8) {
+                context->buffer8[bufferIndex + index + 0] = data[copiedBytes + index + 0];
+                context->buffer8[bufferIndex + index + 1] = data[copiedBytes + index + 1];
+                context->buffer8[bufferIndex + index + 2] = data[copiedBytes + index + 2];
+                context->buffer8[bufferIndex + index + 3] = data[copiedBytes + index + 3];
+                context->buffer8[bufferIndex + index + 4] = data[copiedBytes + index + 4];
+                context->buffer8[bufferIndex + index + 5] = data[copiedBytes + index + 5];
+                context->buffer8[bufferIndex + index + 6] = data[copiedBytes + index + 6];
+                context->buffer8[bufferIndex + index + 7] = data[copiedBytes + index + 7];
+            }
+        }
+        for (; index < remainingBytes; index++) {
+            context->buffer8[bufferIndex + index] = data[copiedBytes + index];
         }
     }
 }
@@ -2100,10 +2227,7 @@ void ATERM_81405ACC(NETMD5Context* context, const void* input, u32 length) {
 #define ATERM_MD5_STEP(A, B, C, D, WORD, CONSTANT, SHIFT, F) \
     do { \
         u32 value = (A) + (F) + (WORD) + (CONSTANT); \
-        (A) = (D); \
-        (D) = (C); \
-        (C) = (B); \
-        (B) += (value << (SHIFT)) | (value >> (32 - (SHIFT))); \
+        (A) = (B) + ((value << (SHIFT)) | (value >> (32 - (SHIFT)))); \
     } while (0)
 
 void ATERM_81405D0C(u32 state[4], const u8 block[64]) {
@@ -2137,69 +2261,69 @@ void ATERM_81405D0C(u32 state[4], const u8 block[64]) {
     }
 
     ATERM_MD5_STEP(a, b, c, d, words[0], 0xd76aa478, 7, (b & c) | (~b & d));
-    ATERM_MD5_STEP(d, a, b, c, words[1], 0xe8c7b756, 12, (b & c) | (~b & d));
-    ATERM_MD5_STEP(c, d, a, b, words[2], 0x242070db, 17, (b & c) | (~b & d));
-    ATERM_MD5_STEP(b, c, d, a, words[3], 0xc1bdceee, 22, (b & c) | (~b & d));
+    ATERM_MD5_STEP(d, a, b, c, words[1], 0xe8c7b756, 12, (a & b) | (~a & c));
+    ATERM_MD5_STEP(c, d, a, b, words[2], 0x242070db, 17, (d & a) | (~d & b));
+    ATERM_MD5_STEP(b, c, d, a, words[3], 0xc1bdceee, 22, (c & d) | (~c & a));
     ATERM_MD5_STEP(a, b, c, d, words[4], 0xf57c0faf, 7, (b & c) | (~b & d));
-    ATERM_MD5_STEP(d, a, b, c, words[5], 0x4787c62a, 12, (b & c) | (~b & d));
-    ATERM_MD5_STEP(c, d, a, b, words[6], 0xa8304613, 17, (b & c) | (~b & d));
-    ATERM_MD5_STEP(b, c, d, a, words[7], 0xfd469501, 22, (b & c) | (~b & d));
+    ATERM_MD5_STEP(d, a, b, c, words[5], 0x4787c62a, 12, (a & b) | (~a & c));
+    ATERM_MD5_STEP(c, d, a, b, words[6], 0xa8304613, 17, (d & a) | (~d & b));
+    ATERM_MD5_STEP(b, c, d, a, words[7], 0xfd469501, 22, (c & d) | (~c & a));
     ATERM_MD5_STEP(a, b, c, d, words[8], 0x698098d8, 7, (b & c) | (~b & d));
-    ATERM_MD5_STEP(d, a, b, c, words[9], 0x8b44f7af, 12, (b & c) | (~b & d));
-    ATERM_MD5_STEP(c, d, a, b, words[10], 0xffff5bb1, 17, (b & c) | (~b & d));
-    ATERM_MD5_STEP(b, c, d, a, words[11], 0x895cd7be, 22, (b & c) | (~b & d));
+    ATERM_MD5_STEP(d, a, b, c, words[9], 0x8b44f7af, 12, (a & b) | (~a & c));
+    ATERM_MD5_STEP(c, d, a, b, words[10], 0xffff5bb1, 17, (d & a) | (~d & b));
+    ATERM_MD5_STEP(b, c, d, a, words[11], 0x895cd7be, 22, (c & d) | (~c & a));
     ATERM_MD5_STEP(a, b, c, d, words[12], 0x6b901122, 7, (b & c) | (~b & d));
-    ATERM_MD5_STEP(d, a, b, c, words[13], 0xfd987193, 12, (b & c) | (~b & d));
-    ATERM_MD5_STEP(c, d, a, b, words[14], 0xa679438e, 17, (b & c) | (~b & d));
-    ATERM_MD5_STEP(b, c, d, a, words[15], 0x49b40821, 22, (b & c) | (~b & d));
+    ATERM_MD5_STEP(d, a, b, c, words[13], 0xfd987193, 12, (a & b) | (~a & c));
+    ATERM_MD5_STEP(c, d, a, b, words[14], 0xa679438e, 17, (d & a) | (~d & b));
+    ATERM_MD5_STEP(b, c, d, a, words[15], 0x49b40821, 22, (c & d) | (~c & a));
     ATERM_MD5_STEP(a, b, c, d, words[1], 0xf61e2562, 5, (d & b) | (~d & c));
-    ATERM_MD5_STEP(d, a, b, c, words[6], 0xc040b340, 9, (d & b) | (~d & c));
-    ATERM_MD5_STEP(c, d, a, b, words[11], 0x265e5a51, 14, (d & b) | (~d & c));
-    ATERM_MD5_STEP(b, c, d, a, words[0], 0xe9b6c7aa, 20, (d & b) | (~d & c));
+    ATERM_MD5_STEP(d, a, b, c, words[6], 0xc040b340, 9, (c & a) | (~c & b));
+    ATERM_MD5_STEP(c, d, a, b, words[11], 0x265e5a51, 14, (b & d) | (~b & a));
+    ATERM_MD5_STEP(b, c, d, a, words[0], 0xe9b6c7aa, 20, (a & c) | (~a & d));
     ATERM_MD5_STEP(a, b, c, d, words[5], 0xd62f105d, 5, (d & b) | (~d & c));
-    ATERM_MD5_STEP(d, a, b, c, words[10], 0x02441453, 9, (d & b) | (~d & c));
-    ATERM_MD5_STEP(c, d, a, b, words[15], 0xd8a1e681, 14, (d & b) | (~d & c));
-    ATERM_MD5_STEP(b, c, d, a, words[4], 0xe7d3fbc8, 20, (d & b) | (~d & c));
+    ATERM_MD5_STEP(d, a, b, c, words[10], 0x02441453, 9, (c & a) | (~c & b));
+    ATERM_MD5_STEP(c, d, a, b, words[15], 0xd8a1e681, 14, (b & d) | (~b & a));
+    ATERM_MD5_STEP(b, c, d, a, words[4], 0xe7d3fbc8, 20, (a & c) | (~a & d));
     ATERM_MD5_STEP(a, b, c, d, words[9], 0x21e1cde6, 5, (d & b) | (~d & c));
-    ATERM_MD5_STEP(d, a, b, c, words[14], 0xc33707d6, 9, (d & b) | (~d & c));
-    ATERM_MD5_STEP(c, d, a, b, words[3], 0xf4d50d87, 14, (d & b) | (~d & c));
-    ATERM_MD5_STEP(b, c, d, a, words[8], 0x455a14ed, 20, (d & b) | (~d & c));
+    ATERM_MD5_STEP(d, a, b, c, words[14], 0xc33707d6, 9, (c & a) | (~c & b));
+    ATERM_MD5_STEP(c, d, a, b, words[3], 0xf4d50d87, 14, (b & d) | (~b & a));
+    ATERM_MD5_STEP(b, c, d, a, words[8], 0x455a14ed, 20, (a & c) | (~a & d));
     ATERM_MD5_STEP(a, b, c, d, words[13], 0xa9e3e905, 5, (d & b) | (~d & c));
-    ATERM_MD5_STEP(d, a, b, c, words[2], 0xfcefa3f8, 9, (d & b) | (~d & c));
-    ATERM_MD5_STEP(c, d, a, b, words[7], 0x676f02d9, 14, (d & b) | (~d & c));
-    ATERM_MD5_STEP(b, c, d, a, words[12], 0x8d2a4c8a, 20, (d & b) | (~d & c));
+    ATERM_MD5_STEP(d, a, b, c, words[2], 0xfcefa3f8, 9, (c & a) | (~c & b));
+    ATERM_MD5_STEP(c, d, a, b, words[7], 0x676f02d9, 14, (b & d) | (~b & a));
+    ATERM_MD5_STEP(b, c, d, a, words[12], 0x8d2a4c8a, 20, (a & c) | (~a & d));
     ATERM_MD5_STEP(a, b, c, d, words[5], 0xfffa3942, 4, b ^ c ^ d);
-    ATERM_MD5_STEP(d, a, b, c, words[8], 0x8771f681, 11, b ^ c ^ d);
-    ATERM_MD5_STEP(c, d, a, b, words[11], 0x6d9d6122, 16, b ^ c ^ d);
-    ATERM_MD5_STEP(b, c, d, a, words[14], 0xfde5380c, 23, b ^ c ^ d);
+    ATERM_MD5_STEP(d, a, b, c, words[8], 0x8771f681, 11, a ^ b ^ c);
+    ATERM_MD5_STEP(c, d, a, b, words[11], 0x6d9d6122, 16, d ^ a ^ b);
+    ATERM_MD5_STEP(b, c, d, a, words[14], 0xfde5380c, 23, c ^ d ^ a);
     ATERM_MD5_STEP(a, b, c, d, words[1], 0xa4beea44, 4, b ^ c ^ d);
-    ATERM_MD5_STEP(d, a, b, c, words[4], 0x4bdecfa9, 11, b ^ c ^ d);
-    ATERM_MD5_STEP(c, d, a, b, words[7], 0xf6bb4b60, 16, b ^ c ^ d);
-    ATERM_MD5_STEP(b, c, d, a, words[10], 0xbebfbc70, 23, b ^ c ^ d);
+    ATERM_MD5_STEP(d, a, b, c, words[4], 0x4bdecfa9, 11, a ^ b ^ c);
+    ATERM_MD5_STEP(c, d, a, b, words[7], 0xf6bb4b60, 16, d ^ a ^ b);
+    ATERM_MD5_STEP(b, c, d, a, words[10], 0xbebfbc70, 23, c ^ d ^ a);
     ATERM_MD5_STEP(a, b, c, d, words[13], 0x289b7ec6, 4, b ^ c ^ d);
-    ATERM_MD5_STEP(d, a, b, c, words[0], 0xeaa127fa, 11, b ^ c ^ d);
-    ATERM_MD5_STEP(c, d, a, b, words[3], 0xd4ef3085, 16, b ^ c ^ d);
-    ATERM_MD5_STEP(b, c, d, a, words[6], 0x04881d05, 23, b ^ c ^ d);
+    ATERM_MD5_STEP(d, a, b, c, words[0], 0xeaa127fa, 11, a ^ b ^ c);
+    ATERM_MD5_STEP(c, d, a, b, words[3], 0xd4ef3085, 16, d ^ a ^ b);
+    ATERM_MD5_STEP(b, c, d, a, words[6], 0x04881d05, 23, c ^ d ^ a);
     ATERM_MD5_STEP(a, b, c, d, words[9], 0xd9d4d039, 4, b ^ c ^ d);
-    ATERM_MD5_STEP(d, a, b, c, words[12], 0xe6db99e5, 11, b ^ c ^ d);
-    ATERM_MD5_STEP(c, d, a, b, words[15], 0x1fa27cf8, 16, b ^ c ^ d);
-    ATERM_MD5_STEP(b, c, d, a, words[2], 0xc4ac5665, 23, b ^ c ^ d);
+    ATERM_MD5_STEP(d, a, b, c, words[12], 0xe6db99e5, 11, a ^ b ^ c);
+    ATERM_MD5_STEP(c, d, a, b, words[15], 0x1fa27cf8, 16, d ^ a ^ b);
+    ATERM_MD5_STEP(b, c, d, a, words[2], 0xc4ac5665, 23, c ^ d ^ a);
     ATERM_MD5_STEP(a, b, c, d, words[0], 0xf4292244, 6, c ^ (b | ~d));
-    ATERM_MD5_STEP(d, a, b, c, words[7], 0x432aff97, 10, c ^ (b | ~d));
-    ATERM_MD5_STEP(c, d, a, b, words[14], 0xab9423a7, 15, c ^ (b | ~d));
-    ATERM_MD5_STEP(b, c, d, a, words[5], 0xfc93a039, 21, c ^ (b | ~d));
+    ATERM_MD5_STEP(d, a, b, c, words[7], 0x432aff97, 10, b ^ (a | ~c));
+    ATERM_MD5_STEP(c, d, a, b, words[14], 0xab9423a7, 15, a ^ (d | ~b));
+    ATERM_MD5_STEP(b, c, d, a, words[5], 0xfc93a039, 21, d ^ (c | ~a));
     ATERM_MD5_STEP(a, b, c, d, words[12], 0x655b59c3, 6, c ^ (b | ~d));
-    ATERM_MD5_STEP(d, a, b, c, words[3], 0x8f0ccc92, 10, c ^ (b | ~d));
-    ATERM_MD5_STEP(c, d, a, b, words[10], 0xffeff47d, 15, c ^ (b | ~d));
-    ATERM_MD5_STEP(b, c, d, a, words[1], 0x85845dd1, 21, c ^ (b | ~d));
+    ATERM_MD5_STEP(d, a, b, c, words[3], 0x8f0ccc92, 10, b ^ (a | ~c));
+    ATERM_MD5_STEP(c, d, a, b, words[10], 0xffeff47d, 15, a ^ (d | ~b));
+    ATERM_MD5_STEP(b, c, d, a, words[1], 0x85845dd1, 21, d ^ (c | ~a));
     ATERM_MD5_STEP(a, b, c, d, words[8], 0x6fa87e4f, 6, c ^ (b | ~d));
-    ATERM_MD5_STEP(d, a, b, c, words[15], 0xfe2ce6e0, 10, c ^ (b | ~d));
-    ATERM_MD5_STEP(c, d, a, b, words[6], 0xa3014314, 15, c ^ (b | ~d));
-    ATERM_MD5_STEP(b, c, d, a, words[13], 0x4e0811a1, 21, c ^ (b | ~d));
+    ATERM_MD5_STEP(d, a, b, c, words[15], 0xfe2ce6e0, 10, b ^ (a | ~c));
+    ATERM_MD5_STEP(c, d, a, b, words[6], 0xa3014314, 15, a ^ (d | ~b));
+    ATERM_MD5_STEP(b, c, d, a, words[13], 0x4e0811a1, 21, d ^ (c | ~a));
     ATERM_MD5_STEP(a, b, c, d, words[4], 0xf7537e82, 6, c ^ (b | ~d));
-    ATERM_MD5_STEP(d, a, b, c, words[11], 0xbd3af235, 10, c ^ (b | ~d));
-    ATERM_MD5_STEP(c, d, a, b, words[2], 0x2ad7d2bb, 15, c ^ (b | ~d));
-    ATERM_MD5_STEP(b, c, d, a, words[9], 0xeb86d391, 21, c ^ (b | ~d));
+    ATERM_MD5_STEP(d, a, b, c, words[11], 0xbd3af235, 10, b ^ (a | ~c));
+    ATERM_MD5_STEP(c, d, a, b, words[2], 0x2ad7d2bb, 15, a ^ (d | ~b));
+    ATERM_MD5_STEP(b, c, d, a, words[9], 0xeb86d391, 21, d ^ (c | ~a));
 
     state[0] += a;
     state[1] += b;
@@ -2252,7 +2376,7 @@ int ATERMi_ApConfigStart(OSPriority priority, u32 scanLimit,
                                        (__mulhwu(0x10624DD3, OS_BUS_CLOCK >> 2) >> 6));
     }
     progress.result = gAtermResult;
-    progressCallback(&progress);
+    gAtermProgressCallback(&progress);
     OSResumeThread(&sAtermThread);
     gAtermThreadStarted = 1;
     return 1;
