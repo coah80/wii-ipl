@@ -138,7 +138,25 @@ static s32 Vdac_Flag_Region;
 static s32 __type;
 static s32 __gamma;
 static s32 __level;
-u32 Vdac_Flag_Changed_816991E0;
+volatile u32 Vdac_Flag_Changed_816991E0;
+
+static void __VISetCCSEL(u8 flag) {
+    u8 data[2];
+
+    data[0] = 0x6a;
+    data[1] = TRUE;
+    __VISendI2CData(0xe0, data, sizeof(data));
+    WaitMicroTime(2);
+}
+
+static void __VISetOverSampling(u8 flag) {
+    u8 data[2];
+
+    data[0] = 0x65;
+    data[1] = TRUE;
+    __VISendI2CData(0xe0, data, sizeof(data));
+    WaitMicroTime(2);
+}
 
 void __VISetVolume(u8 wd0, u8 wd1) {
     u8 data[3];
@@ -233,36 +251,38 @@ void __VISetClosedCaption(void) {
     WaitMicroTime(2);
 }
 
+typedef const u8* __VIMacrovisionImm;
+static void __VISetMacrovisionImm(__VIMacrovisionImm macrovisionImm)
+{
+    u8 data[0x1a + 1];
+    u8 i;
+
+    data[0] = 0x40;
+    for (i = 1; i < sizeof(data); i++) {
+        data[i] = macrovisionImm[i - 1];
+    }
+    __VISendI2CData(0xe0, data, sizeof(data));
+    WaitMicroTime(2);
+}
+
 void __VISetMacrovision(void) {
     switch (__type) {
     case 2:
         switch (__tvType) {
         case 0: {
-            u8 data[0x1b];
-            COPY_ACP(data, VINtscACPType1);
-            __VISendI2CData(0xe0, data, 0x1b);
-            WaitMicroTime(2);
+            __VISetMacrovisionImm(VINtscACPType1);
             break;
         }
         case 1: {
-            u8 data[0x1b];
-            COPY_ACP(data, VIPalACPType1);
-            __VISendI2CData(0xe0, data, 0x1b);
-            WaitMicroTime(2);
+            __VISetMacrovisionImm(VIPalACPType1);
             break;
         }
         case 2: {
-            u8 data[0x1b];
-            COPY_ACP(data, VIMpalACPType1);
-            __VISendI2CData(0xe0, data, 0x1b);
-            WaitMicroTime(2);
+            __VISetMacrovisionImm(VIMpalACPType1);
             break;
         }
         case 5: {
-            u8 data[0x1b];
-            COPY_ACP(data, VIEurgb60ACPType1);
-            __VISendI2CData(0xe0, data, 0x1b);
-            WaitMicroTime(2);
+            __VISetMacrovisionImm(VIEurgb60ACPType1);
             break;
         }
         }
@@ -270,31 +290,19 @@ void __VISetMacrovision(void) {
     case 3:
         switch (__tvType) {
         case 0: {
-            u8 data[0x1b];
-            COPY_ACP(data, VINtscACPType2);
-            __VISendI2CData(0xe0, data, 0x1b);
-            WaitMicroTime(2);
+            __VISetMacrovisionImm(VINtscACPType2);
             break;
         }
         case 1: {
-            u8 data[0x1b];
-            COPY_ACP(data, VIPalACPType2);
-            __VISendI2CData(0xe0, data, 0x1b);
-            WaitMicroTime(2);
+            __VISetMacrovisionImm(VIPalACPType2);
             break;
         }
         case 2: {
-            u8 data[0x1b];
-            COPY_ACP(data, VIMpalACPType2);
-            __VISendI2CData(0xe0, data, 0x1b);
-            WaitMicroTime(2);
+            __VISetMacrovisionImm(VIMpalACPType2);
             break;
         }
         case 5: {
-            u8 data[0x1b];
-            COPY_ACP(data, VIEurgb60ACPType2);
-            __VISendI2CData(0xe0, data, 0x1b);
-            WaitMicroTime(2);
+            __VISetMacrovisionImm(VIEurgb60ACPType2);
             break;
         }
         }
@@ -302,103 +310,74 @@ void __VISetMacrovision(void) {
     case 4:
         switch (__tvType) {
         case 0: {
-            u8 data[0x1b];
-            COPY_ACP(data, VINtscACPType3);
-            __VISendI2CData(0xe0, data, 0x1b);
-            WaitMicroTime(2);
+            __VISetMacrovisionImm(VINtscACPType3);
             break;
         }
         case 1: {
-            u8 data[0x1b];
-            COPY_ACP(data, VIPalACPType3);
-            __VISendI2CData(0xe0, data, 0x1b);
-            WaitMicroTime(2);
+            __VISetMacrovisionImm(VIPalACPType3);
             break;
         }
         case 2: {
-            u8 data[0x1b];
-            COPY_ACP(data, VIMpalACPType3);
-            __VISendI2CData(0xe0, data, 0x1b);
-            WaitMicroTime(2);
+            __VISetMacrovisionImm(VIMpalACPType3);
             break;
         }
         case 5: {
-            u8 data[0x1b];
-            COPY_ACP(data, VIEurgb60ACPType3);
-            __VISendI2CData(0xe0, data, 0x1b);
-            WaitMicroTime(2);
+            __VISetMacrovisionImm(VIEurgb60ACPType3);
             break;
         }
         }
         break;
     case 1: {
-        u8 data[0x1b];
-        COPY_ACP(data, VIZeroACPType);
-        __VISendI2CData(0xe0, data, 0x1b);
-        WaitMicroTime(2);
+        __VISetMacrovisionImm(VIZeroACPType);
         break;
     }
     }
 }
 
-void VISetMacrovision(s32 type) {
-    u8 oldType;
-    u8 oldWd2;
-    u8 oldWd0;
-    u8 mode;
-    u32 volume;
-    u8 newType;
-    u8 newWd2;
-    s32 tvFormat;
-
-    mode = 0;
-    volume = 0;
-    oldWd0 = __wd0;
-    oldType = __wd1;
-    oldWd2 = __wd2;
-    newType = oldType;
-    if (type == 3) {
-        goto type3;
-    }
-    if (type < 3) {
-        if (type == 1) {
-            goto type1;
-        } else if (type >= 1) {
-            goto type2;
-        }
-        goto done;
-    }
-    if (type >= 5) {
-        goto done;
-    }
-    goto type5;
-type1:
-    mode = 0;
-    volume = 0;
-    goto done;
-type2:
-    mode = 2;
-    volume = 3;
-    newType = 0;
-    goto done;
-type3:
-    mode = 1;
-    volume = 3;
-    newType = 0;
-    goto done;
-type5:
-    mode = 3;
-    volume = 3;
-    newType = 0;
-done:
-    volume |= oldWd2 & 0xf0;
-    newWd2 = volume | mode << 2;
-    if ((oldType != newType) || (oldWd2 != newWd2)) {
-        __wd0 = oldWd0;
-        __wd1 = newType;
-        __wd2 = newWd2;
+void VISetCGMS(u8 wd0, u8 wd1, u8 wd2) {
+    if (__wd0 != wd0 || __wd1 != wd1 || __wd2 != wd2) {
+        __wd0 = wd0;
+        __wd1 = wd1;
+        __wd2 = wd2;
         Vdac_Flag_Changed_816991E0 |= 1;
     }
+}
+
+void VISetMacrovision(s32 type) {
+    u32 tvFormat;
+    u8 mode = 0;
+    u8 volume = 0;
+    u8 wd0 = __wd0;
+    u8 wd1 = __wd1;
+    u8 wd2 = __wd2;
+
+    switch (type) {
+        case 1:
+            mode = 0;
+            volume = 0;
+            break;
+        case 2:
+            mode = 2;
+            volume = 3;
+            wd1 = 0;
+            break;
+        case 3:
+            mode = 1;
+            volume = 3;
+            wd1 = 0;
+            break;
+        case 4:
+            mode = 3;
+            volume = 3;
+            wd1 = 0;
+            break;
+        default:
+            break;
+    }
+    wd2 = wd2 & 0xF0;
+    wd2 = (wd2 | (mode << 2)) | volume;
+    VISetCGMS(wd0, wd1, wd2);
+
     tvFormat = VIGetTvFormat();
     if ((__type != type) || (__tvType != tvFormat)) {
         __type = type;
@@ -578,101 +557,90 @@ void __VISetRevolutionMode(void) {
     WaitMicroTime(2);
 }
 
-void __VISetRevolutionModeSimple(void) {
-    u32 i;
-    u8 powerCommand[2];
-    u8 clockCommand[2];
-    u8 outputCommand[2];
-    u8 volumeCommand[3];
-    u8 syncCommand[2];
-    u8 cgmsCommand[3];
-    u8 wssCommand[3];
-    u8 captionCommand[5];
-    u8 acpCommand[0x1c];
-    u8 driveCommand[2];
-    u8 filterCommand[2];
+void __VISetTiming(s32 timing) {
+    u8 data[2];
 
-    powerCommand[0] = 0x6a;
-    powerCommand[1] = 1;
-    __VISendI2CData(0xe0, powerCommand, 2);
+    data[0] = 0;
+    data[1] = (u8)timing;
+    __VISendI2CData(0xe0, data, sizeof(data));
     WaitMicroTime(2);
-    clockCommand[0] = 0x65;
-    clockCommand[1] = 1;
-    __VISendI2CData(0xe0, clockCommand, 2);
+}
+
+void __VISetVBICtrl(u8 arg0, u8 arg1, u8 arg2) {
+    u8 data[2];
+
+    data[0] = 2;
+    data[1] = (~arg2 & 1) | (((~arg1 & 1) << 2) | ((~arg0 & 1) << 1));
+    __VISendI2CData(0xe0, data, sizeof(data));
     WaitMicroTime(2);
-    __VISetYUVSEL(VIGetDTVStatus());
-    outputCommand[0] = 0;
-    outputCommand[1] = 0;
-    __VISendI2CData(0xe0, outputCommand, 2);
-    WaitMicroTime(2);
-    volumeCommand[0] = 0x71;
-    volumeCommand[1] = 0x8e;
-    volumeCommand[2] = 0x8e;
-    __VISendI2CData(0xe0, volumeCommand, 3);
-    WaitMicroTime(2);
-    syncCommand[0] = 2;
-    syncCommand[1] = 7;
-    __VISendI2CData(0xe0, syncCommand, 2);
-    WaitMicroTime(2);
+}
+
+void __VISetCGMSClear(void) {
     __wd0 = 0;
     __wd1 = 0;
     __wd2 = 0;
-    cgmsCommand[0] = 5;
-    cgmsCommand[1] = 0;
-    cgmsCommand[2] = 0;
-    __VISendI2CData(0xe0, cgmsCommand, 3);
-    WaitMicroTime(2);
-    if ((__gp1 != 0) || (__gp2 != 0) || (__gp3 != 0) || (__gp4 != 0)) {
-        __gp1 = 0;
-        __gp2 = 0;
-        __gp3 = 0;
-        __gp4 = 0;
+    __VISetCGMS();
+}
+
+void VISetWSS(u8 gp1, u8 gp2, u8 gp3, u8 gp4) {
+    if (__gp1 != gp1 || __gp2 != gp2 || __gp3 != gp3 || __gp4 != gp4) {
+        __gp1 = gp1;
+        __gp2 = gp2;
+        __gp3 = gp3;
+        __gp4 = gp4;
         Vdac_Flag_Changed_816991E0 |= 2;
     }
-    wssCommand[0] = 8;
-    wssCommand[1] = (__gp2 & 0xf) << 4 | __gp1 & 0xf;
-    wssCommand[2] = (__gp4 & 7) << 3 | __gp3 & 7;
-    __VISendI2CData(0xe0, wssCommand, 3);
-    WaitMicroTime(2);
-    if ((__cc1 != 0) || (__cc2 != 0) || (__cc3 != 0) || (__cc4 != 0)) {
-        __cc1 = 0;
-        __cc2 = 0;
-        __cc3 = 0;
-        __cc4 = 0;
+}
+
+void VISetClosedCaption(u8 cc1, u8 cc2, u8 cc3, u8 cc4) {
+    if (__cc1 != cc1 || __cc2 != cc2 || __cc3 != cc3 || __cc4 != cc4) {
+        __cc1 = cc1;
+        __cc2 = cc2;
+        __cc3 = cc3;
+        __cc4 = cc4;
         Vdac_Flag_Changed_816991E0 |= 4;
     }
-    captionCommand[0] = 0x7a;
-    captionCommand[1] = __cc1 & 0x7f;
-    captionCommand[2] = __cc2 & 0x7f;
-    captionCommand[3] = __cc3 & 0x7f;
-    captionCommand[4] = __cc4 & 0x7f;
-    __VISendI2CData(0xe0, captionCommand, 5);
-    WaitMicroTime(2);
-    for (i = 0; i < 0x1a; i++) {
-        acpCommand[i + 1] = VIZeroACPType[i];
-    }
-    acpCommand[0] = 0x40;
-    __VISendI2CData(0xe0, acpCommand, 0x1b);
-    WaitMicroTime(2);
-    if (__level != 0) {
-        __level = 0;
+}
+
+void VISetRGBOverDrive(s32 level) {
+    if (__level != level) {
+        __level = level;
         Vdac_Flag_Changed_816991E0 |= 0x40;
     }
-    if (Vdac_Flag_Region == 3) {
-        driveCommand[0] = 10;
-        driveCommand[1] = __level << 1 | 1;
-        __VISendI2CData(0xe0, driveCommand, 2);
-        WaitMicroTime(2);
+}
+
+void __VISetTrapFilterImm(u8 flag) {
+    u8 data[2];
+
+    data[0] = 3;
+    if (flag == TRUE) {
+        data[1] = 0;
     } else {
-        driveCommand[0] = 10;
-        driveCommand[1] = 0;
-        __VISendI2CData(0xe0, driveCommand, 2);
-        WaitMicroTime(2);
+        data[1] = 1;
     }
-    filterCommand[0] = 3;
-    filterCommand[1] = 1;
-    __VISendI2CData(0xe0, filterCommand, 2);
+    __VISendI2CData(0xe0, data, sizeof(data));
     WaitMicroTime(2);
+}
+
+void __VISetRevolutionModeSimple(void) {
+    u32 dtvStatus;
+
+    __VISetCCSEL(TRUE);
+    __VISetOverSampling(TRUE);
+    dtvStatus = VIGetDTVStatus();
+    __VISetYUVSEL(dtvStatus);
+    __VISetTiming(0);
+    __VISetVolume(142, 142);
+    __VISetVBICtrl(0, 0, 0);
+    __VISetCGMSClear();
+    VISetWSS(0, 0, 0, 0);
+    __VISetWSS();
+    VISetClosedCaption(0, 0, 0, 0);
+    __VISetClosedCaption();
+    __VISetMacrovisionImm(VIZeroACPType);
+    VISetRGBOverDrive(0);
+    __VISetRGBOverDrive();
+    __VISetTrapFilterImm(0);
     __VISetGammaImm(gammaSet[10]);
 }
 

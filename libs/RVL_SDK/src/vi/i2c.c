@@ -2,7 +2,7 @@
 #include <private/os/OSTime.h>
 #include <private/bus.h>
 
-static int __i2c_ident_flag = 1;
+static volatile int __i2c_ident_flag = 1;
 static u32 __i2c_ident_first;
 
 #define I2C_OUT 0xCD8000C0
