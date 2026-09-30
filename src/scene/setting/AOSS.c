@@ -587,13 +587,8 @@ int AOSS_Init_old(AOSSInitInput* input)
           memcpy(settings.manufacturer,s_manufacturer,settings.manufacturerLength);
         }
         state = AOSSi_SetNCDIPAddr(0xc0a80b65,0xffffff00,0xc0a80b01,0,0);
-        if (state == 0) {
-          s_accessPointConfig = (int *)AOSSi_Alloc(0x58);
-          if ((s32)s_accessPointConfig != 0) {
-            memset(s_accessPointConfig,0,0x58);
-            attemptCount = 0;
-            goto LAB_00011698;
-          }
+        if (state != 0) {
+          s_errorCode = 0xc;
           input->status = 0xf;
           if ((s32)s_accessPointConfig != 0) {
             AOSSi_Free(s_accessPointConfig);
@@ -606,17 +601,24 @@ int AOSS_Init_old(AOSSInitInput* input)
           resultCode = 0xffffffff;
         }
         else {
-          s_errorCode = 0xc;
-          input->status = 0xf;
-          if ((s32)s_accessPointConfig != 0) {
-            AOSSi_Free(s_accessPointConfig);
-            s_accessPointConfig = NULL;
+          s_accessPointConfig = (int *)AOSSi_Alloc(0x58);
+          if ((s32)s_accessPointConfig == 0) {
+            input->status = 0xf;
+            if ((s32)s_accessPointConfig != 0) {
+              AOSSi_Free(s_accessPointConfig);
+              s_accessPointConfig = NULL;
+            }
+            if ((s32)s_accessPointList != 0) {
+              AOSSi_Free(s_accessPointList);
+              s_accessPointList = 0;
+            }
+            resultCode = 0xffffffff;
           }
-          if ((s32)s_accessPointList != 0) {
-            AOSSi_Free(s_accessPointList);
-            s_accessPointList = 0;
+          else {
+            memset(s_accessPointConfig,0,0x58);
+            attemptCount = 0;
+            goto LAB_00011698;
           }
-          resultCode = 0xffffffff;
         }
         goto LAB_00012878;
       }
@@ -757,6 +759,19 @@ LAB_000116a4:
       socketAddress.port = SOHtoNs(0x5790);
       socketAddress.length = 8;
       state = SOBind(s_socket,&socketAddress);
+      if (state == -1) {
+        input->status = 0xf;
+        if ((s32)s_accessPointConfig != 0) {
+          AOSSi_Free(s_accessPointConfig);
+          s_accessPointConfig = NULL;
+        }
+        if ((s32)s_accessPointList != 0) {
+          AOSSi_Free(s_accessPointList);
+          s_accessPointList = 0;
+        }
+        resultCode = 0xffffffff;
+        goto LAB_00012878;
+      }
       if (-1 < state) {
         attemptCount = waitSettings.halfwords.high;
         settings.gatewayAddress = 0xc0a80b65;
@@ -923,25 +938,23 @@ LAB_00011958:
             }
           }
           requestResult = s_socket;
-          if (state == 1) {
+          if (state == 0) {
+            if (s_operationState != 2) {
+              s_operationState = 2;
+              AOSSi_Status(2);
+            }
+            requestResult = AOSS_81401574(networkAddresses,&requestRecords,requestResult);
+          }
+          else if (state == 1) {
             if (s_operationState != 3) {
               s_operationState = 3;
               AOSSi_Status(3);
             }
             requestResult = AOSS_81401778(networkAddresses,&requestRecords,requestResult);
           }
-          else if (state < 1) {
-            if (state < 0) {
+          else if (state < 0) {
 LAB_00011e70:
-              requestResult = -1;
-            }
-            else {
-              if (s_operationState != 2) {
-                s_operationState = 2;
-                AOSSi_Status(2);
-              }
-              requestResult = AOSS_81401574(networkAddresses,&requestRecords,requestResult);
-            }
+            requestResult = -1;
           }
           else {
             if (2 < state) goto LAB_00011e70;
@@ -949,13 +962,11 @@ LAB_00011e70:
               s_operationState = 5;
               AOSSi_Status(5);
             }
-            packetWords = s_responseBuffer;
             memset(s_responseBuffer,0,0x5dc);
             memcpy(messageIdentity,&requestRecords.records[2],8);
-            manufacturerLength = strlen(s_manufacturer);
-            AOSS_81401E80(messageIdentity,8,s_manufacturer,manufacturerLength);
-            receivedLength = SOHtoNs(1);
-            packetWords->initialLength = receivedLength;
+            AOSS_81401E80(messageIdentity,8,s_manufacturer,strlen(s_manufacturer));
+            packetWords = (AOSSPacketHeader*)s_responseBuffer;
+            packetWords->initialLength = SOHtoNs(1);
             packetWords->initialType = 0;
             packetWords->initialSequence = 0;
             packetWords->responseLength = SOHtoNs(0x3000);
@@ -1096,14 +1107,10 @@ LAB_00012088:
       s_socket = -1;
       if (s_socketStarted == 1) {
         s_socketStarted = 0;
-        state = SOCleanup();
-        if (state < 0) {
-          state = -1;
-          goto LAB_00012148;
-        }
+        state = SOCleanup() < 0 ? -1 : 0;
+      } else {
+        state = 0;
       }
-      state = 0;
-LAB_00012148:
       if (state != 0) {
         input->status = 0xf;
         if ((s32)s_accessPointConfig != 0) {
@@ -1279,7 +1286,19 @@ LAB_00012148:
       socketAddress.length = 8;
       timeoutSeconds = SOBind(s_socket,&socketAddress);
       state = requestResult;
-      if (timeoutSeconds < 0) goto code_r0x00012580;
+      if (timeoutSeconds == -1) {
+        input->status = 0xf;
+        if ((s32)s_accessPointConfig != 0) {
+          AOSSi_Free(s_accessPointConfig);
+          s_accessPointConfig = NULL;
+        }
+        if ((s32)s_accessPointList != 0) {
+          AOSSi_Free(s_accessPointList);
+          s_accessPointList = 0;
+        }
+        resultCode = 0xffffffff;
+        goto LAB_00012878;
+      }
       goto LAB_000118e8;
     }
     retryWait = waitSettings.value;
@@ -1336,18 +1355,6 @@ LAB_00012148:
     timeoutMilliseconds = -1;
     goto LAB_000126f0;
   }
-code_r0x00012580:
-  input->status = 0xf;
-  if ((s32)s_accessPointConfig != 0) {
-    AOSSi_Free(s_accessPointConfig);
-    s_accessPointConfig = NULL;
-  }
-  if ((s32)s_accessPointList != 0) {
-    AOSSi_Free(s_accessPointList);
-    s_accessPointList = 0;
-  }
-  resultCode = 0xffffffff;
-  goto LAB_00012878;
 LAB_000126f0:
   if (s_socket != -1) {
     SOClose(s_socket);
