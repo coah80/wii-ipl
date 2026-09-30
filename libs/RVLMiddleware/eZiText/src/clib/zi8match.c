@@ -289,7 +289,7 @@ ziBool Zi8SecMatchComp(ziPtr nodeAddress, ziMatchParam* matchAddress, ziPtr dict
 extern ziU16 Zi8MatchAltSound(ziPtr soundTable, ziU16 soundCode, ziPtr pCodeTable, ziU16 index, ziU16 mask, ziU16 value, ziU8 flag ZI_NEED_WORK);
 ziU16 Zi8GetPCode(ziU8* table, ziU8* node);
 
-ziBool Zi8MatchPhonetic(ziPtr pCodeTable, ziPtr dictionary, ziPtr soundTable, ziU16 soundCode, ziU32 tableAddress, ziU8* node, ziU16* masks, ziU16* values, ziU16* count, ziU8** resultNode, ziU8** stringOffset, ziS8 partialMode, ziU8 strictMode, ziU8 numParts, ziU16 partMask, ziU16 partValue, ziU8 flag, ziU8 altMode, ziU16 initialCode, ziU16* resultCode, ziU8 lastMode ZI_NEED_WORK) {
+ziBool Zi8MatchPhonetic(ziPtr pCodeTable, ziPtr dictionary, ziPtr soundTable, ziU16 soundCode, ziU32 tableAddress, ziU8* node, ziU16* masks, ziU16* values, ziU16* count, ziU8** resultNode, ziU8** stringOffset, ziU8 partialMode, ziU8 strictMode, ziU8 numParts, ziU16 partMask, ziU16 partValue, ziU8 flag, ziU8 altMode, ziU16 initialCode, ziU16* resultCode, ziU8 lastMode ZI_NEED_WORK) {
     struct {
         ziBool hasString;
         ziU8 partIndex;
@@ -302,6 +302,10 @@ ziBool Zi8MatchPhonetic(ziPtr pCodeTable, ziPtr dictionary, ziPtr soundTable, zi
         ziU16 code;
     } traversal;
     ziU8* sound;
+    typedef struct {
+        ziU8 header;
+        ziU8 content[11];
+    } DictionaryNode;
 
     if (*stringOffset != 0) {
         traversal.hasString = 1;
@@ -336,7 +340,12 @@ decode_node:
 match_code:
         if (partValue == (traversal.code & partMask)) goto next_node;
         traversal.matchedParts = 1;
-        sound = (ziU8*)(((node[9] & 0xF) * 0x10000 + node[0xB]) + (tableAddress + node[0xA] * 0x100));
+        if (*count != 0) {
+            traversal.soundIndex = (initialCode - traversal.remaining) - 1;
+        } else {
+            traversal.soundIndex = initialCode;
+        }
+        sound = (ziU8*)(tableAddress + node[0xA] * 0x100 + ((node[9] & 0xF) * 0x10000 + node[0xB]));
         if (ZI_WORK->unk_0x16 != 0) {
             switch (sound[0] & 7) {
             case 2:
@@ -377,7 +386,7 @@ match_code:
             }
             for (; traversal.partCount != 0; traversal.partCount--) {
                 traversal.partIndex = 1;
-                if (traversal.hasString && (*stringOffset < sound)) {
+                if (traversal.hasString && (sound > *stringOffset)) {
                     traversal.hasString = 0;
                 }
                 if (!traversal.hasString) {
@@ -389,17 +398,27 @@ match_code:
                     if (traversal.hasString) {
                         goto phonetic_skip;
                     }
-                    traversal.code = Zi8GetPCode((ziU8*)pCodeTable, (ziU8*)dictionary + (traversal.dictionaryIndex & 0x7FFF) * 0xC);
-                    if (((traversal.code & masks[traversal.partIndex]) != values[traversal.partIndex]) && (altMode == 0) && (((ziU8*)dictionary)[(traversal.dictionaryIndex & 0x7FFF) * 0xC] & 0x80) != 0) {
+                    traversal.code = Zi8GetPCode((ziU8*)pCodeTable, (ziU8*)&((DictionaryNode*)dictionary)[traversal.dictionaryIndex & 0x7FFF]);
+                    if (((traversal.code & masks[traversal.partIndex]) != values[traversal.partIndex]) && (altMode == 0) && (((DictionaryNode*)dictionary)[traversal.dictionaryIndex & 0x7FFF].header & 0x80) != 0) {
                         traversal.code = Zi8MatchAltSound(soundTable, soundCode, pCodeTable, traversal.dictionaryIndex & 0x7FFF, masks[traversal.partIndex], values[traversal.partIndex], flag, ZI_WORK);
                     }
-                    if ((traversal.code & masks[traversal.partIndex]) != values[traversal.partIndex]) {
-                        goto phonetic_skip;
+                    if ((traversal.code & masks[traversal.partIndex]) == values[traversal.partIndex]) {
+                        goto phonetic_matched;
                     }
-                    traversal.partIndex++;
-                    if (traversal.partIndex == numParts) {
-                        if ((partialMode != 0) && ((strictMode == 0 && (traversal.dictionaryIndex & 0x8000) != 0) || (strictMode != 0 && (traversal.dictionaryIndex & 0x8000) == 0))) {
-                            goto phonetic_skip;
+phonetic_skip:
+                    if ((traversal.dictionaryIndex & 0x8000) == 0) {
+                        sound++;
+                        while ((*sound & 0x80) == 0) {
+                            sound += 2;
+                        }
+                        sound++;
+                    }
+                    break;
+phonetic_matched:
+                    if (++traversal.partIndex == numParts) {
+                        if (partialMode != 0) {
+                            if (strictMode == 0 && (traversal.dictionaryIndex & 0x8000) != 0) goto phonetic_skip;
+                            if (strictMode != 0 && (traversal.dictionaryIndex & 0x8000) == 0) goto phonetic_skip;
                         }
                         *resultNode = node;
                         *resultCode = ((ziU16)node[6] << 8) + node[7];
@@ -407,15 +426,6 @@ match_code:
                         return 1;
                     }
                 } while ((traversal.dictionaryIndex & 0x8000) == 0);
-                continue;
-phonetic_skip:
-                if ((traversal.dictionaryIndex & 0x8000) == 0) {
-                    sound++;
-                    while ((*sound & 0x80) == 0) {
-                        sound += 2;
-                    }
-                    sound++;
-                }
             }
         } while ((traversal.nextCode & 0x80) == 0);
 
@@ -430,22 +440,22 @@ check_code:
 ziBool Zi8GetPyFinal(ziU8* pinyin, ziU8* initial, ziU8* final);
 
 ziU8 Zi8GetPyPhonetic(ziWChar* text, ziU8 count, ziU16* initial, ziU16* final, ziU8* resultCount, ziU16* bestInitial, ziU16* bestFinal ZI_NEED_WORK) {
-    ziU8 firstInitial;
-    ziU8 pyFinal;
     ziU8 pyInitial;
+    ziU8 pyFinal;
     ziU8 convertedCount;
-    ziBool partial;
     ziU8 result;
+    ziBool partial;
+    ziBool alternateInitial;
     ziU8 outputIndex;
-    ziU16 value;
     ziU8 index;
+    ziU16 value;
     ziWChar converted[256];
-    ziWChar* current;
     ziU8 pinyin[12];
+    ziWChar* current;
 
     current = converted;
+    alternateInitial = 0;
     result = 0;
-    partial = 0;
     *resultCount = 0;
     if (count == 0) {
         Zi8LogError(0x135, ZI_WORK);
@@ -456,21 +466,19 @@ ziU8 Zi8GetPyPhonetic(ziWChar* text, ziU8 count, ziU16* initial, ziU16* final, z
     for (; index < count; index++) {
         if (((text[index] >= 0xF341) && (text[index] <= 0xF35A)) || ((text[index] >= 0x41) && (text[index] <= 0x5A))) {
             if ((convertedCount != 0) && (current[convertedCount - 1] != 0xF360) && (current[convertedCount - 1] != 0x27)) {
-                current[convertedCount] = 0x27;
-                convertedCount++;
+                current[convertedCount++] = 0x27;
             }
-            current[convertedCount] = (text[index] & 0xFF) + 0x20;
+            current[convertedCount++] = (text[index] & 0xFF) + 0x20;
         } else {
-            current[convertedCount] = text[index];
+            current[convertedCount++] = text[index];
         }
-        convertedCount++;
     }
 
     count = convertedCount;
     outputIndex = 0;
     *bestInitial = 0;
     *bestFinal = 0;
-    while ((outputIndex < 0x10) && (count != 0)) {
+    while ((outputIndex <= 0xf) && (count != 0)) {
         initial[outputIndex] = 0;
         final[outputIndex] = 0;
         value = *current;
@@ -484,41 +492,44 @@ check_pinyin_extension:
         if (value < 0xF361) {
             goto invalid_pinyin;
         }
-        if (value <= 0xF37A) {
-            value += 0xC9F;
-            goto pinyin_initial;
-        }
+        if (value <= 0xF37A) goto pinyin_extension;
 invalid_pinyin:
-        initial[0] = 0xFFFF;
-        final[0] = 0xFFFF;
-        *bestInitial = 0xFFFF;
-        *bestFinal = 0xFFFF;
+        *bestInitial = *bestFinal = initial[0] = final[0] = 0xFFFF;
         return 1;
+pinyin_extension:
+        value -= 0xF361;
+        goto pinyin_initial;
 pinyin_ascii:
         value -= 0x61;
 pinyin_initial:
-        firstInitial = Zi8PinyinInitials[value];
-        if (firstInitial != 0) {
+        convertedCount = Zi8PinyinInitials[value];
+        if (convertedCount != 0) {
             if (outputIndex == 0) {
                 *resultCount = *resultCount + 1;
             }
             result++;
             initial[outputIndex] = 0x7E00;
-            final[outputIndex] = (ziU16)firstInitial << 9;
-            *bestInitial = initial[outputIndex];
-            *bestFinal = final[outputIndex];
+            final[outputIndex] = (ziU16)(convertedCount & 0x7f) << 9;
+            *bestInitial = initial[0];
+            *bestFinal = final[0];
             count--;
             if (count == 0) {
                 break;
             }
             current += 1;
-            if (((firstInitial & 0x80) != 0) && ((current[0] == 0x68) || (current[0] == 0xF368))) {
+            if ((convertedCount & 0x80) != 0) {
+                if (alternateInitial) {
+                    initial[outputIndex] &= 0xfdff;
+                    final[outputIndex] &= 0xfdff;
+                }
+                value = *current;
+                if (value != 0x68 && value != 0xF368) goto scan_final;
                 if (outputIndex == 0) {
                     *resultCount = *resultCount + 1;
                 }
                 final[outputIndex] += 0x200;
-                *bestInitial = initial[outputIndex];
-                *bestFinal = final[outputIndex];
+                *bestInitial = initial[0];
+                *bestFinal = final[0];
                 count--;
                 if (count == 0) {
                     break;
@@ -528,80 +539,80 @@ pinyin_initial:
         } else if ((*current == 0xF369) || (*current == 0x69)) {
             goto invalid_pinyin;
         }
+scan_final:
         partial = 0;
         for (index = 0; index < 4; index++) {
             pinyin[index] = 0;
         }
         index = 0;
-        do {
-            while (1) {
-                if (index > 3) {
-                    goto finish_final;
+        while (index < 4) {
+            value = *current;
+            if ((value == 0x27) || (value == 0xF360) || (value == 0x20)) {
+                if (index != 0) {
+                    partial = 1;
                 }
-                value = *current;
-                if ((value == 0x27) || (value == 0xF360) || (value == 0x20)) {
-                    if (index != 0) {
-                        partial = 1;
-                    }
-                    goto finish_final;
-                }
-                if ((value > 0xF330) && (value < 0xF336)) {
-                    if (index != 0) {
-                        partial = 1;
-                    }
-                    goto finish_final;
-                }
-                if ((value < 0x61) || (value > 0x7A)) {
-                    if (value < 0xF361) {
-                        goto finish_final;
-                    }
-                    value += 0xC9F;
-                    if (value > 0x19) {
-                        if (outputIndex == 0) {
-                            *resultCount = *resultCount + 1;
-                        }
-                        goto finish_final;
-                    }
-                } else {
-                    value -= 0x61;
-                }
-                pinyin[index] = (ziU8)value + 1;
-                if (Zi8GetPyFinal(pinyin, &pyInitial, &pyFinal) == 0) {
-                    break;
-                }
-                if (outputIndex == 0) {
-                    *resultCount = *resultCount + 1;
-                }
-                current++;
-                index++;
-                count--;
-                if (count == 0) {
-                    goto finish_final;
-                }
+                goto finish_final;
             }
-            if (index > 2) {
-                pinyin[index] = 0;
-                partial = 1;
-                break;
+            if ((value >= 0xF331) && (value < 0xF336)) {
+                if (index != 0) {
+                    partial = 1;
+                }
+                goto finish_final;
             }
-            pinyin[index + 1] = 0xFF;
-            if (Zi8GetPyFinal(pinyin, &pyInitial, &pyFinal) == 0) {
-                pinyin[index + 1] = 0;
-                pinyin[index] = 0;
-                partial = 1;
-                break;
+            if ((value < 0x61) || (value > 0x7A)) {
+                if (value < 0xF361) {
+                    goto finish_final;
+                }
+                value -= 0xF361;
+                if (value > 0x19) {
+                    if (outputIndex == 0) {
+                        *resultCount = *resultCount + 1;
+                    }
+                    goto finish_final;
+                }
+            } else {
+                value -= 0x61;
             }
+            pinyin[index] = (ziU8)value + 1;
+            if (Zi8GetPyFinal(pinyin, &pyInitial, &pyFinal) == 0) goto try_final_extension;
             if (outputIndex == 0) {
                 *resultCount = *resultCount + 1;
             }
-            pinyin[index + 1] = 0;
             current++;
             index++;
             count--;
-        } while (count != 0);
+            if (count == 0) {
+                goto finish_final;
+            }
+            continue;
+try_final_extension:
+
+            if (index < 3) {
+                pinyin[index + 1] = 0xFF;
+                if (Zi8GetPyFinal(pinyin, &pyInitial, &pyFinal) != 0) {
+                    if (outputIndex == 0) {
+                        *resultCount = *resultCount + 1;
+                    }
+                    pinyin[index + 1] = 0;
+                    current++;
+                    index++;
+                    count--;
+                    if (count == 0) break;
+                } else {
+                    pinyin[index + 1] = 0;
+                    pinyin[index] = 0;
+                    partial = 1;
+                    break;
+                }
+            } else {
+                pinyin[index] = 0;
+                partial = 1;
+                break;
+            }
+        }
 
 finish_final:
-        if ((index > 3) && (count != 0) && ((*current == 0x27) || (*current == 0xF360) || (*current == 0x20))) {
+        if ((index > 3) && (count != 0) && (((value = *current) == 0x27) || (value == 0xF360) || (value == 0x20))) {
             if (outputIndex == 0) {
                 *resultCount = *resultCount + 1;
             }
@@ -611,35 +622,38 @@ finish_final:
         if (index > 3) {
             partial = 1;
         }
-        if (!partial) {
-            pinyin[index] = 0xFF;
-            if (Zi8GetPyFinal(pinyin, &pyInitial, &pyFinal) == 0) {
-                pinyin[index] = 0;
-                if (Zi8GetPyFinal(pinyin, &pyInitial, &pyFinal) != 0) {
-                    if (firstInitial == 0) {
-                        result++;
-                        initial[outputIndex] = 0x7E00;
-                        final[outputIndex] = 0x200;
-                    }
-                    initial[outputIndex] |= (ziU16)pyInitial << 3;
-                    final[outputIndex] |= (ziU16)pyFinal << 3;
-                    *bestInitial = initial[outputIndex];
-                    *bestFinal = final[outputIndex];
-                }
-            } else {
-                if (firstInitial == 0) {
+        if (partial && alternateInitial == 0) {
+            if (Zi8GetPyFinal(pinyin, &pyInitial, &pyFinal) != 0) {
+                if (convertedCount == 0) {
                     result++;
                     initial[outputIndex] = 0x7E00;
                     final[outputIndex] = 0x200;
                 }
                 initial[outputIndex] |= (ziU16)pyInitial << 3;
                 final[outputIndex] |= (ziU16)pyFinal << 3;
-                *bestInitial = initial[outputIndex];
-                *bestFinal = final[outputIndex];
+                *bestInitial = initial[0];
+                *bestFinal = final[0];
+            } else {
+                if ((index != 0) && (count != 0)) {
+                    goto invalid_pinyin;
+                }
+            }
+        } else {
+            pinyin[index] = 0xFF;
+            if (Zi8GetPyFinal(pinyin, &pyInitial, &pyFinal) != 0) {
+                if (convertedCount == 0) {
+                    result++;
+                    initial[outputIndex] = 0x7E00;
+                    final[outputIndex] = 0x200;
+                }
+                initial[outputIndex] |= (ziU16)pyInitial << 3;
+                final[outputIndex] |= (ziU16)pyFinal << 3;
+                *bestInitial = initial[0];
+                *bestFinal = final[0];
                 if ((outputIndex == 0) && (count == 0)) {
                     pinyin[index] = 0;
                     if (Zi8GetPyFinal(pinyin, &pyInitial, &pyFinal) != 0) {
-                        if (firstInitial == 0) {
+                        if (convertedCount == 0) {
                             *bestInitial = 0x7E00;
                             *bestFinal = 0x200;
                         }
@@ -647,45 +661,42 @@ finish_final:
                         *bestFinal |= (ziU16)pyFinal << 3;
                     }
                 }
-            }
-                } else {
-            if (Zi8GetPyFinal(pinyin, &pyInitial, &pyFinal) != 0) {
-                if (firstInitial == 0) {
-                    result++;
-                    initial[outputIndex] = 0x7E00;
-                    final[outputIndex] = 0x200;
-                }
-                initial[outputIndex] |= (ziU16)pyInitial << 3;
-                final[outputIndex] |= (ziU16)pyFinal << 3;
-                *bestInitial = initial[outputIndex];
-                *bestFinal = final[outputIndex];
             } else {
-                if ((index != 0) && (count != 0)) {
-                    goto invalid_pinyin;
+                pinyin[index] = 0;
+                if (Zi8GetPyFinal(pinyin, &pyInitial, &pyFinal) != 0) {
+                    if (convertedCount == 0) {
+                        result++;
+                        initial[outputIndex] = 0x7E00;
+                        final[outputIndex] = 0x200;
+                    }
+                    initial[outputIndex] |= (ziU16)pyInitial << 3;
+                    final[outputIndex] |= (ziU16)pyFinal << 3;
+                    *bestInitial = initial[0];
+                    *bestFinal = final[0];
                 }
             }
-                }
-        convertedCount = count;
+        }
         if (count != 0) {
             value = *current;
             if ((value == 0x27) || (value == 0xF360) || (value == 0x20)) {
                 current++;
-                convertedCount = count - 1;
+                count--;
                 if (outputIndex == 0) {
                     *resultCount = *resultCount + 1;
                 }
-            } else if ((value > 0xF330) && ((ziU16)(value + 0xCCF) < 5)) {
+            } else if ((value >= 0xF331) && ((value -= 0xF331) <= 4)) {
+                value++;
                 initial[outputIndex] |= 7;
-                final[outputIndex] |= value + 0xCD0;
-                *bestInitial = initial[outputIndex];
-                *bestFinal = final[outputIndex];
-                convertedCount = count - 1;
+                final[outputIndex] |= value;
+                *bestInitial = initial[0];
+                *bestFinal = final[0];
+                count--;
                 current++;
                 if (outputIndex == 0) {
                     *resultCount = *resultCount + 1;
                 }
-                if ((convertedCount != 0) && ((*current == 0x27) || (*current == 0xF360) || (*current == 0x20))) {
-                    convertedCount = count - 2;
+                if ((count != 0) && (((value = *current) == 0x27) || (value == 0xF360) || (value == 0x20))) {
+                    count--;
                     current++;
                     if (outputIndex == 0) {
                         *resultCount = *resultCount + 1;
@@ -693,10 +704,9 @@ finish_final:
                 }
             }
         }
-        count = convertedCount;
         outputIndex++;
     }
-    if ((*resultCount > 1) && (text[*resultCount - 1] > 0xF340) && (text[*resultCount - 1] < 0xF35B)) {
+    if ((result > 1) && (text[*resultCount - 1] >= 0xF341) && (text[*resultCount - 1] <= 0xF35A)) {
         *resultCount = *resultCount - 1;
     }
     return result;
