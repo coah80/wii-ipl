@@ -1924,8 +1924,7 @@ s32 ATERM_814038C8(void) {
 
 s32 ATERMi_AutoConfigThread(void) {
     s32 result = ATERM_814038C8();
-    s32 progress[5];
-    u32 equalityMask;
+    s32 progress[4];
     s32 completedState;
 
     gAtermResult = result;
@@ -1936,9 +1935,8 @@ s32 ATERMi_AutoConfigThread(void) {
         gAtermSocketReady = 0;
         SOCleanup();
     }
-    equalityMask = ~(result - 1U | 1U - result);
     gAtermDeadline = 0xFFFFFFFF;
-    completedState = ((s32)equalityMask >> 31) + 7;
+    completedState = (((s32)~(result - 1U | 1U - result)) >> 31) + 7;
     gAtermState = completedState;
     progress[0] = completedState;
     progress[1] = -1;
