@@ -187,21 +187,19 @@ static void TMCJPEGDEC_converterYUV411toY8U8V8(TMCCJPEGDecWork* work, s32 x, s32
     stride = bw >> 3;
 
     for (; y < y_end; y++) {
-        row_base = (y >> 2) * stride;
-        oy = out0 + ((y & 3) << 3);
         for (x_pos = x; x_pos < x_end; x_pos += 4) {
-            off = ((x_pos >> 3) + row_base) << 5;
+            off = ((x_pos >> 3) + (y >> 2) * stride) << 5;
             xo = x_pos & 7;
-            oy[off + xo] = y_row[0];
-            off = (((x_pos + 1) >> 3) + row_base) << 5;
+            out0[((y & 3) << 3) + off + xo] = y_row[0];
+            off = (((x_pos + 1) >> 3) + (y >> 2) * stride) << 5;
             xo = (x_pos + 1) & 7;
-            oy[off + xo] = y_row[1];
-            off = (((x_pos + 2) >> 3) + row_base) << 5;
+            out0[((y & 3) << 3) + off + xo] = y_row[1];
+            off = (((x_pos + 2) >> 3) + (y >> 2) * stride) << 5;
             xo = (x_pos + 2) & 7;
-            oy[off + xo] = y_row[2];
-            off = (((x_pos + 3) >> 3) + row_base) << 5;
+            out0[((y & 3) << 3) + off + xo] = y_row[2];
+            off = (((x_pos + 3) >> 3) + (y >> 2) * stride) << 5;
             xo = (x_pos + 3) & 7;
-            oy[off + xo] = y_row[3];
+            out0[((y & 3) << 3) + off + xo] = y_row[3];
             y_row += 4;
         }
         y_row += skip;
@@ -289,12 +287,10 @@ static void TMCJPEGDEC_converterYUV411toY8U8V8edge(TMCCJPEGDecWork* work, s32 x,
     stride = bw >> 3;
 
     for (; y < y_end; y++) {
-        row_base = (y >> 2) * stride;
-        oy = out0 + ((y & 3) << 3);
         for (x_pos = x; x_pos < x_end; x_pos++) {
-            off = ((x_pos >> 3) + row_base) << 5;
+            off = ((x_pos >> 3) + (y >> 2) * stride) << 5;
             xo = x_pos & 7;
-            oy[off + xo] = *y_row++;
+            out0[((y & 3) << 3) + off + xo] = *y_row++;
         }
         y_row += skip;
     }
@@ -373,11 +369,9 @@ static void TMCJPEGDEC_converterYUV422toY8U8V8(TMCCJPEGDecWork* work, s32 x, s32
     stride = bw >> 3;
 
     for (; y < y_end; y++) {
-        row_base = (y >> 2) * stride;
-        oy = out0 + ((y & 3) << 3);
         for (x_pos = x; x_pos < x_end; x_pos += 2) {
-            oy[(((x_pos >> 3) + row_base) << 5) + (x_pos & 7)] = *y_row++;
-            oy[((((x_pos + 1) >> 3) + row_base) << 5) + ((x_pos + 1) & 7)] = *y_row++;
+            out0[((y & 3) << 3) + (((x_pos >> 3) + (y >> 2) * stride) << 5) + (x_pos & 7)] = *y_row++;
+            out0[((y & 3) << 3) + ((((x_pos + 1) >> 3) + (y >> 2) * stride) << 5) + ((x_pos + 1) & 7)] = *y_row++;
         }
         y_row += skip;
     }
@@ -464,12 +458,10 @@ static void TMCJPEGDEC_converterYUV422toY8U8V8edge(TMCCJPEGDecWork* work, s32 x,
     stride = bw >> 3;
 
     for (; y < y_end; y++) {
-        row_base = (y >> 2) * stride;
-        oy = out0 + ((y & 3) << 3);
         for (x_pos = x; x_pos < x_end; x_pos++) {
-            off = ((x_pos >> 3) + row_base) << 5;
+            off = ((x_pos >> 3) + (y >> 2) * stride) << 5;
             xo = x_pos & 7;
-            oy[off + xo] = *y_row++;
+            out0[((y & 3) << 3) + off + xo] = *y_row++;
         }
         y_row += skip;
     }
@@ -644,12 +636,10 @@ static void TMCJPEGDEC_converterYUV420toY8U8V8edge(TMCCJPEGDecWork* work, s32 x,
     stride = bw >> 3;
 
     for (; y < y_end; y++) {
-        row_base = (y >> 2) * stride;
-        oy = out0 + ((y & 3) << 3);
         for (x_pos = x; x_pos < x_end; x_pos++) {
-            off = ((x_pos >> 3) + row_base) << 5;
+            off = ((x_pos >> 3) + (y >> 2) * stride) << 5;
             xo = x_pos & 7;
-            oy[off + xo] = *y_row++;
+            out0[((y & 3) << 3) + off + xo] = *y_row++;
         }
         y_row += skip;
     }
@@ -728,12 +718,10 @@ static void TMCJPEGDEC_converterYUV211toY8U8V8(TMCCJPEGDecWork* work, s32 x, s32
     stride = bw >> 3;
 
     for (; y < y_end; y++) {
-        row_base = (y >> 2) * stride;
-        oy = out0 + ((y & 3) << 3);
         for (x_pos = x; x_pos < x_end; x_pos++) {
-            off = ((x_pos >> 3) + row_base) << 5;
+            off = ((x_pos >> 3) + (y >> 2) * stride) << 5;
             xo = x_pos & 7;
-            oy[off + xo] = *y_row++;
+            out0[((y & 3) << 3) + off + xo] = *y_row++;
         }
         y_row += skip;
     }
@@ -822,12 +810,10 @@ static void TMCJPEGDEC_converterYUV211toY8U8V8edge(TMCCJPEGDecWork* work, s32 x,
     stride = bw >> 3;
 
     for (; y < y_end; y++) {
-        row_base = (y >> 2) * stride;
-        oy = out0 + ((y & 3) << 3);
         for (x_pos = x; x_pos < x_end; x_pos++) {
-            off = ((x_pos >> 3) + row_base) << 5;
+            off = ((x_pos >> 3) + (y >> 2) * stride) << 5;
             xo = x_pos & 7;
-            oy[off + xo] = *y_row++;
+            out0[((y & 3) << 3) + off + xo] = *y_row++;
         }
         y_row += skip;
     }
