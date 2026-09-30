@@ -10,7 +10,7 @@ namespace textinput {
     namespace toolbar {
         class Base {
         public:
-#ifdef TI_TOOLBAR_SAMPLE_CLASS
+#if defined(TI_TOOLBAR_SAMPLE_CLASS) || defined(TIMANAGER_IMPLEMENTATION)
             Base(Manager* manager) : mQwerty(true), meLanguage(USA), mpAllocator(NULL), mpManager(manager) {}
 #endif
 
@@ -35,7 +35,11 @@ namespace textinput {
 
         class LayoutByNW4R : public Base, public nw4rmanager::Layout {
         public:
-#ifdef TI_TOOLBAR_SAMPLE_CLASS
+#ifdef TIMANAGER_IMPLEMENTATION
+            LayoutByNW4R(Manager* manager, nw4r::lyt::MultiArcResourceAccessor* resAccessor, EventObserver* observer, const char* layoutName)
+                : Base(manager), nw4rmanager::Layout(resAccessor, layoutName, observer), mpEventHandler(NULL),
+                  mbIsEnableQwertyChg(false) {}
+#elif defined(TI_TOOLBAR_SAMPLE_CLASS)
             LayoutByNW4R(Manager* manager, nw4r::lyt::MultiArcResourceAccessor* resAccessor, EventObserver* observer)
                 : Base(manager), nw4rmanager::Layout(resAccessor, "fs_VK_toolbar_a.brlyt", observer), mpEventHandler(NULL),
                   mbIsEnableQwertyChg(false) {}
@@ -117,12 +121,21 @@ namespace textinput {
             KeyType meKeyType;  // 0x30
         };
 
-#ifdef TI_TOOLBAR_SAMPLE_CLASS
+#if defined(TI_TOOLBAR_SAMPLE_CLASS) || defined(TIMANAGER_IMPLEMENTATION)
         class Sample : public LayoutByNW4R {
         public:
+#ifdef TIMANAGER_IMPLEMENTATION
+            Sample(Manager* manager, nw4r::lyt::MultiArcResourceAccessor* resAccessor, EventObserver* observer, const char* layoutName)
+                : LayoutByNW4R(manager, resAccessor, observer, layoutName) {}
+#else
             Sample(Manager* manager, nw4r::lyt::MultiArcResourceAccessor* resAccessor, EventObserver* observer)
                 : LayoutByNW4R(manager, resAccessor, observer) {}
+#endif
+#ifdef TIMANAGER_IMPLEMENTATION
+            virtual ~Sample();
+#else
             virtual ~Sample() {}
+#endif
         };
 #else
         class Sample {};

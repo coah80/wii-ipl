@@ -11,6 +11,9 @@ namespace textinput {
     namespace input {
         class HKBManager {
         public:
+#ifdef TIMANAGER_IMPLEMENTATION
+                void ClearState();
+#endif
             static HKBManager& getInstance() { return sInstance; }
 
             void Initialize();

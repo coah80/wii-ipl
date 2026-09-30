@@ -77,6 +77,9 @@ namespace textinput {
 
         class Base : public CommandSender {
         public:
+#ifdef TIMANAGER_IMPLEMENTATION
+            Base(Manager* manager) : mpCandidates(NULL), mpAllocator(NULL), mbOn(false), mbInvalid(true), meLanguage(USA), mpManager(manager) {}
+#endif
             virtual ~Base();
             virtual void create(MEMAllocator* allocator) override;
             virtual void init() override {}
@@ -111,6 +114,9 @@ namespace textinput {
 
         class EventHandler : public nw4rmanager::TiEventHandler {
         public:
+#ifdef TIMANAGER_IMPLEMENTATION
+            EventHandler(LayoutByNW4R* layout) : mpLayoutByNW4R(layout) {}
+#endif
             virtual void onTiEvent(gui::PaneComponent* paneComponent, u32 event, Input* input) override;  // 0x18
 
             LayoutByNW4R* mpLayoutByNW4R;  // 0xC
@@ -284,6 +290,13 @@ namespace textinput {
         // TODO
         class LayoutByNW4R : public Base, public nw4rmanager::Layout, public UIObj::Listener {
         public:
+#ifdef TIMANAGER_IMPLEMENTATION
+            LayoutByNW4R(Manager* manager, nw4r::lyt::MultiArcResourceAccessor* accessor, EventObserver* observer, const char* layoutName)
+                : Base(manager), nw4rmanager::Layout(accessor, layoutName, observer), mEventHandler(this), mpTiString(NULL),
+                  mTextArea(0, this, this), mLeftScroll(1, this, this), mRightScroll(2, this, this), mOnOffButton(3, this, this),
+                  mTextWindow(4, this, this), mbActive(true) {}
+            const UIOnOffButton& getOnOffButton() const { return mOnOffButton; }
+#endif
             virtual ~LayoutByNW4R();
             virtual void create(MEMAllocator* allocator) override;
             virtual void init() override;

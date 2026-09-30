@@ -8,17 +8,28 @@ namespace textinput {
     class Manager;
     namespace keyboard {
         namespace hwkey {
+            #ifdef TIMANAGER_IMPLEMENTATION
+            class HWKeyboard : public CommandSender {
+#else
             class HWKeyboard : CommandSender {
+#endif
                 public:
                     HWKeyboard(Manager *);
+#ifdef TIMANAGER_IMPLEMENTATION
+                    inline ~HWKeyboard();
+#else
                     ~HWKeyboard();
+#endif
+#ifdef TIMANAGER_IMPLEMENTATION
+                    void setLanguage(Destination destination, Language language);
+#endif
 
                     virtual void    init();
 #ifdef TI_PC_KEYBOARD_IMPLEMENTATION
                     wchar_t convertWCCode(wchar_t code) const;
 #endif
 
-#ifdef MYTIMANAGER_IMPLEMENTATION
+#if defined(MYTIMANAGER_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION)
                     void            updateInput(int chan, f32 x, f32 y, u32 trig, u32 hold, u32 release, void* data);
 #else
                     virtual void    updateInput(int chan, f32 x, f32 y, u32 trig, u32 hold, u32 release, void* data);
