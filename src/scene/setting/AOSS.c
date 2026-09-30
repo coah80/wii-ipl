@@ -29,8 +29,8 @@ typedef struct AOSSSocketAddress {
 typedef struct AOSSRuntimeState {
     void* config;
     u32 configLength;
-    u32 state;
     u32 flags;
+    u32 state;
     u32 ipAddress;
     u32 subnetMask;
     s8 active;
@@ -401,7 +401,7 @@ int AOSS_Init_old(AOSSInitInput* input)
   u64 timeoutTicks;
   int initializationResult = 0;
   short attemptCount;
-  s16 remainingWait;
+  u16 remainingWait;
   short waitAttempt;
   int receivedPackets;
   AOSSNetworkSettings settings;
@@ -454,13 +454,24 @@ int AOSS_Init_old(AOSSInitInput* input)
   s_runtime.state = 0;
   s_runtime.ipAddress = 0xc0a80b01;
   s_runtime.active = '\0';
-  if ((input->flags & 1) == 1) {
+  if ((input->flags & 1U) != 1) {
+    s_errorCode = 0x13;
+    input->status = 0xf;
+    if ((s32)s_accessPointConfig != 0) {
+      AOSSi_Free(s_accessPointConfig);
+      s_accessPointConfig = NULL;
+    }
+    if ((s32)s_accessPointList != 0) {
+      AOSSi_Free(s_accessPointList);
+      s_accessPointList = 0;
+    }
+    resultCode = 0xffffffff;
+  }
+  else {
     attemptCount = 0;
-    waitSettings.halfwords.high = waitSettings.fields.connectWait;
     if (s_operationState != 0) {
       s_operationState = 0;
       AOSSi_Status(0);
-      waitSettings.halfwords.high = waitSettings.fields.connectWait;
     }
     while (1) {
       if ((s32)s_accessPointList != 0) {
@@ -508,7 +519,61 @@ int AOSS_Init_old(AOSSInitInput* input)
         resultCode = 0xffffffff;
         goto LAB_00012878;
       }
-      if (state == 0) {
+      if (state != 0) {
+      if (attemptCount >= (short)waitSettings.fields.connectWait) {
+        input->status = 1;
+        if ((s32)s_accessPointConfig != 0) {
+          AOSSi_Free(s_accessPointConfig);
+          s_accessPointConfig = NULL;
+        }
+        if ((s32)s_accessPointList != 0) {
+          AOSSi_Free(s_accessPointList);
+          s_accessPointList = 0;
+        }
+        resultCode = 0xffffffff;
+        goto LAB_00012878;
+      }
+      remainingWait = waitSettings.fields.responseWait;
+      for (; remainingWait != 0; remainingWait = remainingWait - initialSleep) {
+        if (AOSSi_cancel_flag == 1) {
+          input->status = 0xf;
+          if ((s32)s_accessPointConfig != 0) {
+            AOSSi_Free(s_accessPointConfig);
+            s_accessPointConfig = NULL;
+          }
+          if ((s32)s_accessPointList != 0) {
+            AOSSi_Free(s_accessPointList);
+            s_accessPointList = 0;
+          }
+          resultCode = 0xffffffff;
+          goto LAB_00012878;
+        }
+        initialSleep = remainingWait;
+        if (100 < remainingWait) {
+          initialSleep = 100;
+        }
+        AOSSi_Sleep(initialSleep);
+        initialSleep = remainingWait;
+        if (100 < remainingWait) {
+          initialSleep = 100;
+        }
+      }
+      if (AOSSi_cancel_flag == 1) {
+        input->status = 0xf;
+        if ((s32)s_accessPointConfig != 0) {
+          AOSSi_Free(s_accessPointConfig);
+          s_accessPointConfig = NULL;
+        }
+        if ((s32)s_accessPointList != 0) {
+          AOSSi_Free(s_accessPointList);
+          s_accessPointList = 0;
+        }
+        resultCode = 0xffffffff;
+        goto LAB_00012878;
+      }
+      attemptCount = attemptCount + 1;
+      }
+      else {
         if (s_operationState != 1) {
           s_operationState = 1;
           AOSSi_Status(1);
@@ -556,60 +621,7 @@ int AOSS_Init_old(AOSSInitInput* input)
         }
         goto LAB_00012878;
       }
-      remainingWait = waitSettings.fields.responseWait;
-      if ((short)waitSettings.halfwords.high <= attemptCount) {
-        input->status = 1;
-        if ((s32)s_accessPointConfig != 0) {
-          AOSSi_Free(s_accessPointConfig);
-          s_accessPointConfig = NULL;
-        }
-        if ((s32)s_accessPointList != 0) {
-          AOSSi_Free(s_accessPointList);
-          s_accessPointList = 0;
-        }
-        resultCode = 0xffffffff;
-        goto LAB_00012878;
-      }
-      for (; remainingWait != 0; remainingWait = remainingWait - initialSleep) {
-        if (AOSSi_cancel_flag == 1) {
-          input->status = 0xf;
-          if ((s32)s_accessPointConfig != 0) {
-            AOSSi_Free(s_accessPointConfig);
-            s_accessPointConfig = NULL;
-          }
-          if ((s32)s_accessPointList != 0) {
-            AOSSi_Free(s_accessPointList);
-            s_accessPointList = 0;
-          }
-          resultCode = 0xffffffff;
-          goto LAB_00012878;
-        }
-        initialSleep = remainingWait;
-        if (100 < remainingWait) {
-          initialSleep = 100;
-        }
-        AOSSi_Sleep(initialSleep);
-        initialSleep = remainingWait;
-        if (100 < remainingWait) {
-          initialSleep = 100;
-        }
-      }
-      if (AOSSi_cancel_flag == 1) break;
-      attemptCount = attemptCount + 1;
     }
-    input->status = 0xf;
-    if ((s32)s_accessPointConfig != 0) {
-      AOSSi_Free(s_accessPointConfig);
-      s_accessPointConfig = NULL;
-    }
-    if ((s32)s_accessPointList != 0) {
-      AOSSi_Free(s_accessPointList);
-      s_accessPointList = 0;
-    }
-    resultCode = 0xffffffff;
-  }
-  else {
-    s_errorCode = 0x13;
     input->status = 0xf;
     if ((s32)s_accessPointConfig != 0) {
       AOSSi_Free(s_accessPointConfig);
