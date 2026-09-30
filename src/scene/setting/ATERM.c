@@ -613,14 +613,14 @@ int ATERM_81402424(u16* resultBuffer, u32 resultBufferLength) {
     int cleanupRetries = 0;
     int unlockRetries = 0;
     int scanResult;
-    OSMessage startupQueueBuffer[1];
     OSMessage startupMessage;
-    OSMessage scanQueueBuffer[1];
+    OSMessage startupQueueBuffer[1];
     OSMessage scanMessage;
-    OSMessage cleanupQueueBuffer[1];
+    OSMessage scanQueueBuffer[1];
     OSMessage cleanupMessage;
-    OSMessage unlockQueueBuffer[1];
+    OSMessage cleanupQueueBuffer[1];
     OSMessage unlockMessage;
+    OSMessage unlockQueueBuffer[1];
     u32 scanStatus;
     u8 interfaceMac[8];
     OSMessageQueue startupQueue;
@@ -631,7 +631,7 @@ int ATERM_81402424(u16* resultBuffer, u32 resultBufferLength) {
     OSAlarm scanAlarm;
     OSAlarm cleanupAlarm;
     OSAlarm unlockAlarm;
-    WDScanParam scanParameters;
+    WDScanParam scanParameters ATTRIBUTE_ALIGN(32);
     WD_Info interfaceInfo ATTRIBUTE_ALIGN(32);
 
     lockId = NCDLockWirelessDriver();
@@ -672,7 +672,7 @@ int ATERM_81402424(u16* resultBuffer, u32 resultBufferLength) {
 
         scanResult = WD_Scan(&scanParameters, (u8*)scanBuffer, scanBufferLength & 0xFFFF);
         if (scanResult != 0 && scanResult != -0x7FFF7FFC) {
-            goto cleanup_driver;
+            break;
         }
 
         scanStatus = *scanBuffer;
@@ -695,6 +695,9 @@ int ATERM_81402424(u16* resultBuffer, u32 resultBufferLength) {
         OSReceiveMessage(&scanQueue, &scanMessage, 1);
     }
 
+    if (scanResult == -0x7FFF7FFC) {
+        result = -6;
+    }
 cleanup_driver:
     while (WD_Cleanup() != 0) {
         if (cleanupRetries > 10) {
@@ -1287,38 +1290,32 @@ int ATERM_814033F0(u16* response) {
 
 int ATERM_81403614(u8* destination, const char* source, s32 length) {
     s32 value = 0;
-    u32 characterIndex = 0;
+    s32 characterIndex = 0;
 
-    while (length > 0) {
-        s32 character = *source++;
-
-        if (character < 'G') {
-            if (character < '0') {
+    for (; length > 0; length--) {
+        s32 character = *source;
+        switch (character) {
+            case '0': case '1': case '2': case '3': case '4':
+            case '5': case '6': case '7': case '8': case '9':
+                value = value + character - '0';
+                break;
+            case 'a': case 'b': case 'c': case 'd': case 'e': case 'f':
+                value = value + character - 'W';
+                break;
+            case 'A': case 'B': case 'C': case 'D': case 'E': case 'F':
+                value = value + character - '7';
+                break;
+            default:
                 return 0;
-            }
-            if (character < ':') {
-                value += character - '0';
-            } else {
-                if (character < 'A') {
-                    return 0;
-                }
-                value += character - '7';
-            }
-        } else {
-            if (character > 'f' || character < 'a') {
-                return 0;
-            }
-            value += character - 'W';
         }
-
-        if ((characterIndex & 1) == 0) {
+        if (characterIndex % 2 == 0) {
             value <<= 4;
         } else {
-            *destination++ = (u8)value;
+            destination[((s32)((u32)characterIndex >> 31) + characterIndex) >> 1] = value;
             value = 0;
         }
         characterIndex++;
-        length--;
+        source++;
     }
     return 1;
 }

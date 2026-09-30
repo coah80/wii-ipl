@@ -2485,7 +2485,6 @@ int AOSS_81401778(void* packet, void* request, int socket) {
 s16 AOSS_81401BBC(void* buffer) {
     AOSSOptionRecord* record = (AOSSOptionRecord*)buffer;
     u32 optionValue;
-    u32 roundedLength;
     s16 dataLength;
 
     record->type = s_runtime.interfaceType;
@@ -2494,9 +2493,8 @@ s16 AOSS_81401BBC(void* buffer) {
     memcpy(record->data, s_runtime.config, dataLength);
     record->length = SOHtoNs(dataLength);
     dataLength = (s16)(dataLength + 6);
-    roundedLength = (u32)((s32)dataLength + 1);
-    roundedLength += roundedLength >> 31;
-    dataLength = (s16)(roundedLength & ~1u);
+    dataLength = (s16)(((s32)((u32)((s32)dataLength + 1) >> 31) +
+                        ((s32)dataLength + 1)) & ~1u);
     record->nextOffset = SOHtoNs(dataLength);
     record = (AOSSOptionRecord*)((u8*)record + dataLength);
     record->type = 0x60;
