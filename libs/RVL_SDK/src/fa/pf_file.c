@@ -414,16 +414,29 @@ pf_s32 PFFILE_Cursor_Read(PFFILE_FILE* file, pf_u8* buffer, pf_u32 size, pf_u32*
     return 0;
 }
 
+static pf_bool PFFILE_Cursor_AdvanceToWrite(PFFILE_FILE* file, pf_u32 size, pf_u32 sector) {
+    pf_bool result = PF_TRUE;
+    PF_VOLUME* volume = file == PF_NULL ? PF_NULL : file->p_sfd->dir_entry.p_vol;
+    pf_u32 work_sector = sector + ((file->cursor.offset_in_sector + size) >> volume->bpb.log2_bytes_per_sector);
+
+    if (((volume->bpb.bytes_per_sector - 1) & (file->cursor.offset_in_sector + size)) != 0) {
+        file->cursor.sector = sector + ((file->cursor.offset_in_sector + size) >> volume->bpb.log2_bytes_per_sector);
+    } else {
+        file->cursor.sector = -1;
+    }
+    file->cursor.position += size;
+    if (file->cursor.position > file->p_sfd->dir_entry.file_size) {
+        file->p_sfd->dir_entry.file_size = file->cursor.position;
+    }
+    PFFILE_Cursor_Recalc(file);
+    PFCLUSTER_UpdateLastAccessCluster(file, work_sector);
+    return result;
+}
+
 pf_s32 PFFILE_Cursor_WriteHeadSector(PFFILE_FILE* file, const pf_u8* buffer, pf_u32 size,
                                      pf_u32* size_written) {
     pf_s32 error;
     pf_u32 success_size;
-    pf_u32 next_position;
-    pf_u32 new_position;
-    pf_u32 current_sector;
-    pf_u32 written_size;
-    pf_u32 sector_advance;
-    pf_u32 next_sector;
     PF_VOLUME* volume;
 
     *size_written = 0;
@@ -452,24 +465,7 @@ pf_s32 PFFILE_Cursor_WriteHeadSector(PFFILE_FILE* file, const pf_u8* buffer, pf_
         return error;
     }
     *size_written = success_size;
-    current_sector = file->cursor.sector;
-    written_size = success_size;
-    volume = file == PF_NULL ? PF_NULL : file->p_sfd->dir_entry.p_vol;
-    next_position = file->cursor.offset_in_sector + written_size;
-    sector_advance = next_position >> volume->bpb.log2_bytes_per_sector;
-    next_sector = current_sector + sector_advance;
-    if (((volume->bpb.bytes_per_sector - 1) & next_position) != 0) {
-        file->cursor.sector = next_sector;
-    } else {
-        file->cursor.sector = -1;
-    }
-    new_position = file->cursor.position + success_size;
-    file->cursor.position = new_position;
-    if (new_position > file->p_sfd->dir_entry.file_size) {
-        file->p_sfd->dir_entry.file_size = new_position;
-    }
-    PFFILE_Cursor_Recalc(file);
-    PFCLUSTER_UpdateLastAccessCluster(file);
+    PFFILE_Cursor_AdvanceToWrite(file, success_size, file->cursor.sector);
     if (success_size != size) {
         return error;
     }
@@ -481,7 +477,6 @@ pf_s32 PFFILE_Cursor_WriteBodySectors(PFFILE_FILE* file, const pf_u8* buffer, pf
     pf_s32 error;
     pf_u32 num_sectors;
     pf_u32 success_size;
-    pf_u32 next_position;
     PF_VOLUME* volume;
 
     *size_written = 0;
@@ -506,18 +501,7 @@ pf_s32 PFFILE_Cursor_WriteBodySectors(PFFILE_FILE* file, const pf_u8* buffer, pf
         return error;
     }
     *size_written = success_size;
-    next_position = file->cursor.offset_in_sector + success_size;
-    if (((volume->bpb.bytes_per_sector - 1) & next_position) != 0) {
-        file->cursor.sector += next_position >> volume->bpb.log2_bytes_per_sector;
-    } else {
-        file->cursor.sector = -1;
-    }
-    file->cursor.position += success_size;
-    if (file->cursor.position > file->p_sfd->dir_entry.file_size) {
-        file->p_sfd->dir_entry.file_size = file->cursor.position;
-    }
-    PFFILE_Cursor_Recalc(file);
-    PFCLUSTER_UpdateLastAccessCluster(file);
+    PFFILE_Cursor_AdvanceToWrite(file, success_size, file->cursor.sector);
     if (success_size != size - (size & (volume->bpb.bytes_per_sector - 1))) {
         return error;
     }
@@ -528,12 +512,6 @@ pf_s32 PFFILE_Cursor_WriteTailSector(PFFILE_FILE* file, const pf_u8* buffer, pf_
                                      pf_u32* size_written) {
     pf_s32 error;
     pf_u32 success_size;
-    pf_u32 next_position;
-    pf_u32 current_sector;
-    pf_u32 written_size;
-    pf_u32 sector_advance;
-    pf_u32 next_sector;
-    pf_u32 new_position;
     PF_VOLUME* volume;
 
     *size_written = 0;
@@ -563,24 +541,7 @@ pf_s32 PFFILE_Cursor_WriteTailSector(PFFILE_FILE* file, const pf_u8* buffer, pf_
         return error;
     }
     *size_written = success_size;
-    current_sector = file->cursor.sector;
-    written_size = success_size;
-    volume = file == PF_NULL ? PF_NULL : file->p_sfd->dir_entry.p_vol;
-    next_position = file->cursor.offset_in_sector + written_size;
-    sector_advance = next_position >> volume->bpb.log2_bytes_per_sector;
-    next_sector = current_sector + sector_advance;
-    if (((volume->bpb.bytes_per_sector - 1) & next_position) != 0) {
-        file->cursor.sector = next_sector;
-    } else {
-        file->cursor.sector = -1;
-    }
-    new_position = file->cursor.position + success_size;
-    file->cursor.position = new_position;
-    if (new_position > file->p_sfd->dir_entry.file_size) {
-        file->p_sfd->dir_entry.file_size = new_position;
-    }
-    PFFILE_Cursor_Recalc(file);
-    PFCLUSTER_UpdateLastAccessCluster(file);
+    PFFILE_Cursor_AdvanceToWrite(file, success_size, file->cursor.sector);
     if (success_size != size) {
         return error;
     }
@@ -1403,20 +1364,22 @@ pf_s32 PFFILE_p_cdelete(PF_VOLUME* volume, PF_STR* path, pf_u32 cluster_index,
 
 pf_s32 PFFILE_p_flock(PFFILE_FILE* file, pf_u32 mode) {
     if ((mode & 3) != 0) {
-        if ((file->p_sfd->lock.mode & 3) != 0 && (mode & 0x10) != 0) {
+        if ((file->p_sfd->lock.mode & 3) != 0 && (mode & 8) != 0) {
             if ((mode & 1) != 0) {
                 if ((file->p_sfd->lock.mode & 2) != 0) {
-                    return 0x27;
+                    goto lock_error;
                 }
-            } else if ((mode & 2) != 0 && (file->p_sfd->lock.mode & 1) != 0) {
-                return 0x27;
+            }
+            if ((mode & 2) != 0 && (file->p_sfd->lock.mode & 1) != 0) {
+                goto lock_error;
             }
             if (file->p_sfd->lock.owner != 0 && file->p_sfd->lock.owner != (PF_FILE*)file) {
+            lock_error:
                 return 0x27;
             }
         }
         if ((mode & 1) != 0) {
-            if (file->p_sfd->lock.count == 0 || (file->p_sfd->lock.mode & 2) == 0) {
+            if (file->p_sfd->lock.count == 0 || (file->p_sfd->lock.mode & 2) != 0) {
                 file->p_sfd->lock.wcount++;
                 PF_LockFile((PF_FILE*)file, 0);
                 file->p_sfd->lock.wcount--;
@@ -1432,30 +1395,22 @@ pf_s32 PFFILE_p_flock(PFFILE_FILE* file, pf_u32 mode) {
         }
         file->p_sfd->lock.count++;
         file->lock_count++;
-        return 0;
-    }
-    if (file->lock_count == 0 || file->p_sfd->lock.count == 0) {
-        return 0x27;
-    }
-    if ((file->p_sfd->lock.mode & 2) != 0 && file->p_sfd->lock.owner != (PF_FILE*)file) {
-        return 0x27;
-    }
-    if ((file->p_sfd->lock.mode & 1) != 0) {
-        file->p_sfd->lock.count -= file->lock_count;
-        file->lock_count = 0;
-        if (file->p_sfd->lock.count == 0) {
-            PF_UnLockFile((PF_FILE*)file);
-        }
-        file->p_sfd->lock.mode &= ~3;
     } else {
-        if (file->p_sfd->lock.owner != (PF_FILE*)file) {
+        if (file->lock_count == 0 || file->p_sfd->lock.count == 0) {
             return 0x27;
         }
-        file->p_sfd->lock.count = 0;
-        file->lock_count = 0;
-        file->p_sfd->lock.owner = 0;
-        PF_UnLockFile((PF_FILE*)file);
-        file->p_sfd->lock.mode &= ~3;
+        if ((file->p_sfd->lock.mode & 2) != 0 && file->p_sfd->lock.owner != (PF_FILE*)file) {
+            return 0x27;
+        }
+        file->lock_count--;
+        file->p_sfd->lock.count--;
+        if (file->p_sfd->lock.count == 0) {
+            PF_UnLockFile((PF_FILE*)file);
+            if ((file->p_sfd->lock.mode & 2) != 0) {
+                file->p_sfd->lock.owner = 0;
+            }
+            file->p_sfd->lock.mode &= ~3;
+        }
     }
     return 0;
 }
@@ -1708,10 +1663,12 @@ close_file_complete:
 
 pf_s32 PFFILE_fread(pf_u8* buffer, pf_u32 size, pf_u32 count,
                     PFFILE_FILE* file, pf_u32* count_read) {
-    PF_VOLUME* volume = file == PF_NULL ? PF_NULL : file->p_sfd->dir_entry.p_vol;
+    PF_VOLUME* volume;
+    pf_u32 bytes_read;
     pf_s32 error;
 
     *count_read = 0;
+    volume = file == PF_NULL ? PF_NULL : file->p_sfd->dir_entry.p_vol;
     error = PFVOL_CheckForRead(volume);
     if (error != 0) {
         pf_vol_set.last_error = error;
@@ -1724,7 +1681,8 @@ pf_s32 PFFILE_fread(pf_u8* buffer, pf_u32 size, pf_u32 count,
         return 0x26;
     }
     ((PFFILE_VOLUME_DIRS*)volume)->cache_signature = file;
-    error = PFFILE_p_fread(volume, buffer, size, count, file, count_read);
+    error = PFFILE_p_fread(volume, buffer, size, count, file, &bytes_read);
+    *count_read = bytes_read;
     ((PFFILE_VOLUME_DIRS*)volume)->cache_signature = PF_NULL;
     if (error != 0) {
         pf_vol_set.last_error = error;
@@ -1869,8 +1827,8 @@ pf_s32 PFFILE_fsetclstlink(PFFILE_FILE* file, pf_u32 mode,
         file->p_sfd->ffd.cluster_link.interval_offset = 0;
         file->p_sfd->ffd.cluster_link.position = 0;
         file->p_sfd->ffd.cluster_link.save_index = 0;
-        if (file->p_sfd->dir_entry.file_size != 0 && settings->link_max != 0) {
-            settings->buffer[0] = *file->p_sfd->ffd.p_start_cluster;
+        if (file->p_sfd->dir_entry.file_size != 0 && file->p_sfd->ffd.cluster_link.max_count != 0) {
+            file->p_sfd->ffd.cluster_link.buffer[0] = *file->p_sfd->ffd.p_start_cluster;
             file->p_sfd->ffd.cluster_link.position++;
         }
         if (file->p_sfd->ffd.p_hint != PF_NULL) {
@@ -2218,6 +2176,7 @@ pf_s32 PFFILE_flock(PFFILE_FILE* file, pf_u32 mode) {
     return error;
 }
 
+#pragma dont_inline on
 pf_s32 PFFILE_p_fread(PF_VOLUME* volume, pf_u8* buffer, pf_u32 size, pf_u32 count,
                       PFFILE_FILE* file, pf_u32* count_read) {
     pf_u32 bytes_read = 0;
@@ -2239,3 +2198,4 @@ pf_s32 PFFILE_p_fread(PF_VOLUME* volume, pf_u8* buffer, pf_u32 size, pf_u32 coun
     error &= (-error | error) >> 31;
     return error;
 }
+#pragma dont_inline reset
