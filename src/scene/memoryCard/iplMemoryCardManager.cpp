@@ -158,7 +158,7 @@ bool MemoryCardManager::isMoveEnable(u8 slot, u32 index, long* code) {
         result = -0x15;
         enabled = true;
     } else {
-        long destinationState = 0;
+        long destinationState;
         if (!isDistSlot(slot, &destinationState)) {
             if (destinationState == 0) {
                 result = -0x17;
@@ -199,7 +199,7 @@ bool MemoryCardManager::isCopyEnable(u8 slot, u32 index, long* code) {
         result = -0x15;
         enabled = true;
     } else {
-        long destinationState = 0;
+        long destinationState;
         if (!isDistSlot(slot, &destinationState)) {
             if (destinationState == 0) {
                 result = -0x17;
@@ -254,11 +254,11 @@ void MemoryCardManager::update_icon_anm() {
             u32 file = mFile[slot][index].fileNo;
             if (file < 0x7f && dirs[slot][file].fileNo != 0) {
                 memorycard::IconState* icon = &icons[slot][file];
-                s16 frame = mFileCell[slot][file].iconAnmCounter + icon->anmDelta;
+                s32 frame = mFileCell[slot][file].iconAnmCounter + icon->anmDelta;
                 mFileCell[slot][file].iconAnmCounter = frame;
-                if (frame >= icon->anmMax) {
+                if ((s16)frame >= icon->anmMax) {
                     if (icon->anmType == 4) {
-                        mFileCell[slot][file].iconAnmCounter = icon->anmMax - icon->unk_0x07 - 1;
+                        mFileCell[slot][file].iconAnmCounter = icons[slot][file].anmMax - icon->unk_0x07 - 1;
                         icon->anmDelta = -1;
                     } else {
                         mFileCell[slot][file].iconAnmCounter = 0;

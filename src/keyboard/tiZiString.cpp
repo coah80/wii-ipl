@@ -254,6 +254,13 @@ wchar_t* WithZi::getCurrentInput() {
     return (wchar_t*)CandidatesBuffer;
 }
 
+static inline bool IsKoreanLeadingLetter(wchar_t value) {
+    for (s32 index = 0; index < 14; ++index) {
+        if (value == kKoreanLeadingLetters[index]) return true;
+    }
+    return false;
+}
+
 void WithZi::partialConfirmForKR() {
     if (mInputLength <= 1) return;
     bool match;
@@ -272,18 +279,7 @@ void WithZi::partialConfirmForKR() {
 finalLetterChecked:
     if (!match) goto keepLastLetter;
     value = util::toWLower(CandidatesBuffer[mInputLength - 2]);
-    index = 0;
-    letters = kKoreanLeadingLetters;
-    for (; index < 14; ++index) {
-        if (value == *letters) {
-            match = true;
-            goto leadingLetterChecked;
-        }
-        ++letters;
-    }
-    match = false;
-leadingLetterChecked:
-    if (!match) goto keepLastLetter;
+    if (!IsKoreanLeadingLetter(value)) goto keepLastLetter;
     CandidatesBuffer[0] = CandidatesBuffer[mInputLength - 2];
     CandidatesBuffer[1] = CandidatesBuffer[mInputLength - 1];
     mInputLength = 2;
@@ -301,6 +297,7 @@ void WithZi::update() {
         return;
     }
 
+    wchar_t* candidateOutput = reinterpret_cast<wchar_t*>(&CandidatesBuffer[0x200]);
     mSelectedCandidate = 0;
     s32 elementCount = static_cast<u16>(setElementBuffer());
     mSearch.language = getPredictLanguage();
@@ -309,7 +306,7 @@ void WithZi::update() {
     mSearch.context = 1;
     mSearch.getOptions = 0x81;
     mSearch.elements = reinterpret_cast<wchar_t*>(ElementBuffer);
-    mSearch.candidates = reinterpret_cast<wchar_t*>(&CandidatesBuffer[0x200]);
+    mSearch.candidates = candidateOutput;
     mSearch.maxCandidates = 0x28;
     mSearch.elementCount = static_cast<u8>(elementCount);
     mSearch.firstCandidate = 0;
@@ -363,7 +360,7 @@ void WithZi::update() {
             count = EZTXGetCandidates(&mSearch, mpDictionaryWork) & 0xff;
             mSearch.firstCandidate = 0;
             count += 0x61;
-            mSearch.candidates = reinterpret_cast<wchar_t*>(&CandidatesBuffer[0x200]);
+            mSearch.candidates = candidateOutput;
         }
         if (static_cast<s32>(count) > 0x28) {
             count = 0x28;
@@ -514,10 +511,10 @@ scanDone:
 
 u32 WithZi::setElementBuffer() {
     u32 count = 0;
+    memset(ElementBuffer, 0, 0x1fe);
+    memset(&CandidatesBuffer[0x100], 0, 0x1fe);
     u16* elements = ElementBuffer;
     u16* candidates = CandidatesBuffer;
-    memset(elements, 0, 0x1fe);
-    memset(candidates + 0x100, 0, 0x1fe);
     u16 inputCharacter;
     while ((inputCharacter = candidates[static_cast<u16>(count)]) != 0 && static_cast<u16>(count) < 0xff) {
         u16 index = count;
@@ -562,7 +559,6 @@ void WithZi::setCurrentWord(const wchar_t* word) {
     }
     mbContextChanged = 1;
     wchar_t* currentWord;
-    u32 sourceOffset;
     u32 length;
     s32 copied;
     length = 0;
@@ -575,15 +571,14 @@ void WithZi::setCurrentWord(const wchar_t* word) {
         }
     }
     copied = 0;
-    sourceOffset = 0;
-    currentWord = const_cast<wchar_t*>(word);
-    for (; *currentWord != 0 && length < 0x3f;) {
-        wchar_t character = word[sourceOffset];
+    const wchar_t* source = word;
+    u32 destinationOffset = length;
+    for (; *source != 0 && length < 0x3f;) {
+        wchar_t character = word[copied];
         ++length;
-        ++currentWord;
+        ++source;
         ++copied;
-        LatestWord[length - 1] = character;
-        ++sourceOffset;
+        LatestWord[destinationOffset++] = character;
     }
     LatestWord[length] = 0;
     mCurrentWordLength = copied;
