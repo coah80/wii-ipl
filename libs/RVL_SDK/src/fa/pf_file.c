@@ -1,4 +1,5 @@
 #define PF_FA_STR_LAYOUT
+#include <decomp/utils.h>
 #include <private/vf/PrFILE2/fatfs/pf_volume.h>
 #include <private/vf/PrFILE2/fatfs/pf_dir.h>
 #include <private/vf/PrFILE2/fatfs/pf_path.h>
@@ -951,7 +952,7 @@ pf_s32 PFFILE_p_fopen(PF_VOLUME* volume, PF_STR* path, pf_u32 open_mode,
 }
 
 pf_s32 PFFILE_p_fread(PF_VOLUME* volume, pf_u8* buffer, pf_u32 size, pf_u32 count,
-                      PFFILE_FILE* file, pf_u32* count_read) {
+                      PFFILE_FILE* file, pf_u32* count_read) NO_INLINE {
     pf_u32 bytes_read = 0;
     pf_s32 error;
 

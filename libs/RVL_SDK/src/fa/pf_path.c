@@ -326,7 +326,6 @@ pf_bool PFPATH_MatchFileNameWithPattern(const pf_s8* file_name, PF_STR* p_patter
     pf_u16 c_pat;
     PF_FILE_NAME_ITER name;
     PF_STR pattern;
-    pf_s8 sig[2];
     pf_bool result;
 
     result = PF_TRUE;
@@ -339,16 +338,15 @@ pf_bool PFPATH_MatchFileNameWithPattern(const pf_s8* file_name, PF_STR* p_patter
 
     if (PFSTR_GetCodeMode(p_pattern) == 1) {
         if (is_long_name == PF_FALSE && (pf_vol_set.setting & 0x02) == 0x02 && PFPATH_CheckExtShortNameSignature(&pattern) == 1) {
-            sig[0] = 1;
-            sig[1] = 2;
-            if (PFSTR_StrNCmp((PF_STR*)&name, sig, 1, 0, 2) == 0) {
+            result = PFPATH_CheckExtShortNameSignature(&pattern);
+            if (result == 1) {
                 name.index += 2;
                 pattern.p_head += 2;
             }
         }
     } else if ((pf_vol_set.setting & 0x02) == 0x02 && is_long_name == PF_FALSE &&
                PFSTR_StrNCmp(p_pattern, (pf_s8*)".", 1, 0, 1) != 0 && PFSTR_StrNCmp(p_pattern, (pf_s8*)"..", 1, 0, 2) != 0 &&
-               PFPATH_CheckExtShortName(p_pattern, 1, PF_TRUE) == 0) {
+               PFPATH_CheckExtShortName(p_pattern, 1, PF_FALSE) == 0) {
         result = PF_FALSE;
     }
     if (result == PF_TRUE) {
@@ -360,9 +358,12 @@ pf_bool PFPATH_MatchFileNameWithPattern(const pf_s8* file_name, PF_STR* p_patter
 }
 
 pf_s32 PFPATH_cmpNameImpl(const pf_s8* name, const pf_s8* pattern, pf_u32* matched_end) {
+    pf_u32 read_char;
+    pf_s32 recursive_error;
     pf_u16 name_char;
     pf_u16 pattern_char;
-    pf_u16 converted_char;
+    pf_u16 converted_pattern;
+    pf_u16 converted_name;
     pf_s32 name_width;
     pf_s32 pattern_width;
     PF_PATH_VOLUME_SET* volume = &pf_vol_set;
@@ -371,27 +372,32 @@ pf_s32 PFPATH_cmpNameImpl(const pf_s8* name, const pf_s8* pattern, pf_u32* match
         pattern_width = volume->codeset.oem_char_width(pattern);
         name_width = volume->codeset.oem_char_width(name);
         if (pattern_width == 1) {
-            pattern_char = pf_toupper(*pattern);
+            read_char = pf_toupper(*pattern);
         } else {
-            pattern_char = PF_GET_LE_U16((const pf_u8*)pattern);
-            if (PFPATH_OEM_ConvertFWchar(pattern, &converted_char) != 0) {
-                pattern_char = converted_char;
-            }
+            read_char = (pf_u16)PF_GET_LE_U16((const pf_u8*)pattern);
         }
+        pattern_char = (pf_u16)read_char;
         if (name_width == 1) {
-            name_char = pf_toupper(*name);
+            read_char = pf_toupper(*name);
         } else {
-            name_char = PF_GET_LE_U16((const pf_u8*)name);
-            if (PFPATH_OEM_ConvertFWchar(name, &converted_char) != 0) {
-                name_char = converted_char;
-            }
+            read_char = (pf_u16)PF_GET_LE_U16((const pf_u8*)name);
+        }
+        name_char = (pf_u16)read_char;
+        if (pattern_width == 2 && PFPATH_OEM_ConvertFWchar(pattern, &converted_pattern) == 1) {
+            pattern_char = converted_pattern;
+        }
+        if (name_width == 2 && PFPATH_OEM_ConvertFWchar(name, &converted_name) == 1) {
+            name_char = converted_name;
         }
         pattern += pattern_width;
-        if (pattern_char == '?') {
+        switch (pattern_char) {
+        case '?': {
             if (name_char == 0) {
                 return 1;
             }
-        } else if (pattern_char == '*') {
+            break;
+        }
+        case '*': {
             do {
                 pattern_width = volume->codeset.oem_char_width(pattern);
                 if (pattern_width == 1) {
@@ -400,21 +406,27 @@ pf_s32 PFPATH_cmpNameImpl(const pf_s8* name, const pf_s8* pattern, pf_u32* match
                     pattern_char = PF_GET_LE_U16((const pf_u8*)pattern);
                 }
                 pattern += pattern_width;
+                if (pattern_char == '?') {
+                    if (name_char == 0) { return 1; }
+                    name += name_width;
+                    name_width = volume->codeset.oem_char_width(name);
+                    if (name_width == 1) { name_char = pf_toupper(*name); }
+                    else { name_char = PF_GET_LE_U16((const pf_u8*)name); }
+                }
             } while (pattern_char == '*' || pattern_char == '?');
             if (pattern_char == 0) {
                 return 0;
             }
             while (name_char != 0) {
+                name += name_width;
                 if (name_char == pattern_char) {
-                    if (PFPATH_cmpNameImpl(name + name_width, pattern, matched_end) == 0) {
+                    recursive_error = PFPATH_cmpNameImpl(name, pattern, matched_end);
+                    if (recursive_error == 0) {
                         return 0;
                     }
-                }
-                if (*matched_end != 0) {
-                    return 1;
+                    if (*matched_end != 0) { return recursive_error; }
                 }
                 name_width = volume->codeset.oem_char_width(name);
-                name += name_width;
                 if (name_width == 1) {
                     name_char = pf_toupper(*name);
                 } else {
@@ -422,8 +434,10 @@ pf_s32 PFPATH_cmpNameImpl(const pf_s8* name, const pf_s8* pattern, pf_u32* match
                 }
             }
             return 1;
-        } else if (name_char != pattern_char) {
-            return 1;
+        }
+        default:
+            if (name_char != pattern_char) { return 1; }
+            break;
         }
         name += name_width;
         if (*name == 0 || *pattern == 0) {

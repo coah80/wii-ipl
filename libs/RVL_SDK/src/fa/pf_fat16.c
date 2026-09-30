@@ -80,10 +80,10 @@ pf_s32 VFiPFFAT16_WriteFATEntry(PF_VOLUME* p_vol, pf_u32 cluster, pf_u32 value) 
 }
 
 pf_s32 PFFAT16_WriteFATEntryWithBuf(PF_VOLUME* p_vol, pf_u32 cluster, pf_u32 value, PF_CACHE_PAGE* p_page) {
-    pf_u16 offset_in_sector;
+    pf_u16 fat_sector;
     pf_s32 err;
     pf_u32 fat_offset;
-    pf_u16 fat_sector;
+    pf_u16 offset_in_sector;
     pf_u32 current_fat;
     pf_s32 result;
     fat_offset = cluster * sizeof(pf_u16);
