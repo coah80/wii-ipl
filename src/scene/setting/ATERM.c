@@ -636,7 +636,6 @@ int ATERM_81402424(u16* resultBuffer, u32 resultBufferLength) {
     OSMessage cleanupQueueBuffer[1];
     OSMessage unlockMessage;
     OSMessage unlockQueueBuffer[1];
-    u32 scanStatus;
     u8 interfaceMac[8];
     OSMessageQueue startupQueue;
     OSMessageQueue scanQueue;
@@ -690,9 +689,8 @@ int ATERM_81402424(u16* resultBuffer, u32 resultBufferLength) {
             goto scan_failed;
         }
 
-        scanStatus = *scanBuffer;
-        if (scanStatus != 0) {
-            result = scanStatus;
+        if (*scanBuffer != 0) {
+            result = *scanBuffer;
             goto cleanup_driver;
         }
 
@@ -711,6 +709,9 @@ int ATERM_81402424(u16* resultBuffer, u32 resultBufferLength) {
     }
 
 scan_failed:
+    if (scanResult != -0x7FFF7FFC) {
+        goto cleanup_driver;
+    }
     result = -6;
 cleanup_driver:
     while (WD_Cleanup() != 0) {
