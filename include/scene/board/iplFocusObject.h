@@ -86,6 +86,7 @@ namespace ipl {
 
             const utility::BScroller& getBInst() { return mBScroller; }
 #ifdef IPL_SDMEMORY_SCROLLER_BINST_RESET
+            void initScroll() { mScroller.init(); }
             void resetBInst() { mBScroller.reset(); }
 #endif
 

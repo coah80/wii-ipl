@@ -14,7 +14,11 @@ namespace nw4r {
 #else
             Rect() : left(), top(), right(), bottom() {}
 #endif
+#ifdef IPL_SETTING_RECT_OUT_OF_LINE
+            Rect(f32 l, f32 t, f32 r, f32 b);
+#else
             Rect(f32 l, f32 t, f32 r, f32 b) : left(l), top(t), right(r), bottom(b) {}
+#endif
 
 #ifndef IPL_CONTROLLER_TRIVIAL_RECT_DTOR
             ~Rect() {}

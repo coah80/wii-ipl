@@ -33,13 +33,13 @@ extern "C" bool iplSDChannelSelect_813DDB74(ipl::scene::SDChannelSelect* channel
                                              ESTitleId* titleIds, wchar_t* titleNames, u32* titleCount,
                                              s32 state);
 extern "C" bool iplSDChannelSelect_813DB5EC(ipl::scene::SDChannelSelect* channelSelect,
-                                             const ESTitleId* titleEntry, ESTitleId titleId);
+                                             ESTitleId titleId);
 extern "C" bool iplSDChannelSelect_813DB4D4(ipl::scene::SDChannelSelect* channelSelect,
-                                             const ESTitleId* titleEntry, ESTitleId titleId, u32 flags);
+                                             ESTitleId titleId, u32 flags);
 extern "C" bool iplSDChannelSelect_813DB530(ipl::scene::SDChannelSelect* channelSelect,
                                              ESTitleId** titleNames, ESTitleId** secondaryTitles);
 extern "C" bool iplSDChannelSelect_813DB478(ipl::scene::SDChannelSelect* channelSelect,
-                                             const ESTitleId* titleEntry, ESTitleId titleId);
+                                             ESTitleId titleId);
 extern "C" bool iplSDChannelSelect_813DB58C(ipl::scene::SDChannelSelect* channelSelect,
                                              ESTitleId** titles, ESTitleId** secondaryTitles,
                                              ESTitleId** names);
@@ -63,13 +63,13 @@ namespace ipl {
         void setTitleRowColors(nw4r::lyt::TextBox* textBox, const nw4r::ut::Color& first,
                                const nw4r::ut::Color& second);
 
-        static const char* const sControlPaneNames[] = {
+        static const char* sControlPaneNames[] = {
             "A", "B", "B_BtnA",
         };
 
-        static const char* const sTitlePaneNames[] = {"A", "B", "B_BtnA", "C", "D"};
-        static const char* const sAdditionalTitlePaneNames[] = {"B_00", "C_00", "D_00", "B_BtnA"};
-        static const char* const sDialogPaneNames[] = {"B_ArwR", "B_ArwL", "B_CalExit", "B_CalExit_00"};
+        static const char* sTitlePaneNames[] = {"A", "B", "B_BtnA", "C", "D"};
+        static const char* sAdditionalTitlePaneNames[] = {"B_00", "C_00", "D_00", "B_BtnA"};
+        static const char* sDialogPaneNames[] = {"B_ArwR", "B_ArwL", "B_CalExit", "B_CalExit_00"};
 
         SDMemory::SDMemory() : mScroller() {}
 
@@ -410,8 +410,7 @@ namespace ipl {
             for (int i = 0; i < 4; i++) {
                 if (mPanelAnimationStates[i] != 0) {
                     mPanelAnimationStates[i] = 0;
-                    nw4r::lyt::Pane* pane = mpDialogLayout->FindPaneByName(sDialogPaneNames[i]);
-                    mpPaneManagers[2]->initPane(pane);
+                    mpPaneManagers[2]->initPane(mpDialogLayout->GetRootPane()->FindPaneByName(sDialogPaneNames[i], true));
 
                     layout::Animator* animation = NULL;
                     switch (i) {
@@ -544,123 +543,117 @@ namespace ipl {
         s32 SDMemory::updateState() {
             NandSDWorker::WorkSDState sdState = mpSDChannelSelect->getSDState();
             s32 result = 0;
-            if (static_cast<u32>(sdState - NandSDWorker::SD_STATE_EJECTED) >
-                static_cast<u32>(NandSDWorker::SD_STATE_INSERTED - NandSDWorker::SD_STATE_EJECTED)) {
-                return result;
-            }
-
-            switch (mDialogState) {
-            case 1:
-            case 2: {
-                mpMainLayout->getAnim(1)->initAnmFrame();
-                mpMainLayout->getAnim(1)->initFrame();
-                mpMainLayout->getAnim(1)->restart();
-                mpDialogLayout->getAnim(1)->initAnmFrame();
-                mpDialogLayout->getAnim(1)->initFrame();
-                mpDialogLayout->getAnim(1)->restart();
-                mTransferFlags[1] = 0;
-                mDialogState = 3;
-                result = 1;
-                break;
-            }
-            case 3:
-                if (mTransferFlags[1] != 0) {
-                    mpDialogLayout->getAnim(1)->initAnmFrame();
-                    mpDialogLayout->getAnim(1)->initFrame();
-                    mpDialogLayout->getAnim(1)->restart();
+            if (sdState == NandSDWorker::SD_STATE_EJECTED || sdState == NandSDWorker::SD_STATE_INSERTED) {
+                switch (mDialogState) {
+                case 1:
+                case 2: {
+                    mpMainLayout->getAnim(1)->initAnmFrame();
+                    mpMainLayout->getAnim(1)->play();
+                    mpProgressLayout->getAnim(1)->initAnmFrame();
+                    mpProgressLayout->getAnim(1)->play();
                     mTransferFlags[1] = 0;
-                }
-                if (!mpMainLayout->isPlaying(1) && !mpDialogLayout->isPlaying(1)) {
-                    result = 2;
-                } else {
+                    mDialogState = 3;
                     result = 1;
+                    break;
                 }
-                break;
-            case 5:
-            case 6:
-                mpTitleLayout->getAnim(1)->initAnmFrame();
-                mpTitleLayout->getAnim(1)->initFrame();
-                mpTitleLayout->getAnim(1)->restart();
-                mpDialogLayout->getAnim(1)->initAnmFrame();
-                mpDialogLayout->getAnim(1)->initFrame();
-                mpDialogLayout->getAnim(1)->restart();
-                mTransferFlags[1] = 0;
-                mDialogState = 7;
-                result = 1;
-                break;
-            case 7:
-                if (mTransferFlags[1] != 0) {
-                    mpDialogLayout->getAnim(1)->initAnmFrame();
-                    mpDialogLayout->getAnim(1)->initFrame();
-                    mpDialogLayout->getAnim(1)->restart();
-                    mTransferFlags[1] = 0;
-                }
-                if (!mpTitleLayout->isPlaying(1) && !mpDialogLayout->isPlaying(1)) {
-                    result = 2;
-                } else {
-                    result = 1;
-                }
-                break;
-            case 10:
-            case 11:
-                mDialogState = 12;
-                mpDialogLayout->getAnim(1)->initAnmFrame();
-                mpDialogLayout->getAnim(1)->initFrame();
-                mpDialogLayout->getAnim(1)->restart();
-                mTransferFlags[1] = 0;
-                mScroller.init();
-                mScroller.resetBInst();
-                if (mControllerFlags[0] != 0) {
-                    hideDownArrow();
-                }
-                if (mControllerFlags[1] != 0) {
-                    hideUpArrow();
-                }
-                result = 1;
-                break;
-            case 12:
-                if (mTransferFlags[1] != 0) {
-                    mScroller.init();
-                    mScroller.resetBInst();
-                    mpDialogLayout->getAnim(1)->initAnmFrame();
-                    mpDialogLayout->getAnim(1)->initFrame();
-                    mpDialogLayout->getAnim(1)->restart();
-                    mTransferFlags[1] = 0;
-                }
-                if (!mpTitleLayout->isPlaying(1) && !mpDialogLayout->isPlaying(1)) {
-                    result = 2;
-                } else {
-                    result = 1;
-                }
-                break;
-            case 8:
-            case 22: {
-                DialogWindow* dialog = System::getDialog();
-                s32 dialogState = dialog->getStateForSDMemory();
-                if (dialogState == 2) {
-                    dialog->terminate();
-                    mpDialogLayout->getAnim(1)->initAnmFrame();
-                    mpDialogLayout->getAnim(1)->initFrame();
-                    mpDialogLayout->getAnim(1)->restart();
-                    mTransferFlags[1] = 0;
-                } else if ((dialogState == 3 || dialogState == 4) && mTransferFlags[1] != 0) {
-                    mpDialogLayout->getAnim(1)->initAnmFrame();
-                    mpDialogLayout->getAnim(1)->initFrame();
-                    mpDialogLayout->getAnim(1)->restart();
-                    mTransferFlags[1] = 0;
-                }
-
-                if (dialog->getLastResult() != -1) {
-                    if (mpDialogLayout->isPlaying(1) || dialog->getLastResult() == 1) {
-                        result = 1;
-                    } else {
-                        result = 2;
+                case 3:
+                    if (mTransferFlags[1] != 0) {
+                        mpProgressLayout->getAnim(1)->initAnmFrame();
+                        mpProgressLayout->getAnim(1)->play();
+                        mTransferFlags[1] = 0;
                     }
+                    if (!mpMainLayout->isPlaying(1) && !mpProgressLayout->isPlaying(1)) {
+                        result = 2;
+                    } else {
+                        result = 1;
+                    }
+                    break;
+                case 5:
+                case 6:
+                    mpTitleLayout->getAnim(1)->initAnmFrame();
+                    mpTitleLayout->getAnim(1)->play();
+                    mpProgressLayout->getAnim(1)->initAnmFrame();
+                    mpProgressLayout->getAnim(1)->play();
+                    mTransferFlags[1] = 0;
+                    mDialogState = 7;
+                    result = 1;
+                    break;
+                case 7:
+                    if (mTransferFlags[1] != 0) {
+                        mpProgressLayout->getAnim(1)->initAnmFrame();
+                        mpProgressLayout->getAnim(1)->play();
+                        mTransferFlags[1] = 0;
+                    }
+                    if (!mpTitleLayout->isPlaying(1) && !mpProgressLayout->isPlaying(1)) {
+                        result = 2;
+                    } else {
+                        result = 1;
+                    }
+                    break;
+                case 10:
+                case 11:
+                    mDialogState = 12;
+                    mpDialogLayout->getAnim(1)->initAnmFrame();
+                    mpDialogLayout->getAnim(1)->play();
+                    mpProgressLayout->getAnim(1)->initAnmFrame();
+                    mpProgressLayout->getAnim(1)->play();
+                    mTransferFlags[1] = 0;
+                    mScroller.initScroll();
+                    mScroller.resetBInst();
+                    if (mControllerFlags[0] != 0) {
+                        hideDownArrow();
+                    }
+                    if (mControllerFlags[1] != 0) {
+                        hideUpArrow();
+                    }
+                    result = 1;
+                    break;
+                case 12:
+                    if (mTransferFlags[1] != 0) {
+                        mScroller.initScroll();
+                        mScroller.resetBInst();
+                        mpProgressLayout->getAnim(1)->initAnmFrame();
+                        mpProgressLayout->getAnim(1)->play();
+                        mTransferFlags[1] = 0;
+                    }
+                    if (!mpDialogLayout->isPlaying(1) && !mpProgressLayout->isPlaying(1)) {
+                        result = 2;
+                    } else {
+                        result = 1;
+                    }
+                    break;
+                case 8:
+                case 22: {
+                    if (sdState == NandSDWorker::SD_STATE_EJECTED || sdState == NandSDWorker::SD_STATE_INSERTED) {
+                        if (System::getDialog()->getStateForSDMemory() == 2) {
+                            System::getDialog()->terminate();
+                            mpProgressLayout->getAnim(1)->initAnmFrame();
+                            mpProgressLayout->getAnim(1)->play();
+                            mTransferFlags[1] = 0;
+                        } else if (System::getDialog()->getStateForSDMemory() == 4 ||
+                                   System::getDialog()->getStateForSDMemory() == 3) {
+                            if (mTransferFlags[1] != 0) {
+                                mpProgressLayout->getAnim(1)->initAnmFrame();
+                                mpProgressLayout->getAnim(1)->play();
+                                mTransferFlags[1] = 0;
+                            }
+                        }
+                    }
+
+                    if (System::getDialog()->getLastResult() != -1 && !mpProgressLayout->isPlaying(1)) {
+                        if (System::getDialog()->getLastResult() != 1 &&
+                            (sdState == NandSDWorker::SD_STATE_EJECTED || sdState == NandSDWorker::SD_STATE_INSERTED)) {
+                            result = 2;
+                        }
+                    } else {
+                        result = 1;
+                    }
+                    break;
                 }
-                break;
-            }
-            default:
-                break;
+                default:
+                    break;
+                }
+
             }
 
             if (result == 2) {
@@ -673,8 +666,7 @@ namespace ipl {
             if (!mpMainLayout->isPlaying(-1)) {
                 for (int i = 0; i < 3; i++) {
                     mPanelStates[i] = 0;
-                    nw4r::lyt::Pane* pane = mpMainLayout->FindPaneByName(sControlPaneNames[i]);
-                    mpPaneManagers[0]->initPane(pane);
+                    mpPaneManagers[0]->initPane(mpMainLayout->GetRootPane()->FindPaneByName(sControlPaneNames[i], true));
                 }
 
                 mDialogState = 1;
@@ -758,7 +750,7 @@ namespace ipl {
                 }
 
                 if (!mpSDChannelSelect->getWorker()->is_working() &&
-                    OSGetTime() - mTransferStartTime > OS_TIMER_CLOCK) {
+                    static_cast<s64>(OSGetTime() - mTransferStartTime) > static_cast<s64>(OS_TIMER_CLOCK)) {
                     System::getDialog()->terminate();
                 }
             }
@@ -804,7 +796,7 @@ namespace ipl {
                 case 4:
                     mDialogState = 0;
                     mpMainLayout->getAnim(0)->play();
-                    snd::getSystem()->startSE("WIPL_SE_BT_TARGETTING");
+                    snd::getSystem()->startSE("WIPL_SE_INFO_WINDOW");
                     break;
                 default:
                     mTransferStartTime = 0;
@@ -822,8 +814,7 @@ namespace ipl {
             if (!mpDialogLayout->isPlaying(0)) {
                 for (int i = 0; i < 4; i++) {
                     mPanelAnimationStates[i] = 0;
-                    nw4r::lyt::Pane* pane = mpDialogLayout->FindPaneByName(sDialogPaneNames[i]);
-                    mpPaneManagers[2]->initPane(pane);
+                    mpPaneManagers[2]->initPane(mpDialogLayout->GetRootPane()->FindPaneByName(sDialogPaneNames[i], true));
                 }
 
                 mDialogState = 10;
@@ -924,7 +915,7 @@ namespace ipl {
         }
 
         extern "C" bool iplSDMemory_813EE358(const SDMemory* memory,
-                                             const ESTitleId* titleEntry, ESTitleId titleId,
+                                             ESTitleId titleId,
                                              const ESTitleId* titleIds, u32 titleCount) {
             for (u32 i = 0; i < titleCount; i++) {
                 if (titleIds[i] == titleId) {
@@ -939,9 +930,8 @@ namespace ipl {
             if (!mpSDChannelSelect->getWorker()->is_working()) {
                 s32 result = mpSDChannelSelect->getWorker()->get_async_result();
                 if (result == 0) {
-                    const ESTitleId* titleEntry = &mTitleIds[mCurrentTitle];
-                    ESTitleId titleId = *titleEntry;
-                    if (iplSDMemory_813EE358(this, titleEntry, titleId,
+                    ESTitleId titleId = mTitleIds[mCurrentTitle];
+                    if (iplSDMemory_813EE358(this, titleId,
                                              mNandTitleIds, mNandTitleCount)) {
                         mDialogState = 17;
                     } else {
@@ -974,24 +964,10 @@ namespace ipl {
             swprintf(mCurrentTitleName, 0x107f, L"%ls\n%ls", titleName, message);
             System::getDialog()->setTitleForSDMemory(mCurrentTitleName);
 
-            bool isKnownTitle;
-            {
-                const ESTitleId* titleEntry = &mTitleIds[mCurrentTitle];
-                ESTitleId titleId = *titleEntry;
-                isKnownTitle = iplSDMemory_813EE358(this, titleEntry, titleId,
-                                                    mSDTitleIds, mTitleNameCount);
-            }
-            if (!isKnownTitle) {
-                const ESTitleId* titleEntry = &mTitleIds[mCurrentTitle];
-                ESTitleId titleId = *titleEntry;
-                isKnownTitle = iplSDMemory_813EE358(this, titleEntry, titleId,
-                                                    mNandTitleIds, mNandTitleCount);
-            }
-
-            if (isKnownTitle) {
-                const ESTitleId* titleEntry = &mTitleIds[mCurrentTitle];
-                ESTitleId titleId = *titleEntry;
-                if (iplSDChannelSelect_813DB478(mpSDChannelSelect, titleEntry, titleId)) {
+            if (iplSDMemory_813EE358(this, mTitleIds[mCurrentTitle], mSDTitleIds, mTitleNameCount) ||
+                iplSDMemory_813EE358(this, mTitleIds[mCurrentTitle], mNandTitleIds, mNandTitleCount)) {
+                ESTitleId titleId = mTitleIds[mCurrentTitle];
+                if (iplSDChannelSelect_813DB478(mpSDChannelSelect, titleId)) {
                     mDialogState = 14;
                 } else {
                     System::getDialog()->terminate();
@@ -1000,12 +976,10 @@ namespace ipl {
                     mMessageId = 0xAE;
                 }
             } else {
-                f32 completedTitles = static_cast<f32>(mCurrentTitle + 1);
-                f32 totalTitles = static_cast<f32>(mTitleCount);
                 mDialogState = 15;
-                f32 progress = completedTitles * 100.0f / totalTitles;
+                f32 progress = static_cast<f32>(mCurrentTitle + 1) * 100.0f / static_cast<f32>(mTitleCount);
                 if (progress >= 100.0f) {
-                    progress = 100.0f;
+                    progress = 99.0f;
                 }
 
                 mTransferFrame = static_cast<s32>(progress);
@@ -1014,16 +988,10 @@ namespace ipl {
         }
 
         void SDMemory::onDialogState15() {
-            u32 completedPercent = NandSDWorker::getCompletionPct() / mTitleCount;
-            u32 currentTitle = mCurrentTitle;
-            u32 titleCount = mTitleCount;
-            f32 completedPercentFloat = static_cast<f32>(completedPercent);
-            f32 currentTitleNumber = static_cast<f32>(currentTitle + 1);
-            f32 progress = currentTitleNumber * 100.0f;
-            progress = progress / static_cast<f32>(titleCount);
-            progress += completedPercentFloat;
+            f32 progress = static_cast<f32>(mCurrentTitle) * 100.0f / static_cast<f32>(mTitleCount);
+            progress += static_cast<f32>(NandSDWorker::getCompletionPct() / mTitleCount);
             if (progress >= 100.0f) {
-                progress = 100.0f;
+                progress = 99.0f;
             }
 
             mTransferFrame = static_cast<s32>(progress);
@@ -1049,8 +1017,7 @@ namespace ipl {
 
         void SDMemory::onDialogState16() {
             if (mTitleCount > mCurrentTitle && System::isReceiveScheduleStopped()) {
-                const ESTitleId* titleEntry = &mTitleIds[mCurrentTitle];
-                if (iplSDChannelSelect_813DB4D4(mpSDChannelSelect, titleEntry, *titleEntry, 0)) {
+                if (iplSDChannelSelect_813DB4D4(mpSDChannelSelect, mTitleIds[mCurrentTitle], 0)) {
                     mDialogState = 16;
                 } else {
                     System::getDialog()->terminate();
@@ -1076,9 +1043,8 @@ namespace ipl {
             if (mpSDChannelSelect->getWorker()->get_async_result() == 0) {
                 mCurrentTitle++;
                 if (mTitleCount > mCurrentTitle) {
-                    const ESTitleId* nextTitle = &mTitleIds[mCurrentTitle];
-                    ESTitleId nextTitleId = *nextTitle;
-                    if (iplSDMemory_813EE358(this, nextTitle, nextTitleId,
+                    ESTitleId nextTitleId = mTitleIds[mCurrentTitle];
+                    if (iplSDMemory_813EE358(this, nextTitleId,
                                              mNandTitleIds, mNandTitleCount)) {
                         mDialogState = 17;
                     } else {
@@ -1105,9 +1071,8 @@ namespace ipl {
                 swprintf(mCurrentTitleName, 0x107f, L"%ls\n%ls", titleName, message);
                 System::getDialog()->setTitleForSDMemory(mCurrentTitleName);
 
-                const ESTitleId* titleEntry = &mTitleIds[mCurrentTitle];
-                const ESTitleId titleId = *titleEntry;
-                if (iplSDChannelSelect_813DB5EC(mpSDChannelSelect, titleEntry, titleId)) {
+                const ESTitleId titleId = mTitleIds[mCurrentTitle];
+                if (iplSDChannelSelect_813DB5EC(mpSDChannelSelect, titleId)) {
                     mDialogState = 18;
                 } else {
                     System::getDialog()->terminate();
@@ -1162,7 +1127,7 @@ namespace ipl {
 
             if (blockCountMarker != NULL && message != NULL) {
                 format[0] = L'\0';
-                wcsncat(format, message, static_cast<u32>(blockCountMarker - message) >> 1);
+                wcsncat(format, message, static_cast<u32>(blockCountMarker - message));
                 wcscat(format, L"%d");
                 wcscat(format, blockCountMarker + 4);
 
@@ -1198,7 +1163,7 @@ namespace ipl {
 
                 mpMainLayout->getAnim(0)->initAnmFrame();
                 mpMainLayout->getAnim(0)->play();
-                snd::getSystem()->startSE("WIPL_SE_CANCEL");
+                snd::getSystem()->startSE("WIPL_SE_INFO_WINDOW");
                 mDialogState = 0;
             }
 
@@ -1548,8 +1513,6 @@ namespace ipl {
                 }
 
                 if (animator != NULL) {
-                    mProcessState = paneIndex;
-                    mDialogState = 2;
                     animator->initAnmFrame();
                     animator->setAnmType(ANIM_TYPE_FORWARD);
                     animator->initFrame();

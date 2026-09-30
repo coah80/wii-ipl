@@ -1,3 +1,4 @@
+#define IPL_SETTING_RECT_OUT_OF_LINE
 #define IPL_SETTING_IMPLEMENTATION
 #include "scene/setting/iplSetting.h"
 #include "scene/setting/iplAPScanThread.h"
@@ -1279,61 +1280,58 @@ namespace ipl {
                     ext_ead::www::SurfaceManager::GetInstance()->StopThreadAsync();
                     OSReport("!!!!!!!!!!!!! SCFlush !!!!!!!!!!!!!!\n");
                     SCFlush();
-                }
-                if (surfaceState != 0) {
-                    if (unk_0x7C == 5) {
-                        if (mInitialArgument == 2 || mInitialArgument == 5) {
-                            SCSetConfigDoneFlag(TRUE);
-                            SCSetConfigDoneFlag2(TRUE);
-                            SCSetUpdateType(0);
-                            SCFlush();
-                        }
-
-                        while (WPADGetStatus() != 0 ||
-                               System::getBS2Manager()->getIPLState() != bs2::IPL_STATE_8) {
-                            snd::getSystem()->calc();
-                            System::getBS2Manager()->update();
-                            VIWaitForRetrace();
-                            if (WPADGetStatus() != 0) {
-                                OSReport("wait for WPAD\n");
-                            }
-                            if (System::getBS2Manager()->getIPLState() != bs2::IPL_STATE_8) {
-                                OSReport("wait for BS2\n");
-                            }
-                        }
-
-                        VISetBlack(TRUE);
-                        VIFlush();
-                        VIWaitForRetrace();
-                        OSReport("VI Black\n");
-                        while (!__OSSyncSram()) {
-                            OSReport("sync sram\n");
-                        }
-                        while (!System::isReceiveScheduleStopped()) {
-                            OSReport("Wait ScheduleStopped\n");
-                            OSSleepMilliseconds(5);
-                        }
-                        __OSLaunchTitlelForSystem(mUpdateTitleId, 0, NULL);
-                        for (;;) {
-                            OSReport(NULL);
-                        }
-                    } else if (ext_ead::www::SurfaceManager::GetInstance()->IsThreadStopped()) {
-                        OSReport("reserve destroy\n");
-                        ext_ead::www::SurfaceManager::DisposeManager();
-                        OSReport("reserve destroy done\n");
-                        if (mInitialArgument == 2 || mInitialArgument == 5) {
-                            SCSetConfigDoneFlag(TRUE);
-                            SCSetConfigDoneFlag2(TRUE);
-                            SCSetUpdateType(0);
-                            SCFlush();
-                            reserveAllSceneDestruction(0x1a, NULL);
-                        } else {
-                            System::reloadDownloadTask();
-                            reserveAllSceneDestruction(0x15, NULL);
-                        }
-                        delete mpBrowserData;
-                        return FADER_SCN_NEXT;
+                } else if (surfaceState != 0 && unk_0x7C == 5) {
+                    if (mInitialArgument == 2 || mInitialArgument == 5) {
+                        SCSetConfigDoneFlag(TRUE);
+                        SCSetConfigDoneFlag2(TRUE);
+                        SCSetUpdateType(0);
+                        SCFlush();
                     }
+
+                    while (WPADGetStatus() != 0 ||
+                           System::getBS2Manager()->getIPLState() != bs2::IPL_STATE_8) {
+                        snd::getSystem()->calc();
+                        System::getBS2Manager()->update();
+                        VIWaitForRetrace();
+                        if (WPADGetStatus() != 0) {
+                            OSReport("wait for WPAD\n");
+                        }
+                        if (System::getBS2Manager()->getIPLState() != bs2::IPL_STATE_8) {
+                            OSReport("wait for BS2\n");
+                        }
+                    }
+
+                    VISetBlack(TRUE);
+                    VIFlush();
+                    VIWaitForRetrace();
+                    OSReport("VI Black\n");
+                    while (!__OSSyncSram()) {
+                        OSReport("sync sram\n");
+                    }
+                    while (!System::isReceiveScheduleStopped()) {
+                        OSReport("Wait ScheduleStopped\n");
+                        OSSleepMilliseconds(5);
+                    }
+                    __OSLaunchTitlelForSystem(mUpdateTitleId, 0, NULL);
+                    for (;;) {
+                        OSReport(NULL);
+                    }
+                } else if (surfaceState != 0 && ext_ead::www::SurfaceManager::GetInstance()->IsThreadStopped()) {
+                    OSReport("reserve destroy\n");
+                    ext_ead::www::SurfaceManager::DisposeManager();
+                    OSReport("reserve destroy done\n");
+                    if (mInitialArgument == 2 || mInitialArgument == 5) {
+                        SCSetConfigDoneFlag(TRUE);
+                        SCSetConfigDoneFlag2(TRUE);
+                        SCSetUpdateType(0);
+                        SCFlush();
+                        reserveAllSceneDestruction(0x1a, NULL);
+                    } else {
+                        System::reloadDownloadTask();
+                        reserveAllSceneDestruction(0x15, NULL);
+                    }
+                    delete mpBrowserData;
+                    return FADER_SCN_NEXT;
                 }
             }
 
@@ -1435,6 +1433,17 @@ namespace ipl {
             }
         }
 
+    }
+}
+
+namespace nw4r {
+    namespace ut {
+        Rect::Rect(f32 l, f32 t, f32 r, f32 b) : left(l), top(t), right(r), bottom(b) {}
+    }
+}
+
+namespace ipl {
+    namespace scene {
         void Setting::initWiiSettingData() {
             mpWiiSettingData = www::wiisetting::getWiiSettingData();
             mpWiiSettingFlag = www::wiisetting::getWiiSettingFlag();
@@ -2242,62 +2251,60 @@ namespace ipl {
         }
 
         u8 Setting::checkTextNum(const char* text) {
-            int formId = mpWiiSettingData->data[0x36];
             u8 result = 4;
             u32 message = 0;
-            if (formId < 13) {
-                if (formId != 2) {
-                    if (formId < 2) {
-                    } else if (formId < 10) {
+            switch (mpWiiSettingData->data[0x36]) {
+            case 2:
+                if (wcslen(reinterpret_cast<const wchar_t*>(unk_0x938)) != 0) {
+                    if (checkSpace()) {
+                        result = 3;
                     } else {
-                        if (strlen(text) == 4) {
-                            result = 3;
-                        }
-                        message = 0x1ba;
+                        message = 0x1c1;
                     }
                 } else {
-                    size_t length = wcslen(reinterpret_cast<const wchar_t*>(unk_0x938));
-                    if (length == 0) {
-                        message = 0x1c0;
-                    } else if (checkSpace()) {
+                    message = 0x1c0;
+                }
+                break;
+            case 10:
+            case 11:
+            case 12:
+                if (strlen(text) == 4) {
+                    result = 3;
+                }
+                message = 0x1ba;
+                break;
+            case 13:
+            case 14: {
+                u32 minimum;
+                switch (System::getRegion()) {
+                case 0:
+                case 11:
+                    minimum = 3;
+                    break;
+                case 6:
+                    minimum = 2;
+                    break;
+                default:
+                    minimum = 6;
+                    break;
+                }
+                if (wcslen(reinterpret_cast<const wchar_t*>(unk_0x938)) >= minimum) {
+                    if (checkSpace()) {
                         result = 3;
                     } else {
                         message = 0x1c1;
                     }
+                } else {
+                    message = 0x1bb;
                 }
-            } else if (formId != 15) {
-                if (formId <= 14) {
-                    int region = System::getRegion();
-                    u32 minimum;
-                    if (region == 6) {
-                        minimum = 2;
-                    } else if (region < 6) {
-                        if (region == 0) {
-                            minimum = 3;
-                        } else {
-                            minimum = 6;
-                        }
-                    } else {
-                        if (region == 11) {
-                            minimum = 3;
-                        } else {
-                            minimum = 6;
-                        }
-                    }
-                    size_t length = wcslen(reinterpret_cast<const wchar_t*>(unk_0x938));
-                    if (length < minimum) {
-                        message = 0x1bb;
-                    } else if (checkSpace()) {
-                        result = 3;
-                    } else {
-                        message = 0x1c1;
-                    }
-                }
-            } else {
+                break;
+            }
+            case 15:
                 if (strlen(text) == 5) {
                     result = 3;
                 }
                 message = 0x1bc;
+                break;
             }
             www::wiisetting::setFuncResult(result);
             if (result == 4) {
@@ -2920,22 +2927,24 @@ namespace ipl {
         }
 
         void Setting::setUseEULA_() {
-            if (unk_0x7C != 2) {
-                if (unk_0x7C < 2) {
-                    if (unk_0x7C != 0) {
-                        if (unk_0x7C >= 0) {
-                            setUseEULA_Start_();
-                        }
-                    } else {
-                        setUseEULA_Init_();
-                    }
-                } else if (unk_0x7C == 4) {
-                    setUseEULA_WaitStopMotor_();
-                } else if (unk_0x7C < 4 && !snd::getSystem()->isSEActive("WIPL_SE_DECIDE")) {
+            switch (unk_0x7C) {
+            case 0:
+                setUseEULA_Init_();
+                break;
+            case 1:
+                setUseEULA_Start_();
+                break;
+            case 2:
+                setUseEULA_Cancel_();
+                break;
+            case 3:
+                if (!snd::getSystem()->isSEActive("WIPL_SE_DECIDE")) {
                     unk_0x7C = 4;
                 }
-            } else {
-                setUseEULA_Cancel_();
+                break;
+            case 4:
+                setUseEULA_WaitStopMotor_();
+                break;
             }
         }
 
@@ -3160,18 +3169,21 @@ namespace ipl {
                 mUpdateTiming = 0;
                 mIsResetAcceptable = 1;
             } else if (mpWiiSettingFlag->smthMsgData == 9) {
-                if (result == 2) {
-                    System::getDialog()->terminate();
-                    mUpdateTiming = 6;
-                    mpWiiSettingFlag->err = networkError;
-                } else if (result == 1) {
+                switch (result) {
+                case 1:
                     System::getDialog()->setProgBarLength(100);
                     mProfileIDMode = 6;
                     mUpdateTiming = 0;
                     mpWiiSettingFlag->smthMsgData = 0x54;
                     SCSetUpdateType(2);
                     SCFlush();
-                } else if (result == 3) {
+                    break;
+                case 2:
+                    System::getDialog()->terminate();
+                    mUpdateTiming = 6;
+                    mpWiiSettingFlag->err = networkError;
+                    break;
+                case 3:
                     System::getDialog()->terminate();
                     if (SCGetConfigDoneFlag2() == 0) {
                         mProfileIDMode = 6;
@@ -3181,6 +3193,7 @@ namespace ipl {
                     }
                     mUpdateTiming = 0;
                     mpWiiSettingFlag->smthMsgData = 0x54;
+                    break;
                 }
             } else {
                 if (result == 1) {
@@ -3403,13 +3416,14 @@ namespace ipl {
             if (initialized) {
                 www::wiisetting::setFuncResult(1);
             } else {
-                if (error < -2) {
-                    if (error == -5) {
-                        System::getErrorHandler()->set(ErrorHandler::DEFAULT, 1);
-                    }
-                } else if (error == -2) {
-                    System::getErrorHandler()->log("NandSDWorker", error, "iplSetting.cpp", 0x13a7);
+                switch (error) {
+                case -5:
+                    System::getErrorHandler()->set(ErrorHandler::DEFAULT, 1);
+                    break;
+                case -2:
+                    System::getErrorHandler()->log("NandSDWorker", -2, "iplSetting.cpp", 0x13a7);
                     System::getErrorHandler()->set(ErrorHandler::DEFAULT, 2);
+                    break;
                 }
             }
         }
@@ -3445,6 +3459,11 @@ namespace ipl {
 
         void Setting::cancelUSBAP() {
             switch (unk_0x84) {
+            case 1:
+            case 2:
+                static_cast<USBAPThread*>(mpUSBAPThread)->cancel();
+                unk_0x84 = 3;
+                break;
             case 3:
                 if (unk_0x91C[1] != 0 || static_cast<USBAPThread*>(mpUSBAPThread)->is()) {
                     www::wiisetting::setFuncResult(5);
@@ -3453,61 +3472,58 @@ namespace ipl {
                     resetFuncMsgQ();
                 }
                 break;
-            case 1:
-            case 2:
-                static_cast<USBAPThread*>(mpUSBAPThread)->cancel();
-                unk_0x84 = 3;
-                break;
-            default:
-                break;
             }
         }
 
         void Setting::AOSSProcess() {
             u8 message = mpWiiSettingFlag->smthMsgData;
             if (message == 0x22u) {
-                if (mAOSSState == 3) {
-                    if (System::getDialog()->getLastResult() >= 0) {
-                        mAOSSState = 0;
-                        www::wiisetting::setFuncResult(10);
-                        resetFuncMsgQ();
-                    }
-                } else {
+                if (mAOSSState != 3) {
                     System::getDialog()->callBtn1(0x1c2, 0x2e);
                     mAOSSState = 3;
                     unk_0x74 = 2;
-                }
-                return;
-            }
-            bool cancelled = message == 0x21u;
-            if (mAOSSState == 0) {
-                if (!snd::getSystem()->isSEActive("WIPL_SE_DECIDE")) {
-                    if (cancelled || static_cast<AOSSThread*>(mpAOSSThread)->start() == 0) {
-                        www::wiisetting::setFuncResult(cancelled ? 5 : 2);
-                        resetFuncMsgQ();
-                    } else {
-                        mAOSSState = 1;
-                    }
-                }
-            } else if (mAOSSState >= 0 && mAOSSState < 3) {
-                int result = 0;
-                if (static_cast<AOSSThread*>(mpAOSSThread)->finish(&m_AOSSConfig, &result) != 0) {
+                } else if (System::getDialog()->getLastResult() >= 0) {
                     mAOSSState = 0;
-                    if (cancelled) {
-                        www::wiisetting::setFuncResult(5);
-                    } else if (result == 0) {
-                        ncd::NCDSetting::getData();
-                        ncd::NCDSetting::getID();
-                        ncd::NCDSetting::setAOSSParams(m_AOSSConfig);
-                        www::wiisetting::setFuncResult(1);
-                    } else {
-                        OSReport("m_AOSSThread : Terminated with Error(%d)\n", result);
-                        www::wiisetting::setFuncResult(2);
-                    }
+                    www::wiisetting::setFuncResult(10);
                     resetFuncMsgQ();
-                } else if (cancelled && mAOSSState != 2) {
-                    static_cast<AOSSThread*>(mpAOSSThread)->cancel();
-                    mAOSSState = 2;
+                }
+            } else {
+                bool cancelled = message == 0x21u;
+                switch (mAOSSState) {
+                case 0:
+                    if (!snd::getSystem()->isSEActive("WIPL_SE_DECIDE")) {
+                        if (!cancelled && static_cast<AOSSThread*>(mpAOSSThread)->start() != 0) {
+                            mAOSSState = 1;
+                        } else {
+                            www::wiisetting::setFuncResult(cancelled ? 5 : 2);
+                            resetFuncMsgQ();
+                        }
+                    }
+                    break;
+                case 1:
+                case 2: {
+                    int result;
+                    if (static_cast<AOSSThread*>(mpAOSSThread)->finish(&m_AOSSConfig, &result) != 0) {
+                        mAOSSState = 0;
+                        if (cancelled) {
+                            www::wiisetting::setFuncResult(5);
+                        } else if (result != 0) {
+                            OSReport("m_AOSSThread : Terminated with Error(%d)\n", result);
+                            www::wiisetting::setFuncResult(2);
+                        } else {
+                            ncd::NCDSetting::getData();
+                            ncd::NCDSetting::getID();
+                            ncd::NCDSetting::setAOSSParams(m_AOSSConfig);
+                            www::wiisetting::setFuncResult(1);
+                        }
+                        mAOSSState = 0;
+                        resetFuncMsgQ();
+                    } else if (cancelled && mAOSSState != 2) {
+                        static_cast<AOSSThread*>(mpAOSSThread)->cancel();
+                        mAOSSState = 2;
+                    }
+                    break;
+                }
                 }
             }
         }
@@ -3524,60 +3540,68 @@ namespace ipl {
                     www::wiisetting::setFuncResult(10);
                     resetFuncMsgQ();
                 }
-                return;
-            }
-            bool cancelCommand = command == 0x2bu;
-            int state = static_cast<RakuRakuThread*>(mpRakuRakuThread)->getState();
-            int result = 0;
-            if (cancelCommand && (state == 0 || state == 6 || state == 7 || state == 8)) {
-                if (static_cast<RakuRakuThread*>(mpRakuRakuThread)->finish(NULL, NULL) != 0) {
-                    www::wiisetting::setFuncResult(5);
-                    resetFuncMsgQ();
-                } else {
-                    static_cast<RakuRakuThread*>(mpRakuRakuThread)->cancel();
-                }
-                return;
-            }
-            if (!cancelCommand && state == 0) {
-                if (!snd::getSystem()->isSEActive("WIPL_SE_DECIDE") &&
-                    static_cast<RakuRakuThread*>(mpRakuRakuThread)->start() == 0) {
-                    www::wiisetting::setFuncResult(2);
-                    resetFuncMsgQ();
-                }
-                return;
-            }
-            if (!cancelCommand && state == 5) {
-                if (mpWiiSettingFlag->smthMsgData == 0x29u) {
-                    www::wiisetting::setFuncResult(1);
-                    resetFuncMsgQ();
-                }
-                return;
-            }
-            if (state == 7) {
-                if (static_cast<RakuRakuThread*>(mpRakuRakuThread)->finish(NULL, &result) != 0) {
-                    www::wiisetting::setFuncResult(2);
-                    resetFuncMsgQ();
-                }
-                return;
-            }
-            if (state > 4 && state < 7) {
-                if (static_cast<RakuRakuThread*>(mpRakuRakuThread)->finish(
-                        &m_RakuConfig.cfg, &result) != 0) {
-                    if (result == 1) {
-                        ncd::NCDSetting::getData();
-                        ncd::NCDSetting::getID();
-                        ncd::NCDSetting::setRakuParams(m_RakuConfig.cfg);
-                        www::wiisetting::setFuncResult(1);
-                    } else {
-                        www::wiisetting::setFuncResult(2);
+            } else {
+                bool cancelled = command == 0x2bu;
+                int state = static_cast<RakuRakuThread*>(mpRakuRakuThread)->getState();
+                int result;
+                if (cancelled) {
+                    switch (state) {
+                    case 0:
+                    case 6:
+                    case 7:
+                        if (static_cast<RakuRakuThread*>(mpRakuRakuThread)->finish(NULL, NULL) != 0) {
+                            www::wiisetting::setFuncResult(5);
+                            resetFuncMsgQ();
+                        }
+                        break;
+                    default:
+                        static_cast<RakuRakuThread*>(mpRakuRakuThread)->cancel();
+                        break;
                     }
-                    resetFuncMsgQ();
+                } else {
+                    switch (state) {
+                    case 0:
+                        if (!snd::getSystem()->isSEActive("WIPL_SE_DECIDE") &&
+                            static_cast<RakuRakuThread*>(mpRakuRakuThread)->start() == 0) {
+                            www::wiisetting::setFuncResult(cancelled ? 5 : 2);
+                            resetFuncMsgQ();
+                        }
+                        break;
+                    case 4:
+                        if (mpWiiSettingFlag->smthMsgData == 0x28u) {
+                            www::wiisetting::setFuncResult(1);
+                            resetFuncMsgQ();
+                        }
+                        break;
+                    case 5:
+                        if (mpWiiSettingFlag->smthMsgData == 0x29u) {
+                            www::wiisetting::setFuncResult(1);
+                            resetFuncMsgQ();
+                        }
+                        break;
+                    case 6: {
+                        if (static_cast<RakuRakuThread*>(mpRakuRakuThread)->finish(&m_RakuConfig.cfg, &result) != 0) {
+                            if (result != 1) {
+                                www::wiisetting::setFuncResult(2);
+                            } else {
+                                ncd::NCDSetting::getData();
+                                ncd::NCDSetting::getID();
+                                ncd::NCDSetting::setRakuParams(m_RakuConfig.cfg);
+                                www::wiisetting::setFuncResult(1);
+                            }
+                            resetFuncMsgQ();
+                        }
+                        break;
+                    }
+                    case 7: {
+                        if (static_cast<RakuRakuThread*>(mpRakuRakuThread)->finish(NULL, &result) != 0) {
+                            www::wiisetting::setFuncResult(2);
+                            resetFuncMsgQ();
+                        }
+                        break;
+                    }
+                    }
                 }
-                return;
-            }
-            if (state > 0 && state < 4 && mpWiiSettingFlag->smthMsgData == 0x28u) {
-                www::wiisetting::setFuncResult(1);
-                resetFuncMsgQ();
             }
         }
 
