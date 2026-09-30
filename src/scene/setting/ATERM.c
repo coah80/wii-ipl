@@ -1070,16 +1070,16 @@ int ATERM_81402FC0(AtermPacket* packet, u32* setupType) {
     u8* value;
     AtermPacketOption* option;
     u16 checksum = 0;
-    u16 messageType;
+    s32 messageType;
     u32 payloadLength;
-    u16 optionType;
-    u16 optionLength;
-    u16 authenticationReady;
-    u16 networkReady;
-    u16 selectedMode;
+    s32 optionType;
+    s32 optionLength;
+    s32 authenticationReady;
+    s32 networkReady;
+    s32 selectedMode;
     s32 byteLength;
 
-    messageType = (u16)SONtoHs(packet->sequence);
+    messageType = SONtoHs(packet->sequence);
     payloadLength = SONtoHs(packet->length);
     cursor = (u8*)packet;
     end = packet->payload + payloadLength;
@@ -1113,14 +1113,17 @@ int ATERM_81402FC0(AtermPacket* packet, u32* setupType) {
     if (payload == NULL) {
         return 0;
     }
-    if (messageType == 1) {
+    if (messageType != 1) {
+        return 0;
+    }
+    {
         end = payload + payloadLength;
         cursor = payload + 8;
         while (cursor < end) {
             option = (AtermPacketOption*)cursor;
             optionType = SONtoHs(option->type);
             optionLength = SONtoHs(option->length);
-            value = option->value;
+            value = (u8*)option->value;
             cursor += (optionLength + 0x0B) & ~7;
             if (value != NULL) {
                 switch (optionType) {
@@ -1136,10 +1139,15 @@ int ATERM_81402FC0(AtermPacket* packet, u32* setupType) {
                 }
             }
         }
-        if (authenticationReady == 1 && networkReady == 1) {
-            *setupType = selectedMode >= 1;
-            return 1;
+        if (authenticationReady != 1 || networkReady != 1) {
+            return 0;
         }
+        if (selectedMode >= 1) {
+            *setupType = 1;
+        } else {
+            *setupType = 0;
+        }
+        return 1;
     }
     return 0;
 }
