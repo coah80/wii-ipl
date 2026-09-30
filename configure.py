@@ -1682,11 +1682,11 @@ config.libs = [
         ]
     ),
     RVLSDKLib("fa", [
-            Object(NonMatching, "fa/pf_clib.c"),
-            Object(NonMatching, "fa/pf_code.c"),
+            Object(Matching,    "fa/pf_clib.c"),
+            Object(Matching,    "fa/pf_code.c"),
             Object(NonMatching, "fa/pf_service.c"),
-            Object(NonMatching, "fa/pf_str.c"),
-            Object(NonMatching, "fa/pf_driver.c"),
+            Object(Matching,    "fa/pf_str.c"),
+            Object(Matching,    "fa/pf_driver.c"),
             Object(NonMatching, "fa/pdm_api.c"),
             Object(NonMatching, "fa/pdm_bpb.c"),
             Object(NonMatching, "fa/pdm_disk.c"),
