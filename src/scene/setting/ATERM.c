@@ -8,7 +8,9 @@
 #include <revolution/so/SOBasic.h>
 #include <private/wd.h>
 
-static const u32 gAtermAesTables[10][256] = {
+static OSThread AtermThread;
+
+static const u32 gAtermAesTables[4][256] = {
     {
         0xc66363a5, 0xf87c7c84, 0xee777799, 0xf67b7b8d, 0xfff2f20d, 0xd66b6bbd, 0xde6f6fb1, 0x91c5c554,
         0x60303050, 0x02010103, 0xce6767a9, 0x562b2b7d, 0xe7fefe19, 0xb5d7d762, 0x4dababe6, 0xec76769a,
@@ -144,7 +146,10 @@ static const u32 gAtermAesTables[10][256] = {
         0x9b9bb62d, 0x1e1e223c, 0x87879215, 0xe9e920c9, 0xcece4987, 0x5555ffaa, 0x28287850, 0xdfdf7aa5,
         0x8c8c8f03, 0xa1a1f859, 0x89898009, 0x0d0d171a, 0xbfbfda65, 0xe6e631d7, 0x4242c684, 0x6868b8d0,
         0x4141c382, 0x9999b029, 0x2d2d775a, 0x0f0f111e, 0xb0b0cb7b, 0x5454fca8, 0xbbbbd66d, 0x16163a2c
-    },
+    }
+};
+
+static const u32 gAtermAesDecTables[6][256] = {
     {
         0x63636363, 0x7c7c7c7c, 0x77777777, 0x7b7b7b7b, 0xf2f2f2f2, 0x6b6b6b6b, 0x6f6f6f6f, 0xc5c5c5c5,
         0x30303030, 0x01010101, 0x67676767, 0x2b2b2b2b, 0xfefefefe, 0xd7d7d7d7, 0xabababab, 0x76767676,
@@ -478,14 +483,13 @@ typedef struct {
 
 typedef void (*AtermProgressCallback)(void*);
 typedef void* (*AtermAllocateCallback)(u32);
+AtermThreadBuffer gAtermResponseBuffer;
 typedef void (*AtermFreeCallback)(void*);
 
 AtermNetworkSettings gNetworkSettings;
 char gAccessPointName[0x24];
 AtermScanSettings gScanSettings;
 AtermConfigurationResult gAtermConfigurationResult;
-AtermThreadBuffer gAtermResponseBuffer;
-static OSThread sAtermThread;
 u32 gAtermDeadline = 0xFFFFFFFF;
 u32 gAtermScanLimit = 0x40;
 u32 gAtermScanBufferSize = 0x800;
@@ -494,9 +498,7 @@ u32 gDefaultSubnetMask = 0xFFFFFF00;
 u32 gDefaultGateway = 0xC0A80001;
 u32 gDefaultPrimaryDns = 0xC0A80001;
 u32 gDefaultSecondaryDns = 0xC0A80001;
-static const u8 sAtermOptionName[8] = {6, 0, 1, 2, 3, 4, 5, 0};
-
-static const u8 sAtermMd5Padding[64] = {0x80};
+static const u8 sAtermOptionName[7] = {6, 0, 1, 2, 3, 4, 5};
 
 char gAtermAossSsid[7] = "******";
 u8* gAtermOptionBuffer = (u8*)&gAtermResponseBuffer;
@@ -531,6 +533,7 @@ void ATERM_81405254(const u32* expandedKey, u32 rounds, const u8* input, u8* out
 void ATERM_81405690(const u32* expandedKey, u32 rounds, const u8* input, u8* output);
 void ATERM_81405ACC(AtermMd5Context* context, const u8* input, u32 length);
 int ATERM_814033F0(u16* response);
+static void AtermMd5Finalize(AtermMd5Context* context, u32 timestamp, u8* digest);
 
 int ATERM_814021BC(void) {
     int status;
@@ -1430,8 +1433,6 @@ s32 ATERM_814038C8(void) {
     u8* end;
     s32 byteLength;
     u8* limit;
-    u32 padIndex;
-    u32 padLength;
     s32 receivedLength;
     u32 requestLength;
     s32 socket = 0;
@@ -1614,7 +1615,6 @@ s32 ATERM_814038C8(void) {
             u32 blockLength;
             u32 optionLength;
             u32 timestamp;
-            u8 bits[8];
             AtermMd5Context md5Context;
             s32 progress[3];
             u32 checksum;
@@ -1692,53 +1692,7 @@ s32 ATERM_814038C8(void) {
                         timestamp =
                             (u32)(OSGetTime() / (__mulhwu(reciprocal, OS_BUS_CLOCK >> 2) >> 6));
                         memcpy(challengeBuffer, option, 8);
-                        md5Context.state[0] = 0x67452301;
-                        md5Context.state[1] = 0xEFCDAB89;
-                        md5Context.state[2] = 0x98BADCFE;
-                        md5Context.state[3] = 0x10325476;
-                        md5Context.count[0] = 0;
-                        md5Context.count[1] = 0;
-                        ATERM_81405ACC(&md5Context, (u8*)&timestamp, 4);
-                        bits[0] = md5Context.count[0];
-                        bits[1] = md5Context.count[0] >> 8;
-                        bits[2] = md5Context.count[0] >> 16;
-                        bits[3] = md5Context.count[0] >> 24;
-                        bits[4] = md5Context.count[1];
-                        bits[5] = md5Context.count[1] >> 8;
-                        bits[6] = md5Context.count[1] >> 16;
-                        bits[7] = md5Context.count[1] >> 24;
-                        padIndex = (md5Context.count[0] >> 3) & 0x3F;
-                        padLength = padIndex < 56 ? 56 - padIndex : 120 - padIndex;
-                        ATERM_81405ACC(&md5Context, sAtermMd5Padding, padLength);
-                        ATERM_81405ACC(&md5Context, bits, 8);
-                        challengeBuffer[8] = md5Context.state[0];
-                        challengeBuffer[9] = md5Context.state[0] >> 8;
-                        challengeBuffer[10] = md5Context.state[0] >> 16;
-                        challengeBuffer[11] = md5Context.state[0] >> 24;
-                        challengeBuffer[12] = md5Context.state[1];
-                        challengeBuffer[13] = md5Context.state[1] >> 8;
-                        challengeBuffer[14] = md5Context.state[1] >> 16;
-                        challengeBuffer[15] = md5Context.state[1] >> 24;
-                        challengeBuffer[16] = md5Context.state[2];
-                        challengeBuffer[17] = md5Context.state[2] >> 8;
-                        challengeBuffer[18] = md5Context.state[2] >> 16;
-                        challengeBuffer[19] = md5Context.state[2] >> 24;
-                        challengeBuffer[20] = md5Context.state[3];
-                        challengeBuffer[21] = md5Context.state[3] >> 8;
-                        challengeBuffer[22] = md5Context.state[3] >> 16;
-                        challengeBuffer[23] = md5Context.state[3] >> 24;
-                        cursor = (u8*)&md5Context;
-                        for (i = 0; i < 88; i += 8) {
-                            cursor[0] = 0;
-                            cursor[1] = 0;
-                            cursor[2] = 0;
-                            cursor[3] = 0;
-                            cursor[4] = 0;
-                            cursor[5] = 0;
-                            cursor[6] = 0;
-                            cursor[7] = 0;
-                            cursor += 8;
-                        }
+                        AtermMd5Finalize(&md5Context, timestamp, challengeBuffer);
                         gAtermProtocolState = 7;
                         gAtermState = 5;
                         retries = 0;
@@ -2049,7 +2003,7 @@ int ATERM_81404A18(u16* destination, u16* source, u32 length, void* key, u32 key
     return valid;
 }
 
-#define ATERM_AES_SUB_BYTE(value) (gAtermAesTables[4][(value)] & 0xFF)
+#define ATERM_AES_SUB_BYTE(value) (gAtermAesDecTables[0][(value)] & 0xFF)
 #define ATERM_AES_SUB_WORD(value) \
     ((sbox[((value) >> 24) & 0xFF] & 0xFF000000) ^ \
      (sbox[((value) >> 16) & 0xFF] & 0x00FF0000) ^ \
@@ -2077,7 +2031,7 @@ int ATERM_81404BFC(u32* expandedKey, const void* key, s32 keyBits) {
 
     i = 0;
     if (keyBits == 0x80) {
-        sbox = gAtermAesTables[4];
+        sbox = gAtermAesDecTables[0];
         roundKey = expandedKey + 4;
         roundConstant = gAtermAesRoundConstants;
         for (;;) {
@@ -2100,7 +2054,7 @@ int ATERM_81404BFC(u32* expandedKey, const void* key, s32 keyBits) {
     expandedKey[4] = ATERM_AES_READ_KEY_WORD(4);
     expandedKey[5] = ATERM_AES_READ_KEY_WORD(5);
     if (keyBits == 0xC0) {
-        sbox = gAtermAesTables[4];
+        sbox = gAtermAesDecTables[0];
         roundKey = expandedKey + 6;
         roundConstant = gAtermAesRoundConstants;
         for (;;) {
@@ -2125,7 +2079,7 @@ int ATERM_81404BFC(u32* expandedKey, const void* key, s32 keyBits) {
     expandedKey[6] = ATERM_AES_READ_KEY_WORD(6);
     expandedKey[7] = ATERM_AES_READ_KEY_WORD(7);
     if (keyBits == 0x100) {
-        sbox = gAtermAesTables[4];
+        sbox = gAtermAesDecTables[0];
         roundKey = expandedKey + 8;
         roundConstant = gAtermAesRoundConstants;
         for (;;) {
@@ -2161,12 +2115,12 @@ int ATERM_81404BFC(u32* expandedKey, const void* key, s32 keyBits) {
 #define ATERM_AES_TRANSFORM_KEY(roundKey, index) \
     { \
         u32 word = (roundKey)[index]; \
-        u32 byte0 = gAtermAesTables[4][(word >> 24) & 0xFF] & 0xFF; \
-        u32 byte1 = gAtermAesTables[4][(word >> 16) & 0xFF] & 0xFF; \
-        u32 byte2 = gAtermAesTables[4][(word >> 8) & 0xFF] & 0xFF; \
-        u32 byte3 = gAtermAesTables[4][word & 0xFF] & 0xFF; \
-        (roundKey)[index] = gAtermAesTables[5][byte0] ^ gAtermAesTables[6][byte1] ^ \
-                            gAtermAesTables[7][byte2] ^ gAtermAesTables[8][byte3]; \
+        u32 byte0 = gAtermAesDecTables[0][(word >> 24) & 0xFF] & 0xFF; \
+        u32 byte1 = gAtermAesDecTables[0][(word >> 16) & 0xFF] & 0xFF; \
+        u32 byte2 = gAtermAesDecTables[0][(word >> 8) & 0xFF] & 0xFF; \
+        u32 byte3 = gAtermAesDecTables[0][word & 0xFF] & 0xFF; \
+        (roundKey)[index] = gAtermAesDecTables[1][byte0] ^ gAtermAesDecTables[2][byte1] ^ \
+                            gAtermAesDecTables[3][byte2] ^ gAtermAesDecTables[4][byte3]; \
     }
 
 int ATERM_8140502C(u32* expandedKey, const void* key, u32 keyBits) {
@@ -2203,11 +2157,11 @@ int ATERM_8140502C(u32* expandedKey, const void* key, u32 keyBits) {
         back -= 4;
     }
 
-    table4 = gAtermAesTables[4];
-    table5 = gAtermAesTables[5];
-    table6 = gAtermAesTables[6];
-    table7 = gAtermAesTables[7];
-    table8 = gAtermAesTables[8];
+    table4 = gAtermAesDecTables[0];
+    table5 = gAtermAesDecTables[1];
+    table6 = gAtermAesDecTables[2];
+    table7 = gAtermAesDecTables[3];
+    table8 = gAtermAesDecTables[4];
     roundKey = expandedKey + 4;
     if (rounds > 1) {
         roundCount = rounds;
@@ -2268,7 +2222,7 @@ void ATERM_81405254(const u32* expandedKey, u32 rounds, const u8* input, u8* out
     const u32* t1 = gAtermAesTables[1];
     const u32* t2 = gAtermAesTables[2];
     const u32* t3 = gAtermAesTables[3];
-    const u32* sb = gAtermAesTables[4];
+    const u32* sb = gAtermAesDecTables[0];
     s32 pairCount = (s32)rounds >> 1;
 
     state0 ^= rk[0];
@@ -2347,11 +2301,11 @@ void ATERM_81405690(const u32* expandedKey, u32 rounds, const u8* input, u8* out
     u32 state3 = ((u32)input[12] << 24) ^ ((u32)input[13] << 16) ^
                  ((u32)input[14] << 8) ^ (u32)input[15];
     const u32* rk = expandedKey;
-    const u32* t5 = gAtermAesTables[5];
-    const u32* t6 = gAtermAesTables[6];
-    const u32* t7 = gAtermAesTables[7];
-    const u32* t8 = gAtermAesTables[8];
-    const u32* sb = gAtermAesTables[9];
+    const u32* t5 = gAtermAesDecTables[1];
+    const u32* t6 = gAtermAesDecTables[2];
+    const u32* t7 = gAtermAesDecTables[3];
+    const u32* t8 = gAtermAesDecTables[4];
+    const u32* sb = gAtermAesDecTables[5];
     s32 pairCount = (s32)rounds >> 1;
 
     state0 ^= rk[0];
@@ -2673,7 +2627,7 @@ int ATERMi_ApConfigStart(OSPriority priority, u32 scanLimit,
         return -1;
     }
 
-    OSCreateThread(&sAtermThread, (void* (*)(void*))ATERMi_AutoConfigThread, NULL,
+    OSCreateThread(&AtermThread, (void* (*)(void*))ATERMi_AutoConfigThread, NULL,
                    (u8*)gAtermAllocation + (stackSize & ~7), stackSize, priority, 1);
     gAtermState = 1;
     gAtermDeadline = (u32)(OSGetTime() /
@@ -2691,7 +2645,7 @@ int ATERMi_ApConfigStart(OSPriority priority, u32 scanLimit,
     }
     progress.result = gAtermResult;
     progressCallback(&progress);
-    OSResumeThread(&sAtermThread);
+    OSResumeThread(&AtermThread);
     gAtermThreadStarted = 1;
     return 1;
 }
@@ -2725,8 +2679,8 @@ int ATERMi_ApConfigEnd(void) {
         OSSetAlarmTag(&joinAlarm, (u32)&joinQueue);
         OSSetAlarm(&joinAlarm, 0x10624DD3, ATERM_8140684C);
         OSReceiveMessage(&joinQueue, &joinMessage, 1);
-        while (OSIsThreadTerminated(&sAtermThread) == 0) {
-            OSJoinThread(&sAtermThread, NULL);
+        while (OSIsThreadTerminated(&AtermThread) == 0) {
+            OSJoinThread(&AtermThread, NULL);
         }
 
         if (gAtermAllocation != NULL) {
@@ -2777,4 +2731,62 @@ int ATERMi_ApConfigGetResult(void* result) {
 
 int ATERMi_ApConfigGetVersion(void) {
     return 0x106;
+}
+
+
+static void AtermMd5Finalize(AtermMd5Context* context, u32 timestamp, u8* digest) {
+    static u8 sAtermMd5Padding[64] = {0x80};
+    u8 bits[8];
+    u8* cursor;
+    u32 padIndex;
+    u32 padLength;
+    u32 i;
+
+    context->state[0] = 0x67452301;
+    context->state[1] = 0xEFCDAB89;
+    context->state[2] = 0x98BADCFE;
+    context->state[3] = 0x10325476;
+    context->count[0] = 0;
+    context->count[1] = 0;
+    ATERM_81405ACC(context, (u8*)&timestamp, 4);
+    bits[0] = context->count[0];
+    bits[1] = context->count[0] >> 8;
+    bits[2] = context->count[0] >> 16;
+    bits[3] = context->count[0] >> 24;
+    bits[4] = context->count[1];
+    bits[5] = context->count[1] >> 8;
+    bits[6] = context->count[1] >> 16;
+    bits[7] = context->count[1] >> 24;
+    padIndex = (context->count[0] >> 3) & 0x3F;
+    padLength = padIndex < 56 ? 56 - padIndex : 120 - padIndex;
+    ATERM_81405ACC(context, sAtermMd5Padding, padLength);
+    ATERM_81405ACC(context, bits, 8);
+    digest[8] = context->state[0];
+    digest[9] = context->state[0] >> 8;
+    digest[10] = context->state[0] >> 16;
+    digest[11] = context->state[0] >> 24;
+    digest[12] = context->state[1];
+    digest[13] = context->state[1] >> 8;
+    digest[14] = context->state[1] >> 16;
+    digest[15] = context->state[1] >> 24;
+    digest[16] = context->state[2];
+    digest[17] = context->state[2] >> 8;
+    digest[18] = context->state[2] >> 16;
+    digest[19] = context->state[2] >> 24;
+    digest[20] = context->state[3];
+    digest[21] = context->state[3] >> 8;
+    digest[22] = context->state[3] >> 16;
+    digest[23] = context->state[3] >> 24;
+    cursor = (u8*)context;
+    for (i = 0; i < 88; i += 8) {
+        cursor[0] = 0;
+        cursor[1] = 0;
+        cursor[2] = 0;
+        cursor[3] = 0;
+        cursor[4] = 0;
+        cursor[5] = 0;
+        cursor[6] = 0;
+        cursor[7] = 0;
+        cursor += 8;
+    }
 }
