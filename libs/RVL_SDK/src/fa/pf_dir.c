@@ -243,24 +243,6 @@ PFDIR_SDD* PFDIR_GetSDD(PF_VOLUME* volume, PF_DIR_ENT* entry) {
         }
     }
     if (first_free_sdd == 0) {
-                first_free_sdd = free_candidate;
-            }
-        } else if (entry->p_vol == vd->sdds[0].dir_entry.p_vol &&
-                   entry->entry_sector == vd->sdds[0].dir_entry.entry_sector &&
-                   entry->entry_offset == vd->sdds[0].dir_entry.entry_offset) {
-            return &volume_dirs->sdds[i];
-        }
-    }
-    if (first_free_sdd == 0) {
-                first_free_sdd = free_candidate;
-            }
-        } else if (entry->p_vol == volume_dirs->sdds[i].dir_entry.p_vol &&
-                   entry->entry_sector == volume_dirs->sdds[i].dir_entry.entry_sector &&
-                   entry->entry_offset == volume_dirs->sdds[i].dir_entry.entry_offset) {
-            return &volume_dirs->sdds[i];
-        }
-    }
-    if (first_free_sdd == 0) {
         return 0;
     }
     first_free_sdd->stat = 3;
