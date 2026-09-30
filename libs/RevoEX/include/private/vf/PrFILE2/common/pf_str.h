@@ -7,6 +7,9 @@
 typedef struct PF_STR {
     const pf_s8* p_head;  // 0x00
     const pf_s8* p_tail;  // 0x04
+#ifdef PF_FA_STR_LAYOUT
+    const pf_s8* p_current;
+#endif
     pf_u32 code_mode;     // 0x08
 } PF_STR;
 
