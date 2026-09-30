@@ -26,13 +26,19 @@ namespace textinput {
 #else
             virtual void onKey(u32);
 #endif
-#if (defined(TI_PC_KEYBOARD_IMPLEMENTATION) || defined(TIHWKEYBOARD_IMPLEMENTATION)) || defined(TIMANAGER_IMPLEMENTATION) || defined(TISIGNWINDOW_IMPLEMENTATION)
+#ifdef TI_CELLPHONE_IMPLEMENTATION
+            virtual u32 getType();
+#elif (defined(TI_PC_KEYBOARD_IMPLEMENTATION) || defined(TIHWKEYBOARD_IMPLEMENTATION)) || defined(TIMANAGER_IMPLEMENTATION) || defined(TISIGNWINDOW_IMPLEMENTATION)
             virtual int getType();
 #else
             virtual void getType();
 #endif
+#ifdef TI_CELLPHONE_IMPLEMENTATION
+            virtual void setLanguage(Language language) { meLanguage = language; }
+#else
             virtual void setLanguage(Language language);
-            #if (defined(TI_PC_KEYBOARD_IMPLEMENTATION) || defined(TIHWKEYBOARD_IMPLEMENTATION)) || defined(TIMANAGER_IMPLEMENTATION) || defined(TISIGNWINDOW_IMPLEMENTATION)
+#endif
+#if (defined(TI_PC_KEYBOARD_IMPLEMENTATION) || defined(TIHWKEYBOARD_IMPLEMENTATION)) || defined(TIMANAGER_IMPLEMENTATION) || defined(TISIGNWINDOW_IMPLEMENTATION)
 #ifdef TISIGNWINDOW_IMPLEMENTATION
             virtual Language getLanguage() const;
 #else

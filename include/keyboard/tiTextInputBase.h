@@ -54,6 +54,9 @@ namespace textinput {
     class CommandSender;
     class CommandReceiver : public Base {
         public:
+#ifdef TI_CELLPHONE_IMPLEMENTATION
+            struct ChangePredictMode;
+#endif
 #if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION)
             CommandReceiver() { clearSender(); }
             virtual ~CommandReceiver();

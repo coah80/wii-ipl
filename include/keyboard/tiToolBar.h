@@ -56,7 +56,11 @@ namespace textinput {
             virtual void onOK();
             virtual void onCancel();
             virtual void setQwertyWithSE(bool qwerty);
+#ifdef TI_CELLPHONE_IMPLEMENTATION
+            virtual bool isEnableKeytopChange() const { return mbIsEnableQwertyChg; }
+#else
             virtual bool isEnableKeytopChange() const;
+#endif
             virtual void enableKeytopChange(bool enable);
 #ifdef MYTIMANAGER_MATCHING
             virtual nw4r::lyt::Pane* getDownArea();
