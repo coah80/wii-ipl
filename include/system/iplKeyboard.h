@@ -50,10 +50,17 @@ namespace ipl {
             } KeyboardType;
 
             typedef struct KeyboardSetting {
+#ifdef IPL_SETTING_IMPLEMENTATION
+                u32 rowLimit;             // 0x00
+                const wchar_t* wcString;  // 0x04
+                u32 stringLimit;          // 0x08
+                KeyboardType type;        // 0x0C
+#else
                 KeyboardType type;        // 0x00
                 const wchar_t* wcString;  // 0x04
                 u32 stringLimit;          // 0x08
                 u32 rowLimit;             // 0x0C
+#endif
 #ifdef IPL_ADDRESS_EDIT_CPP
                 KeyboardSetting(KeyboardType keyboardType, const wchar_t* value, u32 limit, u32 rows);
 #endif

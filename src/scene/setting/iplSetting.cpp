@@ -1328,7 +1328,7 @@ namespace ipl {
                     ext_ead::www::SurfaceManager::GetInstance()->StopThreadAsync();
                     OSReport("!!!!!!!!!!!!! SCFlush !!!!!!!!!!!!!!\n");
                     SCFlush();
-                } else if (unk_0x7C == 5) {
+                } else if (unk_0x5C != 0 && unk_0x7C == 5) {
                         if (mInitialArgument == 2 || mInitialArgument == 5) {
                             SCSetConfigDoneFlag(TRUE);
                             SCSetConfigDoneFlag2(TRUE);
@@ -1625,10 +1625,10 @@ namespace ipl {
             OSReport("initKeyboard formId:%d\n", mpWiiSettingData->data[0x11]);
             memset(unk_0x938, 0, sizeof(unk_0x938));
 
-            keyboard::Manager::KeyboardType keyboardType = keyboard::Manager::LETTER;
-            int invalidInput = 0;
-            int rowLimit;
             int stringLimit;
+            keyboard::Manager::KeyboardType keyboardType = keyboard::Manager::LETTER;
+            int rowLimit;
+            int invalidInput = 0;
             int productArea = SCGetProductArea();
 
             switch (mpWiiSettingData->data[0x11]) {
@@ -2752,7 +2752,7 @@ namespace ipl {
                     mpPaneManager->init();
                     break;
                 case 5:
-                    mpPaneManager->init();
+                    mpPaneManager->update();
                     break;
                 case 6: {
                     unk_0xB9C = 1;
@@ -2894,8 +2894,7 @@ namespace ipl {
             }
             mpMainLayout->getAnim(10)->stop();
             mpMainLayout->getAnim(11)->stop();
-            u8 scrollDirection = unk_0x91C[0];
-            unk_0x918 = scrollDirection + 0xa;
+            unk_0x918 = unk_0x91C[0] + 0xa;
             layout::Animator* animation = mpMainLayout->getAnim(unk_0x918);
             animation->initFrame();
             animation->restart();
