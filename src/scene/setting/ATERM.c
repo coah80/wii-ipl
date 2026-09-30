@@ -1069,7 +1069,7 @@ int ATERM_81402FC0(AtermPacket* packet, u32* setupType) {
     u8* payload;
     u8* value;
     AtermPacketOption* option;
-    u16 checksum;
+    u16 checksum = 0;
     u16 messageType;
     u32 payloadLength;
     u16 optionType;
@@ -1079,9 +1079,8 @@ int ATERM_81402FC0(AtermPacket* packet, u32* setupType) {
     u16 selectedMode;
     s32 byteLength;
 
-    messageType = SONtoHs(packet->sequence);
+    messageType = (u16)SONtoHs(packet->sequence);
     payloadLength = SONtoHs(packet->length);
-    checksum = 0;
     cursor = (u8*)packet;
     end = packet->payload + payloadLength;
     if (cursor < end) {
@@ -1103,10 +1102,10 @@ int ATERM_81402FC0(AtermPacket* packet, u32* setupType) {
             checksum += *cursor++;
         }
     }
-    if (checksum == SONtoHs(*(u16*)end)) {
-        payload = packet->payload;
-    } else {
+    if (checksum != SONtoHs(*(u16*)end)) {
         payload = NULL;
+    } else {
+        payload = packet->payload;
     }
     authenticationReady = 0;
     networkReady = 0;
@@ -1123,16 +1122,18 @@ int ATERM_81402FC0(AtermPacket* packet, u32* setupType) {
             optionLength = SONtoHs(option->length);
             value = option->value;
             cursor += (optionLength + 0x0B) & ~7;
-            switch (optionType) {
-            case 1:
-                authenticationReady = SONtoHs(*(u16*)value);
-                break;
-            case 2:
-                networkReady = SONtoHs(*(u16*)value);
-                break;
-            case 5:
-                selectedMode = SONtoHs(*(u16*)value);
-                break;
+            if (value != NULL) {
+                switch (optionType) {
+                case 1:
+                    authenticationReady = SONtoHs(*(u16*)value);
+                    break;
+                case 2:
+                    networkReady = SONtoHs(*(u16*)value);
+                    break;
+                case 5:
+                    selectedMode = SONtoHs(*(u16*)value);
+                    break;
+                }
             }
         }
         if (authenticationReady == 1 && networkReady == 1) {
