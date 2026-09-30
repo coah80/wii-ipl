@@ -212,7 +212,7 @@ extern int _Zi8GetCandidates();
 extern void Zi8InitDupWordBuf();
 extern ziU16 Zi8GetPInfo(ziU16,ziWChar *,ziU8,ziPtr);
 extern ziU16 Zi8GetZInfo(ziU16,ziWChar *,ziU8,ziPtr);
-extern ziU8 Zi8IsDupWordW();
+extern ziBool Zi8IsDupWordW(ziWChar *,ziU8,ziPtr);
 extern ziU8 Zi8GetFormatVersion(ziU8,ziPtr);
 extern ziU16 Zi8Uni2Ord(ziWChar,ziPtr);
 extern ziU16 Zi8GetPCode(ziU8 *,ziU8 *);
@@ -352,7 +352,7 @@ ziU8 Zi8IsMatch1Key(ziU16 *input,Zi8UInt inputLength,Zi8UInt key,ziU8 requireFul
   return 1;
 }
 
-ziU8 MatchAltSound1Key(ziU16 *spelling,Zi8UInt spellingLength,Zi8UInt requireFull,Zi8AltSoundRecord *records,Zi8UInt recordCount,const ziU8 *phoneticTableBase,Zi8UInt key,Zi8UInt usePinyin,ziU8 tone,ziU8 modifierFlags,Zi8OneKeyWork *context)
+ziU8 MatchAltSound1Key(ziU16 *spelling,Zi8UInt spellingLength,Zi8UInt requireFull,Zi8AltSoundRecord *records,Zi8UInt recordCount,const ziU8 *phoneticTableBase,Zi8UInt key,Zi8UInt usePinyin,ziU8 tone,ziU8 modifierFlags,ziPtr context)
 {
   int searchIndex;
   ziU8 keyHigh;
@@ -391,8 +391,8 @@ PROCESS:
           ((modifierFlags & records[recordIndex].flags) != 0)) {
         phoneticOffset = (ziU16)(records[recordIndex].code |
                                   ((ziU16)(records[recordIndex].flags & 1) << 8));
-        if ((context->phoneticFilter == '\0') ||
-            (context->phoneticEnabled[(ziU16)phoneticOffset] != '\0')) {
+        if ((((Zi8OneKeyWork*)context)->phoneticFilter == '\0') ||
+            (((Zi8OneKeyWork*)context)->phoneticEnabled[(ziU16)phoneticOffset] != '\0')) {
           phoneticOffset = (ziU16)(phoneticOffset << 1);
           phoneticCode = (ziU16)(((records[recordIndex].flags & 0xf0) >> 4) |
                                   (phoneticTableBase[(ziU16)phoneticOffset] | ((ziU16)phoneticTableBase[(ziU16)phoneticOffset + 1] << 8)));
@@ -413,8 +413,8 @@ BACKWARD_PROCESS:
         ((modifierFlags & records[recordIndex].flags) != 0)) {
       phoneticOffset = (ziU16)(records[recordIndex].code |
                                 (((ziU16)records[recordIndex].flags & 1) << 8));
-      if ((context->phoneticFilter == '\0') ||
-          (context->phoneticEnabled[(ziU16)phoneticOffset] != '\0')) {
+      if ((((Zi8OneKeyWork*)context)->phoneticFilter == '\0') ||
+          (((Zi8OneKeyWork*)context)->phoneticEnabled[(ziU16)phoneticOffset] != '\0')) {
         phoneticOffset = (ziU16)(phoneticOffset << 1);
         phoneticCode = (ziU16)(((records[recordIndex].flags & 0xf0) >> 4) |
                                 (phoneticTableBase[(ziU16)phoneticOffset] | ((ziU16)phoneticTableBase[(ziU16)phoneticOffset + 1] << 8)));
@@ -940,11 +940,14 @@ Zi8UInt Zi8Get1KeyPressSpelling(Zi8OneKeyParam *params,Zi8OneKeyOptions *options
           for (tableIndex = 0; tableIndex < params->count;) {
             while (*output != 0) {
               if (*output != 0x27) {
-                *output++ |= 0xf300;
+                *output |= 0xf300;
+                output++;
               } else {
-                *output++ = 0xf360;
+                *output = 0xf360;
+                output++;
               }
             }
+            tableIndex++;
             output++;
           }
         }
@@ -1283,12 +1286,12 @@ int Zi8Get1KeyPressCandidates(Zi8OneKeyParam *params,Zi8OneKeyOptions *options,Z
     Zi8Memset(work->phoneticEnabled,0,0x200);
     for (index = 0; index < alternateCount; index++) {
       phoneticCode = phoneticTable[index * 2] | ((ziU16)phoneticTable[index * 2 + 1] << 8);
-      if ((ziU8)Zi8IsMatch1Key(spelling,inputLimit,phoneticCode,(ziU8)0,tone,(ziU8)0) == 0) {
-        work->phoneticEnabled[index] = 0;
-      }
-      else {
+      if ((ziU8)Zi8IsMatch1Key(spelling,inputLimit,phoneticCode,(ziU8)0,tone,(ziU8)0) != 0) {
         work->phoneticEnabled[index] = 1;
         validPhonetic = true;
+      }
+      else {
+        work->phoneticEnabled[index] = 0;
       }
     }
     if (!validPhonetic) goto finishCandidates;
@@ -1572,7 +1575,7 @@ finishPhrases:
   }
   if ((options->countOnly == '\0') && (tableCursor != 0)) {
     for (ordinalIndex = 0; ordinalIndex < tableCursor; ordinalIndex++) {
-      ordinal = (ziU16)ordinalTable[(Zi8UInt)ordinalIndex * 2] * 0x100 +
+      ordinal = ((ziU16)ordinalTable[(Zi8UInt)ordinalIndex * 2] << 8) +
                  (ziU16)ordinalTable[(Zi8UInt)ordinalIndex * 2 + 1];
       phraseTable = syllableTable + (Zi8UInt)ordinal * 0xc;
       if (((*phraseTable & languageMask) != 0) &&
@@ -1705,7 +1708,7 @@ nextUserOrdinal:
                                       tone,includeTone,languageMask,work);
       }
       if (elementIndex == 0) goto nextOrdinal;
-      unicodeCharacter = (ziU16)phraseTable[6] * 0x100 + (ziU16)phraseTable[7];
+      unicodeCharacter = ((ziU16)phraseTable[6] << 8) + (ziU16)phraseTable[7];
       if (unicodeCharacter == previousCharacter) goto nextOrdinal;
       previousCharacter = unicodeCharacter;
       if (!emitWords) {
