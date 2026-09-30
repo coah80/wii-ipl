@@ -53,9 +53,9 @@ Progress
 <!-- progress:start -->
 | Decompiled | Matched | Linked | Data |
 |:---:|:---:|:---:|:---:|
-| 91.59% | 80.73% | 56.95% | 88.75% |
+| 91.60% | 80.76% | 56.95% | 88.75% |
 
-units 758/1027 complete, functions 11608/12563 matched.
+units 758/1027 complete, functions 11609/12563 matched.
 
 decompiled = code with a C/C++ implementation (objdiff fuzzy), matched = byte-exact code, linked = code actually linked into the DOL, data = byte-exact data
 <!-- progress:end -->

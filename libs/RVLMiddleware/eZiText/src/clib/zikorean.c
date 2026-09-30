@@ -45,7 +45,7 @@ ziU8 Zi8GetKoreanCandidates(ziGetParam* params, ziU8* argument,
         ziU8* table1;
     } state;
     ziU16 buffer[100];
-    ziU8 result;
+    unsigned int result;
     ziU16 currentCharacter;
     ziU8* selectedTable;
 
