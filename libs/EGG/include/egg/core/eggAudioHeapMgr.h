@@ -19,18 +19,14 @@ namespace EGG {
 
         ~SoundHeapMgr() { destroySoundHeap(); }
 
-        virtual bool loadState(s32 id) {
-            s32 level = mHeap.GetCurrentLevel();
-
-            if (id > 0 && level >= id) {
+        virtual bool loadState(s32 id) NO_INLINE {
+            if (id > 0 && mHeap.GetCurrentLevel() >= id) {
                 mHeap.LoadState(id);
                 return true;
             }
-
             return false;
-        }  // 0x08
-
-        virtual s32 getCurrentLevel() { return mHeap.GetCurrentLevel(); }  // 0x0C
+        }
+        virtual s32 getCurrentLevel() NO_INLINE { return mHeap.GetCurrentLevel(); }
 
         s32 saveState() { return mHeap.SaveState(); }
 

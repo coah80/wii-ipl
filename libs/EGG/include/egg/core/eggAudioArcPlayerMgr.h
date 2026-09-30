@@ -38,26 +38,22 @@ namespace EGG {
 
         virtual void calc();  // 0x30
 
-        virtual bool startSound(nw4r::snd::SoundHandle* pHandle, u32 id) { return mSoundArchivePlayer.StartSound(pHandle, id); }           // 0x34
-        virtual bool startSound(nw4r::snd::SoundHandle* pHandle, unsigned int id) { return mSoundArchivePlayer.StartSound(pHandle, id); }  // 0x38
+        virtual bool startSound(nw4r::snd::SoundHandle* pHandle, u32 id) { return mSoundArchivePlayer.StartSound(pHandle, id); }                               // 0x34
+        virtual bool startSound(nw4r::snd::SoundHandle* pHandle, unsigned int id) { return mSoundArchivePlayer.StartSound(pHandle, id); }                      // 0x38
         virtual bool startSound(nw4r::snd::SoundHandle* pHandle, const char* pName) NO_INLINE {
             u32 id = changeNameToId(pName);
             return mSoundArchivePlayer.StartSound(pHandle, id);
         }  // 0x3C
 
-        virtual bool prepareSound(nw4r::snd::SoundHandle* pHandle, u32 id) { return mSoundArchivePlayer.PrepareSound(pHandle, id); }           // 0x44
-        virtual bool prepareSound(nw4r::snd::SoundHandle* pHandle, unsigned int id) { return mSoundArchivePlayer.PrepareSound(pHandle, id); }  // 0x44
-        virtual bool prepareSound(nw4r::snd::SoundHandle* pHandle, const char* pName) {
-            u32 id = nw4r::snd::SoundArchive::INVALID_ID;
-            if (mpArchive != NULL) {
-                id = changeNameToId(pName);
-            }
-
+        virtual bool prepareSound(nw4r::snd::SoundHandle* pHandle, u32 id) { return mSoundArchivePlayer.PrepareSound(pHandle, id); }                           // 0x40
+        virtual bool prepareSound(nw4r::snd::SoundHandle* pHandle, unsigned int id) { return mSoundArchivePlayer.PrepareSound(pHandle, id); }                  // 0x44
+        virtual bool prepareSound(nw4r::snd::SoundHandle* pHandle, const char* pName) NO_INLINE {
+            u32 id = changeNameToId(pName);
             return mSoundArchivePlayer.PrepareSound(pHandle, id);
         }  // 0x48
 
-        virtual bool holdSound(nw4r::snd::SoundHandle* pHandle, u32 id) { return mSoundArchivePlayer.HoldSound(pHandle, id); }           // 0x50
-        virtual bool holdSound(nw4r::snd::SoundHandle* pHandle, unsigned int id) { return mSoundArchivePlayer.HoldSound(pHandle, id); }  // 0x50
+        virtual bool holdSound(nw4r::snd::SoundHandle* pHandle, u32 id) { return mSoundArchivePlayer.HoldSound(pHandle, id); }                                 // 0x50
+        virtual bool holdSound(nw4r::snd::SoundHandle* pHandle, unsigned int id) { return mSoundArchivePlayer.HoldSound(pHandle, id); }                        // 0x54
         virtual bool holdSound(nw4r::snd::SoundHandle* pHandle, const char* pName) NO_INLINE {
             u32 id = changeNameToId(pName);
             return mSoundArchivePlayer.HoldSound(pHandle, id);
