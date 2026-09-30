@@ -894,7 +894,7 @@ void BS2StartGCGame() {
     counterBias = SCGetCounterBias();
     seconds = rtc + counterBias;
     timerFrequency = OS_BUS_CLOCK >> 2;
-    time = (OSTime)timerFrequency * seconds;
+    time = (OSTime)seconds * timerFrequency;
     __OSSetTime(time);
 
     sram = __OSLockSram();
@@ -1076,12 +1076,12 @@ void BS2NANDDivideCallback(s32 result, NANDCommandBlock *block) {
 }
 
 void BS2NANDDivideReadAsync(NANDFileInfo *info, void *buffer, u32 length, NANDCallback callback, NANDCommandBlock *block) {
-    NandFile = info;
-    NandBuffer = (u8 *)buffer;
-    NandLength = length;
-    NandTransferred = 0;
     NandCompletion = callback;
     NandOperation = 2;
+    NandLength = length;
+    NandTransferred = 0;
+    NandFile = info;
+    NandBuffer = (u8 *)buffer;
     if (NandLength > 0x40000) {
         BS2Report("NANDReadAsync buf:0x%08X, length:0x%08X\n", NandBuffer, 0x40000);
         NANDReadAsync(NandFile, (void *)NandBuffer, 0x40000, BS2NANDDivideCallback, block);
@@ -1092,12 +1092,12 @@ void BS2NANDDivideReadAsync(NANDFileInfo *info, void *buffer, u32 length, NANDCa
 }
 
 void BS2NANDDivideWriteAsync(NANDFileInfo *info, const void *buffer, u32 length, NANDCallback callback, NANDCommandBlock *block) {
-    NandFile = info;
-    NandBuffer = (u8 *)buffer;
-    NandLength = length;
-    NandTransferred = 0;
     NandCompletion = callback;
     NandOperation = 1;
+    NandLength = length;
+    NandTransferred = 0;
+    NandFile = info;
+    NandBuffer = (u8 *)buffer;
     if (NandLength > 0x40000) {
         BS2Report("NANDWriteAsync buf:0x%08X, length:0x%08X\n", NandBuffer, 0x40000);
         NANDWriteAsync(NandFile, (void *)NandBuffer, 0x40000, BS2NANDDivideCallback, block);
