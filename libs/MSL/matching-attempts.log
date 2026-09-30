@@ -41,3 +41,48 @@ scanf: all four functions have zero ctxdiff differences, code 5484/5484 and data
 strtold: __strtold has 1277/1277 instructions and strtod 44/44, both zero differences. Removed the imported inline qualifier from the public strtod wrapper so the real target symbol is emitted. Code 5284/5284 and data 112/112.
 
 Exception metadata settings change only owned NonMatching units; configure.py status flags remain NonMatching. Clean gates require the original DOL SHA1 and zero baseline regressions. Raw instruction-exact counts can be lower than objdiff exact counts because the varargs conditional branch to an external register-save helper is compared without relocation normalization by gate.py. These counts are reported separately; they were not patched or hidden.
+printf::double2hex: aggregate exponent format initialized at declaration: 238/242 instructions, 227 positional diffs; restored.
+printf::double2hex: initialize exponent integer fields before byte flags: 241/242 instructions, 127 positional diffs; restored.
+printf::double2hex: use integer nibble temporary with explicit final narrowing: 239/242 instructions, 123 positional diffs; restored.
+printf::__pformatter: move parsed format declaration after output buffer: 511/535 instructions, 367 positional diffs; restored.
+printf::__pformatter: initialize parsed format before first parse: 516/535 instructions, 505 positional diffs; restored.
+printf::__pformatter: separate next-format pointer from parsed cursor: 511/535 instructions, 367 positional diffs; restored.
+wprintf::double2hex: aggregate exponent format initialized at declaration: 238/242 instructions, 227 positional diffs; restored.
+wprintf::double2hex: initialize exponent integer fields before byte flags: 241/242 instructions, 127 positional diffs; restored.
+wprintf::double2hex: use integer nibble temporary with explicit final narrowing: 239/242 instructions, 123 positional diffs; restored.
+wprintf::__wpformatter: move parsed format declaration after output buffer: 567/593 instructions, 519 positional diffs; restored.
+wprintf::__wpformatter: initialize parsed format before first parse: 572/593 instructions, 562 positional diffs; restored.
+wprintf::__wpformatter: separate next-format pointer from parsed cursor: 567/593 instructions, 519 positional diffs; restored.
+printf::printf: finish varargs lifetime with va_end: compile rejected: ninja: build stopped: subcommand failed.; restored.
+printf::printf: return through named result temporary: compile rejected: ninja: build stopped: subcommand failed.; restored.
+printf::printf: move va_start to first actual formatting use: 50/50 instructions, 1 positional diffs; restored.
+printf::fprintf: finish varargs lifetime with va_end: compile rejected: ninja: build stopped: subcommand failed.; restored.
+printf::fprintf: return through named result temporary: compile rejected: ninja: build stopped: subcommand failed.; restored.
+printf::fprintf: move va_start to first actual formatting use: 49/49 instructions, 1 positional diffs; restored.
+printf::printf: finish varargs lifetime / initialize controller first: 50/50 instructions, 1 positional diffs; restored.
+printf::printf: hoist argument list / named result: 50/50 instructions, 1 positional diffs; restored.
+printf::printf: argument-list pointer / delay va_start: 50/50 instructions, 1 positional diffs; restored.
+printf::fprintf: finish varargs lifetime / initialize controller first: 49/49 instructions, 1 positional diffs; restored.
+printf::fprintf: hoist argument list / named result: 49/49 instructions, 1 positional diffs; restored.
+printf::fprintf: argument-list pointer / delay va_start: 49/49 instructions, 1 positional diffs; restored.
+printf::snprintf: finish varargs lifetime / initialize controller first: 54/54 instructions, 1 positional diffs; restored.
+printf::snprintf: hoist argument list / named result: 54/54 instructions, 1 positional diffs; restored.
+printf::snprintf: argument-list pointer / delay va_start: 54/54 instructions, 1 positional diffs; restored.
+printf::sprintf: finish varargs lifetime / initialize controller first: 52/52 instructions, 1 positional diffs; restored.
+printf::sprintf: hoist argument list / named result: 52/52 instructions, 1 positional diffs; restored.
+printf::sprintf: argument-list pointer / delay va_start: 52/52 instructions, 1 positional diffs; restored.
+wprintf::swprintf: finish varargs lifetime / initialize controller first: 55/55 instructions, 1 positional diffs; restored.
+wprintf::swprintf: hoist argument list / named result: 55/55 instructions, 1 positional diffs; restored.
+wprintf::swprintf: argument-list pointer / delay va_start: 55/55 instructions, 11 positional diffs; restored.
+time::emit: finish varargs lifetime / initialize controller first: 43/43 instructions, 1 positional diffs; restored.
+time::emit: hoist argument list / named result: 43/43 instructions, 1 positional diffs; restored.
+time::emit: argument-list pointer / delay va_start: 42/43 instructions, 34 positional diffs; restored.
+
+printf data: 139/148 relocation entries agree by target function and addend; dispatch-table entries in the unmatched formatter still differ. Generated jump-table data is retained, without manual entries or symbol mappings.
+wprintf data: 139/148 relocation entries agree by target function and addend; dispatch-table entries in the unmatched formatter still differ. Generated jump-table data is retained, without manual entries or symbol mappings.
+printf double2hex: moved exponent-format initialization after exponent extraction: 241/242 instructions; FP aggregate copies remained; restored.
+wprintf double2hex: moved exponent-format initialization after exponent extraction: 241/242 instructions; FP aggregate copies remained; restored.
+printf data: changed zero comparison literal to long double, matching the argument type and sharing its zero constant with float2str. .sdata2 now 8 bytes, 100%, versus 16 emitted bytes previously. Instruction scores unchanged.
+time data: literal pool, calendar tables and BSS already agree. Target has nine exception-index records; source includes exception records for real public asctime/ctime functions absent in the extracted target. Retained the functions rather than suppressing output.
+locale: restored the C locale components, collation table and ordinary literals in source order; all 792 data bytes exact. No target code functions exist.
+file_io: implemented fclose, fflush, __msl_strnicmp and __msl_itoa in object order using FILE fields and named arithmetic temporaries; all four have zero ctxdiff differences, 928 code bytes and 60 metadata bytes exact.

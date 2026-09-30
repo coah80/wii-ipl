@@ -545,7 +545,7 @@ static char* double2hex(long double num, char* buff, print_format format) {
     form.digits = 0x20;
     __num2dec(&form, num, &dec);
 
-    if (fabs(num) == 0.0) {
+    if (fabs(num) == 0.0L) {
         p = buff - 6;
         strcpy(p, "0x0p0");
         return p;
