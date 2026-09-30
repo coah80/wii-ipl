@@ -1838,6 +1838,7 @@ int AOSS_81400830(AOSSDecryptionMessage* message) {
     s32 i;
     u32 pairCount;
     u32 oddCount;
+    int canUnroll;
     u32 firstIndex;
     u32 secondIndex;
     u32 firstValue;
@@ -1886,9 +1887,10 @@ int AOSS_81400830(AOSSDecryptionMessage* message) {
         AOSS_81401C9C(&schedule, s_packetState.keyNonce,
                       sizeof(s_packetState.keyNonce) + sizeof(s_packetState.keyAddress), dataLength);
 
-        if (dataLength != 0) {
-            in = data + 4;
-            out = decryptedData;
+        in = data + 4;
+        out = decryptedData;
+        oddCount = dataLength;
+        if (dataLength > 0) {
             i = 0;
             pairCount = dataLength >> 1;
             while (pairCount != 0) {
@@ -1915,7 +1917,8 @@ int AOSS_81400830(AOSSDecryptionMessage* message) {
                 i += 2;
                 pairCount--;
             }
-            for (oddCount = dataLength & 1; oddCount != 0; oddCount--) {
+            oddCount &= 1;
+            while (oddCount != 0) {
                 firstIndex = ((schedule.i + 1) % schedule.length) & 0xff;
                 firstValue = schedule.bytes[firstIndex];
                 secondIndex = ((firstValue + schedule.j) % schedule.length) & 0xff;
@@ -1927,12 +1930,19 @@ int AOSS_81400830(AOSSDecryptionMessage* message) {
                 out[0] = schedule.bytes[(firstValue + secondValue) % schedule.length] ^ in[0];
                 in++;
                 out++;
+                oddCount--;
             }
         }
 
-        AOSS_81401DC0(0, s_crcTable);
         crc = 0xffffffff;
-        for (i = 0; i < (s32)dataLength - 8; i += 8) {
+        AOSS_81401DC0(0, s_crcTable);
+        i = 0;
+        if ((s32)dataLength > 0) {
+            oddCount = (s32)dataLength - 8;
+            if ((s32)dataLength > 8) {
+                canUnroll = ((s32)dataLength >= 0) && !((s32)dataLength > 0x7ffffffe);
+                if (canUnroll) {
+        for (; i < (s32)oddCount; i += 8) {
             crc = (crc >> 8) ^ s_crcTable[(crc ^ decryptedData[i]) & 0xff];
             crc = (crc >> 8) ^ s_crcTable[(crc ^ decryptedData[i + 1]) & 0xff];
             crc = (crc >> 8) ^ s_crcTable[(crc ^ decryptedData[i + 2]) & 0xff];
@@ -1945,13 +1955,16 @@ int AOSS_81400830(AOSSDecryptionMessage* message) {
         for (; i < (s32)dataLength; i++) {
             crc = (crc >> 8) ^ s_crcTable[(crc ^ decryptedData[i]) & 0xff];
         }
-        if (((crc ^ 0xffffffff) & 0xff) == checksum) {
-            AOSSi_Free(schedule.bytes);
-            result = 0;
-        } else {
+                }
+            }
+            }
+        if (((crc ^ 0xffffffff) & 0xff) != checksum) {
             s_errorCode = 0x12;
             AOSSi_Free(schedule.bytes);
             result = -1;
+        } else {
+            AOSSi_Free(schedule.bytes);
+            result = 0;
         }
     }
 
