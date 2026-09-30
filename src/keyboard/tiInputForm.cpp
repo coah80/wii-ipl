@@ -713,6 +713,9 @@ void Base::onCommand(INPUT_COMMAND command, void* data) {
     tistring::Decolated* current = getCurrentString(false);
     tistring::Decolated* fixed = mpString;
     bool currentIsFixed = current == fixed;
+    wchar_t atokPrediction[64];
+    wchar_t ziPrediction[64];
+    wchar_t ziInput[64];
     switch (command) {
     case 40:
         if (current == mpUnfixString) {
@@ -738,30 +741,35 @@ void Base::onCommand(INPUT_COMMAND command, void* data) {
         CharacterInput* input = static_cast<CharacterInput*>(data);
         wchar_t character = input->character;
         u32 modifiers = input->modifiers;
-        tistring::Decolated::TranslateMode savedMode = current->getTranslateMode();
-        bool savedFix = false;
-        bool savedKana = false;
+        struct InputModeState {
+            tistring::Decolated::TranslateMode mode;
+            bool kana;
+            bool direct;
+        };
+        InputModeState savedState;
+        InputModeState keyboardState;
+
         if (input->keyboardMode) {
-            tistring::Decolated::TranslateMode keyboardMode = static_cast<tistring::Decolated::TranslateMode>(mpManager->getPCKeyboard()->getTranslateMode());
-            bool direct = mpManager->getPCKeyboard()->getTranslateMode() == keyboard::pctype::Base::TM_00;
-            bool kana = mpManager->getPCKeyboard()->getTranslateMode() == keyboard::pctype::Base::TM_Kana;
+            keyboardState.mode = static_cast<tistring::Decolated::TranslateMode>(mpManager->getPCKeyboard()->getTranslateMode());
+            keyboardState.direct = mpManager->getPCKeyboard()->getTranslateMode() == keyboard::pctype::Base::TM_00;
+            keyboardState.kana = mpManager->getPCKeyboard()->getTranslateMode() == keyboard::pctype::Base::TM_Kana;
             tistring::Decolated* active = getCurrentString(false);
-            savedMode = active->getTranslateMode();
+            savedState.mode = active->getTranslateMode();
             if (active == mpString) {
-                tistring::Decolated::TranslateMode mode = keyboardMode;
+                tistring::Decolated::TranslateMode mode = keyboardState.mode;
                 if (meLanguage == KR) {
                     if (mode != tistring::Decolated::TM_Direct) mode = tistring::Decolated::TM_Hangul;
                 } else if (meLanguage == CN) mode = tistring::Decolated::TM_Direct;
                 mpString->getCursorPos();
                 mpString->setTranslateMode(mode);
                 mpString->getCursorPos();
-            } else active->setTranslateMode(keyboardMode);
-            bool useAtok;
-            if (!mbPredictOn) useAtok = false;
-            else useAtok = mePredictMode == PM_Atok;
+            } else active->setTranslateMode(keyboardState.mode);
+            bool useAtok = isAtokActive();
             if (useAtok) {
-                mpUnfixString->setFixMode(direct);
-                mpUnfixString->changeKanaMode(kana);
+                savedState.direct = false;
+                savedState.kana = false;
+                mpUnfixString->setFixMode(keyboardState.direct);
+                mpUnfixString->changeKanaMode(keyboardState.kana);
             }
         }
         if (input->deadKey) character = DeadKeyStream::ToCombineClass(meLanguage, character);
@@ -782,28 +790,26 @@ void Base::onCommand(INPUT_COMMAND command, void* data) {
         if (input->keyboardMode) {
             tistring::Decolated* active = getCurrentString(false);
             if (active == mpString) {
-                tistring::Decolated::TranslateMode mode = savedMode;
+                tistring::Decolated::TranslateMode mode = savedState.mode;
                 if (meLanguage == KR) {
                     if (mode != tistring::Decolated::TM_Direct) mode = tistring::Decolated::TM_Hangul;
                 } else if (meLanguage == CN) mode = tistring::Decolated::TM_Direct;
                 mpString->getCursorPos();
                 mpString->setTranslateMode(mode);
                 mpString->getCursorPos();
-            } else active->setTranslateMode(savedMode);
-            bool useAtok;
-            if (!mbPredictOn) useAtok = false;
-            else useAtok = mePredictMode == PM_Atok;
+            } else active->setTranslateMode(savedState.mode);
+            bool useAtok = isAtokActive();
             if (useAtok) {
-                mpUnfixString->setFixMode(savedFix);
-                mpUnfixString->changeKanaMode(savedKana);
+                mpUnfixString->setFixMode(savedState.direct);
+                mpUnfixString->changeKanaMode(savedState.kana);
             }
         }
         if (checkHeadOfSentence(true)) onCommand(static_cast<INPUT_COMMAND>(33), NULL);
         break;
     }
     case 1:
-        if (!current->canBackSpace()) onSE(static_cast<sound::SE>(8));
-        else onSE(static_cast<sound::SE>(7));
+        if (current->canBackSpace()) onSE(static_cast<sound::SE>(7));
+        else onSE(static_cast<sound::SE>(8));
         if (current == mpString) {
             resetInputRelation();
             mpString->getCursorPos();
@@ -827,7 +833,7 @@ void Base::onCommand(INPUT_COMMAND command, void* data) {
         if (checkHeadOfSentence(true)) onCommand(static_cast<INPUT_COMMAND>(33), NULL);
         break;
     case 2:
-        if (!currentIsFixed) {
+        if (current != fixed) {
             onSE(static_cast<sound::SE>(8));
             return;
         }
@@ -835,7 +841,7 @@ void Base::onCommand(INPUT_COMMAND command, void* data) {
         else onSE(static_cast<sound::SE>(7));
         break;
     case 7:
-        if (currentIsFixed) {
+        if (current == fixed) {
             if (meLanguage == KR) {
                 tistring::Decolated* active = getCurrentString(false);
                 if (!active->isKanaFix()) {
@@ -850,37 +856,39 @@ void Base::onCommand(INPUT_COMMAND command, void* data) {
             }
             resetInputRelation();
             bool lineFeed;
-            if (!mpManager->getToolBar()->isQwerty()) lineFeed = mpManager->getCellPhoneKeyboard()->hasLineFeedButton();
-            else lineFeed = mpManager->getPCKeyboard()->hasLineFeedButton();
+            if (mpManager->getToolBar()->isQwerty()) lineFeed = mpManager->getPCKeyboard()->hasLineFeedButton();
+            else lineFeed = mpManager->getCellPhoneKeyboard()->hasLineFeedButton();
             bool allowed = true;
             if (mpString->isKanaFix()) {
                 bool withinLimit = false;
-                if (lineFeed && static_cast<u32>(getLine() + 1) <= muLimitRowNum) withinLimit = true;
+                if (lineFeed && muLimitRowNum >= static_cast<u32>(getLine() + 1)) withinLimit = true;
                 if (!withinLimit) allowed = false;
             }
             bool atLimit = true;
-            if (static_cast<u32>(getLine() + 1) <= muLimitRowNum && !mpManager->getCandidateBox()->isActive()) atLimit = false;
-            if (!allowed) {
-                if (atLimit) onSE(static_cast<sound::SE>(8));
-                return;
-            }
-            onSE(static_cast<sound::SE>(9));
-            mpString->getCursorPos();
-            mpString->inputChar(L'\n');
-            mpString->getCursorPos();
-            if (meLanguage == CN && hasZiPredictions()) {
-                mpZiString->setCurrentWord(NULL);
-                mpZiString->update();
+            if (muLimitRowNum >= static_cast<u32>(getLine() + 1) && !mpManager->getCandidateBox()->isActive()) atLimit = false;
+            if (allowed) {
+                onSE(static_cast<sound::SE>(9));
+                mpString->getCursorPos();
+                mpString->inputChar(L'\n');
+                mpString->getCursorPos();
+                if (meLanguage == CN && hasZiPredictions()) {
+                    mpZiString->setCurrentWord(NULL);
+                    mpZiString->update();
+                }
+            } else {
+                if (atLimit) {
+                    onSE(static_cast<sound::SE>(8));
+                    return;
+                } else return;
             }
         } else if (current == mpZiString) {
             onSE(static_cast<sound::SE>(9));
             if (getPredictMode() == PM_11 || getPredictMode() == PM_12) confirmInput_();
             else if (!(mbCursorSelected | mbZuSelected) && mpManager->getToolBar()->isQwerty()) {
                 if (mbPredictOn && mePredictMode != PM_Atok) {
-                    wchar_t input[64];
-                    mpZiString->getCurrentInput(input, 64);
+                    mpZiString->getCurrentInput(ziInput, 64);
                     mpString->getCursorPos();
-                    mpString->inputString(input);
+                    mpString->inputString(ziInput);
                     mpString->getCursorPos();
                     mpZiString->clearCandidates();
                     mbZuSelected = false;
@@ -890,11 +898,10 @@ void Base::onCommand(INPUT_COMMAND command, void* data) {
             } else confirmInput_();
         } else {
             onSE(static_cast<sound::SE>(9));
-            if (!mpUnfixString->isConverting()) confirmInput_();
-            else {
+            if (mpUnfixString->isConverting()) {
                 mpUnfixString->commitPredicted(mpUnfixString->getSelectedConverting());
                 updateCandidateState_();
-            }
+            } else confirmInput_();
         }
         meScrollFlag = SF_ScrollOn;
         if (checkHeadOfSentence(true)) onCommand(static_cast<INPUT_COMMAND>(33), NULL);
@@ -912,23 +919,24 @@ void Base::onCommand(INPUT_COMMAND command, void* data) {
         if (!input->character) return;
         confirmInputting_(input->character, input->direct, input->letterMode, input->confirmOnly, input->holdingKey);
         if (!input->silent) {
-            if (!input->confirmOnly) onSE(static_cast<sound::SE>(10));
-            else onSE(static_cast<sound::SE>(9));
+            if (input->confirmOnly) onSE(static_cast<sound::SE>(9));
+            else onSE(static_cast<sound::SE>(10));
         }
         meScrollFlag = SF_ScrollOn;
         if (checkHeadOfSentence(true)) onCommand(static_cast<INPUT_COMMAND>(33), NULL);
         break;
     }
     case 8:
-        if (currentIsFixed) onPressLeft();
+        if (current == fixed) onPressLeft();
         else onHKBCtrlCode(static_cast<HVKCode>(31), 0);
         return;
     case 9:
-        if (currentIsFixed) onPressRight();
+        if (current == fixed) onPressRight();
         else onHKBCtrlCode(static_cast<HVKCode>(32), 0);
         return;
     case 10: onPressUp(); return;
     case 11: onPressDown(); return;
+    case 24: doScroll(static_cast<Scroll*>(data)); return;
     case 14:
         if (currentIsFixed && current->isKanaFix()) {
             nw4r::math::VEC2 origin = getGlobalLeftTopPos();
@@ -966,14 +974,42 @@ void Base::onCommand(INPUT_COMMAND command, void* data) {
         if (data && *static_cast<bool*>(data)) {
             mpUnfixString->confirm(NULL);
             onCommand(static_cast<INPUT_COMMAND>(6), NULL);
-            resetCandidate();
-            updateCandidate();
+            candidatebox::CandidateBoxCaller::resetCandidate();
+            candidatebox::CandidateBoxCaller::updateCandidate();
         }
         break;
+    case 21: {
+        if (mbPredictOn) {
+            if (mePredictMode == PM_Atok) {
+                if (mpUnfixString->isConverting()) mpUnfixString->commitPredicted(*static_cast<s32*>(data));
+                else {
+                    mpUnfixString->getPredicted(*static_cast<s32*>(data), atokPrediction);
+                    mpString->getCursorPos();
+                    mpString->inputString(atokPrediction, tistring::Decolated::TM_Direct);
+                    mpString->getCursorPos();
+                    mpUnfixString->commitPredicted(*static_cast<s32*>(data));
+                }
+            } else {
+                mpZiString->getPredicted(*static_cast<s32*>(data), ziPrediction);
+                mpString->getCursorPos();
+                mpString->inputString(ziPrediction);
+                mpString->getCursorPos();
+                mpZiString->clearCandidates();
+                mbZuSelected = false;
+                if (meLanguage == CN) {
+                    mpZiString->setCurrentWord(ziPrediction);
+                    mpZiString->update();
+                }
+            }
+        }
+        meScrollFlag = SF_ScrollOn;
+        break;
+    }
     case 18: {
+        tistring::Decolated::TranslateMode fixedMode;
         tistring::Decolated::TranslateMode mode = *static_cast<tistring::Decolated::TranslateMode*>(data);
         if (meLanguage != JP && meLanguage != KR) mode = tistring::Decolated::TM_Direct;
-        tistring::Decolated::TranslateMode fixedMode = mode;
+        fixedMode = mode;
         if (meLanguage == KR) {
             if (mode != tistring::Decolated::TM_Direct) fixedMode = tistring::Decolated::TM_Hangul;
         } else if (meLanguage == CN) fixedMode = tistring::Decolated::TM_Direct;
@@ -985,35 +1021,6 @@ void Base::onCommand(INPUT_COMMAND command, void* data) {
     }
     case 19: mpUnfixString->changeKanaMode(*static_cast<bool*>(data)); break;
     case 20: mpUnfixString->setFixMode(*static_cast<bool*>(data)); break;
-    case 21: {
-        s32 index = *static_cast<s32*>(data);
-        if (mbPredictOn) {
-            if (mePredictMode == PM_Atok) {
-                if (!mpUnfixString->isConverting()) {
-                    wchar_t predicted[96];
-                    mpUnfixString->getPredicted(index, predicted);
-                    mpString->getCursorPos();
-                    mpString->inputString(predicted, tistring::Decolated::TM_Direct);
-                    mpString->getCursorPos();
-                    mpUnfixString->commitPredicted(index);
-                } else mpUnfixString->commitPredicted(index);
-            } else {
-                wchar_t predicted[64];
-                mpZiString->getPredicted(index, predicted);
-                mpString->getCursorPos();
-                mpString->inputString(predicted);
-                mpString->getCursorPos();
-                mpZiString->clearCandidates();
-                mbZuSelected = false;
-                if (meLanguage == CN) {
-                    mpZiString->setCurrentWord(predicted);
-                    mpZiString->update();
-                }
-            }
-        }
-        meScrollFlag = SF_ScrollOn;
-        break;
-    }
     case 22:
         moveCandidateToIdx(*static_cast<s32*>(data));
         meScrollFlag = SF_ScrollOn;
@@ -1027,7 +1034,6 @@ void Base::onCommand(INPUT_COMMAND command, void* data) {
         }
         meScrollFlag = SF_ScrollOn;
         return;
-    case 24: doScroll(static_cast<Scroll*>(data)); return;
     case 25: current->converDakuten(); onSE(static_cast<sound::SE>(10)); break;
     case 26: current->converHandaku(); onSE(static_cast<sound::SE>(10)); break;
     case 27: current->convertAll(); break;
@@ -1040,17 +1046,17 @@ void Base::onCommand(INPUT_COMMAND command, void* data) {
             mbPredictOn = enabled;
             if (meLanguage == KR) mpManager->getPCKeyboard()->refreshState();
         }
-        tistring::Decolated::TranslateMode fixedMode = mpString->getTranslateMode();
-        tistring::Decolated::TranslateMode unfixMode = mpUnfixString->getTranslateMode();
+        tistring::Decolated::TranslateMode predictionFixedMode = mpString->getTranslateMode();
+        const tistring::Decolated::TranslateMode predictionUnfixMode = mpUnfixString->getTranslateMode();
         mpString->initKanaConverter();
         mpUnfixString->initKanaConverter();
         if (meLanguage == KR) {
-            if (fixedMode != tistring::Decolated::TM_Direct) fixedMode = tistring::Decolated::TM_Hangul;
-        } else if (meLanguage == CN) fixedMode = tistring::Decolated::TM_Direct;
+            if (predictionFixedMode != tistring::Decolated::TM_Direct) predictionFixedMode = tistring::Decolated::TM_Hangul;
+        } else if (meLanguage == CN) predictionFixedMode = tistring::Decolated::TM_Direct;
         mpString->getCursorPos();
-        mpString->setTranslateMode(fixedMode);
+        mpString->setTranslateMode(predictionFixedMode);
         mpString->getCursorPos();
-        mpUnfixString->setTranslateMode(unfixMode);
+        mpUnfixString->setTranslateMode(predictionUnfixMode);
         switch (mePredictMode) {
         case PM_Atok:
             if (!mbPredictOn) {
@@ -1074,9 +1080,13 @@ void Base::onCommand(INPUT_COMMAND command, void* data) {
         case PM_It: mpZiString->setPredictLaunguage(static_cast<tistring::WithZi::PredictLanguage>(7)); break;
         case PM_Nl: mpZiString->setPredictLaunguage(static_cast<tistring::WithZi::PredictLanguage>(8)); break;
         case PM_11: mpZiString->setPredictLaunguage(static_cast<tistring::WithZi::PredictLanguage>(9)); break;
-        case PM_12:
-            mpZiString->setPredictLaunguage(static_cast<tistring::WithZi::PredictLanguage>(mpManager->getToolBar()->isQwerty() ? 10 : 11));
+        case PM_12: {
+            bool qwerty = mpManager->getToolBar()->isQwerty();
+            tistring::WithZi::PredictLanguage language = static_cast<tistring::WithZi::PredictLanguage>(11);
+            if (qwerty) language = static_cast<tistring::WithZi::PredictLanguage>(10);
+            mpZiString->setPredictLaunguage(language);
             break;
+        }
         }
         onCommand(static_cast<INPUT_COMMAND>(30), NULL);
         return;
@@ -1092,7 +1102,7 @@ void Base::onCommand(INPUT_COMMAND command, void* data) {
         mbZuSelected = false;
         getCurrentString(false);
         resetPredictionContext();
-        resetCandidate();
+        candidatebox::CandidateBoxCaller::resetCandidate();
         return;
     }
     case 31: {
@@ -1102,30 +1112,30 @@ void Base::onCommand(INPUT_COMMAND command, void* data) {
         return;
     }
     case 32: *static_cast<bool*>(data) = hasZiPredictions(); return;
-    case 36: {
-        u32 length = *static_cast<u32*>(data);
-        if (length < fixed->getLength()) mpString->getLength();
-        mpString->setLength(static_cast<u16>(length));
-        return;
-    }
     case 38: {
         ControlInput* input = static_cast<ControlInput*>(data);
         onHKBCtrlCode(input->code, input->modifiers);
         return;
     }
-    case 39: mDKStream.clear(); return;
     case 41: notifyChangeMode(); return;
     case 42: onPressLeftHWKB(); return;
     case 43: onPressRightHWKB(); return;
     case 44: onPressUp(); return;
     case 45: onPressDownHWKB(); return;
+    case 39: mDKStream.clear(); return;
+    case 47: return;
+    case 36: {
+        u32 length = *static_cast<u32*>(data);
+        if (fixed->getLength() > length) mpString->getLength();
+        mpString->setLength(static_cast<u16>(length));
+        return;
+    }
     case 46:
         if (meLanguage == CN && !mpManager->getPCKeyboard()->isQwertyOnly() && mpManager->getPCKeyboard()->isLanguageKeyActive()) {
             if (mpManager->getPCKeyboard()->getTranslateMode() == keyboard::pctype::Base::TM_00) mpManager->getPCKeyboard()->setTranslateMode(keyboard::pctype::Base::TM_Kana);
             else mpManager->getPCKeyboard()->setTranslateMode(keyboard::pctype::Base::TM_00);
         }
         break;
-    case 47: return;
     default: break;
     }
     updateCandidateState_();
@@ -1233,17 +1243,20 @@ void LayoutByNW4R::create(MEMAllocator* allocator, EditBuffer* editBuffer) {
     rows[previous].Next = next;
     selected->Back = selectedIndex;
     selected->Next = selectedIndex;
-    Info_* listEnd = &rows[rows[static_cast<u16>(mriManager.mMaxLength + 1)].Back];
-    next = listEnd->Next;
-    selected->Back = rows[next].Back;
-    selected->Next = next;
-    listEnd->Next = selectedIndex;
-    rows[next].Back = selectedIndex;
+    Info_* listEnd = &mriManager.mpInfo[mriManager.mpInfo[static_cast<u16>(mriManager.mMaxLength + 1)].Back];
+    rows = mriManager.mpInfo;
+    if (selected->Back == selected->Next) {
+        next = listEnd->Next;
+        selected->Back = rows[next].Back;
+        selected->Next = next;
+        listEnd->Next = selectedIndex;
+        rows[next].Back = selectedIndex;
+    }
     selected->StrCount = 0;
     selected->DispRowCount = 1;
     mpCursorLine = selected;
     void* handlerMemory = MEMAllocFromAllocator(allocator, sizeof(EventHandler));
-    mpInputEventHandler = handlerMemory ? new (handlerMemory) EventHandler(this) : NULL;
+    mpInputEventHandler = new (handlerMemory) EventHandler(this);
     nw4rmanager::Layout::createWithEventHandler(allocator, mpInputEventHandler);
     if (!mpFontName) {
         mpFontName = "RevoIpl_RodinNTLGProM_32_I4.brfnt";
@@ -1266,20 +1279,25 @@ void LayoutByNW4R::create(MEMAllocator* allocator, EditBuffer* editBuffer) {
     setVisible("N_2line", true);
     mpPaneManager->setAllComponentTriggerTarget(false);
     mpPaneManager->setAllBoundingBoxComponentTriggerTarget(true);
-    nw4r::lyt::Pane* pane = mpLayout->GetRootPane()->FindPaneByName(static_cast<const LanguagePaneData*>(mpLanguageData)->textBox, true);
+    nw4r::lyt::Pane* pane = getPane(static_cast<const LanguagePaneData*>(mpLanguageData)->textBox);
     if (!pane) pane = mpLayout->GetRootPane()->FindPaneByName(getLanguageTextPane() ? static_cast<const LanguagePaneData*>(mpLanguageData)->textBox : "T_2l_TextBox", true);
     mpPaneManager->getPaneComponentByPane(pane)->setTriggerTarget(true);
     for (u32 buttonIndex = 0; buttonIndex < 2; ++buttonIndex) {
+        const ButtonAnimations& button = csButtonAnimations[static_cast<u16>(buttonIndex)];
         nw4rmanager::AnmPane* animationPane = NULL;
-        if (csButtonAnimations[static_cast<u16>(buttonIndex)].type == KT_NormalButton) {
+        switch (button.type) {
+        case KT_NormalButton: {
             void* memory = MEMAllocFromAllocator(allocator, sizeof(NormalButtonAnmPane));
-            if (memory) animationPane = new (memory) NormalButtonAnmPane(getPane(csButtonAnimations[static_cast<u16>(buttonIndex)].paneName), NULL);
+            animationPane = new (memory) NormalButtonAnmPane(getPane(button.paneName), NULL);
+            break;
+        }
         }
         nw4r::ut::List_Append(&mAnmPanes, animationPane);
-        const char* bindingName = csButtonAnimations[static_cast<u16>(buttonIndex)].bindingName;
-        u32 count = csButtonAnimations[static_cast<u16>(buttonIndex)].count;
+        u32 count;
+        const char* bindingName = button.bindingName;
+        count = button.count;
         for (u16 animationIndex = 0; animationIndex < count; ++animationIndex) {
-            const InputFormAnimationFile* file = csButtonAnimations[static_cast<u16>(buttonIndex)].files[animationIndex];
+            const InputFormAnimationFile* file = button.files[animationIndex];
             void* resource = mpMultiArcResourceAccessor->GetResource(0, file->fileName, NULL);
             AnimTransformPane* transform = static_cast<AnimTransformPane*>(getLayout()->CreateAnimTransform(resource, mpMultiArcResourceAccessor));
             if (!bindingName) animationPane->addAnimation(allocator, file->id, transform, false, true);
@@ -1532,296 +1550,101 @@ void Base::setDestination(Destination destination) {
     meDestination = destination;
 }
 
-extern "C" asm bool findURL__Q39textinput9inputform4BaseFPUlPUlPCwUlUl() {
-    nofralloc
-    stwu r1, -0x40(r1)
-    mflr r0
-    stw r0, 0x44(r1)
-    addi r11, r1, 0x40
-    bl _savegpr_20
-    lis r27, pppURLCheck@ha
-    mr r20, r4
-    mr r21, r5
-    mr r22, r6
-    mr r26, r7
-    mr r23, r8
-    addi r27, r27, pppURLCheck@l
-    li r29, 0
-    li r28, 1
-    b findURL_L8
-findURL_L1:
-    slwi r3, r26, 1
-    lhzx r0, r22, r3
-    cmpwi r0, 0x41
-    bge findURL_L2
-    cmpwi r0, 0xd
-    beq findURL_L4
-    bge findURL_L3
-    cmpwi r0, 0xa
-    beq findURL_L4
-    bge findURL_L7
-    cmpwi r0, 0
-    beq findURL_L5
-    b findURL_L7
-findURL_L3:
-    cmpwi r0, 0x30
-    bge findURL_L6
-    cmpwi r0, 0x20
-    beq findURL_L4
-    b findURL_L7
-findURL_L6:
-    cmpwi r0, 0x3a
-    bge findURL_L7
-    b findURL_L10
-findURL_L2:
-    cmpwi r0, 0x68
-    beq findURL_L9
-    bge findURL_L11
-    cmpwi r0, 0x5b
-    bge findURL_L12
-    cmpwi r0, 0x48
-    beq findURL_L9
-    b findURL_L10
-findURL_L12:
-    cmpwi r0, 0x61
-    bge findURL_L10
-    b findURL_L7
-findURL_L11:
-    cmpwi r0, 0x3000
-    beq findURL_L4
-    bge findURL_L7
-    cmpwi r0, 0x7b
-    bge findURL_L7
-    b findURL_L10
-findURL_L5:
-    cmpwi r29, 0
-    beq findURL_L13
-    cmpwi r21, 0
-    beq findURL_L13
-    stw r26, 0(r21)
-findURL_L13:
-    mr r3, r29
-    b findURL_L14
-findURL_L4:
-    cmpwi r29, 0
-    bne findURL_L15
-    li r28, 1
-    b findURL_L16
-findURL_L15:
-    cmpwi r21, 0
-    beq findURL_L17
-    stw r26, 0(r21)
-findURL_L17:
-    li r3, 1
-    b findURL_L14
-findURL_L9:
-    cmpwi r28, 0
-    beq findURL_L16
-    cmpwi r29, 0
-    bne findURL_L16
-    mr r31, r27
-    add r30, r22, r3
-    li r28, 0
-    li r25, 0
-findURL_L18:
-    mr r3, r31
-    bl wcslen
-    mr r24, r3
-    mr r3, r30
-    mr r4, r31
-    mr r5, r24
-    bl wcsnicmp
-    cmpwi r3, 0
-    bne findURL_L19
-    cmpwi r20, 0
-    beq findURL_L20
-    stw r26, 0(r20)
-findURL_L20:
-    add r3, r26, r24
-    li r29, 1
-    subi r26, r3, 1
-    b findURL_L16
-findURL_L19:
-    addi r25, r25, 1
-    addi r31, r31, 0x14
-    cmplwi r25, 2
-    blt findURL_L18
-    b findURL_L16
-findURL_L10:
-    li r28, 0
-    b findURL_L16
-findURL_L7:
-    li r28, 1
-findURL_L16:
-    addi r26, r26, 1
-findURL_L8:
-    cmplw r26, r23
-    blt findURL_L1
-    mr r3, r29
-findURL_L14:
-    addi r11, r1, 0x40
-    bl _restgpr_20
-    lwz r0, 0x44(r1)
-    mtlr r0
-    addi r1, r1, 0x40
-    blr
+bool Base::findURL(u32* start, u32* end, const wchar_t* string, u32 from, u32 to) {
+    const wchar_t* prefix;
+    const wchar_t* current;
+    bool found;
+    bool wordStart;
+    const wchar_t* prefixes = pppURLCheck[0];
+    u32 position;
+    u32 prefixIndex;
+    u32 length;
+    found = false;
+    wordStart = true;
+    for (position = from; position < to; ++position) {
+        wchar_t character = string[position];
+        if (s32(character) < L'A') {
+            if (s32(character) == L'\r') goto separator;
+            if (s32(character) < L'\r') {
+                if (s32(character) == L'\n') goto separator;
+                if (s32(character) >= L'\n') goto punctuation;
+                if (!character) goto endString;
+                goto punctuation;
+            }
+            if (s32(character) < L'0') {
+                if (s32(character) == L' ') goto separator;
+                goto punctuation;
+            }
+            if (s32(character) >= L':') goto punctuation;
+            goto wordCharacter;
+        }
+        if (s32(character) == L'h') goto prefixStart;
+        if (s32(character) < L'h') {
+            if (s32(character) < L'[') {
+                if (s32(character) == L'H') goto prefixStart;
+                goto wordCharacter;
+            }
+            if (s32(character) >= L'a') goto wordCharacter;
+            goto punctuation;
+        }
+        if (s32(character) == 0x3000) goto separator;
+        if (s32(character) >= 0x3000) goto punctuation;
+        if (s32(character) >= L'{') goto punctuation;
+        goto wordCharacter;
+    endString:
+        if (found && end) *end = position;
+        return found;
+    separator: {
+            if (!found) wordStart = true;
+            else {
+                if (end) *end = position;
+                return true;
+            }
+            goto nextCharacter;
+        }
+    prefixStart: {
+            if (wordStart && !found) {
+                prefix = prefixes;
+                current = &string[position];
+                wordStart = false;
+                for (prefixIndex = 0; prefixIndex < 2; ++prefixIndex, prefix += 10) {
+                    length = wcslen(prefix);
+                    if (!wcsnicmp(current, prefix, length)) {
+                        if (start) *start = position;
+                        found = true;
+                        position += length - 1;
+                        break;
+                    }
+                }
+            }
+            goto nextCharacter;
+        }
+    wordCharacter:
+        wordStart = false;
+        goto nextCharacter;
+    punctuation:
+        wordStart = true;
+    nextCharacter:
+        continue;
+    }
+    return found;
 }
 
-extern "C" asm void autoScroll__Q39textinput9inputform4BaseFv() {
-    nofralloc
-    stwu r1, -0x40(r1)
-    mflr r0
-    stw r0, 0x44(r1)
-    stfd f31, 0x30(r1)
-    psq_st f31, 0x38(r1), 0, 0
-    stw r31, 0x2c(r1)
-    stw r30, 0x28(r1)
-    mr r30, r3
-    lwz r12, 0x18c(r3)
-    lwz r12, 0x14(r12)
-    mtctr r12
-    addi r3, r3, 0x18c
-    bctrl
-    cmpwi r3, 0
-    bne autoScroll_Lend
-    lwz r3, 0x1b0(r30)
-    subi r0, r3, 1
-    cmplwi r0, 1
-    bgt autoScroll_Lend
-    lwz r12, 0x5c(r30)
-    addi r3, r30, 0x10
-    lwz r12, 0x28(r12)
-    mtctr r12
-    bctrl
-    lfs f0, lbl_81694D3C(r0)
-    lfs f2, 0x180(r30)
-    fmuls f1, f1, f0
-    lfs f0, lbl_81694D28(r0)
-    fadds f31, f2, f1
-    fcmpo cr0, f31, f0
-    bge autoScroll_L2
-    lwz r12, 0x5c(r30)
-    addi r3, r30, 0x10
-    lwz r12, 0x28(r12)
-    mtctr r12
-    bctrl
-    fdivs f1, f31, f1
-    lfs f0, lbl_81694D38(r0)
-    lwz r12, 0x5c(r30)
-    addi r3, r30, 0x10
-    lwz r12, 0x28(r12)
-    fsubs f0, f1, f0
-    fctiwz f0, f0
-    stfd f0, 0x18(r1)
-    lwz r31, 0x1c(r1)
-    mtctr r12
-    bctrl
-    xoris r3, r31, 0x8000
-    lis r0, 0x4330
-    stw r3, 0x24(r1)
-    addi r3, r30, 0x18c
-    lwz r12, 0x18c(r30)
-    li r4, 0
-    stw r0, 0x20(r1)
-    li r5, 0
-    lfd f3, lbl_81694D30(r0)
-    lfd f2, 0x20(r1)
-    lfs f0, 0x188(r30)
-    fsubs f2, f2, f3
-    lwz r12, 8(r12)
-    lfs f3, lbl_81694D88(r0)
-    fmuls f2, f2, f1
-    fmr f1, f0
-    fsubs f2, f0, f2
-    mtctr r12
-    bctrl
-    lwz r12, 0(r30)
-    mr r3, r30
-    li r4, 0xb
-    lwz r12, 0x178(r12)
-    mtctr r12
-    bctrl
-autoScroll_L2:
-    lwz r12, 0(r30)
-    mr r3, r30
-    lwz r12, 0x188(r12)
-    mtctr r12
-    bctrl
-    lfs f1, 0x124(r30)
-    lfs f0, 0x12c(r30)
-    stw r4, 0x14(r1)
-    fsubs f1, f1, f0
-    lfs f0, 0x14(r1)
-    stw r3, 0x10(r1)
-    fmuls f0, f1, f0
-    fcmpo cr0, f31, f0
-    cror eq, gt, eq
-    bne autoScroll_L3
-    lwz r12, 0(r30)
-    mr r3, r30
-    lwz r12, 0x188(r12)
-    mtctr r12
-    bctrl
-    lwz r12, 0x5c(r30)
-    stw r3, 8(r1)
-    addi r3, r30, 0x10
-    lwz r12, 0x28(r12)
-    stw r4, 0xc(r1)
-    mtctr r12
-    bctrl
-    lfs f2, 0x124(r30)
-    addi r3, r30, 0x10
-    lfs f0, 0x12c(r30)
-    lwz r12, 0x5c(r30)
-    fsubs f2, f2, f0
-    lfs f0, 0xc(r1)
-    lwz r12, 0x28(r12)
-    fmuls f0, f2, f0
-    fsubs f0, f31, f0
-    fdivs f0, f0, f1
-    fctiwz f0, f0
-    stfd f0, 0x20(r1)
-    lwz r4, 0x24(r1)
-    addi r31, r4, 1
-    mtctr r12
-    bctrl
-    xoris r3, r31, 0x8000
-    lis r0, 0x4330
-    stw r3, 0x1c(r1)
-    addi r3, r30, 0x18c
-    lwz r12, 0x18c(r30)
-    li r4, 0
-    stw r0, 0x18(r1)
-    li r5, 0
-    lfd f3, lbl_81694D30(r0)
-    lfd f2, 0x18(r1)
-    lfs f0, 0x188(r30)
-    fsubs f2, f2, f3
-    lwz r12, 8(r12)
-    lfs f3, lbl_81694D88(r0)
-    fmuls f2, f2, f1
-    fmr f1, f0
-    fsubs f2, f0, f2
-    mtctr r12
-    bctrl
-    lwz r12, 0(r30)
-    mr r3, r30
-    li r4, 0xb
-    lwz r12, 0x178(r12)
-    mtctr r12
-    bctrl
-autoScroll_L3:
-    li r0, 0
-    stw r0, 0x1b0(r30)
-autoScroll_Lend:
-    psq_l f31, 0x38(r1), 0, 0
-    lwz r0, 0x44(r1)
-    lfd f31, 0x30(r1)
-    lwz r31, 0x2c(r1)
-    lwz r30, 0x28(r1)
-    mtlr r0
-    addi r1, r1, 0x40
-    blr
+void Base::autoScroll() {
+    if (mScrollAnm.isActive()) return;
+    if (u32(meScrollFlag - SF_ScrollOn) > 1) return;
+    f32 cursorY = mfCursorY + getLineHeight() / 2.0f;
+    if (cursorY < 0.0f) {
+        s32 lines = s32(cursorY / getLineHeight() - 1.0f);
+        mScrollAnm.startAnm(mfScrollY, mfScrollY - lines * getLineHeight(), 15.0f, NULL, NULL);
+        onSE(static_cast<sound::SE>(11));
+    }
+    if (cursorY >= (mRect.top - mRect.bottom) * getScale().y) {
+        s32 lines = s32((cursorY - (mRect.top - mRect.bottom) * getScale().y) / getLineHeight()) + 1;
+        mScrollAnm.startAnm(mfScrollY, mfScrollY - lines * getLineHeight(), 15.0f, NULL, NULL);
+        onSE(static_cast<sound::SE>(11));
+    }
+    meScrollFlag = SF_NoScroll;
 }
 
 }
@@ -3688,9 +3511,9 @@ void Base::clear() {
 u32 Base::isOverRowLimit(u32 limit, const wchar_t* string) {
     const wchar_t* current = string;
     if (!*string) return 0;
+    f32 scaleX;
     f32 cursorX = getScale().x;
     nw4r::math::VEC2 scale = getScale();
-    f32 scaleX = scale.x;
     u32 pos = 0;
     u32 rows = 0;
     muWordWrapCounter = 0;
@@ -3698,6 +3521,7 @@ u32 Base::isOverRowLimit(u32 limit, const wchar_t* string) {
     mbHyphen = false;
     u32 cursorStart, cursorEnd;
     mpString->getCursorPos(&cursorStart, &cursorEnd);
+    scaleX = scale.x;
     for (;;) {
         DrawInfo info;
         info.rect.left = 0.0f;
@@ -3705,14 +3529,14 @@ u32 Base::isOverRowLimit(u32 limit, const wchar_t* string) {
         info.rect.right = 0.0f;
         info.rect.bottom = 0.0f;
         bool kana = false;
-        const wchar_t* character = current;
+        const wchar_t* character;
         if (meLanguage == KR && !kanaHandled && cursorStart == pos) {
             kanaHandled = true;
             character = mpString->getKanaBuffer();
             if (*character) kana = true;
         }
         if (!kana) {
-            if (!*current) return 0;
+            if (!*current) break;
             character = current;
         }
         info.character = *character;
@@ -3759,6 +3583,7 @@ u32 Base::isOverRowLimit(u32 limit, const wchar_t* string) {
         ++pos;
         ++current;
     }
+    return 0;
 }
 
 bool Base::onCursor(CursorPos* cursor) {
@@ -3902,12 +3727,15 @@ bool Base::onCursor(CursorPos* cursor) {
 }
 
 u32 Base::calcCursorPos(f32 x, f32 y) {
+    f32 cursorX;
+    f32 lineTop;
+    f32 lineBottom;
     f32 localY = y - mfScrollY;
     const wchar_t* string = mpString->getWCString();
     if (!*string) return 0;
-    f32 cursorX = getScale().x;
-    f32 lineTop = 0.0f;
-    f32 lineBottom = lineTop;
+    cursorX = getScale().x;
+    lineTop = 0.0f;
+    lineBottom = lineTop;
     nw4r::math::VEC2 scale = getScale();
     u32 pos = 0;
     muWordWrapCounter = 0;
@@ -3947,8 +3775,8 @@ u32 Base::calcCursorPos(f32 x, f32 y) {
             lineBottom = lineTop + scale.y * (info.rect.bottom - info.rect.top);
             if (!string[1] && localY >= lineTop && localY <= lineBottom) return pos + 1;
         } else {
-            if (cursorX <= x && x < right && localY >= lineTop && localY < lineBottom) {
-                if (cursorX + (right - cursorX) * 0.5f > x) return pos;
+            if (x >= cursorX && x < right && localY >= lineTop && localY < lineBottom) {
+                if (cursorX + 0.5f * (right - cursorX) > x) return pos;
                 return pos + 1;
             }
             cursorX += scale.x * (info.rect.right - info.rect.left);
@@ -4094,59 +3922,8 @@ void Base::doLineFeed() {
     SetCursorX(getScale().x);
 }
 
-asm bool Base::isOverLine(const DrawInfo& drawInfo) {
-    nofralloc
-    stwu r1, -0x40(r1)
-    mflr r0
-    stw r0, 0x44(r1)
-    stfd f31, 0x30(r1)
-    psq_st f31, 0x38(r1), 0, 0
-    stfd f30, 0x20(r1)
-    psq_st f30, 0x28(r1), 0, 0
-    stw r31, 0x1c(r1)
-    mr r31, r4
-    stw r30, 0x18(r1)
-    mr r30, r3
-    lwz r12, 0(r3)
-    lwz r12, 0x188(r12)
-    mtctr r12
-    bctrl
-    lwz r12, 0(r30)
-    lfs f1, 0x128(r30)
-    lfs f0, 0x120(r30)
-    lwz r12, 0x188(r12)
-    stw r3, 8(r1)
-    fsubs f31, f1, f0
-    mr r3, r30
-    stw r4, 0xc(r1)
-    mtctr r12
-    bctrl
-    lfs f1, 8(r31)
-    lfs f0, 0(r31)
-    stw r3, 0x10(r1)
-    addi r3, r30, 0x10
-    fsubs f30, f1, f0
-    stw r4, 0x14(r1)
-    bl GetCursorX__Q34nw4r2ut10CharWriterCFv
-    lfs f2, 0x10(r1)
-    lfs f0, 8(r1)
-    fmuls f2, f30, f2
-    fmuls f0, f31, f0
-    fadds f1, f1, f2
-    fcmpo cr0, f1, f0
-    cror eq, gt, eq
-    mfcr r3
-    extrwi r3, r3, 1, 2
-    psq_l f31, 0x38(r1), 0, 0
-    lfd f31, 0x30(r1)
-    psq_l f30, 0x28(r1), 0, 0
-    lfd f30, 0x20(r1)
-    lwz r31, 0x1c(r1)
-    lwz r30, 0x18(r1)
-    lwz r0, 0x44(r1)
-    mtlr r0
-    addi r1, r1, 0x40
-    blr
+bool Base::isOverLine(const DrawInfo& drawInfo) {
+    return GetCursorX() + drawInfo.rect.GetWidth() * getScale().x >= mRect.GetWidth() * getScale().x;
 }
 
 void Base::drawFixString(u32 position) {
