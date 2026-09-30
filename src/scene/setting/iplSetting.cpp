@@ -154,7 +154,6 @@ namespace ipl {
 
         const char* sSettingAPNumberNames[] = {"N_AP1", "N_AP2", "N_AP3", "N_AP4", "N_AP5", "N_AP6"};
 
-        extern "C" __declspec(section ".sdata") const char* lbl_81697010[];
 
         const char* sSettingAPPaneNames[] = {
             "G_ListUpDown", "G_ListInOut", "G_ArwA", "G_ArwB", "G_Denpa", "G_Lock",  "G_AP0",
@@ -182,8 +181,8 @@ namespace ipl {
         Setting::Setting(EGG::Heap* heap, int arg) : FaderSceneBase(heap) {
             unk_0x5C = 0;
             mpWWWLibraryFile = 0;
-            mpWWWArchiveFile = 0;
             mpSettingHTMLFile = 0;
+            mpWWWArchiveFile = 0;
             mpFontFile = 0;
             mpSettingLayoutFile = 0;
             mBrowserCreated = 0;
@@ -244,11 +243,11 @@ namespace ipl {
             if (mpWWWLibraryFile) {
                 delete mpWWWLibraryFile;
             }
-            if (mpWWWArchiveFile) {
-                delete mpWWWArchiveFile;
-            }
             if (mpSettingHTMLFile) {
                 delete mpSettingHTMLFile;
+            }
+            if (mpWWWArchiveFile) {
+                delete mpWWWArchiveFile;
             }
             if (mpFontFile) {
                 delete mpFontFile;
@@ -521,9 +520,9 @@ namespace ipl {
                                                        mem2Buffer_, mem2Size,
                                                        static_cast<nand::File*>(mpWWWLibraryFile)->getBuffer(),
                                                        browserPath);
-            ext_ead::www::SurfaceManager::RegisterArcFile(static_cast<nand::File*>(mpWWWArchiveFile)->getBuffer());
-            ext_ead::www::SurfaceManager::RegisterIniFile(static_cast<nand::File*>(mpSettingHTMLFile)->getBuffer(),
-                                                          static_cast<nand::File*>(mpSettingHTMLFile)->getLength());
+            ext_ead::www::SurfaceManager::RegisterArcFile(static_cast<nand::File*>(mpSettingHTMLFile)->getBuffer());
+            ext_ead::www::SurfaceManager::RegisterIniFile(static_cast<nand::File*>(mpWWWArchiveFile)->getBuffer(),
+                                                          static_cast<nand::File*>(mpWWWArchiveFile)->getLength());
             ext_ead::www::SurfaceManager::RegisterFontFile(0, static_cast<nand::File*>(mpFontFile)->getBuffer(),
                                                            static_cast<nand::File*>(mpFontFile)->getLength());
             ext_ead::www::SurfaceManager::StartThread();
@@ -2823,7 +2822,7 @@ namespace ipl {
             mpMainLayout->FindPaneByName("N_AP7")->SetVisible(true);
             switch (mAPScanList.count) {
                 case 0:
-                    mpMainLayout->FindPaneByName("N_ArwB")->SetVisible(false);
+                    mpMainLayout->FindPaneByName("N_AP2")->SetVisible(false);
                 case 1:
                     mpMainLayout->FindPaneByName("N_AP3")->SetVisible(false);
                 case 2:
@@ -2838,17 +2837,17 @@ namespace ipl {
             numberAnim->initFrame();
             numberAnim->restart();
             mpMainLayout->getAnim(0)->initAnmFrame();
-            mpMainLayout->FindPaneByName(lbl_81697010[0])->SetVisible(false);
+            mpMainLayout->FindPaneByName(sSettingArrowNames[0])->SetVisible(false);
             mpMainLayout->FindPaneByName(sSettingAPNumberNames[0])->SetVisible(false);
             if (mAPScanList.count <= unk_0x914 + 4) {
-                mpMainLayout->FindPaneByName(NULL)->SetVisible(false);
-                mpMainLayout->FindPaneByName(lbl_81697010[1])->SetVisible(false);
+                mpMainLayout->FindPaneByName("N_ArwB")->SetVisible(false);
+                mpMainLayout->FindPaneByName(sSettingArrowNames[1])->SetVisible(false);
                 for (int index = mAPScanList.count + 1; index < 6; ++index) {
                     mpMainLayout->FindPaneByName(sSettingAPNumberNames[index])->SetVisible(false);
                 }
             } else {
-                mpMainLayout->FindPaneByName(NULL)->SetVisible(true);
-                mpMainLayout->FindPaneByName(lbl_81697010[1])->SetVisible(true);
+                mpMainLayout->FindPaneByName("N_ArwB")->SetVisible(true);
+                mpMainLayout->FindPaneByName(sSettingArrowNames[1])->SetVisible(true);
                 utility::FrameController* scrollAnim = mpMainLayout->getAnim(1);
                 scrollAnim->initFrame();
                 scrollAnim->restart();
@@ -2867,17 +2866,17 @@ namespace ipl {
                     layout::Animator* animation = mpMainLayout->getAnim(2);
                     animation->initFrame();
                     animation->restart();
-                    mpMainLayout->FindPaneByName(lbl_81697010[0])->SetVisible(false);
+                    mpMainLayout->FindPaneByName(sSettingArrowNames[0])->SetVisible(false);
                     for (int point = 0; point < 8; ++point) {
                         mpPaneManager->getPaneComponentByPane(
-                            mpMainLayout->FindPaneByName(lbl_81697010[0]))->setPointed(point, false);
+                            mpMainLayout->FindPaneByName(sSettingArrowNames[0]))->setPointed(point, false);
                     }
                 }
                 if (mAPScanList.count == unk_0x914 + 5) {
                     layout::Animator* animation = mpMainLayout->getAnim(1);
                     animation->initFrame();
                     animation->restart();
-                    mpMainLayout->FindPaneByName(lbl_81697010[1])->SetVisible(true);
+                    mpMainLayout->FindPaneByName(sSettingArrowNames[1])->SetVisible(true);
                 }
             } else {
                 ++unk_0x914;
@@ -2885,17 +2884,17 @@ namespace ipl {
                     layout::Animator* animation = mpMainLayout->getAnim(3);
                     animation->initFrame();
                     animation->restart();
-                    mpMainLayout->FindPaneByName(lbl_81697010[1])->SetVisible(false);
+                    mpMainLayout->FindPaneByName(sSettingArrowNames[1])->SetVisible(false);
                     for (int point = 0; point < 8; ++point) {
                         mpPaneManager->getPaneComponentByPane(
-                            mpMainLayout->FindPaneByName(lbl_81697010[1]))->setPointed(point, false);
+                            mpMainLayout->FindPaneByName(sSettingArrowNames[1]))->setPointed(point, false);
                     }
                 }
                 if (unk_0x914 == 1) {
                     layout::Animator* animation = mpMainLayout->getAnim(0);
                     animation->initFrame();
                     animation->restart();
-                    mpMainLayout->FindPaneByName(lbl_81697010[0])->SetVisible(true);
+                    mpMainLayout->FindPaneByName(sSettingArrowNames[0])->SetVisible(true);
                 }
             }
             mpMainLayout->getAnim(10)->stop();

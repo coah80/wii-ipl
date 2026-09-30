@@ -214,8 +214,8 @@ namespace ipl {
             u8 unk_0x5C;
             u8 unk_0x5D[3];
             nand::Base* mpWWWLibraryFile;
-            nand::Base* mpWWWArchiveFile;
             nand::Base* mpSettingHTMLFile;
+            nand::Base* mpWWWArchiveFile;
             nand::Base* mpFontFile;
             nand::Base* mpBackgroundTPLFile;
             int unk_0x74;
