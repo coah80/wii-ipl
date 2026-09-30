@@ -124,7 +124,7 @@ typedef struct KPADInside {
     u8 dpdCallbackPending;
     u8 sensorHeightPending;
     u8 sensorBarPosition;
-    u16 freeStyleAccelRotation;
+    u8 freeStyleAccelRotation;
 } KPADInside;
 
 static KPADInside inside_kpads[4];
@@ -432,24 +432,24 @@ static void calc_acc_vertical(KPADInside* kpad) {
 }
 
 static void read_kpad_acc(KPADInside* kpad, KPADSample* status) {
-    u8 format = status->dataFormat;
-    if (format == 6) {
-        return;
-    }
-    if (format < 6) {
-        if (format == 3) {
+    {
+        u8 format = status->dataFormat;
+        if (format == 6) {
             return;
         }
-        if (format < 3 && format < 1) {
+        if (format < 6) {
+            if (format == 3) {
+                return;
+            }
+            if (format < 3 && format < 1) {
+                return;
+            }
+        } else if (format >= 9) {
             return;
         }
-    } else if (format >= 9) {
-        return;
     }
     {
-        f32 oldX = kpad->status.acc.x;
-        f32 oldY = kpad->status.acc.y;
-        f32 oldZ = kpad->status.acc.z;
+        Vec oldAcc;
         f32 target;
         f32 delta;
         f32 magnitude;
@@ -465,8 +465,10 @@ static void read_kpad_acc(KPADInside* kpad, KPADSample* status) {
             if (target >= limit) {
                 limit = target;
             }
-        } else if (target <= limit) {
-            limit = target;
+        } else {
+            if (target <= limit) {
+                limit = target;
+            }
         }
         kpad->accelerationX = limit;
         limit = kp_rm_acc_max;
@@ -491,7 +493,10 @@ static void read_kpad_acc(KPADInside* kpad, KPADSample* status) {
             limit = target;
         }
         kpad->accelerationZ = limit;
-        delta = kpad->accelerationX - oldX;
+        *(u32*)&oldAcc.x = *(u32*)&kpad->status.acc.x;
+        *(u32*)&oldAcc.y = *(u32*)&kpad->status.acc.y;
+        *(u32*)&oldAcc.z = *(u32*)&kpad->status.acc.z;
+        delta = kpad->accelerationX - oldAcc.x;
         magnitude = delta;
         if (magnitude < 0.0f) {
             magnitude = -magnitude;
@@ -503,8 +508,8 @@ static void read_kpad_acc(KPADInside* kpad, KPADSample* status) {
             blend *= blend;
             blend *= blend;
         }
-        kpad->status.acc.x = oldX + blend * kpad->valueA0 * delta;
-        delta = kpad->accelerationY - oldY;
+        kpad->status.acc.x = oldAcc.x + blend * kpad->valueA0 * delta;
+        delta = kpad->accelerationY - oldAcc.y;
         magnitude = delta;
         if (magnitude < 0.0f) {
             magnitude = -magnitude;
@@ -516,8 +521,8 @@ static void read_kpad_acc(KPADInside* kpad, KPADSample* status) {
             blend *= blend;
             blend *= blend;
         }
-        kpad->status.acc.y = oldY + blend * kpad->valueA0 * delta;
-        delta = kpad->accelerationZ - oldZ;
+        kpad->status.acc.y = oldAcc.y + blend * kpad->valueA0 * delta;
+        delta = kpad->accelerationZ - oldAcc.z;
         magnitude = delta;
         if (magnitude < 0.0f) {
             magnitude = -magnitude;
@@ -529,30 +534,31 @@ static void read_kpad_acc(KPADInside* kpad, KPADSample* status) {
             blend *= blend;
             blend *= blend;
         }
-        kpad->status.acc.z = oldZ + blend * kpad->valueA0 * delta;
-        currentX = kpad->status.acc.x;
-        currentY = kpad->status.acc.y;
-        currentZ = kpad->status.acc.z;
-        kpad->status.acc_value = (f32)sqrt(currentX * currentX + (currentY * currentY + currentZ * currentZ));
-        delta = currentX - oldX;
-        currentX = currentY - oldY;
-        currentY = currentZ - oldZ;
-        kpad->status.acc_speed = (f32)sqrt(delta * delta + (currentX * currentX + currentY * currentY));
+        kpad->status.acc.z = oldAcc.z + blend * kpad->valueA0 * delta;
+        {
+            Vec deltaV;
+            kpad->status.acc_value = (f32)sqrt(
+                kpad->status.acc.x * kpad->status.acc.x +
+                (kpad->status.acc.y * kpad->status.acc.y +
+                 kpad->status.acc.z * kpad->status.acc.z));
+            deltaV.x = oldAcc.x - kpad->status.acc.x;
+            deltaV.y = oldAcc.y - kpad->status.acc.y;
+            deltaV.z = oldAcc.z - kpad->status.acc.z;
+            kpad->status.acc_speed = (f32)sqrt(
+                deltaV.x * deltaV.x + deltaV.y * deltaV.y + deltaV.z * deltaV.z);
+        }
         calc_acc_horizon(kpad);
         calc_acc_vertical(kpad);
     }
     if (status->error != 0 || status->device != 1) {
         return;
     }
-    if (format != 4 && format != 5) {
+    if (status->dataFormat != 4 && status->dataFormat != 5) {
         return;
     }
     {
         Vec raw;
-        f32* values = (f32*)&raw;
-        f32 oldX;
-        f32 oldY;
-        f32 oldZ;
+        Vec oldFs;
         f32 delta;
         f32 magnitude;
         f32 blend;
@@ -560,37 +566,35 @@ static void read_kpad_acc(KPADInside* kpad, KPADSample* status) {
         f32 currentY;
         f32 currentZ;
         f32 limit;
-        values[0] = (f32)-(s32)status->extension.fs.accX * kpad->value4E8;
+        raw.x = (f32)-(s32)status->extension.fs.accX * kpad->value4E8;
         limit = kp_fs_acc_max;
-        if (values[0] < -kp_fs_acc_max) {
+        if (raw.x < -kp_fs_acc_max) {
             limit = -kp_fs_acc_max;
-        } else if (values[0] <= limit) {
-            limit = values[0];
+        } else if (raw.x <= limit) {
+            limit = raw.x;
         }
-        values[0] = limit;
-        values[1] = (f32)-(s32)status->extension.fs.accZ * kpad->value4F0;
+        raw.x = limit;
+        raw.y = (f32)-(s32)status->extension.fs.accZ * kpad->value4F0;
         limit = kp_fs_acc_max;
-        if (values[1] < -kp_fs_acc_max) {
+        if (raw.y < -kp_fs_acc_max) {
             limit = -kp_fs_acc_max;
-        } else if (values[1] <= limit) {
-            limit = values[1];
+        } else if (raw.y <= limit) {
+            limit = raw.y;
         }
-        values[1] = limit;
-        values[2] = (f32)status->extension.fs.accY * kpad->value4EC;
+        raw.y = limit;
+        raw.z = (f32)status->extension.fs.accY * kpad->value4EC;
         limit = kp_fs_acc_max;
-        if (values[2] < -kp_fs_acc_max) {
+        if (raw.z < -kp_fs_acc_max) {
             limit = -kp_fs_acc_max;
-        } else if (values[2] <= limit) {
-            limit = values[2];
+        } else if (raw.z <= limit) {
+            limit = raw.z;
         }
-        values[2] = limit;
+        raw.z = limit;
         if (kpad->freeStyleAccelRotation != 0) {
             PSMTXMultVec((const f32 (*)[4])initial_rotation_matrix, &raw, &raw);
         }
-        oldX = kpad->status.ex_status.fs.acc.x;
-        oldY = kpad->status.ex_status.fs.acc.y;
-        oldZ = kpad->status.ex_status.fs.acc.z;
-        delta = values[0] - oldX;
+        oldFs = kpad->status.ex_status.fs.acc;
+        delta = raw.x - oldFs.x;
         magnitude = delta;
         if (magnitude < 0.0f) {
             magnitude = -magnitude;
@@ -602,8 +606,8 @@ static void read_kpad_acc(KPADInside* kpad, KPADSample* status) {
             blend *= blend;
             blend *= blend;
         }
-        kpad->status.ex_status.fs.acc.x = oldX + blend * kpad->valueA0 * delta;
-        delta = values[1] - oldY;
+        kpad->status.ex_status.fs.acc.x = oldFs.x + blend * kpad->valueA0 * delta;
+        delta = raw.y - oldFs.y;
         magnitude = delta;
         if (magnitude < 0.0f) {
             magnitude = -magnitude;
@@ -615,8 +619,8 @@ static void read_kpad_acc(KPADInside* kpad, KPADSample* status) {
             blend *= blend;
             blend *= blend;
         }
-        kpad->status.ex_status.fs.acc.y = oldY + blend * kpad->valueA0 * delta;
-        delta = values[2] - oldZ;
+        kpad->status.ex_status.fs.acc.y = oldFs.y + blend * kpad->valueA0 * delta;
+        delta = raw.z - oldFs.z;
         magnitude = delta;
         if (magnitude < 0.0f) {
             magnitude = -magnitude;
@@ -628,15 +632,19 @@ static void read_kpad_acc(KPADInside* kpad, KPADSample* status) {
             blend *= blend;
             blend *= blend;
         }
-        kpad->status.ex_status.fs.acc.z = oldZ + blend * kpad->valueA0 * delta;
-        currentX = kpad->status.ex_status.fs.acc.x;
-        currentY = kpad->status.ex_status.fs.acc.y;
-        currentZ = kpad->status.ex_status.fs.acc.z;
-        kpad->status.ex_status.fs.acc_value = (f32)sqrt(currentX * currentX + (currentY * currentY + currentZ * currentZ));
-        delta = currentX - oldX;
-        currentX = currentY - oldY;
-        currentY = currentZ - oldZ;
-        kpad->status.ex_status.fs.acc_speed = (f32)sqrt(delta * delta + (currentX * currentX + currentY * currentY));
+        kpad->status.ex_status.fs.acc.z = oldFs.z + blend * kpad->valueA0 * delta;
+        {
+            Vec deltaFs;
+            kpad->status.ex_status.fs.acc_value = (f32)sqrt(
+                kpad->status.ex_status.fs.acc.x * kpad->status.ex_status.fs.acc.x +
+                (kpad->status.ex_status.fs.acc.y * kpad->status.ex_status.fs.acc.y +
+                 kpad->status.ex_status.fs.acc.z * kpad->status.ex_status.fs.acc.z));
+            deltaFs.x = oldFs.x - kpad->status.ex_status.fs.acc.x;
+            deltaFs.y = oldFs.y - kpad->status.ex_status.fs.acc.y;
+            deltaFs.z = oldFs.z - kpad->status.ex_status.fs.acc.z;
+            kpad->status.ex_status.fs.acc_speed = (f32)sqrt(
+                deltaFs.x * deltaFs.x + deltaFs.y * deltaFs.y + deltaFs.z * deltaFs.z);
+        }
     }
 }
 
@@ -937,10 +945,11 @@ static void read_kpad_dpd(KPADInside* kpad, KPADSample* status) {
     }
     object = objects + 3;
     for (;;) {
-        if ((s8)object->metadata.bytes.flags >= 0 &&
-            (object->x == kpad->value4F4 || object->x == kpad->value4FC ||
-             object->y == kpad->value4F8 || object->y == kpad->value500)) {
-            object->metadata.bytes.flags |= 1;
+        if ((s8)object->metadata.bytes.flags >= 0) {
+            if (object->x == kpad->value4F4 || object->x == kpad->value4FC ||
+                object->y == kpad->value4F8 || object->y == kpad->value500) {
+                object->metadata.bytes.flags |= 1;
+            }
         }
         if (object == objects) {
             break;
