@@ -1,6 +1,6 @@
 #include <private/fa/pdm.h>
 #include <revolution/types.h>
-#define MBR_WORD(buf, offset) (((pf_u32)(buf)[(offset) + 2] << 16) + (buf)[offset] + (((pf_u32)(buf)[(offset) + 3] << 24) + ((pf_u32)(buf)[(offset) + 1] << 8)))
+#define MBR_WORD(buf, offset) (((pf_u32)(buf)[(offset) + 3] << 24) + ((pf_u32)(buf)[(offset) + 2] << 16) + ((pf_u32)(buf)[(offset) + 1] << 8) + (buf)[offset])
 static inline pf_u16 read_boot_u16(pf_u8* buf, pf_u32 offset) {
     if ((pf_u32)&buf[offset] & 1) { return (buf[offset + 1] << 8) | buf[offset]; }
     return PF_SWAP_16(*(pf_u16*)&buf[(offset + 1) & ~1]);
