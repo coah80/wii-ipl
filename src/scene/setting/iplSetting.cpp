@@ -1438,8 +1438,8 @@ namespace ipl {
             nw4r::ut::Rect centeredRect(-projectionWidth / 2, projectionHeight / 2, projectionWidth / 2, -projectionHeight / 2);
 
             if (wideBuffer != NULL && standardBuffer != NULL) {
-                GXTexObj wideTexture;
                 GXTexObj standardTexture;
+                GXTexObj wideTexture;
                 GXInitTexObj(&wideTexture, wideBuffer, wideRect->w, wideRect->h, GX_TF_RGB565, GX_CLAMP, GX_CLAMP, GX_FALSE);
                 GXInitTexObj(&standardTexture, standardBuffer, standardRect->w, standardRect->h, GX_TF_RGB565, GX_CLAMP, GX_CLAMP, GX_FALSE);
                 GXInitTexObjLOD(&wideTexture, GX_LINEAR, GX_LINEAR, 0.0f, 0.0f, 0.0f, GX_FALSE, GX_FALSE, GX_ANISO_1);
