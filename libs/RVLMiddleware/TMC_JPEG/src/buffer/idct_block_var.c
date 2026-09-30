@@ -184,47 +184,48 @@ void TMCJPEGDEC_IdctBlock_Col(s32* block, u8* conv_row_ptr, u16 pitch, s32 zigza
 
         dst = tmp;
         done = 0;
-        iter = (r + 7) >> 3;
+        iter = (u32)(r + 7) >> 3;
         if (r > 0) {
             done = iter << 3;
-            for (inner = iter >> 1; inner > 0; inner--) {
-                    s32 b0;
-                    t = block[1] * 0xB5 >> 8;
-                    v = block[1] * 0x62 >> 8;
-                    u = v + t;
-                    z = (block[1] * 0x14E >> 8) - v;
-                    m = block[1] + z;
-                    n = t + z;
-                    b0 = block[0];
-                    dst[0] = b0 + m;
-                    dst[7] = b0 - m;
-                    dst[1] = b0 + n;
-                    dst[6] = b0 - n;
-                    dst[2] = b0 + u;
-                    dst[5] = b0 - u;
-                    dst[3] = b0 + v;
-                    dst[4] = b0 - v;
+            for (inner = (u32)iter >> 1; inner != 0; inner--) {
+                s32 b0;
+                t = block[1] * 0xB5 >> 8;
+                v = block[1] * 0x62 >> 8;
+                u = v + t;
+                z = (block[1] * 0x14E >> 8) - v;
+                m = block[1] + z;
+                n = t + z;
+                b0 = block[0];
+                dst[0] = b0 + m;
+                dst[7] = b0 - m;
+                dst[1] = b0 + n;
+                dst[6] = b0 - n;
+                dst[2] = b0 + u;
+                dst[5] = b0 - u;
+                dst[3] = b0 + v;
+                dst[4] = b0 - v;
 
-                    t = block[9] * 0xB5 >> 8;
-                    v = block[9] * 0x62 >> 8;
-                    u = v + t;
-                    z = (block[9] * 0x14E >> 8) - v;
-                    m = block[9] + z;
-                    n = t + z;
-                    b0 = block[8];
-                    dst[8] = b0 + m;
-                    dst[15] = b0 - m;
-                    dst[9] = b0 + n;
-                    dst[14] = b0 - n;
-                    dst[10] = b0 + u;
-                    dst[13] = b0 - u;
-                    dst[11] = b0 + v;
-                    dst[12] = b0 - v;
-                    dst += 0x10;
-                    block += 0x10;
-                }
+                t = block[9] * 0xB5 >> 8;
+                v = block[9] * 0x62 >> 8;
+                u = v + t;
+                z = (block[9] * 0x14E >> 8) - v;
+                m = block[9] + z;
+                n = t + z;
+                b0 = block[8];
+                dst[8] = b0 + m;
+                dst[15] = b0 - m;
+                dst[9] = b0 + n;
+                dst[14] = b0 - n;
+                dst[10] = b0 + u;
+                dst[13] = b0 - u;
+                dst[11] = b0 + v;
+                dst[12] = b0 - v;
+                dst += 0x10;
+                block += 0x10;
+            }
             iter = iter & 1;
             if (iter != 0) {
+                do {
                 s32 b0;
                 t = block[1] * 0xB5 >> 8;
                 v = block[1] * 0x62 >> 8;
@@ -243,11 +244,12 @@ void TMCJPEGDEC_IdctBlock_Col(s32* block, u8* conv_row_ptr, u16 pitch, s32 zigza
                 dst[4] = b0 - v;
                 dst += 8;
                 block += 8;
+                } while (--iter);
             }
         }
     zero_fill:
         dst = tmp + done;
-        for (; done < 0x39; done += 8) {
+        for (; done <= 0x38; done += 8) {
             memset(dst, 0, 0x20);
             dst += 8;
         }
@@ -257,8 +259,7 @@ void TMCJPEGDEC_IdctBlock_Col(s32* block, u8* conv_row_ptr, u16 pitch, s32 zigza
 mode_gt_2:
     dst = tmp;
     done = 0;
-    if (r > 0) {
-        for (iter = (r + 7) >> 3; iter > 0; iter--) {
+    for (iter = (u32)(r + 7) >> 3; iter > 0; iter--) {
             u32 ac;
             b4 = block[4];
             b6 = block[6];
@@ -319,10 +320,9 @@ mode_gt_2:
             dst += 8;
             done += 8;
         }
-    }
 
     dst = tmp + done;
-    for (; done < 0x39; done += 8) {
+    for (; done <= 0x38; done += 8) {
         memset(dst, 0, 0x20);
         dst += 8;
     }
