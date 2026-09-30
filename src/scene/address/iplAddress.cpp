@@ -1936,7 +1936,7 @@ namespace ipl {
 
         BOOL FriendListCache::isDupId(const NWC24UserId& userId) {
             for (u32 i = 0; i < FRIEND_MAX; i++) {
-                if (mbThere[i] && mInfos[i].attr.type == NWC24_FRIENDTYPE_WII && userId == mInfos[i].addr.wiiId) {
+                if (mbThere[i] && mInfos[i].attr.type == NWC24_FRIENDTYPE_WII && userId == getInfo(i).addr.wiiId) {
                     return TRUE;
                 }
             }
@@ -1946,7 +1946,7 @@ namespace ipl {
 
         BOOL FriendListCache::isDupMail(const char* mailAddr) {
             for (int i = 0; i < FRIEND_MAX; i++) {
-                if (mbThere[i] && mInfos[i].attr.type == NWC24_FRIENDTYPE_EMAIL && strcmp(mInfos[i].addr.mailAddr, mailAddr) == 0) {
+                if (mbThere[i] && getInfo(i).attr.type == NWC24_FRIENDTYPE_EMAIL && strcmp(getInfo(i).addr.mailAddr, mailAddr) == 0) {
                     return TRUE;
                 }
             }
@@ -1955,7 +1955,7 @@ namespace ipl {
         }
 
         void FriendListCache::sendRegisterMail(u32 index) {
-            const NWC24FriendInfo& info = mInfos[index];
+            const NWC24FriendInfo& info = getInfo(index);
             nwc24::Manager* manager = System::getNwc24Manager();
 
             NWC24MsgObj msgObj;
