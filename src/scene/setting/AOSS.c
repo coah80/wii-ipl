@@ -1003,17 +1003,17 @@ LAB_00011e70:
           }
           memset(packetBuffer,0,0x5f8);
           timeoutSeconds = timeoutMilliseconds >> 0x1f;
-          requestResult = timeoutMilliseconds / 1000 + timeoutSeconds;
+          requestResult = timeoutMilliseconds / 1000;
           pollArguments[1] = 1;
           pollArguments[0] = s_socket;
-          pollSeconds = requestResult - timeoutSeconds;
+          pollSeconds = requestResult;
           pollArguments[2] = 0;
           pollArguments[3] = s_socket;
           pollResultLow = 0;
           pollResultHigh = 1;
-          pollSubseconds = (timeoutMilliseconds + (requestResult - timeoutSeconds) * -1000) * 1000;
+          pollSubseconds = (timeoutMilliseconds % 1000) * 1000;
           timeoutTicks = (s64)pollSeconds * (s64)(int)(OS_BUS_CLOCK >> 2);
-          tickRemainder = ((s64)pollSubseconds * (s64)(int)((OS_BUS_CLOCK >> 2) / 0x1e848) &
+          tickRemainder = ((s64)pollSubseconds * (s64)(int)(OS_BUS_CLOCK >> 2) / 0xf4240 &
                   0xffffffffU) >> 3;
           requestResult = SOPoll(pollArguments,1,((u32)((timeoutTicks + tickRemainder) >> 32)),(int)timeoutTicks + (int)tickRemainder);
           if (0 < requestResult) goto LAB_00012088;
@@ -1360,25 +1360,24 @@ LAB_000126f0:
     SOClose(s_socket);
   }
   s_socket = -1;
-  if (s_socketStarted == 1) {
-    s_socketStarted = 0;
-    state = SOCleanup() < 0 ? -1 : 0;
-  }
-  else {
-    state = 0;
-  }
-  if (state != 0) {
+  {
+    s32 cleanupResult;
+    if (s_socketStarted == 1) {
+      s_socketStarted = 0;
+      cleanupResult = SOCleanup() < 0 ? -1 : 0;
+    }
+    else {
+      cleanupResult = 0;
+    }
+    if (cleanupResult != 0) {
     input->status = 0xf;
     if ((s32)s_accessPointConfig != 0) {
       AOSSi_Free(s_accessPointConfig);
       s_accessPointConfig = NULL;
     }
-    if ((s32)s_accessPointList != 0) {
-      AOSSi_Free(s_accessPointList);
-      s_accessPointList = 0;
-    }
     resultCode = 0xffffffff;
     goto LAB_00012878;
+  }
   }
   if (timeoutMilliseconds != 0) {
     switch (s_errorCode) {
