@@ -81,3 +81,45 @@ ZiMatchZHSpelling, 484 target bytes: all blocks are already translated, with 121
 - Engine attempt 20: combined six phonetic-code assignments with their comparisons; engine score fell to 76.70392%, so restored attempt 19.
 - Final read-only coverage check: every non-prologue helper has the same number of call sites as the target engine, including all 20 table-address calls, 22 table-count calls, 19 word-duplicate calls, and 11 secondary-character calls. All labels resolve, and no temporary completion exits remain. The initialization region after the save sequence has target stack offsets and instruction forms; the save sequence and GPR choices still differ.
 - Final clean full gate: PASS; 5/8 instruction-exact functions, code 4168/47816, data 24/536, fuzzy 79.2530%. Pool identical, zero baseline regressions, zero forbidden patterns and readability warnings. Full build passed with target DOL SHA1 26116613f624061ba99c8d1a299aaa6efa85670d.
+
+## First-divergence matching, round 3 on ad3da3bb
+
+Baseline: engine 76.78999%, frame 0x4e0, 10,566/10,676 instructions. Exact first divergence is +0x000c, the individual register saves versus the target _savegpr_27 call. All initialization stack offsets agree; after aligning past the save sequence and ignoring GPR numbers and branch spans, the first instruction-form difference is +0x05e4, table 27 count assignment.
+
+- Attempt 01: moved the two charset zero initializations into their declarations. Instruction stream and 76.78999% score unchanged; first divergence +0x000c. Rejected.
+- Attempt 02: explicitly converted the table 27 count to its halfword destination type. Engine 76.90586%, 10,563/10,676 instructions; first divergence +0x000c. First body form difference remains +0x05e4. Quick gate PASS, zero regressions. Kept for its measured score gain.
+- Attempt 03: changed the explicit conversion to unsigned int. Same 76.90586% stream and first divergence +0x000c; restored attempt 02.
+- Attempt 04: gave the table-range index a field in a range-state aggregate. Match buffer moved eight bytes, body form divergence moved earlier to +0x0020, engine 76.59067%; rejected. Exact first divergence stayed +0x000c.
+- Attempt 05: corrected the prepare-match return declaration to ziBool as in zprepare.c. Stream and 76.90586% unchanged, first divergence +0x000c; restored.
+- Attempt 06: combined the table-count assignment with its following condition. Engine 76.72677%, first divergence +0x000c; rejected.
+- Attempt 07: tried unsigned result-count storage; compiler rejected its address at the signed result-count helper parameter. No measurement from that failed build is used. Restored the signed count.
+- Attempt 08: used zaddress.c's word return declaration for table addresses, with correctly typed pointer conversions. Stream and 76.90586% unchanged, first divergence +0x000c; restored.
+- Attempt 09: tried a word-return table-count declaration. Extra halfword conversions regressed the already-exact phonetic helper, engine 76.524635%, first divergence +0x000c; rejected.
+- Attempt 10: reconstructed the full six-term packed masks in target expression order and masked the extracted bytes. Engine 76.83871%, first divergence +0x000c; retained only as a scratch precursor to attempt 11.
+- Attempt 11: completed that prefix block with shared clear/fill assignments, target store order, the two missing fourth-byte writes, and target bound/branch forms. Engine 77.37008%, frame 0x4e0, 10,568/10,676 instructions; first divergence +0x000c. Four individual register saves now differ from the target five-register helper. Quick gate PASS, zero regressions.
+- Attempt 12: used the library signed-word typedef for the phase counter. Same 77.37008% stream, first divergence +0x000c; rejected.
+- Attempt 13: converted the complete packed-mask expressions to unsigned word values. Same 77.37008% stream, first divergence +0x000c; rejected.
+- Attempt 14: restored fuzzy-phonetic case emission order and corrected the PY final-code flags from the target bit extractions: code 0x60 tests enANDeng and code 0x180 tests inANDing. Engine 77.52538%, 10,568/10,676 instructions, first divergence +0x000c; quick gate PASS, zero regressions.
+- Attempt 15: used signed-word result storage and the corresponding helper output parameter type. Same 77.52538% stream and first divergence +0x000c; rejected.
+- Attempt 16: removed the earlier explicit table-count conversion after the mask reconstruction. Engine fell to 77.498505%, first divergence +0x000c; restored.
+- Attempt 17: used an unsigned-word engine return type for the nonnegative count. Engine stream and 77.52538% score unchanged, first divergence +0x000c; wrapper stayed instruction-exact. Restored the accepted declaration.
+
+### Zi8GetElementCount, round 3
+
+1. Put count before the two cursor declarations. Same 115/115 instructions, thirteen GPR differences, 99.347824%. Rejected.
+2. Widen count to int. Ctxdiff still showed thirteen GPR differences; objdiff reported 98.391304%, so restored the byte count.
+3. Use explicit count = count + 1 assignments. 117/115 instructions, redundant byte conversions, 97.608696%. Rejected.
+
+Remaining accepted difference: elementCount uses r27 instead of r28; count uses r28 instead of r27. All thirteen differing instructions are those two GPR names.
+
+### ZiMatchZHSpelling, round 3
+
+1. Store the Boolean result in ziBool. 122/121 instructions, extra byte conversion, 97.06612%. Rejected.
+2. Initialize matches and the read-only candidate length in their declarations. Same 121/121 instructions, 29 GPR differences, 98.80165%. Rejected.
+3. Pass the typed ZI_WORK view to the helpers. Same 121/121 instructions, 29 GPR differences, 98.80165%. Rejected.
+
+Remaining accepted differences: candidate, spelling, input length, work, candidate length and Boolean result GPR assignments. Branches, stack offsets and instruction counts agree.
+
+No exact functions were added in this round. The engine's frame and local offsets are correct, but the first exact divergence remains +0x000c. Its four individual saves differ from the target _savegpr_27 sequence, and later expression/control-flow differences remain. All rejected source variants were restored.
+
+Final clean full gate: PASS; pool identical, zero baseline regressions, zero forbidden-pattern additions and readability warnings. Full build passed with target DOL SHA1 26116613f624061ba99c8d1a299aaa6efa85670d. Unit 5/8 exact, code 4168/47816, data 24/536, fuzzy 79.9097%. Engine 76.78999% to 77.52538%, first divergence +0x000c to +0x000c; element count 99.347824% and spelling 98.80165% unchanged.
