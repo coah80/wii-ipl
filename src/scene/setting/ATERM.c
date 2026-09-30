@@ -475,6 +475,10 @@ typedef struct {
 typedef union {
     u8 data[0x818];
     struct {
+        u8 encryptedOptions[0x7F8];
+        u8 keyMaterial[24];
+    } session;
+    struct {
         union {
             u8 payload[0x800];
             AtermDecodedPayload decoded;
@@ -870,6 +874,7 @@ int ATERM_81402A24(void) {
     AtermApRecordSet* previousRecords = NULL;
     u8* rawScanBuffer = NULL;
     u8* scanBuffer;
+    u16* firstDescriptor;
     AtermApRecord* recordCursor;
     u32 recordBytes = gAtermScanLimit * sizeof(AtermApRecord) + sizeof(AtermApRecord) + sizeof(u32);
     u32 scanBufferBytes;
@@ -894,10 +899,11 @@ int ATERM_81402A24(void) {
     if (previousRecords == NULL) {
         goto cleanup;
     }
-    scanBufferBytes = gAtermScanBufferSize * 0x100;
+    scanBufferBytes = gAtermScanLimit * 0x100;
     rawScanBuffer = (u8*)gAtermAllocate(scanBufferBytes + 0x40);
     scanBuffer = (u8*)(((u32)rawScanBuffer + 0x1F) & ~0x1F);
 
+    firstDescriptor = (u16*)(scanBuffer + sizeof(u16));
     while (iteration < 300 && gAtermCancelRequested == 0) {
         s64 currentTime = OSGetTime();
         now = (u32)OSTicksToMilliseconds(currentTime);
@@ -919,7 +925,7 @@ int ATERM_81402A24(void) {
 
         scanCount = (u32)result;
         {
-            u16* descriptorWords = (u16*)(scanBuffer + sizeof(u16));
+            u16* descriptorWords = firstDescriptor;
             char* ssidCursor = (char*)currentRecords->entries[0].ssid;
             u8* bssidCursor = currentRecords->entries[0].bssid;
             recordCursor = currentRecords->entries;
@@ -928,10 +934,10 @@ int ATERM_81402A24(void) {
                 WDBssDesc* descriptor = (WDBssDesc*)descriptorWords;
 
                 memcpy(ssidCursor, descriptor->ssid, sizeof(recordCursor->ssid));
-                if (descriptor->ssidLength <= sizeof(recordCursor->ssid)) {
-                    recordCursor->ssidLength = descriptor->ssidLength;
-                } else {
+                if (descriptor->ssidLength > sizeof(recordCursor->ssid)) {
                     recordCursor->ssidLength = 0;
+                } else {
+                    recordCursor->ssidLength = descriptor->ssidLength;
                 }
                 recordCursor->ssid[recordCursor->ssidLength] = '\0';
                 recordCursor->status = (descriptor->capabilities >> 4) & 1;
@@ -1427,10 +1433,9 @@ s32 ATERM_814038C8(void) {
     OSAlarm waitAlarm;
     AtermSocketAddress socketBindAddress;
     AtermSocketAddress peerAddress;
-    u8* packetBuffer = gAtermConfigurationResult.packetBuffer;
-    AtermThreadBuffer* response = &gAtermResponseBuffer;
+    AtermThreadBuffer* response = (AtermThreadBuffer*)&gAtermConfigurationResult.responseLength;
     void* connectionKey = gAtermConfigurationResult.connectionPrefix;
-    void* sessionKey = response->authentication.keyMaterial;
+    void* sessionKey = gAtermResponseBuffer.session.keyMaterial;
     AtermMd5Context digestContext;
     u8 digestLength[8];
     s32 socket = 0;
@@ -1516,10 +1521,10 @@ s32 ATERM_814038C8(void) {
             }
             peerAddress.length = 8;
             ATERM_814031DC((AtermAssociationRequest*)connectionKey);
-            receivedLength = SORecvFrom(socket, packetBuffer,
+            receivedLength = SORecvFrom(socket, gAtermConfigurationResult.packetBuffer,
                 sizeof(gAtermConfigurationResult.packetBuffer), 4, &peerAddress);
             if (receivedLength > 0 &&
-                ATERM_81402FC0((AtermPacket*)packetBuffer, &gAtermResponseMode)) {
+                ATERM_81402FC0((AtermPacket*)gAtermConfigurationResult.packetBuffer, &gAtermResponseMode)) {
                 AtermProgress progress;
                 gAtermDeadline = (u32)(OSGetTime() / (__mulhwu(reciprocal, OS_BUS_CLOCK >> 2) >> 6)) + 30000;
                 gAtermProtocolState = 5;
@@ -1578,13 +1583,13 @@ s32 ATERM_814038C8(void) {
                     longOption++;
                 }
                 optionEnd = (u8*)longOption;
-                gAtermMessageLength = ATERM_81402E40((u16*)packetBuffer, 2,
+                gAtermMessageLength = ATERM_81402E40((u16*)gAtermConfigurationResult.packetBuffer, 2,
                     (u16*)response->data, optionEnd - gAtermRequestOptions + 8, NULL);
                 sendAddress.length = 8;
                 sendAddress.family = 2;
                 sendAddress.address = 0xFFFFFFFF;
                 sendAddress.port = SOHtoNs(0xE601);
-                SOSendTo(socket, packetBuffer, gAtermMessageLength, 0, &sendAddress);
+                SOSendTo(socket, gAtermConfigurationResult.packetBuffer, gAtermMessageLength, 0, &sendAddress);
                 lastSendTime = (u32)(OSGetTime() / (__mulhwu(reciprocal, OS_BUS_CLOCK >> 2) >> 6));
                 gAtermProtocolState = 6;
                 break;
@@ -1597,14 +1602,14 @@ s32 ATERM_814038C8(void) {
                 failed = 1;
                 break;
             }
-            receivedLength = SORecvFrom(socket, packetBuffer,
+            receivedLength = SORecvFrom(socket, gAtermConfigurationResult.packetBuffer,
                 sizeof(gAtermConfigurationResult.packetBuffer), 4, &peerAddress);
             if (receivedLength > 0) {
-                AtermPacket* packet = (AtermPacket*)packetBuffer;
+                AtermPacket* packet = (AtermPacket*)gAtermConfigurationResult.packetBuffer;
                 s32 sequence = SONtoHs(packet->sequence);
                 s32 payloadLength = SONtoHs(packet->length);
                 u32 checksum = 0;
-                u8* cursor = packetBuffer;
+                u8* cursor = gAtermConfigurationResult.packetBuffer;
                 u8* packetEnd = packet->payload + payloadLength;
                 u8* payload = packet->payload;
                 for (; cursor < packetEnd; cursor++) {
@@ -1643,7 +1648,7 @@ s32 ATERM_814038C8(void) {
                         u32 index;
                         u32 digestBytes;
                         u32 bitCount[2];
-                        memcpy(gAtermResponseBuffer.authentication.challenge,
+                        memcpy(response->authentication.challenge,
                             optionValue, 8);
                         digestContext.state[0] = 0x67452301;
                         digestContext.state[1] = 0xEFCDAB89;
@@ -1717,27 +1722,27 @@ s32 ATERM_814038C8(void) {
                 memcpy(option->value, response->authentication.digest, 8);
                 gAtermReplyLength = (u8*)(option + 1) - response->data;
                 response->authentication.decoded.length = gAtermReplyLength - 8;
-                gAtermMessageLength = ATERM_81402E40((u16*)packetBuffer, 4,
+                gAtermMessageLength = ATERM_81402E40((u16*)gAtermConfigurationResult.packetBuffer, 4,
                     (u16*)response->data, gAtermReplyLength, connectionKey);
                 sendAddress.length = 8;
                 sendAddress.family = 2;
                 sendAddress.address = 0xFFFFFFFF;
                 sendAddress.port = SOHtoNs(0xE601);
-                SOSendTo(socket, packetBuffer, gAtermMessageLength, 0, &sendAddress);
+                SOSendTo(socket, gAtermConfigurationResult.packetBuffer, gAtermMessageLength, 0, &sendAddress);
                 lastSendTime = (u32)(OSGetTime() / (__mulhwu(reciprocal, OS_BUS_CLOCK >> 2) >> 6));
-                memset(&gScanSettings, 0, sizeof(gScanSettings));
+                memset(&gScanSettings, 0, 0x254);
                 gAtermProtocolState = 8;
                 break;
             }
         case 8:
-            receivedLength = SORecvFrom(socket, packetBuffer,
+            receivedLength = SORecvFrom(socket, gAtermConfigurationResult.packetBuffer,
                 sizeof(gAtermConfigurationResult.packetBuffer), 4, &peerAddress);
             if (receivedLength > 0) {
-                AtermPacket* packet = (AtermPacket*)packetBuffer;
+                AtermPacket* packet = (AtermPacket*)gAtermConfigurationResult.packetBuffer;
                 s32 sequence = SONtoHs(packet->sequence);
                 s32 payloadLength = SONtoHs(packet->length);
                 u32 checksum = 0;
-                u8* cursor = packetBuffer;
+                u8* cursor = gAtermConfigurationResult.packetBuffer;
                 u8* packetEnd = packet->payload + payloadLength;
                 u8* payload = packet->payload;
                 for (; cursor < packetEnd; cursor++) {
@@ -1788,7 +1793,7 @@ s32 ATERM_814038C8(void) {
                 memcpy(option->value, &gAtermMode, 1);
                 gAtermReplyLength = (u8*)(option + 1) - response->data;
                 response->authentication.decoded.length = gAtermReplyLength - 8;
-                gAtermMessageLength = ATERM_81402E40((u16*)packetBuffer, 6,
+                gAtermMessageLength = ATERM_81402E40((u16*)gAtermConfigurationResult.packetBuffer, 6,
                     (u16*)response->data, gAtermReplyLength, sessionKey);
                 if (NCDGetLinkStatus() != 5) {
                     lastSendTime = (u32)(OSGetTime() / (__mulhwu(reciprocal, OS_BUS_CLOCK >> 2) >> 6)) + 1000;
@@ -1800,7 +1805,7 @@ s32 ATERM_814038C8(void) {
                 sendAddress.family = 2;
                 sendAddress.address = 0xFFFFFFFF;
                 sendAddress.port = SOHtoNs(0xE601);
-                SOSendTo(socket, packetBuffer, gAtermMessageLength, 0, &sendAddress);
+                SOSendTo(socket, gAtermConfigurationResult.packetBuffer, gAtermMessageLength, 0, &sendAddress);
                 lastSendTime = (u32)(OSGetTime() / (__mulhwu(reciprocal, OS_BUS_CLOCK >> 2) >> 6));
                 gAtermProtocolState = 10;
                 break;
@@ -2152,6 +2157,10 @@ int ATERM_8140502C(u32* expandedKey, const void* key, u32 keyBits) {
 #undef ATERM_AES_TRANSFORM_KEY
 
 void ATERM_81405254(const u32* expandedKey, u32 rounds, const u8* input, u8* output) {
+    const u32* roundTable3 = gAtermAesEncryptTable3;
+    const u32* roundTable2 = gAtermAesEncryptTable2;
+    const u32* roundTable0 = gAtermAesEncryptTable0;
+    const u32* roundTable1 = gAtermAesEncryptTable1;
     s32 roundPairs = (s32)rounds >> 1;
     u32 state0 = (((u32)input[2] << 8) ^ input[3]) ^
     (((u32)input[0] << 24) ^ ((u32)input[1] << 16)) ^ expandedKey[0];
@@ -2162,10 +2171,6 @@ void ATERM_81405254(const u32* expandedKey, u32 rounds, const u8* input, u8* out
     u32 state3 = (((u32)input[14] << 8) ^ input[15]) ^
     (((u32)input[12] << 24) ^ ((u32)input[13] << 16)) ^ expandedKey[3];
     u32 next0, next1, next2, next3;
-    const u32* roundTable3 = gAtermAesEncryptTable3;
-    const u32* roundTable2 = gAtermAesEncryptTable2;
-    const u32* roundTable0 = gAtermAesEncryptTable0;
-    const u32* roundTable1 = gAtermAesEncryptTable1;
 
     for (;;) {
         next0 = (roundTable3[state3 & 0xFF] ^ roundTable2[(state2 >> 8) & 0xFF]) ^
@@ -2230,14 +2235,10 @@ void ATERM_81405254(const u32* expandedKey, u32 rounds, const u8* input, u8* out
 
 void ATERM_81405690(const u32* expandedKey, u32 rounds, const u8* input, u8* output) {
     s32 roundPairs = (s32)rounds >> 1;
-    u32 state0 = (((u32)input[2] << 8) ^ input[3]) ^
-    (((u32)input[0] << 24) ^ ((u32)input[1] << 16)) ^ expandedKey[0];
-    u32 state1 = (((u32)input[6] << 8) ^ input[7]) ^
-    (((u32)input[4] << 24) ^ ((u32)input[5] << 16)) ^ expandedKey[1];
-    u32 state2 = (((u32)input[10] << 8) ^ input[11]) ^
-    (((u32)input[8] << 24) ^ ((u32)input[9] << 16)) ^ expandedKey[2];
-    u32 state3 = (((u32)input[14] << 8) ^ input[15]) ^
-    (((u32)input[12] << 24) ^ ((u32)input[13] << 16)) ^ expandedKey[3];
+    u32 state0 = (((u32)input[0] << 24) ^ ((u32)input[1] << 16) ^ ((u32)input[2] << 8) ^ input[3]) ^ expandedKey[0];
+    u32 state1 = (((u32)input[4] << 24) ^ ((u32)input[5] << 16) ^ ((u32)input[6] << 8) ^ input[7]) ^ expandedKey[1];
+    u32 state2 = (((u32)input[8] << 24) ^ ((u32)input[9] << 16) ^ ((u32)input[10] << 8) ^ input[11]) ^ expandedKey[2];
+    u32 state3 = (((u32)input[12] << 24) ^ ((u32)input[13] << 16) ^ ((u32)input[14] << 8) ^ input[15]) ^ expandedKey[3];
     u32 next0, next1, next2, next3;
     const u32* roundTable3 = gAtermAesDecryptTable3;
     const u32* roundTable2 = gAtermAesDecryptTable2;
@@ -2562,7 +2563,7 @@ int ATERMi_ApConfigGetVersion(void) {
     return 0x106;
 }
 
-u8* gAtermRequestOptions = gAtermResponseBuffer.authentication.decoded.options;
+u8* gAtermRequestOptions = gAtermResponseBuffer.data;
 
 u32 gAtermUseSharedAddress = 1;
 char gAtermProductName[5] = "WARP";

@@ -388,8 +388,8 @@ int AOSS_Init_old(AOSSInitInput* input)
   u64 tickRemainder;
   AOSSReceiveBuffer* packetBuffer;
   AOSSPacketHeader* packetWords;
-  s16 initialSleep;
-  s16 nextSleep;
+  u16 initialSleep;
+  u16 nextSleep;
   u8 errorStatus;
   u32 resultCode;
   int state;
@@ -404,7 +404,7 @@ int AOSS_Init_old(AOSSInitInput* input)
   u64 timeoutTicks;
   int initializationResult = 0;
   short attemptCount;
-  s16 remainingWait;
+  int remainingWait;
   short waitAttempt;
   int receivedPackets;
   AOSSWaitSettings waitSettings;
@@ -412,7 +412,7 @@ int AOSS_Init_old(AOSSInitInput* input)
   AOSSRequestRecords requestRecords;
   struct {
     s16 connection;
-    s16 response;
+    u16 response;
   } waitIntervals;
   AOSSSocketAddress replyAddress;
   u8 messageIdentity[8];
@@ -440,7 +440,7 @@ int AOSS_Init_old(AOSSInitInput* input)
     initialWait = 10;
   }
   waitIntervals.response = input->options[1];
-  if (waitIntervals.response == -1) {
+  if (waitIntervals.response == 0xffff) {
     waitIntervals.response = 100;
   }
   waitSettings.halfwords.low = input->options[3];
@@ -449,7 +449,7 @@ int AOSS_Init_old(AOSSInitInput* input)
   }
   waitSettings.halfwords.high = initialWait;
   timeoutMilliseconds = (int)(short)input->options[4];
-  if (input->options[4] == 0xffff) {
+  if (input->options[4] == -1) {
     timeoutMilliseconds = 2000;
   }
   memset(&s_accessPointName,0,8);
@@ -462,7 +462,19 @@ int AOSS_Init_old(AOSSInitInput* input)
   s_runtime.state = 0;
   s_runtime.ipAddress = 0xc0a80b01;
   s_runtime.active = '\0';
-  if ((input->flags & 1) == 1) {
+  if ((input->flags & 1) != 1) {
+    s_errorCode = 0x13;
+    input->status = 0xf;
+    if (s_accessPointConfig != (int *)0x0) {
+      AOSSi_Free(s_accessPointConfig);
+      s_accessPointConfig = (int *)0x0;
+    }
+    if (s_accessPointList != 0) {
+      AOSSi_Free(s_accessPointList);
+      s_accessPointList = 0;
+    }
+    resultCode = 0xffffffff;
+  } else {
     attemptCount = 0;
     initialWait = waitIntervals.connection;
     if (s_operationState != 0) {
@@ -615,20 +627,7 @@ int AOSS_Init_old(AOSSInitInput* input)
       s_accessPointList = 0;
     }
     resultCode = 0xffffffff;
-  }
-  else {
-    s_errorCode = 0x13;
-    input->status = 0xf;
-    if (s_accessPointConfig != (int *)0x0) {
-      AOSSi_Free(s_accessPointConfig);
-      s_accessPointConfig = (int *)0x0;
     }
-    if (s_accessPointList != 0) {
-      AOSSi_Free(s_accessPointList);
-      s_accessPointList = 0;
-    }
-    resultCode = 0xffffffff;
-  }
   goto finish_initialization;
 wait_for_initial_link:
   if ((short)initialWait <= (short)remainingWait) goto handle_initial_link;
@@ -687,6 +686,385 @@ wait_for_initial_link:
   }
   remainingWait = remainingWait + 1;
   goto wait_for_initial_link;
+handle_initial_link:
+  if (remainingWait == waitIntervals.connection) {
+    input->status = 0xf;
+    if (s_accessPointConfig != (int *)0x0) {
+      AOSSi_Free(s_accessPointConfig);
+      s_accessPointConfig = (int *)0x0;
+    }
+    if (s_accessPointList != 0) {
+      AOSSi_Free(s_accessPointList);
+      s_accessPointList = 0;
+    }
+    resultCode = 0xffffffff;
+  }
+  else {
+    if (s_accessPointConfig != (int *)0x0) {
+      AOSSi_Free(s_accessPointConfig);
+      s_accessPointConfig = (int *)0x0;
+    }
+    if (s_accessPointList != 0) {
+      AOSSi_Free(s_accessPointList);
+      s_accessPointList = 0;
+    }
+    requestResult = 0;
+    state = 0;
+    do {
+      memcpy(requestRecords.bytes + state,input->optionData,6);
+      retryWait = rand();
+      requestRecords.records[requestResult].transactionId = (short)retryWait;
+      receivedLength = SOHtoNs(retryWait & 0xffff);
+      requestRecords.records[requestResult].transactionId = receivedLength;
+      requestResult = requestResult + 1;
+      state = state + 8;
+    } while (requestResult < 3);
+    s_socket = SOSocket(2,2,0);
+    if (s_socket < 0) {
+      input->status = 0xf;
+      if (s_accessPointConfig != (int *)0x0) {
+        AOSSi_Free(s_accessPointConfig);
+        s_accessPointConfig = (int *)0x0;
+      }
+      if (s_accessPointList != 0) {
+        AOSSi_Free(s_accessPointList);
+        s_accessPointList = 0;
+      }
+      resultCode = 0xffffffff;
+    }
+    else if (initializationResult < 0) {
+      s_errorCode = 0xb;
+      input->status = 0xf;
+      if (s_accessPointConfig != (int *)0x0) {
+        AOSSi_Free(s_accessPointConfig);
+        s_accessPointConfig = (int *)0x0;
+      }
+      if (s_accessPointList != 0) {
+        AOSSi_Free(s_accessPointList);
+        s_accessPointList = 0;
+      }
+      resultCode = 0xffffffff;
+    }
+    else {
+      memset(&socketAddress,0,8);
+      socketAddress.family = 2;
+      socketAddress.address = SOGetHostID();
+      socketAddress.port = SOHtoNs(0x5790);
+      socketAddress.length = 8;
+      state = SOBind(s_socket,&socketAddress);
+      if (-1 < state) {
+        attemptCount = waitSettings.halfwords.high;
+        settings.gatewayAddress = 0xc0a80b65;
+        settings.ipAddress = 0xc0a80b01;
+        state = 0;
+perform_request:
+        packetBuffer = s_responseBuffer;
+        memset(networkAddresses,0,0x14);
+        gatewayAddress = settings.gatewayAddress;
+        networkAddresses[0] = settings.ipAddress;
+        do {
+          if ((state == 1) && (s_runtime.active != '\x01')) {
+            if (s_socket != -1) {
+              SOClose(s_socket);
+            }
+            s_socket = -1;
+            if (s_socketStarted == 1) {
+              s_socketStarted = 0;
+              requestResult = SOCleanup();
+              if (-1 < requestResult) goto request_socket_cleanup_complete;
+              requestResult = -1;
+            }
+            else {
+request_socket_cleanup_complete:
+              requestResult = 0;
+            }
+            if (requestResult != 0) {
+              input->status = 0xf;
+              if (s_accessPointConfig != (int *)0x0) {
+                AOSSi_Free(s_accessPointConfig);
+                s_accessPointConfig = (int *)0x0;
+              }
+              if (s_accessPointList != 0) {
+                AOSSi_Free(s_accessPointList);
+                s_accessPointList = 0;
+              }
+              resultCode = 0xffffffff;
+              goto finish_initialization;
+            }
+            responseSleep = s_runtime.ipAddress & s_runtime.subnetMask;
+            retryWait = responseSleep | (s_runtime.ipAddress & ~s_runtime.subnetMask) + 1;
+            if ((responseSleep | ~s_runtime.subnetMask) <= retryWait) {
+              retryWait = responseSleep | 1;
+            }
+            requestResult = AOSSi_SetNCDIPAddr(retryWait,s_runtime.subnetMask,s_runtime.ipAddress,0,0);
+            if (requestResult != 0) {
+              s_errorCode = 0xc;
+              input->status = 0xf;
+              if (s_accessPointConfig != (int *)0x0) {
+                AOSSi_Free(s_accessPointConfig);
+                s_accessPointConfig = (int *)0x0;
+              }
+              if (s_accessPointList != 0) {
+                AOSSi_Free(s_accessPointList);
+                s_accessPointList = 0;
+              }
+              resultCode = 0xffffffff;
+              goto finish_initialization;
+            }
+            s_runtime.active = '\x01';
+            s_accessPointConfig = (int *)AOSSi_Alloc(0x58);
+            if (s_accessPointConfig == (int *)0x0) {
+              input->status = 0xf;
+              if (s_accessPointConfig != (int *)0x0) {
+                AOSSi_Free(s_accessPointConfig);
+                s_accessPointConfig = (int *)0x0;
+              }
+              if (s_accessPointList != 0) {
+                AOSSi_Free(s_accessPointList);
+                s_accessPointList = 0;
+              }
+              resultCode = 0xffffffff;
+              goto finish_initialization;
+            }
+            memset(s_accessPointConfig,0,0x58);
+            initialWait = waitIntervals.connection;
+            for (waitAttempt = 0; waitAttempt < (short)initialWait; waitAttempt = waitAttempt + 1) {
+              requestResult = AOSS_814020CC(&settings,s_accessPointConfig);
+              if (requestResult == -1) {
+                input->status = 0xf;
+                if (s_accessPointConfig != (int *)0x0) {
+                  AOSSi_Free(s_accessPointConfig);
+                  s_accessPointConfig = (int *)0x0;
+                }
+                if (s_accessPointList != 0) {
+                  AOSSi_Free(s_accessPointList);
+                  s_accessPointList = 0;
+                }
+                resultCode = 0xffffffff;
+                goto finish_initialization;
+              }
+              remainingWait = waitIntervals.response;
+              if ((requestResult == 0) && (*s_accessPointConfig == 1)) break;
+              for (; remainingWait != 0; remainingWait = remainingWait - initialSleep) {
+                if (AOSSi_cancel_flag == 1) {
+                  input->status = 0xf;
+                  if (s_accessPointConfig != (int *)0x0) {
+                    AOSSi_Free(s_accessPointConfig);
+                    s_accessPointConfig = (int *)0x0;
+                  }
+                  if (s_accessPointList != 0) {
+                    AOSSi_Free(s_accessPointList);
+                    s_accessPointList = 0;
+                  }
+                  resultCode = 0xffffffff;
+                  goto finish_initialization;
+                }
+                initialSleep = remainingWait;
+                if (100 < remainingWait) {
+                  initialSleep = 100;
+                }
+                AOSSi_Sleep(initialSleep);
+                initialSleep = remainingWait;
+                if (100 < remainingWait) {
+                  initialSleep = 100;
+                }
+              }
+              if (AOSSi_cancel_flag == 1) {
+                input->status = 0xf;
+                if (s_accessPointConfig != (int *)0x0) {
+                  AOSSi_Free(s_accessPointConfig);
+                  s_accessPointConfig = (int *)0x0;
+                }
+                if (s_accessPointList != 0) {
+                  AOSSi_Free(s_accessPointList);
+                  s_accessPointList = 0;
+                }
+                resultCode = 0xffffffff;
+                goto finish_initialization;
+              }
+            }
+            s_socket = SOSocket(2,2,0);
+            if (s_socket < 0) {
+              input->status = 0xf;
+              if (s_accessPointConfig != (int *)0x0) {
+                AOSSi_Free(s_accessPointConfig);
+                s_accessPointConfig = (int *)0x0;
+              }
+              if (s_accessPointList != 0) {
+                AOSSi_Free(s_accessPointList);
+                s_accessPointList = 0;
+              }
+              resultCode = 0xffffffff;
+              goto finish_initialization;
+            }
+            memset(&socketAddress,0,8);
+            socketAddress.family = 2;
+            socketAddress.address = SOGetHostID();
+            socketAddress.port = SOHtoNs(0x5790);
+            socketAddress.length = 8;
+            requestResult = SOBind(s_socket,&socketAddress);
+            if (requestResult < 0) {
+              input->status = 0xf;
+              if (s_accessPointConfig != (int *)0x0) {
+                AOSSi_Free(s_accessPointConfig);
+                s_accessPointConfig = (int *)0x0;
+              }
+              if (s_accessPointList != 0) {
+                AOSSi_Free(s_accessPointList);
+                s_accessPointList = 0;
+              }
+              resultCode = 0xffffffff;
+              goto finish_initialization;
+            }
+          }
+          requestResult = s_socket;
+          if (state == 1) {
+            if (s_operationState != 3) {
+              s_operationState = 3;
+              AOSSi_Status(3);
+            }
+            requestResult = AOSS_81401778(networkAddresses,&requestRecords,requestResult);
+          }
+          else if (state < 1) {
+            if (state < 0) {
+invalid_request_state:
+              requestResult = -1;
+            }
+            else {
+              if (s_operationState != 2) {
+                s_operationState = 2;
+                AOSSi_Status(2);
+              }
+              requestResult = AOSS_81401574(networkAddresses,&requestRecords,requestResult);
+            }
+          }
+          else {
+            if (2 < state) goto invalid_request_state;
+            if (s_operationState != 5) {
+              s_operationState = 5;
+              AOSSi_Status(5);
+            }
+            packetWords = s_responseBuffer;
+            memset(s_responseBuffer,0,0x5dc);
+            memcpy(messageIdentity,&requestRecords.records[2],8);
+            manufacturerLength = strlen(s_manufacturer);
+            AOSS_81401E80(messageIdentity,8,s_manufacturer,manufacturerLength);
+            receivedLength = SOHtoNs(1);
+            packetWords->initialLength = receivedLength;
+            packetWords->initialType = 0;
+            packetWords->initialSequence = 0;
+            packetWords->responseLength = SOHtoNs(0x3000);
+            packetWords->responseType = 0;
+            packetWords->finalLength = SOHtoNs(0);
+            packetWords->finalSequence = SOHtoNs(0);
+            packetWords->reserved = 0;
+            packetWords->messageType = 0x11;
+            memcpy(packetWords->messageIdentity,messageIdentity,8);
+            memset(&replyAddress,0,8);
+            replyAddress.family = 2;
+            replyAddress.port = SOHtoNs(0x5790);
+            replyAddress.address = SOHtoNl(s_runtime.ipAddress);
+            if (s_runtime.active == '\0') {
+              replyAddress.address = 0xffffffff;
+            }
+            replyAddress.length = 8;
+            SOSendTo(requestResult,packetWords,0x18,0,&replyAddress);
+            requestResult = 0;
+          }
+          if (requestResult == -1) {
+            s_errorCode = state + 0x1000;
+            input->status = 0xf;
+            if (s_accessPointConfig != (int *)0x0) {
+              AOSSi_Free(s_accessPointConfig);
+              s_accessPointConfig = (int *)0x0;
+            }
+            if (s_accessPointList != 0) {
+              AOSSi_Free(s_accessPointList);
+              s_accessPointList = 0;
+            }
+            resultCode = 0xffffffff;
+            goto finish_initialization;
+          }
+          memset(packetBuffer,0,0x5f8);
+          pollSeconds = timeoutMilliseconds / 1000;
+          pollSubseconds = (timeoutMilliseconds % 1000) * 1000;
+          pollArguments[1] = 1;
+          pollArguments[0] = s_socket;
+          pollArguments[2] = 0;
+          pollArguments[3] = s_socket;
+          pollResultLow = 0;
+          pollResultHigh = 1;
+          timeoutTicks = (u32)(pollSeconds * (OS_BUS_CLOCK >> 2));
+          tickRemainder = (u32)(pollSubseconds * ((OS_BUS_CLOCK >> 2) / 125000)) >> 3;
+          requestResult = SOPoll(pollArguments,1,((u32)((timeoutTicks + tickRemainder) >> 32)),(int)timeoutTicks + (int)tickRemainder);
+          if (0 < requestResult) goto process_received_packet;
+          receivedPackets = receivedPackets + 1;
+          retryWait = waitSettings.value;
+          if (attemptCount < receivedPackets) {
+            if (state == 0) {
+              s_errorCode = 0xf;
+            }
+            else if (state == 1) {
+              s_errorCode = 0x10;
+            }
+            else {
+              s_errorCode = 0x11;
+            }
+            timeoutMilliseconds = -1;
+            goto close_protocol_socket;
+          }
+          for (; retryWait = retryWait & 0xffff, retryWait != 0; retryWait = retryWait - responseSleep) {
+            if (AOSSi_cancel_flag == 1) {
+              input->status = 0xf;
+              if (s_accessPointConfig != (int *)0x0) {
+                AOSSi_Free(s_accessPointConfig);
+                s_accessPointConfig = (int *)0x0;
+              }
+              if (s_accessPointList != 0) {
+                AOSSi_Free(s_accessPointList);
+                s_accessPointList = 0;
+              }
+              resultCode = 0xffffffff;
+              goto finish_initialization;
+            }
+            responseSleep = retryWait;
+            if (100 < retryWait) {
+              responseSleep = 100;
+            }
+            AOSSi_Sleep(responseSleep);
+            responseSleep = retryWait;
+            if (100 < retryWait) {
+              responseSleep = 100;
+            }
+          }
+          if (AOSSi_cancel_flag == 1) {
+            input->status = 0xf;
+            if (s_accessPointConfig != (int *)0x0) {
+              AOSSi_Free(s_accessPointConfig);
+              s_accessPointConfig = (int *)0x0;
+            }
+            if (s_accessPointList != 0) {
+              AOSSi_Free(s_accessPointList);
+              s_accessPointList = 0;
+            }
+            resultCode = 0xffffffff;
+            goto finish_initialization;
+          }
+        } while (1);
+      }
+      input->status = 0xf;
+      if (s_accessPointConfig != (int *)0x0) {
+        AOSSi_Free(s_accessPointConfig);
+        s_accessPointConfig = (int *)0x0;
+      }
+      if (s_accessPointList != 0) {
+        AOSSi_Free(s_accessPointList);
+        s_accessPointList = 0;
+      }
+      resultCode = 0xffffffff;
+    }
+  }
+  goto finish_initialization;
 process_received_packet:
   receivedAddress.length = 8;
   receivedLength = SORecvFrom(s_socket,&packetBuffer->message,0x5dc,0,&receivedAddress);
@@ -1045,387 +1423,6 @@ cancelled_configuration:
   }
   resultCode = 0xffffffff;
   goto finish_initialization;
-handle_initial_link:
-  if (remainingWait == waitIntervals.connection) {
-    input->status = 0xf;
-    if (s_accessPointConfig != (int *)0x0) {
-      AOSSi_Free(s_accessPointConfig);
-      s_accessPointConfig = (int *)0x0;
-    }
-    if (s_accessPointList != 0) {
-      AOSSi_Free(s_accessPointList);
-      s_accessPointList = 0;
-    }
-    resultCode = 0xffffffff;
-  }
-  else {
-    if (s_accessPointConfig != (int *)0x0) {
-      AOSSi_Free(s_accessPointConfig);
-      s_accessPointConfig = (int *)0x0;
-    }
-    if (s_accessPointList != 0) {
-      AOSSi_Free(s_accessPointList);
-      s_accessPointList = 0;
-    }
-    requestResult = 0;
-    state = 0;
-    do {
-      memcpy(requestRecords.bytes + state,input->optionData,6);
-      retryWait = rand();
-      requestRecords.records[requestResult].transactionId = (short)retryWait;
-      receivedLength = SOHtoNs(retryWait & 0xffff);
-      requestRecords.records[requestResult].transactionId = receivedLength;
-      requestResult = requestResult + 1;
-      state = state + 8;
-    } while (requestResult < 3);
-    s_socket = SOSocket(2,2,0);
-    if (s_socket < 0) {
-      input->status = 0xf;
-      if (s_accessPointConfig != (int *)0x0) {
-        AOSSi_Free(s_accessPointConfig);
-        s_accessPointConfig = (int *)0x0;
-      }
-      if (s_accessPointList != 0) {
-        AOSSi_Free(s_accessPointList);
-        s_accessPointList = 0;
-      }
-      resultCode = 0xffffffff;
-    }
-    else if (initializationResult < 0) {
-      s_errorCode = 0xb;
-      input->status = 0xf;
-      if (s_accessPointConfig != (int *)0x0) {
-        AOSSi_Free(s_accessPointConfig);
-        s_accessPointConfig = (int *)0x0;
-      }
-      if (s_accessPointList != 0) {
-        AOSSi_Free(s_accessPointList);
-        s_accessPointList = 0;
-      }
-      resultCode = 0xffffffff;
-    }
-    else {
-      memset(&socketAddress,0,8);
-      socketAddress.family = 2;
-      socketAddress.address = SOGetHostID();
-      socketAddress.port = SOHtoNs(0x5790);
-      socketAddress.length = 8;
-      state = SOBind(s_socket,&socketAddress);
-      if (-1 < state) {
-        attemptCount = waitSettings.halfwords.high;
-        settings.gatewayAddress = 0xc0a80b65;
-        settings.ipAddress = 0xc0a80b01;
-        state = 0;
-perform_request:
-        packetBuffer = s_responseBuffer;
-        memset(networkAddresses,0,0x14);
-        gatewayAddress = settings.gatewayAddress;
-        networkAddresses[0] = settings.ipAddress;
-        do {
-          if ((state == 1) && (s_runtime.active != '\x01')) {
-            if (s_socket != -1) {
-              SOClose(s_socket);
-            }
-            s_socket = -1;
-            if (s_socketStarted == 1) {
-              s_socketStarted = 0;
-              requestResult = SOCleanup();
-              if (-1 < requestResult) goto request_socket_cleanup_complete;
-              requestResult = -1;
-            }
-            else {
-request_socket_cleanup_complete:
-              requestResult = 0;
-            }
-            if (requestResult != 0) {
-              input->status = 0xf;
-              if (s_accessPointConfig != (int *)0x0) {
-                AOSSi_Free(s_accessPointConfig);
-                s_accessPointConfig = (int *)0x0;
-              }
-              if (s_accessPointList != 0) {
-                AOSSi_Free(s_accessPointList);
-                s_accessPointList = 0;
-              }
-              resultCode = 0xffffffff;
-              goto finish_initialization;
-            }
-            responseSleep = s_runtime.ipAddress & s_runtime.subnetMask;
-            retryWait = responseSleep | (s_runtime.ipAddress & ~s_runtime.subnetMask) + 1;
-            if ((responseSleep | ~s_runtime.subnetMask) <= retryWait) {
-              retryWait = responseSleep | 1;
-            }
-            requestResult = AOSSi_SetNCDIPAddr(retryWait,s_runtime.subnetMask,s_runtime.ipAddress,0,0);
-            if (requestResult != 0) {
-              s_errorCode = 0xc;
-              input->status = 0xf;
-              if (s_accessPointConfig != (int *)0x0) {
-                AOSSi_Free(s_accessPointConfig);
-                s_accessPointConfig = (int *)0x0;
-              }
-              if (s_accessPointList != 0) {
-                AOSSi_Free(s_accessPointList);
-                s_accessPointList = 0;
-              }
-              resultCode = 0xffffffff;
-              goto finish_initialization;
-            }
-            s_runtime.active = '\x01';
-            s_accessPointConfig = (int *)AOSSi_Alloc(0x58);
-            if (s_accessPointConfig == (int *)0x0) {
-              input->status = 0xf;
-              if (s_accessPointConfig != (int *)0x0) {
-                AOSSi_Free(s_accessPointConfig);
-                s_accessPointConfig = (int *)0x0;
-              }
-              if (s_accessPointList != 0) {
-                AOSSi_Free(s_accessPointList);
-                s_accessPointList = 0;
-              }
-              resultCode = 0xffffffff;
-              goto finish_initialization;
-            }
-            memset(s_accessPointConfig,0,0x58);
-            initialWait = waitIntervals.connection;
-            for (waitAttempt = 0; waitAttempt < (short)initialWait; waitAttempt = waitAttempt + 1) {
-              requestResult = AOSS_814020CC(&settings,s_accessPointConfig);
-              if (requestResult == -1) {
-                input->status = 0xf;
-                if (s_accessPointConfig != (int *)0x0) {
-                  AOSSi_Free(s_accessPointConfig);
-                  s_accessPointConfig = (int *)0x0;
-                }
-                if (s_accessPointList != 0) {
-                  AOSSi_Free(s_accessPointList);
-                  s_accessPointList = 0;
-                }
-                resultCode = 0xffffffff;
-                goto finish_initialization;
-              }
-              remainingWait = waitIntervals.response;
-              if ((requestResult == 0) && (*s_accessPointConfig == 1)) break;
-              for (; remainingWait != 0; remainingWait = remainingWait - initialSleep) {
-                if (AOSSi_cancel_flag == 1) {
-                  input->status = 0xf;
-                  if (s_accessPointConfig != (int *)0x0) {
-                    AOSSi_Free(s_accessPointConfig);
-                    s_accessPointConfig = (int *)0x0;
-                  }
-                  if (s_accessPointList != 0) {
-                    AOSSi_Free(s_accessPointList);
-                    s_accessPointList = 0;
-                  }
-                  resultCode = 0xffffffff;
-                  goto finish_initialization;
-                }
-                initialSleep = remainingWait;
-                if (100 < remainingWait) {
-                  initialSleep = 100;
-                }
-                AOSSi_Sleep(initialSleep);
-                initialSleep = remainingWait;
-                if (100 < remainingWait) {
-                  initialSleep = 100;
-                }
-              }
-              if (AOSSi_cancel_flag == 1) {
-                input->status = 0xf;
-                if (s_accessPointConfig != (int *)0x0) {
-                  AOSSi_Free(s_accessPointConfig);
-                  s_accessPointConfig = (int *)0x0;
-                }
-                if (s_accessPointList != 0) {
-                  AOSSi_Free(s_accessPointList);
-                  s_accessPointList = 0;
-                }
-                resultCode = 0xffffffff;
-                goto finish_initialization;
-              }
-            }
-            s_socket = SOSocket(2,2,0);
-            if (s_socket < 0) {
-              input->status = 0xf;
-              if (s_accessPointConfig != (int *)0x0) {
-                AOSSi_Free(s_accessPointConfig);
-                s_accessPointConfig = (int *)0x0;
-              }
-              if (s_accessPointList != 0) {
-                AOSSi_Free(s_accessPointList);
-                s_accessPointList = 0;
-              }
-              resultCode = 0xffffffff;
-              goto finish_initialization;
-            }
-            memset(&socketAddress,0,8);
-            socketAddress.family = 2;
-            socketAddress.address = SOGetHostID();
-            socketAddress.port = SOHtoNs(0x5790);
-            socketAddress.length = 8;
-            requestResult = SOBind(s_socket,&socketAddress);
-            if (requestResult < 0) {
-              input->status = 0xf;
-              if (s_accessPointConfig != (int *)0x0) {
-                AOSSi_Free(s_accessPointConfig);
-                s_accessPointConfig = (int *)0x0;
-              }
-              if (s_accessPointList != 0) {
-                AOSSi_Free(s_accessPointList);
-                s_accessPointList = 0;
-              }
-              resultCode = 0xffffffff;
-              goto finish_initialization;
-            }
-          }
-          requestResult = s_socket;
-          if (state == 1) {
-            if (s_operationState != 3) {
-              s_operationState = 3;
-              AOSSi_Status(3);
-            }
-            requestResult = AOSS_81401778(networkAddresses,&requestRecords,requestResult);
-          }
-          else if (state < 1) {
-            if (state < 0) {
-invalid_request_state:
-              requestResult = -1;
-            }
-            else {
-              if (s_operationState != 2) {
-                s_operationState = 2;
-                AOSSi_Status(2);
-              }
-              requestResult = AOSS_81401574(networkAddresses,&requestRecords,requestResult);
-            }
-          }
-          else {
-            if (2 < state) goto invalid_request_state;
-            if (s_operationState != 5) {
-              s_operationState = 5;
-              AOSSi_Status(5);
-            }
-            packetWords = s_responseBuffer;
-            memset(s_responseBuffer,0,0x5dc);
-            memcpy(messageIdentity,&requestRecords.records[2],8);
-            manufacturerLength = strlen(s_manufacturer);
-            AOSS_81401E80(messageIdentity,8,s_manufacturer,manufacturerLength);
-            receivedLength = SOHtoNs(1);
-            packetWords->initialLength = receivedLength;
-            packetWords->initialType = 0;
-            packetWords->initialSequence = 0;
-            packetWords->responseLength = SOHtoNs(0x3000);
-            packetWords->responseType = 0;
-            packetWords->finalLength = SOHtoNs(0);
-            packetWords->finalSequence = SOHtoNs(0);
-            packetWords->reserved = 0;
-            packetWords->messageType = 0x11;
-            memcpy(packetWords->messageIdentity,messageIdentity,8);
-            memset(&replyAddress,0,8);
-            replyAddress.family = 2;
-            replyAddress.port = SOHtoNs(0x5790);
-            replyAddress.address = SOHtoNl(s_runtime.ipAddress);
-            if (s_runtime.active == '\0') {
-              replyAddress.address = 0xffffffff;
-            }
-            replyAddress.length = 8;
-            SOSendTo(requestResult,packetWords,0x18,0,&replyAddress);
-            requestResult = 0;
-          }
-          if (requestResult == -1) {
-            s_errorCode = state + 0x1000;
-            input->status = 0xf;
-            if (s_accessPointConfig != (int *)0x0) {
-              AOSSi_Free(s_accessPointConfig);
-              s_accessPointConfig = (int *)0x0;
-            }
-            if (s_accessPointList != 0) {
-              AOSSi_Free(s_accessPointList);
-              s_accessPointList = 0;
-            }
-            resultCode = 0xffffffff;
-            goto finish_initialization;
-          }
-          memset(packetBuffer,0,0x5f8);
-          timeoutSeconds = timeoutMilliseconds >> 0x1f;
-          requestResult = timeoutMilliseconds / 1000 + timeoutSeconds;
-          pollArguments[1] = 1;
-          pollArguments[0] = s_socket;
-          pollSeconds = requestResult - timeoutSeconds;
-          pollArguments[2] = 0;
-          pollArguments[3] = s_socket;
-          pollResultLow = 0;
-          pollResultHigh = 1;
-          pollSubseconds = (timeoutMilliseconds + (requestResult - timeoutSeconds) * -1000) * 1000;
-          timeoutTicks = (s64)pollSeconds * (s64)(int)(OS_BUS_CLOCK >> 2);
-          tickRemainder = ((s64)pollSubseconds * (s64)(int)((OS_BUS_CLOCK >> 2) / 0x1e848) &
-                  0xffffffffU) >> 3;
-          requestResult = SOPoll(pollArguments,1,((u32)((timeoutTicks + tickRemainder) >> 32)),(int)timeoutTicks + (int)tickRemainder);
-          if (0 < requestResult) goto process_received_packet;
-          receivedPackets = receivedPackets + 1;
-          retryWait = waitSettings.value;
-          if (attemptCount < receivedPackets) {
-            if (state == 0) {
-              s_errorCode = 0xf;
-            }
-            else if (state == 1) {
-              s_errorCode = 0x10;
-            }
-            else {
-              s_errorCode = 0x11;
-            }
-            timeoutMilliseconds = -1;
-            goto close_protocol_socket;
-          }
-          for (; retryWait = retryWait & 0xffff, retryWait != 0; retryWait = retryWait - responseSleep) {
-            if (AOSSi_cancel_flag == 1) {
-              input->status = 0xf;
-              if (s_accessPointConfig != (int *)0x0) {
-                AOSSi_Free(s_accessPointConfig);
-                s_accessPointConfig = (int *)0x0;
-              }
-              if (s_accessPointList != 0) {
-                AOSSi_Free(s_accessPointList);
-                s_accessPointList = 0;
-              }
-              resultCode = 0xffffffff;
-              goto finish_initialization;
-            }
-            responseSleep = retryWait;
-            if (100 < retryWait) {
-              responseSleep = 100;
-            }
-            AOSSi_Sleep(responseSleep);
-            responseSleep = retryWait;
-            if (100 < retryWait) {
-              responseSleep = 100;
-            }
-          }
-          if (AOSSi_cancel_flag == 1) {
-            input->status = 0xf;
-            if (s_accessPointConfig != (int *)0x0) {
-              AOSSi_Free(s_accessPointConfig);
-              s_accessPointConfig = (int *)0x0;
-            }
-            if (s_accessPointList != 0) {
-              AOSSi_Free(s_accessPointList);
-              s_accessPointList = 0;
-            }
-            resultCode = 0xffffffff;
-            goto finish_initialization;
-          }
-        } while (1);
-      }
-      input->status = 0xf;
-      if (s_accessPointConfig != (int *)0x0) {
-        AOSSi_Free(s_accessPointConfig);
-        s_accessPointConfig = (int *)0x0;
-      }
-      if (s_accessPointList != 0) {
-        AOSSi_Free(s_accessPointList);
-        s_accessPointList = 0;
-      }
-      resultCode = 0xffffffff;
-    }
-  }
 finish_initialization:
   return (int)resultCode;}
 
@@ -1847,11 +1844,11 @@ int AOSS_81400830(AOSSDecryptionMessage* message) {
     u8 manufacturerAddress[8];
     AOSSKeySchedule schedule;
     u8* decryptedData;
-    u8* stateBytes;
     u32 dataLength;
     u32 controlFlags;
     u32 checksum;
     u32 i;
+    s32 crcIndex;
     u32 firstIndex;
     u32 secondIndex;
     u32 firstValue;
@@ -1891,14 +1888,13 @@ int AOSS_81400830(AOSSDecryptionMessage* message) {
     }
 
     checksum = message->checksum;
-    stateBytes = AOSSi_Alloc(dataLength);
-    if (stateBytes == 0) {
+    schedule.bytes = AOSSi_Alloc(dataLength);
+    if (schedule.bytes == 0) {
         s_errorCode = 2;
         result = -1;
     } else {
         memcpy(s_packetState.keyNonce, &message->payload.encrypted.keyNonce, sizeof(message->payload.encrypted.keyNonce));
         memcpy(s_packetState.keyAddress, s_accessPointName, sizeof(s_accessPointName));
-        schedule.bytes = stateBytes;
         AOSS_81401C9C(&schedule, s_packetState.keyNonce,
             sizeof(s_packetState.keyNonce) + sizeof(s_packetState.keyAddress), dataLength);
 
@@ -1918,15 +1914,15 @@ int AOSS_81400830(AOSSDecryptionMessage* message) {
 
         AOSS_81401DC0(0, s_crcTable);
         crc = 0xffffffff;
-        for (i = 0; i < dataLength; i++) {
-            crc = (crc >> 8) ^ s_crcTable[(crc ^ decryptedData[i]) & 0xff];
+        for (crcIndex = 0; crcIndex < (s32)dataLength; crcIndex++) {
+            crc = (crc >> 8) ^ s_crcTable[(crc ^ decryptedData[crcIndex]) & 0xff];
         }
         if (((crc ^ 0xffffffff) & 0xff) != checksum) {
             s_errorCode = 0x12;
-            AOSSi_Free(stateBytes);
+            AOSSi_Free(schedule.bytes);
             result = -1;
         } else {
-            AOSSi_Free(stateBytes);
+            AOSSi_Free(schedule.bytes);
             result = 0;
         }
     }
@@ -2158,6 +2154,7 @@ int AOSS_81401284(const AOSSOptionRecord* packet, AOSSStoredConfig* config) {
 }
 
 int AOSS_814013AC(int state, const AOSSReplyOption* response, int responseLength, void* config, void* networkData) {
+    u32 flags = 0;
     const AOSSReplyOption* responseRecord;
     AOSSConfigRecord* configRecord;
     AOSSStoredConfig* wep40Config;
@@ -2165,7 +2162,6 @@ int AOSS_814013AC(int state, const AOSSReplyOption* response, int responseLength
     AOSSStoredConfig* tkipConfig;
     AOSSStoredConfig* aesConfig;
     u8* networkSettings;
-    u32 flags = 0;
     const AOSSReplyOption* option;
     u32 length;
     s32 remainingLength = responseLength;
@@ -2192,8 +2188,8 @@ int AOSS_814013AC(int state, const AOSSReplyOption* response, int responseLength
     option = (const AOSSReplyOption*)&responseRecord->bytes[4];
     remainingLength = SONtoHs((u16)length);
     configRecord = &((AOSSConfigData*)config)->records[state];
-    networkSettings = ((AOSSNetworkBufferRecord*)networkData)[state + 3].bytes;
     wep40Config = (AOSSStoredConfig*)&configRecord->reserved00[8];
+    networkSettings = ((AOSSNetworkBufferRecord*)networkData)[state + 3].bytes;
     wep104Config = (AOSSStoredConfig*)&configRecord->reserved138[0];
     tkipConfig = (AOSSStoredConfig*)&configRecord->reserved268[0];
     aesConfig = (AOSSStoredConfig*)&configRecord->reserved2d8[0];
