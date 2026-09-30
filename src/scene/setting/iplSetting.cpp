@@ -1386,10 +1386,7 @@ namespace ipl {
             return FADER_SCN_CONTINUE;
         }
 
-        extern __declspec(section ".sdata2") u8 sBackgroundColorR = 0x00;
-        extern __declspec(section ".sdata2") u8 sBackgroundColorG = 0x00;
-        extern __declspec(section ".sdata2") u8 sBackgroundColorB = 0x00;
-        extern __declspec(section ".sdata2") u8 sBackgroundColorA = 0xFF;
+        extern __declspec(section ".sdata2") GXColor sBackgroundColor = {0x00, 0x00, 0x00, 0xFF};
         extern __declspec(section ".sdata2") u8 sBrowserWhiteR = 0xFF;
         extern __declspec(section ".sdata2") u8 sBrowserWhiteG = 0xFF;
         extern __declspec(section ".sdata2") u8 sBrowserWhiteB = 0xFF;
@@ -1406,7 +1403,7 @@ namespace ipl {
             if (!mBrowserCreated) {
                 utility::Graphics::setOrtho(0);
                 nw4r::ut::Rect background(-1000.0f, -1000.0f, 1000.0f, 1000.0f);
-                GXColor color = *(GXColor*)&sBackgroundColorR;
+                GXColor color = sBackgroundColor;
                 utility::Graphics::drawPolygon(background, color);
                 return;
             }
@@ -3481,7 +3478,7 @@ namespace ipl {
             }
         }
 
-        static wchar_t errorFormat[] = L"%d\n";
+        static __declspec(section ".sdata") wchar_t errorFormat[6] = L"%d\n";
 
         void Setting::makeErrorMessage() {
             const wchar_t* prefix = System::getMessage(400);
@@ -3905,6 +3902,8 @@ namespace ipl {
         BOOL Setting::isResetAcceptable() const {
             return mIsResetAcceptable;
         }
+
+        extern __declspec(section ".sdata2") const f32 sBrowserAlpha = 0.0f;
 
     }  // namespace scene
 }  // namespace ipl
