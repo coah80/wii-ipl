@@ -644,3 +644,17 @@ forbidden patterns added (net, per file): 0
 readability warnings (net, per file; must be 0 in the final result): 0
 GATE PASS
 ```
+
+## IFD1 switch lowering — decoded model (verified)
+Orig tree: root cmpwi 0x132; left {11a};{111};{103};{128};{11c-edge};{12d}; right cmpw 0x8769;{202};{201};{213};{9101};{9000};{a004-edge}.
+- Node count = case labels; adjacent shared-fall-through labels merge into ONE counted node
+  but emit as a range-check (upper-edge `cmpwi <last+1>; bgelr`).
+- `case X: ;` (empty body, == else arm) counts as a node but emits NOTHING (folded into
+  parent's range branch) — orig's {111} emits `beqlr;bgelr` covering the folded {112}.
+- {a000,a001,a002,a003} shared empty labels = one range-node -> emits `cmpw 0xa004; bgelr`
+  (orig's edge form). GNU `case a...b:` ranges compile but count differently — don't use.
+- Split pivot = index floor(n/2) over sorted node list (n includes merged ranges as 1).
+- Orig set: 14 real labels {103,111,11a,11b,128,12d,132,201,202,213,8769,9000,9101,a003}
+  + folded {112} + range {a000..a003} -> 12 nodes + else -> root {132}.
+- Residual (~6 insns): dead-blr cluster count, {103} leaf `bltlr` vs `blr`,
+  body regalloc (r6 vs r8 homes in readU32-assemble bounds-checks).
