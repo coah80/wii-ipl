@@ -1999,17 +1999,18 @@ int AOSS_81400D34(u16 command, const u8* manufacturerAddress) {
 int AOSS_81400E0C(const AOSSOptionRecord* packet, u8* settings) {
     const u8* packetBytes = (const u8*)packet;
     const AOSSOptionRecord* record = packet;
-    u32 length;
-    u32 index;
+    int length;
+    int index;
     u32 value;
-    u32 remaining;
+    int remaining;
     u16 nextOffset;
     const u8* valueBytes;
+    int canUnroll;
 
     memset(settings, 0, 0x104);
     for (;;) {
         length = SONtoHs(record->length);
-        if (length == 0) {
+        if (length <= 0) {
             return -1;
         }
 
@@ -2025,7 +2026,7 @@ int AOSS_81400E0C(const AOSSOptionRecord* packet, u8* settings) {
             break;
         case 3:
         case 4:
-            if (record->data[0] == 0) {
+            if ((int)SONtoHs(record->data[0]) <= 0) {
                 return -2;
             }
             break;
@@ -2033,9 +2034,12 @@ int AOSS_81400E0C(const AOSSOptionRecord* packet, u8* settings) {
             value = 0;
             valueBytes = record->data;
             index = 0;
-            if ((length > 8) && (length < 0x7fffffff)) {
-                if ((int)(length - 8) > 0) {
-                    for (; index < length - 8; index += 8) {
+            if (length > 0) {
+            remaining = length - 8;
+            if (length > 8) {
+                canUnroll = (length >= 0) && !(length > 0x7ffffffe);
+                if (canUnroll) {
+                    for (; index < remaining; index += 8) {
                         value = (value << 8) + valueBytes[0];
                         value = (value << 8) + valueBytes[1];
                         value = (value << 8) + valueBytes[2];
@@ -2048,13 +2052,9 @@ int AOSS_81400E0C(const AOSSOptionRecord* packet, u8* settings) {
                     }
                 }
             }
-            remaining = length - index;
-            if ((int)index < (int)length) {
-                do {
-                    value = (value << 8) + *valueBytes;
-                    valueBytes++;
-                    remaining--;
-                } while (remaining != 0);
+            for (; index < length; index++) {
+                value = (value << 8) + *valueBytes++;
+            }
             }
             value = SONtoHl(value);
             s_runtime.ipAddress = value;
@@ -2063,9 +2063,12 @@ int AOSS_81400E0C(const AOSSOptionRecord* packet, u8* settings) {
             value = 0;
             valueBytes = record->data;
             index = 0;
-            if ((length > 8) && (length < 0x7fffffff)) {
-                if ((int)(length - 8) > 0) {
-                    for (; index < length - 8; index += 8) {
+            if (length > 0) {
+            remaining = length - 8;
+            if (length > 8) {
+                canUnroll = (length >= 0) && !(length > 0x7ffffffe);
+                if (canUnroll) {
+                    for (; index < remaining; index += 8) {
                         value = (value << 8) + valueBytes[0];
                         value = (value << 8) + valueBytes[1];
                         value = (value << 8) + valueBytes[2];
@@ -2078,13 +2081,9 @@ int AOSS_81400E0C(const AOSSOptionRecord* packet, u8* settings) {
                     }
                 }
             }
-            remaining = length - index;
-            if ((int)index < (int)length) {
-                do {
-                    value = (value << 8) + *valueBytes;
-                    valueBytes++;
-                    remaining--;
-                } while (remaining != 0);
+            for (; index < length; index++) {
+                value = (value << 8) + *valueBytes++;
+            }
             }
             value = SONtoHl(value);
             s_runtime.subnetMask = value;
@@ -2094,10 +2093,11 @@ int AOSS_81400E0C(const AOSSOptionRecord* packet, u8* settings) {
         }
 
         nextOffset = record->nextOffset;
-        if (nextOffset == 0) {
+        if (nextOffset != 0) {
+            record = (const AOSSOptionRecord*)(packetBytes + SONtoHs(nextOffset));
+        } else {
             return 0;
         }
-        record = (const AOSSOptionRecord*)(packetBytes + SONtoHs(nextOffset));
     }
 }
 

@@ -2458,6 +2458,8 @@ void ATERM_81405ACC(AtermMd5Context* context, const u8* input, u32 length) {
                     src += 8;
                 }
             }
+            dst = &context->buffer[index + j];
+            src = &input[j];
             for (; j < partLen; j++) {
                 *dst++ = *src++;
             }
@@ -2475,19 +2477,21 @@ void ATERM_81405ACC(AtermMd5Context* context, const u8* input, u32 length) {
         dst = &context->buffer[index];
         src = &input[i];
         if (length - i > 8) {
-        for (; j < length - i - 8; j += 8) {
-        dst[0] = src[0];
-        dst[1] = src[1];
-        dst[2] = src[2];
-        dst[3] = src[3];
-        dst[4] = src[4];
-        dst[5] = src[5];
-        dst[6] = src[6];
-            dst[7] = src[7];
-            dst += 8;
-            src += 8;
+            for (; j < length - i - 8; j += 8) {
+                dst[0] = src[0];
+                dst[1] = src[1];
+                dst[2] = src[2];
+                dst[3] = src[3];
+                dst[4] = src[4];
+                dst[5] = src[5];
+                dst[6] = src[6];
+                dst[7] = src[7];
+                dst += 8;
+                src += 8;
+            }
         }
-        }
+        dst = &context->buffer[index + j];
+        src = &input[i + j];
         for (; j < length - i; j++) {
             *dst++ = *src++;
         }
