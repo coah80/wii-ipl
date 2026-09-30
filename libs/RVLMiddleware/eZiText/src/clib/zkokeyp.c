@@ -3,6 +3,14 @@
 extern ziU16 Zi8GetTableCount(ziU8 lang, ziU8 tableIdx ZI_NEED_WORK);
 extern ziU32 Zi8GetTableAddress(ziU8 lang, ziU8 tableIdx ZI_NEED_WORK);
 
+typedef struct {
+    ziU8 keyBytes[5];
+    ziU8 childHigh;
+    ziU8 childLow;
+    ziU8 characterHigh;
+    ziU8 characterLow;
+} ZiKoreanKeyEntry;
+
 ziU32 Zi8_8148302C(ziU16 key, ziU8* table ZI_NEED_WORK) {
     ziU32 value;
     ziU16 count;
@@ -12,7 +20,7 @@ ziU32 Zi8_8148302C(ziU16 key, ziU8* table ZI_NEED_WORK) {
     for (i = 0; (ziU16)i < count; i++) {
         value = (ziU16)(((ziU16)table[((i & 0xFFFF) << 3) + (i & 0xFFFF) + 7] << 8) |
                        table[((i & 0xFFFF) << 3) + (i & 0xFFFF) + 8]);
-        if (key == value) {
+        if (value == key) {
             Zi8LogError(0x64, ZI_WORK);
             return i;
         }
@@ -112,21 +120,24 @@ ziBool Zi8_814833F0(const ziGetParam* param, ziU16 key ZI_NEED_WORK) {
 ziU32 Zi8_814834AC(ziGetParam* param, ziU16* remaining, ziU8* count,
                    ziU8* inserted ZI_NEED_WORK) {
     ziBool matches;
-    ziS32 entry;
-    ziS32 tableA;
-    ziS32 tableB;
+    ZiKoreanKeyEntry* entry;
+    ziU8* tableA;
+    ziU8* tableB;
     ziU16 tableCount;
     ziU8 matched;
     ziU32 j;
     ziS32 i;
+    ziS32 candidate;
     ziU8 candidateIndex;
     union {
-        ziU32 words[13];
-        ziU8 bytes[52];
+        ziU32 firstWord;
+        ziU8 bytes[5];
     } local;
 
+    j = 0;
+    candidateIndex = 0;
     matched = 0;
-    local.words[0] = 0;
+    local.firstWord = 0;
     local.bytes[4] = 0;
     Zi8LogError(0x64, ZI_WORK);
     if (param->elementCount == 0) {
@@ -141,15 +152,15 @@ ziU32 Zi8_814834AC(ziGetParam* param, ziU16* remaining, ziU8* count,
                 Zi8_81483308(param, param->candidates[i], inserted, ZI_WORK);
             }
             for (i = 0; i < ((ziS32)*count - (ziS32)*remaining); i++) {
-                param->candidates[i] = param->candidates[(ziU32)*remaining + i];
+                param->candidates[i] = param->candidates[*remaining + i];
             }
             *count = *count - (ziU8)*remaining;
             *remaining = 0;
         }
         return 1;
     } else if (param->elementCount <= 9) {
-        tableA = Zi8GetTableAddress(param->language, 9, ZI_WORK);
-        tableB = Zi8GetTableAddress(param->language, 10, ZI_WORK);
+        tableA = (ziU8*)Zi8GetTableAddress(param->language, 9, ZI_WORK);
+        tableB = (ziU8*)Zi8GetTableAddress(param->language, 10, ZI_WORK);
         if (tableA == 0) {
             Zi8ReplaceLastError(0x76C, ZI_WORK);
             return 0;
@@ -162,24 +173,24 @@ ziU32 Zi8_814834AC(ziGetParam* param, ziU16* remaining, ziU8* count,
             i = 0;
             while (i < tableCount && matched < *count) {
                 matches = ZI8_TRUE;
-                entry = (i << 3) + tableA + i;
+                entry = (ZiKoreanKeyEntry*)&tableA[(i << 3) + i];
                 j = 0;
                 if (param->elementCount > 1) {
-                    for (j = 0; (j & 0xFF) < (ziU32)(param->elementCount >> 1); j++) {
-                        if (local.bytes[j & 0xFF] != *((ziU8*)entry + (j & 0xFF))) {
+                    for (j = 0; (j & 0xFF) < (int)param->elementCount / 2; j++) {
+                        if (local.bytes[j & 0xFF] != entry->keyBytes[j & 0xFF]) {
                             matches = ZI8_FALSE;
                             break;
                         }
                     }
                 }
-                if (matches && (param->elementCount & 1) != 0 &&
-                    ((local.bytes[j & 0xFF] & 0xF0) != (*((ziU8*)entry + (j & 0xFF)) & 0xF0))) {
+                if (matches && (param->elementCount % 2) != 0 &&
+                    ((local.bytes[j & 0xFF] & 0xF0) != (entry->keyBytes[j & 0xFF] & 0xF0))) {
                     matches = ZI8_FALSE;
                 }
                 if (matches) {
                     for (candidateIndex = 0; candidateIndex < *count; candidateIndex++) {
                         if (param->candidates[candidateIndex] ==
-                            (ziU16)((*((ziU8*)entry + 7) << 8) | *((ziU8*)entry + 8))) {
+                            (((ziU16)((ZiKoreanKeyEntry*)tableA)[i].characterHigh << 8) | (ziU16)((ZiKoreanKeyEntry*)tableA)[i].characterLow)) {
                             matched++;
                             param->candidates[candidateIndex] =
                                 param->candidates[candidateIndex] & 0x7FFF;
@@ -189,32 +200,32 @@ ziU32 Zi8_814834AC(ziGetParam* param, ziU16* remaining, ziU8* count,
                 }
                 i++;
             }
-            if ((ziU16)matched >= *remaining) {
+            if (matched >= *remaining) {
                 matched = *count;
                 *count = 0;
-                for (i = 0; i < matched; i++) {
-                    if ((param->candidates[i] & 0x8000) == 0) {
-                        param->candidates[i] = param->candidates[i] | 0x8000;
-                        if (*remaining == 0) {
-                            if (*count != i) {
-                                param->candidates[*count] = param->candidates[i];
+                for (candidate = 0; candidate < matched; candidate++) {
+                    if ((param->candidates[candidate] & 0x8000) == 0) {
+                        param->candidates[candidate] = param->candidates[candidate] | 0x8000;
+                        if (*remaining != 0) {
+                            *remaining = *remaining - 1;
+                            Zi8_81483308(param, param->candidates[candidate], inserted, ZI_WORK);
+                        } else {
+                            if (*count != candidate) {
+                                param->candidates[*count] = param->candidates[candidate];
                             }
                             *count = *count + 1;
-                        } else {
-                            *remaining = *remaining - 1;
-                            Zi8_81483308(param, param->candidates[i], inserted, ZI_WORK);
                         }
                     }
                 }
                 *remaining = 0;
             } else {
-                for (i = 0; i < *count; i++) {
-                    if ((param->candidates[i] & 0x8000) == 0) {
-                        param->candidates[i] = param->candidates[i] | 0x8000;
-                        Zi8_81483308(param, param->candidates[i], inserted, ZI_WORK);
+                for (candidate = 0; candidate < *count; candidate++) {
+                    if ((param->candidates[candidate] & 0x8000) == 0) {
+                        param->candidates[candidate] = param->candidates[candidate] | 0x8000;
+                        Zi8_81483308(param, param->candidates[candidate], inserted, ZI_WORK);
                     }
                 }
-                *remaining = *remaining - (ziU16)matched;
+                *remaining = *remaining - (ziU8)matched;
                 *count = 0;
             }
         }
@@ -226,309 +237,314 @@ ziU32 Zi8_814834AC(ziGetParam* param, ziU16* remaining, ziU8* count,
     return 0;
 }
 
-ziU32 Zi8GetKOcandidates(ziGetParam* param, ziU8* options ZI_NEED_WORK) {
-    ziBool bVar1;
-    ziU8 bVar2;
-    ziS32 iVar4;
-    ziU32 uVar6;
-    ziU8* pbVar7;
-    union {
-        ziU32 words[10];
-        ziU8 bytes[40];
-    } local_28;
-    ziU8 local_57;
-    ziU8 local_56;
-    ziU8 local_55;
-    ziU8 local_54;
-    ziU8 local_53;
-    ziS8 local_52;
-    ziU16 local_50;
-    ziU16 local_4E;
-    ziU16 local_4C;
-    ziU16 local_4A;
-    ziU16 local_48;
-    ziS32 local_44;
-    ziS32 local_2C;
-    ziS32 local_30;
-    ziU32 local_34;
-    ziU32 local_38;
-    ziU32 local_3C;
-    ziU32 local_40;
+typedef struct {
+    ziU8 countOnly;
+    ziU8 maxWordLength;
+    ziU8 lookupMode;
+    ziU8 suffixOnly;
+    ziU8 controls[8];
+    ziU32 maxCount;
+    ziU16 capacity;
+    ziU8 minWordLength;
+    ziU8 flags;
+    ziU16 candidateCapacity;
+    ziU8 checkOnly;
+    ziU8 reserved;
+} ZiKoreanCandidateOptions;
 
-    local_4E = 0xFFFF;
-    local_34 = 0;
-    local_28.words[0] = 0;
-    local_28.bytes[4] = 0;
-    local_52 = 0;
-    local_53 = 0;
-    local_54 = 0;
-    local_55 = 0;
-    local_50 = param->firstCandidate;
-    local_3C = 0;
-    local_40 = 0;
-    local_57 = 0;
+ziU32 Zi8GetKOcandidates(ziGetParam* param, ZiKoreanCandidateOptions* options ZI_NEED_WORK) {
+    ziBool matches;
+    ziU8 letterCount;
+    ziU8* keyTable;
+    ziU32 result;
+    ziU8* wordNode;
+    union {
+        ziU32 firstWord;
+        ziU8 bytes[5];
+    } packedKeys;
+    ziU8 inserted;
+    ziU8 matchPass;
+    ziU8 keyByte;
+    ziU8 candidateCount;
+    ziU8 wordIndex;
+    ziS8 remainingLetters;
+    ziU16 remainingCandidates;
+    ziU16 previousIndex;
+    ziU16 character;
+    ziU16 tableCount;
+    ziU16 keyIndex;
+    ZiKoreanKeyEntry* entry;
+    ziU8* wordTable;
+    ziS32 tableIndex;
+    ziU32 resultCount;
+    ziU32 wordOffset;
+    ziU32 prefixCount;
+    ziU32 candidateIndex;
+
+    previousIndex = 0xFFFF;
+    resultCount = 0;
+    packedKeys.firstWord = 0;
+    packedKeys.bytes[4] = 0;
+    remainingLetters = 0;
+    wordIndex = 0;
+    candidateCount = 0;
+    keyByte = 0;
+    remainingCandidates = param->firstCandidate;
+    prefixCount = 0;
+    candidateIndex = 0;
+    inserted = 0;
     Zi8LogError(100, ZI_WORK);
     Zi8_81483264(param, ZI_WORK);
-    iVar4 = Zi8GetTableAddress(ZI8_LANG_KO, 9, ZI_WORK);
-    local_2C = Zi8GetTableAddress(ZI8_LANG_KO, 10, ZI_WORK);
-    if (iVar4 == 0) {
+    keyTable = (ziU8*)Zi8GetTableAddress(ZI8_LANG_KO, 9, ZI_WORK);
+    wordTable = (ziU8*)Zi8GetTableAddress(ZI8_LANG_KO, 10, ZI_WORK);
+    if (keyTable == 0) {
         Zi8ReplaceLastError(0x76C, ZI_WORK);
-        uVar6 = 0;
+        return 0;
     } else {
-        if (local_2C == 0) {
+        if (wordTable == 0) {
             Zi8ReplaceLastError(0x776, ZI_WORK);
-            uVar6 = 0;
-            goto LAB_000114C4;
+            return 0;
         }
-        if (*options == 0) {
+        if (options->countOnly == 0) {
             param->letters = 0;
             param->count = 0;
             param->candidates[0] = 0;
         }
         Zi8LogError(100, ZI_WORK);
         if (param->wordCharCount != 0) {
-            local_48 = Zi8_8148302C(param->currentWord[0], (ziU8*)iVar4, ZI_WORK);
-            if ((local_48 != 0xFFFF) &&
-                ((((ziU8*)iVar4)[((ziU32)local_48 * 9) + 4] & 8) != 0)) {
-                local_38 = (ziU32)((ziU8*)iVar4)[((ziU32)local_48 * 9) + 6] |
-                           ((ziU32)((ziU8*)iVar4)[((ziU32)local_48 * 9) + 4] & 3) << 16 |
-                           (ziU32)((ziU8*)iVar4)[((ziU32)local_48 * 9) + 5] << 8;
-                local_52 = param->wordCharCount - 1;
-                local_53 = 1;
-                pbVar7 = (ziU8*)(local_2C + local_38);
-LAB_00010D44:
-                if (local_52 != 0) {
-                    local_48 = Zi8_8148302C(param->currentWord[local_53], (ziU8*)iVar4, ZI_WORK);
-                    if (local_48 == (ziU16)((*pbVar7 & 0x1F) << 8 | pbVar7[1])) {
-                        local_52 = local_52 - 1;
-                        local_53 = local_53 + 1;
-                        if ((*pbVar7 & 0x40) == 0) {
-                            pbVar7 = pbVar7 + 2;
-                            goto LAB_00010D44;
+            keyIndex = Zi8_8148302C(param->currentWord[0], (ziU8*)keyTable, ZI_WORK);
+            if ((keyIndex != 0xFFFF) &&
+                ((((ZiKoreanKeyEntry*)&keyTable[(keyIndex << 3) + keyIndex])->keyBytes[4] & 8) != 0)) {
+                wordOffset = (ziU32)((ZiKoreanKeyEntry*)&keyTable[(keyIndex << 3) + keyIndex])->childLow |
+                           ((ziU32)((ZiKoreanKeyEntry*)&keyTable[(keyIndex << 3) + keyIndex])->keyBytes[4] & 3) << 16 |
+                           (ziU32)((ZiKoreanKeyEntry*)&keyTable[(keyIndex << 3) + keyIndex])->childHigh << 8;
+                remainingLetters = param->wordCharCount - 1;
+                wordIndex = 1;
+                wordNode = wordTable + wordOffset;
+match_word:
+                if (remainingLetters != 0) {
+                    keyIndex = Zi8_8148302C(param->currentWord[wordIndex], (ziU8*)keyTable, ZI_WORK);
+                    if (keyIndex == (ziU16)((*wordNode & 0x1F) << 8 | wordNode[1])) {
+                        remainingLetters = remainingLetters - 1;
+                        wordIndex = wordIndex + 1;
+                        if ((*wordNode & 0x40) == 0) {
+                            wordNode = wordNode + 2;
+                            goto match_word;
                         }
-                        local_52 = param->wordCharCount - 1;
-                        local_53 = 1;
+                        remainingLetters = param->wordCharCount - 1;
+                        wordIndex = 1;
                     } else {
-                        local_53 = 1;
-                        local_52 = param->wordCharCount - 1;
+                        wordIndex = 1;
+                        remainingLetters = param->wordCharCount - 1;
                     }
                 }
-                if (local_52 == 0) {
-                    local_48 = (*pbVar7 & 0x1F) << 8 | pbVar7[1];
-                    local_4C = (ziU16)(((ziU8*)((ziU32)local_48 * 9 + (ziU32)local_48 + (ziU32)iVar4))[7] << 8 |
-                                       ((ziU8*)((ziU32)local_48 * 9 + (ziU32)local_48 + (ziU32)iVar4))[8]);
+                if (remainingLetters == 0) {
+                    keyIndex = (*wordNode & 0x1F) << 8 | wordNode[1];
+                    character = (ziU16)(((ZiKoreanKeyEntry*)&keyTable[(keyIndex << 3) + keyIndex])->characterHigh << 8 |
+                                       ((ZiKoreanKeyEntry*)&keyTable[(keyIndex << 3) + keyIndex])->characterLow);
                     if (param->wordCharCount == 1) {
-                        if (local_48 == local_4E) {
-                            for (; (*pbVar7 & 0x40) == 0; pbVar7 = pbVar7 + 2) {
+                        if (keyIndex == previousIndex) {
+                            for (; (*wordNode & 0x40) == 0; wordNode = wordNode + 2) {
                             }
-                            local_52 = param->wordCharCount;
-                            goto LAB_00011114;
+                            remainingLetters = param->wordCharCount;
+                            goto next_word;
                         }
-                        local_4E = local_48;
+                        previousIndex = keyIndex;
                         if (param->elementCount == 0) {
-                            if (local_50 == 0) {
-                                if (*options != 0) {
-                                    local_3C = local_3C + 1;
-                                    if ((ziS32)local_3C < *(ziS32*)(options + 0xC)) {
-                                        goto LAB_000110E8;
+                            if (remainingCandidates == 0) {
+                                if (options->countOnly != 0) {
+                                    prefixCount = prefixCount + 1;
+                                    if ((ziS32)prefixCount < (ziS32)options->maxCount) {
+                                        goto skip_word;
                                     }
-                                    uVar6 = *(ziU32*)(options + 0xC);
-                                    goto LAB_000114C4;
+                                    return options->maxCount;
                                 }
-                                param->candidates[local_54] = local_4C;
-                                local_54 = local_54 + 1;
+                                param->candidates[candidateCount] = character;
+                                candidateCount = candidateCount + 1;
                                 param->count = param->count + 1;
-                                bVar2 = param->letters + 1;
-                                param->letters = bVar2;
-                                if (param->maxCandidates <= bVar2) {
-                                    uVar6 = param->letters;
-                                    goto LAB_000114C4;
+                                letterCount = param->letters + 1;
+                                param->letters = letterCount;
+                                if (param->maxCandidates <= letterCount) {
+                                    return param->letters;
                                 }
                             } else {
-                                local_50 = local_50 + -1;
+                                remainingCandidates = remainingCandidates + -1;
                             }
                         } else {
-                            param->candidates[local_54] = local_4C;
-                            local_54 = local_54 + 1;
+                            param->candidates[candidateCount] = character;
+                            candidateCount = candidateCount + 1;
                             param->count = param->count + 1;
-                            bVar2 = param->letters + 1;
-                            param->letters = bVar2;
-                            if (param->maxCandidates <= bVar2) {
-                                Zi8_814834AC(param, &local_50, &local_54, &local_57, ZI_WORK);
-                                param->count = local_54;
-                                param->letters = local_54;
-                                if (param->maxCandidates <= local_54) {
-                                    if (*options == 0) {
-                                        uVar6 = local_54;
-                                        goto LAB_000114C4;
+                            letterCount = param->letters + 1;
+                            param->letters = letterCount;
+                            if (param->maxCandidates <= letterCount) {
+                                Zi8_814834AC(param, &remainingCandidates, &candidateCount, &inserted, ZI_WORK);
+                                param->count = candidateCount;
+                                param->letters = candidateCount;
+                                if (param->maxCandidates <= candidateCount) {
+                                    if (options->countOnly == 0) {
+                                        return candidateCount;
                                     }
-                                    local_3C = local_3C + local_54;
-                                    if (*(ziS32*)(options + 0xC) <= (ziS32)local_3C) {
-                                        uVar6 = *(ziU32*)(options + 0xC);
-                                        goto LAB_000114C4;
+                                    prefixCount = prefixCount + candidateCount;
+                                    if ((ziS32)options->maxCount <= (ziS32)prefixCount) {
+                                        return options->maxCount;
                                     }
                                     param->count = 0;
                                     param->letters = 0;
-                                    local_54 = 0;
+                                    candidateCount = 0;
                                 }
                             }
                         }
                     } else {
-                        for (local_40 = 0;
-                             (local_40 < local_54 &&
-                              (local_4C != param->candidates[local_40]));
-                             local_40 = local_40 + 1) {
+                        for (candidateIndex = 0;
+                             (candidateIndex < candidateCount &&
+                              (character != param->candidates[candidateIndex]));
+                             candidateIndex = candidateIndex + 1) {
                         }
-                        if ((local_40 == local_54) &&
-                            (Zi8_814833F0(param, local_4C, ZI_WORK) == 0)) {
-                            param->candidates[local_54] = local_4C;
-                            local_54 = local_54 + 1;
+                        if ((candidateIndex == candidateCount) &&
+                            (Zi8_814833F0(param, character, ZI_WORK) == 0)) {
+                            param->candidates[candidateCount] = character;
+                            candidateCount = candidateCount + 1;
                             param->count = param->count + 1;
-                            bVar2 = param->letters + 1;
-                            param->letters = bVar2;
-                            if (bVar2 < param->maxCandidates) {
-                                goto LAB_000110E8;
+                            letterCount = param->letters + 1;
+                            param->letters = letterCount;
+                            if (letterCount < param->maxCandidates) {
+                                goto skip_word;
                             }
-                            Zi8_814834AC(param, &local_50, &local_54, &local_57, ZI_WORK);
-                            param->count = local_54;
-                            param->letters = local_54;
-                            if (param->maxCandidates <= local_54) {
-                                if (*options == 0) {
-                                    uVar6 = local_54;
-                                    goto LAB_000114C4;
+                            Zi8_814834AC(param, &remainingCandidates, &candidateCount, &inserted, ZI_WORK);
+                            param->count = candidateCount;
+                            param->letters = candidateCount;
+                            if (param->maxCandidates <= candidateCount) {
+                                if (options->countOnly == 0) {
+                                    return candidateCount;
                                 }
-                                local_3C = local_3C + local_54;
-                                if (*(ziS32*)(options + 0xC) <= (ziS32)local_3C) {
-                                    uVar6 = *(ziU32*)(options + 0xC);
-                                    goto LAB_000114C4;
+                                prefixCount = prefixCount + candidateCount;
+                                if ((ziS32)options->maxCount <= (ziS32)prefixCount) {
+                                    return options->maxCount;
                                 }
                                 param->count = 0;
                                 param->letters = 0;
-                                local_54 = 0;
+                                candidateCount = 0;
                             }
                         }
                     }
                 }
-LAB_000110E8:
-                for (; (*pbVar7 & 0x40) == 0; pbVar7 = pbVar7 + 2) {
+skip_word:
+                for (; (*wordNode & 0x40) == 0; wordNode = wordNode + 2) {
                 }
-                local_52 = param->wordCharCount;
-LAB_00011114:
-                local_52 = local_52 + -1;
-                local_53 = 1;
-                pbVar7 = pbVar7 + 2;
-                if ((*pbVar7 & 0x80) != 0) {
-                    goto LAB_00011124;
+                remainingLetters = param->wordCharCount;
+next_word:
+                remainingLetters = remainingLetters + -1;
+                wordIndex = 1;
+                wordNode = wordNode + 2;
+                if ((*wordNode & 0x80) != 0) {
+                    goto search_table;
                 }
-                goto LAB_00010D44;
+                goto match_word;
             }
         }
-LAB_00011124:
-        local_34 = local_3C;
-        if (local_54 != 0) {
-            Zi8_814834AC(param, &local_50, &local_54, &local_57, ZI_WORK);
-            uVar6 = local_34;
-            if ((*options != 0) &&
-                (local_3C = local_3C + local_54, uVar6 = local_3C,
-                 *(ziS32*)(options + 0xC) <= (ziS32)local_3C)) {
-                uVar6 = *(ziU32*)(options + 0xC);
-                goto LAB_000114C4;
+search_table:
+        resultCount = prefixCount;
+        if (candidateCount != 0) {
+            Zi8_814834AC(param, &remainingCandidates, &candidateCount, &inserted, ZI_WORK);
+            result = resultCount;
+            if ((options->countOnly != 0) &&
+                (prefixCount = prefixCount + candidateCount, result = prefixCount,
+                 (ziS32)options->maxCount <= (ziS32)prefixCount)) {
+                return options->maxCount;
             }
-            local_34 = uVar6;
-            param->count = local_54;
-            param->letters = local_54;
+            resultCount = result;
+            param->count = candidateCount;
+            param->letters = candidateCount;
         }
         if (param->elementCount < 10) {
-            if ((param->elementCount == 0) || (*options != 0)) {
-                local_56 = 1;
+            if ((param->elementCount == 0) || (options->countOnly != 0)) {
+                matchPass = 1;
             } else {
-                local_56 = 0;
+                matchPass = 0;
             }
-            local_4A = Zi8GetTableCount(ZI8_LANG_KO, 9, ZI_WORK);
-            Zi8_81483118(param, local_28.bytes);
+            tableCount = Zi8GetTableCount(ZI8_LANG_KO, 9, ZI_WORK);
+            Zi8_81483118(param, packedKeys.bytes);
             do {
-                for (local_30 = 0; local_30 < (ziS32)(ziU32)local_4A; local_30 = local_30 + 1) {
-                    bVar1 = ZI8_TRUE;
-                    local_44 = iVar4 + local_30 * 9;
-                    local_55 = 0;
+                for (tableIndex = 0; tableIndex < (ziS32)(ziU32)tableCount; tableIndex = tableIndex + 1) {
+                    matches = ZI8_TRUE;
+                    entry = (ZiKoreanKeyEntry*)&keyTable[(tableIndex << 3) + tableIndex];
+                    keyByte = 0;
                     if (1 < param->elementCount) {
-                        for (local_55 = 0;
-                             (ziU32)local_55 < (ziU32)((ziS32)(ziU32)param->elementCount >> 1);
-                             local_55 = local_55 + 1) {
-                            if (local_28.bytes[local_55] != *(ziU8*)(local_44 + local_55)) {
-                                bVar1 = ZI8_FALSE;
+                        for (keyByte = 0;
+                             (ziU32)keyByte < (int)param->elementCount / 2;
+                             keyByte = keyByte + 1) {
+                            if (packedKeys.bytes[keyByte] != entry->keyBytes[keyByte]) {
+                                matches = ZI8_FALSE;
                                 break;
                             }
                         }
                     }
-                    if ((bVar1 && ((param->elementCount & 1) != 0)) &&
-                        ((local_28.bytes[local_55] & 0xF0) !=
-                         (*(ziU8*)(local_44 + local_55) & 0xF0))) {
-                        bVar1 = ZI8_FALSE;
+                    if ((matches && ((param->elementCount % 2) != 0)) &&
+                        ((packedKeys.bytes[keyByte] & 0xF0) !=
+                         (entry->keyBytes[keyByte] & 0xF0))) {
+                        matches = ZI8_FALSE;
                     }
-                    if (bVar1) {
-                        bVar2 = local_56;
-                        if ((param->elementCount & 1) == 0) {
-                            if ((*(ziU8*)(local_44 + local_55) & 0xF0) == 0) {
-                                if (local_56 == 0) {
-                                    goto LAB_000113B0;
+                    if (matches) {
+                        letterCount = matchPass;
+                        if ((param->elementCount % 2) == 0) {
+                            if ((entry->keyBytes[keyByte] & 0xF0) == 0) {
+                                if (matchPass == 0) {
+                                    goto add_candidate;
                                 }
-                                bVar2 = *options;
+                                letterCount = options->countOnly;
                             }
-                            if (bVar2 == 0) {
-                                goto LAB_00011478;
+                            if (letterCount == 0) {
+                                goto next_entry;
                             }
                         } else {
-                            if ((*(ziU8*)(local_44 + local_55) & 0xF) != 0) {
-                                goto LAB_000113AC;
+                            if ((entry->keyBytes[keyByte] & 0xF) != 0) {
+                                goto check_pass;
                             }
-                            if (local_56 != 0) {
-                                bVar2 = *options;
-                                goto LAB_000113AC;
+                            if (matchPass != 0) {
+                                letterCount = options->countOnly;
+                                goto check_pass;
                             }
                         }
-LAB_000113AC:
-                        if (bVar2 == 0) {
-                            goto LAB_00011478;
+check_pass:
+                        if (letterCount == 0) {
+                            goto next_entry;
                         }
-LAB_000113B0:
-                        if (local_50 == 0) {
-                            if (*options == 0) {
-                                param->candidates[local_54] =
-                                    (ziU16)((*(ziU8*)(local_30 * 9 + iVar4 + 7) << 8) |
-                                            *(ziU8*)(local_30 * 9 + iVar4 + 8));
-                                local_54 = local_54 + 1;
-                                bVar2 = param->letters + 1;
-                                param->letters = bVar2;
-                                if (param->maxCandidates <= bVar2) {
-                                    uVar6 = param->letters;
-                                    goto LAB_000114C4;
+add_candidate:
+                        if (remainingCandidates == 0) {
+                            if (options->countOnly == 0) {
+                                param->candidates[candidateCount] =
+                                    (ziU16)((((ZiKoreanKeyEntry*)&keyTable[(tableIndex << 3) + tableIndex])->characterHigh << 8) |
+                                            ((ZiKoreanKeyEntry*)&keyTable[(tableIndex << 3) + tableIndex])->characterLow);
+                                candidateCount = candidateCount + 1;
+                                letterCount = param->letters + 1;
+                                param->letters = letterCount;
+                                if (param->maxCandidates <= letterCount) {
+                                    return param->letters;
                                 }
                             } else {
-                                local_34 = local_34 + 1;
-                                if (*(ziS32*)(options + 0xC) <= (ziS32)local_34) {
-                                    uVar6 = *(ziU32*)(options + 0xC);
-                                    goto LAB_000114C4;
+                                resultCount = resultCount + 1;
+                                if ((ziS32)options->maxCount <= (ziS32)resultCount) {
+                                    return options->maxCount;
                                 }
                             }
                         } else {
-                            local_50 = local_50 + -1;
+                            remainingCandidates = remainingCandidates + -1;
                         }
                     }
-LAB_00011478:
+next_entry:
                     ;
                 }
-                local_56 = local_56 + 1;
-            } while (local_56 < 2);
-            uVar6 = local_34;
-            if (*options == 0) {
-                uVar6 = param->letters;
+                matchPass = matchPass + 1;
+            } while (matchPass < 2);
+            result = resultCount;
+            if (options->countOnly == 0) {
+                result = param->letters;
             }
         } else {
             param->letters = 0;
-            uVar6 = 0;
+            return 0;
         }
     }
-LAB_000114C4:
-    return uVar6;
+finish_candidates:
+    return result;
 }

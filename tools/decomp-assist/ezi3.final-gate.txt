@@ -1,0 +1,74 @@
+full build: ok
+main.dol sha1: 26116613f624061ba99c8d1a299aaa6efa85670d
+[libs/RVLMiddleware/eZiText/src/clib/zi8dawg] pool: IDENTICAL
+[libs/RVLMiddleware/eZiText/src/clib/zi8dawg] objdiff: code 4356/4868 data 120/120 functions 5/6 fuzzy 99.9754 linked code 0
+[libs/RVLMiddleware/eZiText/src/clib/zi8dawg] instruction-exact functions: 5/6
+[libs/RVLMiddleware/eZiText/src/clib/zi8dawg]   section .text size 4868 match 99.97535
+[libs/RVLMiddleware/eZiText/src/clib/zi8dawg]   section extab size 48 match 100.0
+[libs/RVLMiddleware/eZiText/src/clib/zi8dawg]   section extabindex size 72 match 100.0
+[libs/RVLMiddleware/eZiText/src/clib/zi8dawg]   below 100: Zi8MatchROMdata1 99.765625
+[libs/RVLMiddleware/eZiText/src/clib/zi8dawg] baseline: code 536/4868 data None functions 2 fuzzy 51.9523
+[libs/RVLMiddleware/eZiText/src/clib/zprepare] pool: IDENTICAL
+[libs/RVLMiddleware/eZiText/src/clib/zprepare] objdiff: code None/3760 data 8/68 functions 0/1 fuzzy 82.4734 linked code 0
+[libs/RVLMiddleware/eZiText/src/clib/zprepare] instruction-exact functions: 0/1
+[libs/RVLMiddleware/eZiText/src/clib/zprepare]   section .data size 48 match None
+[libs/RVLMiddleware/eZiText/src/clib/zprepare]   section .text size 3760 match 82.473404
+[libs/RVLMiddleware/eZiText/src/clib/zprepare]   section extab size 8 match 100.0
+[libs/RVLMiddleware/eZiText/src/clib/zprepare]   section extabindex size 12 match 83.33333
+[libs/RVLMiddleware/eZiText/src/clib/zprepare]   below 100: Zi8PrepareMatch 82.473404
+[libs/RVLMiddleware/eZiText/src/clib/zprepare] baseline: code None/3760 data None functions 0 fuzzy 64.7575
+[libs/RVLMiddleware/eZiText/src/clib/zkokeyp] pool: IDENTICAL
+[libs/RVLMiddleware/eZiText/src/clib/zkokeyp] objdiff: code 332/5200 data None/140 functions 1/7 fuzzy 81.0346 linked code 0
+[libs/RVLMiddleware/eZiText/src/clib/zkokeyp] instruction-exact functions: 1/7
+[libs/RVLMiddleware/eZiText/src/clib/zkokeyp]   section .text size 5200 match 81.034615
+[libs/RVLMiddleware/eZiText/src/clib/zkokeyp]   section extab size 56 match 96.42857
+[libs/RVLMiddleware/eZiText/src/clib/zkokeyp]   section extabindex size 84 match 97.61904
+[libs/RVLMiddleware/eZiText/src/clib/zkokeyp]   below 100: Zi8_8148302C 99.49152
+[libs/RVLMiddleware/eZiText/src/clib/zkokeyp]   below 100: Zi8_81483264 98.902435
+[libs/RVLMiddleware/eZiText/src/clib/zkokeyp]   below 100: Zi8_81483308 99.13793
+[libs/RVLMiddleware/eZiText/src/clib/zkokeyp]   below 100: Zi8_814833F0 99.04256
+[libs/RVLMiddleware/eZiText/src/clib/zkokeyp]   below 100: Zi8_814834AC 87.938774
+[libs/RVLMiddleware/eZiText/src/clib/zkokeyp]   below 100: Zi8GetKOcandidates 69.58446
+[libs/RVLMiddleware/eZiText/src/clib/zkokeyp] baseline: code 332/5200 data None functions 1 fuzzy 76.1862
+[libs/RVLMiddleware/eZiText/src/clib/zi8getc2] pool: IDENTICAL
+[libs/RVLMiddleware/eZiText/src/clib/zi8getc2] objdiff: code 3584/6888 data 112/332 functions 14/17 fuzzy 94.7933 linked code 0
+[libs/RVLMiddleware/eZiText/src/clib/zi8getc2] instruction-exact functions: 14/17
+[libs/RVLMiddleware/eZiText/src/clib/zi8getc2]   section .data size 80 match None
+[libs/RVLMiddleware/eZiText/src/clib/zi8getc2]   section .rodata size 16 match 100.0
+[libs/RVLMiddleware/eZiText/src/clib/zi8getc2]   section .sbss2 size 8 match 50.0
+[libs/RVLMiddleware/eZiText/src/clib/zi8getc2]   section .sdata2 size 8 match 100.0
+[libs/RVLMiddleware/eZiText/src/clib/zi8getc2]   section .text size 6888 match 94.79327
+[libs/RVLMiddleware/eZiText/src/clib/zi8getc2]   section extab size 88 match 100.0
+[libs/RVLMiddleware/eZiText/src/clib/zi8getc2]   section extabindex size 132 match 99.242424
+[libs/RVLMiddleware/eZiText/src/clib/zi8getc2]   below 100: Zi8GetDataSignature 99.347824
+[libs/RVLMiddleware/eZiText/src/clib/zi8getc2]   below 100: Zi8GetCandidatesOrCount 87.20317
+[libs/RVLMiddleware/eZiText/src/clib/zi8getc2]   below 100: Zi8IsDupWChar 99.36508
+[libs/RVLMiddleware/eZiText/src/clib/zi8getc2] baseline: code 1380/6888 data 24 functions 11 fuzzy 81.5273
+[libs/RVLMiddleware/eZiText/src/clib/zi8match] pool: IDENTICAL
+[libs/RVLMiddleware/eZiText/src/clib/zi8match] objdiff: code 3720/8256 data 608/728 functions 7/10 fuzzy 89.0165 linked code 0
+[libs/RVLMiddleware/eZiText/src/clib/zi8match] instruction-exact functions: 7/10
+[libs/RVLMiddleware/eZiText/src/clib/zi8match]   section .rodata size 528 match 100.0
+[libs/RVLMiddleware/eZiText/src/clib/zi8match]   section .text size 8256 match 89.01647
+[libs/RVLMiddleware/eZiText/src/clib/zi8match]   section extab size 80 match 100.0
+[libs/RVLMiddleware/eZiText/src/clib/zi8match]   section extabindex size 120 match 98.333336
+[libs/RVLMiddleware/eZiText/src/clib/zi8match]   below 100: Zi8MatchPhonetic 85.95042
+[libs/RVLMiddleware/eZiText/src/clib/zi8match]   below 100: Zi8GetPyPhonetic 75.58496
+[libs/RVLMiddleware/eZiText/src/clib/zi8match]   below 100: Zi8GetPyFinal 99.245285
+[libs/RVLMiddleware/eZiText/src/clib/zi8match] baseline: code 3720/8256 data 608 functions 7 fuzzy 87.4123
+[libs/RVLMiddleware/eZiText/src/clib/zikorean] pool: IDENTICAL
+[libs/RVLMiddleware/eZiText/src/clib/zikorean] objdiff: code 2712/5188 data 24/348 functions 2/3 fuzzy 86.8605 linked code 0
+[libs/RVLMiddleware/eZiText/src/clib/zikorean] instruction-exact functions: 2/3
+[libs/RVLMiddleware/eZiText/src/clib/zikorean]   section .data size 288 match None
+[libs/RVLMiddleware/eZiText/src/clib/zikorean]   section .text size 5188 match 86.86045
+[libs/RVLMiddleware/eZiText/src/clib/zikorean]   section extab size 24 match 100.0
+[libs/RVLMiddleware/eZiText/src/clib/zikorean]   section extabindex size 36 match 97.22222
+[libs/RVLMiddleware/eZiText/src/clib/zikorean]   below 100: Zi8GetKoreanCandidates 72.4685
+[libs/RVLMiddleware/eZiText/src/clib/zikorean] baseline: code 2712/5188 data 24 functions 2 fuzzy 85.0925
+regressions vs baseline: 0
+global matched_code_percent: 83.85455 -> 84.05567
+global fuzzy_match_percent: 97.62925 -> 97.77593
+global complete_code_percent: 58.20100 -> 58.20100
+global matched_data_percent: 90.15434 -> 90.16612
+forbidden patterns added (net, per file): 0
+readability warnings (net, per file; must be 0 in the final result): 0
+GATE PASS
