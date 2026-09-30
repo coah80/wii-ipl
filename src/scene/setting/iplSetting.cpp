@@ -180,8 +180,8 @@ namespace ipl {
         Setting::Setting(EGG::Heap* heap, int arg) : FaderSceneBase(heap) {
             unk_0x5C = 0;
             mpWWWLibraryFile = 0;
-            mpSettingHTMLFile = 0;
             mpWWWArchiveFile = 0;
+            mpSettingHTMLFile = 0;
             mpFontFile = 0;
             mpSettingLayoutFile = 0;
             mBrowserCreated = 0;
@@ -242,11 +242,11 @@ namespace ipl {
             if (mpWWWLibraryFile) {
                 delete mpWWWLibraryFile;
             }
-            if (mpSettingHTMLFile) {
-                delete mpSettingHTMLFile;
-            }
             if (mpWWWArchiveFile) {
                 delete mpWWWArchiveFile;
+            }
+            if (mpSettingHTMLFile) {
+                delete mpSettingHTMLFile;
             }
             if (mpFontFile) {
                 delete mpFontFile;
@@ -579,7 +579,8 @@ namespace ipl {
         }
 
         void Setting::updateController_() {
-            nw4r::ut::Rect projection(0.0f, 0.0f, 0.0f, 0.0f);
+            nw4r::ut::Rect projection;
+            f32 unkFloat = 0.0f;
             System::getProjectionRect4x3(&projection);
 
             if (isAnimating()) {
