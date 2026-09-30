@@ -1,13 +1,10 @@
-#define PF_FA_STR_LAYOUT
-#define VFiPFAPI_convertReturnValue PFAPI_convertReturnValue
-#define VFiPFFILE_fseek PFFILE_fseek
-#include <private/vf/PrFILE2/standard/pf_fseek.h>
+#include <revolution/fa.h>
 
-#include <private/vf/PrFILE2/fatfs/pf_volume.h>
-#include <private/vf/PrFILE2/standard/pf_api_util.h>
+extern s32 PFFILE_fseek(FAFILE* stream, s32 offset, int origin);
+extern s32 PFAPI_convertReturnValue(s32 err);
 
-pf_int32 pf2_fseek(PF_FILE* pFile, pf_s32 lOffset, pf_int32 nOrigin) {
-    pf_s32 err = VFiPFFILE_fseek(pFile, lOffset, nOrigin);
-    err = VFiPFAPI_convertReturnValue(err);
+FAError pf2_fseek(FAFILE* stream, s32 offset, int origin) {
+    s32 err = PFFILE_fseek(stream, offset, origin);
+    err = PFAPI_convertReturnValue(err);
     return err;
 }

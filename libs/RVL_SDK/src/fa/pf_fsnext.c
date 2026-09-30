@@ -1,15 +1,10 @@
-#define PF_FA_STR_LAYOUT
-#define VFiPFAPI_convertReturnValue PFAPI_convertReturnValue
-#define VFiPFDIR_fsnext PFDIR_fsnext
-#include <private/vf/PrFILE2/standard/pf_fsfirst.h>
+#include <revolution/fa.h>
 
-#include <private/vf/PrFILE2/fatfs/pf_volume.h>
-#include <private/vf/PrFILE2/standard/pf_api_util.h>
+extern s32 PFDIR_fsnext(FADta* data);
+extern s32 PFAPI_convertReturnValue(s32 err);
 
-pf_int32 pf2_fsnext(PF_DTA* p_dta) {
-    pf_s32 err;
-
-    err = VFiPFDIR_fsnext(p_dta);
-    err = VFiPFAPI_convertReturnValue(err);
+FAError pf2_fsnext(FADta* dta) {
+    s32 err = PFDIR_fsnext(dta);
+    err = PFAPI_convertReturnValue(err);
     return err;
 }

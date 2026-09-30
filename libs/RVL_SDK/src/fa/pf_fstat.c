@@ -14,16 +14,16 @@ typedef struct PFF2_VOL_SET {
 
 extern PFF2_VOL_SET pf_vol_set;
 extern s32 PFSTR_InitStr(PFF2_STR* path, const s8* text, u32 code_mode);
-extern s32 PFDIR_fsfirst(PFF2_STR* path, u8 attributes, FADta* data);
+extern s32 PFDIR_fstat(PFF2_STR* path, FAFileStat* file_stat);
 extern s32 PFAPI_convertReturnValue(s32 err);
 
-FAError pf2_fsfirst(const char* dirName, u8 attr, FADta* dta) {
+FAError pf2_fstat(const char* fileName, FAFileStat* stat) {
     s32 err;
     PFF2_STR path_str;
 
-    err = PFSTR_InitStr(&path_str, (const s8*)dirName, 1);
+    err = PFSTR_InitStr(&path_str, (const s8*)fileName, 1);
     if (err == 0) {
-        err = PFDIR_fsfirst(&path_str, attr, dta);
+        err = PFDIR_fstat(&path_str, stat);
     } else {
         pf_vol_set.last_error = err;
     }
