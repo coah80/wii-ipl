@@ -557,3 +557,304 @@ GATE PASS
 ```
 
 No source/header/configuration outside this leaf changed. No linking promotion was attempted.
+
+## 2026-09-30 interpreter body sizes
+
+Baseline 23/121 correct interpreter jump-table relocations. Main case order is already correct. Inspecting instruction-count spans from the top; register differences are excluded from this structural measurement.
+
+first unequal instruction-count span target+0x30; jump relocations 23/121; size 0x1394/0x1394
+Unequal instruction-count spans: [('delete', 12, 13, 12, 12), ('delete', 15, 16, 14, 14), ('insert', 22, 22, 20, 22), ('insert', 25, 25, 25, 27), ('insert', 187, 187, 189, 190), ('insert', 209, 209, 212, 213), ('insert', 511, 511, 515, 516), ('delete', 512, 513, 517, 517), ('insert', 598, 598, 602, 603), ('delete', 599, 600, 604, 604), ('insert', 641, 641, 645, 646), ('delete', 665, 666, 670, 670), ('delete', 667, 668, 671, 671), ('insert', 670, 670, 673, 674), ('delete', 671, 672, 675, 675), ('replace', 729, 731, 732, 733), ('delete', 758, 759, 760, 760), ('insert', 773, 773, 774, 775), ('delete', 775, 776, 777, 777), ('insert', 804, 804, 805, 806), ('insert', 834, 834, 836, 837), ('delete', 837, 839, 840, 840), ('delete', 842, 843, 843, 843), ('delete', 993, 994, 993, 993), ('insert', 999, 999, 998, 999), ('delete', 1073, 1074, 1073, 1073), ('insert', 1076, 1076, 1075, 1076), ('insert', 1154, 1154, 1154, 1155), ('delete', 1159, 1160, 1160, 1160)]
+Body spans: target start-end | mine start-end | instruction counts | entries
+013c-0144 | 0144-014c | 2/2 | 1
+0144-014c | 014c-0154 | 2/2 | 1
+014c-0154 | 0154-015c | 2/2 | 1
+0154-0188 | 015c-0190 | 13/13 | 1
+0188-01c4 | 0190-01cc | 15/15 | 1
+01c4-01d4 | 01cc-01dc | 4/4 | 1
+01d4-01e4 | 01dc-01ec | 4/4 | 1
+01e4-01f4 | 01ec-01fc | 4/4 | 1
+01f4-0204 | 01fc-020c | 4/4 | 1
+0204-0214 | 020c-021c | 4/4 | 1
+0214-0224 | 021c-022c | 4/4 | 1
+0224-0234 | 022c-023c | 4/4 | 1
+0234-0244 | 023c-024c | 4/4 | 1
+0244-0254 | 024c-025c | 4/4 | 1
+0254-0264 | 025c-026c | 4/4 | 1
+0264-0274 | 026c-027c | 4/4 | 1
+0274-0284 | 027c-028c | 4/4 | 1
+0284-0294 | 028c-029c | 4/4 | 1
+0294-0344 | 029c-0350 | 44/45 | 1
+0344-034c | 0350-035c | 2/3 | 1
+034c-0354 | 035c-0364 | 2/2 | 4
+0354-035c | 0364-036c | 2/2 | 1
+035c-0364 | 036c-0374 | 2/2 | 1
+0364-036c | 0374-037c | 2/2 | 2
+036c-0500 | 037c-0510 | 101/101 | 38
+0500-056c | 0510-057c | 27/27 | 1
+056c-0580 | 057c-0590 | 5/5 | 1
+0580-0590 | 0590-05a0 | 4/4 | 1
+0590-05a0 | 05a0-05b0 | 4/4 | 1
+05a0-05b0 | 05b0-05c0 | 4/4 | 1
+05b0-05c0 | 05c0-05d0 | 4/4 | 1
+05c0-05d0 | 05d0-05e0 | 4/4 | 1
+05d0-05e0 | 05e0-05f0 | 4/4 | 1
+05e0-05f0 | 05f0-0600 | 4/4 | 1
+05f0-0600 | 0600-0610 | 4/4 | 1
+0600-0610 | 0610-0620 | 4/4 | 1
+0610-0620 | 0620-0630 | 4/4 | 1
+0620-0630 | 0630-0640 | 4/4 | 1
+0630-0640 | 0640-0650 | 4/4 | 1
+0640-0650 | 0650-0660 | 4/4 | 1
+0650-0660 | 0660-0670 | 4/4 | 1
+0660-0670 | 0670-0680 | 4/4 | 1
+0670-06a0 | 0680-06b0 | 12/12 | 1
+06a0-06d0 | 06b0-06e0 | 12/12 | 1
+06d0-06e8 | 06e0-06f8 | 6/6 | 1
+06e8-07a8 | 06f8-07b8 | 48/48 | 1
+07a8-07e4 | 07b8-07f4 | 15/15 | 1
+07e4-0854 | 07f4-0864 | 28/28 | 1
+0854-0894 | 0864-08a4 | 16/16 | 1
+0894-08b0 | 08a4-08c0 | 7/7 | 1
+08b0-08f4 | 08c0-0904 | 17/17 | 1
+08f4-0940 | 0904-0950 | 19/19 | 2
+0940-09c8 | 0950-09d8 | 34/34 | 1
+09c8-0a6c | 09d8-0a7c | 41/41 | 1
+0a6c-0b8c | 0a7c-0b94 | 72/70 | 1
+0b8c-0da4 | 0b94-0da4 | 134/132 | 1
+0da4-0e74 | 0da4-0e74 | 52/52 | 1
+0e74-0f14 | 0e74-0f14 | 40/40 | 1
+0f14-0f2c | 0f14-0f2c | 6/6 | 1
+0f2c-0f80 | 0f2c-0f80 | 21/21 | 1
+0f80-0fb8 | 0f80-0fb8 | 14/14 | 1
+0fb8-1114 | 0fb8-1114 | 87/87 | 8
+1114-113c | 1114-113c | 10/10 | 1
+113c-1154 | 113c-1154 | 6/6 | 1
+1154-11a4 | 1154-11a4 | 20/20 | 1
+11a4-11ac | 11a4-11ac | 2/2 | 1
+11ac-11f0 | 11ac-11f0 | 17/17 | 4
+11f0-1394 | 11f0-1394 | 105/105 | 2
+
+### Source trials
+
+- const-qualified result-table rows: first unequal instruction-count span target+0x30; jump relocations 23/121; size 0x1394/0x1394; restored.
+- const byte pointers for result-table conversion: first unequal instruction-count span target+0x30; jump relocations 23/121; size 0x1394/0x1394; restored.
+- Conversion table address: first unequal instruction-count span target+0x30; jump relocations 23/121; size 0x1394/0x1394; restored.
+- Conversion table base_pointer: first unequal instruction-count span target+0x30; jump relocations 0/121; size 0x1390/0x1394; restored.
+- Conversion table row_pointer: first unequal instruction-count span target+0x30; jump relocations 23/121; size 0x1394/0x1394; restored.
+- Conversion table array_temporary: first unequal instruction-count span target+0x30; jump relocations 96/121; size 0x1384/0x1394; retained.
+- Conversion default table initialization: frame now 0xf0 (target 0xf0), first opcode label now 0x13c (target 0x13c); remaining ADD target entry skips an empty case. Full gate PASS, 208/233 objdiff, 207/233 instruction-exact, .data 18.050066.
+- Initial conversion matrix arith: first unequal instruction-count span target+0x30; jump relocations 23/121; size 0x1394/0x1394; restored.
+- Initial conversion matrix cmp: first unequal instruction-count span target+0x30; jump relocations 23/121; size 0x1394/0x1394; restored.
+- Initial conversion matrix eq: first unequal instruction-count span target+0x30; jump relocations 23/121; size 0x1394/0x1394; restored.
+- Initial conversion matrix bitShift: first unequal instruction-count span target+0x30; jump relocations 23/121; size 0x1394/0x1394; restored.
+- SET_INDEX cache: first unequal instruction-count span target+0x30; jump relocations 96/121; size 0x1388/0x1394; restored.
+- SET_INDEX common: first unequal instruction-count span target+0x30; jump relocations 96/121; size 0x1388/0x1394; restored.
+- SET_INDEX cache_common: first unequal instruction-count span target+0x30; jump relocations 97/121; size 0x138c/0x1394; retained.
+- SET_INDEX cache_common_float: compiler error, restored.
+- SET_INDEX shared result check and accumulator pointer: target/source body counts 72/72, GET_PROPERTY_NAME entry restored to 0xb8c. Full gate PASS, relocation targets 97/121; .data 18.050066.
+- GET_PROPERTY_NAME length: first unequal instruction-count span target+0x30; jump relocations 97/121; size 0x13a0/0x1394; restored.
+- GET_PROPERTY_NAME cache_length: compiler error, restored.
+- GET_PROPERTY_NAME cache_length_branch: compiler error, restored.
+- GET_PROPERTY_NAME cache_length_branch_signed_counter_tail: compiler error, restored.
+- GET_PROPERTY_NAME cached accumulator, remaining counter, string-length validation and shared status: first unequal instruction-count span target+0x30; jump relocations 62/121; size 0x1388/0x1394; restored.
+- GET_PROPERTY_NAME baseline structured candidate diagnostic: first unequal instruction-count span target+0x30; jump relocations 62/121; size 0x1388/0x1394; restored.
+- GET_PROPERTY_NAME corrected cache_length: first unequal instruction-count span target+0x30; jump relocations 97/121; size 0x13a4/0x1394; restored.
+- GET_PROPERTY_NAME corrected cache_length_branch: first unequal instruction-count span target+0x30; jump relocations 2/121; size 0x13a4/0x1394; restored.
+- GET_PROPERTY_NAME corrected cache_length_branch_signed_counter_tail: first unequal instruction-count span target+0x30; jump relocations 2/121; size 0x13a0/0x1394; restored.
+- GET_PROPERTY_NAME shape init_index: first unequal instruction-count span target+0x30; jump relocations 62/121; size 0x138c/0x1394; restored.
+- GET_PROPERTY_NAME shape nonarray_else: first unequal instruction-count span target+0x30; jump relocations 62/121; size 0x1390/0x1394; restored.
+- GET_PROPERTY_NAME shape init_index_nonarray_else: first unequal instruction-count span target+0x30; jump relocations 85/121; size 0x1394/0x1394; restored.
+- GET_PROPERTY_NAME shape global_index: first unequal instruction-count span target+0x30; jump relocations 62/121; size 0x1388/0x1394; restored.
+- GET_PROPERTY_NAME shape arrayflag: first unequal instruction-count span target+0x30; jump relocations 62/121; size 0x138c/0x1394; restored.
+- GET_PROPERTY_NAME body with status_local: first unequal instruction-count span target+0x30; jump relocations 62/121; size 0x1390/0x1394; restored.
+- GET_PROPERTY_NAME body with log_not: first unequal instruction-count span target+0x30; jump relocations 95/121; size 0x1394/0x1394; restored.
+- GET_PROPERTY_NAME body with copy_temps: first unequal instruction-count span target+0x30; jump relocations 62/121; size 0x1390/0x1394; restored.
+- GET_PROPERTY_NAME body with result_length: first unequal instruction-count span target+0x30; jump relocations 62/121; size 0x1390/0x1394; restored.
+- GET_PROPERTY_NAME body with result_string_length: first unequal instruction-count span target+0x30; jump relocations 62/121; size 0x1390/0x1394; restored.
+- GET_PROPERTY_NAME body with opfunc_first: first unequal instruction-count span target+0x30; jump relocations 62/121; size 0x1390/0x1394; restored.
+- GET_PROPERTY_NAME body with opkind_signed: first unequal instruction-count span target+0x30; jump relocations 62/121; size 0x1390/0x1394; restored.
+- LOAD_INDIRECT indexed reference with load: first unequal instruction-count span target+0x30; jump relocations 97/121; size 0x138c/0x1394; restored.
+- LOAD_INDIRECT indexed reference with property_load: first unequal instruction-count span target+0x30; jump relocations 62/121; size 0x1390/0x1394; restored.
+- LOAD_INDIRECT indexed reference with property_init_load: first unequal instruction-count span target+0x30; jump relocations 85/121; size 0x1394/0x1394; restored.
+- LOAD_INDIRECT indexed reference with property_load_lognot: first unequal instruction-count span target+0x30; jump relocations 95/121; size 0x1394/0x1394; restored.
+- LOAD_INDIRECT indexed reference with property_init_load_lognot: first unequal instruction-count span target+0x30; jump relocations 72/121; size 0x1398/0x1394; restored.
+- Boolean status tail with boolean_local: first unequal instruction-count span target+0x30; jump relocations 97/121; size 0x138c/0x1394; restored.
+- Boolean status tail with property_boolean_local: first unequal instruction-count span target+0x30; jump relocations 62/121; size 0x1390/0x1394; restored.
+- Boolean status tail with property_boolean_local_load: first unequal instruction-count span target+0x30; jump relocations 62/121; size 0x1390/0x1394; restored.
+- Boolean status tail with property_init_boolean_local_load: first unequal instruction-count span target+0x30; jump relocations 85/121; size 0x1394/0x1394; restored.
+- Property body and declaration scope result_outer: first unequal instruction-count span target+0x30; jump relocations 62/121; size 0x1390/0x1394; restored.
+- Property body and declaration scope all_outer: first unequal instruction-count span target+0x30; jump relocations 62/121; size 0x1390/0x1394; restored.
+- Property body and declaration scope binary_outer: first unequal instruction-count span target+0x30; jump relocations 62/121; size 0x1390/0x1394; restored.
+- Property body and declaration scope object_temps_first: first unequal instruction-count span target+0x30; jump relocations 62/121; size 0x1390/0x1394; restored.
+- Property body and declaration scope types_before_objects: first unequal instruction-count span target+0x30; jump relocations 62/121; size 0x1390/0x1394; restored.
+- Property body and declaration scope bool_correct_property_scope: first unequal instruction-count span target+0x30; jump relocations 62/121; size 0x1390/0x1394; restored.
+- Original property control flow error_gotos: first unequal instruction-count span target+0x30; jump relocations 97/121; size 0x1380/0x1394; restored.
+- Original property control flow error_gotos_length: first unequal instruction-count span target+0x30; jump relocations 97/121; size 0x1390/0x1394; restored.
+- Original property control flow error_gotos_length_nozero: first unequal instruction-count span target+0x30; jump relocations 97/121; size 0x138c/0x1394; restored.
+- Original property control flow error_gotos_length_branch: first unequal instruction-count span target+0x30; jump relocations 25/121; size 0x1390/0x1394; restored.
+- Original property control flow result_local_error: first unequal instruction-count span target+0x30; jump relocations 97/121; size 0x137c/0x1394; restored.
+- Original property control flow helper_format: first unequal instruction-count span target+0x30; jump relocations 97/121; size 0x1380/0x1394; restored.
+- Operand conversion types_pointer_outer: first unequal instruction-count span target+0x30; jump relocations 97/121; size 0x138c/0x1394; restored.
+- Operand conversion types_pointer_inner: first unequal instruction-count span target+0x30; jump relocations 97/121; size 0x138c/0x1394; restored.
+- Operand conversion type_indexing: first unequal instruction-count span target+0x30; jump relocations 97/121; size 0x138c/0x1394; restored.
+- Operand conversion table_pointer_outer: first unequal instruction-count span target+0x58; jump relocations 0/121; size 0x1398/0x1394; restored.
+- Operand conversion pointer_array_inner: first unequal instruction-count span target+0x30; jump relocations 97/121; size 0x138c/0x1394; restored.
+- Operand conversion void_table_inner: first unequal instruction-count span target+0x30; jump relocations 97/121; size 0x138c/0x1394; restored.
+- Operand conversion table_switch_result: first unequal instruction-count span target+0x30; jump relocations 0/121; size 0x139c/0x1394; restored.
+- Property validation refinement integer_signed_bounds: first unequal instruction-count span target+0x30; jump relocations 97/121; size 0x13c4/0x1394; restored.
+- Property validation refinement high_low_bounds: first unequal instruction-count span target+0x30; jump relocations 97/121; size 0x13bc/0x1394; restored.
+- Property validation refinement delete_assign: first unequal instruction-count span target+0x30; jump relocations 97/121; size 0x1390/0x1394; restored.
+- Property validation refinement newobject_assign: first unequal instruction-count span target+0x30; jump relocations 97/121; size 0x1390/0x1394; restored.
+- Property validation refinement string_length_copy: compiler error, restored.
+- Property validation refinement negative_length: first unequal instruction-count span target+0x30; jump relocations 97/121; size 0x1388/0x1394; restored.
+- Property validation refinement foundidx_computed: first unequal instruction-count span target+0x30; jump relocations 120/121; size 0x1394/0x1394; retained.
+- Property validation refinement boolean_flag: first unequal instruction-count span target+0x30; jump relocations 97/121; size 0x1390/0x1394; restored.
+- Property validation refinement loop_for: first unequal instruction-count span target+0x30; jump relocations 97/121; size 0x1390/0x1394; restored.
+- Property validation refinement loop_do: first unequal instruction-count span target+0x30; jump relocations 120/121; size 0x1394/0x1394; restored.
+- Metric clarification: mnemonic SequenceMatcher initially reports 0x30 because the readonly base load moves across memset; this is instruction scheduling, not a size difference. Use the first wrong cumulative case-label offset as the size anchor: initial 0x13c, current 0x344. Initial loop entry 0x78 vs target 0x70; current loop entry 0x70. Current first extra table-header instructions are at source 0x324/0x32c, balanced by an empty ADD case.
+- GET_PROPERTY_NAME now 134/134 instructions. Carry the found element index in computedAddr, keep enumeration remaining separate, validate formatted string length, and share error completion. Full gate PASS; jump offsets 120/121 correct; all case intervals except ADD table label/header now match counts.
+- File-private interpreter-only result type table linkage diagnostic: first unequal instruction-count span target+0x30; jump relocations 120/121; size 0x1394/0x1394; restored (support declaration outside requested function).
+- ADD table control/lifetime goto_cases: first wrong cumulative size anchor target+0x344; jump relocations 120/121; size 0x1394/0x1394; restored.
+- ADD table control/lifetime outer_declaration: first wrong cumulative size anchor target+0x344; jump relocations 120/121; size 0x1394/0x1394; restored.
+- ADD table control/lifetime operator_declaration: first wrong cumulative size anchor target+0x344; jump relocations 120/121; size 0x1394/0x1394; restored.
+- ADD table control/lifetime function_initialization: first wrong cumulative size anchor target+0x13c; jump relocations 0/121; size 0x13a4/0x1394; restored.
+- ADD table control/lifetime typecheck_initialization: first wrong cumulative size anchor target+0x13c; jump relocations 0/121; size 0x13a4/0x1394; restored.
+- ADD table control/lifetime operator_initialization: first wrong cumulative size anchor target+0x13c; jump relocations 0/121; size 0x13a4/0x1394; restored.
+- ADD table control/lifetime enum_kind: first wrong cumulative size anchor target+0x344; jump relocations 120/121; size 0x1394/0x1394; restored.
+- ADD table control/lifetime case_value_normalization: first wrong cumulative size anchor target+0x344; jump relocations 120/121; size 0x1394/0x1394; restored.
+- ADD table control/lifetime case_scope: first wrong cumulative size anchor target+0x13c; jump relocations 0/121; size 0x13a4/0x1394; restored.
+- ADD table control/lifetime result_default: first wrong cumulative size anchor target+0x344; jump relocations 74/121; size 0x1394/0x1394; restored.
+- Inline result table helper table_return: first wrong cumulative size anchor target+0x13c; jump relocations 0/121; size 0x13ac/0x1394; restored.
+- Inline result table helper table_return_default: first wrong cumulative size anchor target+0x13c; jump relocations 0/121; size 0x13a8/0x1394; restored.
+- Inline result table helper table_out: first wrong cumulative size anchor target+0x13c; jump relocations 0/121; size 0x13c0/0x1394; restored.
+- Inline result table helper enum_and_table: first wrong cumulative size anchor target+0x13c; jump relocations 0/121; size 0x13b4/0x1394; restored.
+- Operator table with loop form table_math_normalize: first wrong cumulative size anchor target+0x13c; jump relocations 0/121; size 0x139c/0x1394; restored.
+- Operator table with loop form table_do: first wrong cumulative size anchor target+0x13c; jump relocations 0/121; size 0x139c/0x1394; restored.
+- Operator table with loop form table_math_do: first wrong cumulative size anchor target+0x344; jump relocations 19/121; size 0x1398/0x1394; restored.
+- Operator table with loop form table_math_do_typeptr: first wrong cumulative size anchor target+0x1394; jump relocations 121/121; size 0x1394/0x1394; retained.
+- Operator table with loop form table_ternary_do_typeptr: compiler error, restored.
+- Operator table with loop form table_math_do_reverse_types: compiler error, restored.
+- Operator table with loop form table_math_do_array_ptr: compiler error, restored.
+- Complete interpreter layout: all 68 distinct case/shared-tail intervals have matching counts; all 121 relocation offsets match (type 10/10, operator 47/47, opcode 64/64). First mismatched size anchor: none. Entry prefix and final tail sizes match; 1253/1253 total instructions.
+- The final operator-table change uses the actual resultTypes pointer and a moving enum-output pointer. Normalize zero step counts arithmetically and use a do loop with the existing count value. These remove the entry copy/branch while retaining the requested iteration count. No synthetic data, offsets or padding were added.
+```text
+first wrong cumulative size anchor target+0x1394; jump relocations 121/121; size 0x1394/0x1394
+Unequal instruction-count spans: [('insert', 13, 13, 13, 14), ('delete', 16, 18, 17, 17), ('insert', 22, 22, 21, 23), ('delete', 27, 28, 28, 28), ('insert', 187, 187, 187, 188), ('delete', 188, 189, 189, 189), ('insert', 511, 511, 511, 512), ('delete', 512, 513, 513, 513), ('insert', 598, 598, 598, 599), ('delete', 599, 600, 600, 600), ('insert', 641, 641, 641, 642), ('delete', 665, 666, 666, 666), ('insert', 773, 773, 773, 774), ('delete', 842, 843, 843, 843), ('delete', 993, 994, 993, 993), ('insert', 999, 999, 998, 999), ('delete', 1073, 1074, 1073, 1073), ('insert', 1076, 1076, 1075, 1076), ('insert', 1154, 1154, 1154, 1155), ('delete', 1159, 1160, 1160, 1160), ('insert', 1236, 1236, 1236, 1237), ('delete', 1237, 1238, 1238, 1238)]
+Body spans: target start-end | mine start-end | instruction counts | entries
+013c-0144 | 013c-0144 | 2/2 | 1
+0144-014c | 0144-014c | 2/2 | 1
+014c-0154 | 014c-0154 | 2/2 | 1
+0154-0188 | 0154-0188 | 13/13 | 1
+0188-01c4 | 0188-01c4 | 15/15 | 1
+01c4-01d4 | 01c4-01d4 | 4/4 | 1
+01d4-01e4 | 01d4-01e4 | 4/4 | 1
+01e4-01f4 | 01e4-01f4 | 4/4 | 1
+01f4-0204 | 01f4-0204 | 4/4 | 1
+0204-0214 | 0204-0214 | 4/4 | 1
+0214-0224 | 0214-0224 | 4/4 | 1
+0224-0234 | 0224-0234 | 4/4 | 1
+0234-0244 | 0234-0244 | 4/4 | 1
+0244-0254 | 0244-0254 | 4/4 | 1
+0254-0264 | 0254-0264 | 4/4 | 1
+0264-0274 | 0264-0274 | 4/4 | 1
+0274-0284 | 0274-0284 | 4/4 | 1
+0284-0294 | 0284-0294 | 4/4 | 1
+0294-0344 | 0294-0344 | 44/44 | 1
+0344-034c | 0344-034c | 2/2 | 1
+034c-0354 | 034c-0354 | 2/2 | 4
+0354-035c | 0354-035c | 2/2 | 1
+035c-0364 | 035c-0364 | 2/2 | 1
+0364-036c | 0364-036c | 2/2 | 2
+036c-0500 | 036c-0500 | 101/101 | 38
+0500-056c | 0500-056c | 27/27 | 1
+056c-0580 | 056c-0580 | 5/5 | 1
+0580-0590 | 0580-0590 | 4/4 | 1
+0590-05a0 | 0590-05a0 | 4/4 | 1
+05a0-05b0 | 05a0-05b0 | 4/4 | 1
+05b0-05c0 | 05b0-05c0 | 4/4 | 1
+05c0-05d0 | 05c0-05d0 | 4/4 | 1
+05d0-05e0 | 05d0-05e0 | 4/4 | 1
+05e0-05f0 | 05e0-05f0 | 4/4 | 1
+05f0-0600 | 05f0-0600 | 4/4 | 1
+0600-0610 | 0600-0610 | 4/4 | 1
+0610-0620 | 0610-0620 | 4/4 | 1
+0620-0630 | 0620-0630 | 4/4 | 1
+0630-0640 | 0630-0640 | 4/4 | 1
+0640-0650 | 0640-0650 | 4/4 | 1
+0650-0660 | 0650-0660 | 4/4 | 1
+0660-0670 | 0660-0670 | 4/4 | 1
+0670-06a0 | 0670-06a0 | 12/12 | 1
+06a0-06d0 | 06a0-06d0 | 12/12 | 1
+06d0-06e8 | 06d0-06e8 | 6/6 | 1
+06e8-07a8 | 06e8-07a8 | 48/48 | 1
+07a8-07e4 | 07a8-07e4 | 15/15 | 1
+07e4-0854 | 07e4-0854 | 28/28 | 1
+0854-0894 | 0854-0894 | 16/16 | 1
+0894-08b0 | 0894-08b0 | 7/7 | 1
+08b0-08f4 | 08b0-08f4 | 17/17 | 1
+08f4-0940 | 08f4-0940 | 19/19 | 2
+0940-09c8 | 0940-09c8 | 34/34 | 1
+09c8-0a6c | 09c8-0a6c | 41/41 | 1
+0a6c-0b8c | 0a6c-0b8c | 72/72 | 1
+0b8c-0da4 | 0b8c-0da4 | 134/134 | 1
+0da4-0e74 | 0da4-0e74 | 52/52 | 1
+0e74-0f14 | 0e74-0f14 | 40/40 | 1
+0f14-0f2c | 0f14-0f2c | 6/6 | 1
+0f2c-0f80 | 0f2c-0f80 | 21/21 | 1
+0f80-0fb8 | 0f80-0fb8 | 14/14 | 1
+0fb8-1114 | 0fb8-1114 | 87/87 | 8
+1114-113c | 1114-113c | 10/10 | 1
+113c-1154 | 113c-1154 | 6/6 | 1
+1154-11a4 | 1154-11a4 | 20/20 | 1
+11a4-11ac | 11a4-11ac | 2/2 | 1
+11ac-11f0 | 11ac-11f0 | 17/17 | 4
+11f0-1394 | 11f0-1394 | 105/105 | 2
+```
+- Final full gate PASS: objdiff code 32944/53564, data 6904/6904, functions 208/233; instruction-exact 207/233; .data 100.0; CHANSVmStep 96.199524. Zero regressions, forbidden patterns and readability warnings. Instruction-exact count is unchanged; this round completes the requested case-size/relocation work, not full instruction matching.
+```text
+full build: ok
+main.dol sha1: 26116613f624061ba99c8d1a299aaa6efa85670d
+[src/channelScript/CHANSVm] pool: IDENTICAL
+[src/channelScript/CHANSVm] objdiff: code 32944/53564 data 6904/6904 functions 208/233 fuzzy 98.5453 linked code 0
+[src/channelScript/CHANSVm] instruction-exact functions: 207/233
+[src/channelScript/CHANSVm]   section .data size 4672 match 100.0
+[src/channelScript/CHANSVm]   section .rodata size 1432 match 100.0
+[src/channelScript/CHANSVm]   section .sbss size 16 match 100.0
+[src/channelScript/CHANSVm]   section .sdata size 600 match 100.0
+[src/channelScript/CHANSVm]   section .sdata2 size 184 match 100.0
+[src/channelScript/CHANSVm]   section .text size 53564 match 98.54529
+[src/channelScript/CHANSVm]   below 100: CHANSVmGetSourceLine 97.82609
+[src/channelScript/CHANSVm]   below 100: CHANSVmNewObjData 99.427086
+[src/channelScript/CHANSVm]   below 100: CHANSVmParseInt 94.69388
+[src/channelScript/CHANSVm]   below 100: CHANSVm_8144B4D4 96.92771
+[src/channelScript/CHANSVm]   below 100: VmArraySlice 96.2782
+[src/channelScript/CHANSVm]   below 100: VmDateDtor 94.96703
+[src/channelScript/CHANSVm]   below 100: VmStringFromCharCode 99.40678
+[src/channelScript/CHANSVm]   below 100: VmStringReplace 97.106064
+[src/channelScript/CHANSVm]   below 100: VmStringSplit 96.04955
+[src/channelScript/CHANSVm]   below 100: CHANSVm_8145049C 98.58237
+[src/channelScript/CHANSVm]   below 100: CHANSVm_81450D14 97.391304
+[src/channelScript/CHANSVm]   below 100: VmBlobGetHexString 98.71951
+[src/channelScript/CHANSVm]   below 100: VmBlobCalcRangeSHA1Digest 96.484535
+[src/channelScript/CHANSVm]   below 100: VmBlobCalcHMAC 99.453125
+[src/channelScript/CHANSVm]   below 100: VmBlobCalcRangeHMAC 99.97479
+[src/channelScript/CHANSVm]   below 100: vmBlobParsePackFormatString 99.69827
+[src/channelScript/CHANSVm]   below 100: VmBlobPackCommon 92.603294
+[src/channelScript/CHANSVm]   below 100: VmBlobUnpack 92.083176
+[src/channelScript/CHANSVm]   below 100: VmImageCtor 99.0
+[src/channelScript/CHANSVm]   below 100: VmWinEmuWrite 99.62687
+[src/channelScript/CHANSVm]   below 100: CHANSVmAddExe 99.1063
+[src/channelScript/CHANSVm]   below 100: CHANSVm_81455654 94.0
+[src/channelScript/CHANSVm]   below 100: CHANSVmLinkModules 98.677246
+[src/channelScript/CHANSVm]   below 100: VmCallMethod 97.2242
+[src/channelScript/CHANSVm]   below 100: CHANSVmStep 96.199524
+[src/channelScript/CHANSVm] baseline: code 32944/53564 data 2232 functions 208 fuzzy 98.4492
+regressions vs baseline: 0
+global matched_code_percent: 84.94337 -> 84.94337
+global fuzzy_match_percent: 98.15556 -> 98.15729
+global complete_code_percent: 59.34297 -> 59.34297
+global matched_data_percent: 90.43501 -> 90.68994
+forbidden patterns added (net, per file): 0
+readability warnings (net, per file; must be 0 in the final result): 0
+GATE PASS
+```
