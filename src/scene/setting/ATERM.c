@@ -2638,16 +2638,16 @@ int ATERMi_ApConfigStart(OSPriority priority, u32 scanLimit,
                          AtermFreeCallback freeCallback, u32 stackSize) {
     AtermProgress progress;
 
-    if (gAtermState > 0 && gAtermState < 6) {
+    if (gAtermState >= 1 && gAtermState <= 5) {
         return -10;
     }
 
-    gAtermState = 7;
     gAtermScanLimit = scanLimit;
-    gAtermScanBufferSize = stackSize;
+    gAtermState = 7;
     gAtermProgressCallback = progressCallback;
     gAtermAllocate = allocateCallback;
     gAtermRelease = freeCallback;
+    gAtermScanBufferSize = stackSize;
     gAtermAllocation = allocateCallback(stackSize);
     if (gAtermAllocation == NULL) {
         gAtermResult = -1;
@@ -2655,7 +2655,7 @@ int ATERMi_ApConfigStart(OSPriority priority, u32 scanLimit,
     }
 
     OSCreateThread(&AtermThread, (void* (*)(void*))ATERMi_AutoConfigThread, NULL,
-                   (u8*)gAtermAllocation + (stackSize & ~7), stackSize, priority, 1);
+                   (u8*)gAtermAllocation + (gAtermScanBufferSize & ~7), gAtermScanBufferSize, priority, 1);
     gAtermState = 1;
     gAtermDeadline = (u32)(OSGetTime() /
                            (__mulhwu(0x10624DD3, OS_BUS_CLOCK >> 2) >> 6)) + 60000;
@@ -2671,7 +2671,7 @@ int ATERMi_ApConfigStart(OSPriority priority, u32 scanLimit,
                                        (__mulhwu(0x10624DD3, OS_BUS_CLOCK >> 2) >> 6));
     }
     progress.result = gAtermResult;
-    progressCallback(&progress);
+    gAtermProgressCallback(&progress);
     OSResumeThread(&AtermThread);
     gAtermThreadStarted = 1;
     return 1;
