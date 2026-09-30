@@ -85,7 +85,11 @@ namespace ipl {
             GXTexObj*       _create_icon(u8 slot, s16 fileNo, long start);
             const wchar_t*  getComment(u8 slot, s16 index, int which);
             GXTexObj*       create_banner(u8 slot, s16 index);
+#ifdef IPL_GC_WINDOW_CPP
+            u32             getBlocks(u8 slot, s16 index);
+#else
             u16             getBlocks(u8 slot, s16 index);
+#endif
             u16             getFreeBlocks(u8 slot);
 
             void setEventHandler(MemCardEventHandler* eventHandler) {

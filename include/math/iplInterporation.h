@@ -44,9 +44,12 @@ namespace ipl {
 #ifdef IPL_GCW_INTP_CTOR_OUT_OF_LINE
             LinearIntp() NO_INLINE;
 #endif
-#ifdef IPL_BOARD_OBJECT_INLINE_INTERPOLATION_DTORS
+#if defined(IPL_BOARD_OBJECT_INLINE_INTERPOLATION_DTORS) || defined(IPL_GC_WINDOW_CPP)
             virtual ~LinearIntp();
 #endif
+#ifdef IPL_GC_WINDOW_CPP
+            T get() const;
+#else
             T get() const {
                 T r = mEnd * getCurrentFrame();
                 T b = mStart * (mMaxFrame - mFrame);
@@ -54,6 +57,7 @@ namespace ipl {
                 return b * (f64)(1.0f / getMaxFrame());
             }
 
+#endif
             T get2() const { return (((mStart * (mMaxFrame - mFrame)) + (mEnd * mFrame)) / mMaxFrame); }
         };
 
