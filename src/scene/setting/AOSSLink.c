@@ -211,38 +211,19 @@ s32 AOSSi_WLANGetBSSList(u32** out) {
     memset(req.ssid, 0, 0x20);
     memset(req.ssidMask, 0xFF, 0x20);
 
-    for (;;) {
-        err = WD_Scan(&req, buf, 0x3200);
-        if (err != 0 && (u32)(err - 0x80000000) != 0x8004) {
-            goto free;
-        }
+scan:
+    err = WD_Scan(&req, buf, 0x3200);
+    if (err != 0 && (u32)(err - 0x80000000) != 0x8004) {
+        goto free;
+    }
 
-        count = *(u16*)buf;
-        if (count == 0) {
-            if (AOSSi_cancel_flag == 1) {
-                result = -1;
-                goto free;
-            }
-            rescan++;
-            if (rescan > 10) {
-                list = AOSSi_Alloc(0x58);
-                if (list == NULL) {
-                    result = -1;
-                    goto free;
-                }
-                list[0] = 0;
-                result = 0;
-                *out = list;
-                goto free;
-            }
-            AOSS_813FD18C(100);
-            continue;
-        }
-        break;
+    count = *(u16*)buf;
+    if (count == 0) {
+        goto rescan;
     }
 
     list = AOSSi_Alloc((count - 1) * 0x54 + 0x58);
-    if (list == NULL) {
+    if (list == 0) {
         result = -1;
         goto free;
     }
@@ -285,17 +266,35 @@ s32 AOSSi_WLANGetBSSList(u32** out) {
 
     *out = list;
     result = 0;
+    goto free;
+
+rescan:
+    if (AOSSi_cancel_flag == 1) {
+        result = -1;
+        goto free;
+    }
+    rescan++;
+    if (rescan > 10) {
+        list = AOSSi_Alloc(0x58);
+        if (list == 0) {
+            result = -1;
+            goto free;
+        }
+        list[0] = 0;
+        result = 0;
+        *out = list;
+        goto free;
+    }
+    AOSS_813FD18C(100);
+    goto scan;
 
 free:
-    if (AOSSi_free != NULL) {
+    if (AOSSi_free != 0) {
         AOSSi_free(0, buf, 0);
     }
 
 cleanup:
-    for (;;) {
-        if (WD_Cleanup() == 0) {
-            break;
-        }
+    while (WD_Cleanup() != 0) {
         if (cretry > 10) {
             result = -1;
             break;
@@ -305,10 +304,7 @@ cleanup:
     }
 
 unlock:
-    for (;;) {
-        if (NCDUnlockWirelessDriver(lock) == 0) {
-            break;
-        }
+    while (NCDUnlockWirelessDriver(lock) != 0) {
         if (uretry > 10) {
             result = -1;
             break;
