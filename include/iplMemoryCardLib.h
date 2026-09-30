@@ -61,7 +61,7 @@ namespace ipl {
         const char* getIconComment(u8 slot, s16 fileNo);
 
         void          initCardThread();
-#ifdef IPL_MEMORY_CARD_CPP
+#if defined(IPL_MEMORY_CARD_CPP) || defined(IPL_CARD_SEQUENCE_CPP)
         BOOL          shutdownCardThread();
 #else
         bool          shutdownCardThread();
