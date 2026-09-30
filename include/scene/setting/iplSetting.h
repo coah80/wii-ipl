@@ -107,7 +107,7 @@ namespace ipl {
             void initScroll();
             void updateScroll();
             void setAPDraw();
-            int getRadioLevel(const WDBssDesc_* descriptor);
+            u8 getRadioLevel(const WDBssDesc_* descriptor);
             void setUseEULA_Init_();
             void setUseEULA_Cancel_();
             void setUseEULA_Start_();

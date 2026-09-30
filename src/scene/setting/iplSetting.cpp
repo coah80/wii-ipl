@@ -2928,23 +2928,28 @@ namespace ipl {
                     utility::CharacterCode::UTF8ToUTF16(displayName, ssid, 0x21);
                     textBox->SetString(displayName);
                     if (privacyMode == 0) {
-                        mpMainLayout->getAnim(row + APPrivacyOpenAnimation)->initFrame();
-                        mpMainLayout->getAnim(row + APPrivacyOpenAnimation)->restart();
+                        layout::Animator* animator = mpMainLayout->getAnim(row + APPrivacyOpenAnimation);
+                        animator->initFrame();
+                        animator->restart();
                         mpMainLayout->getAnim(row + APPrivacyProtectedAnimation)->stop();
                     } else {
-                        mpMainLayout->getAnim(row + APPrivacyProtectedAnimation)->initFrame();
-                        mpMainLayout->getAnim(row + APPrivacyProtectedAnimation)->restart();
+                        layout::Animator* animator = mpMainLayout->getAnim(row + APPrivacyProtectedAnimation);
+                        animator->initFrame();
+                        animator->restart();
                         mpMainLayout->getAnim(row + APPrivacyOpenAnimation)->stop();
                     }
-                    for (int animation = row + APSignalAnimationBase;
-                         animation <= row + APSignalAnimationEnd; animation += 6) {
-                        mpMainLayout->getAnim(animation)->stop();
-                    }
+                    mpMainLayout->getAnim(row + APSignalAnimationBase)->stop();
+                    mpMainLayout->getAnim(row + APSignalAnimationBase + 6)->stop();
+                    mpMainLayout->getAnim(row + APSignalAnimationBase + 12)->stop();
+                    mpMainLayout->getAnim(row + APSignalAnimationEnd)->stop();
                     int signal = getRadioLevel(mAPScanList.currentDescriptor);
-                    mpMainLayout->getAnim(row + signal * 6 + APSignalAnimationBase)->initFrame();
-                    mpMainLayout->getAnim(row + signal * 6 + APSignalAnimationBase)->restart();
+                    layout::Animator* signalAnimator =
+                        mpMainLayout->getAnim(row + signal * 6 + APSignalAnimationBase);
+                    signalAnimator->initFrame();
+                    signalAnimator->restart();
                 }
-                mAPScanList.currentDescriptorWords += recordLength / sizeof(u16);
+                mAPScanList.currentDescriptorWords =
+                    reinterpret_cast<u16*>(reinterpret_cast<u8*>(&mAPScanList.count) + recordOffset);
             }
         }
 
@@ -3077,7 +3082,7 @@ namespace ipl {
             }
         }
 
-        int Setting::getRadioLevel(const WDBssDesc_* descriptor) {
+        u8 Setting::getRadioLevel(const WDBssDesc_* descriptor) {
             u16 signal = descriptor->rssi & 0xff;
             if (signal >= 0xc4) {
                 return 3;
