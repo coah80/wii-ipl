@@ -14,7 +14,7 @@ typedef struct AXFX_CHORUS {
     u32 period;                   // 0xA8
 } AXFX_CHORUS;
 
-u32 AXFXChorusGetMemSize(const AXFX_CHORUS* fx);
+u32 AXFXChorusGetMemSize(AXFX_CHORUS* fx);
 BOOL AXFXChorusInit(AXFX_CHORUS* fx);
 BOOL AXFXChorusShutdown(AXFX_CHORUS* fx);
 BOOL AXFXChorusSettings(AXFX_CHORUS* fx);

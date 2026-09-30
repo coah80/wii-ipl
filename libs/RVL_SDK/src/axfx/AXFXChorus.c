@@ -2,7 +2,7 @@
 
 static void __ParamConvert(AXFX_CHORUS* fx);
 
-u32 AXFXChorusGetMemSize(const AXFX_CHORUS* fx) {
+u32 AXFXChorusGetMemSize(AXFX_CHORUS* fx) {
     return AXFXChorusExpGetMemSize(&fx->chorusInner);
 }
 
@@ -22,7 +22,7 @@ BOOL AXFXChorusSettings(AXFX_CHORUS* fx) {
 }
 
 void AXFXChorusCallback(void* chans, void* context) {
-    AXFXChorusExpCallback((AXFX_BUFFERUPDATE*)chans, (AXFX_CHORUS_EXP*)context);
+    AXFXChorusExpCallback((AXFX_BUS*)chans, (AXFX_CHORUS_EXP*)context);
 }
 
 static void __ParamConvert(AXFX_CHORUS* fx) {
