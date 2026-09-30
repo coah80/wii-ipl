@@ -1030,13 +1030,13 @@ s32 pfd_sddrv_build_mbr_bpb(u32 total_sectors) {
 }
 
 s32 pfd_sddrv_calc_fat32_mbr_bpb(PFD_SDDRV_FORMAT_DATA* format_data) {
-    PFD_SDDRV_SIZE_SETTINGS settings;
-    const PFD_SDDRV_SIZE_DEPEND* size_entry;
-    u32 entry_index;
-    u32 cluster_count;
-    u32 fat_sectors;
-    u32 fat_sector_count;
     u32 available_sectors;
+    u32 fat_sector_count;
+    u32 fat_sectors;
+    u32 cluster_count;
+    u32 entry_index;
+    const PFD_SDDRV_SIZE_DEPEND* size_entry;
+    PFD_SDDRV_SIZE_SETTINGS settings;
     u32 reserved_sectors = 0;
     u32 data_start_sector;
     u32 calculated_fat_sectors;
@@ -1153,7 +1153,7 @@ s32 pfd_sddrv_store_fat32_mbr_buf(PFD_SDDRV_FORMAT_DATA* format_data, u8* sector
     }
     pf_memset(&settings, 0, 0x10);
     size_entry = sddrv_size_depend_tbl;
-    for (entry_index = 0; entry_index < 14; entry_index++, size_entry++) {
+    for (entry_index = 0; entry_index < 14; size_entry++, entry_index++) {
         if (size_entry->min_sectors < format_data->total_sectors && format_data->total_sectors <= size_entry->max_sectors) {
             settings.reserved_sectors = sddrv_size_depend_tbl[entry_index].reserved_sectors;
             settings.fat_copies = sddrv_size_depend_tbl[entry_index].fat_copies;
@@ -1430,11 +1430,10 @@ s32 pfd_sddrv_build_fat32_mbr_bpb(u32 total_sectors) {
 }
 
 s32 pfd_sddrv_full_format(void) {
-    s32 result;
-    u32 retry_count;
-    u16 bytes_per_sector;
-    u32 total_sectors;
+    FADiskInfo geometry;
     u32 status;
+    u32 retry_count;
+    s32 result;
 
     retry_count = 0;
     do {
@@ -1466,21 +1465,21 @@ s32 pfd_sddrv_full_format(void) {
     if (g_pfd_sddrv_info.media_ejected != 0) {
         return -33;
     }
-    result = pfd_sddrv_get_total_sectors(&total_sectors, &bytes_per_sector);
+    result = pfd_sddrv_get_total_sectors(&geometry.totalSectors, &geometry.bytesPerSector);
     if (result != 0) {
         OSReport("ERR Failed to get total sectors. pfd_sddrv_get_total_sectors()\n");
         return result;
     }
     if ((status & 0x10000) != 0 && (status & 0x100000) == 0) {
-        if (total_sectors > 0x400000) {
+        if (geometry.totalSectors > 0x400000) {
             return -34;
         }
-        result = pfd_sddrv_build_mbr_bpb(total_sectors);
+        result = pfd_sddrv_build_mbr_bpb(geometry.totalSectors);
     } else if ((status & 0x10000) != 0 && (status & 0x100000) != 0) {
-        if (total_sectors > 0x4000000) {
+        if (geometry.totalSectors > 0x4000000) {
             return -34;
         }
-        result = pfd_sddrv_build_fat32_mbr_bpb(total_sectors);
+        result = pfd_sddrv_build_fat32_mbr_bpb(geometry.totalSectors);
     } else {
         return -31;
     }
