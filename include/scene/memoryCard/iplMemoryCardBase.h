@@ -94,11 +94,9 @@ namespace ipl {
                 nw4r::ut::List_Init(&mAnmButtonList, offsetof(AnmButton, mLink));
             }
 #endif
-#ifdef IPL_MEMORYCARD_BASE_OUT_OF_LINE
-            virtual ~MemoryBase();
-#else
+
+
             virtual ~MemoryBase() {}
-#endif
 
             virtual void onPoint(const char* paneName, controller::Interface* controller);
             virtual void onLeft(const char* paneName);

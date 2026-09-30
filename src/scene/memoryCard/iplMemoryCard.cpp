@@ -1,5 +1,4 @@
 #define IPL_MEMORY_CARD_CPP
-#define IPL_MEMORYCARD_BASE_OUT_OF_LINE
 #define IPL_CHANNEL_TITLE_NOVTABLE
 #include "scene/memoryCard/iplMemoryCard.h"
 #undef IPL_CHANNEL_TITLE_NOVTABLE
@@ -89,8 +88,6 @@ namespace ipl {
             nw4r::ut::List_Init(&mSaveDataList, offsetof(GCSaveData, mLink));
             nw4r::ut::List_Init(&mBalloonList, 0);
         }
-
-        MemoryBase::~MemoryBase() {}
 
         void MemoryCard::prepare() {
             System::getBS2Manager()->abort();
@@ -697,6 +694,7 @@ namespace ipl {
         }
 
         void MemoryBase::onMove(const char*) {}
+
 
         MemoryCardManager::~MemoryCardManager() {}
 
