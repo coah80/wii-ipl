@@ -555,8 +555,8 @@ NWC24Err NWC24iMBoxFlushHeader(NWC24MBoxType type) {
     return result != NWC24_OK ? result : closeResult;
 }
 
-static inline void GetOldestMsgId(const MBCHeader* header, u32* id) {
-    *id = header->oldestId;
+static inline u32 GetOldestMsgId(const MBCHeader* header) {
+    return header->oldestId;
 }
 
 NWC24Err NWC24iMBoxCheck(NWC24MBoxType type, u32 size) {
@@ -579,7 +579,7 @@ NWC24Err NWC24iMBoxCheck(NWC24MBoxType type, u32 size) {
             return NWC24_ERR_FULL;
     } else if (type == NWC24_MBOX_TYPE_RECV) {
         while (mailbox.header->numMessages >= mailbox.header->capacity || mailbox.header->freeBytes <= required) {
-            GetOldestMsgId(mailbox.header, &mailbox.oldestId);
+            mailbox.oldestId = GetOldestMsgId(mailbox.header);
             err = DeleteMsg(type, mailbox.oldestId, FALSE);
             if (err != NWC24_OK)
                 return err;

@@ -1,1173 +1,281 @@
 #include <private/nwc24.h>
 
-#include <private/nwc24/NWC24Download.h>
-#include <private/nwc24/NWC24File.h>
-#include <private/nwc24/NWC24Time.h>
-#include <private/nwc24/NWC24Utils.h>
-
-#include <revolution/nwc24.h>
-#include <revolution/nwc24/NWC24Config.h>
-#include <revolution/nwc24/NWC24Manage.h>
-
 #include <revolution/nand.h>
-#include <revolution/verdefs.h>
+#include <revolution/nwc24/NWC24Dl.h>
 
-#include <string.h>
 #include <stdlib.h>
+#include <string.h>
 
-SDKDefineVersion(NWC24, "Dec 12 2008", "03:06:06");
+typedef struct {
+    u16 id;
+    u8 type;
+    u8 priority;
+    u32 flags;
+    u32 appId;
+    u32 nwc24IdHigh;
+    u32 nwc24IdLow;
+    u16 groupId;
+    u8 unknown_0x16[2];
+    u16 subTaskCount;
+    u16 unknown_0x1a;
+    u16 interval;
+    u16 intervalWait;
+    u32 unknown_0x20;
+    u8 retryCount;
+    u8 retryEnabled;
+    u8 unknown_0x26[2];
+    u32 retryMask;
+    u8 unknown_0x2c[0x88];
+    char url[0xec];
+    char fileName[0x5c];
+    u8 optOutFlags;
+    u8 unknown_0x1fd[3];
+} DlTaskData;
 
-#define NWC24_DL_HEADER_MAGIC 0x5763446C
-#define NWC24_DL_HEADER_VERSION 1
-#define NWC24_DL_HEADER_SIZE 0x800
-#define NWC24_DL_TASK_SIZE 0x200
-#define NWC24_DL_RECORD_SIZE 0x10
-#define NWC24_DL_RECORD_BASE 0x80
-#define NWC24_DL_MENU_RESERVED 8
-#define NWC24_DL_RECORD_MAX 0x20
-#define NWC24_DL_APPID_KD 0x48414541
+typedef struct {
+    u32 appId;
+    u32 nextTime;
+    u32 lastAccess;
+    u8 priority;
+    u8 reserved[3];
+} DlTaskEntry;
 
-typedef u32 (*NWC24DlIterationPredicator)(NWC24DlId id);
+typedef struct {
+    u32 magic;
+    u32 version;
+    u32 unknown_0x08;
+    u16 unknown_0x0c;
+    u16 unknown_0x0e;
+    u16 legacyTaskCount;
+    u16 taskCount;
+    u16 maxTaskCount;
+    u8 unknown_0x16[0x6a];
+    DlTaskEntry entries[NWC24_DL_TASK_MAX];
+} DlTaskListHeader;
+
+typedef struct {
+    u32 sortMode;
+    s32 comparisonValue;
+    s32 selectedValue;
+    u32 comparisonId;
+    u32 initialized;
+    u32 valid;
+} DlTaskIterationState;
 
 static char* DLFilePath = "/shared2/wc24/nwc24dl.bin";
+static BOOL NWC24iLaxParameterCheck;
 
-static u32 NWC24iLaxParameterCheck;
+NWC24Err NWC24iLoadDlHeader();
+NWC24Err NWC24iCheckDlHeaderConsistency(NWC24DlHeader* header, BOOL repair);
+NWC24Err NWC24iCreateDlTaskList();
+NWC24Err NWC24iOpenDlTaskList();
+NWC24Err StoreDlTask(NWC24DlTask* dlTask) NO_INLINE;
+NWC24Err AddTaskInternal(NWC24DlTask* dlTask, u16 taskCount, u16 maxTaskCount);
+NWC24Err DeleteDlTask(NWC24DlTask* dlTask) NO_INLINE;
+static s32 IterationPredicatorLastAccess(NWC24DlId taskId);
+static s32 IterationPredicatorNextTime(NWC24DlId taskId);
+static s32 IterationPredicatorPriority(NWC24DlId taskId);
 
-static inline NWC24DlHeader* GetDlTaskListHead() {
-    return NWC24WorkP != NULL ? (NWC24DlHeader*)NWC24WorkP->dlHead : NULL;
+static inline DlTaskListHeader* GetCachedDlHeader(void) {
+    if (NWC24WorkP != NULL) {
+        return (DlTaskListHeader*)NWC24WorkP->dlHead;
+    }
+    return NULL;
 }
 
-static inline NWC24DlTaskEx* GetDlTaskWork() {
-    return (NWC24DlTaskEx*)NWC24WorkP->dlTask;
+static inline BOOL IsDlTaskOwner(u32 appId) {
+    return (appId & 0xffffff00) == (NWC24GetAppId() & 0xffffff00);
 }
 
-static u32 IterationPredicatorLastAccess(NWC24DlId id);
-static u32 IterationPredicatorNextTime(NWC24DlId id);
-static u32 IterationPredicatorPriority(NWC24DlId id);
+static inline BOOL IsDlTaskGroupWritable(u16 groupId, u32 flags) {
+    return (flags & 0x40) && groupId == NWC24GetGroupId();
+}
 
-static NWC24Err StoreDlTask(NWC24DlTask* dlTask);
-static NWC24Err AddTaskInternal(NWC24DlTask* dlTask, u16 first, u16 last);
-static NWC24Err DeleteDlTask(NWC24DlTask* dlTask);
+static inline NWC24Err ValidateDlTask(const NWC24DlTask* dlTask, BOOL write) {
+    const DlTaskData* task = (const DlTaskData*)dlTask;
+    DlTaskListHeader* header = GetCachedDlHeader();
+    if (task == NULL) {
+        return NWC24_ERR_INVALID_VALUE;
+    }
+    if (header == NULL) {
+        return NWC24_ERR_LIB_NOT_OPENED;
+    }
+    if (write && !NWC24IsMsgLibOpenedByTool() && !IsDlTaskOwner(task->appId)) {
+        if (!IsDlTaskGroupWritable(task->groupId, task->flags)) {
+            return NWC24_ERR_PROTECTED;
+        }
+    }
+    if (task->id != 0xffff && task->id >= header->maxTaskCount) {
+        return NWC24_ERR_INVALID_VALUE;
+    }
+    return NWC24_OK;
+}
+
+static inline NWC24Err SeekDlTaskEntry(u16 taskId, NWC24File* file) {
+    DlTaskListHeader* header = GetCachedDlHeader();
+    if (header->maxTaskCount > NWC24_DL_TASK_MAX || taskId >= header->maxTaskCount) {
+        return NWC24_ERR_INVALID_VALUE;
+    }
+    return NWC24FSeek(file, 0x800 + taskId * 0x200, NWC24_SEEK_BEG);
+}
+
+static inline NWC24Err WriteDlTaskEntry(DlTaskData* task, NWC24File* file) {
+    NWC24Err result = SeekDlTaskEntry(task->id, file);
+    if (result < NWC24_OK) {
+        return result;
+    }
+    memcpy(NWC24WorkP->dlTask, task, sizeof(*task));
+    result = NWC24FWrite(NWC24WorkP->dlTask, sizeof(*task), file);
+    if (result < NWC24_OK) {
+        return result;
+    }
+    return NWC24_OK;
+}
+
+static inline NWC24Err WriteDlHeader(NWC24File* file) {
+    NWC24Err result = NWC24FSeek(file, 0, NWC24_SEEK_BEG);
+    if (result < NWC24_OK) {
+        return result;
+    }
+    result = NWC24FWrite(GetCachedDlHeader(), 0x800, file);
+    if (result < NWC24_OK) {
+        return result;
+    }
+    return NWC24_OK;
+}
+
+static inline NWC24Err UpdateDlEntryHeader(DlTaskData* task) {
+    u16 taskId = task->id;
+    DlTaskListHeader* header = GetCachedDlHeader();
+    DlTaskEntry* entry = &header->entries[taskId];
+    entry->appId = task->appId;
+    entry->priority = task->priority;
+    return NWC24_OK;
+}
+
+static inline void InitDlEntryHeader(u16 taskId) {
+    DlTaskListHeader* header = (DlTaskListHeader*)NWC24WorkP->dlHead;
+    memset(&header->entries[taskId], 0, sizeof(header->entries[taskId]));
+}
+
+static inline NWC24Err ClearDlTaskEntry(u16 taskId, NWC24File* file) {
+    DlTaskData* task = (DlTaskData*)NWC24WorkP->dlTask;
+    memset(task, 0, sizeof(*task));
+    task->type = 0xff;
+    task->id = taskId;
+    InitDlEntryHeader(taskId);
+    return WriteDlTaskEntry(task, file);
+}
 
 NWC24Err NWC24InitDlTask(NWC24DlTask* dlTask, NWC24DLType dlType) {
-    NWC24DlTaskEx* task = (NWC24DlTaskEx*)dlTask;
-    u32 userIdLow;
-    u32 userIdHigh;
-    char homeDir[0x40] = {0};
+    char homePath[64] = {0};
+    u32 nwc24IdHigh;
+    u32 nwc24IdLow;
+    DlTaskData* task;
+    DlTaskListHeader* header;
+    NWC24Err result;
+    BOOL allowed;
+    BOOL useContentFile;
 
-    NANDGetHomeDir(homeDir);
-    homeDir[0xF] = 0;
-    userIdLow = strtoul(homeDir + 7, NULL, 16);
-    homeDir[0x18] = 0;
-    userIdHigh = strtoul(homeDir + 0x10, NULL, 16);
+    NANDGetHomeDir(homePath);
+    homePath[0x0f] = '\0';
+    nwc24IdHigh = strtoul(homePath + 7, NULL, 16);
+    homePath[0x18] = '\0';
+    nwc24IdLow = strtoul(homePath + 0x10, NULL, 16);
 
-    if (GetDlTaskListHead() == NULL) {
+    if (NWC24WorkP != NULL) {
+        header = (DlTaskListHeader*)NWC24WorkP->dlHead;
+    } else {
+        header = NULL;
+    }
+
+    if (header == NULL) {
         return NWC24_ERR_LIB_NOT_OPENED;
     }
-
-    if (task == NULL) {
+    if (dlTask == NULL) {
+        return NWC24_ERR_INVALID_VALUE;
+    }
+    if (dlType >= 4) {
         return NWC24_ERR_INVALID_VALUE;
     }
 
-    if (dlType >= NWC24_DLTYPE_OCTETSTREAM_V2 + 1) {
-        return NWC24_ERR_INVALID_VALUE;
-    }
-
-    memset(task, 0, sizeof(NWC24DlTaskEx));
-    task->dlType = dlType;
-    task->priority = 0x7F;
+    memset(dlTask, 0, sizeof(*dlTask));
+    task = (DlTaskData*)dlTask;
+    task->type = dlType;
+    task->priority = 0x7f;
     task->appId = NWC24GetAppId();
     task->groupId = NWC24GetGroupId();
-    task->userIdLow = userIdLow;
-    task->userIdHigh = userIdHigh;
-    task->id = 0xFFFF;
-    task->numSubTasks = 1;
-    task->interval = 0xB40;
-    task->subInterval = 0x5A0;
+    task->nwc24IdHigh = nwc24IdHigh;
+    task->nwc24IdLow = nwc24IdLow;
+    task->id = 0xffff;
+    task->subTaskCount = 1;
+    task->interval = 0x0b40;
+    task->intervalWait = 0x05a0;
 
-    {
-        BOOL hasFileName;
-        if (dlType == NWC24_DLTYPE_OCTETSTREAM_V1 || dlType == NWC24_DLTYPE_OCTETSTREAM_V2) {
-            hasFileName = TRUE;
-        } else {
-            hasFileName = FALSE;
-        }
-
-        if (hasFileName) {
-            strcpy(task->fileName, "content.bin");
-        }
+    useContentFile = FALSE;
+    if (dlType == NWC24_DLTYPE_OCTETSTREAM_V1 || dlType == NWC24_DLTYPE_OCTETSTREAM_V2) {
+        useContentFile = TRUE;
+    }
+    if (useContentFile) {
+        strcpy(task->fileName, "content.bin");
     }
 
-    {
-        NWC24DlHeader* dlHead = GetDlTaskListHead();
-        NWC24Err result;
-
-        if (task == NULL) {
-            result = NWC24_ERR_INVALID_VALUE;
-        } else if (dlHead == NULL) {
-            result = NWC24_ERR_LIB_NOT_OPENED;
-        } else {
-            if (NWC24IsMsgLibOpenedByTool() == FALSE) {
-                u32 appId = task->appId;
-                BOOL eq = (appId & 0xFFFFFF00) == (NWC24GetAppId() & 0xFFFFFF00);
-                if (eq == FALSE) {
-                    BOOL owned = FALSE;
-                    u16 groupId = task->groupId;
-                    if ((task->flags & 0x40) != 0) {
-                        if (groupId == (u16)NWC24GetGroupId()) {
-                            owned = TRUE;
-                        }
-                    }
-
-                    if (owned == FALSE) {
-                        result = NWC24_ERR_PROTECTED;
-                        goto done;
-                    }
-                }
-            }
-
-            if (task->id != 0xFFFF && task->id >= dlHead->numTasks) {
-                result = NWC24_ERR_INVALID_VALUE;
-            } else {
-                result = NWC24_OK;
-            }
-        }
-
-    done:
-        return result >> 31;
+    if (NWC24WorkP != NULL) {
+        header = (DlTaskListHeader*)NWC24WorkP->dlHead;
+    } else {
+        header = NULL;
     }
-}
-
-NWC24Err NWC24IterateDlTask(NWC24DlId* dlIterateId, BOOL begin) {
-    NWC24DlHeader* dlHead;
-    u32 id;
-    NWC24Err result;
-
-    if (GetDlTaskListHead() == NULL) {
+    if (dlTask == NULL) {
+        return NWC24_ERR_INVALID_VALUE;
+    }
+    if (header == NULL) {
         return NWC24_ERR_LIB_NOT_OPENED;
     }
 
-    if (dlIterateId == NULL) {
-        return NWC24_ERR_INVALID_VALUE;
-    }
-
-    if (begin != FALSE) {
-        *dlIterateId = 0;
-    } else {
-        *dlIterateId = *dlIterateId + 1;
-    }
-
-    dlHead = GetDlTaskListHead();
-    id = *dlIterateId;
-    if (id >= dlHead->numTasks) {
-        return NWC24_ERR_DONE;
-    }
-
-    while ((u16)id < GetDlTaskListHead()->numTasks) {
-        dlHead = GetDlTaskListHead();
-        if ((u16)id >= dlHead->numTasks || (u16)id == 0xFFFF) {
-            result = NWC24_ERR_INVALID_VALUE;
-        } else if (GetDlTaskListHead()->infos[(u16)id].used == 0) {
-            result = NWC24_ERR_NOT_FOUND;
-        } else {
-            result = NWC24_OK;
-        }
-
-        if (result >= NWC24_OK) {
-            *dlIterateId = id;
-            return NWC24_OK;
-        }
-
-        id = id + 1;
-    }
-
-    return NWC24_ERR_DONE;
-}
-
-NWC24Err NWC24IterateDlTaskEx(NWC24DlIterateWork* dlIterateWork, NWC24DlId* dlIterateId) {
-    NWC24DlIterationPredicator predicator;
-    int descending;
-    NWC24DlId id;
-    int found = 0;
-    NWC24Err result;
-    int type;
-
-    if (dlIterateWork->unk_0x14 == 0) {
-        return NWC24_ERR_INVALID_VALUE;
-    }
-
-    type = (u16)dlIterateWork->unk_0x00;
-    descending = (u32)dlIterateWork->unk_0x00 >> 31;
-
-    switch (type) {
-    case 0:
-        predicator = IterationPredicatorLastAccess;
-        break;
-    case 1:
-        predicator = IterationPredicatorNextTime;
-        break;
-    case 2:
-        predicator = IterationPredicatorPriority;
-        break;
-    default:
-        return NWC24_ERR_INVALID_VALUE;
-    }
-
-    if (dlIterateWork->unk_0x10 == 0) {
-        result = NWC24IterateDlTask(&id, TRUE);
-        while (result >= NWC24_OK) {
-            s32 value = predicator(id);
-            if (value == dlIterateWork->unk_0x04) {
-                if (dlIterateWork->unk_0x0C < id) {
-                    *dlIterateId = id;
-                    dlIterateWork->unk_0x04 = value;
-                    dlIterateWork->unk_0x08 = value;
-                    dlIterateWork->unk_0x0C = id;
-                    return NWC24_OK;
-                }
-            }
-            result = NWC24IterateDlTask(&id, FALSE);
-        }
-    } else {
-        dlIterateWork->unk_0x10 = 0;
-    }
-
-    if ((dlIterateWork->unk_0x00 & 0x80000000) == 0) {
-        dlIterateWork->unk_0x04 = 0x7FFFFFFF;
-    } else {
-        dlIterateWork->unk_0x04 = 0x80000001;
-    }
-
-    result = NWC24IterateDlTask(&id, TRUE);
-    while (result >= NWC24_OK) {
-        s32 value = predicator(id);
-        int better;
-
-        s32 bound = dlIterateWork->unk_0x08;
-        better = descending ? value > bound : value < bound;
-
-        if (better) {
-            bound = dlIterateWork->unk_0x04;
-            better = descending ? value > bound : value < bound;
-
-            if (better) {
-                *dlIterateId = id;
-                dlIterateWork->unk_0x04 = value;
-                dlIterateWork->unk_0x0C = id;
-                found = 1;
-            }
-        }
-
-        result = NWC24IterateDlTask(&id, FALSE);
-    }
-
-    if (found) {
-        dlIterateWork->unk_0x08 = dlIterateWork->unk_0x04;
-        return NWC24_OK;
-    }
-
-    dlIterateWork->unk_0x14 = 0;
-    return NWC24_ERR_DONE;
-}
-
-NWC24Err NWC24ManageDlTaskListForMenu() {
-    NWC24DlHeader* dlHead;
-    NWC24Err result;
-    NWC24DlTaskEx task;
-    NWC24File file;
-    NWC24Err res2;
-    u16 numTasks;
-
-    dlHead = GetDlTaskListHead();
-    if (dlHead == NULL) {
-        result = NWC24_ERR_LIB_NOT_OPENED;
-        goto check;
-    }
-    numTasks = dlHead->numTasks;
     result = NWC24_OK;
-
-check:
-    if (result < NWC24_OK) {
-        return result;
+    allowed = NWC24IsMsgLibOpenedByTool();
+    if (!allowed) {
+        u32 taskAppId = task->appId;
+        u32 appId = NWC24GetAppId();
+        allowed = (taskAppId & 0xffffff00) == (appId & 0xffffff00);
+        if (!allowed) {
+            allowed = FALSE;
+            if (task->flags & 0x40) {
+                if (task->groupId == NWC24GetGroupId()) {
+                    allowed = TRUE;
+                }
+            }
+            if (!allowed) {
+                result = NWC24_ERR_PROTECTED;
+            }
+        }
     }
 
-    if (numTasks >= NWC24_DL_TASK_MAX) {
-        return NWC24_OK;
-    }
-
-    result = NWC24ExtendDlTaskList(NWC24_DL_TASK_MAX);
-    if (result < NWC24_OK) {
-        return result;
-    }
-
-    if (GetDlTaskListHead() == NULL) {
-        result = NWC24_ERR_LIB_NOT_OPENED;
-        goto check_hidden;
-    }
-    if (GetDlTaskListHead()->numTasks <= 2) {
+    if (result == NWC24_OK && task->id != 0xffff && task->id >= header->maxTaskCount) {
         result = NWC24_ERR_INVALID_VALUE;
-    } else if (GetDlTaskListHead()->infos[2].used == 0) {
-        result = NWC24_ERR_NOT_FOUND;
-    } else {
-        result = NWC24_OK;
-    }
-    if (result < NWC24_OK) {
-        goto check_hidden;
     }
 
-    result = NWC24FOpen(&file, DLFilePath, 0xA);
-    if (result < NWC24_OK) {
-        goto check_hidden;
-    }
-
-    numTasks = GetDlTaskListHead()->numTasks;
-    if (numTasks > NWC24_DL_TASK_MAX || numTasks <= 2) {
-        result = NWC24_ERR_INVALID_VALUE;
-    } else {
-        result = NWC24FSeek(&file, 0xC00, NWC24_SEEK_BEG);
-    }
-
-    if (result < NWC24_OK) {
-        res2 = result;
-        goto close;
-    }
-    result = NWC24FRead(&task, NWC24_DL_TASK_SIZE, &file);
-    res2 = result < NWC24_OK ? result : NWC24_OK;
-close:
-    NWC24FClose(&file);
-    if (res2 != NWC24_OK) {
-        result = res2;
-    }
-
-check_hidden:
-    if (result == NWC24_ERR_NOT_FOUND) {
-        return NWC24_OK;
-    }
-
-    if (result < NWC24_OK) {
-        return result;
-    }
-
-    {
-        NWC24Err res;
-
-        dlHead = GetDlTaskListHead();
-        if (&task == NULL) {
-            res = NWC24_ERR_INVALID_VALUE;
-        } else if (dlHead == NULL) {
-            res = NWC24_ERR_LIB_NOT_OPENED;
-        } else if (task.id != 0xFFFF && task.id >= dlHead->numTasks) {
-            res = NWC24_ERR_INVALID_VALUE;
-        } else {
-            res = NWC24_OK;
-        }
-
-        if (res != NWC24_OK) {
-            return res;
-        }
-
-        res = DeleteDlTask((NWC24DlTask*)&task);
-        res2 = res;
-        if (res >= NWC24_OK) {
-            task.id = 0xFFFF;
-        }
-        return res2;
-    }
-}
-
-NWC24Err NWC24UpdateDlTask(NWC24DlTask* dlTask) {
-    NWC24DlTaskEx* task = (NWC24DlTaskEx*)dlTask;
-    NWC24DlHeader* dlHead = GetDlTaskListHead();
-    NWC24Err result;
-
-    if (task == NULL) {
-        result = NWC24_ERR_INVALID_VALUE;
-    } else if (dlHead == NULL) {
-        result = NWC24_ERR_LIB_NOT_OPENED;
-    } else {
-        if (NWC24IsMsgLibOpenedByTool() == FALSE) {
-            u32 appId = task->appId;
-            BOOL eq = (appId & 0xFFFFFF00) == (NWC24GetAppId() & 0xFFFFFF00);
-            if (eq == FALSE) {
-                BOOL owned = FALSE;
-                u16 groupId = task->groupId;
-                if ((task->flags & 0x40) != 0) {
-                if (groupId == (u16)NWC24GetGroupId()) {
-                    owned = TRUE;
-                    }
-                }
-
-                if (owned == FALSE) {
-                    result = NWC24_ERR_PROTECTED;
-                    goto check;
-                }
-            }
-        }
-
-        if (task->id != 0xFFFF && task->id >= dlHead->numTasks) {
-            result = NWC24_ERR_INVALID_VALUE;
-        } else {
-            result = NWC24_OK;
-        }
-    }
-
-check:
-    if (result != NWC24_OK) {
-        return result;
-    }
-
-    if (task->id == 0xFFFF || task->id >= GetDlTaskListHead()->numTasks) {
-        return NWC24_ERR_INVALID_VALUE;
-    }
-
-    {
-        OSTime time;
-        NWC24Err res;
-        NWC24Err res2;
-        NWC24DlHeader* dlHead2;
-
-        res = NWC24iGetUniversalTime(&time);
-        if (res < NWC24_OK) {
-            res2 = res;
-        } else {
-            dlHead2 = GetDlTaskListHead();
-            if (task == NULL) {
-                res2 = NWC24_ERR_INVALID_VALUE;
-            } else if (dlHead2 == NULL) {
-                res2 = NWC24_ERR_LIB_NOT_OPENED;
-            } else if (task->id != 0xFFFF && task->id >= dlHead2->numTasks) {
-                res2 = NWC24_ERR_INVALID_VALUE;
-            } else {
-                res2 = NWC24_OK;
-            }
-
-            if (res2 != NWC24_OK) {
-                goto time_merge;
-            }
-            if (task->id == 0xFFFF) {
-                res2 = NWC24_ERR_FAILED;
-            } else {
-                GetDlTaskListHead()->infos[task->id].lastAccess = (u32)(time / 0x3C);
-                res2 = NWC24_OK;
-            }
-
-time_merge:
-            res = res2;
-            if (res2 >= NWC24_OK) {
-                res2 = res;
-            }
-        }
-
-        if (res2 < NWC24_OK) {
-            return res2;
-        }
-    }
-
-    {
-        NWC24Err res;
-
-        dlHead = GetDlTaskListHead();
-        if (task == NULL) {
-            res = NWC24_ERR_INVALID_VALUE;
-        } else if (dlHead == NULL) {
-            res = NWC24_ERR_LIB_NOT_OPENED;
-        } else {
-            if (NWC24IsMsgLibOpenedByTool() == FALSE) {
-                u32 appId = task->appId;
-                BOOL eq = (appId & 0xFFFFFF00) == (NWC24GetAppId() & 0xFFFFFF00);
-                if (eq == FALSE) {
-                    BOOL owned = FALSE;
-                    u16 groupId = task->groupId;
-                    if ((task->flags & 0x40) != 0) {
-                    if (groupId == (u16)NWC24GetGroupId()) {
-                        owned = TRUE;
-                        }
-                    }
-
-                    if (owned == FALSE) {
-                        res = NWC24_ERR_PROTECTED;
-                        goto checked;
-                    }
-                }
-            }
-
-            if (task->id != 0xFFFF && task->id >= dlHead->numTasks) {
-                res = NWC24_ERR_INVALID_VALUE;
-            } else {
-                res = NWC24_OK;
-            }
-        }
-
-    checked:
-        if (res == NWC24_OK) {
-            task->unk_0x20 = 0;
-            task->processedSubTasks = 0;
-        }
-    }
-
-    if (task->stType == NWC24_DL_STTYPE_INCREMENT) {
-        for (;;) {
-            u8 idx;
-            NWC24Err res;
-
-            idx = task->subTaskIndex;
-            dlHead = GetDlTaskListHead();
-            if (task == NULL) {
-                res = NWC24_ERR_INVALID_VALUE;
-            } else if (dlHead == NULL) {
-                res = NWC24_ERR_LIB_NOT_OPENED;
-            } else if (task->id != 0xFFFF && task->id >= dlHead->numTasks) {
-                res = NWC24_ERR_INVALID_VALUE;
-            } else {
-                res = NWC24_OK;
-            }
-
-            if (res == NWC24_OK) {
-                if (task->stType == 0) {
-                    res = NWC24_ERR_INVALID_OPERATION;
-                } else if (task->stFlags == 0) {
-                    res = NWC24_ERR_FATAL;
-                } else if (idx > NWC24_DL_SUBTASK_MAX - 1) {
-                    res = NWC24_ERR_INVALID_VALUE;
-                } else if ((task->stFlags & (1 << idx)) == 0) {
-                    res = NWC24_ERR_DISABLED;
-                } else {
-                    res = NWC24_OK;
-                }
-            }
-
-            if (res != NWC24_ERR_DISABLED) {
-                if (res < NWC24_OK) {
-                    return res;
-                }
-                break;
-            }
-            task->subTaskIndex = (idx + 1) & 0x1F;
-        }
-    }
-
-    return StoreDlTask(dlTask);
-}
-
-NWC24Err NWC24iLoadDlHeader() {
-    NWC24DlHeader* dlHead;
-    NWC24Err result;
-    NWC24Err res;
-    NWC24Err res2 = NWC24_OK;
-    NWC24File file;
-    u32 length = 0;
-
-    result = NWC24FOpen(&file, DLFilePath, 2);
-    if (result < NWC24_OK) {
-        return result;
-    }
-
-    res = NWC24FSeek(&file, 0, NWC24_SEEK_BEG);
-    if (res < NWC24_OK) {
-        goto check;
-    }
-    res = NWC24FRead((NWC24DlHeader*)NWC24WorkP->dlHead, NWC24_DL_HEADER_SIZE, &file);
-    if (res < NWC24_OK) {
-        res2 = res;
-    }
-    res = res2;
-
-check:
-    if (res < NWC24_OK) {
-        return res;
-    }
-
-    res = NWC24FGetLength(&file, &length);
-    if (res >= NWC24_OK) {
-        dlHead = GetDlTaskListHead();
-        if (dlHead->numTasks == 0 && dlHead->numTasksInFile != 0) {
-            NWC24File file2;
-
-            dlHead->numTasks = dlHead->numTasksInFile;
-            if (dlHead->numTasksInFile > NWC24_DL_RECORD_MAX) {
-                dlHead->numTasksInFile = NWC24_DL_RECORD_MAX;
-            }
-
-            res = NWC24FOpen(&file2, DLFilePath, 4);
-            if (res >= NWC24_OK) {
-                res = NWC24FSeek(&file2, 0, NWC24_SEEK_BEG);
-                if (res >= NWC24_OK) {
-                    NWC24FWrite(GetDlTaskListHead(), NWC24_DL_HEADER_SIZE, &file2);
-                }
-                NWC24FClose(&file2);
-            }
-        }
-
-        if (dlHead->numTasks < 1 || dlHead->minTasks < 1 || dlHead->numTasks < dlHead->minTasks) {
-            res = NWC24_ERR_BROKEN;
-        } else {
-            res = NWC24_OK;
-        }
-    }
-
-    res2 = NWC24FClose(&file);
-    if (res != NWC24_OK) {
-        res2 = res;
-    }
-
-    return res2;
-}
-
-NWC24Err NWC24ExtendDlTaskList(u32 num) {
-    NWC24DlHeader* dlHead;
-    NWC24Err result;
-    NWC24Err res;
-    NWC24Err res2;
-    NWC24File file;
-    u16 id;
-
-    dlHead = GetDlTaskListHead();
-    if (dlHead == NULL) {
-        return NWC24_ERR_LIB_NOT_OPENED;
-    }
-
-    id = dlHead->numTasks;
-    if (num > NWC24_DL_TASK_MAX || id > num) {
-        return NWC24_ERR_INVALID_VALUE;
-    }
-    if (id == num) {
-        return NWC24_OK;
-    }
-    dlHead->numTasks = num;
-
-    result = NWC24FOpen(&file, DLFilePath, 4);
-    if (result < NWC24_OK) {
-        return result;
-    }
-
-    for (; id < num; ) {
-        NWC24DlTaskEx* task = GetDlTaskWork();
-
-        memset(task, 0, NWC24_DL_TASK_SIZE);
-        task->dlType = 0xFF;
-        task->id = id;
-        memset((NWC24DlTaskInfo*)((u8*)NWC24WorkP + 0x3680) + id, 0, sizeof(NWC24DlTaskInfo));
-
-        if (GetDlTaskListHead()->numTasks > NWC24_DL_TASK_MAX || task->id >= GetDlTaskListHead()->numTasks) {
-            res = NWC24_ERR_INVALID_VALUE;
-        } else {
-            res = NWC24FSeek(&file, task->id * NWC24_DL_TASK_SIZE + NWC24_DL_HEADER_SIZE, NWC24_SEEK_BEG);
-        }
-        if (res < NWC24_OK) {
-            goto close;
-        }
-
-        memcpy(GetDlTaskWork(), task, NWC24_DL_TASK_SIZE);
-        res = NWC24FWrite(GetDlTaskWork(), NWC24_DL_TASK_SIZE, &file);
-        res2 = res < NWC24_OK ? res : NWC24_OK;
-        res = res2;
-        res2 = res;
-        if (res < NWC24_OK) {
-            goto close;
-        }
-        id++;
-    }
-
-    res = NWC24FSeek(&file, 0, NWC24_SEEK_BEG);
-    if (res >= NWC24_OK) {
-        res = NWC24FWrite(GetDlTaskListHead(), NWC24_DL_HEADER_SIZE, &file);
-        res = res < NWC24_OK ? res : NWC24_OK;
-    }
-
-close:
-    res2 = NWC24FClose(&file);
-    if (res != NWC24_OK) {
-        res2 = res;
-    }
-    res = NWC24iLoadDlHeader();
-    if (res2 != NWC24_OK) {
-        res = res2;
-    }
-    return res;
-}
-
-NWC24Err NWC24iCheckDlHeaderConsistency(NWC24DlHeader* dlHead, BOOL fixBroken) {
-    u32 i;
-    NWC24Err result;
-    NWC24Err res;
-    NWC24Err res2;
-    NWC24DlTaskEx task;
-    NWC24File file;
-
-    i = 0;
-    while ((u16)i < dlHead->numTasks) {
-        if ((u16)i >= GetDlTaskListHead()->numTasks || (u16)i == 0xFFFF) {
-            result = NWC24_ERR_INVALID_VALUE;
-        } else if (GetDlTaskListHead()->infos[i].used == 0) {
-            result = NWC24_ERR_NOT_FOUND;
-        } else {
-            result = NWC24_OK;
-        }
-
-        if (result == NWC24_OK && fixBroken != FALSE) {
-            if (GetDlTaskListHead() == NULL) {
-                result = NWC24_ERR_LIB_NOT_OPENED;
-                goto merge;
-            }
-
-            if ((u16)i >= GetDlTaskListHead()->numTasks || (u16)i == 0xFFFF) {
-                result = NWC24_ERR_INVALID_VALUE;
-            } else if (GetDlTaskListHead()->infos[i].used == 0) {
-                result = NWC24_ERR_NOT_FOUND;
-            } else {
-                result = NWC24_OK;
-            }
-
-            if (result < NWC24_OK) {
-                goto merge;
-            }
-
-            result = NWC24FOpen(&file, DLFilePath, 0xA);
-            if (result < NWC24_OK) {
-                goto merge;
-            }
-
-            if (GetDlTaskListHead()->numTasks > NWC24_DL_TASK_MAX || (u16)i >= GetDlTaskListHead()->numTasks) {
-                result = NWC24_ERR_INVALID_VALUE;
-            } else {
-                result = NWC24FSeek(&file, i * NWC24_DL_TASK_SIZE + NWC24_DL_HEADER_SIZE, NWC24_SEEK_BEG);
-            }
-
-            if (result < NWC24_OK) {
-                res2 = result;
-            } else {
-                result = NWC24FRead(&task, NWC24_DL_TASK_SIZE, &file);
-                res2 = result < NWC24_OK ? result : NWC24_OK;
-            }
-            NWC24FClose(&file);
-            if (res2 != NWC24_OK) {
-                result = res2;
-            }
-
-        merge:
-            if (result < NWC24_OK) {
-                NWC24DlHeader* head = GetDlTaskListHead();
-                if (&task == NULL) {
-                    res = NWC24_ERR_INVALID_VALUE;
-                } else if (head == NULL) {
-                    res = NWC24_ERR_LIB_NOT_OPENED;
-                } else if (task.id != 0xFFFF && task.id >= head->numTasks) {
-                    res = NWC24_ERR_INVALID_VALUE;
-                } else {
-                    res = NWC24_OK;
-                }
-
-                if (res == NWC24_OK) {
-                    res = DeleteDlTask((NWC24DlTask*)&task);
-                    if (res >= NWC24_OK) {
-                        task.id = 0xFFFF;
-                    }
-                }
-            } else {
-                NWC24DlHeader* head = GetDlTaskListHead();
-                if ((u16)i >= head->minTasks && (s16)task.numSubTasks == 0) {
-                    head = GetDlTaskListHead();
-                    if (&task == NULL) {
-                        res = NWC24_ERR_INVALID_VALUE;
-                    } else if (head == NULL) {
-                        res = NWC24_ERR_LIB_NOT_OPENED;
-                    } else if (task.id != 0xFFFF && task.id >= head->numTasks) {
-                        res = NWC24_ERR_INVALID_VALUE;
-                    } else {
-                        res = NWC24_OK;
-                    }
-
-                    if (res == NWC24_OK) {
-                        res = DeleteDlTask((NWC24DlTask*)&task);
-                        if (res >= NWC24_OK) {
-                            task.id = 0xFFFF;
-                        }
-                    }
-                }
-            }
-        }
-
-        i++;
-    }
-
-    return NWC24_OK;
-}
-
-NWC24Err NWC24iCloseDlTaskList() {
-    return NWC24_OK;
-}
-
-NWC24Err NWC24iOpenDlTaskList() {
-    NWC24Err result;
-
-    result = NWC24iLoadDlHeader();
-    if (result < NWC24_OK) {
-        return result;
-    }
-
-    NWC24iSynchronizeRtcCounter(FALSE);
-
-    result = NWC24iCheckDlHeaderConsistency(GetDlTaskListHead(), FALSE);
-    if (result < NWC24_OK) {
-        return result;
-    }
-
-    return NWC24_OK;
-}
-
-NWC24Err NWC24SetDlPriority(NWC24DlTask* dlTask, u8 dlPrio) {
-    NWC24DlTaskEx* task = (NWC24DlTaskEx*)dlTask;
-    NWC24DlHeader* dlHead = GetDlTaskListHead();
-    NWC24Err result;
-
-    if (task == NULL) {
-        result = NWC24_ERR_INVALID_VALUE;
-    } else if (dlHead == NULL) {
-        result = NWC24_ERR_LIB_NOT_OPENED;
-    } else {
-        if (NWC24IsMsgLibOpenedByTool() == FALSE) {
-            u32 appId = task->appId;
-            BOOL eq = (appId & 0xFFFFFF00) == (NWC24GetAppId() & 0xFFFFFF00);
-            if (eq == FALSE) {
-                BOOL owned = FALSE;
-                u16 groupId = task->groupId;
-                if ((task->flags & 0x40) != 0) {
-                if (groupId == (u16)NWC24GetGroupId()) {
-                    owned = TRUE;
-                    }
-                }
-
-                if (owned == FALSE) {
-                    result = NWC24_ERR_PROTECTED;
-                    goto done;
-                }
-            }
-        }
-
-        if (task->id != 0xFFFF && task->id >= dlHead->numTasks) {
-            result = NWC24_ERR_INVALID_VALUE;
-        } else {
-            result = NWC24_OK;
-        }
-    }
-
-done:
-    if (result != NWC24_OK) {
-        return result;
-    }
-
-    task->priority = dlPrio;
-    return NWC24_OK;
-}
-
-static NWC24Err DeleteDlTask(NWC24DlTask* dlTask) {
-    NWC24DlTaskEx* task = (NWC24DlTaskEx*)dlTask;
-    NWC24DlTaskEx* work;
-    NWC24Err result;
-    NWC24Err res;
-    NWC24Err res2;
-    NWC24File file;
-    u16 id;
-
-    result = NWC24FOpen(&file, DLFilePath, 4);
-    if (result < NWC24_OK) {
-        return result;
-    }
-
-    work = GetDlTaskWork();
-    id = task->id;
-    memset(work, 0, NWC24_DL_TASK_SIZE);
-    work->dlType = 0xFF;
-    work->id = id;
-    memset((NWC24DlTaskInfo*)((u8*)NWC24WorkP + 0x3680) + id, 0, sizeof(NWC24DlTaskInfo));
-
-    {
-        u16 numTasks = GetDlTaskListHead()->numTasks;
-        if (numTasks > NWC24_DL_TASK_MAX || work->id >= numTasks) {
-            res = NWC24_ERR_INVALID_VALUE;
-        } else {
-            res = NWC24FSeek(&file, work->id * NWC24_DL_TASK_SIZE + NWC24_DL_HEADER_SIZE, NWC24_SEEK_BEG);
-        }
-    }
-
-    if (res < NWC24_OK) {
-        goto merge;
-    }
-    memcpy(GetDlTaskWork(), work, NWC24_DL_TASK_SIZE);
-    res = NWC24FWrite(GetDlTaskWork(), NWC24_DL_TASK_SIZE, &file);
-    res = res < NWC24_OK ? res : NWC24_OK;
-merge:
-    res2 = res;
-    if (res < NWC24_OK) {
-        goto close;
-    }
-    memset((NWC24DlTaskInfo*)((u8*)NWC24WorkP + 0x3680) + task->id, 0, sizeof(NWC24DlTaskInfo));
-
-    res = NWC24FSeek(&file, 0, NWC24_SEEK_BEG);
-    if (res >= NWC24_OK) {
-        res = NWC24FWrite(GetDlTaskListHead(), NWC24_DL_HEADER_SIZE, &file);
-        res = res < NWC24_OK ? res : NWC24_OK;
-    }
-    res2 = res;
-close:
-    res = NWC24FClose(&file);
-    if (res2 != NWC24_OK) {
-        res = res2;
-    }
-    return res;
-}
-
-NWC24Err NWC24DumpDlTask(NWC24DlTask* dlTask) {
-    NWC24DlTaskEx* task = (NWC24DlTaskEx*)dlTask;
-    NWC24DlHeader* dlHead = GetDlTaskListHead();
-    NWC24Err result;
-
-    if (task == NULL) {
-        result = NWC24_ERR_INVALID_VALUE;
-    } else if (dlHead == NULL) {
-        result = NWC24_ERR_LIB_NOT_OPENED;
-    } else if (task->id != 0xFFFF && task->id >= dlHead->numTasks) {
-        result = NWC24_ERR_INVALID_VALUE;
-    } else {
-        result = NWC24_OK;
-    }
-
-    return result != NWC24_OK ? result : NWC24_OK;
-}
-
-NWC24Err NWC24GetDlTask(NWC24DlTask* dlTask, NWC24DlId dlId) {
-    NWC24DlTaskEx* task = (NWC24DlTaskEx*)dlTask;
-    NWC24DlHeader* dlHead;
-    NWC24File file;
-    NWC24Err result;
-    NWC24Err res2;
-
-    if (GetDlTaskListHead() == NULL) {
-        return NWC24_ERR_LIB_NOT_OPENED;
-    }
-
-    if (dlId >= GetDlTaskListHead()->numTasks || dlId == 0xFFFF) {
-        result = NWC24_ERR_INVALID_VALUE;
-    } else if (GetDlTaskListHead()->infos[dlId].used == 0) {
-        result = NWC24_ERR_NOT_FOUND;
-    } else {
-        result = NWC24_OK;
-    }
-
-    if (result < NWC24_OK) {
-        return result;
-    }
-
-    result = NWC24FOpen(&file, DLFilePath, 0xA);
-    if (result < NWC24_OK) {
-        return result;
-    }
-
-    dlHead = GetDlTaskListHead();
-    if (dlHead->numTasks > NWC24_DL_TASK_MAX || dlId >= dlHead->numTasks) {
-        result = NWC24_ERR_INVALID_VALUE;
-    } else {
-        result = NWC24FSeek(&file, dlId * NWC24_DL_TASK_SIZE + NWC24_DL_HEADER_SIZE, NWC24_SEEK_BEG);
-    }
-
-    if (result < NWC24_OK) {
-        res2 = result;
-    } else {
-        result = NWC24FRead(task, NWC24_DL_TASK_SIZE, &file);
-        res2 = result < NWC24_OK ? result : NWC24_OK;
-    }
-
-    NWC24FClose(&file);
-    if (res2 != NWC24_OK) {
-        result = res2;
-    }
-
-done:
-    return result;
-}
-
-static NWC24Err StoreDlTask(NWC24DlTask* dlTask) {
-    NWC24DlTaskEx* task = (NWC24DlTaskEx*)dlTask;
-    NWC24DlHeader* dlHead;
-    NWC24Err result;
-    NWC24Err res;
-    NWC24Err res2;
-    NWC24File file;
-
-    result = NWC24FOpen(&file, DLFilePath, 4);
-    if (result < NWC24_OK) {
-        return result;
-    }
-
-    {
-        u16 numTasks = GetDlTaskListHead()->numTasks;
-        if (numTasks > NWC24_DL_TASK_MAX || task->id >= numTasks) {
-            res = NWC24_ERR_INVALID_VALUE;
-        } else {
-            res = NWC24FSeek(&file, task->id * NWC24_DL_TASK_SIZE + NWC24_DL_HEADER_SIZE, NWC24_SEEK_BEG);
-        }
-    }
-
-    if (res < NWC24_OK) {
-        res2 = res;
-        goto close;
-    }
-
-    memcpy(GetDlTaskWork(), task, NWC24_DL_TASK_SIZE);
-    res = NWC24FWrite(GetDlTaskWork(), NWC24_DL_TASK_SIZE, &file);
-    res = res < NWC24_OK ? res : NWC24_OK;
-
-    res2 = res;
-    if (res < NWC24_OK) {
-        goto close;
-    }
-
-    dlHead = GetDlTaskListHead();
-    dlHead->infos[task->id].used = task->appId;
-    dlHead->infos[task->id].priority = task->priority;
-    res2 = NWC24_OK;
-    if (res2 < NWC24_OK) {
-        goto close;
-    }
-
-    res = NWC24FSeek(&file, 0, NWC24_SEEK_BEG);
-    if (res >= NWC24_OK) {
-        res = NWC24FWrite(GetDlTaskListHead(), NWC24_DL_HEADER_SIZE, &file);
-        res = res < NWC24_OK ? res : NWC24_OK;
-    }
-    res2 = res;
-
-close:
-    res = NWC24FClose(&file);
-    if (res2 != NWC24_OK) {
-        res = res2;
-    }
-    return res;
-}
-
-static u32 IterationPredicatorPriority(NWC24DlId id) {
-    return GetDlTaskListHead()->infos[id].priority;
-}
-
-NWC24Err NWC24iCreateDlTaskList() {
-    NWC24DlHeader* dlHead = GetDlTaskListHead();
-    NWC24Err result;
-    NWC24Err res;
-    NWC24Err res2;
-    NWC24File file;
-    u32 i;
-
-    memset(dlHead, 0, NWC24_DL_HEADER_SIZE);
-    dlHead->magic = NWC24_DL_HEADER_MAGIC;
-    dlHead->version = NWC24_DL_HEADER_VERSION;
-    dlHead->unk_0x0C = 0;
-    dlHead->unk_0x0E = 0;
-    dlHead->numTasks = NWC24_DL_TASK_MAX;
-    dlHead->numTasksInFile = NWC24_DL_RECORD_MAX;
-    dlHead->minTasks = NWC24_DL_MENU_RESERVED;
-
-    res = NWC24FOpen(&file, DLFilePath, 1);
-    if (res < NWC24_OK) {
-        return res;
-    }
-    res = NWC24FSeek(&file, 0, NWC24_SEEK_BEG);
-    if (res >= NWC24_OK) {
-        res = NWC24FWrite(GetDlTaskListHead(), NWC24_DL_HEADER_SIZE, &file);
-        res = res < NWC24_OK ? res : NWC24_OK;
-    }
-    res2 = res;
-    if (res < NWC24_OK) {
-        goto close;
-    }
-
-    {
-        NWC24DlTaskEx* task;
-        u8 dlType = 0xFF;
-        u16 numTasks;
-
-        for (i = 0; i < NWC24_DL_TASK_MAX; i++) {
-            task = GetDlTaskWork();
-            memset(task, 0, NWC24_DL_TASK_SIZE);
-            task->dlType = dlType;
-            task->id = i;
-            memset(&dlHead->infos[i], 0, sizeof(NWC24DlTaskInfo));
-
-            numTasks = GetDlTaskListHead()->numTasks;
-            if (numTasks > NWC24_DL_TASK_MAX || task->id >= numTasks) {
-                res = NWC24_ERR_INVALID_VALUE;
-            } else {
-                res = NWC24FSeek(&file, task->id * NWC24_DL_TASK_SIZE + NWC24_DL_HEADER_SIZE, NWC24_SEEK_BEG);
-            }
-
-            if (res >= NWC24_OK) {
-                memcpy(GetDlTaskWork(), task, NWC24_DL_TASK_SIZE);
-                res = NWC24FWrite(GetDlTaskWork(), NWC24_DL_TASK_SIZE, &file);
-                res = res < NWC24_OK ? res : NWC24_OK;
-            }
-
-            res2 = res;
-            if (res < NWC24_OK) {
-                break;
-            }
-        }
-    }
-
-close:
-    res = NWC24FClose(&file);
-    if (res2 != NWC24_OK) {
-        res = res2;
-    }
-    return res;
-}
-
-NWC24Err NWC24GetDlOptOutFlags(NWC24DlTask* dlTask, u8* dlOptOutFlags) {
-    NWC24DlTaskEx* task = (NWC24DlTaskEx*)dlTask;
-    NWC24DlHeader* dlHead = NWC24WorkP != NULL ? (NWC24DlHeader*)NWC24WorkP->dlHead : NULL;
-    NWC24Err result;
-
-    if (task == NULL) {
-        result = NWC24_ERR_INVALID_VALUE;
-    } else if (dlHead == NULL) {
-        result = NWC24_ERR_LIB_NOT_OPENED;
-    } else if (task->id != 0xFFFF && task->id >= dlHead->numTasks) {
-        result = NWC24_ERR_INVALID_VALUE;
-    } else {
-        result = NWC24_OK;
-    }
-
-    if (result != NWC24_OK) {
-        return result;
-    }
-
-    if (dlOptOutFlags == NULL) {
-        return NWC24_ERR_INVALID_VALUE;
-    }
-
-    *dlOptOutFlags = task->optOutFlags;
-    return NWC24_OK;
+    return result >> 31;
 }
 
 NWC24Err NWC24SetDlId(NWC24DlTask* dlTask, NWC24DlId dlId) {
-    NWC24DlTaskEx* task = (NWC24DlTaskEx*)dlTask;
-    NWC24DlHeader* dlHead = NWC24WorkP != NULL ? (NWC24DlHeader*)NWC24WorkP->dlHead : NULL;
     NWC24Err result;
+    DlTaskData* task;
+    DlTaskListHeader* header;
+    NWC24Work* work = NWC24WorkP;
 
-    if (task == NULL) {
-        result = NWC24_ERR_INVALID_VALUE;
-    } else if (dlHead == NULL) {
-        result = NWC24_ERR_LIB_NOT_OPENED;
-    } else if (task->id != 0xFFFF && task->id >= dlHead->numTasks) {
-        result = NWC24_ERR_INVALID_VALUE;
-    } else {
-        result = NWC24_OK;
-    }
-
+    result = ValidateDlTask(dlTask, FALSE);
     if (result != NWC24_OK) {
         return result;
     }
+    task = (DlTaskData*)dlTask;
 
-    dlHead = GetDlTaskListHead();
-    if (dlId >= dlHead->numTasks) {
+    if (NWC24WorkP != NULL) {
+        header = (DlTaskListHeader*)NWC24WorkP->dlHead;
+    } else {
+        header = NULL;
+    }
+    if (dlId >= header->maxTaskCount) {
         return NWC24_ERR_INVALID_VALUE;
     }
 
@@ -1175,61 +283,114 @@ NWC24Err NWC24SetDlId(NWC24DlTask* dlTask, NWC24DlId dlId) {
     return NWC24_OK;
 }
 
-NWC24Err NWC24SetDlUrl(NWC24DlTask* dlTask, const char* dlUrl) {
-    NWC24DlTaskEx* task = (NWC24DlTaskEx*)dlTask;
-    NWC24DlHeader* dlHead = GetDlTaskListHead();
+NWC24Err NWC24SetDlPriority(NWC24DlTask* dlTask, u8 dlPriority) {
     NWC24Err result;
 
-    if (task == NULL) {
-        result = NWC24_ERR_INVALID_VALUE;
-    } else if (dlHead == NULL) {
-        result = NWC24_ERR_LIB_NOT_OPENED;
-    } else {
-        if (NWC24IsMsgLibOpenedByTool() == FALSE) {
-            u32 appId = task->appId;
-            BOOL eq = (appId & 0xFFFFFF00) == (NWC24GetAppId() & 0xFFFFFF00);
-            if (eq == FALSE) {
-                BOOL owned = FALSE;
-                u16 groupId = task->groupId;
-                if ((task->flags & 0x40) != 0) {
-                    if (groupId == (u16)NWC24GetGroupId()) {
-                        owned = TRUE;
-                    }
-                }
-
-                if (owned == FALSE) {
-                    result = NWC24_ERR_PROTECTED;
-                    goto done;
-                }
-            }
-        }
-
-        if (task->id != 0xFFFF && task->id >= dlHead->numTasks) {
-            result = NWC24_ERR_INVALID_VALUE;
-        } else {
-            result = NWC24_OK;
-        }
-    }
-
-done:
+    result = ValidateDlTask(dlTask, TRUE);
     if (result != NWC24_OK) {
         return result;
     }
 
-    result = NWC24iCheckStringLength(dlUrl, 7, 0x100);
-    if (result >= NWC24_OK) {
-        if (strncmp(dlUrl, "http://", 7) != 0 && strncmp(dlUrl, "https://", 8) != 0) {
-            result = NWC24_ERR_FORMAT;
+    ((DlTaskData*)dlTask)->priority = dlPriority;
+    return NWC24_OK;
+}
+
+NWC24Err NWC24SetDlInterval(NWC24DlTask* dlTask, u16 dlInterval) {
+    DlTaskListHeader* header;
+    DlTaskData* task;
+    u16 taskId;
+    s64 nextTime;
+    s32 intervalSeconds;
+    NWC24Work* work;
+    NWC24Err result;
+    OSTime universalTime;
+
+    result = ValidateDlTask(dlTask, TRUE);
+    if (result != NWC24_OK) {
+        return result;
+    }
+    task = (DlTaskData*)dlTask;
+
+    task = (DlTaskData*)dlTask;
+    if (!NWC24iLaxParameterCheck) {
+        if (NWC24WorkP != NULL) {
+            header = (DlTaskListHeader*)NWC24WorkP->dlHead;
         } else {
-            result = NWC24_OK;
+            header = NULL;
+        }
+        taskId = task->id;
+        if (taskId >= header->taskCount && !(task->flags & 0x40000000) && (dlInterval < 0x00b4 || dlInterval > 0x2760)) {
+            return NWC24_ERR_INVALID_VALUE;
         }
     }
 
+    if (task->interval != dlInterval) {
+        task->interval = dlInterval;
+        if (task->id != 0xffff) {
+            universalTime = 0;
+            if (NWC24iGetUniversalTime(&universalTime) >= NWC24_OK) {
+                intervalSeconds = task->interval * 60;
+                work = NWC24WorkP;
+                nextTime = (s64)universalTime + intervalSeconds;
+                if (work != NULL) {
+                    header = (DlTaskListHeader*)work->dlHead;
+                } else {
+                    header = NULL;
+                }
+                if (dlTask == NULL) {
+                    result = NWC24_ERR_INVALID_VALUE;
+                } else if (header == NULL) {
+                    result = NWC24_ERR_LIB_NOT_OPENED;
+                } else {
+                    taskId = task->id;
+                    if (taskId != 0xffff && taskId >= header->maxTaskCount) {
+                        result = NWC24_ERR_INVALID_VALUE;
+                    } else {
+                        result = NWC24_OK;
+                    }
+                }
+                if (result == NWC24_OK) {
+                    taskId = task->id;
+                    if (taskId != 0xffff) {
+                        nextTime /= 60;
+                        if (work != NULL) {
+                            header = (DlTaskListHeader*)work->dlHead;
+                        } else {
+                            header = NULL;
+                        }
+                        header->entries[taskId].nextTime = nextTime;
+                    }
+                }
+            }
+        }
+    }
+    return NWC24_OK;
+}
+
+NWC24Err NWC24SetDlUrl(NWC24DlTask* dlTask, const char* dlUrl) {
+    DlTaskData* task;
+    NWC24Err result;
+
+    result = ValidateDlTask(dlTask, TRUE);
+    if (result != NWC24_OK) {
+        return result;
+    }
+    task = (DlTaskData*)dlTask;
+    result = NWC24iCheckStringLength(dlUrl, 7, 0x100);
+    if (result < NWC24_OK) {
+        return result;
+    }
+    if (strncmp(dlUrl, "http://", 7) != 0 && strncmp(dlUrl, "https://", 8) != 0) {
+        result = NWC24_ERR_FORMAT;
+    } else {
+        result = NWC24_OK;
+    }
     if (result < NWC24_OK) {
         return result;
     }
 
-    if (NWC24iLaxParameterCheck == 0 && (task->flags & 4) != 0 && strncmp(dlUrl, "http://", 7) == 0) {
+    task = (DlTaskData*)dlTask;
+    if (!NWC24iLaxParameterCheck && (task->flags & 0x4) && strncmp(dlUrl, "http://", 7) == 0) {
         return NWC24_ERR_INVALID_VALUE;
     }
 
@@ -1237,21 +398,40 @@ done:
     return NWC24_OK;
 }
 
-NWC24Err NWC24GetDlAppId(const NWC24DlTask* dlTask, u32* dlAppId) {
-    const NWC24DlTaskEx* task = (const NWC24DlTaskEx*)dlTask;
-    NWC24DlHeader* dlHead = NWC24WorkP != NULL ? (NWC24DlHeader*)NWC24WorkP->dlHead : NULL;
+NWC24Err NWC24SetDlFlags(NWC24DlTask* dlTask, u32 dlFlags) {
+    DlTaskData* task;
     NWC24Err result;
 
-    if (task == NULL) {
-        result = NWC24_ERR_INVALID_VALUE;
-    } else if (dlHead == NULL) {
-        result = NWC24_ERR_LIB_NOT_OPENED;
-    } else if (task->id != 0xFFFF && task->id >= dlHead->numTasks) {
+    result = ValidateDlTask(dlTask, TRUE);
+    if (result != NWC24_OK) {
+        return result;
+    }
+    task = (DlTaskData*)dlTask;
+    if (!NWC24iLaxParameterCheck && (dlFlags & 0x4) && strncmp(task->url, "http://", 7) == 0) {
         result = NWC24_ERR_INVALID_VALUE;
     } else {
+        switch (task->type) {
+            case NWC24_DLTYPE_MULTIPART_V1:
+            case NWC24_DLTYPE_OCTETSTREAM_V1: {
+                if (dlFlags & 0x80000038) {
+                    result = NWC24_ERR_INVALID_OPERATION;
+                    return result;
+                }
+                break;
+            }
+            default:
+                break;
+        }
+        task->flags = dlFlags;
         result = NWC24_OK;
     }
+    return result;
+}
 
+NWC24Err NWC24GetDlAppId(const NWC24DlTask* dlTask, u32* dlAppId) {
+    NWC24Err result;
+
+    result = ValidateDlTask(dlTask, FALSE);
     if (result != NWC24_OK) {
         return result;
     }
@@ -1259,114 +439,433 @@ NWC24Err NWC24GetDlAppId(const NWC24DlTask* dlTask, u32* dlAppId) {
     if (dlAppId == NULL) {
         return NWC24_ERR_INVALID_VALUE;
     }
-
-    *dlAppId = task->appId;
+    *dlAppId = ((const DlTaskData*)dlTask)->appId;
     return NWC24_OK;
 }
 
-NWC24Err NWC24AddDlTask(NWC24DlTask* dlTask) {
-    NWC24DlTaskEx* task = (NWC24DlTaskEx*)dlTask;
-    NWC24DlHeader* dlHead = GetDlTaskListHead();
+NWC24Err NWC24DumpDlTask(NWC24DlTask* dlTask) {
+    DlTaskListHeader* header;
+    DlTaskData* task;
+    u16 taskId;
     NWC24Err result;
-    NWC24File file;
 
-    if (dlHead->numTasks == 0 && dlHead->numTasksInFile != 0) {
-        dlHead->numTasks = dlHead->numTasksInFile;
-        if (dlHead->numTasksInFile > NWC24_DL_RECORD_MAX) {
-            dlHead->numTasksInFile = NWC24_DL_RECORD_MAX;
+    if (NWC24WorkP != NULL) {
+        header = (DlTaskListHeader*)NWC24WorkP->dlHead;
+    } else {
+        header = NULL;
+    }
+
+    if (dlTask == NULL) {
+        result = NWC24_ERR_INVALID_VALUE;
+    } else if (header == NULL) {
+        result = NWC24_ERR_LIB_NOT_OPENED;
+    } else {
+        task = (DlTaskData*)dlTask;
+        taskId = task->id;
+        if (taskId != 0xffff && taskId >= header->maxTaskCount) {
+            result = NWC24_ERR_INVALID_VALUE;
+        } else {
+            result = NWC24_OK;
         }
+    }
+    if (result != NWC24_OK) {
+        return result;
+    }
+    return NWC24_OK;
+}
 
+NWC24Err NWC24IterateDlTask(NWC24DlId* dlIterateId, BOOL begin) {
+    NWC24Err result;
+    NWC24Work* work;
+    u16 taskId;
+    u16 maxTaskCount;
+    DlTaskListHeader* header;
+
+    if (NWC24WorkP != NULL) {
+        header = (DlTaskListHeader*)NWC24WorkP->dlHead;
+    } else {
+        header = NULL;
+    }
+    if (header == NULL) {
+        return NWC24_ERR_LIB_NOT_OPENED;
+    }
+    if (dlIterateId == NULL) {
+        return NWC24_ERR_INVALID_VALUE;
+    }
+    if (begin) {
+        *dlIterateId = 0;
+    } else {
+        *dlIterateId += 1;
+    }
+
+    work = NWC24WorkP;
+    if (work != NULL) {
+        header = (DlTaskListHeader*)work->dlHead;
+    } else {
+        header = NULL;
+    }
+    taskId = *dlIterateId;
+    maxTaskCount = header->maxTaskCount;
+    if (taskId >= maxTaskCount) {
+        return NWC24_ERR_DONE;
+    }
+
+    while (taskId < GetCachedDlHeader()->maxTaskCount) {
+        header = GetCachedDlHeader();
+        if (taskId >= header->maxTaskCount || taskId == 0xffff) {
+            result = NWC24_ERR_INVALID_VALUE;
+        } else {
+            header = GetCachedDlHeader();
+            result = NWC24_OK;
+            if (header->entries[taskId].appId == 0) {
+                result = NWC24_ERR_NOT_FOUND;
+            }
+        }
+        if (result >= NWC24_OK) {
+            *dlIterateId = taskId;
+            return NWC24_OK;
+        }
+        taskId++;
+    }
+    return NWC24_ERR_DONE;
+}
+
+NWC24Err NWC24IterateDlTaskEx(NWC24DlIterateWork* dlIterateWork, NWC24DlId* dlIterateId) {
+    DlTaskIterationState* state = (DlTaskIterationState*)dlIterateWork;
+    s32 (*getValue)(NWC24DlId);
+    NWC24DlId taskId;
+    s32 value;
+    BOOL descending;
+    BOOL passesSelected;
+    BOOL bestCandidate;
+    NWC24Err result;
+    BOOL found = FALSE;
+
+    if (state->valid == 0) {
+        return NWC24_ERR_INVALID_VALUE;
+    }
+
+    descending = (state->sortMode >> 31) != 0;
+    switch (state->sortMode & 0xffff) {
+        case 0:
+            getValue = IterationPredicatorLastAccess;
+            break;
+        case 1:
+            getValue = IterationPredicatorNextTime;
+            break;
+        case 2:
+            getValue = IterationPredicatorPriority;
+            break;
+        default:
+            return NWC24_ERR_INVALID_VALUE;
+    }
+
+    if (state->initialized == 0) {
+        result = NWC24IterateDlTask(&taskId, TRUE);
+        while (result >= NWC24_OK) {
+            value = getValue(taskId);
+            if (value == state->comparisonValue && taskId > state->comparisonId) {
+                *dlIterateId = taskId;
+                state->comparisonValue = value;
+                state->selectedValue = value;
+                state->comparisonId = taskId;
+                return NWC24_OK;
+            }
+            result = NWC24IterateDlTask(&taskId, FALSE);
+        }
+    } else {
+        state->initialized = 0;
+    }
+
+    state->comparisonValue = descending ? 0x80000001 : 0x7fffffff;
+    result = NWC24IterateDlTask(&taskId, TRUE);
+    while (result >= NWC24_OK) {
+        value = getValue(taskId);
+        if (descending ? value < state->selectedValue : value > state->selectedValue) {
+            if (descending ? value > state->comparisonValue : value < state->comparisonValue) {
+                *dlIterateId = taskId;
+                state->comparisonValue = value;
+                state->comparisonId = taskId;
+                found = TRUE;
+            }
+        }
+        result = NWC24IterateDlTask(&taskId, FALSE);
+    }
+
+    if (found) {
+        state->selectedValue = state->comparisonValue;
+        return NWC24_OK;
+    }
+    state->valid = 0;
+    return NWC24_ERR_DONE;
+}
+
+NWC24Err NWC24UpdateDlTask(NWC24DlTask* dlTask) {
+    DlTaskData* task = (DlTaskData*)dlTask;
+    NWC24DlId taskId;
+    NWC24Err result;
+    NWC24Err closeResult;
+    OSTime universalTime;
+    DlTaskListHeader* header;
+
+    result = ValidateDlTask(dlTask, TRUE);
+    if (result != NWC24_OK) {
+        return result;
+    }
+    task = (DlTaskData*)dlTask;
+    taskId = task->id;
+    header = GetCachedDlHeader();
+    if (taskId == 0xffff || taskId >= header->maxTaskCount) {
+        return NWC24_ERR_INVALID_VALUE;
+    }
+
+    result = NWC24iGetUniversalTime(&universalTime);
+    if (result >= NWC24_OK) {
+        closeResult = ValidateDlTask(dlTask, FALSE);
+        if (closeResult == NWC24_OK) {
+            if (taskId == 0xffff) {
+                closeResult = NWC24_ERR_FAILED;
+            } else {
+                GetCachedDlHeader()->entries[taskId].lastAccess = universalTime / 60;
+            }
+        }
+        result = closeResult;
+    }
+    if (result < NWC24_OK) {
+        return result;
+    }
+
+    result = ValidateDlTask(dlTask, TRUE);
+
+    if (result == NWC24_OK) {
+        task->unknown_0x20 = 0;
+        task->unknown_0x1a = 0;
+    }
+
+    if (task->retryEnabled == 1) {
+        do {
+            u8 retryCount = task->retryCount;
+            u32 retryMask;
+
+            result = ValidateDlTask(dlTask, FALSE);
+            if (result == NWC24_OK) {
+                if (task->retryEnabled == 0) {
+                    result = NWC24_ERR_INVALID_OPERATION;
+                } else {
+                    retryMask = task->retryMask;
+                    if (retryMask == 0) {
+                        result = NWC24_ERR_FATAL;
+                    } else if (retryCount > 0x1f) {
+                        result = NWC24_ERR_INVALID_VALUE;
+                    } else {
+                        result = NWC24_OK;
+                        if ((retryMask & (1 << retryCount)) == 0) {
+                            result = NWC24_ERR_DISABLED;
+                        }
+                    }
+                }
+            }
+            if (result == NWC24_ERR_DISABLED) {
+                task->retryCount = (retryCount + 1) & 0x1f;
+            }
+        } while (result == NWC24_ERR_DISABLED);
+        if (result < NWC24_OK) {
+            return result;
+        }
+    }
+
+    return StoreDlTask(dlTask);
+}
+
+NWC24Err NWC24DeleteDlTask(NWC24DlTask* dlTask) {
+    DlTaskData* task = (DlTaskData*)dlTask;
+    NWC24Err result;
+
+    if (NWC24GetAppId() == 0x48414541) {
+        result = NWC24_OK;
+    } else {
+        result = ValidateDlTask(dlTask, TRUE);
+        if (result != NWC24_OK) {
+            return result;
+        }
+    }
+
+    result = ValidateDlTask(dlTask, FALSE);
+    if (result != NWC24_OK) {
+        return result;
+    }
+
+    result = DeleteDlTask(dlTask);
+    if (result < NWC24_OK) {
+        return result;
+    }
+    task->id = 0xffff;
+    return result;
+}
+
+NWC24Err NWC24AddDlTask(NWC24DlTask* dlTask) {
+    DlTaskListHeader* header;
+    NWC24File file;
+    NWC24Err result;
+    OSTime universalTime;
+    s64 nextTime;
+    s32 intervalSeconds;
+    u16 taskCount;
+    u16 maxTaskCount;
+    u16 taskId;
+
+    if (NWC24WorkP != NULL) {
+        header = (DlTaskListHeader*)NWC24WorkP->dlHead;
+    } else {
+        header = NULL;
+    }
+
+    if (header->maxTaskCount == 0 && header->legacyTaskCount != 0) {
+        header->maxTaskCount = header->legacyTaskCount;
+        if (header->legacyTaskCount > 0x20) {
+            header->legacyTaskCount = 0x20;
+        }
         result = NWC24FOpen(&file, DLFilePath, 4);
         if (result >= NWC24_OK) {
             result = NWC24FSeek(&file, 0, NWC24_SEEK_BEG);
             if (result >= NWC24_OK) {
-                NWC24FWrite(GetDlTaskListHead(), NWC24_DL_HEADER_SIZE, &file);
+                result = NWC24FWrite(GetCachedDlHeader(), 0x800, &file);
             }
             NWC24FClose(&file);
         }
     }
 
-    if (dlHead->numTasks < 1 || dlHead->minTasks < 1 || dlHead->numTasks < dlHead->minTasks) {
+    result = NWC24_OK;
+    if (header->maxTaskCount < 1 || header->taskCount < 1 || header->maxTaskCount < header->taskCount) {
         result = NWC24_ERR_BROKEN;
-    } else {
-        result = NWC24_OK;
     }
-
     if (result < NWC24_OK) {
-        goto done;
+        return result;
     }
 
-    result = AddTaskInternal(dlTask, GetDlTaskListHead()->minTasks, GetDlTaskListHead()->numTasks);
+    taskCount = GetCachedDlHeader()->taskCount;
+    maxTaskCount = GetCachedDlHeader()->maxTaskCount;
+    result = AddTaskInternal(dlTask, taskCount, maxTaskCount);
     if (result < NWC24_OK) {
-        goto done;
+        return result;
     }
 
-    {
-        OSTime time;
-        NWC24Err res;
+    universalTime = 0;
+    result = NWC24iGetUniversalTime(&universalTime);
+    if (result < NWC24_OK) {
+        return result;
+    }
 
-        time = 0;
-        res = NWC24iGetUniversalTime(&time);
-        if (res < NWC24_OK) {
-            result = res;
-            goto done;
-        }
+    intervalSeconds = ((DlTaskData*)dlTask)->interval * 60;
+    nextTime = universalTime + intervalSeconds;
 
-        time += (s64)(s32)(task->interval * 60);
-
-        {
-            NWC24DlId id;
-            NWC24Err res2;
-            dlHead = GetDlTaskListHead();
-
-            if (task == NULL) {
-                res2 = NWC24_ERR_INVALID_VALUE;
-            } else if (dlHead == NULL) {
-                res2 = NWC24_ERR_LIB_NOT_OPENED;
-            } else if (task->id != 0xFFFF && task->id >= dlHead->numTasks) {
-                res2 = NWC24_ERR_INVALID_VALUE;
-            } else {
-                res2 = NWC24_OK;
-            }
-
-            if (res2 == NWC24_OK) {
-                id = task->id;
-                if (id == 0xFFFF) {
-                    res2 = NWC24_ERR_FAILED;
-                } else {
-                    GetDlTaskListHead()->infos[id].nextTime = (u32)(time / 60);
-                }
-            }
-
-            result = res2;
+    result = ValidateDlTask(dlTask, FALSE);
+    if (result == NWC24_OK) {
+        taskId = ((DlTaskData*)dlTask)->id;
+        if (taskId == 0xffff) {
+            result = NWC24_ERR_FAILED;
+        } else {
+            GetCachedDlHeader()->entries[taskId].nextTime = nextTime / 60;
         }
     }
-
-done:
     return result;
 }
 
-NWC24Err NWC24PurgeOldestDlTask() {
-    NWC24DlIterateWork work;
-    NWC24DlId id;
-    NWC24DlTaskEx task;
+NWC24Err NWC24GetDlTask(NWC24DlTask* dlTask, NWC24DlId dlId) {
+    DlTaskListHeader* header;
     NWC24File file;
     NWC24Err result;
-    NWC24Err res2;
+    NWC24Err operationResult;
 
-    memset(&work, 0, sizeof(work));
+    if (NWC24WorkP != NULL) {
+        header = (DlTaskListHeader*)NWC24WorkP->dlHead;
+    } else {
+        header = NULL;
+    }
+    if (header == NULL) {
+        return NWC24_ERR_LIB_NOT_OPENED;
+    }
+    if (NWC24WorkP != NULL) {
+        header = (DlTaskListHeader*)NWC24WorkP->dlHead;
+    } else {
+        header = NULL;
+    }
+    if (dlId >= header->maxTaskCount || dlId == 0xffff) {
+        result = NWC24_ERR_INVALID_VALUE;
+    } else {
+        if (NWC24WorkP != NULL) {
+            header = (DlTaskListHeader*)NWC24WorkP->dlHead;
+        } else {
+            header = NULL;
+        }
+        if (header->entries[dlId].appId == 0) {
+            result = NWC24_ERR_NOT_FOUND;
+        } else {
+            result = NWC24_OK;
+        }
+    }
+    if (result < NWC24_OK) {
+        return result;
+    }
+
+    result = NWC24FOpen(&file, DLFilePath, 0x0a);
+    if (result < NWC24_OK) {
+        return result;
+    }
+
+    if (NWC24WorkP != NULL) {
+        header = (DlTaskListHeader*)NWC24WorkP->dlHead;
+    } else {
+        header = NULL;
+    }
+    if (header->maxTaskCount > NWC24_DL_TASK_MAX || dlId >= header->maxTaskCount) {
+        operationResult = NWC24_ERR_INVALID_VALUE;
+    } else {
+        operationResult = NWC24FSeek(&file, 0x800 + dlId * 0x200, NWC24_SEEK_BEG);
+    }
+    if (operationResult < NWC24_OK) {
+        result = operationResult;
+    } else {
+        operationResult = NWC24FRead(dlTask, 0x200, &file);
+        result = NWC24_OK;
+        if (operationResult < NWC24_OK) {
+            result = operationResult;
+        }
+    }
+    operationResult = NWC24FClose(&file);
+    if (result != NWC24_OK) {
+        return result;
+    }
+    return operationResult;
+}
+
+NWC24Err NWC24PurgeOldestDlTask() {
+    DlTaskIterationState state;
+    NWC24File file;
+    NWC24DlTask task;
+    DlTaskListHeader* header;
+    NWC24DlId taskId;
+    NWC24DlTask* taskPointer;
+    NWC24DlId selectedId;
+    NWC24Err result;
+    NWC24Err closeResult;
+
+    memset(&state, 0, sizeof(state));
+    state.comparisonValue = 0x7fffffff;
+    state.selectedValue = (s32)0x80000001;
+    state.sortMode = 0;
+    state.comparisonId = 0xffffffff;
+    state.initialized = 1;
+    state.valid = 1;
+
+    header = GetCachedDlHeader();
+
     result = NWC24_OK;
-    work.unk_0x04 = 0x7FFFFFFF;
-    work.unk_0x08 = 0x80000001;
-    work.unk_0x00 = 0;
-    work.unk_0x0C = -1;
-    work.unk_0x10 = 1;
-    work.unk_0x14 = 1;
-
     while (result >= NWC24_OK) {
-        result = NWC24IterateDlTaskEx(&work, &id);
+        result = NWC24IterateDlTaskEx((NWC24DlIterateWork*)&state, &taskId);
         if (result == NWC24_OK) {
-            if (id >= GetDlTaskListHead()->minTasks) {
+            header = GetCachedDlHeader();
+            if (taskId >= header->taskCount) {
                 break;
             }
         }
@@ -1379,590 +878,721 @@ NWC24Err NWC24PurgeOldestDlTask() {
         return result;
     }
 
-    if (GetDlTaskListHead() == NULL) {
-        result = NWC24_ERR_LIB_NOT_OPENED;
-        goto check;
+    taskPointer = &task;
+    selectedId = taskId;
+    header = GetCachedDlHeader();
+    if (header == NULL) {
+        return NWC24_ERR_LIB_NOT_OPENED;
     }
-
-    if (id >= GetDlTaskListHead()->numTasks || id == 0xFFFF) {
-        result = NWC24_ERR_INVALID_VALUE;
-    } else if (GetDlTaskListHead()->infos[id].used == 0) {
-        result = NWC24_ERR_NOT_FOUND;
-    } else {
-        result = NWC24_OK;
-    }
-
-    if (result < NWC24_OK) {
-        goto check;
-    }
-
-    result = NWC24FOpen(&file, DLFilePath, 0xA);
-    if (result < NWC24_OK) {
-        goto check;
-    }
-
-    if (GetDlTaskListHead()->numTasks > NWC24_DL_TASK_MAX || id >= GetDlTaskListHead()->numTasks) {
-        result = NWC24_ERR_INVALID_VALUE;
-    } else {
-        result = NWC24FSeek(&file, id * NWC24_DL_TASK_SIZE + NWC24_DL_HEADER_SIZE, NWC24_SEEK_BEG);
-    }
-
-    if (result < NWC24_OK) {
-        res2 = result;
-        goto close;
-    }
-    result = NWC24FRead(&task, NWC24_DL_TASK_SIZE, &file);
-    res2 = result < NWC24_OK ? result : NWC24_OK;
-close:
-    NWC24FClose(&file);
-    if (res2 != NWC24_OK) {
-        result = res2;
-    }
-
-check:
-    if (result < NWC24_OK) {
-        return result;
-    }
-
-    {
-        NWC24DlHeader* dlHead = GetDlTaskListHead();
-        NWC24Err res;
-
-        if (&task == NULL) {
-            res = NWC24_ERR_INVALID_VALUE;
-        } else if (dlHead == NULL) {
-            res = NWC24_ERR_LIB_NOT_OPENED;
-        } else if (task.id != 0xFFFF && task.id >= dlHead->numTasks) {
-            res = NWC24_ERR_INVALID_VALUE;
-        } else {
-            res = NWC24_OK;
-        }
-
-        if (res == NWC24_OK) {
-            res = DeleteDlTask((NWC24DlTask*)&task);
-            if (res >= NWC24_OK) {
-                task.id = 0xFFFF;
-            }
-        }
-
-        return res;
-    }
-}
-
-NWC24Err NWC24iInitDlTaskList(NWC24Err mode) {
-    NWC24DlHeader* dlHead;
-    NWC24Err result;
-
-    result = NWC24iOpenDlTaskList();
-    if (result != NWC24_OK || mode != NWC24_OK) {
-        if (result == NWC24_ERR_VER_MISMATCH) {
-            dlHead = GetDlTaskListHead();
-            if (dlHead != NULL && dlHead->version > 1) {
-                return result;
-            }
-        }
-        NWC24iCreateDlTaskList();
-    }
-    return result;
-}
-
-static NWC24Err AddTaskInternal(NWC24DlTask* dlTask, u16 first, u16 last) {
-    NWC24DlTaskEx* task = (NWC24DlTaskEx*)dlTask;
-    NWC24DlHeader* dlHead = GetDlTaskListHead();
-    NWC24Err result;
-    NWC24Err res;
-    NWC24Err res2;
-    u16 i;
-
-    if (task == NULL) {
-        result = NWC24_ERR_INVALID_VALUE;
-    } else if (dlHead == NULL) {
-        result = NWC24_ERR_LIB_NOT_OPENED;
-    } else {
-        if (NWC24IsMsgLibOpenedByTool() == FALSE) {
-            u32 appId = task->appId;
-            BOOL eq = (appId & 0xFFFFFF00) == (NWC24GetAppId() & 0xFFFFFF00);
-            if (eq == FALSE) {
-                BOOL owned = FALSE;
-                u16 groupId = task->groupId;
-                if ((task->flags & 0x40) != 0) {
-                if (groupId == (u16)NWC24GetGroupId()) {
-                    owned = TRUE;
-                    }
-                }
-
-                if (owned == FALSE) {
-                    result = NWC24_ERR_PROTECTED;
-                    goto done;
-                }
-            }
-        }
-
-        if (task->id != 0xFFFF && task->id >= dlHead->numTasks) {
-            result = NWC24_ERR_INVALID_VALUE;
-        } else {
-            result = NWC24_OK;
-        }
-    }
-
-    if (result != NWC24_OK) {
-        goto done;
-    }
-
-    if (task->id >= GetDlTaskListHead()->numTasks && task->id != 0xFFFF) {
-        res2 = NWC24_ERR_INVALID_VALUE;
-    } else {
-        res = NWC24iCheckStringLength(task->url, 7, 0x100);
-        if (res >= NWC24_OK) {
-            if (strncmp(task->url, "http://", 7) == 0) {
-                res = NWC24_OK;
-            } else if (strncmp(task->url, "https://", 8) == 0) {
-                res = NWC24_OK;
-            } else {
-                res = NWC24_ERR_FORMAT;
-            }
-        }
-        res2 = res < NWC24_OK ? res : NWC24_OK;
-    }
-    if (res2 < NWC24_OK) {
-        result = res2;
-        goto done;
-    }
-
-retry:
-    if (task->id != 0xFFFF) {
-    {
-        OSTime time;
-        NWC24Err res3;
-
-        dlHead = GetDlTaskListHead();
-
-        if (task == NULL) {
-            res3 = NWC24_ERR_INVALID_VALUE;
-        } else if (dlHead == NULL) {
-            res2 = NWC24_ERR_LIB_NOT_OPENED;
-        } else {
-            if (NWC24IsMsgLibOpenedByTool() == FALSE) {
-                u32 appId = task->appId;
-                BOOL eq = (appId & 0xFFFFFF00) == (NWC24GetAppId() & 0xFFFFFF00);
-                if (eq == FALSE) {
-                    BOOL owned = FALSE;
-                    u16 groupId = task->groupId;
-                    if ((task->flags & 0x40) != 0) {
-                    if (groupId == (u16)NWC24GetGroupId()) {
-                        owned = TRUE;
-                        }
-                    }
-
-                    if (owned == FALSE) {
-                        res2 = NWC24_ERR_PROTECTED;
-                        goto res2_done;
-                    }
-                }
-            }
-
-            if (task->id != 0xFFFF && task->id >= dlHead->numTasks) {
-                res2 = NWC24_ERR_INVALID_VALUE;
-            } else {
-                res2 = NWC24_OK;
-            }
-        }
-
-    res2_done:
-        if (res2 != NWC24_OK) {
-            result = res2;
-            goto done;
-        }
-
-        if (task->id != 0xFFFF && task->id < GetDlTaskListHead()->numTasks) {
-            res = NWC24iGetUniversalTime(&time);
-        } else {
-            res2 = NWC24_ERR_INVALID_VALUE;
-            goto done;
-        }
-        if (res < NWC24_OK) {
-            res2 = res;
-        } else {
-            NWC24Err res3;
-            NWC24DlId id;
-            dlHead = GetDlTaskListHead();
-
-            if (task == NULL) {
-                res3 = NWC24_ERR_INVALID_VALUE;
-            } else if (dlHead == NULL) {
-                res3 = NWC24_ERR_LIB_NOT_OPENED;
-            } else if (task->id != 0xFFFF && task->id >= dlHead->numTasks) {
-                res3 = NWC24_ERR_INVALID_VALUE;
-            } else {
-                res3 = NWC24_OK;
-            }
-
-            if (res3 == NWC24_OK) {
-                id = task->id;
-                if (id == 0xFFFF) {
-                    res3 = NWC24_ERR_FAILED;
-                } else {
-                    GetDlTaskListHead()->infos[id].lastAccess = (u32)(time / 60);
-                }
-            }
-
-            res = res3;
-            if (res3 >= NWC24_OK) {
-                res2 = res;
-            }
-        }
-
-        if (res2 < NWC24_OK) {
-            result = res2;
-            goto done;
-        }
-
-        {
-            NWC24Err res4;
-            dlHead = GetDlTaskListHead();
-
-            if (task == NULL) {
-                res4 = NWC24_ERR_INVALID_VALUE;
-            } else if (dlHead == NULL) {
-                res4 = NWC24_ERR_LIB_NOT_OPENED;
-            } else {
-                if (NWC24IsMsgLibOpenedByTool() == FALSE) {
-                    u32 appId = task->appId;
-                    BOOL eq = (appId & 0xFFFFFF00) == (NWC24GetAppId() & 0xFFFFFF00);
-                    if (eq == FALSE) {
-                        BOOL owned = FALSE;
-                        u16 groupId = task->groupId;
-                        if ((task->flags & 0x40) != 0) {
-                        if (groupId == (u16)NWC24GetGroupId()) {
-                            owned = TRUE;
-                            }
-                        }
-
-                        if (owned == FALSE) {
-                            res4 = NWC24_ERR_PROTECTED;
-                            goto res4_done;
-                        }
-                    }
-                }
-
-                if (task->id != 0xFFFF && task->id >= dlHead->numTasks) {
-                    res4 = NWC24_ERR_INVALID_VALUE;
-                } else {
-                    res4 = NWC24_OK;
-                }
-            }
-
-        res4_done:
-            if (res4 == NWC24_OK) {
-                task->unk_0x20 = 0;
-                task->processedSubTasks = 0;
-            }
-        }
-
-        if (task->stType == NWC24_DL_STTYPE_INCREMENT) {
-            for (;;) {
-                u8 idx = task->subTaskIndex;
-                NWC24Err res5;
-                dlHead = GetDlTaskListHead();
-
-                if (task == NULL) {
-                    res5 = NWC24_ERR_INVALID_VALUE;
-                } else if (dlHead == NULL) {
-                    res5 = NWC24_ERR_LIB_NOT_OPENED;
-                } else if (task->id != 0xFFFF && task->id >= dlHead->numTasks) {
-                    res5 = NWC24_ERR_INVALID_VALUE;
-                } else {
-                    res5 = NWC24_OK;
-                }
-
-                if (res5 == NWC24_OK) {
-                    if (task->stType == 0) {
-                        res5 = NWC24_ERR_INVALID_OPERATION;
-                    } else if (task->stFlags == 0) {
-                        res5 = NWC24_ERR_FATAL;
-                    } else if (idx > NWC24_DL_SUBTASK_MAX - 1) {
-                        res5 = NWC24_ERR_INVALID_VALUE;
-                    } else if ((task->stFlags & (1 << idx)) == 0) {
-                        res5 = NWC24_ERR_DISABLED;
-                    } else {
-                        res5 = NWC24_OK;
-                    }
-                }
-
-                if (res5 != NWC24_ERR_DISABLED) {
-                    if (res5 < NWC24_OK) {
-                        res = res5;
-                        goto merge;
-                    }
-                    break;
-                }
-                task->subTaskIndex = (idx + 1) & 0x1F;
-            }
-        }
-
-        if (res < NWC24_OK) {
-            goto merge;
-        }
-        res = StoreDlTask(dlTask);
-    merge:
-        result = res;
-        goto done;
-    }
-
-    } else {
-        u16 id;
-
-        if (task == NULL || first > last || first >= dlHead->numTasks || last > dlHead->numTasks) {
-            res = NWC24_ERR_INVALID_VALUE;
-        } else {
-            res = NWC24_ERR_FULL;
-            for (id = first; id < last; id++) {
-                if (dlHead->infos[id].used == 0) {
-                    task->id = id;
-                    res = NWC24_OK;
-                    break;
-                }
-            }
-        }
-
-        if (res == NWC24_ERR_FULL) {
-            res = NWC24PurgeOldestDlTask();
-        }
-        if (res >= NWC24_OK) {
-            goto retry;
-        }
-        result = res;
-        goto done;
-    }
-
-done:
-    return result;
-}
-
-static u32 IterationPredicatorLastAccess(NWC24DlId id) {
-    return GetDlTaskListHead()->infos[id].lastAccess;
-}
-
-static u32 IterationPredicatorNextTime(NWC24DlId id) {
-    return GetDlTaskListHead()->infos[id].nextTime;
-}
-
-NWC24Err NWC24SetDlInterval(NWC24DlTask* dlTask, u16 dlInterval) {
-    NWC24DlTaskEx* task = (NWC24DlTaskEx*)dlTask;
-    NWC24DlHeader* dlHead = GetDlTaskListHead();
-    NWC24Err result;
-
-    if (task == NULL) {
-        result = NWC24_ERR_INVALID_VALUE;
-    } else if (dlHead == NULL) {
-        result = NWC24_ERR_LIB_NOT_OPENED;
-    } else {
-        if (NWC24IsMsgLibOpenedByTool() == FALSE) {
-            u32 appId = task->appId;
-            BOOL eq = (appId & 0xFFFFFF00) == (NWC24GetAppId() & 0xFFFFFF00);
-            if (eq == FALSE) {
-                BOOL owned = FALSE;
-                u16 groupId = task->groupId;
-                if ((task->flags & 0x40) != 0) {
-                if (groupId == (u16)NWC24GetGroupId()) {
-                    owned = TRUE;
-                    }
-                }
-
-                if (owned == FALSE) {
-                    result = NWC24_ERR_PROTECTED;
-                    goto check;
-                }
-            }
-        }
-
-        if (task->id != 0xFFFF && task->id >= dlHead->numTasks) {
-            result = NWC24_ERR_INVALID_VALUE;
-        } else {
-            result = NWC24_OK;
-        }
-    }
-
-check:
-    if (result != NWC24_OK) {
-        return result;
-    }
-
-    if (NWC24iLaxParameterCheck == 0) {
-        NWC24DlHeader* dlHead2 = GetDlTaskListHead();
-        if (task->id >= dlHead2->numTasksInFile && (task->flags & 0x40000000) == 0) {
-            if (dlInterval < 0xB4 || dlInterval > 0x2760) {
-                return NWC24_ERR_INVALID_VALUE;
-            }
-        }
-    }
-
-    if (task->interval != dlInterval) {
-        task->interval = dlInterval;
-
-        if (task->id != 0xFFFF) {
-            OSTime time;
-            NWC24Err res;
-            NWC24DlHeader* dlHead2;
-
-            time = 0;
-            res = NWC24iGetUniversalTime(&time);
-            if (res >= NWC24_OK) {
-                NWC24Err res2;
-                s64 nextTime = time + task->interval * 0x3C;
-
-                dlHead2 = GetDlTaskListHead();
-
-                if (task == NULL) {
-                    res2 = NWC24_ERR_INVALID_VALUE;
-                } else if (dlHead2 == NULL) {
-                    res2 = NWC24_ERR_LIB_NOT_OPENED;
-                } else if (task->id != 0xFFFF && task->id >= dlHead2->numTasks) {
-                    res2 = NWC24_ERR_INVALID_VALUE;
-                } else {
-                    res2 = NWC24_OK;
-                }
-
-                if (res2 == NWC24_OK) {
-                    if (task->id != 0xFFFF) {
-                        GetDlTaskListHead()->infos[task->id].nextTime = (u32)(nextTime / 0x3C);
-                    }
-                }
-            }
-        }
-    }
-
-    return NWC24_OK;
-}
-
-NWC24Err NWC24SetDlFlags(NWC24DlTask* dlTask, u32 dlFlags) {
-    NWC24DlTaskEx* task = (NWC24DlTaskEx*)dlTask;
-    NWC24DlHeader* dlHead = GetDlTaskListHead();
-    NWC24Err result;
-
-    if (task == NULL) {
-        result = NWC24_ERR_INVALID_VALUE;
-    } else if (dlHead == NULL) {
-        result = NWC24_ERR_LIB_NOT_OPENED;
-    } else {
-        if (NWC24IsMsgLibOpenedByTool() == FALSE) {
-            u32 appId = task->appId;
-            BOOL eq = (appId & 0xFFFFFF00) == (NWC24GetAppId() & 0xFFFFFF00);
-            if (eq == FALSE) {
-                BOOL owned = FALSE;
-                u16 groupId = task->groupId;
-                if ((task->flags & 0x40) != 0) {
-                if (groupId == (u16)NWC24GetGroupId()) {
-                    owned = TRUE;
-                    }
-                }
-
-                if (owned == FALSE) {
-                    result = NWC24_ERR_PROTECTED;
-                    goto done;
-                }
-            }
-        }
-
-        if (task->id != 0xFFFF && task->id >= dlHead->numTasks) {
-            result = NWC24_ERR_INVALID_VALUE;
-        } else {
-            result = NWC24_OK;
-        }
-    }
-
-done:
-    if (result != NWC24_OK) {
-        return result;
-    }
-
-    if (NWC24iLaxParameterCheck == 0 && (dlFlags & 4) != 0 && strncmp(task->url, "http://", 7) == 0) {
+    header = GetCachedDlHeader();
+    if (selectedId >= header->maxTaskCount || selectedId == 0xffff) {
         return NWC24_ERR_INVALID_VALUE;
     }
-
-    switch (task->dlType) {
-    case 0:
-    case 1:
-        if ((dlFlags & 0x80000038) != 0) {
-            return NWC24_ERR_INVALID_OPERATION;
-        }
-        break;
-    default:
-        break;
+    header = GetCachedDlHeader();
+    if (header->entries[selectedId].appId == 0) {
+        return NWC24_ERR_NOT_FOUND;
     }
 
-    task->flags = dlFlags;
+    result = NWC24FOpen(&file, DLFilePath, 0x0a);
+    if (result >= NWC24_OK) {
+        header = GetCachedDlHeader();
+        if (header->maxTaskCount > NWC24_DL_TASK_MAX || selectedId >= header->maxTaskCount) {
+            result = NWC24_ERR_INVALID_VALUE;
+        } else {
+            result = NWC24FSeek(&file, 0x800 + selectedId * 0x200, NWC24_SEEK_BEG);
+        }
+        if (result >= NWC24_OK) {
+            result = NWC24FRead(taskPointer, sizeof(task), &file);
+        }
+        closeResult = NWC24FClose(&file);
+        if (result >= NWC24_OK) {
+            result = closeResult;
+        }
+    }
+    if (result < NWC24_OK) {
+        return result;
+    }
+
+    closeResult = ValidateDlTask(taskPointer, FALSE);
+    if (closeResult == NWC24_OK) {
+        closeResult = DeleteDlTask(taskPointer);
+        if (closeResult >= NWC24_OK) {
+            ((DlTaskData*)taskPointer)->id = 0xffff;
+        }
+    }
+    return closeResult;
+}
+
+NWC24Err NWC24ManageDlTaskListForMenu() {
+    DlTaskListHeader* header;
+    NWC24File file;
+    NWC24DlTask task;
+    u16 maxTaskCount;
+    NWC24Err result;
+    NWC24Err closeResult;
+
+    header = GetCachedDlHeader();
+    if (header == NULL) {
+        result = NWC24_ERR_LIB_NOT_OPENED;
+    } else {
+        maxTaskCount = header->maxTaskCount;
+        result = NWC24_OK;
+    }
+    if (result < NWC24_OK) {
+        return result;
+    }
+    if (maxTaskCount >= NWC24_DL_TASK_MAX) {
+        return NWC24_OK;
+    }
+
+    result = NWC24ExtendDlTaskList(NWC24_DL_TASK_MAX);
+    if (result < NWC24_OK) {
+        return result;
+    }
+
+    header = GetCachedDlHeader();
+    if (header == NULL) {
+        result = NWC24_ERR_LIB_NOT_OPENED;
+    } else {
+        header = GetCachedDlHeader();
+        if (header->maxTaskCount <= 2) {
+            result = NWC24_ERR_INVALID_VALUE;
+        } else {
+            header = GetCachedDlHeader();
+            result = NWC24_OK;
+            if (header->entries[2].appId == 0) {
+                result = NWC24_ERR_NOT_FOUND;
+            }
+        }
+    }
+    if (result < NWC24_OK) {
+        return result;
+    }
+
+    result = NWC24FOpen(&file, DLFilePath, 0x0a);
+    if (result >= NWC24_OK) {
+        header = GetCachedDlHeader();
+        if (header->maxTaskCount > NWC24_DL_TASK_MAX || header->maxTaskCount <= 2) {
+            result = NWC24_ERR_INVALID_VALUE;
+        } else {
+            result = NWC24FSeek(&file, 0xc00, NWC24_SEEK_BEG);
+        }
+        if (result >= NWC24_OK) {
+            result = NWC24FRead(&task, sizeof(task), &file);
+        }
+        closeResult = NWC24_OK;
+        if (result < NWC24_OK) {
+            closeResult = result;
+        }
+        result = NWC24FClose(&file);
+        if (closeResult != NWC24_OK) {
+            result = closeResult;
+        }
+    }
+    if (result == NWC24_ERR_NOT_FOUND) {
+        return NWC24_OK;
+    }
+    if (result < NWC24_OK) {
+        return result;
+    }
+
+    result = ValidateDlTask(&task, FALSE);
+    if (result == NWC24_OK) {
+        result = DeleteDlTask(&task);
+        if (result >= NWC24_OK) {
+            ((DlTaskData*)&task)->id = 0xffff;
+        }
+    }
+    return result;
+}
+
+NWC24Err NWC24GetDlOptOutFlags(NWC24DlTask* dlTask, u8* dlOptOutFlags) {
+    DlTaskListHeader* header;
+    DlTaskData* task;
+    u16 taskId;
+    NWC24Err result;
+
+    if (NWC24WorkP != NULL) {
+        header = (DlTaskListHeader*)NWC24WorkP->dlHead;
+    } else {
+        header = NULL;
+    }
+
+    if (dlTask == NULL) {
+        result = NWC24_ERR_INVALID_VALUE;
+    } else if (header == NULL) {
+        result = NWC24_ERR_LIB_NOT_OPENED;
+    } else {
+        task = (DlTaskData*)dlTask;
+        taskId = task->id;
+        if (taskId != 0xffff && taskId >= header->maxTaskCount) {
+            result = NWC24_ERR_INVALID_VALUE;
+        } else {
+            result = NWC24_OK;
+        }
+    }
+
+    if (result != NWC24_OK) {
+        return result;
+    }
+    if (dlOptOutFlags == NULL) {
+        return NWC24_ERR_INVALID_VALUE;
+    }
+    *dlOptOutFlags = ((DlTaskData*)dlTask)->optOutFlags;
     return NWC24_OK;
 }
 
-NWC24Err NWC24DeleteDlTask(NWC24DlTask* dlTask) {
-    NWC24DlTaskEx* task = (NWC24DlTaskEx*)dlTask;
+NWC24Err NWC24iOpenDlTaskList() {
     NWC24Err result;
+    DlTaskListHeader* header;
 
-    if (NWC24GetAppId() != NWC24_DL_APPID_KD) {
-        NWC24DlHeader* dlHead = GetDlTaskListHead();
-
-        if (task == NULL) {
-            result = NWC24_ERR_INVALID_VALUE;
-        } else if (dlHead == NULL) {
-            result = NWC24_ERR_LIB_NOT_OPENED;
+    result = NWC24iLoadDlHeader();
+    if (result >= NWC24_OK) {
+        NWC24iSynchronizeRtcCounter(FALSE);
+        if (NWC24WorkP != NULL) {
+            header = (DlTaskListHeader*)NWC24WorkP->dlHead;
         } else {
-            if (NWC24IsMsgLibOpenedByTool() == FALSE) {
-                u32 appId = task->appId;
-                BOOL eq = (appId & 0xFFFFFF00) == (NWC24GetAppId() & 0xFFFFFF00);
-                if (eq == FALSE) {
-                    BOOL owned = FALSE;
-                    u16 groupId = task->groupId;
-                    if ((task->flags & 0x40) != 0) {
-                    if (groupId == (u16)NWC24GetGroupId()) {
-                        owned = TRUE;
-                        }
-                    }
+            header = NULL;
+        }
+        result = NWC24iCheckDlHeaderConsistency((NWC24DlHeader*)header, FALSE);
+        if (result >= NWC24_OK) {
+            result = NWC24_OK;
+        }
+    }
+    return result;
+}
 
-                    if (owned == FALSE) {
-                        result = NWC24_ERR_PROTECTED;
-                        goto done;
-                    }
-                }
-            }
+NWC24Err NWC24iCloseDlTaskList() {
+    return NWC24_OK;
+}
 
-            if (task->id != 0xFFFF && task->id >= dlHead->numTasks) {
-                result = NWC24_ERR_INVALID_VALUE;
-            } else {
-                result = NWC24_OK;
+NWC24Err NWC24ExtendDlTaskList(u32 num) {
+    DlTaskListHeader* header;
+    NWC24File file;
+    NWC24Err result;
+    NWC24Err closeResult;
+    u16 taskId;
+
+    if (NWC24WorkP != NULL) {
+        header = (DlTaskListHeader*)NWC24WorkP->dlHead;
+    } else {
+        header = NULL;
+    }
+    if (header == NULL) {
+        return NWC24_ERR_LIB_NOT_OPENED;
+    }
+
+    taskId = header->maxTaskCount;
+    if (num > NWC24_DL_TASK_MAX || taskId > num) {
+        return NWC24_ERR_INVALID_VALUE;
+    }
+    if (taskId == num) {
+        return NWC24_OK;
+    }
+
+    header->maxTaskCount = num;
+    result = NWC24FOpen(&file, DLFilePath, 4);
+    if (result < NWC24_OK) {
+        return result;
+    }
+
+    for (; taskId < num; taskId++) {
+        result = ClearDlTaskEntry(taskId, &file);
+        if (result < NWC24_OK) {
+            goto closeList;
+        }
+    }
+    result = WriteDlHeader(&file);
+closeList:
+    closeResult = NWC24FClose(&file);
+    if (result != NWC24_OK) {
+        closeResult = result;
+    }
+    result = NWC24iLoadDlHeader();
+    if (closeResult != NWC24_OK) {
+        result = closeResult;
+    }
+    return result;
+}
+
+NWC24Err NWC24iCheckDlHeaderConsistency(NWC24DlHeader* dlHead, BOOL repair) {
+    DlTaskListHeader* header = (DlTaskListHeader*)dlHead;
+    NWC24DlId taskId;
+    NWC24DlTask task;
+    DlTaskData* taskData = (DlTaskData*)&task;
+    NWC24File file;
+    DlTaskListHeader* currentHeader;
+    NWC24Err result;
+    NWC24Err closeResult;
+
+    for (taskId = 0; taskId < header->maxTaskCount; taskId++) {
+        currentHeader = GetCachedDlHeader();
+        if (taskId >= currentHeader->maxTaskCount || taskId == 0xffff) {
+            result = NWC24_ERR_INVALID_VALUE;
+        } else {
+            currentHeader = GetCachedDlHeader();
+            result = NWC24_OK;
+            if (currentHeader->entries[taskId].appId == 0) {
+                result = NWC24_ERR_NOT_FOUND;
             }
         }
+        if (result != NWC24_OK) {
+            continue;
+        }
+        if (!repair) {
+            continue;
+        }
 
+        currentHeader = GetCachedDlHeader();
+        if (currentHeader == NULL) {
+            result = NWC24_ERR_LIB_NOT_OPENED;
+        } else if (taskId >= currentHeader->maxTaskCount || taskId == 0xffff) {
+            result = NWC24_ERR_INVALID_VALUE;
+        } else {
+            currentHeader = GetCachedDlHeader();
+            result = NWC24_OK;
+            if (currentHeader->entries[taskId].appId == 0) {
+                result = NWC24_ERR_NOT_FOUND;
+            }
+        }
+        if (result >= NWC24_OK) {
+            result = NWC24FOpen(&file, DLFilePath, 0x0a);
+            if (result >= NWC24_OK) {
+                currentHeader = GetCachedDlHeader();
+                if (currentHeader->maxTaskCount > NWC24_DL_TASK_MAX || taskId >= currentHeader->maxTaskCount) {
+                    result = NWC24_ERR_INVALID_VALUE;
+                } else {
+                    result = NWC24FSeek(&file, 0x800 + taskId * 0x200, NWC24_SEEK_BEG);
+                }
+                if (result >= NWC24_OK) {
+                    result = NWC24FRead(taskData, sizeof(task), &file);
+                }
+                closeResult = result;
+                result = NWC24FClose(&file);
+                if (closeResult != NWC24_OK) {
+                    result = closeResult;
+                }
+            }
+        }
+        if (result < NWC24_OK) {
+            if (ValidateDlTask((NWC24DlTask*)taskData, FALSE) == NWC24_OK) {
+                result = DeleteDlTask((NWC24DlTask*)taskData);
+                if (result >= NWC24_OK) {
+                    taskData->id = 0xffff;
+                }
+            }
+            continue;
+        }
+        currentHeader = GetCachedDlHeader();
+        if (taskId >= currentHeader->taskCount && taskData->subTaskCount == 0) {
+            if (ValidateDlTask((NWC24DlTask*)taskData, FALSE) == NWC24_OK) {
+                result = DeleteDlTask((NWC24DlTask*)taskData);
+                if (result >= NWC24_OK) {
+                    taskData->id = 0xffff;
+                }
+            }
+        }
+    }
+
+    return NWC24_OK;
+}
+
+NWC24Err NWC24iCreateDlTaskList() {
+    u16 taskId;
+    DlTaskListHeader* header;
+    NWC24Err result;
+    NWC24File file;
+
+    if (NWC24WorkP != NULL) {
+        header = (DlTaskListHeader*)NWC24WorkP->dlHead;
+    } else {
+        header = NULL;
+    }
+
+    memset(header, 0, 0x800);
+    header->magic = 0x5763446c;
+    header->version = 1;
+    header->unknown_0x0c = 0;
+    header->unknown_0x0e = 0;
+    header->maxTaskCount = NWC24_DL_TASK_MAX;
+    header->legacyTaskCount = 0x20;
+    header->taskCount = 8;
+
+    result = NWC24FOpen(&file, DLFilePath, 1);
+    if (result < NWC24_OK) {
+        return result;
+    }
+
+    result = WriteDlHeader(&file);
+    if (result >= NWC24_OK) {
+        for (taskId = 0; taskId < NWC24_DL_TASK_MAX; taskId++) {
+            result = ClearDlTaskEntry(taskId, &file);
+            if (result < NWC24_OK) {
+                break;
+            }
+        }
+    }
+    {
+        NWC24Err closeResult = NWC24FClose(&file);
         if (result != NWC24_OK) {
             return result;
         }
+        return closeResult;
     }
-
-    {
-        NWC24DlHeader* dlHead = GetDlTaskListHead();
-        NWC24Err res;
-
-        if (task == NULL) {
-            res = NWC24_ERR_INVALID_VALUE;
-        } else if (dlHead == NULL) {
-            res = NWC24_ERR_LIB_NOT_OPENED;
-        } else if (task->id != 0xFFFF && task->id >= dlHead->numTasks) {
-            res = NWC24_ERR_INVALID_VALUE;
-        } else {
-            res = NWC24_OK;
-        }
-
-        if (res != NWC24_OK) {
-            return res;
-        }
-    }
-
-    result = DeleteDlTask(dlTask);
-    if (result >= NWC24_OK) {
-        task->id = 0xFFFF;
-    }
-
-done:
-    return result;
 }
 
+#pragma dont_inline on
+NWC24Err NWC24iInitDlTaskList(NWC24Err force) {
+    NWC24Err result;
+    DlTaskListHeader* header;
+
+    result = NWC24iOpenDlTaskList();
+    if (result == NWC24_OK && !force) {
+        return result;
+    }
+    if (result == NWC24_ERR_VER_MISMATCH) {
+        if (NWC24WorkP != NULL) {
+            header = (DlTaskListHeader*)NWC24WorkP->dlHead;
+        } else {
+            header = NULL;
+        }
+        if (header != NULL && header->version > 1) {
+            return result;
+        }
+    }
+    return NWC24iCreateDlTaskList();
+}
+#pragma dont_inline reset
+
+NWC24Err NWC24iLoadDlHeader() {
+    NWC24File file;
+    NWC24File updateFile;
+    DlTaskListHeader* header;
+    NWC24Err result;
+    NWC24Err closeResult;
+    u32 fileLength = 0;
+
+    result = NWC24_OK;
+    closeResult = NWC24FOpen(&file, DLFilePath, NWC24_OPEN_READ);
+    if (closeResult < NWC24_OK) {
+        return closeResult;
+    }
+
+    closeResult = NWC24FSeek(&file, 0, NWC24_SEEK_BEG);
+    if (closeResult < NWC24_OK) {
+        return closeResult;
+    }
+
+    closeResult = NWC24FRead(NWC24WorkP->dlHead, 0x800, &file);
+    result = closeResult < NWC24_OK ? closeResult : NWC24_OK;
+    if (result < NWC24_OK) {
+        return result;
+    }
+
+    result = NWC24FGetLength(&file, &fileLength);
+    if (result >= NWC24_OK) {
+        if (NWC24WorkP != NULL) {
+            header = (DlTaskListHeader*)NWC24WorkP->dlHead;
+        } else {
+            header = NULL;
+        }
+        if (header->maxTaskCount == 0 && header->legacyTaskCount != 0) {
+            header->maxTaskCount = header->legacyTaskCount;
+            if (header->legacyTaskCount > 0x20) {
+                header->legacyTaskCount = 0x20;
+            }
+            if (NWC24FOpen(&updateFile, DLFilePath, NWC24_OPEN_RW) >= NWC24_OK) {
+                if (NWC24FSeek(&updateFile, 0, NWC24_SEEK_BEG) >= NWC24_OK) {
+                    DlTaskListHeader* writeHeader;
+                    if (NWC24WorkP != NULL) {
+                        writeHeader = (DlTaskListHeader*)NWC24WorkP->dlHead;
+                    } else {
+                        writeHeader = NULL;
+                    }
+                    NWC24FWrite(writeHeader, 0x800, &updateFile);
+                }
+                NWC24FClose(&updateFile);
+            }
+        }
+
+        if (header->maxTaskCount < 1 || header->taskCount < 1 || header->maxTaskCount < header->taskCount) {
+            result = NWC24_ERR_BROKEN;
+        } else {
+            result = NWC24_OK;
+        }
+    }
+
+    closeResult = NWC24FClose(&file);
+    if (result != NWC24_OK) {
+        return result;
+    }
+    return closeResult;
+}
+
+NWC24Err StoreDlTask(NWC24DlTask* dlTask) {
+    NWC24File file;
+    NWC24Err result;
+    NWC24Err closeResult;
+    result = NWC24FOpen(&file, DLFilePath, NWC24_OPEN_RW);
+    if (result < NWC24_OK) {
+        return result;
+    }
+    result = WriteDlTaskEntry((DlTaskData*)dlTask, &file);
+    if (result >= NWC24_OK) {
+        result = UpdateDlEntryHeader((DlTaskData*)dlTask);
+        if (result >= NWC24_OK) {
+            result = WriteDlHeader(&file);
+        }
+    }
+    closeResult = NWC24FClose(&file);
+    if (result != NWC24_OK) {
+        return result;
+    }
+    return closeResult;
+}
+
+NWC24Err AddTaskInternal(NWC24DlTask* dlTask, u16 taskCount, u16 maxTaskCount) {
+    DlTaskData* task;
+    DlTaskListHeader* header;
+    NWC24Err result;
+    u16 taskId;
+    char* url;
+    OSTime universalTime;
+
+    result = ValidateDlTask(dlTask, TRUE);
+    if (result != NWC24_OK) {
+        return result;
+    }
+    task = (DlTaskData*)dlTask;
+    taskId = task->id;
+    url = task->url;
+    result = NWC24iCheckStringLength(url, 7, 0x100);
+    if (result >= NWC24_OK && strncmp(url, "http://", 7) != 0 && strncmp(url, "https://", 8) != 0) {
+        result = NWC24_ERR_FORMAT;
+    }
+    if (result < NWC24_OK) {
+        return result;
+    }
+
+retryExistingTask:
+    taskId = task->id;
+    if (taskId != 0xffff) {
+        header = GetCachedDlHeader();
+
+        result = NWC24_OK;
+        if (dlTask == NULL) {
+            result = NWC24_ERR_INVALID_VALUE;
+        } else if (header == NULL) {
+            result = NWC24_ERR_LIB_NOT_OPENED;
+        } else {
+            if (!NWC24IsMsgLibOpenedByTool()) {
+                u32 taskAppId = task->appId;
+                u32 appId = NWC24GetAppId();
+                BOOL allowed = (taskAppId & 0xffffff00) == (appId & 0xffffff00);
+                if (!allowed && (task->flags & 0x40)) {
+                    allowed = task->groupId == NWC24GetGroupId();
+                }
+                if (!allowed) {
+                    result = NWC24_ERR_PROTECTED;
+                }
+            }
+            taskId = task->id;
+            if (result == NWC24_OK && taskId != 0xffff && taskId >= header->maxTaskCount) {
+                result = NWC24_ERR_INVALID_VALUE;
+            }
+        }
+        if (result < NWC24_OK) {
+            return result;
+        }
+
+        header = GetCachedDlHeader();
+        if (taskId >= header->maxTaskCount) {
+            return NWC24_ERR_INVALID_VALUE;
+        }
+
+        result = NWC24iGetUniversalTime(&universalTime);
+        if (result >= NWC24_OK) {
+            header = GetCachedDlHeader();
+            result = NWC24_OK;
+            if (dlTask == NULL) {
+                result = NWC24_ERR_INVALID_VALUE;
+            } else if (header == NULL) {
+                result = NWC24_ERR_LIB_NOT_OPENED;
+            } else {
+                taskId = task->id;
+                if (taskId == 0xffff) {
+                    result = NWC24_ERR_FAILED;
+                } else if (taskId >= header->maxTaskCount) {
+                    result = NWC24_ERR_INVALID_VALUE;
+                }
+            }
+            if (result >= NWC24_OK) {
+                header->entries[taskId].nextTime = universalTime / 60;
+            }
+        }
+        if (result < NWC24_OK) {
+            return result;
+        }
+
+        header = GetCachedDlHeader();
+        result = NWC24_OK;
+        if (dlTask == NULL) {
+            result = NWC24_ERR_INVALID_VALUE;
+        } else if (header == NULL) {
+            result = NWC24_ERR_LIB_NOT_OPENED;
+        } else {
+            if (!NWC24IsMsgLibOpenedByTool()) {
+                u32 taskAppId = task->appId;
+                u32 appId = NWC24GetAppId();
+                BOOL allowed = (taskAppId & 0xffffff00) == (appId & 0xffffff00);
+                if (!allowed && (task->flags & 0x40)) {
+                    allowed = task->groupId == NWC24GetGroupId();
+                }
+                if (!allowed) {
+                    result = NWC24_ERR_PROTECTED;
+                }
+            }
+            taskId = task->id;
+            if (result == NWC24_OK && taskId != 0xffff && taskId >= header->maxTaskCount) {
+                result = NWC24_ERR_INVALID_VALUE;
+            }
+        }
+
+        if (result == NWC24_OK && task->id != 0xffff) {
+            task->unknown_0x20 = 0;
+            task->unknown_0x1a = 0;
+        }
+
+        if (task->retryEnabled == 1) {
+            do {
+                u8 retryCount;
+                u32 retryMask;
+
+                task->retryCount = (task->retryCount + 1) & 0x1f;
+                header = GetCachedDlHeader();
+                if (dlTask == NULL) {
+                    return NWC24_ERR_INVALID_VALUE;
+                }
+                if (header == NULL) {
+                    return NWC24_ERR_LIB_NOT_OPENED;
+                }
+                if (!NWC24IsMsgLibOpenedByTool()) {
+                    u32 taskAppId = task->appId;
+                    u32 appId = NWC24GetAppId();
+                    BOOL allowed = (taskAppId & 0xffffff00) == (appId & 0xffffff00);
+                    if (!allowed && (task->flags & 0x40)) {
+                        allowed = task->groupId == NWC24GetGroupId();
+                    }
+                    if (!allowed) {
+                        return NWC24_ERR_PROTECTED;
+                    }
+                }
+                taskId = task->id;
+                if (taskId != 0xffff && taskId >= header->maxTaskCount) {
+                    return NWC24_ERR_INVALID_VALUE;
+                }
+                if (task->retryEnabled == 0) {
+                    return NWC24_ERR_INVALID_OPERATION;
+                }
+                retryCount = task->retryCount;
+                retryMask = task->retryMask;
+                if (retryMask == 0) {
+                    return NWC24_ERR_FATAL;
+                }
+                if (retryCount > 0x1f) {
+                    return NWC24_ERR_INVALID_VALUE;
+                }
+                result = NWC24_OK;
+                if ((retryMask & (1 << retryCount)) == 0) {
+                    result = NWC24_ERR_DISABLED;
+                }
+            } while (result == NWC24_ERR_DISABLED);
+            if (result < NWC24_OK) {
+                return result;
+            }
+        }
+        return StoreDlTask(dlTask);
+    }
+
+    for (;;) {
+        u16 currentTaskId;
+
+        header = GetCachedDlHeader();
+        if (dlTask == NULL || header == NULL || taskCount > maxTaskCount || taskCount >= header->maxTaskCount ||
+            maxTaskCount > header->maxTaskCount) {
+            return NWC24_ERR_INVALID_VALUE;
+        }
+
+        currentTaskId = taskCount;
+        while (currentTaskId < maxTaskCount) {
+            header = GetCachedDlHeader();
+            if (header->entries[currentTaskId].appId == 0) {
+                task->id = currentTaskId;
+                goto retryExistingTask;
+            }
+            currentTaskId++;
+        }
+
+        result = NWC24PurgeOldestDlTask();
+        if (result < NWC24_OK) {
+            return result;
+        }
+        goto retryExistingTask;
+    }
+}
+
+NWC24Err DeleteDlTask(NWC24DlTask* dlTask) {
+    NWC24File file;
+    NWC24Err result;
+    NWC24Err closeResult;
+
+    result = NWC24FOpen(&file, DLFilePath, 4);
+    if (result < NWC24_OK) {
+        return result;
+    }
+
+    result = ClearDlTaskEntry(((DlTaskData*)dlTask)->id, &file);
+    if (result >= NWC24_OK) {
+        InitDlEntryHeader(((DlTaskData*)dlTask)->id);
+        result = WriteDlHeader(&file);
+    }
+
+    closeResult = NWC24FClose(&file);
+    if (result != NWC24_OK) {
+        return result;
+    }
+    return closeResult;
+}
+
+static s32 IterationPredicatorLastAccess(NWC24DlId taskId) {
+    DlTaskListHeader* header;
+
+    if (NWC24WorkP != NULL) {
+        header = (DlTaskListHeader*)NWC24WorkP->dlHead;
+    } else {
+        header = NULL;
+    }
+    return header->entries[taskId].lastAccess;
+}
+
+static s32 IterationPredicatorNextTime(NWC24DlId taskId) {
+    DlTaskListHeader* header;
+
+    if (NWC24WorkP != NULL) {
+        header = (DlTaskListHeader*)NWC24WorkP->dlHead;
+    } else {
+        header = NULL;
+    }
+    return header->entries[taskId].nextTime;
+}
+
+static s32 IterationPredicatorPriority(NWC24DlId taskId) {
+    DlTaskListHeader* header;
+
+    if (NWC24WorkP != NULL) {
+        header = (DlTaskListHeader*)NWC24WorkP->dlHead;
+    } else {
+        header = NULL;
+    }
+    return header->entries[taskId].priority;
+}

@@ -255,7 +255,7 @@ static NWC24Err QDecode(char* decoded, u32 decodedCapacity, u32* decodedSize, ch
     input = encoded;
     output = decoded;
     for (encodedOffset = 0; encodedOffset < encodedSize; encodedOffset++) {
-        if (decodedCapacity <= decodedOffset) {
+        if (decodedOffset >= decodedCapacity) {
             result = NWC24_ERR_OVERFLOW;
             break;
         }
@@ -350,33 +350,45 @@ static NWC24Err EncodeWord(char* encoded, u32 encodedCapacity, u32* encodedSize,
     }
     if (Mail_strlen(encoded) + 2 < encodedCapacity) {
         Mail_strncat(encoded, "=?", 2);
+        result = NWC24_OK;
     } else {
         result = NWC24_ERR_OVERFLOW;
     }
-    if (result == NWC24_OK) {
-        if (charset == NULL) {
-            result = NWC24_ERR_INVALID_VALUE;
-        } else if (charsetSize + Mail_strlen(encoded) < encodedCapacity) {
-            u32 length = Mail_strlen(charset);
-            Mail_strncat(encoded, charset, length);
-        } else {
-            result = NWC24_ERR_OVERFLOW;
-        }
+    if (result != NWC24_OK) {
+        *encoded = '\0';
+        goto done;
     }
-    if (result == NWC24_OK) {
-        if (Mail_strlen(encoded) + 2 < encodedCapacity) {
-            Mail_strncat(encoded, "?", 1);
-        } else {
-            result = NWC24_ERR_OVERFLOW;
-        }
+    if (charset == NULL) {
+        result = NWC24_ERR_INVALID_VALUE;
+    } else if (charsetSize + Mail_strlen(encoded) < encodedCapacity) {
+        u32 length = Mail_strlen(charset);
+        Mail_strncat(encoded, charset, length);
+        result = NWC24_OK;
+    } else {
+        result = NWC24_ERR_OVERFLOW;
     }
-    if (result == NWC24_OK) {
+    if (result != NWC24_OK) {
+        *encoded = '\0';
+        goto done;
+    }
+    if (Mail_strlen(encoded) + 2 < encodedCapacity) {
+        Mail_strncat(encoded, "?", 1);
+        result = NWC24_OK;
+    } else {
+        result = NWC24_ERR_OVERFLOW;
+    }
+    if (result != NWC24_OK) {
+        *encoded = '\0';
+        goto done;
+    }
+    {
         char value[1];
         value[0] = encoding;
         if (encoding == 'B' || encoding == 'b' || encoding == 'Q' || encoding == 'q') {
             u32 length = Mail_strlen(encoded);
             if (length + 1 < encodedCapacity) {
                 Mail_strncat(encoded, value, 1);
+                result = NWC24_OK;
             } else {
                 result = NWC24_ERR_OVERFLOW;
             }
@@ -384,31 +396,30 @@ static NWC24Err EncodeWord(char* encoded, u32 encodedCapacity, u32* encodedSize,
             result = NWC24_ERR_INVALID_VALUE;
         }
     }
-    if (result == NWC24_OK) {
-        if (Mail_strlen(encoded) + 2 < encodedCapacity) {
-            Mail_strncat(encoded, "?", 1);
-        } else {
-            result = NWC24_ERR_OVERFLOW;
-        }
+    if (result != NWC24_OK) {
+        *encoded = '\0';
+        goto done;
     }
-    if (result == NWC24_OK) {
-        result = ConcatEncodedText(encoded, encodedCapacity, encodedSize, encoding, decoded, decodedSize, decodedSizeOut);
-        if (result == NWC24_OK || result == NWC24_ERR_OVERFLOW) {
-            encodeOverflow = result == NWC24_ERR_OVERFLOW;
-            if (Mail_strlen(encoded) + 2 < encodedCapacity) {
-                Mail_strncat(encoded, "?=", 2);
-                result = NWC24_OK;
-                if (encodedSize != NULL) {
-                    *encodedSize = Mail_strlen(encoded) + 1;
-                }
-                if (encodeOverflow) {
-                    result = NWC24_ERR_OVERFLOW;
-                }
-            } else {
-                *encoded = '\0';
-                if (decodedSizeOut != NULL) {
-                    *decodedSizeOut = 1;
-                }
+    if (Mail_strlen(encoded) + 2 < encodedCapacity) {
+        Mail_strncat(encoded, "?", 1);
+        result = NWC24_OK;
+    } else {
+        result = NWC24_ERR_OVERFLOW;
+    }
+    if (result != NWC24_OK) {
+        *encoded = '\0';
+        goto done;
+    }
+    result = ConcatEncodedText(encoded, encodedCapacity, encodedSize, encoding, decoded, decodedSize, decodedSizeOut);
+    if (result == NWC24_OK || result == NWC24_ERR_OVERFLOW) {
+        encodeOverflow = result == NWC24_ERR_OVERFLOW;
+        if (Mail_strlen(encoded) + 2 < encodedCapacity) {
+            Mail_strncat(encoded, "?=", 2);
+            result = NWC24_OK;
+            if (encodedSize != NULL) {
+                *encodedSize = Mail_strlen(encoded) + 1;
+            }
+            if (encodeOverflow) {
                 result = NWC24_ERR_OVERFLOW;
             }
         } else {
@@ -416,10 +427,16 @@ static NWC24Err EncodeWord(char* encoded, u32 encodedCapacity, u32* encodedSize,
             if (decodedSizeOut != NULL) {
                 *decodedSizeOut = 1;
             }
+            result = NWC24_ERR_OVERFLOW;
         }
     } else {
         *encoded = '\0';
+        if (decodedSizeOut != NULL) {
+            *decodedSizeOut = 1;
+        }
     }
+
+done:
     return result;
 }
 
@@ -639,8 +656,6 @@ NWC24Err NWC24DecodeMIMEHeaderFieldBody(u8* charsetData, u32 charsetDataSize, u8
     }
     if (encoded == NULL)
         return NWC24_ERR_INVALID_VALUE;
-    if (encoded == NULL)
-        return NWC24_ERR_INVALID_VALUE;
     *decoded = 0;
     *charsetData = 0;
     *decodedSize = 1;
@@ -729,6 +744,9 @@ static NWC24Err ExtractEncodedText(char* decoded, u32 decodedCapacity, u32* deco
     int length;
     NWC24Err result;
 
+    if (decoded == NULL) {
+        return NWC24_ERR_INVALID_VALUE;
+    }
     if (encoded == NULL || decodedSize == NULL) {
         return NWC24_ERR_INVALID_VALUE;
     }

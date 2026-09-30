@@ -217,20 +217,15 @@ void ConvertDaysToDate(u16* year, u8* month, u8* day, s32 days) {
 
     for (;;) {
         s32 previousDays = days;
-        if (*month == 2) {
-            BOOL leapYear = IsLeapYear(*year);
-            if (leapYear) {
-                days -= 29;
-            } else {
-                days -= DAYS_OF_MONTH[*month - 1];
-            }
+        if (*month == 2 && IsLeapYear(*year)) {
+            days -= 29;
         } else {
             days -= DAYS_OF_MONTH[*month - 1];
         }
         if (days < 0) {
             *day += previousDays;
-            return;
+            break;
         }
-        *month = *month + 1;
+        *month += 1;
     }
 }

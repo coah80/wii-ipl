@@ -1,163 +1,112 @@
 #include <private/nwc24.h>
-
-#include <revolution/nwc24.h>
-
+#include <private/os/OSStateTM.h>
 #include <revolution/os.h>
 #include <revolution/sc.h>
-#include <revolution/verdefs.h>
-
 #include <stdlib.h>
 
-SDKDefineVersion(NWC24, "Dec 12 2008", "03:06:06");
-
-#define NWC24_SYSTEM_ERROR_CODE_BASE -0x900
-
+static s32 nwc24ShtFd = -1;
+static s32 nwc24ShtRetryRest = 0;
 static OSShutdownFunctionInfo ShutdownFuncInfo;
-static u32 shtBuffer[8];
-static u32 shtResult[8];
+BOOL NWC24Shutdown(BOOL final, u32 event);
+NWC24Err NWC24iMBoxSetLastUIDL(u32 type, const char* uidl);
 
-s32 nwc24ShtFd = -1;
-
-static s32 nwc24ShtRetryRest;
-static BOOL shuttingdown;
-
-NWC24Err NWC24EnableLedNotification(BOOL enableLed) {
-    SCIdleModeInfo idle;
+NWC24Err NWC24EnableLedNotification(BOOL enable) {
     u8 led = 0;
+    SCIdleModeInfo idleMode;
     u32 status;
-
-    if (enableLed != FALSE) {
+    if (enable) {
         do {
             status = SCCheckStatus();
-            if (status == SC_STATUS_FATAL) {
+            if (status == 2)
                 return NWC24_ERR_FATAL;
-            }
-        } while (status == SC_STATUS_BUSY);
-
-        SCGetIdleMode(&idle);
-        led = idle.led;
+        } while (status == 1);
+        SCGetIdleMode(&idleMode);
+        led = idleMode.led;
     }
-
     __OSSetIdleLEDMode(led);
     return NWC24_OK;
 }
 
 NWC24Err NWC24iPrepareShutdown(void) {
-    SCIdleModeInfo idle;
     NWC24Err result = NWC24_OK;
+    SCIdleModeInfo idleMode;
     u32 status;
-
     NWC24iRegister();
-
     ShutdownFuncInfo.func = NWC24Shutdown;
-    ShutdownFuncInfo.priority = 0x6E;
+    ShutdownFuncInfo.priority = 110;
     OSRegisterShutdownFunction(&ShutdownFuncInfo);
-
-    if (nwc24ShtFd < 0) {
+    if (nwc24ShtFd < 0)
         result = NWC24OpenResourceManager("/dev/net/kd/request", &nwc24ShtFd, 1);
-    }
-
     nwc24ShtRetryRest = 5;
-
-    for (;;) {
+    do {
         status = SCCheckStatus();
-        if (status == SC_STATUS_FATAL) {
-            break;
-        }
-        if (status != SC_STATUS_BUSY) {
-            SCGetIdleMode(&idle);
-            __OSSetIdleLEDMode(idle.led);
-            break;
-        }
-    }
-
-    if (OSGetAppType() == 0x40) {
+        if (status == 2)
+            goto ready;
+    } while (status == 1);
+    SCGetIdleMode(&idleMode);
+    __OSSetIdleLEDMode(idleMode.led);
+ready:
+    if (OSGetAppType() == 0x40)
         NWC24iSetScriptMode(1);
-    }
-
     return result;
 }
 
+static inline NWC24Err NWC24iRequestShutdown(u32 event, NWC24Err* result) {
+    static u32 shtBuffer[8] ALIGN32;
+    static u32 shtResult[8] ALIGN32;
+    shtBuffer[0] = event;
+    return NWC24IoctlResourceManagerAsync(nwc24ShtFd, NWC24_IOCTL_SHUTDOWN, shtBuffer, sizeof(shtBuffer), shtResult, sizeof(shtResult), (s32*)result);
+}
+
 BOOL NWC24Shutdown(BOOL final, u32 event) {
-    static long result;
-
-    if (final != FALSE) {
+    static BOOL shuttingdown = FALSE;
+    static NWC24Err result = NWC24_OK;
+    if (final)
         return TRUE;
-    }
-
-    if (shuttingdown != FALSE) {
-        if (NWC24IsAsyncRequestPending() != FALSE) {
+    if (shuttingdown) {
+        if (NWC24IsAsyncRequestPending())
             return FALSE;
-        }
-
-        if (result >= 0) {
+        if (result >= 0)
             return TRUE;
-        }
-
         if (nwc24ShtRetryRest > 0) {
-            s32 rest = nwc24ShtRetryRest - 1;
             shuttingdown = FALSE;
-            nwc24ShtRetryRest = rest;
-        } else {
+            nwc24ShtRetryRest--;
+        } else
             return TRUE;
-        }
-    } else {
-        shtBuffer[0] = event;
-        if (NWC24iIoctlResourceManagerAsync("NWC24iRequestShutdown", nwc24ShtFd, NWC24_IOCTL_SHUTDOWN, shtBuffer, sizeof(shtBuffer),
-                                          shtResult, sizeof(shtResult), &result) >= 0) {
-            shuttingdown = TRUE;
-        }
-    }
-
+    } else if (NWC24iRequestShutdown(event, &result) >= 0)
+        shuttingdown = TRUE;
     return FALSE;
 }
 
 NWC24Err NWC24DoDailyTasks(void* work) {
-    SCIdleModeInfo idle;
     NWC24Err result = NWC24_OK;
+    SCIdleModeInfo idleMode;
     u32 status;
-    u32 i = 0;
-    u64 elapsed = i * 100;
-
-    if ((u32)(rand() + OSGetTick()) % 10 != 0) {
+    u32 restrictions;
+    u32 tick = OSGetTick();
+    u32 randomValue = rand();
+    if ((randomValue + tick) % 10 != 0)
         return NWC24_OK;
-    }
-
-    if (NWC24IsMsgLibOpened() != FALSE) {
+    if (NWC24IsMsgLibOpened())
         return NWC24_ERR_LIB_OPENED;
-    }
-
-    for (;;) {
+    do {
         status = SCCheckStatus();
-        if (status == SC_STATUS_FATAL) {
+        if (status == 2)
             return NWC24_ERR_FATAL;
-        }
-        OSSleepTicks((u64)100 * (OS_TIMER_CLOCK / 1000) + (elapsed << 32));
-
-        if (status == SC_STATUS_OK) {
-            break;
-        }
-    }
-
-    if (SCGetIdleMode(&idle) == FALSE) {
+        OSSleepTicks(OSMillisecondsToTicks((OSTime)100));
+    } while (status != 0);
+    if (!SCGetIdleMode(&idleMode))
         return NWC24_ERR_NOT_FOUND;
+    restrictions = SCGetNetContentRestrictions() & 2;
+    if (idleMode.standby == 0) {
+        if (restrictions == 0) {
+            result = NWC24OpenLib(work);
+            if (result >= 0) {
+                result = NWC24iMBoxSetLastUIDL(NWC24_MBOX_TYPE_RECV, "");
+                NWC24CloseLib();
+            }
+        } else
+            result = NWC24AdjustUniversalTime();
     }
-
-    status = SCGetNetContentRestrictions() & 2;
-
-    if (idle.standby != 0) {
-        return result;
-    }
-
-    if (status != 0) {
-        result = NWC24AdjustUniversalTime();
-    } else {
-        result = NWC24OpenLib(work);
-        if (result >= 0) {
-            result = NWC24iMBoxSetLastUIDL(1, "");
-            NWC24CloseLib();
-        }
-    }
-
     return result;
 }
