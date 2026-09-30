@@ -346,7 +346,6 @@ static void kbdProcKey(u32 key, u32 pressed, u32 channel) {
 
     event.channel = channel;
     event.state = pressed;
-    event.modifiers = 0;
     kbdGetModState(channel, &event.modifiers);
     map = &kbdKeyMaps.maps[data->country];
     keyCount = map->keypadCount;
@@ -407,10 +406,10 @@ static void kbdProcMod(u32 key, u32 pressed, u32 channel) {
     KBDModifierState state;
     u32 finalState;
     s8 value;
-    data = &kbdData[channel];
     delta = (pressed & 1) != 0 ? 1 : -1;
-    flags = kbdKeyMaps.maps[data->country].flags;
+    data = &kbdData[channel];
     state.value = data->modState;
+    flags = kbdKeyMaps.maps[data->country].flags;
 
     kbdGetModState(channel, &state.value);
     switch (key) {
@@ -564,24 +563,19 @@ static inline u32 kbdChannelFlags(u32 channel) {
 
 static void kbd_led_handler(BOOL success, void* callbackArg) {
     u32 index;
-    u32 result;
-    u32 callbackAddress;
     index = (u32)callbackArg;
-    callbackAddress = kbdLCBuf[index].callbackAddress;
 
     kbdCmdBuf[index].device = 0;
-    if (callbackAddress == 0) {
+    if (((USBKBDCmdLEDCallback)kbdLCBuf[index].callbackAddress) == NULL) {
         return;
     }
     switch (success) {
     case TRUE:
-        result = 0;
+        ((USBKBDCmdLEDCallback)kbdLCBuf[index].callbackAddress)(0, kbdLCBuf[index].callbackArg);
         break;
     default:
-        result = 7;
-        break;
+        ((USBKBDCmdLEDCallback)kbdLCBuf[index].callbackAddress)(7, kbdLCBuf[index].callbackArg);
     }
-    ((USBKBDCmdLEDCallback)kbdLCBuf[index].callbackAddress)(result, kbdLCBuf[index].callbackArg);
 }
 
 USBKBDErr KBDSetLedsAsync(u32 channel, u32 leds, USBKBDCmdLEDCallback callback, void* callbackArg) {
@@ -595,7 +589,7 @@ USBKBDErr KBDSetLedsAsync(u32 channel, u32 leds, USBKBDCmdLEDCallback callback, 
     if (channel >= 4) {
         return 4;
     }
-    if ((s32)kbdData[(u8)channel].flags == 1 || (s32)kbdData[(u8)channel].flags == 4) {
+    if ((s32)kbdData[channel].flags == 1 || (s32)kbdData[channel].flags == 4) {
         return 5;
     }
     ledBits = leds;
@@ -616,10 +610,10 @@ USBKBDErr KBDSetLedsAsync(u32 channel, u32 leds, USBKBDCmdLEDCallback callback, 
                                (USBKBDCmdLEDAsync*)&kbdCmdBuf[index],
                                kbd_led_handler, (void*)index);
     switch (result) {
-    case 0:
-        return 0;
     default:
         return 7;
+    case 0:
+        return 0;
     }
 }
 
@@ -627,6 +621,7 @@ USBKBDErr KBDSetLeds(u32 channel, u32 leds) {
     u32 index;
     BOOL interrupts;
     USBKBDErr result;
+    u8 ledBits;
     if (!kbdInitialized) {
         return 2;
     }
@@ -636,7 +631,7 @@ USBKBDErr KBDSetLeds(u32 channel, u32 leds) {
     if ((s32)kbdChannelFlags(channel) == 1 || (s32)kbdChannelFlags(channel) == 4) {
         return 5;
     }
-    leds &= 0xff;
+    ledBits = leds & 0xff;
     interrupts = OSDisableInterrupts();
     index = 0;
     while (index < 12) {
@@ -650,7 +645,7 @@ USBKBDErr KBDSetLeds(u32 channel, u32 leds) {
     if (index == 12) {
         return 7;
     }
-    result = USBKBDSetLED((u32)kbdData[channel].device, leds,
+    result = USBKBDSetLED((u32)kbdData[channel].device, ledBits,
                           (USBKBDCmdLED*)&kbdCmdBuf[index]);
     kbdCmdBuf[index].device = 0;
     switch (result) {
