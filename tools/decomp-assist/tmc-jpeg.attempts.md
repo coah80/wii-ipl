@@ -680,3 +680,25 @@ Orig tree: root cmpwi 0x132; left {11a};{111};{103};{128};{11c-edge};{12d}; righ
   `if (r > 0)` (pre-shift var) gives `cmpwi r5` + `srwi` (orig's form) but the
   inner for-guard re-tests -> double branch. `for(inner=r;inner>0;inner-=8)`
   gives one `cmpwi r` guard but folds `done=iter<<3` to `rlwinm` on pre-shift.
+
+## Phase 4 findings (Y8U8V8 chroma dual-path)
+
+- MWCC unroll emits `if (span > 8) { ×8 mtctr body + scalar tail } else { scalar }` for
+  `for (x = lo; x < hi; x++)` where span = hi-lo. Both paths RE-derive the row setup
+  (`(y>>2)*stride`, `out + ((y&3)<<3)`) inside each branch — MWCC remats per-path
+  instead of keeping the values live across the guard.
+- LEVER: writing row-setup as INLINE expressions in the store
+  (`out0[((y & 3) << 3) + off + xo]`, `off = ((x>>3) + (y>>2)*stride) << 5`) stops
+  MWCC from hoisting them into named temps — reproduces orig's per-path recompute.
+  Applied to luma + chroma loops: unit gap 126 -> 70.
+- EXCEPTION: 420's `x_pos += 2` luma loop wants NAMED locals (hoisted) — inline
+  collapsed it 467->335; kept named-locals there. MWCC's remat choice is per-fn.
+- The `lis -0x8000; addi -2; cmpw; bgt; li flag,1; cmpwi; beq` chains are MWCC's
+  signed-wrap safety proofs for `end-8` bounds in the unrolled fast path — generated
+  internally, NOT source-visible logic. Count varies with MWCC's analysis depth.
+- Explicit `if (span>8){...}else{...}` in source BALLOONS (MWCC adds its own guard
+  on top of the manual split) — the dual-path must come from MWCC's unroller.
+- `x_pos != x_end` bound (not `<`) is what produces orig's count on 444/444e —
+  `<` collapses unrolling entirely (99->260). Orig emits `bge` though; counts equal.
+- set_converter: orig keeps ONE callee reg (ob) for the whole fn; deferring `st`
+  load / dropping `cc` made no difference — residual +5 is frame-size regalloc.
