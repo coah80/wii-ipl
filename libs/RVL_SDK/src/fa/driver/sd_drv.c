@@ -33,9 +33,16 @@ PFD_SDDRV_INFO g_pfd_sddrv_info;
 PFD_SDDEV_STORAGE g_pfd_sddev;
 u8 g_pfd_sddrv_buf[0x200];
 
-static FAInsertCallback g_attach_func;
-static FAEjectCallback g_detach_func;
+u32 pfd_sddrv_reserved;
 u32 g_event;
+u32 pfd_sddrv_work0;
+u32 pfd_sddrv_work1;
+u32 pfd_sddrv_work2;
+u32 pfd_sddrv_work3;
+u32 pfd_sddrv_work4;
+u32 pfd_sddrv_work5;
+static FAEjectCallback g_detach_func;
+static FAInsertCallback g_attach_func;
 
 extern u8 pfd_get_media_drv_char(FADisk*, s8*, u32);
 extern void pdm_disk_notify_media_insert(FADisk*);

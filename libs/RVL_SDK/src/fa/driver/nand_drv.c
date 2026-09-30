@@ -24,9 +24,16 @@ char NAND_Org_Path[64];
 NAND_DISK_INFO nanddisk_info[23];
 NAND_SEMAPHORE csem;
 NAND_SEMAPHORE osem;
-s32 Nanddisk_Internal_Info_Init;
-s32 NAND_Init;
+u32 fa_nanddrv_bss_tail[4];
+__declspec(export) u32 fa_nanddrv_work0;
+__declspec(export) u32 fa_nanddrv_work1;
+__declspec(export) u32 fa_nanddrv_work2;
+__declspec(export) u32 fa_nanddrv_work3;
+__declspec(export) u32 fa_nanddrv_work4;
 s32 fa_nanad_semid;
+s32 NAND_Init;
+s32 Nanddisk_Internal_Info_Init;
+
 
 static inline s32 find_disk(PDM_DISK* disk, NAND_DISK_INFO** result) {
     NAND_DISK_INFO* info;
@@ -164,7 +171,7 @@ static s32 fa_nanddrv_ParseCreateNANDFile(NAND_DISK_INFO* info) {
                 return error;
             }
             if (length > 11) { return -20; }
-            if (pf_strcmp(name, "..") != 0) { error = NANDCreateDir(name, 0x30, 0); }
+            if (pf_strcmp(name, "..\0") != 0) { error = NANDCreateDir(name, 0x30, 0); }
             else { error = 0; }
             if (error == 0 || error == -6 || error == -1) {
                 error = NANDChangeDir(name);
@@ -196,6 +203,7 @@ static s32 fa_nanddrv_ParseCreateNANDFile(NAND_DISK_INFO* info) {
     }
 }
 static s32 fa_nanddrv_VerifyBPB(u8* buf, u32* clusters) {
+
     u8 sector_log = 0;
     u8 cluster_log;
     u16 value = 512;
@@ -534,3 +542,4 @@ static s32 fa_nanddrv_physical_write(u32 count, const u8* buf, u32 block, u32 bp
     store_disk_error(disk, error);
     return error;
 }
+
