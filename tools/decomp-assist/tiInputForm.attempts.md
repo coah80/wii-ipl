@@ -326,3 +326,167 @@ readability warnings (net, per file; must be 0 in the final result): 0
 review note: src/keyboard/tiInputForm.cpp: possible pointer+offset into a blob (orchestrator reviews) (+1 net), e.g. if (static_cast<u16>(character + 0xcf65) <= 1) {
 GATE PASS
 ```
+
+## Fourth continuation
+- Baseline: 206/221 instruction-exact, 208/221 objdiff exact, code 28300/50656, data 908/3772; twelve exact asm bodies remain. Applying unslop to the attempt log and final handoff.
+- onPressLeftHWKB__Q39textinput9inputform4BaseFv: signed kana direct zero guard: src 0x41c base 0x420 insns 263/264; --- replace mine 19:20 base 19:20; restored prior body.
+- onPressLeftHWKB__Q39textinput9inputform4BaseFv: signed kana zero case switch: src 0x424 base 0x420 insns 265/264; --- replace mine 19:20 base 19:20; restored prior body.
+- onPressLeftHWKB__Q39textinput9inputform4BaseFv: signed kana result local: src 0x41c base 0x420 insns 263/264; --- replace mine 19:20 base 19:20; restored prior body.
+- onPressRightHWKB__Q39textinput9inputform4BaseFv: signed kana direct zero guard: src 0x448 base 0x44c insns 274/275; --- replace mine 19:20 base 19:20; restored prior body.
+- onPressRightHWKB__Q39textinput9inputform4BaseFv: signed kana zero case switch: src 0x450 base 0x44c insns 276/275; --- replace mine 19:20 base 19:20; restored prior body.
+- onPressRightHWKB__Q39textinput9inputform4BaseFv: signed kana result local: src 0x448 base 0x44c insns 274/275; --- replace mine 19:20 base 19:20; restored prior body.
+- isOverLine__Q39textinput9inputform4BaseFRCQ49textinput10textdrawer4Base8DrawInfo: plain scale aggregates: src 0xdc base 0xcc insns 55/51; --- replace mine 0:1 base 0:1; restored prior body.
+- isOverLine__Q39textinput9inputform4BaseFRCQ49textinput10textdrawer4Base8DrawInfo: scale assignment into declared vectors: src 0xec base 0xcc insns 59/51; --- replace mine 0:1 base 0:1; restored prior body.
+- isOverLine__Q39textinput9inputform4BaseFRCQ49textinput10textdrawer4Base8DrawInfo: plain scale aggregates width first: src 0xdc base 0xcc insns 55/51; --- replace mine 0:1 base 0:1; restored prior body.
+- draw__Q39textinput9inputform12LayoutByNW4RFv: clip declared before scale: src 0x1dc base 0x1c8 insns 119/114; --- insert mine 44:44 base 44:49; restored prior body.
+- draw__Q39textinput9inputform12LayoutByNW4RFv: global declared before scale: src 0x1c8 base 0x1c8 insns 114/114; diffs 14: [50, 56, 59, 60, 63, 64, 65, 66, 67, 68, 69, 70, 73, 75]; restored prior body.
+- draw__Q39textinput9inputform12LayoutByNW4RFv: plain global scale aggregates: src 0x1c8 base 0x1c8 insns 114/114; diffs 12: [50, 56, 59, 60, 63, 64, 65, 66, 67, 69, 73, 75]; restored prior body.
+- drawCursor__Q39textinput9inputform4BaseFff: cursor direct byte thickness: src 0x118 base 0x118 insns 70/70; diffs 0: []; retained exact C++.
+- Guarded signed isKanaFix return experiment: the callee stays 19/19 exact; HWKB direct zero guard loses one tail branch, zero-case switch adds one, result local loses one. Restored the original bool signature.
+- moveCursorUp__Q39textinput9inputform4BaseFv: upper row coordinate compound subtract: src 0x160 base 0x160 insns 88/88; diffs 3: [58, 59, 63]; restored prior body.
+- moveCursorUp__Q39textinput9inputform4BaseFv: upper row coordinate separate index: src 0x160 base 0x160 insns 88/88; diffs 0: []; retained exact C++.
+- isOverLine__Q39textinput9inputform4BaseFRCQ49textinput10textdrawer4Base8DrawInfo: line direct scale expressions: src 0xc0 base 0xcc insns 48/51; --- delete mine 7:8 base 7:7; restored prior body.
+- isOverLine__Q39textinput9inputform4BaseFRCQ49textinput10textdrawer4Base8DrawInfo: line intermediate field span: src 0xbc base 0xcc insns 47/51; --- replace mine 0:1 base 0:1; restored prior body.
+- isOverLine__Q39textinput9inputform4BaseFRCQ49textinput10textdrawer4Base8DrawInfo: line direct width expressions: src 0xac base 0xcc insns 43/51; --- replace mine 0:1 base 0:1; restored prior body.
+- getCurrentString__Q39textinput9inputform4BaseFb: current string prediction switch: src 0x1c0 base 0x1c0 insns 112/112; diffs 0: []; retained exact C++.
+- findURL__Q39textinput9inputform4BaseFPUlPUlPCwUlUl: URL switch with ASCII character classes: src 0x1b8 base 0x1bc insns 110/111; --- insert mine 5:5 base 5:6; restored prior body.
+- findURL__Q39textinput9inputform4BaseFPUlPUlPCwUlUl: URL switch reordered letter cases: src 0x1b4 base 0x1bc insns 109/111; --- insert mine 5:5 base 5:6; restored prior body.
+- findURL__Q39textinput9inputform4BaseFPUlPUlPCwUlUl: URL switch prefix pointer iteration: src 0x1b8 base 0x1bc insns 110/111; --- insert mine 5:5 base 5:6; restored prior body.
+- findURL__Q39textinput9inputform4BaseFPUlPUlPCwUlUl: URL prefix table cached before scan: src 0x1bc base 0x1bc insns 111/111; diffs 20: [5, 9, 10, 11, 15, 57, 66, 73, 74, 76, 79, 80, 82, 88, 89, 91, 93, 95, 101, 102]; restored prior body.
+- findURL__Q39textinput9inputform4BaseFPUlPUlPCwUlUl: URL cached prefix iterator: src 0x1bc base 0x1bc insns 111/111; diffs 36: [5, 9, 10, 11, 12, 13, 15, 53, 57, 58, 60, 62, 66, 69, 71, 73, 74, 75, 76, 77]; restored prior body.
+- findURL__Q39textinput9inputform4BaseFPUlPUlPCwUlUl: URL length before word pointer declaration: src 0x1bc base 0x1bc insns 111/111; diffs 31: [5, 9, 10, 11, 12, 13, 15, 53, 57, 58, 60, 62, 66, 69, 71, 73, 75, 76, 79, 82]; restored prior body.
+- onPressLeft__Q39textinput9inputform4BaseFv: left explicit kana cases: src 0x278 base 0x268 insns 158/154; --- replace mine 15:16 base 15:16; restored prior body.
+- onPressLeft__Q39textinput9inputform4BaseFv: left kana guard in loop: src 0x26c base 0x268 insns 155/154; --- replace mine 15:16 base 15:16; restored prior body.
+- onPressLeft__Q39textinput9inputform4BaseFv: left kana negative switch: src 0x274 base 0x268 insns 157/154; --- replace mine 15:16 base 15:16; restored prior body.
+- onPressRight__Q39textinput9inputform4BaseFv: right aggregate space then clear: src 0x308 base 0x2e4 insns 194/185; --- replace mine 0:1 base 0:1; restored prior body.
+- onPressRight__Q39textinput9inputform4BaseFv: right byte-copy ordinary wide literal: src 0x2cc base 0x2e4 insns 179/185; --- replace mine 15:16 base 15:16; restored prior body.
+- onPressRight__Q39textinput9inputform4BaseFv: right initialized space pair: src 0x2cc base 0x2e4 insns 179/185; --- replace mine 15:16 base 15:16; restored prior body.
+- autoScroll__Q39textinput9inputform4BaseFv: automatic scroll direct scale expression: src 0x26c base 0x258 insns 155/150; --- replace mine 0:1 base 0:1; restored prior body.
+- autoScroll__Q39textinput9inputform4BaseFv: automatic scroll inline row conversion: src 0x26c base 0x258 insns 155/150; --- replace mine 0:1 base 0:1; restored prior body.
+- autoScroll__Q39textinput9inputform4BaseFv: automatic scroll height-first scale expression: src 0x258 base 0x258 insns 150/150; diffs 25: [26, 50, 52, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 118, 120, 122, 123, 124, 125, 126]; restored prior body.
+- init__Q49textinput9inputform4Base14RowInfoManagerFv: row sentinel full-width index: src 0xbc base 0x9c insns 47/39; --- replace mine 1:3 base 1:2; restored prior body.
+- init__Q49textinput9inputform4Base14RowInfoManagerFv: row end indices captured before stores: src 0xb8 base 0x9c insns 46/39; --- replace mine 12:13 base 12:13; restored prior body.
+- init__Q49textinput9inputform4Base14RowInfoManagerFv: row sentinel pair reference: src 0xa0 base 0x9c insns 40/39; --- replace mine 12:13 base 12:13; restored prior body.
+- init__Q49textinput9inputform4Base14RowInfoManagerFv: row end cached preceding index: src 0x9c base 0x9c insns 39/39; diffs 15: [12, 14, 16, 17, 18, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29]; restored prior body.
+- init__Q49textinput9inputform4Base14RowInfoManagerFv: row end pointer instead of reference: src 0x9c base 0x9c insns 39/39; diffs 15: [12, 14, 16, 17, 18, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29]; restored prior body.
+- init__Q49textinput9inputform4Base14RowInfoManagerFv: row end loop pair references: src 0x9c base 0x9c insns 39/39; diffs 15: [12, 14, 16, 17, 18, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29]; restored prior body.
+- calc__Q39textinput9inputform4BaseFv: color direct byte blue conversion: src 0x294 base 0x294 insns 165/165; diffs 8: [53, 126, 128, 129, 130, 152, 153, 154]; restored prior body.
+- calc__Q39textinput9inputform4BaseFv: color timer and phase locals before updates: src 0x294 base 0x294 insns 165/165; diffs 6: [53, 126, 128, 129, 130, 155]; restored prior body.
+- calc__Q39textinput9inputform4BaseFv: color direct byte channels: src 0x294 base 0x294 insns 165/165; diffs 8: [53, 126, 128, 129, 130, 152, 153, 154]; restored prior body.
+- create__Q39textinput9inputform4BaseFP12MEMAllocatorPQ39textinput9inputform10EditBuffer: base row selected reference: compile failed build/43U/src/src/keyboard && "/usr/bin/python3" tools/transform_dep.py build/43U/src/src/keyboard/tiInputForm.d build/43U/src/src/keyboard/tiInputForm.d ### mwcceppc.exe Compiler: #    File: src\keyboard\tiInputForm.cpp # ------------------------------------- #    1903:     u16 previous = selected.Back;  #   Error:                             ^^^^ #   (10141) expression syntax error #   Too many errors printed, aborting program  User break, cancelled... ninja: build stopped: subcommand failed. ; restored prior body.
+- create__Q39textinput9inputform4BaseFP12MEMAllocatorPQ39textinput9inputform10EditBuffer: base row detached state captured: src 0x120 base 0x120 insns 72/72; diffs 26: [28, 30, 33, 34, 35, 36, 37, 38, 39, 40, 42, 43, 44, 46, 49, 51, 53, 54, 55, 56]; restored prior body.
+- create__Q39textinput9inputform4BaseFP12MEMAllocatorPQ39textinput9inputform10EditBuffer: base row next preceding index order: src 0x120 base 0x120 insns 72/72; diffs 26: [28, 30, 33, 34, 35, 36, 37, 38, 39, 40, 42, 43, 44, 46, 49, 51, 53, 54, 55, 56]; restored prior body.
+- onPressRight__Q39textinput9inputform4BaseFv: right string buffer aggregate: src 0x308 base 0x2e4 insns 194/185; --- replace mine 0:1 base 0:1; restored prior body.
+- onPressRight__Q39textinput9inputform4BaseFv: right string buffer aggregate byte copy: src 0x328 base 0x2e4 insns 202/185; --- replace mine 0:1 base 0:1; restored prior body.
+- onPressRight__Q39textinput9inputform4BaseFv: right string buffer whole literal byte copy: src 0x2d0 base 0x2e4 insns 180/185; --- replace mine 15:16 base 15:16; restored prior body.
+- onSpaceKeyHWKB__Q39textinput9inputform4BaseFUl: space Atok integer enable guard: src 0x96c base 0x96c insns 603/603; diffs 0: []; retained exact C++.
+- onCursor__Q39textinput9inputform4BaseFPQ49textinput10textdrawer4Base9CursorPos: space marker scale final operand: src 0x764 base 0x764 insns 473/473; diffs 5: [271, 273, 276, 281, 283]; restored prior body.
+- onCursor__Q39textinput9inputform4BaseFPQ49textinput10textdrawer4Base9CursorPos: space marker factor after width locals: src 0x764 base 0x764 insns 473/473; diffs 9: [271, 273, 274, 275, 276, 277, 278, 281, 283]; restored prior body.
+- onCursor__Q39textinput9inputform4BaseFPQ49textinput10textdrawer4Base9CursorPos: space marker offset computed by compound steps: src 0x764 base 0x764 insns 473/473; diffs 17: [265, 267, 268, 269, 270, 271, 272, 273, 274, 275, 276, 277, 278, 279, 280, 281, 283]; restored prior body.
+- onPressLeftHWKB__Q39textinput9inputform4BaseFv: onPressLeftHWKB kana false case before default: src 0x424 base 0x420 insns 265/264; --- replace mine 19:20 base 19:20; restored prior body.
+- onPressLeftHWKB__Q39textinput9inputform4BaseFv: onPressLeftHWKB kana explicit false and true cases: src 0x430 base 0x420 insns 268/264; --- replace mine 19:20 base 19:20; restored prior body.
+- onPressLeftHWKB__Q39textinput9inputform4BaseFv: onPressLeftHWKB kana conditional positive block: src 0x41c base 0x420 insns 263/264; --- replace mine 19:20 base 19:20; restored prior body.
+- onPressRightHWKB__Q39textinput9inputform4BaseFv: onPressRightHWKB kana false case before default: src 0x450 base 0x44c insns 276/275; --- replace mine 19:20 base 19:20; restored prior body.
+- onPressRightHWKB__Q39textinput9inputform4BaseFv: onPressRightHWKB kana explicit false and true cases: src 0x45c base 0x44c insns 279/275; --- replace mine 19:20 base 19:20; restored prior body.
+- onPressRightHWKB__Q39textinput9inputform4BaseFv: onPressRightHWKB kana conditional positive block: src 0x448 base 0x44c insns 274/275; --- replace mine 19:20 base 19:20; restored prior body.
+- onPressUp__Q39textinput9inputform4BaseFv: onPressUp kana false case before default: src 0x3dc base 0x3d8 insns 247/246; --- replace mine 11:12 base 11:12; restored prior body.
+- onPressUp__Q39textinput9inputform4BaseFv: onPressUp kana explicit false and true cases: src 0x3e8 base 0x3d8 insns 250/246; --- replace mine 11:12 base 11:12; restored prior body.
+- onPressUp__Q39textinput9inputform4BaseFv: onPressUp kana conditional positive block: src 0x3d4 base 0x3d8 insns 245/246; --- replace mine 11:12 base 11:12; restored prior body.
+- onPressDown__Q39textinput9inputform4BaseFv: onPressDown kana false case before default: src 0x3dc base 0x3d8 insns 247/246; --- replace mine 11:12 base 11:12; restored prior body.
+- onPressDown__Q39textinput9inputform4BaseFv: onPressDown kana explicit false and true cases: src 0x3e8 base 0x3d8 insns 250/246; --- replace mine 11:12 base 11:12; restored prior body.
+- onPressDown__Q39textinput9inputform4BaseFv: onPressDown kana conditional positive block: src 0x3d4 base 0x3d8 insns 245/246; --- replace mine 11:12 base 11:12; restored prior body.
+- onPressDownHWKB__Q39textinput9inputform4BaseFv: down HWKB candidate decrement narrow type: src 0x428 base 0x438 insns 266/270; --- replace mine 16:17 base 16:17; restored prior body.
+- onPressDownHWKB__Q39textinput9inputform4BaseFv: down HWKB candidate count local: src 0x428 base 0x438 insns 266/270; --- replace mine 16:17 base 16:17; restored prior body.
+- onPressDownHWKB__Q39textinput9inputform4BaseFv: down HWKB explicit kana switch: src 0x42c base 0x438 insns 267/270; --- replace mine 97:98 base 97:98; restored prior body.
+- setLanguage__Q39textinput9inputform12LayoutByNW4RFQ29textinput8Language: language text pane name before root query: src 0x3b4 base 0x3b4 insns 237/237; diffs 22: [57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 118, 119, 120, 121, 122, 123, 124, 125, 126]; restored prior body.
+- setLanguage__Q39textinput9inputform12LayoutByNW4RFQ29textinput8Language: language repeated title query direct cast: src 0x3b4 base 0x3b4 insns 237/237; diffs 59: [57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 78, 79, 82, 83, 90, 91, 92, 95, 98]; restored prior body.
+- setLanguage__Q39textinput9inputform12LayoutByNW4RFQ29textinput8Language: language selected name conditional assignment: src 0x3b4 base 0x3b4 insns 237/237; diffs 22: [57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 118, 119, 120, 121, 122, 123, 124, 125, 126]; restored prior body.
+- create__Q39textinput9inputform12LayoutByNW4RFP12MEMAllocatorPQ39textinput9inputform10EditBuffer: layout placement constructor implicit null check: src 0x584 base 0x590 insns 353/356; --- replace mine 5:6 base 5:6; restored prior body.
+- create__Q39textinput9inputform12LayoutByNW4RFP12MEMAllocatorPQ39textinput9inputform10EditBuffer: layout row previous index widened: src 0x590 base 0x590 insns 356/356; diffs 205: [5, 7, 8, 10, 14, 15, 16, 20, 22, 23, 25, 26, 28, 29, 30, 31, 32, 33, 34, 35]; restored prior body.
+- create__Q39textinput9inputform12LayoutByNW4RFP12MEMAllocatorPQ39textinput9inputform10EditBuffer: layout unused detached-state local, discarded: src 0x590 base 0x590 insns 356/356; diffs 205: [5, 7, 8, 10, 14, 15, 16, 20, 22, 23, 25, 26, 28, 29, 30, 31, 32, 33, 34, 35]; restored prior body.
+- calcCursorPos__Q39textinput9inputform4BaseFff: cursor coordinate scale operands reversed: src 0x518 base 0x518 insns 326/326; diffs 81: [28, 45, 49, 51, 58, 60, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 94]; restored prior body.
+- calcCursorPos__Q39textinput9inputform4BaseFff: cursor coordinate line bottom recomputed local: src 0x518 base 0x518 insns 326/326; diffs 81: [28, 45, 49, 51, 58, 60, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 94]; restored prior body.
+- calcCursorPos__Q39textinput9inputform4BaseFff: cursor coordinate draw info brace initialization: src 0x548 base 0x518 insns 338/326; --- replace mine 0:1 base 0:1; restored prior body.
+- isOverRowLimit__Q39textinput9inputform4BaseFUlPCw: row limit width from direct scale query: src 0x3a8 base 0x3b8 insns 234/238; --- replace mine 0:1 base 0:1; restored prior body.
+- isOverRowLimit__Q39textinput9inputform4BaseFUlPCw: row limit current iterator const local: src 0x3b0 base 0x3b8 insns 236/238; --- replace mine 0:1 base 0:1; restored prior body.
+- isOverRowLimit__Q39textinput9inputform4BaseFUlPCw: row limit field width operand reversed: src 0x3b0 base 0x3b8 insns 236/238; --- replace mine 0:1 base 0:1; restored prior body.
+- onCommand__Q39textinput9inputform4BaseFQ39textinput15CommandReceiver13INPUT_COMMANDPv: command fixed comparison positive ternary: src 0x2020 base 0x2014 insns 2056/2053; --- replace mine 0:1 base 0:1; restored prior body.
+- onCommand__Q39textinput9inputform4BaseFQ39textinput15CommandReceiver13INPUT_COMMANDPv: command active mode integer temporary: src 0x2020 base 0x2014 insns 2056/2053; --- replace mine 0:1 base 0:1; restored prior body.
+- onCommand__Q39textinput9inputform4BaseFQ39textinput15CommandReceiver13INPUT_COMMANDPv: command fixed pointer query after current: src 0x2020 base 0x2014 insns 2056/2053; --- replace mine 0:1 base 0:1; restored prior body.
+- create__Q39textinput9inputform4BaseFP12MEMAllocatorPQ39textinput9inputform10EditBuffer: base row reference corrected declaration: src 0x120 base 0x120 insns 72/72; diffs 26: [28, 30, 33, 34, 35, 36, 37, 38, 39, 40, 42, 43, 44, 46, 49, 51, 53, 54, 55, 56]; restored prior body.
+- create__Q39textinput9inputform12LayoutByNW4RFP12MEMAllocatorPQ39textinput9inputform10EditBuffer: layout genuine detached-row guard: src 0x598 base 0x590 insns 358/356; --- replace mine 5:6 base 5:6; restored prior body.
+- isEnableCursorCache__Q39textinput10textdrawer4BaseCFv: cache bool conditional return: 8/8 bytes, raw equality True; restored prior body. Original concatenated symbol remains unchanged.
+- isEnableCursorCache__Q39textinput10textdrawer4BaseCFv: cache explicit positive branch: 8/8 bytes, raw equality True; restored prior body. Original concatenated symbol remains unchanged.
+- isEnableCursorCache__Q39textinput10textdrawer4BaseCFv: cache nonzero integer predicate: 20/8 bytes, raw equality False; restored prior body. Original concatenated symbol remains unchanged.
+
+### Fourth continuation handoff
+- Three exact asm bodies converted to readable C++: getCurrentString 112/112, moveCursorUp 88/88, drawCursor 70/70. Remaining asm count is 12 -> 9. onSpaceKeyHWKB now matches 603/603, adding one instruction-exact function and 2412 exact code bytes.
+- Prediction-mode switch preserves getCurrentString's original extra branch. Separating the upper-row coordinate and cursor index matches moveCursorUp's virtual-call scheduling. Direct u8 thickness conversion matches drawCursor's two integer registers. The integer prediction-enabled local preserves onSpaceKeyHWKB's original Boolean block order.
+- Every remaining asm body has at least three fresh compiled source-level attempts this round. Every remaining report-nonmatching entry also has at least three fresh attempts. The malformed cursor-cache symbol was checked with three compiled implementations against its original eight bytes. Failed preliminary reference declarations were corrected and rebuilt before counting attempts.
+- Data: UEJ/KOR visibility tables now use their actual u16 counts and pane-name arrays; all three language tables use their actual visibility/separator/text/title fields. Binary contents, relocations, token order and section sizes remain unchanged. Chinese visibility storage still has its inherited trailing word; this round adds no padding or objects.
+- Fresh ELF audit: all main vtables through WithAtok retain the original offsets. Genuine Decolated/GUIComponent vtables occupy additional weak storage, whereas the extracted target omits these deduplicated objects. EditBuffer and textinput Base target vtable sizes include four and 28 trailing zero bytes. The singleton weak guard/object precede seven real colors, shifting their .sbss offsets by eight bytes. These differences remain unresolved without artificial data placement. No linking investigation or Matching status changes.
+- The literal pool is identical, and .rodata/.sdata/.sdata2 remain 100%. .data retains jump-table target differences from unmatched code and weak vtable differences; .sbss is below 100%. Full data completion is still open.
+- Uncertain: original spelling/types of some drawer fields, the intended source form of weak singleton/color storage, and the trailing Chinese visibility word. No shared headers are changed this round.
+
+### Fourth continuation remaining report-nonmatching functions
+Base::onPressLeftHWKB, 99.97727%, two kana comparison/branch-polarity instructions; direct guard loses a tail branch, explicit cases add instructions.
+Base::onPressRightHWKB, 99.97818%, same two kana comparison/branch-polarity instructions.
+Base::onCursor, 99.915436%, five centered-space FP register/operand differences; compound offset evaluation worsens scheduling.
+Base::onPressUp, 99.55285%, missing kana tail branch; false/default switch adds one instruction, explicit cases add four.
+Base::onPressDown, 99.55285%, same missing kana tail branch.
+Base::onPressDownHWKB, 98.35185%, candidate index/branch scheduling and final comparison; three variants remain 266/270 or 267/270 instructions.
+LayoutByNW4R::setLanguage, 96.44726%, 22 root-query scheduling differences; name local and ternary retain those differences, title local worsens allocation.
+Base::isOverRowLimit, 93.63866%, stack frame and FP/register scheduling; direct scale removes four instructions, operand variants remain 236/238.
+Base::calcCursorPos, 90.671776%, FP/register scheduling; two variants retain 326/326 with 81 differences, aggregate glyph initialization adds instructions.
+LayoutByNW4R::create, 88.91854%, row-list allocation/register scheduling; narrow index unchanged, implicit placement constructor removes three instructions, detached guard adds two.
+Base::onCommand, 88.05163%, frame, case scheduling and register allocation; three variants retain 2056/2053 instructions.
+textdrawer::Base::isEnableCursorCache, None%, original report concatenates getStartPos; actual accessor remains eight exact bytes. No aliases or symbol edits.
+
+### Fourth continuation remaining exact asm bodies
+LayoutByNW4R::draw, 100%, closest C++ 114/114 with twelve vector temporary stack offsets.
+Base::findURL, 100%, balanced ASCII switch and cached real prefix table produce 111/111; closest twenty register differences. Three later variants change allocation, without improving the closest result.
+Base::autoScroll, 100%, direct height/scale expression produces 150/150; twenty-five FP and instruction scheduling differences.
+Base::create(MEMAllocator*, EditBuffer*), 100%, typed detached-row guard and list reload produce 72/72; twenty-six register differences.
+Base::onPressLeft, 100%, kana guard and prediction Boolean block order remain; fresh case/loop variants 158/154, 155/154, 157/154.
+Base::onPressRight, 100%, wide space buffer uses halfword stores while target uses word copies; fresh ordinary aggregate/copy variants differ in counts and kana guard.
+Base::calc, 100%, closest C++ 165/165 with six FP/store scheduling differences after genuine timer/phase locals.
+Base::RowInfoManager::init, 100%, references and preceding-row index produce 39/39 with fifteen index-load/store scheduling/register differences.
+Base::isOverLine, 100%, named vectors copy four extra words; expression variants reduce to 48/51, 47/51, 43/51 by changing scale/width scheduling.
+
+### Fourth continuation final full gate
+```text
+full build: ok
+main.dol sha1: 26116613f624061ba99c8d1a299aaa6efa85670d
+[src/keyboard/tiInputForm] pool: IDENTICAL
+[src/keyboard/tiInputForm] objdiff: code 30712/50656 data 908/3772 functions 209/221 fuzzy 97.2529 linked code 0
+[src/keyboard/tiInputForm] instruction-exact functions: 207/221
+[src/keyboard/tiInputForm]   section .bss size 96 match None
+[src/keyboard/tiInputForm]   section .ctors size 4 match 100.0
+[src/keyboard/tiInputForm]   section .data size 2736 match 65.53332
+[src/keyboard/tiInputForm]   section .rodata size 760 match 100.0
+[src/keyboard/tiInputForm]   section .sbss size 32 match 33.333336
+[src/keyboard/tiInputForm]   section .sdata size 40 match 100.0
+[src/keyboard/tiInputForm]   section .sdata2 size 104 match 100.0
+[src/keyboard/tiInputForm]   section .text size 50656 match 97.25292
+[src/keyboard/tiInputForm]   below 100: onCommand__Q39textinput9inputform4BaseFQ39textinput15CommandReceiver13INPUT_COMMANDPv 88.05163
+[src/keyboard/tiInputForm]   below 100: onCursor__Q39textinput9inputform4BaseFPQ49textinput10textdrawer4Base9CursorPos 99.915436
+[src/keyboard/tiInputForm]   below 100: calcCursorPos__Q39textinput9inputform4BaseFff 90.671776
+[src/keyboard/tiInputForm]   below 100: onPressUp__Q39textinput9inputform4BaseFv 99.55285
+[src/keyboard/tiInputForm]   below 100: onPressDown__Q39textinput9inputform4BaseFv 99.55285
+[src/keyboard/tiInputForm]   below 100: onPressDownHWKB__Q39textinput9inputform4BaseFv 98.35185
+[src/keyboard/tiInputForm]   below 100: onPressLeftHWKB__Q39textinput9inputform4BaseFv 99.97727
+[src/keyboard/tiInputForm]   below 100: onPressRightHWKB__Q39textinput9inputform4BaseFv 99.97818
+[src/keyboard/tiInputForm]   below 100: create__Q39textinput9inputform12LayoutByNW4RFP12MEMAllocatorPQ39textinput9inputform10EditBuffer 88.91854
+[src/keyboard/tiInputForm]   below 100: setLanguage__Q39textinput9inputform12LayoutByNW4RFQ29textinput8Language 96.44726
+[src/keyboard/tiInputForm]   below 100: isOverRowLimit__Q39textinput9inputform4BaseFUlPCw 93.63866
+[src/keyboard/tiInputForm]   below 100: isEnableCursorCache__Q39textinput10textdrawer4BaseCFvgetStartPos__Q39textinput10textdrawer4BaseCFv None
+[src/keyboard/tiInputForm] baseline: code 28300/50656 data 908 functions 208 fuzzy 97.2205
+regressions vs baseline: 0
+global matched_code_percent: 73.53608 -> 73.61661
+global fuzzy_match_percent: 82.99180 -> 82.99235
+global complete_code_percent: 56.76068 -> 56.76068
+global matched_data_percent: 86.39154 -> 86.39154
+forbidden patterns added (net, per file): 0
+readability warnings (net, per file; must be 0 in the final result): 0
+GATE PASS
+```
