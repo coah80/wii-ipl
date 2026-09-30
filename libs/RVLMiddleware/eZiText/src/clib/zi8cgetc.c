@@ -415,7 +415,7 @@ static int zi8InternalGetZH(ziGetParam* request, ZiChineseOptions* options, ziPt
             break;
         }
         if (rangeIndex) {
-            rangeIndex = Zi8GetTableCount(1, 27, work);
+            rangeIndex = (ziU16)Zi8GetTableCount(1, 27, work);
             if (rangeIndex) componentCharsetTable = (ziU8*)Zi8GetTableAddress(1, 27, work);
             charsetTable = (ziU8*)Zi8GetTableAddress(1, 21, work);
         }
@@ -440,8 +440,7 @@ static int zi8InternalGetZH(ziGetParam* request, ZiChineseOptions* options, ziPt
                    (getMode == 8 || getMode == 10)) {
             getMode = 7;
         } else if (getMode == 8 || getMode == 10 || getMode == 9) {
-            phraseValues[0].bytes[0] = 0xFF;
-            phraseMasks[0].bytes[0] = 0xFF;
+            phraseMasks[0].bytes[0] = phraseValues[0].bytes[0] = 0xFF;
             if (request->elementCount > 3 ||
                 (request->elementCount > 2 && elements[2] != ' ')) {
                 if (getMode == 9) {
@@ -452,8 +451,7 @@ static int zi8InternalGetZH(ziGetParam* request, ZiChineseOptions* options, ziPt
             } else {
                 if (getMode == 10) getMode = 9;
                 for (index = 0; index < 6; ++index) {
-                    match.arrD[index] = 0;
-                    match.arr1[index] = 0;
+                    match.arr1[index] = match.arrD[index] = 0;
                 }
                 if (elements[0] >= 'A' && elements[0] <= 'Y') {
                     match.arr1[0] = 31;
@@ -470,58 +468,59 @@ static int zi8InternalGetZH(ziGetParam* request, ZiChineseOptions* options, ziPt
                         match.arr1[1] = 28;
                         match.arrD[1] = (elements[1] - 0xEFF2) << 2;
                     }
-                    phraseValues[1].bytes[0] = 0xFF;
-                    phraseMasks[1].bytes[0] = 0xFF;
+                    phraseMasks[1].bytes[0] = phraseValues[1].bytes[0] = 0xFF;
                     totalResults = (match.arr1[0] << 3) | (match.arr1[1] << 8) | 7;
                     phraseMasks[2].bytes[0] = totalResults;
-                    phraseMasks[2].bytes[1] = totalResults >> 8;
+                    phraseMasks[2].bytes[1] = (totalResults >> 8) & 0xff;
                     totalResults = (match.arrD[0] << 3) | (match.arrD[1] << 8) | 2;
                     phraseValues[2].bytes[0] = totalResults;
-                    phraseValues[2].bytes[1] = totalResults >> 8;
+                    phraseValues[2].bytes[1] = (totalResults >> 8) & 0xff;
                     totalResults = (match.arr1[0] << 3) | (match.arr1[1] << 13) | 7;
                     phraseMasks[3].bytes[0] = totalResults;
-                    phraseMasks[3].bytes[1] = totalResults >> 8;
-                    phraseMasks[3].bytes[2] = totalResults >> 16;
+                    phraseMasks[3].bytes[1] = (totalResults >> 8) & 0xff;
+                    phraseMasks[3].bytes[2] = (totalResults >> 16) & 0xff;
                     totalResults = (match.arrD[0] << 3) | (match.arrD[1] << 13) | 3;
                     phraseValues[3].bytes[0] = totalResults;
-                    phraseValues[3].bytes[1] = totalResults >> 8;
-                    phraseValues[3].bytes[2] = totalResults >> 16;
+                    phraseValues[3].bytes[1] = (totalResults >> 8) & 0xff;
+                    phraseValues[3].bytes[2] = (totalResults >> 16) & 0xff;
                     totalResults = (match.arr1[0] << 3) | (match.arr1[1] << 18) | 7;
                     phraseMasks[4].bytes[0] = totalResults;
-                    phraseMasks[4].bytes[1] = totalResults >> 8;
-                    phraseMasks[4].bytes[2] = totalResults >> 16;
+                    phraseMasks[4].bytes[1] = (totalResults >> 8) & 0xff;
+                    phraseMasks[4].bytes[2] = (totalResults >> 16) & 0xff;
+                    phraseMasks[4].bytes[3] = (Zi8UInt)totalResults >> 24;
                     totalResults = (match.arrD[0] << 3) | (match.arrD[1] << 18) | 4;
                     phraseValues[4].bytes[0] = totalResults;
-                    phraseValues[4].bytes[1] = totalResults >> 8;
-                    phraseValues[4].bytes[2] = totalResults >> 16;
+                    phraseValues[4].bytes[1] = (totalResults >> 8) & 0xff;
+                    phraseValues[4].bytes[2] = (totalResults >> 16) & 0xff;
+                    phraseValues[4].bytes[3] = (Zi8UInt)totalResults >> 24;
                     totalResults = (match.arr1[0] << 3) | (match.arr1[1] << 23) | 7;
                     phraseMasks[5].bytes[0] = totalResults;
-                    phraseMasks[5].bytes[1] = totalResults >> 8;
-                    phraseMasks[5].bytes[2] = totalResults >> 16;
-                    phraseMasks[5].bytes[3] = totalResults >> 24;
+                    phraseMasks[5].bytes[1] = (totalResults >> 8) & 0xff;
+                    phraseMasks[5].bytes[2] = (totalResults >> 16) & 0xff;
+                    phraseMasks[5].bytes[3] = (Zi8UInt)totalResults >> 24;
                     totalResults = (match.arrD[0] << 3) | (match.arrD[1] << 23) | 5;
                     phraseValues[5].bytes[0] = totalResults;
-                    phraseValues[5].bytes[1] = totalResults >> 8;
-                    phraseValues[5].bytes[2] = totalResults >> 16;
-                    phraseValues[5].bytes[3] = totalResults >> 24;
+                    phraseValues[5].bytes[1] = (totalResults >> 8) & 0xff;
+                    phraseValues[5].bytes[2] = (totalResults >> 16) & 0xff;
+                    phraseValues[5].bytes[3] = (Zi8UInt)totalResults >> 24;
                 } else {
                     if (request->elementCount > 1) {
                         match.arr1[5] = 7;
                         match.arrD[5] = 1;
                     }
-                    phraseMasks[5].bytes[0] = phraseMasks[4].bytes[0] =
-                        phraseMasks[3].bytes[0] = phraseMasks[2].bytes[0] =
-                        phraseMasks[1].bytes[0] = (match.arr1[0] << 3) | match.arr1[5];
+                    totalResults = (match.arr1[0] << 3) | match.arr1[5];
+                    phraseMasks[1].bytes[0] = phraseMasks[2].bytes[0] =
+                        phraseMasks[3].bytes[0] = phraseMasks[4].bytes[0] =
+                        phraseMasks[5].bytes[0] = totalResults;
                     totalResults = (match.arrD[0] << 3) | match.arrD[5];
-                    phraseValues[5].bytes[0] = phraseValues[4].bytes[0] =
-                        phraseValues[3].bytes[0] = phraseValues[2].bytes[0] =
-                        phraseValues[1].bytes[0] = totalResults;
+                    phraseValues[1].bytes[0] = phraseValues[2].bytes[0] =
+                        phraseValues[3].bytes[0] = phraseValues[4].bytes[0] =
+                        phraseValues[5].bytes[0] = totalResults;
                 }
             }
         }
         for (index = 0; index < 6; ++index) {
-            match.arrD[index] = 0;
-            match.arr1[index] = 0;
+            match.arr1[index] = match.arrD[index] = 0;
         }
         for (index = 0; index < request->elementCount; ++index) {
             if (elements[index] >= 'A' && elements[index] <= 'Y') {
@@ -543,24 +542,26 @@ static int zi8InternalGetZH(ziGetParam* request, ZiChineseOptions* options, ziPt
                 }
             }
         }
-        if (index > 5) {
+        if (index >= 6) {
             resultFallback = 0;
             goto engine_finish;
         }
-        if (!index) match.length = 1;
-        else match.length = index;
-        totalResults = (match.arr1[2] << 13) | (match.arr1[0] << 3) | (match.arr1[1] << 8);
-        match.arr19[0] = (match.arr1[0] << 3) | match.arr1[5];
-        match.arr19[1] = totalResults >> 8;
-        totalResults |= (match.arr1[4] << 23) | (match.arr1[3] << 18);
-        match.arr19[2] = totalResults >> 16;
-        match.arr19[3] = totalResults >> 24;
-        totalResults = (match.arrD[2] << 13) | (match.arrD[0] << 3) | (match.arrD[1] << 8);
-        match.arr1D[0] = (match.arrD[0] << 3) | match.arrD[5];
-        match.arr1D[1] = totalResults >> 8;
-        totalResults |= (match.arrD[4] << 23) | (match.arrD[3] << 18);
-        match.arr1D[2] = totalResults >> 16;
-        match.arr1D[3] = totalResults >> 24;
+        if (index) match.length = index;
+        else match.length = 1;
+        totalResults = match.arr1[5] | ((match.arr1[4] << 23) |
+            ((match.arr1[3] << 18) | ((match.arr1[2] << 13) |
+             ((match.arr1[0] << 3) | (match.arr1[1] << 8)))));
+        match.arr19[0] = totalResults;
+        match.arr19[1] = (totalResults >> 8) & 0xff;
+        match.arr19[2] = (totalResults >> 16) & 0xff;
+        match.arr19[3] = (Zi8UInt)totalResults >> 24;
+        totalResults = match.arrD[5] | ((match.arrD[4] << 23) |
+            ((match.arrD[3] << 18) | ((match.arrD[2] << 13) |
+             ((match.arrD[0] << 3) | (match.arrD[1] << 8)))));
+        match.arr1D[0] = totalResults;
+        match.arr1D[1] = (totalResults >> 8) & 0xff;
+        match.arr1D[2] = (totalResults >> 16) & 0xff;
+        match.arr1D[3] = (Zi8UInt)totalResults >> 24;
     }
     totalResults = 0;
     if ((getMode == 1 || getMode == 2) && match.phon[0] == 0xFFFF && match.phon2[0] == 0xFFFF &&
@@ -568,7 +569,7 @@ static int zi8InternalGetZH(ziGetParam* request, ZiChineseOptions* options, ziPt
         match.nCand = 0;
         goto engine_finish;
     }
-    if (match.length >= 24) goto engine_finish;
+    if (match.length > 23) goto engine_finish;
     if (wordMode && (getMode == 1 || getMode == 2)) {
         wordMode = 0;
         for (index = 0; index < match.nCand; ++index) {
@@ -584,6 +585,9 @@ static int zi8InternalGetZH(ziGetParam* request, ZiChineseOptions* options, ziPt
                 case 28: case 29:
                     if (((ziFuzzyPYPairs*)&((struct __zi8_work_data_s*)work)->unk_0x1B28.word)->zANDzh) ordinalIndex = 0xFDFF;
                     break;
+                case 56: case 59:
+                    if (((ziFuzzyPYPairs*)&((struct __zi8_work_data_s*)work)->unk_0x1B28.word)->fANDh) ordinalIndex = 0xF9FF;
+                    break;
                 case 38:
                     if (((ziFuzzyPYPairs*)&((struct __zi8_work_data_s*)work)->unk_0x1B28.word)->nANDl) ordinalIndex = 0xE5FF;
                     break;
@@ -594,9 +598,6 @@ static int zi8InternalGetZH(ziGetParam* request, ZiChineseOptions* options, ziPt
                     break;
                 case 44:
                     if (((ziFuzzyPYPairs*)&((struct __zi8_work_data_s*)work)->unk_0x1B28.word)->lANDr) ordinalIndex = 0xF1FF;
-                    break;
-                case 56: case 59:
-                    if (((ziFuzzyPYPairs*)&((struct __zi8_work_data_s*)work)->unk_0x1B28.word)->fANDh) ordinalIndex = 0xF9FF;
                     break;
                 }
             } else {
@@ -609,6 +610,15 @@ static int zi8InternalGetZH(ziGetParam* request, ZiChineseOptions* options, ziPt
                     break;
                 case 28: case 29:
                     if (((ziFuzzyZYPairs*)&((struct __zi8_work_data_s*)work)->unk_0x1B2C.word)->zANDzh) ordinalIndex = 0xFDFF;
+                    break;
+                case 56: case 59:
+                    if (((ziFuzzyZYPairs*)&((struct __zi8_work_data_s*)work)->unk_0x1B2C.word)->fANDh) ordinalIndex = 0xF9FF;
+                    break;
+                case 52: case 55:
+                    if (((ziFuzzyZYPairs*)&((struct __zi8_work_data_s*)work)->unk_0x1B2C.word)->bANDp) ordinalIndex = 0xF9FF;
+                    break;
+                case 60: case 63:
+                    if (((ziFuzzyZYPairs*)&((struct __zi8_work_data_s*)work)->unk_0x1B2C.word)->gANDk) ordinalIndex = 0xF9FF;
                     break;
                 case 38:
                     if (((ziFuzzyZYPairs*)&((struct __zi8_work_data_s*)work)->unk_0x1B2C.word)->nANDl && ((ziFuzzyZYPairs*)&((struct __zi8_work_data_s*)work)->unk_0x1B2C.word)->rANDn) ordinalIndex = 0xE1FF;
@@ -624,15 +634,6 @@ static int zi8InternalGetZH(ziGetParam* request, ZiChineseOptions* options, ziPt
                     if (((ziFuzzyZYPairs*)&((struct __zi8_work_data_s*)work)->unk_0x1B2C.word)->rANDn && ((ziFuzzyZYPairs*)&((struct __zi8_work_data_s*)work)->unk_0x1B2C.word)->lANDr) ordinalIndex = 0xE1FF;
                     else if (((ziFuzzyZYPairs*)&((struct __zi8_work_data_s*)work)->unk_0x1B2C.word)->rANDn) ordinalIndex = 0xE3FF;
                     else if (((ziFuzzyZYPairs*)&((struct __zi8_work_data_s*)work)->unk_0x1B2C.word)->lANDr) ordinalIndex = 0xF1FF;
-                    break;
-                case 52: case 55:
-                    if (((ziFuzzyZYPairs*)&((struct __zi8_work_data_s*)work)->unk_0x1B2C.word)->bANDp) ordinalIndex = 0xF9FF;
-                    break;
-                case 56: case 59:
-                    if (((ziFuzzyZYPairs*)&((struct __zi8_work_data_s*)work)->unk_0x1B2C.word)->fANDh) ordinalIndex = 0xF9FF;
-                    break;
-                case 60: case 63:
-                    if (((ziFuzzyZYPairs*)&((struct __zi8_work_data_s*)work)->unk_0x1B2C.word)->gANDk) ordinalIndex = 0xF9FF;
                     break;
                 }
             }
@@ -652,10 +653,10 @@ static int zi8InternalGetZH(ziGetParam* request, ZiChineseOptions* options, ziPt
                     if (((ziFuzzyPYPairs*)&((struct __zi8_work_data_s*)work)->unk_0x1B28.word)->anANDang) ordinalIndex = 0xFFF7;
                     break;
                 case 0x60:
-                    if (((ziFuzzyPYPairs*)&((struct __zi8_work_data_s*)work)->unk_0x1B28.word)->inANDing) ordinalIndex = 0xFFF7;
+                    if (((ziFuzzyPYPairs*)&((struct __zi8_work_data_s*)work)->unk_0x1B28.word)->enANDeng) ordinalIndex = 0xFFF7;
                     break;
                 case 0x180:
-                    if (((ziFuzzyPYPairs*)&((struct __zi8_work_data_s*)work)->unk_0x1B28.word)->enANDeng) ordinalIndex = 0xFFF7;
+                    if (((ziFuzzyPYPairs*)&((struct __zi8_work_data_s*)work)->unk_0x1B28.word)->inANDing) ordinalIndex = 0xFFF7;
                     break;
                 }
             } else {
