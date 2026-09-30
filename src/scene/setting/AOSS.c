@@ -297,7 +297,7 @@ void AOSS_81401DC0(u32 seed, u32* table);
 s16 AOSS_81401BBC(void* buffer);
 int AOSS_81401574(void* packet, AOSSRequestRecords* request, int socket);
 int AOSS_81401778(void* packet, void* request, int socket);
-int AOSS_81401E80(void* packet, s32 length, const char* key, int keyLength);
+int AOSS_81401E80(void* packet, s32 length, char* key, int keyLength);
 int AOSS_814020CC(void* settings, void* config);
 int AOSS_81400E0C(const AOSSOptionRecord* packet, u8* settings);
 int AOSS_814013AC(int state, const AOSSReplyOption* response, int responseLength, void* config, void* networkData);
@@ -410,8 +410,10 @@ int AOSS_Init_old(AOSSInitInput* input)
   AOSSWaitSettings waitSettings;
   AOSSNetworkSettings settings;
   AOSSRequestRecords requestRecords;
-  s16 connectionWait;
-  s16 responseWait;
+  struct {
+    s16 connection;
+    s16 response;
+  } waitIntervals;
   AOSSSocketAddress replyAddress;
   u8 messageIdentity[8];
   AOSSSocketAddress socketAddress;
@@ -424,22 +426,22 @@ int AOSS_Init_old(AOSSInitInput* input)
   u32 networkAddresses[5];
   u32 gatewayAddress;
 
-  connectionWait = s_defaultOptions[0];
-  responseWait = s_defaultOptions[1];
+  waitIntervals.connection = s_defaultOptions[0];
+  waitIntervals.response = s_defaultOptions[1];
   waitSettings.value = 0;
   receivedPackets = 0;
   memset(&requestRecords,0,0x18);
-  connectionWait = input->options[0];
-  if (connectionWait == -1) {
-    connectionWait = 10;
+  waitIntervals.connection = input->options[0];
+  if (waitIntervals.connection == -1) {
+    waitIntervals.connection = 10;
   }
   initialWait = input->options[2];
   if (initialWait == -1) {
     initialWait = 10;
   }
-  responseWait = input->options[1];
-  if (responseWait == -1) {
-    responseWait = 100;
+  waitIntervals.response = input->options[1];
+  if (waitIntervals.response == -1) {
+    waitIntervals.response = 100;
   }
   waitSettings.halfwords.low = input->options[3];
   if (waitSettings.halfwords.low == 0xffff) {
@@ -462,11 +464,11 @@ int AOSS_Init_old(AOSSInitInput* input)
   s_runtime.active = '\0';
   if ((input->flags & 1) == 1) {
     attemptCount = 0;
-    initialWait = connectionWait;
+    initialWait = waitIntervals.connection;
     if (s_operationState != 0) {
       s_operationState = 0;
       AOSSi_Status(0);
-      initialWait = connectionWait;
+      initialWait = waitIntervals.connection;
     }
     while (1) {
       if (s_accessPointList != 0) {
@@ -532,7 +534,7 @@ int AOSS_Init_old(AOSSInitInput* input)
           s_accessPointConfig = (int *)AOSSi_Alloc(0x58);
           if (s_accessPointConfig != (int *)0x0) {
             memset(s_accessPointConfig,0,0x58);
-            initialWait = connectionWait;
+            initialWait = waitIntervals.connection;
             remainingWait = 0;
             goto wait_for_initial_link;
           }
@@ -562,7 +564,7 @@ int AOSS_Init_old(AOSSInitInput* input)
         }
         goto finish_initialization;
       }
-      remainingWait = responseWait;
+      remainingWait = waitIntervals.response;
       if ((short)initialWait <= attemptCount) {
         input->status = 1;
         if (s_accessPointConfig != (int *)0x0) {
@@ -644,7 +646,7 @@ wait_for_initial_link:
     resultCode = 0xffffffff;
     goto finish_initialization;
   }
-  initialSleep = responseWait;
+  initialSleep = waitIntervals.response;
   if ((state == 0) && (*s_accessPointConfig == 1)) goto handle_initial_link;
   for (; initialSleep != 0; initialSleep = initialSleep - nextSleep) {
     if (AOSSi_cancel_flag == 1) {
@@ -806,7 +808,7 @@ wait_for_packet:
         goto finish_initialization;
       }
       memset(s_accessPointConfig,0,0x58);
-      initialWait = connectionWait;
+      initialWait = waitIntervals.connection;
       for (waitAttempt = 0; waitAttempt < (short)initialWait; waitAttempt = waitAttempt + 1) {
         state = AOSS_814020CC(&settings,s_accessPointConfig);
         if (state == -1) {
@@ -822,7 +824,7 @@ wait_for_packet:
           resultCode = 0xffffffff;
           goto finish_initialization;
         }
-        remainingWait = responseWait;
+        remainingWait = waitIntervals.response;
         if ((state == 0) && (*s_accessPointConfig == 1)) break;
         for (; remainingWait != 0; remainingWait = remainingWait - initialSleep) {
           if (AOSSi_cancel_flag == 1) {
@@ -1044,7 +1046,7 @@ cancelled_configuration:
   resultCode = 0xffffffff;
   goto finish_initialization;
 handle_initial_link:
-  if (remainingWait == connectionWait) {
+  if (remainingWait == waitIntervals.connection) {
     input->status = 0xf;
     if (s_accessPointConfig != (int *)0x0) {
       AOSSi_Free(s_accessPointConfig);
@@ -1072,8 +1074,8 @@ handle_initial_link:
       retryWait = rand();
       requestRecords.records[requestResult].transactionId = (short)retryWait;
       receivedLength = SOHtoNs(retryWait & 0xffff);
-      requestResult = requestResult + 1;
       requestRecords.records[requestResult].transactionId = receivedLength;
+      requestResult = requestResult + 1;
       state = state + 8;
     } while (requestResult < 3);
     s_socket = SOSocket(2,2,0);
@@ -1184,7 +1186,7 @@ request_socket_cleanup_complete:
               goto finish_initialization;
             }
             memset(s_accessPointConfig,0,0x58);
-            initialWait = connectionWait;
+            initialWait = waitIntervals.connection;
             for (waitAttempt = 0; waitAttempt < (short)initialWait; waitAttempt = waitAttempt + 1) {
               requestResult = AOSS_814020CC(&settings,s_accessPointConfig);
               if (requestResult == -1) {
@@ -1200,7 +1202,7 @@ request_socket_cleanup_complete:
                 resultCode = 0xffffffff;
                 goto finish_initialization;
               }
-              remainingWait = responseWait;
+              remainingWait = waitIntervals.response;
               if ((requestResult == 0) && (*s_accessPointConfig == 1)) break;
               for (; remainingWait != 0; remainingWait = remainingWait - initialSleep) {
                 if (AOSSi_cancel_flag == 1) {
@@ -1713,7 +1715,7 @@ int AOSS_814002F0(int state, AOSSReceiveBuffer* packet, int* count, AOSSRequestR
     if ((packetSequence & 0x10) != 0) {
         operationState = 1;
     }
-    s_operationState = operationState;
+    s_connectionState = operationState;
     *count = 0;
     return 1;
 }
@@ -1974,10 +1976,10 @@ int AOSS_81400E0C(const AOSSOptionRecord* packet, u8* settings) {
     const u8* packetBytes = (const u8*)packet;
     const AOSSOptionRecord* record;
     s32 length;
+    const u8* valueBytes;
     s32 index;
     u32 value;
     u16 nextOffset;
-    const u8* valueBytes;
 
     memset(settings, 0, 0x104);
     record = packet;
@@ -2007,7 +2009,8 @@ int AOSS_81400E0C(const AOSSOptionRecord* packet, u8* settings) {
             value = 0;
             valueBytes = record->data;
             for (index = 0; index < length; index++) {
-                value = (value << 8) + *valueBytes++;
+                value <<= 8;
+                value += *valueBytes++;
             }
             value = SONtoHl(value);
             s_runtime.ipAddress = value;
@@ -2016,7 +2019,8 @@ int AOSS_81400E0C(const AOSSOptionRecord* packet, u8* settings) {
             value = 0;
             valueBytes = record->data;
             for (index = 0; index < length; index++) {
-                value = (value << 8) + *valueBytes++;
+                value <<= 8;
+                value += *valueBytes++;
             }
             value = SONtoHl(value);
             s_runtime.subnetMask = value;
@@ -2027,10 +2031,11 @@ int AOSS_81400E0C(const AOSSOptionRecord* packet, u8* settings) {
 
         nextOffset = record->nextOffset;
         if (nextOffset == 0) {
-            return 0;
+            break;
         }
         record = (const AOSSOptionRecord*)(packetBytes + SONtoHs(nextOffset));
     }
+    return 0;
 }
 
 int AOSS_81401104(const AOSSOptionRecord* packet, AOSSStoredConfig* config) {
@@ -2154,7 +2159,6 @@ int AOSS_81401284(const AOSSOptionRecord* packet, AOSSStoredConfig* config) {
 
 int AOSS_814013AC(int state, const AOSSReplyOption* response, int responseLength, void* config, void* networkData) {
     const AOSSReplyOption* responseRecord;
-    const AOSSReplyOption* option;
     AOSSConfigRecord* configRecord;
     AOSSStoredConfig* wep40Config;
     AOSSStoredConfig* wep104Config;
@@ -2162,6 +2166,7 @@ int AOSS_814013AC(int state, const AOSSReplyOption* response, int responseLength
     AOSSStoredConfig* aesConfig;
     u8* networkSettings;
     u32 flags = 0;
+    const AOSSReplyOption* option;
     u32 length;
     s32 remainingLength = responseLength;
     int result;
@@ -2184,8 +2189,8 @@ int AOSS_814013AC(int state, const AOSSReplyOption* response, int responseLength
     }
 
     length = responseRecord->fields.length;
-    remainingLength = SONtoHs((u16)length);
     option = (const AOSSReplyOption*)&responseRecord->bytes[4];
+    remainingLength = SONtoHs((u16)length);
     configRecord = &((AOSSConfigData*)config)->records[state];
     networkSettings = ((AOSSNetworkBufferRecord*)networkData)[state + 3].bytes;
     wep40Config = (AOSSStoredConfig*)&configRecord->reserved00[8];
@@ -2241,20 +2246,21 @@ int AOSS_814013AC(int state, const AOSSReplyOption* response, int responseLength
 }
 
 int AOSS_81401574(void* packet, AOSSRequestRecords* request, int socket) {
-    AOSSDiscoveryPacket* response = (AOSSDiscoveryPacket*)s_responseBuffer;
     u8* responsePayload;
     u8 accessPointName[8];
     AOSSSocketAddress destination;
     AOSSRequestBuffer* requestRecord;
+    AOSSDiscoveryPacket* response;
     s16 recordLength;
     s16 requestLength;
     int encryptionResult;
     int result;
 
+    response = (AOSSDiscoveryPacket*)s_responseBuffer;
     memset(response, 0, 0x5dc);
     requestRecord = (AOSSRequestBuffer*)AOSSi_Alloc(0x210);
     if (requestRecord == 0) {
-        s_connectionState = 2;
+        s_errorCode = 2;
         return -1;
     }
 
@@ -2264,7 +2270,7 @@ int AOSS_81401574(void* packet, AOSSRequestRecords* request, int socket) {
     memcpy(accessPointName, s_accessPointName, 8);
     recordLength = AOSS_81401BBC(&requestRecord->record);
     if (recordLength < 0) {
-        s_connectionState = 3;
+        s_errorCode = 3;
         if (requestRecord != 0) {
             AOSSi_Free(requestRecord);
         }
@@ -2276,7 +2282,7 @@ int AOSS_81401574(void* packet, AOSSRequestRecords* request, int socket) {
         memcpy(responsePayload, requestRecord, requestLength);
         encryptionResult = AOSS_81401E80(accessPointName, 8, s_manufacturer, 6);
         if (encryptionResult != 0) {
-            s_connectionState = 2;
+            s_errorCode = 2;
             if (requestRecord != 0) {
                 AOSSi_Free(requestRecord);
             }
@@ -2320,7 +2326,6 @@ int AOSS_81401778(void* packet, void* request, int socket) {
     u32 stateLength;
     u32 index;
     u32 firstByte;
-    u32 secondByte;
     u8 value;
     u8 swap;
     s16 responseLength;
@@ -2361,7 +2366,7 @@ int AOSS_81401778(void* packet, void* request, int socket) {
             memcpy(s_packetState.keyAddress, s_accessPointName, 8);
             AOSS_81401C9C(&schedule, s_packetState.keyNonce,
                 sizeof(s_packetState.keyNonce) + sizeof(s_packetState.keyAddress), 8);
-            for (index = 0; index < 8; index += 2) {
+            for (index = 0; index < 8; index++) {
                 schedule.i = (schedule.i + 1) % schedule.length & 0xff;
                 firstByte = schedule.bytes[schedule.i];
                 schedule.j = (firstByte + schedule.j) % schedule.length & 0xff;
@@ -2371,16 +2376,6 @@ int AOSS_81401778(void* packet, void* request, int socket) {
                 schedule.bytes[schedule.i] = swap;
                 value = schedule.bytes[stateLength % schedule.length] ^ hello.data.bytes[index];
                 response->payload.bytes[index + 4] = value;
-
-                schedule.i = (schedule.i + 1) % schedule.length & 0xff;
-                secondByte = schedule.bytes[schedule.i];
-                schedule.j = (secondByte + schedule.j) % schedule.length & 0xff;
-                swap = schedule.bytes[schedule.j];
-                stateLength = secondByte + swap;
-                schedule.bytes[schedule.j] = (u8)secondByte;
-                schedule.bytes[schedule.i] = swap;
-                value = schedule.bytes[stateLength % schedule.length] ^ hello.data.bytes[index + 1];
-                response->payload.bytes[index + 5] = value;
             }
             AOSSi_Free(schedule.bytes);
         }
@@ -2393,7 +2388,7 @@ int AOSS_81401778(void* packet, void* request, int socket) {
     memcpy(accessPointName, &requestRecords->records[1], 8);
     encryptionResult = AOSS_81401E80(accessPointName, 8, s_manufacturer, 6);
     if (encryptionResult != 0) {
-        s_connectionState = 2;
+        s_errorCode = 2;
         return -1;
     }
 
@@ -2445,11 +2440,11 @@ s16 AOSS_81401BBC(void* buffer) {
 }
 
 void AOSS_81401C9C(AOSSKeySchedule* schedule, const u8* key, u32 keyLength, u32 stateLength) {
-    u8* state;
     u32 index = 0;
-    u32 keyIndex = 0;
-    u32 swapIndex = 0;
+    u32 keyIndex;
+    u32 swapIndex;
     u8 value;
+    u8* state;
 
     schedule->j = 0;
     state = schedule->bytes;
@@ -2459,9 +2454,11 @@ void AOSS_81401C9C(AOSSKeySchedule* schedule, const u8* key, u32 keyLength, u32 
         state[index] = (u8)index;
     }
     index = 0;
+    swapIndex = 0;
+    keyIndex = 0;
     for (; index < stateLength; index++) {
         value = state[index];
-        swapIndex = (swapIndex + value + key[keyIndex]) % schedule->length;
+        swapIndex = (value + swapIndex + key[keyIndex]) % schedule->length;
         {
             u8 swapped = state[swapIndex];
             state[swapIndex] = value;
@@ -2491,15 +2488,17 @@ void AOSS_81401DC0(u32 seed, u32* table) {
     }
 }
 
-int AOSS_81401E80(void* packet, s32 length, const char* key, int keyLength) {
-    u8* packetBytes = (u8*)packet;
+int AOSS_81401E80(void* packet, s32 length, char* key, int keyLength) {
+    u8* temporaryHalf;
+    s32 halfLength = length / 2;
+    u8* packetHalf;
+    s32 round;
     u8* keyMask;
     u8* temporary;
-    s32 halfLength = (((s32)((u32)length >> 31) + length) >> 1);
-    s32 round;
-    s32 index;
     s32 keyIndex;
+    s32 index;
     int result = -1;
+    u8* packetBytes;
 
     keyMask = (u8*)AOSSi_Alloc(halfLength);
     if (keyMask == 0) {
@@ -2512,6 +2511,9 @@ int AOSS_81401E80(void* packet, s32 length, const char* key, int keyLength) {
         return -1;
     }
 
+    packetBytes = (u8*)packet;
+    packetHalf = packetBytes + halfLength;
+    temporaryHalf = temporary + halfLength;
     for (round = 0; round < 2; round++) {
         keyIndex = round % keyLength;
         for (index = 0; index < halfLength; index++) {
@@ -2524,11 +2526,11 @@ int AOSS_81401E80(void* packet, s32 length, const char* key, int keyLength) {
         }
 
         for (index = 0; index < halfLength; index++) {
-            packetBytes[halfLength + index] ^= keyMask[index];
+            packetHalf[index] = packetHalf[index] ^ keyMask[index];
         }
 
-        memcpy(temporary, packetBytes + halfLength, halfLength);
-        memcpy(temporary + halfLength, packetBytes, halfLength);
+        memcpy(temporary, packetHalf, halfLength);
+        memcpy(temporaryHalf, packetBytes, halfLength);
         memcpy(packetBytes, temporary, length);
     }
 
@@ -2559,7 +2561,7 @@ int AOSS_814020CC(void* settings, void* config) {
                     s_socketStarted = 0;
                     SOCleanup();
                 }
-                *(u32*)s_responseBuffer = 0;
+                *s_accessPointConfig = 0;
                 break;
             }
 
