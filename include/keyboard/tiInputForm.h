@@ -142,6 +142,9 @@ namespace textinput {
                     MEMAllocator* mpAllocator;  // 0x08
                 };
 
+#ifdef TISIGNWINDOW_IMPLEMENTATION
+                bool isAtokActive() const;
+#endif
                 virtual ~Base();
 #if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION)
                 Base(Manager* manager);

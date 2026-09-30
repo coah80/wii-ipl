@@ -70,7 +70,7 @@ namespace textinput {
                 INPUT_COMMAND_37 = 37,
             } INPUT_COMMAND;
 
-#if defined(TI_PC_KEYBOARD_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION)
+#if defined(TI_PC_KEYBOARD_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION) || defined(TISIGNWINDOW_IMPLEMENTATION)
             struct ChangePredictMode { u32 mode; bool enabled; };
 #endif
             virtual void    clearSender();

@@ -17,6 +17,7 @@ namespace textinput {
     }
     namespace keyboard {
         namespace signwindow {
+#ifndef TISIGNWINDOW_IMPLEMENTATION
 #ifdef TIMANAGER_IMPLEMENTATION
             struct LanguageDependencyData;
             class Base : public KeyboardBase {
@@ -87,6 +88,7 @@ namespace textinput {
                 virtual void open(KeyboardBase* keyboard, bool repeat);
                 virtual bool isActive();
             };
+#endif
 #endif
         }
 
