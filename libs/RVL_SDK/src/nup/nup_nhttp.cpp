@@ -70,7 +70,7 @@ static u8* __nupNhttpBufFull(u8** buffer, unsigned long* length, unsigned long r
             }
             next = *buffer;
             if (next == NULL) {
-                if (requested != 0 && requested < 0x8000) {} else requested = 0x8000;
+                if (requested == 0 || requested >= 0x8000) requested = 0x8000;
                 next = (u8*)nup::__nupMalloc(requested);
                 if (next == NULL) {
                     state->error = -5000;
@@ -83,8 +83,8 @@ static u8* __nupNhttpBufFull(u8** buffer, unsigned long* length, unsigned long r
     }
 done:
     if (state->error != 0) {
-        next = NULL;
         *length = 0;
+        next = NULL;
     }
     return next;
 }
@@ -101,12 +101,13 @@ static void __nupNhttpReqDone(int result, void* response, HttpState* state) {
 }
 
 static int __nupNhttpOp(char* url, NHTTPReqMethod method, char* headers, u8* body, unsigned long bodyLength, unsigned long limit, ProgressCallback progress, void* progressContext, FlushCallback flush, void* flushContext) {
-    unsigned long transferred, expected;
-    int length;
-    char* responseHeaders = NULL;
-    u8* responseBody = NULL;
-    HttpState state;
+    int result = 0;
     int status;
+    u8* responseBody = NULL;
+    char* responseHeaders = NULL;
+    int length;
+    unsigned long expected, transferred;
+    HttpState state;
     state.error = 0;
     state.limit = limit;
     state.received = 0;
@@ -118,8 +119,7 @@ static int __nupNhttpOp(char* url, NHTTPReqMethod method, char* headers, u8* bod
     state.done = 0;
     state.result = 0;
     state.lastActivity = 0;
-    int result = 0;
-    int requestId = 0;
+    int requestId;
     char* headerCopy = NULL;
     void* request = NHTTPCreateRequestEx(url, method, NULL, 0, __nupNhttpReqDone, &state, __nupNhttpBufFull, __nupNhttpBufFree);
     if (request == NULL) { result = -7000 - NHTTPGetError(); goto cleanup; }
@@ -130,16 +130,15 @@ static int __nupNhttpOp(char* url, NHTTPReqMethod method, char* headers, u8* bod
         if (headerCopy == NULL) { result = -5000; goto cleanup; }
         memcpy(headerCopy, headers, size);
         char* field = headerCopy;
-        while (*field != 0) {
-            char* colon = strchr(field, ':');
-            if (colon == NULL) break;
-            char* end = strstr(colon, "\r\n");
-            if (end == NULL) break;
+        char* colon;
+        char* end;
+        while (*field != 0 && (colon = strchr(field, ':')) != NULL && (end = strstr(colon, "\r\n")) != NULL) {
             *colon = 0;
             *end = 0;
             while (*field && isspace(*field)) field++;
-            do { colon++; } while (*colon && isspace(*colon));
-            if (NHTTPAddHeaderField(request, field, colon) != 0) { result = -7000 - NHTTPGetError(); goto cleanup; }
+            char* value = colon + 1;
+            while (*value && isspace(*value)) value++;
+            if (NHTTPAddHeaderField(request, field, value) != 0) { result = -7000 - NHTTPGetError(); goto cleanup; }
             field = end + 2;
         }
     }
@@ -153,9 +152,8 @@ static int __nupNhttpOp(char* url, NHTTPReqMethod method, char* headers, u8* bod
     if (method == NHTTP_POST && body != NULL && bodyLength != 0 && NHTTPAddPostDataRaw(request, body, bodyLength) != 0) { result = -7000 - NHTTPGetError(); goto cleanup; }
     requestId = NHTTPSendRequestAsync(request);
     if (requestId < 0) {
-        int error = NHTTPGetError();
+        result = -7000 - NHTTPGetError();
         NHTTPDeleteRequest(request);
-        result = -7000 - error;
         goto cleanup;
     }
     state.lastActivity = OSGetTime();
@@ -167,8 +165,8 @@ static int __nupNhttpOp(char* url, NHTTPReqMethod method, char* headers, u8* bod
                 if (length < 0) { result = -5007; goto cleanup; }
                 __nupNhttpBufFull(&responseBody, (unsigned long*)&length, 0, NULL, NULL, &state);
             }
-            result = state.error;
-            if (result != 0 || state.response == NULL) goto cleanup;
+            if (state.error != 0) { result = state.error; goto cleanup; }
+            if (state.response == NULL) goto cleanup;
             length = NHTTPGetHeaderAll(state.response, &responseHeaders);
             if (length < 0) { result = -5007; goto cleanup; }
             char* protocol = strstr(responseHeaders, "HTTP/");
@@ -197,10 +195,10 @@ extern "C" {
 static long __nupHttpStringFlush(u8* data, unsigned long length, unsigned long requested, void* context) {
     HttpString* text = (HttpString*)context;
     unsigned long total;
-    total = length + text->length;
+    total = text->length + length;
     long result = 0;
     if (total > text->capacity) {
-        if (requested >= total) {} else {
+        if (requested < total) {
             requested = text->growth + total;
             text->growth <<= 1;
             if (text->growth < text->maximumGrowth) {} else text->growth = text->maximumGrowth;

@@ -13,7 +13,7 @@ int SOiIsBufferAddrCheck(void);
 void* SOiAlloc(u32, s32);
 void SOiFree(u32, void*, s32);
 
-static int soSocketRegistered;
+static int soSocketRegistered[2];
 const char* __SOCKETVersion="<< RVL_SDK - SOCKET \trelease build: Dec 12 2008 03:06:17 (0x4199_60831) >>";
 
 typedef struct SocketRequest { int socket; int type; int protocol; } SocketRequest;
@@ -47,7 +47,7 @@ int SOSocket(int family, int type, int protocol) {
     s32 rm;
     SocketRequest* request;
     int result;
-    if(!soSocketRegistered) { OSRegisterVersion(__SOCKETVersion); soSocketRegistered=1; }
+    if(!soSocketRegistered[0]) { OSRegisterVersion(__SOCKETVersion); soSocketRegistered[0]=1; }
     if((result=SOiPrepare(NULL,&rm))==0) {
         if(family==23) result=-5;
         else {

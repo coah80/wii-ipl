@@ -192,11 +192,7 @@ static s32 __nupParseServerInfo(NUPContextInfo* context, char* response, char* m
         const char* versionStartTag = "<Version>";
         afterEnd = __nupFindTag(response, versionEndTag, versionStartTag,
                                 &start, &valueLength);
-        if (afterEnd == 0) {
-            result = -5004;
-            goto done;
-        }
-        if (valueLength != strlen("1.0") || strncmp(start, "1.0", valueLength) != 0) {
+        if (afterEnd == 0 || valueLength != strlen("1.0") || strncmp(start, "1.0", valueLength) != 0) {
             result = -5004;
             goto done;
         }
@@ -339,22 +335,13 @@ static s32 __nupParseServerInfo(NUPContextInfo* context, char* response, char* m
         const char* titleIdStartTag = "<TitleId>";
         const char* versionEndTag = "</Version>";
         const char* versionStartTag = "<Version>";
+        char* titleStart;
+        char* versionStart;
+        size_t titleLength;
+        size_t versionLength;
+        char* parsedEnd;
+        goto first;
         for (;;) {
-            char* titleStart;
-            char* versionStart;
-            size_t titleLength;
-            size_t versionLength;
-            char* parsedEnd;
-            cursor = __nupFindTag(cursor, titleIdEndTag, titleIdStartTag,
-                                  &titleStart, &titleLength);
-            if (cursor == 0) {
-                break;
-            }
-            cursor = __nupFindTag(cursor, versionEndTag, versionStartTag,
-                                  &versionStart, &versionLength);
-            if (cursor == 0) {
-                break;
-            }
             unsigned long long titleId = strtoull(titleStart, &parsedEnd, 16);
             if (parsedEnd != titleStart + titleLength) {
                 result = -5004;
@@ -365,13 +352,24 @@ static s32 __nupParseServerInfo(NUPContextInfo* context, char* response, char* m
                 result = -5004;
                 goto done;
             }
-            if ((u16)version != version) {
+            if (version != (u16)version) {
                 result = -5004;
                 goto done;
             }
             context->titles[context->titleCount].titleId = titleId;
             context->titles[context->titleCount].serverVersion = version;
             context->titleCount++;
+        first:
+            cursor = __nupFindTag(cursor, titleIdEndTag, titleIdStartTag,
+                                  &titleStart, &titleLength);
+            if (cursor == 0) {
+                break;
+            }
+            cursor = __nupFindTag(cursor, versionEndTag, versionStartTag,
+                                  &versionStart, &versionLength);
+            if (cursor == 0) {
+                break;
+            }
         }
     }
 
@@ -401,8 +399,7 @@ static s32 __nupGetServerInfo(char* serverAddress, char* messageId, unsigned lon
         result = -5000;
     } else {
         snprintf(endpoint, endpointSize, "https://%s/nus/services/NetUpdateSOAP", serverAddress);
-        requestSize = strlen(messageId);
-        requestSize += strlen(productArea);
+        requestSize = strlen(messageId) + strlen(productArea);
         requestSize += strlen(countryCode) + 0x449;
         if (auditData != 0) {
             requestSize += strlen(auditData);
@@ -515,15 +512,16 @@ static u32 __nupSetAuditState(u8 state) {
 #pragma dont_inline reset
 
 static void __nupBase64Encode(u8* output, u8* input, unsigned long length) {
-    const char* alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+    static const char alphabet[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
     u8* end = input + length;
     u32 value = 0;
     u32 count = 0;
-    static char fillByte = '=';
+    static char pad = '=';
 
     while (input != end) {
         count++;
-        value = value << 8 | *input++;
+        value <<= 8;
+        value |= *input++;
         if (count < 3) {
             continue;
         }
@@ -540,7 +538,7 @@ static void __nupBase64Encode(u8* output, u8* input, unsigned long length) {
         output[0] = alphabet[value >> 18 & 0x3f];
         output[1] = alphabet[value >> 12 & 0x3f];
         output[2] = alphabet[value >> 6 & 0x3f];
-        output[3] = fillByte;
+        output[3] = pad;
         return;
     }
     if (count != 1) {
@@ -549,8 +547,8 @@ static void __nupBase64Encode(u8* output, u8* input, unsigned long length) {
     value <<= 16;
     output[0] = alphabet[value >> 18 & 0x3f];
     output[1] = alphabet[value >> 12 & 0x3f];
-    output[2] = fillByte;
-    output[3] = fillByte;
+    output[2] = pad;
+    output[3] = pad;
 }
 
 static s32 __nupGetAuditData(NUPContextInfo* context, char** auditData) {
@@ -559,7 +557,7 @@ static s32 __nupGetAuditData(NUPContextInfo* context, char** auditData) {
     ESTicketView* ticketViews = 0;
     u32 viewCount;
     u32 selected = 0;
-    u32 selectedIndex = 0;
+    u32 selectedIndex;
     void* auditRecord = 0;
     void* signatureCertificate = 0;
     void* deviceCertificate = 0;
@@ -633,12 +631,13 @@ static s32 __nupGetAuditData(NUPContextInfo* context, char** auditData) {
                                 memcpy(signedData->signature, signature, sizeof(signature));
                                 memcpy(signedData->signatureCertificate, signatureCertificate, 0x180);
                                 memcpy(signedData->deviceCertificate, deviceCertificate, 0x180);
-                                encodedData = nup::__nupMalloc(0x5a1);
+                                unsigned long dataSize = sizeof(NUPSignedAuditData);
+                                encodedData = nup::__nupMalloc((dataSize + 2) / 3 * 4 + 1);
                                 if (encodedData == 0) {
                                     result = -5000;
                                 } else {
                                     __nupBase64Encode((u8*)encodedData, (u8*)signedData, sizeof(NUPSignedAuditData));
-                                    ((u8*)encodedData)[0x5a0] = 0;
+                                    ((u8*)encodedData)[(dataSize + 2) / 3 * 4] = 0;
                                 }
                             }
                         }
@@ -917,9 +916,10 @@ static s32 __nupGetTitleSize(NUPTitleInfo* title) {
     title->installedContentSize += 0x4000;
     for (contentIndex = 0; contentIndex < ((ESTmdView*)title->tmdView)->head.numContents; contentIndex++) {
         ESCmdView* content = &((ESTmdView*)title->tmdView)->contents[contentIndex];
-        if (!__nupHasContent(title, content->cid) ||
+        ESContentId cid = content->cid;
+        if (!__nupHasContent(title, cid) ||
             title->titleId == 0x0000000100000001ULL) {
-            if (content->size >= 0xfffffff0ULL) {
+            if (content->size > 0xffffffefULL) {
                 result = -0x1394;
                 break;
             }
@@ -1111,11 +1111,12 @@ static s32 __nupUpdateTitle(NUPContextInfo* context, NUPTitleInfo* title, char* 
         }
     } else {
         ISFSStats stats;
-        result = ISFS_GetStats(&stats);
-        if (result == 0 && stats.freeBlocks >= (title->installedContentSize >> 14) &&
+        s32 hasSpace = ISFS_GetStats(&stats);
+        if (hasSpace == 0 && stats.freeBlocks >= (title->installedContentSize >> 14) &&
             title->progressStep <= stats.freeInodes) {
-            result = 1;
+            hasSpace = 1;
         }
+        result = hasSpace;
         if (result == 0) {
             result = -0x1392;
             goto done;
@@ -1144,11 +1145,12 @@ static s32 __nupUpdateTitle(NUPContextInfo* context, NUPTitleInfo* title, char* 
             goto done;
         }
         result = ES_ImportTitleDone();
+        if (result != 0) {
+            goto done;
+        }
     }
-    if (result == 0) {
-        __nupCleanupTitleInfo(title);
-        title->updateRequired = 0;
-    }
+    __nupCleanupTitleInfo(title);
+    title->updateRequired = 0;
 done:
     return result;
 }
@@ -1163,7 +1165,7 @@ extern "C" void* __nupOp(void* argument) {
     NUPTitleInfo* systemTitle = 0;
     u32 deviceId;
     u32 bootVersion;
-    u16 serverBootVersion = 0;
+    u32 serverBootVersion = 0;
     u16 bootTitleVersion;
     u16 systemMenuVersion;
     ESTitleId currentTitleId;
@@ -1181,7 +1183,7 @@ extern "C" void* __nupOp(void* argument) {
     result = ES_GetBoot2Version(&bootVersion);
     if (result == 0) {
         serverBootVersion = bootVersion;
-        if (serverBootVersion != bootVersion) {
+        if ((u16)serverBootVersion != bootVersion) {
             result = -0x1389;
         }
     }
@@ -1375,7 +1377,13 @@ done:
     } else {
         OSLockMutex(&context->mutex);
         context->progress.result = result;
-        context->progress.message = __nupStatusMessage[5];
+        if (result < 0) {
+            context->progress.message = __nupStatusMessage[5];
+        } else if (result >= 4) {
+            context->progress.message = __nupStatusMessage[4];
+        } else {
+            context->progress.message = __nupStatusMessage[result];
+        }
         OSUnlockMutex(&context->mutex);
     }
     return 0;
