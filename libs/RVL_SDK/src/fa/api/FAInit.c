@@ -1,8 +1,7 @@
 #include <revolution/fa.h>
 #include <revolution/os.h>
 
-char lbl_81690A00[] = "<< RVL_SDK - FA \trelease build: Apr 20 2010 11:20:14 (0x4199_60831) >>";
-char* __FAVersion[2] = {lbl_81690A00, NULL};
+char* __FAVersion[2] = {"<< RVL_SDK - FA \trelease build: Apr 20 2010 11:20:14 (0x4199_60831) >>", NULL};
 s32 FAInInitializing;
 s32 FAFileSysInitialized;
 extern s32 FADiskInitialized;
