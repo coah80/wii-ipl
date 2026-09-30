@@ -1201,10 +1201,9 @@ static void reset_kpad(KPADInside* kpad) {
     kpad->status.acc.x = 0.0f;
     words = (u32*)&kpad->status.acc;
     kpad->status.acc.y = -1.0f;
-    kpad->status.hori_vec = Vec2_0;
+    kpad->status.hori_vec.x = Vec2_0.x;
+    kpad->status.hori_vec.y = Vec2_0.y;
     kpad->status.dist_speed = 0.0f;
-    kpad->status.acc_vertical.x = 1.0f;
-    kpad->status.acc_vertical.y = 0.0f;
     kpad->status.dist = sensorDistance;
     kpad->status.dist_vec = 0.0f;
     kpad->dpdReferenceDistance = sensorDistance;
@@ -1212,6 +1211,8 @@ static void reset_kpad(KPADInside* kpad) {
     kpad->dpdObjectDistance = distanceValue;
     kpad->dpdObjectDirectionX = kpad->horizonTangentX;
     kpad->dpdObjectDirectionY = kpad->horizonTangentY;
+    kpad->status.acc_vertical.x = 1.0f;
+    kpad->status.acc_vertical.y = 0.0f;
     kpad->status.acc_value = 1.0f;
     kpad->status.acc_speed = 0.0f;
     *(u32*)&kpad->accelerationX = words[0];

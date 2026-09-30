@@ -1895,24 +1895,22 @@ static s32 _WADBackupGetFiles(const char* directoryPath, u32 flags, MEMAllocator
             goto cleanup;
         }
         for (nameIndex = 0; nameIndex < nameCount; nameIndex++) {
-            char* name = names;
-            WADBackupFileHeader* file = 0;
             u32 fileSize = 0;
             BOOL closeFile = FALSE;
 
             if ((flags & 4) != 0) {
                 if (directoryPath[0] == '\0') {
-                    snprintf(fullFilePath, sizeof(fullFilePath), "/%s", name);
+                    snprintf(fullFilePath, sizeof(fullFilePath), "/%s", names);
                 } else {
-                    snprintf(fullFilePath, sizeof(fullFilePath), "%s/%s", directoryPath, name);
+                    snprintf(fullFilePath, sizeof(fullFilePath), "%s/%s", directoryPath, names);
                 }
             } else if (directoryPath[0] == '\0') {
-                snprintf(fullFilePath, sizeof(fullFilePath), "%s/%s", currentDirectory, name);
+                snprintf(fullFilePath, sizeof(fullFilePath), "%s/%s", currentDirectory, names);
             } else if (directoryPath[0] == '/') {
-                snprintf(fullFilePath, sizeof(fullFilePath), "%s/%s", directoryPath, name);
+                snprintf(fullFilePath, sizeof(fullFilePath), "%s/%s", directoryPath, names);
             } else {
                 snprintf(fullFilePath, sizeof(fullFilePath), "%s/%s/%s", currentDirectory,
-                         directoryPath, name);
+                         directoryPath, names);
             }
             result = NANDPrivateGetType(fullFilePath, &fileType);
             if (result != 0) {
@@ -1968,7 +1966,7 @@ static s32 _WADBackupGetFiles(const char* directoryPath, u32 flags, MEMAllocator
                 }
             }
             if (files != 0) {
-                file = &files[totalFiles];
+                WADBackupFileHeader* file = &files[totalFiles];
                 file->magic = 0x3ADF17E;
                 file->fileSize = fileSize;
                 file->flags[0] = status.permission;
