@@ -1243,6 +1243,7 @@ int ATERM_814033F0(u16* response) {
         optionValue = (u8*)(optionCursor + 2);
         optionCursor = (u16*)((u8*)optionCursor + ((optionLength + 0x0B) & ~7));
 
+        if (optionValue != NULL) {
         switch (optionType) {
         case 0x201:
             memset(gScanSettings.ssid, 0, sizeof(gScanSettings.ssid));
@@ -1278,25 +1279,27 @@ int ATERM_814033F0(u16* response) {
             char* key = gScanSettings.wirelessKeys[keyIndex].key;
             memset(key, 0, sizeof(gScanSettings.wirelessKeys[keyIndex].key));
             if (gScanSettings.wirelessKeys[0].keyFormat == 1) {
-                u32 byteIndex = 0;
-                if (optionLength != 0) {
-                    do {
-                    u8 sourceByte = optionValue[byteIndex++];
-                    u8 highNibble = sourceByte >> 4;
-                    u8 lowNibble = sourceByte & 0xF;
+                s32 i;
+                for (i = optionLength; i > 0; --i) {
+                    {
+                        char* nextKey = key;
+                        u8 sourceByte = *optionValue++;
+                        s32 highNibble = (sourceByte & 0xF0) >> 4;
+                        s32 lowNibble = sourceByte & 0xF;
 
-                    if (highNibble < 10) {
-                        *key++ = highNibble + 0x30;
-                    } else {
-                        *key++ = highNibble + 0x37;
+                        if (highNibble <= 9) {
+                            *nextKey++ = highNibble + '0';
+                        } else {
+                            *nextKey++ = highNibble + '7';
+                        }
+                        if (lowNibble <= 9) {
+                            *nextKey++ = lowNibble + '0';
+                        } else {
+                            *nextKey++ = lowNibble + '7';
+                        }
+                        *nextKey = '\0';
+                        key += nextKey - key;
                     }
-                    if (lowNibble < 10) {
-                        *key++ = lowNibble + 0x30;
-                    } else {
-                        *key++ = lowNibble + 0x37;
-                    }
-                    *key = '\0';
-                    } while (byteIndex < optionLength);
                 }
             } else {
                 memcpy(key, optionValue, optionLength);
@@ -1307,6 +1310,7 @@ int ATERM_814033F0(u16* response) {
             memset(gScanSettings.sharedKey, 0, sizeof(gScanSettings.sharedKey));
             memcpy(gScanSettings.sharedKey, optionValue, optionLength);
             break;
+        }
         }
     }
     return result;
