@@ -485,13 +485,11 @@ typedef void (*AtermProgressCallback)(void*);
 typedef void* (*AtermAllocateCallback)(u32);
 typedef void (*AtermFreeCallback)(void*);
 
-AtermNetworkSettings gNetworkSettings;
-char gAccessPointName[0x24];
-AtermScanSettings gScanSettings;
-AtermConfigurationResult gAtermConfigurationResult;
-AtermThreadBuffer gAtermResponseBuffer;
-static OSThread AtermThread;
-AtermThreadBuffer gAtermResponseBuffer;
+AtermNetworkSettings gNetworkSettings = {0};
+char gAccessPointName[0x24] = {0};
+AtermScanSettings gScanSettings = {0};
+AtermConfigurationResult gAtermConfigurationResult = {0};
+AtermThreadBuffer gAtermResponseBuffer ATTRIBUTE_ALIGN(32) = {0};
 u32 gAtermDeadline = 0xFFFFFFFF;
 u32 gAtermScanLimit = 0x40;
 u32 gAtermScanBufferSize = 0x800;
@@ -504,6 +502,7 @@ static const u8 sAtermOptionName[8] = {6, 0, 1, 2, 3, 4, 5, 0};
 
 char gAtermAossSsid[7] = "******";
 u8* gAtermOptionBuffer = (u8*)&gAtermResponseBuffer;
+static OSThread AtermThread;
 u32 gAtermUseSharedAddress = 1;
 char gAtermProductName[8] = "WARP";
 u32 gAtermCancelRequested;
