@@ -129,9 +129,9 @@ int SOGetSockName(int socket, void* address) {
     int size;
     int result;
     s32 rm;
-    SOSockAddr* addr;
-    SOSockAddr* reply;
     NameRequest* request;
+    SOSockAddr* reply;
+    SOSockAddr* addr;
     addr=address;
     if((result=SOiPrepare(NULL,&rm))==0) {
         if(!addr || addr->len>8 || addr->len<8) result=-28;
@@ -199,7 +199,7 @@ int SOShutdown(int socket, int how) {
 
 int SOPoll(SOPollFD* fds, unsigned int count, s64 timeout) {
     s32 rm;
-    s32 result,bytes,size;
+    s32 size,bytes,result;
     PollRequest* request;
     SOPollFD* reply;
     if((result=SOiPrepare(NULL,&rm))==0) {
@@ -256,11 +256,11 @@ char* SOInetNtoA(SOInAddr address) {
 
 int SOInetPtoN(int family, const char* text, void* address) {
     s32 rm;
-    int temporary,result,size,bytes;
+    int temporary,size,result,bytes;
     InetRequest* request;
     if((result=SOiPrepareTempRm(NULL,&rm,&temporary))==0) {
         bytes=0;
-        if(family==2) bytes=4;
+        switch(family) { case 2: bytes=4; break; default: break; }
         if(!bytes) result=-5;
         else if(!text) result=-28;
         else {
@@ -316,7 +316,7 @@ static int RecvFrom(const char* name, int socket, void* data, int length, int fl
         else {
             direct=TRUE;
             if(length && !DirectBuffer(data,length)) direct=FALSE;
-            size=((address ? address->len : 0)+95)&~31;
+            size=((address==NULL ? 0 : address->len)+95)&~31;
             request=SOiAlloc(12,size);
             if(!direct) buffer=SOiAlloc(13,(length+31)&~31);
             else buffer=data;
