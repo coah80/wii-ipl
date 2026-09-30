@@ -1,0 +1,787 @@
+#include <private/nwc24.h>
+#include <revolution/nwc24.h>
+
+static const char* MIMEEncStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
+
+static NWC24Err Base64Encode(u8* decoded, int decodedSize, u32* stringSize, u8* encoded, int encodedSize, u32* encodedSizeOut) {
+    NWC24Err result = NWC24_OK;
+    s32 textIdx;
+    s32 dataIdx = 0;
+    BOOL hasThird;
+    BOOL hasSecond;
+    u32 combined;
+
+    for (textIdx = 0; dataIdx < decodedSize; dataIdx += 3) {
+        if (textIdx + 3 >= encodedSize) {
+            result = NWC24_ERR_OVERFLOW;
+            break;
+        }
+
+        hasThird = FALSE;
+        hasSecond = FALSE;
+
+        combined = (u32)decoded[dataIdx] << 8;
+
+        if (dataIdx + 1 < decodedSize) {
+            hasSecond = TRUE;
+            combined |= (u8)decoded[dataIdx + 1];
+        }
+
+        combined <<= 8;
+
+        if (dataIdx + 2 < decodedSize) {
+            hasThird = TRUE;
+            combined |= (u8)decoded[dataIdx + 2];
+        }
+
+        encoded[textIdx + 0] = MIMEEncStr[combined >> 18 & (64 - 1)];
+        encoded[textIdx + 1] = MIMEEncStr[combined >> 12 & (64 - 1)];
+        encoded[textIdx + 2] = MIMEEncStr[hasSecond ? (combined >> 6 & (64 - 1)) : 64];
+        encoded[textIdx + 3] = MIMEEncStr[hasThird ? (combined & (64 - 1)) : 64];
+
+        textIdx += 4;
+    }
+
+    *encodedSizeOut = textIdx;
+
+    if (stringSize != NULL) {
+        textIdx = decodedSize;
+
+        if (decodedSize < dataIdx) {
+            dataIdx = decodedSize;
+        }
+
+        *stringSize = dataIdx;
+    }
+
+    return result;
+}
+
+NWC24Err NWC24Base64Encode(u8* decoded, int decodedSize, u8* encoded, int encodedSize, u32* stringSize) {
+    return Base64Encode(decoded, decodedSize, NULL, encoded, encodedSize, stringSize);
+}
+
+NWC24Err NWC24Base64Decode(u8* encoded, int encodedSize, u8* decoded, int decodedSize, u32* stringSize) {
+    int bitCount = 0;
+    u32 bitBuffer = 0;
+    u32 decodedOffset = 0;
+    s8* table = (s8*)NWC24WorkP->base64Work;
+    BOOL produceOutput;
+    int i;
+
+    for (i = 0; i < encodedSize; i++) {
+        if ((s32)table[encoded[i]] >= 0) {
+            if ((s32)table[encoded[i]] < 0x40) {
+                bitCount += 6;
+                bitBuffer <<= 6;
+                produceOutput = bitCount >= 8;
+                bitBuffer |= (u32)table[encoded[i]];
+                if (produceOutput) {
+                    if (decodedOffset >= (u32)decodedSize) {
+                        *stringSize = decodedSize;
+                        return NWC24_ERR_OVERFLOW;
+                    }
+                    bitCount -= 8;
+                    *decoded++ = (u8)((s32)bitBuffer >> bitCount);
+                    decodedOffset++;
+                }
+            }
+        }
+    }
+    *stringSize = decodedOffset;
+    return NWC24_OK;
+}
+
+void NWC24InitBase64Table(u8* table) {
+    s8* signedTable = (s8*)table;
+    int i;
+
+    for (i = 0; i < 256; i++) {
+        signedTable[i] = -1;
+    }
+    for (i = 'A'; i <= 'Z'; i++) {
+        table[i] = i - 'A';
+    }
+    for (i = 0; i < 26; i++) {
+        table['a' + i] = i + 26;
+    }
+    for (i = 0; i < 10; i++) {
+        table['0' + i] = i + 52;
+    }
+    table['+'] = 62;
+    table['/'] = 63;
+}
+
+static NWC24Err QEncode(char* encoded, u32 encodedCapacity, u32* encodedSize, u8* decoded, u32 decodedSize, u32* decodedSizeOut, s32 maxLineLength) {
+    char* output;
+    u32 textWritten;
+    u32 dataIdx;
+    NWC24Err result;
+    s32 lineLength;
+    u8 octets[3];
+    BOOL lineBreak;
+    s32 emitCount;
+    s32 bytesRead;
+    s16 currentByte;
+    s32 i;
+
+    result = NWC24_OK;
+
+    if (encoded == NULL) {
+        return NWC24_ERR_INVALID_VALUE;
+    }
+
+    if (decoded == NULL) {
+        return NWC24_ERR_INVALID_VALUE;
+    }
+
+    if (decodedSize <= 0) {
+        return NWC24_ERR_OVERFLOW;
+    }
+
+    if (decodedSizeOut != NULL) {
+        *decodedSizeOut = 0;
+    }
+
+    if (encodedSize != NULL) {
+        *encodedSize = 0;
+    }
+
+    output = encoded;
+    lineLength = 0;
+    textWritten = 0;
+    dataIdx = 0;
+
+    while (dataIdx < decodedSize) {
+        currentByte = *decoded;
+        lineBreak = FALSE;
+
+        if ((char)currentByte >= '!' && (char)currentByte <= '~' && (char)currentByte != '=') {
+            bytesRead = 1;
+            emitCount = 1;
+            octets[0] = *decoded;
+
+        } else if (dataIdx + 1 < decodedSize && (char)currentByte == '\r' && (char)decoded[1] == '\n') {
+            bytesRead = 2;
+            emitCount = 1;
+            octets[0] = *decoded;
+            octets[1] = decoded[1];
+
+        } else {
+            octets[0] = '=';
+
+            if ((*decoded >> 4) >= 10) {
+                octets[1] = (*decoded >> 4) % 10 + 'A';
+            } else {
+                octets[1] = (*decoded >> 4) % 10 + '0';
+            }
+
+            if ((*decoded & 0x0F) >= 10) {
+                octets[2] = (*decoded & 0x0F) % 10 + 'A';
+            } else {
+                octets[2] = (*decoded & 0x0F) % 10 + '0';
+            }
+
+            bytesRead = 1;
+            emitCount = 3;
+        }
+
+        if (maxLineLength == 0 && lineLength + emitCount >= 75) {
+            lineBreak = TRUE;
+            emitCount += 3;
+        }
+
+        if (textWritten + emitCount >= encodedCapacity) {
+            result = NWC24_ERR_OVERFLOW;
+            break;
+        }
+
+        textWritten += emitCount;
+
+        if (lineBreak) {
+            output[0] = '=';
+            output[1] = '\r';
+            output[2] = '\n';
+
+            output += 3;
+            emitCount -= 3;
+
+            lineLength = 0;
+        }
+
+        lineLength += emitCount;
+
+        for (i = 0; i < emitCount; i++) {
+            *(output++) = octets[i];
+        }
+
+        dataIdx += bytesRead;
+        decoded += bytesRead;
+    }
+
+    if (decodedSizeOut != NULL) {
+        *decodedSizeOut = dataIdx;
+    }
+
+    if (encodedSize != NULL) {
+        *encodedSize = textWritten;
+    }
+
+    return result;
+}
+
+static NWC24Err QDecode(char* decoded, u32 decodedCapacity, u32* decodedSize, char* encoded, u32 encodedSize, u32* encodedSizeOut, int flags) {
+    u32 decodedOffset = 0;
+    u32 encodedOffset;
+    char* input;
+    char* output;
+    u32 value = 0;
+    NWC24Err result = NWC24_OK;
+
+    if (decoded == NULL || encoded == NULL) {
+        return NWC24_ERR_INVALID_VALUE;
+    }
+    if (decodedCapacity == 0) {
+        return NWC24_ERR_OVERFLOW;
+    }
+    if (decodedSize != NULL) {
+        *decodedSize = 0;
+    }
+    if (encodedSizeOut != NULL) {
+        *encodedSizeOut = 0;
+    }
+
+    input = encoded;
+    output = decoded;
+    for (encodedOffset = 0; encodedOffset < encodedSize; encodedOffset++) {
+        if (decodedCapacity <= decodedOffset) {
+            result = NWC24_ERR_OVERFLOW;
+            break;
+        }
+        if (flags != 0 && *input == '_') {
+            *output++ = ' ';
+            input++;
+            decodedOffset++;
+        } else if (*input == '=' && encodedOffset + 2 < encodedSize) {
+            u32 inputAfterEqual = encodedOffset + 1;
+            char* current = ++input;
+            if (*current == ' ' || *current == '\t') {
+                char* previous = current;
+                u32 scan = 1;
+                while (inputAfterEqual + scan + 1 < encodedSize) {
+                    char* next = previous + 1;
+                    if (*next == '\r' && previous[2] == '\n') {
+                        inputAfterEqual += scan;
+                        current = next;
+                        break;
+                    }
+                    if (*next != ' ' && *next != '\t') {
+                        break;
+                    }
+                    previous = next;
+                    scan++;
+                }
+            }
+            if (*current == '\r' && current[1] == '\n') {
+                current += 2;
+                encodedOffset = inputAfterEqual + 1;
+                input = current;
+            } else {
+                int high = Util_xtoi(*current);
+                int low;
+                if (high >= 0) {
+                    value = (high & 0x0F) << 4;
+                }
+                low = Util_xtoi(current[1]);
+                if (low >= 0) {
+                    value |= low & 0x0F;
+                }
+                current += 2;
+                if (high >= 0 && low >= 0) {
+                    *output++ = (char)value;
+                    decodedOffset++;
+                }
+                encodedOffset = inputAfterEqual + 1;
+                input = current;
+            }
+        } else {
+            *output++ = *input++;
+            decodedOffset++;
+        }
+    }
+    if (decodedSize != NULL) {
+        *decodedSize = decodedOffset;
+    }
+    if (encodedSizeOut != NULL) {
+        *encodedSizeOut = encodedOffset;
+    }
+    return result;
+}
+
+NWC24Err NWC24EncodeQuotedPrintable(char* encoded, u32 encodedCapacity, u32* encodedSize, u8* decoded, u32 decodedSize, u32* decodedSizeOut) {
+    return QEncode(encoded, encodedCapacity, encodedSize, decoded, decodedSize, decodedSizeOut, 0);
+}
+
+NWC24Err NWC24DecodeQuotedPrintable(char* decoded, u32 decodedCapacity, u32* decodedSize, u8* encoded, u32 encodedSize, u32* encodedSizeOut) {
+    return QDecode(decoded, decodedCapacity, decodedSize, (char*)encoded, encodedSize, encodedSizeOut, 0);
+}
+
+static NWC24Err ConcatEncodedText(char* encoded, u32 encodedCapacity, u32* encodedSize, char encoding, u8* decoded, u32 decodedSize,
+                                  u32* decodedSizeOut);
+
+static NWC24Err EncodeWord(char* encoded, u32 encodedCapacity, u32* encodedSize, char* charset, u32 charsetSize, char encoding, u8* decoded,
+                           u32 decodedSize, u32* decodedSizeOut) {
+    NWC24Err result = NWC24_OK;
+    BOOL encodeOverflow = FALSE;
+
+    if (decodedSizeOut != NULL) {
+        *decodedSizeOut = 0;
+    }
+    if (encodedCapacity == 0) {
+        if (decodedSizeOut != NULL) {
+            *decodedSizeOut = 0;
+        }
+        return NWC24_ERR_INVALID_VALUE;
+    }
+    *encoded = '\0';
+    if (encodedSize != NULL) {
+        *encodedSize = 1;
+    }
+    if (Mail_strlen(encoded) + 2 < encodedCapacity) {
+        Mail_strncat(encoded, "=?", 2);
+    } else {
+        result = NWC24_ERR_OVERFLOW;
+    }
+    if (result == NWC24_OK) {
+        if (charset == NULL) {
+            result = NWC24_ERR_INVALID_VALUE;
+        } else if (charsetSize + Mail_strlen(encoded) < encodedCapacity) {
+            u32 length = Mail_strlen(charset);
+            Mail_strncat(encoded, charset, length);
+        } else {
+            result = NWC24_ERR_OVERFLOW;
+        }
+    }
+    if (result == NWC24_OK) {
+        if (Mail_strlen(encoded) + 2 < encodedCapacity) {
+            Mail_strncat(encoded, "?", 1);
+        } else {
+            result = NWC24_ERR_OVERFLOW;
+        }
+    }
+    if (result == NWC24_OK) {
+        if (encoding == 'B' || encoding == 'b' || encoding == 'Q' || encoding == 'q') {
+            char value[1];
+            u32 length = Mail_strlen(encoded);
+            value[0] = encoding;
+            if (length + 1 < encodedCapacity) {
+                Mail_strncat(encoded, value, 1);
+            } else {
+                result = NWC24_ERR_OVERFLOW;
+            }
+        } else {
+            result = NWC24_ERR_INVALID_VALUE;
+        }
+    }
+    if (result == NWC24_OK) {
+        if (Mail_strlen(encoded) + 2 < encodedCapacity) {
+            Mail_strncat(encoded, "?", 1);
+        } else {
+            result = NWC24_ERR_OVERFLOW;
+        }
+    }
+    if (result == NWC24_OK) {
+        result = ConcatEncodedText(encoded, encodedCapacity, encodedSize, encoding, decoded, decodedSize, decodedSizeOut);
+        if (result == NWC24_OK || result == NWC24_ERR_OVERFLOW) {
+            encodeOverflow = result == NWC24_ERR_OVERFLOW;
+            if (Mail_strlen(encoded) + 2 < encodedCapacity) {
+                Mail_strncat(encoded, "?=", 2);
+                result = NWC24_OK;
+                if (encodedSize != NULL) {
+                    *encodedSize = Mail_strlen(encoded) + 1;
+                }
+                if (encodeOverflow) {
+                    result = NWC24_ERR_OVERFLOW;
+                }
+            } else {
+                *encoded = '\0';
+                if (decodedSizeOut != NULL) {
+                    *decodedSizeOut = 1;
+                }
+                result = NWC24_ERR_OVERFLOW;
+            }
+        } else {
+            *encoded = '\0';
+            if (decodedSizeOut != NULL) {
+                *decodedSizeOut = 1;
+            }
+        }
+    } else {
+        *encoded = '\0';
+    }
+    return result;
+}
+
+NWC24Err NWC24EncodeWord(u8* encoded, u32 encodedCapacity, u32* encodedSize, char* charset, u32 charsetSize, char encoding, u8* decoded,
+                         u32 decodedSize) {
+    NWC24Err result;
+
+    if (encodedSize == NULL) {
+        return NWC24_ERR_INVALID_VALUE;
+    }
+    if (encoded == NULL || encodedCapacity == 0) {
+        return NWC24_ERR_INVALID_VALUE;
+    }
+    if (charset == NULL || charsetSize == 0) {
+        return NWC24_ERR_INVALID_VALUE;
+    }
+    if (encoding == '\0') {
+        return NWC24_ERR_INVALID_VALUE;
+    }
+    if (decoded == NULL) {
+        return NWC24_ERR_INVALID_VALUE;
+    }
+
+    *encoded = 0;
+    *encodedSize = 1;
+    result = EncodeWord((char*)encoded, encodedCapacity, encodedSize, charset, charsetSize, encoding, decoded, decodedSize, NULL);
+    if (result == NWC24_OK || result == NWC24_ERR_OVERFLOW) {
+        encoded[*encodedSize - 1] = 0;
+    }
+    return result;
+}
+
+static NWC24Err ExtractCharset(char* charset, u32 charsetCapacity, u32* charsetSize, char* encoded, u32 encodedSize);
+static NWC24Err ExtractEncodedText(char* decoded, u32 decodedCapacity, u32* decodedSize, char encoding, char* encoded, u32 encodedSize,
+                                   u32* encodedSizeOut);
+
+static BOOL CopyWithoutLinearWhiteSpaces(char* output, int* outputSize, char* input, int inputSize) {
+    BOOL afterNewline = FALSE;
+    u32 outputOffset = 0;
+    s32 capacity;
+
+    if (output == NULL || outputSize == NULL || *outputSize == 0) {
+        return FALSE;
+    }
+    capacity = *outputSize;
+    if (input == NULL) {
+        *output = '\0';
+        *outputSize = 1;
+        return TRUE;
+    }
+    while (outputOffset < capacity - 1U && inputSize != 0 && *input != '\0') {
+        char value = *input;
+        switch (value) {
+            case '\r':
+            case '\n':
+                if (!afterNewline) {
+                    *output++ = ' ';
+                    outputOffset++;
+                }
+                afterNewline = TRUE;
+                break;
+            case '\t':
+            case ' ':
+                if (!afterNewline) {
+                    *output++ = value;
+                    outputOffset++;
+                }
+                break;
+            default:
+                *output = value;
+                afterNewline = FALSE;
+                output++;
+                outputOffset++;
+                break;
+        }
+        input++;
+        inputSize--;
+    }
+    *output = '\0';
+    *outputSize = outputOffset + 1;
+    return inputSize == 0 || *input == '\0';
+}
+
+static NWC24Err DecodeWord(char* charsetData, u32 charsetCapacity, char* decoded, u32 decodedCapacity, u32* decodedSize, char* encoded,
+                           u32 encodedSize, u32* encodedSizeOut) {
+    int encodedWordPosition = 0;
+    int encodedLength;
+    u32 decodedLength;
+    u32 consumedSize;
+    NWC24Err result = NWC24_OK;
+
+    if (encodedSizeOut != NULL) {
+        *encodedSizeOut = 0;
+    }
+    if (decodedCapacity == 0) {
+        if (encodedSizeOut != NULL)
+            *encodedSizeOut = 0;
+        return NWC24_ERR_INVALID_VALUE;
+    }
+    *decoded = '\0';
+    if (decodedSize != NULL) {
+        *decodedSize = 1;
+    }
+    if (encodedSizeOut != NULL) {
+        *encodedSizeOut = 0;
+    }
+    {
+        u32 markerLength = Mail_strlen("=?");
+        u32 offset;
+        for (offset = 0; offset <= encodedSize; offset++) {
+            encodedWordPosition = (int)(encoded + offset);
+            if (Mail_strncmp((char*)encodedWordPosition, "=?", markerLength) == 0) {
+                break;
+            }
+        }
+        if (offset > encodedSize) {
+            encodedWordPosition = 0;
+        }
+    }
+    if (encodedWordPosition == (int)encoded) {
+        result = ExtractCharset(charsetData, charsetCapacity, &consumedSize, (char*)encoded, encodedSize);
+        if (result != NWC24_OK) {
+            return result;
+        }
+        encodedLength = consumedSize;
+        {
+            u32 markerLength = Mail_strlen("?");
+            u32 offset;
+            char* delimiter = NULL;
+            char* current = (char*)encodedWordPosition + encodedLength;
+            for (offset = 0; offset <= encodedSize - encodedLength; offset++) {
+                if (Mail_strncmp((char*)current, "?", markerLength) == 0) {
+                    delimiter = current;
+                    break;
+                }
+                current++;
+            }
+            if (delimiter == 0) {
+                return NWC24_ERR_INVALID_VALUE;
+            }
+            {
+                char encoding = delimiter[1];
+                consumedSize = 2;
+                encodedLength += consumedSize;
+                result = ExtractEncodedText(decoded, decodedCapacity, &decodedLength, encoding, encoded + encodedLength, encodedSize - encodedLength,
+                                            &consumedSize);
+                if (result != NWC24_OK) {
+                    return result;
+                }
+                encodedLength += consumedSize;
+            }
+        }
+    } else {
+        u32 localSize = decodedCapacity;
+        if (encodedWordPosition == 0) {
+            encodedLength = STD_strnlen(encoded, encodedSize);
+        } else {
+            encodedLength = encodedWordPosition - (int)encoded;
+        }
+        if (!CopyWithoutLinearWhiteSpaces(decoded, (int*)&localSize, encoded, encodedLength)) {
+            if (decodedSize != NULL) {
+                *decodedSize = localSize;
+            }
+            if (encodedSizeOut != NULL) {
+                *encodedSizeOut = encodedLength;
+            }
+            return NWC24_ERR_OVERFLOW;
+        }
+        decodedLength = localSize;
+        if (encodedWordPosition != 0) {
+            BOOL whitespaceOnly = TRUE;
+            u32 offset;
+            for (offset = 0; offset < localSize && decoded[offset] != '\0'; offset++) {
+                char value = decoded[offset];
+                if (value != ' ' && value != '\t' && value != '\r' && value != '\n') {
+                    whitespaceOnly = FALSE;
+                }
+            }
+            if (whitespaceOnly) {
+                *decoded = '\0';
+                decodedLength = 1;
+            }
+        }
+    }
+    if (decodedSize != NULL) {
+        *decodedSize = decodedLength;
+    }
+    if (encodedSizeOut != NULL) {
+        *encodedSizeOut = encodedLength;
+    }
+    return result;
+}
+
+NWC24Err NWC24DecodeMIMEHeaderFieldBody(u8* charsetData, u32 charsetDataSize, u8* decoded, u32 decodedCapacity, u32* decodedSize, u8* encoded,
+                                        u32 encodedSize) {
+    int result = 0;
+    u8* output;
+    u32 inputSize = encodedSize;
+
+    if (decodedSize == NULL) {
+        return NWC24_ERR_INVALID_VALUE;
+    }
+    if (charsetData == NULL || charsetDataSize == 0) {
+        return NWC24_ERR_INVALID_VALUE;
+    }
+    if (decoded == NULL || decodedCapacity == 0) {
+        return NWC24_ERR_INVALID_VALUE;
+    }
+    if (encoded == NULL)
+        return NWC24_ERR_INVALID_VALUE;
+    if (encoded == NULL)
+        return NWC24_ERR_INVALID_VALUE;
+    *decoded = 0;
+    *charsetData = 0;
+    *decodedSize = 1;
+    output = decoded;
+    while ((s32)inputSize > 0 && (s32)decodedCapacity > 0 && *encoded != '\0') {
+        u32 copiedSize = 0;
+        u32 consumedSize;
+        result =
+            DecodeWord((char*)charsetData, charsetDataSize, (char*)output, decodedCapacity, &copiedSize, (char*)encoded, inputSize, &consumedSize);
+        if (copiedSize == 0) {
+            break;
+        }
+        copiedSize--;
+        output += copiedSize;
+        decodedCapacity -= copiedSize;
+        *decodedSize += copiedSize;
+        encoded += consumedSize;
+        inputSize -= consumedSize;
+        if (result != NWC24_OK) {
+            break;
+        }
+    }
+    if (result == NWC24_OK && inputSize > 0 && *encoded != '\0') {
+        result = NWC24_ERR_OVERFLOW;
+    }
+    decoded[*decodedSize - 1] = '\0';
+    return result;
+}
+
+static NWC24Err ConcatEncodedText(char* encoded, u32 encodedCapacity, u32* encodedSize, char encoding, u8* decoded, u32 decodedSize,
+                                  u32* decodedSizeOut) {
+    u32 prefixSize = Mail_strlen(encoded);
+    int available = encodedCapacity - prefixSize - 2;
+    NWC24Err result;
+
+    if (available <= 0) {
+        return NWC24_ERR_OVERFLOW;
+    }
+    if (encoding == 'B' || encoding == 'b') {
+        result = Base64Encode(decoded, decodedSize, decodedSizeOut, (u8*)encoded + prefixSize, (u32)(available - 1), encodedSize);
+    } else if (encoding == 'Q' || encoding == 'q') {
+        result = QEncode(encoded + prefixSize, (u32)(available - 1), encodedSize, decoded, decodedSize, decodedSizeOut, 1);
+    } else {
+        result = NWC24_ERR_NOT_SUPPORTED;
+    }
+    if (result == NWC24_OK || result == NWC24_ERR_OVERFLOW) {
+        encoded[prefixSize + *encodedSize] = '\0';
+        *encodedSize += 1;
+    }
+    return result;
+}
+
+static NWC24Err ExtractCharset(char* charset, u32 charsetCapacity, u32* charsetSize, char* encoded, u32 encodedSize) {
+    u32 markerLength;
+    u32 offset;
+    int start = 0;
+    int end = 0;
+    u32 charsetLength;
+
+    if (charset == NULL) {
+        return NWC24_ERR_INVALID_VALUE;
+    }
+    markerLength = Mail_strlen("=?");
+    for (offset = 0; offset <= encodedSize; offset++) {
+        int current = (int)(encoded + offset);
+        if (Mail_strncmp((char*)current, "=?", markerLength) == 0) {
+            start = current;
+            break;
+        }
+    }
+    if (start == 0) {
+        return NWC24_ERR_NOT_SUPPORTED;
+    }
+    markerLength = Mail_strlen("?");
+    start += 2;
+    for (offset = 0; offset <= encodedSize - (u32)(start - (int)encoded); offset++) {
+        int current = start + offset;
+        if (Mail_strncmp((char*)current, "?", markerLength) == 0) {
+            end = current;
+            break;
+        }
+    }
+    if (end == 0) {
+        return NWC24_ERR_NOT_SUPPORTED;
+    }
+    charsetLength = (u32)(end - start);
+    if (charsetLength >= charsetCapacity) {
+        return NWC24_ERR_OVERFLOW;
+    }
+    Mail_strncpy(charset, (char*)start, charsetLength);
+    charset[charsetLength] = '\0';
+    *charsetSize = charsetLength + 2;
+    return NWC24_OK;
+}
+
+static NWC24Err ExtractEncodedText(char* decoded, u32 decodedCapacity, u32* decodedSize, char encoding, char* encoded, u32 encodedSize,
+                                   u32* encodedSizeOut) {
+    u32 markerLength;
+    u32 offset;
+    int start = 0;
+    int end = 0;
+    int length;
+    NWC24Err result;
+
+    if (encoded == NULL || decodedSize == NULL) {
+        return NWC24_ERR_INVALID_VALUE;
+    }
+    *decodedSize = 0;
+    if (encodedSizeOut == NULL) {
+        return NWC24_ERR_INVALID_VALUE;
+    }
+    *encodedSizeOut = 0;
+    markerLength = Mail_strlen("?");
+    for (offset = 0; offset <= encodedSize; offset++) {
+        int current = (int)(encoded + offset);
+        if (Mail_strncmp((char*)current, "?", markerLength) == 0) {
+            start = current;
+            break;
+        }
+    }
+    if (start == 0) {
+        return NWC24_ERR_NOT_SUPPORTED;
+    }
+    markerLength = Mail_strlen("?=");
+    start++;
+    for (offset = 0; offset <= encodedSize - (u32)(start - (int)encoded); offset++) {
+        int current = start + offset;
+        if (Mail_strncmp((char*)current, "?=", markerLength) == 0) {
+            end = current;
+            break;
+        }
+    }
+    if (end == 0) {
+        return NWC24_ERR_NOT_SUPPORTED;
+    }
+    length = end - start;
+    if (encoding == 'B' || encoding == 'b') {
+        result = NWC24Base64Decode((u8*)start, length, (u8*)decoded, decodedCapacity - 1, decodedSize);
+        if (result == NWC24_OK || result == NWC24_ERR_OVERFLOW) {
+            decoded[*decodedSize] = '\0';
+            *decodedSize += 1;
+        }
+    } else if (encoding == 'Q' || encoding == 'q') {
+        result = QDecode(decoded, decodedCapacity - 1, decodedSize, (char*)start, length, NULL, 1);
+        if (result == NWC24_OK || result == NWC24_ERR_OVERFLOW) {
+            decoded[*decodedSize] = '\0';
+            *decodedSize += 1;
+        }
+    } else {
+        return NWC24_ERR_NOT_SUPPORTED;
+    }
+    *encodedSizeOut = (u32)(end - (int)encoded) + 2;
+    return result;
+}
