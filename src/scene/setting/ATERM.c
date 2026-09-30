@@ -499,7 +499,7 @@ static const u8 sAtermOptionName[8] = {6, 0, 1, 2, 3, 4, 5, 0};
 static const u8 sAtermMd5Padding[64] = {0x80};
 
 char gAtermAossSsid[7] = "******";
-u8* gAtermOptionBuffer = NULL;
+u8* gAtermOptionBuffer = (u8*)&gAtermResponseBuffer;
 u32 gAtermUseSharedAddress = 1;
 char gAtermProductName[5] = "WARP";
 u32 gAtermCancelRequested;
@@ -1425,7 +1425,7 @@ s32 ATERM_814038C8(void) {
     AtermPacketOption* option;
     u8* packetBuffer = gAtermConfigurationResult.packetBuffer;
     u8* workBuffer = gAtermConfigurationResult.workBuffer;
-    u8* challengeBuffer = &gAtermResponseBuffer.data[0x7f8];
+    u8* challengeBuffer = gAtermOptionBuffer + 0x7f8;
     u8* cursor;
     u8* end;
     s32 byteLength;
