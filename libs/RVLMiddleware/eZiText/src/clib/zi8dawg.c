@@ -20,7 +20,7 @@ ziU32 Zi8MatchROMdata0(ziWChar* elements, ziU32 count, ziU8 language,
     ziBool searching;
     ziS32 tableSize;
     ziU8* graph;
-    ziS16 key;
+    ziU16 key;
     ziU8 endOfWord;
     zi8DawgRec* current;
     ziU16 index;
@@ -29,7 +29,7 @@ ziU32 Zi8MatchROMdata0(ziWChar* elements, ziU32 count, ziU8 language,
     ziU8 result = 0;
     ziU32 keyCount;
     ziU8* table;
-    ziS16 keys[3];
+    ziU16 keys[3];
 
     if (language != context->lang || graphTable != context->key) {
         records[0].key = 0;
@@ -86,7 +86,7 @@ ziU32 Zi8MatchROMdata0(ziWChar* elements, ziU32 count, ziU8 language,
                     keys[(ziU16)index] = 0;
                     table = (ziU8*)Zi8GetTableAddress(language, keyTable, ZI_WORK);
                     context->p14 = table + 2;
-                    records[0].node = ZiDAWGGetGraphInfo(context, table + context->cap * 2 + 2, keys);
+                    records[0].node = ZiDAWGGetGraphInfo(context, table + context->cap * 2 + 2, (ziS16*)keys);
                 }
                 records[0].key = 0;
                 if (records[0].node == 0) goto finish_graph;
@@ -300,15 +300,10 @@ search_segment:
       if ((ZI_WORK->dawgCtx.key == 0) && ((language & 0xff) == 10)) {
         for (result = 0; (result & 0xff) < (unsigned int)ZI_WORK->unk_0x17EA; result = result + 1) {
           character = ZI_WORK->unk_0x17F4[result & 0xff];
-          if (character == 0x6f) {
-select_vowel_table:
+          if (character == 0x61 || character == 0x6f || character == 0x75) {
             ZI_WORK->unk_0x141E = 0x10;
             break;
           }
-          if (character < 0x6f) {
-            if (character == 0x61) goto select_vowel_table;
-          }
-          else if (character == 0x75) goto select_vowel_table;
         }
       }
       goto search_segment;
@@ -324,14 +319,12 @@ finish_segments:
 
 ziU8 Zi8MatchROMdata(ziWChar *elements, ziU8 count, ziU8 language, ziWChar *output, ziU16 capacity, ziU8 mode, ziU8 status, ziU8 reservedMode, ziU8 acceptPrefix, ziPtr __zi8_work_data)
 {
-  ziU16 *input;
   ziU8* group;
   int tableSize;
   ziU8 found;
   unsigned int elementCount;
   unsigned int result;
 
-  input = (ziU16 *)elements;
   elementCount = (unsigned int)count;
   result = 0;
   if ((capacity & 0xffff) < (elementCount & 0xff)) {
@@ -352,12 +345,12 @@ ziU8 Zi8MatchROMdata(ziWChar *elements, ziU8 count, ziU8 language, ziWChar *outp
     }
     tableSize = Zi8GetTableSize(language & 0xff,0x1c,ZI_WORK);
     if (tableSize == 0) {
-      result = Zi8MatchROMdata2(input,elementCount & 0xff,language & 0xff,output,capacity & 0xffff,
+      result = Zi8MatchROMdata2(elements,elementCount & 0xff,language & 0xff,output,capacity & 0xffff,
                                mode & 0xff,status & 0xff,reservedMode & 0xff,0,acceptPrefix,ZI_WORK);
     }
     else {
       while (((ZI_WORK->unk_0x17F0 != 0 &&
-              (result = Zi8MatchROMdata2(input,elementCount & 0xff,language & 0xff,output,capacity & 0xffff,
+              (result = Zi8MatchROMdata2(elements,elementCount & 0xff,language & 0xff,output,capacity & 0xffff,
                                         mode & 0xff,status & 0xff,reservedMode & 0xff,
                                         (ziU8 *)ZI_WORK->unk_0x17F0,acceptPrefix,ZI_WORK),
               (result & 0xff) == 0)) &&
@@ -370,10 +363,10 @@ ziU8 Zi8MatchROMdata(ziWChar *elements, ziU8 count, ziU8 language, ziWChar *outp
        (((elementCount & 0xff) == 1 && ((capacity & 0xffff) != 0)))) {
       ZI_WORK->unk_0x17EC = 1;
       if (tableSize == 0) {
-        found = Zi8MatchROMdata2(input,elementCount & 0xff,language & 0xff,output,capacity & 0xffff,0,
+        found = Zi8MatchROMdata2(elements,elementCount & 0xff,language & 0xff,output,capacity & 0xffff,0,
                                  status & 0xff,reservedMode & 0xff,0,acceptPrefix,ZI_WORK);
         if (found != '\0') {
-          *output = *input;
+          *output = *elements;
           result = 1;
         }
       }
@@ -381,11 +374,11 @@ ziU8 Zi8MatchROMdata(ziWChar *elements, ziU8 count, ziU8 language, ziWChar *outp
         group = NextDawgGroup(0,language & 0xff,ZI_WORK);
         ZI_WORK->unk_0x17F0 = group;
         while (ZI_WORK->unk_0x17F0 != 0) {
-          found = Zi8MatchROMdata2(input,elementCount & 0xff,language & 0xff,output,capacity & 0xffff,0,
+          found = Zi8MatchROMdata2(elements,elementCount & 0xff,language & 0xff,output,capacity & 0xffff,0,
                                    status & 0xff,reservedMode & 0xff,(ziU8 *)ZI_WORK->unk_0x17F0,
                                    acceptPrefix,ZI_WORK);
           if (found != '\0') {
-            *output = *input;
+            *output = *elements;
             result = 1;
             break;
           }

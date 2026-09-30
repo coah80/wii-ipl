@@ -89,16 +89,15 @@ static ziU16 Zi8GetDataSignature(ziU8* destination, ziU16 capacity, ziU8 languag
 
 static ziU16 Zi8GetEngineSignature(ziU8* destination, ziPtr work) {
     ziU16 index = 0;
-    ziU16 major;
-    ziU16 minor;
+    struct { ziU16 minor; } version;
     ziU16 number;
     destination[index++] = 'v';
-    major = (Zi8GetVersion(work) & 0xff00) >> 8;
-    minor = Zi8GetVersion(work) & 0xff;
-    destination[index++] = (ziU8)(major / 10 + '0');
-    destination[index++] = (ziU8)(major % 10 + '0');
-    destination[index++] = (ziU8)(minor / 10 + '0');
-    destination[index++] = (ziU8)(minor % 10 + '0');
+    number = (Zi8GetVersion(work) & 0xff00) >> 8;
+    version.minor = Zi8GetVersion(work) & 0xff;
+    destination[index++] = (ziU8)(number / 10 + '0');
+    destination[index++] = (ziU8)(number % 10 + '0');
+    destination[index++] = (ziU8)(version.minor / 10 + '0');
+    destination[index++] = (ziU8)(version.minor % 10 + '0');
     destination[index++] = 'o';
     number = Zi8GetOEMID(work);
     destination[index++] = (ziU8)(number / 100 + '0');
@@ -119,7 +118,7 @@ static ziBool Zi8AlphaSignature(ziGetParam* parameters, ziBool countOnly ZI_NEED
     ziU8* second;
     ziU8* first;
     ziU8 engine[32];
-    ziU8 dictionary[56];
+    ziU8 dictionary[32];
     ziU16 length;
     ziU16 candidateCount;
     ziWChar* output = parameters->candidates;
@@ -210,7 +209,7 @@ static ziBool Zi8ZhSignature(ziGetParam* parameters, ziBool countOnly ZI_NEED_WO
     ziU8* current = 0;
     ziU16 copied;
     ziU8 engine[32];
-    ziU8 dictionary[64];
+    ziU8 dictionary[32];
     ziU16 dataLength;
     ziU32 engineLength;
     ziU32 candidateCount;
@@ -314,13 +313,13 @@ ziU32 Zi8GetCandidatesOrCount(ziGetParam* parameters, ZiCandidateOptions* option
   ziU16 savedCharacter;
   ziWChar* savedElements;
   ziBool restoreCandidates;
-  char signatureFound;
   ziU8 elementCount;
   int error;
   unsigned int candidateCount;
   ziU8 savedOptions;
   ziWChar* savedCandidates;
-  ziU16 characterInfo [32];
+  ziU16 characterInfo[16];
+  ziU16 lastInfoCharacter;
 
   error = 0;
   savedOptions = 0;
@@ -328,10 +327,10 @@ ziU32 Zi8GetCandidatesOrCount(ziGetParam* parameters, ZiCandidateOptions* option
   restoreCandidates = 0;
   if (options->lookupMode == '\0') {
     if (((ZI_WORK->unk_0x00 == '\t') && (parameters->elementCount != 0)) &&
-       ((((ziS16)parameters->elements[parameters->elementCount - 1] == -0x1008 &&
-         (signatureFound = Zi8AlphaSignature(parameters,options->countOnly,ZI_WORK), signatureFound != '\0')) ||
-        (((ziS16)parameters->elements[parameters->elementCount - 1] == -0x10fc &&
-         (signatureFound = Zi8ZhSignature(parameters,options->countOnly,ZI_WORK), signatureFound != '\0')))))) {
+       (((parameters->elements[parameters->elementCount - 1] == 0xEFF8 &&
+         ((ziU8)Zi8AlphaSignature(parameters,options->countOnly,ZI_WORK) != 0)) ||
+        ((parameters->elements[parameters->elementCount - 1] == 0xEF04 &&
+         ((ziU8)Zi8ZhSignature(parameters,options->countOnly,ZI_WORK) != 0)))))) {
       candidateCount = (unsigned int)parameters->letters;
       if (options->countOnly != '\0') {
         parameters->letters = 0;
@@ -347,7 +346,7 @@ ziU32 Zi8GetCandidatesOrCount(ziGetParam* parameters, ZiCandidateOptions* option
           if ((ZI_WORK->unk_0x00 == '\0') || (ZI_WORK->unk_0x01 == options->countOnly)) {
             switch(ZI_WORK->unk_0x00) {
             case '\0':
-              if ((ziS16)parameters->elements[0] == -0x10fc) {
+              if (parameters->elements[0] == 0xEF04) {
                 ZI_WORK->unk_0x01 = options->countOnly;
                 ZI_WORK->unk_0x00 = '\x01';
               }
@@ -356,7 +355,7 @@ ziU32 Zi8GetCandidatesOrCount(ziGetParam* parameters, ZiCandidateOptions* option
             case '\x03':
             case '\x05':
             case '\a':
-              if ((ziS16)parameters->elements[0] == -0x10ff) {
+              if (parameters->elements[0] == 0xEF01) {
                 ZI_WORK->unk_0x00 = ZI_WORK->unk_0x00 + '\x01';
               }
               else {
@@ -366,7 +365,7 @@ ziU32 Zi8GetCandidatesOrCount(ziGetParam* parameters, ZiCandidateOptions* option
             case '\x02':
             case '\x04':
             case '\x06':
-              if ((ziS16)parameters->elements[0] == -0x10fc) {
+              if (parameters->elements[0] == 0xEF04) {
                 ZI_WORK->unk_0x00 = ZI_WORK->unk_0x00 + '\x01';
               }
               else {
@@ -375,8 +374,8 @@ ziU32 Zi8GetCandidatesOrCount(ziGetParam* parameters, ZiCandidateOptions* option
               break;
             case '\b':
             case '\t':
-              if (((ziS16)parameters->elements[0] == -0x10fc) &&
-                 (signatureFound = Zi8ZhSignature(parameters,options->countOnly,ZI_WORK), signatureFound != '\0')) {
+              if ((parameters->elements[0] == 0xEF04) &&
+                 ((ziU8)Zi8ZhSignature(parameters,options->countOnly,ZI_WORK) != 0)) {
                 ZI_WORK->unk_0x00 = '\t';
                 candidateCount = (unsigned int)parameters->letters;
                 if (options->countOnly != '\0') {
@@ -388,7 +387,7 @@ ziU32 Zi8GetCandidatesOrCount(ziGetParam* parameters, ZiCandidateOptions* option
             default:
               ZI_WORK->unk_0x00 = '\0';
             }
-            if ((ZI_WORK->unk_0x00 == '\0') && ((ziS16)parameters->elements[0] == -0x10fc)) {
+            if ((ZI_WORK->unk_0x00 == '\0') && (parameters->elements[0] == 0xEF04)) {
               ZI_WORK->unk_0x00 = '\x01';
             }
           }
@@ -401,13 +400,13 @@ latinSequence:
           if ((ZI_WORK->unk_0x00 == '\0') || (ZI_WORK->unk_0x01 == options->countOnly)) {
             switch(ZI_WORK->unk_0x00) {
             case '\0':
-              if ((ziS16)parameters->elements[0] == -0x100e) {
+              if (parameters->elements[0] == 0xEFF2) {
                 ZI_WORK->unk_0x01 = options->countOnly;
                 ZI_WORK->unk_0x00 = '\x01';
               }
               break;
             case '\x01':
-              if ((ziS16)parameters->elements[0] == -0x100d) {
+              if (parameters->elements[0] == 0xEFF3) {
                 ZI_WORK->unk_0x00 = '\x02';
               }
               else {
@@ -415,7 +414,7 @@ latinSequence:
               }
               break;
             case '\x02':
-              if ((ziS16)parameters->elements[0] == -0x100b) {
+              if (parameters->elements[0] == 0xEFF5) {
                 ZI_WORK->unk_0x00 = '\x03';
               }
               else {
@@ -423,7 +422,7 @@ latinSequence:
               }
               break;
             case '\x03':
-              if ((ziS16)parameters->elements[0] == -0x1009) {
+              if (parameters->elements[0] == 0xEFF7) {
                 ZI_WORK->unk_0x00 = '\x04';
               }
               else {
@@ -431,7 +430,7 @@ latinSequence:
               }
               break;
             case '\x04':
-              if ((ziS16)parameters->elements[0] == -0x1008) {
+              if (parameters->elements[0] == 0xEFF8) {
                 ZI_WORK->unk_0x00 = '\x05';
               }
               else {
@@ -439,7 +438,7 @@ latinSequence:
               }
               break;
             case '\x05':
-              if ((ziS16)parameters->elements[0] == -0x1007) {
+              if (parameters->elements[0] == 0xEFF9) {
                 ZI_WORK->unk_0x00 = '\x06';
               }
               else {
@@ -447,7 +446,7 @@ latinSequence:
               }
               break;
             case '\x06':
-              if ((ziS16)parameters->elements[0] == -0x100e) {
+              if (parameters->elements[0] == 0xEFF2) {
                 ZI_WORK->unk_0x00 = '\a';
               }
               else {
@@ -455,7 +454,7 @@ latinSequence:
               }
               break;
             case '\a':
-              if ((ziS16)parameters->elements[0] == -0x100b) {
+              if (parameters->elements[0] == 0xEFF5) {
                 ZI_WORK->unk_0x00 = '\b';
               }
               else {
@@ -464,8 +463,8 @@ latinSequence:
               break;
             case '\b':
             case '\t':
-              if (((ziS16)parameters->elements[0] == -0x1008) &&
-                 (signatureFound = Zi8AlphaSignature(parameters,options->countOnly,ZI_WORK), signatureFound != '\0')) {
+              if ((parameters->elements[0] == 0xEFF8) &&
+                 ((ziU8)Zi8AlphaSignature(parameters,options->countOnly,ZI_WORK) != 0)) {
                 ZI_WORK->unk_0x00 = '\t';
                 candidateCount = (unsigned int)parameters->letters;
                 if (options->countOnly != '\0') {
@@ -477,7 +476,7 @@ latinSequence:
             default:
               ZI_WORK->unk_0x00 = '\0';
             }
-            if ((ZI_WORK->unk_0x00 == '\0') && ((ziS16)parameters->elements[0] == -0x100e)) {
+            if ((ZI_WORK->unk_0x00 == '\0') && (parameters->elements[0] == 0xEFF2)) {
               ZI_WORK->unk_0x00 = '\x01';
             }
           }
@@ -495,8 +494,7 @@ latinSequence:
   options->maxCount = ZI_WORK->unk_0x10;
   options->maxWordLength = ZI_WORK->unk_0x0A;
   ZI_WORK->unk_0x0A = -1;
-  signatureFound = Zi8LangSupported(parameters->language,ZI_WORK);
-  if (signatureFound == '\0') {
+  if ((ziU8)Zi8LangSupported(parameters->language,ZI_WORK) == 0) {
     Zi8LogError(0x163,ZI_WORK);
     candidateCount = 0;
   }
@@ -519,7 +517,7 @@ latinSequence:
     }
     else if ((parameters->language == 1) &&
             ((((parameters->getOptions & 0xbf) == 4 && (parameters->elementCount != 0)) &&
-             (signatureFound = Zi8IsCharacter(parameters->elements[0],ZI_WORK), signatureFound != '\0')))) {
+             ((ziU8)Zi8IsCharacter(parameters->elements[0],ZI_WORK) != 0)))) {
       elementCount = Zi8GetCharInfo(parameters->elements[0],characterInfo,0x10,1,ZI_WORK);
       if (elementCount == 0) {
         parameters->unk_0x20 = 0;
@@ -529,7 +527,8 @@ latinSequence:
         error = 900;
       }
       else {
-        if ((0xf330 < characterInfo[elementCount - 1]) && (characterInfo[elementCount - 1] < 0xf336)) {
+        lastInfoCharacter = characterInfo[elementCount - 1];
+        if ((0xf330 < lastInfoCharacter) && (lastInfoCharacter < 0xf336)) {
           characterInfo[elementCount - 1] = 0xf360;
         }
         savedElements = parameters->elements;
@@ -579,9 +578,9 @@ latinSequence:
     else if (parameters->language == 1) {
       candidateCount = Zi8GetChineseCandidates(parameters,options,ZI_WORK);
       if ((((candidateCount == 0) && ((parameters->getOptions & 0x20) == 0)) && ((parameters->getMode == 1 && (parameters->elementCount != 0))))
-         && ((((ziS16)parameters->elements[parameters->elementCount - 1] == -0xc86 ||
-              ((ziS16)parameters->elements[parameters->elementCount - 1] == -0xc9d)) ||
-             ((ziS16)parameters->elements[parameters->elementCount - 1] == -0xc8d)))) {
+         && (((parameters->elements[parameters->elementCount - 1] == 0xF37A ||
+              (parameters->elements[parameters->elementCount - 1] == 0xF363)) ||
+             (parameters->elements[parameters->elementCount - 1] == 0xF373)))) {
         savedCharacter = parameters->elements[parameters->elementCount];
         elementCount = parameters->elementCount;
         parameters->elements[elementCount] = 0xf368;
@@ -636,10 +635,11 @@ void Zi8InitDupWordBuf(ziPtr __zi8_work_data) {
 }
 
 ziBool Zi8IsDupWChar(ziWChar character ZI_NEED_WORK) {
-    ziBool duplicate = 0;
-    ziU16* buffer = ZI_WORK->unk_0x57A;
+    ziBool duplicate;
+    ziU16* buffer;
     unsigned int index;
-    ziU16 position;
+    duplicate = 0;
+    buffer = ZI_WORK->unk_0x57A;
     if (ZI_WORK->unk_0x539 == 0) {
         buffer[0] = 2;
         buffer[1] = character;
@@ -654,9 +654,7 @@ ziBool Zi8IsDupWChar(ziWChar character ZI_NEED_WORK) {
         }
     }
     ZI_WORK->unk_0x539++;
-    position = *buffer;
-    buffer[position] = character;
-    *buffer = ++position;
+    buffer[(*buffer)++] = character;
     if (*buffer > 100) {
         *buffer = 2;
         buffer[1] = character;
@@ -668,7 +666,7 @@ ziBool Zi8IsDupWChar(ziWChar character ZI_NEED_WORK) {
 
 ziBool Zi8IsDupWordW(ziWChar* word, ziU8 length ZI_NEED_WORK) {
     ziU8 slot;
-    ziU32 duplicate = 0;
+    ziBool duplicate = 0;
     unsigned int position;
     int index;
     int character;
