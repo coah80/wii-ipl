@@ -1459,9 +1459,10 @@ s32 ATERM_814038C8(void) {
     OSAlarm waitAlarm;
     AtermSocketAddress peerAddress;
     AtermPacketOption* option;
-    u8* packetBuffer = gAtermConfigurationResult.packetBuffer;
-    u8* workBuffer = gAtermConfigurationResult.workBuffer;
-    u8* challengeBuffer = gAtermOptionBuffer + 0x7f8;
+    u8* atermBase = (u8*)&gNetworkSettings;
+    u8* packetBuffer = atermBase + 0xc98;
+    u8* workBuffer = atermBase + 0x1498;
+    u8* challengeBuffer = atermBase + 0x1c98;
     u8* cursor;
     u8* end;
     s32 byteLength;
@@ -1551,7 +1552,7 @@ s32 ATERM_814038C8(void) {
                 break;
             }
             peerAddress.length = 8;
-            ATERM_814031DC((AtermAssociationRequest*)gAtermConfigurationResult.connectionPrefix,
+            ATERM_814031DC((AtermAssociationRequest*)(atermBase + 0xc88),
                            &peerAddress);
             receivedLength = SORecvFrom(socket, packetBuffer, 0x800, 4, &peerAddress);
             if (receivedLength > 0 &&
@@ -1643,7 +1644,7 @@ s32 ATERM_814038C8(void) {
             break;
         }
         case 6: {
-            s16 packetType;
+            s32 packetType;
             s32 optionType;
             u32 blockLength;
             u32 optionLength;
@@ -1703,7 +1704,7 @@ s32 ATERM_814038C8(void) {
                 } else if (packetType != 3) {
                     dataLength = 0;
                 } else {
-                    key = (u16*)gAtermConfigurationResult.connectionPrefix;
+                    key = (u16*)(atermBase + 0xc88);
                     if (key != NULL) {
                         ATERM_81404A18((u16*)workBuffer, payload, dataLength, key, 0x10);
                         dataLength -= 8;
@@ -1761,7 +1762,7 @@ s32 ATERM_814038C8(void) {
             *(u16*)workBuffer = optionEnd - workBuffer - 8;
             requestLength = ATERM_81402E40((u16*)packetBuffer, 4, (u16*)workBuffer,
                                            optionEnd - workBuffer,
-                                           gAtermConfigurationResult.connectionPrefix);
+                                           (u16*)(atermBase + 0xc88));
             gAtermMessageLength = requestLength;
             sendAddress.length = 8;
             sendAddress.family = 2;
@@ -1770,12 +1771,12 @@ s32 ATERM_814038C8(void) {
             SOSendTo(socket, packetBuffer, requestLength, 0, &sendAddress);
             now = (u32)(OSGetTime() / (__mulhwu(reciprocal, OS_BUS_CLOCK >> 2) >> 6));
             lastSendTime = now;
-            memset(&gScanSettings, 0, 0x254);
+            memset(atermBase + 0x948, 0, 0x254);
             gAtermProtocolState = 8;
             break;
         }
         case 8: {
-            s16 packetType;
+            s32 packetType;
             u32 checksum;
             u32 dataLength;
             s32 byteLength;
@@ -1829,7 +1830,7 @@ s32 ATERM_814038C8(void) {
                 gAtermReplyLength = dataLength;
                 if (dataLength != 0 && ATERM_814033F0((u16*)workBuffer) != 0) {
                     {
-                        s8 signedByte = (s8)gScanSettings.ssid[0];
+                        s8 signedByte = (s8)atermBase[0x948];
                         gAtermMode = ((-signedByte | signedByte) < 0);
                     }
                     retries = 0;
@@ -2776,6 +2777,7 @@ static void AtermMd5Finalize(AtermMd5Context* context, u32 timestamp, u8* digest
     u32 padIndex;
     u32 padLength;
     u32 i;
+    u32 stateWord;
 
     context->state[0] = 0x67452301;
     context->state[1] = 0xEFCDAB89;
@@ -2796,22 +2798,26 @@ static void AtermMd5Finalize(AtermMd5Context* context, u32 timestamp, u8* digest
     padLength = padIndex < 56 ? 56 - padIndex : 120 - padIndex;
     ATERM_81405ACC(context, sAtermMd5Padding, padLength);
     ATERM_81405ACC(context, bits, 8);
-    digest[8] = context->state[0];
-    digest[9] = context->state[0] >> 8;
-    digest[10] = context->state[0] >> 16;
-    digest[11] = context->state[0] >> 24;
-    digest[12] = context->state[1];
-    digest[13] = context->state[1] >> 8;
-    digest[14] = context->state[1] >> 16;
-    digest[15] = context->state[1] >> 24;
-    digest[16] = context->state[2];
-    digest[17] = context->state[2] >> 8;
-    digest[18] = context->state[2] >> 16;
-    digest[19] = context->state[2] >> 24;
-    digest[20] = context->state[3];
-    digest[21] = context->state[3] >> 8;
-    digest[22] = context->state[3] >> 16;
-    digest[23] = context->state[3] >> 24;
+    stateWord = context->state[0];
+    digest[8] = stateWord;
+    digest[9] = stateWord >> 8;
+    digest[10] = stateWord >> 16;
+    digest[11] = stateWord >> 24;
+    stateWord = context->state[1];
+    digest[12] = stateWord;
+    digest[13] = stateWord >> 8;
+    digest[14] = stateWord >> 16;
+    digest[15] = stateWord >> 24;
+    stateWord = context->state[2];
+    digest[16] = stateWord;
+    digest[17] = stateWord >> 8;
+    digest[18] = stateWord >> 16;
+    digest[19] = stateWord >> 24;
+    stateWord = context->state[3];
+    digest[20] = stateWord;
+    digest[21] = stateWord >> 8;
+    digest[22] = stateWord >> 16;
+    digest[23] = stateWord >> 24;
     cursor = (u8*)context;
     for (i = 0; i < 88; i += 8) {
         cursor[0] = 0;
