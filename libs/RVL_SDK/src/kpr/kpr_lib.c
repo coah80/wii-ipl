@@ -244,8 +244,8 @@ u8 KPRLookAhead(KPRQueue* queue, u16* destination, u32 capacity) {
 
 BOOL KPRProcessAltKeypad(KPRQueue* queue, u16 character) {
     if (queue->altVal != 0) {
+        u32 leadingZero = queue->altVal & 0x80000000;
         u32 accumulator = queue->altVal;
-        u32 leadingZero = accumulator & 0x80000000;
         u32 value;
         accumulator &= 0x7FFFFFFF;
         queue->altVal = accumulator;
@@ -273,8 +273,9 @@ BOOL KPRProcessAltKeypad(KPRQueue* queue, u16 character) {
             value = converted;
         }
         {
+            u16* destination;
             int index = queue->oCount + queue->iCount;
-            u16* destination = &queue->text[index];
+            destination = &queue->text[index];
             for (; index > queue->oCount; --index, --destination) {
                 *destination = destination[-1];
             }

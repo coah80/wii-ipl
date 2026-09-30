@@ -1,0 +1,222 @@
+#include <zi8clib/zierror.h>
+#include <zi8clib/zitypes.h>
+
+extern ziU16 nodeHeaderTable[16];
+
+ziU32 ZiDAWGGetChild(ziU32 node) {
+    ziU32 base;
+    ziU16 header;
+    ziS32 offset;
+
+    base = node;
+    header = nodeHeaderTable[*(ziU8*)node >> 4];
+    if (((ziU32)header & 1) == 0) {
+        node = 0;
+    } else {
+        if ((*(ziU8*)node & 0xf) == 0xf) {
+            offset = 2;
+        } else {
+            offset = 1;
+        }
+
+        node += offset;
+        if (((ziU32)header & 2) != 0) {
+            if ((*(ziU8*)node & 0x80) != 0) {
+                offset = *((ziU8*)node + 2) + ((*(ziU8*)node & 0x7f) * 0x10000 + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + 0x8000);
+            } else {
+                offset = ((ziU32)*(ziU8*)node & 0xffff) * 0x100;
+                offset += (ziU32)*((ziU8*)node + 1);
+            }
+        } else if (((ziU32)header & 8) != 0) {
+            if ((*(ziU8*)node & 0x80) != 0) {
+                offset += 3;
+            } else {
+                offset += 2;
+            }
+        }
+
+        node = base + offset;
+    }
+
+    return node;
+}
+
+ziU8* ZiDAWGGetSibling(ziU8* node) {
+    ziU16 header;
+    ziU8* cursor;
+    ziS32 depth;
+    ziS32 offset;
+
+    depth = 0;
+    offset = 0;
+    header = nodeHeaderTable[node[0] >> 4];
+    if ((header & 4) == 0) {
+        node = 0;
+    } else {
+        cursor = node;
+        if ((header & 8) != 0) {
+            if ((node[0] & 0xf) == 0xf) {
+                cursor = node + 2;
+            } else {
+                cursor = node + 1;
+            }
+
+            if ((header & 2) != 0) {
+                if ((*cursor & 0x80) == 0) {
+                    cursor += 2;
+                } else {
+                    cursor += 3;
+                }
+            }
+
+            if ((*cursor & 0x80) == 0) {
+                node += (ziU32)cursor[1] + (ziU32)*cursor * 0x100;
+            } else {
+                node += (*cursor & 0x7f) * 0x10000 + (ziU32)cursor[1] * 0x100 +
+                           0x8000 + (ziU32)cursor[2];
+            }
+        } else {
+            do {
+                header = nodeHeaderTable[cursor[0] >> 4];
+                if ((cursor[0] & 0xf) == 0xf) {
+                    cursor += 2;
+                    offset += 2;
+                } else {
+                    cursor++;
+                    offset++;
+                }
+
+                if ((header & 1) != 0) {
+                    if ((header & 2) == 0) {
+                        depth++;
+                    } else if ((*cursor & 0x80) == 0) {
+                        cursor += 2;
+                        offset += 2;
+                    } else {
+                        cursor += 3;
+                        offset += 3;
+                    }
+                }
+
+                if ((header & 4) == 0) {
+                    depth--;
+                } else if ((header & 8) != 0) {
+                    if ((*cursor & 0x80) == 0) {
+                        cursor += 2;
+                        offset += 2;
+                    } else {
+                        cursor += 3;
+                        offset += 3;
+                    }
+                    depth--;
+                }
+            } while (0 < depth);
+
+            node += offset;
+        }
+    }
+
+    return node;
+}
+
+ziU8 ZiDAWGgetEOWattribute(ziU32 node) {
+    return (nodeHeaderTable[*(ziU8*)node >> 4] & 0x10) > 0;
+}
+
+ziU32 ZiDAWGgetCHARattribute(ziPtr context, ziU32 node, ziPtr __zi8_work_data) {
+    ziU8 key;
+    ziU32 attribute;
+
+    if ((*(ziU8*)node & 0xf) == 0xf) {
+        key = (ziU32)*((ziU8*)node + 1) + 0xf;
+    } else {
+        key = (ziU32)*(ziU8*)node & 0xf;
+    }
+
+    if (key > ((zi8DawgCtx*)context)->cap) {
+        Zi8LogError(0x138b, __zi8_work_data);
+        return 0;
+    }
+
+    attribute = key << 24;
+    attribute |= ((ziU8*)((zi8DawgCtx*)context)->p0C)[key] << 16;
+    attribute += ((ziU32)((ziU8*)((zi8DawgCtx*)context)->p08)[key * 2] & 0xFFFF) << 8;
+    attribute += ((ziU8*)((zi8DawgCtx*)context)->p08)[key * 2 + 1];
+    Zi8LogError(0x64, __zi8_work_data);
+    return attribute;
+}
+
+ziU32 ZiDAWGGetGraph(ziPtr context) {
+    return (((ziU32)((zi8DawgCtx*)context)->table[2] & 0xFFFF) << 8) +
+           ((zi8DawgCtx*)context)->table[3] +
+           ((ziU32)((zi8DawgCtx*)context)->table + 4);
+}
+
+ziU32 ZiDAWGGetGraphInfo(zi8DawgCtx* context, ziU8* entry, ziU16* keys) {
+    ziU32 graph;
+    ziS32 result;
+    ziU32 end;
+    ziU8 depth;
+    ziU32 pair;
+
+    graph = ZiDAWGGetGraph(context);
+    result = 0;
+    pair = (((ziU16)entry[0] << 8) + entry[1]);
+    if (pair != 0) {
+        goto graph_invalid;
+    }
+    pair = (((ziU16)entry[2] << 8) + entry[3]);
+    if (pair == 0) {
+        goto graph_valid;
+    }
+graph_invalid:
+    result = 0;
+    goto graph_done;
+graph_valid:
+        end = (ziU32)(entry + (((ziU16)entry[4] << 8) + entry[5] + 1) * 10);
+        entry += 10;
+        depth = 0;
+        while ((depth < 2) && (*keys != 0)) {
+            if ((*keys < 0xeff1) || (0xf010 < *keys)) {
+                break;
+            }
+
+            while (1) {
+                if (*keys == (ziU16)(entry[3] + ((ziU16)entry[2] << 8))) {
+                    break;
+                }
+                entry += (entry[1] + ((ziU16)entry[0] << 8)) * 10 + 10;
+                if ((end <= (ziU32)entry) ||
+                    (*keys == (ziU16)(entry[3] + ((ziU16)entry[2] << 8)))) {
+                    break;
+                }
+            }
+
+            if (end <= (ziU32)entry) {
+                result = 0;
+                break;
+            }
+
+            result = graph + (ziU32)entry[4] * 0x10000 + ((ziU16)entry[5] << 8) +
+                    entry[6];
+            ((zi8DawgCtx*)context)->unk_0x338 =
+                graph + (ziU32)entry[7] * 0x10000 + ((ziU16)entry[8] << 8) +
+                entry[9];
+            if (((zi8DawgCtx*)context)->unk_0x338 == graph) {
+                ((zi8DawgCtx*)context)->unk_0x338 = 0;
+            }
+
+            if ((entry[1] + ((ziU16)entry[0] << 8)) == 0) {
+                break;
+            }
+
+            end = (ziU32)(entry + (entry[1] + ((ziU16)entry[0] << 8)) * 10 + 10);
+            entry += 10;
+            depth++;
+            keys++;
+        }
+    
+
+graph_done:
+    return result;
+}
