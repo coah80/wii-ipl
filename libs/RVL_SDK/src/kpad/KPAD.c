@@ -273,7 +273,7 @@ static void calc_button_repeat(KPADInside* kpad, u8 extension, s32 elapsed) {
     u16 count;
     u16 threshold;
     u16 current;
-    u16 next;
+    u32 next;
     if (kpad->status.trig != 0 || kpad->status.release != 0) {
         kpad->repeatCount = 0;
         kpad->repeatCount2 = kpad->repeatDelay;
@@ -286,40 +286,46 @@ static void calc_button_repeat(KPADInside* kpad, u8 extension, s32 elapsed) {
         if (count >= 40000) {
             kpad->repeatCount = count - 40000;
         }
-        threshold = kpad->repeatCount2;
         current = kpad->repeatCount;
+        threshold = kpad->repeatCount2;
         if (current >= threshold) {
             kpad->status.hold |= 0x80000000;
             next = threshold + kpad->repeatInterval;
             kpad->repeatCount2 = next;
             if (current >= 20000) {
                 kpad->repeatCount = current - 20000;
-                kpad->repeatCount2 = next - 20000;
+                kpad->repeatCount2 = (u16)next - 20000;
             }
         }
     }
-    if (extension == 2) {
-        if (kpad->status.ex_status.cl.trig != 0 || kpad->status.ex_status.cl.release != 0) {
-            kpad->repeatCurrent = 0;
-            kpad->repeatCurrent2 = kpad->repeatDelay;
-            if (kpad->status.ex_status.cl.trig != 0 && kpad->repeatInterval != 0) {
-                kpad->status.ex_status.cl.hold |= 0x80000000;
-            }
-        } else if (kpad->status.ex_status.cl.hold != 0) {
-            count = kpad->repeatCurrent + elapsed;
-            kpad->repeatCurrent = count;
-            if (count >= 40000) {
-                kpad->repeatCurrent = count - 40000;
-            }
-            threshold = kpad->repeatCurrent2;
-            current = kpad->repeatCurrent;
-            if (current >= threshold) {
-                kpad->status.ex_status.cl.hold |= 0x80000000;
-                next = threshold + kpad->repeatInterval;
-                kpad->repeatCurrent2 = next;
-                if (current >= 20000) {
-                    kpad->repeatCurrent = current - 20000;
-                    kpad->repeatCurrent2 = next - 20000;
+    {
+        u16 extensionCount;
+        u16 extensionThreshold;
+        u16 extensionCurrent;
+        u32 extensionNext;
+        if (extension == 2) {
+            if (kpad->status.ex_status.cl.trig != 0 || kpad->status.ex_status.cl.release != 0) {
+                kpad->repeatCurrent = 0;
+                kpad->repeatCurrent2 = kpad->repeatDelay;
+                if (kpad->status.ex_status.cl.trig != 0 && kpad->repeatInterval != 0) {
+                    kpad->status.ex_status.cl.hold |= 0x80000000;
+                }
+            } else if (kpad->status.ex_status.cl.hold != 0) {
+                extensionCount = kpad->repeatCurrent + elapsed;
+                kpad->repeatCurrent = extensionCount;
+                if (extensionCount >= 40000) {
+                    kpad->repeatCurrent = extensionCount - 40000;
+                }
+                extensionCurrent = kpad->repeatCurrent;
+                extensionThreshold = kpad->repeatCurrent2;
+                if (extensionCurrent >= extensionThreshold) {
+                    kpad->status.ex_status.cl.hold |= 0x80000000;
+                    extensionNext = extensionThreshold + kpad->repeatInterval;
+                    kpad->repeatCurrent2 = extensionNext;
+                    if (extensionCurrent >= 20000) {
+                        kpad->repeatCurrent = extensionCurrent - 20000;
+                        kpad->repeatCurrent2 = (u16)extensionNext - 20000;
+                    }
                 }
             }
         }
@@ -386,7 +392,7 @@ static void calc_acc_horizon(KPADInside* kpad) {
             circleY = oldCircleY + kp_ah_circle_pw * (unitY - oldCircleY);
             deltaCircleY = unitY - circleY;
             kpad->horizonCircleY = circleY;
-            if (deltaCircleX * deltaCircleX + deltaCircleY * deltaCircleY == kpad->value50C) {
+            if (deltaCircleX * deltaCircleX + deltaCircleY * deltaCircleY <= kpad->value50C) {
                 if (kpad->horizonCircleCount != 0) {
                     kpad->horizonCircleCount--;
                 }
@@ -398,14 +404,14 @@ static void calc_acc_horizon(KPADInside* kpad) {
 }
 
 static void calc_acc_vertical(KPADInside* kpad) {
-    f32 horizontal;
-    f32 horizontalMagnitude;
-    f32 accelZ;
     f32 blend;
-    f32 magnitude;
-    f32 normalizedX;
     f32 nextZ;
+    f32 horizontalMagnitude;
+    f32 normalizedX;
     f32 normalized;
+    f32 horizontal;
+    f32 magnitude;
+    f32 accelZ;
     horizontalMagnitude = kpad->accelerationX * kpad->accelerationX + kpad->accelerationY * kpad->accelerationY;
     horizontal = (f32)sqrt(horizontalMagnitude);
     accelZ = -kpad->accelerationZ;
@@ -445,9 +451,7 @@ static void read_kpad_acc(KPADInside* kpad, KPADSample* status) {
         return;
     }
     {
-        f32 oldX = kpad->status.acc.x;
-        f32 oldY = kpad->status.acc.y;
-        f32 oldZ = kpad->status.acc.z;
+        Vec previous = kpad->status.acc;
         f32 target;
         f32 delta;
         f32 magnitude;
@@ -489,52 +493,52 @@ static void read_kpad_acc(KPADInside* kpad, KPADSample* status) {
             limit = target;
         }
         kpad->accelerationZ = limit;
-        delta = kpad->accelerationX - oldX;
+        delta = kpad->accelerationX - previous.x;
         magnitude = delta;
         if (magnitude < 0.0f) {
             magnitude = -magnitude;
         }
-        if (magnitude == kpad->value9C) {
+        if (magnitude >= kpad->value9C) {
             blend = 1.0f;
         } else {
             blend = magnitude / kpad->value9C;
             blend *= blend;
             blend *= blend;
         }
-        kpad->status.acc.x = oldX + blend * kpad->valueA0 * delta;
-        delta = kpad->accelerationY - oldY;
+        kpad->status.acc.x = previous.x + blend * kpad->valueA0 * delta;
+        delta = kpad->accelerationY - previous.y;
         magnitude = delta;
         if (magnitude < 0.0f) {
             magnitude = -magnitude;
         }
-        if (magnitude == kpad->value9C) {
+        if (magnitude >= kpad->value9C) {
             blend = 1.0f;
         } else {
             blend = magnitude / kpad->value9C;
             blend *= blend;
             blend *= blend;
         }
-        kpad->status.acc.y = oldY + blend * kpad->valueA0 * delta;
-        delta = kpad->accelerationZ - oldZ;
+        kpad->status.acc.y = previous.y + blend * kpad->valueA0 * delta;
+        delta = kpad->accelerationZ - previous.z;
         magnitude = delta;
         if (magnitude < 0.0f) {
             magnitude = -magnitude;
         }
-        if (magnitude == kpad->value9C) {
+        if (magnitude >= kpad->value9C) {
             blend = 1.0f;
         } else {
             blend = magnitude / kpad->value9C;
             blend *= blend;
             blend *= blend;
         }
-        kpad->status.acc.z = oldZ + blend * kpad->valueA0 * delta;
+        kpad->status.acc.z = previous.z + blend * kpad->valueA0 * delta;
         currentX = kpad->status.acc.x;
         currentY = kpad->status.acc.y;
         currentZ = kpad->status.acc.z;
         kpad->status.acc_value = (f32)sqrt(currentX * currentX + (currentY * currentY + currentZ * currentZ));
-        delta = currentX - oldX;
-        currentX = currentY - oldY;
-        currentY = currentZ - oldZ;
+        delta = currentX - previous.x;
+        currentX = currentY - previous.y;
+        currentY = currentZ - previous.z;
         kpad->status.acc_speed = (f32)sqrt(delta * delta + (currentX * currentX + currentY * currentY));
         calc_acc_horizon(kpad);
         calc_acc_vertical(kpad);
@@ -548,9 +552,7 @@ static void read_kpad_acc(KPADInside* kpad, KPADSample* status) {
     {
         Vec raw;
         f32* values = (f32*)&raw;
-        f32 oldX;
-        f32 oldY;
-        f32 oldZ;
+        Vec previous;
         f32 delta;
         f32 magnitude;
         f32 blend;
@@ -585,55 +587,53 @@ static void read_kpad_acc(KPADInside* kpad, KPADSample* status) {
         if (kpad->freeStyleAccelRotation != 0) {
             PSMTXMultVec((const f32 (*)[4])initial_rotation_matrix, &raw, &raw);
         }
-        oldX = kpad->status.ex_status.fs.acc.x;
-        oldY = kpad->status.ex_status.fs.acc.y;
-        oldZ = kpad->status.ex_status.fs.acc.z;
-        delta = values[0] - oldX;
+        previous = kpad->status.ex_status.fs.acc;
+        delta = values[0] - previous.x;
         magnitude = delta;
         if (magnitude < 0.0f) {
             magnitude = -magnitude;
         }
-        if (magnitude == kpad->value9C) {
+        if (magnitude >= kpad->value9C) {
             blend = 1.0f;
         } else {
             blend = magnitude / kpad->value9C;
             blend *= blend;
             blend *= blend;
         }
-        kpad->status.ex_status.fs.acc.x = oldX + blend * kpad->valueA0 * delta;
-        delta = values[1] - oldY;
+        kpad->status.ex_status.fs.acc.x = previous.x + blend * kpad->valueA0 * delta;
+        delta = values[1] - previous.y;
         magnitude = delta;
         if (magnitude < 0.0f) {
             magnitude = -magnitude;
         }
-        if (magnitude == kpad->value9C) {
+        if (magnitude >= kpad->value9C) {
             blend = 1.0f;
         } else {
             blend = magnitude / kpad->value9C;
             blend *= blend;
             blend *= blend;
         }
-        kpad->status.ex_status.fs.acc.y = oldY + blend * kpad->valueA0 * delta;
-        delta = values[2] - oldZ;
+        kpad->status.ex_status.fs.acc.y = previous.y + blend * kpad->valueA0 * delta;
+        delta = values[2] - previous.z;
         magnitude = delta;
         if (magnitude < 0.0f) {
             magnitude = -magnitude;
         }
-        if (magnitude == kpad->value9C) {
+        if (magnitude >= kpad->value9C) {
             blend = 1.0f;
         } else {
             blend = magnitude / kpad->value9C;
             blend *= blend;
             blend *= blend;
         }
-        kpad->status.ex_status.fs.acc.z = oldZ + blend * kpad->valueA0 * delta;
+        kpad->status.ex_status.fs.acc.z = previous.z + blend * kpad->valueA0 * delta;
         currentX = kpad->status.ex_status.fs.acc.x;
         currentY = kpad->status.ex_status.fs.acc.y;
         currentZ = kpad->status.ex_status.fs.acc.z;
         kpad->status.ex_status.fs.acc_value = (f32)sqrt(currentX * currentX + (currentY * currentY + currentZ * currentZ));
-        delta = currentX - oldX;
-        currentX = currentY - oldY;
-        currentY = currentZ - oldZ;
+        delta = currentX - previous.x;
+        currentX = currentY - previous.y;
+        currentY = currentZ - previous.z;
         kpad->status.ex_status.fs.acc_speed = (f32)sqrt(delta * delta + (currentX * currentX + currentY * currentY));
     }
 }
@@ -669,7 +669,7 @@ static s8 select_2obj_first(KPADInside* kpad) {
             nx = dx * scale;
             ny = dy * scale;
             dist = kpad->value510 * scale;
-            if (dist == kpad->value514 || dist == kp_err_dist_max) {
+            if (dist <= kpad->value514 || dist >= kp_err_dist_max) {
                 continue;
             }
             x = kpad->horizonTangentX * nx + kpad->horizonTangentY * ny;
@@ -693,12 +693,8 @@ static s8 select_2obj_first(KPADInside* kpad) {
     if (best == kp_err_first_inpr) {
         return 0;
     }
-    ((u32*)&kpad->dpdState.candidates[0].x)[0] = ((u32*)first)[0];
-    ((u32*)&kpad->dpdState.candidates[0].x)[1] = ((u32*)first)[1];
-    ((u32*)&kpad->dpdState.candidates[0].x)[2] = ((u32*)first)[2];
-    ((u32*)&kpad->dpdState.candidates[1].x)[0] = ((u32*)second)[0];
-    ((u32*)&kpad->dpdState.candidates[1].x)[1] = ((u32*)second)[1];
-    ((u32*)&kpad->dpdState.candidates[1].x)[2] = ((u32*)second)[2];
+    kpad->dpdState.candidates[0] = *first;
+    kpad->dpdState.candidates[1] = *second;
     return 2;
 }
 
@@ -706,7 +702,7 @@ static s8 select_2obj_continue(KPADInside* kpad) {
     KPADDPDObject* objects = kpad->dpdState.objects;
     KPADDPDObject* first = 0;
     KPADDPDObject* second = 0;
-    f32 best = -1.0f;
+    f32 best = 2.0f;
     s32 i;
     s32 j;
     for (i = 0; i < 4; i++) {
@@ -734,7 +730,7 @@ static s8 select_2obj_continue(KPADInside* kpad) {
             distance = scale * kpad->value510;
             nx = dx * scale;
             ny = dy * scale;
-            if (distance == kpad->value514 || distance == kp_err_dist_max) {
+            if (distance <= kpad->value514 || distance >= kp_err_dist_max) {
                 continue;
             }
             distanceError = distance - kpad->dpdReferenceDistance;
@@ -743,19 +739,21 @@ static s8 select_2obj_continue(KPADInside* kpad) {
             } else {
                 distanceScore = distanceError * kpad->value504;
             }
-            if (distanceScore == 1.0f) {
+            if (distanceScore >= 1.0f) {
                 continue;
             }
             dot = kpad->dpdObjectDirectionX * nx + kpad->dpdObjectDirectionY * ny;
-            reverse = dot < 0.0f;
-            if (reverse) {
+            if (dot < 0.0f) {
                 dot = -dot;
+                reverse = TRUE;
+            } else {
+                reverse = FALSE;
             }
-            if (dot == kp_err_next_inpr) {
+            if (dot <= kp_err_next_inpr) {
                 continue;
             }
             score = distanceScore + ((1.0f - dot) / (1.0f - kp_err_next_inpr));
-            if (score < best || best < 0.0f) {
+            if (score < best) {
                 best = score;
                 if (reverse) {
                     first = &objects[j];
@@ -767,7 +765,7 @@ static s8 select_2obj_continue(KPADInside* kpad) {
             }
         }
     }
-    if (best < 0.0f) {
+    if (best == 2.0f) {
         return 0;
     }
     ((u32*)&kpad->dpdState.candidates[0].x)[0] = ((u32*)first)[0];
@@ -803,7 +801,7 @@ static s8 select_1obj_first(KPADInside* kpad) {
             f32 rightBound = kpad->value4FC;
             f32 topBound = kpad->value4F8;
             f32 bottomBound = kpad->value500;
-            if (left == leftBound || left == rightBound || bottom == topBound || bottom == bottomBound) {
+            if (left <= leftBound || left >= rightBound || bottom <= topBound || bottom >= bottomBound) {
                 if (right > leftBound && right < rightBound && top > topBound && top < bottomBound) {
                     u32* objectWords = (u32*)object;
                     u32* statusWords = (u32*)&kpad->dpdState.candidates[1].x;
@@ -816,9 +814,9 @@ static s8 select_1obj_first(KPADInside* kpad) {
                     kpad->dpdState.candidates[0].metadata.bytes.status = 0xFF;
                     return -1;
                 }
-            } else if (right == leftBound || right == rightBound || top == topBound || top == bottomBound) {
+            } else if (right <= leftBound || right >= rightBound || top <= topBound || top >= bottomBound) {
                 u32* objectWords = (u32*)object;
-                u32* statusWords = (u32*)&*(u32*)&kpad->dpdState.candidates[0].metadata.value;
+                u32* statusWords = (u32*)&kpad->dpdState.candidates[0];
                 statusWords[0] = objectWords[0];
                 statusWords[1] = objectWords[1];
                 statusWords[2] = objectWords[2];
@@ -861,9 +859,7 @@ static s8 select_1obj_continue(KPADInside* kpad) {
     if (best == kp_err_near_pos * kp_err_near_pos) {
         return 0;
     }
-    ((u32*)matchedCandidate)[0] = ((u32*)source)[0];
-    ((u32*)matchedCandidate)[1] = ((u32*)source)[1];
-    ((u32*)matchedCandidate)[2] = ((u32*)source)[2];
+    *matchedCandidate = *source;
     {
         f32 axisX = kpad->horizonTangentX;
         f32 normX = kpad->horizonAxisX;
@@ -936,8 +932,8 @@ static void read_kpad_dpd(KPADInside* kpad, KPADSample* status) {
     object = objects + 3;
     for (;;) {
         if ((s8)object->metadata.bytes.flags >= 0 &&
-            (object->x == kpad->value4F4 || object->x == kpad->value4FC ||
-             object->y == kpad->value4F8 || object->y == kpad->value500)) {
+            (object->x <= kpad->value4F4 || object->x >= kpad->value4FC ||
+             object->y <= kpad->value4F8 || object->y >= kpad->value500)) {
             object->metadata.bytes.flags |= 1;
         }
         if (object == objects) {
@@ -970,7 +966,7 @@ static void read_kpad_dpd(KPADInside* kpad, KPADSample* status) {
         }
         object--;
     }
-    if (kpad->status.acc_vertical.x != kp_err_up_inpr) {
+    if (kpad->status.acc_vertical.x > kp_err_up_inpr) {
         switch (kpad->status.dpd_valid_fg) {
         case 2:
         case -2:
@@ -1015,7 +1011,7 @@ static void read_kpad_dpd(KPADInside* kpad, KPADSample* status) {
         axisY = kpad->horizonTangentY * kpad->dpdObjectDirectionX - kpad->horizonTangentX * kpad->dpdObjectDirectionY;
         kpad->dpdAxisX = axisX;
         kpad->dpdAxisY = axisY;
-        if (kpad->horizonCircleCount == 0 && axisX * kpad->horizonAxisX + axisY * kpad->horizonAxisY == kp_err_acc_inpr) {
+        if (kpad->horizonCircleCount == 0 && axisX * kpad->horizonAxisX + axisY * kpad->horizonAxisY <= kp_err_acc_inpr) {
             selected = 0;
             *(u32*)&kpad->dpdState.candidates[1].metadata.value = 1;
             *(u32*)&kpad->dpdState.candidates[0].metadata.value = 1;
@@ -1114,8 +1110,7 @@ static void read_kpad_stick(KPADInside* kpad, KPADSample* status) {
     }
     device = status->device;
     format = status->dataFormat;
-    switch (device) {
-    case 1:
+    if (device == 1) {
         if ((u8)(format + 0xFD) <= 2) {
             if (kpad->flag51E != 0) {
                 kpad->flag51E = 0;
@@ -1128,10 +1123,9 @@ static void read_kpad_stick(KPADInside* kpad, KPADSample* status) {
             }
             clamp(&extension->fs.stick, status->extension.fs.stickX, status->extension.fs.stickY, kp_fs_fstick_min, kp_fs_fstick_max);
         }
-        break;
-    case 2:
+    } else if (device == 2) {
         if ((u8)(format + 0xFA) > 2) {
-            break;
+            return;
         }
         if (kpad->flag51E != 0) {
             kpad->flag51E = 0;
@@ -1146,26 +1140,23 @@ static void read_kpad_stick(KPADInside* kpad, KPADSample* status) {
             kpad->repeatCurrent2 = kpad->repeatDelay;
         }
         clamp(&extension->cl.lstick, status->extension.cl.lStickX, status->extension.cl.lStickY, kp_cl_stick_min, kp_cl_stick_max);
-        clamp(&extension->cl.rstick, (s8)status->extension.cl.rStickX, (s8)status->extension.cl.rStickY, kp_cl_stick_min, kp_cl_stick_max);
-        if (status->extension.cl.triggerL <= kp_cl_trigger_min) {
+        clamp(&extension->cl.rstick, status->extension.cl.rStickX, status->extension.cl.rStickY, kp_cl_stick_min, kp_cl_stick_max);
+        if (status->extension.cl.triggerL <= (s32)kp_cl_trigger_min) {
             extension->cl.ltrigger = 0.0f;
-        } else if (status->extension.cl.triggerL >= kp_cl_trigger_max) {
+        } else if (status->extension.cl.triggerL >= (s32)kp_cl_trigger_max) {
             extension->cl.ltrigger = 1.0f;
         } else {
-            extension->cl.ltrigger = (f32)(status->extension.cl.triggerL - kp_cl_trigger_min) / (kp_cl_trigger_max - kp_cl_trigger_min);
+            extension->cl.ltrigger = (f32)(status->extension.cl.triggerL - (s32)kp_cl_trigger_min) / ((s32)kp_cl_trigger_max - (s32)kp_cl_trigger_min);
         }
-        if (status->extension.cl.triggerR <= kp_cl_trigger_min) {
+        if (status->extension.cl.triggerR <= (s32)kp_cl_trigger_min) {
             extension->cl.rtrigger = 0.0f;
-            break;
+            return;
         }
-        if (status->extension.cl.triggerR >= kp_cl_trigger_max) {
+        if (status->extension.cl.triggerR >= (s32)kp_cl_trigger_max) {
             extension->cl.rtrigger = 1.0f;
-            break;
+            return;
         }
-        extension->cl.rtrigger = (f32)(status->extension.cl.triggerR - kp_cl_trigger_min) / (kp_cl_trigger_max - kp_cl_trigger_min);
-        break;
-    default:
-        break;
+        extension->cl.rtrigger = (f32)(status->extension.cl.triggerR - (s32)kp_cl_trigger_min) / ((s32)kp_cl_trigger_max - (s32)kp_cl_trigger_min);
     }
 }
 
@@ -1310,7 +1301,7 @@ static void calc_dpd_variable(KPADInside* kpad, s8 valid) {
             f32 dy = y - kpad->status.horizon.y;
             f32 length = (f32)sqrt(dx * dx + dy * dy);
             f32 amount;
-            if (length == kpad->value8C) {
+            if (length >= kpad->value8C) {
                 amount = 1.0f;
             } else {
                 amount = length / kpad->value8C;
@@ -1344,7 +1335,7 @@ static void calc_dpd_variable(KPADInside* kpad, s8 valid) {
             if (magnitude < 0.0f) {
                 magnitude = -magnitude;
             }
-            if (magnitude == kpad->value94) {
+            if (magnitude >= kpad->value94) {
                 amount = 1.0f;
             } else {
                 amount = magnitude / kpad->value94;
@@ -1380,7 +1371,7 @@ static void calc_dpd_variable(KPADInside* kpad, s8 valid) {
             f32 dy = y - kpad->status.pos.y;
             f32 length = (f32)sqrt(dx * dx + dy * dy);
             f32 amount;
-            if (length == kpad->posParamX) {
+            if (length >= kpad->posParamX) {
                 amount = 1.0f;
             } else {
                 amount = length / kpad->posParamX;
@@ -1416,7 +1407,7 @@ void KPADSetControlDpdCallback(s32 chan, KPADCallback* callback) {
 s32 KPADRead(s32 chan, KPADStatus* statuses, u32 count) {
     KPADInside* kpad = &inside_kpads[chan];
     s32 probe;
-    u16 interruptState;
+    BOOL interruptState;
     u32 available;
     u32 ringCount;
     s32 start;
@@ -1774,6 +1765,9 @@ static void KPADiSamplingCallback(s32 chan) {
             kpad->sensorHeightPending = 0;
         }
         switch (device) {
+        case 0:
+        case 0xFB:
+        case 0xFC:
         case 0xFF:
             tier = 0;
             break;

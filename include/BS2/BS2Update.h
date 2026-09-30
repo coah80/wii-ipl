@@ -14,7 +14,12 @@ enum {
 typedef struct BS2UpdateHeader {
     char timestamp[16];     // 0x00
     u32  wadCount;          // 0x10
+#ifdef BS2_UPDATE_SOURCE
+    u32  extraCount;
+    u32  reserved[2];
+#else
     u32  reserved[3];       // 0x14
+#endif
 } BS2UpdateHeader;
 
 typedef struct BS2UpdateEntry {
@@ -29,7 +34,12 @@ typedef struct BS2UpdateEntry {
     u64  titleId;           // 0x50
     u16  titleVersion;      // 0x58
 
+#ifdef BS2_UPDATE_SOURCE
+    u16  reservedTitle;
+    u32  inodes;
+#else
     u8   padding[6];        // 0x5A
+#endif
 
     // Update Data
     char dataName[0x40];    // 0x60
