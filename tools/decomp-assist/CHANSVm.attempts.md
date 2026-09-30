@@ -858,3 +858,221 @@ forbidden patterns added (net, per file): 0
 readability warnings (net, per file; must be 0 in the final result): 0
 GATE PASS
 ```
+
+## 2026-09-30 code continuation on agent/w0930/chansvm-code
+
+- Fresh branch at latest origin/main 2a34d370. Latest-main gate has no baseline report; use supported --base 3f5248be, the nearest existing ancestor baseline and the merged interpreter data fix. No baseline files changed. Initial instruction-exact 207/233, objdiff 208/233; code 32944/53564; data 6904/6904; .data 100%; jump targets 121/121. Step first, then all remaining 25 raw-inexact functions by percentage.
+- CHANSVmStep: two typed enum slots and two copy headers prevent scratch overlap: 96.213890%; insns 1253/1253; diffs 337; jump targets 121/121; .data 100.0%; restored.
+- CHANSVmStep: typed enum slots alone align the output type buffer: 96.199524%; insns 1253/1253; diffs 355; jump targets 121/121; .data 100.0%; restored.
+- CHANSVmStep: preserve Boolean conversion status in a local and one result tail: 96.215485%; insns 1253/1253; diffs 351; jump targets 121/121; .data 100.0%; restored.
+- CHANSVmStep: load indirect array index from its copied reference: 96.407020%; insns 1253/1253; diffs 354; jump targets 121/121; .data 100.0%; restored.
+- Baseline gate audit before source changes: origin/main 2a34d370 has no stored report; nearest report 3f5248be reports 16 existing fa-driver regressions on unmodified latest main. Supported --base 30809a5b is the nearest available ancestor whose baseline is preserved by unmodified latest main (208/233 CHANSVm functions). Keep a separately generated fresh latest-main report in /tmp and require no regressions relative to it as well. No report or gate tool was modified.
+- CHANSVmStep: two typed enum slots and two copy headers prevent scratch overlap: 96.213890%; insns 1253/1253; diffs 337; jump targets 121/121; .data 100.0%; retained, quick gate PASS.
+- Step scratch-layout improvement: full gate PASS with --base 30809a5b. Two actual copy slots and two enum slots remove the out-of-bounds adjacent-header access; score 96.213890%, 337 raw differences versus 355. All jump targets 121/121 and .data 100%.
+- CHANSVmStep: keep Boolean status in one local and copy it after conversion: 96.229850%; insns 1253/1253; diffs 333; jump targets 121/121; .data 100.0%; retained, quick gate PASS.
+- CHANSVmStep: read LOAD_INDIRECT index from copied reference header: 96.437350%; insns 1253/1253; diffs 332; jump targets 121/121; .data 100.0%; retained, quick gate PASS.
+- CHANSVmStep: test nonnegative float index before upper bound: 96.437350%; insns 1253/1253; diffs 332; jump targets 121/121; .data 100.0%; restored.
+- CHANSVmStep: read copied floating index through its value field: 96.437350%; insns 1253/1253; diffs 332; jump targets 121/121; .data 100.0%; restored.
+- CHANSVmStep: use bounded type-array indices for conversion outputs: 96.380684%; insns 1254/1253; diffs 1133; jump targets 19/121; .data 18.050066%; restored.
+- CHANSVmStep: declare conversion enum buffer before scratch headers: 96.437350%; insns 1253/1253; diffs 332; jump targets 121/121; .data 100.0%; restored.
+- VmBlobFill: use integer enum names for both argument conversions: 100.000000%; insns 63/63; diffs 2; jump targets 121/121; .data 100.0%; restored.
+- VmBlobFill: remove redundant parent recheck after null rejection: 91.746030%; insns 60/63; diffs 43; jump targets 121/121; .data 100.0%; restored.
+- VmBlobFill: reject missing parent and value in separate guards: 96.666664%; insns 65/63; diffs 39; jump targets 121/121; .data 100.0%; restored.
+- VmBlobCalcRangeHMAC: represent the one digest context as a one-element context buffer: 99.974790%; insns 119/119; diffs 3; jump targets 121/121; .data 100.0%; restored.
+- VmBlobCalcRangeHMAC: use a word buffer for the word-accessed SDK context workspace: 99.974790%; insns 119/119; diffs 3; jump targets 121/121; .data 100.0%; restored.
+- VmBlobCalcRangeHMAC: reuse an explicit pointer to the existing context for all API calls: 96.722690%; insns 120/119; diffs 44; jump targets 121/121; .data 100.0%; restored.
+- vmBlobParsePackFormatString: perform decimal multiplication, character addition and zero subtraction separately: 99.655174%; insns 116/116; diffs 6; jump targets 121/121; .data 100.0%; restored.
+- vmBlobParsePackFormatString: scope the numeric input character to its parameter iteration: 98.017240%; insns 117/116; diffs 41; jump targets 121/121; .data 100.0%; restored.
+- vmBlobParsePackFormatString: use one bounded unsigned decimal digit test: 98.353450%; insns 115/116; diffs 45; jump targets 121/121; .data 100.0%; restored.
+- VmWinEmuWrite: advance the output cursor with the matching string-size constant: 99.626870%; insns 67/67; diffs 5; jump targets 121/121; .data 100.0%; restored.
+- VmWinEmuWrite: limit remaining bytes before converting byte count to character count: 87.820890%; insns 67/67; diffs 13; jump targets 121/121; .data 100.0%; restored.
+- VmWinEmuWrite: declare and initialize the converted string only at its use: 99.626870%; insns 67/67; diffs 5; jump targets 121/121; .data 100.0%; restored.
+- VmBlobCalcHMAC: keep the key argument retrieval beside its instance check: 99.453125%; insns 64/64; diffs 7; jump targets 121/121; .data 100.0%; restored.
+- VmBlobCalcHMAC: cache key payload and size at digest initialization: 99.453125%; insns 64/64; diffs 7; jump targets 121/121; .data 100.0%; restored.
+- VmBlobCalcHMAC: use the context as an API work buffer array: 99.453125%; insns 64/64; diffs 7; jump targets 121/121; .data 100.0%; restored.
+- CHANSVmNewObjData: initialize candidate allocation size where it is consumed: compiler error; restored.
+- CHANSVmNewObjData: separate slot-pointer assignment from the next slot index update: 93.687500%; insns 96/96; diffs 21; jump targets 121/121; .data 100.0%; restored.
+- CHANSVmNewObjData: replace the dead byte-offset accumulator with a typed chunk-table cursor: 90.177086%; insns 96/96; diffs 51; jump targets 121/121; .data 100.0%; restored.
+- VmStringFromCharCode: form the truncation mask through the character range expression: 99.406780%; insns 59/59; diffs 6; jump targets 121/121; .data 100.0%; restored.
+- VmStringFromCharCode: compute the second byte store index after the first store: 99.406780%; insns 59/59; diffs 6; jump targets 121/121; .data 100.0%; restored.
+- VmStringFromCharCode: initialize the UTF-16 character value before the null-object branch: 94.237290%; insns 58/59; diffs 33; jump targets 121/121; .data 100.0%; restored.
+- CHANSVmNewObjData: scope aligned allocation size with the allocation payload: 99.427086%; insns 96/96; diffs 10; jump targets 121/121; .data 100.0%; restored.
+- CHANSVmAddExe: increment the module index before advancing the clear offset: 99.153540%; insns 254/254; diffs 34; jump targets 121/121; .data 100.0%; retained, quick gate PASS.
+- CHANSVmAddExe: address the cleared module entry through its declared table type: 99.153540%; insns 254/254; diffs 34; jump targets 121/121; .data 100.0%; restored.
+- CHANSVmAddExe: commute region-size arithmetic at method bounds validation: 99.153540%; insns 254/254; diffs 34; jump targets 121/121; .data 100.0%; restored.
+- VmImageCtor: load the image callback into its API callback type: compiler error; restored.
+- VmImageCtor: load payload and size within the callback branch: 98.920000%; insns 25/25; diffs 4; jump targets 121/121; .data 100.0%; restored.
+- VmImageCtor: express successful no-callback construction as an early return: 91.800000%; insns 26/25; diffs 13; jump targets 121/121; .data 100.0%; restored.
+- VmBlobGetHexString: advance both hexadecimal character indices after their stores: 96.158540%; insns 81/82; diffs 34; jump targets 121/121; .data 100.0%; restored.
+- VmBlobGetHexString: initialize the low-nibble character index before the high-nibble index: 98.719510%; insns 82/82; diffs 14; jump targets 121/121; .data 100.0%; restored.
+- VmBlobGetHexString: cache each source byte before converting its nibbles: 92.365850%; insns 81/82; diffs 36; jump targets 121/121; .data 100.0%; restored.
+- CHANSVmLinkModules: scope each dispatch-pass index to its module iteration: 98.677246%; insns 189/189; diffs 43; jump targets 121/121; .data 100.0%; restored.
+- CHANSVmLinkModules: load the dispatch table after its iteration cursor is initialized: 98.640210%; insns 189/189; diffs 43; jump targets 121/121; .data 100.0%; restored.
+- CHANSVmLinkModules: advance the linked-module iteration number before its module pointer: 98.677246%; insns 189/189; diffs 43; jump targets 121/121; .data 100.0%; restored.
+- CHANSVmGetSourceLine: cache the program-counter byte and block index for source lookup: 97.826090%; insns 46/46; diffs 18; jump targets 121/121; .data 100.0%; restored.
+- CHANSVmGetSourceLine: move line-offset initialization after the bitfield address: 97.826090%; insns 46/46; diffs 16; jump targets 121/121; .data 100.0%; restored.
+- CHANSVmGetSourceLine: use the source-line bitfield length to compute the byte position: 97.826090%; insns 46/46; diffs 16; jump targets 121/121; .data 100.0%; restored.
+- CHANSVm_81450D14: handle negative positions before checking the upper bound: 49.673912%; insns 39/46; diffs 41; jump targets 121/121; .data 100.0%; restored.
+- CHANSVm_81450D14: express the out-of-range test as the inverse of two bounds: 97.391304%; insns 45/46; diffs 29; jump targets 121/121; .data 100.0%; restored.
+- CHANSVm_81450D14: keep negative-offset normalization at a shared success label: 97.391304%; insns 45/46; diffs 29; jump targets 121/121; .data 100.0%; restored.
+- VmStringReplace: load replacement length after all three string payloads: 97.840910%; insns 132/132; diffs 41; jump targets 121/121; .data 100.0%; retained, quick gate PASS.
+- VmStringReplace: initialize destination and source cursors in destination-first order: 97.878784%; insns 132/132; diffs 40; jump targets 121/121; .data 100.0%; retained, quick gate PASS.
+- VmStringReplace: advance copied UTF-16 output before advancing input: 97.803030%; insns 132/132; diffs 41; jump targets 121/121; .data 100.0%; restored.
+- VmImageCtor: cache the registered image-construction callback in its real API type: 99.000000%; insns 25/25; diffs 4; jump targets 121/121; .data 100.0%; restored.
+- CHANSVm_8145049C: represent the temporary formatted object using its actual object type: 98.582370%; insns 431/431; diffs 42; jump targets 121/121; .data 100.0%; restored.
+- CHANSVm_8145049C: represent the UTF-16 character workspace with typed character storage: 98.582370%; insns 431/431; diffs 42; jump targets 121/121; .data 100.0%; restored.
+- CHANSVm_8145049C: initialize the source position after the segment and argument cursors: 98.542920%; insns 431/431; diffs 45; jump targets 121/121; .data 100.0%; restored.
+- VmCallMethod: return missing-method and missing-property errors directly: 96.316730%; insns 280/281; diffs 246; jump targets 121/121; .data 100.0%; restored.
+- VmCallMethod: initialize the call header counts before resolving the target: 97.224200%; insns 281/281; diffs 97; jump targets 121/121; .data 100.0%; restored.
+- VmCallMethod: scope the code address and instruction pointer to one execution-context load: 97.224200%; insns 281/281; diffs 97; jump targets 121/121; .data 100.0%; restored.
+- CHANSVm_8144B4D4: use a real end-pointer local instead of a volatile integer alias: 96.927710%; insns 83/83; diffs 13; jump targets 121/121; .data 100.0%; restored.
+- CHANSVm_8144B4D4: initialize the conversion result after clearing the parsed end pointer: 94.518074%; insns 83/83; diffs 13; jump targets 121/121; .data 100.0%; restored.
+- CHANSVm_8144B4D4: advance the string terminator through the character count before parsing: 96.987950%; insns 83/83; diffs 10; jump targets 121/121; .data 100.0%; retained, quick gate PASS.
+- VmBlobCalcRangeSHA1Digest: initialize the source data pointer directly at the digest update call: 87.206184%; insns 96/97; diffs 36; jump targets 121/121; .data 100.0%; restored.
+- VmBlobCalcRangeSHA1Digest: declare the range offset after the digest workspace: 96.484535%; insns 97/97; diffs 14; jump targets 121/121; .data 100.0%; restored.
+- VmBlobCalcRangeSHA1Digest: represent the SHA1 workspace as a one-element API context buffer: 96.484535%; insns 97/97; diffs 14; jump targets 121/121; .data 100.0%; restored.
+- VmArraySlice: compute the slice end before initializing its beginning: 95.827065%; insns 133/133; diffs 59; jump targets 121/121; .data 100.0%; restored.
+- VmArraySlice: load each source element before acquiring the destination slot: 88.684210%; insns 133/133; diffs 60; jump targets 121/121; .data 100.0%; restored.
+- VmArraySlice: compute an empty slice with an explicit end-before-start branch: 92.067670%; insns 131/133; diffs 106; jump targets 121/121; .data 100.0%; restored.
+- VmStringSplit: load both string lengths before their payload addresses: 95.936935%; insns 222/222; diffs 92; jump targets 121/121; .data 100.0%; restored.
+- VmStringSplit: initialize the segment cursor and count before the scanning cursor: 96.049550%; insns 222/222; diffs 81; jump targets 121/121; .data 100.0%; restored.
+- VmStringSplit: advance the empty-delimiter byte cursor before its array index: 95.995500%; insns 222/222; diffs 82; jump targets 121/121; .data 100.0%; restored.
+- VmDateDtor: declare the calendar structure before its formatting buffer: 94.967030%; insns 91/91; diffs 7; jump targets 121/121; .data 100.0%; restored.
+- VmDateDtor: initialize the calendar pointer at its declaration: 94.967030%; insns 91/91; diffs 7; jump targets 121/121; .data 100.0%; restored.
+- VmDateDtor: clear the calendar through its named value instead of its pointer: 94.967030%; insns 91/91; diffs 7; jump targets 121/121; .data 100.0%; restored.
+- CHANSVmParseInt: declare the numeric parse end pointer before the character buffer: 94.693880%; insns 49/49; diffs 3; jump targets 121/121; .data 100.0%; restored.
+- CHANSVmParseInt: initialize the type discriminator after its parse-end pointer: 83.673470%; insns 49/49; diffs 5; jump targets 121/121; .data 100.0%; restored.
+- CHANSVmParseInt: limit the parsed numeric temporary to the successful conversion block: 94.693880%; insns 49/49; diffs 3; jump targets 121/121; .data 100.0%; restored.
+- CHANSVm_81455654: form the global object directly from its typed module-table entry: 94.000000%; insns 34/35; diffs 35; jump targets 121/121; .data 100.0%; restored.
+- CHANSVm_81455654: select local headers before argument slots in the valid-frame branch: 71.000000%; insns 34/35; diffs 35; jump targets 121/121; .data 100.0%; restored.
+- CHANSVm_81455654: compute the argument slot by subtracting the frame displacement first: 87.428570%; insns 34/35; diffs 35; jump targets 121/121; .data 100.0%; restored.
+- VmBlobPackCommon: load the numeric packed value through the real integer object field: 92.603294%; insns 675/668; diffs 642; jump targets 121/121; .data 100.0%; restored.
+- VmBlobPackCommon: initialize the format cursor before its packed argument cursor: 92.588326%; insns 675/668; diffs 644; jump targets 121/121; .data 100.0%; restored.
+- VmBlobPackCommon: compute the copied destination pointer before the source byte count: 92.603294%; insns 675/668; diffs 642; jump targets 121/121; .data 100.0%; restored.
+- VmBlobUnpack: declare the two-word unpack buffer as a typed integer union: 92.104450%; insns 531/517; diffs 496; jump targets 121/121; .data 100.0%; retained, quick gate PASS.
+- VmBlobUnpack: scope the initial parse defaults to their format iteration: 91.655710%; insns 531/517; diffs 500; jump targets 121/121; .data 100.0%; restored.
+- VmBlobUnpack: initialize string-termination character count before scanning: 92.404260%; insns 532/517; diffs 500; jump targets 121/121; .data 100.0%; retained, quick gate PASS.
+- CHANSVmParseInt: initialize the parse end pointer before reading the object type: 83.673470%; insns 49/49; diffs 5; jump targets 121/121; .data 100.0%; restored.
+- CHANSVmParseInt: initialize the parse end pointer beside the input-buffer declaration: 94.693880%; insns 49/49; diffs 3; jump targets 121/121; .data 100.0%; restored.
+- CHANSVmParseInt: scope the base and output copies to the successful string branch: 94.693880%; insns 49/49; diffs 3; jump targets 121/121; .data 100.0%; restored.
+- CHANSVm_81450D14: use explicit normalization and output blocks for the two bounds: 97.391304%; insns 45/46; diffs 29; jump targets 121/121; .data 100.0%; restored.
+- CHANSVm_81450D14: leave the valid upper-bound branch with an explicit output jump: 97.391304%; insns 45/46; diffs 29; jump targets 121/121; .data 100.0%; restored.
+- CHANSVm_81450D14: separate valid and normalized positions with a positive-bounds success test: 97.391304%; insns 45/46; diffs 29; jump targets 121/121; .data 100.0%; restored.
+- CHANSVm_81455654: return a null pointer explicitly for an invalid argument slot: 88.142860%; insns 36/35; diffs 36; jump targets 121/121; .data 100.0%; restored.
+- CHANSVm_81455654: return the initial null result before looking up a negative frame slot: 76.571430%; insns 36/35; diffs 36; jump targets 121/121; .data 100.0%; restored.
+- CHANSVm_81455654: initialize the module-object result only in the global table branch: 94.000000%; insns 34/35; diffs 35; jump targets 121/121; .data 100.0%; restored.
+- CHANSVmStep: set the default instruction budget with an explicit zero-count branch: 96.838780%; insns 1254/1253; diffs 1230; jump targets 0/121; .data 18.050066%; restored.
+- CHANSVmStep: store floating immediate bytes in their natural floating-point value: 96.437350%; insns 1253/1253; diffs 332; jump targets 121/121; .data 100.0%; restored.
+- CHANSVmStep: initialize enum cursor after operand discriminator loads: 96.437350%; insns 1253/1253; diffs 332; jump targets 121/121; .data 100.0%; restored.
+- CHANSVmStep: form conversion enum cursor from a byte count within its array: 96.547485%; insns 1251/1253; diffs 1104; jump targets 19/121; .data 18.050066%; restored.
+- CHANSVmStep: restore countdown entry test and select result matrices directly from their table: 96.756584%; insns 1256/1253; diffs 1231; jump targets 0/121; .data 18.050066%; restored.
+- CHANSVmStep: keep the original budget and select each conversion matrix by direct member address: 96.292900%; insns 1254/1253; diffs 1096; jump targets 20/121; .data 18.050066%; restored.
+- vmBlobParsePackFormatString: retain the Unicode input character in an unsigned code-point variable: 99.698270%; insns 116/116; diffs 6; jump targets 121/121; .data 100.0%; restored.
+- vmBlobParsePackFormatString: accumulate decimal digits with a wide intermediate before overflow rejection: 89.991380%; insns 123/116; diffs 102; jump targets 121/121; .data 100.0%; restored.
+- vmBlobParsePackFormatString: isolate the decimal product before reusing the parameter accumulator: 99.698270%; insns 116/116; diffs 6; jump targets 121/121; .data 100.0%; restored.
+- VmWinEmuWrite: scope the string length to the successful conversion branch: 99.626870%; insns 67/67; diffs 5; jump targets 121/121; .data 100.0%; restored.
+- VmWinEmuWrite: scope the converted string object to its output loop: 99.626870%; insns 67/67; diffs 5; jump targets 121/121; .data 100.0%; restored.
+- VmWinEmuWrite: initialize the output cursor after reading the string byte count: 99.626870%; insns 67/67; diffs 5; jump targets 121/121; .data 100.0%; restored.
+- VmBlobCalcHMAC: scope the key object to its native-instance resolution: 99.437500%; insns 64/64; diffs 12; jump targets 121/121; .data 100.0%; restored.
+- VmBlobCalcHMAC: scope the newly created blob header to digest-buffer retrieval: compiler error; restored.
+- VmBlobCalcHMAC: read the blob payload before its digest input size: 99.265625%; insns 64/64; diffs 11; jump targets 121/121; .data 100.0%; restored.
+- VmImageCtor: cache the image payload within the callback guard: 99.000000%; insns 25/25; diffs 4; jump targets 121/121; .data 100.0%; restored.
+- VmImageCtor: scope the image header to the callback path: 83.000000%; insns 25/25; diffs 7; jump targets 121/121; .data 100.0%; restored.
+- VmImageCtor: declare the image header before initializing its constructor result: 99.000000%; insns 25/25; diffs 4; jump targets 121/121; .data 100.0%; restored.
+- VmDateDtor: name day and month text at the formatting call: 94.967030%; insns 91/91; diffs 7; jump targets 121/121; .data 100.0%; restored.
+- VmDateDtor: retrieve the month text before the weekday text: 94.967030%; insns 91/91; diffs 7; jump targets 121/121; .data 100.0%; restored.
+- VmDateDtor: name the calendar year before selecting its format strings: 94.967030%; insns 91/91; diffs 7; jump targets 121/121; .data 100.0%; restored.
+- VmBlobUnpack: read the signed eight-byte packed integer through the integer-union value: 92.404260%; insns 532/517; diffs 500; jump targets 121/121; .data 100.0%; restored.
+- CHANSVm_81450D14: compare the combined range-rejection predicate with the VM false value: 93.804344%; insns 48/46; diffs 31; jump targets 121/121; .data 100.0%; restored.
+- CHANSVm_81450D14: compare both range predicates with the VM true value: 84.782610%; insns 52/46; diffs 35; jump targets 121/121; .data 100.0%; restored.
+- CHANSVm_81450D14: retain a Boolean range predicate for normalization: 93.804344%; insns 48/46; diffs 31; jump targets 121/121; .data 100.0%; restored.
+- VmBlobUnpack: retain typed 64-bit union-member reads as a readability correction with identical compiled instructions, percentage, unit measures, pool and 121/121 targets; quick gate PASS. The integer member is actively used to decode the eight-byte packed integer; it is not unused alignment storage.
+
+### Final code-round audit
+
+- Every remaining function has at least three distinct, compiling source-level attempts in this round. All accepted edits passed the quick gate, the string pool, 121/121 Step jump relocations and .data 100%.
+- A separate fresh project-wide report comparison against the unmodified latest-main 2a34d370 report found zero reductions in matched code/data, linked code/data or function counts across every unit. Gate fallback does not hide a latest-main regression.
+- Instruction-exact count is unchanged: 207/233. Objdiff-exact count is unchanged: 208/233. No new exact function is claimed. The retained changes improve fuzzy matching and repair actual scratch storage and unset values.
+
+| Open function | Objdiff % | Instructions | Raw differences | Distinct compiling attempts | Remaining difference |
+|---|---:|---:|---:|---:|---|
+| CHANSVmStep | 96.437350 | 1253/1253 | 332 | 16 | stack slots, registers, entry/countdown control flow; all case counts and jump relocations match |
+| VmBlobFill | 100.000000 | 63/63 | 2 | 3 | 100% objdiff; ctxdiff CR-qualified branch decoding uses absolute address, leaving two tool differences |
+| VmBlobCalcRangeHMAC | 99.974790 | 119/119 | 3 | 3 | context stack offset 0x0c versus 0x10 |
+| vmBlobParsePackFormatString | 99.698270 | 116/116 | 6 | 6 | register allocation and instruction scheduling |
+| VmWinEmuWrite | 99.626870 | 67/67 | 5 | 6 | register allocation and instruction scheduling |
+| VmBlobCalcHMAC | 99.453125 | 64/64 | 7 | 5 | register allocation and instruction scheduling |
+| CHANSVmNewObjData | 99.427086 | 96/96 | 10 | 3 | register allocation and instruction scheduling |
+| VmStringFromCharCode | 99.406780 | 59/59 | 6 | 3 | register allocation and instruction scheduling |
+| CHANSVmAddExe | 99.153540 | 254/254 | 34 | 3 | register allocation and instruction scheduling |
+| VmImageCtor | 99.000000 | 25/25 | 4 | 6 | register allocation and instruction scheduling |
+| VmBlobGetHexString | 98.719510 | 82/82 | 14 | 3 | register allocation and instruction scheduling |
+| CHANSVmLinkModules | 98.677246 | 189/189 | 43 | 3 | register allocation and instruction scheduling |
+| CHANSVm_8145049C | 98.582370 | 431/431 | 42 | 3 | register allocation and instruction scheduling |
+| VmStringReplace | 97.878784 | 132/132 | 40 | 3 | register allocation and instruction scheduling |
+| CHANSVmGetSourceLine | 97.826090 | 46/46 | 16 | 3 | register allocation and instruction scheduling |
+| CHANSVm_81450D14 | 97.391304 | 45/46 | 29 | 9 | missing upper-bound branch; one commuted add operand |
+| VmCallMethod | 97.224200 | 281/281 | 97 | 3 | register allocation and instruction scheduling |
+| CHANSVm_8144B4D4 | 96.987950 | 83/83 | 10 | 3 | register allocation and instruction scheduling |
+| VmBlobCalcRangeSHA1Digest | 96.484535 | 97/97 | 14 | 3 | register allocation and instruction scheduling |
+| VmArraySlice | 96.278200 | 133/133 | 56 | 3 | register allocation and instruction scheduling |
+| VmStringSplit | 96.049550 | 222/222 | 81 | 3 | register allocation and instruction scheduling |
+| VmDateDtor | 94.967030 | 91/91 | 7 | 6 | day/month table address and format-argument scheduling |
+| CHANSVmParseInt | 94.693880 | 49/49 | 3 | 6 | end-pointer store scheduled after parameter copies |
+| CHANSVm_81455654 | 94.000000 | 34/35 | 35 | 6 | control flow and instruction count |
+| VmBlobPackCommon | 92.603294 | 675/668 | 642 | 3 | control flow and instruction count |
+| VmBlobUnpack | 92.404260 | 532/517 | 500 | 4 | control flow and instruction count |
+
+- VmBlobFill tool-artifact confirmation: both complete function byte strings are identical. Both objects contain 0x4186000c at function+0x68 and 0x41860018 at function+0x7c; Capstone displays CR1-qualified branches with absolute destinations separated by the four-byte function-placement difference. Objdiff correctly reports 100%.
+- Final non-quick gate uses supported --base 30809a5b because latest main 2a34d370 has no baseline report, while the nearer available 3f5248be baseline reports sixteen preexisting fa-driver regressions on the unmodified latest main. This fallback and the separate latest-main report comparison are explicitly disclosed. Baseline reports and gate tooling were not modified.
+- The original increase-in-instruction-exact-count acceptance condition was not achieved in this round; this is partial progress after the required attempts, not a completed unit.
+
+```text
+full build: ok
+main.dol sha1: 26116613f624061ba99c8d1a299aaa6efa85670d
+[src/channelScript/CHANSVm] pool: IDENTICAL
+[src/channelScript/CHANSVm] objdiff: code 32944/53564 data 6904/6904 functions 208/233 fuzzy 98.5888 linked code 0
+[src/channelScript/CHANSVm] instruction-exact functions: 207/233
+[src/channelScript/CHANSVm]   section .data size 4672 match 100.0
+[src/channelScript/CHANSVm]   section .rodata size 1432 match 100.0
+[src/channelScript/CHANSVm]   section .sbss size 16 match 100.0
+[src/channelScript/CHANSVm]   section .sdata size 600 match 100.0
+[src/channelScript/CHANSVm]   section .sdata2 size 184 match 100.0
+[src/channelScript/CHANSVm]   section .text size 53564 match 98.58883
+[src/channelScript/CHANSVm]   below 100: CHANSVmGetSourceLine 97.82609
+[src/channelScript/CHANSVm]   below 100: CHANSVmNewObjData 99.427086
+[src/channelScript/CHANSVm]   below 100: CHANSVmParseInt 94.69388
+[src/channelScript/CHANSVm]   below 100: CHANSVm_8144B4D4 96.98795
+[src/channelScript/CHANSVm]   below 100: VmArraySlice 96.2782
+[src/channelScript/CHANSVm]   below 100: VmDateDtor 94.96703
+[src/channelScript/CHANSVm]   below 100: VmStringFromCharCode 99.40678
+[src/channelScript/CHANSVm]   below 100: VmStringReplace 97.878784
+[src/channelScript/CHANSVm]   below 100: VmStringSplit 96.04955
+[src/channelScript/CHANSVm]   below 100: CHANSVm_8145049C 98.58237
+[src/channelScript/CHANSVm]   below 100: CHANSVm_81450D14 97.391304
+[src/channelScript/CHANSVm]   below 100: VmBlobGetHexString 98.71951
+[src/channelScript/CHANSVm]   below 100: VmBlobCalcRangeSHA1Digest 96.484535
+[src/channelScript/CHANSVm]   below 100: VmBlobCalcHMAC 99.453125
+[src/channelScript/CHANSVm]   below 100: VmBlobCalcRangeHMAC 99.97479
+[src/channelScript/CHANSVm]   below 100: vmBlobParsePackFormatString 99.69827
+[src/channelScript/CHANSVm]   below 100: VmBlobPackCommon 92.603294
+[src/channelScript/CHANSVm]   below 100: VmBlobUnpack 92.40426
+[src/channelScript/CHANSVm]   below 100: VmImageCtor 99.0
+[src/channelScript/CHANSVm]   below 100: VmWinEmuWrite 99.62687
+[src/channelScript/CHANSVm]   below 100: CHANSVmAddExe 99.15354
+[src/channelScript/CHANSVm]   below 100: CHANSVm_81455654 94.0
+[src/channelScript/CHANSVm]   below 100: CHANSVmLinkModules 98.677246
+[src/channelScript/CHANSVm]   below 100: VmCallMethod 97.2242
+[src/channelScript/CHANSVm]   below 100: CHANSVmStep 96.43735
+[src/channelScript/CHANSVm] baseline: code 32944/53564 data 2232 functions 208 fuzzy 98.4492
+regressions vs baseline: 0
+global matched_code_percent: 85.36819 -> 85.36819
+global fuzzy_match_percent: 98.27361 -> 98.27611
+global complete_code_percent: 59.70596 -> 59.70596
+global matched_data_percent: 90.52625 -> 90.78117
+forbidden patterns added (net, per file): 0
+readability warnings (net, per file; must be 0 in the final result): 0
+GATE PASS
+```
+- Post-full-clean-build latest-main comparison repeated: zero project-wide matched/linked/function regressions; 121/121 Step jump relocations preserved.
+- Local improvement commits: c4ae8bcc correct interpreter scratch object storage; 743f0580 improve chansvmstep code matching; f9928196 improve chansvmstep code matching; 572a7c04 improve chansvmaddexe code matching; 076645dc improve vmstringreplace code matching; 647f5007 improve vmstringreplace code matching; 5e75409f improve chansvm_8144b4d4 code matching; 179218d7 improve vmblobunpack code matching; d125aec2 improve vmblobunpack code matching; 051a713b read unpacked integers through their typed value.
