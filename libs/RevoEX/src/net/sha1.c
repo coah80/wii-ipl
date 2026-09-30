@@ -53,17 +53,18 @@ static void NETSHA1iProcessBlock(NETSHA1Context* context) {
     i = 0;
 
     for (; i < 20; i++) {
+            u32* wp = w;
         f = (b & c) | (d & ~b);
         f += 0x5A827999;
         if (i >= 16) {
-            w[i & 15] = SHA1_ROT(
-                (w[(i - 3) & 15] ^ w[(i - 8) & 15]) ^
-                    (w[(i - 16) & 15] ^ w[(i - 14) & 15]),
+            wp[i & 15] = SHA1_ROT(
+                (wp[(i - 3) & 15] ^ wp[(i - 8) & 15]) ^
+                    (wp[(i - 16) & 15] ^ wp[(i - 14) & 15]),
                 1);
         }
         f += e;
         f += SHA1_ROT(a, 5);
-        f += w[i & 15];
+        f += wp[i & 15];
         e = d;
         d = c;
         c = SHA1_ROT(b, 30);
@@ -80,9 +81,7 @@ static void NETSHA1iProcessBlock(NETSHA1Context* context) {
                     (w[(i - 16) & 15] ^ w[(i - 14) & 15]),
                 1);
         }
-        f += e;
-        f += SHA1_ROT(a, 5);
-        f += w[i & 15];
+        f += e + SHA1_ROT(a, 5) + w[i & 15];
         e = d;
         d = c;
         c = SHA1_ROT(b, 30);
@@ -99,9 +98,7 @@ static void NETSHA1iProcessBlock(NETSHA1Context* context) {
                     (w[(i - 16) & 15] ^ w[(i - 14) & 15]),
                 1);
         }
-        f += e;
-        f += SHA1_ROT(a, 5);
-        f += w[i & 15];
+        f += e + SHA1_ROT(a, 5) + w[i & 15];
         e = d;
         d = c;
         c = SHA1_ROT(b, 30);
@@ -118,9 +115,7 @@ static void NETSHA1iProcessBlock(NETSHA1Context* context) {
                 (w[(i - 16) & 15] ^ w[(i - 14) & 15]),
             1);
         }
-        f += e;
-        f += SHA1_ROT(a, 5);
-        f += w[i & 15];
+        f += e + SHA1_ROT(a, 5) + w[i & 15];
         e = d;
         d = c;
         c = SHA1_ROT(b, 30);
