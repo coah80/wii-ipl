@@ -267,7 +267,7 @@ static void* s_accessPointList;
 static int* s_accessPointConfig;
 static u8 s_accessPointName[8];
 static s32 s_connectionState;
-static u32 s_errorCode;
+static s32 s_errorCode;
 static s32 s_socketStarted;
 static void* s_responseBuffer;
 
@@ -1364,30 +1364,25 @@ LAB_00012730:
     goto LAB_00012878;
   }
   if (timeoutMilliseconds != 0) {
-    if (s_errorCode == 0x11) {
+    switch (s_errorCode) {
+    case 0xf:
+      errorStatus = 3;
+      break;
+    case 0x10:
+      errorStatus = 4;
+      break;
+    case 0x11:
       errorStatus = 5;
-    }
-    else if (s_errorCode < 0x11) {
-      if (s_errorCode == 0xf) {
-        errorStatus = 3;
-      }
-      else if (0xe < s_errorCode) {
-        errorStatus = 4;
-      }
-      else {
-        errorStatus = 0xf;
-      }
-    }
-    else {
-      if (s_errorCode == 0x15) {
-        errorStatus = 8;
-      }
-      else if ((s_errorCode < 0x15) && (0x13 < s_errorCode)) {
-        errorStatus = 7;
-      }
-      else {
-        errorStatus = 0xf;
-      }
+      break;
+    case 0x14:
+      errorStatus = 7;
+      break;
+    case 0x15:
+      errorStatus = 8;
+      break;
+    default:
+      errorStatus = 0xf;
+      break;
     }
     input->status = errorStatus;
     if (s_accessPointConfig != NULL) {
