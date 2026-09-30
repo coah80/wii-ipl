@@ -613,9 +613,9 @@ NWC24Err NWC24UpdateDlTask(NWC24DlTask* dlTask) {
         return result;
     }
     task = (DlTaskData*)dlTask;
-    taskId = task->id;
     header = GetCachedDlHeader();
-    if (taskId != 0xffff && taskId >= header->maxTaskCount) {
+    taskId = task->id;
+    if (task->id != 0xffff && task->id >= header->maxTaskCount) {
         return NWC24_ERR_INVALID_VALUE;
     }
 

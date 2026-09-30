@@ -424,6 +424,10 @@ static NWC24Err CheckMsgObject(const NWC24MsgObjPrivate* msg) {
     return NWC24_OK;
 }
 
+static inline u32 EstimateBase64Size(u32 size) {
+    return (size * 4 + 2) / 3 + size / 57 * 2 + 4;
+}
+
 static NWC24Err CheckMsgBoxSpace(const NWC24MsgObjPrivate* msg, NWC24MBoxType type) {
     u32 total = 0;
     u32 textSize = 0;
@@ -431,7 +435,7 @@ static NWC24Err CheckMsgBoxSpace(const NWC24MsgObjPrivate* msg, NWC24MBoxType ty
     NWC24Err err;
     for (index = 0; index < msg->numAttached; ++index) {
         u32 size = msg->attachedSize[index];
-        total += (size * 4 + 2) / 3 + size / 57 * 2 + 4;
+        total += EstimateBase64Size(size);
     }
     switch (msg->encoding) {
         case NWC24_ENC_7BIT:
@@ -439,7 +443,7 @@ static NWC24Err CheckMsgBoxSpace(const NWC24MsgObjPrivate* msg, NWC24MBoxType ty
             textSize = msg->text.size;
             break;
         case NWC24_ENC_BASE64:
-            textSize = (msg->text.size * 4 + 2) / 3 + msg->text.size / 57 * 2 + 4;
+            textSize = EstimateBase64Size(msg->text.size);
             break;
         case NWC24_ENC_QUOTED_PRINTABLE:
             textSize = msg->text.size * 4 / 3;
