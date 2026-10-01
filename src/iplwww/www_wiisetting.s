@@ -1,0 +1,3198 @@
+.include "macros.inc"
+.file "www_wiisetting.cpp"
+
+# 0x8108A4B8..0x8108A520 | size: 0x68
+.section .bss, "wa", @nobits
+.balign 8
+
+# .bss:0x0 | 0x8108A4B8 | size: 0x48
+# www::wiisetting::sWiiData
+.obj sWiiData__Q23www10wiisetting, global
+	.skip 0x48
+.endobj sWiiData__Q23www10wiisetting
+
+# .bss:0x48 | 0x8108A500 | size: 0x20
+# www::wiisetting::cap
+.obj cap__Q23www10wiisetting, global
+	.skip 0x20
+.endobj cap__Q23www10wiisetting
+
+# 0x8136F9D0..0x813711F0 | size: 0x1820
+.text
+.balign 4
+
+# .text:0x0 | 0x8136F9D0 | size: 0x24
+# www::wiisetting::DPDCallback2(long, long)
+.fn DPDCallback2__Q23www10wiisettingFll, local
+/* 8136F9D0 0003FEF0  2C 04 00 01 */	cmpwi r4, 0x1
+/* 8136F9D4 0003FEF4  4C 82 00 20 */	bnelr
+/* 8136F9D8 0003FEF8  38 80 00 01 */	li r4, 0x1
+/* 8136F9DC 0003FEFC  38 00 00 00 */	li r0, 0x0
+/* 8136F9E0 0003FF00  90 8D 82 D0 */	stw r4, gEnableDpd@sda21(r0)
+/* 8136F9E4 0003FF04  38 80 00 00 */	li r4, 0x0
+/* 8136F9E8 0003FF08  90 0D A9 48 */	stw r0, gDpdWaitFrm@sda21(r0)
+/* 8136F9EC 0003FF0C  48 21 89 E0 */	b KPADSetControlDpdCallback
+/* 8136F9F0 0003FF10  4E 80 00 20 */	blr
+.endfn DPDCallback2__Q23www10wiisettingFll
+
+# .text:0x24 | 0x8136F9F4 | size: 0x44
+# www::wiisetting::DPDCallback(long, long)
+.fn DPDCallback__Q23www10wiisettingFll, local
+/* 8136F9F4 0003FF14  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 8136F9F8 0003FF18  7C 08 02 A6 */	mflr r0
+/* 8136F9FC 0003FF1C  2C 04 00 01 */	cmpwi r4, 0x1
+/* 8136FA00 0003FF20  90 01 00 14 */	stw r0, 0x14(r1)
+/* 8136FA04 0003FF24  93 E1 00 0C */	stw r31, 0xc(r1)
+/* 8136FA08 0003FF28  7C 7F 1B 78 */	mr r31, r3
+/* 8136FA0C 0003FF2C  40 82 00 18 */	bne .L_8136FA24
+/* 8136FA10 0003FF30  48 21 89 A1 */	bl KPADEnableDPD
+/* 8136FA14 0003FF34  3C 80 81 37 */	lis r4, DPDCallback2__Q23www10wiisettingFll@ha
+/* 8136FA18 0003FF38  7F E3 FB 78 */	mr r3, r31
+/* 8136FA1C 0003FF3C  38 84 F9 D0 */	addi r4, r4, DPDCallback2__Q23www10wiisettingFll@l
+/* 8136FA20 0003FF40  48 21 89 AD */	bl KPADSetControlDpdCallback
+.L_8136FA24:
+/* 8136FA24 0003FF44  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 8136FA28 0003FF48  83 E1 00 0C */	lwz r31, 0xc(r1)
+/* 8136FA2C 0003FF4C  7C 08 03 A6 */	mtlr r0
+/* 8136FA30 0003FF50  38 21 00 10 */	addi r1, r1, 0x10
+/* 8136FA34 0003FF54  4E 80 00 20 */	blr
+.endfn DPDCallback__Q23www10wiisettingFll
+
+# .text:0x68 | 0x8136FA38 | size: 0x8
+# www::wiisetting::allow_access(const char*, const char*, int)
+.fn allow_access__Q23www10wiisettingFPCcPCci, global
+/* 8136FA38 0003FF58  38 60 00 01 */	li r3, 0x1
+/* 8136FA3C 0003FF5C  4E 80 00 20 */	blr
+.endfn allow_access__Q23www10wiisettingFPCcPCci
+
+# .text:0x70 | 0x8136FA40 | size: 0x88
+# www::wiisetting::AddJsPlugin()
+.fn AddJsPlugin__Q23www10wiisettingFv, global
+/* 8136FA40 0003FF60  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 8136FA44 0003FF64  7C 08 02 A6 */	mflr r0
+/* 8136FA48 0003FF68  3C A0 81 09 */	lis r5, cap__Q23www10wiisetting@ha
+/* 8136FA4C 0003FF6C  3C E0 81 37 */	lis r7, globalGetter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue@ha
+/* 8136FA50 0003FF70  90 01 00 14 */	stw r0, 0x14(r1)
+/* 8136FA54 0003FF74  3C C0 81 37 */	lis r6, allow_access__Q23www10wiisettingFPCcPCci@ha
+/* 8136FA58 0003FF78  39 0D 82 D4 */	li r8, globalNames__Q23www10wiisetting@sda21
+/* 8136FA5C 0003FF7C  3C 60 81 64 */	lis r3, lbl_816440E3@ha
+/* 8136FA60 0003FF80  81 8D A8 FC */	lwz r12, WWWAddJSPlugin@sda21(r0)
+/* 8136FA64 0003FF84  38 85 A5 00 */	addi r4, r5, cap__Q23www10wiisetting@l
+/* 8136FA68 0003FF88  38 00 00 00 */	li r0, 0x0
+/* 8136FA6C 0003FF8C  38 E7 FA C8 */	addi r7, r7, globalGetter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue@l
+/* 8136FA70 0003FF90  38 C6 FA 38 */	addi r6, r6, allow_access__Q23www10wiisettingFPCcPCci@l
+/* 8136FA74 0003FF94  91 05 A5 00 */	stw r8, cap__Q23www10wiisetting@l(r5)
+/* 8136FA78 0003FF98  38 63 40 E3 */	addi r3, r3, lbl_816440E3@l
+/* 8136FA7C 0003FF9C  38 AD A9 60 */	li r5, opera_callbacks__Q23www10wiisetting@sda21
+/* 8136FA80 0003FFA0  90 04 00 04 */	stw r0, 0x4(r4)
+/* 8136FA84 0003FFA4  90 E4 00 08 */	stw r7, 0x8(r4)
+/* 8136FA88 0003FFA8  90 04 00 0C */	stw r0, 0xc(r4)
+/* 8136FA8C 0003FFAC  90 04 00 10 */	stw r0, 0x10(r4)
+/* 8136FA90 0003FFB0  90 04 00 14 */	stw r0, 0x14(r4)
+/* 8136FA94 0003FFB4  90 04 00 18 */	stw r0, 0x18(r4)
+/* 8136FA98 0003FFB8  90 C4 00 1C */	stw r6, 0x1c(r4)
+/* 8136FA9C 0003FFBC  7D 89 03 A6 */	mtctr r12
+/* 8136FAA0 0003FFC0  4E 80 04 21 */	bctrl
+/* 8136FAA4 0003FFC4  3C 80 81 64 */	lis r4, lbl_816440F2@ha
+/* 8136FAA8 0003FFC8  38 60 00 03 */	li r3, 0x3
+/* 8136FAAC 0003FFCC  38 84 40 F2 */	addi r4, r4, lbl_816440F2@l
+/* 8136FAB0 0003FFD0  4C C6 31 82 */	crclr cr1eq
+/* 8136FAB4 0003FFD4  4B FF ED E1 */	bl IPLWWWReport__Q37ext_ead3www5printFiPCce
+/* 8136FAB8 0003FFD8  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 8136FABC 0003FFDC  7C 08 03 A6 */	mtlr r0
+/* 8136FAC0 0003FFE0  38 21 00 10 */	addi r1, r1, 0x10
+/* 8136FAC4 0003FFE4  4E 80 00 20 */	blr
+.endfn AddJsPlugin__Q23www10wiisettingFv
+
+# .text:0xF8 | 0x8136FAC8 | size: 0xC8
+# www::wiisetting::globalGetter_(WWWJSPluginObj*, const char*, WWWJSPluginValue*)
+.fn globalGetter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, global
+/* 8136FAC8 0003FFE8  94 21 FF E0 */	stwu r1, -0x20(r1)
+/* 8136FACC 0003FFEC  7C 08 02 A6 */	mflr r0
+/* 8136FAD0 0003FFF0  90 01 00 24 */	stw r0, 0x24(r1)
+/* 8136FAD4 0003FFF4  39 61 00 20 */	addi r11, r1, 0x20
+/* 8136FAD8 0003FFF8  48 28 99 F1 */	bl _savegpr_29
+/* 8136FADC 0003FFFC  3F E0 81 64 */	lis r31, lbl_816440A0@ha
+/* 8136FAE0 00040000  7C 7D 1B 78 */	mr r29, r3
+/* 8136FAE4 00040004  3B FF 40 A0 */	addi r31, r31, lbl_816440A0@l
+/* 8136FAE8 00040008  7C 83 23 78 */	mr r3, r4
+/* 8136FAEC 0004000C  7C BE 2B 78 */	mr r30, r5
+/* 8136FAF0 00040010  38 9F 00 71 */	addi r4, r31, 0x71
+/* 8136FAF4 00040014  48 29 29 8D */	bl strcmp
+/* 8136FAF8 00040018  2C 03 00 00 */	cmpwi r3, 0x0
+/* 8136FAFC 0004001C  40 82 00 78 */	bne .L_8136FB74
+/* 8136FB00 00040020  38 7F 00 7C */	addi r3, r31, 0x7c
+/* 8136FB04 00040024  4C C6 31 82 */	crclr cr1eq
+/* 8136FB08 00040028  48 1B EB 99 */	bl OSReport
+/* 8136FB0C 0004002C  80 8D A9 60 */	lwz r4, opera_callbacks__Q23www10wiisetting@sda21(r0)
+/* 8136FB10 00040030  3C E0 81 37 */	lis r7, ObjectConstructor___Q23www10wiisettingFP14WWWJSPluginObjP14WWWJSPluginObjiP16WWWJSPluginValueP16WWWJSPluginValue@ha
+/* 8136FB14 00040034  7F A3 EB 78 */	mr r3, r29
+/* 8136FB18 00040038  39 41 00 08 */	addi r10, r1, 0x8
+/* 8136FB1C 0004003C  81 84 00 00 */	lwz r12, 0x0(r4)
+/* 8136FB20 00040040  38 E7 FB 90 */	addi r7, r7, ObjectConstructor___Q23www10wiisettingFP14WWWJSPluginObjP14WWWJSPluginObjiP16WWWJSPluginValueP16WWWJSPluginValue@l
+/* 8136FB24 00040044  38 80 00 00 */	li r4, 0x0
+/* 8136FB28 00040048  38 A0 00 00 */	li r5, 0x0
+/* 8136FB2C 0004004C  38 C0 00 00 */	li r6, 0x0
+/* 8136FB30 00040050  39 0D 82 DC */	li r8, lbl_8169631C@sda21
+/* 8136FB34 00040054  39 20 00 00 */	li r9, 0x0
+/* 8136FB38 00040058  7D 89 03 A6 */	mtctr r12
+/* 8136FB3C 0004005C  4E 80 04 21 */	bctrl
+/* 8136FB40 00040060  2C 03 00 00 */	cmpwi r3, 0x0
+/* 8136FB44 00040064  40 80 00 0C */	bge .L_8136FB50
+/* 8136FB48 00040068  38 60 00 0A */	li r3, 0xa
+/* 8136FB4C 0004006C  48 00 00 2C */	b .L_8136FB78
+.L_8136FB50:
+/* 8136FB50 00040070  38 7F 00 A1 */	addi r3, r31, 0xa1
+/* 8136FB54 00040074  4C C6 31 82 */	crclr cr1eq
+/* 8136FB58 00040078  48 1B EB 49 */	bl OSReport
+/* 8136FB5C 0004007C  38 00 00 00 */	li r0, 0x0
+/* 8136FB60 00040080  38 60 00 07 */	li r3, 0x7
+/* 8136FB64 00040084  90 1E 00 00 */	stw r0, 0x0(r30)
+/* 8136FB68 00040088  80 01 00 08 */	lwz r0, 0x8(r1)
+/* 8136FB6C 0004008C  90 1E 00 08 */	stw r0, 0x8(r30)
+/* 8136FB70 00040090  48 00 00 08 */	b .L_8136FB78
+.L_8136FB74:
+/* 8136FB74 00040094  38 60 00 08 */	li r3, 0x8
+.L_8136FB78:
+/* 8136FB78 00040098  39 61 00 20 */	addi r11, r1, 0x20
+/* 8136FB7C 0004009C  48 28 99 99 */	bl _restgpr_29
+/* 8136FB80 000400A0  80 01 00 24 */	lwz r0, 0x24(r1)
+/* 8136FB84 000400A4  7C 08 03 A6 */	mtlr r0
+/* 8136FB88 000400A8  38 21 00 20 */	addi r1, r1, 0x20
+/* 8136FB8C 000400AC  4E 80 00 20 */	blr
+.endfn globalGetter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue
+
+# .text:0x1C0 | 0x8136FB90 | size: 0xA0
+# www::wiisetting::ObjectConstructor_(WWWJSPluginObj*, WWWJSPluginObj*, int, WWWJSPluginValue*, WWWJSPluginValue*)
+.fn ObjectConstructor___Q23www10wiisettingFP14WWWJSPluginObjP14WWWJSPluginObjiP16WWWJSPluginValueP16WWWJSPluginValue, global
+/* 8136FB90 000400B0  94 21 FF E0 */	stwu r1, -0x20(r1)
+/* 8136FB94 000400B4  7C 08 02 A6 */	mflr r0
+/* 8136FB98 000400B8  2C 05 00 00 */	cmpwi r5, 0x0
+/* 8136FB9C 000400BC  7C 83 23 78 */	mr r3, r4
+/* 8136FBA0 000400C0  90 01 00 24 */	stw r0, 0x24(r1)
+/* 8136FBA4 000400C4  93 E1 00 1C */	stw r31, 0x1c(r1)
+/* 8136FBA8 000400C8  7C FF 3B 78 */	mr r31, r7
+/* 8136FBAC 000400CC  41 82 00 0C */	beq .L_8136FBB8
+/* 8136FBB0 000400D0  38 60 00 13 */	li r3, 0x13
+/* 8136FBB4 000400D4  48 00 00 68 */	b .L_8136FC1C
+.L_8136FBB8:
+/* 8136FBB8 000400D8  80 CD A9 60 */	lwz r6, opera_callbacks__Q23www10wiisetting@sda21(r0)
+/* 8136FBBC 000400DC  3C 80 81 37 */	lis r4, Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue@ha
+/* 8136FBC0 000400E0  3C A0 81 37 */	lis r5, Setter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue@ha
+/* 8136FBC4 000400E4  38 E1 00 08 */	addi r7, r1, 0x8
+/* 8136FBC8 000400E8  81 86 00 04 */	lwz r12, 0x4(r6)
+/* 8136FBCC 000400EC  38 84 FC 30 */	addi r4, r4, Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue@l
+/* 8136FBD0 000400F0  38 A5 05 B4 */	addi r5, r5, Setter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue@l
+/* 8136FBD4 000400F4  38 C0 00 00 */	li r6, 0x0
+/* 8136FBD8 000400F8  7D 89 03 A6 */	mtctr r12
+/* 8136FBDC 000400FC  4E 80 04 21 */	bctrl
+/* 8136FBE0 00040100  2C 03 00 00 */	cmpwi r3, 0x0
+/* 8136FBE4 00040104  40 80 00 0C */	bge .L_8136FBF0
+/* 8136FBE8 00040108  38 60 00 12 */	li r3, 0x12
+/* 8136FBEC 0004010C  48 00 00 30 */	b .L_8136FC1C
+.L_8136FBF0:
+/* 8136FBF0 00040110  38 A0 00 00 */	li r5, 0x0
+/* 8136FBF4 00040114  3C 60 81 64 */	lis r3, lbl_8164415B@ha
+/* 8136FBF8 00040118  90 BF 00 00 */	stw r5, 0x0(r31)
+/* 8136FBFC 0004011C  38 63 41 5B */	addi r3, r3, lbl_8164415B@l
+/* 8136FC00 00040120  80 01 00 08 */	lwz r0, 0x8(r1)
+/* 8136FC04 00040124  90 1F 00 08 */	stw r0, 0x8(r31)
+/* 8136FC08 00040128  80 81 00 08 */	lwz r4, 0x8(r1)
+/* 8136FC0C 0004012C  90 A4 00 00 */	stw r5, 0x0(r4)
+/* 8136FC10 00040130  4C C6 31 82 */	crclr cr1eq
+/* 8136FC14 00040134  48 1B EA 8D */	bl OSReport
+/* 8136FC18 00040138  38 60 00 10 */	li r3, 0x10
+.L_8136FC1C:
+/* 8136FC1C 0004013C  80 01 00 24 */	lwz r0, 0x24(r1)
+/* 8136FC20 00040140  83 E1 00 1C */	lwz r31, 0x1c(r1)
+/* 8136FC24 00040144  7C 08 03 A6 */	mtlr r0
+/* 8136FC28 00040148  38 21 00 20 */	addi r1, r1, 0x20
+/* 8136FC2C 0004014C  4E 80 00 20 */	blr
+.endfn ObjectConstructor___Q23www10wiisettingFP14WWWJSPluginObjP14WWWJSPluginObjiP16WWWJSPluginValueP16WWWJSPluginValue
+
+# .text:0x260 | 0x8136FC30 | size: 0x984
+# www::wiisetting::Getter_(WWWJSPluginObj*, const char*, WWWJSPluginValue*)
+.fn Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, global
+/* 8136FC30 00040150  94 21 FF 30 */	stwu r1, -0xd0(r1)
+/* 8136FC34 00040154  7C 08 02 A6 */	mflr r0
+/* 8136FC38 00040158  90 01 00 D4 */	stw r0, 0xd4(r1)
+/* 8136FC3C 0004015C  39 61 00 D0 */	addi r11, r1, 0xd0
+/* 8136FC40 00040160  48 28 98 79 */	bl _savegpr_25
+/* 8136FC44 00040164  3C 00 43 30 */	lis r0, 0x4330
+/* 8136FC48 00040168  3F E0 81 64 */	lis r31, lbl_816440A0@ha
+/* 8136FC4C 0004016C  7C 9E 23 78 */	mr r30, r4
+/* 8136FC50 00040170  90 01 00 A0 */	stw r0, 0xa0(r1)
+/* 8136FC54 00040174  3B FF 40 A0 */	addi r31, r31, lbl_816440A0@l
+/* 8136FC58 00040178  7C 79 1B 78 */	mr r25, r3
+/* 8136FC5C 0004017C  90 01 00 A8 */	stw r0, 0xa8(r1)
+/* 8136FC60 00040180  7C BD 2B 78 */	mr r29, r5
+/* 8136FC64 00040184  7F C3 F3 78 */	mr r3, r30
+/* 8136FC68 00040188  38 9F 00 DA */	addi r4, r31, 0xda
+/* 8136FC6C 0004018C  48 29 28 15 */	bl strcmp
+/* 8136FC70 00040190  2C 03 00 00 */	cmpwi r3, 0x0
+/* 8136FC74 00040194  40 82 00 60 */	bne .L_8136FCD4
+/* 8136FC78 00040198  80 8D A9 60 */	lwz r4, opera_callbacks__Q23www10wiisetting@sda21(r0)
+/* 8136FC7C 0004019C  3C C0 81 37 */	lis r6, wiiOSReport__Q23www10wiisettingFP14WWWJSPluginObjP14WWWJSPluginObjiP16WWWJSPluginValueP16WWWJSPluginValue@ha
+/* 8136FC80 000401A0  38 C6 0A C0 */	addi r6, r6, wiiOSReport__Q23www10wiisettingFP14WWWJSPluginObjP14WWWJSPluginObjiP16WWWJSPluginValueP16WWWJSPluginValue@l
+/* 8136FC84 000401A4  7F 23 CB 78 */	mr r3, r25
+/* 8136FC88 000401A8  81 84 00 00 */	lwz r12, 0x0(r4)
+/* 8136FC8C 000401AC  7C C7 33 78 */	mr r7, r6
+/* 8136FC90 000401B0  39 41 00 10 */	addi r10, r1, 0x10
+/* 8136FC94 000401B4  38 80 00 00 */	li r4, 0x0
+/* 8136FC98 000401B8  38 A0 00 00 */	li r5, 0x0
+/* 8136FC9C 000401BC  39 0D 82 DC */	li r8, lbl_8169631C@sda21
+/* 8136FCA0 000401C0  39 20 00 00 */	li r9, 0x0
+/* 8136FCA4 000401C4  7D 89 03 A6 */	mtctr r12
+/* 8136FCA8 000401C8  4E 80 04 21 */	bctrl
+/* 8136FCAC 000401CC  2C 03 00 00 */	cmpwi r3, 0x0
+/* 8136FCB0 000401D0  40 80 00 0C */	bge .L_8136FCBC
+/* 8136FCB4 000401D4  38 60 00 0A */	li r3, 0xa
+/* 8136FCB8 000401D8  48 00 08 E4 */	b .L_8137059C
+.L_8136FCBC:
+/* 8136FCBC 000401DC  38 00 00 00 */	li r0, 0x0
+/* 8136FCC0 000401E0  38 60 00 07 */	li r3, 0x7
+/* 8136FCC4 000401E4  90 1D 00 00 */	stw r0, 0x0(r29)
+/* 8136FCC8 000401E8  80 01 00 10 */	lwz r0, 0x10(r1)
+/* 8136FCCC 000401EC  90 1D 00 08 */	stw r0, 0x8(r29)
+/* 8136FCD0 000401F0  48 00 08 CC */	b .L_8137059C
+.L_8136FCD4:
+/* 8136FCD4 000401F4  7F C3 F3 78 */	mr r3, r30
+/* 8136FCD8 000401F8  38 9F 00 E7 */	addi r4, r31, 0xe7
+/* 8136FCDC 000401FC  48 29 27 A5 */	bl strcmp
+/* 8136FCE0 00040200  2C 03 00 00 */	cmpwi r3, 0x0
+/* 8136FCE4 00040204  40 82 00 60 */	bne .L_8136FD44
+/* 8136FCE8 00040208  80 8D A9 60 */	lwz r4, opera_callbacks__Q23www10wiisetting@sda21(r0)
+/* 8136FCEC 0004020C  3C C0 81 37 */	lis r6, wiiWriteBack__Q23www10wiisettingFP14WWWJSPluginObjP14WWWJSPluginObjiP16WWWJSPluginValueP16WWWJSPluginValue@ha
+/* 8136FCF0 00040210  38 C6 0B 1C */	addi r6, r6, wiiWriteBack__Q23www10wiisettingFP14WWWJSPluginObjP14WWWJSPluginObjiP16WWWJSPluginValueP16WWWJSPluginValue@l
+/* 8136FCF4 00040214  7F 23 CB 78 */	mr r3, r25
+/* 8136FCF8 00040218  81 84 00 00 */	lwz r12, 0x0(r4)
+/* 8136FCFC 0004021C  7C C7 33 78 */	mr r7, r6
+/* 8136FD00 00040220  39 41 00 0C */	addi r10, r1, 0xc
+/* 8136FD04 00040224  38 80 00 00 */	li r4, 0x0
+/* 8136FD08 00040228  38 A0 00 00 */	li r5, 0x0
+/* 8136FD0C 0004022C  39 0D 82 DC */	li r8, lbl_8169631C@sda21
+/* 8136FD10 00040230  39 20 00 00 */	li r9, 0x0
+/* 8136FD14 00040234  7D 89 03 A6 */	mtctr r12
+/* 8136FD18 00040238  4E 80 04 21 */	bctrl
+/* 8136FD1C 0004023C  2C 03 00 00 */	cmpwi r3, 0x0
+/* 8136FD20 00040240  40 80 00 0C */	bge .L_8136FD2C
+/* 8136FD24 00040244  38 60 00 0A */	li r3, 0xa
+/* 8136FD28 00040248  48 00 08 74 */	b .L_8137059C
+.L_8136FD2C:
+/* 8136FD2C 0004024C  38 00 00 00 */	li r0, 0x0
+/* 8136FD30 00040250  38 60 00 07 */	li r3, 0x7
+/* 8136FD34 00040254  90 1D 00 00 */	stw r0, 0x0(r29)
+/* 8136FD38 00040258  80 01 00 0C */	lwz r0, 0xc(r1)
+/* 8136FD3C 0004025C  90 1D 00 08 */	stw r0, 0x8(r29)
+/* 8136FD40 00040260  48 00 08 5C */	b .L_8137059C
+.L_8136FD44:
+/* 8136FD44 00040264  88 0D A9 54 */	lbz r0, writeBackID__Q23www10wiisetting@sda21(r0)
+/* 8136FD48 00040268  28 00 00 08 */	cmplwi r0, 0x8
+/* 8136FD4C 0004026C  41 82 00 34 */	beq .L_8136FD80
+/* 8136FD50 00040270  28 00 00 2F */	cmplwi r0, 0x2f
+/* 8136FD54 00040274  41 82 00 2C */	beq .L_8136FD80
+/* 8136FD58 00040278  28 00 00 3C */	cmplwi r0, 0x3c
+/* 8136FD5C 0004027C  41 82 00 24 */	beq .L_8136FD80
+/* 8136FD60 00040280  28 00 00 0B */	cmplwi r0, 0xb
+/* 8136FD64 00040284  41 82 00 1C */	beq .L_8136FD80
+/* 8136FD68 00040288  28 00 00 30 */	cmplwi r0, 0x30
+/* 8136FD6C 0004028C  41 82 00 14 */	beq .L_8136FD80
+/* 8136FD70 00040290  28 00 00 2D */	cmplwi r0, 0x2d
+/* 8136FD74 00040294  41 82 00 0C */	beq .L_8136FD80
+/* 8136FD78 00040298  38 00 00 00 */	li r0, 0x0
+/* 8136FD7C 0004029C  98 0D A9 54 */	stb r0, writeBackID__Q23www10wiisetting@sda21(r0)
+.L_8136FD80:
+/* 8136FD80 000402A0  3B 20 00 08 */	li r25, 0x8
+/* 8136FD84 000402A4  48 1C 5E FD */	bl OSGetTime
+/* 8136FD88 000402A8  38 A1 00 14 */	addi r5, r1, 0x14
+/* 8136FD8C 000402AC  48 1C 61 D9 */	bl OSTicksToCalendarTime
+/* 8136FD90 000402B0  3C 60 81 64 */	lis r3, lbl_81644834@ha
+/* 8136FD94 000402B4  38 00 00 0C */	li r0, 0xc
+/* 8136FD98 000402B8  38 63 48 34 */	addi r3, r3, lbl_81644834@l
+/* 8136FD9C 000402BC  38 A1 00 38 */	addi r5, r1, 0x38
+/* 8136FDA0 000402C0  38 83 FF FC */	subi r4, r3, 0x4
+/* 8136FDA4 000402C4  7C 09 03 A6 */	mtctr r0
+.L_8136FDA8:
+/* 8136FDA8 000402C8  80 64 00 04 */	lwz r3, 0x4(r4)
+/* 8136FDAC 000402CC  84 04 00 08 */	lwzu r0, 0x8(r4)
+/* 8136FDB0 000402D0  90 65 00 04 */	stw r3, 0x4(r5)
+/* 8136FDB4 000402D4  94 05 00 08 */	stwu r0, 0x8(r5)
+/* 8136FDB8 000402D8  42 00 FF F0 */	bdnz .L_8136FDA8
+/* 8136FDBC 000402DC  80 04 00 04 */	lwz r0, 0x4(r4)
+/* 8136FDC0 000402E0  3B 61 00 3C */	addi r27, r1, 0x3c
+/* 8136FDC4 000402E4  3B 40 00 00 */	li r26, 0x0
+/* 8136FDC8 000402E8  3B 80 00 00 */	li r28, 0x0
+/* 8136FDCC 000402EC  90 05 00 04 */	stw r0, 0x4(r5)
+.L_8136FDD0:
+/* 8136FDD0 000402F0  7C 9B E0 2E */	lwzx r4, r27, r28
+/* 8136FDD4 000402F4  7F C3 F3 78 */	mr r3, r30
+/* 8136FDD8 000402F8  48 29 26 A9 */	bl strcmp
+/* 8136FDDC 000402FC  2C 03 00 00 */	cmpwi r3, 0x0
+/* 8136FDE0 00040300  40 82 00 0C */	bne .L_8136FDEC
+/* 8136FDE4 00040304  38 9A 00 01 */	addi r4, r26, 0x1
+/* 8136FDE8 00040308  48 00 00 18 */	b .L_8136FE00
+.L_8136FDEC:
+/* 8136FDEC 0004030C  3B 5A 00 01 */	addi r26, r26, 0x1
+/* 8136FDF0 00040310  3B 9C 00 04 */	addi r28, r28, 0x4
+/* 8136FDF4 00040314  2C 1A 00 18 */	cmpwi r26, 0x18
+/* 8136FDF8 00040318  41 80 FF D8 */	blt .L_8136FDD0
+/* 8136FDFC 0004031C  38 80 FF FF */	li r4, -0x1
+.L_8136FE00:
+/* 8136FE00 00040320  2C 04 00 00 */	cmpwi r4, 0x0
+/* 8136FE04 00040324  41 80 02 7C */	blt .L_81370080
+/* 8136FE08 00040328  38 00 00 01 */	li r0, 0x1
+/* 8136FE0C 0004032C  28 04 00 18 */	cmplwi r4, 0x18
+/* 8136FE10 00040330  90 1D 00 00 */	stw r0, 0x0(r29)
+/* 8136FE14 00040334  41 81 02 64 */	bgt .L_81370078
+/* 8136FE18 00040338  3C 60 81 64 */	lis r3, jumptable_816442CC@ha
+/* 8136FE1C 0004033C  54 80 10 3A */	slwi r0, r4, 2
+/* 8136FE20 00040340  38 63 42 CC */	addi r3, r3, jumptable_816442CC@l
+/* 8136FE24 00040344  7C 63 00 2E */	lwzx r3, r3, r0
+/* 8136FE28 00040348  7C 69 03 A6 */	mtctr r3
+/* 8136FE2C 0004034C  4E 80 04 20 */	bctr
+.L_8136FE30:
+/* 8136FE30 00040350  48 08 B9 39 */	bl getMacAddr__Q33ipl3ncd10NCDSettingFv
+/* 8136FE34 00040354  90 7D 00 08 */	stw r3, 0x8(r29)
+/* 8136FE38 00040358  48 00 02 40 */	b .L_81370078
+.L_8136FE3C:
+/* 8136FE3C 0004035C  4B FE 70 0D */	bl getLANMacAddrUtf8__Q33ipl6socket13SocketSettingFv
+/* 8136FE40 00040360  90 7D 00 08 */	stw r3, 0x8(r29)
+/* 8136FE44 00040364  48 00 02 34 */	b .L_81370078
+.L_8136FE48:
+/* 8136FE48 00040368  80 0D A9 5C */	lwz r0, pString__Q23www10wiisetting@sda21(r0)
+/* 8136FE4C 0004036C  90 1D 00 08 */	stw r0, 0x8(r29)
+/* 8136FE50 00040370  48 00 02 28 */	b .L_81370078
+.L_8136FE54:
+/* 8136FE54 00040374  80 6D A9 5C */	lwz r3, pString__Q23www10wiisetting@sda21(r0)
+/* 8136FE58 00040378  38 03 00 60 */	addi r0, r3, 0x60
+/* 8136FE5C 0004037C  90 1D 00 08 */	stw r0, 0x8(r29)
+/* 8136FE60 00040380  48 00 02 18 */	b .L_81370078
+.L_8136FE64:
+/* 8136FE64 00040384  80 6D A9 5C */	lwz r3, pString__Q23www10wiisetting@sda21(r0)
+/* 8136FE68 00040388  38 03 00 C1 */	addi r0, r3, 0xc1
+/* 8136FE6C 0004038C  90 1D 00 08 */	stw r0, 0x8(r29)
+/* 8136FE70 00040390  48 00 02 08 */	b .L_81370078
+.L_8136FE74:
+/* 8136FE74 00040394  80 6D A9 5C */	lwz r3, pString__Q23www10wiisetting@sda21(r0)
+/* 8136FE78 00040398  38 03 00 D1 */	addi r0, r3, 0xd1
+/* 8136FE7C 0004039C  90 1D 00 08 */	stw r0, 0x8(r29)
+/* 8136FE80 000403A0  48 00 01 F8 */	b .L_81370078
+.L_8136FE84:
+/* 8136FE84 000403A4  80 6D A9 5C */	lwz r3, pString__Q23www10wiisetting@sda21(r0)
+/* 8136FE88 000403A8  38 03 00 E1 */	addi r0, r3, 0xe1
+/* 8136FE8C 000403AC  90 1D 00 08 */	stw r0, 0x8(r29)
+/* 8136FE90 000403B0  48 00 01 E8 */	b .L_81370078
+.L_8136FE94:
+/* 8136FE94 000403B4  80 6D A9 5C */	lwz r3, pString__Q23www10wiisetting@sda21(r0)
+/* 8136FE98 000403B8  38 03 00 F1 */	addi r0, r3, 0xf1
+/* 8136FE9C 000403BC  90 1D 00 08 */	stw r0, 0x8(r29)
+/* 8136FEA0 000403C0  48 00 01 D8 */	b .L_81370078
+.L_8136FEA4:
+/* 8136FEA4 000403C4  80 6D A9 5C */	lwz r3, pString__Q23www10wiisetting@sda21(r0)
+/* 8136FEA8 000403C8  38 03 01 01 */	addi r0, r3, 0x101
+/* 8136FEAC 000403CC  90 1D 00 08 */	stw r0, 0x8(r29)
+/* 8136FEB0 000403D0  48 00 01 C8 */	b .L_81370078
+.L_8136FEB4:
+/* 8136FEB4 000403D4  80 6D A9 5C */	lwz r3, pString__Q23www10wiisetting@sda21(r0)
+/* 8136FEB8 000403D8  38 03 01 11 */	addi r0, r3, 0x111
+/* 8136FEBC 000403DC  90 1D 00 08 */	stw r0, 0x8(r29)
+/* 8136FEC0 000403E0  48 00 01 B8 */	b .L_81370078
+.L_8136FEC4:
+/* 8136FEC4 000403E4  80 6D A9 5C */	lwz r3, pString__Q23www10wiisetting@sda21(r0)
+/* 8136FEC8 000403E8  38 03 04 12 */	addi r0, r3, 0x412
+/* 8136FECC 000403EC  90 1D 00 08 */	stw r0, 0x8(r29)
+/* 8136FED0 000403F0  48 00 01 A8 */	b .L_81370078
+.L_8136FED4:
+/* 8136FED4 000403F4  80 6D A9 5C */	lwz r3, pString__Q23www10wiisetting@sda21(r0)
+/* 8136FED8 000403F8  38 03 04 18 */	addi r0, r3, 0x418
+/* 8136FEDC 000403FC  90 1D 00 08 */	stw r0, 0x8(r29)
+/* 8136FEE0 00040400  48 00 01 98 */	b .L_81370078
+.L_8136FEE4:
+/* 8136FEE4 00040404  80 6D A9 5C */	lwz r3, pString__Q23www10wiisetting@sda21(r0)
+/* 8136FEE8 00040408  38 03 04 79 */	addi r0, r3, 0x479
+/* 8136FEEC 0004040C  90 1D 00 08 */	stw r0, 0x8(r29)
+/* 8136FEF0 00040410  48 00 01 88 */	b .L_81370078
+.L_8136FEF4:
+/* 8136FEF4 00040414  80 6D A9 5C */	lwz r3, pString__Q23www10wiisetting@sda21(r0)
+/* 8136FEF8 00040418  38 03 04 DA */	addi r0, r3, 0x4da
+/* 8136FEFC 0004041C  90 1D 00 08 */	stw r0, 0x8(r29)
+/* 8136FF00 00040420  48 00 01 78 */	b .L_81370078
+.L_8136FF04:
+/* 8136FF04 00040424  80 6D A9 5C */	lwz r3, pString__Q23www10wiisetting@sda21(r0)
+/* 8136FF08 00040428  38 03 04 EE */	addi r0, r3, 0x4ee
+/* 8136FF0C 0004042C  90 1D 00 08 */	stw r0, 0x8(r29)
+/* 8136FF10 00040430  48 00 01 68 */	b .L_81370078
+.L_8136FF14:
+/* 8136FF14 00040434  48 08 C4 61 */	bl getRequestNum__Q33ipl8parental8ParentalFv
+/* 8136FF18 00040438  90 7D 00 08 */	stw r3, 0x8(r29)
+/* 8136FF1C 0004043C  48 00 01 5C */	b .L_81370078
+.L_8136FF20:
+/* 8136FF20 00040440  80 6D A9 5C */	lwz r3, pString__Q23www10wiisetting@sda21(r0)
+/* 8136FF24 00040444  38 03 05 FE */	addi r0, r3, 0x5fe
+/* 8136FF28 00040448  90 1D 00 08 */	stw r0, 0x8(r29)
+/* 8136FF2C 0004044C  48 00 01 4C */	b .L_81370078
+.L_8136FF30:
+/* 8136FF30 00040450  80 6D A9 5C */	lwz r3, pString__Q23www10wiisetting@sda21(r0)
+/* 8136FF34 00040454  38 03 06 0E */	addi r0, r3, 0x60e
+/* 8136FF38 00040458  90 1D 00 08 */	stw r0, 0x8(r29)
+/* 8136FF3C 0004045C  48 00 01 3C */	b .L_81370078
+.L_8136FF40:
+/* 8136FF40 00040460  80 6D A9 5C */	lwz r3, pString__Q23www10wiisetting@sda21(r0)
+/* 8136FF44 00040464  38 80 00 00 */	li r4, 0x0
+/* 8136FF48 00040468  38 A0 00 42 */	li r5, 0x42
+/* 8136FF4C 0004046C  38 63 05 BC */	addi r3, r3, 0x5bc
+/* 8136FF50 00040470  4B FC 03 E5 */	bl memset
+/* 8136FF54 00040474  48 08 B6 19 */	bl getPrivacyMode__Q33ipl3ncd10NCDSettingFv
+/* 8136FF58 00040478  88 8D A9 55 */	lbz r4, saveData__Q23www10wiisetting@sda21(r0)
+/* 8136FF5C 0004047C  54 65 04 3E */	clrlwi r5, r3, 16
+/* 8136FF60 00040480  38 7F 00 F1 */	addi r3, r31, 0xf1
+/* 8136FF64 00040484  4C C6 31 82 */	crclr cr1eq
+/* 8136FF68 00040488  48 1B E7 39 */	bl OSReport
+/* 8136FF6C 0004048C  48 08 B6 01 */	bl getPrivacyMode__Q33ipl3ncd10NCDSettingFv
+/* 8136FF70 00040490  88 0D A9 55 */	lbz r0, saveData__Q23www10wiisetting@sda21(r0)
+/* 8136FF74 00040494  54 63 04 3E */	clrlwi r3, r3, 16
+/* 8136FF78 00040498  7C 00 18 00 */	cmpw r0, r3
+/* 8136FF7C 0004049C  40 82 00 6C */	bne .L_8136FFE8
+/* 8136FF80 000404A0  48 08 B7 35 */	bl getPrivacyLen__Q33ipl3ncd10NCDSettingFv
+/* 8136FF84 000404A4  54 64 04 3E */	clrlwi r4, r3, 16
+/* 8136FF88 000404A8  38 7F 00 FD */	addi r3, r31, 0xfd
+/* 8136FF8C 000404AC  4C C6 31 82 */	crclr cr1eq
+/* 8136FF90 000404B0  48 1B E7 11 */	bl OSReport
+/* 8136FF94 000404B4  3B 20 00 00 */	li r25, 0x0
+/* 8136FF98 000404B8  3B 60 00 2A */	li r27, 0x2a
+/* 8136FF9C 000404BC  48 00 00 14 */	b .L_8136FFB0
+.L_8136FFA0:
+/* 8136FFA0 000404C0  80 0D A9 5C */	lwz r0, pString__Q23www10wiisetting@sda21(r0)
+/* 8136FFA4 000404C4  7C 60 CA 14 */	add r3, r0, r25
+/* 8136FFA8 000404C8  3B 39 00 01 */	addi r25, r25, 0x1
+/* 8136FFAC 000404CC  9B 63 05 BC */	stb r27, 0x5bc(r3)
+.L_8136FFB0:
+/* 8136FFB0 000404D0  48 08 B7 05 */	bl getPrivacyLen__Q33ipl3ncd10NCDSettingFv
+/* 8136FFB4 000404D4  54 60 04 3E */	clrlwi r0, r3, 16
+/* 8136FFB8 000404D8  7C 19 00 00 */	cmpw r25, r0
+/* 8136FFBC 000404DC  41 80 FF E4 */	blt .L_8136FFA0
+/* 8136FFC0 000404E0  2C 19 00 20 */	cmpwi r25, 0x20
+/* 8136FFC4 000404E4  40 81 00 38 */	ble .L_8136FFFC
+/* 8136FFC8 000404E8  80 6D A9 5C */	lwz r3, pString__Q23www10wiisetting@sda21(r0)
+/* 8136FFCC 000404EC  38 00 00 0A */	li r0, 0xa
+/* 8136FFD0 000404F0  38 80 00 2A */	li r4, 0x2a
+/* 8136FFD4 000404F4  98 03 05 DC */	stb r0, 0x5dc(r3)
+/* 8136FFD8 000404F8  80 0D A9 5C */	lwz r0, pString__Q23www10wiisetting@sda21(r0)
+/* 8136FFDC 000404FC  7C 60 CA 14 */	add r3, r0, r25
+/* 8136FFE0 00040500  98 83 05 BC */	stb r4, 0x5bc(r3)
+/* 8136FFE4 00040504  48 00 00 18 */	b .L_8136FFFC
+.L_8136FFE8:
+/* 8136FFE8 00040508  80 6D A9 5C */	lwz r3, pString__Q23www10wiisetting@sda21(r0)
+/* 8136FFEC 0004050C  38 80 00 00 */	li r4, 0x0
+/* 8136FFF0 00040510  38 A0 00 41 */	li r5, 0x41
+/* 8136FFF4 00040514  38 63 00 1F */	addi r3, r3, 0x1f
+/* 8136FFF8 00040518  4B FC 03 3D */	bl memset
+.L_8136FFFC:
+/* 8136FFFC 0004051C  80 6D A9 5C */	lwz r3, pString__Q23www10wiisetting@sda21(r0)
+/* 81370000 00040520  38 03 05 BC */	addi r0, r3, 0x5bc
+/* 81370004 00040524  90 1D 00 08 */	stw r0, 0x8(r29)
+/* 81370008 00040528  48 00 00 70 */	b .L_81370078
+.L_8137000C:
+/* 8137000C 0004052C  80 6D A9 5C */	lwz r3, pString__Q23www10wiisetting@sda21(r0)
+/* 81370010 00040530  38 80 00 00 */	li r4, 0x0
+/* 81370014 00040534  38 A0 00 42 */	li r5, 0x42
+/* 81370018 00040538  38 63 05 BC */	addi r3, r3, 0x5bc
+/* 8137001C 0004053C  4B FC 03 19 */	bl memset
+/* 81370020 00040540  3B 40 00 00 */	li r26, 0x0
+/* 81370024 00040544  3B 60 00 2A */	li r27, 0x2a
+/* 81370028 00040548  48 00 00 10 */	b .L_81370038
+.L_8137002C:
+/* 8137002C 0004054C  7C 79 D2 14 */	add r3, r25, r26
+/* 81370030 00040550  3B 5A 00 01 */	addi r26, r26, 0x1
+/* 81370034 00040554  9B 63 05 BC */	stb r27, 0x5bc(r3)
+.L_81370038:
+/* 81370038 00040558  83 2D A9 5C */	lwz r25, pString__Q23www10wiisetting@sda21(r0)
+/* 8137003C 0004055C  38 79 00 1F */	addi r3, r25, 0x1f
+/* 81370040 00040560  48 28 8E BD */	bl strlen
+/* 81370044 00040564  7C 1A 18 40 */	cmplw r26, r3
+/* 81370048 00040568  41 80 FF E4 */	blt .L_8137002C
+/* 8137004C 0004056C  2C 1A 00 20 */	cmpwi r26, 0x20
+/* 81370050 00040570  40 81 00 1C */	ble .L_8137006C
+/* 81370054 00040574  38 00 00 0A */	li r0, 0xa
+/* 81370058 00040578  38 80 00 2A */	li r4, 0x2a
+/* 8137005C 0004057C  98 19 05 DC */	stb r0, 0x5dc(r25)
+/* 81370060 00040580  80 0D A9 5C */	lwz r0, pString__Q23www10wiisetting@sda21(r0)
+/* 81370064 00040584  7C 60 D2 14 */	add r3, r0, r26
+/* 81370068 00040588  98 83 05 BC */	stb r4, 0x5bc(r3)
+.L_8137006C:
+/* 8137006C 0004058C  80 6D A9 5C */	lwz r3, pString__Q23www10wiisetting@sda21(r0)
+/* 81370070 00040590  38 03 05 BC */	addi r0, r3, 0x5bc
+/* 81370074 00040594  90 1D 00 08 */	stw r0, 0x8(r29)
+.L_81370078:
+/* 81370078 00040598  3B 20 00 06 */	li r25, 0x6
+/* 8137007C 0004059C  48 00 05 1C */	b .L_81370598
+.L_81370080:
+/* 81370080 000405A0  7F C3 F3 78 */	mr r3, r30
+/* 81370084 000405A4  38 8D 82 DD */	li r4, lbl_8169631D@sda21
+/* 81370088 000405A8  48 29 23 F9 */	bl strcmp
+/* 8137008C 000405AC  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81370090 000405B0  40 82 00 0C */	bne .L_8137009C
+/* 81370094 000405B4  3B 20 00 06 */	li r25, 0x6
+/* 81370098 000405B8  48 00 05 00 */	b .L_81370598
+.L_8137009C:
+/* 8137009C 000405BC  7F C3 F3 78 */	mr r3, r30
+/* 813700A0 000405C0  48 00 0E 75 */	bl getBytePropIndex__Q23www10wiisettingFPCc
+/* 813700A4 000405C4  2C 03 00 00 */	cmpwi r3, 0x0
+/* 813700A8 000405C8  7C 7F 1B 78 */	mr r31, r3
+/* 813700AC 000405CC  41 80 04 EC */	blt .L_81370598
+/* 813700B0 000405D0  38 00 00 02 */	li r0, 0x2
+/* 813700B4 000405D4  28 03 00 47 */	cmplwi r3, 0x47
+/* 813700B8 000405D8  90 1D 00 00 */	stw r0, 0x0(r29)
+/* 813700BC 000405DC  41 81 03 94 */	bgt .L_81370450
+/* 813700C0 000405E0  3C 80 81 64 */	lis r4, jumptable_816441AC@ha
+/* 813700C4 000405E4  54 60 10 3A */	slwi r0, r3, 2
+/* 813700C8 000405E8  38 84 41 AC */	addi r4, r4, jumptable_816441AC@l
+/* 813700CC 000405EC  7C 84 00 2E */	lwzx r4, r4, r0
+/* 813700D0 000405F0  7C 89 03 A6 */	mtctr r4
+/* 813700D4 000405F4  4E 80 04 20 */	bctr
+.L_813700D8:
+/* 813700D8 000405F8  3F 60 81 09 */	lis r27, sWiiData__Q23www10wiisetting@ha
+/* 813700DC 000405FC  3B 7B A4 B8 */	addi r27, r27, sWiiData__Q23www10wiisetting@l
+/* 813700E0 00040600  48 1F A1 69 */	bl SCGetSoundMode
+/* 813700E4 00040604  7C 7B F9 AE */	stbx r3, r27, r31
+/* 813700E8 00040608  98 6D A9 55 */	stb r3, saveData__Q23www10wiisetting@sda21(r0)
+/* 813700EC 0004060C  48 00 03 64 */	b .L_81370450
+.L_813700F0:
+/* 813700F0 00040610  48 1F A7 31 */	bl SCGetWCFlags
+/* 813700F4 00040614  3C 80 81 09 */	lis r4, sWiiData__Q23www10wiisetting@ha
+/* 813700F8 00040618  54 60 07 FE */	clrlwi r0, r3, 31
+/* 813700FC 0004061C  38 84 A4 B8 */	addi r4, r4, sWiiData__Q23www10wiisetting@l
+/* 81370100 00040620  7C 04 F9 AE */	stbx r0, r4, r31
+/* 81370104 00040624  48 00 03 4C */	b .L_81370450
+.L_81370108:
+/* 81370108 00040628  48 08 B3 ED */	bl getUseProfileID__Q33ipl3ncd10NCDSettingFv
+/* 8137010C 0004062C  3C 80 81 09 */	lis r4, sWiiData__Q23www10wiisetting@ha
+/* 81370110 00040630  38 84 A4 B8 */	addi r4, r4, sWiiData__Q23www10wiisetting@l
+/* 81370114 00040634  7C 64 F9 AE */	stbx r3, r4, r31
+/* 81370118 00040638  48 00 03 38 */	b .L_81370450
+.L_8137011C:
+/* 8137011C 0004063C  38 61 00 08 */	addi r3, r1, 0x8
+/* 81370120 00040640  48 1F 9F CD */	bl SCGetIdleMode
+/* 81370124 00040644  3C 60 81 09 */	lis r3, sWiiData__Q23www10wiisetting@ha
+/* 81370128 00040648  88 81 00 08 */	lbz r4, 0x8(r1)
+/* 8137012C 0004064C  38 63 A4 B8 */	addi r3, r3, sWiiData__Q23www10wiisetting@l
+/* 81370130 00040650  88 01 00 09 */	lbz r0, 0x9(r1)
+/* 81370134 00040654  98 83 00 04 */	stb r4, 0x4(r3)
+/* 81370138 00040658  98 03 00 05 */	stb r0, 0x5(r3)
+/* 8137013C 0004065C  48 00 03 14 */	b .L_81370450
+.L_81370140:
+/* 81370140 00040660  48 1F 9E 75 */	bl SCGetAspectRatio
+/* 81370144 00040664  3C 80 81 09 */	lis r4, sWiiData__Q23www10wiisetting@ha
+/* 81370148 00040668  38 84 A4 B8 */	addi r4, r4, sWiiData__Q23www10wiisetting@l
+/* 8137014C 0004066C  7C 64 F9 AE */	stbx r3, r4, r31
+/* 81370150 00040670  48 00 03 00 */	b .L_81370450
+.L_81370154:
+/* 81370154 00040674  48 1F A0 3D */	bl SCGetProgressiveMode
+/* 81370158 00040678  3C 80 81 09 */	lis r4, sWiiData__Q23www10wiisetting@ha
+/* 8137015C 0004067C  38 84 A4 B8 */	addi r4, r4, sWiiData__Q23www10wiisetting@l
+/* 81370160 00040680  7C 64 F9 AE */	stbx r3, r4, r31
+/* 81370164 00040684  48 00 02 EC */	b .L_81370450
+.L_81370168:
+/* 81370168 00040688  48 1F A0 85 */	bl SCGetScreenSaverMode
+/* 8137016C 0004068C  3C 80 81 09 */	lis r4, sWiiData__Q23www10wiisetting@ha
+/* 81370170 00040690  38 84 A4 B8 */	addi r4, r4, sWiiData__Q23www10wiisetting@l
+/* 81370174 00040694  7C 64 F9 AE */	stbx r3, r4, r31
+/* 81370178 00040698  48 00 02 D8 */	b .L_81370450
+.L_8137017C:
+/* 8137017C 0004069C  48 1F A2 C1 */	bl SCGetWpadSensorBarPosition
+/* 81370180 000406A0  3C 80 81 09 */	lis r4, sWiiData__Q23www10wiisetting@ha
+/* 81370184 000406A4  38 84 A4 B8 */	addi r4, r4, sWiiData__Q23www10wiisetting@l
+/* 81370188 000406A8  7C 64 F9 AE */	stbx r3, r4, r31
+/* 8137018C 000406AC  48 00 02 C4 */	b .L_81370450
+.L_81370190:
+/* 81370190 000406B0  80 A1 00 28 */	lwz r5, 0x28(r1)
+/* 81370194 000406B4  3C 80 81 09 */	lis r4, sWiiData__Q23www10wiisetting@ha
+/* 81370198 000406B8  38 84 A4 B8 */	addi r4, r4, sWiiData__Q23www10wiisetting@l
+/* 8137019C 000406BC  38 05 F8 30 */	subi r0, r5, 0x7d0
+/* 813701A0 000406C0  7C 04 19 AE */	stbx r0, r4, r3
+/* 813701A4 000406C4  48 00 02 AC */	b .L_81370450
+.L_813701A8:
+/* 813701A8 000406C8  80 A1 00 24 */	lwz r5, 0x24(r1)
+/* 813701AC 000406CC  3C 80 81 09 */	lis r4, sWiiData__Q23www10wiisetting@ha
+/* 813701B0 000406D0  38 84 A4 B8 */	addi r4, r4, sWiiData__Q23www10wiisetting@l
+/* 813701B4 000406D4  38 05 00 01 */	addi r0, r5, 0x1
+/* 813701B8 000406D8  7C 04 19 AE */	stbx r0, r4, r3
+/* 813701BC 000406DC  48 00 02 94 */	b .L_81370450
+.L_813701C0:
+/* 813701C0 000406E0  3C 80 81 09 */	lis r4, sWiiData__Q23www10wiisetting@ha
+/* 813701C4 000406E4  80 01 00 20 */	lwz r0, 0x20(r1)
+/* 813701C8 000406E8  38 84 A4 B8 */	addi r4, r4, sWiiData__Q23www10wiisetting@l
+/* 813701CC 000406EC  7C 04 19 AE */	stbx r0, r4, r3
+/* 813701D0 000406F0  48 00 02 80 */	b .L_81370450
+.L_813701D4:
+/* 813701D4 000406F4  3C 80 81 09 */	lis r4, sWiiData__Q23www10wiisetting@ha
+/* 813701D8 000406F8  80 01 00 1C */	lwz r0, 0x1c(r1)
+/* 813701DC 000406FC  38 84 A4 B8 */	addi r4, r4, sWiiData__Q23www10wiisetting@l
+/* 813701E0 00040700  7C 04 19 AE */	stbx r0, r4, r3
+/* 813701E4 00040704  48 00 02 6C */	b .L_81370450
+.L_813701E8:
+/* 813701E8 00040708  3C 80 81 09 */	lis r4, sWiiData__Q23www10wiisetting@ha
+/* 813701EC 0004070C  80 01 00 18 */	lwz r0, 0x18(r1)
+/* 813701F0 00040710  38 84 A4 B8 */	addi r4, r4, sWiiData__Q23www10wiisetting@l
+/* 813701F4 00040714  7C 04 19 AE */	stbx r0, r4, r3
+/* 813701F8 00040718  48 00 02 58 */	b .L_81370450
+.L_813701FC:
+/* 813701FC 0004071C  48 08 9E D9 */	bl checkThisFlag__Q33ipl3ncd10NCDSettingFv
+/* 81370200 00040720  3C 80 81 09 */	lis r4, sWiiData__Q23www10wiisetting@ha
+/* 81370204 00040724  38 84 A4 B8 */	addi r4, r4, sWiiData__Q23www10wiisetting@l
+/* 81370208 00040728  7C 64 F9 AE */	stbx r3, r4, r31
+/* 8137020C 0004072C  48 00 02 44 */	b .L_81370450
+.L_81370210:
+/* 81370210 00040730  38 60 00 00 */	li r3, 0x0
+/* 81370214 00040734  48 08 9E 15 */	bl checkFlag__Q33ipl3ncd10NCDSettingFi
+/* 81370218 00040738  3C 80 81 09 */	lis r4, sWiiData__Q23www10wiisetting@ha
+/* 8137021C 0004073C  38 84 A4 B8 */	addi r4, r4, sWiiData__Q23www10wiisetting@l
+/* 81370220 00040740  7C 64 F9 AE */	stbx r3, r4, r31
+/* 81370224 00040744  48 00 02 2C */	b .L_81370450
+.L_81370228:
+/* 81370228 00040748  38 60 00 01 */	li r3, 0x1
+/* 8137022C 0004074C  48 08 9D FD */	bl checkFlag__Q33ipl3ncd10NCDSettingFi
+/* 81370230 00040750  3C 80 81 09 */	lis r4, sWiiData__Q23www10wiisetting@ha
+/* 81370234 00040754  38 84 A4 B8 */	addi r4, r4, sWiiData__Q23www10wiisetting@l
+/* 81370238 00040758  7C 64 F9 AE */	stbx r3, r4, r31
+/* 8137023C 0004075C  48 00 02 14 */	b .L_81370450
+.L_81370240:
+/* 81370240 00040760  38 60 00 02 */	li r3, 0x2
+/* 81370244 00040764  48 08 9D E5 */	bl checkFlag__Q33ipl3ncd10NCDSettingFi
+/* 81370248 00040768  3C 80 81 09 */	lis r4, sWiiData__Q23www10wiisetting@ha
+/* 8137024C 0004076C  38 84 A4 B8 */	addi r4, r4, sWiiData__Q23www10wiisetting@l
+/* 81370250 00040770  7C 64 F9 AE */	stbx r3, r4, r31
+/* 81370254 00040774  48 00 01 FC */	b .L_81370450
+.L_81370258:
+/* 81370258 00040778  48 08 B2 75 */	bl getID__Q33ipl3ncd10NCDSettingFv
+/* 8137025C 0004077C  3C 80 81 09 */	lis r4, sWiiData__Q23www10wiisetting@ha
+/* 81370260 00040780  38 84 A4 B8 */	addi r4, r4, sWiiData__Q23www10wiisetting@l
+/* 81370264 00040784  7C 64 F9 AE */	stbx r3, r4, r31
+/* 81370268 00040788  48 00 01 E8 */	b .L_81370450
+.L_8137026C:
+/* 8137026C 0004078C  3C 80 81 09 */	lis r4, sWiiData__Q23www10wiisetting@ha
+/* 81370270 00040790  88 AD A9 56 */	lbz r5, funcResult__Q23www10wiisetting@sda21(r0)
+/* 81370274 00040794  38 84 A4 B8 */	addi r4, r4, sWiiData__Q23www10wiisetting@l
+/* 81370278 00040798  38 00 00 00 */	li r0, 0x0
+/* 8137027C 0004079C  7C A4 19 AE */	stbx r5, r4, r3
+/* 81370280 000407A0  98 0D A9 56 */	stb r0, funcResult__Q23www10wiisetting@sda21(r0)
+/* 81370284 000407A4  48 00 01 CC */	b .L_81370450
+.L_81370288:
+/* 81370288 000407A8  48 08 B2 E5 */	bl getPrivacyMode__Q33ipl3ncd10NCDSettingFv
+/* 8137028C 000407AC  3C 80 81 09 */	lis r4, sWiiData__Q23www10wiisetting@ha
+/* 81370290 000407B0  38 00 00 00 */	li r0, 0x0
+/* 81370294 000407B4  38 84 A4 B8 */	addi r4, r4, sWiiData__Q23www10wiisetting@l
+/* 81370298 000407B8  98 0D A9 56 */	stb r0, funcResult__Q23www10wiisetting@sda21(r0)
+/* 8137029C 000407BC  7C 64 F9 AE */	stbx r3, r4, r31
+/* 813702A0 000407C0  48 00 01 B0 */	b .L_81370450
+.L_813702A4:
+/* 813702A4 000407C4  48 08 9E A9 */	bl checkDHCPFlag__Q33ipl3ncd10NCDSettingFv
+/* 813702A8 000407C8  3C 80 81 09 */	lis r4, sWiiData__Q23www10wiisetting@ha
+/* 813702AC 000407CC  38 84 A4 B8 */	addi r4, r4, sWiiData__Q23www10wiisetting@l
+/* 813702B0 000407D0  7C 64 F9 AE */	stbx r3, r4, r31
+/* 813702B4 000407D4  48 00 01 9C */	b .L_81370450
+.L_813702B8:
+/* 813702B8 000407D8  48 08 9E B5 */	bl checkDNSFlag__Q33ipl3ncd10NCDSettingFv
+/* 813702BC 000407DC  3C 80 81 09 */	lis r4, sWiiData__Q23www10wiisetting@ha
+/* 813702C0 000407E0  38 84 A4 B8 */	addi r4, r4, sWiiData__Q23www10wiisetting@l
+/* 813702C4 000407E4  7C 64 F9 AE */	stbx r3, r4, r31
+/* 813702C8 000407E8  48 00 01 88 */	b .L_81370450
+.L_813702CC:
+/* 813702CC 000407EC  48 08 B0 35 */	bl backupData__Q33ipl3ncd10NCDSettingFv
+/* 813702D0 000407F0  48 00 01 80 */	b .L_81370450
+.L_813702D4:
+/* 813702D4 000407F4  48 08 B0 45 */	bl resetData__Q33ipl3ncd10NCDSettingFv
+/* 813702D8 000407F8  48 00 01 78 */	b .L_81370450
+.L_813702DC:
+/* 813702DC 000407FC  48 08 A0 41 */	bl checkProxyFlag__Q33ipl3ncd10NCDSettingFv
+/* 813702E0 00040800  3C 80 81 09 */	lis r4, sWiiData__Q23www10wiisetting@ha
+/* 813702E4 00040804  38 84 A4 B8 */	addi r4, r4, sWiiData__Q23www10wiisetting@l
+/* 813702E8 00040808  7C 64 F9 AE */	stbx r3, r4, r31
+/* 813702EC 0004080C  48 00 01 64 */	b .L_81370450
+.L_813702F0:
+/* 813702F0 00040810  48 08 A0 49 */	bl checkBasic__Q33ipl3ncd10NCDSettingFv
+/* 813702F4 00040814  3C 80 81 09 */	lis r4, sWiiData__Q23www10wiisetting@ha
+/* 813702F8 00040818  38 84 A4 B8 */	addi r4, r4, sWiiData__Q23www10wiisetting@l
+/* 813702FC 0004081C  7C 64 F9 AE */	stbx r3, r4, r31
+/* 81370300 00040820  48 00 01 50 */	b .L_81370450
+.L_81370304:
+/* 81370304 00040824  48 08 A0 51 */	bl checkChangeEnable__Q33ipl3ncd10NCDSettingFv
+/* 81370308 00040828  3C 80 81 09 */	lis r4, sWiiData__Q23www10wiisetting@ha
+/* 8137030C 0004082C  38 84 A4 B8 */	addi r4, r4, sWiiData__Q23www10wiisetting@l
+/* 81370310 00040830  7C 64 F9 AE */	stbx r3, r4, r31
+/* 81370314 00040834  48 00 01 3C */	b .L_81370450
+.L_81370318:
+/* 81370318 00040838  48 08 B8 85 */	bl checkFlags__Q33ipl8parental8ParentalFv
+/* 8137031C 0004083C  3C 80 81 09 */	lis r4, sWiiData__Q23www10wiisetting@ha
+/* 81370320 00040840  38 84 A4 B8 */	addi r4, r4, sWiiData__Q23www10wiisetting@l
+/* 81370324 00040844  7C 64 F9 AE */	stbx r3, r4, r31
+/* 81370328 00040848  48 00 01 28 */	b .L_81370450
+.L_8137032C:
+/* 8137032C 0004084C  48 08 BA E1 */	bl checkSecQ__Q33ipl8parental8ParentalFv
+/* 81370330 00040850  3C 80 81 09 */	lis r4, sWiiData__Q23www10wiisetting@ha
+/* 81370334 00040854  38 84 A4 B8 */	addi r4, r4, sWiiData__Q23www10wiisetting@l
+/* 81370338 00040858  7C 64 F9 AE */	stbx r3, r4, r31
+/* 8137033C 0004085C  48 00 01 14 */	b .L_81370450
+.L_81370340:
+/* 81370340 00040860  3C 80 81 09 */	lis r4, sWiiData__Q23www10wiisetting@ha
+/* 81370344 00040864  88 0D A9 55 */	lbz r0, saveData__Q23www10wiisetting@sda21(r0)
+/* 81370348 00040868  38 84 A4 B8 */	addi r4, r4, sWiiData__Q23www10wiisetting@l
+/* 8137034C 0004086C  7C 04 19 AE */	stbx r0, r4, r3
+/* 81370350 00040870  7C 03 03 78 */	mr r3, r0
+/* 81370354 00040874  48 08 BB B9 */	bl setSecQ__Q33ipl8parental8ParentalFUc
+/* 81370358 00040878  48 00 00 F8 */	b .L_81370450
+.L_8137035C:
+/* 8137035C 0004087C  88 6D A9 55 */	lbz r3, saveData__Q23www10wiisetting@sda21(r0)
+/* 81370360 00040880  48 08 BB 8D */	bl setRating__Q33ipl8parental8ParentalFUc
+/* 81370364 00040884  3C 60 81 09 */	lis r3, sWiiData__Q23www10wiisetting@ha
+/* 81370368 00040888  88 0D A9 55 */	lbz r0, saveData__Q23www10wiisetting@sda21(r0)
+/* 8137036C 0004088C  38 63 A4 B8 */	addi r3, r3, sWiiData__Q23www10wiisetting@l
+/* 81370370 00040890  98 03 00 2D */	stb r0, 0x2d(r3)
+/* 81370374 00040894  48 00 00 DC */	b .L_81370450
+.L_81370378:
+/* 81370378 00040898  48 08 BA B5 */	bl getOgn__Q33ipl8parental8ParentalFv
+/* 8137037C 0004089C  3C 80 81 09 */	lis r4, sWiiData__Q23www10wiisetting@ha
+/* 81370380 000408A0  38 84 A4 B8 */	addi r4, r4, sWiiData__Q23www10wiisetting@l
+/* 81370384 000408A4  7C 64 F9 AE */	stbx r3, r4, r31
+/* 81370388 000408A8  48 00 00 C8 */	b .L_81370450
+.L_8137038C:
+/* 8137038C 000408AC  48 1F 9D 05 */	bl SCGetEuRgb60Mode
+/* 81370390 000408B0  3C 80 81 09 */	lis r4, sWiiData__Q23www10wiisetting@ha
+/* 81370394 000408B4  38 84 A4 B8 */	addi r4, r4, sWiiData__Q23www10wiisetting@l
+/* 81370398 000408B8  7C 64 F9 AE */	stbx r3, r4, r31
+/* 8137039C 000408BC  48 00 00 B4 */	b .L_81370450
+.L_813703A0:
+/* 813703A0 000408C0  48 1F 9D 65 */	bl SCGetLanguage
+/* 813703A4 000408C4  3C 80 81 09 */	lis r4, sWiiData__Q23www10wiisetting@ha
+/* 813703A8 000408C8  38 84 A4 B8 */	addi r4, r4, sWiiData__Q23www10wiisetting@l
+/* 813703AC 000408CC  7C 64 F9 AE */	stbx r3, r4, r31
+/* 813703B0 000408D0  48 00 00 A0 */	b .L_81370450
+.L_813703B4:
+/* 813703B4 000408D4  48 1C DF 45 */	bl VIGetDTVStatus
+/* 813703B8 000408D8  3C 80 81 09 */	lis r4, sWiiData__Q23www10wiisetting@ha
+/* 813703BC 000408DC  38 84 A4 B8 */	addi r4, r4, sWiiData__Q23www10wiisetting@l
+/* 813703C0 000408E0  7C 64 F9 AE */	stbx r3, r4, r31
+/* 813703C4 000408E4  48 00 00 8C */	b .L_81370450
+.L_813703C8:
+/* 813703C8 000408E8  48 08 B1 2D */	bl getUseProfileID__Q33ipl3ncd10NCDSettingFv
+/* 813703CC 000408EC  3C 80 81 09 */	lis r4, sWiiData__Q23www10wiisetting@ha
+/* 813703D0 000408F0  38 84 A4 B8 */	addi r4, r4, sWiiData__Q23www10wiisetting@l
+/* 813703D4 000408F4  7C 64 F9 AE */	stbx r3, r4, r31
+/* 813703D8 000408F8  48 00 00 78 */	b .L_81370450
+.L_813703DC:
+/* 813703DC 000408FC  48 08 9D 51 */	bl checkConnectTestFlag__Q33ipl3ncd10NCDSettingFv
+/* 813703E0 00040900  3C 80 81 09 */	lis r4, sWiiData__Q23www10wiisetting@ha
+/* 813703E4 00040904  38 84 A4 B8 */	addi r4, r4, sWiiData__Q23www10wiisetting@l
+/* 813703E8 00040908  7C 64 F9 AE */	stbx r3, r4, r31
+/* 813703EC 0004090C  48 00 00 64 */	b .L_81370450
+.L_813703F0:
+/* 813703F0 00040910  3C 80 81 09 */	lis r4, sWiiData__Q23www10wiisetting@ha
+/* 813703F4 00040914  88 0D A9 57 */	lbz r0, setupFlag__Q23www10wiisetting@sda21(r0)
+/* 813703F8 00040918  38 84 A4 B8 */	addi r4, r4, sWiiData__Q23www10wiisetting@l
+/* 813703FC 0004091C  7C 04 19 AE */	stbx r0, r4, r3
+/* 81370400 00040920  48 00 00 50 */	b .L_81370450
+.L_81370404:
+/* 81370404 00040924  4B FE 6D 61 */	bl checkLANMacAddrAvailable__Q33ipl6socket13SocketSettingFv
+/* 81370408 00040928  3C 80 81 09 */	lis r4, sWiiData__Q23www10wiisetting@ha
+/* 8137040C 0004092C  38 84 A4 B8 */	addi r4, r4, sWiiData__Q23www10wiisetting@l
+/* 81370410 00040930  7C 64 F9 AE */	stbx r3, r4, r31
+/* 81370414 00040934  48 00 00 3C */	b .L_81370450
+.L_81370418:
+/* 81370418 00040938  48 1F A3 61 */	bl SCGetUpdateType
+/* 8137041C 0004093C  3C 80 81 09 */	lis r4, sWiiData__Q23www10wiisetting@ha
+/* 81370420 00040940  38 84 A4 B8 */	addi r4, r4, sWiiData__Q23www10wiisetting@l
+/* 81370424 00040944  7C 64 F9 AE */	stbx r3, r4, r31
+/* 81370428 00040948  48 00 00 28 */	b .L_81370450
+.L_8137042C:
+/* 8137042C 0004094C  4B FC 56 61 */	bl getRegion__Q23ipl6SystemFv
+/* 81370430 00040950  3C 80 81 09 */	lis r4, sWiiData__Q23www10wiisetting@ha
+/* 81370434 00040954  38 84 A4 B8 */	addi r4, r4, sWiiData__Q23www10wiisetting@l
+/* 81370438 00040958  7C 64 F9 AE */	stbx r3, r4, r31
+/* 8137043C 0004095C  48 00 00 14 */	b .L_81370450
+.L_81370440:
+/* 81370440 00040960  48 1F A3 9D */	bl SCGetEULA
+/* 81370444 00040964  3C 80 81 09 */	lis r4, sWiiData__Q23www10wiisetting@ha
+/* 81370448 00040968  38 84 A4 B8 */	addi r4, r4, sWiiData__Q23www10wiisetting@l
+/* 8137044C 0004096C  7C 64 F9 AE */	stbx r3, r4, r31
+.L_81370450:
+/* 81370450 00040970  3C 60 81 09 */	lis r3, sWiiData__Q23www10wiisetting@ha
+/* 81370454 00040974  C8 22 82 B8 */	lfd f1, lbl_816946B8@sda21(r0)
+/* 81370458 00040978  3B 63 A4 B8 */	addi r27, r3, sWiiData__Q23www10wiisetting@l
+/* 8137045C 0004097C  2C 1F 00 35 */	cmpwi r31, 0x35
+/* 81370460 00040980  7C 1B F8 AE */	lbzx r0, r27, r31
+/* 81370464 00040984  90 01 00 A4 */	stw r0, 0xa4(r1)
+/* 81370468 00040988  C8 01 00 A0 */	lfd f0, 0xa0(r1)
+/* 8137046C 0004098C  FC 00 08 28 */	fsub f0, f0, f1
+/* 81370470 00040990  D8 1D 00 08 */	stfd f0, 0x8(r29)
+/* 81370474 00040994  40 82 00 24 */	bne .L_81370498
+/* 81370478 00040998  80 0D A9 4C */	lwz r0, wiiFlag__Q23www10wiisetting@sda21(r0)
+/* 8137047C 0004099C  C8 22 82 C0 */	lfd f1, lbl_816946C0@sda21(r0)
+/* 81370480 000409A0  6C 00 80 00 */	xoris r0, r0, 0x8000
+/* 81370484 000409A4  90 01 00 AC */	stw r0, 0xac(r1)
+/* 81370488 000409A8  C8 01 00 A8 */	lfd f0, 0xa8(r1)
+/* 8137048C 000409AC  FC 00 08 28 */	fsub f0, f0, f1
+/* 81370490 000409B0  D8 1D 00 08 */	stfd f0, 0x8(r29)
+/* 81370494 000409B4  48 00 01 00 */	b .L_81370594
+.L_81370498:
+/* 81370498 000409B8  2C 1F 00 40 */	cmpwi r31, 0x40
+/* 8137049C 000409BC  40 82 00 20 */	bne .L_813704BC
+/* 813704A0 000409C0  48 08 B7 29 */	bl checkRestrictions__Q33ipl8parental8ParentalFv
+/* 813704A4 000409C4  90 61 00 A4 */	stw r3, 0xa4(r1)
+/* 813704A8 000409C8  C8 22 82 B8 */	lfd f1, lbl_816946B8@sda21(r0)
+/* 813704AC 000409CC  C8 01 00 A0 */	lfd f0, 0xa0(r1)
+/* 813704B0 000409D0  FC 00 08 28 */	fsub f0, f0, f1
+/* 813704B4 000409D4  D8 1D 00 08 */	stfd f0, 0x8(r29)
+/* 813704B8 000409D8  48 00 00 DC */	b .L_81370594
+.L_813704BC:
+/* 813704BC 000409DC  2C 1F 00 3C */	cmpwi r31, 0x3c
+/* 813704C0 000409E0  40 82 00 D4 */	bne .L_81370594
+/* 813704C4 000409E4  4B FC 55 C9 */	bl getRegion__Q23ipl6SystemFv
+/* 813704C8 000409E8  28 03 00 01 */	cmplwi r3, 0x1
+/* 813704CC 000409EC  40 82 00 5C */	bne .L_81370528
+/* 813704D0 000409F0  4B FC 55 1D */	bl getLanguage__Q23ipl6SystemFv
+/* 813704D4 000409F4  2C 03 00 03 */	cmpwi r3, 0x3
+/* 813704D8 000409F8  41 82 00 30 */	beq .L_81370508
+/* 813704DC 000409FC  40 80 00 10 */	bge .L_813704EC
+/* 813704E0 00040A00  2C 03 00 01 */	cmpwi r3, 0x1
+/* 813704E4 00040A04  41 82 00 14 */	beq .L_813704F8
+/* 813704E8 00040A08  48 00 00 94 */	b .L_8137057C
+.L_813704EC:
+/* 813704EC 00040A0C  2C 03 00 05 */	cmpwi r3, 0x5
+/* 813704F0 00040A10  40 80 00 8C */	bge .L_8137057C
+/* 813704F4 00040A14  48 00 00 24 */	b .L_81370518
+.L_813704F8:
+/* 813704F8 00040A18  38 60 00 00 */	li r3, 0x0
+/* 813704FC 00040A1C  48 00 09 65 */	bl getKeyboardLanguage__Q23www10wiisettingFUc
+/* 81370500 00040A20  7C 7E 1B 78 */	mr r30, r3
+/* 81370504 00040A24  48 00 00 78 */	b .L_8137057C
+.L_81370508:
+/* 81370508 00040A28  38 60 00 01 */	li r3, 0x1
+/* 8137050C 00040A2C  48 00 09 55 */	bl getKeyboardLanguage__Q23www10wiisettingFUc
+/* 81370510 00040A30  7C 7E 1B 78 */	mr r30, r3
+/* 81370514 00040A34  48 00 00 68 */	b .L_8137057C
+.L_81370518:
+/* 81370518 00040A38  38 60 00 02 */	li r3, 0x2
+/* 8137051C 00040A3C  48 00 09 45 */	bl getKeyboardLanguage__Q23www10wiisettingFUc
+/* 81370520 00040A40  7C 7E 1B 78 */	mr r30, r3
+/* 81370524 00040A44  48 00 00 58 */	b .L_8137057C
+.L_81370528:
+/* 81370528 00040A48  4B FC 55 65 */	bl getRegion__Q23ipl6SystemFv
+/* 8137052C 00040A4C  28 03 00 02 */	cmplwi r3, 0x2
+/* 81370530 00040A50  40 82 00 4C */	bne .L_8137057C
+/* 81370534 00040A54  3F 80 81 61 */	lis r28, lbl_8160F0F0@ha
+/* 81370538 00040A58  3B E0 00 00 */	li r31, 0x0
+/* 8137053C 00040A5C  3B 9C F0 F0 */	addi r28, r28, lbl_8160F0F0@l
+.L_81370540:
+/* 81370540 00040A60  4B FC 54 AD */	bl getLanguage__Q23ipl6SystemFv
+/* 81370544 00040A64  1C 63 00 3B */	mulli r3, r3, 0x3b
+/* 81370548 00040A68  88 1B 00 3C */	lbz r0, 0x3c(r27)
+/* 8137054C 00040A6C  7C 7F 1A 14 */	add r3, r31, r3
+/* 81370550 00040A70  7C 7C 1A 14 */	add r3, r28, r3
+/* 81370554 00040A74  88 63 FF C5 */	lbz r3, -0x3b(r3)
+/* 81370558 00040A78  38 63 00 40 */	addi r3, r3, 0x40
+/* 8137055C 00040A7C  7C 00 18 00 */	cmpw r0, r3
+/* 81370560 00040A80  40 82 00 10 */	bne .L_81370570
+/* 81370564 00040A84  38 1F 00 40 */	addi r0, r31, 0x40
+/* 81370568 00040A88  54 1E 06 3E */	clrlwi r30, r0, 24
+/* 8137056C 00040A8C  48 00 00 10 */	b .L_8137057C
+.L_81370570:
+/* 81370570 00040A90  3B FF 00 01 */	addi r31, r31, 0x1
+/* 81370574 00040A94  2C 1F 00 3B */	cmpwi r31, 0x3b
+/* 81370578 00040A98  41 80 FF C8 */	blt .L_81370540
+.L_8137057C:
+/* 8137057C 00040A9C  57 C0 06 3E */	clrlwi r0, r30, 24
+/* 81370580 00040AA0  C8 22 82 B8 */	lfd f1, lbl_816946B8@sda21(r0)
+/* 81370584 00040AA4  90 01 00 AC */	stw r0, 0xac(r1)
+/* 81370588 00040AA8  C8 01 00 A8 */	lfd f0, 0xa8(r1)
+/* 8137058C 00040AAC  FC 00 08 28 */	fsub f0, f0, f1
+/* 81370590 00040AB0  D8 1D 00 08 */	stfd f0, 0x8(r29)
+.L_81370594:
+/* 81370594 00040AB4  3B 20 00 06 */	li r25, 0x6
+.L_81370598:
+/* 81370598 00040AB8  7F 23 CB 78 */	mr r3, r25
+.L_8137059C:
+/* 8137059C 00040ABC  39 61 00 D0 */	addi r11, r1, 0xd0
+/* 813705A0 00040AC0  48 28 8F 65 */	bl _restgpr_25
+/* 813705A4 00040AC4  80 01 00 D4 */	lwz r0, 0xd4(r1)
+/* 813705A8 00040AC8  7C 08 03 A6 */	mtlr r0
+/* 813705AC 00040ACC  38 21 00 D0 */	addi r1, r1, 0xd0
+/* 813705B0 00040AD0  4E 80 00 20 */	blr
+.endfn Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue
+
+# .text:0xBE4 | 0x813705B4 | size: 0x50C
+# www::wiisetting::Setter_(WWWJSPluginObj*, const char*, WWWJSPluginValue*)
+.fn Setter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, global
+/* 813705B4 00040AD4  94 21 FF D0 */	stwu r1, -0x30(r1)
+/* 813705B8 00040AD8  7C 08 02 A6 */	mflr r0
+/* 813705BC 00040ADC  90 01 00 34 */	stw r0, 0x34(r1)
+/* 813705C0 00040AE0  39 61 00 30 */	addi r11, r1, 0x30
+/* 813705C4 00040AE4  48 28 8E FD */	bl _savegpr_27
+/* 813705C8 00040AE8  7C 9B 23 78 */	mr r27, r4
+/* 813705CC 00040AEC  3F E0 81 64 */	lis r31, lbl_816440A0@ha
+/* 813705D0 00040AF0  7C BD 2B 78 */	mr r29, r5
+/* 813705D4 00040AF4  7F 63 DB 78 */	mr r3, r27
+/* 813705D8 00040AF8  3B FF 40 A0 */	addi r31, r31, lbl_816440A0@l
+/* 813705DC 00040AFC  48 00 09 39 */	bl getBytePropIndex__Q23www10wiisettingFPCc
+/* 813705E0 00040B00  2C 03 00 12 */	cmpwi r3, 0x12
+/* 813705E4 00040B04  7C 7E 1B 78 */	mr r30, r3
+/* 813705E8 00040B08  40 82 00 7C */	bne .L_81370664
+/* 813705EC 00040B0C  C8 1D 00 08 */	lfd f0, 0x8(r29)
+/* 813705F0 00040B10  3C A0 81 09 */	lis r5, sWiiData__Q23www10wiisetting@ha
+/* 813705F4 00040B14  38 A5 A4 B8 */	addi r5, r5, sWiiData__Q23www10wiisetting@l
+/* 813705F8 00040B18  FC 00 00 1E */	fctiwz f0, f0
+/* 813705FC 00040B1C  D8 01 00 08 */	stfd f0, 0x8(r1)
+/* 81370600 00040B20  80 81 00 0C */	lwz r4, 0xc(r1)
+/* 81370604 00040B24  54 80 06 3E */	clrlwi r0, r4, 24
+/* 81370608 00040B28  7C 85 19 AE */	stbx r4, r5, r3
+/* 8137060C 00040B2C  2C 00 00 32 */	cmpwi r0, 0x32
+/* 81370610 00040B30  41 82 00 28 */	beq .L_81370638
+/* 81370614 00040B34  40 80 00 38 */	bge .L_8137064C
+/* 81370618 00040B38  2C 00 00 01 */	cmpwi r0, 0x1
+/* 8137061C 00040B3C  41 82 00 08 */	beq .L_81370624
+/* 81370620 00040B40  48 00 00 2C */	b .L_8137064C
+.L_81370624:
+/* 81370624 00040B44  48 1F 99 ED */	bl SCGetDisplayOffsetH
+/* 81370628 00040B48  38 03 00 10 */	addi r0, r3, 0x10
+/* 8137062C 00040B4C  20 00 00 20 */	subfic r0, r0, 0x20
+/* 81370630 00040B50  98 0D A9 55 */	stb r0, saveData__Q23www10wiisetting@sda21(r0)
+/* 81370634 00040B54  48 00 00 18 */	b .L_8137064C
+.L_81370638:
+/* 81370638 00040B58  80 6D A9 5C */	lwz r3, pString__Q23www10wiisetting@sda21(r0)
+/* 8137063C 00040B5C  38 80 00 00 */	li r4, 0x0
+/* 81370640 00040B60  38 A0 00 40 */	li r5, 0x40
+/* 81370644 00040B64  38 63 06 0E */	addi r3, r3, 0x60e
+/* 81370648 00040B68  4B FB FC ED */	bl memset
+.L_8137064C:
+/* 8137064C 00040B6C  38 60 00 01 */	li r3, 0x1
+/* 81370650 00040B70  38 00 00 00 */	li r0, 0x0
+/* 81370654 00040B74  90 6D 82 D0 */	stw r3, gEnableDpd@sda21(r0)
+/* 81370658 00040B78  38 60 00 0B */	li r3, 0xb
+/* 8137065C 00040B7C  90 0D A9 48 */	stw r0, gDpdWaitFrm@sda21(r0)
+/* 81370660 00040B80  48 00 04 48 */	b .L_81370AA8
+.L_81370664:
+/* 81370664 00040B84  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81370668 00040B88  41 80 04 3C */	blt .L_81370AA4
+/* 8137066C 00040B8C  38 03 FF C9 */	subi r0, r3, 0x37
+/* 81370670 00040B90  28 00 00 01 */	cmplwi r0, 0x1
+/* 81370674 00040B94  41 81 00 64 */	bgt .L_813706D8
+/* 81370678 00040B98  C8 22 82 C8 */	lfd f1, lbl_816946C8@sda21(r0)
+/* 8137067C 00040B9C  C8 1D 00 08 */	lfd f0, 0x8(r29)
+/* 81370680 00040BA0  FC 01 00 00 */	fcmpu cr0, f1, f0
+/* 81370684 00040BA4  40 82 00 38 */	bne .L_813706BC
+/* 81370688 00040BA8  3C 80 81 09 */	lis r4, sWiiData__Q23www10wiisetting@ha
+/* 8137068C 00040BAC  38 84 A4 B8 */	addi r4, r4, sWiiData__Q23www10wiisetting@l
+/* 81370690 00040BB0  88 04 00 37 */	lbz r0, 0x37(r4)
+/* 81370694 00040BB4  2C 00 00 00 */	cmpwi r0, 0x0
+/* 81370698 00040BB8  40 82 00 CC */	bne .L_81370764
+/* 8137069C 00040BBC  88 04 00 38 */	lbz r0, 0x38(r4)
+/* 813706A0 00040BC0  2C 00 00 00 */	cmpwi r0, 0x0
+/* 813706A4 00040BC4  40 82 00 C0 */	bne .L_81370764
+/* 813706A8 00040BC8  FC 00 00 1E */	fctiwz f0, f0
+/* 813706AC 00040BCC  D8 01 00 08 */	stfd f0, 0x8(r1)
+/* 813706B0 00040BD0  80 01 00 0C */	lwz r0, 0xc(r1)
+/* 813706B4 00040BD4  7C 04 19 AE */	stbx r0, r4, r3
+/* 813706B8 00040BD8  48 00 00 AC */	b .L_81370764
+.L_813706BC:
+/* 813706BC 00040BDC  FC 00 00 1E */	fctiwz f0, f0
+/* 813706C0 00040BE0  3C 80 81 09 */	lis r4, sWiiData__Q23www10wiisetting@ha
+/* 813706C4 00040BE4  38 84 A4 B8 */	addi r4, r4, sWiiData__Q23www10wiisetting@l
+/* 813706C8 00040BE8  D8 01 00 08 */	stfd f0, 0x8(r1)
+/* 813706CC 00040BEC  80 01 00 0C */	lwz r0, 0xc(r1)
+/* 813706D0 00040BF0  7C 04 19 AE */	stbx r0, r4, r3
+/* 813706D4 00040BF4  48 00 00 90 */	b .L_81370764
+.L_813706D8:
+/* 813706D8 00040BF8  2C 03 00 40 */	cmpwi r3, 0x40
+/* 813706DC 00040BFC  40 82 00 38 */	bne .L_81370714
+/* 813706E0 00040C00  C8 3D 00 08 */	lfd f1, 0x8(r29)
+/* 813706E4 00040C04  48 28 8C B5 */	bl __cvt_fp2unsigned
+/* 813706E8 00040C08  3C 80 81 09 */	lis r4, sWiiData__Q23www10wiisetting@ha
+/* 813706EC 00040C0C  54 60 06 31 */	rlwinm. r0, r3, 0, 24, 24
+/* 813706F0 00040C10  38 84 A4 B8 */	addi r4, r4, sWiiData__Q23www10wiisetting@l
+/* 813706F4 00040C14  7C A4 F0 AE */	lbzx r5, r4, r30
+/* 813706F8 00040C18  54 60 06 7E */	clrlwi r0, r3, 25
+/* 813706FC 00040C1C  7C A3 03 78 */	or r3, r5, r0
+/* 81370700 00040C20  41 82 00 08 */	beq .L_81370708
+/* 81370704 00040C24  7C A3 00 78 */	andc r3, r5, r0
+.L_81370708:
+/* 81370708 00040C28  7C 64 F1 AE */	stbx r3, r4, r30
+/* 8137070C 00040C2C  9B CD A9 54 */	stb r30, writeBackID__Q23www10wiisetting@sda21(r0)
+/* 81370710 00040C30  48 00 00 54 */	b .L_81370764
+.L_81370714:
+/* 81370714 00040C34  C8 1D 00 08 */	lfd f0, 0x8(r29)
+/* 81370718 00040C38  3F 80 81 09 */	lis r28, sWiiData__Q23www10wiisetting@ha
+/* 8137071C 00040C3C  2C 03 00 1C */	cmpwi r3, 0x1c
+/* 81370720 00040C40  FC 00 00 1E */	fctiwz f0, f0
+/* 81370724 00040C44  3B 9C A4 B8 */	addi r28, r28, sWiiData__Q23www10wiisetting@l
+/* 81370728 00040C48  D8 01 00 08 */	stfd f0, 0x8(r1)
+/* 8137072C 00040C4C  80 01 00 0C */	lwz r0, 0xc(r1)
+/* 81370730 00040C50  7C 1C 19 AE */	stbx r0, r28, r3
+/* 81370734 00040C54  41 82 00 08 */	beq .L_8137073C
+/* 81370738 00040C58  98 6D A9 54 */	stb r3, writeBackID__Q23www10wiisetting@sda21(r0)
+.L_8137073C:
+/* 8137073C 00040C5C  80 BD 00 00 */	lwz r5, 0x0(r29)
+/* 81370740 00040C60  7F 64 DB 78 */	mr r4, r27
+/* 81370744 00040C64  38 7F 02 90 */	addi r3, r31, 0x290
+/* 81370748 00040C68  4C C6 31 82 */	crclr cr1eq
+/* 8137074C 00040C6C  48 1B DF 55 */	bl OSReport
+/* 81370750 00040C70  7C BC F0 AE */	lbzx r5, r28, r30
+/* 81370754 00040C74  7F C4 F3 78 */	mr r4, r30
+/* 81370758 00040C78  38 7F 02 B5 */	addi r3, r31, 0x2b5
+/* 8137075C 00040C7C  4C C6 31 82 */	crclr cr1eq
+/* 81370760 00040C80  48 1B DF 41 */	bl OSReport
+.L_81370764:
+/* 81370764 00040C84  28 1E 00 45 */	cmplwi r30, 0x45
+/* 81370768 00040C88  41 81 03 34 */	bgt .L_81370A9C
+/* 8137076C 00040C8C  3C 60 81 64 */	lis r3, jumptable_81644390@ha
+/* 81370770 00040C90  57 C0 10 3A */	slwi r0, r30, 2
+/* 81370774 00040C94  38 63 43 90 */	addi r3, r3, jumptable_81644390@l
+/* 81370778 00040C98  7C 63 00 2E */	lwzx r3, r3, r0
+/* 8137077C 00040C9C  7C 69 03 A6 */	mtctr r3
+/* 81370780 00040CA0  4E 80 04 20 */	bctr
+.L_81370784:
+/* 81370784 00040CA4  3C 60 81 09 */	lis r3, sWiiData__Q23www10wiisetting@ha
+/* 81370788 00040CA8  38 00 00 01 */	li r0, 0x1
+/* 8137078C 00040CAC  38 63 A4 B8 */	addi r3, r3, sWiiData__Q23www10wiisetting@l
+/* 81370790 00040CB0  98 03 00 36 */	stb r0, 0x36(r3)
+/* 81370794 00040CB4  48 00 03 08 */	b .L_81370A9C
+.L_81370798:
+/* 81370798 00040CB8  3C 80 81 09 */	lis r4, sWiiData__Q23www10wiisetting@ha
+/* 8137079C 00040CBC  38 84 A4 B8 */	addi r4, r4, sWiiData__Q23www10wiisetting@l
+/* 813707A0 00040CC0  7C 64 F0 AE */	lbzx r3, r4, r30
+/* 813707A4 00040CC4  38 03 00 0A */	addi r0, r3, 0xa
+/* 813707A8 00040CC8  98 04 00 37 */	stb r0, 0x37(r4)
+/* 813707AC 00040CCC  48 00 02 F0 */	b .L_81370A9C
+.L_813707B0:
+/* 813707B0 00040CD0  3C 60 81 09 */	lis r3, sWiiData__Q23www10wiisetting@ha
+/* 813707B4 00040CD4  38 63 A4 B8 */	addi r3, r3, sWiiData__Q23www10wiisetting@l
+/* 813707B8 00040CD8  7C 63 F0 AE */	lbzx r3, r3, r30
+/* 813707BC 00040CDC  48 20 CB CD */	bl WPADSetDpdSensitivity
+/* 813707C0 00040CE0  3B 80 00 00 */	li r28, 0x0
+/* 813707C4 00040CE4  3B C0 00 00 */	li r30, 0x0
+/* 813707C8 00040CE8  3F A0 81 37 */	lis r29, DPDCallback__Q23www10wiisettingFll@ha
+.L_813707CC:
+/* 813707CC 00040CEC  7F 83 E3 78 */	mr r3, r28
+/* 813707D0 00040CF0  48 20 CC 4D */	bl WPADIsDpdEnabled
+/* 813707D4 00040CF4  2C 03 00 00 */	cmpwi r3, 0x0
+/* 813707D8 00040CF8  41 82 00 14 */	beq .L_813707EC
+/* 813707DC 00040CFC  93 CD 82 D0 */	stw r30, gEnableDpd@sda21(r0)
+/* 813707E0 00040D00  7F 83 E3 78 */	mr r3, r28
+/* 813707E4 00040D04  93 CD A9 48 */	stw r30, gDpdWaitFrm@sda21(r0)
+/* 813707E8 00040D08  48 21 7B AD */	bl KPADDisableDPD
+.L_813707EC:
+/* 813707EC 00040D0C  7F 83 E3 78 */	mr r3, r28
+/* 813707F0 00040D10  38 9D F9 F4 */	addi r4, r29, DPDCallback__Q23www10wiisettingFll@l
+/* 813707F4 00040D14  48 21 7B D9 */	bl KPADSetControlDpdCallback
+/* 813707F8 00040D18  3B 9C 00 01 */	addi r28, r28, 0x1
+/* 813707FC 00040D1C  2C 1C 00 04 */	cmpwi r28, 0x4
+/* 81370800 00040D20  41 80 FF CC */	blt .L_813707CC
+/* 81370804 00040D24  48 00 02 98 */	b .L_81370A9C
+.L_81370808:
+/* 81370808 00040D28  3C 60 81 09 */	lis r3, sWiiData__Q23www10wiisetting@ha
+/* 8137080C 00040D2C  38 63 A4 B8 */	addi r3, r3, sWiiData__Q23www10wiisetting@l
+/* 81370810 00040D30  7C 63 F0 AE */	lbzx r3, r3, r30
+/* 81370814 00040D34  48 08 98 0D */	bl initSetID__Q33ipl3ncd10NCDSettingFUs
+/* 81370818 00040D38  48 00 02 84 */	b .L_81370A9C
+.L_8137081C:
+/* 8137081C 00040D3C  48 08 A2 B5 */	bl setWired__Q33ipl3ncd10NCDSettingFv
+/* 81370820 00040D40  48 00 02 7C */	b .L_81370A9C
+.L_81370824:
+/* 81370824 00040D44  3C 60 81 09 */	lis r3, sWiiData__Q23www10wiisetting@ha
+/* 81370828 00040D48  38 63 A4 B8 */	addi r3, r3, sWiiData__Q23www10wiisetting@l
+/* 8137082C 00040D4C  7C 63 F0 AE */	lbzx r3, r3, r30
+/* 81370830 00040D50  48 08 A3 11 */	bl setWireless__Q33ipl3ncd10NCDSettingFUc
+/* 81370834 00040D54  48 00 02 68 */	b .L_81370A9C
+.L_81370838:
+/* 81370838 00040D58  3C 60 81 09 */	lis r3, sWiiData__Q23www10wiisetting@ha
+/* 8137083C 00040D5C  38 00 00 00 */	li r0, 0x0
+/* 81370840 00040D60  38 63 A4 B8 */	addi r3, r3, sWiiData__Q23www10wiisetting@l
+/* 81370844 00040D64  98 0D A9 56 */	stb r0, funcResult__Q23www10wiisetting@sda21(r0)
+/* 81370848 00040D68  7C 63 F0 AE */	lbzx r3, r3, r30
+/* 8137084C 00040D6C  48 00 07 61 */	bl startFunc__Q23www10wiisettingFUc
+/* 81370850 00040D70  48 00 02 4C */	b .L_81370A9C
+.L_81370854:
+/* 81370854 00040D74  48 08 AD 19 */	bl getPrivacyMode__Q33ipl3ncd10NCDSettingFv
+/* 81370858 00040D78  3C 80 81 09 */	lis r4, sWiiData__Q23www10wiisetting@ha
+/* 8137085C 00040D7C  98 6D A9 55 */	stb r3, saveData__Q23www10wiisetting@sda21(r0)
+/* 81370860 00040D80  38 84 A4 B8 */	addi r4, r4, sWiiData__Q23www10wiisetting@l
+/* 81370864 00040D84  7C 64 F0 AE */	lbzx r3, r4, r30
+/* 81370868 00040D88  48 08 A4 29 */	bl setPrivacyMode__Q33ipl3ncd10NCDSettingFUs
+/* 8137086C 00040D8C  48 00 02 30 */	b .L_81370A9C
+.L_81370870:
+/* 81370870 00040D90  88 6D A9 55 */	lbz r3, saveData__Q23www10wiisetting@sda21(r0)
+/* 81370874 00040D94  48 08 A4 1D */	bl setPrivacyMode__Q33ipl3ncd10NCDSettingFUs
+/* 81370878 00040D98  48 00 02 24 */	b .L_81370A9C
+.L_8137087C:
+/* 8137087C 00040D9C  3C 60 81 09 */	lis r3, sWiiData__Q23www10wiisetting@ha
+/* 81370880 00040DA0  38 63 A4 B8 */	addi r3, r3, sWiiData__Q23www10wiisetting@l
+/* 81370884 00040DA4  7C 63 F0 AE */	lbzx r3, r3, r30
+/* 81370888 00040DA8  48 08 A1 45 */	bl setDHCPFlag__Q33ipl3ncd10NCDSettingFUc
+/* 8137088C 00040DAC  48 00 02 10 */	b .L_81370A9C
+.L_81370890:
+/* 81370890 00040DB0  3C 60 81 09 */	lis r3, sWiiData__Q23www10wiisetting@ha
+/* 81370894 00040DB4  38 63 A4 B8 */	addi r3, r3, sWiiData__Q23www10wiisetting@l
+/* 81370898 00040DB8  7C 63 F0 AE */	lbzx r3, r3, r30
+/* 8137089C 00040DBC  48 08 A1 81 */	bl setDNSFlag__Q33ipl3ncd10NCDSettingFUc
+/* 813708A0 00040DC0  48 00 01 FC */	b .L_81370A9C
+.L_813708A4:
+/* 813708A4 00040DC4  3C 60 81 09 */	lis r3, sWiiData__Q23www10wiisetting@ha
+/* 813708A8 00040DC8  38 63 A4 B8 */	addi r3, r3, sWiiData__Q23www10wiisetting@l
+/* 813708AC 00040DCC  7C 63 F0 AE */	lbzx r3, r3, r30
+/* 813708B0 00040DD0  48 08 A1 BD */	bl setProxyFlag__Q33ipl3ncd10NCDSettingFUc
+/* 813708B4 00040DD4  48 00 01 E8 */	b .L_81370A9C
+.L_813708B8:
+/* 813708B8 00040DD8  3C 60 81 09 */	lis r3, sWiiData__Q23www10wiisetting@ha
+/* 813708BC 00040DDC  38 63 A4 B8 */	addi r3, r3, sWiiData__Q23www10wiisetting@l
+/* 813708C0 00040DE0  7C 63 F0 AE */	lbzx r3, r3, r30
+/* 813708C4 00040DE4  48 08 A1 ED */	bl setBasicFlag__Q33ipl3ncd10NCDSettingFUc
+/* 813708C8 00040DE8  48 00 01 D4 */	b .L_81370A9C
+.L_813708CC:
+/* 813708CC 00040DEC  3C 60 81 09 */	lis r3, sWiiData__Q23www10wiisetting@ha
+/* 813708D0 00040DF0  38 63 A4 B8 */	addi r3, r3, sWiiData__Q23www10wiisetting@l
+/* 813708D4 00040DF4  7C 63 F0 AE */	lbzx r3, r3, r30
+/* 813708D8 00040DF8  48 08 A2 FD */	bl changeConnectType__Q33ipl3ncd10NCDSettingFUc
+/* 813708DC 00040DFC  48 00 01 C0 */	b .L_81370A9C
+.L_813708E0:
+/* 813708E0 00040E00  3C 60 81 09 */	lis r3, sWiiData__Q23www10wiisetting@ha
+/* 813708E4 00040E04  38 63 A4 B8 */	addi r3, r3, sWiiData__Q23www10wiisetting@l
+/* 813708E8 00040E08  7C 63 F0 AE */	lbzx r3, r3, r30
+/* 813708EC 00040E0C  48 08 B5 A5 */	bl setFlags__Q33ipl8parental8ParentalFUc
+/* 813708F0 00040E10  48 08 B0 99 */	bl adjustNWC24Flag__Q33ipl3ncd10NCDSettingFv
+/* 813708F4 00040E14  48 00 01 A8 */	b .L_81370A9C
+.L_813708F8:
+/* 813708F8 00040E18  C8 3D 00 08 */	lfd f1, 0x8(r29)
+/* 813708FC 00040E1C  48 28 8A 9D */	bl __cvt_fp2unsigned
+/* 81370900 00040E20  54 60 05 EF */	rlwinm. r0, r3, 0, 23, 23
+/* 81370904 00040E24  41 82 01 98 */	beq .L_81370A9C
+/* 81370908 00040E28  48 08 B2 B1 */	bl checkRating__Q33ipl8parental8ParentalFv
+/* 8137090C 00040E2C  3C 80 81 09 */	lis r4, sWiiData__Q23www10wiisetting@ha
+/* 81370910 00040E30  38 84 A4 B8 */	addi r4, r4, sWiiData__Q23www10wiisetting@l
+/* 81370914 00040E34  7C 64 F1 AE */	stbx r3, r4, r30
+/* 81370918 00040E38  48 00 01 84 */	b .L_81370A9C
+.L_8137091C:
+/* 8137091C 00040E3C  48 08 B2 9D */	bl checkRating__Q33ipl8parental8ParentalFv
+/* 81370920 00040E40  98 6D A9 55 */	stb r3, saveData__Q23www10wiisetting@sda21(r0)
+/* 81370924 00040E44  48 00 01 78 */	b .L_81370A9C
+.L_81370928:
+/* 81370928 00040E48  3C 60 81 09 */	lis r3, sWiiData__Q23www10wiisetting@ha
+/* 8137092C 00040E4C  38 63 A4 B8 */	addi r3, r3, sWiiData__Q23www10wiisetting@l
+/* 81370930 00040E50  7C 63 F0 AE */	lbzx r3, r3, r30
+/* 81370934 00040E54  48 08 B5 D9 */	bl setSecQ__Q33ipl8parental8ParentalFUc
+/* 81370938 00040E58  48 00 01 64 */	b .L_81370A9C
+.L_8137093C:
+/* 8137093C 00040E5C  48 08 B4 D1 */	bl checkSecQ__Q33ipl8parental8ParentalFv
+/* 81370940 00040E60  98 6D A9 55 */	stb r3, saveData__Q23www10wiisetting@sda21(r0)
+/* 81370944 00040E64  48 00 01 58 */	b .L_81370A9C
+.L_81370948:
+/* 81370948 00040E68  48 08 A9 E9 */	bl setUseProfileID__Q33ipl3ncd10NCDSettingFv
+/* 8137094C 00040E6C  48 00 01 50 */	b .L_81370A9C
+.L_81370950:
+/* 81370950 00040E70  4B FC 51 3D */	bl getRegion__Q23ipl6SystemFv
+/* 81370954 00040E74  28 03 00 01 */	cmplwi r3, 0x1
+/* 81370958 00040E78  40 82 00 A4 */	bne .L_813709FC
+/* 8137095C 00040E7C  4B FC 50 91 */	bl getLanguage__Q23ipl6SystemFv
+/* 81370960 00040E80  2C 03 00 03 */	cmpwi r3, 0x3
+/* 81370964 00040E84  41 82 00 48 */	beq .L_813709AC
+/* 81370968 00040E88  40 80 00 10 */	bge .L_81370978
+/* 8137096C 00040E8C  2C 03 00 01 */	cmpwi r3, 0x1
+/* 81370970 00040E90  41 82 00 14 */	beq .L_81370984
+/* 81370974 00040E94  48 00 01 28 */	b .L_81370A9C
+.L_81370978:
+/* 81370978 00040E98  2C 03 00 05 */	cmpwi r3, 0x5
+/* 8137097C 00040E9C  40 80 01 20 */	bge .L_81370A9C
+/* 81370980 00040EA0  48 00 00 54 */	b .L_813709D4
+.L_81370984:
+/* 81370984 00040EA4  3C 80 81 09 */	lis r4, sWiiData__Q23www10wiisetting@ha
+/* 81370988 00040EA8  3C 60 81 61 */	lis r3, lbl_8160F060@ha
+/* 8137098C 00040EAC  38 84 A4 B8 */	addi r4, r4, sWiiData__Q23www10wiisetting@l
+/* 81370990 00040EB0  88 04 00 3C */	lbz r0, 0x3c(r4)
+/* 81370994 00040EB4  38 63 F0 60 */	addi r3, r3, lbl_8160F060@l
+/* 81370998 00040EB8  7C 60 1A 14 */	add r3, r0, r3
+/* 8137099C 00040EBC  88 63 FF F8 */	lbz r3, -0x8(r3)
+/* 813709A0 00040EC0  38 03 00 08 */	addi r0, r3, 0x8
+/* 813709A4 00040EC4  98 04 00 3C */	stb r0, 0x3c(r4)
+/* 813709A8 00040EC8  48 00 00 F4 */	b .L_81370A9C
+.L_813709AC:
+/* 813709AC 00040ECC  3C 80 81 09 */	lis r4, sWiiData__Q23www10wiisetting@ha
+/* 813709B0 00040ED0  3C 60 81 61 */	lis r3, lbl_8160F060@ha
+/* 813709B4 00040ED4  38 84 A4 B8 */	addi r4, r4, sWiiData__Q23www10wiisetting@l
+/* 813709B8 00040ED8  88 04 00 3C */	lbz r0, 0x3c(r4)
+/* 813709BC 00040EDC  38 63 F0 60 */	addi r3, r3, lbl_8160F060@l
+/* 813709C0 00040EE0  7C 60 1A 14 */	add r3, r0, r3
+/* 813709C4 00040EE4  88 63 00 28 */	lbz r3, 0x28(r3)
+/* 813709C8 00040EE8  38 03 00 08 */	addi r0, r3, 0x8
+/* 813709CC 00040EEC  98 04 00 3C */	stb r0, 0x3c(r4)
+/* 813709D0 00040EF0  48 00 00 CC */	b .L_81370A9C
+.L_813709D4:
+/* 813709D4 00040EF4  3C 80 81 09 */	lis r4, sWiiData__Q23www10wiisetting@ha
+/* 813709D8 00040EF8  3C 60 81 61 */	lis r3, lbl_8160F060@ha
+/* 813709DC 00040EFC  38 84 A4 B8 */	addi r4, r4, sWiiData__Q23www10wiisetting@l
+/* 813709E0 00040F00  88 04 00 3C */	lbz r0, 0x3c(r4)
+/* 813709E4 00040F04  38 63 F0 60 */	addi r3, r3, lbl_8160F060@l
+/* 813709E8 00040F08  7C 60 1A 14 */	add r3, r0, r3
+/* 813709EC 00040F0C  88 63 00 58 */	lbz r3, 0x58(r3)
+/* 813709F0 00040F10  38 03 00 08 */	addi r0, r3, 0x8
+/* 813709F4 00040F14  98 04 00 3C */	stb r0, 0x3c(r4)
+/* 813709F8 00040F18  48 00 00 A4 */	b .L_81370A9C
+.L_813709FC:
+/* 813709FC 00040F1C  4B FC 50 91 */	bl getRegion__Q23ipl6SystemFv
+/* 81370A00 00040F20  28 03 00 02 */	cmplwi r3, 0x2
+/* 81370A04 00040F24  40 82 00 98 */	bne .L_81370A9C
+/* 81370A08 00040F28  4B FC 4F E5 */	bl getLanguage__Q23ipl6SystemFv
+/* 81370A0C 00040F2C  3C 80 81 09 */	lis r4, sWiiData__Q23www10wiisetting@ha
+/* 81370A10 00040F30  3C A0 81 61 */	lis r5, lbl_8160F0F0@ha
+/* 81370A14 00040F34  38 84 A4 B8 */	addi r4, r4, sWiiData__Q23www10wiisetting@l
+/* 81370A18 00040F38  1C 63 00 3B */	mulli r3, r3, 0x3b
+/* 81370A1C 00040F3C  38 A5 F0 F0 */	addi r5, r5, lbl_8160F0F0@l
+/* 81370A20 00040F40  88 04 00 3C */	lbz r0, 0x3c(r4)
+/* 81370A24 00040F44  7C 65 1A 14 */	add r3, r5, r3
+/* 81370A28 00040F48  7C 60 1A 14 */	add r3, r0, r3
+/* 81370A2C 00040F4C  88 63 FF 85 */	lbz r3, -0x7b(r3)
+/* 81370A30 00040F50  38 03 00 40 */	addi r0, r3, 0x40
+/* 81370A34 00040F54  98 04 00 3C */	stb r0, 0x3c(r4)
+/* 81370A38 00040F58  48 00 00 64 */	b .L_81370A9C
+.L_81370A3C:
+/* 81370A3C 00040F5C  48 08 B4 31 */	bl getCountry__Q33ipl8parental8ParentalFv
+/* 81370A40 00040F60  3C 80 81 09 */	lis r4, sWiiData__Q23www10wiisetting@ha
+/* 81370A44 00040F64  38 84 A4 B8 */	addi r4, r4, sWiiData__Q23www10wiisetting@l
+/* 81370A48 00040F68  98 64 00 3C */	stb r3, 0x3c(r4)
+/* 81370A4C 00040F6C  48 00 00 50 */	b .L_81370A9C
+.L_81370A50:
+/* 81370A50 00040F70  3C 60 81 09 */	lis r3, sWiiData__Q23www10wiisetting@ha
+/* 81370A54 00040F74  38 63 A4 B8 */	addi r3, r3, sWiiData__Q23www10wiisetting@l
+/* 81370A58 00040F78  7C 03 F0 AE */	lbzx r0, r3, r30
+/* 81370A5C 00040F7C  2C 00 00 00 */	cmpwi r0, 0x0
+/* 81370A60 00040F80  40 82 00 18 */	bne .L_81370A78
+/* 81370A64 00040F84  48 1F 8E E9 */	bl SCFlush
+/* 81370A68 00040F88  38 7F 02 C4 */	addi r3, r31, 0x2c4
+/* 81370A6C 00040F8C  4C C6 31 82 */	crclr cr1eq
+/* 81370A70 00040F90  48 1B DC 31 */	bl OSReport
+/* 81370A74 00040F94  48 00 00 28 */	b .L_81370A9C
+.L_81370A78:
+/* 81370A78 00040F98  28 00 00 45 */	cmplwi r0, 0x45
+/* 81370A7C 00040F9C  41 82 00 20 */	beq .L_81370A9C
+/* 81370A80 00040FA0  98 0D A9 54 */	stb r0, writeBackID__Q23www10wiisetting@sda21(r0)
+/* 81370A84 00040FA4  38 60 00 00 */	li r3, 0x0
+/* 81370A88 00040FA8  38 80 00 00 */	li r4, 0x0
+/* 81370A8C 00040FAC  38 A0 00 00 */	li r5, 0x0
+/* 81370A90 00040FB0  38 C0 00 00 */	li r6, 0x0
+/* 81370A94 00040FB4  38 E0 00 00 */	li r7, 0x0
+/* 81370A98 00040FB8  48 00 00 85 */	bl wiiWriteBack__Q23www10wiisettingFP14WWWJSPluginObjP14WWWJSPluginObjiP16WWWJSPluginValueP16WWWJSPluginValue
+.L_81370A9C:
+/* 81370A9C 00040FBC  38 60 00 0B */	li r3, 0xb
+/* 81370AA0 00040FC0  48 00 00 08 */	b .L_81370AA8
+.L_81370AA4:
+/* 81370AA4 00040FC4  38 60 00 08 */	li r3, 0x8
+.L_81370AA8:
+/* 81370AA8 00040FC8  39 61 00 30 */	addi r11, r1, 0x30
+/* 81370AAC 00040FCC  48 28 8A 61 */	bl _restgpr_27
+/* 81370AB0 00040FD0  80 01 00 34 */	lwz r0, 0x34(r1)
+/* 81370AB4 00040FD4  7C 08 03 A6 */	mtlr r0
+/* 81370AB8 00040FD8  38 21 00 30 */	addi r1, r1, 0x30
+/* 81370ABC 00040FDC  4E 80 00 20 */	blr
+.endfn Setter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue
+
+# .text:0x10F0 | 0x81370AC0 | size: 0x5C
+# www::wiisetting::wiiOSReport(WWWJSPluginObj*, WWWJSPluginObj*, int, WWWJSPluginValue*, WWWJSPluginValue*)
+.fn wiiOSReport__Q23www10wiisettingFP14WWWJSPluginObjP14WWWJSPluginObjiP16WWWJSPluginValueP16WWWJSPluginValue, global
+/* 81370AC0 00040FE0  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 81370AC4 00040FE4  7C 08 02 A6 */	mflr r0
+/* 81370AC8 00040FE8  90 01 00 14 */	stw r0, 0x14(r1)
+/* 81370ACC 00040FEC  93 E1 00 0C */	stw r31, 0xc(r1)
+/* 81370AD0 00040FF0  7C DF 33 78 */	mr r31, r6
+/* 81370AD4 00040FF4  80 06 00 00 */	lwz r0, 0x0(r6)
+/* 81370AD8 00040FF8  2C 00 00 01 */	cmpwi r0, 0x1
+/* 81370ADC 00040FFC  40 82 00 28 */	bne .L_81370B04
+/* 81370AE0 00041000  3C 80 81 64 */	lis r4, lbl_816444A8@ha
+/* 81370AE4 00041004  38 60 00 03 */	li r3, 0x3
+/* 81370AE8 00041008  38 84 44 A8 */	addi r4, r4, lbl_816444A8@l
+/* 81370AEC 0004100C  4C C6 31 82 */	crclr cr1eq
+/* 81370AF0 00041010  4B FF DD A5 */	bl IPLWWWReport__Q37ext_ead3www5printFiPCce
+/* 81370AF4 00041014  C8 3F 00 08 */	lfd f1, 0x8(r31)
+/* 81370AF8 00041018  38 6D 82 E5 */	li r3, lbl_81696325@sda21
+/* 81370AFC 0004101C  4C C6 32 42 */	crset cr1eq
+/* 81370B00 00041020  48 1B DB A1 */	bl OSReport
+.L_81370B04:
+/* 81370B04 00041024  83 E1 00 0C */	lwz r31, 0xc(r1)
+/* 81370B08 00041028  38 60 00 11 */	li r3, 0x11
+/* 81370B0C 0004102C  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 81370B10 00041030  7C 08 03 A6 */	mtlr r0
+/* 81370B14 00041034  38 21 00 10 */	addi r1, r1, 0x10
+/* 81370B18 00041038  4E 80 00 20 */	blr
+.endfn wiiOSReport__Q23www10wiisettingFP14WWWJSPluginObjP14WWWJSPluginObjiP16WWWJSPluginValueP16WWWJSPluginValue
+
+# .text:0x114C | 0x81370B1C | size: 0x344
+# www::wiisetting::wiiWriteBack(WWWJSPluginObj*, WWWJSPluginObj*, int, WWWJSPluginValue*, WWWJSPluginValue*)
+.fn wiiWriteBack__Q23www10wiisettingFP14WWWJSPluginObjP14WWWJSPluginObjiP16WWWJSPluginValueP16WWWJSPluginValue, global
+/* 81370B1C 0004103C  94 21 FF 90 */	stwu r1, -0x70(r1)
+/* 81370B20 00041040  7C 08 02 A6 */	mflr r0
+/* 81370B24 00041044  90 01 00 74 */	stw r0, 0x74(r1)
+/* 81370B28 00041048  39 61 00 70 */	addi r11, r1, 0x70
+/* 81370B2C 0004104C  48 28 89 9D */	bl _savegpr_29
+/* 81370B30 00041050  3F C0 81 09 */	lis r30, sWiiData__Q23www10wiisetting@ha
+/* 81370B34 00041054  88 8D A9 54 */	lbz r4, writeBackID__Q23www10wiisetting@sda21(r0)
+/* 81370B38 00041058  3B DE A4 B8 */	addi r30, r30, sWiiData__Q23www10wiisetting@l
+/* 81370B3C 0004105C  3F E0 81 64 */	lis r31, lbl_816440A0@ha
+/* 81370B40 00041060  7C DD 33 78 */	mr r29, r6
+/* 81370B44 00041064  7C BE 20 AE */	lbzx r5, r30, r4
+/* 81370B48 00041068  3B FF 40 A0 */	addi r31, r31, lbl_816440A0@l
+/* 81370B4C 0004106C  88 CD A9 55 */	lbz r6, saveData__Q23www10wiisetting@sda21(r0)
+/* 81370B50 00041070  38 7F 04 1F */	addi r3, r31, 0x41f
+/* 81370B54 00041074  4C C6 31 82 */	crclr cr1eq
+/* 81370B58 00041078  48 1B DB 49 */	bl OSReport
+/* 81370B5C 0004107C  88 8D A9 54 */	lbz r4, writeBackID__Q23www10wiisetting@sda21(r0)
+/* 81370B60 00041080  28 04 00 40 */	cmplwi r4, 0x40
+/* 81370B64 00041084  41 81 02 98 */	bgt .L_81370DFC
+/* 81370B68 00041088  3C 60 81 64 */	lis r3, jumptable_81644528@ha
+/* 81370B6C 0004108C  54 80 10 3A */	slwi r0, r4, 2
+/* 81370B70 00041090  38 63 45 28 */	addi r3, r3, jumptable_81644528@l
+/* 81370B74 00041094  7C 63 00 2E */	lwzx r3, r3, r0
+/* 81370B78 00041098  7C 69 03 A6 */	mtctr r3
+/* 81370B7C 0004109C  4E 80 04 20 */	bctr
+.L_81370B80:
+/* 81370B80 000410A0  88 7E 00 01 */	lbz r3, 0x1(r30)
+/* 81370B84 000410A4  48 1F 97 29 */	bl SCSetSoundMode
+/* 81370B88 000410A8  48 00 02 74 */	b .L_81370DFC
+.L_81370B8C:
+/* 81370B8C 000410AC  48 1F 9C 95 */	bl SCGetWCFlags
+/* 81370B90 000410B0  88 9E 00 02 */	lbz r4, 0x2(r30)
+/* 81370B94 000410B4  54 60 07 FE */	clrlwi r0, r3, 31
+/* 81370B98 000410B8  7C 04 00 40 */	cmplw r4, r0
+/* 81370B9C 000410BC  41 82 02 60 */	beq .L_81370DFC
+/* 81370BA0 000410C0  2C 04 00 00 */	cmpwi r4, 0x0
+/* 81370BA4 000410C4  60 60 00 01 */	ori r0, r3, 0x1
+/* 81370BA8 000410C8  40 82 00 08 */	bne .L_81370BB0
+/* 81370BAC 000410CC  54 60 00 3C */	clrrwi r0, r3, 1
+.L_81370BB0:
+/* 81370BB0 000410D0  7C 03 03 78 */	mr r3, r0
+/* 81370BB4 000410D4  48 1F 9C A9 */	bl SCSetWCFlags
+/* 81370BB8 000410D8  3C 60 81 09 */	lis r3, sWiiData__Q23www10wiisetting@ha
+/* 81370BBC 000410DC  38 63 A4 B8 */	addi r3, r3, sWiiData__Q23www10wiisetting@l
+/* 81370BC0 000410E0  88 03 00 02 */	lbz r0, 0x2(r3)
+/* 81370BC4 000410E4  2C 00 00 00 */	cmpwi r0, 0x0
+/* 81370BC8 000410E8  40 82 00 14 */	bne .L_81370BDC
+/* 81370BCC 000410EC  38 00 00 00 */	li r0, 0x0
+/* 81370BD0 000410F0  98 03 00 04 */	stb r0, 0x4(r3)
+/* 81370BD4 000410F4  98 03 00 05 */	stb r0, 0x5(r3)
+/* 81370BD8 000410F8  48 00 00 10 */	b .L_81370BE8
+.L_81370BDC:
+/* 81370BDC 000410FC  38 00 00 01 */	li r0, 0x1
+/* 81370BE0 00041100  98 03 00 04 */	stb r0, 0x4(r3)
+/* 81370BE4 00041104  98 03 00 05 */	stb r0, 0x5(r3)
+.L_81370BE8:
+/* 81370BE8 00041108  3C A0 81 09 */	lis r5, sWiiData__Q23www10wiisetting@ha
+/* 81370BEC 0004110C  38 61 00 08 */	addi r3, r1, 0x8
+/* 81370BF0 00041110  38 A5 A4 B8 */	addi r5, r5, sWiiData__Q23www10wiisetting@l
+/* 81370BF4 00041114  88 85 00 04 */	lbz r4, 0x4(r5)
+/* 81370BF8 00041118  88 05 00 05 */	lbz r0, 0x5(r5)
+/* 81370BFC 0004111C  98 81 00 08 */	stb r4, 0x8(r1)
+/* 81370C00 00041120  98 01 00 09 */	stb r0, 0x9(r1)
+/* 81370C04 00041124  48 1F 94 F5 */	bl SCSetIdleMode
+/* 81370C08 00041128  48 08 AD 81 */	bl adjustNWC24Flag__Q33ipl3ncd10NCDSettingFv
+/* 81370C0C 0004112C  3C 60 81 09 */	lis r3, smArg__Q23ipl6System@ha
+/* 81370C10 00041130  38 63 90 08 */	addi r3, r3, smArg__Q23ipl6System@l
+/* 81370C14 00041134  88 03 02 BC */	lbz r0, 0x2bc(r3)
+/* 81370C18 00041138  2C 00 00 00 */	cmpwi r0, 0x0
+/* 81370C1C 0004113C  41 82 00 0C */	beq .L_81370C28
+/* 81370C20 00041140  38 60 00 00 */	li r3, 0x0
+/* 81370C24 00041144  48 00 00 08 */	b .L_81370C2C
+.L_81370C28:
+/* 81370C28 00041148  80 63 00 8C */	lwz r3, 0x8c(r3)
+.L_81370C2C:
+/* 81370C2C 0004114C  38 80 00 01 */	li r4, 0x1
+/* 81370C30 00041150  4B FD 18 39 */	bl enableLedNotification__Q33ipl5nwc247ManagerFi
+/* 81370C34 00041154  48 00 01 C8 */	b .L_81370DFC
+.L_81370C38:
+/* 81370C38 00041158  88 9E 00 04 */	lbz r4, 0x4(r30)
+/* 81370C3C 0004115C  38 61 00 0A */	addi r3, r1, 0xa
+/* 81370C40 00041160  88 1E 00 05 */	lbz r0, 0x5(r30)
+/* 81370C44 00041164  98 81 00 0A */	stb r4, 0xa(r1)
+/* 81370C48 00041168  98 01 00 0B */	stb r0, 0xb(r1)
+/* 81370C4C 0004116C  48 1F 94 AD */	bl SCSetIdleMode
+/* 81370C50 00041170  3C 60 81 09 */	lis r3, smArg__Q23ipl6System@ha
+/* 81370C54 00041174  38 63 90 08 */	addi r3, r3, smArg__Q23ipl6System@l
+/* 81370C58 00041178  88 03 02 BC */	lbz r0, 0x2bc(r3)
+/* 81370C5C 0004117C  2C 00 00 00 */	cmpwi r0, 0x0
+/* 81370C60 00041180  41 82 00 0C */	beq .L_81370C6C
+/* 81370C64 00041184  38 60 00 00 */	li r3, 0x0
+/* 81370C68 00041188  48 00 00 08 */	b .L_81370C70
+.L_81370C6C:
+/* 81370C6C 0004118C  80 63 00 8C */	lwz r3, 0x8c(r3)
+.L_81370C70:
+/* 81370C70 00041190  38 80 00 01 */	li r4, 0x1
+/* 81370C74 00041194  4B FD 17 F5 */	bl enableLedNotification__Q33ipl5nwc247ManagerFi
+/* 81370C78 00041198  48 00 01 84 */	b .L_81370DFC
+.L_81370C7C:
+/* 81370C7C 0004119C  80 6D A9 58 */	lwz r3, mQueue__Q23www10wiisetting@sda21(r0)
+/* 81370C80 000411A0  38 80 00 1C */	li r4, 0x1c
+/* 81370C84 000411A4  38 A0 00 00 */	li r5, 0x0
+/* 81370C88 000411A8  48 1C 03 F9 */	bl OSSendMessage
+/* 81370C8C 000411AC  38 7F 04 44 */	addi r3, r31, 0x444
+/* 81370C90 000411B0  38 80 00 1C */	li r4, 0x1c
+/* 81370C94 000411B4  4C C6 31 82 */	crclr cr1eq
+/* 81370C98 000411B8  48 1B DA 09 */	bl OSReport
+/* 81370C9C 000411BC  48 00 01 60 */	b .L_81370DFC
+.L_81370CA0:
+/* 81370CA0 000411C0  C8 22 82 D0 */	lfd f1, lbl_816946D0@sda21(r0)
+/* 81370CA4 000411C4  C8 1D 00 08 */	lfd f0, 0x8(r29)
+/* 81370CA8 000411C8  FC 01 00 00 */	fcmpu cr0, f1, f0
+/* 81370CAC 000411CC  40 82 00 28 */	bne .L_81370CD4
+/* 81370CB0 000411D0  88 0D A9 55 */	lbz r0, saveData__Q23www10wiisetting@sda21(r0)
+/* 81370CB4 000411D4  20 00 00 10 */	subfic r0, r0, 0x10
+/* 81370CB8 000411D8  7C 03 07 74 */	extsb r3, r0
+/* 81370CBC 000411DC  48 1F 93 C9 */	bl SCSetDisplayOffsetH
+/* 81370CC0 000411E0  88 6D A9 55 */	lbz r3, saveData__Q23www10wiisetting@sda21(r0)
+/* 81370CC4 000411E4  38 00 00 01 */	li r0, 0x1
+/* 81370CC8 000411E8  98 1E 00 36 */	stb r0, 0x36(r30)
+/* 81370CCC 000411EC  98 7E 00 07 */	stb r3, 0x7(r30)
+/* 81370CD0 000411F0  48 00 01 2C */	b .L_81370DFC
+.L_81370CD4:
+/* 81370CD4 000411F4  88 1E 00 07 */	lbz r0, 0x7(r30)
+/* 81370CD8 000411F8  20 00 00 10 */	subfic r0, r0, 0x10
+/* 81370CDC 000411FC  7C 03 07 74 */	extsb r3, r0
+/* 81370CE0 00041200  48 1F 93 A5 */	bl SCSetDisplayOffsetH
+/* 81370CE4 00041204  48 00 01 18 */	b .L_81370DFC
+.L_81370CE8:
+/* 81370CE8 00041208  7C 7E 20 AE */	lbzx r3, r30, r4
+/* 81370CEC 0004120C  48 1F 96 A9 */	bl SCSetBtDpdSensibility
+/* 81370CF0 00041210  48 00 01 0C */	b .L_81370DFC
+.L_81370CF4:
+/* 81370CF4 00041214  7C 7E 20 AE */	lbzx r3, r30, r4
+/* 81370CF8 00041218  48 1F 94 ED */	bl SCSetProgressiveMode
+/* 81370CFC 0004121C  48 00 01 00 */	b .L_81370DFC
+.L_81370D00:
+/* 81370D00 00041220  7C 7E 20 AE */	lbzx r3, r30, r4
+/* 81370D04 00041224  48 1F 95 3D */	bl SCSetScreenSaverMode
+/* 81370D08 00041228  88 0D A9 54 */	lbz r0, writeBackID__Q23www10wiisetting@sda21(r0)
+/* 81370D0C 0004122C  7C 7E 00 AE */	lbzx r3, r30, r0
+/* 81370D10 00041230  48 1C DA 39 */	bl VIEnableDimming
+/* 81370D14 00041234  48 00 00 E8 */	b .L_81370DFC
+.L_81370D18:
+/* 81370D18 00041238  7C 7E 20 AE */	lbzx r3, r30, r4
+/* 81370D1C 0004123C  48 1F 97 75 */	bl SCSetWpadSensorBarPosition
+/* 81370D20 00041240  48 00 00 DC */	b .L_81370DFC
+.L_81370D24:
+/* 81370D24 00041244  48 1C 4F 5D */	bl OSGetTime
+/* 81370D28 00041248  38 A1 00 34 */	addi r5, r1, 0x34
+/* 81370D2C 0004124C  48 1C 52 39 */	bl OSTicksToCalendarTime
+/* 81370D30 00041250  88 BE 00 0C */	lbz r5, 0xc(r30)
+/* 81370D34 00041254  38 61 00 34 */	addi r3, r1, 0x34
+/* 81370D38 00041258  88 9E 00 0D */	lbz r4, 0xd(r30)
+/* 81370D3C 0004125C  88 1E 00 0E */	lbz r0, 0xe(r30)
+/* 81370D40 00041260  38 A5 07 D0 */	addi r5, r5, 0x7d0
+/* 81370D44 00041264  38 84 FF FF */	subi r4, r4, 0x1
+/* 81370D48 00041268  90 A1 00 48 */	stw r5, 0x48(r1)
+/* 81370D4C 0004126C  90 81 00 44 */	stw r4, 0x44(r1)
+/* 81370D50 00041270  90 01 00 40 */	stw r0, 0x40(r1)
+/* 81370D54 00041274  48 1C 53 D9 */	bl OSCalendarTimeToTicks
+/* 81370D58 00041278  38 A1 00 34 */	addi r5, r1, 0x34
+/* 81370D5C 0004127C  48 1C 52 09 */	bl OSTicksToCalendarTime
+/* 81370D60 00041280  38 61 00 34 */	addi r3, r1, 0x34
+/* 81370D64 00041284  4B FF 26 F9 */	bl setCalendarTime__Q33ipl7utility8CalendarFP14OSCalendarTime
+/* 81370D68 00041288  48 00 00 94 */	b .L_81370DFC
+.L_81370D6C:
+/* 81370D6C 0004128C  48 1C 4F 15 */	bl OSGetTime
+/* 81370D70 00041290  38 A1 00 0C */	addi r5, r1, 0xc
+/* 81370D74 00041294  48 1C 51 F1 */	bl OSTicksToCalendarTime
+/* 81370D78 00041298  88 BE 00 0F */	lbz r5, 0xf(r30)
+/* 81370D7C 0004129C  38 00 00 00 */	li r0, 0x0
+/* 81370D80 000412A0  88 9E 00 10 */	lbz r4, 0x10(r30)
+/* 81370D84 000412A4  38 61 00 0C */	addi r3, r1, 0xc
+/* 81370D88 000412A8  90 A1 00 14 */	stw r5, 0x14(r1)
+/* 81370D8C 000412AC  90 81 00 10 */	stw r4, 0x10(r1)
+/* 81370D90 000412B0  90 01 00 0C */	stw r0, 0xc(r1)
+/* 81370D94 000412B4  90 01 00 2C */	stw r0, 0x2c(r1)
+/* 81370D98 000412B8  90 01 00 30 */	stw r0, 0x30(r1)
+/* 81370D9C 000412BC  4B FF 26 C1 */	bl setCalendarTime__Q33ipl7utility8CalendarFP14OSCalendarTime
+/* 81370DA0 000412C0  48 00 00 5C */	b .L_81370DFC
+.L_81370DA4:
+/* 81370DA4 000412C4  80 6D A9 58 */	lwz r3, mQueue__Q23www10wiisetting@sda21(r0)
+/* 81370DA8 000412C8  38 80 00 50 */	li r4, 0x50
+/* 81370DAC 000412CC  38 A0 00 00 */	li r5, 0x0
+/* 81370DB0 000412D0  48 1C 02 D1 */	bl OSSendMessage
+/* 81370DB4 000412D4  38 7F 04 44 */	addi r3, r31, 0x444
+/* 81370DB8 000412D8  38 80 00 50 */	li r4, 0x50
+/* 81370DBC 000412DC  4C C6 31 82 */	crclr cr1eq
+/* 81370DC0 000412E0  48 1B D8 E1 */	bl OSReport
+/* 81370DC4 000412E4  48 00 00 38 */	b .L_81370DFC
+.L_81370DC8:
+/* 81370DC8 000412E8  7C 7E 20 AE */	lbzx r3, r30, r4
+/* 81370DCC 000412EC  48 08 B1 21 */	bl setRating__Q33ipl8parental8ParentalFUc
+/* 81370DD0 000412F0  48 00 00 2C */	b .L_81370DFC
+.L_81370DD4:
+/* 81370DD4 000412F4  7C 7E 20 AE */	lbzx r3, r30, r4
+/* 81370DD8 000412F8  48 08 B1 E1 */	bl setRestrictions__Q33ipl8parental8ParentalFUl
+/* 81370DDC 000412FC  48 00 00 20 */	b .L_81370DFC
+.L_81370DE0:
+/* 81370DE0 00041300  88 7E 00 08 */	lbz r3, 0x8(r30)
+/* 81370DE4 00041304  48 1F 94 01 */	bl SCSetProgressiveMode
+/* 81370DE8 00041308  88 7E 00 2F */	lbz r3, 0x2f(r30)
+/* 81370DEC 0004130C  48 1F 92 F9 */	bl SCSetEuRgb60Mode
+/* 81370DF0 00041310  48 00 00 0C */	b .L_81370DFC
+.L_81370DF4:
+/* 81370DF4 00041314  88 7E 00 3C */	lbz r3, 0x3c(r30)
+/* 81370DF8 00041318  48 08 B1 79 */	bl setCountry__Q33ipl8parental8ParentalFUc
+.L_81370DFC:
+/* 81370DFC 0004131C  88 0D A9 54 */	lbz r0, writeBackID__Q23www10wiisetting@sda21(r0)
+/* 81370E00 00041320  2C 00 00 0F */	cmpwi r0, 0xf
+/* 81370E04 00041324  41 82 00 38 */	beq .L_81370E3C
+/* 81370E08 00041328  40 80 00 1C */	bge .L_81370E24
+/* 81370E0C 0004132C  2C 00 00 0C */	cmpwi r0, 0xc
+/* 81370E10 00041330  41 82 00 2C */	beq .L_81370E3C
+/* 81370E14 00041334  40 80 00 18 */	bge .L_81370E2C
+/* 81370E18 00041338  2C 00 00 06 */	cmpwi r0, 0x6
+/* 81370E1C 0004133C  41 82 00 20 */	beq .L_81370E3C
+/* 81370E20 00041340  48 00 00 0C */	b .L_81370E2C
+.L_81370E24:
+/* 81370E24 00041344  2C 00 00 30 */	cmpwi r0, 0x30
+/* 81370E28 00041348  41 82 00 14 */	beq .L_81370E3C
+.L_81370E2C:
+/* 81370E2C 0004134C  48 1F 8B 21 */	bl SCFlush
+/* 81370E30 00041350  38 7F 04 58 */	addi r3, r31, 0x458
+/* 81370E34 00041354  4C C6 31 82 */	crclr cr1eq
+/* 81370E38 00041358  48 1B D8 69 */	bl OSReport
+.L_81370E3C:
+/* 81370E3C 0004135C  38 00 00 00 */	li r0, 0x0
+/* 81370E40 00041360  39 61 00 70 */	addi r11, r1, 0x70
+/* 81370E44 00041364  98 0D A9 54 */	stb r0, writeBackID__Q23www10wiisetting@sda21(r0)
+/* 81370E48 00041368  38 60 00 11 */	li r3, 0x11
+/* 81370E4C 0004136C  48 28 86 C9 */	bl _restgpr_29
+/* 81370E50 00041370  80 01 00 74 */	lwz r0, 0x74(r1)
+/* 81370E54 00041374  7C 08 03 A6 */	mtlr r0
+/* 81370E58 00041378  38 21 00 70 */	addi r1, r1, 0x70
+/* 81370E5C 0004137C  4E 80 00 20 */	blr
+.endfn wiiWriteBack__Q23www10wiisettingFP14WWWJSPluginObjP14WWWJSPluginObjiP16WWWJSPluginValueP16WWWJSPluginValue
+
+# .text:0x1490 | 0x81370E60 | size: 0x54
+# www::wiisetting::getKeyboardLanguage(unsigned char)
+.fn getKeyboardLanguage__Q23www10wiisettingFUc, local
+/* 81370E60 00041380  1C C3 00 30 */	mulli r6, r3, 0x30
+/* 81370E64 00041384  3C A0 81 61 */	lis r5, lbl_8160F060@ha
+/* 81370E68 00041388  3C 80 81 09 */	lis r4, sWiiData__Q23www10wiisetting@ha
+/* 81370E6C 0004138C  38 A5 F0 60 */	addi r5, r5, lbl_8160F060@l
+/* 81370E70 00041390  38 84 A4 B8 */	addi r4, r4, sWiiData__Q23www10wiisetting@l
+/* 81370E74 00041394  38 00 00 30 */	li r0, 0x30
+/* 81370E78 00041398  7C A5 32 14 */	add r5, r5, r6
+/* 81370E7C 0004139C  88 C4 00 3C */	lbz r6, 0x3c(r4)
+/* 81370E80 000413A0  38 E0 00 00 */	li r7, 0x0
+/* 81370E84 000413A4  7C 09 03 A6 */	mtctr r0
+.L_81370E88:
+/* 81370E88 000413A8  54 E0 06 3E */	clrlwi r0, r7, 24
+/* 81370E8C 000413AC  7C 85 00 AE */	lbzx r4, r5, r0
+/* 81370E90 000413B0  38 04 00 08 */	addi r0, r4, 0x8
+/* 81370E94 000413B4  7C 06 00 00 */	cmpw r6, r0
+/* 81370E98 000413B8  40 82 00 10 */	bne .L_81370EA8
+/* 81370E9C 000413BC  38 07 00 08 */	addi r0, r7, 0x8
+/* 81370EA0 000413C0  54 03 06 3E */	clrlwi r3, r0, 24
+/* 81370EA4 000413C4  4E 80 00 20 */	blr
+.L_81370EA8:
+/* 81370EA8 000413C8  38 E7 00 01 */	addi r7, r7, 0x1
+/* 81370EAC 000413CC  42 00 FF DC */	bdnz .L_81370E88
+/* 81370EB0 000413D0  4E 80 00 20 */	blr
+.endfn getKeyboardLanguage__Q23www10wiisettingFUc
+
+# .text:0x14E4 | 0x81370EB4 | size: 0x60
+# www::wiisetting::initWiiSetting()
+.fn initWiiSetting__Q23www10wiisettingFv, global
+/* 81370EB4 000413D4  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 81370EB8 000413D8  7C 08 02 A6 */	mflr r0
+/* 81370EBC 000413DC  38 80 00 00 */	li r4, 0x0
+/* 81370EC0 000413E0  38 A0 00 48 */	li r5, 0x48
+/* 81370EC4 000413E4  90 01 00 14 */	stw r0, 0x14(r1)
+/* 81370EC8 000413E8  38 00 00 00 */	li r0, 0x0
+/* 81370ECC 000413EC  93 E1 00 0C */	stw r31, 0xc(r1)
+/* 81370ED0 000413F0  3F E0 81 09 */	lis r31, sWiiData__Q23www10wiisetting@ha
+/* 81370ED4 000413F4  38 7F A4 B8 */	addi r3, r31, sWiiData__Q23www10wiisetting@l
+/* 81370ED8 000413F8  98 0D A9 54 */	stb r0, writeBackID__Q23www10wiisetting@sda21(r0)
+/* 81370EDC 000413FC  4B FB F4 59 */	bl memset
+/* 81370EE0 00041400  38 6D A9 4C */	li r3, wiiFlag__Q23www10wiisetting@sda21
+/* 81370EE4 00041404  38 80 00 00 */	li r4, 0x0
+/* 81370EE8 00041408  38 A0 00 08 */	li r5, 0x8
+/* 81370EEC 0004140C  4B FB F4 49 */	bl memset
+/* 81370EF0 00041410  48 1F 99 31 */	bl SCGetWCFlags
+/* 81370EF4 00041414  54 60 07 FE */	clrlwi r0, r3, 31
+/* 81370EF8 00041418  38 7F A4 B8 */	addi r3, r31, sWiiData__Q23www10wiisetting@l
+/* 81370EFC 0004141C  98 03 00 02 */	stb r0, 0x2(r3)
+/* 81370F00 00041420  83 E1 00 0C */	lwz r31, 0xc(r1)
+/* 81370F04 00041424  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 81370F08 00041428  7C 08 03 A6 */	mtlr r0
+/* 81370F0C 0004142C  38 21 00 10 */	addi r1, r1, 0x10
+/* 81370F10 00041430  4E 80 00 20 */	blr
+.endfn initWiiSetting__Q23www10wiisettingFv
+
+# .text:0x1544 | 0x81370F14 | size: 0x98
+# www::wiisetting::getBytePropIndex(const char*)
+.fn getBytePropIndex__Q23www10wiisettingFPCc, local
+/* 81370F14 00041434  94 21 FE C0 */	stwu r1, -0x140(r1)
+/* 81370F18 00041438  7C 08 02 A6 */	mflr r0
+/* 81370F1C 0004143C  90 01 01 44 */	stw r0, 0x144(r1)
+/* 81370F20 00041440  39 61 01 40 */	addi r11, r1, 0x140
+/* 81370F24 00041444  48 28 85 A1 */	bl _savegpr_28
+/* 81370F28 00041448  3C 80 81 61 */	lis r4, lbl_8160F254@ha
+/* 81370F2C 0004144C  38 00 00 24 */	li r0, 0x24
+/* 81370F30 00041450  38 84 F2 54 */	addi r4, r4, lbl_8160F254@l
+/* 81370F34 00041454  7C 7C 1B 78 */	mr r28, r3
+/* 81370F38 00041458  38 A1 00 04 */	addi r5, r1, 0x4
+/* 81370F3C 0004145C  38 84 FF FC */	subi r4, r4, 0x4
+/* 81370F40 00041460  7C 09 03 A6 */	mtctr r0
+.L_81370F44:
+/* 81370F44 00041464  80 64 00 04 */	lwz r3, 0x4(r4)
+/* 81370F48 00041468  84 04 00 08 */	lwzu r0, 0x8(r4)
+/* 81370F4C 0004146C  90 65 00 04 */	stw r3, 0x4(r5)
+/* 81370F50 00041470  94 05 00 08 */	stwu r0, 0x8(r5)
+/* 81370F54 00041474  42 00 FF F0 */	bdnz .L_81370F44
+/* 81370F58 00041478  3B C1 00 08 */	addi r30, r1, 0x8
+/* 81370F5C 0004147C  3B A0 00 00 */	li r29, 0x0
+/* 81370F60 00041480  3B E0 00 00 */	li r31, 0x0
+.L_81370F64:
+/* 81370F64 00041484  7C 9E F8 2E */	lwzx r4, r30, r31
+/* 81370F68 00041488  7F 83 E3 78 */	mr r3, r28
+/* 81370F6C 0004148C  48 29 15 15 */	bl strcmp
+/* 81370F70 00041490  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81370F74 00041494  40 82 00 0C */	bne .L_81370F80
+/* 81370F78 00041498  38 7D 00 01 */	addi r3, r29, 0x1
+/* 81370F7C 0004149C  48 00 00 18 */	b .L_81370F94
+.L_81370F80:
+/* 81370F80 000414A0  3B BD 00 01 */	addi r29, r29, 0x1
+/* 81370F84 000414A4  3B FF 00 04 */	addi r31, r31, 0x4
+/* 81370F88 000414A8  2C 1D 00 48 */	cmpwi r29, 0x48
+/* 81370F8C 000414AC  41 80 FF D8 */	blt .L_81370F64
+/* 81370F90 000414B0  38 60 FF FF */	li r3, -0x1
+.L_81370F94:
+/* 81370F94 000414B4  39 61 01 40 */	addi r11, r1, 0x140
+/* 81370F98 000414B8  48 28 85 79 */	bl _restgpr_28
+/* 81370F9C 000414BC  80 01 01 44 */	lwz r0, 0x144(r1)
+/* 81370FA0 000414C0  7C 08 03 A6 */	mtlr r0
+/* 81370FA4 000414C4  38 21 01 40 */	addi r1, r1, 0x140
+/* 81370FA8 000414C8  4E 80 00 20 */	blr
+.endfn getBytePropIndex__Q23www10wiisettingFPCc
+
+# .text:0x15DC | 0x81370FAC | size: 0x1A4
+# www::wiisetting::startFunc(unsigned char)
+.fn startFunc__Q23www10wiisettingFUc, global
+/* 81370FAC 000414CC  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 81370FB0 000414D0  7C 08 02 A6 */	mflr r0
+/* 81370FB4 000414D4  28 03 00 67 */	cmplwi r3, 0x67
+/* 81370FB8 000414D8  90 01 00 14 */	stw r0, 0x14(r1)
+/* 81370FBC 000414DC  93 E1 00 0C */	stw r31, 0xc(r1)
+/* 81370FC0 000414E0  7C 7F 1B 78 */	mr r31, r3
+/* 81370FC4 000414E4  93 C1 00 08 */	stw r30, 0x8(r1)
+/* 81370FC8 000414E8  3F C0 81 64 */	lis r30, lbl_816440A0@ha
+/* 81370FCC 000414EC  3B DE 40 A0 */	addi r30, r30, lbl_816440A0@l
+/* 81370FD0 000414F0  41 81 01 58 */	bgt .L_81371128
+/* 81370FD4 000414F4  3C 80 81 64 */	lis r4, jumptable_816448F8@ha
+/* 81370FD8 000414F8  54 60 10 3A */	slwi r0, r3, 2
+/* 81370FDC 000414FC  38 84 48 F8 */	addi r4, r4, jumptable_816448F8@l
+/* 81370FE0 00041500  7C 84 00 2E */	lwzx r4, r4, r0
+/* 81370FE4 00041504  7C 89 03 A6 */	mtctr r4
+/* 81370FE8 00041508  4E 80 04 20 */	bctr
+.L_81370FEC:
+/* 81370FEC 0004150C  80 6D A9 58 */	lwz r3, mQueue__Q23www10wiisetting@sda21(r0)
+/* 81370FF0 00041510  7F E4 FB 78 */	mr r4, r31
+/* 81370FF4 00041514  38 A0 00 00 */	li r5, 0x0
+/* 81370FF8 00041518  48 1C 00 89 */	bl OSSendMessage
+/* 81370FFC 0004151C  7F E4 FB 78 */	mr r4, r31
+/* 81371000 00041520  38 7E 04 44 */	addi r3, r30, 0x444
+/* 81371004 00041524  4C C6 31 82 */	crclr cr1eq
+/* 81371008 00041528  48 1B D6 99 */	bl OSReport
+/* 8137100C 0004152C  48 00 01 1C */	b .L_81371128
+.L_81371010:
+/* 81371010 00041530  38 8D A9 4C */	li r4, wiiFlag__Q23www10wiisetting@sda21
+/* 81371014 00041534  98 64 00 04 */	stb r3, 0x4(r4)
+/* 81371018 00041538  48 00 01 10 */	b .L_81371128
+.L_8137101C:
+/* 8137101C 0004153C  38 8D A9 4C */	li r4, wiiFlag__Q23www10wiisetting@sda21
+/* 81371020 00041540  88 04 00 04 */	lbz r0, 0x4(r4)
+/* 81371024 00041544  28 00 00 21 */	cmplwi r0, 0x21
+/* 81371028 00041548  40 82 00 14 */	bne .L_8137103C
+/* 8137102C 0004154C  38 7E 07 F8 */	addi r3, r30, 0x7f8
+/* 81371030 00041550  4C C6 31 82 */	crclr cr1eq
+/* 81371034 00041554  48 1B D6 6D */	bl OSReport
+/* 81371038 00041558  48 00 00 F0 */	b .L_81371128
+.L_8137103C:
+/* 8137103C 0004155C  98 64 00 04 */	stb r3, 0x4(r4)
+/* 81371040 00041560  48 00 00 E8 */	b .L_81371128
+.L_81371044:
+/* 81371044 00041564  38 8D A9 4C */	li r4, wiiFlag__Q23www10wiisetting@sda21
+/* 81371048 00041568  98 64 00 04 */	stb r3, 0x4(r4)
+/* 8137104C 0004156C  48 00 00 DC */	b .L_81371128
+.L_81371050:
+/* 81371050 00041570  38 8D A9 4C */	li r4, wiiFlag__Q23www10wiisetting@sda21
+/* 81371054 00041574  88 04 00 04 */	lbz r0, 0x4(r4)
+/* 81371058 00041578  28 00 00 2B */	cmplwi r0, 0x2b
+/* 8137105C 0004157C  40 82 00 18 */	bne .L_81371074
+/* 81371060 00041580  38 7E 08 1F */	addi r3, r30, 0x81f
+/* 81371064 00041584  38 9F FF D9 */	subi r4, r31, 0x27
+/* 81371068 00041588  4C C6 31 82 */	crclr cr1eq
+/* 8137106C 0004158C  48 1B D6 35 */	bl OSReport
+/* 81371070 00041590  48 00 00 B8 */	b .L_81371128
+.L_81371074:
+/* 81371074 00041594  98 64 00 04 */	stb r3, 0x4(r4)
+/* 81371078 00041598  48 00 00 B0 */	b .L_81371128
+.L_8137107C:
+/* 8137107C 0004159C  38 8D A9 4C */	li r4, wiiFlag__Q23www10wiisetting@sda21
+/* 81371080 000415A0  98 64 00 04 */	stb r3, 0x4(r4)
+/* 81371084 000415A4  48 00 00 A4 */	b .L_81371128
+.L_81371088:
+/* 81371088 000415A8  48 08 A1 71 */	bl clearData__Q33ipl3ncd10NCDSettingFv
+/* 8137108C 000415AC  48 00 00 9C */	b .L_81371128
+.L_81371090:
+/* 81371090 000415B0  38 60 00 00 */	li r3, 0x0
+/* 81371094 000415B4  48 08 AD 59 */	bl checkMistake__Q33ipl8parental8ParentalFUc
+/* 81371098 000415B8  7C 7F 1B 78 */	mr r31, r3
+/* 8137109C 000415BC  38 7E 08 44 */	addi r3, r30, 0x844
+/* 813710A0 000415C0  57 E4 06 3E */	clrlwi r4, r31, 24
+/* 813710A4 000415C4  4C C6 31 82 */	crclr cr1eq
+/* 813710A8 000415C8  48 1B D5 F9 */	bl OSReport
+/* 813710AC 000415CC  9B ED A9 56 */	stb r31, funcResult__Q23www10wiisetting@sda21(r0)
+/* 813710B0 000415D0  48 00 00 78 */	b .L_81371128
+.L_813710B4:
+/* 813710B4 000415D4  38 60 00 01 */	li r3, 0x1
+/* 813710B8 000415D8  48 08 AD 35 */	bl checkMistake__Q33ipl8parental8ParentalFUc
+/* 813710BC 000415DC  7C 7F 1B 78 */	mr r31, r3
+/* 813710C0 000415E0  38 7E 08 44 */	addi r3, r30, 0x844
+/* 813710C4 000415E4  57 E4 06 3E */	clrlwi r4, r31, 24
+/* 813710C8 000415E8  4C C6 31 82 */	crclr cr1eq
+/* 813710CC 000415EC  48 1B D5 D5 */	bl OSReport
+/* 813710D0 000415F0  9B ED A9 56 */	stb r31, funcResult__Q23www10wiisetting@sda21(r0)
+/* 813710D4 000415F4  48 00 00 54 */	b .L_81371128
+.L_813710D8:
+/* 813710D8 000415F8  38 60 00 02 */	li r3, 0x2
+/* 813710DC 000415FC  48 08 AD 11 */	bl checkMistake__Q33ipl8parental8ParentalFUc
+/* 813710E0 00041600  7C 7F 1B 78 */	mr r31, r3
+/* 813710E4 00041604  38 7E 08 44 */	addi r3, r30, 0x844
+/* 813710E8 00041608  57 E4 06 3E */	clrlwi r4, r31, 24
+/* 813710EC 0004160C  4C C6 31 82 */	crclr cr1eq
+/* 813710F0 00041610  48 1B D5 B1 */	bl OSReport
+/* 813710F4 00041614  9B ED A9 56 */	stb r31, funcResult__Q23www10wiisetting@sda21(r0)
+/* 813710F8 00041618  48 00 00 30 */	b .L_81371128
+.L_813710FC:
+/* 813710FC 0004161C  48 08 A1 55 */	bl clearLocal__Q33ipl3ncd10NCDSettingFv
+/* 81371100 00041620  48 00 00 28 */	b .L_81371128
+.L_81371104:
+/* 81371104 00041624  48 08 A1 71 */	bl write__Q33ipl3ncd10NCDSettingFv
+/* 81371108 00041628  48 00 00 20 */	b .L_81371128
+.L_8137110C:
+/* 8137110C 0004162C  48 08 AF 79 */	bl write__Q33ipl8parental8ParentalFv
+/* 81371110 00041630  48 00 00 18 */	b .L_81371128
+.L_81371114:
+/* 81371114 00041634  48 08 B0 09 */	bl clear__Q33ipl8parental8ParentalFv
+.L_81371118:
+/* 81371118 00041638  48 08 AA B1 */	bl checkRestrictions__Q33ipl8parental8ParentalFv
+/* 8137111C 0004163C  3C 80 81 09 */	lis r4, sWiiData__Q23www10wiisetting@ha
+/* 81371120 00041640  38 84 A4 B8 */	addi r4, r4, sWiiData__Q23www10wiisetting@l
+/* 81371124 00041644  98 64 00 40 */	stb r3, 0x40(r4)
+.L_81371128:
+/* 81371128 00041648  3C 60 81 09 */	lis r3, sWiiData__Q23www10wiisetting@ha
+/* 8137112C 0004164C  38 00 00 00 */	li r0, 0x0
+/* 81371130 00041650  38 63 A4 B8 */	addi r3, r3, sWiiData__Q23www10wiisetting@l
+/* 81371134 00041654  98 03 00 1C */	stb r0, 0x1c(r3)
+/* 81371138 00041658  83 E1 00 0C */	lwz r31, 0xc(r1)
+/* 8137113C 0004165C  83 C1 00 08 */	lwz r30, 0x8(r1)
+/* 81371140 00041660  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 81371144 00041664  7C 08 03 A6 */	mtlr r0
+/* 81371148 00041668  38 21 00 10 */	addi r1, r1, 0x10
+/* 8137114C 0004166C  4E 80 00 20 */	blr
+.endfn startFunc__Q23www10wiisettingFUc
+
+# .text:0x1780 | 0x81371150 | size: 0xC
+# www::wiisetting::getWiiSettingData()
+.fn getWiiSettingData__Q23www10wiisettingFv, global
+/* 81371150 00041670  3C 60 81 09 */	lis r3, sWiiData__Q23www10wiisetting@ha
+/* 81371154 00041674  38 63 A4 B8 */	addi r3, r3, sWiiData__Q23www10wiisetting@l
+/* 81371158 00041678  4E 80 00 20 */	blr
+.endfn getWiiSettingData__Q23www10wiisettingFv
+
+# .text:0x178C | 0x8137115C | size: 0x8
+# www::wiisetting::getWiiSettingFlag()
+.fn getWiiSettingFlag__Q23www10wiisettingFv, global
+/* 8137115C 0004167C  38 6D A9 4C */	li r3, wiiFlag__Q23www10wiisetting@sda21
+/* 81371160 00041680  4E 80 00 20 */	blr
+.endfn getWiiSettingFlag__Q23www10wiisettingFv
+
+# .text:0x1794 | 0x81371164 | size: 0x8
+# www::wiisetting::setStringBuf(www::wiisetting::SetStringBuf*)
+.fn setStringBuf__Q23www10wiisettingFPQ33www10wiisetting12SetStringBuf, global
+/* 81371164 00041684  90 6D A9 5C */	stw r3, pString__Q23www10wiisetting@sda21(r0)
+/* 81371168 00041688  4E 80 00 20 */	blr
+.endfn setStringBuf__Q23www10wiisettingFPQ33www10wiisetting12SetStringBuf
+
+# .text:0x179C | 0x8137116C | size: 0x8
+# www::wiisetting::setInitSetupFlag(unsigned char)
+.fn setInitSetupFlag__Q23www10wiisettingFUc, global
+/* 8137116C 0004168C  98 6D A9 57 */	stb r3, setupFlag__Q23www10wiisetting@sda21(r0)
+/* 81371170 00041690  4E 80 00 20 */	blr
+.endfn setInitSetupFlag__Q23www10wiisettingFUc
+
+# .text:0x17A4 | 0x81371174 | size: 0x40
+# www::wiisetting::setFuncResult(unsigned char)
+.fn setFuncResult__Q23www10wiisettingFUc, global
+/* 81371174 00041694  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 81371178 00041698  7C 08 02 A6 */	mflr r0
+/* 8137117C 0004169C  90 01 00 14 */	stw r0, 0x14(r1)
+/* 81371180 000416A0  93 E1 00 0C */	stw r31, 0xc(r1)
+/* 81371184 000416A4  7C 7F 1B 78 */	mr r31, r3
+/* 81371188 000416A8  3C 60 81 64 */	lis r3, lbl_816448E4@ha
+/* 8137118C 000416AC  7F E4 FB 78 */	mr r4, r31
+/* 81371190 000416B0  38 63 48 E4 */	addi r3, r3, lbl_816448E4@l
+/* 81371194 000416B4  4C C6 31 82 */	crclr cr1eq
+/* 81371198 000416B8  48 1B D5 09 */	bl OSReport
+/* 8137119C 000416BC  9B ED A9 56 */	stb r31, funcResult__Q23www10wiisetting@sda21(r0)
+/* 813711A0 000416C0  83 E1 00 0C */	lwz r31, 0xc(r1)
+/* 813711A4 000416C4  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 813711A8 000416C8  7C 08 03 A6 */	mtlr r0
+/* 813711AC 000416CC  38 21 00 10 */	addi r1, r1, 0x10
+/* 813711B0 000416D0  4E 80 00 20 */	blr
+.endfn setFuncResult__Q23www10wiisettingFUc
+
+# .text:0x17E4 | 0x813711B4 | size: 0x34
+# www::wiisetting::getFuncResult()
+.fn getFuncResult__Q23www10wiisettingFv, global
+/* 813711B4 000416D4  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 813711B8 000416D8  7C 08 02 A6 */	mflr r0
+/* 813711BC 000416DC  3C 60 81 64 */	lis r3, lbl_81644A98@ha
+/* 813711C0 000416E0  90 01 00 14 */	stw r0, 0x14(r1)
+/* 813711C4 000416E4  38 63 4A 98 */	addi r3, r3, lbl_81644A98@l
+/* 813711C8 000416E8  88 8D A9 56 */	lbz r4, funcResult__Q23www10wiisetting@sda21(r0)
+/* 813711CC 000416EC  4C C6 31 82 */	crclr cr1eq
+/* 813711D0 000416F0  48 1B D4 D1 */	bl OSReport
+/* 813711D4 000416F4  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 813711D8 000416F8  88 6D A9 56 */	lbz r3, funcResult__Q23www10wiisetting@sda21(r0)
+/* 813711DC 000416FC  7C 08 03 A6 */	mtlr r0
+/* 813711E0 00041700  38 21 00 10 */	addi r1, r1, 0x10
+/* 813711E4 00041704  4E 80 00 20 */	blr
+.endfn getFuncResult__Q23www10wiisettingFv
+
+# .text:0x1818 | 0x813711E8 | size: 0x8
+# www::wiisetting::setMsgQueue(OSMessageQueue*)
+.fn setMsgQueue__Q23www10wiisettingFP14OSMessageQueue, global
+/* 813711E8 00041708  90 6D A9 58 */	stw r3, mQueue__Q23www10wiisetting@sda21(r0)
+/* 813711EC 0004170C  4E 80 00 20 */	blr
+.endfn setMsgQueue__Q23www10wiisettingFP14OSMessageQueue
+
+# 0x8160F060..0x8160F378 | size: 0x318
+.rodata
+.balign 8
+
+# .rodata:0x0 | 0x8160F060 | size: 0x90
+.obj lbl_8160F060, global
+	.4byte 0x00010203
+	.4byte 0x04050607
+	.4byte 0x08090A0B
+	.4byte 0x0C0D0E0F
+	.4byte 0x10111213
+	.4byte 0x14151617
+	.4byte 0x18191A1B
+	.4byte 0x1C1D1E1F
+	.4byte 0x202122A6
+	.4byte 0x91232425
+	.4byte 0x262728A0
+	.4byte 0x292A2B2C
+	.4byte 0x00011EA6
+	.4byte 0x02030405
+	.4byte 0x0607080A
+	.4byte 0x0C0D0E0F
+	.4byte 0xA0112914
+	.4byte 0x15161318
+	.4byte 0x190B282B
+	.4byte 0x091A1B1C
+	.4byte 0x1D1F2021
+	.4byte 0x22171024
+	.4byte 0x23251291
+	.4byte 0x26272A2C
+	.4byte 0x00011EA6
+	.4byte 0x02030405
+	.4byte 0x0607080A
+	.4byte 0x0C0D0E0F
+	.4byte 0x1112A029
+	.4byte 0x14151613
+	.4byte 0x1718190B
+	.4byte 0x282B091A
+	.4byte 0x1B1C1D1F
+	.4byte 0x20212210
+	.4byte 0x23252491
+	.4byte 0x26272A2C
+.endobj lbl_8160F060
+
+# .rodata:0x90 | 0x8160F0F0 | size: 0x164
+.obj lbl_8160F0F0, global
+	.4byte 0x00010231
+	.4byte 0x03040506
+	.4byte 0x35070809
+	.4byte 0x0A38370B
+	.4byte 0x0C0D190E
+	.4byte 0x0F101169
+	.4byte 0x12131415
+	.4byte 0x16171833
+	.4byte 0x1A321B1C
+	.4byte 0x1D1E1F34
+	.4byte 0x20212223
+	.4byte 0x24252627
+	.4byte 0x39282936
+	.4byte 0x2A2B2C2D
+	.4byte 0x2E2F3000
+	.4byte 0x31010304
+	.4byte 0x05060A0E
+	.4byte 0x38370B0C
+	.4byte 0x0D0F2E69
+	.4byte 0x12111307
+	.4byte 0x15141617
+	.4byte 0x18331A32
+	.4byte 0x191B1C1D
+	.4byte 0x1F1E3420
+	.4byte 0x02212223
+	.4byte 0x242F2B2C
+	.4byte 0x25302627
+	.4byte 0x39292836
+	.4byte 0x2A35092D
+	.4byte 0x10082800
+	.4byte 0x0E010231
+	.4byte 0x03040506
+	.4byte 0x08070A38
+	.4byte 0x37290B0C
+	.4byte 0x0D0F1069
+	.4byte 0x12111315
+	.4byte 0x14161718
+	.4byte 0x19331A32
+	.4byte 0x1B1C1D34
+	.4byte 0x201F1E21
+	.4byte 0x2209232E
+	.4byte 0x24252627
+	.4byte 0x39362B2C
+	.4byte 0x2A352D2F
+	.4byte 0x30000E01
+	.4byte 0x02310304
+	.4byte 0x05063508
+	.4byte 0x070A3726
+	.4byte 0x27290B0C
+	.4byte 0x0D0F1069
+	.4byte 0x12111315
+	.4byte 0x14161718
+	.4byte 0x19331A32
+	.4byte 0x1B1C1D34
+	.4byte 0x201F1E21
+	.4byte 0x222E0923
+	.4byte 0x2425392A
+	.4byte 0x28362B2C
+	.4byte 0x2D382F30
+	.4byte 0x00010231
+	.4byte 0x03040506
+	.4byte 0x3508070A
+	.4byte 0x370B0C0D
+	.4byte 0x0E380F69
+	.4byte 0x12111315
+	.4byte 0x14161718
+	.4byte 0x19331A32
+	.4byte 0x1B1C1D34
+	.4byte 0x201F1E21
+	.4byte 0x222E0928
+	.4byte 0x23242526
+	.4byte 0x27392936
+	.4byte 0x2B2C2A2D
+	.4byte 0x102F3000
+	.4byte 0x01310304
+	.4byte 0x0506080A
+	.4byte 0x380E370B
+	.4byte 0x0C0D0F10
+	.4byte 0x12116913
+	.4byte 0x07151416
+	.4byte 0x17181933
+	.4byte 0x1A321B1C
+	.4byte 0x1D1E1F34
+	.4byte 0x20022122
+	.4byte 0x23242527
+	.4byte 0x26363929
+	.4byte 0x2A35092D
+	.4byte 0x2E2F3028
+	.4byte 0x2B2C0000
+.endobj lbl_8160F0F0
+
+# .rodata:0x1F4 | 0x8160F254 | size: 0x120
+.obj lbl_8160F254, global
+	.4byte lbl_81696329
+	.4byte lbl_81696331
+	.4byte lbl_8164462C
+	.4byte lbl_81696337
+	.4byte lbl_8169633F
+	.4byte lbl_81644635
+	.4byte lbl_81696343
+	.4byte lbl_8164463E
+	.4byte lbl_8164464A
+	.4byte lbl_81644656
+	.4byte lbl_8169634B
+	.4byte lbl_81696351
+	.4byte lbl_81696356
+	.4byte lbl_8169635C
+	.4byte lbl_81696361
+	.4byte lbl_81696366
+	.4byte lbl_8169636D
+	.4byte lbl_81696374
+	.4byte lbl_8169637B
+	.4byte lbl_81696383
+	.4byte lbl_81644660
+	.4byte lbl_8164466C
+	.4byte lbl_81644679
+	.4byte lbl_81644686
+	.4byte lbl_81644693
+	.4byte lbl_8164469D
+	.4byte lbl_816446A8
+	.4byte lbl_81696388
+	.4byte lbl_816446B1
+	.4byte lbl_816446BC
+	.4byte lbl_8169638F
+	.4byte lbl_81696396
+	.4byte lbl_8169639E
+	.4byte lbl_816446C9
+	.4byte lbl_816446D3
+	.4byte lbl_816446DC
+	.4byte lbl_816446E6
+	.4byte lbl_816446F0
+	.4byte lbl_816446FB
+	.4byte lbl_8164470D
+	.4byte lbl_8164471A
+	.4byte lbl_816963A1
+	.4byte lbl_81644724
+	.4byte lbl_816963A6
+	.4byte lbl_816963AA
+	.4byte lbl_8164472D
+	.4byte lbl_816963AF
+	.4byte lbl_81644736
+	.4byte lbl_8164473F
+	.4byte lbl_816963B3
+	.4byte lbl_816963B7
+	.4byte lbl_8164474C
+	.4byte lbl_816963BD
+	.4byte lbl_81644758
+	.4byte lbl_816963C3
+	.4byte lbl_816963C6
+	.4byte lbl_816963CC
+	.4byte lbl_816963D3
+	.4byte lbl_81644762
+	.4byte lbl_816963D9
+	.4byte lbl_8164476B
+	.4byte lbl_81644777
+	.4byte lbl_81644784
+	.4byte lbl_8164478F
+	.4byte lbl_816963E1
+	.4byte lbl_8164479C
+	.4byte lbl_816447A6
+	.4byte lbl_816963E8
+	.4byte lbl_816963ED
+	.4byte lbl_816447B2
+	.4byte lbl_816447BD
+	.4byte 0x00000000
+.endobj lbl_8160F254
+	.4byte 0x00000000
+
+# 0x816440A0..0x81644AB0 | size: 0xA10
+.data
+.balign 8
+
+# .data:0x0 | 0x816440A0 | size: 0x38
+.obj lbl_816440A0, global
+	.4byte 0x5B546963
+	.4byte 0x6B54696D
+	.4byte 0x65725D00
+	.4byte 0x5B576172
+	.4byte 0x6E696E67
+	.4byte 0x5D005B5B
+	.4byte 0x4576656E
+	.4byte 0x745D5D00
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+.endobj lbl_816440A0
+
+# .data:0x38 | 0x816440D8 | size: 0xB
+.obj lbl_816440D8, global
+	.string "wiiSetting"
+.endobj lbl_816440D8
+
+# .data:0x43 | 0x816440E3 | size: 0xF
+.obj lbl_816440E3, global
+	.string "wiiSetting.dll"
+.endobj lbl_816440E3
+
+# .data:0x52 | 0x816440F2 | size: 0x1F
+.obj lbl_816440F2, global
+	.string "WWW_WiiSetting: AddJSPlugin()\n"
+.endobj lbl_816440F2
+
+# .data:0x71 | 0x81644111 | size: 0xB
+.obj lbl_81644111, global
+	.string "wiiSetting"
+.endobj lbl_81644111
+
+# .data:0x7C | 0x8164411C | size: 0x25
+.obj lbl_8164411C, global
+	.string "WWW_TRASITION: call globalGetter_()\n"
+.endobj lbl_8164411C
+
+# .data:0xA1 | 0x81644141 | size: 0x1A
+.obj lbl_81644141, global
+	.string "wiiSetting: GlobalGetter\n"
+.endobj lbl_81644141
+
+# .data:0xBB | 0x8164415B | size: 0x1F
+.obj lbl_8164415B, global
+	.string "wiiSetting: ObjectConstructor\n"
+.endobj lbl_8164415B
+
+# .data:0xDA | 0x8164417A | size: 0xD
+.obj lbl_8164417A, global
+	.string "CallOSReport"
+.endobj lbl_8164417A
+
+# .data:0xE7 | 0x81644187 | size: 0xA
+.obj lbl_81644187, global
+	.string "WriteBack"
+.endobj lbl_81644187
+
+# .data:0xF1 | 0x81644191 | size: 0xC
+.obj lbl_81644191, global
+	.string "mode %d %d\n"
+.endobj lbl_81644191
+
+# .data:0xFD | 0x8164419D | size: 0xC
+.obj lbl_8164419D, global
+	.string "len ::: %d\n"
+.endobj lbl_8164419D
+	.byte 0x00, 0x00, 0x00
+
+# .data:0x10C | 0x816441AC | size: 0x120
+.obj jumptable_816441AC, local
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370450
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_813700D8
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_813700F0
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370108
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_8137011C
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_8137011C
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370140
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370450
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370154
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370168
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_8137017C
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370450
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370190
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_813701A8
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_813701C0
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_813701D4
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_813701E8
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370450
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370450
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370450
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370450
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_813701FC
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370210
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370228
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370240
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370258
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370450
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370450
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370450
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_8137026C
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370288
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_813702A4
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_813702B8
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370450
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_813702CC
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_813702D4
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_813702DC
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_813702F0
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370450
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370450
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370304
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370318
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_8137032C
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370340
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370378
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370450
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_8137035C
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_8137038C
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370450
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_813703A0
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_813703B4
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_813703C8
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_813703DC
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370450
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370450
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370450
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370450
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370450
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370450
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_813703F0
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370450
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370450
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370404
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370418
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370450
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370450
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370450
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_8137042C
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370440
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370450
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370450
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370450
+.endobj jumptable_816441AC
+
+# .data:0x22C | 0x816442CC | size: 0x64
+.obj jumptable_816442CC, local
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370078
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_8136FE48
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_8136FF40
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_8136FE54
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_8136FE64
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_8136FE74
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_8136FE84
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_8136FE94
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_8136FEA4
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_8136FE30
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_8136FEB4
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_8136FEC4
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_8136FED4
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_8136FEE4
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_8136FEF4
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370078
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370078
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370078
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_8136FF04
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370078
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_8136FF14
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_8136FE3C
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_8137000C
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_8136FF20
+	.rel Getter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_8136FF30
+.endobj jumptable_816442CC
+
+# .data:0x290 | 0x81644330 | size: 0x25
+.obj lbl_81644330, local
+	.string "wiiSetting: Setter_ name:%s type:%d\n"
+.endobj lbl_81644330
+
+# .data:0x2B5 | 0x81644355 | size: 0xF
+.obj lbl_81644355, local
+	.string "id:%d data:%d\n"
+.endobj lbl_81644355
+
+# .data:0x2C4 | 0x81644364 | size: 0x2B
+.obj lbl_81644364, local
+	.string "!!!!!!!!!!!!!!!!!!!SC FLUSH!!!!!!!!!!!!!!\n"
+.endobj lbl_81644364
+	.byte 0x00
+
+# .data:0x2F0 | 0x81644390 | size: 0x118
+.obj jumptable_81644390, local
+	.rel Setter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370A9C
+	.rel Setter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370798
+	.rel Setter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370A9C
+	.rel Setter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370A9C
+	.rel Setter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370A9C
+	.rel Setter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370A9C
+	.rel Setter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370A9C
+	.rel Setter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370784
+	.rel Setter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370A9C
+	.rel Setter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370A9C
+	.rel Setter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370A9C
+	.rel Setter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_813707B0
+	.rel Setter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370A9C
+	.rel Setter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370A9C
+	.rel Setter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370A9C
+	.rel Setter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370A9C
+	.rel Setter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370A9C
+	.rel Setter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370A9C
+	.rel Setter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370A9C
+	.rel Setter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370A9C
+	.rel Setter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370A9C
+	.rel Setter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370A9C
+	.rel Setter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370A9C
+	.rel Setter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370A9C
+	.rel Setter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370A9C
+	.rel Setter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370808
+	.rel Setter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_8137081C
+	.rel Setter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370824
+	.rel Setter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370838
+	.rel Setter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370A9C
+	.rel Setter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370854
+	.rel Setter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_8137087C
+	.rel Setter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370890
+	.rel Setter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370A9C
+	.rel Setter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370A9C
+	.rel Setter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370A9C
+	.rel Setter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_813708A4
+	.rel Setter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_813708B8
+	.rel Setter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370870
+	.rel Setter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_813708CC
+	.rel Setter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370A9C
+	.rel Setter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_813708E0
+	.rel Setter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370928
+	.rel Setter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_8137093C
+	.rel Setter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370A9C
+	.rel Setter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_813708F8
+	.rel Setter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_8137091C
+	.rel Setter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370A9C
+	.rel Setter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370A9C
+	.rel Setter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370A9C
+	.rel Setter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370A9C
+	.rel Setter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370948
+	.rel Setter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370A9C
+	.rel Setter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370A9C
+	.rel Setter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370A9C
+	.rel Setter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370A9C
+	.rel Setter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370A9C
+	.rel Setter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370A9C
+	.rel Setter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370A50
+	.rel Setter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370A9C
+	.rel Setter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370950
+	.rel Setter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370A3C
+	.rel Setter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370A9C
+	.rel Setter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370A9C
+	.rel Setter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370A9C
+	.rel Setter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370A9C
+	.rel Setter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370A9C
+	.rel Setter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370A9C
+	.rel Setter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370A9C
+	.rel Setter___Q23www10wiisettingFP14WWWJSPluginObjPCcP16WWWJSPluginValue, .L_81370A9C
+.endobj jumptable_81644390
+
+# .data:0x408 | 0x816444A8 | size: 0x17
+.obj lbl_816444A8, global
+	.string "wiiOSReport Success!!\n"
+.endobj lbl_816444A8
+
+# .data:0x41F | 0x816444BF | size: 0x25
+.obj lbl_816444BF, global
+	.string "WriteBack id:%d data:%d savedata:%d\n"
+.endobj lbl_816444BF
+
+# .data:0x444 | 0x816444E4 | size: 0x14
+.obj lbl_816444E4, global
+	.string "Send Func MsgQ: %d\n"
+.endobj lbl_816444E4
+
+# .data:0x458 | 0x816444F8 | size: 0x2E
+.obj lbl_816444F8, global
+	.string "!!!!!!!!!!!!!!!!!!!SC FLUSH!!!!!!!!!!!!!!!!!\n"
+.endobj lbl_816444F8
+	.2byte 0x0000
+
+# .data:0x488 | 0x81644528 | size: 0x104
+.obj jumptable_81644528, local
+	.rel wiiWriteBack__Q23www10wiisettingFP14WWWJSPluginObjP14WWWJSPluginObjiP16WWWJSPluginValueP16WWWJSPluginValue, .L_81370DFC
+	.rel wiiWriteBack__Q23www10wiisettingFP14WWWJSPluginObjP14WWWJSPluginObjiP16WWWJSPluginValueP16WWWJSPluginValue, .L_81370B80
+	.rel wiiWriteBack__Q23www10wiisettingFP14WWWJSPluginObjP14WWWJSPluginObjiP16WWWJSPluginValueP16WWWJSPluginValue, .L_81370B8C
+	.rel wiiWriteBack__Q23www10wiisettingFP14WWWJSPluginObjP14WWWJSPluginObjiP16WWWJSPluginValueP16WWWJSPluginValue, .L_81370DFC
+	.rel wiiWriteBack__Q23www10wiisettingFP14WWWJSPluginObjP14WWWJSPluginObjiP16WWWJSPluginValueP16WWWJSPluginValue, .L_81370C38
+	.rel wiiWriteBack__Q23www10wiisettingFP14WWWJSPluginObjP14WWWJSPluginObjiP16WWWJSPluginValueP16WWWJSPluginValue, .L_81370C38
+	.rel wiiWriteBack__Q23www10wiisettingFP14WWWJSPluginObjP14WWWJSPluginObjiP16WWWJSPluginValueP16WWWJSPluginValue, .L_81370C7C
+	.rel wiiWriteBack__Q23www10wiisettingFP14WWWJSPluginObjP14WWWJSPluginObjiP16WWWJSPluginValueP16WWWJSPluginValue, .L_81370CA0
+	.rel wiiWriteBack__Q23www10wiisettingFP14WWWJSPluginObjP14WWWJSPluginObjiP16WWWJSPluginValueP16WWWJSPluginValue, .L_81370CF4
+	.rel wiiWriteBack__Q23www10wiisettingFP14WWWJSPluginObjP14WWWJSPluginObjiP16WWWJSPluginValueP16WWWJSPluginValue, .L_81370D00
+	.rel wiiWriteBack__Q23www10wiisettingFP14WWWJSPluginObjP14WWWJSPluginObjiP16WWWJSPluginValueP16WWWJSPluginValue, .L_81370D18
+	.rel wiiWriteBack__Q23www10wiisettingFP14WWWJSPluginObjP14WWWJSPluginObjiP16WWWJSPluginValueP16WWWJSPluginValue, .L_81370CE8
+	.rel wiiWriteBack__Q23www10wiisettingFP14WWWJSPluginObjP14WWWJSPluginObjiP16WWWJSPluginValueP16WWWJSPluginValue, .L_81370D24
+	.rel wiiWriteBack__Q23www10wiisettingFP14WWWJSPluginObjP14WWWJSPluginObjiP16WWWJSPluginValueP16WWWJSPluginValue, .L_81370DFC
+	.rel wiiWriteBack__Q23www10wiisettingFP14WWWJSPluginObjP14WWWJSPluginObjiP16WWWJSPluginValueP16WWWJSPluginValue, .L_81370DFC
+	.rel wiiWriteBack__Q23www10wiisettingFP14WWWJSPluginObjP14WWWJSPluginObjiP16WWWJSPluginValueP16WWWJSPluginValue, .L_81370D6C
+	.rel wiiWriteBack__Q23www10wiisettingFP14WWWJSPluginObjP14WWWJSPluginObjiP16WWWJSPluginValueP16WWWJSPluginValue, .L_81370DFC
+	.rel wiiWriteBack__Q23www10wiisettingFP14WWWJSPluginObjP14WWWJSPluginObjiP16WWWJSPluginValueP16WWWJSPluginValue, .L_81370DFC
+	.rel wiiWriteBack__Q23www10wiisettingFP14WWWJSPluginObjP14WWWJSPluginObjiP16WWWJSPluginValueP16WWWJSPluginValue, .L_81370DFC
+	.rel wiiWriteBack__Q23www10wiisettingFP14WWWJSPluginObjP14WWWJSPluginObjiP16WWWJSPluginValueP16WWWJSPluginValue, .L_81370DFC
+	.rel wiiWriteBack__Q23www10wiisettingFP14WWWJSPluginObjP14WWWJSPluginObjiP16WWWJSPluginValueP16WWWJSPluginValue, .L_81370DFC
+	.rel wiiWriteBack__Q23www10wiisettingFP14WWWJSPluginObjP14WWWJSPluginObjiP16WWWJSPluginValueP16WWWJSPluginValue, .L_81370DFC
+	.rel wiiWriteBack__Q23www10wiisettingFP14WWWJSPluginObjP14WWWJSPluginObjiP16WWWJSPluginValueP16WWWJSPluginValue, .L_81370DFC
+	.rel wiiWriteBack__Q23www10wiisettingFP14WWWJSPluginObjP14WWWJSPluginObjiP16WWWJSPluginValueP16WWWJSPluginValue, .L_81370DFC
+	.rel wiiWriteBack__Q23www10wiisettingFP14WWWJSPluginObjP14WWWJSPluginObjiP16WWWJSPluginValueP16WWWJSPluginValue, .L_81370DFC
+	.rel wiiWriteBack__Q23www10wiisettingFP14WWWJSPluginObjP14WWWJSPluginObjiP16WWWJSPluginValueP16WWWJSPluginValue, .L_81370DFC
+	.rel wiiWriteBack__Q23www10wiisettingFP14WWWJSPluginObjP14WWWJSPluginObjiP16WWWJSPluginValueP16WWWJSPluginValue, .L_81370DFC
+	.rel wiiWriteBack__Q23www10wiisettingFP14WWWJSPluginObjP14WWWJSPluginObjiP16WWWJSPluginValueP16WWWJSPluginValue, .L_81370DFC
+	.rel wiiWriteBack__Q23www10wiisettingFP14WWWJSPluginObjP14WWWJSPluginObjiP16WWWJSPluginValueP16WWWJSPluginValue, .L_81370DFC
+	.rel wiiWriteBack__Q23www10wiisettingFP14WWWJSPluginObjP14WWWJSPluginObjiP16WWWJSPluginValueP16WWWJSPluginValue, .L_81370DFC
+	.rel wiiWriteBack__Q23www10wiisettingFP14WWWJSPluginObjP14WWWJSPluginObjiP16WWWJSPluginValueP16WWWJSPluginValue, .L_81370DFC
+	.rel wiiWriteBack__Q23www10wiisettingFP14WWWJSPluginObjP14WWWJSPluginObjiP16WWWJSPluginValueP16WWWJSPluginValue, .L_81370DFC
+	.rel wiiWriteBack__Q23www10wiisettingFP14WWWJSPluginObjP14WWWJSPluginObjiP16WWWJSPluginValueP16WWWJSPluginValue, .L_81370DFC
+	.rel wiiWriteBack__Q23www10wiisettingFP14WWWJSPluginObjP14WWWJSPluginObjiP16WWWJSPluginValueP16WWWJSPluginValue, .L_81370DFC
+	.rel wiiWriteBack__Q23www10wiisettingFP14WWWJSPluginObjP14WWWJSPluginObjiP16WWWJSPluginValueP16WWWJSPluginValue, .L_81370DFC
+	.rel wiiWriteBack__Q23www10wiisettingFP14WWWJSPluginObjP14WWWJSPluginObjiP16WWWJSPluginValueP16WWWJSPluginValue, .L_81370DFC
+	.rel wiiWriteBack__Q23www10wiisettingFP14WWWJSPluginObjP14WWWJSPluginObjiP16WWWJSPluginValueP16WWWJSPluginValue, .L_81370DFC
+	.rel wiiWriteBack__Q23www10wiisettingFP14WWWJSPluginObjP14WWWJSPluginObjiP16WWWJSPluginValueP16WWWJSPluginValue, .L_81370DFC
+	.rel wiiWriteBack__Q23www10wiisettingFP14WWWJSPluginObjP14WWWJSPluginObjiP16WWWJSPluginValueP16WWWJSPluginValue, .L_81370DFC
+	.rel wiiWriteBack__Q23www10wiisettingFP14WWWJSPluginObjP14WWWJSPluginObjiP16WWWJSPluginValueP16WWWJSPluginValue, .L_81370DFC
+	.rel wiiWriteBack__Q23www10wiisettingFP14WWWJSPluginObjP14WWWJSPluginObjiP16WWWJSPluginValueP16WWWJSPluginValue, .L_81370DFC
+	.rel wiiWriteBack__Q23www10wiisettingFP14WWWJSPluginObjP14WWWJSPluginObjiP16WWWJSPluginValueP16WWWJSPluginValue, .L_81370DFC
+	.rel wiiWriteBack__Q23www10wiisettingFP14WWWJSPluginObjP14WWWJSPluginObjiP16WWWJSPluginValueP16WWWJSPluginValue, .L_81370DFC
+	.rel wiiWriteBack__Q23www10wiisettingFP14WWWJSPluginObjP14WWWJSPluginObjiP16WWWJSPluginValueP16WWWJSPluginValue, .L_81370DFC
+	.rel wiiWriteBack__Q23www10wiisettingFP14WWWJSPluginObjP14WWWJSPluginObjiP16WWWJSPluginValueP16WWWJSPluginValue, .L_81370DFC
+	.rel wiiWriteBack__Q23www10wiisettingFP14WWWJSPluginObjP14WWWJSPluginObjiP16WWWJSPluginValueP16WWWJSPluginValue, .L_81370DC8
+	.rel wiiWriteBack__Q23www10wiisettingFP14WWWJSPluginObjP14WWWJSPluginObjiP16WWWJSPluginValueP16WWWJSPluginValue, .L_81370DFC
+	.rel wiiWriteBack__Q23www10wiisettingFP14WWWJSPluginObjP14WWWJSPluginObjiP16WWWJSPluginValueP16WWWJSPluginValue, .L_81370DE0
+	.rel wiiWriteBack__Q23www10wiisettingFP14WWWJSPluginObjP14WWWJSPluginObjiP16WWWJSPluginValueP16WWWJSPluginValue, .L_81370DA4
+	.rel wiiWriteBack__Q23www10wiisettingFP14WWWJSPluginObjP14WWWJSPluginObjiP16WWWJSPluginValueP16WWWJSPluginValue, .L_81370DFC
+	.rel wiiWriteBack__Q23www10wiisettingFP14WWWJSPluginObjP14WWWJSPluginObjiP16WWWJSPluginValueP16WWWJSPluginValue, .L_81370DFC
+	.rel wiiWriteBack__Q23www10wiisettingFP14WWWJSPluginObjP14WWWJSPluginObjiP16WWWJSPluginValueP16WWWJSPluginValue, .L_81370DFC
+	.rel wiiWriteBack__Q23www10wiisettingFP14WWWJSPluginObjP14WWWJSPluginObjiP16WWWJSPluginValueP16WWWJSPluginValue, .L_81370DFC
+	.rel wiiWriteBack__Q23www10wiisettingFP14WWWJSPluginObjP14WWWJSPluginObjiP16WWWJSPluginValueP16WWWJSPluginValue, .L_81370DFC
+	.rel wiiWriteBack__Q23www10wiisettingFP14WWWJSPluginObjP14WWWJSPluginObjiP16WWWJSPluginValueP16WWWJSPluginValue, .L_81370DFC
+	.rel wiiWriteBack__Q23www10wiisettingFP14WWWJSPluginObjP14WWWJSPluginObjiP16WWWJSPluginValueP16WWWJSPluginValue, .L_81370DFC
+	.rel wiiWriteBack__Q23www10wiisettingFP14WWWJSPluginObjP14WWWJSPluginObjiP16WWWJSPluginValueP16WWWJSPluginValue, .L_81370DFC
+	.rel wiiWriteBack__Q23www10wiisettingFP14WWWJSPluginObjP14WWWJSPluginObjiP16WWWJSPluginValueP16WWWJSPluginValue, .L_81370DFC
+	.rel wiiWriteBack__Q23www10wiisettingFP14WWWJSPluginObjP14WWWJSPluginObjiP16WWWJSPluginValueP16WWWJSPluginValue, .L_81370DFC
+	.rel wiiWriteBack__Q23www10wiisettingFP14WWWJSPluginObjP14WWWJSPluginObjiP16WWWJSPluginValueP16WWWJSPluginValue, .L_81370DFC
+	.rel wiiWriteBack__Q23www10wiisettingFP14WWWJSPluginObjP14WWWJSPluginObjiP16WWWJSPluginValueP16WWWJSPluginValue, .L_81370DF4
+	.rel wiiWriteBack__Q23www10wiisettingFP14WWWJSPluginObjP14WWWJSPluginObjiP16WWWJSPluginValueP16WWWJSPluginValue, .L_81370DFC
+	.rel wiiWriteBack__Q23www10wiisettingFP14WWWJSPluginObjP14WWWJSPluginObjiP16WWWJSPluginValueP16WWWJSPluginValue, .L_81370DFC
+	.rel wiiWriteBack__Q23www10wiisettingFP14WWWJSPluginObjP14WWWJSPluginObjiP16WWWJSPluginValueP16WWWJSPluginValue, .L_81370DFC
+	.rel wiiWriteBack__Q23www10wiisettingFP14WWWJSPluginObjP14WWWJSPluginObjiP16WWWJSPluginValueP16WWWJSPluginValue, .L_81370DD4
+.endobj jumptable_81644528
+
+# .data:0x58C | 0x8164462C | size: 0x9
+.obj lbl_8164462C, global
+	.string "internet"
+.endobj lbl_8164462C
+
+# .data:0x595 | 0x81644635 | size: 0x9
+.obj lbl_81644635, global
+	.string "dis_wide"
+.endobj lbl_81644635
+
+# .data:0x59E | 0x8164463E | size: 0xC
+.obj lbl_8164463E, global
+	.string "progressive"
+.endobj lbl_8164463E
+
+# .data:0x5AA | 0x8164464A | size: 0xC
+.obj lbl_8164464A, global
+	.string "screensaver"
+.endobj lbl_8164464A
+
+# .data:0x5B6 | 0x81644656 | size: 0xA
+.obj lbl_81644656, global
+	.string "sensorBar"
+.endobj lbl_81644656
+
+# .data:0x5C0 | 0x81644660 | size: 0xC
+.obj lbl_81644660, global
+	.string "connectType"
+.endobj lbl_81644660
+
+# .data:0x5CC | 0x8164466C | size: 0xD
+.obj lbl_8164466C, global
+	.string "connectType1"
+.endobj lbl_8164466C
+
+# .data:0x5D9 | 0x81644679 | size: 0xD
+.obj lbl_81644679, global
+	.string "connectType2"
+.endobj lbl_81644679
+
+# .data:0x5E6 | 0x81644686 | size: 0xD
+.obj lbl_81644686, global
+	.string "connectType3"
+.endobj lbl_81644686
+
+# .data:0x5F3 | 0x81644693 | size: 0xA
+.obj lbl_81644693, global
+	.string "profileID"
+.endobj lbl_81644693
+
+# .data:0x5FD | 0x8164469D | size: 0xB
+.obj lbl_8164469D, global
+	.string "selectWire"
+.endobj lbl_8164469D
+
+# .data:0x608 | 0x816446A8 | size: 0x9
+.obj lbl_816446A8, global
+	.string "wifiType"
+.endobj lbl_816446A8
+
+# .data:0x611 | 0x816446B1 | size: 0xB
+.obj lbl_816446B1, global
+	.string "funcResult"
+.endobj lbl_816446B1
+
+# .data:0x61C | 0x816446BC | size: 0xD
+.obj lbl_816446BC, global
+	.string "selectSecKey"
+.endobj lbl_816446BC
+
+# .data:0x629 | 0x816446C9 | size: 0xA
+.obj lbl_816446C9, global
+	.string "backupNCD"
+.endobj lbl_816446C9
+
+# .data:0x633 | 0x816446D3 | size: 0x9
+.obj lbl_816446D3, global
+	.string "resetNCD"
+.endobj lbl_816446D3
+
+# .data:0x63C | 0x816446DC | size: 0xA
+.obj lbl_816446DC, global
+	.string "autoProxy"
+.endobj lbl_816446DC
+
+# .data:0x646 | 0x816446E6 | size: 0xA
+.obj lbl_816446E6, global
+	.string "autoBasic"
+.endobj lbl_816446E6
+
+# .data:0x650 | 0x816446F0 | size: 0xB
+.obj lbl_816446F0, global
+	.string "backSecKey"
+.endobj lbl_816446F0
+
+# .data:0x65B | 0x816446FB | size: 0x12
+.obj lbl_816446FB, global
+	.string "changeConnectType"
+.endobj lbl_816446FB
+
+# .data:0x66D | 0x8164470D | size: 0xD
+.obj lbl_8164470D, global
+	.string "changeEnable"
+.endobj lbl_8164470D
+
+# .data:0x67A | 0x8164471A | size: 0xA
+.obj lbl_8164471A, global
+	.string "pare_flag"
+.endobj lbl_8164471A
+
+# .data:0x684 | 0x81644724 | size: 0x9
+.obj lbl_81644724, global
+	.string "secQSave"
+.endobj lbl_81644724
+
+# .data:0x68D | 0x8164472D | size: 0x9
+.obj lbl_8164472D, global
+	.string "rateSave"
+.endobj lbl_8164472D
+
+# .data:0x696 | 0x81644736 | size: 0x9
+.obj lbl_81644736, global
+	.string "language"
+.endobj lbl_81644736
+
+# .data:0x69F | 0x8164473F | size: 0xD
+.obj lbl_8164473F, global
+	.string "languageSave"
+.endobj lbl_8164473F
+
+# .data:0x6AC | 0x8164474C | size: 0xC
+.obj lbl_8164474C, global
+	.string "connectTest"
+.endobj lbl_8164474C
+
+# .data:0x6B8 | 0x81644758 | size: 0xA
+.obj lbl_81644758, global
+	.string "setstring"
+.endobj lbl_81644758
+
+# .data:0x6C2 | 0x81644762 | size: 0x9
+.obj lbl_81644762, global
+	.string "initFlag"
+.endobj lbl_81644762
+
+# .data:0x6CB | 0x8164476B | size: 0xC
+.obj lbl_8164476B, global
+	.string "countrySave"
+.endobj lbl_8164476B
+
+# .data:0x6D7 | 0x81644777 | size: 0xD
+.obj lbl_81644777, global
+	.string "macAvailable"
+.endobj lbl_81644777
+
+# .data:0x6E4 | 0x81644784 | size: 0xB
+.obj lbl_81644784, global
+	.string "updateType"
+.endobj lbl_81644784
+
+# .data:0x6EF | 0x8164478F | size: 0xD
+.obj lbl_8164478F, global
+	.string "restrictions"
+.endobj lbl_8164478F
+
+# .data:0x6FC | 0x8164479C | size: 0xA
+.obj lbl_8164479C, global
+	.string "subPageID"
+.endobj lbl_8164479C
+
+# .data:0x706 | 0x816447A6 | size: 0xC
+.obj lbl_816447A6, global
+	.string "productArea"
+.endobj lbl_816447A6
+
+# .data:0x712 | 0x816447B2 | size: 0xB
+.obj lbl_816447B2, global
+	.string "tvrc_maker"
+.endobj lbl_816447B2
+
+# .data:0x71D | 0x816447BD | size: 0xA
+.obj lbl_816447BD, global
+	.string "tvrc_type"
+.endobj lbl_816447BD
+
+# .data:0x727 | 0x816447C7 | size: 0x9
+.obj lbl_816447C7, global
+	.string "nickname"
+.endobj lbl_816447C7
+
+# .data:0x730 | 0x816447D0 | size: 0xC
+.obj lbl_816447D0, global
+	.string "securityKey"
+.endobj lbl_816447D0
+
+# .data:0x73C | 0x816447DC | size: 0xA
+.obj lbl_816447DC, global
+	.string "proxyPort"
+.endobj lbl_816447DC
+
+# .data:0x746 | 0x816447E6 | size: 0xA
+.obj lbl_816447E6, global
+	.string "basicName"
+.endobj lbl_816447E6
+
+# .data:0x750 | 0x816447F0 | size: 0xA
+.obj lbl_816447F0, global
+	.string "basicPass"
+.endobj lbl_816447F0
+
+# .data:0x75A | 0x816447FA | size: 0xA
+.obj lbl_816447FA, global
+	.string "pare_pass"
+.endobj lbl_816447FA
+
+# .data:0x764 | 0x81644804 | size: 0xC
+.obj lbl_81644804, global
+	.string "pare_repass"
+.endobj lbl_81644804
+
+# .data:0x770 | 0x81644810 | size: 0xF
+.obj lbl_81644810, global
+	.string "pare_judgepass"
+.endobj lbl_81644810
+
+# .data:0x77F | 0x8164481F | size: 0x9
+.obj lbl_8164481F, global
+	.string "dummySec"
+.endobj lbl_8164481F
+
+# .data:0x788 | 0x81644828 | size: 0xA
+.obj lbl_81644828, global
+	.string "directUrl"
+.endobj lbl_81644828
+	.2byte 0x0000
+
+# .data:0x794 | 0x81644834 | size: 0x64
+.obj lbl_81644834, global
+	.4byte lbl_816447C7
+	.4byte lbl_816447D0
+	.4byte lbl_816963F2
+	.4byte lbl_816963F7
+	.4byte lbl_816963FE
+	.4byte lbl_81696405
+	.4byte lbl_8169640D
+	.4byte lbl_81696412
+	.4byte lbl_81696417
+	.4byte lbl_8169641F
+	.4byte lbl_816447DC
+	.4byte lbl_816447E6
+	.4byte lbl_816447F0
+	.4byte lbl_81696425
+	.4byte lbl_816447FA
+	.4byte lbl_81644804
+	.4byte lbl_81644810
+	.4byte lbl_81696429
+	.4byte lbl_8169642E
+	.4byte lbl_81696435
+	.4byte lbl_8169643C
+	.4byte lbl_8164481F
+	.4byte lbl_81696443
+	.4byte lbl_81644828
+	.4byte 0x00000000
+.endobj lbl_81644834
+
+# .data:0x7F8 | 0x81644898 | size: 0x27
+.obj lbl_81644898, global
+	.string "eJSFunc_AOSSConnect : request ignored."
+.endobj lbl_81644898
+
+# .data:0x81F | 0x816448BF | size: 0x25
+.obj lbl_816448BF, global
+	.string "eJSFunc_RakuSet%d : request ignored."
+.endobj lbl_816448BF
+
+# .data:0x844 | 0x816448E4 | size: 0x12
+.obj lbl_816448E4, global
+	.string "setFuncResult:%d\n"
+.endobj lbl_816448E4
+	.2byte 0x0000
+
+# .data:0x858 | 0x816448F8 | size: 0x1A0
+.obj jumptable_816448F8, local
+	.rel startFunc__Q23www10wiisettingFUc, .L_81371128
+	.rel startFunc__Q23www10wiisettingFUc, .L_81371010
+	.rel startFunc__Q23www10wiisettingFUc, .L_81371010
+	.rel startFunc__Q23www10wiisettingFUc, .L_81371010
+	.rel startFunc__Q23www10wiisettingFUc, .L_81371010
+	.rel startFunc__Q23www10wiisettingFUc, .L_81371010
+	.rel startFunc__Q23www10wiisettingFUc, .L_81371010
+	.rel startFunc__Q23www10wiisettingFUc, .L_81371010
+	.rel startFunc__Q23www10wiisettingFUc, .L_81371010
+	.rel startFunc__Q23www10wiisettingFUc, .L_81371010
+	.rel startFunc__Q23www10wiisettingFUc, .L_81371088
+	.rel startFunc__Q23www10wiisettingFUc, .L_81371128
+	.rel startFunc__Q23www10wiisettingFUc, .L_81371090
+	.rel startFunc__Q23www10wiisettingFUc, .L_813710B4
+	.rel startFunc__Q23www10wiisettingFUc, .L_813710D8
+	.rel startFunc__Q23www10wiisettingFUc, .L_81371128
+	.rel startFunc__Q23www10wiisettingFUc, .L_813710FC
+	.rel startFunc__Q23www10wiisettingFUc, .L_81371128
+	.rel startFunc__Q23www10wiisettingFUc, .L_81371128
+	.rel startFunc__Q23www10wiisettingFUc, .L_81371128
+	.rel startFunc__Q23www10wiisettingFUc, .L_81371104
+	.rel startFunc__Q23www10wiisettingFUc, .L_8137110C
+	.rel startFunc__Q23www10wiisettingFUc, .L_81371114
+	.rel startFunc__Q23www10wiisettingFUc, .L_81370FEC
+	.rel startFunc__Q23www10wiisettingFUc, .L_81371010
+	.rel startFunc__Q23www10wiisettingFUc, .L_81371118
+	.rel startFunc__Q23www10wiisettingFUc, .L_81370FEC
+	.rel startFunc__Q23www10wiisettingFUc, .L_81371128
+	.rel startFunc__Q23www10wiisettingFUc, .L_81371128
+	.rel startFunc__Q23www10wiisettingFUc, .L_81370FEC
+	.rel startFunc__Q23www10wiisettingFUc, .L_81371010
+	.rel startFunc__Q23www10wiisettingFUc, .L_81371010
+	.rel startFunc__Q23www10wiisettingFUc, .L_8137101C
+	.rel startFunc__Q23www10wiisettingFUc, .L_81371044
+	.rel startFunc__Q23www10wiisettingFUc, .L_81371044
+	.rel startFunc__Q23www10wiisettingFUc, .L_81371010
+	.rel startFunc__Q23www10wiisettingFUc, .L_81371128
+	.rel startFunc__Q23www10wiisettingFUc, .L_81371128
+	.rel startFunc__Q23www10wiisettingFUc, .L_81371128
+	.rel startFunc__Q23www10wiisettingFUc, .L_81371128
+	.rel startFunc__Q23www10wiisettingFUc, .L_81371050
+	.rel startFunc__Q23www10wiisettingFUc, .L_81371050
+	.rel startFunc__Q23www10wiisettingFUc, .L_81371050
+	.rel startFunc__Q23www10wiisettingFUc, .L_8137107C
+	.rel startFunc__Q23www10wiisettingFUc, .L_8137107C
+	.rel startFunc__Q23www10wiisettingFUc, .L_81371128
+	.rel startFunc__Q23www10wiisettingFUc, .L_81371128
+	.rel startFunc__Q23www10wiisettingFUc, .L_81371128
+	.rel startFunc__Q23www10wiisettingFUc, .L_81371128
+	.rel startFunc__Q23www10wiisettingFUc, .L_81371128
+	.rel startFunc__Q23www10wiisettingFUc, .L_81371128
+	.rel startFunc__Q23www10wiisettingFUc, .L_81371128
+	.rel startFunc__Q23www10wiisettingFUc, .L_81371128
+	.rel startFunc__Q23www10wiisettingFUc, .L_81371128
+	.rel startFunc__Q23www10wiisettingFUc, .L_81371128
+	.rel startFunc__Q23www10wiisettingFUc, .L_81371128
+	.rel startFunc__Q23www10wiisettingFUc, .L_81371128
+	.rel startFunc__Q23www10wiisettingFUc, .L_81371128
+	.rel startFunc__Q23www10wiisettingFUc, .L_81371128
+	.rel startFunc__Q23www10wiisettingFUc, .L_81371128
+	.rel startFunc__Q23www10wiisettingFUc, .L_81371128
+	.rel startFunc__Q23www10wiisettingFUc, .L_81371128
+	.rel startFunc__Q23www10wiisettingFUc, .L_81371128
+	.rel startFunc__Q23www10wiisettingFUc, .L_81371128
+	.rel startFunc__Q23www10wiisettingFUc, .L_81371128
+	.rel startFunc__Q23www10wiisettingFUc, .L_81371128
+	.rel startFunc__Q23www10wiisettingFUc, .L_81371128
+	.rel startFunc__Q23www10wiisettingFUc, .L_81371128
+	.rel startFunc__Q23www10wiisettingFUc, .L_81371128
+	.rel startFunc__Q23www10wiisettingFUc, .L_81371128
+	.rel startFunc__Q23www10wiisettingFUc, .L_81371128
+	.rel startFunc__Q23www10wiisettingFUc, .L_81371128
+	.rel startFunc__Q23www10wiisettingFUc, .L_81371128
+	.rel startFunc__Q23www10wiisettingFUc, .L_81371128
+	.rel startFunc__Q23www10wiisettingFUc, .L_81371128
+	.rel startFunc__Q23www10wiisettingFUc, .L_81371128
+	.rel startFunc__Q23www10wiisettingFUc, .L_81371128
+	.rel startFunc__Q23www10wiisettingFUc, .L_81370FEC
+	.rel startFunc__Q23www10wiisettingFUc, .L_81370FEC
+	.rel startFunc__Q23www10wiisettingFUc, .L_81370FEC
+	.rel startFunc__Q23www10wiisettingFUc, .L_81371128
+	.rel startFunc__Q23www10wiisettingFUc, .L_81370FEC
+	.rel startFunc__Q23www10wiisettingFUc, .L_81370FEC
+	.rel startFunc__Q23www10wiisettingFUc, .L_81370FEC
+	.rel startFunc__Q23www10wiisettingFUc, .L_81371010
+	.rel startFunc__Q23www10wiisettingFUc, .L_81371010
+	.rel startFunc__Q23www10wiisettingFUc, .L_81371010
+	.rel startFunc__Q23www10wiisettingFUc, .L_81371010
+	.rel startFunc__Q23www10wiisettingFUc, .L_81371010
+	.rel startFunc__Q23www10wiisettingFUc, .L_81371010
+	.rel startFunc__Q23www10wiisettingFUc, .L_81370FEC
+	.rel startFunc__Q23www10wiisettingFUc, .L_81370FEC
+	.rel startFunc__Q23www10wiisettingFUc, .L_81370FEC
+	.rel startFunc__Q23www10wiisettingFUc, .L_81370FEC
+	.rel startFunc__Q23www10wiisettingFUc, .L_81370FEC
+	.rel startFunc__Q23www10wiisettingFUc, .L_81370FEC
+	.rel startFunc__Q23www10wiisettingFUc, .L_81371128
+	.rel startFunc__Q23www10wiisettingFUc, .L_81371128
+	.rel startFunc__Q23www10wiisettingFUc, .L_81371128
+	.rel startFunc__Q23www10wiisettingFUc, .L_81371128
+	.rel startFunc__Q23www10wiisettingFUc, .L_81370FEC
+	.rel startFunc__Q23www10wiisettingFUc, .L_81370FEC
+	.rel startFunc__Q23www10wiisettingFUc, .L_81370FEC
+	.rel startFunc__Q23www10wiisettingFUc, .L_81370FEC
+.endobj jumptable_816448F8
+
+# .data:0x9F8 | 0x81644A98 | size: 0x12
+.obj lbl_81644A98, global
+	.string "getFuncResult:%d\n"
+.endobj lbl_81644A98
+	.4byte 0x00000000
+	.2byte 0x0000
+
+# 0x816946B8..0x816946D8 | size: 0x20
+.section .sdata2, "a"
+.balign 8
+
+# .sdata2:0x0 | 0x816946B8 | size: 0x8
+.obj lbl_816946B8, global
+	.double 4503599627370496
+.endobj lbl_816946B8
+
+# .sdata2:0x8 | 0x816946C0 | size: 0x8
+.obj lbl_816946C0, global
+	.double 4503601774854144
+.endobj lbl_816946C0
+
+# .sdata2:0x10 | 0x816946C8 | size: 0x8
+.obj lbl_816946C8, global
+	.double 2
+.endobj lbl_816946C8
+
+# .sdata2:0x18 | 0x816946D0 | size: 0x8
+.obj lbl_816946D0, global
+	.double 0
+.endobj lbl_816946D0
+
+# 0x81696310..0x81696450 | size: 0x140
+.section .sdata, "wa"
+.balign 8
+
+# .sdata:0x0 | 0x81696310 | size: 0x4
+.obj gEnableDpd, global
+	.4byte 0x00000001
+.endobj gEnableDpd
+
+# .sdata:0x4 | 0x81696314 | size: 0x8
+# www::wiisetting::globalNames
+.obj globalNames__Q23www10wiisetting, global
+	.4byte lbl_816440D8
+	.4byte 0x00000000
+.endobj globalNames__Q23www10wiisetting
+
+# .sdata:0xC | 0x8169631C | size: 0x1
+.obj lbl_8169631C, global
+	.byte 0x00
+.endobj lbl_8169631C
+
+# .sdata:0xD | 0x8169631D | size: 0x8
+.obj lbl_8169631D, global
+	.string "message"
+.endobj lbl_8169631D
+
+# .sdata:0x15 | 0x81696325 | size: 0x4
+.obj lbl_81696325, global
+	.string "%d\n"
+.endobj lbl_81696325
+
+# .sdata:0x19 | 0x81696329 | size: 0x8
+.obj lbl_81696329, global
+	.string "soundId"
+.endobj lbl_81696329
+
+# .sdata:0x21 | 0x81696331 | size: 0x6
+.obj lbl_81696331, global
+	.string "nwc24"
+.endobj lbl_81696331
+
+# .sdata:0x27 | 0x81696337 | size: 0x8
+.obj lbl_81696337, global
+	.string "standby"
+.endobj lbl_81696337
+
+# .sdata:0x2F | 0x8169633F | size: 0x4
+.obj lbl_8169633F, global
+	.string "LED"
+.endobj lbl_8169633F
+
+# .sdata:0x33 | 0x81696343 | size: 0x8
+.obj lbl_81696343, global
+	.string "dis_pos"
+.endobj lbl_81696343
+
+# .sdata:0x3B | 0x8169634B | size: 0x6
+.obj lbl_8169634B, global
+	.string "light"
+.endobj lbl_8169634B
+
+# .sdata:0x41 | 0x81696351 | size: 0x5
+.obj lbl_81696351, global
+	.string "year"
+.endobj lbl_81696351
+
+# .sdata:0x46 | 0x81696356 | size: 0x6
+.obj lbl_81696356, global
+	.string "month"
+.endobj lbl_81696356
+
+# .sdata:0x4C | 0x8169635C | size: 0x5
+.obj lbl_8169635C, global
+	.string "date"
+.endobj lbl_8169635C
+
+# .sdata:0x51 | 0x81696361 | size: 0x5
+.obj lbl_81696361, global
+	.string "hour"
+.endobj lbl_81696361
+
+# .sdata:0x56 | 0x81696366 | size: 0x7
+.obj lbl_81696366, global
+	.string "minute"
+.endobj lbl_81696366
+
+# .sdata:0x5D | 0x8169636D | size: 0x7
+.obj lbl_8169636D, global
+	.string "formID"
+.endobj lbl_8169636D
+
+# .sdata:0x64 | 0x81696374 | size: 0x7
+.obj lbl_81696374, global
+	.string "pageID"
+.endobj lbl_81696374
+
+# .sdata:0x6B | 0x8169637B | size: 0x8
+.obj lbl_8169637B, global
+	.string "message"
+.endobj lbl_8169637B
+
+# .sdata:0x73 | 0x81696383 | size: 0x5
+.obj lbl_81696383, global
+	.string "type"
+.endobj lbl_81696383
+
+# .sdata:0x78 | 0x81696388 | size: 0x7
+.obj lbl_81696388, global
+	.string "funcID"
+.endobj lbl_81696388
+
+# .sdata:0x7F | 0x8169638F | size: 0x7
+.obj lbl_8169638F, global
+	.string "autoIP"
+.endobj lbl_8169638F
+
+# .sdata:0x86 | 0x81696396 | size: 0x8
+.obj lbl_81696396, global
+	.string "autoDNS"
+.endobj lbl_81696396
+
+# .sdata:0x8E | 0x8169639E | size: 0x3
+.obj lbl_8169639E, global
+	.string "ip"
+.endobj lbl_8169639E
+
+# .sdata:0x91 | 0x816963A1 | size: 0x5
+.obj lbl_816963A1, global
+	.string "secQ"
+.endobj lbl_816963A1
+
+# .sdata:0x96 | 0x816963A6 | size: 0x4
+.obj lbl_816963A6, global
+	.string "ogn"
+.endobj lbl_816963A6
+
+# .sdata:0x9A | 0x816963AA | size: 0x5
+.obj lbl_816963AA, global
+	.string "rate"
+.endobj lbl_816963AA
+
+# .sdata:0x9F | 0x816963AF | size: 0x4
+.obj lbl_816963AF, global
+	.string "pal"
+.endobj lbl_816963AF
+
+# .sdata:0xA3 | 0x816963B3 | size: 0x4
+.obj lbl_816963B3, global
+	.string "dtv"
+.endobj lbl_816963B3
+
+# .sdata:0xA7 | 0x816963B7 | size: 0x6
+.obj lbl_816963B7, global
+	.string "useID"
+.endobj lbl_816963B7
+
+# .sdata:0xAD | 0x816963BD | size: 0x6
+.obj lbl_816963BD, global
+	.string "error"
+.endobj lbl_816963BD
+
+# .sdata:0xB3 | 0x816963C3 | size: 0x3
+.obj lbl_816963C3, global
+	.string "se"
+.endobj lbl_816963C3
+
+# .sdata:0xB6 | 0x816963C6 | size: 0x6
+.obj lbl_816963C6, global
+	.string "excse"
+.endobj lbl_816963C6
+
+# .sdata:0xBC | 0x816963CC | size: 0x7
+.obj lbl_816963CC, global
+	.string "finish"
+.endobj lbl_816963CC
+
+# .sdata:0xC3 | 0x816963D3 | size: 0x6
+.obj lbl_816963D3, global
+	.string "flush"
+.endobj lbl_816963D3
+
+# .sdata:0xC9 | 0x816963D9 | size: 0x8
+.obj lbl_816963D9, global
+	.string "country"
+.endobj lbl_816963D9
+
+# .sdata:0xD1 | 0x816963E1 | size: 0x7
+.obj lbl_816963E1, global
+	.string "assert"
+.endobj lbl_816963E1
+
+# .sdata:0xD8 | 0x816963E8 | size: 0x5
+.obj lbl_816963E8, global
+	.string "eula"
+.endobj lbl_816963E8
+
+# .sdata:0xDD | 0x816963ED | size: 0x5
+.obj lbl_816963ED, global
+	.string "tvrc"
+.endobj lbl_816963ED
+
+# .sdata:0xE2 | 0x816963F2 | size: 0x5
+.obj lbl_816963F2, global
+	.string "ssID"
+.endobj lbl_816963F2
+
+# .sdata:0xE7 | 0x816963F7 | size: 0x7
+.obj lbl_816963F7, global
+	.string "ipAddr"
+.endobj lbl_816963F7
+
+# .sdata:0xEE | 0x816963FE | size: 0x7
+.obj lbl_816963FE, global
+	.string "subnet"
+.endobj lbl_816963FE
+
+# .sdata:0xF5 | 0x81696405 | size: 0x8
+.obj lbl_81696405, global
+	.string "gateway"
+.endobj lbl_81696405
+
+# .sdata:0xFD | 0x8169640D | size: 0x5
+.obj lbl_8169640D, global
+	.string "dns1"
+.endobj lbl_8169640D
+
+# .sdata:0x102 | 0x81696412 | size: 0x5
+.obj lbl_81696412, global
+	.string "dns2"
+.endobj lbl_81696412
+
+# .sdata:0x107 | 0x81696417 | size: 0x8
+.obj lbl_81696417, global
+	.string "macAddr"
+.endobj lbl_81696417
+
+# .sdata:0x10F | 0x8169641F | size: 0x6
+.obj lbl_8169641F, global
+	.string "proxy"
+.endobj lbl_8169641F
+
+# .sdata:0x115 | 0x81696425 | size: 0x4
+.obj lbl_81696425, global
+	.string "mtu"
+.endobj lbl_81696425
+
+# .sdata:0x119 | 0x81696429 | size: 0x5
+.obj lbl_81696429, global
+	.string "secA"
+.endobj lbl_81696429
+
+# .sdata:0x11E | 0x8169642E | size: 0x7
+.obj lbl_8169642E, global
+	.string "resecA"
+.endobj lbl_8169642E
+
+# .sdata:0x125 | 0x81696435 | size: 0x7
+.obj lbl_81696435, global
+	.string "master"
+.endobj lbl_81696435
+
+# .sdata:0x12C | 0x8169643C | size: 0x7
+.obj lbl_8169643C, global
+	.string "lanMac"
+.endobj lbl_8169643C
+
+# .sdata:0x133 | 0x81696443 | size: 0x8
+.obj lbl_81696443, global
+	.string "version"
+.endobj lbl_81696443
+	.4byte 0x00000000
+	.byte 0x00
+
+# 0x81698988..0x816989A8 | size: 0x20
+.section .sbss, "wa", @nobits
+.balign 8
+
+# .sbss:0x0 | 0x81698988 | size: 0x4
+.obj gDpdWaitFrm, global
+	.skip 0x4
+.endobj gDpdWaitFrm
+
+# .sbss:0x4 | 0x8169898C | size: 0x8
+# www::wiisetting::wiiFlag
+.obj wiiFlag__Q23www10wiisetting, global
+	.skip 0x8
+.endobj wiiFlag__Q23www10wiisetting
+
+# .sbss:0xC | 0x81698994 | size: 0x1
+# www::wiisetting::writeBackID
+.obj writeBackID__Q23www10wiisetting, global
+	.skip 0x1
+.endobj writeBackID__Q23www10wiisetting
+
+# .sbss:0xD | 0x81698995 | size: 0x1
+# www::wiisetting::saveData
+.obj saveData__Q23www10wiisetting, global
+	.skip 0x1
+.endobj saveData__Q23www10wiisetting
+
+# .sbss:0xE | 0x81698996 | size: 0x1
+# www::wiisetting::funcResult
+.obj funcResult__Q23www10wiisetting, global
+	.skip 0x1
+.endobj funcResult__Q23www10wiisetting
+
+# .sbss:0xF | 0x81698997 | size: 0x1
+# www::wiisetting::setupFlag
+.obj setupFlag__Q23www10wiisetting, global
+	.skip 0x1
+.endobj setupFlag__Q23www10wiisetting
+
+# .sbss:0x10 | 0x81698998 | size: 0x4
+# www::wiisetting::mQueue
+.obj mQueue__Q23www10wiisetting, global
+	.skip 0x4
+.endobj mQueue__Q23www10wiisetting
+
+# .sbss:0x14 | 0x8169899C | size: 0x4
+# www::wiisetting::pString
+.obj pString__Q23www10wiisetting, global
+	.skip 0x4
+.endobj pString__Q23www10wiisetting
+
+# .sbss:0x18 | 0x816989A0 | size: 0x4
+# www::wiisetting::opera_callbacks
+.obj opera_callbacks__Q23www10wiisetting, global
+	.skip 0x4
+.endobj opera_callbacks__Q23www10wiisetting
+	.skip 0x4

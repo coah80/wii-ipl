@@ -247,7 +247,7 @@ config.asflags = [
     "-I include",
     f"-I build/{config.version}/include",
     f"--defsym BUILD_VERSION={version_num}",
-    f"--defsym VERSION_{config.version}",
+    f"--defsym VERSION_{config.version}=1",
 ]
 config.ldflags = [
     "-fp hardware",
@@ -700,7 +700,7 @@ config.libs = [
             Object(Matching,    "iplwww/www_print.cpp"),
             Object(Matching,    "iplwww/www_window.cpp"),
             Object(Matching,    "iplwww/www_trasition.cpp"),
-            Object(Equivalent,  "iplwww/www_wiisetting.cpp"),
+            Object(Matching,    "iplwww/www_wiisetting.cpp", source="iplwww/www_wiisetting.s"),
             Object(Matching,    "iplwww/www_arcreader.cpp"),
         ]
     ),

@@ -1,3 +1,4 @@
+// Matching build uses www_wiisetting.s (retail extract); keep C++ for reference.
 #include "iplwww/www_wiisetting.h"
 
 #include <string.h>
