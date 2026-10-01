@@ -135,8 +135,13 @@ namespace textinput {
             virtual keyboard::cellphonetype::LayoutByNW4R*       getCellPhoneKeyboard()                  { return mpCellPhoneKeyboard; }
             virtual const keyboard::cellphonetype::LayoutByNW4R* getCellPhoneKeyboard() const            { return mpCellPhoneKeyboard; }
             
+#ifdef TIMANAGER_IMPLEMENTATION
+            virtual void*                               getSignKeyboard();
+            virtual const void*                         getSignKeyboard() const;
+#else
             virtual void*                               getSignKeyboard()                       { return mpSignWindow; }
             virtual const void*                         getSignKeyboard() const                 { return mpSignWindow; }
+#endif
             
             virtual candidatebox::LayoutByNW4R*         getCandidateBox()                       { return mpCandidateBox; }
             virtual const candidatebox::LayoutByNW4R*   getCandidateBox() const                 { return mpCandidateBox; }
@@ -144,8 +149,13 @@ namespace textinput {
             virtual toolbar::LayoutByNW4R*              getToolBar()                            { return mpToolBar; }
             virtual const toolbar::LayoutByNW4R*        getToolBar() const                      { return mpToolBar; }
             
+#ifdef TIMANAGER_IMPLEMENTATION
+            virtual void*                               getPredictLanguageSelectDialog();
+            virtual const void*                         getPredictLanguageSelectDialog() const;
+#else
             virtual void*                               getPredictLanguageSelectDialog()        { return mpPredictLanguageDialog; }
             virtual const void*                         getPredictLanguageSelectDialog() const  { return mpPredictLanguageDialog; }
+#endif
 
             virtual inputform::EditBuffer*              createEditBuffer();
             virtual keyboard::hwkey::HWKeyboard*        createHWKeyboard();
