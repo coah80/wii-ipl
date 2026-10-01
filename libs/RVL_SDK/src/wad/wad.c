@@ -405,9 +405,12 @@ s32 WADImportGetBlocks(char* path, MEMAllocator* allocator, WADLocation location
     u32 index;
     u32 skipTitleMeta = flags & 4;
     WADFileHeader* fileHeader;
+    void* firstBuffer;
+    void* secondBuffer;
 
     streamOpened = FALSE;
-    fileOffset = 0;
+    firstBuffer = 0;
+    secondBuffer = 0;
     allocatedFiles = 0;
     memset(&workspace.unpackInfo, 0, sizeof(WADUnpackInfo));
     if (fileListOut != 0) {
@@ -521,6 +524,12 @@ s32 WADImportGetBlocks(char* path, MEMAllocator* allocator, WADLocation location
 
 cleanup:
     _WADFreeMemory(&workspace.unpackInfo, allocator);
+    if (firstBuffer != 0) {
+        _WADMemFree(allocator, firstBuffer);
+    }
+    if (secondBuffer != 0) {
+        _WADMemFree(allocator, secondBuffer);
+    }
     if ((fileListOut != 0) && (result != 0)) {
         if (allocatedFiles != 0) {
             _WADMemFree(allocator, allocatedFiles);
