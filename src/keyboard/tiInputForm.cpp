@@ -509,13 +509,13 @@ void Base::setLanguage(Language language) {
         case UK:
             setPredictMode(PM_En);
             break;
-        case FR:
+        case DE:
             setPredictMode(PM_De);
             break;
-        case DE:
+        case IT:
             setPredictMode(PM_It);
             break;
-        case IT:
+        case NL:
             setPredictMode(PM_Nl);
             break;
         case SP:
@@ -525,7 +525,7 @@ void Base::setLanguage(Language language) {
                 setPredictMode(PM_USSp);
             }
             break;
-        case NL:
+        case FR:
             if (meDestination == DST_EU) {
                 setPredictMode(PM_Fr);
             } else {
@@ -3470,7 +3470,7 @@ void NormalButtonAnmPane::onAnmEvent(AnmPaneEvent event) {
         changeAnimation(ANM_Pushed);
     }
     switch (meState) {
-        case ANM_FocusOut:
+        case ANM_FadeIn:
             if (event == PE_4) changeAnimation(ANM_Normal);
             if (event == PE_1) changeAnimation(ANM_FocusIn);
             break;
@@ -3484,7 +3484,7 @@ void NormalButtonAnmPane::onAnmEvent(AnmPaneEvent event) {
         case ANM_RollOver:
             if (event == PE_2) changeAnimation(ANM_FocusOut);
             break;
-        case ANM_FadeIn:
+        case ANM_FocusOut:
             if (event == PE_4) changeAnimation(ANM_Normal);
             if (event == PE_1) changeAnimation(ANM_FocusIn);
             break;
