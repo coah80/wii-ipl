@@ -468,7 +468,7 @@ extern pf_s32 PFPATH_cmpName(const pf_s8* short_name, PFDIR_STR* pattern, pf_u32
 extern pf_s32 PFPATH_cmpNameUni(const pf_u16* name, PFDIR_STR* pattern);
 pf_s32 PFDIR_p_mkdir(PF_VOLUME* volume, PF_STR* path, pf_u32 option, PF_DTA* data) {
     PF_DIR_ENT parent_entry;
-    PF_DIR_ENT entry;
+    pf_u32 index;
     pf_s8 normalized_name[512];
     PF_ENT_ITER iter;
     PFDIR_FFD ffd;
@@ -488,8 +488,8 @@ pf_s32 PFDIR_p_mkdir(PF_VOLUME* volume, PF_STR* path, pf_u32 option, PF_DTA* dat
     pf_u16 filename_length;
     pf_u16 original_offset;
     pf_u8 checksum;
+    PF_DIR_ENT entry;
     pf_u32 cluster;
-    pf_u32 index;
     pf_u32 lfn_index;
     pf_u32* next_sector;
     pf_s32 error;

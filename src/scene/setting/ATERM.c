@@ -871,17 +871,17 @@ int ATERM_8140276C(AtermApRecordSet* currentRecords, AtermApRecordSet* previousR
 
 int ATERM_81402A24(void) {
     s32 result = -1;
-    s32 progressInfo[4];
-    AtermApRecordSet* currentRecords = NULL;
-    AtermApRecordSet* previousRecords = NULL;
+    u32 scanBufferBytes;
+    u32 recordIndex;
+    s32 iteration = 0;
     u8* rawScanBuffer = NULL;
     u8* scanBuffer;
     u16* firstDescriptor;
     u32 recordBytes = gAtermScanLimit * sizeof(AtermApRecord) + sizeof(AtermApRecord) + sizeof(u32);
-    u32 scanBufferBytes;
+    s32 progressInfo[4];
     u32 scanCount;
-    u32 recordIndex;
-    s32 iteration = 0;
+    AtermApRecordSet* currentRecords = NULL;
+    AtermApRecordSet* previousRecords = NULL;
     u32 now;
     char selectedMacText[32];
 
