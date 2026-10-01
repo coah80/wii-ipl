@@ -674,7 +674,7 @@ int Rvl_decode_ash(u8* out, u8* in) {
                                     shifted = shifted - nodeVal;
                                     tmp15 = nodeVal >> 3;
                                     if (tmp15 == 0) {
-                                        goto LAB_813325b8;
+                                        goto copy_lit_tail;
                                     }
                                     do {
                                         *out = litPtr[-1];
@@ -690,7 +690,7 @@ int Rvl_decode_ash(u8* out, u8* in) {
                                         tmp15 = tmp15 - 1;
                                     } while (tmp15 != 0);
                                     for (nodeVal = nodeVal & 7; nodeVal != 0; nodeVal = nodeVal - 1) {
-LAB_813325b8:
+copy_lit_tail:
                                         dst = litPtr - 1;
                                         litPtr = litPtr + 1;
                                         *out = *dst;
