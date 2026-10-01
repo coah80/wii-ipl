@@ -156,10 +156,10 @@ void KPRInitRegionUS(void) {
 }
 
 void KPRInitQueue(KPRQueue* queue) {
-    static u8 once;
-    if (!once) {
+    static union { u64 align; u8 flag; } once;
+    if (!once.flag) {
         OSRegisterVersion(__KPRVersion);
-        once = TRUE;
+        once.flag = TRUE;
     }
     queue->mode = KPR_MODE_ALT_KEYPAD;
     queue->oCount = 0;

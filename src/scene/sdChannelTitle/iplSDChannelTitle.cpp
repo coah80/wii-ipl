@@ -86,7 +86,14 @@ static inline void setMemoryTitleLists(SDMemory* memory, SDMemory::TitleRange sd
     memory->setTitleLists(sdRange, nandRange);
 }
 
+extern "C" char lbl_81696E30[];
+extern "C" char lbl_81696E37[];
+
+static const char* sButtonNames[2] = {lbl_81696E30, lbl_81696E37};
+
 static const int sCaptureSizes[2][2] = {{128, 96}, {176, 96}};
+
+static const wchar_t sMissingTitle[] = L"???";
 
 static const char* sButtonGroups[7] = {
     "G_FocusBtnA", "G_FocusBtnB", "G_SelectBtnA", "G_SelectBtnB",
@@ -103,28 +110,27 @@ static const char* sButtonAnimationNames[6] = {
 static const char* sBannerAnimationNames[3] = {
     "banner.brlan", "banner_Start.brlan", "banner_Loop.brlan"
 };
-static const char* sTextNames[2] = {"T_BtnA", "T_BtnB"};
-static const char* sButtonNames[2] = {"B_BtnA", "B_BtnB"};
 static const char* sTexturePaneNames[3][4] = {
     {"Fre_a", "Fre_d", "Fre_i", "Fre_l"},
     {"Fre_e", "Fre_f", "Fre_g", "Fre_h"},
     {"Fre_b", "Fre_c", "Fre_j", "Fre_k"}
 };
+static const char* sTextNames[2] = {"T_BtnA", "T_BtnB"};
 
-class SDTitleButtonEventHandler : public SDButtonEventHandlerBase {
+class SDTitlePaneEventHandler : public ::gui::EventHandler {
 public:
-    SDTitleButtonEventHandler(SDChannelTitle* scene) : mpScene(scene) {}
-    virtual void onEventDerived(u32 component, u32 event, const controller::Interface* controller);
+    SDTitlePaneEventHandler(SDChannelTitle* scene) : mpScene(scene) {}
+    virtual void onEvent(u32 component, u32 event, void* data);
     nw4r::lyt::Pane* getPane(u32 component) {
         return static_cast< ::gui::PaneComponent*>(mpManager->getComponent(component))->getPane();
     }
     SDChannelTitle* mpScene;
 };
 
-class SDTitlePaneEventHandler : public ::gui::EventHandler {
+class SDTitleButtonEventHandler : public SDButtonEventHandlerBase {
 public:
-    SDTitlePaneEventHandler(SDChannelTitle* scene) : mpScene(scene) {}
-    virtual void onEvent(u32 component, u32 event, void* data);
+    SDTitleButtonEventHandler(SDChannelTitle* scene) : mpScene(scene) {}
+    virtual void onEventDerived(u32 component, u32 event, const controller::Interface* controller);
     nw4r::lyt::Pane* getPane(u32 component) {
         return static_cast< ::gui::PaneComponent*>(mpManager->getComponent(component))->getPane();
     }
@@ -222,9 +228,8 @@ void SDChannelTitle::create() {
     comment->SetString(System::getMessage(0xad));
     iplSDChannelTitle_813E630C(this);
     mpFade = new math::HermiteIntp<f32>();
-    const f32 fadeStart = 0.0f;
-    const f32 fadeEnd = 255.0f;
-    mpFade->init(fadeStart, fadeEnd, 10.0f, 0.0f, 0.0f);
+    static f32 fadeRange[2] = {0.0f, 255.0f};
+    mpFade->init(fadeRange[0], fadeRange[1], 28.0f, 0.0f, 0.0f);
     mpFade->setAnmType(ANIM_TYPE_FORWARD);
     mpScreenCapture = new (System::getTreasureHeap(), 32) utility::Capture(System::getTreasureHeap(), 0, 0,
         System::getRenderModeObj()->fbWidth, System::getRenderModeObj()->efbHeight, GX_TF_RGB565);
@@ -560,7 +565,7 @@ extern "C" void iplSDChannelTitle_813E6424(SDChannelTitle* scene) {
         if (channel->mStateFlags == 0) {
             static_cast<nw4r::lyt::TextBox*>(scene->mpProgressLayout->FindPaneByName("T_title"))->SetString(iplSDChannelObj_813E4060(channel, 0));
         } else {
-            static_cast<nw4r::lyt::TextBox*>(scene->mpProgressLayout->FindPaneByName("T_title"))->SetString(L"");
+            static_cast<nw4r::lyt::TextBox*>(scene->mpProgressLayout->FindPaneByName("T_title"))->SetString(sMissingTitle);
         }
         scene->mpProgressLayout->getAnim(0)->stop();
         scene->mpProgressLayout->getAnim(0)->initAnmFrame();
@@ -1014,9 +1019,8 @@ extern "C" void iplSDChannelTitle_813E7A18(SDChannelTitle* scene) {
     if (!scene->mScriptEnabled || scene->mScriptState == 4) {
         if (scene->mpChannelSelect->prepareRestarting(scene->mPage)) {
             scene->mpChannelSelect->startPageTransition(scene->mPage, scene->mIndex);
-            const f32 fadeStart = 255.0f;
-            const f32 fadeEnd = 0.0f;
-            scene->mpFade->init(fadeStart, fadeEnd, 10.0f, 0.0f, 0.0f);
+            static f32 fadeRange[2] = {0.0f, 255.0f};
+            scene->mpFade->init(fadeRange[0], fadeRange[1], 28.0f, 0.0f, 0.0f);
             scene->mpFade->setAnmType(ANIM_TYPE_BACKWARD);
             scene->mpFade->play();
             scene->mState = 6;
@@ -1556,12 +1560,12 @@ void SDChannelTitle::startResetting() {
     snd::getSystem()->resetAllSound();
 }
 
-void SDTitlePaneEventHandler::onEvent(u32 component, u32 event, void* data) {
-    iplSDChannelTitle_813E9004(this, component, event, static_cast<const controller::Interface*>(data));
-}
-
 void SDTitleButtonEventHandler::onEventDerived(u32 component, u32 event, const controller::Interface* controller) {
     iplSDChannelTitle_813E92EC(this, component, event, controller);
+}
+
+void SDTitlePaneEventHandler::onEvent(u32 component, u32 event, void* data) {
+    iplSDChannelTitle_813E9004(this, component, event, static_cast<const controller::Interface*>(data));
 }
 
 }
