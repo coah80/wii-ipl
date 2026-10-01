@@ -555,8 +555,8 @@ NWC24Err NWC24iMBoxFlushHeader(NWC24MBoxType type) {
     return result != NWC24_OK ? result : closeResult;
 }
 
-static inline void GetOldestMsgId(const MBCHeader* header, u32* id) {
-    *id = header->oldestId;
+static inline void GetOldestMsgId(const MBCHeader* header, u32* msgId) {
+    *msgId = header->oldestId;
 }
 
 NWC24Err NWC24iMBoxCheck(NWC24MBoxType type, u32 size) {

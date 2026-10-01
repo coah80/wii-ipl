@@ -4,7 +4,7 @@
 #include <revolution/nwc24.h>
 
 static char MultiPartDivider[64];
-BOOL LoopBackEnable[2] = {TRUE, FALSE};
+BOOL LoopBackEnable = TRUE;
 static NWC24File* m_pFile;
 
 static NWC24Err NWC24CommitMsgInternal(NWC24MsgObjPrivate* msg, NWC24MBoxType type);
@@ -177,7 +177,7 @@ NWC24Err NWC24CommitMsg(NWC24MsgObj* object) {
         return NWC24_ERR_LIB_NOT_OPENED;
     if (!(msg->type & 0x100) || (msg->type & 0x200))
         return NWC24_ERR_PROTECTED;
-    if (LoopBackEnable[0] && (msg->type & 1)) {
+    if (LoopBackEnable && (msg->type & 1)) {
         NWC24GetMyUserId(&myId);
         if (msg->numTo == 1 && msg->toIds[0] == myId)
             loopback = TRUE;
@@ -306,7 +306,7 @@ static NWC24Err NWC24CommitMsgInternal(NWC24MsgObjPrivate* msg, NWC24MBoxType ty
             CHECK_WRITE(WriteIconNewField(msg));
             if (msg->msgBoardFlags.raw != 0) {
                 CHECK_WRITE(WriteMBNoReplyField(msg));
-                { u16 dateFlags = msg->msgBoardFlags.raw; CHECK_WRITE(WriteMBRegDateField(msg, dateFlags)); }
+                CHECK_WRITE(WriteMBRegDateField(msg, msg->msgBoardFlags.raw & 0xFFFF));
                 CHECK_WRITE(WriteMBDelayField(msg, msg->msgBoardFlags.raw & 0xFF0000));
             }
         }
@@ -327,15 +327,16 @@ static NWC24Err NWC24CommitMsgInternal(NWC24MsgObjPrivate* msg, NWC24MBoxType ty
             buffer = NWC24WorkP->stringWork;
             Mail_memset(buffer, 0, 1024);
             Mail_sprintf(buffer, "\r\n--%s", MultiPartDivider);
-            Mail_strcat(buffer, "\r\n\0");
+            Mail_strcat(buffer, "\r\n");
             CHECK_WRITE(WriteString(msg, buffer));
         }
         CHECK_WRITE(WriteContentTypeField(msg));
         if (!(msg->type & 0x10000))
             msg->unk_0x10 = msg->length;
         text.ptr = (const void*)msg->length;
-        { NWC24Err textResult = WritePlainText(msg);
-        err = textResult == NWC24_ERR_NULL ? NWC24_OK : textResult; }
+        err = WritePlainText(msg);
+        if (err == NWC24_ERR_NULL)
+            err = NWC24_OK;
         if (err != NWC24_OK) {
             NWC24FClose(&file);
             result = err;
@@ -346,7 +347,7 @@ static NWC24Err NWC24CommitMsgInternal(NWC24MsgObjPrivate* msg, NWC24MBoxType ty
             buffer = NWC24WorkP->stringWork;
             Mail_memset(buffer, 0, 1024);
             Mail_sprintf(buffer, "\r\n--%s", MultiPartDivider);
-            Mail_strcat(buffer, "\r\n\0");
+            Mail_strcat(buffer, "\r\n");
             CHECK_WRITE(WriteString(msg, buffer));
             CHECK_WRITE(WriteMIMEAttachHeader(msg, index));
             attached[index].ptr = (const void*)msg->length;
@@ -423,6 +424,10 @@ static NWC24Err CheckMsgObject(const NWC24MsgObjPrivate* msg) {
     return NWC24_OK;
 }
 
+static inline u32 EstimateBase64Size(u32 size) {
+    return (size * 4 + 2) / 3 + size / 57 * 2 + 4;
+}
+
 static NWC24Err CheckMsgBoxSpace(const NWC24MsgObjPrivate* msg, NWC24MBoxType type) {
     u32 total = 0;
     u32 textSize = 0;
@@ -430,7 +435,7 @@ static NWC24Err CheckMsgBoxSpace(const NWC24MsgObjPrivate* msg, NWC24MBoxType ty
     NWC24Err err;
     for (index = 0; index < msg->numAttached; ++index) {
         u32 size = msg->attachedSize[index];
-        total += (size * 4 + 2) / 3 + size / 57 * 2 + 4;
+        total += EstimateBase64Size(size);
     }
     switch (msg->encoding) {
         case NWC24_ENC_7BIT:
@@ -438,7 +443,7 @@ static NWC24Err CheckMsgBoxSpace(const NWC24MsgObjPrivate* msg, NWC24MBoxType ty
             textSize = msg->text.size;
             break;
         case NWC24_ENC_BASE64:
-            textSize = (msg->text.size * 4 + 2) / 3 + msg->text.size / 57 * 2 + 4;
+            textSize = EstimateBase64Size(msg->text.size);
             break;
         case NWC24_ENC_QUOTED_PRINTABLE:
             textSize = msg->text.size * 4 / 3;

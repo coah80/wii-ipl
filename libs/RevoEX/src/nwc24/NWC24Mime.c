@@ -231,12 +231,13 @@ static NWC24Err QEncode(char* encoded, u32 encodedCapacity, u32* encodedSize, u8
 }
 
 static NWC24Err QDecode(char* decoded, u32 decodedCapacity, u32* decodedSize, char* encoded, u32 encodedSize, u32* encodedSizeOut, int flags) {
-    u32 decodedOffset = 0;
     u32 encodedOffset;
+    u32 decodedOffset = 0;
     char* input;
     char* output;
     u8 value = 0;
     NWC24Err result = NWC24_OK;
+    int valid;
 
     if (decoded == NULL)
         return NWC24_ERR_INVALID_VALUE;
@@ -255,7 +256,7 @@ static NWC24Err QDecode(char* decoded, u32 decodedCapacity, u32* decodedSize, ch
     input = encoded;
     output = decoded;
     for (encodedOffset = 0; encodedOffset < encodedSize; encodedOffset++) {
-        if (decodedCapacity <= decodedOffset) {
+        if (decodedOffset >= decodedCapacity) {
             result = NWC24_ERR_OVERFLOW;
             break;
         }
@@ -264,48 +265,48 @@ static NWC24Err QDecode(char* decoded, u32 decodedCapacity, u32* decodedSize, ch
             input++;
             decodedOffset++;
         } else if (*input == '=' && encodedOffset + 2 < encodedSize) {
-            BOOL validHex = TRUE;
-            u32 inputAfterEqual = encodedOffset + 1;
-            char* current = ++input;
-            if (*current == ' ' || *current == '\t') {
-                char* next = current + 1;
-                u32 scan = 1;
-                while (inputAfterEqual + scan + 1 < encodedSize) {
-                    if (*next == '\r' && next[1] == '\n') {
-                        inputAfterEqual += scan;
-                        current = next;
+            input++;
+            encodedOffset++;
+            valid = 1;
+            if (*input == ' ' || *input == '\t') {
+                char* scan = input + 1;
+                u32 scanLen = 1;
+                while (encodedOffset + scanLen + 1 < encodedSize) {
+                    if (*scan == '\r' && scan[1] == '\n') {
+                        input = scan;
+                        encodedOffset += scanLen;
                         break;
                     }
-                    if (*next != ' ' && *next != '\t') {
+                    if (*scan != ' ' && *scan != '\t') {
                         break;
                     }
-                    next++;
                     scan++;
+                    scanLen++;
                 }
             }
-            if (*current == '\r' && current[1] == '\n') {
-                current += 2;
-                encodedOffset = inputAfterEqual + 1;
-                input = current;
+            if (*input == '\r' && input[1] == '\n') {
+                input += 2;
+                encodedOffset++;
             } else {
-                int high = Util_xtoi(*current);
+                int high = Util_xtoi(*input);
                 int low;
                 if (high >= 0) {
                     value = (high & 0x0F) << 4;
+                } else {
+                    valid = 0;
                 }
-                if (high < 0) { validHex = FALSE; }
-                low = Util_xtoi(current[1]);
+                low = Util_xtoi(input[1]);
                 if (low >= 0) {
-                    value |= low & 0x0F;
+                    value = (value | (low & 0x0F)) & 0xFF;
+                } else {
+                    valid = 0;
                 }
-                if (low < 0) { validHex = FALSE; }
-                current += 2;
-                if (validHex) {
+                input += 2;
+                if (valid) {
                     *output++ = (char)value;
                     decodedOffset++;
                 }
-                encodedOffset = inputAfterEqual + 1;
-                input = current;
+                encodedOffset++;
             }
         } else {
             *output++ = *input++;
@@ -331,90 +332,91 @@ NWC24Err NWC24DecodeQuotedPrintable(char* decoded, u32 decodedCapacity, u32* dec
 
 static NWC24Err ConcatEncodedText(char* encoded, u32 encodedCapacity, u32* encodedSize, char encoding, u8* decoded, u32 decodedSize,
                                   u32* decodedSizeOut);
-static inline NWC24Err AppendWordPrefix(char* encoded, u32 capacity) {
-    if (Mail_strlen(encoded) + 2 < capacity) {
-        Mail_strncat(encoded, "=?", 2);
-    } else { return NWC24_ERR_OVERFLOW; }
-    return NWC24_OK;
-}
 
-static inline NWC24Err AppendWordSeparator(char* encoded, u32 capacity) {
-    if (Mail_strlen(encoded) + 2 < capacity) {
-        Mail_strncat(encoded, "?", 1);
-    } else { return NWC24_ERR_OVERFLOW; }
-    return NWC24_OK;
-}
-
-static inline NWC24Err AppendWordSuffix(char* encoded, u32 capacity) {
-    if (Mail_strlen(encoded) + 2 < capacity) {
-        Mail_strncat(encoded, "?=", 2);
-    } else { return NWC24_ERR_OVERFLOW; }
-    return NWC24_OK;
-}
-
-static inline NWC24Err AppendWordCharset(char* encoded, u32 capacity, char* charset, u32 charsetSize) {
-    if (charset == NULL) { return NWC24_ERR_INVALID_VALUE; }
-    if (charsetSize + Mail_strlen(encoded) < capacity) {
-        u32 length = Mail_strlen(charset);
-        Mail_strncat(encoded, charset, length);
-    } else { return NWC24_ERR_OVERFLOW; }
-    return NWC24_OK;
-}
-
-static inline NWC24Err AppendWordEncoding(char* encoded, u32 capacity, char encoding) {
-    char encodingText[1];
-    encodingText[0] = encoding;
-    if (encoding != 'B' && encoding != 'b' && encoding != 'Q' && encoding != 'q') {
-        return NWC24_ERR_INVALID_VALUE;
+static inline NWC24Err AppendBounded(char* encoded, u32 encodedCapacity, u32 needed, const char* str, u32 strLen) {
+    if (Mail_strlen(encoded) + needed >= encodedCapacity) {
+        return NWC24_ERR_OVERFLOW;
     }
-    if (Mail_strlen(encoded) + 1 < capacity) {
-        Mail_strncat(encoded, encodingText, 1);
-    } else { return NWC24_ERR_OVERFLOW; }
+    Mail_strncat(encoded, str, strLen);
     return NWC24_OK;
 }
+
 static NWC24Err EncodeWord(char* encoded, u32 encodedCapacity, u32* encodedSize, char* charset, u32 charsetSize, char encoding, u8* decoded,
                            u32 decodedSize, u32* decodedSizeOut) {
-    NWC24Err result;
+    NWC24Err result = NWC24_OK;
     BOOL encodeOverflow = FALSE;
 
-    if (decodedSizeOut != NULL) { *decodedSizeOut = 0; }
+    if (decodedSizeOut != NULL) {
+        *decodedSizeOut = 0;
+    }
     if (encodedCapacity == 0) {
-        if (decodedSizeOut != NULL) { *decodedSizeOut = 0; }
+        if (decodedSizeOut != NULL) {
+            *decodedSizeOut = 0;
+        }
         return NWC24_ERR_INVALID_VALUE;
     }
     *encoded = '\0';
-    if (encodedSize != NULL) { *encodedSize = 1; }
-
-    result = AppendWordPrefix(encoded, encodedCapacity);
-    if (result != NWC24_OK) { *encoded = '\0'; return result; }
-
-    result = AppendWordCharset(encoded, encodedCapacity, charset, charsetSize);
-    if (result != NWC24_OK) { *encoded = '\0'; return result; }
-
-    result = AppendWordSeparator(encoded, encodedCapacity);
-    if (result != NWC24_OK) { *encoded = '\0'; return result; }
-
-    result = AppendWordEncoding(encoded, encodedCapacity, encoding);
-    if (result != NWC24_OK) { *encoded = '\0'; return result; }
-
-    result = AppendWordSeparator(encoded, encodedCapacity);
-    if (result != NWC24_OK) { *encoded = '\0'; return result; }
-
+    if (encodedSize != NULL) {
+        *encodedSize = 1;
+    }
+    if (AppendBounded(encoded, encodedCapacity, 2, "=?", 2) != NWC24_OK) {
+        *encoded = '\0';
+        goto done;
+    }
+    if ((charset == NULL ? NWC24_ERR_INVALID_VALUE : AppendBounded(encoded, encodedCapacity, charsetSize, charset, Mail_strlen(charset))) !=
+        NWC24_OK) {
+        *encoded = '\0';
+        goto done;
+    }
+    if (AppendBounded(encoded, encodedCapacity, 2, "?", 1) != NWC24_OK) {
+        *encoded = '\0';
+        goto done;
+    }
+    {
+        char value[1];
+        NWC24Err appendResult;
+        value[0] = encoding;
+        if (encoding == 'B' || encoding == 'b' || encoding == 'Q' || encoding == 'q') {
+            appendResult = AppendBounded(encoded, encodedCapacity, 1, value, 1);
+        } else {
+            appendResult = NWC24_ERR_INVALID_VALUE;
+        }
+        if (appendResult != NWC24_OK) {
+            *encoded = '\0';
+            goto done;
+        }
+    }
+    if (AppendBounded(encoded, encodedCapacity, 2, "?", 1) != NWC24_OK) {
+        *encoded = '\0';
+        goto done;
+    }
     result = ConcatEncodedText(encoded, encodedCapacity, encodedSize, encoding, decoded, decodedSize, decodedSizeOut);
-    if (result != NWC24_OK && result != NWC24_ERR_OVERFLOW) {
+    if (result == NWC24_OK || result == NWC24_ERR_OVERFLOW) {
+        encodeOverflow = result == NWC24_ERR_OVERFLOW;
+        if (Mail_strlen(encoded) + 2 < encodedCapacity) {
+            Mail_strncat(encoded, "?=", 2);
+            result = NWC24_OK;
+            if (encodedSize != NULL) {
+                *encodedSize = Mail_strlen(encoded) + 1;
+            }
+            if (encodeOverflow) {
+                result = NWC24_ERR_OVERFLOW;
+            }
+        } else {
+            *encoded = '\0';
+            if (decodedSizeOut != NULL) {
+                *decodedSizeOut = 1;
+            }
+            result = NWC24_ERR_OVERFLOW;
+        }
+    } else {
         *encoded = '\0';
-        *decodedSizeOut = 1;
-        return result;
+        if (decodedSizeOut != NULL) {
+            *decodedSizeOut = 1;
+        }
     }
-    if (result == NWC24_ERR_OVERFLOW) { encodeOverflow = TRUE; }
-    result = AppendWordSuffix(encoded, encodedCapacity);
-    if (result != NWC24_OK) {
-        *encoded = '\0';
-        *decodedSizeOut = 1;
-        return result;
-    }
-    *encodedSize = Mail_strlen(encoded) + 1;
-    if (result == NWC24_OK && encodeOverflow) { result = NWC24_ERR_OVERFLOW; }
+
+done:
     return result;
 }
 
@@ -447,7 +449,7 @@ NWC24Err NWC24EncodeWord(u8* encoded, u32 encodedCapacity, u32* encodedSize, cha
     return result;
 }
 
-static NWC24Err ExtractCharset(char* charset, u32 charsetCapacity, u32* charsetSize, char* encoded, u32 encodedSize);
+static NWC24Err ExtractCharset(char* charset, u32 charsetCapacity, u32* charsetSize, char* encoded, u32 encodedSize) NO_INLINE;
 static NWC24Err ExtractEncodedText(char* decoded, u32 decodedCapacity, u32* decodedSize, char encoding, char* encoded, u32 encodedSize,
                                    u32* encodedSizeOut);
 
@@ -455,7 +457,6 @@ static BOOL CopyWithoutLinearWhiteSpaces(char* output, int* outputSize, char* in
     BOOL afterNewline = FALSE;
     u32 outputOffset = 0;
     s32 capacity;
-    u32 limit;
 
     if (output == NULL || outputSize == NULL || *outputSize == 0) {
         return FALSE;
@@ -466,8 +467,7 @@ static BOOL CopyWithoutLinearWhiteSpaces(char* output, int* outputSize, char* in
         *outputSize = 1;
         return TRUE;
     }
-    limit = capacity - 1U;
-    while (outputOffset < limit && inputSize != 0 && *input != '\0') {
+    while (outputOffset < capacity - 1U && inputSize != 0 && *input != '\0') {
         char value = *input;
         switch (value) {
             case '\r':
@@ -503,77 +503,100 @@ static BOOL CopyWithoutLinearWhiteSpaces(char* output, int* outputSize, char* in
 static inline char* FindMarker(char* input, u32 size, const char* marker) {
     u32 markerLength = Mail_strlen(marker);
     u32 offset;
+    char* scan = input;
     for (offset = 0; offset <= size; offset++) {
-        char* current = input + offset;
-        if (Mail_strncmp(current, marker, markerLength) == 0)
-            return current;
-    }
-    return NULL;
-}
-static inline char* FindMarkerAfterPrefix(char* input, u32 size, u32 prefix, const char* marker) {
-    u32 markerLength = Mail_strlen(marker);
-    char* current = input + prefix;
-    u32 offset;
-    for (offset = 0; offset <= size; offset++) {
-        if (Mail_strncmp(current, marker, markerLength) == 0) {
-            return input + offset + prefix;
-        }
-        current++;
+        if (Mail_strncmp(scan, marker, markerLength) == 0)
+            return scan;
+        scan++;
     }
     return NULL;
 }
 
-static inline NWC24Err ExtractWordEncoding(char* encoding, u32* encodingSize, char* encoded, u32 encodedSize) {
-    char* delimiter = FindMarkerAfterPrefix(encoded, encodedSize, 0, "?");
-    if (delimiter == NULL) { return NWC24_ERR_INVALID_VALUE; }
-    *encoding = delimiter[1];
-    *encodingSize = 2;
-    return NWC24_OK;
-}
 static NWC24Err DecodeWord(char* charsetData, u32 charsetCapacity, char* decoded, u32 decodedCapacity, u32* decodedSize, char* encoded,
                            u32 encodedSize, u32* encodedSizeOut) {
-    char* encodedWord;
+    char* encodedWordPosition = NULL;
+    u32 encodedLength;
     u32 consumedSize;
     u32 decodedLength;
-    int encodedLength;
-    NWC24Err result;
+    NWC24Err result = NWC24_OK;
 
-    if (encodedSizeOut != NULL) { *encodedSizeOut = 0; }
+    if (encodedSizeOut != NULL) {
+        *encodedSizeOut = 0;
+    }
     if (decodedCapacity == 0) {
-        if (encodedSizeOut != NULL) { *encodedSizeOut = 0; }
+        if (encodedSizeOut != NULL)
+            *encodedSizeOut = 0;
         return NWC24_ERR_INVALID_VALUE;
     }
     *decoded = '\0';
-    if (decodedSize != NULL) { *decodedSize = 1; }
-    if (encodedSizeOut != NULL) { *encodedSizeOut = 0; }
-    encodedWord = FindMarker(encoded, encodedSize, "=?");
-    if (encodedWord == encoded) {
-        char encoding;
-        result = ExtractCharset(charsetData, charsetCapacity, &consumedSize, encodedWord, encodedSize);
-        if (result != NWC24_OK) { return result; }
-        encodedLength = consumedSize;
-        result = ExtractWordEncoding(&encoding, &consumedSize, encodedWord + encodedLength, encodedSize - encodedLength);
-        if (result != NWC24_OK) { return result; }
-        encodedLength += consumedSize;
-        result = ExtractEncodedText(decoded, decodedCapacity, &decodedLength, encoding, encodedWord + encodedLength,
-                                    encodedSize - encodedLength, &consumedSize);
-        if (result != NWC24_OK) { return result; }
-        encodedLength += consumedSize;
-    } else {
-        u32 localSize;
-        if (encodedWord != NULL) {
-            encodedLength = encodedWord - encoded;
-        } else {
-            encodedLength = STD_strnlen(encoded, encodedSize);
+    if (decodedSize != NULL) {
+        *decodedSize = 1;
+    }
+    if (encodedSizeOut != NULL) {
+        *encodedSizeOut = 0;
+    }
+    {
+        u32 markerLength = Mail_strlen("=?");
+        u32 offset;
+        for (offset = 0; offset <= encodedSize; offset++) {
+            encodedWordPosition = (char*)encoded + offset;
+            if (Mail_strncmp(encodedWordPosition, "=?", markerLength) == 0) {
+                break;
+            }
         }
-        localSize = decodedCapacity;
+        if (offset > encodedSize) {
+            encodedWordPosition = NULL;
+        }
+    }
+    if (encodedWordPosition == (char*)encoded) {
+        result = ExtractCharset(charsetData, charsetCapacity, &consumedSize, (char*)encoded, encodedSize);
+        if (result != NWC24_OK) {
+            return result;
+        }
+        encodedLength = consumedSize;
+        {
+            u32 markerLength = Mail_strlen("?");
+            u32 offset;
+            char* delimiter = NULL;
+            char* current = (char*)encodedWordPosition + encodedLength;
+            for (offset = 0; offset <= encodedSize - encodedLength; offset++) {
+                if (Mail_strncmp((char*)current, "?", markerLength) == 0) {
+                    delimiter = current;
+                    break;
+                }
+                current++;
+            }
+            if (delimiter == 0) {
+                return NWC24_ERR_INVALID_VALUE;
+            }
+            {
+                char encoding = delimiter[1];
+                consumedSize = 2;
+                encodedLength += consumedSize;
+                result = ExtractEncodedText(decoded, decodedCapacity, &decodedLength, encoding, encoded + encodedLength, encodedSize - encodedLength,
+                                            &consumedSize);
+                if (result != NWC24_OK) {
+                    return result;
+                }
+                encodedLength += consumedSize;
+            }
+        }
+    } else {
+        u32 localSize = decodedCapacity;
+        if (encodedWordPosition == NULL) {
+            encodedLength = STD_strnlen(encoded, encodedSize);
+        } else {
+            encodedLength = encodedWordPosition - (char*)encoded;
+        }
         if (!CopyWithoutLinearWhiteSpaces(decoded, (int*)&localSize, encoded, encodedLength)) {
             *decodedSize = localSize;
-            if (encodedSizeOut != NULL) { *encodedSizeOut = encodedLength; }
+            if (encodedSizeOut != NULL) {
+                *encodedSizeOut = encodedLength;
+            }
             return NWC24_ERR_OVERFLOW;
         }
         decodedLength = localSize;
-        if (encodedWord != NULL) {
+        if (encodedWordPosition != NULL) {
             BOOL whitespaceOnly = TRUE;
             u32 offset;
             for (offset = 0; offset < localSize && decoded[offset] != '\0'; offset++) {
@@ -588,18 +611,20 @@ static NWC24Err DecodeWord(char* charsetData, u32 charsetCapacity, char* decoded
             }
         }
     }
-    *decodedSize = decodedLength;
-    if (encodedSizeOut != NULL) { *encodedSizeOut = encodedLength; }
-    return NWC24_OK;
+    if (decodedSize != NULL) {
+        *decodedSize = decodedLength;
+    }
+    if (encodedSizeOut != NULL) {
+        *encodedSizeOut = encodedLength;
+    }
+    return result;
 }
 
 NWC24Err NWC24DecodeMIMEHeaderFieldBody(u8* charsetData, u32 charsetDataSize, u8* decoded, u32 decodedCapacity, u32* decodedSize, u8* encoded,
                                         u32 encodedSize) {
     int result = 0;
-    char* input;
-    s32 inputSize;
     u8* output;
-    s32 remainingCapacity;
+    u32 inputSize;
 
     if (decodedSize == NULL) {
         return NWC24_ERR_INVALID_VALUE;
@@ -615,29 +640,27 @@ NWC24Err NWC24DecodeMIMEHeaderFieldBody(u8* charsetData, u32 charsetDataSize, u8
     *decoded = 0;
     *charsetData = 0;
     *decodedSize = 1;
-    input = (char*)encoded;
     inputSize = encodedSize;
     output = decoded;
-    remainingCapacity = decodedCapacity;
-    while ((s32)inputSize > 0 && remainingCapacity > 0 && *input != '\0') {
+    while ((s32)inputSize > 0 && (s32)decodedCapacity > 0 && *encoded != '\0') {
         u32 copiedSize = 0;
         u32 consumedSize;
         result =
-            DecodeWord((char*)charsetData, charsetDataSize, (char*)output, remainingCapacity, &copiedSize, (char*)input, inputSize, &consumedSize);
+            DecodeWord((char*)charsetData, charsetDataSize, (char*)output, decodedCapacity, &copiedSize, (char*)encoded, inputSize, &consumedSize);
         if (copiedSize == 0) {
             break;
         }
         copiedSize--;
         output += copiedSize;
-        remainingCapacity -= copiedSize;
+        decodedCapacity -= copiedSize;
         *decodedSize += copiedSize;
-        input += consumedSize;
+        encoded += consumedSize;
         inputSize -= consumedSize;
         if (result != NWC24_OK) {
             break;
         }
     }
-    if (result == NWC24_OK && inputSize > 0 && *input != '\0') {
+    if (result == NWC24_OK && inputSize > 0 && *encoded != '\0') {
         result = NWC24_ERR_OVERFLOW;
     }
     decoded[*decodedSize - 1] = '\0';
@@ -668,8 +691,6 @@ static NWC24Err ConcatEncodedText(char* encoded, u32 encodedCapacity, u32* encod
     return result;
 }
 
-
-
 static NWC24Err ExtractCharset(char* charset, u32 charsetCapacity, u32* charsetSize, char* encoded, u32 encodedSize) {
     char* start;
     char* end;
@@ -682,7 +703,7 @@ static NWC24Err ExtractCharset(char* charset, u32 charsetCapacity, u32* charsetS
     if (start == NULL) {
         return NWC24_ERR_NOT_SUPPORTED;
     }
-    end = FindMarkerAfterPrefix(start, encodedSize - (u32)(start + 2 - encoded), 2, "?");
+    end = FindMarker(start + 2, encodedSize - (u32)(start + 2 - encoded), "?");
     if (end == NULL) {
         return NWC24_ERR_NOT_SUPPORTED;
     }
@@ -690,21 +711,12 @@ static NWC24Err ExtractCharset(char* charset, u32 charsetCapacity, u32* charsetS
     if (charsetLength < charsetCapacity) {
         Mail_strncpy(charset, start + 2, charsetLength);
         charset[charsetLength] = '\0';
-    } else { return NWC24_ERR_OVERFLOW; }
+    } else {
+        return NWC24_ERR_OVERFLOW;
+    }
     *charsetSize = charsetLength + 2;
     return NWC24_OK;
 }
-static inline char* FindMarkerOffsetPrefix(char* input, u32 size, u32 prefix, const char* marker) {
-    u32 markerLength = Mail_strlen(marker);
-    u32 offset;
-    for (offset = 0; offset <= size; offset++) {
-        if (Mail_strncmp(input + offset + prefix, marker, markerLength) == 0) {
-            return input + prefix + offset;
-        }
-    }
-    return NULL;
-}
-
 
 static NWC24Err ExtractEncodedText(char* decoded, u32 decodedCapacity, u32* decodedSize, char encoding, char* encoded, u32 encodedSize,
                                    u32* encodedSizeOut) {
@@ -713,8 +725,10 @@ static NWC24Err ExtractEncodedText(char* decoded, u32 decodedCapacity, u32* deco
     int length;
     NWC24Err result;
 
-    if (encoded == NULL) { return NWC24_ERR_INVALID_VALUE; }
-    if (decodedSize == NULL) {
+    if (decoded == NULL) {
+        return NWC24_ERR_INVALID_VALUE;
+    }
+    if (encoded == NULL || decodedSize == NULL) {
         return NWC24_ERR_INVALID_VALUE;
     }
     *decodedSize = 0;
@@ -726,19 +740,20 @@ static NWC24Err ExtractEncodedText(char* decoded, u32 decodedCapacity, u32* deco
     if (start == NULL) {
         return NWC24_ERR_NOT_SUPPORTED;
     }
-    end = FindMarkerOffsetPrefix(start, encodedSize - (u32)(start + 1 - encoded), 1, "?=");
+    start++;
+    end = FindMarker(start, encodedSize - (u32)(start - encoded), "?=");
     if (end == NULL) {
         return NWC24_ERR_NOT_SUPPORTED;
     }
-    length = end - (start + 1);
+    length = end - start;
     if (encoding == 'B' || encoding == 'b') {
-        result = NWC24Base64Decode((u8*)(start + 1), length, (u8*)decoded, decodedCapacity - 1, decodedSize);
+        result = NWC24Base64Decode((u8*)start, length, (u8*)decoded, decodedCapacity - 1, decodedSize);
         if (result == NWC24_OK || result == NWC24_ERR_OVERFLOW) {
             decoded[*decodedSize] = '\0';
             *decodedSize += 1;
         }
     } else if (encoding == 'Q' || encoding == 'q') {
-        result = QDecode(decoded, decodedCapacity - 1, decodedSize, start + 1, length, NULL, 1);
+        result = QDecode(decoded, decodedCapacity - 1, decodedSize, start, length, NULL, 1);
         if (result == NWC24_OK || result == NWC24_ERR_OVERFLOW) {
             decoded[*decodedSize] = '\0';
             *decodedSize += 1;
@@ -746,6 +761,6 @@ static NWC24Err ExtractEncodedText(char* decoded, u32 decodedCapacity, u32* deco
     } else {
         return NWC24_ERR_NOT_SUPPORTED;
     }
-    if (end != NULL) { *encodedSizeOut = (u32)(end - encoded) + 2; }
+    *encodedSizeOut = (u32)(end - encoded) + 2;
     return result;
 }
