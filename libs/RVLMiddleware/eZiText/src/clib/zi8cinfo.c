@@ -643,7 +643,7 @@ ziU32 Zi8GetSInfo(ziU8* strokes, ziU8* extraStrokes, ziWChar* outputBuffer, ziU8
 {
     int strokeIndex;
     int outputCount;
-    int extraCount;
+    volatile int extraCount;
 
     outputCount = 0;
     Zi8LogError(100, work);
@@ -660,8 +660,7 @@ ziU32 Zi8GetSInfo(ziU8* strokes, ziU8* extraStrokes, ziWChar* outputBuffer, ziU8
             goto lowStroke;
         }
     badStroke:
-        outputCount--;
-        outputBuffer[(ziU8)outputCount] = 0;
+        outputBuffer[(ziU8)--outputCount] = 0;
         return outputCount;
     lowStroke:
         outputBuffer[(ziU8)outputCount] = zi8StrokeCode(strokes[strokeIndex] & 0xf, work);

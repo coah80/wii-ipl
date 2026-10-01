@@ -142,6 +142,9 @@ typedef struct ziFuzzyZYPairs {
     int rANDn : 1;
     int bANDp : 1;
     int gANDk : 1;
+    int dANDt : 1;
+
+    int reserved : 20;
 } ziFuzzyZYPairs;
 
 typedef struct _ziGetParam {

@@ -44,13 +44,12 @@ static ziU8 ziNumKeysWithChars(ziU8 language, ziPtr __zi8_work_data) {
 }
 
 ziBool Zi8getKeyLayout(ziU8 language, ziWChar key, ziWChar* chars, ziU8 mode, ziPtr __zi8_work_data) {
-    ziU8 numKeys;
     ziU16 tableCount;
+    ziU8 numKeys;
     ziU8* dataAddress;
     ziUserKeyMap* customTable;
-    ziU32 totalCharacters;
     ziU16 charCount;
-    ziU32 keyIndex;
+    ziU16 keyIndex;
     ziWChar* keyChars;
 
     dataAddress = 0;
@@ -93,15 +92,15 @@ tables_ready:
             return 0;
         }
 
-        totalCharacters = 0;
-        keyIndex = totalCharacters;
+        tableCount = 0;
+        keyIndex = tableCount;
         for (; (ziU16)keyIndex < key; keyIndex++) {
-            totalCharacters += dataAddress[(ziU16)keyIndex];
+            tableCount += dataAddress[(ziU16)keyIndex];
         }
         if ((charCount = (ziU8)dataAddress[key]) == 0) {
             return 0;
         }
-        dataAddress = dataAddress + numKeys + ((totalCharacters & 0xffff) * 2);
+        dataAddress = dataAddress + numKeys + (tableCount * 2);
         keyIndex = 0;
         for (; (ziU16)keyIndex < charCount; keyIndex++) {
             chars[(ziU16)keyIndex] = (ziU16)dataAddress[(ziU16)keyIndex * 2] |
