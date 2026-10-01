@@ -522,7 +522,7 @@ char gAtermAossSsid[7] = "******";
 extern u32 gAtermUseSharedAddress;
 extern char gAtermProductName[5];
 u32 gAtermCancelRequested;
-u8 gAtermSelectedBssid[8];
+u8 gAtermSelectedBssid[6];
 u32 gAtermProtocolState;
 u8 gAtermAddressBuffer[8];
 u32 gAtermResponseMode;
@@ -906,7 +906,7 @@ int ATERM_81402A24(void) {
     while (iteration < 300 && gAtermCancelRequested == 0) {
         s64 currentTime = OSGetTime();
         now = (u32)OSTicksToMilliseconds(currentTime);
-        if (gAtermDeadline <= now) {
+        if (now >= gAtermDeadline) {
             break;
         }
 
@@ -931,7 +931,7 @@ int ATERM_81402A24(void) {
             while ((s32)recordIndex < result) {
                 WDBssDesc* descriptor = (WDBssDesc*)descriptorWords;
 
-                memcpy(ssidCursor, descriptor->ssid, 
+                memcpy(ssidCursor, descriptor->ssid,
                     sizeof(currentRecords->entries[recordIndex].ssid));
                 if (descriptor->ssidLength > sizeof(currentRecords->entries[recordIndex].ssid)) {
                     currentRecords->entries[recordIndex].ssidLength = 0;
@@ -941,7 +941,7 @@ int ATERM_81402A24(void) {
                 currentRecords->entries[recordIndex].ssid[
                     currentRecords->entries[recordIndex].ssidLength] = '\0';
                 currentRecords->entries[recordIndex].status = (descriptor->capabilities >> 4) & 1;
-                memcpy(bssidCursor, descriptor->bssid, 
+                memcpy(bssidCursor, descriptor->bssid,
                     sizeof(currentRecords->entries[recordIndex].bssid));
                 descriptorWords += descriptor->length;
                 ssidCursor += sizeof(AtermApRecord);
@@ -1163,9 +1163,11 @@ int ATERM_814031DC(AtermAssociationRequest* request) {
     if (gAtermUseSharedAddress != 0) {
         {
             const u8* addressCursor = interfaceMacAddress;
+            const u8* addressEnd = interfaceMacAddress + 6;
             int addressIndex;
             char* textCursor = interfaceMacText;
-            for (addressIndex = 0; ; addressIndex++) {
+            addressIndex = 0;
+            do {
                 u8 addressByte = *addressCursor++;
                 char* encoded = textCursor;
                 s32 highNibble = (addressByte & 0xF0) >> 4;
@@ -1182,18 +1184,20 @@ int ATERM_814031DC(AtermAssociationRequest* request) {
                 }
                 *encoded = 0;
                 textCursor += encoded - textCursor;
-                if (addressIndex == 5) {
-                    break;
+                if (addressIndex < 5) {
+                    *textCursor++ = ':';
                 }
-                *textCursor++ = ':';
-            }
+                addressIndex++;
+            } while (addressCursor < addressEnd);
             *textCursor = '\0';
         }
         {
             const u8* addressCursor = scanAddress;
+            const u8* addressEnd = scanAddress + 6;
             int addressIndex;
             char* textCursor = scanAddressText;
-            for (addressIndex = 0; ; addressIndex++) {
+            addressIndex = 0;
+            do {
                 u8 addressByte = *addressCursor++;
                 char* encoded = textCursor;
                 s32 highNibble = (addressByte & 0xF0) >> 4;
@@ -1210,11 +1214,11 @@ int ATERM_814031DC(AtermAssociationRequest* request) {
                 }
                 *encoded = 0;
                 textCursor += encoded - textCursor;
-                if (addressIndex == 5) {
-                    break;
+                if (addressIndex < 5) {
+                    *textCursor++ = ':';
                 }
-                *textCursor++ = ':';
-            }
+                addressIndex++;
+            } while (addressCursor < addressEnd);
             *textCursor = '\0';
         }
     }

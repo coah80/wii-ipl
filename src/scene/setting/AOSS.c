@@ -8,8 +8,8 @@
 typedef union AOSSWaitSettings {
     u32 value;
     struct {
-        u16 high;
-        u16 low;
+        s16 high;
+        s16 low;
     } halfwords;
 } AOSSWaitSettings;
 
@@ -19,6 +19,12 @@ typedef struct AOSSSocketAddress {
     u16 port;
     u32 address;
 } AOSSSocketAddress;
+
+typedef struct AOSSPollDescriptor {
+    s32 socket;
+    s32 events;
+    s32 returnedEvents;
+} AOSSPollDescriptor;
 
 typedef struct AOSSRuntimeState {
     void* config;
@@ -279,7 +285,7 @@ extern int AOSSi_Status(int status);
 extern int AOSSi_SetNCDIPAddr(u32 ipAddress, u32 netmask, u32 gateway, u32 dns1, u32 dns2);
 extern int AOSSi_Sleep(u32 duration);
 extern int AOSSi_WLANConnect(void);
-extern int SOPoll(s32* descriptors, int count, s32 timeoutHigh, s32 timeoutLow);
+extern int SOPoll(AOSSPollDescriptor* descriptors, int count, s32 timeoutHigh, s32 timeoutLow);
 extern int SORecvFrom(int socket, void* buffer, int length, int flags, void* address);
 extern int SOSendTo(int socket, const void* buffer, int length, int flags, const void* address);
 extern int SOBind(int socket, const void* address);
@@ -414,7 +420,7 @@ int AOSS_Init_old(AOSSInitInput* input)
   AOSSRequestRecords requestRecords;
   struct {
     s16 connection;
-    u16 response;
+    s16 response;
   } waitIntervals;
   AOSSSocketAddress replyAddress;
   u8 messageIdentity[8];
@@ -422,9 +428,7 @@ int AOSS_Init_old(AOSSInitInput* input)
   int pollSeconds;
   int pollSubseconds;
   AOSSSocketAddress receivedAddress;
-  s32 pollArguments[4];
-  u32 pollResultHigh;
-  u32 pollResultLow;
+  AOSSPollDescriptor pollArguments[2];
   u32 networkAddresses[5];
   u32 gatewayAddress;
 
@@ -442,11 +446,11 @@ int AOSS_Init_old(AOSSInitInput* input)
     initialWait = 10;
   }
   waitIntervals.response = input->options[1];
-  if (waitIntervals.response == 0xffff) {
+  if (waitIntervals.response == -1) {
     waitIntervals.response = 100;
   }
   waitSettings.halfwords.low = input->options[3];
-  if (waitSettings.halfwords.low == 0xffff) {
+  if (waitSettings.halfwords.low == -1) {
     waitSettings.halfwords.low = 100;
   }
   waitSettings.halfwords.high = initialWait;
@@ -990,12 +994,12 @@ invalid_request_state:
           memset(packetBuffer,0,0x5f8);
           pollSeconds = timeoutMilliseconds / 1000;
           pollSubseconds = (timeoutMilliseconds % 1000) * 1000;
-          pollArguments[1] = 1;
-          pollArguments[0] = s_socket;
-          pollArguments[2] = 0;
-          pollArguments[3] = s_socket;
-          pollResultLow = 0;
-          pollResultHigh = 1;
+          pollArguments[0].events = 1;
+          pollArguments[0].socket = s_socket;
+          pollArguments[0].returnedEvents = 0;
+          pollArguments[1].socket = s_socket;
+          pollArguments[1].returnedEvents = 0;
+          pollArguments[1].events = 1;
           timeoutTicks = (u32)(pollSeconds * (OS_BUS_CLOCK >> 2));
           tickRemainder = (u32)(pollSubseconds * ((OS_BUS_CLOCK >> 2) / 125000)) >> 3;
           requestResult = SOPoll(pollArguments,1,((u32)((timeoutTicks + tickRemainder) >> 32)),(int)timeoutTicks + (int)tickRemainder);
@@ -2318,18 +2322,20 @@ int AOSS_81401574(void* packet, AOSSRequestRecords* request, int socket) {
 
 int AOSS_81401778(void* packet, void* request, int socket) {
     AOSSHelloPacket* response = (AOSSHelloPacket*)s_responseBuffer;
-    AOSSHelloPayload* payload = &response->payload;
+    AOSSHelloPayload* payload;
     AOSSRequestRecords* requestRecords = (AOSSRequestRecords*)request;
     AOSSSocketAddress destination;
     AOSSKeySchedule schedule;
     AOSSHelloRecord hello;
     u8 accessPointName[8];
-    u8 checksum;
+    u32 checksum;
     u16 nonce;
-    u32 crc;
     u32 stateLength;
     u32 index;
     u32 firstByte;
+    u32 firstIndex;
+    u32 secondIndex;
+    u8* state;
     u8 value;
     u8 swap;
     s16 responseLength;
@@ -2341,6 +2347,7 @@ int AOSS_81401778(void* packet, void* request, int socket) {
     sequence = 0;
     memset(&hello, 0, sizeof(hello));
     memset(response, 0, 0x5dc);
+    payload = &response->payload;
     hello.data.fields.type = 2;
     hello.data.fields.reserved01 = 0;
     hello.data.fields.length = SOHtoNs(4);
@@ -2349,18 +2356,19 @@ int AOSS_81401778(void* packet, void* request, int socket) {
     responseLength = 8;
 
     if ((s32)s_connectionState == 1) {
+        const u32* crcTable = s_crcTable;
         sequence = 1;
-        crc = 0xffffffff;
+        checksum = 0xffffffff;
         AOSS_81401DC0(0, s_crcTable);
-        crc = (crc >> 8) ^ s_crcTable[(crc ^ hello.data.bytes[0]) & 0xff];
-        crc = (crc >> 8) ^ s_crcTable[(crc ^ hello.data.bytes[1]) & 0xff];
-        crc = (crc >> 8) ^ s_crcTable[(crc ^ hello.data.bytes[2]) & 0xff];
-        crc = (crc >> 8) ^ s_crcTable[(crc ^ hello.data.bytes[3]) & 0xff];
-        crc = (crc >> 8) ^ s_crcTable[(crc ^ hello.data.bytes[4]) & 0xff];
-        crc = (crc >> 8) ^ s_crcTable[(crc ^ hello.data.bytes[5]) & 0xff];
-        crc = (crc >> 8) ^ s_crcTable[(crc ^ hello.data.bytes[6]) & 0xff];
-        crc = (crc >> 8) ^ s_crcTable[(crc ^ hello.data.bytes[7]) & 0xff];
-        checksum = (u8)crc ^ 0xff;
+        checksum = (checksum >> 8) ^ crcTable[(checksum ^ hello.data.bytes[0]) & 0xff];
+        checksum = (checksum >> 8) ^ crcTable[(checksum ^ hello.data.bytes[1]) & 0xff];
+        checksum = (checksum >> 8) ^ crcTable[(checksum ^ hello.data.bytes[2]) & 0xff];
+        checksum = (checksum >> 8) ^ crcTable[(checksum ^ hello.data.bytes[3]) & 0xff];
+        checksum = (checksum >> 8) ^ crcTable[(checksum ^ hello.data.bytes[4]) & 0xff];
+        checksum = (checksum >> 8) ^ crcTable[(checksum ^ hello.data.bytes[5]) & 0xff];
+        checksum = (checksum >> 8) ^ crcTable[(checksum ^ hello.data.bytes[6]) & 0xff];
+        checksum = (checksum >> 8) ^ crcTable[(checksum ^ hello.data.bytes[7]) & 0xff];
+        checksum = (checksum ^ 0xffffffff) & 0xff;
 
         schedule.bytes = (u8*)AOSSi_Alloc(8);
         if (schedule.bytes != 0) {
@@ -2371,14 +2379,17 @@ int AOSS_81401778(void* packet, void* request, int socket) {
             AOSS_81401C9C(&schedule, s_packetState.keyNonce,
                 sizeof(s_packetState.keyNonce) + sizeof(s_packetState.keyAddress), 8);
             for (index = 0; index < 8; index++) {
-                schedule.i = (schedule.i + 1) % schedule.length & 0xff;
-                firstByte = schedule.bytes[schedule.i];
-                schedule.j = (firstByte + schedule.j) % schedule.length & 0xff;
-                swap = schedule.bytes[schedule.j];
+                state = schedule.bytes;
+                firstIndex = (schedule.i + 1) % schedule.length & 0xff;
+                firstByte = state[firstIndex];
+                secondIndex = (firstByte + schedule.j) % schedule.length & 0xff;
+                swap = state[secondIndex];
                 stateLength = firstByte + swap;
-                schedule.bytes[schedule.j] = (u8)firstByte;
-                schedule.bytes[schedule.i] = swap;
-                value = schedule.bytes[stateLength % schedule.length] ^ hello.data.bytes[index];
+                schedule.i = firstIndex;
+                schedule.j = secondIndex;
+                state[secondIndex] = (u8)firstByte;
+                state[firstIndex] = swap;
+                value = state[stateLength % schedule.length] ^ hello.data.bytes[index];
                 payload->bytes[index + 4] = value;
             }
             AOSSi_Free(schedule.bytes);
