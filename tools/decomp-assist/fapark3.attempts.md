@@ -237,3 +237,23 @@ Orig .o exports `STB_GLOBAL lbl_XXXX` data symbols = real file-scope objects
   (parked reg-rotation); GetSFD start_cluster_p local: still 3 (cyclic
   marshal-order tie confirmed); FindCluster inline-`1<<x`/decl-order/fused
   assign: all still 8 (paired r7<->r8 web swap, regalloc tie).
+
+## Session: Devin Bot lever round (web-lifetime / paired-decl / cyclic-reorder)
+
+Applied the three targeted levers; no flips.
+
+- FAAttach index web (r0 vs r5): tried web-shortening via block-scope,
+  expression-in-arg-position, web-lifetime extension — all ≥10 or cascade.
+  Pure allocator home choice; parked.
+- FindCluster paired r7<->r8 webs: all decl-pair swaps invariant at 8.
+- GetSFD 3-insn cyclic marshal: all 6 decl perms + cyclic stmt reorder
+  invariant at 3 (marshal order is not source-statement order here).
+- PFCACHE_DoWriteNumSectorAndFreeIfNeeded overlap branch (9 diffs):
+  orig remats `num_sector+sector` as `add r4,r27,r26` and emits
+  last=sum-1 BEFORE overlap=sum-p_sect. Any source form that reintroduces
+  the literal sum CSEs to hoisted r31 (228/106 cascade) — remat choice is
+  internal. Reassociated/inline forms all ≥106. Parked at 9.
+- PFFAT12_ReadFATEntryWithBuf: decl-order rotation `res,sec,err,cur,off`
+  DID move it 34->23 (first decl-order win on this unit); residual is a
+  second callee rotation (one web homes r31 mine vs r28/r29 orig).
+  u16 sector/offset, init'd-err-decl, else-if, mul3 form all worse.
