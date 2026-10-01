@@ -2419,178 +2419,42 @@ void Base::onPressRight() {
     meScrollFlag = SF_ScrollOn;
 }
 
-extern "C" asm void calc__Q39textinput9inputform4BaseFv() {
-    nofralloc
-    stwu r1, -0x40(r1)
-    mflr r0
-    stw r0, 0x44(r1)
-    stfd f31, 0x30(r1)
-    psq_st f31, 0x38(r1), 0, 0
-    stw r31, 0x2c(r1)
-    stw r30, 0x28(r1)
-    mr r30, r3
-    lwz r12, 0x18c(r3)
-    lwz r12, 0x14(r12)
-    mtctr r12
-    addi r3, r3, 0x18c
-    bctrl
-    cmpwi r3, 0
-    beq calc_L1
-    lwz r12, 0x18c(r30)
-    addi r3, r30, 0x18c
-    lwz r12, 0x10(r12)
-    mtctr r12
-    bctrl
-    frsp f0, f1
-    stfs f1, 0x188(r30)
-    stfs f0, 0x100(r30)
-calc_L1:
-    lwz r12, 0x18c(r30)
-    addi r3, r30, 0x18c
-    lwz r12, 0x14(r12)
-    mtctr r12
-    bctrl
-    cmpwi r3, 0
-    bne calc_L2
-    lwz r12, 0(r30)
-    mr r3, r30
-    lwz r12, 0x16c(r12)
-    mtctr r12
-    bctrl
-calc_L2:
-    lwz r3, 0x164(r30)
-    lwz r12, 0(r3)
-    lwz r12, 0x78(r12)
-    mtctr r12
-    bctrl
-    cmpwi r3, 0
-    bne calc_L3
-    lfs f1, lbl_81694D38(r0)
-    lfs f0, 0x1ac(r30)
-    fadds f0, f1, f0
-    stfs f0, 0x1ac(r30)
-calc_L3:
-    lwz r12, 0x18c(r30)
-    addi r3, r30, 0x18c
-    lwz r12, 0xc(r12)
-    mtctr r12
-    bctrl
-    lfs f1, sfColorPhase(r0)
-    lfs f0, lbl_81694D40(r0)
-    fmuls f1, f0, f1
-    bl SinFIdx__Q24nw4r4mathFf
-    lfs f0, lbl_81694D48(r0)
-    li r0, 0x5a
-    li r3, 2
-    li r31, 0xfd
-    fmuls f2, f0, f1
-    lfs f0, lbl_81694D44(r0)
-    stb r3, 0x1c0(r30)
-    fmr f31, f1
-    lwz r3, 0x164(r30)
-    fadds f0, f0, f2
-    stb r0, 0x1c1(r30)
-    fctiwz f0, f0
-    stb r31, 0x1c2(r30)
-    stfd f0, 8(r1)
-    lwz r0, 0xc(r1)
-    stb r0, 0x1c3(r30)
-    lwz r12, 0(r3)
-    lwz r12, 0x78(r12)
-    mtctr r12
-    bctrl
-    cmpwi r3, 0
-    beq calc_L4
-    lfs f1, lbl_81694D50(r0)
-    li r0, 0x8c
-    li r3, 0x34
-    lfs f0, lbl_81694D4C(r0)
-    fmuls f1, f1, f31
-    stb r0, 0x1c1(r30)
-    stb r3, 0x1c0(r30)
-    fadds f0, f0, f1
-    stb r31, 0x1c2(r30)
-    fctiwz f0, f0
-    stfd f0, 8(r1)
-    lwz r0, 0xc(r1)
-    stb r0, 0x1c3(r30)
-    b calc_L7
-calc_L4:
-    lfs f1, 0x1ac(r30)
-    lfs f5, lbl_81694D4C(r0)
-    fcmpo cr0, f1, f5
-    cror eq, lt, eq
-    bne calc_L7
-    lfs f2, lbl_81694D28(r0)
-    lfs f3, lbl_81694D54(r0)
-    fmr f4, f2
-    lfs f6, lbl_81694D58(r0)
-    fmr f7, f2
-    bl hermiteInterporation__Q29textinput4utilFfffffff
-    fctiwz f0, f1
-    lfs f2, lbl_81694D28(r0)
-    lfs f1, 0x1ac(r30)
-    fmr f4, f2
-    lfs f3, lbl_81694D5C(r0)
-    stfd f0, 8(r1)
-    fmr f7, f2
-    lfs f5, lbl_81694D4C(r0)
-    lwz r0, 0xc(r1)
-    lfs f6, lbl_81694D60(r0)
-    stb r0, 0x1c0(r30)
-    bl hermiteInterporation__Q29textinput4utilFfffffff
-    fctiwz f0, f1
-    lfs f2, lbl_81694D28(r0)
-    lfs f3, lbl_81694D64(r0)
-    fmr f4, f2
-    lfs f1, 0x1ac(r30)
-    stfd f0, 0x10(r1)
-    fmr f6, f3
-    lfs f5, lbl_81694D4C(r0)
-    lwz r0, 0x14(r1)
-    fmr f7, f2
-    stb r0, 0x1c1(r30)
-    bl hermiteInterporation__Q29textinput4utilFfffffff
-    fctiwz f1, f1
-    lfs f2, sfColorPhase(r0)
-    lfs f0, lbl_81694D40(r0)
-    stfd f1, 0x18(r1)
-    fmuls f1, f0, f2
-    lwz r0, 0x1c(r1)
-    stb r0, 0x1c2(r30)
-    bl SinFIdx__Q24nw4r4mathFf
-    lfs f2, lbl_81694D28(r0)
-    fmr f31, f1
-    lfs f3, lbl_81694D4C(r0)
-    fmr f4, f2
-    lfs f1, 0x1ac(r30)
-    fmr f5, f3
-    lfs f6, lbl_81694D44(r0)
-    fmr f7, f2
-    bl hermiteInterporation__Q29textinput4utilFfffffff
-    lfs f0, lbl_81694D68(r0)
-    fmuls f0, f0, f31
-    fadds f0, f1, f0
-    fctiwz f0, f0
-    stfd f0, 0x20(r1)
-    lwz r0, 0x24(r1)
-    stb r0, 0x1c3(r30)
-calc_L7:
-    lwz r3, 0x214(r30)
-    lfs f1, sfColorPhase(r0)
-    lfs f0, lbl_81694D58(r0)
-    addi r0, r3, 8
-    stw r0, 0x214(r30)
-    fadds f0, f1, f0
-    stfs f0, sfColorPhase(r0)
-    psq_l f31, 0x38(r1), 0, 0
-    lfd f31, 0x30(r1)
-    lwz r31, 0x2c(r1)
-    lwz r30, 0x28(r1)
-    lwz r0, 0x44(r1)
-    mtlr r0
-    addi r1, r1, 0x40
-    blr
+inline f32 nextColorPhase(f32 phase) { phase += 2.0f; return phase; }
+inline f32 colorSine(f32 phase) { return nw4r::math::SinFIdx(phase * 0.7111111f); }
+void Base::calc() {
+    if (mScrollAnm.isActive()) {
+        f32 scroll = mScrollAnm.getValue();
+        mfScrollY = scroll;
+        mfDrawScrollY = mfScrollY;
+    }
+    if (!mScrollAnm.isActive()) autoScroll();
+    if (!mpString->isOnSustain()) mfSustainTimer = 1.0f + mfSustainTimer;
+    mScrollAnm.calc();
+    f32 wave = colorSine(sfColorPhase);
+    mSelectedColor.r = 2;
+    mSelectedColor.g = 90;
+    mSelectedColor.b = 253;
+    mSelectedColor.a = static_cast<u8>(150.0f + 30.0f * wave);
+    if (mpString->isOnSustain()) {
+        mSelectedColor.r = 52;
+        mSelectedColor.g = 140;
+        mSelectedColor.b = 253;
+        mSelectedColor.a = static_cast<u8>(50.0f + 10.0f * wave);
+    } else if (mfSustainTimer <= 50.0f) {
+        mSelectedColor.r = static_cast<u8>(util::hermiteInterporation(mfSustainTimer, 0.0f, 52.0f, 0.0f, 50.0f, 2.0f, 0.0f));
+        mSelectedColor.g = static_cast<u8>(util::hermiteInterporation(mfSustainTimer, 0.0f, 140.0f, 0.0f, 50.0f, 90.0f, 0.0f));
+        u8 blue = static_cast<u8>(util::hermiteInterporation(mfSustainTimer, 0.0f, 253.0f, 0.0f, 50.0f, 253.0f, 0.0f));
+        f32 phase = sfColorPhase;
+        f32 angle = phase * 0.7111111f;
+        mSelectedColor.b = blue;
+        wave = nw4r::math::SinFIdx(angle);
+        f32 alpha = util::hermiteInterporation(mfSustainTimer, 0.0f, 50.0f, 0.0f, 50.0f, 150.0f, 0.0f);
+        mSelectedColor.a = static_cast<u8>(alpha + 20.0f * wave);
+    }
+    u32 cursorTimer = muCursorTimer + 8;
+    f32 phase = sfColorPhase;
+    muCursorTimer = cursorTimer;
+    sfColorPhase = nextColorPhase(phase);
 }
 
 Base::RowInfoManager::~RowInfoManager() {
@@ -2824,49 +2688,29 @@ void tistring::Decolated::clear() {
 }
 
 namespace inputform {
-extern "C" asm void init__Q49textinput9inputform4Base14RowInfoManagerFv() {
-    nofralloc
-    li r8, 0
-    li r4, 0
-    b init_RowInfo_L1
-init_RowInfo_L2:
-    lwz r7, 0(r3)
-    subi r5, r8, 1
-    clrlslwi r6, r8, 16, 3
-    addi r0, r8, 1
-    sthux r5, r6, r7
-    addi r8, r8, 1
-    sth r0, 2(r6)
-    sth r4, 4(r6)
-    sth r4, 6(r6)
-init_RowInfo_L1:
-    lhz r5, 4(r3)
-    clrlwi r0, r8, 16
-    cmplw r0, r5
-    blt init_RowInfo_L2
-    lhz r0, 4(r3)
-    subi r5, r5, 1
-    lwz r7, 0(r3)
-    li r4, 0
-    slwi r6, r0, 3
-    clrlslwi r0, r5, 16, 3
-    sthux r5, r6, r7
-    sth r4, 2(r6)
-    lwz r6, 0(r3)
-    lhz r5, 4(r3)
-    add r4, r6, r0
-    sth r5, 2(r4)
-    lhz r0, 4(r3)
-    sth r0, 0(r6)
-    lhz r5, 4(r3)
-    lwz r4, 0(r3)
-    addi r5, r5, 1
-    clrlslwi r0, r5, 16, 3
-    sthux r5, r4, r0
-    lhz r3, 4(r3)
-    addi r0, r3, 1
-    sth r0, 2(r4)
-    blr
+inline u16 initializeRowLinks(Base::Info_* const& rows, const u16& capacity) {
+    for (u16 index = 0; index < capacity; ++index) {
+        Base::Info_* row = &rows[index];
+        row->Back = index - 1;
+        row->Next = index + 1;
+        row->StrCount = 0;
+        row->DispRowCount = 0;
+    }
+    return capacity;
+}
+void Base::RowInfoManager::init() {
+    u16 capacity = initializeRowLinks(mpInfo, mMaxLength);
+    Info_* freeHead = &mpInfo[mMaxLength];
+    u16 last = capacity - 1;
+    freeHead->Back = last;
+    freeHead->Next = 0;
+    Info_* rows = mpInfo;
+    rows[last].Next = mMaxLength;
+    rows[0].Back = mMaxLength;
+    u16 activeIndex = mMaxLength + 1;
+    Info_* activeHead = &mpInfo[activeIndex];
+    activeHead->Back = activeIndex;
+    activeHead->Next = mMaxLength + 1;
 }
 nw4r::math::VEC2 LayoutByNW4R::getScale() const {
     return mpLayout->GetRootPane()->FindPaneByName(static_cast<const char*>(mpLayoutData), true)->GetScale();
@@ -3205,8 +3049,8 @@ bool Base::onCursor(CursorPos* cursor) {
                 glyph.rect.bottom = 0.0f;
                 glyph.character = *predicted;
                 calcRect(glyph);
-                f32 width = glyph.rect.right - glyph.rect.left;
-                f32 fieldWidth = mRect.right - mRect.left;
+                f32 width = glyph.rect.GetWidth();
+                f32 fieldWidth = mRect.GetWidth();
                 f32 cursorX = GetCursorX();
                 if (cursorX + width >= fieldWidth) doLineFeed();
                 Print(*predicted);
@@ -3249,9 +3093,7 @@ bool Base::onCursor(CursorPos* cursor) {
             marker.character = 0xE057;
             calcRect(space);
             calcRect(marker);
-            f32 markerWidth = marker.rect.right - marker.rect.left;
-            f32 spaceWidth = space.rect.right - space.rect.left;
-            f32 offset = ((spaceWidth - markerWidth) * 0.5f) * getScale().x;
+            f32 offset = ((space.rect.GetWidth() - marker.rect.GetWidth()) / 2.0f) * getScale().x;
             MoveCursorX(offset);
             Print(0xE057);
             MoveCursorX(offset);
