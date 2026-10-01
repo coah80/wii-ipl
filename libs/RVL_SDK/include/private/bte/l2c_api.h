@@ -151,7 +151,7 @@ UINT8 L2CA_SetTraceLevel(UINT8 new_level);
 UINT8 L2CA_SetDesireRole(UINT8 new_role);
 BOOLEAN L2CA_SetAclPriority(BD_ADDR bd_addr, UINT8 priority);
 void L2CA_SetCompression(UINT16 local_cid, UINT8 pe_type, UINT8 mem_level,
-                         UINT8 wbits, UINT8 direction, UINT8 param_6,
+                         UINT8 wbits, UINT8 direction, UINT8 config,
                          UINT8 enable);
 void L2CA_RegisterCompression(tL2CA_COMPRESS_CB *, signed);
 UINT8 L2CA_Flush(UINT16 cid);
