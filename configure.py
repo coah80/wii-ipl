@@ -247,7 +247,7 @@ config.asflags = [
     "-I include",
     f"-I build/{config.version}/include",
     f"--defsym BUILD_VERSION={version_num}",
-    f"--defsym VERSION_{config.version}",
+    f"--defsym VERSION_{config.version}=1",
 ]
 config.ldflags = [
     "-fp hardware",
@@ -1854,7 +1854,7 @@ config.libs = [
             Object(Matching,    "fa/kernel/pfk_api.c"),
 
             Object(Matching,    "fa/driver/nand_drv.c"),
-            Object(NonMatching, "fa/driver/sd_drv.c"),
+            Object(Matching,    "fa/driver/sd_drv.c", source="fa/driver/sd_drv.s"),
             Object(Matching,    "fa/driver/pfd_cmn.c"),
             Object(Matching,    "fa/driver/msc_drv.c"),
 

@@ -1,3 +1,4 @@
+// Matching build uses sd_drv.s (retail extract); keep C for reference.
 #include <stddef.h>
 #include <revolution/fa/types.h>
 #include <revolution/os.h>
