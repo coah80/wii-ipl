@@ -15,7 +15,7 @@
 
 #define SD_SLOT_PATH_LENGTH 32
 
-char lbl_81691748[] = "   +++ SD RESET Failed: %d +++\n\0"
+char __sdPathData[] = "   +++ SD RESET Failed: %d +++\n\0"
                        "/dev/sdio/slot0\0/dev/sdio/slot1\0/dev/sdio/slotw";
 
 typedef void (*SDCallbackFunc)(s32, void*);
@@ -73,7 +73,7 @@ IOSError __sdCb(s32 result, void* arg) {
     switch (data->unk_0x0C) {
         case 4: {
             if (result != 0) {
-                OSReport(lbl_81691748, result);
+                OSReport(__sdPathData, result);
                 data->dev->SDDevRca = 0;
             } else {
                 if (data->dev != NULL) {
@@ -570,7 +570,7 @@ ISD_Error ISD_UnmountCard(SDDev* dev) {
 
 ISD_Error ISD_InitCard() {
     static u8* lo;
-    char* paths = lbl_81691748;
+    char* paths = __sdPathData;
     ISD_Error ret = SD_ERROR_SUCCESS;
     BOOL enabled;
 
