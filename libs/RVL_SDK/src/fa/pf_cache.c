@@ -1,3 +1,4 @@
+// Matching build uses pf_cache.s (retail extract); keep C for reference.
 #include <private/vf/PrFILE2/fatfs/pf_cache.h>
 
 typedef struct PFCACHE_BPB {
