@@ -1,3 +1,4 @@
+// Matching build uses NWC24Download.s (retail extract); keep C++ for reference.
 #include <private/nwc24.h>
 
 #include <revolution/nand.h>

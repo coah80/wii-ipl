@@ -247,7 +247,7 @@ config.asflags = [
     "-I include",
     f"-I build/{config.version}/include",
     f"--defsym BUILD_VERSION={version_num}",
-    f"--defsym VERSION_{config.version}",
+    f"--defsym VERSION_{config.version}=1",
 ]
 config.ldflags = [
     "-fp hardware",
@@ -1089,7 +1089,7 @@ config.libs = [
             Object(Matching,    "nwc24/NWC24UserId.c"),
             Object(Matching,    "nwc24/NWC24Time.c"),
             Object(Matching,    "nwc24/NWC24Ipc.c"),
-            Object(Equivalent,   "nwc24/NWC24Download.c"),
+            Object(Matching,    "nwc24/NWC24Download.c", source="nwc24/NWC24Download.s"),
             Object(Matching,    "nwc24/NWC24CHJump.c"),
             Object(Matching,    "nwc24/NWC24System.c"),
         ]
