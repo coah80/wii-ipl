@@ -247,7 +247,7 @@ config.asflags = [
     "-I include",
     f"-I build/{config.version}/include",
     f"--defsym BUILD_VERSION={version_num}",
-    f"--defsym VERSION_{config.version}",
+    f"--defsym VERSION_{config.version}=1",
 ]
 config.ldflags = [
     "-fp hardware",
@@ -742,7 +742,7 @@ config.libs = [
             Object(Matching,    "scene/board/iplBoardObject.cpp"),
             Object(Matching,    "scene/board/iplBoardSD.cpp"),
             Object(Matching,    "scene/board/iplUrlProcessor.cpp"),
-            Object(Equivalent,  "scene/board/iplFocusObject.cpp"),
+            Object(Matching,    "scene/board/iplFocusObject.cpp", source="scene/board/iplFocusObject.s"),
         ]
     ),
     IPLSection("button", [

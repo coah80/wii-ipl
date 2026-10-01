@@ -1,0 +1,6744 @@
+.include "macros.inc"
+.file "iplFocusObject.cpp"
+
+# 0x81396D28..0x8139BC94 | size: 0x4F6C
+.text
+.balign 4
+
+# .text:0x0 | 0x81396D28 | size: 0x1C4
+# ipl::scene::focus_object::focus_object(ipl::nand::LayoutFile*, ipl::nand::LayoutFile*, ipl::scene::BoardObject*)
+.fn __ct__Q33ipl5scene12focus_objectFPQ33ipl4nand10LayoutFilePQ33ipl4nand10LayoutFilePQ33ipl5scene11BoardObject, global
+/* 81396D28 00067248  94 21 FF E0 */	stwu r1, -0x20(r1)
+/* 81396D2C 0006724C  7C 08 02 A6 */	mflr r0
+/* 81396D30 00067250  90 01 00 24 */	stw r0, 0x24(r1)
+/* 81396D34 00067254  39 61 00 20 */	addi r11, r1, 0x20
+/* 81396D38 00067258  48 26 27 89 */	bl _savegpr_27
+/* 81396D3C 0006725C  3D 20 81 65 */	lis r9, __vt__Q33ipl5scene5event@ha
+/* 81396D40 00067260  3D 00 81 65 */	lis r8, __vt__Q33ipl5scene12button_event@ha
+/* 81396D44 00067264  3B 80 00 00 */	li r28, 0x0
+/* 81396D48 00067268  38 00 FF FF */	li r0, -0x1
+/* 81396D4C 0006726C  3C E0 81 65 */	lis r7, __vt__Q33ipl5scene19optout_button_event@ha
+/* 81396D50 00067270  39 29 BE 98 */	addi r9, r9, __vt__Q33ipl5scene5event@l
+/* 81396D54 00067274  39 08 BE 7C */	addi r8, r8, __vt__Q33ipl5scene12button_event@l
+/* 81396D58 00067278  93 83 00 00 */	stw r28, 0x0(r3)
+/* 81396D5C 0006727C  38 E7 BE 60 */	addi r7, r7, __vt__Q33ipl5scene19optout_button_event@l
+/* 81396D60 00067280  3B 63 00 58 */	addi r27, r3, 0x58
+/* 81396D64 00067284  90 03 00 04 */	stw r0, 0x4(r3)
+/* 81396D68 00067288  7C 7D 1B 78 */	mr r29, r3
+/* 81396D6C 0006728C  7C 9E 23 78 */	mr r30, r4
+/* 81396D70 00067290  7C BF 2B 78 */	mr r31, r5
+/* 81396D74 00067294  90 03 00 08 */	stw r0, 0x8(r3)
+/* 81396D78 00067298  93 83 00 0C */	stw r28, 0xc(r3)
+/* 81396D7C 0006729C  93 83 00 10 */	stw r28, 0x10(r3)
+/* 81396D80 000672A0  90 C3 00 14 */	stw r6, 0x14(r3)
+/* 81396D84 000672A4  93 83 00 18 */	stw r28, 0x18(r3)
+/* 81396D88 000672A8  93 83 00 1C */	stw r28, 0x1c(r3)
+/* 81396D8C 000672AC  93 83 00 20 */	stw r28, 0x20(r3)
+/* 81396D90 000672B0  93 83 00 24 */	stw r28, 0x24(r3)
+/* 81396D94 000672B4  93 83 00 30 */	stw r28, 0x30(r3)
+/* 81396D98 000672B8  91 23 00 28 */	stw r9, 0x28(r3)
+/* 81396D9C 000672BC  90 63 00 34 */	stw r3, 0x34(r3)
+/* 81396DA0 000672C0  93 83 00 40 */	stw r28, 0x40(r3)
+/* 81396DA4 000672C4  91 03 00 38 */	stw r8, 0x38(r3)
+/* 81396DA8 000672C8  90 63 00 44 */	stw r3, 0x44(r3)
+/* 81396DAC 000672CC  93 83 00 50 */	stw r28, 0x50(r3)
+/* 81396DB0 000672D0  90 E3 00 48 */	stw r7, 0x48(r3)
+/* 81396DB4 000672D4  90 63 00 54 */	stw r3, 0x54(r3)
+/* 81396DB8 000672D8  7F 63 DB 78 */	mr r3, r27
+/* 81396DBC 000672DC  4B FC CD C5 */	bl __ct__Q33ipl7utility8ScrollerFv
+/* 81396DC0 000672E0  38 7B 00 50 */	addi r3, r27, 0x50
+/* 81396DC4 000672E4  4B FC C7 CD */	bl __ct__Q33ipl7utility9BScrollerFv
+/* 81396DC8 000672E8  3C 80 81 09 */	lis r4, smArg__Q23ipl6System@ha
+/* 81396DCC 000672EC  93 9D 00 C8 */	stw r28, 0xc8(r29)
+/* 81396DD0 000672F0  38 84 90 08 */	addi r4, r4, smArg__Q23ipl6System@l
+/* 81396DD4 000672F4  38 7D 01 00 */	addi r3, r29, 0x100
+/* 81396DD8 000672F8  93 9D 00 CC */	stw r28, 0xcc(r29)
+/* 81396DDC 000672FC  38 A0 00 04 */	li r5, 0x4
+/* 81396DE0 00067300  93 9D 00 D0 */	stw r28, 0xd0(r29)
+/* 81396DE4 00067304  93 9D 00 D4 */	stw r28, 0xd4(r29)
+/* 81396DE8 00067308  93 9D 00 F8 */	stw r28, 0xf8(r29)
+/* 81396DEC 0006730C  9B 9D 00 FC */	stb r28, 0xfc(r29)
+/* 81396DF0 00067310  80 84 00 28 */	lwz r4, 0x28(r4)
+/* 81396DF4 00067314  48 25 EC 89 */	bl __ct__Q23EGG9AllocatorFPQ23EGG4Heapl
+/* 81396DF8 00067318  93 9D 01 20 */	stw r28, 0x120(r29)
+/* 81396DFC 0006731C  38 7D 01 50 */	addi r3, r29, 0x150
+/* 81396E00 00067320  93 9D 01 24 */	stw r28, 0x124(r29)
+/* 81396E04 00067324  93 9D 01 28 */	stw r28, 0x128(r29)
+/* 81396E08 00067328  9B 9D 01 2C */	stb r28, 0x12c(r29)
+/* 81396E0C 0006732C  93 9D 01 30 */	stw r28, 0x130(r29)
+/* 81396E10 00067330  93 9D 01 34 */	stw r28, 0x134(r29)
+/* 81396E14 00067334  93 9D 01 38 */	stw r28, 0x138(r29)
+/* 81396E18 00067338  9B 9D 01 3C */	stb r28, 0x13c(r29)
+/* 81396E1C 0006733C  4B FF F5 55 */	bl __ct__Q33ipl5scene12UrlProcessorFv
+/* 81396E20 00067340  3C 80 81 65 */	lis r4, "__vt__Q33ipl4math28LinearIntp<Q33ipl4math4VEC3>"@ha
+/* 81396E24 00067344  38 00 00 04 */	li r0, 0x4
+/* 81396E28 00067348  38 84 BE 40 */	addi r4, r4, "__vt__Q33ipl4math28LinearIntp<Q33ipl4math4VEC3>"@l
+/* 81396E2C 0006734C  7F 83 E3 78 */	mr r3, r28
+/* 81396E30 00067350  90 9D 01 A8 */	stw r4, 0x1a8(r29)
+/* 81396E34 00067354  93 9D 01 F4 */	stw r28, 0x1f4(r29)
+/* 81396E38 00067358  93 9D 01 F8 */	stw r28, 0x1f8(r29)
+/* 81396E3C 0006735C  9B 9D 01 FC */	stb r28, 0x1fc(r29)
+/* 81396E40 00067360  9B 9D 01 FD */	stb r28, 0x1fd(r29)
+/* 81396E44 00067364  9B 9D 01 FE */	stb r28, 0x1fe(r29)
+/* 81396E48 00067368  9B 9D 01 FF */	stb r28, 0x1ff(r29)
+/* 81396E4C 0006736C  9B 9D 02 00 */	stb r28, 0x200(r29)
+/* 81396E50 00067370  7C 09 03 A6 */	mtctr r0
+.L_81396E54:
+/* 81396E54 00067374  7C 9D 1A 14 */	add r4, r29, r3
+/* 81396E58 00067378  38 63 00 04 */	addi r3, r3, 0x4
+/* 81396E5C 0006737C  93 84 01 E0 */	stw r28, 0x1e0(r4)
+/* 81396E60 00067380  42 00 FF F4 */	bdnz .L_81396E54
+/* 81396E64 00067384  38 00 00 04 */	li r0, 0x4
+/* 81396E68 00067388  38 A0 00 00 */	li r5, 0x0
+/* 81396E6C 0006738C  38 80 00 00 */	li r4, 0x0
+/* 81396E70 00067390  7C 09 03 A6 */	mtctr r0
+.L_81396E74:
+/* 81396E74 00067394  7C 7D 2A 14 */	add r3, r29, r5
+/* 81396E78 00067398  38 A5 00 01 */	addi r5, r5, 0x1
+/* 81396E7C 0006739C  98 83 01 A4 */	stb r4, 0x1a4(r3)
+/* 81396E80 000673A0  42 00 FF F4 */	bdnz .L_81396E74
+/* 81396E84 000673A4  38 00 00 00 */	li r0, 0x0
+/* 81396E88 000673A8  38 60 00 20 */	li r3, 0x20
+/* 81396E8C 000673AC  38 E0 30 00 */	li r7, 0x3000
+/* 81396E90 000673B0  38 C0 00 0A */	li r6, 0xa
+/* 81396E94 000673B4  38 A0 00 09 */	li r5, 0x9
+/* 81396E98 000673B8  B0 7D 01 14 */	sth r3, 0x114(r29)
+/* 81396E9C 000673BC  7F A3 EB 78 */	mr r3, r29
+/* 81396EA0 000673C0  7F C4 F3 78 */	mr r4, r30
+/* 81396EA4 000673C4  B0 FD 01 16 */	sth r7, 0x116(r29)
+/* 81396EA8 000673C8  B0 DD 01 18 */	sth r6, 0x118(r29)
+/* 81396EAC 000673CC  B0 BD 01 1A */	sth r5, 0x11a(r29)
+/* 81396EB0 000673D0  B0 1D 01 1C */	sth r0, 0x11c(r29)
+/* 81396EB4 000673D4  B0 1D 01 1E */	sth r0, 0x11e(r29)
+/* 81396EB8 000673D8  48 00 20 3D */	bl make_layout__Q33ipl5scene12focus_objectFPQ33ipl4nand10LayoutFile
+/* 81396EBC 000673DC  7F A3 EB 78 */	mr r3, r29
+/* 81396EC0 000673E0  48 00 26 29 */	bl make_gui_mgr__Q33ipl5scene12focus_objectFv
+/* 81396EC4 000673E4  7F A3 EB 78 */	mr r3, r29
+/* 81396EC8 000673E8  7F E4 FB 78 */	mr r4, r31
+/* 81396ECC 000673EC  48 00 32 15 */	bl init__Q33ipl5scene12focus_objectFPQ33ipl4nand10LayoutFile
+/* 81396ED0 000673F0  39 61 00 20 */	addi r11, r1, 0x20
+/* 81396ED4 000673F4  7F A3 EB 78 */	mr r3, r29
+/* 81396ED8 000673F8  48 26 26 35 */	bl _restgpr_27
+/* 81396EDC 000673FC  80 01 00 24 */	lwz r0, 0x24(r1)
+/* 81396EE0 00067400  7C 08 03 A6 */	mtlr r0
+/* 81396EE4 00067404  38 21 00 20 */	addi r1, r1, 0x20
+/* 81396EE8 00067408  4E 80 00 20 */	blr
+.endfn __ct__Q33ipl5scene12focus_objectFPQ33ipl4nand10LayoutFilePQ33ipl4nand10LayoutFilePQ33ipl5scene11BoardObject
+
+# .text:0x1C4 | 0x81396EEC | size: 0x40
+# ipl::utility::Scroller::~Scroller()
+.fn __dt__Q33ipl7utility8ScrollerFv, global
+/* 81396EEC 0006740C  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 81396EF0 00067410  7C 08 02 A6 */	mflr r0
+/* 81396EF4 00067414  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81396EF8 00067418  90 01 00 14 */	stw r0, 0x14(r1)
+/* 81396EFC 0006741C  93 E1 00 0C */	stw r31, 0xc(r1)
+/* 81396F00 00067420  7C 7F 1B 78 */	mr r31, r3
+/* 81396F04 00067424  41 82 00 10 */	beq .L_81396F14
+/* 81396F08 00067428  2C 04 00 00 */	cmpwi r4, 0x0
+/* 81396F0C 0006742C  40 81 00 08 */	ble .L_81396F14
+/* 81396F10 00067430  48 26 11 D5 */	bl __dl__FPv
+.L_81396F14:
+/* 81396F14 00067434  7F E3 FB 78 */	mr r3, r31
+/* 81396F18 00067438  83 E1 00 0C */	lwz r31, 0xc(r1)
+/* 81396F1C 0006743C  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 81396F20 00067440  7C 08 03 A6 */	mtlr r0
+/* 81396F24 00067444  38 21 00 10 */	addi r1, r1, 0x10
+/* 81396F28 00067448  4E 80 00 20 */	blr
+.endfn __dt__Q33ipl7utility8ScrollerFv
+
+# .text:0x204 | 0x81396F2C | size: 0x58
+# ipl::scene::scroller::~scroller()
+.fn __dt__Q33ipl5scene8scrollerFv, global
+/* 81396F2C 0006744C  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 81396F30 00067450  7C 08 02 A6 */	mflr r0
+/* 81396F34 00067454  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81396F38 00067458  90 01 00 14 */	stw r0, 0x14(r1)
+/* 81396F3C 0006745C  93 E1 00 0C */	stw r31, 0xc(r1)
+/* 81396F40 00067460  7C 9F 23 78 */	mr r31, r4
+/* 81396F44 00067464  93 C1 00 08 */	stw r30, 0x8(r1)
+/* 81396F48 00067468  7C 7E 1B 78 */	mr r30, r3
+/* 81396F4C 0006746C  41 82 00 1C */	beq .L_81396F68
+/* 81396F50 00067470  38 80 FF FF */	li r4, -0x1
+/* 81396F54 00067474  4B FF FF 99 */	bl __dt__Q33ipl7utility8ScrollerFv
+/* 81396F58 00067478  2C 1F 00 00 */	cmpwi r31, 0x0
+/* 81396F5C 0006747C  40 81 00 0C */	ble .L_81396F68
+/* 81396F60 00067480  7F C3 F3 78 */	mr r3, r30
+/* 81396F64 00067484  48 26 11 81 */	bl __dl__FPv
+.L_81396F68:
+/* 81396F68 00067488  7F C3 F3 78 */	mr r3, r30
+/* 81396F6C 0006748C  83 E1 00 0C */	lwz r31, 0xc(r1)
+/* 81396F70 00067490  83 C1 00 08 */	lwz r30, 0x8(r1)
+/* 81396F74 00067494  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 81396F78 00067498  7C 08 03 A6 */	mtlr r0
+/* 81396F7C 0006749C  38 21 00 10 */	addi r1, r1, 0x10
+/* 81396F80 000674A0  4E 80 00 20 */	blr
+.endfn __dt__Q33ipl5scene8scrollerFv
+
+# .text:0x25C | 0x81396F84 | size: 0x40
+# ipl::math::Interporation<ipl::math::VEC3>::~Interporation()
+.fn "__dt__Q33ipl4math31Interporation<Q33ipl4math4VEC3>Fv", global
+/* 81396F84 000674A4  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 81396F88 000674A8  7C 08 02 A6 */	mflr r0
+/* 81396F8C 000674AC  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81396F90 000674B0  90 01 00 14 */	stw r0, 0x14(r1)
+/* 81396F94 000674B4  93 E1 00 0C */	stw r31, 0xc(r1)
+/* 81396F98 000674B8  7C 7F 1B 78 */	mr r31, r3
+/* 81396F9C 000674BC  41 82 00 10 */	beq .L_81396FAC
+/* 81396FA0 000674C0  2C 04 00 00 */	cmpwi r4, 0x0
+/* 81396FA4 000674C4  40 81 00 08 */	ble .L_81396FAC
+/* 81396FA8 000674C8  48 26 11 3D */	bl __dl__FPv
+.L_81396FAC:
+/* 81396FAC 000674CC  7F E3 FB 78 */	mr r3, r31
+/* 81396FB0 000674D0  83 E1 00 0C */	lwz r31, 0xc(r1)
+/* 81396FB4 000674D4  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 81396FB8 000674D8  7C 08 03 A6 */	mtlr r0
+/* 81396FBC 000674DC  38 21 00 10 */	addi r1, r1, 0x10
+/* 81396FC0 000674E0  4E 80 00 20 */	blr
+.endfn "__dt__Q33ipl4math31Interporation<Q33ipl4math4VEC3>Fv"
+
+# .text:0x29C | 0x81396FC4 | size: 0x40
+# ipl::math::LinearIntp<ipl::math::VEC3>::~LinearIntp()
+.fn "__dt__Q33ipl4math28LinearIntp<Q33ipl4math4VEC3>Fv", global
+/* 81396FC4 000674E4  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 81396FC8 000674E8  7C 08 02 A6 */	mflr r0
+/* 81396FCC 000674EC  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81396FD0 000674F0  90 01 00 14 */	stw r0, 0x14(r1)
+/* 81396FD4 000674F4  93 E1 00 0C */	stw r31, 0xc(r1)
+/* 81396FD8 000674F8  7C 7F 1B 78 */	mr r31, r3
+/* 81396FDC 000674FC  41 82 00 10 */	beq .L_81396FEC
+/* 81396FE0 00067500  2C 04 00 00 */	cmpwi r4, 0x0
+/* 81396FE4 00067504  40 81 00 08 */	ble .L_81396FEC
+/* 81396FE8 00067508  48 26 10 FD */	bl __dl__FPv
+.L_81396FEC:
+/* 81396FEC 0006750C  7F E3 FB 78 */	mr r3, r31
+/* 81396FF0 00067510  83 E1 00 0C */	lwz r31, 0xc(r1)
+/* 81396FF4 00067514  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 81396FF8 00067518  7C 08 03 A6 */	mtlr r0
+/* 81396FFC 0006751C  38 21 00 10 */	addi r1, r1, 0x10
+/* 81397000 00067520  4E 80 00 20 */	blr
+.endfn "__dt__Q33ipl4math28LinearIntp<Q33ipl4math4VEC3>Fv"
+
+# .text:0x2DC | 0x81397004 | size: 0x128
+# ipl::scene::focus_object::~focus_object()
+.fn __dt__Q33ipl5scene12focus_objectFv, global
+/* 81397004 00067524  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 81397008 00067528  7C 08 02 A6 */	mflr r0
+/* 8139700C 0006752C  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81397010 00067530  90 01 00 14 */	stw r0, 0x14(r1)
+/* 81397014 00067534  93 E1 00 0C */	stw r31, 0xc(r1)
+/* 81397018 00067538  7C 9F 23 78 */	mr r31, r4
+/* 8139701C 0006753C  93 C1 00 08 */	stw r30, 0x8(r1)
+/* 81397020 00067540  7C 7E 1B 78 */	mr r30, r3
+/* 81397024 00067544  41 82 00 EC */	beq .L_81397110
+/* 81397028 00067548  80 63 00 1C */	lwz r3, 0x1c(r3)
+/* 8139702C 0006754C  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81397030 00067550  41 82 00 18 */	beq .L_81397048
+/* 81397034 00067554  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81397038 00067558  38 80 00 01 */	li r4, 0x1
+/* 8139703C 0006755C  81 8C 00 1C */	lwz r12, 0x1c(r12)
+/* 81397040 00067560  7D 89 03 A6 */	mtctr r12
+/* 81397044 00067564  4E 80 04 21 */	bctrl
+.L_81397048:
+/* 81397048 00067568  80 7E 00 18 */	lwz r3, 0x18(r30)
+/* 8139704C 0006756C  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81397050 00067570  41 82 00 18 */	beq .L_81397068
+/* 81397054 00067574  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81397058 00067578  38 80 00 01 */	li r4, 0x1
+/* 8139705C 0006757C  81 8C 00 08 */	lwz r12, 0x8(r12)
+/* 81397060 00067580  7D 89 03 A6 */	mtctr r12
+/* 81397064 00067584  4E 80 04 21 */	bctrl
+.L_81397068:
+/* 81397068 00067588  80 7E 00 20 */	lwz r3, 0x20(r30)
+/* 8139706C 0006758C  38 80 00 01 */	li r4, 0x1
+/* 81397070 00067590  48 03 A4 CD */	bl __dt__Q33ipl5scene11TextBalloonFv
+/* 81397074 00067594  80 7E 00 24 */	lwz r3, 0x24(r30)
+/* 81397078 00067598  48 26 10 75 */	bl __dla__FPv
+/* 8139707C 0006759C  38 7E 01 50 */	addi r3, r30, 0x150
+/* 81397080 000675A0  4B FF F4 71 */	bl destroy__Q33ipl5scene12UrlProcessorFv
+/* 81397084 000675A4  80 7E 01 24 */	lwz r3, 0x124(r30)
+/* 81397088 000675A8  2C 03 00 00 */	cmpwi r3, 0x0
+/* 8139708C 000675AC  41 82 00 08 */	beq .L_81397094
+/* 81397090 000675B0  48 26 10 5D */	bl __dla__FPv
+.L_81397094:
+/* 81397094 000675B4  80 7E 00 C8 */	lwz r3, 0xc8(r30)
+/* 81397098 000675B8  2C 03 00 00 */	cmpwi r3, 0x0
+/* 8139709C 000675BC  41 82 00 08 */	beq .L_813970A4
+/* 813970A0 000675C0  48 26 10 4D */	bl __dla__FPv
+.L_813970A4:
+/* 813970A4 000675C4  80 7E 00 CC */	lwz r3, 0xcc(r30)
+/* 813970A8 000675C8  2C 03 00 00 */	cmpwi r3, 0x0
+/* 813970AC 000675CC  41 82 00 08 */	beq .L_813970B4
+/* 813970B0 000675D0  48 26 10 3D */	bl __dla__FPv
+.L_813970B4:
+/* 813970B4 000675D4  80 1E 01 34 */	lwz r0, 0x134(r30)
+/* 813970B8 000675D8  2C 00 00 00 */	cmpwi r0, 0x0
+/* 813970BC 000675DC  41 82 00 14 */	beq .L_813970D0
+/* 813970C0 000675E0  3C 60 81 09 */	lis r3, sSystem__Q23ipl3snd@ha
+/* 813970C4 000675E4  38 80 00 78 */	li r4, 0x78
+/* 813970C8 000675E8  38 63 99 2C */	addi r3, r3, sSystem__Q23ipl3snd@l
+/* 813970CC 000675EC  4B FD 4C 8D */	bl muteOffBGM__Q33ipl3snd6SystemFi
+.L_813970D0:
+/* 813970D0 000675F0  38 7E 01 A8 */	addi r3, r30, 0x1a8
+/* 813970D4 000675F4  38 80 FF FF */	li r4, -0x1
+/* 813970D8 000675F8  4B FF FE ED */	bl "__dt__Q33ipl4math28LinearIntp<Q33ipl4math4VEC3>Fv"
+/* 813970DC 000675FC  38 7E 01 50 */	addi r3, r30, 0x150
+/* 813970E0 00067600  38 80 FF FF */	li r4, -0x1
+/* 813970E4 00067604  4B FF FB ED */	bl __dt__Q33ipl5scene12UrlProcessorFv
+/* 813970E8 00067608  38 7E 01 00 */	addi r3, r30, 0x100
+/* 813970EC 0006760C  38 80 FF FF */	li r4, -0x1
+/* 813970F0 00067610  48 25 E9 DD */	bl __dt__Q23EGG9AllocatorFv
+/* 813970F4 00067614  38 7E 00 58 */	addi r3, r30, 0x58
+/* 813970F8 00067618  38 80 FF FF */	li r4, -0x1
+/* 813970FC 0006761C  4B FF FE 31 */	bl __dt__Q33ipl5scene8scrollerFv
+/* 81397100 00067620  2C 1F 00 00 */	cmpwi r31, 0x0
+/* 81397104 00067624  40 81 00 0C */	ble .L_81397110
+/* 81397108 00067628  7F C3 F3 78 */	mr r3, r30
+/* 8139710C 0006762C  48 26 0F D9 */	bl __dl__FPv
+.L_81397110:
+/* 81397110 00067630  7F C3 F3 78 */	mr r3, r30
+/* 81397114 00067634  83 E1 00 0C */	lwz r31, 0xc(r1)
+/* 81397118 00067638  83 C1 00 08 */	lwz r30, 0x8(r1)
+/* 8139711C 0006763C  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 81397120 00067640  7C 08 03 A6 */	mtlr r0
+/* 81397124 00067644  38 21 00 10 */	addi r1, r1, 0x10
+/* 81397128 00067648  4E 80 00 20 */	blr
+.endfn __dt__Q33ipl5scene12focus_objectFv
+
+# .text:0x404 | 0x8139712C | size: 0x248
+# ipl::scene::focus_object::calc()
+.fn calc__Q33ipl5scene12focus_objectFv, global
+/* 8139712C 0006764C  94 21 FF E0 */	stwu r1, -0x20(r1)
+/* 81397130 00067650  7C 08 02 A6 */	mflr r0
+/* 81397134 00067654  90 01 00 24 */	stw r0, 0x24(r1)
+/* 81397138 00067658  39 61 00 20 */	addi r11, r1, 0x20
+/* 8139713C 0006765C  48 26 23 8D */	bl _savegpr_29
+/* 81397140 00067660  C0 23 00 98 */	lfs f1, 0x98(r3)
+/* 81397144 00067664  38 00 00 00 */	li r0, 0x0
+/* 81397148 00067668  C0 03 00 90 */	lfs f0, 0x90(r3)
+/* 8139714C 0006766C  7C 7D 1B 78 */	mr r29, r3
+/* 81397150 00067670  90 03 00 0C */	stw r0, 0xc(r3)
+/* 81397154 00067674  FC 01 00 00 */	fcmpu cr0, f1, f0
+/* 81397158 00067678  7F E0 00 26 */	mfcr r31
+/* 8139715C 0006767C  C0 03 00 8C */	lfs f0, 0x8c(r3)
+/* 81397160 00067680  57 FF 1F FE */	extrwi r31, r31, 1, 2
+/* 81397164 00067684  FC 01 00 00 */	fcmpu cr0, f1, f0
+/* 81397168 00067688  7F C0 00 26 */	mfcr r30
+/* 8139716C 0006768C  57 DE 1F FE */	extrwi r30, r30, 1, 2
+/* 81397170 00067690  48 00 02 05 */	bl cmn_calc__Q33ipl5scene12focus_objectFv
+/* 81397174 00067694  80 1D 00 00 */	lwz r0, 0x0(r29)
+/* 81397178 00067698  28 00 00 17 */	cmplwi r0, 0x17
+/* 8139717C 0006769C  41 81 01 48 */	bgt .L_813972C4
+/* 81397180 000676A0  3C 60 81 65 */	lis r3, jumptable_8164BAA4@ha
+/* 81397184 000676A4  54 00 10 3A */	slwi r0, r0, 2
+/* 81397188 000676A8  38 63 BA A4 */	addi r3, r3, jumptable_8164BAA4@l
+/* 8139718C 000676AC  7C 63 00 2E */	lwzx r3, r3, r0
+/* 81397190 000676B0  7C 69 03 A6 */	mtctr r3
+/* 81397194 000676B4  4E 80 04 20 */	bctr
+.L_81397198:
+/* 81397198 000676B8  7F A3 EB 78 */	mr r3, r29
+/* 8139719C 000676BC  48 00 1B 39 */	bl is_finished_fadein__Q33ipl5scene12focus_objectCFv
+/* 813971A0 000676C0  2C 03 00 00 */	cmpwi r3, 0x0
+/* 813971A4 000676C4  41 82 01 20 */	beq .L_813972C4
+/* 813971A8 000676C8  7F A3 EB 78 */	mr r3, r29
+/* 813971AC 000676CC  48 00 1B D9 */	bl init_normal__Q33ipl5scene12focus_objectFv
+/* 813971B0 000676D0  48 00 01 14 */	b .L_813972C4
+.L_813971B4:
+/* 813971B4 000676D4  7F A3 EB 78 */	mr r3, r29
+/* 813971B8 000676D8  48 00 04 29 */	bl stt_normal__Q33ipl5scene12focus_objectFv
+/* 813971BC 000676DC  48 00 01 08 */	b .L_813972C4
+.L_813971C0:
+/* 813971C0 000676E0  7F A3 EB 78 */	mr r3, r29
+/* 813971C4 000676E4  48 00 05 61 */	bl stt_fadeout__Q33ipl5scene12focus_objectFv
+/* 813971C8 000676E8  48 00 00 FC */	b .L_813972C4
+.L_813971CC:
+/* 813971CC 000676EC  7F A3 EB 78 */	mr r3, r29
+/* 813971D0 000676F0  48 00 05 99 */	bl stt_wait_btn__Q33ipl5scene12focus_objectFv
+/* 813971D4 000676F4  48 00 00 F0 */	b .L_813972C4
+.L_813971D8:
+/* 813971D8 000676F8  7F A3 EB 78 */	mr r3, r29
+/* 813971DC 000676FC  48 00 06 E5 */	bl stt_wait_msg__Q33ipl5scene12focus_objectFv
+/* 813971E0 00067700  48 00 00 E4 */	b .L_813972C4
+.L_813971E4:
+/* 813971E4 00067704  7F A3 EB 78 */	mr r3, r29
+/* 813971E8 00067708  48 00 07 7D */	bl stt_del_wait_msg__Q33ipl5scene12focus_objectFv
+/* 813971EC 0006770C  48 00 00 D8 */	b .L_813972C4
+.L_813971F0:
+/* 813971F0 00067710  7F A3 EB 78 */	mr r3, r29
+/* 813971F4 00067714  48 00 08 C9 */	bl stt_del_wait_delete__Q33ipl5scene12focus_objectFv
+/* 813971F8 00067718  48 00 00 CC */	b .L_813972C4
+.L_813971FC:
+/* 813971FC 0006771C  7F A3 EB 78 */	mr r3, r29
+/* 81397200 00067720  48 00 09 01 */	bl stt_pic_fadein__Q33ipl5scene12focus_objectFv
+/* 81397204 00067724  48 00 00 C0 */	b .L_813972C4
+.L_81397208:
+/* 81397208 00067728  7F A3 EB 78 */	mr r3, r29
+/* 8139720C 0006772C  48 00 09 D5 */	bl stt_pic_normal__Q33ipl5scene12focus_objectFv
+/* 81397210 00067730  48 00 00 B4 */	b .L_813972C4
+.L_81397214:
+/* 81397214 00067734  7F A3 EB 78 */	mr r3, r29
+/* 81397218 00067738  48 00 0A 1D */	bl stt_pic_fadeout__Q33ipl5scene12focus_objectFv
+/* 8139721C 0006773C  48 00 00 A8 */	b .L_813972C4
+.L_81397220:
+/* 81397220 00067740  7F A3 EB 78 */	mr r3, r29
+/* 81397224 00067744  48 00 0A BD */	bl stt_ltr_wait_net__Q33ipl5scene12focus_objectFv
+/* 81397228 00067748  48 00 00 9C */	b .L_813972C4
+.L_8139722C:
+/* 8139722C 0006774C  7F A3 EB 78 */	mr r3, r29
+/* 81397230 00067750  48 00 0C 99 */	bl stt_ltr_wait_ltr_scene__Q33ipl5scene12focus_objectFv
+/* 81397234 00067754  48 00 00 90 */	b .L_813972C4
+.L_81397238:
+/* 81397238 00067758  7F A3 EB 78 */	mr r3, r29
+/* 8139723C 0006775C  48 00 0D 71 */	bl stt_chn_wait_url_jump_msg__Q33ipl5scene12focus_objectFv
+/* 81397240 00067760  48 00 00 84 */	b .L_813972C4
+.L_81397244:
+/* 81397244 00067764  7F A3 EB 78 */	mr r3, r29
+/* 81397248 00067768  48 00 0E 1D */	bl stt_chn_wait_jump__Q33ipl5scene12focus_objectFv
+/* 8139724C 0006776C  48 00 00 78 */	b .L_813972C4
+.L_81397250:
+/* 81397250 00067770  7F A3 EB 78 */	mr r3, r29
+/* 81397254 00067774  48 00 0E 65 */	bl stt_opt_wait_select_msg__Q33ipl5scene12focus_objectFv
+/* 81397258 00067778  48 00 00 6C */	b .L_813972C4
+.L_8139725C:
+/* 8139725C 0006777C  7F A3 EB 78 */	mr r3, r29
+/* 81397260 00067780  48 00 0F 25 */	bl stt_opt_wait_stop_msg__Q33ipl5scene12focus_objectFv
+/* 81397264 00067784  48 00 00 60 */	b .L_813972C4
+.L_81397268:
+/* 81397268 00067788  7F A3 EB 78 */	mr r3, r29
+/* 8139726C 0006778C  48 00 0F A5 */	bl stt_opt_wait_all_stop_msg__Q33ipl5scene12focus_objectFv
+/* 81397270 00067790  48 00 00 54 */	b .L_813972C4
+.L_81397274:
+/* 81397274 00067794  7F A3 EB 78 */	mr r3, r29
+/* 81397278 00067798  48 00 10 25 */	bl stt_opt_delete_task__Q33ipl5scene12focus_objectFv
+/* 8139727C 0006779C  48 00 00 48 */	b .L_813972C4
+.L_81397280:
+/* 81397280 000677A0  7F A3 EB 78 */	mr r3, r29
+/* 81397284 000677A4  48 00 11 45 */	bl stt_opt_delete_all_task__Q33ipl5scene12focus_objectFv
+/* 81397288 000677A8  48 00 00 3C */	b .L_813972C4
+.L_8139728C:
+/* 8139728C 000677AC  7F A3 EB 78 */	mr r3, r29
+/* 81397290 000677B0  48 00 12 51 */	bl stt_opt_wait_confirm_msg__Q33ipl5scene12focus_objectFv
+/* 81397294 000677B4  48 00 00 30 */	b .L_813972C4
+.L_81397298:
+/* 81397298 000677B8  7F A3 EB 78 */	mr r3, r29
+/* 8139729C 000677BC  48 00 12 AD */	bl stt_net_wait_net_setting_msg__Q33ipl5scene12focus_objectFv
+/* 813972A0 000677C0  48 00 00 24 */	b .L_813972C4
+.L_813972A4:
+/* 813972A4 000677C4  7F A3 EB 78 */	mr r3, r29
+/* 813972A8 000677C8  48 00 13 A1 */	bl stt_net_wait_nwc_setting_msg__Q33ipl5scene12focus_objectFv
+/* 813972AC 000677CC  48 00 00 18 */	b .L_813972C4
+.L_813972B0:
+/* 813972B0 000677D0  7F A3 EB 78 */	mr r3, r29
+/* 813972B4 000677D4  48 00 13 DD */	bl stt_net_wait_parental_scene__Q33ipl5scene12focus_objectFv
+/* 813972B8 000677D8  48 00 00 0C */	b .L_813972C4
+.L_813972BC:
+/* 813972BC 000677DC  7F A3 EB 78 */	mr r3, r29
+/* 813972C0 000677E0  48 00 14 55 */	bl stt_net_wait_parental_scene_dst__Q33ipl5scene12focus_objectFv
+.L_813972C4:
+/* 813972C4 000677E4  C0 3D 00 98 */	lfs f1, 0x98(r29)
+/* 813972C8 000677E8  C0 1D 00 8C */	lfs f0, 0x8c(r29)
+/* 813972CC 000677EC  FC 01 00 00 */	fcmpu cr0, f1, f0
+/* 813972D0 000677F0  7C E0 00 26 */	mfcr r7
+/* 813972D4 000677F4  C0 1D 00 90 */	lfs f0, 0x90(r29)
+/* 813972D8 000677F8  54 E7 1F FE */	extrwi r7, r7, 1, 2
+/* 813972DC 000677FC  FC 01 00 00 */	fcmpu cr0, f1, f0
+/* 813972E0 00067800  7C C0 00 26 */	mfcr r6
+/* 813972E4 00067804  7F A3 EB 78 */	mr r3, r29
+/* 813972E8 00067808  54 C6 1F FE */	extrwi r6, r6, 1, 2
+/* 813972EC 0006780C  7F E4 FB 78 */	mr r4, r31
+/* 813972F0 00067810  7F C5 F3 78 */	mr r5, r30
+/* 813972F4 00067814  48 00 34 29 */	bl show_or_hide_arw__Q33ipl5scene12focus_objectFbbbb
+/* 813972F8 00067818  80 7D 00 00 */	lwz r3, 0x0(r29)
+/* 813972FC 0006781C  2C 03 00 01 */	cmpwi r3, 0x1
+/* 81397300 00067820  41 82 00 10 */	beq .L_81397310
+/* 81397304 00067824  38 03 FF F9 */	subi r0, r3, 0x7
+/* 81397308 00067828  28 00 00 02 */	cmplwi r0, 0x2
+/* 8139730C 0006782C  41 81 00 4C */	bgt .L_81397358
+.L_81397310:
+/* 81397310 00067830  80 1D 01 34 */	lwz r0, 0x134(r29)
+/* 81397314 00067834  2C 00 00 00 */	cmpwi r0, 0x0
+/* 81397318 00067838  41 82 00 40 */	beq .L_81397358
+/* 8139731C 0006783C  38 7D 01 48 */	addi r3, r29, 0x148
+/* 81397320 00067840  4B FC D1 81 */	bl __cl__Q33ipl7utility5timerFv
+/* 81397324 00067844  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81397328 00067848  41 82 00 30 */	beq .L_81397358
+/* 8139732C 0006784C  3C 60 81 09 */	lis r3, sBannerSoundPlayer__Q23ipl3snd@ha
+/* 81397330 00067850  80 9D 01 34 */	lwz r4, 0x134(r29)
+/* 81397334 00067854  80 BD 01 38 */	lwz r5, 0x138(r29)
+/* 81397338 00067858  38 63 9F 68 */	addi r3, r3, sBannerSoundPlayer__Q23ipl3snd@l
+/* 8139733C 0006785C  48 07 74 C5 */	bl start__17BannerSoundPlayerFPvUl
+/* 81397340 00067860  3C 80 57 B1 */	lis r4, 0x57b1
+/* 81397344 00067864  38 7D 01 48 */	addi r3, r29, 0x148
+/* 81397348 00067868  38 84 2C 00 */	addi r4, r4, 0x2c00
+/* 8139734C 0006786C  4B FC D0 D9 */	bl set_msec__Q33ipl7utility5timerFi
+/* 81397350 00067870  38 00 00 01 */	li r0, 0x1
+/* 81397354 00067874  98 1D 01 3C */	stb r0, 0x13c(r29)
+.L_81397358:
+/* 81397358 00067878  39 61 00 20 */	addi r11, r1, 0x20
+/* 8139735C 0006787C  80 7D 00 0C */	lwz r3, 0xc(r29)
+/* 81397360 00067880  48 26 21 B5 */	bl _restgpr_29
+/* 81397364 00067884  80 01 00 24 */	lwz r0, 0x24(r1)
+/* 81397368 00067888  7C 08 03 A6 */	mtlr r0
+/* 8139736C 0006788C  38 21 00 20 */	addi r1, r1, 0x20
+/* 81397370 00067890  4E 80 00 20 */	blr
+.endfn calc__Q33ipl5scene12focus_objectFv
+
+# .text:0x64C | 0x81397374 | size: 0x230
+# ipl::scene::focus_object::cmn_calc()
+.fn cmn_calc__Q33ipl5scene12focus_objectFv, global
+/* 81397374 00067894  94 21 FF 90 */	stwu r1, -0x70(r1)
+/* 81397378 00067898  7C 08 02 A6 */	mflr r0
+/* 8139737C 0006789C  90 01 00 74 */	stw r0, 0x74(r1)
+/* 81397380 000678A0  93 E1 00 6C */	stw r31, 0x6c(r1)
+/* 81397384 000678A4  93 C1 00 68 */	stw r30, 0x68(r1)
+/* 81397388 000678A8  7C 7E 1B 78 */	mr r30, r3
+/* 8139738C 000678AC  81 83 01 A8 */	lwz r12, 0x1a8(r3)
+/* 81397390 000678B0  81 8C 00 0C */	lwz r12, 0xc(r12)
+/* 81397394 000678B4  7D 89 03 A6 */	mtctr r12
+/* 81397398 000678B8  38 63 01 A8 */	addi r3, r3, 0x1a8
+/* 8139739C 000678BC  4E 80 04 21 */	bctrl
+/* 813973A0 000678C0  80 9E 00 00 */	lwz r4, 0x0(r30)
+/* 813973A4 000678C4  38 7E 00 58 */	addi r3, r30, 0x58
+/* 813973A8 000678C8  38 04 FF FF */	subi r0, r4, 0x1
+/* 813973AC 000678CC  7C 00 00 34 */	cntlzw r0, r0
+/* 813973B0 000678D0  54 04 D9 7E */	srwi r4, r0, 5
+/* 813973B4 000678D4  48 00 48 61 */	bl calc__Q33ipl5scene8scrollerFb
+/* 813973B8 000678D8  2C 03 00 01 */	cmpwi r3, 0x1
+/* 813973BC 000678DC  40 82 00 74 */	bne .L_81397430
+/* 813973C0 000678E0  3C 60 81 09 */	lis r3, smArg__Q23ipl6System@ha
+/* 813973C4 000678E4  38 80 00 05 */	li r4, 0x5
+/* 813973C8 000678E8  38 63 90 08 */	addi r3, r3, smArg__Q23ipl6System@l
+/* 813973CC 000678EC  80 63 00 64 */	lwz r3, 0x64(r3)
+/* 813973D0 000678F0  48 07 3D 69 */	bl getScene__Q33ipl5scene7ManagerFi
+/* 813973D4 000678F4  7C 7F 1B 78 */	mr r31, r3
+/* 813973D8 000678F8  38 80 00 05 */	li r4, 0x5
+/* 813973DC 000678FC  48 00 5F 75 */	bl initBtn__Q33ipl5scene6ButtonFi
+/* 813973E0 00067900  7F E3 FB 78 */	mr r3, r31
+/* 813973E4 00067904  38 80 00 07 */	li r4, 0x7
+/* 813973E8 00067908  48 00 5F 69 */	bl initBtn__Q33ipl5scene6ButtonFi
+/* 813973EC 0006790C  7F E3 FB 78 */	mr r3, r31
+/* 813973F0 00067910  38 80 00 08 */	li r4, 0x8
+/* 813973F4 00067914  48 00 5F 5D */	bl initBtn__Q33ipl5scene6ButtonFi
+/* 813973F8 00067918  38 7F 00 64 */	addi r3, r31, 0x64
+/* 813973FC 0006791C  48 00 62 AD */	bl reset_gui__Q33ipl5scene12OptOutButtonFv
+/* 81397400 00067920  7F C3 F3 78 */	mr r3, r30
+/* 81397404 00067924  38 80 00 00 */	li r4, 0x0
+/* 81397408 00067928  38 A0 00 04 */	li r5, 0x4
+/* 8139740C 0006792C  48 00 3C D1 */	bl reset_gui__Q33ipl5scene12focus_objectFii
+/* 81397410 00067930  7F C3 F3 78 */	mr r3, r30
+/* 81397414 00067934  38 80 00 01 */	li r4, 0x1
+/* 81397418 00067938  38 A0 00 0C */	li r5, 0xc
+/* 8139741C 0006793C  48 00 3C C1 */	bl reset_gui__Q33ipl5scene12focus_objectFii
+/* 81397420 00067940  7F C3 F3 78 */	mr r3, r30
+/* 81397424 00067944  38 80 00 02 */	li r4, 0x2
+/* 81397428 00067948  38 A0 00 17 */	li r5, 0x17
+/* 8139742C 0006794C  48 00 3C B1 */	bl reset_gui__Q33ipl5scene12focus_objectFii
+.L_81397430:
+/* 81397430 00067950  C0 3E 01 B4 */	lfs f1, 0x1b4(r30)
+/* 81397434 00067954  38 61 00 2C */	addi r3, r1, 0x2c
+/* 81397438 00067958  38 9E 01 D4 */	addi r4, r30, 0x1d4
+/* 8139743C 0006795C  48 00 01 85 */	bl __ml__Q33ipl4math4VEC3CFf
+/* 81397440 00067960  C0 3E 01 AC */	lfs f1, 0x1ac(r30)
+/* 81397444 00067964  38 61 00 20 */	addi r3, r1, 0x20
+/* 81397448 00067968  C0 1E 01 B4 */	lfs f0, 0x1b4(r30)
+/* 8139744C 0006796C  38 9E 01 C8 */	addi r4, r30, 0x1c8
+/* 81397450 00067970  EC 21 00 28 */	fsubs f1, f1, f0
+/* 81397454 00067974  48 00 01 6D */	bl __ml__Q33ipl4math4VEC3CFf
+/* 81397458 00067978  C0 3E 01 AC */	lfs f1, 0x1ac(r30)
+/* 8139745C 0006797C  38 81 00 08 */	addi r4, r1, 0x8
+/* 81397460 00067980  C0 02 84 68 */	lfs f0, lbl_81694868@sda21(r0)
+/* 81397464 00067984  38 61 00 50 */	addi r3, r1, 0x50
+/* 81397468 00067988  E0 61 00 20 */	psq_l f3, 0x20(r1), 0, qr0
+/* 8139746C 0006798C  EC 00 08 24 */	fdivs f0, f0, f1
+/* 81397470 00067990  E0 21 00 2C */	psq_l f1, 0x2c(r1), 0, qr0
+/* 81397474 00067994  10 43 08 2A */	ps_add f2, f3, f1
+/* 81397478 00067998  E0 61 80 28 */	psq_l f3, 0x28(r1), 1, qr0
+/* 8139747C 0006799C  E0 21 80 34 */	psq_l f1, 0x34(r1), 1, qr0
+/* 81397480 000679A0  F0 41 00 14 */	psq_st f2, 0x14(r1), 0, qr0
+/* 81397484 000679A4  10 43 08 2A */	ps_add f2, f3, f1
+/* 81397488 000679A8  E0 21 00 14 */	psq_l f1, 0x14(r1), 0, qr0
+/* 8139748C 000679AC  F0 41 80 1C */	psq_st f2, 0x1c(r1), 1, qr0
+/* 81397490 000679B0  10 21 00 18 */	ps_muls0 f1, f1, f0
+/* 81397494 000679B4  F0 24 00 00 */	psq_st f1, 0x0(r4), 0, qr0
+/* 81397498 000679B8  10 22 00 18 */	ps_muls0 f1, f2, f0
+/* 8139749C 000679BC  F0 24 80 08 */	psq_st f1, 0x8(r4), 1, qr0
+/* 813974A0 000679C0  48 00 01 05 */	bl __ct__Q33ipl4math4VEC3FRCQ34nw4r4math5_VEC3
+/* 813974A4 000679C4  80 7E 00 18 */	lwz r3, 0x18(r30)
+/* 813974A8 000679C8  38 81 00 50 */	addi r4, r1, 0x50
+/* 813974AC 000679CC  80 63 00 14 */	lwz r3, 0x14(r3)
+/* 813974B0 000679D0  38 63 00 2C */	addi r3, r3, 0x2c
+/* 813974B4 000679D4  4B FA D1 D1 */	bl __as__Q34nw4r4math4VEC3FRCQ34nw4r4math4VEC3
+/* 813974B8 000679D8  38 7E 00 58 */	addi r3, r30, 0x58
+/* 813974BC 000679DC  4B FC CB 09 */	bl get__Q33ipl7utility8ScrollerCFv
+/* 813974C0 000679E0  C0 02 84 6C */	lfs f0, lbl_8169486C@sda21(r0)
+/* 813974C4 000679E4  38 8D 86 6C */	li r4, lbl_816966AC@sda21
+/* 813974C8 000679E8  D0 21 00 48 */	stfs f1, 0x48(r1)
+/* 813974CC 000679EC  38 A0 00 01 */	li r5, 0x1
+/* 813974D0 000679F0  D0 01 00 44 */	stfs f0, 0x44(r1)
+/* 813974D4 000679F4  D0 01 00 4C */	stfs f0, 0x4c(r1)
+/* 813974D8 000679F8  80 7E 00 18 */	lwz r3, 0x18(r30)
+/* 813974DC 000679FC  80 63 00 14 */	lwz r3, 0x14(r3)
+/* 813974E0 00067A00  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 813974E4 00067A04  81 8C 00 3C */	lwz r12, 0x3c(r12)
+/* 813974E8 00067A08  7D 89 03 A6 */	mtctr r12
+/* 813974EC 00067A0C  4E 80 04 21 */	bctrl
+/* 813974F0 00067A10  38 63 00 2C */	addi r3, r3, 0x2c
+/* 813974F4 00067A14  38 81 00 44 */	addi r4, r1, 0x44
+/* 813974F8 00067A18  4B FA D1 8D */	bl __as__Q34nw4r4math4VEC3FRCQ34nw4r4math4VEC3
+/* 813974FC 00067A1C  80 7E 00 18 */	lwz r3, 0x18(r30)
+/* 81397500 00067A20  4B FD 32 05 */	bl calc__Q33ipl6layout6ObjectFv
+/* 81397504 00067A24  7F C4 F3 78 */	mr r4, r30
+/* 81397508 00067A28  38 61 00 38 */	addi r3, r1, 0x38
+/* 8139750C 00067A2C  48 00 2D DD */	bl calc_balloon_pos__Q33ipl5scene12focus_objectCFv
+/* 81397510 00067A30  80 7E 00 20 */	lwz r3, 0x20(r30)
+/* 81397514 00067A34  38 81 00 38 */	addi r4, r1, 0x38
+/* 81397518 00067A38  48 03 A3 51 */	bl updatePos__Q33ipl5scene11TextBalloonFRCQ33ipl4math4VEC3
+/* 8139751C 00067A3C  80 7E 00 20 */	lwz r3, 0x20(r30)
+/* 81397520 00067A40  48 03 A0 8D */	bl calc__Q33ipl5scene11TextBalloonFv
+/* 81397524 00067A44  38 7E 01 50 */	addi r3, r30, 0x150
+/* 81397528 00067A48  4B FF EE F1 */	bl update__Q33ipl5scene12UrlProcessorFv
+/* 8139752C 00067A4C  80 1E 01 34 */	lwz r0, 0x134(r30)
+/* 81397530 00067A50  2C 00 00 00 */	cmpwi r0, 0x0
+/* 81397534 00067A54  41 82 00 58 */	beq .L_8139758C
+/* 81397538 00067A58  88 1E 01 3C */	lbz r0, 0x13c(r30)
+/* 8139753C 00067A5C  2C 00 00 00 */	cmpwi r0, 0x0
+/* 81397540 00067A60  41 82 00 4C */	beq .L_8139758C
+/* 81397544 00067A64  3C 60 81 09 */	lis r3, sBannerSoundPlayer__Q23ipl3snd@ha
+/* 81397548 00067A68  88 03 9F 68 */	lbz r0, sBannerSoundPlayer__Q23ipl3snd@l(r3)
+/* 8139754C 00067A6C  2C 00 00 00 */	cmpwi r0, 0x0
+/* 81397550 00067A70  40 82 00 30 */	bne .L_81397580
+/* 81397554 00067A74  38 7E 01 40 */	addi r3, r30, 0x140
+/* 81397558 00067A78  4B FC CF 49 */	bl __cl__Q33ipl7utility5timerFv
+/* 8139755C 00067A7C  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81397560 00067A80  41 82 00 2C */	beq .L_8139758C
+/* 81397564 00067A84  38 00 00 00 */	li r0, 0x0
+/* 81397568 00067A88  3C 60 81 09 */	lis r3, sSystem__Q23ipl3snd@ha
+/* 8139756C 00067A8C  98 1E 01 3C */	stb r0, 0x13c(r30)
+/* 81397570 00067A90  38 63 99 2C */	addi r3, r3, sSystem__Q23ipl3snd@l
+/* 81397574 00067A94  38 80 00 78 */	li r4, 0x78
+/* 81397578 00067A98  4B FD 47 E1 */	bl muteOffBGM__Q33ipl3snd6SystemFi
+/* 8139757C 00067A9C  48 00 00 10 */	b .L_8139758C
+.L_81397580:
+/* 81397580 00067AA0  38 7E 01 40 */	addi r3, r30, 0x140
+/* 81397584 00067AA4  38 80 00 64 */	li r4, 0x64
+/* 81397588 00067AA8  4B FC CE 9D */	bl set_msec__Q33ipl7utility5timerFi
+.L_8139758C:
+/* 8139758C 00067AAC  80 01 00 74 */	lwz r0, 0x74(r1)
+/* 81397590 00067AB0  83 E1 00 6C */	lwz r31, 0x6c(r1)
+/* 81397594 00067AB4  83 C1 00 68 */	lwz r30, 0x68(r1)
+/* 81397598 00067AB8  7C 08 03 A6 */	mtlr r0
+/* 8139759C 00067ABC  38 21 00 70 */	addi r1, r1, 0x70
+/* 813975A0 00067AC0  4E 80 00 20 */	blr
+.endfn cmn_calc__Q33ipl5scene12focus_objectFv
+
+# .text:0x87C | 0x813975A4 | size: 0x1C
+# ipl::math::VEC3::VEC3(const nw4r::math::_VEC3&)
+.fn __ct__Q33ipl4math4VEC3FRCQ34nw4r4math5_VEC3, global
+/* 813975A4 00067AC4  C0 44 00 00 */	lfs f2, 0x0(r4)
+/* 813975A8 00067AC8  C0 24 00 04 */	lfs f1, 0x4(r4)
+/* 813975AC 00067ACC  C0 04 00 08 */	lfs f0, 0x8(r4)
+/* 813975B0 00067AD0  D0 43 00 00 */	stfs f2, 0x0(r3)
+/* 813975B4 00067AD4  D0 23 00 04 */	stfs f1, 0x4(r3)
+/* 813975B8 00067AD8  D0 03 00 08 */	stfs f0, 0x8(r3)
+/* 813975BC 00067ADC  4E 80 00 20 */	blr
+.endfn __ct__Q33ipl4math4VEC3FRCQ34nw4r4math5_VEC3
+
+# .text:0x898 | 0x813975C0 | size: 0x20
+# ipl::math::VEC3::operator*(float) const
+.fn __ml__Q33ipl4math4VEC3CFf, global
+/* 813975C0 00067AE0  FC 80 08 90 */	fmr f4, f1
+/* 813975C4 00067AE4  C0 64 00 00 */	lfs f3, 0x0(r4)
+/* 813975C8 00067AE8  C0 44 00 04 */	lfs f2, 0x4(r4)
+/* 813975CC 00067AEC  C0 04 00 08 */	lfs f0, 0x8(r4)
+/* 813975D0 00067AF0  EC 23 00 72 */	fmuls f1, f3, f1
+/* 813975D4 00067AF4  EC 42 01 32 */	fmuls f2, f2, f4
+/* 813975D8 00067AF8  EC 60 01 32 */	fmuls f3, f0, f4
+/* 813975DC 00067AFC  4B FC B4 80 */	b __ct__Q33ipl4math4VEC3Ffff
+.endfn __ml__Q33ipl4math4VEC3CFf
+
+# .text:0x8B8 | 0x813975E0 | size: 0xF4
+# ipl::scene::focus_object::stt_normal()
+.fn stt_normal__Q33ipl5scene12focus_objectFv, global
+/* 813975E0 00067B00  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 813975E4 00067B04  7C 08 02 A6 */	mflr r0
+/* 813975E8 00067B08  3C A0 81 09 */	lis r5, smArg__Q23ipl6System@ha
+/* 813975EC 00067B0C  38 80 00 05 */	li r4, 0x5
+/* 813975F0 00067B10  90 01 00 14 */	stw r0, 0x14(r1)
+/* 813975F4 00067B14  38 A5 90 08 */	addi r5, r5, smArg__Q23ipl6System@l
+/* 813975F8 00067B18  93 E1 00 0C */	stw r31, 0xc(r1)
+/* 813975FC 00067B1C  93 C1 00 08 */	stw r30, 0x8(r1)
+/* 81397600 00067B20  7C 7E 1B 78 */	mr r30, r3
+/* 81397604 00067B24  80 65 00 64 */	lwz r3, 0x64(r5)
+/* 81397608 00067B28  48 07 3B 31 */	bl getScene__Q33ipl5scene7ManagerFi
+/* 8139760C 00067B2C  7C 7F 1B 78 */	mr r31, r3
+/* 81397610 00067B30  48 00 53 05 */	bl isActive__Q33ipl5scene6ButtonCFv
+/* 81397614 00067B34  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81397618 00067B38  41 82 00 20 */	beq .L_81397638
+/* 8139761C 00067B3C  38 7E 00 A8 */	addi r3, r30, 0xa8
+/* 81397620 00067B40  4B FC C4 C5 */	bl isActive__Q33ipl7utility9BScrollerCFv
+/* 81397624 00067B44  7C 60 00 34 */	cntlzw r0, r3
+/* 81397628 00067B48  54 00 D9 7F */	srwi. r0, r0, 5
+/* 8139762C 00067B4C  41 82 00 0C */	beq .L_81397638
+/* 81397630 00067B50  7F E3 FB 78 */	mr r3, r31
+/* 81397634 00067B54  48 00 4F 39 */	bl update__Q33ipl5scene6ButtonFv
+.L_81397638:
+/* 81397638 00067B58  80 1E 00 00 */	lwz r0, 0x0(r30)
+/* 8139763C 00067B5C  2C 00 00 01 */	cmpwi r0, 0x1
+/* 81397640 00067B60  40 82 00 20 */	bne .L_81397660
+/* 81397644 00067B64  38 7E 00 A8 */	addi r3, r30, 0xa8
+/* 81397648 00067B68  4B FC C4 9D */	bl isActive__Q33ipl7utility9BScrollerCFv
+/* 8139764C 00067B6C  7C 60 00 34 */	cntlzw r0, r3
+/* 81397650 00067B70  54 00 D9 7F */	srwi. r0, r0, 5
+/* 81397654 00067B74  41 82 00 0C */	beq .L_81397660
+/* 81397658 00067B78  80 7E 00 1C */	lwz r3, 0x1c(r30)
+/* 8139765C 00067B7C  4B FD 39 31 */	bl update__Q33ipl3gui11PaneManagerFv
+.L_81397660:
+/* 81397660 00067B80  80 1E 00 00 */	lwz r0, 0x0(r30)
+/* 81397664 00067B84  2C 00 00 01 */	cmpwi r0, 0x1
+/* 81397668 00067B88  40 82 00 0C */	bne .L_81397674
+/* 8139766C 00067B8C  7F C3 F3 78 */	mr r3, r30
+/* 81397670 00067B90  48 00 11 41 */	bl proc_input__Q33ipl5scene12focus_objectFv
+.L_81397674:
+/* 81397674 00067B94  80 1E 00 00 */	lwz r0, 0x0(r30)
+/* 81397678 00067B98  2C 00 00 01 */	cmpwi r0, 0x1
+/* 8139767C 00067B9C  40 82 00 1C */	bne .L_81397698
+/* 81397680 00067BA0  38 7E 00 58 */	addi r3, r30, 0x58
+/* 81397684 00067BA4  48 00 00 51 */	bl is_busy__Q33ipl5scene8scrollerCFv
+/* 81397688 00067BA8  2C 03 00 00 */	cmpwi r3, 0x0
+/* 8139768C 00067BAC  40 82 00 0C */	bne .L_81397698
+/* 81397690 00067BB0  7F C3 F3 78 */	mr r3, r30
+/* 81397694 00067BB4  48 00 11 D9 */	bl proc_url_jump__Q33ipl5scene12focus_objectFv
+.L_81397698:
+/* 81397698 00067BB8  80 1E 00 00 */	lwz r0, 0x0(r30)
+/* 8139769C 00067BBC  2C 00 00 01 */	cmpwi r0, 0x1
+/* 813976A0 00067BC0  41 82 00 1C */	beq .L_813976BC
+/* 813976A4 00067BC4  2C 00 00 07 */	cmpwi r0, 0x7
+/* 813976A8 00067BC8  41 82 00 14 */	beq .L_813976BC
+/* 813976AC 00067BCC  3C 80 57 B1 */	lis r4, 0x57b1
+/* 813976B0 00067BD0  38 7E 01 48 */	addi r3, r30, 0x148
+/* 813976B4 00067BD4  38 84 2C 00 */	addi r4, r4, 0x2c00
+/* 813976B8 00067BD8  4B FC CD 6D */	bl set_msec__Q33ipl7utility5timerFi
+.L_813976BC:
+/* 813976BC 00067BDC  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 813976C0 00067BE0  83 E1 00 0C */	lwz r31, 0xc(r1)
+/* 813976C4 00067BE4  83 C1 00 08 */	lwz r30, 0x8(r1)
+/* 813976C8 00067BE8  7C 08 03 A6 */	mtlr r0
+/* 813976CC 00067BEC  38 21 00 10 */	addi r1, r1, 0x10
+/* 813976D0 00067BF0  4E 80 00 20 */	blr
+.endfn stt_normal__Q33ipl5scene12focus_objectFv
+
+# .text:0x9AC | 0x813976D4 | size: 0x50
+# ipl::scene::scroller::is_busy() const
+.fn is_busy__Q33ipl5scene8scrollerCFv, global
+/* 813976D4 00067BF4  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 813976D8 00067BF8  7C 08 02 A6 */	mflr r0
+/* 813976DC 00067BFC  90 01 00 14 */	stw r0, 0x14(r1)
+/* 813976E0 00067C00  80 03 00 30 */	lwz r0, 0x30(r3)
+/* 813976E4 00067C04  93 E1 00 0C */	stw r31, 0xc(r1)
+/* 813976E8 00067C08  3B E0 00 01 */	li r31, 0x1
+/* 813976EC 00067C0C  2C 00 00 00 */	cmpwi r0, 0x0
+/* 813976F0 00067C10  40 82 00 1C */	bne .L_8139770C
+/* 813976F4 00067C14  38 63 00 50 */	addi r3, r3, 0x50
+/* 813976F8 00067C18  4B FC C3 ED */	bl isActive__Q33ipl7utility9BScrollerCFv
+/* 813976FC 00067C1C  7C 60 00 34 */	cntlzw r0, r3
+/* 81397700 00067C20  54 00 D9 7F */	srwi. r0, r0, 5
+/* 81397704 00067C24  41 82 00 08 */	beq .L_8139770C
+/* 81397708 00067C28  3B E0 00 00 */	li r31, 0x0
+.L_8139770C:
+/* 8139770C 00067C2C  7F E3 FB 78 */	mr r3, r31
+/* 81397710 00067C30  83 E1 00 0C */	lwz r31, 0xc(r1)
+/* 81397714 00067C34  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 81397718 00067C38  7C 08 03 A6 */	mtlr r0
+/* 8139771C 00067C3C  38 21 00 10 */	addi r1, r1, 0x10
+/* 81397720 00067C40  4E 80 00 20 */	blr
+.endfn is_busy__Q33ipl5scene8scrollerCFv
+
+# .text:0x9FC | 0x81397724 | size: 0x44
+# ipl::scene::focus_object::stt_fadeout()
+.fn stt_fadeout__Q33ipl5scene12focus_objectFv, global
+/* 81397724 00067C44  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 81397728 00067C48  7C 08 02 A6 */	mflr r0
+/* 8139772C 00067C4C  90 01 00 14 */	stw r0, 0x14(r1)
+/* 81397730 00067C50  93 E1 00 0C */	stw r31, 0xc(r1)
+/* 81397734 00067C54  7C 7F 1B 78 */	mr r31, r3
+/* 81397738 00067C58  48 00 15 F5 */	bl is_finished_fadeout__Q33ipl5scene12focus_objectCFv
+/* 8139773C 00067C5C  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81397740 00067C60  41 82 00 14 */	beq .L_81397754
+/* 81397744 00067C64  80 7F 00 10 */	lwz r3, 0x10(r31)
+/* 81397748 00067C68  38 00 00 18 */	li r0, 0x18
+/* 8139774C 00067C6C  90 1F 00 00 */	stw r0, 0x0(r31)
+/* 81397750 00067C70  90 7F 00 0C */	stw r3, 0xc(r31)
+.L_81397754:
+/* 81397754 00067C74  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 81397758 00067C78  83 E1 00 0C */	lwz r31, 0xc(r1)
+/* 8139775C 00067C7C  7C 08 03 A6 */	mtlr r0
+/* 81397760 00067C80  38 21 00 10 */	addi r1, r1, 0x10
+/* 81397764 00067C84  4E 80 00 20 */	blr
+.endfn stt_fadeout__Q33ipl5scene12focus_objectFv
+
+# .text:0xA40 | 0x81397768 | size: 0x158
+# ipl::scene::focus_object::stt_wait_btn()
+.fn stt_wait_btn__Q33ipl5scene12focus_objectFv, global
+/* 81397768 00067C88  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 8139776C 00067C8C  7C 08 02 A6 */	mflr r0
+/* 81397770 00067C90  38 80 00 05 */	li r4, 0x5
+/* 81397774 00067C94  90 01 00 14 */	stw r0, 0x14(r1)
+/* 81397778 00067C98  93 E1 00 0C */	stw r31, 0xc(r1)
+/* 8139777C 00067C9C  3F E0 81 09 */	lis r31, smArg__Q23ipl6System@ha
+/* 81397780 00067CA0  3B FF 90 08 */	addi r31, r31, smArg__Q23ipl6System@l
+/* 81397784 00067CA4  93 C1 00 08 */	stw r30, 0x8(r1)
+/* 81397788 00067CA8  7C 7E 1B 78 */	mr r30, r3
+/* 8139778C 00067CAC  80 7F 00 64 */	lwz r3, 0x64(r31)
+/* 81397790 00067CB0  48 07 39 A9 */	bl getScene__Q33ipl5scene7ManagerFi
+/* 81397794 00067CB4  48 00 51 81 */	bl isActive__Q33ipl5scene6ButtonCFv
+/* 81397798 00067CB8  2C 03 00 00 */	cmpwi r3, 0x0
+/* 8139779C 00067CBC  41 82 01 0C */	beq .L_813978A8
+/* 813977A0 00067CC0  80 7F 00 64 */	lwz r3, 0x64(r31)
+/* 813977A4 00067CC4  38 80 00 05 */	li r4, 0x5
+/* 813977A8 00067CC8  48 07 39 91 */	bl getScene__Q33ipl5scene7ManagerFi
+/* 813977AC 00067CCC  80 03 01 78 */	lwz r0, 0x178(r3)
+/* 813977B0 00067CD0  2C 00 00 00 */	cmpwi r0, 0x0
+/* 813977B4 00067CD4  40 82 00 F4 */	bne .L_813978A8
+/* 813977B8 00067CD8  80 1E 00 04 */	lwz r0, 0x4(r30)
+/* 813977BC 00067CDC  28 00 00 0E */	cmplwi r0, 0xe
+/* 813977C0 00067CE0  41 81 00 D8 */	bgt .L_81397898
+/* 813977C4 00067CE4  3C 60 81 65 */	lis r3, jumptable_8164BB04@ha
+/* 813977C8 00067CE8  54 00 10 3A */	slwi r0, r0, 2
+/* 813977CC 00067CEC  38 63 BB 04 */	addi r3, r3, jumptable_8164BB04@l
+/* 813977D0 00067CF0  7C 63 00 2E */	lwzx r3, r3, r0
+/* 813977D4 00067CF4  7C 69 03 A6 */	mtctr r3
+/* 813977D8 00067CF8  4E 80 04 20 */	bctr
+.L_813977DC:
+/* 813977DC 00067CFC  7F C3 F3 78 */	mr r3, r30
+/* 813977E0 00067D00  38 80 00 00 */	li r4, 0x0
+/* 813977E4 00067D04  48 00 16 41 */	bl init_fadeout__Q33ipl5scene12focus_objectFb
+/* 813977E8 00067D08  38 00 00 03 */	li r0, 0x3
+/* 813977EC 00067D0C  90 1E 00 10 */	stw r0, 0x10(r30)
+/* 813977F0 00067D10  48 00 00 A8 */	b .L_81397898
+.L_813977F4:
+/* 813977F4 00067D14  80 7F 00 AC */	lwz r3, 0xac(r31)
+/* 813977F8 00067D18  38 80 00 40 */	li r4, 0x40
+/* 813977FC 00067D1C  38 A0 00 2E */	li r5, 0x2e
+/* 81397800 00067D20  38 C0 00 25 */	li r6, 0x25
+/* 81397804 00067D24  38 E0 00 00 */	li r7, 0x0
+/* 81397808 00067D28  4B FA F6 C1 */	bl callSBtn2__Q23ipl12DialogWindowFUlUlUlb
+/* 8139780C 00067D2C  48 00 00 8C */	b .L_81397898
+.L_81397810:
+/* 81397810 00067D30  80 7F 00 64 */	lwz r3, 0x64(r31)
+/* 81397814 00067D34  38 80 00 05 */	li r4, 0x5
+/* 81397818 00067D38  48 07 39 21 */	bl getScene__Q33ipl5scene7ManagerFi
+/* 8139781C 00067D3C  38 80 00 10 */	li r4, 0x10
+/* 81397820 00067D40  48 00 5C 09 */	bl reserveAnm__Q33ipl5scene6ButtonFi
+/* 81397824 00067D44  7F C3 F3 78 */	mr r3, r30
+/* 81397828 00067D48  48 00 32 79 */	bl show_cmn_btn__Q33ipl5scene12focus_objectFv
+/* 8139782C 00067D4C  7F C3 F3 78 */	mr r3, r30
+/* 81397830 00067D50  38 80 00 00 */	li r4, 0x0
+/* 81397834 00067D54  38 A0 00 04 */	li r5, 0x4
+/* 81397838 00067D58  48 00 38 A5 */	bl reset_gui__Q33ipl5scene12focus_objectFii
+/* 8139783C 00067D5C  7F C3 F3 78 */	mr r3, r30
+/* 81397840 00067D60  38 80 00 01 */	li r4, 0x1
+/* 81397844 00067D64  38 A0 00 0C */	li r5, 0xc
+/* 81397848 00067D68  48 00 38 95 */	bl reset_gui__Q33ipl5scene12focus_objectFii
+/* 8139784C 00067D6C  7F C3 F3 78 */	mr r3, r30
+/* 81397850 00067D70  38 80 00 02 */	li r4, 0x2
+/* 81397854 00067D74  38 A0 00 17 */	li r5, 0x17
+/* 81397858 00067D78  48 00 38 85 */	bl reset_gui__Q33ipl5scene12focus_objectFii
+/* 8139785C 00067D7C  80 7E 00 18 */	lwz r3, 0x18(r30)
+/* 81397860 00067D80  38 80 00 19 */	li r4, 0x19
+/* 81397864 00067D84  38 63 02 8C */	addi r3, r3, 0x28c
+/* 81397868 00067D88  48 17 AA B1 */	bl List_GetNth__Q24nw4r2utFPCQ34nw4r2ut4ListUs
+/* 8139786C 00067D8C  7C 7F 1B 78 */	mr r31, r3
+/* 81397870 00067D90  4B FC B0 01 */	bl initFrame__Q33ipl7utility15FrameControllerFv
+/* 81397874 00067D94  38 00 00 01 */	li r0, 0x1
+/* 81397878 00067D98  90 1F 00 14 */	stw r0, 0x14(r31)
+/* 8139787C 00067D9C  48 00 00 1C */	b .L_81397898
+.L_81397880:
+/* 81397880 00067DA0  80 7F 00 AC */	lwz r3, 0xac(r31)
+/* 81397884 00067DA4  38 80 00 66 */	li r4, 0x66
+/* 81397888 00067DA8  38 A0 00 67 */	li r5, 0x67
+/* 8139788C 00067DAC  38 C0 00 68 */	li r6, 0x68
+/* 81397890 00067DB0  38 E0 00 69 */	li r7, 0x69
+/* 81397894 00067DB4  4B FA F5 95 */	bl callBtn3__Q23ipl12DialogWindowFUlUlUlUl
+.L_81397898:
+/* 81397898 00067DB8  80 7E 00 04 */	lwz r3, 0x4(r30)
+/* 8139789C 00067DBC  38 00 FF FF */	li r0, -0x1
+/* 813978A0 00067DC0  90 7E 00 00 */	stw r3, 0x0(r30)
+/* 813978A4 00067DC4  90 1E 00 04 */	stw r0, 0x4(r30)
+.L_813978A8:
+/* 813978A8 00067DC8  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 813978AC 00067DCC  83 E1 00 0C */	lwz r31, 0xc(r1)
+/* 813978B0 00067DD0  83 C1 00 08 */	lwz r30, 0x8(r1)
+/* 813978B4 00067DD4  7C 08 03 A6 */	mtlr r0
+/* 813978B8 00067DD8  38 21 00 10 */	addi r1, r1, 0x10
+/* 813978BC 00067DDC  4E 80 00 20 */	blr
+.endfn stt_wait_btn__Q33ipl5scene12focus_objectFv
+
+# .text:0xB98 | 0x813978C0 | size: 0xA4
+# ipl::scene::focus_object::stt_wait_msg()
+.fn stt_wait_msg__Q33ipl5scene12focus_objectFv, global
+/* 813978C0 00067DE0  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 813978C4 00067DE4  7C 08 02 A6 */	mflr r0
+/* 813978C8 00067DE8  3C A0 81 09 */	lis r5, smArg__Q23ipl6System@ha
+/* 813978CC 00067DEC  90 01 00 14 */	stw r0, 0x14(r1)
+/* 813978D0 00067DF0  38 A5 90 08 */	addi r5, r5, smArg__Q23ipl6System@l
+/* 813978D4 00067DF4  93 E1 00 0C */	stw r31, 0xc(r1)
+/* 813978D8 00067DF8  7C 7F 1B 78 */	mr r31, r3
+/* 813978DC 00067DFC  80 85 00 AC */	lwz r4, 0xac(r5)
+/* 813978E0 00067E00  80 04 00 24 */	lwz r0, 0x24(r4)
+/* 813978E4 00067E04  2C 00 FF FF */	cmpwi r0, -0x1
+/* 813978E8 00067E08  41 82 00 68 */	beq .L_81397950
+/* 813978EC 00067E0C  80 03 00 08 */	lwz r0, 0x8(r3)
+/* 813978F0 00067E10  2C 00 00 05 */	cmpwi r0, 0x5
+/* 813978F4 00067E14  41 82 00 20 */	beq .L_81397914
+/* 813978F8 00067E18  40 80 00 10 */	bge .L_81397908
+/* 813978FC 00067E1C  2C 00 00 01 */	cmpwi r0, 0x1
+/* 81397900 00067E20  41 82 00 34 */	beq .L_81397934
+/* 81397904 00067E24  48 00 00 3C */	b .L_81397940
+.L_81397908:
+/* 81397908 00067E28  2C 00 00 08 */	cmpwi r0, 0x8
+/* 8139790C 00067E2C  41 82 00 28 */	beq .L_81397934
+/* 81397910 00067E30  48 00 00 30 */	b .L_81397940
+.L_81397914:
+/* 81397914 00067E34  80 65 00 64 */	lwz r3, 0x64(r5)
+/* 81397918 00067E38  38 80 00 05 */	li r4, 0x5
+/* 8139791C 00067E3C  48 07 38 1D */	bl getScene__Q33ipl5scene7ManagerFi
+/* 81397920 00067E40  38 80 00 08 */	li r4, 0x8
+/* 81397924 00067E44  48 00 5A 2D */	bl initBtn__Q33ipl5scene6ButtonFi
+/* 81397928 00067E48  7F E3 FB 78 */	mr r3, r31
+/* 8139792C 00067E4C  48 00 31 75 */	bl show_cmn_btn__Q33ipl5scene12focus_objectFv
+/* 81397930 00067E50  48 00 00 10 */	b .L_81397940
+.L_81397934:
+/* 81397934 00067E54  38 80 FF FF */	li r4, -0x1
+/* 81397938 00067E58  38 63 01 50 */	addi r3, r3, 0x150
+/* 8139793C 00067E5C  4B FF F0 35 */	bl select__Q33ipl5scene12UrlProcessorFi
+.L_81397940:
+/* 81397940 00067E60  80 7F 00 04 */	lwz r3, 0x4(r31)
+/* 81397944 00067E64  38 00 FF FF */	li r0, -0x1
+/* 81397948 00067E68  90 7F 00 00 */	stw r3, 0x0(r31)
+/* 8139794C 00067E6C  90 1F 00 04 */	stw r0, 0x4(r31)
+.L_81397950:
+/* 81397950 00067E70  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 81397954 00067E74  83 E1 00 0C */	lwz r31, 0xc(r1)
+/* 81397958 00067E78  7C 08 03 A6 */	mtlr r0
+/* 8139795C 00067E7C  38 21 00 10 */	addi r1, r1, 0x10
+/* 81397960 00067E80  4E 80 00 20 */	blr
+.endfn stt_wait_msg__Q33ipl5scene12focus_objectFv
+
+# .text:0xC3C | 0x81397964 | size: 0x158
+# ipl::scene::focus_object::stt_del_wait_msg()
+.fn stt_del_wait_msg__Q33ipl5scene12focus_objectFv, global
+/* 81397964 00067E84  94 21 FF E0 */	stwu r1, -0x20(r1)
+/* 81397968 00067E88  7C 08 02 A6 */	mflr r0
+/* 8139796C 00067E8C  90 01 00 24 */	stw r0, 0x24(r1)
+/* 81397970 00067E90  39 61 00 20 */	addi r11, r1, 0x20
+/* 81397974 00067E94  48 26 1B 51 */	bl _savegpr_28
+/* 81397978 00067E98  3F C0 81 09 */	lis r30, smArg__Q23ipl6System@ha
+/* 8139797C 00067E9C  7C 7C 1B 78 */	mr r28, r3
+/* 81397980 00067EA0  3B DE 90 08 */	addi r30, r30, smArg__Q23ipl6System@l
+/* 81397984 00067EA4  80 9E 00 AC */	lwz r4, 0xac(r30)
+/* 81397988 00067EA8  80 04 00 24 */	lwz r0, 0x24(r4)
+/* 8139798C 00067EAC  2C 00 00 02 */	cmpwi r0, 0x2
+/* 81397990 00067EB0  41 82 00 14 */	beq .L_813979A4
+/* 81397994 00067EB4  40 80 01 10 */	bge .L_81397AA4
+/* 81397998 00067EB8  2C 00 00 01 */	cmpwi r0, 0x1
+/* 8139799C 00067EBC  40 80 00 30 */	bge .L_813979CC
+/* 813979A0 00067EC0  48 00 01 04 */	b .L_81397AA4
+.L_813979A4:
+/* 813979A4 00067EC4  80 7E 00 64 */	lwz r3, 0x64(r30)
+/* 813979A8 00067EC8  38 80 00 05 */	li r4, 0x5
+/* 813979AC 00067ECC  48 07 37 8D */	bl getScene__Q33ipl5scene7ManagerFi
+/* 813979B0 00067ED0  38 80 00 08 */	li r4, 0x8
+/* 813979B4 00067ED4  48 00 59 9D */	bl initBtn__Q33ipl5scene6ButtonFi
+/* 813979B8 00067ED8  7F 83 E3 78 */	mr r3, r28
+/* 813979BC 00067EDC  48 00 30 E5 */	bl show_cmn_btn__Q33ipl5scene12focus_objectFv
+/* 813979C0 00067EE0  38 00 00 01 */	li r0, 0x1
+/* 813979C4 00067EE4  90 1C 00 00 */	stw r0, 0x0(r28)
+/* 813979C8 00067EE8  48 00 00 DC */	b .L_81397AA4
+.L_813979CC:
+/* 813979CC 00067EEC  80 63 00 14 */	lwz r3, 0x14(r3)
+/* 813979D0 00067EF0  4B FF E6 81 */	bl is_protected__Q33ipl5scene11BoardObjectCFv
+/* 813979D4 00067EF4  2C 03 00 00 */	cmpwi r3, 0x0
+/* 813979D8 00067EF8  41 82 00 30 */	beq .L_81397A08
+/* 813979DC 00067EFC  80 7E 00 AC */	lwz r3, 0xac(r30)
+/* 813979E0 00067F00  38 80 00 3E */	li r4, 0x3e
+/* 813979E4 00067F04  38 A0 00 2E */	li r5, 0x2e
+/* 813979E8 00067F08  4B FA ED 11 */	bl callBtn1__Q23ipl12DialogWindowFUlUl
+/* 813979EC 00067F0C  80 9C 00 00 */	lwz r4, 0x0(r28)
+/* 813979F0 00067F10  38 60 00 04 */	li r3, 0x4
+/* 813979F4 00067F14  38 00 00 01 */	li r0, 0x1
+/* 813979F8 00067F18  90 9C 00 08 */	stw r4, 0x8(r28)
+/* 813979FC 00067F1C  90 7C 00 00 */	stw r3, 0x0(r28)
+/* 81397A00 00067F20  90 1C 00 04 */	stw r0, 0x4(r28)
+/* 81397A04 00067F24  48 00 00 A0 */	b .L_81397AA4
+.L_81397A08:
+/* 81397A08 00067F28  3B E0 00 01 */	li r31, 0x1
+/* 81397A0C 00067F2C  80 7C 00 20 */	lwz r3, 0x20(r28)
+/* 81397A10 00067F30  93 FC 01 C0 */	stw r31, 0x1c0(r28)
+/* 81397A14 00067F34  93 FC 01 BC */	stw r31, 0x1bc(r28)
+/* 81397A18 00067F38  48 03 9C 51 */	bl terminate__Q33ipl5scene11TextBalloonFv
+/* 81397A1C 00067F3C  80 7C 00 18 */	lwz r3, 0x18(r28)
+/* 81397A20 00067F40  38 80 00 01 */	li r4, 0x1
+/* 81397A24 00067F44  38 63 02 8C */	addi r3, r3, 0x28c
+/* 81397A28 00067F48  48 17 A8 F1 */	bl List_GetNth__Q24nw4r2utFPCQ34nw4r2ut4ListUs
+/* 81397A2C 00067F4C  7C 7D 1B 78 */	mr r29, r3
+/* 81397A30 00067F50  4B FC AE 41 */	bl initFrame__Q33ipl7utility15FrameControllerFv
+/* 81397A34 00067F54  93 FD 00 14 */	stw r31, 0x14(r29)
+/* 81397A38 00067F58  38 80 00 05 */	li r4, 0x5
+/* 81397A3C 00067F5C  80 7E 00 64 */	lwz r3, 0x64(r30)
+/* 81397A40 00067F60  48 07 36 F9 */	bl getScene__Q33ipl5scene7ManagerFi
+/* 81397A44 00067F64  38 80 00 00 */	li r4, 0x0
+/* 81397A48 00067F68  38 A0 00 00 */	li r5, 0x0
+/* 81397A4C 00067F6C  48 00 4E F1 */	bl setEventHandler__Q33ipl5scene6ButtonFPQ23gui12EventHandlerPQ23gui12EventHandler
+/* 81397A50 00067F70  80 7E 00 64 */	lwz r3, 0x64(r30)
+/* 81397A54 00067F74  38 80 00 05 */	li r4, 0x5
+/* 81397A58 00067F78  48 07 36 E1 */	bl getScene__Q33ipl5scene7ManagerFi
+/* 81397A5C 00067F7C  38 80 00 0A */	li r4, 0xa
+/* 81397A60 00067F80  48 00 50 F9 */	bl animation__Q33ipl5scene6ButtonFi
+/* 81397A64 00067F84  80 1C 01 34 */	lwz r0, 0x134(r28)
+/* 81397A68 00067F88  2C 00 00 00 */	cmpwi r0, 0x0
+/* 81397A6C 00067F8C  41 82 00 14 */	beq .L_81397A80
+/* 81397A70 00067F90  3C 60 81 09 */	lis r3, sBannerSoundPlayer__Q23ipl3snd@ha
+/* 81397A74 00067F94  38 80 00 1E */	li r4, 0x1e
+/* 81397A78 00067F98  38 63 9F 68 */	addi r3, r3, sBannerSoundPlayer__Q23ipl3snd@l
+/* 81397A7C 00067F9C  48 07 6E 9D */	bl stop__17BannerSoundPlayerFUl
+.L_81397A80:
+/* 81397A80 00067FA0  3C 60 81 09 */	lis r3, sSystem__Q23ipl3snd@ha
+/* 81397A84 00067FA4  3C 80 81 65 */	lis r4, lbl_8164BB40@ha
+/* 81397A88 00067FA8  38 63 99 2C */	addi r3, r3, sSystem__Q23ipl3snd@l
+/* 81397A8C 00067FAC  38 84 BB 40 */	addi r4, r4, lbl_8164BB40@l
+/* 81397A90 00067FB0  4B FD 39 DD */	bl startSE__Q33ipl3snd6SystemFPCc
+/* 81397A94 00067FB4  38 60 00 02 */	li r3, 0x2
+/* 81397A98 00067FB8  38 00 00 06 */	li r0, 0x6
+/* 81397A9C 00067FBC  90 7C 00 0C */	stw r3, 0xc(r28)
+/* 81397AA0 00067FC0  90 1C 00 00 */	stw r0, 0x0(r28)
+.L_81397AA4:
+/* 81397AA4 00067FC4  39 61 00 20 */	addi r11, r1, 0x20
+/* 81397AA8 00067FC8  48 26 1A 69 */	bl _restgpr_28
+/* 81397AAC 00067FCC  80 01 00 24 */	lwz r0, 0x24(r1)
+/* 81397AB0 00067FD0  7C 08 03 A6 */	mtlr r0
+/* 81397AB4 00067FD4  38 21 00 20 */	addi r1, r1, 0x20
+/* 81397AB8 00067FD8  4E 80 00 20 */	blr
+.endfn stt_del_wait_msg__Q33ipl5scene12focus_objectFv
+
+# .text:0xD94 | 0x81397ABC | size: 0x44
+# ipl::scene::focus_object::stt_del_wait_delete()
+.fn stt_del_wait_delete__Q33ipl5scene12focus_objectFv, global
+/* 81397ABC 00067FDC  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 81397AC0 00067FE0  7C 08 02 A6 */	mflr r0
+/* 81397AC4 00067FE4  90 01 00 14 */	stw r0, 0x14(r1)
+/* 81397AC8 00067FE8  93 E1 00 0C */	stw r31, 0xc(r1)
+/* 81397ACC 00067FEC  7C 7F 1B 78 */	mr r31, r3
+/* 81397AD0 00067FF0  48 00 12 5D */	bl is_finished_fadeout__Q33ipl5scene12focus_objectCFv
+/* 81397AD4 00067FF4  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81397AD8 00067FF8  41 82 00 14 */	beq .L_81397AEC
+/* 81397ADC 00067FFC  38 60 00 04 */	li r3, 0x4
+/* 81397AE0 00068000  38 00 00 18 */	li r0, 0x18
+/* 81397AE4 00068004  90 7F 00 0C */	stw r3, 0xc(r31)
+/* 81397AE8 00068008  90 1F 00 00 */	stw r0, 0x0(r31)
+.L_81397AEC:
+/* 81397AEC 0006800C  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 81397AF0 00068010  83 E1 00 0C */	lwz r31, 0xc(r1)
+/* 81397AF4 00068014  7C 08 03 A6 */	mtlr r0
+/* 81397AF8 00068018  38 21 00 10 */	addi r1, r1, 0x10
+/* 81397AFC 0006801C  4E 80 00 20 */	blr
+.endfn stt_del_wait_delete__Q33ipl5scene12focus_objectFv
+
+# .text:0xDD8 | 0x81397B00 | size: 0xE0
+# ipl::scene::focus_object::stt_pic_fadein()
+.fn stt_pic_fadein__Q33ipl5scene12focus_objectFv, global
+/* 81397B00 00068020  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 81397B04 00068024  7C 08 02 A6 */	mflr r0
+/* 81397B08 00068028  38 80 00 18 */	li r4, 0x18
+/* 81397B0C 0006802C  90 01 00 14 */	stw r0, 0x14(r1)
+/* 81397B10 00068030  93 E1 00 0C */	stw r31, 0xc(r1)
+/* 81397B14 00068034  93 C1 00 08 */	stw r30, 0x8(r1)
+/* 81397B18 00068038  7C 7E 1B 78 */	mr r30, r3
+/* 81397B1C 0006803C  80 A3 00 18 */	lwz r5, 0x18(r3)
+/* 81397B20 00068040  38 65 02 8C */	addi r3, r5, 0x28c
+/* 81397B24 00068044  48 17 A7 F5 */	bl List_GetNth__Q24nw4r2utFPCQ34nw4r2ut4ListUs
+/* 81397B28 00068048  80 03 00 14 */	lwz r0, 0x14(r3)
+/* 81397B2C 0006804C  2C 00 00 01 */	cmpwi r0, 0x1
+/* 81397B30 00068050  41 82 00 98 */	beq .L_81397BC8
+/* 81397B34 00068054  3F E0 81 09 */	lis r31, smArg__Q23ipl6System@ha
+/* 81397B38 00068058  38 80 00 05 */	li r4, 0x5
+/* 81397B3C 0006805C  3B FF 90 08 */	addi r31, r31, smArg__Q23ipl6System@l
+/* 81397B40 00068060  80 7F 00 64 */	lwz r3, 0x64(r31)
+/* 81397B44 00068064  48 07 35 F5 */	bl getScene__Q33ipl5scene7ManagerFi
+/* 81397B48 00068068  38 80 00 01 */	li r4, 0x1
+/* 81397B4C 0006806C  38 A0 00 27 */	li r5, 0x27
+/* 81397B50 00068070  48 00 59 0D */	bl reserveText__Q33ipl5scene6ButtonFiUl
+/* 81397B54 00068074  80 7F 00 64 */	lwz r3, 0x64(r31)
+/* 81397B58 00068078  38 80 00 05 */	li r4, 0x5
+/* 81397B5C 0006807C  48 07 35 DD */	bl getScene__Q33ipl5scene7ManagerFi
+/* 81397B60 00068080  38 80 00 0F */	li r4, 0xf
+/* 81397B64 00068084  48 00 58 C5 */	bl reserveAnm__Q33ipl5scene6ButtonFi
+/* 81397B68 00068088  88 1E 01 FC */	lbz r0, 0x1fc(r30)
+/* 81397B6C 0006808C  2C 00 00 00 */	cmpwi r0, 0x0
+/* 81397B70 00068090  41 82 00 24 */	beq .L_81397B94
+/* 81397B74 00068094  80 7E 00 18 */	lwz r3, 0x18(r30)
+/* 81397B78 00068098  38 80 00 07 */	li r4, 0x7
+/* 81397B7C 0006809C  38 63 02 8C */	addi r3, r3, 0x28c
+/* 81397B80 000680A0  48 17 A7 99 */	bl List_GetNth__Q24nw4r2utFPCQ34nw4r2ut4ListUs
+/* 81397B84 000680A4  7C 7F 1B 78 */	mr r31, r3
+/* 81397B88 000680A8  4B FC AC E9 */	bl initFrame__Q33ipl7utility15FrameControllerFv
+/* 81397B8C 000680AC  38 00 00 01 */	li r0, 0x1
+/* 81397B90 000680B0  90 1F 00 14 */	stw r0, 0x14(r31)
+.L_81397B94:
+/* 81397B94 000680B4  88 1E 01 FD */	lbz r0, 0x1fd(r30)
+/* 81397B98 000680B8  2C 00 00 00 */	cmpwi r0, 0x0
+/* 81397B9C 000680BC  41 82 00 24 */	beq .L_81397BC0
+/* 81397BA0 000680C0  80 7E 00 18 */	lwz r3, 0x18(r30)
+/* 81397BA4 000680C4  38 80 00 0F */	li r4, 0xf
+/* 81397BA8 000680C8  38 63 02 8C */	addi r3, r3, 0x28c
+/* 81397BAC 000680CC  48 17 A7 6D */	bl List_GetNth__Q24nw4r2utFPCQ34nw4r2ut4ListUs
+/* 81397BB0 000680D0  7C 7F 1B 78 */	mr r31, r3
+/* 81397BB4 000680D4  4B FC AC BD */	bl initFrame__Q33ipl7utility15FrameControllerFv
+/* 81397BB8 000680D8  38 00 00 01 */	li r0, 0x1
+/* 81397BBC 000680DC  90 1F 00 14 */	stw r0, 0x14(r31)
+.L_81397BC0:
+/* 81397BC0 000680E0  38 00 00 08 */	li r0, 0x8
+/* 81397BC4 000680E4  90 1E 00 00 */	stw r0, 0x0(r30)
+.L_81397BC8:
+/* 81397BC8 000680E8  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 81397BCC 000680EC  83 E1 00 0C */	lwz r31, 0xc(r1)
+/* 81397BD0 000680F0  83 C1 00 08 */	lwz r30, 0x8(r1)
+/* 81397BD4 000680F4  7C 08 03 A6 */	mtlr r0
+/* 81397BD8 000680F8  38 21 00 10 */	addi r1, r1, 0x10
+/* 81397BDC 000680FC  4E 80 00 20 */	blr
+.endfn stt_pic_fadein__Q33ipl5scene12focus_objectFv
+
+# .text:0xEB8 | 0x81397BE0 | size: 0x54
+# ipl::scene::focus_object::stt_pic_normal()
+.fn stt_pic_normal__Q33ipl5scene12focus_objectFv, global
+/* 81397BE0 00068100  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 81397BE4 00068104  7C 08 02 A6 */	mflr r0
+/* 81397BE8 00068108  38 80 00 05 */	li r4, 0x5
+/* 81397BEC 0006810C  90 01 00 14 */	stw r0, 0x14(r1)
+/* 81397BF0 00068110  93 E1 00 0C */	stw r31, 0xc(r1)
+/* 81397BF4 00068114  3F E0 81 09 */	lis r31, smArg__Q23ipl6System@ha
+/* 81397BF8 00068118  3B FF 90 08 */	addi r31, r31, smArg__Q23ipl6System@l
+/* 81397BFC 0006811C  80 7F 00 64 */	lwz r3, 0x64(r31)
+/* 81397C00 00068120  48 07 35 39 */	bl getScene__Q33ipl5scene7ManagerFi
+/* 81397C04 00068124  48 00 4D 11 */	bl isActive__Q33ipl5scene6ButtonCFv
+/* 81397C08 00068128  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81397C0C 0006812C  41 82 00 14 */	beq .L_81397C20
+/* 81397C10 00068130  80 7F 00 64 */	lwz r3, 0x64(r31)
+/* 81397C14 00068134  38 80 00 05 */	li r4, 0x5
+/* 81397C18 00068138  48 07 35 21 */	bl getScene__Q33ipl5scene7ManagerFi
+/* 81397C1C 0006813C  48 00 49 51 */	bl update__Q33ipl5scene6ButtonFv
+.L_81397C20:
+/* 81397C20 00068140  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 81397C24 00068144  83 E1 00 0C */	lwz r31, 0xc(r1)
+/* 81397C28 00068148  7C 08 03 A6 */	mtlr r0
+/* 81397C2C 0006814C  38 21 00 10 */	addi r1, r1, 0x10
+/* 81397C30 00068150  4E 80 00 20 */	blr
+.endfn stt_pic_normal__Q33ipl5scene12focus_objectFv
+
+# .text:0xF0C | 0x81397C34 | size: 0xAC
+# ipl::scene::focus_object::stt_pic_fadeout()
+.fn stt_pic_fadeout__Q33ipl5scene12focus_objectFv, global
+/* 81397C34 00068154  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 81397C38 00068158  7C 08 02 A6 */	mflr r0
+/* 81397C3C 0006815C  38 80 00 19 */	li r4, 0x19
+/* 81397C40 00068160  90 01 00 14 */	stw r0, 0x14(r1)
+/* 81397C44 00068164  93 E1 00 0C */	stw r31, 0xc(r1)
+/* 81397C48 00068168  93 C1 00 08 */	stw r30, 0x8(r1)
+/* 81397C4C 0006816C  7C 7E 1B 78 */	mr r30, r3
+/* 81397C50 00068170  80 A3 00 18 */	lwz r5, 0x18(r3)
+/* 81397C54 00068174  38 65 02 8C */	addi r3, r5, 0x28c
+/* 81397C58 00068178  48 17 A6 C1 */	bl List_GetNth__Q24nw4r2utFPCQ34nw4r2ut4ListUs
+/* 81397C5C 0006817C  80 03 00 14 */	lwz r0, 0x14(r3)
+/* 81397C60 00068180  2C 00 00 01 */	cmpwi r0, 0x1
+/* 81397C64 00068184  41 82 00 64 */	beq .L_81397CC8
+/* 81397C68 00068188  88 1E 01 FC */	lbz r0, 0x1fc(r30)
+/* 81397C6C 0006818C  2C 00 00 00 */	cmpwi r0, 0x0
+/* 81397C70 00068190  41 82 00 24 */	beq .L_81397C94
+/* 81397C74 00068194  80 7E 00 18 */	lwz r3, 0x18(r30)
+/* 81397C78 00068198  38 80 00 06 */	li r4, 0x6
+/* 81397C7C 0006819C  38 63 02 8C */	addi r3, r3, 0x28c
+/* 81397C80 000681A0  48 17 A6 99 */	bl List_GetNth__Q24nw4r2utFPCQ34nw4r2ut4ListUs
+/* 81397C84 000681A4  7C 7F 1B 78 */	mr r31, r3
+/* 81397C88 000681A8  4B FC AB E9 */	bl initFrame__Q33ipl7utility15FrameControllerFv
+/* 81397C8C 000681AC  38 00 00 01 */	li r0, 0x1
+/* 81397C90 000681B0  90 1F 00 14 */	stw r0, 0x14(r31)
+.L_81397C94:
+/* 81397C94 000681B4  88 1E 01 FD */	lbz r0, 0x1fd(r30)
+/* 81397C98 000681B8  2C 00 00 00 */	cmpwi r0, 0x0
+/* 81397C9C 000681BC  41 82 00 24 */	beq .L_81397CC0
+/* 81397CA0 000681C0  80 7E 00 18 */	lwz r3, 0x18(r30)
+/* 81397CA4 000681C4  38 80 00 0E */	li r4, 0xe
+/* 81397CA8 000681C8  38 63 02 8C */	addi r3, r3, 0x28c
+/* 81397CAC 000681CC  48 17 A6 6D */	bl List_GetNth__Q24nw4r2utFPCQ34nw4r2ut4ListUs
+/* 81397CB0 000681D0  7C 7F 1B 78 */	mr r31, r3
+/* 81397CB4 000681D4  4B FC AB BD */	bl initFrame__Q33ipl7utility15FrameControllerFv
+/* 81397CB8 000681D8  38 00 00 01 */	li r0, 0x1
+/* 81397CBC 000681DC  90 1F 00 14 */	stw r0, 0x14(r31)
+.L_81397CC0:
+/* 81397CC0 000681E0  38 00 00 01 */	li r0, 0x1
+/* 81397CC4 000681E4  90 1E 00 00 */	stw r0, 0x0(r30)
+.L_81397CC8:
+/* 81397CC8 000681E8  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 81397CCC 000681EC  83 E1 00 0C */	lwz r31, 0xc(r1)
+/* 81397CD0 000681F0  83 C1 00 08 */	lwz r30, 0x8(r1)
+/* 81397CD4 000681F4  7C 08 03 A6 */	mtlr r0
+/* 81397CD8 000681F8  38 21 00 10 */	addi r1, r1, 0x10
+/* 81397CDC 000681FC  4E 80 00 20 */	blr
+.endfn stt_pic_fadeout__Q33ipl5scene12focus_objectFv
+
+# .text:0xFB8 | 0x81397CE0 | size: 0x1E8
+# ipl::scene::focus_object::stt_ltr_wait_net()
+.fn stt_ltr_wait_net__Q33ipl5scene12focus_objectFv, global
+/* 81397CE0 00068200  94 21 FF E0 */	stwu r1, -0x20(r1)
+/* 81397CE4 00068204  7C 08 02 A6 */	mflr r0
+/* 81397CE8 00068208  90 01 00 24 */	stw r0, 0x24(r1)
+/* 81397CEC 0006820C  39 61 00 20 */	addi r11, r1, 0x20
+/* 81397CF0 00068210  48 26 17 D9 */	bl _savegpr_29
+/* 81397CF4 00068214  7C 7F 1B 78 */	mr r31, r3
+/* 81397CF8 00068218  48 00 34 85 */	bl check_network__Q33ipl5scene12focus_objectFv
+/* 81397CFC 0006821C  2C 03 00 01 */	cmpwi r3, 0x1
+/* 81397D00 00068220  41 82 00 18 */	beq .L_81397D18
+/* 81397D04 00068224  40 80 00 08 */	bge .L_81397D0C
+/* 81397D08 00068228  48 00 01 A8 */	b .L_81397EB0
+.L_81397D0C:
+/* 81397D0C 0006822C  2C 03 00 03 */	cmpwi r3, 0x3
+/* 81397D10 00068230  40 80 01 A0 */	bge .L_81397EB0
+/* 81397D14 00068234  48 00 01 60 */	b .L_81397E74
+.L_81397D18:
+/* 81397D18 00068238  80 1F 00 08 */	lwz r0, 0x8(r31)
+/* 81397D1C 0006823C  2C 00 00 08 */	cmpwi r0, 0x8
+/* 81397D20 00068240  41 82 00 94 */	beq .L_81397DB4
+/* 81397D24 00068244  40 80 01 18 */	bge .L_81397E3C
+/* 81397D28 00068248  2C 00 00 01 */	cmpwi r0, 0x1
+/* 81397D2C 0006824C  41 82 00 08 */	beq .L_81397D34
+/* 81397D30 00068250  48 00 01 0C */	b .L_81397E3C
+.L_81397D34:
+/* 81397D34 00068254  80 7F 00 18 */	lwz r3, 0x18(r31)
+/* 81397D38 00068258  38 80 00 12 */	li r4, 0x12
+/* 81397D3C 0006825C  38 63 02 8C */	addi r3, r3, 0x28c
+/* 81397D40 00068260  48 17 A5 D9 */	bl List_GetNth__Q24nw4r2utFPCQ34nw4r2ut4ListUs
+/* 81397D44 00068264  7C 7E 1B 78 */	mr r30, r3
+/* 81397D48 00068268  4B FC AB 29 */	bl initFrame__Q33ipl7utility15FrameControllerFv
+/* 81397D4C 0006826C  38 00 00 01 */	li r0, 0x1
+/* 81397D50 00068270  7F E3 FB 78 */	mr r3, r31
+/* 81397D54 00068274  90 1E 00 14 */	stw r0, 0x14(r30)
+/* 81397D58 00068278  48 00 2E 4D */	bl hide_cmn_btn__Q33ipl5scene12focus_objectFv
+/* 81397D5C 0006827C  3F C0 81 09 */	lis r30, smArg__Q23ipl6System@ha
+/* 81397D60 00068280  38 80 00 05 */	li r4, 0x5
+/* 81397D64 00068284  3B DE 90 08 */	addi r30, r30, smArg__Q23ipl6System@l
+/* 81397D68 00068288  80 7E 00 64 */	lwz r3, 0x64(r30)
+/* 81397D6C 0006828C  48 07 33 CD */	bl getScene__Q33ipl5scene7ManagerFi
+/* 81397D70 00068290  38 80 00 00 */	li r4, 0x0
+/* 81397D74 00068294  38 A0 00 25 */	li r5, 0x25
+/* 81397D78 00068298  48 00 56 E5 */	bl reserveText__Q33ipl5scene6ButtonFiUl
+/* 81397D7C 0006829C  80 7E 00 64 */	lwz r3, 0x64(r30)
+/* 81397D80 000682A0  38 80 00 05 */	li r4, 0x5
+/* 81397D84 000682A4  48 07 33 B5 */	bl getScene__Q33ipl5scene7ManagerFi
+/* 81397D88 000682A8  38 80 00 01 */	li r4, 0x1
+/* 81397D8C 000682AC  38 A0 00 27 */	li r5, 0x27
+/* 81397D90 000682B0  48 00 56 CD */	bl reserveText__Q33ipl5scene6ButtonFiUl
+/* 81397D94 000682B4  80 7E 00 64 */	lwz r3, 0x64(r30)
+/* 81397D98 000682B8  38 80 00 05 */	li r4, 0x5
+/* 81397D9C 000682BC  48 07 33 9D */	bl getScene__Q33ipl5scene7ManagerFi
+/* 81397DA0 000682C0  38 80 00 0F */	li r4, 0xf
+/* 81397DA4 000682C4  48 00 56 85 */	bl reserveAnm__Q33ipl5scene6ButtonFi
+/* 81397DA8 000682C8  38 00 00 06 */	li r0, 0x6
+/* 81397DAC 000682CC  90 1F 00 0C */	stw r0, 0xc(r31)
+/* 81397DB0 000682D0  48 00 00 8C */	b .L_81397E3C
+.L_81397DB4:
+/* 81397DB4 000682D4  80 7F 00 18 */	lwz r3, 0x18(r31)
+/* 81397DB8 000682D8  38 80 00 14 */	li r4, 0x14
+/* 81397DBC 000682DC  38 63 02 8C */	addi r3, r3, 0x28c
+/* 81397DC0 000682E0  48 17 A5 59 */	bl List_GetNth__Q24nw4r2utFPCQ34nw4r2ut4ListUs
+/* 81397DC4 000682E4  7C 7D 1B 78 */	mr r29, r3
+/* 81397DC8 000682E8  4B FC AA A9 */	bl initFrame__Q33ipl7utility15FrameControllerFv
+/* 81397DCC 000682EC  38 00 00 01 */	li r0, 0x1
+/* 81397DD0 000682F0  3F C0 81 09 */	lis r30, smArg__Q23ipl6System@ha
+/* 81397DD4 000682F4  90 1D 00 14 */	stw r0, 0x14(r29)
+/* 81397DD8 000682F8  3B DE 90 08 */	addi r30, r30, smArg__Q23ipl6System@l
+/* 81397DDC 000682FC  38 80 00 05 */	li r4, 0x5
+/* 81397DE0 00068300  80 7E 00 64 */	lwz r3, 0x64(r30)
+/* 81397DE4 00068304  48 07 33 55 */	bl getScene__Q33ipl5scene7ManagerFi
+/* 81397DE8 00068308  38 80 00 10 */	li r4, 0x10
+/* 81397DEC 0006830C  48 00 56 3D */	bl reserveAnm__Q33ipl5scene6ButtonFi
+/* 81397DF0 00068310  80 7E 00 64 */	lwz r3, 0x64(r30)
+/* 81397DF4 00068314  38 80 00 05 */	li r4, 0x5
+/* 81397DF8 00068318  48 07 33 41 */	bl getScene__Q33ipl5scene7ManagerFi
+/* 81397DFC 0006831C  38 80 00 00 */	li r4, 0x0
+/* 81397E00 00068320  38 A0 00 23 */	li r5, 0x23
+/* 81397E04 00068324  48 00 56 59 */	bl reserveText__Q33ipl5scene6ButtonFiUl
+/* 81397E08 00068328  80 7E 00 64 */	lwz r3, 0x64(r30)
+/* 81397E0C 0006832C  38 80 00 05 */	li r4, 0x5
+/* 81397E10 00068330  48 07 33 29 */	bl getScene__Q33ipl5scene7ManagerFi
+/* 81397E14 00068334  38 80 00 01 */	li r4, 0x1
+/* 81397E18 00068338  38 A0 00 24 */	li r5, 0x24
+/* 81397E1C 0006833C  48 00 56 41 */	bl reserveText__Q33ipl5scene6ButtonFiUl
+/* 81397E20 00068340  80 7E 00 64 */	lwz r3, 0x64(r30)
+/* 81397E24 00068344  38 80 00 05 */	li r4, 0x5
+/* 81397E28 00068348  48 07 33 11 */	bl getScene__Q33ipl5scene7ManagerFi
+/* 81397E2C 0006834C  38 80 00 0B */	li r4, 0xb
+/* 81397E30 00068350  48 00 55 F9 */	bl reserveAnm__Q33ipl5scene6ButtonFi
+/* 81397E34 00068354  38 00 00 07 */	li r0, 0x7
+/* 81397E38 00068358  90 1F 00 0C */	stw r0, 0xc(r31)
+.L_81397E3C:
+/* 81397E3C 0006835C  3C 60 81 09 */	lis r3, smArg__Q23ipl6System@ha
+/* 81397E40 00068360  38 80 00 05 */	li r4, 0x5
+/* 81397E44 00068364  38 63 90 08 */	addi r3, r3, smArg__Q23ipl6System@l
+/* 81397E48 00068368  80 63 00 64 */	lwz r3, 0x64(r3)
+/* 81397E4C 0006836C  48 07 32 ED */	bl getScene__Q33ipl5scene7ManagerFi
+/* 81397E50 00068370  38 80 00 00 */	li r4, 0x0
+/* 81397E54 00068374  38 A0 00 00 */	li r5, 0x0
+/* 81397E58 00068378  48 00 4A E5 */	bl setEventHandler__Q33ipl5scene6ButtonFPQ23gui12EventHandlerPQ23gui12EventHandler
+/* 81397E5C 0006837C  4B F9 BE 2D */	bl stopReceiveSchedule__Q23ipl6SystemFv
+/* 81397E60 00068380  38 60 00 03 */	li r3, 0x3
+/* 81397E64 00068384  38 00 00 0B */	li r0, 0xb
+/* 81397E68 00068388  90 7F 00 00 */	stw r3, 0x0(r31)
+/* 81397E6C 0006838C  90 1F 00 04 */	stw r0, 0x4(r31)
+/* 81397E70 00068390  48 00 00 40 */	b .L_81397EB0
+.L_81397E74:
+/* 81397E74 00068394  80 7F 01 F4 */	lwz r3, 0x1f4(r31)
+/* 81397E78 00068398  38 03 00 01 */	addi r0, r3, 0x1
+/* 81397E7C 0006839C  2C 00 01 2C */	cmpwi r0, 0x12c
+/* 81397E80 000683A0  90 1F 01 F4 */	stw r0, 0x1f4(r31)
+/* 81397E84 000683A4  40 81 00 2C */	ble .L_81397EB0
+/* 81397E88 000683A8  3C 60 81 09 */	lis r3, smArg__Q23ipl6System@ha
+/* 81397E8C 000683AC  38 80 01 C6 */	li r4, 0x1c6
+/* 81397E90 000683B0  38 63 90 08 */	addi r3, r3, smArg__Q23ipl6System@l
+/* 81397E94 000683B4  38 A0 00 2E */	li r5, 0x2e
+/* 81397E98 000683B8  80 63 00 AC */	lwz r3, 0xac(r3)
+/* 81397E9C 000683BC  4B FA E8 5D */	bl callBtn1__Q23ipl12DialogWindowFUlUl
+/* 81397EA0 000683C0  80 1F 00 08 */	lwz r0, 0x8(r31)
+/* 81397EA4 000683C4  38 60 00 04 */	li r3, 0x4
+/* 81397EA8 000683C8  90 7F 00 00 */	stw r3, 0x0(r31)
+/* 81397EAC 000683CC  90 1F 00 04 */	stw r0, 0x4(r31)
+.L_81397EB0:
+/* 81397EB0 000683D0  39 61 00 20 */	addi r11, r1, 0x20
+/* 81397EB4 000683D4  48 26 16 61 */	bl _restgpr_29
+/* 81397EB8 000683D8  80 01 00 24 */	lwz r0, 0x24(r1)
+/* 81397EBC 000683DC  7C 08 03 A6 */	mtlr r0
+/* 81397EC0 000683E0  38 21 00 20 */	addi r1, r1, 0x20
+/* 81397EC4 000683E4  4E 80 00 20 */	blr
+.endfn stt_ltr_wait_net__Q33ipl5scene12focus_objectFv
+
+# .text:0x11A0 | 0x81397EC8 | size: 0xE4
+# ipl::scene::focus_object::stt_ltr_wait_ltr_scene()
+.fn stt_ltr_wait_ltr_scene__Q33ipl5scene12focus_objectFv, global
+/* 81397EC8 000683E8  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 81397ECC 000683EC  7C 08 02 A6 */	mflr r0
+/* 81397ED0 000683F0  3C 80 81 09 */	lis r4, smArg__Q23ipl6System@ha
+/* 81397ED4 000683F4  90 01 00 14 */	stw r0, 0x14(r1)
+/* 81397ED8 000683F8  38 84 90 08 */	addi r4, r4, smArg__Q23ipl6System@l
+/* 81397EDC 000683FC  93 E1 00 0C */	stw r31, 0xc(r1)
+/* 81397EE0 00068400  93 C1 00 08 */	stw r30, 0x8(r1)
+/* 81397EE4 00068404  7C 7E 1B 78 */	mr r30, r3
+/* 81397EE8 00068408  80 64 00 64 */	lwz r3, 0x64(r4)
+/* 81397EEC 0006840C  80 03 01 04 */	lwz r0, 0x104(r3)
+/* 81397EF0 00068410  2C 00 00 00 */	cmpwi r0, 0x0
+/* 81397EF4 00068414  40 82 00 A0 */	bne .L_81397F94
+/* 81397EF8 00068418  38 80 00 0B */	li r4, 0xb
+/* 81397EFC 0006841C  48 07 32 3D */	bl getScene__Q33ipl5scene7ManagerFi
+/* 81397F00 00068420  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81397F04 00068424  40 82 00 90 */	bne .L_81397F94
+/* 81397F08 00068428  4B F9 BD E5 */	bl startReceiveSchedule__Q23ipl6SystemFv
+/* 81397F0C 0006842C  80 1E 00 08 */	lwz r0, 0x8(r30)
+/* 81397F10 00068430  2C 00 00 08 */	cmpwi r0, 0x8
+/* 81397F14 00068434  41 82 00 38 */	beq .L_81397F4C
+/* 81397F18 00068438  40 80 00 54 */	bge .L_81397F6C
+/* 81397F1C 0006843C  2C 00 00 01 */	cmpwi r0, 0x1
+/* 81397F20 00068440  41 82 00 08 */	beq .L_81397F28
+/* 81397F24 00068444  48 00 00 48 */	b .L_81397F6C
+.L_81397F28:
+/* 81397F28 00068448  80 7E 00 18 */	lwz r3, 0x18(r30)
+/* 81397F2C 0006844C  38 80 00 13 */	li r4, 0x13
+/* 81397F30 00068450  38 63 02 8C */	addi r3, r3, 0x28c
+/* 81397F34 00068454  48 17 A3 E5 */	bl List_GetNth__Q24nw4r2utFPCQ34nw4r2ut4ListUs
+/* 81397F38 00068458  7C 7F 1B 78 */	mr r31, r3
+/* 81397F3C 0006845C  4B FC A9 35 */	bl initFrame__Q33ipl7utility15FrameControllerFv
+/* 81397F40 00068460  38 00 00 01 */	li r0, 0x1
+/* 81397F44 00068464  90 1F 00 14 */	stw r0, 0x14(r31)
+/* 81397F48 00068468  48 00 00 24 */	b .L_81397F6C
+.L_81397F4C:
+/* 81397F4C 0006846C  80 7E 00 18 */	lwz r3, 0x18(r30)
+/* 81397F50 00068470  38 80 00 15 */	li r4, 0x15
+/* 81397F54 00068474  38 63 02 8C */	addi r3, r3, 0x28c
+/* 81397F58 00068478  48 17 A3 C1 */	bl List_GetNth__Q24nw4r2utFPCQ34nw4r2ut4ListUs
+/* 81397F5C 0006847C  7C 7F 1B 78 */	mr r31, r3
+/* 81397F60 00068480  4B FC A9 11 */	bl initFrame__Q33ipl7utility15FrameControllerFv
+/* 81397F64 00068484  38 00 00 01 */	li r0, 0x1
+/* 81397F68 00068488  90 1F 00 14 */	stw r0, 0x14(r31)
+.L_81397F6C:
+/* 81397F6C 0006848C  3C 60 81 09 */	lis r3, smArg__Q23ipl6System@ha
+/* 81397F70 00068490  38 80 00 05 */	li r4, 0x5
+/* 81397F74 00068494  38 63 90 08 */	addi r3, r3, smArg__Q23ipl6System@l
+/* 81397F78 00068498  80 63 00 64 */	lwz r3, 0x64(r3)
+/* 81397F7C 0006849C  48 07 31 BD */	bl getScene__Q33ipl5scene7ManagerFi
+/* 81397F80 000684A0  38 9E 00 38 */	addi r4, r30, 0x38
+/* 81397F84 000684A4  38 BE 00 48 */	addi r5, r30, 0x48
+/* 81397F88 000684A8  48 00 49 B5 */	bl setEventHandler__Q33ipl5scene6ButtonFPQ23gui12EventHandlerPQ23gui12EventHandler
+/* 81397F8C 000684AC  80 1E 00 08 */	lwz r0, 0x8(r30)
+/* 81397F90 000684B0  90 1E 00 00 */	stw r0, 0x0(r30)
+.L_81397F94:
+/* 81397F94 000684B4  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 81397F98 000684B8  83 E1 00 0C */	lwz r31, 0xc(r1)
+/* 81397F9C 000684BC  83 C1 00 08 */	lwz r30, 0x8(r1)
+/* 81397FA0 000684C0  7C 08 03 A6 */	mtlr r0
+/* 81397FA4 000684C4  38 21 00 10 */	addi r1, r1, 0x10
+/* 81397FA8 000684C8  4E 80 00 20 */	blr
+.endfn stt_ltr_wait_ltr_scene__Q33ipl5scene12focus_objectFv
+
+# .text:0x1284 | 0x81397FAC | size: 0xB8
+# ipl::scene::focus_object::stt_chn_wait_url_jump_msg()
+.fn stt_chn_wait_url_jump_msg__Q33ipl5scene12focus_objectFv, global
+/* 81397FAC 000684CC  94 21 FD E0 */	stwu r1, -0x220(r1)
+/* 81397FB0 000684D0  7C 08 02 A6 */	mflr r0
+/* 81397FB4 000684D4  90 01 02 24 */	stw r0, 0x224(r1)
+/* 81397FB8 000684D8  93 E1 02 1C */	stw r31, 0x21c(r1)
+/* 81397FBC 000684DC  3F E0 81 09 */	lis r31, smArg__Q23ipl6System@ha
+/* 81397FC0 000684E0  3B FF 90 08 */	addi r31, r31, smArg__Q23ipl6System@l
+/* 81397FC4 000684E4  93 C1 02 18 */	stw r30, 0x218(r1)
+/* 81397FC8 000684E8  7C 7E 1B 78 */	mr r30, r3
+/* 81397FCC 000684EC  80 9F 00 AC */	lwz r4, 0xac(r31)
+/* 81397FD0 000684F0  80 04 00 24 */	lwz r0, 0x24(r4)
+/* 81397FD4 000684F4  2C 00 00 02 */	cmpwi r0, 0x2
+/* 81397FD8 000684F8  41 82 00 14 */	beq .L_81397FEC
+/* 81397FDC 000684FC  40 80 00 70 */	bge .L_8139804C
+/* 81397FE0 00068500  2C 00 00 01 */	cmpwi r0, 0x1
+/* 81397FE4 00068504  40 80 00 24 */	bge .L_81398008
+/* 81397FE8 00068508  48 00 00 64 */	b .L_8139804C
+.L_81397FEC:
+/* 81397FEC 0006850C  48 00 2A B5 */	bl show_cmn_btn__Q33ipl5scene12focus_objectFv
+/* 81397FF0 00068510  38 7E 01 50 */	addi r3, r30, 0x150
+/* 81397FF4 00068514  38 80 FF FF */	li r4, -0x1
+/* 81397FF8 00068518  4B FF E9 79 */	bl select__Q33ipl5scene12UrlProcessorFi
+/* 81397FFC 0006851C  38 00 00 01 */	li r0, 0x1
+/* 81398000 00068520  90 1E 00 00 */	stw r0, 0x0(r30)
+/* 81398004 00068524  48 00 00 48 */	b .L_8139804C
+.L_81398008:
+/* 81398008 00068528  38 61 00 08 */	addi r3, r1, 0x8
+/* 8139800C 0006852C  38 80 00 00 */	li r4, 0x0
+/* 81398010 00068530  38 A0 02 02 */	li r5, 0x202
+/* 81398014 00068534  4B F9 83 21 */	bl memset
+/* 81398018 00068538  38 7E 01 50 */	addi r3, r30, 0x150
+/* 8139801C 0006853C  38 81 00 08 */	addi r4, r1, 0x8
+/* 81398020 00068540  38 A0 02 00 */	li r5, 0x200
+/* 81398024 00068544  4B FF EB 1D */	bl get_url__Q33ipl5scene12UrlProcessorFPcUl
+/* 81398028 00068548  80 7F 00 84 */	lwz r3, 0x84(r31)
+/* 8139802C 0006854C  38 81 00 08 */	addi r4, r1, 0x8
+/* 81398030 00068550  4B FA 00 11 */	bl setupUrlJump__Q33ipl7channel7ManagerFPCc
+/* 81398034 00068554  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81398038 00068558  41 82 00 14 */	beq .L_8139804C
+/* 8139803C 0006855C  38 60 00 00 */	li r3, 0x0
+/* 81398040 00068560  38 00 00 0D */	li r0, 0xd
+/* 81398044 00068564  90 7E 01 F8 */	stw r3, 0x1f8(r30)
+/* 81398048 00068568  90 1E 00 00 */	stw r0, 0x0(r30)
+.L_8139804C:
+/* 8139804C 0006856C  80 01 02 24 */	lwz r0, 0x224(r1)
+/* 81398050 00068570  83 E1 02 1C */	lwz r31, 0x21c(r1)
+/* 81398054 00068574  83 C1 02 18 */	lwz r30, 0x218(r1)
+/* 81398058 00068578  7C 08 03 A6 */	mtlr r0
+/* 8139805C 0006857C  38 21 02 20 */	addi r1, r1, 0x220
+/* 81398060 00068580  4E 80 00 20 */	blr
+.endfn stt_chn_wait_url_jump_msg__Q33ipl5scene12focus_objectFv
+
+# .text:0x133C | 0x81398064 | size: 0x54
+# ipl::scene::focus_object::stt_chn_wait_jump()
+.fn stt_chn_wait_jump__Q33ipl5scene12focus_objectFv, global
+/* 81398064 00068584  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 81398068 00068588  7C 08 02 A6 */	mflr r0
+/* 8139806C 0006858C  90 01 00 14 */	stw r0, 0x14(r1)
+/* 81398070 00068590  93 E1 00 0C */	stw r31, 0xc(r1)
+/* 81398074 00068594  7C 7F 1B 78 */	mr r31, r3
+/* 81398078 00068598  80 83 01 F8 */	lwz r4, 0x1f8(r3)
+/* 8139807C 0006859C  38 04 00 01 */	addi r0, r4, 0x1
+/* 81398080 000685A0  2C 00 00 0A */	cmpwi r0, 0xa
+/* 81398084 000685A4  90 03 01 F8 */	stw r0, 0x1f8(r3)
+/* 81398088 000685A8  40 81 00 1C */	ble .L_813980A4
+/* 8139808C 000685AC  38 80 00 01 */	li r4, 0x1
+/* 81398090 000685B0  48 00 0D 95 */	bl init_fadeout__Q33ipl5scene12focus_objectFb
+/* 81398094 000685B4  38 60 00 05 */	li r3, 0x5
+/* 81398098 000685B8  38 00 00 02 */	li r0, 0x2
+/* 8139809C 000685BC  90 7F 00 10 */	stw r3, 0x10(r31)
+/* 813980A0 000685C0  90 1F 00 00 */	stw r0, 0x0(r31)
+.L_813980A4:
+/* 813980A4 000685C4  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 813980A8 000685C8  83 E1 00 0C */	lwz r31, 0xc(r1)
+/* 813980AC 000685CC  7C 08 03 A6 */	mtlr r0
+/* 813980B0 000685D0  38 21 00 10 */	addi r1, r1, 0x10
+/* 813980B4 000685D4  4E 80 00 20 */	blr
+.endfn stt_chn_wait_jump__Q33ipl5scene12focus_objectFv
+
+# .text:0x1390 | 0x813980B8 | size: 0xCC
+# ipl::scene::focus_object::stt_opt_wait_select_msg()
+.fn stt_opt_wait_select_msg__Q33ipl5scene12focus_objectFv, global
+/* 813980B8 000685D8  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 813980BC 000685DC  7C 08 02 A6 */	mflr r0
+/* 813980C0 000685E0  90 01 00 14 */	stw r0, 0x14(r1)
+/* 813980C4 000685E4  93 E1 00 0C */	stw r31, 0xc(r1)
+/* 813980C8 000685E8  3F E0 81 09 */	lis r31, smArg__Q23ipl6System@ha
+/* 813980CC 000685EC  3B FF 90 08 */	addi r31, r31, smArg__Q23ipl6System@l
+/* 813980D0 000685F0  93 C1 00 08 */	stw r30, 0x8(r1)
+/* 813980D4 000685F4  7C 7E 1B 78 */	mr r30, r3
+/* 813980D8 000685F8  80 9F 00 AC */	lwz r4, 0xac(r31)
+/* 813980DC 000685FC  80 04 00 24 */	lwz r0, 0x24(r4)
+/* 813980E0 00068600  2C 00 00 04 */	cmpwi r0, 0x4
+/* 813980E4 00068604  41 82 00 44 */	beq .L_81398128
+/* 813980E8 00068608  40 80 00 10 */	bge .L_813980F8
+/* 813980EC 0006860C  2C 00 00 03 */	cmpwi r0, 0x3
+/* 813980F0 00068610  40 80 00 14 */	bge .L_81398104
+/* 813980F4 00068614  48 00 00 78 */	b .L_8139816C
+.L_813980F8:
+/* 813980F8 00068618  2C 00 00 06 */	cmpwi r0, 0x6
+/* 813980FC 0006861C  40 80 00 70 */	bge .L_8139816C
+/* 81398100 00068620  48 00 00 4C */	b .L_8139814C
+.L_81398104:
+/* 81398104 00068624  7C 83 23 78 */	mr r3, r4
+/* 81398108 00068628  38 80 00 6A */	li r4, 0x6a
+/* 8139810C 0006862C  38 A0 00 2E */	li r5, 0x2e
+/* 81398110 00068630  38 C0 00 25 */	li r6, 0x25
+/* 81398114 00068634  38 E0 00 00 */	li r7, 0x0
+/* 81398118 00068638  4B FA E9 BD */	bl callBtn2__Q23ipl12DialogWindowFUlUlUlb
+/* 8139811C 0006863C  38 00 00 0F */	li r0, 0xf
+/* 81398120 00068640  90 1E 00 00 */	stw r0, 0x0(r30)
+/* 81398124 00068644  48 00 00 48 */	b .L_8139816C
+.L_81398128:
+/* 81398128 00068648  7C 83 23 78 */	mr r3, r4
+/* 8139812C 0006864C  38 80 00 6A */	li r4, 0x6a
+/* 81398130 00068650  38 A0 00 2E */	li r5, 0x2e
+/* 81398134 00068654  38 C0 00 25 */	li r6, 0x25
+/* 81398138 00068658  38 E0 00 00 */	li r7, 0x0
+/* 8139813C 0006865C  4B FA E9 99 */	bl callBtn2__Q23ipl12DialogWindowFUlUlUlb
+/* 81398140 00068660  38 00 00 10 */	li r0, 0x10
+/* 81398144 00068664  90 1E 00 00 */	stw r0, 0x0(r30)
+/* 81398148 00068668  48 00 00 24 */	b .L_8139816C
+.L_8139814C:
+/* 8139814C 0006866C  48 00 29 55 */	bl show_cmn_btn__Q33ipl5scene12focus_objectFv
+/* 81398150 00068670  80 7F 00 64 */	lwz r3, 0x64(r31)
+/* 81398154 00068674  38 80 00 05 */	li r4, 0x5
+/* 81398158 00068678  48 07 2F E1 */	bl getScene__Q33ipl5scene7ManagerFi
+/* 8139815C 0006867C  38 63 00 64 */	addi r3, r3, 0x64
+/* 81398160 00068680  48 00 55 49 */	bl reset_gui__Q33ipl5scene12OptOutButtonFv
+/* 81398164 00068684  38 00 00 01 */	li r0, 0x1
+/* 81398168 00068688  90 1E 00 00 */	stw r0, 0x0(r30)
+.L_8139816C:
+/* 8139816C 0006868C  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 81398170 00068690  83 E1 00 0C */	lwz r31, 0xc(r1)
+/* 81398174 00068694  83 C1 00 08 */	lwz r30, 0x8(r1)
+/* 81398178 00068698  7C 08 03 A6 */	mtlr r0
+/* 8139817C 0006869C  38 21 00 10 */	addi r1, r1, 0x10
+/* 81398180 000686A0  4E 80 00 20 */	blr
+.endfn stt_opt_wait_select_msg__Q33ipl5scene12focus_objectFv
+
+# .text:0x145C | 0x81398184 | size: 0x8C
+# ipl::scene::focus_object::stt_opt_wait_stop_msg()
+.fn stt_opt_wait_stop_msg__Q33ipl5scene12focus_objectFv, global
+/* 81398184 000686A4  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 81398188 000686A8  7C 08 02 A6 */	mflr r0
+/* 8139818C 000686AC  90 01 00 14 */	stw r0, 0x14(r1)
+/* 81398190 000686B0  93 E1 00 0C */	stw r31, 0xc(r1)
+/* 81398194 000686B4  3F E0 81 09 */	lis r31, smArg__Q23ipl6System@ha
+/* 81398198 000686B8  3B FF 90 08 */	addi r31, r31, smArg__Q23ipl6System@l
+/* 8139819C 000686BC  93 C1 00 08 */	stw r30, 0x8(r1)
+/* 813981A0 000686C0  7C 7E 1B 78 */	mr r30, r3
+/* 813981A4 000686C4  80 9F 00 AC */	lwz r4, 0xac(r31)
+/* 813981A8 000686C8  80 04 00 24 */	lwz r0, 0x24(r4)
+/* 813981AC 000686CC  2C 00 00 02 */	cmpwi r0, 0x2
+/* 813981B0 000686D0  41 82 00 28 */	beq .L_813981D8
+/* 813981B4 000686D4  40 80 00 44 */	bge .L_813981F8
+/* 813981B8 000686D8  2C 00 00 01 */	cmpwi r0, 0x1
+/* 813981BC 000686DC  40 80 00 08 */	bge .L_813981C4
+/* 813981C0 000686E0  48 00 00 38 */	b .L_813981F8
+.L_813981C4:
+/* 813981C4 000686E4  38 80 00 00 */	li r4, 0x0
+/* 813981C8 000686E8  38 00 00 11 */	li r0, 0x11
+/* 813981CC 000686EC  90 83 01 F4 */	stw r4, 0x1f4(r3)
+/* 813981D0 000686F0  90 03 00 00 */	stw r0, 0x0(r3)
+/* 813981D4 000686F4  48 00 00 24 */	b .L_813981F8
+.L_813981D8:
+/* 813981D8 000686F8  48 00 28 C9 */	bl show_cmn_btn__Q33ipl5scene12focus_objectFv
+/* 813981DC 000686FC  80 7F 00 64 */	lwz r3, 0x64(r31)
+/* 813981E0 00068700  38 80 00 05 */	li r4, 0x5
+/* 813981E4 00068704  48 07 2F 55 */	bl getScene__Q33ipl5scene7ManagerFi
+/* 813981E8 00068708  38 63 00 64 */	addi r3, r3, 0x64
+/* 813981EC 0006870C  48 00 54 BD */	bl reset_gui__Q33ipl5scene12OptOutButtonFv
+/* 813981F0 00068710  38 00 00 01 */	li r0, 0x1
+/* 813981F4 00068714  90 1E 00 00 */	stw r0, 0x0(r30)
+.L_813981F8:
+/* 813981F8 00068718  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 813981FC 0006871C  83 E1 00 0C */	lwz r31, 0xc(r1)
+/* 81398200 00068720  83 C1 00 08 */	lwz r30, 0x8(r1)
+/* 81398204 00068724  7C 08 03 A6 */	mtlr r0
+/* 81398208 00068728  38 21 00 10 */	addi r1, r1, 0x10
+/* 8139820C 0006872C  4E 80 00 20 */	blr
+.endfn stt_opt_wait_stop_msg__Q33ipl5scene12focus_objectFv
+
+# .text:0x14E8 | 0x81398210 | size: 0x8C
+# ipl::scene::focus_object::stt_opt_wait_all_stop_msg()
+.fn stt_opt_wait_all_stop_msg__Q33ipl5scene12focus_objectFv, global
+/* 81398210 00068730  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 81398214 00068734  7C 08 02 A6 */	mflr r0
+/* 81398218 00068738  90 01 00 14 */	stw r0, 0x14(r1)
+/* 8139821C 0006873C  93 E1 00 0C */	stw r31, 0xc(r1)
+/* 81398220 00068740  3F E0 81 09 */	lis r31, smArg__Q23ipl6System@ha
+/* 81398224 00068744  3B FF 90 08 */	addi r31, r31, smArg__Q23ipl6System@l
+/* 81398228 00068748  93 C1 00 08 */	stw r30, 0x8(r1)
+/* 8139822C 0006874C  7C 7E 1B 78 */	mr r30, r3
+/* 81398230 00068750  80 9F 00 AC */	lwz r4, 0xac(r31)
+/* 81398234 00068754  80 04 00 24 */	lwz r0, 0x24(r4)
+/* 81398238 00068758  2C 00 00 02 */	cmpwi r0, 0x2
+/* 8139823C 0006875C  41 82 00 28 */	beq .L_81398264
+/* 81398240 00068760  40 80 00 44 */	bge .L_81398284
+/* 81398244 00068764  2C 00 00 01 */	cmpwi r0, 0x1
+/* 81398248 00068768  40 80 00 08 */	bge .L_81398250
+/* 8139824C 0006876C  48 00 00 38 */	b .L_81398284
+.L_81398250:
+/* 81398250 00068770  38 80 00 00 */	li r4, 0x0
+/* 81398254 00068774  38 00 00 12 */	li r0, 0x12
+/* 81398258 00068778  90 83 01 F4 */	stw r4, 0x1f4(r3)
+/* 8139825C 0006877C  90 03 00 00 */	stw r0, 0x0(r3)
+/* 81398260 00068780  48 00 00 24 */	b .L_81398284
+.L_81398264:
+/* 81398264 00068784  48 00 28 3D */	bl show_cmn_btn__Q33ipl5scene12focus_objectFv
+/* 81398268 00068788  80 7F 00 64 */	lwz r3, 0x64(r31)
+/* 8139826C 0006878C  38 80 00 05 */	li r4, 0x5
+/* 81398270 00068790  48 07 2E C9 */	bl getScene__Q33ipl5scene7ManagerFi
+/* 81398274 00068794  38 63 00 64 */	addi r3, r3, 0x64
+/* 81398278 00068798  48 00 54 31 */	bl reset_gui__Q33ipl5scene12OptOutButtonFv
+/* 8139827C 0006879C  38 00 00 01 */	li r0, 0x1
+/* 81398280 000687A0  90 1E 00 00 */	stw r0, 0x0(r30)
+.L_81398284:
+/* 81398284 000687A4  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 81398288 000687A8  83 E1 00 0C */	lwz r31, 0xc(r1)
+/* 8139828C 000687AC  83 C1 00 08 */	lwz r30, 0x8(r1)
+/* 81398290 000687B0  7C 08 03 A6 */	mtlr r0
+/* 81398294 000687B4  38 21 00 10 */	addi r1, r1, 0x10
+/* 81398298 000687B8  4E 80 00 20 */	blr
+.endfn stt_opt_wait_all_stop_msg__Q33ipl5scene12focus_objectFv
+
+# .text:0x1574 | 0x8139829C | size: 0x12C
+# ipl::scene::focus_object::stt_opt_delete_task()
+.fn stt_opt_delete_task__Q33ipl5scene12focus_objectFv, global
+/* 8139829C 000687BC  94 21 FD E0 */	stwu r1, -0x220(r1)
+/* 813982A0 000687C0  7C 08 02 A6 */	mflr r0
+/* 813982A4 000687C4  90 01 02 24 */	stw r0, 0x224(r1)
+/* 813982A8 000687C8  39 61 02 20 */	addi r11, r1, 0x220
+/* 813982AC 000687CC  48 26 12 1D */	bl _savegpr_29
+/* 813982B0 000687D0  3C 80 81 09 */	lis r4, smArg__Q23ipl6System@ha
+/* 813982B4 000687D4  7C 7D 1B 78 */	mr r29, r3
+/* 813982B8 000687D8  38 84 90 08 */	addi r4, r4, smArg__Q23ipl6System@l
+/* 813982BC 000687DC  88 04 02 BC */	lbz r0, 0x2bc(r4)
+/* 813982C0 000687E0  2C 00 00 00 */	cmpwi r0, 0x0
+/* 813982C4 000687E4  41 82 00 0C */	beq .L_813982D0
+/* 813982C8 000687E8  3B C0 00 00 */	li r30, 0x0
+/* 813982CC 000687EC  48 00 00 08 */	b .L_813982D4
+.L_813982D0:
+/* 813982D0 000687F0  83 C4 00 8C */	lwz r30, 0x8c(r4)
+.L_813982D4:
+/* 813982D4 000687F4  7F C3 F3 78 */	mr r3, r30
+/* 813982D8 000687F8  4B FA 97 69 */	bl open__Q33ipl5nwc247ManagerFv
+/* 813982DC 000687FC  2C 03 00 00 */	cmpwi r3, 0x0
+/* 813982E0 00068800  41 82 00 C8 */	beq .L_813983A8
+/* 813982E4 00068804  3B E0 00 00 */	li r31, 0x0
+/* 813982E8 00068808  38 61 00 0A */	addi r3, r1, 0xa
+/* 813982EC 0006880C  B3 E1 00 0A */	sth r31, 0xa(r1)
+/* 813982F0 00068810  38 80 00 01 */	li r4, 0x1
+/* 813982F4 00068814  48 11 71 15 */	bl NWC24IterateDlTask
+/* 813982F8 00068818  48 00 00 7C */	b .L_81398374
+.L_813982FC:
+/* 813982FC 0006881C  A0 A1 00 0A */	lhz r5, 0xa(r1)
+/* 81398300 00068820  7F C3 F3 78 */	mr r3, r30
+/* 81398304 00068824  38 81 00 10 */	addi r4, r1, 0x10
+/* 81398308 00068828  4B FA 9E 05 */	bl getDlTask__Q33ipl5nwc247ManagerFP11NWC24DlTaskUs
+/* 8139830C 0006882C  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81398310 00068830  41 82 00 58 */	beq .L_81398368
+/* 81398314 00068834  93 E1 00 0C */	stw r31, 0xc(r1)
+/* 81398318 00068838  7F C3 F3 78 */	mr r3, r30
+/* 8139831C 0006883C  38 81 00 10 */	addi r4, r1, 0x10
+/* 81398320 00068840  38 A1 00 08 */	addi r5, r1, 0x8
+/* 81398324 00068844  9B E1 00 08 */	stb r31, 0x8(r1)
+/* 81398328 00068848  4B FA 9E 6D */	bl getDlOptOutFlags__Q33ipl5nwc247ManagerFP11NWC24DlTaskPUc
+/* 8139832C 0006884C  7F C3 F3 78 */	mr r3, r30
+/* 81398330 00068850  38 81 00 10 */	addi r4, r1, 0x10
+/* 81398334 00068854  38 A1 00 0C */	addi r5, r1, 0xc
+/* 81398338 00068858  4B FA 9E 19 */	bl getDlAppId__Q33ipl5nwc247ManagerFPC11NWC24DlTaskPUl
+/* 8139833C 0006885C  88 01 00 08 */	lbz r0, 0x8(r1)
+/* 81398340 00068860  2C 00 00 00 */	cmpwi r0, 0x0
+/* 81398344 00068864  41 82 00 24 */	beq .L_81398368
+/* 81398348 00068868  80 7D 00 14 */	lwz r3, 0x14(r29)
+/* 8139834C 0006886C  80 81 00 0C */	lwz r4, 0xc(r1)
+/* 81398350 00068870  80 03 00 B0 */	lwz r0, 0xb0(r3)
+/* 81398354 00068874  7C 04 00 40 */	cmplw r4, r0
+/* 81398358 00068878  40 82 00 10 */	bne .L_81398368
+/* 8139835C 0006887C  7F C3 F3 78 */	mr r3, r30
+/* 81398360 00068880  38 81 00 10 */	addi r4, r1, 0x10
+/* 81398364 00068884  4B FA 9E 75 */	bl deleteDlTask__Q33ipl5nwc247ManagerFP11NWC24DlTask
+.L_81398368:
+/* 81398368 00068888  38 61 00 0A */	addi r3, r1, 0xa
+/* 8139836C 0006888C  38 80 00 00 */	li r4, 0x0
+/* 81398370 00068890  48 11 70 99 */	bl NWC24IterateDlTask
+.L_81398374:
+/* 81398374 00068894  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81398378 00068898  40 80 FF 84 */	bge .L_813982FC
+/* 8139837C 0006889C  7F C3 F3 78 */	mr r3, r30
+/* 81398380 000688A0  4B FA 97 35 */	bl close__Q33ipl5nwc247ManagerFv
+/* 81398384 000688A4  3C 60 81 09 */	lis r3, smArg__Q23ipl6System@ha
+/* 81398388 000688A8  38 80 00 6B */	li r4, 0x6b
+/* 8139838C 000688AC  38 63 90 08 */	addi r3, r3, smArg__Q23ipl6System@l
+/* 81398390 000688B0  38 A0 00 2E */	li r5, 0x2e
+/* 81398394 000688B4  80 63 00 AC */	lwz r3, 0xac(r3)
+/* 81398398 000688B8  4B FA E3 61 */	bl callBtn1__Q23ipl12DialogWindowFUlUl
+/* 8139839C 000688BC  38 00 00 13 */	li r0, 0x13
+/* 813983A0 000688C0  90 1D 00 00 */	stw r0, 0x0(r29)
+/* 813983A4 000688C4  48 00 00 0C */	b .L_813983B0
+.L_813983A8:
+/* 813983A8 000688C8  7F A3 EB 78 */	mr r3, r29
+/* 813983AC 000688CC  48 00 32 91 */	bl check_delete_task_failure__Q33ipl5scene12focus_objectFv
+.L_813983B0:
+/* 813983B0 000688D0  39 61 02 20 */	addi r11, r1, 0x220
+/* 813983B4 000688D4  48 26 11 61 */	bl _restgpr_29
+/* 813983B8 000688D8  80 01 02 24 */	lwz r0, 0x224(r1)
+/* 813983BC 000688DC  7C 08 03 A6 */	mtlr r0
+/* 813983C0 000688E0  38 21 02 20 */	addi r1, r1, 0x220
+/* 813983C4 000688E4  4E 80 00 20 */	blr
+.endfn stt_opt_delete_task__Q33ipl5scene12focus_objectFv
+
+# .text:0x16A0 | 0x813983C8 | size: 0x118
+# ipl::scene::focus_object::stt_opt_delete_all_task()
+.fn stt_opt_delete_all_task__Q33ipl5scene12focus_objectFv, global
+/* 813983C8 000688E8  94 21 FD E0 */	stwu r1, -0x220(r1)
+/* 813983CC 000688EC  7C 08 02 A6 */	mflr r0
+/* 813983D0 000688F0  90 01 02 24 */	stw r0, 0x224(r1)
+/* 813983D4 000688F4  39 61 02 20 */	addi r11, r1, 0x220
+/* 813983D8 000688F8  48 26 10 F1 */	bl _savegpr_29
+/* 813983DC 000688FC  3C 80 81 09 */	lis r4, smArg__Q23ipl6System@ha
+/* 813983E0 00068900  7C 7D 1B 78 */	mr r29, r3
+/* 813983E4 00068904  38 84 90 08 */	addi r4, r4, smArg__Q23ipl6System@l
+/* 813983E8 00068908  88 04 02 BC */	lbz r0, 0x2bc(r4)
+/* 813983EC 0006890C  2C 00 00 00 */	cmpwi r0, 0x0
+/* 813983F0 00068910  41 82 00 0C */	beq .L_813983FC
+/* 813983F4 00068914  3B C0 00 00 */	li r30, 0x0
+/* 813983F8 00068918  48 00 00 08 */	b .L_81398400
+.L_813983FC:
+/* 813983FC 0006891C  83 C4 00 8C */	lwz r30, 0x8c(r4)
+.L_81398400:
+/* 81398400 00068920  7F C3 F3 78 */	mr r3, r30
+/* 81398404 00068924  4B FA 96 3D */	bl open__Q33ipl5nwc247ManagerFv
+/* 81398408 00068928  2C 03 00 00 */	cmpwi r3, 0x0
+/* 8139840C 0006892C  41 82 00 B4 */	beq .L_813984C0
+/* 81398410 00068930  3B E0 00 00 */	li r31, 0x0
+/* 81398414 00068934  38 61 00 0A */	addi r3, r1, 0xa
+/* 81398418 00068938  B3 E1 00 0A */	sth r31, 0xa(r1)
+/* 8139841C 0006893C  38 80 00 01 */	li r4, 0x1
+/* 81398420 00068940  48 11 6F E9 */	bl NWC24IterateDlTask
+/* 81398424 00068944  48 00 00 68 */	b .L_8139848C
+.L_81398428:
+/* 81398428 00068948  A0 A1 00 0A */	lhz r5, 0xa(r1)
+/* 8139842C 0006894C  7F C3 F3 78 */	mr r3, r30
+/* 81398430 00068950  38 81 00 10 */	addi r4, r1, 0x10
+/* 81398434 00068954  4B FA 9C D9 */	bl getDlTask__Q33ipl5nwc247ManagerFP11NWC24DlTaskUs
+/* 81398438 00068958  2C 03 00 00 */	cmpwi r3, 0x0
+/* 8139843C 0006895C  41 82 00 44 */	beq .L_81398480
+/* 81398440 00068960  93 E1 00 0C */	stw r31, 0xc(r1)
+/* 81398444 00068964  7F C3 F3 78 */	mr r3, r30
+/* 81398448 00068968  38 81 00 10 */	addi r4, r1, 0x10
+/* 8139844C 0006896C  38 A1 00 08 */	addi r5, r1, 0x8
+/* 81398450 00068970  9B E1 00 08 */	stb r31, 0x8(r1)
+/* 81398454 00068974  4B FA 9D 41 */	bl getDlOptOutFlags__Q33ipl5nwc247ManagerFP11NWC24DlTaskPUc
+/* 81398458 00068978  7F C3 F3 78 */	mr r3, r30
+/* 8139845C 0006897C  38 81 00 10 */	addi r4, r1, 0x10
+/* 81398460 00068980  38 A1 00 0C */	addi r5, r1, 0xc
+/* 81398464 00068984  4B FA 9C ED */	bl getDlAppId__Q33ipl5nwc247ManagerFPC11NWC24DlTaskPUl
+/* 81398468 00068988  88 01 00 08 */	lbz r0, 0x8(r1)
+/* 8139846C 0006898C  2C 00 00 00 */	cmpwi r0, 0x0
+/* 81398470 00068990  41 82 00 10 */	beq .L_81398480
+/* 81398474 00068994  7F C3 F3 78 */	mr r3, r30
+/* 81398478 00068998  38 81 00 10 */	addi r4, r1, 0x10
+/* 8139847C 0006899C  4B FA 9D 5D */	bl deleteDlTask__Q33ipl5nwc247ManagerFP11NWC24DlTask
+.L_81398480:
+/* 81398480 000689A0  38 61 00 0A */	addi r3, r1, 0xa
+/* 81398484 000689A4  38 80 00 00 */	li r4, 0x0
+/* 81398488 000689A8  48 11 6F 81 */	bl NWC24IterateDlTask
+.L_8139848C:
+/* 8139848C 000689AC  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81398490 000689B0  40 80 FF 98 */	bge .L_81398428
+/* 81398494 000689B4  7F C3 F3 78 */	mr r3, r30
+/* 81398498 000689B8  4B FA 96 1D */	bl close__Q33ipl5nwc247ManagerFv
+/* 8139849C 000689BC  3C 60 81 09 */	lis r3, smArg__Q23ipl6System@ha
+/* 813984A0 000689C0  38 80 00 6C */	li r4, 0x6c
+/* 813984A4 000689C4  38 63 90 08 */	addi r3, r3, smArg__Q23ipl6System@l
+/* 813984A8 000689C8  38 A0 00 2E */	li r5, 0x2e
+/* 813984AC 000689CC  80 63 00 AC */	lwz r3, 0xac(r3)
+/* 813984B0 000689D0  4B FA E2 49 */	bl callBtn1__Q23ipl12DialogWindowFUlUl
+/* 813984B4 000689D4  38 00 00 13 */	li r0, 0x13
+/* 813984B8 000689D8  90 1D 00 00 */	stw r0, 0x0(r29)
+/* 813984BC 000689DC  48 00 00 0C */	b .L_813984C8
+.L_813984C0:
+/* 813984C0 000689E0  7F A3 EB 78 */	mr r3, r29
+/* 813984C4 000689E4  48 00 31 79 */	bl check_delete_task_failure__Q33ipl5scene12focus_objectFv
+.L_813984C8:
+/* 813984C8 000689E8  39 61 02 20 */	addi r11, r1, 0x220
+/* 813984CC 000689EC  48 26 10 49 */	bl _restgpr_29
+/* 813984D0 000689F0  80 01 02 24 */	lwz r0, 0x224(r1)
+/* 813984D4 000689F4  7C 08 03 A6 */	mtlr r0
+/* 813984D8 000689F8  38 21 02 20 */	addi r1, r1, 0x220
+/* 813984DC 000689FC  4E 80 00 20 */	blr
+.endfn stt_opt_delete_all_task__Q33ipl5scene12focus_objectFv
+
+# .text:0x17B8 | 0x813984E0 | size: 0x68
+# ipl::scene::focus_object::stt_opt_wait_confirm_msg()
+.fn stt_opt_wait_confirm_msg__Q33ipl5scene12focus_objectFv, global
+/* 813984E0 00068A00  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 813984E4 00068A04  7C 08 02 A6 */	mflr r0
+/* 813984E8 00068A08  90 01 00 14 */	stw r0, 0x14(r1)
+/* 813984EC 00068A0C  93 E1 00 0C */	stw r31, 0xc(r1)
+/* 813984F0 00068A10  3F E0 81 09 */	lis r31, smArg__Q23ipl6System@ha
+/* 813984F4 00068A14  3B FF 90 08 */	addi r31, r31, smArg__Q23ipl6System@l
+/* 813984F8 00068A18  93 C1 00 08 */	stw r30, 0x8(r1)
+/* 813984FC 00068A1C  7C 7E 1B 78 */	mr r30, r3
+/* 81398500 00068A20  80 9F 00 AC */	lwz r4, 0xac(r31)
+/* 81398504 00068A24  80 04 00 24 */	lwz r0, 0x24(r4)
+/* 81398508 00068A28  2C 00 FF FF */	cmpwi r0, -0x1
+/* 8139850C 00068A2C  41 82 00 24 */	beq .L_81398530
+/* 81398510 00068A30  48 00 25 91 */	bl show_cmn_btn__Q33ipl5scene12focus_objectFv
+/* 81398514 00068A34  80 7F 00 64 */	lwz r3, 0x64(r31)
+/* 81398518 00068A38  38 80 00 05 */	li r4, 0x5
+/* 8139851C 00068A3C  48 07 2C 1D */	bl getScene__Q33ipl5scene7ManagerFi
+/* 81398520 00068A40  38 63 00 64 */	addi r3, r3, 0x64
+/* 81398524 00068A44  48 00 51 85 */	bl reset_gui__Q33ipl5scene12OptOutButtonFv
+/* 81398528 00068A48  38 00 00 01 */	li r0, 0x1
+/* 8139852C 00068A4C  90 1E 00 00 */	stw r0, 0x0(r30)
+.L_81398530:
+/* 81398530 00068A50  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 81398534 00068A54  83 E1 00 0C */	lwz r31, 0xc(r1)
+/* 81398538 00068A58  83 C1 00 08 */	lwz r30, 0x8(r1)
+/* 8139853C 00068A5C  7C 08 03 A6 */	mtlr r0
+/* 81398540 00068A60  38 21 00 10 */	addi r1, r1, 0x10
+/* 81398544 00068A64  4E 80 00 20 */	blr
+.endfn stt_opt_wait_confirm_msg__Q33ipl5scene12focus_objectFv
+
+# .text:0x1820 | 0x81398548 | size: 0x100
+# ipl::scene::focus_object::stt_net_wait_net_setting_msg()
+.fn stt_net_wait_net_setting_msg__Q33ipl5scene12focus_objectFv, global
+/* 81398548 00068A68  94 21 FF A0 */	stwu r1, -0x60(r1)
+/* 8139854C 00068A6C  7C 08 02 A6 */	mflr r0
+/* 81398550 00068A70  3C 80 81 09 */	lis r4, smArg__Q23ipl6System@ha
+/* 81398554 00068A74  90 01 00 64 */	stw r0, 0x64(r1)
+/* 81398558 00068A78  38 84 90 08 */	addi r4, r4, smArg__Q23ipl6System@l
+/* 8139855C 00068A7C  93 E1 00 5C */	stw r31, 0x5c(r1)
+/* 81398560 00068A80  93 C1 00 58 */	stw r30, 0x58(r1)
+/* 81398564 00068A84  7C 7E 1B 78 */	mr r30, r3
+/* 81398568 00068A88  80 84 00 AC */	lwz r4, 0xac(r4)
+/* 8139856C 00068A8C  80 04 00 24 */	lwz r0, 0x24(r4)
+/* 81398570 00068A90  2C 00 00 02 */	cmpwi r0, 0x2
+/* 81398574 00068A94  41 82 00 14 */	beq .L_81398588
+/* 81398578 00068A98  40 80 00 B8 */	bge .L_81398630
+/* 8139857C 00068A9C  2C 00 00 01 */	cmpwi r0, 0x1
+/* 81398580 00068AA0  40 80 00 14 */	bge .L_81398594
+/* 81398584 00068AA4  48 00 00 AC */	b .L_81398630
+.L_81398588:
+/* 81398588 00068AA8  80 03 00 08 */	lwz r0, 0x8(r3)
+/* 8139858C 00068AAC  90 03 00 00 */	stw r0, 0x0(r3)
+/* 81398590 00068AB0  48 00 00 A0 */	b .L_81398630
+.L_81398594:
+/* 81398594 00068AB4  38 61 00 08 */	addi r3, r1, 0x8
+/* 81398598 00068AB8  48 1D 1B E1 */	bl SCGetParentalControl
+/* 8139859C 00068ABC  2C 03 00 00 */	cmpwi r3, 0x0
+/* 813985A0 00068AC0  38 60 00 00 */	li r3, 0x0
+/* 813985A4 00068AC4  41 82 00 14 */	beq .L_813985B8
+/* 813985A8 00068AC8  88 01 00 08 */	lbz r0, 0x8(r1)
+/* 813985AC 00068ACC  54 00 06 31 */	rlwinm. r0, r0, 0, 24, 24
+/* 813985B0 00068AD0  41 82 00 08 */	beq .L_813985B8
+/* 813985B4 00068AD4  38 60 00 01 */	li r3, 0x1
+.L_813985B8:
+/* 813985B8 00068AD8  2C 03 00 00 */	cmpwi r3, 0x0
+/* 813985BC 00068ADC  41 82 00 64 */	beq .L_81398620
+/* 813985C0 00068AE0  3F E0 81 09 */	lis r31, smArg__Q23ipl6System@ha
+/* 813985C4 00068AE4  38 80 00 05 */	li r4, 0x5
+/* 813985C8 00068AE8  3B FF 90 08 */	addi r31, r31, smArg__Q23ipl6System@l
+/* 813985CC 00068AEC  80 7F 00 64 */	lwz r3, 0x64(r31)
+/* 813985D0 00068AF0  48 07 2B 69 */	bl getScene__Q33ipl5scene7ManagerFi
+/* 813985D4 00068AF4  38 80 00 00 */	li r4, 0x0
+/* 813985D8 00068AF8  38 A0 00 00 */	li r5, 0x0
+/* 813985DC 00068AFC  48 00 43 61 */	bl setEventHandler__Q33ipl5scene6ButtonFPQ23gui12EventHandlerPQ23gui12EventHandler
+/* 813985E0 00068B00  80 7F 00 64 */	lwz r3, 0x64(r31)
+/* 813985E4 00068B04  38 80 00 05 */	li r4, 0x5
+/* 813985E8 00068B08  48 07 2B 51 */	bl getScene__Q33ipl5scene7ManagerFi
+/* 813985EC 00068B0C  38 80 00 10 */	li r4, 0x10
+/* 813985F0 00068B10  48 00 45 69 */	bl animation__Q33ipl5scene6ButtonFi
+/* 813985F4 00068B14  80 7E 00 00 */	lwz r3, 0x0(r30)
+/* 813985F8 00068B18  38 C0 00 00 */	li r6, 0x0
+/* 813985FC 00068B1C  38 A0 00 0B */	li r5, 0xb
+/* 81398600 00068B20  38 80 00 08 */	li r4, 0x8
+/* 81398604 00068B24  38 00 00 16 */	li r0, 0x16
+/* 81398608 00068B28  98 DE 02 00 */	stb r6, 0x200(r30)
+/* 8139860C 00068B2C  90 BE 00 0C */	stw r5, 0xc(r30)
+/* 81398610 00068B30  90 9E 00 10 */	stw r4, 0x10(r30)
+/* 81398614 00068B34  90 7E 00 08 */	stw r3, 0x8(r30)
+/* 81398618 00068B38  90 1E 00 00 */	stw r0, 0x0(r30)
+/* 8139861C 00068B3C  48 00 00 14 */	b .L_81398630
+.L_81398620:
+/* 81398620 00068B40  38 60 00 08 */	li r3, 0x8
+/* 81398624 00068B44  38 00 00 18 */	li r0, 0x18
+/* 81398628 00068B48  90 7E 00 0C */	stw r3, 0xc(r30)
+/* 8139862C 00068B4C  90 1E 00 00 */	stw r0, 0x0(r30)
+.L_81398630:
+/* 81398630 00068B50  80 01 00 64 */	lwz r0, 0x64(r1)
+/* 81398634 00068B54  83 E1 00 5C */	lwz r31, 0x5c(r1)
+/* 81398638 00068B58  83 C1 00 58 */	lwz r30, 0x58(r1)
+/* 8139863C 00068B5C  7C 08 03 A6 */	mtlr r0
+/* 81398640 00068B60  38 21 00 60 */	addi r1, r1, 0x60
+/* 81398644 00068B64  4E 80 00 20 */	blr
+.endfn stt_net_wait_net_setting_msg__Q33ipl5scene12focus_objectFv
+
+# .text:0x1920 | 0x81398648 | size: 0x48
+# ipl::scene::focus_object::stt_net_wait_nwc_setting_msg()
+.fn stt_net_wait_nwc_setting_msg__Q33ipl5scene12focus_objectFv, global
+/* 81398648 00068B68  3C 80 81 09 */	lis r4, smArg__Q23ipl6System@ha
+/* 8139864C 00068B6C  38 84 90 08 */	addi r4, r4, smArg__Q23ipl6System@l
+/* 81398650 00068B70  80 84 00 AC */	lwz r4, 0xac(r4)
+/* 81398654 00068B74  80 04 00 24 */	lwz r0, 0x24(r4)
+/* 81398658 00068B78  2C 00 00 02 */	cmpwi r0, 0x2
+/* 8139865C 00068B7C  41 82 00 14 */	beq .L_81398670
+/* 81398660 00068B80  4C 80 00 20 */	bgelr
+/* 81398664 00068B84  2C 00 00 01 */	cmpwi r0, 0x1
+/* 81398668 00068B88  40 80 00 14 */	bge .L_8139867C
+/* 8139866C 00068B8C  4E 80 00 20 */	blr
+.L_81398670:
+/* 81398670 00068B90  80 03 00 08 */	lwz r0, 0x8(r3)
+/* 81398674 00068B94  90 03 00 00 */	stw r0, 0x0(r3)
+/* 81398678 00068B98  4E 80 00 20 */	blr
+.L_8139867C:
+/* 8139867C 00068B9C  38 80 00 09 */	li r4, 0x9
+/* 81398680 00068BA0  38 00 00 18 */	li r0, 0x18
+/* 81398684 00068BA4  90 83 00 0C */	stw r4, 0xc(r3)
+/* 81398688 00068BA8  90 03 00 00 */	stw r0, 0x0(r3)
+/* 8139868C 00068BAC  4E 80 00 20 */	blr
+.endfn stt_net_wait_nwc_setting_msg__Q33ipl5scene12focus_objectFv
+
+# .text:0x1968 | 0x81398690 | size: 0x84
+# ipl::scene::focus_object::stt_net_wait_parental_scene()
+.fn stt_net_wait_parental_scene__Q33ipl5scene12focus_objectFv, global
+/* 81398690 00068BB0  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 81398694 00068BB4  7C 08 02 A6 */	mflr r0
+/* 81398698 00068BB8  3C A0 81 09 */	lis r5, smArg__Q23ipl6System@ha
+/* 8139869C 00068BBC  38 80 00 1B */	li r4, 0x1b
+/* 813986A0 00068BC0  90 01 00 14 */	stw r0, 0x14(r1)
+/* 813986A4 00068BC4  38 A5 90 08 */	addi r5, r5, smArg__Q23ipl6System@l
+/* 813986A8 00068BC8  93 E1 00 0C */	stw r31, 0xc(r1)
+/* 813986AC 00068BCC  7C 7F 1B 78 */	mr r31, r3
+/* 813986B0 00068BD0  80 65 00 64 */	lwz r3, 0x64(r5)
+/* 813986B4 00068BD4  48 07 2A 85 */	bl getScene__Q33ipl5scene7ManagerFi
+/* 813986B8 00068BD8  2C 03 00 00 */	cmpwi r3, 0x0
+/* 813986BC 00068BDC  41 82 00 44 */	beq .L_81398700
+/* 813986C0 00068BE0  80 03 00 70 */	lwz r0, 0x70(r3)
+/* 813986C4 00068BE4  2C 00 00 01 */	cmpwi r0, 0x1
+/* 813986C8 00068BE8  41 82 00 14 */	beq .L_813986DC
+/* 813986CC 00068BEC  41 80 00 34 */	blt .L_81398700
+/* 813986D0 00068BF0  2C 00 00 04 */	cmpwi r0, 0x4
+/* 813986D4 00068BF4  40 80 00 2C */	bge .L_81398700
+/* 813986D8 00068BF8  48 00 00 18 */	b .L_813986F0
+.L_813986DC:
+/* 813986DC 00068BFC  38 60 00 01 */	li r3, 0x1
+/* 813986E0 00068C00  38 00 00 17 */	li r0, 0x17
+/* 813986E4 00068C04  98 7F 02 00 */	stb r3, 0x200(r31)
+/* 813986E8 00068C08  90 1F 00 00 */	stw r0, 0x0(r31)
+/* 813986EC 00068C0C  48 00 00 14 */	b .L_81398700
+.L_813986F0:
+/* 813986F0 00068C10  38 60 00 00 */	li r3, 0x0
+/* 813986F4 00068C14  38 00 00 17 */	li r0, 0x17
+/* 813986F8 00068C18  98 7F 02 00 */	stb r3, 0x200(r31)
+/* 813986FC 00068C1C  90 1F 00 00 */	stw r0, 0x0(r31)
+.L_81398700:
+/* 81398700 00068C20  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 81398704 00068C24  83 E1 00 0C */	lwz r31, 0xc(r1)
+/* 81398708 00068C28  7C 08 03 A6 */	mtlr r0
+/* 8139870C 00068C2C  38 21 00 10 */	addi r1, r1, 0x10
+/* 81398710 00068C30  4E 80 00 20 */	blr
+.endfn stt_net_wait_parental_scene__Q33ipl5scene12focus_objectFv
+
+# .text:0x19EC | 0x81398714 | size: 0x9C
+# ipl::scene::focus_object::stt_net_wait_parental_scene_dst()
+.fn stt_net_wait_parental_scene_dst__Q33ipl5scene12focus_objectFv, global
+/* 81398714 00068C34  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 81398718 00068C38  7C 08 02 A6 */	mflr r0
+/* 8139871C 00068C3C  38 80 00 1B */	li r4, 0x1b
+/* 81398720 00068C40  90 01 00 14 */	stw r0, 0x14(r1)
+/* 81398724 00068C44  93 E1 00 0C */	stw r31, 0xc(r1)
+/* 81398728 00068C48  3F E0 81 09 */	lis r31, smArg__Q23ipl6System@ha
+/* 8139872C 00068C4C  3B FF 90 08 */	addi r31, r31, smArg__Q23ipl6System@l
+/* 81398730 00068C50  93 C1 00 08 */	stw r30, 0x8(r1)
+/* 81398734 00068C54  7C 7E 1B 78 */	mr r30, r3
+/* 81398738 00068C58  80 7F 00 64 */	lwz r3, 0x64(r31)
+/* 8139873C 00068C5C  48 07 29 FD */	bl getScene__Q33ipl5scene7ManagerFi
+/* 81398740 00068C60  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81398744 00068C64  40 82 00 54 */	bne .L_81398798
+/* 81398748 00068C68  88 1E 02 00 */	lbz r0, 0x200(r30)
+/* 8139874C 00068C6C  2C 00 00 00 */	cmpwi r0, 0x0
+/* 81398750 00068C70  41 82 00 20 */	beq .L_81398770
+/* 81398754 00068C74  80 9E 00 10 */	lwz r4, 0x10(r30)
+/* 81398758 00068C78  38 60 00 00 */	li r3, 0x0
+/* 8139875C 00068C7C  38 00 00 18 */	li r0, 0x18
+/* 81398760 00068C80  90 9E 00 0C */	stw r4, 0xc(r30)
+/* 81398764 00068C84  90 7E 00 10 */	stw r3, 0x10(r30)
+/* 81398768 00068C88  90 1E 00 00 */	stw r0, 0x0(r30)
+/* 8139876C 00068C8C  48 00 00 2C */	b .L_81398798
+.L_81398770:
+/* 81398770 00068C90  7F C3 F3 78 */	mr r3, r30
+/* 81398774 00068C94  48 00 23 2D */	bl show_cmn_btn__Q33ipl5scene12focus_objectFv
+/* 81398778 00068C98  80 7F 00 64 */	lwz r3, 0x64(r31)
+/* 8139877C 00068C9C  38 80 00 05 */	li r4, 0x5
+/* 81398780 00068CA0  48 07 29 B9 */	bl getScene__Q33ipl5scene7ManagerFi
+/* 81398784 00068CA4  38 9E 00 38 */	addi r4, r30, 0x38
+/* 81398788 00068CA8  38 BE 00 48 */	addi r5, r30, 0x48
+/* 8139878C 00068CAC  48 00 41 B1 */	bl setEventHandler__Q33ipl5scene6ButtonFPQ23gui12EventHandlerPQ23gui12EventHandler
+/* 81398790 00068CB0  80 1E 00 08 */	lwz r0, 0x8(r30)
+/* 81398794 00068CB4  90 1E 00 00 */	stw r0, 0x0(r30)
+.L_81398798:
+/* 81398798 00068CB8  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 8139879C 00068CBC  83 E1 00 0C */	lwz r31, 0xc(r1)
+/* 813987A0 00068CC0  83 C1 00 08 */	lwz r30, 0x8(r1)
+/* 813987A4 00068CC4  7C 08 03 A6 */	mtlr r0
+/* 813987A8 00068CC8  38 21 00 10 */	addi r1, r1, 0x10
+/* 813987AC 00068CCC  4E 80 00 20 */	blr
+.endfn stt_net_wait_parental_scene_dst__Q33ipl5scene12focus_objectFv
+
+# .text:0x1A88 | 0x813987B0 | size: 0xBC
+# ipl::scene::focus_object::proc_input()
+.fn proc_input__Q33ipl5scene12focus_objectFv, global
+/* 813987B0 00068CD0  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 813987B4 00068CD4  7C 08 02 A6 */	mflr r0
+/* 813987B8 00068CD8  90 01 00 14 */	stw r0, 0x14(r1)
+/* 813987BC 00068CDC  93 E1 00 0C */	stw r31, 0xc(r1)
+/* 813987C0 00068CE0  93 C1 00 08 */	stw r30, 0x8(r1)
+/* 813987C4 00068CE4  7C 7E 1B 78 */	mr r30, r3
+/* 813987C8 00068CE8  4B F9 D1 E1 */	bl getMasterController__Q23ipl6SystemFv
+/* 813987CC 00068CEC  80 1E 00 88 */	lwz r0, 0x88(r30)
+/* 813987D0 00068CF0  7C 7F 1B 78 */	mr r31, r3
+/* 813987D4 00068CF4  2C 00 00 00 */	cmpwi r0, 0x0
+/* 813987D8 00068CF8  40 82 00 7C */	bne .L_81398854
+/* 813987DC 00068CFC  7F C3 F3 78 */	mr r3, r30
+/* 813987E0 00068D00  48 00 21 61 */	bl scale_up_or_down_arw__Q33ipl5scene12focus_objectFv
+/* 813987E4 00068D04  38 7E 00 A8 */	addi r3, r30, 0xa8
+/* 813987E8 00068D08  4B FC B2 FD */	bl isActive__Q33ipl7utility9BScrollerCFv
+/* 813987EC 00068D0C  7C 60 00 34 */	cntlzw r0, r3
+/* 813987F0 00068D10  54 00 D9 7F */	srwi. r0, r0, 5
+/* 813987F4 00068D14  41 82 00 60 */	beq .L_81398854
+/* 813987F8 00068D18  81 9F 00 00 */	lwz r12, 0x0(r31)
+/* 813987FC 00068D1C  3C 80 00 01 */	lis r4, 0x1
+/* 81398800 00068D20  7F E3 FB 78 */	mr r3, r31
+/* 81398804 00068D24  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81398808 00068D28  38 84 00 08 */	addi r4, r4, 0x8
+/* 8139880C 00068D2C  7D 89 03 A6 */	mtctr r12
+/* 81398810 00068D30  4E 80 04 21 */	bctrl
+/* 81398814 00068D34  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81398818 00068D38  41 82 00 10 */	beq .L_81398828
+/* 8139881C 00068D3C  38 00 00 01 */	li r0, 0x1
+/* 81398820 00068D40  90 1E 00 88 */	stw r0, 0x88(r30)
+/* 81398824 00068D44  48 00 00 30 */	b .L_81398854
+.L_81398828:
+/* 81398828 00068D48  81 9F 00 00 */	lwz r12, 0x0(r31)
+/* 8139882C 00068D4C  3C 80 40 00 */	lis r4, 0x4000
+/* 81398830 00068D50  7F E3 FB 78 */	mr r3, r31
+/* 81398834 00068D54  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81398838 00068D58  38 84 00 04 */	addi r4, r4, 0x4
+/* 8139883C 00068D5C  7D 89 03 A6 */	mtctr r12
+/* 81398840 00068D60  4E 80 04 21 */	bctrl
+/* 81398844 00068D64  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81398848 00068D68  41 82 00 0C */	beq .L_81398854
+/* 8139884C 00068D6C  38 00 00 02 */	li r0, 0x2
+/* 81398850 00068D70  90 1E 00 88 */	stw r0, 0x88(r30)
+.L_81398854:
+/* 81398854 00068D74  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 81398858 00068D78  83 E1 00 0C */	lwz r31, 0xc(r1)
+/* 8139885C 00068D7C  83 C1 00 08 */	lwz r30, 0x8(r1)
+/* 81398860 00068D80  7C 08 03 A6 */	mtlr r0
+/* 81398864 00068D84  38 21 00 10 */	addi r1, r1, 0x10
+/* 81398868 00068D88  4E 80 00 20 */	blr
+.endfn proc_input__Q33ipl5scene12focus_objectFv
+
+# .text:0x1B44 | 0x8139886C | size: 0x184
+# ipl::scene::focus_object::proc_url_jump()
+.fn proc_url_jump__Q33ipl5scene12focus_objectFv, global
+/* 8139886C 00068D8C  94 21 FF B0 */	stwu r1, -0x50(r1)
+/* 81398870 00068D90  7C 08 02 A6 */	mflr r0
+/* 81398874 00068D94  90 01 00 54 */	stw r0, 0x54(r1)
+/* 81398878 00068D98  39 61 00 50 */	addi r11, r1, 0x50
+/* 8139887C 00068D9C  48 26 0C 1D */	bl _savegpr_17
+/* 81398880 00068DA0  3F 40 81 09 */	lis r26, smArg__Q23ipl6System@ha
+/* 81398884 00068DA4  7C 7F 1B 78 */	mr r31, r3
+/* 81398888 00068DA8  3B 5A 90 08 */	addi r26, r26, smArg__Q23ipl6System@l
+/* 8139888C 00068DAC  3A 60 00 00 */	li r19, 0x0
+/* 81398890 00068DB0  3E A0 81 09 */	lis r21, sSystem__Q23ipl3snd@ha
+/* 81398894 00068DB4  3E C0 81 65 */	lis r22, lbl_8164BB53@ha
+/* 81398898 00068DB8  3A E0 00 01 */	li r23, 0x1
+/* 8139889C 00068DBC  3F 00 00 10 */	lis r24, 0x10
+/* 813988A0 00068DC0  3F 60 81 09 */	lis r27, sBannerSoundPlayer__Q23ipl3snd@ha
+/* 813988A4 00068DC4  3F 20 81 65 */	lis r25, lbl_8164BB69@ha
+/* 813988A8 00068DC8  3B C0 00 00 */	li r30, 0x0
+/* 813988AC 00068DCC  3B A0 00 04 */	li r29, 0x4
+/* 813988B0 00068DD0  3B 80 00 0C */	li r28, 0xc
+.L_813988B4:
+/* 813988B4 00068DD4  7E 63 9B 78 */	mr r3, r19
+/* 813988B8 00068DD8  4B F9 D1 11 */	bl getController__Q23ipl6SystemFi
+/* 813988BC 00068DDC  7C 72 1B 78 */	mr r18, r3
+/* 813988C0 00068DE0  7E 64 9B 78 */	mr r4, r19
+/* 813988C4 00068DE4  38 7F 01 50 */	addi r3, r31, 0x150
+/* 813988C8 00068DE8  4B FF E0 B1 */	bl get_focused_tagno__Q33ipl5scene12UrlProcessorCFi
+/* 813988CC 00068DEC  2C 12 00 00 */	cmpwi r18, 0x0
+/* 813988D0 00068DF0  7C 71 1B 78 */	mr r17, r3
+/* 813988D4 00068DF4  41 82 00 F0 */	beq .L_813989C4
+/* 813988D8 00068DF8  2C 03 00 00 */	cmpwi r3, 0x0
+/* 813988DC 00068DFC  41 80 00 E8 */	blt .L_813989C4
+/* 813988E0 00068E00  7E 9F 9A 14 */	add r20, r31, r19
+/* 813988E4 00068E04  88 14 01 A4 */	lbz r0, 0x1a4(r20)
+/* 813988E8 00068E08  2C 00 00 00 */	cmpwi r0, 0x0
+/* 813988EC 00068E0C  40 82 00 2C */	bne .L_81398918
+/* 813988F0 00068E10  38 75 99 2C */	addi r3, r21, sSystem__Q23ipl3snd@l
+/* 813988F4 00068E14  38 96 BB 53 */	addi r4, r22, lbl_8164BB53@l
+/* 813988F8 00068E18  4B FD 2B 75 */	bl startSE__Q33ipl3snd6SystemFPCc
+/* 813988FC 00068E1C  81 92 00 00 */	lwz r12, 0x0(r18)
+/* 81398900 00068E20  7E 43 93 78 */	mr r3, r18
+/* 81398904 00068E24  38 80 00 00 */	li r4, 0x0
+/* 81398908 00068E28  81 8C 00 34 */	lwz r12, 0x34(r12)
+/* 8139890C 00068E2C  7D 89 03 A6 */	mtctr r12
+/* 81398910 00068E30  4E 80 04 21 */	bctrl
+/* 81398914 00068E34  9A F4 01 A4 */	stb r23, 0x1a4(r20)
+.L_81398918:
+/* 81398918 00068E38  81 92 00 00 */	lwz r12, 0x0(r18)
+/* 8139891C 00068E3C  7E 43 93 78 */	mr r3, r18
+/* 81398920 00068E40  38 98 08 00 */	addi r4, r24, 0x800
+/* 81398924 00068E44  81 8C 00 18 */	lwz r12, 0x18(r12)
+/* 81398928 00068E48  7D 89 03 A6 */	mtctr r12
+/* 8139892C 00068E4C  4E 80 04 21 */	bctrl
+/* 81398930 00068E50  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81398934 00068E54  41 82 00 98 */	beq .L_813989CC
+/* 81398938 00068E58  7E 24 8B 78 */	mr r4, r17
+/* 8139893C 00068E5C  38 7F 01 50 */	addi r3, r31, 0x150
+/* 81398940 00068E60  4B FF E0 31 */	bl select__Q33ipl5scene12UrlProcessorFi
+/* 81398944 00068E64  38 75 99 2C */	addi r3, r21, sSystem__Q23ipl3snd@l
+/* 81398948 00068E68  38 99 BB 69 */	addi r4, r25, lbl_8164BB69@l
+/* 8139894C 00068E6C  4B FD 2B 21 */	bl startSE__Q33ipl3snd6SystemFPCc
+/* 81398950 00068E70  80 7A 00 84 */	lwz r3, 0x84(r26)
+/* 81398954 00068E74  4B F9 F6 4D */	bl isEnableUrlJump__Q33ipl7channel7ManagerFv
+/* 81398958 00068E78  2C 03 00 00 */	cmpwi r3, 0x0
+/* 8139895C 00068E7C  41 82 00 44 */	beq .L_813989A0
+/* 81398960 00068E80  80 7A 00 AC */	lwz r3, 0xac(r26)
+/* 81398964 00068E84  38 80 00 58 */	li r4, 0x58
+/* 81398968 00068E88  38 A0 00 2E */	li r5, 0x2e
+/* 8139896C 00068E8C  38 C0 00 25 */	li r6, 0x25
+/* 81398970 00068E90  38 E0 00 00 */	li r7, 0x0
+/* 81398974 00068E94  4B FA E1 61 */	bl callBtn2__Q23ipl12DialogWindowFUlUlUlb
+/* 81398978 00068E98  7F E3 FB 78 */	mr r3, r31
+/* 8139897C 00068E9C  48 00 22 29 */	bl hide_cmn_btn__Q33ipl5scene12focus_objectFv
+/* 81398980 00068EA0  80 1F 01 34 */	lwz r0, 0x134(r31)
+/* 81398984 00068EA4  2C 00 00 00 */	cmpwi r0, 0x0
+/* 81398988 00068EA8  41 82 00 10 */	beq .L_81398998
+/* 8139898C 00068EAC  38 7B 9F 68 */	addi r3, r27, sBannerSoundPlayer__Q23ipl3snd@l
+/* 81398990 00068EB0  38 80 00 1E */	li r4, 0x1e
+/* 81398994 00068EB4  48 07 5F 85 */	bl stop__17BannerSoundPlayerFUl
+.L_81398998:
+/* 81398998 00068EB8  93 9F 00 00 */	stw r28, 0x0(r31)
+/* 8139899C 00068EBC  48 00 00 30 */	b .L_813989CC
+.L_813989A0:
+/* 813989A0 00068EC0  80 7A 00 AC */	lwz r3, 0xac(r26)
+/* 813989A4 00068EC4  38 80 00 59 */	li r4, 0x59
+/* 813989A8 00068EC8  38 A0 00 2E */	li r5, 0x2e
+/* 813989AC 00068ECC  4B FA DD 4D */	bl callBtn1__Q23ipl12DialogWindowFUlUl
+/* 813989B0 00068ED0  80 1F 00 00 */	lwz r0, 0x0(r31)
+/* 813989B4 00068ED4  92 FF 00 04 */	stw r23, 0x4(r31)
+/* 813989B8 00068ED8  90 1F 00 08 */	stw r0, 0x8(r31)
+/* 813989BC 00068EDC  93 BF 00 00 */	stw r29, 0x0(r31)
+/* 813989C0 00068EE0  48 00 00 0C */	b .L_813989CC
+.L_813989C4:
+/* 813989C4 00068EE4  7C 7F 9A 14 */	add r3, r31, r19
+/* 813989C8 00068EE8  9B C3 01 A4 */	stb r30, 0x1a4(r3)
+.L_813989CC:
+/* 813989CC 00068EEC  3A 73 00 01 */	addi r19, r19, 0x1
+/* 813989D0 00068EF0  2C 13 00 04 */	cmpwi r19, 0x4
+/* 813989D4 00068EF4  41 80 FE E0 */	blt .L_813988B4
+/* 813989D8 00068EF8  39 61 00 50 */	addi r11, r1, 0x50
+/* 813989DC 00068EFC  48 26 0B 09 */	bl _restgpr_17
+/* 813989E0 00068F00  80 01 00 54 */	lwz r0, 0x54(r1)
+/* 813989E4 00068F04  7C 08 03 A6 */	mtlr r0
+/* 813989E8 00068F08  38 21 00 50 */	addi r1, r1, 0x50
+/* 813989EC 00068F0C  4E 80 00 20 */	blr
+.endfn proc_url_jump__Q33ipl5scene12focus_objectFv
+
+# .text:0x1CC8 | 0x813989F0 | size: 0x2E4
+# ipl::scene::focus_object::draw()
+.fn draw__Q33ipl5scene12focus_objectFv, global
+/* 813989F0 00068F10  94 21 FF 70 */	stwu r1, -0x90(r1)
+/* 813989F4 00068F14  7C 08 02 A6 */	mflr r0
+/* 813989F8 00068F18  90 01 00 94 */	stw r0, 0x94(r1)
+/* 813989FC 00068F1C  DB E1 00 80 */	stfd f31, 0x80(r1)
+/* 81398A00 00068F20  F3 E1 00 88 */	psq_st f31, 0x88(r1), 0, qr0
+/* 81398A04 00068F24  DB C1 00 70 */	stfd f30, 0x70(r1)
+/* 81398A08 00068F28  F3 C1 00 78 */	psq_st f30, 0x78(r1), 0, qr0
+/* 81398A0C 00068F2C  DB A1 00 60 */	stfd f29, 0x60(r1)
+/* 81398A10 00068F30  F3 A1 00 68 */	psq_st f29, 0x68(r1), 0, qr0
+/* 81398A14 00068F34  DB 81 00 50 */	stfd f28, 0x50(r1)
+/* 81398A18 00068F38  F3 81 00 58 */	psq_st f28, 0x58(r1), 0, qr0
+/* 81398A1C 00068F3C  DB 61 00 40 */	stfd f27, 0x40(r1)
+/* 81398A20 00068F40  F3 61 00 48 */	psq_st f27, 0x48(r1), 0, qr0
+/* 81398A24 00068F44  39 61 00 40 */	addi r11, r1, 0x40
+/* 81398A28 00068F48  48 26 0A 9D */	bl _savegpr_28
+/* 81398A2C 00068F4C  80 A3 00 18 */	lwz r5, 0x18(r3)
+/* 81398A30 00068F50  7C 7F 1B 78 */	mr r31, r3
+/* 81398A34 00068F54  3F A0 81 65 */	lis r29, lbl_8164B6D0@ha
+/* 81398A38 00068F58  38 8D 86 6C */	li r4, lbl_816966AC@sda21
+/* 81398A3C 00068F5C  80 65 00 14 */	lwz r3, 0x14(r5)
+/* 81398A40 00068F60  3B BD B6 D0 */	addi r29, r29, lbl_8164B6D0@l
+/* 81398A44 00068F64  38 A0 00 01 */	li r5, 0x1
+/* 81398A48 00068F68  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81398A4C 00068F6C  81 8C 00 3C */	lwz r12, 0x3c(r12)
+/* 81398A50 00068F70  7D 89 03 A6 */	mtctr r12
+/* 81398A54 00068F74  4E 80 04 21 */	bctrl
+/* 81398A58 00068F78  7C 64 1B 78 */	mr r4, r3
+/* 81398A5C 00068F7C  38 61 00 18 */	addi r3, r1, 0x18
+/* 81398A60 00068F80  38 84 00 2C */	addi r4, r4, 0x2c
+/* 81398A64 00068F84  4B FF EB 41 */	bl __ct__Q33ipl4math4VEC3FRCQ34nw4r4math5_VEC3
+/* 81398A68 00068F88  38 7F 01 50 */	addi r3, r31, 0x150
+/* 81398A6C 00068F8C  4B FF DA E9 */	bl clear_prev_drawing__Q33ipl5scene12UrlProcessorFv
+/* 81398A70 00068F90  80 1F 00 00 */	lwz r0, 0x0(r31)
+/* 81398A74 00068F94  3B C0 00 00 */	li r30, 0x0
+/* 81398A78 00068F98  C0 01 00 1C */	lfs f0, 0x1c(r1)
+/* 81398A7C 00068F9C  2C 00 00 01 */	cmpwi r0, 0x1
+/* 81398A80 00068FA0  D0 1F 01 94 */	stfs f0, 0x194(r31)
+/* 81398A84 00068FA4  40 82 00 18 */	bne .L_81398A9C
+/* 81398A88 00068FA8  38 7F 00 58 */	addi r3, r31, 0x58
+/* 81398A8C 00068FAC  4B FF EC 49 */	bl is_busy__Q33ipl5scene8scrollerCFv
+/* 81398A90 00068FB0  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81398A94 00068FB4  40 82 00 08 */	bne .L_81398A9C
+/* 81398A98 00068FB8  3B C0 00 01 */	li r30, 0x1
+.L_81398A9C:
+/* 81398A9C 00068FBC  9B DF 01 A3 */	stb r30, 0x1a3(r31)
+/* 81398AA0 00068FC0  C0 02 84 70 */	lfs f0, lbl_81694870@sda21(r0)
+/* 81398AA4 00068FC4  C0 21 00 1C */	lfs f1, 0x1c(r1)
+/* 81398AA8 00068FC8  FC 01 00 40 */	fcmpo cr0, f1, f0
+/* 81398AAC 00068FCC  40 80 00 10 */	bge .L_81398ABC
+/* 81398AB0 00068FD0  80 7F 00 18 */	lwz r3, 0x18(r31)
+/* 81398AB4 00068FD4  38 9D 04 A8 */	addi r4, r29, 0x4a8
+/* 81398AB8 00068FD8  4B FD 1D 51 */	bl draw__Q33ipl6layout6ObjectFPCc
+.L_81398ABC:
+/* 81398ABC 00068FDC  80 7F 00 18 */	lwz r3, 0x18(r31)
+/* 81398AC0 00068FE0  38 8D 86 73 */	li r4, lbl_816966B3@sda21
+/* 81398AC4 00068FE4  C3 82 84 6C */	lfs f28, lbl_8169486C@sda21(r0)
+/* 81398AC8 00068FE8  38 A0 00 01 */	li r5, 0x1
+/* 81398ACC 00068FEC  80 63 00 14 */	lwz r3, 0x14(r3)
+/* 81398AD0 00068FF0  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81398AD4 00068FF4  81 8C 00 3C */	lwz r12, 0x3c(r12)
+/* 81398AD8 00068FF8  7D 89 03 A6 */	mtctr r12
+/* 81398ADC 00068FFC  4E 80 04 21 */	bctrl
+/* 81398AE0 00069000  C3 63 00 50 */	lfs f27, 0x50(r3)
+/* 81398AE4 00069004  7C 7E 1B 78 */	mr r30, r3
+/* 81398AE8 00069008  C3 E2 84 6C */	lfs f31, lbl_8169486C@sda21(r0)
+/* 81398AEC 0006900C  3B 80 00 00 */	li r28, 0x0
+/* 81398AF0 00069010  C3 C2 84 70 */	lfs f30, lbl_81694870@sda21(r0)
+/* 81398AF4 00069014  C3 A2 84 74 */	lfs f29, lbl_81694874@sda21(r0)
+/* 81398AF8 00069018  48 00 00 60 */	b .L_81398B58
+.L_81398AFC:
+/* 81398AFC 0006901C  C0 01 00 1C */	lfs f0, 0x1c(r1)
+/* 81398B00 00069020  EC 00 E0 2A */	fadds f0, f0, f28
+/* 81398B04 00069024  FC 1D 00 40 */	fcmpo cr0, f29, f0
+/* 81398B08 00069028  40 80 00 48 */	bge .L_81398B50
+/* 81398B0C 0006902C  FC 00 F0 40 */	fcmpo cr0, f0, f30
+/* 81398B10 00069030  40 80 00 40 */	bge .L_81398B50
+/* 81398B14 00069034  D3 E1 00 10 */	stfs f31, 0x10(r1)
+/* 81398B18 00069038  7F C3 F3 78 */	mr r3, r30
+/* 81398B1C 0006903C  38 81 00 10 */	addi r4, r1, 0x10
+/* 81398B20 00069040  D3 81 00 14 */	stfs f28, 0x14(r1)
+/* 81398B24 00069044  4B FA B8 C1 */	bl SetTranslate__Q34nw4r3lyt4PaneFRCQ34nw4r4math4VEC2
+/* 81398B28 00069048  81 9E 00 00 */	lwz r12, 0x0(r30)
+/* 81398B2C 0006904C  7F C3 F3 78 */	mr r3, r30
+/* 81398B30 00069050  80 9F 00 18 */	lwz r4, 0x18(r31)
+/* 81398B34 00069054  81 8C 00 10 */	lwz r12, 0x10(r12)
+/* 81398B38 00069058  38 84 02 98 */	addi r4, r4, 0x298
+/* 81398B3C 0006905C  7D 89 03 A6 */	mtctr r12
+/* 81398B40 00069060  4E 80 04 21 */	bctrl
+/* 81398B44 00069064  80 7F 00 18 */	lwz r3, 0x18(r31)
+/* 81398B48 00069068  7F C4 F3 78 */	mr r4, r30
+/* 81398B4C 0006906C  4B FD 1D 41 */	bl draw__Q33ipl6layout6ObjectFPQ34nw4r3lyt4Pane
+.L_81398B50:
+/* 81398B50 00069070  EF 9C D8 28 */	fsubs f28, f28, f27
+/* 81398B54 00069074  3B 9C 00 01 */	addi r28, r28, 0x1
+.L_81398B58:
+/* 81398B58 00069078  80 1F 01 F0 */	lwz r0, 0x1f0(r31)
+/* 81398B5C 0006907C  7C 1C 00 00 */	cmpw r28, r0
+/* 81398B60 00069080  41 80 FF 9C */	blt .L_81398AFC
+/* 81398B64 00069084  80 7F 00 18 */	lwz r3, 0x18(r31)
+/* 81398B68 00069088  EF 9C D8 2A */	fadds f28, f28, f27
+/* 81398B6C 0006908C  38 9D 04 B1 */	addi r4, r29, 0x4b1
+/* 81398B70 00069090  38 A0 00 01 */	li r5, 0x1
+/* 81398B74 00069094  80 63 00 14 */	lwz r3, 0x14(r3)
+/* 81398B78 00069098  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81398B7C 0006909C  81 8C 00 3C */	lwz r12, 0x3c(r12)
+/* 81398B80 000690A0  7D 89 03 A6 */	mtctr r12
+/* 81398B84 000690A4  4E 80 04 21 */	bctrl
+/* 81398B88 000690A8  C0 01 00 1C */	lfs f0, 0x1c(r1)
+/* 81398B8C 000690AC  7C 7E 1B 78 */	mr r30, r3
+/* 81398B90 000690B0  C0 22 84 74 */	lfs f1, lbl_81694874@sda21(r0)
+/* 81398B94 000690B4  EC 00 E0 2A */	fadds f0, f0, f28
+/* 81398B98 000690B8  FC 01 00 40 */	fcmpo cr0, f1, f0
+/* 81398B9C 000690BC  40 80 00 40 */	bge .L_81398BDC
+/* 81398BA0 000690C0  C0 02 84 6C */	lfs f0, lbl_8169486C@sda21(r0)
+/* 81398BA4 000690C4  38 81 00 08 */	addi r4, r1, 0x8
+/* 81398BA8 000690C8  D3 81 00 0C */	stfs f28, 0xc(r1)
+/* 81398BAC 000690CC  D0 01 00 08 */	stfs f0, 0x8(r1)
+/* 81398BB0 000690D0  4B FA B8 35 */	bl SetTranslate__Q34nw4r3lyt4PaneFRCQ34nw4r4math4VEC2
+/* 81398BB4 000690D4  81 9E 00 00 */	lwz r12, 0x0(r30)
+/* 81398BB8 000690D8  7F C3 F3 78 */	mr r3, r30
+/* 81398BBC 000690DC  80 9F 00 18 */	lwz r4, 0x18(r31)
+/* 81398BC0 000690E0  81 8C 00 10 */	lwz r12, 0x10(r12)
+/* 81398BC4 000690E4  38 84 02 98 */	addi r4, r4, 0x298
+/* 81398BC8 000690E8  7D 89 03 A6 */	mtctr r12
+/* 81398BCC 000690EC  4E 80 04 21 */	bctrl
+/* 81398BD0 000690F0  80 7F 00 18 */	lwz r3, 0x18(r31)
+/* 81398BD4 000690F4  7F C4 F3 78 */	mr r4, r30
+/* 81398BD8 000690F8  4B FD 1C B5 */	bl draw__Q33ipl6layout6ObjectFPQ34nw4r3lyt4Pane
+.L_81398BDC:
+/* 81398BDC 000690FC  80 7F 00 14 */	lwz r3, 0x14(r31)
+/* 81398BE0 00069100  80 63 00 20 */	lwz r3, 0x20(r3)
+/* 81398BE4 00069104  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81398BE8 00069108  41 82 00 1C */	beq .L_81398C04
+/* 81398BEC 0006910C  88 03 00 50 */	lbz r0, 0x50(r3)
+/* 81398BF0 00069110  2C 00 00 00 */	cmpwi r0, 0x0
+/* 81398BF4 00069114  41 82 00 10 */	beq .L_81398C04
+/* 81398BF8 00069118  80 7F 00 18 */	lwz r3, 0x18(r31)
+/* 81398BFC 0006911C  38 8D 86 7A */	li r4, lbl_816966BA@sda21
+/* 81398C00 00069120  4B FD 1C 09 */	bl draw__Q33ipl6layout6ObjectFPCc
+.L_81398C04:
+/* 81398C04 00069124  80 7F 00 18 */	lwz r3, 0x18(r31)
+/* 81398C08 00069128  38 9D 04 BA */	addi r4, r29, 0x4ba
+/* 81398C0C 0006912C  4B FD 1B FD */	bl draw__Q33ipl6layout6ObjectFPCc
+/* 81398C10 00069130  80 7F 00 18 */	lwz r3, 0x18(r31)
+/* 81398C14 00069134  38 9D 04 C3 */	addi r4, r29, 0x4c3
+/* 81398C18 00069138  4B FD 1B F1 */	bl draw__Q33ipl6layout6ObjectFPCc
+/* 81398C1C 0006913C  80 7F 00 14 */	lwz r3, 0x14(r31)
+/* 81398C20 00069140  88 03 00 CE */	lbz r0, 0xce(r3)
+/* 81398C24 00069144  2C 00 00 00 */	cmpwi r0, 0x0
+/* 81398C28 00069148  41 82 00 1C */	beq .L_81398C44
+/* 81398C2C 0006914C  80 7F 00 18 */	lwz r3, 0x18(r31)
+/* 81398C30 00069150  38 8D 86 81 */	li r4, lbl_816966C1@sda21
+/* 81398C34 00069154  4B FD 1B D5 */	bl draw__Q33ipl6layout6ObjectFPCc
+/* 81398C38 00069158  80 7F 00 18 */	lwz r3, 0x18(r31)
+/* 81398C3C 0006915C  38 8D 86 89 */	li r4, lbl_816966C9@sda21
+/* 81398C40 00069160  4B FD 1B C9 */	bl draw__Q33ipl6layout6ObjectFPCc
+.L_81398C44:
+/* 81398C44 00069164  80 7F 00 20 */	lwz r3, 0x20(r31)
+/* 81398C48 00069168  48 03 89 B1 */	bl draw__Q33ipl5scene11TextBalloonFv
+/* 81398C4C 0006916C  80 7F 00 18 */	lwz r3, 0x18(r31)
+/* 81398C50 00069170  38 9D 04 CC */	addi r4, r29, 0x4cc
+/* 81398C54 00069174  38 A0 00 01 */	li r5, 0x1
+/* 81398C58 00069178  80 63 00 14 */	lwz r3, 0x14(r3)
+/* 81398C5C 0006917C  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81398C60 00069180  81 8C 00 3C */	lwz r12, 0x3c(r12)
+/* 81398C64 00069184  7D 89 03 A6 */	mtctr r12
+/* 81398C68 00069188  4E 80 04 21 */	bctrl
+/* 81398C6C 0006918C  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81398C70 00069190  41 82 00 10 */	beq .L_81398C80
+/* 81398C74 00069194  80 7F 00 18 */	lwz r3, 0x18(r31)
+/* 81398C78 00069198  38 9D 04 CC */	addi r4, r29, 0x4cc
+/* 81398C7C 0006919C  4B FD 1B 8D */	bl draw__Q33ipl6layout6ObjectFPCc
+.L_81398C80:
+/* 81398C80 000691A0  88 1F 01 A0 */	lbz r0, 0x1a0(r31)
+/* 81398C84 000691A4  2C 00 00 00 */	cmpwi r0, 0x0
+/* 81398C88 000691A8  40 82 00 0C */	bne .L_81398C94
+/* 81398C8C 000691AC  38 00 00 01 */	li r0, 0x1
+/* 81398C90 000691B0  98 1F 01 A0 */	stb r0, 0x1a0(r31)
+.L_81398C94:
+/* 81398C94 000691B4  E3 E1 00 88 */	psq_l f31, 0x88(r1), 0, qr0
+/* 81398C98 000691B8  CB E1 00 80 */	lfd f31, 0x80(r1)
+/* 81398C9C 000691BC  E3 C1 00 78 */	psq_l f30, 0x78(r1), 0, qr0
+/* 81398CA0 000691C0  CB C1 00 70 */	lfd f30, 0x70(r1)
+/* 81398CA4 000691C4  E3 A1 00 68 */	psq_l f29, 0x68(r1), 0, qr0
+/* 81398CA8 000691C8  CB A1 00 60 */	lfd f29, 0x60(r1)
+/* 81398CAC 000691CC  E3 81 00 58 */	psq_l f28, 0x58(r1), 0, qr0
+/* 81398CB0 000691D0  CB 81 00 50 */	lfd f28, 0x50(r1)
+/* 81398CB4 000691D4  E3 61 00 48 */	psq_l f27, 0x48(r1), 0, qr0
+/* 81398CB8 000691D8  39 61 00 40 */	addi r11, r1, 0x40
+/* 81398CBC 000691DC  CB 61 00 40 */	lfd f27, 0x40(r1)
+/* 81398CC0 000691E0  48 26 08 51 */	bl _restgpr_28
+/* 81398CC4 000691E4  80 01 00 94 */	lwz r0, 0x94(r1)
+/* 81398CC8 000691E8  7C 08 03 A6 */	mtlr r0
+/* 81398CCC 000691EC  38 21 00 90 */	addi r1, r1, 0x90
+/* 81398CD0 000691F0  4E 80 00 20 */	blr
+.endfn draw__Q33ipl5scene12focus_objectFv
+
+# .text:0x1FAC | 0x81398CD4 | size: 0x58
+# ipl::scene::focus_object::is_finished_fadein() const
+.fn is_finished_fadein__Q33ipl5scene12focus_objectCFv, global
+/* 81398CD4 000691F4  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 81398CD8 000691F8  7C 08 02 A6 */	mflr r0
+/* 81398CDC 000691FC  90 01 00 14 */	stw r0, 0x14(r1)
+/* 81398CE0 00069200  80 03 01 BC */	lwz r0, 0x1bc(r3)
+/* 81398CE4 00069204  93 E1 00 0C */	stw r31, 0xc(r1)
+/* 81398CE8 00069208  3B E0 00 00 */	li r31, 0x0
+/* 81398CEC 0006920C  2C 00 00 01 */	cmpwi r0, 0x1
+/* 81398CF0 00069210  41 82 00 24 */	beq .L_81398D14
+/* 81398CF4 00069214  80 63 00 18 */	lwz r3, 0x18(r3)
+/* 81398CF8 00069218  38 80 00 00 */	li r4, 0x0
+/* 81398CFC 0006921C  38 63 02 8C */	addi r3, r3, 0x28c
+/* 81398D00 00069220  48 17 96 19 */	bl List_GetNth__Q24nw4r2utFPCQ34nw4r2ut4ListUs
+/* 81398D04 00069224  80 03 00 14 */	lwz r0, 0x14(r3)
+/* 81398D08 00069228  2C 00 00 01 */	cmpwi r0, 0x1
+/* 81398D0C 0006922C  41 82 00 08 */	beq .L_81398D14
+/* 81398D10 00069230  3B E0 00 01 */	li r31, 0x1
+.L_81398D14:
+/* 81398D14 00069234  7F E3 FB 78 */	mr r3, r31
+/* 81398D18 00069238  83 E1 00 0C */	lwz r31, 0xc(r1)
+/* 81398D1C 0006923C  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 81398D20 00069240  7C 08 03 A6 */	mtlr r0
+/* 81398D24 00069244  38 21 00 10 */	addi r1, r1, 0x10
+/* 81398D28 00069248  4E 80 00 20 */	blr
+.endfn is_finished_fadein__Q33ipl5scene12focus_objectCFv
+
+# .text:0x2004 | 0x81398D2C | size: 0x58
+# ipl::scene::focus_object::is_finished_fadeout() const
+.fn is_finished_fadeout__Q33ipl5scene12focus_objectCFv, global
+/* 81398D2C 0006924C  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 81398D30 00069250  7C 08 02 A6 */	mflr r0
+/* 81398D34 00069254  90 01 00 14 */	stw r0, 0x14(r1)
+/* 81398D38 00069258  80 03 01 BC */	lwz r0, 0x1bc(r3)
+/* 81398D3C 0006925C  93 E1 00 0C */	stw r31, 0xc(r1)
+/* 81398D40 00069260  3B E0 00 00 */	li r31, 0x0
+/* 81398D44 00069264  2C 00 00 01 */	cmpwi r0, 0x1
+/* 81398D48 00069268  41 82 00 24 */	beq .L_81398D6C
+/* 81398D4C 0006926C  80 63 00 18 */	lwz r3, 0x18(r3)
+/* 81398D50 00069270  38 80 00 01 */	li r4, 0x1
+/* 81398D54 00069274  38 63 02 8C */	addi r3, r3, 0x28c
+/* 81398D58 00069278  48 17 95 C1 */	bl List_GetNth__Q24nw4r2utFPCQ34nw4r2ut4ListUs
+/* 81398D5C 0006927C  80 03 00 14 */	lwz r0, 0x14(r3)
+/* 81398D60 00069280  2C 00 00 01 */	cmpwi r0, 0x1
+/* 81398D64 00069284  41 82 00 08 */	beq .L_81398D6C
+/* 81398D68 00069288  3B E0 00 01 */	li r31, 0x1
+.L_81398D6C:
+/* 81398D6C 0006928C  7F E3 FB 78 */	mr r3, r31
+/* 81398D70 00069290  83 E1 00 0C */	lwz r31, 0xc(r1)
+/* 81398D74 00069294  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 81398D78 00069298  7C 08 03 A6 */	mtlr r0
+/* 81398D7C 0006929C  38 21 00 10 */	addi r1, r1, 0x10
+/* 81398D80 000692A0  4E 80 00 20 */	blr
+.endfn is_finished_fadeout__Q33ipl5scene12focus_objectCFv
+
+# .text:0x205C | 0x81398D84 | size: 0xA0
+# ipl::scene::focus_object::init_normal()
+.fn init_normal__Q33ipl5scene12focus_objectFv, global
+/* 81398D84 000692A4  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 81398D88 000692A8  7C 08 02 A6 */	mflr r0
+/* 81398D8C 000692AC  38 80 00 06 */	li r4, 0x6
+/* 81398D90 000692B0  90 01 00 14 */	stw r0, 0x14(r1)
+/* 81398D94 000692B4  93 E1 00 0C */	stw r31, 0xc(r1)
+/* 81398D98 000692B8  7C 7F 1B 78 */	mr r31, r3
+/* 81398D9C 000692BC  80 A3 00 18 */	lwz r5, 0x18(r3)
+/* 81398DA0 000692C0  38 65 02 8C */	addi r3, r5, 0x28c
+/* 81398DA4 000692C4  48 17 95 75 */	bl List_GetNth__Q24nw4r2utFPCQ34nw4r2ut4ListUs
+/* 81398DA8 000692C8  4B FD 0E 7D */	bl initAnmFrame__Q33ipl6layout8AnimatorFv
+/* 81398DAC 000692CC  80 7F 00 18 */	lwz r3, 0x18(r31)
+/* 81398DB0 000692D0  38 80 00 0E */	li r4, 0xe
+/* 81398DB4 000692D4  38 63 02 8C */	addi r3, r3, 0x28c
+/* 81398DB8 000692D8  48 17 95 61 */	bl List_GetNth__Q24nw4r2utFPCQ34nw4r2ut4ListUs
+/* 81398DBC 000692DC  4B FD 0E 69 */	bl initAnmFrame__Q33ipl6layout8AnimatorFv
+/* 81398DC0 000692E0  C0 3F 00 98 */	lfs f1, 0x98(r31)
+/* 81398DC4 000692E4  C0 1F 00 8C */	lfs f0, 0x8c(r31)
+/* 81398DC8 000692E8  FC 01 00 00 */	fcmpu cr0, f1, f0
+/* 81398DCC 000692EC  7C 00 00 26 */	mfcr r0
+/* 81398DD0 000692F0  54 00 1F FF */	extrwi. r0, r0, 1, 2
+/* 81398DD4 000692F4  40 82 00 0C */	bne .L_81398DE0
+/* 81398DD8 000692F8  7F E3 FB 78 */	mr r3, r31
+/* 81398DDC 000692FC  48 00 18 19 */	bl show_darw__Q33ipl5scene12focus_objectFv
+.L_81398DE0:
+/* 81398DE0 00069300  80 1F 01 34 */	lwz r0, 0x134(r31)
+/* 81398DE4 00069304  2C 00 00 00 */	cmpwi r0, 0x0
+/* 81398DE8 00069308  41 82 00 20 */	beq .L_81398E08
+/* 81398DEC 0006930C  38 7F 01 48 */	addi r3, r31, 0x148
+/* 81398DF0 00069310  38 80 01 2C */	li r4, 0x12c
+/* 81398DF4 00069314  4B FC B6 31 */	bl set_msec__Q33ipl7utility5timerFi
+/* 81398DF8 00069318  3C 60 81 09 */	lis r3, sSystem__Q23ipl3snd@ha
+/* 81398DFC 0006931C  38 80 00 05 */	li r4, 0x5
+/* 81398E00 00069320  38 63 99 2C */	addi r3, r3, sSystem__Q23ipl3snd@l
+/* 81398E04 00069324  4B FD 2F 21 */	bl muteOnBGM__Q33ipl3snd6SystemFi
+.L_81398E08:
+/* 81398E08 00069328  38 00 00 01 */	li r0, 0x1
+/* 81398E0C 0006932C  90 1F 00 00 */	stw r0, 0x0(r31)
+/* 81398E10 00069330  83 E1 00 0C */	lwz r31, 0xc(r1)
+/* 81398E14 00069334  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 81398E18 00069338  7C 08 03 A6 */	mtlr r0
+/* 81398E1C 0006933C  38 21 00 10 */	addi r1, r1, 0x10
+/* 81398E20 00069340  4E 80 00 20 */	blr
+.endfn init_normal__Q33ipl5scene12focus_objectFv
+
+# .text:0x20FC | 0x81398E24 | size: 0xD0
+# ipl::scene::focus_object::init_fadeout(bool)
+.fn init_fadeout__Q33ipl5scene12focus_objectFb, global
+/* 81398E24 00069344  94 21 FF E0 */	stwu r1, -0x20(r1)
+/* 81398E28 00069348  7C 08 02 A6 */	mflr r0
+/* 81398E2C 0006934C  90 01 00 24 */	stw r0, 0x24(r1)
+/* 81398E30 00069350  39 61 00 20 */	addi r11, r1, 0x20
+/* 81398E34 00069354  48 26 06 91 */	bl _savegpr_28
+/* 81398E38 00069358  3B E0 00 01 */	li r31, 0x1
+/* 81398E3C 0006935C  80 A3 00 18 */	lwz r5, 0x18(r3)
+/* 81398E40 00069360  93 E3 01 C0 */	stw r31, 0x1c0(r3)
+/* 81398E44 00069364  7C 9D 23 78 */	mr r29, r4
+/* 81398E48 00069368  7C 7C 1B 78 */	mr r28, r3
+/* 81398E4C 0006936C  38 80 00 01 */	li r4, 0x1
+/* 81398E50 00069370  93 E3 01 BC */	stw r31, 0x1bc(r3)
+/* 81398E54 00069374  38 65 02 8C */	addi r3, r5, 0x28c
+/* 81398E58 00069378  48 17 94 C1 */	bl List_GetNth__Q24nw4r2utFPCQ34nw4r2ut4ListUs
+/* 81398E5C 0006937C  7C 7E 1B 78 */	mr r30, r3
+/* 81398E60 00069380  4B FC 9A 11 */	bl initFrame__Q33ipl7utility15FrameControllerFv
+/* 81398E64 00069384  93 FE 00 14 */	stw r31, 0x14(r30)
+/* 81398E68 00069388  38 80 00 04 */	li r4, 0x4
+/* 81398E6C 0006938C  80 7C 00 14 */	lwz r3, 0x14(r28)
+/* 81398E70 00069390  80 63 00 14 */	lwz r3, 0x14(r3)
+/* 81398E74 00069394  38 63 02 8C */	addi r3, r3, 0x28c
+/* 81398E78 00069398  48 17 94 A1 */	bl List_GetNth__Q24nw4r2utFPCQ34nw4r2ut4ListUs
+/* 81398E7C 0006939C  7C 7E 1B 78 */	mr r30, r3
+/* 81398E80 000693A0  4B FC 99 F1 */	bl initFrame__Q33ipl7utility15FrameControllerFv
+/* 81398E84 000693A4  3C 60 81 09 */	lis r3, smArg__Q23ipl6System@ha
+/* 81398E88 000693A8  93 FE 00 14 */	stw r31, 0x14(r30)
+/* 81398E8C 000693AC  38 63 90 08 */	addi r3, r3, smArg__Q23ipl6System@l
+/* 81398E90 000693B0  38 80 00 05 */	li r4, 0x5
+/* 81398E94 000693B4  80 63 00 64 */	lwz r3, 0x64(r3)
+/* 81398E98 000693B8  48 07 22 A1 */	bl getScene__Q33ipl5scene7ManagerFi
+/* 81398E9C 000693BC  38 80 00 00 */	li r4, 0x0
+/* 81398EA0 000693C0  38 A0 00 00 */	li r5, 0x0
+/* 81398EA4 000693C4  48 00 3A 99 */	bl setEventHandler__Q33ipl5scene6ButtonFPQ23gui12EventHandlerPQ23gui12EventHandler
+/* 81398EA8 000693C8  2C 1D 00 00 */	cmpwi r29, 0x0
+/* 81398EAC 000693CC  40 82 00 0C */	bne .L_81398EB8
+/* 81398EB0 000693D0  7F 83 E3 78 */	mr r3, r28
+/* 81398EB4 000693D4  48 00 1C F1 */	bl hide_cmn_btn__Q33ipl5scene12focus_objectFv
+.L_81398EB8:
+/* 81398EB8 000693D8  3C 60 81 09 */	lis r3, smArg__Q23ipl6System@ha
+/* 81398EBC 000693DC  38 80 00 05 */	li r4, 0x5
+/* 81398EC0 000693E0  38 63 90 08 */	addi r3, r3, smArg__Q23ipl6System@l
+/* 81398EC4 000693E4  80 63 00 64 */	lwz r3, 0x64(r3)
+/* 81398EC8 000693E8  48 07 22 71 */	bl getScene__Q33ipl5scene7ManagerFi
+/* 81398ECC 000693EC  38 80 00 0A */	li r4, 0xa
+/* 81398ED0 000693F0  48 00 45 59 */	bl reserveAnm__Q33ipl5scene6ButtonFi
+/* 81398ED4 000693F4  38 00 00 01 */	li r0, 0x1
+/* 81398ED8 000693F8  39 61 00 20 */	addi r11, r1, 0x20
+/* 81398EDC 000693FC  90 1C 00 0C */	stw r0, 0xc(r28)
+/* 81398EE0 00069400  48 26 06 31 */	bl _restgpr_28
+/* 81398EE4 00069404  80 01 00 24 */	lwz r0, 0x24(r1)
+/* 81398EE8 00069408  7C 08 03 A6 */	mtlr r0
+/* 81398EEC 0006940C  38 21 00 20 */	addi r1, r1, 0x20
+/* 81398EF0 00069410  4E 80 00 20 */	blr
+.endfn init_fadeout__Q33ipl5scene12focus_objectFb
+
+# .text:0x21CC | 0x81398EF4 | size: 0x558
+# ipl::scene::focus_object::make_layout(ipl::nand::LayoutFile*)
+.fn make_layout__Q33ipl5scene12focus_objectFPQ33ipl4nand10LayoutFile, global
+/* 81398EF4 00069414  94 21 FF B0 */	stwu r1, -0x50(r1)
+/* 81398EF8 00069418  7C 08 02 A6 */	mflr r0
+/* 81398EFC 0006941C  90 01 00 54 */	stw r0, 0x54(r1)
+/* 81398F00 00069420  39 61 00 50 */	addi r11, r1, 0x50
+/* 81398F04 00069424  48 26 05 B5 */	bl _savegpr_25
+/* 81398F08 00069428  80 A3 00 14 */	lwz r5, 0x14(r3)
+/* 81398F0C 0006942C  3F E0 81 65 */	lis r31, lbl_8164B6D0@ha
+/* 81398F10 00069430  3F 80 81 09 */	lis r28, smArg__Q23ipl6System@ha
+/* 81398F14 00069434  7C 7D 1B 78 */	mr r29, r3
+/* 81398F18 00069438  83 65 00 D8 */	lwz r27, 0xd8(r5)
+/* 81398F1C 0006943C  3B FF B6 D0 */	addi r31, r31, lbl_8164B6D0@l
+/* 81398F20 00069440  83 C5 00 24 */	lwz r30, 0x24(r5)
+/* 81398F24 00069444  3B 9C 90 08 */	addi r28, r28, smArg__Q23ipl6System@l
+/* 81398F28 00069448  1C DB 00 2C */	mulli r6, r27, 0x2c
+/* 81398F2C 0006944C  7C 99 23 78 */	mr r25, r4
+/* 81398F30 00069450  38 1F 02 24 */	addi r0, r31, 0x224
+/* 81398F34 00069454  80 9C 00 28 */	lwz r4, 0x28(r28)
+/* 81398F38 00069458  38 60 05 80 */	li r3, 0x580
+/* 81398F3C 0006945C  38 A0 00 04 */	li r5, 0x4
+/* 81398F40 00069460  7F 40 32 14 */	add r26, r0, r6
+/* 81398F44 00069464  48 25 F1 6D */	bl __nw__FUlPQ23EGG4Heapi
+/* 81398F48 00069468  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81398F4C 0006946C  41 82 00 18 */	beq .L_81398F64
+/* 81398F50 00069470  80 9C 00 28 */	lwz r4, 0x28(r28)
+/* 81398F54 00069474  7F 25 CB 78 */	mr r5, r25
+/* 81398F58 00069478  80 FA 00 00 */	lwz r7, 0x0(r26)
+/* 81398F5C 0006947C  38 CD 86 8F */	li r6, lbl_816966CF@sda21
+/* 81398F60 00069480  4B FD 10 C5 */	bl __ct__Q33ipl6layout6ObjectFPQ23EGG4HeapPQ33ipl4nand10LayoutFilePCcPCc
+.L_81398F64:
+/* 81398F64 00069484  90 7D 00 18 */	stw r3, 0x18(r29)
+/* 81398F68 00069488  38 A0 00 01 */	li r5, 0x1
+/* 81398F6C 0006948C  80 9A 00 04 */	lwz r4, 0x4(r26)
+/* 81398F70 00069490  4B FD 13 FD */	bl bind__Q33ipl6layout6ObjectFPCcb
+/* 81398F74 00069494  80 7D 00 18 */	lwz r3, 0x18(r29)
+/* 81398F78 00069498  38 A0 00 00 */	li r5, 0x0
+/* 81398F7C 0006949C  80 9A 00 08 */	lwz r4, 0x8(r26)
+/* 81398F80 000694A0  4B FD 13 ED */	bl bind__Q33ipl6layout6ObjectFPCcb
+/* 81398F84 000694A4  80 7D 00 18 */	lwz r3, 0x18(r29)
+/* 81398F88 000694A8  38 BF 04 D6 */	addi r5, r31, 0x4d6
+/* 81398F8C 000694AC  80 9A 00 0C */	lwz r4, 0xc(r26)
+/* 81398F90 000694B0  38 C0 00 00 */	li r6, 0x0
+/* 81398F94 000694B4  38 E0 00 00 */	li r7, 0x0
+/* 81398F98 000694B8  4B FD 15 49 */	bl bindToGroup__Q33ipl6layout6ObjectFPCcPCcbb
+/* 81398F9C 000694BC  80 7D 00 18 */	lwz r3, 0x18(r29)
+/* 81398FA0 000694C0  38 BF 04 E0 */	addi r5, r31, 0x4e0
+/* 81398FA4 000694C4  80 9A 00 10 */	lwz r4, 0x10(r26)
+/* 81398FA8 000694C8  38 C0 00 00 */	li r6, 0x0
+/* 81398FAC 000694CC  38 E0 00 00 */	li r7, 0x0
+/* 81398FB0 000694D0  4B FD 15 31 */	bl bindToGroup__Q33ipl6layout6ObjectFPCcPCcbb
+/* 81398FB4 000694D4  80 7D 00 18 */	lwz r3, 0x18(r29)
+/* 81398FB8 000694D8  38 BF 04 E0 */	addi r5, r31, 0x4e0
+/* 81398FBC 000694DC  80 9A 00 14 */	lwz r4, 0x14(r26)
+/* 81398FC0 000694E0  38 C0 00 00 */	li r6, 0x0
+/* 81398FC4 000694E4  38 E0 00 00 */	li r7, 0x0
+/* 81398FC8 000694E8  4B FD 15 19 */	bl bindToGroup__Q33ipl6layout6ObjectFPCcPCcbb
+/* 81398FCC 000694EC  80 7D 00 18 */	lwz r3, 0x18(r29)
+/* 81398FD0 000694F0  38 BF 04 ED */	addi r5, r31, 0x4ed
+/* 81398FD4 000694F4  80 9A 00 18 */	lwz r4, 0x18(r26)
+/* 81398FD8 000694F8  38 C0 00 00 */	li r6, 0x0
+/* 81398FDC 000694FC  38 E0 00 00 */	li r7, 0x0
+/* 81398FE0 00069500  4B FD 15 01 */	bl bindToGroup__Q33ipl6layout6ObjectFPCcPCcbb
+/* 81398FE4 00069504  80 7D 00 18 */	lwz r3, 0x18(r29)
+/* 81398FE8 00069508  38 BF 04 F7 */	addi r5, r31, 0x4f7
+/* 81398FEC 0006950C  80 9A 00 1C */	lwz r4, 0x1c(r26)
+/* 81398FF0 00069510  38 C0 00 00 */	li r6, 0x0
+/* 81398FF4 00069514  38 E0 00 00 */	li r7, 0x0
+/* 81398FF8 00069518  4B FD 14 E9 */	bl bindToGroup__Q33ipl6layout6ObjectFPCcPCcbb
+/* 81398FFC 0006951C  80 7D 00 18 */	lwz r3, 0x18(r29)
+/* 81399000 00069520  38 BF 04 F7 */	addi r5, r31, 0x4f7
+/* 81399004 00069524  80 9A 00 20 */	lwz r4, 0x20(r26)
+/* 81399008 00069528  38 C0 00 00 */	li r6, 0x0
+/* 8139900C 0006952C  38 E0 00 00 */	li r7, 0x0
+/* 81399010 00069530  4B FD 14 D1 */	bl bindToGroup__Q33ipl6layout6ObjectFPCcPCcbb
+/* 81399014 00069534  80 7D 00 18 */	lwz r3, 0x18(r29)
+/* 81399018 00069538  38 BF 05 02 */	addi r5, r31, 0x502
+/* 8139901C 0006953C  80 9A 00 24 */	lwz r4, 0x24(r26)
+/* 81399020 00069540  38 C0 00 00 */	li r6, 0x0
+/* 81399024 00069544  38 E0 00 00 */	li r7, 0x0
+/* 81399028 00069548  4B FD 14 B9 */	bl bindToGroup__Q33ipl6layout6ObjectFPCcPCcbb
+/* 8139902C 0006954C  80 7D 00 18 */	lwz r3, 0x18(r29)
+/* 81399030 00069550  38 BF 05 02 */	addi r5, r31, 0x502
+/* 81399034 00069554  80 9A 00 28 */	lwz r4, 0x28(r26)
+/* 81399038 00069558  38 C0 00 00 */	li r6, 0x0
+/* 8139903C 0006955C  38 E0 00 00 */	li r7, 0x0
+/* 81399040 00069560  4B FD 14 A1 */	bl bindToGroup__Q33ipl6layout6ObjectFPCcPCcbb
+/* 81399044 00069564  80 7D 00 18 */	lwz r3, 0x18(r29)
+/* 81399048 00069568  38 BF 04 D6 */	addi r5, r31, 0x4d6
+/* 8139904C 0006956C  80 9A 00 0C */	lwz r4, 0xc(r26)
+/* 81399050 00069570  38 C0 00 00 */	li r6, 0x0
+/* 81399054 00069574  38 E0 00 00 */	li r7, 0x0
+/* 81399058 00069578  4B FD 14 89 */	bl bindToGroup__Q33ipl6layout6ObjectFPCcPCcbb
+/* 8139905C 0006957C  80 7D 00 18 */	lwz r3, 0x18(r29)
+/* 81399060 00069580  38 BF 05 0E */	addi r5, r31, 0x50e
+/* 81399064 00069584  80 9A 00 10 */	lwz r4, 0x10(r26)
+/* 81399068 00069588  38 C0 00 00 */	li r6, 0x0
+/* 8139906C 0006958C  38 E0 00 00 */	li r7, 0x0
+/* 81399070 00069590  4B FD 14 71 */	bl bindToGroup__Q33ipl6layout6ObjectFPCcPCcbb
+/* 81399074 00069594  80 7D 00 18 */	lwz r3, 0x18(r29)
+/* 81399078 00069598  38 BF 05 0E */	addi r5, r31, 0x50e
+/* 8139907C 0006959C  80 9A 00 14 */	lwz r4, 0x14(r26)
+/* 81399080 000695A0  38 C0 00 00 */	li r6, 0x0
+/* 81399084 000695A4  38 E0 00 00 */	li r7, 0x0
+/* 81399088 000695A8  4B FD 14 59 */	bl bindToGroup__Q33ipl6layout6ObjectFPCcPCcbb
+/* 8139908C 000695AC  80 7D 00 18 */	lwz r3, 0x18(r29)
+/* 81399090 000695B0  38 BF 05 1B */	addi r5, r31, 0x51b
+/* 81399094 000695B4  80 9A 00 18 */	lwz r4, 0x18(r26)
+/* 81399098 000695B8  38 C0 00 00 */	li r6, 0x0
+/* 8139909C 000695BC  38 E0 00 00 */	li r7, 0x0
+/* 813990A0 000695C0  4B FD 14 41 */	bl bindToGroup__Q33ipl6layout6ObjectFPCcPCcbb
+/* 813990A4 000695C4  80 7D 00 18 */	lwz r3, 0x18(r29)
+/* 813990A8 000695C8  38 BF 05 25 */	addi r5, r31, 0x525
+/* 813990AC 000695CC  80 9A 00 1C */	lwz r4, 0x1c(r26)
+/* 813990B0 000695D0  38 C0 00 00 */	li r6, 0x0
+/* 813990B4 000695D4  38 E0 00 00 */	li r7, 0x0
+/* 813990B8 000695D8  4B FD 14 29 */	bl bindToGroup__Q33ipl6layout6ObjectFPCcPCcbb
+/* 813990BC 000695DC  80 7D 00 18 */	lwz r3, 0x18(r29)
+/* 813990C0 000695E0  38 BF 05 25 */	addi r5, r31, 0x525
+/* 813990C4 000695E4  80 9A 00 20 */	lwz r4, 0x20(r26)
+/* 813990C8 000695E8  38 C0 00 00 */	li r6, 0x0
+/* 813990CC 000695EC  38 E0 00 00 */	li r7, 0x0
+/* 813990D0 000695F0  4B FD 14 11 */	bl bindToGroup__Q33ipl6layout6ObjectFPCcPCcbb
+/* 813990D4 000695F4  80 7D 00 18 */	lwz r3, 0x18(r29)
+/* 813990D8 000695F8  38 BF 05 30 */	addi r5, r31, 0x530
+/* 813990DC 000695FC  80 9A 00 24 */	lwz r4, 0x24(r26)
+/* 813990E0 00069600  38 C0 00 00 */	li r6, 0x0
+/* 813990E4 00069604  38 E0 00 00 */	li r7, 0x0
+/* 813990E8 00069608  4B FD 13 F9 */	bl bindToGroup__Q33ipl6layout6ObjectFPCcPCcbb
+/* 813990EC 0006960C  80 7D 00 18 */	lwz r3, 0x18(r29)
+/* 813990F0 00069610  38 BF 05 30 */	addi r5, r31, 0x530
+/* 813990F4 00069614  80 9A 00 28 */	lwz r4, 0x28(r26)
+/* 813990F8 00069618  38 C0 00 00 */	li r6, 0x0
+/* 813990FC 0006961C  38 E0 00 00 */	li r7, 0x0
+/* 81399100 00069620  4B FD 13 E1 */	bl bindToGroup__Q33ipl6layout6ObjectFPCcPCcbb
+/* 81399104 00069624  2C 1B 00 01 */	cmpwi r27, 0x1
+/* 81399108 00069628  40 82 00 C4 */	bne .L_813991CC
+/* 8139910C 0006962C  80 7D 00 18 */	lwz r3, 0x18(r29)
+/* 81399110 00069630  38 9F 05 3C */	addi r4, r31, 0x53c
+/* 81399114 00069634  38 AD 86 93 */	li r5, lbl_816966D3@sda21
+/* 81399118 00069638  38 C0 00 00 */	li r6, 0x0
+/* 8139911C 0006963C  38 E0 00 00 */	li r7, 0x0
+/* 81399120 00069640  4B FD 13 C1 */	bl bindToGroup__Q33ipl6layout6ObjectFPCcPCcbb
+/* 81399124 00069644  80 7D 00 18 */	lwz r3, 0x18(r29)
+/* 81399128 00069648  38 9F 05 53 */	addi r4, r31, 0x553
+/* 8139912C 0006964C  38 AD 86 93 */	li r5, lbl_816966D3@sda21
+/* 81399130 00069650  38 C0 00 00 */	li r6, 0x0
+/* 81399134 00069654  38 E0 00 00 */	li r7, 0x0
+/* 81399138 00069658  4B FD 13 A9 */	bl bindToGroup__Q33ipl6layout6ObjectFPCcPCcbb
+/* 8139913C 0006965C  80 7D 00 18 */	lwz r3, 0x18(r29)
+/* 81399140 00069660  38 9F 05 6E */	addi r4, r31, 0x56e
+/* 81399144 00069664  38 AD 86 93 */	li r5, lbl_816966D3@sda21
+/* 81399148 00069668  38 C0 00 00 */	li r6, 0x0
+/* 8139914C 0006966C  38 E0 00 00 */	li r7, 0x0
+/* 81399150 00069670  4B FD 13 91 */	bl bindToGroup__Q33ipl6layout6ObjectFPCcPCcbb
+/* 81399154 00069674  80 7D 00 18 */	lwz r3, 0x18(r29)
+/* 81399158 00069678  38 9F 05 88 */	addi r4, r31, 0x588
+/* 8139915C 0006967C  38 AD 86 93 */	li r5, lbl_816966D3@sda21
+/* 81399160 00069680  38 C0 00 00 */	li r6, 0x0
+/* 81399164 00069684  38 E0 00 00 */	li r7, 0x0
+/* 81399168 00069688  4B FD 13 79 */	bl bindToGroup__Q33ipl6layout6ObjectFPCcPCcbb
+/* 8139916C 0006968C  80 7D 00 18 */	lwz r3, 0x18(r29)
+/* 81399170 00069690  38 9F 05 A6 */	addi r4, r31, 0x5a6
+/* 81399174 00069694  38 AD 86 9B */	li r5, lbl_816966DB@sda21
+/* 81399178 00069698  38 C0 00 00 */	li r6, 0x0
+/* 8139917C 0006969C  38 E0 00 00 */	li r7, 0x0
+/* 81399180 000696A0  4B FD 13 61 */	bl bindToGroup__Q33ipl6layout6ObjectFPCcPCcbb
+/* 81399184 000696A4  80 7D 00 18 */	lwz r3, 0x18(r29)
+/* 81399188 000696A8  38 9F 05 C2 */	addi r4, r31, 0x5c2
+/* 8139918C 000696AC  38 AD 86 9B */	li r5, lbl_816966DB@sda21
+/* 81399190 000696B0  38 C0 00 00 */	li r6, 0x0
+/* 81399194 000696B4  38 E0 00 00 */	li r7, 0x0
+/* 81399198 000696B8  4B FD 13 49 */	bl bindToGroup__Q33ipl6layout6ObjectFPCcPCcbb
+/* 8139919C 000696BC  80 7D 00 18 */	lwz r3, 0x18(r29)
+/* 813991A0 000696C0  38 9F 05 DF */	addi r4, r31, 0x5df
+/* 813991A4 000696C4  38 AD 86 9B */	li r5, lbl_816966DB@sda21
+/* 813991A8 000696C8  38 C0 00 00 */	li r6, 0x0
+/* 813991AC 000696CC  38 E0 00 00 */	li r7, 0x0
+/* 813991B0 000696D0  4B FD 13 31 */	bl bindToGroup__Q33ipl6layout6ObjectFPCcPCcbb
+/* 813991B4 000696D4  80 7D 00 18 */	lwz r3, 0x18(r29)
+/* 813991B8 000696D8  38 9F 05 FA */	addi r4, r31, 0x5fa
+/* 813991BC 000696DC  38 AD 86 9B */	li r5, lbl_816966DB@sda21
+/* 813991C0 000696E0  38 C0 00 00 */	li r6, 0x0
+/* 813991C4 000696E4  38 E0 00 00 */	li r7, 0x0
+/* 813991C8 000696E8  4B FD 13 19 */	bl bindToGroup__Q33ipl6layout6ObjectFPCcPCcbb
+.L_813991CC:
+/* 813991CC 000696EC  80 7D 00 18 */	lwz r3, 0x18(r29)
+/* 813991D0 000696F0  4B FD 14 65 */	bl finishBinding__Q33ipl6layout6ObjectFv
+/* 813991D4 000696F4  38 00 00 00 */	li r0, 0x0
+/* 813991D8 000696F8  2C 1B 00 00 */	cmpwi r27, 0x0
+/* 813991DC 000696FC  B0 01 00 08 */	sth r0, 0x8(r1)
+/* 813991E0 00069700  B0 01 00 0A */	sth r0, 0xa(r1)
+/* 813991E4 00069704  41 82 00 08 */	beq .L_813991EC
+/* 813991E8 00069708  48 00 00 24 */	b .L_8139920C
+.L_813991EC:
+/* 813991EC 0006970C  3C 60 81 09 */	lis r3, smArg__Q23ipl6System@ha
+/* 813991F0 00069710  38 80 00 85 */	li r4, 0x85
+/* 813991F4 00069714  38 63 90 08 */	addi r3, r3, smArg__Q23ipl6System@l
+/* 813991F8 00069718  80 63 00 80 */	lwz r3, 0x80(r3)
+/* 813991FC 0006971C  80 63 00 00 */	lwz r3, 0x0(r3)
+/* 81399200 00069720  4B FA 55 BD */	bl getMessage__Q33ipl7message7MessageCFUl
+/* 81399204 00069724  7C 7A 1B 78 */	mr r26, r3
+/* 81399208 00069728  48 00 00 24 */	b .L_8139922C
+.L_8139920C:
+/* 8139920C 0006972C  80 9E 01 1C */	lwz r4, 0x11c(r30)
+/* 81399210 00069730  2C 04 00 00 */	cmpwi r4, 0x0
+/* 81399214 00069734  41 82 00 14 */	beq .L_81399228
+/* 81399218 00069738  80 7D 00 14 */	lwz r3, 0x14(r29)
+/* 8139921C 0006973C  80 03 00 24 */	lwz r0, 0x24(r3)
+/* 81399220 00069740  7F 40 22 14 */	add r26, r0, r4
+/* 81399224 00069744  48 00 00 08 */	b .L_8139922C
+.L_81399228:
+/* 81399228 00069748  3B 41 00 08 */	addi r26, r1, 0x8
+.L_8139922C:
+/* 8139922C 0006974C  80 7D 00 18 */	lwz r3, 0x18(r29)
+/* 81399230 00069750  38 9F 06 13 */	addi r4, r31, 0x613
+/* 81399234 00069754  38 A0 00 01 */	li r5, 0x1
+/* 81399238 00069758  80 63 00 14 */	lwz r3, 0x14(r3)
+/* 8139923C 0006975C  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81399240 00069760  81 8C 00 3C */	lwz r12, 0x3c(r12)
+/* 81399244 00069764  7D 89 03 A6 */	mtctr r12
+/* 81399248 00069768  4E 80 04 21 */	bctrl
+/* 8139924C 0006976C  7F 44 D3 78 */	mr r4, r26
+/* 81399250 00069770  4B FC B2 9D */	bl set_string__Q33ipl7utility6layoutFPQ34nw4r3lyt4PanePCw
+/* 81399254 00069774  80 9E 01 20 */	lwz r4, 0x120(r30)
+/* 81399258 00069778  80 7D 00 14 */	lwz r3, 0x14(r29)
+/* 8139925C 0006977C  2C 04 00 00 */	cmpwi r4, 0x0
+/* 81399260 00069780  80 03 00 24 */	lwz r0, 0x24(r3)
+/* 81399264 00069784  7C 80 22 14 */	add r4, r0, r4
+/* 81399268 00069788  41 82 00 A8 */	beq .L_81399310
+/* 8139926C 0006978C  A0 04 00 00 */	lhz r0, 0x0(r4)
+/* 81399270 00069790  2C 00 00 00 */	cmpwi r0, 0x0
+/* 81399274 00069794  41 82 00 9C */	beq .L_81399310
+/* 81399278 00069798  7F A3 EB 78 */	mr r3, r29
+/* 8139927C 0006979C  48 00 04 5D */	bl make_parsed_text__Q33ipl5scene12focus_objectFPCw
+/* 81399280 000697A0  80 7D 00 18 */	lwz r3, 0x18(r29)
+/* 81399284 000697A4  38 9F 04 BA */	addi r4, r31, 0x4ba
+/* 81399288 000697A8  38 A0 00 01 */	li r5, 0x1
+/* 8139928C 000697AC  80 63 00 14 */	lwz r3, 0x14(r3)
+/* 81399290 000697B0  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81399294 000697B4  81 8C 00 3C */	lwz r12, 0x3c(r12)
+/* 81399298 000697B8  7D 89 03 A6 */	mtctr r12
+/* 8139929C 000697BC  4E 80 04 21 */	bctrl
+/* 813992A0 000697C0  80 9D 00 24 */	lwz r4, 0x24(r29)
+/* 813992A4 000697C4  4B FC B2 49 */	bl set_string__Q33ipl7utility6layoutFPQ34nw4r3lyt4PanePCw
+/* 813992A8 000697C8  80 7D 00 18 */	lwz r3, 0x18(r29)
+/* 813992AC 000697CC  38 8D 86 73 */	li r4, lbl_816966B3@sda21
+/* 813992B0 000697D0  38 A0 00 01 */	li r5, 0x1
+/* 813992B4 000697D4  80 63 00 14 */	lwz r3, 0x14(r3)
+/* 813992B8 000697D8  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 813992BC 000697DC  81 8C 00 3C */	lwz r12, 0x3c(r12)
+/* 813992C0 000697E0  7D 89 03 A6 */	mtctr r12
+/* 813992C4 000697E4  4E 80 04 21 */	bctrl
+/* 813992C8 000697E8  80 9D 00 18 */	lwz r4, 0x18(r29)
+/* 813992CC 000697EC  7C 7C 1B 78 */	mr r28, r3
+/* 813992D0 000697F0  38 61 00 0C */	addi r3, r1, 0xc
+/* 813992D4 000697F4  38 BF 04 BA */	addi r5, r31, 0x4ba
+/* 813992D8 000697F8  48 00 01 75 */	bl getTextDrawRect__Q33ipl6layout6ObjectCFPCc
+/* 813992DC 000697FC  C0 41 00 18 */	lfs f2, 0x18(r1)
+/* 813992E0 00069800  C0 21 00 10 */	lfs f1, 0x10(r1)
+/* 813992E4 00069804  C0 1C 00 50 */	lfs f0, 0x50(r28)
+/* 813992E8 00069808  EC 22 08 28 */	fsubs f1, f2, f1
+/* 813992EC 0006980C  FC 20 08 50 */	fneg f1, f1
+/* 813992F0 00069810  EC 21 00 24 */	fdivs f1, f1, f0
+/* 813992F4 00069814  48 27 33 5D */	bl ceil
+/* 813992F8 00069818  FC 00 08 18 */	frsp f0, f1
+/* 813992FC 0006981C  FC 00 00 1E */	fctiwz f0, f0
+/* 81399300 00069820  D8 01 00 20 */	stfd f0, 0x20(r1)
+/* 81399304 00069824  80 01 00 24 */	lwz r0, 0x24(r1)
+/* 81399308 00069828  90 1D 01 F0 */	stw r0, 0x1f0(r29)
+/* 8139930C 0006982C  48 00 00 34 */	b .L_81399340
+.L_81399310:
+/* 81399310 00069830  80 7D 00 18 */	lwz r3, 0x18(r29)
+/* 81399314 00069834  38 9F 04 BA */	addi r4, r31, 0x4ba
+/* 81399318 00069838  38 A0 00 01 */	li r5, 0x1
+/* 8139931C 0006983C  80 63 00 14 */	lwz r3, 0x14(r3)
+/* 81399320 00069840  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81399324 00069844  81 8C 00 3C */	lwz r12, 0x3c(r12)
+/* 81399328 00069848  7D 89 03 A6 */	mtctr r12
+/* 8139932C 0006984C  4E 80 04 21 */	bctrl
+/* 81399330 00069850  38 81 00 08 */	addi r4, r1, 0x8
+/* 81399334 00069854  4B FC B1 B9 */	bl set_string__Q33ipl7utility6layoutFPQ34nw4r3lyt4PanePCw
+/* 81399338 00069858  38 00 00 01 */	li r0, 0x1
+/* 8139933C 0006985C  90 1D 01 F0 */	stw r0, 0x1f0(r29)
+.L_81399340:
+/* 81399340 00069860  80 7D 00 18 */	lwz r3, 0x18(r29)
+/* 81399344 00069864  38 8D 86 7A */	li r4, lbl_816966BA@sda21
+/* 81399348 00069868  38 A0 00 01 */	li r5, 0x1
+/* 8139934C 0006986C  80 63 00 14 */	lwz r3, 0x14(r3)
+/* 81399350 00069870  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81399354 00069874  81 8C 00 3C */	lwz r12, 0x3c(r12)
+/* 81399358 00069878  7D 89 03 A6 */	mtctr r12
+/* 8139935C 0006987C  4E 80 04 21 */	bctrl
+/* 81399360 00069880  80 1E 01 24 */	lwz r0, 0x124(r30)
+/* 81399364 00069884  2C 00 00 00 */	cmpwi r0, 0x0
+/* 81399368 00069888  41 82 00 54 */	beq .L_813993BC
+/* 8139936C 0006988C  80 9D 00 14 */	lwz r4, 0x14(r29)
+/* 81399370 00069890  80 84 00 20 */	lwz r4, 0x20(r4)
+/* 81399374 00069894  2C 04 00 00 */	cmpwi r4, 0x0
+/* 81399378 00069898  41 82 00 44 */	beq .L_813993BC
+/* 8139937C 0006989C  88 04 00 50 */	lbz r0, 0x50(r4)
+/* 81399380 000698A0  2C 00 00 00 */	cmpwi r0, 0x0
+/* 81399384 000698A4  41 82 00 38 */	beq .L_813993BC
+/* 81399388 000698A8  88 03 00 CF */	lbz r0, 0xcf(r3)
+/* 8139938C 000698AC  54 00 06 3C */	rlwinm r0, r0, 0, 24, 30
+/* 81399390 000698B0  60 00 00 01 */	ori r0, r0, 0x1
+/* 81399394 000698B4  98 03 00 CF */	stb r0, 0xcf(r3)
+/* 81399398 000698B8  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 8139939C 000698BC  81 8C 00 5C */	lwz r12, 0x5c(r12)
+/* 813993A0 000698C0  7D 89 03 A6 */	mtctr r12
+/* 813993A4 000698C4  4E 80 04 21 */	bctrl
+/* 813993A8 000698C8  80 9D 00 14 */	lwz r4, 0x14(r29)
+/* 813993AC 000698CC  80 84 00 20 */	lwz r4, 0x20(r4)
+/* 813993B0 000698D0  38 84 00 18 */	addi r4, r4, 0x18
+/* 813993B4 000698D4  4B FC B1 F1 */	bl set_texture__Q33ipl7utility6layoutFPQ34nw4r3lyt8MaterialRC9_GXTexObj
+/* 813993B8 000698D8  48 00 00 10 */	b .L_813993C8
+.L_813993BC:
+/* 813993BC 000698DC  88 03 00 CF */	lbz r0, 0xcf(r3)
+/* 813993C0 000698E0  54 00 06 3C */	rlwinm r0, r0, 0, 24, 30
+/* 813993C4 000698E4  98 03 00 CF */	stb r0, 0xcf(r3)
+.L_813993C8:
+/* 813993C8 000698E8  3B 40 00 00 */	li r26, 0x0
+/* 813993CC 000698EC  3B E0 00 00 */	li r31, 0x0
+.L_813993D0:
+/* 813993D0 000698F0  7F 9E FA 14 */	add r28, r30, r31
+/* 813993D4 000698F4  84 1C 01 28 */	lwzu r0, 0x128(r28)
+/* 813993D8 000698F8  2C 00 00 02 */	cmpwi r0, 0x2
+/* 813993DC 000698FC  41 82 00 14 */	beq .L_813993F0
+/* 813993E0 00069900  40 80 00 44 */	bge .L_81399424
+/* 813993E4 00069904  2C 00 00 01 */	cmpwi r0, 0x1
+/* 813993E8 00069908  40 80 00 30 */	bge .L_81399418
+/* 813993EC 0006990C  48 00 00 38 */	b .L_81399424
+.L_813993F0:
+/* 813993F0 00069910  7F A3 EB 78 */	mr r3, r29
+/* 813993F4 00069914  7F 84 E3 78 */	mr r4, r28
+/* 813993F8 00069918  48 00 06 41 */	bl make_lettertex__Q33ipl5scene12focus_objectFP13RBRAttachment
+/* 813993FC 0006991C  7F A3 EB 78 */	mr r3, r29
+/* 81399400 00069920  7F 84 E3 78 */	mr r4, r28
+/* 81399404 00069924  48 00 07 69 */	bl init_chanjump__Q33ipl5scene12focus_objectFP13RBRAttachment
+/* 81399408 00069928  7F A3 EB 78 */	mr r3, r29
+/* 8139940C 0006992C  7F 84 E3 78 */	mr r4, r28
+/* 81399410 00069930  48 00 0A E5 */	bl init_sound__Q33ipl5scene12focus_objectFP13RBRAttachment
+/* 81399414 00069934  48 00 00 10 */	b .L_81399424
+.L_81399418:
+/* 81399418 00069938  7F A3 EB 78 */	mr r3, r29
+/* 8139941C 0006993C  7F 84 E3 78 */	mr r4, r28
+/* 81399420 00069940  48 00 0A 1D */	bl make_picture__Q33ipl5scene12focus_objectFP13RBRAttachment
+.L_81399424:
+/* 81399424 00069944  3B 5A 00 01 */	addi r26, r26, 0x1
+/* 81399428 00069948  3B FF 00 0C */	addi r31, r31, 0xc
+/* 8139942C 0006994C  2C 1A 00 02 */	cmpwi r26, 0x2
+/* 81399430 00069950  41 80 FF A0 */	blt .L_813993D0
+/* 81399434 00069954  39 61 00 50 */	addi r11, r1, 0x50
+/* 81399438 00069958  48 26 00 CD */	bl _restgpr_25
+/* 8139943C 0006995C  80 01 00 54 */	lwz r0, 0x54(r1)
+/* 81399440 00069960  7C 08 03 A6 */	mtlr r0
+/* 81399444 00069964  38 21 00 50 */	addi r1, r1, 0x50
+/* 81399448 00069968  4E 80 00 20 */	blr
+.endfn make_layout__Q33ipl5scene12focus_objectFPQ33ipl4nand10LayoutFile
+
+# .text:0x2724 | 0x8139944C | size: 0x8C
+# ipl::layout::Object::getTextDrawRect(const char*) const
+.fn getTextDrawRect__Q33ipl6layout6ObjectCFPCc, global
+/* 8139944C 0006996C  94 21 FF E0 */	stwu r1, -0x20(r1)
+/* 81399450 00069970  7C 08 02 A6 */	mflr r0
+/* 81399454 00069974  90 01 00 24 */	stw r0, 0x24(r1)
+/* 81399458 00069978  39 61 00 20 */	addi r11, r1, 0x20
+/* 8139945C 0006997C  48 26 00 6D */	bl _savegpr_29
+/* 81399460 00069980  7C 7D 1B 78 */	mr r29, r3
+/* 81399464 00069984  80 64 00 14 */	lwz r3, 0x14(r4)
+/* 81399468 00069988  7C 9E 23 78 */	mr r30, r4
+/* 8139946C 0006998C  7C A4 2B 78 */	mr r4, r5
+/* 81399470 00069990  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81399474 00069994  38 A0 00 01 */	li r5, 0x1
+/* 81399478 00069998  81 8C 00 3C */	lwz r12, 0x3c(r12)
+/* 8139947C 0006999C  7D 89 03 A6 */	mtctr r12
+/* 81399480 000699A0  4E 80 04 21 */	bctrl
+/* 81399484 000699A4  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81399488 000699A8  7C 7F 1B 78 */	mr r31, r3
+/* 8139948C 000699AC  81 8C 00 0C */	lwz r12, 0xc(r12)
+/* 81399490 000699B0  7D 89 03 A6 */	mtctr r12
+/* 81399494 000699B4  4E 80 04 21 */	bctrl
+/* 81399498 000699B8  38 8D AF 78 */	li r4, typeInfo__Q34nw4r3lyt7TextBox@sda21
+/* 8139949C 000699BC  4B FD 01 BD */	bl IsDerivedFrom__Q44nw4r2ut6detail15RuntimeTypeInfoCFPCQ44nw4r2ut6detail15RuntimeTypeInfo
+/* 813994A0 000699C0  2C 03 00 00 */	cmpwi r3, 0x0
+/* 813994A4 000699C4  41 82 00 08 */	beq .L_813994AC
+/* 813994A8 000699C8  48 00 00 08 */	b .L_813994B0
+.L_813994AC:
+/* 813994AC 000699CC  3B E0 00 00 */	li r31, 0x0
+.L_813994B0:
+/* 813994B0 000699D0  7F A3 EB 78 */	mr r3, r29
+/* 813994B4 000699D4  7F C4 F3 78 */	mr r4, r30
+/* 813994B8 000699D8  7F E5 FB 78 */	mr r5, r31
+/* 813994BC 000699DC  48 00 00 1D */	bl getTextDrawRect__Q33ipl6layout6ObjectCFPCQ34nw4r3lyt7TextBox
+/* 813994C0 000699E0  39 61 00 20 */	addi r11, r1, 0x20
+/* 813994C4 000699E4  48 26 00 51 */	bl _restgpr_29
+/* 813994C8 000699E8  80 01 00 24 */	lwz r0, 0x24(r1)
+/* 813994CC 000699EC  7C 08 03 A6 */	mtlr r0
+/* 813994D0 000699F0  38 21 00 20 */	addi r1, r1, 0x20
+/* 813994D4 000699F4  4E 80 00 20 */	blr
+.endfn getTextDrawRect__Q33ipl6layout6ObjectCFPCc
+
+# .text:0x27B0 | 0x813994D8 | size: 0x10
+# ipl::layout::Object::getTextDrawRect(const nw4r::lyt::TextBox*) const
+.fn getTextDrawRect__Q33ipl6layout6ObjectCFPCQ34nw4r3lyt7TextBox, global
+/* 813994D8 000699F8  7C 86 23 78 */	mr r6, r4
+/* 813994DC 000699FC  7C A4 2B 78 */	mr r4, r5
+/* 813994E0 00069A00  38 A6 02 98 */	addi r5, r6, 0x298
+/* 813994E4 00069A04  48 18 88 10 */	b GetTextDrawRect__Q34nw4r3lyt7TextBoxCFRCQ34nw4r3lyt8DrawInfo
+.endfn getTextDrawRect__Q33ipl6layout6ObjectCFPCQ34nw4r3lyt7TextBox
+
+# .text:0x27C0 | 0x813994E8 | size: 0x1F0
+# ipl::scene::focus_object::make_gui_mgr()
+.fn make_gui_mgr__Q33ipl5scene12focus_objectFv, global
+/* 813994E8 00069A08  94 21 FF E0 */	stwu r1, -0x20(r1)
+/* 813994EC 00069A0C  7C 08 02 A6 */	mflr r0
+/* 813994F0 00069A10  90 01 00 24 */	stw r0, 0x24(r1)
+/* 813994F4 00069A14  39 61 00 20 */	addi r11, r1, 0x20
+/* 813994F8 00069A18  48 25 FF D1 */	bl _savegpr_29
+/* 813994FC 00069A1C  3C 80 81 09 */	lis r4, smArg__Q23ipl6System@ha
+/* 81399500 00069A20  7C 7D 1B 78 */	mr r29, r3
+/* 81399504 00069A24  38 84 90 08 */	addi r4, r4, smArg__Q23ipl6System@l
+/* 81399508 00069A28  38 60 00 34 */	li r3, 0x34
+/* 8139950C 00069A2C  80 84 00 28 */	lwz r4, 0x28(r4)
+/* 81399510 00069A30  38 A0 00 04 */	li r5, 0x4
+/* 81399514 00069A34  48 25 EB 9D */	bl __nw__FUlPQ23EGG4Heapi
+/* 81399518 00069A38  2C 03 00 00 */	cmpwi r3, 0x0
+/* 8139951C 00069A3C  7C 7F 1B 78 */	mr r31, r3
+/* 81399520 00069A40  41 82 00 84 */	beq .L_813995A4
+/* 81399524 00069A44  80 DD 00 18 */	lwz r6, 0x18(r29)
+/* 81399528 00069A48  3C A0 81 64 */	lis r5, __vt__Q23gui7Manager@ha
+/* 8139952C 00069A4C  38 A5 27 E0 */	addi r5, r5, __vt__Q23gui7Manager@l
+/* 81399530 00069A50  34 9D 00 28 */	addic. r4, r29, 0x28
+/* 81399534 00069A54  90 A3 00 00 */	stw r5, 0x0(r3)
+/* 81399538 00069A58  38 1D 01 00 */	addi r0, r29, 0x100
+/* 8139953C 00069A5C  3B C6 02 98 */	addi r30, r6, 0x298
+/* 81399540 00069A60  90 83 00 04 */	stw r4, 0x4(r3)
+/* 81399544 00069A64  90 03 00 14 */	stw r0, 0x14(r3)
+/* 81399548 00069A68  41 82 00 1C */	beq .L_81399564
+/* 8139954C 00069A6C  7C 83 23 78 */	mr r3, r4
+/* 81399550 00069A70  7F E4 FB 78 */	mr r4, r31
+/* 81399554 00069A74  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81399558 00069A78  81 8C 00 0C */	lwz r12, 0xc(r12)
+/* 8139955C 00069A7C  7D 89 03 A6 */	mtctr r12
+/* 81399560 00069A80  4E 80 04 21 */	bctrl
+.L_81399564:
+/* 81399564 00069A84  38 7F 00 08 */	addi r3, r31, 0x8
+/* 81399568 00069A88  38 80 00 08 */	li r4, 0x8
+/* 8139956C 00069A8C  48 17 8A F1 */	bl List_Init__Q24nw4r2utFPQ34nw4r2ut4ListUs
+/* 81399570 00069A90  3C A0 81 64 */	lis r5, __vt__Q23gui11PaneManager@ha
+/* 81399574 00069A94  38 7F 00 18 */	addi r3, r31, 0x18
+/* 81399578 00069A98  38 A5 27 84 */	addi r5, r5, __vt__Q23gui11PaneManager@l
+/* 8139957C 00069A9C  38 80 00 08 */	li r4, 0x8
+/* 81399580 00069AA0  90 BF 00 00 */	stw r5, 0x0(r31)
+/* 81399584 00069AA4  93 DF 00 24 */	stw r30, 0x24(r31)
+/* 81399588 00069AA8  48 17 8A D5 */	bl List_Init__Q24nw4r2utFPQ34nw4r2ut4ListUs
+/* 8139958C 00069AAC  3C 60 81 63 */	lis r3, __vt__Q33ipl3gui11PaneManager@ha
+/* 81399590 00069AB0  38 00 00 00 */	li r0, 0x0
+/* 81399594 00069AB4  38 63 59 C4 */	addi r3, r3, __vt__Q33ipl3gui11PaneManager@l
+/* 81399598 00069AB8  90 7F 00 00 */	stw r3, 0x0(r31)
+/* 8139959C 00069ABC  90 1F 00 2C */	stw r0, 0x2c(r31)
+/* 813995A0 00069AC0  98 1F 00 30 */	stb r0, 0x30(r31)
+.L_813995A4:
+/* 813995A4 00069AC4  93 FD 00 1C */	stw r31, 0x1c(r29)
+/* 813995A8 00069AC8  7F E3 FB 78 */	mr r3, r31
+/* 813995AC 00069ACC  80 9D 00 18 */	lwz r4, 0x18(r29)
+/* 813995B0 00069AD0  81 9F 00 00 */	lwz r12, 0x0(r31)
+/* 813995B4 00069AD4  38 84 00 04 */	addi r4, r4, 0x4
+/* 813995B8 00069AD8  81 8C 00 44 */	lwz r12, 0x44(r12)
+/* 813995BC 00069ADC  7D 89 03 A6 */	mtctr r12
+/* 813995C0 00069AE0  4E 80 04 21 */	bctrl
+/* 813995C4 00069AE4  80 7D 00 1C */	lwz r3, 0x1c(r29)
+/* 813995C8 00069AE8  38 80 00 00 */	li r4, 0x0
+/* 813995CC 00069AEC  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 813995D0 00069AF0  81 8C 00 34 */	lwz r12, 0x34(r12)
+/* 813995D4 00069AF4  7D 89 03 A6 */	mtctr r12
+/* 813995D8 00069AF8  4E 80 04 21 */	bctrl
+/* 813995DC 00069AFC  80 7D 00 18 */	lwz r3, 0x18(r29)
+/* 813995E0 00069B00  38 8D 86 A1 */	li r4, lbl_816966E1@sda21
+/* 813995E4 00069B04  38 A0 00 01 */	li r5, 0x1
+/* 813995E8 00069B08  80 63 00 14 */	lwz r3, 0x14(r3)
+/* 813995EC 00069B0C  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 813995F0 00069B10  81 8C 00 3C */	lwz r12, 0x3c(r12)
+/* 813995F4 00069B14  7D 89 03 A6 */	mtctr r12
+/* 813995F8 00069B18  4E 80 04 21 */	bctrl
+/* 813995FC 00069B1C  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81399600 00069B20  7C 64 1B 78 */	mr r4, r3
+/* 81399604 00069B24  41 82 00 10 */	beq .L_81399614
+/* 81399608 00069B28  80 7D 00 1C */	lwz r3, 0x1c(r29)
+/* 8139960C 00069B2C  38 A0 00 01 */	li r5, 0x1
+/* 81399610 00069B30  4B FD 1B BD */	bl setTriggerTarget__Q33ipl3gui11PaneManagerFPQ34nw4r3lyt4Paneb
+.L_81399614:
+/* 81399614 00069B34  80 7D 00 18 */	lwz r3, 0x18(r29)
+/* 81399618 00069B38  38 8D 86 A7 */	li r4, lbl_816966E7@sda21
+/* 8139961C 00069B3C  38 A0 00 01 */	li r5, 0x1
+/* 81399620 00069B40  80 63 00 14 */	lwz r3, 0x14(r3)
+/* 81399624 00069B44  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81399628 00069B48  81 8C 00 3C */	lwz r12, 0x3c(r12)
+/* 8139962C 00069B4C  7D 89 03 A6 */	mtctr r12
+/* 81399630 00069B50  4E 80 04 21 */	bctrl
+/* 81399634 00069B54  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81399638 00069B58  7C 64 1B 78 */	mr r4, r3
+/* 8139963C 00069B5C  41 82 00 10 */	beq .L_8139964C
+/* 81399640 00069B60  80 7D 00 1C */	lwz r3, 0x1c(r29)
+/* 81399644 00069B64  38 A0 00 01 */	li r5, 0x1
+/* 81399648 00069B68  4B FD 1B 85 */	bl setTriggerTarget__Q33ipl3gui11PaneManagerFPQ34nw4r3lyt4Paneb
+.L_8139964C:
+/* 8139964C 00069B6C  80 7D 00 18 */	lwz r3, 0x18(r29)
+/* 81399650 00069B70  38 8D 86 AE */	li r4, lbl_816966EE@sda21
+/* 81399654 00069B74  38 A0 00 01 */	li r5, 0x1
+/* 81399658 00069B78  80 63 00 14 */	lwz r3, 0x14(r3)
+/* 8139965C 00069B7C  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81399660 00069B80  81 8C 00 3C */	lwz r12, 0x3c(r12)
+/* 81399664 00069B84  7D 89 03 A6 */	mtctr r12
+/* 81399668 00069B88  4E 80 04 21 */	bctrl
+/* 8139966C 00069B8C  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81399670 00069B90  7C 64 1B 78 */	mr r4, r3
+/* 81399674 00069B94  41 82 00 10 */	beq .L_81399684
+/* 81399678 00069B98  80 7D 00 1C */	lwz r3, 0x1c(r29)
+/* 8139967C 00069B9C  38 A0 00 01 */	li r5, 0x1
+/* 81399680 00069BA0  4B FD 1B 4D */	bl setTriggerTarget__Q33ipl3gui11PaneManagerFPQ34nw4r3lyt4Paneb
+.L_81399684:
+/* 81399684 00069BA4  80 7D 00 18 */	lwz r3, 0x18(r29)
+/* 81399688 00069BA8  3C 80 81 65 */	lis r4, lbl_8164BCEC@ha
+/* 8139968C 00069BAC  38 84 BC EC */	addi r4, r4, lbl_8164BCEC@l
+/* 81399690 00069BB0  38 A0 00 01 */	li r5, 0x1
+/* 81399694 00069BB4  80 63 00 14 */	lwz r3, 0x14(r3)
+/* 81399698 00069BB8  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 8139969C 00069BBC  81 8C 00 3C */	lwz r12, 0x3c(r12)
+/* 813996A0 00069BC0  7D 89 03 A6 */	mtctr r12
+/* 813996A4 00069BC4  4E 80 04 21 */	bctrl
+/* 813996A8 00069BC8  2C 03 00 00 */	cmpwi r3, 0x0
+/* 813996AC 00069BCC  7C 64 1B 78 */	mr r4, r3
+/* 813996B0 00069BD0  41 82 00 10 */	beq .L_813996C0
+/* 813996B4 00069BD4  80 7D 00 1C */	lwz r3, 0x1c(r29)
+/* 813996B8 00069BD8  38 A0 00 01 */	li r5, 0x1
+/* 813996BC 00069BDC  4B FD 1B 11 */	bl setTriggerTarget__Q33ipl3gui11PaneManagerFPQ34nw4r3lyt4Paneb
+.L_813996C0:
+/* 813996C0 00069BE0  39 61 00 20 */	addi r11, r1, 0x20
+/* 813996C4 00069BE4  48 25 FE 51 */	bl _restgpr_29
+/* 813996C8 00069BE8  80 01 00 24 */	lwz r0, 0x24(r1)
+/* 813996CC 00069BEC  7C 08 03 A6 */	mtlr r0
+/* 813996D0 00069BF0  38 21 00 20 */	addi r1, r1, 0x20
+/* 813996D4 00069BF4  4E 80 00 20 */	blr
+.endfn make_gui_mgr__Q33ipl5scene12focus_objectFv
+
+# .text:0x29B0 | 0x813996D8 | size: 0x150
+# ipl::scene::focus_object::make_parsed_text(const wchar_t*)
+.fn make_parsed_text__Q33ipl5scene12focus_objectFPCw, global
+/* 813996D8 00069BF8  94 21 FF D0 */	stwu r1, -0x30(r1)
+/* 813996DC 00069BFC  7C 08 02 A6 */	mflr r0
+/* 813996E0 00069C00  90 01 00 34 */	stw r0, 0x34(r1)
+/* 813996E4 00069C04  39 61 00 30 */	addi r11, r1, 0x30
+/* 813996E8 00069C08  48 25 FD D1 */	bl _savegpr_25
+/* 813996EC 00069C0C  3C A0 81 09 */	lis r5, smArg__Q23ipl6System@ha
+/* 813996F0 00069C10  7C 79 1B 78 */	mr r25, r3
+/* 813996F4 00069C14  38 A5 90 08 */	addi r5, r5, smArg__Q23ipl6System@l
+/* 813996F8 00069C18  7C 9A 23 78 */	mr r26, r4
+/* 813996FC 00069C1C  80 85 00 28 */	lwz r4, 0x28(r5)
+/* 81399700 00069C20  38 60 2E E0 */	li r3, 0x2ee0
+/* 81399704 00069C24  38 A0 00 04 */	li r5, 0x4
+/* 81399708 00069C28  48 25 E9 CD */	bl __nwa__FUlPQ23EGG4Heapi
+/* 8139970C 00069C2C  90 79 00 24 */	stw r3, 0x24(r25)
+/* 81399710 00069C30  38 80 00 00 */	li r4, 0x0
+/* 81399714 00069C34  38 A0 2E E0 */	li r5, 0x2ee0
+/* 81399718 00069C38  4B F9 6C 1D */	bl memset
+/* 8139971C 00069C3C  A0 82 84 78 */	lhz r4, lbl_81694878@sda21(r0)
+/* 81399720 00069C40  7F 5C D3 78 */	mr r28, r26
+/* 81399724 00069C44  A0 02 84 7A */	lhz r0, lbl_8169487A@sda21(r0)
+/* 81399728 00069C48  7F 43 D3 78 */	mr r3, r26
+/* 8139972C 00069C4C  B0 81 00 08 */	sth r4, 0x8(r1)
+/* 81399730 00069C50  3B A0 00 00 */	li r29, 0x0
+/* 81399734 00069C54  B0 01 00 0A */	sth r0, 0xa(r1)
+/* 81399738 00069C58  48 26 EF 75 */	bl wcslen
+/* 8139973C 00069C5C  7C 7B 1B 78 */	mr r27, r3
+/* 81399740 00069C60  3B E0 00 00 */	li r31, 0x0
+/* 81399744 00069C64  48 00 00 B4 */	b .L_813997F8
+.L_81399748:
+/* 81399748 00069C68  57 A3 08 3C */	slwi r3, r29, 1
+/* 8139974C 00069C6C  7C 1A 1A 2E */	lhzx r0, r26, r3
+/* 81399750 00069C70  28 00 00 68 */	cmplwi r0, 0x68
+/* 81399754 00069C74  40 82 00 A0 */	bne .L_813997F4
+/* 81399758 00069C78  7F DA 1A 14 */	add r30, r26, r3
+/* 8139975C 00069C7C  7F 23 CB 78 */	mr r3, r25
+/* 81399760 00069C80  7F C4 F3 78 */	mr r4, r30
+/* 81399764 00069C84  48 00 01 05 */	bl is_url_protocol__Q33ipl5scene12focus_objectCFPCw
+/* 81399768 00069C88  2C 03 00 00 */	cmpwi r3, 0x0
+/* 8139976C 00069C8C  41 82 00 88 */	beq .L_813997F4
+/* 81399770 00069C90  7C 1E E0 40 */	cmplw r30, r28
+/* 81399774 00069C94  B3 F9 01 1E */	sth r31, 0x11e(r25)
+/* 81399778 00069C98  41 82 00 10 */	beq .L_81399788
+/* 8139977C 00069C9C  A0 9E FF FE */	lhz r4, -0x2(r30)
+/* 81399780 00069CA0  7F 23 CB 78 */	mr r3, r25
+/* 81399784 00069CA4  48 00 02 49 */	bl check_paren__Q33ipl5scene12focus_objectFw
+.L_81399788:
+/* 81399788 00069CA8  80 79 00 24 */	lwz r3, 0x24(r25)
+/* 8139978C 00069CAC  7F 44 D3 78 */	mr r4, r26
+/* 81399790 00069CB0  7F A5 EB 78 */	mr r5, r29
+/* 81399794 00069CB4  48 26 EF C1 */	bl wcsncat
+/* 81399798 00069CB8  7F 23 CB 78 */	mr r3, r25
+/* 8139979C 00069CBC  7F C4 F3 78 */	mr r4, r30
+/* 813997A0 00069CC0  48 00 01 55 */	bl get_url_end__Q33ipl5scene12focus_objectCFPCw
+/* 813997A4 00069CC4  7C 7D 1B 78 */	mr r29, r3
+/* 813997A8 00069CC8  80 79 00 24 */	lwz r3, 0x24(r25)
+/* 813997AC 00069CCC  38 81 00 08 */	addi r4, r1, 0x8
+/* 813997B0 00069CD0  38 A0 00 01 */	li r5, 0x1
+/* 813997B4 00069CD4  48 26 EF A1 */	bl wcsncat
+/* 813997B8 00069CD8  80 79 00 24 */	lwz r3, 0x24(r25)
+/* 813997BC 00069CDC  7F C4 F3 78 */	mr r4, r30
+/* 813997C0 00069CE0  7F A5 EB 78 */	mr r5, r29
+/* 813997C4 00069CE4  48 26 EF 91 */	bl wcsncat
+/* 813997C8 00069CE8  80 79 00 24 */	lwz r3, 0x24(r25)
+/* 813997CC 00069CEC  38 81 00 08 */	addi r4, r1, 0x8
+/* 813997D0 00069CF0  38 A0 00 01 */	li r5, 0x1
+/* 813997D4 00069CF4  48 26 EF 81 */	bl wcsncat
+/* 813997D8 00069CF8  57 A0 08 3C */	slwi r0, r29, 1
+/* 813997DC 00069CFC  7F 5E 02 14 */	add r26, r30, r0
+/* 813997E0 00069D00  7F 43 D3 78 */	mr r3, r26
+/* 813997E4 00069D04  48 26 EE C9 */	bl wcslen
+/* 813997E8 00069D08  7C 7B 1B 78 */	mr r27, r3
+/* 813997EC 00069D0C  3B A0 00 00 */	li r29, 0x0
+/* 813997F0 00069D10  48 00 00 08 */	b .L_813997F8
+.L_813997F4:
+/* 813997F4 00069D14  3B BD 00 01 */	addi r29, r29, 0x1
+.L_813997F8:
+/* 813997F8 00069D18  7C 1D D8 40 */	cmplw r29, r27
+/* 813997FC 00069D1C  40 82 FF 4C */	bne .L_81399748
+/* 81399800 00069D20  80 79 00 24 */	lwz r3, 0x24(r25)
+/* 81399804 00069D24  7F 44 D3 78 */	mr r4, r26
+/* 81399808 00069D28  7F A5 EB 78 */	mr r5, r29
+/* 8139980C 00069D2C  48 26 EF 49 */	bl wcsncat
+/* 81399810 00069D30  39 61 00 30 */	addi r11, r1, 0x30
+/* 81399814 00069D34  48 25 FC F1 */	bl _restgpr_25
+/* 81399818 00069D38  80 01 00 34 */	lwz r0, 0x34(r1)
+/* 8139981C 00069D3C  7C 08 03 A6 */	mtlr r0
+/* 81399820 00069D40  38 21 00 30 */	addi r1, r1, 0x30
+/* 81399824 00069D44  4E 80 00 20 */	blr
+.endfn make_parsed_text__Q33ipl5scene12focus_objectFPCw
+
+# .text:0x2B00 | 0x81399828 | size: 0x40
+# ipl::scene::focus_object::is_url_end_code(wchar_t) const
+.fn is_url_end_code__Q33ipl5scene12focus_objectCFw, global
+/* 81399828 00069D48  38 00 00 06 */	li r0, 0x6
+/* 8139982C 00069D4C  38 E0 00 00 */	li r7, 0x0
+/* 81399830 00069D50  38 A0 00 00 */	li r5, 0x0
+/* 81399834 00069D54  7C 09 03 A6 */	mtctr r0
+.L_81399838:
+/* 81399838 00069D58  7C C3 2A 14 */	add r6, r3, r5
+/* 8139983C 00069D5C  38 A5 00 02 */	addi r5, r5, 0x2
+/* 81399840 00069D60  A0 06 01 14 */	lhz r0, 0x114(r6)
+/* 81399844 00069D64  7C 04 00 50 */	subf r0, r4, r0
+/* 81399848 00069D68  7C 00 00 34 */	cntlzw r0, r0
+/* 8139984C 00069D6C  54 00 D9 7E */	srwi r0, r0, 5
+/* 81399850 00069D70  7C E6 03 78 */	or r6, r7, r0
+/* 81399854 00069D74  30 06 FF FF */	subic r0, r6, 0x1
+/* 81399858 00069D78  7C E0 31 10 */	subfe r7, r0, r6
+/* 8139985C 00069D7C  42 00 FF DC */	bdnz .L_81399838
+/* 81399860 00069D80  7C E3 3B 78 */	mr r3, r7
+/* 81399864 00069D84  4E 80 00 20 */	blr
+.endfn is_url_end_code__Q33ipl5scene12focus_objectCFw
+
+# .text:0x2B40 | 0x81399868 | size: 0x8C
+# ipl::scene::focus_object::is_url_protocol(const wchar_t*) const
+.fn is_url_protocol__Q33ipl5scene12focus_objectCFPCw, global
+/* 81399868 00069D88  94 21 FF E0 */	stwu r1, -0x20(r1)
+/* 8139986C 00069D8C  7C 08 02 A6 */	mflr r0
+/* 81399870 00069D90  90 01 00 24 */	stw r0, 0x24(r1)
+/* 81399874 00069D94  39 61 00 20 */	addi r11, r1, 0x20
+/* 81399878 00069D98  48 25 FC 4D */	bl _savegpr_28
+/* 8139987C 00069D9C  3F C0 81 65 */	lis r30, lbl_8164BCF6@ha
+/* 81399880 00069DA0  3F A0 81 65 */	lis r29, lbl_8164BD06@ha
+/* 81399884 00069DA4  3B DE BC F6 */	addi r30, r30, lbl_8164BCF6@l
+/* 81399888 00069DA8  7C 9C 23 78 */	mr r28, r4
+/* 8139988C 00069DAC  7F C3 F3 78 */	mr r3, r30
+/* 81399890 00069DB0  3B BD BD 06 */	addi r29, r29, lbl_8164BD06@l
+/* 81399894 00069DB4  3B E0 00 00 */	li r31, 0x0
+/* 81399898 00069DB8  48 26 EE 15 */	bl wcslen
+/* 8139989C 00069DBC  7C 65 1B 78 */	mr r5, r3
+/* 813998A0 00069DC0  7F 83 E3 78 */	mr r3, r28
+/* 813998A4 00069DC4  7F C4 F3 78 */	mr r4, r30
+/* 813998A8 00069DC8  48 26 EE F9 */	bl wcsncmp
+/* 813998AC 00069DCC  2C 03 00 00 */	cmpwi r3, 0x0
+/* 813998B0 00069DD0  41 82 00 24 */	beq .L_813998D4
+/* 813998B4 00069DD4  7F A3 EB 78 */	mr r3, r29
+/* 813998B8 00069DD8  48 26 ED F5 */	bl wcslen
+/* 813998BC 00069DDC  7C 65 1B 78 */	mr r5, r3
+/* 813998C0 00069DE0  7F 83 E3 78 */	mr r3, r28
+/* 813998C4 00069DE4  7F A4 EB 78 */	mr r4, r29
+/* 813998C8 00069DE8  48 26 EE D9 */	bl wcsncmp
+/* 813998CC 00069DEC  2C 03 00 00 */	cmpwi r3, 0x0
+/* 813998D0 00069DF0  40 82 00 08 */	bne .L_813998D8
+.L_813998D4:
+/* 813998D4 00069DF4  3B E0 00 01 */	li r31, 0x1
+.L_813998D8:
+/* 813998D8 00069DF8  39 61 00 20 */	addi r11, r1, 0x20
+/* 813998DC 00069DFC  7F E3 FB 78 */	mr r3, r31
+/* 813998E0 00069E00  48 25 FC 31 */	bl _restgpr_28
+/* 813998E4 00069E04  80 01 00 24 */	lwz r0, 0x24(r1)
+/* 813998E8 00069E08  7C 08 03 A6 */	mtlr r0
+/* 813998EC 00069E0C  38 21 00 20 */	addi r1, r1, 0x20
+/* 813998F0 00069E10  4E 80 00 20 */	blr
+.endfn is_url_protocol__Q33ipl5scene12focus_objectCFPCw
+
+# .text:0x2BCC | 0x813998F4 | size: 0x78
+# ipl::scene::focus_object::get_url_end(const wchar_t*) const
+.fn get_url_end__Q33ipl5scene12focus_objectCFPCw, global
+/* 813998F4 00069E14  94 21 FF E0 */	stwu r1, -0x20(r1)
+/* 813998F8 00069E18  7C 08 02 A6 */	mflr r0
+/* 813998FC 00069E1C  90 01 00 24 */	stw r0, 0x24(r1)
+/* 81399900 00069E20  39 61 00 20 */	addi r11, r1, 0x20
+/* 81399904 00069E24  48 25 FB C1 */	bl _savegpr_28
+/* 81399908 00069E28  7C 7C 1B 78 */	mr r28, r3
+/* 8139990C 00069E2C  7C 9D 23 78 */	mr r29, r4
+/* 81399910 00069E30  3B C0 00 00 */	li r30, 0x0
+/* 81399914 00069E34  3B E0 00 00 */	li r31, 0x0
+/* 81399918 00069E38  48 00 00 0C */	b .L_81399924
+.L_8139991C:
+/* 8139991C 00069E3C  3B DE 00 01 */	addi r30, r30, 0x1
+/* 81399920 00069E40  3B FF 00 02 */	addi r31, r31, 0x2
+.L_81399924:
+/* 81399924 00069E44  7C 9D FA 2E */	lhzx r4, r29, r31
+/* 81399928 00069E48  7F 83 E3 78 */	mr r3, r28
+/* 8139992C 00069E4C  4B FF FE FD */	bl is_url_end_code__Q33ipl5scene12focus_objectCFw
+/* 81399930 00069E50  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81399934 00069E54  40 82 00 1C */	bne .L_81399950
+/* 81399938 00069E58  7F 83 E3 78 */	mr r3, r28
+/* 8139993C 00069E5C  7F A4 EB 78 */	mr r4, r29
+/* 81399940 00069E60  38 BE 00 01 */	addi r5, r30, 0x1
+/* 81399944 00069E64  48 00 00 29 */	bl is_buffer_over__Q33ipl5scene12focus_objectCFPCwUl
+/* 81399948 00069E68  2C 03 00 00 */	cmpwi r3, 0x0
+/* 8139994C 00069E6C  41 82 FF D0 */	beq .L_8139991C
+.L_81399950:
+/* 81399950 00069E70  39 61 00 20 */	addi r11, r1, 0x20
+/* 81399954 00069E74  7F C3 F3 78 */	mr r3, r30
+/* 81399958 00069E78  48 25 FB B9 */	bl _restgpr_28
+/* 8139995C 00069E7C  80 01 00 24 */	lwz r0, 0x24(r1)
+/* 81399960 00069E80  7C 08 03 A6 */	mtlr r0
+/* 81399964 00069E84  38 21 00 20 */	addi r1, r1, 0x20
+/* 81399968 00069E88  4E 80 00 20 */	blr
+.endfn get_url_end__Q33ipl5scene12focus_objectCFPCw
+
+# .text:0x2C44 | 0x8139996C | size: 0x60
+# ipl::scene::focus_object::is_buffer_over(const wchar_t*, unsigned long) const
+.fn is_buffer_over__Q33ipl5scene12focus_objectCFPCwUl, global
+/* 8139996C 00069E8C  94 21 FF E0 */	stwu r1, -0x20(r1)
+/* 81399970 00069E90  7C 08 02 A6 */	mflr r0
+/* 81399974 00069E94  38 60 00 00 */	li r3, 0x0
+/* 81399978 00069E98  90 01 00 24 */	stw r0, 0x24(r1)
+/* 8139997C 00069E9C  38 C1 00 0C */	addi r6, r1, 0xc
+/* 81399980 00069EA0  93 E1 00 1C */	stw r31, 0x1c(r1)
+/* 81399984 00069EA4  3B E0 00 00 */	li r31, 0x0
+/* 81399988 00069EA8  90 A1 00 0C */	stw r5, 0xc(r1)
+/* 8139998C 00069EAC  7C 85 23 78 */	mr r5, r4
+/* 81399990 00069EB0  38 81 00 08 */	addi r4, r1, 0x8
+/* 81399994 00069EB4  93 E1 00 08 */	stw r31, 0x8(r1)
+/* 81399998 00069EB8  48 1D 18 59 */	bl ENCConvertStringUtf16ToUtf8
+/* 8139999C 00069EBC  2C 03 00 00 */	cmpwi r3, 0x0
+/* 813999A0 00069EC0  40 82 00 10 */	bne .L_813999B0
+/* 813999A4 00069EC4  80 01 00 08 */	lwz r0, 0x8(r1)
+/* 813999A8 00069EC8  2C 00 02 00 */	cmpwi r0, 0x200
+/* 813999AC 00069ECC  41 80 00 08 */	blt .L_813999B4
+.L_813999B0:
+/* 813999B0 00069ED0  3B E0 00 01 */	li r31, 0x1
+.L_813999B4:
+/* 813999B4 00069ED4  7F E3 FB 78 */	mr r3, r31
+/* 813999B8 00069ED8  83 E1 00 1C */	lwz r31, 0x1c(r1)
+/* 813999BC 00069EDC  80 01 00 24 */	lwz r0, 0x24(r1)
+/* 813999C0 00069EE0  7C 08 03 A6 */	mtlr r0
+/* 813999C4 00069EE4  38 21 00 20 */	addi r1, r1, 0x20
+/* 813999C8 00069EE8  4E 80 00 20 */	blr
+.endfn is_buffer_over__Q33ipl5scene12focus_objectCFPCwUl
+
+# .text:0x2CA4 | 0x813999CC | size: 0x6C
+# ipl::scene::focus_object::check_paren(wchar_t)
+.fn check_paren__Q33ipl5scene12focus_objectFw, global
+/* 813999CC 00069EEC  94 21 FF C0 */	stwu r1, -0x40(r1)
+/* 813999D0 00069EF0  3C A0 81 61 */	lis r5, lbl_8160F774@ha
+/* 813999D4 00069EF4  38 A5 F7 74 */	addi r5, r5, lbl_8160F774@l
+/* 813999D8 00069EF8  38 00 00 0D */	li r0, 0xd
+/* 813999DC 00069EFC  38 E1 00 06 */	addi r7, r1, 0x6
+/* 813999E0 00069F00  38 C5 FF FE */	subi r6, r5, 0x2
+/* 813999E4 00069F04  7C 09 03 A6 */	mtctr r0
+.L_813999E8:
+/* 813999E8 00069F08  A0 A6 00 02 */	lhz r5, 0x2(r6)
+/* 813999EC 00069F0C  A4 06 00 04 */	lhzu r0, 0x4(r6)
+/* 813999F0 00069F10  B0 A7 00 02 */	sth r5, 0x2(r7)
+/* 813999F4 00069F14  B4 07 00 04 */	sthu r0, 0x4(r7)
+/* 813999F8 00069F18  42 00 FF F0 */	bdnz .L_813999E8
+/* 813999FC 00069F1C  38 00 00 0D */	li r0, 0xd
+/* 81399A00 00069F20  38 C1 00 08 */	addi r6, r1, 0x8
+/* 81399A04 00069F24  38 A0 00 00 */	li r5, 0x0
+/* 81399A08 00069F28  7C 09 03 A6 */	mtctr r0
+.L_81399A0C:
+/* 81399A0C 00069F2C  7C 06 2A 2E */	lhzx r0, r6, r5
+/* 81399A10 00069F30  7C 04 00 40 */	cmplw r4, r0
+/* 81399A14 00069F34  40 82 00 14 */	bne .L_81399A28
+/* 81399A18 00069F38  38 81 00 0A */	addi r4, r1, 0xa
+/* 81399A1C 00069F3C  7C 04 2A 2E */	lhzx r0, r4, r5
+/* 81399A20 00069F40  B0 03 01 1E */	sth r0, 0x11e(r3)
+/* 81399A24 00069F44  48 00 00 0C */	b .L_81399A30
+.L_81399A28:
+/* 81399A28 00069F48  38 A5 00 04 */	addi r5, r5, 0x4
+/* 81399A2C 00069F4C  42 00 FF E0 */	bdnz .L_81399A0C
+.L_81399A30:
+/* 81399A30 00069F50  38 21 00 40 */	addi r1, r1, 0x40
+/* 81399A34 00069F54  4E 80 00 20 */	blr
+.endfn check_paren__Q33ipl5scene12focus_objectFw
+
+# .text:0x2D10 | 0x81399A38 | size: 0x134
+# ipl::scene::focus_object::make_lettertex(RBRAttachment*)
+.fn make_lettertex__Q33ipl5scene12focus_objectFP13RBRAttachment, global
+/* 81399A38 00069F58  94 21 FF C0 */	stwu r1, -0x40(r1)
+/* 81399A3C 00069F5C  7C 08 02 A6 */	mflr r0
+/* 81399A40 00069F60  90 01 00 44 */	stw r0, 0x44(r1)
+/* 81399A44 00069F64  38 A1 00 14 */	addi r5, r1, 0x14
+/* 81399A48 00069F68  93 E1 00 3C */	stw r31, 0x3c(r1)
+/* 81399A4C 00069F6C  93 C1 00 38 */	stw r30, 0x38(r1)
+/* 81399A50 00069F70  7C 7E 1B 78 */	mr r30, r3
+/* 81399A54 00069F74  80 C3 00 14 */	lwz r6, 0x14(r3)
+/* 81399A58 00069F78  80 04 00 04 */	lwz r0, 0x4(r4)
+/* 81399A5C 00069F7C  80 86 00 24 */	lwz r4, 0x24(r6)
+/* 81399A60 00069F80  7C C3 33 78 */	mr r3, r6
+/* 81399A64 00069F84  7F E4 02 14 */	add r31, r4, r0
+/* 81399A68 00069F88  7F E4 FB 78 */	mr r4, r31
+/* 81399A6C 00069F8C  4B FF C6 51 */	bl arc_init_handle__Q33ipl5scene11BoardObjectFPvP9ARCHandle
+/* 81399A70 00069F90  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81399A74 00069F94  41 82 00 44 */	beq .L_81399AB8
+/* 81399A78 00069F98  3C 80 81 65 */	lis r4, lbl_8164BD70@ha
+/* 81399A7C 00069F9C  38 61 00 14 */	addi r3, r1, 0x14
+/* 81399A80 00069FA0  38 84 BD 70 */	addi r4, r4, lbl_8164BD70@l
+/* 81399A84 00069FA4  38 A1 00 08 */	addi r5, r1, 0x8
+/* 81399A88 00069FA8  48 1D 73 B9 */	bl ARCOpen
+/* 81399A8C 00069FAC  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81399A90 00069FB0  41 82 00 28 */	beq .L_81399AB8
+/* 81399A94 00069FB4  38 61 00 08 */	addi r3, r1, 0x8
+/* 81399A98 00069FB8  48 1D 7A FD */	bl ARCGetStartOffset
+/* 81399A9C 00069FBC  7C 1F 1A 14 */	add r0, r31, r3
+/* 81399AA0 00069FC0  38 61 00 08 */	addi r3, r1, 0x8
+/* 81399AA4 00069FC4  90 1E 01 20 */	stw r0, 0x120(r30)
+/* 81399AA8 00069FC8  48 1D 7A F5 */	bl ARCGetLength
+/* 81399AAC 00069FCC  90 7E 01 28 */	stw r3, 0x128(r30)
+/* 81399AB0 00069FD0  38 61 00 08 */	addi r3, r1, 0x8
+/* 81399AB4 00069FD4  48 1D 7A F1 */	bl ARCClose
+.L_81399AB8:
+/* 81399AB8 00069FD8  80 7E 01 20 */	lwz r3, 0x120(r30)
+/* 81399ABC 00069FDC  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81399AC0 00069FE0  41 82 00 94 */	beq .L_81399B54
+/* 81399AC4 00069FE4  88 03 00 00 */	lbz r0, 0x0(r3)
+/* 81399AC8 00069FE8  54 00 06 36 */	rlwinm r0, r0, 0, 24, 27
+/* 81399ACC 00069FEC  2C 00 00 10 */	cmpwi r0, 0x10
+/* 81399AD0 00069FF0  40 82 00 84 */	bne .L_81399B54
+/* 81399AD4 00069FF4  48 1C 27 99 */	bl CXGetUncompressedSize
+/* 81399AD8 00069FF8  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81399ADC 00069FFC  7C 7F 1B 78 */	mr r31, r3
+/* 81399AE0 0006A000  41 82 00 74 */	beq .L_81399B54
+/* 81399AE4 0006A004  3C 80 00 06 */	lis r4, 0x6
+/* 81399AE8 0006A008  38 04 40 00 */	addi r0, r4, 0x4000
+/* 81399AEC 0006A00C  7C 03 00 40 */	cmplw r3, r0
+/* 81399AF0 0006A010  40 80 00 64 */	bge .L_81399B54
+/* 81399AF4 0006A014  3C 80 81 09 */	lis r4, smArg__Q23ipl6System@ha
+/* 81399AF8 0006A018  38 A0 00 20 */	li r5, 0x20
+/* 81399AFC 0006A01C  38 84 90 08 */	addi r4, r4, smArg__Q23ipl6System@l
+/* 81399B00 0006A020  80 84 00 28 */	lwz r4, 0x28(r4)
+/* 81399B04 0006A024  48 25 E5 D1 */	bl __nwa__FUlPQ23EGG4Heapi
+/* 81399B08 0006A028  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81399B0C 0006A02C  90 7E 01 24 */	stw r3, 0x124(r30)
+/* 81399B10 0006A030  7C 65 1B 78 */	mr r5, r3
+/* 81399B14 0006A034  41 82 00 40 */	beq .L_81399B54
+/* 81399B18 0006A038  80 7E 01 20 */	lwz r3, 0x120(r30)
+/* 81399B1C 0006A03C  80 9E 01 28 */	lwz r4, 0x128(r30)
+/* 81399B20 0006A040  48 1C 2A 31 */	bl CXSecureUncompressLZ
+/* 81399B24 0006A044  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81399B28 0006A048  40 82 00 1C */	bne .L_81399B44
+/* 81399B2C 0006A04C  80 7E 01 24 */	lwz r3, 0x124(r30)
+/* 81399B30 0006A050  7F E4 FB 78 */	mr r4, r31
+/* 81399B34 0006A054  48 19 3E 31 */	bl DCStoreRange
+/* 81399B38 0006A058  7F C3 F3 78 */	mr r3, r30
+/* 81399B3C 0006A05C  48 00 02 29 */	bl change_ltrtex__Q33ipl5scene12focus_objectFv
+/* 81399B40 0006A060  48 00 00 14 */	b .L_81399B54
+.L_81399B44:
+/* 81399B44 0006A064  80 7E 01 24 */	lwz r3, 0x124(r30)
+/* 81399B48 0006A068  48 25 E5 A5 */	bl __dla__FPv
+/* 81399B4C 0006A06C  38 00 00 00 */	li r0, 0x0
+/* 81399B50 0006A070  90 1E 01 24 */	stw r0, 0x124(r30)
+.L_81399B54:
+/* 81399B54 0006A074  80 01 00 44 */	lwz r0, 0x44(r1)
+/* 81399B58 0006A078  83 E1 00 3C */	lwz r31, 0x3c(r1)
+/* 81399B5C 0006A07C  83 C1 00 38 */	lwz r30, 0x38(r1)
+/* 81399B60 0006A080  7C 08 03 A6 */	mtlr r0
+/* 81399B64 0006A084  38 21 00 40 */	addi r1, r1, 0x40
+/* 81399B68 0006A088  4E 80 00 20 */	blr
+.endfn make_lettertex__Q33ipl5scene12focus_objectFP13RBRAttachment
+
+# .text:0x2E44 | 0x81399B6C | size: 0x110
+# ipl::scene::focus_object::init_chanjump(RBRAttachment*)
+.fn init_chanjump__Q33ipl5scene12focus_objectFP13RBRAttachment, global
+/* 81399B6C 0006A08C  94 21 FF B0 */	stwu r1, -0x50(r1)
+/* 81399B70 0006A090  7C 08 02 A6 */	mflr r0
+/* 81399B74 0006A094  90 01 00 54 */	stw r0, 0x54(r1)
+/* 81399B78 0006A098  39 61 00 50 */	addi r11, r1, 0x50
+/* 81399B7C 0006A09C  48 25 F9 4D */	bl _savegpr_29
+/* 81399B80 0006A0A0  3C A0 81 09 */	lis r5, smArg__Q23ipl6System@ha
+/* 81399B84 0006A0A4  80 C3 00 14 */	lwz r6, 0x14(r3)
+/* 81399B88 0006A0A8  38 A5 90 08 */	addi r5, r5, smArg__Q23ipl6System@l
+/* 81399B8C 0006A0AC  7C 7D 1B 78 */	mr r29, r3
+/* 81399B90 0006A0B0  88 05 02 BC */	lbz r0, 0x2bc(r5)
+/* 81399B94 0006A0B4  80 84 00 04 */	lwz r4, 0x4(r4)
+/* 81399B98 0006A0B8  80 66 00 24 */	lwz r3, 0x24(r6)
+/* 81399B9C 0006A0BC  2C 00 00 00 */	cmpwi r0, 0x0
+/* 81399BA0 0006A0C0  7F C3 22 14 */	add r30, r3, r4
+/* 81399BA4 0006A0C4  41 82 00 0C */	beq .L_81399BB0
+/* 81399BA8 0006A0C8  3B E0 00 00 */	li r31, 0x0
+/* 81399BAC 0006A0CC  48 00 00 08 */	b .L_81399BB4
+.L_81399BB0:
+/* 81399BB0 0006A0D0  83 E5 00 8C */	lwz r31, 0x8c(r5)
+.L_81399BB4:
+/* 81399BB4 0006A0D4  7C C3 33 78 */	mr r3, r6
+/* 81399BB8 0006A0D8  7F C4 F3 78 */	mr r4, r30
+/* 81399BBC 0006A0DC  38 A1 00 1C */	addi r5, r1, 0x1c
+/* 81399BC0 0006A0E0  4B FF C4 FD */	bl arc_init_handle__Q33ipl5scene11BoardObjectFPvP9ARCHandle
+/* 81399BC4 0006A0E4  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81399BC8 0006A0E8  41 82 00 9C */	beq .L_81399C64
+/* 81399BCC 0006A0EC  3C 80 81 65 */	lis r4, lbl_8164BD80@ha
+/* 81399BD0 0006A0F0  38 61 00 1C */	addi r3, r1, 0x1c
+/* 81399BD4 0006A0F4  38 84 BD 80 */	addi r4, r4, lbl_8164BD80@l
+/* 81399BD8 0006A0F8  38 A1 00 10 */	addi r5, r1, 0x10
+/* 81399BDC 0006A0FC  48 1D 72 65 */	bl ARCOpen
+/* 81399BE0 0006A100  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81399BE4 0006A104  41 82 00 80 */	beq .L_81399C64
+/* 81399BE8 0006A108  38 61 00 10 */	addi r3, r1, 0x10
+/* 81399BEC 0006A10C  48 1D 79 A9 */	bl ARCGetStartOffset
+/* 81399BF0 0006A110  7C 1E 1A 14 */	add r0, r30, r3
+/* 81399BF4 0006A114  38 61 00 10 */	addi r3, r1, 0x10
+/* 81399BF8 0006A118  90 1D 01 30 */	stw r0, 0x130(r29)
+/* 81399BFC 0006A11C  48 1D 79 A1 */	bl ARCGetLength
+/* 81399C00 0006A120  80 9D 01 30 */	lwz r4, 0x130(r29)
+/* 81399C04 0006A124  7C 65 1B 78 */	mr r5, r3
+/* 81399C08 0006A128  7F E3 FB 78 */	mr r3, r31
+/* 81399C0C 0006A12C  4B FA 88 9D */	bl checkCHJumpObj__Q33ipl5nwc247ManagerFPC14NWC24CHJumpObjUl
+/* 81399C10 0006A130  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81399C14 0006A134  41 82 00 50 */	beq .L_81399C64
+/* 81399C18 0006A138  38 00 00 00 */	li r0, 0x0
+/* 81399C1C 0006A13C  7F E3 FB 78 */	mr r3, r31
+/* 81399C20 0006A140  90 01 00 0C */	stw r0, 0xc(r1)
+/* 81399C24 0006A144  38 A1 00 08 */	addi r5, r1, 0x8
+/* 81399C28 0006A148  90 01 00 08 */	stw r0, 0x8(r1)
+/* 81399C2C 0006A14C  80 9D 01 30 */	lwz r4, 0x130(r29)
+/* 81399C30 0006A150  4B FA 88 BD */	bl getCHJumpTitleId__Q33ipl5nwc247ManagerFPC14NWC24CHJumpObjPUx
+/* 81399C34 0006A154  3C 60 81 09 */	lis r3, smArg__Q23ipl6System@ha
+/* 81399C38 0006A158  80 A1 00 08 */	lwz r5, 0x8(r1)
+/* 81399C3C 0006A15C  38 63 90 08 */	addi r3, r3, smArg__Q23ipl6System@l
+/* 81399C40 0006A160  80 C1 00 0C */	lwz r6, 0xc(r1)
+/* 81399C44 0006A164  80 63 00 84 */	lwz r3, 0x84(r3)
+/* 81399C48 0006A168  38 E0 00 00 */	li r7, 0x0
+/* 81399C4C 0006A16C  39 00 00 00 */	li r8, 0x0
+/* 81399C50 0006A170  4B F9 E2 29 */	bl hasChannel__Q33ipl7channel7ManagerCFUxPiPi
+/* 81399C54 0006A174  7C 80 1B 78 */	or r0, r4, r3
+/* 81399C58 0006A178  30 60 FF FF */	subic r3, r0, 0x1
+/* 81399C5C 0006A17C  7C 03 01 10 */	subfe r0, r3, r0
+/* 81399C60 0006A180  98 1D 01 2C */	stb r0, 0x12c(r29)
+.L_81399C64:
+/* 81399C64 0006A184  39 61 00 50 */	addi r11, r1, 0x50
+/* 81399C68 0006A188  48 25 F8 AD */	bl _restgpr_29
+/* 81399C6C 0006A18C  80 01 00 54 */	lwz r0, 0x54(r1)
+/* 81399C70 0006A190  7C 08 03 A6 */	mtlr r0
+/* 81399C74 0006A194  38 21 00 50 */	addi r1, r1, 0x50
+/* 81399C78 0006A198  4E 80 00 20 */	blr
+.endfn init_chanjump__Q33ipl5scene12focus_objectFP13RBRAttachment
+
+# .text:0x2F54 | 0x81399C7C | size: 0xE8
+# ipl::scene::focus_object::setup_chanjump()
+.fn setup_chanjump__Q33ipl5scene12focus_objectFv, global
+/* 81399C7C 0006A19C  94 21 FD E0 */	stwu r1, -0x220(r1)
+/* 81399C80 0006A1A0  7C 08 02 A6 */	mflr r0
+/* 81399C84 0006A1A4  38 80 00 00 */	li r4, 0x0
+/* 81399C88 0006A1A8  38 A0 02 02 */	li r5, 0x202
+/* 81399C8C 0006A1AC  90 01 02 24 */	stw r0, 0x224(r1)
+/* 81399C90 0006A1B0  93 E1 02 1C */	stw r31, 0x21c(r1)
+/* 81399C94 0006A1B4  93 C1 02 18 */	stw r30, 0x218(r1)
+/* 81399C98 0006A1B8  7C 7E 1B 78 */	mr r30, r3
+/* 81399C9C 0006A1BC  38 61 00 0C */	addi r3, r1, 0xc
+/* 81399CA0 0006A1C0  4B F9 66 95 */	bl memset
+/* 81399CA4 0006A1C4  80 9E 01 30 */	lwz r4, 0x130(r30)
+/* 81399CA8 0006A1C8  80 04 00 08 */	lwz r0, 0x8(r4)
+/* 81399CAC 0006A1CC  2C 00 00 00 */	cmpwi r0, 0x0
+/* 81399CB0 0006A1D0  41 82 00 7C */	beq .L_81399D2C
+/* 81399CB4 0006A1D4  3C 60 81 09 */	lis r3, smArg__Q23ipl6System@ha
+/* 81399CB8 0006A1D8  38 63 90 08 */	addi r3, r3, smArg__Q23ipl6System@l
+/* 81399CBC 0006A1DC  88 03 02 BC */	lbz r0, 0x2bc(r3)
+/* 81399CC0 0006A1E0  2C 00 00 00 */	cmpwi r0, 0x0
+/* 81399CC4 0006A1E4  41 82 00 0C */	beq .L_81399CD0
+/* 81399CC8 0006A1E8  3B E0 00 00 */	li r31, 0x0
+/* 81399CCC 0006A1EC  48 00 00 08 */	b .L_81399CD4
+.L_81399CD0:
+/* 81399CD0 0006A1F0  83 E3 00 8C */	lwz r31, 0x8c(r3)
+.L_81399CD4:
+/* 81399CD4 0006A1F4  7F E3 FB 78 */	mr r3, r31
+/* 81399CD8 0006A1F8  38 A1 00 08 */	addi r5, r1, 0x8
+/* 81399CDC 0006A1FC  38 C0 00 00 */	li r6, 0x0
+/* 81399CE0 0006A200  4B FA 88 51 */	bl getCHJumpBlockSize__Q33ipl5nwc247ManagerFPC14NWC24CHJumpObjPUlUl
+/* 81399CE4 0006A204  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81399CE8 0006A208  41 82 00 44 */	beq .L_81399D2C
+/* 81399CEC 0006A20C  80 C1 00 08 */	lwz r6, 0x8(r1)
+/* 81399CF0 0006A210  28 06 02 00 */	cmplwi r6, 0x200
+/* 81399CF4 0006A214  40 81 00 0C */	ble .L_81399D00
+/* 81399CF8 0006A218  38 C0 02 00 */	li r6, 0x200
+/* 81399CFC 0006A21C  90 C1 00 08 */	stw r6, 0x8(r1)
+.L_81399D00:
+/* 81399D00 0006A220  80 9E 01 30 */	lwz r4, 0x130(r30)
+/* 81399D04 0006A224  7F E3 FB 78 */	mr r3, r31
+/* 81399D08 0006A228  38 A1 00 0C */	addi r5, r1, 0xc
+/* 81399D0C 0006A22C  38 E0 00 00 */	li r7, 0x0
+/* 81399D10 0006A230  4B FA 88 69 */	bl getCHJumpBlockData__Q33ipl5nwc247ManagerFPC14NWC24CHJumpObjPcUlUl
+/* 81399D14 0006A234  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81399D18 0006A238  40 82 00 14 */	bne .L_81399D2C
+/* 81399D1C 0006A23C  38 61 00 0C */	addi r3, r1, 0xc
+/* 81399D20 0006A240  38 80 00 00 */	li r4, 0x0
+/* 81399D24 0006A244  38 A0 02 02 */	li r5, 0x202
+/* 81399D28 0006A248  4B F9 66 0D */	bl memset
+.L_81399D2C:
+/* 81399D2C 0006A24C  80 9E 01 30 */	lwz r4, 0x130(r30)
+/* 81399D30 0006A250  3C 60 81 09 */	lis r3, smArg__Q23ipl6System@ha
+/* 81399D34 0006A254  38 63 90 08 */	addi r3, r3, smArg__Q23ipl6System@l
+/* 81399D38 0006A258  38 E1 00 0C */	addi r7, r1, 0xc
+/* 81399D3C 0006A25C  80 63 00 84 */	lwz r3, 0x84(r3)
+/* 81399D40 0006A260  80 A4 00 10 */	lwz r5, 0x10(r4)
+/* 81399D44 0006A264  80 C4 00 14 */	lwz r6, 0x14(r4)
+/* 81399D48 0006A268  4B F9 E3 59 */	bl setupChannelJump__Q33ipl7channel7ManagerFUxPCc
+/* 81399D4C 0006A26C  80 01 02 24 */	lwz r0, 0x224(r1)
+/* 81399D50 0006A270  83 E1 02 1C */	lwz r31, 0x21c(r1)
+/* 81399D54 0006A274  83 C1 02 18 */	lwz r30, 0x218(r1)
+/* 81399D58 0006A278  7C 08 03 A6 */	mtlr r0
+/* 81399D5C 0006A27C  38 21 02 20 */	addi r1, r1, 0x220
+/* 81399D60 0006A280  4E 80 00 20 */	blr
+.endfn setup_chanjump__Q33ipl5scene12focus_objectFv
+
+# .text:0x303C | 0x81399D64 | size: 0xD8
+# ipl::scene::focus_object::change_ltrtex()
+.fn change_ltrtex__Q33ipl5scene12focus_objectFv, global
+/* 81399D64 0006A284  94 21 FF B0 */	stwu r1, -0x50(r1)
+/* 81399D68 0006A288  7C 08 02 A6 */	mflr r0
+/* 81399D6C 0006A28C  90 01 00 54 */	stw r0, 0x54(r1)
+/* 81399D70 0006A290  39 61 00 50 */	addi r11, r1, 0x50
+/* 81399D74 0006A294  48 25 F7 45 */	bl _savegpr_25
+/* 81399D78 0006A298  7C 79 1B 78 */	mr r25, r3
+/* 81399D7C 0006A29C  80 63 00 14 */	lwz r3, 0x14(r3)
+/* 81399D80 0006A2A0  80 99 01 24 */	lwz r4, 0x124(r25)
+/* 81399D84 0006A2A4  38 A1 00 14 */	addi r5, r1, 0x14
+/* 81399D88 0006A2A8  4B FF C3 35 */	bl arc_init_handle__Q33ipl5scene11BoardObjectFPvP9ARCHandle
+/* 81399D8C 0006A2AC  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81399D90 0006A2B0  41 82 00 94 */	beq .L_81399E24
+/* 81399D94 0006A2B4  3F C0 81 61 */	lis r30, scChangeTexFile__Q23ipl5scene@ha
+/* 81399D98 0006A2B8  3B A0 00 00 */	li r29, 0x0
+/* 81399D9C 0006A2BC  3B DE F7 08 */	addi r30, r30, scChangeTexFile__Q23ipl5scene@l
+/* 81399DA0 0006A2C0  3B E0 00 00 */	li r31, 0x0
+.L_81399DA4:
+/* 81399DA4 0006A2C4  7C 9E F8 2E */	lwzx r4, r30, r31
+/* 81399DA8 0006A2C8  7F 9E FA 14 */	add r28, r30, r31
+/* 81399DAC 0006A2CC  38 61 00 14 */	addi r3, r1, 0x14
+/* 81399DB0 0006A2D0  38 A1 00 08 */	addi r5, r1, 0x8
+/* 81399DB4 0006A2D4  48 1D 70 8D */	bl ARCOpen
+/* 81399DB8 0006A2D8  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81399DBC 0006A2DC  41 82 00 58 */	beq .L_81399E14
+/* 81399DC0 0006A2E0  38 61 00 08 */	addi r3, r1, 0x8
+/* 81399DC4 0006A2E4  48 1D 77 D1 */	bl ARCGetStartOffset
+/* 81399DC8 0006A2E8  80 19 01 24 */	lwz r0, 0x124(r25)
+/* 81399DCC 0006A2EC  7F 60 1A 14 */	add r27, r0, r3
+/* 81399DD0 0006A2F0  38 61 00 08 */	addi r3, r1, 0x8
+/* 81399DD4 0006A2F4  48 1D 77 C9 */	bl ARCGetLength
+/* 81399DD8 0006A2F8  7C 7A 1B 78 */	mr r26, r3
+/* 81399DDC 0006A2FC  80 79 00 14 */	lwz r3, 0x14(r25)
+/* 81399DE0 0006A300  80 99 00 18 */	lwz r4, 0x18(r25)
+/* 81399DE4 0006A304  7F 66 DB 78 */	mr r6, r27
+/* 81399DE8 0006A308  80 BC 00 04 */	lwz r5, 0x4(r28)
+/* 81399DEC 0006A30C  7F 47 D3 78 */	mr r7, r26
+/* 81399DF0 0006A310  4B FF BC 89 */	bl change_tex__Q33ipl5scene11BoardObjectFPQ33ipl6layout6ObjectPCcP10TPLPaletteUl
+/* 81399DF4 0006A314  80 79 00 14 */	lwz r3, 0x14(r25)
+/* 81399DF8 0006A318  7F 66 DB 78 */	mr r6, r27
+/* 81399DFC 0006A31C  80 99 00 18 */	lwz r4, 0x18(r25)
+/* 81399E00 0006A320  7F 47 D3 78 */	mr r7, r26
+/* 81399E04 0006A324  80 BC 00 08 */	lwz r5, 0x8(r28)
+/* 81399E08 0006A328  4B FF BC 71 */	bl change_tex__Q33ipl5scene11BoardObjectFPQ33ipl6layout6ObjectPCcP10TPLPaletteUl
+/* 81399E0C 0006A32C  38 61 00 08 */	addi r3, r1, 0x8
+/* 81399E10 0006A330  48 1D 77 95 */	bl ARCClose
+.L_81399E14:
+/* 81399E14 0006A334  3B BD 00 01 */	addi r29, r29, 0x1
+/* 81399E18 0006A338  3B FF 00 0C */	addi r31, r31, 0xc
+/* 81399E1C 0006A33C  2C 1D 00 09 */	cmpwi r29, 0x9
+/* 81399E20 0006A340  41 80 FF 84 */	blt .L_81399DA4
+.L_81399E24:
+/* 81399E24 0006A344  39 61 00 50 */	addi r11, r1, 0x50
+/* 81399E28 0006A348  48 25 F6 DD */	bl _restgpr_25
+/* 81399E2C 0006A34C  80 01 00 54 */	lwz r0, 0x54(r1)
+/* 81399E30 0006A350  7C 08 03 A6 */	mtlr r0
+/* 81399E34 0006A354  38 21 00 50 */	addi r1, r1, 0x50
+/* 81399E38 0006A358  4E 80 00 20 */	blr
+.endfn change_ltrtex__Q33ipl5scene12focus_objectFv
+
+# .text:0x3114 | 0x81399E3C | size: 0xB8
+# ipl::scene::focus_object::make_picture(RBRAttachment*)
+.fn make_picture__Q33ipl5scene12focus_objectFP13RBRAttachment, global
+/* 81399E3C 0006A35C  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 81399E40 0006A360  7C 08 02 A6 */	mflr r0
+/* 81399E44 0006A364  3D 20 81 09 */	lis r9, smArg__Q23ipl6System@ha
+/* 81399E48 0006A368  90 01 00 14 */	stw r0, 0x14(r1)
+/* 81399E4C 0006A36C  39 29 90 08 */	addi r9, r9, smArg__Q23ipl6System@l
+/* 81399E50 0006A370  93 E1 00 0C */	stw r31, 0xc(r1)
+/* 81399E54 0006A374  93 C1 00 08 */	stw r30, 0x8(r1)
+/* 81399E58 0006A378  7C 7E 1B 78 */	mr r30, r3
+/* 81399E5C 0006A37C  80 A3 00 14 */	lwz r5, 0x14(r3)
+/* 81399E60 0006A380  80 C4 00 08 */	lwz r6, 0x8(r4)
+/* 81399E64 0006A384  80 04 00 04 */	lwz r0, 0x4(r4)
+/* 81399E68 0006A388  7C A3 2B 78 */	mr r3, r5
+/* 81399E6C 0006A38C  80 E5 00 24 */	lwz r7, 0x24(r5)
+/* 81399E70 0006A390  39 06 00 04 */	addi r8, r6, 0x4
+/* 81399E74 0006A394  80 A9 00 2C */	lwz r5, 0x2c(r9)
+/* 81399E78 0006A398  38 9E 00 C8 */	addi r4, r30, 0xc8
+/* 81399E7C 0006A39C  80 C9 00 28 */	lwz r6, 0x28(r9)
+/* 81399E80 0006A3A0  7C E7 02 14 */	add r7, r7, r0
+/* 81399E84 0006A3A4  4B FF B6 61 */	bl create_picture__Q33ipl5scene11BoardObjectFPQ33ipl5scene7picturePQ23EGG4HeapPQ23EGG4HeapPUcUl
+/* 81399E88 0006A3A8  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81399E8C 0006A3AC  41 82 00 50 */	beq .L_81399EDC
+/* 81399E90 0006A3B0  80 7E 00 18 */	lwz r3, 0x18(r30)
+/* 81399E94 0006A3B4  38 8D 86 B5 */	li r4, lbl_816966F5@sda21
+/* 81399E98 0006A3B8  38 A0 00 01 */	li r5, 0x1
+/* 81399E9C 0006A3BC  80 63 00 14 */	lwz r3, 0x14(r3)
+/* 81399EA0 0006A3C0  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81399EA4 0006A3C4  81 8C 00 3C */	lwz r12, 0x3c(r12)
+/* 81399EA8 0006A3C8  7D 89 03 A6 */	mtctr r12
+/* 81399EAC 0006A3CC  4E 80 04 21 */	bctrl
+/* 81399EB0 0006A3D0  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81399EB4 0006A3D4  7C 7F 1B 78 */	mr r31, r3
+/* 81399EB8 0006A3D8  81 8C 00 5C */	lwz r12, 0x5c(r12)
+/* 81399EBC 0006A3DC  7D 89 03 A6 */	mtctr r12
+/* 81399EC0 0006A3E0  4E 80 04 21 */	bctrl
+/* 81399EC4 0006A3E4  38 BE 00 D8 */	addi r5, r30, 0xd8
+/* 81399EC8 0006A3E8  38 80 00 00 */	li r4, 0x0
+/* 81399ECC 0006A3EC  48 18 DF 51 */	bl SetTexture__Q34nw4r3lyt8MaterialFUcRC9_GXTexObj
+/* 81399ED0 0006A3F0  7F C3 F3 78 */	mr r3, r30
+/* 81399ED4 0006A3F4  7F E4 FB 78 */	mr r4, r31
+/* 81399ED8 0006A3F8  48 00 01 15 */	bl resize_pane__Q33ipl5scene12focus_objectFPQ34nw4r3lyt4Pane
+.L_81399EDC:
+/* 81399EDC 0006A3FC  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 81399EE0 0006A400  83 E1 00 0C */	lwz r31, 0xc(r1)
+/* 81399EE4 0006A404  83 C1 00 08 */	lwz r30, 0x8(r1)
+/* 81399EE8 0006A408  7C 08 03 A6 */	mtlr r0
+/* 81399EEC 0006A40C  38 21 00 10 */	addi r1, r1, 0x10
+/* 81399EF0 0006A410  4E 80 00 20 */	blr
+.endfn make_picture__Q33ipl5scene12focus_objectFP13RBRAttachment
+
+# .text:0x31CC | 0x81399EF4 | size: 0xF8
+# ipl::scene::focus_object::init_sound(RBRAttachment*)
+.fn init_sound__Q33ipl5scene12focus_objectFP13RBRAttachment, global
+/* 81399EF4 0006A414  94 21 FF A0 */	stwu r1, -0x60(r1)
+/* 81399EF8 0006A418  7C 08 02 A6 */	mflr r0
+/* 81399EFC 0006A41C  90 01 00 64 */	stw r0, 0x64(r1)
+/* 81399F00 0006A420  39 61 00 60 */	addi r11, r1, 0x60
+/* 81399F04 0006A424  48 25 F5 BD */	bl _savegpr_27
+/* 81399F08 0006A428  80 C3 00 14 */	lwz r6, 0x14(r3)
+/* 81399F0C 0006A42C  7C 7B 1B 78 */	mr r27, r3
+/* 81399F10 0006A430  80 04 00 04 */	lwz r0, 0x4(r4)
+/* 81399F14 0006A434  38 A1 00 24 */	addi r5, r1, 0x24
+/* 81399F18 0006A438  80 86 00 24 */	lwz r4, 0x24(r6)
+/* 81399F1C 0006A43C  7C C3 33 78 */	mr r3, r6
+/* 81399F20 0006A440  7F A4 02 14 */	add r29, r4, r0
+/* 81399F24 0006A444  7F A4 EB 78 */	mr r4, r29
+/* 81399F28 0006A448  4B FF C1 95 */	bl arc_init_handle__Q33ipl5scene11BoardObjectFPvP9ARCHandle
+/* 81399F2C 0006A44C  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81399F30 0006A450  41 82 00 A4 */	beq .L_81399FD4
+/* 81399F34 0006A454  3C C0 81 61 */	lis r6, scSoundFileList__Q23ipl5scene@ha
+/* 81399F38 0006A458  84 A6 F7 A8 */	lwzu r5, scSoundFileList__Q23ipl5scene@l(r6)
+/* 81399F3C 0006A45C  3B C1 00 08 */	addi r30, r1, 0x8
+/* 81399F40 0006A460  3B 80 00 00 */	li r28, 0x0
+/* 81399F44 0006A464  80 86 00 04 */	lwz r4, 0x4(r6)
+/* 81399F48 0006A468  3B E0 00 00 */	li r31, 0x0
+/* 81399F4C 0006A46C  80 66 00 08 */	lwz r3, 0x8(r6)
+/* 81399F50 0006A470  80 06 00 0C */	lwz r0, 0xc(r6)
+/* 81399F54 0006A474  90 A1 00 08 */	stw r5, 0x8(r1)
+/* 81399F58 0006A478  90 81 00 0C */	stw r4, 0xc(r1)
+/* 81399F5C 0006A47C  90 61 00 10 */	stw r3, 0x10(r1)
+/* 81399F60 0006A480  90 01 00 14 */	stw r0, 0x14(r1)
+.L_81399F64:
+/* 81399F64 0006A484  7C 9E F8 2E */	lwzx r4, r30, r31
+/* 81399F68 0006A488  38 61 00 24 */	addi r3, r1, 0x24
+/* 81399F6C 0006A48C  38 A1 00 18 */	addi r5, r1, 0x18
+/* 81399F70 0006A490  48 1D 6E D1 */	bl ARCOpen
+/* 81399F74 0006A494  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81399F78 0006A498  41 82 00 4C */	beq .L_81399FC4
+/* 81399F7C 0006A49C  38 61 00 18 */	addi r3, r1, 0x18
+/* 81399F80 0006A4A0  48 1D 76 15 */	bl ARCGetStartOffset
+/* 81399F84 0006A4A4  7C 1D 1A 14 */	add r0, r29, r3
+/* 81399F88 0006A4A8  38 61 00 18 */	addi r3, r1, 0x18
+/* 81399F8C 0006A4AC  90 1B 01 34 */	stw r0, 0x134(r27)
+/* 81399F90 0006A4B0  48 1D 76 0D */	bl ARCGetLength
+/* 81399F94 0006A4B4  7C 65 1B 78 */	mr r5, r3
+/* 81399F98 0006A4B8  90 7B 01 38 */	stw r3, 0x138(r27)
+/* 81399F9C 0006A4BC  3C 60 81 09 */	lis r3, sSystem__Q23ipl3snd@ha
+/* 81399FA0 0006A4C0  80 9B 01 34 */	lwz r4, 0x134(r27)
+/* 81399FA4 0006A4C4  38 63 99 2C */	addi r3, r3, sSystem__Q23ipl3snd@l
+/* 81399FA8 0006A4C8  4B FD 22 5D */	bl checkTmpSoundFile__Q33ipl3snd6SystemFPvUl
+/* 81399FAC 0006A4CC  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81399FB0 0006A4D0  40 82 00 24 */	bne .L_81399FD4
+/* 81399FB4 0006A4D4  38 00 00 00 */	li r0, 0x0
+/* 81399FB8 0006A4D8  90 1B 01 34 */	stw r0, 0x134(r27)
+/* 81399FBC 0006A4DC  90 1B 01 38 */	stw r0, 0x138(r27)
+/* 81399FC0 0006A4E0  48 00 00 14 */	b .L_81399FD4
+.L_81399FC4:
+/* 81399FC4 0006A4E4  3B 9C 00 01 */	addi r28, r28, 0x1
+/* 81399FC8 0006A4E8  3B FF 00 04 */	addi r31, r31, 0x4
+/* 81399FCC 0006A4EC  2C 1C 00 04 */	cmpwi r28, 0x4
+/* 81399FD0 0006A4F0  41 80 FF 94 */	blt .L_81399F64
+.L_81399FD4:
+/* 81399FD4 0006A4F4  39 61 00 60 */	addi r11, r1, 0x60
+/* 81399FD8 0006A4F8  48 25 F5 35 */	bl _restgpr_27
+/* 81399FDC 0006A4FC  80 01 00 64 */	lwz r0, 0x64(r1)
+/* 81399FE0 0006A500  7C 08 03 A6 */	mtlr r0
+/* 81399FE4 0006A504  38 21 00 60 */	addi r1, r1, 0x60
+/* 81399FE8 0006A508  4E 80 00 20 */	blr
+.endfn init_sound__Q33ipl5scene12focus_objectFP13RBRAttachment
+
+# .text:0x32C4 | 0x81399FEC | size: 0xF4
+# ipl::scene::focus_object::resize_pane(nw4r::lyt::Pane*)
+.fn resize_pane__Q33ipl5scene12focus_objectFPQ34nw4r3lyt4Pane, global
+/* 81399FEC 0006A50C  94 21 FF D0 */	stwu r1, -0x30(r1)
+/* 81399FF0 0006A510  3C 00 43 30 */	lis r0, 0x4330
+/* 81399FF4 0006A514  80 A3 00 D0 */	lwz r5, 0xd0(r3)
+/* 81399FF8 0006A518  C0 84 00 4C */	lfs f4, 0x4c(r4)
+/* 81399FFC 0006A51C  C0 64 00 50 */	lfs f3, 0x50(r4)
+/* 8139A000 0006A520  2C 05 00 00 */	cmpwi r5, 0x0
+/* 8139A004 0006A524  90 01 00 18 */	stw r0, 0x18(r1)
+/* 8139A008 0006A528  90 01 00 20 */	stw r0, 0x20(r1)
+/* 8139A00C 0006A52C  D0 81 00 10 */	stfs f4, 0x10(r1)
+/* 8139A010 0006A530  D0 61 00 14 */	stfs f3, 0x14(r1)
+/* 8139A014 0006A534  D0 81 00 08 */	stfs f4, 0x8(r1)
+/* 8139A018 0006A538  D0 61 00 0C */	stfs f3, 0xc(r1)
+/* 8139A01C 0006A53C  41 82 00 BC */	beq .L_8139A0D8
+/* 8139A020 0006A540  80 03 00 D4 */	lwz r0, 0xd4(r3)
+/* 8139A024 0006A544  2C 00 00 00 */	cmpwi r0, 0x0
+/* 8139A028 0006A548  41 82 00 B0 */	beq .L_8139A0D8
+/* 8139A02C 0006A54C  7C 05 00 00 */	cmpw r5, r0
+/* 8139A030 0006A550  40 81 00 50 */	ble .L_8139A080
+/* 8139A034 0006A554  6C 03 80 00 */	xoris r3, r0, 0x8000
+/* 8139A038 0006A558  6C A0 80 00 */	xoris r0, r5, 0x8000
+/* 8139A03C 0006A55C  90 61 00 1C */	stw r3, 0x1c(r1)
+/* 8139A040 0006A560  C8 42 84 80 */	lfd f2, lbl_81694880@sda21(r0)
+/* 8139A044 0006A564  C8 01 00 18 */	lfd f0, 0x18(r1)
+/* 8139A048 0006A568  90 01 00 24 */	stw r0, 0x24(r1)
+/* 8139A04C 0006A56C  EC 20 10 28 */	fsubs f1, f0, f2
+/* 8139A050 0006A570  C8 01 00 20 */	lfd f0, 0x20(r1)
+/* 8139A054 0006A574  EC 24 00 72 */	fmuls f1, f4, f1
+/* 8139A058 0006A578  EC 00 10 28 */	fsubs f0, f0, f2
+/* 8139A05C 0006A57C  EC 01 00 24 */	fdivs f0, f1, f0
+/* 8139A060 0006A580  FC 00 18 40 */	fcmpo cr0, f0, f3
+/* 8139A064 0006A584  D0 01 00 0C */	stfs f0, 0xc(r1)
+/* 8139A068 0006A588  40 81 00 60 */	ble .L_8139A0C8
+/* 8139A06C 0006A58C  EC 03 00 24 */	fdivs f0, f3, f0
+/* 8139A070 0006A590  D0 61 00 0C */	stfs f3, 0xc(r1)
+/* 8139A074 0006A594  EC 04 00 32 */	fmuls f0, f4, f0
+/* 8139A078 0006A598  D0 01 00 08 */	stfs f0, 0x8(r1)
+/* 8139A07C 0006A59C  48 00 00 4C */	b .L_8139A0C8
+.L_8139A080:
+/* 8139A080 0006A5A0  6C A3 80 00 */	xoris r3, r5, 0x8000
+/* 8139A084 0006A5A4  6C 00 80 00 */	xoris r0, r0, 0x8000
+/* 8139A088 0006A5A8  90 61 00 1C */	stw r3, 0x1c(r1)
+/* 8139A08C 0006A5AC  C8 42 84 80 */	lfd f2, lbl_81694880@sda21(r0)
+/* 8139A090 0006A5B0  C8 01 00 18 */	lfd f0, 0x18(r1)
+/* 8139A094 0006A5B4  90 01 00 24 */	stw r0, 0x24(r1)
+/* 8139A098 0006A5B8  EC 20 10 28 */	fsubs f1, f0, f2
+/* 8139A09C 0006A5BC  C8 01 00 20 */	lfd f0, 0x20(r1)
+/* 8139A0A0 0006A5C0  EC 23 00 72 */	fmuls f1, f3, f1
+/* 8139A0A4 0006A5C4  EC 00 10 28 */	fsubs f0, f0, f2
+/* 8139A0A8 0006A5C8  EC 01 00 24 */	fdivs f0, f1, f0
+/* 8139A0AC 0006A5CC  FC 00 20 40 */	fcmpo cr0, f0, f4
+/* 8139A0B0 0006A5D0  D0 01 00 08 */	stfs f0, 0x8(r1)
+/* 8139A0B4 0006A5D4  40 81 00 14 */	ble .L_8139A0C8
+/* 8139A0B8 0006A5D8  EC 04 00 24 */	fdivs f0, f4, f0
+/* 8139A0BC 0006A5DC  D0 81 00 08 */	stfs f4, 0x8(r1)
+/* 8139A0C0 0006A5E0  EC 03 00 32 */	fmuls f0, f3, f0
+/* 8139A0C4 0006A5E4  D0 01 00 0C */	stfs f0, 0xc(r1)
+.L_8139A0C8:
+/* 8139A0C8 0006A5E8  C0 21 00 08 */	lfs f1, 0x8(r1)
+/* 8139A0CC 0006A5EC  C0 01 00 0C */	lfs f0, 0xc(r1)
+/* 8139A0D0 0006A5F0  D0 24 00 4C */	stfs f1, 0x4c(r4)
+/* 8139A0D4 0006A5F4  D0 04 00 50 */	stfs f0, 0x50(r4)
+.L_8139A0D8:
+/* 8139A0D8 0006A5F8  38 21 00 30 */	addi r1, r1, 0x30
+/* 8139A0DC 0006A5FC  4E 80 00 20 */	blr
+.endfn resize_pane__Q33ipl5scene12focus_objectFPQ34nw4r3lyt4Pane
+
+# .text:0x33B8 | 0x8139A0E0 | size: 0x138
+# ipl::scene::focus_object::init(ipl::nand::LayoutFile*)
+.fn init__Q33ipl5scene12focus_objectFPQ33ipl4nand10LayoutFile, global
+/* 8139A0E0 0006A600  94 21 FF D0 */	stwu r1, -0x30(r1)
+/* 8139A0E4 0006A604  7C 08 02 A6 */	mflr r0
+/* 8139A0E8 0006A608  90 01 00 34 */	stw r0, 0x34(r1)
+/* 8139A0EC 0006A60C  39 61 00 30 */	addi r11, r1, 0x30
+/* 8139A0F0 0006A610  48 25 F3 D9 */	bl _savegpr_29
+/* 8139A0F4 0006A614  7C 7D 1B 78 */	mr r29, r3
+/* 8139A0F8 0006A618  48 00 01 21 */	bl init_balloon__Q33ipl5scene12focus_objectFPQ33ipl4nand10LayoutFile
+/* 8139A0FC 0006A61C  7F A3 EB 78 */	mr r3, r29
+/* 8139A100 0006A620  48 00 02 6D */	bl init_scroller__Q33ipl5scene12focus_objectFv
+/* 8139A104 0006A624  7F A3 EB 78 */	mr r3, r29
+/* 8139A108 0006A628  48 00 03 BD */	bl init_url_proc__Q33ipl5scene12focus_objectFv
+/* 8139A10C 0006A62C  3C 60 81 09 */	lis r3, smArg__Q23ipl6System@ha
+/* 8139A110 0006A630  38 80 00 05 */	li r4, 0x5
+/* 8139A114 0006A634  38 63 90 08 */	addi r3, r3, smArg__Q23ipl6System@l
+/* 8139A118 0006A638  80 63 00 64 */	lwz r3, 0x64(r3)
+/* 8139A11C 0006A63C  48 07 10 1D */	bl getScene__Q33ipl5scene7ManagerFi
+/* 8139A120 0006A640  38 9D 00 38 */	addi r4, r29, 0x38
+/* 8139A124 0006A644  38 BD 00 48 */	addi r5, r29, 0x48
+/* 8139A128 0006A648  48 00 28 15 */	bl setEventHandler__Q33ipl5scene6ButtonFPQ23gui12EventHandlerPQ23gui12EventHandler
+/* 8139A12C 0006A64C  C0 22 84 6C */	lfs f1, lbl_8169486C@sda21(r0)
+/* 8139A130 0006A650  38 61 00 08 */	addi r3, r1, 0x8
+/* 8139A134 0006A654  FC 40 08 90 */	fmr f2, f1
+/* 8139A138 0006A658  FC 60 08 90 */	fmr f3, f1
+/* 8139A13C 0006A65C  4B FC 89 21 */	bl __ct__Q33ipl4math4VEC3Ffff
+/* 8139A140 0006A660  80 9D 00 14 */	lwz r4, 0x14(r29)
+/* 8139A144 0006A664  38 61 00 14 */	addi r3, r1, 0x14
+/* 8139A148 0006A668  C0 62 84 6C */	lfs f3, lbl_8169486C@sda21(r0)
+/* 8139A14C 0006A66C  C0 24 00 34 */	lfs f1, 0x34(r4)
+/* 8139A150 0006A670  C0 44 00 38 */	lfs f2, 0x38(r4)
+/* 8139A154 0006A674  4B FC 89 09 */	bl __ct__Q33ipl4math4VEC3Ffff
+/* 8139A158 0006A678  38 7D 01 C8 */	addi r3, r29, 0x1c8
+/* 8139A15C 0006A67C  38 81 00 14 */	addi r4, r1, 0x14
+/* 8139A160 0006A680  4B FA A5 25 */	bl __as__Q34nw4r4math4VEC3FRCQ34nw4r4math4VEC3
+/* 8139A164 0006A684  38 7D 01 D4 */	addi r3, r29, 0x1d4
+/* 8139A168 0006A688  38 81 00 08 */	addi r4, r1, 0x8
+/* 8139A16C 0006A68C  4B FA A5 19 */	bl __as__Q34nw4r4math4VEC3FRCQ34nw4r4math4VEC3
+/* 8139A170 0006A690  C0 22 84 88 */	lfs f1, lbl_81694888@sda21(r0)
+/* 8139A174 0006A694  38 7D 01 A8 */	addi r3, r29, 0x1a8
+/* 8139A178 0006A698  C0 42 84 6C */	lfs f2, lbl_8169486C@sda21(r0)
+/* 8139A17C 0006A69C  38 80 00 00 */	li r4, 0x0
+/* 8139A180 0006A6A0  C0 62 84 68 */	lfs f3, lbl_81694868@sda21(r0)
+/* 8139A184 0006A6A4  4B FC 86 CD */	bl init__Q33ipl7utility15FrameControllerFifff
+/* 8139A188 0006A6A8  38 7D 01 A8 */	addi r3, r29, 0x1a8
+/* 8139A18C 0006A6AC  4B FC 86 E5 */	bl initFrame__Q33ipl7utility15FrameControllerFv
+/* 8139A190 0006A6B0  80 7D 00 18 */	lwz r3, 0x18(r29)
+/* 8139A194 0006A6B4  3B E0 00 01 */	li r31, 0x1
+/* 8139A198 0006A6B8  93 FD 01 BC */	stw r31, 0x1bc(r29)
+/* 8139A19C 0006A6BC  38 80 00 00 */	li r4, 0x0
+/* 8139A1A0 0006A6C0  38 63 02 8C */	addi r3, r3, 0x28c
+/* 8139A1A4 0006A6C4  48 17 81 75 */	bl List_GetNth__Q24nw4r2utFPCQ34nw4r2ut4ListUs
+/* 8139A1A8 0006A6C8  7C 7E 1B 78 */	mr r30, r3
+/* 8139A1AC 0006A6CC  4B FC 86 C5 */	bl initFrame__Q33ipl7utility15FrameControllerFv
+/* 8139A1B0 0006A6D0  93 FE 00 14 */	stw r31, 0x14(r30)
+/* 8139A1B4 0006A6D4  38 80 00 02 */	li r4, 0x2
+/* 8139A1B8 0006A6D8  80 7D 00 18 */	lwz r3, 0x18(r29)
+/* 8139A1BC 0006A6DC  38 63 02 8C */	addi r3, r3, 0x28c
+/* 8139A1C0 0006A6E0  48 17 81 59 */	bl List_GetNth__Q24nw4r2utFPCQ34nw4r2ut4ListUs
+/* 8139A1C4 0006A6E4  7C 7E 1B 78 */	mr r30, r3
+/* 8139A1C8 0006A6E8  4B FC 86 A9 */	bl initFrame__Q33ipl7utility15FrameControllerFv
+/* 8139A1CC 0006A6EC  93 FE 00 14 */	stw r31, 0x14(r30)
+/* 8139A1D0 0006A6F0  38 80 00 0A */	li r4, 0xa
+/* 8139A1D4 0006A6F4  80 7D 00 18 */	lwz r3, 0x18(r29)
+/* 8139A1D8 0006A6F8  38 63 02 8C */	addi r3, r3, 0x28c
+/* 8139A1DC 0006A6FC  48 17 81 3D */	bl List_GetNth__Q24nw4r2utFPCQ34nw4r2ut4ListUs
+/* 8139A1E0 0006A700  7C 7E 1B 78 */	mr r30, r3
+/* 8139A1E4 0006A704  4B FC 86 8D */	bl initFrame__Q33ipl7utility15FrameControllerFv
+/* 8139A1E8 0006A708  3C 60 81 09 */	lis r3, sSystem__Q23ipl3snd@ha
+/* 8139A1EC 0006A70C  3C 80 81 65 */	lis r4, lbl_8164BDB6@ha
+/* 8139A1F0 0006A710  93 FE 00 14 */	stw r31, 0x14(r30)
+/* 8139A1F4 0006A714  38 63 99 2C */	addi r3, r3, sSystem__Q23ipl3snd@l
+/* 8139A1F8 0006A718  38 84 BD B6 */	addi r4, r4, lbl_8164BDB6@l
+/* 8139A1FC 0006A71C  4B FD 12 71 */	bl startSE__Q33ipl3snd6SystemFPCc
+/* 8139A200 0006A720  39 61 00 30 */	addi r11, r1, 0x30
+/* 8139A204 0006A724  48 25 F3 11 */	bl _restgpr_29
+/* 8139A208 0006A728  80 01 00 34 */	lwz r0, 0x34(r1)
+/* 8139A20C 0006A72C  7C 08 03 A6 */	mtlr r0
+/* 8139A210 0006A730  38 21 00 30 */	addi r1, r1, 0x30
+/* 8139A214 0006A734  4E 80 00 20 */	blr
+.endfn init__Q33ipl5scene12focus_objectFPQ33ipl4nand10LayoutFile
+
+# .text:0x34F0 | 0x8139A218 | size: 0xD0
+# ipl::scene::focus_object::init_balloon(ipl::nand::LayoutFile*)
+.fn init_balloon__Q33ipl5scene12focus_objectFPQ33ipl4nand10LayoutFile, global
+/* 8139A218 0006A738  94 21 FF C0 */	stwu r1, -0x40(r1)
+/* 8139A21C 0006A73C  7C 08 02 A6 */	mflr r0
+/* 8139A220 0006A740  90 01 00 44 */	stw r0, 0x44(r1)
+/* 8139A224 0006A744  39 61 00 40 */	addi r11, r1, 0x40
+/* 8139A228 0006A748  48 25 F2 9D */	bl _savegpr_28
+/* 8139A22C 0006A74C  3F E0 81 09 */	lis r31, smArg__Q23ipl6System@ha
+/* 8139A230 0006A750  7C 7C 1B 78 */	mr r28, r3
+/* 8139A234 0006A754  3B FF 90 08 */	addi r31, r31, smArg__Q23ipl6System@l
+/* 8139A238 0006A758  7C 9D 23 78 */	mr r29, r4
+/* 8139A23C 0006A75C  80 9F 00 28 */	lwz r4, 0x28(r31)
+/* 8139A240 0006A760  38 60 00 3C */	li r3, 0x3c
+/* 8139A244 0006A764  38 A0 00 04 */	li r5, 0x4
+/* 8139A248 0006A768  48 25 DE 69 */	bl __nw__FUlPQ23EGG4Heapi
+/* 8139A24C 0006A76C  2C 03 00 00 */	cmpwi r3, 0x0
+/* 8139A250 0006A770  7C 7E 1B 78 */	mr r30, r3
+/* 8139A254 0006A774  41 82 00 48 */	beq .L_8139A29C
+/* 8139A258 0006A778  C0 22 84 6C */	lfs f1, lbl_8169486C@sda21(r0)
+/* 8139A25C 0006A77C  38 61 00 08 */	addi r3, r1, 0x8
+/* 8139A260 0006A780  83 FF 00 28 */	lwz r31, 0x28(r31)
+/* 8139A264 0006A784  FC 40 08 90 */	fmr f2, f1
+/* 8139A268 0006A788  FC 60 08 90 */	fmr f3, f1
+/* 8139A26C 0006A78C  4B FC 87 F1 */	bl __ct__Q33ipl4math4VEC3Ffff
+/* 8139A270 0006A790  3C E0 81 65 */	lis r7, lbl_8164BDCB@ha
+/* 8139A274 0006A794  C0 22 84 8C */	lfs f1, lbl_8169488C@sda21(r0)
+/* 8139A278 0006A798  7C 68 1B 78 */	mr r8, r3
+/* 8139A27C 0006A79C  C0 42 84 90 */	lfs f2, lbl_81694890@sda21(r0)
+/* 8139A280 0006A7A0  7F C3 F3 78 */	mr r3, r30
+/* 8139A284 0006A7A4  7F E4 FB 78 */	mr r4, r31
+/* 8139A288 0006A7A8  7F A5 EB 78 */	mr r5, r29
+/* 8139A28C 0006A7AC  38 E7 BD CB */	addi r7, r7, lbl_8164BDCB@l
+/* 8139A290 0006A7B0  38 CD 86 8F */	li r6, lbl_816966CF@sda21
+/* 8139A294 0006A7B4  48 03 71 79 */	bl __ct__Q33ipl5scene11TextBalloonFPQ23EGG4HeapPQ33ipl4nand10LayoutFilePCcPCcRCQ33ipl4math4VEC3ff
+/* 8139A298 0006A7B8  7C 7E 1B 78 */	mr r30, r3
+.L_8139A29C:
+/* 8139A29C 0006A7BC  93 DC 00 20 */	stw r30, 0x20(r28)
+/* 8139A2A0 0006A7C0  38 81 00 14 */	addi r4, r1, 0x14
+/* 8139A2A4 0006A7C4  80 7C 00 14 */	lwz r3, 0x14(r28)
+/* 8139A2A8 0006A7C8  38 A0 00 0C */	li r5, 0xc
+/* 8139A2AC 0006A7CC  4B FF BB 41 */	bl get_nigaoe_name__Q33ipl5scene11BoardObjectFPwi
+/* 8139A2B0 0006A7D0  80 7C 00 20 */	lwz r3, 0x20(r28)
+/* 8139A2B4 0006A7D4  38 81 00 14 */	addi r4, r1, 0x14
+/* 8139A2B8 0006A7D8  38 A0 00 00 */	li r5, 0x0
+/* 8139A2BC 0006A7DC  48 03 73 45 */	bl init__Q33ipl5scene11TextBalloonFPCwUl
+/* 8139A2C0 0006A7E0  80 7C 00 20 */	lwz r3, 0x20(r28)
+/* 8139A2C4 0006A7E4  38 A0 00 00 */	li r5, 0x0
+/* 8139A2C8 0006A7E8  80 83 00 14 */	lwz r4, 0x14(r3)
+/* 8139A2CC 0006A7EC  48 03 79 DD */	bl set_textbox__Q33ipl5scene11TextBalloonFPCwi
+/* 8139A2D0 0006A7F0  39 61 00 40 */	addi r11, r1, 0x40
+/* 8139A2D4 0006A7F4  48 25 F2 3D */	bl _restgpr_28
+/* 8139A2D8 0006A7F8  80 01 00 44 */	lwz r0, 0x44(r1)
+/* 8139A2DC 0006A7FC  7C 08 03 A6 */	mtlr r0
+/* 8139A2E0 0006A800  38 21 00 40 */	addi r1, r1, 0x40
+/* 8139A2E4 0006A804  4E 80 00 20 */	blr
+.endfn init_balloon__Q33ipl5scene12focus_objectFPQ33ipl4nand10LayoutFile
+
+# .text:0x35C0 | 0x8139A2E8 | size: 0x84
+# ipl::scene::focus_object::calc_balloon_pos() const
+.fn calc_balloon_pos__Q33ipl5scene12focus_objectCFv, global
+/* 8139A2E8 0006A808  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 8139A2EC 0006A80C  7C 08 02 A6 */	mflr r0
+/* 8139A2F0 0006A810  C0 22 84 6C */	lfs f1, lbl_8169486C@sda21(r0)
+/* 8139A2F4 0006A814  90 01 00 14 */	stw r0, 0x14(r1)
+/* 8139A2F8 0006A818  FC 40 08 90 */	fmr f2, f1
+/* 8139A2FC 0006A81C  93 E1 00 0C */	stw r31, 0xc(r1)
+/* 8139A300 0006A820  FC 60 08 90 */	fmr f3, f1
+/* 8139A304 0006A824  7C 9F 23 78 */	mr r31, r4
+/* 8139A308 0006A828  93 C1 00 08 */	stw r30, 0x8(r1)
+/* 8139A30C 0006A82C  7C 7E 1B 78 */	mr r30, r3
+/* 8139A310 0006A830  4B FC 87 4D */	bl __ct__Q33ipl4math4VEC3Ffff
+/* 8139A314 0006A834  80 7F 00 18 */	lwz r3, 0x18(r31)
+/* 8139A318 0006A838  38 8D 86 7A */	li r4, lbl_816966BA@sda21
+/* 8139A31C 0006A83C  38 A0 00 01 */	li r5, 0x1
+/* 8139A320 0006A840  80 63 00 14 */	lwz r3, 0x14(r3)
+/* 8139A324 0006A844  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 8139A328 0006A848  81 8C 00 3C */	lwz r12, 0x3c(r12)
+/* 8139A32C 0006A84C  7D 89 03 A6 */	mtctr r12
+/* 8139A330 0006A850  4E 80 04 21 */	bctrl
+/* 8139A334 0006A854  7F C4 F3 78 */	mr r4, r30
+/* 8139A338 0006A858  7F C5 F3 78 */	mr r5, r30
+/* 8139A33C 0006A85C  38 63 00 84 */	addi r3, r3, 0x84
+/* 8139A340 0006A860  48 1A 71 7D */	bl PSMTXMultVec
+/* 8139A344 0006A864  C0 22 84 94 */	lfs f1, lbl_81694894@sda21(r0)
+/* 8139A348 0006A868  C0 1E 00 04 */	lfs f0, 0x4(r30)
+/* 8139A34C 0006A86C  EC 00 08 2A */	fadds f0, f0, f1
+/* 8139A350 0006A870  D0 1E 00 04 */	stfs f0, 0x4(r30)
+/* 8139A354 0006A874  83 E1 00 0C */	lwz r31, 0xc(r1)
+/* 8139A358 0006A878  83 C1 00 08 */	lwz r30, 0x8(r1)
+/* 8139A35C 0006A87C  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 8139A360 0006A880  7C 08 03 A6 */	mtlr r0
+/* 8139A364 0006A884  38 21 00 10 */	addi r1, r1, 0x10
+/* 8139A368 0006A888  4E 80 00 20 */	blr
+.endfn calc_balloon_pos__Q33ipl5scene12focus_objectCFv
+
+# .text:0x3644 | 0x8139A36C | size: 0x158
+# ipl::scene::focus_object::init_scroller()
+.fn init_scroller__Q33ipl5scene12focus_objectFv, global
+/* 8139A36C 0006A88C  94 21 FF C0 */	stwu r1, -0x40(r1)
+/* 8139A370 0006A890  7C 08 02 A6 */	mflr r0
+/* 8139A374 0006A894  90 01 00 44 */	stw r0, 0x44(r1)
+/* 8139A378 0006A898  DB E1 00 30 */	stfd f31, 0x30(r1)
+/* 8139A37C 0006A89C  F3 E1 00 38 */	psq_st f31, 0x38(r1), 0, qr0
+/* 8139A380 0006A8A0  39 61 00 30 */	addi r11, r1, 0x30
+/* 8139A384 0006A8A4  48 25 F1 41 */	bl _savegpr_28
+/* 8139A388 0006A8A8  80 C3 00 18 */	lwz r6, 0x18(r3)
+/* 8139A38C 0006A8AC  7C 7C 1B 78 */	mr r28, r3
+/* 8139A390 0006A8B0  3C 80 81 65 */	lis r4, lbl_8164BB78@ha
+/* 8139A394 0006A8B4  38 A0 00 01 */	li r5, 0x1
+/* 8139A398 0006A8B8  80 66 00 14 */	lwz r3, 0x14(r6)
+/* 8139A39C 0006A8BC  38 84 BB 78 */	addi r4, r4, lbl_8164BB78@l
+/* 8139A3A0 0006A8C0  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 8139A3A4 0006A8C4  81 8C 00 3C */	lwz r12, 0x3c(r12)
+/* 8139A3A8 0006A8C8  7D 89 03 A6 */	mtctr r12
+/* 8139A3AC 0006A8CC  4E 80 04 21 */	bctrl
+/* 8139A3B0 0006A8D0  80 DC 00 18 */	lwz r6, 0x18(r28)
+/* 8139A3B4 0006A8D4  7C 7D 1B 78 */	mr r29, r3
+/* 8139A3B8 0006A8D8  38 8D 86 73 */	li r4, lbl_816966B3@sda21
+/* 8139A3BC 0006A8DC  38 A0 00 01 */	li r5, 0x1
+/* 8139A3C0 0006A8E0  80 66 00 14 */	lwz r3, 0x14(r6)
+/* 8139A3C4 0006A8E4  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 8139A3C8 0006A8E8  81 8C 00 3C */	lwz r12, 0x3c(r12)
+/* 8139A3CC 0006A8EC  7D 89 03 A6 */	mtctr r12
+/* 8139A3D0 0006A8F0  4E 80 04 21 */	bctrl
+/* 8139A3D4 0006A8F4  80 DC 00 18 */	lwz r6, 0x18(r28)
+/* 8139A3D8 0006A8F8  7C 7E 1B 78 */	mr r30, r3
+/* 8139A3DC 0006A8FC  3C 80 81 65 */	lis r4, lbl_8164BB81@ha
+/* 8139A3E0 0006A900  38 A0 00 01 */	li r5, 0x1
+/* 8139A3E4 0006A904  80 66 00 14 */	lwz r3, 0x14(r6)
+/* 8139A3E8 0006A908  38 84 BB 81 */	addi r4, r4, lbl_8164BB81@l
+/* 8139A3EC 0006A90C  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 8139A3F0 0006A910  81 8C 00 3C */	lwz r12, 0x3c(r12)
+/* 8139A3F4 0006A914  7D 89 03 A6 */	mtctr r12
+/* 8139A3F8 0006A918  4E 80 04 21 */	bctrl
+/* 8139A3FC 0006A91C  C0 02 84 6C */	lfs f0, lbl_8169486C@sda21(r0)
+/* 8139A400 0006A920  7C 7F 1B 78 */	mr r31, r3
+/* 8139A404 0006A924  38 61 00 08 */	addi r3, r1, 0x8
+/* 8139A408 0006A928  D0 01 00 08 */	stfs f0, 0x8(r1)
+/* 8139A40C 0006A92C  D0 01 00 0C */	stfs f0, 0xc(r1)
+/* 8139A410 0006A930  D0 01 00 10 */	stfs f0, 0x10(r1)
+/* 8139A414 0006A934  D0 01 00 14 */	stfs f0, 0x14(r1)
+/* 8139A418 0006A938  4B F9 B5 01 */	bl getProjectionRect__Q23ipl6SystemFPQ34nw4r2ut4Rect
+/* 8139A41C 0006A93C  80 7C 01 F0 */	lwz r3, 0x1f0(r28)
+/* 8139A420 0006A940  3C 00 43 30 */	lis r0, 0x4330
+/* 8139A424 0006A944  90 01 00 18 */	stw r0, 0x18(r1)
+/* 8139A428 0006A948  6C 60 80 00 */	xoris r0, r3, 0x8000
+/* 8139A42C 0006A94C  C8 42 84 80 */	lfd f2, lbl_81694880@sda21(r0)
+/* 8139A430 0006A950  90 01 00 1C */	stw r0, 0x1c(r1)
+/* 8139A434 0006A954  C0 7E 00 50 */	lfs f3, 0x50(r30)
+/* 8139A438 0006A958  C8 01 00 18 */	lfd f0, 0x18(r1)
+/* 8139A43C 0006A95C  C0 3D 00 50 */	lfs f1, 0x50(r29)
+/* 8139A440 0006A960  EC 80 10 28 */	fsubs f4, f0, f2
+/* 8139A444 0006A964  C0 1F 00 50 */	lfs f0, 0x50(r31)
+/* 8139A448 0006A968  C0 C1 00 14 */	lfs f6, 0x14(r1)
+/* 8139A44C 0006A96C  EC 41 00 2A */	fadds f2, f1, f0
+/* 8139A450 0006A970  C0 A1 00 0C */	lfs f5, 0xc(r1)
+/* 8139A454 0006A974  EC 64 00 F2 */	fmuls f3, f4, f3
+/* 8139A458 0006A978  EC 86 28 28 */	fsubs f4, f6, f5
+/* 8139A45C 0006A97C  C0 22 84 98 */	lfs f1, lbl_81694898@sda21(r0)
+/* 8139A460 0006A980  C0 02 84 6C */	lfs f0, lbl_8169486C@sda21(r0)
+/* 8139A464 0006A984  EC 43 10 2A */	fadds f2, f3, f2
+/* 8139A468 0006A988  EC 42 20 28 */	fsubs f2, f2, f4
+/* 8139A46C 0006A98C  EF E1 10 2A */	fadds f31, f1, f2
+/* 8139A470 0006A990  FC 1F 00 40 */	fcmpo cr0, f31, f0
+/* 8139A474 0006A994  40 80 00 08 */	bge .L_8139A47C
+/* 8139A478 0006A998  FF E0 00 90 */	fmr f31, f0
+.L_8139A47C:
+/* 8139A47C 0006A99C  C0 02 84 6C */	lfs f0, lbl_8169486C@sda21(r0)
+/* 8139A480 0006A9A0  38 00 00 00 */	li r0, 0x0
+/* 8139A484 0006A9A4  90 1C 00 88 */	stw r0, 0x88(r28)
+/* 8139A488 0006A9A8  38 7C 00 A8 */	addi r3, r28, 0xa8
+/* 8139A48C 0006A9AC  D0 1C 00 98 */	stfs f0, 0x98(r28)
+/* 8139A490 0006A9B0  D0 1C 00 94 */	stfs f0, 0x94(r28)
+/* 8139A494 0006A9B4  D0 1C 00 90 */	stfs f0, 0x90(r28)
+/* 8139A498 0006A9B8  D0 1C 00 8C */	stfs f0, 0x8c(r28)
+/* 8139A49C 0006A9BC  4B FC 91 31 */	bl init__Q33ipl7utility9BScrollerFv
+/* 8139A4A0 0006A9C0  D3 FC 00 8C */	stfs f31, 0x8c(r28)
+/* 8139A4A4 0006A9C4  E3 E1 00 38 */	psq_l f31, 0x38(r1), 0, qr0
+/* 8139A4A8 0006A9C8  CB E1 00 30 */	lfd f31, 0x30(r1)
+/* 8139A4AC 0006A9CC  39 61 00 30 */	addi r11, r1, 0x30
+/* 8139A4B0 0006A9D0  48 25 F0 61 */	bl _restgpr_28
+/* 8139A4B4 0006A9D4  80 01 00 44 */	lwz r0, 0x44(r1)
+/* 8139A4B8 0006A9D8  7C 08 03 A6 */	mtlr r0
+/* 8139A4BC 0006A9DC  38 21 00 40 */	addi r1, r1, 0x40
+/* 8139A4C0 0006A9E0  4E 80 00 20 */	blr
+.endfn init_scroller__Q33ipl5scene12focus_objectFv
+
+# .text:0x379C | 0x8139A4C4 | size: 0xD0
+# ipl::scene::focus_object::init_url_proc()
+.fn init_url_proc__Q33ipl5scene12focus_objectFv, global
+/* 8139A4C4 0006A9E4  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 8139A4C8 0006A9E8  7C 08 02 A6 */	mflr r0
+/* 8139A4CC 0006A9EC  90 01 00 14 */	stw r0, 0x14(r1)
+/* 8139A4D0 0006A9F0  93 E1 00 0C */	stw r31, 0xc(r1)
+/* 8139A4D4 0006A9F4  93 C1 00 08 */	stw r30, 0x8(r1)
+/* 8139A4D8 0006A9F8  7C 7E 1B 78 */	mr r30, r3
+/* 8139A4DC 0006A9FC  38 63 01 50 */	addi r3, r3, 0x150
+/* 8139A4E0 0006AA00  4B FF BE E1 */	bl init__Q33ipl5scene12UrlProcessorFv
+/* 8139A4E4 0006AA04  80 7E 00 14 */	lwz r3, 0x14(r30)
+/* 8139A4E8 0006AA08  80 03 00 D8 */	lwz r0, 0xd8(r3)
+/* 8139A4EC 0006AA0C  2C 00 00 00 */	cmpwi r0, 0x0
+/* 8139A4F0 0006AA10  40 82 00 0C */	bne .L_8139A4FC
+/* 8139A4F4 0006AA14  C0 02 84 9C */	lfs f0, lbl_8169489C@sda21(r0)
+/* 8139A4F8 0006AA18  D0 1E 01 90 */	stfs f0, 0x190(r30)
+.L_8139A4FC:
+/* 8139A4FC 0006AA1C  80 7E 00 18 */	lwz r3, 0x18(r30)
+/* 8139A500 0006AA20  3C 80 81 65 */	lis r4, lbl_8164BB8A@ha
+/* 8139A504 0006AA24  38 84 BB 8A */	addi r4, r4, lbl_8164BB8A@l
+/* 8139A508 0006AA28  38 A0 00 01 */	li r5, 0x1
+/* 8139A50C 0006AA2C  80 63 00 14 */	lwz r3, 0x14(r3)
+/* 8139A510 0006AA30  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 8139A514 0006AA34  81 8C 00 3C */	lwz r12, 0x3c(r12)
+/* 8139A518 0006AA38  7D 89 03 A6 */	mtctr r12
+/* 8139A51C 0006AA3C  4E 80 04 21 */	bctrl
+/* 8139A520 0006AA40  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 8139A524 0006AA44  7C 7F 1B 78 */	mr r31, r3
+/* 8139A528 0006AA48  81 8C 00 0C */	lwz r12, 0xc(r12)
+/* 8139A52C 0006AA4C  7D 89 03 A6 */	mtctr r12
+/* 8139A530 0006AA50  4E 80 04 21 */	bctrl
+/* 8139A534 0006AA54  38 8D AF 78 */	li r4, typeInfo__Q34nw4r3lyt7TextBox@sda21
+/* 8139A538 0006AA58  4B FC F1 21 */	bl IsDerivedFrom__Q44nw4r2ut6detail15RuntimeTypeInfoCFPCQ44nw4r2ut6detail15RuntimeTypeInfo
+/* 8139A53C 0006AA5C  2C 03 00 00 */	cmpwi r3, 0x0
+/* 8139A540 0006AA60  41 82 00 08 */	beq .L_8139A548
+/* 8139A544 0006AA64  48 00 00 08 */	b .L_8139A54C
+.L_8139A548:
+/* 8139A548 0006AA68  3B E0 00 00 */	li r31, 0x0
+.L_8139A54C:
+/* 8139A54C 0006AA6C  3C 60 81 09 */	lis r3, smArg__Q23ipl6System@ha
+/* 8139A550 0006AA70  38 63 90 08 */	addi r3, r3, smArg__Q23ipl6System@l
+/* 8139A554 0006AA74  80 63 00 84 */	lwz r3, 0x84(r3)
+/* 8139A558 0006AA78  4B F9 DA 49 */	bl isEnableUrlJump__Q33ipl7channel7ManagerFv
+/* 8139A55C 0006AA7C  2C 03 00 00 */	cmpwi r3, 0x0
+/* 8139A560 0006AA80  41 82 00 1C */	beq .L_8139A57C
+/* 8139A564 0006AA84  80 7E 00 14 */	lwz r3, 0x14(r30)
+/* 8139A568 0006AA88  80 03 00 D8 */	lwz r0, 0xd8(r3)
+/* 8139A56C 0006AA8C  2C 00 00 02 */	cmpwi r0, 0x2
+/* 8139A570 0006AA90  41 82 00 0C */	beq .L_8139A57C
+/* 8139A574 0006AA94  38 1E 01 50 */	addi r0, r30, 0x150
+/* 8139A578 0006AA98  90 1F 00 F4 */	stw r0, 0xf4(r31)
+.L_8139A57C:
+/* 8139A57C 0006AA9C  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 8139A580 0006AAA0  83 E1 00 0C */	lwz r31, 0xc(r1)
+/* 8139A584 0006AAA4  83 C1 00 08 */	lwz r30, 0x8(r1)
+/* 8139A588 0006AAA8  7C 08 03 A6 */	mtlr r0
+/* 8139A58C 0006AAAC  38 21 00 10 */	addi r1, r1, 0x10
+/* 8139A590 0006AAB0  4E 80 00 20 */	blr
+.endfn init_url_proc__Q33ipl5scene12focus_objectFv
+
+# .text:0x386C | 0x8139A594 | size: 0x60
+# ipl::scene::focus_object::show_uarw()
+.fn show_uarw__Q33ipl5scene12focus_objectFv, global
+/* 8139A594 0006AAB4  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 8139A598 0006AAB8  7C 08 02 A6 */	mflr r0
+/* 8139A59C 0006AABC  90 01 00 14 */	stw r0, 0x14(r1)
+/* 8139A5A0 0006AAC0  93 E1 00 0C */	stw r31, 0xc(r1)
+/* 8139A5A4 0006AAC4  93 C1 00 08 */	stw r30, 0x8(r1)
+/* 8139A5A8 0006AAC8  7C 7E 1B 78 */	mr r30, r3
+/* 8139A5AC 0006AACC  88 03 01 FC */	lbz r0, 0x1fc(r3)
+/* 8139A5B0 0006AAD0  2C 00 00 00 */	cmpwi r0, 0x0
+/* 8139A5B4 0006AAD4  40 82 00 28 */	bne .L_8139A5DC
+/* 8139A5B8 0006AAD8  80 63 00 18 */	lwz r3, 0x18(r3)
+/* 8139A5BC 0006AADC  38 80 00 06 */	li r4, 0x6
+/* 8139A5C0 0006AAE0  38 63 02 8C */	addi r3, r3, 0x28c
+/* 8139A5C4 0006AAE4  48 17 7D 55 */	bl List_GetNth__Q24nw4r2utFPCQ34nw4r2ut4ListUs
+/* 8139A5C8 0006AAE8  7C 7F 1B 78 */	mr r31, r3
+/* 8139A5CC 0006AAEC  4B FC 82 A5 */	bl initFrame__Q33ipl7utility15FrameControllerFv
+/* 8139A5D0 0006AAF0  38 00 00 01 */	li r0, 0x1
+/* 8139A5D4 0006AAF4  90 1F 00 14 */	stw r0, 0x14(r31)
+/* 8139A5D8 0006AAF8  98 1E 01 FC */	stb r0, 0x1fc(r30)
+.L_8139A5DC:
+/* 8139A5DC 0006AAFC  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 8139A5E0 0006AB00  83 E1 00 0C */	lwz r31, 0xc(r1)
+/* 8139A5E4 0006AB04  83 C1 00 08 */	lwz r30, 0x8(r1)
+/* 8139A5E8 0006AB08  7C 08 03 A6 */	mtlr r0
+/* 8139A5EC 0006AB0C  38 21 00 10 */	addi r1, r1, 0x10
+/* 8139A5F0 0006AB10  4E 80 00 20 */	blr
+.endfn show_uarw__Q33ipl5scene12focus_objectFv
+
+# .text:0x38CC | 0x8139A5F4 | size: 0x60
+# ipl::scene::focus_object::show_darw()
+.fn show_darw__Q33ipl5scene12focus_objectFv, global
+/* 8139A5F4 0006AB14  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 8139A5F8 0006AB18  7C 08 02 A6 */	mflr r0
+/* 8139A5FC 0006AB1C  90 01 00 14 */	stw r0, 0x14(r1)
+/* 8139A600 0006AB20  93 E1 00 0C */	stw r31, 0xc(r1)
+/* 8139A604 0006AB24  93 C1 00 08 */	stw r30, 0x8(r1)
+/* 8139A608 0006AB28  7C 7E 1B 78 */	mr r30, r3
+/* 8139A60C 0006AB2C  88 03 01 FD */	lbz r0, 0x1fd(r3)
+/* 8139A610 0006AB30  2C 00 00 00 */	cmpwi r0, 0x0
+/* 8139A614 0006AB34  40 82 00 28 */	bne .L_8139A63C
+/* 8139A618 0006AB38  80 63 00 18 */	lwz r3, 0x18(r3)
+/* 8139A61C 0006AB3C  38 80 00 0E */	li r4, 0xe
+/* 8139A620 0006AB40  38 63 02 8C */	addi r3, r3, 0x28c
+/* 8139A624 0006AB44  48 17 7C F5 */	bl List_GetNth__Q24nw4r2utFPCQ34nw4r2ut4ListUs
+/* 8139A628 0006AB48  7C 7F 1B 78 */	mr r31, r3
+/* 8139A62C 0006AB4C  4B FC 82 45 */	bl initFrame__Q33ipl7utility15FrameControllerFv
+/* 8139A630 0006AB50  38 00 00 01 */	li r0, 0x1
+/* 8139A634 0006AB54  90 1F 00 14 */	stw r0, 0x14(r31)
+/* 8139A638 0006AB58  98 1E 01 FD */	stb r0, 0x1fd(r30)
+.L_8139A63C:
+/* 8139A63C 0006AB5C  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 8139A640 0006AB60  83 E1 00 0C */	lwz r31, 0xc(r1)
+/* 8139A644 0006AB64  83 C1 00 08 */	lwz r30, 0x8(r1)
+/* 8139A648 0006AB68  7C 08 03 A6 */	mtlr r0
+/* 8139A64C 0006AB6C  38 21 00 10 */	addi r1, r1, 0x10
+/* 8139A650 0006AB70  4E 80 00 20 */	blr
+.endfn show_darw__Q33ipl5scene12focus_objectFv
+
+# .text:0x392C | 0x8139A654 | size: 0x64
+# ipl::scene::focus_object::hide_uarw()
+.fn hide_uarw__Q33ipl5scene12focus_objectFv, global
+/* 8139A654 0006AB74  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 8139A658 0006AB78  7C 08 02 A6 */	mflr r0
+/* 8139A65C 0006AB7C  90 01 00 14 */	stw r0, 0x14(r1)
+/* 8139A660 0006AB80  93 E1 00 0C */	stw r31, 0xc(r1)
+/* 8139A664 0006AB84  93 C1 00 08 */	stw r30, 0x8(r1)
+/* 8139A668 0006AB88  7C 7E 1B 78 */	mr r30, r3
+/* 8139A66C 0006AB8C  88 03 01 FC */	lbz r0, 0x1fc(r3)
+/* 8139A670 0006AB90  2C 00 00 00 */	cmpwi r0, 0x0
+/* 8139A674 0006AB94  41 82 00 2C */	beq .L_8139A6A0
+/* 8139A678 0006AB98  80 63 00 18 */	lwz r3, 0x18(r3)
+/* 8139A67C 0006AB9C  38 80 00 07 */	li r4, 0x7
+/* 8139A680 0006ABA0  38 63 02 8C */	addi r3, r3, 0x28c
+/* 8139A684 0006ABA4  48 17 7C 95 */	bl List_GetNth__Q24nw4r2utFPCQ34nw4r2ut4ListUs
+/* 8139A688 0006ABA8  7C 7F 1B 78 */	mr r31, r3
+/* 8139A68C 0006ABAC  4B FC 81 E5 */	bl initFrame__Q33ipl7utility15FrameControllerFv
+/* 8139A690 0006ABB0  38 60 00 01 */	li r3, 0x1
+/* 8139A694 0006ABB4  38 00 00 00 */	li r0, 0x0
+/* 8139A698 0006ABB8  90 7F 00 14 */	stw r3, 0x14(r31)
+/* 8139A69C 0006ABBC  98 1E 01 FC */	stb r0, 0x1fc(r30)
+.L_8139A6A0:
+/* 8139A6A0 0006ABC0  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 8139A6A4 0006ABC4  83 E1 00 0C */	lwz r31, 0xc(r1)
+/* 8139A6A8 0006ABC8  83 C1 00 08 */	lwz r30, 0x8(r1)
+/* 8139A6AC 0006ABCC  7C 08 03 A6 */	mtlr r0
+/* 8139A6B0 0006ABD0  38 21 00 10 */	addi r1, r1, 0x10
+/* 8139A6B4 0006ABD4  4E 80 00 20 */	blr
+.endfn hide_uarw__Q33ipl5scene12focus_objectFv
+
+# .text:0x3990 | 0x8139A6B8 | size: 0x64
+# ipl::scene::focus_object::hide_darw()
+.fn hide_darw__Q33ipl5scene12focus_objectFv, global
+/* 8139A6B8 0006ABD8  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 8139A6BC 0006ABDC  7C 08 02 A6 */	mflr r0
+/* 8139A6C0 0006ABE0  90 01 00 14 */	stw r0, 0x14(r1)
+/* 8139A6C4 0006ABE4  93 E1 00 0C */	stw r31, 0xc(r1)
+/* 8139A6C8 0006ABE8  93 C1 00 08 */	stw r30, 0x8(r1)
+/* 8139A6CC 0006ABEC  7C 7E 1B 78 */	mr r30, r3
+/* 8139A6D0 0006ABF0  88 03 01 FD */	lbz r0, 0x1fd(r3)
+/* 8139A6D4 0006ABF4  2C 00 00 00 */	cmpwi r0, 0x0
+/* 8139A6D8 0006ABF8  41 82 00 2C */	beq .L_8139A704
+/* 8139A6DC 0006ABFC  80 63 00 18 */	lwz r3, 0x18(r3)
+/* 8139A6E0 0006AC00  38 80 00 0F */	li r4, 0xf
+/* 8139A6E4 0006AC04  38 63 02 8C */	addi r3, r3, 0x28c
+/* 8139A6E8 0006AC08  48 17 7C 31 */	bl List_GetNth__Q24nw4r2utFPCQ34nw4r2ut4ListUs
+/* 8139A6EC 0006AC0C  7C 7F 1B 78 */	mr r31, r3
+/* 8139A6F0 0006AC10  4B FC 81 81 */	bl initFrame__Q33ipl7utility15FrameControllerFv
+/* 8139A6F4 0006AC14  38 60 00 01 */	li r3, 0x1
+/* 8139A6F8 0006AC18  38 00 00 00 */	li r0, 0x0
+/* 8139A6FC 0006AC1C  90 7F 00 14 */	stw r3, 0x14(r31)
+/* 8139A700 0006AC20  98 1E 01 FD */	stb r0, 0x1fd(r30)
+.L_8139A704:
+/* 8139A704 0006AC24  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 8139A708 0006AC28  83 E1 00 0C */	lwz r31, 0xc(r1)
+/* 8139A70C 0006AC2C  83 C1 00 08 */	lwz r30, 0x8(r1)
+/* 8139A710 0006AC30  7C 08 03 A6 */	mtlr r0
+/* 8139A714 0006AC34  38 21 00 10 */	addi r1, r1, 0x10
+/* 8139A718 0006AC38  4E 80 00 20 */	blr
+.endfn hide_darw__Q33ipl5scene12focus_objectFv
+
+# .text:0x39F4 | 0x8139A71C | size: 0x9C
+# ipl::scene::focus_object::show_or_hide_arw(bool, bool, bool, bool)
+.fn show_or_hide_arw__Q33ipl5scene12focus_objectFbbbb, global
+/* 8139A71C 0006AC3C  94 21 FF E0 */	stwu r1, -0x20(r1)
+/* 8139A720 0006AC40  7C 08 02 A6 */	mflr r0
+/* 8139A724 0006AC44  90 01 00 24 */	stw r0, 0x24(r1)
+/* 8139A728 0006AC48  39 61 00 20 */	addi r11, r1, 0x20
+/* 8139A72C 0006AC4C  48 25 ED 95 */	bl _savegpr_27
+/* 8139A730 0006AC50  28 04 00 01 */	cmplwi r4, 0x1
+/* 8139A734 0006AC54  7C 7B 1B 78 */	mr r27, r3
+/* 8139A738 0006AC58  7C 9C 23 78 */	mr r28, r4
+/* 8139A73C 0006AC5C  7C BD 2B 78 */	mr r29, r5
+/* 8139A740 0006AC60  7C DE 33 78 */	mr r30, r6
+/* 8139A744 0006AC64  7C FF 3B 78 */	mr r31, r7
+/* 8139A748 0006AC68  41 82 00 10 */	beq .L_8139A758
+/* 8139A74C 0006AC6C  28 06 00 01 */	cmplwi r6, 0x1
+/* 8139A750 0006AC70  40 82 00 08 */	bne .L_8139A758
+/* 8139A754 0006AC74  4B FF FF 01 */	bl hide_uarw__Q33ipl5scene12focus_objectFv
+.L_8139A758:
+/* 8139A758 0006AC78  28 1C 00 01 */	cmplwi r28, 0x1
+/* 8139A75C 0006AC7C  40 82 00 14 */	bne .L_8139A770
+/* 8139A760 0006AC80  28 1E 00 01 */	cmplwi r30, 0x1
+/* 8139A764 0006AC84  41 82 00 0C */	beq .L_8139A770
+/* 8139A768 0006AC88  7F 63 DB 78 */	mr r3, r27
+/* 8139A76C 0006AC8C  4B FF FE 29 */	bl show_uarw__Q33ipl5scene12focus_objectFv
+.L_8139A770:
+/* 8139A770 0006AC90  28 1D 00 01 */	cmplwi r29, 0x1
+/* 8139A774 0006AC94  41 82 00 14 */	beq .L_8139A788
+/* 8139A778 0006AC98  28 1F 00 01 */	cmplwi r31, 0x1
+/* 8139A77C 0006AC9C  40 82 00 0C */	bne .L_8139A788
+/* 8139A780 0006ACA0  7F 63 DB 78 */	mr r3, r27
+/* 8139A784 0006ACA4  4B FF FF 35 */	bl hide_darw__Q33ipl5scene12focus_objectFv
+.L_8139A788:
+/* 8139A788 0006ACA8  28 1D 00 01 */	cmplwi r29, 0x1
+/* 8139A78C 0006ACAC  40 82 00 14 */	bne .L_8139A7A0
+/* 8139A790 0006ACB0  28 1F 00 01 */	cmplwi r31, 0x1
+/* 8139A794 0006ACB4  41 82 00 0C */	beq .L_8139A7A0
+/* 8139A798 0006ACB8  7F 63 DB 78 */	mr r3, r27
+/* 8139A79C 0006ACBC  4B FF FE 59 */	bl show_darw__Q33ipl5scene12focus_objectFv
+.L_8139A7A0:
+/* 8139A7A0 0006ACC0  39 61 00 20 */	addi r11, r1, 0x20
+/* 8139A7A4 0006ACC4  48 25 ED 69 */	bl _restgpr_27
+/* 8139A7A8 0006ACC8  80 01 00 24 */	lwz r0, 0x24(r1)
+/* 8139A7AC 0006ACCC  7C 08 03 A6 */	mtlr r0
+/* 8139A7B0 0006ACD0  38 21 00 20 */	addi r1, r1, 0x20
+/* 8139A7B4 0006ACD4  4E 80 00 20 */	blr
+.endfn show_or_hide_arw__Q33ipl5scene12focus_objectFbbbb
+
+# .text:0x3A90 | 0x8139A7B8 | size: 0x60
+# ipl::scene::focus_object::scale_up_uarw()
+.fn scale_up_uarw__Q33ipl5scene12focus_objectFv, global
+/* 8139A7B8 0006ACD8  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 8139A7BC 0006ACDC  7C 08 02 A6 */	mflr r0
+/* 8139A7C0 0006ACE0  90 01 00 14 */	stw r0, 0x14(r1)
+/* 8139A7C4 0006ACE4  93 E1 00 0C */	stw r31, 0xc(r1)
+/* 8139A7C8 0006ACE8  93 C1 00 08 */	stw r30, 0x8(r1)
+/* 8139A7CC 0006ACEC  7C 7E 1B 78 */	mr r30, r3
+/* 8139A7D0 0006ACF0  88 03 01 FE */	lbz r0, 0x1fe(r3)
+/* 8139A7D4 0006ACF4  2C 00 00 00 */	cmpwi r0, 0x0
+/* 8139A7D8 0006ACF8  40 82 00 28 */	bne .L_8139A800
+/* 8139A7DC 0006ACFC  80 63 00 18 */	lwz r3, 0x18(r3)
+/* 8139A7E0 0006AD00  38 80 00 10 */	li r4, 0x10
+/* 8139A7E4 0006AD04  38 63 02 8C */	addi r3, r3, 0x28c
+/* 8139A7E8 0006AD08  48 17 7B 31 */	bl List_GetNth__Q24nw4r2utFPCQ34nw4r2ut4ListUs
+/* 8139A7EC 0006AD0C  7C 7F 1B 78 */	mr r31, r3
+/* 8139A7F0 0006AD10  4B FC 80 81 */	bl initFrame__Q33ipl7utility15FrameControllerFv
+/* 8139A7F4 0006AD14  38 00 00 01 */	li r0, 0x1
+/* 8139A7F8 0006AD18  90 1F 00 14 */	stw r0, 0x14(r31)
+/* 8139A7FC 0006AD1C  98 1E 01 FE */	stb r0, 0x1fe(r30)
+.L_8139A800:
+/* 8139A800 0006AD20  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 8139A804 0006AD24  83 E1 00 0C */	lwz r31, 0xc(r1)
+/* 8139A808 0006AD28  83 C1 00 08 */	lwz r30, 0x8(r1)
+/* 8139A80C 0006AD2C  7C 08 03 A6 */	mtlr r0
+/* 8139A810 0006AD30  38 21 00 10 */	addi r1, r1, 0x10
+/* 8139A814 0006AD34  4E 80 00 20 */	blr
+.endfn scale_up_uarw__Q33ipl5scene12focus_objectFv
+
+# .text:0x3AF0 | 0x8139A818 | size: 0x60
+# ipl::scene::focus_object::scale_up_darw()
+.fn scale_up_darw__Q33ipl5scene12focus_objectFv, global
+/* 8139A818 0006AD38  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 8139A81C 0006AD3C  7C 08 02 A6 */	mflr r0
+/* 8139A820 0006AD40  90 01 00 14 */	stw r0, 0x14(r1)
+/* 8139A824 0006AD44  93 E1 00 0C */	stw r31, 0xc(r1)
+/* 8139A828 0006AD48  93 C1 00 08 */	stw r30, 0x8(r1)
+/* 8139A82C 0006AD4C  7C 7E 1B 78 */	mr r30, r3
+/* 8139A830 0006AD50  88 03 01 FF */	lbz r0, 0x1ff(r3)
+/* 8139A834 0006AD54  2C 00 00 00 */	cmpwi r0, 0x0
+/* 8139A838 0006AD58  40 82 00 28 */	bne .L_8139A860
+/* 8139A83C 0006AD5C  80 63 00 18 */	lwz r3, 0x18(r3)
+/* 8139A840 0006AD60  38 80 00 08 */	li r4, 0x8
+/* 8139A844 0006AD64  38 63 02 8C */	addi r3, r3, 0x28c
+/* 8139A848 0006AD68  48 17 7A D1 */	bl List_GetNth__Q24nw4r2utFPCQ34nw4r2ut4ListUs
+/* 8139A84C 0006AD6C  7C 7F 1B 78 */	mr r31, r3
+/* 8139A850 0006AD70  4B FC 80 21 */	bl initFrame__Q33ipl7utility15FrameControllerFv
+/* 8139A854 0006AD74  38 00 00 01 */	li r0, 0x1
+/* 8139A858 0006AD78  90 1F 00 14 */	stw r0, 0x14(r31)
+/* 8139A85C 0006AD7C  98 1E 01 FF */	stb r0, 0x1ff(r30)
+.L_8139A860:
+/* 8139A860 0006AD80  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 8139A864 0006AD84  83 E1 00 0C */	lwz r31, 0xc(r1)
+/* 8139A868 0006AD88  83 C1 00 08 */	lwz r30, 0x8(r1)
+/* 8139A86C 0006AD8C  7C 08 03 A6 */	mtlr r0
+/* 8139A870 0006AD90  38 21 00 10 */	addi r1, r1, 0x10
+/* 8139A874 0006AD94  4E 80 00 20 */	blr
+.endfn scale_up_darw__Q33ipl5scene12focus_objectFv
+
+# .text:0x3B50 | 0x8139A878 | size: 0x64
+# ipl::scene::focus_object::scale_down_uarw()
+.fn scale_down_uarw__Q33ipl5scene12focus_objectFv, global
+/* 8139A878 0006AD98  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 8139A87C 0006AD9C  7C 08 02 A6 */	mflr r0
+/* 8139A880 0006ADA0  90 01 00 14 */	stw r0, 0x14(r1)
+/* 8139A884 0006ADA4  93 E1 00 0C */	stw r31, 0xc(r1)
+/* 8139A888 0006ADA8  93 C1 00 08 */	stw r30, 0x8(r1)
+/* 8139A88C 0006ADAC  7C 7E 1B 78 */	mr r30, r3
+/* 8139A890 0006ADB0  88 03 01 FE */	lbz r0, 0x1fe(r3)
+/* 8139A894 0006ADB4  2C 00 00 00 */	cmpwi r0, 0x0
+/* 8139A898 0006ADB8  41 82 00 2C */	beq .L_8139A8C4
+/* 8139A89C 0006ADBC  80 63 00 18 */	lwz r3, 0x18(r3)
+/* 8139A8A0 0006ADC0  38 80 00 11 */	li r4, 0x11
+/* 8139A8A4 0006ADC4  38 63 02 8C */	addi r3, r3, 0x28c
+/* 8139A8A8 0006ADC8  48 17 7A 71 */	bl List_GetNth__Q24nw4r2utFPCQ34nw4r2ut4ListUs
+/* 8139A8AC 0006ADCC  7C 7F 1B 78 */	mr r31, r3
+/* 8139A8B0 0006ADD0  4B FC 7F C1 */	bl initFrame__Q33ipl7utility15FrameControllerFv
+/* 8139A8B4 0006ADD4  38 60 00 01 */	li r3, 0x1
+/* 8139A8B8 0006ADD8  38 00 00 00 */	li r0, 0x0
+/* 8139A8BC 0006ADDC  90 7F 00 14 */	stw r3, 0x14(r31)
+/* 8139A8C0 0006ADE0  98 1E 01 FE */	stb r0, 0x1fe(r30)
+.L_8139A8C4:
+/* 8139A8C4 0006ADE4  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 8139A8C8 0006ADE8  83 E1 00 0C */	lwz r31, 0xc(r1)
+/* 8139A8CC 0006ADEC  83 C1 00 08 */	lwz r30, 0x8(r1)
+/* 8139A8D0 0006ADF0  7C 08 03 A6 */	mtlr r0
+/* 8139A8D4 0006ADF4  38 21 00 10 */	addi r1, r1, 0x10
+/* 8139A8D8 0006ADF8  4E 80 00 20 */	blr
+.endfn scale_down_uarw__Q33ipl5scene12focus_objectFv
+
+# .text:0x3BB4 | 0x8139A8DC | size: 0x64
+# ipl::scene::focus_object::scale_down_darw()
+.fn scale_down_darw__Q33ipl5scene12focus_objectFv, global
+/* 8139A8DC 0006ADFC  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 8139A8E0 0006AE00  7C 08 02 A6 */	mflr r0
+/* 8139A8E4 0006AE04  90 01 00 14 */	stw r0, 0x14(r1)
+/* 8139A8E8 0006AE08  93 E1 00 0C */	stw r31, 0xc(r1)
+/* 8139A8EC 0006AE0C  93 C1 00 08 */	stw r30, 0x8(r1)
+/* 8139A8F0 0006AE10  7C 7E 1B 78 */	mr r30, r3
+/* 8139A8F4 0006AE14  88 03 01 FF */	lbz r0, 0x1ff(r3)
+/* 8139A8F8 0006AE18  2C 00 00 00 */	cmpwi r0, 0x0
+/* 8139A8FC 0006AE1C  41 82 00 2C */	beq .L_8139A928
+/* 8139A900 0006AE20  80 63 00 18 */	lwz r3, 0x18(r3)
+/* 8139A904 0006AE24  38 80 00 09 */	li r4, 0x9
+/* 8139A908 0006AE28  38 63 02 8C */	addi r3, r3, 0x28c
+/* 8139A90C 0006AE2C  48 17 7A 0D */	bl List_GetNth__Q24nw4r2utFPCQ34nw4r2ut4ListUs
+/* 8139A910 0006AE30  7C 7F 1B 78 */	mr r31, r3
+/* 8139A914 0006AE34  4B FC 7F 5D */	bl initFrame__Q33ipl7utility15FrameControllerFv
+/* 8139A918 0006AE38  38 60 00 01 */	li r3, 0x1
+/* 8139A91C 0006AE3C  38 00 00 00 */	li r0, 0x0
+/* 8139A920 0006AE40  90 7F 00 14 */	stw r3, 0x14(r31)
+/* 8139A924 0006AE44  98 1E 01 FF */	stb r0, 0x1ff(r30)
+.L_8139A928:
+/* 8139A928 0006AE48  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 8139A92C 0006AE4C  83 E1 00 0C */	lwz r31, 0xc(r1)
+/* 8139A930 0006AE50  83 C1 00 08 */	lwz r30, 0x8(r1)
+/* 8139A934 0006AE54  7C 08 03 A6 */	mtlr r0
+/* 8139A938 0006AE58  38 21 00 10 */	addi r1, r1, 0x10
+/* 8139A93C 0006AE5C  4E 80 00 20 */	blr
+.endfn scale_down_darw__Q33ipl5scene12focus_objectFv
+
+# .text:0x3C18 | 0x8139A940 | size: 0x160
+# ipl::scene::focus_object::scale_up_or_down_arw()
+.fn scale_up_or_down_arw__Q33ipl5scene12focus_objectFv, global
+/* 8139A940 0006AE60  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 8139A944 0006AE64  7C 08 02 A6 */	mflr r0
+/* 8139A948 0006AE68  90 01 00 14 */	stw r0, 0x14(r1)
+/* 8139A94C 0006AE6C  93 E1 00 0C */	stw r31, 0xc(r1)
+/* 8139A950 0006AE70  93 C1 00 08 */	stw r30, 0x8(r1)
+/* 8139A954 0006AE74  7C 7E 1B 78 */	mr r30, r3
+/* 8139A958 0006AE78  4B F9 B0 51 */	bl getMasterController__Q23ipl6SystemFv
+/* 8139A95C 0006AE7C  7C 7F 1B 78 */	mr r31, r3
+/* 8139A960 0006AE80  38 7E 00 A8 */	addi r3, r30, 0xa8
+/* 8139A964 0006AE84  4B FC 91 81 */	bl isActive__Q33ipl7utility9BScrollerCFv
+/* 8139A968 0006AE88  7C 60 00 34 */	cntlzw r0, r3
+/* 8139A96C 0006AE8C  54 00 D9 7F */	srwi. r0, r0, 5
+/* 8139A970 0006AE90  41 82 00 B8 */	beq .L_8139AA28
+/* 8139A974 0006AE94  81 9F 00 00 */	lwz r12, 0x0(r31)
+/* 8139A978 0006AE98  3C 80 00 01 */	lis r4, 0x1
+/* 8139A97C 0006AE9C  7F E3 FB 78 */	mr r3, r31
+/* 8139A980 0006AEA0  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 8139A984 0006AEA4  38 84 00 08 */	addi r4, r4, 0x8
+/* 8139A988 0006AEA8  7D 89 03 A6 */	mtctr r12
+/* 8139A98C 0006AEAC  4E 80 04 21 */	bctrl
+/* 8139A990 0006AEB0  2C 03 00 00 */	cmpwi r3, 0x0
+/* 8139A994 0006AEB4  41 82 00 0C */	beq .L_8139A9A0
+/* 8139A998 0006AEB8  7F C3 F3 78 */	mr r3, r30
+/* 8139A99C 0006AEBC  4B FF FE 1D */	bl scale_up_uarw__Q33ipl5scene12focus_objectFv
+.L_8139A9A0:
+/* 8139A9A0 0006AEC0  81 9F 00 00 */	lwz r12, 0x0(r31)
+/* 8139A9A4 0006AEC4  3C 80 00 01 */	lis r4, 0x1
+/* 8139A9A8 0006AEC8  7F E3 FB 78 */	mr r3, r31
+/* 8139A9AC 0006AECC  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 8139A9B0 0006AED0  38 84 00 08 */	addi r4, r4, 0x8
+/* 8139A9B4 0006AED4  7D 89 03 A6 */	mtctr r12
+/* 8139A9B8 0006AED8  4E 80 04 21 */	bctrl
+/* 8139A9BC 0006AEDC  2C 03 00 00 */	cmpwi r3, 0x0
+/* 8139A9C0 0006AEE0  40 82 00 0C */	bne .L_8139A9CC
+/* 8139A9C4 0006AEE4  7F C3 F3 78 */	mr r3, r30
+/* 8139A9C8 0006AEE8  4B FF FE B1 */	bl scale_down_uarw__Q33ipl5scene12focus_objectFv
+.L_8139A9CC:
+/* 8139A9CC 0006AEEC  81 9F 00 00 */	lwz r12, 0x0(r31)
+/* 8139A9D0 0006AEF0  3C 80 40 00 */	lis r4, 0x4000
+/* 8139A9D4 0006AEF4  7F E3 FB 78 */	mr r3, r31
+/* 8139A9D8 0006AEF8  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 8139A9DC 0006AEFC  38 84 00 04 */	addi r4, r4, 0x4
+/* 8139A9E0 0006AF00  7D 89 03 A6 */	mtctr r12
+/* 8139A9E4 0006AF04  4E 80 04 21 */	bctrl
+/* 8139A9E8 0006AF08  2C 03 00 00 */	cmpwi r3, 0x0
+/* 8139A9EC 0006AF0C  41 82 00 0C */	beq .L_8139A9F8
+/* 8139A9F0 0006AF10  7F C3 F3 78 */	mr r3, r30
+/* 8139A9F4 0006AF14  4B FF FE 25 */	bl scale_up_darw__Q33ipl5scene12focus_objectFv
+.L_8139A9F8:
+/* 8139A9F8 0006AF18  81 9F 00 00 */	lwz r12, 0x0(r31)
+/* 8139A9FC 0006AF1C  3C 80 40 00 */	lis r4, 0x4000
+/* 8139AA00 0006AF20  7F E3 FB 78 */	mr r3, r31
+/* 8139AA04 0006AF24  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 8139AA08 0006AF28  38 84 00 04 */	addi r4, r4, 0x4
+/* 8139AA0C 0006AF2C  7D 89 03 A6 */	mtctr r12
+/* 8139AA10 0006AF30  4E 80 04 21 */	bctrl
+/* 8139AA14 0006AF34  2C 03 00 00 */	cmpwi r3, 0x0
+/* 8139AA18 0006AF38  40 82 00 70 */	bne .L_8139AA88
+/* 8139AA1C 0006AF3C  7F C3 F3 78 */	mr r3, r30
+/* 8139AA20 0006AF40  4B FF FE BD */	bl scale_down_darw__Q33ipl5scene12focus_objectFv
+/* 8139AA24 0006AF44  48 00 00 64 */	b .L_8139AA88
+.L_8139AA28:
+/* 8139AA28 0006AF48  38 7E 00 A8 */	addi r3, r30, 0xa8
+/* 8139AA2C 0006AF4C  4B FC 90 CD */	bl isUp__Q33ipl7utility9BScrollerCFv
+/* 8139AA30 0006AF50  2C 03 00 00 */	cmpwi r3, 0x0
+/* 8139AA34 0006AF54  41 82 00 0C */	beq .L_8139AA40
+/* 8139AA38 0006AF58  7F C3 F3 78 */	mr r3, r30
+/* 8139AA3C 0006AF5C  4B FF FD 7D */	bl scale_up_uarw__Q33ipl5scene12focus_objectFv
+.L_8139AA40:
+/* 8139AA40 0006AF60  38 7E 00 A8 */	addi r3, r30, 0xa8
+/* 8139AA44 0006AF64  4B FC 90 B5 */	bl isUp__Q33ipl7utility9BScrollerCFv
+/* 8139AA48 0006AF68  2C 03 00 00 */	cmpwi r3, 0x0
+/* 8139AA4C 0006AF6C  40 82 00 0C */	bne .L_8139AA58
+/* 8139AA50 0006AF70  7F C3 F3 78 */	mr r3, r30
+/* 8139AA54 0006AF74  4B FF FE 25 */	bl scale_down_uarw__Q33ipl5scene12focus_objectFv
+.L_8139AA58:
+/* 8139AA58 0006AF78  38 7E 00 A8 */	addi r3, r30, 0xa8
+/* 8139AA5C 0006AF7C  4B FC 90 B5 */	bl isDown__Q33ipl7utility9BScrollerCFv
+/* 8139AA60 0006AF80  2C 03 00 00 */	cmpwi r3, 0x0
+/* 8139AA64 0006AF84  41 82 00 0C */	beq .L_8139AA70
+/* 8139AA68 0006AF88  7F C3 F3 78 */	mr r3, r30
+/* 8139AA6C 0006AF8C  4B FF FD AD */	bl scale_up_darw__Q33ipl5scene12focus_objectFv
+.L_8139AA70:
+/* 8139AA70 0006AF90  38 7E 00 A8 */	addi r3, r30, 0xa8
+/* 8139AA74 0006AF94  4B FC 90 9D */	bl isDown__Q33ipl7utility9BScrollerCFv
+/* 8139AA78 0006AF98  2C 03 00 00 */	cmpwi r3, 0x0
+/* 8139AA7C 0006AF9C  40 82 00 0C */	bne .L_8139AA88
+/* 8139AA80 0006AFA0  7F C3 F3 78 */	mr r3, r30
+/* 8139AA84 0006AFA4  4B FF FE 59 */	bl scale_down_darw__Q33ipl5scene12focus_objectFv
+.L_8139AA88:
+/* 8139AA88 0006AFA8  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 8139AA8C 0006AFAC  83 E1 00 0C */	lwz r31, 0xc(r1)
+/* 8139AA90 0006AFB0  83 C1 00 08 */	lwz r30, 0x8(r1)
+/* 8139AA94 0006AFB4  7C 08 03 A6 */	mtlr r0
+/* 8139AA98 0006AFB8  38 21 00 10 */	addi r1, r1, 0x10
+/* 8139AA9C 0006AFBC  4E 80 00 20 */	blr
+.endfn scale_up_or_down_arw__Q33ipl5scene12focus_objectFv
+
+# .text:0x3D78 | 0x8139AAA0 | size: 0x104
+# ipl::scene::focus_object::show_cmn_btn()
+.fn show_cmn_btn__Q33ipl5scene12focus_objectFv, global
+/* 8139AAA0 0006AFC0  94 21 FF E0 */	stwu r1, -0x20(r1)
+/* 8139AAA4 0006AFC4  7C 08 02 A6 */	mflr r0
+/* 8139AAA8 0006AFC8  90 01 00 24 */	stw r0, 0x24(r1)
+/* 8139AAAC 0006AFCC  39 61 00 20 */	addi r11, r1, 0x20
+/* 8139AAB0 0006AFD0  48 25 EA 19 */	bl _savegpr_29
+/* 8139AAB4 0006AFD4  3C A0 81 09 */	lis r5, smArg__Q23ipl6System@ha
+/* 8139AAB8 0006AFD8  7C 7D 1B 78 */	mr r29, r3
+/* 8139AABC 0006AFDC  38 A5 90 08 */	addi r5, r5, smArg__Q23ipl6System@l
+/* 8139AAC0 0006AFE0  38 80 00 05 */	li r4, 0x5
+/* 8139AAC4 0006AFE4  80 65 00 64 */	lwz r3, 0x64(r5)
+/* 8139AAC8 0006AFE8  48 07 06 71 */	bl getScene__Q33ipl5scene7ManagerFi
+/* 8139AACC 0006AFEC  80 9D 00 14 */	lwz r4, 0x14(r29)
+/* 8139AAD0 0006AFF0  7C 7F 1B 78 */	mr r31, r3
+/* 8139AAD4 0006AFF4  80 04 00 DC */	lwz r0, 0xdc(r4)
+/* 8139AAD8 0006AFF8  2C 00 00 02 */	cmpwi r0, 0x2
+/* 8139AADC 0006AFFC  40 82 00 0C */	bne .L_8139AAE8
+/* 8139AAE0 0006B000  38 80 00 0B */	li r4, 0xb
+/* 8139AAE4 0006B004  48 00 00 A0 */	b .L_8139AB84
+.L_8139AAE8:
+/* 8139AAE8 0006B008  2C 00 00 03 */	cmpwi r0, 0x3
+/* 8139AAEC 0006B00C  3B C0 00 00 */	li r30, 0x0
+/* 8139AAF0 0006B010  40 82 00 18 */	bne .L_8139AB08
+/* 8139AAF4 0006B014  38 80 00 01 */	li r4, 0x1
+/* 8139AAF8 0006B018  38 A0 00 15 */	li r5, 0x15
+/* 8139AAFC 0006B01C  48 00 29 61 */	bl reserveText__Q33ipl5scene6ButtonFiUl
+/* 8139AB00 0006B020  3B C0 00 01 */	li r30, 0x1
+/* 8139AB04 0006B024  48 00 00 48 */	b .L_8139AB4C
+.L_8139AB08:
+/* 8139AB08 0006B028  88 1D 01 2C */	lbz r0, 0x12c(r29)
+/* 8139AB0C 0006B02C  2C 00 00 00 */	cmpwi r0, 0x0
+/* 8139AB10 0006B030  41 82 00 18 */	beq .L_8139AB28
+/* 8139AB14 0006B034  38 80 00 01 */	li r4, 0x1
+/* 8139AB18 0006B038  38 A0 00 02 */	li r5, 0x2
+/* 8139AB1C 0006B03C  48 00 29 41 */	bl reserveText__Q33ipl5scene6ButtonFiUl
+/* 8139AB20 0006B040  3B C0 00 01 */	li r30, 0x1
+/* 8139AB24 0006B044  48 00 00 28 */	b .L_8139AB4C
+.L_8139AB28:
+/* 8139AB28 0006B048  7C 83 23 78 */	mr r3, r4
+/* 8139AB2C 0006B04C  4B FF B3 69 */	bl permit_reply__Q33ipl5scene11BoardObjectCFv
+/* 8139AB30 0006B050  2C 03 00 00 */	cmpwi r3, 0x0
+/* 8139AB34 0006B054  41 82 00 18 */	beq .L_8139AB4C
+/* 8139AB38 0006B058  7F E3 FB 78 */	mr r3, r31
+/* 8139AB3C 0006B05C  38 80 00 01 */	li r4, 0x1
+/* 8139AB40 0006B060  38 A0 00 43 */	li r5, 0x43
+/* 8139AB44 0006B064  48 00 29 19 */	bl reserveText__Q33ipl5scene6ButtonFiUl
+/* 8139AB48 0006B068  3B C0 00 01 */	li r30, 0x1
+.L_8139AB4C:
+/* 8139AB4C 0006B06C  80 7D 00 14 */	lwz r3, 0x14(r29)
+/* 8139AB50 0006B070  80 03 00 E0 */	lwz r0, 0xe0(r3)
+/* 8139AB54 0006B074  2C 00 00 00 */	cmpwi r0, 0x0
+/* 8139AB58 0006B078  41 82 00 1C */	beq .L_8139AB74
+/* 8139AB5C 0006B07C  2C 1E 00 00 */	cmpwi r30, 0x0
+/* 8139AB60 0006B080  41 82 00 0C */	beq .L_8139AB6C
+/* 8139AB64 0006B084  38 80 00 24 */	li r4, 0x24
+/* 8139AB68 0006B088  48 00 00 1C */	b .L_8139AB84
+.L_8139AB6C:
+/* 8139AB6C 0006B08C  38 80 00 22 */	li r4, 0x22
+/* 8139AB70 0006B090  48 00 00 14 */	b .L_8139AB84
+.L_8139AB74:
+/* 8139AB74 0006B094  2C 1E 00 00 */	cmpwi r30, 0x0
+/* 8139AB78 0006B098  38 80 00 0D */	li r4, 0xd
+/* 8139AB7C 0006B09C  41 82 00 08 */	beq .L_8139AB84
+/* 8139AB80 0006B0A0  38 80 00 11 */	li r4, 0x11
+.L_8139AB84:
+/* 8139AB84 0006B0A4  7F E3 FB 78 */	mr r3, r31
+/* 8139AB88 0006B0A8  48 00 28 A1 */	bl reserveAnm__Q33ipl5scene6ButtonFi
+/* 8139AB8C 0006B0AC  39 61 00 20 */	addi r11, r1, 0x20
+/* 8139AB90 0006B0B0  48 25 E9 85 */	bl _restgpr_29
+/* 8139AB94 0006B0B4  80 01 00 24 */	lwz r0, 0x24(r1)
+/* 8139AB98 0006B0B8  7C 08 03 A6 */	mtlr r0
+/* 8139AB9C 0006B0BC  38 21 00 20 */	addi r1, r1, 0x20
+/* 8139ABA0 0006B0C0  4E 80 00 20 */	blr
+.endfn show_cmn_btn__Q33ipl5scene12focus_objectFv
+
+# .text:0x3E7C | 0x8139ABA4 | size: 0xCC
+# ipl::scene::focus_object::hide_cmn_btn()
+.fn hide_cmn_btn__Q33ipl5scene12focus_objectFv, global
+/* 8139ABA4 0006B0C4  94 21 FF E0 */	stwu r1, -0x20(r1)
+/* 8139ABA8 0006B0C8  7C 08 02 A6 */	mflr r0
+/* 8139ABAC 0006B0CC  90 01 00 24 */	stw r0, 0x24(r1)
+/* 8139ABB0 0006B0D0  39 61 00 20 */	addi r11, r1, 0x20
+/* 8139ABB4 0006B0D4  48 25 E9 15 */	bl _savegpr_29
+/* 8139ABB8 0006B0D8  3C A0 81 09 */	lis r5, smArg__Q23ipl6System@ha
+/* 8139ABBC 0006B0DC  7C 7D 1B 78 */	mr r29, r3
+/* 8139ABC0 0006B0E0  38 A5 90 08 */	addi r5, r5, smArg__Q23ipl6System@l
+/* 8139ABC4 0006B0E4  38 80 00 05 */	li r4, 0x5
+/* 8139ABC8 0006B0E8  80 65 00 64 */	lwz r3, 0x64(r5)
+/* 8139ABCC 0006B0EC  48 07 05 6D */	bl getScene__Q33ipl5scene7ManagerFi
+/* 8139ABD0 0006B0F0  80 9D 00 14 */	lwz r4, 0x14(r29)
+/* 8139ABD4 0006B0F4  7C 7F 1B 78 */	mr r31, r3
+/* 8139ABD8 0006B0F8  80 04 00 DC */	lwz r0, 0xdc(r4)
+/* 8139ABDC 0006B0FC  2C 00 00 02 */	cmpwi r0, 0x2
+/* 8139ABE0 0006B100  40 82 00 0C */	bne .L_8139ABEC
+/* 8139ABE4 0006B104  38 80 00 0C */	li r4, 0xc
+/* 8139ABE8 0006B108  48 00 00 68 */	b .L_8139AC50
+.L_8139ABEC:
+/* 8139ABEC 0006B10C  2C 00 00 03 */	cmpwi r0, 0x3
+/* 8139ABF0 0006B110  3B C0 00 00 */	li r30, 0x0
+/* 8139ABF4 0006B114  41 82 00 20 */	beq .L_8139AC14
+/* 8139ABF8 0006B118  88 1D 01 2C */	lbz r0, 0x12c(r29)
+/* 8139ABFC 0006B11C  2C 00 00 00 */	cmpwi r0, 0x0
+/* 8139AC00 0006B120  40 82 00 14 */	bne .L_8139AC14
+/* 8139AC04 0006B124  7C 83 23 78 */	mr r3, r4
+/* 8139AC08 0006B128  4B FF B2 8D */	bl permit_reply__Q33ipl5scene11BoardObjectCFv
+/* 8139AC0C 0006B12C  2C 03 00 00 */	cmpwi r3, 0x0
+/* 8139AC10 0006B130  41 82 00 08 */	beq .L_8139AC18
+.L_8139AC14:
+/* 8139AC14 0006B134  3B C0 00 01 */	li r30, 0x1
+.L_8139AC18:
+/* 8139AC18 0006B138  80 7D 00 14 */	lwz r3, 0x14(r29)
+/* 8139AC1C 0006B13C  80 03 00 E0 */	lwz r0, 0xe0(r3)
+/* 8139AC20 0006B140  2C 00 00 00 */	cmpwi r0, 0x0
+/* 8139AC24 0006B144  41 82 00 1C */	beq .L_8139AC40
+/* 8139AC28 0006B148  2C 1E 00 00 */	cmpwi r30, 0x0
+/* 8139AC2C 0006B14C  41 82 00 0C */	beq .L_8139AC38
+/* 8139AC30 0006B150  38 80 00 25 */	li r4, 0x25
+/* 8139AC34 0006B154  48 00 00 1C */	b .L_8139AC50
+.L_8139AC38:
+/* 8139AC38 0006B158  38 80 00 23 */	li r4, 0x23
+/* 8139AC3C 0006B15C  48 00 00 14 */	b .L_8139AC50
+.L_8139AC40:
+/* 8139AC40 0006B160  2C 1E 00 00 */	cmpwi r30, 0x0
+/* 8139AC44 0006B164  38 80 00 0E */	li r4, 0xe
+/* 8139AC48 0006B168  41 82 00 08 */	beq .L_8139AC50
+/* 8139AC4C 0006B16C  38 80 00 12 */	li r4, 0x12
+.L_8139AC50:
+/* 8139AC50 0006B170  7F E3 FB 78 */	mr r3, r31
+/* 8139AC54 0006B174  48 00 27 D5 */	bl reserveAnm__Q33ipl5scene6ButtonFi
+/* 8139AC58 0006B178  39 61 00 20 */	addi r11, r1, 0x20
+/* 8139AC5C 0006B17C  48 25 E8 B9 */	bl _restgpr_29
+/* 8139AC60 0006B180  80 01 00 24 */	lwz r0, 0x24(r1)
+/* 8139AC64 0006B184  7C 08 03 A6 */	mtlr r0
+/* 8139AC68 0006B188  38 21 00 20 */	addi r1, r1, 0x20
+/* 8139AC6C 0006B18C  4E 80 00 20 */	blr
+.endfn hide_cmn_btn__Q33ipl5scene12focus_objectFv
+
+# .text:0x3F48 | 0x8139AC70 | size: 0x184
+# ipl::scene::focus_object::start_point_event(int, ipl::controller::Interface*)
+.fn start_point_event__Q33ipl5scene12focus_objectFiPQ33ipl10controller9Interface, global
+/* 8139AC70 0006B190  94 21 FF D0 */	stwu r1, -0x30(r1)
+/* 8139AC74 0006B194  7C 08 02 A6 */	mflr r0
+/* 8139AC78 0006B198  90 01 00 34 */	stw r0, 0x34(r1)
+/* 8139AC7C 0006B19C  39 61 00 30 */	addi r11, r1, 0x30
+/* 8139AC80 0006B1A0  48 25 E8 49 */	bl _savegpr_29
+/* 8139AC84 0006B1A4  54 80 10 3A */	slwi r0, r4, 2
+/* 8139AC88 0006B1A8  7C BF 2B 78 */	mr r31, r5
+/* 8139AC8C 0006B1AC  7F C3 02 14 */	add r30, r3, r0
+/* 8139AC90 0006B1B0  7C 7D 1B 78 */	mr r29, r3
+/* 8139AC94 0006B1B4  80 1E 01 E0 */	lwz r0, 0x1e0(r30)
+/* 8139AC98 0006B1B8  38 A0 00 00 */	li r5, 0x0
+/* 8139AC9C 0006B1BC  2C 00 00 00 */	cmpwi r0, 0x0
+/* 8139ACA0 0006B1C0  40 82 00 FC */	bne .L_8139AD9C
+/* 8139ACA4 0006B1C4  2C 04 00 02 */	cmpwi r4, 0x2
+/* 8139ACA8 0006B1C8  41 82 00 74 */	beq .L_8139AD1C
+/* 8139ACAC 0006B1CC  40 80 00 14 */	bge .L_8139ACC0
+/* 8139ACB0 0006B1D0  2C 04 00 00 */	cmpwi r4, 0x0
+/* 8139ACB4 0006B1D4  41 82 00 18 */	beq .L_8139ACCC
+/* 8139ACB8 0006B1D8  40 80 00 3C */	bge .L_8139ACF4
+/* 8139ACBC 0006B1DC  48 00 00 E0 */	b .L_8139AD9C
+.L_8139ACC0:
+/* 8139ACC0 0006B1E0  2C 04 00 04 */	cmpwi r4, 0x4
+/* 8139ACC4 0006B1E4  40 80 00 D8 */	bge .L_8139AD9C
+/* 8139ACC8 0006B1E8  48 00 00 8C */	b .L_8139AD54
+.L_8139ACCC:
+/* 8139ACCC 0006B1EC  80 63 00 18 */	lwz r3, 0x18(r3)
+/* 8139ACD0 0006B1F0  38 80 00 03 */	li r4, 0x3
+/* 8139ACD4 0006B1F4  38 63 02 8C */	addi r3, r3, 0x28c
+/* 8139ACD8 0006B1F8  48 17 76 41 */	bl List_GetNth__Q24nw4r2utFPCQ34nw4r2ut4ListUs
+/* 8139ACDC 0006B1FC  7C 7D 1B 78 */	mr r29, r3
+/* 8139ACE0 0006B200  4B FC 7B 91 */	bl initFrame__Q33ipl7utility15FrameControllerFv
+/* 8139ACE4 0006B204  38 00 00 01 */	li r0, 0x1
+/* 8139ACE8 0006B208  38 A0 00 01 */	li r5, 0x1
+/* 8139ACEC 0006B20C  90 1D 00 14 */	stw r0, 0x14(r29)
+/* 8139ACF0 0006B210  48 00 00 AC */	b .L_8139AD9C
+.L_8139ACF4:
+/* 8139ACF4 0006B214  80 63 00 18 */	lwz r3, 0x18(r3)
+/* 8139ACF8 0006B218  38 80 00 0B */	li r4, 0xb
+/* 8139ACFC 0006B21C  38 63 02 8C */	addi r3, r3, 0x28c
+/* 8139AD00 0006B220  48 17 76 19 */	bl List_GetNth__Q24nw4r2utFPCQ34nw4r2ut4ListUs
+/* 8139AD04 0006B224  7C 7D 1B 78 */	mr r29, r3
+/* 8139AD08 0006B228  4B FC 7B 69 */	bl initFrame__Q33ipl7utility15FrameControllerFv
+/* 8139AD0C 0006B22C  38 00 00 01 */	li r0, 0x1
+/* 8139AD10 0006B230  38 A0 00 01 */	li r5, 0x1
+/* 8139AD14 0006B234  90 1D 00 14 */	stw r0, 0x14(r29)
+/* 8139AD18 0006B238  48 00 00 84 */	b .L_8139AD9C
+.L_8139AD1C:
+/* 8139AD1C 0006B23C  80 83 00 14 */	lwz r4, 0x14(r3)
+/* 8139AD20 0006B240  88 04 00 CE */	lbz r0, 0xce(r4)
+/* 8139AD24 0006B244  2C 00 00 00 */	cmpwi r0, 0x0
+/* 8139AD28 0006B248  41 82 00 74 */	beq .L_8139AD9C
+/* 8139AD2C 0006B24C  80 63 00 18 */	lwz r3, 0x18(r3)
+/* 8139AD30 0006B250  38 80 00 16 */	li r4, 0x16
+/* 8139AD34 0006B254  38 63 02 8C */	addi r3, r3, 0x28c
+/* 8139AD38 0006B258  48 17 75 E1 */	bl List_GetNth__Q24nw4r2utFPCQ34nw4r2ut4ListUs
+/* 8139AD3C 0006B25C  7C 7D 1B 78 */	mr r29, r3
+/* 8139AD40 0006B260  4B FC 7B 31 */	bl initFrame__Q33ipl7utility15FrameControllerFv
+/* 8139AD44 0006B264  38 00 00 01 */	li r0, 0x1
+/* 8139AD48 0006B268  38 A0 00 01 */	li r5, 0x1
+/* 8139AD4C 0006B26C  90 1D 00 14 */	stw r0, 0x14(r29)
+/* 8139AD50 0006B270  48 00 00 4C */	b .L_8139AD9C
+.L_8139AD54:
+/* 8139AD54 0006B274  80 63 00 14 */	lwz r3, 0x14(r3)
+/* 8139AD58 0006B278  80 63 00 20 */	lwz r3, 0x20(r3)
+/* 8139AD5C 0006B27C  2C 03 00 00 */	cmpwi r3, 0x0
+/* 8139AD60 0006B280  41 82 00 3C */	beq .L_8139AD9C
+/* 8139AD64 0006B284  88 03 00 50 */	lbz r0, 0x50(r3)
+/* 8139AD68 0006B288  2C 00 00 00 */	cmpwi r0, 0x0
+/* 8139AD6C 0006B28C  41 82 00 30 */	beq .L_8139AD9C
+/* 8139AD70 0006B290  7F A4 EB 78 */	mr r4, r29
+/* 8139AD74 0006B294  38 61 00 08 */	addi r3, r1, 0x8
+/* 8139AD78 0006B298  4B FF F5 71 */	bl calc_balloon_pos__Q33ipl5scene12focus_objectCFv
+/* 8139AD7C 0006B29C  80 7D 00 20 */	lwz r3, 0x20(r29)
+/* 8139AD80 0006B2A0  38 81 00 08 */	addi r4, r1, 0x8
+/* 8139AD84 0006B2A4  38 A0 00 00 */	li r5, 0x0
+/* 8139AD88 0006B2A8  38 C0 00 00 */	li r6, 0x0
+/* 8139AD8C 0006B2AC  48 03 6A 41 */	bl setPos__Q33ipl5scene11TextBalloonFRCQ33ipl4math4VEC3bi
+/* 8139AD90 0006B2B0  80 7D 00 20 */	lwz r3, 0x20(r29)
+/* 8139AD94 0006B2B4  48 03 6A 11 */	bl fadeinNoSetTextbox__Q33ipl5scene11TextBalloonFv
+/* 8139AD98 0006B2B8  38 A0 00 01 */	li r5, 0x1
+.L_8139AD9C:
+/* 8139AD9C 0006B2BC  80 7E 01 E0 */	lwz r3, 0x1e0(r30)
+/* 8139ADA0 0006B2C0  2C 05 00 00 */	cmpwi r5, 0x0
+/* 8139ADA4 0006B2C4  38 03 00 01 */	addi r0, r3, 0x1
+/* 8139ADA8 0006B2C8  90 1E 01 E0 */	stw r0, 0x1e0(r30)
+/* 8139ADAC 0006B2CC  41 82 00 30 */	beq .L_8139ADDC
+/* 8139ADB0 0006B2D0  3C 60 81 09 */	lis r3, sSystem__Q23ipl3snd@ha
+/* 8139ADB4 0006B2D4  3C 80 81 65 */	lis r4, lbl_8164BB53@ha
+/* 8139ADB8 0006B2D8  38 63 99 2C */	addi r3, r3, sSystem__Q23ipl3snd@l
+/* 8139ADBC 0006B2DC  38 84 BB 53 */	addi r4, r4, lbl_8164BB53@l
+/* 8139ADC0 0006B2E0  4B FD 06 AD */	bl startSE__Q33ipl3snd6SystemFPCc
+/* 8139ADC4 0006B2E4  81 9F 00 00 */	lwz r12, 0x0(r31)
+/* 8139ADC8 0006B2E8  7F E3 FB 78 */	mr r3, r31
+/* 8139ADCC 0006B2EC  38 80 00 00 */	li r4, 0x0
+/* 8139ADD0 0006B2F0  81 8C 00 34 */	lwz r12, 0x34(r12)
+/* 8139ADD4 0006B2F4  7D 89 03 A6 */	mtctr r12
+/* 8139ADD8 0006B2F8  4E 80 04 21 */	bctrl
+.L_8139ADDC:
+/* 8139ADDC 0006B2FC  39 61 00 30 */	addi r11, r1, 0x30
+/* 8139ADE0 0006B300  48 25 E7 35 */	bl _restgpr_29
+/* 8139ADE4 0006B304  80 01 00 34 */	lwz r0, 0x34(r1)
+/* 8139ADE8 0006B308  7C 08 03 A6 */	mtlr r0
+/* 8139ADEC 0006B30C  38 21 00 30 */	addi r1, r1, 0x30
+/* 8139ADF0 0006B310  4E 80 00 20 */	blr
+.endfn start_point_event__Q33ipl5scene12focus_objectFiPQ33ipl10controller9Interface
+
+# .text:0x40CC | 0x8139ADF4 | size: 0x114
+# ipl::scene::focus_object::start_left_event(int)
+.fn start_left_event__Q33ipl5scene12focus_objectFi, global
+/* 8139ADF4 0006B314  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 8139ADF8 0006B318  7C 08 02 A6 */	mflr r0
+/* 8139ADFC 0006B31C  90 01 00 14 */	stw r0, 0x14(r1)
+/* 8139AE00 0006B320  54 80 10 3A */	slwi r0, r4, 2
+/* 8139AE04 0006B324  93 E1 00 0C */	stw r31, 0xc(r1)
+/* 8139AE08 0006B328  7F E3 02 14 */	add r31, r3, r0
+/* 8139AE0C 0006B32C  93 C1 00 08 */	stw r30, 0x8(r1)
+/* 8139AE10 0006B330  80 1F 01 E0 */	lwz r0, 0x1e0(r31)
+/* 8139AE14 0006B334  2C 00 00 01 */	cmpwi r0, 0x1
+/* 8139AE18 0006B338  40 82 00 CC */	bne .L_8139AEE4
+/* 8139AE1C 0006B33C  2C 04 00 02 */	cmpwi r4, 0x2
+/* 8139AE20 0006B340  41 82 00 6C */	beq .L_8139AE8C
+/* 8139AE24 0006B344  40 80 00 14 */	bge .L_8139AE38
+/* 8139AE28 0006B348  2C 04 00 00 */	cmpwi r4, 0x0
+/* 8139AE2C 0006B34C  41 82 00 18 */	beq .L_8139AE44
+/* 8139AE30 0006B350  40 80 00 38 */	bge .L_8139AE68
+/* 8139AE34 0006B354  48 00 00 B0 */	b .L_8139AEE4
+.L_8139AE38:
+/* 8139AE38 0006B358  2C 04 00 04 */	cmpwi r4, 0x4
+/* 8139AE3C 0006B35C  40 80 00 A8 */	bge .L_8139AEE4
+/* 8139AE40 0006B360  48 00 00 80 */	b .L_8139AEC0
+.L_8139AE44:
+/* 8139AE44 0006B364  80 63 00 18 */	lwz r3, 0x18(r3)
+/* 8139AE48 0006B368  38 80 00 04 */	li r4, 0x4
+/* 8139AE4C 0006B36C  38 63 02 8C */	addi r3, r3, 0x28c
+/* 8139AE50 0006B370  48 17 74 C9 */	bl List_GetNth__Q24nw4r2utFPCQ34nw4r2ut4ListUs
+/* 8139AE54 0006B374  7C 7E 1B 78 */	mr r30, r3
+/* 8139AE58 0006B378  4B FC 7A 19 */	bl initFrame__Q33ipl7utility15FrameControllerFv
+/* 8139AE5C 0006B37C  38 00 00 01 */	li r0, 0x1
+/* 8139AE60 0006B380  90 1E 00 14 */	stw r0, 0x14(r30)
+/* 8139AE64 0006B384  48 00 00 80 */	b .L_8139AEE4
+.L_8139AE68:
+/* 8139AE68 0006B388  80 63 00 18 */	lwz r3, 0x18(r3)
+/* 8139AE6C 0006B38C  38 80 00 0C */	li r4, 0xc
+/* 8139AE70 0006B390  38 63 02 8C */	addi r3, r3, 0x28c
+/* 8139AE74 0006B394  48 17 74 A5 */	bl List_GetNth__Q24nw4r2utFPCQ34nw4r2ut4ListUs
+/* 8139AE78 0006B398  7C 7E 1B 78 */	mr r30, r3
+/* 8139AE7C 0006B39C  4B FC 79 F5 */	bl initFrame__Q33ipl7utility15FrameControllerFv
+/* 8139AE80 0006B3A0  38 00 00 01 */	li r0, 0x1
+/* 8139AE84 0006B3A4  90 1E 00 14 */	stw r0, 0x14(r30)
+/* 8139AE88 0006B3A8  48 00 00 5C */	b .L_8139AEE4
+.L_8139AE8C:
+/* 8139AE8C 0006B3AC  80 83 00 14 */	lwz r4, 0x14(r3)
+/* 8139AE90 0006B3B0  88 04 00 CE */	lbz r0, 0xce(r4)
+/* 8139AE94 0006B3B4  2C 00 00 00 */	cmpwi r0, 0x0
+/* 8139AE98 0006B3B8  41 82 00 4C */	beq .L_8139AEE4
+/* 8139AE9C 0006B3BC  80 63 00 18 */	lwz r3, 0x18(r3)
+/* 8139AEA0 0006B3C0  38 80 00 17 */	li r4, 0x17
+/* 8139AEA4 0006B3C4  38 63 02 8C */	addi r3, r3, 0x28c
+/* 8139AEA8 0006B3C8  48 17 74 71 */	bl List_GetNth__Q24nw4r2utFPCQ34nw4r2ut4ListUs
+/* 8139AEAC 0006B3CC  7C 7E 1B 78 */	mr r30, r3
+/* 8139AEB0 0006B3D0  4B FC 79 C1 */	bl initFrame__Q33ipl7utility15FrameControllerFv
+/* 8139AEB4 0006B3D4  38 00 00 01 */	li r0, 0x1
+/* 8139AEB8 0006B3D8  90 1E 00 14 */	stw r0, 0x14(r30)
+/* 8139AEBC 0006B3DC  48 00 00 28 */	b .L_8139AEE4
+.L_8139AEC0:
+/* 8139AEC0 0006B3E0  80 83 00 14 */	lwz r4, 0x14(r3)
+/* 8139AEC4 0006B3E4  80 84 00 20 */	lwz r4, 0x20(r4)
+/* 8139AEC8 0006B3E8  2C 04 00 00 */	cmpwi r4, 0x0
+/* 8139AECC 0006B3EC  41 82 00 18 */	beq .L_8139AEE4
+/* 8139AED0 0006B3F0  88 04 00 50 */	lbz r0, 0x50(r4)
+/* 8139AED4 0006B3F4  2C 00 00 00 */	cmpwi r0, 0x0
+/* 8139AED8 0006B3F8  41 82 00 0C */	beq .L_8139AEE4
+/* 8139AEDC 0006B3FC  80 63 00 20 */	lwz r3, 0x20(r3)
+/* 8139AEE0 0006B400  48 03 6A 75 */	bl fadeout__Q33ipl5scene11TextBalloonFv
+.L_8139AEE4:
+/* 8139AEE4 0006B404  80 7F 01 E0 */	lwz r3, 0x1e0(r31)
+/* 8139AEE8 0006B408  38 03 FF FF */	subi r0, r3, 0x1
+/* 8139AEEC 0006B40C  90 1F 01 E0 */	stw r0, 0x1e0(r31)
+/* 8139AEF0 0006B410  83 E1 00 0C */	lwz r31, 0xc(r1)
+/* 8139AEF4 0006B414  83 C1 00 08 */	lwz r30, 0x8(r1)
+/* 8139AEF8 0006B418  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 8139AEFC 0006B41C  7C 08 03 A6 */	mtlr r0
+/* 8139AF00 0006B420  38 21 00 10 */	addi r1, r1, 0x10
+/* 8139AF04 0006B424  4E 80 00 20 */	blr
+.endfn start_left_event__Q33ipl5scene12focus_objectFi
+
+# .text:0x41E0 | 0x8139AF08 | size: 0x160
+# ipl::scene::focus_object::start_trig_event(int)
+.fn start_trig_event__Q33ipl5scene12focus_objectFi, global
+/* 8139AF08 0006B428  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 8139AF0C 0006B42C  7C 08 02 A6 */	mflr r0
+/* 8139AF10 0006B430  2C 04 00 01 */	cmpwi r4, 0x1
+/* 8139AF14 0006B434  90 01 00 14 */	stw r0, 0x14(r1)
+/* 8139AF18 0006B438  93 E1 00 0C */	stw r31, 0xc(r1)
+/* 8139AF1C 0006B43C  7C 7F 1B 78 */	mr r31, r3
+/* 8139AF20 0006B440  93 C1 00 08 */	stw r30, 0x8(r1)
+/* 8139AF24 0006B444  41 82 00 5C */	beq .L_8139AF80
+/* 8139AF28 0006B448  40 80 00 10 */	bge .L_8139AF38
+/* 8139AF2C 0006B44C  2C 04 00 00 */	cmpwi r4, 0x0
+/* 8139AF30 0006B450  40 80 00 14 */	bge .L_8139AF44
+/* 8139AF34 0006B454  48 00 01 1C */	b .L_8139B050
+.L_8139AF38:
+/* 8139AF38 0006B458  2C 04 00 03 */	cmpwi r4, 0x3
+/* 8139AF3C 0006B45C  40 80 01 14 */	bge .L_8139B050
+/* 8139AF40 0006B460  48 00 00 7C */	b .L_8139AFBC
+.L_8139AF44:
+/* 8139AF44 0006B464  38 63 00 58 */	addi r3, r3, 0x58
+/* 8139AF48 0006B468  4B FF C7 8D */	bl is_busy__Q33ipl5scene8scrollerCFv
+/* 8139AF4C 0006B46C  2C 03 00 00 */	cmpwi r3, 0x0
+/* 8139AF50 0006B470  40 82 01 00 */	bne .L_8139B050
+/* 8139AF54 0006B474  80 7F 00 18 */	lwz r3, 0x18(r31)
+/* 8139AF58 0006B478  38 80 00 05 */	li r4, 0x5
+/* 8139AF5C 0006B47C  38 63 02 8C */	addi r3, r3, 0x28c
+/* 8139AF60 0006B480  48 17 73 B9 */	bl List_GetNth__Q24nw4r2utFPCQ34nw4r2ut4ListUs
+/* 8139AF64 0006B484  7C 7E 1B 78 */	mr r30, r3
+/* 8139AF68 0006B488  4B FC 79 09 */	bl initFrame__Q33ipl7utility15FrameControllerFv
+/* 8139AF6C 0006B48C  38 60 00 01 */	li r3, 0x1
+/* 8139AF70 0006B490  38 00 00 03 */	li r0, 0x3
+/* 8139AF74 0006B494  90 7E 00 14 */	stw r3, 0x14(r30)
+/* 8139AF78 0006B498  90 1F 00 88 */	stw r0, 0x88(r31)
+/* 8139AF7C 0006B49C  48 00 00 D4 */	b .L_8139B050
+.L_8139AF80:
+/* 8139AF80 0006B4A0  38 63 00 58 */	addi r3, r3, 0x58
+/* 8139AF84 0006B4A4  4B FF C7 51 */	bl is_busy__Q33ipl5scene8scrollerCFv
+/* 8139AF88 0006B4A8  2C 03 00 00 */	cmpwi r3, 0x0
+/* 8139AF8C 0006B4AC  40 82 00 C4 */	bne .L_8139B050
+/* 8139AF90 0006B4B0  80 7F 00 18 */	lwz r3, 0x18(r31)
+/* 8139AF94 0006B4B4  38 80 00 0D */	li r4, 0xd
+/* 8139AF98 0006B4B8  38 63 02 8C */	addi r3, r3, 0x28c
+/* 8139AF9C 0006B4BC  48 17 73 7D */	bl List_GetNth__Q24nw4r2utFPCQ34nw4r2ut4ListUs
+/* 8139AFA0 0006B4C0  7C 7E 1B 78 */	mr r30, r3
+/* 8139AFA4 0006B4C4  4B FC 78 CD */	bl initFrame__Q33ipl7utility15FrameControllerFv
+/* 8139AFA8 0006B4C8  38 60 00 01 */	li r3, 0x1
+/* 8139AFAC 0006B4CC  38 00 00 04 */	li r0, 0x4
+/* 8139AFB0 0006B4D0  90 7E 00 14 */	stw r3, 0x14(r30)
+/* 8139AFB4 0006B4D4  90 1F 00 88 */	stw r0, 0x88(r31)
+/* 8139AFB8 0006B4D8  48 00 00 98 */	b .L_8139B050
+.L_8139AFBC:
+/* 8139AFBC 0006B4DC  80 63 00 14 */	lwz r3, 0x14(r3)
+/* 8139AFC0 0006B4E0  88 03 00 CE */	lbz r0, 0xce(r3)
+/* 8139AFC4 0006B4E4  2C 00 00 00 */	cmpwi r0, 0x0
+/* 8139AFC8 0006B4E8  41 82 00 88 */	beq .L_8139B050
+/* 8139AFCC 0006B4EC  3F C0 81 09 */	lis r30, smArg__Q23ipl6System@ha
+/* 8139AFD0 0006B4F0  38 80 00 05 */	li r4, 0x5
+/* 8139AFD4 0006B4F4  3B DE 90 08 */	addi r30, r30, smArg__Q23ipl6System@l
+/* 8139AFD8 0006B4F8  80 7E 00 64 */	lwz r3, 0x64(r30)
+/* 8139AFDC 0006B4FC  48 07 01 5D */	bl getScene__Q33ipl5scene7ManagerFi
+/* 8139AFE0 0006B500  48 00 19 35 */	bl isActive__Q33ipl5scene6ButtonCFv
+/* 8139AFE4 0006B504  2C 03 00 00 */	cmpwi r3, 0x0
+/* 8139AFE8 0006B508  41 82 00 68 */	beq .L_8139B050
+/* 8139AFEC 0006B50C  80 7E 00 64 */	lwz r3, 0x64(r30)
+/* 8139AFF0 0006B510  38 80 00 05 */	li r4, 0x5
+/* 8139AFF4 0006B514  48 07 01 45 */	bl getScene__Q33ipl5scene7ManagerFi
+/* 8139AFF8 0006B518  80 03 01 78 */	lwz r0, 0x178(r3)
+/* 8139AFFC 0006B51C  2C 00 00 00 */	cmpwi r0, 0x0
+/* 8139B000 0006B520  40 82 00 50 */	bne .L_8139B050
+/* 8139B004 0006B524  7F E3 FB 78 */	mr r3, r31
+/* 8139B008 0006B528  4B FF FB 9D */	bl hide_cmn_btn__Q33ipl5scene12focus_objectFv
+/* 8139B00C 0006B52C  80 7F 00 18 */	lwz r3, 0x18(r31)
+/* 8139B010 0006B530  38 80 00 18 */	li r4, 0x18
+/* 8139B014 0006B534  38 63 02 8C */	addi r3, r3, 0x28c
+/* 8139B018 0006B538  48 17 73 01 */	bl List_GetNth__Q24nw4r2utFPCQ34nw4r2ut4ListUs
+/* 8139B01C 0006B53C  7C 7E 1B 78 */	mr r30, r3
+/* 8139B020 0006B540  4B FC 78 51 */	bl initFrame__Q33ipl7utility15FrameControllerFv
+/* 8139B024 0006B544  38 00 00 01 */	li r0, 0x1
+/* 8139B028 0006B548  3C 60 81 09 */	lis r3, sSystem__Q23ipl3snd@ha
+/* 8139B02C 0006B54C  90 1E 00 14 */	stw r0, 0x14(r30)
+/* 8139B030 0006B550  38 00 00 03 */	li r0, 0x3
+/* 8139B034 0006B554  3C 80 81 65 */	lis r4, lbl_8164BDE4@ha
+/* 8139B038 0006B558  38 63 99 2C */	addi r3, r3, sSystem__Q23ipl3snd@l
+/* 8139B03C 0006B55C  90 1F 00 88 */	stw r0, 0x88(r31)
+/* 8139B040 0006B560  38 84 BD E4 */	addi r4, r4, lbl_8164BDE4@l
+/* 8139B044 0006B564  4B FD 04 29 */	bl startSE__Q33ipl3snd6SystemFPCc
+/* 8139B048 0006B568  38 00 00 07 */	li r0, 0x7
+/* 8139B04C 0006B56C  90 1F 00 00 */	stw r0, 0x0(r31)
+.L_8139B050:
+/* 8139B050 0006B570  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 8139B054 0006B574  83 E1 00 0C */	lwz r31, 0xc(r1)
+/* 8139B058 0006B578  83 C1 00 08 */	lwz r30, 0x8(r1)
+/* 8139B05C 0006B57C  7C 08 03 A6 */	mtlr r0
+/* 8139B060 0006B580  38 21 00 10 */	addi r1, r1, 0x10
+/* 8139B064 0006B584  4E 80 00 20 */	blr
+.endfn start_trig_event__Q33ipl5scene12focus_objectFi
+
+# .text:0x4340 | 0x8139B068 | size: 0x74
+# ipl::scene::focus_object::get_button_no(const char*) const
+.fn get_button_no__Q33ipl5scene12focus_objectCFPCc, global
+/* 8139B068 0006B588  94 21 FF E0 */	stwu r1, -0x20(r1)
+/* 8139B06C 0006B58C  7C 08 02 A6 */	mflr r0
+/* 8139B070 0006B590  90 01 00 24 */	stw r0, 0x24(r1)
+/* 8139B074 0006B594  39 61 00 20 */	addi r11, r1, 0x20
+/* 8139B078 0006B598  48 25 E4 49 */	bl _savegpr_27
+/* 8139B07C 0006B59C  3F C0 81 65 */	lis r30, lbl_8164B984@ha
+/* 8139B080 0006B5A0  7C 9B 23 78 */	mr r27, r4
+/* 8139B084 0006B5A4  3B DE B9 84 */	addi r30, r30, lbl_8164B984@l
+/* 8139B088 0006B5A8  3B A0 FF FF */	li r29, -0x1
+/* 8139B08C 0006B5AC  3B 80 00 00 */	li r28, 0x0
+/* 8139B090 0006B5B0  3B E0 00 00 */	li r31, 0x0
+.L_8139B094:
+/* 8139B094 0006B5B4  7C 7E F8 2E */	lwzx r3, r30, r31
+/* 8139B098 0006B5B8  7F 64 DB 78 */	mr r4, r27
+/* 8139B09C 0006B5BC  48 26 73 E5 */	bl strcmp
+/* 8139B0A0 0006B5C0  2C 03 00 00 */	cmpwi r3, 0x0
+/* 8139B0A4 0006B5C4  40 82 00 0C */	bne .L_8139B0B0
+/* 8139B0A8 0006B5C8  7F 9D E3 78 */	mr r29, r28
+/* 8139B0AC 0006B5CC  48 00 00 14 */	b .L_8139B0C0
+.L_8139B0B0:
+/* 8139B0B0 0006B5D0  3B 9C 00 01 */	addi r28, r28, 0x1
+/* 8139B0B4 0006B5D4  3B FF 00 04 */	addi r31, r31, 0x4
+/* 8139B0B8 0006B5D8  2C 1C 00 04 */	cmpwi r28, 0x4
+/* 8139B0BC 0006B5DC  41 80 FF D8 */	blt .L_8139B094
+.L_8139B0C0:
+/* 8139B0C0 0006B5E0  39 61 00 20 */	addi r11, r1, 0x20
+/* 8139B0C4 0006B5E4  7F A3 EB 78 */	mr r3, r29
+/* 8139B0C8 0006B5E8  48 25 E4 45 */	bl _restgpr_27
+/* 8139B0CC 0006B5EC  80 01 00 24 */	lwz r0, 0x24(r1)
+/* 8139B0D0 0006B5F0  7C 08 03 A6 */	mtlr r0
+/* 8139B0D4 0006B5F4  38 21 00 20 */	addi r1, r1, 0x20
+/* 8139B0D8 0006B5F8  4E 80 00 20 */	blr
+.endfn get_button_no__Q33ipl5scene12focus_objectCFPCc
+
+# .text:0x43B4 | 0x8139B0DC | size: 0xA0
+# ipl::scene::focus_object::reset_gui(int, int)
+.fn reset_gui__Q33ipl5scene12focus_objectFii, global
+/* 8139B0DC 0006B5FC  94 21 FF E0 */	stwu r1, -0x20(r1)
+/* 8139B0E0 0006B600  7C 08 02 A6 */	mflr r0
+/* 8139B0E4 0006B604  90 01 00 24 */	stw r0, 0x24(r1)
+/* 8139B0E8 0006B608  39 61 00 20 */	addi r11, r1, 0x20
+/* 8139B0EC 0006B60C  48 25 E3 DD */	bl _savegpr_29
+/* 8139B0F0 0006B610  54 9E 10 3A */	slwi r30, r4, 2
+/* 8139B0F4 0006B614  7C 7D 1B 78 */	mr r29, r3
+/* 8139B0F8 0006B618  7C C3 F2 14 */	add r6, r3, r30
+/* 8139B0FC 0006B61C  80 06 01 E0 */	lwz r0, 0x1e0(r6)
+/* 8139B100 0006B620  2C 00 00 00 */	cmpwi r0, 0x0
+/* 8139B104 0006B624  41 82 00 2C */	beq .L_8139B130
+/* 8139B108 0006B628  38 00 00 00 */	li r0, 0x0
+/* 8139B10C 0006B62C  54 A4 04 3E */	clrlwi r4, r5, 16
+/* 8139B110 0006B630  90 06 01 E0 */	stw r0, 0x1e0(r6)
+/* 8139B114 0006B634  80 63 00 18 */	lwz r3, 0x18(r3)
+/* 8139B118 0006B638  38 63 02 8C */	addi r3, r3, 0x28c
+/* 8139B11C 0006B63C  48 17 71 FD */	bl List_GetNth__Q24nw4r2utFPCQ34nw4r2ut4ListUs
+/* 8139B120 0006B640  7C 7F 1B 78 */	mr r31, r3
+/* 8139B124 0006B644  4B FC 77 4D */	bl initFrame__Q33ipl7utility15FrameControllerFv
+/* 8139B128 0006B648  38 00 00 01 */	li r0, 0x1
+/* 8139B12C 0006B64C  90 1F 00 14 */	stw r0, 0x14(r31)
+.L_8139B130:
+/* 8139B130 0006B650  80 7D 00 18 */	lwz r3, 0x18(r29)
+/* 8139B134 0006B654  3C 80 81 65 */	lis r4, lbl_8164B984@ha
+/* 8139B138 0006B658  38 84 B9 84 */	addi r4, r4, lbl_8164B984@l
+/* 8139B13C 0006B65C  38 A0 00 01 */	li r5, 0x1
+/* 8139B140 0006B660  80 63 00 14 */	lwz r3, 0x14(r3)
+/* 8139B144 0006B664  7C 84 F0 2E */	lwzx r4, r4, r30
+/* 8139B148 0006B668  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 8139B14C 0006B66C  81 8C 00 3C */	lwz r12, 0x3c(r12)
+/* 8139B150 0006B670  7D 89 03 A6 */	mtctr r12
+/* 8139B154 0006B674  4E 80 04 21 */	bctrl
+/* 8139B158 0006B678  7C 64 1B 78 */	mr r4, r3
+/* 8139B15C 0006B67C  80 7D 00 1C */	lwz r3, 0x1c(r29)
+/* 8139B160 0006B680  4B FD 00 B9 */	bl initPane__Q33ipl3gui11PaneManagerFPQ34nw4r3lyt4Pane
+/* 8139B164 0006B684  39 61 00 20 */	addi r11, r1, 0x20
+/* 8139B168 0006B688  48 25 E3 AD */	bl _restgpr_29
+/* 8139B16C 0006B68C  80 01 00 24 */	lwz r0, 0x24(r1)
+/* 8139B170 0006B690  7C 08 03 A6 */	mtlr r0
+/* 8139B174 0006B694  38 21 00 20 */	addi r1, r1, 0x20
+/* 8139B178 0006B698  4E 80 00 20 */	blr
+.endfn reset_gui__Q33ipl5scene12focus_objectFii
+
+# .text:0x4454 | 0x8139B17C | size: 0x268
+# ipl::scene::focus_object::check_network()
+.fn check_network__Q33ipl5scene12focus_objectFv, global
+/* 8139B17C 0006B69C  94 21 FD F0 */	stwu r1, -0x210(r1)
+/* 8139B180 0006B6A0  7C 08 02 A6 */	mflr r0
+/* 8139B184 0006B6A4  90 01 02 14 */	stw r0, 0x214(r1)
+/* 8139B188 0006B6A8  93 E1 02 0C */	stw r31, 0x20c(r1)
+/* 8139B18C 0006B6AC  7C 7F 1B 78 */	mr r31, r3
+/* 8139B190 0006B6B0  93 C1 02 08 */	stw r30, 0x208(r1)
+/* 8139B194 0006B6B4  3B C0 00 02 */	li r30, 0x2
+/* 8139B198 0006B6B8  48 06 07 55 */	bl getConnectEnableFlag__Q33ipl3ncd10NCDSettingFv
+/* 8139B19C 0006B6BC  2C 03 00 00 */	cmpwi r3, 0x0
+/* 8139B1A0 0006B6C0  40 82 00 3C */	bne .L_8139B1DC
+/* 8139B1A4 0006B6C4  3C 60 81 09 */	lis r3, smArg__Q23ipl6System@ha
+/* 8139B1A8 0006B6C8  38 80 01 44 */	li r4, 0x144
+/* 8139B1AC 0006B6CC  38 63 90 08 */	addi r3, r3, smArg__Q23ipl6System@l
+/* 8139B1B0 0006B6D0  38 A0 01 46 */	li r5, 0x146
+/* 8139B1B4 0006B6D4  80 63 00 AC */	lwz r3, 0xac(r3)
+/* 8139B1B8 0006B6D8  38 C0 00 25 */	li r6, 0x25
+/* 8139B1BC 0006B6DC  38 E0 00 00 */	li r7, 0x0
+/* 8139B1C0 0006B6E0  4B FA B9 15 */	bl callBtn2__Q23ipl12DialogWindowFUlUlUlb
+/* 8139B1C4 0006B6E4  38 60 00 03 */	li r3, 0x3
+/* 8139B1C8 0006B6E8  38 00 00 14 */	li r0, 0x14
+/* 8139B1CC 0006B6EC  90 7F 00 00 */	stw r3, 0x0(r31)
+/* 8139B1D0 0006B6F0  3B C0 00 00 */	li r30, 0x0
+/* 8139B1D4 0006B6F4  90 1F 00 04 */	stw r0, 0x4(r31)
+/* 8139B1D8 0006B6F8  48 00 01 F0 */	b .L_8139B3C8
+.L_8139B1DC:
+/* 8139B1DC 0006B6FC  48 1C F6 45 */	bl SCGetWCFlags
+/* 8139B1E0 0006B700  54 60 07 FF */	clrlwi. r0, r3, 31
+/* 8139B1E4 0006B704  40 82 00 34 */	bne .L_8139B218
+/* 8139B1E8 0006B708  3C 60 81 09 */	lis r3, smArg__Q23ipl6System@ha
+/* 8139B1EC 0006B70C  38 80 01 7E */	li r4, 0x17e
+/* 8139B1F0 0006B710  38 63 90 08 */	addi r3, r3, smArg__Q23ipl6System@l
+/* 8139B1F4 0006B714  38 A0 01 46 */	li r5, 0x146
+/* 8139B1F8 0006B718  80 63 00 AC */	lwz r3, 0xac(r3)
+/* 8139B1FC 0006B71C  38 C0 00 25 */	li r6, 0x25
+/* 8139B200 0006B720  38 E0 00 00 */	li r7, 0x0
+/* 8139B204 0006B724  4B FA B8 D1 */	bl callBtn2__Q23ipl12DialogWindowFUlUlUlb
+/* 8139B208 0006B728  38 00 00 15 */	li r0, 0x15
+/* 8139B20C 0006B72C  3B C0 00 00 */	li r30, 0x0
+/* 8139B210 0006B730  90 1F 00 00 */	stw r0, 0x0(r31)
+/* 8139B214 0006B734  48 00 01 B4 */	b .L_8139B3C8
+.L_8139B218:
+/* 8139B218 0006B738  7F E3 FB 78 */	mr r3, r31
+/* 8139B21C 0006B73C  48 00 03 B9 */	bl is_parental_restriction__Q33ipl5scene12focus_objectCFv
+/* 8139B220 0006B740  2C 03 00 00 */	cmpwi r3, 0x0
+/* 8139B224 0006B744  41 82 00 34 */	beq .L_8139B258
+/* 8139B228 0006B748  3C 60 81 09 */	lis r3, smArg__Q23ipl6System@ha
+/* 8139B22C 0006B74C  38 80 01 4C */	li r4, 0x14c
+/* 8139B230 0006B750  38 63 90 08 */	addi r3, r3, smArg__Q23ipl6System@l
+/* 8139B234 0006B754  38 A0 00 2E */	li r5, 0x2e
+/* 8139B238 0006B758  80 63 00 AC */	lwz r3, 0xac(r3)
+/* 8139B23C 0006B75C  4B FA B4 BD */	bl callBtn1__Q23ipl12DialogWindowFUlUl
+/* 8139B240 0006B760  80 1F 00 08 */	lwz r0, 0x8(r31)
+/* 8139B244 0006B764  38 60 00 04 */	li r3, 0x4
+/* 8139B248 0006B768  90 7F 00 00 */	stw r3, 0x0(r31)
+/* 8139B24C 0006B76C  3B C0 00 00 */	li r30, 0x0
+/* 8139B250 0006B770  90 1F 00 04 */	stw r0, 0x4(r31)
+/* 8139B254 0006B774  48 00 01 74 */	b .L_8139B3C8
+.L_8139B258:
+/* 8139B258 0006B778  3C 60 81 09 */	lis r3, smArg__Q23ipl6System@ha
+/* 8139B25C 0006B77C  38 63 90 08 */	addi r3, r3, smArg__Q23ipl6System@l
+/* 8139B260 0006B780  88 03 02 BC */	lbz r0, 0x2bc(r3)
+/* 8139B264 0006B784  2C 00 00 00 */	cmpwi r0, 0x0
+/* 8139B268 0006B788  41 82 00 0C */	beq .L_8139B274
+/* 8139B26C 0006B78C  38 60 00 00 */	li r3, 0x0
+/* 8139B270 0006B790  48 00 00 08 */	b .L_8139B278
+.L_8139B274:
+/* 8139B274 0006B794  80 63 00 8C */	lwz r3, 0x8c(r3)
+.L_8139B278:
+/* 8139B278 0006B798  4B FA 67 C9 */	bl open__Q33ipl5nwc247ManagerFv
+/* 8139B27C 0006B79C  2C 03 00 00 */	cmpwi r3, 0x0
+/* 8139B280 0006B7A0  41 82 01 48 */	beq .L_8139B3C8
+/* 8139B284 0006B7A4  3C 60 81 09 */	lis r3, smArg__Q23ipl6System@ha
+/* 8139B288 0006B7A8  38 63 90 08 */	addi r3, r3, smArg__Q23ipl6System@l
+/* 8139B28C 0006B7AC  88 03 02 BC */	lbz r0, 0x2bc(r3)
+/* 8139B290 0006B7B0  2C 00 00 00 */	cmpwi r0, 0x0
+/* 8139B294 0006B7B4  41 82 00 0C */	beq .L_8139B2A0
+/* 8139B298 0006B7B8  38 60 00 00 */	li r3, 0x0
+/* 8139B29C 0006B7BC  48 00 00 08 */	b .L_8139B2A4
+.L_8139B2A0:
+/* 8139B2A0 0006B7C0  80 63 00 8C */	lwz r3, 0x8c(r3)
+.L_8139B2A4:
+/* 8139B2A4 0006B7C4  38 80 00 01 */	li r4, 0x1
+/* 8139B2A8 0006B7C8  4B FA 73 79 */	bl check__Q33ipl5nwc247ManagerFUl
+/* 8139B2AC 0006B7CC  3C 80 81 09 */	lis r4, smArg__Q23ipl6System@ha
+/* 8139B2B0 0006B7D0  7C 7E 1B 78 */	mr r30, r3
+/* 8139B2B4 0006B7D4  38 84 90 08 */	addi r4, r4, smArg__Q23ipl6System@l
+/* 8139B2B8 0006B7D8  88 04 02 BC */	lbz r0, 0x2bc(r4)
+/* 8139B2BC 0006B7DC  2C 00 00 00 */	cmpwi r0, 0x0
+/* 8139B2C0 0006B7E0  41 82 00 0C */	beq .L_8139B2CC
+/* 8139B2C4 0006B7E4  38 60 00 00 */	li r3, 0x0
+/* 8139B2C8 0006B7E8  48 00 00 08 */	b .L_8139B2D0
+.L_8139B2CC:
+/* 8139B2CC 0006B7EC  80 64 00 8C */	lwz r3, 0x8c(r4)
+.L_8139B2D0:
+/* 8139B2D0 0006B7F0  4B FA 8D 5D */	bl getErrCode__Q33ipl5nwc247ManagerFv
+/* 8139B2D4 0006B7F4  38 00 00 80 */	li r0, 0x80
+/* 8139B2D8 0006B7F8  7C 67 1B 78 */	mr r7, r3
+/* 8139B2DC 0006B7FC  38 81 00 06 */	addi r4, r1, 0x6
+/* 8139B2E0 0006B800  38 60 00 00 */	li r3, 0x0
+/* 8139B2E4 0006B804  7C 09 03 A6 */	mtctr r0
+.L_8139B2E8:
+/* 8139B2E8 0006B808  B0 64 00 02 */	sth r3, 0x2(r4)
+/* 8139B2EC 0006B80C  B4 64 00 04 */	sthu r3, 0x4(r4)
+/* 8139B2F0 0006B810  42 00 FF F8 */	bdnz .L_8139B2E8
+/* 8139B2F4 0006B814  2C 1E FF E1 */	cmpwi r30, -0x1f
+/* 8139B2F8 0006B818  41 82 00 20 */	beq .L_8139B318
+/* 8139B2FC 0006B81C  40 80 00 10 */	bge .L_8139B30C
+/* 8139B300 0006B820  2C 1E FF E0 */	cmpwi r30, -0x20
+/* 8139B304 0006B824  40 80 00 58 */	bge .L_8139B35C
+/* 8139B308 0006B828  48 00 00 98 */	b .L_8139B3A0
+.L_8139B30C:
+/* 8139B30C 0006B82C  2C 1E FF FA */	cmpwi r30, -0x6
+/* 8139B310 0006B830  41 82 00 4C */	beq .L_8139B35C
+/* 8139B314 0006B834  48 00 00 8C */	b .L_8139B3A0
+.L_8139B318:
+/* 8139B318 0006B838  7F E3 FB 78 */	mr r3, r31
+/* 8139B31C 0006B83C  38 81 00 08 */	addi r4, r1, 0x8
+/* 8139B320 0006B840  38 A0 01 00 */	li r5, 0x100
+/* 8139B324 0006B844  38 C0 01 9A */	li r6, 0x19a
+/* 8139B328 0006B848  48 00 01 BD */	bl set_err_msg__Q33ipl5scene12focus_objectFPwUlUll
+/* 8139B32C 0006B84C  3C 60 81 09 */	lis r3, smArg__Q23ipl6System@ha
+/* 8139B330 0006B850  38 81 00 08 */	addi r4, r1, 0x8
+/* 8139B334 0006B854  38 63 90 08 */	addi r3, r3, smArg__Q23ipl6System@l
+/* 8139B338 0006B858  38 A0 00 2E */	li r5, 0x2e
+/* 8139B33C 0006B85C  80 63 00 AC */	lwz r3, 0xac(r3)
+/* 8139B340 0006B860  4B FA B5 65 */	bl callBtn1__Q23ipl12DialogWindowFPCwUl
+/* 8139B344 0006B864  80 1F 00 08 */	lwz r0, 0x8(r31)
+/* 8139B348 0006B868  38 60 00 04 */	li r3, 0x4
+/* 8139B34C 0006B86C  90 7F 00 00 */	stw r3, 0x0(r31)
+/* 8139B350 0006B870  3B C0 00 00 */	li r30, 0x0
+/* 8139B354 0006B874  90 1F 00 04 */	stw r0, 0x4(r31)
+/* 8139B358 0006B878  48 00 00 4C */	b .L_8139B3A4
+.L_8139B35C:
+/* 8139B35C 0006B87C  7F E3 FB 78 */	mr r3, r31
+/* 8139B360 0006B880  38 81 00 08 */	addi r4, r1, 0x8
+/* 8139B364 0006B884  38 A0 01 00 */	li r5, 0x100
+/* 8139B368 0006B888  38 C0 01 C5 */	li r6, 0x1c5
+/* 8139B36C 0006B88C  48 00 01 79 */	bl set_err_msg__Q33ipl5scene12focus_objectFPwUlUll
+/* 8139B370 0006B890  3C 60 81 09 */	lis r3, smArg__Q23ipl6System@ha
+/* 8139B374 0006B894  38 81 00 08 */	addi r4, r1, 0x8
+/* 8139B378 0006B898  38 63 90 08 */	addi r3, r3, smArg__Q23ipl6System@l
+/* 8139B37C 0006B89C  38 A0 00 2E */	li r5, 0x2e
+/* 8139B380 0006B8A0  80 63 00 AC */	lwz r3, 0xac(r3)
+/* 8139B384 0006B8A4  4B FA B5 21 */	bl callBtn1__Q23ipl12DialogWindowFPCwUl
+/* 8139B388 0006B8A8  80 1F 00 08 */	lwz r0, 0x8(r31)
+/* 8139B38C 0006B8AC  38 60 00 04 */	li r3, 0x4
+/* 8139B390 0006B8B0  90 7F 00 00 */	stw r3, 0x0(r31)
+/* 8139B394 0006B8B4  3B C0 00 00 */	li r30, 0x0
+/* 8139B398 0006B8B8  90 1F 00 04 */	stw r0, 0x4(r31)
+/* 8139B39C 0006B8BC  48 00 00 08 */	b .L_8139B3A4
+.L_8139B3A0:
+/* 8139B3A0 0006B8C0  3B C0 00 01 */	li r30, 0x1
+.L_8139B3A4:
+/* 8139B3A4 0006B8C4  3C 60 81 09 */	lis r3, smArg__Q23ipl6System@ha
+/* 8139B3A8 0006B8C8  38 63 90 08 */	addi r3, r3, smArg__Q23ipl6System@l
+/* 8139B3AC 0006B8CC  88 03 02 BC */	lbz r0, 0x2bc(r3)
+/* 8139B3B0 0006B8D0  2C 00 00 00 */	cmpwi r0, 0x0
+/* 8139B3B4 0006B8D4  41 82 00 0C */	beq .L_8139B3C0
+/* 8139B3B8 0006B8D8  38 60 00 00 */	li r3, 0x0
+/* 8139B3BC 0006B8DC  48 00 00 08 */	b .L_8139B3C4
+.L_8139B3C0:
+/* 8139B3C0 0006B8E0  80 63 00 8C */	lwz r3, 0x8c(r3)
+.L_8139B3C4:
+/* 8139B3C4 0006B8E4  4B FA 66 F1 */	bl close__Q33ipl5nwc247ManagerFv
+.L_8139B3C8:
+/* 8139B3C8 0006B8E8  7F C3 F3 78 */	mr r3, r30
+/* 8139B3CC 0006B8EC  83 E1 02 0C */	lwz r31, 0x20c(r1)
+/* 8139B3D0 0006B8F0  83 C1 02 08 */	lwz r30, 0x208(r1)
+/* 8139B3D4 0006B8F4  80 01 02 14 */	lwz r0, 0x214(r1)
+/* 8139B3D8 0006B8F8  7C 08 03 A6 */	mtlr r0
+/* 8139B3DC 0006B8FC  38 21 02 10 */	addi r1, r1, 0x210
+/* 8139B3E0 0006B900  4E 80 00 20 */	blr
+.endfn check_network__Q33ipl5scene12focus_objectFv
+
+# .text:0x46BC | 0x8139B3E4 | size: 0x100
+# ipl::scene::focus_object::check_network_for_news()
+.fn check_network_for_news__Q33ipl5scene12focus_objectFv, global
+/* 8139B3E4 0006B904  94 21 FF A0 */	stwu r1, -0x60(r1)
+/* 8139B3E8 0006B908  7C 08 02 A6 */	mflr r0
+/* 8139B3EC 0006B90C  90 01 00 64 */	stw r0, 0x64(r1)
+/* 8139B3F0 0006B910  93 E1 00 5C */	stw r31, 0x5c(r1)
+/* 8139B3F4 0006B914  7C 7F 1B 78 */	mr r31, r3
+/* 8139B3F8 0006B918  48 06 04 F5 */	bl getConnectEnableFlag__Q33ipl3ncd10NCDSettingFv
+/* 8139B3FC 0006B91C  2C 03 00 00 */	cmpwi r3, 0x0
+/* 8139B400 0006B920  40 82 00 40 */	bne .L_8139B440
+/* 8139B404 0006B924  3C 60 81 09 */	lis r3, smArg__Q23ipl6System@ha
+/* 8139B408 0006B928  38 80 01 44 */	li r4, 0x144
+/* 8139B40C 0006B92C  38 63 90 08 */	addi r3, r3, smArg__Q23ipl6System@l
+/* 8139B410 0006B930  38 A0 01 46 */	li r5, 0x146
+/* 8139B414 0006B934  80 63 00 AC */	lwz r3, 0xac(r3)
+/* 8139B418 0006B938  38 C0 00 25 */	li r6, 0x25
+/* 8139B41C 0006B93C  38 E0 00 00 */	li r7, 0x0
+/* 8139B420 0006B940  4B FA B6 B5 */	bl callBtn2__Q23ipl12DialogWindowFUlUlUlb
+/* 8139B424 0006B944  38 80 00 01 */	li r4, 0x1
+/* 8139B428 0006B948  38 60 00 03 */	li r3, 0x3
+/* 8139B42C 0006B94C  38 00 00 14 */	li r0, 0x14
+/* 8139B430 0006B950  90 9F 00 08 */	stw r4, 0x8(r31)
+/* 8139B434 0006B954  90 7F 00 00 */	stw r3, 0x0(r31)
+/* 8139B438 0006B958  90 1F 00 04 */	stw r0, 0x4(r31)
+/* 8139B43C 0006B95C  48 00 00 94 */	b .L_8139B4D0
+.L_8139B440:
+/* 8139B440 0006B960  38 61 00 08 */	addi r3, r1, 0x8
+/* 8139B444 0006B964  48 1C ED 35 */	bl SCGetParentalControl
+/* 8139B448 0006B968  2C 03 00 00 */	cmpwi r3, 0x0
+/* 8139B44C 0006B96C  38 60 00 00 */	li r3, 0x0
+/* 8139B450 0006B970  41 82 00 14 */	beq .L_8139B464
+/* 8139B454 0006B974  88 01 00 08 */	lbz r0, 0x8(r1)
+/* 8139B458 0006B978  54 00 06 31 */	rlwinm. r0, r0, 0, 24, 24
+/* 8139B45C 0006B97C  41 82 00 08 */	beq .L_8139B464
+/* 8139B460 0006B980  38 60 00 01 */	li r3, 0x1
+.L_8139B464:
+/* 8139B464 0006B984  2C 03 00 00 */	cmpwi r3, 0x0
+/* 8139B468 0006B988  41 82 00 58 */	beq .L_8139B4C0
+/* 8139B46C 0006B98C  3C 60 81 09 */	lis r3, smArg__Q23ipl6System@ha
+/* 8139B470 0006B990  38 80 00 05 */	li r4, 0x5
+/* 8139B474 0006B994  38 63 90 08 */	addi r3, r3, smArg__Q23ipl6System@l
+/* 8139B478 0006B998  80 63 00 64 */	lwz r3, 0x64(r3)
+/* 8139B47C 0006B99C  48 06 FC BD */	bl getScene__Q33ipl5scene7ManagerFi
+/* 8139B480 0006B9A0  38 80 00 00 */	li r4, 0x0
+/* 8139B484 0006B9A4  38 A0 00 00 */	li r5, 0x0
+/* 8139B488 0006B9A8  48 00 14 B5 */	bl setEventHandler__Q33ipl5scene6ButtonFPQ23gui12EventHandlerPQ23gui12EventHandler
+/* 8139B48C 0006B9AC  7F E3 FB 78 */	mr r3, r31
+/* 8139B490 0006B9B0  4B FF F7 15 */	bl hide_cmn_btn__Q33ipl5scene12focus_objectFv
+/* 8139B494 0006B9B4  80 7F 00 00 */	lwz r3, 0x0(r31)
+/* 8139B498 0006B9B8  38 C0 00 00 */	li r6, 0x0
+/* 8139B49C 0006B9BC  38 A0 00 0B */	li r5, 0xb
+/* 8139B4A0 0006B9C0  38 80 00 0A */	li r4, 0xa
+/* 8139B4A4 0006B9C4  38 00 00 16 */	li r0, 0x16
+/* 8139B4A8 0006B9C8  98 DF 02 00 */	stb r6, 0x200(r31)
+/* 8139B4AC 0006B9CC  90 BF 00 0C */	stw r5, 0xc(r31)
+/* 8139B4B0 0006B9D0  90 9F 00 10 */	stw r4, 0x10(r31)
+/* 8139B4B4 0006B9D4  90 7F 00 08 */	stw r3, 0x8(r31)
+/* 8139B4B8 0006B9D8  90 1F 00 00 */	stw r0, 0x0(r31)
+/* 8139B4BC 0006B9DC  48 00 00 14 */	b .L_8139B4D0
+.L_8139B4C0:
+/* 8139B4C0 0006B9E0  38 60 00 0A */	li r3, 0xa
+/* 8139B4C4 0006B9E4  38 00 00 18 */	li r0, 0x18
+/* 8139B4C8 0006B9E8  90 7F 00 0C */	stw r3, 0xc(r31)
+/* 8139B4CC 0006B9EC  90 1F 00 00 */	stw r0, 0x0(r31)
+.L_8139B4D0:
+/* 8139B4D0 0006B9F0  80 01 00 64 */	lwz r0, 0x64(r1)
+/* 8139B4D4 0006B9F4  83 E1 00 5C */	lwz r31, 0x5c(r1)
+/* 8139B4D8 0006B9F8  7C 08 03 A6 */	mtlr r0
+/* 8139B4DC 0006B9FC  38 21 00 60 */	addi r1, r1, 0x60
+/* 8139B4E0 0006BA00  4E 80 00 20 */	blr
+.endfn check_network_for_news__Q33ipl5scene12focus_objectFv
+
+# .text:0x47BC | 0x8139B4E4 | size: 0xF0
+# ipl::scene::focus_object::set_err_msg(wchar_t*, unsigned long, unsigned long, long)
+.fn set_err_msg__Q33ipl5scene12focus_objectFPwUlUll, global
+/* 8139B4E4 0006BA04  94 21 FF A0 */	stwu r1, -0x60(r1)
+/* 8139B4E8 0006BA08  7C 08 02 A6 */	mflr r0
+/* 8139B4EC 0006BA0C  90 01 00 64 */	stw r0, 0x64(r1)
+/* 8139B4F0 0006BA10  39 61 00 60 */	addi r11, r1, 0x60
+/* 8139B4F4 0006BA14  48 25 DF C9 */	bl _savegpr_26
+/* 8139B4F8 0006BA18  7C 9A 23 78 */	mr r26, r4
+/* 8139B4FC 0006BA1C  7C BB 2B 78 */	mr r27, r5
+/* 8139B500 0006BA20  7C DC 33 78 */	mr r28, r6
+/* 8139B504 0006BA24  7C FD 3B 78 */	mr r29, r7
+/* 8139B508 0006BA28  7F 43 D3 78 */	mr r3, r26
+/* 8139B50C 0006BA2C  54 A5 08 3C */	slwi r5, r5, 1
+/* 8139B510 0006BA30  38 80 00 00 */	li r4, 0x0
+/* 8139B514 0006BA34  4B F9 4E 21 */	bl memset
+/* 8139B518 0006BA38  3F E0 81 09 */	lis r31, smArg__Q23ipl6System@ha
+/* 8139B51C 0006BA3C  38 80 01 90 */	li r4, 0x190
+/* 8139B520 0006BA40  3B FF 90 08 */	addi r31, r31, smArg__Q23ipl6System@l
+/* 8139B524 0006BA44  80 7F 00 80 */	lwz r3, 0x80(r31)
+/* 8139B528 0006BA48  80 63 00 00 */	lwz r3, 0x0(r3)
+/* 8139B52C 0006BA4C  4B FA 32 91 */	bl getMessage__Q33ipl7message7MessageCFUl
+/* 8139B530 0006BA50  7C 7E 1B 78 */	mr r30, r3
+/* 8139B534 0006BA54  7F 43 D3 78 */	mr r3, r26
+/* 8139B538 0006BA58  48 26 D1 75 */	bl wcslen
+/* 8139B53C 0006BA5C  7C A3 D8 50 */	subf r5, r3, r27
+/* 8139B540 0006BA60  7F 43 D3 78 */	mr r3, r26
+/* 8139B544 0006BA64  7F C4 F3 78 */	mr r4, r30
+/* 8139B548 0006BA68  48 26 D2 0D */	bl wcsncat
+/* 8139B54C 0006BA6C  38 61 00 08 */	addi r3, r1, 0x8
+/* 8139B550 0006BA70  38 80 00 00 */	li r4, 0x0
+/* 8139B554 0006BA74  38 A0 00 40 */	li r5, 0x40
+/* 8139B558 0006BA78  4B F9 4D DD */	bl memset
+/* 8139B55C 0006BA7C  3C A0 81 65 */	lis r5, lbl_8164BDF8@ha
+/* 8139B560 0006BA80  7F A6 EB 78 */	mr r6, r29
+/* 8139B564 0006BA84  38 61 00 08 */	addi r3, r1, 0x8
+/* 8139B568 0006BA88  38 80 00 20 */	li r4, 0x20
+/* 8139B56C 0006BA8C  38 A5 BD F8 */	addi r5, r5, lbl_8164BDF8@l
+/* 8139B570 0006BA90  4C C6 31 82 */	crclr cr1eq
+/* 8139B574 0006BA94  48 26 D0 5D */	bl swprintf
+/* 8139B578 0006BA98  7F 43 D3 78 */	mr r3, r26
+/* 8139B57C 0006BA9C  48 26 D1 31 */	bl wcslen
+/* 8139B580 0006BAA0  7C A3 D8 50 */	subf r5, r3, r27
+/* 8139B584 0006BAA4  7F 43 D3 78 */	mr r3, r26
+/* 8139B588 0006BAA8  38 81 00 08 */	addi r4, r1, 0x8
+/* 8139B58C 0006BAAC  48 26 D1 C9 */	bl wcsncat
+/* 8139B590 0006BAB0  80 7F 00 80 */	lwz r3, 0x80(r31)
+/* 8139B594 0006BAB4  7F 84 E3 78 */	mr r4, r28
+/* 8139B598 0006BAB8  80 63 00 00 */	lwz r3, 0x0(r3)
+/* 8139B59C 0006BABC  4B FA 32 21 */	bl getMessage__Q33ipl7message7MessageCFUl
+/* 8139B5A0 0006BAC0  7C 7E 1B 78 */	mr r30, r3
+/* 8139B5A4 0006BAC4  7F 43 D3 78 */	mr r3, r26
+/* 8139B5A8 0006BAC8  48 26 D1 05 */	bl wcslen
+/* 8139B5AC 0006BACC  7C A3 D8 50 */	subf r5, r3, r27
+/* 8139B5B0 0006BAD0  7F 43 D3 78 */	mr r3, r26
+/* 8139B5B4 0006BAD4  7F C4 F3 78 */	mr r4, r30
+/* 8139B5B8 0006BAD8  48 26 D1 9D */	bl wcsncat
+/* 8139B5BC 0006BADC  39 61 00 60 */	addi r11, r1, 0x60
+/* 8139B5C0 0006BAE0  48 25 DF 49 */	bl _restgpr_26
+/* 8139B5C4 0006BAE4  80 01 00 64 */	lwz r0, 0x64(r1)
+/* 8139B5C8 0006BAE8  7C 08 03 A6 */	mtlr r0
+/* 8139B5CC 0006BAEC  38 21 00 60 */	addi r1, r1, 0x60
+/* 8139B5D0 0006BAF0  4E 80 00 20 */	blr
+.endfn set_err_msg__Q33ipl5scene12focus_objectFPwUlUll
+
+# .text:0x48AC | 0x8139B5D4 | size: 0x68
+# ipl::scene::focus_object::is_parental_restriction() const
+.fn is_parental_restriction__Q33ipl5scene12focus_objectCFv, global
+/* 8139B5D4 0006BAF4  94 21 FF A0 */	stwu r1, -0x60(r1)
+/* 8139B5D8 0006BAF8  7C 08 02 A6 */	mflr r0
+/* 8139B5DC 0006BAFC  90 01 00 64 */	stw r0, 0x64(r1)
+/* 8139B5E0 0006BB00  38 61 00 08 */	addi r3, r1, 0x8
+/* 8139B5E4 0006BB04  93 E1 00 5C */	stw r31, 0x5c(r1)
+/* 8139B5E8 0006BB08  3B E0 00 00 */	li r31, 0x0
+/* 8139B5EC 0006BB0C  48 1C EB 8D */	bl SCGetParentalControl
+/* 8139B5F0 0006BB10  2C 03 00 00 */	cmpwi r3, 0x0
+/* 8139B5F4 0006BB14  38 60 00 00 */	li r3, 0x0
+/* 8139B5F8 0006BB18  41 82 00 14 */	beq .L_8139B60C
+/* 8139B5FC 0006BB1C  88 01 00 08 */	lbz r0, 0x8(r1)
+/* 8139B600 0006BB20  54 00 06 31 */	rlwinm. r0, r0, 0, 24, 24
+/* 8139B604 0006BB24  41 82 00 08 */	beq .L_8139B60C
+/* 8139B608 0006BB28  38 60 00 01 */	li r3, 0x1
+.L_8139B60C:
+/* 8139B60C 0006BB2C  2C 03 00 00 */	cmpwi r3, 0x0
+/* 8139B610 0006BB30  41 82 00 14 */	beq .L_8139B624
+/* 8139B614 0006BB34  48 1C F0 99 */	bl SCGetNetContentRestrictions
+/* 8139B618 0006BB38  54 60 07 BD */	rlwinm. r0, r3, 0, 30, 30
+/* 8139B61C 0006BB3C  41 82 00 08 */	beq .L_8139B624
+/* 8139B620 0006BB40  3B E0 00 01 */	li r31, 0x1
+.L_8139B624:
+/* 8139B624 0006BB44  7F E3 FB 78 */	mr r3, r31
+/* 8139B628 0006BB48  83 E1 00 5C */	lwz r31, 0x5c(r1)
+/* 8139B62C 0006BB4C  80 01 00 64 */	lwz r0, 0x64(r1)
+/* 8139B630 0006BB50  7C 08 03 A6 */	mtlr r0
+/* 8139B634 0006BB54  38 21 00 60 */	addi r1, r1, 0x60
+/* 8139B638 0006BB58  4E 80 00 20 */	blr
+.endfn is_parental_restriction__Q33ipl5scene12focus_objectCFv
+
+# .text:0x4914 | 0x8139B63C | size: 0x5C
+# ipl::scene::focus_object::check_delete_task_failure()
+.fn check_delete_task_failure__Q33ipl5scene12focus_objectFv, global
+/* 8139B63C 0006BB5C  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 8139B640 0006BB60  7C 08 02 A6 */	mflr r0
+/* 8139B644 0006BB64  90 01 00 14 */	stw r0, 0x14(r1)
+/* 8139B648 0006BB68  93 E1 00 0C */	stw r31, 0xc(r1)
+/* 8139B64C 0006BB6C  7C 7F 1B 78 */	mr r31, r3
+/* 8139B650 0006BB70  80 83 01 F4 */	lwz r4, 0x1f4(r3)
+/* 8139B654 0006BB74  38 04 00 01 */	addi r0, r4, 0x1
+/* 8139B658 0006BB78  2C 00 01 2C */	cmpwi r0, 0x12c
+/* 8139B65C 0006BB7C  90 03 01 F4 */	stw r0, 0x1f4(r3)
+/* 8139B660 0006BB80  40 81 00 24 */	ble .L_8139B684
+/* 8139B664 0006BB84  3C 60 81 09 */	lis r3, smArg__Q23ipl6System@ha
+/* 8139B668 0006BB88  38 80 00 6D */	li r4, 0x6d
+/* 8139B66C 0006BB8C  38 63 90 08 */	addi r3, r3, smArg__Q23ipl6System@l
+/* 8139B670 0006BB90  38 A0 00 2E */	li r5, 0x2e
+/* 8139B674 0006BB94  80 63 00 AC */	lwz r3, 0xac(r3)
+/* 8139B678 0006BB98  4B FA B0 81 */	bl callBtn1__Q23ipl12DialogWindowFUlUl
+/* 8139B67C 0006BB9C  38 00 00 13 */	li r0, 0x13
+/* 8139B680 0006BBA0  90 1F 00 00 */	stw r0, 0x0(r31)
+.L_8139B684:
+/* 8139B684 0006BBA4  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 8139B688 0006BBA8  83 E1 00 0C */	lwz r31, 0xc(r1)
+/* 8139B68C 0006BBAC  7C 08 03 A6 */	mtlr r0
+/* 8139B690 0006BBB0  38 21 00 10 */	addi r1, r1, 0x10
+/* 8139B694 0006BBB4  4E 80 00 20 */	blr
+.endfn check_delete_task_failure__Q33ipl5scene12focus_objectFv
+
+# .text:0x4970 | 0x8139B698 | size: 0x110
+# ipl::scene::event::onEvent(unsigned long, unsigned long, void*)
+.fn onEvent__Q33ipl5scene5eventFUlUlPv, global
+/* 8139B698 0006BBB8  94 21 FF E0 */	stwu r1, -0x20(r1)
+/* 8139B69C 0006BBBC  7C 08 02 A6 */	mflr r0
+/* 8139B6A0 0006BBC0  90 01 00 24 */	stw r0, 0x24(r1)
+/* 8139B6A4 0006BBC4  39 61 00 20 */	addi r11, r1, 0x20
+/* 8139B6A8 0006BBC8  48 25 DE 1D */	bl _savegpr_28
+/* 8139B6AC 0006BBCC  7C 7C 1B 78 */	mr r28, r3
+/* 8139B6B0 0006BBD0  80 63 00 04 */	lwz r3, 0x4(r3)
+/* 8139B6B4 0006BBD4  7C BD 2B 78 */	mr r29, r5
+/* 8139B6B8 0006BBD8  7C DE 33 78 */	mr r30, r6
+/* 8139B6BC 0006BBDC  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 8139B6C0 0006BBE0  81 8C 00 24 */	lwz r12, 0x24(r12)
+/* 8139B6C4 0006BBE4  7D 89 03 A6 */	mtctr r12
+/* 8139B6C8 0006BBE8  4E 80 04 21 */	bctrl
+/* 8139B6CC 0006BBEC  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 8139B6D0 0006BBF0  81 8C 00 70 */	lwz r12, 0x70(r12)
+/* 8139B6D4 0006BBF4  7D 89 03 A6 */	mtctr r12
+/* 8139B6D8 0006BBF8  4E 80 04 21 */	bctrl
+/* 8139B6DC 0006BBFC  7C 64 1B 78 */	mr r4, r3
+/* 8139B6E0 0006BC00  80 7C 00 0C */	lwz r3, 0xc(r28)
+/* 8139B6E4 0006BC04  38 84 00 B4 */	addi r4, r4, 0xb4
+/* 8139B6E8 0006BC08  4B FF F9 81 */	bl get_button_no__Q33ipl5scene12focus_objectCFPCc
+/* 8139B6EC 0006BC0C  2C 1D 00 01 */	cmpwi r29, 0x1
+/* 8139B6F0 0006BC10  7C 7F 1B 78 */	mr r31, r3
+/* 8139B6F4 0006BC14  41 82 00 20 */	beq .L_8139B714
+/* 8139B6F8 0006BC18  40 80 00 10 */	bge .L_8139B708
+/* 8139B6FC 0006BC1C  2C 1D 00 00 */	cmpwi r29, 0x0
+/* 8139B700 0006BC20  40 80 00 50 */	bge .L_8139B750
+/* 8139B704 0006BC24  48 00 00 8C */	b .L_8139B790
+.L_8139B708:
+/* 8139B708 0006BC28  2C 1D 00 03 */	cmpwi r29, 0x3
+/* 8139B70C 0006BC2C  40 80 00 84 */	bge .L_8139B790
+/* 8139B710 0006BC30  48 00 00 28 */	b .L_8139B738
+.L_8139B714:
+/* 8139B714 0006BC34  2C 1E 00 00 */	cmpwi r30, 0x0
+/* 8139B718 0006BC38  41 82 00 78 */	beq .L_8139B790
+/* 8139B71C 0006BC3C  2C 03 FF FF */	cmpwi r3, -0x1
+/* 8139B720 0006BC40  41 82 00 70 */	beq .L_8139B790
+/* 8139B724 0006BC44  80 7C 00 0C */	lwz r3, 0xc(r28)
+/* 8139B728 0006BC48  7F E4 FB 78 */	mr r4, r31
+/* 8139B72C 0006BC4C  7F C5 F3 78 */	mr r5, r30
+/* 8139B730 0006BC50  4B FF F5 41 */	bl start_point_event__Q33ipl5scene12focus_objectFiPQ33ipl10controller9Interface
+/* 8139B734 0006BC54  48 00 00 5C */	b .L_8139B790
+.L_8139B738:
+/* 8139B738 0006BC58  2C 03 FF FF */	cmpwi r3, -0x1
+/* 8139B73C 0006BC5C  41 82 00 54 */	beq .L_8139B790
+/* 8139B740 0006BC60  80 7C 00 0C */	lwz r3, 0xc(r28)
+/* 8139B744 0006BC64  7F E4 FB 78 */	mr r4, r31
+/* 8139B748 0006BC68  4B FF F6 AD */	bl start_left_event__Q33ipl5scene12focus_objectFi
+/* 8139B74C 0006BC6C  48 00 00 44 */	b .L_8139B790
+.L_8139B750:
+/* 8139B750 0006BC70  2C 1E 00 00 */	cmpwi r30, 0x0
+/* 8139B754 0006BC74  41 82 00 3C */	beq .L_8139B790
+/* 8139B758 0006BC78  2C 03 FF FF */	cmpwi r3, -0x1
+/* 8139B75C 0006BC7C  41 82 00 34 */	beq .L_8139B790
+/* 8139B760 0006BC80  81 9E 00 00 */	lwz r12, 0x0(r30)
+/* 8139B764 0006BC84  3C 80 00 10 */	lis r4, 0x10
+/* 8139B768 0006BC88  7F C3 F3 78 */	mr r3, r30
+/* 8139B76C 0006BC8C  81 8C 00 18 */	lwz r12, 0x18(r12)
+/* 8139B770 0006BC90  38 84 08 00 */	addi r4, r4, 0x800
+/* 8139B774 0006BC94  7D 89 03 A6 */	mtctr r12
+/* 8139B778 0006BC98  4E 80 04 21 */	bctrl
+/* 8139B77C 0006BC9C  2C 03 00 00 */	cmpwi r3, 0x0
+/* 8139B780 0006BCA0  41 82 00 10 */	beq .L_8139B790
+/* 8139B784 0006BCA4  80 7C 00 0C */	lwz r3, 0xc(r28)
+/* 8139B788 0006BCA8  7F E4 FB 78 */	mr r4, r31
+/* 8139B78C 0006BCAC  4B FF F7 7D */	bl start_trig_event__Q33ipl5scene12focus_objectFi
+.L_8139B790:
+/* 8139B790 0006BCB0  39 61 00 20 */	addi r11, r1, 0x20
+/* 8139B794 0006BCB4  48 25 DD 7D */	bl _restgpr_28
+/* 8139B798 0006BCB8  80 01 00 24 */	lwz r0, 0x24(r1)
+/* 8139B79C 0006BCBC  7C 08 03 A6 */	mtlr r0
+/* 8139B7A0 0006BCC0  38 21 00 20 */	addi r1, r1, 0x20
+/* 8139B7A4 0006BCC4  4E 80 00 20 */	blr
+.endfn onEvent__Q33ipl5scene5eventFUlUlPv
+
+# .text:0x4A80 | 0x8139B7A8 | size: 0x34C
+# ipl::scene::button_event::onEventDerived(unsigned long, unsigned long, const ipl::controller::Interface*)
+.fn onEventDerived__Q33ipl5scene12button_eventFUlUlPCQ33ipl10controller9Interface, global
+/* 8139B7A8 0006BCC8  94 21 FF E0 */	stwu r1, -0x20(r1)
+/* 8139B7AC 0006BCCC  7C 08 02 A6 */	mflr r0
+/* 8139B7B0 0006BCD0  90 01 00 24 */	stw r0, 0x24(r1)
+/* 8139B7B4 0006BCD4  39 61 00 20 */	addi r11, r1, 0x20
+/* 8139B7B8 0006BCD8  48 25 DD 09 */	bl _savegpr_27
+/* 8139B7BC 0006BCDC  7C 7D 1B 78 */	mr r29, r3
+/* 8139B7C0 0006BCE0  80 63 00 04 */	lwz r3, 0x4(r3)
+/* 8139B7C4 0006BCE4  3F E0 81 65 */	lis r31, lbl_8164B6D0@ha
+/* 8139B7C8 0006BCE8  7C BB 2B 78 */	mr r27, r5
+/* 8139B7CC 0006BCEC  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 8139B7D0 0006BCF0  7C DE 33 78 */	mr r30, r6
+/* 8139B7D4 0006BCF4  3B FF B6 D0 */	addi r31, r31, lbl_8164B6D0@l
+/* 8139B7D8 0006BCF8  81 8C 00 24 */	lwz r12, 0x24(r12)
+/* 8139B7DC 0006BCFC  7D 89 03 A6 */	mtctr r12
+/* 8139B7E0 0006BD00  4E 80 04 21 */	bctrl
+/* 8139B7E4 0006BD04  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 8139B7E8 0006BD08  81 8C 00 70 */	lwz r12, 0x70(r12)
+/* 8139B7EC 0006BD0C  7D 89 03 A6 */	mtctr r12
+/* 8139B7F0 0006BD10  4E 80 04 21 */	bctrl
+/* 8139B7F4 0006BD14  3C A0 81 09 */	lis r5, smArg__Q23ipl6System@ha
+/* 8139B7F8 0006BD18  3B 83 00 B4 */	addi r28, r3, 0xb4
+/* 8139B7FC 0006BD1C  38 A5 90 08 */	addi r5, r5, smArg__Q23ipl6System@l
+/* 8139B800 0006BD20  38 80 00 05 */	li r4, 0x5
+/* 8139B804 0006BD24  80 65 00 64 */	lwz r3, 0x64(r5)
+/* 8139B808 0006BD28  48 06 F9 31 */	bl getScene__Q33ipl5scene7ManagerFi
+/* 8139B80C 0006BD2C  2C 1B 00 00 */	cmpwi r27, 0x0
+/* 8139B810 0006BD30  7C 7B 1B 78 */	mr r27, r3
+/* 8139B814 0006BD34  40 82 02 C8 */	bne .L_8139BADC
+/* 8139B818 0006BD38  81 9E 00 00 */	lwz r12, 0x0(r30)
+/* 8139B81C 0006BD3C  3C 80 00 10 */	lis r4, 0x10
+/* 8139B820 0006BD40  7F C3 F3 78 */	mr r3, r30
+/* 8139B824 0006BD44  81 8C 00 18 */	lwz r12, 0x18(r12)
+/* 8139B828 0006BD48  38 84 08 00 */	addi r4, r4, 0x800
+/* 8139B82C 0006BD4C  7D 89 03 A6 */	mtctr r12
+/* 8139B830 0006BD50  4E 80 04 21 */	bctrl
+/* 8139B834 0006BD54  2C 03 00 00 */	cmpwi r3, 0x0
+/* 8139B838 0006BD58  41 82 02 A4 */	beq .L_8139BADC
+/* 8139B83C 0006BD5C  3F C0 81 65 */	lis r30, smButtonName__Q33ipl5scene6Button@ha
+/* 8139B840 0006BD60  7F 83 E3 78 */	mr r3, r28
+/* 8139B844 0006BD64  3B DE BF 5C */	addi r30, r30, smButtonName__Q33ipl5scene6Button@l
+/* 8139B848 0006BD68  80 9E 00 14 */	lwz r4, 0x14(r30)
+/* 8139B84C 0006BD6C  48 26 6C 35 */	bl strcmp
+/* 8139B850 0006BD70  2C 03 00 00 */	cmpwi r3, 0x0
+/* 8139B854 0006BD74  40 82 00 C0 */	bne .L_8139B914
+/* 8139B858 0006BD78  80 7D 00 0C */	lwz r3, 0xc(r29)
+/* 8139B85C 0006BD7C  80 03 00 00 */	lwz r0, 0x0(r3)
+/* 8139B860 0006BD80  2C 00 00 08 */	cmpwi r0, 0x8
+/* 8139B864 0006BD84  41 82 00 78 */	beq .L_8139B8DC
+/* 8139B868 0006BD88  40 80 02 74 */	bge .L_8139BADC
+/* 8139B86C 0006BD8C  2C 00 00 01 */	cmpwi r0, 0x1
+/* 8139B870 0006BD90  41 82 00 08 */	beq .L_8139B878
+/* 8139B874 0006BD94  48 00 02 68 */	b .L_8139BADC
+.L_8139B878:
+/* 8139B878 0006BD98  7F 63 DB 78 */	mr r3, r27
+/* 8139B87C 0006BD9C  38 80 00 1B */	li r4, 0x1b
+/* 8139B880 0006BDA0  48 00 12 D9 */	bl animation__Q33ipl5scene6ButtonFi
+/* 8139B884 0006BDA4  3C 60 81 09 */	lis r3, sSystem__Q23ipl3snd@ha
+/* 8139B888 0006BDA8  38 9F 07 34 */	addi r4, r31, 0x734
+/* 8139B88C 0006BDAC  38 63 99 2C */	addi r3, r3, sSystem__Q23ipl3snd@l
+/* 8139B890 0006BDB0  4B FC FB DD */	bl startSE__Q33ipl3snd6SystemFPCc
+/* 8139B894 0006BDB4  80 7D 00 0C */	lwz r3, 0xc(r29)
+/* 8139B898 0006BDB8  80 63 00 20 */	lwz r3, 0x20(r3)
+/* 8139B89C 0006BDBC  48 03 5D CD */	bl terminate__Q33ipl5scene11TextBalloonFv
+/* 8139B8A0 0006BDC0  80 7D 00 0C */	lwz r3, 0xc(r29)
+/* 8139B8A4 0006BDC4  38 80 00 03 */	li r4, 0x3
+/* 8139B8A8 0006BDC8  38 00 00 02 */	li r0, 0x2
+/* 8139B8AC 0006BDCC  90 83 00 00 */	stw r4, 0x0(r3)
+/* 8139B8B0 0006BDD0  80 7D 00 0C */	lwz r3, 0xc(r29)
+/* 8139B8B4 0006BDD4  90 03 00 04 */	stw r0, 0x4(r3)
+/* 8139B8B8 0006BDD8  80 7D 00 0C */	lwz r3, 0xc(r29)
+/* 8139B8BC 0006BDDC  80 03 01 34 */	lwz r0, 0x134(r3)
+/* 8139B8C0 0006BDE0  2C 00 00 00 */	cmpwi r0, 0x0
+/* 8139B8C4 0006BDE4  41 82 02 18 */	beq .L_8139BADC
+/* 8139B8C8 0006BDE8  3C 60 81 09 */	lis r3, sBannerSoundPlayer__Q23ipl3snd@ha
+/* 8139B8CC 0006BDEC  38 80 00 1E */	li r4, 0x1e
+/* 8139B8D0 0006BDF0  38 63 9F 68 */	addi r3, r3, sBannerSoundPlayer__Q23ipl3snd@l
+/* 8139B8D4 0006BDF4  48 07 30 45 */	bl stop__17BannerSoundPlayerFUl
+/* 8139B8D8 0006BDF8  48 00 02 04 */	b .L_8139BADC
+.L_8139B8DC:
+/* 8139B8DC 0006BDFC  7F 63 DB 78 */	mr r3, r27
+/* 8139B8E0 0006BE00  38 80 00 1B */	li r4, 0x1b
+/* 8139B8E4 0006BE04  48 00 12 75 */	bl animation__Q33ipl5scene6ButtonFi
+/* 8139B8E8 0006BE08  3C 60 81 09 */	lis r3, sSystem__Q23ipl3snd@ha
+/* 8139B8EC 0006BE0C  38 9F 07 4B */	addi r4, r31, 0x74b
+/* 8139B8F0 0006BE10  38 63 99 2C */	addi r3, r3, sSystem__Q23ipl3snd@l
+/* 8139B8F4 0006BE14  4B FC FB 79 */	bl startSE__Q33ipl3snd6SystemFPCc
+/* 8139B8F8 0006BE18  80 7D 00 0C */	lwz r3, 0xc(r29)
+/* 8139B8FC 0006BE1C  38 80 00 03 */	li r4, 0x3
+/* 8139B900 0006BE20  38 00 00 09 */	li r0, 0x9
+/* 8139B904 0006BE24  90 83 00 00 */	stw r4, 0x0(r3)
+/* 8139B908 0006BE28  80 7D 00 0C */	lwz r3, 0xc(r29)
+/* 8139B90C 0006BE2C  90 03 00 04 */	stw r0, 0x4(r3)
+/* 8139B910 0006BE30  48 00 01 CC */	b .L_8139BADC
+.L_8139B914:
+/* 8139B914 0006BE34  80 9E 00 20 */	lwz r4, 0x20(r30)
+/* 8139B918 0006BE38  7F 83 E3 78 */	mr r3, r28
+/* 8139B91C 0006BE3C  48 26 6B 65 */	bl strcmp
+/* 8139B920 0006BE40  2C 03 00 00 */	cmpwi r3, 0x0
+/* 8139B924 0006BE44  40 82 00 84 */	bne .L_8139B9A8
+/* 8139B928 0006BE48  80 7D 00 0C */	lwz r3, 0xc(r29)
+/* 8139B92C 0006BE4C  80 03 00 00 */	lwz r0, 0x0(r3)
+/* 8139B930 0006BE50  2C 00 00 01 */	cmpwi r0, 0x1
+/* 8139B934 0006BE54  40 82 01 A8 */	bne .L_8139BADC
+/* 8139B938 0006BE58  7F 63 DB 78 */	mr r3, r27
+/* 8139B93C 0006BE5C  38 80 00 1C */	li r4, 0x1c
+/* 8139B940 0006BE60  48 00 12 19 */	bl animation__Q33ipl5scene6ButtonFi
+/* 8139B944 0006BE64  80 7D 00 0C */	lwz r3, 0xc(r29)
+/* 8139B948 0006BE68  4B FF EF 31 */	bl scale_down_uarw__Q33ipl5scene12focus_objectFv
+/* 8139B94C 0006BE6C  80 7D 00 0C */	lwz r3, 0xc(r29)
+/* 8139B950 0006BE70  4B FF EF 8D */	bl scale_down_darw__Q33ipl5scene12focus_objectFv
+/* 8139B954 0006BE74  3C 60 81 09 */	lis r3, sSystem__Q23ipl3snd@ha
+/* 8139B958 0006BE78  38 9F 07 60 */	addi r4, r31, 0x760
+/* 8139B95C 0006BE7C  38 63 99 2C */	addi r3, r3, sSystem__Q23ipl3snd@l
+/* 8139B960 0006BE80  4B FC FB 0D */	bl startSE__Q33ipl3snd6SystemFPCc
+/* 8139B964 0006BE84  80 7D 00 0C */	lwz r3, 0xc(r29)
+/* 8139B968 0006BE88  80 03 01 34 */	lwz r0, 0x134(r3)
+/* 8139B96C 0006BE8C  2C 00 00 00 */	cmpwi r0, 0x0
+/* 8139B970 0006BE90  41 82 00 14 */	beq .L_8139B984
+/* 8139B974 0006BE94  3C 60 81 09 */	lis r3, sBannerSoundPlayer__Q23ipl3snd@ha
+/* 8139B978 0006BE98  38 80 00 1E */	li r4, 0x1e
+/* 8139B97C 0006BE9C  38 63 9F 68 */	addi r3, r3, sBannerSoundPlayer__Q23ipl3snd@l
+/* 8139B980 0006BEA0  48 07 2F 99 */	bl stop__17BannerSoundPlayerFUl
+.L_8139B984:
+/* 8139B984 0006BEA4  80 7D 00 0C */	lwz r3, 0xc(r29)
+/* 8139B988 0006BEA8  4B FF F2 1D */	bl hide_cmn_btn__Q33ipl5scene12focus_objectFv
+/* 8139B98C 0006BEAC  80 7D 00 0C */	lwz r3, 0xc(r29)
+/* 8139B990 0006BEB0  38 80 00 03 */	li r4, 0x3
+/* 8139B994 0006BEB4  38 00 00 05 */	li r0, 0x5
+/* 8139B998 0006BEB8  90 83 00 00 */	stw r4, 0x0(r3)
+/* 8139B99C 0006BEBC  80 7D 00 0C */	lwz r3, 0xc(r29)
+/* 8139B9A0 0006BEC0  90 03 00 04 */	stw r0, 0x4(r3)
+/* 8139B9A4 0006BEC4  48 00 01 38 */	b .L_8139BADC
+.L_8139B9A8:
+/* 8139B9A8 0006BEC8  80 9E 00 1C */	lwz r4, 0x1c(r30)
+/* 8139B9AC 0006BECC  7F 83 E3 78 */	mr r3, r28
+/* 8139B9B0 0006BED0  48 26 6A D1 */	bl strcmp
+/* 8139B9B4 0006BED4  2C 03 00 00 */	cmpwi r3, 0x0
+/* 8139B9B8 0006BED8  40 82 01 24 */	bne .L_8139BADC
+/* 8139B9BC 0006BEDC  80 7D 00 0C */	lwz r3, 0xc(r29)
+/* 8139B9C0 0006BEE0  3B C0 00 00 */	li r30, 0x0
+/* 8139B9C4 0006BEE4  80 03 00 00 */	lwz r0, 0x0(r3)
+/* 8139B9C8 0006BEE8  2C 00 00 08 */	cmpwi r0, 0x8
+/* 8139B9CC 0006BEEC  41 82 00 A4 */	beq .L_8139BA70
+/* 8139B9D0 0006BEF0  40 80 00 D4 */	bge .L_8139BAA4
+/* 8139B9D4 0006BEF4  2C 00 00 01 */	cmpwi r0, 0x1
+/* 8139B9D8 0006BEF8  41 82 00 08 */	beq .L_8139B9E0
+/* 8139B9DC 0006BEFC  48 00 00 C8 */	b .L_8139BAA4
+.L_8139B9E0:
+/* 8139B9E0 0006BF00  7F 63 DB 78 */	mr r3, r27
+/* 8139B9E4 0006BF04  3B C0 00 01 */	li r30, 0x1
+/* 8139B9E8 0006BF08  38 80 00 1D */	li r4, 0x1d
+/* 8139B9EC 0006BF0C  48 00 1A 3D */	bl reserveAnm__Q33ipl5scene6ButtonFi
+/* 8139B9F0 0006BF10  80 7D 00 0C */	lwz r3, 0xc(r29)
+/* 8139B9F4 0006BF14  80 83 00 14 */	lwz r4, 0x14(r3)
+/* 8139B9F8 0006BF18  80 04 00 DC */	lwz r0, 0xdc(r4)
+/* 8139B9FC 0006BF1C  2C 00 00 03 */	cmpwi r0, 0x3
+/* 8139BA00 0006BF20  40 82 00 0C */	bne .L_8139BA0C
+/* 8139BA04 0006BF24  4B FF F9 E1 */	bl check_network_for_news__Q33ipl5scene12focus_objectFv
+/* 8139BA08 0006BF28  48 00 00 9C */	b .L_8139BAA4
+.L_8139BA0C:
+/* 8139BA0C 0006BF2C  88 03 01 2C */	lbz r0, 0x12c(r3)
+/* 8139BA10 0006BF30  2C 00 00 00 */	cmpwi r0, 0x0
+/* 8139BA14 0006BF34  41 82 00 38 */	beq .L_8139BA4C
+/* 8139BA18 0006BF38  4B FF E2 65 */	bl setup_chanjump__Q33ipl5scene12focus_objectFv
+/* 8139BA1C 0006BF3C  2C 03 00 00 */	cmpwi r3, 0x0
+/* 8139BA20 0006BF40  41 82 00 84 */	beq .L_8139BAA4
+/* 8139BA24 0006BF44  80 7D 00 0C */	lwz r3, 0xc(r29)
+/* 8139BA28 0006BF48  38 80 00 00 */	li r4, 0x0
+/* 8139BA2C 0006BF4C  4B FF D3 F9 */	bl init_fadeout__Q33ipl5scene12focus_objectFb
+/* 8139BA30 0006BF50  80 7D 00 0C */	lwz r3, 0xc(r29)
+/* 8139BA34 0006BF54  38 80 00 05 */	li r4, 0x5
+/* 8139BA38 0006BF58  38 00 00 02 */	li r0, 0x2
+/* 8139BA3C 0006BF5C  90 83 00 10 */	stw r4, 0x10(r3)
+/* 8139BA40 0006BF60  80 7D 00 0C */	lwz r3, 0xc(r29)
+/* 8139BA44 0006BF64  90 03 00 00 */	stw r0, 0x0(r3)
+/* 8139BA48 0006BF68  48 00 00 5C */	b .L_8139BAA4
+.L_8139BA4C:
+/* 8139BA4C 0006BF6C  38 80 00 00 */	li r4, 0x0
+/* 8139BA50 0006BF70  38 00 00 0A */	li r0, 0xa
+/* 8139BA54 0006BF74  90 83 01 F4 */	stw r4, 0x1f4(r3)
+/* 8139BA58 0006BF78  80 9D 00 0C */	lwz r4, 0xc(r29)
+/* 8139BA5C 0006BF7C  80 64 00 00 */	lwz r3, 0x0(r4)
+/* 8139BA60 0006BF80  90 64 00 08 */	stw r3, 0x8(r4)
+/* 8139BA64 0006BF84  80 7D 00 0C */	lwz r3, 0xc(r29)
+/* 8139BA68 0006BF88  90 03 00 00 */	stw r0, 0x0(r3)
+/* 8139BA6C 0006BF8C  48 00 00 38 */	b .L_8139BAA4
+.L_8139BA70:
+/* 8139BA70 0006BF90  7F 63 DB 78 */	mr r3, r27
+/* 8139BA74 0006BF94  3B C0 00 01 */	li r30, 0x1
+/* 8139BA78 0006BF98  38 80 00 1D */	li r4, 0x1d
+/* 8139BA7C 0006BF9C  48 00 19 AD */	bl reserveAnm__Q33ipl5scene6ButtonFi
+/* 8139BA80 0006BFA0  80 7D 00 0C */	lwz r3, 0xc(r29)
+/* 8139BA84 0006BFA4  38 80 00 00 */	li r4, 0x0
+/* 8139BA88 0006BFA8  38 00 00 0A */	li r0, 0xa
+/* 8139BA8C 0006BFAC  90 83 01 F4 */	stw r4, 0x1f4(r3)
+/* 8139BA90 0006BFB0  80 9D 00 0C */	lwz r4, 0xc(r29)
+/* 8139BA94 0006BFB4  80 64 00 00 */	lwz r3, 0x0(r4)
+/* 8139BA98 0006BFB8  90 64 00 08 */	stw r3, 0x8(r4)
+/* 8139BA9C 0006BFBC  80 7D 00 0C */	lwz r3, 0xc(r29)
+/* 8139BAA0 0006BFC0  90 03 00 00 */	stw r0, 0x0(r3)
+.L_8139BAA4:
+/* 8139BAA4 0006BFC4  2C 1E 00 00 */	cmpwi r30, 0x0
+/* 8139BAA8 0006BFC8  41 82 00 34 */	beq .L_8139BADC
+/* 8139BAAC 0006BFCC  3C 60 81 09 */	lis r3, sSystem__Q23ipl3snd@ha
+/* 8139BAB0 0006BFD0  38 9F 04 99 */	addi r4, r31, 0x499
+/* 8139BAB4 0006BFD4  38 63 99 2C */	addi r3, r3, sSystem__Q23ipl3snd@l
+/* 8139BAB8 0006BFD8  4B FC F9 B5 */	bl startSE__Q33ipl3snd6SystemFPCc
+/* 8139BABC 0006BFDC  80 7D 00 0C */	lwz r3, 0xc(r29)
+/* 8139BAC0 0006BFE0  80 03 01 34 */	lwz r0, 0x134(r3)
+/* 8139BAC4 0006BFE4  2C 00 00 00 */	cmpwi r0, 0x0
+/* 8139BAC8 0006BFE8  41 82 00 14 */	beq .L_8139BADC
+/* 8139BACC 0006BFEC  3C 60 81 09 */	lis r3, sBannerSoundPlayer__Q23ipl3snd@ha
+/* 8139BAD0 0006BFF0  38 80 00 1E */	li r4, 0x1e
+/* 8139BAD4 0006BFF4  38 63 9F 68 */	addi r3, r3, sBannerSoundPlayer__Q23ipl3snd@l
+/* 8139BAD8 0006BFF8  48 07 2E 41 */	bl stop__17BannerSoundPlayerFUl
+.L_8139BADC:
+/* 8139BADC 0006BFFC  39 61 00 20 */	addi r11, r1, 0x20
+/* 8139BAE0 0006C000  48 25 DA 2D */	bl _restgpr_27
+/* 8139BAE4 0006C004  80 01 00 24 */	lwz r0, 0x24(r1)
+/* 8139BAE8 0006C008  7C 08 03 A6 */	mtlr r0
+/* 8139BAEC 0006C00C  38 21 00 20 */	addi r1, r1, 0x20
+/* 8139BAF0 0006C010  4E 80 00 20 */	blr
+.endfn onEventDerived__Q33ipl5scene12button_eventFUlUlPCQ33ipl10controller9Interface
+
+# .text:0x4DCC | 0x8139BAF4 | size: 0x120
+# ipl::scene::optout_button_event::onEventDerived(unsigned long, unsigned long, const ipl::controller::Interface*)
+.fn onEventDerived__Q33ipl5scene19optout_button_eventFUlUlPCQ33ipl10controller9Interface, global
+/* 8139BAF4 0006C014  94 21 FF E0 */	stwu r1, -0x20(r1)
+/* 8139BAF8 0006C018  7C 08 02 A6 */	mflr r0
+/* 8139BAFC 0006C01C  90 01 00 24 */	stw r0, 0x24(r1)
+/* 8139BB00 0006C020  39 61 00 20 */	addi r11, r1, 0x20
+/* 8139BB04 0006C024  48 25 D9 C5 */	bl _savegpr_29
+/* 8139BB08 0006C028  7C 7D 1B 78 */	mr r29, r3
+/* 8139BB0C 0006C02C  80 63 00 04 */	lwz r3, 0x4(r3)
+/* 8139BB10 0006C030  7C BF 2B 78 */	mr r31, r5
+/* 8139BB14 0006C034  7C DE 33 78 */	mr r30, r6
+/* 8139BB18 0006C038  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 8139BB1C 0006C03C  81 8C 00 24 */	lwz r12, 0x24(r12)
+/* 8139BB20 0006C040  7D 89 03 A6 */	mtctr r12
+/* 8139BB24 0006C044  4E 80 04 21 */	bctrl
+/* 8139BB28 0006C048  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 8139BB2C 0006C04C  81 8C 00 70 */	lwz r12, 0x70(r12)
+/* 8139BB30 0006C050  7D 89 03 A6 */	mtctr r12
+/* 8139BB34 0006C054  4E 80 04 21 */	bctrl
+/* 8139BB38 0006C058  2C 1F 00 00 */	cmpwi r31, 0x0
+/* 8139BB3C 0006C05C  3B E3 00 B4 */	addi r31, r3, 0xb4
+/* 8139BB40 0006C060  40 82 00 BC */	bne .L_8139BBFC
+/* 8139BB44 0006C064  81 9E 00 00 */	lwz r12, 0x0(r30)
+/* 8139BB48 0006C068  3C 80 00 10 */	lis r4, 0x10
+/* 8139BB4C 0006C06C  7F C3 F3 78 */	mr r3, r30
+/* 8139BB50 0006C070  81 8C 00 18 */	lwz r12, 0x18(r12)
+/* 8139BB54 0006C074  38 84 08 00 */	addi r4, r4, 0x800
+/* 8139BB58 0006C078  7D 89 03 A6 */	mtctr r12
+/* 8139BB5C 0006C07C  4E 80 04 21 */	bctrl
+/* 8139BB60 0006C080  2C 03 00 00 */	cmpwi r3, 0x0
+/* 8139BB64 0006C084  41 82 00 98 */	beq .L_8139BBFC
+/* 8139BB68 0006C088  7F E3 FB 78 */	mr r3, r31
+/* 8139BB6C 0006C08C  38 8D 86 B9 */	li r4, scPaneName_B_Stop@sda21
+/* 8139BB70 0006C090  48 26 69 11 */	bl strcmp
+/* 8139BB74 0006C094  2C 03 00 00 */	cmpwi r3, 0x0
+/* 8139BB78 0006C098  40 82 00 84 */	bne .L_8139BBFC
+/* 8139BB7C 0006C09C  80 7D 00 0C */	lwz r3, 0xc(r29)
+/* 8139BB80 0006C0A0  80 03 00 00 */	lwz r0, 0x0(r3)
+/* 8139BB84 0006C0A4  2C 00 00 01 */	cmpwi r0, 0x1
+/* 8139BB88 0006C0A8  40 82 00 74 */	bne .L_8139BBFC
+/* 8139BB8C 0006C0AC  3C 60 81 09 */	lis r3, smArg__Q23ipl6System@ha
+/* 8139BB90 0006C0B0  38 80 00 05 */	li r4, 0x5
+/* 8139BB94 0006C0B4  38 63 90 08 */	addi r3, r3, smArg__Q23ipl6System@l
+/* 8139BB98 0006C0B8  80 63 00 64 */	lwz r3, 0x64(r3)
+/* 8139BB9C 0006C0BC  48 06 F5 9D */	bl getScene__Q33ipl5scene7ManagerFi
+/* 8139BBA0 0006C0C0  38 80 00 26 */	li r4, 0x26
+/* 8139BBA4 0006C0C4  48 00 0F B5 */	bl animation__Q33ipl5scene6ButtonFi
+/* 8139BBA8 0006C0C8  3C 60 81 09 */	lis r3, sSystem__Q23ipl3snd@ha
+/* 8139BBAC 0006C0CC  3C 80 81 65 */	lis r4, lbl_8164BB69@ha
+/* 8139BBB0 0006C0D0  38 63 99 2C */	addi r3, r3, sSystem__Q23ipl3snd@l
+/* 8139BBB4 0006C0D4  38 84 BB 69 */	addi r4, r4, lbl_8164BB69@l
+/* 8139BBB8 0006C0D8  4B FC F8 B5 */	bl startSE__Q33ipl3snd6SystemFPCc
+/* 8139BBBC 0006C0DC  80 7D 00 0C */	lwz r3, 0xc(r29)
+/* 8139BBC0 0006C0E0  80 03 01 34 */	lwz r0, 0x134(r3)
+/* 8139BBC4 0006C0E4  2C 00 00 00 */	cmpwi r0, 0x0
+/* 8139BBC8 0006C0E8  41 82 00 14 */	beq .L_8139BBDC
+/* 8139BBCC 0006C0EC  3C 60 81 09 */	lis r3, sBannerSoundPlayer__Q23ipl3snd@ha
+/* 8139BBD0 0006C0F0  38 80 00 1E */	li r4, 0x1e
+/* 8139BBD4 0006C0F4  38 63 9F 68 */	addi r3, r3, sBannerSoundPlayer__Q23ipl3snd@l
+/* 8139BBD8 0006C0F8  48 07 2D 41 */	bl stop__17BannerSoundPlayerFUl
+.L_8139BBDC:
+/* 8139BBDC 0006C0FC  80 7D 00 0C */	lwz r3, 0xc(r29)
+/* 8139BBE0 0006C100  4B FF EF C5 */	bl hide_cmn_btn__Q33ipl5scene12focus_objectFv
+/* 8139BBE4 0006C104  80 7D 00 0C */	lwz r3, 0xc(r29)
+/* 8139BBE8 0006C108  38 80 00 03 */	li r4, 0x3
+/* 8139BBEC 0006C10C  38 00 00 0E */	li r0, 0xe
+/* 8139BBF0 0006C110  90 83 00 00 */	stw r4, 0x0(r3)
+/* 8139BBF4 0006C114  80 7D 00 0C */	lwz r3, 0xc(r29)
+/* 8139BBF8 0006C118  90 03 00 04 */	stw r0, 0x4(r3)
+.L_8139BBFC:
+/* 8139BBFC 0006C11C  39 61 00 20 */	addi r11, r1, 0x20
+/* 8139BC00 0006C120  48 25 D9 15 */	bl _restgpr_29
+/* 8139BC04 0006C124  80 01 00 24 */	lwz r0, 0x24(r1)
+/* 8139BC08 0006C128  7C 08 03 A6 */	mtlr r0
+/* 8139BC0C 0006C12C  38 21 00 20 */	addi r1, r1, 0x20
+/* 8139BC10 0006C130  4E 80 00 20 */	blr
+.endfn onEventDerived__Q33ipl5scene19optout_button_eventFUlUlPCQ33ipl10controller9Interface
+
+# .text:0x4EEC | 0x8139BC14 | size: 0x80
+# ipl::scene::scroller::calc(bool)
+.fn calc__Q33ipl5scene8scrollerFb, global
+/* 8139BC14 0006C134  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 8139BC18 0006C138  7C 08 02 A6 */	mflr r0
+/* 8139BC1C 0006C13C  2C 04 00 00 */	cmpwi r4, 0x0
+/* 8139BC20 0006C140  90 01 00 14 */	stw r0, 0x14(r1)
+/* 8139BC24 0006C144  93 E1 00 0C */	stw r31, 0xc(r1)
+/* 8139BC28 0006C148  3B E0 00 00 */	li r31, 0x0
+/* 8139BC2C 0006C14C  93 C1 00 08 */	stw r30, 0x8(r1)
+/* 8139BC30 0006C150  7C 7E 1B 78 */	mr r30, r3
+/* 8139BC34 0006C154  41 82 00 18 */	beq .L_8139BC4C
+/* 8139BC38 0006C158  38 63 00 50 */	addi r3, r3, 0x50
+/* 8139BC3C 0006C15C  4B FC 7A 1D */	bl calc__Q33ipl7utility9BScrollerFv
+/* 8139BC40 0006C160  2C 03 00 00 */	cmpwi r3, 0x0
+/* 8139BC44 0006C164  41 82 00 08 */	beq .L_8139BC4C
+/* 8139BC48 0006C168  3B E0 00 01 */	li r31, 0x1
+.L_8139BC4C:
+/* 8139BC4C 0006C16C  7F C3 F3 78 */	mr r3, r30
+/* 8139BC50 0006C170  4B FC 80 A9 */	bl calc__Q33ipl7utility8ScrollerFv
+/* 8139BC54 0006C174  C0 3E 00 68 */	lfs f1, 0x68(r30)
+/* 8139BC58 0006C178  7F C3 F3 78 */	mr r3, r30
+/* 8139BC5C 0006C17C  4B FC 80 6D */	bl movable_pos__Q33ipl7utility8ScrollerCFf
+/* 8139BC60 0006C180  C0 5E 00 40 */	lfs f2, 0x40(r30)
+/* 8139BC64 0006C184  7F E3 FB 78 */	mr r3, r31
+/* 8139BC68 0006C188  C0 1E 00 6C */	lfs f0, 0x6c(r30)
+/* 8139BC6C 0006C18C  EC 42 08 2A */	fadds f2, f2, f1
+/* 8139BC70 0006C190  EC 00 08 2A */	fadds f0, f0, f1
+/* 8139BC74 0006C194  D0 5E 00 40 */	stfs f2, 0x40(r30)
+/* 8139BC78 0006C198  D0 1E 00 6C */	stfs f0, 0x6c(r30)
+/* 8139BC7C 0006C19C  83 E1 00 0C */	lwz r31, 0xc(r1)
+/* 8139BC80 0006C1A0  83 C1 00 08 */	lwz r30, 0x8(r1)
+/* 8139BC84 0006C1A4  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 8139BC88 0006C1A8  7C 08 03 A6 */	mtlr r0
+/* 8139BC8C 0006C1AC  38 21 00 10 */	addi r1, r1, 0x10
+/* 8139BC90 0006C1B0  4E 80 00 20 */	blr
+.endfn calc__Q33ipl5scene8scrollerFb
+
+# 0x8160F708..0x8160F7B8 | size: 0xB0
+.rodata
+.balign 8
+
+# .rodata:0x0 | 0x8160F708 | size: 0x6C
+# ipl::scene::scChangeTexFile
+.obj scChangeTexFile__Q23ipl5scene, local
+	.4byte lbl_8164B994
+	.4byte lbl_8164B9A8
+	.4byte lbl_81696664
+	.4byte lbl_8164B9B2
+	.4byte lbl_8164B9C6
+	.4byte lbl_8169666C
+	.4byte lbl_8164B9D0
+	.4byte lbl_8164B9E4
+	.4byte lbl_81696674
+	.4byte lbl_8164B9EE
+	.4byte lbl_8164BA02
+	.4byte lbl_8169667C
+	.4byte lbl_8164BA0C
+	.4byte lbl_8164BA20
+	.4byte lbl_81696684
+	.4byte lbl_8164BA2A
+	.4byte lbl_8164BA3E
+	.4byte lbl_8169668C
+	.4byte lbl_8164BA48
+	.4byte lbl_8164BA5C
+	.4byte lbl_81696694
+	.4byte lbl_8164BA66
+	.4byte lbl_8164BA7A
+	.4byte lbl_8169669C
+	.4byte lbl_8164BA84
+	.4byte lbl_8164BA98
+	.4byte lbl_816966A4
+.endobj scChangeTexFile__Q23ipl5scene
+
+# .rodata:0x6C | 0x8160F774 | size: 0x34
+.obj lbl_8160F774, global
+	.2byte 0x0028
+	.2byte 0x0029
+	.2byte 0x007B
+	.2byte 0x007D
+	.2byte 0x005B
+	.2byte 0x005D
+	.2byte 0x003C
+	.2byte 0x003E
+	.2byte 0xFF3B
+	.2byte 0xFF3D
+	.2byte 0xFF08
+	.2byte 0xFF09
+	.2byte 0xFF5B
+	.2byte 0xFF5D
+	.2byte 0xFF1C
+	.2byte 0xFF1E
+	.2byte 0x300A
+	.2byte 0x300B
+	.2byte 0x3010
+	.2byte 0x3011
+	.2byte 0x3014
+	.2byte 0x3015
+	.2byte 0x300C
+	.2byte 0x300D
+	.2byte 0x300E
+	.2byte 0x300F
+.endobj lbl_8160F774
+
+# .rodata:0xA0 | 0x8160F7A8 | size: 0x10
+# ipl::scene::scSoundFileList
+.obj scSoundFileList__Q23ipl5scene, local
+	.4byte lbl_8164BD8D
+	.4byte lbl_8164BD97
+	.4byte lbl_8164BDA1
+	.4byte lbl_8164BDAB
+.endobj scSoundFileList__Q23ipl5scene
+
+# 0x8164B6D0..0x8164BF48 | size: 0x878
+.data
+.balign 8
+
+# .data:0x0 | 0x8164B6D0 | size: 0x10
+.obj lbl_8164B6D0, global
+	.string "my_Memo_a.brlyt"
+.endobj lbl_8164B6D0
+
+# .data:0x10 | 0x8164B6E0 | size: 0x1D
+.obj lbl_8164B6E0, global
+	.string "my_Memo_a_SelectLetter.brlan"
+.endobj lbl_8164B6E0
+
+# .data:0x2D | 0x8164B6FD | size: 0x1B
+.obj lbl_8164B6FD, global
+	.string "my_Memo_a_ExitLetter.brlan"
+.endobj lbl_8164B6FD
+
+# .data:0x48 | 0x8164B718 | size: 0x15
+.obj lbl_8164B718, global
+	.string "my_Memo_a_Loop.brlan"
+.endobj lbl_8164B718
+
+# .data:0x5D | 0x8164B72D | size: 0x18
+.obj lbl_8164B72D, global
+	.string "my_Memo_a_FocusOn.brlan"
+.endobj lbl_8164B72D
+
+# .data:0x75 | 0x8164B745 | size: 0x19
+.obj lbl_8164B745, global
+	.string "my_Memo_a_FocusOff.brlan"
+.endobj lbl_8164B745
+
+# .data:0x8E | 0x8164B75E | size: 0x17
+.obj lbl_8164B75E, global
+	.string "my_Memo_a_Select.brlan"
+.endobj lbl_8164B75E
+
+# .data:0xA5 | 0x8164B775 | size: 0x17
+.obj lbl_8164B775, global
+	.string "my_Memo_a_Appear.brlan"
+.endobj lbl_8164B775
+
+# .data:0xBC | 0x8164B78C | size: 0x15
+.obj lbl_8164B78C, global
+	.string "my_Memo_a_Lost.brlan"
+.endobj lbl_8164B78C
+
+# .data:0xD1 | 0x8164B7A1 | size: 0x1E
+.obj lbl_8164B7A1, global
+	.string "my_Memo_a_HDActionStart.brlan"
+.endobj lbl_8164B7A1
+
+# .data:0xEF | 0x8164B7BF | size: 0x1C
+.obj lbl_8164B7BF, global
+	.string "my_Memo_a_HDActionEnd.brlan"
+.endobj lbl_8164B7BF
+
+# .data:0x10B | 0x8164B7DB | size: 0x11
+.obj lbl_8164B7DB, global
+	.string "my_LetterL.brlyt"
+.endobj lbl_8164B7DB
+
+# .data:0x11C | 0x8164B7EC | size: 0x1E
+.obj lbl_8164B7EC, global
+	.string "my_LetterL_SelectLetter.brlan"
+.endobj lbl_8164B7EC
+
+# .data:0x13A | 0x8164B80A | size: 0x1C
+.obj lbl_8164B80A, global
+	.string "my_LetterL_ExitLetter.brlan"
+.endobj lbl_8164B80A
+
+# .data:0x156 | 0x8164B826 | size: 0x16
+.obj lbl_8164B826, global
+	.string "my_LetterL_Loop.brlan"
+.endobj lbl_8164B826
+
+# .data:0x16C | 0x8164B83C | size: 0x19
+.obj lbl_8164B83C, global
+	.string "my_LetterL_FocusOn.brlan"
+.endobj lbl_8164B83C
+
+# .data:0x185 | 0x8164B855 | size: 0x1A
+.obj lbl_8164B855, global
+	.string "my_LetterL_FocusOff.brlan"
+.endobj lbl_8164B855
+
+# .data:0x19F | 0x8164B86F | size: 0x18
+.obj lbl_8164B86F, global
+	.string "my_LetterL_Select.brlan"
+.endobj lbl_8164B86F
+
+# .data:0x1B7 | 0x8164B887 | size: 0x18
+.obj lbl_8164B887, global
+	.string "my_LetterL_Appear.brlan"
+.endobj lbl_8164B887
+
+# .data:0x1CF | 0x8164B89F | size: 0x16
+.obj lbl_8164B89F, global
+	.string "my_LetterL_Lost.brlan"
+.endobj lbl_8164B89F
+
+# .data:0x1E5 | 0x8164B8B5 | size: 0x1F
+.obj lbl_8164B8B5, global
+	.string "my_LetterL_HDActionStart.brlan"
+.endobj lbl_8164B8B5
+
+# .data:0x204 | 0x8164B8D4 | size: 0x1D
+.obj lbl_8164B8D4, global
+	.string "my_LetterL_HDActionEnd.brlan"
+.endobj lbl_8164B8D4
+	.byte 0x00, 0x00, 0x00
+
+# .data:0x224 | 0x8164B8F4 | size: 0x84
+# ipl::scene::focus_object::mAnimNames
+.obj mAnimNames__Q33ipl5scene12focus_object, global
+	.4byte lbl_8164B6D0
+	.4byte lbl_8164B6E0
+	.4byte lbl_8164B6FD
+	.4byte lbl_8164B718
+	.4byte lbl_8164B72D
+	.4byte lbl_8164B745
+	.4byte lbl_8164B75E
+	.4byte lbl_8164B775
+	.4byte lbl_8164B78C
+	.4byte lbl_8164B7A1
+	.4byte lbl_8164B7BF
+	.4byte lbl_8164B7DB
+	.4byte lbl_8164B7EC
+	.4byte lbl_8164B80A
+	.4byte lbl_8164B826
+	.4byte lbl_8164B83C
+	.4byte lbl_8164B855
+	.4byte lbl_8164B86F
+	.4byte lbl_8164B887
+	.4byte lbl_8164B89F
+	.4byte lbl_8164B8B5
+	.4byte lbl_8164B8D4
+	.4byte lbl_8164B6D0
+	.4byte lbl_8164B6E0
+	.4byte lbl_8164B6FD
+	.4byte lbl_8164B718
+	.4byte lbl_8164B72D
+	.4byte lbl_8164B745
+	.4byte lbl_8164B75E
+	.4byte lbl_8164B775
+	.4byte lbl_8164B78C
+	.4byte lbl_8164B7A1
+	.4byte lbl_8164B7BF
+.endobj mAnimNames__Q33ipl5scene12focus_object
+
+# .data:0x2A8 | 0x8164B978 | size: 0x9
+.obj lbl_8164B978, global
+	.string "B_Nigaoe"
+.endobj lbl_8164B978
+	.byte 0x00, 0x00, 0x00
+
+# .data:0x2B4 | 0x8164B984 | size: 0x10
+.obj lbl_8164B984, global
+	.4byte lbl_81696650
+	.4byte lbl_81696657
+	.4byte lbl_8169665E
+	.4byte lbl_8164B978
+.endobj lbl_8164B984
+
+# .data:0x2C4 | 0x8164B994 | size: 0x14
+.obj lbl_8164B994, global
+	.string "img/my_Letter_a.tpl"
+.endobj lbl_8164B994
+
+# .data:0x2D8 | 0x8164B9A8 | size: 0xA
+.obj lbl_8164B9A8, global
+	.string "LetterA_s"
+.endobj lbl_8164B9A8
+
+# .data:0x2E2 | 0x8164B9B2 | size: 0x14
+.obj lbl_8164B9B2, global
+	.string "img/my_Letter_b.tpl"
+.endobj lbl_8164B9B2
+
+# .data:0x2F6 | 0x8164B9C6 | size: 0xA
+.obj lbl_8164B9C6, global
+	.string "LetterB_s"
+.endobj lbl_8164B9C6
+
+# .data:0x300 | 0x8164B9D0 | size: 0x14
+.obj lbl_8164B9D0, global
+	.string "img/my_Letter_c.tpl"
+.endobj lbl_8164B9D0
+
+# .data:0x314 | 0x8164B9E4 | size: 0xA
+.obj lbl_8164B9E4, global
+	.string "LetterC_s"
+.endobj lbl_8164B9E4
+
+# .data:0x31E | 0x8164B9EE | size: 0x14
+.obj lbl_8164B9EE, global
+	.string "img/my_Letter_d.tpl"
+.endobj lbl_8164B9EE
+
+# .data:0x332 | 0x8164BA02 | size: 0xA
+.obj lbl_8164BA02, global
+	.string "LetterD_s"
+.endobj lbl_8164BA02
+
+# .data:0x33C | 0x8164BA0C | size: 0x14
+.obj lbl_8164BA0C, global
+	.string "img/my_Letter_e.tpl"
+.endobj lbl_8164BA0C
+
+# .data:0x350 | 0x8164BA20 | size: 0xA
+.obj lbl_8164BA20, global
+	.string "LetterE_s"
+.endobj lbl_8164BA20
+
+# .data:0x35A | 0x8164BA2A | size: 0x14
+.obj lbl_8164BA2A, global
+	.string "img/my_Letter_f.tpl"
+.endobj lbl_8164BA2A
+
+# .data:0x36E | 0x8164BA3E | size: 0xA
+.obj lbl_8164BA3E, global
+	.string "LetterF_s"
+.endobj lbl_8164BA3E
+
+# .data:0x378 | 0x8164BA48 | size: 0x14
+.obj lbl_8164BA48, global
+	.string "img/my_Letter_g.tpl"
+.endobj lbl_8164BA48
+
+# .data:0x38C | 0x8164BA5C | size: 0xA
+.obj lbl_8164BA5C, global
+	.string "LetterG_s"
+.endobj lbl_8164BA5C
+
+# .data:0x396 | 0x8164BA66 | size: 0x14
+.obj lbl_8164BA66, global
+	.string "img/my_Letter_h.tpl"
+.endobj lbl_8164BA66
+
+# .data:0x3AA | 0x8164BA7A | size: 0xA
+.obj lbl_8164BA7A, global
+	.string "LetterH_s"
+.endobj lbl_8164BA7A
+
+# .data:0x3B4 | 0x8164BA84 | size: 0x14
+.obj lbl_8164BA84, global
+	.string "img/my_Letter_i.tpl"
+.endobj lbl_8164BA84
+
+# .data:0x3C8 | 0x8164BA98 | size: 0xA
+.obj lbl_8164BA98, global
+	.string "LetterI_s"
+.endobj lbl_8164BA98
+	.2byte 0x0000
+
+# .data:0x3D4 | 0x8164BAA4 | size: 0x60
+.obj jumptable_8164BAA4, local
+	.rel calc__Q33ipl5scene12focus_objectFv, .L_81397198
+	.rel calc__Q33ipl5scene12focus_objectFv, .L_813971B4
+	.rel calc__Q33ipl5scene12focus_objectFv, .L_813971C0
+	.rel calc__Q33ipl5scene12focus_objectFv, .L_813971CC
+	.rel calc__Q33ipl5scene12focus_objectFv, .L_813971D8
+	.rel calc__Q33ipl5scene12focus_objectFv, .L_813971E4
+	.rel calc__Q33ipl5scene12focus_objectFv, .L_813971F0
+	.rel calc__Q33ipl5scene12focus_objectFv, .L_813971FC
+	.rel calc__Q33ipl5scene12focus_objectFv, .L_81397208
+	.rel calc__Q33ipl5scene12focus_objectFv, .L_81397214
+	.rel calc__Q33ipl5scene12focus_objectFv, .L_81397220
+	.rel calc__Q33ipl5scene12focus_objectFv, .L_8139722C
+	.rel calc__Q33ipl5scene12focus_objectFv, .L_81397238
+	.rel calc__Q33ipl5scene12focus_objectFv, .L_81397244
+	.rel calc__Q33ipl5scene12focus_objectFv, .L_81397250
+	.rel calc__Q33ipl5scene12focus_objectFv, .L_8139725C
+	.rel calc__Q33ipl5scene12focus_objectFv, .L_81397268
+	.rel calc__Q33ipl5scene12focus_objectFv, .L_81397274
+	.rel calc__Q33ipl5scene12focus_objectFv, .L_81397280
+	.rel calc__Q33ipl5scene12focus_objectFv, .L_8139728C
+	.rel calc__Q33ipl5scene12focus_objectFv, .L_81397298
+	.rel calc__Q33ipl5scene12focus_objectFv, .L_813972A4
+	.rel calc__Q33ipl5scene12focus_objectFv, .L_813972B0
+	.rel calc__Q33ipl5scene12focus_objectFv, .L_813972BC
+.endobj jumptable_8164BAA4
+
+# .data:0x434 | 0x8164BB04 | size: 0x3C
+.obj jumptable_8164BB04, local
+	.rel stt_wait_btn__Q33ipl5scene12focus_objectFv, .L_81397898
+	.rel stt_wait_btn__Q33ipl5scene12focus_objectFv, .L_81397898
+	.rel stt_wait_btn__Q33ipl5scene12focus_objectFv, .L_813977DC
+	.rel stt_wait_btn__Q33ipl5scene12focus_objectFv, .L_81397898
+	.rel stt_wait_btn__Q33ipl5scene12focus_objectFv, .L_81397898
+	.rel stt_wait_btn__Q33ipl5scene12focus_objectFv, .L_813977F4
+	.rel stt_wait_btn__Q33ipl5scene12focus_objectFv, .L_81397898
+	.rel stt_wait_btn__Q33ipl5scene12focus_objectFv, .L_81397898
+	.rel stt_wait_btn__Q33ipl5scene12focus_objectFv, .L_81397898
+	.rel stt_wait_btn__Q33ipl5scene12focus_objectFv, .L_81397810
+	.rel stt_wait_btn__Q33ipl5scene12focus_objectFv, .L_81397898
+	.rel stt_wait_btn__Q33ipl5scene12focus_objectFv, .L_81397898
+	.rel stt_wait_btn__Q33ipl5scene12focus_objectFv, .L_81397898
+	.rel stt_wait_btn__Q33ipl5scene12focus_objectFv, .L_81397898
+	.rel stt_wait_btn__Q33ipl5scene12focus_objectFv, .L_81397880
+.endobj jumptable_8164BB04
+
+# .data:0x470 | 0x8164BB40 | size: 0x13
+.obj lbl_8164BB40, global
+	.string "WIPL_SE_BOARD_DUMP"
+.endobj lbl_8164BB40
+
+# .data:0x483 | 0x8164BB53 | size: 0x16
+.obj lbl_8164BB53, global
+	.string "WIPL_SE_BT_TARGETTING"
+.endobj lbl_8164BB53
+
+# .data:0x499 | 0x8164BB69 | size: 0xF
+.obj lbl_8164BB69, global
+	.string "WIPL_SE_DECIDE"
+.endobj lbl_8164BB69
+
+# .data:0x4A8 | 0x8164BB78 | size: 0x9
+.obj lbl_8164BB78, global
+	.string "N_Header"
+.endobj lbl_8164BB78
+
+# .data:0x4B1 | 0x8164BB81 | size: 0x9
+.obj lbl_8164BB81, global
+	.string "N_Footer"
+.endobj lbl_8164BB81
+
+# .data:0x4BA | 0x8164BB8A | size: 0x162
+.obj lbl_8164BB8A, global
+	.4byte 0x545F4C65
+	.4byte 0x74746572
+	.4byte 0x004E5F54
+	.4byte 0x6F704274
+	.4byte 0x6E005265
+	.4byte 0x706C794D
+	.4byte 0x61736B00
+	.4byte 0x475F4172
+	.4byte 0x77526F6F
+	.4byte 0x7000475F
+	.4byte 0x41727752
+	.4byte 0x5F466F63
+	.4byte 0x75730047
+	.4byte 0x5F417277
+	.4byte 0x525F4163
+	.4byte 0x00475F41
+	.4byte 0x7277525F
+	.4byte 0x456E6400
+	.4byte 0x475F4172
+	.4byte 0x77525F48
+	.4byte 0x44416300
+	.4byte 0x475F4172
+	.4byte 0x774C5F46
+	.4byte 0x6F637573
+	.4byte 0x00475F41
+	.4byte 0x72774C5F
+	.4byte 0x41630047
+	.4byte 0x5F417277
+	.4byte 0x4C5F456E
+	.4byte 0x6400475F
+	.4byte 0x4172774C
+	.4byte 0x5F484441
+	.4byte 0x63006D79
+	.4byte 0x5F4C6574
+	.4byte 0x7465724C
+	.4byte 0x5F526570
+	.4byte 0x6C792E62
+	.4byte 0x726C616E
+	.4byte 0x006D795F
+	.4byte 0x4C657474
+	.4byte 0x65724C5F
+	.4byte 0x5265706C
+	.4byte 0x79426163
+	.4byte 0x6B2E6272
+	.4byte 0x6C616E00
+	.4byte 0x6D795F4C
+	.4byte 0x65747465
+	.4byte 0x724C5F50
+	.4byte 0x69635265
+	.4byte 0x706C792E
+	.4byte 0x62726C61
+	.4byte 0x6E006D79
+	.4byte 0x5F4C6574
+	.4byte 0x7465724C
+	.4byte 0x5F506963
+	.4byte 0x5265706C
+	.4byte 0x79426163
+	.4byte 0x6B2E6272
+	.4byte 0x6C616E00
+	.4byte 0x6D795F4C
+	.4byte 0x65747465
+	.4byte 0x724C5F50
+	.4byte 0x6963466F
+	.4byte 0x63757349
+	.4byte 0x6E2E6272
+	.4byte 0x6C616E00
+	.4byte 0x6D795F4C
+	.4byte 0x65747465
+	.4byte 0x724C5F50
+	.4byte 0x6963466F
+	.4byte 0x6375734F
+	.4byte 0x75742E62
+	.4byte 0x726C616E
+	.4byte 0x006D795F
+	.4byte 0x4C657474
+	.4byte 0x65724C5F
+	.4byte 0x53656C65
+	.4byte 0x63745069
+	.4byte 0x632E6272
+	.4byte 0x6C616E00
+	.4byte 0x6D795F4C
+	.4byte 0x65747465
+	.4byte 0x724C5F45
+	.4byte 0x78697450
+	.4byte 0x69632E62
+	.4byte 0x726C616E
+	.4byte 0x00545F48
+	.4byte 0x65616465
+	.2byte 0x7200
+.endobj lbl_8164BB8A
+
+# .data:0x61C | 0x8164BCEC | size: 0x9
+.obj lbl_8164BCEC, global
+	.string "B_Nigaoe"
+.endobj lbl_8164BCEC
+	.byte 0x00
+
+# .data:0x626 | 0x8164BCF6 | size: 0x10
+.obj lbl_8164BCF6, global
+	.string16 "http://"
+.endobj lbl_8164BCF6
+
+# .data:0x636 | 0x8164BD06 | size: 0x6A
+.obj lbl_8164BD06, global
+	.4byte 0x00680074
+	.4byte 0x00740070
+	.4byte 0x0073003A
+	.4byte 0x002F002F
+	.4byte 0x0000002E
+	.4byte 0x00680074
+	.4byte 0x006D006C
+	.4byte 0x0000002E
+	.4byte 0x00680074
+	.4byte 0x006D0000
+	.4byte 0x002E0073
+	.4byte 0x00680074
+	.4byte 0x006D006C
+	.4byte 0x0000002E
+	.4byte 0x00730068
+	.4byte 0x0074006D
+	.4byte 0x0000002E
+	.4byte 0x00630067
+	.4byte 0x00690000
+	.4byte 0x002E0070
+	.4byte 0x00680070
+	.4byte 0x0000002E
+	.4byte 0x00610073
+	.4byte 0x00700000
+	.4byte 0x002E006A
+	.4byte 0x00730070
+	.2byte 0x0000
+.endobj lbl_8164BD06
+
+# .data:0x6A0 | 0x8164BD70 | size: 0x10
+.obj lbl_8164BD70, global
+	.string "./letter_LZ.bin"
+.endobj lbl_8164BD70
+
+# .data:0x6B0 | 0x8164BD80 | size: 0xD
+.obj lbl_8164BD80, global
+	.string "./chjump.bin"
+.endobj lbl_8164BD80
+
+# .data:0x6BD | 0x8164BD8D | size: 0xA
+.obj lbl_8164BD8D, global
+	.string "sound.bns"
+.endobj lbl_8164BD8D
+
+# .data:0x6C7 | 0x8164BD97 | size: 0xA
+.obj lbl_8164BD97, global
+	.string "sound.wav"
+.endobj lbl_8164BD97
+
+# .data:0x6D1 | 0x8164BDA1 | size: 0xA
+.obj lbl_8164BDA1, global
+	.string "sound.aif"
+.endobj lbl_8164BDA1
+
+# .data:0x6DB | 0x8164BDAB | size: 0xB
+.obj lbl_8164BDAB, global
+	.string "sound.aiff"
+.endobj lbl_8164BDAB
+
+# .data:0x6E6 | 0x8164BDB6 | size: 0x15
+.obj lbl_8164BDB6, global
+	.string "WIPL_SE_BOARD_SELECT"
+.endobj lbl_8164BDB6
+
+# .data:0x6FB | 0x8164BDCB | size: 0x19
+.obj lbl_8164BDCB, global
+	.string "my_IplTopBalloon_a.brlyt"
+.endobj lbl_8164BDCB
+
+# .data:0x714 | 0x8164BDE4 | size: 0x14
+.obj lbl_8164BDE4, global
+	.string "WIPL_SE_PIC_ZOOM_IN"
+.endobj lbl_8164BDE4
+
+# .data:0x728 | 0x8164BDF8 | size: 0x48
+.obj lbl_8164BDF8, global
+	.4byte 0x00250030
+	.4byte 0x00360064
+	.4byte 0x000A0000
+	.4byte 0x5749504C
+	.4byte 0x5F53455F
+	.4byte 0x424F4152
+	.4byte 0x445F554E
+	.4byte 0x53454C45
+	.4byte 0x43540057
+	.4byte 0x49504C5F
+	.4byte 0x53455F50
+	.4byte 0x49435F5A
+	.4byte 0x4F4F4D5F
+	.4byte 0x4F555400
+	.4byte 0x5749504C
+	.4byte 0x5F53455F
+	.4byte 0x42545F50
+	.4byte 0x55534800
+.endobj lbl_8164BDF8
+
+# .data:0x770 | 0x8164BE40 | size: 0x10
+# ipl::math::LinearIntp<ipl::math::VEC3>::__vtable
+.obj "__vt__Q33ipl4math28LinearIntp<Q33ipl4math4VEC3>", global
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte "__dt__Q33ipl4math28LinearIntp<Q33ipl4math4VEC3>Fv"
+	.4byte calc__Q33ipl7utility15FrameControllerFv
+.endobj "__vt__Q33ipl4math28LinearIntp<Q33ipl4math4VEC3>"
+
+# .data:0x780 | 0x8164BE50 | size: 0x10
+# ipl::math::Interporation<ipl::math::VEC3>::__vtable
+.obj "__vt__Q33ipl4math31Interporation<Q33ipl4math4VEC3>", global
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte "__dt__Q33ipl4math31Interporation<Q33ipl4math4VEC3>Fv"
+	.4byte calc__Q33ipl7utility15FrameControllerFv
+.endobj "__vt__Q33ipl4math31Interporation<Q33ipl4math4VEC3>"
+
+# .data:0x790 | 0x8164BE60 | size: 0x1C
+# ipl::scene::optout_button_event::__vtable
+.obj __vt__Q33ipl5scene19optout_button_event, global
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte onEvent__Q33ipl5scene28OptOutButtonEventHandlerBaseFUlUlPv
+	.4byte setManager__Q23gui12EventHandlerFPQ23gui7Manager
+	.4byte setLatestEventCtrlNo__Q23gui12EventHandlerFi
+	.4byte getLatestEventCtrlNo__Q23gui12EventHandlerFv
+	.4byte onEventDerived__Q33ipl5scene19optout_button_eventFUlUlPCQ33ipl10controller9Interface
+.endobj __vt__Q33ipl5scene19optout_button_event
+
+# .data:0x7AC | 0x8164BE7C | size: 0x1C
+# ipl::scene::button_event::__vtable
+.obj __vt__Q33ipl5scene12button_event, global
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte onEvent__Q33ipl5scene22ButtonEventHandlerBaseFUlUlPv
+	.4byte setManager__Q23gui12EventHandlerFPQ23gui7Manager
+	.4byte setLatestEventCtrlNo__Q23gui12EventHandlerFi
+	.4byte getLatestEventCtrlNo__Q23gui12EventHandlerFv
+	.4byte onEventDerived__Q33ipl5scene12button_eventFUlUlPCQ33ipl10controller9Interface
+.endobj __vt__Q33ipl5scene12button_event
+
+# .data:0x7C8 | 0x8164BE98 | size: 0xB0
+# ipl::scene::event::__vtable
+.obj __vt__Q33ipl5scene5event, global
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte onEvent__Q33ipl5scene5eventFUlUlPv
+	.4byte setManager__Q23gui12EventHandlerFPQ23gui7Manager
+	.4byte setLatestEventCtrlNo__Q23gui12EventHandlerFi
+	.4byte getLatestEventCtrlNo__Q23gui12EventHandlerFv
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+.endobj __vt__Q33ipl5scene5event
+
+# 0x81694868..0x816948A0 | size: 0x38
+.section .sdata2, "a"
+.balign 8
+
+# .sdata2:0x0 | 0x81694868 | size: 0x4
+.obj lbl_81694868, global
+	.float 1
+.endobj lbl_81694868
+
+# .sdata2:0x4 | 0x8169486C | size: 0x4
+.obj lbl_8169486C, global
+	.float 0
+.endobj lbl_8169486C
+
+# .sdata2:0x8 | 0x81694870 | size: 0x4
+.obj lbl_81694870, global
+	.float 500
+.endobj lbl_81694870
+
+# .sdata2:0xC | 0x81694874 | size: 0x4
+.obj lbl_81694874, global
+	.float -500
+.endobj lbl_81694874
+
+# .sdata2:0x10 | 0x81694878 | size: 0x2
+.obj lbl_81694878, global
+	.2byte 0x001A
+.endobj lbl_81694878
+
+# .sdata2:0x12 | 0x8169487A | size: 0x2
+.obj lbl_8169487A, global
+	.2byte 0x0000
+.endobj lbl_8169487A
+	.4byte 0x00000000
+
+# .sdata2:0x18 | 0x81694880 | size: 0x8
+.obj lbl_81694880, global
+	.double 4503601774854144
+.endobj lbl_81694880
+
+# .sdata2:0x20 | 0x81694888 | size: 0x4
+.obj lbl_81694888, global
+	.float 17
+.endobj lbl_81694888
+
+# .sdata2:0x24 | 0x8169488C | size: 0x4
+.obj lbl_8169488C, global
+	.float 120
+.endobj lbl_8169488C
+
+# .sdata2:0x28 | 0x81694890 | size: 0x4
+.obj lbl_81694890, global
+	.float 30
+.endobj lbl_81694890
+
+# .sdata2:0x2C | 0x81694894 | size: 0x4
+.obj lbl_81694894, global
+	.float 50
+.endobj lbl_81694894
+
+# .sdata2:0x30 | 0x81694898 | size: 0x4
+.obj lbl_81694898, global
+	.float 160
+.endobj lbl_81694898
+
+# .sdata2:0x34 | 0x8169489C | size: 0x4
+.obj lbl_8169489C, global
+	.float 8
+.endobj lbl_8169489C
+
+# 0x81696650..0x81696700 | size: 0xB0
+.section .sdata, "wa"
+.balign 8
+
+# .sdata:0x0 | 0x81696650 | size: 0x7
+.obj lbl_81696650, global
+	.string "B_ArwR"
+.endobj lbl_81696650
+
+# .sdata:0x7 | 0x81696657 | size: 0x7
+.obj lbl_81696657, global
+	.string "B_ArwL"
+.endobj lbl_81696657
+
+# .sdata:0xE | 0x8169665E | size: 0x6
+.obj lbl_8169665E, global
+	.string "B_Pic"
+.endobj lbl_8169665E
+
+# .sdata:0x14 | 0x81696664 | size: 0x8
+.obj lbl_81696664, global
+	.string "LetterA"
+.endobj lbl_81696664
+
+# .sdata:0x1C | 0x8169666C | size: 0x8
+.obj lbl_8169666C, global
+	.string "LetterB"
+.endobj lbl_8169666C
+
+# .sdata:0x24 | 0x81696674 | size: 0x8
+.obj lbl_81696674, global
+	.string "LetterC"
+.endobj lbl_81696674
+
+# .sdata:0x2C | 0x8169667C | size: 0x8
+.obj lbl_8169667C, global
+	.string "LetterD"
+.endobj lbl_8169667C
+
+# .sdata:0x34 | 0x81696684 | size: 0x8
+.obj lbl_81696684, global
+	.string "LetterE"
+.endobj lbl_81696684
+
+# .sdata:0x3C | 0x8169668C | size: 0x8
+.obj lbl_8169668C, global
+	.string "LetterF"
+.endobj lbl_8169668C
+
+# .sdata:0x44 | 0x81696694 | size: 0x8
+.obj lbl_81696694, global
+	.string "LetterG"
+.endobj lbl_81696694
+
+# .sdata:0x4C | 0x8169669C | size: 0x8
+.obj lbl_8169669C, global
+	.string "LetterH"
+.endobj lbl_8169669C
+
+# .sdata:0x54 | 0x816966A4 | size: 0x8
+.obj lbl_816966A4, global
+	.string "LetterI"
+.endobj lbl_816966A4
+
+# .sdata:0x5C | 0x816966AC | size: 0x7
+.obj lbl_816966AC, global
+	.string "N_Memo"
+.endobj lbl_816966AC
+
+# .sdata:0x63 | 0x816966B3 | size: 0x7
+.obj lbl_816966B3, global
+	.string "N_Body"
+.endobj lbl_816966B3
+
+# .sdata:0x6A | 0x816966BA | size: 0x7
+.obj lbl_816966BA, global
+	.string "Nigaoe"
+.endobj lbl_816966BA
+
+# .sdata:0x71 | 0x816966C1 | size: 0x8
+.obj lbl_816966C1, global
+	.string "PicMask"
+.endobj lbl_816966C1
+
+# .sdata:0x79 | 0x816966C9 | size: 0x6
+.obj lbl_816966C9, global
+	.string "N_Pic"
+.endobj lbl_816966C9
+
+# .sdata:0x7F | 0x816966CF | size: 0x4
+.obj lbl_816966CF, global
+	.string "arc"
+.endobj lbl_816966CF
+
+# .sdata:0x83 | 0x816966D3 | size: 0x8
+.obj lbl_816966D3, global
+	.string "G_Reply"
+.endobj lbl_816966D3
+
+# .sdata:0x8B | 0x816966DB | size: 0x6
+.obj lbl_816966DB, global
+	.string "G_Pic"
+.endobj lbl_816966DB
+
+# .sdata:0x91 | 0x816966E1 | size: 0x6
+.obj lbl_816966E1, global
+	.string "B_Pic"
+.endobj lbl_816966E1
+
+# .sdata:0x97 | 0x816966E7 | size: 0x7
+.obj lbl_816966E7, global
+	.string "B_ArwR"
+.endobj lbl_816966E7
+
+# .sdata:0x9E | 0x816966EE | size: 0x7
+.obj lbl_816966EE, global
+	.string "B_ArwL"
+.endobj lbl_816966EE
+
+# .sdata:0xA5 | 0x816966F5 | size: 0x4
+.obj lbl_816966F5, global
+	.string "Pic"
+.endobj lbl_816966F5
+
+# .sdata:0xA9 | 0x816966F9 | size: 0x7
+.obj scPaneName_B_Stop, global
+	.string "B_Stop"
+.endobj scPaneName_B_Stop

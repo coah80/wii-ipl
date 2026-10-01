@@ -1,3 +1,4 @@
+// Matching build uses iplFocusObject.s (Equivalent C++ does not keep DOL SHA1).
 #include "scene/board/iplFocusObject.h"
 #include "scene/parentalDialog/iplParentalDialog.h"
 
