@@ -42,7 +42,7 @@ typedef struct UHF_MSC_MESSAGE {
 } UHF_MSC_MESSAGE;
 
 extern UHF_MSC_DEVICE uhg_msc_blk_device_tbl[8];
-extern s32 uhg_msc_memid_8169971C;
+extern s32 uhg_msc_memid;
 s32 uhf_ker_set_priority(s32 task_id, s32 priority);
 void* uhf_ker_get_memory_block(s32 pool, u32 size, u32 alignment);
 s32 uhf_ker_release_memory_block(s32 pool, void* block);
