@@ -535,3 +535,103 @@ forbidden patterns added (net, per file): 0
 readability warnings (net, per file; must be 0 in the final result): 0
 GATE PASS
 ```
+
+# WAD matching attempts, round 5
+
+Baseline main e1b46d09: 34/40 exact, code 12404/24500, data 64/528.
+
+| Function | Bytes | Objdiff before -> after | Instructions source/target | Positional diffs / nonregister | Disposition |
+|---|---:|---|---|---|---|
+| WADImportGetBlocks | 1192 | 94.24161 -> 94.24161 | 286/298 | 274 / 259 | instruction differences remain |
+| WADImportEx | 4584 | 98.76091 -> 98.76091 | 1146/1146 | 254 / 0 | registers only |
+| WAD_815C1288 | 244 | 96.39344 -> 96.39344 | 61/61 | 34 / 0 | registers only |
+| WADBackupEx | 4248 | 97.370995 -> 97.370995 | 1057/1062 | 874 / 832 | instruction differences remain |
+| _WADHash | 776 | 99.25258 -> 99.25258 | 194/194 | 24 / 0 | registers only |
+| WADImportDVDExForBS | 1052 | 96.17871 -> 97.49049 | 261/263 | 191 / 162 | instruction differences remain |
+
+Fresh source trials. Rejected and equal-code variants restored. Positional nonregister counts are inflated after an insertion or deletion; LCS isolates the actual differences. No new instruction-exact function yet.
+
+```text
+Round 5: read AGENTS.md and applied unslop. Fresh baseline 34/40; pool identical; no uncommitted source edits.
+_WADHash: put completed cursor before returned status in the scalar declaration order; insns/diffs/nonregister (194, 194, 24, 0) -> (194, 194, 24, 0); objdiff 99.25258; retained True
+_WADHash: keep each mutable read-buffer pointer local to the corresponding transfer loop; insns/diffs/nonregister (194, 194, 24, 0) -> (194, 194, 43, 20); objdiff 99.14948; retained False
+_WADHash: write chunk selection with the chunk limit as the first comparison operand; insns/diffs/nonregister (194, 194, 24, 0) -> (194, 194, 28, 2); objdiff 99.09794; retained False
+_WADHash: advance the real hash cursor and remaining extent through a typed inline helper; (194, 194, 24, 0) -> (194, 194, 24, 0); objdiff 99.25258; pool POOL IDENTICAL up to 18 (mine=18 base=18); retained True
+WAD_815C1288: use a signed result predicate rather than a nonzero ready predicate; insns/diffs/nonregister (61, 61, 34, 0) -> (61, 61, 34, 0); objdiff 96.39344; retained True
+WAD_815C1288: declare descriptor and transfer inputs before initializing actual loop state; insns/diffs/nonregister (61, 61, 34, 0) -> (61, 61, 35, 0); objdiff 96.31148; retained False
+WAD_815C1288: publish actual completed export size and error through a typed inline state helper; (61, 61, 34, 0) -> (61, 61, 34, 0); objdiff 96.39344; pool POOL IDENTICAL up to 18 (mine=18 base=18); retained True
+WADImportEx: initialize actual byte cursor and allocation owners separately in target prologue order; insns/diffs/nonregister (1146, 1146, 254, 0) -> (1127, 1146, 1096, 1063); objdiff 93.65881; retained False
+WADImportEx: scope the boot transfer lengths to their real boot-import block; compilation failed; restored
+WADImportEx: type both imported data buffers as byte buffers at their genuine allocation declarations; insns/diffs/nonregister (1146, 1146, 254, 0) -> (1146, 1146, 254, 0); objdiff 98.76091; retained True
+WADImportEx: scope boot length to boot import while retaining the shared aligned allocation extent; insns/diffs/nonregister (1146, 1146, 254, 0) -> (1146, 1146, 254, 0); objdiff 98.76091; retained True
+WADBackupEx: assign unavailable-content status before its common return-status branch; insns/diffs/nonregister (1057, 1062, 874, 832) -> (1058, 1062, 742, 621); objdiff 95.753296; retained False
+WADBackupEx: keep successful content-count checking inside its explicit else block; insns/diffs/nonregister (1057, 1062, 874, 832) -> (1057, 1062, 874, 832); objdiff 97.370995; retained True
+WADBackupEx: store query status before distinguishing unavailable card contents from a returned count; insns/diffs/nonregister (1057, 1062, 874, 832) -> (1057, 1062, 874, 832); objdiff 97.370995; retained True
+WADImportGetBlocks: scope decoded content descriptor and metadata traversal state to the actual metadata block; insns/diffs/nonregister (286, 298, 274, 259) -> (286, 298, 274, 259); objdiff 94.24161; retained True
+WADImportGetBlocks: advance file-read cursor with one aligned expression after processing each header; insns/diffs/nonregister (286, 298, 274, 259) -> (286, 298, 274, 259); objdiff 94.24161; retained True
+WADImportGetBlocks: reuse real unpack and transfer-buffer cleanup from full import with null absent transfer buffers; (286, 298, 274, 259) -> (290, 298, 277, 262); objdiff 94.22483; pool POOL IDENTICAL up to 18 (mine=18 base=18); retained False
+WAD_815C1288: snapshot the actual export-thread argument record before using its three fields; insns/diffs/nonregister (61, 61, 34, 0) -> (64, 61, 58, 50); objdiff 91.29508; retained False
+WAD_815C1288: use the copied export-thread record for descriptor and transfer references directly; insns/diffs/nonregister (61, 61, 34, 0) -> (64, 61, 59, 55); objdiff 77.31148; retained False
+WADImportDVDExForBS: declare aligned metadata read pointer only after the DVD handle opens successfully; insns/diffs/nonregister (260, 263, 243, 233) -> (260, 263, 243, 233); objdiff 96.17871; retained True
+WAD_815C1288: update exported byte extent and buffer index together in the loop header; insns/diffs/nonregister (61, 61, 34, 0) -> (61, 61, 34, 0); objdiff 96.39344; retained True
+WAD_815C1288: publish the actual boolean failure value instead of a hardcoded true error flag; insns/diffs/nonregister (61, 61, 34, 0) -> (63, 61, 54, 48); objdiff 91.22951; retained False
+WAD_815C1288: keep the failure predicate local to the chunk result block; insns/diffs/nonregister (61, 61, 34, 0) -> (62, 61, 56, 48); objdiff 90.327866; retained False
+_WADHash: advance both byte cursors and threaded buffer selection in their loop headers; insns/diffs/nonregister (194, 194, 24, 0) -> (194, 194, 24, 0); objdiff 99.25258; retained True
+WADImportDVDExForBS: keep DVD availability with its explicit open success and failure branches; insns/diffs/nonregister (260, 263, 243, 233) -> (261, 263, 194, 167); objdiff 96.28517; retained True
+WADImportDVDExForBS: scope DVD return length independently to the header and metadata read blocks; insns/diffs/nonregister (261, 263, 194, 167) -> (261, 263, 194, 167); objdiff 96.28517; retained True
+_WADHash: give the genuine returned status its initial success value at declaration; insns/diffs/nonregister (194, 194, 24, 0) -> (194, 194, 24, 0); objdiff 99.25258; retained True
+_WADHash: initialize the actual chunk extent from remaining bytes before selecting per-read limits; insns/diffs/nonregister (194, 194, 24, 0) -> (194, 194, 24, 0); objdiff 99.25258; retained True
+WAD_815C1288: initialize the genuine selected chunk from its initial remaining export extent; insns/diffs/nonregister (61, 61, 34, 0) -> (61, 61, 34, 0); objdiff 96.39344; retained True
+WADImportDVDExForBS: bind the provided read buffer inside the successful else arm of DVD opening; insns/diffs/nonregister (260, 263, 243, 233) -> (260, 263, 243, 233); objdiff 96.17871; retained True
+WADImportDVDExForBS: capture DVD opening status for its error check and reset it on success; insns/diffs/nonregister (260, 263, 243, 233) -> (260, 263, 247, 237); objdiff 95.646385; retained False
+WADImportDVDExForBS: test pointer availability with the C null-pointer macro and its pointer type; insns/diffs/nonregister (260, 263, 243, 233) -> (261, 263, 191, 162); objdiff 96.78707; retained True
+WADImportDVDExForBS: derive the content-data pointer before its remaining buffer extent in target block order; insns/diffs/nonregister (261, 263, 191, 162) -> (261, 263, 191, 162); objdiff 97.49049; retained True
+WADImportDVDExForBS: retain only the null-pointer comparator type and target-order content cursor derivation; insns/diffs/nonregister (261, 263, 191, 162) -> (261, 263, 191, 162); objdiff 97.49049; retained True
+_WADHash: use unsigned literals for the actual hash cursor and producer buffer index; insns/diffs/nonregister (194, 194, 24, 0) -> (194, 194, 24, 0); objdiff 99.25258; retained False
+_WADHash: keep hash read-buffer ownership initialized to the C null pointer; insns/diffs/nonregister (194, 194, 24, 0) -> (195, 194, 188, 176); objdiff 97.42268; retained False
+_WADHash: use the unsigned zero cursor with the signed literal success status; insns/diffs/nonregister (194, 194, 24, 0) -> (194, 194, 24, 0); objdiff 99.25258; retained False
+WAD_815C1288: use unsigned literals for actual export buffer selection; insns/diffs/nonregister (61, 61, 34, 0) -> (61, 61, 34, 0); objdiff 96.39344; retained False
+WAD_815C1288: keep the published failure flag an unsigned boolean literal; insns/diffs/nonregister (61, 61, 34, 0) -> (61, 61, 34, 0); objdiff 96.39344; retained False
+WAD_815C1288: use unsigned literals for the ready-index and error flag together; insns/diffs/nonregister (61, 61, 34, 0) -> (61, 61, 34, 0); objdiff 96.39344; retained False
+WADBackupEx: validate actual returned installed-content count through early-return inline status function; (1057, 1062, 874, 832) -> (1060, 1062, 669, 583); objdiff 96.94256; pool POOL IDENTICAL up to 18 (mine=18 base=18); retained False
+WADBackupEx: validate actual returned installed-content count through common-status inline status function; (1057, 1062, 874, 832) -> (1059, 1062, 828, 757); objdiff 97.173256; pool POOL IDENTICAL up to 18 (mine=18 base=18); retained False
+WADImportEx: data audit: name the ordinary diagnostic function-name literal at function entry; insns/diffs/nonregister (1146, 1146, 254, 0) -> (1163, 1146, 1114, 1088); objdiff 95.1911; retained False
+WADImportEx: data audit: bind ordinary cancellation format literals in their respective cleanup blocks; insns/diffs/nonregister (1146, 1146, 254, 0) -> (1148, 1146, 318, 66); objdiff 98.01745; retained False
+WADImportEx: data audit: keep caller builtin name and emit ordinary format literals in inline definitions immediately after the caller; (1146, 1146, 254, 0) -> (1146, 1146, 254, 0); objdiff 98.76091; pool POOL IDENTICAL up to 18 (mine=18 base=18); retained True
+Restored all equal-code scopes, initializers, loop forms and inline helpers to baseline. Accepted DVD change uses ordinary C NULL and derives the content pointer before available extent. Source 261/263; LCS has exactly the target header.contentSize load and its unused compare missing. Target next cmplw overwrites CR0 before any conditional use; no empty condition or discarded expression added to fabricate those instructions.
+Transfer state data type: represent ready entries as unsigned actual byte counts used by export, rather than BOOL; exact before/after (34, 34); changed functions []; restored.
+Data audit .data: source/target 458/464 bytes, alignment 8/8, differing overlapping bytes 0, extra target bytes 000000000000.
+Data audit .sdata: source/target 64/64 bytes, alignment 8/8, differing overlapping bytes 0, extra target bytes .
+Data audit .rodata: absent in both objects.
+Data audit .sdata2: absent in both objects.
+Data audit: normal function-name literal, local format-literal bindings and inline format definitions were compiled and restored. Final eighteen-string pool identical; .data still lacks six terminal zero bytes, all 458 overlapping bytes identical; .sdata 64/64 identical. No tables, vtables, .rodata or .sdata2 found. Terminal extent origin remains uncertain; no padding, packed strings or forced objects added.
+Final attempt audit: each of the six initially open functions has at least three distinct compiled source-level trials this round. Three register-only functions unchanged; the address-order DVD diff now lacks only two target dead instructions. GetBlocks still lacks twelve unused-owner instructions. Backup still differs in status stores, member-address folding and unused file-type compare. No new exact function, so the task requirement for an exact-count increase is unmet; these instruction-count gaps remain open.
+```
+
+Gate evidence:
+
+```text
+full build: ok
+main.dol sha1: 26116613f624061ba99c8d1a299aaa6efa85670d
+[libs/RVL_SDK/src/wad/wad] pool: IDENTICAL
+[libs/RVL_SDK/src/wad/wad] objdiff: code 12404/24500 data 64/528 functions 34/40 fuzzy 98.8648 linked code 0
+[libs/RVL_SDK/src/wad/wad] instruction-exact functions: 34/40
+[libs/RVL_SDK/src/wad/wad]   section .data size 464 match 99.34924
+[libs/RVL_SDK/src/wad/wad]   section .sdata size 64 match 100.0
+[libs/RVL_SDK/src/wad/wad]   section .text size 24500 match 98.864815
+[libs/RVL_SDK/src/wad/wad]   below 100: WADImportGetBlocks 94.24161
+[libs/RVL_SDK/src/wad/wad]   below 100: WADImportEx 98.76091
+[libs/RVL_SDK/src/wad/wad]   below 100: WAD_815C1288 96.39344
+[libs/RVL_SDK/src/wad/wad]   below 100: WADBackupEx 97.370995
+[libs/RVL_SDK/src/wad/wad]   below 100: _WADHash 99.25258
+[libs/RVL_SDK/src/wad/wad]   below 100: WADImportDVDExForBS 97.49049
+[libs/RVL_SDK/src/wad/wad] baseline: code 12404/24500 data 64 functions 34 fuzzy 98.8085
+regressions vs baseline: 0
+global matched_code_percent: 86.17802 -> 86.17802
+global fuzzy_match_percent: 98.84892 -> 98.84937
+global complete_code_percent: 60.34391 -> 60.34391
+global matched_data_percent: 90.91213 -> 90.91213
+forbidden patterns added (net, per file): 0
+readability warnings (net, per file; must be 0 in the final result): 0
+GATE PASS
+```
