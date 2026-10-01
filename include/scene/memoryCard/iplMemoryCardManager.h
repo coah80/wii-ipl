@@ -12,13 +12,61 @@
 
 namespace ipl {
     namespace scene {
-        class MemCardEventHandler {
+        class __declspec(novtable) MemCardEventListener {
+        public:
+            MemCardEventListener() {}
+
+            virtual ~MemCardEventListener() {}
+
+            virtual void onMemEvent(long event, u8 slot);
+        };
+
+        class MemCardEventHandler : public MemCardEventListener {
         public:
             MemCardEventHandler() {}
 
             virtual ~MemCardEventHandler();
 
             virtual void onMemEvent(long event, u8 slot);
+
+            virtual void onMount(u8 slot) = 0;
+            virtual void onUnmount(u8 slot) = 0;
+            virtual void onAttach(u8 slot) = 0;
+            virtual void onDetach(u8 slot) = 0;
+            virtual void onCheck(u8 slot) = 0;
+            virtual void onFormat(u8 slot) = 0;
+            virtual void onRepair(u8 slot) = 0;
+            virtual void onRead(u8 slot) = 0;
+            virtual void onWrite(u8 slot) = 0;
+            virtual void onOpen(u8 slot) = 0;
+            virtual void onClose(u8 slot) = 0;
+            virtual void onCreate(u8 slot) = 0;
+            virtual void onDelete(u8 slot) = 0;
+            virtual void onCopy(u8 slot) = 0;
+            virtual void onMove(u8 slot) = 0;
+            virtual void onRename(u8 slot) = 0;
+            virtual void onVerify(u8 slot) = 0;
+            virtual void onCommit(u8 slot) = 0;
+            virtual void onProbe(u8 slot) = 0;
+            virtual void onMountAsync(u8 slot) = 0;
+            virtual void onUnmountAsync(u8 slot) = 0;
+            virtual void onCheckAsync(u8 slot) = 0;
+            virtual void onFormatAsync(u8 slot) = 0;
+            virtual void onReadAsync(u8 slot) = 0;
+            virtual void onWriteAsync(u8 slot) = 0;
+            virtual void onCreateAsync(u8 slot) = 0;
+            virtual void onDeleteAsync(u8 slot) = 0;
+            virtual void onCopyAsync(u8 slot) = 0;
+            virtual void onMoveAsync(u8 slot) = 0;
+            virtual void onRenameAsync(u8 slot) = 0;
+            virtual void onVerifyAsync(u8 slot) = 0;
+            virtual void onCommitAsync(u8 slot) = 0;
+            virtual void onProbeAsync(u8 slot) = 0;
+            virtual void onFreeBlocks(u8 slot) = 0;
+            virtual void onGetLength(u8 slot) = 0;
+            virtual void onSetAttrib(u8 slot) = 0;
+            virtual void onGetAttrib(u8 slot) = 0;
+            virtual void onSlotStatus(u8 slot) = 0;
         };
 
         typedef struct MCFile {
@@ -55,6 +103,44 @@ namespace ipl {
                 sort_file_array(1);
             }
             virtual ~MemoryCardManager();
+
+            virtual void onMount(u8 slot) = 0;
+            virtual void onUnmount(u8 slot) = 0;
+            virtual void onAttach(u8 slot) = 0;
+            virtual void onDetach(u8 slot) = 0;
+            virtual void onCheck(u8 slot) = 0;
+            virtual void onFormat(u8 slot) = 0;
+            virtual void onRepair(u8 slot) = 0;
+            virtual void onRead(u8 slot) = 0;
+            virtual void onWrite(u8 slot) = 0;
+            virtual void onOpen(u8 slot) = 0;
+            virtual void onClose(u8 slot) = 0;
+            virtual void onCreate(u8 slot) = 0;
+            virtual void onDelete(u8 slot) = 0;
+            virtual void onCopy(u8 slot) = 0;
+            virtual void onMove(u8 slot) = 0;
+            virtual void onRename(u8 slot) = 0;
+            virtual void onVerify(u8 slot) = 0;
+            virtual void onCommit(u8 slot) = 0;
+            virtual void onProbe(u8 slot) = 0;
+            virtual void onMountAsync(u8 slot) = 0;
+            virtual void onUnmountAsync(u8 slot) = 0;
+            virtual void onCheckAsync(u8 slot) = 0;
+            virtual void onFormatAsync(u8 slot) = 0;
+            virtual void onReadAsync(u8 slot) = 0;
+            virtual void onWriteAsync(u8 slot) = 0;
+            virtual void onCreateAsync(u8 slot) = 0;
+            virtual void onDeleteAsync(u8 slot) = 0;
+            virtual void onCopyAsync(u8 slot) = 0;
+            virtual void onMoveAsync(u8 slot) = 0;
+            virtual void onRenameAsync(u8 slot) = 0;
+            virtual void onVerifyAsync(u8 slot) = 0;
+            virtual void onCommitAsync(u8 slot) = 0;
+            virtual void onProbeAsync(u8 slot) = 0;
+            virtual void onFreeBlocks(u8 slot) = 0;
+            virtual void onGetLength(u8 slot) = 0;
+            virtual void onSetAttrib(u8 slot) = 0;
+            virtual void onGetAttrib(u8 slot) = 0;
 
             void calc();
 
@@ -96,7 +182,7 @@ namespace ipl {
             u16             getFreeBlocks(u8 slot);
 #endif
 
-            void setEventHandler(MemCardEventHandler* eventHandler) {
+            void setEventHandler(MemCardEventListener* eventHandler) {
                 mpEventHandler = eventHandler;
             }
 
@@ -107,7 +193,7 @@ namespace ipl {
             s32                  mLastResult;         // 0x16930
             s32                  mLastCmd;            // 0x16934
             u32                  unk_0x16938;         // 0x16938
-            MemCardEventHandler* mpEventHandler;      // 0x1693C
+            MemCardEventListener* mpEventHandler;      // 0x1693C
         };
     }  // namespace scene
 }  // namespace ipl

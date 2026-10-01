@@ -1,7 +1,7 @@
 #define IPL_MEMORYCARD_BASE_CTOR_OUT_OF_LINE
 #define IPL_MEMORYCARD_BASE_EVENT_OUT_OF_LINE
 #define IPL_GCW_PANEMANAGER_CTOR_OUT_OF_LINE
-#define IPL_GCW_INTP_CTOR_OUT_OF_LINE
+#define IPL_GC_WINDOW_NOVTABLE
 #define IPL_GC_WINDOW_CPP
 #include "scene/memoryCard/iplGCWindow.h"
 #include "scene/memoryCard/iplMemoryCard.h"
@@ -14,10 +14,6 @@
 #include <cstring>
 
 namespace ipl {
-namespace math {
-template <typename T>
-LinearIntp<T>::LinearIntp() {}
-}
 namespace scene {
 struct TextboxToMessageID {
     const char* name;
@@ -58,7 +54,7 @@ struct DigitTable {
 static const DigitTable scNumber = {{L'0', L'1', L'2', L'3', L'4', L'5', L'6', L'7', L'8', L'9'}};
 
 GCWindow::GCWindow(EGG::Heap* heap, nand::LayoutFile* layoutFile, const char* directory, const char* fileName)
-    : MemoryBase(), MemCardEventHandler(), mState(0), mLinearInterp(), mCardState(0), mCardIndex(0), mOperation(0), mActive(false),
+    : MemoryBase(), MemCardEventListener(), mState(0), mLinearInterp(), mCardState(0), mCardIndex(0), mOperation(0), mActive(false),
       mWaiting(false) {
     mpLayout = new layout::Object(heap, layoutFile, directory, fileName);
     add_animation(scAnmName, 0x10);
@@ -792,7 +788,6 @@ SavedataEditWindow::SavedataEditWindow(EGG::Heap* heap, nand::LayoutFile* layout
     add_animation("it_DataDetail_a_SeenOutNo.brlan", scAnmName[0].groupName);
     add_animation("it_DataDetail_a_Wait.brlan", scAnmName[15].groupName);
     mpLayout->finishBinding();
-    set_visible("N_Wait", false);
     set_visible("T_Block_01", false);
     mpEvent = new MemoryBaseEvent(this);
     mpPaneManager = new gui::PaneManager(mpEvent, mpLayout->getDrawInfo(), NULL, NULL, true);

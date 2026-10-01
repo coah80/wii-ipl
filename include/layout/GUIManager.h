@@ -20,7 +20,11 @@ namespace gui {
     class Manager;
     class EventHandler;
 
+#if defined(IPL_GC_SAVEDATA_NOVTABLE) || defined(IPL_MEMORY_CARD_NOVTABLE)
+    class __declspec(novtable) Interface {
+#else
     class Interface {
+#endif
     public:
         virtual void create() {}  // 0x08 (0x02)
 
@@ -30,14 +34,14 @@ namespace gui {
         virtual void draw(Mtx& mtx) {}  // 0x14 (0x05)
         virtual void draw() {}          // 0x18 (0x06)
 
-#ifdef IPL_CHANNEL_TITLE_NOVTABLE
+#if defined(IPL_CHANNEL_TITLE_NOVTABLE) || defined(IPL_GC_SAVEDATA_NOVTABLE) || defined(IPL_MEMORY_CARD_NOVTABLE)
         virtual ~Interface();     // 0x1C (0x07)
 #else
         virtual ~Interface() {}   // 0x1C (0x07)
 #endif
     };
 
-#ifdef IPL_CHANNEL_TITLE_NOVTABLE
+#if defined(IPL_CHANNEL_TITLE_NOVTABLE) || defined(IPL_GC_WINDOW_NOVTABLE) || defined(IPL_GC_SAVEDATA_NOVTABLE) || defined(IPL_MEMORY_CARD_NOVTABLE)
     class __declspec(novtable) EventHandler {
 #else
     class EventHandler {
