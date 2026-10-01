@@ -11,6 +11,7 @@ typedef struct PFD_SDDRV_INFO {
     u32 media_inserted;
     u32 media_ejected;
     s8 drive;
+    u32 reserved_1c;
 } PFD_SDDRV_INFO;
 
 typedef union PFD_SDDEV_STORAGE {
@@ -35,7 +36,55 @@ u8 g_pfd_sddrv_buf[0x200];
 
 static FAInsertCallback g_attach_func = 0;
 static FAEjectCallback g_detach_func = 0;
-u32 g_event;
+u32 g_event __attribute__((aligned(32)));
+
+char lbl_81690D18[] =
+    "ERR:Failed to regist intr handler. pfd_st_inter_callback()\n\0"
+    "ERR:Failed to regist intr handler. pfd_st_removal_callback()\n\0\0\0"
+    "INFO SD Card driver is already initialize. pfd_sddrv_init()\n\0\0\0\0"
+    "ERR:Failed to init SD Card Driver in pfd_sddrv_init()\n\0\0"
+    "ERR SD card can not mount [ret = 0x%x]. pfd_sddrv_init()\n\0\0\0"
+    "ERR Failed to get sd card status. [ret = 0x%x]\n\0"
+    "ERR:Failed to regist intr handler1 [ret = 0x%x] pfd_sddrv_init()\n\0\0\0"
+    "INFO sdcard alrady mounted. pfd_sddrv_mount()\n\0\0"
+    "ERROR Failed to SD Card Reset [ret = 0x%x]. pfd_sddrv_mount()\n\0\0"
+    "ERR Failed to read OCR reg. pfd_sddrv_mount()\n\0\0"
+    "ERR Failed to read CID reg. pfd_sddrv_mount()\n\0\0"
+    "ERR Failed to read RCA reg. pfd_sddrv_mount()\n\0\0"
+    "FULL_FORMAT\0"
+    "ERR Failed to full format. pfd_sddrv_full_format()\n\0"
+    "WARNING Faild to UnregisterDeviceIntrHandler sd card [ret = %d]\n\0\0\0\0"
+    "WARNING Faild to unmount sd card [ret = %d]\n\0\0\0\0"
+    "INFO Card not inserted! in pfd_sddrv_get_disk_info()\n\0\0\0"
+    "INFO Card removed! in pfd_sddrv_get_disk_info()\n\0\0\0\0"
+    "INFO SD card type is not memory. in pfd_sddrv_get_disk_info()\n\0\0"
+    "ERR Failed to read master boot sector. pfd_sddrv_get_disk_info()\n\0\0\0"
+    "INFO Failed to read SD card1 [ret = 0x%x] pfd_sddrv_physical_read()\n\0\0\0\0"
+    "INFO Failed to read SD card2 [ret = 0x%x] pfd_sddrv_physical_read()\n\0\0\0\0"
+    "INFO Failed to read SD card3 [ret = 0x%x] pfd_sddrv_physical_read()\n\0\0\0\0"
+    "INFO Failed to write SD card1 [ret = 0x%x] pfd_sddrv_physical_write()\n\0\0"
+    "INFO Failed to write SD card2 [ret = 0x%x] pfd_sddrv_physical_write()\n\0\0"
+    "INFO Failed to write SD card3 [ret = 0x%x] pfd_sddrv_physical_write()\n\0\0"
+    "ERR Failed to get CSD Info. pfd_sddrv_get_total_sectors()\n\0\0"
+    "ERR Failed to get values with total sectors. pfd_sddrv_get_value_with_total_sectors()\n\0\0"
+    "        \0\0\0\0"
+    "NO NAME    \0"
+    "FAT12   \0\0\0\0"
+    "FAT16   \0\0\0\0"
+    "ERR Failed to calculate MBR and BPB values. pfd_sddrv_calc_mbr_bpb()\n\0\0\0"
+    "ERR Failed to store BPB values to buf. pfd_sddrv_store_bpb_buf()\n\0\0\0"
+    "ERR Failed to write BPB fields. ISD_WriteBlock()\n\0\0\0"
+    "ERR Failed to store MBR values to buf. pfd_sddrv_store_mbr_buf()\n\0\0\0"
+    "ERR Failed to write MBR fields. ISD_WriteBlock()\n\0\0\0"
+    "FAT32   \0\0\0\0"
+    "ERR Failed to calculate MBR and BPB values. pfd_sddrv_calc_fat32_mbr_bpb()\n\0\0\0\0\0"
+    "ERR Failed to store BPB values to buf. pfd_sddrv_store_fat32_bpb_buf()\n\0"
+    "ERR Failed to store FSInfo values to buf. pfd_sddrv_store_fat32_fsi_buf()\n\0\0"
+    "ERR Failed to store reserved for boot sector values to buf. \0\0\0\0"
+    "pfd_sddrv_store_fat32_reserved_buf()\n\0\0\0"
+    "ERROR Failed to SD Card Reset [ret = 0x%x]. pfd_sddrv_full_format()\n\0\0\0\0\0\0\0\0"
+    "ERR Failed to get total sectors. pfd_sddrv_get_total_sectors()\n\0"
+    "ERR Failed to build up and write MBR and BPB fields.\n\0\0";
 
 extern u8 pfd_get_media_drv_char(FADisk*, s8*, u32);
 extern void pdm_disk_notify_media_insert(FADisk*);
@@ -44,17 +93,29 @@ extern void* pf_memset(void*, s32, u32);
 extern void* pf_memcpy(void*, const void*, u32);
 extern s32 pf_strcmp(const char*, const char*);
 
+
 s32 pfd_st_inter_callback(s32 status, void* data);
+
 s32 pfd_st_removal_callback(s32 status, void* data);
+
 static s32 pfd_sddrv_physical_read(u32 blocks, u8* buffer, u32 sector, u32 bytes_per_sector, u32* blocks_read);
+
 s32 pfd_sddrv_physical_write(u32 blocks, u8* buffer, u32 sector, u32 bytes_per_sector, u32* blocks_written);
+
 s32 pfd_sddrv_init(FADisk* disk);
+
 s32 pfd_sddrv_finalize(FADisk* disk);
+
 s32 pfd_sddrv_mount(FADisk* disk);
+
 s32 pfd_sddrv_unmount(FADisk* disk);
+
 s32 pfd_sddrv_format(FADisk* disk, u8* format_name);
+
 s32 pfd_sddrv_pread(FADisk* disk, u8* buffer, u32 sector, u32 blocks, u32* blocks_read);
+
 s32 pfd_sddrv_pwrite(FADisk* disk, u8* buffer, u32 sector, u32 blocks, u32* blocks_written);
+
 s32 pfd_sddrv_get_disk_info(FADisk* disk, FADiskInfo* disk_info);
 
 const FAFuncTbl pfd_sddrv_func = {
@@ -259,6 +320,7 @@ static inline s8 pfd_sddrv_drive(const PFD_SDDRV_INFO* info) {
     return info->drive;
 }
 
+
 s32 pfd_st_inter_callback(s32 status, void* data) {
     s32 result;
 
@@ -269,7 +331,7 @@ s32 pfd_st_inter_callback(s32 status, void* data) {
         g_event = 2;
         result = ISD_RegisterDeviceIntrHandler(g_pfd_sddrv_info.device, (SDDevIntrCallback)pfd_st_removal_callback, &g_event);
         if (result != 0) {
-            OSReport("ERR:Failed to regist intr handler. pfd_st_inter_callback()\n");
+            OSReport((const char*)lbl_81690D18);
         }
     }
     if (pfd_sddrv_disk(&g_pfd_sddrv_info) != 0) {
@@ -284,6 +346,7 @@ s32 pfd_st_inter_callback(s32 status, void* data) {
     return 0;
 }
 
+
 s32 pfd_st_removal_callback(s32 status, void* data) {
     s32 result;
 
@@ -295,7 +358,7 @@ s32 pfd_st_removal_callback(s32 status, void* data) {
         g_event = 1;
         result = ISD_RegisterDeviceIntrHandler(g_pfd_sddrv_info.device, (SDDevIntrCallback)pfd_st_inter_callback, &g_event);
         if (result != 0) {
-            OSReport("ERR:Failed to regist intr handler. pfd_st_removal_callback()\n");
+            OSReport(&lbl_81690D18[0x3c]);
         }
     }
     if (pfd_sddrv_disk(&g_pfd_sddrv_info) != 0) {
@@ -308,7 +371,9 @@ s32 pfd_st_removal_callback(s32 status, void* data) {
     return 0;
 }
 
+
 s32 pfd_sddrv_init(FADisk* disk) {
+    const char* str_base = lbl_81690D18;
     s32 sd_result;
     SDDev* device;
     u32 status;
@@ -317,7 +382,7 @@ s32 pfd_sddrv_init(FADisk* disk) {
         return -30;
     }
     if ((pfd_sddrv_flags(&g_pfd_sddrv_info) & 1) != 0) {
-        OSReport("INFO SD Card driver is already initialize. pfd_sddrv_init()\n");
+        OSReport(str_base + 0x7c);
         sd_result = -44;
         if (disk == g_pfd_sddrv_info.disk) {
             sd_result = 0;
@@ -329,7 +394,7 @@ s32 pfd_sddrv_init(FADisk* disk) {
         pf_memset(&g_pfd_sddev, 0, 0x28);
         sd_result = ISD_InitCard();
         if (sd_result != 0) {
-            OSReport("ERR:Failed to init SD Card Driver in pfd_sddrv_init()\n");
+            OSReport(str_base + 0xbc);
             return -40;
         }
         g_pfd_sddrv_info.flags |= 4;
@@ -338,12 +403,12 @@ s32 pfd_sddrv_init(FADisk* disk) {
     device = &g_pfd_sddev.device;
     sd_result = ISD_MountCard(0, &device);
     if (sd_result != 0) {
-        OSReport("ERR SD card can not mount [ret = 0x%x]. pfd_sddrv_init()\n", sd_result);
+        OSReport(str_base + 0xf4, sd_result);
         return -41;
     }
     sd_result = ISD_GetDeviceStatus(device, &status);
     if (sd_result != 0) {
-        OSReport("ERR Failed to get sd card status. [ret = 0x%x]\n", sd_result);
+        OSReport(str_base + 0x130, sd_result);
         return 21;
     }
     if ((status & 1) != 0) {
@@ -354,7 +419,7 @@ s32 pfd_sddrv_init(FADisk* disk) {
         g_event = 2;
         sd_result = ISD_RegisterDeviceIntrHandler(device, (SDDevIntrCallback)pfd_st_removal_callback, &g_event);
         if (sd_result != 0) {
-            OSReport("ERR:Failed to regist intr handler1 [ret = 0x%x] pfd_sddrv_init()\n", sd_result);
+            OSReport(str_base + 0x160, sd_result);
             ISD_UnmountCard(device);
             g_pfd_sddrv_info.device = 0;
             return -42;
@@ -363,7 +428,7 @@ s32 pfd_sddrv_init(FADisk* disk) {
         g_event = 1;
         sd_result = ISD_RegisterDeviceIntrHandler(device, (SDDevIntrCallback)pfd_st_inter_callback, &g_event);
         if (sd_result != 0) {
-            OSReport("ERR:Failed to regist intr handler1 [ret = 0x%x] pfd_sddrv_init()\n", sd_result);
+            OSReport(str_base + 0x160, sd_result);
             ISD_UnmountCard(device);
             g_pfd_sddrv_info.device = 0;
             return -42;
@@ -374,7 +439,9 @@ s32 pfd_sddrv_init(FADisk* disk) {
     return 0;
 }
 
+
 s32 pfd_sddrv_mount(FADisk* disk) {
+    const char* str_base = lbl_81690D18;
     s32 result;
     u32 attempts;
     u32 ocr;
@@ -388,7 +455,7 @@ s32 pfd_sddrv_mount(FADisk* disk) {
         return -33;
     }
     if ((g_pfd_sddrv_info.flags & 2) != 0) {
-        OSReport("INFO sdcard alrady mounted. pfd_sddrv_mount()\n");
+        OSReport(str_base + 0x1a4);
         return 0;
     }
     attempts = 0;
@@ -401,7 +468,7 @@ s32 pfd_sddrv_mount(FADisk* disk) {
             g_pfd_sddrv_info.media_ejected = 0;
             break;
         }
-        OSReport("ERROR Failed to SD Card Reset [ret = 0x%x]. pfd_sddrv_mount()\n", result);
+        OSReport(str_base + 0x1d4, result);
         attempts++;
     } while (attempts < 5);
     if (attempts == 5) {
@@ -413,28 +480,31 @@ s32 pfd_sddrv_mount(FADisk* disk) {
     ocr = 0;
     result = ISD_ReadCardRegister(g_pfd_sddrv_info.device, 0x29, &ocr, 4);
     if (result != 0) {
-        OSReport("ERR Failed to read OCR reg. pfd_sddrv_mount()\n");
+        OSReport(str_base + 0x214);
         return -43;
     }
     pf_memset(cid, 0, 0x10);
     result = ISD_ReadCardRegister(g_pfd_sddrv_info.device, 10, (u32*)cid, 0x10);
     if (result != 0) {
-        OSReport("ERR Failed to read CID reg. pfd_sddrv_mount()\n");
+        OSReport(str_base + 0x244);
         return -43;
     }
     rca = 0;
     result = ISD_ReadCardRegister(g_pfd_sddrv_info.device, 3, (u32*)&rca, 2);
     if (result != 0) {
-        OSReport("ERR Failed to read RCA reg. pfd_sddrv_mount()\n");
+        OSReport(str_base + 0x274);
         return -43;
     }
     g_pfd_sddrv_info.flags |= 2;
     return 0;
 }
 
+
 s32 pfd_sddrv_full_format(void);
 
+
 s32 pfd_sddrv_format(FADisk* disk, u8* format_name) {
+    const char* str_base = lbl_81690D18;
     s32 result;
 
     if (disk == 0) {
@@ -444,17 +514,18 @@ s32 pfd_sddrv_format(FADisk* disk, u8* format_name) {
         return -33;
     }
     if (format_name != 0) {
-        result = pf_strcmp((char*)format_name, "FULL_FORMAT");
+        result = pf_strcmp((char*)format_name, str_base + 0x2a4);
         if (result == 0) {
             result = pfd_sddrv_full_format();
             if (result != 0) {
-                OSReport("ERR Failed to full format. pfd_sddrv_full_format()\n");
+                OSReport(str_base + 0x2b0);
                 return result;
             }
         }
     }
     return 0;
 }
+
 
 s32 pfd_sddrv_pread(FADisk* disk, u8* buffer, u32 sector, u32 blocks, u32* blocks_read) {
     if (disk == 0 || buffer == 0 || blocks_read == 0) {
@@ -463,12 +534,14 @@ s32 pfd_sddrv_pread(FADisk* disk, u8* buffer, u32 sector, u32 blocks, u32* block
     return pfd_sddrv_physical_read(blocks, buffer, sector, g_pfd_sddrv_info.bytes_per_sector, blocks_read);
 }
 
+
 s32 pfd_sddrv_pwrite(FADisk* disk, u8* buffer, u32 sector, u32 blocks, u32* blocks_written) {
     if (disk == 0 || buffer == 0 || blocks_written == 0) {
         return -30;
     }
     return pfd_sddrv_physical_write(blocks, buffer, sector, g_pfd_sddrv_info.bytes_per_sector, blocks_written);
 }
+
 
 s32 pfd_sddrv_unmount(FADisk* disk) {
     if (disk == 0) {
@@ -480,7 +553,9 @@ s32 pfd_sddrv_unmount(FADisk* disk) {
     return 0;
 }
 
+
 s32 pfd_sddrv_finalize(FADisk* disk) {
+    const char* str_base = lbl_81690D18;
     s32 result;
 
     if (disk == 0) {
@@ -492,11 +567,11 @@ s32 pfd_sddrv_finalize(FADisk* disk) {
     if ((g_pfd_sddrv_info.flags & 1) != 0) {
         result = ISD_UnregisterDeviceIntrHandler(g_pfd_sddrv_info.device);
         if (result != 0) {
-            OSReport("WARNING Faild to UnregisterDeviceIntrHandler sd card [ret = %d]\n", result);
+            OSReport(str_base + 0x2e4, result);
         }
         result = ISD_UnmountCard(g_pfd_sddrv_info.device);
         if (result != 0) {
-            OSReport("WARNING Faild to unmount sd card [ret = %d]\n", result);
+            OSReport(str_base + 0x328, result);
         }
         g_pfd_sddrv_info.device = 0;
     }
@@ -507,9 +582,12 @@ s32 pfd_sddrv_finalize(FADisk* disk) {
     return 0;
 }
 
+
 s32 pfd_sddrv_get_total_sectors(u32* sectors, u16* bytes_per_sector);
 
+
 s32 pfd_sddrv_get_disk_info(FADisk* disk, FADiskInfo* disk_info) {
+    const char* str_base = lbl_81690D18;
     s32 result;
     u32 status;
 
@@ -527,19 +605,19 @@ s32 pfd_sddrv_get_disk_info(FADisk* disk, FADiskInfo* disk_info) {
     }
     result = ISD_GetDeviceStatus(g_pfd_sddrv_info.device, &status);
     if (result != 0) {
-        OSReport("ERR Failed to get sd card status. [ret = 0x%x]\n", result);
+        OSReport(str_base + 0x130, result);
         return -39;
     }
     if ((status & 1) == 0) {
-        OSReport("INFO Card not inserted! in pfd_sddrv_get_disk_info()\n");
+        OSReport(str_base + 0x358);
         return -33;
     }
     if ((status & 2) != 0) {
-        OSReport("INFO Card removed! in pfd_sddrv_get_disk_info()\n");
+        OSReport(str_base + 0x390);
         return -33;
     }
     if ((status & 0x10000) == 0 && (status & 0x100000) == 0) {
-        OSReport("INFO SD card type is not memory. in pfd_sddrv_get_disk_info()\n");
+        OSReport(str_base + 0x3c4);
         return -35;
     }
     disk_info->mediaAttr = 4;
@@ -548,7 +626,7 @@ s32 pfd_sddrv_get_disk_info(FADisk* disk, FADiskInfo* disk_info) {
     }
     result = pfd_sddrv_get_total_sectors(&disk_info->totalSectors, &disk_info->bytesPerSector);
     if (result != 0) {
-        OSReport("ERR Failed to read master boot sector. pfd_sddrv_get_disk_info()\n");
+        OSReport(str_base + 0x404);
         return result;
     }
     disk_info->cylinders = 0;
@@ -558,17 +636,20 @@ s32 pfd_sddrv_get_disk_info(FADisk* disk, FADiskInfo* disk_info) {
     return 0;
 }
 
+
 s32 pfd_sddrv_init_drv_tbl(FADiskTbl* disk_table, u32 extended) {
     disk_table->uiExt = extended;
     disk_table->pFunc = (FAFuncTbl*)&pfd_sddrv_func;
     return 0;
 }
 
+
 s32 pfd_sddrv_registar_callback(FAInsertCallback attach, FAEjectCallback detach) {
     g_attach_func = attach;
     g_detach_func = detach;
     return 0;
 }
+
 
 s32 pfd_sddrv_is_media_insert(void) {
     s32 result;
@@ -590,7 +671,9 @@ s32 pfd_sddrv_is_media_insert(void) {
     return result;
 }
 
+
 static s32 pfd_sddrv_physical_read(u32 blocks, u8* buffer, u32 sector, u32 bytes_per_sector, u32* blocks_read) {
+    const char* str_base = lbl_81690D18;
     s32 result;
     s32 current_sector;
     u32 completed;
@@ -616,14 +699,14 @@ static s32 pfd_sddrv_physical_read(u32 blocks, u8* buffer, u32 sector, u32 bytes
         if (blocks == 1) {
             result = ISD_ReadBlock(g_pfd_sddrv_info.device, current_sector, buffer, blocks);
             if (result != 0) {
-                OSReport("INFO Failed to read SD card1 [ret = 0x%x] pfd_sddrv_physical_read()\n", result);
+                OSReport(str_base + 0x448, result);
                 *blocks_read = 0;
                 return -37;
             }
         } else {
             result = ISD_ReadMultiBlock(g_pfd_sddrv_info.device, current_sector, buffer, blocks);
             if (result != 0) {
-                OSReport("INFO Failed to read SD card2 [ret = 0x%x] pfd_sddrv_physical_read()\n", result);
+                OSReport(str_base + 0x490, result);
                 *blocks_read = 0;
                 return -37;
             }
@@ -640,7 +723,7 @@ static s32 pfd_sddrv_physical_read(u32 blocks, u8* buffer, u32 sector, u32 bytes
             }
             result = ISD_ReadBlock(g_pfd_sddrv_info.device, current_sector, g_pfd_sddrv_buf, 1);
             if (result != 0) {
-                OSReport("INFO Failed to read SD card3 [ret = 0x%x] pfd_sddrv_physical_read()\n", result);
+                OSReport(str_base + 0x4d8, result);
                 if (completed != 0) {
                     *blocks_read = completed;
                     return 0;
@@ -655,7 +738,9 @@ static s32 pfd_sddrv_physical_read(u32 blocks, u8* buffer, u32 sector, u32 bytes
     return 0;
 }
 
+
 s32 pfd_sddrv_physical_write(u32 blocks, u8* buffer, u32 sector, u32 bytes_per_sector, u32* blocks_written) {
+    const char* str_base = lbl_81690D18;
     s32 result;
     s32 current_sector;
     u32 completed;
@@ -681,14 +766,14 @@ s32 pfd_sddrv_physical_write(u32 blocks, u8* buffer, u32 sector, u32 bytes_per_s
         if (blocks == 1) {
             result = ISD_WriteBlock(g_pfd_sddrv_info.device, current_sector, buffer, blocks);
             if (result != 0) {
-                OSReport("INFO Failed to write SD card1 [ret = 0x%x] pfd_sddrv_physical_write()\n", result);
+                OSReport(str_base + 0x520, result);
                 *blocks_written = 0;
                 return -36;
             }
         } else {
             result = ISD_WriteMultiBlock(g_pfd_sddrv_info.device, current_sector, buffer, blocks);
             if (result != 0) {
-                OSReport("INFO Failed to write SD card2 [ret = 0x%x] pfd_sddrv_physical_write()\n", result);
+                OSReport(str_base + 0x568, result);
                 *blocks_written = 0;
                 return -36;
             }
@@ -706,7 +791,7 @@ s32 pfd_sddrv_physical_write(u32 blocks, u8* buffer, u32 sector, u32 bytes_per_s
             pf_memcpy(g_pfd_sddrv_buf, current_buffer, bytes_per_sector);
             result = ISD_WriteBlock(g_pfd_sddrv_info.device, current_sector, g_pfd_sddrv_buf, 1);
             if (result != 0) {
-                OSReport("INFO Failed to write SD card3 [ret = 0x%x] pfd_sddrv_physical_write()\n", result);
+                OSReport(str_base + 0x5b0, result);
                 if (completed != 0) {
                     *blocks_written = completed;
                     return 0;
@@ -720,7 +805,9 @@ s32 pfd_sddrv_physical_write(u32 blocks, u8* buffer, u32 sector, u32 bytes_per_s
     return 0;
 }
 
+
 s32 pfd_sddrv_get_total_sectors(u32* sectors, u16* bytes_per_sector) {
+    const char* str_base = lbl_81690D18;
     s32 result;
     u32 csd[4];
     u32 c_size;
@@ -738,7 +825,7 @@ s32 pfd_sddrv_get_total_sectors(u32* sectors, u16* bytes_per_sector) {
     pf_memset(csd, 0, 0x10);
     result = ISD_ReadCardRegister(g_pfd_sddrv_info.device, 9, csd, 0x10);
     if (result != 0) {
-        OSReport("ERR Failed to get CSD Info. pfd_sddrv_get_total_sectors()\n");
+        OSReport(str_base + 0x5f8);
         return -43;
     }
     if ((csd[3] & 0x400000) == 0) {
@@ -767,7 +854,9 @@ static inline u32 pfd_sddrv_encode_serial(s32 year, s32 month, s32 day, s32 hour
     return (date << 16) + time;
 }
 
+
 s32 pfd_sddrv_calc_mbr_bpb(PFD_SDDRV_FORMAT_DATA* format_data) {
+    const char* str_base = lbl_81690D18;
     PFD_SDDRV_SIZE_SETTINGS settings;
     u32 entry_index;
     u32 requested_sectors;
@@ -804,7 +893,7 @@ s32 pfd_sddrv_calc_mbr_bpb(PFD_SDDRV_FORMAT_DATA* format_data) {
     }
     result = entry_index == 14 ? -30 : 0;
     if (result != 0) {
-        OSReport("ERR Failed to get values with total sectors. pfd_sddrv_get_value_with_total_sectors()\n");
+        OSReport(str_base + 0x634);
         return result;
     }
     format_data->sectors_per_cluster = settings.sectors_per_cluster;
@@ -884,7 +973,9 @@ s32 pfd_sddrv_calc_mbr_bpb(PFD_SDDRV_FORMAT_DATA* format_data) {
 }
 
 
+
 s32 pfd_sddrv_store_bpb_buf(PFD_SDDRV_FORMAT_DATA* format_data, u8* sector_buffer) {
+    const char* str_base = lbl_81690D18;
     PFD_SDDRV_SIZE_SETTINGS settings;
     PFD_SDDRV_BPB* boot_sector;
     u32 entry_index;
@@ -911,7 +1002,7 @@ s32 pfd_sddrv_store_bpb_buf(PFD_SDDRV_FORMAT_DATA* format_data, u8* sector_buffe
     }
     result = entry_index == 14 ? -30 : 0;
     if (result != 0) {
-        OSReport("ERR Failed to get values with total sectors. pfd_sddrv_get_value_with_total_sectors()\n");
+        OSReport(str_base + 0x634);
         return result;
     }
     sectors_32 = format_data->partition_sector_count;
@@ -925,12 +1016,12 @@ s32 pfd_sddrv_store_bpb_buf(PFD_SDDRV_FORMAT_DATA* format_data, u8* sector_buffe
     }
     pf_memset(sector_buffer, 0, 0x200);
     boot_sector = (PFD_SDDRV_BPB*)sector_buffer;
-    pfd_sddrv_copy_bytes(boot_sector->oem_name, (const u8*)"        ", 8);
-    pfd_sddrv_copy_bytes(boot_sector->volume_label, (const u8*)"NO NAME    ", 11);
+    pfd_sddrv_copy_bytes(boot_sector->oem_name, (const u8*)(str_base + 0x68c), 8);
+    pfd_sddrv_copy_bytes(boot_sector->volume_label, (const u8*)(str_base + 0x698), 11);
     if (format_data->fat_type == 0) {
-        pfd_sddrv_copy_bytes(boot_sector->file_system_type, (const u8*)"FAT12   ", 8);
+        pfd_sddrv_copy_bytes(boot_sector->file_system_type, (const u8*)(str_base + 0x6a4), 8);
     } else {
-        pfd_sddrv_copy_bytes(boot_sector->file_system_type, (const u8*)"FAT16   ", 8);
+        pfd_sddrv_copy_bytes(boot_sector->file_system_type, (const u8*)(str_base + 0x6b0), 8);
     }
     boot_sector->jump[0] = 0xeb;
     boot_sector->jump[1] = 0;
@@ -955,7 +1046,9 @@ s32 pfd_sddrv_store_bpb_buf(PFD_SDDRV_FORMAT_DATA* format_data, u8* sector_buffe
     return 0;
 }
 
+
 s32 pfd_sddrv_store_mbr_buf(PFD_SDDRV_FORMAT_DATA* format_data, u8* sector_buffer) {
+    const char* str_base = lbl_81690D18;
     PFD_SDDRV_SIZE_SETTINGS settings;
     PFD_SDDRV_MBR* master_boot_record;
     PFD_SDDRV_PARTITION_ENTRY* partition;
@@ -988,7 +1081,7 @@ s32 pfd_sddrv_store_mbr_buf(PFD_SDDRV_FORMAT_DATA* format_data, u8* sector_buffe
     }
     result = entry_index == 14 ? -30 : 0;
     if (result != 0) {
-        OSReport("ERR Failed to get values with total sectors. pfd_sddrv_get_value_with_total_sectors()\n");
+        OSReport(str_base + 0x634);
         return result;
     }
     start_cylinder = format_data->partition_start_sector / (settings.fat_copies * settings.root_entries);
@@ -1025,7 +1118,9 @@ s32 pfd_sddrv_store_mbr_buf(PFD_SDDRV_FORMAT_DATA* format_data, u8* sector_buffe
     return 0;
 }
 
+
 s32 pfd_sddrv_build_mbr_bpb(u32 total_sectors) {
+    const char* str_base = lbl_81690D18;
     PFD_SDDRV_FORMAT_DATA format_data;
     s32 result;
     u32 partition_start_sector;
@@ -1034,12 +1129,12 @@ s32 pfd_sddrv_build_mbr_bpb(u32 total_sectors) {
     format_data.total_sectors = total_sectors;
     result = pfd_sddrv_calc_mbr_bpb(&format_data);
     if (result != 0) {
-        OSReport("ERR Failed to calculate MBR and BPB values. pfd_sddrv_calc_mbr_bpb()\n");
+        OSReport(str_base + 0x6bc);
         return result;
     }
     result = pfd_sddrv_store_bpb_buf(&format_data, g_pfd_sddrv_buf);
     if (result != 0) {
-        OSReport("ERR Failed to store BPB values to buf. pfd_sddrv_store_bpb_buf()\n");
+        OSReport(str_base + 0x704);
         return result;
     }
     partition_start_sector = format_data.partition_start_sector;
@@ -1051,12 +1146,12 @@ s32 pfd_sddrv_build_mbr_bpb(u32 total_sectors) {
     }
     result = ISD_WriteBlock(g_pfd_sddrv_info.device, partition_start_sector, g_pfd_sddrv_buf, 1);
     if (result != 0) {
-        OSReport("ERR Failed to write BPB fields. ISD_WriteBlock()\n");
+        OSReport(str_base + 0x748);
         return -36;
     }
     result = pfd_sddrv_store_mbr_buf(&format_data, g_pfd_sddrv_buf);
     if (result != 0) {
-        OSReport("ERR Failed to store MBR values to buf. pfd_sddrv_store_mbr_buf()\n");
+        OSReport(str_base + 0x77c);
         return result;
     }
     if (g_pfd_sddrv_info.media_inserted == 0) {
@@ -1067,13 +1162,15 @@ s32 pfd_sddrv_build_mbr_bpb(u32 total_sectors) {
     }
     result = ISD_WriteBlock(g_pfd_sddrv_info.device, 0, g_pfd_sddrv_buf, 1);
     if (result != 0) {
-        OSReport("ERR Failed to write MBR fields. ISD_WriteBlock()\n");
+        OSReport(str_base + 0x7c0);
         return -36;
     }
     return 0;
 }
 
+
 s32 pfd_sddrv_calc_fat32_mbr_bpb(PFD_SDDRV_FORMAT_DATA* format_data) {
+    const char* str_base = lbl_81690D18;
     u8 sectors_per_cluster;
     u32 fat_sector_count;
     u32 available_sectors;
@@ -1114,7 +1211,7 @@ s32 pfd_sddrv_calc_fat32_mbr_bpb(PFD_SDDRV_FORMAT_DATA* format_data) {
     }
     result = entry_index == 14 ? -30 : 0;
     if (result != 0) {
-        OSReport("ERR Failed to get values with total sectors. pfd_sddrv_get_value_with_total_sectors()\n");
+        OSReport(str_base + 0x634);
         return result;
     }
     sectors_per_cluster = settings.sectors_per_cluster;
@@ -1172,7 +1269,9 @@ s32 pfd_sddrv_calc_fat32_mbr_bpb(PFD_SDDRV_FORMAT_DATA* format_data) {
     return 0;
 }
 
+
 s32 pfd_sddrv_store_fat32_mbr_buf(PFD_SDDRV_FORMAT_DATA* format_data, u8* sector_buffer) {
+    const char* str_base = lbl_81690D18;
     PFD_SDDRV_SIZE_SETTINGS settings;
     PFD_SDDRV_MBR* master_boot_record;
     PFD_SDDRV_PARTITION_ENTRY* partition;
@@ -1207,7 +1306,7 @@ s32 pfd_sddrv_store_fat32_mbr_buf(PFD_SDDRV_FORMAT_DATA* format_data, u8* sector
     }
     result = entry_index == 14 ? -30 : 0;
     if (result != 0) {
-        OSReport("ERR Failed to get values with total sectors. pfd_sddrv_get_value_with_total_sectors()\n");
+        OSReport(str_base + 0x634);
         return result;
     }
     if (format_data->partition_start_sector > 0xfb0400) {
@@ -1248,6 +1347,7 @@ s32 pfd_sddrv_store_fat32_mbr_buf(PFD_SDDRV_FORMAT_DATA* format_data, u8* sector
     master_boot_record->signature[1] = 0xaa;
     return 0;
 }
+
 
 s32 pfd_sddrv_store_fat32_fsi_buf(u8* sector_buffer) NO_INLINE {
     PFD_SDDRV_FAT32_FSINFO* fs_info;
@@ -1297,7 +1397,9 @@ s32 pfd_sddrv_store_fat32_fsi_buf(u8* sector_buffer) NO_INLINE {
     return 0;
 }
 
+
 s32 pfd_sddrv_store_fat32_bpb_buf(PFD_SDDRV_FORMAT_DATA* format_data, u8* sector_buffer) {
+    const char* str_base = lbl_81690D18;
     PFD_SDDRV_SIZE_SETTINGS settings;
     PFD_SDDRV_FAT32_BPB* boot_sector;
     u32 entry_index;
@@ -1322,14 +1424,14 @@ s32 pfd_sddrv_store_fat32_bpb_buf(PFD_SDDRV_FORMAT_DATA* format_data, u8* sector
     }
     result = entry_index == 14 ? -30 : 0;
     if (result != 0) {
-        OSReport("ERR Failed to get values with total sectors. pfd_sddrv_get_value_with_total_sectors()\n");
+        OSReport(str_base + 0x634);
         return result;
     }
     pf_memset(sector_buffer, 0, 0x200);
     boot_sector = (PFD_SDDRV_FAT32_BPB*)sector_buffer;
-    pfd_sddrv_copy_bytes(boot_sector->oem_name, (const u8*)"        ", 8);
-    pfd_sddrv_copy_bytes(boot_sector->volume_label, (const u8*)"NO NAME    ", 11);
-    pfd_sddrv_copy_bytes(boot_sector->filesystem_type, (const u8*)"FAT32   ", 8);
+    pfd_sddrv_copy_bytes(boot_sector->oem_name, (const u8*)(str_base + 0x68c), 8);
+    pfd_sddrv_copy_bytes(boot_sector->volume_label, (const u8*)(str_base + 0x698), 11);
+    pfd_sddrv_copy_bytes(boot_sector->filesystem_type, (const u8*)(str_base + 0x7f4), 8);
     boot_sector->jump[0] = 0xeb;
     boot_sector->jump[1] = 0;
     boot_sector->jump[2] = 0x90;
@@ -1359,6 +1461,7 @@ s32 pfd_sddrv_store_fat32_bpb_buf(PFD_SDDRV_FORMAT_DATA* format_data, u8* sector
     return 0;
 }
 
+
 static s32 pfd_sddrv_store_fat32_reserved_buf(u8* sector_buffer) {
     PFD_SDDRV_RESERVED_BOOT_SECTOR* reserved_boot_sector;
 
@@ -1373,19 +1476,21 @@ static s32 pfd_sddrv_store_fat32_reserved_buf(u8* sector_buffer) {
     return 0;
 }
 
+
 s32 pfd_sddrv_build_fat32_mbr_bpb(u32 total_sectors) {
+    const char* str_base = lbl_81690D18;
     PFD_SDDRV_FORMAT_DATA format_data;
     s32 result;
     pf_memset(&format_data, 0, 0x20);
     format_data.total_sectors = total_sectors;
     result = pfd_sddrv_calc_fat32_mbr_bpb(&format_data);
     if (result != 0) {
-        OSReport("ERR Failed to calculate MBR and BPB values. pfd_sddrv_calc_fat32_mbr_bpb()\n");
+        OSReport(str_base + 0x800);
         return result;
     }
     result = pfd_sddrv_store_fat32_bpb_buf(&format_data, g_pfd_sddrv_buf);
     if (result != 0) {
-        OSReport("ERR Failed to store BPB values to buf. pfd_sddrv_store_fat32_bpb_buf()\n");
+        OSReport(str_base + 0x850);
         return result;
     }
     if (g_pfd_sddrv_info.media_inserted == 0) {
@@ -1396,17 +1501,17 @@ s32 pfd_sddrv_build_fat32_mbr_bpb(u32 total_sectors) {
     }
     result = ISD_WriteBlock(g_pfd_sddrv_info.device, format_data.partition_start_sector, g_pfd_sddrv_buf, 1);
     if (result != 0) {
-        OSReport("ERR Failed to write BPB fields. ISD_WriteBlock()\n");
+        OSReport(str_base + 0x748);
         return -36;
     }
     result = ISD_WriteBlock(g_pfd_sddrv_info.device, format_data.partition_start_sector + 6, g_pfd_sddrv_buf, 1);
     if (result != 0) {
-        OSReport("ERR Failed to write BPB fields. ISD_WriteBlock()\n");
+        OSReport(str_base + 0x748);
         return -36;
     }
     result = pfd_sddrv_store_fat32_fsi_buf(g_pfd_sddrv_buf);
     if (result != 0) {
-        OSReport("ERR Failed to store FSInfo values to buf. pfd_sddrv_store_fat32_fsi_buf()\n");
+        OSReport(str_base + 0x898);
         return result;
     }
     if (g_pfd_sddrv_info.media_inserted == 0) {
@@ -1417,18 +1522,18 @@ s32 pfd_sddrv_build_fat32_mbr_bpb(u32 total_sectors) {
     }
     result = ISD_WriteBlock(g_pfd_sddrv_info.device, format_data.partition_start_sector + 1, g_pfd_sddrv_buf, 1);
     if (result != 0) {
-        OSReport("ERR Failed to write BPB fields. ISD_WriteBlock()\n");
+        OSReport(str_base + 0x748);
         return -36;
     }
     result = ISD_WriteBlock(g_pfd_sddrv_info.device, format_data.partition_start_sector + 7, g_pfd_sddrv_buf, 1);
     if (result != 0) {
-        OSReport("ERR Failed to write BPB fields. ISD_WriteBlock()\n");
+        OSReport(str_base + 0x748);
         return -36;
     }
     result = pfd_sddrv_store_fat32_reserved_buf(g_pfd_sddrv_buf);
     if (result != 0) {
-        OSReport("ERR Failed to store reserved for boot sector values to buf. ");
-        OSReport("pfd_sddrv_store_fat32_reserved_buf()\n");
+        OSReport(str_base + 0x8e4);
+        OSReport(str_base + 0x924);
         return result;
     }
     if (g_pfd_sddrv_info.media_inserted == 0) {
@@ -1439,17 +1544,17 @@ s32 pfd_sddrv_build_fat32_mbr_bpb(u32 total_sectors) {
     }
     result = ISD_WriteBlock(g_pfd_sddrv_info.device, format_data.partition_start_sector + 2, g_pfd_sddrv_buf, 1);
     if (result != 0) {
-        OSReport("ERR Failed to write BPB fields. ISD_WriteBlock()\n");
+        OSReport(str_base + 0x748);
         return -36;
     }
     result = ISD_WriteBlock(g_pfd_sddrv_info.device, format_data.partition_start_sector + 8, g_pfd_sddrv_buf, 1);
     if (result != 0) {
-        OSReport("ERR Failed to write BPB fields. ISD_WriteBlock()\n");
+        OSReport(str_base + 0x748);
         return -36;
     }
     result = pfd_sddrv_store_fat32_mbr_buf(&format_data, g_pfd_sddrv_buf);
     if (result != 0) {
-        OSReport("ERR Failed to store MBR values to buf. pfd_sddrv_store_mbr_buf()\n");
+        OSReport(str_base + 0x77c);
         return result;
     }
     if (g_pfd_sddrv_info.media_inserted == 0) {
@@ -1460,13 +1565,15 @@ s32 pfd_sddrv_build_fat32_mbr_bpb(u32 total_sectors) {
     }
     result = ISD_WriteBlock(g_pfd_sddrv_info.device, 0, g_pfd_sddrv_buf, 1);
     if (result != 0) {
-        OSReport("ERR Failed to write MBR fields. ISD_WriteBlock()\n");
+        OSReport(str_base + 0x7c0);
         return -36;
     }
     return 0;
 }
 
+
 s32 pfd_sddrv_full_format(void) {
+    const char* str_base = lbl_81690D18;
     FADiskInfo geometry;
     u32 status;
     u32 retry_count;
@@ -1482,7 +1589,7 @@ s32 pfd_sddrv_full_format(void) {
             g_pfd_sddrv_info.media_ejected = 0;
             break;
         }
-        OSReport("ERROR Failed to SD Card Reset [ret = 0x%x]. pfd_sddrv_full_format()\n", result);
+        OSReport(str_base + 0x94c, result);
         retry_count++;
     } while (retry_count < 5);
     if (retry_count == 5) {
@@ -1493,7 +1600,7 @@ s32 pfd_sddrv_full_format(void) {
     }
     result = ISD_GetDeviceStatus(g_pfd_sddrv_info.device, &status);
     if (result != 0) {
-        OSReport("ERR Failed to get sd card status. [ret = 0x%x]\n", result);
+        OSReport(str_base + 0x130, result);
         return -39;
     }
     if ((status & 4) != 0) {
@@ -1504,7 +1611,7 @@ s32 pfd_sddrv_full_format(void) {
     }
     result = pfd_sddrv_get_total_sectors(&geometry.totalSectors, &geometry.bytesPerSector);
     if (result != 0) {
-        OSReport("ERR Failed to get total sectors. pfd_sddrv_get_total_sectors()\n");
+        OSReport(str_base + 0x998);
         return result;
     }
     if ((status & 0x10000) != 0 && (status & 0x100000) == 0) {
@@ -1521,7 +1628,7 @@ s32 pfd_sddrv_full_format(void) {
         return -31;
     }
     if (result != 0) {
-        OSReport("ERR Failed to build up and write MBR and BPB fields.\n");
+        OSReport(str_base + 0x9d8);
         return result;
     }
     return 0;

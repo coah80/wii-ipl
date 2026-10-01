@@ -78,3 +78,41 @@ main): pf_cluster.c, pf_dir.c, pf_fat.c, pf_path.c, driver/sd_drv.c.
 - sd_drv: removal_callback 96.8, init 92.9, finalize 92.6, get_disk_info
   97.9 (artifact), get_total_sectors 99.5, store_mbr_buf 99.8,
   build_fat32_mbr_bpb 97.2
+
+## STB_GLOBAL decode (session 3) — mechanism verified, sd_drv data all-100
+
+Orig .o exports `STB_GLOBAL lbl_XXXX` data symbols = real file-scope objects
+(pooled literals are STB_LOCAL). Reproduce with named file-scope decls.
+
+### sd_drv — all data sections now 100% (.data/.rodata/.sbss/.bss)
+- Orig .data = 8 GLOBAL objects packed at 4-aligned slots; MWCC 8-aligns every
+  .data object ≥8B so separate decls CANNOT reproduce it — merged all 2576B into
+  ONE named array `char lbl_81690D18[]` (verified byte-identical). String pad
+  rule: consecutive C literals share no implicit NUL; non-final string needs
+  `slot_len - len` explicit `\0`s, final needs `slot_len - len - 1`.
+- Orig refs: ALL .data relocs are `lbl_X+0` — orig materializes each object
+  base into a register then adds plain-int offsets per site. Reproduced via
+  per-function `const char* str_base = lbl_81690D18;` + `str_base + off`.
+  Single-ref fns use direct `(const char*)lbl_81690D18` (inline lis/addi).
+  `pfd_st_inter_callback` now instruction-identical this way.
+- .sbss 24B "dead slot" was NOT a dead object: it is g_event alignment pad —
+  `u32 g_event __attribute__((aligned(32)))` puts it at 0x20; section 100%.
+- .bss residual was a real decode bug: PFD_SDDRV_INFO is 32B not 28 — trailing
+  `u32 reserved_1c;` (unreferenced tail field). Now byte-extent-identical.
+- Remaining .text ties: multi-base materialization (fns referencing 2+ orig
+  objects materialize each base; single str_base under/over-shoots ±8-24B),
+  callee-reg home choices, and MWCC not homing globals that orig re-lis'd per
+  site (finalize/format). Documented tie class, no source lever found.
+
+### pf_path — .sdata2 object identities decoded
+- Orig .sdata2 = 4 separate GLOBAL u8 objects {1,2,1,2} in two 4-aligned
+  slots. Reproduced via `__declspec(section ".sdata2") pf_s8 lbl_81695998=1;`
+  style decls (non-const so code emits `lbz` per object, matching orig's
+  SDA21 relocs; const folds to `li`). sig init is `sig[0]=g; sig[1]=h;`
+  assignments (local array init needs constant exprs).
+- 2B section tail = extraction hole, same class as orig dead objects; no
+  decl produces PROGBITS zero bytes (zero-init routes to .sbss, and MWCC
+  doesn't round section size to alignment). Left at 6/8B.
+- orig also had .sdata globals lbl_81698390/8391 {1,2} and lbl_81698394
+  {0x20,0} shared by 3+ fns — byte-identical already via pooled literals;
+  left as pools (declaring globals at 0x28 would reshuffle pool order).

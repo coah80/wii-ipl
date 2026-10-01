@@ -1014,6 +1014,11 @@ void PFPATH_SetSearchPattern(pf_s8* p_buf_local, pf_u16* p_buf_unicode, PF_STR* 
     PFPATH_transformFromUnicodeToNormal(p_buf_local, p_buf_unicode);
 }
 
+__declspec(section ".sdata2") pf_s8 lbl_81695998 = 1;
+__declspec(section ".sdata2") pf_s8 lbl_81695999 = 2;
+__declspec(section ".sdata2") pf_s8 lbl_8169599C __attribute__((aligned(4))) = 1;
+__declspec(section ".sdata2") pf_s8 lbl_8169599D = 2;
+
 pf_u32 PFPATH_CheckExtShortNameSignature(PF_STR* p_str) {
     pf_u32 result = 0;
     pf_s8 sig[2] = "\x01\x02";
@@ -1029,9 +1034,12 @@ pf_u32 PFPATH_CheckExtShortName(PF_STR* p_str, pf_u32 target, pf_bool wildcard) 
     pf_s16 i;
     pf_s16 num;
     pf_bool is_wildcard = PF_FALSE;
-    pf_s8 sig[2] = "\x01\x02";
+    pf_s8 sig[2];
     pf_s8* p_c;
     pf_u16* p_wc;
+
+    sig[0] = lbl_81695998;
+    sig[1] = lbl_81695999;
 
     if (PFSTR_StrNCmp(p_str, sig, target, 0, 2) == 0 ||
         (PFSTR_StrNCmp(p_str, (pf_s8*)"?", target, 0, 1) == 0 &&
@@ -1075,9 +1083,12 @@ pf_u32 PFPATH_GetExtShortNameIndex(PF_STR* p_str, pf_u32* p_index) {
     pf_s16 i;
     pf_s16 num;
     pf_u32 index;
-    pf_s8 sig[2] = "\x01\x02";
+    pf_s8 sig[2];
     pf_s8* p_c;
     pf_u16* p_wc;
+
+    sig[0] = lbl_8169599C;
+    sig[1] = lbl_8169599D;
 
     if (PFSTR_StrNCmp(p_str, sig, 1, 0, 2) == 0) {
         index = 0;
