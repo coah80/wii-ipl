@@ -1,3 +1,4 @@
+// Matching build uses pf_fat12.s (retail extract); keep C for reference.
 #define PF_FA_STR_LAYOUT
 #define VFiPFCACHE_ReadFATPage PFCACHE_ReadFATPage
 #define VFiPFCACHE_UpdateModifiedSector PFCACHE_UpdateModifiedSector

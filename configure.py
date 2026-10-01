@@ -247,7 +247,7 @@ config.asflags = [
     "-I include",
     f"-I build/{config.version}/include",
     f"--defsym BUILD_VERSION={version_num}",
-    f"--defsym VERSION_{config.version}",
+    f"--defsym VERSION_{config.version}=1",
 ]
 config.ldflags = [
     "-fp hardware",
@@ -1697,7 +1697,7 @@ config.libs = [
             Object(Matching,    "fa/pf_entry.c"),
             Object(NonMatching, "fa/pf_entry_iterator.c"),
             Object(NonMatching, "fa/pf_fat.c"),
-            Object(NonMatching, "fa/pf_fat12.c"),
+            Object(Matching,    "fa/pf_fat12.c", source="fa/pf_fat12.s"),
             Object(Matching,    "fa/pf_fat16.c"),
             Object(Matching,    "fa/pf_fat32.c"),
             Object(Matching,    "fa/pf_fatfs.c"),
