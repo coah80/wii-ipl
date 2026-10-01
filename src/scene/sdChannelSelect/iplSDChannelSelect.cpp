@@ -3571,3 +3571,9 @@ namespace ipl {
         }
     }
 }
+
+namespace ipl {
+    namespace scene {
+        volatile u32 s_unkTbl[8] = {0};
+    }
+}
