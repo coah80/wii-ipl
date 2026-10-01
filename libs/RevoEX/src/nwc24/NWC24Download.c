@@ -1065,15 +1065,10 @@ NWC24Err NWC24iCheckDlHeaderConsistency(DlTaskListHeader* header, BOOL repair) {
 
 NWC24Err NWC24iCreateDlTaskList() {
     u16 taskId;
-    DlTaskListHeader* header;
+    DlTaskListHeader* header = GetCachedDlHeader();
     NWC24Err result;
     NWC24File file;
 
-    if (NWC24WorkP != NULL) {
-        header = (DlTaskListHeader*)NWC24WorkP->dlHead;
-    } else {
-        header = NULL;
-    }
 
     memset(header, 0, 0x800);
     header->magic = 0x5763446c;

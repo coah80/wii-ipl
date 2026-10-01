@@ -3121,9 +3121,9 @@ namespace ipl {
         }
 
         bool Setting::validateEULA_() {
-            ESTmdView* titleView = NULL;
             bool valid = false;
-            s32 result = utility::ESMisc::GetTmdView(System::getMem1Root(), mUpdateTitleId, &titleView);
+            ESTmdView* titleView = NULL;
+            s32 result = utility::ESMisc::GetTmdView(System::getTreasureHeap(), mUpdateTitleId, &titleView);
             if (result == -0x401 || result == -0x6a) {
                 unk_0x7C = 0;
                 unk_0x74 = 0xd;
@@ -3141,7 +3141,7 @@ namespace ipl {
                 valid = true;
             }
             if (titleView != NULL) {
-                System::getMem1Root()->free(titleView);
+                System::getTreasureHeap()->free(titleView);
             }
             return valid;
         }
