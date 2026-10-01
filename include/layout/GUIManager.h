@@ -120,7 +120,7 @@ namespace gui {
         virtual bool update(int point, f32 x, f32 y, u32 trig, u32 hold, u32 release, void* data);      // 0x4C (0x13)
 
         virtual bool isTriggerTarger() { return mbTriggerTarget; }                  // 0x50 (0x14) "targer"
-#ifdef IPL_SD_CHANNEL_TITLE_CPP
+#if defined(IPL_SD_CHANNEL_TITLE_CPP) || defined(IPL_SD_CHANNEL_SELECT_CPP)
         virtual void setTriggerTarget(bool bEnable);
 #else
         virtual void setTriggerTarget(bool bEnable) { mbTriggerTarget = bEnable; }  // 0x54 (0x15)

@@ -62,7 +62,7 @@ namespace ipl {
             virtual ~Base();
 
             /** @brief If the scene is ready */
-#if defined(IPL_SD_CHANNEL_TITLE_CPP) || defined(IPL_ADDRESS_CPP)
+#if defined(IPL_SD_CHANNEL_TITLE_CPP) || defined(IPL_ADDRESS_CPP) || defined(IPL_SD_CHANNEL_SELECT_CPP)
             virtual BOOL isReady() const;
 #else
             virtual BOOL isReady() const { return FALSE; }
@@ -71,7 +71,7 @@ namespace ipl {
             /** @brief If the user can power off/reset the system */
 #ifdef IPL_SD_CHANNEL_TITLE_CPP
             virtual BOOL isResetAcceptable() { return TRUE; }
-#elif defined(IPL_ADDRESS_CPP)
+#elif defined(IPL_ADDRESS_CPP) || defined(IPL_SD_CHANNEL_SELECT_CPP)
             virtual BOOL isResetAcceptable() const;
 #else
             virtual BOOL isResetAcceptable() const { return TRUE; }
@@ -100,17 +100,17 @@ namespace ipl {
             /** @brief Destroy the scene and clear from memory */
             virtual void destroy() {}
 
-#if defined(IPL_SD_CHANNEL_TITLE_CPP) || defined(IPL_ADDRESS_CPP)
+#if defined(IPL_SD_CHANNEL_TITLE_CPP) || defined(IPL_ADDRESS_CPP) || defined(IPL_SD_CHANNEL_SELECT_CPP)
             virtual Base* getParent();
 #else
             virtual Base* getParent() { return (Base*)mpParent; }
 #endif
-#ifdef IPL_SD_CHANNEL_TITLE_CPP
+#if defined(IPL_SD_CHANNEL_TITLE_CPP) || defined(IPL_SD_CHANNEL_SELECT_CPP)
             virtual Base* getChild();
 #else
             virtual Base* getChild() { return (Base*)mpChild; }
 #endif
-#if defined(IPL_SD_CHANNEL_TITLE_CPP) || defined(IPL_ADDRESS_CPP)
+#if defined(IPL_SD_CHANNEL_TITLE_CPP) || defined(IPL_ADDRESS_CPP) || defined(IPL_SD_CHANNEL_SELECT_CPP)
             virtual Base* getNext();
             virtual Base* getPrev();
 #else

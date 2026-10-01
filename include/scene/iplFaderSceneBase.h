@@ -28,6 +28,7 @@ namespace ipl {
             FaderSceneBase(EGG::Heap * heap);
             virtual void calc();
 
+#ifndef IPL_SD_CHANNEL_SELECT_CPP
             virtual ~FaderSceneBase()
 #ifdef IPL_ADDRESS_CPP
                 ;
@@ -37,9 +38,10 @@ namespace ipl {
             {
             }
 #endif
+#endif
 
             virtual void initCalcNormal()
-#ifdef IPL_SD_CHANNEL_TITLE_CPP
+#if defined(IPL_SD_CHANNEL_TITLE_CPP) || defined(IPL_SD_CHANNEL_SELECT_CPP)
             ;
 #else
             {
@@ -67,7 +69,7 @@ namespace ipl {
             }  // 0x60
 
             virtual void calcCommonAfter()
-#ifdef IPL_SD_CHANNEL_TITLE_CPP
+#if defined(IPL_SD_CHANNEL_TITLE_CPP) || defined(IPL_SD_CHANNEL_SELECT_CPP)
             ;
 #else
             {

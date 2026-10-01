@@ -16,7 +16,11 @@ namespace ipl {
             Random(u32 myNext) : next(myNext) {}
 
             u8 get_u8() { return (u8)NEXT; }
+#ifdef IPL_SD_CHANNEL_SELECT_CPP
+            u16 get_u16();
+#else
             u16 get_u16() NO_INLINE { return NEXT >> 16; }
+#endif
             u32 get_u32() { return (u32)NEXT; }
 
             f32 get_f01() { return (f32)NEXT / 0xFFFFFFFF; }

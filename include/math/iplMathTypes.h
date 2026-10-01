@@ -59,7 +59,7 @@ namespace ipl {
                 x = r.x;
                 y = r.y;
             }
-#ifdef IPL_CONTROLLER_OUT_OF_LINE_VEC2
+#if defined(IPL_CONTROLLER_OUT_OF_LINE_VEC2) || defined(IPL_SD_CHANNEL_SELECT_CPP)
             VEC2(f32 fx, f32 fy);
 #else
             VEC2(f32 fx, f32 fy) {
@@ -97,11 +97,15 @@ namespace ipl {
             operator nw4r::math::_VEC3*() { return reinterpret_cast<nw4r::math::_VEC3*>(this); }
             operator const nw4r::math::_VEC3*() const { return reinterpret_cast<const nw4r::math::_VEC3*>(this); }
 
+#ifdef IPL_SD_CHANNEL_SELECT_CPP
+            VEC3(const nw4r::math::_VEC3& r);
+#else
             VEC3(const nw4r::math::_VEC3& r) {
                 x = r.x;
                 y = r.y;
                 z = r.z;
             }
+#endif
             VEC3(const nw4r::math::_VEC2& r) {
                 x = r.x;
                 y = r.y;
@@ -147,7 +151,11 @@ namespace ipl {
 #else
             VEC3 operator-(const VEC3& rhs) const { return VEC3(x - rhs.x, y - rhs.y, z - rhs.z); }
 #endif
+#ifdef IPL_SD_CHANNEL_SELECT_CPP
+            VEC3 operator*(f32 val) const;
+#else
             VEC3 operator*(f32 val) const { return VEC3(x * val, y * val, z * val); }
+#endif
             VEC3 operator*(f64 val) const {
                 nw4r::math::VEC3 vecOut;
                 VEC3Scale(&vecOut, this, (f32)val);

@@ -905,13 +905,6 @@ namespace ipl {
             }
         }
 
-        void SDChannelSelect::handleDeleteComplete() {
-            if (!mpSDWorker->is_working()) {
-                mLastOperation = 14;
-                mWorkerCommand = 1;
-            }
-        }
-
         void SDChannelSelect::handleSDLocationUpdateComplete() {
             if (!mpSDWorker->is_working()) {
                 mLastOperation = 14;
@@ -935,13 +928,6 @@ namespace ipl {
                     System::getChannelManager()->reserveRefresh();
                     mWorkerCommand = 1;
                 }
-            }
-        }
-
-        void SDChannelSelect::handleStorageCheckComplete() {
-            if (!mpSDWorker->is_working()) {
-                mLastOperation = 14;
-                mWorkerCommand = 1;
             }
         }
 
@@ -3572,8 +3558,3 @@ namespace ipl {
     }
 }
 
-namespace ipl {
-    namespace scene {
-        volatile u32 s_unkTbl[8] = {0};
-    }
-}

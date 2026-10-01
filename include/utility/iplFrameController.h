@@ -24,7 +24,7 @@ namespace ipl {
             FrameController() {}
 #ifdef IPL_SD_CHANNEL_TITLE_CPP
             virtual ~FrameController();
-#else
+#elif !defined(IPL_SD_CHANNEL_SELECT_CPP)
             virtual ~FrameController() {}  // 0x08
 #endif
 
