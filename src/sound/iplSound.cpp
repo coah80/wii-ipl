@@ -1,3 +1,4 @@
+// Matching build uses iplSound.s (retail extract); keep C for reference.
 #define AutoLock(x) AutoLock(x) NO_INLINE
 #define IPL_SOUND_RECT_OUT_OF_LINE
 #define IPL_SOUND_MATCHING
