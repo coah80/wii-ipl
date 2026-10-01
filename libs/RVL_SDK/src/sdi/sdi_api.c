@@ -43,7 +43,7 @@ typedef struct __sdCbArg {
     SDCallbackFunc cb;  // 0x00
     void* cbArg;        // 0x04
     SDDev* dev;         // 0x08
-    u32 unk_0x0C;
+    u32 cmd;  // 0x0C
     u32 SDDevRca;
     u32* resp;  // 0x14
     u8* SDSectorSize;
@@ -70,7 +70,7 @@ ISD_Error ISD_GetCardSize(SDDev* dev, u32* outSize, u32* outSize2, u32* outSecto
 IOSError __sdCb(s32 result, void* arg) {
     __sdCbArg* data = (__sdCbArg*)arg;
 
-    switch (data->unk_0x0C) {
+    switch (data->cmd) {
         case 4: {
             if (result != 0) {
                 OSReport(__sdPathData, result);
@@ -196,7 +196,7 @@ static IOSError sduCommandv(s32 fd, u32 cmd, u32 cmdType, u32 respType, u32 arg,
                 data->cb = cb;
                 data->cbArg = cbArg;
                 data->resp = resp;
-                data->unk_0x0C = cmd;
+                data->cmd = cmd;
                 data->SDSectorSize = (u8*)sdCmd;
 
                 ret = IOS_IoctlvAsync(fd, 7, readCount, writeCount, __sdVect, __sdCb, data);
@@ -243,7 +243,7 @@ static ISD_Error sduCommand(s32 fd, u32 cmd, u32 cmdType, u32 respType, u32 arg,
                     data->cb = cb;
                     data->cbArg = cbArg;
                     data->resp = resp;
-                    data->unk_0x0C = cmd;
+                    data->cmd = cmd;
                     data->SDDevRca = 1;
                     data->SDSectorSize = (u8*)sdCmd;
 
