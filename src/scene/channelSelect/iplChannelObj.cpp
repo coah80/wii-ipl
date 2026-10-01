@@ -10,9 +10,9 @@
 namespace ipl {
     namespace scene {
         // clang-format off
-        extern "C" char lbl_8164E290[] = "Cursur_a";
+        extern "C" char scCursur_a[] = "Cursur_a";
 
-        static const char* scCursur = lbl_8164E290;
+        static const char* scCursur = scCursur_a;
 
         static const char* scCursorAnims[] = {
             "my_IplTop_d_FocusOff.brlan",
@@ -20,10 +20,10 @@ namespace ipl {
             "my_IplTop_d_Select.brlan",
         };
 
-        extern "C" const char* lbl_8169699C = "T_Balloon";
+        extern "C" const char* scPaneName_T_Balloon = "T_Balloon";
 
-        extern "C" const char* lbl_816969A8 = "W_Base";
-        extern "C" const char* lbl_816969B4 = "W_Shade";
+        extern "C" const char* scPaneName_W_Base = "W_Base";
+        extern "C" const char* scPaneName_W_Shade = "W_Shade";
 
         static const char* scLangGroups[] = {
             "JPN",
@@ -38,8 +38,8 @@ namespace ipl {
             "KOR",
         };
 
-        extern "C" char lbl_816969DC[] = "Calc";
-        extern "C" char lbl_816969E1[] = "Create";
+        extern "C" char scExport_Calc[] = "Calc";
+        extern "C" char scExport_Create[] = "Create";
 
         #pragma pack(1)
         struct ModuleData {
@@ -53,7 +53,7 @@ namespace ipl {
         };
         #pragma pack()
 
-        extern "C" ModuleData lbl_8164E328 = {
+        extern "C" ModuleData scModuleData = {
             {
                 {
                     "JPN",
@@ -112,9 +112,9 @@ namespace ipl {
             "icon_Whole.brlan",
         };
 
-        extern "C" char lbl_8164E6AF[] = "%s_Rso%d.brlan";
-        extern "C" char lbl_8164E6C0[] = "icon_Start.brlan";
-        extern "C" char lbl_816969E8[] = "arc";
+        extern "C" char scBrlan_RsoFmt[] = "%s_Rso%d.brlan";
+        extern "C" char scBrlan_icon_Start[] = "icon_Start.brlan";
+        extern "C" char scArc[] = "arc";
 
         static const u32 scLangLookup[SC_PRODUCT_AREA_MAX][16] = {
             // Japan
@@ -296,7 +296,7 @@ namespace ipl {
 
         int ChannelObj::calcExtModule(EGG::ExpHeap* expHeap, bool unk0, bool onSceneChange) {
             int result = EXT_MODULE_RESULT_WAIT;
-            const char* dataBase = lbl_8164E290;
+            const char* dataBase = scCursur_a;
 
             if (mExtModuleState == EXT_MODULE_STATE_UNAVAILABLE) {
                 return EXT_MODULE_RESULT_UNAVAILABLE;
@@ -354,7 +354,7 @@ namespace ipl {
 
                         // Import `int Calc(int)`
                         // This is during ChannelObj's loop.
-                        mpRSOCalc = (channel::CalcFunc)RSOFindExportSymbolAddr(mpRSOHeader, lbl_816969DC);
+                        mpRSOCalc = (channel::CalcFunc)RSOFindExportSymbolAddr(mpRSOHeader, scExport_Calc);
 
                         // Import `void ThreadCalc()`
                         // This is executed on a seperate thread.
@@ -364,7 +364,7 @@ namespace ipl {
 
                         // Import `void Create(nw4r::lyt::Layout*)`
                         // This is the initialization of the module.
-                        channel::CreateFunc createFunc = (channel::CreateFunc)RSOFindExportSymbolAddr(mpRSOHeader, lbl_816969E1);
+                        channel::CreateFunc createFunc = (channel::CreateFunc)RSOFindExportSymbolAddr(mpRSOHeader, scExport_Create);
                         if (createFunc != NULL) {
                             createFunc(mpThumbLayout->getNW4RLyt());
                         }
@@ -501,8 +501,8 @@ namespace ipl {
         }
 
         void ChannelObj::createDiskLayout(void* data) {
-            const ModuleData* moduleData = reinterpret_cast<const ModuleData*>(lbl_8164E290 + 0x98);
-            mpDiskLayout = layout::Object::create(mpDiskHeap, 0x19000, data, lbl_816969E8, moduleData->iconBrlyt);
+            const ModuleData* moduleData = reinterpret_cast<const ModuleData*>(scCursur_a + 0x98);
+            mpDiskLayout = layout::Object::create(mpDiskHeap, 0x19000, data, scArc, moduleData->iconBrlyt);
             setLangPane(mpDiskLayout);
 
             if (mpDiskLayout->searchFile(moduleData->iconBrlan)) {
@@ -638,7 +638,7 @@ namespace ipl {
         void ChannelObj::setLangPane(const layout::Object* layout) {
             int lang = System::getLanguage();
             const char* langGroup = scLangGroups[lang];
-            char local_50[40] = "";
+            char langCodeBuf[40] = "";
 
             bool bVar4 = false;
 
@@ -663,8 +663,8 @@ namespace ipl {
 
                         for (int i = 0; i < 10; i++) {
                             if (strncmp(it->GetName(), scLangGroups[i], 3) == 0) {
-                                memcpy(&local_50[i], it->GetName(), 3);
-                                local_50[i + 3] = 0;
+                                memcpy(&langCodeBuf[i], it->GetName(), 3);
+                                langCodeBuf[i + 3] = 0;
                                 break;
                             }
                         }
@@ -680,10 +680,10 @@ namespace ipl {
             } else {
                 s32 region = System::getRegion();
                 for (int i = 0; i < channel::MAX_ANIMS; i++) {
-                    char* groupName = (char*)lbl_8164E328.langGroupLookup[region][i];
+                    char* groupName = (char*)scModuleData.langGroupLookup[region][i];
 
                     if (groupName != NULL) {
-                        if (strcmp(groupName, &local_50[scLangLookup[region][i]]) == 0) {
+                        if (strcmp(groupName, &langCodeBuf[scLangLookup[region][i]]) == 0) {
                             nw4r::lyt::Group* group = layout->FindGroupByName(groupName);
                             for (nw4r::lyt::PaneLinkList::Iterator it = group->GetPaneList().GetBeginIter(); it != group->GetPaneList().GetEndIter();
                                  it++) {
@@ -698,7 +698,7 @@ namespace ipl {
         void ChannelObj::bindRsoAnm(layout::Object* layout, layout::Animator** anims, const char* layoutFile) {
             for (int i = 0; i < channel::MAX_ANIMS; i++) {
                 char fileName[20];
-                sprintf(fileName, lbl_8164E6AF, layoutFile, i);
+                sprintf(fileName, scBrlan_RsoFmt, layoutFile, i);
 
                 if (layout->searchFile(fileName)) {
                     char groupName[8];
@@ -772,10 +772,10 @@ namespace ipl {
         f32 ChannelObj::createWadThumbnail() {
             f32 frame = 0.0f;
 
-            mpThumbLayout = layout::Object::create(mpMainHeap, 0x8000, mpThumbFile->getBuffer(), lbl_816969E8, lbl_8164E290 + 0x3F8);
+            mpThumbLayout = layout::Object::create(mpMainHeap, 0x8000, mpThumbFile->getBuffer(), scArc, scCursur_a + 0x3F8);
             setLangPane(mpThumbLayout);
 
-            const char* dataBase = lbl_8164E290;
+            const char* dataBase = scCursur_a;
             u32 rsoIdx = System::getChannelManager()->getIconRSOIdx(mChanPage, mChanIndex);
             u32 csIdx = System::getChannelManager()->getIconCSIdx(mChanPage, mChanIndex);
 
@@ -826,11 +826,11 @@ namespace ipl {
             return frame;
         }
 
-        extern "C" char lbl_8164E6CF[] = "my_IplTop_b.brlyt";
-        extern "C" char lbl_8164E6E1[] = "my_IplTop_b.brlan";
+        extern "C" char scBrlyt_my_IplTop_b[] = "my_IplTop_b.brlyt";
+        extern "C" char scBrlan_my_IplTop_b[] = "my_IplTop_b.brlan";
 
         f32 ChannelObj::createWrongThumbnail() {
-            mpThumbLayout = layout::Object::create(mpMainHeap, 0x8000, mpSysLayoutFile, lbl_816969E8, lbl_8164E6CF);
+            mpThumbLayout = layout::Object::create(mpMainHeap, 0x8000, mpSysLayoutFile, scArc, scBrlyt_my_IplTop_b);
 
             mpThumbLayout->FindPaneByName("Ch0")->SetVisible(false);
             mpThumbLayout->FindPaneByName("Ch1")->GetMaterial()->SetTevColor(0, (GXColorS10){0, 0, 0, 255});
@@ -841,8 +841,8 @@ namespace ipl {
         }
 
         f32 ChannelObj::createEmptyThumbnail() {
-            mpThumbLayout = layout::Object::create(mpMainHeap, 0x8000, mpSysLayoutFile, lbl_816969E8, lbl_8164E6CF);
-            mpThumbAnim = mpThumbLayout->bind(lbl_8164E6E1);
+            mpThumbLayout = layout::Object::create(mpMainHeap, 0x8000, mpSysLayoutFile, scArc, scBrlyt_my_IplTop_b);
+            mpThumbAnim = mpThumbLayout->bind(scBrlan_my_IplTop_b);
 
             return System::getRndm()->get_u16() % 2000;
         }
@@ -871,12 +871,12 @@ namespace ipl {
             calcBalloon(pos);
         }
 
-        extern "C" char lbl_8164E6F3[] = "my_IplTop_d.brlyt";
-        extern "C" char lbl_8164E705[] = "my_IplTopBalloon_a.brlyt";
-        extern "C" char lbl_8164E71E[] = "my_IplTopBalloon_a_BalloonInOut.brlan";
+        extern "C" char scBrlyt_my_IplTop_d[] = "my_IplTop_d.brlyt";
+        extern "C" char scBrlyt_my_IplTopBalloon_a[] = "my_IplTopBalloon_a.brlyt";
+        extern "C" char scBrlan_BalloonInOut[] = "my_IplTopBalloon_a_BalloonInOut.brlan";
 
         void ChannelObj::initCursor() {
-            mpCursorLayout = new (mpCursorHeap, 4) layout::Object(mpCursorHeap, mpSysLayoutFile, lbl_816969E8, lbl_8164E6F3);
+            mpCursorLayout = new (mpCursorHeap, 4) layout::Object(mpCursorHeap, mpSysLayoutFile, scArc, scBrlyt_my_IplTop_d);
 
             for (int i = 0; i < ANIM_CURSOR_MAX; i++) {
                 mpCursorAnims[i] = mpCursorLayout->bind(scCursorAnims[i], scCursur, false);
@@ -1001,19 +1001,19 @@ namespace ipl {
                 mpBalloonLayout = NULL;
                 return;
             }
-            mpBalloonLayout = new (mpBalloonHeap, 4) layout::Object(mpBalloonHeap, mpSysLayoutFile, lbl_816969E8, lbl_8164E705);
+            mpBalloonLayout = new (mpBalloonHeap, 4) layout::Object(mpBalloonHeap, mpSysLayoutFile, scArc, scBrlyt_my_IplTopBalloon_a);
 
             setBalloonText((wchar_t*)System::getChannelManager()->getTitleName(mChanPage, mChanIndex, 0));
 
-            mpBalloonAnim = mpBalloonLayout->bind(lbl_8164E71E);
+            mpBalloonAnim = mpBalloonLayout->bind(scBrlan_BalloonInOut);
             setBalloonAnim(0);
             mpBalloonLayout->finishBinding();
         }
 
-        extern "C" char lbl_8164E744[] = "WIPL_SE_BALLOON";
+        extern "C" char scSE_BALLOON[] = "WIPL_SE_BALLOON";
 
         void ChannelObj::setBalloonText(const wchar_t* text) {
-            nw4r::lyt::TextBox* textPane = nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(mpBalloonLayout->FindPaneByName(lbl_8169699C));
+            nw4r::lyt::TextBox* textPane = nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(mpBalloonLayout->FindPaneByName(scPaneName_T_Balloon));
 
             wchar_t fullStr[channel::META_CHANNEL_NAME_LENGTH + 3] = L"";
             u32 strLen;
@@ -1052,22 +1052,22 @@ namespace ipl {
 
             nw4r::ut::Rect textRect = textPane->GetTextDrawRect(*mpBalloonLayout->getDrawInfo());
 
-            nw4r::lyt::Size newSize(mpBalloonLayout->FindPaneByName(lbl_816969A8)->GetSize());
+            nw4r::lyt::Size newSize(mpBalloonLayout->FindPaneByName(scPaneName_W_Base)->GetSize());
             newSize.width = textRect.right - textRect.left + 40.0f;
 
             if (newSize.width < mLocationAdjust * 160.0f) {
                 newSize.width = mLocationAdjust * 160.0f;
             }
 
-            mpBalloonLayout->FindPaneByName(lbl_816969B4)->SetSize(newSize);
-            mpBalloonLayout->FindPaneByName(lbl_816969A8)->SetSize(newSize);
+            mpBalloonLayout->FindPaneByName(scPaneName_W_Shade)->SetSize(newSize);
+            mpBalloonLayout->FindPaneByName(scPaneName_W_Base)->SetSize(newSize);
         }
 
         void ChannelObj::calcBalloon(const nw4r::math::VEC3& vec) {
             if (mpBalloonLayout != NULL) {
                 nw4r::lyt::Size size;
 
-                size = mpBalloonLayout->FindPaneByName(lbl_816969A8)->GetSize();
+                size = mpBalloonLayout->FindPaneByName(scPaneName_W_Base)->GetSize();
 
                 f32 val = -2.0f + ((size.height / 2) + mThumbHeight);
                 val *= -1.0f;
@@ -1117,7 +1117,7 @@ namespace ipl {
                                 mpBalloonLayout->GetRootPane()->SetVisible(true);
                                 mpBalloonLayout->setAnmType(ANIM_TYPE_FORWARD);
                                 mpBalloonLayout->start();
-                                snd::getSystem()->startSE(lbl_8164E744);
+                                snd::getSystem()->startSE(scSE_BALLOON);
                             } else if (unk == 4) {
                                 unk_0x68 = 0;
                             }
@@ -1229,7 +1229,7 @@ namespace ipl {
                 if (group != NULL) {
                     mpNwc24NewGroup = group;
                 } else {
-                    lookup = (char**)lbl_8164E328.langGroupLookup[System::getRegion()];
+                    lookup = (char**)scModuleData.langGroupLookup[System::getRegion()];
 
                     for (int i = 0; lookup[i] != NULL; i++) {
                         sprintf(grpName, "New_%s", lookup[i]);
