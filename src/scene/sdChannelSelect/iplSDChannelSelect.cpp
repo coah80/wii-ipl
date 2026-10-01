@@ -220,8 +220,8 @@ namespace ipl {
         void SDChannelSelect::create() {
             mpSDWorker = new (System::getMem2App(), 4) NandSDWorker();
             mpWorkerHeap = (EGG::Heap*)System::getMem2App()->alloc(0x3EA60, 0x40);
-            mpThumbnailWorkHeap = (EGG::Heap*)System::getMem2App()->alloc(
-                MEMCalcHeapSizeForUnitHeap(0x19620, 0x60, 0x20) + 0x40000, 0x40);
+            u32 thumbnailHeapSize = MEMCalcHeapSizeForUnitHeap(0x19620, 0x60, 0x20) + 0x40000;
+            mpThumbnailWorkHeap = (EGG::Heap*)System::getMem2App()->alloc(thumbnailHeapSize, 0x40);
             mpSDWorker->create(mpWorkerHeap, NULL, mpThumbnailWorkHeap, 0x12);
 
             if (System::getSaveData()->didntGotoSDMenu() == FALSE) {
@@ -1599,8 +1599,8 @@ namespace ipl {
         }
 
         bool SDChannelSelect::findAdjacentChannel(int direction, int* page, int* index) const {
-            int currentPage;
             int slotCount;
+            int currentPage;
             int currentSlot;
             currentPage = mCurrentPage;
             currentSlot = currentPage * MAX_CHANNEL_INDEX + mCurrentChannelIndex;
@@ -1933,10 +1933,11 @@ namespace ipl {
             SDChannelObj* channel = NULL;
             System::getSaveData()->setLastSDPrevPage(mCurrentPage);
 
-            while (channel = static_cast<SDChannelObj*>(nw4r::ut::List_GetNext(&mChannelObjects, NULL)),
+            while (channel = static_cast<SDChannelObj*>(nw4r::ut::List_GetNext(&mChannelObjects, channel)),
                    channel != NULL) {
                 nw4r::ut::List_Remove(&mChannelObjects, channel);
                 destroyChannelObject(channel);
+                channel = NULL;
             }
 
             mpLayoutHeap->destroy();
@@ -1952,8 +1953,8 @@ namespace ipl {
                     OSSleepTicks(OSMicrosecondsToTicks((OSTime)100));
                 }
                 delete mpSaveDataFile;
+                mpSaveDataFile = NULL;
             }
-            mpSaveDataFile = NULL;
 
             if (mpSDWorker != NULL) {
                 if (!mpSDWorker->is_terminated()) {
@@ -2097,7 +2098,7 @@ namespace ipl {
                         mpPageLayouts[0]->calcMtx();
                         mpPageLayouts[0]->draw();
                     }
-                } else if (channel->mState == 2) {
+                } else if (channel->mStateFlags == 2) {
                     nw4r::math::VEC3 position(channel->getTranslate());
                     mpErrorLayout->GetRootPane()->SetTranslate(position);
                     mpErrorLayout->calcMtx();
@@ -2707,8 +2708,8 @@ namespace ipl {
                 nw4r::math::MTX44 matrix;
                 f32 rightScale = projection.right / mScale.x;
                 f32 leftScale = projection.left / mScale.x;
-                f32 topScale = projection.top / mScale.y;
                 f32 bottomScale = projection.bottom / mScale.y;
+                f32 topScale = projection.top / mScale.y;
                 f32 bottom = mPosition.y - bottomScale;
                 f32 right = mPosition.x + rightScale;
                 f32 left = mPosition.x + leftScale;
