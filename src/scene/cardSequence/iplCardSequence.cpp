@@ -697,16 +697,19 @@ extern "C" s32 CardSequence_813D3424(s32 slot, s32 fileNo, CARDDir* dir) {
         s32 sectorSize;
         CARDFileInfo fileInfo;
     } local;
-    s32 result = CARDFastOpen(slot, fileNo, &local.fileInfo);
+    s32 result;
+    u32 iconAddressBase;
+    s32 iconAddressOffset;
+    result = CARDFastOpen(slot, fileNo, &local.fileInfo);
     if (result < 0) {
         return result;
     }
 
-    u32 bannerImageSize = 0;
+    s32 bannerImageSize = 0;
     u8 format = dir->bannerFormat & 3;
     u32 iconAddress = dir->iconAddr;
-    u32 iconAddressBase = iconAddress & 0xFFFFFE00;
-    s32 iconAddressOffset = iconAddress - iconAddressBase;
+    iconAddressBase = iconAddress & 0xFFFFFE00;
+    iconAddressOffset = iconAddress - iconAddressBase;
 
     switch (format) {
     case 1: {
@@ -827,7 +830,7 @@ iconSpeedDone:
         sThread->icons[slot][fileNo].anmDelta = 1;
     }
 
-    s32 totalImageSize = bannerImageSize + iconImageSize;
+    s32 totalImageSize = iconImageSize + bannerImageSize;
     u32 transferSize = (totalImageSize + iconAddressOffset + 0x1FF) & 0xFFFFFE00;
     result = CARDGetSectorSize(slot, (u32*)&local.sectorSize);
     if (result < 0) {
@@ -854,7 +857,12 @@ iconSpeedDone:
                    (u8*)sThread->imageReadBuffer + iconAddressOffset,
                    totalImageSize);
             DCStoreRange(sThread->images[slot][fileNo], transferSize);
+            result = 0;
         }
+    }
+
+    if (result < 0) {
+        goto closeFile;
     }
 
     iconAddress = dir->commentAddr;
@@ -865,26 +873,30 @@ iconSpeedDone:
     if (result < 0) {
         goto clearComment;
     }
-    if ((s32)iconAddressBase >= 0) {
+    if ((s32)iconAddressBase < 0) {
+        result = 0;
+    } else {
         u32 fileSize = (u32)dir->length * local.commentSectorSize;
-        if (iconAddressBase <= fileSize) {
-            u32 endOffset = iconAddressBase + imageSize;
-            if ((s32)endOffset >= 0 && endOffset <= fileSize) {
-                result = CARDRead(&local.fileInfo, sThread->commentBuffer, imageSize,
-                                  iconAddressBase);
-                if (result < 0) {
-                    goto clearComment;
-                }
-                memset(sThread->comments[slot][fileNo], 0, 0x40);
-                memcpy(sThread->comments[slot][fileNo],
-                       sThread->commentBuffer + commentDataOffset, 0x40);
-                result = 0;
-                goto commentDone;
-            }
+        if (iconAddressBase > fileSize) {
+            result = 0;
+            goto clearComment;
         }
+        u32 endOffset = iconAddressBase + imageSize;
+        if ((s32)endOffset < 0 || endOffset > fileSize) {
+            result = 0;
+            goto clearComment;
+        }
+        result = CARDRead(&local.fileInfo, sThread->commentBuffer, imageSize,
+                          iconAddressBase);
+        if (result < 0) {
+            goto clearComment;
+        }
+        memset(sThread->comments[slot][fileNo], 0, 0x40);
+        memcpy(sThread->comments[slot][fileNo],
+               sThread->commentBuffer + commentDataOffset, 0x40);
+        result = 0;
+        goto commentDone;
     }
-    result = 0;
-    goto clearComment;
 
 clearComment:
     memset(sThread->comments[slot][fileNo], 0, 0x40);

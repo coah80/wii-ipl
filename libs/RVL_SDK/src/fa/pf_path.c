@@ -400,20 +400,22 @@ pf_s32 PFPATH_cmpNameImpl(const pf_s8* name, const pf_s8* pattern, pf_u32* match
         case '*': {
             do {
                 pattern_width = volume->codeset.oem_char_width(pattern);
-                if (pattern_width == 1) {
-                    pattern_char = pf_toupper(*pattern);
+                if (pattern_width != 1) {
+                    read_char = (pf_u16)PF_GET_LE_U16((const pf_u8*)pattern);
                 } else {
-                    pattern_char = PF_GET_LE_U16((const pf_u8*)pattern);
+                    read_char = pf_toupper(*pattern);
                 }
+                pattern_char = (pf_u16)read_char;
                 pattern += pattern_width;
                 if (pattern_char == '?') {
                     if (name_char == 0) { return 1; }
                     name += name_width;
                     name_width = volume->codeset.oem_char_width(name);
-                    if (name_width == 1) { name_char = pf_toupper(*name); }
-                    else { name_char = PF_GET_LE_U16((const pf_u8*)name); }
+                    if (name_width == 1) { read_char = pf_toupper(*name); }
+                    else { read_char = (pf_u16)PF_GET_LE_U16((const pf_u8*)name); }
+                    name_char = (pf_u16)read_char;
                 }
-            } while (pattern_char == '*' || pattern_char == '?');
+            } while (pattern_char == '?' || pattern_char == '*');
             if (pattern_char == 0) {
                 return 0;
             }
@@ -428,21 +430,21 @@ pf_s32 PFPATH_cmpNameImpl(const pf_s8* name, const pf_s8* pattern, pf_u32* match
                 }
                 name_width = volume->codeset.oem_char_width(name);
                 if (name_width == 1) {
-                    name_char = pf_toupper(*name);
+                    read_char = pf_toupper(*name);
                 } else {
-                    name_char = PF_GET_LE_U16((const pf_u8*)name);
+                    read_char = (pf_u16)PF_GET_LE_U16((const pf_u8*)name);
                 }
+                name_char = (pf_u16)read_char;
             }
-            return 1;
+            if (*name == 0 || *pattern == 0) {
+                *matched_end = 1;
+            }
         }
         default:
             if (name_char != pattern_char) { return 1; }
             break;
         }
         name += name_width;
-        if (*name == 0 || *pattern == 0) {
-            *matched_end = 1;
-        }
     }
     return *name != 0;
 }

@@ -1453,32 +1453,40 @@ namespace ipl {
         bool SDChannelSelect::collectTitlesBySpecialChannels(
             const s32* firstUsage, const s32* secondUsage, ESTitleId* titleIds,
             char* titleNames, u32* titleCount) {
+            s32 bytes;
+            s32 blocks;
+            getCurrentTitleUsage(&bytes, &blocks);
             int hateUsageIndex = -1;
             int hatePage = -1;
             int hateChannelIndex = -1;
             int hadeUsageIndex = -1;
             int hadePage = -1;
             int hadeChannelIndex = -1;
-            s32 bytes;
-            s32 blocks;
-            getCurrentTitleUsage(&bytes, &blocks);
 
             for (u32 usageIndex = 0; usageIndex < mNandTitleCount; ++usageIndex) {
-                ESTitleId titleId = mpNandTitleInfo[usageIndex].curTitleId;
+                const ESTitleId titleId = mpNandTitleInfo[usageIndex].curTitleId;
                 if (titleId == ES_TITLE_ID(0x00010001, 0x48415445)) {
                     hateUsageIndex = usageIndex;
+                    int foundPage = -1;
+                    int foundIndex = -1;
                     System::getChannelManager()->hasChannel(
-                        ES_TITLE_ID(0x00010001, 0x48415445), &hatePage, &hateChannelIndex);
+                        ES_TITLE_ID(0x00010001, 0x48415445), &foundPage, &foundIndex);
+                    hatePage = foundPage;
+                    hateChannelIndex = foundIndex;
                 } else if (titleId == ES_TITLE_ID(0x00010001, 0x48414445)) {
                     hadeUsageIndex = usageIndex;
+                    int foundPage = -1;
+                    int foundIndex = -1;
                     System::getChannelManager()->hasChannel(
-                        ES_TITLE_ID(0x00010001, 0x48414445), &hadePage, &hadeChannelIndex);
+                        ES_TITLE_ID(0x00010001, 0x48414445), &foundPage, &foundIndex);
+                    hadePage = foundPage;
+                    hadeChannelIndex = foundIndex;
                 }
             }
 
             *titleCount = 0;
             for (int usageIndex = mNandTitleCount - 1; usageIndex >= 0; --usageIndex) {
-                ESTitleId titleId = mpNandTitleInfo[usageIndex].curTitleId;
+                const ESTitleId titleId = mpNandTitleInfo[usageIndex].curTitleId;
                 if (titleId == 0x48415A41 || titleId == ES_TITLE_ID(0x00010001, 0x48415445) || titleId == ES_TITLE_ID(0x00010001, 0x48414445)) {
                     continue;
                 }
@@ -1562,10 +1570,7 @@ namespace ipl {
                 }
             }
 
-            if (bytes >= firstUsage[0] && blocks >= firstUsage[1]) {
-                return true;
-            }
-            return false;
+            return bytes >= firstUsage[0] && blocks >= firstUsage[1];
         }
 
         bool SDChannelSelect::collectTitlesForMode(

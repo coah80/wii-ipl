@@ -986,15 +986,8 @@ s32 CArGBAOdh::cdj_c_colorConv(SArCDJ_OdhMaster* master, u8* sourceData, int for
 
 void CArGBAOdh::LineConv11(u8* source, u8* lumaOutput, u8* cbOutput, u8* crOutput, u16 width, u16 height,
                            const long* conversionTable, int format) {
-    u32 in__r9 = (u32)width * (u32)height;
+    u32 planeSize = (u32)width * (u32)height;
     const s32* table = (const s32*)conversionTable;
-    float pixelBias = colorConvert16;
-    float chromaBias = colorConvert128;
-    float lumaScale = colorConvertY;
-    float crToRedScale = colorConvertR;
-    float cbToGreenScale = colorConvertG1;
-    float crToGreenScale = colorConvertG2;
-    double cbToBlueScale = colorConvertB;
     u32 pixelIndex = 0;
 
     for (int i = 0; i < width; i++) {
@@ -1003,9 +996,10 @@ void CArGBAOdh::LineConv11(u8* source, u8* lumaOutput, u8* cbOutput, u8* crOutpu
             s32 blue;
 
             if (format == 0) {
-                u8* pixelSource = (u8*)(((pixelIndex << 1) & 6) + (u32)source + ((pixelIndex << 3) & 0xFFFFFFE0));
-                u8 firstByte = pixelSource[0];
-                u16 pixel = (u16)firstByte << 8 | pixelSource[1];
+                u8* pixelSource = source + ((pixelIndex << 3) & 0xFFFFFFE0);
+                pixelSource += (pixelIndex & 3) * 2;
+                u16 pixel = pixelSource[1];
+                pixel |= (u16)pixelSource[0] << 8;
                 red = (pixel >> 11) & 0x1F;
                 green = (pixel >> 6) & 0x1F;
                 blue = pixel & 0x1F;
@@ -1017,13 +1011,13 @@ void CArGBAOdh::LineConv11(u8* source, u8* lumaOutput, u8* cbOutput, u8* crOutpu
                 blue = pixel[0x21] >> 3;
             } else {
                 int sourceOffset = (pixelIndex & 7) + (pixelIndex & 0x3FFFFFF8) * 4;
-                float y = (float)source[sourceOffset] - pixelBias;
-                float cb = (float)source[in__r9 + sourceOffset] - chromaBias;
-                float cr = (float)source[in__r9 * 2 + sourceOffset] - chromaBias;
-                float luma = lumaScale * y;
-                int blueOrPixelOffset = (int)(luma + cbToBlueScale * cb);
-                int convertedRed = (int)(luma + crToRedScale * cr);
-                int convertedGreen = (int)(luma - cbToGreenScale * cb - crToGreenScale * cr);
+                float y = (float)source[sourceOffset] - colorConvert16;
+                float cb = (float)source[planeSize + sourceOffset] - colorConvert128;
+                float cr = (float)source[planeSize * 2 + sourceOffset] - colorConvert128;
+                float luma = colorConvertY * y;
+                int convertedRed = (int)(luma + colorConvertR * cr);
+                int convertedGreen = (int)(luma - colorConvertG1 * cb - colorConvertG2 * cr);
+                int blueOrPixelOffset = (int)(luma + colorConvertB * cb);
 
                 if (convertedRed < 0) {
                     convertedRed = 0;
@@ -1052,16 +1046,13 @@ void CArGBAOdh::LineConv11(u8* source, u8* lumaOutput, u8* cbOutput, u8* crOutpu
             s32* redTable = (s32*)(table + red);
             s32* blueTable = (s32*)(table + blue);
             s32* greenTable = (s32*)(table + green);
-            int redSum = redTable[0x60] + blueTable[0xA0];
-            redSum = greenTable[0x80] + redSum;
-            int blueSum = blueTable[0x100] + redTable[0xC0];
-            blueSum = greenTable[0xE0] + blueSum;
-            int luma = redTable[0] + greenTable[0x20];
-            luma = blueTable[0x40] + luma;
+            int cbValue = (greenTable[0x80] + (blueTable[0xA0] + redTable[0x60])) >> 16;
+            int crValue = (greenTable[0xE0] + (blueTable[0x100] + redTable[0xC0])) >> 16;
+            int luma = (greenTable[0x20] + (blueTable[0x40] + redTable[0])) >> 16;
 
-            *lumaOutput++ = (u8)((u32)luma >> 0x10);
-            *cbOutput++ = (u8)((u32)redSum >> 0x10);
-            *crOutput++ = (u8)((u32)blueSum >> 0x10);
+            *lumaOutput++ = (u8)luma;
+            *cbOutput++ = (u8)cbValue;
+            *crOutput++ = (u8)crValue;
             pixelIndex++;
     }
 }
