@@ -96,13 +96,13 @@ USBKBDErr USBKBDInitialize(USBKBDAttachCallback attachCb, USBKBDDetachCallback d
     return USB_KBD_ERR_OK;
 }
 
-USBKBDErr USBKBDSetLED(u32 param_1, u8 param_2, USBKBDCmdLED* cmd) {
+USBKBDErr USBKBDSetLED(u32 device, u8 ledBits, USBKBDCmdLED* cmd) {
     if (usbKbdFd < 0) {
         return USB_KBD_ERR_NOT_INIT;
     }
 
-    cmd->unk_0x04 = param_2;
-    cmd->unk_0x00 = param_1;
+    cmd->unk_0x04 = ledBits;
+    cmd->unk_0x00 = device;
 
     return IOS_Write(usbKbdFd, cmd, sizeof(USBKBDCmdLED)) != IPC_RESULT_OK ? USB_KBD_ERR_FATAL : USB_KBD_ERR_OK;
 }
@@ -114,12 +114,12 @@ static IOSError usbKbdSetLEDHandler(IOSError error, void* arg) {
     return IPC_RESULT_OK;
 }
 
-USBKBDErr USBKBDSetLEDAsync(u32 param_1, u8 param_2, USBKBDCmdLEDAsync* cmd, USBKBDCmdLEDCallback cb, void* cbArg) {
+USBKBDErr USBKBDSetLEDAsync(u32 device, u8 ledBits, USBKBDCmdLEDAsync* cmd, USBKBDCmdLEDCallback cb, void* cbArg) {
     if (usbKbdFd < 0) {
         return USB_KBD_ERR_NOT_INIT;
     }
-    cmd->base.unk_0x00 = param_1;
-    cmd->base.unk_0x04 = param_2;
+    cmd->base.unk_0x00 = device;
+    cmd->base.unk_0x04 = ledBits;
     cmd->cb = cb;
     cmd->cbArg = cbArg;
 
