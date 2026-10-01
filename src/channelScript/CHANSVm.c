@@ -2858,7 +2858,6 @@ VmCtorDefine(String) {
 
 VmMethodDefine(String, FromCharCode) {
     CHANSVmObjHdr* arg;
-    u32 offs;
     u32 argc;
     u32 ch;
     u32 i;
@@ -2867,14 +2866,12 @@ VmMethodDefine(String, FromCharCode) {
         argc = ((CHANSVmPrivate*)VmInst)->pActiveCtx->argc;
         if (CHANSVmNewObject(VmInst, vmFalse, VmReturnObj, CHANS_VM_OBJ_TYPE_STRING, argc * 2)) {
             i = 0;
-            offs = 0;
             while (i < argc) {
                 arg = CHANSVmGetArg(VmInst, i);
                 arg = CHANSVmConvertObjectType(VmInst, CHANS_VM_OBJ_TYPE_INTEGER, arg);
                 ch = arg != vmNull ? (u32)(arg->value.int_v & 0xFFFF) : 0;
-                VmReturnObj->value.string_v->spData[offs] = (u8)(ch >> 8);
-                VmReturnObj->value.string_v->spData[offs + 1] = (u8)ch;
-                offs += 2;
+                VmReturnObj->value.string_v->spData[i * 2] = (u8)(ch >> 8);
+                VmReturnObj->value.string_v->spData[i * 2 + 1] = (u8)ch;
                 i++;
             }
             return 1;
