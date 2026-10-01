@@ -44,7 +44,7 @@ ziU32 ZiDAWGGetChild(ziU32 node) {
 
 ziU8* ZiDAWGGetSibling(ziU8* node) {
     ziU16 header;
-    ziU8* cursor;
+    ziU8* base;
     ziS32 depth;
     ziS32 offset;
 
@@ -54,49 +54,48 @@ ziU8* ZiDAWGGetSibling(ziU8* node) {
     if ((header & 4) == 0) {
         node = 0;
     } else {
-        cursor = node;
+        base = node;
         if ((header & 8) != 0) {
-            if ((cursor[0] & 0xf) == 0xf) {
-                cursor += 2;
+            if ((node[0] & 0xf) == 0xf) {
+                node += 2;
             } else {
-                cursor += 1;
+                node += 1;
             }
 
             if ((header & 2) != 0) {
-                if ((*cursor & 0x80) != 0) {
-                    cursor += 3;
+                if ((*node & 0x80) != 0) {
+                    node += 3;
                 } else {
-                    cursor += 2;
+                    node += 2;
                 }
             }
 
-            if ((*cursor & 0x80) != 0) {
-                offset = (*cursor & 0x7f) * 0x10000 + (ziU32)cursor[1] * 0x100;
+            if ((*node & 0x80) != 0) {
+                offset = (*node & 0x7f) * 0x10000 + (ziU32)node[1] * 0x100;
                 offset += 0x8000;
-                node += (ziU32)cursor[2];
-                node = offset + node;
+                node = offset + (base + (ziU32)node[2]);
             } else {
-                node = (node + (ziU16)*cursor * 0x100) + (ziU32)cursor[1];
+                node = (base + (ziU16)*node * 0x100) + (ziU32)node[1];
             }
         } else {
             do {
-                header = (ziU16)nodeHeaderTable[cursor[0] >> 4];
-                if ((cursor[0] & 0xf) == 0xf) {
-                    cursor += 2;
+                header = (ziU16)nodeHeaderTable[node[0] >> 4];
+                if ((node[0] & 0xf) == 0xf) {
+                    node += 2;
                     offset += 2;
                 } else {
-                    cursor++;
+                    node++;
                     offset++;
                 }
 
                 if ((header & 1) != 0) {
                     if ((header & 2) == 0) {
                         depth++;
-                    } else if ((*cursor & 0x80) != 0) {
-                        cursor += 3;
+                    } else if ((*node & 0x80) != 0) {
+                        node += 3;
                         offset += 3;
                     } else {
-                        cursor += 2;
+                        node += 2;
                         offset += 2;
                     }
                 }
@@ -104,17 +103,17 @@ ziU8* ZiDAWGGetSibling(ziU8* node) {
                 if ((header & 4) == 0) {
                     depth--;
                 } else if ((header & 8) != 0) {
-                    if ((*cursor & 0x80) != 0) {
-                        cursor += 3;
+                    if ((*node & 0x80) != 0) {
+                        node += 3;
                         offset += 3;
                     } else {
-                        cursor += 2;
+                        node += 2;
                         offset += 2;
                     }
                     depth--;
                 }
             } while (depth > 0);
-            node += offset;
+            node = base + offset;
         }
     }
 

@@ -84,3 +84,14 @@ Upstream won on: zi8alpha +4.5, zi8cgetc +16, zconvert +0.4, zkokeyp +0.1.
 - emission order: decl-init zeros -> formats copies -> saved ZI_WORK loads -> search.* = 0 -> Zi8LogError.
 - Residual: MWCC remats `li r0,0` per store (orig keeps r0=0 live across contiguous zero-stores — the
   intervening formats loads clobber r0 in my scheduling); r26-vs-r27 web rotation. 83.3 -> 83.7.
+
+## zidawg1 GetSibling/GetChild decode continued (w1001)
+- GetSibling 89.3 -> 91.7: orig walks the `node` PARAM in volatile r3 (no callee marshal — loop has no
+  calls) with a separate `base` local for the offset sum. Source: `base = node;` then all cursor ops on
+  `node` itself; final `node = base + offset`. Residual: MWCC memop/branch scheduling inside the do-loop
+  (~88 ordering diffs, homes now match r29/r30/r31/r28).
+- Sum-tree groupings verified: orig's 0x80-node result is `offset + (base + byte2)` — paren form required.
+  GetChild byte-left add `offset = node[2] + offset` (7->6). `& 0xffff` mask on the b1 term is REQUIRED
+  (removal reassociates the whole tree, -27 fuzzy).
+- OWNER RULES (w1001): no lbl_ names, no volatile use-site casts, no score-lifting objects. declspec
+  .sdata2 byte objects (ziWordFormatN) are semantically named — allowed.
