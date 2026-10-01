@@ -273,8 +273,8 @@ namespace textinput {
             f32 xOffset = left;
             xOffset *= scale - 1.0f;
             viewport[0] = left + xOffset;
-            f32 height = (mProjectionRect.bottom -
-                          mProjectionRect.top) * 0.5f;
+            f32 height = 0.5f * (mProjectionRect.bottom -
+                                 mProjectionRect.top);
             viewport[1] = rect.bottom + height;
             viewport[2] = scale * (100.0f + (rect.right - rect.left));
             viewport[3] = rect.top - rect.bottom;

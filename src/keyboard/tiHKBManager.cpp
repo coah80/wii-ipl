@@ -82,8 +82,9 @@ namespace textinput {
         }
 
         void HKBManager::AttachCB(KBDDevEvent* event) {
-            KBDListener* head = &sInstance.mListener;
-            KBDListener* listener = head;
+            KBDListener* head;
+            KBDListener* listener = &sInstance.mListener;
+            head = listener;
             while (listener != NULL) {
                 listener->OnAttach(event);
                 listener = listener->mpNext;
@@ -94,8 +95,9 @@ namespace textinput {
         }
 
         void HKBManager::DetachCB(KBDDevEvent* event) {
-            KBDListener* head = &sInstance.mListener;
-            KBDListener* listener = head;
+            KBDListener* head;
+            KBDListener* listener = &sInstance.mListener;
+            head = listener;
             while (listener != NULL) {
                 listener->OnDetach(event);
                 listener = listener->mpNext;
@@ -106,8 +108,9 @@ namespace textinput {
         }
 
         void HKBManager::KeyEventCB(KBDKeyEvent* event) {
-            KBDListener* head = &sInstance.mListener;
-            KBDListener* listener = head;
+            KBDListener* head;
+            KBDListener* listener = &sInstance.mListener;
+            head = listener;
             while (listener != NULL) {
                 listener->OnKeyEvent(event);
                 listener = listener->mpNext;
@@ -206,11 +209,11 @@ namespace textinput {
             mModState = (mModState & ~mask) | (state & mask);
             for (u8 i = 0; i < 2; i++) {
                 u32 newLeds = mModState & 0x700;
+                u32 tmp = mKeyStates[i].mModState & ~0x700;
                 u32 oldLeds = mKeyStates[i].mModState & 0x700;
-                mKeyStates[i].mModState &= ~0x700;
-                mKeyStates[i].mModState |= mModState;
-                u32 changed = (oldLeds - newLeds) | (newLeds - oldLeds);
-                if (changed && mAttached[i]) {
+                mKeyStates[i].mModState = tmp;
+                mKeyStates[i].mModState = tmp | mModState;
+                if ((((oldLeds - newLeds) | (newLeds - oldLeds)) >> 31) != 0 && mAttached[i]) {
                     KBDSetModState(mKeyStates[i].mKbdChan, mKeyStates[i].mModState);
 
                     u8 leds = 0;
