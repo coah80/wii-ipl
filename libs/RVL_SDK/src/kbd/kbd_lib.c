@@ -400,132 +400,131 @@ static void kbdProcKey(u32 key, u32 pressed, u32 channel) {
 }
 
 static void kbdProcMod(u32 key, u32 pressed, u32 channel) {
-    u32 stateBuf[1];
-    KBDModifierState* state;
+    KBDChannel* data;
+    u32 modState;
     s32 delta;
     u8 flags;
 
     u32 finalState;
     s8 value;
+    data = &kbdData[channel];
     delta = (pressed & 1) != 0 ? 1 : -1;
-    state = (KBDModifierState*)stateBuf;
-    state->value = kbdData[channel].modState;
-    flags = kbdKeyMaps.maps[kbdData[channel].country].flags;
+    flags = kbdKeyMaps.maps[data->country].flags;
 
-    kbdGetModState(channel, &state->value);
+    kbdGetModState(channel, &modState);
     switch (key) {
     case 0xF001:
-        if (kbdData[channel].lockState != 0) {
+        if (data->lockState != 0) {
             if ((pressed & 1) != 0) {
-                state->value ^= 2;
+                modState ^= 2;
             }
         } else {
-            value = kbdData[channel].lockCount[1] + delta;
-            kbdData[channel].lockCount[1] = value;
-            state->keys.rightControl = (u8)value != 0;
+            value = data->lockCount[1] + delta;
+            data->lockCount[1] = value;
+            modState = (modState & ~0x2) | (((u8)value != 0) << 1);
         }
         break;
     case 0xF005:
-        if (kbdData[channel].lockState != 0) {
+        if (data->lockState != 0) {
             if ((pressed & 1) != 0) {
-                state->value ^= 0x20;
+                modState ^= 0x20;
             }
         } else {
-            value = kbdData[channel].lockCount[4] + delta;
-            kbdData[channel].lockCount[4] = value;
-            state->keys.rightAlt = (u8)value != 0;
+            value = data->lockCount[4] + delta;
+            data->lockCount[4] = value;
+            modState = (modState & ~0x20) | (((u8)value != 0) << 5);
         }
         break;
     case 0xF000:
-        if (kbdData[channel].lockState != 0) {
+        if (data->lockState != 0) {
             if ((pressed & 1) != 0) {
-                state->value ^= 1;
+                modState ^= 1;
             }
         } else {
-            value = kbdData[channel].lockCount[0] + delta;
-            kbdData[channel].lockCount[0] = value;
-            state->keys.leftControl = (u8)value != 0;
+            value = data->lockCount[0] + delta;
+            data->lockCount[0] = value;
+            modState = (modState & ~0x1) | ((u8)value != 0);
         }
         break;
     case 0xF008:
-        if (((pressed & 1) != 0) && (kbdData[channel].lockProcessing != 0)) {
-            state->value ^= 0x200;
+        if (((pressed & 1) != 0) && (data->lockProcessing != 0)) {
+            modState ^= 0x200;
         }
         break;
     case 0xF007:
-        if (((pressed & 1) != 0) && (kbdData[channel].lockProcessing != 0)) {
-            state->value ^= 0x100;
+        if (((pressed & 1) != 0) && (data->lockProcessing != 0)) {
+            modState ^= 0x100;
         }
         break;
     case 0xF006:
-        if (((pressed & 1) != 0) && (kbdData[channel].lockProcessing != 0)) {
+        if (((pressed & 1) != 0) && (data->lockProcessing != 0)) {
             u32 oldState;
             u32 lockState;
-            oldState = state->value;
+            oldState = modState;
             lockState = oldState & 0xC0;
             switch (lockState) {
             case 0:
                 if ((flags & 1) == 1) {
-                    state->value = oldState | 0x40;
+                    modState = oldState | 0x40;
                 }
                 break;
             case 0x40:
                 {
-                    state->value = oldState & 0xFFFFFFBF;
+                    modState = oldState & 0xFFFFFFBF;
                     if ((flags & 4) == 4) {
-                        state->value = oldState & 0xFFFFFFBF | 0x80;
+                        modState = oldState & 0xFFFFFFBF | 0x80;
                     }
                 }
                 break;
             case 0x80:
-                state->value = oldState & 0xFFFFFF7F;
+                modState = oldState & 0xFFFFFF7F;
                 break;
             case 0xC0:
-                state->value = oldState & 0xFFFFFF3F;
+                modState = oldState & 0xFFFFFF3F;
                 break;
             }
         }
         break;
     case 0xF002:
-        if (kbdData[channel].lockState != 0) {
+        if (data->lockState != 0) {
             if ((pressed & 1) != 0) {
-                state->value ^= 4;
+                modState ^= 4;
             }
         } else {
-            value = kbdData[channel].lockCount[2] + delta;
-            kbdData[channel].lockCount[2] = value;
-            state->keys.leftShift = (u8)value != 0;
+            value = data->lockCount[2] + delta;
+            data->lockCount[2] = value;
+            modState = (modState & ~0x4) | (((u8)value != 0) << 2);
         }
         break;
     case 0xF003:
-        if (kbdData[channel].lockState != 0) {
+        if (data->lockState != 0) {
             if ((pressed & 1) != 0) {
-                state->value ^= 8;
+                modState ^= 8;
             }
         } else {
-            value = kbdData[channel].lockCount[3] + delta;
-            kbdData[channel].lockCount[3] = value;
-            state->keys.rightShift = (u8)value != 0;
+            value = data->lockCount[3] + delta;
+            data->lockCount[3] = value;
+            modState = (modState & ~0x8) | (((u8)value != 0) << 3);
         }
         break;
     case 0xF004:
-        if (kbdData[channel].lockState != 0) {
+        if (data->lockState != 0) {
             if ((pressed & 1) != 0) {
-                state->value ^= 0x10;
+                modState ^= 0x10;
             }
         } else {
-            value = kbdData[channel].lockCount[5] + delta;
-            kbdData[channel].lockCount[5] = value;
-            state->keys.leftAlt = (u8)value != 0;
+            value = data->lockCount[5] + delta;
+            data->lockCount[5] = value;
+            modState = (modState & ~0x10) | (((u8)value != 0) << 4);
         }
         break;
     case 0xF021:
-        if (((pressed & 1) != 0) && (kbdData[channel].lockProcessing != 0)) {
-            state->value ^= 0x400;
+        if (((pressed & 1) != 0) && (data->lockProcessing != 0)) {
+            modState ^= 0x400;
         }
         break;
     }
-    finalState = state->value | 0x1000;
+    finalState = modState | 0x1000;
     KBDSetModState(channel, finalState);
 }
 
@@ -623,7 +622,7 @@ USBKBDErr KBDSetLedsAsync(u32 channel, u32 leds, USBKBDCmdLEDCallback callback, 
 
 USBKBDErr KBDSetLeds(u32 channel, u32 leds) {
     u32 index;
-    u32 ofs;
+    KBDLEDCommand* command;
     BOOL interrupts;
     USBKBDErr result;
     u8 ledBits;
@@ -639,14 +638,14 @@ USBKBDErr KBDSetLeds(u32 channel, u32 leds) {
     ledBits = leds & 0xff;
     interrupts = OSDisableInterrupts();
     index = 0;
-    ofs = 0;
+    command = kbdCmdBuf;
     while (index < 12) {
-        if (*(u32*)&((u8*)kbdCmdBuf)[ofs] == 0) {
-            *(u32*)&((u8*)kbdCmdBuf)[ofs] = (u32)kbdData[channel].device;
+        if (command->device == 0) {
+            command->device = (u32)kbdData[channel].device;
             break;
         }
         index++;
-        ofs += sizeof(KBDLEDCommand);
+        command++;
     }
     OSRestoreInterrupts(interrupts);
     if (index == 12) {
@@ -839,15 +838,13 @@ USBKBDErr KBDSetModState(u32 channel, u32 value) {
         kbdData[channel].modState = value & ~0x1000;
     } else {
         BOOL interrupts;
-        KBDModifierState* state;
         KBDModifierState oldState;
         KBDModifierState newState;
         interrupts = OSDisableInterrupts();
-        state = (KBDModifierState*)&kbdData[channel].modState;
         newState.value = value & 0xfc0;
-        oldState = *state;
+        oldState.value = kbdData[channel].modState;
         newState.bits.physical = oldState.bits.physical;
-        *state = newState;
+        kbdData[channel].modState = newState.value;
         OSRestoreInterrupts(interrupts);
     }
     return 0;
@@ -923,9 +920,9 @@ u16 KBDTranslateHidCode(u32 keyCode, u32 modifiers, s32 country) {
             shiftFlag <<= offset;
             activeFlag = shiftFlag;
 
-            if (mask == 0 && (entry & activeFlag) != 0) {
+            if (mask == 0 && (activeFlag & entry) != 0) {
                 offset = offset ^ ((modifiers >> 9) & 1);
-            } else if (mask == 0x8000 && (entry & activeFlag) != 0) {
+            } else if (mask == 0x8000 && (activeFlag & entry) != 0) {
                 u32 numLockShift = 0;
                 if ((s32)(modifiers & 0x100) == 0x100 && offset == 0) {
                     numLockShift = 1;
