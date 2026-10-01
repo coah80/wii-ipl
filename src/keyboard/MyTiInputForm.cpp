@@ -1,3 +1,4 @@
+// Matching build uses MyTiInputForm.s (C++ Matching breaks DOL SHA1).
 #define MYTIINPUTFORM_IMPLEMENTATION
 #include "keyboard/MyTiInputForm.h"
 #include "keyboard/tiUtil.h"
