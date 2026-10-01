@@ -269,10 +269,10 @@ Zi8UInt Zi8SpellingZY(ziU16 *output,Zi8UInt key,ziU8 includeTone)
 
 Zi8UInt Zi8SpellingPY(ziU16 *output,Zi8UInt key,ziU8 includeTone)
 {
+  Zi8UInt length = 0;
   ziU16 initialIndex = (ziU16)(((key & 0xffff) >> 9) & 0x3f);
   ziU16 finalIndex = (ziU16)(((key & 0xffff) >> 3) & 0x3f);
-  ziU16 tone = (ziU16)(key & 7);
-  Zi8UInt length = 0;
+  volatile ziU16 tone = (ziU16)(key & 7);
 
   output[0] = zi8PYinitialSpelling[initialIndex][0];
   output[1] = zi8PYinitialSpelling[initialIndex][1];
