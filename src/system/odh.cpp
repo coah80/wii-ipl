@@ -892,42 +892,31 @@ s32 CArGBAOdh::cdj_c_flashBuffer(SArCDJ_OdhMaster* master) {
 }
 
 void CArGBAOdh::cdj_c_setQuantizationTable(SArCDJ_OdhMaster* master, u32 qualityScale) {
-    u8 scaledQuantization[128];
-    u32 tablePass = 0;
-    u32 tableOffset = 0;
+    int i;
+    u32 temp;
+    u32 table;
+    u8 quantization[128];
 
-    do {
-        for (int i = 0; i < 0x40; i++) {
-            u32 scaledValue = (qualityScale * gArCdj_std_quant_tbl[tableOffset + i] + 50) / 100;
-            if ((int)scaledValue == 0) {
-                scaledValue = 1;
+    for (table = 0; table < 2; table++) {
+        for (i = 0; i < 64; i++) {
+            temp = (qualityScale * gArCdj_std_quant_tbl[table * 64 + i] + 50) / 100;
+            if (temp == 0) {
+                temp = 1;
             }
-            if (0xFF < scaledValue) {
-                scaledValue = 0xFF;
+            if (temp > 255) {
+                temp = 255;
             }
-            scaledQuantization[tableOffset + i] = (u8)scaledValue;
+            quantization[table * 64 + i] = temp;
         }
-        tablePass = tablePass + 1;
-        tableOffset = tableOffset + 0x40;
-    } while (tablePass < 2);
+    }
 
-    tablePass = 0;
-    tableOffset = 0;
-    int scaledTableOffset = 0;
-    const u16* scales = (const u16*)gArAANScales;
-    do {
-        int scaleIndex = 0;
-        u8* quantizationRow = scaledQuantization + scaledTableOffset;
-        for (int i = 0; i < 0x40; i++) {
-            u32 scale = scales[scaleIndex];
-            u8 coefficient = quantizationRow[i];
-            master->quantizationTables[tableOffset + i] = 0x4000000 / (scale * (u32)coefficient);
-            scaleIndex++;
+    for (table = 0; table < 2; table++) {
+        for (i = 0; i < 64; i++) {
+            temp = ((const u16*)gArAANScales)[i];
+            temp *= quantization[table * 64 + i];
+            master->quantizationTables[table * 64 + i] = 0x4000000 / temp;
         }
-        tablePass = tablePass + 1;
-        tableOffset = tableOffset + 0x40;
-        scaledTableOffset = scaledTableOffset + 0x40;
-    } while (tablePass < 2);
+    }
 }
 
 void CArGBAOdh::cdj_c_makeHeader(SArCDJ_OdhMaster* master, u32 size) {
@@ -941,16 +930,28 @@ void CArGBAOdh::cdj_c_makeHeader(SArCDJ_OdhMaster* master, u32 size) {
 }
 
 s32 CArGBAOdh::cdj_c_colorConv(SArCDJ_OdhMaster* master, u8* sourceData, int format) {
-    u16* dimensions = (u16*)&master->width;
-    u16 width = *dimensions;
+    u16* dimensions;
+    u16 width;
+    u16 height;
+    u8* workPlane;
+    int sourceStride;
+    u32 paddedWidth;
+    u8* cbPlane;
+    u8* crPlane;
+    int rowIndex;
+    int i;
+    u16 dimension;
+    u16 paddedDimensions[2];
+
+    dimensions = &master->width;
+    width = dimensions[0];
     if ((width & 1) != 0 || (dimensions[1] & 1) != 0) {
         return 1;
     }
-    u16 height = dimensions[1];
+    height = dimensions[1];
 
-    u16 paddedDimensions[2];
-    for (int i = 0; i < 2; i++) {
-        u16 dimension = dimensions[i];
+    for (i = 0; i < 2; i++) {
+        dimension = dimensions[i];
         if ((dimension & 7) != 0) {
             paddedDimensions[i] = (dimension + 8) - (dimension & 7);
         } else {
@@ -958,10 +959,9 @@ s32 CArGBAOdh::cdj_c_colorConv(SArCDJ_OdhMaster* master, u8* sourceData, int for
         }
     }
 
-    u8* workPlane = master->workBuffer;
-    u8* cbPlane = workPlane + (u32)paddedDimensions[0] * (u32)paddedDimensions[1];
-    u8* crPlane = cbPlane + (u32)paddedDimensions[0] * (u32)paddedDimensions[1];
-    int sourceStride;
+    workPlane = master->workBuffer;
+    cbPlane = workPlane + (u32)paddedDimensions[0] * (u32)paddedDimensions[1];
+    crPlane = cbPlane + (u32)paddedDimensions[0] * (u32)paddedDimensions[1];
     if (format == 0) {
         sourceStride = (width & 0xFFFC) << 3;
     } else {
@@ -971,11 +971,10 @@ s32 CArGBAOdh::cdj_c_colorConv(SArCDJ_OdhMaster* master, u8* sourceData, int for
         }
     }
 
-    u32 paddedWidth = (u32)paddedDimensions[0];
-    for (u32 rowIndex = 0; (s32)rowIndex < (s32)(u32)height; rowIndex++) {
-        LineConv11((u8*)(((s32)rowIndex / 4) * sourceStride + (s32)sourceData + (rowIndex & 3) * 8),
-                   workPlane, cbPlane, crPlane, *dimensions, dimensions[1],
-                   (const long*)gArConvPlttTbl, format);
+    paddedWidth = paddedDimensions[0];
+    for (rowIndex = 0; rowIndex < (s32)height; rowIndex++) {
+        LineConv11(sourceData + (rowIndex & 3) * 8 + rowIndex / 4 * sourceStride, workPlane, cbPlane, crPlane,
+                   dimensions[0], dimensions[1], (const long*)gArConvPlttTbl, format);
         workPlane += paddedWidth;
         cbPlane += paddedWidth;
         crPlane += paddedWidth;
@@ -996,8 +995,7 @@ void CArGBAOdh::LineConv11(u8* source, u8* lumaOutput, u8* cbOutput, u8* crOutpu
             s32 blue;
 
             if (format == 0) {
-                u8* pixelSource = source + ((pixelIndex << 3) & 0xFFFFFFE0);
-                pixelSource += (pixelIndex & 3) * 2;
+                u8* pixelSource = source + (pixelIndex & 0x1FFFFFFC) * 8 + (pixelIndex & 3) * 2;
                 u16 pixel = pixelSource[1];
                 pixel |= (u16)pixelSource[0] << 8;
                 red = (pixel >> 11) & 0x1F;
@@ -1014,41 +1012,37 @@ void CArGBAOdh::LineConv11(u8* source, u8* lumaOutput, u8* cbOutput, u8* crOutpu
                 float y = (float)source[sourceOffset] - colorConvert16;
                 float cb = (float)source[planeSize + sourceOffset] - colorConvert128;
                 float cr = (float)source[planeSize * 2 + sourceOffset] - colorConvert128;
-                float luma = colorConvertY * y;
-                int convertedRed = (int)(luma + colorConvertR * cr);
-                int convertedGreen = (int)(luma - colorConvertG1 * cb - colorConvertG2 * cr);
-                int blueOrPixelOffset = (int)(luma + colorConvertB * cb);
+                red = (int)(colorConvertY * y + colorConvertR * cr);
+                green = (int)(colorConvertY * y - colorConvertG1 * cb - colorConvertG2 * cr);
+                blue = (int)(colorConvertY * y + colorConvertB * cb);
 
-                if (convertedRed < 0) {
-                    convertedRed = 0;
+                if (red < 0) {
+                    red = 0;
                 }
-                if (0xFF < convertedRed) {
-                    convertedRed = 0xFF;
+                if (0xFF < red) {
+                    red = 0xFF;
                 }
-                if (convertedGreen < 0) {
-                    convertedGreen = 0;
+                if (green < 0) {
+                    green = 0;
                 }
-                if (0xFF < convertedGreen) {
-                    convertedGreen = 0xFF;
+                if (0xFF < green) {
+                    green = 0xFF;
                 }
-                if (blueOrPixelOffset < 0) {
-                    blueOrPixelOffset = 0;
+                if (blue < 0) {
+                    blue = 0;
                 }
-                if (0xFF < blueOrPixelOffset) {
-                    blueOrPixelOffset = 0xFF;
+                if (0xFF < blue) {
+                    blue = 0xFF;
                 }
 
-                red = convertedRed >> 3;
-                green = convertedGreen >> 3;
-                blue = blueOrPixelOffset >> 3;
+                red >>= 3;
+                green >>= 3;
+                blue >>= 3;
             }
 
-            s32* redTable = (s32*)(table + red);
-            s32* blueTable = (s32*)(table + blue);
-            s32* greenTable = (s32*)(table + green);
-            int cbValue = (greenTable[0x80] + (blueTable[0xA0] + redTable[0x60])) >> 16;
-            int crValue = (greenTable[0xE0] + (blueTable[0x100] + redTable[0xC0])) >> 16;
-            int luma = (greenTable[0x20] + (blueTable[0x40] + redTable[0])) >> 16;
+            int cbValue = (table[red + 0x60] + table[green + 0x80] + table[blue + 0xA0]) >> 16;
+            int crValue = (table[red + 0xC0] + table[green + 0xE0] + table[blue + 0x100]) >> 16;
+            int luma = (table[red + 0] + table[green + 0x20] + table[blue + 0x40]) >> 16;
 
             *lumaOutput++ = (u8)luma;
             *cbOutput++ = (u8)cbValue;
@@ -1056,212 +1050,217 @@ void CArGBAOdh::LineConv11(u8* source, u8* lumaOutput, u8* cbOutput, u8* crOutpu
             pixelIndex++;
     }
 }
-
 void CArGBAOdh::fdct_fast(u32* coefficients, u8* samples, u32 stride, u32* quantizationTable) {
-    for (int column = 0; column < 8; column++) {
+    int tmp0, tmp1, tmp2, tmp3, tmp4, tmp5, tmp6, tmp7;
+    int tmp10, tmp11, tmp12, tmp13;
+    int z1, z2, z3, z4, z5, z11, z13;
+    int* buffer;
+    int counter;
+
+    for (counter = 0; counter < 8; counter++) {
         for (int row = 0, outputRow = 0; row < 8; row++, outputRow += 8) {
-            ((int*)coefficients)[column + outputRow] = (int)samples[column + row * stride] - 0x80;
+            ((int*)coefficients)[counter + outputRow] = (int)samples[counter + row * stride] - 0x80;
         }
     }
 
-    int* buffer = (int*)coefficients;
-    for (int row = 0; row < 8; row++) {
-        int sum07 = buffer[0] + buffer[7];
-        int difference07 = buffer[0] - buffer[7];
-        int difference16 = buffer[1] - buffer[6];
-        int sum16 = buffer[1] + buffer[6];
-        int difference25 = buffer[2] - buffer[5];
-        int sum25 = buffer[2] + buffer[5];
-        int sum34 = buffer[3] + buffer[4];
-        int difference34 = buffer[3] - buffer[4];
-        int oddLower = difference34 + difference25;
-        int oddMiddle = difference25 + difference16;
-        int oddUpper = difference16 + difference07;
-        int evenOuterSum = sum07 + sum34;
-        int evenOuterDifference = sum07 - sum34;
-        int evenInnerSum = sum16 + sum25;
-        int evenInnerDifference = sum16 - sum25;
-        buffer[0] = evenOuterSum + evenInnerSum;
-        buffer[4] = evenOuterSum - evenInnerSum;
-        int evenRotation = (evenInnerDifference + evenOuterDifference) * 181 >> 8;
-        buffer[2] = evenOuterDifference + evenRotation;
-        buffer[6] = evenOuterDifference - evenRotation;
-        int oddRotation = (oddLower - oddUpper) * 98 >> 8;
-        int oddLeft = (oddLower * 139 >> 8) + oddRotation;
-        int oddRight = (oddUpper * 334 >> 8) + oddRotation;
-        int oddCenter = oddMiddle * 181 >> 8;
-        int oddSum = difference07 + oddCenter;
-        int oddDifference = difference07 - oddCenter;
-        buffer[5] = oddDifference + oddLeft;
-        buffer[3] = oddDifference - oddLeft;
-        buffer[1] = oddSum + oddRight;
-        buffer[7] = oddSum - oddRight;
+    buffer = (int*)coefficients;
+    for (counter = 0; counter < 8; counter++) {
+        tmp0 = buffer[0] + buffer[7];
+        tmp7 = buffer[0] - buffer[7];
+        tmp1 = buffer[1] + buffer[6];
+        tmp6 = buffer[1] - buffer[6];
+        tmp2 = buffer[2] + buffer[5];
+        tmp5 = buffer[2] - buffer[5];
+        tmp3 = buffer[3] + buffer[4];
+        tmp4 = buffer[3] - buffer[4];
+
+        tmp10 = tmp0 + tmp3;
+        tmp13 = tmp0 - tmp3;
+        tmp11 = tmp1 + tmp2;
+        tmp12 = tmp1 - tmp2;
+
+        buffer[0] = tmp10 + tmp11;
+        buffer[4] = tmp10 - tmp11;
+
+        z1 = (tmp12 + tmp13) * 181 >> 8;
+        buffer[2] = tmp13 + z1;
+        buffer[6] = tmp13 - z1;
+
+        tmp10 = tmp4 + tmp5;
+        tmp11 = tmp5 + tmp6;
+        tmp12 = tmp6 + tmp7;
+
+        z5 = (tmp10 - tmp12) * 98 >> 8;
+        z2 = (tmp10 * 139 >> 8) + z5;
+        z4 = (tmp12 * 334 >> 8) + z5;
+        z3 = tmp11 * 181 >> 8;
+
+        z11 = tmp7 + z3;
+        z13 = tmp7 - z3;
+
+        buffer[5] = z13 + z2;
+        buffer[3] = z13 - z2;
+        buffer[1] = z11 + z4;
+        buffer[7] = z11 - z4;
         buffer += 8;
     }
 
     buffer = (int*)coefficients;
-    for (int column = 0; column < 8; column++) {
-        int sum07 = buffer[0] + buffer[56];
-        int difference07 = buffer[0] - buffer[56];
-        int sum16 = buffer[8] + buffer[48];
-        int difference16 = buffer[8] - buffer[48];
-        int sum25 = buffer[16] + buffer[40];
-        int difference25 = buffer[16] - buffer[40];
-        int sum34 = buffer[24] + buffer[32];
-        int difference34 = buffer[24] - buffer[32];
-        int oddLower = difference34 + difference25;
-        int oddMiddle = difference25 + difference16;
-        int oddUpper = difference16 + difference07;
-        int evenOuterSum = sum07 + sum34;
-        int evenOuterDifference = sum07 - sum34;
-        int evenInnerSum = sum16 + sum25;
-        int evenInnerDifference = sum16 - sum25;
-        buffer[0] = evenOuterSum + evenInnerSum;
-        buffer[32] = evenOuterSum - evenInnerSum;
-        int evenRotation = (evenInnerDifference + evenOuterDifference) * 181 >> 8;
-        buffer[16] = evenOuterDifference + evenRotation;
-        buffer[48] = evenOuterDifference - evenRotation;
-        int oddRotation = (oddLower - oddUpper) * 98 >> 8;
-        int oddLeft = (oddLower * 139 >> 8) + oddRotation;
-        int oddRight = (oddUpper * 334 >> 8) + oddRotation;
-        int oddCenter = oddMiddle * 181 >> 8;
-        int oddSum = difference07 + oddCenter;
-        int oddDifference = difference07 - oddCenter;
-        buffer[40] = oddDifference + oddLeft;
-        buffer[24] = oddDifference - oddLeft;
-        buffer[8] = oddSum + oddRight;
-        buffer[56] = oddSum - oddRight;
+    for (counter = 0; counter < 8; counter++) {
+        tmp0 = buffer[0] + buffer[56];
+        tmp7 = buffer[0] - buffer[56];
+        tmp1 = buffer[8] + buffer[48];
+        tmp6 = buffer[8] - buffer[48];
+        tmp2 = buffer[16] + buffer[40];
+        tmp5 = buffer[16] - buffer[40];
+        tmp3 = buffer[24] + buffer[32];
+        tmp4 = buffer[24] - buffer[32];
+
+        tmp10 = tmp0 + tmp3;
+        tmp13 = tmp0 - tmp3;
+        tmp11 = tmp1 + tmp2;
+        tmp12 = tmp1 - tmp2;
+
+        buffer[0] = tmp10 + tmp11;
+        buffer[32] = tmp10 - tmp11;
+
+        z1 = (tmp12 + tmp13) * 181 >> 8;
+        buffer[16] = tmp13 + z1;
+        buffer[48] = tmp13 - z1;
+
+        tmp10 = tmp4 + tmp5;
+        tmp11 = tmp5 + tmp6;
+        tmp12 = tmp6 + tmp7;
+
+        z5 = (tmp10 - tmp12) * 98 >> 8;
+        z2 = (tmp10 * 139 >> 8) + z5;
+        z4 = (tmp12 * 334 >> 8) + z5;
+        z3 = tmp11 * 181 >> 8;
+
+        z11 = tmp7 + z3;
+        z13 = tmp7 - z3;
+
+        buffer[40] = z13 + z2;
+        buffer[24] = z13 - z2;
+        buffer[8] = z11 + z4;
+        buffer[56] = z11 - z4;
         buffer++;
     }
 
-    for (int columnIndex = 0; columnIndex < 8; columnIndex++) {
-        s32* inputColumn = (s32*)coefficients + columnIndex;
-        s32* quantizationColumn = (s32*)quantizationTable + columnIndex;
-        for (int rowIndex = 0; rowIndex < 8; rowIndex++) {
-            inputColumn[rowIndex * 8] = (inputColumn[rowIndex * 8] * quantizationColumn[rowIndex * 8] + 16384) >> 15;
+    for (counter = 0; counter < 8; counter++) {
+        for (int row = 0; row < 8; row++) {
+            ((s32*)coefficients)[row * 8 + counter] = (((s32*)coefficients)[row * 8 + counter] * ((s32*)quantizationTable)[row * 8 + counter] + 16384) >> 15;
         }
     }
 }
 
 s32 CArGBAOdh::huffmanCoder(u16* coefficientInput, SArCDJ_HuffmanRequest* request) {
-    int isAcBlock = 0;
-    u16* inputCursor = (u16*)((u8*)coefficientInput + 2);
+    u32* predictor;
+    u16* blockStart;
+    int component;
+    s32 value;
+    s32 difference;
+    s32 magnitude;
+    s32 bitCount;
+    s32 runLength;
+    u32 code;
+
     this->outputCursor = request->bitstream + (request->bytesConsumed - *request->remaining);
+    component = 0;
+    blockStart = coefficientInput;
+    coefficientInput++;
 
     while (true) {
-        u32* predictor = request->predictors[isAcBlock];
-        u16* nextCoefficient = inputCursor + 2;
-        u32 rawValue = (u32)*inputCursor << 16;
-        s32 currentValue = (s32)rawValue >> 16;
-        s32 encodedValue = currentValue - (s32)*predictor;
-        *predictor = (u32)currentValue;
-        s32 magnitude;
-        if (encodedValue < 0) {
-            magnitude = -encodedValue;
-            encodedValue--;
-        } else {
-            magnitude = encodedValue;
-        }
+        value = *coefficientInput << 16;
+        predictor = request->predictors[component];
+        value >>= 16;
+        coefficientInput += 2;
+        difference = value - (s32)*predictor;
+        *predictor = value;
 
-        u32 coefficientValueOrCode;
-        if (magnitude == 0) {
-            coefficientValueOrCode = 0;
+        if (difference < 0) {
+            magnitude = -difference;
+            difference--;
         } else {
-            coefficientValueOrCode = 1;
+            magnitude = difference;
+        }
+        if (magnitude == 0) {
+            bitCount = 0;
+        } else {
+            bitCount = 1;
             while ((magnitude >>= 1) != 0) {
-                coefficientValueOrCode++;
+                bitCount++;
             }
         }
-
-        u32 tableCode = request->dcTable[coefficientValueOrCode];
-        s32 result = EmitBit((encodedValue & ((1 << coefficientValueOrCode) - 1U)) |
-                                 ((tableCode & 0xFFFFFF) << coefficientValueOrCode),
-                             ((s32)tableCode >> 0x18) + coefficientValueOrCode, request);
-        if (result == ODH_ERROR_80000004) {
+        code = request->dcTable[bitCount];
+        if (EmitBit(((code & 0xFFFFFF) << bitCount) | (difference & ((1 << bitCount) - 1)), ((s32)code >> 24) + bitCount,
+                    request) == ODH_ERROR_80000004) {
             return ODH_ERROR_80000004;
         }
 
         while (true) {
-            s32 zeroRunLength = 0;
-            s32 coefficientValue;
-            u16* coefficientPointer;
-            u32 coefficientValueOrCode;
+            runLength = 0;
             while (true) {
-                coefficientPointer = nextCoefficient;
-                nextCoefficient = (u16*)((u8*)nextCoefficient + 4);
-                u32 rawCoefficient = (u32)*coefficientPointer << 16;
-                coefficientValue = (s32)rawCoefficient >> 16;
-                coefficientValueOrCode = (u32)coefficientValue;
-                if (coefficientValue != 0) {
+                value = *coefficientInput << 16;
+                value >>= 16;
+                coefficientInput += 2;
+                if (value != 0) {
                     break;
                 }
-                zeroRunLength++;
+                runLength++;
             }
-
-            tableCode = (u32)zeroRunLength;
-            if (coefficientValue == 0x4000) {
+            if (value == 0x4000) {
                 break;
             }
 
-            u32 symbolCode;
-            s32 categoryShift = zeroRunLength;
-            if (tableCode == 0) {
-                symbolCode = 0;
+            magnitude = runLength;
+            if (runLength == 0) {
+                bitCount = 0;
             } else {
-                symbolCode = 1;
-                while ((categoryShift >>= 1) != 0) {
-                    symbolCode++;
+                bitCount = 1;
+                while ((magnitude >>= 1) != 0) {
+                    bitCount++;
                 }
             }
-
-            u32 runLengthCode = request->acTable[symbolCode];
-            result = EmitBit((tableCode & ((1 << symbolCode) - 1U)) |
-                                 ((runLengthCode & 0xFFFFFF) << symbolCode),
-                             ((s32)runLengthCode >> 0x18) + symbolCode, request);
-            if (result == ODH_ERROR_80000004) {
+            code = request->acTable[bitCount];
+            if (EmitBit(((code & 0xFFFFFF) << bitCount) | (runLength & ((1 << bitCount) - 1)), ((s32)code >> 24) + bitCount,
+                        request) == ODH_ERROR_80000004) {
                 return ODH_ERROR_80000004;
             }
 
-            s32 encodedValue = (s32)coefficientValueOrCode;
-            s32 valueMagnitude;
-            if (encodedValue < 0) {
-                valueMagnitude = -encodedValue;
-                encodedValue--;
+            if (value < 0) {
+                magnitude = -value;
+                value--;
             } else {
-                valueMagnitude = encodedValue;
+                magnitude = value;
             }
-
-            tableCode = 0;
-            if (valueMagnitude == 0) {
-                tableCode = 0;
+            if (magnitude == 0) {
+                bitCount = 0;
             } else {
-                tableCode = 1;
-                while ((valueMagnitude >>= 1) != 0) {
-                    tableCode++;
+                bitCount = 1;
+                while ((magnitude >>= 1) != 0) {
+                    bitCount++;
                 }
             }
-
-            symbolCode = request->dcTable[tableCode];
-            result = EmitBit((encodedValue & ((1 << tableCode) - 1U)) |
-                                 ((symbolCode & 0xFFFFFF) << tableCode),
-                             ((s32)symbolCode >> 0x18) + tableCode, request);
-            if (result == ODH_ERROR_80000004) {
+            code = request->dcTable[bitCount];
+            if (EmitBit(((code & 0xFFFFFF) << bitCount) | (value & ((1 << bitCount) - 1)), ((s32)code >> 24) + bitCount,
+                        request) == ODH_ERROR_80000004) {
                 return ODH_ERROR_80000004;
             }
         }
 
-        if ((tableCode != 0) &&
-            (coefficientValueOrCode = request->acTable[7],
-             result = EmitBit(coefficientValueOrCode & 0xFFFFFF, (s32)coefficientValueOrCode >> 0x18, request),
-             result == ODH_ERROR_80000004)) {
-            return ODH_ERROR_80000004;
+        if (runLength != 0) {
+            code = request->acTable[7];
+            if (EmitBit(code & 0xFFFFFF, (s32)code >> 24, request) == ODH_ERROR_80000004) {
+                return ODH_ERROR_80000004;
+            }
         }
 
-        if (((u32)nextCoefficient & 2) == 0) {
+        if (((u32)coefficientInput & 2) == 0) {
             break;
         }
-        isAcBlock = 1;
-        inputCursor = coefficientInput;
+        coefficientInput = blockStart;
+        component = 1;
     }
 
     return 0;
@@ -1709,46 +1708,23 @@ finishBlock:
 
 
 void CArGBAOdh::cdj_d_setDequantizationTable(SArCDJ_OdhMaster* master, u32 qualityScale) {
-    const u16* scales = (const u16*)gArAANScales;
-    int quantizationOffset = 0;
-    int standardTableOffset = 0;
-    u32 tablePass = 0;
-    int scaleIndex;
-    int tableIndex;
-    const u8* standardTable;
-    u32 scaledCoefficient;
-    int boundedCoefficient;
+    int i;
+    u32 temp;
+    u32 table;
 
-    do {
-        standardTable = gArCdj_std_quant_tbl + standardTableOffset;
-        tableIndex = 0;
-
-        for (int i = 0; i < 0x40; i++) {
-            scaledCoefficient = (qualityScale * *standardTable + 50) / 100;
-            if (scaledCoefficient == 0) {
-                scaledCoefficient = 1;
+    for (table = 0; table < 2; table++) {
+        for (i = 0; i < 64; i++) {
+            temp = (qualityScale * gArCdj_std_quant_tbl[table * 64 + i] + 50) / 100;
+            if (temp == 0) {
+                temp = 1;
             }
-            boundedCoefficient = (int)scaledCoefficient;
-            if (0xFF < scaledCoefficient) {
-                boundedCoefficient = 0xFF;
+            if (temp > 255) {
+                temp = 255;
             }
-            scaleIndex = tableIndex;
-            u32 scale = scales[scaleIndex];
-            u32 value = (boundedCoefficient * scale + 2048) >> 0xC;
-            u32* destination = master->quantizationTables + quantizationOffset;
-            destination[tableIndex] = value;
-            tableIndex++;
-            standardTable++;
+            master->quantizationTables[table * 64 + i] = (temp * ((const u16*)gArAANScales)[i] + 2048) >> 12;
         }
-        tablePass++;
-        quantizationOffset += 0x40;
-        standardTableOffset += 0x40;
-    } while (tablePass < 2);
+    }
 }
-
-
-
-
 
 s32 CArGBAOdh::cdj_d_colorDeconv(SArCDJ_OdhMaster* master, u8* destination, int outputFormat) {
     u16 width = master->width;
@@ -1887,40 +1863,43 @@ s32 CArGBAOdh::ScaleLimit(s32 scale) {
 
 void CArGBAOdh::LineDeconv21(u8* dest, u8* y, u8* cb, u8* cr, u16 width, u16 height,
                              const SArDeconvTbl* table, int format) {
+    u8* pixelOutput;
+    u8 lumaValue;
+    u8 cbValue;
+    u8 crValue;
     s32 redValue;
     u32 greenValue;
     s32 blueValue;
-    s32 outputOffset;
-    u8* pixelOutput;
     u32 pixelIndex;
-    u8* destinationCb = dest + (s32)width * height;
-    u8* destinationCr = dest + (s32)width * height * 2;
-    for (pixelIndex = 0; (s32)pixelIndex < (s32)(width & 0xFFFF); pixelIndex += 2) {
-        u8 crValue = *cr;
-        u8 lumaValue = *y;
-        u8 cbValue = *cb;
+    u32 offset;
+
+    for (pixelIndex = 0; (s32)pixelIndex < (s32)width; pixelIndex += 2) {
+        crValue = *cr;
+        lumaValue = *y;
+        cbValue = *cb;
         redValue = ScaleLimit((u32)lumaValue + table->luma[crValue]);
         greenValue = ScaleLimit((u32)lumaValue + (table->cbGreen[cbValue] + table->crGreen[crValue] >> 16));
         blueValue = ScaleLimit((u32)lumaValue + table->blue[cbValue]);
 
         if (format == 0) {
-            outputOffset = (pixelIndex & 0x1FFFFFFC) * 8 + (pixelIndex & 3) * 2;
-            s32 packedPixel = ((redValue & 0xF8) << 8 | (greenValue & 0xFC) << 3) | (blueValue >> 3);
-            dest[outputOffset] = packedPixel >> 8;
-            pixelOutput = dest + outputOffset;
-            pixelOutput[1] = packedPixel;
+            offset = (pixelIndex & 0x1FFFFFFC) * 8 + (pixelIndex & 3) * 2;
+            redValue = ((redValue & 0xF8) << 8 | (greenValue & 0xFC) << 3) | (blueValue >> 3);
+            dest[offset] = (u8)(redValue >> 8);
+            pixelOutput = dest + offset;
+            pixelOutput[1] = (u8)redValue;
         } else if (format == 1) {
-            outputOffset = (pixelIndex & 0x0FFFFFFC) * 0x10 + (pixelIndex & 3) * 2;
-            pixelOutput = dest + outputOffset;
-            pixelOutput[0] = 0xFF;
-            pixelOutput[1] = redValue;
-            pixelOutput[0x20] = greenValue;
-            pixelOutput[0x21] = blueValue;
+            offset = (pixelIndex & 0x0FFFFFFC) * 0x10 + (pixelIndex & 3) * 2;
+            dest[offset] = 0xFF;
+            pixelOutput = dest + offset;
+            pixelOutput[1] = (u8)redValue;
+            pixelOutput[0x20] = (u8)greenValue;
+            pixelOutput[0x21] = (u8)blueValue;
         } else {
-            outputOffset = (pixelIndex & 7) + (pixelIndex & 0x3FFFFFF8) * 4;
-            dest[outputOffset] = lumaValue;
-            destinationCb[outputOffset] = cbValue;
-            destinationCr[outputOffset] = crValue;
+            offset = (pixelIndex & 7) + (pixelIndex & 0x3FFFFFF8) * 4;
+            dest[offset] = lumaValue;
+            pixelOutput = dest + offset;
+            dest[(u32)width * height + offset] = cbValue;
+            dest[(u32)width * height * 2 + offset] = crValue;
         }
 
         lumaValue = y[1];
@@ -1929,18 +1908,18 @@ void CArGBAOdh::LineDeconv21(u8* dest, u8* y, u8* cb, u8* cr, u16 width, u16 hei
         blueValue = ScaleLimit((u32)lumaValue + table->blue[cbValue]);
 
         if (format == 0) {
-            s32 packedPixel = ((redValue & 0xF8) << 8 | (greenValue & 0xFC) << 3) | (blueValue >> 3);
-            pixelOutput[2] = packedPixel >> 8;
-            pixelOutput[3] = packedPixel;
+            redValue = ((redValue & 0xF8) << 8 | (greenValue & 0xFC) << 3) | (blueValue >> 3);
+            pixelOutput[2] = (u8)(redValue >> 8);
+            pixelOutput[3] = (u8)redValue;
         } else if (format == 1) {
             pixelOutput[2] = 0xFF;
-            pixelOutput[3] = redValue;
-            pixelOutput[0x22] = greenValue;
-            pixelOutput[0x23] = blueValue;
+            pixelOutput[3] = (u8)redValue;
+            pixelOutput[0x22] = (u8)greenValue;
+            pixelOutput[0x23] = (u8)blueValue;
         } else {
-            dest[outputOffset + 1] = lumaValue;
-            destinationCb[outputOffset + 1] = cbValue;
-            destinationCr[outputOffset + 1] = crValue;
+            pixelOutput[1] = lumaValue;
+            dest[(u32)width * height + offset + 1] = cbValue;
+            dest[(u32)width * height * 2 + offset + 1] = crValue;
         }
 
         y += 2;
@@ -1951,25 +1930,16 @@ void CArGBAOdh::LineDeconv21(u8* dest, u8* y, u8* cb, u8* cr, u16 width, u16 hei
 
 void CArGBAOdh::LineDeconv12(u8* dest, u8* y, u8* cb, u8* cr, u16 width, u16 height,
                              const SArDeconvTbl* table, int format) {
-    u8 crValue;
     u8 lumaValue;
     u8 cbValue;
-    u8* cbOutput;
-    u8* crOutput;
+    u8 crValue;
     s32 redValue;
     u32 greenValue;
     s32 blueValue;
-    s32 nextBlueValue;
-    s32 outputOffset;
-    u16 imageWidth = width;
     u32 pixelIndex;
-    u8* pixelOutput;
-    s32 pixelCount = (u32)imageWidth * height;
-    cbOutput = dest + pixelCount;
-    crOutput = dest + pixelCount * 2;
-    u8* yNext = y + imageWidth;
+    u32 offset;
 
-    for (pixelIndex = 0; (s32)pixelIndex < (s32)imageWidth; pixelIndex++) {
+    for (pixelIndex = 0; (s32)pixelIndex < (s32)width; pixelIndex++) {
         crValue = *cr;
         lumaValue = *y;
         cbValue = *cb;
@@ -1978,48 +1948,45 @@ void CArGBAOdh::LineDeconv12(u8* dest, u8* y, u8* cb, u8* cr, u16 width, u16 hei
         blueValue = ScaleLimit((u32)lumaValue + table->blue[cbValue]);
 
         if (format == 0) {
-            outputOffset = (pixelIndex & 0x1FFFFFFC) * 8 + (pixelIndex & 3) * 2;
+            offset = (pixelIndex & 0x1FFFFFFC) * 8 + (pixelIndex & 3) * 2;
             redValue = ((redValue & 0xF8) << 8 | (greenValue & 0xFC) << 3) | (blueValue >> 3);
-            pixelOutput = dest + outputOffset;
-            *pixelOutput = redValue >> 8;
-            pixelOutput[1] = redValue;
+            dest[offset] = (u8)(redValue >> 8);
+            dest[offset + 1] = (u8)redValue;
         } else if (format == 1) {
-            pixelOutput = dest + (pixelIndex & 0x0FFFFFFC) * 0x10 + (pixelIndex & 3) * 2;
-            *pixelOutput = 0xFF;
-            pixelOutput[1] = redValue;
-            pixelOutput[0x20] = greenValue;
-            pixelOutput[0x21] = blueValue;
+            offset = (pixelIndex & 0x0FFFFFFC) * 0x10 + (pixelIndex & 3) * 2;
+            dest[offset] = 0xFF;
+            dest[offset + 1] = (u8)redValue;
+            dest[offset + 0x20] = (u8)greenValue;
+            dest[offset + 0x21] = (u8)blueValue;
         } else {
-            blueValue = (pixelIndex & 7) + (pixelIndex & 0x3FFFFFF8) * 4;
-            dest[blueValue] = lumaValue;
-            pixelOutput = dest + blueValue;
-            cbOutput[blueValue] = cbValue;
-            crOutput[blueValue] = crValue;
+            offset = (pixelIndex & 7) + (pixelIndex & 0x3FFFFFF8) * 4;
+            dest[offset] = lumaValue;
+            dest[(u32)width * height + offset] = cbValue;
+            dest[(u32)width * height * 2 + offset] = crValue;
         }
 
-        lumaValue = *yNext;
+        lumaValue = y[width];
         redValue = ScaleLimit((u32)lumaValue + table->luma[crValue]);
         greenValue = ScaleLimit((u32)lumaValue + (table->cbGreen[cbValue] + table->crGreen[crValue] >> 16));
-        nextBlueValue = ScaleLimit((u32)lumaValue + table->blue[cbValue]);
+        blueValue = ScaleLimit((u32)lumaValue + table->blue[cbValue]);
 
         if (format == 0) {
-            redValue = ((redValue & 0xF8) << 8 | (greenValue & 0xFC) << 3) | (nextBlueValue >> 3);
-            pixelOutput[8] = redValue >> 8;
-            pixelOutput[9] = redValue;
+            redValue = ((redValue & 0xF8) << 8 | (greenValue & 0xFC) << 3) | (blueValue >> 3);
+            dest[offset + 8] = (u8)(redValue >> 8);
+            dest[offset + 9] = (u8)redValue;
         } else if (format == 1) {
-            pixelOutput[8] = 0xFF;
-            pixelOutput[9] = redValue;
-            pixelOutput[0x28] = greenValue;
-            pixelOutput[0x29] = nextBlueValue;
+            dest[offset + 8] = 0xFF;
+            dest[offset + 9] = (u8)redValue;
+            dest[offset + 0x28] = (u8)greenValue;
+            dest[offset + 0x29] = (u8)blueValue;
         } else {
-            nextBlueValue = (pixelIndex & 7) + (pixelIndex & 0x3FFFFFF8) * 4;
-            dest[nextBlueValue + 8] = lumaValue;
-            cbOutput[nextBlueValue + 8] = cbValue;
-            crOutput[nextBlueValue + 8] = crValue;
+            offset = (pixelIndex & 7) + (pixelIndex & 0x3FFFFFF8) * 4;
+            dest[offset + 8] = lumaValue;
+            dest[(u32)width * height + offset + 8] = cbValue;
+            dest[(u32)width * height * 2 + offset + 8] = crValue;
         }
 
         y++;
-        yNext++;
         cb++;
         cr++;
     }
@@ -2027,105 +1994,106 @@ void CArGBAOdh::LineDeconv12(u8* dest, u8* y, u8* cb, u8* cr, u16 width, u16 hei
 
 void CArGBAOdh::LineDeconv22(u8* dest, u8* y, u8* cb, u8* cr, u16 width, u16 height,
                              const SArDeconvTbl* table, int format) {
-    u32 pixelCount = (u32)width * height;
-    u8* destinationCb = dest + pixelCount;
-    u8* destinationCr = dest + pixelCount * 2;
-    u32 index;
-    u8* output;
+    u8 lumaValue;
+    u8 cbValue;
+    u8 crValue;
+    s32 redValue;
+    u32 greenValue;
+    s32 blueValue;
+    u32 pixelIndex;
+    u32 offset;
+    u8* nextRow;
 
-    for (index = 0; (s32)index < (s32)width; index += 2) {
-        u8 crValue = *cr;
-        u8* yCursor = y;
-        u8 yValue = *yCursor;
-        u8* nextRow = yCursor + width;
-        u8 cbValue = *cb;
-        u32 red = ScaleLimit(yValue + table->luma[crValue]);
-        u32 green = ScaleLimit(yValue + (table->cbGreen[cbValue] + table->crGreen[crValue] >> 16));
-        s32 blue = ScaleLimit(yValue + table->blue[cbValue]);
+    for (pixelIndex = 0; (s32)pixelIndex < (s32)width; pixelIndex += 2) {
+        crValue = *cr;
+        lumaValue = *y;
+        nextRow = y + width;
+        cbValue = *cb;
+        redValue = ScaleLimit((u32)lumaValue + table->luma[crValue]);
+        greenValue = ScaleLimit((u32)lumaValue + (table->cbGreen[cbValue] + table->crGreen[crValue] >> 16));
+        blueValue = ScaleLimit((u32)lumaValue + table->blue[cbValue]);
 
         if (format == 0) {
-            output = dest + (index & 0x1FFFFFFC) * 8 + (index & 3) * 2;
-            s32 pixel = ((red & 0xF8) << 8 | (green & 0xFC) << 3) | blue >> 3;
-            output[0] = pixel >> 8;
-            output[1] = pixel;
+            offset = (pixelIndex & 0x1FFFFFFC) * 8 + (pixelIndex & 3) * 2;
+            redValue = ((redValue & 0xF8) << 8 | (greenValue & 0xFC) << 3) | (blueValue >> 3);
+            dest[offset] = (u8)(redValue >> 8);
+            dest[offset + 1] = (u8)redValue;
         } else if (format == 1) {
-            output = dest + (index & 0x0FFFFFFC) * 0x10 + (index & 3) * 2;
-            output[0] = 0xFF;
-            output[1] = red;
-            output[0x20] = green;
-            output[0x21] = blue;
+            offset = (pixelIndex & 0x0FFFFFFC) * 0x10 + (pixelIndex & 3) * 2;
+            dest[offset] = 0xFF;
+            dest[offset + 1] = (u8)redValue;
+            dest[offset + 0x20] = (u8)greenValue;
+            dest[offset + 0x21] = (u8)blueValue;
         } else {
-            blue = (index & 7) + (index & 0x3FFFFFF8) * 4;
-            dest[blue] = yValue;
-            output = dest + blue;
-            destinationCb[blue] = cbValue;
-            destinationCr[blue] = crValue;
+            offset = (pixelIndex & 7) + (pixelIndex & 0x3FFFFFF8) * 4;
+            dest[offset] = lumaValue;
+            dest[(u32)width * height + offset] = cbValue;
+            dest[(u32)width * height * 2 + offset] = crValue;
         }
 
-        yValue = yCursor[1];
-        red = ScaleLimit(yValue + table->luma[crValue]);
-        green = ScaleLimit(yValue + (table->cbGreen[cbValue] + table->crGreen[crValue] >> 16));
-        blue = ScaleLimit(yValue + table->blue[cbValue]);
+        lumaValue = y[1];
+        redValue = ScaleLimit((u32)lumaValue + table->luma[crValue]);
+        greenValue = ScaleLimit((u32)lumaValue + (table->cbGreen[cbValue] + table->crGreen[crValue] >> 16));
+        blueValue = ScaleLimit((u32)lumaValue + table->blue[cbValue]);
 
         if (format == 0) {
-            s32 pixel = ((red & 0xF8) << 8 | (green & 0xFC) << 3) | blue >> 3;
-            output[2] = pixel >> 8;
-            output[3] = pixel;
+            redValue = ((redValue & 0xF8) << 8 | (greenValue & 0xFC) << 3) | (blueValue >> 3);
+            dest[offset + 2] = (u8)(redValue >> 8);
+            dest[offset + 3] = (u8)redValue;
         } else if (format == 1) {
-            output[2] = 0xFF;
-            output[3] = red;
-            output[0x22] = green;
-            output[0x23] = blue;
+            dest[offset + 2] = 0xFF;
+            dest[offset + 3] = (u8)redValue;
+            dest[offset + 0x22] = (u8)greenValue;
+            dest[offset + 0x23] = (u8)blueValue;
         } else {
-            blue = (index & 7) + (index & 0x3FFFFFF8) * 4;
-            output = dest + blue;
-            output[1] = yValue;
-            destinationCb[blue + 1] = cbValue;
-            destinationCr[blue + 1] = crValue;
+            offset = (pixelIndex & 7) + (pixelIndex & 0x3FFFFFF8) * 4;
+            dest[offset + 1] = lumaValue;
+            dest[(u32)width * height + offset + 1] = cbValue;
+            dest[(u32)width * height * 2 + offset + 1] = crValue;
         }
 
         y += 2;
-        yValue = *nextRow;
-        red = ScaleLimit(yValue + table->luma[crValue]);
-        green = ScaleLimit(yValue + (table->cbGreen[cbValue] + table->crGreen[crValue] >> 16));
-        blue = ScaleLimit(yValue + table->blue[cbValue]);
+
+        lumaValue = *nextRow;
+        redValue = ScaleLimit((u32)lumaValue + table->luma[crValue]);
+        greenValue = ScaleLimit((u32)lumaValue + (table->cbGreen[cbValue] + table->crGreen[crValue] >> 16));
+        blueValue = ScaleLimit((u32)lumaValue + table->blue[cbValue]);
 
         if (format == 0) {
-            s32 pixel = ((red & 0xF8) << 8 | (green & 0xFC) << 3) | blue >> 3;
-            output[8] = pixel >> 8;
-            output[9] = pixel;
+            redValue = ((redValue & 0xF8) << 8 | (greenValue & 0xFC) << 3) | (blueValue >> 3);
+            dest[offset + 8] = (u8)(redValue >> 8);
+            dest[offset + 9] = (u8)redValue;
         } else if (format == 1) {
-            output[8] = 0xFF;
-            output[9] = red;
-            output[0x28] = green;
-            output[0x29] = blue;
+            dest[offset + 8] = 0xFF;
+            dest[offset + 9] = (u8)redValue;
+            dest[offset + 0x28] = (u8)greenValue;
+            dest[offset + 0x29] = (u8)blueValue;
         } else {
-            blue = (index & 7) + (index & 0x3FFFFFF8) * 4;
-            output = dest + blue;
-            output[8] = yValue;
-            destinationCb[blue + 8] = cbValue;
-            destinationCr[blue + 8] = crValue;
+            offset = (pixelIndex & 7) + (pixelIndex & 0x3FFFFFF8) * 4;
+            dest[offset + 8] = lumaValue;
+            dest[(u32)width * height + offset + 8] = cbValue;
+            dest[(u32)width * height * 2 + offset + 8] = crValue;
         }
 
-        yValue = nextRow[1];
-        red = ScaleLimit(yValue + table->luma[crValue]);
-        green = ScaleLimit(yValue + (table->cbGreen[cbValue] + table->crGreen[crValue] >> 16));
-        blue = ScaleLimit(yValue + table->blue[cbValue]);
+        lumaValue = nextRow[1];
+        redValue = ScaleLimit((u32)lumaValue + table->luma[crValue]);
+        greenValue = ScaleLimit((u32)lumaValue + (table->cbGreen[cbValue] + table->crGreen[crValue] >> 16));
+        blueValue = ScaleLimit((u32)lumaValue + table->blue[cbValue]);
 
         if (format == 0) {
-            s32 pixel = ((red & 0xF8) << 8 | (green & 0xFC) << 3) | blue >> 3;
-            output[10] = pixel >> 8;
-            output[11] = pixel;
+            redValue = ((redValue & 0xF8) << 8 | (greenValue & 0xFC) << 3) | (blueValue >> 3);
+            dest[offset + 10] = (u8)(redValue >> 8);
+            dest[offset + 11] = (u8)redValue;
         } else if (format == 1) {
-            output[10] = 0xFF;
-            output[11] = red;
-            output[0x2A] = green;
-            output[0x2B] = blue;
+            dest[offset + 10] = 0xFF;
+            dest[offset + 11] = (u8)redValue;
+            dest[offset + 0x2a] = (u8)greenValue;
+            dest[offset + 0x2b] = (u8)blueValue;
         } else {
-            blue = (index & 7) + (index & 0x3FFFFFF8) * 4;
-            dest[blue + 9] = yValue;
-            destinationCb[blue + 9] = cbValue;
-            destinationCr[blue + 9] = crValue;
+            offset = (pixelIndex & 7) + (pixelIndex & 0x3FFFFFF8) * 4;
+            dest[offset + 9] = lumaValue;
+            dest[(u32)width * height + offset + 9] = cbValue;
+            dest[(u32)width * height * 2 + offset + 9] = crValue;
         }
 
         cb++;
@@ -2337,91 +2305,97 @@ LAB_00013590:
 }
 
 void CArGBAOdh::idct_fast(const u8* rangeLimitTable, u32* coefficients, u32* quantizationTable, u8* destination, u32 stride) {
-    u8 pixelValue;
-    int* coefficientCursor;
-    int temporaryA;
-    int temporaryB;
-    u32 value;
-    int temporaryC;
-    int temporaryD;
-    int temporaryE;
-    u32* workspace;
-    int* quantizationCursor;
-    int rowIndex;
-    u32 sumA;
-    u32 sumB;
-    u32 sumC;
-    int crossTerm;
-    int butterflyValue;
-    int butterflyValueB;
-    u32 oddTerm;
-    int middleTerm;
-    u32 intermediateSum;
-    int intermediateDifference;
+    int tmp0, tmp1, tmp2, tmp3, tmp4, tmp5, tmp6, tmp7;
+    int tmp10, tmp11, tmp12, tmp13;
+    int z5, z10, z11, z12, z13;
+    int* input;
+    int* quantization;
+    int* workspacePointer;
     u8* outputRow;
-    u32 blockWorkspace[64];
+    int counter;
+    int dcValue;
+    u8 pixelValue;
+    int workspace[64];
 
-    workspace = blockWorkspace;
-    for (int column = 0; column < 8; column++) {
-        coefficientCursor = (int*)quantizationTable;
-        quantizationCursor = (int*)coefficients;
-        if (coefficientCursor[8] == 0 && coefficientCursor[0x10] == 0 && coefficientCursor[0x18] == 0 && coefficientCursor[0x20] == 0 &&
-            coefficientCursor[0x28] == 0 && coefficientCursor[0x30] == 0 && coefficientCursor[0x38] == 0) {
-            value = *coefficientCursor * *quantizationCursor;
-            *workspace = value;
-            workspace[8] = value;
-            workspace[0x10] = value;
-            workspace[0x18] = value;
-            workspace[0x20] = value;
-            workspace[0x28] = value;
-            workspace[0x30] = value;
-            workspace[0x38] = value;
-            workspace = workspace + 1;
-            quantizationTable++;
-            coefficients++;
-        } else {
-            butterflyValue = coefficientCursor[8] * quantizationCursor[8];
-            temporaryC = coefficientCursor[0x10] * quantizationCursor[0x10] + coefficientCursor[0x30] * quantizationCursor[0x30];
-            temporaryB = butterflyValue - coefficientCursor[0x38] * quantizationCursor[0x38];
-            butterflyValue = butterflyValue + coefficientCursor[0x38] * quantizationCursor[0x38];
-            temporaryE = ((coefficientCursor[0x10] * quantizationCursor[0x10] - coefficientCursor[0x30] * quantizationCursor[0x30]) * 0x16A >> 8) - temporaryC;
-            crossTerm = coefficientCursor[0x28] * quantizationCursor[0x28] + coefficientCursor[0x18] * quantizationCursor[0x18];
-            temporaryA = coefficientCursor[0x28] * quantizationCursor[0x28] - coefficientCursor[0x18] * quantizationCursor[0x18];
-            butterflyValueB = butterflyValue + crossTerm;
-            rowIndex = (temporaryA + temporaryB) * 0x1D9 >> 8;
-            temporaryD = *coefficientCursor * *quantizationCursor + coefficientCursor[0x20] * quantizationCursor[0x20];
-            middleTerm = *coefficientCursor * *quantizationCursor - coefficientCursor[0x20] * quantizationCursor[0x20];
-            intermediateDifference = temporaryD + temporaryC;
-            temporaryD = temporaryD - temporaryC;
-            *workspace = intermediateDifference + butterflyValueB;
-            temporaryC = middleTerm + temporaryE;
-            workspace[0x38] = intermediateDifference - butterflyValueB;
-            butterflyValueB = (rowIndex + (temporaryA * -0x29D >> 8)) - butterflyValueB;
-            middleTerm = middleTerm - temporaryE;
-            workspace[8] = temporaryC + butterflyValueB;
-            workspace[0x30] = temporaryC - butterflyValueB;
-            butterflyValueB = ((butterflyValue - crossTerm) * 0x16A >> 8) - butterflyValueB;
-            workspace[0x10] = middleTerm + butterflyValueB;
-            workspace[0x28] = middleTerm - butterflyValueB;
-            butterflyValueB = ((temporaryB * 0x115 >> 8) - rowIndex) + butterflyValueB;
-            workspace[0x20] = temporaryD + butterflyValueB;
-            workspace[0x18] = temporaryD - butterflyValueB;
-            workspace = workspace + 1;
-            quantizationTable++;
-            coefficients++;
+    input = (int*)quantizationTable;
+    quantization = (int*)coefficients;
+    workspacePointer = workspace;
+    for (counter = 8; counter > 0; counter--) {
+        if (input[8] == 0 && input[16] == 0 && input[24] == 0 && input[32] == 0 && input[40] == 0 && input[48] == 0 &&
+            input[56] == 0) {
+            dcValue = input[0] * quantization[0];
+            workspacePointer[0] = dcValue;
+            workspacePointer[8] = dcValue;
+            workspacePointer[16] = dcValue;
+            workspacePointer[24] = dcValue;
+            workspacePointer[32] = dcValue;
+            workspacePointer[40] = dcValue;
+            workspacePointer[48] = dcValue;
+            workspacePointer[56] = dcValue;
+            input++;
+            quantization++;
+            workspacePointer++;
+            continue;
         }
+
+        tmp0 = input[0] * quantization[0];
+        tmp1 = input[16] * quantization[16];
+        tmp2 = input[32] * quantization[32];
+        tmp3 = input[48] * quantization[48];
+
+        tmp10 = tmp0 + tmp2;
+        tmp11 = tmp0 - tmp2;
+
+        tmp13 = tmp1 + tmp3;
+        tmp12 = ((tmp1 - tmp3) * 362 >> 8) - tmp13;
+
+        tmp0 = tmp10 + tmp13;
+        tmp3 = tmp10 - tmp13;
+        tmp1 = tmp11 + tmp12;
+        tmp2 = tmp11 - tmp12;
+
+        tmp4 = input[8] * quantization[8];
+        tmp5 = input[24] * quantization[24];
+        tmp6 = input[40] * quantization[40];
+        tmp7 = input[56] * quantization[56];
+
+        z13 = tmp6 + tmp5;
+        z10 = tmp6 - tmp5;
+        z11 = tmp4 + tmp7;
+        z12 = tmp4 - tmp7;
+
+        tmp7 = z11 + z13;
+        tmp11 = (z11 - z13) * 362 >> 8;
+
+        z5 = (z10 + z12) * 473 >> 8;
+        tmp10 = (z12 * 277 >> 8) - z5;
+        tmp12 = (z10 * -669 >> 8) + z5;
+
+        tmp6 = tmp12 - tmp7;
+        tmp5 = tmp11 - tmp6;
+        tmp4 = tmp10 + tmp5;
+
+        workspacePointer[0] = tmp0 + tmp7;
+        workspacePointer[56] = tmp0 - tmp7;
+        workspacePointer[8] = tmp1 + tmp6;
+        workspacePointer[48] = tmp1 - tmp6;
+        workspacePointer[16] = tmp2 + tmp5;
+        workspacePointer[40] = tmp2 - tmp5;
+        workspacePointer[32] = tmp3 + tmp4;
+        workspacePointer[24] = tmp3 - tmp4;
+
+        input++;
+        quantization++;
+        workspacePointer++;
     }
 
-    workspace = blockWorkspace;
-    rowIndex = 0;
-    for (int row = 0; row < 8; row++, workspace += 8, rowIndex++) {
-        value = workspace[1];
-        outputRow = destination + rowIndex * stride;
-        if ((((value == 0) && (workspace[2] == 0)) &&
-             ((workspace[3] == 0) && (((workspace[4] == 0) && (workspace[5] == 0)) && (workspace[6] == 0)))) &&
-            (workspace[7] == 0)) {
-            pixelValue = rangeLimitTable[(*workspace >> 5 & 0x3FF)];
-            *outputRow = pixelValue;
+    workspacePointer = workspace;
+    for (counter = 0; counter < 8; counter++) {
+        outputRow = destination + counter * stride;
+        if (workspacePointer[1] == 0 && workspacePointer[2] == 0 && workspacePointer[3] == 0 && workspacePointer[4] == 0 &&
+            workspacePointer[5] == 0 && workspacePointer[6] == 0 && workspacePointer[7] == 0) {
+            pixelValue = rangeLimitTable[(u32)workspacePointer[0] >> 5 & 0x3FF];
+            outputRow[0] = pixelValue;
             outputRow[1] = pixelValue;
             outputRow[2] = pixelValue;
             outputRow[3] = pixelValue;
@@ -2429,38 +2403,46 @@ void CArGBAOdh::idct_fast(const u8* rangeLimitTable, u32* coefficients, u32* qua
             outputRow[5] = pixelValue;
             outputRow[6] = pixelValue;
             outputRow[7] = pixelValue;
-        } else {
-            temporaryB = value - workspace[7];
-            intermediateSum = value + workspace[7];
-            oddTerm = workspace[5] + workspace[3];
-            temporaryA = workspace[5] - workspace[3];
-            sumB = workspace[2] + workspace[6];
-            sumA = *workspace + workspace[4];
-            crossTerm = (int)sumB;
-            temporaryC = (int)sumA + crossTerm;
-            sumC = intermediateSum + oddTerm;
-            crossTerm = ((int)((workspace[2] - workspace[6]) * 0x16A) >> 8) - crossTerm;
-            temporaryE = *workspace - workspace[4];
-            temporaryD = (int)sumC;
-            sumA = sumA - sumB;
-            butterflyValueB = temporaryE - crossTerm;
-            sumB = (u32)((temporaryA + temporaryB) * 0x1D9 >> 8);
-            *outputRow = rangeLimitTable[((u32)(temporaryC + temporaryD) >> 5 & 0x3FF)];
-            temporaryE = temporaryE + crossTerm;
-            sumC = (sumB + (temporaryA * -0x29D >> 8)) - sumC;
-            outputRow[7] = rangeLimitTable[((u32)(temporaryC - temporaryD) >> 5 & 0x3FF)];
-            temporaryA = (int)sumC;
-            sumC = (((int)intermediateSum - (int)oddTerm) * 0x16A >> 8) - sumC;
-            outputRow[1] = rangeLimitTable[((u32)(temporaryE + temporaryA) >> 5 & 0x3FF)];
-            temporaryC = (int)sumC;
-            outputRow[6] = rangeLimitTable[((u32)(temporaryE - temporaryA) >> 5 & 0x3FF)];
-            pixelValue = rangeLimitTable[((u32)(butterflyValueB - temporaryC) >> 5 & 0x3FF)];
-            sumC = ((temporaryB * 0x115 >> 8) - sumB) + sumC;
-            outputRow[2] = rangeLimitTable[((u32)(butterflyValueB + temporaryC) >> 5 & 0x3FF)];
-            outputRow[5] = pixelValue;
-            pixelValue = rangeLimitTable[((u32)((int)sumA - (int)sumC) >> 5 & 0x3FF)];
-            outputRow[4] = rangeLimitTable[((u32)(sumA + sumC) >> 5 & 0x3FF)];
-            outputRow[3] = pixelValue;
+            workspacePointer += 8;
+            continue;
         }
+
+        tmp10 = workspacePointer[0] + workspacePointer[4];
+        tmp11 = workspacePointer[0] - workspacePointer[4];
+
+        tmp13 = workspacePointer[2] + workspacePointer[6];
+        tmp12 = ((workspacePointer[2] - workspacePointer[6]) * 362 >> 8) - tmp13;
+
+        tmp0 = tmp10 + tmp13;
+        tmp3 = tmp10 - tmp13;
+        tmp1 = tmp11 + tmp12;
+        tmp2 = tmp11 - tmp12;
+
+        z13 = workspacePointer[5] + workspacePointer[3];
+        z10 = workspacePointer[5] - workspacePointer[3];
+        z11 = workspacePointer[1] + workspacePointer[7];
+        z12 = workspacePointer[1] - workspacePointer[7];
+
+        tmp7 = z11 + z13;
+        tmp11 = (z11 - z13) * 362 >> 8;
+
+        z5 = (z10 + z12) * 473 >> 8;
+        tmp10 = (z12 * 277 >> 8) - z5;
+        tmp12 = (z10 * -669 >> 8) + z5;
+
+        tmp6 = tmp12 - tmp7;
+        tmp5 = tmp11 - tmp6;
+        tmp4 = tmp10 + tmp5;
+
+        outputRow[0] = rangeLimitTable[(u32)(tmp0 + tmp7) >> 5 & 0x3FF];
+        outputRow[7] = rangeLimitTable[(u32)(tmp0 - tmp7) >> 5 & 0x3FF];
+        outputRow[1] = rangeLimitTable[(u32)(tmp1 + tmp6) >> 5 & 0x3FF];
+        outputRow[6] = rangeLimitTable[(u32)(tmp1 - tmp6) >> 5 & 0x3FF];
+        outputRow[2] = rangeLimitTable[(u32)(tmp2 + tmp5) >> 5 & 0x3FF];
+        outputRow[5] = rangeLimitTable[(u32)(tmp2 - tmp5) >> 5 & 0x3FF];
+        outputRow[4] = rangeLimitTable[(u32)(tmp3 + tmp4) >> 5 & 0x3FF];
+        outputRow[3] = rangeLimitTable[(u32)(tmp3 - tmp4) >> 5 & 0x3FF];
+
+        workspacePointer += 8;
     }
 }
