@@ -1,7 +1,7 @@
 #include <private/vf/PrFILE2/pf_types.h>
 
 // clang-format off
-const pf_u8 pf_valid_fn_char_8162E6B0[96] = {
+const pf_u8 pf_valid_fn_char[96] = {
     1, 3, 0, 3, 3, 3, 3, 3, 3, 3, 0, 1, 1, 3, 3, 0,
     3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0, 1, 0, 1, 0, 0,
     3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
