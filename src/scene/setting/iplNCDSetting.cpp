@@ -459,48 +459,48 @@ namespace ipl {
         }
 
         void NCDSetting::setWDPrivacyMode(u16 mode) {
-            u16 uVar1;
+            u16 privacyMode;
 
             switch (mode) {
                 case 0: {
-                    uVar1 = 0;
+                    privacyMode = 0;
                     break;
                 }
                 case 1: {
-                    uVar1 = 1;
+                    privacyMode = 1;
                     break;
                 }
                 case 2: {
-                    uVar1 = 2;
+                    privacyMode = 2;
                     break;
                 }
                 case 4: {
-                    uVar1 = 4;
+                    privacyMode = 4;
                     break;
                 }
                 case 5: {
-                    uVar1 = 5;
+                    privacyMode = 5;
                     break;
                 }
                 case 6: {
-                    uVar1 = 6;
+                    privacyMode = 6;
                     break;
                 }
                 case 7: {
-                    uVar1 = 4;
+                    privacyMode = 4;
                     break;
                 }
                 case 8: {
-                    uVar1 = 1;
+                    privacyMode = 1;
                     break;
                 }
                 default: {
-                    uVar1 = 0;
+                    privacyMode = 0;
                     break;
                 }
             }
             memset(&mConfig.profiles[mID].netif.wireless.config.manual.privacy.wep104, 0, 0x44);
-            mConfig.profiles[mID].netif.wireless.config.manual.privacy.mode = uVar1;
+            mConfig.profiles[mID].netif.wireless.config.manual.privacy.mode = privacyMode;
         }
 
         void NCDSetting::setPrivacy(u8* newKey, int len) {
