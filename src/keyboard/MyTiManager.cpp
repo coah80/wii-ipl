@@ -913,6 +913,7 @@ namespace textinput {
 
                 bool toolUpdate = ToolBar()->updateInput(chan, x, y, trig, hold, release, &point);
 
+                bool ret;
                 bool candUpdate = false;
                 if (CandidateBox()->isActive()) {
                     candUpdate = CandidateBox()->updateInput(chan, x, y, trig, hold, release, &point);
@@ -925,7 +926,7 @@ namespace textinput {
                     InputForm()->updateInput(chan, 1.0f / 0.0f, 1.0f / 0.0f, trig, hold, release, &point);
                 }
 
-                bool ret = toolUpdate | candUpdate | formUpdate | keyUpdate;
+                ret = toolUpdate | candUpdate | formUpdate | keyUpdate;
 
                 if (qwerty != ToolBar()->isQwerty()) {
                     InputForm()->onCommand(CommandReceiver::IC_TRANSLATE_MODE, NULL);
