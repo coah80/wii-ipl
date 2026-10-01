@@ -1,3 +1,4 @@
+// Matching build uses iplGCWindow.s (retail extract); keep source for reference.
 #define IPL_MEMORYCARD_BASE_CTOR_OUT_OF_LINE
 #define IPL_MEMORYCARD_BASE_EVENT_OUT_OF_LINE
 #define IPL_GCW_PANEMANAGER_CTOR_OUT_OF_LINE

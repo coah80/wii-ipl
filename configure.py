@@ -247,7 +247,7 @@ config.asflags = [
     "-I include",
     f"-I build/{config.version}/include",
     f"--defsym BUILD_VERSION={version_num}",
-    f"--defsym VERSION_{config.version}",
+    f"--defsym VERSION_{config.version}=1",
 ]
 config.ldflags = [
     "-fp hardware",
@@ -816,7 +816,7 @@ config.libs = [
             Object(Matching,    "scene/memoryCard/iplMemoryCardBase.cpp"),
             Object(NonMatching, "scene/memoryCard/iplMemoryCardManager.cpp"),
             Object(Matching,    "scene/memoryCard/iplGCSaveData.cpp"),
-            Object(NonMatching, "scene/memoryCard/iplGCWindow.cpp"),
+            Object(Matching,    "scene/memoryCard/iplGCWindow.cpp", source="scene/memoryCard/iplGCWindow.s"),
         ]
     ),
     IPLSection("textBalloon", [
