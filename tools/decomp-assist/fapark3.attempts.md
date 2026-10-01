@@ -116,3 +116,49 @@ Orig .o exports `STB_GLOBAL lbl_XXXX` data symbols = real file-scope objects
 - orig also had .sdata globals lbl_81698390/8391 {1,2} and lbl_81698394
   {0x20,0} shared by 3+ fns — byte-identical already via pooled literals;
   left as pools (declaring globals at 0x28 would reshuffle pool order).
+
+## Session 4 — code-tie grind (no flips)
+
+- **Volatile store→load pinning (sd_drv, decoded lever):** casting to
+  `((volatile PFD_SDDRV_INFO*)&g_pfd_sddrv_info)->field` on BOTH the store and
+  the dependent load pins MWCC's memory-op order to source order — stops it
+  hoisting a load past a preceding same-struct store. Applied at init (2
+  sites), finalize (4 tail assigns), removal_callback (store + check).
+  Byte-identical at those sites.
+- **copy_bytes peel model (sd_drv, decoded):** orig's copy helper is manually
+  peeled — `d[0]=*src; src++; for(i=1;i<size;i++) d[i]=*src++;` gives the
+  `addic.` live-IV test + abs-folded elem0 + `lbz k(r3)` walk. But the two
+  11B volume_label copies emit an UNPEELED all-walk — needed a second plain
+  helper called only at the 11B sites. store_bpb_buf + store_fat32_bpb_buf
+  byte-identical.
+- **Early-return vs select-assign:** `r=-44; if(cond) r=0; return r;` folds to
+  select (`li -44; bne`); `if(!cond) return -44; return 0;` gives orig's
+  branch layout. Fixed pfd_sddrv_init tail.
+- **GetLFNEntryName IV model (pf_entry_iterator, partial):** orig's `index`
+  is a byte offset into p_ent (long_name at +0): `li r31,0; addi r31,0x1a`;
+  dst recomputed `add r30,r28,r31` per iter; terminator via byte-arith
+  `*(u16*)((u8*)p_ent + num*0x1a) = 0` → `mulli 0x1a; rlwinm; sthx`.
+  u16-index forms give `mulli 0xd; slwi`. Byte-offset forms reproduce the
+  terminator but MWCC folds `p_ent + index` into a pointer-IV (4 callee webs)
+  vs orig's index-IV + per-iter recompute (5 webs, r27-r31). ~8 source forms
+  tried: `&long_name[index]`/`index += 13` (closest, 38 diffs — kept),
+  `(u8*)p_ent->long_name + index` (+63), `(u8*)p_ent + index` (+66),
+  `num*0x1a` terminator. Residual = MWCC IV-vs-recompute choice; no lever.
+- **DoWrite overlap-sum derivation (pf_cache, decoded but unwinnable):**
+  orig computes `sum = sector+num_sector` once then derives `last = sum-1`
+  (`addi r3,r4,-1`) and `num_overlap = sum - p_sector` (`subf r4,r5,r4`).
+  Source forms sharing the sum (`sector+num_sector-1` either order, named
+  `end_sector` temp, `last+1-p_sector`) all cascade regalloc elsewhere
+  (-205/-88/-120 diffs vs 7 baseline). The 6-diff reorder reads
+  num_overlap before assignment — UB, rejected. Kept honest form.
+- **pdm_part_get_start_sector:** 46 residual diffs are pure scheduling
+  permutations of the flat-assoc MBR_WORD decode (same insn set, lbz/slwi
+  interleave differs). Documented tie.
+- **Uniform callee-reg rotations (regname-only, insn-identical):**
+  pf_cluster×3 (InsertCluster +1-web rotation, DeleteCluster mixed),
+  FAAttach (volatile-reg homes on the gOpenDisk/gOpenPartition store
+  cluster — inlining `table->drive-'A'` per site regressed to 136 insns),
+  pf_file GetSFD (3-word mr-ordering swap, ~6 lever forms across waves),
+  pf_fat12 ReadFATEntryWithBuf (flag r29/err r28 web swap in the select
+  `li flag,1; beq; clrlwi` — WriteFAT's identical construct matched, so
+  it's context regalloc; uninit-err rotated everything wrong).
