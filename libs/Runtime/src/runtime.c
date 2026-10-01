@@ -313,18 +313,18 @@ asm void __div2u() {
     cmpwi r3, 0x0
     cntlzw r0, r3
     cntlzw r9, r4
-    bne L_815F9538
+    bne __div2u_L_815F9538
     addi r0, r9, 0x20
-L_815F9538:
+__div2u_L_815F9538:
     cmpwi r5, 0x0
     cntlzw r9, r5
     cntlzw r10, r6
-    bne L_815F954C
+    bne __div2u_L_815F954C
     addi r9, r10, 0x20
-L_815F954C:
+__div2u_L_815F954C:
     cmpw r0, r9
     subfic r10, r0, 0x40
-    bgt L_815F9604
+    bgt __div2u_L_815F9604
     addi r9, r9, 0x1
     subfic r9, r9, 0x40
     add r0, r0, r9
@@ -332,49 +332,49 @@ L_815F954C:
     mtctr r9
     cmpwi r9, 0x20
     subi r7, r9, 0x20
-    blt L_815F9584
+    blt __div2u_L_815F9584
     srw r8, r3, r7
     li r7, 0x0
-    b L_815F9598
-L_815F9584:
+    b __div2u_L_815F9598
+__div2u_L_815F9584:
     srw r8, r4, r9
     subfic r7, r9, 0x20
     slw r7, r3, r7
     or r8, r8, r7
     srw r7, r3, r9
-L_815F9598:
+__div2u_L_815F9598:
     cmpwi r0, 0x20
     subic r9, r0, 0x20
-    blt L_815F95B0
+    blt __div2u_L_815F95B0
     slw r3, r4, r9
     li r4, 0x0
-    b L_815F95C4
-L_815F95B0:
+    b __div2u_L_815F95C4
+__div2u_L_815F95B0:
     slw r3, r3, r0
     subfic r9, r0, 0x20
     srw r9, r4, r9
     or r3, r3, r9
     slw r4, r4, r0
-L_815F95C4:
+__div2u_L_815F95C4:
     li r10, -0x1
     addic r7, r7, 0x0
-L_815F95CC:
+__div2u_L_815F95CC:
     adde r4, r4, r4
     adde r3, r3, r3
     adde r8, r8, r8
     adde r7, r7, r7
     subfc r0, r6, r8
     subfe. r9, r5, r7
-    blt L_815F95F4
+    blt __div2u_L_815F95F4
     mr r8, r0
     mr r7, r9
     addic r0, r10, 0x1
-L_815F95F4:
-    bdnz L_815F95CC
+__div2u_L_815F95F4:
+    bdnz __div2u_L_815F95CC
     adde r4, r4, r4
     adde r3, r3, r3
     blr
-L_815F9604:
+__div2u_L_815F9604:
     li r4, 0x0
     li r3, 0x0
     blr
@@ -385,32 +385,32 @@ asm void __div2i() {
 #ifdef __MWERKS__
     stwu r1, -0x10(r1)
     clrrwi. r9, r3, 31
-    beq L_815F9624
+    beq __div2i_L_815F9624
     subfic r4, r4, 0x0
     subfze r3, r3
-L_815F9624:
+__div2i_L_815F9624:
     stw r9, 0x8(r1)
     clrrwi. r10, r5, 31
-    beq L_815F9638
+    beq __div2i_L_815F9638
     subfic r6, r6, 0x0
     subfze r5, r5
-L_815F9638:
+__div2i_L_815F9638:
     stw r10, 0xc(r1)
     cmpwi r3, 0x0
     cntlzw r0, r3
     cntlzw r9, r4
-    bne L_815F9650
+    bne __div2i_L_815F9650
     addi r0, r9, 0x20
-L_815F9650:
+__div2i_L_815F9650:
     cmpwi r5, 0x0
     cntlzw r9, r5
     cntlzw r10, r6
-    bne L_815F9664
+    bne __div2i_L_815F9664
     addi r9, r10, 0x20
-L_815F9664:
+__div2i_L_815F9664:
     cmpw r0, r9
     subfic r10, r0, 0x40
-    bgt L_815F9738
+    bgt __div2i_L_815F9738
     addi r9, r9, 0x1
     subfic r9, r9, 0x40
     add r0, r0, r9
@@ -418,60 +418,60 @@ L_815F9664:
     mtctr r9
     cmpwi r9, 0x20
     subi r7, r9, 0x20
-    blt L_815F969C
+    blt __div2i_L_815F969C
     srw r8, r3, r7
     li r7, 0x0
-    b L_815F96B0
-L_815F969C:
+    b __div2i_L_815F96B0
+__div2i_L_815F969C:
     srw r8, r4, r9
     subfic r7, r9, 0x20
     slw r7, r3, r7
     or r8, r8, r7
     srw r7, r3, r9
-L_815F96B0:
+__div2i_L_815F96B0:
     cmpwi r0, 0x20
     subic r9, r0, 0x20
-    blt L_815F96C8
+    blt __div2i_L_815F96C8
     slw r3, r4, r9
     li r4, 0x0
-    b L_815F96DC
-L_815F96C8:
+    b __div2i_L_815F96DC
+__div2i_L_815F96C8:
     slw r3, r3, r0
     subfic r9, r0, 0x20
     srw r9, r4, r9
     or r3, r3, r9
     slw r4, r4, r0
-L_815F96DC:
+__div2i_L_815F96DC:
     li r10, -0x1
     addic r7, r7, 0x0
-L_815F96E4:
+__div2i_L_815F96E4:
     adde r4, r4, r4
     adde r3, r3, r3
     adde r8, r8, r8
     adde r7, r7, r7
     subfc r0, r6, r8
     subfe. r9, r5, r7
-    blt L_815F970C
+    blt __div2i_L_815F970C
     mr r8, r0
     mr r7, r9
     addic r0, r10, 0x1
-L_815F970C:
-    bdnz L_815F96E4
+__div2i_L_815F970C:
+    bdnz __div2i_L_815F96E4
     adde r4, r4, r4
     adde r3, r3, r3
     lwz r9, 0x8(r1)
     lwz r10, 0xc(r1)
     xor. r7, r9, r10
-    beq L_815F9734
+    beq __div2i_L_815F9734
     cmpwi r9, 0x0
     subfic r4, r4, 0x0
     subfze r3, r3
-L_815F9734:
-    b L_815F9740
-L_815F9738:
+__div2i_L_815F9734:
+    b __div2i_L_815F9740
+__div2i_L_815F9738:
     li r4, 0x0
     li r3, 0x0
-L_815F9740:
+__div2i_L_815F9740:
     addi r1, r1, 0x10
     blr
 #endif
@@ -482,18 +482,18 @@ asm void __mod2u() {
     cmpwi r3, 0x0
     cntlzw r0, r3
     cntlzw r9, r4
-    bne L_815F975C
+    bne __mod2u_L_815F975C
     addi r0, r9, 0x20
-L_815F975C:
+__mod2u_L_815F975C:
     cmpwi r5, 0x0
     cntlzw r9, r5
     cntlzw r10, r6
-    bne L_815F9770
+    bne __mod2u_L_815F9770
     addi r9, r10, 0x20
-L_815F9770:
+__mod2u_L_815F9770:
     cmpw r0, r9
     subfic r10, r0, 0x40
-    bgt L_815F9828
+    bgt __mod2u_L_815F9828
     addi r9, r9, 0x1
     subfic r9, r9, 0x40
     add r0, r0, r9
@@ -501,49 +501,49 @@ L_815F9770:
     mtctr r9
     cmpwi r9, 0x20
     subi r7, r9, 0x20
-    blt L_815F97A8
+    blt __mod2u_L_815F97A8
     srw r8, r3, r7
     li r7, 0x0
-    b L_815F97BC
-L_815F97A8:
+    b __mod2u_L_815F97BC
+__mod2u_L_815F97A8:
     srw r8, r4, r9
     subfic r7, r9, 0x20
     slw r7, r3, r7
     or r8, r8, r7
     srw r7, r3, r9
-L_815F97BC:
+__mod2u_L_815F97BC:
     cmpwi r0, 0x20
     subic r9, r0, 0x20
-    blt L_815F97D4
+    blt __mod2u_L_815F97D4
     slw r3, r4, r9
     li r4, 0x0
-    b L_815F97E8
-L_815F97D4:
+    b __mod2u_L_815F97E8
+__mod2u_L_815F97D4:
     slw r3, r3, r0
     subfic r9, r0, 0x20
     srw r9, r4, r9
     or r3, r3, r9
     slw r4, r4, r0
-L_815F97E8:
+__mod2u_L_815F97E8:
     li r10, -0x1
     addic r7, r7, 0x0
-L_815F97F0:
+__mod2u_L_815F97F0:
     adde r4, r4, r4
     adde r3, r3, r3
     adde r8, r8, r8
     adde r7, r7, r7
     subfc r0, r6, r8
     subfe. r9, r5, r7
-    blt L_815F9818
+    blt __mod2u_L_815F9818
     mr r8, r0
     mr r7, r9
     addic r0, r10, 0x1
-L_815F9818:
-    bdnz L_815F97F0
+__mod2u_L_815F9818:
+    bdnz __mod2u_L_815F97F0
     mr r4, r8
     mr r3, r7
     blr
-L_815F9828:
+__mod2u_L_815F9828:
     blr
 #endif
 }
@@ -551,30 +551,30 @@ L_815F9828:
 asm void __mod2i() {
 #ifdef __MWERKS__
     cmpwi cr7, r3, 0x0
-    bge cr7, L_815F983C
+    bge cr7, __mod2i_L_815F983C
     subfic r4, r4, 0x0
     subfze r3, r3
-L_815F983C:
+__mod2i_L_815F983C:
     cmpwi r5, 0x0
-    bge L_815F984C
+    bge __mod2i_L_815F984C
     subfic r6, r6, 0x0
     subfze r5, r5
-L_815F984C:
+__mod2i_L_815F984C:
     cmpwi r3, 0x0
     cntlzw r0, r3
     cntlzw r9, r4
-    bne L_815F9860
+    bne __mod2i_L_815F9860
     addi r0, r9, 0x20
-L_815F9860:
+__mod2i_L_815F9860:
     cmpwi r5, 0x0
     cntlzw r9, r5
     cntlzw r10, r6
-    bne L_815F9874
+    bne __mod2i_L_815F9874
     addi r9, r10, 0x20
-L_815F9874:
+__mod2i_L_815F9874:
     cmpw r0, r9
     subfic r10, r0, 0x40
-    bgt L_815F9928
+    bgt __mod2i_L_815F9928
     addi r9, r9, 0x1
     subfic r9, r9, 0x40
     add r0, r0, r9
@@ -582,52 +582,52 @@ L_815F9874:
     mtctr r9
     cmpwi r9, 0x20
     subi r7, r9, 0x20
-    blt L_815F98AC
+    blt __mod2i_L_815F98AC
     srw r8, r3, r7
     li r7, 0x0
-    b L_815F98C0
-L_815F98AC:
+    b __mod2i_L_815F98C0
+__mod2i_L_815F98AC:
     srw r8, r4, r9
     subfic r7, r9, 0x20
     slw r7, r3, r7
     or r8, r8, r7
     srw r7, r3, r9
-L_815F98C0:
+__mod2i_L_815F98C0:
     cmpwi r0, 0x20
     subic r9, r0, 0x20
-    blt L_815F98D8
+    blt __mod2i_L_815F98D8
     slw r3, r4, r9
     li r4, 0x0
-    b L_815F98EC
-L_815F98D8:
+    b __mod2i_L_815F98EC
+__mod2i_L_815F98D8:
     slw r3, r3, r0
     subfic r9, r0, 0x20
     srw r9, r4, r9
     or r3, r3, r9
     slw r4, r4, r0
-L_815F98EC:
+__mod2i_L_815F98EC:
     li r10, -0x1
     addic r7, r7, 0x0
-L_815F98F4:
+__mod2i_L_815F98F4:
     adde r4, r4, r4
     adde r3, r3, r3
     adde r8, r8, r8
     adde r7, r7, r7
     subfc r0, r6, r8
     subfe. r9, r5, r7
-    blt L_815F991C
+    blt __mod2i_L_815F991C
     mr r8, r0
     mr r7, r9
     addic r0, r10, 0x1
-L_815F991C:
-    bdnz L_815F98F4
+__mod2i_L_815F991C:
+    bdnz __mod2i_L_815F98F4
     mr r4, r8
     mr r3, r7
-L_815F9928:
-    bge cr7, L_815F9934
+__mod2i_L_815F9928:
+    bge cr7, __mod2i_L_815F9934
     subfic r4, r4, 0x0
     subfze r3, r3
-L_815F9934:
+__mod2i_L_815F9934:
     blr
 #endif
 }
@@ -668,9 +668,9 @@ asm void __shr2i() {
     slw r10, r3, r8
     or r4, r4, r10
     sraw r10, r3, r9
-    ble L_815F99A0
+    ble __shr2i_L_815F99A0
     or r4, r4, r10
-L_815F99A0:
+__shr2i_L_815F99A0:
     sraw r3, r3, r5
     blr
 #endif
@@ -680,13 +680,13 @@ asm void __cvt_sll_dbl() {
 #ifdef __MWERKS__
     stwu r1, -0x10(r1)
     clrrwi. r5, r3, 31
-    beq L_815F99BC
+    beq __cvt_sll_dbl_L_815F99BC
     subfic r4, r4, 0x0
     subfze r3, r3
-L_815F99BC:
+__cvt_sll_dbl_L_815F99BC:
     or. r7, r3, r4
     li r6, 0x0
-    beq L_815F9A44
+    beq __cvt_sll_dbl_L_815F9A44
     cntlzw r7, r3
     cntlzw r8, r4
     extlwi r9, r7, 5, 26
@@ -705,22 +705,22 @@ L_815F99BC:
     clrlwi r7, r4, 21
     cmpwi r7, 0x400
     addi r6, r6, 0x43e
-    blt L_815F9A2C
-    bgt L_815F9A20
+    blt __cvt_sll_dbl_L_815F9A2C
+    bgt __cvt_sll_dbl_L_815F9A20
     rlwinm. r7, r4, 0, 20, 20
-    beq L_815F9A2C
-L_815F9A20:
+    beq __cvt_sll_dbl_L_815F9A2C
+__cvt_sll_dbl_L_815F9A20:
     addic r4, r4, 0x800
     addze r3, r3
     addze r6, r6
-L_815F9A2C:
+__cvt_sll_dbl_L_815F9A2C:
     rotrwi r4, r4, 11
     rlwimi r4, r3, 21, 0, 10
     extrwi r3, r3, 20, 1
     slwi r6, r6, 20
     or r3, r6, r3
     or r3, r5, r3
-L_815F9A44:
+__cvt_sll_dbl_L_815F9A44:
     stw r3, 0x8(r1)
     stw r4, 0xc(r1)
     lfd f1, 0x8(r1)
@@ -734,7 +734,7 @@ asm void __cvt_ull_dbl() {
     stwu r1, -0x10(r1)
     or. r7, r3, r4
     li r6, 0x0
-    beq L_815F9AE0
+    beq __cvt_ull_dbl_L_815F9AE0
     cntlzw r7, r3
     cntlzw r8, r4
     extlwi r9, r7, 5, 26
@@ -753,21 +753,21 @@ asm void __cvt_ull_dbl() {
     clrlwi r7, r4, 21
     cmpwi r7, 0x400
     addi r6, r6, 0x43e
-    blt L_815F9ACC
-    bgt L_815F9AC0
+    blt __cvt_ull_dbl_L_815F9ACC
+    bgt __cvt_ull_dbl_L_815F9AC0
     rlwinm. r7, r4, 0, 20, 20
-    beq L_815F9ACC
-L_815F9AC0:
+    beq __cvt_ull_dbl_L_815F9ACC
+__cvt_ull_dbl_L_815F9AC0:
     addic r4, r4, 0x800
     addze r3, r3
     addze r6, r6
-L_815F9ACC:
+__cvt_ull_dbl_L_815F9ACC:
     rotrwi r4, r4, 11
     rlwimi r4, r3, 21, 0, 10
     extrwi r3, r3, 20, 1
     slwi r6, r6, 20
     or r3, r6, r3
-L_815F9AE0:
+__cvt_ull_dbl_L_815F9AE0:
     stw r3, 0x8(r1)
     stw r4, 0xc(r1)
     lfd f1, 0x8(r1)
@@ -781,7 +781,7 @@ asm void __cvt_ull_flt() {
     stwu r1, -0x10(r1)
     or. r7, r3, r4
     li r6, 0x0
-    beq L_815F9B7C
+    beq __cvt_ull_flt_L_815F9B7C
     cntlzw r7, r3
     cntlzw r8, r4
     extlwi r9, r7, 5, 26
@@ -800,21 +800,21 @@ asm void __cvt_ull_flt() {
     clrlwi r7, r4, 21
     cmpwi r7, 0x400
     addi r6, r6, 0x43e
-    blt L_815F9B68
-    bgt L_815F9B5C
+    blt __cvt_ull_flt_L_815F9B68
+    bgt __cvt_ull_flt_L_815F9B5C
     rlwinm. r7, r4, 0, 20, 20
-    beq L_815F9B68
-L_815F9B5C:
+    beq __cvt_ull_flt_L_815F9B68
+__cvt_ull_flt_L_815F9B5C:
     addic r4, r4, 0x800
     addze r3, r3
     addze r6, r6
-L_815F9B68:
+__cvt_ull_flt_L_815F9B68:
     rotrwi r4, r4, 11
     rlwimi r4, r3, 21, 0, 10
     extrwi r3, r3, 20, 1
     slwi r6, r6, 20
     or r3, r6, r3
-L_815F9B7C:
+__cvt_ull_flt_L_815F9B7C:
     stw r3, 0x8(r1)
     stw r4, 0xc(r1)
     lfd f1, 0x8(r1)
@@ -832,17 +832,17 @@ asm void __cvt_dbl_usll() {
     lwz r4, 0xc(r1)
     extrwi r5, r3, 11, 1
     cmplwi r5, 0x3ff
-    bge L_815F9BBC
+    bge __cvt_dbl_usll_L_815F9BBC
     li r3, 0x0
     li r4, 0x0
-    b L_815F9C58
-L_815F9BBC:
+    b __cvt_dbl_usll_L_815F9C58
+__cvt_dbl_usll_L_815F9BBC:
     mr r6, r3
     clrlwi r3, r3, 12
     oris r3, r3, 0x10
     subi r5, r5, 0x433
     cmpwi r5, 0x0
-    bge L_815F9BFC
+    bge __cvt_dbl_usll_L_815F9BFC
     neg r5, r5
     subfic r8, r5, 0x20
     subic r9, r5, 0x20
@@ -852,21 +852,21 @@ L_815F9BBC:
     srw r10, r3, r9
     or r4, r4, r10
     srw r3, r3, r5
-    b L_815F9C48
-L_815F9BFC:
+    b __cvt_dbl_usll_L_815F9C48
+__cvt_dbl_usll_L_815F9BFC:
     cmpwi r5, 0xa
-    ble+ L_815F9C28
+    ble+ __cvt_dbl_usll_L_815F9C28
     clrrwi. r6, r6, 31
-    beq L_815F9C18
+    beq __cvt_dbl_usll_L_815F9C18
     lis r3, 0x8000
     li r4, 0x0
-    b L_815F9C58
-L_815F9C18:
+    b __cvt_dbl_usll_L_815F9C58
+__cvt_dbl_usll_L_815F9C18:
     lis r3, 0x7fff
     ori r3, r3, 0xffff
     li r4, -0x1
-    b L_815F9C58
-L_815F9C28:
+    b __cvt_dbl_usll_L_815F9C58
+__cvt_dbl_usll_L_815F9C28:
     subfic r8, r5, 0x20
     subic r9, r5, 0x20
     slw r3, r3, r5
@@ -875,12 +875,12 @@ L_815F9C28:
     slw r10, r4, r9
     or r3, r3, r10
     slw r4, r4, r5
-L_815F9C48:
+__cvt_dbl_usll_L_815F9C48:
     clrrwi. r6, r6, 31
-    beq L_815F9C58
+    beq __cvt_dbl_usll_L_815F9C58
     subfic r4, r4, 0x0
     subfze r3, r3
-L_815F9C58:
+__cvt_dbl_usll_L_815F9C58:
     addi r1, r1, 0x10
     blr
 #endif
@@ -894,19 +894,19 @@ asm void __cvt_dbl_ull() {
     lwz r4, 0xc(r1)
     extrwi r5, r3, 11, 1
     cmplwi r5, 0x3ff
-    bge L_815F9C88
-L_815F9C7C:
+    bge __cvt_dbl_ull_L_815F9C88
+__cvt_dbl_ull_L_815F9C7C:
     li r3, 0x0
     li r4, 0x0
-    b L_815F9D00
-L_815F9C88:
+    b __cvt_dbl_ull_L_815F9D00
+__cvt_dbl_ull_L_815F9C88:
     clrrwi. r6, r3, 31
-    bne L_815F9C7C
+    bne __cvt_dbl_ull_L_815F9C7C
     clrlwi r3, r3, 12
     oris r3, r3, 0x10
     subi r5, r5, 0x433
     cmpwi r5, 0x0
-    bge L_815F9CCC
+    bge __cvt_dbl_ull_L_815F9CCC
     neg r5, r5
     subfic r8, r5, 0x20
     subic r9, r5, 0x20
@@ -916,14 +916,14 @@ L_815F9C88:
     srw r10, r3, r9
     or r4, r4, r10
     srw r3, r3, r5
-    b L_815F9D00
-L_815F9CCC:
+    b __cvt_dbl_ull_L_815F9D00
+__cvt_dbl_ull_L_815F9CCC:
     cmpwi r5, 0xb
-    ble+ L_815F9CE0
+    ble+ __cvt_dbl_ull_L_815F9CE0
     li r3, -0x1
     li r4, -0x1
-    b L_815F9D00
-L_815F9CE0:
+    b __cvt_dbl_ull_L_815F9D00
+__cvt_dbl_ull_L_815F9CE0:
     subfic r8, r5, 0x20
     subic r9, r5, 0x20
     slw r3, r3, r5
@@ -932,7 +932,7 @@ L_815F9CE0:
     slw r10, r4, r9
     or r3, r3, r10
     slw r4, r4, r5
-L_815F9D00:
+__cvt_dbl_ull_L_815F9D00:
     addi r1, r1, 0x10
     blr
 #endif
