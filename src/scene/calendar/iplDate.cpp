@@ -312,7 +312,7 @@ namespace ipl {
 
         #pragma push
         #pragma section sconst_type ".sdata2"
-        extern "C" const f32 lbl_816948EC = 0.0f;
+        extern "C" const f32 scDateZeroF = 0.0f;
         extern "C" const f32 lbl_816948F0;
         #pragma pop
     }  // namespace scene
