@@ -4,7 +4,7 @@
 ziU32 Zi8GetTableAddress(ziU8 lang, ziU8 tableIdx, ziPtr workData);
 ziU16 Zi8GetTableCount(ziU8 lang, ziU8 tableIdx, ziPtr workData);
 
-ziU8 Zi8_814813FC(ziWChar character, ziU8* result, ziU16* index, ziPtr workData) {
+ziU8 Zi8LookupKoreanChar(ziWChar character, ziU8* result, ziU16* index, ziPtr workData) {
     ziU16 i;
     ziU8* table;
 
@@ -23,7 +23,7 @@ ziU8 Zi8_814813FC(ziWChar character, ziU8* result, ziU16* index, ziPtr workData)
     return 0;
 }
 
-ziU8 Zi8_81481E6C(ziU16* resultIndex, ziU16* input, ziU8 type, ziU16 count, ziPtr workData);
+ziU8 Zi8MatchKoreanSequence(ziU16* resultIndex, ziU16* input, ziU8 type, ziU16 count, ziPtr workData);
 
 ziU32 Zi8GetKoreanCandidates(ziGetParam* params, ziU8* argument,
     ziPtr workData) {
@@ -97,9 +97,9 @@ ziU32 Zi8GetKoreanCandidates(ziGetParam* params, ziU8* argument,
 
     result = 0;
     for (currentCharacter = 0; currentCharacter < state.elementIndex; currentCharacter++) {
-        if (Zi8_814813FC(buffer[currentCharacter], &state.characterIndex,
+        if (Zi8LookupKoreanChar(buffer[currentCharacter], &state.characterIndex,
             &state.inputIndex, workData) != 0) {
-            state.matched = Zi8_81481E6C(&state.nextIndex,
+            state.matched = Zi8MatchKoreanSequence(&state.nextIndex,
                 buffer + currentCharacter + 1,
                 state.characterIndex,
                 (state.elementIndex - currentCharacter) - 1,
@@ -235,7 +235,7 @@ ziU32 Zi8GetKoreanCandidates(ziGetParam* params, ziU8* argument,
     return result;
 }
 
-ziU8 Zi8_81481E6C(ziU16* resultIndex, ziU16* input, ziU8 type, ziU16 count, ziPtr workData) {
+ziU8 Zi8MatchKoreanSequence(ziU16* resultIndex, ziU16* input, ziU8 type, ziU16 count, ziPtr workData) {
     ziU16 nestedScratch;
     ziU16 nestedIndexStorage;
     ziU16 index1;
@@ -375,8 +375,8 @@ ziU8 Zi8_81481E6C(ziU16* resultIndex, ziU16* input, ziU8 type, ziU16 count, ziPt
     }
     if ((index3 >= tableCount) || (firstCharacter != (table + index3 * 4)[2]) ||
         (input[1] != (table + index3 * 4)[1]) || (input[0] != table[index3 * 4])) {
-        if ((Zi8_814813FC(input[1], &mappedCharacter, &nestedScratch, workData) != 0) &&
-            (Zi8_81481E6C(&nestedIndexStorage, input + 2, mappedCharacter, 1, workData) != 0)) {
+        if ((Zi8LookupKoreanChar(input[1], &mappedCharacter, &nestedScratch, workData) != 0) &&
+            (Zi8MatchKoreanSequence(&nestedIndexStorage, input + 2, mappedCharacter, 1, workData) != 0)) {
             *resultIndex = index1;
             return 1;
         }
@@ -397,8 +397,8 @@ ziU8 Zi8_81481E6C(ziU16* resultIndex, ziU16* input, ziU8 type, ziU16 count, ziPt
     if ((index4 >= tableCount) || (firstCharacter != (table + index4 * 4)[3]) ||
         (input[2] != (table + index4 * 4)[2]) || (input[1] != (table + index4 * 4)[1]) ||
         (input[0] != table[index4 * 4])) {
-        if ((Zi8_814813FC(input[2], &mappedCharacter, &nestedScratch, workData) != 0) &&
-            (Zi8_81481E6C(&nestedIndexStorage, input + 3, mappedCharacter, 1, workData) != 0)) {
+        if ((Zi8LookupKoreanChar(input[2], &mappedCharacter, &nestedScratch, workData) != 0) &&
+            (Zi8MatchKoreanSequence(&nestedIndexStorage, input + 3, mappedCharacter, 1, workData) != 0)) {
             *resultIndex = index2;
             return 2;
         }
@@ -409,8 +409,8 @@ ziU8 Zi8_81481E6C(ziU16* resultIndex, ziU16* input, ziU8 type, ziU16 count, ziPt
         *resultIndex = index4;
         return 4;
     }
-    if ((Zi8_814813FC(input[3], &mappedCharacter, &nestedScratch, workData) != 0) &&
-        (Zi8_81481E6C(&nestedIndexStorage, input + 4, mappedCharacter, 1, workData) != 0)) {
+    if ((Zi8LookupKoreanChar(input[3], &mappedCharacter, &nestedScratch, workData) != 0) &&
+        (Zi8MatchKoreanSequence(&nestedIndexStorage, input + 4, mappedCharacter, 1, workData) != 0)) {
         *resultIndex = index3;
         return 3;
     }
