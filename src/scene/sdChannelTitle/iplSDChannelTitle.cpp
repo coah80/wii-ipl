@@ -86,10 +86,7 @@ static inline void setMemoryTitleLists(SDMemory* memory, SDMemory::TitleRange sd
     memory->setTitleLists(sdRange, nandRange);
 }
 
-extern "C" char lbl_81696E30[];
-extern "C" char lbl_81696E37[];
-
-static const char* sButtonNames[2] = {lbl_81696E30, lbl_81696E37};
+static const char* sButtonNames[2] = {"B_BtnA", "B_BtnB"};
 
 static const int sCaptureSizes[2][2] = {{128, 96}, {176, 96}};
 
