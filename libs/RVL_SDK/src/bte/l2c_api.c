@@ -478,7 +478,7 @@ BOOLEAN L2CA_SetAclPriority(BD_ADDR bd_addr, UINT8 priority)
 }
 
 void L2CA_SetCompression(UINT16 local_cid, UINT8 pe_type, UINT8 mem_level,
-                         UINT8 wbits, UINT8 direction, UINT8 param_6,
+                         UINT8 wbits, UINT8 direction, UINT8 config,
                          UINT8 enable)
 {
 	tL2C_LCB *p_lcb;
@@ -506,7 +506,7 @@ void L2CA_SetCompression(UINT16 local_cid, UINT8 pe_type, UINT8 mem_level,
 	}
 }
 
-void L2CA_RegisterCompression(tL2CA_COMPRESS_CB *param_1, int param_2)
+void L2CA_RegisterCompression(tL2CA_COMPRESS_CB *p_callback, int unused)
 {
 #if 0
 	/* ... */
