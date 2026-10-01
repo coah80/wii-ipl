@@ -2947,6 +2947,7 @@ static s32 WAD_815C43E0(WADHashThreadArgs* args) {
 
 static s32 _WADHash(WADStream* stream, u32 offset, u32 size, void* context, void* buffer,
                     u32 chunkSize, void* secondBuffer, void* threadStack, u32 threadStackSize) {
+    OSMutex* mutex;
     s32 result;
     u32 completed = 0;
     void* readBuffer;
@@ -3005,7 +3006,6 @@ static s32 _WADHash(WADStream* stream, u32 offset, u32 size, void* context, void
         OSResumeThread(&thread);
         bufferIndex = 0;
         while (size != 0 && transfer.error == 0) {
-            OSMutex* mutex;
             readSize = size > chunkSize ? chunkSize : size;
             mutex = &transfer.mutex[bufferIndex];
             OSLockMutex(mutex);
@@ -3019,11 +3019,10 @@ static s32 _WADHash(WADStream* stream, u32 offset, u32 size, void* context, void
             readBuffer = transfer.buffers[bufferIndex];
             result = WADReadStream(stream, &readBuffer, readSize, offset + completed);
             if ((u32)result != readSize) {
-                OSMutex* otherMutex = &transfer.mutex[bufferIndex ^ 1];
-                OSLockMutex(otherMutex);
+                OSLockMutex(&transfer.mutex[bufferIndex ^ 1]);
                 OSCancelThread(&thread);
                 OSJoinThread(&thread, 0);
-                OSUnlockMutex(otherMutex);
+                OSUnlockMutex(&transfer.mutex[bufferIndex ^ 1]);
                 OSUnlockMutex(mutex);
                 result = -3005;
                 goto done;
