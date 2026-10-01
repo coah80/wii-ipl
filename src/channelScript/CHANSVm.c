@@ -78,26 +78,47 @@ void CHANSVmDebugPrintf(const vmString format, ...) {
         CHANSVmDebugPrintf(msg, __VA_ARGS__);
 
 vmU16 CHANSVmGetSourceLine(CHANSVm* vm) {
-    CHANSVmExecutionCtx* ctx = ((CHANSVmPrivate*)vm)->pActiveCtx;
+    CHANSVmExecutionCtx* ctx;
+    CHANSVmModule* module;
+    SrcLineEntry* lines;
+    SrcLineEntry* entry;
+    u32 pc;
+    s32 lineOffset;
+    u8 lastBit;
+    u32 index;
+    u8* bitfield;
 
-    if (ctx && ctx->pDbg && ctx->pDbg->pLineTbl && ctx->pc < ctx->pDbg->codeSize) {
-        SrcLineEntry* curEntry = &ctx->pDbg->pLineTbl[ctx->pc / 256];
-        s32 lineOffset = curEntry->baseLine;
-        u8* bitfield = curEntry->bitfield;
-        u32 i = 0;
-
-        for (i = 0; i <= (u8)ctx->pc; i++) {
-            if (bitfield[i / 8] & (128 >> (i & 0b111))) {
-                lineOffset += 2;
-            }
-        }
-
-        if ((u8*)ctx->pDbg->pLineTbl + lineOffset + 1 < (u8*)ctx->pDbg + ctx->pDbg->regionSize) {
-            u8* lineData = (u8*)ctx->pDbg->pLineTbl + lineOffset;
-            return VM_READ_BE_U16(lineData, 0);
-        }
+    ctx = ((CHANSVmPrivate*)vm)->pActiveCtx;
+    if (ctx == vmNull) {
+        goto error;
+    }
+    module = ctx->pDbg;
+    if (module == vmNull) {
+        goto error;
+    }
+    lines = module->pLineTbl;
+    if (lines == vmNull) {
+        goto error;
+    }
+    pc = ctx->pc;
+    if (pc >= module->codeSize) {
+        goto error;
     }
 
+    entry = &lines[pc / 256];
+    lastBit = (u8)pc;
+    lineOffset = entry->baseLine;
+    bitfield = entry->bitfield;
+    for (index = 0; index <= lastBit; index++) {
+        if (bitfield[index / 8] & (128 >> (index & 7))) {
+            lineOffset += 2;
+        }
+    }
+    if ((u8*)lines + lineOffset + 1 < (u8*)module + module->regionSize) {
+        u8* lineData = (u8*)lines + lineOffset;
+        return VM_READ_BE_U16(lineData, 0);
+    }
+error:
     return 0;
 }
 
@@ -322,20 +343,14 @@ error:
     return CHANS_VM_ERR_DELETE_OBJECT;
 }
 
-vmPtr CHANSVmNewObjData(CHANSVm* vm, CHANSVmObjHdr* object, u32 length) {
-    CHANSVmPrivate* pVm = (CHANSVmPrivate*)vm;
+static inline ChunkEntry* VmReserveChunkEntry(CHANSVmPrivate* pVm) {
     u32 idx;
-    u32 memSize;
     union {
         u32 off;
         ChunkEntry* entry;
     } u;
     ChunkEntry* chunk;
     u32 chunkIdx;
-
-    if (object == vmNull || object->hasData != vmFalse || length == 0) {
-        goto error;
-    }
 
     idx = pVm->nextChunkIdx;
     chunk = pVm->pChunks[idx / 1024];
@@ -345,7 +360,7 @@ vmPtr CHANSVmNewObjData(CHANSVm* vm, CHANSVmObjHdr* object, u32 length) {
         while (chunkIdx < 0x80) {
             chunk = pVm->pChunks[chunkIdx];
             if (chunk == vmNull) {
-                chunk = CHANSVmAlloc(vm, 0x4000);
+                chunk = CHANSVmAlloc((CHANSVm*)pVm, 0x4000);
                 if (chunk == vmNull) {
                     goto no_entry;
                 }
@@ -377,19 +392,35 @@ found:
     u.entry->inUse = 1;
 
 check_entry:
-    if (u.entry == vmNull) {
+    return u.entry;
+}
+
+static inline u32 VmGetAlignedAllocationSize(u32 length) {
+    return VM_ALIGN(length);
+}
+
+vmPtr CHANSVmNewObjData(CHANSVm* vm, CHANSVmObjHdr* object, u32 length) {
+    CHANSVmPrivate* pVm = (CHANSVmPrivate*)vm;
+    ChunkEntry* entry;
+    u32 memSize;
+
+    if (object == vmNull || object->hasData != vmFalse || length == 0) {
+        goto error;
+    }
+    entry = VmReserveChunkEntry(pVm);
+    if (entry == vmNull) {
         goto error;
     }
 
-    memSize = VM_ALIGN(length);
+    memSize = VmGetAlignedAllocationSize(length);
     {
         void* pData = CHANSVmAlloc(vm, memSize);
         if (pData != vmNull) {
-            *(u32*)(u8*)object = (u32)u.entry;
+            object->value.data.ptr = entry;
             object->hasData = vmTrue;
-            u.entry->pData = pData;
-            u.entry->size = length;
-            u.entry->alloc = memSize;
+            entry->pData = pData;
+            entry->size = length;
+            entry->alloc = memSize;
             return pData;
         }
     }
