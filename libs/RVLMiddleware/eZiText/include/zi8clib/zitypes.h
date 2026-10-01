@@ -357,8 +357,8 @@ typedef struct ziMatchParam {
     ziWChar first2;      // 0x68
     ziWChar comp;        // 0x6A
     ziU8 nSeg;           // 0x6C
-    ziU8 segs1[0xC0];    // 0x6D
-    ziU8 segsD[0xC0];    // 0x12D
+    ziU8 segs1[16][12];  // 0x6D
+    ziU8 segsD[16][12];  // 0x12D
     ziU8 pad_0x1ED;      // 0x1ED
 } ziMatchParam;
 
