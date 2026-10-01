@@ -33,8 +33,8 @@ typedef struct USBKBDCmdLEDAsync {
 
 USBKBDErr USBKBDInitialize(USBKBDAttachCallback attachCb, USBKBDDetachCallback detachCb);
 
-USBKBDErr USBKBDSetLED(u32, u8, USBKBDCmdLED* cmd);
-USBKBDErr USBKBDSetLEDAsync(u32, u8, USBKBDCmdLEDAsync* cmd, USBKBDCmdLEDCallback cb, void* cbArg);
+USBKBDErr USBKBDSetLED(u32 device, u8 ledBits, USBKBDCmdLED* cmd);
+USBKBDErr USBKBDSetLEDAsync(u32 device, u8 ledBits, USBKBDCmdLEDAsync* cmd, USBKBDCmdLEDCallback cb, void* cbArg);
 
 USBKBDErr USBKBDRegisterEventCallback(USBKBDEventCallback cb);
 
