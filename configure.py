@@ -1706,7 +1706,7 @@ config.libs = [
             Object(Matching,    "fa/pf_sector.c"),
             Object(NonMatching, "fa/pf_volume.c"),
             Object(Matching,    "fa/pf_volume_apiadd.c"),
-            Object(NonMatching, "fa/pf_cp932.c"),
+            Object(Matching,    "fa/pf_cp932.c"),
             Object(Matching,    "fa/pf_api_util.c"),
             Object(Matching,    "fa/pf_attach.c"),
             Object(Matching,    "fa/pf_buffering.c"),
@@ -1851,11 +1851,11 @@ config.libs = [
             Object(Matching,    "fa/api/FASetThreadPriority.c"),
             Object(Matching,    "fa/api/FAUnmount.c"),
 
-            Object(NonMatching, "fa/kernel/pfk_api.c"),
+            Object(Matching, "fa/kernel/pfk_api.c"),
 
             Object(NonMatching, "fa/driver/nand_drv.c"),
             Object(NonMatching, "fa/driver/sd_drv.c"),
-            Object(NonMatching, "fa/driver/pfd_cmn.c"),
+            Object(Matching, "fa/driver/pfd_cmn.c"),
             Object(NonMatching, "fa/driver/msc_drv.c"),
 
             Object(NonMatching, "fa/msc/puh_msc.c"),
