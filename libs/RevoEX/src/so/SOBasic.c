@@ -198,8 +198,10 @@ int SOShutdown(int socket, int how) {
 }
 
 int SOPoll(SOPollFD* fds, unsigned int count, s64 timeout) {
+    s32 size;
+    s32 bytes;
+    s32 result;
     s32 rm;
-    s32 result,bytes,size;
     PollRequest* request;
     SOPollFD* reply;
     if((result=SOiPrepare(NULL,&rm))==0) {
