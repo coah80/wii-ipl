@@ -293,8 +293,8 @@ namespace ipl {
                 LOCKED_DIALOG_ANIM_MAX,
             };
 
-            static void iplChannelTitle_813BA684(void* work);
-            static void iplChannelTitle_813BA784(void* work);
+            static void markTmdReadyTask(void* work);
+            static void deleteTmpTitleContentTask(void* work);
             static void getTmdTask(void* work);
             static void getTicketLimitTask(void* work);
             static BOOL isTimeLimitedTicket(ESTicketView * ticket, u32* remainTime = NULL);

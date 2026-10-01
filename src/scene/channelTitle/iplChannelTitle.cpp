@@ -2289,7 +2289,7 @@ namespace ipl {
 
                         unk_0x360 = false;
 
-                        System::getTask1()->request(iplChannelTitle_813BA684, this, NULL);
+                        System::getTask1()->request(markTmdReadyTask, this, NULL);
 
                         mState = STATE_WAIT_TMD;
                     } else {
@@ -2301,7 +2301,7 @@ namespace ipl {
 
                     unk_0x360 = false;
 
-                    System::getTask1()->request(iplChannelTitle_813BA684, this, NULL);
+                    System::getTask1()->request(markTmdReadyTask, this, NULL);
 
                     mState = STATE_WAIT_TMD;
                 }
@@ -2408,7 +2408,7 @@ namespace ipl {
 
             if (mTmpTitleID != 0) {
                 SCSetTmpTitleID(0);
-                System::getTask1()->request(iplChannelTitle_813BA784, this, NULL);
+                System::getTask1()->request(deleteTmpTitleContentTask, this, NULL);
             } else {
                 unk_0x370 = true;
             }
@@ -2673,7 +2673,7 @@ namespace ipl {
             chanTtl->unk_0x360 = true;
         }
 
-        void ChannelTitle::iplChannelTitle_813BA684(void* work) {
+        void ChannelTitle::markTmdReadyTask(void* work) {
             ChannelTitle* chanTtl = static_cast<ChannelTitle*>(work);
             chanTtl->unk_0x360 = true;
         }
@@ -2699,7 +2699,7 @@ namespace ipl {
         }
 #pragma pop
 
-        void ChannelTitle::iplChannelTitle_813BA784(void* work) {
+        void ChannelTitle::deleteTmpTitleContentTask(void* work) {
             ChannelTitle* chanTtl = static_cast<ChannelTitle*>(work);
 
             if (chanTtl->mTmpTitleID != 0) {
