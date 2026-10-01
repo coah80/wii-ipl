@@ -1,3 +1,4 @@
+// Matching build uses MyTiManager.s (C++ Matching breaks DOL SHA1).
 #define MYTIMANAGER_IMPLEMENTATION
 #define MYTIMANAGER_MATCHING
 #include "keyboard/MyTiManager.h"
