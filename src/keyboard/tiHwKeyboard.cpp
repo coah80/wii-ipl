@@ -526,8 +526,8 @@ extern const u8 controlKeys[];
                 return false;
             }
 
-extern "C" const u8 lbl_81616BD8[] = {0x0f, 0x21, 0x20, 0x08, 0x09, 0x0e, 0x19, 0x00, 0x21, 0x21, 0x00, 0x00};
-extern "C" const u8 lbl_81616BE4[] = {0x0f, 0x21, 0x20, 0x04, 0x09, 0x0e, 0x11, 0x00, 0x21, 0x21, 0x00, 0x00};
+extern "C" const u8 scCountryMap_EU[] = {0x0f, 0x21, 0x20, 0x08, 0x09, 0x0e, 0x19, 0x00, 0x21, 0x21, 0x00, 0x00};
+extern "C" const u8 scCountryMap_NonEU[] = {0x0f, 0x21, 0x20, 0x04, 0x09, 0x0e, 0x11, 0x00, 0x21, 0x21, 0x00, 0x00};
 
 const u8 controlKeys[] = {
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x09, 0x01, 0x0a, 0x03,
@@ -640,16 +640,16 @@ const u8 controlKeys[] = {
                 nofralloc
                 cmpwi r4, 2
                 bne setLanguage_L1
-                lis r4, lbl_81616BD8@ha
+                lis r4, scCountryMap_EU@ha
                 lis r3, sInstance__Q39textinput5input10HKBManager@ha
-                addi r4, r4, lbl_81616BD8@l
+                addi r4, r4, scCountryMap_EU@l
                 lbzx r4, r4, r5
                 addi r3, r3, sInstance__Q39textinput5input10HKBManager@l
                 b SetCountry__Q39textinput5input10HKBManagerFUc
             setLanguage_L1:
-                lis r4, lbl_81616BE4@ha
+                lis r4, scCountryMap_NonEU@ha
                 lis r3, sInstance__Q39textinput5input10HKBManager@ha
-                addi r4, r4, lbl_81616BE4@l
+                addi r4, r4, scCountryMap_NonEU@l
                 lbzx r4, r4, r5
                 addi r3, r3, sInstance__Q39textinput5input10HKBManager@l
                 b SetCountry__Q39textinput5input10HKBManagerFUc
