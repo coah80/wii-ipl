@@ -1058,7 +1058,7 @@ namespace ipl {
             }
 
             const ESTitleId* titleEntry = &mTitleIds[mCurrentTitle];
-            System::getChannelManager()->fn_8133AA50(*titleEntry);
+            System::getChannelManager()->unloadBanner(*titleEntry);
 
             if (mpSDChannelSelect->getWorker()->get_async_result() == 0) {
                 mCurrentTitle++;

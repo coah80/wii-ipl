@@ -336,19 +336,19 @@ namespace ipl {
 
             BOOL nand_error_handling(int code);
 
-            SEntry* fn_8133A4E0(ESTitleId titleId);
-            u32 fn_8133A57C(ESTitleId titleId);
-            u32 fn_8133A5B8(ESTitleId titleId);
-            BOOL fn_8133A5F0(ESTitleId titleId);
-            BOOL fn_8133A634(ESTitleId titleId);
-            BOOL fn_8133A678(ESTitleId titleId);
-            BOOL fn_8133A6B8(ESTitleId titleId);
-            BOOL fn_8133A73C(ESTitleId titleId);
-            nand::MetaFile* fn_8133A7A4(EGG::Heap* heap, ESTitleId titleId);
-            nand::MetaFile* fn_8133A85C(EGG::Heap* heap, ESTitleId titleId);
-            nand::SharedFile* fn_8133A924(EGG::Heap* heap, ESTitleId titleId);
-            void fn_8133A9F0();
-            void fn_8133AA50(ESTitleId titleId);
+            SEntry* findEntryByTitleId(ESTitleId titleId);
+            u32 getBannerCSIdx(ESTitleId titleId);
+            u32 getSoundSize(ESTitleId titleId);
+            BOOL needsNetSetting(ESTitleId titleId);
+            BOOL usesAltSound(ESTitleId titleId);
+            BOOL isMissingTicket(ESTitleId titleId);
+            BOOL isNewsChannelV6Plus(ESTitleId titleId);
+            BOOL isOperaChannel(ESTitleId titleId);
+            nand::MetaFile* readBannerMetaAsync(EGG::Heap* heap, ESTitleId titleId);
+            nand::MetaFile* readSoundMetaAsync(EGG::Heap* heap, ESTitleId titleId);
+            nand::SharedFile* readBannerCSAsync(EGG::Heap* heap, ESTitleId titleId);
+            void clearTmpChannel();
+            void unloadBanner(ESTitleId titleId);
 
             BOOL isReady() { return mState == FINISH; }
 

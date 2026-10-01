@@ -1235,7 +1235,7 @@ namespace ipl {
 
 #pragma pop
 
-        SEntry* Manager::fn_8133A4E0(ESTitleId titleId) {
+        SEntry* Manager::findEntryByTitleId(ESTitleId titleId) {
             for (int page = 0; page < MAX_CHANNEL_PAGE; page++) {
                 for (int index = 0; index < MAX_CHANNEL_INDEX; index++) {
                     ESTitleId cmp = ES_TITLE_ID(mChannels[page][index].info.titleType, mChannels[page][index].info.titleCode);
@@ -1255,8 +1255,8 @@ namespace ipl {
             return NULL;
         }
 
-        u32 Manager::fn_8133A57C(ESTitleId titleId) {
-            SEntry* channel = fn_8133A4E0(titleId);
+        u32 Manager::getBannerCSIdx(ESTitleId titleId) {
+            SEntry* channel = findEntryByTitleId(titleId);
             if (channel != NULL) {
                 return channel->metaHdr->blockHdr.bannerCSIdx;
             } else {
@@ -1264,8 +1264,8 @@ namespace ipl {
             }
         }
 
-        u32 Manager::fn_8133A5B8(ESTitleId titleId) {
-            SEntry* channel = fn_8133A4E0(titleId);
+        u32 Manager::getSoundSize(ESTitleId titleId) {
+            SEntry* channel = findEntryByTitleId(titleId);
             if (channel != NULL) {
                 return channel->metaHdr->blockHdr.soundSize;
             } else {
@@ -1273,8 +1273,8 @@ namespace ipl {
             }
         }
 
-        BOOL Manager::fn_8133A5F0(ESTitleId titleId) {
-            SEntry* channel = fn_8133A4E0(titleId);
+        BOOL Manager::needsNetSetting(ESTitleId titleId) {
+            SEntry* channel = findEntryByTitleId(titleId);
             if (channel != NULL && (channel->metaHdr->blockHdr.netSetting << 8)) {
                 return TRUE;
             } else {
@@ -1282,8 +1282,8 @@ namespace ipl {
             }
         }
 
-        BOOL Manager::fn_8133A634(ESTitleId titleId) {
-            SEntry* channel = fn_8133A4E0(titleId);
+        BOOL Manager::usesAltSound(ESTitleId titleId) {
+            SEntry* channel = findEntryByTitleId(titleId);
             if (channel != NULL && (channel->metaHdr->blockHdr.useAltSound << 14)) {
                 return TRUE;
             } else {
@@ -1291,8 +1291,8 @@ namespace ipl {
             }
         }
 
-        BOOL Manager::fn_8133A678(ESTitleId titleId) {
-            SEntry* channel = fn_8133A4E0(titleId);
+        BOOL Manager::isMissingTicket(ESTitleId titleId) {
+            SEntry* channel = findEntryByTitleId(titleId);
             if (channel != NULL && channel->missingTicket != FALSE) {
                 return TRUE;
             } else {
@@ -1300,8 +1300,8 @@ namespace ipl {
             }
         }
 
-        BOOL Manager::fn_8133A6B8(ESTitleId titleId) {
-            SEntry* channel = fn_8133A4E0(titleId);
+        BOOL Manager::isNewsChannelV6Plus(ESTitleId titleId) {
+            SEntry* channel = findEntryByTitleId(titleId);
             if (channel == NULL) {
                 return FALSE;
             }
@@ -1315,8 +1315,8 @@ namespace ipl {
             }
         }
 
-        BOOL Manager::fn_8133A73C(ESTitleId titleId) {
-            SEntry* channel = fn_8133A4E0(titleId);
+        BOOL Manager::isOperaChannel(ESTitleId titleId) {
+            SEntry* channel = findEntryByTitleId(titleId);
             if (channel == NULL) {
                 return FALSE;
             }
@@ -1329,8 +1329,8 @@ namespace ipl {
             }
         }
 
-        nand::MetaFile* Manager::fn_8133A7A4(EGG::Heap* heap, ESTitleId titleId) {
-            SEntry* channel = fn_8133A4E0(titleId);
+        nand::MetaFile* Manager::readBannerMetaAsync(EGG::Heap* heap, ESTitleId titleId) {
+            SEntry* channel = findEntryByTitleId(titleId);
             if (channel == NULL) {
                 return NULL;
             }
@@ -1343,8 +1343,8 @@ namespace ipl {
             }
         }
 
-        nand::MetaFile* Manager::fn_8133A85C(EGG::Heap* heap, ESTitleId titleId) {
-            SEntry* channel = fn_8133A4E0(titleId);
+        nand::MetaFile* Manager::readSoundMetaAsync(EGG::Heap* heap, ESTitleId titleId) {
+            SEntry* channel = findEntryByTitleId(titleId);
             if (channel == NULL) {
                 return NULL;
             }
@@ -1357,8 +1357,8 @@ namespace ipl {
             }
         }
 
-        nand::SharedFile* Manager::fn_8133A924(EGG::Heap* heap, ESTitleId titleId) {
-            SEntry* channel = fn_8133A4E0(titleId);
+        nand::SharedFile* Manager::readBannerCSAsync(EGG::Heap* heap, ESTitleId titleId) {
+            SEntry* channel = findEntryByTitleId(titleId);
             if (channel == NULL) {
                 return NULL;
             }
@@ -1366,7 +1366,7 @@ namespace ipl {
             if (!channel->loadedBnr || channel->info.primaryType == channel::PRIMARY_TYPE_DISK) {
                 return NULL;
             } else {
-                u32 index = fn_8133A57C(titleId);
+                u32 index = getBannerCSIdx(titleId);
                 if (index == 0) {
                     return NULL;
                 }
@@ -1375,15 +1375,15 @@ namespace ipl {
             }
         }
 
-        void Manager::fn_8133A9F0() {
+        void Manager::clearTmpChannel() {
             if (mTmpChannel.bnrFile != NULL) {
                 delete mTmpChannel.bnrFile;
             }
             memset(&mTmpChannel, 0, sizeof(mTmpChannel));
         }
 
-        void Manager::fn_8133AA50(ESTitleId titleId) {
-            SEntry* channel = fn_8133A4E0(titleId);
+        void Manager::unloadBanner(ESTitleId titleId) {
+            SEntry* channel = findEntryByTitleId(titleId);
             if (channel != NULL) {
                 channel->loadedBnr = false;
             }
