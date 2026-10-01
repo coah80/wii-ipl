@@ -113,7 +113,7 @@ namespace textinput {
             u32 mCursorStart;        // 0x18
             u32 mCursorEnd;          // 0x1C
             u8  mbSustain;           // 0x20
-            u32 mTranslateMode;      // 0x24
+            s32 mTranslateMode;      // 0x24
             KanaStream mKanaStream;  // 0x28
         };
 

@@ -173,15 +173,18 @@ void Decolated::inputChar(wchar_t ch) {
             goto inputReady;
         }
 nonKana:
-        if (mTranslateMode == 3) {
-            input[0] = ch;
-            input[1] = 0;
-            count = 1;
+        if ((s32)mTranslateMode == 3) {
+            input[0] = 0;
+            count = 0;
+            input[count] = ch;
+            count++;
+            input[count] = 0;
             mKanaStream.mOutput[0] = 0;
         } else {
-            count = 1;
-            input[0] = ch;
-            input[1] = 0;
+            count = 0;
+            input[count] = ch;
+            count++;
+            input[count] = 0;
         }
 inputReady:
         setCandidate(0);
@@ -390,7 +393,7 @@ void Decolated::replaceAtCursor(wchar_t ch) {
 }
 
 bool Decolated::isDakuten() {
-    return util::KBD_IsDakuten(getWCharAtCursor());
+    return util::KBD_IsDakuten(getWCharAtCursor()) != 0;
 }
 
 void Decolated::converDakuten() {
@@ -399,7 +402,7 @@ void Decolated::converDakuten() {
 }
 
 bool Decolated::isHandaku() {
-    return util::KBD_IsHandaku(getWCharAtCursor());
+    return util::KBD_IsHandaku(getWCharAtCursor()) != 0;
 }
 
 void Decolated::converHandaku() {
@@ -413,7 +416,7 @@ void Decolated::convertAll() {
 }
 
 bool Decolated::isSmall() {
-    return util::KBD_IsSmall(getWCharAtCursor());
+    return util::KBD_IsSmall(getWCharAtCursor()) != 0;
 }
 
 void Decolated::converSmall() {
