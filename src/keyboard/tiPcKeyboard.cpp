@@ -2877,18 +2877,4 @@ static const PaneToAnimation csPaneToAnimation[129] = {
 
         }  // namespace pctype
     }  // namespace keyboard
-
-    namespace gui {
-
-        void EventHandler::onEvent(GUIComponent& comp, u32 event, void* data) {}
-
-        void EventHandler::setLatestEventCtrlNo(int ctrlNo) {
-            muLatestEventCtrlNo = ctrlNo;
-        }
-
-        int EventHandler::getLatestEventCtrlNo() {
-            return muLatestEventCtrlNo;
-        }
-
-    }  // namespace gui
 }  // namespace textinput

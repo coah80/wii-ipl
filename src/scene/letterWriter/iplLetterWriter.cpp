@@ -98,6 +98,21 @@ namespace ipl {
             getLetterInputForm()->setSendOutMessage(System::getMessage(MESG_LETTERWRITER_SENDING));
         }
 
+        void textinput::extend::memo::InputForm::setNigaoeEventObserver(NigaoeEventObserver* nigaoeObserver) {
+            mpNigaoeObserver = nigaoeObserver;
+        }
+
+        void textinput::extend::letter::InputForm::setPhotoDraw(bool photoDraw) {
+            mbPhotoDraw = photoDraw;
+        }
+
+        void textinput::extend::letter::InputForm::setType(Type type) {
+            meType = type;
+        }
+
+        void textinput::Manager::start() {
+        }
+
         FaderSceneCommand LetterWriter::calcFadein() {
             return TextWriter::calcFadein();
         }
@@ -293,6 +308,9 @@ namespace ipl {
             }
 
             System::getKeyboard()->endMgr();
+        }
+
+        void textinput::Manager::end() {
         }
 
         FaderSceneCommand LetterWriter::calcFadeout() {

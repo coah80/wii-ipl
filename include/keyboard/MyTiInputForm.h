@@ -72,7 +72,7 @@ namespace textinput {
                     virtual void                    onArrowRTrig();
                     virtual void                    onArrowLTrig();
                     
-                    virtual void                    setNigaoeEventObserver(NigaoeEventObserver* nigaoeObserver) { mpNigaoeObserver = nigaoeObserver; }
+                    virtual void                    setNigaoeEventObserver(NigaoeEventObserver* nigaoeObserver);
                     virtual nw4r::lyt::Pane*        getNigaoePane();
                     virtual nw4r::lyt::Material*    getNigaoePaneMaterial();
 

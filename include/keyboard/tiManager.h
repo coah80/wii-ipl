@@ -83,8 +83,8 @@ namespace textinput {
                 }
             }
 
-            virtual void                                start() {}
-            virtual void                                end()   {}
+            virtual void                                start();
+            virtual void                                end();
 
             virtual InputForm*                          getInputForm()                          { return mpInputForm; }
             virtual const InputForm*                    getInputForm() const;
