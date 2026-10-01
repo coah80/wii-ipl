@@ -229,8 +229,7 @@ void SDChannelTitle::create() {
     comment->SetString(System::getMessage(0xad));
     iplSDChannelTitle_813E630C(this);
     mpFade = new math::HermiteIntp<f32>();
-    static f32 fadeRange[2] = {0.0f, 255.0f};
-    mpFade->init(fadeRange[0], 255.0f, 28.0f, 0.0f, 0.0f);
+    mpFade->init(0.0f, 255.0f, 28.0f, 0.0f, 0.0f);
     mpFade->setAnmType(ANIM_TYPE_FORWARD);
     mpScreenCapture = new (System::getTreasureHeap(), 32) utility::Capture(System::getTreasureHeap(), 0, 0,
         System::getRenderModeObj()->fbWidth, System::getRenderModeObj()->efbHeight, GX_TF_RGB565);
@@ -1024,8 +1023,7 @@ extern "C" void iplSDChannelTitle_813E7A18(SDChannelTitle* scene) {
     if (!scene->mScriptEnabled || scene->mScriptState == 4) {
         if (scene->mpChannelSelect->prepareRestarting(scene->mPage)) {
             scene->mpChannelSelect->startPageTransition(scene->mPage, scene->mIndex);
-            static f32 fadeRange[2] = {0.0f, 255.0f};
-            scene->mpFade->init(fadeRange[0], 255.0f, 28.0f, 0.0f, 0.0f);
+            scene->mpFade->init(0.0f, 255.0f, 28.0f, 0.0f, 0.0f);
             scene->mpFade->setAnmType(ANIM_TYPE_BACKWARD);
             scene->mpFade->play();
             scene->mState = 6;
