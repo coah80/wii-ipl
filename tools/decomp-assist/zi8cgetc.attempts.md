@@ -245,3 +245,155 @@ forbidden patterns added (net, per file): 0
 readability warnings (net, per file; must be 0 in the final result): 0
 GATE PASS
 ```
+
+## Continued region and branch matching, 2026-10-01
+
+Fresh branch from origin/main 3c235852. User authorizes keeping either smaller absolute instruction deficit or higher engine fuzzy score, subject to the unchanged pool/data/regression/source gates. Baseline deficit 62, fuzzy 78.76161%, exact functions 5/8, code 4168/47816, data 72/536.
+- c01-phonetic-loop-call: R14: separate phonetic-match failure from candidate loop bounds. Deficit 62 -> 61; engine fuzzy 78.76161% -> 79.36390%; kept.
+- c02-finish-terminator: R15: store word output terminator before advancing cursor. Deficit 61 -> 61; engine fuzzy 79.36390% -> 79.36943%; kept.
+- c03-pud-switch: R4: order PUD component phonetic and fixed matching with mode switch. Deficit 61 -> 59; engine fuzzy 79.36943% -> 80.17310%; rejected and restored.
+- c04-context-count: R1: split context format and table-count setup. Deficit 61 -> 61; engine fuzzy 79.36943% -> 79.37964%; kept.
+- c05-finish-capacity: R15: use a selected retry capacity for count-only and emitted output. Deficit 61 -> 48; engine fuzzy 79.37964% -> 79.17226%; kept.
+- c06-filtered-record: R16: decode filtered ordinal before applying record stride. Deficit 48 -> 50; engine fuzzy 79.17226% -> 79.17788%; kept.
+- c07-pud-tone-status: R4: retain successful tone-spelling match status before accepting PUD. Deficit 50 -> 51; engine fuzzy 79.17788% -> 79.11175%; rejected and restored.
+- c08-pud-switch-status: R4: switch PUD match cases with successful tone status. Deficit 50 -> 45; engine fuzzy 79.17788% -> 80.01780%; rejected and restored.
+- c09-retry-single-pass: R15: restore single-character phase before phonetic fallback retry. Deficit 50 -> 49; engine fuzzy 79.17788% -> 78.92460%; kept.
+- c10-retry-setup-placement: R3/R15: place single-character reset at fallback and keep initial full-match option. Deficit 49 -> 52; engine fuzzy 78.92460% -> 78.90914%; rejected and restored.
+- c12-engine-option-lifetime: R3: use established full-match option and reset single-character phase only at retry. Deficit 49 -> 55; engine fuzzy 78.92460% -> 79.14088%; rejected and restored.
+- c13-filtered-header: R16: test the advancing filtered group header directly. Deficit 49 -> 50; engine fuzzy 78.92460% -> 78.97555%; kept.
+- c14-pud-tone-loop: R4: split tone comparison failure from range scan bounds. Deficit 50 -> 50; engine fuzzy 78.97555% -> 79.21431%; kept.
+- c15-pud-switch-loop: R4: dispatch PUD matching cases after separating tone scan exit. Deficit 50 -> 45; engine fuzzy 79.21431% -> 80.15755%; rejected and restored.
+- c16-pud-duplicates: R4: check character and word duplicate results in their own branches. Deficit 50 -> 44; engine fuzzy 79.21431% -> 79.11671%; rejected and restored.
+- c17-pud-output-paths: R4: count words before copying and postincrement PUD output cursors. Deficit 50 -> 47; engine fuzzy 79.21431% -> 79.07943%; rejected and restored.
+- c18-pud-switch-outputs: R4: dispatch PUD mode cases with target output count placement. Deficit 50 -> 45; engine fuzzy 79.21431% -> 80.15755%; rejected and restored.
+- c19-pud-complete-branches: R4: restore PUD switch duplicate exits and output cursor paths together. Deficit 50 -> 46; engine fuzzy 79.21431% -> 80.37851%; rejected and restored.
+- c20-finish-capacity-failure: R15: test retry exhaustion with count-only and emitted capacities. Deficit 50 -> 55; engine fuzzy 79.21431% -> 79.47246%; rejected and restored.
+- c21-prediction-postcount: R6: postincrement character output count in prediction path. Deficit 50 -> 48; engine fuzzy 79.21431% -> 79.10697%; kept.
+- c22-ordinal-postcount: R8: postincrement ordinal character output count. Deficit 48 -> 49; engine fuzzy 79.10697% -> 78.96722%; rejected and restored.
+- c23-phonetic-ordinal-postcount: R8: postincrement phonetic ordinal character output count. Deficit 48 -> 48; engine fuzzy 79.10697% -> 78.95832%; rejected and restored.
+- c24-tone-postcount: R9: postincrement tone output count. Deficit 48 -> 48; engine fuzzy 79.10697% -> 78.92460%; rejected and restored.
+- c25-alternate-tone-postcount: R9: postincrement alternate tone output count. Deficit 48 -> 46; engine fuzzy 79.10697% -> 78.93977%; rejected and restored.
+- c26-user-postcount: R9: postincrement user character output count. Deficit 48 -> 50; engine fuzzy 79.10697% -> 78.86877%; rejected and restored.
+- c27-frequency-postcount: R12: postincrement frequency character output count. Deficit 48 -> 49; engine fuzzy 79.10697% -> 78.84910%; rejected and restored.
+- c28-context-word-count: R5: increment appended context word length within character store. Deficit 48 -> 47; engine fuzzy 79.10697% -> 79.14368%; kept.
+- c29-frequency-component-count: R12: postincrement frequency component output count. Deficit 47 -> 45; engine fuzzy 79.14368% -> 79.13432%; kept.
+- c30-dictionary-duplicates: R6: branch directly on dictionary duplicate check results. Deficit 45 -> 50; engine fuzzy 79.13432% -> 79.08589%; rejected and restored.
+- c31-range-duplicates: R7: branch directly on range duplicate check results. Deficit 45 -> 45; engine fuzzy 79.13432% -> 79.21637%; kept.
+- c32-oem-component-mode: R3: retain component mode check before OEM segment validation. Deficit 45 -> 40; engine fuzzy 79.21637% -> 79.20972%; kept.
+- c33-oem-phonetic-mode: R3: retain phonetic mode check before OEM multi-syllable validation. Deficit 40 -> 37; engine fuzzy 79.20972% -> 79.01274%; rejected and restored.
+- c34-oem-word-count-order: R3: advance OEM spelling cursor before increasing word length. Deficit 40 -> 37; engine fuzzy 79.20972% -> 79.18724%; kept.
+- c35-pud-word-count-order: R4: advance PUD spelling cursor before increasing word length. Deficit 37 -> 36; engine fuzzy 79.18724% -> 79.25000%; kept.
+- c36-oem-segment-length-order: R3: compare required segment length before emitted spelling length. Deficit 36 -> 36; engine fuzzy 79.25000% -> 79.25047%; kept.
+- c37-oem-phonetic-length-order: R3: compare required phonetic length before emitted spelling length. Deficit 36 -> 36; engine fuzzy 79.25047% -> 79.25094%; kept.
+- c38-component-table-setup: R1: retain table origin while advancing component cursor and decrementing count. Deficit 36 -> 35; engine fuzzy 79.25094% -> 79.41308%; kept.
+- c39-pud-dispatch-after-oem: R4: switch PUD dispatch after restoring OEM mode and scan order. Deficit 35 -> 41; engine fuzzy 79.41308% -> 80.42741%; rejected and restored.
+- c40-component-row-address: R0: address component segment row before its byte index. Deficit 35 -> 35; engine fuzzy 79.41308% -> 79.44998%; kept.
+- c41-dictionary-postindex: R6: advance each dictionary word output cursor within the store. Deficit 35 -> 39; engine fuzzy 79.44998% -> 79.51237%; kept.
+- c42-range-postindex: R7: advance each range word output cursor within its store. Deficit 39 -> 37; engine fuzzy 79.51237% -> 79.49841%; kept.
+- c43-pud-postindex-only: R4: postincrement PUD word copy cursor at each character. Deficit 37 -> 37; engine fuzzy 79.49841% -> 79.38170%; rejected and restored.
+- c44-component-range-bytes: R7: decode low ordinal byte before high byte in component ranges. Deficit 37 -> 37; engine fuzzy 79.49841% -> 79.48651%; rejected and restored.
+- c45-component-phase-bytes: R11: decode low ordinal byte before high byte in component phase. Deficit 37 -> 37; engine fuzzy 79.49841% -> 79.51808%; kept.
+- c46-finish-branch-capacity: R15: branch on count-only and emitted capacities without a Boolean temporary. Deficit 37 -> 49; engine fuzzy 79.51808% -> 79.74897%; kept.
+- c47-component-charset-block: R11: retain separate charset cursor setup and filtering branches. Deficit 49 -> 44; engine fuzzy 79.74897% -> 79.85378%; kept.
+- c48-frequency-charset-block: R12: retain separate frequency charset setup and filtering branches. Deficit 44 -> 45; engine fuzzy 79.85378% -> 79.86484%; kept.
+- c49-ordinal-direct-duplicates: R8: test ordinal character and word duplicate results at calls. Deficit 45 -> 39; engine fuzzy 79.86484% -> 79.77819%; kept.
+- c50-phonetic-ordinal-direct-duplicates: R8: test phonetic ordinal duplicate results at calls. Deficit 39 -> 39; engine fuzzy 79.77819% -> 79.83561%; kept.
+- c51-ordinal-loop-continuations: R8: express ordinal scan as for loop with direct continuations. Deficit 39 -> 39; engine fuzzy 79.83561% -> 79.83561%; rejected and restored.
+- c53-ordinal-rejection-cleanup: R8: advance ordinal cursor separately on rejected candidates. Deficit 39 -> 17; engine fuzzy 79.83561% -> 80.00159%; rejected and restored.
+- c55-ordinal-cleanup-word-first: R8: restore ordinal rejection increments with word-first duplicate paths. Deficit 39 -> 17; engine fuzzy 79.83561% -> 79.99812%; rejected and restored.
+- c56-ordinal-word-first-only: R8: place word duplicate branch before bitmap and character branches. Deficit 39 -> 40; engine fuzzy 79.83561% -> 79.96394; frame 0x4f0; data 72; kept.
+- c57-ordinal-seen-loop: R8: separate seen ordinal equality from scan bound. Deficit 40 -> 40; engine fuzzy 79.96394% -> 80.03410; frame 0x4f0; data 72; kept.
+- c58-ordinal-primary-rejection: R8: advance ordinal cursor on failed primary or secondary match. Deficit 40 -> 37; engine fuzzy 80.03410% -> 79.99110; frame 0x4e0; data 24; rejected and restored.
+- c59-ordinal-charset-rejection: R8: advance ordinal cursor on rejected charset. Deficit 40 -> 37; engine fuzzy 80.03410% -> 79.99157; frame 0x4e0; data 24; rejected and restored.
+- c60-ordinal-bitmap-rejection: R8: advance ordinal cursor on bitmap duplicate. Deficit 40 -> 37; engine fuzzy 80.03410% -> 80.03831; frame 0x4e0; data 24; rejected and restored.
+- c61-ordinal-character-rejection: R8: advance ordinal cursor on character duplicate. Deficit 40 -> 36; engine fuzzy 80.03410% -> 80.03503; frame 0x4e0; data 24; rejected and restored.
+- c62-ordinal-word-rejection: R8: advance ordinal cursor on word duplicate. Deficit 40 -> 37; engine fuzzy 80.03410% -> 80.03831; frame 0x4e0; data 24; rejected and restored.
+- c63-ordinal-seen-rejection: R8: reset exact phrase and advance cursor on seen ordinal. Deficit 40 -> 34; engine fuzzy 80.03410% -> 79.99953; frame 0x4e0; data 24; rejected and restored.
+- c64-frequency-duplicate-cleanup: R12: retain word-first duplicate checks and per-rejection record advancement. Deficit 40 -> 25; engine fuzzy 80.03410% -> 79.96965; frame 0x4e0; data 24; rejected and restored.
+- c65-filtered-output-paths: R16: count filtered words before copying and postincrement output cursors. Deficit 40 -> 40; engine fuzzy 80.03410% -> 80.25890; frame 0x4f0; data 72; kept.
+- c66-ordinal-cleanup-filtered: R8: restore ordinal rejection advancement after filtered emission repair. Deficit 40 -> 17; engine fuzzy 80.25890% -> 80.58009; frame 0x4e0; data 24; rejected and restored.
+- c67-ordinal-oem-scan-lifetimes: R8/R3: restore ordinal rejection increments with OEM spelling scan form. Deficit 40 -> 20; engine fuzzy 80.25890% -> 80.29627; frame 0x4e0; data 24; rejected and restored.
+- c68-ordinal-compare-order: R8: rejection cursor paths plus reverse repeated ordinal comparison. Deficit 40 -> 17; engine fuzzy 80.25890% -> 80.58009; frame 0x4e0; data 24; rejected and restored.
+- c69-ordinal-postcount-cleanup: R8: rejection cursor paths plus postincrement ordinal output count. Deficit 40 -> 18; engine fuzzy 80.25890% -> 80.36015; frame 0x4e0; data 24; rejected and restored.
+- c70-ordinal-seen-cleanup: R8: rejection cursor paths plus advance cursor on seen ordinal. Deficit 40 -> 11; engine fuzzy 80.25890% -> 80.65240; frame 0x4e0; data 24; rejected and restored.
+- c71-ordinal-byte-order: R8: rejection cursor paths plus decode low ordinal byte first. Deficit 40 -> 17; engine fuzzy 80.25890% -> 80.32793; frame 0x4e0; data 24; rejected and restored.
+- c72-ordinal-record-order: R8: rejection cursor paths plus address ordinal record after stride. Deficit 40 -> 17; engine fuzzy 80.25890% -> 80.58009; frame 0x4e0; data 24; rejected and restored.
+- c73-ordinal-frequency-order: R8: rejection cursor paths plus mark matched phase before extracting frequency. Deficit 40 -> 17; engine fuzzy 80.25890% -> 80.36661; frame 0x4e0; data 24; rejected and restored.
+- c74-cleanup-oem-output: R8 plus oem-output: restore rejection cursor paths and target source expression. Deficit 40 -> 13; engine fuzzy 80.25890% -> 80.59769; frame 0x4e0; data 24; rejected and restored.
+- c75-cleanup-pud-output: R8 plus pud-output: restore rejection cursor paths and target source expression. Deficit 40 -> 18; engine fuzzy 80.25890% -> 80.58102; frame 0x4e0; data 24; rejected and restored.
+- c76-cleanup-pud-duplicates: R8 plus pud-duplicates: restore rejection cursor paths and target source expression. Deficit 40 -> 15; engine fuzzy 80.25890% -> 80.51358; frame 0x4e0; data 24; rejected and restored.
+- c77-cleanup-pud-tone: R8 plus pud-tone: restore rejection cursor paths and target source expression. Deficit 40 -> 12; engine fuzzy 80.25890% -> 80.59161; frame 0x4e0; data 24; rejected and restored.
+- c78-cleanup-pud-switch: R8 plus pud-switch: restore rejection cursor paths and target source expression. Deficit 40 -> 12; engine fuzzy 80.25890% -> 81.51883; frame 0x4e0; data 24; rejected and restored.
+- c79-cleanup-oem-segments: R8 plus oem-segments: restore rejection cursor paths and target source expression. Deficit 40 -> 14; engine fuzzy 80.25890% -> 80.75281; frame 0x4e0; data 24; rejected and restored.
+- c80-cleanup-pud-segments: R8 plus pud-segments: restore rejection cursor paths and target source expression. Deficit 40 -> 21; engine fuzzy 80.25890% -> 80.44745; frame 0x4e0; data 24; rejected and restored.
+- c81-cleanup-context-segments: R8 plus context-segments: restore rejection cursor paths and target source expression. Deficit 40 -> 21; engine fuzzy 80.25890% -> 80.51086; frame 0x4e0; data 24; rejected and restored.
+- c82-cleanup-component-segments: R8 plus component-segments: restore rejection cursor paths and target source expression. Deficit 40 -> 19; engine fuzzy 80.25890% -> 80.47659; frame 0x4e0; data 24; rejected and restored.
+- c83-cleanup-context-phrase: R8 plus context-phrase: restore rejection cursor paths and target source expression. Deficit 40 -> 11; engine fuzzy 80.25890% -> 80.49812; frame 0x4e0; data 24; rejected and restored.
+- c84-cleanup-dictionary-phrase: R8 plus dictionary-phrase: restore rejection cursor paths and target source expression. Deficit 40 -> 15; engine fuzzy 80.25890% -> 80.62936; frame 0x4f0; data 72; kept.
+- c85-cleanup-global-phrase: R8 plus global-phrase: restore rejection cursor paths and target source expression. Deficit 15 -> 15; engine fuzzy 80.62936% -> 80.52173; frame 0x4f0; data 72; rejected and restored.
+- c86-cleanup-component-phrase: R8 plus component-phrase: restore rejection cursor paths and target source expression. Deficit 15 -> 15; engine fuzzy 80.62936% -> 80.55499; frame 0x4f0; data 72; rejected and restored.
+- c87-cleanup-user-duplicates: R8 plus user-duplicates: restore rejection cursor paths and target source expression. Deficit 15 -> 15; engine fuzzy 80.62936% -> 80.53438; frame 0x4f0; data 72; rejected and restored.
+- c88-cleanup-global-duplicates: R8 plus global-duplicates: restore rejection cursor paths and target source expression. Deficit 15 -> 12; engine fuzzy 80.62936% -> 80.55573; frame 0x4f0; data 72; kept.
+- c89-cleanup-phonetic-duplicates: R8 plus phonetic-duplicates: restore rejection cursor paths and target source expression. Deficit 12 -> 14; engine fuzzy 80.55573% -> 80.64556; frame 0x4f0; data 72; kept.
+- c90-cleanup-frequency-cleanup: R8 plus frequency-cleanup: restore rejection cursor paths and target source expression. Deficit 14 -> 2; engine fuzzy 80.64556% -> 81.07100; frame 0x4f0; data 72; kept.
+- c91-cleanup-engine-setup: R8 plus engine-setup: restore rejection cursor paths and target source expression. Deficit 2 -> 4; engine fuzzy 81.07100% -> 81.01171; frame 0x4e0; data 24; rejected and restored.
+- c92-cleanup-pair-bytes: R8 plus pair-bytes: restore rejection cursor paths and target source expression. Deficit 2 -> -2; engine fuzzy 81.07100% -> 81.04964; frame 0x4f0; data 72; rejected and restored.
+- c93-cleanup-pair-branches: R8 plus pair-branches: restore rejection cursor paths and target source expression. Deficit 2 -> 2; engine fuzzy 81.07100% -> 81.24812; frame 0x4f0; data 72; kept.
+- v0-oem-segment-view: oem: access component segment bytes through twelve-byte row fields. Deficit 2 -> 2; engine fuzzy 81.24812% -> 81.24812; frame 0x4f0; data 72; rejected and restored.
+- c94-pud-tone-match-status: R4: restore the target successful tone match status before PUD acceptance. Deficit 2 -> 0; engine fuzzy 81.24812% -> 81.35669; frame 0x4e0; data 96; kept.
+- v1-pud-segment-view: pud: access component segment bytes through twelve-byte row fields. Deficit 0 -> 0; engine fuzzy 81.35669% -> 81.35669; frame 0x4e0; data 96; rejected and restored.
+- v2-context-segment-view: context: access component segment bytes through twelve-byte row fields. Deficit 0 -> 0; engine fuzzy 81.35669% -> 81.35669; frame 0x4e0; data 96; rejected and restored.
+- w0-context-duplicate-wrap: context: branch on the incremented duplicate ring cursor at 64. Deficit 0 -> 0; engine fuzzy 81.35669% -> 81.36269; frame 0x4e0; data 96; kept.
+- w1-dictionary-duplicate-wrap: dictionary: branch on the incremented duplicate ring cursor at 64. Deficit 0 -> 0; engine fuzzy 81.36269% -> 81.13666%; frame 0x4e0; data 96; rejected and restored.
+- w2-range-duplicate-wrap: range: branch on the incremented duplicate ring cursor at 64. Deficit 0 -> 0; engine fuzzy 81.36269% -> 81.12795%; frame 0x4e0; data 96; rejected and restored.
+- w3-ordinal-duplicate-wrap: ordinal: branch on the incremented duplicate ring cursor at 64. Deficit 0 -> 0; engine fuzzy 81.36269% -> 81.12682%; frame 0x4e0; data 96; rejected and restored.
+- w4-phonetic-ordinal-duplicate-wrap: phonetic-ordinal: branch on the incremented duplicate ring cursor at 64. Deficit 0 -> 0; engine fuzzy 81.36269% -> 81.12682%; frame 0x4e0; data 96; rejected and restored.
+- w5-user-duplicate-wrap: user: branch on the incremented duplicate ring cursor at 64. Deficit 0 -> 0; engine fuzzy 81.36269% -> 81.12542%; frame 0x4e0; data 96; rejected and restored.
+- w6-global-duplicate-wrap: global: branch on the incremented duplicate ring cursor at 64. Deficit 0 -> 0; engine fuzzy 81.36269% -> 81.12495%; frame 0x4e0; data 96; rejected and restored.
+- w7-component-duplicate-wrap: component: branch on the incremented duplicate ring cursor at 64. Deficit 0 -> 0; engine fuzzy 81.36269% -> 81.12964%; frame 0x4e0; data 96; rejected and restored.
+- w8-frequency-duplicate-wrap: frequency: branch on the incremented duplicate ring cursor at 64. Deficit 0 -> 0; engine fuzzy 81.36269% -> 81.36269%; frame 0x4e0; data 96; rejected and restored.
+- w9-pair-duplicate-wrap: pair: branch on the incremented duplicate ring cursor at 64. Deficit 0 -> 0; engine fuzzy 81.36269% -> 81.12299%; frame 0x4e0; data 96; rejected and restored.
+- w10-phonetic-duplicate-wrap: phonetic: branch on the incremented duplicate ring cursor at 64. Deficit 0 -> 0; engine fuzzy 81.36269% -> 81.12814%; frame 0x4e0; data 96; rejected and restored.
+- w11-filtered-duplicate-wrap: filtered: branch on the incremented duplicate ring cursor at 64. Deficit 0 -> 0; engine fuzzy 81.36269% -> 81.14134%; frame 0x4e0; data 96; rejected and restored.
+
+### Continuation audit
+
+This round compiled 106 logged engine trials containing 105 distinct candidate sources; 37 improvements passed the quick gate and were committed separately. c18 repeats c15 exactly and does not count as a distinct attempt. Transform assertions and failed temporary script construction are excluded from these counts. The c45 low-byte-first change affects both the R7 character-range candidate count and R11 component first ordinal. c05 retry-capacity selection was superseded by c46; it is not a retained change.
+
+Retained repairs cover R0 component-row addressing; R1 component cursor/count and context format setup; R3 OEM component-mode checks and spelling scan order; R4 tone-loop bounds, successful tone status and spelling scan order; R5 context word length and duplicate-ring wrap; R6 prediction emission, dictionary output cursor and phrase-offset decoding; R7 range duplicate branches and ordinal update; R8 direct ordinal duplicate exits, seen-ordinal scan and separate rejection cursor advancement; R10 global duplicate exits; R11/R12 separate charset setup and filtering; R12 frequency duplicate rejection advancement and component emission; R13 phonetic pair branch order; R14 phonetic-match failure and duplicate exits; R15 output termination and final phonetic retry state; R16 filtered ordinal decoding, count placement and output cursors.
+
+The target and source both contain 10,676 instructions (0xa6d0 bytes): deficit 62 -> 0, engine fuzzy 78.76161% -> 81.362686%. Instruction-exact functions remain 5/8; matched code remains 4168/47816; matched data increases 72 -> 96/536. The frame is 0x4e0, but the source now saves four GPRs individually while the target calls _savegpr_27/_restgpr_27 for five. The instruction total includes cancellation between positive and negative regional differences; it does not establish an exact match or prove all semantic paths are recovered. Remaining engine differences include displaced branch/case bodies, register choices and stack-local offsets.
+
+The final block map is /tmp/sol-med-zi8-r2/map.md and map.json, with 1796 target blocks and 1786 source blocks. Every block has instruction count, call targets and references. Calls number 168/166; the omitted save/restore helper calls account for the net difference. Call order also differs in displaced bodies. Pool comparison remains IDENTICAL, with no string pool or string references. aligned-blocks.md pairs 1240 target blocks; global.diff lists direct instruction alignment. There are 2309 call-anchored nonidentical intervals, including 222 positive and 228 negative instruction differences. These alignment intervals are not necessarily missing behavior. Every compiled trial retains its source, build output, pool result, focused diff and fresh maps in that directory.
+
+The R0-R16 audit above still records at least three distinct compiled attempts for every target range. R15 finish actually begins at target +9838 and filtered-table handling at +9a68; the earlier +9be4/+9fb0 boundaries were approximate call groups. No target instructions are omitted from the complete map. The two other unmatched functions retain three distinct successful-build attempts each from s01-s03 and s04/s06/s07: Zi8GetElementCount 99.347824%, 115/115 instructions, thirteen register differences; ZiMatchZHSpelling 98.80165%, 121/121 instructions, 29 register differences. No new exact function was added, so the separate exact-function-count completion criterion is unmet.
+
+Final readability cleanup changed whitespace and removed a redundant scope without changing the measured assembly. The deficit-zero stopping condition is met; branch experiments w0-w11 were then measured, with only the context duplicate wrap retained.
+
+### Continuation clean gate
+
+```
+full build: ok
+main.dol sha1: 26116613f624061ba99c8d1a299aaa6efa85670d
+[libs/RVLMiddleware/eZiText/src/clib/zi8cgetc] pool: IDENTICAL
+[libs/RVLMiddleware/eZiText/src/clib/zi8cgetc] objdiff: code 4168/47816 data 96/536 functions 5/8 fuzzy 83.3368 linked code 0
+[libs/RVLMiddleware/eZiText/src/clib/zi8cgetc] instruction-exact functions: 5/8
+[libs/RVLMiddleware/eZiText/src/clib/zi8cgetc]   section .data size 392 match None
+[libs/RVLMiddleware/eZiText/src/clib/zi8cgetc]   section .sbss2 size 8 match 100.0
+[libs/RVLMiddleware/eZiText/src/clib/zi8cgetc]   section .sdata2 size 16 match 100.0
+[libs/RVLMiddleware/eZiText/src/clib/zi8cgetc]   section .text size 47816 match 83.3368
+[libs/RVLMiddleware/eZiText/src/clib/zi8cgetc]   section extab size 48 match 97.91667
+[libs/RVLMiddleware/eZiText/src/clib/zi8cgetc]   section extabindex size 72 match 100.0
+[libs/RVLMiddleware/eZiText/src/clib/zi8cgetc]   below 100: ZiMatchZHSpelling 98.80165
+[libs/RVLMiddleware/eZiText/src/clib/zi8cgetc]   below 100: zi8InternalGetZH 81.362686
+[libs/RVLMiddleware/eZiText/src/clib/zi8cgetc]   below 100: Zi8GetElementCount 99.347824
+[libs/RVLMiddleware/eZiText/src/clib/zi8cgetc] baseline: code 4168/47816 data 72 functions 5 fuzzy 81.0138
+regressions vs baseline: 0
+global matched_code_percent: 86.34483 -> 86.34483
+global fuzzy_match_percent: 98.91881 -> 98.95590
+global complete_code_percent: 60.34391 -> 60.34391
+global matched_data_percent: 90.91649 -> 90.91780
+forbidden patterns added (net, per file): 0
+readability warnings (net, per file; must be 0 in the final result): 0
+GATE PASS
+```
