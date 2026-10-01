@@ -1,5 +1,6 @@
 #define AutoLock(x) AutoLock(x) NO_INLINE
 #define IPL_SOUND_RECT_OUT_OF_LINE
+#define IPL_SOUND_MATCHING
 #include "iplSound.h"
 #include "sound/iplSound.h"
 

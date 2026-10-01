@@ -31,7 +31,14 @@ namespace nw4r {
                 ut::detail::AutoLock<OSMutex> lock(mMutex);
                 return mFrameHeap.SaveState();
             }
+#ifdef IPL_SOUND_MATCHING
+            void LoadState(int id) {
+                ut::detail::AutoLock<OSMutex> lock(mMutex);
+                mFrameHeap.LoadState(id);
+            }
+#else
             void LoadState(int id);
+#endif
 
             bool IsValid() { return mFrameHeap.IsValid(); }
 
