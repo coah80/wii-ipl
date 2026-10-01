@@ -145,12 +145,12 @@ wchar_t StringBase::getLastWChar() {
 void Decolated::inputChar(wchar_t ch) {
     if (ch != 0xfffe) {
         wchar_t input[8];
+        u16 count;
         input[4] = 0;
         input[3] = 0;
         input[2] = 0;
         input[1] = 0;
         input[0] = 0;
-        u32 count;
         if (static_cast<u32>(mTranslateMode) - 1 > 1) {
             goto nonKana;
         }
@@ -175,14 +175,13 @@ void Decolated::inputChar(wchar_t ch) {
 nonKana:
         if ((s32)mTranslateMode == 3) {
             int i = 0;
-            input[0] = 0;
+            input[i] = 0;
             if (ch == 10) {
                 i = 0;
             }
-            input[i] = ch;
-            i++;
-            input[i] = 0;
+            input[i++] = ch;
             count = i;
+            input[i] = 0;
             mKanaStream.mOutput[0] = 0;
         } else {
             count = 0;
