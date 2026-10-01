@@ -5194,8 +5194,8 @@ static vmBoolInt VmBlobPackCommon(CHANSVm* VmInst, CHANSVmObjHdr* VmParentObj, C
                 }
                 if (paramValue > 0) {
                     memset(parentBlob->pData + parentBlob->offset, 0, paramValue);
+                    parentBlob->offset += paramValue;
                 }
-                parentBlob->offset += paramValue;
                 break;
             }
             case 6:
@@ -5209,11 +5209,11 @@ static vmBoolInt VmBlobPackCommon(CHANSVm* VmInst, CHANSVmObjHdr* VmParentObj, C
                         execCtx = ((CHANSVmPrivate*)VmInst)->pActiveCtx;
                         count = execCtx->argc - argCount - 1;
                     }
-                    if (count < 0) {
-                        goto error;
-                    }
                 } else {
                     count = paramValue;
+                }
+                if (count < 0) {
+                    goto error;
                 }
 
                 if (!CHANSVm_81451348(parentBlob, elemSize * count)) {
@@ -5755,7 +5755,6 @@ VmMethodDefine(Blob, Unpack) {
             case 11:
             case 12:
             case 13: {
-                CHANSVmObjHdr* arrElem;
                 u8* srcPtr;
                 count = outVal;
                 if ((s32)count < 0) {
@@ -5804,7 +5803,6 @@ VmMethodDefine(Blob, Unpack) {
                 continue;
             }
             case 14: {
-                CHANSVmObjHdr* arrElem;
                 u8* srcData;
                 s32 bufSize;
                 count = outVal;
@@ -6361,14 +6359,14 @@ CHANSVmErr CHANSVmAddExe(CHANSVm* vm, vmS32 unk0, CHANSVm* execCtx) {
     CHANSConvertModuleOfsToPtr(header);
 
     {
-        u32 i;
         DispatchEntry* methodTable = header->pMethodRefTbl;
+        u32 i;
         int ok;
 
         for (i = 1; i < header->methodCount; i++) {
             if (methodTable[i].nameLength) {
-                if ((u8*)(methodTable[i].nameLength + (vmU32)methodTable + methodTable[i].offset) <= (u8*)(header->regionSize + (vmU32)header)) {
-                    CHANSVmObjHdr* method = (CHANSVmObjHdr*)CHANSVmAddNativeMethodName(vm, (const char*)((u8*)methodTable + methodTable[i].offset),
+                if ((u8*)(methodTable[i].nameLength + (vmU32)methodTable + methodTable[i].offset) <= (u8*)((vmU32)header + header->regionSize)) {
+                    CHANSVmObjHdr* method = (CHANSVmObjHdr*)CHANSVmAddNativeMethodName(vm, (const char*)(methodTable[i].offset + (vmU32)methodTable),
                                                                                        methodTable[i].nameLength);
                     if (method) {
                         header->pMethodTbl[i] = (vmU32)method;
@@ -6386,8 +6384,8 @@ CHANSVmErr CHANSVmAddExe(CHANSVm* vm, vmS32 unk0, CHANSVm* execCtx) {
         }
     }
     {
-        u32 i;
         u8* strPtr = header->pStringDataTbl;
+        u32 i;
         int ok;
 
         for (i = 0; i < header->stringCount; i++) {
@@ -6395,7 +6393,7 @@ CHANSVmErr CHANSVmAddExe(CHANSVm* vm, vmS32 unk0, CHANSVm* execCtx) {
             strPtr += 2;
 
             if ((len & 1) == 0) {
-                if (strPtr + len <= (u8*)(header->regionSize + (vmU32)header)) {
+                if (strPtr + len <= (u8*)((vmU32)header + header->regionSize)) {
                     header->pStringTbl[i].pStringData = strPtr;
                     header->pStringTbl[i].length = len;
                     strPtr += len;
@@ -6950,16 +6948,17 @@ static CHANSVmErr VmCallMethod(CHANSVm* vm, u32 instructionSize, u32 callType, u
     CHANSVmPrivate* pVm = (CHANSVmPrivate*)vm;
     CHANSVmObjHdr* acc;
     u32 retVal;
+    u32 methodRef;
+    const u8* instruction;
+    u32 newPc;
+    CHANSVmFunction funcPtr;
     CHANSVmNativeClass* target;
     u32 pushEnd, headerCount;
-    u32 newPc;
-    const u8* instruction;
     CHANSVmObjHdr localBuf;
     u32 pushDepth;
-    CHANSVmFunction funcPtr;
 
     acc = &pVm->accumulator;
-    retVal = 0;
+    funcPtr = vmNull;
     target = vmNull;
     pushEnd = 0;
     headerCount = 0;
@@ -7010,23 +7009,25 @@ static CHANSVmErr VmCallMethod(CHANSVm* vm, u32 instructionSize, u32 callType, u
     }
 
     {
-        u32 pc = pVm->pActiveCtx->pc;
+        CHANSVmExecutionCtx* ctx = pVm->pActiveCtx;
+        u32 pc = ctx->pc;
+        CHANSVmModule* module = ctx->pDbg;
 
         newPc = pc + instructionSize;
-        instruction = pVm->pActiveCtx->pDbg->pData + pc;
+        instruction = module->pData + pc;
 
-        if (newPc < pc || newPc > pVm->pActiveCtx->pDbg->codeSize) {
+        if (newPc < pc || newPc > module->codeSize) {
             return CHANS_VM_ERR_CODE_RANGE;
         }
         if (target == 0) {
-            pVm->pActiveCtx->pc = newPc;
+            ctx->pc = newPc;
         }
     }
 
     memset(&localBuf, 0, sizeof(CHANSVmObjHdr));
 
     if (callType == CHANS_VM_CALL_TYPE_FUNCTION) {
-        target = vmNull;
+        methodRef = 0;
     } else {
         CHANSVmExecutionCtx* ec = pVm->pActiveCtx;
         u32 methodId = VM_READ_BE_U16(instruction, 1);
@@ -7041,24 +7042,26 @@ static CHANSVmErr VmCallMethod(CHANSVm* vm, u32 instructionSize, u32 callType, u
             goto error_check;
         }
 
+        methodRef = methodId;
         if (methodId != 0) {
-            retVal = ec->pDbg->pMethodTbl[methodId];
+            methodRef = ec->pDbg->pMethodTbl[methodId];
         }
     }
 
     // If callType == PROP_GET or PROP_SET
     if (callType - CHANS_VM_CALL_TYPE_PROP_GET <= 1) {
         CHANSVmNativeProperty* entry;
-        u32 isMethodNull = retVal == 0;
         u32 isSet = callType == CHANS_VM_CALL_TYPE_PROP_SET;
+        u32 isMethodNull;
         entry = target->pNativeProperties;
         pushDepth = isSet;
+        isMethodNull = methodRef == 0;
 
         while (vmTrue) {
             if (isMethodNull != 0 || entry == 0) {
                 return CHANS_VM_ERR_NO_SUCH_PROPERTY;
             }
-            if (entry->index == retVal) {
+            if (methodRef == entry->index) {
                 if (acc->type == CHANS_VM_TYPE_CLASS_REF) {
                     if (entry->flag == 0) {
                         return CHANS_VM_ERR_FORBIDDEN_CLASS_PROPERTY;
@@ -7081,14 +7084,14 @@ static CHANSVmErr VmCallMethod(CHANSVm* vm, u32 instructionSize, u32 callType, u
         }
     } else {
         pushDepth = instruction[instructionSize - 1];
-        if (retVal != 0) {
+        if (methodRef != 0) {
             CHANSVmNativeMethod* node = target->pNativeMethods;
 
             while (vmTrue) {
                 if (node == vmNull) {
                     return CHANS_VM_ERR_NO_SUCH_METHOD;
                 }
-                if (node->index == retVal) {
+                if (methodRef == node->index) {
                     if (acc->type == CHANS_VM_TYPE_CLASS_REF && node->hasStar == vmFalse) {
                         return CHANS_VM_ERR_FORBIDDEN_CLASS_METHOD;
                     }
@@ -7097,7 +7100,6 @@ static CHANSVmErr VmCallMethod(CHANSVm* vm, u32 instructionSize, u32 callType, u
                 }
                 node = node->pNext;
             }
-            retVal = 0;
         } else if (target != vmNull) {
             if (acc->type != CHANS_VM_TYPE_CLASS_REF) {
                 if (callType == CHANS_VM_CALL_TYPE_METHOD) {
@@ -7628,12 +7630,13 @@ CHANSVmErr CHANSVmStep(CHANSVm* vm, int stepCount) {
                 }
 
                 case CHANS_VM_OP_IS_CLASS: {
-                    if (pVm->accumulator.type != CHANS_VM_TYPE_CLASS_REF) {
+                    if (pVm->accumulator.type == CHANS_VM_TYPE_CLASS_REF) {
+                        result = 1;
+                        goto call_function_common;
+                    } else {
                         result = CHANS_VM_ERR_INVALID_OBJECT_TYPE;
                         break;
                     }
-                    result = 1;
-                    goto call_function_common;
                 }
                 case CHANS_VM_OP_CALL_FUNCTION: {
                     result = CHANS_VM_OK;
