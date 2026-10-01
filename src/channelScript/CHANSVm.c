@@ -325,13 +325,13 @@ error:
 vmPtr CHANSVmNewObjData(CHANSVm* vm, CHANSVmObjHdr* object, u32 length) {
     CHANSVmPrivate* pVm = (CHANSVmPrivate*)vm;
     u32 idx;
-    u32 chunkIdx;
+    u32 memSize;
     union {
         u32 off;
         ChunkEntry* entry;
     } u;
     ChunkEntry* chunk;
-    u32 memSize;
+    u32 chunkIdx;
 
     if (object == vmNull || object->hasData != vmFalse || length == 0) {
         goto error;
