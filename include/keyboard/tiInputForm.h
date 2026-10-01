@@ -145,7 +145,7 @@ namespace textinput {
 #ifdef TISIGNWINDOW_IMPLEMENTATION
                 bool isAtokActive() const;
 #endif
-#ifdef MYTILETTERFORM_IMPLEMENTATION
+#if defined(MYTILETTERFORM_IMPLEMENTATION) || defined(MYTIINPUTFORM_IMPLEMENTATION)
                 virtual void create(MEMAllocator* allocator);
                 virtual void init();
                 virtual void onCommand(INPUT_COMMAND command, void* data);
@@ -384,7 +384,7 @@ namespace textinput {
                 virtual void                setRootPaneScaleFor16x9();
                 virtual void                setRootPaneScaleFor4x3();
 
-#if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION) || defined(MYTILETTERFORM_IMPLEMENTATION)
+#if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION) || defined(MYTILETTERFORM_IMPLEMENTATION) || defined(MYTIINPUTFORM_IMPLEMENTATION)
                 virtual void                onSE(sound::SE seId);
 #endif
 

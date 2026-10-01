@@ -6,7 +6,7 @@
 
 #include <nw4r/ut/CharWriter.h>
 #include <nw4r/ut/Rect.h>
-#if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION) || defined(TITEXTDRAWER_IMPLEMENTATION) || defined(MYTILETTERFORM_IMPLEMENTATION)
+#if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION) || defined(TITEXTDRAWER_IMPLEMENTATION) || defined(MYTILETTERFORM_IMPLEMENTATION) || defined(MYTIINPUTFORM_IMPLEMENTATION)
 #include <string.h>
 #endif
 
@@ -34,7 +34,7 @@ namespace textinput {
                 } CursorPos;
 
                 typedef struct DrawInfo {
-#if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION) || defined(TITEXTDRAWER_IMPLEMENTATION) || defined(MYTILETTERFORM_IMPLEMENTATION)
+#if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION) || defined(TITEXTDRAWER_IMPLEMENTATION) || defined(MYTILETTERFORM_IMPLEMENTATION) || defined(MYTIINPUTFORM_IMPLEMENTATION)
                     nw4r::ut::Rect rect;
                     wchar_t character;
 #else
@@ -94,7 +94,7 @@ namespace textinput {
                 virtual u32                 getEndPos() const;
 
                 // todo
-#if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION) || defined(TITEXTDRAWER_IMPLEMENTATION) || defined(MYTILETTERFORM_IMPLEMENTATION)
+#if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION) || defined(TITEXTDRAWER_IMPLEMENTATION) || defined(MYTILETTERFORM_IMPLEMENTATION) || defined(MYTIINPUTFORM_IMPLEMENTATION)
                 virtual void                setDrawModifyScopeLine(s32 startLine, s32 endLine);
                 virtual void                setDrawCacheScopeLine(s32 startLine, s32 endLine);
                 virtual void                modifyCursorCache(s32 line, u32 position, f32 x, f32 y, f32 width, f32 height);
@@ -103,12 +103,12 @@ namespace textinput {
                 virtual void                setDrawCacheScopeLine();
                 virtual void                modifyCursorCache();
 #endif
-#if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION) || defined(TITEXTDRAWER_IMPLEMENTATION) || defined(MYTILETTERFORM_IMPLEMENTATION)
+#if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION) || defined(TITEXTDRAWER_IMPLEMENTATION) || defined(MYTILETTERFORM_IMPLEMENTATION) || defined(MYTIINPUTFORM_IMPLEMENTATION)
                 virtual bool                isEnableCursorCache() const;
 #else
                 virtual void                isEnableCursorCache();
 #endif
-#if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION) || defined(TITEXTDRAWER_IMPLEMENTATION) || defined(MYTILETTERFORM_IMPLEMENTATION)
+#if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION) || defined(TITEXTDRAWER_IMPLEMENTATION) || defined(MYTILETTERFORM_IMPLEMENTATION) || defined(MYTIINPUTFORM_IMPLEMENTATION)
                 virtual u32                 getDrawModifyStartLine() const;
                 virtual u32                 getDrawModifyEndLine() const;
 #else
