@@ -1076,3 +1076,406 @@ GATE PASS
 ```
 - Post-full-clean-build latest-main comparison repeated: zero project-wide matched/linked/function regressions; 121/121 Step jump relocations preserved.
 - Local improvement commits: c4ae8bcc correct interpreter scratch object storage; 743f0580 improve chansvmstep code matching; f9928196 improve chansvmstep code matching; 572a7c04 improve chansvmaddexe code matching; 076645dc improve vmstringreplace code matching; 647f5007 improve vmstringreplace code matching; 5e75409f improve chansvm_8144b4d4 code matching; 179218d7 improve vmblobunpack code matching; d125aec2 improve vmblobunpack code matching; 051a713b read unpacked integers through their typed value.
+CHANSVmNewObjData declaration order [0, 1, 2, 3, 4, 5]: structural/exact (0, 10)
+CHANSVmNewObjData diagnosis: (0, 10); target size 384; declaration entries ['    CHANSVmPrivate* pVm = (CHANSVmPrivate*)vm;\n', '    u32 idx;\n', '    u32 chunkIdx;\n', '    union {\n        u32 off;\n        ChunkEntry* entry;\n    } u;\n', '    ChunkEntry* chunk;\n', '    u32 memSize;\n']
+CHANSVmNewObjData declaration order [1, 0, 2, 3, 4, 5]: structural/exact (0, 10)
+CHANSVmNewObjData declaration order [2, 1, 0, 3, 4, 5]: structural/exact (0, 10)
+CHANSVmNewObjData declaration order [5, 1, 2, 3, 4, 0]: structural/exact (0, 7)
+CHANSVmNewObjData result (0, 7), attempts 163, RESTORED
+VmStringFromCharCode declaration order [0, 1, 2, 3, 4]: structural/exact (0, 6)
+VmStringFromCharCode diagnosis: (0, 6); target size 236; declaration entries ['    CHANSVmObjHdr* arg;\n', '    u32 offs;\n', '    u32 argc;\n', '    u32 ch;\n', '    u32 i;\n']
+VmStringFromCharCode declaration order [1, 0, 2, 3, 4]: structural/exact (0, 6)
+VmStringFromCharCode declaration order [2, 1, 0, 3, 4]: structural/exact (0, 9)
+VmStringFromCharCode result (0, 6), attempts 90, RESTORED
+VmWinEmuWrite declaration order [0, 1, 2, 3, 4, 5, 6, 7]: structural/exact (0, 5)
+VmWinEmuWrite diagnosis: (0, 5); target size 268; declaration entries ['    CHANSVmObjHdr* strObj;\n', '    u32 offset;\n', '    u32 totalLength;\n', '    u8 buf[VM_STRING_SIZE];\n', '    s32 outLen;\n', '    s32 inLen;\n', '    s32 result;\n', '    u32 remaining;\n']
+VmWinEmuWrite declaration order [1, 0, 2, 3, 4, 5, 6, 7]: structural/exact (0, 5)
+VmWinEmuWrite declaration order [2, 1, 0, 3, 4, 5, 6, 7]: structural/exact (0, 8)
+VmWinEmuWrite declaration-order search stopped after 3+ distinct compiled orders without improvement; restored original source.
+
+## 2026-10-01 215/233 baseline continuation
+Target and current instructions have equal counts for all 18 open functions. Full structural ctxdiff was captured before each experiment. Baseline pool IDENTICAL, .data 100%, 121/121 jump relocations. Declaration-only trials above did not produce exactness.
+vmBlobParsePackFormatString: distinct parameter digit scope then split accumulation; 116/116 instructions, 6 differences each; restored. Target preserves format character in r11 and uses distinct numeric digit r0.
+vmBlobParsePackFormatString: u32 digit, decimal digit + paramValue * 10 - 0x30: 99.69827%; 116/116 insns; structural/exact (0, 6); .data 100.0%; RESTORED
+vmBlobParsePackFormatString: u32 digit, decimal paramValue * 10 + (digit - 0x30): 99.69827%; 116/116 insns; structural/exact (0, 6); .data 100.0%; RESTORED
+vmBlobParsePackFormatString: u32 digit, decimal paramValue * 10;
+            paramValue += digit;
+            paramValue -= 0x30: 99.82758%; 116/116 insns; structural/exact (0, 2); .data 100.0%; RESTORED
+vmBlobParsePackFormatString: wchar_t digit, decimal digit + paramValue * 10 - 0x30: 99.69827%; 116/116 insns; structural/exact (0, 6); .data 100.0%; RESTORED
+vmBlobParsePackFormatString: wchar_t digit, decimal paramValue * 10 + (digit - 0x30): 99.69827%; 116/116 insns; structural/exact (0, 6); .data 100.0%; RESTORED
+vmBlobParsePackFormatString: wchar_t digit, decimal paramValue * 10;
+            paramValue += digit;
+            paramValue -= 0x30: 99.82758%; 116/116 insns; structural/exact (0, 2); .data 100.0%; RESTORED
+vmBlobParsePackFormatString: s32 digit, decimal digit + paramValue * 10 - 0x30: 98.27586%; 116/116 insns; structural/exact (3, 6); .data 100.0%; RESTORED
+vmBlobParsePackFormatString: s32 digit, decimal paramValue * 10 + (digit - 0x30): 98.27586%; 116/116 insns; structural/exact (3, 6); .data 100.0%; RESTORED
+vmBlobParsePackFormatString: s32 digit, decimal paramValue * 10;
+            paramValue += digit;
+            paramValue -= 0x30: 98.27586%; 116/116 insns; structural/exact (3, 5); .data 100.0%; RESTORED
+vmBlobParsePackFormatString: u16 digit, decimal digit + paramValue * 10 - 0x30: 99.69827%; 116/116 insns; structural/exact (0, 6); .data 100.0%; RESTORED
+vmBlobParsePackFormatString: u16 digit, decimal paramValue * 10 + (digit - 0x30): 99.69827%; 116/116 insns; structural/exact (0, 6); .data 100.0%; RESTORED
+vmBlobParsePackFormatString: u16 digit, decimal paramValue * 10;
+            paramValue += digit;
+            paramValue -= 0x30: 99.82758%; 116/116 insns; structural/exact (0, 2); .data 100.0%; RESTORED
+vmBlobParsePackFormatString: u32 digit, decimal digit + paramValue * 10 - 0x30: 99.69827%; 116/116 insns; structural/exact (0, 6); .data 100.0%; RESTORED
+vmBlobParsePackFormatString: u32 digit, decimal paramValue * 10 + (digit - 0x30): 99.69827%; 116/116 insns; structural/exact (0, 6); .data 100.0%; RESTORED
+vmBlobParsePackFormatString: u32 digit, decimal paramValue * 10;
+            paramValue += digit;
+            paramValue -= 0x30: 99.82758%; 116/116 insns; structural/exact (0, 2); .data 100.0%; RESTORED
+vmBlobParsePackFormatString: wchar_t digit, decimal digit + paramValue * 10 - 0x30: 99.69827%; 116/116 insns; structural/exact (0, 6); .data 100.0%; RESTORED
+vmBlobParsePackFormatString: wchar_t digit, decimal paramValue * 10 + (digit - 0x30): 99.69827%; 116/116 insns; structural/exact (0, 6); .data 100.0%; RESTORED
+vmBlobParsePackFormatString: wchar_t digit, decimal paramValue * 10;
+            paramValue += digit;
+            paramValue -= 0x30: 99.82758%; 116/116 insns; structural/exact (0, 2); .data 100.0%; RESTORED
+vmBlobParsePackFormatString: s32 digit, decimal digit + paramValue * 10 - 0x30: 98.27586%; 116/116 insns; structural/exact (3, 6); .data 100.0%; RESTORED
+vmBlobParsePackFormatString: s32 digit, decimal paramValue * 10 + (digit - 0x30): 98.27586%; 116/116 insns; structural/exact (3, 6); .data 100.0%; RESTORED
+vmBlobParsePackFormatString: s32 digit, decimal paramValue * 10;
+            paramValue += digit;
+            paramValue -= 0x30: 98.27586%; 116/116 insns; structural/exact (3, 5); .data 100.0%; RESTORED
+vmBlobParsePackFormatString: u16 digit, decimal digit + paramValue * 10 - 0x30: 99.69827%; 116/116 insns; structural/exact (0, 6); .data 100.0%; RESTORED
+vmBlobParsePackFormatString: u16 digit, decimal paramValue * 10 + (digit - 0x30): 99.69827%; 116/116 insns; structural/exact (0, 6); .data 100.0%; RESTORED
+vmBlobParsePackFormatString: u16 digit, decimal paramValue * 10;
+            paramValue += digit;
+            paramValue -= 0x30: 99.82758%; 116/116 insns; structural/exact (0, 2); .data 100.0%; RESTORED
+vmBlobParsePackFormatString: split decimal with paramValue *= 10;
+            paramValue = digit + paramValue - 0x30;: 99.69827%; 116/116 insns; structural/exact (0, 6); .data 100.0%; RESTORED
+vmBlobParsePackFormatString: split decimal with paramValue *= 10;
+            digit += paramValue;
+            paramValue = digit - 0x30;: 99.69827%; 116/116 insns; structural/exact (0, 6); .data 100.0%; RESTORED
+vmBlobParsePackFormatString: split decimal with paramValue *= 10;
+            paramValue = (s32)(digit + paramValue) - 0x30;: 99.61207%; 116/116 insns; structural/exact (0, 7); .data 100.0%; RESTORED
+vmBlobParsePackFormatString: split decimal with paramValue *= 10;
+            paramValue = (digit + paramValue);
+            paramValue -= 0x30;: 99.61207%; 116/116 insns; structural/exact (0, 7); .data 100.0%; RESTORED
+vmBlobParsePackFormatString: split decimal with paramValue *= 10;
+            {
+                s32 sum = digit + paramValue;
+                paramValue = sum - 0x30;
+            }: 99.61207%; 116/116 insns; structural/exact (0, 7); .data 100.0%; RESTORED
+vmBlobParsePackFormatString: split decimal with paramValue *= 10;
+            {
+                u32 sum = digit + paramValue;
+                paramValue = sum - 0x30;
+            }: 99.69827%; 116/116 insns; structural/exact (0, 6); .data 100.0%; RESTORED
+vmBlobParsePackFormatString: decimal operand/cast paramValue *= 10;
+            paramValue += digit - 0x30;: 99.913795%; 116/116 insns; structural/exact (0, 1); .data 100.0%; RESTORED
+vmBlobParsePackFormatString: decimal operand/cast paramValue *= 10;
+            paramValue = paramValue + digit - 0x30;: 99.69827%; 116/116 insns; structural/exact (0, 6); .data 100.0%; RESTORED
+vmBlobParsePackFormatString: decimal operand/cast paramValue *= 10;
+            paramValue += (s32)digit;
+            paramValue -= 0x30;: 99.82758%; 116/116 insns; structural/exact (0, 2); .data 100.0%; RESTORED
+vmBlobParsePackFormatString: decimal operand/cast paramValue *= 10;
+            digit = paramValue + digit;
+            paramValue = digit - 0x30;: 99.69827%; 116/116 insns; structural/exact (0, 6); .data 100.0%; RESTORED
+vmBlobParsePackFormatString: decimal operand/cast paramValue *= 10;
+            paramValue = digit + (u32)paramValue;
+            paramValue -= 0x30;: 99.61207%; 116/116 insns; structural/exact (0, 7); .data 100.0%; RESTORED
+vmBlobParsePackFormatString: decimal final operand paramValue = (digit - 0x30) + paramValue;: 99.69827%; 116/116 insns; structural/exact (0, 6); .data 100.0%; RESTORED
+vmBlobParsePackFormatString: decimal final operand paramValue = digit - 0x30 + paramValue;: 99.69827%; 116/116 insns; structural/exact (0, 6); .data 100.0%; RESTORED
+vmBlobParsePackFormatString: decimal final operand paramValue -= 0x30 - digit;: 97.75862%; 116/116 insns; structural/exact (3, 3); .data 100.0%; RESTORED
+vmBlobParsePackFormatString: decimal final operand paramValue += digit + -0x30;: 99.913795%; 116/116 insns; structural/exact (0, 1); .data 100.0%; RESTORED
+vmBlobParsePackFormatString: decimal final operand paramValue += (s32)digit - 0x30;: 99.913795%; 116/116 insns; structural/exact (0, 1); .data 100.0%; RESTORED
+vmBlobParsePackFormatString: decimal final operand paramValue += (u32)(digit - 0x30);: 100.0%; 116/116 insns; structural/exact (0, 0); .data 100.0%; KEPT exact; quick GATE PASS
+VmStringFromCharCode: character mask/cursor form 0: 99.40678%; 59/59 insns; structural/exact (0, 6); .data 100.0%; RESTORED
+VmStringFromCharCode: character mask/cursor form 1: 99.40678%; 59/59 insns; structural/exact (0, 6); .data 100.0%; RESTORED
+VmStringFromCharCode: character mask/cursor form 2: 94.32204%; 57/59 insns; structural/exact (9, 45); .data 100.0%; RESTORED
+VmStringFromCharCode: character mask/cursor form 3: 94.32204%; 57/59 insns; structural/exact (9, 45); .data 100.0%; RESTORED
+VmStringFromCharCode: character mask/cursor form 4: 99.32204%; 59/59 insns; structural/exact (0, 7); .data 100.0%; RESTORED
+VmStringFromCharCode: character mask/cursor form 5: 99.40678%; 59/59 insns; structural/exact (0, 6); .data 100.0%; RESTORED
+VmStringFromCharCode: character mask/cursor form 6: 99.40678%; 59/59 insns; structural/exact (0, 6); .data 100.0%; RESTORED
+VmStringFromCharCode: character mask/cursor form 7: 99.40678%; 59/59 insns; structural/exact (0, 6); .data 100.0%; RESTORED
+VmWinEmuWrite: size type: 99.62687%; 67/67 insns; structural/exact (0, 5); .data 100.0%; RESTORED
+VmWinEmuWrite: signed size: 99.62687%; 67/67 insns; structural/exact (0, 5); .data 100.0%; RESTORED
+VmWinEmuWrite: cache payload: COMPILE FAIL orm_dep.py build/43U/src/src/channelScript/CHANSVm.d build/43U/src/src/channelScript/CHANSVm.d
+### mwcceppc.exe Compiler:
+#    File: src\channelScript\CHANSVm.c
+# ------------------------------------
+#    6073:         strValue = strObj->value.wstring_v; 
+#   Error:                                           ^
+#   (10209) illegal implicit conversion from 'struct  *' to
+#   'struct  *'
+#   Too many errors printed, aborting program
+
+User break, cancelled...
+ninja: build stopped: subcommand failed.
+; RESTORED
+VmWinEmuWrite: unmasked cached size: 99.62687%; 67/67 insns; structural/exact (0, 5); .data 100.0%; RESTORED
+CHANSVmParseInt: one-slot end buffer: 94.69388%; 49/49 insns; structural/exact (2, 3); .data 100.0%; RESTORED
+CHANSVmParseInt: parse scratch structure: 94.69388%; 49/49 insns; structural/exact (2, 3); .data 100.0%; RESTORED
+CHANSVmParseInt: initialized parse end: 94.69388%; 49/49 insns; structural/exact (2, 3); .data 100.0%; RESTORED
+CHANSVmParseInt: explicit type after end initialization: 83.67347%; 49/49 insns; structural/exact (4, 5); .data 100.0%; RESTORED
+CHANSVm_8144B4D4: one-slot end buffer: 97.59036%; 83/83 insns; structural/exact (2, 2); .data 100.0%; RESTORED
+CHANSVm_8144B4D4: parse scratch structure: 97.59036%; 83/83 insns; structural/exact (2, 2); .data 100.0%; RESTORED
+CHANSVm_8144B4D4: initialized parse end: 97.59036%; 83/83 insns; structural/exact (2, 2); .data 100.0%; RESTORED
+CHANSVm_8144B4D4: explicit type after end initialization: 95.180725%; 83/83 insns; structural/exact (2, 3); .data 100.0%; RESTORED
+CHANSVmGetSourceLine: explicit source table and guards 0: 79.13043%; 54/46 insns; structural/exact (12, 52); .data 100.0%; RESTORED
+CHANSVmGetSourceLine: explicit source table and guards 1: 79.13043%; 54/46 insns; structural/exact (12, 52); .data 100.0%; RESTORED
+CHANSVmGetSourceLine: explicit source table and guards 2: 79.13043%; 54/46 insns; structural/exact (12, 52); .data 100.0%; RESTORED
+CHANSVmGetSourceLine: explicit source table and guards 3: 79.13043%; 54/46 insns; structural/exact (12, 52); .data 100.0%; RESTORED
+CHANSVmGetSourceLine: explicit source table and guards 4: 62.065216%; 50/46 insns; structural/exact (21, 48); .data 100.0%; RESTORED
+CHANSVmGetSourceLine: explicit source table and guards 5: 79.13043%; 54/46 insns; structural/exact (12, 52); .data 100.0%; RESTORED
+VmDateDtor: month and weekday pointer scopes: 94.96703%; 91/91 insns; structural/exact (5, 7); .data 100.0%; RESTORED
+VmDateDtor: calendar by value fields: 89.14286%; 90/91 insns; structural/exact (11, 85); .data 100.0%; RESTORED
+VmDateDtor: return format length directly to limit: 94.96703%; 91/91 insns; structural/exact (5, 7); .data 100.0%; RESTORED
+VmDateDtor: month table indexed pointer expression: 94.96703%; 91/91 insns; structural/exact (5, 7); .data 100.0%; RESTORED
+VmDateDtor: short-lived month pointer: 94.96703%; 91/91 insns; structural/exact (5, 7); .data 100.0%; RESTORED
+CHANSVmGetSourceLine: module cached in null-guard scope 0: 97.82609%; 46/46 insns; structural/exact (0, 16); .data 100.0%; RESTORED
+CHANSVmGetSourceLine: module cached in null-guard scope 1: 97.82609%; 46/46 insns; structural/exact (0, 18); .data 100.0%; RESTORED
+CHANSVmGetSourceLine: module cached in null-guard scope 2: 97.82609%; 46/46 insns; structural/exact (0, 16); .data 100.0%; RESTORED
+CHANSVmGetSourceLine: module cached in null-guard scope 3: 97.82609%; 46/46 insns; structural/exact (0, 16); .data 100.0%; RESTORED
+CHANSVmGetSourceLine: module cached in null-guard scope 4: 97.82609%; 46/46 insns; structural/exact (0, 16); .data 100.0%; RESTORED
+VmStringFromCharCode: integer argument helper: 99.40678%; 59/59 insns; structural/exact (0, 6); .data 100.0%; RESTORED
+VmWinEmuWrite: string argument helper: 99.62687%; 67/67 insns; structural/exact (0, 5); .data 100.0%; RESTORED
+VmStringReplace: two string argument helpers: 97.878784%; 132/132 insns; structural/exact (0, 40); .data 100.0%; RESTORED
+VmStringSplit: string and integer argument helpers: 98.04054%; 222/222 insns; structural/exact (0, 66); .data 100.0%; RESTORED
+VmBlobGetHexString: integer argument helper: 98.71951%; 82/82 insns; structural/exact (0, 14); .data 100.0%; RESTORED
+VmBlobPackCommon: typed argument helper boundaries: COMPILE FAIL .py build/43U/src/src/channelScript/CHANSVm.d build/43U/src/src/channelScript/CHANSVm.d
+### mwcceppc.exe Compiler:
+#    File: src\channelScript\CHANSVm.c
+# ------------------------------------
+#    4976:     argArr = CHANSVmGetArgArray(VmInst, 1); 
+#   Error:                                           ^
+#   (10209) illegal implicit conversion from 'int' to
+#   'struct CHANSVmObjHdr *'
+#   Too many errors printed, aborting program
+
+User break, cancelled...
+ninja: build stopped: subcommand failed.
+; RESTORED
+VmBlobUnpack: typed string argument helper boundary: 98.26886%; 517/517 insns; structural/exact (0, 156); .data 100.0%; RESTORED
+CHANSVmNewObjData: separate index-offset and entry locals: 97.1875%; 95/96 insns; structural/exact (7, 59); .data 100.0%; RESTORED
+CHANSVmNewObjData: scope computed chunk address: 99.427086%; 96/96 insns; structural/exact (0, 10); .data 100.0%; RESTORED
+CHANSVmNewObjData: scope slot index to table scan: 99.583336%; 96/96 insns; structural/exact (0, 7); .data 100.0%; RESTORED
+CHANSVmNewObjData: counted chunk traversal: 99.427086%; 96/96 insns; structural/exact (0, 10); .data 100.0%; RESTORED
+VmStringReplace declaration order [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]: structural/exact (0, 40)
+VmStringReplace diagnosis: (0, 40); target size 528; declaration entries ['    CHANSVmObjHdr* arg0;\n', '    CHANSVmObjHdr* arg1;\n', '    vmString parentStr;\n', '    vmString searchStr;\n', '    vmString replaceStr;\n', '    u32 parentLen;\n', '    u32 srcOffs;\n', '    u32 dstOffs;\n', '    u32 searchLen;\n', '    u32 replaceLen;\n', '    u32 dstBufLen;\n', '    vmString newStr;\n', '    u32 segLen;\n']
+VmStringReplace declaration order [1, 0, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]: structural/exact (0, 40)
+VmStringReplace declaration order [2, 1, 0, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]: structural/exact (0, 40)
+VmStringReplace declaration order [4, 1, 2, 3, 5, 6, 8, 7, 0, 9, 10, 11, 12]: structural/exact (0, 28)
+VmStringReplace result (0, 28), attempts 29, RESTORED
+VmStringSplit declaration order [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]: structural/exact (0, 66)
+VmStringSplit diagnosis: (0, 66); target size 888; declaration entries ['    CHANSVmObjHdr* arg0;\n', '    CHANSVmObjHdr* arg1;\n', '    u32 limit;\n', '    CHANSVmObjHdr* array;\n', '    vmString parentStr;\n', '    vmString delimStr;\n', '    u32 parentLen;\n', '    u32 delimLen;\n', '    u32 count;\n', '    u32 srcOffs;\n', '    u32 segStart;\n', '    u32 arrayCount;\n', '    u32 segLen;\n', '    u32 remaining;\n', '    CHANSVmObjHdr* elem;\n', '    u32 i;\n']
+VmStringSplit declaration order [1, 0, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]: structural/exact (0, 66)
+VmStringSplit declaration order [2, 1, 0, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]: structural/exact (0, 66)
+VmStringSplit declaration order [14, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 0, 15]: structural/exact (0, 61)
+VmStringSplit result (0, 61), attempts 29, RESTORED
+CHANSVmAddExe declaration order [0, 1, 2, 3, 4, 5, 6]: structural/exact (0, 34)
+CHANSVmAddExe diagnosis: (0, 34); target size 1016; declaration entries ['    CHANSVmPrivate* pVm = (CHANSVmPrivate*)vm;\n', '    ModuleHeader* mod;\n', '    CHANSVmModule* header;\n', '    u32 maxEnd;\n', '    u32 size;\n', '    u32 cnt;\n', '    u32 ofs;\n']
+CHANSVmAddExe declaration order [1, 0, 2, 3, 4, 5, 6]: structural/exact (0, 34)
+CHANSVmAddExe declaration order [2, 1, 0, 3, 4, 5, 6]: structural/exact (0, 34)
+CHANSVmAddExe result (0, 34), attempts 29, RESTORED
+CHANSVmLinkModules declaration order [0, 1, 2, 3]: structural/exact (0, 43)
+CHANSVmLinkModules diagnosis: (0, 43); target size 756; declaration entries ['    CHANSVmPrivate* pVm = (CHANSVmPrivate*)vm;\n', '    CHANSVmModule* module;\n', '    u32 modIdx;\n', '    u32 i;\n']
+CHANSVmLinkModules declaration order [1, 0, 2, 3]: structural/exact (0, 43)
+CHANSVmLinkModules declaration order [2, 1, 0, 3]: structural/exact (0, 46)
+CHANSVmLinkModules result (0, 43), attempts 19, RESTORED
+VmCallMethod declaration order [0, 1, 2, 3]: structural/exact (4, 97)
+VmCallMethod diagnosis: (4, 97); target size 1124; declaration entries ['    CHANSVmPrivate* pVm = (CHANSVmPrivate*)vm;\n', '    CHANSVmObjHdr* acc;\n', '    u32 retVal;\n', '    CHANSVmNativeClass* target;\n']
+VmCallMethod declaration order [1, 0, 2, 3]: structural/exact (4, 97)
+VmCallMethod declaration order [2, 1, 0, 3]: structural/exact (4, 109)
+VmCallMethod result (4, 97), attempts 19, RESTORED
+VmBlobPackCommon declaration order [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26]: structural/exact (2, 246)
+VmBlobPackCommon diagnosis: (2, 246); target size 2672; declaration entries ['    u32 packBuf[2];\n', '    BlobHeader* parentBlob;\n', '    CHANSVmObjHdr* argStr;\n', '    const wchar_t* fmtStr;\n', '    u32 fmtLen;\n', '    CHANSVmObjHdr* argArr;\n', '    u32 fmtPos;\n', '    u32 argCount;\n', '    u32 totalSize;\n', '    s32 count;\n', '    u32 i;\n', '    CHANSVmObjHdr* obj;\n', '    BlobHeader* srcBlob;\n', '    s32 copySize;\n', '    u32 dataSize;\n', '    u32 srcOff;\n', '    CHANSVmObjHdr* strObj;\n', '    u8* srcData;\n', '    u32 charCount;\n', '    u32 strLen;\n', '    CHANSVmObjHdr* intObj;\n', '    u32 valLow;\n', '    u32 valHigh;\n', '    s32 bufSize;\n', '    u8* dest;\n', '    u32 ch;\n', '    CHANSVmExecutionCtx* execCtx;\n']
+VmBlobPackCommon declaration order [1, 0, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26]: structural/exact (2, 246)
+VmBlobPackCommon declaration order [2, 1, 0, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26]: structural/exact (2, 246)
+VmBlobPackCommon declaration order [15, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 0, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26]: structural/exact (2, 244)
+VmBlobPackCommon result (2, 244), attempts 29, RESTORED
+VmBlobUnpack declaration order [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]: structural/exact (0, 156)
+VmBlobUnpack diagnosis: (0, 156); target size 2068; declaration entries ['    union {\n        u64 value;\n        u32 words[2];\n    } unpackBuf;\n', '    BlobHeader* srcBlob;\n', '    CHANSVmObjHdr* argStr;\n', '    wchar_t* fmtStr;\n', '    u32 fmtLen;\n', '    u32 blobOff;\n', '    u32 argCount;\n', '    u32 fmtPos;\n', '    s32 count;\n', '    u32 elemIdx;\n', '    u32 iterIdx;\n', '    s64 value;\n', '    CHANSVmObjHdr* arrElem;\n']
+VmBlobUnpack declaration order [1, 0, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]: structural/exact (0, 156)
+VmBlobUnpack declaration order [2, 1, 0, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]: structural/exact (0, 156)
+VmBlobUnpack declaration order [1, 9, 2, 3, 4, 5, 6, 7, 8, 0, 10, 11, 12]: structural/exact (0, 146)
+VmBlobUnpack result (0, 146), attempts 29, RESTORED
+CHANSVmNewObjData: offset before chunk scan initialization: 99.427086%; 96/96 insns; structural/exact (0, 10); .data 100.0%; RESTORED
+CHANSVmNewObjData: declare scanned chunk inside block: 99.583336%; 96/96 insns; structural/exact (0, 7); .data 100.0%; RESTORED
+CHANSVmNewObjData: aligned allocation declared in its lifetime: 99.427086%; 96/96 insns; structural/exact (0, 10); .data 100.0%; RESTORED
+VmWinEmuWrite: use byte-string member for output address and length: 99.62687%; 67/67 insns; structural/exact (0, 5); .data 100.0%; RESTORED
+VmWinEmuWrite: immutable converted string header: 99.62687%; 67/67 insns; structural/exact (0, 5); .data 100.0%; RESTORED
+VmWinEmuWrite: cache wide-string payload: 96.49254%; 65/67 insns; structural/exact (6, 54); .data 100.0%; RESTORED
+VmStringFromCharCode: scope byte offset to output creation: 98.72881%; 59/59 insns; structural/exact (0, 12); .data 100.0%; RESTORED
+VmStringFromCharCode: immutable argument pointer for char conversion: COMPILE FAIL lScript/CHANSVm.d
+### mwcceppc.exe Compiler:
+#    File: src\channelScript\CHANSVm.c
+# ------------------------------------
+#    2873:  CHANSVmConvertObjectType(VmInst, CHANS_VM_OBJ_TYPE_INTEGER, arg); 
+#   Error:                                                                 ^
+#   (10209) illegal implicit conversion from 'const struct CHANSVmObjHdr *' to
+#   'struct CHANSVmObjHdr *'
+#   Too many errors printed, aborting program
+
+User break, cancelled...
+ninja: build stopped: subcommand failed.
+; RESTORED
+VmStringFromCharCode: decrement argument count traversal: 96.10169%; 60/59 insns; structural/exact (7, 31); .data 100.0%; RESTORED
+VmDateDtor: calendar format inline helper char* buffer, OSCalendarTime* date: 94.96703%; 91/91 insns; structural/exact (5, 7); .data 100.0%; RESTORED
+VmDateDtor: calendar format inline helper OSCalendarTime* date, char* buffer: 94.96703%; 91/91 insns; structural/exact (5, 7); .data 100.0%; RESTORED
+VmDateDtor: calendar format inline helper char* buffer, OSCalendarTime date: 72.98901%; 107/91 insns; structural/exact (52, 97); .data 100.0%; RESTORED
+CHANSVm_8145049C: formatted string payload/character lifetime 0: 99.35035%; 430/431 insns; structural/exact (25, 142); .data 18.050066%; RESTORED
+CHANSVm_8145049C: formatted string payload/character lifetime 1: COMPILE FAIL ript && "/usr/bin/python3" tools/transform_dep.py build/43U/src/src/channelScript/CHANSVm.d build/43U/src/src/channelScript/CHANSVm.d
+### mwcceppc.exe Compiler:
+#    File: src\channelScript\CHANSVm.c
+# ------------------------------------
+#    3625:                     wchar_t* characterText = (wchar_t*)pad0; 
+#   Error:                     ^^^^^^^
+#   (10141) expression syntax error
+#   Too many errors printed, aborting program
+
+User break, cancelled...
+ninja: build stopped: subcommand failed.
+; RESTORED
+CHANSVm_8145049C: formatted string payload/character lifetime 2: COMPILE FAIL ript && "/usr/bin/python3" tools/transform_dep.py build/43U/src/src/channelScript/CHANSVm.d build/43U/src/src/channelScript/CHANSVm.d
+### mwcceppc.exe Compiler:
+#    File: src\channelScript\CHANSVm.c
+# ------------------------------------
+#    3625:                     wchar_t* characterText = (wchar_t*)pad0; 
+#   Error:                     ^^^^^^^
+#   (10141) expression syntax error
+#   Too many errors printed, aborting program
+
+User break, cancelled...
+ninja: build stopped: subcommand failed.
+; RESTORED
+CHANSVm_8145049C: formatted string payload/character lifetime 3: COMPILE FAIL ript && "/usr/bin/python3" tools/transform_dep.py build/43U/src/src/channelScript/CHANSVm.d build/43U/src/src/channelScript/CHANSVm.d
+### mwcceppc.exe Compiler:
+#    File: src\channelScript\CHANSVm.c
+# ------------------------------------
+#    3625:                     wchar_t* characterText = (wchar_t*)pad0; 
+#   Error:                     ^^^^^^^
+#   (10141) expression syntax error
+#   Too many errors printed, aborting program
+
+User break, cancelled...
+ninja: build stopped: subcommand failed.
+; RESTORED
+CHANSVm_8145049C: formatted string payload/character lifetime 4: COMPILE FAIL ript && "/usr/bin/python3" tools/transform_dep.py build/43U/src/src/channelScript/CHANSVm.d build/43U/src/src/channelScript/CHANSVm.d
+### mwcceppc.exe Compiler:
+#    File: src\channelScript\CHANSVm.c
+# ------------------------------------
+#    3625:                     wchar_t* characterText = (wchar_t*)pad0; 
+#   Error:                     ^^^^^^^
+#   (10141) expression syntax error
+#   Too many errors printed, aborting program
+
+User break, cancelled...
+ninja: build stopped: subcommand failed.
+; RESTORED
+CHANSVm_8145049C: formatted string payload/character lifetime 5: 98.58237%; 431/431 insns; structural/exact (10, 42); .data 100.0%; RESTORED
+CHANSVm_8145049C: formatted string payload/character lifetime 0: 99.35035%; 430/431 insns; structural/exact (25, 142); .data 18.050066%; RESTORED
+CHANSVm_8145049C: formatted string payload/character lifetime 1: 96.960556%; 430/431 insns; structural/exact (25, 248); .data 18.050066%; RESTORED
+CHANSVm_8145049C: formatted string payload/character lifetime 2: 97.4594%; 431/431 insns; structural/exact (0, 143); .data 100.0%; RESTORED
+CHANSVm_8145049C: formatted string payload/character lifetime 3: 96.19257%; 431/431 insns; structural/exact (10, 170); .data 100.0%; RESTORED
+CHANSVm_8145049C: formatted string payload/character lifetime 4: 94.967514%; 432/431 insns; structural/exact (46, 358); .data 18.050066%; RESTORED
+CHANSVm_8145049C: formatted string payload/character lifetime 5: 98.58237%; 431/431 insns; structural/exact (10, 42); .data 100.0%; RESTORED
+VmBlobGetHexString declaration order [0, 1, 2, 3, 4, 5, 6]: structural/exact (0, 14)
+VmBlobGetHexString diagnosis: (0, 14); target size 328; declaration entries ['        wchar_t* dest = (wchar_t*)VmGetStrFromObjHdr(VmReturnObj);\n', '        u8* src = blob->pData;\n', '        u32 offset = blob->offset;\n', '        u32 destOff = 0;\n', '        u32 i = 0;\n', '        char* hexTbl = lbl_816976E4;\n', '        u32 loop_i;\n']
+VmBlobGetHexString declaration order [1, 0, 2, 3, 4, 5, 6]: structural/exact (4, 27)
+VmBlobGetHexString declaration order [2, 1, 0, 3, 4, 5, 6]: structural/exact (8, 27)
+VmBlobGetHexString result (0, 14), attempts 98, RESTORED
+VmCallMethod: separate resolved method index and return status 0: 97.2242%; 281/281 insns; structural/exact (4, 97); .data 100.0%; RESTORED
+VmCallMethod: separate resolved method index and return status 1: 97.2242%; 281/281 insns; structural/exact (4, 97); .data 100.0%; RESTORED
+VmCallMethod: separate resolved method index and return status 2: 97.2242%; 281/281 insns; structural/exact (4, 97); .data 100.0%; RESTORED
+VmCallMethod: separate resolved method index and return status 3: 97.29537%; 281/281 insns; structural/exact (2, 93); .data 100.0%; RESTORED
+CHANSVm_8145049C: cache string data and explicit char terminator lifetime 0: 99.84919%; 431/431 insns; structural/exact (0, 13); .data 100.0%; RESTORED
+CHANSVm_8145049C: cache string data and explicit char terminator lifetime 1: 99.35035%; 430/431 insns; structural/exact (25, 142); .data 18.050066%; RESTORED
+CHANSVm_8145049C: cache string data and explicit char terminator lifetime 2: 99.35035%; 430/431 insns; structural/exact (25, 142); .data 18.050066%; RESTORED
+CHANSVm_8145049C: cache string data and explicit char terminator lifetime 3: 99.35035%; 430/431 insns; structural/exact (25, 142); .data 18.050066%; RESTORED
+CHANSVm_8145049C: cache string data and explicit char terminator lifetime 4: 99.35035%; 430/431 insns; structural/exact (25, 142); .data 18.050066%; RESTORED
+CHANSVm_8145049C: cached string payload before memcpy and assign the formatting-object tag after UTF-16 terminator storage; 99.84919%; 431/431 instructions, 13 register-only differences, .data 100%; KEPT quick GATE PASS.
+CHANSVm_8145049C declaration order [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]: structural/exact (0, 13)
+CHANSVm_8145049C diagnosis: (0, 13); target size 1724; declaration entries ['    u32 halfMaxSize;\n', '    BOOL flag;\n', '    CHANSVmObjHdr* tempObj;\n', '    u32 argIdxCounter;\n', '    u32 totalLen;\n', '    u8* str;\n', '    u32 strLen;\n', '    u32 strPos;\n', '    u32 segStart;\n', '    u32 fmtBufPos;\n', '    u8* tmpBuf;\n', '    u32 maxSize;\n', '    u8* outputBuf;\n', '    u32 outputPos;\n', '    u32 maxLitLen;\n', '    u32 litLen;\n', '    u32 isEscaped;\n', '    CHANSVmObjHdr* cv;\n', '    CHANSVmPrivate* pVm;\n', '    CHANSVmObjHdr* argObj;\n']
+CHANSVm_8145049C declaration order [1, 0, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]: structural/exact (5, 18)
+CHANSVm_8145049C declaration order [2, 1, 0, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]: structural/exact (5, 18)
+CHANSVm_8145049C result (0, 13), attempts 199, RESTORED
+VmBlobGetHexString: hexadecimal nibble temporaries/cursor order 0: 98.71951%; 82/82 insns; structural/exact (0, 14); .data 100.0%; RESTORED
+VmBlobGetHexString: hexadecimal nibble temporaries/cursor order 1: 98.71951%; 82/82 insns; structural/exact (0, 14); .data 100.0%; RESTORED
+VmBlobGetHexString: hexadecimal nibble temporaries/cursor order 2: 98.71951%; 82/82 insns; structural/exact (0, 14); .data 100.0%; RESTORED
+VmBlobGetHexString: hexadecimal nibble temporaries/cursor order 3: 96.15854%; 81/82 insns; structural/exact (8, 34); .data 100.0%; RESTORED
+VmCallMethod: direct missing method/property conditional return: 97.29537%; 281/281 insns; structural/exact (2, 93); .data 100.0%; RESTORED
+VmCallMethod: call argument/operand scheduling 0: 97.98933%; 281/281 insns; structural/exact (2, 95); .data 100.0%; RESTORED
+VmCallMethod: call argument/operand scheduling 1: 98.0605%; 281/281 insns; structural/exact (0, 91); .data 100.0%; RESTORED
+VmCallMethod: call argument/operand scheduling 2: 97.29537%; 281/281 insns; structural/exact (2, 93); .data 100.0%; RESTORED
+CHANSVmStep: typed interpreter scratch layout 0: 96.452515%; 1253/1253 insns; structural/exact (71, 318); .data 100.0%; RESTORED
+CHANSVmStep: typed interpreter scratch layout 1: 96.43735%; 1253/1253 insns; structural/exact (90, 332); .data 100.0%; RESTORED
+CHANSVmStep: typed interpreter scratch layout 2: 96.440544%; 1253/1253 insns; structural/exact (86, 329); .data 100.0%; RESTORED
+CHANSVmStep: entry count branch and pretested loop: 96.96728%; 1255/1253 insns; structural/exact (82, 1229); .data 18.050066%; RESTORED
+CHANSVmStep: pretested countdown retaining default count arithmetic: 96.400635%; 1254/1253 insns; structural/exact (87, 1238); .data 18.050066%; RESTORED
+CHANSVmStep: separate operand enums before copy headers: 96.43735%; 1253/1253 insns; structural/exact (90, 332); .data 100.0%; RESTORED
+VmCallMethod: direct missing-method/property return and choose header argument at call boundary; 98.0605%; 281/281 instructions, 91 register-only differences, structural differences 0; .data 100%; KEPT quick GATE PASS.
+CHANSVmStep: group actual type, floating-immediate, copy-header, load-header, and operand workspaces; all fields actively used, no padding or dummy fields; 96.452515%; 1253/1253 instructions, structural/exact 71/318; .data 100%; KEPT quick GATE PASS.
+CHANSVmNewObjData: declaration-order coverage 164 distinct source orders; best structural/exact (0, 7); no new exact result, restored previous accepted source.
+VmStringFromCharCode: declaration-order coverage 91 distinct source orders; best structural/exact (0, 6); no new exact result, restored previous accepted source.
+VmWinEmuWrite: declaration-order coverage 85 distinct source orders; best structural/exact (0, 5); no new exact result, restored previous accepted source.
+VmStringReplace: declaration-order coverage 30 distinct source orders; best structural/exact (0, 28); no new exact result, restored previous accepted source.
+VmStringSplit: declaration-order coverage 30 distinct source orders; best structural/exact (0, 61); no new exact result, restored previous accepted source.
+CHANSVmAddExe: declaration-order coverage 30 distinct source orders; best structural/exact (0, 34); no new exact result, restored previous accepted source.
+CHANSVmLinkModules: declaration-order coverage 20 distinct source orders; best structural/exact (0, 43); no new exact result, restored previous accepted source.
+VmCallMethod: declaration-order coverage 20 distinct source orders; best structural/exact (4, 97); no new exact result, restored previous accepted source.
+VmBlobPackCommon: declaration-order coverage 30 distinct source orders; best structural/exact (2, 244); no new exact result, restored previous accepted source.
+VmBlobUnpack: declaration-order coverage 30 distinct source orders; best structural/exact (0, 146); no new exact result, restored previous accepted source.
+VmBlobGetHexString: declaration-order coverage 99 distinct source orders; best structural/exact (0, 14); no new exact result, restored previous accepted source.
+CHANSVm_8145049C: declaration-order coverage 200 distinct source orders; best structural/exact (0, 13); no new exact result, restored previous accepted source.
+
+## 2026-10-01 final handoff after clean full gate
+
+Instruction-exact 215/233 -> 216/233; objdiff matched code 35020/53564 -> 35484/53564; data 6904/6904 -> 6904/6904; .data 100%. vmBlobParsePackFormatString is now 100% objdiff with 116/116 instructions and ctxdiff diffs 0. All 121 Step and all 89 formatter jump-table relocation offsets, types, and addends match after the clean rebuild.
+
+| Open function | Objdiff % | Structural / raw differences | Distinct current-round attempts | Remaining difference |
+|---|---:|---:|---:|---|
+| CHANSVmGetSourceLine | 97.82609 | 0 / 16 | 11 | register allocation |
+| CHANSVmNewObjData | 99.427086 | 0 / 10 | 171 | register allocation |
+| CHANSVmParseInt | 94.69388 | 2 / 3 | 4 | parse-end store after parameter copies |
+| CHANSVm_8144B4D4 | 97.59036 | 2 / 2 | 4 | parse-end store after type comparison |
+| VmDateDtor | 94.96703 | 5 / 7 | 8 | month/day argument-load scheduling |
+| VmStringFromCharCode | 99.40678 | 0 / 6 | 102 | register allocation |
+| VmStringReplace | 97.878784 | 0 / 40 | 31 | register allocation |
+| VmStringSplit | 98.04054 | 0 / 66 | 31 | register allocation |
+| CHANSVm_8145049C | 99.84919 | 0 / 13 | 214 | register allocation |
+| VmBlobGetHexString | 98.71951 | 0 / 14 | 104 | register allocation |
+| VmBlobPackCommon | 97.934135 | 2 / 246 | 30 | register allocation and two operand-order differences |
+| VmBlobUnpack | 98.26886 | 0 / 156 | 31 | register allocation |
+| VmWinEmuWrite | 99.62687 | 0 / 5 | 92 | register allocation |
+| CHANSVmAddExe | 99.15354 | 0 / 34 | 30 | register allocation |
+| CHANSVmLinkModules | 98.677246 | 0 / 43 | 20 | register allocation |
+| VmCallMethod | 98.0605 | 0 / 91 | 29 | register allocation |
+| CHANSVmStep | 96.452515 | 71 / 318 | 7 | entry/countdown flow, result-table base, registers and remaining spills |
+
+The unit remains partial with 17 open functions; all have at least three distinct compiled source-level attempts in this run. No linking/configuration changes. Compiler tie-breaks remain unresolved. Four local source commits: d6ec7d58, aa49bd1b, 9283affb, 9265fb79.
+
+```text
+full build: ok
+main.dol sha1: 26116613f624061ba99c8d1a299aaa6efa85670d
+[src/channelScript/CHANSVm] pool: IDENTICAL
+[src/channelScript/CHANSVm] objdiff: code 35484/53564 data 6904/6904 functions 216/233 fuzzy 99.2720 linked code 0
+[src/channelScript/CHANSVm] instruction-exact functions: 216/233
+[src/channelScript/CHANSVm]   section .data size 4672 match 100.0
+[src/channelScript/CHANSVm]   section .rodata size 1432 match 100.0
+[src/channelScript/CHANSVm]   section .sbss size 16 match 100.0
+[src/channelScript/CHANSVm]   section .sdata size 600 match 100.0
+[src/channelScript/CHANSVm]   section .sdata2 size 184 match 100.0
+[src/channelScript/CHANSVm]   section .text size 53564 match 99.27205
+[src/channelScript/CHANSVm]   below 100: CHANSVmGetSourceLine 97.82609
+[src/channelScript/CHANSVm]   below 100: CHANSVmNewObjData 99.427086
+[src/channelScript/CHANSVm]   below 100: CHANSVmParseInt 94.69388
+[src/channelScript/CHANSVm]   below 100: CHANSVm_8144B4D4 97.59036
+[src/channelScript/CHANSVm]   below 100: VmDateDtor 94.96703
+[src/channelScript/CHANSVm]   below 100: VmStringFromCharCode 99.40678
+[src/channelScript/CHANSVm]   below 100: VmStringReplace 97.878784
+[src/channelScript/CHANSVm]   below 100: VmStringSplit 98.04054
+[src/channelScript/CHANSVm]   below 100: CHANSVm_8145049C 99.84919
+[src/channelScript/CHANSVm]   below 100: VmBlobGetHexString 98.71951
+[src/channelScript/CHANSVm]   below 100: VmBlobPackCommon 97.934135
+[src/channelScript/CHANSVm]   below 100: VmBlobUnpack 98.26886
+[src/channelScript/CHANSVm]   below 100: VmWinEmuWrite 99.62687
+[src/channelScript/CHANSVm]   below 100: CHANSVmAddExe 99.15354
+[src/channelScript/CHANSVm]   below 100: CHANSVmLinkModules 98.677246
+[src/channelScript/CHANSVm]   below 100: VmCallMethod 98.0605
+[src/channelScript/CHANSVm]   below 100: CHANSVmStep 96.452515
+[src/channelScript/CHANSVm] baseline: code 35020/53564 data 6904 functions 215 fuzzy 99.2097
+regressions vs baseline: 0
+global matched_code_percent: 86.68724 -> 86.70274
+global fuzzy_match_percent: 99.30689 -> 99.30802
+global complete_code_percent: 60.61288 -> 60.61288
+global matched_data_percent: 91.11031 -> 91.11031
+forbidden patterns added (net, per file): 0
+readability warnings (net, per file; must be 0 in the final result): 0
+GATE PASS
+```
