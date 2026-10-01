@@ -6,13 +6,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-#pragma push
-#pragma section sconst_type ".sdata"
-extern const char lbl_816979E8[8] = "/\0\0\0\0\0\0\0";
-#pragma pop
+char CDBFSPathSeparator = '/';
 
 void CDBFSConcatenatePath(char* path, const char* concatPath) {
-    strcat(path, lbl_816979E8);
+    strcat(path, &CDBFSPathSeparator);
     strcat(path, concatPath);
 }
 
