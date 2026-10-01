@@ -400,10 +400,10 @@ pf_s32 PFPATH_cmpNameImpl(const pf_s8* name, const pf_s8* pattern, pf_u32* match
         case '*': {
             do {
                 pattern_width = volume->codeset.oem_char_width(pattern);
-                if (pattern_width != 1) {
-                    read_char = (pf_u16)PF_GET_LE_U16((const pf_u8*)pattern);
-                } else {
+                if (pattern_width == 1) {
                     read_char = pf_toupper(*pattern);
+                } else {
+                    read_char = (pf_u16)PF_GET_LE_U16((const pf_u8*)pattern);
                 }
                 pattern_char = (pf_u16)read_char;
                 pattern += pattern_width;

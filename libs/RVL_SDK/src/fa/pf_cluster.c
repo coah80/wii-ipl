@@ -370,8 +370,9 @@ pf_s32 PFCLUSTER_CombineFiles(PFCLUSTER_ENT_ITER* p_first_iter, PFCLUSTER_ENT_IT
         if (*p_second_iter->ffd.p_start_cluster != 0) {
             second_spare_clusters = p_second_iter->ffd.last_cluster.max_chain_index + 1 - second_used_clusters;
         }
-        if (-1U / cluster_size + 1 < (second_used_clusters + second_spare_clusters) + first_used_clusters) {
-            excess_clusters = (second_used_clusters + second_spare_clusters) + first_used_clusters - (-1U / cluster_size + 1);
+        excess_clusters = (second_used_clusters + second_spare_clusters) + first_used_clusters;
+        if (-1U / cluster_size + 1 < excess_clusters) {
+            excess_clusters -= -1U / cluster_size + 1;
             err = PFFAT_TraceClustersChain(&p_second_iter->ffd, second_spare_cluster,
                 cluster_size * ((p_second_iter->ffd.last_cluster.max_chain_index + 1 - excess_clusters) - second_used_clusters),
                 &end_cluster, &spare_cluster);
