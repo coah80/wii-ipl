@@ -122,6 +122,7 @@ struct NUPContextInfo {
     OSThread thread;
     OSMutex mutex;
     u64 threadStack[0x400];
+    s32 __nupGetBootVersion(ESTitleVersion* title);
 };
 
 static const char* __nupStatusMessage[6] = {
@@ -486,7 +487,7 @@ static void __nupBase64Encode(u8* output, u8* input, unsigned long length) {
     u8* end = input + length;
     u32 value = 0;
     u32 count = 0;
-    static char fillByte = '=';
+    static char pad = '=';
 
     while (input != end) {
         count++;
@@ -495,39 +496,30 @@ static void __nupBase64Encode(u8* output, u8* input, unsigned long length) {
         if (count < 3) {
             continue;
         }
-        u8 encodedSecond = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"[value >> 12 & 0x3f];
-        u8 encodedFirst = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"[value >> 18 & 0x3f];
-        output[0] = encodedFirst;
-        u8 encodedThird = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"[value >> 6 & 0x3f];
-        output[1] = encodedSecond;
-        u8 encodedFourth = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"[value & 0x3f];
-        output[2] = encodedThird;
-        output[3] = encodedFourth;
+        output[0] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"[value >> 18 & 0x3f];
         count = 0;
+        output[1] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"[value >> 12 & 0x3f];
+        output[2] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"[value >> 6 & 0x3f];
+        output[3] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"[value & 0x3f];
         output += 4;
     }
 
     if (count == 2) {
         value <<= 8;
-        u8 encodedSecond = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"[value >> 12 & 0x3f];
-        u8 encodedFirst = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"[value >> 18 & 0x3f];
-        output[0] = encodedFirst;
-        u8 encodedThird = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"[value >> 6 & 0x3f];
-        output[1] = encodedSecond;
-        output[2] = encodedThird;
-        output[3] = fillByte;
+        output[0] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"[value >> 18 & 0x3f];
+        output[1] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"[value >> 12 & 0x3f];
+        output[2] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"[value >> 6 & 0x3f];
+        output[3] = pad;
         return;
     }
     if (count != 1) {
         return;
     }
     value <<= 16;
-    u8 encodedSecond = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"[value >> 12 & 0x3f];
-    u8 encodedFirst = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"[value >> 18 & 0x3f];
-    output[0] = encodedFirst;
-    output[1] = encodedSecond;
-    output[2] = fillByte;
-    output[3] = fillByte;
+    output[0] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"[value >> 18 & 0x3f];
+    output[1] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"[value >> 12 & 0x3f];
+    output[2] = pad;
+    output[3] = pad;
 }
 
 static s32 __nupGetAuditData(NUPContextInfo* context, char** auditData) {
@@ -695,8 +687,8 @@ static inline BOOL __nupHasContent(const Title* title, ESContentId contentId) {
     return index < title->contentCount;
 }
 
-static inline BOOL __nupHasInstalledContent(const ESTitleVersion* title, ESContentId contentId,
-                                            u32 contentCount) {
+static inline BOOL __nupHasInstalledContent(const ESTitleVersion* title, u32 contentCount,
+                                            ESContentId contentId) {
     if (contentCount == 0 || title->contentIds == 0) {
         return FALSE;
     }
@@ -724,7 +716,7 @@ static inline s32 __nupSetBootTitleVersion(ESTitleVersion* title) {
     return result;
 }
 
-static s32 __nupGetBootVersion(NUPContextInfo* context, ESTitleVersion* title) {
+s32 NUPContextInfo::__nupGetBootVersion(ESTitleVersion* title) {
     s32 result;
     ESTmdView* tmdView = 0;
 
@@ -735,12 +727,12 @@ static s32 __nupGetBootVersion(NUPContextInfo* context, ESTitleVersion* title) {
         result = __nupSetBootTitleVersion(title);
     } else {
         u32 i;
-        for (i = 0; i < context->ownedTitleCount; i++) {
-            if (context->ownedTitleIds[i] == title->titleId) {
+        for (i = 0; i < ownedTitleCount; i++) {
+            if (ownedTitleIds[i] == title->titleId) {
                 break;
             }
         }
-        if (i < context->ownedTitleCount) {
+        if (i < ownedTitleCount) {
             title->hasTicket = 1;
         }
 
@@ -777,8 +769,8 @@ static s32 __nupGetBootVersion(NUPContextInfo* context, ESTitleVersion* title) {
                 }
                 s32 contentIndex;
                 for (contentIndex = 0; contentIndex < tmdView->head.numContents; contentIndex++) {
-                    if (!__nupHasInstalledContent(title, tmdView->contents[contentIndex].cid,
-                                                  installedContentCount)) {
+                    if (!__nupHasInstalledContent(title, installedContentCount,
+                                                  tmdView->contents[contentIndex].cid)) {
                         break;
                     }
                 }
@@ -1173,8 +1165,10 @@ static inline s32 __nupGetBoot2Version(u16* version) {
     s32 result = ES_GetBoot2Version(&bootVersion);
     if (result == 0) {
         u16 checkedVersion = bootVersion;
+        if (checkedVersion != bootVersion) {
+            result = -0x1389;
+        }
         *version = checkedVersion;
-        result = checkedVersion == bootVersion ? result : -0x1389;
     }
     return result;
 }
@@ -1193,7 +1187,7 @@ static inline s32 __nupGetOwnedTitles(NUPContextInfo* context) {
 }
 
 static inline s32 __nupCheckTitleVersion(NUPContextInfo* context, NUPTitleInfo* title) {
-    s32 result = __nupGetBootVersion(context, (ESTitleVersion*)title);
+    s32 result = context->__nupGetBootVersion((ESTitleVersion*)title);
     if (result == 0) {
         if (title->hasTicket && title->hasTmd && title->hasContent &&
             title->installedVersion >= title->serverVersion) {
@@ -1228,7 +1222,7 @@ extern "C" void* __nupOp(void* argument) {
     u32 needsAudit;
     u32 currentDeviceId;
     s32 result;
-    u16 serverBootVersion = 0;
+    u16 serverBootVersion;
     u16 bootTitleVersion;
     u16 systemMenuVersion;
     ESTitleId currentTitleId;
