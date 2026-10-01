@@ -1800,7 +1800,7 @@ config.libs = [
             Object(Matching,    "fa/pf_w_rmdir.c"),
             Object(Matching,    "fa/pf_w_xdivide.c"),
             Object(Matching,    "fa/pf_filelock.c"),
-            Object(NonMatching, "fa/pf_stub.c"),
+            Object(Matching,    "fa/pf_stub.c"),
             Object(Matching,    "fa/pf_system.c"),
             Object(Matching,    "fa/pf_stub_standard.c"),
             Object(Matching,    "fa/pfs_attach.c"),
