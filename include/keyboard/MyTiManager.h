@@ -119,16 +119,16 @@ namespace textinput {
                     virtual textinput::InputForm*    createBigTextInputForm();
                     virtual bg::LayoutByNW4R*       createBG();
 
-                    virtual void                    pure_0() = 0;
-                    virtual void                    pure_1() = 0;
-                    virtual void                    pure_2() = 0;
-                    virtual void                    pure_3() = 0;
-                    virtual void                    pure_4() = 0;
-                    virtual void                    pure_5() = 0;
-                    virtual void                    pure_6() = 0;
-                    virtual void                    pure_7() = 0;
-                    virtual void                    pure_8() = 0;
-                    virtual void                    pure_9() = 0;
+                    virtual void                    pure_0() {}
+                    virtual void                    pure_1() {}
+                    virtual void                    pure_2() {}
+                    virtual void                    pure_3() {}
+                    virtual void                    pure_4() {}
+                    virtual void                    pure_5() {}
+                    virtual void                    pure_6() {}
+                    virtual void                    pure_7() {}
+                    virtual void                    pure_8() {}
+                    virtual void                    pure_9() {}
 
                     void                            reflectSaveDataRev1();
                     void                            reflectSaveDataDefault();
