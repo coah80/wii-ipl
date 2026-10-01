@@ -42,46 +42,6 @@ namespace textinput {
 
             class LayoutByNW4R;
 
-            class EventHandler : public nw4rmanager::TiEventHandler {
-            public:
-                EventHandler(LayoutByNW4R* layout) : mpLayout(layout) {}
-
-                virtual void onTiEvent(gui::PaneComponent* paneComponent, u32 event, TiEventHandler::Input* input);  // 0x18
-
-            private:
-                LayoutByNW4R* mpLayout;  // 0x0C
-            };
-
-            class CellPhoneAnmPane : public nw4rmanager::AnmPane {
-            public:
-                CellPhoneAnmPane(nw4r::lyt::Pane* pane, nw4rmanager::AnmObserver* observer, u32 keyType)
-                    : nw4rmanager::AnmPane(pane, observer) {
-                    mState = 0;
-                    mKeyType = keyType;
-                    init();
-                    changeAnimation(mState);
-                }
-
-                virtual void init();                                // 0x08
-                virtual void onAnmEvent(AnmPaneEvent paneEvent);    // 0x10
-                virtual void changeAnimation(u32 id);               // 0x14
-                virtual u32 getKeyType() const;                     // 0x24
-
-            protected:
-                s32 mState;    // 0x2C
-                u32 mKeyType;  // 0x30
-            };
-
-            class CellPhoneControlAnmPane : public CellPhoneAnmPane {
-            public:
-                CellPhoneControlAnmPane(nw4r::lyt::Pane* pane, nw4rmanager::AnmObserver* observer, u32 keyType)
-                    : CellPhoneAnmPane(pane, observer, 0) {
-                    mKeyType = keyType;
-                }
-
-                virtual void onAnmEvent(AnmPaneEvent paneEvent);    // 0x10
-            };
-
             class Base : public KeyboardBase {
             public:
                 typedef enum InputMode {
@@ -152,6 +112,46 @@ namespace textinput {
                 u8  mbLangKeyActive;                                 // 0x34
                 u8  unk_0x35[3];                                     // 0x35
             };
+            class EventHandler : public nw4rmanager::TiEventHandler {
+            public:
+                EventHandler(LayoutByNW4R* layout) : mpLayout(layout) {}
+
+                virtual void onTiEvent(gui::PaneComponent* paneComponent, u32 event, TiEventHandler::Input* input);  // 0x18
+
+            private:
+                LayoutByNW4R* mpLayout;  // 0x0C
+            };
+
+            class CellPhoneAnmPane : public nw4rmanager::AnmPane {
+            public:
+                CellPhoneAnmPane(nw4r::lyt::Pane* pane, nw4rmanager::AnmObserver* observer, u32 keyType)
+                    : nw4rmanager::AnmPane(pane, observer) {
+                    mState = 0;
+                    mKeyType = keyType;
+                    init();
+                    changeAnimation(mState);
+                }
+
+                virtual void init();                                // 0x08
+                virtual void onAnmEvent(AnmPaneEvent paneEvent);    // 0x10
+                virtual void changeAnimation(u32 id);               // 0x14
+                virtual u32 getKeyType() const;                     // 0x24
+
+            protected:
+                s32 mState;    // 0x2C
+                u32 mKeyType;  // 0x30
+            };
+
+            class CellPhoneControlAnmPane : public CellPhoneAnmPane {
+            public:
+                CellPhoneControlAnmPane(nw4r::lyt::Pane* pane, nw4rmanager::AnmObserver* observer, u32 keyType)
+                    : CellPhoneAnmPane(pane, observer, 0) {
+                    mKeyType = keyType;
+                }
+
+                virtual void onAnmEvent(AnmPaneEvent paneEvent);    // 0x10
+            };
+
 
             class LayoutByNW4R : public Base, public nw4rmanager::Layout {
             public:

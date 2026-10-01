@@ -73,9 +73,9 @@ namespace textinput {
                 "B_CPkey_Prdc_JP", "B_prdcModeBT_EU",
             };
 
-            static const char* const csNormalAnim   = "W_CPkey_00";
-            static const char* const csToggleAnim   = "W_ChngTag_00";
-            static const char* const csOthersEuAnim = "W_othersBT_EU";
+            static const char* csNormalAnim   = "W_CPkey_00";
+            static const char* csToggleAnim   = "W_ChngTag_00";
+            static const char* csOthersEuAnim = "W_othersBT_EU";
 
             static const PaneNameToLinkedAnm csPaneNameNormalAnimationKey[0x13] = {
                 { "W_CPkey_00",         NULL },
@@ -155,8 +155,8 @@ namespace textinput {
             static const SendCharCommand csSendCharRelease = { 0, 0, 0, 0, 0x100, NULL };
             static const InputWCharCommand csInputSpaceChar = { 0x20, 0, 0, 0x10000, 0 };
 
-            static bool csb20 = true;
-            static bool csb24 = true;
+            static const volatile bool csb20[4] = { true };
+            static const volatile bool csb24[4] = { true };
 
             typedef struct InputModeReply {
                 s32 mMode;      // 0x00
@@ -470,7 +470,7 @@ namespace textinput {
                 u32 data = 0;
                 sendCommand(0x12, &data);
                 if (mInputMode == 0) {
-                    u8 flag = csb20;
+                    u8 flag = csb20[0];
                     sendCommand(0x13, &flag);
                 }
                 if (mInputMode == 1) {
@@ -496,7 +496,7 @@ namespace textinput {
                     mgr()->getCandidateBox()->checkValidation();
                 }
                 if (mode == IM_00) {
-                    u8 flag = csb24;
+                    u8 flag = csb24[0];
                     sendCommand(0x13, &flag);
                 }
                 if (mode == IM_01) {
@@ -875,7 +875,7 @@ namespace textinput {
                 u32 data = 0;
                 sendCommand(0x12, &data);
                 if (mInputMode == 0) {
-                    u8 flag = csb20;
+                    u8 flag = csb20[0];
                     sendCommand(0x13, &flag);
                 }
                 if (mInputMode == 1) {
@@ -921,7 +921,7 @@ namespace textinput {
                     mgr()->getCandidateBox()->checkValidation();
                 }
                 if (mode == IM_00) {
-                    u8 flag = csb24;
+                    u8 flag = csb24[0];
                     sendCommand(0x13, &flag);
                 }
                 if (mode == IM_01) {
