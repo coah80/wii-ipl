@@ -68,7 +68,7 @@ void KPADInit();
 s32 KPADRead(s32 chan, KPADStatus* status, u32 length);
 
 void KPADSetSensorHeight(s32 chan, f32 sensorHeight);
-void KPADGetProjectionPos(Vec2* dest, Vec2* src, const Rect* param_3, f32 param_4);
+void KPADGetProjectionPos(Vec2* dest, Vec2* src, const Rect* rect, f32 scale);
 
 void KPADSetPosParam(s32 chan, f32 x, f32 y);
 void KPADSetBtnRepeat(s32 chan, f32, f32);
