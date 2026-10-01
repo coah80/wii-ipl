@@ -291,7 +291,7 @@ s32 pfd_st_removal_callback(s32 status, void* data) {
         return 0;
     }
     g_pfd_sddrv_info.media_inserted = 0;
-    if (pfd_sddrv_device(&g_pfd_sddrv_info) != 0) {
+    if (g_pfd_sddrv_info.media_inserted == 0 && pfd_sddrv_device(&g_pfd_sddrv_info) != 0) {
         g_event = 1;
         result = ISD_RegisterDeviceIntrHandler(g_pfd_sddrv_info.device, (SDDevIntrCallback)pfd_st_inter_callback, &g_event);
         if (result != 0) {
