@@ -12,7 +12,7 @@ namespace nw4r {
 #ifdef IPL_SOUND_RECT_OUT_OF_LINE
             Rect();
 #else
-#ifdef IPL_SD_CHANNEL_TITLE_CPP
+#if defined(IPL_SD_CHANNEL_TITLE_CPP) || defined(IPL_SD_CHANNEL_SELECT_CPP)
             Rect();
 #else
             Rect() : left(), top(), right(), bottom() {}
@@ -24,7 +24,7 @@ namespace nw4r {
             Rect(f32 l, f32 t, f32 r, f32 b) : left(l), top(t), right(r), bottom(b) {}
 #endif
 
-#if !defined(IPL_CONTROLLER_TRIVIAL_RECT_DTOR) && !defined(IPL_MEMORYCARD_BASE_CPP) && !defined(IPL_SDMEMORY_CPP)
+#if !defined(IPL_CONTROLLER_TRIVIAL_RECT_DTOR) && !defined(IPL_MEMORYCARD_BASE_CPP) && !defined(IPL_SDMEMORY_CPP) && !defined(IPL_SD_CHANNEL_SELECT_CPP)
             ~Rect() {}
 #endif
 

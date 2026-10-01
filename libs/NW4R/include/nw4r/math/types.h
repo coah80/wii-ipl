@@ -135,6 +135,10 @@ namespace nw4r {
                 return VEC2(result * x, result * y);
             }
 
+#ifdef IPL_SD_CHANNEL_SELECT_CPP
+            VEC2& operator=(const VEC2& r);
+#endif
+
             bool operator==(const VEC2& rhs) const { return x == rhs.x && y == rhs.y; }
             bool operator!=(const VEC2& rhs) const { return x != rhs.x || y != rhs.y; }
         } VEC2;
@@ -196,6 +200,10 @@ namespace nw4r {
                 f32 result = 1.f / val;
                 return VEC3(result * x, result * y, result * z);
             }
+
+#ifdef IPL_SD_CHANNEL_SELECT_CPP
+            VEC3& operator=(const VEC3& r);
+#endif
 
             bool operator==(const VEC3& rhs) const { return x == rhs.x && y == rhs.y && z == rhs.z; }
             bool operator!=(const VEC3& rhs) const { return x != rhs.x || y != rhs.y || z != rhs.z; }
