@@ -1,0 +1,37 @@
+full build: ok
+main.dol sha1: 26116613f624061ba99c8d1a299aaa6efa85670d
+[src/channelScript/CHANSVm] pool: IDENTICAL
+[src/channelScript/CHANSVm] objdiff: code 35720/53564 data 6904/6904 functions 217/233 fuzzy 99.2758 linked code 0
+[src/channelScript/CHANSVm] instruction-exact functions: 217/233
+[src/channelScript/CHANSVm]   section .data size 4672 match 100.0
+[src/channelScript/CHANSVm]   section .rodata size 1432 match 100.0
+[src/channelScript/CHANSVm]   section .sbss size 16 match 100.0
+[src/channelScript/CHANSVm]   section .sdata size 600 match 100.0
+[src/channelScript/CHANSVm]   section .sdata2 size 184 match 100.0
+[src/channelScript/CHANSVm]   section .text size 53564 match 99.27578
+[src/channelScript/CHANSVm]   below 100: CHANSVmGetSourceLine 97.82609
+[src/channelScript/CHANSVm]   below 100: CHANSVmNewObjData 99.583336
+[src/channelScript/CHANSVm]   below 100: CHANSVmParseInt 94.69388
+[src/channelScript/CHANSVm]   below 100: CHANSVm_8144B4D4 97.59036
+[src/channelScript/CHANSVm]   below 100: VmDateDtor 94.96703
+[src/channelScript/CHANSVm]   below 100: VmStringReplace 97.878784
+[src/channelScript/CHANSVm]   below 100: VmStringSplit 98.04054
+[src/channelScript/CHANSVm]   below 100: CHANSVm_8145049C 99.84919
+[src/channelScript/CHANSVm]   below 100: VmBlobGetHexString 98.71951
+[src/channelScript/CHANSVm]   below 100: VmBlobPackCommon 97.934135
+[src/channelScript/CHANSVm]   below 100: VmBlobUnpack 98.26886
+[src/channelScript/CHANSVm]   below 100: VmWinEmuWrite 99.62687
+[src/channelScript/CHANSVm]   below 100: CHANSVmAddExe 99.15354
+[src/channelScript/CHANSVm]   below 100: CHANSVmLinkModules 98.677246
+[src/channelScript/CHANSVm]   below 100: VmCallMethod 98.0605
+[src/channelScript/CHANSVm]   below 100: CHANSVmStep 96.452515
+[src/channelScript/CHANSVm] baseline: code 35484/53564 data 6904 functions 216 fuzzy 99.2732
+regressions vs baseline: 0
+global matched_code_percent: 86.76230 -> 86.77018
+global fuzzy_match_percent: 99.32123 -> 99.32127
+global complete_code_percent: 60.61288 -> 60.61288
+global matched_data_percent: 91.11620 -> 91.11620
+forbidden patterns added (net, per file): 0
+readability warnings (net, per file; must be 0 in the final result): 0
+GATE PASS
+
