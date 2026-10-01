@@ -3400,7 +3400,7 @@ VmMethodDefine(String, ToUpperCase) {
     return vmFalse;
 }
 
-CHANSVmObjHdr* CHANSVm_8145049C(CHANSVm* vm, CHANSVmObjHdr* obj, u32 arg) {
+CHANSVmObjHdr* CHANSVmFormatString(CHANSVm* vm, CHANSVmObjHdr* obj, u32 arg) {
     u8 pad0[8];
     u8 tempBuf[16];
     u8 fmtBufData[32];
@@ -3745,7 +3745,7 @@ null_return:
 VmMethodDefine(String, Format) {
     u32 result;
     if (VmParentObj != vmNull && VmParentObj->type == CHANS_VM_TYPE_CLASS_REF) {
-        result = (u32)CHANSVm_8145049C(VmInst, VmReturnObj, 0);
+        result = (u32)CHANSVmFormatString(VmInst, VmReturnObj, 0);
         return result != 0;
     }
     return 0;
@@ -6466,7 +6466,7 @@ void CHANSConvertModuleOfsToPtr(CHANSVmModule* ptr) {
     VmOffsU32ToPtr((void**)&ptr->pLineTbl, ptr);
 }
 
-static CHANSVmObjHdr* CHANSVm_81455654(CHANSVm* vm, s32 id) {
+static CHANSVmObjHdr* CHANSVmLookupScopedObject(CHANSVm* vm, s32 id) {
     CHANSVmObjHdr* data = vmNull;
     CHANSVmPrivate* pVm = (CHANSVmPrivate*)vm;
     CHANSVmExecutionCtx* ctx = pVm->pActiveCtx;
@@ -6755,7 +6755,7 @@ static CHANSVmErr VmReturnWithValue(CHANSVm* vm, u32 val) {
         }
     } else {
         for (i = 0; i < pVm->pActiveCtx->pDbg->moduleCount; i++) {
-            if (CHANSVmDeleteObject(vm, CHANSVm_81455654(vm, i)) != CHANS_VM_OK) {
+            if (CHANSVmDeleteObject(vm, CHANSVmLookupScopedObject(vm, i)) != CHANS_VM_OK) {
                 return CHANS_VM_ERR_RETURN;
             }
         }
@@ -6873,7 +6873,7 @@ CHANSVmErr CHANSVmLinkModules(CHANSVm* vm, vmS32 unk0) {
                 CHANSVmObjHdr* obj;
                 if (idx >= module->moduleCount) {
                     goto pass3_idx_err;
-                } else if (obj = CHANSVm_81455654(vm, idx), obj == vmNull) {
+                } else if (obj = CHANSVmLookupScopedObject(vm, idx), obj == vmNull) {
                     goto pass3_obj_err;
                 } else if (obj->type == CHANS_VM_OBJ_TYPE_BLANK) {
                     goto pass3_success;
@@ -7818,7 +7818,7 @@ CHANSVmErr CHANSVmStep(CHANSVm* vm, int stepCount) {
                     result = CHANS_VM_ERR_GET_PROPERTY_NAME;
                     arrayIdx = 0;
                     imm16Val = VM_READ_BE_U16(operandBuf, 0);
-                    foundObj = CHANSVm_81455654(vm, imm16Val);
+                    foundObj = CHANSVmLookupScopedObject(vm, imm16Val);
                     accumulator = &pVm->accumulator;
                     if (foundObj != vmNull && accumulator->type == CHANS_VM_OBJ_TYPE_INTEGER &&
                         (computedAddr = accumulator->value.data.len, (u64)accumulator->value.int_v <= ~1U)) {
@@ -7954,7 +7954,7 @@ CHANSVmErr CHANSVmStep(CHANSVm* vm, int stepCount) {
                     if (operandBuf == vmNull) {
                         return CHANS_VM_ERR_CODE_RANGE;
                     }
-                    foundObj = CHANSVm_81455654(vm, (VM_READ_BE_U16(operandBuf, 0)) & 0x1FFF);
+                    foundObj = CHANSVmLookupScopedObject(vm, (VM_READ_BE_U16(operandBuf, 0)) & 0x1FFF);
                     result = VmDeleteCommon(vm, foundObj);
                     break;
                 }
@@ -7982,12 +7982,12 @@ CHANSVmErr CHANSVmStep(CHANSVm* vm, int stepCount) {
             imm16Val = (opcodeVal << 8 | operandBuf[1]) & 0x1FFF;
             switch (opcodeVal & CHANS_VM_OP_SYMBOL_STORE) {
                 case 0: {
-                    foundObj = CHANSVm_81455654(vm, imm16Val);
+                    foundObj = CHANSVmLookupScopedObject(vm, imm16Val);
                     result = VmStore(vm, &pVm->accumulator, foundObj);
                     break;
                 }
                 case CHANS_VM_OP_SYMBOL_STORE: {
-                    foundObj = CHANSVm_81455654(vm, imm16Val);
+                    foundObj = CHANSVmLookupScopedObject(vm, imm16Val);
                     result = VmStore(vm, foundObj, &pVm->accumulator);
                     break;
                 }
