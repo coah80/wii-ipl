@@ -134,8 +134,8 @@ public:
     SDChannelTitle* mpScene;
 };
 
-extern "C" void iplSDChannelObj_813E3580(layout::Object* layout);
-extern "C" const wchar_t* iplSDChannelObj_813E4060(SDChannelObj* channel, int nameIndex);
+extern "C" void iplSDChannelObj_applyLanguageGroups(layout::Object* layout);
+extern "C" const wchar_t* iplSDChannelObj_getLocalizedName(SDChannelObj* channel, int nameIndex);
 extern "C" bool iplSDChannelTitle_startZoomFade(SDChannelTitle* scene);
 extern "C" void iplSDChannelTitle_rebuildBannerLayout(SDChannelTitle* scene);
 extern "C" void iplSDChannelTitle_setPaneMessage(SDChannelTitle* scene, nw4r::lyt::Pane* pane, u32 message, bool allocate);
@@ -401,8 +401,8 @@ FaderSceneCommand SDChannelTitle::calcFadeout() {
                 } title;
                 title.id = channel->mAppMeta.titleId;
                 wchar_t names[2][21];
-                memcpy(names[0], iplSDChannelObj_813E4060(channel, 0), sizeof(names[0]));
-                memcpy(names[1], iplSDChannelObj_813E4060(channel, 1), sizeof(names[1]));
+                memcpy(names[0], iplSDChannelObj_getLocalizedName(channel, 0), sizeof(names[0]));
+                memcpy(names[1], iplSDChannelObj_getLocalizedName(channel, 1), sizeof(names[1]));
                 union MakerCode {
                     u16 code;
                     char bytes[2];
@@ -537,7 +537,7 @@ extern "C" void iplSDChannelTitle_createBannerLayout(SDChannelTitle* scene) {
     if (scene->mpBannerFiles[scene->mLoadedIndex] && scene->mpBannerFiles[scene->mLoadedIndex]->checkData() == 1) {
         scene->mpBannerLayout = layout::Object::create(scene->mpBannerHeap, 0x40000,
             scene->mpBannerFiles[scene->mLoadedIndex], "arc", "banner.brlyt");
-        iplSDChannelObj_813E3580(scene->mpBannerLayout);
+        iplSDChannelObj_applyLanguageGroups(scene->mpBannerLayout);
         iplSDChannelTitle_bindBannerAnimations(scene);
     } else {
         scene->mpBannerLayout = NULL;
@@ -552,15 +552,15 @@ extern "C" void iplSDChannelTitle_createIconLayout(SDChannelTitle* scene) {
     SDChannelObj* channel = scene->mpChannelSelect->findChannelObject(scene->mPage, scene->mIndex);
     if (channel) {
         scene->mpIconLayout = layout::Object::create(scene->mpIconHeap, 0x8000,
-            iplSDChannelObj_813E3128(channel), "arc", "icon.brlyt");
-        iplSDChannelObj_813E3580(scene->mpIconLayout);
+            iplSDChannelObj_getOrAllocThumbnailData(channel), "arc", "icon.brlyt");
+        iplSDChannelObj_applyLanguageGroups(scene->mpIconLayout);
         if (scene->mpIconLayout->searchFile("icon.brlan")) {
             scene->mpIconLayout->bind("icon.brlan")->play();
         } else if (scene->mpIconLayout->searchFile("icon_Whole.brlan")) {
             scene->mpIconLayout->bind("icon_Whole.brlan")->play();
         }
         if (channel->mStateFlags == 0) {
-            static_cast<nw4r::lyt::TextBox*>(scene->mpProgressLayout->FindPaneByName("T_title"))->SetString(iplSDChannelObj_813E4060(channel, 0));
+            static_cast<nw4r::lyt::TextBox*>(scene->mpProgressLayout->FindPaneByName("T_title"))->SetString(iplSDChannelObj_getLocalizedName(channel, 0));
         } else {
             static_cast<nw4r::lyt::TextBox*>(scene->mpProgressLayout->FindPaneByName("T_title"))->SetString(sMissingTitle);
         }
@@ -611,7 +611,7 @@ extern "C" void iplSDChannelTitle_updateChangeState(SDChannelTitle* scene) {
         ++scene->mChangeFrame;
         if ((!scene->mpBannerFiles[1 - scene->mLoadedIndex] || scene->mpBannerFiles[1 - scene->mLoadedIndex]->isFinished()) &&
             (!scene->mpSoundFiles[1 - scene->mLoadedIndex] || scene->mpSoundFiles[1 - scene->mLoadedIndex]->isFinished()) &&
-            iplSDChannelObj_813E3330(channel) && scene->mChangeFrame > 10 &&
+            iplSDChannelObj_hasAppMeta(channel) && scene->mChangeFrame > 10 &&
             (!scene->mScriptEnabled || scene->mScriptState == 4)) {
             if (scene->mpBannerFiles[scene->mLoadedIndex]) {
                 delete scene->mpBannerFiles[scene->mLoadedIndex];
@@ -972,7 +972,7 @@ extern "C" void iplSDChannelTitle_tryLaunchSelected(SDChannelTitle* scene) {
         scene->mState = 1;
     } else {
         SDChannelObj* channel = scene->mpChannelSelect->findChannelObject(scene->mPage, scene->mIndex);
-        if (iplSDChannelObj_813E3330(channel)) {
+        if (iplSDChannelObj_hasAppMeta(channel)) {
             iplSDChannelTitle_beginLaunch(scene, channel);
         }
     }
@@ -1264,7 +1264,7 @@ extern "C" void iplSDChannelTitle_setPageAndIndex(SDChannelTitle* scene, int pag
     SDChannelObj* channel = scene->mpChannelSelect->findChannelObject(scene->mPage, scene->mIndex);
     scene->mPosition.x = SDChannelSelect::getChannelPanePosition(scene->mpChannelSelect, scene->mIndex).x;
     scene->mPosition.y = SDChannelSelect::getChannelPanePosition(scene->mpChannelSelect, scene->mIndex).y;
-    if (iplSDChannelObj_813E3330(channel)) {
+    if (iplSDChannelObj_hasAppMeta(channel)) {
         iplSDChannelTitle_beginLaunch(scene, channel);
     } else {
         scene->mState = 28;

@@ -113,7 +113,7 @@ namespace ipl {
 
 
 
-        extern "C" void iplSDChannelObj_813E3534(SDChannelObj* channel, int enabled);
+        extern "C" void iplSDChannelObj_resetDialogAnim(SDChannelObj* channel, int enabled);
 
         SDChannelSelect::SDChannelSelect(EGG::Heap* heap)
             : FaderSceneBase(heap),
@@ -213,7 +213,7 @@ namespace ipl {
             SDChannelObj* channel = NULL;
             while (channel = static_cast<SDChannelObj*>(nw4r::ut::List_GetNext(&mChannelObjects, channel)),
                    channel != NULL) {
-                iplSDChannelObj_813E3104(channel);
+                iplSDChannelObj_activateIfIdle(channel);
             }
         }
 
@@ -602,7 +602,7 @@ namespace ipl {
                     mpCurrentLoadedChannel = loadedChannel;
                     mpSDWorker->get_sd_app_meta_async(
                         static_cast<ESTitleId32>(notice.titleId),
-                        static_cast<u8*>(iplSDChannelObj_813E3128(loadedChannel)),
+                        static_cast<u8*>(iplSDChannelObj_getOrAllocThumbnailData(loadedChannel)),
                         &loadedChannel->mAppMeta);
                     mWorkerCommand = 3;
                 }
@@ -845,9 +845,9 @@ namespace ipl {
                 SDChannelObj* completed = mpCurrentLoadedChannel;
                 completed->mStateFlags = 0;
                 completed->mState = 2;
-                DCFlushRange(iplSDChannelObj_813E3128(mpCurrentLoadedChannel), 0x19000);
+                DCFlushRange(iplSDChannelObj_getOrAllocThumbnailData(mpCurrentLoadedChannel), 0x19000);
             } else {
-                memcpy(iplSDChannelObj_813E3128(mpCurrentLoadedChannel),
+                memcpy(iplSDChannelObj_getOrAllocThumbnailData(mpCurrentLoadedChannel),
                        mpCorruptIconFile->getBuffer(), mpCorruptIconFile->getLength());
                 memset(&mpCurrentLoadedChannel->mAppMeta, 0, sizeof(mpCurrentLoadedChannel->mAppMeta));
                 SDChannelObj* completed = mpCurrentLoadedChannel;
@@ -1835,9 +1835,9 @@ namespace ipl {
                     int channelIndex = channel->getIndex();
                     if (channelPage == mCurrentPage) {
                         if (mState != 5 || channelIndex != mCurrentChannelIndex) {
-                            iplSDChannelObj_813E34E8(channel, 1);
+                            iplSDChannelObj_resetPageAnim(channel, 1);
                         }
-                        iplSDChannelObj_813E3534(channel, 1);
+                        iplSDChannelObj_resetDialogAnim(channel, 1);
                     }
                 }
 
@@ -2059,19 +2059,19 @@ namespace ipl {
         }
 
         void SDChannelSelect::updateChannelObject(SDChannelObj* channel) {
-            iplSDChannelObj_813E3104(channel);
-            iplSDChannelObj_813E311C(channel, mpDialogHeap, mpChannelHeap);
-            iplSDChannelObj_813E3178(channel,
+            iplSDChannelObj_activateIfIdle(channel);
+            iplSDChannelObj_setHeaps(channel, mpDialogHeap, mpChannelHeap);
+            iplSDChannelObj_setPane(channel,
                                      getChannelBasePane(channel->getPage(), channel->getIndex(),
                                                         mCurrentPage));
-            iplSDChannelObj_813E3180(channel, mpLayoutFile);
+            iplSDChannelObj_setLayoutFile(channel, mpLayoutFile);
         }
 
         void SDChannelSelect::calcChannelObjects() {
             SDChannelObj* channel = NULL;
             while (channel = static_cast<SDChannelObj*>(nw4r::ut::List_GetNext(&mChannelObjects, channel)),
                    channel != NULL) {
-                iplSDChannelObj_813E322C(channel);
+                iplSDChannelObj_calc(channel);
             }
         }
 
@@ -2086,9 +2086,9 @@ namespace ipl {
                 }
 
                 setChannelScissor(channel);
-                iplSDChannelObj_813E32C8(channel);
+                iplSDChannelObj_drawBase(channel);
 
-                if (iplSDChannelObj_813E3330(channel)) {
+                if (iplSDChannelObj_hasAppMeta(channel)) {
                     switch (mState) {
                     case 15:
                     case 16:
@@ -2154,7 +2154,7 @@ namespace ipl {
             while (channel = static_cast<SDChannelObj*>(nw4r::ut::List_GetNext(&mChannelObjects, channel)),
                    channel != NULL) {
                 if (hasChannelObject(channel->getPage(), channel->getIndex())) {
-                    iplSDChannelObj_813E3304(channel);
+                    iplSDChannelObj_drawPage(channel);
                 }
             }
 
@@ -2162,7 +2162,7 @@ namespace ipl {
             while (channel = static_cast<SDChannelObj*>(nw4r::ut::List_GetNext(&mChannelObjects, channel)),
                    channel != NULL) {
                 if (hasChannelObject(channel->getPage(), channel->getIndex())) {
-                    iplSDChannelObj_813E330C(channel);
+                    iplSDChannelObj_drawDialog(channel);
                 }
             }
         }
@@ -2296,7 +2296,7 @@ namespace ipl {
                        nw4r::ut::List_GetNext(&mChannelObjects, channel)),
                    channel != NULL) {
                 int titleIndex = channel->getPage() * MAX_CHANNEL_INDEX + channel->getIndex();
-                if (!iplSDChannelObj_813E3330(channel) && mpChannelTitleIds[titleIndex] != 0 &&
+                if (!iplSDChannelObj_hasAppMeta(channel) && mpChannelTitleIds[titleIndex] != 0 &&
                     mbNeedsRefresh) {
                     channel->mStateFlags = 2;
                 }
@@ -2391,7 +2391,7 @@ namespace ipl {
             while (channel = static_cast<SDChannelObj*>(
                        nw4r::ut::List_GetNext(&mChannelObjects, channel)),
                    channel != NULL) {
-                if (iplSDChannelObj_813E3330(channel)) {
+                if (iplSDChannelObj_hasAppMeta(channel)) {
                     SDChannelObj* previous = static_cast<SDChannelObj*>(
                         nw4r::ut::List_GetPrev(&mChannelObjects, channel));
                     nw4r::ut::List_Remove(&mChannelObjects, channel);
@@ -2418,7 +2418,7 @@ namespace ipl {
                        nw4r::ut::List_GetNext(&mChannelObjects, channel)),
                    channel != NULL) {
                 int channelIndex = channel->mPage * 12 + channel->mIndex;
-                if (!iplSDChannelObj_813E3330(channel) &&
+                if (!iplSDChannelObj_hasAppMeta(channel) &&
                     mpChannelTitleIds[channelIndex] != 0) {
                     channel->mStateFlags = 2;
                 }
@@ -2634,7 +2634,7 @@ namespace ipl {
             initPageAnimations(
                 math::VEC3((nw4r::math::VEC3&)channel->mpBaseLayout->GetRootPane()->GetTranslate()),
                 0);
-            iplSDChannelObj_813E34E0(channel);
+            iplSDChannelObj_playPageHide(channel);
 
             SDButton* button = static_cast<SDButton*>(System::getSceneManager()->getScene(0x24));
             if (mbLeftArrowVisible) {
@@ -2982,7 +2982,7 @@ namespace ipl {
                 while (channel = static_cast<SDChannelObj*>(
                            nw4r::ut::List_GetNext(&mChannelObjects, channel)),
                        channel != NULL) {
-                    iplSDChannelObj_813E34E8(channel, 1);
+                    iplSDChannelObj_resetPageAnim(channel, 1);
                 }
 
                 for (int index = 0; index < MAX_CHANNEL_INDEX; ++index) {
@@ -3004,7 +3004,7 @@ namespace ipl {
                 while (channel = static_cast<SDChannelObj*>(
                            nw4r::ut::List_GetNext(&mChannelObjects, channel)),
                        channel != NULL) {
-                    iplSDChannelObj_813E34E8(channel, 1);
+                    iplSDChannelObj_resetPageAnim(channel, 1);
                 }
 
                 for (int index = 0; index < MAX_CHANNEL_INDEX; ++index) {
@@ -3066,10 +3066,10 @@ namespace ipl {
             } else {
                 SDChannelObj* destination = findChannelObject(mDestinationPage, mDestinationIndex);
 
-                iplSDChannelObj_813E3178(
+                iplSDChannelObj_setPane(
                     static_cast<SDChannelObj*>(mpCurrentChannel),
                     getChannelBasePane(mDestinationPage, mDestinationIndex, mCurrentPage));
-                iplSDChannelObj_813E3178(
+                iplSDChannelObj_setPane(
                     destination, getChannelBasePane(mSourcePage, mSourceIndex, mCurrentPage));
 
                 SDChannelObj* current;
@@ -3083,8 +3083,8 @@ namespace ipl {
                 destination->mPage = sourcePage;
                 destination->mIndex = sourceIndex;
 
-                iplSDChannelObj_813E322C(static_cast<SDChannelObj*>(mpCurrentChannel));
-                iplSDChannelObj_813E322C(destination);
+                iplSDChannelObj_calc(static_cast<SDChannelObj*>(mpCurrentChannel));
+                iplSDChannelObj_calc(destination);
 
                 mpCurrentChannel = transitionAnimator;
                 destination->mpBaseAnimator->setCurrentFrame(mpHelpLayout->getCurrentFrame());
@@ -3208,7 +3208,7 @@ namespace ipl {
                     if (isChannelMoveTarget(mCurrentPage, index) ||
                         (mCurrentPage == mSourcePage && index == mSourceIndex)) {
                         SDChannelObj* channel = findChannelObject(mCurrentPage, index);
-                        iplSDChannelObj_813E3354(channel, 2);
+                        iplSDChannelObj_startAppear(channel, 2);
                         snd::getSystem()->startSE("WIPL_SE_CH_TARGETTING");
                         controller->rumble(1);
                     }
@@ -3217,7 +3217,7 @@ namespace ipl {
                     if (isChannelMoveTarget(mCurrentPage, index) ||
                         (mCurrentPage == mSourcePage && index == mSourceIndex)) {
                         SDChannelObj* channel = findChannelObject(mCurrentPage, index);
-                        iplSDChannelObj_813E33EC(channel, 2);
+                        iplSDChannelObj_startDisappear(channel, 2);
                     }
                     break;
                 default:
@@ -3297,7 +3297,7 @@ namespace ipl {
                 int channelPage = channel->getPage();
                 int channelIndex = channel->getIndex();
                 bool selected = channelPage == page && channelIndex == index;
-                iplSDChannelObj_813E3480(channel, selected);
+                iplSDChannelObj_setSelected(channel, selected);
             }
 
             snd::getSystem()->startSEwithPos("WIPL_SE_CH_HOLD", mPointerPosition.x);
@@ -3333,7 +3333,7 @@ namespace ipl {
             SDChannelObj* channel = NULL;
             while (channel = static_cast<SDChannelObj*>(nw4r::ut::List_GetNext(&mChannelObjects, channel)),
                    channel != NULL) {
-                iplSDChannelObj_813E34E8(channel, 1);
+                iplSDChannelObj_resetPageAnim(channel, 1);
             }
 
             for (int index = 0; index < MAX_CHANNEL_INDEX; ++index) {
@@ -3432,14 +3432,14 @@ namespace ipl {
                 break;
             case ::gui::EventHandler::ON_POINT:
                 if (mpScene->mState == 1 && SDChannelSelect::isChannelReady(channel)) {
-                    iplSDChannelObj_813E3354(channel, 0);
+                    iplSDChannelObj_startAppear(channel, 0);
                     snd::getSystem()->startSE("WIPL_SE_CH_TARGETTING");
                     controller->rumble(1);
                 }
                 break;
             case ::gui::EventHandler::ON_LEFT:
                 if (mpScene->mState == 1 && SDChannelSelect::isChannelReady(channel)) {
-                    iplSDChannelObj_813E33EC(channel, 0);
+                    iplSDChannelObj_startDisappear(channel, 0);
                 }
                 break;
             }

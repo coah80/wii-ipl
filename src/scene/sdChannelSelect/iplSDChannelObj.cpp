@@ -49,42 +49,42 @@ namespace ipl {
         };
 
         static const f32 scThumbnailOffsets[][2] = {{64.0f, 48.0f}, {85.0f, 48.0f}};
-        extern "C" void iplSDChannelObj_813E3104(SDChannelObj* channel) NO_INLINE;
-        extern "C" void iplSDChannelObj_813E311C(SDChannelObj* channel, EGG::ExpHeap* firstHeap,
+        extern "C" void iplSDChannelObj_activateIfIdle(SDChannelObj* channel) NO_INLINE;
+        extern "C" void iplSDChannelObj_setHeaps(SDChannelObj* channel, EGG::ExpHeap* firstHeap,
                                                  EGG::ExpHeap* secondHeap) NO_INLINE;
-        extern "C" void* iplSDChannelObj_813E3128(SDChannelObj* channel) NO_INLINE;
-        extern "C" void iplSDChannelObj_813E3178(SDChannelObj* channel, nw4r::lyt::Pane* pane) NO_INLINE;
-        extern "C" void iplSDChannelObj_813E3180(SDChannelObj* channel, nand::LayoutFile* layoutFile) NO_INLINE;
-        extern "C" void iplSDChannelObj_813E322C(SDChannelObj* channel) NO_INLINE;
-        extern "C" void iplSDChannelObj_813E32C8(SDChannelObj* channel) NO_INLINE;
-        extern "C" void iplSDChannelObj_813E3304(SDChannelObj* channel) NO_INLINE;
-        extern "C" void iplSDChannelObj_813E330C(SDChannelObj* channel) NO_INLINE;
-        extern "C" bool iplSDChannelObj_813E3330(SDChannelObj* channel) NO_INLINE;
-        extern "C" void iplSDChannelObj_813E3354(SDChannelObj* channel, int request) NO_INLINE;
-        extern "C" void iplSDChannelObj_813E33EC(SDChannelObj* channel, int request) NO_INLINE;
-        extern "C" void iplSDChannelObj_813E3480(SDChannelObj* channel, bool request) NO_INLINE;
-        extern "C" void iplSDChannelObj_813E34E0(SDChannelObj* channel) NO_INLINE;
-        extern "C" void iplSDChannelObj_813E34E8(SDChannelObj* channel, int request) NO_INLINE;
-        extern "C" void iplSDChannelObj_813E3534(SDChannelObj* channel, bool request) NO_INLINE;
-        extern "C" void iplSDChannelObj_813E3580(const layout::Object* layout) NO_INLINE;
-        extern "C" void iplSDChannelObj_813E3858(SDChannelObj* channel) NO_INLINE;
-        extern "C" f32 iplSDChannelObj_813E3920(SDChannelObj* channel) NO_INLINE;
-        extern "C" f32 iplSDChannelObj_813E3A84(SDChannelObj* channel) NO_INLINE;
-        extern "C" void iplSDChannelObj_813E3B1C(SDChannelObj* channel) NO_INLINE;
-        extern "C" void iplSDChannelObj_813E3BA0(SDChannelObj* channel) NO_INLINE;
-        extern "C" void iplSDChannelObj_813E3C58(SDChannelObj* channel, const nw4r::math::VEC3& vec) NO_INLINE;
-        extern "C" void iplSDChannelObj_813E3C9C(SDChannelObj* channel, int request) NO_INLINE;
-        extern "C" void iplSDChannelObj_813E3E38(SDChannelObj* channel) NO_INLINE;
-        extern "C" void iplSDChannelObj_813E3F28(SDChannelObj* channel, int request) NO_INLINE;
-        extern "C" void iplSDChannelObj_813E3F74(SDChannelObj* channel) NO_INLINE;
-        extern "C" const wchar_t* iplSDChannelObj_813E4060(SDChannelObj* channel, int index) NO_INLINE;
-        extern "C" void iplSDChannelObj_813E413C(SDChannelObj* channel, const wchar_t* text) NO_INLINE;
-        extern "C" void iplSDChannelObj_813E4410(SDChannelObj* channel, const nw4r::math::VEC3& vec) NO_INLINE;
-        extern "C" void iplSDChannelObj_813E4558(SDChannelObj* channel, int request) NO_INLINE;
-        extern "C" void iplSDChannelObj_813E4704(SDChannelObj* channel) NO_INLINE;
-        extern "C" void iplSDChannelObj_813E481C(SDChannelObj* channel, layout::Object* layout) NO_INLINE;
-        extern "C" void iplSDChannelObj_813E49A8(SDChannelObj* channel) NO_INLINE;
-        extern "C" BOOL iplSDChannelObj_813E4A54(SDChannelObj* channel) NO_INLINE;
+        extern "C" void* iplSDChannelObj_getOrAllocThumbnailData(SDChannelObj* channel) NO_INLINE;
+        extern "C" void iplSDChannelObj_setPane(SDChannelObj* channel, nw4r::lyt::Pane* pane) NO_INLINE;
+        extern "C" void iplSDChannelObj_setLayoutFile(SDChannelObj* channel, nand::LayoutFile* layoutFile) NO_INLINE;
+        extern "C" void iplSDChannelObj_calc(SDChannelObj* channel) NO_INLINE;
+        extern "C" void iplSDChannelObj_drawBase(SDChannelObj* channel) NO_INLINE;
+        extern "C" void iplSDChannelObj_drawPage(SDChannelObj* channel) NO_INLINE;
+        extern "C" void iplSDChannelObj_drawDialog(SDChannelObj* channel) NO_INLINE;
+        extern "C" bool iplSDChannelObj_hasAppMeta(SDChannelObj* channel) NO_INLINE;
+        extern "C" void iplSDChannelObj_startAppear(SDChannelObj* channel, int request) NO_INLINE;
+        extern "C" void iplSDChannelObj_startDisappear(SDChannelObj* channel, int request) NO_INLINE;
+        extern "C" void iplSDChannelObj_setSelected(SDChannelObj* channel, bool request) NO_INLINE;
+        extern "C" void iplSDChannelObj_playPageHide(SDChannelObj* channel) NO_INLINE;
+        extern "C" void iplSDChannelObj_resetPageAnim(SDChannelObj* channel, int request) NO_INLINE;
+        extern "C" void iplSDChannelObj_resetDialogAnim(SDChannelObj* channel, bool request) NO_INLINE;
+        extern "C" void iplSDChannelObj_applyLanguageGroups(const layout::Object* layout) NO_INLINE;
+        extern "C" void iplSDChannelObj_createBaseLayout(SDChannelObj* channel) NO_INLINE;
+        extern "C" f32 iplSDChannelObj_createIconLayout(SDChannelObj* channel) NO_INLINE;
+        extern "C" f32 iplSDChannelObj_createMenuLayout(SDChannelObj* channel) NO_INLINE;
+        extern "C" void iplSDChannelObj_syncLayoutsToPane(SDChannelObj* channel) NO_INLINE;
+        extern "C" void iplSDChannelObj_createPageLayout(SDChannelObj* channel) NO_INLINE;
+        extern "C" void iplSDChannelObj_setPageTranslate(SDChannelObj* channel, const nw4r::math::VEC3& vec) NO_INLINE;
+        extern "C" void iplSDChannelObj_setPageAnim(SDChannelObj* channel, int request) NO_INLINE;
+        extern "C" void iplSDChannelObj_updatePageAnim(SDChannelObj* channel) NO_INLINE;
+        extern "C" void iplSDChannelObj_playPageAnimator(SDChannelObj* channel, int request) NO_INLINE;
+        extern "C" void iplSDChannelObj_createDialogLayout(SDChannelObj* channel) NO_INLINE;
+        extern "C" const wchar_t* iplSDChannelObj_getLocalizedName(SDChannelObj* channel, int index) NO_INLINE;
+        extern "C" void iplSDChannelObj_setBalloonText(SDChannelObj* channel, const wchar_t* text) NO_INLINE;
+        extern "C" void iplSDChannelObj_positionDialog(SDChannelObj* channel, const nw4r::math::VEC3& vec) NO_INLINE;
+        extern "C" void iplSDChannelObj_setDialogAnim(SDChannelObj* channel, int request) NO_INLINE;
+        extern "C" void iplSDChannelObj_updateDialogAnim(SDChannelObj* channel) NO_INLINE;
+        extern "C" void iplSDChannelObj_findNewMessageGroup(SDChannelObj* channel, layout::Object* layout) NO_INLINE;
+        extern "C" void iplSDChannelObj_updateNewMessage(SDChannelObj* channel) NO_INLINE;
+        extern "C" BOOL iplSDChannelObj_checkNewMessage(SDChannelObj* channel) NO_INLINE;
 
         SDChannelObj::SDChannelObj(EGG::Heap* heap, int page, int index)
             : mpHeap(heap), mpDialogHeap(NULL), mpChannelHeap(NULL), mState(0), mPage(page), mIndex(index),
@@ -112,42 +112,42 @@ namespace ipl {
             if (mpDialogLayout != NULL)
                 delete mpDialogLayout;
         }
-        extern "C" void iplSDChannelObj_813E3104(SDChannelObj* channel) {
+        extern "C" void iplSDChannelObj_activateIfIdle(SDChannelObj* channel) {
             if (channel->mState == 0)
                 channel->mState = 2;
         }
 
-        extern "C" void iplSDChannelObj_813E311C(SDChannelObj* channel, EGG::ExpHeap* firstHeap,
+        extern "C" void iplSDChannelObj_setHeaps(SDChannelObj* channel, EGG::ExpHeap* firstHeap,
                                                  EGG::ExpHeap* secondHeap) {
             channel->mpDialogHeap = firstHeap;
             channel->mpChannelHeap = secondHeap;
         }
 
-        extern "C" void* iplSDChannelObj_813E3128(SDChannelObj* channel) {
+        extern "C" void* iplSDChannelObj_getOrAllocThumbnailData(SDChannelObj* channel) {
             if (channel->mpThumbnailData == NULL)
                 channel->mpThumbnailData = new (channel->mpHeap, 32) u8[0x19000];
             return channel->mpThumbnailData;
         }
 
-        extern "C" void iplSDChannelObj_813E3178(SDChannelObj* channel, nw4r::lyt::Pane* pane) {
+        extern "C" void iplSDChannelObj_setPane(SDChannelObj* channel, nw4r::lyt::Pane* pane) {
             channel->mpPane = pane;
         }
 
-        extern "C" void iplSDChannelObj_813E3180(SDChannelObj* channel, nand::LayoutFile* layoutFile) {
+        extern "C" void iplSDChannelObj_setLayoutFile(SDChannelObj* channel, nand::LayoutFile* layoutFile) {
             if (!SDChannelSelect::isChannelReady(channel)) {
                 channel->mpLayoutFile = layoutFile;
                 if (channel->mpPageLayout == NULL)
-                    iplSDChannelObj_813E3BA0(channel);
+                    iplSDChannelObj_createPageLayout(channel);
                 if (channel->mpDialogLayout == NULL)
-                    iplSDChannelObj_813E3F74(channel);
+                    iplSDChannelObj_createDialogLayout(channel);
                 if (channel->mState == 2 || channel->mState == 1 && channel->mpPaneAnimator->isFinished()) {
-                    iplSDChannelObj_813E3858(channel);
+                    iplSDChannelObj_createBaseLayout(channel);
                     channel->mState = 3;
                 }
             }
         }
 
-        extern "C" void iplSDChannelObj_813E322C(SDChannelObj* channel) {
+        extern "C" void iplSDChannelObj_calc(SDChannelObj* channel) {
             switch (channel->mState) {
             case 0:
                 channel->mState = 2;
@@ -157,25 +157,25 @@ namespace ipl {
                     break;
                 channel->mState = 2;
             case 2:
-                iplSDChannelObj_813E3858(channel);
+                iplSDChannelObj_createBaseLayout(channel);
                 channel->mState = 3;
                 break;
             case 3:
-                iplSDChannelObj_813E3B1C(channel);
+                iplSDChannelObj_syncLayoutsToPane(channel);
                 break;
             }
         }
 
-        extern "C" void iplSDChannelObj_813E32C8(SDChannelObj* channel) {
+        extern "C" void iplSDChannelObj_drawBase(SDChannelObj* channel) {
             if (SDChannelSelect::isChannelReady(channel))
                 channel->mpBaseLayout->draw();
         }
 
-        extern "C" void iplSDChannelObj_813E3304(SDChannelObj* channel) {
+        extern "C" void iplSDChannelObj_drawPage(SDChannelObj* channel) {
             channel->mpPageLayout->draw();
         }
 
-        extern "C" void iplSDChannelObj_813E330C(SDChannelObj* channel) {
+        extern "C" void iplSDChannelObj_drawDialog(SDChannelObj* channel) {
             if (channel->mpDialogLayout != NULL)
                 channel->mpDialogLayout->draw();
         }
@@ -184,14 +184,14 @@ namespace ipl {
             return (nw4r::math::VEC3&)mpBaseLayout->GetRootPane()->GetTranslate();
         }
 
-        extern "C" bool iplSDChannelObj_813E3330(SDChannelObj* channel) {
+        extern "C" bool iplSDChannelObj_hasAppMeta(SDChannelObj* channel) {
             if (channel->mStateFlags == 0 || channel->mStateFlags == 3)
                 return true;
             else
                 return false;
         }
 
-        extern "C" void iplSDChannelObj_813E3354(SDChannelObj* channel, int request) {
+        extern "C" void iplSDChannelObj_startAppear(SDChannelObj* channel, int request) {
             if (request & 0x10000U) {
                 channel->mAnimationState = 0;
             } else if (request & 0x20000U) {
@@ -201,14 +201,14 @@ namespace ipl {
             }
 
             if (!(request & 1)) {
-                iplSDChannelObj_813E3C9C(channel, 1);
+                iplSDChannelObj_setPageAnim(channel, 1);
             }
             if (!(request & 2)) {
-                iplSDChannelObj_813E4558(channel, 1);
+                iplSDChannelObj_setDialogAnim(channel, 1);
             }
         }
 
-        extern "C" void iplSDChannelObj_813E33EC(SDChannelObj* channel, int request) {
+        extern "C" void iplSDChannelObj_startDisappear(SDChannelObj* channel, int request) {
             if (request & 0x10000U) {
                 channel->mAnimationState = 0;
             } else if (request & 0x20000U) {
@@ -218,44 +218,44 @@ namespace ipl {
             }
 
             if (!(request & 1)) {
-                iplSDChannelObj_813E3C9C(channel, 3);
+                iplSDChannelObj_setPageAnim(channel, 3);
             }
             if (!(request & 2)) {
-                iplSDChannelObj_813E4558(channel, 4);
+                iplSDChannelObj_setDialogAnim(channel, 4);
             }
         }
 
-        extern "C" void iplSDChannelObj_813E3480(SDChannelObj* channel, bool request) {
+        extern "C" void iplSDChannelObj_setSelected(SDChannelObj* channel, bool request) {
             if (request) {
-                iplSDChannelObj_813E3C9C(channel, 1);
+                iplSDChannelObj_setPageAnim(channel, 1);
                 channel->mAnimationState = 1;
             } else {
-                iplSDChannelObj_813E3C9C(channel, 0);
+                iplSDChannelObj_setPageAnim(channel, 0);
                 channel->mAnimationState = 0;
             }
 
-            iplSDChannelObj_813E4558(channel, 0);
+            iplSDChannelObj_setDialogAnim(channel, 0);
         }
 
-        extern "C" void iplSDChannelObj_813E34E0(SDChannelObj* channel) {
-            iplSDChannelObj_813E3C9C(channel, 4);
+        extern "C" void iplSDChannelObj_playPageHide(SDChannelObj* channel) {
+            iplSDChannelObj_setPageAnim(channel, 4);
         }
 
-        extern "C" void iplSDChannelObj_813E34E8(SDChannelObj* channel, int request) {
-            iplSDChannelObj_813E3C9C(channel, 0);
+        extern "C" void iplSDChannelObj_resetPageAnim(SDChannelObj* channel, int request) {
+            iplSDChannelObj_setPageAnim(channel, 0);
             if (request) {
                 channel->mAnimationState = 0;
             }
         }
 
-        extern "C" void iplSDChannelObj_813E3534(SDChannelObj* channel, bool request) {
-            iplSDChannelObj_813E4558(channel, 0);
+        extern "C" void iplSDChannelObj_resetDialogAnim(SDChannelObj* channel, bool request) {
+            iplSDChannelObj_setDialogAnim(channel, 0);
             if (request) {
                 channel->mAnimationState = 0;
             }
         }
 
-        extern "C" void iplSDChannelObj_813E3580(const layout::Object* layout) {
+        extern "C" void iplSDChannelObj_applyLanguageGroups(const layout::Object* layout) {
             int lang = System::getLanguage();
             const char* langGroup = scLangGroups[lang];
             char availableLanguages[10][4] = {};
@@ -319,18 +319,18 @@ namespace ipl {
             }
         }
 
-        extern "C" void iplSDChannelObj_813E3858(SDChannelObj* channel) {
+        extern "C" void iplSDChannelObj_createBaseLayout(SDChannelObj* channel) {
             bool adjust = false;
             if (channel->mpDialogLayout == NULL)
-                iplSDChannelObj_813E3F74(channel);
+                iplSDChannelObj_createDialogLayout(channel);
             f32 frame;
-            if (iplSDChannelObj_813E3330(channel))
-                frame = iplSDChannelObj_813E3920(channel);
+            if (iplSDChannelObj_hasAppMeta(channel))
+                frame = iplSDChannelObj_createIconLayout(channel);
             else {
-                frame = iplSDChannelObj_813E3A84(channel);
+                frame = iplSDChannelObj_createMenuLayout(channel);
                 adjust = true;
             }
-            iplSDChannelObj_813E3B1C(channel);
+            iplSDChannelObj_syncLayoutsToPane(channel);
             if (channel->mpBaseAnimator != NULL)
                 channel->mpBaseAnimator->play();
             channel->mpBaseLayout->finishBinding();
@@ -340,11 +340,11 @@ namespace ipl {
                 channel->mpBaseLayout->adjustHeap();
         }
 
-        extern "C" f32 iplSDChannelObj_813E3920(SDChannelObj* channel) {
+        extern "C" f32 iplSDChannelObj_createIconLayout(SDChannelObj* channel) {
             f32 frame = 0.0f;
             channel->mpBaseLayout =
                 layout::Object::create(channel->mpHeap, 0x8000, channel->mpThumbnailData, "arc", "icon.brlyt");
-            iplSDChannelObj_813E3580(channel->mpBaseLayout);
+            iplSDChannelObj_applyLanguageGroups(channel->mpBaseLayout);
             if (channel->mpBaseLayout->searchFile("icon.brlan"))
                 channel->mpBaseAnimator = channel->mpBaseLayout->bind("icon.brlan");
             else if (channel->mpBaseLayout->searchFile("icon_Whole.brlan"))
@@ -357,30 +357,30 @@ namespace ipl {
                 frame = minimum + (System::getRndm()->get_u16() % (u16)(maximum - minimum));
             }
             if (channel->mStateFlags == 0) {
-                iplSDChannelObj_813E481C(channel, channel->mpBaseLayout);
+                iplSDChannelObj_findNewMessageGroup(channel, channel->mpBaseLayout);
                 channel->mNewMessageState = 1;
             }
             return frame;
         }
 
-        extern "C" f32 iplSDChannelObj_813E3A84(SDChannelObj* channel) {
+        extern "C" f32 iplSDChannelObj_createMenuLayout(SDChannelObj* channel) {
             channel->mpBaseLayout =
                 layout::Object::create(channel->mpHeap, 0x8000, channel->mpLayoutFile, "arc", "mn_SdcardMenu_d.brlyt");
             channel->mpBaseAnimator = channel->mpBaseLayout->bind("mn_SdcardMenu_d.brlan");
             return System::getRndm()->get_u16() % 2000;
         }
 
-        extern "C" void iplSDChannelObj_813E3B1C(SDChannelObj* channel) {
-            iplSDChannelObj_813E49A8(channel);
+        extern "C" void iplSDChannelObj_syncLayoutsToPane(SDChannelObj* channel) {
+            iplSDChannelObj_updateNewMessage(channel);
             nw4r::math::VEC3 position(0, 0, 0);
             MTXMultVec(channel->mpPane->GetGlobalMtx(), position, position);
             channel->mpBaseLayout->GetRootPane()->SetTranslate(position);
             channel->mpBaseLayout->calc();
-            iplSDChannelObj_813E3C58(channel, position);
-            iplSDChannelObj_813E4410(channel, position);
+            iplSDChannelObj_setPageTranslate(channel, position);
+            iplSDChannelObj_positionDialog(channel, position);
         }
 
-        extern "C" void iplSDChannelObj_813E3BA0(SDChannelObj* channel) {
+        extern "C" void iplSDChannelObj_createPageLayout(SDChannelObj* channel) {
             channel->mpPageLayout = new (channel->mpDialogHeap, 4)
                 layout::Object(channel->mpDialogHeap, channel->mpLayoutFile, "arc", "my_IplTop_d.brlyt");
 
@@ -388,17 +388,17 @@ namespace ipl {
                 channel->mpPageAnimators[i] = channel->mpPageLayout->bind(scCursorAnims[i], scCursur, false);
             }
 
-            iplSDChannelObj_813E3C9C(channel, 0);
+            iplSDChannelObj_setPageAnim(channel, 0);
             channel->mpPageLayout->finishBinding();
         }
 
-        extern "C" void iplSDChannelObj_813E3C58(SDChannelObj* channel, const nw4r::math::VEC3& vec) {
+        extern "C" void iplSDChannelObj_setPageTranslate(SDChannelObj* channel, const nw4r::math::VEC3& vec) {
             channel->mpPageLayout->GetRootPane()->SetTranslate(vec);
-            iplSDChannelObj_813E3E38(channel);
+            iplSDChannelObj_updatePageAnim(channel);
             channel->mpPageLayout->calc();
         }
 
-        extern "C" void iplSDChannelObj_813E3C9C(SDChannelObj* channel, int request) {
+        extern "C" void iplSDChannelObj_setPageAnim(SDChannelObj* channel, int request) {
             if (request == 0) {
                 channel->mPageAnimation = 0;
                 channel->mPageAnimationFrame = 0;
@@ -413,14 +413,14 @@ namespace ipl {
                 channel->mPageAnimation = 4;
                 channel->mPageAnimationFrame = 0;
                 channel->mpPageLayout->GetRootPane()->SetVisible(true);
-                iplSDChannelObj_813E3F28(channel, 2);
+                iplSDChannelObj_playPageAnimator(channel, 2);
             } else {
                 switch (channel->mPageAnimation) {
                 case 0: {
                     if (request == 1) {
                         channel->mPageAnimation = 1;
                         channel->mpPageLayout->GetRootPane()->SetVisible(true);
-                        iplSDChannelObj_813E3F28(channel, 1);
+                        iplSDChannelObj_playPageAnimator(channel, 1);
                     }
                     break;
                 }
@@ -437,7 +437,7 @@ namespace ipl {
                 case 2: {
                     if (request == 3) {
                         channel->mPageAnimation = 3;
-                        iplSDChannelObj_813E3F28(channel, 0);
+                        iplSDChannelObj_playPageAnimator(channel, 0);
                     }
                     break;
                 }
@@ -453,7 +453,7 @@ namespace ipl {
             }
         }
 
-        extern "C" void iplSDChannelObj_813E3E38(SDChannelObj* channel) {
+        extern "C" void iplSDChannelObj_updatePageAnim(SDChannelObj* channel) {
             switch (channel->mPageAnimation) {
             case 1: {
                 if (!channel->mpPageAnimators[1]->isPlaying()) {
@@ -472,7 +472,7 @@ namespace ipl {
                         break;
                     }
                     if (prev == 3) {
-                        iplSDChannelObj_813E3C9C(channel, 3);
+                        iplSDChannelObj_setPageAnim(channel, 3);
                         channel->mPageAnimationFrame = 0;
                     }
                 }
@@ -481,46 +481,46 @@ namespace ipl {
             case 3: {
                 if (!channel->mpPageAnimators[0]->isPlaying()) {
                     int prev = channel->mPageAnimationFrame;
-                    iplSDChannelObj_813E3C9C(channel, 0);
+                    iplSDChannelObj_setPageAnim(channel, 0);
                     if (prev == 1) {
-                        iplSDChannelObj_813E3C9C(channel, 1);
+                        iplSDChannelObj_setPageAnim(channel, 1);
                     }
                 }
                 break;
             }
             case 4: {
                 if (!channel->mpPageAnimators[2]->isPlaying()) {
-                    iplSDChannelObj_813E3C9C(channel, 0);
+                    iplSDChannelObj_setPageAnim(channel, 0);
                 }
                 break;
             }
             }
         }
 
-        extern "C" void iplSDChannelObj_813E3F28(SDChannelObj* channel, int request) {
+        extern "C" void iplSDChannelObj_playPageAnimator(SDChannelObj* channel, int request) {
             channel->mpPageAnimators[request]->setAnmType(ANIM_TYPE_FORWARD);
             channel->mpPageAnimators[request]->play();
         }
 
-        extern "C" void iplSDChannelObj_813E3F74(SDChannelObj* channel) {
-            if (!iplSDChannelObj_813E3330(channel)) {
+        extern "C" void iplSDChannelObj_createDialogLayout(SDChannelObj* channel) {
+            if (!iplSDChannelObj_hasAppMeta(channel)) {
                 channel->mpDialogLayout = NULL;
                 return;
             }
             channel->mpDialogLayout = new (channel->mpChannelHeap, 4)
                 layout::Object(channel->mpChannelHeap, channel->mpLayoutFile, "arc", "my_IplTopBalloon_a.brlyt");
             if (channel->mStateFlags == 0)
-                iplSDChannelObj_813E413C(channel, iplSDChannelObj_813E4060(channel, 0));
+                iplSDChannelObj_setBalloonText(channel, iplSDChannelObj_getLocalizedName(channel, 0));
             else if (channel->mStateFlags == 3)
-                iplSDChannelObj_813E413C(channel, scUnknownName);
+                iplSDChannelObj_setBalloonText(channel, scUnknownName);
             else
-                iplSDChannelObj_813E413C(channel, L"");
+                iplSDChannelObj_setBalloonText(channel, L"");
             channel->mpDialogAnimator = channel->mpDialogLayout->bind("my_IplTopBalloon_a_BalloonInOut.brlan");
-            iplSDChannelObj_813E4558(channel, 0);
+            iplSDChannelObj_setDialogAnim(channel, 0);
             channel->mpDialogLayout->finishBinding();
         }
 
-        extern "C" const wchar_t* iplSDChannelObj_813E4060(SDChannelObj* channel, int index) {
+        extern "C" const wchar_t* iplSDChannelObj_getLocalizedName(SDChannelObj* channel, int index) {
             if (channel->mAppMeta.metaHdr.names[System::getLanguage()][index][0] != 0)
                 return channel->mAppMeta.metaHdr.names[System::getLanguage()][index];
             const u32* languages = scLangLookup[System::getRegion()];
@@ -533,7 +533,7 @@ namespace ipl {
             return channel->mAppMeta.metaHdr.names[languages[0]][index];
         }
 
-        extern "C" void iplSDChannelObj_813E413C(SDChannelObj* channel, const wchar_t* text) {
+        extern "C" void iplSDChannelObj_setBalloonText(SDChannelObj* channel, const wchar_t* text) {
             nw4r::lyt::TextBox* textPane =
                 nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(channel->mpDialogLayout->FindPaneByName(scBalloon));
 
@@ -585,7 +585,7 @@ namespace ipl {
             channel->mpDialogLayout->FindPaneByName(scBase)->SetSize(newSize);
         }
 
-        extern "C" void iplSDChannelObj_813E4410(SDChannelObj* channel, const nw4r::math::VEC3& vec) {
+        extern "C" void iplSDChannelObj_positionDialog(SDChannelObj* channel, const nw4r::math::VEC3& vec) {
             if (channel->mpDialogLayout != NULL) {
                 nw4r::lyt::Size size;
 
@@ -611,12 +611,12 @@ namespace ipl {
                 const nw4r::math::VEC3 pos(vec.x + horizontalOffset, vec.y + verticalOffset, 0.0f);
                 channel->mpDialogLayout->GetRootPane()->SetTranslate(pos);
 
-                iplSDChannelObj_813E4704(channel);
+                iplSDChannelObj_updateDialogAnim(channel);
                 channel->mpDialogLayout->calc();
             }
         }
 
-        extern "C" void iplSDChannelObj_813E4558(SDChannelObj* channel, int request) {
+        extern "C" void iplSDChannelObj_setDialogAnim(SDChannelObj* channel, int request) {
             if (channel->mpDialogLayout != NULL) {
                 if (request == 0) {
                     channel->mDialogState = 0;
@@ -676,11 +676,11 @@ namespace ipl {
             }
         }
 
-        extern "C" void iplSDChannelObj_813E4704(SDChannelObj* channel) {
+        extern "C" void iplSDChannelObj_updateDialogAnim(SDChannelObj* channel) {
             switch (channel->mDialogState) {
             case 1: {
                 if ((reinterpret_cast<u32&>(channel->mDialogTimer) += 1) >= 20.0f) {
-                    iplSDChannelObj_813E4558(channel, 2);
+                    iplSDChannelObj_setDialogAnim(channel, 2);
                     break;
                 }
             }
@@ -690,9 +690,9 @@ namespace ipl {
             case 2: {
                 if (!channel->mpDialogLayout->isPlaying(0)) {
                     int prev = channel->mDialogFrame;
-                    iplSDChannelObj_813E4558(channel, 3);
+                    iplSDChannelObj_setDialogAnim(channel, 3);
                     if (prev == 4) {
-                        iplSDChannelObj_813E4558(channel, 4);
+                        iplSDChannelObj_setDialogAnim(channel, 4);
                         channel->mDialogFrame = 0;
                     }
                 }
@@ -701,9 +701,9 @@ namespace ipl {
             case 4: {
                 if (!channel->mpDialogLayout->isPlaying(0)) {
                     int prev = channel->mDialogFrame;
-                    iplSDChannelObj_813E4558(channel, 0);
+                    iplSDChannelObj_setDialogAnim(channel, 0);
                     if (prev == 1) {
-                        iplSDChannelObj_813E4558(channel, 1);
+                        iplSDChannelObj_setDialogAnim(channel, 1);
                     }
                 }
                 break;
@@ -711,7 +711,7 @@ namespace ipl {
             }
         }
 
-        extern "C" void iplSDChannelObj_813E481C(SDChannelObj* channel, layout::Object* layout) {
+        extern "C" void iplSDChannelObj_findNewMessageGroup(SDChannelObj* channel, layout::Object* layout) {
             char groupName[20];
             char** lookup;
             nw4r::lyt::Group* group;
@@ -752,11 +752,11 @@ namespace ipl {
             }
         }
 
-        extern "C" void iplSDChannelObj_813E49A8(SDChannelObj* channel) {
+        extern "C" void iplSDChannelObj_updateNewMessage(SDChannelObj* channel) {
             if (System::getNwc24Manager() != NULL) {
                 switch (channel->mNewMessageState) {
                 case 1: {
-                    if (iplSDChannelObj_813E4A54(channel)) {
+                    if (iplSDChannelObj_checkNewMessage(channel)) {
                         channel->mNewMessageState = 2;
                         channel->mNewMessageFrame = 0;
                     }
@@ -772,7 +772,7 @@ namespace ipl {
             }
         }
 
-        extern "C" BOOL iplSDChannelObj_813E4A54(SDChannelObj* channel) {
+        extern "C" BOOL iplSDChannelObj_checkNewMessage(SDChannelObj* channel) {
             if (System::getNwc24Manager() == NULL || !System::getNwc24Manager()->getNewTitleTbl(NULL)) {
                 return FALSE;
             }

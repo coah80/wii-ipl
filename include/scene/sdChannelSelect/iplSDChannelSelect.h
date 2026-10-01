@@ -81,22 +81,22 @@ namespace ipl {
             void* mpThumbnailData;
             NandSDWorker::SDAppMetaEntry mAppMeta;
         };
-        extern "C" void iplSDChannelObj_813E3104(SDChannelObj* channel);
-        extern "C" void iplSDChannelObj_813E311C(SDChannelObj* channel, EGG::ExpHeap* firstHeap,
+        extern "C" void iplSDChannelObj_activateIfIdle(SDChannelObj* channel);
+        extern "C" void iplSDChannelObj_setHeaps(SDChannelObj* channel, EGG::ExpHeap* firstHeap,
                                                   EGG::ExpHeap* secondHeap);
-        extern "C" void iplSDChannelObj_813E322C(SDChannelObj* channel);
-        extern "C" void iplSDChannelObj_813E32C8(SDChannelObj* channel);
-        extern "C" void iplSDChannelObj_813E34E0(SDChannelObj* channel);
-        extern "C" void iplSDChannelObj_813E3178(SDChannelObj* channel, nw4r::lyt::Pane* pane);
-        extern "C" void iplSDChannelObj_813E3180(SDChannelObj* channel, nand::LayoutFile* layoutFile);
-        extern "C" void iplSDChannelObj_813E3304(SDChannelObj* channel);
-        extern "C" void iplSDChannelObj_813E330C(SDChannelObj* channel);
-        extern "C" void iplSDChannelObj_813E3354(SDChannelObj* channel, int state);
-        extern "C" void iplSDChannelObj_813E33EC(SDChannelObj* channel, int state);
-        extern "C" void iplSDChannelObj_813E3480(SDChannelObj* channel, bool selected);
-        extern "C" void iplSDChannelObj_813E34E8(SDChannelObj* channel, int enabled);
-        extern "C" void* iplSDChannelObj_813E3128(SDChannelObj* channel);
-        extern "C" bool iplSDChannelObj_813E3330(SDChannelObj* channel);
+        extern "C" void iplSDChannelObj_calc(SDChannelObj* channel);
+        extern "C" void iplSDChannelObj_drawBase(SDChannelObj* channel);
+        extern "C" void iplSDChannelObj_playPageHide(SDChannelObj* channel);
+        extern "C" void iplSDChannelObj_setPane(SDChannelObj* channel, nw4r::lyt::Pane* pane);
+        extern "C" void iplSDChannelObj_setLayoutFile(SDChannelObj* channel, nand::LayoutFile* layoutFile);
+        extern "C" void iplSDChannelObj_drawPage(SDChannelObj* channel);
+        extern "C" void iplSDChannelObj_drawDialog(SDChannelObj* channel);
+        extern "C" void iplSDChannelObj_startAppear(SDChannelObj* channel, int state);
+        extern "C" void iplSDChannelObj_startDisappear(SDChannelObj* channel, int state);
+        extern "C" void iplSDChannelObj_setSelected(SDChannelObj* channel, bool selected);
+        extern "C" void iplSDChannelObj_resetPageAnim(SDChannelObj* channel, int enabled);
+        extern "C" void* iplSDChannelObj_getOrAllocThumbnailData(SDChannelObj* channel);
+        extern "C" bool iplSDChannelObj_hasAppMeta(SDChannelObj* channel);
 
         union SDChannelSelectCommandArguments {
             u32 values[3];
