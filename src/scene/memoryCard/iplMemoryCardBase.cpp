@@ -1,4 +1,5 @@
 #define IPL_MEMORYCARD_BASE_IMPLEMENTATION
+#define IPL_MEMORYCARD_BASE_CPP
 #include "scene/memoryCard/iplMemoryCardBase.h"
 #include "scene/settingSelect/iplSettingSelect.h"
 #include "scene/settingSelect/iplSettingButton.h"
@@ -130,7 +131,7 @@ void MemoryBase::set_textbox(const char* paneName, u32 message) {
 
 void MemoryBase::set_textbox(const char* paneName, u32 message, int animationIndex, int frame) {
     Anm* animation = get_animation(animationIndex);
-    if (animation->mAnim->getCurrentFrame() >= frame) {
+    if (animation->mAnim->getCurrentFrame() >= (f32)frame) {
         set_textbox(paneName, message);
     }
 }
@@ -141,7 +142,7 @@ void MemoryBase::set_textbox(const char* paneName, const wchar_t* text, f32 widt
     while (length != 0) {
         textBox->SetString(text, 0, length);
         textBox->CalculateMtx(*mpLayout->getDrawInfo());
-        nw4r::ut::Rect bounds = textBox->GetTextDrawRect(*mpLayout->getDrawInfo());
+        const nw4r::ut::Rect& bounds = textBox->GetTextDrawRect(*mpLayout->getDrawInfo());
         if (bounds.right - bounds.left < width &&
             -1.0f * (bounds.bottom - bounds.top) < height) {
             break;

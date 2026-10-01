@@ -37,7 +37,7 @@ namespace nw4r {
         }  // namespace detail
 
         template <typename TDerived, typename TBase>
-#ifdef IPL_BOARD_OBJECT_EXTERNAL_DYNAMIC_CAST
+#if defined(IPL_BOARD_OBJECT_EXTERNAL_DYNAMIC_CAST) || defined(IPL_MEMORYCARD_BASE_CPP)
         TDerived DynamicCast(TBase* pPtr);
 #else
         inline TDerived DynamicCast(TBase* pPtr) {
