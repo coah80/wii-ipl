@@ -2,7 +2,7 @@
 """Compact function diff with context: python ctxdiff.py <unit> <symbol> [--full]"""
 import sys
 
-sys.path.insert(0, "/home/cole/projects/tests")
+sys.path.insert(0, "/home/ubuntu/projects/tests")
 from odiff import dis, sym
 import os
 import itertools

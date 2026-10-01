@@ -4,12 +4,30 @@
 #include <revolution/nwc24.h>
 
 static char MultiPartDivider[64];
-BOOL LoopBackEnable = TRUE;
+BOOL LoopBackEnable[2] = {TRUE, FALSE};
 static NWC24File* m_pFile;
 
 static NWC24Err NWC24CommitMsgInternal(NWC24MsgObjPrivate* msg, NWC24MBoxType type);
 static NWC24Err CheckMsgObject(const NWC24MsgObjPrivate* msg);
+static NWC24Err WriteSubjectField(NWC24MsgObjPrivate* msg);
 static NWC24Err CheckMsgBoxSpace(const NWC24MsgObjPrivate* msg, NWC24MBoxType type);
+static inline NWC24Err WriteSubjectField(NWC24MsgObjPrivate* msg) {
+    char* buffer = NWC24WorkP->stringWork;
+    s32 length;
+    NWC24Err err;
+    if (msg->subject.size == 0)
+        return NWC24_ERR_NULL;
+    Mail_memset(buffer, 0, 1024);
+    Mail_strcpy(buffer, "Subject: ");
+    Mail_strncat(buffer, msg->subject.ptr, 1021);
+    Mail_strncat(buffer, "\r\n", 1024);
+    length = STD_strnlen(buffer, 1024);
+    err = NWC24FWrite(buffer, length, m_pFile);
+    if (err == NWC24_OK)
+        msg->length += length;
+    return err;
+}
+
 static NWC24Err SynthesizeAddrStr(const NWC24Data* address, u32 type, char* dest, s32 capacity, u32* length);
 static NWC24Err WriteSMTP_MAILFROM(NWC24MsgObjPrivate* msg);
 static NWC24Err WriteSMTP_RCPTTO(NWC24MsgObjPrivate* msg);
@@ -53,22 +71,6 @@ static inline NWC24Err WriteString(NWC24MsgObjPrivate* msg, char* buffer) {
         }                                                                                                                                            \
     } while (0)
 
-static inline NWC24Err WriteSubjectField(NWC24MsgObjPrivate* msg) {
-    char* buffer = NWC24WorkP->stringWork;
-    s32 length;
-    NWC24Err err;
-    if (msg->subject.size == 0)
-        return NWC24_ERR_NULL;
-    Mail_memset(buffer, 0, 1024);
-    Mail_strcpy(buffer, "Subject: ");
-    Mail_strncat(buffer, msg->subject.ptr, 1021);
-    Mail_strncat(buffer, "\r\n", 1024);
-    length = STD_strnlen(buffer, 1024);
-    err = NWC24FWrite(buffer, length, m_pFile);
-    if (err == NWC24_OK)
-        msg->length += length;
-    return err;
-}
 
 static inline NWC24Err WriteSMTPData(NWC24MsgObjPrivate* msg, const char* text) {
     char* buffer = NWC24WorkP->stringWork;
@@ -177,7 +179,7 @@ NWC24Err NWC24CommitMsg(NWC24MsgObj* object) {
         return NWC24_ERR_LIB_NOT_OPENED;
     if (!(msg->type & 0x100) || (msg->type & 0x200))
         return NWC24_ERR_PROTECTED;
-    if (LoopBackEnable && (msg->type & 1)) {
+    if (LoopBackEnable[0] && (msg->type & 1)) {
         NWC24GetMyUserId(&myId);
         if (msg->numTo == 1 && msg->toIds[0] == myId)
             loopback = TRUE;
@@ -327,7 +329,7 @@ static NWC24Err NWC24CommitMsgInternal(NWC24MsgObjPrivate* msg, NWC24MBoxType ty
             buffer = NWC24WorkP->stringWork;
             Mail_memset(buffer, 0, 1024);
             Mail_sprintf(buffer, "\r\n--%s", MultiPartDivider);
-            Mail_strcat(buffer, "\r\n");
+            Mail_strcat(buffer, "\r\n\0");
             CHECK_WRITE(WriteString(msg, buffer));
         }
         CHECK_WRITE(WriteContentTypeField(msg));
@@ -347,7 +349,7 @@ static NWC24Err NWC24CommitMsgInternal(NWC24MsgObjPrivate* msg, NWC24MBoxType ty
             buffer = NWC24WorkP->stringWork;
             Mail_memset(buffer, 0, 1024);
             Mail_sprintf(buffer, "\r\n--%s", MultiPartDivider);
-            Mail_strcat(buffer, "\r\n");
+            Mail_strcat(buffer, "\r\n\0");
             CHECK_WRITE(WriteString(msg, buffer));
             CHECK_WRITE(WriteMIMEAttachHeader(msg, index));
             attached[index].ptr = (const void*)msg->length;
@@ -460,6 +462,7 @@ static NWC24Err CheckMsgBoxSpace(const NWC24MsgObjPrivate* msg, NWC24MBoxType ty
         return err;
     return NWC24_OK;
 }
+
 
 static NWC24Err SynthesizeAddrStr(const NWC24Data* address, u32 type, char* dest, s32 capacity, u32* length) {
     char id[32];
