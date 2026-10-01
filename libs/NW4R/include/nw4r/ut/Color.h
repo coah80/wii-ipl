@@ -31,7 +31,11 @@ namespace nw4r {
 
             // Left out destructor
 
+#ifndef IPL_SDMEMORY_CPP
             ~Color() {}
+#else
+            Color& operator=(const Color&);
+#endif
 
             // Operators
 

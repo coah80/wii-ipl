@@ -109,7 +109,11 @@ namespace nw4r {
             void SetSize(const Size& size) { mSize = size; }
 
             bool IsVisible() { return detail::TestBit(mFlag, BIT_VISIBLE); };
+#ifdef IPL_SDMEMORY_CPP
+            void SetVisible(bool visible);
+#else
             void SetVisible(bool visible) { detail::SetBit(&mFlag, BIT_VISIBLE, visible); };
+#endif
 
             bool IsInfluencedAlpha() { return detail::TestBit(mFlag, BIT_INFLUENCED_ALPHA); };
             void SetInfluencedAlpha(bool visible) { detail::SetBit(&mFlag, BIT_INFLUENCED_ALPHA, visible); };

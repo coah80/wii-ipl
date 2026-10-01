@@ -47,12 +47,20 @@ namespace ipl {
         class scroller {
         public:
             scroller() : mScroller(), mBScroller() {}
+#ifdef IPL_SDMEMORY_CPP
+            ~scroller();
+#endif
 
             void init() {
                 mScroller.init();
                 mBScroller.init();
             }
 
+#ifdef IPL_SDMEMORY_CPP
+            BOOL calc(bool canScroll);
+
+            BOOL is_busy() const;
+#else
             BOOL calc(bool canScroll) __attribute__((never_inline)) /*for now*/ {
                 BOOL result = FALSE;
 
@@ -83,6 +91,7 @@ namespace ipl {
                 // Scroller is not busy.
                 return result;
             }
+#endif
 
             const utility::BScroller& getBInst() { return mBScroller; }
 #ifdef IPL_SDMEMORY_SCROLLER_BINST_RESET

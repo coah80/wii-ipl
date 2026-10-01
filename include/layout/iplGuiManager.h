@@ -15,7 +15,7 @@ namespace ipl {
         class PaneComponent : public ::gui::PaneComponent {};
         class PaneManager : public ::gui::PaneManager {
             public:
-#ifdef IPL_GCW_PANEMANAGER_CTOR_OUT_OF_LINE
+#if defined(IPL_GCW_PANEMANAGER_CTOR_OUT_OF_LINE) || defined(IPL_SDMEMORY_CPP)
                 PaneManager(::gui::EventHandler* event, const nw4r::lyt::DrawInfo* drawInfo, EGG::Heap* heap, EGG::Allocator* allocator, bool bDisableCon = false) NO_INLINE;
 #else
                 PaneManager(::gui::EventHandler* event, const nw4r::lyt::DrawInfo* drawInfo, EGG::Heap* heap, EGG::Allocator* allocator, bool bDisableCon = false) :

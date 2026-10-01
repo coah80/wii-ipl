@@ -31,6 +31,8 @@ namespace ipl {
             virtual ~FaderSceneBase()
 #ifdef IPL_ADDRESS_CPP
                 ;
+#elif defined(IPL_SD_CHANNEL_TITLE_CPP)
+                = 0;
 #else
             {
             }

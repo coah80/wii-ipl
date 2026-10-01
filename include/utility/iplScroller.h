@@ -48,6 +48,9 @@ namespace ipl {
         class Scroller {
         public:
             Scroller();
+#ifdef IPL_SDMEMORY_CPP
+            ~Scroller();
+#endif
 
 #ifdef IPL_SDMEMORY_SCROLLER_INIT_OUT_OF_LINE
             void init();

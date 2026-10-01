@@ -17,6 +17,9 @@ namespace ipl {
             struct TitleRange {
                 s32 mByteSize;
                 u32 mCount;
+#ifdef IPL_SDMEMORY_CPP
+                TitleRange& operator=(const TitleRange&);
+#endif
             };
 
             SDMemory();

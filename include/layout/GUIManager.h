@@ -98,7 +98,11 @@ namespace gui {
         virtual void setPointed(int point, bool bEnable) { mbPointed[point] = bEnable; }  // 0x2C (0x0B)
 
         virtual void onPoint(int point) { mFlightDuration[point] = 0; }   // 0x30 (0x0C)
+#ifdef IPL_SDMEMORY_CPP
+        virtual void offPoint(int point);                                                   // 0x34 (0x0D)
+#else
         virtual void offPoint(int point) { mFlightDuration[point] = 0; }  // 0x34 (0x0D)
+#endif
 
         virtual void onDrag(f32 x, f32 y) {}                                        // 0x38 (0x0E)
         virtual void onMove(int point, f32 x, f32 y) { mFlightDuration[point]++; }  // 0x3C (0x0F)
@@ -218,10 +222,14 @@ namespace gui {
 
     class PaneManager : public Manager {
     public:
+#ifdef IPL_SDMEMORY_CPP
+        PaneManager(EventHandler* event, MEMAllocator* allocator, const nw4r::lyt::DrawInfo* drawInfo);
+#else
         PaneManager(EventHandler* event, MEMAllocator* allocator, const nw4r::lyt::DrawInfo* drawInfo)
             : Manager(event, allocator), mpDrawInfo(drawInfo) {
             nw4r::ut::List_Init(&mPaneComponents, offsetof(PaneToComponent, mLink));
         }
+#endif
 
         virtual ~PaneManager();  // 0x1C (0x07)
 

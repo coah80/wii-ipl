@@ -515,25 +515,25 @@ namespace ipl {
                 case 12:
                     onDialogState12();
                     break;
-                case 13:
+                case 19:
                     onDialogState13();
                     break;
-                case 14:
+                case 13:
                     onDialogState14();
                     break;
-                case 15:
+                case 14:
                     onDialogState15();
                     break;
-                case 16:
+                case 15:
                     onDialogState16();
                     break;
-                case 17:
+                case 16:
                     onDialogState17();
                     break;
-                case 18:
+                case 17:
                     onDialogState18();
                     break;
-                case 19:
+                case 18:
                     onDialogState19();
                     break;
                 case 20:
@@ -1345,17 +1345,17 @@ namespace ipl {
                     GXColor gxActive;
                     writeFourFlagBytes(&gxActive.r, 0x34, 0xBE, 0xED, 0xFF);
                     ++nandTitleIndex;
-                    nw4r::ut::Color active0(gxActive.r, gxActive.g, gxActive.b, gxActive.a);
-                    nw4r::ut::Color active1(gxActive.r, gxActive.g, gxActive.b, gxActive.a);
-                    nw4r::ut::Color active2(gxActive.r, gxActive.g, gxActive.b, gxActive.a);
-                    setTitleRowColors(titleText, active1, active2);
+                    GXColor active0 = gxActive;
+                    GXColor active1 = gxActive;
+                    GXColor active2 = gxActive;
+                    setTitleRowColors(titleText, *(nw4r::ut::Color*)&active1, *(nw4r::ut::Color*)&active2);
                 } else {
                     GXColor gxInactive;
                     writeFourFlagBytes(&gxInactive.r, 0x64, 0x64, 0x64, 0xFF);
-                    nw4r::ut::Color inactive0(gxInactive.r, gxInactive.g, gxInactive.b, gxInactive.a);
-                    nw4r::ut::Color inactive1(gxInactive.r, gxInactive.g, gxInactive.b, gxInactive.a);
-                    nw4r::ut::Color inactive2(gxInactive.r, gxInactive.g, gxInactive.b, gxInactive.a);
-                    setTitleRowColors(titleText, inactive1, inactive2);
+                    GXColor inactive0 = gxInactive;
+                    GXColor inactive1 = gxInactive;
+                    GXColor inactive2 = gxInactive;
+                    setTitleRowColors(titleText, *(nw4r::ut::Color*)&inactive1, *(nw4r::ut::Color*)&inactive2);
                 }
 
                 nw4r::ut::Rect textRect = mpDialogLayout->getTextDrawRect("T_Letter");
