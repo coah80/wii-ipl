@@ -193,6 +193,7 @@ static int zi8InternalGetZH(ziGetParam* request, ZiChineseOptions* options, ziPt
     ziWChar currentSpelling[64];
     ziWChar countOutput[64];
     ziWChar candidateWord[64];
+    int outputIndex;
     ZiChinesePattern phraseMasks[6];
     ZiChinesePattern phraseValues[6];
     ziU16 seenOrdinals[8];
@@ -200,10 +201,9 @@ static int zi8InternalGetZH(ziGetParam* request, ZiChineseOptions* options, ziPt
     ziWChar* currentWord;
     ziU8* userEntries;
     int phase;
-    int outputIndex;
+    ziU8* componentTable;
     ziU8* record;
     ziU8* componentCursor;
-    ziU8* componentTable;
     ziU8* componentOrdinals;
     ziU8* phoneticTable;
     ziU8* records;
@@ -231,12 +231,12 @@ static int zi8InternalGetZH(ziGetParam* request, ZiChineseOptions* options, ziPt
     ziU16 userIndex;
     ziU16 userCount;
     ziU16 candidateOrdinal;
+    ziU16 previousOrdinal;
     ziU16 alternateCharacter;
     ziU16 character;
     ziU16 relatedOrdinal;
     ziU16 isFirstCandidate;
     ziU16 duplicateIndex;
-    ziU16 previousOrdinal;
     ziU16 ordinalCount;
     ziU16 remainingOrdinals;
     ziU16 firstOrdinal;
@@ -325,13 +325,13 @@ static int zi8InternalGetZH(ziGetParam* request, ZiChineseOptions* options, ziPt
     emittedWords = 0;
     record = 0;
     componentCursor = 0;
-    componentTable = 0;
     componentOrdinals = 0;
     phoneticTable = 0;
     records = 0;
     alternateTable = 0;
     charsetTable = 0;
     componentCharsetTable = 0;
+    componentTable = 0;
     ordinalTable = 0;
     phoneticGroups = 0;
     phraseTable = 0;
@@ -451,7 +451,8 @@ static int zi8InternalGetZH(ziGetParam* request, ZiChineseOptions* options, ziPt
             } else {
                 if (getMode == 10) getMode = 9;
                 for (index = 0; index < 6; ++index) {
-                    match.arr1[index] = match.arrD[index] = 0;
+                    match.arrD[index] = 0;
+                    match.arr1[index] = 0;
                 }
                 if (elements[0] >= 'A' && elements[0] <= 'Y') {
                     match.arr1[0] = 31;
@@ -700,7 +701,7 @@ static int zi8InternalGetZH(ziGetParam* request, ZiChineseOptions* options, ziPt
         getOptions != 1) firstPhoneticPass = 0;
     if (getMode == 5) {
         firstPhoneticPass = 1;
-        if (match.nSeg >= 2) goto engine_finish;
+        if (match.nSeg > 1) goto engine_finish;
     }
     if (getMode == 0 && request->elementCount) {
         if (!(request->context & 0x10) &&
@@ -1022,30 +1023,9 @@ pud_candidate:
     if (candidateOrdinal == 0xFFFF) goto pud_next;
     record = records + candidateOrdinal * 12;
     candidateStatus = 0;
-    if (getMode < 7) {
-        if (getMode == 0) {
-            if (match.arrD[0] == (record[0] & match.arr1[0]) &&
-                (match.count || (match.arrD[3] == (record[3] & match.arr1[3]) &&
-                                match.arrD[2] == (record[2] & match.arr1[2]) &&
-                                match.arrD[1] == (record[1] & match.arr1[1]))) &&
-                (ziU8)Zi8SecMatchChar(record, componentTable, &match, 0, work)) candidateStatus = 1;
-        } else if (getMode < 3) {
-            phraseOrdinal = Zi8GetPCode(phoneticTable, record);
-            candidateStatus = (phraseOrdinal & match.phon[0]) == match.phon2[0];
-            if (!candidateStatus && (record[0] & 0x80) && !requireFull &&
-                Zi8MatchAltSound(alternateTable, alternateCount, phoneticTable, candidateOrdinal,
-                                 match.phon[0], match.phon2[0], charset, work)) candidateStatus = 1;
-        }
-    } else if (getMode == 9) {
-pud_phrase:
-        phraseEntry = phraseTable + ((record[9] & 15) << 16 | record[10] << 8 | record[11]);
-        index = phraseEntry[0] & 7;
-        if ((phraseEntry[0] & phraseMasks[index].bytes[0]) == phraseValues[index].bytes[0] &&
-            (phraseEntry[1] & phraseMasks[index].bytes[1]) == phraseValues[index].bytes[1] &&
-            (phraseEntry[2] & phraseMasks[index].bytes[2]) == phraseValues[index].bytes[2] &&
-            (phraseEntry[3] & phraseMasks[index].bytes[3]) == phraseValues[index].bytes[3]) candidateStatus = 1;
-    } else if (getMode < 9) {
-        phraseEntry = phraseTable + ((record[9] & 15) << 16 | record[10] << 8 | record[11]);
+    switch (getMode) {
+    case 7: case 8:
+        phraseEntry = phraseTable + ((record[9] & 15) << 16 | (record[11] | record[10] << 8));
         if ((phraseEntry[0] & 7) < match.length ||
             match.arr1D[0] != (match.arr19[0] & phraseEntry[0]) ||
             match.arr1D[1] != (match.arr19[1] & phraseEntry[1]) ||
@@ -1053,6 +1033,30 @@ pud_phrase:
             match.arr1D[3] != (match.arr19[3] & phraseEntry[3])) {
             if (getMode != 7) goto pud_phrase;
         } else candidateStatus = 1;
+        break;
+    case 9:
+pud_phrase:
+        phraseEntry = phraseTable + ((record[9] & 15) << 16 | (record[11] | record[10] << 8));
+        index = phraseEntry[0] & 7;
+        if ((phraseEntry[0] & phraseMasks[index].bytes[0]) == phraseValues[index].bytes[0] &&
+            (phraseEntry[1] & phraseMasks[index].bytes[1]) == phraseValues[index].bytes[1] &&
+            (phraseEntry[2] & phraseMasks[index].bytes[2]) == phraseValues[index].bytes[2] &&
+            (phraseEntry[3] & phraseMasks[index].bytes[3]) == phraseValues[index].bytes[3]) candidateStatus = 1;
+        break;
+    case 0:
+        if (match.arrD[0] == (record[0] & match.arr1[0]) &&
+            (match.count || (match.arrD[3] == (record[3] & match.arr1[3]) &&
+                            match.arrD[2] == (record[2] & match.arr1[2]) &&
+                            match.arrD[1] == (record[1] & match.arr1[1]))) &&
+            (ziU8)Zi8SecMatchChar(record, componentTable, &match, 0, work)) candidateStatus = 1;
+        break;
+    case 1: case 2:
+        phraseOrdinal = Zi8GetPCode(phoneticTable, record);
+        candidateStatus = (phraseOrdinal & match.phon[0]) == match.phon2[0];
+        if (!candidateStatus && (record[0] & 0x80) && !requireFull &&
+            Zi8MatchAltSound(alternateTable, alternateCount, phoneticTable, candidateOrdinal,
+                             match.phon[0], match.phon2[0], charset, work)) candidateStatus = 1;
+        break;
     }
     if (!candidateStatus) goto pud_next;
 pud_accept:
@@ -1060,20 +1064,23 @@ pud_accept:
         if (character == previousOrdinal) goto pud_next;
         previousOrdinal = character;
         if (candidateOrdinal == 0xFFFF) goto pud_charset;
-        if (!trackDuplicates) candidateStatus = Zi8IsDupWChar(candidateOrdinal, work);
-        else candidateStatus = Zi8SetFindCand(request->scratch, candidateOrdinal, work);
+        if (trackDuplicates) {
+            if ((ziU8)Zi8SetFindCand(request->scratch, candidateOrdinal, work)) goto pud_next;
+        } else if (Zi8IsDupWChar(candidateOrdinal, work)) goto pud_next;
     } else {
         emittedWords = 0;
-        for (index = wordLength; currentSpelling[index]; ++index, ++emittedWords) {}
-        if (!request->elementCount) {
-            if (prefixSearch) emittedWords = 1;
-        } else if ((getMode == 1 || getMode == 2) && match.nCand) emittedWords = match.nCand;
-        else if (getMode == 0 && match.nSeg > 1) emittedWords = match.nSeg;
-        else emittedWords = 1;
+        for (index = wordLength; currentSpelling[index];) {
+            ++index;
+            ++emittedWords;
+        }
+        if (request->elementCount) {
+            if ((getMode == 1 || getMode == 2) && match.nCand) emittedWords = match.nCand;
+            else if (getMode == 0 && match.nSeg > 1) emittedWords = match.nSeg;
+            else emittedWords = 1;
+        } else if (prefixSearch) emittedWords = 1;
         currentSpelling[wordLength + emittedWords] = 0;
-        candidateStatus = Zi8IsDupWordW(currentSpelling + wordLength, emittedWords, work);
+        if (Zi8IsDupWordW(currentSpelling + wordLength, emittedWords, work)) goto pud_next;
     }
-    if (candidateStatus) goto pud_next;
 pud_charset:
     if (charsetTable && wordSearchPhase) {
         index = wordLength;
@@ -1093,21 +1100,18 @@ pud_charset:
             if (getOptions == 5) {
                 if (totalResults >= options->maxResults) goto engine_finish;
             } else {
-                if (!emitWords) output[emittedCount] = character;
-                else {
+                if (emitWords) {
+                    ++emittedCount;
                     for (index = wordLength; currentSpelling[index]; ++index) {
-                        output[outputIndex] = currentSpelling[index];
-                        ++outputIndex;
+                        output[outputIndex++] = currentSpelling[index];
                     }
                     output[outputIndex++] = ' ';
                     if (outputIndex > outputLimit) {
-                        ++emittedCount;
                         request->letters = emittedCount;
                         request->unk_0x20 = emittedCount;
                         goto engine_finish;
                     }
-                }
-                ++emittedCount;
+                } else output[emittedCount++] = character;
                 if (emittedCount >= request->maxCandidates) {
                     request->letters = emittedCount;
                     request->unk_0x20 = emittedCount;
@@ -1146,7 +1150,7 @@ context_word_lookup:
     ordinalIndex = Zi8Uni2Ord(request->currentWord[0], work);
     if (ordinalIndex == 0xFFFF) goto context_results_done;
     record = records + ordinalIndex * 12;
-    phoneticGroups = phraseTable + ((record[9] & 15) << 16 | record[11] | record[10] << 8);
+    phoneticGroups = phraseTable + ((record[9] & 15) << 16 | (record[11] | record[10] << 8));
     if (((struct __zi8_work_data_s*)work)->unk_0x16) {
         switch (phoneticGroups[0] & 7) {
         case 2: phoneticGroups += 2; break;
@@ -1176,7 +1180,7 @@ context_word_lookup:
                 if (!remainingWordLength) break;
                 candidateOrdinal = (ziU16)phoneticGroups[1] << 8 | phoneticGroups[0];
                 phoneticGroups += 2;
-                if (phoneticGroups[-1] & 0x80) break;
+                if (candidateOrdinal & 0x8000) break;
                 character = Zi8Ord2Uni(candidateOrdinal, work);
                 ++currentWord;
                 if (*currentWord != character) break;
@@ -1194,7 +1198,7 @@ context_word_lookup:
                 isFirstCandidate = ((ziU16)record[6] << 8) + record[7];
                 switch (getMode) {
                 case 7: case 8:
-                    phraseEntry = phraseTable + ((record[9] & 15) << 16 | record[11] | record[10] << 8);
+                    phraseEntry = phraseTable + ((record[9] & 15) << 16 | (record[11] | record[10] << 8));
                     if ((phraseEntry[0] & 7) < match.length ||
                         match.arr1D[0] != (match.arr19[0] & phraseEntry[0]) ||
                         match.arr1D[1] != (match.arr19[1] & phraseEntry[1]) ||
@@ -1205,7 +1209,7 @@ context_word_lookup:
                     break;
                 case 9:
 context_phrase_match:
-                    phraseEntry = phraseTable + ((record[9] & 15) << 16 | record[11] | record[10] << 8);
+                    phraseEntry = phraseTable + ((record[9] & 15) << 16 | (record[11] | record[10] << 8));
                     index = phraseEntry[0] & 7;
                     if ((phraseEntry[0] & phraseMasks[index].bytes[0]) == phraseValues[index].bytes[0] &&
                         (phraseEntry[1] & phraseMasks[index].bytes[1]) == phraseValues[index].bytes[1] &&
@@ -1287,11 +1291,11 @@ context_phrase_match:
                     frequencyTable += 2;
                     output[outputIndex + emittedWords++] = Zi8Ord2Uni(character & 0x7FFF, work);
                 } while (!(character & 0x8000));
-                if (!request->elementCount) {
-                    if (prefixSearch) emittedWords = 1;
-                } else if ((getMode == 1 || getMode == 2) && match.nCand) emittedWords = match.nCand;
-                else if (getMode == 0 && match.nSeg > 1) emittedWords = match.nSeg;
-                else emittedWords = 1;
+                if (request->elementCount) {
+                    if ((getMode == 1 || getMode == 2) && match.nCand) emittedWords = match.nCand;
+                    else if (getMode == 0 && match.nSeg > 1) emittedWords = match.nSeg;
+                    else emittedWords = 1;
+                } else if (prefixSearch) emittedWords = 1;
                 if (Zi8IsDupWordW(output + outputIndex, emittedWords, work)) goto context_phrase_next;
             }
             if (!skipCount) {
@@ -1452,8 +1456,7 @@ character_range_start:
         candidateCount = recordCount;
         firstOrdinal = 0;
         rangeIndex = Zi8GetTableCount(1, 16, work);
-        if (Zi8GetFormatVersion(1, work) < 4 || !rangeIndex || elements[0] == 0xEF00) phase = 0xFF;
-        else {
+        if (Zi8GetFormatVersion(1, work) >= 4 && rangeIndex && elements[0] != 0xEF00) {
             phoneticGroups = Zi8GetTableAddress(1, 16, work);
             rangeIndex = 0;
             rangeCount = 0;
@@ -1476,15 +1479,15 @@ character_range_start:
                 case 0xEF0A: rangeIndex = 24; rangeCount = 4; break;
                 case 0xEF0B: rangeIndex = 20; rangeCount = 14; break;
                 }
-                if (!(request->context & 0x40)) phase = 2;
-                else phase = 0xFF;
+                if (request->context & 0x40) phase = 0xFF;
+                else phase = 2;
                 break;
             case 2: rangeIndex = 4; rangeCount = 6; phase = 0xFF; break;
             }
-            firstOrdinal = (ziU16)phoneticGroups[rangeIndex + 1] << 8 | phoneticGroups[rangeIndex];
+            firstOrdinal = phoneticGroups[rangeIndex] | (ziU16)phoneticGroups[rangeIndex + 1] << 8;
             record += firstOrdinal * 12;
             candidateCount = (phoneticGroups[rangeCount] | (ziU16)phoneticGroups[rangeCount + 1] << 8) - firstOrdinal;
-        }
+        } else phase = 0xFF;
         remainingOrdinals = candidateCount;
         while (1) {
             if (match.count) {
@@ -1495,7 +1498,7 @@ character_range_start:
                 if (!Zi8ExactMatchNextChar(record, match.arr19[0], match.arr1D[0], match.arr19[1], match.arr1D[1],
                                          match.arr19[2], match.arr1D[2], match.arr19[3], match.arr1D[3],
                                          &candidateCount, &record, &candidateOrdinal, work)) goto character_range_done;
-                if ((match.field22 || match.length > 7) &&
+                if ((match.field22 || match.length >= 8) &&
                     (ziU8)Zi8SecMatchChar(record, componentTable, &match, &candidateOrdinal, work) != 2) goto character_range_next;
             }
             ordinalIndex = remainingOrdinals - candidateCount + firstOrdinal - 1;
@@ -1763,8 +1766,8 @@ special_tone_limit:
     }
 user_character_search:
     if (((struct __zi8_work_data_s*)work)->unk_0x12C && (getMode != 0 || !firstPhoneticPass) &&
-        !options->countOnly && (match.nCand < 2 || (getMode != 1 && getMode != 2)) &&
-        Zi8GetZHuwdPtr(&userEntries, &userCount, work) && (getMode != 0 || match.nSeg < 2)) {
+        !options->countOnly && (match.nCand <= 1 || (getMode != 1 && getMode != 2)) &&
+        Zi8GetZHuwdPtr(&userEntries, &userCount, work) && (getMode != 0 || match.nSeg <= 1)) {
         for (userIndex = 0; userIndex < userCount; ++userIndex) {
             candidateOrdinal = (userEntries[1] & 0x7F) << 8 | userEntries[2];
             record = records + candidateOrdinal * 12;
@@ -1913,13 +1916,13 @@ character_pass_done:
 component_phase:
     firstOrdinal = 0;
     if (!phoneticRetry) goto component_retry;
-    if (!filteringMode || match.nSeg < 2) goto cangjie_components;
+    if (!filteringMode || match.nSeg <= 1) goto cangjie_components;
     filteringMode = 5;
     goto filtered_search;
 cangjie_components:
     record = records;
     candidateCount = recordCount;
-    if (match.length < 2 || Zi8GetFormatVersion(1, work) < 4 ||
+    if (match.length <= 1 || Zi8GetFormatVersion(1, work) < 4 ||
         !Zi8GetTableCount(1, 16, work) || elements[0] == 0xEF00 || getMode == 5) phase = 0xFF;
     else {
         rangeIndex = 0;
@@ -2184,7 +2187,7 @@ frequency_component_limit:
         goto engine_finish;
     }
     if (!matchComponent) {
-        if (!options->countOnly && match.nCand < 2 &&
+        if (!options->countOnly && match.nCand <= 1 &&
             (match.first != match.phon[0] || match.first2 != match.phon2[0])) {
             switchedPhonetic = 1;
             phoneticMask = match.phon[0];
@@ -2436,7 +2439,7 @@ engine_finish:
         ++outputIndex;
     }
     request->letters = emittedCount;
-    if (!totalResults && !request->firstCandidate && getMode == 1 && match.nCand >= 2 &&
+    if (!totalResults && !request->firstCandidate && getMode == 1 && match.nCand > 1 &&
         (match.phon2[match.nCand - 1] & 0xFFF8) == 0x7600) {
         match.phon[match.nCand - 1] = (match.phon[match.nCand - 1] & 7) + 0x7FF8;
         match.phon2[match.nCand - 1] = (match.phon2[match.nCand - 1] & 7) + 0x398;
@@ -2506,7 +2509,7 @@ filtered_search:
             } else {
                 if (getMode != 9) {
                     if (getMode > 8) goto filtered_accept;
-                    phraseEntry = phraseTable + ((record[9] & 15) << 16 | record[11] | record[10] << 8);
+                    phraseEntry = phraseTable + ((record[9] & 15) << 16 | (record[11] | record[10] << 8));
                     if (match.length <= (phraseEntry[0] & 7) &&
                         match.arr1D[0] == (match.arr19[0] & phraseEntry[0]) &&
                         match.arr1D[1] == (match.arr19[1] & phraseEntry[1]) &&
@@ -2514,7 +2517,7 @@ filtered_search:
                         match.arr1D[3] == (match.arr19[3] & phraseEntry[3])) goto filtered_accept;
                     if (getMode == 7) goto filtered_next;
                 }
-                phraseEntry = phraseTable + ((record[9] & 15) << 16 | record[11] | record[10] << 8);
+                phraseEntry = phraseTable + ((record[9] & 15) << 16 | (record[11] | record[10] << 8));
                 rangeCount = phraseEntry[0] & 7;
                 if ((phraseEntry[0] & phraseMasks[rangeCount].bytes[0]) != phraseValues[rangeCount].bytes[0] ||
                     (phraseEntry[1] & phraseMasks[rangeCount].bytes[1]) != phraseValues[rangeCount].bytes[1] ||

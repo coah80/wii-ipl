@@ -397,3 +397,158 @@ forbidden patterns added (net, per file): 0
 readability warnings (net, per file; must be 0 in the final result): 0
 GATE PASS
 ```
+
+## First non-register divergence matching, 2026-10-01
+
+Fresh branch agent/w1001/getzh-r3 from origin/main ea8d4d3b. Baseline engine fuzzy 81.362686%, 10676/10676 instructions, first non-register divergence at function +000c: target addi/save helper versus individual GPR saves. Baseline unit exact functions 5/8, matched code 4168/47816, data 96/536.
+
+The strict divergence metric compares instructions in address order after replacing GPR names other than stack r1. It preserves opcodes, immediates, stack offsets, call names and function-relative branch destinations. No prologue instructions are skipped. Retention requires a later first divergence or higher engine fuzzy score and a passing quick gate. Candidate sources, builds, pool checks, full ctxdiff, normalized alignment and gate evidence are retained in /tmp/sol-med-zi8-r3.
+- e00: declare component dictionary before record cursor. First non-register divergence +000c -> +000c; fuzzy 81.362686% -> 81.378980%; deficit 0 -> 0; frame 0x4e0; data 96; kept (quick gate pass).
+- e01: declare component dictionary after phrase table. First non-register divergence +000c -> +000c; fuzzy 81.378980% -> 81.362870%; deficit 0 -> 0; frame 0x4e0; data 96; rejected and restored (no first-divergence or score improvement).
+- e02: declare component dictionary after scalar phase. First non-register divergence +000c -> +000c; fuzzy 81.378980% -> 81.388725%; deficit 0 -> 0; frame 0x4e0; data 96; kept (quick gate pass).
+- e03: initialize component dictionary before scalar cursors. First non-register divergence +000c -> +000c; fuzzy 81.388725% -> 81.347694%; deficit 0 -> 0; frame 0x4e0; data 96; rejected and restored (no first-divergence or score improvement).
+- e04: initialize component dictionary after charset pointers. First non-register divergence +000c -> +000c; fuzzy 81.388725% -> 81.389280%; deficit 0 -> 0; frame 0x4e0; data 96; kept (quick gate pass).
+- e05: initialize component dictionary after charset entry. First non-register divergence +000c -> +000c; fuzzy 81.389280% -> 81.348350%; deficit 0 -> 0; frame 0x4e0; data 96; rejected and restored (no first-divergence or score improvement).
+- e06: declare spelling buffer after match count buffer. First non-register divergence +000c -> +000c; fuzzy 81.389280% -> 81.389280%; deficit 0 -> 0; frame 0x4e0; data 96; rejected and restored (no first-divergence or score improvement).
+- e07: declare match parameters after candidate buffers. First non-register divergence +000c -> +000c; fuzzy 81.389280% -> 81.389280%; deficit 0 -> 0; frame 0x4e0; data 96; rejected and restored (no first-divergence or score improvement).
+- e08: declare word mask buffers before candidate buffers. First non-register divergence +000c -> +000c; fuzzy 81.389280% -> 81.389280%; deficit 0 -> 0; frame 0x4e0; data 96; rejected and restored (no first-divergence or score improvement).
+- e09: initialize charset flags in their declarations. First non-register divergence +000c -> +000c; fuzzy 81.389280% -> 81.389280%; deficit 0 -> 0; frame 0x4e0; data 96; rejected and restored (no first-divergence or score improvement).
+- e10: initialize component dictionary in its declaration. First non-register divergence +000c -> +000c; fuzzy 81.389280% -> 81.346756%; deficit 0 -> 0; frame 0x4e0; data 96; rejected and restored (no first-divergence or score improvement).
+- e11: declare candidate status as an integer boolean. First non-register divergence +000c -> +000c; fuzzy 81.389280% -> 80.740166%; deficit 0 -> -3; frame 0x4e0; data 24; rejected and restored (no first-divergence or score improvement).
+- t00: assign component dictionary before advancing table cursor. First non-register divergence +000c -> +000c; fuzzy 81.389280% -> 81.389100%; deficit 0 -> 0; frame 0x4e0; data 96; rejected and restored (no first-divergence or score improvement).
+- t01: derive component cursor from dictionary origin. First non-register divergence +000c -> +000c; fuzzy 81.389280% -> 81.117744%; deficit 0 -> 1; frame 0x4e0; data 24; rejected and restored (no first-divergence or score improvement).
+- t02: retain component origin after advancing shared cursor. First non-register divergence +000c -> +000c; fuzzy 81.389280% -> 81.316315%; deficit 0 -> -3; frame 0x4e0; data 24; rejected and restored (no first-divergence or score improvement).
+- b00: separate word mask zero assignments in source order. First non-register divergence +000c -> +000c; fuzzy 81.389280% -> 81.367744%; deficit 0 -> -1; frame 0x4e0; data 24; rejected and restored (no first-divergence or score improvement).
+- b01: materialize packed mask tag before component shifts. First non-register divergence +000c -> +000c; fuzzy 81.389280% -> 81.369610%; deficit 0 -> 0; frame 0x4e0; data 96; rejected and restored (no first-divergence or score improvement).
+- b02: group the second packed component and mask tag. First non-register divergence +000c -> +000c; fuzzy 81.389280% -> 81.370550%; deficit 0 -> 0; frame 0x4e0; data 96; rejected and restored (no first-divergence or score improvement).
+- b03: evaluate high component before low packed component. First non-register divergence +000c -> +000c; fuzzy 81.389280% -> 81.388350%; deficit 0 -> 0; frame 0x4e0; data 96; rejected and restored (no first-divergence or score improvement).
+- b04: zero phrase pattern entries in ascending index order. First non-register divergence +000c -> +000c; fuzzy 81.389280% -> 80.938090%; deficit 0 -> -1; frame 0x4e0; data 24; rejected and restored (no first-divergence or score improvement).
+- b05: restore target pud mode switch block order. First non-register divergence +000c -> +000c; fuzzy 81.389280% -> 82.174126%; deficit 0 -> -6; frame 0x4e0; data 24; rejected and restored (quick gate failed).
+- b06: restore target pud word output count placement. First non-register divergence +000c -> +000c; fuzzy 81.389280% -> 81.455605%; deficit 0 -> -1; frame 0x4e0; data 24; rejected and restored (quick gate failed).
+- b07: address oem segment fields before row stride. First non-register divergence +000c -> +000c; fuzzy 81.389280% -> 81.335610%; deficit 0 -> 8; frame 0x4e0; data 24; rejected and restored (no first-divergence or score improvement).
+- b08: address pud segment fields before row stride. First non-register divergence +000c -> +000c; fuzzy 81.389280% -> 81.283066%; deficit 0 -> 8; frame 0x4e0; data 24; rejected and restored (no first-divergence or score improvement).
+- b09: combine low phrase offset bytes in pud decoding. First non-register divergence +000c -> +000c; fuzzy 81.389280% -> 81.170006%; deficit 0 -> 0; frame 0x4e0; data 96; rejected and restored (no first-divergence or score improvement).
+- b10: use explicit retry capacity selection. First non-register divergence +000c -> +0000; fuzzy 81.389280% -> 81.056760%; deficit 0 -> -12; frame 0x4f0; data 72; rejected and restored (no first-divergence or score improvement).
+- b11: omit redundant initial engine match state reloads. First non-register divergence +000c -> +000c; fuzzy 81.389280% -> 81.116990%; deficit 0 -> 1; frame 0x4e0; data 24; rejected and restored (no first-divergence or score improvement).
+- p00: switch pud modes using their promoted integer value. First non-register divergence +000c -> +000c; fuzzy 81.389280% -> 82.174126%; deficit 0 -> -6; frame 0x4e0; data 24; rejected and restored (quick gate failed).
+- p01: order pud dispatch and decode phrase offset low bytes first. First non-register divergence +000c -> +000c; fuzzy 81.389280% -> 82.420200%; deficit 0 -> -5; frame 0x4e0; data 24; rejected and restored (quick gate failed).
+- p02: restore pud dispatch with component segment indexing. First non-register divergence +000c -> +0000; fuzzy 81.389280% -> 82.454290%; deficit 0 -> 5; frame 0x4f0; data 72; rejected and restored (quick gate failed).
+- f00: spell charset helper result as an explicit byte. First non-register divergence +000c -> +000c; fuzzy 81.389280% -> 81.389280%; deficit 0 -> 0; frame 0x4e0; data 96; rejected and restored (no first-divergence or score improvement).
+- f01: promote charset helper result before masking. First non-register divergence +000c -> +000c; fuzzy 81.389280% -> 81.389280%; deficit 0 -> 0; frame 0x4e0; data 96; rejected and restored (no first-divergence or score improvement).
+- f02: test charset mask before helper result operand. First non-register divergence +000c -> +000c; fuzzy 81.389280% -> 81.389280%; deficit 0 -> 0; frame 0x4e0; data 96; rejected and restored (no first-divergence or score improvement).
+- f03: spell charset helper bit tests as nonzero comparisons. First non-register divergence +000c -> +000c; fuzzy 81.389280% -> 81.389280%; deficit 0 -> 0; frame 0x4e0; data 96; rejected and restored (no first-divergence or score improvement).
+- f04: preserve byte charset count in explicit halfword assignment. First non-register divergence +000c -> +000c; fuzzy 81.389280% -> 81.252250%; deficit 0 -> -3; frame 0x4e0; data 24; rejected and restored (no first-divergence or score improvement).
+- f05: assign component charset count in its table guard. First non-register divergence +000c -> +000c; fuzzy 81.389280% -> 81.384224%; deficit 0 -> 0; frame 0x4e0; data 96; rejected and restored (no first-divergence or score improvement).
+- f06: use target greater-than-one bound for component mode. First non-register divergence +000c -> +000c; fuzzy 81.389280% -> 81.389850%; deficit 0 -> 0; frame 0x4e0; data 96; kept (quick gate pass).
+- p03: branch directly on pud duplicate helper results. First non-register divergence +000c -> +000c; fuzzy 81.389850% -> 81.241005%; deficit 0 -> -4; frame 0x4e0; data 24; rejected and restored (no first-divergence or score improvement).
+- p04: restore pud switch and separate duplicate exits. First non-register divergence +000c -> +000c; fuzzy 81.389850% -> 82.367836%; deficit 0 -> -7; frame 0x4e0; data 24; rejected and restored (quick gate failed).
+- p05: restore pud switch duplicate exits and offset load order. First non-register divergence +000c -> +000c; fuzzy 81.389850% -> 82.478645%; deficit 0 -> -6; frame 0x4e0; data 24; rejected and restored (quick gate failed).
+- p06: restore pud switch duplicate exits and emission ordering. First non-register divergence +000c -> +000c; fuzzy 81.389850% -> 82.536810%; deficit 0 -> 5; frame 0x4e0; data 24; rejected and restored (quick gate failed).
+- p07: restore pud switch duplicates offsets and emission order. First non-register divergence +000c -> +000c; fuzzy 81.389850% -> 82.536810%; deficit 0 -> 1; frame 0x4e0; data 24; rejected and restored (quick gate failed).
+- s00: separate oem component spelling scan increments. First non-register divergence +000c -> +000c; fuzzy 81.389850% -> 81.295810%; deficit 0 -> 1; frame 0x4e0; data 24; rejected and restored (no first-divergence or score improvement).
+- s01: separate each oem spelling scan increment statement. First non-register divergence +000c -> +000c; fuzzy 81.389850% -> 81.152020%; deficit 0 -> 4; frame 0x4e0; data 24; rejected and restored (no first-divergence or score improvement).
+- s02: separate pud spelling scan increment statements. First non-register divergence +000c -> +000c; fuzzy 81.389850% -> 81.295425%; deficit 0 -> 1; frame 0x4e0; data 24; rejected and restored (no first-divergence or score improvement).
+- q00-initial: use pud input-present branch before prefix word length. First non-register divergence +000c -> +000c; fuzzy 81.389850% -> 81.143030%; deficit 0 -> 0; frame 0x4e0; data 96; rejected and restored (no first-divergence or score improvement).
+- q01: restore pud blocks and input-present length branch. First non-register divergence +000c -> +000c; fuzzy 81.389850% -> 82.570160%; deficit 0 -> 1; frame 0x4e0; data 24; rejected and restored (quick gate failed).
+- q02: restore pud blocks and separate spelling scan increments. First non-register divergence +000c -> +000c; fuzzy 81.389850% -> 82.533350%; deficit 0 -> 3; frame 0x4e0; data 24; rejected and restored (quick gate failed).
+- q03: restore pud blocks with direct length and scan statements. First non-register divergence +000c -> +000c; fuzzy 81.389850% -> 82.556670%; deficit 0 -> 3; frame 0x4e0; data 24; rejected and restored (quick gate failed).
+- q04: restore pud blocks and separate prefix pattern clearing. First non-register divergence +000c -> +000c; fuzzy 81.389850% -> 82.482956%; deficit 0 -> 0; frame 0x4e0; data 96; kept (quick gate pass).
+- q00-after-pud-blocks: use pud input-present branch before prefix word length. First non-register divergence +000c -> +000c; fuzzy 82.482956% -> 82.517700%; deficit 0 -> 0; frame 0x4e0; data 96; kept (quick gate pass).
+- h00: group low context dictionary phrase offset bytes. First non-register divergence +000c -> +000c; fuzzy 82.517700% -> 82.667660%; deficit 0 -> 0; frame 0x4e0; data 96; kept (quick gate pass).
+- h01: load context input match block before direct ordinal lookup. First non-register divergence +000c -> +000c; fuzzy 82.667660% -> 82.763400%; deficit 0 -> 6; frame 0x4e0; data 24; rejected and restored (quick gate failed).
+- h02: use context input-present word length branch. First non-register divergence +000c -> +000c; fuzzy 82.667660% -> 82.866330%; deficit 0 -> 0; frame 0x4e0; data 96; kept (quick gate pass).
+- h03: copy context characters before advancing word count. First non-register divergence +000c -> +000c; fuzzy 82.866330% -> 82.767426%; deficit 0 -> -1; frame 0x4e0; data 24; rejected and restored (no first-divergence or score improvement).
+- h04: postincrement context character output count. First non-register divergence +000c -> +000c; fuzzy 82.866330% -> 82.746254%; deficit 0 -> -1; frame 0x4e0; data 24; rejected and restored (no first-divergence or score improvement).
+- h05: evaluate context end-of-word flag after cursor update. First non-register divergence +000c -> +000c; fuzzy 82.866330% -> 82.919630%; deficit 0 -> 2; frame 0x4e0; data 24; rejected and restored (quick gate failed).
+- h06: address context component fields before segment stride. First non-register divergence +000c -> +000c; fuzzy 82.866330% -> 83.127580%; deficit 0 -> 11; frame 0x4e0; data 24; rejected and restored (quick gate failed).
+- h07: test context word bound before duplicate increment. First non-register divergence +000c -> +000c; fuzzy 82.866330% -> 82.852750%; deficit 0 -> 0; frame 0x4e0; data 96; rejected and restored (no first-divergence or score improvement).
+- r00: test range exhaustion before decrementing candidate count. First non-register divergence +000c -> +000c; fuzzy 82.866330% -> 82.731080%; deficit 0 -> 9; frame 0x4e0; data 24; rejected and restored (no first-divergence or score improvement).
+- k00: use range success branches before rejection cursor cleanup. First non-register divergence +000c -> +000c; fuzzy 82.866330% -> 82.873830%; deficit 0 -> -4; frame 0x4e0; data 24; rejected and restored (quick gate failed).
+- k01: share range secondary failure cursor advancement. First non-register divergence +000c -> +000c; fuzzy 82.866330% -> 82.873360%; deficit 0 -> -4; frame 0x4e0; data 24; rejected and restored (quick gate failed).
+- k02: advance range cursor on rejected primary pattern. First non-register divergence +000c -> +000c; fuzzy 82.866330% -> 82.790184%; deficit 0 -> -5; frame 0x4e0; data 24; rejected and restored (no first-divergence or score improvement).
+- k03: use target eight-character range validation bound. First non-register divergence +000c -> +000c; fuzzy 82.866330% -> 82.866900%; deficit 0 -> 0; frame 0x4e0; data 96; kept (quick gate pass).
+- k04: decode range ordinal low bytes before high-byte shifts. First non-register divergence +000c -> +000c; fuzzy 82.866900% -> 82.895935%; deficit 0 -> 0; frame 0x4e0; data 96; kept (quick gate pass).
+- j00: emit valid character range phase before exhaustion phase. First non-register divergence +000c -> +000c; fuzzy 82.895935% -> 83.079620%; deficit 0 -> -2; frame 0x4e0; data 24; rejected and restored (quick gate failed).
+- j01: use range context-present terminal phase branch. First non-register divergence +000c -> +000c; fuzzy 82.895935% -> 82.896590%; deficit 0 -> 0; frame 0x4e0; data 96; kept (quick gate pass).
+- m00: restore valid range phase and context end-flag load order. First non-register divergence +000c -> +000c; fuzzy 82.896590% -> 83.194830%; deficit 0 -> -1; frame 0x4e0; data 24; rejected and restored (quick gate failed).
+- m01: restore range success cleanup and oem scan statements. First non-register divergence +000c -> +000c; fuzzy 82.896590% -> 83.121300%; deficit 0 -> -1; frame 0x4e0; data 24; rejected and restored (quick gate failed).
+- m02: restore range success cleanup and pud scan statements. First non-register divergence +000c -> +000c; fuzzy 82.896590% -> 83.001880%; deficit 0 -> -3; frame 0x4e0; data 24; rejected and restored (quick gate failed).
+- m03: restore valid range phase and omit redundant engine reloads. First non-register divergence +000c -> +0000; fuzzy 82.896590% -> 83.093666%; deficit 0 -> 12; frame 0x4f0; data 72; rejected and restored (quick gate failed).
+- m04: restore context match-first block and range rejection cleanup. First non-register divergence +000c -> +000c; fuzzy 82.896590% -> 83.187805%; deficit 0 -> 1; frame 0x4e0; data 24; rejected and restored (quick gate failed).
+- m05: restore range phase and context flag with pud scan statements. First non-register divergence +000c -> +000c; fuzzy 82.896590% -> 83.197830%; deficit 0 -> 0; frame 0x4e0; data 96; kept (quick gate pass).
+- l00: group user dictionary phrase offset low bytes. First non-register divergence +000c -> +000c; fuzzy 83.197830% -> 83.209350%; deficit 0 -> -1; frame 0x4e0; data 24; rejected and restored (quick gate failed).
+- l01: group global dictionary phrase offset low bytes. First non-register divergence +000c -> +000c; fuzzy 83.197830% -> 83.175720%; deficit 0 -> 0; frame 0x4e0; data 96; rejected and restored (no first-divergence or score improvement).
+- l02: group component phrase offset low bytes. First non-register divergence +000c -> +000c; fuzzy 83.197830% -> 83.172910%; deficit 0 -> 0; frame 0x4e0; data 96; rejected and restored (no first-divergence or score improvement).
+- l03: group filtered dictionary phrase offset low bytes. First non-register divergence +000c -> +000c; fuzzy 83.197830% -> 83.217964%; deficit 0 -> 0; frame 0x4e0; data 96; kept (quick gate pass).
+- l04: branch directly on user duplicate helper results. First non-register divergence +000c -> +000c; fuzzy 83.217964% -> 83.177410%; deficit 0 -> -1; frame 0x4e0; data 24; rejected and restored (no first-divergence or score improvement).
+- l05: use target one-syllable bound in user candidate guard. First non-register divergence +000c -> +000c; fuzzy 83.217964% -> 83.218530%; deficit 0 -> 0; frame 0x4e0; data 96; kept (quick gate pass).
+- l06: use target one-segment bound in user component guard. First non-register divergence +000c -> +000c; fuzzy 83.218530% -> 83.219090%; deficit 0 -> 0; frame 0x4e0; data 96; kept (quick gate pass).
+- l07: use target one-segment bound before filtered components. First non-register divergence +000c -> +000c; fuzzy 83.219090% -> 83.219650%; deficit 0 -> 0; frame 0x4e0; data 96; kept (quick gate pass).
+- l08: use target component phase minimum length comparison. First non-register divergence +000c -> +000c; fuzzy 83.219650% -> 83.220215%; deficit 0 -> 0; frame 0x4e0; data 96; kept (quick gate pass).
+- l09: address component segment fields before row stride. First non-register divergence +000c -> +0000; fuzzy 83.220215% -> 83.124760%; deficit 0 -> 10; frame 0x4f0; data 72; rejected and restored (no first-divergence or score improvement).
+- l13: decode phonetic pair ordinals with low bytes first. First non-register divergence +000c -> +000c; fuzzy 83.220215% -> 83.068280%; deficit 0 -> 0; frame 0x4e0; data 96; rejected and restored (no first-divergence or score improvement).
+- l14: branch directly on phonetic pair duplicate rejection. First non-register divergence +000c -> +000c; fuzzy 83.220215% -> 83.220215%; deficit 0 -> 0; frame 0x4e0; data 96; rejected and restored (no first-divergence or score improvement).
+- l15: use target one-syllable bound on final phonetic retry. First non-register divergence +000c -> +000c; fuzzy 83.220215% -> 83.220770%; deficit 0 -> 0; frame 0x4e0; data 96; kept (quick gate pass).
+- l16: use target phonetic retry count comparison order. First non-register divergence +000c -> +000c; fuzzy 83.220770% -> 83.217780%; deficit 0 -> 0; frame 0x4e0; data 96; rejected and restored (no first-divergence or score improvement).
+- l17: compare candidate retry capacity before emitted count. First non-register divergence +000c -> +000c; fuzzy 83.220770% -> 83.217780%; deficit 0 -> 0; frame 0x4e0; data 96; rejected and restored (no first-divergence or score improvement).
+- l18: address filtered component fields before segment stride. First non-register divergence +000c -> +000c; fuzzy 83.220770% -> 82.662890%; deficit 0 -> 6; frame 0x4e0; data 24; rejected and restored (no first-divergence or score improvement).
+- l19: branch directly on filtered duplicate rejection. First non-register divergence +000c -> +000c; fuzzy 83.220770% -> 83.086460%; deficit 0 -> 0; frame 0x4e0; data 96; rejected and restored (no first-divergence or score improvement).
+- n00: separate frequency seen-ordinal equality from loop bound. First non-register divergence +000c -> +000c; fuzzy 83.220770% -> 83.220770%; deficit 0 -> 0; frame 0x4e0; data 96; rejected and restored (no first-divergence or score improvement).
+- n01: use target single-candidate phonetic fallback bound. First non-register divergence +000c -> +000c; fuzzy 83.220770% -> 83.221340%; deficit 0 -> 0; frame 0x4e0; data 96; kept (quick gate pass).
+- n02: decode component ordinal low byte before high byte. First non-register divergence +000c -> +000c; fuzzy 83.221340% -> 83.014430%; deficit 0 -> 0; frame 0x4e0; data 96; rejected and restored (no first-divergence or score improvement).
+- n03: use target component-frequency comparison order. First non-register divergence +000c -> +000c; fuzzy 83.221340% -> 83.221340%; deficit 0 -> 0; frame 0x4e0; data 96; rejected and restored (no first-divergence or score improvement).
+- tiebreak00: restore component dictionary declaration beside its cursor. First non-register divergence +000c -> +000c; fuzzy 83.221340% -> 83.194360%; deficit 0 -> 0; frame 0x4e0; data 96; rejected and restored (no first-divergence or score improvement).
+- tiebreak01: restore component dictionary initialization before ordinals. First non-register divergence +000c -> +000c; fuzzy 83.221340% -> 83.220770%; deficit 0 -> 0; frame 0x4e0; data 96; rejected and restored (no first-divergence or score improvement).
+- tiebreak02: use a typed chinese work pointer for the private engine. First non-register divergence +000c -> +000c; fuzzy 83.221340% -> 83.009650%; deficit 0 -> 0; frame 0x4e0; data 96; rejected and restored (no first-divergence or score improvement).
+- tiebreak03: name the chinese work field view once for engine accesses. First non-register divergence +000c -> +000c; fuzzy 83.221340% -> 82.274350%; deficit 0 -> -97; frame 0x4e0; data 24; rejected and restored (no first-divergence or score improvement).
+- tiebreak04: initialize component table alongside its declaration. First non-register divergence +000c -> +000c; fuzzy 83.221340% -> 83.179470%; deficit 0 -> 0; frame 0x4e0; data 96; rejected and restored (no first-divergence or score improvement).
+- tiebreak05: initialize the ordinal count after remaining range count. First non-register divergence +000c -> +000c; fuzzy 83.221340% -> 83.221340%; deficit 0 -> 0; frame 0x4e0; data 96; rejected and restored (no first-divergence or score improvement).
+- tiebreak06: declare previous ordinal beside candidate ordinal. First non-register divergence +000c -> +000c; fuzzy 83.221340% -> 83.221530%; deficit 0 -> 0; frame 0x4e0; data 96; kept (quick gate pass).
+- tiebreak07: declare word output cursor beside candidate word buffer. First non-register divergence +000c -> +000c; fuzzy 83.221530% -> 83.237540%; deficit 0 -> 0; frame 0x4e0; data 96; kept (quick gate pass).
+- u00: put punctuation character scan before word duplicate helper. First non-register divergence +000c -> +000c; fuzzy 83.237540% -> 83.237360%; deficit 0 -> 2; frame 0x4e0; data 24; rejected and restored (no first-divergence or score improvement).
+- u01: separate punctuation equality test from scan bound. First non-register divergence +000c -> +000c; fuzzy 83.237540% -> 83.156140%; deficit 0 -> 0; frame 0x4e0; data 96; rejected and restored (no first-divergence or score improvement).
+- u02: restore punctuation duplicate block and equality branch order. First non-register divergence +000c -> +000c; fuzzy 83.237540% -> 83.210380%; deficit 0 -> 2; frame 0x4e0; data 24; rejected and restored (no first-divergence or score improvement).
+
+### First-divergence round audit
+
+105 distinct source candidates compiled and were measured in this round. Twenty-one improvements passed the quick gate and were committed separately. Each retained step raised engine fuzzy matching, preserved zero instruction deficit, kept 96 matched data bytes, and preserved all five instruction-exact functions. Twenty-four higher-scoring candidates failed the gate because the changed engine size or save metadata regressed matched exception data; all were restored. Transform assertions and temporary script construction failures are excluded from the compiled attempt count.
+
+The first strict non-register divergence remains +000c: four individual source GPR stores versus target addi/_savegpr_27. The source restores those four registers individually at the end; the target uses _restgpr_27. Entry declaration/initialization experiments e00-e11, table assignment variants t00-t02, and final tiebreak00-tiebreak07 did not restore the target helper sequence. Register names are ignored in the strict metric, while immediates, stack offsets, opcodes, call names and function-relative branch destinations remain significant. No prologue instructions were excluded, and no later offset is claimed.
+
+Retained structural repairs include the greater-than-one component guard at target +1850; PUD switch cases in target order, phrase offset load order, direct duplicate rejection branches, word count/output cursor order and input-present length selection; context phrase offset decoding and input-present length selection; context end-of-word tests from the decoded ordinal; valid character range phase before exhaustion, context phase branch direction, ordinal byte decode order and eight-character validation bound; one-candidate/one-segment comparisons in user, component and phonetic fallback guards; and filtered phrase offset decoding. PUD scan increments now use separate statements, eliminating an extra comma-expression store. Prefix array clearing uses two ordinary assignments, and final local declaration ordering retains measured improvements.
+
+The successful PUD repair combined the previously gate-failing PUD blocks with separate prefix mask/value assignments; the successful range repair combined valid-phase block order, decoded context end flags and separate PUD scan increments. These changes restore actual operations and branch forms from the target. They add no dummy objects, padding, forced sections, inline assembly, volatile/register declarations, address-pinned labels or string blobs.
+
+The final engine has 10676/10676 instructions, frame 0x4e0, fuzzy 81.362686% -> 83.237540%, first non-register divergence +000c -> +000c. Unit exact functions remain 5/8, matched code 4168/47816 and matched data 96/536. No new instruction-exact function was added. Remaining differences include GPR save/restore form, local stack offsets, register allocation and displaced branch bodies. The separate exact-function-count completion criterion is still unmet.
+
+The complete final block map is /tmp/sol-med-zi8-r3/map.md and map.json, containing 1796 target and 1790 source blocks with instruction counts and calls. Target/source calls remain 168/166; the net call count difference consists only of _savegpr_27/_restgpr_27. final.ctxdiff retains every direct instruction difference. Trial sources, builds, disassemblies, normalized alignments, measurements and gate outputs are in the same directory. The reused q00 trial name was qualified as q00-initial and q00-after-pud-blocks; q00-initial was reconstructed from f06.c, rebuilt and remeasured to its recorded 81.143030%/10676 instructions, then the final source was restored. No trial evidence is counted twice.
+
+The two smaller unmatched functions remain untouched: ZiMatchZHSpelling 98.801650%, 121/121 instructions with 29 register differences; Zi8GetElementCount 99.347824%, 115/115 instructions with thirteen register differences. Their three distinct successful-build attempts each remain logged as s04/s06/s07 and s01/s02/s03 in the previous block-map round. All R0-R16 ranges retain the three-attempt coverage audit above, with 105 further measured engine candidates in this round. This is partial matching progress, not unit completion.
+
+Whitespace-only PUD switch cleanup preserved the final score, count, frame and divergence metric. The final clean gate follows.
+
+```
+full build: ok
+main.dol sha1: 26116613f624061ba99c8d1a299aaa6efa85670d
+[libs/RVLMiddleware/eZiText/src/clib/zi8cgetc] pool: IDENTICAL
+[libs/RVLMiddleware/eZiText/src/clib/zi8cgetc] objdiff: code 4168/47816 data 96/536 functions 5/8 fuzzy 85.0112 linked code 0
+[libs/RVLMiddleware/eZiText/src/clib/zi8cgetc] instruction-exact functions: 5/8
+[libs/RVLMiddleware/eZiText/src/clib/zi8cgetc]   section .data size 392 match None
+[libs/RVLMiddleware/eZiText/src/clib/zi8cgetc]   section .sbss2 size 8 match 100.0
+[libs/RVLMiddleware/eZiText/src/clib/zi8cgetc]   section .sdata2 size 16 match 100.0
+[libs/RVLMiddleware/eZiText/src/clib/zi8cgetc]   section .text size 47816 match 85.01121
+[libs/RVLMiddleware/eZiText/src/clib/zi8cgetc]   section extab size 48 match 97.91667
+[libs/RVLMiddleware/eZiText/src/clib/zi8cgetc]   section extabindex size 72 match 100.0
+[libs/RVLMiddleware/eZiText/src/clib/zi8cgetc]   below 100: ZiMatchZHSpelling 98.80165
+[libs/RVLMiddleware/eZiText/src/clib/zi8cgetc]   below 100: zi8InternalGetZH 83.23754
+[libs/RVLMiddleware/eZiText/src/clib/zi8cgetc]   below 100: Zi8GetElementCount 99.347824
+[libs/RVLMiddleware/eZiText/src/clib/zi8cgetc] baseline: code 4168/47816 data 96 functions 5 fuzzy 83.3368
+regressions vs baseline: 0
+global matched_code_percent: 86.47570 -> 86.47570
+global fuzzy_match_percent: 98.99276 -> 99.01949
+global complete_code_percent: 60.34391 -> 60.34391
+global matched_data_percent: 90.98895 -> 90.98895
+forbidden patterns added (net, per file): 0
+readability warnings (net, per file; must be 0 in the final result): 0
+GATE PASS
+```
