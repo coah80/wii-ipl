@@ -23,63 +23,63 @@ namespace scene {
 class SDTitlePaneEventHandler;
 class SDTitleButtonEventHandler;
 
-extern "C" void iplSDChannelTitle_813E8AB4(SDChannelTitle* scene);
-extern "C" void iplSDChannelTitle_813E8C08(SDChannelTitle* scene, const nw4r::ut::Rect& bounds, GXColor color);
-extern "C" void iplSDChannelTitle_813E81FC(SDChannelTitle* scene);
-extern "C" void iplSDChannelTitle_813E6348(SDChannelTitle* scene);
-extern "C" void iplSDChannelTitle_813E6424(SDChannelTitle* scene);
-extern "C" void iplSDChannelTitle_813E8034(SDChannelTitle* scene);
-extern "C" void iplSDChannelTitle_813E8160(SDChannelTitle* scene);
-extern "C" void iplSDChannelTitle_813E8360(SDChannelTitle* scene);
-extern "C" void iplSDChannelTitle_813E8258(SDChannelTitle* scene, layout::Object* layout,
+extern "C" void iplSDChannelTitle_rebootSystem(SDChannelTitle* scene);
+extern "C" void iplSDChannelTitle_drawDimOverlay(SDChannelTitle* scene, const nw4r::ut::Rect& bounds, GXColor color);
+extern "C" void iplSDChannelTitle_bindBannerAnimations(SDChannelTitle* scene);
+extern "C" void iplSDChannelTitle_createBannerLayout(SDChannelTitle* scene);
+extern "C" void iplSDChannelTitle_createIconLayout(SDChannelTitle* scene);
+extern "C" void iplSDChannelTitle_playBannerIntro(SDChannelTitle* scene);
+extern "C" void iplSDChannelTitle_startBannerSound(SDChannelTitle* scene);
+extern "C" void iplSDChannelTitle_bindBannerAnims(SDChannelTitle* scene);
+extern "C" void iplSDChannelTitle_bindRsoAnimations(SDChannelTitle* scene, layout::Object* layout,
                                           layout::Animator** animations, const char* prefix);
-extern "C" void iplSDChannelTitle_813E7C0C(SDChannelTitle* scene);
-extern "C" void iplSDChannelTitle_813E7D14(SDChannelTitle* scene);
-extern "C" void iplSDChannelTitle_813E7DD0(SDChannelTitle* scene);
-extern "C" void iplSDChannelTitle_813E7FB0(SDChannelTitle* scene);
+extern "C" void iplSDChannelTitle_updateScript(SDChannelTitle* scene);
+extern "C" void iplSDChannelTitle_updateScriptIdle(SDChannelTitle* scene);
+extern "C" void iplSDChannelTitle_updateScriptLoad(SDChannelTitle* scene);
+extern "C" void iplSDChannelTitle_destroyScript(SDChannelTitle* scene);
 
-extern "C" void iplSDChannelTitle_813E630C(SDChannelTitle* scene);
-extern "C" void iplSDChannelTitle_813E696C(SDChannelTitle* scene);
-extern "C" void iplSDChannelTitle_813E6FB4(SDChannelTitle* scene);
-extern "C" void iplSDChannelTitle_813E71A4(SDChannelTitle* scene);
-extern "C" void iplSDChannelTitle_813E724C(SDChannelTitle* scene);
-extern "C" void iplSDChannelTitle_813E7418(SDChannelTitle* scene);
-extern "C" void iplSDChannelTitle_813E7498(SDChannelTitle* scene);
-extern "C" bool iplSDChannelTitle_813E79B0(SDChannelTitle* scene);
-extern "C" BOOL iplSDChannelTitle_813E847C(SDChannelTitle*, ESTmdView*, ESTitleId titleId);
-extern "C" BOOL iplSDChannelTitle_813E84C8();
-extern "C" void iplSDChannelTitle_813E86A0(SDChannelTitle* scene, SDChannelObj* channel);
-extern "C" void iplSDChannelTitle_813E899C(SDChannelTitle* scene, int nextScene);
-extern "C" void iplSDChannelTitle_813E8AB4(SDChannelTitle*);
-extern "C" bool iplSDChannelTitle_813E8B1C(SDChannelTitle* scene);
-extern "C" void iplSDChannelTitle_813E8B70(SDChannelTitle* scene);
-extern "C" void iplSDChannelTitle_813E8C08(SDChannelTitle*, const nw4r::ut::Rect& bounds, GXColor color);
-extern "C" void iplSDChannelTitle_813E8D14(SDChannelTitle*, nw4r::lyt::Pane* pane, u32 message, bool allocate);
-extern "C" nand::LayoutFile* iplSDChannelTitle_813E8DCC(SDChannelTitle*, ESTitleId title, nand::File** sound);
-extern "C" void iplSDChannelTitle_813E8E70(void* argument);
-extern "C" BOOL iplSDChannelTitle_813E8F04(SDChannelTitle* scene, ESTmdView* tmd);
-extern "C" void iplSDChannelTitle_813E65D4(SDChannelTitle* scene);
-extern "C" void iplSDChannelTitle_813E6760(SDChannelTitle* scene);
-extern "C" void iplSDChannelTitle_813E69B4(SDChannelTitle* scene);
-extern "C" void iplSDChannelTitle_813E6B88(SDChannelTitle* scene);
-extern "C" void iplSDChannelTitle_813E6CCC(SDChannelTitle* scene);
-extern "C" void iplSDChannelTitle_813E6E24(SDChannelTitle* scene);
-extern "C" void iplSDChannelTitle_813E7074(SDChannelTitle* scene);
-extern "C" void iplSDChannelTitle_813E72B8(SDChannelTitle* scene);
-extern "C" void iplSDChannelTitle_813E74EC(SDChannelTitle* scene);
-extern "C" void iplSDChannelTitle_813E7618(SDChannelTitle* scene);
-extern "C" void iplSDChannelTitle_813E76C8(SDChannelTitle* scene);
-extern "C" void iplSDChannelTitle_813E7780(SDChannelTitle* scene);
-extern "C" void iplSDChannelTitle_813E7800(SDChannelTitle* scene);
-extern "C" void iplSDChannelTitle_813E787C(SDChannelTitle* scene);
-extern "C" void iplSDChannelTitle_813E7A18(SDChannelTitle* scene);
-extern "C" void iplSDChannelTitle_813E7B30(SDChannelTitle* scene, ESTitleId title);
-extern "C" void iplSDChannelTitle_813E850C(SDChannelTitle* scene, void* arguments);
-extern "C" void iplSDChannelTitle_813E85C0(SDChannelTitle* scene, int page, int index);
-extern "C" void iplSDChannelTitle_813E86D8(SDChannelTitle* scene);
-extern "C" void iplSDChannelTitle_813E88CC(SDChannelTitle* scene, bool settings);
-extern "C" void iplSDChannelTitle_813E8A20(SDChannelTitle* scene, int nextScene);
-extern "C" SDMemory::TitleRange* iplSDChannelTitle_813E6FA0(SDMemory::TitleRange*, const SDMemory::TitleRange*);
+extern "C" void iplSDChannelTitle_rebuildBannerLayout(SDChannelTitle* scene);
+extern "C" void iplSDChannelTitle_updateChangeWait(SDChannelTitle* scene);
+extern "C" void iplSDChannelTitle_updateMemoryCalc(SDChannelTitle* scene);
+extern "C" void iplSDChannelTitle_updateAfterClearTmp(SDChannelTitle* scene);
+extern "C" void iplSDChannelTitle_updateEnqueueNotice(SDChannelTitle* scene);
+extern "C" void iplSDChannelTitle_showCopyError(SDChannelTitle* scene);
+extern "C" void iplSDChannelTitle_updateCopyErrorDialog(SDChannelTitle* scene);
+extern "C" bool iplSDChannelTitle_startZoomFade(SDChannelTitle* scene);
+extern "C" BOOL iplSDChannelTitle_isNetworkAllowed(SDChannelTitle*, ESTmdView*, ESTitleId titleId);
+extern "C" BOOL iplSDChannelTitle_isParentalEnabled();
+extern "C" void iplSDChannelTitle_beginLaunch(SDChannelTitle* scene, SDChannelObj* channel);
+extern "C" void iplSDChannelTitle_prepareSceneExit(SDChannelTitle* scene, int nextScene);
+extern "C" void iplSDChannelTitle_rebootSystem(SDChannelTitle*);
+extern "C" bool iplSDChannelTitle_isLaunchDelayDone(SDChannelTitle* scene);
+extern "C" void iplSDChannelTitle_setStartButtonPressed(SDChannelTitle* scene);
+extern "C" void iplSDChannelTitle_drawDimOverlay(SDChannelTitle*, const nw4r::ut::Rect& bounds, GXColor color);
+extern "C" void iplSDChannelTitle_setPaneMessage(SDChannelTitle*, nw4r::lyt::Pane* pane, u32 message, bool allocate);
+extern "C" nand::LayoutFile* iplSDChannelTitle_loadBannerMetaFiles(SDChannelTitle*, ESTitleId title, nand::File** sound);
+extern "C" void iplSDChannelTitle_fetchTmdViewTask(void* argument);
+extern "C" BOOL iplSDChannelTitle_passesParentalCheck(SDChannelTitle* scene, ESTmdView* tmd);
+extern "C" void iplSDChannelTitle_updateIdleState(SDChannelTitle* scene);
+extern "C" void iplSDChannelTitle_updateChangeState(SDChannelTitle* scene);
+extern "C" void iplSDChannelTitle_updateParentalResult(SDChannelTitle* scene);
+extern "C" void iplSDChannelTitle_updateDialogResult(SDChannelTitle* scene);
+extern "C" void iplSDChannelTitle_startCopyProgress(SDChannelTitle* scene);
+extern "C" void iplSDChannelTitle_updateCopyPrepare(SDChannelTitle* scene);
+extern "C" void iplSDChannelTitle_updateCopyStart(SDChannelTitle* scene);
+extern "C" void iplSDChannelTitle_updateCopyProgress(SDChannelTitle* scene);
+extern "C" void iplSDChannelTitle_finishProgressHide(SDChannelTitle* scene);
+extern "C" void iplSDChannelTitle_returnToIdle(SDChannelTitle* scene);
+extern "C" void iplSDChannelTitle_loadTitleBanner(SDChannelTitle* scene);
+extern "C" void iplSDChannelTitle_updateBannerLoad(SDChannelTitle* scene);
+extern "C" void iplSDChannelTitle_tryLaunchSelected(SDChannelTitle* scene);
+extern "C" void iplSDChannelTitle_updateTmdReady(SDChannelTitle* scene);
+extern "C" void iplSDChannelTitle_preparePageRestart(SDChannelTitle* scene);
+extern "C" void iplSDChannelTitle_loadBannerScript(SDChannelTitle* scene, ESTitleId title);
+extern "C" void iplSDChannelTitle_openParentalDialog(SDChannelTitle* scene, void* arguments);
+extern "C" void iplSDChannelTitle_setPageAndIndex(SDChannelTitle* scene, int page, int index);
+extern "C" void iplSDChannelTitle_cleanupAndLeave(SDChannelTitle* scene);
+extern "C" void iplSDChannelTitle_confirmLeaveToSettings(SDChannelTitle* scene, bool settings);
+extern "C" void iplSDChannelTitle_flushSaveBeforeExit(SDChannelTitle* scene, int nextScene);
+extern "C" SDMemory::TitleRange* iplSDChannelTitle_copyTitleRange(SDMemory::TitleRange*, const SDMemory::TitleRange*);
 
 static inline void setMemoryTitleLists(SDMemory* memory, SDMemory::TitleRange sdRange,
                                       SDMemory::TitleRange nandRange) {
@@ -136,9 +136,9 @@ public:
 
 extern "C" void iplSDChannelObj_813E3580(layout::Object* layout);
 extern "C" const wchar_t* iplSDChannelObj_813E4060(SDChannelObj* channel, int nameIndex);
-extern "C" bool iplSDChannelTitle_813E79B0(SDChannelTitle* scene);
-extern "C" void iplSDChannelTitle_813E630C(SDChannelTitle* scene);
-extern "C" void iplSDChannelTitle_813E8D14(SDChannelTitle* scene, nw4r::lyt::Pane* pane, u32 message, bool allocate);
+extern "C" bool iplSDChannelTitle_startZoomFade(SDChannelTitle* scene);
+extern "C" void iplSDChannelTitle_rebuildBannerLayout(SDChannelTitle* scene);
+extern "C" void iplSDChannelTitle_setPaneMessage(SDChannelTitle* scene, nw4r::lyt::Pane* pane, u32 message, bool allocate);
 
 SDChannelTitle::SDChannelTitle(EGG::Heap* heap, SDChannelSelect* channelSelect)
     : FaderSceneBase(heap), mState(0), mNextScene(0), mParentalResult(0),
@@ -194,8 +194,8 @@ void SDChannelTitle::create() {
             }
         }
     }
-    iplSDChannelTitle_813E8D14(this, mpLayout->FindPaneByName(sTextNames[0]), 0xa2, true);
-    iplSDChannelTitle_813E8D14(this, mpLayout->FindPaneByName(sTextNames[1]), 2, true);
+    iplSDChannelTitle_setPaneMessage(this, mpLayout->FindPaneByName(sTextNames[0]), 0xa2, true);
+    iplSDChannelTitle_setPaneMessage(this, mpLayout->FindPaneByName(sTextNames[1]), 2, true);
     mStartButtonState = 1;
     mpButtonAnimations[0][0] = mpLayout->bindToGroup(sButtonAnimationNames[0], sButtonGroups[0], false, false);
     mpButtonAnimations[0][1] = mpLayout->bindToGroup(sButtonAnimationNames[1], sButtonGroups[0], false, true);
@@ -223,7 +223,7 @@ void SDChannelTitle::create() {
     mpProgressLayout->finishBinding();
     nw4r::lyt::TextBox* comment = nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(mpProgressLayout->FindPaneByName("T_Comment_02"));
     comment->SetString(System::getMessage(0xad));
-    iplSDChannelTitle_813E630C(this);
+    iplSDChannelTitle_rebuildBannerLayout(this);
     mpFade = new math::HermiteIntp<f32>();
     static f32 fadeRange[2] = {0.0f, 255.0f};
     mpFade->init(fadeRange[0], fadeRange[1], 28.0f, 0.0f, 0.0f);
@@ -241,7 +241,7 @@ void SDChannelTitle::create() {
     mScriptDuration = duration;
     mState = 2;
     mScriptFrame = duration;
-    iplSDChannelTitle_813E79B0(this);
+    iplSDChannelTitle_startZoomFade(this);
     mpScriptHeaps[0] = EGG::ExpHeap::create(0x80000, System::getMem2App(), 6);
     mpScriptHeaps[1] = EGG::ExpHeap::create(0x80000, System::getMem2App(), 6);
     mMemory.create(getSceneHeap(), mpLayoutFile, mpChannelSelect);
@@ -251,7 +251,7 @@ void SDChannelTitle::calcCommon() {
     mpPaneManager->calc();
     mpLayout->calc();
     if (mScriptEnabled == 1) {
-        iplSDChannelTitle_813E7C0C(this);
+        iplSDChannelTitle_updateScript(this);
     }
     if ((mState == 1 || mState == 13 || static_cast<u32>(mState - 4) <= 1) &&
         !mbBannerStarting && mpBannerAnimations[1] && !mpBannerAnimations[1]->isPlaying()) {
@@ -277,11 +277,11 @@ void SDChannelTitle::calcCommon() {
 
 FaderSceneCommand SDChannelTitle::calcFadein() {
     if (mState == 2) {
-        iplSDChannelTitle_813E79B0(this);
+        iplSDChannelTitle_startZoomFade(this);
         return FADER_SCN_CONTINUE;
     }
     if (!mpFade->isPlaying()) {
-        iplSDChannelTitle_813E8034(this);
+        iplSDChannelTitle_playBannerIntro(this);
         SDButton* button = static_cast<SDButton*>(System::getScene(0x24));
         button->setEventHandler(mpButtonEventHandler, NULL);
         button->animation(13);
@@ -296,37 +296,37 @@ FaderSceneCommand SDChannelTitle::calcFadein() {
 
 FaderSceneCommand SDChannelTitle::calcNormal() {
     switch (mState) {
-    case 1: iplSDChannelTitle_813E65D4(this); break;
-    case 4: iplSDChannelTitle_813E8A20(this, mNextScene); mState = 5; break;
-    case 8: iplSDChannelTitle_813E6760(this); break;
-    case 9: iplSDChannelTitle_813E696C(this); break;
-    case 10: iplSDChannelTitle_813E7A18(this); break;
-    case 11: iplSDChannelTitle_813E69B4(this); break;
-    case 12: iplSDChannelTitle_813E6B88(this); break;
-    case 13: iplSDChannelTitle_813E787C(this); break;
+    case 1: iplSDChannelTitle_updateIdleState(this); break;
+    case 4: iplSDChannelTitle_flushSaveBeforeExit(this, mNextScene); mState = 5; break;
+    case 8: iplSDChannelTitle_updateChangeState(this); break;
+    case 9: iplSDChannelTitle_updateChangeWait(this); break;
+    case 10: iplSDChannelTitle_preparePageRestart(this); break;
+    case 11: iplSDChannelTitle_updateParentalResult(this); break;
+    case 12: iplSDChannelTitle_updateDialogResult(this); break;
+    case 13: iplSDChannelTitle_updateTmdReady(this); break;
     case 14: return FADER_SCN_CONTINUE;
-    case 15: iplSDChannelTitle_813E7074(this); break;
-    case 16: iplSDChannelTitle_813E71A4(this); break;
+    case 15: iplSDChannelTitle_updateCopyStart(this); break;
+    case 16: iplSDChannelTitle_updateAfterClearTmp(this); break;
     case 17: SCSetTmpTitleID(mTitleId); SCFlushAsync(NULL); mState = 18; break;
     case 18: if (SCCheckStatus() != 1) { mState = 21; } break;
-    case 19: iplSDChannelTitle_813E6CCC(this); break;
-    case 20: iplSDChannelTitle_813E6E24(this); break;
-    case 21: iplSDChannelTitle_813E724C(this); break;
-    case 22: iplSDChannelTitle_813E72B8(this); break;
-    case 23: iplSDChannelTitle_813E6FB4(this); break;
-    case 24: iplSDChannelTitle_813E76C8(this); break;
-    case 25: iplSDChannelTitle_813E7780(this); break;
-    case 26: iplSDChannelTitle_813E7418(this); break;
-    case 27: iplSDChannelTitle_813E7498(this); break;
-    case 28: iplSDChannelTitle_813E7800(this); break;
-    case 29: iplSDChannelTitle_813E74EC(this); break;
-    case 30: iplSDChannelTitle_813E7618(this); break;
+    case 19: iplSDChannelTitle_startCopyProgress(this); break;
+    case 20: iplSDChannelTitle_updateCopyPrepare(this); break;
+    case 21: iplSDChannelTitle_updateEnqueueNotice(this); break;
+    case 22: iplSDChannelTitle_updateCopyProgress(this); break;
+    case 23: iplSDChannelTitle_updateMemoryCalc(this); break;
+    case 24: iplSDChannelTitle_loadTitleBanner(this); break;
+    case 25: iplSDChannelTitle_updateBannerLoad(this); break;
+    case 26: iplSDChannelTitle_showCopyError(this); break;
+    case 27: iplSDChannelTitle_updateCopyErrorDialog(this); break;
+    case 28: iplSDChannelTitle_tryLaunchSelected(this); break;
+    case 29: iplSDChannelTitle_finishProgressHide(this); break;
+    case 30: iplSDChannelTitle_returnToIdle(this); break;
     }
     if (mState == 5) {
         mbStopScript = true;
         ++mLaunchFrame;
         System::getPointer()->setVisible(false);
-        return static_cast<FaderSceneCommand>(iplSDChannelTitle_813E8B1C(this));
+        return static_cast<FaderSceneCommand>(iplSDChannelTitle_isLaunchDelayDone(this));
     }
     if (mState == 6 || mState == 7 || mState == 31) {
         mbStopScript = true;
@@ -360,7 +360,7 @@ FaderSceneCommand SDChannelTitle::calcFadeout() {
             if (mNextScene == 17) {
                 if (!nandwall::checkNandCapacityAppBootable()) {
                     OSReport("Nand full! OSRebootSystem.\n");
-                    iplSDChannelTitle_813E8AB4(this);
+                    iplSDChannelTitle_rebootSystem(this);
                 }
                 while (WPADGetStatus() != 0 || System::getBS2Manager()->getIPLState() != bs2::IPL_STATE_8 ||
                        !System::getSaveData()->isFinished(mpSaveFile) ||
@@ -369,7 +369,7 @@ FaderSceneCommand SDChannelTitle::calcFadeout() {
                     System::getBS2Manager()->update();
                     VIWaitForRetrace();
                     if (mScriptEnabled == 1) {
-                        iplSDChannelTitle_813E7C0C(this);
+                        iplSDChannelTitle_updateScript(this);
                     }
                     if (WPADGetStatus() != 0) {
                         OSReport("wait for WPAD\n");
@@ -454,7 +454,7 @@ void SDChannelTitle::draw() {
             GXColor color = {255, 255, 255, static_cast<u8>(mpFade->get())};
             utility::Graphics::drawTexture(bounds, mpScreenCapture->getGXTex(), color, 1);
             GXColor mask = {0, 0, 0, static_cast<u8>(mpFade->get())};
-            iplSDChannelTitle_813E8C08(this, bounds, mask);
+            iplSDChannelTitle_drawDimOverlay(this, bounds, mask);
         } else {
             if (mpIconLayout) {
                 utility::Graphics::setOrthoProjection(0);
@@ -522,14 +522,14 @@ BOOL SDChannelTitle::isResetAcceptable() {
     return FALSE;
 }
 
-extern "C" void iplSDChannelTitle_813E630C(SDChannelTitle* scene) {
-    iplSDChannelTitle_813E6348(scene);
+extern "C" void iplSDChannelTitle_rebuildBannerLayout(SDChannelTitle* scene) {
+    iplSDChannelTitle_createBannerLayout(scene);
     if (scene->mpBannerLayout) {
         scene->mpBannerLayout->finishBinding();
     }
 }
 
-extern "C" void iplSDChannelTitle_813E6348(SDChannelTitle* scene) {
+extern "C" void iplSDChannelTitle_createBannerLayout(SDChannelTitle* scene) {
     if (scene->mpIconLayout) {
         scene->mpIconLayout->destroyHeap();
         scene->mpIconLayout = NULL;
@@ -538,17 +538,17 @@ extern "C" void iplSDChannelTitle_813E6348(SDChannelTitle* scene) {
         scene->mpBannerLayout = layout::Object::create(scene->mpBannerHeap, 0x40000,
             scene->mpBannerFiles[scene->mLoadedIndex], "arc", "banner.brlyt");
         iplSDChannelObj_813E3580(scene->mpBannerLayout);
-        iplSDChannelTitle_813E81FC(scene);
+        iplSDChannelTitle_bindBannerAnimations(scene);
     } else {
         scene->mpBannerLayout = NULL;
         for (int index = 0; index < 3; ++index) {
             scene->mpBannerAnimations[index] = NULL;
         }
-        iplSDChannelTitle_813E6424(scene);
+        iplSDChannelTitle_createIconLayout(scene);
     }
 }
 
-extern "C" void iplSDChannelTitle_813E6424(SDChannelTitle* scene) {
+extern "C" void iplSDChannelTitle_createIconLayout(SDChannelTitle* scene) {
     SDChannelObj* channel = scene->mpChannelSelect->findChannelObject(scene->mPage, scene->mIndex);
     if (channel) {
         scene->mpIconLayout = layout::Object::create(scene->mpIconHeap, 0x8000,
@@ -570,7 +570,7 @@ extern "C" void iplSDChannelTitle_813E6424(SDChannelTitle* scene) {
     }
 }
 
-extern "C" void iplSDChannelTitle_813E65D4(SDChannelTitle* scene) {
+extern "C" void iplSDChannelTitle_updateIdleState(SDChannelTitle* scene) {
     SDButton* button = static_cast<SDButton*>(System::getScene(0x24));
     if (button && button->isActive()) {
         button->update();
@@ -578,18 +578,18 @@ extern "C" void iplSDChannelTitle_813E65D4(SDChannelTitle* scene) {
     if (scene->mState == 1) {
         if (static_cast<u32>(scene->mpChannelSelect->mCurrentSDState - 1) <= 1) {
             scene->mState = 10;
-            iplSDChannelTitle_813E7A18(scene);
+            iplSDChannelTitle_preparePageRestart(scene);
         } else {
             controller::Interface* controller = System::getMasterController();
             int page;
             int index;
             if (controller->down(0x30001000)) {
                 scene->mpChannelSelect->findAdjacentChannel(1, &page, &index);
-                iplSDChannelTitle_813E85C0(scene, page, index);
+                iplSDChannelTitle_setPageAndIndex(scene, page, index);
                 snd::getSystem()->startSE("WSD_SELECT");
             } else if (controller->down(0x6000010)) {
                 scene->mpChannelSelect->findAdjacentChannel(0, &page, &index);
-                iplSDChannelTitle_813E85C0(scene, page, index);
+                iplSDChannelTitle_setPageAndIndex(scene, page, index);
                 snd::getSystem()->startSE("WSD_SELECT");
             } else {
                 scene->mpPaneManager->update();
@@ -603,7 +603,7 @@ extern "C" void iplSDChannelTitle_813E65D4(SDChannelTitle* scene) {
     }
 }
 
-extern "C" void iplSDChannelTitle_813E6760(SDChannelTitle* scene) {
+extern "C" void iplSDChannelTitle_updateChangeState(SDChannelTitle* scene) {
     if (static_cast<u32>(scene->mpChannelSelect->mCurrentSDState - 1) <= 1) {
         scene->mState = 1;
     } else {
@@ -630,21 +630,21 @@ extern "C" void iplSDChannelTitle_813E6760(SDChannelTitle* scene) {
             }
             scene->mpSoundFiles[scene->mLoadedIndex] = NULL;
             scene->mLoadedIndex = 1 - scene->mLoadedIndex;
-            iplSDChannelTitle_813E630C(scene);
-            iplSDChannelTitle_813E8B70(scene);
+            iplSDChannelTitle_rebuildBannerLayout(scene);
+            iplSDChannelTitle_setStartButtonPressed(scene);
             scene->mState = 9;
         }
     }
 }
 
-extern "C" void iplSDChannelTitle_813E696C(SDChannelTitle* scene) {
+extern "C" void iplSDChannelTitle_updateChangeWait(SDChannelTitle* scene) {
     if (++scene->mChangeFrame > 20) {
-        iplSDChannelTitle_813E8034(scene);
+        iplSDChannelTitle_playBannerIntro(scene);
         scene->mState = 1;
     }
 }
 
-extern "C" void iplSDChannelTitle_813E69B4(SDChannelTitle* scene) {
+extern "C" void iplSDChannelTitle_updateParentalResult(SDChannelTitle* scene) {
     ParentalDialog* parental = static_cast<ParentalDialog*>(System::getScene(0x1b));
     if (!parental && !System::getReservedScene()) {
         if (scene->mParentalResult == 1) {
@@ -674,7 +674,7 @@ extern "C" void iplSDChannelTitle_813E69B4(SDChannelTitle* scene) {
         switch (result) {
         case 1:
             if (!scene->mParentalResult) {
-                iplSDChannelTitle_813E899C(scene, scene->mNextScene);
+                iplSDChannelTitle_prepareSceneExit(scene, scene->mNextScene);
                 scene->mParentalResult = 1;
             }
             break;
@@ -688,7 +688,7 @@ extern "C" void iplSDChannelTitle_813E69B4(SDChannelTitle* scene) {
     }
 }
 
-extern "C" void iplSDChannelTitle_813E6B88(SDChannelTitle* scene) {
+extern "C" void iplSDChannelTitle_updateDialogResult(SDChannelTitle* scene) {
     int result = System::getDialog()->getLastResult();
     switch (result) {
     case 2: {
@@ -708,8 +708,8 @@ extern "C" void iplSDChannelTitle_813E6B88(SDChannelTitle* scene) {
         break;
     }
     case 1: {
-        if (iplSDChannelTitle_813E84C8()) {
-            iplSDChannelTitle_813E850C(scene, reinterpret_cast<void*>(1));
+        if (iplSDChannelTitle_isParentalEnabled()) {
+            iplSDChannelTitle_openParentalDialog(scene, reinterpret_cast<void*>(1));
         } else {
             scene->reserveAllSceneDestruction(0x12, reinterpret_cast<void*>(1));
             scene->mState = 7;
@@ -719,7 +719,7 @@ extern "C" void iplSDChannelTitle_813E6B88(SDChannelTitle* scene) {
     }
 }
 
-extern "C" void iplSDChannelTitle_813E6CCC(SDChannelTitle* scene) {
+extern "C" void iplSDChannelTitle_startCopyProgress(SDChannelTitle* scene) {
     if (scene->mpChannelSelect->getWorker()->is_working() || scene->mpProgressLayout->isPlaying(0) ||
         scene->mpButtonAnimations[3][2]->isPlaying()) {
         return;
@@ -747,7 +747,7 @@ extern "C" void iplSDChannelTitle_813E6CCC(SDChannelTitle* scene) {
     }
 }
 
-extern "C" void iplSDChannelTitle_813E6E24(SDChannelTitle* scene) {
+extern "C" void iplSDChannelTitle_updateCopyPrepare(SDChannelTitle* scene) {
     if (scene->mpChannelSelect->getWorker()->is_working() || scene->mpProgressLayout->isPlaying(1)) {
         return;
     }
@@ -762,9 +762,9 @@ extern "C" void iplSDChannelTitle_813E6E24(SDChannelTitle* scene) {
                 if (static_cast<u32>(scene->mTitleRange.mByteSize) < 0x3800000) {
                     nandRange.mByteSize = 0x3800000;
                     nandRange.mCount = scene->mTitleRange.mCount;
-                    iplSDChannelTitle_813E6FA0(&sdRange, &scene->mTitleRange);
+                    iplSDChannelTitle_copyTitleRange(&sdRange, &scene->mTitleRange);
                 } else {
-                    iplSDChannelTitle_813E6FA0(&nandRange, iplSDChannelTitle_813E6FA0(&sdRange, &scene->mTitleRange));
+                    iplSDChannelTitle_copyTitleRange(&nandRange, iplSDChannelTitle_copyTitleRange(&sdRange, &scene->mTitleRange));
                 }
                 SDMemory* memory = &scene->mMemory;
                 setMemoryTitleLists(memory, sdRange, nandRange);
@@ -786,7 +786,7 @@ extern "C" void iplSDChannelTitle_813E6E24(SDChannelTitle* scene) {
     }
 }
 
-extern "C" SDMemory::TitleRange* iplSDChannelTitle_813E6FA0(
+extern "C" SDMemory::TitleRange* iplSDChannelTitle_copyTitleRange(
     SDMemory::TitleRange* target, const SDMemory::TitleRange* source) {
     s32 bytes = source->mByteSize;
     target->mCount = source->mCount;
@@ -794,7 +794,7 @@ extern "C" SDMemory::TitleRange* iplSDChannelTitle_813E6FA0(
     return target;
 }
 
-extern "C" void iplSDChannelTitle_813E6FB4(SDChannelTitle* scene) {
+extern "C" void iplSDChannelTitle_updateMemoryCalc(SDChannelTitle* scene) {
     if (!scene->mMemory.calc()) {
         return;
     }
@@ -818,7 +818,7 @@ extern "C" void iplSDChannelTitle_813E6FB4(SDChannelTitle* scene) {
     scene->mState = 15;
 }
 
-extern "C" void iplSDChannelTitle_813E7074(SDChannelTitle* scene) {
+extern "C" void iplSDChannelTitle_updateCopyStart(SDChannelTitle* scene) {
     if (!scene->mpChannelSelect->getWorker()->is_working()) {
         if (scene->mbCopiedTitle && !scene->mpProgressLayout->isPlaying(3)) {
             scene->mpProgressLayout->getAnim(3)->play();
@@ -843,7 +843,7 @@ extern "C" void iplSDChannelTitle_813E7074(SDChannelTitle* scene) {
     }
 }
 
-extern "C" void iplSDChannelTitle_813E71A4(SDChannelTitle* scene) {
+extern "C" void iplSDChannelTitle_updateAfterClearTmp(SDChannelTitle* scene) {
     if (!scene->mpChannelSelect->getWorker()->is_working()) {
         SCSetTmpTitleID(0);
         System::getChannelManager()->clearTmpChannel();
@@ -862,7 +862,7 @@ extern "C" void iplSDChannelTitle_813E71A4(SDChannelTitle* scene) {
     }
 }
 
-extern "C" void iplSDChannelTitle_813E724C(SDChannelTitle* scene) {
+extern "C" void iplSDChannelTitle_updateEnqueueNotice(SDChannelTitle* scene) {
     if (!scene->mpChannelSelect->getWorker()->is_working()) {
         if (scene->mpChannelSelect->enqueueResultNotice(static_cast<u32>(scene->mTitleId))) {
             scene->mState = 22;
@@ -873,7 +873,7 @@ extern "C" void iplSDChannelTitle_813E724C(SDChannelTitle* scene) {
     }
 }
 
-extern "C" void iplSDChannelTitle_813E72B8(SDChannelTitle* scene) {
+extern "C" void iplSDChannelTitle_updateCopyProgress(SDChannelTitle* scene) {
     scene->mpProgressLayout->getAnim(2)->initAnmFrame(NandSDWorker::getCompletionPct());
     if (!scene->mpChannelSelect->getWorker()->is_working()) {
         int result = scene->mpChannelSelect->getWorker()->get_async_result();
@@ -883,7 +883,7 @@ extern "C" void iplSDChannelTitle_813E72B8(SDChannelTitle* scene) {
             snd::getSystem()->stopSE(scene->mpCopySound, 0);
             scene->mpCopySound = NULL;
             snd::getSystem()->startSE("WIPL_SE_COPY_FINISH");
-            System::getTask1()->request(iplSDChannelTitle_813E8E70, scene, NULL);
+            System::getTask1()->request(iplSDChannelTitle_fetchTmdViewTask, scene, NULL);
             scene->mState = 24;
         } else {
             SCSetTmpTitleID(0);
@@ -900,7 +900,7 @@ extern "C" void iplSDChannelTitle_813E72B8(SDChannelTitle* scene) {
     }
 }
 
-extern "C" void iplSDChannelTitle_813E7418(SDChannelTitle* scene) {
+extern "C" void iplSDChannelTitle_showCopyError(SDChannelTitle* scene) {
     scene->mpProgressLayout->getAnim(3)->stop();
     snd::getSystem()->stopSE(scene->mpCopySound, 0);
     scene->mpCopySound = NULL;
@@ -908,13 +908,13 @@ extern "C" void iplSDChannelTitle_813E7418(SDChannelTitle* scene) {
     scene->mState = 27;
 }
 
-extern "C" void iplSDChannelTitle_813E7498(SDChannelTitle* scene) {
+extern "C" void iplSDChannelTitle_updateCopyErrorDialog(SDChannelTitle* scene) {
     if (SCCheckStatus() != 1 && System::getDialog()->getLastResult() != -1) {
         scene->mState = 29;
     }
 }
 
-extern "C" void iplSDChannelTitle_813E74EC(SDChannelTitle* scene) {
+extern "C" void iplSDChannelTitle_finishProgressHide(SDChannelTitle* scene) {
     if (!scene->mpProgressLayout->isPlaying(1) && !scene->mpButtonAnimations[1][0]->isPlaying() &&
         !scene->mpButtonAnimations[6][5]->isPlaying()) {
         scene->mbResetAcceptable = true;
@@ -934,7 +934,7 @@ extern "C" void iplSDChannelTitle_813E74EC(SDChannelTitle* scene) {
     }
 }
 
-extern "C" void iplSDChannelTitle_813E7618(SDChannelTitle* scene) {
+extern "C" void iplSDChannelTitle_returnToIdle(SDChannelTitle* scene) {
     if (!scene->mpProgressLayout->isPlaying(1) && !scene->mpButtonAnimations[6][5]->isPlaying()) {
         for (int button = 0; button < 2; ++button) {
             scene->mHoverCounts[button] = 0;
@@ -944,11 +944,11 @@ extern "C" void iplSDChannelTitle_813E7618(SDChannelTitle* scene) {
     }
 }
 
-extern "C" void iplSDChannelTitle_813E76C8(SDChannelTitle* scene) {
+extern "C" void iplSDChannelTitle_loadTitleBanner(SDChannelTitle* scene) {
     int page;
     int index;
     if (System::getChannelManager()->isLoadedTmp() || System::getChannelManager()->hasChannel(scene->mTitleId, &page, &index)) {
-        scene->mpBannerFiles[scene->mLoadedIndex] = iplSDChannelTitle_813E8DCC(scene, scene->mTitleId,
+        scene->mpBannerFiles[scene->mLoadedIndex] = iplSDChannelTitle_loadBannerMetaFiles(scene, scene->mTitleId,
                                                                          &scene->mpSoundFiles[scene->mLoadedIndex]);
         if (scene->mbCopiedTitle) {
             scene->mState = 13;
@@ -958,44 +958,44 @@ extern "C" void iplSDChannelTitle_813E76C8(SDChannelTitle* scene) {
     }
 }
 
-extern "C" void iplSDChannelTitle_813E7780(SDChannelTitle* scene) {
+extern "C" void iplSDChannelTitle_updateBannerLoad(SDChannelTitle* scene) {
     if (!scene->mpBannerFiles[scene->mLoadedIndex] || scene->mpBannerFiles[scene->mLoadedIndex]->isFinished()) {
-        iplSDChannelTitle_813E7B30(scene, scene->mTitleId);
-        iplSDChannelTitle_813E630C(scene);
+        iplSDChannelTitle_loadBannerScript(scene, scene->mTitleId);
+        iplSDChannelTitle_rebuildBannerLayout(scene);
         scene->mState = 4;
-        iplSDChannelTitle_813E8034(scene);
+        iplSDChannelTitle_playBannerIntro(scene);
     }
 }
 
-extern "C" void iplSDChannelTitle_813E7800(SDChannelTitle* scene) {
+extern "C" void iplSDChannelTitle_tryLaunchSelected(SDChannelTitle* scene) {
     if (static_cast<u32>(scene->mpChannelSelect->mCurrentSDState - 1) <= 1) {
         scene->mState = 1;
     } else {
         SDChannelObj* channel = scene->mpChannelSelect->findChannelObject(scene->mPage, scene->mIndex);
         if (iplSDChannelObj_813E3330(channel)) {
-            iplSDChannelTitle_813E86A0(scene, channel);
+            iplSDChannelTitle_beginLaunch(scene, channel);
         }
     }
 }
 
-extern "C" void iplSDChannelTitle_813E787C(SDChannelTitle* scene) {
+extern "C" void iplSDChannelTitle_updateTmdReady(SDChannelTitle* scene) {
     if (scene->mbTmdReady) {
         if (!System::getChannelManager()->isMissingTicket(scene->mTitleId) && !utility::ESMisc::CheckTmdCountryCode(scene->mpTmd)) {
             System::getErrorHandler()->set(ErrorHandler::DEFAULT, 3, NULL, 0, -1);
         }
         scene->mMakerCode = scene->mpTmd->head.groupId;
-        if (!iplSDChannelTitle_813E847C(scene, scene->mpTmd, scene->mTitleId)) {
-            iplSDChannelTitle_813E88CC(scene, false);
+        if (!iplSDChannelTitle_isNetworkAllowed(scene, scene->mpTmd, scene->mTitleId)) {
+            iplSDChannelTitle_confirmLeaveToSettings(scene, false);
             scene->mNextScene = 18;
-        } else if (iplSDChannelTitle_813E8F04(scene, scene->mpTmd)) {
-            iplSDChannelTitle_813E899C(scene, scene->mNextScene);
+        } else if (iplSDChannelTitle_passesParentalCheck(scene, scene->mpTmd)) {
+            iplSDChannelTitle_prepareSceneExit(scene, scene->mNextScene);
             if (scene->mbCopiedTitle) {
                 scene->mState = 25;
             } else {
                 scene->mState = 15;
             }
         } else {
-            iplSDChannelTitle_813E850C(scene, NULL);
+            iplSDChannelTitle_openParentalDialog(scene, NULL);
         }
         if (scene->mpTmd) {
             scene->mpBannerHeap->free(scene->mpTmd);
@@ -1003,7 +1003,7 @@ extern "C" void iplSDChannelTitle_813E787C(SDChannelTitle* scene) {
     }
 }
 
-extern "C" bool iplSDChannelTitle_813E79B0(SDChannelTitle* scene) {
+extern "C" bool iplSDChannelTitle_startZoomFade(SDChannelTitle* scene) {
     if (!scene->mpChannelSelect->tellStartingZoomAnm()) {
         return false;
     }
@@ -1012,7 +1012,7 @@ extern "C" bool iplSDChannelTitle_813E79B0(SDChannelTitle* scene) {
     return true;
 }
 
-extern "C" void iplSDChannelTitle_813E7A18(SDChannelTitle* scene) {
+extern "C" void iplSDChannelTitle_preparePageRestart(SDChannelTitle* scene) {
     if (!scene->mScriptEnabled || scene->mScriptState == 4) {
         if (scene->mpChannelSelect->prepareRestarting(scene->mPage)) {
             scene->mpChannelSelect->startPageTransition(scene->mPage, scene->mIndex);
@@ -1034,7 +1034,7 @@ extern "C" void iplSDChannelTitle_813E7A18(SDChannelTitle* scene) {
     }
 }
 
-extern "C" void iplSDChannelTitle_813E7B30(SDChannelTitle* scene, ESTitleId title) {
+extern "C" void iplSDChannelTitle_loadBannerScript(SDChannelTitle* scene, ESTitleId title) {
     if (!System::isSafeMode()) {
         if (scene->mScriptEnabled) {
             delete scene->mpScriptFile;
@@ -1052,7 +1052,7 @@ extern "C" void iplSDChannelTitle_813E7B30(SDChannelTitle* scene, ESTitleId titl
     }
 }
 
-extern "C" void iplSDChannelTitle_813E7C0C(SDChannelTitle* scene) {
+extern "C" void iplSDChannelTitle_updateScript(SDChannelTitle* scene) {
     if (scene->mScriptEnabled != 1) {
         return;
     }
@@ -1061,16 +1061,16 @@ extern "C" void iplSDChannelTitle_813E7C0C(SDChannelTitle* scene) {
     }
     switch (scene->mScriptState) {
     case 0:
-        iplSDChannelTitle_813E7D14(scene);
+        iplSDChannelTitle_updateScriptIdle(scene);
         break;
     case 1:
-        iplSDChannelTitle_813E7DD0(scene);
+        iplSDChannelTitle_updateScriptLoad(scene);
         break;
     case 2:
         System::getCSManager()->calc();
         if (scene->mpRsoThread->IsThreadTerminated()) {
             if (System::getCSManager()->getAltSoundState() == 1) {
-                iplSDChannelTitle_813E8160(scene);
+                iplSDChannelTitle_startBannerSound(scene);
                 System::getCSManager()->setAltSoundState(0);
             }
             System::getCSManager()->finish();
@@ -1078,12 +1078,12 @@ extern "C" void iplSDChannelTitle_813E7C0C(SDChannelTitle* scene) {
         }
         break;
     case 3:
-        iplSDChannelTitle_813E7FB0(scene);
+        iplSDChannelTitle_destroyScript(scene);
         break;
     }
 }
 
-extern "C" void iplSDChannelTitle_813E7D14(SDChannelTitle* scene) {
+extern "C" void iplSDChannelTitle_updateScriptIdle(SDChannelTitle* scene) {
     if (scene->mbStopScript) {
         scene->mbStopScript = false;
         scene->mScriptFrame = 0;
@@ -1101,7 +1101,7 @@ extern "C" void iplSDChannelTitle_813E7D14(SDChannelTitle* scene) {
     }
 }
 
-extern "C" void iplSDChannelTitle_813E7DD0(SDChannelTitle* scene) {
+extern "C" void iplSDChannelTitle_updateScriptLoad(SDChannelTitle* scene) {
     if (!scene->mpScriptFile->isFinished()) {
         return;
     }
@@ -1132,7 +1132,7 @@ extern "C" void iplSDChannelTitle_813E7DD0(SDChannelTitle* scene) {
     }
 }
 
-extern "C" void iplSDChannelTitle_813E7FB0(SDChannelTitle* scene) {
+extern "C" void iplSDChannelTitle_destroyScript(SDChannelTitle* scene) {
     scene->mbScriptFailed = true;
     System::getCSManager()->destroy();
     scene->mScriptFrame = 0;
@@ -1142,7 +1142,7 @@ extern "C" void iplSDChannelTitle_813E7FB0(SDChannelTitle* scene) {
     scene->mScriptState = 0;
 }
 
-extern "C" void iplSDChannelTitle_813E8034(SDChannelTitle* scene) {
+extern "C" void iplSDChannelTitle_playBannerIntro(SDChannelTitle* scene) {
     if (scene->mpBannerAnimations[1]) {
         scene->mpBannerAnimations[1]->play();
         scene->mbBannerStarting = false;
@@ -1153,7 +1153,7 @@ extern "C" void iplSDChannelTitle_813E8034(SDChannelTitle* scene) {
     }
     if (scene->mState != 6) {
         if (!System::getChannelManager()->usesAltSound(scene->mTitleId) || !scene->mScriptEnabled) {
-            iplSDChannelTitle_813E8160(scene);
+            iplSDChannelTitle_startBannerSound(scene);
         }
         if (!scene->mpBannerLayout) {
             scene->mpProgressLayout->getAnim(0)->initAnmFrame();
@@ -1163,7 +1163,7 @@ extern "C" void iplSDChannelTitle_813E8034(SDChannelTitle* scene) {
     }
 }
 
-extern "C" void iplSDChannelTitle_813E8160(SDChannelTitle* scene) {
+extern "C" void iplSDChannelTitle_startBannerSound(SDChannelTitle* scene) {
     if (scene->mpSoundFiles[scene->mLoadedIndex] && scene->mpSoundFiles[scene->mLoadedIndex]->checkData() == 1) {
         void* sound = scene->mpSoundFiles[scene->mLoadedIndex]->getBuffer();
         u32 size = System::getChannelManager()->getSoundSize(scene->mTitleId);
@@ -1171,15 +1171,15 @@ extern "C" void iplSDChannelTitle_813E8160(SDChannelTitle* scene) {
     }
 }
 
-extern "C" void iplSDChannelTitle_813E81FC(SDChannelTitle* scene) {
-    iplSDChannelTitle_813E8360(scene);
+extern "C" void iplSDChannelTitle_bindBannerAnimations(SDChannelTitle* scene) {
+    iplSDChannelTitle_bindBannerAnims(scene);
     if (scene->mScriptEnabled) {
         memset(scene->mpScriptAnimations, 0, sizeof(scene->mpScriptAnimations));
-        iplSDChannelTitle_813E8258(scene, scene->mpBannerLayout, scene->mpScriptAnimations, "banner");
+        iplSDChannelTitle_bindRsoAnimations(scene, scene->mpBannerLayout, scene->mpScriptAnimations, "banner");
     }
 }
 
-extern "C" void iplSDChannelTitle_813E8258(SDChannelTitle*, layout::Object* layout,
+extern "C" void iplSDChannelTitle_bindRsoAnimations(SDChannelTitle*, layout::Object* layout,
                                          layout::Animator** animations, const char* prefix) {
     char groupName[8];
     char animationName[20];
@@ -1203,7 +1203,7 @@ extern "C" void iplSDChannelTitle_813E8258(SDChannelTitle*, layout::Object* layo
     }
 }
 
-extern "C" void iplSDChannelTitle_813E8360(SDChannelTitle* scene) {
+extern "C" void iplSDChannelTitle_bindBannerAnims(SDChannelTitle* scene) {
     for (int index = 0; index < 3; ++index) {
         if (scene->mpBannerLayout->searchFile(sBannerAnimationNames[index])) {
             if (index == 0) {
@@ -1226,14 +1226,14 @@ extern "C" void iplSDChannelTitle_813E8360(SDChannelTitle* scene) {
     }
 }
 
-extern "C" BOOL iplSDChannelTitle_813E847C(SDChannelTitle*, ESTmdView*, ESTitleId titleId) {
+extern "C" BOOL iplSDChannelTitle_isNetworkAllowed(SDChannelTitle*, ESTmdView*, ESTitleId titleId) {
     if (!System::getChannelManager()->needsNetSetting(titleId) || ncd::NCDSetting::getConnectEnableFlag()) {
         return TRUE;
     }
     return FALSE;
 }
 
-extern "C" BOOL iplSDChannelTitle_813E84C8() {
+extern "C" BOOL iplSDChannelTitle_isParentalEnabled() {
     SCParentalControlsInfo parental;
     if (SCGetParentalControl(&parental) && (parental.enable & SC_PARENTAL_FLAG_ENABLED)) {
         return TRUE;
@@ -1241,7 +1241,7 @@ extern "C" BOOL iplSDChannelTitle_813E84C8() {
     return FALSE;
 }
 
-extern "C" void iplSDChannelTitle_813E850C(SDChannelTitle* scene, void* arguments) {
+extern "C" void iplSDChannelTitle_openParentalDialog(SDChannelTitle* scene, void* arguments) {
     System::getHomeButtonMenu()->enable();
     scene->mbResetAcceptable = true;
     if (static_cast<SDButton*>(System::getScene(0x24))->isLeftArrowVisible()) {
@@ -1253,7 +1253,7 @@ extern "C" void iplSDChannelTitle_813E850C(SDChannelTitle* scene, void* argument
     scene->mState = 11;
 }
 
-extern "C" void iplSDChannelTitle_813E85C0(SDChannelTitle* scene, int page, int index) {
+extern "C" void iplSDChannelTitle_setPageAndIndex(SDChannelTitle* scene, int page, int index) {
     SDChannelObj* keep = NULL;
     if (scene->mpIconLayout) {
         keep = scene->mpChannelSelect->findChannelObject(scene->mPage, scene->mIndex);
@@ -1265,13 +1265,13 @@ extern "C" void iplSDChannelTitle_813E85C0(SDChannelTitle* scene, int page, int 
     scene->mPosition.x = SDChannelSelect::getChannelPanePosition(scene->mpChannelSelect, scene->mIndex).x;
     scene->mPosition.y = SDChannelSelect::getChannelPanePosition(scene->mpChannelSelect, scene->mIndex).y;
     if (iplSDChannelObj_813E3330(channel)) {
-        iplSDChannelTitle_813E86A0(scene, channel);
+        iplSDChannelTitle_beginLaunch(scene, channel);
     } else {
         scene->mState = 28;
     }
 }
 
-extern "C" void iplSDChannelTitle_813E86A0(SDChannelTitle* scene, SDChannelObj* channel) {
+extern "C" void iplSDChannelTitle_beginLaunch(SDChannelTitle* scene, SDChannelObj* channel) {
     scene->mTitleId = channel->mAppMeta.titleId;
     if (scene->mScriptEnabled) {
         scene->mbStopScript = true;
@@ -1280,7 +1280,7 @@ extern "C" void iplSDChannelTitle_813E86A0(SDChannelTitle* scene, SDChannelObj* 
     scene->mState = 8;
 }
 
-extern "C" void iplSDChannelTitle_813E86D8(SDChannelTitle* scene) {
+extern "C" void iplSDChannelTitle_cleanupAndLeave(SDChannelTitle* scene) {
     scene->mParentalResult = 0;
     scene->mbStartAnimation = false;
     static_cast<SDButton*>(System::getScene(0x24))->animation(15);
@@ -1311,7 +1311,7 @@ extern "C" void iplSDChannelTitle_813E86D8(SDChannelTitle* scene) {
     System::getHomeButtonMenu()->disable();
     System::stopReceiveSchedule();
     if (hasTitle || hasTemporaryTitle) {
-        System::getTask1()->request(iplSDChannelTitle_813E8E70, scene, NULL);
+        System::getTask1()->request(iplSDChannelTitle_fetchTmdViewTask, scene, NULL);
         scene->mbCopiedTitle = false;
         scene->mState = 13;
     } else {
@@ -1322,7 +1322,7 @@ extern "C" void iplSDChannelTitle_813E86D8(SDChannelTitle* scene) {
     }
 }
 
-extern "C" void iplSDChannelTitle_813E88CC(SDChannelTitle* scene, bool settings) {
+extern "C" void iplSDChannelTitle_confirmLeaveToSettings(SDChannelTitle* scene, bool settings) {
     if (settings) {
         scene->reserveAllSceneDestruction(0x12, reinterpret_cast<void*>(1));
         scene->mState = 7;
@@ -1338,7 +1338,7 @@ extern "C" void iplSDChannelTitle_813E88CC(SDChannelTitle* scene, bool settings)
     }
 }
 
-extern "C" void iplSDChannelTitle_813E899C(SDChannelTitle* scene, int nextScene) {
+extern "C" void iplSDChannelTitle_prepareSceneExit(SDChannelTitle* scene, int nextScene) {
     for (int index = 0; index < 4; ++index) {
         controller::Interface* controller = System::getController(index);
         if (controller) {
@@ -1351,7 +1351,7 @@ extern "C" void iplSDChannelTitle_813E899C(SDChannelTitle* scene, int nextScene)
     }
 }
 
-extern "C" void iplSDChannelTitle_813E8A20(SDChannelTitle* scene, int nextScene) {
+extern "C" void iplSDChannelTitle_flushSaveBeforeExit(SDChannelTitle* scene, int nextScene) {
     int page;
     int index;
     if (System::getChannelManager()->hasChannel(scene->mTitleId, &page, &index)) {
@@ -1363,7 +1363,7 @@ extern "C" void iplSDChannelTitle_813E8A20(SDChannelTitle* scene, int nextScene)
     __WPADReconnect(TRUE);
 }
 
-extern "C" void iplSDChannelTitle_813E8AB4(SDChannelTitle*) {
+extern "C" void iplSDChannelTitle_rebootSystem(SDChannelTitle*) {
     snd::getSystem()->stopAllSound(0);
     snd::getSystem()->calc();
     VISetBlack(TRUE);
@@ -1374,11 +1374,11 @@ extern "C" void iplSDChannelTitle_813E8AB4(SDChannelTitle*) {
     OSRebootSystem();
 }
 
-extern "C" bool iplSDChannelTitle_813E8B1C(SDChannelTitle* scene) {
+extern "C" bool iplSDChannelTitle_isLaunchDelayDone(SDChannelTitle* scene) {
     return static_cast<u32>(120.0f / System::getAnimDelta()) < scene->mLaunchFrame;
 }
 
-extern "C" void iplSDChannelTitle_813E8B70(SDChannelTitle* scene) {
+extern "C" void iplSDChannelTitle_setStartButtonPressed(SDChannelTitle* scene) {
     if (!scene->mStartButtonState) {
         scene->mpButtonAnimations[5][3]->stop();
         scene->mpButtonAnimations[5][4]->play();
@@ -1388,7 +1388,7 @@ extern "C" void iplSDChannelTitle_813E8B70(SDChannelTitle* scene) {
     scene->mStartButtonState = 1;
 }
 
-extern "C" void iplSDChannelTitle_813E8C08(SDChannelTitle*, const nw4r::ut::Rect& bounds, GXColor color) {
+extern "C" void iplSDChannelTitle_drawDimOverlay(SDChannelTitle*, const nw4r::ut::Rect& bounds, GXColor color) {
     nw4r::ut::Rect screen;
     System::getProjectionRect(&screen);
     nw4r::ut::Rect rectangles[4];
@@ -1413,7 +1413,7 @@ extern "C" void iplSDChannelTitle_813E8C08(SDChannelTitle*, const nw4r::ut::Rect
     }
 }
 
-extern "C" void iplSDChannelTitle_813E8D14(SDChannelTitle*, nw4r::lyt::Pane* pane, u32 message, bool allocate) {
+extern "C" void iplSDChannelTitle_setPaneMessage(SDChannelTitle*, nw4r::lyt::Pane* pane, u32 message, bool allocate) {
     wchar_t text[256];
     wcsncpy(text, System::getMessage(message), 256);
     text[255] = 0;
@@ -1425,13 +1425,13 @@ extern "C" void iplSDChannelTitle_813E8D14(SDChannelTitle*, nw4r::lyt::Pane* pan
     textBox->SetString(text);
 }
 
-extern "C" nand::LayoutFile* iplSDChannelTitle_813E8DCC(SDChannelTitle*, ESTitleId title, nand::File** sound) {
+extern "C" nand::LayoutFile* iplSDChannelTitle_loadBannerMetaFiles(SDChannelTitle*, ESTitleId title, nand::File** sound) {
     *sound = System::getChannelManager()->readSoundMetaAsync(System::getMem2App(), title);
     nand::MetaFile* banner = System::getChannelManager()->readBannerMetaAsync(System::getMem2App(), title);
     return new (System::getMem2App(), 4) nand::LayoutFile(banner, NULL);
 }
 
-extern "C" void iplSDChannelTitle_813E8E70(void* argument) {
+extern "C" void iplSDChannelTitle_fetchTmdViewTask(void* argument) {
     SDChannelTitle* scene = static_cast<SDChannelTitle*>(argument);
     ESError result = utility::ESMisc::GetTmdView(scene->mpBannerHeap, scene->mTitleId, &scene->mpTmd);
     if (result) {
@@ -1441,7 +1441,7 @@ extern "C" void iplSDChannelTitle_813E8E70(void* argument) {
     scene->mbTmdReady = true;
 }
 
-extern "C" BOOL iplSDChannelTitle_813E8F04(SDChannelTitle* scene, ESTmdView* tmd) {
+extern "C" BOOL iplSDChannelTitle_passesParentalCheck(SDChannelTitle* scene, ESTmdView* tmd) {
     if (!utility::ESMisc::__IsPCEnable()) {
         return TRUE;
     }
@@ -1467,7 +1467,7 @@ extern "C" BOOL iplSDChannelTitle_813E8F04(SDChannelTitle* scene, ESTmdView* tmd
     return TRUE;
 }
 
-extern "C" void iplSDChannelTitle_813E9004(SDTitlePaneEventHandler* handler, u32 component,
+extern "C" void iplSDChannelTitle_onTitlePaneEvent(SDTitlePaneEventHandler* handler, u32 component,
                                          u32 event, const controller::Interface* controller) {
     const char* paneName = handler->getPane(component)->GetName();
     switch (event) {
@@ -1477,12 +1477,12 @@ extern "C" void iplSDChannelTitle_813E9004(SDTitlePaneEventHandler* handler, u32
                 handler->mpScene->mpButtonAnimations[2][2]->play();
                 snd::getSystem()->startSE("WIPL_SE_BT_PUSH");
                 handler->mpScene->mState = 10;
-                iplSDChannelTitle_813E7A18(handler->mpScene);
+                iplSDChannelTitle_preparePageRestart(handler->mpScene);
             } else if (strcmp(paneName, sButtonNames[1]) == 0) {
                 if (handler->mpScene->mStartButtonState != 2) {
                     snd::getSystem()->startSE("WIPL_SE_GRAY_BUTTON");
                 } else {
-                    iplSDChannelTitle_813E86D8(handler->mpScene);
+                    iplSDChannelTitle_cleanupAndLeave(handler->mpScene);
                     handler->mpScene->mpButtonAnimations[3][2]->play();
                     snd::getSystem()->stopSE(handler->mpScene->mpSoundHandle, 30);
                     snd::getSystem()->startSE("WIPL_SE_DECIDE");
@@ -1526,7 +1526,7 @@ extern "C" void iplSDChannelTitle_813E9004(SDTitlePaneEventHandler* handler, u32
     }
 }
 
-extern "C" void iplSDChannelTitle_813E92EC(SDTitleButtonEventHandler* handler, u32 component,
+extern "C" void iplSDChannelTitle_onTitleButtonEvent(SDTitleButtonEventHandler* handler, u32 component,
                                          u32 event, const controller::Interface* controller) {
     const char* name = handler->getPane(component)->GetName();
     switch (event) {
@@ -1538,14 +1538,14 @@ extern "C" void iplSDChannelTitle_813E92EC(SDTitleButtonEventHandler* handler, u
                 int index;
                 handler->mpScene->mpChannelSelect->findAdjacentChannel(1, &page, &index);
                 button->animation(7);
-                iplSDChannelTitle_813E85C0(handler->mpScene, page, index);
+                iplSDChannelTitle_setPageAndIndex(handler->mpScene, page, index);
                 snd::getSystem()->startSE("WSD_SELECT");
             } else if (strcmp(name, SDButton::getButtonName(SDButton::BTN_ARROW_RIGHT)) == 0) {
                 int page;
                 int index;
                 handler->mpScene->mpChannelSelect->findAdjacentChannel(0, &page, &index);
                 button->animation(8);
-                iplSDChannelTitle_813E85C0(handler->mpScene, page, index);
+                iplSDChannelTitle_setPageAndIndex(handler->mpScene, page, index);
                 snd::getSystem()->startSE("WSD_SELECT");
             }
         }
@@ -1558,11 +1558,11 @@ void SDChannelTitle::startResetting() {
 }
 
 void SDTitleButtonEventHandler::onEventDerived(u32 component, u32 event, const controller::Interface* controller) {
-    iplSDChannelTitle_813E92EC(this, component, event, controller);
+    iplSDChannelTitle_onTitleButtonEvent(this, component, event, controller);
 }
 
 void SDTitlePaneEventHandler::onEvent(u32 component, u32 event, void* data) {
-    iplSDChannelTitle_813E9004(this, component, event, static_cast<const controller::Interface*>(data));
+    iplSDChannelTitle_onTitlePaneEvent(this, component, event, static_cast<const controller::Interface*>(data));
 }
 
 }
