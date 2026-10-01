@@ -165,7 +165,7 @@ CDBErr CDBDatabaseClose(CDBDatabase* database) {
     CDBLock();
     instance = database->instance;
     if (instance == NULL || instance->flags == 0) {
-        CDBReportError("CDBDatabaseClose database is closed\n");
+        CDBReportError(lbl_8166B528);
         result = CDB_ERROR_27;
     } else {
         status = CDBDatabaseFree(database);
@@ -498,12 +498,12 @@ CDBErr CDBDatabaseFindByKey(CDBDatabase* database, CDBRecord* record, CDBRecordK
 
     CDBLock();
     if (!CDBRecordKeyIsValid(recordKey)) {
-        CDBReportError("invalid key\n");
+        CDBReportError(lbl_8166B5A8);
         result = CDB_ERROR_5;
     } else {
         CDBRecordInitDescriptor(record, database, recordKey);
         if (!CDBRecordIsExistFile(record)) {
-            CDBReportError("file not found : %s\n", recordKey->keyString);
+            CDBReportError(lbl_8166B5B8, recordKey->keyString);
             result = CDB_ERROR_CANNOT_OPEN_FILE;
         } else {
             result = CDB_ERROR_OK;
