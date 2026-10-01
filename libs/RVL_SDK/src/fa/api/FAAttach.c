@@ -79,7 +79,7 @@ FAError FAAttach(u32 device, char* nand_path, u32 nand_size, FADrvTbl* table) {
     if (error != 0) {
         return -1;
     }
-    index = table->drive - 'A';
+    index = (s8)table->drive - 'A';
     if (device <= 2) {
         gOpenDisk[index] = disk;
         gOpenPartition[index] = table->pPart;

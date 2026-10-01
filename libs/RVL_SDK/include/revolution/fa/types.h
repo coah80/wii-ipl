@@ -188,7 +188,7 @@ typedef struct FADrvTbl {
     FAPartition* pPart;      // 0x00
     FACacheSetting* pCache;  // 0x04
 
-    s8 drive;  // 0x08
+    char drive;  // 0x08
     u8 stat;     // 0x09
 } FADrvTbl;
 

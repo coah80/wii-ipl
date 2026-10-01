@@ -223,12 +223,16 @@ Orig .o exports `STB_GLOBAL lbl_XXXX` data symbols = real file-scope objects
 - DECL-FIRST pointer local flipped i<->dst callee homes r29<->r30 to match
   orig (pointer local declared before the index locals). Combined: 0 diffs.
 
-### s8-field decode (types.h FADrvTbl.drive: char -> s8)
-- orig emits `lbz rX,off` + `extsb` when reading `table->drive` = signed-char
-  field read. MWCC `char` is unsigned on PPC -> field must be `s8`.
-- Verified: pf_stub.o byte-identical with and without the change (its
-  pfstub_entry was already matched on main), DOL hash unchanged, FAAttach
-  fuzzy 98.5->99.4 (still 10-diff reg-rotation tie). Safe to keep.
+### s8 decode (WRONG SITE -- corrected): FADrvTbl.drive stays `char`
+- orig emits `lbz rX,off` + `extsb` reading `table->drive` in FAAttach.
+  First theory `char drive -> s8 drive` in types.h is REFUTED by the DOL:
+  iplSDVFWorker.cpp (Matching, linked) passes `driveTable.drive` to s8
+  params -- with an s8 field it gains extsb at every call site -> hash
+  breaks. Orig field is `char`; orig's extsb comes from source-level `(s8)`
+  at the USE SITE: `index = (s8)table->drive - 'A';` reproduces the extsb
+  AND makes FAAttach's instruction stream ndiff-0 (remaining 10 diffs are
+  pure regname: orig index->r0/scale->r6/value->r3 vs mine index->r5 fused).
+- pf_stub.o byte-identical either way (already Matching on main upstream).
 - RETESTS this session: FAAttach cast-s8/drv-tmp/decl-order all still 10
   (parked reg-rotation); GetSFD start_cluster_p local: still 3 (cyclic
   marshal-order tie confirmed); FindCluster inline-`1<<x`/decl-order/fused
