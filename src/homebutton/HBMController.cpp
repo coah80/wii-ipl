@@ -17,7 +17,7 @@ extern "C" void __dt__Q34nw4r3snd11SoundHandleFv(nw4r::snd::SoundHandle*, int);
 
 namespace homebutton {
     bool Controller::sBatteryFlag[WPAD_MAX_CONTROLLERS];
-    bool Controller::lbl_816989BC[WPAD_MAX_CONTROLLERS];
+    bool Controller::sAlarmCreated[WPAD_MAX_CONTROLLERS];
 
     OSAlarm Controller::sAlarm[WPAD_MAX_CONTROLLERS];
     OSAlarm Controller::sAlarmSoundOff[WPAD_MAX_CONTROLLERS];
@@ -83,10 +83,10 @@ namespace homebutton {
         if (chan < WPAD_MAX_CONTROLLERS) {
             sBatteryFlag[chan] = false;
             OSReport("Create %d\n", chan);
-            if (!lbl_816989BC[chan]) {
+            if (!sAlarmCreated[chan]) {
                 OSCreateAlarm(&sAlarm[chan]);
                 OSCreateAlarm(&sAlarmSoundOff[chan]);
-                lbl_816989BC[chan] = true;
+                sAlarmCreated[chan] = true;
             }
             sThis[chan] = this;
         }

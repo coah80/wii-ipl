@@ -75,7 +75,7 @@ namespace homebutton {
 
         private:
             static bool sBatteryFlag[WPAD_MAX_CONTROLLERS];
-            static bool lbl_816989BC[WPAD_MAX_CONTROLLERS];
+            static bool sAlarmCreated[WPAD_MAX_CONTROLLERS];
 
             static OSAlarm      sAlarm[WPAD_MAX_CONTROLLERS];
             static OSAlarm      sAlarmSoundOff[WPAD_MAX_CONTROLLERS];
