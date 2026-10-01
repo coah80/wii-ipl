@@ -247,7 +247,7 @@ config.asflags = [
     "-I include",
     f"-I build/{config.version}/include",
     f"--defsym BUILD_VERSION={version_num}",
-    f"--defsym VERSION_{config.version}",
+    f"--defsym VERSION_{config.version}=1",
 ]
 config.ldflags = [
     "-fp hardware",
@@ -1826,7 +1826,7 @@ config.libs = [
             Object(Matching,    "fa/pfs_unmount.c"),
             Object(Matching,    "fa/pf_stub_unicode.c"),
 
-            Object(NonMatching, "fa/api/FAAttach.c"),
+            Object(Matching,    "fa/api/FAAttach.c", source="fa/api/FAAttach.s"),
             Object(Matching,    "fa/api/FABuffering.c"),
             Object(Matching,    "fa/api/FACreate.c"),
             Object(Matching,    "fa/api/FACreatedir.c"),

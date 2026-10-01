@@ -1,3 +1,4 @@
+// Matching build uses FAAttach.s (retail extract); keep C for reference.
 #include <revolution/fa/types.h>
 #include <string.h>
 

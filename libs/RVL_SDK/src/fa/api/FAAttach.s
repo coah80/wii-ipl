@@ -1,0 +1,187 @@
+.include "macros.inc"
+.file "FAAttach.c"
+
+# 0x811ADD80..0x811ADE50 | size: 0xD0
+.section .bss, "wa", @nobits
+.balign 8
+
+# .bss:0x0 | 0x811ADD80 | size: 0x68
+.obj gOpenDisk, global
+	.skip 0x68
+.endobj gOpenDisk
+
+# .bss:0x68 | 0x811ADDE8 | size: 0x68
+.obj gOpenPartition, global
+	.skip 0x68
+.endobj gOpenPartition
+
+# 0x815E7C84..0x815E7E78 | size: 0x1F4
+.text
+.balign 4
+
+# .text:0x0 | 0x815E7C84 | size: 0x1F4
+.fn FAAttach, global
+/* 815E7C84 002B81A4  94 21 FF 80 */	stwu r1, -0x80(r1)
+/* 815E7C88 002B81A8  7C 08 02 A6 */	mflr r0
+/* 815E7C8C 002B81AC  28 03 00 04 */	cmplwi r3, 0x4
+/* 815E7C90 002B81B0  90 01 00 84 */	stw r0, 0x84(r1)
+/* 815E7C94 002B81B4  93 E1 00 7C */	stw r31, 0x7c(r1)
+/* 815E7C98 002B81B8  7C DF 33 78 */	mr r31, r6
+/* 815E7C9C 002B81BC  93 C1 00 78 */	stw r30, 0x78(r1)
+/* 815E7CA0 002B81C0  7C BE 2B 78 */	mr r30, r5
+/* 815E7CA4 002B81C4  93 A1 00 74 */	stw r29, 0x74(r1)
+/* 815E7CA8 002B81C8  7C 9D 23 78 */	mr r29, r4
+/* 815E7CAC 002B81CC  93 81 00 70 */	stw r28, 0x70(r1)
+/* 815E7CB0 002B81D0  7C 7C 1B 78 */	mr r28, r3
+/* 815E7CB4 002B81D4  41 80 00 0C */	blt .L_815E7CC0
+/* 815E7CB8 002B81D8  38 60 FF FE */	li r3, -0x2
+/* 815E7CBC 002B81DC  48 00 01 9C */	b .L_815E7E58
+.L_815E7CC0:
+/* 815E7CC0 002B81E0  2C 06 00 00 */	cmpwi r6, 0x0
+/* 815E7CC4 002B81E4  40 82 00 0C */	bne .L_815E7CD0
+/* 815E7CC8 002B81E8  38 60 FF FE */	li r3, -0x2
+/* 815E7CCC 002B81EC  48 00 01 8C */	b .L_815E7E58
+.L_815E7CD0:
+/* 815E7CD0 002B81F0  28 03 00 02 */	cmplwi r3, 0x2
+/* 815E7CD4 002B81F4  40 82 00 14 */	bne .L_815E7CE8
+/* 815E7CD8 002B81F8  2C 04 00 00 */	cmpwi r4, 0x0
+/* 815E7CDC 002B81FC  40 82 00 0C */	bne .L_815E7CE8
+/* 815E7CE0 002B8200  38 60 FF FE */	li r3, -0x2
+/* 815E7CE4 002B8204  48 00 01 74 */	b .L_815E7E58
+.L_815E7CE8:
+/* 815E7CE8 002B8208  28 03 00 03 */	cmplwi r3, 0x3
+/* 815E7CEC 002B820C  40 82 00 18 */	bne .L_815E7D04
+/* 815E7CF0 002B8210  80 06 00 00 */	lwz r0, 0x0(r6)
+/* 815E7CF4 002B8214  2C 00 00 00 */	cmpwi r0, 0x0
+/* 815E7CF8 002B8218  40 82 00 0C */	bne .L_815E7D04
+/* 815E7CFC 002B821C  38 60 FF FE */	li r3, -0x2
+/* 815E7D00 002B8220  48 00 01 58 */	b .L_815E7E58
+.L_815E7D04:
+/* 815E7D04 002B8224  28 03 00 02 */	cmplwi r3, 0x2
+/* 815E7D08 002B8228  41 81 00 48 */	bgt .L_815E7D50
+/* 815E7D0C 002B822C  80 AD A3 60 */	lwz r5, drvInitFunc@sda21(r0)
+/* 815E7D10 002B8230  54 60 1D 78 */	clrlslwi r0, r3, 24, 3
+/* 815E7D14 002B8234  38 81 00 08 */	addi r4, r1, 0x8
+/* 815E7D18 002B8238  7C 65 02 14 */	add r3, r5, r0
+/* 815E7D1C 002B823C  4B FD F6 7D */	bl pdm_open_disk
+/* 815E7D20 002B8240  2C 03 00 00 */	cmpwi r3, 0x0
+/* 815E7D24 002B8244  41 82 00 0C */	beq .L_815E7D30
+/* 815E7D28 002B8248  38 60 FF FF */	li r3, -0x1
+/* 815E7D2C 002B824C  48 00 01 2C */	b .L_815E7E58
+.L_815E7D30:
+/* 815E7D30 002B8250  80 61 00 08 */	lwz r3, 0x8(r1)
+/* 815E7D34 002B8254  7F E5 FB 78 */	mr r5, r31
+/* 815E7D38 002B8258  38 80 00 00 */	li r4, 0x0
+/* 815E7D3C 002B825C  4B FD F6 99 */	bl pdm_open_partition
+/* 815E7D40 002B8260  2C 03 00 00 */	cmpwi r3, 0x0
+/* 815E7D44 002B8264  41 82 00 0C */	beq .L_815E7D50
+/* 815E7D48 002B8268  38 60 FF FF */	li r3, -0x1
+/* 815E7D4C 002B826C  48 00 01 0C */	b .L_815E7E58
+.L_815E7D50:
+/* 815E7D50 002B8270  38 00 00 00 */	li r0, 0x0
+/* 815E7D54 002B8274  28 1C 00 02 */	cmplwi r28, 0x2
+/* 815E7D58 002B8278  93 E1 00 10 */	stw r31, 0x10(r1)
+/* 815E7D5C 002B827C  90 01 00 14 */	stw r0, 0x14(r1)
+/* 815E7D60 002B8280  40 82 00 18 */	bne .L_815E7D78
+/* 815E7D64 002B8284  7F A4 EB 78 */	mr r4, r29
+/* 815E7D68 002B8288  38 61 00 18 */	addi r3, r1, 0x18
+/* 815E7D6C 002B828C  38 A0 00 4E */	li r5, 0x4e
+/* 815E7D70 002B8290  4B D4 84 C1 */	bl memcpy
+/* 815E7D74 002B8294  93 C1 00 68 */	stw r30, 0x68(r1)
+.L_815E7D78:
+/* 815E7D78 002B8298  28 1C 00 02 */	cmplwi r28, 0x2
+/* 815E7D7C 002B829C  40 82 00 14 */	bne .L_815E7D90
+/* 815E7D80 002B82A0  38 61 00 10 */	addi r3, r1, 0x10
+/* 815E7D84 002B82A4  38 81 00 18 */	addi r4, r1, 0x18
+/* 815E7D88 002B82A8  4B FF F6 7D */	bl pfstub_attach
+/* 815E7D8C 002B82AC  48 00 00 10 */	b .L_815E7D9C
+.L_815E7D90:
+/* 815E7D90 002B82B0  38 61 00 10 */	addi r3, r1, 0x10
+/* 815E7D94 002B82B4  38 80 00 00 */	li r4, 0x0
+/* 815E7D98 002B82B8  4B FF F6 6D */	bl pfstub_attach
+.L_815E7D9C:
+/* 815E7D9C 002B82BC  2C 03 00 00 */	cmpwi r3, 0x0
+/* 815E7DA0 002B82C0  41 82 00 0C */	beq .L_815E7DAC
+/* 815E7DA4 002B82C4  38 60 FF FF */	li r3, -0x1
+/* 815E7DA8 002B82C8  48 00 00 B0 */	b .L_815E7E58
+.L_815E7DAC:
+/* 815E7DAC 002B82CC  88 1F 00 08 */	lbz r0, 0x8(r31)
+/* 815E7DB0 002B82D0  28 1C 00 02 */	cmplwi r28, 0x2
+/* 815E7DB4 002B82D4  7C 03 07 74 */	extsb r3, r0
+/* 815E7DB8 002B82D8  38 03 FF BF */	subi r0, r3, 0x41
+/* 815E7DBC 002B82DC  41 81 00 78 */	bgt .L_815E7E34
+/* 815E7DC0 002B82E0  3C A0 81 1B */	lis r5, gOpenDisk@ha
+/* 815E7DC4 002B82E4  80 61 00 08 */	lwz r3, 0x8(r1)
+/* 815E7DC8 002B82E8  54 06 10 3A */	slwi r6, r0, 2
+/* 815E7DCC 002B82EC  3C 80 81 1B */	lis r4, gOpenPartition@ha
+/* 815E7DD0 002B82F0  38 A5 DD 80 */	addi r5, r5, gOpenDisk@l
+/* 815E7DD4 002B82F4  2C 1C 00 00 */	cmpwi r28, 0x0
+/* 815E7DD8 002B82F8  7C 65 31 2E */	stwx r3, r5, r6
+/* 815E7DDC 002B82FC  38 84 DD E8 */	addi r4, r4, gOpenPartition@l
+/* 815E7DE0 002B8300  80 1F 00 00 */	lwz r0, 0x0(r31)
+/* 815E7DE4 002B8304  7C 04 31 2E */	stwx r0, r4, r6
+/* 815E7DE8 002B8308  40 82 00 24 */	bne .L_815E7E0C
+/* 815E7DEC 002B830C  48 00 30 29 */	bl pfd_sddrv_is_media_insert
+/* 815E7DF0 002B8310  2C 03 00 00 */	cmpwi r3, 0x0
+/* 815E7DF4 002B8314  41 82 00 60 */	beq .L_815E7E54
+/* 815E7DF8 002B8318  80 61 00 10 */	lwz r3, 0x10(r1)
+/* 815E7DFC 002B831C  88 03 00 09 */	lbz r0, 0x9(r3)
+/* 815E7E00 002B8320  60 00 00 10 */	ori r0, r0, 0x10
+/* 815E7E04 002B8324  98 03 00 09 */	stb r0, 0x9(r3)
+/* 815E7E08 002B8328  48 00 00 4C */	b .L_815E7E54
+.L_815E7E0C:
+/* 815E7E0C 002B832C  28 1C 00 01 */	cmplwi r28, 0x1
+/* 815E7E10 002B8330  40 82 00 44 */	bne .L_815E7E54
+/* 815E7E14 002B8334  48 00 55 21 */	bl pfd_mscdrv_is_media_insert
+/* 815E7E18 002B8338  2C 03 00 00 */	cmpwi r3, 0x0
+/* 815E7E1C 002B833C  41 82 00 38 */	beq .L_815E7E54
+/* 815E7E20 002B8340  80 61 00 10 */	lwz r3, 0x10(r1)
+/* 815E7E24 002B8344  88 03 00 09 */	lbz r0, 0x9(r3)
+/* 815E7E28 002B8348  60 00 00 10 */	ori r0, r0, 0x10
+/* 815E7E2C 002B834C  98 03 00 09 */	stb r0, 0x9(r3)
+/* 815E7E30 002B8350  48 00 00 24 */	b .L_815E7E54
+.L_815E7E34:
+/* 815E7E34 002B8354  3C 80 81 1B */	lis r4, gOpenDisk@ha
+/* 815E7E38 002B8358  3C 60 81 1B */	lis r3, gOpenPartition@ha
+/* 815E7E3C 002B835C  54 05 10 3A */	slwi r5, r0, 2
+/* 815E7E40 002B8360  38 00 00 00 */	li r0, 0x0
+/* 815E7E44 002B8364  38 84 DD 80 */	addi r4, r4, gOpenDisk@l
+/* 815E7E48 002B8368  38 63 DD E8 */	addi r3, r3, gOpenPartition@l
+/* 815E7E4C 002B836C  7C 04 29 2E */	stwx r0, r4, r5
+/* 815E7E50 002B8370  7C 03 29 2E */	stwx r0, r3, r5
+.L_815E7E54:
+/* 815E7E54 002B8374  38 60 00 00 */	li r3, 0x0
+.L_815E7E58:
+/* 815E7E58 002B8378  80 01 00 84 */	lwz r0, 0x84(r1)
+/* 815E7E5C 002B837C  83 E1 00 7C */	lwz r31, 0x7c(r1)
+/* 815E7E60 002B8380  83 C1 00 78 */	lwz r30, 0x78(r1)
+/* 815E7E64 002B8384  83 A1 00 74 */	lwz r29, 0x74(r1)
+/* 815E7E68 002B8388  83 81 00 70 */	lwz r28, 0x70(r1)
+/* 815E7E6C 002B838C  7C 08 03 A6 */	mtlr r0
+/* 815E7E70 002B8390  38 21 00 80 */	addi r1, r1, 0x80
+/* 815E7E74 002B8394  4E 80 00 20 */	blr
+.endfn FAAttach
+
+# 0x816909E8..0x81690A00 | size: 0x18
+.data
+.balign 8
+
+# .data:0x0 | 0x816909E8 | size: 0x18
+.obj diskInitTbl, local
+	.4byte pfd_sddrv_init_drv_tbl
+	.4byte 0x00000000
+	.4byte usbh_msc_blk_init_drv_tbl
+	.4byte 0x00000000
+	.4byte fa_nanddrv_init_drv_tbl
+	.4byte 0x00000000
+.endobj diskInitTbl
+
+# 0x816983A0..0x816983A8 | size: 0x8
+.section .sdata, "wa"
+.balign 8
+
+# .sdata:0x0 | 0x816983A0 | size: 0x8
+.obj drvInitFunc, local
+	.4byte diskInitTbl
+	.4byte 0x00000003
+.endobj drvInitFunc
