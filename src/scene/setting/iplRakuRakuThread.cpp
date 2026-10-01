@@ -28,26 +28,26 @@ int ATERMi_ApConfigEnd();
 
 namespace ipl {
 namespace scene {
-extern "C" MEMAllocator RakuRakuThread_810BDDD0;
-MEMAllocator RakuRakuThread_810BDDD0;
+extern "C" MEMAllocator sRakuAllocator;
+MEMAllocator sRakuAllocator;
 struct RakuStatus {
     RakuProgress progress;
     RakuConfiguration configuration;
 };
-extern "C" RakuStatus RakuRakuThread_810BDDE0;
-RakuStatus RakuRakuThread_810BDDE0;
-extern "C" OSMessageQueue RakuRakuThread_810BDED4;
-OSMessageQueue RakuRakuThread_810BDED4;
+extern "C" RakuStatus sRakuStatus;
+RakuStatus sRakuStatus;
+extern "C" OSMessageQueue sRakuMsgQueue;
+OSMessageQueue sRakuMsgQueue;
 static OSTime startTime;
 static bool active;
 static OSMessage messageSlot;
 static int displayState = 1;
 
 extern "C" {
-static void* RakuRakuThread_813FDEF0(u32, s32 size);
-static void RakuRakuThread_813FDEFC(u32, void* block, s32);
-static void* RakuRakuThread_813FDF08(u32 size);
-static void RakuRakuThread_813FDF18(void* block);
+static void* RakuSocketAlloc(u32, s32 size);
+static void RakuSocketFree(u32, void* block, s32);
+static void* RakuAtermAlloc(u32 size);
+static void RakuAtermFree(void* block);
 }
 
 struct RakuStack {
@@ -60,7 +60,7 @@ public:
     virtual ~RakuRakuThread();
     virtual void* Run();
     virtual void unk_0x2C() = 0;
-    void RakuRakuThread_813FDA04();
+    void syncRakuProgress();
     static void progressCallback(RakuProgress* progress);
     void destroy();
     int start();
@@ -78,15 +78,15 @@ private:
     MEMHeapHandle mHeap;
 };
 
-void RakuRakuThread::RakuRakuThread_813FDA04() {
+void RakuRakuThread::syncRakuProgress() {
     BOOL interrupts = OSDisableInterrupts();
-    RakuRakuThread_810BDDE0.progress = *(RakuProgress*)this;
+    sRakuStatus.progress = *(RakuProgress*)this;
     startTime = OSGetTime();
     OSRestoreInterrupts(interrupts);
 }
 
 void RakuRakuThread::progressCallback(RakuProgress* progress) {
-    ((RakuRakuThread*)progress)->RakuRakuThread_813FDA04();
+    ((RakuRakuThread*)progress)->syncRakuProgress();
 }
 
 RakuRakuThread::RakuRakuThread(EGG::Heap* heap) : utility::ut_thread() {
@@ -101,12 +101,12 @@ RakuRakuThread::RakuRakuThread(EGG::Heap* heap) : utility::ut_thread() {
     active = false;
     mFinished = 0;
     mRunning = 0;
-    OSInitMessageQueue(&RakuRakuThread_810BDED4, &messageSlot, 1);
+    OSInitMessageQueue(&sRakuMsgQueue, &messageSlot, 1);
 }
 
 RakuRakuThread::~RakuRakuThread() {
     if (mRunning) {
-        OSJamMessage(&RakuRakuThread_810BDED4, (OSMessage)2, 1);
+        OSJamMessage(&sRakuMsgQueue, (OSMessage)2, 1);
         WaitForThreadExit();
     }
     destroy();
@@ -114,7 +114,7 @@ RakuRakuThread::~RakuRakuThread() {
 
 void RakuRakuThread::destroy() {
     if (active) {
-        OSSendMessage(&RakuRakuThread_810BDED4, (OSMessage)1, 0);
+        OSSendMessage(&sRakuMsgQueue, (OSMessage)1, 0);
         u32 start = OSGetTick();
         while ((u32)(OSGetTick() - start) / (OS_TIMER_CLOCK / 1000) < 2000) {
             RakuProgress progress;
@@ -127,7 +127,7 @@ void RakuRakuThread::destroy() {
     }
     if (mHeap != NULL) {
         MEMDestroyExpHeap(mHeap);
-        memset(&RakuRakuThread_810BDDD0, 0, sizeof(MEMAllocator));
+        memset(&sRakuAllocator, 0, sizeof(MEMAllocator));
         mHeap = NULL;
     }
 }
@@ -139,19 +139,19 @@ int RakuRakuThread::start() {
     BOOL interrupts = OSDisableInterrupts();
     startTime = OSGetTime();
     mHeap = MEMCreateExpHeapEx(mHeapBuffer, 0x40000, 2);
-    MEMInitAllocatorForExpHeap(&RakuRakuThread_810BDDD0, mHeap, 32);
+    MEMInitAllocatorForExpHeap(&sRakuAllocator, mHeap, 32);
     mPriority = OSGetThreadPriority(OSGetCurrentThread()) - 1;
     active = true;
     mFinished = 0;
-    memset(&RakuRakuThread_810BDDE0.configuration, 0, sizeof(RakuConfiguration));
-    memset(&RakuRakuThread_810BDDE0.progress, 0, sizeof(RakuProgress));
+    memset(&sRakuStatus.configuration, 0, sizeof(RakuConfiguration));
+    memset(&sRakuStatus.progress, 0, sizeof(RakuProgress));
     SOLibraryConfig socketConfig;
-    socketConfig.alloc = RakuRakuThread_813FDEF0;
-    socketConfig.free = RakuRakuThread_813FDEFC;
+    socketConfig.alloc = RakuSocketAlloc;
+    socketConfig.free = RakuSocketFree;
     SOInit(&socketConfig);
     ATERMi_ApConfigStart(mPriority, 200,
         progressCallback,
-        RakuRakuThread_813FDF08, RakuRakuThread_813FDF18, 4096);
+        RakuAtermAlloc, RakuAtermFree, 4096);
     if (!mRunning) {
         mRunning = 1;
         memset(mStack, 0, 4);
@@ -165,12 +165,12 @@ int RakuRakuThread::start() {
 void* RakuRakuThread::Run() {
     OSMessage message;
     while (true) {
-        while (OSReceiveMessage(&RakuRakuThread_810BDED4, &message, 0)) {
+        while (OSReceiveMessage(&sRakuMsgQueue, &message, 0)) {
             if ((s32)message == 2) {
                 return this;
             }
         }
-        OSReceiveMessage(&RakuRakuThread_810BDED4, &message, 1);
+        OSReceiveMessage(&sRakuMsgQueue, &message, 1);
         if ((s32)message == 2) {
             break;
         }
@@ -184,17 +184,17 @@ void* RakuRakuThread::Run() {
     return this;
 }
 
-static void* RakuRakuThread_813FDEF0(u32, s32 size) {
-    return MEMAllocFromAllocator(&RakuRakuThread_810BDDD0, size);
+static void* RakuSocketAlloc(u32, s32 size) {
+    return MEMAllocFromAllocator(&sRakuAllocator, size);
 }
-static void RakuRakuThread_813FDEFC(u32, void* block, s32) {
-    MEMFreeToAllocator(&RakuRakuThread_810BDDD0, block);
+static void RakuSocketFree(u32, void* block, s32) {
+    MEMFreeToAllocator(&sRakuAllocator, block);
 }
-static void* RakuRakuThread_813FDF08(u32 size) {
-    return MEMAllocFromAllocator(&RakuRakuThread_810BDDD0, size);
+static void* RakuAtermAlloc(u32 size) {
+    return MEMAllocFromAllocator(&sRakuAllocator, size);
 }
-static void RakuRakuThread_813FDF18(void* block) {
-    MEMFreeToAllocator(&RakuRakuThread_810BDDD0, block);
+static void RakuAtermFree(void* block) {
+    MEMFreeToAllocator(&sRakuAllocator, block);
 }
 
 int RakuRakuThread::getState() {
@@ -202,7 +202,7 @@ int RakuRakuThread::getState() {
         return 0;
     }
     BOOL interrupts = OSDisableInterrupts();
-    switch (RakuRakuThread_810BDDE0.progress.state) {
+    switch (sRakuStatus.progress.state) {
     case 1: displayState = 1; break;
     case 2: displayState = 2; break;
     case 3: displayState = 2; break;
@@ -214,14 +214,14 @@ int RakuRakuThread::getState() {
     }
     if (displayState != 6 && displayState != 7 &&
         ((u32)OSGetTime() - (u32)startTime) / (OS_TIMER_CLOCK / 1000) >= 90000) {
-        OSSendMessage(&RakuRakuThread_810BDED4, (OSMessage)1, 0);
+        OSSendMessage(&sRakuMsgQueue, (OSMessage)1, 0);
     }
     OSRestoreInterrupts(interrupts);
     return displayState;
 }
 
 int RakuRakuThread::cancel() {
-    return OSSendMessage(&RakuRakuThread_810BDED4, (OSMessage)1, 0);
+    return OSSendMessage(&sRakuMsgQueue, (OSMessage)1, 0);
 }
 
 int RakuRakuThread::finish(NCDApConfig* config, int* result) {
@@ -231,23 +231,23 @@ int RakuRakuThread::finish(NCDApConfig* config, int* result) {
         }
         return 1;
     }
-    s32 state = RakuRakuThread_810BDDE0.progress.state;
+    s32 state = sRakuStatus.progress.state;
     if ((u32)(state - 6) > 1) {
         return 0;
     }
     if (!mFinished) {
         if (state == 6) {
-            ATERMi_ApConfigGetResult(&RakuRakuThread_810BDDE0.configuration);
+            ATERMi_ApConfigGetResult(&sRakuStatus.configuration);
             printInfo();
         }
-        OSSendMessage(&RakuRakuThread_810BDED4, (OSMessage)1, 0);
+        OSSendMessage(&sRakuMsgQueue, (OSMessage)1, 0);
         return 0;
     }
     SOFinish();
     active = false;
     destroy();
     if (config != NULL) {
-        RakuConfiguration* settings = &RakuRakuThread_810BDDE0.configuration;
+        RakuConfiguration* settings = &sRakuStatus.configuration;
         memcpy(config->ssid, settings->ssid, 32);
         config->ssidLength = strlen(settings->ssid);
         if (settings->security == 1) {
@@ -273,7 +273,7 @@ int RakuRakuThread::finish(NCDApConfig* config, int* result) {
         }
     }
     if (result != NULL) {
-        *result = RakuRakuThread_810BDDE0.progress.result;
+        *result = sRakuStatus.progress.result;
     }
     return 1;
 }
