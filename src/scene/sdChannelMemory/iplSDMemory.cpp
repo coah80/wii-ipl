@@ -1281,25 +1281,26 @@ namespace ipl {
                 ++child;
             }
 
-            s32 lineCount = 0;
             f32 messageOffset = 0.0f;
             f32 bodyHeight = bodyPane->GetSize().height;
             if (mNandTitleCount != 0) {
                 const wchar_t* messageForCount = System::getMessage(0xCB);
+                s32 lineCount = 0;
                 const wchar_t* newline = wcsstr(messageForCount, L"\n");
                 if (newline != NULL) {
-                    do {
+                    const wchar_t* newlineNeedle = L"\n";
+                    while (newline != NULL) {
                         ++lineCount;
-                        newline = wcsstr(newline + 1, L"\n");
-                    } while (newline != NULL);
+                        newline = wcsstr(newline + 1, newlineNeedle);
+                    }
                 }
 
                 const wchar_t* messageLine = System::getMessage(0xCB);
                 nw4r::lyt::TextBox* messageText = static_cast<nw4r::lyt::TextBox*>(
                     mpDialogLayout->FindPaneByName("T_Header_body"));
-                s32 totalLines = lineCount + 1;
-                for (s32 lineIndex = 0; lineIndex < totalLines; ++lineIndex) {
-                    const wchar_t* lineEnd = wcsstr(messageLine, L"\n");
+                const wchar_t* lineEndNeedle = L"\n";
+                for (s32 lineIndex = 0; lineIndex < lineCount + 1; ++lineIndex) {
+                    const wchar_t* lineEnd = wcsstr(messageLine, lineEndNeedle);
                     if (lineEnd == NULL) {
                         utility::layout::set_string(messageText, messageLine);
                     } else {
@@ -1344,22 +1345,16 @@ namespace ipl {
                     GXColor gxActive;
                     writeFourFlagBytes(&gxActive.r, 0x34, 0xBE, 0xED, 0xFF);
                     ++nandTitleIndex;
-                    nw4r::ut::Color active0;
-                    nw4r::ut::Color active1;
-                    nw4r::ut::Color active2;
-                    active0.Set(gxActive.r, gxActive.g, gxActive.b, gxActive.a);
-                    active1.Set(gxActive.r, gxActive.g, gxActive.b, gxActive.a);
-                    active2.Set(gxActive.r, gxActive.g, gxActive.b, gxActive.a);
+                    nw4r::ut::Color active0(gxActive.r, gxActive.g, gxActive.b, gxActive.a);
+                    nw4r::ut::Color active1(gxActive.r, gxActive.g, gxActive.b, gxActive.a);
+                    nw4r::ut::Color active2(gxActive.r, gxActive.g, gxActive.b, gxActive.a);
                     setTitleRowColors(titleText, active1, active2);
                 } else {
                     GXColor gxInactive;
                     writeFourFlagBytes(&gxInactive.r, 0x64, 0x64, 0x64, 0xFF);
-                    nw4r::ut::Color inactive0;
-                    nw4r::ut::Color inactive1;
-                    nw4r::ut::Color inactive2;
-                    inactive0.Set(gxInactive.r, gxInactive.g, gxInactive.b, gxInactive.a);
-                    inactive1.Set(gxInactive.r, gxInactive.g, gxInactive.b, gxInactive.a);
-                    inactive2.Set(gxInactive.r, gxInactive.g, gxInactive.b, gxInactive.a);
+                    nw4r::ut::Color inactive0(gxInactive.r, gxInactive.g, gxInactive.b, gxInactive.a);
+                    nw4r::ut::Color inactive1(gxInactive.r, gxInactive.g, gxInactive.b, gxInactive.a);
+                    nw4r::ut::Color inactive2(gxInactive.r, gxInactive.g, gxInactive.b, gxInactive.a);
                     setTitleRowColors(titleText, inactive1, inactive2);
                 }
 
