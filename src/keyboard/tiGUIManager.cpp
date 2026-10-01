@@ -8,7 +8,7 @@
 namespace textinput {
     namespace gui {
         extern "C" void drawLine___Q29textinput3guiFfffffUcR8_GXColor();
-        extern "C" const f32 lbl_81694EE8;
+        extern "C" const f32 scGuiZeroF;
 
         void drawLine_(f32 x0, f32 y0, f32 x1, f32 y1, f32 z, u8 width, GXColor& color) {
             GXClearVtxDesc();
@@ -31,7 +31,7 @@ namespace textinput {
             GXSetBlendMode(GX_BM_NONE, GX_BL_ZERO, GX_BL_ZERO, GX_LO_NOOP);
 
             Mtx mtx;
-            MTXTrans(mtx, lbl_81694EE8, lbl_81694EE8, lbl_81694EE8);
+            MTXTrans(mtx, scGuiZeroF, scGuiZeroF, scGuiZeroF);
             GXLoadPosMtxImm(mtx, 0);
 
             GXSetLineWidth(width, GX_TO_ZERO);
@@ -334,7 +334,7 @@ namespace textinput {
             MTXInverse(mpPane->GetGlobalMtx(), globalMtx);
 
             nw4r::math::VEC3 pos;
-            MTXMultVec(globalMtx, nw4r::math::VEC3(x, y, lbl_81694EE8), pos);
+            MTXMultVec(globalMtx, nw4r::math::VEC3(x, y, scGuiZeroF), pos);
 
             nw4r::ut::Rect rect = mpPane->GetPaneRect(*drawInfo);
 
@@ -348,12 +348,12 @@ namespace textinput {
 
         #pragma push
         #pragma section sconst_type ".sdata2"
-        extern "C" const f32 lbl_81694EE8 = 0.0f;
-        extern "C" const u8 lbl_81694EEC = 0xFF;
-        extern "C" const u8 lbl_81694EED = 0x00;
-        extern "C" const u8 lbl_81694EEE = 0x00;
-        extern "C" const u8 lbl_81694EEF = 0xFF;
-        extern "C" const f32 lbl_81694EF0 = 0.5f;
+        extern "C" const f32 scGuiZeroF = 0.0f;
+        extern "C" const u8 scGuiLineColorR = 0xFF;
+        extern "C" const u8 scGuiLineColorG = 0x00;
+        extern "C" const u8 scGuiLineColorB = 0x00;
+        extern "C" const u8 scGuiLineColorA = 0xFF;
+        extern "C" const f32 scGuiHalfF = 0.5f;
         #pragma pop
 
         extern "C" asm void draw__Q39textinput3gui13PaneComponentFv() {
@@ -376,15 +376,15 @@ namespace textinput {
             beq pane_component_draw_done
             lwz r5, 0x9c(r31)
             mr r3, r31
-            lbz r7, lbl_81694EEC
+            lbz r7, scGuiLineColorR
             li r4, 0
             lfs f1, 0x4c(r5)
             lfs f0, 0x50(r5)
             lfs f31, 0x90(r5)
             lfs f30, 0xa0(r5)
-            lbz r6, lbl_81694EED
-            lbz r5, lbl_81694EEE
-            lbz r0, lbl_81694EEF
+            lbz r6, scGuiLineColorG
+            lbz r5, scGuiLineColorB
+            lbz r0, scGuiLineColorA
             stb r7, 8(r1)
             stb r6, 9(r1)
             stb r5, 0xa(r1)
@@ -402,13 +402,13 @@ namespace textinput {
             stb r3, 8(r1)
             stb r0, 0xa(r1)
         pane_component_draw_lines:
-            lfs f1, lbl_81694EF0
+            lfs f1, scGuiHalfF
             addi r4, r1, 8
             lfs f0, 0x14(r1)
             li r3, 8
             lfs f2, 0x10(r1)
             fmuls f0, f0, f1
-            lfs f5, lbl_81694EE8
+            lfs f5, scGuiZeroF
             fmuls f3, f2, f1
             fsubs f2, f30, f0
             fsubs f1, f31, f3
@@ -417,24 +417,24 @@ namespace textinput {
             bl drawLine___Q29textinput3guiFfffffUcR8_GXColor
             lfs f1, 0x10(r1)
             addi r4, r1, 8
-            lfs f2, lbl_81694EF0
+            lfs f2, scGuiHalfF
             li r3, 8
             lfs f0, 0x14(r1)
             fmuls f1, f1, f2
-            lfs f5, lbl_81694EE8
+            lfs f5, scGuiZeroF
             fmuls f0, f0, f2
             fadds f1, f31, f1
             fsubs f2, f30, f0
             fadds f4, f30, f0
             fmr f3, f1
             bl drawLine___Q29textinput3guiFfffffUcR8_GXColor
-            lfs f1, lbl_81694EF0
+            lfs f1, scGuiHalfF
             addi r4, r1, 8
             lfs f0, 0x14(r1)
             li r3, 8
             lfs f2, 0x10(r1)
             fmuls f0, f0, f1
-            lfs f5, lbl_81694EE8
+            lfs f5, scGuiZeroF
             fmuls f3, f2, f1
             fadds f2, f30, f0
             fadds f1, f31, f3
@@ -443,11 +443,11 @@ namespace textinput {
             bl drawLine___Q29textinput3guiFfffffUcR8_GXColor
             lfs f1, 0x10(r1)
             addi r4, r1, 8
-            lfs f2, lbl_81694EF0
+            lfs f2, scGuiHalfF
             li r3, 8
             lfs f0, 0x14(r1)
             fmuls f1, f1, f2
-            lfs f5, lbl_81694EE8
+            lfs f5, scGuiZeroF
             fmuls f0, f0, f2
             fsubs f1, f31, f1
             fadds f2, f30, f0
