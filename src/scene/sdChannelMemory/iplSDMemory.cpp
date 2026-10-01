@@ -934,7 +934,7 @@ namespace ipl {
             }
         }
 
-        extern "C" bool iplSDMemory_813EE358(const SDMemory* memory,
+        extern "C" bool iplSDMemory_containsTitleId(const SDMemory* memory,
                                              ESTitleId titleId,
                                              const ESTitleId* titleIds, u32 titleCount) {
             for (u32 i = 0; i < titleCount; i++) {
@@ -951,7 +951,7 @@ namespace ipl {
                 s32 result = mpSDChannelSelect->getWorker()->get_async_result();
                 if (result == 0) {
                     ESTitleId titleId = mTitleIds[mCurrentTitle];
-                    if (iplSDMemory_813EE358(this, titleId,
+                    if (iplSDMemory_containsTitleId(this, titleId,
                                              mNandTitleIds, mNandTitleCount)) {
                         mDialogState = 17;
                     } else {
@@ -984,8 +984,8 @@ namespace ipl {
             swprintf(mCurrentTitleName, 0x107f, L"%ls\n%ls", titleName, message);
             System::getDialog()->setTitleForSDMemory(mCurrentTitleName);
 
-            if (iplSDMemory_813EE358(this, mTitleIds[mCurrentTitle], mSDTitleIds, mTitleNameCount) ||
-                iplSDMemory_813EE358(this, mTitleIds[mCurrentTitle], mNandTitleIds, mNandTitleCount)) {
+            if (iplSDMemory_containsTitleId(this, mTitleIds[mCurrentTitle], mSDTitleIds, mTitleNameCount) ||
+                iplSDMemory_containsTitleId(this, mTitleIds[mCurrentTitle], mNandTitleIds, mNandTitleCount)) {
                 ESTitleId titleId = mTitleIds[mCurrentTitle];
                 if (iplSDChannelSelect_813DB478(mpSDChannelSelect, titleId)) {
                     mDialogState = 14;
@@ -1064,7 +1064,7 @@ namespace ipl {
                 mCurrentTitle++;
                 if (mTitleCount > mCurrentTitle) {
                     ESTitleId nextTitleId = mTitleIds[mCurrentTitle];
-                    if (iplSDMemory_813EE358(this, nextTitleId,
+                    if (iplSDMemory_containsTitleId(this, nextTitleId,
                                              mNandTitleIds, mNandTitleCount)) {
                         mDialogState = 17;
                     } else {
