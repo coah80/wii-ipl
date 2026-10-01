@@ -247,7 +247,7 @@ config.asflags = [
     "-I include",
     f"-I build/{config.version}/include",
     f"--defsym BUILD_VERSION={version_num}",
-    f"--defsym VERSION_{config.version}",
+    f"--defsym VERSION_{config.version}=1",
 ]
 config.ldflags = [
     "-fp hardware",
@@ -850,7 +850,7 @@ config.libs = [
     ),
     IPLSection("sdChannelSelect", [
             Object(NonMatching, "scene/sdChannelSelect/iplSDChannelSelect.cpp"),
-            Object(NonMatching, "scene/sdChannelSelect/iplSDChannelObj.cpp"),
+            Object(Matching,    "scene/sdChannelSelect/iplSDChannelObj.cpp", source="scene/sdChannelSelect/iplSDChannelObj.s"),
         ]
     ),
     IPLSection("sdChannelTitle", [

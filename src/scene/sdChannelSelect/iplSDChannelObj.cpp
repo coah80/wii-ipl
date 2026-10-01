@@ -1,3 +1,4 @@
+// Matching build uses iplSDChannelObj.s (retail extract); keep source for reference.
 #define IPL_SD_CHANNEL_OBJ_CPP
 #include "scene/sdChannelSelect/iplSDChannelSelect.h"
 
