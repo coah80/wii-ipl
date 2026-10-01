@@ -167,12 +167,12 @@ namespace ipl {
 
             bool is_stopped_all_anm() const;
 
-            void fn_81409864();
+            void calc_exit_sequence();
 
-            void fn_814098F4();
-            void fn_unk_inline();
-            void fn_81409988();
-            void fn_814099EC();
+            void prepare_exit_abort();
+            void wait_decide_se();
+            void start_exit_fade();
+            void finish_exit_reboot();
 
             int mState;      // 0x60
             int mPrevState;  // 0x64
