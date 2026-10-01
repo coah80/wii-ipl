@@ -55,7 +55,13 @@ static s32 ConnectionStarted(NHTTPConnectionInfo* handle) {
     void* system=NHTTPi_GetSystemInfoP();
     void* mutex=NHTTPi_GetMutexInfoP(system);
     NHTTPConnectionInfo* connection=NHTTPi_GetConnection(mutex,handle);
-    return connection ? connection->started : -1;
+    s32 started;
+    if (connection == NULL) {
+        started = -1;
+    } else {
+        started = connection->started;
+    }
+    return started;
 }
 
 static s32 ConnectionState(NHTTPConnectionInfo* handle) {
