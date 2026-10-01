@@ -221,11 +221,11 @@ CXSecureResult CXSecureUncompressLZ(const void* src, u32 length, void* dst) {
     return CX_SECURE_ERR_OK;
 }
 
-BOOL CXiVerifyHuffmanTable_(const void* param_1, u8 param_2) {
-    const u8* a = param_1;
+BOOL CXiVerifyHuffmanTable_(const void* table, u8 bitSize) {
+    const u8* a = table;
     const u8* b = a + 1;
     u32 c = *a;
-    const u8* d = (u8*)param_1 + ((c + 1) << 1);
+    const u8* d = (u8*)table + ((c + 1) << 1);
 
     u8 e[sizeof(u8) * 0x40];
     u32 i;
@@ -233,7 +233,7 @@ BOOL CXiVerifyHuffmanTable_(const void* param_1, u8 param_2) {
         e[i] = 0;
     }
 
-    if (param_2 == 4 && c >= 16) {
+    if (bitSize == 4 && c >= 16) {
         return FALSE;
     }
 
