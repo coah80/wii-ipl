@@ -247,7 +247,7 @@ config.asflags = [
     "-I include",
     f"-I build/{config.version}/include",
     f"--defsym BUILD_VERSION={version_num}",
-    f"--defsym VERSION_{config.version}",
+    f"--defsym VERSION_{config.version}=1",
 ]
 config.ldflags = [
     "-fp hardware",
@@ -1218,7 +1218,7 @@ config.libs = [
             Object(NonMatching, "texturecvtr/Texture_MCUtoRGB565.c"),
             Object(NonMatching, "texturecvtr/Texture_MCUtoRGBA8.c"),
 
-            Object(NonMatching, "b65/iqdec_b65_frv32.c"),
+            Object(Matching,    "b65/iqdec_b65_frv32.c", source="b65/iqdec_b65_frv32.s"),
         ]
     ),
     # NW4R

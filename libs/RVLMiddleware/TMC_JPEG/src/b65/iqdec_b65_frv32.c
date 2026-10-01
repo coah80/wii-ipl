@@ -1,3 +1,4 @@
+// Matching build uses iqdec_b65_frv32.s (retail extract); keep C for reference.
 #include <string.h>
 #include <tmc_jpeg_internal.h>
 
