@@ -131,15 +131,15 @@ namespace ipl {
         extern "C" char mscBasePaneNames__Q33ipl5scene13ChannelSelect[];
         extern "C" char mscClockPaneNames__Q33ipl5scene13ChannelSelect[];
         extern "C" u32 mscMaskPaneName__Q33ipl5scene13ChannelSelect;
-        extern "C" char lbl_8164DFE1[];
-        extern "C" char lbl_8164DE64[];
-        extern "C" char lbl_8164DE6D[];
-        extern "C" char lbl_8164DE9C[];
-        extern "C" char lbl_8164DFCB[];
-        extern "C" char lbl_8164DFF1[];
-        extern "C" char lbl_8164E000[];
-        extern "C" char lbl_8164E024[];
-        extern "C" char lbl_8164E038[];
+        extern "C" char scSE_WIPL_SE_CH_HOLD[];
+        extern "C" char scPaneName_N_GCIcon[];
+        extern "C" char scPaneName_N_DiscUpdateIcon[];
+        extern "C" char scSE_WSD_SELECT[];
+        extern "C" char scSE_WIPL_SE_CH_TARGETTING[];
+        extern "C" char scSE_WIPL_SE_CH_SET[];
+        extern "C" char scSE_WIPL_SE_CH_NOT_MOVE[];
+        extern "C" char scSE_WIPL_SE_GRAY_BUTTON[];
+        extern "C" char scSE_WIPL_SE_DECIDE[];
         extern "C" void draw__Q33ipl6layout6ObjectFPQ34nw4r3lyt4Pane();
         extern "C" void SetVisible__Q34nw4r3lyt4PaneFb();
         extern "C" void drawChannelThumbnails__Q33ipl5scene13ChannelSelectFv();
@@ -855,8 +855,8 @@ namespace ipl {
             mpDiskInOutLyt->finishBinding();
         }
 
-        extern "C" char lbl_8164DE64[] = "N_GCIcon";
-        extern "C" char lbl_8164DE6D[] = "N_DiscUpdateIcon";
+        extern "C" char scPaneName_N_GCIcon[] = "N_GCIcon";
+        extern "C" char scPaneName_N_DiscUpdateIcon[] = "N_DiscUpdateIcon";
         extern "C" void* jumptable_8164DE80[7] = {
             (void*)((const char*)updateDiskState__Q33ipl5scene13ChannelSelectFv + 0x4C),
             (void*)((const char*)updateDiskState__Q33ipl5scene13ChannelSelectFv + 0x21C),
@@ -1359,8 +1359,8 @@ namespace ipl {
             cmpwi r0, 0x1
             beq updateDiskState_813AD2C8
             lwz r3, 0x94(r3)
-            lis r29, lbl_8164DE64@ha
-            addi r4, r29, lbl_8164DE64@l
+            lis r29, scPaneName_N_GCIcon@ha
+            addi r4, r29, scPaneName_N_GCIcon@l
             li r5, 0x1
             lwz r3, 0x14(r3)
             lwz r12, 0x0(r3)
@@ -1370,8 +1370,8 @@ namespace ipl {
             li r4, 0x1
             bl SetVisible__Q34nw4r3lyt4PaneFb
             lwz r3, 0x94(r31)
-            lis r30, lbl_8164DE6D@ha
-            addi r4, r30, lbl_8164DE6D@l
+            lis r30, scPaneName_N_DiscUpdateIcon@ha
+            addi r4, r30, scPaneName_N_DiscUpdateIcon@l
             li r5, 0x1
             lwz r3, 0x14(r3)
             lwz r12, 0x0(r3)
@@ -1419,7 +1419,7 @@ namespace ipl {
             bne updateDiskState_813AD134
             lwz r3, 0x84(r28)
             li r0, 0x0
-            addi r4, r29, lbl_8164DE64@l
+            addi r4, r29, scPaneName_N_GCIcon@l
             li r5, 0x1
             stb r0, 0x1b81(r3)
             lwz r3, 0x94(r31)
@@ -1431,7 +1431,7 @@ namespace ipl {
             li r4, 0x0
             bl SetVisible__Q34nw4r3lyt4PaneFb
             lwz r3, 0x94(r31)
-            addi r4, r30, lbl_8164DE6D@l
+            addi r4, r30, scPaneName_N_DiscUpdateIcon@l
             li r5, 0x1
             lwz r3, 0x14(r3)
             lwz r12, 0x0(r3)
@@ -2087,10 +2087,11 @@ namespace ipl {
             mpMoveLytDrop->getAnim()->initAnmFrame();
         }
 
-        extern "C" char lbl_8164DFCB[] = "WIPL_SE_CH_TARGETTING";
-        extern "C" char lbl_8164DFE1[] = "WIPL_SE_CH_HOLD";
-        extern "C" char lbl_8164DFF1[] = "WIPL_SE_CH_SET";
-        extern "C" char lbl_8164E000[] = "WIPL_SE_CH_NOT_MOVE";
+        extern "C" char scSE_WSD_SELECT[] = "WSD_SELECT";
+        extern "C" char scSE_WIPL_SE_CH_TARGETTING[] = "WIPL_SE_CH_TARGETTING";
+        extern "C" char scSE_WIPL_SE_CH_HOLD[] = "WIPL_SE_CH_HOLD";
+        extern "C" char scSE_WIPL_SE_CH_SET[] = "WIPL_SE_CH_SET";
+        extern "C" char scSE_WIPL_SE_CH_NOT_MOVE[] = "WIPL_SE_CH_NOT_MOVE";
 
         void ChannelSelect::calcNormalGrab() {
             Button* button = getButton();
@@ -2167,7 +2168,7 @@ namespace ipl {
                     for (int i = 0; i < MAX_CHANNEL_INDEX; i++) {
                         mpGui->initPane(getChannelBasePane(i));
                     }
-                    snd::getSystem()->startSE(lbl_8164DE9C);
+                    snd::getSystem()->startSE(scSE_WSD_SELECT);
                     return;
                 }
             }
@@ -2193,7 +2194,7 @@ namespace ipl {
                     for (int i = 0; i < MAX_CHANNEL_INDEX; i++) {
                         mpGui->initPane(getChannelBasePane(i));
                     }
-                    snd::getSystem()->startSE(lbl_8164DE9C);
+                    snd::getSystem()->startSE(scSE_WSD_SELECT);
                     return;
                 }
             }
@@ -2357,7 +2358,7 @@ namespace ipl {
                     case ::gui::EventHandler::ON_POINT: {
                         if (isReleasableArea(mCurrentPage, id) || (mCurrentPage == mMoveOldPage && id == mMoveOldIndex)) {
                             searchList(mCurrentPage, id)->onPoint(2);
-                            snd::getSystem()->startSE(lbl_8164DFCB);
+                            snd::getSystem()->startSE(scSE_WIPL_SE_CH_TARGETTING);
                             con->rumble(1);
                             break;
                         }
@@ -2438,7 +2439,7 @@ namespace ipl {
                 mbModuleSceneChange = true;
                 unk_0x185 = true;
 
-                snd::getSystem()->startSEwithPos(lbl_8164DFE1, mDragPos.x);
+                snd::getSystem()->startSEwithPos(scSE_WIPL_SE_CH_HOLD, mDragPos.x);
 
                 mState = STATE_NORMAL_GRAB;
             }
@@ -2450,13 +2451,13 @@ namespace ipl {
                 mpMoveLytDrop->GetRootPane()->SetTranslate(translate);
                 mpMoveLytDrop->getAnim(0)->play();
 
-                snd::getSystem()->startSEwithPos(lbl_8164DFF1, mDragPos.x);
+                snd::getSystem()->startSEwithPos(scSE_WIPL_SE_CH_SET, mDragPos.x);
 
                 mpMoveLytMask->getAnim(1)->play();
 
                 mState = STATE_NORMAL_MOVE_CHAN_IN;
             } else {
-                snd::getSystem()->startSEwithPos(lbl_8164E000, mDragPos.x);
+                snd::getSystem()->startSEwithPos(scSE_WIPL_SE_CH_NOT_MOVE, mDragPos.x);
 
                 mState = STATE_NORMAL_RELEASE_WAIT;
             }
@@ -2519,8 +2520,8 @@ namespace ipl {
             }
         }
 
-        extern "C" char lbl_8164E024[] = "WIPL_SE_GRAY_BUTTON";
-        extern "C" char lbl_8164E038[] = "WIPL_SE_DECIDE";
+        extern "C" char scSE_WIPL_SE_GRAY_BUTTON[] = "WIPL_SE_GRAY_BUTTON";
+        extern "C" char scSE_WIPL_SE_DECIDE[] = "WIPL_SE_DECIDE";
 
         void ChannelSelectEventHandler::onEvent(u32 compId, u32 event, void* data) {
             gui::PaneComponent* component = static_cast<gui::PaneComponent*>(mpManager->getComponent(compId));
@@ -2561,7 +2562,7 @@ namespace ipl {
                         case ::gui::EventHandler::ON_POINT: {
                             if (mpInstance->mState == ChannelSelect::STATE_NORMAL && chanObj->isValid()) {
                                 chanObj->onPoint(0);
-                                snd::getSystem()->startSE(lbl_8164DFCB);
+                                snd::getSystem()->startSE(scSE_WIPL_SE_CH_TARGETTING);
                                 con->rumble(1);
                             }
                             break;
@@ -2599,13 +2600,13 @@ namespace ipl {
                                     if (System::isSafeMode()) {
                                         System::getDialog()->callBtn0(MESG_CHAN_SEL_SAFE_MODE, 180);
                                         mpInstance->mState = ChannelSelect::STATE_NORMAL_SAFE_MODE_DIALOG;
-                                        snd::getSystem()->startSE(lbl_8164E024);
+                                        snd::getSystem()->startSE(scSE_WIPL_SE_GRAY_BUTTON);
                                     } else {
                                         mpInstance->setSomething();
                                         mpInstance->mState = ChannelSelect::STATE_START_BOARD_SCENE;
                                         mpInstance->tryToStartBoardScene();
                                         TVRCManager::getHandle()->setEnable(FALSE);
-                                        snd::getSystem()->startSE(lbl_8164E038);
+                                        snd::getSystem()->startSE(scSE_WIPL_SE_DECIDE);
                                     }
                                 } else if (Button::cmpButtonName(paneName, Button::BTN_SETTING) == 0) {
                                     button->setEventHandler(NULL);
@@ -2615,7 +2616,7 @@ namespace ipl {
                                     System::getFader()->fadeOut();
                                     TVRCManager::getHandle()->setEnable(FALSE);
                                     mpInstance->mState = ChannelSelect::STATE_START_SETTING_SCENE;
-                                    snd::getSystem()->startSE(lbl_8164E038);
+                                    snd::getSystem()->startSE(scSE_WIPL_SE_DECIDE);
                                 } else if (Button::cmpButtonName(paneName, Button::BTN_ARROW_LEFT) == 0 && mpInstance->mCurrentPage > 0) {
                                     button->animation(Button::IDANIM_ARROW_LEFT_SELECT);
                                     mpInstance->preparePageScrolling(ChannelSelect::STATE_PREP_LEFT_PAGE_SCROLL);
@@ -2650,7 +2651,7 @@ namespace ipl {
                             System::getFader()->fadeOut();
                             TVRCManager::getHandle()->setEnable(FALSE);
                             mpInstance->mState = ChannelSelect::STATE_START_SD_MENU_SCENE;
-                            snd::getSystem()->startSE(lbl_8164E038);
+                            snd::getSystem()->startSE(scSE_WIPL_SE_DECIDE);
                         }
                     }
                     break;
