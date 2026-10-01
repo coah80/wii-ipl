@@ -557,10 +557,11 @@ void WithZi::setCurrentWord(const wchar_t* word) {
         LatestWord[1] = 0;
         return;
     }
-    mbContextChanged = 1;
     wchar_t* currentWord;
+    const wchar_t* source;
     u32 length;
     s32 copied;
+    mbContextChanged = 1;
     length = 0;
     currentWord = reinterpret_cast<wchar_t*>(LatestWord);
     for (; *currentWord != 0 && *currentWord != 0x20;
@@ -571,14 +572,10 @@ void WithZi::setCurrentWord(const wchar_t* word) {
         }
     }
     copied = 0;
-    const wchar_t* source = word;
-    u32 destinationOffset = length;
+    source = word;
     for (; *source != 0 && length < 0x3f;) {
-        wchar_t character = word[copied];
-        ++length;
+        LatestWord[length++] = word[copied++];
         ++source;
-        ++copied;
-        LatestWord[destinationOffset++] = character;
     }
     LatestWord[length] = 0;
     mCurrentWordLength = copied;

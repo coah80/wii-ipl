@@ -536,11 +536,16 @@ namespace ipl {
             }
         }
 
+        static inline nw4r::math::_VEC2 negativeOffset(const nw4r::math::_VEC2& value) {
+            f32 negativeY = -value.y;
+            f32 negativeX = -value.x;
+            nw4r::math::_VEC2 result = {negativeX, negativeY};
+            return result;
+        }
+
         void Address::stt_cover_backward() {
             if (!mpLayout->getAnim(4)->isPlaying()) {
-                math::VEC2 offset;
-                offset.x = -sPageOffset.x;
-                offset.y = -sPageOffset.y;
+                math::VEC2 offset = negativeOffset(sPageOffset);
                 add_translate(mpLayout->FindPaneByName("N_note_base"), offset);
                 mbCover = true;
                 mNextPageNum++;
