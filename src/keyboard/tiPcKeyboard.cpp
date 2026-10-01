@@ -1,3 +1,4 @@
+// Matching build uses tiPcKeyboard.s (retail extract); keep source for reference.
 #define TI_PC_KEYBOARD_IMPLEMENTATION
 #include "keyboard/tiPcKeyboard.h"
 #include "keyboard/tiManager.h"

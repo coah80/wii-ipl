@@ -1,0 +1,13774 @@
+.include "macros.inc"
+.file "tiPcKeyboard.cpp"
+
+# 0x810C6580..0x810C6590 | size: 0x10
+.section .bss, "wa", @nobits
+.balign 8
+
+# .bss:0x0 | 0x810C6580 | size: 0x10
+.obj lbl_810C6580, global
+	.skip 0x10
+.endobj lbl_810C6580
+
+# 0x814101D8..0x8141711C | size: 0x6F44
+.text
+.balign 4
+
+# .text:0x0 | 0x814101D8 | size: 0x8
+# textinput::Manager::getHWKeyboard() const
+.fn getHWKeyboard__Q29textinput7ManagerCFv, global
+/* 814101D8 000E06F8  80 63 00 10 */	lwz r3, 0x10(r3)
+/* 814101DC 000E06FC  4E 80 00 20 */	blr
+.endfn getHWKeyboard__Q29textinput7ManagerCFv
+
+# .text:0x8 | 0x814101E0 | size: 0x8
+# textinput::toolbar::Base::isQwerty() const
+.fn isQwerty__Q39textinput7toolbar4BaseCFv, global
+/* 814101E0 000E0700  88 63 00 04 */	lbz r3, 0x4(r3)
+/* 814101E4 000E0704  4E 80 00 20 */	blr
+.endfn isQwerty__Q39textinput7toolbar4BaseCFv
+
+# .text:0x10 | 0x814101E8 | size: 0x8
+# textinput::Manager::getToolBar() const
+.fn getToolBar__Q29textinput7ManagerCFv, global
+/* 814101E8 000E0708  80 63 00 24 */	lwz r3, 0x24(r3)
+/* 814101EC 000E070C  4E 80 00 20 */	blr
+.endfn getToolBar__Q29textinput7ManagerCFv
+
+# .text:0x18 | 0x814101F0 | size: 0x4C
+# textinput::keyboard::pctype::Base::getTranslateMode() const
+.fn getTranslateMode__Q49textinput8keyboard6pctype4BaseCFv, global
+/* 814101F0 000E0710  80 03 00 20 */	lwz r0, 0x20(r3)
+/* 814101F4 000E0714  54 00 07 3E */	clrlwi r0, r0, 28
+/* 814101F8 000E0718  2C 00 00 01 */	cmpwi r0, 0x1
+/* 814101FC 000E071C  41 82 00 28 */	beq .L_81410224
+/* 81410200 000E0720  40 80 00 10 */	bge .L_81410210
+/* 81410204 000E0724  2C 00 00 00 */	cmpwi r0, 0x0
+/* 81410208 000E0728  40 80 00 14 */	bge .L_8141021C
+/* 8141020C 000E072C  48 00 00 28 */	b .L_81410234
+.L_81410210:
+/* 81410210 000E0730  2C 00 00 03 */	cmpwi r0, 0x3
+/* 81410214 000E0734  40 80 00 20 */	bge .L_81410234
+/* 81410218 000E0738  48 00 00 14 */	b .L_8141022C
+.L_8141021C:
+/* 8141021C 000E073C  38 60 00 00 */	li r3, 0x0
+/* 81410220 000E0740  4E 80 00 20 */	blr
+.L_81410224:
+/* 81410224 000E0744  38 60 00 01 */	li r3, 0x1
+/* 81410228 000E0748  4E 80 00 20 */	blr
+.L_8141022C:
+/* 8141022C 000E074C  38 60 00 02 */	li r3, 0x2
+/* 81410230 000E0750  4E 80 00 20 */	blr
+.L_81410234:
+/* 81410234 000E0754  38 60 00 00 */	li r3, 0x0
+/* 81410238 000E0758  4E 80 00 20 */	blr
+.endfn getTranslateMode__Q49textinput8keyboard6pctype4BaseCFv
+
+# .text:0x64 | 0x8141023C | size: 0x8
+# textinput::Manager::getPCKeyboard() const
+.fn getPCKeyboard__Q29textinput7ManagerCFv, global
+/* 8141023C 000E075C  80 63 00 14 */	lwz r3, 0x14(r3)
+/* 81410240 000E0760  4E 80 00 20 */	blr
+.endfn getPCKeyboard__Q29textinput7ManagerCFv
+
+# .text:0x6C | 0x81410244 | size: 0x8
+# textinput::Manager::getLanguage() const
+.fn getLanguage__Q29textinput7ManagerCFv, global
+/* 81410244 000E0764  80 63 00 38 */	lwz r3, 0x38(r3)
+/* 81410248 000E0768  4E 80 00 20 */	blr
+.endfn getLanguage__Q29textinput7ManagerCFv
+
+# .text:0x74 | 0x8141024C | size: 0xC
+# textinput::keyboard::pctype::Base::isCapsOn() const
+.fn isCapsOn__Q49textinput8keyboard6pctype4BaseCFv, global
+/* 8141024C 000E076C  80 03 00 20 */	lwz r0, 0x20(r3)
+/* 81410250 000E0770  54 03 D7 FE */	extrwi r3, r0, 1, 25
+/* 81410254 000E0774  4E 80 00 20 */	blr
+.endfn isCapsOn__Q49textinput8keyboard6pctype4BaseCFv
+
+# .text:0x80 | 0x81410258 | size: 0x8
+# textinput::keyboard::pctype::Base::create(MEMAllocator*)
+.fn create__Q49textinput8keyboard6pctype4BaseFP12MEMAllocator, global
+/* 81410258 000E0778  90 83 00 38 */	stw r4, 0x38(r3)
+/* 8141025C 000E077C  4E 80 00 20 */	blr
+.endfn create__Q49textinput8keyboard6pctype4BaseFP12MEMAllocator
+
+# .text:0x88 | 0x81410260 | size: 0x130
+# textinput::keyboard::pctype::Base::init()
+.fn init__Q49textinput8keyboard6pctype4BaseFv, global
+/* 81410260 000E0780  94 21 FF E0 */	stwu r1, -0x20(r1)
+/* 81410264 000E0784  7C 08 02 A6 */	mflr r0
+/* 81410268 000E0788  90 01 00 24 */	stw r0, 0x24(r1)
+/* 8141026C 000E078C  93 E1 00 1C */	stw r31, 0x1c(r1)
+/* 81410270 000E0790  7C 7F 1B 78 */	mr r31, r3
+/* 81410274 000E0794  93 C1 00 18 */	stw r30, 0x18(r1)
+/* 81410278 000E0798  3B C0 00 00 */	li r30, 0x0
+/* 8141027C 000E079C  9B C3 00 14 */	stb r30, 0x14(r3)
+/* 81410280 000E07A0  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81410284 000E07A4  81 8C 00 2C */	lwz r12, 0x2c(r12)
+/* 81410288 000E07A8  7D 89 03 A6 */	mtctr r12
+/* 8141028C 000E07AC  4E 80 04 21 */	bctrl
+/* 81410290 000E07B0  1C 03 00 14 */	mulli r0, r3, 0x14
+/* 81410294 000E07B4  80 9F 00 2C */	lwz r4, 0x2c(r31)
+/* 81410298 000E07B8  3C 60 81 61 */	lis r3, csLanguageDependencyData__Q39textinput8keyboard6pctype@ha
+/* 8141029C 000E07BC  93 DF 00 24 */	stw r30, 0x24(r31)
+/* 814102A0 000E07C0  2C 04 00 00 */	cmpwi r4, 0x0
+/* 814102A4 000E07C4  38 63 45 00 */	addi r3, r3, csLanguageDependencyData__Q39textinput8keyboard6pctype@l
+/* 814102A8 000E07C8  7C 03 02 14 */	add r0, r3, r0
+/* 814102AC 000E07CC  90 1F 00 1C */	stw r0, 0x1c(r31)
+/* 814102B0 000E07D0  40 82 00 20 */	bne .L_814102D0
+/* 814102B4 000E07D4  80 7F 00 34 */	lwz r3, 0x34(r31)
+/* 814102B8 000E07D8  88 03 00 3C */	lbz r0, 0x3c(r3)
+/* 814102BC 000E07DC  2C 00 00 00 */	cmpwi r0, 0x0
+/* 814102C0 000E07E0  40 82 00 10 */	bne .L_814102D0
+/* 814102C4 000E07E4  38 00 00 01 */	li r0, 0x1
+/* 814102C8 000E07E8  90 1F 00 20 */	stw r0, 0x20(r31)
+/* 814102CC 000E07EC  48 00 00 34 */	b .L_81410300
+.L_814102D0:
+/* 814102D0 000E07F0  38 04 FF F8 */	subi r0, r4, 0x8
+/* 814102D4 000E07F4  28 00 00 01 */	cmplwi r0, 0x1
+/* 814102D8 000E07F8  41 81 00 20 */	bgt .L_814102F8
+/* 814102DC 000E07FC  80 7F 00 34 */	lwz r3, 0x34(r31)
+/* 814102E0 000E0800  88 03 00 3D */	lbz r0, 0x3d(r3)
+/* 814102E4 000E0804  2C 00 00 00 */	cmpwi r0, 0x0
+/* 814102E8 000E0808  41 82 00 10 */	beq .L_814102F8
+/* 814102EC 000E080C  38 00 00 01 */	li r0, 0x1
+/* 814102F0 000E0810  90 1F 00 20 */	stw r0, 0x20(r31)
+/* 814102F4 000E0814  48 00 00 0C */	b .L_81410300
+.L_814102F8:
+/* 814102F8 000E0818  38 00 00 00 */	li r0, 0x0
+/* 814102FC 000E081C  90 1F 00 20 */	stw r0, 0x20(r31)
+.L_81410300:
+/* 81410300 000E0820  38 00 00 00 */	li r0, 0x0
+/* 81410304 000E0824  38 7F 00 20 */	addi r3, r31, 0x20
+/* 81410308 000E0828  90 1F 00 28 */	stw r0, 0x28(r31)
+/* 8141030C 000E082C  48 00 0E ED */	bl refresh___Q59textinput8keyboard6pctype4Base8KeyStateFv
+/* 81410310 000E0830  80 1F 00 20 */	lwz r0, 0x20(r31)
+/* 81410314 000E0834  54 00 07 3E */	clrlwi r0, r0, 28
+/* 81410318 000E0838  2C 00 00 01 */	cmpwi r0, 0x1
+/* 8141031C 000E083C  41 82 00 28 */	beq .L_81410344
+/* 81410320 000E0840  40 80 00 10 */	bge .L_81410330
+/* 81410324 000E0844  2C 00 00 00 */	cmpwi r0, 0x0
+/* 81410328 000E0848  40 80 00 14 */	bge .L_8141033C
+/* 8141032C 000E084C  48 00 00 28 */	b .L_81410354
+.L_81410330:
+/* 81410330 000E0850  2C 00 00 03 */	cmpwi r0, 0x3
+/* 81410334 000E0854  40 80 00 20 */	bge .L_81410354
+/* 81410338 000E0858  48 00 00 14 */	b .L_8141034C
+.L_8141033C:
+/* 8141033C 000E085C  38 00 00 00 */	li r0, 0x0
+/* 81410340 000E0860  48 00 00 18 */	b .L_81410358
+.L_81410344:
+/* 81410344 000E0864  38 00 00 01 */	li r0, 0x1
+/* 81410348 000E0868  48 00 00 10 */	b .L_81410358
+.L_8141034C:
+/* 8141034C 000E086C  38 00 00 02 */	li r0, 0x2
+/* 81410350 000E0870  48 00 00 08 */	b .L_81410358
+.L_81410354:
+/* 81410354 000E0874  38 00 00 00 */	li r0, 0x0
+.L_81410358:
+/* 81410358 000E0878  90 01 00 08 */	stw r0, 0x8(r1)
+/* 8141035C 000E087C  7F E3 FB 78 */	mr r3, r31
+/* 81410360 000E0880  38 A1 00 08 */	addi r5, r1, 0x8
+/* 81410364 000E0884  38 80 00 12 */	li r4, 0x12
+/* 81410368 000E0888  81 9F 00 00 */	lwz r12, 0x0(r31)
+/* 8141036C 000E088C  81 8C 00 18 */	lwz r12, 0x18(r12)
+/* 81410370 000E0890  7D 89 03 A6 */	mtctr r12
+/* 81410374 000E0894  4E 80 04 21 */	bctrl
+/* 81410378 000E0898  80 01 00 24 */	lwz r0, 0x24(r1)
+/* 8141037C 000E089C  83 E1 00 1C */	lwz r31, 0x1c(r1)
+/* 81410380 000E08A0  83 C1 00 18 */	lwz r30, 0x18(r1)
+/* 81410384 000E08A4  7C 08 03 A6 */	mtlr r0
+/* 81410388 000E08A8  38 21 00 20 */	addi r1, r1, 0x20
+/* 8141038C 000E08AC  4E 80 00 20 */	blr
+.endfn init__Q49textinput8keyboard6pctype4BaseFv
+
+# .text:0x1B8 | 0x81410390 | size: 0x8
+# textinput::keyboard::KeyboardBase::getLanguage() const
+.fn getLanguage__Q39textinput8keyboard12KeyboardBaseCFv, global
+/* 81410390 000E08B0  80 63 00 10 */	lwz r3, 0x10(r3)
+/* 81410394 000E08B4  4E 80 00 20 */	blr
+.endfn getLanguage__Q39textinput8keyboard12KeyboardBaseCFv
+
+# .text:0x1C0 | 0x81410398 | size: 0x20
+# textinput::CommandSender::sendCommand(unsigned long, void*)
+.fn sendCommand__Q29textinput13CommandSenderFUlPv, global
+/* 81410398 000E08B8  80 63 00 0C */	lwz r3, 0xc(r3)
+/* 8141039C 000E08BC  2C 03 00 00 */	cmpwi r3, 0x0
+/* 814103A0 000E08C0  4D 82 00 20 */	beqlr
+/* 814103A4 000E08C4  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 814103A8 000E08C8  81 8C 00 18 */	lwz r12, 0x18(r12)
+/* 814103AC 000E08CC  7D 89 03 A6 */	mtctr r12
+/* 814103B0 000E08D0  4E 80 04 20 */	bctr
+/* 814103B4 000E08D4  4E 80 00 20 */	blr
+.endfn sendCommand__Q29textinput13CommandSenderFUlPv
+
+# .text:0x1E0 | 0x814103B8 | size: 0x14
+# textinput::keyboard::pctype::Base::inputCharCode(wchar_t)
+.fn inputCharCode__Q49textinput8keyboard6pctype4BaseFw, global
+/* 814103B8 000E08D8  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 814103BC 000E08DC  38 A0 00 00 */	li r5, 0x0
+/* 814103C0 000E08E0  81 8C 00 88 */	lwz r12, 0x88(r12)
+/* 814103C4 000E08E4  7D 89 03 A6 */	mtctr r12
+/* 814103C8 000E08E8  4E 80 04 20 */	bctr
+.endfn inputCharCode__Q49textinput8keyboard6pctype4BaseFw
+
+# .text:0x1F4 | 0x814103CC | size: 0x388
+# textinput::keyboard::pctype::Base::onKey(unsigned long, void*)
+.fn onKey__Q49textinput8keyboard6pctype4BaseFUlPv, global
+/* 814103CC 000E08EC  94 21 FF D0 */	stwu r1, -0x30(r1)
+/* 814103D0 000E08F0  7C 08 02 A6 */	mflr r0
+/* 814103D4 000E08F4  90 01 00 34 */	stw r0, 0x34(r1)
+/* 814103D8 000E08F8  93 E1 00 2C */	stw r31, 0x2c(r1)
+/* 814103DC 000E08FC  7C 7F 1B 78 */	mr r31, r3
+/* 814103E0 000E0900  93 C1 00 28 */	stw r30, 0x28(r1)
+/* 814103E4 000E0904  7C BE 2B 78 */	mr r30, r5
+/* 814103E8 000E0908  93 A1 00 24 */	stw r29, 0x24(r1)
+/* 814103EC 000E090C  7C 9D 23 78 */	mr r29, r4
+/* 814103F0 000E0910  7F C4 F3 78 */	mr r4, r30
+/* 814103F4 000E0914  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 814103F8 000E0918  81 8C 00 80 */	lwz r12, 0x80(r12)
+/* 814103FC 000E091C  7D 89 03 A6 */	mtctr r12
+/* 81410400 000E0920  4E 80 04 21 */	bctrl
+/* 81410404 000E0924  28 1D 00 04 */	cmplwi r29, 0x4
+/* 81410408 000E0928  40 82 03 30 */	bne .L_81410738
+/* 8141040C 000E092C  54 64 04 3F */	clrlwi. r4, r3, 16
+/* 81410410 000E0930  40 82 03 14 */	bne .L_81410724
+/* 81410414 000E0934  81 9F 00 00 */	lwz r12, 0x0(r31)
+/* 81410418 000E0938  7F E3 FB 78 */	mr r3, r31
+/* 8141041C 000E093C  7F C4 F3 78 */	mr r4, r30
+/* 81410420 000E0940  81 8C 00 84 */	lwz r12, 0x84(r12)
+/* 81410424 000E0944  7D 89 03 A6 */	mtctr r12
+/* 81410428 000E0948  4E 80 04 21 */	bctrl
+/* 8141042C 000E094C  28 03 00 16 */	cmplwi r3, 0x16
+/* 81410430 000E0950  41 81 03 08 */	bgt .L_81410738
+/* 81410434 000E0954  3C 80 81 66 */	lis r4, jumptable_8165B5E0@ha
+/* 81410438 000E0958  54 60 10 3A */	slwi r0, r3, 2
+/* 8141043C 000E095C  38 84 B5 E0 */	addi r4, r4, jumptable_8165B5E0@l
+/* 81410440 000E0960  7C 84 00 2E */	lwzx r4, r4, r0
+/* 81410444 000E0964  7C 89 03 A6 */	mtctr r4
+/* 81410448 000E0968  4E 80 04 20 */	bctr
+.L_8141044C:
+/* 8141044C 000E096C  81 9F 00 00 */	lwz r12, 0x0(r31)
+/* 81410450 000E0970  7F E3 FB 78 */	mr r3, r31
+/* 81410454 000E0974  38 80 00 01 */	li r4, 0x1
+/* 81410458 000E0978  38 A0 00 00 */	li r5, 0x0
+/* 8141045C 000E097C  81 8C 00 18 */	lwz r12, 0x18(r12)
+/* 81410460 000E0980  7D 89 03 A6 */	mtctr r12
+/* 81410464 000E0984  4E 80 04 21 */	bctrl
+/* 81410468 000E0988  48 00 02 D0 */	b .L_81410738
+.L_8141046C:
+/* 8141046C 000E098C  81 9F 00 00 */	lwz r12, 0x0(r31)
+/* 81410470 000E0990  7F E3 FB 78 */	mr r3, r31
+/* 81410474 000E0994  38 80 00 07 */	li r4, 0x7
+/* 81410478 000E0998  38 A0 00 00 */	li r5, 0x0
+/* 8141047C 000E099C  81 8C 00 18 */	lwz r12, 0x18(r12)
+/* 81410480 000E09A0  7D 89 03 A6 */	mtctr r12
+/* 81410484 000E09A4  4E 80 04 21 */	bctrl
+/* 81410488 000E09A8  81 9F 00 00 */	lwz r12, 0x0(r31)
+/* 8141048C 000E09AC  7F E3 FB 78 */	mr r3, r31
+/* 81410490 000E09B0  38 80 00 27 */	li r4, 0x27
+/* 81410494 000E09B4  38 A0 00 00 */	li r5, 0x0
+/* 81410498 000E09B8  81 8C 00 18 */	lwz r12, 0x18(r12)
+/* 8141049C 000E09BC  7D 89 03 A6 */	mtctr r12
+/* 814104A0 000E09C0  4E 80 04 21 */	bctrl
+/* 814104A4 000E09C4  48 00 02 94 */	b .L_81410738
+.L_814104A8:
+/* 814104A8 000E09C8  80 7F 00 40 */	lwz r3, 0x40(r31)
+/* 814104AC 000E09CC  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 814104B0 000E09D0  81 8C 00 64 */	lwz r12, 0x64(r12)
+/* 814104B4 000E09D4  7D 89 03 A6 */	mtctr r12
+/* 814104B8 000E09D8  4E 80 04 21 */	bctrl
+/* 814104BC 000E09DC  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 814104C0 000E09E0  81 8C 01 38 */	lwz r12, 0x138(r12)
+/* 814104C4 000E09E4  7D 89 03 A6 */	mtctr r12
+/* 814104C8 000E09E8  4E 80 04 21 */	bctrl
+/* 814104CC 000E09EC  2C 03 00 00 */	cmpwi r3, 0x0
+/* 814104D0 000E09F0  41 82 00 24 */	beq .L_814104F4
+/* 814104D4 000E09F4  81 9F 00 00 */	lwz r12, 0x0(r31)
+/* 814104D8 000E09F8  7F E3 FB 78 */	mr r3, r31
+/* 814104DC 000E09FC  38 80 00 28 */	li r4, 0x28
+/* 814104E0 000E0A00  38 A0 00 00 */	li r5, 0x0
+/* 814104E4 000E0A04  81 8C 00 18 */	lwz r12, 0x18(r12)
+/* 814104E8 000E0A08  7D 89 03 A6 */	mtctr r12
+/* 814104EC 000E0A0C  4E 80 04 21 */	bctrl
+/* 814104F0 000E0A10  48 00 02 48 */	b .L_81410738
+.L_814104F4:
+/* 814104F4 000E0A14  81 9F 00 00 */	lwz r12, 0x0(r31)
+/* 814104F8 000E0A18  7F E3 FB 78 */	mr r3, r31
+/* 814104FC 000E0A1C  38 80 00 20 */	li r4, 0x20
+/* 81410500 000E0A20  38 A0 00 00 */	li r5, 0x0
+/* 81410504 000E0A24  81 8C 00 88 */	lwz r12, 0x88(r12)
+/* 81410508 000E0A28  7D 89 03 A6 */	mtctr r12
+/* 8141050C 000E0A2C  4E 80 04 21 */	bctrl
+/* 81410510 000E0A30  48 00 02 28 */	b .L_81410738
+.L_81410514:
+/* 81410514 000E0A34  81 9F 00 00 */	lwz r12, 0x0(r31)
+/* 81410518 000E0A38  7F E3 FB 78 */	mr r3, r31
+/* 8141051C 000E0A3C  38 80 00 01 */	li r4, 0x1
+/* 81410520 000E0A40  81 8C 00 4C */	lwz r12, 0x4c(r12)
+/* 81410524 000E0A44  7D 89 03 A6 */	mtctr r12
+/* 81410528 000E0A48  4E 80 04 21 */	bctrl
+/* 8141052C 000E0A4C  48 00 02 0C */	b .L_81410738
+.L_81410530:
+/* 81410530 000E0A50  81 9F 00 00 */	lwz r12, 0x0(r31)
+/* 81410534 000E0A54  7F E3 FB 78 */	mr r3, r31
+/* 81410538 000E0A58  38 80 00 00 */	li r4, 0x0
+/* 8141053C 000E0A5C  81 8C 00 4C */	lwz r12, 0x4c(r12)
+/* 81410540 000E0A60  7D 89 03 A6 */	mtctr r12
+/* 81410544 000E0A64  4E 80 04 21 */	bctrl
+/* 81410548 000E0A68  48 00 01 F0 */	b .L_81410738
+.L_8141054C:
+/* 8141054C 000E0A6C  81 9F 00 00 */	lwz r12, 0x0(r31)
+/* 81410550 000E0A70  7F E3 FB 78 */	mr r3, r31
+/* 81410554 000E0A74  81 8C 00 8C */	lwz r12, 0x8c(r12)
+/* 81410558 000E0A78  7D 89 03 A6 */	mtctr r12
+/* 8141055C 000E0A7C  4E 80 04 21 */	bctrl
+/* 81410560 000E0A80  48 00 01 D8 */	b .L_81410738
+.L_81410564:
+/* 81410564 000E0A84  81 9F 00 00 */	lwz r12, 0x0(r31)
+/* 81410568 000E0A88  7F E3 FB 78 */	mr r3, r31
+/* 8141056C 000E0A8C  81 8C 00 90 */	lwz r12, 0x90(r12)
+/* 81410570 000E0A90  7D 89 03 A6 */	mtctr r12
+/* 81410574 000E0A94  4E 80 04 21 */	bctrl
+/* 81410578 000E0A98  48 00 01 C0 */	b .L_81410738
+.L_8141057C:
+/* 8141057C 000E0A9C  81 9F 00 00 */	lwz r12, 0x0(r31)
+/* 81410580 000E0AA0  7F E3 FB 78 */	mr r3, r31
+/* 81410584 000E0AA4  38 80 00 04 */	li r4, 0x4
+/* 81410588 000E0AA8  81 8C 00 78 */	lwz r12, 0x78(r12)
+/* 8141058C 000E0AAC  7D 89 03 A6 */	mtctr r12
+/* 81410590 000E0AB0  4E 80 04 21 */	bctrl
+/* 81410594 000E0AB4  48 00 01 A4 */	b .L_81410738
+.L_81410598:
+/* 81410598 000E0AB8  38 00 00 00 */	li r0, 0x0
+/* 8141059C 000E0ABC  7F E3 FB 78 */	mr r3, r31
+/* 814105A0 000E0AC0  90 01 00 10 */	stw r0, 0x10(r1)
+/* 814105A4 000E0AC4  38 A1 00 10 */	addi r5, r1, 0x10
+/* 814105A8 000E0AC8  38 80 00 12 */	li r4, 0x12
+/* 814105AC 000E0ACC  81 9F 00 00 */	lwz r12, 0x0(r31)
+/* 814105B0 000E0AD0  81 8C 00 18 */	lwz r12, 0x18(r12)
+/* 814105B4 000E0AD4  7D 89 03 A6 */	mtctr r12
+/* 814105B8 000E0AD8  4E 80 04 21 */	bctrl
+/* 814105BC 000E0ADC  81 9F 00 00 */	lwz r12, 0x0(r31)
+/* 814105C0 000E0AE0  7F E3 FB 78 */	mr r3, r31
+/* 814105C4 000E0AE4  38 80 00 00 */	li r4, 0x0
+/* 814105C8 000E0AE8  81 8C 00 5C */	lwz r12, 0x5c(r12)
+/* 814105CC 000E0AEC  7D 89 03 A6 */	mtctr r12
+/* 814105D0 000E0AF0  4E 80 04 21 */	bctrl
+/* 814105D4 000E0AF4  48 00 01 64 */	b .L_81410738
+.L_814105D8:
+/* 814105D8 000E0AF8  80 02 89 18 */	lwz r0, lbl_81694D18@sda21(r0)
+/* 814105DC 000E0AFC  7F E3 FB 78 */	mr r3, r31
+/* 814105E0 000E0B00  38 A1 00 0C */	addi r5, r1, 0xc
+/* 814105E4 000E0B04  38 80 00 12 */	li r4, 0x12
+/* 814105E8 000E0B08  90 01 00 0C */	stw r0, 0xc(r1)
+/* 814105EC 000E0B0C  81 9F 00 00 */	lwz r12, 0x0(r31)
+/* 814105F0 000E0B10  81 8C 00 18 */	lwz r12, 0x18(r12)
+/* 814105F4 000E0B14  7D 89 03 A6 */	mtctr r12
+/* 814105F8 000E0B18  4E 80 04 21 */	bctrl
+/* 814105FC 000E0B1C  81 9F 00 00 */	lwz r12, 0x0(r31)
+/* 81410600 000E0B20  7F E3 FB 78 */	mr r3, r31
+/* 81410604 000E0B24  38 80 00 01 */	li r4, 0x1
+/* 81410608 000E0B28  81 8C 00 5C */	lwz r12, 0x5c(r12)
+/* 8141060C 000E0B2C  7D 89 03 A6 */	mtctr r12
+/* 81410610 000E0B30  4E 80 04 21 */	bctrl
+/* 81410614 000E0B34  48 00 01 24 */	b .L_81410738
+.L_81410618:
+/* 81410618 000E0B38  80 02 89 1C */	lwz r0, lbl_81694D1C@sda21(r0)
+/* 8141061C 000E0B3C  7F E3 FB 78 */	mr r3, r31
+/* 81410620 000E0B40  38 A1 00 08 */	addi r5, r1, 0x8
+/* 81410624 000E0B44  38 80 00 12 */	li r4, 0x12
+/* 81410628 000E0B48  90 01 00 08 */	stw r0, 0x8(r1)
+/* 8141062C 000E0B4C  81 9F 00 00 */	lwz r12, 0x0(r31)
+/* 81410630 000E0B50  81 8C 00 18 */	lwz r12, 0x18(r12)
+/* 81410634 000E0B54  7D 89 03 A6 */	mtctr r12
+/* 81410638 000E0B58  4E 80 04 21 */	bctrl
+/* 8141063C 000E0B5C  81 9F 00 00 */	lwz r12, 0x0(r31)
+/* 81410640 000E0B60  7F E3 FB 78 */	mr r3, r31
+/* 81410644 000E0B64  38 80 00 02 */	li r4, 0x2
+/* 81410648 000E0B68  81 8C 00 5C */	lwz r12, 0x5c(r12)
+/* 8141064C 000E0B6C  7D 89 03 A6 */	mtctr r12
+/* 81410650 000E0B70  4E 80 04 21 */	bctrl
+/* 81410654 000E0B74  48 00 00 E4 */	b .L_81410738
+.L_81410658:
+/* 81410658 000E0B78  80 7F 00 28 */	lwz r3, 0x28(r31)
+/* 8141065C 000E0B7C  54 60 07 3F */	clrlwi. r0, r3, 28
+/* 81410660 000E0B80  41 82 00 D8 */	beq .L_81410738
+/* 81410664 000E0B84  54 60 00 36 */	clrrwi r0, r3, 4
+/* 81410668 000E0B88  38 7F 00 20 */	addi r3, r31, 0x20
+/* 8141066C 000E0B8C  90 1F 00 28 */	stw r0, 0x28(r31)
+/* 81410670 000E0B90  48 00 0B 89 */	bl refresh___Q59textinput8keyboard6pctype4Base8KeyStateFv
+/* 81410674 000E0B94  48 00 00 C4 */	b .L_81410738
+.L_81410678:
+/* 81410678 000E0B98  80 7F 00 28 */	lwz r3, 0x28(r31)
+/* 8141067C 000E0B9C  54 60 07 3E */	clrlwi r0, r3, 28
+/* 81410680 000E0BA0  28 00 00 01 */	cmplwi r0, 0x1
+/* 81410684 000E0BA4  41 82 00 B4 */	beq .L_81410738
+/* 81410688 000E0BA8  54 60 00 36 */	clrrwi r0, r3, 4
+/* 8141068C 000E0BAC  38 7F 00 20 */	addi r3, r31, 0x20
+/* 81410690 000E0BB0  60 00 00 01 */	ori r0, r0, 0x1
+/* 81410694 000E0BB4  90 1F 00 28 */	stw r0, 0x28(r31)
+/* 81410698 000E0BB8  48 00 0B 61 */	bl refresh___Q59textinput8keyboard6pctype4Base8KeyStateFv
+/* 8141069C 000E0BBC  48 00 00 9C */	b .L_81410738
+.L_814106A0:
+/* 814106A0 000E0BC0  80 1F 00 28 */	lwz r0, 0x28(r31)
+/* 814106A4 000E0BC4  54 00 06 B5 */	rlwinm. r0, r0, 0, 26, 26
+/* 814106A8 000E0BC8  41 82 00 90 */	beq .L_81410738
+/* 814106AC 000E0BCC  81 9F 00 00 */	lwz r12, 0x0(r31)
+/* 814106B0 000E0BD0  7F E3 FB 78 */	mr r3, r31
+/* 814106B4 000E0BD4  38 80 00 19 */	li r4, 0x19
+/* 814106B8 000E0BD8  38 A0 00 00 */	li r5, 0x0
+/* 814106BC 000E0BDC  81 8C 00 18 */	lwz r12, 0x18(r12)
+/* 814106C0 000E0BE0  7D 89 03 A6 */	mtctr r12
+/* 814106C4 000E0BE4  4E 80 04 21 */	bctrl
+/* 814106C8 000E0BE8  48 00 00 70 */	b .L_81410738
+.L_814106CC:
+/* 814106CC 000E0BEC  80 1F 00 28 */	lwz r0, 0x28(r31)
+/* 814106D0 000E0BF0  54 00 06 73 */	rlwinm. r0, r0, 0, 25, 25
+/* 814106D4 000E0BF4  41 82 00 64 */	beq .L_81410738
+/* 814106D8 000E0BF8  81 9F 00 00 */	lwz r12, 0x0(r31)
+/* 814106DC 000E0BFC  7F E3 FB 78 */	mr r3, r31
+/* 814106E0 000E0C00  38 80 00 1A */	li r4, 0x1a
+/* 814106E4 000E0C04  38 A0 00 00 */	li r5, 0x0
+/* 814106E8 000E0C08  81 8C 00 18 */	lwz r12, 0x18(r12)
+/* 814106EC 000E0C0C  7D 89 03 A6 */	mtctr r12
+/* 814106F0 000E0C10  4E 80 04 21 */	bctrl
+/* 814106F4 000E0C14  48 00 00 44 */	b .L_81410738
+.L_814106F8:
+/* 814106F8 000E0C18  80 1F 00 28 */	lwz r0, 0x28(r31)
+/* 814106FC 000E0C1C  54 00 06 31 */	rlwinm. r0, r0, 0, 24, 24
+/* 81410700 000E0C20  41 82 00 38 */	beq .L_81410738
+/* 81410704 000E0C24  81 9F 00 00 */	lwz r12, 0x0(r31)
+/* 81410708 000E0C28  7F E3 FB 78 */	mr r3, r31
+/* 8141070C 000E0C2C  38 80 00 1C */	li r4, 0x1c
+/* 81410710 000E0C30  38 A0 00 00 */	li r5, 0x0
+/* 81410714 000E0C34  81 8C 00 18 */	lwz r12, 0x18(r12)
+/* 81410718 000E0C38  7D 89 03 A6 */	mtctr r12
+/* 8141071C 000E0C3C  4E 80 04 21 */	bctrl
+/* 81410720 000E0C40  48 00 00 18 */	b .L_81410738
+.L_81410724:
+/* 81410724 000E0C44  81 9F 00 00 */	lwz r12, 0x0(r31)
+/* 81410728 000E0C48  7F E3 FB 78 */	mr r3, r31
+/* 8141072C 000E0C4C  81 8C 00 38 */	lwz r12, 0x38(r12)
+/* 81410730 000E0C50  7D 89 03 A6 */	mtctr r12
+/* 81410734 000E0C54  4E 80 04 21 */	bctrl
+.L_81410738:
+/* 81410738 000E0C58  80 01 00 34 */	lwz r0, 0x34(r1)
+/* 8141073C 000E0C5C  83 E1 00 2C */	lwz r31, 0x2c(r1)
+/* 81410740 000E0C60  83 C1 00 28 */	lwz r30, 0x28(r1)
+/* 81410744 000E0C64  83 A1 00 24 */	lwz r29, 0x24(r1)
+/* 81410748 000E0C68  7C 08 03 A6 */	mtlr r0
+/* 8141074C 000E0C6C  38 21 00 30 */	addi r1, r1, 0x30
+/* 81410750 000E0C70  4E 80 00 20 */	blr
+.endfn onKey__Q49textinput8keyboard6pctype4BaseFUlPv
+
+# .text:0x57C | 0x81410754 | size: 0x40
+# textinput::inputform::Base::canConvert()
+.fn canConvert__Q39textinput9inputform4BaseFv, global
+/* 81410754 000E0C74  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 81410758 000E0C78  7C 08 02 A6 */	mflr r0
+/* 8141075C 000E0C7C  38 80 00 00 */	li r4, 0x0
+/* 81410760 000E0C80  90 01 00 14 */	stw r0, 0x14(r1)
+/* 81410764 000E0C84  93 E1 00 0C */	stw r31, 0xc(r1)
+/* 81410768 000E0C88  7C 7F 1B 78 */	mr r31, r3
+/* 8141076C 000E0C8C  48 01 17 89 */	bl getCurrentString__Q39textinput9inputform4BaseFb
+/* 81410770 000E0C90  80 1F 01 68 */	lwz r0, 0x168(r31)
+/* 81410774 000E0C94  83 E1 00 0C */	lwz r31, 0xc(r1)
+/* 81410778 000E0C98  7C 03 00 50 */	subf r0, r3, r0
+/* 8141077C 000E0C9C  7C 00 00 34 */	cntlzw r0, r0
+/* 81410780 000E0CA0  54 03 D9 7E */	srwi r3, r0, 5
+/* 81410784 000E0CA4  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 81410788 000E0CA8  7C 08 03 A6 */	mtlr r0
+/* 8141078C 000E0CAC  38 21 00 10 */	addi r1, r1, 0x10
+/* 81410790 000E0CB0  4E 80 00 20 */	blr
+.endfn canConvert__Q39textinput9inputform4BaseFv
+
+# .text:0x5BC | 0x81410794 | size: 0x4
+# textinput::keyboard::pctype::Base::goSignInputMode()
+.fn goSignInputMode__Q49textinput8keyboard6pctype4BaseFv, global
+/* 81410794 000E0CB4  4E 80 00 20 */	blr
+.endfn goSignInputMode__Q49textinput8keyboard6pctype4BaseFv
+
+# .text:0x5C0 | 0x81410798 | size: 0x4
+# textinput::keyboard::pctype::Base::changePredictLanguage()
+.fn changePredictLanguage__Q49textinput8keyboard6pctype4BaseFv, global
+/* 81410798 000E0CB8  4E 80 00 20 */	blr
+.endfn changePredictLanguage__Q49textinput8keyboard6pctype4BaseFv
+
+# .text:0x5C4 | 0x8141079C | size: 0xCC
+# textinput::keyboard::pctype::Base::updateFromReceiver(unsigned long, void*)
+.fn updateFromReceiver__Q49textinput8keyboard6pctype4BaseFUlPv, global
+/* 8141079C 000E0CBC  94 21 FF E0 */	stwu r1, -0x20(r1)
+/* 814107A0 000E0CC0  7C 08 02 A6 */	mflr r0
+/* 814107A4 000E0CC4  28 04 00 1F */	cmplwi r4, 0x1f
+/* 814107A8 000E0CC8  90 01 00 24 */	stw r0, 0x24(r1)
+/* 814107AC 000E0CCC  93 E1 00 1C */	stw r31, 0x1c(r1)
+/* 814107B0 000E0CD0  7C 9F 23 78 */	mr r31, r4
+/* 814107B4 000E0CD4  93 C1 00 18 */	stw r30, 0x18(r1)
+/* 814107B8 000E0CD8  7C 7E 1B 78 */	mr r30, r3
+/* 814107BC 000E0CDC  41 82 00 94 */	beq .L_81410850
+/* 814107C0 000E0CE0  38 00 00 00 */	li r0, 0x0
+/* 814107C4 000E0CE4  38 A1 00 08 */	addi r5, r1, 0x8
+/* 814107C8 000E0CE8  90 01 00 08 */	stw r0, 0x8(r1)
+/* 814107CC 000E0CEC  38 80 00 1F */	li r4, 0x1f
+/* 814107D0 000E0CF0  90 01 00 0C */	stw r0, 0xc(r1)
+/* 814107D4 000E0CF4  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 814107D8 000E0CF8  81 8C 00 18 */	lwz r12, 0x18(r12)
+/* 814107DC 000E0CFC  7D 89 03 A6 */	mtctr r12
+/* 814107E0 000E0D00  4E 80 04 21 */	bctrl
+/* 814107E4 000E0D04  28 1F 00 19 */	cmplwi r31, 0x19
+/* 814107E8 000E0D08  41 82 00 34 */	beq .L_8141081C
+/* 814107EC 000E0D0C  28 1F 00 1A */	cmplwi r31, 0x1a
+/* 814107F0 000E0D10  41 82 00 2C */	beq .L_8141081C
+/* 814107F4 000E0D14  28 1F 00 1C */	cmplwi r31, 0x1c
+/* 814107F8 000E0D18  41 82 00 24 */	beq .L_8141081C
+/* 814107FC 000E0D1C  28 1F 00 18 */	cmplwi r31, 0x18
+/* 81410800 000E0D20  41 82 00 1C */	beq .L_8141081C
+/* 81410804 000E0D24  28 1F 00 14 */	cmplwi r31, 0x14
+/* 81410808 000E0D28  41 82 00 14 */	beq .L_8141081C
+/* 8141080C 000E0D2C  28 1F 00 13 */	cmplwi r31, 0x13
+/* 81410810 000E0D30  41 82 00 0C */	beq .L_8141081C
+/* 81410814 000E0D34  28 1F 00 23 */	cmplwi r31, 0x23
+/* 81410818 000E0D38  40 82 00 0C */	bne .L_81410824
+.L_8141081C:
+/* 8141081C 000E0D3C  28 1F 00 24 */	cmplwi r31, 0x24
+/* 81410820 000E0D40  40 82 00 20 */	bne .L_81410840
+.L_81410824:
+/* 81410824 000E0D44  80 7E 00 28 */	lwz r3, 0x28(r30)
+/* 81410828 000E0D48  54 60 00 37 */	clrrwi. r0, r3, 4
+/* 8141082C 000E0D4C  41 82 00 14 */	beq .L_81410840
+/* 81410830 000E0D50  54 60 07 3E */	clrlwi r0, r3, 28
+/* 81410834 000E0D54  38 7E 00 20 */	addi r3, r30, 0x20
+/* 81410838 000E0D58  90 1E 00 28 */	stw r0, 0x28(r30)
+/* 8141083C 000E0D5C  48 00 09 BD */	bl refresh___Q59textinput8keyboard6pctype4Base8KeyStateFv
+.L_81410840:
+/* 81410840 000E0D60  28 1F 00 24 */	cmplwi r31, 0x24
+/* 81410844 000E0D64  40 82 00 0C */	bne .L_81410850
+/* 81410848 000E0D68  38 00 00 01 */	li r0, 0x1
+/* 8141084C 000E0D6C  98 1E 00 14 */	stb r0, 0x14(r30)
+.L_81410850:
+/* 81410850 000E0D70  80 01 00 24 */	lwz r0, 0x24(r1)
+/* 81410854 000E0D74  83 E1 00 1C */	lwz r31, 0x1c(r1)
+/* 81410858 000E0D78  83 C1 00 18 */	lwz r30, 0x18(r1)
+/* 8141085C 000E0D7C  7C 08 03 A6 */	mtlr r0
+/* 81410860 000E0D80  38 21 00 20 */	addi r1, r1, 0x20
+/* 81410864 000E0D84  4E 80 00 20 */	blr
+.endfn updateFromReceiver__Q49textinput8keyboard6pctype4BaseFUlPv
+
+# .text:0x690 | 0x81410868 | size: 0x1DC
+# textinput::keyboard::pctype::Base::onActive()
+.fn onActive__Q49textinput8keyboard6pctype4BaseFv, global
+/* 81410868 000E0D88  94 21 FF E0 */	stwu r1, -0x20(r1)
+/* 8141086C 000E0D8C  7C 08 02 A6 */	mflr r0
+/* 81410870 000E0D90  90 01 00 24 */	stw r0, 0x24(r1)
+/* 81410874 000E0D94  93 E1 00 1C */	stw r31, 0x1c(r1)
+/* 81410878 000E0D98  7C 7F 1B 78 */	mr r31, r3
+/* 8141087C 000E0D9C  80 03 00 20 */	lwz r0, 0x20(r3)
+/* 81410880 000E0DA0  54 00 07 3E */	clrlwi r0, r0, 28
+/* 81410884 000E0DA4  2C 00 00 01 */	cmpwi r0, 0x1
+/* 81410888 000E0DA8  41 82 00 28 */	beq .L_814108B0
+/* 8141088C 000E0DAC  40 80 00 10 */	bge .L_8141089C
+/* 81410890 000E0DB0  2C 00 00 00 */	cmpwi r0, 0x0
+/* 81410894 000E0DB4  40 80 00 14 */	bge .L_814108A8
+/* 81410898 000E0DB8  48 00 00 28 */	b .L_814108C0
+.L_8141089C:
+/* 8141089C 000E0DBC  2C 00 00 03 */	cmpwi r0, 0x3
+/* 814108A0 000E0DC0  40 80 00 20 */	bge .L_814108C0
+/* 814108A4 000E0DC4  48 00 00 14 */	b .L_814108B8
+.L_814108A8:
+/* 814108A8 000E0DC8  38 00 00 00 */	li r0, 0x0
+/* 814108AC 000E0DCC  48 00 00 18 */	b .L_814108C4
+.L_814108B0:
+/* 814108B0 000E0DD0  38 00 00 01 */	li r0, 0x1
+/* 814108B4 000E0DD4  48 00 00 10 */	b .L_814108C4
+.L_814108B8:
+/* 814108B8 000E0DD8  38 00 00 02 */	li r0, 0x2
+/* 814108BC 000E0DDC  48 00 00 08 */	b .L_814108C4
+.L_814108C0:
+/* 814108C0 000E0DE0  38 00 00 00 */	li r0, 0x0
+.L_814108C4:
+/* 814108C4 000E0DE4  90 01 00 10 */	stw r0, 0x10(r1)
+/* 814108C8 000E0DE8  7F E3 FB 78 */	mr r3, r31
+/* 814108CC 000E0DEC  38 A1 00 10 */	addi r5, r1, 0x10
+/* 814108D0 000E0DF0  38 80 00 12 */	li r4, 0x12
+/* 814108D4 000E0DF4  81 9F 00 00 */	lwz r12, 0x0(r31)
+/* 814108D8 000E0DF8  81 8C 00 18 */	lwz r12, 0x18(r12)
+/* 814108DC 000E0DFC  7D 89 03 A6 */	mtctr r12
+/* 814108E0 000E0E00  4E 80 04 21 */	bctrl
+/* 814108E4 000E0E04  81 9F 00 00 */	lwz r12, 0x0(r31)
+/* 814108E8 000E0E08  7F E3 FB 78 */	mr r3, r31
+/* 814108EC 000E0E0C  38 80 00 27 */	li r4, 0x27
+/* 814108F0 000E0E10  38 A0 00 00 */	li r5, 0x0
+/* 814108F4 000E0E14  81 8C 00 18 */	lwz r12, 0x18(r12)
+/* 814108F8 000E0E18  7D 89 03 A6 */	mtctr r12
+/* 814108FC 000E0E1C  4E 80 04 21 */	bctrl
+/* 81410900 000E0E20  80 1F 00 24 */	lwz r0, 0x24(r31)
+/* 81410904 000E0E24  2C 00 00 00 */	cmpwi r0, 0x0
+/* 81410908 000E0E28  40 82 00 98 */	bne .L_814109A0
+/* 8141090C 000E0E2C  80 1F 00 20 */	lwz r0, 0x20(r31)
+/* 81410910 000E0E30  54 00 07 3E */	clrlwi r0, r0, 28
+/* 81410914 000E0E34  2C 00 00 01 */	cmpwi r0, 0x1
+/* 81410918 000E0E38  41 82 00 28 */	beq .L_81410940
+/* 8141091C 000E0E3C  40 80 00 10 */	bge .L_8141092C
+/* 81410920 000E0E40  2C 00 00 00 */	cmpwi r0, 0x0
+/* 81410924 000E0E44  40 80 00 14 */	bge .L_81410938
+/* 81410928 000E0E48  48 00 00 28 */	b .L_81410950
+.L_8141092C:
+/* 8141092C 000E0E4C  2C 00 00 03 */	cmpwi r0, 0x3
+/* 81410930 000E0E50  40 80 00 20 */	bge .L_81410950
+/* 81410934 000E0E54  48 00 00 14 */	b .L_81410948
+.L_81410938:
+/* 81410938 000E0E58  38 00 00 00 */	li r0, 0x0
+/* 8141093C 000E0E5C  48 00 00 18 */	b .L_81410954
+.L_81410940:
+/* 81410940 000E0E60  38 00 00 01 */	li r0, 0x1
+/* 81410944 000E0E64  48 00 00 10 */	b .L_81410954
+.L_81410948:
+/* 81410948 000E0E68  38 00 00 02 */	li r0, 0x2
+/* 8141094C 000E0E6C  48 00 00 08 */	b .L_81410954
+.L_81410950:
+/* 81410950 000E0E70  38 00 00 00 */	li r0, 0x0
+.L_81410954:
+/* 81410954 000E0E74  2C 00 00 02 */	cmpwi r0, 0x2
+/* 81410958 000E0E78  41 82 00 20 */	beq .L_81410978
+/* 8141095C 000E0E7C  40 80 00 C0 */	bge .L_81410A1C
+/* 81410960 000E0E80  2C 00 00 01 */	cmpwi r0, 0x1
+/* 81410964 000E0E84  40 80 00 08 */	bge .L_8141096C
+/* 81410968 000E0E88  48 00 00 B4 */	b .L_81410A1C
+.L_8141096C:
+/* 8141096C 000E0E8C  38 00 00 01 */	li r0, 0x1
+/* 81410970 000E0E90  98 01 00 0C */	stb r0, 0xc(r1)
+/* 81410974 000E0E94  48 00 00 0C */	b .L_81410980
+.L_81410978:
+/* 81410978 000E0E98  38 00 00 00 */	li r0, 0x0
+/* 8141097C 000E0E9C  98 01 00 0C */	stb r0, 0xc(r1)
+.L_81410980:
+/* 81410980 000E0EA0  81 9F 00 00 */	lwz r12, 0x0(r31)
+/* 81410984 000E0EA4  7F E3 FB 78 */	mr r3, r31
+/* 81410988 000E0EA8  38 A1 00 0C */	addi r5, r1, 0xc
+/* 8141098C 000E0EAC  38 80 00 13 */	li r4, 0x13
+/* 81410990 000E0EB0  81 8C 00 18 */	lwz r12, 0x18(r12)
+/* 81410994 000E0EB4  7D 89 03 A6 */	mtctr r12
+/* 81410998 000E0EB8  4E 80 04 21 */	bctrl
+/* 8141099C 000E0EBC  48 00 00 80 */	b .L_81410A1C
+.L_814109A0:
+/* 814109A0 000E0EC0  80 1F 00 28 */	lwz r0, 0x28(r31)
+/* 814109A4 000E0EC4  54 00 07 3E */	clrlwi r0, r0, 28
+/* 814109A8 000E0EC8  2C 00 00 01 */	cmpwi r0, 0x1
+/* 814109AC 000E0ECC  41 82 00 1C */	beq .L_814109C8
+/* 814109B0 000E0ED0  40 80 00 20 */	bge .L_814109D0
+/* 814109B4 000E0ED4  2C 00 00 00 */	cmpwi r0, 0x0
+/* 814109B8 000E0ED8  40 80 00 08 */	bge .L_814109C0
+/* 814109BC 000E0EDC  48 00 00 14 */	b .L_814109D0
+.L_814109C0:
+/* 814109C0 000E0EE0  38 00 00 06 */	li r0, 0x6
+/* 814109C4 000E0EE4  48 00 00 10 */	b .L_814109D4
+.L_814109C8:
+/* 814109C8 000E0EE8  38 00 00 07 */	li r0, 0x7
+/* 814109CC 000E0EEC  48 00 00 08 */	b .L_814109D4
+.L_814109D0:
+/* 814109D0 000E0EF0  38 00 00 06 */	li r0, 0x6
+.L_814109D4:
+/* 814109D4 000E0EF4  2C 00 00 07 */	cmpwi r0, 0x7
+/* 814109D8 000E0EF8  41 82 00 20 */	beq .L_814109F8
+/* 814109DC 000E0EFC  40 80 00 40 */	bge .L_81410A1C
+/* 814109E0 000E0F00  2C 00 00 06 */	cmpwi r0, 0x6
+/* 814109E4 000E0F04  40 80 00 08 */	bge .L_814109EC
+/* 814109E8 000E0F08  48 00 00 34 */	b .L_81410A1C
+.L_814109EC:
+/* 814109EC 000E0F0C  38 00 00 01 */	li r0, 0x1
+/* 814109F0 000E0F10  98 01 00 08 */	stb r0, 0x8(r1)
+/* 814109F4 000E0F14  48 00 00 0C */	b .L_81410A00
+.L_814109F8:
+/* 814109F8 000E0F18  38 00 00 00 */	li r0, 0x0
+/* 814109FC 000E0F1C  98 01 00 08 */	stb r0, 0x8(r1)
+.L_81410A00:
+/* 81410A00 000E0F20  81 9F 00 00 */	lwz r12, 0x0(r31)
+/* 81410A04 000E0F24  7F E3 FB 78 */	mr r3, r31
+/* 81410A08 000E0F28  38 A1 00 08 */	addi r5, r1, 0x8
+/* 81410A0C 000E0F2C  38 80 00 13 */	li r4, 0x13
+/* 81410A10 000E0F30  81 8C 00 18 */	lwz r12, 0x18(r12)
+/* 81410A14 000E0F34  7D 89 03 A6 */	mtctr r12
+/* 81410A18 000E0F38  4E 80 04 21 */	bctrl
+.L_81410A1C:
+/* 81410A1C 000E0F3C  81 9F 00 00 */	lwz r12, 0x0(r31)
+/* 81410A20 000E0F40  7F E3 FB 78 */	mr r3, r31
+/* 81410A24 000E0F44  81 8C 00 94 */	lwz r12, 0x94(r12)
+/* 81410A28 000E0F48  7D 89 03 A6 */	mtctr r12
+/* 81410A2C 000E0F4C  4E 80 04 21 */	bctrl
+/* 81410A30 000E0F50  80 01 00 24 */	lwz r0, 0x24(r1)
+/* 81410A34 000E0F54  83 E1 00 1C */	lwz r31, 0x1c(r1)
+/* 81410A38 000E0F58  7C 08 03 A6 */	mtlr r0
+/* 81410A3C 000E0F5C  38 21 00 20 */	addi r1, r1, 0x20
+/* 81410A40 000E0F60  4E 80 00 20 */	blr
+.endfn onActive__Q49textinput8keyboard6pctype4BaseFv
+
+# .text:0x86C | 0x81410A44 | size: 0x4
+# textinput::keyboard::pctype::Base::onClose()
+.fn onClose__Q49textinput8keyboard6pctype4BaseFv, global
+/* 81410A44 000E0F64  4E 80 00 20 */	blr
+.endfn onClose__Q49textinput8keyboard6pctype4BaseFv
+
+# .text:0x870 | 0x81410A48 | size: 0x8
+# textinput::keyboard::pctype::Base::getWCCode(char*)
+.fn getWCCode__Q49textinput8keyboard6pctype4BaseFPc, global
+/* 81410A48 000E0F68  38 63 00 20 */	addi r3, r3, 0x20
+/* 81410A4C 000E0F6C  48 00 0F 54 */	b getWCCode__Q59textinput8keyboard6pctype4Base8KeyStateFPc
+.endfn getWCCode__Q49textinput8keyboard6pctype4BaseFPc
+
+# .text:0x878 | 0x81410A50 | size: 0x90
+# textinput::keyboard::pctype::Base::getControlKey(char*)
+.fn getControlKey__Q49textinput8keyboard6pctype4BaseFPc, global
+/* 81410A50 000E0F70  94 21 FF E0 */	stwu r1, -0x20(r1)
+/* 81410A54 000E0F74  7C 08 02 A6 */	mflr r0
+/* 81410A58 000E0F78  90 01 00 24 */	stw r0, 0x24(r1)
+/* 81410A5C 000E0F7C  93 E1 00 1C */	stw r31, 0x1c(r1)
+/* 81410A60 000E0F80  3B E0 00 00 */	li r31, 0x0
+/* 81410A64 000E0F84  93 C1 00 18 */	stw r30, 0x18(r1)
+/* 81410A68 000E0F88  93 A1 00 14 */	stw r29, 0x14(r1)
+/* 81410A6C 000E0F8C  7C 9D 23 78 */	mr r29, r4
+/* 81410A70 000E0F90  93 81 00 10 */	stw r28, 0x10(r1)
+/* 81410A74 000E0F94  7C 7C 1B 78 */	mr r28, r3
+.L_81410A78:
+/* 81410A78 000E0F98  57 E0 04 3E */	clrlwi r0, r31, 16
+/* 81410A7C 000E0F9C  80 7C 00 30 */	lwz r3, 0x30(r28)
+/* 81410A80 000E0FA0  1F C0 00 18 */	mulli r30, r0, 0x18
+/* 81410A84 000E0FA4  7F A4 EB 78 */	mr r4, r29
+/* 81410A88 000E0FA8  80 03 00 08 */	lwz r0, 0x8(r3)
+/* 81410A8C 000E0FAC  7C 60 F2 14 */	add r3, r0, r30
+/* 81410A90 000E0FB0  48 02 97 65 */	bl strcmp__Q29textinput4utilFPCcPCc
+/* 81410A94 000E0FB4  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81410A98 000E0FB8  41 82 00 18 */	beq .L_81410AB0
+/* 81410A9C 000E0FBC  80 7C 00 30 */	lwz r3, 0x30(r28)
+/* 81410AA0 000E0FC0  80 03 00 08 */	lwz r0, 0x8(r3)
+/* 81410AA4 000E0FC4  7C 60 F2 14 */	add r3, r0, r30
+/* 81410AA8 000E0FC8  80 63 00 14 */	lwz r3, 0x14(r3)
+/* 81410AAC 000E0FCC  48 00 00 14 */	b .L_81410AC0
+.L_81410AB0:
+/* 81410AB0 000E0FD0  3B FF 00 01 */	addi r31, r31, 0x1
+/* 81410AB4 000E0FD4  28 1F 00 17 */	cmplwi r31, 0x17
+/* 81410AB8 000E0FD8  41 80 FF C0 */	blt .L_81410A78
+/* 81410ABC 000E0FDC  38 60 00 1B */	li r3, 0x1b
+.L_81410AC0:
+/* 81410AC0 000E0FE0  80 01 00 24 */	lwz r0, 0x24(r1)
+/* 81410AC4 000E0FE4  83 E1 00 1C */	lwz r31, 0x1c(r1)
+/* 81410AC8 000E0FE8  83 C1 00 18 */	lwz r30, 0x18(r1)
+/* 81410ACC 000E0FEC  83 A1 00 14 */	lwz r29, 0x14(r1)
+/* 81410AD0 000E0FF0  83 81 00 10 */	lwz r28, 0x10(r1)
+/* 81410AD4 000E0FF4  7C 08 03 A6 */	mtlr r0
+/* 81410AD8 000E0FF8  38 21 00 20 */	addi r1, r1, 0x20
+/* 81410ADC 000E0FFC  4E 80 00 20 */	blr
+.endfn getControlKey__Q49textinput8keyboard6pctype4BaseFPc
+
+# .text:0x908 | 0x81410AE0 | size: 0x80
+# textinput::keyboard::pctype::Base::changeABCInputMode(textinput::keyboard::pctype::Base::InputMode)
+.fn changeABCInputMode__Q49textinput8keyboard6pctype4BaseFQ59textinput8keyboard6pctype4Base9InputMode, global
+/* 81410AE0 000E1000  2C 04 00 06 */	cmpwi r4, 0x6
+/* 81410AE4 000E1004  41 82 00 38 */	beq .L_81410B1C
+/* 81410AE8 000E1008  40 80 00 10 */	bge .L_81410AF8
+/* 81410AEC 000E100C  2C 04 00 00 */	cmpwi r4, 0x0
+/* 81410AF0 000E1010  41 82 00 14 */	beq .L_81410B04
+/* 81410AF4 000E1014  4E 80 00 20 */	blr
+.L_81410AF8:
+/* 81410AF8 000E1018  2C 04 00 08 */	cmpwi r4, 0x8
+/* 81410AFC 000E101C  4C 80 00 20 */	bgelr
+/* 81410B00 000E1020  48 00 00 3C */	b .L_81410B3C
+.L_81410B04:
+/* 81410B04 000E1024  80 83 00 20 */	lwz r4, 0x20(r3)
+/* 81410B08 000E1028  54 80 07 3F */	clrlwi. r0, r4, 28
+/* 81410B0C 000E102C  4D 82 00 20 */	beqlr
+/* 81410B10 000E1030  54 80 00 36 */	clrrwi r0, r4, 4
+/* 81410B14 000E1034  94 03 00 20 */	stwu r0, 0x20(r3)
+/* 81410B18 000E1038  48 00 06 E0 */	b refresh___Q59textinput8keyboard6pctype4Base8KeyStateFv
+.L_81410B1C:
+/* 81410B1C 000E103C  80 83 00 20 */	lwz r4, 0x20(r3)
+/* 81410B20 000E1040  54 80 07 3E */	clrlwi r0, r4, 28
+/* 81410B24 000E1044  28 00 00 01 */	cmplwi r0, 0x1
+/* 81410B28 000E1048  4D 82 00 20 */	beqlr
+/* 81410B2C 000E104C  54 80 00 36 */	clrrwi r0, r4, 4
+/* 81410B30 000E1050  60 00 00 01 */	ori r0, r0, 0x1
+/* 81410B34 000E1054  94 03 00 20 */	stwu r0, 0x20(r3)
+/* 81410B38 000E1058  48 00 06 C0 */	b refresh___Q59textinput8keyboard6pctype4Base8KeyStateFv
+.L_81410B3C:
+/* 81410B3C 000E105C  80 83 00 20 */	lwz r4, 0x20(r3)
+/* 81410B40 000E1060  54 80 07 3E */	clrlwi r0, r4, 28
+/* 81410B44 000E1064  28 00 00 02 */	cmplwi r0, 0x2
+/* 81410B48 000E1068  4D 82 00 20 */	beqlr
+/* 81410B4C 000E106C  54 80 00 36 */	clrrwi r0, r4, 4
+/* 81410B50 000E1070  60 00 00 02 */	ori r0, r0, 0x2
+/* 81410B54 000E1074  94 03 00 20 */	stwu r0, 0x20(r3)
+/* 81410B58 000E1078  48 00 06 A0 */	b refresh___Q59textinput8keyboard6pctype4Base8KeyStateFv
+/* 81410B5C 000E107C  4E 80 00 20 */	blr
+.endfn changeABCInputMode__Q49textinput8keyboard6pctype4BaseFQ59textinput8keyboard6pctype4Base9InputMode
+
+# .text:0x988 | 0x81410B60 | size: 0x58
+# textinput::keyboard::pctype::Base::changeAIUInputMode(textinput::keyboard::pctype::Base::InputMode)
+.fn changeAIUInputMode__Q49textinput8keyboard6pctype4BaseFQ59textinput8keyboard6pctype4Base9InputMode, global
+/* 81410B60 000E1080  2C 04 00 07 */	cmpwi r4, 0x7
+/* 81410B64 000E1084  41 82 00 2C */	beq .L_81410B90
+/* 81410B68 000E1088  4C 80 00 20 */	bgelr
+/* 81410B6C 000E108C  2C 04 00 06 */	cmpwi r4, 0x6
+/* 81410B70 000E1090  4D 80 00 20 */	bltlr
+/* 81410B74 000E1094  80 83 00 28 */	lwz r4, 0x28(r3)
+/* 81410B78 000E1098  54 80 07 3F */	clrlwi. r0, r4, 28
+/* 81410B7C 000E109C  4D 82 00 20 */	beqlr
+/* 81410B80 000E10A0  54 80 00 36 */	clrrwi r0, r4, 4
+/* 81410B84 000E10A4  90 03 00 28 */	stw r0, 0x28(r3)
+/* 81410B88 000E10A8  38 63 00 20 */	addi r3, r3, 0x20
+/* 81410B8C 000E10AC  48 00 06 6C */	b refresh___Q59textinput8keyboard6pctype4Base8KeyStateFv
+.L_81410B90:
+/* 81410B90 000E10B0  80 83 00 28 */	lwz r4, 0x28(r3)
+/* 81410B94 000E10B4  54 80 07 3E */	clrlwi r0, r4, 28
+/* 81410B98 000E10B8  28 00 00 01 */	cmplwi r0, 0x1
+/* 81410B9C 000E10BC  4D 82 00 20 */	beqlr
+/* 81410BA0 000E10C0  54 80 00 36 */	clrrwi r0, r4, 4
+/* 81410BA4 000E10C4  60 00 00 01 */	ori r0, r0, 0x1
+/* 81410BA8 000E10C8  90 03 00 28 */	stw r0, 0x28(r3)
+/* 81410BAC 000E10CC  38 63 00 20 */	addi r3, r3, 0x20
+/* 81410BB0 000E10D0  48 00 06 48 */	b refresh___Q59textinput8keyboard6pctype4Base8KeyStateFv
+/* 81410BB4 000E10D4  4E 80 00 20 */	blr
+.endfn changeAIUInputMode__Q49textinput8keyboard6pctype4BaseFQ59textinput8keyboard6pctype4Base9InputMode
+
+# .text:0x9E0 | 0x81410BB8 | size: 0x1B0
+# textinput::keyboard::pctype::Base::sendInputWChar(wchar_t, bool)
+.fn sendInputWChar__Q49textinput8keyboard6pctype4BaseFwb, global
+/* 81410BB8 000E10D8  94 21 FF D0 */	stwu r1, -0x30(r1)
+/* 81410BBC 000E10DC  7C 08 02 A6 */	mflr r0
+/* 81410BC0 000E10E0  39 00 00 00 */	li r8, 0x0
+/* 81410BC4 000E10E4  90 01 00 34 */	stw r0, 0x34(r1)
+/* 81410BC8 000E10E8  38 00 00 00 */	li r0, 0x0
+/* 81410BCC 000E10EC  93 E1 00 2C */	stw r31, 0x2c(r1)
+/* 81410BD0 000E10F0  7C 9F 23 78 */	mr r31, r4
+/* 81410BD4 000E10F4  93 C1 00 28 */	stw r30, 0x28(r1)
+/* 81410BD8 000E10F8  7C 7E 1B 78 */	mr r30, r3
+/* 81410BDC 000E10FC  93 A1 00 24 */	stw r29, 0x24(r1)
+/* 81410BE0 000E1100  80 A3 00 20 */	lwz r5, 0x20(r3)
+/* 81410BE4 000E1104  98 03 00 14 */	stb r0, 0x14(r3)
+/* 81410BE8 000E1108  54 A0 06 73 */	rlwinm. r0, r5, 0, 25, 25
+/* 81410BEC 000E110C  41 82 00 08 */	beq .L_81410BF4
+/* 81410BF0 000E1110  61 08 00 02 */	ori r8, r8, 0x2
+.L_81410BF4:
+/* 81410BF4 000E1114  54 A0 06 31 */	rlwinm. r0, r5, 0, 24, 24
+/* 81410BF8 000E1118  41 82 00 08 */	beq .L_81410C00
+/* 81410BFC 000E111C  61 08 00 01 */	ori r8, r8, 0x1
+.L_81410C00:
+/* 81410C00 000E1120  3C E0 81 61 */	lis r7, lbl_81614A88@ha
+/* 81410C04 000E1124  84 C7 4A 88 */	lwzu r6, lbl_81614A88@l(r7)
+/* 81410C08 000E1128  7F C3 F3 78 */	mr r3, r30
+/* 81410C0C 000E112C  38 A1 00 08 */	addi r5, r1, 0x8
+/* 81410C10 000E1130  80 07 00 04 */	lwz r0, 0x4(r7)
+/* 81410C14 000E1134  90 C1 00 08 */	stw r6, 0x8(r1)
+/* 81410C18 000E1138  80 C7 00 08 */	lwz r6, 0x8(r7)
+/* 81410C1C 000E113C  90 01 00 0C */	stw r0, 0xc(r1)
+/* 81410C20 000E1140  80 07 00 0C */	lwz r0, 0xc(r7)
+/* 81410C24 000E1144  B0 81 00 08 */	sth r4, 0x8(r1)
+/* 81410C28 000E1148  38 80 00 00 */	li r4, 0x0
+/* 81410C2C 000E114C  90 C1 00 10 */	stw r6, 0x10(r1)
+/* 81410C30 000E1150  90 01 00 14 */	stw r0, 0x14(r1)
+/* 81410C34 000E1154  91 01 00 0C */	stw r8, 0xc(r1)
+/* 81410C38 000E1158  81 9E 00 00 */	lwz r12, 0x0(r30)
+/* 81410C3C 000E115C  81 8C 00 18 */	lwz r12, 0x18(r12)
+/* 81410C40 000E1160  7D 89 03 A6 */	mtctr r12
+/* 81410C44 000E1164  4E 80 04 21 */	bctrl
+/* 81410C48 000E1168  80 1E 00 20 */	lwz r0, 0x20(r30)
+/* 81410C4C 000E116C  54 00 06 31 */	rlwinm. r0, r0, 0, 24, 24
+/* 81410C50 000E1170  41 82 00 80 */	beq .L_81410CD0
+/* 81410C54 000E1174  88 0D AC B8 */	lbz r0, "@GUARD@getInstance__Q39textinput12LayoutGather9SingletonFv@sGather"@sda21(r0)
+/* 81410C58 000E1178  7C 00 07 75 */	extsb. r0, r0
+/* 81410C5C 000E117C  40 82 00 2C */	bne .L_81410C88
+/* 81410C60 000E1180  38 6D AC BC */	li r3, "@LOCAL@getInstance__Q39textinput12LayoutGather9SingletonFv@sGather"@sda21
+/* 81410C64 000E1184  48 03 98 B9 */	bl __ct__Q29textinput12LayoutGatherFv
+/* 81410C68 000E1188  3C 80 81 45 */	lis r4, __dt__Q29textinput12LayoutGatherFv@ha
+/* 81410C6C 000E118C  3C A0 81 0C */	lis r5, lbl_810C6580@ha
+/* 81410C70 000E1190  38 84 A5 2C */	addi r4, r4, __dt__Q29textinput12LayoutGatherFv@l
+/* 81410C74 000E1194  38 6D AC BC */	li r3, "@LOCAL@getInstance__Q39textinput12LayoutGather9SingletonFv@sGather"@sda21
+/* 81410C78 000E1198  38 A5 65 80 */	addi r5, r5, lbl_810C6580@l
+/* 81410C7C 000E119C  48 1E 83 65 */	bl __register_global_object
+/* 81410C80 000E11A0  38 00 00 01 */	li r0, 0x1
+/* 81410C84 000E11A4  98 0D AC B8 */	stb r0, "@GUARD@getInstance__Q39textinput12LayoutGather9SingletonFv@sGather"@sda21(r0)
+.L_81410C88:
+/* 81410C88 000E11A8  88 0D AC BC */	lbz r0, "@LOCAL@getInstance__Q39textinput12LayoutGather9SingletonFv@sGather"@sda21(r0)
+/* 81410C8C 000E11AC  38 8D AC BC */	li r4, "@LOCAL@getInstance__Q39textinput12LayoutGather9SingletonFv@sGather"@sda21
+/* 81410C90 000E11B0  38 60 00 00 */	li r3, 0x0
+/* 81410C94 000E11B4  54 00 D7 FF */	extrwi. r0, r0, 1, 25
+/* 81410C98 000E11B8  40 82 00 10 */	bne .L_81410CA8
+/* 81410C9C 000E11BC  88 04 00 00 */	lbz r0, 0x0(r4)
+/* 81410CA0 000E11C0  54 00 DF FF */	extrwi. r0, r0, 1, 26
+/* 81410CA4 000E11C4  41 82 00 08 */	beq .L_81410CAC
+.L_81410CA8:
+/* 81410CA8 000E11C8  38 60 00 01 */	li r3, 0x1
+.L_81410CAC:
+/* 81410CAC 000E11CC  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81410CB0 000E11D0  40 82 00 20 */	bne .L_81410CD0
+/* 81410CB4 000E11D4  80 7E 00 20 */	lwz r3, 0x20(r30)
+/* 81410CB8 000E11D8  54 60 00 37 */	clrrwi. r0, r3, 4
+/* 81410CBC 000E11DC  41 82 00 14 */	beq .L_81410CD0
+/* 81410CC0 000E11E0  54 60 06 6E */	rlwinm r0, r3, 0, 25, 23
+/* 81410CC4 000E11E4  38 7E 00 20 */	addi r3, r30, 0x20
+/* 81410CC8 000E11E8  90 1E 00 20 */	stw r0, 0x20(r30)
+/* 81410CCC 000E11EC  48 00 05 2D */	bl refresh___Q59textinput8keyboard6pctype4Base8KeyStateFv
+.L_81410CD0:
+/* 81410CD0 000E11F0  88 1E 00 14 */	lbz r0, 0x14(r30)
+/* 81410CD4 000E11F4  2C 00 00 00 */	cmpwi r0, 0x0
+/* 81410CD8 000E11F8  40 82 00 74 */	bne .L_81410D4C
+/* 81410CDC 000E11FC  7F E3 FB 78 */	mr r3, r31
+/* 81410CE0 000E1200  3B A0 00 00 */	li r29, 0x0
+/* 81410CE4 000E1204  48 02 8B CD */	bl KBD_ConvertDakuten__Q29textinput4utilFw
+/* 81410CE8 000E1208  54 60 04 3E */	clrlwi r0, r3, 16
+/* 81410CEC 000E120C  7C 1F 00 40 */	cmplw r31, r0
+/* 81410CF0 000E1210  41 82 00 08 */	beq .L_81410CF8
+/* 81410CF4 000E1214  63 BD 00 20 */	ori r29, r29, 0x20
+.L_81410CF8:
+/* 81410CF8 000E1218  7F E3 FB 78 */	mr r3, r31
+/* 81410CFC 000E121C  48 02 90 19 */	bl KBD_ConvertHandaku__Q29textinput4utilFw
+/* 81410D00 000E1220  54 60 04 3E */	clrlwi r0, r3, 16
+/* 81410D04 000E1224  7C 1F 00 40 */	cmplw r31, r0
+/* 81410D08 000E1228  41 82 00 08 */	beq .L_81410D10
+/* 81410D0C 000E122C  63 BD 00 40 */	ori r29, r29, 0x40
+.L_81410D10:
+/* 81410D10 000E1230  7F E3 FB 78 */	mr r3, r31
+/* 81410D14 000E1234  48 02 91 6D */	bl KBD_ConvertSmall__Q29textinput4utilFw
+/* 81410D18 000E1238  54 60 04 3E */	clrlwi r0, r3, 16
+/* 81410D1C 000E123C  7C 1F 00 40 */	cmplw r31, r0
+/* 81410D20 000E1240  41 82 00 08 */	beq .L_81410D28
+/* 81410D24 000E1244  63 BD 00 80 */	ori r29, r29, 0x80
+.L_81410D28:
+/* 81410D28 000E1248  80 9E 00 28 */	lwz r4, 0x28(r30)
+/* 81410D2C 000E124C  54 80 00 36 */	clrrwi r0, r4, 4
+/* 81410D30 000E1250  7C 00 E8 40 */	cmplw r0, r29
+/* 81410D34 000E1254  41 82 00 18 */	beq .L_81410D4C
+/* 81410D38 000E1258  57 A0 00 36 */	clrrwi r0, r29, 4
+/* 81410D3C 000E125C  38 7E 00 20 */	addi r3, r30, 0x20
+/* 81410D40 000E1260  50 80 07 3E */	rlwimi r0, r4, 0, 28, 31
+/* 81410D44 000E1264  90 1E 00 28 */	stw r0, 0x28(r30)
+/* 81410D48 000E1268  48 00 04 B1 */	bl refresh___Q59textinput8keyboard6pctype4Base8KeyStateFv
+.L_81410D4C:
+/* 81410D4C 000E126C  80 01 00 34 */	lwz r0, 0x34(r1)
+/* 81410D50 000E1270  83 E1 00 2C */	lwz r31, 0x2c(r1)
+/* 81410D54 000E1274  83 C1 00 28 */	lwz r30, 0x28(r1)
+/* 81410D58 000E1278  83 A1 00 24 */	lwz r29, 0x24(r1)
+/* 81410D5C 000E127C  7C 08 03 A6 */	mtlr r0
+/* 81410D60 000E1280  38 21 00 30 */	addi r1, r1, 0x30
+/* 81410D64 000E1284  4E 80 00 20 */	blr
+.endfn sendInputWChar__Q49textinput8keyboard6pctype4BaseFwb
+
+# .text:0xB90 | 0x81410D68 | size: 0x10
+# textinput::keyboard::pctype::Base::setLanguage(textinput::Language)
+.fn setLanguage__Q49textinput8keyboard6pctype4BaseFQ29textinput8Language, global
+/* 81410D68 000E1288  90 83 00 10 */	stw r4, 0x10(r3)
+/* 81410D6C 000E128C  90 83 00 2C */	stw r4, 0x2c(r3)
+/* 81410D70 000E1290  38 63 00 20 */	addi r3, r3, 0x20
+/* 81410D74 000E1294  48 00 04 84 */	b refresh___Q59textinput8keyboard6pctype4Base8KeyStateFv
+.endfn setLanguage__Q49textinput8keyboard6pctype4BaseFQ29textinput8Language
+
+# .text:0xBA0 | 0x81410D78 | size: 0xF0
+# textinput::keyboard::pctype::Base::updateFixMode()
+.fn updateFixMode__Q49textinput8keyboard6pctype4BaseFv, global
+/* 81410D78 000E1298  94 21 FF E0 */	stwu r1, -0x20(r1)
+/* 81410D7C 000E129C  7C 08 02 A6 */	mflr r0
+/* 81410D80 000E12A0  90 01 00 24 */	stw r0, 0x24(r1)
+/* 81410D84 000E12A4  93 E1 00 1C */	stw r31, 0x1c(r1)
+/* 81410D88 000E12A8  7C 7F 1B 78 */	mr r31, r3
+/* 81410D8C 000E12AC  80 63 00 40 */	lwz r3, 0x40(r3)
+/* 81410D90 000E12B0  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81410D94 000E12B4  81 8C 00 94 */	lwz r12, 0x94(r12)
+/* 81410D98 000E12B8  7D 89 03 A6 */	mtctr r12
+/* 81410D9C 000E12BC  4E 80 04 21 */	bctrl
+/* 81410DA0 000E12C0  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81410DA4 000E12C4  41 82 00 30 */	beq .L_81410DD4
+/* 81410DA8 000E12C8  80 7F 00 40 */	lwz r3, 0x40(r31)
+/* 81410DAC 000E12CC  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81410DB0 000E12D0  81 8C 00 94 */	lwz r12, 0x94(r12)
+/* 81410DB4 000E12D4  7D 89 03 A6 */	mtctr r12
+/* 81410DB8 000E12D8  4E 80 04 21 */	bctrl
+/* 81410DBC 000E12DC  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81410DC0 000E12E0  81 8C 00 10 */	lwz r12, 0x10(r12)
+/* 81410DC4 000E12E4  7D 89 03 A6 */	mtctr r12
+/* 81410DC8 000E12E8  4E 80 04 21 */	bctrl
+/* 81410DCC 000E12EC  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81410DD0 000E12F0  41 82 00 84 */	beq .L_81410E54
+.L_81410DD4:
+/* 81410DD4 000E12F4  81 9F 00 00 */	lwz r12, 0x0(r31)
+/* 81410DD8 000E12F8  7F E3 FB 78 */	mr r3, r31
+/* 81410DDC 000E12FC  81 8C 00 2C */	lwz r12, 0x2c(r12)
+/* 81410DE0 000E1300  7D 89 03 A6 */	mtctr r12
+/* 81410DE4 000E1304  4E 80 04 21 */	bctrl
+/* 81410DE8 000E1308  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81410DEC 000E130C  41 82 00 08 */	beq .L_81410DF4
+/* 81410DF0 000E1310  48 00 00 64 */	b .L_81410E54
+.L_81410DF4:
+/* 81410DF4 000E1314  38 00 00 00 */	li r0, 0x0
+/* 81410DF8 000E1318  7F E3 FB 78 */	mr r3, r31
+/* 81410DFC 000E131C  98 01 00 08 */	stb r0, 0x8(r1)
+/* 81410E00 000E1320  81 9F 00 00 */	lwz r12, 0x0(r31)
+/* 81410E04 000E1324  81 8C 00 48 */	lwz r12, 0x48(r12)
+/* 81410E08 000E1328  7D 89 03 A6 */	mtctr r12
+/* 81410E0C 000E132C  4E 80 04 21 */	bctrl
+/* 81410E10 000E1330  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81410E14 000E1334  41 82 00 1C */	beq .L_81410E30
+/* 81410E18 000E1338  80 1F 00 20 */	lwz r0, 0x20(r31)
+/* 81410E1C 000E133C  54 00 07 3F */	clrlwi. r0, r0, 28
+/* 81410E20 000E1340  40 82 00 10 */	bne .L_81410E30
+/* 81410E24 000E1344  38 00 00 01 */	li r0, 0x1
+/* 81410E28 000E1348  98 01 00 08 */	stb r0, 0x8(r1)
+/* 81410E2C 000E134C  48 00 00 0C */	b .L_81410E38
+.L_81410E30:
+/* 81410E30 000E1350  38 00 00 00 */	li r0, 0x0
+/* 81410E34 000E1354  98 01 00 08 */	stb r0, 0x8(r1)
+.L_81410E38:
+/* 81410E38 000E1358  81 9F 00 00 */	lwz r12, 0x0(r31)
+/* 81410E3C 000E135C  7F E3 FB 78 */	mr r3, r31
+/* 81410E40 000E1360  38 A1 00 08 */	addi r5, r1, 0x8
+/* 81410E44 000E1364  38 80 00 14 */	li r4, 0x14
+/* 81410E48 000E1368  81 8C 00 18 */	lwz r12, 0x18(r12)
+/* 81410E4C 000E136C  7D 89 03 A6 */	mtctr r12
+/* 81410E50 000E1370  4E 80 04 21 */	bctrl
+.L_81410E54:
+/* 81410E54 000E1374  80 01 00 24 */	lwz r0, 0x24(r1)
+/* 81410E58 000E1378  83 E1 00 1C */	lwz r31, 0x1c(r1)
+/* 81410E5C 000E137C  7C 08 03 A6 */	mtlr r0
+/* 81410E60 000E1380  38 21 00 20 */	addi r1, r1, 0x20
+/* 81410E64 000E1384  4E 80 00 20 */	blr
+.endfn updateFixMode__Q49textinput8keyboard6pctype4BaseFv
+
+# .text:0xC90 | 0x81410E68 | size: 0x8
+# textinput::Manager::getToolBar()
+.fn getToolBar__Q29textinput7ManagerFv, global
+/* 81410E68 000E1388  80 63 00 24 */	lwz r3, 0x24(r3)
+/* 81410E6C 000E138C  4E 80 00 20 */	blr
+.endfn getToolBar__Q29textinput7ManagerFv
+
+# .text:0xC98 | 0x81410E70 | size: 0x10
+# textinput::keyboard::pctype::Base::isABC()
+.fn isABC__Q49textinput8keyboard6pctype4BaseFv, global
+/* 81410E70 000E1390  80 03 00 24 */	lwz r0, 0x24(r3)
+/* 81410E74 000E1394  7C 00 00 34 */	cntlzw r0, r0
+/* 81410E78 000E1398  54 03 D9 7E */	srwi r3, r0, 5
+/* 81410E7C 000E139C  4E 80 00 20 */	blr
+.endfn isABC__Q49textinput8keyboard6pctype4BaseFv
+
+# .text:0xCA8 | 0x81410E80 | size: 0x64
+# textinput::keyboard::pctype::Base::setABC(bool)
+.fn setABC__Q49textinput8keyboard6pctype4BaseFb, global
+/* 81410E80 000E13A0  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 81410E84 000E13A4  7C 08 02 A6 */	mflr r0
+/* 81410E88 000E13A8  7C 84 00 34 */	cntlzw r4, r4
+/* 81410E8C 000E13AC  90 01 00 14 */	stw r0, 0x14(r1)
+/* 81410E90 000E13B0  54 84 D9 7E */	srwi r4, r4, 5
+/* 81410E94 000E13B4  93 E1 00 0C */	stw r31, 0xc(r1)
+/* 81410E98 000E13B8  7C 7F 1B 78 */	mr r31, r3
+/* 81410E9C 000E13BC  80 03 00 24 */	lwz r0, 0x24(r3)
+/* 81410EA0 000E13C0  7C 04 00 40 */	cmplw r4, r0
+/* 81410EA4 000E13C4  41 82 00 10 */	beq .L_81410EB4
+/* 81410EA8 000E13C8  90 83 00 24 */	stw r4, 0x24(r3)
+/* 81410EAC 000E13CC  38 63 00 20 */	addi r3, r3, 0x20
+/* 81410EB0 000E13D0  48 00 03 49 */	bl refresh___Q59textinput8keyboard6pctype4Base8KeyStateFv
+.L_81410EB4:
+/* 81410EB4 000E13D4  81 9F 00 00 */	lwz r12, 0x0(r31)
+/* 81410EB8 000E13D8  7F E3 FB 78 */	mr r3, r31
+/* 81410EBC 000E13DC  38 80 00 29 */	li r4, 0x29
+/* 81410EC0 000E13E0  38 A0 00 00 */	li r5, 0x0
+/* 81410EC4 000E13E4  81 8C 00 18 */	lwz r12, 0x18(r12)
+/* 81410EC8 000E13E8  7D 89 03 A6 */	mtctr r12
+/* 81410ECC 000E13EC  4E 80 04 21 */	bctrl
+/* 81410ED0 000E13F0  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 81410ED4 000E13F4  83 E1 00 0C */	lwz r31, 0xc(r1)
+/* 81410ED8 000E13F8  7C 08 03 A6 */	mtlr r0
+/* 81410EDC 000E13FC  38 21 00 10 */	addi r1, r1, 0x10
+/* 81410EE0 000E1400  4E 80 00 20 */	blr
+.endfn setABC__Q49textinput8keyboard6pctype4BaseFb
+
+# .text:0xD0C | 0x81410EE4 | size: 0x1A4
+# textinput::keyboard::pctype::Base::setTranslateMode(textinput::keyboard::pctype::Base::TranslateMode)
+.fn setTranslateMode__Q49textinput8keyboard6pctype4BaseFQ59textinput8keyboard6pctype4Base13TranslateMode, global
+/* 81410EE4 000E1404  94 21 FF E0 */	stwu r1, -0x20(r1)
+/* 81410EE8 000E1408  7C 08 02 A6 */	mflr r0
+/* 81410EEC 000E140C  2C 04 00 01 */	cmpwi r4, 0x1
+/* 81410EF0 000E1410  90 01 00 24 */	stw r0, 0x24(r1)
+/* 81410EF4 000E1414  93 E1 00 1C */	stw r31, 0x1c(r1)
+/* 81410EF8 000E1418  93 C1 00 18 */	stw r30, 0x18(r1)
+/* 81410EFC 000E141C  7C 9E 23 78 */	mr r30, r4
+/* 81410F00 000E1420  93 A1 00 14 */	stw r29, 0x14(r1)
+/* 81410F04 000E1424  7C 7D 1B 78 */	mr r29, r3
+/* 81410F08 000E1428  41 82 00 28 */	beq .L_81410F30
+/* 81410F0C 000E142C  40 80 00 10 */	bge .L_81410F1C
+/* 81410F10 000E1430  2C 04 00 00 */	cmpwi r4, 0x0
+/* 81410F14 000E1434  40 80 00 14 */	bge .L_81410F28
+/* 81410F18 000E1438  48 00 00 24 */	b .L_81410F3C
+.L_81410F1C:
+/* 81410F1C 000E143C  2C 04 00 03 */	cmpwi r4, 0x3
+/* 81410F20 000E1440  40 80 00 1C */	bge .L_81410F3C
+/* 81410F24 000E1444  48 00 00 14 */	b .L_81410F38
+.L_81410F28:
+/* 81410F28 000E1448  3B E0 00 00 */	li r31, 0x0
+/* 81410F2C 000E144C  48 00 00 10 */	b .L_81410F3C
+.L_81410F30:
+/* 81410F30 000E1450  3B E0 00 01 */	li r31, 0x1
+/* 81410F34 000E1454  48 00 00 08 */	b .L_81410F3C
+.L_81410F38:
+/* 81410F38 000E1458  3B E0 00 02 */	li r31, 0x2
+.L_81410F3C:
+/* 81410F3C 000E145C  80 03 00 20 */	lwz r0, 0x20(r3)
+/* 81410F40 000E1460  54 00 07 3E */	clrlwi r0, r0, 28
+/* 81410F44 000E1464  7C 1F 00 40 */	cmplw r31, r0
+/* 81410F48 000E1468  41 82 01 24 */	beq .L_8141106C
+/* 81410F4C 000E146C  81 9D 00 00 */	lwz r12, 0x0(r29)
+/* 81410F50 000E1470  7F A3 EB 78 */	mr r3, r29
+/* 81410F54 000E1474  81 8C 00 2C */	lwz r12, 0x2c(r12)
+/* 81410F58 000E1478  7D 89 03 A6 */	mtctr r12
+/* 81410F5C 000E147C  4E 80 04 21 */	bctrl
+/* 81410F60 000E1480  2C 03 00 09 */	cmpwi r3, 0x9
+/* 81410F64 000E1484  41 82 00 20 */	beq .L_81410F84
+/* 81410F68 000E1488  81 9D 00 00 */	lwz r12, 0x0(r29)
+/* 81410F6C 000E148C  7F A3 EB 78 */	mr r3, r29
+/* 81410F70 000E1490  81 8C 00 2C */	lwz r12, 0x2c(r12)
+/* 81410F74 000E1494  7D 89 03 A6 */	mtctr r12
+/* 81410F78 000E1498  4E 80 04 21 */	bctrl
+/* 81410F7C 000E149C  2C 03 00 08 */	cmpwi r3, 0x8
+/* 81410F80 000E14A0  40 82 00 30 */	bne .L_81410FB0
+.L_81410F84:
+/* 81410F84 000E14A4  80 7D 00 40 */	lwz r3, 0x40(r29)
+/* 81410F88 000E14A8  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81410F8C 000E14AC  81 8C 00 64 */	lwz r12, 0x64(r12)
+/* 81410F90 000E14B0  7D 89 03 A6 */	mtctr r12
+/* 81410F94 000E14B4  4E 80 04 21 */	bctrl
+/* 81410F98 000E14B8  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81410F9C 000E14BC  38 80 00 06 */	li r4, 0x6
+/* 81410FA0 000E14C0  38 A0 00 00 */	li r5, 0x0
+/* 81410FA4 000E14C4  81 8C 00 18 */	lwz r12, 0x18(r12)
+/* 81410FA8 000E14C8  7D 89 03 A6 */	mtctr r12
+/* 81410FAC 000E14CC  4E 80 04 21 */	bctrl
+.L_81410FB0:
+/* 81410FB0 000E14D0  80 9D 00 20 */	lwz r4, 0x20(r29)
+/* 81410FB4 000E14D4  54 80 07 3E */	clrlwi r0, r4, 28
+/* 81410FB8 000E14D8  7C 00 F8 40 */	cmplw r0, r31
+/* 81410FBC 000E14DC  41 82 00 18 */	beq .L_81410FD4
+/* 81410FC0 000E14E0  57 E0 07 3E */	clrlwi r0, r31, 28
+/* 81410FC4 000E14E4  38 7D 00 20 */	addi r3, r29, 0x20
+/* 81410FC8 000E14E8  50 80 00 36 */	rlwimi r0, r4, 0, 0, 27
+/* 81410FCC 000E14EC  90 1D 00 20 */	stw r0, 0x20(r29)
+/* 81410FD0 000E14F0  48 00 02 29 */	bl refresh___Q59textinput8keyboard6pctype4Base8KeyStateFv
+.L_81410FD4:
+/* 81410FD4 000E14F4  81 9D 00 00 */	lwz r12, 0x0(r29)
+/* 81410FD8 000E14F8  7F A3 EB 78 */	mr r3, r29
+/* 81410FDC 000E14FC  81 8C 00 2C */	lwz r12, 0x2c(r12)
+/* 81410FE0 000E1500  7D 89 03 A6 */	mtctr r12
+/* 81410FE4 000E1504  4E 80 04 21 */	bctrl
+/* 81410FE8 000E1508  2C 03 00 08 */	cmpwi r3, 0x8
+/* 81410FEC 000E150C  40 82 00 38 */	bne .L_81411024
+/* 81410FF0 000E1510  80 7D 00 40 */	lwz r3, 0x40(r29)
+/* 81410FF4 000E1514  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81410FF8 000E1518  81 8C 00 8C */	lwz r12, 0x8c(r12)
+/* 81410FFC 000E151C  7D 89 03 A6 */	mtctr r12
+/* 81411000 000E1520  4E 80 04 21 */	bctrl
+/* 81411004 000E1524  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81411008 000E1528  41 82 00 1C */	beq .L_81411024
+/* 8141100C 000E152C  80 7D 00 40 */	lwz r3, 0x40(r29)
+/* 81411010 000E1530  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81411014 000E1534  81 8C 00 8C */	lwz r12, 0x8c(r12)
+/* 81411018 000E1538  7D 89 03 A6 */	mtctr r12
+/* 8141101C 000E153C  4E 80 04 21 */	bctrl
+/* 81411020 000E1540  48 01 74 85 */	bl checkValidation__Q39textinput12candidatebox4BaseFv
+.L_81411024:
+/* 81411024 000E1544  93 C1 00 08 */	stw r30, 0x8(r1)
+/* 81411028 000E1548  7F A3 EB 78 */	mr r3, r29
+/* 8141102C 000E154C  38 A1 00 08 */	addi r5, r1, 0x8
+/* 81411030 000E1550  38 80 00 12 */	li r4, 0x12
+/* 81411034 000E1554  81 9D 00 00 */	lwz r12, 0x0(r29)
+/* 81411038 000E1558  81 8C 00 18 */	lwz r12, 0x18(r12)
+/* 8141103C 000E155C  7D 89 03 A6 */	mtctr r12
+/* 81411040 000E1560  4E 80 04 21 */	bctrl
+/* 81411044 000E1564  3C A0 81 61 */	lis r5, csJapanKanaInput__Q39textinput8keyboard6pctype@ha
+/* 81411048 000E1568  7F A3 EB 78 */	mr r3, r29
+/* 8141104C 000E156C  38 A5 45 C8 */	addi r5, r5, csJapanKanaInput__Q39textinput8keyboard6pctype@l
+/* 81411050 000E1570  38 80 00 29 */	li r4, 0x29
+/* 81411054 000E1574  90 BD 00 1C */	stw r5, 0x1c(r29)
+/* 81411058 000E1578  38 A0 00 00 */	li r5, 0x0
+/* 8141105C 000E157C  81 9D 00 00 */	lwz r12, 0x0(r29)
+/* 81411060 000E1580  81 8C 00 18 */	lwz r12, 0x18(r12)
+/* 81411064 000E1584  7D 89 03 A6 */	mtctr r12
+/* 81411068 000E1588  4E 80 04 21 */	bctrl
+.L_8141106C:
+/* 8141106C 000E158C  80 01 00 24 */	lwz r0, 0x24(r1)
+/* 81411070 000E1590  83 E1 00 1C */	lwz r31, 0x1c(r1)
+/* 81411074 000E1594  83 C1 00 18 */	lwz r30, 0x18(r1)
+/* 81411078 000E1598  83 A1 00 14 */	lwz r29, 0x14(r1)
+/* 8141107C 000E159C  7C 08 03 A6 */	mtlr r0
+/* 81411080 000E15A0  38 21 00 20 */	addi r1, r1, 0x20
+/* 81411084 000E15A4  4E 80 00 20 */	blr
+.endfn setTranslateMode__Q49textinput8keyboard6pctype4BaseFQ59textinput8keyboard6pctype4Base13TranslateMode
+
+# .text:0xEB0 | 0x81411088 | size: 0x8
+# textinput::Manager::getCandidateBox()
+.fn getCandidateBox__Q29textinput7ManagerFv, global
+/* 81411088 000E15A8  80 63 00 20 */	lwz r3, 0x20(r3)
+/* 8141108C 000E15AC  4E 80 00 20 */	blr
+.endfn getCandidateBox__Q29textinput7ManagerFv
+
+# .text:0xEB8 | 0x81411090 | size: 0x168
+# textinput::keyboard::pctype::LayoutByNW4R::setABC(bool)
+.fn setABC__Q49textinput8keyboard6pctype12LayoutByNW4RFb, global
+/* 81411090 000E15B0  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 81411094 000E15B4  7C 08 02 A6 */	mflr r0
+/* 81411098 000E15B8  90 01 00 14 */	stw r0, 0x14(r1)
+/* 8141109C 000E15BC  93 E1 00 0C */	stw r31, 0xc(r1)
+/* 814110A0 000E15C0  7C 9F 23 78 */	mr r31, r4
+/* 814110A4 000E15C4  93 C1 00 08 */	stw r30, 0x8(r1)
+/* 814110A8 000E15C8  7C 7E 1B 78 */	mr r30, r3
+/* 814110AC 000E15CC  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 814110B0 000E15D0  81 8C 01 40 */	lwz r12, 0x140(r12)
+/* 814110B4 000E15D4  7D 89 03 A6 */	mtctr r12
+/* 814110B8 000E15D8  4E 80 04 21 */	bctrl
+/* 814110BC 000E15DC  81 9E 00 00 */	lwz r12, 0x0(r30)
+/* 814110C0 000E15E0  7F C3 F3 78 */	mr r3, r30
+/* 814110C4 000E15E4  81 8C 00 48 */	lwz r12, 0x48(r12)
+/* 814110C8 000E15E8  7D 89 03 A6 */	mtctr r12
+/* 814110CC 000E15EC  4E 80 04 21 */	bctrl
+/* 814110D0 000E15F0  7C 1F 18 40 */	cmplw r31, r3
+/* 814110D4 000E15F4  41 82 00 D0 */	beq .L_814111A4
+/* 814110D8 000E15F8  2C 1F 00 00 */	cmpwi r31, 0x0
+/* 814110DC 000E15FC  41 82 00 68 */	beq .L_81411144
+/* 814110E0 000E1600  81 9E 00 44 */	lwz r12, 0x44(r30)
+/* 814110E4 000E1604  3C 80 81 66 */	lis r4, lbl_8165B63C@ha
+/* 814110E8 000E1608  38 7E 00 44 */	addi r3, r30, 0x44
+/* 814110EC 000E160C  81 8C 00 60 */	lwz r12, 0x60(r12)
+/* 814110F0 000E1610  38 84 B6 3C */	addi r4, r4, lbl_8165B63C@l
+/* 814110F4 000E1614  7D 89 03 A6 */	mtctr r12
+/* 814110F8 000E1618  4E 80 04 21 */	bctrl
+/* 814110FC 000E161C  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81411100 000E1620  38 80 00 04 */	li r4, 0x4
+/* 81411104 000E1624  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81411108 000E1628  7D 89 03 A6 */	mtctr r12
+/* 8141110C 000E162C  4E 80 04 21 */	bctrl
+/* 81411110 000E1630  81 9E 00 44 */	lwz r12, 0x44(r30)
+/* 81411114 000E1634  3C 80 81 66 */	lis r4, lbl_8165B64C@ha
+/* 81411118 000E1638  38 7E 00 44 */	addi r3, r30, 0x44
+/* 8141111C 000E163C  81 8C 00 60 */	lwz r12, 0x60(r12)
+/* 81411120 000E1640  38 84 B6 4C */	addi r4, r4, lbl_8165B64C@l
+/* 81411124 000E1644  7D 89 03 A6 */	mtctr r12
+/* 81411128 000E1648  4E 80 04 21 */	bctrl
+/* 8141112C 000E164C  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81411130 000E1650  38 80 00 06 */	li r4, 0x6
+/* 81411134 000E1654  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81411138 000E1658  7D 89 03 A6 */	mtctr r12
+/* 8141113C 000E165C  4E 80 04 21 */	bctrl
+/* 81411140 000E1660  48 00 00 64 */	b .L_814111A4
+.L_81411144:
+/* 81411144 000E1664  81 9E 00 44 */	lwz r12, 0x44(r30)
+/* 81411148 000E1668  3C 80 81 66 */	lis r4, lbl_8165B63C@ha
+/* 8141114C 000E166C  38 7E 00 44 */	addi r3, r30, 0x44
+/* 81411150 000E1670  81 8C 00 60 */	lwz r12, 0x60(r12)
+/* 81411154 000E1674  38 84 B6 3C */	addi r4, r4, lbl_8165B63C@l
+/* 81411158 000E1678  7D 89 03 A6 */	mtctr r12
+/* 8141115C 000E167C  4E 80 04 21 */	bctrl
+/* 81411160 000E1680  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81411164 000E1684  38 80 00 06 */	li r4, 0x6
+/* 81411168 000E1688  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 8141116C 000E168C  7D 89 03 A6 */	mtctr r12
+/* 81411170 000E1690  4E 80 04 21 */	bctrl
+/* 81411174 000E1694  81 9E 00 44 */	lwz r12, 0x44(r30)
+/* 81411178 000E1698  3C 80 81 66 */	lis r4, lbl_8165B64C@ha
+/* 8141117C 000E169C  38 7E 00 44 */	addi r3, r30, 0x44
+/* 81411180 000E16A0  81 8C 00 60 */	lwz r12, 0x60(r12)
+/* 81411184 000E16A4  38 84 B6 4C */	addi r4, r4, lbl_8165B64C@l
+/* 81411188 000E16A8  7D 89 03 A6 */	mtctr r12
+/* 8141118C 000E16AC  4E 80 04 21 */	bctrl
+/* 81411190 000E16B0  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81411194 000E16B4  38 80 00 04 */	li r4, 0x4
+/* 81411198 000E16B8  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 8141119C 000E16BC  7D 89 03 A6 */	mtctr r12
+/* 814111A0 000E16C0  4E 80 04 21 */	bctrl
+.L_814111A4:
+/* 814111A4 000E16C4  7F E3 00 34 */	cntlzw r3, r31
+/* 814111A8 000E16C8  80 1E 00 24 */	lwz r0, 0x24(r30)
+/* 814111AC 000E16CC  54 63 D9 7E */	srwi r3, r3, 5
+/* 814111B0 000E16D0  7C 03 00 40 */	cmplw r3, r0
+/* 814111B4 000E16D4  41 82 00 10 */	beq .L_814111C4
+/* 814111B8 000E16D8  90 7E 00 24 */	stw r3, 0x24(r30)
+/* 814111BC 000E16DC  38 7E 00 20 */	addi r3, r30, 0x20
+/* 814111C0 000E16E0  48 00 00 39 */	bl refresh___Q59textinput8keyboard6pctype4Base8KeyStateFv
+.L_814111C4:
+/* 814111C4 000E16E4  81 9E 00 00 */	lwz r12, 0x0(r30)
+/* 814111C8 000E16E8  7F C3 F3 78 */	mr r3, r30
+/* 814111CC 000E16EC  38 80 00 29 */	li r4, 0x29
+/* 814111D0 000E16F0  38 A0 00 00 */	li r5, 0x0
+/* 814111D4 000E16F4  81 8C 00 18 */	lwz r12, 0x18(r12)
+/* 814111D8 000E16F8  7D 89 03 A6 */	mtctr r12
+/* 814111DC 000E16FC  4E 80 04 21 */	bctrl
+/* 814111E0 000E1700  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 814111E4 000E1704  83 E1 00 0C */	lwz r31, 0xc(r1)
+/* 814111E8 000E1708  83 C1 00 08 */	lwz r30, 0x8(r1)
+/* 814111EC 000E170C  7C 08 03 A6 */	mtlr r0
+/* 814111F0 000E1710  38 21 00 10 */	addi r1, r1, 0x10
+/* 814111F4 000E1714  4E 80 00 20 */	blr
+.endfn setABC__Q49textinput8keyboard6pctype12LayoutByNW4RFb
+
+# .text:0x1020 | 0x814111F8 | size: 0x2CC
+# textinput::keyboard::pctype::Base::KeyState::refresh_()
+.fn refresh___Q59textinput8keyboard6pctype4Base8KeyStateFv, global
+/* 814111F8 000E1718  94 21 FF E0 */	stwu r1, -0x20(r1)
+/* 814111FC 000E171C  7C 08 02 A6 */	mflr r0
+/* 81411200 000E1720  90 01 00 24 */	stw r0, 0x24(r1)
+/* 81411204 000E1724  93 E1 00 1C */	stw r31, 0x1c(r1)
+/* 81411208 000E1728  7C 7F 1B 78 */	mr r31, r3
+/* 8141120C 000E172C  80 03 00 0C */	lwz r0, 0xc(r3)
+/* 81411210 000E1730  2C 00 00 00 */	cmpwi r0, 0x0
+/* 81411214 000E1734  41 82 00 14 */	beq .L_81411228
+/* 81411218 000E1738  2C 00 00 09 */	cmpwi r0, 0x9
+/* 8141121C 000E173C  41 82 00 0C */	beq .L_81411228
+/* 81411220 000E1740  2C 00 00 08 */	cmpwi r0, 0x8
+/* 81411224 000E1744  40 82 00 14 */	bne .L_81411238
+.L_81411228:
+/* 81411228 000E1748  80 83 00 14 */	lwz r4, 0x14(r3)
+/* 8141122C 000E174C  88 04 00 3C */	lbz r0, 0x3c(r4)
+/* 81411230 000E1750  2C 00 00 00 */	cmpwi r0, 0x0
+/* 81411234 000E1754  41 82 00 20 */	beq .L_81411254
+.L_81411238:
+/* 81411238 000E1758  80 83 00 00 */	lwz r4, 0x0(r3)
+/* 8141123C 000E175C  54 80 07 3F */	clrlwi. r0, r4, 28
+/* 81411240 000E1760  41 82 00 14 */	beq .L_81411254
+/* 81411244 000E1764  54 80 00 36 */	clrrwi r0, r4, 4
+/* 81411248 000E1768  90 03 00 00 */	stw r0, 0x0(r3)
+/* 8141124C 000E176C  7F E3 FB 78 */	mr r3, r31
+/* 81411250 000E1770  4B FF FF A9 */	bl refresh___Q59textinput8keyboard6pctype4Base8KeyStateFv
+.L_81411254:
+/* 81411254 000E1774  80 7F 00 0C */	lwz r3, 0xc(r31)
+/* 81411258 000E1778  38 03 FF F8 */	subi r0, r3, 0x8
+/* 8141125C 000E177C  28 00 00 01 */	cmplwi r0, 0x1
+/* 81411260 000E1780  41 81 00 38 */	bgt .L_81411298
+/* 81411264 000E1784  80 1F 00 00 */	lwz r0, 0x0(r31)
+/* 81411268 000E1788  54 00 07 3E */	clrlwi r0, r0, 28
+/* 8141126C 000E178C  28 00 00 02 */	cmplwi r0, 0x2
+/* 81411270 000E1790  40 82 00 28 */	bne .L_81411298
+/* 81411274 000E1794  80 7F 00 00 */	lwz r3, 0x0(r31)
+/* 81411278 000E1798  54 60 07 3E */	clrlwi r0, r3, 28
+/* 8141127C 000E179C  28 00 00 01 */	cmplwi r0, 0x1
+/* 81411280 000E17A0  41 82 00 18 */	beq .L_81411298
+/* 81411284 000E17A4  54 60 00 36 */	clrrwi r0, r3, 4
+/* 81411288 000E17A8  7F E3 FB 78 */	mr r3, r31
+/* 8141128C 000E17AC  60 00 00 01 */	ori r0, r0, 0x1
+/* 81411290 000E17B0  90 1F 00 00 */	stw r0, 0x0(r31)
+/* 81411294 000E17B4  4B FF FF 65 */	bl refresh___Q59textinput8keyboard6pctype4Base8KeyStateFv
+.L_81411298:
+/* 81411298 000E17B8  80 1F 00 00 */	lwz r0, 0x0(r31)
+/* 8141129C 000E17BC  54 00 07 3F */	clrlwi. r0, r0, 28
+/* 814112A0 000E17C0  40 82 00 20 */	bne .L_814112C0
+/* 814112A4 000E17C4  80 1F 00 0C */	lwz r0, 0xc(r31)
+/* 814112A8 000E17C8  3C 60 81 61 */	lis r3, csLanguageDependencyData__Q39textinput8keyboard6pctype@ha
+/* 814112AC 000E17CC  38 63 45 00 */	addi r3, r3, csLanguageDependencyData__Q39textinput8keyboard6pctype@l
+/* 814112B0 000E17D0  1C 00 00 14 */	mulli r0, r0, 0x14
+/* 814112B4 000E17D4  7C 03 02 14 */	add r0, r3, r0
+/* 814112B8 000E17D8  90 1F 00 10 */	stw r0, 0x10(r31)
+/* 814112BC 000E17DC  48 00 00 34 */	b .L_814112F0
+.L_814112C0:
+/* 814112C0 000E17E0  80 1F 00 0C */	lwz r0, 0xc(r31)
+/* 814112C4 000E17E4  2C 00 00 00 */	cmpwi r0, 0x0
+/* 814112C8 000E17E8  40 82 00 14 */	bne .L_814112DC
+/* 814112CC 000E17EC  3C 60 81 61 */	lis r3, csJapanKanaInput__Q39textinput8keyboard6pctype@ha
+/* 814112D0 000E17F0  38 63 45 C8 */	addi r3, r3, csJapanKanaInput__Q39textinput8keyboard6pctype@l
+/* 814112D4 000E17F4  90 7F 00 10 */	stw r3, 0x10(r31)
+/* 814112D8 000E17F8  48 00 00 18 */	b .L_814112F0
+.L_814112DC:
+/* 814112DC 000E17FC  1C 00 00 14 */	mulli r0, r0, 0x14
+/* 814112E0 000E1800  3C 60 81 61 */	lis r3, csLanguageDependencyData__Q39textinput8keyboard6pctype@ha
+/* 814112E4 000E1804  38 63 45 00 */	addi r3, r3, csLanguageDependencyData__Q39textinput8keyboard6pctype@l
+/* 814112E8 000E1808  7C 03 02 14 */	add r0, r3, r0
+/* 814112EC 000E180C  90 1F 00 10 */	stw r0, 0x10(r31)
+.L_814112F0:
+/* 814112F0 000E1810  80 1F 00 04 */	lwz r0, 0x4(r31)
+/* 814112F4 000E1814  2C 00 00 00 */	cmpwi r0, 0x0
+/* 814112F8 000E1818  40 82 00 EC */	bne .L_814113E4
+/* 814112FC 000E181C  80 1F 00 00 */	lwz r0, 0x0(r31)
+/* 81411300 000E1820  54 00 07 3E */	clrlwi r0, r0, 28
+/* 81411304 000E1824  2C 00 00 01 */	cmpwi r0, 0x1
+/* 81411308 000E1828  41 82 00 48 */	beq .L_81411350
+/* 8141130C 000E182C  40 80 00 10 */	bge .L_8141131C
+/* 81411310 000E1830  2C 00 00 00 */	cmpwi r0, 0x0
+/* 81411314 000E1834  40 80 00 14 */	bge .L_81411328
+/* 81411318 000E1838  48 00 01 7C */	b .L_81411494
+.L_8141131C:
+/* 8141131C 000E183C  2C 00 00 03 */	cmpwi r0, 0x3
+/* 81411320 000E1840  40 80 01 74 */	bge .L_81411494
+/* 81411324 000E1844  48 00 00 78 */	b .L_8141139C
+.L_81411328:
+/* 81411328 000E1848  38 00 00 01 */	li r0, 0x1
+/* 8141132C 000E184C  38 A1 00 0C */	addi r5, r1, 0xc
+/* 81411330 000E1850  98 01 00 0C */	stb r0, 0xc(r1)
+/* 81411334 000E1854  38 80 00 14 */	li r4, 0x14
+/* 81411338 000E1858  80 7F 00 14 */	lwz r3, 0x14(r31)
+/* 8141133C 000E185C  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81411340 000E1860  81 8C 00 18 */	lwz r12, 0x18(r12)
+/* 81411344 000E1864  7D 89 03 A6 */	mtctr r12
+/* 81411348 000E1868  4E 80 04 21 */	bctrl
+/* 8141134C 000E186C  48 00 01 48 */	b .L_81411494
+.L_81411350:
+/* 81411350 000E1870  38 60 00 00 */	li r3, 0x0
+/* 81411354 000E1874  38 00 00 01 */	li r0, 0x1
+/* 81411358 000E1878  98 61 00 0C */	stb r3, 0xc(r1)
+/* 8141135C 000E187C  38 A1 00 0C */	addi r5, r1, 0xc
+/* 81411360 000E1880  38 80 00 14 */	li r4, 0x14
+/* 81411364 000E1884  98 01 00 08 */	stb r0, 0x8(r1)
+/* 81411368 000E1888  80 7F 00 14 */	lwz r3, 0x14(r31)
+/* 8141136C 000E188C  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81411370 000E1890  81 8C 00 18 */	lwz r12, 0x18(r12)
+/* 81411374 000E1894  7D 89 03 A6 */	mtctr r12
+/* 81411378 000E1898  4E 80 04 21 */	bctrl
+/* 8141137C 000E189C  80 7F 00 14 */	lwz r3, 0x14(r31)
+/* 81411380 000E18A0  38 A1 00 08 */	addi r5, r1, 0x8
+/* 81411384 000E18A4  38 80 00 13 */	li r4, 0x13
+/* 81411388 000E18A8  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 8141138C 000E18AC  81 8C 00 18 */	lwz r12, 0x18(r12)
+/* 81411390 000E18B0  7D 89 03 A6 */	mtctr r12
+/* 81411394 000E18B4  4E 80 04 21 */	bctrl
+/* 81411398 000E18B8  48 00 00 FC */	b .L_81411494
+.L_8141139C:
+/* 8141139C 000E18BC  38 00 00 00 */	li r0, 0x0
+/* 814113A0 000E18C0  38 A1 00 0C */	addi r5, r1, 0xc
+/* 814113A4 000E18C4  98 01 00 0C */	stb r0, 0xc(r1)
+/* 814113A8 000E18C8  38 80 00 14 */	li r4, 0x14
+/* 814113AC 000E18CC  98 01 00 08 */	stb r0, 0x8(r1)
+/* 814113B0 000E18D0  80 7F 00 14 */	lwz r3, 0x14(r31)
+/* 814113B4 000E18D4  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 814113B8 000E18D8  81 8C 00 18 */	lwz r12, 0x18(r12)
+/* 814113BC 000E18DC  7D 89 03 A6 */	mtctr r12
+/* 814113C0 000E18E0  4E 80 04 21 */	bctrl
+/* 814113C4 000E18E4  80 7F 00 14 */	lwz r3, 0x14(r31)
+/* 814113C8 000E18E8  38 A1 00 08 */	addi r5, r1, 0x8
+/* 814113CC 000E18EC  38 80 00 13 */	li r4, 0x13
+/* 814113D0 000E18F0  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 814113D4 000E18F4  81 8C 00 18 */	lwz r12, 0x18(r12)
+/* 814113D8 000E18F8  7D 89 03 A6 */	mtctr r12
+/* 814113DC 000E18FC  4E 80 04 21 */	bctrl
+/* 814113E0 000E1900  48 00 00 B4 */	b .L_81411494
+.L_814113E4:
+/* 814113E4 000E1904  80 1F 00 08 */	lwz r0, 0x8(r31)
+/* 814113E8 000E1908  54 00 07 3E */	clrlwi r0, r0, 28
+/* 814113EC 000E190C  2C 00 00 01 */	cmpwi r0, 0x1
+/* 814113F0 000E1910  41 82 00 60 */	beq .L_81411450
+/* 814113F4 000E1914  40 80 00 A0 */	bge .L_81411494
+/* 814113F8 000E1918  2C 00 00 00 */	cmpwi r0, 0x0
+/* 814113FC 000E191C  40 80 00 08 */	bge .L_81411404
+/* 81411400 000E1920  48 00 00 94 */	b .L_81411494
+.L_81411404:
+/* 81411404 000E1924  38 60 00 00 */	li r3, 0x0
+/* 81411408 000E1928  38 00 00 01 */	li r0, 0x1
+/* 8141140C 000E192C  98 61 00 0C */	stb r3, 0xc(r1)
+/* 81411410 000E1930  38 A1 00 0C */	addi r5, r1, 0xc
+/* 81411414 000E1934  38 80 00 14 */	li r4, 0x14
+/* 81411418 000E1938  98 01 00 08 */	stb r0, 0x8(r1)
+/* 8141141C 000E193C  80 7F 00 14 */	lwz r3, 0x14(r31)
+/* 81411420 000E1940  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81411424 000E1944  81 8C 00 18 */	lwz r12, 0x18(r12)
+/* 81411428 000E1948  7D 89 03 A6 */	mtctr r12
+/* 8141142C 000E194C  4E 80 04 21 */	bctrl
+/* 81411430 000E1950  80 7F 00 14 */	lwz r3, 0x14(r31)
+/* 81411434 000E1954  38 A1 00 08 */	addi r5, r1, 0x8
+/* 81411438 000E1958  38 80 00 13 */	li r4, 0x13
+/* 8141143C 000E195C  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81411440 000E1960  81 8C 00 18 */	lwz r12, 0x18(r12)
+/* 81411444 000E1964  7D 89 03 A6 */	mtctr r12
+/* 81411448 000E1968  4E 80 04 21 */	bctrl
+/* 8141144C 000E196C  48 00 00 48 */	b .L_81411494
+.L_81411450:
+/* 81411450 000E1970  38 00 00 00 */	li r0, 0x0
+/* 81411454 000E1974  38 A1 00 0C */	addi r5, r1, 0xc
+/* 81411458 000E1978  98 01 00 0C */	stb r0, 0xc(r1)
+/* 8141145C 000E197C  38 80 00 14 */	li r4, 0x14
+/* 81411460 000E1980  98 01 00 08 */	stb r0, 0x8(r1)
+/* 81411464 000E1984  80 7F 00 14 */	lwz r3, 0x14(r31)
+/* 81411468 000E1988  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 8141146C 000E198C  81 8C 00 18 */	lwz r12, 0x18(r12)
+/* 81411470 000E1990  7D 89 03 A6 */	mtctr r12
+/* 81411474 000E1994  4E 80 04 21 */	bctrl
+/* 81411478 000E1998  80 7F 00 14 */	lwz r3, 0x14(r31)
+/* 8141147C 000E199C  38 A1 00 08 */	addi r5, r1, 0x8
+/* 81411480 000E19A0  38 80 00 13 */	li r4, 0x13
+/* 81411484 000E19A4  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81411488 000E19A8  81 8C 00 18 */	lwz r12, 0x18(r12)
+/* 8141148C 000E19AC  7D 89 03 A6 */	mtctr r12
+/* 81411490 000E19B0  4E 80 04 21 */	bctrl
+.L_81411494:
+/* 81411494 000E19B4  80 7F 00 14 */	lwz r3, 0x14(r31)
+/* 81411498 000E19B8  2C 03 00 00 */	cmpwi r3, 0x0
+/* 8141149C 000E19BC  41 82 00 14 */	beq .L_814114B0
+/* 814114A0 000E19C0  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 814114A4 000E19C4  81 8C 00 70 */	lwz r12, 0x70(r12)
+/* 814114A8 000E19C8  7D 89 03 A6 */	mtctr r12
+/* 814114AC 000E19CC  4E 80 04 21 */	bctrl
+.L_814114B0:
+/* 814114B0 000E19D0  80 01 00 24 */	lwz r0, 0x24(r1)
+/* 814114B4 000E19D4  83 E1 00 1C */	lwz r31, 0x1c(r1)
+/* 814114B8 000E19D8  7C 08 03 A6 */	mtlr r0
+/* 814114BC 000E19DC  38 21 00 20 */	addi r1, r1, 0x20
+/* 814114C0 000E19E0  4E 80 00 20 */	blr
+.endfn refresh___Q59textinput8keyboard6pctype4Base8KeyStateFv
+
+# .text:0x12EC | 0x814114C4 | size: 0x4
+# textinput::keyboard::pctype::Base::refreshState()
+.fn refreshState__Q49textinput8keyboard6pctype4BaseFv, global
+/* 814114C4 000E19E4  4E 80 00 20 */	blr
+.endfn refreshState__Q49textinput8keyboard6pctype4BaseFv
+
+# .text:0x12F0 | 0x814114C8 | size: 0x2A4
+# textinput::keyboard::pctype::Base::KeyState::refreshText(nw4r::lyt::Pane*)
+.fn refreshText__Q59textinput8keyboard6pctype4Base8KeyStateFPQ34nw4r3lyt4Pane, global
+/* 814114C8 000E19E8  94 21 FF A0 */	stwu r1, -0x60(r1)
+/* 814114CC 000E19EC  7C 08 02 A6 */	mflr r0
+/* 814114D0 000E19F0  90 01 00 64 */	stw r0, 0x64(r1)
+/* 814114D4 000E19F4  39 61 00 60 */	addi r11, r1, 0x60
+/* 814114D8 000E19F8  48 1E 7F DD */	bl _savegpr_24
+/* 814114DC 000E19FC  3F 60 81 61 */	lis r27, lbl_81614A54@ha
+/* 814114E0 000E1A00  3F 40 81 61 */	lis r26, lbl_81614A20@ha
+/* 814114E4 000E1A04  7C 7C 1B 78 */	mr r28, r3
+/* 814114E8 000E1A08  7C 9D 23 78 */	mr r29, r4
+/* 814114EC 000E1A0C  3B 7B 4A 54 */	addi r27, r27, lbl_81614A54@l
+/* 814114F0 000E1A10  3B 5A 4A 20 */	addi r26, r26, lbl_81614A20@l
+/* 814114F4 000E1A14  3B C0 00 00 */	li r30, 0x0
+/* 814114F8 000E1A18  3B ED AF 78 */	li r31, typeInfo__Q34nw4r3lyt7TextBox@sda21
+/* 814114FC 000E1A1C  3B 20 00 00 */	li r25, 0x0
+.L_81411500:
+/* 81411500 000E1A20  57 C0 04 3E */	clrlwi r0, r30, 16
+/* 81411504 000E1A24  80 9C 00 10 */	lwz r4, 0x10(r28)
+/* 81411508 000E1A28  1C 00 00 0C */	mulli r0, r0, 0xc
+/* 8141150C 000E1A2C  38 61 00 24 */	addi r3, r1, 0x24
+/* 81411510 000E1A30  80 A4 00 00 */	lwz r5, 0x0(r4)
+/* 81411514 000E1A34  38 80 00 11 */	li r4, 0x11
+/* 81411518 000E1A38  38 C0 00 00 */	li r6, 0x0
+/* 8141151C 000E1A3C  7C A5 00 2E */	lwzx r5, r5, r0
+/* 81411520 000E1A40  38 E0 00 54 */	li r7, 0x54
+/* 81411524 000E1A44  48 02 8D 39 */	bl replaceChar__Q29textinput4utilFPcUlPCcic
+/* 81411528 000E1A48  81 9D 00 00 */	lwz r12, 0x0(r29)
+/* 8141152C 000E1A4C  7F A3 EB 78 */	mr r3, r29
+/* 81411530 000E1A50  38 81 00 24 */	addi r4, r1, 0x24
+/* 81411534 000E1A54  38 A0 00 01 */	li r5, 0x1
+/* 81411538 000E1A58  81 8C 00 3C */	lwz r12, 0x3c(r12)
+/* 8141153C 000E1A5C  7D 89 03 A6 */	mtctr r12
+/* 81411540 000E1A60  4E 80 04 21 */	bctrl
+/* 81411544 000E1A64  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81411548 000E1A68  7C 78 1B 78 */	mr r24, r3
+/* 8141154C 000E1A6C  81 8C 00 0C */	lwz r12, 0xc(r12)
+/* 81411550 000E1A70  7D 89 03 A6 */	mtctr r12
+/* 81411554 000E1A74  4E 80 04 21 */	bctrl
+/* 81411558 000E1A78  48 00 00 18 */	b .L_81411570
+.L_8141155C:
+/* 8141155C 000E1A7C  7C 03 F8 40 */	cmplw r3, r31
+/* 81411560 000E1A80  40 82 00 0C */	bne .L_8141156C
+/* 81411564 000E1A84  38 00 00 01 */	li r0, 0x1
+/* 81411568 000E1A88  48 00 00 14 */	b .L_8141157C
+.L_8141156C:
+/* 8141156C 000E1A8C  80 63 00 00 */	lwz r3, 0x0(r3)
+.L_81411570:
+/* 81411570 000E1A90  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81411574 000E1A94  40 82 FF E8 */	bne .L_8141155C
+/* 81411578 000E1A98  38 00 00 00 */	li r0, 0x0
+.L_8141157C:
+/* 8141157C 000E1A9C  2C 00 00 00 */	cmpwi r0, 0x0
+/* 81411580 000E1AA0  41 82 00 08 */	beq .L_81411588
+/* 81411584 000E1AA4  48 00 00 08 */	b .L_8141158C
+.L_81411588:
+/* 81411588 000E1AA8  3B 00 00 00 */	li r24, 0x0
+.L_8141158C:
+/* 8141158C 000E1AAC  2C 18 00 00 */	cmpwi r24, 0x0
+/* 81411590 000E1AB0  41 82 00 B8 */	beq .L_81411648
+/* 81411594 000E1AB4  7F 83 E3 78 */	mr r3, r28
+/* 81411598 000E1AB8  57 C4 04 3E */	clrlwi r4, r30, 16
+/* 8141159C 000E1ABC  48 00 02 11 */	bl getWCCode__Q59textinput8keyboard6pctype4Base8KeyStateFUl
+/* 814115A0 000E1AC0  B0 61 00 0C */	sth r3, 0xc(r1)
+/* 814115A4 000E1AC4  B3 21 00 0E */	sth r25, 0xe(r1)
+/* 814115A8 000E1AC8  80 1C 00 0C */	lwz r0, 0xc(r28)
+/* 814115AC 000E1ACC  2C 00 00 09 */	cmpwi r0, 0x9
+/* 814115B0 000E1AD0  40 82 00 7C */	bne .L_8141162C
+/* 814115B4 000E1AD4  80 1C 00 00 */	lwz r0, 0x0(r28)
+/* 814115B8 000E1AD8  54 00 07 3E */	clrlwi r0, r0, 28
+/* 814115BC 000E1ADC  28 00 00 01 */	cmplwi r0, 0x1
+/* 814115C0 000E1AE0  40 82 00 6C */	bne .L_8141162C
+/* 814115C4 000E1AE4  80 7C 00 14 */	lwz r3, 0x14(r28)
+/* 814115C8 000E1AE8  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 814115CC 000E1AEC  81 8C 00 44 */	lwz r12, 0x44(r12)
+/* 814115D0 000E1AF0  7D 89 03 A6 */	mtctr r12
+/* 814115D4 000E1AF4  4E 80 04 21 */	bctrl
+/* 814115D8 000E1AF8  2C 03 00 00 */	cmpwi r3, 0x0
+/* 814115DC 000E1AFC  A0 61 00 0C */	lhz r3, 0xc(r1)
+/* 814115E0 000E1B00  41 82 00 0C */	beq .L_814115EC
+/* 814115E4 000E1B04  48 02 81 15 */	bl reverseLetterCaseW__Q29textinput4utilFw
+/* 814115E8 000E1B08  54 63 04 3E */	clrlwi r3, r3, 16
+.L_814115EC:
+/* 814115EC 000E1B0C  28 03 00 61 */	cmplwi r3, 0x61
+/* 814115F0 000E1B10  41 80 00 1C */	blt .L_8141160C
+/* 814115F4 000E1B14  28 03 00 7A */	cmplwi r3, 0x7a
+/* 814115F8 000E1B18  41 81 00 14 */	bgt .L_8141160C
+/* 814115FC 000E1B1C  54 60 0B FC */	clrlslwi r0, r3, 16, 1
+/* 81411600 000E1B20  7C 7A 02 14 */	add r3, r26, r0
+/* 81411604 000E1B24  A0 63 FF 3E */	lhz r3, -0xc2(r3)
+/* 81411608 000E1B28  48 00 00 20 */	b .L_81411628
+.L_8141160C:
+/* 8141160C 000E1B2C  28 03 00 41 */	cmplwi r3, 0x41
+/* 81411610 000E1B30  41 80 00 18 */	blt .L_81411628
+/* 81411614 000E1B34  28 03 00 5A */	cmplwi r3, 0x5a
+/* 81411618 000E1B38  41 81 00 10 */	bgt .L_81411628
+/* 8141161C 000E1B3C  54 60 0B FC */	clrlslwi r0, r3, 16, 1
+/* 81411620 000E1B40  7C 7B 02 14 */	add r3, r27, r0
+/* 81411624 000E1B44  A0 63 FF 7E */	lhz r3, -0x82(r3)
+.L_81411628:
+/* 81411628 000E1B48  B0 61 00 0C */	sth r3, 0xc(r1)
+.L_8141162C:
+/* 8141162C 000E1B4C  81 98 00 00 */	lwz r12, 0x0(r24)
+/* 81411630 000E1B50  7F 03 C3 78 */	mr r3, r24
+/* 81411634 000E1B54  38 81 00 0C */	addi r4, r1, 0xc
+/* 81411638 000E1B58  38 A0 00 00 */	li r5, 0x0
+/* 8141163C 000E1B5C  81 8C 00 6C */	lwz r12, 0x6c(r12)
+/* 81411640 000E1B60  7D 89 03 A6 */	mtctr r12
+/* 81411644 000E1B64  4E 80 04 21 */	bctrl
+.L_81411648:
+/* 81411648 000E1B68  3B DE 00 01 */	addi r30, r30, 0x1
+/* 8141164C 000E1B6C  28 1E 00 32 */	cmplwi r30, 0x32
+/* 81411650 000E1B70  41 80 FE B0 */	blt .L_81411500
+/* 81411654 000E1B74  3B C0 00 00 */	li r30, 0x0
+/* 81411658 000E1B78  3B ED AF 78 */	li r31, typeInfo__Q34nw4r3lyt7TextBox@sda21
+/* 8141165C 000E1B7C  3B 60 00 00 */	li r27, 0x0
+.L_81411660:
+/* 81411660 000E1B80  57 C0 04 3E */	clrlwi r0, r30, 16
+/* 81411664 000E1B84  80 9C 00 10 */	lwz r4, 0x10(r28)
+/* 81411668 000E1B88  1F 20 00 1A */	mulli r25, r0, 0x1a
+/* 8141166C 000E1B8C  38 61 00 10 */	addi r3, r1, 0x10
+/* 81411670 000E1B90  80 04 00 04 */	lwz r0, 0x4(r4)
+/* 81411674 000E1B94  38 80 00 11 */	li r4, 0x11
+/* 81411678 000E1B98  38 C0 00 00 */	li r6, 0x0
+/* 8141167C 000E1B9C  7C A0 CA 14 */	add r5, r0, r25
+/* 81411680 000E1BA0  38 E0 00 54 */	li r7, 0x54
+/* 81411684 000E1BA4  48 02 8B D9 */	bl replaceChar__Q29textinput4utilFPcUlPCcic
+/* 81411688 000E1BA8  81 9D 00 00 */	lwz r12, 0x0(r29)
+/* 8141168C 000E1BAC  7F A3 EB 78 */	mr r3, r29
+/* 81411690 000E1BB0  38 81 00 10 */	addi r4, r1, 0x10
+/* 81411694 000E1BB4  38 A0 00 01 */	li r5, 0x1
+/* 81411698 000E1BB8  81 8C 00 3C */	lwz r12, 0x3c(r12)
+/* 8141169C 000E1BBC  7D 89 03 A6 */	mtctr r12
+/* 814116A0 000E1BC0  4E 80 04 21 */	bctrl
+/* 814116A4 000E1BC4  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 814116A8 000E1BC8  7C 78 1B 78 */	mr r24, r3
+/* 814116AC 000E1BCC  81 8C 00 0C */	lwz r12, 0xc(r12)
+/* 814116B0 000E1BD0  7D 89 03 A6 */	mtctr r12
+/* 814116B4 000E1BD4  4E 80 04 21 */	bctrl
+/* 814116B8 000E1BD8  48 00 00 18 */	b .L_814116D0
+.L_814116BC:
+/* 814116BC 000E1BDC  7C 03 F8 40 */	cmplw r3, r31
+/* 814116C0 000E1BE0  40 82 00 0C */	bne .L_814116CC
+/* 814116C4 000E1BE4  38 00 00 01 */	li r0, 0x1
+/* 814116C8 000E1BE8  48 00 00 14 */	b .L_814116DC
+.L_814116CC:
+/* 814116CC 000E1BEC  80 63 00 00 */	lwz r3, 0x0(r3)
+.L_814116D0:
+/* 814116D0 000E1BF0  2C 03 00 00 */	cmpwi r3, 0x0
+/* 814116D4 000E1BF4  40 82 FF E8 */	bne .L_814116BC
+/* 814116D8 000E1BF8  38 00 00 00 */	li r0, 0x0
+.L_814116DC:
+/* 814116DC 000E1BFC  2C 00 00 00 */	cmpwi r0, 0x0
+/* 814116E0 000E1C00  41 82 00 08 */	beq .L_814116E8
+/* 814116E4 000E1C04  48 00 00 08 */	b .L_814116EC
+.L_814116E8:
+/* 814116E8 000E1C08  3B 00 00 00 */	li r24, 0x0
+.L_814116EC:
+/* 814116EC 000E1C0C  2C 18 00 00 */	cmpwi r24, 0x0
+/* 814116F0 000E1C10  41 82 00 58 */	beq .L_81411748
+/* 814116F4 000E1C14  80 1C 00 08 */	lwz r0, 0x8(r28)
+/* 814116F8 000E1C18  7F 03 C3 78 */	mr r3, r24
+/* 814116FC 000E1C1C  80 DC 00 10 */	lwz r6, 0x10(r28)
+/* 81411700 000E1C20  38 81 00 08 */	addi r4, r1, 0x8
+/* 81411704 000E1C24  54 00 07 3E */	clrlwi r0, r0, 28
+/* 81411708 000E1C28  38 A0 00 00 */	li r5, 0x0
+/* 8141170C 000E1C2C  7C 00 00 34 */	cntlzw r0, r0
+/* 81411710 000E1C30  80 E6 00 04 */	lwz r7, 0x4(r6)
+/* 81411714 000E1C34  54 00 DF FE */	extrwi r0, r0, 1, 26
+/* 81411718 000E1C38  7C C0 00 D0 */	neg r6, r0
+/* 8141171C 000E1C3C  38 C6 00 03 */	addi r6, r6, 0x3
+/* 81411720 000E1C40  7C 07 CA 14 */	add r0, r7, r25
+/* 81411724 000E1C44  54 C6 08 3C */	slwi r6, r6, 1
+/* 81411728 000E1C48  7C C6 02 14 */	add r6, r6, r0
+/* 8141172C 000E1C4C  A0 06 00 12 */	lhz r0, 0x12(r6)
+/* 81411730 000E1C50  B0 01 00 08 */	sth r0, 0x8(r1)
+/* 81411734 000E1C54  B3 61 00 0A */	sth r27, 0xa(r1)
+/* 81411738 000E1C58  81 98 00 00 */	lwz r12, 0x0(r24)
+/* 8141173C 000E1C5C  81 8C 00 6C */	lwz r12, 0x6c(r12)
+/* 81411740 000E1C60  7D 89 03 A6 */	mtctr r12
+/* 81411744 000E1C64  4E 80 04 21 */	bctrl
+.L_81411748:
+/* 81411748 000E1C68  3B DE 00 01 */	addi r30, r30, 0x1
+/* 8141174C 000E1C6C  28 1E 00 38 */	cmplwi r30, 0x38
+/* 81411750 000E1C70  41 80 FF 10 */	blt .L_81411660
+/* 81411754 000E1C74  39 61 00 60 */	addi r11, r1, 0x60
+/* 81411758 000E1C78  48 1E 7D A9 */	bl _restgpr_24
+/* 8141175C 000E1C7C  80 01 00 64 */	lwz r0, 0x64(r1)
+/* 81411760 000E1C80  7C 08 03 A6 */	mtlr r0
+/* 81411764 000E1C84  38 21 00 60 */	addi r1, r1, 0x60
+/* 81411768 000E1C88  4E 80 00 20 */	blr
+.endfn refreshText__Q59textinput8keyboard6pctype4Base8KeyStateFPQ34nw4r3lyt4Pane
+
+# .text:0x1594 | 0x8141176C | size: 0x40
+# textinput::keyboard::pctype::Base::KeyState::setABCFlag(unsigned long)
+.fn setABCFlag__Q59textinput8keyboard6pctype4Base8KeyStateFUl, global
+/* 8141176C 000E1C8C  80 A3 00 00 */	lwz r5, 0x0(r3)
+/* 81411770 000E1C90  54 A0 00 36 */	clrrwi r0, r5, 4
+/* 81411774 000E1C94  7C 00 20 40 */	cmplw r0, r4
+/* 81411778 000E1C98  4D 82 00 20 */	beqlr
+/* 8141177C 000E1C9C  80 C3 00 14 */	lwz r6, 0x14(r3)
+/* 81411780 000E1CA0  54 80 00 36 */	clrrwi r0, r4, 4
+/* 81411784 000E1CA4  50 A0 07 3E */	rlwimi r0, r5, 0, 28, 31
+/* 81411788 000E1CA8  2C 06 00 00 */	cmpwi r6, 0x0
+/* 8141178C 000E1CAC  90 03 00 00 */	stw r0, 0x0(r3)
+/* 81411790 000E1CB0  4D 82 00 20 */	beqlr
+/* 81411794 000E1CB4  81 86 00 00 */	lwz r12, 0x0(r6)
+/* 81411798 000E1CB8  7C C3 33 78 */	mr r3, r6
+/* 8141179C 000E1CBC  81 8C 00 70 */	lwz r12, 0x70(r12)
+/* 814117A0 000E1CC0  7D 89 03 A6 */	mtctr r12
+/* 814117A4 000E1CC4  4E 80 04 20 */	bctr
+/* 814117A8 000E1CC8  4E 80 00 20 */	blr
+.endfn setABCFlag__Q59textinput8keyboard6pctype4Base8KeyStateFUl
+
+# .text:0x15D4 | 0x814117AC | size: 0x1F4
+# textinput::keyboard::pctype::Base::KeyState::getWCCode(unsigned long)
+.fn getWCCode__Q59textinput8keyboard6pctype4Base8KeyStateFUl, global
+/* 814117AC 000E1CCC  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 814117B0 000E1CD0  7C 08 02 A6 */	mflr r0
+/* 814117B4 000E1CD4  38 E0 00 00 */	li r7, 0x0
+/* 814117B8 000E1CD8  90 01 00 14 */	stw r0, 0x14(r1)
+/* 814117BC 000E1CDC  93 E1 00 0C */	stw r31, 0xc(r1)
+/* 814117C0 000E1CE0  93 C1 00 08 */	stw r30, 0x8(r1)
+/* 814117C4 000E1CE4  7C 7E 1B 78 */	mr r30, r3
+/* 814117C8 000E1CE8  80 A3 00 00 */	lwz r5, 0x0(r3)
+/* 814117CC 000E1CEC  54 A0 06 73 */	rlwinm. r0, r5, 0, 25, 25
+/* 814117D0 000E1CF0  41 82 00 08 */	beq .L_814117D8
+/* 814117D4 000E1CF4  60 E7 00 01 */	ori r7, r7, 0x1
+.L_814117D8:
+/* 814117D8 000E1CF8  54 A0 06 31 */	rlwinm. r0, r5, 0, 24, 24
+/* 814117DC 000E1CFC  41 82 00 08 */	beq .L_814117E4
+/* 814117E0 000E1D00  60 E7 00 02 */	ori r7, r7, 0x2
+.L_814117E4:
+/* 814117E4 000E1D04  80 C3 00 10 */	lwz r6, 0x10(r3)
+/* 814117E8 000E1D08  1C A4 00 0C */	mulli r5, r4, 0xc
+/* 814117EC 000E1D0C  80 03 00 04 */	lwz r0, 0x4(r3)
+/* 814117F0 000E1D10  54 E4 08 3C */	slwi r4, r7, 1
+/* 814117F4 000E1D14  80 C6 00 00 */	lwz r6, 0x0(r6)
+/* 814117F8 000E1D18  2C 00 00 00 */	cmpwi r0, 0x0
+/* 814117FC 000E1D1C  7C 06 2A 14 */	add r0, r6, r5
+/* 81411800 000E1D20  7C 80 22 14 */	add r4, r0, r4
+/* 81411804 000E1D24  A3 E4 00 04 */	lhz r31, 0x4(r4)
+/* 81411808 000E1D28  40 82 00 60 */	bne .L_81411868
+/* 8141180C 000E1D2C  80 03 00 00 */	lwz r0, 0x0(r3)
+/* 81411810 000E1D30  54 00 07 3F */	clrlwi. r0, r0, 28
+/* 81411814 000E1D34  40 82 00 54 */	bne .L_81411868
+/* 81411818 000E1D38  28 1F 30 01 */	cmplwi r31, 0x3001
+/* 8141181C 000E1D3C  40 82 00 0C */	bne .L_81411828
+/* 81411820 000E1D40  3B E0 00 2C */	li r31, 0x2c
+/* 81411824 000E1D44  48 00 01 60 */	b .L_81411984
+.L_81411828:
+/* 81411828 000E1D48  28 1F 30 02 */	cmplwi r31, 0x3002
+/* 8141182C 000E1D4C  40 82 00 0C */	bne .L_81411838
+/* 81411830 000E1D50  3B E0 00 2E */	li r31, 0x2e
+/* 81411834 000E1D54  48 00 01 50 */	b .L_81411984
+.L_81411838:
+/* 81411838 000E1D58  28 1F 30 FC */	cmplwi r31, 0x30fc
+/* 8141183C 000E1D5C  40 82 00 0C */	bne .L_81411848
+/* 81411840 000E1D60  3B E0 00 2D */	li r31, 0x2d
+/* 81411844 000E1D64  48 00 01 40 */	b .L_81411984
+.L_81411848:
+/* 81411848 000E1D68  28 1F 30 0C */	cmplwi r31, 0x300c
+/* 8141184C 000E1D6C  40 82 00 0C */	bne .L_81411858
+/* 81411850 000E1D70  3B E0 00 5B */	li r31, 0x5b
+/* 81411854 000E1D74  48 00 01 30 */	b .L_81411984
+.L_81411858:
+/* 81411858 000E1D78  28 1F 30 0D */	cmplwi r31, 0x300d
+/* 8141185C 000E1D7C  40 82 01 28 */	bne .L_81411984
+/* 81411860 000E1D80  3B E0 00 5D */	li r31, 0x5d
+/* 81411864 000E1D84  48 00 01 20 */	b .L_81411984
+.L_81411868:
+/* 81411868 000E1D88  80 63 00 14 */	lwz r3, 0x14(r3)
+/* 8141186C 000E1D8C  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81411870 000E1D90  81 8C 00 2C */	lwz r12, 0x2c(r12)
+/* 81411874 000E1D94  7D 89 03 A6 */	mtctr r12
+/* 81411878 000E1D98  4E 80 04 21 */	bctrl
+/* 8141187C 000E1D9C  2C 03 00 08 */	cmpwi r3, 0x8
+/* 81411880 000E1DA0  40 82 01 04 */	bne .L_81411984
+/* 81411884 000E1DA4  80 1E 00 00 */	lwz r0, 0x0(r30)
+/* 81411888 000E1DA8  54 00 07 3E */	clrlwi r0, r0, 28
+/* 8141188C 000E1DAC  28 00 00 01 */	cmplwi r0, 0x1
+/* 81411890 000E1DB0  40 82 00 F4 */	bne .L_81411984
+/* 81411894 000E1DB4  28 1F 00 5B */	cmplwi r31, 0x5b
+/* 81411898 000E1DB8  40 82 00 0C */	bne .L_814118A4
+/* 8141189C 000E1DBC  3B E0 30 0A */	li r31, 0x300a
+/* 814118A0 000E1DC0  48 00 00 E4 */	b .L_81411984
+.L_814118A4:
+/* 814118A4 000E1DC4  28 1F 00 5D */	cmplwi r31, 0x5d
+/* 814118A8 000E1DC8  40 82 00 0C */	bne .L_814118B4
+/* 814118AC 000E1DCC  3B E0 30 0B */	li r31, 0x300b
+/* 814118B0 000E1DD0  48 00 00 D4 */	b .L_81411984
+.L_814118B4:
+/* 814118B4 000E1DD4  28 1F 00 2E */	cmplwi r31, 0x2e
+/* 814118B8 000E1DD8  40 82 00 0C */	bne .L_814118C4
+/* 814118BC 000E1DDC  3B E0 30 02 */	li r31, 0x3002
+/* 814118C0 000E1DE0  48 00 00 C4 */	b .L_81411984
+.L_814118C4:
+/* 814118C4 000E1DE4  28 1F 00 27 */	cmplwi r31, 0x27
+/* 814118C8 000E1DE8  40 82 00 0C */	bne .L_814118D4
+/* 814118CC 000E1DEC  3B E0 30 01 */	li r31, 0x3001
+/* 814118D0 000E1DF0  48 00 00 B4 */	b .L_81411984
+.L_814118D4:
+/* 814118D4 000E1DF4  28 1F 00 2C */	cmplwi r31, 0x2c
+/* 814118D8 000E1DF8  40 82 00 10 */	bne .L_814118E8
+/* 814118DC 000E1DFC  3C 60 00 01 */	lis r3, 0x1
+/* 814118E0 000E1E00  3B E3 FF 0C */	subi r31, r3, 0xf4
+/* 814118E4 000E1E04  48 00 00 A0 */	b .L_81411984
+.L_814118E8:
+/* 814118E8 000E1E08  28 1F 00 2D */	cmplwi r31, 0x2d
+/* 814118EC 000E1E0C  40 82 00 10 */	bne .L_814118FC
+/* 814118F0 000E1E10  3C 60 00 01 */	lis r3, 0x1
+/* 814118F4 000E1E14  3B E3 FF 0D */	subi r31, r3, 0xf3
+/* 814118F8 000E1E18  48 00 00 8C */	b .L_81411984
+.L_814118FC:
+/* 814118FC 000E1E1C  28 1F 00 5F */	cmplwi r31, 0x5f
+/* 81411900 000E1E20  40 82 00 10 */	bne .L_81411910
+/* 81411904 000E1E24  3C 60 00 01 */	lis r3, 0x1
+/* 81411908 000E1E28  3B E3 FF 3F */	subi r31, r3, 0xc1
+/* 8141190C 000E1E2C  48 00 00 78 */	b .L_81411984
+.L_81411910:
+/* 81411910 000E1E30  28 1F 00 3A */	cmplwi r31, 0x3a
+/* 81411914 000E1E34  40 82 00 10 */	bne .L_81411924
+/* 81411918 000E1E38  3C 60 00 01 */	lis r3, 0x1
+/* 8141191C 000E1E3C  3B E3 FF 1A */	subi r31, r3, 0xe6
+/* 81411920 000E1E40  48 00 00 64 */	b .L_81411984
+.L_81411924:
+/* 81411924 000E1E44  28 1F 00 3B */	cmplwi r31, 0x3b
+/* 81411928 000E1E48  40 82 00 10 */	bne .L_81411938
+/* 8141192C 000E1E4C  3C 60 00 01 */	lis r3, 0x1
+/* 81411930 000E1E50  3B E3 FF 1B */	subi r31, r3, 0xe5
+/* 81411934 000E1E54  48 00 00 50 */	b .L_81411984
+.L_81411938:
+/* 81411938 000E1E58  28 1F 00 21 */	cmplwi r31, 0x21
+/* 8141193C 000E1E5C  40 82 00 10 */	bne .L_8141194C
+/* 81411940 000E1E60  3C 60 00 01 */	lis r3, 0x1
+/* 81411944 000E1E64  3B E3 FF 01 */	subi r31, r3, 0xff
+/* 81411948 000E1E68  48 00 00 3C */	b .L_81411984
+.L_8141194C:
+/* 8141194C 000E1E6C  28 1F 00 3F */	cmplwi r31, 0x3f
+/* 81411950 000E1E70  40 82 00 10 */	bne .L_81411960
+/* 81411954 000E1E74  3C 60 00 01 */	lis r3, 0x1
+/* 81411958 000E1E78  3B E3 FF 1F */	subi r31, r3, 0xe1
+/* 8141195C 000E1E7C  48 00 00 28 */	b .L_81411984
+.L_81411960:
+/* 81411960 000E1E80  28 1F 00 28 */	cmplwi r31, 0x28
+/* 81411964 000E1E84  40 82 00 10 */	bne .L_81411974
+/* 81411968 000E1E88  3C 60 00 01 */	lis r3, 0x1
+/* 8141196C 000E1E8C  3B E3 FF 08 */	subi r31, r3, 0xf8
+/* 81411970 000E1E90  48 00 00 14 */	b .L_81411984
+.L_81411974:
+/* 81411974 000E1E94  28 1F 00 29 */	cmplwi r31, 0x29
+/* 81411978 000E1E98  40 82 00 0C */	bne .L_81411984
+/* 8141197C 000E1E9C  3C 60 00 01 */	lis r3, 0x1
+/* 81411980 000E1EA0  3B E3 FF 09 */	subi r31, r3, 0xf7
+.L_81411984:
+/* 81411984 000E1EA4  7F E3 FB 78 */	mr r3, r31
+/* 81411988 000E1EA8  83 E1 00 0C */	lwz r31, 0xc(r1)
+/* 8141198C 000E1EAC  83 C1 00 08 */	lwz r30, 0x8(r1)
+/* 81411990 000E1EB0  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 81411994 000E1EB4  7C 08 03 A6 */	mtlr r0
+/* 81411998 000E1EB8  38 21 00 10 */	addi r1, r1, 0x10
+/* 8141199C 000E1EBC  4E 80 00 20 */	blr
+.endfn getWCCode__Q59textinput8keyboard6pctype4Base8KeyStateFUl
+
+# .text:0x17C8 | 0x814119A0 | size: 0xE4
+# textinput::keyboard::pctype::Base::KeyState::getWCCode(char*)
+.fn getWCCode__Q59textinput8keyboard6pctype4Base8KeyStateFPc, global
+/* 814119A0 000E1EC0  94 21 FF E0 */	stwu r1, -0x20(r1)
+/* 814119A4 000E1EC4  7C 08 02 A6 */	mflr r0
+/* 814119A8 000E1EC8  90 01 00 24 */	stw r0, 0x24(r1)
+/* 814119AC 000E1ECC  39 61 00 20 */	addi r11, r1, 0x20
+/* 814119B0 000E1ED0  48 1E 7B 11 */	bl _savegpr_27
+/* 814119B4 000E1ED4  7C 7D 1B 78 */	mr r29, r3
+/* 814119B8 000E1ED8  7C 9E 23 78 */	mr r30, r4
+/* 814119BC 000E1EDC  3B 60 00 00 */	li r27, 0x0
+/* 814119C0 000E1EE0  3B 80 00 00 */	li r28, 0x0
+.L_814119C4:
+/* 814119C4 000E1EE4  57 80 04 3E */	clrlwi r0, r28, 16
+/* 814119C8 000E1EE8  80 7D 00 10 */	lwz r3, 0x10(r29)
+/* 814119CC 000E1EEC  1C 00 00 0C */	mulli r0, r0, 0xc
+/* 814119D0 000E1EF0  7F C4 F3 78 */	mr r4, r30
+/* 814119D4 000E1EF4  80 63 00 00 */	lwz r3, 0x0(r3)
+/* 814119D8 000E1EF8  7C 63 00 2E */	lwzx r3, r3, r0
+/* 814119DC 000E1EFC  48 02 88 19 */	bl strcmp__Q29textinput4utilFPCcPCc
+/* 814119E0 000E1F00  2C 03 00 00 */	cmpwi r3, 0x0
+/* 814119E4 000E1F04  41 82 00 14 */	beq .L_814119F8
+/* 814119E8 000E1F08  7F A3 EB 78 */	mr r3, r29
+/* 814119EC 000E1F0C  57 84 04 3E */	clrlwi r4, r28, 16
+/* 814119F0 000E1F10  4B FF FD BD */	bl getWCCode__Q59textinput8keyboard6pctype4Base8KeyStateFUl
+/* 814119F4 000E1F14  7C 7B 1B 78 */	mr r27, r3
+.L_814119F8:
+/* 814119F8 000E1F18  3B 9C 00 01 */	addi r28, r28, 0x1
+/* 814119FC 000E1F1C  28 1C 00 32 */	cmplwi r28, 0x32
+/* 81411A00 000E1F20  41 80 FF C4 */	blt .L_814119C4
+/* 81411A04 000E1F24  3B E0 00 00 */	li r31, 0x0
+.L_81411A08:
+/* 81411A08 000E1F28  57 E0 04 3E */	clrlwi r0, r31, 16
+/* 81411A0C 000E1F2C  80 7D 00 10 */	lwz r3, 0x10(r29)
+/* 81411A10 000E1F30  1F 80 00 1A */	mulli r28, r0, 0x1a
+/* 81411A14 000E1F34  7F C4 F3 78 */	mr r4, r30
+/* 81411A18 000E1F38  80 03 00 04 */	lwz r0, 0x4(r3)
+/* 81411A1C 000E1F3C  7C 60 E2 14 */	add r3, r0, r28
+/* 81411A20 000E1F40  48 02 87 D5 */	bl strcmp__Q29textinput4utilFPCcPCc
+/* 81411A24 000E1F44  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81411A28 000E1F48  41 82 00 34 */	beq .L_81411A5C
+/* 81411A2C 000E1F4C  80 1D 00 08 */	lwz r0, 0x8(r29)
+/* 81411A30 000E1F50  80 7D 00 10 */	lwz r3, 0x10(r29)
+/* 81411A34 000E1F54  54 00 07 3E */	clrlwi r0, r0, 28
+/* 81411A38 000E1F58  7C 00 00 34 */	cntlzw r0, r0
+/* 81411A3C 000E1F5C  80 83 00 04 */	lwz r4, 0x4(r3)
+/* 81411A40 000E1F60  54 00 DF FE */	extrwi r0, r0, 1, 26
+/* 81411A44 000E1F64  7C 60 00 D0 */	neg r3, r0
+/* 81411A48 000E1F68  38 63 00 03 */	addi r3, r3, 0x3
+/* 81411A4C 000E1F6C  7C 04 E2 14 */	add r0, r4, r28
+/* 81411A50 000E1F70  54 63 08 3C */	slwi r3, r3, 1
+/* 81411A54 000E1F74  7C 63 02 14 */	add r3, r3, r0
+/* 81411A58 000E1F78  A3 63 00 12 */	lhz r27, 0x12(r3)
+.L_81411A5C:
+/* 81411A5C 000E1F7C  3B FF 00 01 */	addi r31, r31, 0x1
+/* 81411A60 000E1F80  28 1F 00 38 */	cmplwi r31, 0x38
+/* 81411A64 000E1F84  41 80 FF A4 */	blt .L_81411A08
+/* 81411A68 000E1F88  39 61 00 20 */	addi r11, r1, 0x20
+/* 81411A6C 000E1F8C  7F 63 DB 78 */	mr r3, r27
+/* 81411A70 000E1F90  48 1E 7A 9D */	bl _restgpr_27
+/* 81411A74 000E1F94  80 01 00 24 */	lwz r0, 0x24(r1)
+/* 81411A78 000E1F98  7C 08 03 A6 */	mtlr r0
+/* 81411A7C 000E1F9C  38 21 00 20 */	addi r1, r1, 0x20
+/* 81411A80 000E1FA0  4E 80 00 20 */	blr
+.endfn getWCCode__Q59textinput8keyboard6pctype4Base8KeyStateFPc
+
+# .text:0x18AC | 0x81411A84 | size: 0xEC
+# textinput::keyboard::pctype::Base::onlyQwerty(bool)
+.fn onlyQwerty__Q49textinput8keyboard6pctype4BaseFb, global
+/* 81411A84 000E1FA4  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 81411A88 000E1FA8  7C 08 02 A6 */	mflr r0
+/* 81411A8C 000E1FAC  90 01 00 14 */	stw r0, 0x14(r1)
+/* 81411A90 000E1FB0  93 E1 00 0C */	stw r31, 0xc(r1)
+/* 81411A94 000E1FB4  7C 9F 23 78 */	mr r31, r4
+/* 81411A98 000E1FB8  93 C1 00 08 */	stw r30, 0x8(r1)
+/* 81411A9C 000E1FBC  7C 7E 1B 78 */	mr r30, r3
+/* 81411AA0 000E1FC0  98 83 00 3C */	stb r4, 0x3c(r3)
+/* 81411AA4 000E1FC4  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81411AA8 000E1FC8  81 8C 00 2C */	lwz r12, 0x2c(r12)
+/* 81411AAC 000E1FCC  7D 89 03 A6 */	mtctr r12
+/* 81411AB0 000E1FD0  4E 80 04 21 */	bctrl
+/* 81411AB4 000E1FD4  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81411AB8 000E1FD8  40 82 00 A0 */	bne .L_81411B58
+/* 81411ABC 000E1FDC  2C 1F 00 00 */	cmpwi r31, 0x0
+/* 81411AC0 000E1FE0  41 82 00 68 */	beq .L_81411B28
+/* 81411AC4 000E1FE4  81 9E 00 00 */	lwz r12, 0x0(r30)
+/* 81411AC8 000E1FE8  7F C3 F3 78 */	mr r3, r30
+/* 81411ACC 000E1FEC  38 80 00 01 */	li r4, 0x1
+/* 81411AD0 000E1FF0  81 8C 00 4C */	lwz r12, 0x4c(r12)
+/* 81411AD4 000E1FF4  7D 89 03 A6 */	mtctr r12
+/* 81411AD8 000E1FF8  4E 80 04 21 */	bctrl
+/* 81411ADC 000E1FFC  80 9E 00 20 */	lwz r4, 0x20(r30)
+/* 81411AE0 000E2000  54 80 00 37 */	clrrwi. r0, r4, 4
+/* 81411AE4 000E2004  41 82 00 28 */	beq .L_81411B0C
+/* 81411AE8 000E2008  80 7E 00 34 */	lwz r3, 0x34(r30)
+/* 81411AEC 000E200C  54 80 07 3E */	clrlwi r0, r4, 28
+/* 81411AF0 000E2010  90 1E 00 20 */	stw r0, 0x20(r30)
+/* 81411AF4 000E2014  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81411AF8 000E2018  41 82 00 14 */	beq .L_81411B0C
+/* 81411AFC 000E201C  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81411B00 000E2020  81 8C 00 70 */	lwz r12, 0x70(r12)
+/* 81411B04 000E2024  7D 89 03 A6 */	mtctr r12
+/* 81411B08 000E2028  4E 80 04 21 */	bctrl
+.L_81411B0C:
+/* 81411B0C 000E202C  81 9E 00 00 */	lwz r12, 0x0(r30)
+/* 81411B10 000E2030  7F C3 F3 78 */	mr r3, r30
+/* 81411B14 000E2034  38 80 00 00 */	li r4, 0x0
+/* 81411B18 000E2038  81 8C 00 74 */	lwz r12, 0x74(r12)
+/* 81411B1C 000E203C  7D 89 03 A6 */	mtctr r12
+/* 81411B20 000E2040  4E 80 04 21 */	bctrl
+/* 81411B24 000E2044  48 00 00 34 */	b .L_81411B58
+.L_81411B28:
+/* 81411B28 000E2048  81 9E 00 00 */	lwz r12, 0x0(r30)
+/* 81411B2C 000E204C  7F C3 F3 78 */	mr r3, r30
+/* 81411B30 000E2050  38 80 00 00 */	li r4, 0x0
+/* 81411B34 000E2054  81 8C 00 4C */	lwz r12, 0x4c(r12)
+/* 81411B38 000E2058  7D 89 03 A6 */	mtctr r12
+/* 81411B3C 000E205C  4E 80 04 21 */	bctrl
+/* 81411B40 000E2060  81 9E 00 00 */	lwz r12, 0x0(r30)
+/* 81411B44 000E2064  7F C3 F3 78 */	mr r3, r30
+/* 81411B48 000E2068  38 80 00 06 */	li r4, 0x6
+/* 81411B4C 000E206C  81 8C 00 78 */	lwz r12, 0x78(r12)
+/* 81411B50 000E2070  7D 89 03 A6 */	mtctr r12
+/* 81411B54 000E2074  4E 80 04 21 */	bctrl
+.L_81411B58:
+/* 81411B58 000E2078  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 81411B5C 000E207C  83 E1 00 0C */	lwz r31, 0xc(r1)
+/* 81411B60 000E2080  83 C1 00 08 */	lwz r30, 0x8(r1)
+/* 81411B64 000E2084  7C 08 03 A6 */	mtlr r0
+/* 81411B68 000E2088  38 21 00 10 */	addi r1, r1, 0x10
+/* 81411B6C 000E208C  4E 80 00 20 */	blr
+.endfn onlyQwerty__Q49textinput8keyboard6pctype4BaseFb
+
+# .text:0x1998 | 0x81411B70 | size: 0xBC
+# textinput::keyboard::pctype::Base::setLangKeyActive(bool)
+.fn setLangKeyActive__Q49textinput8keyboard6pctype4BaseFb, global
+/* 81411B70 000E2090  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 81411B74 000E2094  7C 08 02 A6 */	mflr r0
+/* 81411B78 000E2098  90 01 00 14 */	stw r0, 0x14(r1)
+/* 81411B7C 000E209C  93 E1 00 0C */	stw r31, 0xc(r1)
+/* 81411B80 000E20A0  7C 9F 23 78 */	mr r31, r4
+/* 81411B84 000E20A4  93 C1 00 08 */	stw r30, 0x8(r1)
+/* 81411B88 000E20A8  7C 7E 1B 78 */	mr r30, r3
+/* 81411B8C 000E20AC  98 83 00 3D */	stb r4, 0x3d(r3)
+/* 81411B90 000E20B0  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81411B94 000E20B4  81 8C 00 2C */	lwz r12, 0x2c(r12)
+/* 81411B98 000E20B8  7D 89 03 A6 */	mtctr r12
+/* 81411B9C 000E20BC  4E 80 04 21 */	bctrl
+/* 81411BA0 000E20C0  2C 03 00 09 */	cmpwi r3, 0x9
+/* 81411BA4 000E20C4  41 82 00 20 */	beq .L_81411BC4
+/* 81411BA8 000E20C8  81 9E 00 00 */	lwz r12, 0x0(r30)
+/* 81411BAC 000E20CC  7F C3 F3 78 */	mr r3, r30
+/* 81411BB0 000E20D0  81 8C 00 2C */	lwz r12, 0x2c(r12)
+/* 81411BB4 000E20D4  7D 89 03 A6 */	mtctr r12
+/* 81411BB8 000E20D8  4E 80 04 21 */	bctrl
+/* 81411BBC 000E20DC  2C 03 00 08 */	cmpwi r3, 0x8
+/* 81411BC0 000E20E0  40 82 00 54 */	bne .L_81411C14
+.L_81411BC4:
+/* 81411BC4 000E20E4  2C 1F 00 00 */	cmpwi r31, 0x0
+/* 81411BC8 000E20E8  40 82 00 4C */	bne .L_81411C14
+/* 81411BCC 000E20EC  80 9E 00 20 */	lwz r4, 0x20(r30)
+/* 81411BD0 000E20F0  54 80 00 37 */	clrrwi. r0, r4, 4
+/* 81411BD4 000E20F4  41 82 00 28 */	beq .L_81411BFC
+/* 81411BD8 000E20F8  80 7E 00 34 */	lwz r3, 0x34(r30)
+/* 81411BDC 000E20FC  54 80 07 3E */	clrlwi r0, r4, 28
+/* 81411BE0 000E2100  90 1E 00 20 */	stw r0, 0x20(r30)
+/* 81411BE4 000E2104  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81411BE8 000E2108  41 82 00 14 */	beq .L_81411BFC
+/* 81411BEC 000E210C  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81411BF0 000E2110  81 8C 00 70 */	lwz r12, 0x70(r12)
+/* 81411BF4 000E2114  7D 89 03 A6 */	mtctr r12
+/* 81411BF8 000E2118  4E 80 04 21 */	bctrl
+.L_81411BFC:
+/* 81411BFC 000E211C  81 9E 00 00 */	lwz r12, 0x0(r30)
+/* 81411C00 000E2120  7F C3 F3 78 */	mr r3, r30
+/* 81411C04 000E2124  38 80 00 00 */	li r4, 0x0
+/* 81411C08 000E2128  81 8C 00 74 */	lwz r12, 0x74(r12)
+/* 81411C0C 000E212C  7D 89 03 A6 */	mtctr r12
+/* 81411C10 000E2130  4E 80 04 21 */	bctrl
+.L_81411C14:
+/* 81411C14 000E2134  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 81411C18 000E2138  83 E1 00 0C */	lwz r31, 0xc(r1)
+/* 81411C1C 000E213C  83 C1 00 08 */	lwz r30, 0x8(r1)
+/* 81411C20 000E2140  7C 08 03 A6 */	mtlr r0
+/* 81411C24 000E2144  38 21 00 10 */	addi r1, r1, 0x10
+/* 81411C28 000E2148  4E 80 00 20 */	blr
+.endfn setLangKeyActive__Q49textinput8keyboard6pctype4BaseFb
+
+# .text:0x1A54 | 0x81411C2C | size: 0xE8
+# textinput::keyboard::pctype::LayoutByNW4R::~LayoutByNW4R()
+.fn __dt__Q49textinput8keyboard6pctype12LayoutByNW4RFv, global
+/* 81411C2C 000E214C  94 21 FF E0 */	stwu r1, -0x20(r1)
+/* 81411C30 000E2150  7C 08 02 A6 */	mflr r0
+/* 81411C34 000E2154  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81411C38 000E2158  90 01 00 24 */	stw r0, 0x24(r1)
+/* 81411C3C 000E215C  93 E1 00 1C */	stw r31, 0x1c(r1)
+/* 81411C40 000E2160  93 C1 00 18 */	stw r30, 0x18(r1)
+/* 81411C44 000E2164  7C 9E 23 78 */	mr r30, r4
+/* 81411C48 000E2168  93 A1 00 14 */	stw r29, 0x14(r1)
+/* 81411C4C 000E216C  7C 7D 1B 78 */	mr r29, r3
+/* 81411C50 000E2170  41 82 00 A4 */	beq .L_81411CF4
+/* 81411C54 000E2174  3C C0 81 66 */	lis r6, __vt__Q49textinput8keyboard6pctype12LayoutByNW4R@ha
+/* 81411C58 000E2178  38 80 FF FF */	li r4, -0x1
+/* 81411C5C 000E217C  38 C6 BC 30 */	addi r6, r6, __vt__Q49textinput8keyboard6pctype12LayoutByNW4R@l
+/* 81411C60 000E2180  38 A6 00 98 */	addi r5, r6, 0x98
+/* 81411C64 000E2184  90 C3 00 00 */	stw r6, 0x0(r3)
+/* 81411C68 000E2188  38 06 01 10 */	addi r0, r6, 0x110
+/* 81411C6C 000E218C  90 A3 00 44 */	stw r5, 0x44(r3)
+/* 81411C70 000E2190  90 03 00 EC */	stw r0, 0xec(r3)
+/* 81411C74 000E2194  80 63 00 F0 */	lwz r3, 0xf0(r3)
+/* 81411C78 000E2198  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81411C7C 000E219C  81 8C 00 08 */	lwz r12, 0x8(r12)
+/* 81411C80 000E21A0  7D 89 03 A6 */	mtctr r12
+/* 81411C84 000E21A4  4E 80 04 21 */	bctrl
+/* 81411C88 000E21A8  80 7D 00 38 */	lwz r3, 0x38(r29)
+/* 81411C8C 000E21AC  80 9D 00 F0 */	lwz r4, 0xf0(r29)
+/* 81411C90 000E21B0  48 14 99 E9 */	bl MEMFreeToAllocator
+/* 81411C94 000E21B4  38 7D 00 B0 */	addi r3, r29, 0xb0
+/* 81411C98 000E21B8  38 80 00 00 */	li r4, 0x0
+/* 81411C9C 000E21BC  48 10 06 41 */	bl List_GetNext__Q24nw4r2utFPCQ34nw4r2ut4ListPCv
+/* 81411CA0 000E21C0  7C 7F 1B 78 */	mr r31, r3
+/* 81411CA4 000E21C4  48 00 00 2C */	b .L_81411CD0
+.L_81411CA8:
+/* 81411CA8 000E21C8  7F E4 FB 78 */	mr r4, r31
+/* 81411CAC 000E21CC  38 7D 00 B0 */	addi r3, r29, 0xb0
+/* 81411CB0 000E21D0  48 10 05 C1 */	bl List_Remove__Q24nw4r2utFPQ34nw4r2ut4ListPv
+/* 81411CB4 000E21D4  80 9D 00 38 */	lwz r4, 0x38(r29)
+/* 81411CB8 000E21D8  7F E3 FB 78 */	mr r3, r31
+/* 81411CBC 000E21DC  48 02 57 35 */	bl destroy__Q39textinput11nw4rmanager7AnmPaneFP12MEMAllocator
+/* 81411CC0 000E21E0  38 7D 00 B0 */	addi r3, r29, 0xb0
+/* 81411CC4 000E21E4  38 80 00 00 */	li r4, 0x0
+/* 81411CC8 000E21E8  48 10 06 15 */	bl List_GetNext__Q24nw4r2utFPCQ34nw4r2ut4ListPCv
+/* 81411CCC 000E21EC  7C 7F 1B 78 */	mr r31, r3
+.L_81411CD0:
+/* 81411CD0 000E21F0  2C 1F 00 00 */	cmpwi r31, 0x0
+/* 81411CD4 000E21F4  40 82 FF D4 */	bne .L_81411CA8
+/* 81411CD8 000E21F8  38 7D 00 44 */	addi r3, r29, 0x44
+/* 81411CDC 000E21FC  38 80 00 00 */	li r4, 0x0
+/* 81411CE0 000E2200  48 02 44 19 */	bl __dt__Q39textinput11nw4rmanager6LayoutFv
+/* 81411CE4 000E2204  2C 1E 00 00 */	cmpwi r30, 0x0
+/* 81411CE8 000E2208  40 81 00 0C */	ble .L_81411CF4
+/* 81411CEC 000E220C  7F A3 EB 78 */	mr r3, r29
+/* 81411CF0 000E2210  48 1E 63 F5 */	bl __dl__FPv
+.L_81411CF4:
+/* 81411CF4 000E2214  83 E1 00 1C */	lwz r31, 0x1c(r1)
+/* 81411CF8 000E2218  7F A3 EB 78 */	mr r3, r29
+/* 81411CFC 000E221C  83 C1 00 18 */	lwz r30, 0x18(r1)
+/* 81411D00 000E2220  83 A1 00 14 */	lwz r29, 0x14(r1)
+/* 81411D04 000E2224  80 01 00 24 */	lwz r0, 0x24(r1)
+/* 81411D08 000E2228  7C 08 03 A6 */	mtlr r0
+/* 81411D0C 000E222C  38 21 00 20 */	addi r1, r1, 0x20
+/* 81411D10 000E2230  4E 80 00 20 */	blr
+.endfn __dt__Q49textinput8keyboard6pctype12LayoutByNW4RFv
+
+# .text:0x1B3C | 0x81411D14 | size: 0x40
+# textinput::keyboard::pctype::UIModePanel::~UIModePanel()
+.fn __dt__Q49textinput8keyboard6pctype11UIModePanelFv, global
+/* 81411D14 000E2234  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 81411D18 000E2238  7C 08 02 A6 */	mflr r0
+/* 81411D1C 000E223C  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81411D20 000E2240  90 01 00 14 */	stw r0, 0x14(r1)
+/* 81411D24 000E2244  93 E1 00 0C */	stw r31, 0xc(r1)
+/* 81411D28 000E2248  7C 7F 1B 78 */	mr r31, r3
+/* 81411D2C 000E224C  41 82 00 10 */	beq .L_81411D3C
+/* 81411D30 000E2250  2C 04 00 00 */	cmpwi r4, 0x0
+/* 81411D34 000E2254  40 81 00 08 */	ble .L_81411D3C
+/* 81411D38 000E2258  48 1E 63 AD */	bl __dl__FPv
+.L_81411D3C:
+/* 81411D3C 000E225C  7F E3 FB 78 */	mr r3, r31
+/* 81411D40 000E2260  83 E1 00 0C */	lwz r31, 0xc(r1)
+/* 81411D44 000E2264  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 81411D48 000E2268  7C 08 03 A6 */	mtlr r0
+/* 81411D4C 000E226C  38 21 00 10 */	addi r1, r1, 0x10
+/* 81411D50 000E2270  4E 80 00 20 */	blr
+.endfn __dt__Q49textinput8keyboard6pctype11UIModePanelFv
+
+# .text:0x1B7C | 0x81411D54 | size: 0x40
+# textinput::keyboard::pctype::UIObj::~UIObj()
+.fn __dt__Q49textinput8keyboard6pctype5UIObjFv, global
+/* 81411D54 000E2274  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 81411D58 000E2278  7C 08 02 A6 */	mflr r0
+/* 81411D5C 000E227C  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81411D60 000E2280  90 01 00 14 */	stw r0, 0x14(r1)
+/* 81411D64 000E2284  93 E1 00 0C */	stw r31, 0xc(r1)
+/* 81411D68 000E2288  7C 7F 1B 78 */	mr r31, r3
+/* 81411D6C 000E228C  41 82 00 10 */	beq .L_81411D7C
+/* 81411D70 000E2290  2C 04 00 00 */	cmpwi r4, 0x0
+/* 81411D74 000E2294  40 81 00 08 */	ble .L_81411D7C
+/* 81411D78 000E2298  48 1E 63 6D */	bl __dl__FPv
+.L_81411D7C:
+/* 81411D7C 000E229C  7F E3 FB 78 */	mr r3, r31
+/* 81411D80 000E22A0  83 E1 00 0C */	lwz r31, 0xc(r1)
+/* 81411D84 000E22A4  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 81411D88 000E22A8  7C 08 03 A6 */	mtlr r0
+/* 81411D8C 000E22AC  38 21 00 10 */	addi r1, r1, 0x10
+/* 81411D90 000E22B0  4E 80 00 20 */	blr
+.endfn __dt__Q49textinput8keyboard6pctype5UIObjFv
+
+# .text:0x1BBC | 0x81411D94 | size: 0x40
+# textinput::gui::EventHandler::~EventHandler()
+.fn __dt__Q39textinput3gui12EventHandlerFv, global
+/* 81411D94 000E22B4  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 81411D98 000E22B8  7C 08 02 A6 */	mflr r0
+/* 81411D9C 000E22BC  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81411DA0 000E22C0  90 01 00 14 */	stw r0, 0x14(r1)
+/* 81411DA4 000E22C4  93 E1 00 0C */	stw r31, 0xc(r1)
+/* 81411DA8 000E22C8  7C 7F 1B 78 */	mr r31, r3
+/* 81411DAC 000E22CC  41 82 00 10 */	beq .L_81411DBC
+/* 81411DB0 000E22D0  2C 04 00 00 */	cmpwi r4, 0x0
+/* 81411DB4 000E22D4  40 81 00 08 */	ble .L_81411DBC
+/* 81411DB8 000E22D8  48 1E 63 2D */	bl __dl__FPv
+.L_81411DBC:
+/* 81411DBC 000E22DC  7F E3 FB 78 */	mr r3, r31
+/* 81411DC0 000E22E0  83 E1 00 0C */	lwz r31, 0xc(r1)
+/* 81411DC4 000E22E4  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 81411DC8 000E22E8  7C 08 03 A6 */	mtlr r0
+/* 81411DCC 000E22EC  38 21 00 10 */	addi r1, r1, 0x10
+/* 81411DD0 000E22F0  4E 80 00 20 */	blr
+.endfn __dt__Q39textinput3gui12EventHandlerFv
+
+# .text:0x1BFC | 0x81411DD4 | size: 0x40
+# textinput::keyboard::pctype::UIModifierButton::~UIModifierButton()
+.fn __dt__Q49textinput8keyboard6pctype16UIModifierButtonFv, global
+/* 81411DD4 000E22F4  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 81411DD8 000E22F8  7C 08 02 A6 */	mflr r0
+/* 81411DDC 000E22FC  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81411DE0 000E2300  90 01 00 14 */	stw r0, 0x14(r1)
+/* 81411DE4 000E2304  93 E1 00 0C */	stw r31, 0xc(r1)
+/* 81411DE8 000E2308  7C 7F 1B 78 */	mr r31, r3
+/* 81411DEC 000E230C  41 82 00 10 */	beq .L_81411DFC
+/* 81411DF0 000E2310  2C 04 00 00 */	cmpwi r4, 0x0
+/* 81411DF4 000E2314  40 81 00 08 */	ble .L_81411DFC
+/* 81411DF8 000E2318  48 1E 62 ED */	bl __dl__FPv
+.L_81411DFC:
+/* 81411DFC 000E231C  7F E3 FB 78 */	mr r3, r31
+/* 81411E00 000E2320  83 E1 00 0C */	lwz r31, 0xc(r1)
+/* 81411E04 000E2324  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 81411E08 000E2328  7C 08 03 A6 */	mtlr r0
+/* 81411E0C 000E232C  38 21 00 10 */	addi r1, r1, 0x10
+/* 81411E10 000E2330  4E 80 00 20 */	blr
+.endfn __dt__Q49textinput8keyboard6pctype16UIModifierButtonFv
+
+# .text:0x1C3C | 0x81411E14 | size: 0x40
+# textinput::keyboard::pctype::Base::~Base()
+.fn __dt__Q49textinput8keyboard6pctype4BaseFv, global
+/* 81411E14 000E2334  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 81411E18 000E2338  7C 08 02 A6 */	mflr r0
+/* 81411E1C 000E233C  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81411E20 000E2340  90 01 00 14 */	stw r0, 0x14(r1)
+/* 81411E24 000E2344  93 E1 00 0C */	stw r31, 0xc(r1)
+/* 81411E28 000E2348  7C 7F 1B 78 */	mr r31, r3
+/* 81411E2C 000E234C  41 82 00 10 */	beq .L_81411E3C
+/* 81411E30 000E2350  2C 04 00 00 */	cmpwi r4, 0x0
+/* 81411E34 000E2354  40 81 00 08 */	ble .L_81411E3C
+/* 81411E38 000E2358  48 1E 62 AD */	bl __dl__FPv
+.L_81411E3C:
+/* 81411E3C 000E235C  7F E3 FB 78 */	mr r3, r31
+/* 81411E40 000E2360  83 E1 00 0C */	lwz r31, 0xc(r1)
+/* 81411E44 000E2364  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 81411E48 000E2368  7C 08 03 A6 */	mtlr r0
+/* 81411E4C 000E236C  38 21 00 10 */	addi r1, r1, 0x10
+/* 81411E50 000E2370  4E 80 00 20 */	blr
+.endfn __dt__Q49textinput8keyboard6pctype4BaseFv
+
+# .text:0x1C7C | 0x81411E54 | size: 0x40
+# textinput::keyboard::pctype::EventHandler::~EventHandler()
+.fn __dt__Q49textinput8keyboard6pctype12EventHandlerFv, global
+/* 81411E54 000E2374  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 81411E58 000E2378  7C 08 02 A6 */	mflr r0
+/* 81411E5C 000E237C  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81411E60 000E2380  90 01 00 14 */	stw r0, 0x14(r1)
+/* 81411E64 000E2384  93 E1 00 0C */	stw r31, 0xc(r1)
+/* 81411E68 000E2388  7C 7F 1B 78 */	mr r31, r3
+/* 81411E6C 000E238C  41 82 00 10 */	beq .L_81411E7C
+/* 81411E70 000E2390  2C 04 00 00 */	cmpwi r4, 0x0
+/* 81411E74 000E2394  40 81 00 08 */	ble .L_81411E7C
+/* 81411E78 000E2398  48 1E 62 6D */	bl __dl__FPv
+.L_81411E7C:
+/* 81411E7C 000E239C  7F E3 FB 78 */	mr r3, r31
+/* 81411E80 000E23A0  83 E1 00 0C */	lwz r31, 0xc(r1)
+/* 81411E84 000E23A4  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 81411E88 000E23A8  7C 08 03 A6 */	mtlr r0
+/* 81411E8C 000E23AC  38 21 00 10 */	addi r1, r1, 0x10
+/* 81411E90 000E23B0  4E 80 00 20 */	blr
+.endfn __dt__Q49textinput8keyboard6pctype12EventHandlerFv
+
+# .text:0x1CBC | 0x81411E94 | size: 0x278
+# textinput::keyboard::pctype::LayoutByNW4R::create(MEMAllocator*)
+.fn create__Q49textinput8keyboard6pctype12LayoutByNW4RFP12MEMAllocator, global
+/* 81411E94 000E23B4  94 21 FF E0 */	stwu r1, -0x20(r1)
+/* 81411E98 000E23B8  7C 08 02 A6 */	mflr r0
+/* 81411E9C 000E23BC  90 01 00 24 */	stw r0, 0x24(r1)
+/* 81411EA0 000E23C0  39 61 00 20 */	addi r11, r1, 0x20
+/* 81411EA4 000E23C4  48 1E 76 19 */	bl _savegpr_26
+/* 81411EA8 000E23C8  3F C0 81 66 */	lis r30, lbl_81658D90@ha
+/* 81411EAC 000E23CC  7C 9A 23 78 */	mr r26, r4
+/* 81411EB0 000E23D0  90 83 00 38 */	stw r4, 0x38(r3)
+/* 81411EB4 000E23D4  7C 7F 1B 78 */	mr r31, r3
+/* 81411EB8 000E23D8  7F 43 D3 78 */	mr r3, r26
+/* 81411EBC 000E23DC  3B DE 8D 90 */	addi r30, r30, lbl_81658D90@l
+/* 81411EC0 000E23E0  38 80 00 10 */	li r4, 0x10
+/* 81411EC4 000E23E4  48 14 97 A5 */	bl MEMAllocFromAllocator
+/* 81411EC8 000E23E8  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81411ECC 000E23EC  41 82 00 1C */	beq .L_81411EE8
+/* 81411ED0 000E23F0  38 00 00 00 */	li r0, 0x0
+/* 81411ED4 000E23F4  3C 80 81 66 */	lis r4, __vt__Q49textinput8keyboard6pctype12EventHandler@ha
+/* 81411ED8 000E23F8  90 03 00 04 */	stw r0, 0x4(r3)
+/* 81411EDC 000E23FC  38 84 BD E0 */	addi r4, r4, __vt__Q49textinput8keyboard6pctype12EventHandler@l
+/* 81411EE0 000E2400  90 83 00 00 */	stw r4, 0x0(r3)
+/* 81411EE4 000E2404  93 E3 00 0C */	stw r31, 0xc(r3)
+.L_81411EE8:
+/* 81411EE8 000E2408  90 7F 00 F0 */	stw r3, 0xf0(r31)
+/* 81411EEC 000E240C  7C 65 1B 78 */	mr r5, r3
+/* 81411EF0 000E2410  7F 44 D3 78 */	mr r4, r26
+/* 81411EF4 000E2414  38 7F 00 44 */	addi r3, r31, 0x44
+/* 81411EF8 000E2418  48 02 43 1D */	bl createWithEventHandler__Q39textinput11nw4rmanager6LayoutFP12MEMAllocatorPQ39textinput11nw4rmanager14TiEventHandler
+/* 81411EFC 000E241C  80 7F 00 54 */	lwz r3, 0x54(r31)
+/* 81411F00 000E2420  38 80 00 00 */	li r4, 0x0
+/* 81411F04 000E2424  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81411F08 000E2428  81 8C 00 38 */	lwz r12, 0x38(r12)
+/* 81411F0C 000E242C  7D 89 03 A6 */	mtctr r12
+/* 81411F10 000E2430  4E 80 04 21 */	bctrl
+/* 81411F14 000E2434  80 7F 00 54 */	lwz r3, 0x54(r31)
+/* 81411F18 000E2438  38 80 00 01 */	li r4, 0x1
+/* 81411F1C 000E243C  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81411F20 000E2440  81 8C 00 58 */	lwz r12, 0x58(r12)
+/* 81411F24 000E2444  7D 89 03 A6 */	mtctr r12
+/* 81411F28 000E2448  4E 80 04 21 */	bctrl
+/* 81411F2C 000E244C  7F E3 FB 78 */	mr r3, r31
+/* 81411F30 000E2450  7F 44 D3 78 */	mr r4, r26
+/* 81411F34 000E2454  48 00 01 D9 */	bl createAnmPane___Q49textinput8keyboard6pctype12LayoutByNW4RFP12MEMAllocator
+/* 81411F38 000E2458  2C 1F 00 00 */	cmpwi r31, 0x0
+/* 81411F3C 000E245C  7F FA FB 78 */	mr r26, r31
+/* 81411F40 000E2460  3B 9E 28 CC */	addi r28, r30, 0x28cc
+/* 81411F44 000E2464  3B BE 28 D8 */	addi r29, r30, 0x28d8
+/* 81411F48 000E2468  41 82 00 08 */	beq .L_81411F50
+/* 81411F4C 000E246C  3B 5F 00 44 */	addi r26, r31, 0x44
+.L_81411F50:
+/* 81411F50 000E2470  81 9A 00 00 */	lwz r12, 0x0(r26)
+/* 81411F54 000E2474  7F 43 D3 78 */	mr r3, r26
+/* 81411F58 000E2478  81 8C 00 6C */	lwz r12, 0x6c(r12)
+/* 81411F5C 000E247C  7D 89 03 A6 */	mtctr r12
+/* 81411F60 000E2480  4E 80 04 21 */	bctrl
+/* 81411F64 000E2484  7C 7B 1B 78 */	mr r27, r3
+/* 81411F68 000E2488  7F A4 EB 78 */	mr r4, r29
+/* 81411F6C 000E248C  48 03 4E 5D */	bl searchPaneComponent__Q39textinput3gui11PaneManagerFPCc
+/* 81411F70 000E2490  90 7F 01 14 */	stw r3, 0x114(r31)
+/* 81411F74 000E2494  7F 63 DB 78 */	mr r3, r27
+/* 81411F78 000E2498  7F 84 E3 78 */	mr r4, r28
+/* 81411F7C 000E249C  48 03 4E 4D */	bl searchPaneComponent__Q39textinput3gui11PaneManagerFPCc
+/* 81411F80 000E24A0  90 7F 01 18 */	stw r3, 0x118(r31)
+/* 81411F84 000E24A4  7F 43 D3 78 */	mr r3, r26
+/* 81411F88 000E24A8  7F A4 EB 78 */	mr r4, r29
+/* 81411F8C 000E24AC  81 9A 00 00 */	lwz r12, 0x0(r26)
+/* 81411F90 000E24B0  81 8C 00 60 */	lwz r12, 0x60(r12)
+/* 81411F94 000E24B4  7D 89 03 A6 */	mtctr r12
+/* 81411F98 000E24B8  4E 80 04 21 */	bctrl
+/* 81411F9C 000E24BC  90 7F 01 1C */	stw r3, 0x11c(r31)
+/* 81411FA0 000E24C0  2C 1F 00 00 */	cmpwi r31, 0x0
+/* 81411FA4 000E24C4  80 7F 01 18 */	lwz r3, 0x118(r31)
+/* 81411FA8 000E24C8  38 1F 01 00 */	addi r0, r31, 0x100
+/* 81411FAC 000E24CC  7F FA FB 78 */	mr r26, r31
+/* 81411FB0 000E24D0  3B 9E 28 E4 */	addi r28, r30, 0x28e4
+/* 81411FB4 000E24D4  90 03 00 98 */	stw r0, 0x98(r3)
+/* 81411FB8 000E24D8  3B 7E 28 F0 */	addi r27, r30, 0x28f0
+/* 81411FBC 000E24DC  41 82 00 08 */	beq .L_81411FC4
+/* 81411FC0 000E24E0  3B 5F 00 44 */	addi r26, r31, 0x44
+.L_81411FC4:
+/* 81411FC4 000E24E4  81 9A 00 00 */	lwz r12, 0x0(r26)
+/* 81411FC8 000E24E8  7F 43 D3 78 */	mr r3, r26
+/* 81411FCC 000E24EC  81 8C 00 6C */	lwz r12, 0x6c(r12)
+/* 81411FD0 000E24F0  7D 89 03 A6 */	mtctr r12
+/* 81411FD4 000E24F4  4E 80 04 21 */	bctrl
+/* 81411FD8 000E24F8  7C 7D 1B 78 */	mr r29, r3
+/* 81411FDC 000E24FC  7F 64 DB 78 */	mr r4, r27
+/* 81411FE0 000E2500  48 03 4D E9 */	bl searchPaneComponent__Q39textinput3gui11PaneManagerFPCc
+/* 81411FE4 000E2504  90 7F 01 38 */	stw r3, 0x138(r31)
+/* 81411FE8 000E2508  7F A3 EB 78 */	mr r3, r29
+/* 81411FEC 000E250C  7F 84 E3 78 */	mr r4, r28
+/* 81411FF0 000E2510  48 03 4D D9 */	bl searchPaneComponent__Q39textinput3gui11PaneManagerFPCc
+/* 81411FF4 000E2514  90 7F 01 3C */	stw r3, 0x13c(r31)
+/* 81411FF8 000E2518  7F 43 D3 78 */	mr r3, r26
+/* 81411FFC 000E251C  7F 64 DB 78 */	mr r4, r27
+/* 81412000 000E2520  81 9A 00 00 */	lwz r12, 0x0(r26)
+/* 81412004 000E2524  81 8C 00 60 */	lwz r12, 0x60(r12)
+/* 81412008 000E2528  7D 89 03 A6 */	mtctr r12
+/* 8141200C 000E252C  4E 80 04 21 */	bctrl
+/* 81412010 000E2530  90 7F 01 40 */	stw r3, 0x140(r31)
+/* 81412014 000E2534  2C 1F 00 00 */	cmpwi r31, 0x0
+/* 81412018 000E2538  80 7F 01 3C */	lwz r3, 0x13c(r31)
+/* 8141201C 000E253C  38 1F 01 24 */	addi r0, r31, 0x124
+/* 81412020 000E2540  7F E4 FB 78 */	mr r4, r31
+/* 81412024 000E2544  90 03 00 98 */	stw r0, 0x98(r3)
+/* 81412028 000E2548  41 82 00 08 */	beq .L_81412030
+/* 8141202C 000E254C  38 9F 00 44 */	addi r4, r31, 0x44
+.L_81412030:
+/* 81412030 000E2550  38 7F 01 48 */	addi r3, r31, 0x148
+/* 81412034 000E2554  48 00 49 C9 */	bl Create__Q49textinput8keyboard6pctype11UIModePanelFPQ39textinput11nw4rmanager6Layout
+/* 81412038 000E2558  80 7F 01 18 */	lwz r3, 0x118(r31)
+/* 8141203C 000E255C  38 80 00 01 */	li r4, 0x1
+/* 81412040 000E2560  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81412044 000E2564  81 8C 00 54 */	lwz r12, 0x54(r12)
+/* 81412048 000E2568  7D 89 03 A6 */	mtctr r12
+/* 8141204C 000E256C  4E 80 04 21 */	bctrl
+/* 81412050 000E2570  80 7F 01 3C */	lwz r3, 0x13c(r31)
+/* 81412054 000E2574  38 80 00 01 */	li r4, 0x1
+/* 81412058 000E2578  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 8141205C 000E257C  81 8C 00 54 */	lwz r12, 0x54(r12)
+/* 81412060 000E2580  7D 89 03 A6 */	mtctr r12
+/* 81412064 000E2584  4E 80 04 21 */	bctrl
+/* 81412068 000E2588  7F FA FB 78 */	mr r26, r31
+/* 8141206C 000E258C  3B 60 00 00 */	li r27, 0x0
+.L_81412070:
+/* 81412070 000E2590  80 7A 01 74 */	lwz r3, 0x174(r26)
+/* 81412074 000E2594  38 80 00 01 */	li r4, 0x1
+/* 81412078 000E2598  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 8141207C 000E259C  81 8C 00 54 */	lwz r12, 0x54(r12)
+/* 81412080 000E25A0  7D 89 03 A6 */	mtctr r12
+/* 81412084 000E25A4  4E 80 04 21 */	bctrl
+/* 81412088 000E25A8  3B 7B 00 01 */	addi r27, r27, 0x1
+/* 8141208C 000E25AC  3B 5A 00 04 */	addi r26, r26, 0x4
+/* 81412090 000E25B0  28 1B 00 05 */	cmplwi r27, 0x5
+/* 81412094 000E25B4  41 80 FF DC */	blt .L_81412070
+/* 81412098 000E25B8  81 9F 00 00 */	lwz r12, 0x0(r31)
+/* 8141209C 000E25BC  7F E3 FB 78 */	mr r3, r31
+/* 814120A0 000E25C0  81 8C 00 10 */	lwz r12, 0x10(r12)
+/* 814120A4 000E25C4  7D 89 03 A6 */	mtctr r12
+/* 814120A8 000E25C8  4E 80 04 21 */	bctrl
+/* 814120AC 000E25CC  80 9F 00 20 */	lwz r4, 0x20(r31)
+/* 814120B0 000E25D0  54 80 00 37 */	clrrwi. r0, r4, 4
+/* 814120B4 000E25D4  41 82 00 28 */	beq .L_814120DC
+/* 814120B8 000E25D8  80 7F 00 34 */	lwz r3, 0x34(r31)
+/* 814120BC 000E25DC  54 80 07 3E */	clrlwi r0, r4, 28
+/* 814120C0 000E25E0  90 1F 00 20 */	stw r0, 0x20(r31)
+/* 814120C4 000E25E4  2C 03 00 00 */	cmpwi r3, 0x0
+/* 814120C8 000E25E8  41 82 00 14 */	beq .L_814120DC
+/* 814120CC 000E25EC  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 814120D0 000E25F0  81 8C 00 70 */	lwz r12, 0x70(r12)
+/* 814120D4 000E25F4  7D 89 03 A6 */	mtctr r12
+/* 814120D8 000E25F8  4E 80 04 21 */	bctrl
+.L_814120DC:
+/* 814120DC 000E25FC  81 9F 00 00 */	lwz r12, 0x0(r31)
+/* 814120E0 000E2600  7F E3 FB 78 */	mr r3, r31
+/* 814120E4 000E2604  38 80 00 00 */	li r4, 0x0
+/* 814120E8 000E2608  81 8C 00 74 */	lwz r12, 0x74(r12)
+/* 814120EC 000E260C  7D 89 03 A6 */	mtctr r12
+/* 814120F0 000E2610  4E 80 04 21 */	bctrl
+/* 814120F4 000E2614  39 61 00 20 */	addi r11, r1, 0x20
+/* 814120F8 000E2618  48 1E 74 11 */	bl _restgpr_26
+/* 814120FC 000E261C  80 01 00 24 */	lwz r0, 0x24(r1)
+/* 81412100 000E2620  7C 08 03 A6 */	mtlr r0
+/* 81412104 000E2624  38 21 00 20 */	addi r1, r1, 0x20
+/* 81412108 000E2628  4E 80 00 20 */	blr
+.endfn create__Q49textinput8keyboard6pctype12LayoutByNW4RFP12MEMAllocator
+
+# .text:0x1F34 | 0x8141210C | size: 0x300
+# textinput::keyboard::pctype::LayoutByNW4R::createAnmPane_(MEMAllocator*)
+.fn createAnmPane___Q49textinput8keyboard6pctype12LayoutByNW4RFP12MEMAllocator, global
+/* 8141210C 000E262C  94 21 FF B0 */	stwu r1, -0x50(r1)
+/* 81412110 000E2630  7C 08 02 A6 */	mflr r0
+/* 81412114 000E2634  90 01 00 54 */	stw r0, 0x54(r1)
+/* 81412118 000E2638  39 61 00 50 */	addi r11, r1, 0x50
+/* 8141211C 000E263C  48 1E 73 71 */	bl _savegpr_14
+/* 81412120 000E2640  3F 20 81 66 */	lis r25, __vt__Q39textinput11nw4rmanager7AnmPane@ha
+/* 81412124 000E2644  3F 60 81 66 */	lis r27, __vt__Q49textinput8keyboard6pctype19NormalButtonAnmPane@ha
+/* 81412128 000E2648  3F 80 81 66 */	lis r28, __vt__Q49textinput8keyboard6pctype16ShiftCapsAnmPane@ha
+/* 8141212C 000E264C  3F 00 81 66 */	lis r24, csPaneToAnimation__Q39textinput8keyboard6pctype@ha
+/* 81412130 000E2650  3F A0 81 66 */	lis r29, __vt__Q49textinput8keyboard6pctype19ToggleButtonAnmPane@ha
+/* 81412134 000E2654  3F C0 81 66 */	lis r30, __vt__Q49textinput8keyboard6pctype18OnOffButtonAnmPane@ha
+/* 81412138 000E2658  7C 6F 1B 78 */	mr r15, r3
+/* 8141213C 000E265C  7C 90 23 78 */	mr r16, r4
+/* 81412140 000E2660  3B 39 F8 C8 */	addi r25, r25, __vt__Q39textinput11nw4rmanager7AnmPane@l
+/* 81412144 000E2664  3B 7B BB D8 */	addi r27, r27, __vt__Q49textinput8keyboard6pctype19NormalButtonAnmPane@l
+/* 81412148 000E2668  3B 9C BB AC */	addi r28, r28, __vt__Q49textinput8keyboard6pctype16ShiftCapsAnmPane@l
+/* 8141214C 000E266C  3B 18 95 A0 */	addi r24, r24, csPaneToAnimation__Q39textinput8keyboard6pctype@l
+/* 81412150 000E2670  3B BD BB 80 */	addi r29, r29, __vt__Q49textinput8keyboard6pctype19ToggleButtonAnmPane@l
+/* 81412154 000E2674  3B DE BB 54 */	addi r30, r30, __vt__Q49textinput8keyboard6pctype18OnOffButtonAnmPane@l
+/* 81412158 000E2678  3A A0 00 00 */	li r21, 0x0
+/* 8141215C 000E267C  3B 40 00 00 */	li r26, 0x0
+/* 81412160 000E2680  39 C0 00 01 */	li r14, 0x1
+.L_81412164:
+/* 81412164 000E2684  56 A0 32 B2 */	clrlslwi r0, r21, 16, 6
+/* 81412168 000E2688  3A 60 00 00 */	li r19, 0x0
+/* 8141216C 000E268C  7E 98 02 14 */	add r20, r24, r0
+/* 81412170 000E2690  7C 18 00 2E */	lwzx r0, r24, r0
+/* 81412174 000E2694  2C 00 00 02 */	cmpwi r0, 0x2
+/* 81412178 000E2698  41 82 00 E0 */	beq .L_81412258
+/* 8141217C 000E269C  40 80 00 14 */	bge .L_81412190
+/* 81412180 000E26A0  2C 00 00 00 */	cmpwi r0, 0x0
+/* 81412184 000E26A4  41 82 00 18 */	beq .L_8141219C
+/* 81412188 000E26A8  40 80 00 70 */	bge .L_814121F8
+/* 8141218C 000E26AC  48 00 01 88 */	b .L_81412314
+.L_81412190:
+/* 81412190 000E26B0  2C 00 00 04 */	cmpwi r0, 0x4
+/* 81412194 000E26B4  40 80 01 80 */	bge .L_81412314
+/* 81412198 000E26B8  48 00 01 20 */	b .L_814122B8
+.L_8141219C:
+/* 8141219C 000E26BC  7E 03 83 78 */	mr r3, r16
+/* 814121A0 000E26C0  38 80 00 34 */	li r4, 0x34
+/* 814121A4 000E26C4  48 14 94 C5 */	bl MEMAllocFromAllocator
+/* 814121A8 000E26C8  2C 03 00 00 */	cmpwi r3, 0x0
+/* 814121AC 000E26CC  7C 73 1B 78 */	mr r19, r3
+/* 814121B0 000E26D0  41 82 01 64 */	beq .L_81412314
+/* 814121B4 000E26D4  81 8F 00 44 */	lwz r12, 0x44(r15)
+/* 814121B8 000E26D8  38 6F 00 44 */	addi r3, r15, 0x44
+/* 814121BC 000E26DC  80 94 00 04 */	lwz r4, 0x4(r20)
+/* 814121C0 000E26E0  81 8C 00 2C */	lwz r12, 0x2c(r12)
+/* 814121C4 000E26E4  7D 89 03 A6 */	mtctr r12
+/* 814121C8 000E26E8  4E 80 04 21 */	bctrl
+/* 814121CC 000E26EC  93 33 00 00 */	stw r25, 0x0(r19)
+/* 814121D0 000E26F0  38 80 00 10 */	li r4, 0x10
+/* 814121D4 000E26F4  90 73 00 04 */	stw r3, 0x4(r19)
+/* 814121D8 000E26F8  38 73 00 08 */	addi r3, r19, 0x8
+/* 814121DC 000E26FC  93 53 00 14 */	stw r26, 0x14(r19)
+/* 814121E0 000E2700  93 53 00 18 */	stw r26, 0x18(r19)
+/* 814121E4 000E2704  48 0F FE 79 */	bl List_Init__Q24nw4r2utFPQ34nw4r2ut4ListUs
+/* 814121E8 000E2708  93 53 00 2C */	stw r26, 0x2c(r19)
+/* 814121EC 000E270C  93 73 00 00 */	stw r27, 0x0(r19)
+/* 814121F0 000E2710  93 53 00 30 */	stw r26, 0x30(r19)
+/* 814121F4 000E2714  48 00 01 20 */	b .L_81412314
+.L_814121F8:
+/* 814121F8 000E2718  7E 03 83 78 */	mr r3, r16
+/* 814121FC 000E271C  38 80 00 38 */	li r4, 0x38
+/* 81412200 000E2720  48 14 94 69 */	bl MEMAllocFromAllocator
+/* 81412204 000E2724  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81412208 000E2728  7C 73 1B 78 */	mr r19, r3
+/* 8141220C 000E272C  41 82 01 08 */	beq .L_81412314
+/* 81412210 000E2730  81 8F 00 44 */	lwz r12, 0x44(r15)
+/* 81412214 000E2734  38 6F 00 44 */	addi r3, r15, 0x44
+/* 81412218 000E2738  80 94 00 04 */	lwz r4, 0x4(r20)
+/* 8141221C 000E273C  81 8C 00 2C */	lwz r12, 0x2c(r12)
+/* 81412220 000E2740  7D 89 03 A6 */	mtctr r12
+/* 81412224 000E2744  4E 80 04 21 */	bctrl
+/* 81412228 000E2748  93 33 00 00 */	stw r25, 0x0(r19)
+/* 8141222C 000E274C  38 80 00 10 */	li r4, 0x10
+/* 81412230 000E2750  90 73 00 04 */	stw r3, 0x4(r19)
+/* 81412234 000E2754  38 73 00 08 */	addi r3, r19, 0x8
+/* 81412238 000E2758  93 53 00 14 */	stw r26, 0x14(r19)
+/* 8141223C 000E275C  93 53 00 18 */	stw r26, 0x18(r19)
+/* 81412240 000E2760  48 0F FE 1D */	bl List_Init__Q24nw4r2utFPQ34nw4r2ut4ListUs
+/* 81412244 000E2764  93 53 00 2C */	stw r26, 0x2c(r19)
+/* 81412248 000E2768  93 93 00 00 */	stw r28, 0x0(r19)
+/* 8141224C 000E276C  9B 53 00 34 */	stb r26, 0x34(r19)
+/* 81412250 000E2770  91 D3 00 30 */	stw r14, 0x30(r19)
+/* 81412254 000E2774  48 00 00 C0 */	b .L_81412314
+.L_81412258:
+/* 81412258 000E2778  7E 03 83 78 */	mr r3, r16
+/* 8141225C 000E277C  38 80 00 34 */	li r4, 0x34
+/* 81412260 000E2780  48 14 94 09 */	bl MEMAllocFromAllocator
+/* 81412264 000E2784  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81412268 000E2788  7C 73 1B 78 */	mr r19, r3
+/* 8141226C 000E278C  41 82 00 A8 */	beq .L_81412314
+/* 81412270 000E2790  81 8F 00 44 */	lwz r12, 0x44(r15)
+/* 81412274 000E2794  38 6F 00 44 */	addi r3, r15, 0x44
+/* 81412278 000E2798  80 94 00 04 */	lwz r4, 0x4(r20)
+/* 8141227C 000E279C  81 8C 00 2C */	lwz r12, 0x2c(r12)
+/* 81412280 000E27A0  7D 89 03 A6 */	mtctr r12
+/* 81412284 000E27A4  4E 80 04 21 */	bctrl
+/* 81412288 000E27A8  93 33 00 00 */	stw r25, 0x0(r19)
+/* 8141228C 000E27AC  38 80 00 10 */	li r4, 0x10
+/* 81412290 000E27B0  90 73 00 04 */	stw r3, 0x4(r19)
+/* 81412294 000E27B4  38 73 00 08 */	addi r3, r19, 0x8
+/* 81412298 000E27B8  93 53 00 14 */	stw r26, 0x14(r19)
+/* 8141229C 000E27BC  93 53 00 18 */	stw r26, 0x18(r19)
+/* 814122A0 000E27C0  48 0F FD BD */	bl List_Init__Q24nw4r2utFPQ34nw4r2ut4ListUs
+/* 814122A4 000E27C4  93 53 00 2C */	stw r26, 0x2c(r19)
+/* 814122A8 000E27C8  38 00 00 02 */	li r0, 0x2
+/* 814122AC 000E27CC  93 B3 00 00 */	stw r29, 0x0(r19)
+/* 814122B0 000E27D0  90 13 00 30 */	stw r0, 0x30(r19)
+/* 814122B4 000E27D4  48 00 00 60 */	b .L_81412314
+.L_814122B8:
+/* 814122B8 000E27D8  7E 03 83 78 */	mr r3, r16
+/* 814122BC 000E27DC  38 80 00 34 */	li r4, 0x34
+/* 814122C0 000E27E0  48 14 93 A9 */	bl MEMAllocFromAllocator
+/* 814122C4 000E27E4  2C 03 00 00 */	cmpwi r3, 0x0
+/* 814122C8 000E27E8  7C 73 1B 78 */	mr r19, r3
+/* 814122CC 000E27EC  41 82 00 48 */	beq .L_81412314
+/* 814122D0 000E27F0  81 8F 00 44 */	lwz r12, 0x44(r15)
+/* 814122D4 000E27F4  38 6F 00 44 */	addi r3, r15, 0x44
+/* 814122D8 000E27F8  80 94 00 04 */	lwz r4, 0x4(r20)
+/* 814122DC 000E27FC  81 8C 00 2C */	lwz r12, 0x2c(r12)
+/* 814122E0 000E2800  7D 89 03 A6 */	mtctr r12
+/* 814122E4 000E2804  4E 80 04 21 */	bctrl
+/* 814122E8 000E2808  93 33 00 00 */	stw r25, 0x0(r19)
+/* 814122EC 000E280C  38 80 00 10 */	li r4, 0x10
+/* 814122F0 000E2810  90 73 00 04 */	stw r3, 0x4(r19)
+/* 814122F4 000E2814  38 73 00 08 */	addi r3, r19, 0x8
+/* 814122F8 000E2818  93 53 00 14 */	stw r26, 0x14(r19)
+/* 814122FC 000E281C  93 53 00 18 */	stw r26, 0x18(r19)
+/* 81412300 000E2820  48 0F FD 5D */	bl List_Init__Q24nw4r2utFPQ34nw4r2ut4ListUs
+/* 81412304 000E2824  93 53 00 2C */	stw r26, 0x2c(r19)
+/* 81412308 000E2828  38 00 00 03 */	li r0, 0x3
+/* 8141230C 000E282C  93 D3 00 00 */	stw r30, 0x0(r19)
+/* 81412310 000E2830  90 13 00 30 */	stw r0, 0x30(r19)
+.L_81412314:
+/* 81412314 000E2834  7E 64 9B 78 */	mr r4, r19
+/* 81412318 000E2838  38 6F 00 B0 */	addi r3, r15, 0xb0
+/* 8141231C 000E283C  48 0F FD 59 */	bl List_Append__Q24nw4r2utFPQ34nw4r2ut4ListPv
+/* 81412320 000E2840  82 D4 00 0C */	lwz r22, 0xc(r20)
+/* 81412324 000E2844  3A 40 00 00 */	li r18, 0x0
+/* 81412328 000E2848  83 F4 00 08 */	lwz r31, 0x8(r20)
+/* 8141232C 000E284C  48 00 00 B0 */	b .L_814123DC
+.L_81412330:
+/* 81412330 000E2850  80 6F 00 50 */	lwz r3, 0x50(r15)
+/* 81412334 000E2854  56 40 13 BA */	clrlslwi r0, r18, 16, 2
+/* 81412338 000E2858  7E F4 02 14 */	add r23, r20, r0
+/* 8141233C 000E285C  38 80 00 00 */	li r4, 0x0
+/* 81412340 000E2860  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81412344 000E2864  38 C0 00 00 */	li r6, 0x0
+/* 81412348 000E2868  80 B7 00 10 */	lwz r5, 0x10(r23)
+/* 8141234C 000E286C  81 8C 00 0C */	lwz r12, 0xc(r12)
+/* 81412350 000E2870  38 A5 00 04 */	addi r5, r5, 0x4
+/* 81412354 000E2874  7D 89 03 A6 */	mtctr r12
+/* 81412358 000E2878  4E 80 04 21 */	bctrl
+/* 8141235C 000E287C  81 8F 00 44 */	lwz r12, 0x44(r15)
+/* 81412360 000E2880  7C 71 1B 78 */	mr r17, r3
+/* 81412364 000E2884  38 6F 00 44 */	addi r3, r15, 0x44
+/* 81412368 000E2888  81 8C 00 28 */	lwz r12, 0x28(r12)
+/* 8141236C 000E288C  7D 89 03 A6 */	mtctr r12
+/* 81412370 000E2890  4E 80 04 21 */	bctrl
+/* 81412374 000E2894  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81412378 000E2898  7E 24 8B 78 */	mr r4, r17
+/* 8141237C 000E289C  80 AF 00 50 */	lwz r5, 0x50(r15)
+/* 81412380 000E28A0  81 8C 00 10 */	lwz r12, 0x10(r12)
+/* 81412384 000E28A4  7D 89 03 A6 */	mtctr r12
+/* 81412388 000E28A8  4E 80 04 21 */	bctrl
+/* 8141238C 000E28AC  2C 16 00 00 */	cmpwi r22, 0x0
+/* 81412390 000E28B0  7C 66 1B 78 */	mr r6, r3
+/* 81412394 000E28B4  40 82 00 24 */	bne .L_814123B8
+/* 81412398 000E28B8  80 B7 00 10 */	lwz r5, 0x10(r23)
+/* 8141239C 000E28BC  7E 63 9B 78 */	mr r3, r19
+/* 814123A0 000E28C0  7E 04 83 78 */	mr r4, r16
+/* 814123A4 000E28C4  38 E0 00 00 */	li r7, 0x0
+/* 814123A8 000E28C8  80 A5 00 00 */	lwz r5, 0x0(r5)
+/* 814123AC 000E28CC  39 00 00 01 */	li r8, 0x1
+/* 814123B0 000E28D0  48 02 4B B1 */	bl addAnimation__Q39textinput11nw4rmanager7AnmPaneFP12MEMAllocatorUlPQ29textinput17AnimTransformPanebb
+/* 814123B4 000E28D4  48 00 00 24 */	b .L_814123D8
+.L_814123B8:
+/* 814123B8 000E28D8  80 B7 00 10 */	lwz r5, 0x10(r23)
+/* 814123BC 000E28DC  7E 63 9B 78 */	mr r3, r19
+/* 814123C0 000E28E0  7E 04 83 78 */	mr r4, r16
+/* 814123C4 000E28E4  7E C7 B3 78 */	mr r7, r22
+/* 814123C8 000E28E8  80 A5 00 00 */	lwz r5, 0x0(r5)
+/* 814123CC 000E28EC  39 00 00 00 */	li r8, 0x0
+/* 814123D0 000E28F0  39 20 00 01 */	li r9, 0x1
+/* 814123D4 000E28F4  48 02 4C 41 */	bl forceAddAnimation__Q39textinput11nw4rmanager7AnmPaneFP12MEMAllocatorUlPQ29textinput17AnimTransformPanePCcbb
+.L_814123D8:
+/* 814123D8 000E28F8  3A 52 00 01 */	addi r18, r18, 0x1
+.L_814123DC:
+/* 814123DC 000E28FC  56 40 04 3E */	clrlwi r0, r18, 16
+/* 814123E0 000E2900  7C 00 F8 40 */	cmplw r0, r31
+/* 814123E4 000E2904  41 80 FF 4C */	blt .L_81412330
+/* 814123E8 000E2908  3A B5 00 01 */	addi r21, r21, 0x1
+/* 814123EC 000E290C  28 15 00 81 */	cmplwi r21, 0x81
+/* 814123F0 000E2910  41 80 FD 74 */	blt .L_81412164
+/* 814123F4 000E2914  39 61 00 50 */	addi r11, r1, 0x50
+/* 814123F8 000E2918  48 1E 70 E1 */	bl _restgpr_14
+/* 814123FC 000E291C  80 01 00 54 */	lwz r0, 0x54(r1)
+/* 81412400 000E2920  7C 08 03 A6 */	mtlr r0
+/* 81412404 000E2924  38 21 00 50 */	addi r1, r1, 0x50
+/* 81412408 000E2928  4E 80 00 20 */	blr
+.endfn createAnmPane___Q49textinput8keyboard6pctype12LayoutByNW4RFP12MEMAllocator
+
+# .text:0x2234 | 0x8141240C | size: 0x58
+# textinput::keyboard::pctype::AnmPane::~AnmPane()
+.fn __dt__Q49textinput8keyboard6pctype7AnmPaneFv, global
+/* 8141240C 000E292C  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 81412410 000E2930  7C 08 02 A6 */	mflr r0
+/* 81412414 000E2934  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81412418 000E2938  90 01 00 14 */	stw r0, 0x14(r1)
+/* 8141241C 000E293C  93 E1 00 0C */	stw r31, 0xc(r1)
+/* 81412420 000E2940  7C 9F 23 78 */	mr r31, r4
+/* 81412424 000E2944  93 C1 00 08 */	stw r30, 0x8(r1)
+/* 81412428 000E2948  7C 7E 1B 78 */	mr r30, r3
+/* 8141242C 000E294C  41 82 00 1C */	beq .L_81412448
+/* 81412430 000E2950  38 80 00 00 */	li r4, 0x0
+/* 81412434 000E2954  48 02 4A ED */	bl __dt__Q39textinput11nw4rmanager7AnmPaneFv
+/* 81412438 000E2958  2C 1F 00 00 */	cmpwi r31, 0x0
+/* 8141243C 000E295C  40 81 00 0C */	ble .L_81412448
+/* 81412440 000E2960  7F C3 F3 78 */	mr r3, r30
+/* 81412444 000E2964  48 1E 5C A1 */	bl __dl__FPv
+.L_81412448:
+/* 81412448 000E2968  7F C3 F3 78 */	mr r3, r30
+/* 8141244C 000E296C  83 E1 00 0C */	lwz r31, 0xc(r1)
+/* 81412450 000E2970  83 C1 00 08 */	lwz r30, 0x8(r1)
+/* 81412454 000E2974  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 81412458 000E2978  7C 08 03 A6 */	mtlr r0
+/* 8141245C 000E297C  38 21 00 10 */	addi r1, r1, 0x10
+/* 81412460 000E2980  4E 80 00 20 */	blr
+.endfn __dt__Q49textinput8keyboard6pctype7AnmPaneFv
+
+# .text:0x228C | 0x81412464 | size: 0x8
+# textinput::nw4rmanager::Layout::getLayout()
+.fn getLayout__Q39textinput11nw4rmanager6LayoutFv, global
+/* 81412464 000E2984  80 63 00 04 */	lwz r3, 0x4(r3)
+/* 81412468 000E2988  4E 80 00 20 */	blr
+.endfn getLayout__Q39textinput11nw4rmanager6LayoutFv
+
+# .text:0x2294 | 0x8141246C | size: 0x580
+# textinput::keyboard::pctype::LayoutByNW4R::init()
+.fn init__Q49textinput8keyboard6pctype12LayoutByNW4RFv, global
+/* 8141246C 000E298C  94 21 FF A0 */	stwu r1, -0x60(r1)
+/* 81412470 000E2990  7C 08 02 A6 */	mflr r0
+/* 81412474 000E2994  90 01 00 64 */	stw r0, 0x64(r1)
+/* 81412478 000E2998  93 E1 00 5C */	stw r31, 0x5c(r1)
+/* 8141247C 000E299C  3F E0 81 66 */	lis r31, lbl_81658D90@ha
+/* 81412480 000E29A0  3B FF 8D 90 */	addi r31, r31, lbl_81658D90@l
+/* 81412484 000E29A4  93 C1 00 58 */	stw r30, 0x58(r1)
+/* 81412488 000E29A8  7C 7E 1B 78 */	mr r30, r3
+/* 8141248C 000E29AC  93 A1 00 54 */	stw r29, 0x54(r1)
+/* 81412490 000E29B0  3B A0 00 00 */	li r29, 0x0
+/* 81412494 000E29B4  93 81 00 50 */	stw r28, 0x50(r1)
+/* 81412498 000E29B8  9B A3 00 14 */	stb r29, 0x14(r3)
+/* 8141249C 000E29BC  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 814124A0 000E29C0  81 8C 00 2C */	lwz r12, 0x2c(r12)
+/* 814124A4 000E29C4  7D 89 03 A6 */	mtctr r12
+/* 814124A8 000E29C8  4E 80 04 21 */	bctrl
+/* 814124AC 000E29CC  1C 03 00 14 */	mulli r0, r3, 0x14
+/* 814124B0 000E29D0  80 9E 00 2C */	lwz r4, 0x2c(r30)
+/* 814124B4 000E29D4  3C 60 81 61 */	lis r3, csLanguageDependencyData__Q39textinput8keyboard6pctype@ha
+/* 814124B8 000E29D8  93 BE 00 24 */	stw r29, 0x24(r30)
+/* 814124BC 000E29DC  2C 04 00 00 */	cmpwi r4, 0x0
+/* 814124C0 000E29E0  38 63 45 00 */	addi r3, r3, csLanguageDependencyData__Q39textinput8keyboard6pctype@l
+/* 814124C4 000E29E4  7C 03 02 14 */	add r0, r3, r0
+/* 814124C8 000E29E8  90 1E 00 1C */	stw r0, 0x1c(r30)
+/* 814124CC 000E29EC  40 82 00 20 */	bne .L_814124EC
+/* 814124D0 000E29F0  80 7E 00 34 */	lwz r3, 0x34(r30)
+/* 814124D4 000E29F4  88 03 00 3C */	lbz r0, 0x3c(r3)
+/* 814124D8 000E29F8  2C 00 00 00 */	cmpwi r0, 0x0
+/* 814124DC 000E29FC  40 82 00 10 */	bne .L_814124EC
+/* 814124E0 000E2A00  38 00 00 01 */	li r0, 0x1
+/* 814124E4 000E2A04  90 1E 00 20 */	stw r0, 0x20(r30)
+/* 814124E8 000E2A08  48 00 00 34 */	b .L_8141251C
+.L_814124EC:
+/* 814124EC 000E2A0C  38 04 FF F8 */	subi r0, r4, 0x8
+/* 814124F0 000E2A10  28 00 00 01 */	cmplwi r0, 0x1
+/* 814124F4 000E2A14  41 81 00 20 */	bgt .L_81412514
+/* 814124F8 000E2A18  80 7E 00 34 */	lwz r3, 0x34(r30)
+/* 814124FC 000E2A1C  88 03 00 3D */	lbz r0, 0x3d(r3)
+/* 81412500 000E2A20  2C 00 00 00 */	cmpwi r0, 0x0
+/* 81412504 000E2A24  41 82 00 10 */	beq .L_81412514
+/* 81412508 000E2A28  38 00 00 01 */	li r0, 0x1
+/* 8141250C 000E2A2C  90 1E 00 20 */	stw r0, 0x20(r30)
+/* 81412510 000E2A30  48 00 00 0C */	b .L_8141251C
+.L_81412514:
+/* 81412514 000E2A34  38 00 00 00 */	li r0, 0x0
+/* 81412518 000E2A38  90 1E 00 20 */	stw r0, 0x20(r30)
+.L_8141251C:
+/* 8141251C 000E2A3C  38 00 00 00 */	li r0, 0x0
+/* 81412520 000E2A40  38 7E 00 20 */	addi r3, r30, 0x20
+/* 81412524 000E2A44  90 1E 00 28 */	stw r0, 0x28(r30)
+/* 81412528 000E2A48  4B FF EC D1 */	bl refresh___Q59textinput8keyboard6pctype4Base8KeyStateFv
+/* 8141252C 000E2A4C  80 1E 00 20 */	lwz r0, 0x20(r30)
+/* 81412530 000E2A50  54 00 07 3E */	clrlwi r0, r0, 28
+/* 81412534 000E2A54  2C 00 00 01 */	cmpwi r0, 0x1
+/* 81412538 000E2A58  41 82 00 28 */	beq .L_81412560
+/* 8141253C 000E2A5C  40 80 00 10 */	bge .L_8141254C
+/* 81412540 000E2A60  2C 00 00 00 */	cmpwi r0, 0x0
+/* 81412544 000E2A64  40 80 00 14 */	bge .L_81412558
+/* 81412548 000E2A68  48 00 00 28 */	b .L_81412570
+.L_8141254C:
+/* 8141254C 000E2A6C  2C 00 00 03 */	cmpwi r0, 0x3
+/* 81412550 000E2A70  40 80 00 20 */	bge .L_81412570
+/* 81412554 000E2A74  48 00 00 14 */	b .L_81412568
+.L_81412558:
+/* 81412558 000E2A78  38 00 00 00 */	li r0, 0x0
+/* 8141255C 000E2A7C  48 00 00 18 */	b .L_81412574
+.L_81412560:
+/* 81412560 000E2A80  38 00 00 01 */	li r0, 0x1
+/* 81412564 000E2A84  48 00 00 10 */	b .L_81412574
+.L_81412568:
+/* 81412568 000E2A88  38 00 00 02 */	li r0, 0x2
+/* 8141256C 000E2A8C  48 00 00 08 */	b .L_81412574
+.L_81412570:
+/* 81412570 000E2A90  38 00 00 00 */	li r0, 0x0
+.L_81412574:
+/* 81412574 000E2A94  90 01 00 08 */	stw r0, 0x8(r1)
+/* 81412578 000E2A98  7F C3 F3 78 */	mr r3, r30
+/* 8141257C 000E2A9C  38 A1 00 08 */	addi r5, r1, 0x8
+/* 81412580 000E2AA0  38 80 00 12 */	li r4, 0x12
+/* 81412584 000E2AA4  81 9E 00 00 */	lwz r12, 0x0(r30)
+/* 81412588 000E2AA8  81 8C 00 18 */	lwz r12, 0x18(r12)
+/* 8141258C 000E2AAC  7D 89 03 A6 */	mtctr r12
+/* 81412590 000E2AB0  4E 80 04 21 */	bctrl
+/* 81412594 000E2AB4  81 9E 00 00 */	lwz r12, 0x0(r30)
+/* 81412598 000E2AB8  7F C3 F3 78 */	mr r3, r30
+/* 8141259C 000E2ABC  38 80 00 01 */	li r4, 0x1
+/* 814125A0 000E2AC0  81 8C 01 2C */	lwz r12, 0x12c(r12)
+/* 814125A4 000E2AC4  7D 89 03 A6 */	mtctr r12
+/* 814125A8 000E2AC8  4E 80 04 21 */	bctrl
+/* 814125AC 000E2ACC  81 9E 00 00 */	lwz r12, 0x0(r30)
+/* 814125B0 000E2AD0  7F C3 F3 78 */	mr r3, r30
+/* 814125B4 000E2AD4  38 80 00 01 */	li r4, 0x1
+/* 814125B8 000E2AD8  81 8C 01 30 */	lwz r12, 0x130(r12)
+/* 814125BC 000E2ADC  7D 89 03 A6 */	mtctr r12
+/* 814125C0 000E2AE0  4E 80 04 21 */	bctrl
+/* 814125C4 000E2AE4  81 9E 00 00 */	lwz r12, 0x0(r30)
+/* 814125C8 000E2AE8  7F C3 F3 78 */	mr r3, r30
+/* 814125CC 000E2AEC  38 80 00 01 */	li r4, 0x1
+/* 814125D0 000E2AF0  81 8C 01 34 */	lwz r12, 0x134(r12)
+/* 814125D4 000E2AF4  7D 89 03 A6 */	mtctr r12
+/* 814125D8 000E2AF8  4E 80 04 21 */	bctrl
+/* 814125DC 000E2AFC  3C 60 81 66 */	lis r3, lbl_8165BB3C@ha
+/* 814125E0 000E2B00  85 03 BB 3C */	lwzu r8, lbl_8165BB3C@l(r3)
+/* 814125E4 000E2B04  3C A0 81 66 */	lis r5, lbl_8165BB48@ha
+/* 814125E8 000E2B08  84 85 BB 48 */	lwzu r4, lbl_8165BB48@l(r5)
+/* 814125EC 000E2B0C  81 3E 00 10 */	lwz r9, 0x10(r30)
+/* 814125F0 000E2B10  80 E3 00 04 */	lwz r7, 0x4(r3)
+/* 814125F4 000E2B14  80 C3 00 08 */	lwz r6, 0x8(r3)
+/* 814125F8 000E2B18  2C 09 00 08 */	cmpwi r9, 0x8
+/* 814125FC 000E2B1C  80 65 00 04 */	lwz r3, 0x4(r5)
+/* 81412600 000E2B20  80 05 00 08 */	lwz r0, 0x8(r5)
+/* 81412604 000E2B24  91 01 00 18 */	stw r8, 0x18(r1)
+/* 81412608 000E2B28  90 E1 00 1C */	stw r7, 0x1c(r1)
+/* 8141260C 000E2B2C  90 C1 00 20 */	stw r6, 0x20(r1)
+/* 81412610 000E2B30  90 81 00 24 */	stw r4, 0x24(r1)
+/* 81412614 000E2B34  90 61 00 28 */	stw r3, 0x28(r1)
+/* 81412618 000E2B38  90 01 00 2C */	stw r0, 0x2c(r1)
+/* 8141261C 000E2B3C  40 82 00 70 */	bne .L_8141268C
+/* 81412620 000E2B40  80 7E 01 9C */	lwz r3, 0x19c(r30)
+/* 81412624 000E2B44  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81412628 000E2B48  81 8C 00 5C */	lwz r12, 0x5c(r12)
+/* 8141262C 000E2B4C  7D 89 03 A6 */	mtctr r12
+/* 81412630 000E2B50  4E 80 04 21 */	bctrl
+/* 81412634 000E2B54  38 BE 01 A8 */	addi r5, r30, 0x1a8
+/* 81412638 000E2B58  38 80 00 00 */	li r4, 0x0
+/* 8141263C 000E2B5C  48 11 57 E1 */	bl SetTexture__Q34nw4r3lyt8MaterialFUcRC9_GXTexObj
+/* 81412640 000E2B60  80 7E 01 A0 */	lwz r3, 0x1a0(r30)
+/* 81412644 000E2B64  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81412648 000E2B68  81 8C 00 5C */	lwz r12, 0x5c(r12)
+/* 8141264C 000E2B6C  7D 89 03 A6 */	mtctr r12
+/* 81412650 000E2B70  4E 80 04 21 */	bctrl
+/* 81412654 000E2B74  38 BE 01 C8 */	addi r5, r30, 0x1c8
+/* 81412658 000E2B78  38 80 00 00 */	li r4, 0x0
+/* 8141265C 000E2B7C  48 11 57 C1 */	bl SetTexture__Q34nw4r3lyt8MaterialFUcRC9_GXTexObj
+/* 81412660 000E2B80  C0 41 00 18 */	lfs f2, 0x18(r1)
+/* 81412664 000E2B84  80 7E 01 A4 */	lwz r3, 0x1a4(r30)
+/* 81412668 000E2B88  C0 21 00 1C */	lfs f1, 0x1c(r1)
+/* 8141266C 000E2B8C  D0 43 00 2C */	stfs f2, 0x2c(r3)
+/* 81412670 000E2B90  C0 01 00 20 */	lfs f0, 0x20(r1)
+/* 81412674 000E2B94  D0 23 00 30 */	stfs f1, 0x30(r3)
+/* 81412678 000E2B98  D0 41 00 30 */	stfs f2, 0x30(r1)
+/* 8141267C 000E2B9C  D0 21 00 34 */	stfs f1, 0x34(r1)
+/* 81412680 000E2BA0  D0 01 00 38 */	stfs f0, 0x38(r1)
+/* 81412684 000E2BA4  D0 03 00 34 */	stfs f0, 0x34(r3)
+/* 81412688 000E2BA8  48 00 00 74 */	b .L_814126FC
+.L_8141268C:
+/* 8141268C 000E2BAC  2C 09 00 09 */	cmpwi r9, 0x9
+/* 81412690 000E2BB0  40 82 00 6C */	bne .L_814126FC
+/* 81412694 000E2BB4  80 7E 01 9C */	lwz r3, 0x19c(r30)
+/* 81412698 000E2BB8  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 8141269C 000E2BBC  81 8C 00 5C */	lwz r12, 0x5c(r12)
+/* 814126A0 000E2BC0  7D 89 03 A6 */	mtctr r12
+/* 814126A4 000E2BC4  4E 80 04 21 */	bctrl
+/* 814126A8 000E2BC8  38 BE 01 E8 */	addi r5, r30, 0x1e8
+/* 814126AC 000E2BCC  38 80 00 00 */	li r4, 0x0
+/* 814126B0 000E2BD0  48 11 57 6D */	bl SetTexture__Q34nw4r3lyt8MaterialFUcRC9_GXTexObj
+/* 814126B4 000E2BD4  80 7E 01 A0 */	lwz r3, 0x1a0(r30)
+/* 814126B8 000E2BD8  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 814126BC 000E2BDC  81 8C 00 5C */	lwz r12, 0x5c(r12)
+/* 814126C0 000E2BE0  7D 89 03 A6 */	mtctr r12
+/* 814126C4 000E2BE4  4E 80 04 21 */	bctrl
+/* 814126C8 000E2BE8  38 BE 02 08 */	addi r5, r30, 0x208
+/* 814126CC 000E2BEC  38 80 00 00 */	li r4, 0x0
+/* 814126D0 000E2BF0  48 11 57 4D */	bl SetTexture__Q34nw4r3lyt8MaterialFUcRC9_GXTexObj
+/* 814126D4 000E2BF4  C0 41 00 24 */	lfs f2, 0x24(r1)
+/* 814126D8 000E2BF8  80 7E 01 A4 */	lwz r3, 0x1a4(r30)
+/* 814126DC 000E2BFC  C0 21 00 28 */	lfs f1, 0x28(r1)
+/* 814126E0 000E2C00  D0 43 00 2C */	stfs f2, 0x2c(r3)
+/* 814126E4 000E2C04  C0 01 00 2C */	lfs f0, 0x2c(r1)
+/* 814126E8 000E2C08  D0 23 00 30 */	stfs f1, 0x30(r3)
+/* 814126EC 000E2C0C  D0 41 00 3C */	stfs f2, 0x3c(r1)
+/* 814126F0 000E2C10  D0 21 00 40 */	stfs f1, 0x40(r1)
+/* 814126F4 000E2C14  D0 01 00 44 */	stfs f0, 0x44(r1)
+/* 814126F8 000E2C18  D0 03 00 34 */	stfs f0, 0x34(r3)
+.L_814126FC:
+/* 814126FC 000E2C1C  81 9E 00 44 */	lwz r12, 0x44(r30)
+/* 81412700 000E2C20  38 7E 00 44 */	addi r3, r30, 0x44
+/* 81412704 000E2C24  38 9F 28 D8 */	addi r4, r31, 0x28d8
+/* 81412708 000E2C28  81 8C 00 60 */	lwz r12, 0x60(r12)
+/* 8141270C 000E2C2C  7D 89 03 A6 */	mtctr r12
+/* 81412710 000E2C30  4E 80 04 21 */	bctrl
+/* 81412714 000E2C34  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81412718 000E2C38  38 80 00 00 */	li r4, 0x0
+/* 8141271C 000E2C3C  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81412720 000E2C40  7D 89 03 A6 */	mtctr r12
+/* 81412724 000E2C44  4E 80 04 21 */	bctrl
+/* 81412728 000E2C48  81 9E 00 44 */	lwz r12, 0x44(r30)
+/* 8141272C 000E2C4C  38 7E 00 44 */	addi r3, r30, 0x44
+/* 81412730 000E2C50  38 9F 28 F0 */	addi r4, r31, 0x28f0
+/* 81412734 000E2C54  81 8C 00 60 */	lwz r12, 0x60(r12)
+/* 81412738 000E2C58  7D 89 03 A6 */	mtctr r12
+/* 8141273C 000E2C5C  4E 80 04 21 */	bctrl
+/* 81412740 000E2C60  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81412744 000E2C64  38 80 00 00 */	li r4, 0x0
+/* 81412748 000E2C68  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 8141274C 000E2C6C  7D 89 03 A6 */	mtctr r12
+/* 81412750 000E2C70  4E 80 04 21 */	bctrl
+/* 81412754 000E2C74  80 7E 00 1C */	lwz r3, 0x1c(r30)
+/* 81412758 000E2C78  3B 80 00 00 */	li r28, 0x0
+/* 8141275C 000E2C7C  83 A3 00 0C */	lwz r29, 0xc(r3)
+/* 81412760 000E2C80  48 00 00 2C */	b .L_8141278C
+.L_81412764:
+/* 81412764 000E2C84  81 9E 00 44 */	lwz r12, 0x44(r30)
+/* 81412768 000E2C88  57 80 13 BA */	clrlslwi r0, r28, 16, 2
+/* 8141276C 000E2C8C  7C 9D 02 14 */	add r4, r29, r0
+/* 81412770 000E2C90  38 7E 00 44 */	addi r3, r30, 0x44
+/* 81412774 000E2C94  81 8C 00 54 */	lwz r12, 0x54(r12)
+/* 81412778 000E2C98  38 A0 00 01 */	li r5, 0x1
+/* 8141277C 000E2C9C  80 84 00 04 */	lwz r4, 0x4(r4)
+/* 81412780 000E2CA0  7D 89 03 A6 */	mtctr r12
+/* 81412784 000E2CA4  4E 80 04 21 */	bctrl
+/* 81412788 000E2CA8  3B 9C 00 01 */	addi r28, r28, 0x1
+.L_8141278C:
+/* 8141278C 000E2CAC  A0 1D 00 00 */	lhz r0, 0x0(r29)
+/* 81412790 000E2CB0  57 83 04 3E */	clrlwi r3, r28, 16
+/* 81412794 000E2CB4  7C 03 00 40 */	cmplw r3, r0
+/* 81412798 000E2CB8  41 80 FF CC */	blt .L_81412764
+/* 8141279C 000E2CBC  3B 80 00 00 */	li r28, 0x0
+/* 814127A0 000E2CC0  48 00 00 2C */	b .L_814127CC
+.L_814127A4:
+/* 814127A4 000E2CC4  81 9E 00 44 */	lwz r12, 0x44(r30)
+/* 814127A8 000E2CC8  57 80 13 BA */	clrlslwi r0, r28, 16, 2
+/* 814127AC 000E2CCC  7C 9D 02 14 */	add r4, r29, r0
+/* 814127B0 000E2CD0  38 7E 00 44 */	addi r3, r30, 0x44
+/* 814127B4 000E2CD4  81 8C 00 54 */	lwz r12, 0x54(r12)
+/* 814127B8 000E2CD8  38 A0 00 00 */	li r5, 0x0
+/* 814127BC 000E2CDC  80 84 00 64 */	lwz r4, 0x64(r4)
+/* 814127C0 000E2CE0  7D 89 03 A6 */	mtctr r12
+/* 814127C4 000E2CE4  4E 80 04 21 */	bctrl
+/* 814127C8 000E2CE8  3B 9C 00 01 */	addi r28, r28, 0x1
+.L_814127CC:
+/* 814127CC 000E2CEC  A0 1D 00 02 */	lhz r0, 0x2(r29)
+/* 814127D0 000E2CF0  57 83 04 3E */	clrlwi r3, r28, 16
+/* 814127D4 000E2CF4  7C 03 00 40 */	cmplw r3, r0
+/* 814127D8 000E2CF8  41 80 FF CC */	blt .L_814127A4
+/* 814127DC 000E2CFC  81 9E 00 00 */	lwz r12, 0x0(r30)
+/* 814127E0 000E2D00  7F C3 F3 78 */	mr r3, r30
+/* 814127E4 000E2D04  81 8C 00 2C */	lwz r12, 0x2c(r12)
+/* 814127E8 000E2D08  7D 89 03 A6 */	mtctr r12
+/* 814127EC 000E2D0C  4E 80 04 21 */	bctrl
+/* 814127F0 000E2D10  2C 03 00 00 */	cmpwi r3, 0x0
+/* 814127F4 000E2D14  40 82 00 48 */	bne .L_8141283C
+/* 814127F8 000E2D18  81 9E 00 00 */	lwz r12, 0x0(r30)
+/* 814127FC 000E2D1C  7F C3 F3 78 */	mr r3, r30
+/* 81412800 000E2D20  81 8C 00 2C */	lwz r12, 0x2c(r12)
+/* 81412804 000E2D24  7D 89 03 A6 */	mtctr r12
+/* 81412808 000E2D28  4E 80 04 21 */	bctrl
+/* 8141280C 000E2D2C  81 9E 00 44 */	lwz r12, 0x44(r30)
+/* 81412810 000E2D30  3C A0 81 66 */	lis r5, cLanguageIndependentString__Q29textinput15langindependent@ha
+/* 81412814 000E2D34  54 60 10 3A */	slwi r0, r3, 2
+/* 81412818 000E2D38  38 7E 00 44 */	addi r3, r30, 0x44
+/* 8141281C 000E2D3C  38 A5 7C 88 */	addi r5, r5, cLanguageIndependentString__Q29textinput15langindependent@l
+/* 81412820 000E2D40  81 8C 00 5C */	lwz r12, 0x5c(r12)
+/* 81412824 000E2D44  7C A5 02 14 */	add r5, r5, r0
+/* 81412828 000E2D48  38 9F 28 FC */	addi r4, r31, 0x28fc
+/* 8141282C 000E2D4C  80 A5 01 18 */	lwz r5, 0x118(r5)
+/* 81412830 000E2D50  7D 89 03 A6 */	mtctr r12
+/* 81412834 000E2D54  4E 80 04 21 */	bctrl
+/* 81412838 000E2D58  48 00 00 44 */	b .L_8141287C
+.L_8141283C:
+/* 8141283C 000E2D5C  81 9E 00 00 */	lwz r12, 0x0(r30)
+/* 81412840 000E2D60  7F C3 F3 78 */	mr r3, r30
+/* 81412844 000E2D64  81 8C 00 2C */	lwz r12, 0x2c(r12)
+/* 81412848 000E2D68  7D 89 03 A6 */	mtctr r12
+/* 8141284C 000E2D6C  4E 80 04 21 */	bctrl
+/* 81412850 000E2D70  81 9E 00 44 */	lwz r12, 0x44(r30)
+/* 81412854 000E2D74  3C A0 81 66 */	lis r5, cLanguageIndependentString__Q29textinput15langindependent@ha
+/* 81412858 000E2D78  54 60 10 3A */	slwi r0, r3, 2
+/* 8141285C 000E2D7C  38 7E 00 44 */	addi r3, r30, 0x44
+/* 81412860 000E2D80  38 A5 7C 88 */	addi r5, r5, cLanguageIndependentString__Q29textinput15langindependent@l
+/* 81412864 000E2D84  81 8C 00 5C */	lwz r12, 0x5c(r12)
+/* 81412868 000E2D88  7C A5 02 14 */	add r5, r5, r0
+/* 8141286C 000E2D8C  38 9F 29 0C */	addi r4, r31, 0x290c
+/* 81412870 000E2D90  80 A5 01 18 */	lwz r5, 0x118(r5)
+/* 81412874 000E2D94  7D 89 03 A6 */	mtctr r12
+/* 81412878 000E2D98  4E 80 04 21 */	bctrl
+.L_8141287C:
+/* 8141287C 000E2D9C  81 9E 00 00 */	lwz r12, 0x0(r30)
+/* 81412880 000E2DA0  7F C3 F3 78 */	mr r3, r30
+/* 81412884 000E2DA4  81 8C 00 2C */	lwz r12, 0x2c(r12)
+/* 81412888 000E2DA8  7D 89 03 A6 */	mtctr r12
+/* 8141288C 000E2DAC  4E 80 04 21 */	bctrl
+/* 81412890 000E2DB0  81 9E 00 44 */	lwz r12, 0x44(r30)
+/* 81412894 000E2DB4  3C A0 81 66 */	lis r5, cLanguageIndependentString__Q29textinput15langindependent@ha
+/* 81412898 000E2DB8  54 60 10 3A */	slwi r0, r3, 2
+/* 8141289C 000E2DBC  38 7E 00 44 */	addi r3, r30, 0x44
+/* 814128A0 000E2DC0  38 A5 7C 88 */	addi r5, r5, cLanguageIndependentString__Q29textinput15langindependent@l
+/* 814128A4 000E2DC4  81 8C 00 5C */	lwz r12, 0x5c(r12)
+/* 814128A8 000E2DC8  7C A5 02 14 */	add r5, r5, r0
+/* 814128AC 000E2DCC  38 9F 29 20 */	addi r4, r31, 0x2920
+/* 814128B0 000E2DD0  80 A5 01 40 */	lwz r5, 0x140(r5)
+/* 814128B4 000E2DD4  7D 89 03 A6 */	mtctr r12
+/* 814128B8 000E2DD8  4E 80 04 21 */	bctrl
+/* 814128BC 000E2DDC  81 9E 00 00 */	lwz r12, 0x0(r30)
+/* 814128C0 000E2DE0  7F C3 F3 78 */	mr r3, r30
+/* 814128C4 000E2DE4  38 80 00 00 */	li r4, 0x0
+/* 814128C8 000E2DE8  81 8C 00 60 */	lwz r12, 0x60(r12)
+/* 814128CC 000E2DEC  7D 89 03 A6 */	mtctr r12
+/* 814128D0 000E2DF0  4E 80 04 21 */	bctrl
+/* 814128D4 000E2DF4  81 9E 00 00 */	lwz r12, 0x0(r30)
+/* 814128D8 000E2DF8  7F C3 F3 78 */	mr r3, r30
+/* 814128DC 000E2DFC  38 80 00 01 */	li r4, 0x1
+/* 814128E0 000E2E00  81 8C 00 64 */	lwz r12, 0x64(r12)
+/* 814128E4 000E2E04  7D 89 03 A6 */	mtctr r12
+/* 814128E8 000E2E08  4E 80 04 21 */	bctrl
+/* 814128EC 000E2E0C  38 00 00 00 */	li r0, 0x0
+/* 814128F0 000E2E10  7F C3 F3 78 */	mr r3, r30
+/* 814128F4 000E2E14  90 01 00 10 */	stw r0, 0x10(r1)
+/* 814128F8 000E2E18  38 A1 00 10 */	addi r5, r1, 0x10
+/* 814128FC 000E2E1C  38 80 00 1F */	li r4, 0x1f
+/* 81412900 000E2E20  90 01 00 14 */	stw r0, 0x14(r1)
+/* 81412904 000E2E24  81 9E 00 00 */	lwz r12, 0x0(r30)
+/* 81412908 000E2E28  81 8C 00 18 */	lwz r12, 0x18(r12)
+/* 8141290C 000E2E2C  7D 89 03 A6 */	mtctr r12
+/* 81412910 000E2E30  4E 80 04 21 */	bctrl
+/* 81412914 000E2E34  81 9E 00 00 */	lwz r12, 0x0(r30)
+/* 81412918 000E2E38  7F C3 F3 78 */	mr r3, r30
+/* 8141291C 000E2E3C  38 81 00 10 */	addi r4, r1, 0x10
+/* 81412920 000E2E40  81 8C 01 4C */	lwz r12, 0x14c(r12)
+/* 81412924 000E2E44  7D 89 03 A6 */	mtctr r12
+/* 81412928 000E2E48  4E 80 04 21 */	bctrl
+/* 8141292C 000E2E4C  80 7E 00 48 */	lwz r3, 0x48(r30)
+/* 81412930 000E2E50  38 80 00 00 */	li r4, 0x0
+/* 81412934 000E2E54  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81412938 000E2E58  81 8C 00 2C */	lwz r12, 0x2c(r12)
+/* 8141293C 000E2E5C  7D 89 03 A6 */	mtctr r12
+/* 81412940 000E2E60  4E 80 04 21 */	bctrl
+/* 81412944 000E2E64  80 7E 00 48 */	lwz r3, 0x48(r30)
+/* 81412948 000E2E68  38 9E 00 5C */	addi r4, r30, 0x5c
+/* 8141294C 000E2E6C  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81412950 000E2E70  81 8C 00 24 */	lwz r12, 0x24(r12)
+/* 81412954 000E2E74  7D 89 03 A6 */	mtctr r12
+/* 81412958 000E2E78  4E 80 04 21 */	bctrl
+/* 8141295C 000E2E7C  81 9E 00 44 */	lwz r12, 0x44(r30)
+/* 81412960 000E2E80  38 7E 00 44 */	addi r3, r30, 0x44
+/* 81412964 000E2E84  38 9F 29 20 */	addi r4, r31, 0x2920
+/* 81412968 000E2E88  38 A0 00 01 */	li r5, 0x1
+/* 8141296C 000E2E8C  81 8C 00 54 */	lwz r12, 0x54(r12)
+/* 81412970 000E2E90  7D 89 03 A6 */	mtctr r12
+/* 81412974 000E2E94  4E 80 04 21 */	bctrl
+/* 81412978 000E2E98  81 9E 00 44 */	lwz r12, 0x44(r30)
+/* 8141297C 000E2E9C  38 7E 00 44 */	addi r3, r30, 0x44
+/* 81412980 000E2EA0  38 9F 29 2C */	addi r4, r31, 0x292c
+/* 81412984 000E2EA4  38 A0 00 01 */	li r5, 0x1
+/* 81412988 000E2EA8  81 8C 00 54 */	lwz r12, 0x54(r12)
+/* 8141298C 000E2EAC  7D 89 03 A6 */	mtctr r12
+/* 81412990 000E2EB0  4E 80 04 21 */	bctrl
+/* 81412994 000E2EB4  81 9E 00 44 */	lwz r12, 0x44(r30)
+/* 81412998 000E2EB8  38 7E 00 44 */	addi r3, r30, 0x44
+/* 8141299C 000E2EBC  38 9F 29 3C */	addi r4, r31, 0x293c
+/* 814129A0 000E2EC0  38 A0 00 00 */	li r5, 0x0
+/* 814129A4 000E2EC4  81 8C 00 54 */	lwz r12, 0x54(r12)
+/* 814129A8 000E2EC8  7D 89 03 A6 */	mtctr r12
+/* 814129AC 000E2ECC  4E 80 04 21 */	bctrl
+/* 814129B0 000E2ED0  81 9E 00 44 */	lwz r12, 0x44(r30)
+/* 814129B4 000E2ED4  38 7E 00 44 */	addi r3, r30, 0x44
+/* 814129B8 000E2ED8  38 9F 29 4C */	addi r4, r31, 0x294c
+/* 814129BC 000E2EDC  38 A0 00 00 */	li r5, 0x0
+/* 814129C0 000E2EE0  81 8C 00 54 */	lwz r12, 0x54(r12)
+/* 814129C4 000E2EE4  7D 89 03 A6 */	mtctr r12
+/* 814129C8 000E2EE8  4E 80 04 21 */	bctrl
+/* 814129CC 000E2EEC  80 01 00 64 */	lwz r0, 0x64(r1)
+/* 814129D0 000E2EF0  83 E1 00 5C */	lwz r31, 0x5c(r1)
+/* 814129D4 000E2EF4  83 C1 00 58 */	lwz r30, 0x58(r1)
+/* 814129D8 000E2EF8  83 A1 00 54 */	lwz r29, 0x54(r1)
+/* 814129DC 000E2EFC  83 81 00 50 */	lwz r28, 0x50(r1)
+/* 814129E0 000E2F00  7C 08 03 A6 */	mtlr r0
+/* 814129E4 000E2F04  38 21 00 60 */	addi r1, r1, 0x60
+/* 814129E8 000E2F08  4E 80 00 20 */	blr
+.endfn init__Q49textinput8keyboard6pctype12LayoutByNW4RFv
+
+# .text:0x2814 | 0x814129EC | size: 0x604
+# textinput::keyboard::pctype::LayoutByNW4R::initLayout()
+.fn initLayout__Q49textinput8keyboard6pctype12LayoutByNW4RFv, global
+/* 814129EC 000E2F0C  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 814129F0 000E2F10  7C 08 02 A6 */	mflr r0
+/* 814129F4 000E2F14  90 01 00 14 */	stw r0, 0x14(r1)
+/* 814129F8 000E2F18  93 E1 00 0C */	stw r31, 0xc(r1)
+/* 814129FC 000E2F1C  3F E0 81 66 */	lis r31, lbl_81658D90@ha
+/* 81412A00 000E2F20  3B FF 8D 90 */	addi r31, r31, lbl_81658D90@l
+/* 81412A04 000E2F24  93 C1 00 08 */	stw r30, 0x8(r1)
+/* 81412A08 000E2F28  7C 7E 1B 78 */	mr r30, r3
+/* 81412A0C 000E2F2C  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81412A10 000E2F30  81 8C 00 2C */	lwz r12, 0x2c(r12)
+/* 81412A14 000E2F34  7D 89 03 A6 */	mtctr r12
+/* 81412A18 000E2F38  4E 80 04 21 */	bctrl
+/* 81412A1C 000E2F3C  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81412A20 000E2F40  40 82 04 8C */	bne .L_81412EAC
+/* 81412A24 000E2F44  81 9E 00 00 */	lwz r12, 0x0(r30)
+/* 81412A28 000E2F48  7F C3 F3 78 */	mr r3, r30
+/* 81412A2C 000E2F4C  81 8C 00 48 */	lwz r12, 0x48(r12)
+/* 81412A30 000E2F50  7D 89 03 A6 */	mtctr r12
+/* 81412A34 000E2F54  4E 80 04 21 */	bctrl
+/* 81412A38 000E2F58  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81412A3C 000E2F5C  41 82 00 60 */	beq .L_81412A9C
+/* 81412A40 000E2F60  81 9E 00 44 */	lwz r12, 0x44(r30)
+/* 81412A44 000E2F64  38 7E 00 44 */	addi r3, r30, 0x44
+/* 81412A48 000E2F68  38 9F 28 AC */	addi r4, r31, 0x28ac
+/* 81412A4C 000E2F6C  81 8C 00 60 */	lwz r12, 0x60(r12)
+/* 81412A50 000E2F70  7D 89 03 A6 */	mtctr r12
+/* 81412A54 000E2F74  4E 80 04 21 */	bctrl
+/* 81412A58 000E2F78  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81412A5C 000E2F7C  38 80 00 05 */	li r4, 0x5
+/* 81412A60 000E2F80  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81412A64 000E2F84  7D 89 03 A6 */	mtctr r12
+/* 81412A68 000E2F88  4E 80 04 21 */	bctrl
+/* 81412A6C 000E2F8C  81 9E 00 44 */	lwz r12, 0x44(r30)
+/* 81412A70 000E2F90  38 7E 00 44 */	addi r3, r30, 0x44
+/* 81412A74 000E2F94  38 9F 28 BC */	addi r4, r31, 0x28bc
+/* 81412A78 000E2F98  81 8C 00 60 */	lwz r12, 0x60(r12)
+/* 81412A7C 000E2F9C  7D 89 03 A6 */	mtctr r12
+/* 81412A80 000E2FA0  4E 80 04 21 */	bctrl
+/* 81412A84 000E2FA4  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81412A88 000E2FA8  38 80 00 00 */	li r4, 0x0
+/* 81412A8C 000E2FAC  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81412A90 000E2FB0  7D 89 03 A6 */	mtctr r12
+/* 81412A94 000E2FB4  4E 80 04 21 */	bctrl
+/* 81412A98 000E2FB8  48 00 00 5C */	b .L_81412AF4
+.L_81412A9C:
+/* 81412A9C 000E2FBC  81 9E 00 44 */	lwz r12, 0x44(r30)
+/* 81412AA0 000E2FC0  38 7E 00 44 */	addi r3, r30, 0x44
+/* 81412AA4 000E2FC4  38 9F 28 AC */	addi r4, r31, 0x28ac
+/* 81412AA8 000E2FC8  81 8C 00 60 */	lwz r12, 0x60(r12)
+/* 81412AAC 000E2FCC  7D 89 03 A6 */	mtctr r12
+/* 81412AB0 000E2FD0  4E 80 04 21 */	bctrl
+/* 81412AB4 000E2FD4  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81412AB8 000E2FD8  38 80 00 00 */	li r4, 0x0
+/* 81412ABC 000E2FDC  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81412AC0 000E2FE0  7D 89 03 A6 */	mtctr r12
+/* 81412AC4 000E2FE4  4E 80 04 21 */	bctrl
+/* 81412AC8 000E2FE8  81 9E 00 44 */	lwz r12, 0x44(r30)
+/* 81412ACC 000E2FEC  38 7E 00 44 */	addi r3, r30, 0x44
+/* 81412AD0 000E2FF0  38 9F 28 BC */	addi r4, r31, 0x28bc
+/* 81412AD4 000E2FF4  81 8C 00 60 */	lwz r12, 0x60(r12)
+/* 81412AD8 000E2FF8  7D 89 03 A6 */	mtctr r12
+/* 81412ADC 000E2FFC  4E 80 04 21 */	bctrl
+/* 81412AE0 000E3000  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81412AE4 000E3004  38 80 00 05 */	li r4, 0x5
+/* 81412AE8 000E3008  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81412AEC 000E300C  7D 89 03 A6 */	mtctr r12
+/* 81412AF0 000E3010  4E 80 04 21 */	bctrl
+.L_81412AF4:
+/* 81412AF4 000E3014  80 1E 00 28 */	lwz r0, 0x28(r30)
+/* 81412AF8 000E3018  54 00 07 3F */	clrlwi. r0, r0, 28
+/* 81412AFC 000E301C  40 82 00 60 */	bne .L_81412B5C
+/* 81412B00 000E3020  81 9E 00 44 */	lwz r12, 0x44(r30)
+/* 81412B04 000E3024  38 7E 00 44 */	addi r3, r30, 0x44
+/* 81412B08 000E3028  38 9F 29 5C */	addi r4, r31, 0x295c
+/* 81412B0C 000E302C  81 8C 00 60 */	lwz r12, 0x60(r12)
+/* 81412B10 000E3030  7D 89 03 A6 */	mtctr r12
+/* 81412B14 000E3034  4E 80 04 21 */	bctrl
+/* 81412B18 000E3038  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81412B1C 000E303C  38 80 00 05 */	li r4, 0x5
+/* 81412B20 000E3040  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81412B24 000E3044  7D 89 03 A6 */	mtctr r12
+/* 81412B28 000E3048  4E 80 04 21 */	bctrl
+/* 81412B2C 000E304C  81 9E 00 44 */	lwz r12, 0x44(r30)
+/* 81412B30 000E3050  38 7E 00 44 */	addi r3, r30, 0x44
+/* 81412B34 000E3054  38 9F 29 68 */	addi r4, r31, 0x2968
+/* 81412B38 000E3058  81 8C 00 60 */	lwz r12, 0x60(r12)
+/* 81412B3C 000E305C  7D 89 03 A6 */	mtctr r12
+/* 81412B40 000E3060  4E 80 04 21 */	bctrl
+/* 81412B44 000E3064  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81412B48 000E3068  38 80 00 00 */	li r4, 0x0
+/* 81412B4C 000E306C  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81412B50 000E3070  7D 89 03 A6 */	mtctr r12
+/* 81412B54 000E3074  4E 80 04 21 */	bctrl
+/* 81412B58 000E3078  48 00 00 5C */	b .L_81412BB4
+.L_81412B5C:
+/* 81412B5C 000E307C  81 9E 00 44 */	lwz r12, 0x44(r30)
+/* 81412B60 000E3080  38 7E 00 44 */	addi r3, r30, 0x44
+/* 81412B64 000E3084  38 9F 29 5C */	addi r4, r31, 0x295c
+/* 81412B68 000E3088  81 8C 00 60 */	lwz r12, 0x60(r12)
+/* 81412B6C 000E308C  7D 89 03 A6 */	mtctr r12
+/* 81412B70 000E3090  4E 80 04 21 */	bctrl
+/* 81412B74 000E3094  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81412B78 000E3098  38 80 00 00 */	li r4, 0x0
+/* 81412B7C 000E309C  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81412B80 000E30A0  7D 89 03 A6 */	mtctr r12
+/* 81412B84 000E30A4  4E 80 04 21 */	bctrl
+/* 81412B88 000E30A8  81 9E 00 44 */	lwz r12, 0x44(r30)
+/* 81412B8C 000E30AC  38 7E 00 44 */	addi r3, r30, 0x44
+/* 81412B90 000E30B0  38 9F 29 68 */	addi r4, r31, 0x2968
+/* 81412B94 000E30B4  81 8C 00 60 */	lwz r12, 0x60(r12)
+/* 81412B98 000E30B8  7D 89 03 A6 */	mtctr r12
+/* 81412B9C 000E30BC  4E 80 04 21 */	bctrl
+/* 81412BA0 000E30C0  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81412BA4 000E30C4  38 80 00 05 */	li r4, 0x5
+/* 81412BA8 000E30C8  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81412BAC 000E30CC  7D 89 03 A6 */	mtctr r12
+/* 81412BB0 000E30D0  4E 80 04 21 */	bctrl
+.L_81412BB4:
+/* 81412BB4 000E30D4  80 1E 00 28 */	lwz r0, 0x28(r30)
+/* 81412BB8 000E30D8  54 00 06 B5 */	rlwinm. r0, r0, 0, 26, 26
+/* 81412BBC 000E30DC  41 82 00 34 */	beq .L_81412BF0
+/* 81412BC0 000E30E0  81 9E 00 44 */	lwz r12, 0x44(r30)
+/* 81412BC4 000E30E4  38 7E 00 44 */	addi r3, r30, 0x44
+/* 81412BC8 000E30E8  38 9F 29 74 */	addi r4, r31, 0x2974
+/* 81412BCC 000E30EC  81 8C 00 60 */	lwz r12, 0x60(r12)
+/* 81412BD0 000E30F0  7D 89 03 A6 */	mtctr r12
+/* 81412BD4 000E30F4  4E 80 04 21 */	bctrl
+/* 81412BD8 000E30F8  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81412BDC 000E30FC  38 80 00 0E */	li r4, 0xe
+/* 81412BE0 000E3100  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81412BE4 000E3104  7D 89 03 A6 */	mtctr r12
+/* 81412BE8 000E3108  4E 80 04 21 */	bctrl
+/* 81412BEC 000E310C  48 00 00 30 */	b .L_81412C1C
+.L_81412BF0:
+/* 81412BF0 000E3110  81 9E 00 44 */	lwz r12, 0x44(r30)
+/* 81412BF4 000E3114  38 7E 00 44 */	addi r3, r30, 0x44
+/* 81412BF8 000E3118  38 9F 29 74 */	addi r4, r31, 0x2974
+/* 81412BFC 000E311C  81 8C 00 60 */	lwz r12, 0x60(r12)
+/* 81412C00 000E3120  7D 89 03 A6 */	mtctr r12
+/* 81412C04 000E3124  4E 80 04 21 */	bctrl
+/* 81412C08 000E3128  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81412C0C 000E312C  38 80 00 0F */	li r4, 0xf
+/* 81412C10 000E3130  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81412C14 000E3134  7D 89 03 A6 */	mtctr r12
+/* 81412C18 000E3138  4E 80 04 21 */	bctrl
+.L_81412C1C:
+/* 81412C1C 000E313C  80 1E 00 28 */	lwz r0, 0x28(r30)
+/* 81412C20 000E3140  54 00 06 73 */	rlwinm. r0, r0, 0, 25, 25
+/* 81412C24 000E3144  41 82 00 34 */	beq .L_81412C58
+/* 81412C28 000E3148  81 9E 00 44 */	lwz r12, 0x44(r30)
+/* 81412C2C 000E314C  38 7E 00 44 */	addi r3, r30, 0x44
+/* 81412C30 000E3150  38 9F 29 84 */	addi r4, r31, 0x2984
+/* 81412C34 000E3154  81 8C 00 60 */	lwz r12, 0x60(r12)
+/* 81412C38 000E3158  7D 89 03 A6 */	mtctr r12
+/* 81412C3C 000E315C  4E 80 04 21 */	bctrl
+/* 81412C40 000E3160  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81412C44 000E3164  38 80 00 0E */	li r4, 0xe
+/* 81412C48 000E3168  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81412C4C 000E316C  7D 89 03 A6 */	mtctr r12
+/* 81412C50 000E3170  4E 80 04 21 */	bctrl
+/* 81412C54 000E3174  48 00 00 30 */	b .L_81412C84
+.L_81412C58:
+/* 81412C58 000E3178  81 9E 00 44 */	lwz r12, 0x44(r30)
+/* 81412C5C 000E317C  38 7E 00 44 */	addi r3, r30, 0x44
+/* 81412C60 000E3180  38 9F 29 84 */	addi r4, r31, 0x2984
+/* 81412C64 000E3184  81 8C 00 60 */	lwz r12, 0x60(r12)
+/* 81412C68 000E3188  7D 89 03 A6 */	mtctr r12
+/* 81412C6C 000E318C  4E 80 04 21 */	bctrl
+/* 81412C70 000E3190  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81412C74 000E3194  38 80 00 0F */	li r4, 0xf
+/* 81412C78 000E3198  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81412C7C 000E319C  7D 89 03 A6 */	mtctr r12
+/* 81412C80 000E31A0  4E 80 04 21 */	bctrl
+.L_81412C84:
+/* 81412C84 000E31A4  80 1E 00 28 */	lwz r0, 0x28(r30)
+/* 81412C88 000E31A8  54 00 06 31 */	rlwinm. r0, r0, 0, 24, 24
+/* 81412C8C 000E31AC  41 82 00 34 */	beq .L_81412CC0
+/* 81412C90 000E31B0  81 9E 00 44 */	lwz r12, 0x44(r30)
+/* 81412C94 000E31B4  38 7E 00 44 */	addi r3, r30, 0x44
+/* 81412C98 000E31B8  38 9F 29 94 */	addi r4, r31, 0x2994
+/* 81412C9C 000E31BC  81 8C 00 60 */	lwz r12, 0x60(r12)
+/* 81412CA0 000E31C0  7D 89 03 A6 */	mtctr r12
+/* 81412CA4 000E31C4  4E 80 04 21 */	bctrl
+/* 81412CA8 000E31C8  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81412CAC 000E31CC  38 80 00 0E */	li r4, 0xe
+/* 81412CB0 000E31D0  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81412CB4 000E31D4  7D 89 03 A6 */	mtctr r12
+/* 81412CB8 000E31D8  4E 80 04 21 */	bctrl
+/* 81412CBC 000E31DC  48 00 00 30 */	b .L_81412CEC
+.L_81412CC0:
+/* 81412CC0 000E31E0  81 9E 00 44 */	lwz r12, 0x44(r30)
+/* 81412CC4 000E31E4  38 7E 00 44 */	addi r3, r30, 0x44
+/* 81412CC8 000E31E8  38 9F 29 94 */	addi r4, r31, 0x2994
+/* 81412CCC 000E31EC  81 8C 00 60 */	lwz r12, 0x60(r12)
+/* 81412CD0 000E31F0  7D 89 03 A6 */	mtctr r12
+/* 81412CD4 000E31F4  4E 80 04 21 */	bctrl
+/* 81412CD8 000E31F8  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81412CDC 000E31FC  38 80 00 0F */	li r4, 0xf
+/* 81412CE0 000E3200  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81412CE4 000E3204  7D 89 03 A6 */	mtctr r12
+/* 81412CE8 000E3208  4E 80 04 21 */	bctrl
+.L_81412CEC:
+/* 81412CEC 000E320C  80 1E 00 20 */	lwz r0, 0x20(r30)
+/* 81412CF0 000E3210  54 00 07 3E */	clrlwi r0, r0, 28
+/* 81412CF4 000E3214  2C 00 00 01 */	cmpwi r0, 0x1
+/* 81412CF8 000E3218  41 82 00 A8 */	beq .L_81412DA0
+/* 81412CFC 000E321C  40 80 00 10 */	bge .L_81412D0C
+/* 81412D00 000E3220  2C 00 00 00 */	cmpwi r0, 0x0
+/* 81412D04 000E3224  40 80 00 14 */	bge .L_81412D18
+/* 81412D08 000E3228  48 00 01 A4 */	b .L_81412EAC
+.L_81412D0C:
+/* 81412D0C 000E322C  2C 00 00 03 */	cmpwi r0, 0x3
+/* 81412D10 000E3230  40 80 01 9C */	bge .L_81412EAC
+/* 81412D14 000E3234  48 00 01 14 */	b .L_81412E28
+.L_81412D18:
+/* 81412D18 000E3238  81 9E 00 44 */	lwz r12, 0x44(r30)
+/* 81412D1C 000E323C  38 7E 00 44 */	addi r3, r30, 0x44
+/* 81412D20 000E3240  38 9F 29 A4 */	addi r4, r31, 0x29a4
+/* 81412D24 000E3244  81 8C 00 60 */	lwz r12, 0x60(r12)
+/* 81412D28 000E3248  7D 89 03 A6 */	mtctr r12
+/* 81412D2C 000E324C  4E 80 04 21 */	bctrl
+/* 81412D30 000E3250  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81412D34 000E3254  38 80 00 00 */	li r4, 0x0
+/* 81412D38 000E3258  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81412D3C 000E325C  7D 89 03 A6 */	mtctr r12
+/* 81412D40 000E3260  4E 80 04 21 */	bctrl
+/* 81412D44 000E3264  81 9E 00 44 */	lwz r12, 0x44(r30)
+/* 81412D48 000E3268  38 7E 00 44 */	addi r3, r30, 0x44
+/* 81412D4C 000E326C  38 9F 29 B8 */	addi r4, r31, 0x29b8
+/* 81412D50 000E3270  81 8C 00 60 */	lwz r12, 0x60(r12)
+/* 81412D54 000E3274  7D 89 03 A6 */	mtctr r12
+/* 81412D58 000E3278  4E 80 04 21 */	bctrl
+/* 81412D5C 000E327C  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81412D60 000E3280  38 80 00 00 */	li r4, 0x0
+/* 81412D64 000E3284  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81412D68 000E3288  7D 89 03 A6 */	mtctr r12
+/* 81412D6C 000E328C  4E 80 04 21 */	bctrl
+/* 81412D70 000E3290  81 9E 00 44 */	lwz r12, 0x44(r30)
+/* 81412D74 000E3294  38 7E 00 44 */	addi r3, r30, 0x44
+/* 81412D78 000E3298  38 9F 29 CC */	addi r4, r31, 0x29cc
+/* 81412D7C 000E329C  81 8C 00 60 */	lwz r12, 0x60(r12)
+/* 81412D80 000E32A0  7D 89 03 A6 */	mtctr r12
+/* 81412D84 000E32A4  4E 80 04 21 */	bctrl
+/* 81412D88 000E32A8  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81412D8C 000E32AC  38 80 00 05 */	li r4, 0x5
+/* 81412D90 000E32B0  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81412D94 000E32B4  7D 89 03 A6 */	mtctr r12
+/* 81412D98 000E32B8  4E 80 04 21 */	bctrl
+/* 81412D9C 000E32BC  48 00 01 10 */	b .L_81412EAC
+.L_81412DA0:
+/* 81412DA0 000E32C0  81 9E 00 44 */	lwz r12, 0x44(r30)
+/* 81412DA4 000E32C4  38 7E 00 44 */	addi r3, r30, 0x44
+/* 81412DA8 000E32C8  38 9F 29 A4 */	addi r4, r31, 0x29a4
+/* 81412DAC 000E32CC  81 8C 00 60 */	lwz r12, 0x60(r12)
+/* 81412DB0 000E32D0  7D 89 03 A6 */	mtctr r12
+/* 81412DB4 000E32D4  4E 80 04 21 */	bctrl
+/* 81412DB8 000E32D8  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81412DBC 000E32DC  38 80 00 05 */	li r4, 0x5
+/* 81412DC0 000E32E0  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81412DC4 000E32E4  7D 89 03 A6 */	mtctr r12
+/* 81412DC8 000E32E8  4E 80 04 21 */	bctrl
+/* 81412DCC 000E32EC  81 9E 00 44 */	lwz r12, 0x44(r30)
+/* 81412DD0 000E32F0  38 7E 00 44 */	addi r3, r30, 0x44
+/* 81412DD4 000E32F4  38 9F 29 B8 */	addi r4, r31, 0x29b8
+/* 81412DD8 000E32F8  81 8C 00 60 */	lwz r12, 0x60(r12)
+/* 81412DDC 000E32FC  7D 89 03 A6 */	mtctr r12
+/* 81412DE0 000E3300  4E 80 04 21 */	bctrl
+/* 81412DE4 000E3304  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81412DE8 000E3308  38 80 00 00 */	li r4, 0x0
+/* 81412DEC 000E330C  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81412DF0 000E3310  7D 89 03 A6 */	mtctr r12
+/* 81412DF4 000E3314  4E 80 04 21 */	bctrl
+/* 81412DF8 000E3318  81 9E 00 44 */	lwz r12, 0x44(r30)
+/* 81412DFC 000E331C  38 7E 00 44 */	addi r3, r30, 0x44
+/* 81412E00 000E3320  38 9F 29 CC */	addi r4, r31, 0x29cc
+/* 81412E04 000E3324  81 8C 00 60 */	lwz r12, 0x60(r12)
+/* 81412E08 000E3328  7D 89 03 A6 */	mtctr r12
+/* 81412E0C 000E332C  4E 80 04 21 */	bctrl
+/* 81412E10 000E3330  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81412E14 000E3334  38 80 00 00 */	li r4, 0x0
+/* 81412E18 000E3338  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81412E1C 000E333C  7D 89 03 A6 */	mtctr r12
+/* 81412E20 000E3340  4E 80 04 21 */	bctrl
+/* 81412E24 000E3344  48 00 00 88 */	b .L_81412EAC
+.L_81412E28:
+/* 81412E28 000E3348  81 9E 00 44 */	lwz r12, 0x44(r30)
+/* 81412E2C 000E334C  38 7E 00 44 */	addi r3, r30, 0x44
+/* 81412E30 000E3350  38 9F 29 A4 */	addi r4, r31, 0x29a4
+/* 81412E34 000E3354  81 8C 00 60 */	lwz r12, 0x60(r12)
+/* 81412E38 000E3358  7D 89 03 A6 */	mtctr r12
+/* 81412E3C 000E335C  4E 80 04 21 */	bctrl
+/* 81412E40 000E3360  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81412E44 000E3364  38 80 00 00 */	li r4, 0x0
+/* 81412E48 000E3368  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81412E4C 000E336C  7D 89 03 A6 */	mtctr r12
+/* 81412E50 000E3370  4E 80 04 21 */	bctrl
+/* 81412E54 000E3374  81 9E 00 44 */	lwz r12, 0x44(r30)
+/* 81412E58 000E3378  38 7E 00 44 */	addi r3, r30, 0x44
+/* 81412E5C 000E337C  38 9F 29 B8 */	addi r4, r31, 0x29b8
+/* 81412E60 000E3380  81 8C 00 60 */	lwz r12, 0x60(r12)
+/* 81412E64 000E3384  7D 89 03 A6 */	mtctr r12
+/* 81412E68 000E3388  4E 80 04 21 */	bctrl
+/* 81412E6C 000E338C  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81412E70 000E3390  38 80 00 05 */	li r4, 0x5
+/* 81412E74 000E3394  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81412E78 000E3398  7D 89 03 A6 */	mtctr r12
+/* 81412E7C 000E339C  4E 80 04 21 */	bctrl
+/* 81412E80 000E33A0  81 9E 00 44 */	lwz r12, 0x44(r30)
+/* 81412E84 000E33A4  38 7E 00 44 */	addi r3, r30, 0x44
+/* 81412E88 000E33A8  38 9F 29 CC */	addi r4, r31, 0x29cc
+/* 81412E8C 000E33AC  81 8C 00 60 */	lwz r12, 0x60(r12)
+/* 81412E90 000E33B0  7D 89 03 A6 */	mtctr r12
+/* 81412E94 000E33B4  4E 80 04 21 */	bctrl
+/* 81412E98 000E33B8  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81412E9C 000E33BC  38 80 00 00 */	li r4, 0x0
+/* 81412EA0 000E33C0  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81412EA4 000E33C4  7D 89 03 A6 */	mtctr r12
+/* 81412EA8 000E33C8  4E 80 04 21 */	bctrl
+.L_81412EAC:
+/* 81412EAC 000E33CC  81 9E 00 00 */	lwz r12, 0x0(r30)
+/* 81412EB0 000E33D0  7F C3 F3 78 */	mr r3, r30
+/* 81412EB4 000E33D4  81 8C 00 2C */	lwz r12, 0x2c(r12)
+/* 81412EB8 000E33D8  7D 89 03 A6 */	mtctr r12
+/* 81412EBC 000E33DC  4E 80 04 21 */	bctrl
+/* 81412EC0 000E33E0  2C 03 00 09 */	cmpwi r3, 0x9
+/* 81412EC4 000E33E4  41 82 00 20 */	beq .L_81412EE4
+/* 81412EC8 000E33E8  81 9E 00 00 */	lwz r12, 0x0(r30)
+/* 81412ECC 000E33EC  7F C3 F3 78 */	mr r3, r30
+/* 81412ED0 000E33F0  81 8C 00 2C */	lwz r12, 0x2c(r12)
+/* 81412ED4 000E33F4  7D 89 03 A6 */	mtctr r12
+/* 81412ED8 000E33F8  4E 80 04 21 */	bctrl
+/* 81412EDC 000E33FC  2C 03 00 08 */	cmpwi r3, 0x8
+/* 81412EE0 000E3400  40 82 00 C8 */	bne .L_81412FA8
+.L_81412EE4:
+/* 81412EE4 000E3404  80 1E 00 20 */	lwz r0, 0x20(r30)
+/* 81412EE8 000E3408  54 00 07 3F */	clrlwi. r0, r0, 28
+/* 81412EEC 000E340C  41 82 00 08 */	beq .L_81412EF4
+/* 81412EF0 000E3410  48 00 00 60 */	b .L_81412F50
+.L_81412EF4:
+/* 81412EF4 000E3414  81 9E 00 44 */	lwz r12, 0x44(r30)
+/* 81412EF8 000E3418  38 7E 00 44 */	addi r3, r30, 0x44
+/* 81412EFC 000E341C  38 9F 29 DC */	addi r4, r31, 0x29dc
+/* 81412F00 000E3420  81 8C 00 60 */	lwz r12, 0x60(r12)
+/* 81412F04 000E3424  7D 89 03 A6 */	mtctr r12
+/* 81412F08 000E3428  4E 80 04 21 */	bctrl
+/* 81412F0C 000E342C  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81412F10 000E3430  38 80 00 05 */	li r4, 0x5
+/* 81412F14 000E3434  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81412F18 000E3438  7D 89 03 A6 */	mtctr r12
+/* 81412F1C 000E343C  4E 80 04 21 */	bctrl
+/* 81412F20 000E3440  81 9E 00 44 */	lwz r12, 0x44(r30)
+/* 81412F24 000E3444  38 7E 00 44 */	addi r3, r30, 0x44
+/* 81412F28 000E3448  38 9F 29 EC */	addi r4, r31, 0x29ec
+/* 81412F2C 000E344C  81 8C 00 60 */	lwz r12, 0x60(r12)
+/* 81412F30 000E3450  7D 89 03 A6 */	mtctr r12
+/* 81412F34 000E3454  4E 80 04 21 */	bctrl
+/* 81412F38 000E3458  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81412F3C 000E345C  38 80 00 00 */	li r4, 0x0
+/* 81412F40 000E3460  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81412F44 000E3464  7D 89 03 A6 */	mtctr r12
+/* 81412F48 000E3468  4E 80 04 21 */	bctrl
+/* 81412F4C 000E346C  48 00 00 5C */	b .L_81412FA8
+.L_81412F50:
+/* 81412F50 000E3470  81 9E 00 44 */	lwz r12, 0x44(r30)
+/* 81412F54 000E3474  38 7E 00 44 */	addi r3, r30, 0x44
+/* 81412F58 000E3478  38 9F 29 DC */	addi r4, r31, 0x29dc
+/* 81412F5C 000E347C  81 8C 00 60 */	lwz r12, 0x60(r12)
+/* 81412F60 000E3480  7D 89 03 A6 */	mtctr r12
+/* 81412F64 000E3484  4E 80 04 21 */	bctrl
+/* 81412F68 000E3488  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81412F6C 000E348C  38 80 00 00 */	li r4, 0x0
+/* 81412F70 000E3490  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81412F74 000E3494  7D 89 03 A6 */	mtctr r12
+/* 81412F78 000E3498  4E 80 04 21 */	bctrl
+/* 81412F7C 000E349C  81 9E 00 44 */	lwz r12, 0x44(r30)
+/* 81412F80 000E34A0  38 7E 00 44 */	addi r3, r30, 0x44
+/* 81412F84 000E34A4  38 9F 29 EC */	addi r4, r31, 0x29ec
+/* 81412F88 000E34A8  81 8C 00 60 */	lwz r12, 0x60(r12)
+/* 81412F8C 000E34AC  7D 89 03 A6 */	mtctr r12
+/* 81412F90 000E34B0  4E 80 04 21 */	bctrl
+/* 81412F94 000E34B4  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81412F98 000E34B8  38 80 00 05 */	li r4, 0x5
+/* 81412F9C 000E34BC  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81412FA0 000E34C0  7D 89 03 A6 */	mtctr r12
+/* 81412FA4 000E34C4  4E 80 04 21 */	bctrl
+.L_81412FA8:
+/* 81412FA8 000E34C8  80 7E 00 48 */	lwz r3, 0x48(r30)
+/* 81412FAC 000E34CC  38 80 00 00 */	li r4, 0x0
+/* 81412FB0 000E34D0  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81412FB4 000E34D4  81 8C 00 2C */	lwz r12, 0x2c(r12)
+/* 81412FB8 000E34D8  7D 89 03 A6 */	mtctr r12
+/* 81412FBC 000E34DC  4E 80 04 21 */	bctrl
+/* 81412FC0 000E34E0  80 7E 00 48 */	lwz r3, 0x48(r30)
+/* 81412FC4 000E34E4  38 9E 00 5C */	addi r4, r30, 0x5c
+/* 81412FC8 000E34E8  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81412FCC 000E34EC  81 8C 00 24 */	lwz r12, 0x24(r12)
+/* 81412FD0 000E34F0  7D 89 03 A6 */	mtctr r12
+/* 81412FD4 000E34F4  4E 80 04 21 */	bctrl
+/* 81412FD8 000E34F8  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 81412FDC 000E34FC  83 E1 00 0C */	lwz r31, 0xc(r1)
+/* 81412FE0 000E3500  83 C1 00 08 */	lwz r30, 0x8(r1)
+/* 81412FE4 000E3504  7C 08 03 A6 */	mtlr r0
+/* 81412FE8 000E3508  38 21 00 10 */	addi r1, r1, 0x10
+/* 81412FEC 000E350C  4E 80 00 20 */	blr
+.endfn initLayout__Q49textinput8keyboard6pctype12LayoutByNW4RFv
+
+# .text:0x2E18 | 0x81412FF0 | size: 0x150
+# textinput::keyboard::pctype::LayoutByNW4R::calc()
+.fn calc__Q49textinput8keyboard6pctype12LayoutByNW4RFv, global
+/* 81412FF0 000E3510  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 81412FF4 000E3514  7C 08 02 A6 */	mflr r0
+/* 81412FF8 000E3518  90 01 00 14 */	stw r0, 0x14(r1)
+/* 81412FFC 000E351C  93 E1 00 0C */	stw r31, 0xc(r1)
+/* 81413000 000E3520  3F E0 81 66 */	lis r31, lbl_81658D90@ha
+/* 81413004 000E3524  3B FF 8D 90 */	addi r31, r31, lbl_81658D90@l
+/* 81413008 000E3528  93 C1 00 08 */	stw r30, 0x8(r1)
+/* 8141300C 000E352C  7C 7E 1B 78 */	mr r30, r3
+/* 81413010 000E3530  38 63 00 44 */	addi r3, r3, 0x44
+/* 81413014 000E3534  48 02 37 71 */	bl calc__Q39textinput11nw4rmanager6LayoutFv
+/* 81413018 000E3538  80 7E 00 40 */	lwz r3, 0x40(r30)
+/* 8141301C 000E353C  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81413020 000E3540  81 8C 00 64 */	lwz r12, 0x64(r12)
+/* 81413024 000E3544  7D 89 03 A6 */	mtctr r12
+/* 81413028 000E3548  4E 80 04 21 */	bctrl
+/* 8141302C 000E354C  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81413030 000E3550  81 8C 01 38 */	lwz r12, 0x138(r12)
+/* 81413034 000E3554  7D 89 03 A6 */	mtctr r12
+/* 81413038 000E3558  4E 80 04 21 */	bctrl
+/* 8141303C 000E355C  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81413040 000E3560  41 82 00 78 */	beq .L_814130B8
+/* 81413044 000E3564  81 9E 00 44 */	lwz r12, 0x44(r30)
+/* 81413048 000E3568  38 7E 00 44 */	addi r3, r30, 0x44
+/* 8141304C 000E356C  38 9F 29 20 */	addi r4, r31, 0x2920
+/* 81413050 000E3570  38 A0 00 00 */	li r5, 0x0
+/* 81413054 000E3574  81 8C 00 54 */	lwz r12, 0x54(r12)
+/* 81413058 000E3578  7D 89 03 A6 */	mtctr r12
+/* 8141305C 000E357C  4E 80 04 21 */	bctrl
+/* 81413060 000E3580  81 9E 00 44 */	lwz r12, 0x44(r30)
+/* 81413064 000E3584  38 7E 00 44 */	addi r3, r30, 0x44
+/* 81413068 000E3588  38 9F 29 2C */	addi r4, r31, 0x292c
+/* 8141306C 000E358C  38 A0 00 00 */	li r5, 0x0
+/* 81413070 000E3590  81 8C 00 54 */	lwz r12, 0x54(r12)
+/* 81413074 000E3594  7D 89 03 A6 */	mtctr r12
+/* 81413078 000E3598  4E 80 04 21 */	bctrl
+/* 8141307C 000E359C  81 9E 00 44 */	lwz r12, 0x44(r30)
+/* 81413080 000E35A0  38 7E 00 44 */	addi r3, r30, 0x44
+/* 81413084 000E35A4  38 9F 29 3C */	addi r4, r31, 0x293c
+/* 81413088 000E35A8  38 A0 00 01 */	li r5, 0x1
+/* 8141308C 000E35AC  81 8C 00 54 */	lwz r12, 0x54(r12)
+/* 81413090 000E35B0  7D 89 03 A6 */	mtctr r12
+/* 81413094 000E35B4  4E 80 04 21 */	bctrl
+/* 81413098 000E35B8  81 9E 00 44 */	lwz r12, 0x44(r30)
+/* 8141309C 000E35BC  38 7E 00 44 */	addi r3, r30, 0x44
+/* 814130A0 000E35C0  38 9F 29 4C */	addi r4, r31, 0x294c
+/* 814130A4 000E35C4  38 A0 00 01 */	li r5, 0x1
+/* 814130A8 000E35C8  81 8C 00 54 */	lwz r12, 0x54(r12)
+/* 814130AC 000E35CC  7D 89 03 A6 */	mtctr r12
+/* 814130B0 000E35D0  4E 80 04 21 */	bctrl
+/* 814130B4 000E35D4  48 00 00 74 */	b .L_81413128
+.L_814130B8:
+/* 814130B8 000E35D8  81 9E 00 44 */	lwz r12, 0x44(r30)
+/* 814130BC 000E35DC  38 7E 00 44 */	addi r3, r30, 0x44
+/* 814130C0 000E35E0  38 9F 29 20 */	addi r4, r31, 0x2920
+/* 814130C4 000E35E4  38 A0 00 01 */	li r5, 0x1
+/* 814130C8 000E35E8  81 8C 00 54 */	lwz r12, 0x54(r12)
+/* 814130CC 000E35EC  7D 89 03 A6 */	mtctr r12
+/* 814130D0 000E35F0  4E 80 04 21 */	bctrl
+/* 814130D4 000E35F4  81 9E 00 44 */	lwz r12, 0x44(r30)
+/* 814130D8 000E35F8  38 7E 00 44 */	addi r3, r30, 0x44
+/* 814130DC 000E35FC  38 9F 29 2C */	addi r4, r31, 0x292c
+/* 814130E0 000E3600  38 A0 00 01 */	li r5, 0x1
+/* 814130E4 000E3604  81 8C 00 54 */	lwz r12, 0x54(r12)
+/* 814130E8 000E3608  7D 89 03 A6 */	mtctr r12
+/* 814130EC 000E360C  4E 80 04 21 */	bctrl
+/* 814130F0 000E3610  81 9E 00 44 */	lwz r12, 0x44(r30)
+/* 814130F4 000E3614  38 7E 00 44 */	addi r3, r30, 0x44
+/* 814130F8 000E3618  38 9F 29 3C */	addi r4, r31, 0x293c
+/* 814130FC 000E361C  38 A0 00 00 */	li r5, 0x0
+/* 81413100 000E3620  81 8C 00 54 */	lwz r12, 0x54(r12)
+/* 81413104 000E3624  7D 89 03 A6 */	mtctr r12
+/* 81413108 000E3628  4E 80 04 21 */	bctrl
+/* 8141310C 000E362C  81 9E 00 44 */	lwz r12, 0x44(r30)
+/* 81413110 000E3630  38 7E 00 44 */	addi r3, r30, 0x44
+/* 81413114 000E3634  38 9F 29 4C */	addi r4, r31, 0x294c
+/* 81413118 000E3638  38 A0 00 00 */	li r5, 0x0
+/* 8141311C 000E363C  81 8C 00 54 */	lwz r12, 0x54(r12)
+/* 81413120 000E3640  7D 89 03 A6 */	mtctr r12
+/* 81413124 000E3644  4E 80 04 21 */	bctrl
+.L_81413128:
+/* 81413128 000E3648  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 8141312C 000E364C  83 E1 00 0C */	lwz r31, 0xc(r1)
+/* 81413130 000E3650  83 C1 00 08 */	lwz r30, 0x8(r1)
+/* 81413134 000E3654  7C 08 03 A6 */	mtlr r0
+/* 81413138 000E3658  38 21 00 10 */	addi r1, r1, 0x10
+/* 8141313C 000E365C  4E 80 00 20 */	blr
+.endfn calc__Q49textinput8keyboard6pctype12LayoutByNW4RFv
+
+# .text:0x2F68 | 0x81413140 | size: 0x8
+# textinput::keyboard::pctype::LayoutByNW4R::draw()
+.fn draw__Q49textinput8keyboard6pctype12LayoutByNW4RFv, global
+/* 81413140 000E3660  38 63 00 44 */	addi r3, r3, 0x44
+/* 81413144 000E3664  48 02 33 8C */	b draw__Q39textinput11nw4rmanager6LayoutFv
+.endfn draw__Q49textinput8keyboard6pctype12LayoutByNW4RFv
+
+# .text:0x2F70 | 0x81413148 | size: 0x14
+# textinput::keyboard::pctype::LayoutByNW4R::inputCharCode(wchar_t)
+.fn inputCharCode__Q49textinput8keyboard6pctype12LayoutByNW4RFw, global
+/* 81413148 000E3668  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 8141314C 000E366C  38 A0 00 00 */	li r5, 0x0
+/* 81413150 000E3670  81 8C 00 88 */	lwz r12, 0x88(r12)
+/* 81413154 000E3674  7D 89 03 A6 */	mtctr r12
+/* 81413158 000E3678  4E 80 04 20 */	bctr
+.endfn inputCharCode__Q49textinput8keyboard6pctype12LayoutByNW4RFw
+
+# .text:0x2F84 | 0x8141315C | size: 0x170
+# textinput::keyboard::pctype::LayoutByNW4R::onPressedCaps()
+.fn onPressedCaps__Q49textinput8keyboard6pctype12LayoutByNW4RFv, global
+/* 8141315C 000E367C  94 21 FF E0 */	stwu r1, -0x20(r1)
+/* 81413160 000E3680  7C 08 02 A6 */	mflr r0
+/* 81413164 000E3684  90 01 00 24 */	stw r0, 0x24(r1)
+/* 81413168 000E3688  93 E1 00 1C */	stw r31, 0x1c(r1)
+/* 8141316C 000E368C  7C 7F 1B 78 */	mr r31, r3
+/* 81413170 000E3690  93 C1 00 18 */	stw r30, 0x18(r1)
+/* 81413174 000E3694  88 0D AC B8 */	lbz r0, "@GUARD@getInstance__Q39textinput12LayoutGather9SingletonFv@sGather"@sda21(r0)
+/* 81413178 000E3698  7C 00 07 75 */	extsb. r0, r0
+/* 8141317C 000E369C  40 82 00 2C */	bne .L_814131A8
+/* 81413180 000E36A0  38 6D AC BC */	li r3, "@LOCAL@getInstance__Q39textinput12LayoutGather9SingletonFv@sGather"@sda21
+/* 81413184 000E36A4  48 03 73 99 */	bl __ct__Q29textinput12LayoutGatherFv
+/* 81413188 000E36A8  3C 80 81 45 */	lis r4, __dt__Q29textinput12LayoutGatherFv@ha
+/* 8141318C 000E36AC  3C A0 81 0C */	lis r5, lbl_810C6580@ha
+/* 81413190 000E36B0  38 84 A5 2C */	addi r4, r4, __dt__Q29textinput12LayoutGatherFv@l
+/* 81413194 000E36B4  38 6D AC BC */	li r3, "@LOCAL@getInstance__Q39textinput12LayoutGather9SingletonFv@sGather"@sda21
+/* 81413198 000E36B8  38 A5 65 80 */	addi r5, r5, lbl_810C6580@l
+/* 8141319C 000E36BC  48 1E 5E 45 */	bl __register_global_object
+/* 814131A0 000E36C0  38 00 00 01 */	li r0, 0x1
+/* 814131A4 000E36C4  98 0D AC B8 */	stb r0, "@GUARD@getInstance__Q39textinput12LayoutGather9SingletonFv@sGather"@sda21(r0)
+.L_814131A8:
+/* 814131A8 000E36C8  88 0D AC BC */	lbz r0, "@LOCAL@getInstance__Q39textinput12LayoutGather9SingletonFv@sGather"@sda21(r0)
+/* 814131AC 000E36CC  3B CD AC BC */	li r30, "@LOCAL@getInstance__Q39textinput12LayoutGather9SingletonFv@sGather"@sda21
+/* 814131B0 000E36D0  38 60 00 00 */	li r3, 0x0
+/* 814131B4 000E36D4  54 00 D7 FF */	extrwi. r0, r0, 1, 25
+/* 814131B8 000E36D8  40 82 00 10 */	bne .L_814131C8
+/* 814131BC 000E36DC  88 1E 00 00 */	lbz r0, 0x0(r30)
+/* 814131C0 000E36E0  54 00 DF FF */	extrwi. r0, r0, 1, 26
+/* 814131C4 000E36E4  41 82 00 08 */	beq .L_814131CC
+.L_814131C8:
+/* 814131C8 000E36E8  38 60 00 01 */	li r3, 0x1
+.L_814131CC:
+/* 814131CC 000E36EC  2C 03 00 00 */	cmpwi r3, 0x0
+/* 814131D0 000E36F0  40 82 00 4C */	bne .L_8141321C
+/* 814131D4 000E36F4  80 7F 00 20 */	lwz r3, 0x20(r31)
+/* 814131D8 000E36F8  54 60 00 37 */	clrrwi. r0, r3, 4
+/* 814131DC 000E36FC  41 82 00 14 */	beq .L_814131F0
+/* 814131E0 000E3700  54 60 06 6E */	rlwinm r0, r3, 0, 25, 23
+/* 814131E4 000E3704  38 7F 00 20 */	addi r3, r31, 0x20
+/* 814131E8 000E3708  90 1F 00 20 */	stw r0, 0x20(r31)
+/* 814131EC 000E370C  4B FF E0 0D */	bl refresh___Q59textinput8keyboard6pctype4Base8KeyStateFv
+.L_814131F0:
+/* 814131F0 000E3710  88 1F 01 20 */	lbz r0, 0x120(r31)
+/* 814131F4 000E3714  2C 00 00 00 */	cmpwi r0, 0x0
+/* 814131F8 000E3718  41 82 00 24 */	beq .L_8141321C
+/* 814131FC 000E371C  38 00 00 00 */	li r0, 0x0
+/* 81413200 000E3720  80 7F 01 1C */	lwz r3, 0x11c(r31)
+/* 81413204 000E3724  98 1F 01 20 */	stb r0, 0x120(r31)
+/* 81413208 000E3728  38 80 00 05 */	li r4, 0x5
+/* 8141320C 000E372C  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81413210 000E3730  81 8C 00 10 */	lwz r12, 0x10(r12)
+/* 81413214 000E3734  7D 89 03 A6 */	mtctr r12
+/* 81413218 000E3738  4E 80 04 21 */	bctrl
+.L_8141321C:
+/* 8141321C 000E373C  88 1E 00 00 */	lbz r0, 0x0(r30)
+/* 81413220 000E3740  7F C3 F3 78 */	mr r3, r30
+/* 81413224 000E3744  38 81 00 08 */	addi r4, r1, 0x8
+/* 81413228 000E3748  54 00 CF FE */	extrwi r0, r0, 1, 24
+/* 8141322C 000E374C  7C 00 00 34 */	cntlzw r0, r0
+/* 81413230 000E3750  54 00 DE 3E */	extrwi r0, r0, 8, 19
+/* 81413234 000E3754  98 01 00 08 */	stb r0, 0x8(r1)
+/* 81413238 000E3758  48 03 73 35 */	bl changeCapsLock__Q29textinput12LayoutGatherFRCUc
+/* 8141323C 000E375C  80 1F 00 20 */	lwz r0, 0x20(r31)
+/* 81413240 000E3760  38 7F 00 20 */	addi r3, r31, 0x20
+/* 81413244 000E3764  68 04 00 40 */	xori r4, r0, 0x40
+/* 81413248 000E3768  54 00 06 B0 */	rlwinm r0, r0, 0, 26, 24
+/* 8141324C 000E376C  50 80 06 72 */	rlwimi r0, r4, 0, 25, 25
+/* 81413250 000E3770  90 1F 00 20 */	stw r0, 0x20(r31)
+/* 81413254 000E3774  4B FF DF A5 */	bl refresh___Q59textinput8keyboard6pctype4Base8KeyStateFv
+/* 81413258 000E3778  80 1F 00 20 */	lwz r0, 0x20(r31)
+/* 8141325C 000E377C  54 00 D7 FF */	extrwi. r0, r0, 1, 25
+/* 81413260 000E3780  98 1F 01 44 */	stb r0, 0x144(r31)
+/* 81413264 000E3784  41 82 00 20 */	beq .L_81413284
+/* 81413268 000E3788  80 7F 01 40 */	lwz r3, 0x140(r31)
+/* 8141326C 000E378C  38 80 00 0A */	li r4, 0xa
+/* 81413270 000E3790  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81413274 000E3794  81 8C 00 10 */	lwz r12, 0x10(r12)
+/* 81413278 000E3798  7D 89 03 A6 */	mtctr r12
+/* 8141327C 000E379C  4E 80 04 21 */	bctrl
+/* 81413280 000E37A0  48 00 00 1C */	b .L_8141329C
+.L_81413284:
+/* 81413284 000E37A4  80 7F 01 40 */	lwz r3, 0x140(r31)
+/* 81413288 000E37A8  38 80 00 0B */	li r4, 0xb
+/* 8141328C 000E37AC  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81413290 000E37B0  81 8C 00 10 */	lwz r12, 0x10(r12)
+/* 81413294 000E37B4  7D 89 03 A6 */	mtctr r12
+/* 81413298 000E37B8  4E 80 04 21 */	bctrl
+.L_8141329C:
+/* 8141329C 000E37BC  80 7F 00 58 */	lwz r3, 0x58(r31)
+/* 814132A0 000E37C0  38 80 00 0D */	li r4, 0xd
+/* 814132A4 000E37C4  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 814132A8 000E37C8  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 814132AC 000E37CC  7D 89 03 A6 */	mtctr r12
+/* 814132B0 000E37D0  4E 80 04 21 */	bctrl
+/* 814132B4 000E37D4  80 01 00 24 */	lwz r0, 0x24(r1)
+/* 814132B8 000E37D8  83 E1 00 1C */	lwz r31, 0x1c(r1)
+/* 814132BC 000E37DC  83 C1 00 18 */	lwz r30, 0x18(r1)
+/* 814132C0 000E37E0  7C 08 03 A6 */	mtlr r0
+/* 814132C4 000E37E4  38 21 00 20 */	addi r1, r1, 0x20
+/* 814132C8 000E37E8  4E 80 00 20 */	blr
+.endfn onPressedCaps__Q49textinput8keyboard6pctype12LayoutByNW4RFv
+
+# .text:0x30F4 | 0x814132CC | size: 0xC4
+# textinput::keyboard::pctype::LayoutByNW4R::onPressedShift(bool)
+.fn onPressedShift__Q49textinput8keyboard6pctype12LayoutByNW4RFb, global
+/* 814132CC 000E37EC  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 814132D0 000E37F0  7C 08 02 A6 */	mflr r0
+/* 814132D4 000E37F4  90 01 00 14 */	stw r0, 0x14(r1)
+/* 814132D8 000E37F8  93 E1 00 0C */	stw r31, 0xc(r1)
+/* 814132DC 000E37FC  7C 9F 23 78 */	mr r31, r4
+/* 814132E0 000E3800  93 C1 00 08 */	stw r30, 0x8(r1)
+/* 814132E4 000E3804  7C 7E 1B 78 */	mr r30, r3
+/* 814132E8 000E3808  80 03 00 20 */	lwz r0, 0x20(r3)
+/* 814132EC 000E380C  80 A3 00 20 */	lwz r5, 0x20(r3)
+/* 814132F0 000E3810  54 04 00 36 */	clrrwi r4, r0, 4
+/* 814132F4 000E3814  60 84 00 80 */	ori r4, r4, 0x80
+/* 814132F8 000E3818  54 A0 00 36 */	clrrwi r0, r5, 4
+/* 814132FC 000E381C  7C 00 20 40 */	cmplw r0, r4
+/* 81413300 000E3820  41 82 00 30 */	beq .L_81413330
+/* 81413304 000E3824  80 C3 00 34 */	lwz r6, 0x34(r3)
+/* 81413308 000E3828  54 80 00 36 */	clrrwi r0, r4, 4
+/* 8141330C 000E382C  50 A0 07 3E */	rlwimi r0, r5, 0, 28, 31
+/* 81413310 000E3830  2C 06 00 00 */	cmpwi r6, 0x0
+/* 81413314 000E3834  90 03 00 20 */	stw r0, 0x20(r3)
+/* 81413318 000E3838  41 82 00 18 */	beq .L_81413330
+/* 8141331C 000E383C  81 86 00 00 */	lwz r12, 0x0(r6)
+/* 81413320 000E3840  7C C3 33 78 */	mr r3, r6
+/* 81413324 000E3844  81 8C 00 70 */	lwz r12, 0x70(r12)
+/* 81413328 000E3848  7D 89 03 A6 */	mtctr r12
+/* 8141332C 000E384C  4E 80 04 21 */	bctrl
+.L_81413330:
+/* 81413330 000E3850  38 00 00 01 */	li r0, 0x1
+/* 81413334 000E3854  80 7E 01 1C */	lwz r3, 0x11c(r30)
+/* 81413338 000E3858  98 1E 01 20 */	stb r0, 0x120(r30)
+/* 8141333C 000E385C  38 80 00 0A */	li r4, 0xa
+/* 81413340 000E3860  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81413344 000E3864  81 8C 00 10 */	lwz r12, 0x10(r12)
+/* 81413348 000E3868  7D 89 03 A6 */	mtctr r12
+/* 8141334C 000E386C  4E 80 04 21 */	bctrl
+/* 81413350 000E3870  48 00 00 08 */	b .L_81413358
+/* 81413354 000E3874  4E 80 04 21 */	bctrl
+.L_81413358:
+/* 81413358 000E3878  2C 1F 00 00 */	cmpwi r31, 0x0
+/* 8141335C 000E387C  41 82 00 1C */	beq .L_81413378
+/* 81413360 000E3880  80 7E 00 58 */	lwz r3, 0x58(r30)
+/* 81413364 000E3884  38 80 00 0D */	li r4, 0xd
+/* 81413368 000E3888  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 8141336C 000E388C  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81413370 000E3890  7D 89 03 A6 */	mtctr r12
+/* 81413374 000E3894  4E 80 04 21 */	bctrl
+.L_81413378:
+/* 81413378 000E3898  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 8141337C 000E389C  83 E1 00 0C */	lwz r31, 0xc(r1)
+/* 81413380 000E38A0  83 C1 00 08 */	lwz r30, 0x8(r1)
+/* 81413384 000E38A4  7C 08 03 A6 */	mtlr r0
+/* 81413388 000E38A8  38 21 00 10 */	addi r1, r1, 0x10
+/* 8141338C 000E38AC  4E 80 00 20 */	blr
+.endfn onPressedShift__Q49textinput8keyboard6pctype12LayoutByNW4RFb
+
+# .text:0x31B8 | 0x81413390 | size: 0x9C
+# textinput::keyboard::pctype::LayoutByNW4R::onReleasedShift()
+.fn onReleasedShift__Q49textinput8keyboard6pctype12LayoutByNW4RFv, global
+/* 81413390 000E38B0  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 81413394 000E38B4  7C 08 02 A6 */	mflr r0
+/* 81413398 000E38B8  90 01 00 14 */	stw r0, 0x14(r1)
+/* 8141339C 000E38BC  93 E1 00 0C */	stw r31, 0xc(r1)
+/* 814133A0 000E38C0  7C 7F 1B 78 */	mr r31, r3
+/* 814133A4 000E38C4  80 03 00 20 */	lwz r0, 0x20(r3)
+/* 814133A8 000E38C8  80 A3 00 20 */	lwz r5, 0x20(r3)
+/* 814133AC 000E38CC  54 04 00 36 */	clrrwi r4, r0, 4
+/* 814133B0 000E38D0  54 84 06 6E */	rlwinm r4, r4, 0, 25, 23
+/* 814133B4 000E38D4  54 A0 00 36 */	clrrwi r0, r5, 4
+/* 814133B8 000E38D8  7C 00 20 40 */	cmplw r0, r4
+/* 814133BC 000E38DC  41 82 00 30 */	beq .L_814133EC
+/* 814133C0 000E38E0  80 C3 00 34 */	lwz r6, 0x34(r3)
+/* 814133C4 000E38E4  54 80 00 36 */	clrrwi r0, r4, 4
+/* 814133C8 000E38E8  50 A0 07 3E */	rlwimi r0, r5, 0, 28, 31
+/* 814133CC 000E38EC  2C 06 00 00 */	cmpwi r6, 0x0
+/* 814133D0 000E38F0  90 03 00 20 */	stw r0, 0x20(r3)
+/* 814133D4 000E38F4  41 82 00 18 */	beq .L_814133EC
+/* 814133D8 000E38F8  81 86 00 00 */	lwz r12, 0x0(r6)
+/* 814133DC 000E38FC  7C C3 33 78 */	mr r3, r6
+/* 814133E0 000E3900  81 8C 00 70 */	lwz r12, 0x70(r12)
+/* 814133E4 000E3904  7D 89 03 A6 */	mtctr r12
+/* 814133E8 000E3908  4E 80 04 21 */	bctrl
+.L_814133EC:
+/* 814133EC 000E390C  88 1F 01 20 */	lbz r0, 0x120(r31)
+/* 814133F0 000E3910  2C 00 00 00 */	cmpwi r0, 0x0
+/* 814133F4 000E3914  41 82 00 24 */	beq .L_81413418
+/* 814133F8 000E3918  38 00 00 00 */	li r0, 0x0
+/* 814133FC 000E391C  80 7F 01 1C */	lwz r3, 0x11c(r31)
+/* 81413400 000E3920  98 1F 01 20 */	stb r0, 0x120(r31)
+/* 81413404 000E3924  38 80 00 05 */	li r4, 0x5
+/* 81413408 000E3928  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 8141340C 000E392C  81 8C 00 10 */	lwz r12, 0x10(r12)
+/* 81413410 000E3930  7D 89 03 A6 */	mtctr r12
+/* 81413414 000E3934  4E 80 04 21 */	bctrl
+.L_81413418:
+/* 81413418 000E3938  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 8141341C 000E393C  83 E1 00 0C */	lwz r31, 0xc(r1)
+/* 81413420 000E3940  7C 08 03 A6 */	mtlr r0
+/* 81413424 000E3944  38 21 00 10 */	addi r1, r1, 0x10
+/* 81413428 000E3948  4E 80 00 20 */	blr
+.endfn onReleasedShift__Q49textinput8keyboard6pctype12LayoutByNW4RFv
+
+# .text:0x3254 | 0x8141342C | size: 0x688
+# textinput::keyboard::pctype::LayoutByNW4R::onKey(unsigned long, void*)
+.fn onKey__Q49textinput8keyboard6pctype12LayoutByNW4RFUlPv, global
+/* 8141342C 000E394C  94 21 FF E0 */	stwu r1, -0x20(r1)
+/* 81413430 000E3950  7C 08 02 A6 */	mflr r0
+/* 81413434 000E3954  90 01 00 24 */	stw r0, 0x24(r1)
+/* 81413438 000E3958  93 E1 00 1C */	stw r31, 0x1c(r1)
+/* 8141343C 000E395C  3F E0 81 66 */	lis r31, lbl_81658D90@ha
+/* 81413440 000E3960  3B FF 8D 90 */	addi r31, r31, lbl_81658D90@l
+/* 81413444 000E3964  93 C1 00 18 */	stw r30, 0x18(r1)
+/* 81413448 000E3968  7C BE 2B 78 */	mr r30, r5
+/* 8141344C 000E396C  93 A1 00 14 */	stw r29, 0x14(r1)
+/* 81413450 000E3970  7C 9D 23 78 */	mr r29, r4
+/* 81413454 000E3974  7F C4 F3 78 */	mr r4, r30
+/* 81413458 000E3978  93 81 00 10 */	stw r28, 0x10(r1)
+/* 8141345C 000E397C  7C 7C 1B 78 */	mr r28, r3
+/* 81413460 000E3980  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81413464 000E3984  81 8C 00 80 */	lwz r12, 0x80(r12)
+/* 81413468 000E3988  7D 89 03 A6 */	mtctr r12
+/* 8141346C 000E398C  4E 80 04 21 */	bctrl
+/* 81413470 000E3990  28 1D 00 04 */	cmplwi r29, 0x4
+/* 81413474 000E3994  40 82 06 10 */	bne .L_81413A84
+/* 81413478 000E3998  81 9C 00 00 */	lwz r12, 0x0(r28)
+/* 8141347C 000E399C  7F 83 E3 78 */	mr r3, r28
+/* 81413480 000E39A0  7F C4 F3 78 */	mr r4, r30
+/* 81413484 000E39A4  81 8C 00 80 */	lwz r12, 0x80(r12)
+/* 81413488 000E39A8  7D 89 03 A6 */	mtctr r12
+/* 8141348C 000E39AC  4E 80 04 21 */	bctrl
+/* 81413490 000E39B0  54 60 04 3F */	clrlwi. r0, r3, 16
+/* 81413494 000E39B4  40 82 05 F0 */	bne .L_81413A84
+/* 81413498 000E39B8  81 9C 00 00 */	lwz r12, 0x0(r28)
+/* 8141349C 000E39BC  7F 83 E3 78 */	mr r3, r28
+/* 814134A0 000E39C0  7F C4 F3 78 */	mr r4, r30
+/* 814134A4 000E39C4  81 8C 00 84 */	lwz r12, 0x84(r12)
+/* 814134A8 000E39C8  7D 89 03 A6 */	mtctr r12
+/* 814134AC 000E39CC  4E 80 04 21 */	bctrl
+/* 814134B0 000E39D0  28 03 00 13 */	cmplwi r3, 0x13
+/* 814134B4 000E39D4  41 81 05 D0 */	bgt .L_81413A84
+/* 814134B8 000E39D8  3C 80 81 66 */	lis r4, jumptable_8165B78C@ha
+/* 814134BC 000E39DC  54 60 10 3A */	slwi r0, r3, 2
+/* 814134C0 000E39E0  38 84 B7 8C */	addi r4, r4, jumptable_8165B78C@l
+/* 814134C4 000E39E4  7C 84 00 2E */	lwzx r4, r4, r0
+/* 814134C8 000E39E8  7C 89 03 A6 */	mtctr r4
+/* 814134CC 000E39EC  4E 80 04 20 */	bctr
+.L_814134D0:
+/* 814134D0 000E39F0  88 0D AC B8 */	lbz r0, "@GUARD@getInstance__Q39textinput12LayoutGather9SingletonFv@sGather"@sda21(r0)
+/* 814134D4 000E39F4  7C 00 07 75 */	extsb. r0, r0
+/* 814134D8 000E39F8  40 82 00 2C */	bne .L_81413504
+/* 814134DC 000E39FC  38 6D AC BC */	li r3, "@LOCAL@getInstance__Q39textinput12LayoutGather9SingletonFv@sGather"@sda21
+/* 814134E0 000E3A00  48 03 70 3D */	bl __ct__Q29textinput12LayoutGatherFv
+/* 814134E4 000E3A04  3C 80 81 45 */	lis r4, __dt__Q29textinput12LayoutGatherFv@ha
+/* 814134E8 000E3A08  3C A0 81 0C */	lis r5, lbl_810C6580@ha
+/* 814134EC 000E3A0C  38 84 A5 2C */	addi r4, r4, __dt__Q29textinput12LayoutGatherFv@l
+/* 814134F0 000E3A10  38 6D AC BC */	li r3, "@LOCAL@getInstance__Q39textinput12LayoutGather9SingletonFv@sGather"@sda21
+/* 814134F4 000E3A14  38 A5 65 80 */	addi r5, r5, lbl_810C6580@l
+/* 814134F8 000E3A18  48 1E 5A E9 */	bl __register_global_object
+/* 814134FC 000E3A1C  38 00 00 01 */	li r0, 0x1
+/* 81413500 000E3A20  98 0D AC B8 */	stb r0, "@GUARD@getInstance__Q39textinput12LayoutGather9SingletonFv@sGather"@sda21(r0)
+.L_81413504:
+/* 81413504 000E3A24  88 0D AC BC */	lbz r0, "@LOCAL@getInstance__Q39textinput12LayoutGather9SingletonFv@sGather"@sda21(r0)
+/* 81413508 000E3A28  3B ED AC BC */	li r31, "@LOCAL@getInstance__Q39textinput12LayoutGather9SingletonFv@sGather"@sda21
+/* 8141350C 000E3A2C  38 60 00 00 */	li r3, 0x0
+/* 81413510 000E3A30  54 00 D7 FF */	extrwi. r0, r0, 1, 25
+/* 81413514 000E3A34  40 82 00 10 */	bne .L_81413524
+/* 81413518 000E3A38  88 1F 00 00 */	lbz r0, 0x0(r31)
+/* 8141351C 000E3A3C  54 00 DF FF */	extrwi. r0, r0, 1, 26
+/* 81413520 000E3A40  41 82 00 08 */	beq .L_81413528
+.L_81413524:
+/* 81413524 000E3A44  38 60 00 01 */	li r3, 0x1
+.L_81413528:
+/* 81413528 000E3A48  2C 03 00 00 */	cmpwi r3, 0x0
+/* 8141352C 000E3A4C  40 82 00 4C */	bne .L_81413578
+/* 81413530 000E3A50  80 7C 00 20 */	lwz r3, 0x20(r28)
+/* 81413534 000E3A54  54 60 00 37 */	clrrwi. r0, r3, 4
+/* 81413538 000E3A58  41 82 00 14 */	beq .L_8141354C
+/* 8141353C 000E3A5C  54 60 06 6E */	rlwinm r0, r3, 0, 25, 23
+/* 81413540 000E3A60  38 7C 00 20 */	addi r3, r28, 0x20
+/* 81413544 000E3A64  90 1C 00 20 */	stw r0, 0x20(r28)
+/* 81413548 000E3A68  4B FF DC B1 */	bl refresh___Q59textinput8keyboard6pctype4Base8KeyStateFv
+.L_8141354C:
+/* 8141354C 000E3A6C  88 1C 01 20 */	lbz r0, 0x120(r28)
+/* 81413550 000E3A70  2C 00 00 00 */	cmpwi r0, 0x0
+/* 81413554 000E3A74  41 82 00 24 */	beq .L_81413578
+/* 81413558 000E3A78  38 00 00 00 */	li r0, 0x0
+/* 8141355C 000E3A7C  80 7C 01 1C */	lwz r3, 0x11c(r28)
+/* 81413560 000E3A80  98 1C 01 20 */	stb r0, 0x120(r28)
+/* 81413564 000E3A84  38 80 00 05 */	li r4, 0x5
+/* 81413568 000E3A88  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 8141356C 000E3A8C  81 8C 00 10 */	lwz r12, 0x10(r12)
+/* 81413570 000E3A90  7D 89 03 A6 */	mtctr r12
+/* 81413574 000E3A94  4E 80 04 21 */	bctrl
+.L_81413578:
+/* 81413578 000E3A98  88 1F 00 00 */	lbz r0, 0x0(r31)
+/* 8141357C 000E3A9C  7F E3 FB 78 */	mr r3, r31
+/* 81413580 000E3AA0  38 81 00 08 */	addi r4, r1, 0x8
+/* 81413584 000E3AA4  54 00 CF FE */	extrwi r0, r0, 1, 24
+/* 81413588 000E3AA8  7C 00 00 34 */	cntlzw r0, r0
+/* 8141358C 000E3AAC  54 00 DE 3E */	extrwi r0, r0, 8, 19
+/* 81413590 000E3AB0  98 01 00 08 */	stb r0, 0x8(r1)
+/* 81413594 000E3AB4  48 03 6F D9 */	bl changeCapsLock__Q29textinput12LayoutGatherFRCUc
+/* 81413598 000E3AB8  80 1C 00 20 */	lwz r0, 0x20(r28)
+/* 8141359C 000E3ABC  38 7C 00 20 */	addi r3, r28, 0x20
+/* 814135A0 000E3AC0  68 04 00 40 */	xori r4, r0, 0x40
+/* 814135A4 000E3AC4  54 00 06 B0 */	rlwinm r0, r0, 0, 26, 24
+/* 814135A8 000E3AC8  50 80 06 72 */	rlwimi r0, r4, 0, 25, 25
+/* 814135AC 000E3ACC  90 1C 00 20 */	stw r0, 0x20(r28)
+/* 814135B0 000E3AD0  4B FF DC 49 */	bl refresh___Q59textinput8keyboard6pctype4Base8KeyStateFv
+/* 814135B4 000E3AD4  80 1C 00 20 */	lwz r0, 0x20(r28)
+/* 814135B8 000E3AD8  54 00 D7 FF */	extrwi. r0, r0, 1, 25
+/* 814135BC 000E3ADC  98 1C 01 44 */	stb r0, 0x144(r28)
+/* 814135C0 000E3AE0  41 82 00 20 */	beq .L_814135E0
+/* 814135C4 000E3AE4  80 7C 01 40 */	lwz r3, 0x140(r28)
+/* 814135C8 000E3AE8  38 80 00 0A */	li r4, 0xa
+/* 814135CC 000E3AEC  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 814135D0 000E3AF0  81 8C 00 10 */	lwz r12, 0x10(r12)
+/* 814135D4 000E3AF4  7D 89 03 A6 */	mtctr r12
+/* 814135D8 000E3AF8  4E 80 04 21 */	bctrl
+/* 814135DC 000E3AFC  48 00 00 1C */	b .L_814135F8
+.L_814135E0:
+/* 814135E0 000E3B00  80 7C 01 40 */	lwz r3, 0x140(r28)
+/* 814135E4 000E3B04  38 80 00 0B */	li r4, 0xb
+/* 814135E8 000E3B08  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 814135EC 000E3B0C  81 8C 00 10 */	lwz r12, 0x10(r12)
+/* 814135F0 000E3B10  7D 89 03 A6 */	mtctr r12
+/* 814135F4 000E3B14  4E 80 04 21 */	bctrl
+.L_814135F8:
+/* 814135F8 000E3B18  80 7C 00 58 */	lwz r3, 0x58(r28)
+/* 814135FC 000E3B1C  38 80 00 0D */	li r4, 0xd
+/* 81413600 000E3B20  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81413604 000E3B24  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81413608 000E3B28  7D 89 03 A6 */	mtctr r12
+/* 8141360C 000E3B2C  4E 80 04 21 */	bctrl
+/* 81413610 000E3B30  48 00 04 74 */	b .L_81413A84
+.L_81413614:
+/* 81413614 000E3B34  88 0D AC B8 */	lbz r0, "@GUARD@getInstance__Q39textinput12LayoutGather9SingletonFv@sGather"@sda21(r0)
+/* 81413618 000E3B38  7C 00 07 75 */	extsb. r0, r0
+/* 8141361C 000E3B3C  40 82 00 2C */	bne .L_81413648
+/* 81413620 000E3B40  38 6D AC BC */	li r3, "@LOCAL@getInstance__Q39textinput12LayoutGather9SingletonFv@sGather"@sda21
+/* 81413624 000E3B44  48 03 6E F9 */	bl __ct__Q29textinput12LayoutGatherFv
+/* 81413628 000E3B48  3C 80 81 45 */	lis r4, __dt__Q29textinput12LayoutGatherFv@ha
+/* 8141362C 000E3B4C  3C A0 81 0C */	lis r5, lbl_810C6580@ha
+/* 81413630 000E3B50  38 84 A5 2C */	addi r4, r4, __dt__Q29textinput12LayoutGatherFv@l
+/* 81413634 000E3B54  38 6D AC BC */	li r3, "@LOCAL@getInstance__Q39textinput12LayoutGather9SingletonFv@sGather"@sda21
+/* 81413638 000E3B58  38 A5 65 80 */	addi r5, r5, lbl_810C6580@l
+/* 8141363C 000E3B5C  48 1E 59 A5 */	bl __register_global_object
+/* 81413640 000E3B60  38 00 00 01 */	li r0, 0x1
+/* 81413644 000E3B64  98 0D AC B8 */	stb r0, "@GUARD@getInstance__Q39textinput12LayoutGather9SingletonFv@sGather"@sda21(r0)
+.L_81413648:
+/* 81413648 000E3B68  80 7C 00 20 */	lwz r3, 0x20(r28)
+/* 8141364C 000E3B6C  3B ED AC BC */	li r31, "@LOCAL@getInstance__Q39textinput12LayoutGather9SingletonFv@sGather"@sda21
+/* 81413650 000E3B70  54 60 00 37 */	clrrwi. r0, r3, 4
+/* 81413654 000E3B74  41 82 00 14 */	beq .L_81413668
+/* 81413658 000E3B78  54 60 06 B0 */	rlwinm r0, r3, 0, 26, 24
+/* 8141365C 000E3B7C  38 7C 00 20 */	addi r3, r28, 0x20
+/* 81413660 000E3B80  90 1C 00 20 */	stw r0, 0x20(r28)
+/* 81413664 000E3B84  4B FF DB 95 */	bl refresh___Q59textinput8keyboard6pctype4Base8KeyStateFv
+.L_81413668:
+/* 81413668 000E3B88  88 1C 01 44 */	lbz r0, 0x144(r28)
+/* 8141366C 000E3B8C  2C 00 00 00 */	cmpwi r0, 0x0
+/* 81413670 000E3B90  41 82 00 24 */	beq .L_81413694
+/* 81413674 000E3B94  38 00 00 00 */	li r0, 0x0
+/* 81413678 000E3B98  80 7C 01 40 */	lwz r3, 0x140(r28)
+/* 8141367C 000E3B9C  98 1C 01 44 */	stb r0, 0x144(r28)
+/* 81413680 000E3BA0  38 80 00 05 */	li r4, 0x5
+/* 81413684 000E3BA4  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81413688 000E3BA8  81 8C 00 10 */	lwz r12, 0x10(r12)
+/* 8141368C 000E3BAC  7D 89 03 A6 */	mtctr r12
+/* 81413690 000E3BB0  4E 80 04 21 */	bctrl
+.L_81413694:
+/* 81413694 000E3BB4  88 7F 00 00 */	lbz r3, 0x0(r31)
+/* 81413698 000E3BB8  38 80 00 00 */	li r4, 0x0
+/* 8141369C 000E3BBC  54 60 D7 FF */	extrwi. r0, r3, 1, 25
+/* 814136A0 000E3BC0  40 82 00 0C */	bne .L_814136AC
+/* 814136A4 000E3BC4  54 60 DF FF */	extrwi. r0, r3, 1, 26
+/* 814136A8 000E3BC8  41 82 00 08 */	beq .L_814136B0
+.L_814136AC:
+/* 814136AC 000E3BCC  38 80 00 01 */	li r4, 0x1
+.L_814136B0:
+/* 814136B0 000E3BD0  2C 04 00 00 */	cmpwi r4, 0x0
+/* 814136B4 000E3BD4  40 82 00 20 */	bne .L_814136D4
+/* 814136B8 000E3BD8  80 1C 00 20 */	lwz r0, 0x20(r28)
+/* 814136BC 000E3BDC  38 7C 00 20 */	addi r3, r28, 0x20
+/* 814136C0 000E3BE0  68 04 00 80 */	xori r4, r0, 0x80
+/* 814136C4 000E3BE4  54 00 06 6E */	rlwinm r0, r0, 0, 25, 23
+/* 814136C8 000E3BE8  50 80 06 30 */	rlwimi r0, r4, 0, 24, 24
+/* 814136CC 000E3BEC  90 1C 00 20 */	stw r0, 0x20(r28)
+/* 814136D0 000E3BF0  4B FF DB 29 */	bl refresh___Q59textinput8keyboard6pctype4Base8KeyStateFv
+.L_814136D4:
+/* 814136D4 000E3BF4  80 1C 00 20 */	lwz r0, 0x20(r28)
+/* 814136D8 000E3BF8  54 00 CF FF */	extrwi. r0, r0, 1, 24
+/* 814136DC 000E3BFC  98 1C 01 20 */	stb r0, 0x120(r28)
+/* 814136E0 000E3C00  41 82 00 20 */	beq .L_81413700
+/* 814136E4 000E3C04  80 7C 01 1C */	lwz r3, 0x11c(r28)
+/* 814136E8 000E3C08  38 80 00 0A */	li r4, 0xa
+/* 814136EC 000E3C0C  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 814136F0 000E3C10  81 8C 00 10 */	lwz r12, 0x10(r12)
+/* 814136F4 000E3C14  7D 89 03 A6 */	mtctr r12
+/* 814136F8 000E3C18  4E 80 04 21 */	bctrl
+/* 814136FC 000E3C1C  48 00 00 1C */	b .L_81413718
+.L_81413700:
+/* 81413700 000E3C20  80 7C 01 1C */	lwz r3, 0x11c(r28)
+/* 81413704 000E3C24  38 80 00 0B */	li r4, 0xb
+/* 81413708 000E3C28  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 8141370C 000E3C2C  81 8C 00 10 */	lwz r12, 0x10(r12)
+/* 81413710 000E3C30  7D 89 03 A6 */	mtctr r12
+/* 81413714 000E3C34  4E 80 04 21 */	bctrl
+.L_81413718:
+/* 81413718 000E3C38  80 7C 00 58 */	lwz r3, 0x58(r28)
+/* 8141371C 000E3C3C  38 80 00 0D */	li r4, 0xd
+/* 81413720 000E3C40  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81413724 000E3C44  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81413728 000E3C48  7D 89 03 A6 */	mtctr r12
+/* 8141372C 000E3C4C  4E 80 04 21 */	bctrl
+/* 81413730 000E3C50  48 00 03 54 */	b .L_81413A84
+.L_81413734:
+/* 81413734 000E3C54  80 7C 00 58 */	lwz r3, 0x58(r28)
+/* 81413738 000E3C58  38 80 00 09 */	li r4, 0x9
+/* 8141373C 000E3C5C  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81413740 000E3C60  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81413744 000E3C64  7D 89 03 A6 */	mtctr r12
+/* 81413748 000E3C68  4E 80 04 21 */	bctrl
+/* 8141374C 000E3C6C  48 00 03 38 */	b .L_81413A84
+.L_81413750:
+/* 81413750 000E3C70  81 9C 00 00 */	lwz r12, 0x0(r28)
+/* 81413754 000E3C74  7F 83 E3 78 */	mr r3, r28
+/* 81413758 000E3C78  81 8C 00 48 */	lwz r12, 0x48(r12)
+/* 8141375C 000E3C7C  7D 89 03 A6 */	mtctr r12
+/* 81413760 000E3C80  4E 80 04 21 */	bctrl
+/* 81413764 000E3C84  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81413768 000E3C88  40 82 03 1C */	bne .L_81413A84
+/* 8141376C 000E3C8C  80 7C 00 58 */	lwz r3, 0x58(r28)
+/* 81413770 000E3C90  38 80 00 0D */	li r4, 0xd
+/* 81413774 000E3C94  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81413778 000E3C98  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 8141377C 000E3C9C  7D 89 03 A6 */	mtctr r12
+/* 81413780 000E3CA0  4E 80 04 21 */	bctrl
+/* 81413784 000E3CA4  81 9C 00 44 */	lwz r12, 0x44(r28)
+/* 81413788 000E3CA8  38 7C 00 44 */	addi r3, r28, 0x44
+/* 8141378C 000E3CAC  38 9F 28 BC */	addi r4, r31, 0x28bc
+/* 81413790 000E3CB0  81 8C 00 60 */	lwz r12, 0x60(r12)
+/* 81413794 000E3CB4  7D 89 03 A6 */	mtctr r12
+/* 81413798 000E3CB8  4E 80 04 21 */	bctrl
+/* 8141379C 000E3CBC  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 814137A0 000E3CC0  38 80 00 06 */	li r4, 0x6
+/* 814137A4 000E3CC4  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 814137A8 000E3CC8  7D 89 03 A6 */	mtctr r12
+/* 814137AC 000E3CCC  4E 80 04 21 */	bctrl
+/* 814137B0 000E3CD0  48 00 02 D4 */	b .L_81413A84
+.L_814137B4:
+/* 814137B4 000E3CD4  81 9C 00 00 */	lwz r12, 0x0(r28)
+/* 814137B8 000E3CD8  7F 83 E3 78 */	mr r3, r28
+/* 814137BC 000E3CDC  81 8C 00 48 */	lwz r12, 0x48(r12)
+/* 814137C0 000E3CE0  7D 89 03 A6 */	mtctr r12
+/* 814137C4 000E3CE4  4E 80 04 21 */	bctrl
+/* 814137C8 000E3CE8  2C 03 00 00 */	cmpwi r3, 0x0
+/* 814137CC 000E3CEC  41 82 02 B8 */	beq .L_81413A84
+/* 814137D0 000E3CF0  80 7C 00 58 */	lwz r3, 0x58(r28)
+/* 814137D4 000E3CF4  38 80 00 0D */	li r4, 0xd
+/* 814137D8 000E3CF8  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 814137DC 000E3CFC  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 814137E0 000E3D00  7D 89 03 A6 */	mtctr r12
+/* 814137E4 000E3D04  4E 80 04 21 */	bctrl
+/* 814137E8 000E3D08  81 9C 00 44 */	lwz r12, 0x44(r28)
+/* 814137EC 000E3D0C  38 7C 00 44 */	addi r3, r28, 0x44
+/* 814137F0 000E3D10  38 9F 28 AC */	addi r4, r31, 0x28ac
+/* 814137F4 000E3D14  81 8C 00 60 */	lwz r12, 0x60(r12)
+/* 814137F8 000E3D18  7D 89 03 A6 */	mtctr r12
+/* 814137FC 000E3D1C  4E 80 04 21 */	bctrl
+/* 81413800 000E3D20  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81413804 000E3D24  38 80 00 06 */	li r4, 0x6
+/* 81413808 000E3D28  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 8141380C 000E3D2C  7D 89 03 A6 */	mtctr r12
+/* 81413810 000E3D30  4E 80 04 21 */	bctrl
+/* 81413814 000E3D34  48 00 02 70 */	b .L_81413A84
+.L_81413818:
+/* 81413818 000E3D38  80 1C 00 28 */	lwz r0, 0x28(r28)
+/* 8141381C 000E3D3C  54 00 07 3E */	clrlwi r0, r0, 28
+/* 81413820 000E3D40  28 00 00 01 */	cmplwi r0, 0x1
+/* 81413824 000E3D44  40 82 02 60 */	bne .L_81413A84
+/* 81413828 000E3D48  80 7C 00 58 */	lwz r3, 0x58(r28)
+/* 8141382C 000E3D4C  38 80 00 0D */	li r4, 0xd
+/* 81413830 000E3D50  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81413834 000E3D54  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81413838 000E3D58  7D 89 03 A6 */	mtctr r12
+/* 8141383C 000E3D5C  4E 80 04 21 */	bctrl
+/* 81413840 000E3D60  81 9C 00 44 */	lwz r12, 0x44(r28)
+/* 81413844 000E3D64  38 7C 00 44 */	addi r3, r28, 0x44
+/* 81413848 000E3D68  38 9F 29 68 */	addi r4, r31, 0x2968
+/* 8141384C 000E3D6C  81 8C 00 60 */	lwz r12, 0x60(r12)
+/* 81413850 000E3D70  7D 89 03 A6 */	mtctr r12
+/* 81413854 000E3D74  4E 80 04 21 */	bctrl
+/* 81413858 000E3D78  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 8141385C 000E3D7C  38 80 00 06 */	li r4, 0x6
+/* 81413860 000E3D80  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81413864 000E3D84  7D 89 03 A6 */	mtctr r12
+/* 81413868 000E3D88  4E 80 04 21 */	bctrl
+/* 8141386C 000E3D8C  48 00 02 18 */	b .L_81413A84
+.L_81413870:
+/* 81413870 000E3D90  80 1C 00 28 */	lwz r0, 0x28(r28)
+/* 81413874 000E3D94  54 00 07 3F */	clrlwi. r0, r0, 28
+/* 81413878 000E3D98  40 82 02 0C */	bne .L_81413A84
+/* 8141387C 000E3D9C  80 7C 00 58 */	lwz r3, 0x58(r28)
+/* 81413880 000E3DA0  38 80 00 0D */	li r4, 0xd
+/* 81413884 000E3DA4  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81413888 000E3DA8  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 8141388C 000E3DAC  7D 89 03 A6 */	mtctr r12
+/* 81413890 000E3DB0  4E 80 04 21 */	bctrl
+/* 81413894 000E3DB4  81 9C 00 44 */	lwz r12, 0x44(r28)
+/* 81413898 000E3DB8  38 7C 00 44 */	addi r3, r28, 0x44
+/* 8141389C 000E3DBC  38 9F 29 5C */	addi r4, r31, 0x295c
+/* 814138A0 000E3DC0  81 8C 00 60 */	lwz r12, 0x60(r12)
+/* 814138A4 000E3DC4  7D 89 03 A6 */	mtctr r12
+/* 814138A8 000E3DC8  4E 80 04 21 */	bctrl
+/* 814138AC 000E3DCC  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 814138B0 000E3DD0  38 80 00 06 */	li r4, 0x6
+/* 814138B4 000E3DD4  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 814138B8 000E3DD8  7D 89 03 A6 */	mtctr r12
+/* 814138BC 000E3DDC  4E 80 04 21 */	bctrl
+/* 814138C0 000E3DE0  48 00 01 C4 */	b .L_81413A84
+.L_814138C4:
+/* 814138C4 000E3DE4  80 1C 00 20 */	lwz r0, 0x20(r28)
+/* 814138C8 000E3DE8  54 00 07 3E */	clrlwi r0, r0, 28
+/* 814138CC 000E3DEC  28 00 00 02 */	cmplwi r0, 0x2
+/* 814138D0 000E3DF0  40 82 00 30 */	bne .L_81413900
+/* 814138D4 000E3DF4  81 9C 00 44 */	lwz r12, 0x44(r28)
+/* 814138D8 000E3DF8  38 7C 00 44 */	addi r3, r28, 0x44
+/* 814138DC 000E3DFC  38 9F 29 B8 */	addi r4, r31, 0x29b8
+/* 814138E0 000E3E00  81 8C 00 60 */	lwz r12, 0x60(r12)
+/* 814138E4 000E3E04  7D 89 03 A6 */	mtctr r12
+/* 814138E8 000E3E08  4E 80 04 21 */	bctrl
+/* 814138EC 000E3E0C  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 814138F0 000E3E10  38 80 00 06 */	li r4, 0x6
+/* 814138F4 000E3E14  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 814138F8 000E3E18  7D 89 03 A6 */	mtctr r12
+/* 814138FC 000E3E1C  4E 80 04 21 */	bctrl
+.L_81413900:
+/* 81413900 000E3E20  80 1C 00 20 */	lwz r0, 0x20(r28)
+/* 81413904 000E3E24  54 00 07 3E */	clrlwi r0, r0, 28
+/* 81413908 000E3E28  28 00 00 01 */	cmplwi r0, 0x1
+/* 8141390C 000E3E2C  40 82 01 78 */	bne .L_81413A84
+/* 81413910 000E3E30  81 9C 00 44 */	lwz r12, 0x44(r28)
+/* 81413914 000E3E34  38 7C 00 44 */	addi r3, r28, 0x44
+/* 81413918 000E3E38  38 9F 29 A4 */	addi r4, r31, 0x29a4
+/* 8141391C 000E3E3C  81 8C 00 60 */	lwz r12, 0x60(r12)
+/* 81413920 000E3E40  7D 89 03 A6 */	mtctr r12
+/* 81413924 000E3E44  4E 80 04 21 */	bctrl
+/* 81413928 000E3E48  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 8141392C 000E3E4C  38 80 00 06 */	li r4, 0x6
+/* 81413930 000E3E50  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81413934 000E3E54  7D 89 03 A6 */	mtctr r12
+/* 81413938 000E3E58  4E 80 04 21 */	bctrl
+/* 8141393C 000E3E5C  81 9C 00 44 */	lwz r12, 0x44(r28)
+/* 81413940 000E3E60  38 7C 00 44 */	addi r3, r28, 0x44
+/* 81413944 000E3E64  38 9F 29 EC */	addi r4, r31, 0x29ec
+/* 81413948 000E3E68  81 8C 00 60 */	lwz r12, 0x60(r12)
+/* 8141394C 000E3E6C  7D 89 03 A6 */	mtctr r12
+/* 81413950 000E3E70  4E 80 04 21 */	bctrl
+/* 81413954 000E3E74  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81413958 000E3E78  38 80 00 06 */	li r4, 0x6
+/* 8141395C 000E3E7C  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81413960 000E3E80  7D 89 03 A6 */	mtctr r12
+/* 81413964 000E3E84  4E 80 04 21 */	bctrl
+/* 81413968 000E3E88  48 00 01 1C */	b .L_81413A84
+.L_8141396C:
+/* 8141396C 000E3E8C  80 1C 00 20 */	lwz r0, 0x20(r28)
+/* 81413970 000E3E90  54 00 07 3F */	clrlwi. r0, r0, 28
+/* 81413974 000E3E94  40 82 00 5C */	bne .L_814139D0
+/* 81413978 000E3E98  81 9C 00 44 */	lwz r12, 0x44(r28)
+/* 8141397C 000E3E9C  38 7C 00 44 */	addi r3, r28, 0x44
+/* 81413980 000E3EA0  38 9F 29 CC */	addi r4, r31, 0x29cc
+/* 81413984 000E3EA4  81 8C 00 60 */	lwz r12, 0x60(r12)
+/* 81413988 000E3EA8  7D 89 03 A6 */	mtctr r12
+/* 8141398C 000E3EAC  4E 80 04 21 */	bctrl
+/* 81413990 000E3EB0  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81413994 000E3EB4  38 80 00 06 */	li r4, 0x6
+/* 81413998 000E3EB8  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 8141399C 000E3EBC  7D 89 03 A6 */	mtctr r12
+/* 814139A0 000E3EC0  4E 80 04 21 */	bctrl
+/* 814139A4 000E3EC4  81 9C 00 44 */	lwz r12, 0x44(r28)
+/* 814139A8 000E3EC8  38 7C 00 44 */	addi r3, r28, 0x44
+/* 814139AC 000E3ECC  38 9F 29 DC */	addi r4, r31, 0x29dc
+/* 814139B0 000E3ED0  81 8C 00 60 */	lwz r12, 0x60(r12)
+/* 814139B4 000E3ED4  7D 89 03 A6 */	mtctr r12
+/* 814139B8 000E3ED8  4E 80 04 21 */	bctrl
+/* 814139BC 000E3EDC  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 814139C0 000E3EE0  38 80 00 06 */	li r4, 0x6
+/* 814139C4 000E3EE4  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 814139C8 000E3EE8  7D 89 03 A6 */	mtctr r12
+/* 814139CC 000E3EEC  4E 80 04 21 */	bctrl
+.L_814139D0:
+/* 814139D0 000E3EF0  80 1C 00 20 */	lwz r0, 0x20(r28)
+/* 814139D4 000E3EF4  54 00 07 3E */	clrlwi r0, r0, 28
+/* 814139D8 000E3EF8  28 00 00 02 */	cmplwi r0, 0x2
+/* 814139DC 000E3EFC  40 82 00 A8 */	bne .L_81413A84
+/* 814139E0 000E3F00  81 9C 00 44 */	lwz r12, 0x44(r28)
+/* 814139E4 000E3F04  38 7C 00 44 */	addi r3, r28, 0x44
+/* 814139E8 000E3F08  38 9F 29 B8 */	addi r4, r31, 0x29b8
+/* 814139EC 000E3F0C  81 8C 00 60 */	lwz r12, 0x60(r12)
+/* 814139F0 000E3F10  7D 89 03 A6 */	mtctr r12
+/* 814139F4 000E3F14  4E 80 04 21 */	bctrl
+/* 814139F8 000E3F18  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 814139FC 000E3F1C  38 80 00 06 */	li r4, 0x6
+/* 81413A00 000E3F20  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81413A04 000E3F24  7D 89 03 A6 */	mtctr r12
+/* 81413A08 000E3F28  4E 80 04 21 */	bctrl
+/* 81413A0C 000E3F2C  48 00 00 78 */	b .L_81413A84
+.L_81413A10:
+/* 81413A10 000E3F30  80 1C 00 20 */	lwz r0, 0x20(r28)
+/* 81413A14 000E3F34  54 00 07 3F */	clrlwi. r0, r0, 28
+/* 81413A18 000E3F38  40 82 00 30 */	bne .L_81413A48
+/* 81413A1C 000E3F3C  81 9C 00 44 */	lwz r12, 0x44(r28)
+/* 81413A20 000E3F40  38 7C 00 44 */	addi r3, r28, 0x44
+/* 81413A24 000E3F44  38 9F 29 CC */	addi r4, r31, 0x29cc
+/* 81413A28 000E3F48  81 8C 00 60 */	lwz r12, 0x60(r12)
+/* 81413A2C 000E3F4C  7D 89 03 A6 */	mtctr r12
+/* 81413A30 000E3F50  4E 80 04 21 */	bctrl
+/* 81413A34 000E3F54  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81413A38 000E3F58  38 80 00 06 */	li r4, 0x6
+/* 81413A3C 000E3F5C  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81413A40 000E3F60  7D 89 03 A6 */	mtctr r12
+/* 81413A44 000E3F64  4E 80 04 21 */	bctrl
+.L_81413A48:
+/* 81413A48 000E3F68  80 1C 00 20 */	lwz r0, 0x20(r28)
+/* 81413A4C 000E3F6C  54 00 07 3E */	clrlwi r0, r0, 28
+/* 81413A50 000E3F70  28 00 00 01 */	cmplwi r0, 0x1
+/* 81413A54 000E3F74  40 82 00 30 */	bne .L_81413A84
+/* 81413A58 000E3F78  81 9C 00 44 */	lwz r12, 0x44(r28)
+/* 81413A5C 000E3F7C  38 7C 00 44 */	addi r3, r28, 0x44
+/* 81413A60 000E3F80  38 9F 29 A4 */	addi r4, r31, 0x29a4
+/* 81413A64 000E3F84  81 8C 00 60 */	lwz r12, 0x60(r12)
+/* 81413A68 000E3F88  7D 89 03 A6 */	mtctr r12
+/* 81413A6C 000E3F8C  4E 80 04 21 */	bctrl
+/* 81413A70 000E3F90  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81413A74 000E3F94  38 80 00 06 */	li r4, 0x6
+/* 81413A78 000E3F98  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81413A7C 000E3F9C  7D 89 03 A6 */	mtctr r12
+/* 81413A80 000E3FA0  4E 80 04 21 */	bctrl
+.L_81413A84:
+/* 81413A84 000E3FA4  7F 83 E3 78 */	mr r3, r28
+/* 81413A88 000E3FA8  7F A4 EB 78 */	mr r4, r29
+/* 81413A8C 000E3FAC  7F C5 F3 78 */	mr r5, r30
+/* 81413A90 000E3FB0  4B FF C9 3D */	bl onKey__Q49textinput8keyboard6pctype4BaseFUlPv
+/* 81413A94 000E3FB4  80 01 00 24 */	lwz r0, 0x24(r1)
+/* 81413A98 000E3FB8  83 E1 00 1C */	lwz r31, 0x1c(r1)
+/* 81413A9C 000E3FBC  83 C1 00 18 */	lwz r30, 0x18(r1)
+/* 81413AA0 000E3FC0  83 A1 00 14 */	lwz r29, 0x14(r1)
+/* 81413AA4 000E3FC4  83 81 00 10 */	lwz r28, 0x10(r1)
+/* 81413AA8 000E3FC8  7C 08 03 A6 */	mtlr r0
+/* 81413AAC 000E3FCC  38 21 00 20 */	addi r1, r1, 0x20
+/* 81413AB0 000E3FD0  4E 80 00 20 */	blr
+.endfn onKey__Q49textinput8keyboard6pctype12LayoutByNW4RFUlPv
+
+# .text:0x38DC | 0x81413AB4 | size: 0x4C
+# textinput::keyboard::pctype::LayoutByNW4R::setLanguage(textinput::Language)
+.fn setLanguage__Q49textinput8keyboard6pctype12LayoutByNW4RFQ29textinput8Language, global
+/* 81413AB4 000E3FD4  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 81413AB8 000E3FD8  7C 08 02 A6 */	mflr r0
+/* 81413ABC 000E3FDC  90 01 00 14 */	stw r0, 0x14(r1)
+/* 81413AC0 000E3FE0  93 E1 00 0C */	stw r31, 0xc(r1)
+/* 81413AC4 000E3FE4  7C 7F 1B 78 */	mr r31, r3
+/* 81413AC8 000E3FE8  90 83 00 10 */	stw r4, 0x10(r3)
+/* 81413ACC 000E3FEC  90 83 00 2C */	stw r4, 0x2c(r3)
+/* 81413AD0 000E3FF0  38 63 00 20 */	addi r3, r3, 0x20
+/* 81413AD4 000E3FF4  4B FF D7 25 */	bl refresh___Q59textinput8keyboard6pctype4Base8KeyStateFv
+/* 81413AD8 000E3FF8  81 9F 00 00 */	lwz r12, 0x0(r31)
+/* 81413ADC 000E3FFC  7F E3 FB 78 */	mr r3, r31
+/* 81413AE0 000E4000  81 8C 00 10 */	lwz r12, 0x10(r12)
+/* 81413AE4 000E4004  7D 89 03 A6 */	mtctr r12
+/* 81413AE8 000E4008  4E 80 04 21 */	bctrl
+/* 81413AEC 000E400C  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 81413AF0 000E4010  83 E1 00 0C */	lwz r31, 0xc(r1)
+/* 81413AF4 000E4014  7C 08 03 A6 */	mtlr r0
+/* 81413AF8 000E4018  38 21 00 10 */	addi r1, r1, 0x10
+/* 81413AFC 000E401C  4E 80 00 20 */	blr
+.endfn setLanguage__Q49textinput8keyboard6pctype12LayoutByNW4RFQ29textinput8Language
+
+# .text:0x3928 | 0x81413B00 | size: 0x7C
+# textinput::keyboard::pctype::LayoutByNW4R::updateFromReceiver(unsigned long, void*)
+.fn updateFromReceiver__Q49textinput8keyboard6pctype12LayoutByNW4RFUlPv, global
+/* 81413B00 000E4020  94 21 FF E0 */	stwu r1, -0x20(r1)
+/* 81413B04 000E4024  7C 08 02 A6 */	mflr r0
+/* 81413B08 000E4028  90 01 00 24 */	stw r0, 0x24(r1)
+/* 81413B0C 000E402C  93 E1 00 1C */	stw r31, 0x1c(r1)
+/* 81413B10 000E4030  7C BF 2B 78 */	mr r31, r5
+/* 81413B14 000E4034  93 C1 00 18 */	stw r30, 0x18(r1)
+/* 81413B18 000E4038  7C 9E 23 78 */	mr r30, r4
+/* 81413B1C 000E403C  93 A1 00 14 */	stw r29, 0x14(r1)
+/* 81413B20 000E4040  7C 7D 1B 78 */	mr r29, r3
+/* 81413B24 000E4044  4B FF CC 79 */	bl updateFromReceiver__Q49textinput8keyboard6pctype4BaseFUlPv
+/* 81413B28 000E4048  81 9D 00 00 */	lwz r12, 0x0(r29)
+/* 81413B2C 000E404C  7F A3 EB 78 */	mr r3, r29
+/* 81413B30 000E4050  81 8C 01 50 */	lwz r12, 0x150(r12)
+/* 81413B34 000E4054  7D 89 03 A6 */	mtctr r12
+/* 81413B38 000E4058  4E 80 04 21 */	bctrl
+/* 81413B3C 000E405C  2C 1E 00 1D */	cmpwi r30, 0x1d
+/* 81413B40 000E4060  41 82 00 08 */	beq .L_81413B48
+/* 81413B44 000E4064  48 00 00 1C */	b .L_81413B60
+.L_81413B48:
+/* 81413B48 000E4068  81 9D 00 00 */	lwz r12, 0x0(r29)
+/* 81413B4C 000E406C  7F A3 EB 78 */	mr r3, r29
+/* 81413B50 000E4070  7F E4 FB 78 */	mr r4, r31
+/* 81413B54 000E4074  81 8C 01 4C */	lwz r12, 0x14c(r12)
+/* 81413B58 000E4078  7D 89 03 A6 */	mtctr r12
+/* 81413B5C 000E407C  4E 80 04 21 */	bctrl
+.L_81413B60:
+/* 81413B60 000E4080  80 01 00 24 */	lwz r0, 0x24(r1)
+/* 81413B64 000E4084  83 E1 00 1C */	lwz r31, 0x1c(r1)
+/* 81413B68 000E4088  83 C1 00 18 */	lwz r30, 0x18(r1)
+/* 81413B6C 000E408C  83 A1 00 14 */	lwz r29, 0x14(r1)
+/* 81413B70 000E4090  7C 08 03 A6 */	mtlr r0
+/* 81413B74 000E4094  38 21 00 20 */	addi r1, r1, 0x20
+/* 81413B78 000E4098  4E 80 00 20 */	blr
+.endfn updateFromReceiver__Q49textinput8keyboard6pctype12LayoutByNW4RFUlPv
+
+# .text:0x39A4 | 0x81413B7C | size: 0x17C
+# textinput::keyboard::pctype::LayoutByNW4R::onActive()
+.fn onActive__Q49textinput8keyboard6pctype12LayoutByNW4RFv, global
+/* 81413B7C 000E409C  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 81413B80 000E40A0  7C 08 02 A6 */	mflr r0
+/* 81413B84 000E40A4  90 01 00 14 */	stw r0, 0x14(r1)
+/* 81413B88 000E40A8  93 E1 00 0C */	stw r31, 0xc(r1)
+/* 81413B8C 000E40AC  3F E0 81 66 */	lis r31, lbl_81658D90@ha
+/* 81413B90 000E40B0  3B FF 8D 90 */	addi r31, r31, lbl_81658D90@l
+/* 81413B94 000E40B4  93 C1 00 08 */	stw r30, 0x8(r1)
+/* 81413B98 000E40B8  7C 7E 1B 78 */	mr r30, r3
+/* 81413B9C 000E40BC  4B FF CC CD */	bl onActive__Q49textinput8keyboard6pctype4BaseFv
+/* 81413BA0 000E40C0  38 7E 00 44 */	addi r3, r30, 0x44
+/* 81413BA4 000E40C4  48 02 29 09 */	bl init__Q39textinput11nw4rmanager6LayoutFv
+/* 81413BA8 000E40C8  80 1E 00 28 */	lwz r0, 0x28(r30)
+/* 81413BAC 000E40CC  54 00 06 B5 */	rlwinm. r0, r0, 0, 26, 26
+/* 81413BB0 000E40D0  41 82 00 34 */	beq .L_81413BE4
+/* 81413BB4 000E40D4  81 9E 00 44 */	lwz r12, 0x44(r30)
+/* 81413BB8 000E40D8  38 7E 00 44 */	addi r3, r30, 0x44
+/* 81413BBC 000E40DC  38 9F 29 74 */	addi r4, r31, 0x2974
+/* 81413BC0 000E40E0  81 8C 00 60 */	lwz r12, 0x60(r12)
+/* 81413BC4 000E40E4  7D 89 03 A6 */	mtctr r12
+/* 81413BC8 000E40E8  4E 80 04 21 */	bctrl
+/* 81413BCC 000E40EC  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81413BD0 000E40F0  38 80 00 0E */	li r4, 0xe
+/* 81413BD4 000E40F4  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81413BD8 000E40F8  7D 89 03 A6 */	mtctr r12
+/* 81413BDC 000E40FC  4E 80 04 21 */	bctrl
+/* 81413BE0 000E4100  48 00 00 30 */	b .L_81413C10
+.L_81413BE4:
+/* 81413BE4 000E4104  81 9E 00 44 */	lwz r12, 0x44(r30)
+/* 81413BE8 000E4108  38 7E 00 44 */	addi r3, r30, 0x44
+/* 81413BEC 000E410C  38 9F 29 74 */	addi r4, r31, 0x2974
+/* 81413BF0 000E4110  81 8C 00 60 */	lwz r12, 0x60(r12)
+/* 81413BF4 000E4114  7D 89 03 A6 */	mtctr r12
+/* 81413BF8 000E4118  4E 80 04 21 */	bctrl
+/* 81413BFC 000E411C  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81413C00 000E4120  38 80 00 0F */	li r4, 0xf
+/* 81413C04 000E4124  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81413C08 000E4128  7D 89 03 A6 */	mtctr r12
+/* 81413C0C 000E412C  4E 80 04 21 */	bctrl
+.L_81413C10:
+/* 81413C10 000E4130  80 1E 00 28 */	lwz r0, 0x28(r30)
+/* 81413C14 000E4134  54 00 06 73 */	rlwinm. r0, r0, 0, 25, 25
+/* 81413C18 000E4138  41 82 00 34 */	beq .L_81413C4C
+/* 81413C1C 000E413C  81 9E 00 44 */	lwz r12, 0x44(r30)
+/* 81413C20 000E4140  38 7E 00 44 */	addi r3, r30, 0x44
+/* 81413C24 000E4144  38 9F 29 84 */	addi r4, r31, 0x2984
+/* 81413C28 000E4148  81 8C 00 60 */	lwz r12, 0x60(r12)
+/* 81413C2C 000E414C  7D 89 03 A6 */	mtctr r12
+/* 81413C30 000E4150  4E 80 04 21 */	bctrl
+/* 81413C34 000E4154  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81413C38 000E4158  38 80 00 0E */	li r4, 0xe
+/* 81413C3C 000E415C  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81413C40 000E4160  7D 89 03 A6 */	mtctr r12
+/* 81413C44 000E4164  4E 80 04 21 */	bctrl
+/* 81413C48 000E4168  48 00 00 30 */	b .L_81413C78
+.L_81413C4C:
+/* 81413C4C 000E416C  81 9E 00 44 */	lwz r12, 0x44(r30)
+/* 81413C50 000E4170  38 7E 00 44 */	addi r3, r30, 0x44
+/* 81413C54 000E4174  38 9F 29 84 */	addi r4, r31, 0x2984
+/* 81413C58 000E4178  81 8C 00 60 */	lwz r12, 0x60(r12)
+/* 81413C5C 000E417C  7D 89 03 A6 */	mtctr r12
+/* 81413C60 000E4180  4E 80 04 21 */	bctrl
+/* 81413C64 000E4184  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81413C68 000E4188  38 80 00 0F */	li r4, 0xf
+/* 81413C6C 000E418C  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81413C70 000E4190  7D 89 03 A6 */	mtctr r12
+/* 81413C74 000E4194  4E 80 04 21 */	bctrl
+.L_81413C78:
+/* 81413C78 000E4198  80 1E 00 28 */	lwz r0, 0x28(r30)
+/* 81413C7C 000E419C  54 00 06 31 */	rlwinm. r0, r0, 0, 24, 24
+/* 81413C80 000E41A0  41 82 00 34 */	beq .L_81413CB4
+/* 81413C84 000E41A4  81 9E 00 44 */	lwz r12, 0x44(r30)
+/* 81413C88 000E41A8  38 7E 00 44 */	addi r3, r30, 0x44
+/* 81413C8C 000E41AC  38 9F 29 94 */	addi r4, r31, 0x2994
+/* 81413C90 000E41B0  81 8C 00 60 */	lwz r12, 0x60(r12)
+/* 81413C94 000E41B4  7D 89 03 A6 */	mtctr r12
+/* 81413C98 000E41B8  4E 80 04 21 */	bctrl
+/* 81413C9C 000E41BC  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81413CA0 000E41C0  38 80 00 0E */	li r4, 0xe
+/* 81413CA4 000E41C4  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81413CA8 000E41C8  7D 89 03 A6 */	mtctr r12
+/* 81413CAC 000E41CC  4E 80 04 21 */	bctrl
+/* 81413CB0 000E41D0  48 00 00 30 */	b .L_81413CE0
+.L_81413CB4:
+/* 81413CB4 000E41D4  81 9E 00 44 */	lwz r12, 0x44(r30)
+/* 81413CB8 000E41D8  38 7E 00 44 */	addi r3, r30, 0x44
+/* 81413CBC 000E41DC  38 9F 29 94 */	addi r4, r31, 0x2994
+/* 81413CC0 000E41E0  81 8C 00 60 */	lwz r12, 0x60(r12)
+/* 81413CC4 000E41E4  7D 89 03 A6 */	mtctr r12
+/* 81413CC8 000E41E8  4E 80 04 21 */	bctrl
+/* 81413CCC 000E41EC  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81413CD0 000E41F0  38 80 00 0F */	li r4, 0xf
+/* 81413CD4 000E41F4  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81413CD8 000E41F8  7D 89 03 A6 */	mtctr r12
+/* 81413CDC 000E41FC  4E 80 04 21 */	bctrl
+.L_81413CE0:
+/* 81413CE0 000E4200  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 81413CE4 000E4204  83 E1 00 0C */	lwz r31, 0xc(r1)
+/* 81413CE8 000E4208  83 C1 00 08 */	lwz r30, 0x8(r1)
+/* 81413CEC 000E420C  7C 08 03 A6 */	mtlr r0
+/* 81413CF0 000E4210  38 21 00 10 */	addi r1, r1, 0x10
+/* 81413CF4 000E4214  4E 80 00 20 */	blr
+.endfn onActive__Q49textinput8keyboard6pctype12LayoutByNW4RFv
+
+# .text:0x3B20 | 0x81413CF8 | size: 0x50
+# textinput::keyboard::pctype::LayoutByNW4R::onClose()
+.fn onClose__Q49textinput8keyboard6pctype12LayoutByNW4RFv, global
+/* 81413CF8 000E4218  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 81413CFC 000E421C  7C 08 02 A6 */	mflr r0
+/* 81413D00 000E4220  90 01 00 14 */	stw r0, 0x14(r1)
+/* 81413D04 000E4224  93 E1 00 0C */	stw r31, 0xc(r1)
+/* 81413D08 000E4228  7C 7F 1B 78 */	mr r31, r3
+/* 81413D0C 000E422C  81 83 00 44 */	lwz r12, 0x44(r3)
+/* 81413D10 000E4230  81 8C 00 50 */	lwz r12, 0x50(r12)
+/* 81413D14 000E4234  7D 89 03 A6 */	mtctr r12
+/* 81413D18 000E4238  38 63 00 44 */	addi r3, r3, 0x44
+/* 81413D1C 000E423C  4E 80 04 21 */	bctrl
+/* 81413D20 000E4240  81 9F 00 00 */	lwz r12, 0x0(r31)
+/* 81413D24 000E4244  7F E3 FB 78 */	mr r3, r31
+/* 81413D28 000E4248  81 8C 01 48 */	lwz r12, 0x148(r12)
+/* 81413D2C 000E424C  7D 89 03 A6 */	mtctr r12
+/* 81413D30 000E4250  4E 80 04 21 */	bctrl
+/* 81413D34 000E4254  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 81413D38 000E4258  83 E1 00 0C */	lwz r31, 0xc(r1)
+/* 81413D3C 000E425C  7C 08 03 A6 */	mtlr r0
+/* 81413D40 000E4260  38 21 00 10 */	addi r1, r1, 0x10
+/* 81413D44 000E4264  4E 80 00 20 */	blr
+.endfn onClose__Q49textinput8keyboard6pctype12LayoutByNW4RFv
+
+# .text:0x3B70 | 0x81413D48 | size: 0x10
+# textinput::nw4rmanager::Layout::initPaneLastDrawReceived()
+.fn initPaneLastDrawReceived__Q39textinput11nw4rmanager6LayoutFv, global
+/* 81413D48 000E4268  85 83 00 8C */	lwzu r12, 0x8c(r3)
+/* 81413D4C 000E426C  81 8C 00 08 */	lwz r12, 0x8(r12)
+/* 81413D50 000E4270  7D 89 03 A6 */	mtctr r12
+/* 81413D54 000E4274  4E 80 04 20 */	bctr
+.endfn initPaneLastDrawReceived__Q39textinput11nw4rmanager6LayoutFv
+
+# .text:0x3B80 | 0x81413D58 | size: 0x1C
+# textinput::nw4rmanager::PaneFifo::init()
+.fn init__Q39textinput11nw4rmanager8PaneFifoFv, global
+/* 81413D58 000E4278  38 00 00 00 */	li r0, 0x0
+/* 81413D5C 000E427C  90 03 00 04 */	stw r0, 0x4(r3)
+/* 81413D60 000E4280  90 03 00 08 */	stw r0, 0x8(r3)
+/* 81413D64 000E4284  90 03 00 0C */	stw r0, 0xc(r3)
+/* 81413D68 000E4288  90 03 00 10 */	stw r0, 0x10(r3)
+/* 81413D6C 000E428C  90 03 00 14 */	stw r0, 0x14(r3)
+/* 81413D70 000E4290  4E 80 00 20 */	blr
+.endfn init__Q39textinput11nw4rmanager8PaneFifoFv
+
+# .text:0x3B9C | 0x81413D74 | size: 0x90
+# textinput::keyboard::pctype::LayoutByNW4R::throwReleaseForAll()
+.fn throwReleaseForAll__Q49textinput8keyboard6pctype12LayoutByNW4RFv, global
+/* 81413D74 000E4294  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 81413D78 000E4298  7C 08 02 A6 */	mflr r0
+/* 81413D7C 000E429C  38 80 00 00 */	li r4, 0x0
+/* 81413D80 000E42A0  90 01 00 14 */	stw r0, 0x14(r1)
+/* 81413D84 000E42A4  93 E1 00 0C */	stw r31, 0xc(r1)
+/* 81413D88 000E42A8  93 C1 00 08 */	stw r30, 0x8(r1)
+/* 81413D8C 000E42AC  7C 7E 1B 78 */	mr r30, r3
+/* 81413D90 000E42B0  38 63 00 B0 */	addi r3, r3, 0xb0
+/* 81413D94 000E42B4  48 0F E5 49 */	bl List_GetNext__Q24nw4r2utFPCQ34nw4r2ut4ListPCv
+/* 81413D98 000E42B8  7C 7F 1B 78 */	mr r31, r3
+/* 81413D9C 000E42BC  48 00 00 48 */	b .L_81413DE4
+.L_81413DA0:
+/* 81413DA0 000E42C0  81 9F 00 00 */	lwz r12, 0x0(r31)
+/* 81413DA4 000E42C4  7F E3 FB 78 */	mr r3, r31
+/* 81413DA8 000E42C8  81 8C 00 28 */	lwz r12, 0x28(r12)
+/* 81413DAC 000E42CC  7D 89 03 A6 */	mtctr r12
+/* 81413DB0 000E42D0  4E 80 04 21 */	bctrl
+/* 81413DB4 000E42D4  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81413DB8 000E42D8  40 82 00 1C */	bne .L_81413DD4
+/* 81413DBC 000E42DC  81 9F 00 00 */	lwz r12, 0x0(r31)
+/* 81413DC0 000E42E0  7F E3 FB 78 */	mr r3, r31
+/* 81413DC4 000E42E4  38 80 00 02 */	li r4, 0x2
+/* 81413DC8 000E42E8  81 8C 00 10 */	lwz r12, 0x10(r12)
+/* 81413DCC 000E42EC  7D 89 03 A6 */	mtctr r12
+/* 81413DD0 000E42F0  4E 80 04 21 */	bctrl
+.L_81413DD4:
+/* 81413DD4 000E42F4  7F E4 FB 78 */	mr r4, r31
+/* 81413DD8 000E42F8  38 7E 00 B0 */	addi r3, r30, 0xb0
+/* 81413DDC 000E42FC  48 0F E5 01 */	bl List_GetNext__Q24nw4r2utFPCQ34nw4r2ut4ListPCv
+/* 81413DE0 000E4300  7C 7F 1B 78 */	mr r31, r3
+.L_81413DE4:
+/* 81413DE4 000E4304  2C 1F 00 00 */	cmpwi r31, 0x0
+/* 81413DE8 000E4308  40 82 FF B8 */	bne .L_81413DA0
+/* 81413DEC 000E430C  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 81413DF0 000E4310  83 E1 00 0C */	lwz r31, 0xc(r1)
+/* 81413DF4 000E4314  83 C1 00 08 */	lwz r30, 0x8(r1)
+/* 81413DF8 000E4318  7C 08 03 A6 */	mtlr r0
+/* 81413DFC 000E431C  38 21 00 10 */	addi r1, r1, 0x10
+/* 81413E00 000E4320  4E 80 00 20 */	blr
+.endfn throwReleaseForAll__Q49textinput8keyboard6pctype12LayoutByNW4RFv
+
+# .text:0x3C2C | 0x81413E04 | size: 0x8
+# textinput::keyboard::pctype::AnmPane::getKeyType() const
+.fn getKeyType__Q49textinput8keyboard6pctype7AnmPaneCFv, global
+/* 81413E04 000E4324  80 63 00 30 */	lwz r3, 0x30(r3)
+/* 81413E08 000E4328  4E 80 00 20 */	blr
+.endfn getKeyType__Q49textinput8keyboard6pctype7AnmPaneCFv
+
+# .text:0x3C34 | 0x81413E0C | size: 0x4
+# textinput::nw4rmanager::AnmPane::onAnmEvent(textinput::nw4rmanager::AnmPane::AnmPaneEvent)
+.fn onAnmEvent__Q39textinput11nw4rmanager7AnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent, global
+/* 81413E0C 000E432C  4E 80 00 20 */	blr
+.endfn onAnmEvent__Q39textinput11nw4rmanager7AnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent
+
+# .text:0x3C38 | 0x81413E10 | size: 0x240
+# textinput::keyboard::pctype::LayoutByNW4R::cancelStateFocusIn()
+.fn cancelStateFocusIn__Q49textinput8keyboard6pctype12LayoutByNW4RFv, global
+/* 81413E10 000E4330  94 21 FF E0 */	stwu r1, -0x20(r1)
+/* 81413E14 000E4334  7C 08 02 A6 */	mflr r0
+/* 81413E18 000E4338  38 80 00 00 */	li r4, 0x0
+/* 81413E1C 000E433C  90 01 00 24 */	stw r0, 0x24(r1)
+/* 81413E20 000E4340  93 E1 00 1C */	stw r31, 0x1c(r1)
+/* 81413E24 000E4344  93 C1 00 18 */	stw r30, 0x18(r1)
+/* 81413E28 000E4348  93 A1 00 14 */	stw r29, 0x14(r1)
+/* 81413E2C 000E434C  7C 7D 1B 78 */	mr r29, r3
+/* 81413E30 000E4350  38 63 00 B0 */	addi r3, r3, 0xb0
+/* 81413E34 000E4354  48 0F E4 A9 */	bl List_GetNext__Q24nw4r2utFPCQ34nw4r2ut4ListPCv
+/* 81413E38 000E4358  7C 7E 1B 78 */	mr r30, r3
+/* 81413E3C 000E435C  3F E0 81 66 */	lis r31, jumptable_8165B7DC@ha
+/* 81413E40 000E4360  48 00 01 EC */	b .L_8141402C
+.L_81413E44:
+/* 81413E44 000E4364  81 9E 00 00 */	lwz r12, 0x0(r30)
+/* 81413E48 000E4368  7F C3 F3 78 */	mr r3, r30
+/* 81413E4C 000E436C  81 8C 00 28 */	lwz r12, 0x28(r12)
+/* 81413E50 000E4370  7D 89 03 A6 */	mtctr r12
+/* 81413E54 000E4374  4E 80 04 21 */	bctrl
+/* 81413E58 000E4378  2C 03 00 02 */	cmpwi r3, 0x2
+/* 81413E5C 000E437C  41 82 01 04 */	beq .L_81413F60
+/* 81413E60 000E4380  40 80 00 14 */	bge .L_81413E74
+/* 81413E64 000E4384  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81413E68 000E4388  41 82 00 18 */	beq .L_81413E80
+/* 81413E6C 000E438C  40 80 00 8C */	bge .L_81413EF8
+/* 81413E70 000E4390  48 00 01 AC */	b .L_8141401C
+.L_81413E74:
+/* 81413E74 000E4394  2C 03 00 04 */	cmpwi r3, 0x4
+/* 81413E78 000E4398  40 80 01 A4 */	bge .L_8141401C
+/* 81413E7C 000E439C  48 00 01 54 */	b .L_81413FD0
+.L_81413E80:
+/* 81413E80 000E43A0  81 9E 00 00 */	lwz r12, 0x0(r30)
+/* 81413E84 000E43A4  7F C3 F3 78 */	mr r3, r30
+/* 81413E88 000E43A8  81 8C 00 24 */	lwz r12, 0x24(r12)
+/* 81413E8C 000E43AC  7D 89 03 A6 */	mtctr r12
+/* 81413E90 000E43B0  4E 80 04 21 */	bctrl
+/* 81413E94 000E43B4  2C 03 00 05 */	cmpwi r3, 0x5
+/* 81413E98 000E43B8  40 80 00 1C */	bge .L_81413EB4
+/* 81413E9C 000E43BC  2C 03 00 02 */	cmpwi r3, 0x2
+/* 81413EA0 000E43C0  41 82 01 7C */	beq .L_8141401C
+/* 81413EA4 000E43C4  40 80 00 1C */	bge .L_81413EC0
+/* 81413EA8 000E43C8  2C 03 00 01 */	cmpwi r3, 0x1
+/* 81413EAC 000E43CC  40 80 00 14 */	bge .L_81413EC0
+/* 81413EB0 000E43D0  48 00 01 6C */	b .L_8141401C
+.L_81413EB4:
+/* 81413EB4 000E43D4  2C 03 00 10 */	cmpwi r3, 0x10
+/* 81413EB8 000E43D8  41 82 00 24 */	beq .L_81413EDC
+/* 81413EBC 000E43DC  48 00 01 60 */	b .L_8141401C
+.L_81413EC0:
+/* 81413EC0 000E43E0  81 9E 00 00 */	lwz r12, 0x0(r30)
+/* 81413EC4 000E43E4  7F C3 F3 78 */	mr r3, r30
+/* 81413EC8 000E43E8  38 80 00 02 */	li r4, 0x2
+/* 81413ECC 000E43EC  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81413ED0 000E43F0  7D 89 03 A6 */	mtctr r12
+/* 81413ED4 000E43F4  4E 80 04 21 */	bctrl
+/* 81413ED8 000E43F8  48 00 01 44 */	b .L_8141401C
+.L_81413EDC:
+/* 81413EDC 000E43FC  81 9E 00 00 */	lwz r12, 0x0(r30)
+/* 81413EE0 000E4400  7F C3 F3 78 */	mr r3, r30
+/* 81413EE4 000E4404  38 80 00 00 */	li r4, 0x0
+/* 81413EE8 000E4408  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81413EEC 000E440C  7D 89 03 A6 */	mtctr r12
+/* 81413EF0 000E4410  4E 80 04 21 */	bctrl
+/* 81413EF4 000E4414  48 00 01 28 */	b .L_8141401C
+.L_81413EF8:
+/* 81413EF8 000E4418  81 9E 00 00 */	lwz r12, 0x0(r30)
+/* 81413EFC 000E441C  7F C3 F3 78 */	mr r3, r30
+/* 81413F00 000E4420  81 8C 00 24 */	lwz r12, 0x24(r12)
+/* 81413F04 000E4424  7D 89 03 A6 */	mtctr r12
+/* 81413F08 000E4428  4E 80 04 21 */	bctrl
+/* 81413F0C 000E442C  28 03 00 0B */	cmplwi r3, 0xb
+/* 81413F10 000E4430  41 81 01 0C */	bgt .L_8141401C
+/* 81413F14 000E4434  38 9F B7 DC */	addi r4, r31, jumptable_8165B7DC@l
+/* 81413F18 000E4438  54 60 10 3A */	slwi r0, r3, 2
+/* 81413F1C 000E443C  7C 84 00 2E */	lwzx r4, r4, r0
+/* 81413F20 000E4440  7C 89 03 A6 */	mtctr r4
+/* 81413F24 000E4444  4E 80 04 20 */	bctr
+.L_81413F28:
+/* 81413F28 000E4448  81 9E 00 00 */	lwz r12, 0x0(r30)
+/* 81413F2C 000E444C  7F C3 F3 78 */	mr r3, r30
+/* 81413F30 000E4450  38 80 00 02 */	li r4, 0x2
+/* 81413F34 000E4454  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81413F38 000E4458  7D 89 03 A6 */	mtctr r12
+/* 81413F3C 000E445C  4E 80 04 21 */	bctrl
+/* 81413F40 000E4460  48 00 00 DC */	b .L_8141401C
+.L_81413F44:
+/* 81413F44 000E4464  81 9E 00 00 */	lwz r12, 0x0(r30)
+/* 81413F48 000E4468  7F C3 F3 78 */	mr r3, r30
+/* 81413F4C 000E446C  38 80 00 09 */	li r4, 0x9
+/* 81413F50 000E4470  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81413F54 000E4474  7D 89 03 A6 */	mtctr r12
+/* 81413F58 000E4478  4E 80 04 21 */	bctrl
+/* 81413F5C 000E447C  48 00 00 C0 */	b .L_8141401C
+.L_81413F60:
+/* 81413F60 000E4480  81 9E 00 00 */	lwz r12, 0x0(r30)
+/* 81413F64 000E4484  7F C3 F3 78 */	mr r3, r30
+/* 81413F68 000E4488  81 8C 00 24 */	lwz r12, 0x24(r12)
+/* 81413F6C 000E448C  7D 89 03 A6 */	mtctr r12
+/* 81413F70 000E4490  4E 80 04 21 */	bctrl
+/* 81413F74 000E4494  2C 03 00 03 */	cmpwi r3, 0x3
+/* 81413F78 000E4498  41 82 00 20 */	beq .L_81413F98
+/* 81413F7C 000E449C  40 80 00 10 */	bge .L_81413F8C
+/* 81413F80 000E44A0  2C 03 00 01 */	cmpwi r3, 0x1
+/* 81413F84 000E44A4  41 82 00 14 */	beq .L_81413F98
+/* 81413F88 000E44A8  48 00 00 94 */	b .L_8141401C
+.L_81413F8C:
+/* 81413F8C 000E44AC  2C 03 00 05 */	cmpwi r3, 0x5
+/* 81413F90 000E44B0  40 80 00 8C */	bge .L_8141401C
+/* 81413F94 000E44B4  48 00 00 20 */	b .L_81413FB4
+.L_81413F98:
+/* 81413F98 000E44B8  81 9E 00 00 */	lwz r12, 0x0(r30)
+/* 81413F9C 000E44BC  7F C3 F3 78 */	mr r3, r30
+/* 81413FA0 000E44C0  38 80 00 02 */	li r4, 0x2
+/* 81413FA4 000E44C4  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81413FA8 000E44C8  7D 89 03 A6 */	mtctr r12
+/* 81413FAC 000E44CC  4E 80 04 21 */	bctrl
+/* 81413FB0 000E44D0  48 00 00 6C */	b .L_8141401C
+.L_81413FB4:
+/* 81413FB4 000E44D4  81 9E 00 00 */	lwz r12, 0x0(r30)
+/* 81413FB8 000E44D8  7F C3 F3 78 */	mr r3, r30
+/* 81413FBC 000E44DC  38 80 00 05 */	li r4, 0x5
+/* 81413FC0 000E44E0  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81413FC4 000E44E4  7D 89 03 A6 */	mtctr r12
+/* 81413FC8 000E44E8  4E 80 04 21 */	bctrl
+/* 81413FCC 000E44EC  48 00 00 50 */	b .L_8141401C
+.L_81413FD0:
+/* 81413FD0 000E44F0  81 9E 00 00 */	lwz r12, 0x0(r30)
+/* 81413FD4 000E44F4  7F C3 F3 78 */	mr r3, r30
+/* 81413FD8 000E44F8  81 8C 00 24 */	lwz r12, 0x24(r12)
+/* 81413FDC 000E44FC  7D 89 03 A6 */	mtctr r12
+/* 81413FE0 000E4500  4E 80 04 21 */	bctrl
+/* 81413FE4 000E4504  2C 03 00 02 */	cmpwi r3, 0x2
+/* 81413FE8 000E4508  41 82 00 34 */	beq .L_8141401C
+/* 81413FEC 000E450C  40 80 00 10 */	bge .L_81413FFC
+/* 81413FF0 000E4510  2C 03 00 01 */	cmpwi r3, 0x1
+/* 81413FF4 000E4514  40 80 00 10 */	bge .L_81414004
+/* 81413FF8 000E4518  48 00 00 24 */	b .L_8141401C
+.L_81413FFC:
+/* 81413FFC 000E451C  2C 03 00 05 */	cmpwi r3, 0x5
+/* 81414000 000E4520  40 80 00 1C */	bge .L_8141401C
+.L_81414004:
+/* 81414004 000E4524  81 9E 00 00 */	lwz r12, 0x0(r30)
+/* 81414008 000E4528  7F C3 F3 78 */	mr r3, r30
+/* 8141400C 000E452C  38 80 00 02 */	li r4, 0x2
+/* 81414010 000E4530  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81414014 000E4534  7D 89 03 A6 */	mtctr r12
+/* 81414018 000E4538  4E 80 04 21 */	bctrl
+.L_8141401C:
+/* 8141401C 000E453C  7F C4 F3 78 */	mr r4, r30
+/* 81414020 000E4540  38 7D 00 B0 */	addi r3, r29, 0xb0
+/* 81414024 000E4544  48 0F E2 B9 */	bl List_GetNext__Q24nw4r2utFPCQ34nw4r2ut4ListPCv
+/* 81414028 000E4548  7C 7E 1B 78 */	mr r30, r3
+.L_8141402C:
+/* 8141402C 000E454C  2C 1E 00 00 */	cmpwi r30, 0x0
+/* 81414030 000E4550  40 82 FE 14 */	bne .L_81413E44
+/* 81414034 000E4554  80 01 00 24 */	lwz r0, 0x24(r1)
+/* 81414038 000E4558  83 E1 00 1C */	lwz r31, 0x1c(r1)
+/* 8141403C 000E455C  83 C1 00 18 */	lwz r30, 0x18(r1)
+/* 81414040 000E4560  83 A1 00 14 */	lwz r29, 0x14(r1)
+/* 81414044 000E4564  7C 08 03 A6 */	mtlr r0
+/* 81414048 000E4568  38 21 00 20 */	addi r1, r1, 0x20
+/* 8141404C 000E456C  4E 80 00 20 */	blr
+.endfn cancelStateFocusIn__Q49textinput8keyboard6pctype12LayoutByNW4RFv
+
+# .text:0x3E78 | 0x81414050 | size: 0x8
+# textinput::keyboard::pctype::AnmPane::getState() const
+.fn getState__Q49textinput8keyboard6pctype7AnmPaneCFv, global
+/* 81414050 000E4570  80 63 00 2C */	lwz r3, 0x2c(r3)
+/* 81414054 000E4574  4E 80 00 20 */	blr
+.endfn getState__Q49textinput8keyboard6pctype7AnmPaneCFv
+
+# .text:0x3E80 | 0x81414058 | size: 0x58
+# textinput::keyboard::pctype::LayoutByNW4R::goSignInputMode()
+.fn goSignInputMode__Q49textinput8keyboard6pctype12LayoutByNW4RFv, global
+/* 81414058 000E4578  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 8141405C 000E457C  7C 08 02 A6 */	mflr r0
+/* 81414060 000E4580  38 A0 00 00 */	li r5, 0x0
+/* 81414064 000E4584  90 01 00 14 */	stw r0, 0x14(r1)
+/* 81414068 000E4588  93 E1 00 0C */	stw r31, 0xc(r1)
+/* 8141406C 000E458C  7C 7F 1B 78 */	mr r31, r3
+/* 81414070 000E4590  7F E4 FB 78 */	mr r4, r31
+/* 81414074 000E4594  80 63 00 F8 */	lwz r3, 0xf8(r3)
+/* 81414078 000E4598  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 8141407C 000E459C  81 8C 00 D8 */	lwz r12, 0xd8(r12)
+/* 81414080 000E45A0  7D 89 03 A6 */	mtctr r12
+/* 81414084 000E45A4  4E 80 04 21 */	bctrl
+/* 81414088 000E45A8  81 9F 00 00 */	lwz r12, 0x0(r31)
+/* 8141408C 000E45AC  7F E3 FB 78 */	mr r3, r31
+/* 81414090 000E45B0  81 8C 01 44 */	lwz r12, 0x144(r12)
+/* 81414094 000E45B4  7D 89 03 A6 */	mtctr r12
+/* 81414098 000E45B8  4E 80 04 21 */	bctrl
+/* 8141409C 000E45BC  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 814140A0 000E45C0  83 E1 00 0C */	lwz r31, 0xc(r1)
+/* 814140A4 000E45C4  7C 08 03 A6 */	mtlr r0
+/* 814140A8 000E45C8  38 21 00 10 */	addi r1, r1, 0x10
+/* 814140AC 000E45CC  4E 80 00 20 */	blr
+.endfn goSignInputMode__Q49textinput8keyboard6pctype12LayoutByNW4RFv
+
+# .text:0x3ED8 | 0x814140B0 | size: 0x7C
+# textinput::keyboard::pctype::LayoutByNW4R::changePredictLanguage()
+.fn changePredictLanguage__Q49textinput8keyboard6pctype12LayoutByNW4RFv, global
+/* 814140B0 000E45D0  94 21 FF E0 */	stwu r1, -0x20(r1)
+/* 814140B4 000E45D4  7C 08 02 A6 */	mflr r0
+/* 814140B8 000E45D8  90 01 00 24 */	stw r0, 0x24(r1)
+/* 814140BC 000E45DC  93 E1 00 1C */	stw r31, 0x1c(r1)
+/* 814140C0 000E45E0  7C 7F 1B 78 */	mr r31, r3
+/* 814140C4 000E45E4  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 814140C8 000E45E8  81 8C 01 44 */	lwz r12, 0x144(r12)
+/* 814140CC 000E45EC  7D 89 03 A6 */	mtctr r12
+/* 814140D0 000E45F0  4E 80 04 21 */	bctrl
+/* 814140D4 000E45F4  38 00 00 00 */	li r0, 0x0
+/* 814140D8 000E45F8  7F E3 FB 78 */	mr r3, r31
+/* 814140DC 000E45FC  90 01 00 08 */	stw r0, 0x8(r1)
+/* 814140E0 000E4600  38 A1 00 08 */	addi r5, r1, 0x8
+/* 814140E4 000E4604  38 80 00 1F */	li r4, 0x1f
+/* 814140E8 000E4608  90 01 00 0C */	stw r0, 0xc(r1)
+/* 814140EC 000E460C  81 9F 00 00 */	lwz r12, 0x0(r31)
+/* 814140F0 000E4610  81 8C 00 18 */	lwz r12, 0x18(r12)
+/* 814140F4 000E4614  7D 89 03 A6 */	mtctr r12
+/* 814140F8 000E4618  4E 80 04 21 */	bctrl
+/* 814140FC 000E461C  80 7F 00 F4 */	lwz r3, 0xf4(r31)
+/* 81414100 000E4620  7F E5 FB 78 */	mr r5, r31
+/* 81414104 000E4624  80 81 00 08 */	lwz r4, 0x8(r1)
+/* 81414108 000E4628  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 8141410C 000E462C  81 8C 00 AC */	lwz r12, 0xac(r12)
+/* 81414110 000E4630  7D 89 03 A6 */	mtctr r12
+/* 81414114 000E4634  4E 80 04 21 */	bctrl
+/* 81414118 000E4638  80 01 00 24 */	lwz r0, 0x24(r1)
+/* 8141411C 000E463C  83 E1 00 1C */	lwz r31, 0x1c(r1)
+/* 81414120 000E4640  7C 08 03 A6 */	mtlr r0
+/* 81414124 000E4644  38 21 00 20 */	addi r1, r1, 0x20
+/* 81414128 000E4648  4E 80 00 20 */	blr
+.endfn changePredictLanguage__Q49textinput8keyboard6pctype12LayoutByNW4RFv
+
+# .text:0x3F54 | 0x8141412C | size: 0x118
+# textinput::keyboard::pctype::LayoutByNW4R::updatePredictLanguage(textinput::CommandReceiver::ChangePredictMode*)
+.fn updatePredictLanguage__Q49textinput8keyboard6pctype12LayoutByNW4RFPQ39textinput15CommandReceiver17ChangePredictMode, global
+/* 8141412C 000E464C  94 21 FF E0 */	stwu r1, -0x20(r1)
+/* 81414130 000E4650  7C 08 02 A6 */	mflr r0
+/* 81414134 000E4654  90 01 00 24 */	stw r0, 0x24(r1)
+/* 81414138 000E4658  93 E1 00 1C */	stw r31, 0x1c(r1)
+/* 8141413C 000E465C  3F E0 81 66 */	lis r31, lbl_81658D90@ha
+/* 81414140 000E4660  3B FF 8D 90 */	addi r31, r31, lbl_81658D90@l
+/* 81414144 000E4664  93 C1 00 18 */	stw r30, 0x18(r1)
+/* 81414148 000E4668  7C 9E 23 78 */	mr r30, r4
+/* 8141414C 000E466C  93 A1 00 14 */	stw r29, 0x14(r1)
+/* 81414150 000E4670  7C 7D 1B 78 */	mr r29, r3
+/* 81414154 000E4674  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81414158 000E4678  81 8C 00 2C */	lwz r12, 0x2c(r12)
+/* 8141415C 000E467C  7D 89 03 A6 */	mtctr r12
+/* 81414160 000E4680  4E 80 04 21 */	bctrl
+/* 81414164 000E4684  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81414168 000E4688  41 82 00 C0 */	beq .L_81414228
+/* 8141416C 000E468C  88 1E 00 04 */	lbz r0, 0x4(r30)
+/* 81414170 000E4690  2C 00 00 00 */	cmpwi r0, 0x0
+/* 81414174 000E4694  40 82 00 40 */	bne .L_814141B4
+/* 81414178 000E4698  81 9D 00 44 */	lwz r12, 0x44(r29)
+/* 8141417C 000E469C  38 7D 00 44 */	addi r3, r29, 0x44
+/* 81414180 000E46A0  38 9F 2A 7C */	addi r4, r31, 0x2a7c
+/* 81414184 000E46A4  38 A0 00 00 */	li r5, 0x0
+/* 81414188 000E46A8  81 8C 00 54 */	lwz r12, 0x54(r12)
+/* 8141418C 000E46AC  7D 89 03 A6 */	mtctr r12
+/* 81414190 000E46B0  4E 80 04 21 */	bctrl
+/* 81414194 000E46B4  81 9D 00 44 */	lwz r12, 0x44(r29)
+/* 81414198 000E46B8  38 7D 00 44 */	addi r3, r29, 0x44
+/* 8141419C 000E46BC  38 9F 2A 88 */	addi r4, r31, 0x2a88
+/* 814141A0 000E46C0  38 A0 00 01 */	li r5, 0x1
+/* 814141A4 000E46C4  81 8C 00 54 */	lwz r12, 0x54(r12)
+/* 814141A8 000E46C8  7D 89 03 A6 */	mtctr r12
+/* 814141AC 000E46CC  4E 80 04 21 */	bctrl
+/* 814141B0 000E46D0  48 00 00 3C */	b .L_814141EC
+.L_814141B4:
+/* 814141B4 000E46D4  81 9D 00 44 */	lwz r12, 0x44(r29)
+/* 814141B8 000E46D8  38 7D 00 44 */	addi r3, r29, 0x44
+/* 814141BC 000E46DC  38 9F 2A 7C */	addi r4, r31, 0x2a7c
+/* 814141C0 000E46E0  38 A0 00 01 */	li r5, 0x1
+/* 814141C4 000E46E4  81 8C 00 54 */	lwz r12, 0x54(r12)
+/* 814141C8 000E46E8  7D 89 03 A6 */	mtctr r12
+/* 814141CC 000E46EC  4E 80 04 21 */	bctrl
+/* 814141D0 000E46F0  81 9D 00 44 */	lwz r12, 0x44(r29)
+/* 814141D4 000E46F4  38 7D 00 44 */	addi r3, r29, 0x44
+/* 814141D8 000E46F8  38 9F 2A 88 */	addi r4, r31, 0x2a88
+/* 814141DC 000E46FC  38 A0 00 00 */	li r5, 0x0
+/* 814141E0 000E4700  81 8C 00 54 */	lwz r12, 0x54(r12)
+/* 814141E4 000E4704  7D 89 03 A6 */	mtctr r12
+/* 814141E8 000E4708  4E 80 04 21 */	bctrl
+.L_814141EC:
+/* 814141EC 000E470C  81 9D 00 44 */	lwz r12, 0x44(r29)
+/* 814141F0 000E4710  38 7D 00 44 */	addi r3, r29, 0x44
+/* 814141F4 000E4714  38 9F 2A 94 */	addi r4, r31, 0x2a94
+/* 814141F8 000E4718  81 8C 00 2C */	lwz r12, 0x2c(r12)
+/* 814141FC 000E471C  7D 89 03 A6 */	mtctr r12
+/* 81414200 000E4720  4E 80 04 21 */	bctrl
+/* 81414204 000E4724  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81414208 000E4728  38 9F 00 00 */	addi r4, r31, 0x0
+/* 8141420C 000E472C  80 1E 00 00 */	lwz r0, 0x0(r30)
+/* 81414210 000E4730  38 A0 00 00 */	li r5, 0x0
+/* 81414214 000E4734  81 8C 00 6C */	lwz r12, 0x6c(r12)
+/* 81414218 000E4738  54 00 10 3A */	slwi r0, r0, 2
+/* 8141421C 000E473C  7C 84 00 2E */	lwzx r4, r4, r0
+/* 81414220 000E4740  7D 89 03 A6 */	mtctr r12
+/* 81414224 000E4744  4E 80 04 21 */	bctrl
+.L_81414228:
+/* 81414228 000E4748  80 01 00 24 */	lwz r0, 0x24(r1)
+/* 8141422C 000E474C  83 E1 00 1C */	lwz r31, 0x1c(r1)
+/* 81414230 000E4750  83 C1 00 18 */	lwz r30, 0x18(r1)
+/* 81414234 000E4754  83 A1 00 14 */	lwz r29, 0x14(r1)
+/* 81414238 000E4758  7C 08 03 A6 */	mtlr r0
+/* 8141423C 000E475C  38 21 00 20 */	addi r1, r1, 0x20
+/* 81414240 000E4760  4E 80 00 20 */	blr
+.endfn updatePredictLanguage__Q49textinput8keyboard6pctype12LayoutByNW4RFPQ39textinput15CommandReceiver17ChangePredictMode
+
+# .text:0x406C | 0x81414244 | size: 0xB0
+# textinput::keyboard::pctype::LayoutByNW4R::sendInputWChar(wchar_t, bool)
+.fn sendInputWChar__Q49textinput8keyboard6pctype12LayoutByNW4RFwb, global
+/* 81414244 000E4764  94 21 FF E0 */	stwu r1, -0x20(r1)
+/* 81414248 000E4768  7C 08 02 A6 */	mflr r0
+/* 8141424C 000E476C  90 01 00 24 */	stw r0, 0x24(r1)
+/* 81414250 000E4770  39 61 00 20 */	addi r11, r1, 0x20
+/* 81414254 000E4774  48 1E 52 6D */	bl _savegpr_27
+/* 81414258 000E4778  80 03 00 20 */	lwz r0, 0x20(r3)
+/* 8141425C 000E477C  7C 7B 1B 78 */	mr r27, r3
+/* 81414260 000E4780  7C 9C 23 78 */	mr r28, r4
+/* 81414264 000E4784  7C BD 2B 78 */	mr r29, r5
+/* 81414268 000E4788  54 00 06 31 */	rlwinm. r0, r0, 0, 24, 24
+/* 8141426C 000E478C  3B E0 00 00 */	li r31, 0x0
+/* 81414270 000E4790  3B C0 00 00 */	li r30, 0x0
+/* 81414274 000E4794  41 82 00 1C */	beq .L_81414290
+/* 81414278 000E4798  85 83 00 D0 */	lwzu r12, 0xd0(r3)
+/* 8141427C 000E479C  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81414280 000E47A0  7D 89 03 A6 */	mtctr r12
+/* 81414284 000E47A4  4E 80 04 21 */	bctrl
+/* 81414288 000E47A8  7C 7E 1B 78 */	mr r30, r3
+/* 8141428C 000E47AC  3B E0 00 01 */	li r31, 0x1
+.L_81414290:
+/* 81414290 000E47B0  7F 63 DB 78 */	mr r3, r27
+/* 81414294 000E47B4  7F 84 E3 78 */	mr r4, r28
+/* 81414298 000E47B8  7F A5 EB 78 */	mr r5, r29
+/* 8141429C 000E47BC  4B FF C9 1D */	bl sendInputWChar__Q49textinput8keyboard6pctype4BaseFwb
+/* 814142A0 000E47C0  2C 1F 00 00 */	cmpwi r31, 0x0
+/* 814142A4 000E47C4  41 82 00 24 */	beq .L_814142C8
+/* 814142A8 000E47C8  2C 1E 00 00 */	cmpwi r30, 0x0
+/* 814142AC 000E47CC  41 82 00 1C */	beq .L_814142C8
+/* 814142B0 000E47D0  81 9B 00 44 */	lwz r12, 0x44(r27)
+/* 814142B4 000E47D4  38 7B 00 44 */	addi r3, r27, 0x44
+/* 814142B8 000E47D8  7F C4 F3 78 */	mr r4, r30
+/* 814142BC 000E47DC  81 8C 00 4C */	lwz r12, 0x4c(r12)
+/* 814142C0 000E47E0  7D 89 03 A6 */	mtctr r12
+/* 814142C4 000E47E4  4E 80 04 21 */	bctrl
+.L_814142C8:
+/* 814142C8 000E47E8  81 9B 00 00 */	lwz r12, 0x0(r27)
+/* 814142CC 000E47EC  7F 63 DB 78 */	mr r3, r27
+/* 814142D0 000E47F0  81 8C 01 50 */	lwz r12, 0x150(r12)
+/* 814142D4 000E47F4  7D 89 03 A6 */	mtctr r12
+/* 814142D8 000E47F8  4E 80 04 21 */	bctrl
+/* 814142DC 000E47FC  39 61 00 20 */	addi r11, r1, 0x20
+/* 814142E0 000E4800  48 1E 52 2D */	bl _restgpr_27
+/* 814142E4 000E4804  80 01 00 24 */	lwz r0, 0x24(r1)
+/* 814142E8 000E4808  7C 08 03 A6 */	mtlr r0
+/* 814142EC 000E480C  38 21 00 20 */	addi r1, r1, 0x20
+/* 814142F0 000E4810  4E 80 00 20 */	blr
+.endfn sendInputWChar__Q49textinput8keyboard6pctype12LayoutByNW4RFwb
+
+# .text:0x411C | 0x814142F4 | size: 0x40
+# textinput::nw4rmanager::PaneFifo::getLast()
+.fn getLast__Q39textinput11nw4rmanager8PaneFifoFv, global
+/* 814142F4 000E4814  38 00 00 05 */	li r0, 0x5
+/* 814142F8 000E4818  38 83 00 10 */	addi r4, r3, 0x10
+/* 814142FC 000E481C  38 A0 00 04 */	li r5, 0x4
+/* 81414300 000E4820  7C 09 03 A6 */	mtctr r0
+.L_81414304:
+/* 81414304 000E4824  80 04 00 04 */	lwz r0, 0x4(r4)
+/* 81414308 000E4828  2C 00 00 00 */	cmpwi r0, 0x0
+/* 8141430C 000E482C  41 82 00 14 */	beq .L_81414320
+/* 81414310 000E4830  54 A0 10 3A */	slwi r0, r5, 2
+/* 81414314 000E4834  7C 63 02 14 */	add r3, r3, r0
+/* 81414318 000E4838  80 63 00 04 */	lwz r3, 0x4(r3)
+/* 8141431C 000E483C  4E 80 00 20 */	blr
+.L_81414320:
+/* 81414320 000E4840  38 84 FF FC */	subi r4, r4, 0x4
+/* 81414324 000E4844  38 A5 FF FF */	subi r5, r5, 0x1
+/* 81414328 000E4848  42 00 FF DC */	bdnz .L_81414304
+/* 8141432C 000E484C  38 60 00 00 */	li r3, 0x0
+/* 81414330 000E4850  4E 80 00 20 */	blr
+.endfn getLast__Q39textinput11nw4rmanager8PaneFifoFv
+
+# .text:0x415C | 0x81414334 | size: 0x10
+# textinput::nw4rmanager::Layout::setPaneLastDrawReceived(nw4r::lyt::Pane*)
+.fn setPaneLastDrawReceived__Q39textinput11nw4rmanager6LayoutFPQ34nw4r3lyt4Pane, global
+/* 81414334 000E4854  85 83 00 8C */	lwzu r12, 0x8c(r3)
+/* 81414338 000E4858  81 8C 00 0C */	lwz r12, 0xc(r12)
+/* 8141433C 000E485C  7D 89 03 A6 */	mtctr r12
+/* 81414340 000E4860  4E 80 04 20 */	bctr
+.endfn setPaneLastDrawReceived__Q39textinput11nw4rmanager6LayoutFPQ34nw4r3lyt4Pane
+
+# .text:0x416C | 0x81414344 | size: 0xA8
+# textinput::nw4rmanager::PaneFifo::push(nw4r::lyt::Pane*)
+.fn push__Q39textinput11nw4rmanager8PaneFifoFPQ34nw4r3lyt4Pane, global
+/* 81414344 000E4864  80 03 00 14 */	lwz r0, 0x14(r3)
+/* 81414348 000E4868  2C 00 00 00 */	cmpwi r0, 0x0
+/* 8141434C 000E486C  40 82 00 40 */	bne .L_8141438C
+/* 81414350 000E4870  38 00 00 05 */	li r0, 0x5
+/* 81414354 000E4874  7C 65 1B 78 */	mr r5, r3
+/* 81414358 000E4878  38 C0 00 00 */	li r6, 0x0
+/* 8141435C 000E487C  7C 09 03 A6 */	mtctr r0
+.L_81414360:
+/* 81414360 000E4880  80 05 00 04 */	lwz r0, 0x4(r5)
+/* 81414364 000E4884  2C 00 00 00 */	cmpwi r0, 0x0
+/* 81414368 000E4888  40 82 00 14 */	bne .L_8141437C
+/* 8141436C 000E488C  54 C0 10 3A */	slwi r0, r6, 2
+/* 81414370 000E4890  7C 63 02 14 */	add r3, r3, r0
+/* 81414374 000E4894  90 83 00 04 */	stw r4, 0x4(r3)
+/* 81414378 000E4898  4E 80 00 20 */	blr
+.L_8141437C:
+/* 8141437C 000E489C  38 A5 00 04 */	addi r5, r5, 0x4
+/* 81414380 000E48A0  38 C6 00 01 */	addi r6, r6, 0x1
+/* 81414384 000E48A4  42 00 FF DC */	bdnz .L_81414360
+/* 81414388 000E48A8  4E 80 00 20 */	blr
+.L_8141438C:
+/* 8141438C 000E48AC  80 A3 00 08 */	lwz r5, 0x8(r3)
+/* 81414390 000E48B0  38 00 00 00 */	li r0, 0x0
+/* 81414394 000E48B4  7C 04 28 40 */	cmplw r4, r5
+/* 81414398 000E48B8  90 A3 00 04 */	stw r5, 0x4(r3)
+/* 8141439C 000E48BC  40 82 00 08 */	bne .L_814143A4
+/* 814143A0 000E48C0  90 03 00 04 */	stw r0, 0x4(r3)
+.L_814143A4:
+/* 814143A4 000E48C4  80 A3 00 0C */	lwz r5, 0xc(r3)
+/* 814143A8 000E48C8  38 C3 00 08 */	addi r6, r3, 0x8
+/* 814143AC 000E48CC  7C 04 28 40 */	cmplw r4, r5
+/* 814143B0 000E48D0  90 A3 00 08 */	stw r5, 0x8(r3)
+/* 814143B4 000E48D4  40 82 00 08 */	bne .L_814143BC
+/* 814143B8 000E48D8  90 06 00 00 */	stw r0, 0x0(r6)
+.L_814143BC:
+/* 814143BC 000E48DC  80 A6 00 08 */	lwz r5, 0x8(r6)
+/* 814143C0 000E48E0  7C 04 28 40 */	cmplw r4, r5
+/* 814143C4 000E48E4  90 A6 00 04 */	stw r5, 0x4(r6)
+/* 814143C8 000E48E8  40 82 00 08 */	bne .L_814143D0
+/* 814143CC 000E48EC  90 06 00 04 */	stw r0, 0x4(r6)
+.L_814143D0:
+/* 814143D0 000E48F0  80 A6 00 0C */	lwz r5, 0xc(r6)
+/* 814143D4 000E48F4  7C 04 28 40 */	cmplw r4, r5
+/* 814143D8 000E48F8  90 A6 00 08 */	stw r5, 0x8(r6)
+/* 814143DC 000E48FC  40 82 00 08 */	bne .L_814143E4
+/* 814143E0 000E4900  90 06 00 08 */	stw r0, 0x8(r6)
+.L_814143E4:
+/* 814143E4 000E4904  90 83 00 14 */	stw r4, 0x14(r3)
+/* 814143E8 000E4908  4E 80 00 20 */	blr
+.endfn push__Q39textinput11nw4rmanager8PaneFifoFPQ34nw4r3lyt4Pane
+
+# .text:0x4214 | 0x814143EC | size: 0x168
+# textinput::keyboard::pctype::LayoutByNW4R::updateDakuten()
+.fn updateDakuten__Q49textinput8keyboard6pctype12LayoutByNW4RFv, global
+/* 814143EC 000E490C  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 814143F0 000E4910  7C 08 02 A6 */	mflr r0
+/* 814143F4 000E4914  90 01 00 14 */	stw r0, 0x14(r1)
+/* 814143F8 000E4918  93 E1 00 0C */	stw r31, 0xc(r1)
+/* 814143FC 000E491C  3F E0 81 66 */	lis r31, lbl_81658D90@ha
+/* 81414400 000E4920  3B FF 8D 90 */	addi r31, r31, lbl_81658D90@l
+/* 81414404 000E4924  93 C1 00 08 */	stw r30, 0x8(r1)
+/* 81414408 000E4928  7C 7E 1B 78 */	mr r30, r3
+/* 8141440C 000E492C  80 03 00 28 */	lwz r0, 0x28(r3)
+/* 81414410 000E4930  54 00 06 B5 */	rlwinm. r0, r0, 0, 26, 26
+/* 81414414 000E4934  41 82 00 30 */	beq .L_81414444
+/* 81414418 000E4938  85 83 00 44 */	lwzu r12, 0x44(r3)
+/* 8141441C 000E493C  38 9F 29 74 */	addi r4, r31, 0x2974
+/* 81414420 000E4940  81 8C 00 60 */	lwz r12, 0x60(r12)
+/* 81414424 000E4944  7D 89 03 A6 */	mtctr r12
+/* 81414428 000E4948  4E 80 04 21 */	bctrl
+/* 8141442C 000E494C  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81414430 000E4950  38 80 00 06 */	li r4, 0x6
+/* 81414434 000E4954  81 8C 00 10 */	lwz r12, 0x10(r12)
+/* 81414438 000E4958  7D 89 03 A6 */	mtctr r12
+/* 8141443C 000E495C  4E 80 04 21 */	bctrl
+/* 81414440 000E4960  48 00 00 2C */	b .L_8141446C
+.L_81414444:
+/* 81414444 000E4964  85 83 00 44 */	lwzu r12, 0x44(r3)
+/* 81414448 000E4968  38 9F 29 74 */	addi r4, r31, 0x2974
+/* 8141444C 000E496C  81 8C 00 60 */	lwz r12, 0x60(r12)
+/* 81414450 000E4970  7D 89 03 A6 */	mtctr r12
+/* 81414454 000E4974  4E 80 04 21 */	bctrl
+/* 81414458 000E4978  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 8141445C 000E497C  38 80 00 07 */	li r4, 0x7
+/* 81414460 000E4980  81 8C 00 10 */	lwz r12, 0x10(r12)
+/* 81414464 000E4984  7D 89 03 A6 */	mtctr r12
+/* 81414468 000E4988  4E 80 04 21 */	bctrl
+.L_8141446C:
+/* 8141446C 000E498C  80 1E 00 28 */	lwz r0, 0x28(r30)
+/* 81414470 000E4990  54 00 06 73 */	rlwinm. r0, r0, 0, 25, 25
+/* 81414474 000E4994  41 82 00 34 */	beq .L_814144A8
+/* 81414478 000E4998  81 9E 00 44 */	lwz r12, 0x44(r30)
+/* 8141447C 000E499C  38 7E 00 44 */	addi r3, r30, 0x44
+/* 81414480 000E49A0  38 9F 29 84 */	addi r4, r31, 0x2984
+/* 81414484 000E49A4  81 8C 00 60 */	lwz r12, 0x60(r12)
+/* 81414488 000E49A8  7D 89 03 A6 */	mtctr r12
+/* 8141448C 000E49AC  4E 80 04 21 */	bctrl
+/* 81414490 000E49B0  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81414494 000E49B4  38 80 00 06 */	li r4, 0x6
+/* 81414498 000E49B8  81 8C 00 10 */	lwz r12, 0x10(r12)
+/* 8141449C 000E49BC  7D 89 03 A6 */	mtctr r12
+/* 814144A0 000E49C0  4E 80 04 21 */	bctrl
+/* 814144A4 000E49C4  48 00 00 30 */	b .L_814144D4
+.L_814144A8:
+/* 814144A8 000E49C8  81 9E 00 44 */	lwz r12, 0x44(r30)
+/* 814144AC 000E49CC  38 7E 00 44 */	addi r3, r30, 0x44
+/* 814144B0 000E49D0  38 9F 29 84 */	addi r4, r31, 0x2984
+/* 814144B4 000E49D4  81 8C 00 60 */	lwz r12, 0x60(r12)
+/* 814144B8 000E49D8  7D 89 03 A6 */	mtctr r12
+/* 814144BC 000E49DC  4E 80 04 21 */	bctrl
+/* 814144C0 000E49E0  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 814144C4 000E49E4  38 80 00 07 */	li r4, 0x7
+/* 814144C8 000E49E8  81 8C 00 10 */	lwz r12, 0x10(r12)
+/* 814144CC 000E49EC  7D 89 03 A6 */	mtctr r12
+/* 814144D0 000E49F0  4E 80 04 21 */	bctrl
+.L_814144D4:
+/* 814144D4 000E49F4  80 1E 00 28 */	lwz r0, 0x28(r30)
+/* 814144D8 000E49F8  54 00 06 31 */	rlwinm. r0, r0, 0, 24, 24
+/* 814144DC 000E49FC  41 82 00 34 */	beq .L_81414510
+/* 814144E0 000E4A00  81 9E 00 44 */	lwz r12, 0x44(r30)
+/* 814144E4 000E4A04  38 7E 00 44 */	addi r3, r30, 0x44
+/* 814144E8 000E4A08  38 9F 29 94 */	addi r4, r31, 0x2994
+/* 814144EC 000E4A0C  81 8C 00 60 */	lwz r12, 0x60(r12)
+/* 814144F0 000E4A10  7D 89 03 A6 */	mtctr r12
+/* 814144F4 000E4A14  4E 80 04 21 */	bctrl
+/* 814144F8 000E4A18  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 814144FC 000E4A1C  38 80 00 06 */	li r4, 0x6
+/* 81414500 000E4A20  81 8C 00 10 */	lwz r12, 0x10(r12)
+/* 81414504 000E4A24  7D 89 03 A6 */	mtctr r12
+/* 81414508 000E4A28  4E 80 04 21 */	bctrl
+/* 8141450C 000E4A2C  48 00 00 30 */	b .L_8141453C
+.L_81414510:
+/* 81414510 000E4A30  81 9E 00 44 */	lwz r12, 0x44(r30)
+/* 81414514 000E4A34  38 7E 00 44 */	addi r3, r30, 0x44
+/* 81414518 000E4A38  38 9F 29 94 */	addi r4, r31, 0x2994
+/* 8141451C 000E4A3C  81 8C 00 60 */	lwz r12, 0x60(r12)
+/* 81414520 000E4A40  7D 89 03 A6 */	mtctr r12
+/* 81414524 000E4A44  4E 80 04 21 */	bctrl
+/* 81414528 000E4A48  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 8141452C 000E4A4C  38 80 00 07 */	li r4, 0x7
+/* 81414530 000E4A50  81 8C 00 10 */	lwz r12, 0x10(r12)
+/* 81414534 000E4A54  7D 89 03 A6 */	mtctr r12
+/* 81414538 000E4A58  4E 80 04 21 */	bctrl
+.L_8141453C:
+/* 8141453C 000E4A5C  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 81414540 000E4A60  83 E1 00 0C */	lwz r31, 0xc(r1)
+/* 81414544 000E4A64  83 C1 00 08 */	lwz r30, 0x8(r1)
+/* 81414548 000E4A68  7C 08 03 A6 */	mtlr r0
+/* 8141454C 000E4A6C  38 21 00 10 */	addi r1, r1, 0x10
+/* 81414550 000E4A70  4E 80 00 20 */	blr
+.endfn updateDakuten__Q49textinput8keyboard6pctype12LayoutByNW4RFv
+
+# .text:0x437C | 0x81414554 | size: 0x6C
+# textinput::keyboard::pctype::LayoutByNW4R::setLineFeedButton(bool)
+.fn setLineFeedButton__Q49textinput8keyboard6pctype12LayoutByNW4RFb, global
+/* 81414554 000E4A74  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 81414558 000E4A78  7C 08 02 A6 */	mflr r0
+/* 8141455C 000E4A7C  90 01 00 14 */	stw r0, 0x14(r1)
+/* 81414560 000E4A80  7C 80 23 78 */	mr r0, r4
+/* 81414564 000E4A84  54 05 06 3E */	clrlwi r5, r0, 24
+/* 81414568 000E4A88  93 E1 00 0C */	stw r31, 0xc(r1)
+/* 8141456C 000E4A8C  7C 7F 1B 78 */	mr r31, r3
+/* 81414570 000E4A90  98 83 00 FC */	stb r4, 0xfc(r3)
+/* 81414574 000E4A94  3C 80 81 66 */	lis r4, lbl_8165B838@ha
+/* 81414578 000E4A98  38 84 B8 38 */	addi r4, r4, lbl_8165B838@l
+/* 8141457C 000E4A9C  85 83 00 44 */	lwzu r12, 0x44(r3)
+/* 81414580 000E4AA0  81 8C 00 54 */	lwz r12, 0x54(r12)
+/* 81414584 000E4AA4  7D 89 03 A6 */	mtctr r12
+/* 81414588 000E4AA8  4E 80 04 21 */	bctrl
+/* 8141458C 000E4AAC  81 9F 00 44 */	lwz r12, 0x44(r31)
+/* 81414590 000E4AB0  3C 80 81 66 */	lis r4, lbl_8165B844@ha
+/* 81414594 000E4AB4  38 7F 00 44 */	addi r3, r31, 0x44
+/* 81414598 000E4AB8  88 BF 00 FC */	lbz r5, 0xfc(r31)
+/* 8141459C 000E4ABC  81 8C 00 54 */	lwz r12, 0x54(r12)
+/* 814145A0 000E4AC0  38 84 B8 44 */	addi r4, r4, lbl_8165B844@l
+/* 814145A4 000E4AC4  7D 89 03 A6 */	mtctr r12
+/* 814145A8 000E4AC8  4E 80 04 21 */	bctrl
+/* 814145AC 000E4ACC  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 814145B0 000E4AD0  83 E1 00 0C */	lwz r31, 0xc(r1)
+/* 814145B4 000E4AD4  7C 08 03 A6 */	mtlr r0
+/* 814145B8 000E4AD8  38 21 00 10 */	addi r1, r1, 0x10
+/* 814145BC 000E4ADC  4E 80 00 20 */	blr
+.endfn setLineFeedButton__Q49textinput8keyboard6pctype12LayoutByNW4RFb
+
+# .text:0x43E8 | 0x814145C0 | size: 0x1C
+# textinput::keyboard::pctype::LayoutByNW4R::setPredictLanguageButton(bool)
+.fn setPredictLanguageButton__Q49textinput8keyboard6pctype12LayoutByNW4RFb, global
+/* 814145C0 000E4AE0  85 83 00 44 */	lwzu r12, 0x44(r3)
+/* 814145C4 000E4AE4  3C C0 81 66 */	lis r6, lbl_8165B850@ha
+/* 814145C8 000E4AE8  7C 85 23 78 */	mr r5, r4
+/* 814145CC 000E4AEC  81 8C 00 54 */	lwz r12, 0x54(r12)
+/* 814145D0 000E4AF0  38 86 B8 50 */	addi r4, r6, lbl_8165B850@l
+/* 814145D4 000E4AF4  7D 89 03 A6 */	mtctr r12
+/* 814145D8 000E4AF8  4E 80 04 20 */	bctr
+.endfn setPredictLanguageButton__Q49textinput8keyboard6pctype12LayoutByNW4RFb
+
+# .text:0x4404 | 0x814145DC | size: 0x118
+# textinput::keyboard::pctype::LayoutByNW4R::setSignWindowButton(bool)
+.fn setSignWindowButton__Q49textinput8keyboard6pctype12LayoutByNW4RFb, global
+/* 814145DC 000E4AFC  94 21 FF E0 */	stwu r1, -0x20(r1)
+/* 814145E0 000E4B00  7C 08 02 A6 */	mflr r0
+/* 814145E4 000E4B04  2C 04 00 00 */	cmpwi r4, 0x0
+/* 814145E8 000E4B08  90 01 00 24 */	stw r0, 0x24(r1)
+/* 814145EC 000E4B0C  93 E1 00 1C */	stw r31, 0x1c(r1)
+/* 814145F0 000E4B10  93 C1 00 18 */	stw r30, 0x18(r1)
+/* 814145F4 000E4B14  7C 9E 23 78 */	mr r30, r4
+/* 814145F8 000E4B18  93 A1 00 14 */	stw r29, 0x14(r1)
+/* 814145FC 000E4B1C  7C 7D 1B 78 */	mr r29, r3
+/* 81414600 000E4B20  40 82 00 44 */	bne .L_81414644
+/* 81414604 000E4B24  85 83 00 44 */	lwzu r12, 0x44(r3)
+/* 81414608 000E4B28  3C 80 81 66 */	lis r4, lbl_8165B864@ha
+/* 8141460C 000E4B2C  7F C5 F3 78 */	mr r5, r30
+/* 81414610 000E4B30  81 8C 00 54 */	lwz r12, 0x54(r12)
+/* 81414614 000E4B34  38 84 B8 64 */	addi r4, r4, lbl_8165B864@l
+/* 81414618 000E4B38  7D 89 03 A6 */	mtctr r12
+/* 8141461C 000E4B3C  4E 80 04 21 */	bctrl
+/* 81414620 000E4B40  81 9D 00 44 */	lwz r12, 0x44(r29)
+/* 81414624 000E4B44  3C 80 81 66 */	lis r4, lbl_8165B878@ha
+/* 81414628 000E4B48  38 7D 00 44 */	addi r3, r29, 0x44
+/* 8141462C 000E4B4C  7F C5 F3 78 */	mr r5, r30
+/* 81414630 000E4B50  81 8C 00 54 */	lwz r12, 0x54(r12)
+/* 81414634 000E4B54  38 84 B8 78 */	addi r4, r4, lbl_8165B878@l
+/* 81414638 000E4B58  7D 89 03 A6 */	mtctr r12
+/* 8141463C 000E4B5C  4E 80 04 21 */	bctrl
+/* 81414640 000E4B60  48 00 00 98 */	b .L_814146D8
+.L_81414644:
+/* 81414644 000E4B64  85 83 00 44 */	lwzu r12, 0x44(r3)
+/* 81414648 000E4B68  3F C0 81 66 */	lis r30, lbl_8165B864@ha
+/* 8141464C 000E4B6C  38 9E B8 64 */	addi r4, r30, lbl_8165B864@l
+/* 81414650 000E4B70  38 A0 00 00 */	li r5, 0x0
+/* 81414654 000E4B74  81 8C 00 54 */	lwz r12, 0x54(r12)
+/* 81414658 000E4B78  7D 89 03 A6 */	mtctr r12
+/* 8141465C 000E4B7C  4E 80 04 21 */	bctrl
+/* 81414660 000E4B80  81 9D 00 44 */	lwz r12, 0x44(r29)
+/* 81414664 000E4B84  3F E0 81 66 */	lis r31, lbl_8165B878@ha
+/* 81414668 000E4B88  38 7D 00 44 */	addi r3, r29, 0x44
+/* 8141466C 000E4B8C  38 A0 00 00 */	li r5, 0x0
+/* 81414670 000E4B90  81 8C 00 54 */	lwz r12, 0x54(r12)
+/* 81414674 000E4B94  38 9F B8 78 */	addi r4, r31, lbl_8165B878@l
+/* 81414678 000E4B98  7D 89 03 A6 */	mtctr r12
+/* 8141467C 000E4B9C  4E 80 04 21 */	bctrl
+/* 81414680 000E4BA0  81 9D 00 00 */	lwz r12, 0x0(r29)
+/* 81414684 000E4BA4  7F A3 EB 78 */	mr r3, r29
+/* 81414688 000E4BA8  81 8C 00 2C */	lwz r12, 0x2c(r12)
+/* 8141468C 000E4BAC  7D 89 03 A6 */	mtctr r12
+/* 81414690 000E4BB0  4E 80 04 21 */	bctrl
+/* 81414694 000E4BB4  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81414698 000E4BB8  40 82 00 24 */	bne .L_814146BC
+/* 8141469C 000E4BBC  81 9D 00 44 */	lwz r12, 0x44(r29)
+/* 814146A0 000E4BC0  38 7D 00 44 */	addi r3, r29, 0x44
+/* 814146A4 000E4BC4  38 9F B8 78 */	addi r4, r31, lbl_8165B878@l
+/* 814146A8 000E4BC8  38 A0 00 01 */	li r5, 0x1
+/* 814146AC 000E4BCC  81 8C 00 54 */	lwz r12, 0x54(r12)
+/* 814146B0 000E4BD0  7D 89 03 A6 */	mtctr r12
+/* 814146B4 000E4BD4  4E 80 04 21 */	bctrl
+/* 814146B8 000E4BD8  48 00 00 20 */	b .L_814146D8
+.L_814146BC:
+/* 814146BC 000E4BDC  81 9D 00 44 */	lwz r12, 0x44(r29)
+/* 814146C0 000E4BE0  38 7D 00 44 */	addi r3, r29, 0x44
+/* 814146C4 000E4BE4  38 9E B8 64 */	addi r4, r30, lbl_8165B864@l
+/* 814146C8 000E4BE8  38 A0 00 01 */	li r5, 0x1
+/* 814146CC 000E4BEC  81 8C 00 54 */	lwz r12, 0x54(r12)
+/* 814146D0 000E4BF0  7D 89 03 A6 */	mtctr r12
+/* 814146D4 000E4BF4  4E 80 04 21 */	bctrl
+.L_814146D8:
+/* 814146D8 000E4BF8  80 01 00 24 */	lwz r0, 0x24(r1)
+/* 814146DC 000E4BFC  83 E1 00 1C */	lwz r31, 0x1c(r1)
+/* 814146E0 000E4C00  83 C1 00 18 */	lwz r30, 0x18(r1)
+/* 814146E4 000E4C04  83 A1 00 14 */	lwz r29, 0x14(r1)
+/* 814146E8 000E4C08  7C 08 03 A6 */	mtlr r0
+/* 814146EC 000E4C0C  38 21 00 20 */	addi r1, r1, 0x20
+/* 814146F0 000E4C10  4E 80 00 20 */	blr
+.endfn setSignWindowButton__Q49textinput8keyboard6pctype12LayoutByNW4RFb
+
+# .text:0x451C | 0x814146F4 | size: 0x27C
+# textinput::keyboard::pctype::LayoutByNW4R::onlyQwerty(bool)
+.fn onlyQwerty__Q49textinput8keyboard6pctype12LayoutByNW4RFb, global
+/* 814146F4 000E4C14  94 21 FF E0 */	stwu r1, -0x20(r1)
+/* 814146F8 000E4C18  7C 08 02 A6 */	mflr r0
+/* 814146FC 000E4C1C  90 01 00 24 */	stw r0, 0x24(r1)
+/* 81414700 000E4C20  93 E1 00 1C */	stw r31, 0x1c(r1)
+/* 81414704 000E4C24  3F E0 81 66 */	lis r31, lbl_81658D90@ha
+/* 81414708 000E4C28  3B FF 8D 90 */	addi r31, r31, lbl_81658D90@l
+/* 8141470C 000E4C2C  93 C1 00 18 */	stw r30, 0x18(r1)
+/* 81414710 000E4C30  7C 9E 23 78 */	mr r30, r4
+/* 81414714 000E4C34  93 A1 00 14 */	stw r29, 0x14(r1)
+/* 81414718 000E4C38  7C 7D 1B 78 */	mr r29, r3
+/* 8141471C 000E4C3C  98 83 00 3C */	stb r4, 0x3c(r3)
+/* 81414720 000E4C40  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81414724 000E4C44  81 8C 00 2C */	lwz r12, 0x2c(r12)
+/* 81414728 000E4C48  7D 89 03 A6 */	mtctr r12
+/* 8141472C 000E4C4C  4E 80 04 21 */	bctrl
+/* 81414730 000E4C50  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81414734 000E4C54  40 82 00 A0 */	bne .L_814147D4
+/* 81414738 000E4C58  2C 1E 00 00 */	cmpwi r30, 0x0
+/* 8141473C 000E4C5C  41 82 00 68 */	beq .L_814147A4
+/* 81414740 000E4C60  81 9D 00 00 */	lwz r12, 0x0(r29)
+/* 81414744 000E4C64  7F A3 EB 78 */	mr r3, r29
+/* 81414748 000E4C68  38 80 00 01 */	li r4, 0x1
+/* 8141474C 000E4C6C  81 8C 00 4C */	lwz r12, 0x4c(r12)
+/* 81414750 000E4C70  7D 89 03 A6 */	mtctr r12
+/* 81414754 000E4C74  4E 80 04 21 */	bctrl
+/* 81414758 000E4C78  80 9D 00 20 */	lwz r4, 0x20(r29)
+/* 8141475C 000E4C7C  54 80 00 37 */	clrrwi. r0, r4, 4
+/* 81414760 000E4C80  41 82 00 28 */	beq .L_81414788
+/* 81414764 000E4C84  80 7D 00 34 */	lwz r3, 0x34(r29)
+/* 81414768 000E4C88  54 80 07 3E */	clrlwi r0, r4, 28
+/* 8141476C 000E4C8C  90 1D 00 20 */	stw r0, 0x20(r29)
+/* 81414770 000E4C90  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81414774 000E4C94  41 82 00 14 */	beq .L_81414788
+/* 81414778 000E4C98  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 8141477C 000E4C9C  81 8C 00 70 */	lwz r12, 0x70(r12)
+/* 81414780 000E4CA0  7D 89 03 A6 */	mtctr r12
+/* 81414784 000E4CA4  4E 80 04 21 */	bctrl
+.L_81414788:
+/* 81414788 000E4CA8  81 9D 00 00 */	lwz r12, 0x0(r29)
+/* 8141478C 000E4CAC  7F A3 EB 78 */	mr r3, r29
+/* 81414790 000E4CB0  38 80 00 00 */	li r4, 0x0
+/* 81414794 000E4CB4  81 8C 00 74 */	lwz r12, 0x74(r12)
+/* 81414798 000E4CB8  7D 89 03 A6 */	mtctr r12
+/* 8141479C 000E4CBC  4E 80 04 21 */	bctrl
+/* 814147A0 000E4CC0  48 00 00 34 */	b .L_814147D4
+.L_814147A4:
+/* 814147A4 000E4CC4  81 9D 00 00 */	lwz r12, 0x0(r29)
+/* 814147A8 000E4CC8  7F A3 EB 78 */	mr r3, r29
+/* 814147AC 000E4CCC  38 80 00 00 */	li r4, 0x0
+/* 814147B0 000E4CD0  81 8C 00 4C */	lwz r12, 0x4c(r12)
+/* 814147B4 000E4CD4  7D 89 03 A6 */	mtctr r12
+/* 814147B8 000E4CD8  4E 80 04 21 */	bctrl
+/* 814147BC 000E4CDC  81 9D 00 00 */	lwz r12, 0x0(r29)
+/* 814147C0 000E4CE0  7F A3 EB 78 */	mr r3, r29
+/* 814147C4 000E4CE4  38 80 00 06 */	li r4, 0x6
+/* 814147C8 000E4CE8  81 8C 00 78 */	lwz r12, 0x78(r12)
+/* 814147CC 000E4CEC  7D 89 03 A6 */	mtctr r12
+/* 814147D0 000E4CF0  4E 80 04 21 */	bctrl
+.L_814147D4:
+/* 814147D4 000E4CF4  81 9D 00 00 */	lwz r12, 0x0(r29)
+/* 814147D8 000E4CF8  7F A3 EB 78 */	mr r3, r29
+/* 814147DC 000E4CFC  81 8C 00 2C */	lwz r12, 0x2c(r12)
+/* 814147E0 000E4D00  7D 89 03 A6 */	mtctr r12
+/* 814147E4 000E4D04  4E 80 04 21 */	bctrl
+/* 814147E8 000E4D08  2C 03 00 00 */	cmpwi r3, 0x0
+/* 814147EC 000E4D0C  40 82 00 CC */	bne .L_814148B8
+/* 814147F0 000E4D10  81 9D 00 00 */	lwz r12, 0x0(r29)
+/* 814147F4 000E4D14  7F A3 EB 78 */	mr r3, r29
+/* 814147F8 000E4D18  81 8C 01 54 */	lwz r12, 0x154(r12)
+/* 814147FC 000E4D1C  7D 89 03 A6 */	mtctr r12
+/* 81414800 000E4D20  4E 80 04 21 */	bctrl
+/* 81414804 000E4D24  81 9D 00 44 */	lwz r12, 0x44(r29)
+/* 81414808 000E4D28  7F C0 00 34 */	cntlzw r0, r30
+/* 8141480C 000E4D2C  54 1E D9 7E */	srwi r30, r0, 5
+/* 81414810 000E4D30  38 7D 00 44 */	addi r3, r29, 0x44
+/* 81414814 000E4D34  81 8C 00 54 */	lwz r12, 0x54(r12)
+/* 81414818 000E4D38  7F C5 F3 78 */	mr r5, r30
+/* 8141481C 000E4D3C  38 9F 28 AC */	addi r4, r31, 0x28ac
+/* 81414820 000E4D40  7D 89 03 A6 */	mtctr r12
+/* 81414824 000E4D44  4E 80 04 21 */	bctrl
+/* 81414828 000E4D48  81 9D 00 44 */	lwz r12, 0x44(r29)
+/* 8141482C 000E4D4C  38 7D 00 44 */	addi r3, r29, 0x44
+/* 81414830 000E4D50  7F C5 F3 78 */	mr r5, r30
+/* 81414834 000E4D54  38 9F 28 BC */	addi r4, r31, 0x28bc
+/* 81414838 000E4D58  81 8C 00 54 */	lwz r12, 0x54(r12)
+/* 8141483C 000E4D5C  7D 89 03 A6 */	mtctr r12
+/* 81414840 000E4D60  4E 80 04 21 */	bctrl
+/* 81414844 000E4D64  81 9D 00 44 */	lwz r12, 0x44(r29)
+/* 81414848 000E4D68  38 7D 00 44 */	addi r3, r29, 0x44
+/* 8141484C 000E4D6C  7F C5 F3 78 */	mr r5, r30
+/* 81414850 000E4D70  38 9F 29 A4 */	addi r4, r31, 0x29a4
+/* 81414854 000E4D74  81 8C 00 54 */	lwz r12, 0x54(r12)
+/* 81414858 000E4D78  7D 89 03 A6 */	mtctr r12
+/* 8141485C 000E4D7C  4E 80 04 21 */	bctrl
+/* 81414860 000E4D80  81 9D 00 44 */	lwz r12, 0x44(r29)
+/* 81414864 000E4D84  38 7D 00 44 */	addi r3, r29, 0x44
+/* 81414868 000E4D88  7F C5 F3 78 */	mr r5, r30
+/* 8141486C 000E4D8C  38 9F 29 B8 */	addi r4, r31, 0x29b8
+/* 81414870 000E4D90  81 8C 00 54 */	lwz r12, 0x54(r12)
+/* 81414874 000E4D94  7D 89 03 A6 */	mtctr r12
+/* 81414878 000E4D98  4E 80 04 21 */	bctrl
+/* 8141487C 000E4D9C  81 9D 00 44 */	lwz r12, 0x44(r29)
+/* 81414880 000E4DA0  38 7D 00 44 */	addi r3, r29, 0x44
+/* 81414884 000E4DA4  7F C5 F3 78 */	mr r5, r30
+/* 81414888 000E4DA8  38 9F 29 CC */	addi r4, r31, 0x29cc
+/* 8141488C 000E4DAC  81 8C 00 54 */	lwz r12, 0x54(r12)
+/* 81414890 000E4DB0  7D 89 03 A6 */	mtctr r12
+/* 81414894 000E4DB4  4E 80 04 21 */	bctrl
+/* 81414898 000E4DB8  81 9D 00 44 */	lwz r12, 0x44(r29)
+/* 8141489C 000E4DBC  38 7D 00 44 */	addi r3, r29, 0x44
+/* 814148A0 000E4DC0  7F C5 F3 78 */	mr r5, r30
+/* 814148A4 000E4DC4  38 9F 2A F8 */	addi r4, r31, 0x2af8
+/* 814148A8 000E4DC8  81 8C 00 54 */	lwz r12, 0x54(r12)
+/* 814148AC 000E4DCC  7D 89 03 A6 */	mtctr r12
+/* 814148B0 000E4DD0  4E 80 04 21 */	bctrl
+/* 814148B4 000E4DD4  48 00 00 A0 */	b .L_81414954
+.L_814148B8:
+/* 814148B8 000E4DD8  81 9D 00 00 */	lwz r12, 0x0(r29)
+/* 814148BC 000E4DDC  7F A3 EB 78 */	mr r3, r29
+/* 814148C0 000E4DE0  81 8C 00 2C */	lwz r12, 0x2c(r12)
+/* 814148C4 000E4DE4  7D 89 03 A6 */	mtctr r12
+/* 814148C8 000E4DE8  4E 80 04 21 */	bctrl
+/* 814148CC 000E4DEC  2C 03 00 09 */	cmpwi r3, 0x9
+/* 814148D0 000E4DF0  41 82 00 20 */	beq .L_814148F0
+/* 814148D4 000E4DF4  81 9D 00 00 */	lwz r12, 0x0(r29)
+/* 814148D8 000E4DF8  7F A3 EB 78 */	mr r3, r29
+/* 814148DC 000E4DFC  81 8C 00 2C */	lwz r12, 0x2c(r12)
+/* 814148E0 000E4E00  7D 89 03 A6 */	mtctr r12
+/* 814148E4 000E4E04  4E 80 04 21 */	bctrl
+/* 814148E8 000E4E08  2C 03 00 08 */	cmpwi r3, 0x8
+/* 814148EC 000E4E0C  40 82 00 68 */	bne .L_81414954
+.L_814148F0:
+/* 814148F0 000E4E10  80 7D 00 40 */	lwz r3, 0x40(r29)
+/* 814148F4 000E4E14  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 814148F8 000E4E18  81 8C 00 8C */	lwz r12, 0x8c(r12)
+/* 814148FC 000E4E1C  7D 89 03 A6 */	mtctr r12
+/* 81414900 000E4E20  4E 80 04 21 */	bctrl
+/* 81414904 000E4E24  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81414908 000E4E28  81 8C 01 0C */	lwz r12, 0x10c(r12)
+/* 8141490C 000E4E2C  7D 89 03 A6 */	mtctr r12
+/* 81414910 000E4E30  4E 80 04 21 */	bctrl
+/* 81414914 000E4E34  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81414918 000E4E38  41 82 00 24 */	beq .L_8141493C
+/* 8141491C 000E4E3C  81 9D 00 00 */	lwz r12, 0x0(r29)
+/* 81414920 000E4E40  7F C0 00 34 */	cntlzw r0, r30
+/* 81414924 000E4E44  7F A3 EB 78 */	mr r3, r29
+/* 81414928 000E4E48  81 8C 00 64 */	lwz r12, 0x64(r12)
+/* 8141492C 000E4E4C  54 04 D9 7E */	srwi r4, r0, 5
+/* 81414930 000E4E50  7D 89 03 A6 */	mtctr r12
+/* 81414934 000E4E54  4E 80 04 21 */	bctrl
+/* 81414938 000E4E58  48 00 00 1C */	b .L_81414954
+.L_8141493C:
+/* 8141493C 000E4E5C  81 9D 00 00 */	lwz r12, 0x0(r29)
+/* 81414940 000E4E60  7F A3 EB 78 */	mr r3, r29
+/* 81414944 000E4E64  38 80 00 00 */	li r4, 0x0
+/* 81414948 000E4E68  81 8C 00 64 */	lwz r12, 0x64(r12)
+/* 8141494C 000E4E6C  7D 89 03 A6 */	mtctr r12
+/* 81414950 000E4E70  4E 80 04 21 */	bctrl
+.L_81414954:
+/* 81414954 000E4E74  80 01 00 24 */	lwz r0, 0x24(r1)
+/* 81414958 000E4E78  83 E1 00 1C */	lwz r31, 0x1c(r1)
+/* 8141495C 000E4E7C  83 C1 00 18 */	lwz r30, 0x18(r1)
+/* 81414960 000E4E80  83 A1 00 14 */	lwz r29, 0x14(r1)
+/* 81414964 000E4E84  7C 08 03 A6 */	mtlr r0
+/* 81414968 000E4E88  38 21 00 20 */	addi r1, r1, 0x20
+/* 8141496C 000E4E8C  4E 80 00 20 */	blr
+.endfn onlyQwerty__Q49textinput8keyboard6pctype12LayoutByNW4RFb
+
+# .text:0x4798 | 0x81414970 | size: 0x8
+# textinput::candidatebox::LayoutByNW4R::isActive() const
+.fn isActive__Q39textinput12candidatebox12LayoutByNW4RCFv, global
+/* 81414970 000E4E90  88 63 04 1C */	lbz r3, 0x41c(r3)
+/* 81414974 000E4E94  4E 80 00 20 */	blr
+.endfn isActive__Q39textinput12candidatebox12LayoutByNW4RCFv
+
+# .text:0x47A0 | 0x81414978 | size: 0x1C0
+# textinput::keyboard::pctype::LayoutByNW4R::setLangKeyActive(bool)
+.fn setLangKeyActive__Q49textinput8keyboard6pctype12LayoutByNW4RFb, global
+/* 81414978 000E4E98  94 21 FF E0 */	stwu r1, -0x20(r1)
+/* 8141497C 000E4E9C  7C 08 02 A6 */	mflr r0
+/* 81414980 000E4EA0  90 01 00 24 */	stw r0, 0x24(r1)
+/* 81414984 000E4EA4  93 E1 00 1C */	stw r31, 0x1c(r1)
+/* 81414988 000E4EA8  3F E0 81 66 */	lis r31, lbl_81658D90@ha
+/* 8141498C 000E4EAC  3B FF 8D 90 */	addi r31, r31, lbl_81658D90@l
+/* 81414990 000E4EB0  93 C1 00 18 */	stw r30, 0x18(r1)
+/* 81414994 000E4EB4  7C 9E 23 78 */	mr r30, r4
+/* 81414998 000E4EB8  93 A1 00 14 */	stw r29, 0x14(r1)
+/* 8141499C 000E4EBC  7C 7D 1B 78 */	mr r29, r3
+/* 814149A0 000E4EC0  98 83 00 3D */	stb r4, 0x3d(r3)
+/* 814149A4 000E4EC4  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 814149A8 000E4EC8  81 8C 00 2C */	lwz r12, 0x2c(r12)
+/* 814149AC 000E4ECC  7D 89 03 A6 */	mtctr r12
+/* 814149B0 000E4ED0  4E 80 04 21 */	bctrl
+/* 814149B4 000E4ED4  2C 03 00 09 */	cmpwi r3, 0x9
+/* 814149B8 000E4ED8  41 82 00 20 */	beq .L_814149D8
+/* 814149BC 000E4EDC  81 9D 00 00 */	lwz r12, 0x0(r29)
+/* 814149C0 000E4EE0  7F A3 EB 78 */	mr r3, r29
+/* 814149C4 000E4EE4  81 8C 00 2C */	lwz r12, 0x2c(r12)
+/* 814149C8 000E4EE8  7D 89 03 A6 */	mtctr r12
+/* 814149CC 000E4EEC  4E 80 04 21 */	bctrl
+/* 814149D0 000E4EF0  2C 03 00 08 */	cmpwi r3, 0x8
+/* 814149D4 000E4EF4  40 82 00 54 */	bne .L_81414A28
+.L_814149D8:
+/* 814149D8 000E4EF8  2C 1E 00 00 */	cmpwi r30, 0x0
+/* 814149DC 000E4EFC  40 82 00 4C */	bne .L_81414A28
+/* 814149E0 000E4F00  80 9D 00 20 */	lwz r4, 0x20(r29)
+/* 814149E4 000E4F04  54 80 00 37 */	clrrwi. r0, r4, 4
+/* 814149E8 000E4F08  41 82 00 28 */	beq .L_81414A10
+/* 814149EC 000E4F0C  80 7D 00 34 */	lwz r3, 0x34(r29)
+/* 814149F0 000E4F10  54 80 07 3E */	clrlwi r0, r4, 28
+/* 814149F4 000E4F14  90 1D 00 20 */	stw r0, 0x20(r29)
+/* 814149F8 000E4F18  2C 03 00 00 */	cmpwi r3, 0x0
+/* 814149FC 000E4F1C  41 82 00 14 */	beq .L_81414A10
+/* 81414A00 000E4F20  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81414A04 000E4F24  81 8C 00 70 */	lwz r12, 0x70(r12)
+/* 81414A08 000E4F28  7D 89 03 A6 */	mtctr r12
+/* 81414A0C 000E4F2C  4E 80 04 21 */	bctrl
+.L_81414A10:
+/* 81414A10 000E4F30  81 9D 00 00 */	lwz r12, 0x0(r29)
+/* 81414A14 000E4F34  7F A3 EB 78 */	mr r3, r29
+/* 81414A18 000E4F38  38 80 00 00 */	li r4, 0x0
+/* 81414A1C 000E4F3C  81 8C 00 74 */	lwz r12, 0x74(r12)
+/* 81414A20 000E4F40  7D 89 03 A6 */	mtctr r12
+/* 81414A24 000E4F44  4E 80 04 21 */	bctrl
+.L_81414A28:
+/* 81414A28 000E4F48  81 9D 00 00 */	lwz r12, 0x0(r29)
+/* 81414A2C 000E4F4C  7F A3 EB 78 */	mr r3, r29
+/* 81414A30 000E4F50  81 8C 00 2C */	lwz r12, 0x2c(r12)
+/* 81414A34 000E4F54  7D 89 03 A6 */	mtctr r12
+/* 81414A38 000E4F58  4E 80 04 21 */	bctrl
+/* 81414A3C 000E4F5C  2C 03 00 09 */	cmpwi r3, 0x9
+/* 81414A40 000E4F60  41 82 00 20 */	beq .L_81414A60
+/* 81414A44 000E4F64  81 9D 00 00 */	lwz r12, 0x0(r29)
+/* 81414A48 000E4F68  7F A3 EB 78 */	mr r3, r29
+/* 81414A4C 000E4F6C  81 8C 00 2C */	lwz r12, 0x2c(r12)
+/* 81414A50 000E4F70  7D 89 03 A6 */	mtctr r12
+/* 81414A54 000E4F74  4E 80 04 21 */	bctrl
+/* 81414A58 000E4F78  2C 03 00 08 */	cmpwi r3, 0x8
+/* 81414A5C 000E4F7C  40 82 00 C0 */	bne .L_81414B1C
+.L_81414A60:
+/* 81414A60 000E4F80  81 9D 00 00 */	lwz r12, 0x0(r29)
+/* 81414A64 000E4F84  7F A3 EB 78 */	mr r3, r29
+/* 81414A68 000E4F88  81 8C 01 54 */	lwz r12, 0x154(r12)
+/* 81414A6C 000E4F8C  7D 89 03 A6 */	mtctr r12
+/* 81414A70 000E4F90  4E 80 04 21 */	bctrl
+/* 81414A74 000E4F94  81 9D 00 44 */	lwz r12, 0x44(r29)
+/* 81414A78 000E4F98  38 7D 00 44 */	addi r3, r29, 0x44
+/* 81414A7C 000E4F9C  7F C5 F3 78 */	mr r5, r30
+/* 81414A80 000E4FA0  38 9F 29 DC */	addi r4, r31, 0x29dc
+/* 81414A84 000E4FA4  81 8C 00 54 */	lwz r12, 0x54(r12)
+/* 81414A88 000E4FA8  7D 89 03 A6 */	mtctr r12
+/* 81414A8C 000E4FAC  4E 80 04 21 */	bctrl
+/* 81414A90 000E4FB0  81 9D 00 44 */	lwz r12, 0x44(r29)
+/* 81414A94 000E4FB4  38 7D 00 44 */	addi r3, r29, 0x44
+/* 81414A98 000E4FB8  7F C5 F3 78 */	mr r5, r30
+/* 81414A9C 000E4FBC  38 9F 29 EC */	addi r4, r31, 0x29ec
+/* 81414AA0 000E4FC0  81 8C 00 54 */	lwz r12, 0x54(r12)
+/* 81414AA4 000E4FC4  7D 89 03 A6 */	mtctr r12
+/* 81414AA8 000E4FC8  4E 80 04 21 */	bctrl
+/* 81414AAC 000E4FCC  81 9D 00 44 */	lwz r12, 0x44(r29)
+/* 81414AB0 000E4FD0  38 7D 00 44 */	addi r3, r29, 0x44
+/* 81414AB4 000E4FD4  7F C5 F3 78 */	mr r5, r30
+/* 81414AB8 000E4FD8  38 9F 2B 04 */	addi r4, r31, 0x2b04
+/* 81414ABC 000E4FDC  81 8C 00 54 */	lwz r12, 0x54(r12)
+/* 81414AC0 000E4FE0  7D 89 03 A6 */	mtctr r12
+/* 81414AC4 000E4FE4  4E 80 04 21 */	bctrl
+/* 81414AC8 000E4FE8  81 9D 00 00 */	lwz r12, 0x0(r29)
+/* 81414ACC 000E4FEC  7F A3 EB 78 */	mr r3, r29
+/* 81414AD0 000E4FF0  81 8C 00 2C */	lwz r12, 0x2c(r12)
+/* 81414AD4 000E4FF4  7D 89 03 A6 */	mtctr r12
+/* 81414AD8 000E4FF8  4E 80 04 21 */	bctrl
+/* 81414ADC 000E4FFC  2C 03 00 08 */	cmpwi r3, 0x8
+/* 81414AE0 000E5000  40 82 00 3C */	bne .L_81414B1C
+/* 81414AE4 000E5004  81 9D 00 44 */	lwz r12, 0x44(r29)
+/* 81414AE8 000E5008  38 7D 00 44 */	addi r3, r29, 0x44
+/* 81414AEC 000E500C  7F C5 F3 78 */	mr r5, r30
+/* 81414AF0 000E5010  38 9F 2B 10 */	addi r4, r31, 0x2b10
+/* 81414AF4 000E5014  81 8C 00 54 */	lwz r12, 0x54(r12)
+/* 81414AF8 000E5018  7D 89 03 A6 */	mtctr r12
+/* 81414AFC 000E501C  4E 80 04 21 */	bctrl
+/* 81414B00 000E5020  81 9D 00 44 */	lwz r12, 0x44(r29)
+/* 81414B04 000E5024  38 7D 00 44 */	addi r3, r29, 0x44
+/* 81414B08 000E5028  7F C5 F3 78 */	mr r5, r30
+/* 81414B0C 000E502C  38 9F 2B 1C */	addi r4, r31, 0x2b1c
+/* 81414B10 000E5030  81 8C 00 54 */	lwz r12, 0x54(r12)
+/* 81414B14 000E5034  7D 89 03 A6 */	mtctr r12
+/* 81414B18 000E5038  4E 80 04 21 */	bctrl
+.L_81414B1C:
+/* 81414B1C 000E503C  80 01 00 24 */	lwz r0, 0x24(r1)
+/* 81414B20 000E5040  83 E1 00 1C */	lwz r31, 0x1c(r1)
+/* 81414B24 000E5044  83 C1 00 18 */	lwz r30, 0x18(r1)
+/* 81414B28 000E5048  83 A1 00 14 */	lwz r29, 0x14(r1)
+/* 81414B2C 000E504C  7C 08 03 A6 */	mtlr r0
+/* 81414B30 000E5050  38 21 00 20 */	addi r1, r1, 0x20
+/* 81414B34 000E5054  4E 80 00 20 */	blr
+.endfn setLangKeyActive__Q49textinput8keyboard6pctype12LayoutByNW4RFb
+
+# .text:0x4960 | 0x81414B38 | size: 0x134
+# textinput::keyboard::pctype::LayoutByNW4R::setInputModeJP(bool, unsigned long, unsigned long)
+.fn setInputModeJP__Q49textinput8keyboard6pctype12LayoutByNW4RFbUlUl, global
+/* 81414B38 000E5058  94 21 FF E0 */	stwu r1, -0x20(r1)
+/* 81414B3C 000E505C  7C 08 02 A6 */	mflr r0
+/* 81414B40 000E5060  90 01 00 24 */	stw r0, 0x24(r1)
+/* 81414B44 000E5064  93 E1 00 1C */	stw r31, 0x1c(r1)
+/* 81414B48 000E5068  7C DF 33 78 */	mr r31, r6
+/* 81414B4C 000E506C  93 C1 00 18 */	stw r30, 0x18(r1)
+/* 81414B50 000E5070  7C BE 2B 78 */	mr r30, r5
+/* 81414B54 000E5074  93 A1 00 14 */	stw r29, 0x14(r1)
+/* 81414B58 000E5078  7C 7D 1B 78 */	mr r29, r3
+/* 81414B5C 000E507C  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81414B60 000E5080  81 8C 00 4C */	lwz r12, 0x4c(r12)
+/* 81414B64 000E5084  7D 89 03 A6 */	mtctr r12
+/* 81414B68 000E5088  4E 80 04 21 */	bctrl
+/* 81414B6C 000E508C  80 9D 00 20 */	lwz r4, 0x20(r29)
+/* 81414B70 000E5090  54 80 07 3E */	clrlwi r0, r4, 28
+/* 81414B74 000E5094  7C 00 F0 40 */	cmplw r0, r30
+/* 81414B78 000E5098  41 82 00 18 */	beq .L_81414B90
+/* 81414B7C 000E509C  57 C0 07 3E */	clrlwi r0, r30, 28
+/* 81414B80 000E50A0  38 7D 00 20 */	addi r3, r29, 0x20
+/* 81414B84 000E50A4  50 80 00 36 */	rlwimi r0, r4, 0, 0, 27
+/* 81414B88 000E50A8  90 1D 00 20 */	stw r0, 0x20(r29)
+/* 81414B8C 000E50AC  4B FF C6 6D */	bl refresh___Q59textinput8keyboard6pctype4Base8KeyStateFv
+.L_81414B90:
+/* 81414B90 000E50B0  80 9D 00 28 */	lwz r4, 0x28(r29)
+/* 81414B94 000E50B4  54 80 07 3E */	clrlwi r0, r4, 28
+/* 81414B98 000E50B8  7C 00 F8 40 */	cmplw r0, r31
+/* 81414B9C 000E50BC  41 82 00 18 */	beq .L_81414BB4
+/* 81414BA0 000E50C0  57 E0 07 3E */	clrlwi r0, r31, 28
+/* 81414BA4 000E50C4  38 7D 00 20 */	addi r3, r29, 0x20
+/* 81414BA8 000E50C8  50 80 00 36 */	rlwimi r0, r4, 0, 0, 27
+/* 81414BAC 000E50CC  90 1D 00 28 */	stw r0, 0x28(r29)
+/* 81414BB0 000E50D0  4B FF C6 49 */	bl refresh___Q59textinput8keyboard6pctype4Base8KeyStateFv
+.L_81414BB4:
+/* 81414BB4 000E50D4  2C 1E 00 01 */	cmpwi r30, 0x1
+/* 81414BB8 000E50D8  41 82 00 4C */	beq .L_81414C04
+/* 81414BBC 000E50DC  40 80 00 10 */	bge .L_81414BCC
+/* 81414BC0 000E50E0  2C 1E 00 00 */	cmpwi r30, 0x0
+/* 81414BC4 000E50E4  40 80 00 14 */	bge .L_81414BD8
+/* 81414BC8 000E50E8  48 00 00 58 */	b .L_81414C20
+.L_81414BCC:
+/* 81414BCC 000E50EC  2C 1E 00 03 */	cmpwi r30, 0x3
+/* 81414BD0 000E50F0  40 80 00 50 */	bge .L_81414C20
+/* 81414BD4 000E50F4  48 00 00 40 */	b .L_81414C14
+.L_81414BD8:
+/* 81414BD8 000E50F8  81 9D 00 00 */	lwz r12, 0x0(r29)
+/* 81414BDC 000E50FC  7F A3 EB 78 */	mr r3, r29
+/* 81414BE0 000E5100  81 8C 00 2C */	lwz r12, 0x2c(r12)
+/* 81414BE4 000E5104  7D 89 03 A6 */	mtctr r12
+/* 81414BE8 000E5108  4E 80 04 21 */	bctrl
+/* 81414BEC 000E510C  1C 03 00 14 */	mulli r0, r3, 0x14
+/* 81414BF0 000E5110  3C 60 81 61 */	lis r3, csLanguageDependencyData__Q39textinput8keyboard6pctype@ha
+/* 81414BF4 000E5114  38 63 45 00 */	addi r3, r3, csLanguageDependencyData__Q39textinput8keyboard6pctype@l
+/* 81414BF8 000E5118  7C 03 02 14 */	add r0, r3, r0
+/* 81414BFC 000E511C  90 1D 00 1C */	stw r0, 0x1c(r29)
+/* 81414C00 000E5120  48 00 00 20 */	b .L_81414C20
+.L_81414C04:
+/* 81414C04 000E5124  3C 60 81 61 */	lis r3, csJapanKanaInput__Q39textinput8keyboard6pctype@ha
+/* 81414C08 000E5128  38 63 45 C8 */	addi r3, r3, csJapanKanaInput__Q39textinput8keyboard6pctype@l
+/* 81414C0C 000E512C  90 7D 00 1C */	stw r3, 0x1c(r29)
+/* 81414C10 000E5130  48 00 00 10 */	b .L_81414C20
+.L_81414C14:
+/* 81414C14 000E5134  3C 60 81 61 */	lis r3, csJapanKanaInput__Q39textinput8keyboard6pctype@ha
+/* 81414C18 000E5138  38 63 45 C8 */	addi r3, r3, csJapanKanaInput__Q39textinput8keyboard6pctype@l
+/* 81414C1C 000E513C  90 7D 00 1C */	stw r3, 0x1c(r29)
+.L_81414C20:
+/* 81414C20 000E5140  81 9D 00 00 */	lwz r12, 0x0(r29)
+/* 81414C24 000E5144  7F A3 EB 78 */	mr r3, r29
+/* 81414C28 000E5148  81 8C 01 54 */	lwz r12, 0x154(r12)
+/* 81414C2C 000E514C  7D 89 03 A6 */	mtctr r12
+/* 81414C30 000E5150  4E 80 04 21 */	bctrl
+/* 81414C34 000E5154  81 9D 00 00 */	lwz r12, 0x0(r29)
+/* 81414C38 000E5158  7F A3 EB 78 */	mr r3, r29
+/* 81414C3C 000E515C  38 80 00 29 */	li r4, 0x29
+/* 81414C40 000E5160  38 A0 00 00 */	li r5, 0x0
+/* 81414C44 000E5164  81 8C 00 18 */	lwz r12, 0x18(r12)
+/* 81414C48 000E5168  7D 89 03 A6 */	mtctr r12
+/* 81414C4C 000E516C  4E 80 04 21 */	bctrl
+/* 81414C50 000E5170  80 01 00 24 */	lwz r0, 0x24(r1)
+/* 81414C54 000E5174  83 E1 00 1C */	lwz r31, 0x1c(r1)
+/* 81414C58 000E5178  83 C1 00 18 */	lwz r30, 0x18(r1)
+/* 81414C5C 000E517C  83 A1 00 14 */	lwz r29, 0x14(r1)
+/* 81414C60 000E5180  7C 08 03 A6 */	mtlr r0
+/* 81414C64 000E5184  38 21 00 20 */	addi r1, r1, 0x20
+/* 81414C68 000E5188  4E 80 00 20 */	blr
+.endfn setInputModeJP__Q49textinput8keyboard6pctype12LayoutByNW4RFbUlUl
+
+# .text:0x4A94 | 0x81414C6C | size: 0x290
+# textinput::keyboard::pctype::LayoutByNW4R::setTranslateMode(textinput::keyboard::pctype::Base::TranslateMode)
+.fn setTranslateMode__Q49textinput8keyboard6pctype12LayoutByNW4RFQ59textinput8keyboard6pctype4Base13TranslateMode, global
+/* 81414C6C 000E518C  94 21 FF E0 */	stwu r1, -0x20(r1)
+/* 81414C70 000E5190  7C 08 02 A6 */	mflr r0
+/* 81414C74 000E5194  90 01 00 24 */	stw r0, 0x24(r1)
+/* 81414C78 000E5198  93 E1 00 1C */	stw r31, 0x1c(r1)
+/* 81414C7C 000E519C  3F E0 81 66 */	lis r31, lbl_81658D90@ha
+/* 81414C80 000E51A0  3B FF 8D 90 */	addi r31, r31, lbl_81658D90@l
+/* 81414C84 000E51A4  93 C1 00 18 */	stw r30, 0x18(r1)
+/* 81414C88 000E51A8  93 A1 00 14 */	stw r29, 0x14(r1)
+/* 81414C8C 000E51AC  7C 9D 23 78 */	mr r29, r4
+/* 81414C90 000E51B0  93 81 00 10 */	stw r28, 0x10(r1)
+/* 81414C94 000E51B4  7C 7C 1B 78 */	mr r28, r3
+/* 81414C98 000E51B8  80 03 00 20 */	lwz r0, 0x20(r3)
+/* 81414C9C 000E51BC  54 1E 07 3E */	clrlwi r30, r0, 28
+/* 81414CA0 000E51C0  4B FF C2 45 */	bl setTranslateMode__Q49textinput8keyboard6pctype4BaseFQ59textinput8keyboard6pctype4Base13TranslateMode
+/* 81414CA4 000E51C4  80 1C 00 20 */	lwz r0, 0x20(r28)
+/* 81414CA8 000E51C8  54 00 07 3E */	clrlwi r0, r0, 28
+/* 81414CAC 000E51CC  7C 1E 00 40 */	cmplw r30, r0
+/* 81414CB0 000E51D0  41 82 02 2C */	beq .L_81414EDC
+/* 81414CB4 000E51D4  80 7C 00 58 */	lwz r3, 0x58(r28)
+/* 81414CB8 000E51D8  38 80 00 0D */	li r4, 0xd
+/* 81414CBC 000E51DC  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81414CC0 000E51E0  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81414CC4 000E51E4  7D 89 03 A6 */	mtctr r12
+/* 81414CC8 000E51E8  4E 80 04 21 */	bctrl
+/* 81414CCC 000E51EC  2C 1E 00 01 */	cmpwi r30, 0x1
+/* 81414CD0 000E51F0  41 82 00 7C */	beq .L_81414D4C
+/* 81414CD4 000E51F4  40 80 00 10 */	bge .L_81414CE4
+/* 81414CD8 000E51F8  2C 1E 00 00 */	cmpwi r30, 0x0
+/* 81414CDC 000E51FC  40 80 00 14 */	bge .L_81414CF0
+/* 81414CE0 000E5200  48 00 00 F4 */	b .L_81414DD4
+.L_81414CE4:
+/* 81414CE4 000E5204  2C 1E 00 03 */	cmpwi r30, 0x3
+/* 81414CE8 000E5208  40 80 00 EC */	bge .L_81414DD4
+/* 81414CEC 000E520C  48 00 00 BC */	b .L_81414DA8
+.L_81414CF0:
+/* 81414CF0 000E5210  81 9C 00 44 */	lwz r12, 0x44(r28)
+/* 81414CF4 000E5214  38 7C 00 44 */	addi r3, r28, 0x44
+/* 81414CF8 000E5218  38 9F 29 CC */	addi r4, r31, 0x29cc
+/* 81414CFC 000E521C  81 8C 00 60 */	lwz r12, 0x60(r12)
+/* 81414D00 000E5220  7D 89 03 A6 */	mtctr r12
+/* 81414D04 000E5224  4E 80 04 21 */	bctrl
+/* 81414D08 000E5228  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81414D0C 000E522C  38 80 00 06 */	li r4, 0x6
+/* 81414D10 000E5230  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81414D14 000E5234  7D 89 03 A6 */	mtctr r12
+/* 81414D18 000E5238  4E 80 04 21 */	bctrl
+/* 81414D1C 000E523C  81 9C 00 44 */	lwz r12, 0x44(r28)
+/* 81414D20 000E5240  38 7C 00 44 */	addi r3, r28, 0x44
+/* 81414D24 000E5244  38 9F 29 DC */	addi r4, r31, 0x29dc
+/* 81414D28 000E5248  81 8C 00 60 */	lwz r12, 0x60(r12)
+/* 81414D2C 000E524C  7D 89 03 A6 */	mtctr r12
+/* 81414D30 000E5250  4E 80 04 21 */	bctrl
+/* 81414D34 000E5254  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81414D38 000E5258  38 80 00 06 */	li r4, 0x6
+/* 81414D3C 000E525C  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81414D40 000E5260  7D 89 03 A6 */	mtctr r12
+/* 81414D44 000E5264  4E 80 04 21 */	bctrl
+/* 81414D48 000E5268  48 00 00 8C */	b .L_81414DD4
+.L_81414D4C:
+/* 81414D4C 000E526C  81 9C 00 44 */	lwz r12, 0x44(r28)
+/* 81414D50 000E5270  38 7C 00 44 */	addi r3, r28, 0x44
+/* 81414D54 000E5274  38 9F 29 A4 */	addi r4, r31, 0x29a4
+/* 81414D58 000E5278  81 8C 00 60 */	lwz r12, 0x60(r12)
+/* 81414D5C 000E527C  7D 89 03 A6 */	mtctr r12
+/* 81414D60 000E5280  4E 80 04 21 */	bctrl
+/* 81414D64 000E5284  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81414D68 000E5288  38 80 00 06 */	li r4, 0x6
+/* 81414D6C 000E528C  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81414D70 000E5290  7D 89 03 A6 */	mtctr r12
+/* 81414D74 000E5294  4E 80 04 21 */	bctrl
+/* 81414D78 000E5298  81 9C 00 44 */	lwz r12, 0x44(r28)
+/* 81414D7C 000E529C  38 7C 00 44 */	addi r3, r28, 0x44
+/* 81414D80 000E52A0  38 9F 29 EC */	addi r4, r31, 0x29ec
+/* 81414D84 000E52A4  81 8C 00 60 */	lwz r12, 0x60(r12)
+/* 81414D88 000E52A8  7D 89 03 A6 */	mtctr r12
+/* 81414D8C 000E52AC  4E 80 04 21 */	bctrl
+/* 81414D90 000E52B0  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81414D94 000E52B4  38 80 00 06 */	li r4, 0x6
+/* 81414D98 000E52B8  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81414D9C 000E52BC  7D 89 03 A6 */	mtctr r12
+/* 81414DA0 000E52C0  4E 80 04 21 */	bctrl
+/* 81414DA4 000E52C4  48 00 00 30 */	b .L_81414DD4
+.L_81414DA8:
+/* 81414DA8 000E52C8  81 9C 00 44 */	lwz r12, 0x44(r28)
+/* 81414DAC 000E52CC  38 7C 00 44 */	addi r3, r28, 0x44
+/* 81414DB0 000E52D0  38 9F 29 B8 */	addi r4, r31, 0x29b8
+/* 81414DB4 000E52D4  81 8C 00 60 */	lwz r12, 0x60(r12)
+/* 81414DB8 000E52D8  7D 89 03 A6 */	mtctr r12
+/* 81414DBC 000E52DC  4E 80 04 21 */	bctrl
+/* 81414DC0 000E52E0  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81414DC4 000E52E4  38 80 00 06 */	li r4, 0x6
+/* 81414DC8 000E52E8  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81414DCC 000E52EC  7D 89 03 A6 */	mtctr r12
+/* 81414DD0 000E52F0  4E 80 04 21 */	bctrl
+.L_81414DD4:
+/* 81414DD4 000E52F4  2C 1D 00 01 */	cmpwi r29, 0x1
+/* 81414DD8 000E52F8  41 82 00 7C */	beq .L_81414E54
+/* 81414DDC 000E52FC  40 80 00 10 */	bge .L_81414DEC
+/* 81414DE0 000E5300  2C 1D 00 00 */	cmpwi r29, 0x0
+/* 81414DE4 000E5304  40 80 00 14 */	bge .L_81414DF8
+/* 81414DE8 000E5308  48 00 00 F4 */	b .L_81414EDC
+.L_81414DEC:
+/* 81414DEC 000E530C  2C 1D 00 03 */	cmpwi r29, 0x3
+/* 81414DF0 000E5310  40 80 00 EC */	bge .L_81414EDC
+/* 81414DF4 000E5314  48 00 00 BC */	b .L_81414EB0
+.L_81414DF8:
+/* 81414DF8 000E5318  81 9C 00 44 */	lwz r12, 0x44(r28)
+/* 81414DFC 000E531C  38 7C 00 44 */	addi r3, r28, 0x44
+/* 81414E00 000E5320  38 9F 29 CC */	addi r4, r31, 0x29cc
+/* 81414E04 000E5324  81 8C 00 60 */	lwz r12, 0x60(r12)
+/* 81414E08 000E5328  7D 89 03 A6 */	mtctr r12
+/* 81414E0C 000E532C  4E 80 04 21 */	bctrl
+/* 81414E10 000E5330  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81414E14 000E5334  38 80 00 00 */	li r4, 0x0
+/* 81414E18 000E5338  81 8C 00 10 */	lwz r12, 0x10(r12)
+/* 81414E1C 000E533C  7D 89 03 A6 */	mtctr r12
+/* 81414E20 000E5340  4E 80 04 21 */	bctrl
+/* 81414E24 000E5344  81 9C 00 44 */	lwz r12, 0x44(r28)
+/* 81414E28 000E5348  38 7C 00 44 */	addi r3, r28, 0x44
+/* 81414E2C 000E534C  38 9F 29 DC */	addi r4, r31, 0x29dc
+/* 81414E30 000E5350  81 8C 00 60 */	lwz r12, 0x60(r12)
+/* 81414E34 000E5354  7D 89 03 A6 */	mtctr r12
+/* 81414E38 000E5358  4E 80 04 21 */	bctrl
+/* 81414E3C 000E535C  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81414E40 000E5360  38 80 00 00 */	li r4, 0x0
+/* 81414E44 000E5364  81 8C 00 10 */	lwz r12, 0x10(r12)
+/* 81414E48 000E5368  7D 89 03 A6 */	mtctr r12
+/* 81414E4C 000E536C  4E 80 04 21 */	bctrl
+/* 81414E50 000E5370  48 00 00 8C */	b .L_81414EDC
+.L_81414E54:
+/* 81414E54 000E5374  81 9C 00 44 */	lwz r12, 0x44(r28)
+/* 81414E58 000E5378  38 7C 00 44 */	addi r3, r28, 0x44
+/* 81414E5C 000E537C  38 9F 29 A4 */	addi r4, r31, 0x29a4
+/* 81414E60 000E5380  81 8C 00 60 */	lwz r12, 0x60(r12)
+/* 81414E64 000E5384  7D 89 03 A6 */	mtctr r12
+/* 81414E68 000E5388  4E 80 04 21 */	bctrl
+/* 81414E6C 000E538C  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81414E70 000E5390  38 80 00 00 */	li r4, 0x0
+/* 81414E74 000E5394  81 8C 00 10 */	lwz r12, 0x10(r12)
+/* 81414E78 000E5398  7D 89 03 A6 */	mtctr r12
+/* 81414E7C 000E539C  4E 80 04 21 */	bctrl
+/* 81414E80 000E53A0  81 9C 00 44 */	lwz r12, 0x44(r28)
+/* 81414E84 000E53A4  38 7C 00 44 */	addi r3, r28, 0x44
+/* 81414E88 000E53A8  38 9F 29 EC */	addi r4, r31, 0x29ec
+/* 81414E8C 000E53AC  81 8C 00 60 */	lwz r12, 0x60(r12)
+/* 81414E90 000E53B0  7D 89 03 A6 */	mtctr r12
+/* 81414E94 000E53B4  4E 80 04 21 */	bctrl
+/* 81414E98 000E53B8  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81414E9C 000E53BC  38 80 00 00 */	li r4, 0x0
+/* 81414EA0 000E53C0  81 8C 00 10 */	lwz r12, 0x10(r12)
+/* 81414EA4 000E53C4  7D 89 03 A6 */	mtctr r12
+/* 81414EA8 000E53C8  4E 80 04 21 */	bctrl
+/* 81414EAC 000E53CC  48 00 00 30 */	b .L_81414EDC
+.L_81414EB0:
+/* 81414EB0 000E53D0  81 9C 00 44 */	lwz r12, 0x44(r28)
+/* 81414EB4 000E53D4  38 7C 00 44 */	addi r3, r28, 0x44
+/* 81414EB8 000E53D8  38 9F 29 B8 */	addi r4, r31, 0x29b8
+/* 81414EBC 000E53DC  81 8C 00 60 */	lwz r12, 0x60(r12)
+/* 81414EC0 000E53E0  7D 89 03 A6 */	mtctr r12
+/* 81414EC4 000E53E4  4E 80 04 21 */	bctrl
+/* 81414EC8 000E53E8  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81414ECC 000E53EC  38 80 00 00 */	li r4, 0x0
+/* 81414ED0 000E53F0  81 8C 00 10 */	lwz r12, 0x10(r12)
+/* 81414ED4 000E53F4  7D 89 03 A6 */	mtctr r12
+/* 81414ED8 000E53F8  4E 80 04 21 */	bctrl
+.L_81414EDC:
+/* 81414EDC 000E53FC  80 01 00 24 */	lwz r0, 0x24(r1)
+/* 81414EE0 000E5400  83 E1 00 1C */	lwz r31, 0x1c(r1)
+/* 81414EE4 000E5404  83 C1 00 18 */	lwz r30, 0x18(r1)
+/* 81414EE8 000E5408  83 A1 00 14 */	lwz r29, 0x14(r1)
+/* 81414EEC 000E540C  83 81 00 10 */	lwz r28, 0x10(r1)
+/* 81414EF0 000E5410  7C 08 03 A6 */	mtlr r0
+/* 81414EF4 000E5414  38 21 00 20 */	addi r1, r1, 0x20
+/* 81414EF8 000E5418  4E 80 00 20 */	blr
+.endfn setTranslateMode__Q49textinput8keyboard6pctype12LayoutByNW4RFQ59textinput8keyboard6pctype4Base13TranslateMode
+
+# .text:0x4D24 | 0x81414EFC | size: 0x230
+# textinput::keyboard::pctype::LayoutByNW4R::updateInput(int, float, float, unsigned long, unsigned long, unsigned long, void*)
+.fn updateInput__Q49textinput8keyboard6pctype12LayoutByNW4RFiffUlUlUlPv, global
+/* 81414EFC 000E541C  94 21 FF E0 */	stwu r1, -0x20(r1)
+/* 81414F00 000E5420  7C 08 02 A6 */	mflr r0
+/* 81414F04 000E5424  90 01 00 24 */	stw r0, 0x24(r1)
+/* 81414F08 000E5428  39 61 00 20 */	addi r11, r1, 0x20
+/* 81414F0C 000E542C  48 1E 45 B5 */	bl _savegpr_27
+/* 81414F10 000E5430  7C 7E 1B 78 */	mr r30, r3
+/* 81414F14 000E5434  7C DB 33 78 */	mr r27, r6
+/* 81414F18 000E5438  38 63 00 44 */	addi r3, r3, 0x44
+/* 81414F1C 000E543C  48 02 18 E5 */	bl updateInput__Q39textinput11nw4rmanager6LayoutFiffUlUlUlPv
+/* 81414F20 000E5440  88 0D AC B8 */	lbz r0, "@GUARD@getInstance__Q39textinput12LayoutGather9SingletonFv@sGather"@sda21(r0)
+/* 81414F24 000E5444  7C 7F 1B 78 */	mr r31, r3
+/* 81414F28 000E5448  7C 00 07 75 */	extsb. r0, r0
+/* 81414F2C 000E544C  40 82 00 2C */	bne .L_81414F58
+/* 81414F30 000E5450  38 6D AC BC */	li r3, "@LOCAL@getInstance__Q39textinput12LayoutGather9SingletonFv@sGather"@sda21
+/* 81414F34 000E5454  48 03 55 E9 */	bl __ct__Q29textinput12LayoutGatherFv
+/* 81414F38 000E5458  3C 80 81 45 */	lis r4, __dt__Q29textinput12LayoutGatherFv@ha
+/* 81414F3C 000E545C  3C A0 81 0C */	lis r5, lbl_810C6580@ha
+/* 81414F40 000E5460  38 84 A5 2C */	addi r4, r4, __dt__Q29textinput12LayoutGatherFv@l
+/* 81414F44 000E5464  38 6D AC BC */	li r3, "@LOCAL@getInstance__Q39textinput12LayoutGather9SingletonFv@sGather"@sda21
+/* 81414F48 000E5468  38 A5 65 80 */	addi r5, r5, lbl_810C6580@l
+/* 81414F4C 000E546C  48 1E 40 95 */	bl __register_global_object
+/* 81414F50 000E5470  38 00 00 01 */	li r0, 0x1
+/* 81414F54 000E5474  98 0D AC B8 */	stb r0, "@GUARD@getInstance__Q39textinput12LayoutGather9SingletonFv@sGather"@sda21(r0)
+.L_81414F58:
+/* 81414F58 000E5478  88 0D AC BC */	lbz r0, "@LOCAL@getInstance__Q39textinput12LayoutGather9SingletonFv@sGather"@sda21(r0)
+/* 81414F5C 000E547C  3B AD AC BC */	li r29, "@LOCAL@getInstance__Q39textinput12LayoutGather9SingletonFv@sGather"@sda21
+/* 81414F60 000E5480  3B 80 00 01 */	li r28, 0x1
+/* 81414F64 000E5484  54 00 D7 FF */	extrwi. r0, r0, 1, 25
+/* 81414F68 000E5488  40 82 00 14 */	bne .L_81414F7C
+/* 81414F6C 000E548C  88 1D 00 00 */	lbz r0, 0x0(r29)
+/* 81414F70 000E5490  54 00 DF FF */	extrwi. r0, r0, 1, 26
+/* 81414F74 000E5494  40 82 00 08 */	bne .L_81414F7C
+/* 81414F78 000E5498  3B 80 00 00 */	li r28, 0x0
+.L_81414F7C:
+/* 81414F7C 000E549C  57 60 05 6B */	rlwinm. r0, r27, 0, 21, 21
+/* 81414F80 000E54A0  41 82 00 D4 */	beq .L_81415054
+/* 81414F84 000E54A4  88 1D 00 00 */	lbz r0, 0x0(r29)
+/* 81414F88 000E54A8  3C 60 81 0D */	lis r3, sInstance__Q39textinput5input10HKBManager@ha
+/* 81414F8C 000E54AC  38 63 88 44 */	addi r3, r3, sInstance__Q39textinput5input10HKBManager@l
+/* 81414F90 000E54B0  38 80 00 02 */	li r4, 0x2
+/* 81414F94 000E54B4  60 00 00 20 */	ori r0, r0, 0x20
+/* 81414F98 000E54B8  38 A0 00 02 */	li r5, 0x2
+/* 81414F9C 000E54BC  98 1D 00 00 */	stb r0, 0x0(r29)
+/* 81414FA0 000E54C0  48 03 2A C5 */	bl SetForceModifierState__Q39textinput5input10HKBManagerFUlUl
+/* 81414FA4 000E54C4  2C 1C 00 00 */	cmpwi r28, 0x0
+/* 81414FA8 000E54C8  40 82 01 68 */	bne .L_81415110
+/* 81414FAC 000E54CC  81 9E 00 00 */	lwz r12, 0x0(r30)
+/* 81414FB0 000E54D0  7F C3 F3 78 */	mr r3, r30
+/* 81414FB4 000E54D4  81 8C 00 48 */	lwz r12, 0x48(r12)
+/* 81414FB8 000E54D8  7D 89 03 A6 */	mtctr r12
+/* 81414FBC 000E54DC  4E 80 04 21 */	bctrl
+/* 81414FC0 000E54E0  80 1E 00 20 */	lwz r0, 0x20(r30)
+/* 81414FC4 000E54E4  7C 7D 1B 78 */	mr r29, r3
+/* 81414FC8 000E54E8  80 BE 00 20 */	lwz r5, 0x20(r30)
+/* 81414FCC 000E54EC  54 04 00 36 */	clrrwi r4, r0, 4
+/* 81414FD0 000E54F0  60 84 00 80 */	ori r4, r4, 0x80
+/* 81414FD4 000E54F4  54 A0 00 36 */	clrrwi r0, r5, 4
+/* 81414FD8 000E54F8  7C 00 20 40 */	cmplw r0, r4
+/* 81414FDC 000E54FC  41 82 00 2C */	beq .L_81415008
+/* 81414FE0 000E5500  80 7E 00 34 */	lwz r3, 0x34(r30)
+/* 81414FE4 000E5504  54 80 00 36 */	clrrwi r0, r4, 4
+/* 81414FE8 000E5508  50 A0 07 3E */	rlwimi r0, r5, 0, 28, 31
+/* 81414FEC 000E550C  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81414FF0 000E5510  90 1E 00 20 */	stw r0, 0x20(r30)
+/* 81414FF4 000E5514  41 82 00 14 */	beq .L_81415008
+/* 81414FF8 000E5518  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81414FFC 000E551C  81 8C 00 70 */	lwz r12, 0x70(r12)
+/* 81415000 000E5520  7D 89 03 A6 */	mtctr r12
+/* 81415004 000E5524  4E 80 04 21 */	bctrl
+.L_81415008:
+/* 81415008 000E5528  38 00 00 01 */	li r0, 0x1
+/* 8141500C 000E552C  80 7E 01 1C */	lwz r3, 0x11c(r30)
+/* 81415010 000E5530  98 1E 01 20 */	stb r0, 0x120(r30)
+/* 81415014 000E5534  38 80 00 0A */	li r4, 0xa
+/* 81415018 000E5538  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 8141501C 000E553C  81 8C 00 10 */	lwz r12, 0x10(r12)
+/* 81415020 000E5540  7D 89 03 A6 */	mtctr r12
+/* 81415024 000E5544  4E 80 04 21 */	bctrl
+/* 81415028 000E5548  48 00 00 08 */	b .L_81415030
+/* 8141502C 000E554C  4E 80 04 21 */	bctrl
+.L_81415030:
+/* 81415030 000E5550  2C 1D 00 00 */	cmpwi r29, 0x0
+/* 81415034 000E5554  41 82 00 DC */	beq .L_81415110
+/* 81415038 000E5558  80 7E 00 58 */	lwz r3, 0x58(r30)
+/* 8141503C 000E555C  38 80 00 0D */	li r4, 0xd
+/* 81415040 000E5560  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81415044 000E5564  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81415048 000E5568  7D 89 03 A6 */	mtctr r12
+/* 8141504C 000E556C  4E 80 04 21 */	bctrl
+/* 81415050 000E5570  48 00 00 C0 */	b .L_81415110
+.L_81415054:
+/* 81415054 000E5574  88 1D 00 00 */	lbz r0, 0x0(r29)
+/* 81415058 000E5578  3C 60 81 0D */	lis r3, sInstance__Q39textinput5input10HKBManager@ha
+/* 8141505C 000E557C  38 63 88 44 */	addi r3, r3, sInstance__Q39textinput5input10HKBManager@l
+/* 81415060 000E5580  38 80 00 00 */	li r4, 0x0
+/* 81415064 000E5584  54 00 06 F2 */	rlwinm r0, r0, 0, 27, 25
+/* 81415068 000E5588  38 A0 00 00 */	li r5, 0x0
+/* 8141506C 000E558C  98 1D 00 00 */	stb r0, 0x0(r29)
+/* 81415070 000E5590  48 03 29 F5 */	bl SetForceModifierState__Q39textinput5input10HKBManagerFUlUl
+/* 81415074 000E5594  2C 1C 00 00 */	cmpwi r28, 0x0
+/* 81415078 000E5598  41 82 00 98 */	beq .L_81415110
+/* 8141507C 000E559C  88 7D 00 00 */	lbz r3, 0x0(r29)
+/* 81415080 000E55A0  38 80 00 00 */	li r4, 0x0
+/* 81415084 000E55A4  54 60 D7 FF */	extrwi. r0, r3, 1, 25
+/* 81415088 000E55A8  40 82 00 0C */	bne .L_81415094
+/* 8141508C 000E55AC  54 60 DF FF */	extrwi. r0, r3, 1, 26
+/* 81415090 000E55B0  41 82 00 08 */	beq .L_81415098
+.L_81415094:
+/* 81415094 000E55B4  38 80 00 01 */	li r4, 0x1
+.L_81415098:
+/* 81415098 000E55B8  2C 04 00 00 */	cmpwi r4, 0x0
+/* 8141509C 000E55BC  40 82 00 74 */	bne .L_81415110
+/* 814150A0 000E55C0  80 1E 00 20 */	lwz r0, 0x20(r30)
+/* 814150A4 000E55C4  80 BE 00 20 */	lwz r5, 0x20(r30)
+/* 814150A8 000E55C8  54 04 00 36 */	clrrwi r4, r0, 4
+/* 814150AC 000E55CC  54 84 06 6E */	rlwinm r4, r4, 0, 25, 23
+/* 814150B0 000E55D0  54 A0 00 36 */	clrrwi r0, r5, 4
+/* 814150B4 000E55D4  7C 00 20 40 */	cmplw r0, r4
+/* 814150B8 000E55D8  41 82 00 2C */	beq .L_814150E4
+/* 814150BC 000E55DC  80 7E 00 34 */	lwz r3, 0x34(r30)
+/* 814150C0 000E55E0  54 80 00 36 */	clrrwi r0, r4, 4
+/* 814150C4 000E55E4  50 A0 07 3E */	rlwimi r0, r5, 0, 28, 31
+/* 814150C8 000E55E8  2C 03 00 00 */	cmpwi r3, 0x0
+/* 814150CC 000E55EC  90 1E 00 20 */	stw r0, 0x20(r30)
+/* 814150D0 000E55F0  41 82 00 14 */	beq .L_814150E4
+/* 814150D4 000E55F4  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 814150D8 000E55F8  81 8C 00 70 */	lwz r12, 0x70(r12)
+/* 814150DC 000E55FC  7D 89 03 A6 */	mtctr r12
+/* 814150E0 000E5600  4E 80 04 21 */	bctrl
+.L_814150E4:
+/* 814150E4 000E5604  88 1E 01 20 */	lbz r0, 0x120(r30)
+/* 814150E8 000E5608  2C 00 00 00 */	cmpwi r0, 0x0
+/* 814150EC 000E560C  41 82 00 24 */	beq .L_81415110
+/* 814150F0 000E5610  38 00 00 00 */	li r0, 0x0
+/* 814150F4 000E5614  80 7E 01 1C */	lwz r3, 0x11c(r30)
+/* 814150F8 000E5618  98 1E 01 20 */	stb r0, 0x120(r30)
+/* 814150FC 000E561C  38 80 00 05 */	li r4, 0x5
+/* 81415100 000E5620  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81415104 000E5624  81 8C 00 10 */	lwz r12, 0x10(r12)
+/* 81415108 000E5628  7D 89 03 A6 */	mtctr r12
+/* 8141510C 000E562C  4E 80 04 21 */	bctrl
+.L_81415110:
+/* 81415110 000E5630  39 61 00 20 */	addi r11, r1, 0x20
+/* 81415114 000E5634  7F E3 FB 78 */	mr r3, r31
+/* 81415118 000E5638  48 1E 43 F5 */	bl _restgpr_27
+/* 8141511C 000E563C  80 01 00 24 */	lwz r0, 0x24(r1)
+/* 81415120 000E5640  7C 08 03 A6 */	mtlr r0
+/* 81415124 000E5644  38 21 00 20 */	addi r1, r1, 0x20
+/* 81415128 000E5648  4E 80 00 20 */	blr
+.endfn updateInput__Q49textinput8keyboard6pctype12LayoutByNW4RFiffUlUlUlPv
+
+# .text:0x4F54 | 0x8141512C | size: 0x38C
+# textinput::keyboard::pctype::LayoutByNW4R::updateInput(textinput::input::HKBManager&)
+.fn updateInput__Q49textinput8keyboard6pctype12LayoutByNW4RFRQ39textinput5input10HKBManager, global
+/* 8141512C 000E564C  94 21 FF A0 */	stwu r1, -0x60(r1)
+/* 81415130 000E5650  7C 08 02 A6 */	mflr r0
+/* 81415134 000E5654  90 01 00 64 */	stw r0, 0x64(r1)
+/* 81415138 000E5658  39 61 00 60 */	addi r11, r1, 0x60
+/* 8141513C 000E565C  48 1E 43 7D */	bl _savegpr_25
+/* 81415140 000E5660  3F E0 81 66 */	lis r31, lbl_81658D90@ha
+/* 81415144 000E5664  7C 7D 1B 78 */	mr r29, r3
+/* 81415148 000E5668  7C 9E 23 78 */	mr r30, r4
+/* 8141514C 000E566C  38 61 00 2C */	addi r3, r1, 0x2c
+/* 81415150 000E5670  3B FF 8D 90 */	addi r31, r31, lbl_81658D90@l
+/* 81415154 000E5674  48 03 2A 01 */	bl GetTriggeredKeySet__Q39textinput5input10HKBManagerCFv
+/* 81415158 000E5678  3F 80 81 61 */	lis r28, lbl_81614A54@ha
+/* 8141515C 000E567C  3F 60 81 61 */	lis r27, lbl_81614A20@ha
+/* 81415160 000E5680  3B 9C 4A 54 */	addi r28, r28, lbl_81614A54@l
+/* 81415164 000E5684  3B 7B 4A 20 */	addi r27, r27, lbl_81614A20@l
+/* 81415168 000E5688  48 00 01 EC */	b .L_81415354
+.L_8141516C:
+/* 8141516C 000E568C  38 61 00 2C */	addi r3, r1, 0x2c
+/* 81415170 000E5690  3B 20 00 00 */	li r25, 0x0
+/* 81415174 000E5694  48 03 31 19 */	bl GetKey__Q49textinput5input10HKBManager6KeySetCFv
+/* 81415178 000E5698  7C 7A 1B 78 */	mr r26, r3
+/* 8141517C 000E569C  38 61 00 2C */	addi r3, r1, 0x2c
+/* 81415180 000E56A0  48 03 32 E5 */	bl GetWChar__Q49textinput5input10HKBManager6KeySetCFv
+/* 81415184 000E56A4  57 40 06 3E */	clrlwi r0, r26, 24
+/* 81415188 000E56A8  2C 00 00 2C */	cmpwi r0, 0x2c
+/* 8141518C 000E56AC  41 82 01 74 */	beq .L_81415300
+/* 81415190 000E56B0  40 80 00 10 */	bge .L_814151A0
+/* 81415194 000E56B4  2C 00 00 28 */	cmpwi r0, 0x28
+/* 81415198 000E56B8  41 82 00 14 */	beq .L_814151AC
+/* 8141519C 000E56BC  48 00 00 40 */	b .L_814151DC
+.L_814151A0:
+/* 814151A0 000E56C0  2C 00 00 58 */	cmpwi r0, 0x58
+/* 814151A4 000E56C4  41 82 00 08 */	beq .L_814151AC
+/* 814151A8 000E56C8  48 00 00 34 */	b .L_814151DC
+.L_814151AC:
+/* 814151AC 000E56CC  7F C3 F3 78 */	mr r3, r30
+/* 814151B0 000E56D0  48 03 26 B1 */	bl GetModifierState__Q39textinput5input10HKBManagerCFv
+/* 814151B4 000E56D4  54 60 07 7B */	rlwinm. r0, r3, 0, 29, 29
+/* 814151B8 000E56D8  40 82 01 48 */	bne .L_81415300
+/* 814151BC 000E56DC  81 9D 00 44 */	lwz r12, 0x44(r29)
+/* 814151C0 000E56E0  38 7D 00 44 */	addi r3, r29, 0x44
+/* 814151C4 000E56E4  38 9F 2A A8 */	addi r4, r31, 0x2aa8
+/* 814151C8 000E56E8  81 8C 00 60 */	lwz r12, 0x60(r12)
+/* 814151CC 000E56EC  7D 89 03 A6 */	mtctr r12
+/* 814151D0 000E56F0  4E 80 04 21 */	bctrl
+/* 814151D4 000E56F4  7C 79 1B 78 */	mr r25, r3
+/* 814151D8 000E56F8  48 00 01 28 */	b .L_81415300
+.L_814151DC:
+/* 814151DC 000E56FC  54 63 04 3E */	clrlwi r3, r3, 16
+/* 814151E0 000E5700  48 00 6E 61 */	bl ToIndependentClass__Q39textinput9inputform13DeadKeyStreamFw
+/* 814151E4 000E5704  7C 7A 1B 78 */	mr r26, r3
+/* 814151E8 000E5708  80 7D 00 40 */	lwz r3, 0x40(r29)
+/* 814151EC 000E570C  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 814151F0 000E5710  81 8C 00 70 */	lwz r12, 0x70(r12)
+/* 814151F4 000E5714  7D 89 03 A6 */	mtctr r12
+/* 814151F8 000E5718  4E 80 04 21 */	bctrl
+/* 814151FC 000E571C  57 44 04 3E */	clrlwi r4, r26, 16
+/* 81415200 000E5720  48 03 48 55 */	bl convertWCCode__Q49textinput8keyboard5hwkey10HWKeyboardCFw
+/* 81415204 000E5724  7C 7A 1B 78 */	mr r26, r3
+/* 81415208 000E5728  80 7D 00 40 */	lwz r3, 0x40(r29)
+/* 8141520C 000E572C  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81415210 000E5730  81 8C 00 98 */	lwz r12, 0x98(r12)
+/* 81415214 000E5734  7D 89 03 A6 */	mtctr r12
+/* 81415218 000E5738  4E 80 04 21 */	bctrl
+/* 8141521C 000E573C  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81415220 000E5740  81 8C 00 10 */	lwz r12, 0x10(r12)
+/* 81415224 000E5744  7D 89 03 A6 */	mtctr r12
+/* 81415228 000E5748  4E 80 04 21 */	bctrl
+/* 8141522C 000E574C  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81415230 000E5750  41 82 00 B4 */	beq .L_814152E4
+/* 81415234 000E5754  80 7D 00 40 */	lwz r3, 0x40(r29)
+/* 81415238 000E5758  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 8141523C 000E575C  81 8C 00 78 */	lwz r12, 0x78(r12)
+/* 81415240 000E5760  7D 89 03 A6 */	mtctr r12
+/* 81415244 000E5764  4E 80 04 21 */	bctrl
+/* 81415248 000E5768  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 8141524C 000E576C  81 8C 00 58 */	lwz r12, 0x58(r12)
+/* 81415250 000E5770  7D 89 03 A6 */	mtctr r12
+/* 81415254 000E5774  4E 80 04 21 */	bctrl
+/* 81415258 000E5778  2C 03 00 00 */	cmpwi r3, 0x0
+/* 8141525C 000E577C  41 82 00 88 */	beq .L_814152E4
+/* 81415260 000E5780  80 7D 00 40 */	lwz r3, 0x40(r29)
+/* 81415264 000E5784  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81415268 000E5788  81 8C 00 34 */	lwz r12, 0x34(r12)
+/* 8141526C 000E578C  7D 89 03 A6 */	mtctr r12
+/* 81415270 000E5790  4E 80 04 21 */	bctrl
+/* 81415274 000E5794  2C 03 00 09 */	cmpwi r3, 0x9
+/* 81415278 000E5798  40 82 00 6C */	bne .L_814152E4
+/* 8141527C 000E579C  81 9D 00 00 */	lwz r12, 0x0(r29)
+/* 81415280 000E57A0  7F A3 EB 78 */	mr r3, r29
+/* 81415284 000E57A4  81 8C 00 44 */	lwz r12, 0x44(r12)
+/* 81415288 000E57A8  7D 89 03 A6 */	mtctr r12
+/* 8141528C 000E57AC  4E 80 04 21 */	bctrl
+/* 81415290 000E57B0  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81415294 000E57B4  57 43 04 3E */	clrlwi r3, r26, 16
+/* 81415298 000E57B8  41 82 00 0C */	beq .L_814152A4
+/* 8141529C 000E57BC  48 02 44 5D */	bl reverseLetterCaseW__Q29textinput4utilFw
+/* 814152A0 000E57C0  54 63 04 3E */	clrlwi r3, r3, 16
+.L_814152A4:
+/* 814152A4 000E57C4  28 03 00 61 */	cmplwi r3, 0x61
+/* 814152A8 000E57C8  41 80 00 1C */	blt .L_814152C4
+/* 814152AC 000E57CC  28 03 00 7A */	cmplwi r3, 0x7a
+/* 814152B0 000E57D0  41 81 00 14 */	bgt .L_814152C4
+/* 814152B4 000E57D4  54 60 0B FC */	clrlslwi r0, r3, 16, 1
+/* 814152B8 000E57D8  7C 7B 02 14 */	add r3, r27, r0
+/* 814152BC 000E57DC  A0 63 FF 3E */	lhz r3, -0xc2(r3)
+/* 814152C0 000E57E0  48 00 00 20 */	b .L_814152E0
+.L_814152C4:
+/* 814152C4 000E57E4  28 03 00 41 */	cmplwi r3, 0x41
+/* 814152C8 000E57E8  41 80 00 18 */	blt .L_814152E0
+/* 814152CC 000E57EC  28 03 00 5A */	cmplwi r3, 0x5a
+/* 814152D0 000E57F0  41 81 00 10 */	bgt .L_814152E0
+/* 814152D4 000E57F4  54 60 0B FC */	clrlslwi r0, r3, 16, 1
+/* 814152D8 000E57F8  7C 7C 02 14 */	add r3, r28, r0
+/* 814152DC 000E57FC  A0 63 FF 7E */	lhz r3, -0x82(r3)
+.L_814152E0:
+/* 814152E0 000E5800  54 7A 04 3E */	clrlwi r26, r3, 16
+.L_814152E4:
+/* 814152E4 000E5804  81 9D 00 44 */	lwz r12, 0x44(r29)
+/* 814152E8 000E5808  38 7D 00 44 */	addi r3, r29, 0x44
+/* 814152EC 000E580C  57 44 04 3E */	clrlwi r4, r26, 16
+/* 814152F0 000E5810  81 8C 00 64 */	lwz r12, 0x64(r12)
+/* 814152F4 000E5814  7D 89 03 A6 */	mtctr r12
+/* 814152F8 000E5818  4E 80 04 21 */	bctrl
+/* 814152FC 000E581C  7C 79 1B 78 */	mr r25, r3
+.L_81415300:
+/* 81415300 000E5820  2C 19 00 00 */	cmpwi r25, 0x0
+/* 81415304 000E5824  41 82 00 1C */	beq .L_81415320
+/* 81415308 000E5828  81 99 00 00 */	lwz r12, 0x0(r25)
+/* 8141530C 000E582C  7F 23 CB 78 */	mr r3, r25
+/* 81415310 000E5830  38 80 00 00 */	li r4, 0x0
+/* 81415314 000E5834  81 8C 00 10 */	lwz r12, 0x10(r12)
+/* 81415318 000E5838  7D 89 03 A6 */	mtctr r12
+/* 8141531C 000E583C  4E 80 04 21 */	bctrl
+.L_81415320:
+/* 81415320 000E5840  38 61 00 20 */	addi r3, r1, 0x20
+/* 81415324 000E5844  38 81 00 2C */	addi r4, r1, 0x2c
+/* 81415328 000E5848  48 03 35 DD */	bl GetNext__Q49textinput5input10HKBManager6KeySetCFv
+/* 8141532C 000E584C  80 C1 00 20 */	lwz r6, 0x20(r1)
+/* 81415330 000E5850  88 A1 00 24 */	lbz r5, 0x24(r1)
+/* 81415334 000E5854  88 81 00 25 */	lbz r4, 0x25(r1)
+/* 81415338 000E5858  88 61 00 26 */	lbz r3, 0x26(r1)
+/* 8141533C 000E585C  A0 01 00 28 */	lhz r0, 0x28(r1)
+/* 81415340 000E5860  90 C1 00 2C */	stw r6, 0x2c(r1)
+/* 81415344 000E5864  98 A1 00 30 */	stb r5, 0x30(r1)
+/* 81415348 000E5868  98 81 00 31 */	stb r4, 0x31(r1)
+/* 8141534C 000E586C  98 61 00 32 */	stb r3, 0x32(r1)
+/* 81415350 000E5870  B0 01 00 34 */	sth r0, 0x34(r1)
+.L_81415354:
+/* 81415354 000E5874  38 61 00 2C */	addi r3, r1, 0x2c
+/* 81415358 000E5878  48 03 34 95 */	bl IsValid__Q49textinput5input10HKBManager6KeySetCFv
+/* 8141535C 000E587C  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81415360 000E5880  40 82 FE 0C */	bne .L_8141516C
+/* 81415364 000E5884  7F C4 F3 78 */	mr r4, r30
+/* 81415368 000E5888  38 61 00 14 */	addi r3, r1, 0x14
+/* 8141536C 000E588C  48 03 28 71 */	bl GetRepeatedKeySet__Q39textinput5input10HKBManagerCFv
+/* 81415370 000E5890  80 C1 00 14 */	lwz r6, 0x14(r1)
+/* 81415374 000E5894  88 A1 00 18 */	lbz r5, 0x18(r1)
+/* 81415378 000E5898  88 81 00 19 */	lbz r4, 0x19(r1)
+/* 8141537C 000E589C  88 61 00 1A */	lbz r3, 0x1a(r1)
+/* 81415380 000E58A0  A0 01 00 1C */	lhz r0, 0x1c(r1)
+/* 81415384 000E58A4  90 C1 00 2C */	stw r6, 0x2c(r1)
+/* 81415388 000E58A8  98 A1 00 30 */	stb r5, 0x30(r1)
+/* 8141538C 000E58AC  98 81 00 31 */	stb r4, 0x31(r1)
+/* 81415390 000E58B0  98 61 00 32 */	stb r3, 0x32(r1)
+/* 81415394 000E58B4  B0 01 00 34 */	sth r0, 0x34(r1)
+/* 81415398 000E58B8  48 00 00 F4 */	b .L_8141548C
+.L_8141539C:
+/* 8141539C 000E58BC  38 61 00 2C */	addi r3, r1, 0x2c
+/* 814153A0 000E58C0  3B 20 00 00 */	li r25, 0x0
+/* 814153A4 000E58C4  48 03 2E E9 */	bl GetKey__Q49textinput5input10HKBManager6KeySetCFv
+/* 814153A8 000E58C8  7C 7C 1B 78 */	mr r28, r3
+/* 814153AC 000E58CC  38 61 00 2C */	addi r3, r1, 0x2c
+/* 814153B0 000E58D0  48 03 30 B5 */	bl GetWChar__Q49textinput5input10HKBManager6KeySetCFv
+/* 814153B4 000E58D4  57 80 06 3E */	clrlwi r0, r28, 24
+/* 814153B8 000E58D8  2C 00 00 2C */	cmpwi r0, 0x2c
+/* 814153BC 000E58DC  41 82 00 50 */	beq .L_8141540C
+/* 814153C0 000E58E0  40 80 00 10 */	bge .L_814153D0
+/* 814153C4 000E58E4  2C 00 00 2A */	cmpwi r0, 0x2a
+/* 814153C8 000E58E8  41 82 00 14 */	beq .L_814153DC
+/* 814153CC 000E58EC  48 00 00 6C */	b .L_81415438
+.L_814153D0:
+/* 814153D0 000E58F0  2C 00 00 4C */	cmpwi r0, 0x4c
+/* 814153D4 000E58F4  41 82 00 18 */	beq .L_814153EC
+/* 814153D8 000E58F8  48 00 00 60 */	b .L_81415438
+.L_814153DC:
+/* 814153DC 000E58FC  7F C3 F3 78 */	mr r3, r30
+/* 814153E0 000E5900  48 03 24 81 */	bl GetModifierState__Q39textinput5input10HKBManagerCFv
+/* 814153E4 000E5904  54 60 07 7B */	rlwinm. r0, r3, 0, 29, 29
+/* 814153E8 000E5908  40 82 00 50 */	bne .L_81415438
+.L_814153EC:
+/* 814153EC 000E590C  81 9D 00 44 */	lwz r12, 0x44(r29)
+/* 814153F0 000E5910  38 7D 00 44 */	addi r3, r29, 0x44
+/* 814153F4 000E5914  38 9F 2B 28 */	addi r4, r31, 0x2b28
+/* 814153F8 000E5918  81 8C 00 60 */	lwz r12, 0x60(r12)
+/* 814153FC 000E591C  7D 89 03 A6 */	mtctr r12
+/* 81415400 000E5920  4E 80 04 21 */	bctrl
+/* 81415404 000E5924  7C 79 1B 78 */	mr r25, r3
+/* 81415408 000E5928  48 00 00 30 */	b .L_81415438
+.L_8141540C:
+/* 8141540C 000E592C  7F C3 F3 78 */	mr r3, r30
+/* 81415410 000E5930  48 03 24 51 */	bl GetModifierState__Q39textinput5input10HKBManagerCFv
+/* 81415414 000E5934  54 60 07 39 */	rlwinm. r0, r3, 0, 28, 28
+/* 81415418 000E5938  40 82 00 20 */	bne .L_81415438
+/* 8141541C 000E593C  81 9D 00 44 */	lwz r12, 0x44(r29)
+/* 81415420 000E5940  38 7D 00 44 */	addi r3, r29, 0x44
+/* 81415424 000E5944  38 9F 2B 38 */	addi r4, r31, 0x2b38
+/* 81415428 000E5948  81 8C 00 60 */	lwz r12, 0x60(r12)
+/* 8141542C 000E594C  7D 89 03 A6 */	mtctr r12
+/* 81415430 000E5950  4E 80 04 21 */	bctrl
+/* 81415434 000E5954  7C 79 1B 78 */	mr r25, r3
+.L_81415438:
+/* 81415438 000E5958  2C 19 00 00 */	cmpwi r25, 0x0
+/* 8141543C 000E595C  41 82 00 1C */	beq .L_81415458
+/* 81415440 000E5960  81 99 00 00 */	lwz r12, 0x0(r25)
+/* 81415444 000E5964  7F 23 CB 78 */	mr r3, r25
+/* 81415448 000E5968  38 80 00 00 */	li r4, 0x0
+/* 8141544C 000E596C  81 8C 00 10 */	lwz r12, 0x10(r12)
+/* 81415450 000E5970  7D 89 03 A6 */	mtctr r12
+/* 81415454 000E5974  4E 80 04 21 */	bctrl
+.L_81415458:
+/* 81415458 000E5978  38 61 00 08 */	addi r3, r1, 0x8
+/* 8141545C 000E597C  38 81 00 2C */	addi r4, r1, 0x2c
+/* 81415460 000E5980  48 03 34 A5 */	bl GetNext__Q49textinput5input10HKBManager6KeySetCFv
+/* 81415464 000E5984  80 C1 00 08 */	lwz r6, 0x8(r1)
+/* 81415468 000E5988  88 A1 00 0C */	lbz r5, 0xc(r1)
+/* 8141546C 000E598C  88 81 00 0D */	lbz r4, 0xd(r1)
+/* 81415470 000E5990  88 61 00 0E */	lbz r3, 0xe(r1)
+/* 81415474 000E5994  A0 01 00 10 */	lhz r0, 0x10(r1)
+/* 81415478 000E5998  90 C1 00 2C */	stw r6, 0x2c(r1)
+/* 8141547C 000E599C  98 A1 00 30 */	stb r5, 0x30(r1)
+/* 81415480 000E59A0  98 81 00 31 */	stb r4, 0x31(r1)
+/* 81415484 000E59A4  98 61 00 32 */	stb r3, 0x32(r1)
+/* 81415488 000E59A8  B0 01 00 34 */	sth r0, 0x34(r1)
+.L_8141548C:
+/* 8141548C 000E59AC  38 61 00 2C */	addi r3, r1, 0x2c
+/* 81415490 000E59B0  48 03 33 5D */	bl IsValid__Q49textinput5input10HKBManager6KeySetCFv
+/* 81415494 000E59B4  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81415498 000E59B8  40 82 FF 04 */	bne .L_8141539C
+/* 8141549C 000E59BC  39 61 00 60 */	addi r11, r1, 0x60
+/* 814154A0 000E59C0  38 60 00 00 */	li r3, 0x0
+/* 814154A4 000E59C4  48 1E 40 61 */	bl _restgpr_25
+/* 814154A8 000E59C8  80 01 00 64 */	lwz r0, 0x64(r1)
+/* 814154AC 000E59CC  7C 08 03 A6 */	mtlr r0
+/* 814154B0 000E59D0  38 21 00 60 */	addi r1, r1, 0x60
+/* 814154B4 000E59D4  4E 80 00 20 */	blr
+.endfn updateInput__Q49textinput8keyboard6pctype12LayoutByNW4RFRQ39textinput5input10HKBManager
+
+# .text:0x52E0 | 0x814154B8 | size: 0x160
+# textinput::keyboard::pctype::LayoutByNW4R::changeAnimationAllToNormal()
+.fn changeAnimationAllToNormal__Q49textinput8keyboard6pctype12LayoutByNW4RFv, global
+/* 814154B8 000E59D8  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 814154BC 000E59DC  7C 08 02 A6 */	mflr r0
+/* 814154C0 000E59E0  38 80 00 00 */	li r4, 0x0
+/* 814154C4 000E59E4  90 01 00 14 */	stw r0, 0x14(r1)
+/* 814154C8 000E59E8  93 E1 00 0C */	stw r31, 0xc(r1)
+/* 814154CC 000E59EC  93 C1 00 08 */	stw r30, 0x8(r1)
+/* 814154D0 000E59F0  7C 7E 1B 78 */	mr r30, r3
+/* 814154D4 000E59F4  38 63 00 B0 */	addi r3, r3, 0xb0
+/* 814154D8 000E59F8  48 0F CE 05 */	bl List_GetNext__Q24nw4r2utFPCQ34nw4r2ut4ListPCv
+/* 814154DC 000E59FC  7C 7F 1B 78 */	mr r31, r3
+/* 814154E0 000E5A00  48 00 00 48 */	b .L_81415528
+.L_814154E4:
+/* 814154E4 000E5A04  81 9F 00 00 */	lwz r12, 0x0(r31)
+/* 814154E8 000E5A08  7F E3 FB 78 */	mr r3, r31
+/* 814154EC 000E5A0C  81 8C 00 28 */	lwz r12, 0x28(r12)
+/* 814154F0 000E5A10  7D 89 03 A6 */	mtctr r12
+/* 814154F4 000E5A14  4E 80 04 21 */	bctrl
+/* 814154F8 000E5A18  2C 03 00 00 */	cmpwi r3, 0x0
+/* 814154FC 000E5A1C  40 82 00 1C */	bne .L_81415518
+/* 81415500 000E5A20  81 9F 00 00 */	lwz r12, 0x0(r31)
+/* 81415504 000E5A24  7F E3 FB 78 */	mr r3, r31
+/* 81415508 000E5A28  38 80 00 00 */	li r4, 0x0
+/* 8141550C 000E5A2C  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81415510 000E5A30  7D 89 03 A6 */	mtctr r12
+/* 81415514 000E5A34  4E 80 04 21 */	bctrl
+.L_81415518:
+/* 81415518 000E5A38  7F E4 FB 78 */	mr r4, r31
+/* 8141551C 000E5A3C  38 7E 00 B0 */	addi r3, r30, 0xb0
+/* 81415520 000E5A40  48 0F CD BD */	bl List_GetNext__Q24nw4r2utFPCQ34nw4r2ut4ListPCv
+/* 81415524 000E5A44  7C 7F 1B 78 */	mr r31, r3
+.L_81415528:
+/* 81415528 000E5A48  2C 1F 00 00 */	cmpwi r31, 0x0
+/* 8141552C 000E5A4C  40 82 FF B8 */	bne .L_814154E4
+/* 81415530 000E5A50  80 1E 00 28 */	lwz r0, 0x28(r30)
+/* 81415534 000E5A54  54 00 07 3F */	clrlwi. r0, r0, 28
+/* 81415538 000E5A58  40 82 00 68 */	bne .L_814155A0
+/* 8141553C 000E5A5C  81 9E 00 44 */	lwz r12, 0x44(r30)
+/* 81415540 000E5A60  3C 80 81 66 */	lis r4, lbl_8165B6EC@ha
+/* 81415544 000E5A64  38 7E 00 44 */	addi r3, r30, 0x44
+/* 81415548 000E5A68  81 8C 00 60 */	lwz r12, 0x60(r12)
+/* 8141554C 000E5A6C  38 84 B6 EC */	addi r4, r4, lbl_8165B6EC@l
+/* 81415550 000E5A70  7D 89 03 A6 */	mtctr r12
+/* 81415554 000E5A74  4E 80 04 21 */	bctrl
+/* 81415558 000E5A78  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 8141555C 000E5A7C  38 80 00 05 */	li r4, 0x5
+/* 81415560 000E5A80  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81415564 000E5A84  7D 89 03 A6 */	mtctr r12
+/* 81415568 000E5A88  4E 80 04 21 */	bctrl
+/* 8141556C 000E5A8C  81 9E 00 44 */	lwz r12, 0x44(r30)
+/* 81415570 000E5A90  3C 80 81 66 */	lis r4, lbl_8165B6F8@ha
+/* 81415574 000E5A94  38 7E 00 44 */	addi r3, r30, 0x44
+/* 81415578 000E5A98  81 8C 00 60 */	lwz r12, 0x60(r12)
+/* 8141557C 000E5A9C  38 84 B6 F8 */	addi r4, r4, lbl_8165B6F8@l
+/* 81415580 000E5AA0  7D 89 03 A6 */	mtctr r12
+/* 81415584 000E5AA4  4E 80 04 21 */	bctrl
+/* 81415588 000E5AA8  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 8141558C 000E5AAC  38 80 00 00 */	li r4, 0x0
+/* 81415590 000E5AB0  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81415594 000E5AB4  7D 89 03 A6 */	mtctr r12
+/* 81415598 000E5AB8  4E 80 04 21 */	bctrl
+/* 8141559C 000E5ABC  48 00 00 64 */	b .L_81415600
+.L_814155A0:
+/* 814155A0 000E5AC0  81 9E 00 44 */	lwz r12, 0x44(r30)
+/* 814155A4 000E5AC4  3C 80 81 66 */	lis r4, lbl_8165B6EC@ha
+/* 814155A8 000E5AC8  38 7E 00 44 */	addi r3, r30, 0x44
+/* 814155AC 000E5ACC  81 8C 00 60 */	lwz r12, 0x60(r12)
+/* 814155B0 000E5AD0  38 84 B6 EC */	addi r4, r4, lbl_8165B6EC@l
+/* 814155B4 000E5AD4  7D 89 03 A6 */	mtctr r12
+/* 814155B8 000E5AD8  4E 80 04 21 */	bctrl
+/* 814155BC 000E5ADC  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 814155C0 000E5AE0  38 80 00 00 */	li r4, 0x0
+/* 814155C4 000E5AE4  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 814155C8 000E5AE8  7D 89 03 A6 */	mtctr r12
+/* 814155CC 000E5AEC  4E 80 04 21 */	bctrl
+/* 814155D0 000E5AF0  81 9E 00 44 */	lwz r12, 0x44(r30)
+/* 814155D4 000E5AF4  3C 80 81 66 */	lis r4, lbl_8165B6F8@ha
+/* 814155D8 000E5AF8  38 7E 00 44 */	addi r3, r30, 0x44
+/* 814155DC 000E5AFC  81 8C 00 60 */	lwz r12, 0x60(r12)
+/* 814155E0 000E5B00  38 84 B6 F8 */	addi r4, r4, lbl_8165B6F8@l
+/* 814155E4 000E5B04  7D 89 03 A6 */	mtctr r12
+/* 814155E8 000E5B08  4E 80 04 21 */	bctrl
+/* 814155EC 000E5B0C  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 814155F0 000E5B10  38 80 00 05 */	li r4, 0x5
+/* 814155F4 000E5B14  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 814155F8 000E5B18  7D 89 03 A6 */	mtctr r12
+/* 814155FC 000E5B1C  4E 80 04 21 */	bctrl
+.L_81415600:
+/* 81415600 000E5B20  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 81415604 000E5B24  83 E1 00 0C */	lwz r31, 0xc(r1)
+/* 81415608 000E5B28  83 C1 00 08 */	lwz r30, 0x8(r1)
+/* 8141560C 000E5B2C  7C 08 03 A6 */	mtlr r0
+/* 81415610 000E5B30  38 21 00 10 */	addi r1, r1, 0x10
+/* 81415614 000E5B34  4E 80 00 20 */	blr
+.endfn changeAnimationAllToNormal__Q49textinput8keyboard6pctype12LayoutByNW4RFv
+
+# .text:0x5440 | 0x81415618 | size: 0x34C
+# textinput::keyboard::pctype::LayoutByNW4R::refreshState()
+.fn refreshState__Q49textinput8keyboard6pctype12LayoutByNW4RFv, global
+/* 81415618 000E5B38  94 21 FF E0 */	stwu r1, -0x20(r1)
+/* 8141561C 000E5B3C  7C 08 02 A6 */	mflr r0
+/* 81415620 000E5B40  90 01 00 24 */	stw r0, 0x24(r1)
+/* 81415624 000E5B44  93 E1 00 1C */	stw r31, 0x1c(r1)
+/* 81415628 000E5B48  7C 7F 1B 78 */	mr r31, r3
+/* 8141562C 000E5B4C  93 C1 00 18 */	stw r30, 0x18(r1)
+/* 81415630 000E5B50  3F C0 81 66 */	lis r30, lbl_81658D90@ha
+/* 81415634 000E5B54  3B DE 8D 90 */	addi r30, r30, lbl_81658D90@l
+/* 81415638 000E5B58  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 8141563C 000E5B5C  81 8C 00 48 */	lwz r12, 0x48(r12)
+/* 81415640 000E5B60  7D 89 03 A6 */	mtctr r12
+/* 81415644 000E5B64  4E 80 04 21 */	bctrl
+/* 81415648 000E5B68  2C 03 00 00 */	cmpwi r3, 0x0
+/* 8141564C 000E5B6C  41 82 00 B8 */	beq .L_81415704
+/* 81415650 000E5B70  81 9F 00 44 */	lwz r12, 0x44(r31)
+/* 81415654 000E5B74  38 7F 00 44 */	addi r3, r31, 0x44
+/* 81415658 000E5B78  38 9E 2B 44 */	addi r4, r30, 0x2b44
+/* 8141565C 000E5B7C  38 A1 00 08 */	addi r5, r1, 0x8
+/* 81415660 000E5B80  81 8C 00 58 */	lwz r12, 0x58(r12)
+/* 81415664 000E5B84  7D 89 03 A6 */	mtctr r12
+/* 81415668 000E5B88  4E 80 04 21 */	bctrl
+/* 8141566C 000E5B8C  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81415670 000E5B90  41 82 00 18 */	beq .L_81415688
+/* 81415674 000E5B94  88 61 00 08 */	lbz r3, 0x8(r1)
+/* 81415678 000E5B98  7C 03 00 D0 */	neg r0, r3
+/* 8141567C 000E5B9C  7C 00 1B 78 */	or r0, r0, r3
+/* 81415680 000E5BA0  54 00 0F FE */	srwi r0, r0, 31
+/* 81415684 000E5BA4  48 00 00 08 */	b .L_8141568C
+.L_81415688:
+/* 81415688 000E5BA8  38 00 00 00 */	li r0, 0x0
+.L_8141568C:
+/* 8141568C 000E5BAC  98 01 00 08 */	stb r0, 0x8(r1)
+/* 81415690 000E5BB0  38 7F 00 44 */	addi r3, r31, 0x44
+/* 81415694 000E5BB4  38 9E 2B 44 */	addi r4, r30, 0x2b44
+/* 81415698 000E5BB8  38 A0 00 00 */	li r5, 0x0
+/* 8141569C 000E5BBC  81 9F 00 44 */	lwz r12, 0x44(r31)
+/* 814156A0 000E5BC0  81 8C 00 54 */	lwz r12, 0x54(r12)
+/* 814156A4 000E5BC4  7D 89 03 A6 */	mtctr r12
+/* 814156A8 000E5BC8  4E 80 04 21 */	bctrl
+/* 814156AC 000E5BCC  81 9F 00 44 */	lwz r12, 0x44(r31)
+/* 814156B0 000E5BD0  38 7F 00 44 */	addi r3, r31, 0x44
+/* 814156B4 000E5BD4  38 9E 2B 50 */	addi r4, r30, 0x2b50
+/* 814156B8 000E5BD8  38 A0 00 00 */	li r5, 0x0
+/* 814156BC 000E5BDC  81 8C 00 54 */	lwz r12, 0x54(r12)
+/* 814156C0 000E5BE0  7D 89 03 A6 */	mtctr r12
+/* 814156C4 000E5BE4  4E 80 04 21 */	bctrl
+/* 814156C8 000E5BE8  81 9F 00 44 */	lwz r12, 0x44(r31)
+/* 814156CC 000E5BEC  38 7F 00 44 */	addi r3, r31, 0x44
+/* 814156D0 000E5BF0  38 9E 2B 64 */	addi r4, r30, 0x2b64
+/* 814156D4 000E5BF4  38 A0 00 01 */	li r5, 0x1
+/* 814156D8 000E5BF8  81 8C 00 54 */	lwz r12, 0x54(r12)
+/* 814156DC 000E5BFC  7D 89 03 A6 */	mtctr r12
+/* 814156E0 000E5C00  4E 80 04 21 */	bctrl
+/* 814156E4 000E5C04  81 9F 00 44 */	lwz r12, 0x44(r31)
+/* 814156E8 000E5C08  38 7F 00 44 */	addi r3, r31, 0x44
+/* 814156EC 000E5C0C  38 9E 2B 70 */	addi r4, r30, 0x2b70
+/* 814156F0 000E5C10  38 A0 00 01 */	li r5, 0x1
+/* 814156F4 000E5C14  81 8C 00 54 */	lwz r12, 0x54(r12)
+/* 814156F8 000E5C18  7D 89 03 A6 */	mtctr r12
+/* 814156FC 000E5C1C  4E 80 04 21 */	bctrl
+/* 81415700 000E5C20  48 00 00 B8 */	b .L_814157B8
+.L_81415704:
+/* 81415704 000E5C24  81 9F 00 44 */	lwz r12, 0x44(r31)
+/* 81415708 000E5C28  38 7F 00 44 */	addi r3, r31, 0x44
+/* 8141570C 000E5C2C  38 9E 2B 44 */	addi r4, r30, 0x2b44
+/* 81415710 000E5C30  38 A1 00 08 */	addi r5, r1, 0x8
+/* 81415714 000E5C34  81 8C 00 58 */	lwz r12, 0x58(r12)
+/* 81415718 000E5C38  7D 89 03 A6 */	mtctr r12
+/* 8141571C 000E5C3C  4E 80 04 21 */	bctrl
+/* 81415720 000E5C40  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81415724 000E5C44  41 82 00 1C */	beq .L_81415740
+/* 81415728 000E5C48  88 81 00 08 */	lbz r4, 0x8(r1)
+/* 8141572C 000E5C4C  20 64 00 01 */	subfic r3, r4, 0x1
+/* 81415730 000E5C50  38 04 FF FF */	subi r0, r4, 0x1
+/* 81415734 000E5C54  7C 60 03 78 */	or r0, r3, r0
+/* 81415738 000E5C58  54 00 0F FE */	srwi r0, r0, 31
+/* 8141573C 000E5C5C  48 00 00 08 */	b .L_81415744
+.L_81415740:
+/* 81415740 000E5C60  38 00 00 00 */	li r0, 0x0
+.L_81415744:
+/* 81415744 000E5C64  98 01 00 08 */	stb r0, 0x8(r1)
+/* 81415748 000E5C68  38 7F 00 44 */	addi r3, r31, 0x44
+/* 8141574C 000E5C6C  38 9E 2B 44 */	addi r4, r30, 0x2b44
+/* 81415750 000E5C70  38 A0 00 01 */	li r5, 0x1
+/* 81415754 000E5C74  81 9F 00 44 */	lwz r12, 0x44(r31)
+/* 81415758 000E5C78  81 8C 00 54 */	lwz r12, 0x54(r12)
+/* 8141575C 000E5C7C  7D 89 03 A6 */	mtctr r12
+/* 81415760 000E5C80  4E 80 04 21 */	bctrl
+/* 81415764 000E5C84  81 9F 00 44 */	lwz r12, 0x44(r31)
+/* 81415768 000E5C88  38 7F 00 44 */	addi r3, r31, 0x44
+/* 8141576C 000E5C8C  38 9E 2B 50 */	addi r4, r30, 0x2b50
+/* 81415770 000E5C90  38 A0 00 01 */	li r5, 0x1
+/* 81415774 000E5C94  81 8C 00 54 */	lwz r12, 0x54(r12)
+/* 81415778 000E5C98  7D 89 03 A6 */	mtctr r12
+/* 8141577C 000E5C9C  4E 80 04 21 */	bctrl
+/* 81415780 000E5CA0  81 9F 00 44 */	lwz r12, 0x44(r31)
+/* 81415784 000E5CA4  38 7F 00 44 */	addi r3, r31, 0x44
+/* 81415788 000E5CA8  38 9E 2B 64 */	addi r4, r30, 0x2b64
+/* 8141578C 000E5CAC  38 A0 00 00 */	li r5, 0x0
+/* 81415790 000E5CB0  81 8C 00 54 */	lwz r12, 0x54(r12)
+/* 81415794 000E5CB4  7D 89 03 A6 */	mtctr r12
+/* 81415798 000E5CB8  4E 80 04 21 */	bctrl
+/* 8141579C 000E5CBC  81 9F 00 44 */	lwz r12, 0x44(r31)
+/* 814157A0 000E5CC0  38 7F 00 44 */	addi r3, r31, 0x44
+/* 814157A4 000E5CC4  38 9E 2B 70 */	addi r4, r30, 0x2b70
+/* 814157A8 000E5CC8  38 A0 00 00 */	li r5, 0x0
+/* 814157AC 000E5CCC  81 8C 00 54 */	lwz r12, 0x54(r12)
+/* 814157B0 000E5CD0  7D 89 03 A6 */	mtctr r12
+/* 814157B4 000E5CD4  4E 80 04 21 */	bctrl
+.L_814157B8:
+/* 814157B8 000E5CD8  80 9F 00 48 */	lwz r4, 0x48(r31)
+/* 814157BC 000E5CDC  38 7F 00 20 */	addi r3, r31, 0x20
+/* 814157C0 000E5CE0  80 84 00 10 */	lwz r4, 0x10(r4)
+/* 814157C4 000E5CE4  4B FF BD 05 */	bl refreshText__Q59textinput8keyboard6pctype4Base8KeyStateFPQ34nw4r3lyt4Pane
+/* 814157C8 000E5CE8  81 9F 00 00 */	lwz r12, 0x0(r31)
+/* 814157CC 000E5CEC  7F E3 FB 78 */	mr r3, r31
+/* 814157D0 000E5CF0  81 8C 00 2C */	lwz r12, 0x2c(r12)
+/* 814157D4 000E5CF4  7D 89 03 A6 */	mtctr r12
+/* 814157D8 000E5CF8  4E 80 04 21 */	bctrl
+/* 814157DC 000E5CFC  2C 03 00 00 */	cmpwi r3, 0x0
+/* 814157E0 000E5D00  40 82 00 7C */	bne .L_8141585C
+/* 814157E4 000E5D04  80 1F 00 28 */	lwz r0, 0x28(r31)
+/* 814157E8 000E5D08  54 00 07 3F */	clrlwi. r0, r0, 28
+/* 814157EC 000E5D0C  40 82 00 38 */	bne .L_81415824
+/* 814157F0 000E5D10  81 9F 00 44 */	lwz r12, 0x44(r31)
+/* 814157F4 000E5D14  38 7F 00 44 */	addi r3, r31, 0x44
+/* 814157F8 000E5D18  38 9E 2B 84 */	addi r4, r30, 0x2b84
+/* 814157FC 000E5D1C  81 8C 00 2C */	lwz r12, 0x2c(r12)
+/* 81415800 000E5D20  7D 89 03 A6 */	mtctr r12
+/* 81415804 000E5D24  4E 80 04 21 */	bctrl
+/* 81415808 000E5D28  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 8141580C 000E5D2C  38 8D 92 C8 */	li r4, lbl_81697308@sda21
+/* 81415810 000E5D30  38 A0 00 00 */	li r5, 0x0
+/* 81415814 000E5D34  81 8C 00 6C */	lwz r12, 0x6c(r12)
+/* 81415818 000E5D38  7D 89 03 A6 */	mtctr r12
+/* 8141581C 000E5D3C  4E 80 04 21 */	bctrl
+/* 81415820 000E5D40  48 00 00 3C */	b .L_8141585C
+.L_81415824:
+/* 81415824 000E5D44  28 00 00 01 */	cmplwi r0, 0x1
+/* 81415828 000E5D48  40 82 00 34 */	bne .L_8141585C
+/* 8141582C 000E5D4C  81 9F 00 44 */	lwz r12, 0x44(r31)
+/* 81415830 000E5D50  38 7F 00 44 */	addi r3, r31, 0x44
+/* 81415834 000E5D54  38 9E 2B 84 */	addi r4, r30, 0x2b84
+/* 81415838 000E5D58  81 8C 00 2C */	lwz r12, 0x2c(r12)
+/* 8141583C 000E5D5C  7D 89 03 A6 */	mtctr r12
+/* 81415840 000E5D60  4E 80 04 21 */	bctrl
+/* 81415844 000E5D64  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81415848 000E5D68  38 8D 92 D0 */	li r4, lbl_81697310@sda21
+/* 8141584C 000E5D6C  38 A0 00 00 */	li r5, 0x0
+/* 81415850 000E5D70  81 8C 00 6C */	lwz r12, 0x6c(r12)
+/* 81415854 000E5D74  7D 89 03 A6 */	mtctr r12
+/* 81415858 000E5D78  4E 80 04 21 */	bctrl
+.L_8141585C:
+/* 8141585C 000E5D7C  81 9F 00 00 */	lwz r12, 0x0(r31)
+/* 81415860 000E5D80  7F E3 FB 78 */	mr r3, r31
+/* 81415864 000E5D84  81 8C 00 40 */	lwz r12, 0x40(r12)
+/* 81415868 000E5D88  7D 89 03 A6 */	mtctr r12
+/* 8141586C 000E5D8C  4E 80 04 21 */	bctrl
+/* 81415870 000E5D90  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81415874 000E5D94  40 82 00 30 */	bne .L_814158A4
+/* 81415878 000E5D98  88 1F 01 20 */	lbz r0, 0x120(r31)
+/* 8141587C 000E5D9C  2C 00 00 00 */	cmpwi r0, 0x0
+/* 81415880 000E5DA0  41 82 00 24 */	beq .L_814158A4
+/* 81415884 000E5DA4  38 00 00 00 */	li r0, 0x0
+/* 81415888 000E5DA8  80 7F 01 1C */	lwz r3, 0x11c(r31)
+/* 8141588C 000E5DAC  98 1F 01 20 */	stb r0, 0x120(r31)
+/* 81415890 000E5DB0  38 80 00 05 */	li r4, 0x5
+/* 81415894 000E5DB4  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81415898 000E5DB8  81 8C 00 10 */	lwz r12, 0x10(r12)
+/* 8141589C 000E5DBC  7D 89 03 A6 */	mtctr r12
+/* 814158A0 000E5DC0  4E 80 04 21 */	bctrl
+.L_814158A4:
+/* 814158A4 000E5DC4  81 9F 00 00 */	lwz r12, 0x0(r31)
+/* 814158A8 000E5DC8  7F E3 FB 78 */	mr r3, r31
+/* 814158AC 000E5DCC  81 8C 00 44 */	lwz r12, 0x44(r12)
+/* 814158B0 000E5DD0  7D 89 03 A6 */	mtctr r12
+/* 814158B4 000E5DD4  4E 80 04 21 */	bctrl
+/* 814158B8 000E5DD8  2C 03 00 00 */	cmpwi r3, 0x0
+/* 814158BC 000E5DDC  40 82 00 70 */	bne .L_8141592C
+/* 814158C0 000E5DE0  88 1F 01 44 */	lbz r0, 0x144(r31)
+/* 814158C4 000E5DE4  2C 00 00 00 */	cmpwi r0, 0x0
+/* 814158C8 000E5DE8  41 82 00 24 */	beq .L_814158EC
+/* 814158CC 000E5DEC  38 00 00 00 */	li r0, 0x0
+/* 814158D0 000E5DF0  80 7F 01 40 */	lwz r3, 0x140(r31)
+/* 814158D4 000E5DF4  98 1F 01 44 */	stb r0, 0x144(r31)
+/* 814158D8 000E5DF8  38 80 00 05 */	li r4, 0x5
+/* 814158DC 000E5DFC  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 814158E0 000E5E00  81 8C 00 10 */	lwz r12, 0x10(r12)
+/* 814158E4 000E5E04  7D 89 03 A6 */	mtctr r12
+/* 814158E8 000E5E08  4E 80 04 21 */	bctrl
+.L_814158EC:
+/* 814158EC 000E5E0C  88 0D AC B8 */	lbz r0, "@GUARD@getInstance__Q39textinput12LayoutGather9SingletonFv@sGather"@sda21(r0)
+/* 814158F0 000E5E10  7C 00 07 75 */	extsb. r0, r0
+/* 814158F4 000E5E14  40 82 00 2C */	bne .L_81415920
+/* 814158F8 000E5E18  38 6D AC BC */	li r3, "@LOCAL@getInstance__Q39textinput12LayoutGather9SingletonFv@sGather"@sda21
+/* 814158FC 000E5E1C  48 03 4C 21 */	bl __ct__Q29textinput12LayoutGatherFv
+/* 81415900 000E5E20  3C 80 81 45 */	lis r4, __dt__Q29textinput12LayoutGatherFv@ha
+/* 81415904 000E5E24  3C A0 81 0C */	lis r5, lbl_810C6580@ha
+/* 81415908 000E5E28  38 84 A5 2C */	addi r4, r4, __dt__Q29textinput12LayoutGatherFv@l
+/* 8141590C 000E5E2C  38 6D AC BC */	li r3, "@LOCAL@getInstance__Q39textinput12LayoutGather9SingletonFv@sGather"@sda21
+/* 81415910 000E5E30  38 A5 65 80 */	addi r5, r5, lbl_810C6580@l
+/* 81415914 000E5E34  48 1E 36 CD */	bl __register_global_object
+/* 81415918 000E5E38  38 00 00 01 */	li r0, 0x1
+/* 8141591C 000E5E3C  98 0D AC B8 */	stb r0, "@GUARD@getInstance__Q39textinput12LayoutGather9SingletonFv@sGather"@sda21(r0)
+.L_81415920:
+/* 81415920 000E5E40  38 6D AC BC */	li r3, "@LOCAL@getInstance__Q39textinput12LayoutGather9SingletonFv@sGather"@sda21
+/* 81415924 000E5E44  38 8D 92 C4 */	li r4, lbl_81697304@sda21
+/* 81415928 000E5E48  48 03 4C 45 */	bl changeCapsLock__Q29textinput12LayoutGatherFRCUc
+.L_8141592C:
+/* 8141592C 000E5E4C  88 01 00 08 */	lbz r0, 0x8(r1)
+/* 81415930 000E5E50  2C 00 00 00 */	cmpwi r0, 0x0
+/* 81415934 000E5E54  41 82 00 18 */	beq .L_8141594C
+/* 81415938 000E5E58  81 9F 00 44 */	lwz r12, 0x44(r31)
+/* 8141593C 000E5E5C  38 7F 00 44 */	addi r3, r31, 0x44
+/* 81415940 000E5E60  81 8C 00 50 */	lwz r12, 0x50(r12)
+/* 81415944 000E5E64  7D 89 03 A6 */	mtctr r12
+/* 81415948 000E5E68  4E 80 04 21 */	bctrl
+.L_8141594C:
+/* 8141594C 000E5E6C  80 01 00 24 */	lwz r0, 0x24(r1)
+/* 81415950 000E5E70  83 E1 00 1C */	lwz r31, 0x1c(r1)
+/* 81415954 000E5E74  83 C1 00 18 */	lwz r30, 0x18(r1)
+/* 81415958 000E5E78  7C 08 03 A6 */	mtlr r0
+/* 8141595C 000E5E7C  38 21 00 20 */	addi r1, r1, 0x20
+/* 81415960 000E5E80  4E 80 00 20 */	blr
+.endfn refreshState__Q49textinput8keyboard6pctype12LayoutByNW4RFv
+
+# .text:0x578C | 0x81415964 | size: 0xC
+# textinput::keyboard::pctype::Base::isShiftOn() const
+.fn isShiftOn__Q49textinput8keyboard6pctype4BaseCFv, global
+/* 81415964 000E5E84  80 03 00 20 */	lwz r0, 0x20(r3)
+/* 81415968 000E5E88  54 03 CF FE */	extrwi r3, r0, 1, 24
+/* 8141596C 000E5E8C  4E 80 00 20 */	blr
+.endfn isShiftOn__Q49textinput8keyboard6pctype4BaseCFv
+
+# .text:0x5798 | 0x81415970 | size: 0x24
+# textinput::keyboard::pctype::LayoutByNW4R::onEvent(textinput::keyboard::pctype::UIObj*, unsigned long, void*)
+.fn onEvent__Q49textinput8keyboard6pctype12LayoutByNW4RFPQ49textinput8keyboard6pctype5UIObjUlPv, global
+/* 81415970 000E5E90  2C 05 00 00 */	cmpwi r5, 0x0
+/* 81415974 000E5E94  4C 82 00 20 */	bnelr
+/* 81415978 000E5E98  80 63 00 58 */	lwz r3, 0x58(r3)
+/* 8141597C 000E5E9C  7C C4 33 78 */	mr r4, r6
+/* 81415980 000E5EA0  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81415984 000E5EA4  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81415988 000E5EA8  7D 89 03 A6 */	mtctr r12
+/* 8141598C 000E5EAC  4E 80 04 20 */	bctr
+/* 81415990 000E5EB0  4E 80 00 20 */	blr
+.endfn onEvent__Q49textinput8keyboard6pctype12LayoutByNW4RFPQ49textinput8keyboard6pctype5UIObjUlPv
+
+# .text:0x57BC | 0x81415994 | size: 0x314
+# textinput::keyboard::pctype::EventHandler::onTiEvent(textinput::gui::PaneComponent*, unsigned long, textinput::nw4rmanager::TiEventHandler::Input*)
+.fn onTiEvent__Q49textinput8keyboard6pctype12EventHandlerFPQ39textinput3gui13PaneComponentUlPQ49textinput11nw4rmanager14TiEventHandler5Input, global
+/* 81415994 000E5EB4  94 21 FF C0 */	stwu r1, -0x40(r1)
+/* 81415998 000E5EB8  7C 08 02 A6 */	mflr r0
+/* 8141599C 000E5EBC  90 01 00 44 */	stw r0, 0x44(r1)
+/* 814159A0 000E5EC0  39 61 00 40 */	addi r11, r1, 0x40
+/* 814159A4 000E5EC4  48 1E 3B 15 */	bl _savegpr_25
+/* 814159A8 000E5EC8  80 E4 00 9C */	lwz r7, 0x9c(r4)
+/* 814159AC 000E5ECC  3F C0 81 66 */	lis r30, lbl_81658D90@ha
+/* 814159B0 000E5ED0  3B DE 8D 90 */	addi r30, r30, lbl_81658D90@l
+/* 814159B4 000E5ED4  7C 7F 1B 78 */	mr r31, r3
+/* 814159B8 000E5ED8  3B A7 00 B4 */	addi r29, r7, 0xb4
+/* 814159BC 000E5EDC  7C 99 23 78 */	mr r25, r4
+/* 814159C0 000E5EE0  7C BA 2B 78 */	mr r26, r5
+/* 814159C4 000E5EE4  7C DB 33 78 */	mr r27, r6
+/* 814159C8 000E5EE8  7F A4 EB 78 */	mr r4, r29
+/* 814159CC 000E5EEC  38 7E 28 CC */	addi r3, r30, 0x28cc
+/* 814159D0 000E5EF0  48 02 48 25 */	bl strcmp__Q29textinput4utilFPCcPCc
+/* 814159D4 000E5EF4  2C 03 00 00 */	cmpwi r3, 0x0
+/* 814159D8 000E5EF8  40 82 02 B8 */	bne .L_81415C90
+/* 814159DC 000E5EFC  7F A4 EB 78 */	mr r4, r29
+/* 814159E0 000E5F00  38 7E 28 E4 */	addi r3, r30, 0x28e4
+/* 814159E4 000E5F04  48 02 48 11 */	bl strcmp__Q29textinput4utilFPCcPCc
+/* 814159E8 000E5F08  2C 03 00 00 */	cmpwi r3, 0x0
+/* 814159EC 000E5F0C  41 82 00 08 */	beq .L_814159F4
+/* 814159F0 000E5F10  48 00 02 A0 */	b .L_81415C90
+.L_814159F4:
+/* 814159F4 000E5F14  88 1D 00 00 */	lbz r0, 0x0(r29)
+/* 814159F8 000E5F18  2C 00 00 42 */	cmpwi r0, 0x42
+/* 814159FC 000E5F1C  40 82 02 94 */	bne .L_81415C90
+/* 81415A00 000E5F20  7F A5 EB 78 */	mr r5, r29
+/* 81415A04 000E5F24  38 61 00 08 */	addi r3, r1, 0x8
+/* 81415A08 000E5F28  38 80 00 11 */	li r4, 0x11
+/* 81415A0C 000E5F2C  38 C0 00 00 */	li r6, 0x0
+/* 81415A10 000E5F30  38 E0 00 50 */	li r7, 0x50
+/* 81415A14 000E5F34  48 02 48 49 */	bl replaceChar__Q29textinput4utilFPcUlPCcic
+/* 81415A18 000E5F38  38 7D 00 05 */	addi r3, r29, 0x5
+/* 81415A1C 000E5F3C  38 8D 92 D8 */	li r4, lbl_81697318@sda21
+/* 81415A20 000E5F40  38 A0 00 04 */	li r5, 0x4
+/* 81415A24 000E5F44  48 1E CB 79 */	bl strncmp
+/* 81415A28 000E5F48  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81415A2C 000E5F4C  41 82 00 34 */	beq .L_81415A60
+/* 81415A30 000E5F50  38 7D 00 07 */	addi r3, r29, 0x7
+/* 81415A34 000E5F54  38 8D 92 D8 */	li r4, lbl_81697318@sda21
+/* 81415A38 000E5F58  38 A0 00 04 */	li r5, 0x4
+/* 81415A3C 000E5F5C  48 1E CB 61 */	bl strncmp
+/* 81415A40 000E5F60  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81415A44 000E5F64  41 82 00 1C */	beq .L_81415A60
+/* 81415A48 000E5F68  38 7D 00 07 */	addi r3, r29, 0x7
+/* 81415A4C 000E5F6C  38 8D 92 E0 */	li r4, lbl_81697320@sda21
+/* 81415A50 000E5F70  38 A0 00 04 */	li r5, 0x4
+/* 81415A54 000E5F74  48 1E CB 49 */	bl strncmp
+/* 81415A58 000E5F78  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81415A5C 000E5F7C  40 82 00 1C */	bne .L_81415A78
+.L_81415A60:
+/* 81415A60 000E5F80  7F A5 EB 78 */	mr r5, r29
+/* 81415A64 000E5F84  38 61 00 08 */	addi r3, r1, 0x8
+/* 81415A68 000E5F88  38 80 00 11 */	li r4, 0x11
+/* 81415A6C 000E5F8C  38 C0 00 00 */	li r6, 0x0
+/* 81415A70 000E5F90  38 E0 00 57 */	li r7, 0x57
+/* 81415A74 000E5F94  48 02 47 E9 */	bl replaceChar__Q29textinput4utilFPcUlPCcic
+.L_81415A78:
+/* 81415A78 000E5F98  80 7F 00 0C */	lwz r3, 0xc(r31)
+/* 81415A7C 000E5F9C  38 81 00 08 */	addi r4, r1, 0x8
+/* 81415A80 000E5FA0  85 83 00 44 */	lwzu r12, 0x44(r3)
+/* 81415A84 000E5FA4  81 8C 00 60 */	lwz r12, 0x60(r12)
+/* 81415A88 000E5FA8  7D 89 03 A6 */	mtctr r12
+/* 81415A8C 000E5FAC  4E 80 04 21 */	bctrl
+/* 81415A90 000E5FB0  2C 1A 00 01 */	cmpwi r26, 0x1
+/* 81415A94 000E5FB4  7C 7C 1B 78 */	mr r28, r3
+/* 81415A98 000E5FB8  41 82 00 68 */	beq .L_81415B00
+/* 81415A9C 000E5FBC  40 80 00 10 */	bge .L_81415AAC
+/* 81415AA0 000E5FC0  2C 1A 00 00 */	cmpwi r26, 0x0
+/* 81415AA4 000E5FC4  40 80 00 98 */	bge .L_81415B3C
+/* 81415AA8 000E5FC8  48 00 00 E4 */	b .L_81415B8C
+.L_81415AAC:
+/* 81415AAC 000E5FCC  2C 1A 00 04 */	cmpwi r26, 0x4
+/* 81415AB0 000E5FD0  41 82 00 08 */	beq .L_81415AB8
+/* 81415AB4 000E5FD4  48 00 00 D8 */	b .L_81415B8C
+.L_81415AB8:
+/* 81415AB8 000E5FD8  80 1B 00 0C */	lwz r0, 0xc(r27)
+/* 81415ABC 000E5FDC  54 00 05 29 */	rlwinm. r0, r0, 0, 20, 20
+/* 81415AC0 000E5FE0  41 82 00 CC */	beq .L_81415B8C
+/* 81415AC4 000E5FE4  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81415AC8 000E5FE8  41 82 00 18 */	beq .L_81415AE0
+/* 81415ACC 000E5FEC  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81415AD0 000E5FF0  38 80 00 00 */	li r4, 0x0
+/* 81415AD4 000E5FF4  81 8C 00 10 */	lwz r12, 0x10(r12)
+/* 81415AD8 000E5FF8  7D 89 03 A6 */	mtctr r12
+/* 81415ADC 000E5FFC  4E 80 04 21 */	bctrl
+.L_81415AE0:
+/* 81415AE0 000E6000  80 7F 00 0C */	lwz r3, 0xc(r31)
+/* 81415AE4 000E6004  38 A1 00 08 */	addi r5, r1, 0x8
+/* 81415AE8 000E6008  38 80 00 04 */	li r4, 0x4
+/* 81415AEC 000E600C  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81415AF0 000E6010  81 8C 00 20 */	lwz r12, 0x20(r12)
+/* 81415AF4 000E6014  7D 89 03 A6 */	mtctr r12
+/* 81415AF8 000E6018  4E 80 04 21 */	bctrl
+/* 81415AFC 000E601C  48 00 00 90 */	b .L_81415B8C
+.L_81415B00:
+/* 81415B00 000E6020  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81415B04 000E6024  41 82 00 18 */	beq .L_81415B1C
+/* 81415B08 000E6028  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81415B0C 000E602C  38 80 00 02 */	li r4, 0x2
+/* 81415B10 000E6030  81 8C 00 10 */	lwz r12, 0x10(r12)
+/* 81415B14 000E6034  7D 89 03 A6 */	mtctr r12
+/* 81415B18 000E6038  4E 80 04 21 */	bctrl
+.L_81415B1C:
+/* 81415B1C 000E603C  80 7F 00 0C */	lwz r3, 0xc(r31)
+/* 81415B20 000E6040  38 A1 00 08 */	addi r5, r1, 0x8
+/* 81415B24 000E6044  38 80 00 01 */	li r4, 0x1
+/* 81415B28 000E6048  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81415B2C 000E604C  81 8C 00 20 */	lwz r12, 0x20(r12)
+/* 81415B30 000E6050  7D 89 03 A6 */	mtctr r12
+/* 81415B34 000E6054  4E 80 04 21 */	bctrl
+/* 81415B38 000E6058  48 00 00 54 */	b .L_81415B8C
+.L_81415B3C:
+/* 81415B3C 000E605C  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81415B40 000E6060  41 82 00 4C */	beq .L_81415B8C
+/* 81415B44 000E6064  80 7F 00 08 */	lwz r3, 0x8(r31)
+/* 81415B48 000E6068  38 80 00 04 */	li r4, 0x4
+/* 81415B4C 000E606C  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81415B50 000E6070  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81415B54 000E6074  7D 89 03 A6 */	mtctr r12
+/* 81415B58 000E6078  4E 80 04 21 */	bctrl
+/* 81415B5C 000E607C  80 7F 00 0C */	lwz r3, 0xc(r31)
+/* 81415B60 000E6080  85 83 00 44 */	lwzu r12, 0x44(r3)
+/* 81415B64 000E6084  80 9C 00 04 */	lwz r4, 0x4(r28)
+/* 81415B68 000E6088  81 8C 00 4C */	lwz r12, 0x4c(r12)
+/* 81415B6C 000E608C  7D 89 03 A6 */	mtctr r12
+/* 81415B70 000E6090  4E 80 04 21 */	bctrl
+/* 81415B74 000E6094  81 9C 00 00 */	lwz r12, 0x0(r28)
+/* 81415B78 000E6098  7F 83 E3 78 */	mr r3, r28
+/* 81415B7C 000E609C  38 80 00 01 */	li r4, 0x1
+/* 81415B80 000E60A0  81 8C 00 10 */	lwz r12, 0x10(r12)
+/* 81415B84 000E60A4  7D 89 03 A6 */	mtctr r12
+/* 81415B88 000E60A8  4E 80 04 21 */	bctrl
+.L_81415B8C:
+/* 81415B8C 000E60AC  28 1A 00 02 */	cmplwi r26, 0x2
+/* 81415B90 000E60B0  40 82 01 00 */	bne .L_81415C90
+/* 81415B94 000E60B4  80 1B 00 10 */	lwz r0, 0x10(r27)
+/* 81415B98 000E60B8  54 00 05 29 */	rlwinm. r0, r0, 0, 20, 20
+/* 81415B9C 000E60BC  41 82 00 F4 */	beq .L_81415C90
+/* 81415BA0 000E60C0  80 1B 00 0C */	lwz r0, 0xc(r27)
+/* 81415BA4 000E60C4  54 00 05 29 */	rlwinm. r0, r0, 0, 20, 20
+/* 81415BA8 000E60C8  40 82 00 E8 */	bne .L_81415C90
+/* 81415BAC 000E60CC  38 7E 2B 28 */	addi r3, r30, 0x2b28
+/* 81415BB0 000E60D0  38 81 00 08 */	addi r4, r1, 0x8
+/* 81415BB4 000E60D4  48 02 46 41 */	bl strcmp__Q29textinput4utilFPCcPCc
+/* 81415BB8 000E60D8  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81415BBC 000E60DC  40 82 00 40 */	bne .L_81415BFC
+/* 81415BC0 000E60E0  38 7E 2B 94 */	addi r3, r30, 0x2b94
+/* 81415BC4 000E60E4  38 81 00 08 */	addi r4, r1, 0x8
+/* 81415BC8 000E60E8  48 02 46 2D */	bl strcmp__Q29textinput4utilFPCcPCc
+/* 81415BCC 000E60EC  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81415BD0 000E60F0  40 82 00 2C */	bne .L_81415BFC
+/* 81415BD4 000E60F4  38 7E 2B 38 */	addi r3, r30, 0x2b38
+/* 81415BD8 000E60F8  38 81 00 08 */	addi r4, r1, 0x8
+/* 81415BDC 000E60FC  48 02 46 19 */	bl strcmp__Q29textinput4utilFPCcPCc
+/* 81415BE0 000E6100  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81415BE4 000E6104  40 82 00 18 */	bne .L_81415BFC
+/* 81415BE8 000E6108  38 7E 2B A4 */	addi r3, r30, 0x2ba4
+/* 81415BEC 000E610C  38 81 00 08 */	addi r4, r1, 0x8
+/* 81415BF0 000E6110  48 02 46 05 */	bl strcmp__Q29textinput4utilFPCcPCc
+/* 81415BF4 000E6114  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81415BF8 000E6118  41 82 00 98 */	beq .L_81415C90
+.L_81415BFC:
+/* 81415BFC 000E611C  81 99 00 00 */	lwz r12, 0x0(r25)
+/* 81415C00 000E6120  7F 23 CB 78 */	mr r3, r25
+/* 81415C04 000E6124  80 9B 00 00 */	lwz r4, 0x0(r27)
+/* 81415C08 000E6128  81 8C 00 28 */	lwz r12, 0x28(r12)
+/* 81415C0C 000E612C  7D 89 03 A6 */	mtctr r12
+/* 81415C10 000E6130  4E 80 04 21 */	bctrl
+/* 81415C14 000E6134  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81415C18 000E6138  41 82 00 78 */	beq .L_81415C90
+/* 81415C1C 000E613C  80 7F 00 0C */	lwz r3, 0xc(r31)
+/* 81415C20 000E6140  7F A5 EB 78 */	mr r5, r29
+/* 81415C24 000E6144  85 83 00 44 */	lwzu r12, 0x44(r3)
+/* 81415C28 000E6148  80 9B 00 00 */	lwz r4, 0x0(r27)
+/* 81415C2C 000E614C  81 8C 00 34 */	lwz r12, 0x34(r12)
+/* 81415C30 000E6150  7D 89 03 A6 */	mtctr r12
+/* 81415C34 000E6154  4E 80 04 21 */	bctrl
+/* 81415C38 000E6158  28 03 00 1E */	cmplwi r3, 0x1e
+/* 81415C3C 000E615C  41 80 00 54 */	blt .L_81415C90
+/* 81415C40 000E6160  3C 80 38 E4 */	lis r4, 0x38e4
+/* 81415C44 000E6164  38 04 8E 39 */	subi r0, r4, 0x71c7
+/* 81415C48 000E6168  7C 00 18 16 */	mulhwu r0, r0, r3
+/* 81415C4C 000E616C  54 00 F8 7E */	srwi r0, r0, 1
+/* 81415C50 000E6170  1C 00 00 09 */	mulli r0, r0, 0x9
+/* 81415C54 000E6174  7C 00 18 51 */	subf. r0, r0, r3
+/* 81415C58 000E6178  40 82 00 38 */	bne .L_81415C90
+/* 81415C5C 000E617C  81 9C 00 00 */	lwz r12, 0x0(r28)
+/* 81415C60 000E6180  7F 83 E3 78 */	mr r3, r28
+/* 81415C64 000E6184  38 80 00 00 */	li r4, 0x0
+/* 81415C68 000E6188  81 8C 00 10 */	lwz r12, 0x10(r12)
+/* 81415C6C 000E618C  7D 89 03 A6 */	mtctr r12
+/* 81415C70 000E6190  4E 80 04 21 */	bctrl
+/* 81415C74 000E6194  80 7F 00 0C */	lwz r3, 0xc(r31)
+/* 81415C78 000E6198  38 A1 00 08 */	addi r5, r1, 0x8
+/* 81415C7C 000E619C  38 80 00 04 */	li r4, 0x4
+/* 81415C80 000E61A0  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81415C84 000E61A4  81 8C 00 20 */	lwz r12, 0x20(r12)
+/* 81415C88 000E61A8  7D 89 03 A6 */	mtctr r12
+/* 81415C8C 000E61AC  4E 80 04 21 */	bctrl
+.L_81415C90:
+/* 81415C90 000E61B0  39 61 00 40 */	addi r11, r1, 0x40
+/* 81415C94 000E61B4  48 1E 38 71 */	bl _restgpr_25
+/* 81415C98 000E61B8  80 01 00 44 */	lwz r0, 0x44(r1)
+/* 81415C9C 000E61BC  7C 08 03 A6 */	mtlr r0
+/* 81415CA0 000E61C0  38 21 00 40 */	addi r1, r1, 0x40
+/* 81415CA4 000E61C4  4E 80 00 20 */	blr
+.endfn onTiEvent__Q49textinput8keyboard6pctype12EventHandlerFPQ39textinput3gui13PaneComponentUlPQ49textinput11nw4rmanager14TiEventHandler5Input
+
+# .text:0x5AD0 | 0x81415CA8 | size: 0xC
+# textinput::gui::GUIComponent::isDragging(int)
+.fn isDragging__Q39textinput3gui12GUIComponentFi, global
+/* 81415CA8 000E61C8  7C 63 22 14 */	add r3, r3, r4
+/* 81415CAC 000E61CC  88 63 00 0D */	lbz r3, 0xd(r3)
+/* 81415CB0 000E61D0  4E 80 00 20 */	blr
+.endfn isDragging__Q39textinput3gui12GUIComponentFi
+
+# .text:0x5ADC | 0x81415CB4 | size: 0x1C
+# textinput::keyboard::pctype::AnmPane::changeAnimation(unsigned long)
+.fn changeAnimation__Q49textinput8keyboard6pctype7AnmPaneFUl, global
+/* 81415CB4 000E61D4  28 04 00 10 */	cmplwi r4, 0x10
+/* 81415CB8 000E61D8  90 83 00 2C */	stw r4, 0x2c(r3)
+/* 81415CBC 000E61DC  38 00 00 02 */	li r0, 0x2
+/* 81415CC0 000E61E0  41 82 00 08 */	beq .L_81415CC8
+/* 81415CC4 000E61E4  7C 80 23 78 */	mr r0, r4
+.L_81415CC8:
+/* 81415CC8 000E61E8  7C 04 03 78 */	mr r4, r0
+/* 81415CCC 000E61EC  48 02 13 F4 */	b changeAnimation__Q39textinput11nw4rmanager7AnmPaneFUl
+.endfn changeAnimation__Q49textinput8keyboard6pctype7AnmPaneFUl
+
+# .text:0x5AF8 | 0x81415CD0 | size: 0x254
+# textinput::keyboard::pctype::NormalButtonAnmPane::onAnmEvent(textinput::nw4rmanager::AnmPane::AnmPaneEvent)
+.fn onAnmEvent__Q49textinput8keyboard6pctype19NormalButtonAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent, global
+/* 81415CD0 000E61F0  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 81415CD4 000E61F4  7C 08 02 A6 */	mflr r0
+/* 81415CD8 000E61F8  90 01 00 14 */	stw r0, 0x14(r1)
+/* 81415CDC 000E61FC  93 E1 00 0C */	stw r31, 0xc(r1)
+/* 81415CE0 000E6200  7C 9F 23 78 */	mr r31, r4
+/* 81415CE4 000E6204  93 C1 00 08 */	stw r30, 0x8(r1)
+/* 81415CE8 000E6208  7C 7E 1B 78 */	mr r30, r3
+/* 81415CEC 000E620C  80 03 00 2C */	lwz r0, 0x2c(r3)
+/* 81415CF0 000E6210  28 00 00 10 */	cmplwi r0, 0x10
+/* 81415CF4 000E6214  41 81 02 18 */	bgt .L_81415F0C
+/* 81415CF8 000E6218  3C A0 81 66 */	lis r5, jumptable_8165B944@ha
+/* 81415CFC 000E621C  54 00 10 3A */	slwi r0, r0, 2
+/* 81415D00 000E6220  38 A5 B9 44 */	addi r5, r5, jumptable_8165B944@l
+/* 81415D04 000E6224  7C A5 00 2E */	lwzx r5, r5, r0
+/* 81415D08 000E6228  7C A9 03 A6 */	mtctr r5
+/* 81415D0C 000E622C  4E 80 04 20 */	bctr
+.L_81415D10:
+/* 81415D10 000E6230  2C 04 00 01 */	cmpwi r4, 0x1
+/* 81415D14 000E6234  40 82 00 18 */	bne .L_81415D2C
+/* 81415D18 000E6238  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81415D1C 000E623C  38 80 00 01 */	li r4, 0x1
+/* 81415D20 000E6240  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81415D24 000E6244  7D 89 03 A6 */	mtctr r12
+/* 81415D28 000E6248  4E 80 04 21 */	bctrl
+.L_81415D2C:
+/* 81415D2C 000E624C  2C 1F 00 00 */	cmpwi r31, 0x0
+/* 81415D30 000E6250  40 82 01 DC */	bne .L_81415F0C
+/* 81415D34 000E6254  81 9E 00 00 */	lwz r12, 0x0(r30)
+/* 81415D38 000E6258  7F C3 F3 78 */	mr r3, r30
+/* 81415D3C 000E625C  38 80 00 10 */	li r4, 0x10
+/* 81415D40 000E6260  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81415D44 000E6264  7D 89 03 A6 */	mtctr r12
+/* 81415D48 000E6268  4E 80 04 21 */	bctrl
+/* 81415D4C 000E626C  48 00 01 C0 */	b .L_81415F0C
+.L_81415D50:
+/* 81415D50 000E6270  2C 04 00 04 */	cmpwi r4, 0x4
+/* 81415D54 000E6274  40 82 00 18 */	bne .L_81415D6C
+/* 81415D58 000E6278  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81415D5C 000E627C  38 80 00 03 */	li r4, 0x3
+/* 81415D60 000E6280  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81415D64 000E6284  7D 89 03 A6 */	mtctr r12
+/* 81415D68 000E6288  4E 80 04 21 */	bctrl
+.L_81415D6C:
+/* 81415D6C 000E628C  2C 1F 00 02 */	cmpwi r31, 0x2
+/* 81415D70 000E6290  40 82 00 1C */	bne .L_81415D8C
+/* 81415D74 000E6294  81 9E 00 00 */	lwz r12, 0x0(r30)
+/* 81415D78 000E6298  7F C3 F3 78 */	mr r3, r30
+/* 81415D7C 000E629C  38 80 00 02 */	li r4, 0x2
+/* 81415D80 000E62A0  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81415D84 000E62A4  7D 89 03 A6 */	mtctr r12
+/* 81415D88 000E62A8  4E 80 04 21 */	bctrl
+.L_81415D8C:
+/* 81415D8C 000E62AC  2C 1F 00 00 */	cmpwi r31, 0x0
+/* 81415D90 000E62B0  40 82 01 7C */	bne .L_81415F0C
+/* 81415D94 000E62B4  81 9E 00 00 */	lwz r12, 0x0(r30)
+/* 81415D98 000E62B8  7F C3 F3 78 */	mr r3, r30
+/* 81415D9C 000E62BC  38 80 00 04 */	li r4, 0x4
+/* 81415DA0 000E62C0  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81415DA4 000E62C4  7D 89 03 A6 */	mtctr r12
+/* 81415DA8 000E62C8  4E 80 04 21 */	bctrl
+/* 81415DAC 000E62CC  48 00 01 60 */	b .L_81415F0C
+.L_81415DB0:
+/* 81415DB0 000E62D0  2C 04 00 02 */	cmpwi r4, 0x2
+/* 81415DB4 000E62D4  40 82 00 18 */	bne .L_81415DCC
+/* 81415DB8 000E62D8  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81415DBC 000E62DC  38 80 00 02 */	li r4, 0x2
+/* 81415DC0 000E62E0  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81415DC4 000E62E4  7D 89 03 A6 */	mtctr r12
+/* 81415DC8 000E62E8  4E 80 04 21 */	bctrl
+.L_81415DCC:
+/* 81415DCC 000E62EC  2C 1F 00 00 */	cmpwi r31, 0x0
+/* 81415DD0 000E62F0  40 82 01 3C */	bne .L_81415F0C
+/* 81415DD4 000E62F4  81 9E 00 00 */	lwz r12, 0x0(r30)
+/* 81415DD8 000E62F8  7F C3 F3 78 */	mr r3, r30
+/* 81415DDC 000E62FC  38 80 00 04 */	li r4, 0x4
+/* 81415DE0 000E6300  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81415DE4 000E6304  7D 89 03 A6 */	mtctr r12
+/* 81415DE8 000E6308  4E 80 04 21 */	bctrl
+/* 81415DEC 000E630C  48 00 01 20 */	b .L_81415F0C
+.L_81415DF0:
+/* 81415DF0 000E6310  2C 04 00 04 */	cmpwi r4, 0x4
+/* 81415DF4 000E6314  40 82 00 18 */	bne .L_81415E0C
+/* 81415DF8 000E6318  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81415DFC 000E631C  38 80 00 00 */	li r4, 0x0
+/* 81415E00 000E6320  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81415E04 000E6324  7D 89 03 A6 */	mtctr r12
+/* 81415E08 000E6328  4E 80 04 21 */	bctrl
+.L_81415E0C:
+/* 81415E0C 000E632C  2C 1F 00 01 */	cmpwi r31, 0x1
+/* 81415E10 000E6330  40 82 00 1C */	bne .L_81415E2C
+/* 81415E14 000E6334  81 9E 00 00 */	lwz r12, 0x0(r30)
+/* 81415E18 000E6338  7F C3 F3 78 */	mr r3, r30
+/* 81415E1C 000E633C  38 80 00 01 */	li r4, 0x1
+/* 81415E20 000E6340  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81415E24 000E6344  7D 89 03 A6 */	mtctr r12
+/* 81415E28 000E6348  4E 80 04 21 */	bctrl
+.L_81415E2C:
+/* 81415E2C 000E634C  2C 1F 00 00 */	cmpwi r31, 0x0
+/* 81415E30 000E6350  40 82 00 DC */	bne .L_81415F0C
+/* 81415E34 000E6354  81 9E 00 00 */	lwz r12, 0x0(r30)
+/* 81415E38 000E6358  7F C3 F3 78 */	mr r3, r30
+/* 81415E3C 000E635C  38 80 00 10 */	li r4, 0x10
+/* 81415E40 000E6360  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81415E44 000E6364  7D 89 03 A6 */	mtctr r12
+/* 81415E48 000E6368  4E 80 04 21 */	bctrl
+/* 81415E4C 000E636C  48 00 00 C0 */	b .L_81415F0C
+.L_81415E50:
+/* 81415E50 000E6370  2C 04 00 04 */	cmpwi r4, 0x4
+/* 81415E54 000E6374  40 82 00 18 */	bne .L_81415E6C
+/* 81415E58 000E6378  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81415E5C 000E637C  38 80 00 03 */	li r4, 0x3
+/* 81415E60 000E6380  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81415E64 000E6384  7D 89 03 A6 */	mtctr r12
+/* 81415E68 000E6388  4E 80 04 21 */	bctrl
+.L_81415E6C:
+/* 81415E6C 000E638C  2C 1F 00 02 */	cmpwi r31, 0x2
+/* 81415E70 000E6390  40 82 00 1C */	bne .L_81415E8C
+/* 81415E74 000E6394  81 9E 00 00 */	lwz r12, 0x0(r30)
+/* 81415E78 000E6398  7F C3 F3 78 */	mr r3, r30
+/* 81415E7C 000E639C  38 80 00 02 */	li r4, 0x2
+/* 81415E80 000E63A0  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81415E84 000E63A4  7D 89 03 A6 */	mtctr r12
+/* 81415E88 000E63A8  4E 80 04 21 */	bctrl
+.L_81415E8C:
+/* 81415E8C 000E63AC  2C 1F 00 00 */	cmpwi r31, 0x0
+/* 81415E90 000E63B0  40 82 00 7C */	bne .L_81415F0C
+/* 81415E94 000E63B4  81 9E 00 00 */	lwz r12, 0x0(r30)
+/* 81415E98 000E63B8  7F C3 F3 78 */	mr r3, r30
+/* 81415E9C 000E63BC  38 80 00 04 */	li r4, 0x4
+/* 81415EA0 000E63C0  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81415EA4 000E63C4  7D 89 03 A6 */	mtctr r12
+/* 81415EA8 000E63C8  4E 80 04 21 */	bctrl
+/* 81415EAC 000E63CC  48 00 00 60 */	b .L_81415F0C
+.L_81415EB0:
+/* 81415EB0 000E63D0  2C 04 00 04 */	cmpwi r4, 0x4
+/* 81415EB4 000E63D4  40 82 00 18 */	bne .L_81415ECC
+/* 81415EB8 000E63D8  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81415EBC 000E63DC  38 80 00 00 */	li r4, 0x0
+/* 81415EC0 000E63E0  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81415EC4 000E63E4  7D 89 03 A6 */	mtctr r12
+/* 81415EC8 000E63E8  4E 80 04 21 */	bctrl
+.L_81415ECC:
+/* 81415ECC 000E63EC  2C 1F 00 01 */	cmpwi r31, 0x1
+/* 81415ED0 000E63F0  40 82 00 1C */	bne .L_81415EEC
+/* 81415ED4 000E63F4  81 9E 00 00 */	lwz r12, 0x0(r30)
+/* 81415ED8 000E63F8  7F C3 F3 78 */	mr r3, r30
+/* 81415EDC 000E63FC  38 80 00 01 */	li r4, 0x1
+/* 81415EE0 000E6400  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81415EE4 000E6404  7D 89 03 A6 */	mtctr r12
+/* 81415EE8 000E6408  4E 80 04 21 */	bctrl
+.L_81415EEC:
+/* 81415EEC 000E640C  2C 1F 00 00 */	cmpwi r31, 0x0
+/* 81415EF0 000E6410  40 82 00 1C */	bne .L_81415F0C
+/* 81415EF4 000E6414  81 9E 00 00 */	lwz r12, 0x0(r30)
+/* 81415EF8 000E6418  7F C3 F3 78 */	mr r3, r30
+/* 81415EFC 000E641C  38 80 00 10 */	li r4, 0x10
+/* 81415F00 000E6420  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81415F04 000E6424  7D 89 03 A6 */	mtctr r12
+/* 81415F08 000E6428  4E 80 04 21 */	bctrl
+.L_81415F0C:
+/* 81415F0C 000E642C  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 81415F10 000E6430  83 E1 00 0C */	lwz r31, 0xc(r1)
+/* 81415F14 000E6434  83 C1 00 08 */	lwz r30, 0x8(r1)
+/* 81415F18 000E6438  7C 08 03 A6 */	mtlr r0
+/* 81415F1C 000E643C  38 21 00 10 */	addi r1, r1, 0x10
+/* 81415F20 000E6440  4E 80 00 20 */	blr
+.endfn onAnmEvent__Q49textinput8keyboard6pctype19NormalButtonAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent
+
+# .text:0x5D4C | 0x81415F24 | size: 0x34
+# textinput::keyboard::pctype::ShiftCapsAnmPane::isFocused() const
+.fn isFocused__Q49textinput8keyboard6pctype16ShiftCapsAnmPaneCFv, global
+/* 81415F24 000E6444  80 03 00 2C */	lwz r0, 0x2c(r3)
+/* 81415F28 000E6448  28 00 00 0A */	cmplwi r0, 0xa
+/* 81415F2C 000E644C  41 81 00 24 */	bgt .L_81415F50
+/* 81415F30 000E6450  3C 60 81 66 */	lis r3, jumptable_8165B988@ha
+/* 81415F34 000E6454  54 00 10 3A */	slwi r0, r0, 2
+/* 81415F38 000E6458  38 63 B9 88 */	addi r3, r3, jumptable_8165B988@l
+/* 81415F3C 000E645C  7C 63 00 2E */	lwzx r3, r3, r0
+/* 81415F40 000E6460  7C 69 03 A6 */	mtctr r3
+/* 81415F44 000E6464  4E 80 04 20 */	bctr
+.L_81415F48:
+/* 81415F48 000E6468  38 60 00 00 */	li r3, 0x0
+/* 81415F4C 000E646C  4E 80 00 20 */	blr
+.L_81415F50:
+/* 81415F50 000E6470  38 60 00 01 */	li r3, 0x1
+/* 81415F54 000E6474  4E 80 00 20 */	blr
+.endfn isFocused__Q49textinput8keyboard6pctype16ShiftCapsAnmPaneCFv
+
+# .text:0x5D80 | 0x81415F58 | size: 0x490
+# textinput::keyboard::pctype::ShiftCapsAnmPane::onAnmEvent(textinput::nw4rmanager::AnmPane::AnmPaneEvent)
+.fn onAnmEvent__Q49textinput8keyboard6pctype16ShiftCapsAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent, global
+/* 81415F58 000E6478  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 81415F5C 000E647C  7C 08 02 A6 */	mflr r0
+/* 81415F60 000E6480  2C 04 00 0A */	cmpwi r4, 0xa
+/* 81415F64 000E6484  90 01 00 14 */	stw r0, 0x14(r1)
+/* 81415F68 000E6488  93 E1 00 0C */	stw r31, 0xc(r1)
+/* 81415F6C 000E648C  7C 7F 1B 78 */	mr r31, r3
+/* 81415F70 000E6490  93 C1 00 08 */	stw r30, 0x8(r1)
+/* 81415F74 000E6494  7C 9E 23 78 */	mr r30, r4
+/* 81415F78 000E6498  40 82 00 7C */	bne .L_81415FF4
+/* 81415F7C 000E649C  80 03 00 2C */	lwz r0, 0x2c(r3)
+/* 81415F80 000E64A0  38 80 00 01 */	li r4, 0x1
+/* 81415F84 000E64A4  98 83 00 34 */	stb r4, 0x34(r3)
+/* 81415F88 000E64A8  28 00 00 0A */	cmplwi r0, 0xa
+/* 81415F8C 000E64AC  41 81 00 24 */	bgt .L_81415FB0
+/* 81415F90 000E64B0  3C 60 81 66 */	lis r3, jumptable_8165BA40@ha
+/* 81415F94 000E64B4  54 00 10 3A */	slwi r0, r0, 2
+/* 81415F98 000E64B8  38 63 BA 40 */	addi r3, r3, jumptable_8165BA40@l
+/* 81415F9C 000E64BC  7C 63 00 2E */	lwzx r3, r3, r0
+/* 81415FA0 000E64C0  7C 69 03 A6 */	mtctr r3
+/* 81415FA4 000E64C4  4E 80 04 20 */	bctr
+.L_81415FA8:
+/* 81415FA8 000E64C8  38 00 00 00 */	li r0, 0x0
+/* 81415FAC 000E64CC  48 00 00 08 */	b .L_81415FB4
+.L_81415FB0:
+/* 81415FB0 000E64D0  38 00 00 01 */	li r0, 0x1
+.L_81415FB4:
+/* 81415FB4 000E64D4  2C 00 00 00 */	cmpwi r0, 0x0
+/* 81415FB8 000E64D8  40 82 00 20 */	bne .L_81415FD8
+/* 81415FBC 000E64DC  81 9F 00 00 */	lwz r12, 0x0(r31)
+/* 81415FC0 000E64E0  7F E3 FB 78 */	mr r3, r31
+/* 81415FC4 000E64E4  38 80 00 09 */	li r4, 0x9
+/* 81415FC8 000E64E8  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81415FCC 000E64EC  7D 89 03 A6 */	mtctr r12
+/* 81415FD0 000E64F0  4E 80 04 21 */	bctrl
+/* 81415FD4 000E64F4  48 00 03 FC */	b .L_814163D0
+.L_81415FD8:
+/* 81415FD8 000E64F8  81 9F 00 00 */	lwz r12, 0x0(r31)
+/* 81415FDC 000E64FC  7F E3 FB 78 */	mr r3, r31
+/* 81415FE0 000E6500  38 80 00 04 */	li r4, 0x4
+/* 81415FE4 000E6504  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81415FE8 000E6508  7D 89 03 A6 */	mtctr r12
+/* 81415FEC 000E650C  4E 80 04 21 */	bctrl
+/* 81415FF0 000E6510  48 00 03 E0 */	b .L_814163D0
+.L_81415FF4:
+/* 81415FF4 000E6514  2C 04 00 0B */	cmpwi r4, 0xb
+/* 81415FF8 000E6518  40 82 00 7C */	bne .L_81416074
+/* 81415FFC 000E651C  80 03 00 2C */	lwz r0, 0x2c(r3)
+/* 81416000 000E6520  38 80 00 00 */	li r4, 0x0
+/* 81416004 000E6524  98 83 00 34 */	stb r4, 0x34(r3)
+/* 81416008 000E6528  28 00 00 0A */	cmplwi r0, 0xa
+/* 8141600C 000E652C  41 81 00 24 */	bgt .L_81416030
+/* 81416010 000E6530  3C 60 81 66 */	lis r3, jumptable_8165BA14@ha
+/* 81416014 000E6534  54 00 10 3A */	slwi r0, r0, 2
+/* 81416018 000E6538  38 63 BA 14 */	addi r3, r3, jumptable_8165BA14@l
+/* 8141601C 000E653C  7C 63 00 2E */	lwzx r3, r3, r0
+/* 81416020 000E6540  7C 69 03 A6 */	mtctr r3
+/* 81416024 000E6544  4E 80 04 20 */	bctr
+.L_81416028:
+/* 81416028 000E6548  38 00 00 00 */	li r0, 0x0
+/* 8141602C 000E654C  48 00 00 08 */	b .L_81416034
+.L_81416030:
+/* 81416030 000E6550  38 00 00 01 */	li r0, 0x1
+.L_81416034:
+/* 81416034 000E6554  2C 00 00 00 */	cmpwi r0, 0x0
+/* 81416038 000E6558  40 82 00 20 */	bne .L_81416058
+/* 8141603C 000E655C  81 9F 00 00 */	lwz r12, 0x0(r31)
+/* 81416040 000E6560  7F E3 FB 78 */	mr r3, r31
+/* 81416044 000E6564  38 80 00 02 */	li r4, 0x2
+/* 81416048 000E6568  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 8141604C 000E656C  7D 89 03 A6 */	mtctr r12
+/* 81416050 000E6570  4E 80 04 21 */	bctrl
+/* 81416054 000E6574  48 00 03 7C */	b .L_814163D0
+.L_81416058:
+/* 81416058 000E6578  81 9F 00 00 */	lwz r12, 0x0(r31)
+/* 8141605C 000E657C  7F E3 FB 78 */	mr r3, r31
+/* 81416060 000E6580  38 80 00 0B */	li r4, 0xb
+/* 81416064 000E6584  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81416068 000E6588  7D 89 03 A6 */	mtctr r12
+/* 8141606C 000E658C  4E 80 04 21 */	bctrl
+/* 81416070 000E6590  48 00 03 60 */	b .L_814163D0
+.L_81416074:
+/* 81416074 000E6594  2C 04 00 05 */	cmpwi r4, 0x5
+/* 81416078 000E6598  40 82 00 68 */	bne .L_814160E0
+/* 8141607C 000E659C  80 83 00 2C */	lwz r4, 0x2c(r3)
+/* 81416080 000E65A0  38 00 00 00 */	li r0, 0x0
+/* 81416084 000E65A4  98 03 00 34 */	stb r0, 0x34(r3)
+/* 81416088 000E65A8  2C 04 00 09 */	cmpwi r4, 0x9
+/* 8141608C 000E65AC  41 82 03 44 */	beq .L_814163D0
+/* 81416090 000E65B0  2C 04 00 0A */	cmpwi r4, 0xa
+/* 81416094 000E65B4  40 82 00 1C */	bne .L_814160B0
+/* 81416098 000E65B8  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 8141609C 000E65BC  38 80 00 06 */	li r4, 0x6
+/* 814160A0 000E65C0  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 814160A4 000E65C4  7D 89 03 A6 */	mtctr r12
+/* 814160A8 000E65C8  4E 80 04 21 */	bctrl
+/* 814160AC 000E65CC  48 00 03 24 */	b .L_814163D0
+.L_814160B0:
+/* 814160B0 000E65D0  2C 04 00 08 */	cmpwi r4, 0x8
+/* 814160B4 000E65D4  41 82 00 10 */	beq .L_814160C4
+/* 814160B8 000E65D8  38 04 FF FC */	subi r0, r4, 0x4
+/* 814160BC 000E65DC  28 00 00 01 */	cmplwi r0, 0x1
+/* 814160C0 000E65E0  41 81 03 10 */	bgt .L_814163D0
+.L_814160C4:
+/* 814160C4 000E65E4  81 9F 00 00 */	lwz r12, 0x0(r31)
+/* 814160C8 000E65E8  7F E3 FB 78 */	mr r3, r31
+/* 814160CC 000E65EC  38 80 00 03 */	li r4, 0x3
+/* 814160D0 000E65F0  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 814160D4 000E65F4  7D 89 03 A6 */	mtctr r12
+/* 814160D8 000E65F8  4E 80 04 21 */	bctrl
+/* 814160DC 000E65FC  48 00 02 F4 */	b .L_814163D0
+.L_814160E0:
+/* 814160E0 000E6600  88 03 00 34 */	lbz r0, 0x34(r3)
+/* 814160E4 000E6604  2C 00 00 00 */	cmpwi r0, 0x0
+/* 814160E8 000E6608  40 82 01 68 */	bne .L_81416250
+/* 814160EC 000E660C  80 03 00 2C */	lwz r0, 0x2c(r3)
+/* 814160F0 000E6610  28 00 00 0B */	cmplwi r0, 0xb
+/* 814160F4 000E6614  41 81 02 DC */	bgt .L_814163D0
+/* 814160F8 000E6618  3C A0 81 66 */	lis r5, jumptable_8165B9E4@ha
+/* 814160FC 000E661C  54 00 10 3A */	slwi r0, r0, 2
+/* 81416100 000E6620  38 A5 B9 E4 */	addi r5, r5, jumptable_8165B9E4@l
+/* 81416104 000E6624  7C A5 00 2E */	lwzx r5, r5, r0
+/* 81416108 000E6628  7C A9 03 A6 */	mtctr r5
+/* 8141610C 000E662C  4E 80 04 20 */	bctr
+.L_81416110:
+/* 81416110 000E6630  2C 04 00 04 */	cmpwi r4, 0x4
+/* 81416114 000E6634  40 82 02 BC */	bne .L_814163D0
+/* 81416118 000E6638  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 8141611C 000E663C  38 80 00 00 */	li r4, 0x0
+/* 81416120 000E6640  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81416124 000E6644  7D 89 03 A6 */	mtctr r12
+/* 81416128 000E6648  4E 80 04 21 */	bctrl
+/* 8141612C 000E664C  48 00 02 A4 */	b .L_814163D0
+.L_81416130:
+/* 81416130 000E6650  2C 04 00 04 */	cmpwi r4, 0x4
+/* 81416134 000E6654  40 82 00 18 */	bne .L_8141614C
+/* 81416138 000E6658  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 8141613C 000E665C  38 80 00 00 */	li r4, 0x0
+/* 81416140 000E6660  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81416144 000E6664  7D 89 03 A6 */	mtctr r12
+/* 81416148 000E6668  4E 80 04 21 */	bctrl
+.L_8141614C:
+/* 8141614C 000E666C  2C 1E 00 01 */	cmpwi r30, 0x1
+/* 81416150 000E6670  40 82 02 80 */	bne .L_814163D0
+/* 81416154 000E6674  81 9F 00 00 */	lwz r12, 0x0(r31)
+/* 81416158 000E6678  7F E3 FB 78 */	mr r3, r31
+/* 8141615C 000E667C  38 80 00 01 */	li r4, 0x1
+/* 81416160 000E6680  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81416164 000E6684  7D 89 03 A6 */	mtctr r12
+/* 81416168 000E6688  4E 80 04 21 */	bctrl
+/* 8141616C 000E668C  48 00 02 64 */	b .L_814163D0
+.L_81416170:
+/* 81416170 000E6690  2C 04 00 04 */	cmpwi r4, 0x4
+/* 81416174 000E6694  40 82 00 18 */	bne .L_8141618C
+/* 81416178 000E6698  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 8141617C 000E669C  38 80 00 03 */	li r4, 0x3
+/* 81416180 000E66A0  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81416184 000E66A4  7D 89 03 A6 */	mtctr r12
+/* 81416188 000E66A8  4E 80 04 21 */	bctrl
+.L_8141618C:
+/* 8141618C 000E66AC  2C 1E 00 02 */	cmpwi r30, 0x2
+/* 81416190 000E66B0  40 82 02 40 */	bne .L_814163D0
+/* 81416194 000E66B4  81 9F 00 00 */	lwz r12, 0x0(r31)
+/* 81416198 000E66B8  7F E3 FB 78 */	mr r3, r31
+/* 8141619C 000E66BC  38 80 00 02 */	li r4, 0x2
+/* 814161A0 000E66C0  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 814161A4 000E66C4  7D 89 03 A6 */	mtctr r12
+/* 814161A8 000E66C8  4E 80 04 21 */	bctrl
+/* 814161AC 000E66CC  48 00 02 24 */	b .L_814163D0
+.L_814161B0:
+/* 814161B0 000E66D0  2C 04 00 02 */	cmpwi r4, 0x2
+/* 814161B4 000E66D4  40 82 02 1C */	bne .L_814163D0
+/* 814161B8 000E66D8  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 814161BC 000E66DC  38 80 00 02 */	li r4, 0x2
+/* 814161C0 000E66E0  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 814161C4 000E66E4  7D 89 03 A6 */	mtctr r12
+/* 814161C8 000E66E8  4E 80 04 21 */	bctrl
+/* 814161CC 000E66EC  48 00 02 04 */	b .L_814163D0
+.L_814161D0:
+/* 814161D0 000E66F0  2C 04 00 04 */	cmpwi r4, 0x4
+/* 814161D4 000E66F4  40 82 00 18 */	bne .L_814161EC
+/* 814161D8 000E66F8  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 814161DC 000E66FC  38 80 00 00 */	li r4, 0x0
+/* 814161E0 000E6700  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 814161E4 000E6704  7D 89 03 A6 */	mtctr r12
+/* 814161E8 000E6708  4E 80 04 21 */	bctrl
+.L_814161EC:
+/* 814161EC 000E670C  2C 1E 00 01 */	cmpwi r30, 0x1
+/* 814161F0 000E6710  40 82 01 E0 */	bne .L_814163D0
+/* 814161F4 000E6714  81 9F 00 00 */	lwz r12, 0x0(r31)
+/* 814161F8 000E6718  7F E3 FB 78 */	mr r3, r31
+/* 814161FC 000E671C  38 80 00 01 */	li r4, 0x1
+/* 81416200 000E6720  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81416204 000E6724  7D 89 03 A6 */	mtctr r12
+/* 81416208 000E6728  4E 80 04 21 */	bctrl
+/* 8141620C 000E672C  48 00 01 C4 */	b .L_814163D0
+.L_81416210:
+/* 81416210 000E6730  2C 04 00 04 */	cmpwi r4, 0x4
+/* 81416214 000E6734  40 82 00 18 */	bne .L_8141622C
+/* 81416218 000E6738  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 8141621C 000E673C  38 80 00 03 */	li r4, 0x3
+/* 81416220 000E6740  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81416224 000E6744  7D 89 03 A6 */	mtctr r12
+/* 81416228 000E6748  4E 80 04 21 */	bctrl
+.L_8141622C:
+/* 8141622C 000E674C  2C 1E 00 02 */	cmpwi r30, 0x2
+/* 81416230 000E6750  40 82 01 A0 */	bne .L_814163D0
+/* 81416234 000E6754  81 9F 00 00 */	lwz r12, 0x0(r31)
+/* 81416238 000E6758  7F E3 FB 78 */	mr r3, r31
+/* 8141623C 000E675C  38 80 00 02 */	li r4, 0x2
+/* 81416240 000E6760  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81416244 000E6764  7D 89 03 A6 */	mtctr r12
+/* 81416248 000E6768  4E 80 04 21 */	bctrl
+/* 8141624C 000E676C  48 00 01 84 */	b .L_814163D0
+.L_81416250:
+/* 81416250 000E6770  80 03 00 2C */	lwz r0, 0x2c(r3)
+/* 81416254 000E6774  28 00 00 0B */	cmplwi r0, 0xb
+/* 81416258 000E6778  41 81 01 78 */	bgt .L_814163D0
+/* 8141625C 000E677C  3C A0 81 66 */	lis r5, jumptable_8165B9B4@ha
+/* 81416260 000E6780  54 00 10 3A */	slwi r0, r0, 2
+/* 81416264 000E6784  38 A5 B9 B4 */	addi r5, r5, jumptable_8165B9B4@l
+/* 81416268 000E6788  7C A5 00 2E */	lwzx r5, r5, r0
+/* 8141626C 000E678C  7C A9 03 A6 */	mtctr r5
+/* 81416270 000E6790  4E 80 04 20 */	bctr
+.L_81416274:
+/* 81416274 000E6794  2C 04 00 04 */	cmpwi r4, 0x4
+/* 81416278 000E6798  40 82 00 18 */	bne .L_81416290
+/* 8141627C 000E679C  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81416280 000E67A0  38 80 00 00 */	li r4, 0x0
+/* 81416284 000E67A4  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81416288 000E67A8  7D 89 03 A6 */	mtctr r12
+/* 8141628C 000E67AC  4E 80 04 21 */	bctrl
+.L_81416290:
+/* 81416290 000E67B0  2C 1E 00 01 */	cmpwi r30, 0x1
+/* 81416294 000E67B4  40 82 00 1C */	bne .L_814162B0
+/* 81416298 000E67B8  81 9F 00 00 */	lwz r12, 0x0(r31)
+/* 8141629C 000E67BC  7F E3 FB 78 */	mr r3, r31
+/* 814162A0 000E67C0  38 80 00 01 */	li r4, 0x1
+/* 814162A4 000E67C4  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 814162A8 000E67C8  7D 89 03 A6 */	mtctr r12
+/* 814162AC 000E67CC  4E 80 04 21 */	bctrl
+.L_814162B0:
+/* 814162B0 000E67D0  2C 1E 00 00 */	cmpwi r30, 0x0
+/* 814162B4 000E67D4  40 82 01 1C */	bne .L_814163D0
+/* 814162B8 000E67D8  81 9F 00 00 */	lwz r12, 0x0(r31)
+/* 814162BC 000E67DC  7F E3 FB 78 */	mr r3, r31
+/* 814162C0 000E67E0  38 80 00 09 */	li r4, 0x9
+/* 814162C4 000E67E4  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 814162C8 000E67E8  7D 89 03 A6 */	mtctr r12
+/* 814162CC 000E67EC  4E 80 04 21 */	bctrl
+/* 814162D0 000E67F0  48 00 01 00 */	b .L_814163D0
+.L_814162D4:
+/* 814162D4 000E67F4  2C 04 00 01 */	cmpwi r4, 0x1
+/* 814162D8 000E67F8  40 82 00 F8 */	bne .L_814163D0
+/* 814162DC 000E67FC  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 814162E0 000E6800  38 80 00 08 */	li r4, 0x8
+/* 814162E4 000E6804  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 814162E8 000E6808  7D 89 03 A6 */	mtctr r12
+/* 814162EC 000E680C  4E 80 04 21 */	bctrl
+/* 814162F0 000E6810  48 00 00 E0 */	b .L_814163D0
+.L_814162F4:
+/* 814162F4 000E6814  2C 04 00 04 */	cmpwi r4, 0x4
+/* 814162F8 000E6818  40 82 00 18 */	bne .L_81416310
+/* 814162FC 000E681C  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81416300 000E6820  38 80 00 05 */	li r4, 0x5
+/* 81416304 000E6824  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81416308 000E6828  7D 89 03 A6 */	mtctr r12
+/* 8141630C 000E682C  4E 80 04 21 */	bctrl
+.L_81416310:
+/* 81416310 000E6830  2C 1E 00 02 */	cmpwi r30, 0x2
+/* 81416314 000E6834  40 82 00 BC */	bne .L_814163D0
+/* 81416318 000E6838  81 9F 00 00 */	lwz r12, 0x0(r31)
+/* 8141631C 000E683C  7F E3 FB 78 */	mr r3, r31
+/* 81416320 000E6840  38 80 00 09 */	li r4, 0x9
+/* 81416324 000E6844  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81416328 000E6848  7D 89 03 A6 */	mtctr r12
+/* 8141632C 000E684C  4E 80 04 21 */	bctrl
+/* 81416330 000E6850  48 00 00 A0 */	b .L_814163D0
+.L_81416334:
+/* 81416334 000E6854  2C 04 00 02 */	cmpwi r4, 0x2
+/* 81416338 000E6858  40 82 00 98 */	bne .L_814163D0
+/* 8141633C 000E685C  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81416340 000E6860  38 80 00 09 */	li r4, 0x9
+/* 81416344 000E6864  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81416348 000E6868  7D 89 03 A6 */	mtctr r12
+/* 8141634C 000E686C  4E 80 04 21 */	bctrl
+/* 81416350 000E6870  48 00 00 80 */	b .L_814163D0
+.L_81416354:
+/* 81416354 000E6874  2C 04 00 04 */	cmpwi r4, 0x4
+/* 81416358 000E6878  40 82 00 18 */	bne .L_81416370
+/* 8141635C 000E687C  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81416360 000E6880  38 80 00 0A */	li r4, 0xa
+/* 81416364 000E6884  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81416368 000E6888  7D 89 03 A6 */	mtctr r12
+/* 8141636C 000E688C  4E 80 04 21 */	bctrl
+.L_81416370:
+/* 81416370 000E6890  2C 1E 00 01 */	cmpwi r30, 0x1
+/* 81416374 000E6894  40 82 00 5C */	bne .L_814163D0
+/* 81416378 000E6898  81 9F 00 00 */	lwz r12, 0x0(r31)
+/* 8141637C 000E689C  7F E3 FB 78 */	mr r3, r31
+/* 81416380 000E68A0  38 80 00 08 */	li r4, 0x8
+/* 81416384 000E68A4  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81416388 000E68A8  7D 89 03 A6 */	mtctr r12
+/* 8141638C 000E68AC  4E 80 04 21 */	bctrl
+/* 81416390 000E68B0  48 00 00 40 */	b .L_814163D0
+.L_81416394:
+/* 81416394 000E68B4  2C 04 00 04 */	cmpwi r4, 0x4
+/* 81416398 000E68B8  40 82 00 18 */	bne .L_814163B0
+/* 8141639C 000E68BC  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 814163A0 000E68C0  38 80 00 05 */	li r4, 0x5
+/* 814163A4 000E68C4  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 814163A8 000E68C8  7D 89 03 A6 */	mtctr r12
+/* 814163AC 000E68CC  4E 80 04 21 */	bctrl
+.L_814163B0:
+/* 814163B0 000E68D0  2C 1E 00 02 */	cmpwi r30, 0x2
+/* 814163B4 000E68D4  40 82 00 1C */	bne .L_814163D0
+/* 814163B8 000E68D8  81 9F 00 00 */	lwz r12, 0x0(r31)
+/* 814163BC 000E68DC  7F E3 FB 78 */	mr r3, r31
+/* 814163C0 000E68E0  38 80 00 09 */	li r4, 0x9
+/* 814163C4 000E68E4  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 814163C8 000E68E8  7D 89 03 A6 */	mtctr r12
+/* 814163CC 000E68EC  4E 80 04 21 */	bctrl
+.L_814163D0:
+/* 814163D0 000E68F0  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 814163D4 000E68F4  83 E1 00 0C */	lwz r31, 0xc(r1)
+/* 814163D8 000E68F8  83 C1 00 08 */	lwz r30, 0x8(r1)
+/* 814163DC 000E68FC  7C 08 03 A6 */	mtlr r0
+/* 814163E0 000E6900  38 21 00 10 */	addi r1, r1, 0x10
+/* 814163E4 000E6904  4E 80 00 20 */	blr
+.endfn onAnmEvent__Q49textinput8keyboard6pctype16ShiftCapsAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent
+
+# .text:0x6210 | 0x814163E8 | size: 0x19C
+# textinput::keyboard::pctype::ToggleButtonAnmPane::onAnmEvent(textinput::nw4rmanager::AnmPane::AnmPaneEvent)
+.fn onAnmEvent__Q49textinput8keyboard6pctype19ToggleButtonAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent, global
+/* 814163E8 000E6908  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 814163EC 000E690C  7C 08 02 A6 */	mflr r0
+/* 814163F0 000E6910  2C 04 00 00 */	cmpwi r4, 0x0
+/* 814163F4 000E6914  90 01 00 14 */	stw r0, 0x14(r1)
+/* 814163F8 000E6918  93 E1 00 0C */	stw r31, 0xc(r1)
+/* 814163FC 000E691C  7C 9F 23 78 */	mr r31, r4
+/* 81416400 000E6920  93 C1 00 08 */	stw r30, 0x8(r1)
+/* 81416404 000E6924  7C 7E 1B 78 */	mr r30, r3
+/* 81416408 000E6928  40 82 00 2C */	bne .L_81416434
+/* 8141640C 000E692C  80 03 00 2C */	lwz r0, 0x2c(r3)
+/* 81416410 000E6930  2C 00 00 05 */	cmpwi r0, 0x5
+/* 81416414 000E6934  41 82 00 20 */	beq .L_81416434
+/* 81416418 000E6938  2C 00 00 04 */	cmpwi r0, 0x4
+/* 8141641C 000E693C  41 82 00 18 */	beq .L_81416434
+/* 81416420 000E6940  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81416424 000E6944  38 80 00 04 */	li r4, 0x4
+/* 81416428 000E6948  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 8141642C 000E694C  7D 89 03 A6 */	mtctr r12
+/* 81416430 000E6950  4E 80 04 21 */	bctrl
+.L_81416434:
+/* 81416434 000E6954  80 1E 00 2C */	lwz r0, 0x2c(r30)
+/* 81416438 000E6958  28 00 00 06 */	cmplwi r0, 0x6
+/* 8141643C 000E695C  41 81 01 30 */	bgt .L_8141656C
+/* 81416440 000E6960  3C 60 81 66 */	lis r3, jumptable_8165BA6C@ha
+/* 81416444 000E6964  54 00 10 3A */	slwi r0, r0, 2
+/* 81416448 000E6968  38 63 BA 6C */	addi r3, r3, jumptable_8165BA6C@l
+/* 8141644C 000E696C  7C 63 00 2E */	lwzx r3, r3, r0
+/* 81416450 000E6970  7C 69 03 A6 */	mtctr r3
+/* 81416454 000E6974  4E 80 04 20 */	bctr
+.L_81416458:
+/* 81416458 000E6978  2C 1F 00 01 */	cmpwi r31, 0x1
+/* 8141645C 000E697C  40 82 01 10 */	bne .L_8141656C
+/* 81416460 000E6980  81 9E 00 00 */	lwz r12, 0x0(r30)
+/* 81416464 000E6984  7F C3 F3 78 */	mr r3, r30
+/* 81416468 000E6988  38 80 00 01 */	li r4, 0x1
+/* 8141646C 000E698C  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81416470 000E6990  7D 89 03 A6 */	mtctr r12
+/* 81416474 000E6994  4E 80 04 21 */	bctrl
+/* 81416478 000E6998  48 00 00 F4 */	b .L_8141656C
+.L_8141647C:
+/* 8141647C 000E699C  2C 1F 00 04 */	cmpwi r31, 0x4
+/* 81416480 000E69A0  40 82 00 1C */	bne .L_8141649C
+/* 81416484 000E69A4  81 9E 00 00 */	lwz r12, 0x0(r30)
+/* 81416488 000E69A8  7F C3 F3 78 */	mr r3, r30
+/* 8141648C 000E69AC  38 80 00 03 */	li r4, 0x3
+/* 81416490 000E69B0  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81416494 000E69B4  7D 89 03 A6 */	mtctr r12
+/* 81416498 000E69B8  4E 80 04 21 */	bctrl
+.L_8141649C:
+/* 8141649C 000E69BC  2C 1F 00 02 */	cmpwi r31, 0x2
+/* 814164A0 000E69C0  40 82 00 CC */	bne .L_8141656C
+/* 814164A4 000E69C4  81 9E 00 00 */	lwz r12, 0x0(r30)
+/* 814164A8 000E69C8  7F C3 F3 78 */	mr r3, r30
+/* 814164AC 000E69CC  38 80 00 02 */	li r4, 0x2
+/* 814164B0 000E69D0  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 814164B4 000E69D4  7D 89 03 A6 */	mtctr r12
+/* 814164B8 000E69D8  4E 80 04 21 */	bctrl
+/* 814164BC 000E69DC  48 00 00 B0 */	b .L_8141656C
+.L_814164C0:
+/* 814164C0 000E69E0  2C 1F 00 02 */	cmpwi r31, 0x2
+/* 814164C4 000E69E4  40 82 00 A8 */	bne .L_8141656C
+/* 814164C8 000E69E8  81 9E 00 00 */	lwz r12, 0x0(r30)
+/* 814164CC 000E69EC  7F C3 F3 78 */	mr r3, r30
+/* 814164D0 000E69F0  38 80 00 02 */	li r4, 0x2
+/* 814164D4 000E69F4  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 814164D8 000E69F8  7D 89 03 A6 */	mtctr r12
+/* 814164DC 000E69FC  4E 80 04 21 */	bctrl
+/* 814164E0 000E6A00  48 00 00 8C */	b .L_8141656C
+.L_814164E4:
+/* 814164E4 000E6A04  2C 1F 00 04 */	cmpwi r31, 0x4
+/* 814164E8 000E6A08  40 82 00 1C */	bne .L_81416504
+/* 814164EC 000E6A0C  81 9E 00 00 */	lwz r12, 0x0(r30)
+/* 814164F0 000E6A10  7F C3 F3 78 */	mr r3, r30
+/* 814164F4 000E6A14  38 80 00 00 */	li r4, 0x0
+/* 814164F8 000E6A18  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 814164FC 000E6A1C  7D 89 03 A6 */	mtctr r12
+/* 81416500 000E6A20  4E 80 04 21 */	bctrl
+.L_81416504:
+/* 81416504 000E6A24  2C 1F 00 01 */	cmpwi r31, 0x1
+/* 81416508 000E6A28  40 82 00 64 */	bne .L_8141656C
+/* 8141650C 000E6A2C  81 9E 00 00 */	lwz r12, 0x0(r30)
+/* 81416510 000E6A30  7F C3 F3 78 */	mr r3, r30
+/* 81416514 000E6A34  38 80 00 01 */	li r4, 0x1
+/* 81416518 000E6A38  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 8141651C 000E6A3C  7D 89 03 A6 */	mtctr r12
+/* 81416520 000E6A40  4E 80 04 21 */	bctrl
+/* 81416524 000E6A44  48 00 00 48 */	b .L_8141656C
+.L_81416528:
+/* 81416528 000E6A48  2C 1F 00 04 */	cmpwi r31, 0x4
+/* 8141652C 000E6A4C  40 82 00 40 */	bne .L_8141656C
+/* 81416530 000E6A50  81 9E 00 00 */	lwz r12, 0x0(r30)
+/* 81416534 000E6A54  7F C3 F3 78 */	mr r3, r30
+/* 81416538 000E6A58  38 80 00 05 */	li r4, 0x5
+/* 8141653C 000E6A5C  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81416540 000E6A60  7D 89 03 A6 */	mtctr r12
+/* 81416544 000E6A64  4E 80 04 21 */	bctrl
+/* 81416548 000E6A68  48 00 00 24 */	b .L_8141656C
+.L_8141654C:
+/* 8141654C 000E6A6C  2C 1F 00 04 */	cmpwi r31, 0x4
+/* 81416550 000E6A70  40 82 00 1C */	bne .L_8141656C
+/* 81416554 000E6A74  81 9E 00 00 */	lwz r12, 0x0(r30)
+/* 81416558 000E6A78  7F C3 F3 78 */	mr r3, r30
+/* 8141655C 000E6A7C  38 80 00 00 */	li r4, 0x0
+/* 81416560 000E6A80  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81416564 000E6A84  7D 89 03 A6 */	mtctr r12
+/* 81416568 000E6A88  4E 80 04 21 */	bctrl
+.L_8141656C:
+/* 8141656C 000E6A8C  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 81416570 000E6A90  83 E1 00 0C */	lwz r31, 0xc(r1)
+/* 81416574 000E6A94  83 C1 00 08 */	lwz r30, 0x8(r1)
+/* 81416578 000E6A98  7C 08 03 A6 */	mtlr r0
+/* 8141657C 000E6A9C  38 21 00 10 */	addi r1, r1, 0x10
+/* 81416580 000E6AA0  4E 80 00 20 */	blr
+.endfn onAnmEvent__Q49textinput8keyboard6pctype19ToggleButtonAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent
+
+# .text:0x63AC | 0x81416584 | size: 0x294
+# textinput::keyboard::pctype::OnOffButtonAnmPane::onAnmEvent(textinput::nw4rmanager::AnmPane::AnmPaneEvent)
+.fn onAnmEvent__Q49textinput8keyboard6pctype18OnOffButtonAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent, global
+/* 81416584 000E6AA4  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 81416588 000E6AA8  7C 08 02 A6 */	mflr r0
+/* 8141658C 000E6AAC  2C 04 00 00 */	cmpwi r4, 0x0
+/* 81416590 000E6AB0  90 01 00 14 */	stw r0, 0x14(r1)
+/* 81416594 000E6AB4  93 E1 00 0C */	stw r31, 0xc(r1)
+/* 81416598 000E6AB8  7C 9F 23 78 */	mr r31, r4
+/* 8141659C 000E6ABC  93 C1 00 08 */	stw r30, 0x8(r1)
+/* 814165A0 000E6AC0  7C 7E 1B 78 */	mr r30, r3
+/* 814165A4 000E6AC4  40 82 00 38 */	bne .L_814165DC
+/* 814165A8 000E6AC8  80 03 00 2C */	lwz r0, 0x2c(r3)
+/* 814165AC 000E6ACC  2C 00 00 0F */	cmpwi r0, 0xf
+/* 814165B0 000E6AD0  41 82 00 2C */	beq .L_814165DC
+/* 814165B4 000E6AD4  2C 00 00 02 */	cmpwi r0, 0x2
+/* 814165B8 000E6AD8  41 82 00 24 */	beq .L_814165DC
+/* 814165BC 000E6ADC  2C 00 00 0D */	cmpwi r0, 0xd
+/* 814165C0 000E6AE0  41 82 00 1C */	beq .L_814165DC
+/* 814165C4 000E6AE4  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 814165C8 000E6AE8  38 80 00 04 */	li r4, 0x4
+/* 814165CC 000E6AEC  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 814165D0 000E6AF0  7D 89 03 A6 */	mtctr r12
+/* 814165D4 000E6AF4  4E 80 04 21 */	bctrl
+/* 814165D8 000E6AF8  48 00 02 28 */	b .L_81416800
+.L_814165DC:
+/* 814165DC 000E6AFC  2C 04 00 06 */	cmpwi r4, 0x6
+/* 814165E0 000E6B00  40 82 00 54 */	bne .L_81416634
+/* 814165E4 000E6B04  80 03 00 2C */	lwz r0, 0x2c(r3)
+/* 814165E8 000E6B08  2C 00 00 0E */	cmpwi r0, 0xe
+/* 814165EC 000E6B0C  41 82 00 48 */	beq .L_81416634
+/* 814165F0 000E6B10  2C 00 00 04 */	cmpwi r0, 0x4
+/* 814165F4 000E6B14  41 82 00 40 */	beq .L_81416634
+/* 814165F8 000E6B18  2C 00 00 03 */	cmpwi r0, 0x3
+/* 814165FC 000E6B1C  41 82 00 38 */	beq .L_81416634
+/* 81416600 000E6B20  2C 00 00 0C */	cmpwi r0, 0xc
+/* 81416604 000E6B24  41 82 00 30 */	beq .L_81416634
+/* 81416608 000E6B28  2C 00 00 01 */	cmpwi r0, 0x1
+/* 8141660C 000E6B2C  41 82 00 28 */	beq .L_81416634
+/* 81416610 000E6B30  2C 00 00 02 */	cmpwi r0, 0x2
+/* 81416614 000E6B34  41 82 00 20 */	beq .L_81416634
+/* 81416618 000E6B38  81 9E 00 00 */	lwz r12, 0x0(r30)
+/* 8141661C 000E6B3C  7F C3 F3 78 */	mr r3, r30
+/* 81416620 000E6B40  38 80 00 0C */	li r4, 0xc
+/* 81416624 000E6B44  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81416628 000E6B48  7D 89 03 A6 */	mtctr r12
+/* 8141662C 000E6B4C  4E 80 04 21 */	bctrl
+/* 81416630 000E6B50  48 00 01 D0 */	b .L_81416800
+.L_81416634:
+/* 81416634 000E6B54  2C 04 00 07 */	cmpwi r4, 0x7
+/* 81416638 000E6B58  40 82 00 2C */	bne .L_81416664
+/* 8141663C 000E6B5C  80 03 00 2C */	lwz r0, 0x2c(r3)
+/* 81416640 000E6B60  2C 00 00 0F */	cmpwi r0, 0xf
+/* 81416644 000E6B64  41 82 00 20 */	beq .L_81416664
+/* 81416648 000E6B68  81 9E 00 00 */	lwz r12, 0x0(r30)
+/* 8141664C 000E6B6C  7F C3 F3 78 */	mr r3, r30
+/* 81416650 000E6B70  38 80 00 0D */	li r4, 0xd
+/* 81416654 000E6B74  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81416658 000E6B78  7D 89 03 A6 */	mtctr r12
+/* 8141665C 000E6B7C  4E 80 04 21 */	bctrl
+/* 81416660 000E6B80  48 00 01 A0 */	b .L_81416800
+.L_81416664:
+/* 81416664 000E6B84  80 03 00 2C */	lwz r0, 0x2c(r3)
+/* 81416668 000E6B88  28 00 00 0E */	cmplwi r0, 0xe
+/* 8141666C 000E6B8C  41 81 01 94 */	bgt .L_81416800
+/* 81416670 000E6B90  3C 60 81 66 */	lis r3, jumptable_8165BA88@ha
+/* 81416674 000E6B94  54 00 10 3A */	slwi r0, r0, 2
+/* 81416678 000E6B98  38 63 BA 88 */	addi r3, r3, jumptable_8165BA88@l
+/* 8141667C 000E6B9C  7C 63 00 2E */	lwzx r3, r3, r0
+/* 81416680 000E6BA0  7C 69 03 A6 */	mtctr r3
+/* 81416684 000E6BA4  4E 80 04 20 */	bctr
+.L_81416688:
+/* 81416688 000E6BA8  2C 04 00 04 */	cmpwi r4, 0x4
+/* 8141668C 000E6BAC  40 82 00 1C */	bne .L_814166A8
+/* 81416690 000E6BB0  81 9E 00 00 */	lwz r12, 0x0(r30)
+/* 81416694 000E6BB4  7F C3 F3 78 */	mr r3, r30
+/* 81416698 000E6BB8  38 80 00 0E */	li r4, 0xe
+/* 8141669C 000E6BBC  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 814166A0 000E6BC0  7D 89 03 A6 */	mtctr r12
+/* 814166A4 000E6BC4  4E 80 04 21 */	bctrl
+.L_814166A8:
+/* 814166A8 000E6BC8  2C 1F 00 01 */	cmpwi r31, 0x1
+/* 814166AC 000E6BCC  40 82 01 54 */	bne .L_81416800
+/* 814166B0 000E6BD0  81 9E 00 00 */	lwz r12, 0x0(r30)
+/* 814166B4 000E6BD4  7F C3 F3 78 */	mr r3, r30
+/* 814166B8 000E6BD8  38 80 00 01 */	li r4, 0x1
+/* 814166BC 000E6BDC  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 814166C0 000E6BE0  7D 89 03 A6 */	mtctr r12
+/* 814166C4 000E6BE4  4E 80 04 21 */	bctrl
+/* 814166C8 000E6BE8  48 00 01 38 */	b .L_81416800
+.L_814166CC:
+/* 814166CC 000E6BEC  2C 04 00 04 */	cmpwi r4, 0x4
+/* 814166D0 000E6BF0  40 82 01 30 */	bne .L_81416800
+/* 814166D4 000E6BF4  81 9E 00 00 */	lwz r12, 0x0(r30)
+/* 814166D8 000E6BF8  7F C3 F3 78 */	mr r3, r30
+/* 814166DC 000E6BFC  38 80 00 0F */	li r4, 0xf
+/* 814166E0 000E6C00  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 814166E4 000E6C04  7D 89 03 A6 */	mtctr r12
+/* 814166E8 000E6C08  4E 80 04 21 */	bctrl
+/* 814166EC 000E6C0C  48 00 01 14 */	b .L_81416800
+.L_814166F0:
+/* 814166F0 000E6C10  2C 04 00 01 */	cmpwi r4, 0x1
+/* 814166F4 000E6C14  40 82 01 0C */	bne .L_81416800
+/* 814166F8 000E6C18  81 9E 00 00 */	lwz r12, 0x0(r30)
+/* 814166FC 000E6C1C  7F C3 F3 78 */	mr r3, r30
+/* 81416700 000E6C20  38 80 00 01 */	li r4, 0x1
+/* 81416704 000E6C24  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81416708 000E6C28  7D 89 03 A6 */	mtctr r12
+/* 8141670C 000E6C2C  4E 80 04 21 */	bctrl
+/* 81416710 000E6C30  48 00 00 F0 */	b .L_81416800
+.L_81416714:
+/* 81416714 000E6C34  2C 04 00 04 */	cmpwi r4, 0x4
+/* 81416718 000E6C38  40 82 00 1C */	bne .L_81416734
+/* 8141671C 000E6C3C  81 9E 00 00 */	lwz r12, 0x0(r30)
+/* 81416720 000E6C40  7F C3 F3 78 */	mr r3, r30
+/* 81416724 000E6C44  38 80 00 03 */	li r4, 0x3
+/* 81416728 000E6C48  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 8141672C 000E6C4C  7D 89 03 A6 */	mtctr r12
+/* 81416730 000E6C50  4E 80 04 21 */	bctrl
+.L_81416734:
+/* 81416734 000E6C54  2C 1F 00 02 */	cmpwi r31, 0x2
+/* 81416738 000E6C58  40 82 00 C8 */	bne .L_81416800
+/* 8141673C 000E6C5C  81 9E 00 00 */	lwz r12, 0x0(r30)
+/* 81416740 000E6C60  7F C3 F3 78 */	mr r3, r30
+/* 81416744 000E6C64  38 80 00 02 */	li r4, 0x2
+/* 81416748 000E6C68  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 8141674C 000E6C6C  7D 89 03 A6 */	mtctr r12
+/* 81416750 000E6C70  4E 80 04 21 */	bctrl
+/* 81416754 000E6C74  48 00 00 AC */	b .L_81416800
+.L_81416758:
+/* 81416758 000E6C78  2C 04 00 02 */	cmpwi r4, 0x2
+/* 8141675C 000E6C7C  40 82 00 A4 */	bne .L_81416800
+/* 81416760 000E6C80  81 9E 00 00 */	lwz r12, 0x0(r30)
+/* 81416764 000E6C84  7F C3 F3 78 */	mr r3, r30
+/* 81416768 000E6C88  38 80 00 02 */	li r4, 0x2
+/* 8141676C 000E6C8C  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81416770 000E6C90  7D 89 03 A6 */	mtctr r12
+/* 81416774 000E6C94  4E 80 04 21 */	bctrl
+/* 81416778 000E6C98  48 00 00 88 */	b .L_81416800
+.L_8141677C:
+/* 8141677C 000E6C9C  2C 04 00 04 */	cmpwi r4, 0x4
+/* 81416780 000E6CA0  40 82 00 1C */	bne .L_8141679C
+/* 81416784 000E6CA4  81 9E 00 00 */	lwz r12, 0x0(r30)
+/* 81416788 000E6CA8  7F C3 F3 78 */	mr r3, r30
+/* 8141678C 000E6CAC  38 80 00 0E */	li r4, 0xe
+/* 81416790 000E6CB0  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 81416794 000E6CB4  7D 89 03 A6 */	mtctr r12
+/* 81416798 000E6CB8  4E 80 04 21 */	bctrl
+.L_8141679C:
+/* 8141679C 000E6CBC  2C 1F 00 01 */	cmpwi r31, 0x1
+/* 814167A0 000E6CC0  40 82 00 60 */	bne .L_81416800
+/* 814167A4 000E6CC4  81 9E 00 00 */	lwz r12, 0x0(r30)
+/* 814167A8 000E6CC8  7F C3 F3 78 */	mr r3, r30
+/* 814167AC 000E6CCC  38 80 00 01 */	li r4, 0x1
+/* 814167B0 000E6CD0  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 814167B4 000E6CD4  7D 89 03 A6 */	mtctr r12
+/* 814167B8 000E6CD8  4E 80 04 21 */	bctrl
+/* 814167BC 000E6CDC  48 00 00 44 */	b .L_81416800
+.L_814167C0:
+/* 814167C0 000E6CE0  2C 04 00 04 */	cmpwi r4, 0x4
+/* 814167C4 000E6CE4  40 82 00 1C */	bne .L_814167E0
+/* 814167C8 000E6CE8  81 9E 00 00 */	lwz r12, 0x0(r30)
+/* 814167CC 000E6CEC  7F C3 F3 78 */	mr r3, r30
+/* 814167D0 000E6CF0  38 80 00 03 */	li r4, 0x3
+/* 814167D4 000E6CF4  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 814167D8 000E6CF8  7D 89 03 A6 */	mtctr r12
+/* 814167DC 000E6CFC  4E 80 04 21 */	bctrl
+.L_814167E0:
+/* 814167E0 000E6D00  2C 1F 00 02 */	cmpwi r31, 0x2
+/* 814167E4 000E6D04  40 82 00 1C */	bne .L_81416800
+/* 814167E8 000E6D08  81 9E 00 00 */	lwz r12, 0x0(r30)
+/* 814167EC 000E6D0C  7F C3 F3 78 */	mr r3, r30
+/* 814167F0 000E6D10  38 80 00 02 */	li r4, 0x2
+/* 814167F4 000E6D14  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 814167F8 000E6D18  7D 89 03 A6 */	mtctr r12
+/* 814167FC 000E6D1C  4E 80 04 21 */	bctrl
+.L_81416800:
+/* 81416800 000E6D20  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 81416804 000E6D24  83 E1 00 0C */	lwz r31, 0xc(r1)
+/* 81416808 000E6D28  83 C1 00 08 */	lwz r30, 0x8(r1)
+/* 8141680C 000E6D2C  7C 08 03 A6 */	mtlr r0
+/* 81416810 000E6D30  38 21 00 10 */	addi r1, r1, 0x10
+/* 81416814 000E6D34  4E 80 00 20 */	blr
+.endfn onAnmEvent__Q49textinput8keyboard6pctype18OnOffButtonAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent
+
+# .text:0x6640 | 0x81416818 | size: 0x34
+# textinput::keyboard::pctype::UIModifierButton::UIModifierButton(unsigned long, textinput::keyboard::pctype::LayoutByNW4R*, textinput::keyboard::pctype::UIObj::Listener*)
+.fn __ct__Q49textinput8keyboard6pctype16UIModifierButtonFUlPQ49textinput8keyboard6pctype12LayoutByNW4RPQ59textinput8keyboard6pctype5UIObj8Listener, global
+/* 81416818 000E6D38  3C E0 81 66 */	lis r7, __vt__Q49textinput8keyboard6pctype16UIModifierButton@ha
+/* 8141681C 000E6D3C  38 00 00 00 */	li r0, 0x0
+/* 81416820 000E6D40  38 E7 BD A8 */	addi r7, r7, __vt__Q49textinput8keyboard6pctype16UIModifierButton@l
+/* 81416824 000E6D44  90 03 00 04 */	stw r0, 0x4(r3)
+/* 81416828 000E6D48  90 83 00 08 */	stw r4, 0x8(r3)
+/* 8141682C 000E6D4C  90 A3 00 0C */	stw r5, 0xc(r3)
+/* 81416830 000E6D50  90 C3 00 10 */	stw r6, 0x10(r3)
+/* 81416834 000E6D54  90 E3 00 00 */	stw r7, 0x0(r3)
+/* 81416838 000E6D58  90 03 00 14 */	stw r0, 0x14(r3)
+/* 8141683C 000E6D5C  90 03 00 18 */	stw r0, 0x18(r3)
+/* 81416840 000E6D60  90 03 00 1C */	stw r0, 0x1c(r3)
+/* 81416844 000E6D64  98 03 00 20 */	stb r0, 0x20(r3)
+/* 81416848 000E6D68  4E 80 00 20 */	blr
+.endfn __ct__Q49textinput8keyboard6pctype16UIModifierButtonFUlPQ49textinput8keyboard6pctype12LayoutByNW4RPQ59textinput8keyboard6pctype5UIObj8Listener
+
+# .text:0x6674 | 0x8141684C | size: 0x8
+# textinput::nw4rmanager::Layout::getPaneManager()
+.fn getPaneManager__Q39textinput11nw4rmanager6LayoutFv, global
+/* 8141684C 000E6D6C  80 63 00 10 */	lwz r3, 0x10(r3)
+/* 81416850 000E6D70  4E 80 00 20 */	blr
+.endfn getPaneManager__Q39textinput11nw4rmanager6LayoutFv
+
+# .text:0x667C | 0x81416854 | size: 0x8
+# textinput::gui::GUIComponent::setTriggerTarget(bool)
+.fn setTriggerTarget__Q39textinput3gui12GUIComponentFb, global
+/* 81416854 000E6D74  98 83 00 90 */	stb r4, 0x90(r3)
+/* 81416858 000E6D78  4E 80 00 20 */	blr
+.endfn setTriggerTarget__Q39textinput3gui12GUIComponentFb
+
+# .text:0x6684 | 0x8141685C | size: 0x130
+# textinput::keyboard::pctype::UIModifierButton::onGUIEvent(textinput::gui::PaneComponent&, unsigned long, textinput::nw4rmanager::TiEventHandler::Input*)
+.fn onGUIEvent__Q49textinput8keyboard6pctype16UIModifierButtonFRQ39textinput3gui13PaneComponentUlPQ49textinput11nw4rmanager14TiEventHandler5Input, global
+/* 8141685C 000E6D7C  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 81416860 000E6D80  7C 08 02 A6 */	mflr r0
+/* 81416864 000E6D84  90 01 00 14 */	stw r0, 0x14(r1)
+/* 81416868 000E6D88  93 E1 00 0C */	stw r31, 0xc(r1)
+/* 8141686C 000E6D8C  3F E0 81 66 */	lis r31, lbl_8165B680@ha
+/* 81416870 000E6D90  3B FF B6 80 */	addi r31, r31, lbl_8165B680@l
+/* 81416874 000E6D94  93 C1 00 08 */	stw r30, 0x8(r1)
+/* 81416878 000E6D98  7C 7E 1B 78 */	mr r30, r3
+/* 8141687C 000E6D9C  80 03 00 08 */	lwz r0, 0x8(r3)
+/* 81416880 000E6DA0  28 00 00 01 */	cmplwi r0, 0x1
+/* 81416884 000E6DA4  40 82 00 0C */	bne .L_81416890
+/* 81416888 000E6DA8  3F E0 81 66 */	lis r31, lbl_8165B668@ha
+/* 8141688C 000E6DAC  3B FF B6 68 */	addi r31, r31, lbl_8165B668@l
+.L_81416890:
+/* 81416890 000E6DB0  2C 05 00 01 */	cmpwi r5, 0x1
+/* 81416894 000E6DB4  41 82 00 4C */	beq .L_814168E0
+/* 81416898 000E6DB8  40 80 00 10 */	bge .L_814168A8
+/* 8141689C 000E6DBC  2C 05 00 00 */	cmpwi r5, 0x0
+/* 814168A0 000E6DC0  40 80 00 78 */	bge .L_81416918
+/* 814168A4 000E6DC4  48 00 00 D0 */	b .L_81416974
+.L_814168A8:
+/* 814168A8 000E6DC8  2C 05 00 04 */	cmpwi r5, 0x4
+/* 814168AC 000E6DCC  41 82 00 08 */	beq .L_814168B4
+/* 814168B0 000E6DD0  48 00 00 C4 */	b .L_81416974
+.L_814168B4:
+/* 814168B4 000E6DD4  80 06 00 0C */	lwz r0, 0xc(r6)
+/* 814168B8 000E6DD8  54 00 05 29 */	rlwinm. r0, r0, 0, 20, 20
+/* 814168BC 000E6DDC  41 82 00 B8 */	beq .L_81416974
+/* 814168C0 000E6DE0  80 63 00 0C */	lwz r3, 0xc(r3)
+/* 814168C4 000E6DE4  7F E5 FB 78 */	mr r5, r31
+/* 814168C8 000E6DE8  38 80 00 04 */	li r4, 0x4
+/* 814168CC 000E6DEC  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 814168D0 000E6DF0  81 8C 00 20 */	lwz r12, 0x20(r12)
+/* 814168D4 000E6DF4  7D 89 03 A6 */	mtctr r12
+/* 814168D8 000E6DF8  4E 80 04 21 */	bctrl
+/* 814168DC 000E6DFC  48 00 00 98 */	b .L_81416974
+.L_814168E0:
+/* 814168E0 000E6E00  80 63 00 1C */	lwz r3, 0x1c(r3)
+/* 814168E4 000E6E04  38 80 00 02 */	li r4, 0x2
+/* 814168E8 000E6E08  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 814168EC 000E6E0C  81 8C 00 10 */	lwz r12, 0x10(r12)
+/* 814168F0 000E6E10  7D 89 03 A6 */	mtctr r12
+/* 814168F4 000E6E14  4E 80 04 21 */	bctrl
+/* 814168F8 000E6E18  80 7E 00 0C */	lwz r3, 0xc(r30)
+/* 814168FC 000E6E1C  7F E5 FB 78 */	mr r5, r31
+/* 81416900 000E6E20  38 80 00 01 */	li r4, 0x1
+/* 81416904 000E6E24  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81416908 000E6E28  81 8C 00 20 */	lwz r12, 0x20(r12)
+/* 8141690C 000E6E2C  7D 89 03 A6 */	mtctr r12
+/* 81416910 000E6E30  4E 80 04 21 */	bctrl
+/* 81416914 000E6E34  48 00 00 60 */	b .L_81416974
+.L_81416918:
+/* 81416918 000E6E38  80 63 00 10 */	lwz r3, 0x10(r3)
+/* 8141691C 000E6E3C  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81416920 000E6E40  41 82 00 20 */	beq .L_81416940
+/* 81416924 000E6E44  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81416928 000E6E48  7F C4 F3 78 */	mr r4, r30
+/* 8141692C 000E6E4C  38 A0 00 00 */	li r5, 0x0
+/* 81416930 000E6E50  38 C0 00 04 */	li r6, 0x4
+/* 81416934 000E6E54  81 8C 00 08 */	lwz r12, 0x8(r12)
+/* 81416938 000E6E58  7D 89 03 A6 */	mtctr r12
+/* 8141693C 000E6E5C  4E 80 04 21 */	bctrl
+.L_81416940:
+/* 81416940 000E6E60  80 7E 00 0C */	lwz r3, 0xc(r30)
+/* 81416944 000E6E64  85 83 00 44 */	lwzu r12, 0x44(r3)
+/* 81416948 000E6E68  80 9E 00 1C */	lwz r4, 0x1c(r30)
+/* 8141694C 000E6E6C  81 8C 00 4C */	lwz r12, 0x4c(r12)
+/* 81416950 000E6E70  80 84 00 04 */	lwz r4, 0x4(r4)
+/* 81416954 000E6E74  7D 89 03 A6 */	mtctr r12
+/* 81416958 000E6E78  4E 80 04 21 */	bctrl
+/* 8141695C 000E6E7C  80 7E 00 1C */	lwz r3, 0x1c(r30)
+/* 81416960 000E6E80  38 80 00 01 */	li r4, 0x1
+/* 81416964 000E6E84  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81416968 000E6E88  81 8C 00 10 */	lwz r12, 0x10(r12)
+/* 8141696C 000E6E8C  7D 89 03 A6 */	mtctr r12
+/* 81416970 000E6E90  4E 80 04 21 */	bctrl
+.L_81416974:
+/* 81416974 000E6E94  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 81416978 000E6E98  83 E1 00 0C */	lwz r31, 0xc(r1)
+/* 8141697C 000E6E9C  83 C1 00 08 */	lwz r30, 0x8(r1)
+/* 81416980 000E6EA0  7C 08 03 A6 */	mtlr r0
+/* 81416984 000E6EA4  38 21 00 10 */	addi r1, r1, 0x10
+/* 81416988 000E6EA8  4E 80 00 20 */	blr
+.endfn onGUIEvent__Q49textinput8keyboard6pctype16UIModifierButtonFRQ39textinput3gui13PaneComponentUlPQ49textinput11nw4rmanager14TiEventHandler5Input
+
+# .text:0x67B4 | 0x8141698C | size: 0x70
+# textinput::keyboard::pctype::UIModePanel::UIModePanel(unsigned long, textinput::keyboard::pctype::LayoutByNW4R*, textinput::keyboard::pctype::UIObj::Listener*)
+.fn __ct__Q49textinput8keyboard6pctype11UIModePanelFUlPQ49textinput8keyboard6pctype12LayoutByNW4RPQ59textinput8keyboard6pctype5UIObj8Listener, global
+/* 8141698C 000E6EAC  3C E0 81 66 */	lis r7, __vt__Q49textinput8keyboard6pctype11UIModePanel@ha
+/* 81416990 000E6EB0  38 00 00 00 */	li r0, 0x0
+/* 81416994 000E6EB4  38 E7 BD 8C */	addi r7, r7, __vt__Q49textinput8keyboard6pctype11UIModePanel@l
+/* 81416998 000E6EB8  90 03 00 04 */	stw r0, 0x4(r3)
+/* 8141699C 000E6EBC  90 83 00 08 */	stw r4, 0x8(r3)
+/* 814169A0 000E6EC0  90 A3 00 0C */	stw r5, 0xc(r3)
+/* 814169A4 000E6EC4  90 C3 00 10 */	stw r6, 0x10(r3)
+/* 814169A8 000E6EC8  90 E3 00 00 */	stw r7, 0x0(r3)
+/* 814169AC 000E6ECC  90 03 00 14 */	stw r0, 0x14(r3)
+/* 814169B0 000E6ED0  90 03 00 54 */	stw r0, 0x54(r3)
+/* 814169B4 000E6ED4  90 03 00 58 */	stw r0, 0x58(r3)
+/* 814169B8 000E6ED8  90 03 00 5C */	stw r0, 0x5c(r3)
+/* 814169BC 000E6EDC  90 03 00 18 */	stw r0, 0x18(r3)
+/* 814169C0 000E6EE0  90 03 00 2C */	stw r0, 0x2c(r3)
+/* 814169C4 000E6EE4  90 03 00 40 */	stw r0, 0x40(r3)
+/* 814169C8 000E6EE8  90 03 00 1C */	stw r0, 0x1c(r3)
+/* 814169CC 000E6EEC  90 03 00 30 */	stw r0, 0x30(r3)
+/* 814169D0 000E6EF0  90 03 00 44 */	stw r0, 0x44(r3)
+/* 814169D4 000E6EF4  90 03 00 20 */	stw r0, 0x20(r3)
+/* 814169D8 000E6EF8  90 03 00 34 */	stw r0, 0x34(r3)
+/* 814169DC 000E6EFC  90 03 00 48 */	stw r0, 0x48(r3)
+/* 814169E0 000E6F00  90 03 00 24 */	stw r0, 0x24(r3)
+/* 814169E4 000E6F04  90 03 00 38 */	stw r0, 0x38(r3)
+/* 814169E8 000E6F08  90 03 00 4C */	stw r0, 0x4c(r3)
+/* 814169EC 000E6F0C  90 03 00 28 */	stw r0, 0x28(r3)
+/* 814169F0 000E6F10  90 03 00 3C */	stw r0, 0x3c(r3)
+/* 814169F4 000E6F14  90 03 00 50 */	stw r0, 0x50(r3)
+/* 814169F8 000E6F18  4E 80 00 20 */	blr
+.endfn __ct__Q49textinput8keyboard6pctype11UIModePanelFUlPQ49textinput8keyboard6pctype12LayoutByNW4RPQ59textinput8keyboard6pctype5UIObj8Listener
+
+# .text:0x6824 | 0x814169FC | size: 0x270
+# textinput::keyboard::pctype::UIModePanel::Create(textinput::nw4rmanager::Layout*)
+.fn Create__Q49textinput8keyboard6pctype11UIModePanelFPQ39textinput11nw4rmanager6Layout, global
+/* 814169FC 000E6F1C  94 21 FF B0 */	stwu r1, -0x50(r1)
+/* 81416A00 000E6F20  7C 08 02 A6 */	mflr r0
+/* 81416A04 000E6F24  90 01 00 54 */	stw r0, 0x54(r1)
+/* 81416A08 000E6F28  39 61 00 50 */	addi r11, r1, 0x50
+/* 81416A0C 000E6F2C  48 1E 2A A9 */	bl _savegpr_24
+/* 81416A10 000E6F30  7C 9F 23 78 */	mr r31, r4
+/* 81416A14 000E6F34  3C 80 81 61 */	lis r4, lbl_81614A98@ha
+/* 81416A18 000E6F38  87 84 4A 98 */	lwzu r28, lbl_81614A98@l(r4)
+/* 81416A1C 000E6F3C  3D 00 81 61 */	lis r8, lbl_81614AAC@ha
+/* 81416A20 000E6F40  84 E8 4A AC */	lwzu r7, lbl_81614AAC@l(r8)
+/* 81416A24 000E6F44  3F 60 81 66 */	lis r27, lbl_81658D90@ha
+/* 81416A28 000E6F48  81 9F 00 00 */	lwz r12, 0x0(r31)
+/* 81416A2C 000E6F4C  7C 7E 1B 78 */	mr r30, r3
+/* 81416A30 000E6F50  83 A4 00 04 */	lwz r29, 0x4(r4)
+/* 81416A34 000E6F54  7F E3 FB 78 */	mr r3, r31
+/* 81416A38 000E6F58  81 64 00 08 */	lwz r11, 0x8(r4)
+/* 81416A3C 000E6F5C  3B 7B 8D 90 */	addi r27, r27, lbl_81658D90@l
+/* 81416A40 000E6F60  81 44 00 0C */	lwz r10, 0xc(r4)
+/* 81416A44 000E6F64  81 24 00 10 */	lwz r9, 0x10(r4)
+/* 81416A48 000E6F68  80 C8 00 04 */	lwz r6, 0x4(r8)
+/* 81416A4C 000E6F6C  80 A8 00 08 */	lwz r5, 0x8(r8)
+/* 81416A50 000E6F70  80 88 00 0C */	lwz r4, 0xc(r8)
+/* 81416A54 000E6F74  80 08 00 10 */	lwz r0, 0x10(r8)
+/* 81416A58 000E6F78  81 8C 00 6C */	lwz r12, 0x6c(r12)
+/* 81416A5C 000E6F7C  93 81 00 1C */	stw r28, 0x1c(r1)
+/* 81416A60 000E6F80  93 A1 00 20 */	stw r29, 0x20(r1)
+/* 81416A64 000E6F84  91 61 00 24 */	stw r11, 0x24(r1)
+/* 81416A68 000E6F88  91 41 00 28 */	stw r10, 0x28(r1)
+/* 81416A6C 000E6F8C  91 21 00 2C */	stw r9, 0x2c(r1)
+/* 81416A70 000E6F90  90 E1 00 08 */	stw r7, 0x8(r1)
+/* 81416A74 000E6F94  90 C1 00 0C */	stw r6, 0xc(r1)
+/* 81416A78 000E6F98  90 A1 00 10 */	stw r5, 0x10(r1)
+/* 81416A7C 000E6F9C  90 81 00 14 */	stw r4, 0x14(r1)
+/* 81416A80 000E6FA0  90 01 00 18 */	stw r0, 0x18(r1)
+/* 81416A84 000E6FA4  7D 89 03 A6 */	mtctr r12
+/* 81416A88 000E6FA8  4E 80 04 21 */	bctrl
+/* 81416A8C 000E6FAC  7C 79 1B 78 */	mr r25, r3
+/* 81416A90 000E6FB0  7F DD F3 78 */	mr r29, r30
+/* 81416A94 000E6FB4  3B 81 00 1C */	addi r28, r1, 0x1c
+/* 81416A98 000E6FB8  3B 41 00 08 */	addi r26, r1, 0x8
+/* 81416A9C 000E6FBC  3B 00 00 00 */	li r24, 0x0
+.L_81416AA0:
+/* 81416AA0 000E6FC0  80 9C 00 00 */	lwz r4, 0x0(r28)
+/* 81416AA4 000E6FC4  7F 23 CB 78 */	mr r3, r25
+/* 81416AA8 000E6FC8  48 03 03 21 */	bl searchPaneComponent__Q39textinput3gui11PaneManagerFPCc
+/* 81416AAC 000E6FCC  90 7D 00 18 */	stw r3, 0x18(r29)
+/* 81416AB0 000E6FD0  7F 23 CB 78 */	mr r3, r25
+/* 81416AB4 000E6FD4  80 9A 00 00 */	lwz r4, 0x0(r26)
+/* 81416AB8 000E6FD8  48 03 03 11 */	bl searchPaneComponent__Q39textinput3gui11PaneManagerFPCc
+/* 81416ABC 000E6FDC  90 7D 00 2C */	stw r3, 0x2c(r29)
+/* 81416AC0 000E6FE0  7F E3 FB 78 */	mr r3, r31
+/* 81416AC4 000E6FE4  80 9C 00 00 */	lwz r4, 0x0(r28)
+/* 81416AC8 000E6FE8  81 9F 00 00 */	lwz r12, 0x0(r31)
+/* 81416ACC 000E6FEC  81 8C 00 60 */	lwz r12, 0x60(r12)
+/* 81416AD0 000E6FF0  7D 89 03 A6 */	mtctr r12
+/* 81416AD4 000E6FF4  4E 80 04 21 */	bctrl
+/* 81416AD8 000E6FF8  90 7D 00 40 */	stw r3, 0x40(r29)
+/* 81416ADC 000E6FFC  3B 18 00 01 */	addi r24, r24, 0x1
+/* 81416AE0 000E7000  28 18 00 05 */	cmplwi r24, 0x5
+/* 81416AE4 000E7004  3B 9C 00 04 */	addi r28, r28, 0x4
+/* 81416AE8 000E7008  80 7D 00 2C */	lwz r3, 0x2c(r29)
+/* 81416AEC 000E700C  3B BD 00 04 */	addi r29, r29, 0x4
+/* 81416AF0 000E7010  3B 5A 00 04 */	addi r26, r26, 0x4
+/* 81416AF4 000E7014  93 C3 00 98 */	stw r30, 0x98(r3)
+/* 81416AF8 000E7018  41 80 FF A8 */	blt .L_81416AA0
+/* 81416AFC 000E701C  81 9F 00 00 */	lwz r12, 0x0(r31)
+/* 81416B00 000E7020  7F E3 FB 78 */	mr r3, r31
+/* 81416B04 000E7024  81 8C 00 28 */	lwz r12, 0x28(r12)
+/* 81416B08 000E7028  7D 89 03 A6 */	mtctr r12
+/* 81416B0C 000E702C  4E 80 04 21 */	bctrl
+/* 81416B10 000E7030  83 83 00 10 */	lwz r28, 0x10(r3)
+/* 81416B14 000E7034  38 9B 2D 54 */	addi r4, r27, 0x2d54
+/* 81416B18 000E7038  38 A0 00 01 */	li r5, 0x1
+/* 81416B1C 000E703C  81 9C 00 00 */	lwz r12, 0x0(r28)
+/* 81416B20 000E7040  7F 83 E3 78 */	mr r3, r28
+/* 81416B24 000E7044  81 8C 00 3C */	lwz r12, 0x3c(r12)
+/* 81416B28 000E7048  7D 89 03 A6 */	mtctr r12
+/* 81416B2C 000E704C  4E 80 04 21 */	bctrl
+/* 81416B30 000E7050  90 7E 00 54 */	stw r3, 0x54(r30)
+/* 81416B34 000E7054  7F 83 E3 78 */	mr r3, r28
+/* 81416B38 000E7058  38 9B 2D 64 */	addi r4, r27, 0x2d64
+/* 81416B3C 000E705C  38 A0 00 01 */	li r5, 0x1
+/* 81416B40 000E7060  81 9C 00 00 */	lwz r12, 0x0(r28)
+/* 81416B44 000E7064  81 8C 00 3C */	lwz r12, 0x3c(r12)
+/* 81416B48 000E7068  7D 89 03 A6 */	mtctr r12
+/* 81416B4C 000E706C  4E 80 04 21 */	bctrl
+/* 81416B50 000E7070  90 7E 00 58 */	stw r3, 0x58(r30)
+/* 81416B54 000E7074  7F 83 E3 78 */	mr r3, r28
+/* 81416B58 000E7078  38 9B 2D 78 */	addi r4, r27, 0x2d78
+/* 81416B5C 000E707C  38 A0 00 01 */	li r5, 0x1
+/* 81416B60 000E7080  81 9C 00 00 */	lwz r12, 0x0(r28)
+/* 81416B64 000E7084  81 8C 00 3C */	lwz r12, 0x3c(r12)
+/* 81416B68 000E7088  7D 89 03 A6 */	mtctr r12
+/* 81416B6C 000E708C  4E 80 04 21 */	bctrl
+/* 81416B70 000E7090  90 7E 00 5C */	stw r3, 0x5c(r30)
+/* 81416B74 000E7094  7F 83 E3 78 */	mr r3, r28
+/* 81416B78 000E7098  38 9B 2D 54 */	addi r4, r27, 0x2d54
+/* 81416B7C 000E709C  38 A0 00 01 */	li r5, 0x1
+/* 81416B80 000E70A0  81 9C 00 00 */	lwz r12, 0x0(r28)
+/* 81416B84 000E70A4  81 8C 00 3C */	lwz r12, 0x3c(r12)
+/* 81416B88 000E70A8  7D 89 03 A6 */	mtctr r12
+/* 81416B8C 000E70AC  4E 80 04 21 */	bctrl
+/* 81416B90 000E70B0  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81416B94 000E70B4  81 8C 00 5C */	lwz r12, 0x5c(r12)
+/* 81416B98 000E70B8  7D 89 03 A6 */	mtctr r12
+/* 81416B9C 000E70BC  4E 80 04 21 */	bctrl
+/* 81416BA0 000E70C0  38 9E 00 A0 */	addi r4, r30, 0xa0
+/* 81416BA4 000E70C4  38 A0 00 00 */	li r5, 0x0
+/* 81416BA8 000E70C8  48 11 11 85 */	bl GetTexture__Q34nw4r3lyt8MaterialCFP9_GXTexObjUc
+/* 81416BAC 000E70CC  81 9C 00 00 */	lwz r12, 0x0(r28)
+/* 81416BB0 000E70D0  7F 83 E3 78 */	mr r3, r28
+/* 81416BB4 000E70D4  38 9B 2D 64 */	addi r4, r27, 0x2d64
+/* 81416BB8 000E70D8  38 A0 00 01 */	li r5, 0x1
+/* 81416BBC 000E70DC  81 8C 00 3C */	lwz r12, 0x3c(r12)
+/* 81416BC0 000E70E0  7D 89 03 A6 */	mtctr r12
+/* 81416BC4 000E70E4  4E 80 04 21 */	bctrl
+/* 81416BC8 000E70E8  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81416BCC 000E70EC  81 8C 00 5C */	lwz r12, 0x5c(r12)
+/* 81416BD0 000E70F0  7D 89 03 A6 */	mtctr r12
+/* 81416BD4 000E70F4  4E 80 04 21 */	bctrl
+/* 81416BD8 000E70F8  38 9E 00 C0 */	addi r4, r30, 0xc0
+/* 81416BDC 000E70FC  38 A0 00 00 */	li r5, 0x0
+/* 81416BE0 000E7100  48 11 11 4D */	bl GetTexture__Q34nw4r3lyt8MaterialCFP9_GXTexObjUc
+/* 81416BE4 000E7104  81 9C 00 00 */	lwz r12, 0x0(r28)
+/* 81416BE8 000E7108  7F 83 E3 78 */	mr r3, r28
+/* 81416BEC 000E710C  38 9B 2D 88 */	addi r4, r27, 0x2d88
+/* 81416BF0 000E7110  38 A0 00 01 */	li r5, 0x1
+/* 81416BF4 000E7114  81 8C 00 3C */	lwz r12, 0x3c(r12)
+/* 81416BF8 000E7118  7D 89 03 A6 */	mtctr r12
+/* 81416BFC 000E711C  4E 80 04 21 */	bctrl
+/* 81416C00 000E7120  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81416C04 000E7124  81 8C 00 5C */	lwz r12, 0x5c(r12)
+/* 81416C08 000E7128  7D 89 03 A6 */	mtctr r12
+/* 81416C0C 000E712C  4E 80 04 21 */	bctrl
+/* 81416C10 000E7130  38 9E 00 60 */	addi r4, r30, 0x60
+/* 81416C14 000E7134  38 A0 00 00 */	li r5, 0x0
+/* 81416C18 000E7138  48 11 11 15 */	bl GetTexture__Q34nw4r3lyt8MaterialCFP9_GXTexObjUc
+/* 81416C1C 000E713C  81 9C 00 00 */	lwz r12, 0x0(r28)
+/* 81416C20 000E7140  7F 83 E3 78 */	mr r3, r28
+/* 81416C24 000E7144  38 9B 2D 98 */	addi r4, r27, 0x2d98
+/* 81416C28 000E7148  38 A0 00 01 */	li r5, 0x1
+/* 81416C2C 000E714C  81 8C 00 3C */	lwz r12, 0x3c(r12)
+/* 81416C30 000E7150  7D 89 03 A6 */	mtctr r12
+/* 81416C34 000E7154  4E 80 04 21 */	bctrl
+/* 81416C38 000E7158  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81416C3C 000E715C  81 8C 00 5C */	lwz r12, 0x5c(r12)
+/* 81416C40 000E7160  7D 89 03 A6 */	mtctr r12
+/* 81416C44 000E7164  4E 80 04 21 */	bctrl
+/* 81416C48 000E7168  38 9E 00 80 */	addi r4, r30, 0x80
+/* 81416C4C 000E716C  38 A0 00 00 */	li r5, 0x0
+/* 81416C50 000E7170  48 11 10 DD */	bl GetTexture__Q34nw4r3lyt8MaterialCFP9_GXTexObjUc
+/* 81416C54 000E7174  39 61 00 50 */	addi r11, r1, 0x50
+/* 81416C58 000E7178  48 1E 28 A9 */	bl _restgpr_24
+/* 81416C5C 000E717C  80 01 00 54 */	lwz r0, 0x54(r1)
+/* 81416C60 000E7180  7C 08 03 A6 */	mtlr r0
+/* 81416C64 000E7184  38 21 00 50 */	addi r1, r1, 0x50
+/* 81416C68 000E7188  4E 80 00 20 */	blr
+.endfn Create__Q49textinput8keyboard6pctype11UIModePanelFPQ39textinput11nw4rmanager6Layout
+
+# .text:0x6A94 | 0x81416C6C | size: 0x4
+# textinput::keyboard::pctype::UIModePanel::onGUIEvent(textinput::gui::PaneComponent&, unsigned long, textinput::nw4rmanager::TiEventHandler::Input*)
+.fn onGUIEvent__Q49textinput8keyboard6pctype11UIModePanelFRQ39textinput3gui13PaneComponentUlPQ49textinput11nw4rmanager14TiEventHandler5Input, global
+/* 81416C6C 000E718C  4E 80 00 20 */	blr
+.endfn onGUIEvent__Q49textinput8keyboard6pctype11UIModePanelFRQ39textinput3gui13PaneComponentUlPQ49textinput11nw4rmanager14TiEventHandler5Input
+
+# .text:0x6A98 | 0x81416C70 | size: 0x4
+# textinput::keyboard::KeyboardBase::update()
+.fn update__Q39textinput8keyboard12KeyboardBaseFv, global
+/* 81416C70 000E7190  4E 80 00 20 */	blr
+.endfn update__Q39textinput8keyboard12KeyboardBaseFv
+
+# .text:0x6A9C | 0x81416C74 | size: 0x8
+# textinput::nw4rmanager::Layout::getAnmPaneList()
+.fn getAnmPaneList__Q39textinput11nw4rmanager6LayoutFv, global
+/* 81416C74 000E7194  38 63 00 6C */	addi r3, r3, 0x6c
+/* 81416C78 000E7198  4E 80 00 20 */	blr
+.endfn getAnmPaneList__Q39textinput11nw4rmanager6LayoutFv
+
+# .text:0x6AA4 | 0x81416C7C | size: 0x8
+# textinput::nw4rmanager::Layout::setAnimOn(bool)
+.fn setAnimOn__Q39textinput11nw4rmanager6LayoutFb, global
+/* 81416C7C 000E719C  98 83 00 88 */	stb r4, 0x88(r3)
+/* 81416C80 000E71A0  4E 80 00 20 */	blr
+.endfn setAnimOn__Q39textinput11nw4rmanager6LayoutFb
+
+# .text:0x6AAC | 0x81416C84 | size: 0x6C
+# textinput::nw4rmanager::AnmPane::searchAnimation(unsigned long)
+.fn searchAnimation__Q39textinput11nw4rmanager7AnmPaneFUl, global
+/* 81416C84 000E71A4  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 81416C88 000E71A8  7C 08 02 A6 */	mflr r0
+/* 81416C8C 000E71AC  90 01 00 14 */	stw r0, 0x14(r1)
+/* 81416C90 000E71B0  93 E1 00 0C */	stw r31, 0xc(r1)
+/* 81416C94 000E71B4  7C 9F 23 78 */	mr r31, r4
+/* 81416C98 000E71B8  38 80 00 00 */	li r4, 0x0
+/* 81416C9C 000E71BC  93 C1 00 08 */	stw r30, 0x8(r1)
+/* 81416CA0 000E71C0  7C 7E 1B 78 */	mr r30, r3
+/* 81416CA4 000E71C4  38 63 00 08 */	addi r3, r3, 0x8
+/* 81416CA8 000E71C8  48 0F B6 35 */	bl List_GetNext__Q24nw4r2utFPCQ34nw4r2ut4ListPCv
+/* 81416CAC 000E71CC  48 00 00 20 */	b .L_81416CCC
+.L_81416CB0:
+/* 81416CB0 000E71D0  80 03 00 04 */	lwz r0, 0x4(r3)
+/* 81416CB4 000E71D4  7C 00 F8 40 */	cmplw r0, r31
+/* 81416CB8 000E71D8  40 82 00 08 */	bne .L_81416CC0
+/* 81416CBC 000E71DC  48 00 00 1C */	b .L_81416CD8
+.L_81416CC0:
+/* 81416CC0 000E71E0  7C 64 1B 78 */	mr r4, r3
+/* 81416CC4 000E71E4  38 7E 00 08 */	addi r3, r30, 0x8
+/* 81416CC8 000E71E8  48 0F B6 15 */	bl List_GetNext__Q24nw4r2utFPCQ34nw4r2ut4ListPCv
+.L_81416CCC:
+/* 81416CCC 000E71EC  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81416CD0 000E71F0  40 82 FF E0 */	bne .L_81416CB0
+/* 81416CD4 000E71F4  38 60 00 00 */	li r3, 0x0
+.L_81416CD8:
+/* 81416CD8 000E71F8  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 81416CDC 000E71FC  83 E1 00 0C */	lwz r31, 0xc(r1)
+/* 81416CE0 000E7200  83 C1 00 08 */	lwz r30, 0x8(r1)
+/* 81416CE4 000E7204  7C 08 03 A6 */	mtlr r0
+/* 81416CE8 000E7208  38 21 00 10 */	addi r1, r1, 0x10
+/* 81416CEC 000E720C  4E 80 00 20 */	blr
+.endfn searchAnimation__Q39textinput11nw4rmanager7AnmPaneFUl
+
+# .text:0x6B18 | 0x81416CF0 | size: 0x14
+# textinput::nw4rmanager::AnmPane::isInAnimation()
+.fn isInAnimation__Q39textinput11nw4rmanager7AnmPaneFv, global
+/* 81416CF0 000E7210  80 63 00 14 */	lwz r3, 0x14(r3)
+/* 81416CF4 000E7214  7C 03 00 D0 */	neg r0, r3
+/* 81416CF8 000E7218  7C 00 1B 78 */	or r0, r0, r3
+/* 81416CFC 000E721C  54 03 0F FE */	srwi r3, r0, 31
+/* 81416D00 000E7220  4E 80 00 20 */	blr
+.endfn isInAnimation__Q39textinput11nw4rmanager7AnmPaneFv
+
+# .text:0x6B2C | 0x81416D04 | size: 0x8
+# textinput::gui::EventHandler::getLatestEventCtrlNo()
+.fn getLatestEventCtrlNo__Q39textinput3gui12EventHandlerFv, global
+/* 81416D04 000E7224  80 63 00 04 */	lwz r3, 0x4(r3)
+/* 81416D08 000E7228  4E 80 00 20 */	blr
+.endfn getLatestEventCtrlNo__Q39textinput3gui12EventHandlerFv
+
+# .text:0x6B34 | 0x81416D0C | size: 0x8
+# textinput::gui::EventHandler::setLatestEventCtrlNo(int)
+.fn setLatestEventCtrlNo__Q39textinput3gui12EventHandlerFi, global
+/* 81416D0C 000E722C  90 83 00 04 */	stw r4, 0x4(r3)
+/* 81416D10 000E7230  4E 80 00 20 */	blr
+.endfn setLatestEventCtrlNo__Q39textinput3gui12EventHandlerFi
+
+# .text:0x6B3C | 0x81416D14 | size: 0x38
+# textinput::keyboard::pctype::Base::getAIUInputMode() const
+.fn getAIUInputMode__Q49textinput8keyboard6pctype4BaseCFv, global
+/* 81416D14 000E7234  80 03 00 28 */	lwz r0, 0x28(r3)
+/* 81416D18 000E7238  54 00 07 3E */	clrlwi r0, r0, 28
+/* 81416D1C 000E723C  2C 00 00 01 */	cmpwi r0, 0x1
+/* 81416D20 000E7240  41 82 00 1C */	beq .L_81416D3C
+/* 81416D24 000E7244  40 80 00 20 */	bge .L_81416D44
+/* 81416D28 000E7248  2C 00 00 00 */	cmpwi r0, 0x0
+/* 81416D2C 000E724C  40 80 00 08 */	bge .L_81416D34
+/* 81416D30 000E7250  48 00 00 14 */	b .L_81416D44
+.L_81416D34:
+/* 81416D34 000E7254  38 60 00 06 */	li r3, 0x6
+/* 81416D38 000E7258  4E 80 00 20 */	blr
+.L_81416D3C:
+/* 81416D3C 000E725C  38 60 00 07 */	li r3, 0x7
+/* 81416D40 000E7260  4E 80 00 20 */	blr
+.L_81416D44:
+/* 81416D44 000E7264  38 60 00 06 */	li r3, 0x6
+/* 81416D48 000E7268  4E 80 00 20 */	blr
+.endfn getAIUInputMode__Q49textinput8keyboard6pctype4BaseCFv
+
+# .text:0x6B74 | 0x81416D4C | size: 0x8
+# textinput::keyboard::pctype::Base::getABCInputMode() const
+.fn getABCInputMode__Q49textinput8keyboard6pctype4BaseCFv, global
+/* 81416D4C 000E726C  38 60 00 00 */	li r3, 0x0
+/* 81416D50 000E7270  4E 80 00 20 */	blr
+.endfn getABCInputMode__Q49textinput8keyboard6pctype4BaseCFv
+
+# .text:0x6B7C | 0x81416D54 | size: 0x8
+# textinput::keyboard::pctype::Base::getState()
+.fn getState__Q49textinput8keyboard6pctype4BaseFv, global
+/* 81416D54 000E7274  38 63 00 14 */	addi r3, r3, 0x14
+/* 81416D58 000E7278  4E 80 00 20 */	blr
+.endfn getState__Q49textinput8keyboard6pctype4BaseFv
+
+# .text:0x6B84 | 0x81416D5C | size: 0x8
+# textinput::keyboard::pctype::Base::getType()
+.fn getType__Q49textinput8keyboard6pctype4BaseFv, global
+/* 81416D5C 000E727C  38 60 00 00 */	li r3, 0x0
+/* 81416D60 000E7280  4E 80 00 20 */	blr
+.endfn getType__Q49textinput8keyboard6pctype4BaseFv
+
+# .text:0x6B8C | 0x81416D64 | size: 0x1C
+# textinput::keyboard::pctype::LayoutByNW4R::setInputModeCK(unsigned long)
+.fn setInputModeCK__Q49textinput8keyboard6pctype12LayoutByNW4RFUl, global
+/* 81416D64 000E7284  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81416D68 000E7288  7C 85 23 78 */	mr r5, r4
+/* 81416D6C 000E728C  38 80 00 01 */	li r4, 0x1
+/* 81416D70 000E7290  38 C0 00 00 */	li r6, 0x0
+/* 81416D74 000E7294  81 8C 00 68 */	lwz r12, 0x68(r12)
+/* 81416D78 000E7298  7D 89 03 A6 */	mtctr r12
+/* 81416D7C 000E729C  4E 80 04 20 */	bctr
+.endfn setInputModeCK__Q49textinput8keyboard6pctype12LayoutByNW4RFUl
+
+# .text:0x6BA8 | 0x81416D80 | size: 0x8
+# textinput::keyboard::pctype::LayoutByNW4R::setSignWindow(textinput::keyboard::signwindow::LayoutByNW4R*)
+.fn setSignWindow__Q49textinput8keyboard6pctype12LayoutByNW4RFPQ49textinput8keyboard10signwindow12LayoutByNW4R, global
+/* 81416D80 000E72A0  90 83 00 F8 */	stw r4, 0xf8(r3)
+/* 81416D84 000E72A4  4E 80 00 20 */	blr
+.endfn setSignWindow__Q49textinput8keyboard6pctype12LayoutByNW4RFPQ49textinput8keyboard10signwindow12LayoutByNW4R
+
+# .text:0x6BB0 | 0x81416D88 | size: 0x8
+# textinput::keyboard::pctype::LayoutByNW4R::setPredictLanguageDialog(textinput::predictlang::LayoutByNW4R*)
+.fn setPredictLanguageDialog__Q49textinput8keyboard6pctype12LayoutByNW4RFPQ39textinput11predictlang12LayoutByNW4R, global
+/* 81416D88 000E72A8  90 83 00 F4 */	stw r4, 0xf4(r3)
+/* 81416D8C 000E72AC  4E 80 00 20 */	blr
+.endfn setPredictLanguageDialog__Q49textinput8keyboard6pctype12LayoutByNW4RFPQ39textinput11predictlang12LayoutByNW4R
+
+# .text:0x6BB8 | 0x81416D90 | size: 0xC
+# textinput::keyboard::pctype::AnmPane::init()
+.fn init__Q49textinput8keyboard6pctype7AnmPaneFv, global
+/* 81416D90 000E72B0  38 00 00 00 */	li r0, 0x0
+/* 81416D94 000E72B4  90 03 00 2C */	stw r0, 0x2c(r3)
+/* 81416D98 000E72B8  4E 80 00 20 */	blr
+.endfn init__Q49textinput8keyboard6pctype7AnmPaneFv
+
+# .text:0x6BC4 | 0x81416D9C | size: 0x5C
+# textinput::keyboard::pctype::OnOffButtonAnmPane::~OnOffButtonAnmPane()
+.fn __dt__Q49textinput8keyboard6pctype18OnOffButtonAnmPaneFv, global
+/* 81416D9C 000E72BC  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 81416DA0 000E72C0  7C 08 02 A6 */	mflr r0
+/* 81416DA4 000E72C4  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81416DA8 000E72C8  90 01 00 14 */	stw r0, 0x14(r1)
+/* 81416DAC 000E72CC  93 E1 00 0C */	stw r31, 0xc(r1)
+/* 81416DB0 000E72D0  7C 9F 23 78 */	mr r31, r4
+/* 81416DB4 000E72D4  93 C1 00 08 */	stw r30, 0x8(r1)
+/* 81416DB8 000E72D8  7C 7E 1B 78 */	mr r30, r3
+/* 81416DBC 000E72DC  41 82 00 20 */	beq .L_81416DDC
+/* 81416DC0 000E72E0  41 82 00 0C */	beq .L_81416DCC
+/* 81416DC4 000E72E4  38 80 00 00 */	li r4, 0x0
+/* 81416DC8 000E72E8  48 02 01 59 */	bl __dt__Q39textinput11nw4rmanager7AnmPaneFv
+.L_81416DCC:
+/* 81416DCC 000E72EC  2C 1F 00 00 */	cmpwi r31, 0x0
+/* 81416DD0 000E72F0  40 81 00 0C */	ble .L_81416DDC
+/* 81416DD4 000E72F4  7F C3 F3 78 */	mr r3, r30
+/* 81416DD8 000E72F8  48 1E 13 0D */	bl __dl__FPv
+.L_81416DDC:
+/* 81416DDC 000E72FC  7F C3 F3 78 */	mr r3, r30
+/* 81416DE0 000E7300  83 E1 00 0C */	lwz r31, 0xc(r1)
+/* 81416DE4 000E7304  83 C1 00 08 */	lwz r30, 0x8(r1)
+/* 81416DE8 000E7308  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 81416DEC 000E730C  7C 08 03 A6 */	mtlr r0
+/* 81416DF0 000E7310  38 21 00 10 */	addi r1, r1, 0x10
+/* 81416DF4 000E7314  4E 80 00 20 */	blr
+.endfn __dt__Q49textinput8keyboard6pctype18OnOffButtonAnmPaneFv
+
+# .text:0x6C20 | 0x81416DF8 | size: 0x5C
+# textinput::keyboard::pctype::ToggleButtonAnmPane::~ToggleButtonAnmPane()
+.fn __dt__Q49textinput8keyboard6pctype19ToggleButtonAnmPaneFv, global
+/* 81416DF8 000E7318  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 81416DFC 000E731C  7C 08 02 A6 */	mflr r0
+/* 81416E00 000E7320  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81416E04 000E7324  90 01 00 14 */	stw r0, 0x14(r1)
+/* 81416E08 000E7328  93 E1 00 0C */	stw r31, 0xc(r1)
+/* 81416E0C 000E732C  7C 9F 23 78 */	mr r31, r4
+/* 81416E10 000E7330  93 C1 00 08 */	stw r30, 0x8(r1)
+/* 81416E14 000E7334  7C 7E 1B 78 */	mr r30, r3
+/* 81416E18 000E7338  41 82 00 20 */	beq .L_81416E38
+/* 81416E1C 000E733C  41 82 00 0C */	beq .L_81416E28
+/* 81416E20 000E7340  38 80 00 00 */	li r4, 0x0
+/* 81416E24 000E7344  48 02 00 FD */	bl __dt__Q39textinput11nw4rmanager7AnmPaneFv
+.L_81416E28:
+/* 81416E28 000E7348  2C 1F 00 00 */	cmpwi r31, 0x0
+/* 81416E2C 000E734C  40 81 00 0C */	ble .L_81416E38
+/* 81416E30 000E7350  7F C3 F3 78 */	mr r3, r30
+/* 81416E34 000E7354  48 1E 12 B1 */	bl __dl__FPv
+.L_81416E38:
+/* 81416E38 000E7358  7F C3 F3 78 */	mr r3, r30
+/* 81416E3C 000E735C  83 E1 00 0C */	lwz r31, 0xc(r1)
+/* 81416E40 000E7360  83 C1 00 08 */	lwz r30, 0x8(r1)
+/* 81416E44 000E7364  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 81416E48 000E7368  7C 08 03 A6 */	mtlr r0
+/* 81416E4C 000E736C  38 21 00 10 */	addi r1, r1, 0x10
+/* 81416E50 000E7370  4E 80 00 20 */	blr
+.endfn __dt__Q49textinput8keyboard6pctype19ToggleButtonAnmPaneFv
+
+# .text:0x6C7C | 0x81416E54 | size: 0x5C
+# textinput::keyboard::pctype::ShiftCapsAnmPane::~ShiftCapsAnmPane()
+.fn __dt__Q49textinput8keyboard6pctype16ShiftCapsAnmPaneFv, global
+/* 81416E54 000E7374  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 81416E58 000E7378  7C 08 02 A6 */	mflr r0
+/* 81416E5C 000E737C  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81416E60 000E7380  90 01 00 14 */	stw r0, 0x14(r1)
+/* 81416E64 000E7384  93 E1 00 0C */	stw r31, 0xc(r1)
+/* 81416E68 000E7388  7C 9F 23 78 */	mr r31, r4
+/* 81416E6C 000E738C  93 C1 00 08 */	stw r30, 0x8(r1)
+/* 81416E70 000E7390  7C 7E 1B 78 */	mr r30, r3
+/* 81416E74 000E7394  41 82 00 20 */	beq .L_81416E94
+/* 81416E78 000E7398  41 82 00 0C */	beq .L_81416E84
+/* 81416E7C 000E739C  38 80 00 00 */	li r4, 0x0
+/* 81416E80 000E73A0  48 02 00 A1 */	bl __dt__Q39textinput11nw4rmanager7AnmPaneFv
+.L_81416E84:
+/* 81416E84 000E73A4  2C 1F 00 00 */	cmpwi r31, 0x0
+/* 81416E88 000E73A8  40 81 00 0C */	ble .L_81416E94
+/* 81416E8C 000E73AC  7F C3 F3 78 */	mr r3, r30
+/* 81416E90 000E73B0  48 1E 12 55 */	bl __dl__FPv
+.L_81416E94:
+/* 81416E94 000E73B4  7F C3 F3 78 */	mr r3, r30
+/* 81416E98 000E73B8  83 E1 00 0C */	lwz r31, 0xc(r1)
+/* 81416E9C 000E73BC  83 C1 00 08 */	lwz r30, 0x8(r1)
+/* 81416EA0 000E73C0  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 81416EA4 000E73C4  7C 08 03 A6 */	mtlr r0
+/* 81416EA8 000E73C8  38 21 00 10 */	addi r1, r1, 0x10
+/* 81416EAC 000E73CC  4E 80 00 20 */	blr
+.endfn __dt__Q49textinput8keyboard6pctype16ShiftCapsAnmPaneFv
+
+# .text:0x6CD8 | 0x81416EB0 | size: 0x5C
+# textinput::keyboard::pctype::NormalButtonAnmPane::~NormalButtonAnmPane()
+.fn __dt__Q49textinput8keyboard6pctype19NormalButtonAnmPaneFv, global
+/* 81416EB0 000E73D0  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 81416EB4 000E73D4  7C 08 02 A6 */	mflr r0
+/* 81416EB8 000E73D8  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81416EBC 000E73DC  90 01 00 14 */	stw r0, 0x14(r1)
+/* 81416EC0 000E73E0  93 E1 00 0C */	stw r31, 0xc(r1)
+/* 81416EC4 000E73E4  7C 9F 23 78 */	mr r31, r4
+/* 81416EC8 000E73E8  93 C1 00 08 */	stw r30, 0x8(r1)
+/* 81416ECC 000E73EC  7C 7E 1B 78 */	mr r30, r3
+/* 81416ED0 000E73F0  41 82 00 20 */	beq .L_81416EF0
+/* 81416ED4 000E73F4  41 82 00 0C */	beq .L_81416EE0
+/* 81416ED8 000E73F8  38 80 00 00 */	li r4, 0x0
+/* 81416EDC 000E73FC  48 02 00 45 */	bl __dt__Q39textinput11nw4rmanager7AnmPaneFv
+.L_81416EE0:
+/* 81416EE0 000E7400  2C 1F 00 00 */	cmpwi r31, 0x0
+/* 81416EE4 000E7404  40 81 00 0C */	ble .L_81416EF0
+/* 81416EE8 000E7408  7F C3 F3 78 */	mr r3, r30
+/* 81416EEC 000E740C  48 1E 11 F9 */	bl __dl__FPv
+.L_81416EF0:
+/* 81416EF0 000E7410  7F C3 F3 78 */	mr r3, r30
+/* 81416EF4 000E7414  83 E1 00 0C */	lwz r31, 0xc(r1)
+/* 81416EF8 000E7418  83 C1 00 08 */	lwz r30, 0x8(r1)
+/* 81416EFC 000E741C  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 81416F00 000E7420  7C 08 03 A6 */	mtlr r0
+/* 81416F04 000E7424  38 21 00 10 */	addi r1, r1, 0x10
+/* 81416F08 000E7428  4E 80 00 20 */	blr
+.endfn __dt__Q49textinput8keyboard6pctype19NormalButtonAnmPaneFv
+
+# .text:0x6D34 | 0x81416F0C | size: 0x10
+# textinput::keyboard::pctype::UIObj::onEvent(textinput::gui::GUIComponent&, unsigned long, void*)
+.fn onEvent__Q49textinput8keyboard6pctype5UIObjFRQ39textinput3gui12GUIComponentUlPv, global
+/* 81416F0C 000E742C  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81416F10 000E7430  81 8C 00 18 */	lwz r12, 0x18(r12)
+/* 81416F14 000E7434  7D 89 03 A6 */	mtctr r12
+/* 81416F18 000E7438  4E 80 04 20 */	bctr
+.endfn onEvent__Q49textinput8keyboard6pctype5UIObjFRQ39textinput3gui12GUIComponentUlPv
+
+# .text:0x6D44 | 0x81416F1C | size: 0x4
+# textinput::keyboard::pctype::UIObj::onGUIEvent(textinput::gui::PaneComponent&, unsigned long, textinput::nw4rmanager::TiEventHandler::Input*)
+.fn onGUIEvent__Q49textinput8keyboard6pctype5UIObjFRQ39textinput3gui13PaneComponentUlPQ49textinput11nw4rmanager14TiEventHandler5Input, global
+/* 81416F1C 000E743C  4E 80 00 20 */	blr
+.endfn onGUIEvent__Q49textinput8keyboard6pctype5UIObjFRQ39textinput3gui13PaneComponentUlPQ49textinput11nw4rmanager14TiEventHandler5Input
+
+# .text:0x6D48 | 0x81416F20 | size: 0x8
+# textinput::nw4rmanager::TiEventHandler::setEventObserver(textinput::EventObserver*)
+.fn setEventObserver__Q39textinput11nw4rmanager14TiEventHandlerFPQ29textinput13EventObserver, global
+/* 81416F20 000E7440  90 83 00 08 */	stw r4, 0x8(r3)
+/* 81416F24 000E7444  4E 80 00 20 */	blr
+.endfn setEventObserver__Q39textinput11nw4rmanager14TiEventHandlerFPQ29textinput13EventObserver
+
+# .text:0x6D50 | 0x81416F28 | size: 0x4
+# textinput::keyboard::pctype::Base::setInputModeCK(unsigned long)
+.fn setInputModeCK__Q49textinput8keyboard6pctype4BaseFUl, global
+/* 81416F28 000E7448  4E 80 00 20 */	blr
+.endfn setInputModeCK__Q49textinput8keyboard6pctype4BaseFUl
+
+# .text:0x6D54 | 0x81416F2C | size: 0x4
+# textinput::keyboard::pctype::Base::setInputModeJP(bool, unsigned long, unsigned long)
+.fn setInputModeJP__Q49textinput8keyboard6pctype4BaseFbUlUl, global
+/* 81416F2C 000E744C  4E 80 00 20 */	blr
+.endfn setInputModeJP__Q49textinput8keyboard6pctype4BaseFbUlUl
+
+# .text:0x6D58 | 0x81416F30 | size: 0x4
+# textinput::gui::EventHandler::onEvent(textinput::gui::GUIComponent&, unsigned long, void*)
+.fn onEvent__Q39textinput3gui12EventHandlerFRQ39textinput3gui12GUIComponentUlPv, global
+/* 81416F30 000E7450  4E 80 00 20 */	blr
+.endfn onEvent__Q39textinput3gui12EventHandlerFRQ39textinput3gui12GUIComponentUlPv
+
+# .text:0x6D5C | 0x81416F34 | size: 0x1B0
+.fn "__sinit_\tiPcKeyboard_cpp", global
+/* 81416F34 000E7454  3C 60 81 66 */	lis r3, csPaneToAnimation__Q39textinput8keyboard6pctype@ha
+/* 81416F38 000E7458  80 0D 92 C0 */	lwz r0, lbl_81697300@sda21(r0)
+/* 81416F3C 000E745C  38 63 95 A0 */	addi r3, r3, csPaneToAnimation__Q39textinput8keyboard6pctype@l
+/* 81416F40 000E7460  90 03 00 4C */	stw r0, 0x4c(r3)
+/* 81416F44 000E7464  90 03 00 8C */	stw r0, 0x8c(r3)
+/* 81416F48 000E7468  90 03 00 CC */	stw r0, 0xcc(r3)
+/* 81416F4C 000E746C  90 03 01 0C */	stw r0, 0x10c(r3)
+/* 81416F50 000E7470  90 03 01 4C */	stw r0, 0x14c(r3)
+/* 81416F54 000E7474  90 03 01 8C */	stw r0, 0x18c(r3)
+/* 81416F58 000E7478  90 03 01 CC */	stw r0, 0x1cc(r3)
+/* 81416F5C 000E747C  90 03 02 0C */	stw r0, 0x20c(r3)
+/* 81416F60 000E7480  90 03 02 4C */	stw r0, 0x24c(r3)
+/* 81416F64 000E7484  90 03 02 8C */	stw r0, 0x28c(r3)
+/* 81416F68 000E7488  90 03 02 CC */	stw r0, 0x2cc(r3)
+/* 81416F6C 000E748C  90 03 03 0C */	stw r0, 0x30c(r3)
+/* 81416F70 000E7490  90 03 03 4C */	stw r0, 0x34c(r3)
+/* 81416F74 000E7494  90 03 03 8C */	stw r0, 0x38c(r3)
+/* 81416F78 000E7498  90 03 03 CC */	stw r0, 0x3cc(r3)
+/* 81416F7C 000E749C  90 03 04 0C */	stw r0, 0x40c(r3)
+/* 81416F80 000E74A0  90 03 04 4C */	stw r0, 0x44c(r3)
+/* 81416F84 000E74A4  90 03 04 8C */	stw r0, 0x48c(r3)
+/* 81416F88 000E74A8  90 03 04 CC */	stw r0, 0x4cc(r3)
+/* 81416F8C 000E74AC  90 03 05 0C */	stw r0, 0x50c(r3)
+/* 81416F90 000E74B0  90 03 05 4C */	stw r0, 0x54c(r3)
+/* 81416F94 000E74B4  90 03 05 8C */	stw r0, 0x58c(r3)
+/* 81416F98 000E74B8  90 03 05 CC */	stw r0, 0x5cc(r3)
+/* 81416F9C 000E74BC  90 03 06 0C */	stw r0, 0x60c(r3)
+/* 81416FA0 000E74C0  90 03 06 4C */	stw r0, 0x64c(r3)
+/* 81416FA4 000E74C4  90 03 06 8C */	stw r0, 0x68c(r3)
+/* 81416FA8 000E74C8  90 03 06 CC */	stw r0, 0x6cc(r3)
+/* 81416FAC 000E74CC  90 03 07 0C */	stw r0, 0x70c(r3)
+/* 81416FB0 000E74D0  90 03 07 4C */	stw r0, 0x74c(r3)
+/* 81416FB4 000E74D4  90 03 07 8C */	stw r0, 0x78c(r3)
+/* 81416FB8 000E74D8  90 03 07 CC */	stw r0, 0x7cc(r3)
+/* 81416FBC 000E74DC  90 03 08 0C */	stw r0, 0x80c(r3)
+/* 81416FC0 000E74E0  90 03 08 4C */	stw r0, 0x84c(r3)
+/* 81416FC4 000E74E4  90 03 08 8C */	stw r0, 0x88c(r3)
+/* 81416FC8 000E74E8  90 03 08 CC */	stw r0, 0x8cc(r3)
+/* 81416FCC 000E74EC  90 03 09 0C */	stw r0, 0x90c(r3)
+/* 81416FD0 000E74F0  90 03 09 4C */	stw r0, 0x94c(r3)
+/* 81416FD4 000E74F4  90 03 09 8C */	stw r0, 0x98c(r3)
+/* 81416FD8 000E74F8  90 03 09 CC */	stw r0, 0x9cc(r3)
+/* 81416FDC 000E74FC  90 03 0A 0C */	stw r0, 0xa0c(r3)
+/* 81416FE0 000E7500  90 03 0A 4C */	stw r0, 0xa4c(r3)
+/* 81416FE4 000E7504  90 03 0A 8C */	stw r0, 0xa8c(r3)
+/* 81416FE8 000E7508  90 03 0A CC */	stw r0, 0xacc(r3)
+/* 81416FEC 000E750C  90 03 0B 0C */	stw r0, 0xb0c(r3)
+/* 81416FF0 000E7510  90 03 0B 4C */	stw r0, 0xb4c(r3)
+/* 81416FF4 000E7514  90 03 0B 8C */	stw r0, 0xb8c(r3)
+/* 81416FF8 000E7518  90 03 0B CC */	stw r0, 0xbcc(r3)
+/* 81416FFC 000E751C  90 03 0C 0C */	stw r0, 0xc0c(r3)
+/* 81417000 000E7520  90 03 0C 4C */	stw r0, 0xc4c(r3)
+/* 81417004 000E7524  90 03 0D CC */	stw r0, 0xdcc(r3)
+/* 81417008 000E7528  90 03 0E 0C */	stw r0, 0xe0c(r3)
+/* 8141700C 000E752C  90 03 0E 4C */	stw r0, 0xe4c(r3)
+/* 81417010 000E7530  90 03 0E 8C */	stw r0, 0xe8c(r3)
+/* 81417014 000E7534  90 03 0E CC */	stw r0, 0xecc(r3)
+/* 81417018 000E7538  90 03 0F 0C */	stw r0, 0xf0c(r3)
+/* 8141701C 000E753C  90 03 0F 4C */	stw r0, 0xf4c(r3)
+/* 81417020 000E7540  90 03 0F 8C */	stw r0, 0xf8c(r3)
+/* 81417024 000E7544  90 03 0F CC */	stw r0, 0xfcc(r3)
+/* 81417028 000E7548  90 03 10 0C */	stw r0, 0x100c(r3)
+/* 8141702C 000E754C  90 03 10 4C */	stw r0, 0x104c(r3)
+/* 81417030 000E7550  90 03 10 8C */	stw r0, 0x108c(r3)
+/* 81417034 000E7554  90 03 10 CC */	stw r0, 0x10cc(r3)
+/* 81417038 000E7558  90 03 11 0C */	stw r0, 0x110c(r3)
+/* 8141703C 000E755C  90 03 11 4C */	stw r0, 0x114c(r3)
+/* 81417040 000E7560  90 03 11 8C */	stw r0, 0x118c(r3)
+/* 81417044 000E7564  90 03 11 CC */	stw r0, 0x11cc(r3)
+/* 81417048 000E7568  90 03 12 0C */	stw r0, 0x120c(r3)
+/* 8141704C 000E756C  90 03 12 4C */	stw r0, 0x124c(r3)
+/* 81417050 000E7570  90 03 12 8C */	stw r0, 0x128c(r3)
+/* 81417054 000E7574  90 03 12 CC */	stw r0, 0x12cc(r3)
+/* 81417058 000E7578  90 03 13 0C */	stw r0, 0x130c(r3)
+/* 8141705C 000E757C  90 03 13 4C */	stw r0, 0x134c(r3)
+/* 81417060 000E7580  90 03 13 8C */	stw r0, 0x138c(r3)
+/* 81417064 000E7584  90 03 13 CC */	stw r0, 0x13cc(r3)
+/* 81417068 000E7588  90 03 14 0C */	stw r0, 0x140c(r3)
+/* 8141706C 000E758C  90 03 14 4C */	stw r0, 0x144c(r3)
+/* 81417070 000E7590  90 03 14 8C */	stw r0, 0x148c(r3)
+/* 81417074 000E7594  90 03 14 CC */	stw r0, 0x14cc(r3)
+/* 81417078 000E7598  90 03 15 0C */	stw r0, 0x150c(r3)
+/* 8141707C 000E759C  90 03 15 4C */	stw r0, 0x154c(r3)
+/* 81417080 000E75A0  90 03 15 8C */	stw r0, 0x158c(r3)
+/* 81417084 000E75A4  90 03 15 CC */	stw r0, 0x15cc(r3)
+/* 81417088 000E75A8  90 03 16 0C */	stw r0, 0x160c(r3)
+/* 8141708C 000E75AC  90 03 16 4C */	stw r0, 0x164c(r3)
+/* 81417090 000E75B0  90 03 16 8C */	stw r0, 0x168c(r3)
+/* 81417094 000E75B4  90 03 16 CC */	stw r0, 0x16cc(r3)
+/* 81417098 000E75B8  90 03 17 0C */	stw r0, 0x170c(r3)
+/* 8141709C 000E75BC  90 03 17 4C */	stw r0, 0x174c(r3)
+/* 814170A0 000E75C0  90 03 17 8C */	stw r0, 0x178c(r3)
+/* 814170A4 000E75C4  90 03 17 CC */	stw r0, 0x17cc(r3)
+/* 814170A8 000E75C8  90 03 18 0C */	stw r0, 0x180c(r3)
+/* 814170AC 000E75CC  90 03 18 4C */	stw r0, 0x184c(r3)
+/* 814170B0 000E75D0  90 03 18 8C */	stw r0, 0x188c(r3)
+/* 814170B4 000E75D4  90 03 18 CC */	stw r0, 0x18cc(r3)
+/* 814170B8 000E75D8  90 03 19 0C */	stw r0, 0x190c(r3)
+/* 814170BC 000E75DC  90 03 19 4C */	stw r0, 0x194c(r3)
+/* 814170C0 000E75E0  90 03 19 8C */	stw r0, 0x198c(r3)
+/* 814170C4 000E75E4  90 03 19 CC */	stw r0, 0x19cc(r3)
+/* 814170C8 000E75E8  90 03 1A 0C */	stw r0, 0x1a0c(r3)
+/* 814170CC 000E75EC  90 03 1A 4C */	stw r0, 0x1a4c(r3)
+/* 814170D0 000E75F0  90 03 1A 8C */	stw r0, 0x1a8c(r3)
+/* 814170D4 000E75F4  90 03 1A CC */	stw r0, 0x1acc(r3)
+/* 814170D8 000E75F8  90 03 1B 0C */	stw r0, 0x1b0c(r3)
+/* 814170DC 000E75FC  90 03 1B 4C */	stw r0, 0x1b4c(r3)
+/* 814170E0 000E7600  4E 80 00 20 */	blr
+.endfn "__sinit_\tiPcKeyboard_cpp"
+
+# .text:0x6F0C | 0x814170E4 | size: 0x8
+.fn "@68@__dt__Q49textinput8keyboard6pctype12LayoutByNW4RFv", global
+/* 814170E4 000E7604  38 63 FF BC */	subi r3, r3, 0x44
+/* 814170E8 000E7608  4B FF AB 44 */	b __dt__Q49textinput8keyboard6pctype12LayoutByNW4RFv
+.endfn "@68@__dt__Q49textinput8keyboard6pctype12LayoutByNW4RFv"
+
+# .text:0x6F14 | 0x814170EC | size: 0x8
+# textinput::keyboard::pctype::LayoutByNW4R::@68@updateInput(int, float, float, unsigned long, unsigned long, unsigned long, void*)
+.fn "@68@updateInput__Q49textinput8keyboard6pctype12LayoutByNW4RFiffUlUlUlPv", global
+/* 814170EC 000E760C  38 63 FF BC */	subi r3, r3, 0x44
+/* 814170F0 000E7610  4B FF DE 0C */	b updateInput__Q49textinput8keyboard6pctype12LayoutByNW4RFiffUlUlUlPv
+.endfn "@68@updateInput__Q49textinput8keyboard6pctype12LayoutByNW4RFiffUlUlUlPv"
+
+# .text:0x6F1C | 0x814170F4 | size: 0x8
+# textinput::keyboard::pctype::LayoutByNW4R::@68@updateInput(textinput::input::HKBManager&)
+.fn "@68@updateInput__Q49textinput8keyboard6pctype12LayoutByNW4RFRQ39textinput5input10HKBManager", global
+/* 814170F4 000E7614  38 63 FF BC */	subi r3, r3, 0x44
+/* 814170F8 000E7618  4B FF E0 34 */	b updateInput__Q49textinput8keyboard6pctype12LayoutByNW4RFRQ39textinput5input10HKBManager
+.endfn "@68@updateInput__Q49textinput8keyboard6pctype12LayoutByNW4RFRQ39textinput5input10HKBManager"
+
+# .text:0x6F24 | 0x814170FC | size: 0x8
+# textinput::keyboard::pctype::LayoutByNW4R::@68@calc()
+.fn "@68@calc__Q49textinput8keyboard6pctype12LayoutByNW4RFv", global
+/* 814170FC 000E761C  38 63 FF BC */	subi r3, r3, 0x44
+/* 81417100 000E7620  4B FF BE F0 */	b calc__Q49textinput8keyboard6pctype12LayoutByNW4RFv
+.endfn "@68@calc__Q49textinput8keyboard6pctype12LayoutByNW4RFv"
+
+# .text:0x6F2C | 0x81417104 | size: 0x8
+# textinput::keyboard::pctype::LayoutByNW4R::@68@draw()
+.fn "@68@draw__Q49textinput8keyboard6pctype12LayoutByNW4RFv", global
+/* 81417104 000E7624  38 63 FF BC */	subi r3, r3, 0x44
+/* 81417108 000E7628  4B FF C0 38 */	b draw__Q49textinput8keyboard6pctype12LayoutByNW4RFv
+.endfn "@68@draw__Q49textinput8keyboard6pctype12LayoutByNW4RFv"
+
+# .text:0x6F34 | 0x8141710C | size: 0x8
+# textinput::keyboard::pctype::LayoutByNW4R::@68@init()
+.fn "@68@init__Q49textinput8keyboard6pctype12LayoutByNW4RFv", global
+/* 8141710C 000E762C  38 63 FF BC */	subi r3, r3, 0x44
+/* 81417110 000E7630  4B FF B3 5C */	b init__Q49textinput8keyboard6pctype12LayoutByNW4RFv
+.endfn "@68@init__Q49textinput8keyboard6pctype12LayoutByNW4RFv"
+
+# .text:0x6F3C | 0x81417114 | size: 0x8
+# textinput::keyboard::pctype::LayoutByNW4R::@236@onEvent(textinput::keyboard::pctype::UIObj*, unsigned long, void*)
+.fn "@236@onEvent__Q49textinput8keyboard6pctype12LayoutByNW4RFPQ49textinput8keyboard6pctype5UIObjUlPv", global
+/* 81417114 000E7634  38 63 FF 14 */	subi r3, r3, 0xec
+/* 81417118 000E7638  4B FF E8 58 */	b onEvent__Q49textinput8keyboard6pctype12LayoutByNW4RFPQ49textinput8keyboard6pctype5UIObjUlPv
+.endfn "@236@onEvent__Q49textinput8keyboard6pctype12LayoutByNW4RFPQ49textinput8keyboard6pctype5UIObjUlPv"
+
+# 0x8160D1EC..0x8160D1F0 | size: 0x4
+.section .ctors, "a"
+.balign 4
+	.4byte "__sinit_\tiPcKeyboard_cpp"
+
+# 0x81613408..0x81614AC0 | size: 0x16B8
+.rodata
+.balign 8
+
+# .rodata:0x0 | 0x81613408 | size: 0x5B0
+# textinput::keyboard::pctype::csGridKeyboard
+.obj csGridKeyboard__Q39textinput8keyboard6pctype, local
+	.4byte 0x505F476B
+	.4byte 0x65795F30
+	.4byte 0x30000000
+	.4byte 0x00000000
+	.4byte 0x000000E0
+	.4byte 0x00210000
+	.4byte 0x0000505F
+	.4byte 0x476B6579
+	.4byte 0x5F303100
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00E1003F
+	.4byte 0x304230A2
+	.4byte 0x505F476B
+	.4byte 0x65795F30
+	.4byte 0x32000000
+	.4byte 0x00000000
+	.4byte 0x000000E2
+	.4byte 0x0026304B
+	.4byte 0x30AB505F
+	.4byte 0x476B6579
+	.4byte 0x5F303300
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00E42033
+	.4byte 0x305530B5
+	.4byte 0x505F476B
+	.4byte 0x65795F30
+	.4byte 0x34000000
+	.4byte 0x00000000
+	.4byte 0x000000E8
+	.4byte 0x0027305F
+	.4byte 0x30BF505F
+	.4byte 0x476B6579
+	.4byte 0x5F303500
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00E9FF5E
+	.4byte 0x306A30CA
+	.4byte 0x505F476B
+	.4byte 0x65795F30
+	.4byte 0x36000000
+	.4byte 0x00000000
+	.4byte 0x000000EA
+	.4byte 0x003A306F
+	.4byte 0x30CF505F
+	.4byte 0x476B6579
+	.4byte 0x5F303700
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00EB003B
+	.4byte 0x307E30DE
+	.4byte 0x505F476B
+	.4byte 0x65795F30
+	.4byte 0x38000000
+	.4byte 0x00000000
+	.4byte 0x000000EC
+	.4byte 0x00403084
+	.4byte 0x30E4505F
+	.4byte 0x476B6579
+	.4byte 0x5F303900
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00ED007E
+	.4byte 0x308930E9
+	.4byte 0x505F476B
+	.4byte 0x65795F31
+	.4byte 0x30000000
+	.4byte 0x00000000
+	.4byte 0x000000EE
+	.4byte 0x005F308F
+	.4byte 0x30EF505F
+	.4byte 0x476B6579
+	.4byte 0x5F313100
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00E0002B
+	.4byte 0x00000000
+	.4byte 0x505F476B
+	.4byte 0x65795F31
+	.4byte 0x32000000
+	.4byte 0x00000000
+	.4byte 0x000000E1
+	.4byte 0x002D3044
+	.4byte 0x30A4505F
+	.4byte 0x476B6579
+	.4byte 0x5F313300
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00E2002A
+	.4byte 0x304D30AD
+	.4byte 0x505F476B
+	.4byte 0x65795F31
+	.4byte 0x34000000
+	.4byte 0x00000000
+	.4byte 0x000000E4
+	.4byte 0x002F3057
+	.4byte 0x30B7505F
+	.4byte 0x476B6579
+	.4byte 0x5F313500
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00E800D7
+	.4byte 0x306130C1
+	.4byte 0x505F476B
+	.4byte 0x65795F31
+	.4byte 0x36000000
+	.4byte 0x00000000
+	.4byte 0x000000E9
+	.4byte 0x00F7306B
+	.4byte 0x30CB505F
+	.4byte 0x476B6579
+	.4byte 0x5F313700
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00EA003D
+	.4byte 0x307230D2
+	.4byte 0x505F476B
+	.4byte 0x65795F31
+	.4byte 0x38000000
+	.4byte 0x00000000
+	.4byte 0x000000EB
+	.4byte 0x2192307F
+	.4byte 0x30DF505F
+	.4byte 0x476B6579
+	.4byte 0x5F313900
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00EC2190
+	.4byte 0x308630E6
+	.4byte 0x505F476B
+	.4byte 0x65795F32
+	.4byte 0x30000000
+	.4byte 0x00000000
+	.4byte 0x000000ED
+	.4byte 0x2191308A
+	.4byte 0x30EA505F
+	.4byte 0x476B6579
+	.4byte 0x5F323100
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00EE2193
+	.4byte 0x309230F2
+	.4byte 0x505F476B
+	.4byte 0x65795F32
+	.4byte 0x32000000
+	.4byte 0x00000000
+	.4byte 0x000000F1
+	.4byte 0x300C0000
+	.4byte 0x0000505F
+	.4byte 0x476B6579
+	.4byte 0x5F323300
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00DF300D
+	.4byte 0x304630A6
+	.4byte 0x505F476B
+	.4byte 0x65795F32
+	.4byte 0x34000000
+	.4byte 0x00000000
+	.4byte 0x000000C0
+	.4byte 0x201C304F
+	.4byte 0x30AF505F
+	.4byte 0x476B6579
+	.4byte 0x5F323500
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00C1201D
+	.4byte 0x305930B9
+	.4byte 0x505F476B
+	.4byte 0x65795F32
+	.4byte 0x36000000
+	.4byte 0x00000000
+	.4byte 0x000000C2
+	.4byte 0x00283064
+	.4byte 0x30C4505F
+	.4byte 0x476B6579
+	.4byte 0x5F323700
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00C40029
+	.4byte 0x306C30CC
+	.4byte 0x505F476B
+	.4byte 0x65795F32
+	.4byte 0x38000000
+	.4byte 0x00000000
+	.4byte 0x000000C8
+	.4byte 0x003C3075
+	.4byte 0x30D5505F
+	.4byte 0x476B6579
+	.4byte 0x5F323900
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00C9003E
+	.4byte 0x308030E0
+	.4byte 0x505F476B
+	.4byte 0x65795F33
+	.4byte 0x30000000
+	.4byte 0x00000000
+	.4byte 0x000000CA
+	.4byte 0x007B3088
+	.4byte 0x30E8505F
+	.4byte 0x476B6579
+	.4byte 0x5F333100
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00CB007D
+	.4byte 0x308B30EB
+	.4byte 0x505F476B
+	.4byte 0x65795F33
+	.4byte 0x32000000
+	.4byte 0x00000000
+	.4byte 0x000000CC
+	.4byte 0x20223093
+	.4byte 0x30F3505F
+	.4byte 0x476B6579
+	.4byte 0x5F333300
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00CD0025
+	.4byte 0x00000000
+	.4byte 0x505F476B
+	.4byte 0x65795F33
+	.4byte 0x34000000
+	.4byte 0x00000000
+	.4byte 0x000000CE
+	.4byte 0x203B3048
+	.4byte 0x30A8505F
+	.4byte 0x476B6579
+	.4byte 0x5F333500
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00CF3012
+	.4byte 0x305130B1
+	.4byte 0x505F476B
+	.4byte 0x65795F33
+	.4byte 0x36000000
+	.4byte 0x00000000
+	.4byte 0x000000D2
+	.4byte 0x0023305B
+	.4byte 0x30BB505F
+	.4byte 0x476B6579
+	.4byte 0x5F333700
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00D3266D
+	.4byte 0x306630C6
+	.4byte 0x505F476B
+	.4byte 0x65795F33
+	.4byte 0x38000000
+	.4byte 0x00000000
+	.4byte 0x000000D4
+	.4byte 0x266A306D
+	.4byte 0x30CD505F
+	.4byte 0x476B6579
+	.4byte 0x5F333900
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00D600B1
+	.4byte 0x307830D8
+	.4byte 0x505F476B
+	.4byte 0x65795F34
+	.4byte 0x30000000
+	.4byte 0x00000000
+	.4byte 0x00000152
+	.4byte 0x00243081
+	.4byte 0x30E1505F
+	.4byte 0x476B6579
+	.4byte 0x5F343100
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00D900A2
+	.4byte 0xFF01FF01
+	.4byte 0x505F476B
+	.4byte 0x65795F34
+	.4byte 0x32000000
+	.4byte 0x00000000
+	.4byte 0x000000DA
+	.4byte 0x00A3308C
+	.4byte 0x30EC505F
+	.4byte 0x476B6579
+	.4byte 0x5F343300
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00DB205C
+	.4byte 0x30013001
+	.4byte 0x505F476B
+	.4byte 0x65795F34
+	.4byte 0x34000000
+	.4byte 0x00000000
+	.4byte 0x000000DC
+	.4byte 0x005E0000
+	.4byte 0x0000505F
+	.4byte 0x476B6579
+	.4byte 0x5F343500
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00C700B0
+	.4byte 0x304A30AA
+	.4byte 0x505F476B
+	.4byte 0x65795F34
+	.4byte 0x36000000
+	.4byte 0x00000000
+	.4byte 0x000000D1
+	.4byte 0xFF5C3053
+	.4byte 0x30B3505F
+	.4byte 0x476B6579
+	.4byte 0x5F343700
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00A1FF0F
+	.4byte 0x305D30BD
+	.4byte 0x505F476B
+	.4byte 0x65795F34
+	.4byte 0x38000000
+	.4byte 0x00000000
+	.4byte 0x000000BF
+	.4byte 0xFF3C3068
+	.4byte 0x30C8505F
+	.4byte 0x476B6579
+	.4byte 0x5F343900
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00AC221E
+	.4byte 0x306E30CE
+	.4byte 0x505F476B
+	.4byte 0x65795F35
+	.4byte 0x30000000
+	.4byte 0x00000000
+	.4byte 0x000000A2
+	.4byte 0x2234307B
+	.4byte 0x30DB505F
+	.4byte 0x476B6579
+	.4byte 0x5F353100
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00A32026
+	.4byte 0x308230E2
+	.4byte 0x505F476B
+	.4byte 0x65795F35
+	.4byte 0x32000000
+	.4byte 0x00000000
+	.4byte 0x000000A7
+	.4byte 0x2122FF1F
+	.4byte 0xFF1F505F
+	.4byte 0x476B6579
+	.4byte 0x5F353300
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x000000A9
+	.4byte 0x308D30ED
+	.4byte 0x505F476B
+	.4byte 0x65795F35
+	.4byte 0x34000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00AE3002
+	.4byte 0x3002505F
+	.4byte 0x476B6579
+	.4byte 0x5F353500
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00A22234
+	.4byte 0x30FC30FC
+.endobj csGridKeyboard__Q39textinput8keyboard6pctype
+
+# .rodata:0x5B0 | 0x816139B8 | size: 0x228
+# textinput::keyboard::pctype::csPaneNameToControlKey
+.obj csPaneNameToControlKey__Q39textinput8keyboard6pctype, local
+	.4byte 0x505F6B65
+	.4byte 0x795F4C46
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x505F6B65
+	.4byte 0x795F4445
+	.4byte 0x4C455445
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000001
+	.4byte 0x505F6B65
+	.4byte 0x795F4341
+	.4byte 0x50530000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000003
+	.4byte 0x505F6B65
+	.4byte 0x795F5348
+	.4byte 0x49465400
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000004
+	.4byte 0x505F6B65
+	.4byte 0x795F5350
+	.4byte 0x41434500
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000002
+	.4byte 0x505F476B
+	.4byte 0x65795F4C
+	.4byte 0x46000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x505F476B
+	.4byte 0x65795F44
+	.4byte 0x454C4554
+	.4byte 0x45000000
+	.4byte 0x00000000
+	.4byte 0x00000001
+	.4byte 0x505F476B
+	.4byte 0x65795F53
+	.4byte 0x50414345
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000002
+	.4byte 0x575F5553
+	.4byte 0x45555F70
+	.4byte 0x7264635F
+	.4byte 0x6C616E67
+	.4byte 0x00000000
+	.4byte 0x0000000A
+	.4byte 0x575F5553
+	.4byte 0x45555F43
+	.4byte 0x686E675F
+	.4byte 0x7369676E
+	.4byte 0x00000000
+	.4byte 0x0000000D
+	.4byte 0x575F4A50
+	.4byte 0x5F43686E
+	.4byte 0x675F4142
+	.4byte 0x43000000
+	.4byte 0x00000000
+	.4byte 0x0000000B
+	.4byte 0x575F4A50
+	.4byte 0x5F43686E
+	.4byte 0x675F4B41
+	.4byte 0x4E410000
+	.4byte 0x00000000
+	.4byte 0x0000000C
+	.4byte 0x575F4A50
+	.4byte 0x5F43686E
+	.4byte 0x675F7369
+	.4byte 0x676E0000
+	.4byte 0x00000000
+	.4byte 0x0000000D
+	.4byte 0x505F4D6F
+	.4byte 0x64655F72
+	.4byte 0x6F6D615F
+	.4byte 0x68697261
+	.4byte 0x00000000
+	.4byte 0x00000010
+	.4byte 0x505F4D6F
+	.4byte 0x64655F72
+	.4byte 0x6F6D615F
+	.4byte 0x6B617461
+	.4byte 0x00000000
+	.4byte 0x00000011
+	.4byte 0x505F4D6F
+	.4byte 0x64655F64
+	.4byte 0x69726563
+	.4byte 0x74000000
+	.4byte 0x00000000
+	.4byte 0x0000000F
+	.4byte 0x505F6869
+	.4byte 0x72616761
+	.4byte 0x6E610000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000012
+	.4byte 0x505F6B61
+	.4byte 0x74616B61
+	.4byte 0x6E610000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000013
+	.4byte 0x505F476B
+	.4byte 0x65795F6B
+	.4byte 0x6F6D6F6A
+	.4byte 0x69000000
+	.4byte 0x00000000
+	.4byte 0x00000016
+	.4byte 0x505F476B
+	.4byte 0x65795F68
+	.4byte 0x616E6461
+	.4byte 0x6B750000
+	.4byte 0x00000000
+	.4byte 0x00000015
+	.4byte 0x505F476B
+	.4byte 0x65795F64
+	.4byte 0x616B7574
+	.4byte 0x656E0000
+	.4byte 0x00000000
+	.4byte 0x00000014
+	.4byte 0x505F4D6F
+	.4byte 0x64655F6B
+	.4byte 0x725F656E
+	.4byte 0x67000000
+	.4byte 0x00000000
+	.4byte 0x0000000F
+	.4byte 0x505F4D6F
+	.4byte 0x64655F6B
+	.4byte 0x725F6861
+	.4byte 0x6E000000
+	.4byte 0x00000000
+	.4byte 0x00000010
+.endobj csPaneNameToControlKey__Q39textinput8keyboard6pctype
+
+# .rodata:0x7D8 | 0x81613BE0 | size: 0xC4
+# textinput::keyboard::pctype::csJPNAsciiVisiblePanes
+.obj csJPNAsciiVisiblePanes__Q39textinput8keyboard6pctype, local
+	.4byte 0x000D0018
+	.4byte lbl_81658DC4
+	.4byte lbl_81658DD8
+	.4byte lbl_81658DE8
+	.4byte lbl_81658DFC
+	.4byte lbl_81658E10
+	.4byte lbl_81658E20
+	.4byte lbl_81658E30
+	.4byte lbl_81658E40
+	.4byte lbl_81658E50
+	.4byte lbl_81658E60
+	.4byte lbl_81658E70
+	.4byte lbl_81658E80
+	.4byte lbl_81658E8C
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_81658E98
+	.4byte lbl_81658EA4
+	.4byte lbl_81658EB0
+	.4byte lbl_81658EBC
+	.4byte lbl_81658EC8
+	.4byte lbl_81658ED4
+	.4byte lbl_81658EE0
+	.4byte lbl_81658EF4
+	.4byte lbl_81658F00
+	.4byte lbl_81658F0C
+	.4byte lbl_81658F18
+	.4byte lbl_81658F24
+	.4byte lbl_81658F30
+	.4byte lbl_81658F3C
+	.4byte lbl_81658F48
+	.4byte lbl_81658F54
+	.4byte lbl_81658F60
+	.4byte lbl_81658F6C
+	.4byte lbl_81658F80
+	.4byte lbl_81658F94
+	.4byte lbl_81658FA8
+	.4byte lbl_81658FBC
+	.4byte lbl_81658FC8
+	.4byte lbl_81658FD8
+.endobj csJPNAsciiVisiblePanes__Q39textinput8keyboard6pctype
+
+# .rodata:0x89C | 0x81613CA4 | size: 0xC4
+# textinput::keyboard::pctype::csUSAsciiVisiblePanes
+.obj csUSAsciiVisiblePanes__Q39textinput8keyboard6pctype, local
+	.4byte 0x00110014
+	.4byte lbl_81658EE0
+	.4byte lbl_81658EF4
+	.4byte lbl_81658F00
+	.4byte lbl_81658F0C
+	.4byte lbl_81658F18
+	.4byte lbl_81658F24
+	.4byte lbl_81658F30
+	.4byte lbl_81658F3C
+	.4byte lbl_81658F48
+	.4byte lbl_81658F54
+	.4byte lbl_81658F60
+	.4byte lbl_81658F6C
+	.4byte lbl_81658F80
+	.4byte lbl_81658F94
+	.4byte lbl_81658FA8
+	.4byte lbl_81658E80
+	.4byte lbl_81658E8C
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_81658E98
+	.4byte lbl_81658EA4
+	.4byte lbl_81658EB0
+	.4byte lbl_81658EBC
+	.4byte lbl_81658EC8
+	.4byte lbl_81658ED4
+	.4byte lbl_81658DC4
+	.4byte lbl_81658DD8
+	.4byte lbl_81658DE8
+	.4byte lbl_81658DFC
+	.4byte lbl_81658E10
+	.4byte lbl_81658E20
+	.4byte lbl_81658E30
+	.4byte lbl_81658E40
+	.4byte lbl_81658E50
+	.4byte lbl_81658E60
+	.4byte lbl_81658E70
+	.4byte lbl_81658FBC
+	.4byte lbl_81658FC8
+	.4byte lbl_81658FD8
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+.endobj csUSAsciiVisiblePanes__Q39textinput8keyboard6pctype
+
+# .rodata:0x960 | 0x81613D68 | size: 0xC4
+# textinput::keyboard::pctype::csEngAsciiVisiblePanesUK
+.obj csEngAsciiVisiblePanesUK__Q39textinput8keyboard6pctype, local
+	.4byte 0x00150010
+	.4byte lbl_81658EB0
+	.4byte lbl_81658EBC
+	.4byte lbl_81658EC8
+	.4byte lbl_81658ED4
+	.4byte lbl_81658EE0
+	.4byte lbl_81658EF4
+	.4byte lbl_81658F00
+	.4byte lbl_81658F0C
+	.4byte lbl_81658F18
+	.4byte lbl_81658F24
+	.4byte lbl_81658F30
+	.4byte lbl_81658F3C
+	.4byte lbl_81658F48
+	.4byte lbl_81658F54
+	.4byte lbl_81658F60
+	.4byte lbl_81658F6C
+	.4byte lbl_81658F80
+	.4byte lbl_81658F94
+	.4byte lbl_81658FA8
+	.4byte lbl_81658E80
+	.4byte lbl_81658E8C
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_81658E98
+	.4byte lbl_81658EA4
+	.4byte lbl_81658DC4
+	.4byte lbl_81658DD8
+	.4byte lbl_81658DE8
+	.4byte lbl_81658DFC
+	.4byte lbl_81658E10
+	.4byte lbl_81658E20
+	.4byte lbl_81658E30
+	.4byte lbl_81658E40
+	.4byte lbl_81658E50
+	.4byte lbl_81658E60
+	.4byte lbl_81658E70
+	.4byte lbl_81658FBC
+	.4byte lbl_81658FC8
+	.4byte lbl_81658FD8
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+.endobj csEngAsciiVisiblePanesUK__Q39textinput8keyboard6pctype
+
+# .rodata:0xA24 | 0x81613E2C | size: 0xC4
+# textinput::keyboard::pctype::csEngAsciiVisiblePanesSP
+.obj csEngAsciiVisiblePanesSP__Q39textinput8keyboard6pctype, local
+	.4byte 0x00150010
+	.4byte lbl_81658EB0
+	.4byte lbl_81658EBC
+	.4byte lbl_81658EC8
+	.4byte lbl_81658ED4
+	.4byte lbl_81658EE0
+	.4byte lbl_81658EF4
+	.4byte lbl_81658F00
+	.4byte lbl_81658F0C
+	.4byte lbl_81658F18
+	.4byte lbl_81658F24
+	.4byte lbl_81658F30
+	.4byte lbl_81658F3C
+	.4byte lbl_81658F48
+	.4byte lbl_81658F54
+	.4byte lbl_81658F60
+	.4byte lbl_81658F6C
+	.4byte lbl_81658F80
+	.4byte lbl_81658F94
+	.4byte lbl_81658FA8
+	.4byte lbl_81658FBC
+	.4byte lbl_81658FC8
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_81658E98
+	.4byte lbl_81658EA4
+	.4byte lbl_81658DC4
+	.4byte lbl_81658DD8
+	.4byte lbl_81658DE8
+	.4byte lbl_81658DFC
+	.4byte lbl_81658E10
+	.4byte lbl_81658E20
+	.4byte lbl_81658E30
+	.4byte lbl_81658E40
+	.4byte lbl_81658E50
+	.4byte lbl_81658E60
+	.4byte lbl_81658E70
+	.4byte lbl_81658E80
+	.4byte lbl_81658E8C
+	.4byte lbl_81658FD8
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+.endobj csEngAsciiVisiblePanesSP__Q39textinput8keyboard6pctype
+
+# .rodata:0xAE8 | 0x81613EF0 | size: 0xC4
+# textinput::keyboard::pctype::csAsciiVisiblePanes
+.obj csAsciiVisiblePanes__Q39textinput8keyboard6pctype, local
+	.4byte 0x0017000E
+	.4byte lbl_81658E98
+	.4byte lbl_81658EA4
+	.4byte lbl_81658EB0
+	.4byte lbl_81658EBC
+	.4byte lbl_81658EC8
+	.4byte lbl_81658ED4
+	.4byte lbl_81658EE0
+	.4byte lbl_81658EF4
+	.4byte lbl_81658F00
+	.4byte lbl_81658F0C
+	.4byte lbl_81658F18
+	.4byte lbl_81658F24
+	.4byte lbl_81658F30
+	.4byte lbl_81658F3C
+	.4byte lbl_81658F48
+	.4byte lbl_81658F54
+	.4byte lbl_81658F60
+	.4byte lbl_81658F6C
+	.4byte lbl_81658F80
+	.4byte lbl_81658F94
+	.4byte lbl_81658FA8
+	.4byte lbl_81658FBC
+	.4byte lbl_81658FC8
+	.4byte 0x00000000
+	.4byte lbl_81658DC4
+	.4byte lbl_81658DD8
+	.4byte lbl_81658DE8
+	.4byte lbl_81658DFC
+	.4byte lbl_81658E10
+	.4byte lbl_81658E20
+	.4byte lbl_81658E30
+	.4byte lbl_81658E40
+	.4byte lbl_81658E50
+	.4byte lbl_81658E60
+	.4byte lbl_81658E70
+	.4byte lbl_81658E80
+	.4byte lbl_81658E8C
+	.4byte lbl_81658FD8
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+.endobj csAsciiVisiblePanes__Q39textinput8keyboard6pctype
+
+# .rodata:0xBAC | 0x81613FB4 | size: 0xC4
+# textinput::keyboard::pctype::csAsciiVisiblePanesNL
+.obj csAsciiVisiblePanesNL__Q39textinput8keyboard6pctype, local
+	.4byte 0x00130012
+	.4byte lbl_81658EC8
+	.4byte lbl_81658ED4
+	.4byte lbl_81658EE0
+	.4byte lbl_81658EF4
+	.4byte lbl_81658F00
+	.4byte lbl_81658F0C
+	.4byte lbl_81658F18
+	.4byte lbl_81658F24
+	.4byte lbl_81658F30
+	.4byte lbl_81658F3C
+	.4byte lbl_81658F48
+	.4byte lbl_81658F54
+	.4byte lbl_81658F60
+	.4byte lbl_81658F6C
+	.4byte lbl_81658F80
+	.4byte lbl_81658F94
+	.4byte lbl_81658FA8
+	.4byte lbl_81658E80
+	.4byte lbl_81658E8C
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_81658E98
+	.4byte lbl_81658EA4
+	.4byte lbl_81658EB0
+	.4byte lbl_81658EBC
+	.4byte lbl_81658DC4
+	.4byte lbl_81658DD8
+	.4byte lbl_81658DE8
+	.4byte lbl_81658DFC
+	.4byte lbl_81658E10
+	.4byte lbl_81658E20
+	.4byte lbl_81658E30
+	.4byte lbl_81658E40
+	.4byte lbl_81658E50
+	.4byte lbl_81658E60
+	.4byte lbl_81658E70
+	.4byte lbl_81658FBC
+	.4byte lbl_81658FC8
+	.4byte lbl_81658FD8
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+.endobj csAsciiVisiblePanesNL__Q39textinput8keyboard6pctype
+
+# .rodata:0xC70 | 0x81614078 | size: 0xC4
+# textinput::keyboard::pctype::csCNAsciiVisiblePanes
+.obj csCNAsciiVisiblePanes__Q39textinput8keyboard6pctype, local
+	.4byte 0x00140015
+	.4byte lbl_81658EE0
+	.4byte lbl_81658EF4
+	.4byte lbl_81658F00
+	.4byte lbl_81658F0C
+	.4byte lbl_81658F18
+	.4byte lbl_81658F24
+	.4byte lbl_81658F30
+	.4byte lbl_81658F3C
+	.4byte lbl_81658F48
+	.4byte lbl_81658F54
+	.4byte lbl_81658F60
+	.4byte lbl_81658F80
+	.4byte lbl_81658FA8
+	.4byte lbl_81658E80
+	.4byte lbl_81658E8C
+	.4byte lbl_81658EB0
+	.4byte lbl_81658EBC
+	.4byte lbl_81658EC8
+	.4byte lbl_81658ED4
+	.4byte lbl_81658FD8
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_81658E98
+	.4byte lbl_81658EA4
+	.4byte lbl_81658DC4
+	.4byte lbl_81658DD8
+	.4byte lbl_81658DE8
+	.4byte lbl_81658DFC
+	.4byte lbl_81658E10
+	.4byte lbl_81658E20
+	.4byte lbl_81658E30
+	.4byte lbl_81658E40
+	.4byte lbl_81658E50
+	.4byte lbl_81658E60
+	.4byte lbl_81658E70
+	.4byte lbl_81658FBC
+	.4byte lbl_81658FC8
+	.4byte lbl_81658F6C
+	.4byte lbl_81658F94
+	.4byte lbl_81658FE8
+	.4byte lbl_81658FF8
+	.4byte lbl_8165900C
+	.4byte lbl_81659020
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+.endobj csCNAsciiVisiblePanes__Q39textinput8keyboard6pctype
+
+# .rodata:0xD34 | 0x8161413C | size: 0xC4
+.obj csKRAsciiVisiblePanes_Q39textinput8keyboard6pctype, local
+	.4byte 0x00100016
+	.4byte lbl_81658EE0
+	.4byte lbl_81658EF4
+	.4byte lbl_81658F00
+	.4byte lbl_81658F0C
+	.4byte lbl_81658F18
+	.4byte lbl_81658F24
+	.4byte lbl_81658F30
+	.4byte lbl_81658F3C
+	.4byte lbl_81658F48
+	.4byte lbl_81658F54
+	.4byte lbl_81658F60
+	.4byte lbl_81658F80
+	.4byte lbl_81658FA8
+	.4byte lbl_81658E80
+	.4byte lbl_81658E8C
+	.4byte lbl_81658FD8
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_81658E98
+	.4byte lbl_81658EA4
+	.4byte lbl_81658EB0
+	.4byte lbl_81658EBC
+	.4byte lbl_81658EC8
+	.4byte lbl_81658ED4
+	.4byte lbl_81658DD8
+	.4byte lbl_81658E10
+	.4byte lbl_81658E20
+	.4byte lbl_81658E30
+	.4byte lbl_81658E40
+	.4byte lbl_81658E50
+	.4byte lbl_81658E60
+	.4byte lbl_81658E70
+	.4byte lbl_81658FBC
+	.4byte lbl_81658FC8
+	.4byte lbl_81658F6C
+	.4byte lbl_81658F94
+	.4byte lbl_81658DC4
+	.4byte lbl_81658FE8
+	.4byte lbl_81658FF8
+	.4byte lbl_8165900C
+	.4byte 0x00000000
+	.4byte 0x00000000
+.endobj csKRAsciiVisiblePanes_Q39textinput8keyboard6pctype
+
+# .rodata:0xDF8 | 0x81614200 | size: 0xC0
+# textinput::keyboard::pctype::csCharCodeToAblautSP
+.obj csCharCodeToAblautSP__Q39textinput8keyboard6pctype, local
+	.4byte 0x006100E0
+	.4byte 0x00E100E2
+	.4byte 0x00E300E4
+	.4byte 0x00000000
+	.4byte 0x006900EC
+	.4byte 0x00ED00EE
+	.4byte 0x000000EF
+	.4byte 0x00000000
+	.4byte 0x007500F9
+	.4byte 0x00FA00FB
+	.4byte 0x000000FC
+	.4byte 0x00000000
+	.4byte 0x006500E8
+	.4byte 0x00E900EA
+	.4byte 0x000000EB
+	.4byte 0x00000000
+	.4byte 0x006F00F2
+	.4byte 0x00F300F4
+	.4byte 0x00F500F6
+	.4byte 0x00000000
+	.4byte 0x004100C0
+	.4byte 0x00C100C2
+	.4byte 0x00C300C4
+	.4byte 0x00000000
+	.4byte 0x004900CC
+	.4byte 0x00CD00CE
+	.4byte 0x000000CF
+	.4byte 0x00000000
+	.4byte 0x005500D9
+	.4byte 0x00DA00DB
+	.4byte 0x000000DC
+	.4byte 0x00000000
+	.4byte 0x004500C8
+	.4byte 0x00C900CA
+	.4byte 0x000000CB
+	.4byte 0x00000000
+	.4byte 0x004F00D2
+	.4byte 0x00D300D4
+	.4byte 0x00D500D6
+	.4byte 0x00000000
+	.4byte 0x00790000
+	.4byte 0x00FD0000
+	.4byte 0x000000FF
+	.4byte 0x00000000
+	.4byte 0x00590000
+	.4byte 0x00DD0000
+	.4byte 0x00000178
+	.4byte 0x00000000
+.endobj csCharCodeToAblautSP__Q39textinput8keyboard6pctype
+
+# .rodata:0xEB8 | 0x816142C0 | size: 0xC0
+# textinput::keyboard::pctype::csCharCodeToAblautNL
+.obj csCharCodeToAblautNL__Q39textinput8keyboard6pctype, local
+	.4byte 0x006100E0
+	.4byte 0x000000E2
+	.4byte 0x00E30000
+	.4byte 0x00E100E4
+	.4byte 0x006900EC
+	.4byte 0x000000EE
+	.4byte 0x00000000
+	.4byte 0x00ED00EF
+	.4byte 0x007500F9
+	.4byte 0x000000FB
+	.4byte 0x00000000
+	.4byte 0x00FA00FC
+	.4byte 0x006500E8
+	.4byte 0x000000EA
+	.4byte 0x00000000
+	.4byte 0x00E900EB
+	.4byte 0x006F00F2
+	.4byte 0x000000F4
+	.4byte 0x00F50000
+	.4byte 0x00F300F6
+	.4byte 0x004100C0
+	.4byte 0x000000C2
+	.4byte 0x00C30000
+	.4byte 0x00C100C4
+	.4byte 0x004900CC
+	.4byte 0x000000CE
+	.4byte 0x00000000
+	.4byte 0x00CD00CF
+	.4byte 0x005500D9
+	.4byte 0x000000DB
+	.4byte 0x00000000
+	.4byte 0x00DA00DC
+	.4byte 0x004500C8
+	.4byte 0x000000CA
+	.4byte 0x00000000
+	.4byte 0x00C900CB
+	.4byte 0x004F00D2
+	.4byte 0x000000D4
+	.4byte 0x00D50000
+	.4byte 0x00D300D6
+	.4byte 0x00790000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00FD00FF
+	.4byte 0x00590000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00DD0178
+.endobj csCharCodeToAblautNL__Q39textinput8keyboard6pctype
+
+# .rodata:0xF78 | 0x81614380 | size: 0xC0
+# textinput::keyboard::pctype::csCharCodeToAblautDE
+.obj csCharCodeToAblautDE__Q39textinput8keyboard6pctype, local
+	.4byte 0x006100E0
+	.4byte 0x00E10000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x006900EC
+	.4byte 0x00ED0000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x007500F9
+	.4byte 0x00FA0000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x006500E8
+	.4byte 0x00E90000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x006F00F2
+	.4byte 0x00F30000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x004100C0
+	.4byte 0x00C10000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x004900CC
+	.4byte 0x00CD0000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x005500D9
+	.4byte 0x00DA0000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x004500C8
+	.4byte 0x00C90000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x004F00D2
+	.4byte 0x00D30000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00790000
+	.4byte 0x00FD0000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00590000
+	.4byte 0x00DD0000
+	.4byte 0x00000000
+	.4byte 0x00000000
+.endobj csCharCodeToAblautDE__Q39textinput8keyboard6pctype
+
+# .rodata:0x1038 | 0x81614440 | size: 0xC0
+# textinput::keyboard::pctype::csCharCodeToAblautFR
+.obj csCharCodeToAblautFR__Q39textinput8keyboard6pctype, local
+	.4byte 0x00610000
+	.4byte 0x000000E2
+	.4byte 0x000000E4
+	.4byte 0x00000000
+	.4byte 0x00690000
+	.4byte 0x000000EE
+	.4byte 0x000000EF
+	.4byte 0x00000000
+	.4byte 0x00750000
+	.4byte 0x000000FB
+	.4byte 0x000000FC
+	.4byte 0x00000000
+	.4byte 0x00650000
+	.4byte 0x000000EA
+	.4byte 0x000000EB
+	.4byte 0x00000000
+	.4byte 0x006F0000
+	.4byte 0x000000F4
+	.4byte 0x000000F6
+	.4byte 0x00000000
+	.4byte 0x00410000
+	.4byte 0x000000C2
+	.4byte 0x000000C4
+	.4byte 0x00000000
+	.4byte 0x00490000
+	.4byte 0x000000CE
+	.4byte 0x000000CF
+	.4byte 0x00000000
+	.4byte 0x00550000
+	.4byte 0x000000DB
+	.4byte 0x000000DC
+	.4byte 0x00000000
+	.4byte 0x00450000
+	.4byte 0x000000CA
+	.4byte 0x000000CB
+	.4byte 0x00000000
+	.4byte 0x004F0000
+	.4byte 0x000000D4
+	.4byte 0x000000D6
+	.4byte 0x00000000
+	.4byte 0x00790000
+	.4byte 0x00000000
+	.4byte 0x000000FF
+	.4byte 0x00000000
+	.4byte 0x00590000
+	.4byte 0x00000000
+	.4byte 0x00000178
+	.4byte 0x00000000
+.endobj csCharCodeToAblautFR__Q39textinput8keyboard6pctype
+
+# .rodata:0x10F8 | 0x81614500 | size: 0xC8
+# textinput::keyboard::pctype::csLanguageDependencyData
+.obj csLanguageDependencyData__Q39textinput8keyboard6pctype, local
+	.4byte csUSKeyboard__Q39textinput8keyboard6pctype
+	.4byte csGridKeyboard__Q39textinput8keyboard6pctype
+	.4byte csPaneNameToControlKey__Q39textinput8keyboard6pctype
+	.4byte csJPNAsciiVisiblePanes__Q39textinput8keyboard6pctype
+	.4byte 0x00000000
+	.4byte csUSKeyboard__Q39textinput8keyboard6pctype
+	.4byte csGridKeyboard__Q39textinput8keyboard6pctype
+	.4byte csPaneNameToControlKey__Q39textinput8keyboard6pctype
+	.4byte csUSAsciiVisiblePanes__Q39textinput8keyboard6pctype
+	.4byte 0x00000000
+	.4byte csUKKeyboard__Q39textinput8keyboard6pctype
+	.4byte csGridKeyboard__Q39textinput8keyboard6pctype
+	.4byte csPaneNameToControlKey__Q39textinput8keyboard6pctype
+	.4byte csEngAsciiVisiblePanesUK__Q39textinput8keyboard6pctype
+	.4byte 0x00000000
+	.4byte csFRKeyboard__Q39textinput8keyboard6pctype
+	.4byte csGridKeyboard__Q39textinput8keyboard6pctype
+	.4byte csPaneNameToControlKey__Q39textinput8keyboard6pctype
+	.4byte csAsciiVisiblePanes__Q39textinput8keyboard6pctype
+	.4byte csCharCodeToAblautFR__Q39textinput8keyboard6pctype
+	.4byte csDEKeyboard__Q39textinput8keyboard6pctype
+	.4byte csGridKeyboard__Q39textinput8keyboard6pctype
+	.4byte csPaneNameToControlKey__Q39textinput8keyboard6pctype
+	.4byte csAsciiVisiblePanes__Q39textinput8keyboard6pctype
+	.4byte csCharCodeToAblautDE__Q39textinput8keyboard6pctype
+	.4byte csITKeyboard__Q39textinput8keyboard6pctype
+	.4byte csGridKeyboard__Q39textinput8keyboard6pctype
+	.4byte csPaneNameToControlKey__Q39textinput8keyboard6pctype
+	.4byte csAsciiVisiblePanes__Q39textinput8keyboard6pctype
+	.4byte 0x00000000
+	.4byte csESKeyboard__Q39textinput8keyboard6pctype
+	.4byte csGridKeyboard__Q39textinput8keyboard6pctype
+	.4byte csPaneNameToControlKey__Q39textinput8keyboard6pctype
+	.4byte csEngAsciiVisiblePanesSP__Q39textinput8keyboard6pctype
+	.4byte csCharCodeToAblautSP__Q39textinput8keyboard6pctype
+	.4byte csNLKeyboard__Q39textinput8keyboard6pctype
+	.4byte csGridKeyboard__Q39textinput8keyboard6pctype
+	.4byte csPaneNameToControlKey__Q39textinput8keyboard6pctype
+	.4byte csAsciiVisiblePanesNL__Q39textinput8keyboard6pctype
+	.4byte csCharCodeToAblautNL__Q39textinput8keyboard6pctype
+	.4byte csCNKeyboard__Q39textinput8keyboard6pctype
+	.4byte csGridKeyboard__Q39textinput8keyboard6pctype
+	.4byte csPaneNameToControlKey__Q39textinput8keyboard6pctype
+	.4byte csCNAsciiVisiblePanes__Q39textinput8keyboard6pctype
+	.4byte 0x00000000
+	.4byte csUSKeyboard__Q39textinput8keyboard6pctype
+	.4byte csGridKeyboard__Q39textinput8keyboard6pctype
+	.4byte csPaneNameToControlKey__Q39textinput8keyboard6pctype
+	.4byte csKRAsciiVisiblePanes_Q39textinput8keyboard6pctype
+	.4byte 0x00000000
+.endobj csLanguageDependencyData__Q39textinput8keyboard6pctype
+
+# .rodata:0x11C0 | 0x816145C8 | size: 0x18
+# textinput::keyboard::pctype::csJapanKanaInput
+.obj csJapanKanaInput__Q39textinput8keyboard6pctype, local
+	.4byte csJPKeyboard__Q39textinput8keyboard6pctype
+	.4byte csGridKeyboard__Q39textinput8keyboard6pctype
+	.4byte csPaneNameToControlKey__Q39textinput8keyboard6pctype
+	.4byte csJPNAsciiVisiblePanes__Q39textinput8keyboard6pctype
+	.4byte 0x00000000
+	.4byte 0x00000000
+.endobj csJapanKanaInput__Q39textinput8keyboard6pctype
+
+# .rodata:0x11D8 | 0x816145E0 | size: 0x440
+# textinput::keyboard::pctype::csAninationFile
+.obj csAninationFile__Q39textinput8keyboard6pctype, local
+	.4byte 0x00000000
+	.4byte 0x66735F56
+	.4byte 0x4B5F6173
+	.4byte 0x6369695F
+	.4byte 0x6B657974
+	.4byte 0x6F705F61
+	.4byte 0x5F6E6F72
+	.4byte 0x6D616C2E
+	.4byte 0x62726C61
+	.4byte 0x6E000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+.L_81614624:
+	.4byte 0x00000001
+	.4byte 0x66735F56
+	.4byte 0x4B5F6173
+	.4byte 0x6369695F
+	.4byte 0x6B657974
+	.4byte 0x6F705F61
+	.4byte 0x5F466F63
+	.4byte 0x75732D49
+	.4byte 0x4E2E6272
+	.4byte 0x6C616E00
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+.L_81614668:
+	.4byte 0x00000002
+	.4byte 0x66735F56
+	.4byte 0x4B5F6173
+	.4byte 0x6369695F
+	.4byte 0x6B657974
+	.4byte 0x6F705F61
+	.4byte 0x5F466F63
+	.4byte 0x75732D4F
+	.4byte 0x55542E62
+	.4byte 0x726C616E
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+.L_816146AC:
+	.4byte 0x00000003
+	.4byte 0x66735F56
+	.4byte 0x4B5F6173
+	.4byte 0x6369695F
+	.4byte 0x6B657974
+	.4byte 0x6F705F61
+	.4byte 0x5F526F6C
+	.4byte 0x6C5F6F76
+	.4byte 0x65722E62
+	.4byte 0x726C616E
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+.L_816146F0:
+	.4byte 0x00000004
+	.4byte 0x66735F56
+	.4byte 0x4B5F6173
+	.4byte 0x6369695F
+	.4byte 0x6B657974
+	.4byte 0x6F705F61
+	.4byte 0x5F507573
+	.4byte 0x6865642E
+	.4byte 0x62726C61
+	.4byte 0x6E000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+.L_81614734:
+	.4byte 0x00000005
+	.4byte 0x66735F56
+	.4byte 0x4B5F6173
+	.4byte 0x6369695F
+	.4byte 0x6B657974
+	.4byte 0x6F705F61
+	.4byte 0x5F746F67
+	.4byte 0x676C652D
+	.4byte 0x4F4E2E62
+	.4byte 0x726C616E
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+.L_81614778:
+	.4byte 0x00000006
+	.4byte 0x66735F56
+	.4byte 0x4B5F6173
+	.4byte 0x6369695F
+	.4byte 0x6B657974
+	.4byte 0x6F705F61
+	.4byte 0x5F746F67
+	.4byte 0x676C652D
+	.4byte 0x4F46462E
+	.4byte 0x62726C61
+	.4byte 0x6E000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+.L_816147BC:
+	.4byte 0x00000007
+	.4byte 0x66735F56
+	.4byte 0x4B5F6173
+	.4byte 0x6369695F
+	.4byte 0x6B657974
+	.4byte 0x6F705F61
+	.4byte 0x5F546172
+	.4byte 0x6765745F
+	.4byte 0x4F4E2E62
+	.4byte 0x726C616E
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+.L_81614800:
+	.4byte 0x00000008
+	.4byte 0x66735F56
+	.4byte 0x4B5F6173
+	.4byte 0x6369695F
+	.4byte 0x6B657974
+	.4byte 0x6F705F61
+	.4byte 0x5F746F67
+	.4byte 0x676C654F
+	.4byte 0x4E5F466F
+	.4byte 0x6375732D
+	.4byte 0x494E2E62
+	.4byte 0x726C616E
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+.L_81614844:
+	.4byte 0x00000009
+	.4byte 0x66735F56
+	.4byte 0x4B5F6173
+	.4byte 0x6369695F
+	.4byte 0x6B657974
+	.4byte 0x6F705F61
+	.4byte 0x5F746F67
+	.4byte 0x676C654F
+	.4byte 0x4E5F466F
+	.4byte 0x6375732D
+	.4byte 0x4F55542E
+	.4byte 0x62726C61
+	.4byte 0x6E000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+.L_81614888:
+	.4byte 0x0000000A
+	.4byte 0x66735F56
+	.4byte 0x4B5F6173
+	.4byte 0x6369695F
+	.4byte 0x6B657974
+	.4byte 0x6F705F61
+	.4byte 0x5F6E6F72
+	.4byte 0x6D616C5F
+	.4byte 0x746F6767
+	.4byte 0x6C652D4F
+	.4byte 0x4E2E6272
+	.4byte 0x6C616E00
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+.L_816148CC:
+	.4byte 0x0000000B
+	.4byte 0x66735F56
+	.4byte 0x4B5F6173
+	.4byte 0x6369695F
+	.4byte 0x6B657974
+	.4byte 0x6F705F61
+	.4byte 0x5F746F67
+	.4byte 0x676C654F
+	.4byte 0x4E5F5075
+	.4byte 0x73686564
+	.4byte 0x2E62726C
+	.4byte 0x616E0000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+.L_81614910:
+	.4byte 0x0000000C
+	.4byte 0x66735F56
+	.4byte 0x4B5F6173
+	.4byte 0x6369695F
+	.4byte 0x6B657974
+	.4byte 0x6F705F61
+	.4byte 0x5F616374
+	.4byte 0x6976652D
+	.4byte 0x4F4E2E62
+	.4byte 0x726C616E
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+.L_81614954:
+	.4byte 0x0000000D
+	.4byte 0x66735F56
+	.4byte 0x4B5F6173
+	.4byte 0x6369695F
+	.4byte 0x6B657974
+	.4byte 0x6F705F61
+	.4byte 0x5F616374
+	.4byte 0x6976652D
+	.4byte 0x4F46462E
+	.4byte 0x62726C61
+	.4byte 0x6E000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+.L_81614998:
+	.4byte 0x0000000E
+	.4byte 0x66735F56
+	.4byte 0x4B5F6173
+	.4byte 0x6369695F
+	.4byte 0x6B657974
+	.4byte 0x6F705F61
+	.4byte 0x5F616374
+	.4byte 0x6976655F
+	.4byte 0x6E6F726D
+	.4byte 0x616C2E62
+	.4byte 0x726C616E
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+.L_816149DC:
+	.4byte 0x0000000F
+	.4byte 0x66735F56
+	.4byte 0x4B5F6173
+	.4byte 0x6369695F
+	.4byte 0x6B657974
+	.4byte 0x6F705F61
+	.4byte 0x5F6E6F74
+	.4byte 0x5F616374
+	.4byte 0x6976655F
+	.4byte 0x6E6F726D
+	.4byte 0x616C2E62
+	.4byte 0x726C616E
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+.endobj csAninationFile__Q39textinput8keyboard6pctype
+
+# .rodata:0x1618 | 0x81614A20 | size: 0x34
+.obj lbl_81614A20, global
+	.ascii "1A1`1J1G17191N1W1Q1S1O1c1a1\\1P1T1B11141E1U1M1H1L1[1K"
+.endobj lbl_81614A20
+
+# .rodata:0x164C | 0x81614A54 | size: 0x34
+.obj lbl_81614A54, global
+	.ascii "1A1`1J1G18191N1W1Q1S1O1c1a1\\1R1V1C12141F1U1M1I1L1[1K"
+.endobj lbl_81614A54
+
+# .rodata:0x1680 | 0x81614A88 | size: 0x10
+.obj lbl_81614A88, global
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00010000
+	.4byte 0x00000000
+.endobj lbl_81614A88
+
+# .rodata:0x1690 | 0x81614A98 | size: 0x14
+.obj lbl_81614A98, global
+	.4byte lbl_81658DD8
+	.4byte lbl_81658DE8
+	.4byte lbl_81658DFC
+	.4byte lbl_81659580
+	.4byte lbl_81659590
+.endobj lbl_81614A98
+
+# .rodata:0x16A4 | 0x81614AAC | size: 0x14
+.obj lbl_81614AAC, global
+	.4byte lbl_81658FE8
+	.4byte lbl_81658FF8
+	.4byte lbl_8165900C
+	.4byte lbl_8165BAC4
+	.4byte lbl_8165BAD4
+.endobj lbl_81614AAC
+
+# 0x81658D90..0x8165BEB0 | size: 0x3120
+.data
+.balign 8
+
+# .data:0x0 | 0x81658D90 | size: 0x34
+.obj lbl_81658D90, global
+	.4byte lbl_816972A0
+	.4byte lbl_816972A0
+	.4byte lbl_816972A8
+	.4byte lbl_816972B0
+	.4byte lbl_816972B8
+	.4byte lbl_816972C0
+	.4byte lbl_816972C8
+	.4byte lbl_816972D0
+	.4byte lbl_816972D8
+	.4byte lbl_816972E0
+	.4byte lbl_816972E8
+	.4byte lbl_816972F0
+	.4byte lbl_816972F8
+.endobj lbl_81658D90
+
+# .data:0x34 | 0x81658DC4 | size: 0x11
+.obj lbl_81658DC4, global
+	.string "N_modeSelect_all"
+.endobj lbl_81658DC4
+	.byte 0x00, 0x00, 0x00
+
+# .data:0x48 | 0x81658DD8 | size: 0xE
+.obj lbl_81658DD8, global
+	.string "P_Mode_direct"
+.endobj lbl_81658DD8
+	.2byte 0x0000
+
+# .data:0x58 | 0x81658DE8 | size: 0x11
+.obj lbl_81658DE8, global
+	.string "P_Mode_roma_hira"
+.endobj lbl_81658DE8
+	.byte 0x00, 0x00, 0x00
+
+# .data:0x6C | 0x81658DFC | size: 0x11
+.obj lbl_81658DFC, global
+	.string "P_Mode_roma_kata"
+.endobj lbl_81658DFC
+	.byte 0x00, 0x00, 0x00
+
+# .data:0x80 | 0x81658E10 | size: 0xF
+.obj lbl_81658E10, global
+	.string "N_KeyChange_JP"
+.endobj lbl_81658E10
+	.byte 0x00
+
+# .data:0x90 | 0x81658E20 | size: 0xE
+.obj lbl_81658E20, global
+	.string "W_JP_Chng_ABC"
+.endobj lbl_81658E20
+	.2byte 0x0000
+
+# .data:0xA0 | 0x81658E30 | size: 0xF
+.obj lbl_81658E30, global
+	.string "W_JP_Chng_KANA"
+.endobj lbl_81658E30
+	.byte 0x00
+
+# .data:0xB0 | 0x81658E40 | size: 0xF
+.obj lbl_81658E40, global
+	.string "W_JP_Chng_sign"
+.endobj lbl_81658E40
+	.byte 0x00
+
+# .data:0xC0 | 0x81658E50 | size: 0xE
+.obj lbl_81658E50, global
+	.string "T_JP_Chng_ABC"
+.endobj lbl_81658E50
+	.2byte 0x0000
+
+# .data:0xD0 | 0x81658E60 | size: 0xF
+.obj lbl_81658E60, global
+	.string "T_JP_Chng_KANA"
+.endobj lbl_81658E60
+	.byte 0x00
+
+# .data:0xE0 | 0x81658E70 | size: 0xF
+.obj lbl_81658E70, global
+	.string "T_JP_Chng_sign"
+.endobj lbl_81658E70
+	.byte 0x00
+
+# .data:0xF0 | 0x81658E80 | size: 0xB
+.obj lbl_81658E80, global
+	.string "T_key_CAPS"
+.endobj lbl_81658E80
+	.byte 0x00
+
+# .data:0xFC | 0x81658E8C | size: 0xC
+.obj lbl_81658E8C, global
+	.string "T_key_SHIFT"
+.endobj lbl_81658E8C
+
+# .data:0x108 | 0x81658E98 | size: 0x9
+.obj lbl_81658E98, global
+	.string "P_key_41"
+.endobj lbl_81658E98
+	.byte 0x00, 0x00, 0x00
+
+# .data:0x114 | 0x81658EA4 | size: 0x9
+.obj lbl_81658EA4, global
+	.string "T_key_41"
+.endobj lbl_81658EA4
+	.byte 0x00, 0x00, 0x00
+
+# .data:0x120 | 0x81658EB0 | size: 0x9
+.obj lbl_81658EB0, global
+	.string "P_key_42"
+.endobj lbl_81658EB0
+	.byte 0x00, 0x00, 0x00
+
+# .data:0x12C | 0x81658EBC | size: 0x9
+.obj lbl_81658EBC, global
+	.string "T_key_42"
+.endobj lbl_81658EBC
+	.byte 0x00, 0x00, 0x00
+
+# .data:0x138 | 0x81658EC8 | size: 0x9
+.obj lbl_81658EC8, global
+	.string "P_key_43"
+.endobj lbl_81658EC8
+	.byte 0x00, 0x00, 0x00
+
+# .data:0x144 | 0x81658ED4 | size: 0x9
+.obj lbl_81658ED4, global
+	.string "T_key_43"
+.endobj lbl_81658ED4
+	.byte 0x00, 0x00, 0x00
+
+# .data:0x150 | 0x81658EE0 | size: 0x11
+.obj lbl_81658EE0, global
+	.string "N_KeyChange_USEU"
+.endobj lbl_81658EE0
+	.byte 0x00, 0x00, 0x00
+
+# .data:0x164 | 0x81658EF4 | size: 0xA
+.obj lbl_81658EF4, global
+	.string "P_Gkey_00"
+.endobj lbl_81658EF4
+	.2byte 0x0000
+
+# .data:0x170 | 0x81658F00 | size: 0xA
+.obj lbl_81658F00, global
+	.string "P_Gkey_11"
+.endobj lbl_81658F00
+	.2byte 0x0000
+
+# .data:0x17C | 0x81658F0C | size: 0xA
+.obj lbl_81658F0C, global
+	.string "P_Gkey_22"
+.endobj lbl_81658F0C
+	.2byte 0x0000
+
+# .data:0x188 | 0x81658F18 | size: 0xA
+.obj lbl_81658F18, global
+	.string "P_Gkey_33"
+.endobj lbl_81658F18
+	.2byte 0x0000
+
+# .data:0x194 | 0x81658F24 | size: 0xA
+.obj lbl_81658F24, global
+	.string "P_Gkey_44"
+.endobj lbl_81658F24
+	.2byte 0x0000
+
+# .data:0x1A0 | 0x81658F30 | size: 0xA
+.obj lbl_81658F30, global
+	.string "T_Gkey_00"
+.endobj lbl_81658F30
+	.2byte 0x0000
+
+# .data:0x1AC | 0x81658F3C | size: 0xA
+.obj lbl_81658F3C, global
+	.string "T_Gkey_11"
+.endobj lbl_81658F3C
+	.2byte 0x0000
+
+# .data:0x1B8 | 0x81658F48 | size: 0xA
+.obj lbl_81658F48, global
+	.string "T_Gkey_22"
+.endobj lbl_81658F48
+	.2byte 0x0000
+
+# .data:0x1C4 | 0x81658F54 | size: 0xA
+.obj lbl_81658F54, global
+	.string "T_Gkey_33"
+.endobj lbl_81658F54
+	.2byte 0x0000
+
+# .data:0x1D0 | 0x81658F60 | size: 0xA
+.obj lbl_81658F60, global
+	.string "T_Gkey_44"
+.endobj lbl_81658F60
+	.2byte 0x0000
+
+# .data:0x1DC | 0x81658F6C | size: 0x11
+.obj lbl_81658F6C, global
+	.string "W_USEU_prdc_lang"
+.endobj lbl_81658F6C
+	.byte 0x00, 0x00, 0x00
+
+# .data:0x1F0 | 0x81658F80 | size: 0x11
+.obj lbl_81658F80, global
+	.string "W_USEU_Chng_sign"
+.endobj lbl_81658F80
+	.byte 0x00, 0x00, 0x00
+
+# .data:0x204 | 0x81658F94 | size: 0x11
+.obj lbl_81658F94, global
+	.string "T_USEU_prdc_lang"
+.endobj lbl_81658F94
+	.byte 0x00, 0x00, 0x00
+
+# .data:0x218 | 0x81658FA8 | size: 0x11
+.obj lbl_81658FA8, global
+	.string "T_USEU_Chng_sign"
+.endobj lbl_81658FA8
+	.byte 0x00, 0x00, 0x00
+
+# .data:0x22C | 0x81658FBC | size: 0xC
+.obj lbl_81658FBC, global
+	.string "P_SHIFTMark"
+.endobj lbl_81658FBC
+
+# .data:0x238 | 0x81658FC8 | size: 0xB
+.obj lbl_81658FC8, global
+	.string "P_CAPSMark"
+.endobj lbl_81658FC8
+	.4byte 0x00000000
+	.byte 0x00
+
+# .data:0x248 | 0x81658FD8 | size: 0x10
+.obj lbl_81658FD8, global
+	.string "N_modeSelect_kr"
+.endobj lbl_81658FD8
+
+# .data:0x258 | 0x81658FE8 | size: 0xE
+.obj lbl_81658FE8, global
+	.string "B_Mode_direct"
+.endobj lbl_81658FE8
+	.2byte 0x0000
+
+# .data:0x268 | 0x81658FF8 | size: 0x11
+.obj lbl_81658FF8, global
+	.string "B_Mode_roma_hira"
+.endobj lbl_81658FF8
+	.byte 0x00, 0x00, 0x00
+
+# .data:0x27C | 0x8165900C | size: 0x11
+.obj lbl_8165900C, global
+	.string "B_Mode_roma_kata"
+.endobj lbl_8165900C
+	.byte 0x00, 0x00, 0x00
+
+# .data:0x290 | 0x81659020 | size: 0x11
+.obj lbl_81659020, global
+	.string "T_Mode_cn_pinyin"
+.endobj lbl_81659020
+	.byte 0x00, 0x00, 0x00
+
+# .data:0x2A4 | 0x81659034 | size: 0x9
+.obj lbl_81659034, global
+	.string "P_key_00"
+.endobj lbl_81659034
+	.byte 0x00, 0x00, 0x00
+
+# .data:0x2B0 | 0x81659040 | size: 0x9
+.obj lbl_81659040, global
+	.string "P_key_01"
+.endobj lbl_81659040
+	.byte 0x00, 0x00, 0x00
+
+# .data:0x2BC | 0x8165904C | size: 0x9
+.obj lbl_8165904C, global
+	.string "P_key_02"
+.endobj lbl_8165904C
+	.byte 0x00, 0x00, 0x00
+
+# .data:0x2C8 | 0x81659058 | size: 0x9
+.obj lbl_81659058, global
+	.string "P_key_03"
+.endobj lbl_81659058
+	.byte 0x00, 0x00, 0x00
+
+# .data:0x2D4 | 0x81659064 | size: 0x9
+.obj lbl_81659064, global
+	.string "P_key_04"
+.endobj lbl_81659064
+	.byte 0x00, 0x00, 0x00
+
+# .data:0x2E0 | 0x81659070 | size: 0x9
+.obj lbl_81659070, global
+	.string "P_key_05"
+.endobj lbl_81659070
+	.byte 0x00, 0x00, 0x00
+
+# .data:0x2EC | 0x8165907C | size: 0x9
+.obj lbl_8165907C, global
+	.string "P_key_06"
+.endobj lbl_8165907C
+	.byte 0x00, 0x00, 0x00
+
+# .data:0x2F8 | 0x81659088 | size: 0x9
+.obj lbl_81659088, global
+	.string "P_key_07"
+.endobj lbl_81659088
+	.byte 0x00, 0x00, 0x00
+
+# .data:0x304 | 0x81659094 | size: 0x9
+.obj lbl_81659094, global
+	.string "P_key_08"
+.endobj lbl_81659094
+	.byte 0x00, 0x00, 0x00
+
+# .data:0x310 | 0x816590A0 | size: 0x9
+.obj lbl_816590A0, global
+	.string "P_key_09"
+.endobj lbl_816590A0
+	.byte 0x00, 0x00, 0x00
+
+# .data:0x31C | 0x816590AC | size: 0x9
+.obj lbl_816590AC, global
+	.string "P_key_10"
+.endobj lbl_816590AC
+	.byte 0x00, 0x00, 0x00
+
+# .data:0x328 | 0x816590B8 | size: 0x9
+.obj lbl_816590B8, global
+	.string "P_key_11"
+.endobj lbl_816590B8
+	.byte 0x00, 0x00, 0x00
+
+# .data:0x334 | 0x816590C4 | size: 0x9
+.obj lbl_816590C4, global
+	.string "P_key_12"
+.endobj lbl_816590C4
+	.byte 0x00, 0x00, 0x00
+
+# .data:0x340 | 0x816590D0 | size: 0x9
+.obj lbl_816590D0, global
+	.string "P_key_13"
+.endobj lbl_816590D0
+	.byte 0x00, 0x00, 0x00
+
+# .data:0x34C | 0x816590DC | size: 0x9
+.obj lbl_816590DC, global
+	.string "P_key_15"
+.endobj lbl_816590DC
+	.byte 0x00, 0x00, 0x00
+
+# .data:0x358 | 0x816590E8 | size: 0x9
+.obj lbl_816590E8, global
+	.string "P_key_16"
+.endobj lbl_816590E8
+	.byte 0x00, 0x00, 0x00
+
+# .data:0x364 | 0x816590F4 | size: 0x9
+.obj lbl_816590F4, global
+	.string "P_key_17"
+.endobj lbl_816590F4
+	.byte 0x00, 0x00, 0x00
+
+# .data:0x370 | 0x81659100 | size: 0x9
+.obj lbl_81659100, global
+	.string "P_key_18"
+.endobj lbl_81659100
+	.byte 0x00, 0x00, 0x00
+
+# .data:0x37C | 0x8165910C | size: 0x9
+.obj lbl_8165910C, global
+	.string "P_key_14"
+.endobj lbl_8165910C
+	.byte 0x00, 0x00, 0x00
+
+# .data:0x388 | 0x81659118 | size: 0x9
+.obj lbl_81659118, global
+	.string "P_key_19"
+.endobj lbl_81659118
+	.byte 0x00, 0x00, 0x00
+
+# .data:0x394 | 0x81659124 | size: 0x9
+.obj lbl_81659124, global
+	.string "P_key_20"
+.endobj lbl_81659124
+	.byte 0x00, 0x00, 0x00
+
+# .data:0x3A0 | 0x81659130 | size: 0x9
+.obj lbl_81659130, global
+	.string "P_key_21"
+.endobj lbl_81659130
+	.byte 0x00, 0x00, 0x00
+
+# .data:0x3AC | 0x8165913C | size: 0x9
+.obj lbl_8165913C, global
+	.string "P_key_22"
+.endobj lbl_8165913C
+	.byte 0x00, 0x00, 0x00
+
+# .data:0x3B8 | 0x81659148 | size: 0x9
+.obj lbl_81659148, global
+	.string "P_key_23"
+.endobj lbl_81659148
+	.byte 0x00, 0x00, 0x00
+
+# .data:0x3C4 | 0x81659154 | size: 0x9
+.obj lbl_81659154, global
+	.string "P_key_24"
+.endobj lbl_81659154
+	.byte 0x00, 0x00, 0x00
+
+# .data:0x3D0 | 0x81659160 | size: 0x9
+.obj lbl_81659160, global
+	.string "P_key_25"
+.endobj lbl_81659160
+	.byte 0x00, 0x00, 0x00
+
+# .data:0x3DC | 0x8165916C | size: 0x9
+.obj lbl_8165916C, global
+	.string "P_key_26"
+.endobj lbl_8165916C
+	.byte 0x00, 0x00, 0x00
+
+# .data:0x3E8 | 0x81659178 | size: 0x9
+.obj lbl_81659178, global
+	.string "P_key_27"
+.endobj lbl_81659178
+	.byte 0x00, 0x00, 0x00
+
+# .data:0x3F4 | 0x81659184 | size: 0x9
+.obj lbl_81659184, global
+	.string "P_key_28"
+.endobj lbl_81659184
+	.byte 0x00, 0x00, 0x00
+
+# .data:0x400 | 0x81659190 | size: 0x9
+.obj lbl_81659190, global
+	.string "P_key_29"
+.endobj lbl_81659190
+	.byte 0x00, 0x00, 0x00
+
+# .data:0x40C | 0x8165919C | size: 0x9
+.obj lbl_8165919C, global
+	.string "P_key_30"
+.endobj lbl_8165919C
+	.byte 0x00, 0x00, 0x00
+
+# .data:0x418 | 0x816591A8 | size: 0x9
+.obj lbl_816591A8, global
+	.string "P_key_31"
+.endobj lbl_816591A8
+	.byte 0x00, 0x00, 0x00
+
+# .data:0x424 | 0x816591B4 | size: 0x9
+.obj lbl_816591B4, global
+	.string "P_key_32"
+.endobj lbl_816591B4
+	.byte 0x00, 0x00, 0x00
+
+# .data:0x430 | 0x816591C0 | size: 0x9
+.obj lbl_816591C0, global
+	.string "P_key_33"
+.endobj lbl_816591C0
+	.byte 0x00, 0x00, 0x00
+
+# .data:0x43C | 0x816591CC | size: 0x9
+.obj lbl_816591CC, global
+	.string "P_key_34"
+.endobj lbl_816591CC
+	.byte 0x00, 0x00, 0x00
+
+# .data:0x448 | 0x816591D8 | size: 0x9
+.obj lbl_816591D8, global
+	.string "P_key_35"
+.endobj lbl_816591D8
+	.byte 0x00, 0x00, 0x00
+
+# .data:0x454 | 0x816591E4 | size: 0x9
+.obj lbl_816591E4, global
+	.string "P_key_36"
+.endobj lbl_816591E4
+	.byte 0x00, 0x00, 0x00
+
+# .data:0x460 | 0x816591F0 | size: 0x9
+.obj lbl_816591F0, global
+	.string "P_key_37"
+.endobj lbl_816591F0
+	.byte 0x00, 0x00, 0x00
+
+# .data:0x46C | 0x816591FC | size: 0x9
+.obj lbl_816591FC, global
+	.string "P_key_38"
+.endobj lbl_816591FC
+	.byte 0x00, 0x00, 0x00
+
+# .data:0x478 | 0x81659208 | size: 0x9
+.obj lbl_81659208, global
+	.string "P_key_39"
+.endobj lbl_81659208
+	.byte 0x00, 0x00, 0x00
+
+# .data:0x484 | 0x81659214 | size: 0x9
+.obj lbl_81659214, global
+	.string "P_key_40"
+.endobj lbl_81659214
+	.byte 0x00, 0x00, 0x00
+
+# .data:0x490 | 0x81659220 | size: 0x9
+.obj lbl_81659220, global
+	.string "P_key_44"
+.endobj lbl_81659220
+	.byte 0x00, 0x00, 0x00
+
+# .data:0x49C | 0x8165922C | size: 0x9
+.obj lbl_8165922C, global
+	.string "P_key_45"
+.endobj lbl_8165922C
+	.byte 0x00, 0x00, 0x00
+
+# .data:0x4A8 | 0x81659238 | size: 0x9
+.obj lbl_81659238, global
+	.string "P_key_46"
+.endobj lbl_81659238
+	.byte 0x00, 0x00, 0x00
+
+# .data:0x4B4 | 0x81659244 | size: 0x9
+.obj lbl_81659244, global
+	.string "P_key_47"
+.endobj lbl_81659244
+	.byte 0x00, 0x00, 0x00
+
+# .data:0x4C0 | 0x81659250 | size: 0x9
+.obj lbl_81659250, global
+	.string "P_key_48"
+.endobj lbl_81659250
+	.byte 0x00, 0x00, 0x00
+
+# .data:0x4CC | 0x8165925C | size: 0x9
+.obj lbl_8165925C, global
+	.string "P_key_49"
+.endobj lbl_8165925C
+	.byte 0x00, 0x00, 0x00
+
+# .data:0x4D8 | 0x81659268 | size: 0xD
+.obj lbl_81659268, global
+	.string "P_key_DELETE"
+.endobj lbl_81659268
+	.byte 0x00, 0x00, 0x00
+
+# .data:0x4E8 | 0x81659278 | size: 0x9
+.obj lbl_81659278, global
+	.string "P_key_LF"
+.endobj lbl_81659278
+	.byte 0x00, 0x00, 0x00
+
+# .data:0x4F4 | 0x81659284 | size: 0xC
+.obj lbl_81659284, global
+	.string "P_key_SPACE"
+.endobj lbl_81659284
+
+# .data:0x500 | 0x81659290 | size: 0xC
+.obj lbl_81659290, global
+	.string "P_key_SHIFT"
+.endobj lbl_81659290
+
+# .data:0x50C | 0x8165929C | size: 0xB
+.obj lbl_8165929C, global
+	.string "P_key_CAPS"
+.endobj lbl_8165929C
+	.byte 0x00
+
+# .data:0x518 | 0x816592A8 | size: 0xA
+.obj lbl_816592A8, global
+	.string "P_Gkey_01"
+.endobj lbl_816592A8
+	.2byte 0x0000
+
+# .data:0x524 | 0x816592B4 | size: 0xA
+.obj lbl_816592B4, global
+	.string "P_Gkey_02"
+.endobj lbl_816592B4
+	.2byte 0x0000
+
+# .data:0x530 | 0x816592C0 | size: 0xA
+.obj lbl_816592C0, global
+	.string "P_Gkey_03"
+.endobj lbl_816592C0
+	.2byte 0x0000
+
+# .data:0x53C | 0x816592CC | size: 0xA
+.obj lbl_816592CC, global
+	.string "P_Gkey_04"
+.endobj lbl_816592CC
+	.2byte 0x0000
+
+# .data:0x548 | 0x816592D8 | size: 0xA
+.obj lbl_816592D8, global
+	.string "P_Gkey_05"
+.endobj lbl_816592D8
+	.2byte 0x0000
+
+# .data:0x554 | 0x816592E4 | size: 0xA
+.obj lbl_816592E4, global
+	.string "P_Gkey_06"
+.endobj lbl_816592E4
+	.2byte 0x0000
+
+# .data:0x560 | 0x816592F0 | size: 0xA
+.obj lbl_816592F0, global
+	.string "P_Gkey_07"
+.endobj lbl_816592F0
+	.2byte 0x0000
+
+# .data:0x56C | 0x816592FC | size: 0xA
+.obj lbl_816592FC, global
+	.string "P_Gkey_08"
+.endobj lbl_816592FC
+	.2byte 0x0000
+
+# .data:0x578 | 0x81659308 | size: 0xA
+.obj lbl_81659308, global
+	.string "P_Gkey_09"
+.endobj lbl_81659308
+	.2byte 0x0000
+
+# .data:0x584 | 0x81659314 | size: 0xA
+.obj lbl_81659314, global
+	.string "P_Gkey_10"
+.endobj lbl_81659314
+	.2byte 0x0000
+
+# .data:0x590 | 0x81659320 | size: 0xA
+.obj lbl_81659320, global
+	.string "P_Gkey_12"
+.endobj lbl_81659320
+	.2byte 0x0000
+
+# .data:0x59C | 0x8165932C | size: 0xA
+.obj lbl_8165932C, global
+	.string "P_Gkey_13"
+.endobj lbl_8165932C
+	.2byte 0x0000
+
+# .data:0x5A8 | 0x81659338 | size: 0xA
+.obj lbl_81659338, global
+	.string "P_Gkey_14"
+.endobj lbl_81659338
+	.2byte 0x0000
+
+# .data:0x5B4 | 0x81659344 | size: 0xA
+.obj lbl_81659344, global
+	.string "P_Gkey_15"
+.endobj lbl_81659344
+	.2byte 0x0000
+
+# .data:0x5C0 | 0x81659350 | size: 0xA
+.obj lbl_81659350, global
+	.string "P_Gkey_16"
+.endobj lbl_81659350
+	.2byte 0x0000
+
+# .data:0x5CC | 0x8165935C | size: 0xA
+.obj lbl_8165935C, global
+	.string "P_Gkey_17"
+.endobj lbl_8165935C
+	.2byte 0x0000
+
+# .data:0x5D8 | 0x81659368 | size: 0xA
+.obj lbl_81659368, global
+	.string "P_Gkey_18"
+.endobj lbl_81659368
+	.2byte 0x0000
+
+# .data:0x5E4 | 0x81659374 | size: 0xA
+.obj lbl_81659374, global
+	.string "P_Gkey_19"
+.endobj lbl_81659374
+	.2byte 0x0000
+
+# .data:0x5F0 | 0x81659380 | size: 0xA
+.obj lbl_81659380, global
+	.string "P_Gkey_20"
+.endobj lbl_81659380
+	.2byte 0x0000
+
+# .data:0x5FC | 0x8165938C | size: 0xA
+.obj lbl_8165938C, global
+	.string "P_Gkey_21"
+.endobj lbl_8165938C
+	.2byte 0x0000
+
+# .data:0x608 | 0x81659398 | size: 0xA
+.obj lbl_81659398, global
+	.string "P_Gkey_23"
+.endobj lbl_81659398
+	.2byte 0x0000
+
+# .data:0x614 | 0x816593A4 | size: 0xA
+.obj lbl_816593A4, global
+	.string "P_Gkey_24"
+.endobj lbl_816593A4
+	.2byte 0x0000
+
+# .data:0x620 | 0x816593B0 | size: 0xA
+.obj lbl_816593B0, global
+	.string "P_Gkey_25"
+.endobj lbl_816593B0
+	.2byte 0x0000
+
+# .data:0x62C | 0x816593BC | size: 0xA
+.obj lbl_816593BC, global
+	.string "P_Gkey_26"
+.endobj lbl_816593BC
+	.2byte 0x0000
+
+# .data:0x638 | 0x816593C8 | size: 0xA
+.obj lbl_816593C8, global
+	.string "P_Gkey_27"
+.endobj lbl_816593C8
+	.2byte 0x0000
+
+# .data:0x644 | 0x816593D4 | size: 0xA
+.obj lbl_816593D4, global
+	.string "P_Gkey_28"
+.endobj lbl_816593D4
+	.2byte 0x0000
+
+# .data:0x650 | 0x816593E0 | size: 0xA
+.obj lbl_816593E0, global
+	.string "P_Gkey_29"
+.endobj lbl_816593E0
+	.2byte 0x0000
+
+# .data:0x65C | 0x816593EC | size: 0xA
+.obj lbl_816593EC, global
+	.string "P_Gkey_30"
+.endobj lbl_816593EC
+	.2byte 0x0000
+
+# .data:0x668 | 0x816593F8 | size: 0xA
+.obj lbl_816593F8, global
+	.string "P_Gkey_31"
+.endobj lbl_816593F8
+	.2byte 0x0000
+
+# .data:0x674 | 0x81659404 | size: 0xA
+.obj lbl_81659404, global
+	.string "P_Gkey_32"
+.endobj lbl_81659404
+	.2byte 0x0000
+
+# .data:0x680 | 0x81659410 | size: 0xA
+.obj lbl_81659410, global
+	.string "P_Gkey_34"
+.endobj lbl_81659410
+	.2byte 0x0000
+
+# .data:0x68C | 0x8165941C | size: 0xA
+.obj lbl_8165941C, global
+	.string "P_Gkey_35"
+.endobj lbl_8165941C
+	.2byte 0x0000
+
+# .data:0x698 | 0x81659428 | size: 0xA
+.obj lbl_81659428, global
+	.string "P_Gkey_36"
+.endobj lbl_81659428
+	.2byte 0x0000
+
+# .data:0x6A4 | 0x81659434 | size: 0xA
+.obj lbl_81659434, global
+	.string "P_Gkey_37"
+.endobj lbl_81659434
+	.2byte 0x0000
+
+# .data:0x6B0 | 0x81659440 | size: 0xA
+.obj lbl_81659440, global
+	.string "P_Gkey_38"
+.endobj lbl_81659440
+	.2byte 0x0000
+
+# .data:0x6BC | 0x8165944C | size: 0xA
+.obj lbl_8165944C, global
+	.string "P_Gkey_39"
+.endobj lbl_8165944C
+	.2byte 0x0000
+
+# .data:0x6C8 | 0x81659458 | size: 0xA
+.obj lbl_81659458, global
+	.string "P_Gkey_40"
+.endobj lbl_81659458
+	.2byte 0x0000
+
+# .data:0x6D4 | 0x81659464 | size: 0xA
+.obj lbl_81659464, global
+	.string "P_Gkey_41"
+.endobj lbl_81659464
+	.2byte 0x0000
+
+# .data:0x6E0 | 0x81659470 | size: 0xA
+.obj lbl_81659470, global
+	.string "P_Gkey_42"
+.endobj lbl_81659470
+	.2byte 0x0000
+
+# .data:0x6EC | 0x8165947C | size: 0xA
+.obj lbl_8165947C, global
+	.string "P_Gkey_43"
+.endobj lbl_8165947C
+	.2byte 0x0000
+
+# .data:0x6F8 | 0x81659488 | size: 0xA
+.obj lbl_81659488, global
+	.string "P_Gkey_45"
+.endobj lbl_81659488
+	.2byte 0x0000
+
+# .data:0x704 | 0x81659494 | size: 0xA
+.obj lbl_81659494, global
+	.string "P_Gkey_46"
+.endobj lbl_81659494
+	.2byte 0x0000
+
+# .data:0x710 | 0x816594A0 | size: 0xA
+.obj lbl_816594A0, global
+	.string "P_Gkey_47"
+.endobj lbl_816594A0
+	.2byte 0x0000
+
+# .data:0x71C | 0x816594AC | size: 0xA
+.obj lbl_816594AC, global
+	.string "P_Gkey_48"
+.endobj lbl_816594AC
+	.2byte 0x0000
+
+# .data:0x728 | 0x816594B8 | size: 0xA
+.obj lbl_816594B8, global
+	.string "P_Gkey_49"
+.endobj lbl_816594B8
+	.2byte 0x0000
+
+# .data:0x734 | 0x816594C4 | size: 0xA
+.obj lbl_816594C4, global
+	.string "P_Gkey_50"
+.endobj lbl_816594C4
+	.2byte 0x0000
+
+# .data:0x740 | 0x816594D0 | size: 0xA
+.obj lbl_816594D0, global
+	.string "P_Gkey_51"
+.endobj lbl_816594D0
+	.2byte 0x0000
+
+# .data:0x74C | 0x816594DC | size: 0xA
+.obj lbl_816594DC, global
+	.string "P_Gkey_52"
+.endobj lbl_816594DC
+	.2byte 0x0000
+
+# .data:0x758 | 0x816594E8 | size: 0xA
+.obj lbl_816594E8, global
+	.string "P_Gkey_53"
+.endobj lbl_816594E8
+	.2byte 0x0000
+
+# .data:0x764 | 0x816594F4 | size: 0xA
+.obj lbl_816594F4, global
+	.string "P_Gkey_54"
+.endobj lbl_816594F4
+	.2byte 0x0000
+
+# .data:0x770 | 0x81659500 | size: 0xA
+.obj lbl_81659500, global
+	.string "P_Gkey_55"
+.endobj lbl_81659500
+	.2byte 0x0000
+
+# .data:0x77C | 0x8165950C | size: 0xE
+.obj lbl_8165950C, global
+	.string "P_Gkey_DELETE"
+.endobj lbl_8165950C
+	.2byte 0x0000
+
+# .data:0x78C | 0x8165951C | size: 0xA
+.obj lbl_8165951C, global
+	.string "P_Gkey_LF"
+.endobj lbl_8165951C
+	.2byte 0x0000
+
+# .data:0x798 | 0x81659528 | size: 0xD
+.obj lbl_81659528, global
+	.string "P_Gkey_SPACE"
+.endobj lbl_81659528
+	.byte 0x00, 0x00, 0x00
+
+# .data:0x7A8 | 0x81659538 | size: 0xB
+.obj lbl_81659538, global
+	.string "P_hiragana"
+.endobj lbl_81659538
+	.byte 0x00
+
+# .data:0x7B4 | 0x81659544 | size: 0xB
+.obj lbl_81659544, global
+	.string "P_katakana"
+.endobj lbl_81659544
+	.byte 0x00
+
+# .data:0x7C0 | 0x81659550 | size: 0xF
+.obj lbl_81659550, global
+	.string "P_Gkey_dakuten"
+.endobj lbl_81659550
+	.byte 0x00
+
+# .data:0x7D0 | 0x81659560 | size: 0xF
+.obj lbl_81659560, global
+	.string "P_Gkey_handaku"
+.endobj lbl_81659560
+	.byte 0x00
+
+# .data:0x7E0 | 0x81659570 | size: 0xE
+.obj lbl_81659570, global
+	.string "P_Gkey_komoji"
+.endobj lbl_81659570
+	.2byte 0x0000
+
+# .data:0x7F0 | 0x81659580 | size: 0xE
+.obj lbl_81659580, global
+	.string "P_Mode_kr_eng"
+.endobj lbl_81659580
+	.2byte 0x0000
+
+# .data:0x800 | 0x81659590 | size: 0xE
+.obj lbl_81659590, global
+	.string "P_Mode_kr_han"
+.endobj lbl_81659590
+	.2byte 0x0000
+
+# .data:0x810 | 0x816595A0 | size: 0x2040
+# textinput::keyboard::pctype::csPaneToAnimation
+.obj csPaneToAnimation__Q39textinput8keyboard6pctype, local
+	.4byte 0x00000000
+	.4byte lbl_81659034
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_81659040
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_8165904C
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_81659058
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_81659064
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_81659070
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_8165907C
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_81659088
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_81659094
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_816590A0
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_816590AC
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_816590B8
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_816590C4
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_816590D0
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_816590DC
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_816590E8
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_816590F4
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_81659100
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_8165910C
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_81659118
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_81659124
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_81659130
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_8165913C
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_81659148
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_81659154
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_81659160
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_8165916C
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_81659178
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_81659184
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_81659190
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_8165919C
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_816591A8
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_816591B4
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_816591C0
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_816591CC
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_816591D8
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_816591E4
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_816591F0
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_816591FC
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_81659208
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_81659214
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_81658E98
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_81658EB0
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_81658EC8
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_81659220
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_8165922C
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_81659238
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_81659244
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_81659250
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_8165925C
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_81659268
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_81659278
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_81659284
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000001
+	.4byte lbl_81659290
+	.4byte 0x0000000C
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614778
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816147BC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614800
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614844
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614888
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816148CC
+	.4byte 0x00000001
+	.4byte lbl_8165929C
+	.4byte 0x0000000C
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614778
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816147BC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614800
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614844
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614888
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816148CC
+	.4byte 0x00000000
+	.4byte lbl_81658EF4
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_816592A8
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_816592B4
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_816592C0
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_816592CC
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_816592D8
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_816592E4
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_816592F0
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_816592FC
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_81659308
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_81659314
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_81658F00
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_81659320
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_8165932C
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_81659338
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_81659344
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_81659350
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_8165935C
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_81659368
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_81659374
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_81659380
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_8165938C
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_81658F0C
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_81659398
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_816593A4
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_816593B0
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_816593BC
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_816593C8
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_816593D4
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_816593E0
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_816593EC
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_816593F8
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_81659404
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_81658F18
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_81659410
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_8165941C
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_81659428
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_81659434
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_81659440
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_8165944C
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_81659458
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_81659464
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_81659470
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_8165947C
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_81658F24
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_81659488
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_81659494
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_816594A0
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_816594AC
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_816594B8
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_816594C4
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_816594D0
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_816594DC
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_816594E8
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_816594F4
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_81659500
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_8165950C
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_8165951C
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_81659528
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_81658F6C
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_81658F80
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000002
+	.4byte lbl_81658E20
+	.4byte 0x00000007
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614778
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816147BC
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000002
+	.4byte lbl_81658E30
+	.4byte 0x00000007
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614778
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816147BC
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte lbl_81658E40
+	.4byte 0x00000005
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000002
+	.4byte lbl_81659538
+	.4byte 0x00000007
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614778
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816147BC
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000002
+	.4byte lbl_81659544
+	.4byte 0x00000007
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614778
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816147BC
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000003
+	.4byte lbl_81659550
+	.4byte 0x0000000B
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614778
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614910
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614954
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614998
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816149DC
+	.4byte 0x00000000
+	.4byte 0x00000003
+	.4byte lbl_81659560
+	.4byte 0x0000000B
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614778
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614910
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614954
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614998
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816149DC
+	.4byte 0x00000000
+	.4byte 0x00000003
+	.4byte lbl_81659570
+	.4byte 0x0000000B
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614778
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614910
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614954
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614998
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816149DC
+	.4byte 0x00000000
+	.4byte 0x00000002
+	.4byte lbl_81658DE8
+	.4byte 0x00000007
+	.4byte lbl_81658DD8
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614778
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816147BC
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000002
+	.4byte lbl_81658DFC
+	.4byte 0x00000007
+	.4byte lbl_81658DD8
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614778
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816147BC
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000002
+	.4byte lbl_81658DD8
+	.4byte 0x00000007
+	.4byte 0x00000000
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614778
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816147BC
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000002
+	.4byte lbl_81659580
+	.4byte 0x00000007
+	.4byte lbl_81658DD8
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614778
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816147BC
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000002
+	.4byte lbl_81659590
+	.4byte 0x00000007
+	.4byte lbl_81658DD8
+	.4byte csAninationFile__Q39textinput8keyboard6pctype
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614624
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614668
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146AC
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816146F0
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614734
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_81614778
+	.rel csAninationFile__Q39textinput8keyboard6pctype, .L_816147BC
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+.endobj csPaneToAnimation__Q39textinput8keyboard6pctype
+
+# .data:0x2850 | 0x8165B5E0 | size: 0x5C
+.obj jumptable_8165B5E0, local
+	.rel onKey__Q49textinput8keyboard6pctype4BaseFUlPv, .L_8141046C
+	.rel onKey__Q49textinput8keyboard6pctype4BaseFUlPv, .L_8141044C
+	.rel onKey__Q49textinput8keyboard6pctype4BaseFUlPv, .L_814104A8
+	.rel onKey__Q49textinput8keyboard6pctype4BaseFUlPv, .L_81410738
+	.rel onKey__Q49textinput8keyboard6pctype4BaseFUlPv, .L_81410738
+	.rel onKey__Q49textinput8keyboard6pctype4BaseFUlPv, .L_81410738
+	.rel onKey__Q49textinput8keyboard6pctype4BaseFUlPv, .L_81410738
+	.rel onKey__Q49textinput8keyboard6pctype4BaseFUlPv, .L_81410738
+	.rel onKey__Q49textinput8keyboard6pctype4BaseFUlPv, .L_81410738
+	.rel onKey__Q49textinput8keyboard6pctype4BaseFUlPv, .L_81410738
+	.rel onKey__Q49textinput8keyboard6pctype4BaseFUlPv, .L_81410564
+	.rel onKey__Q49textinput8keyboard6pctype4BaseFUlPv, .L_81410514
+	.rel onKey__Q49textinput8keyboard6pctype4BaseFUlPv, .L_81410530
+	.rel onKey__Q49textinput8keyboard6pctype4BaseFUlPv, .L_8141054C
+	.rel onKey__Q49textinput8keyboard6pctype4BaseFUlPv, .L_8141057C
+	.rel onKey__Q49textinput8keyboard6pctype4BaseFUlPv, .L_81410598
+	.rel onKey__Q49textinput8keyboard6pctype4BaseFUlPv, .L_814105D8
+	.rel onKey__Q49textinput8keyboard6pctype4BaseFUlPv, .L_81410618
+	.rel onKey__Q49textinput8keyboard6pctype4BaseFUlPv, .L_81410658
+	.rel onKey__Q49textinput8keyboard6pctype4BaseFUlPv, .L_81410678
+	.rel onKey__Q49textinput8keyboard6pctype4BaseFUlPv, .L_814106A0
+	.rel onKey__Q49textinput8keyboard6pctype4BaseFUlPv, .L_814106CC
+	.rel onKey__Q49textinput8keyboard6pctype4BaseFUlPv, .L_814106F8
+.endobj jumptable_8165B5E0
+
+# .data:0x28AC | 0x8165B63C | size: 0xE
+.obj lbl_8165B63C, global
+	.string "W_JP_Chng_ABC"
+.endobj lbl_8165B63C
+	.2byte 0x0000
+
+# .data:0x28BC | 0x8165B64C | size: 0x1C
+.obj lbl_8165B64C, global
+	.4byte 0x575F4A50
+	.4byte 0x5F43686E
+	.4byte 0x675F4B41
+	.4byte 0x4E410000
+	.4byte 0x425F6B65
+	.4byte 0x795F5348
+	.4byte 0x49465400
+.endobj lbl_8165B64C
+
+# .data:0x28D8 | 0x8165B668 | size: 0x18
+.obj lbl_8165B668, global
+	.4byte 0x505F6B65
+	.4byte 0x795F5348
+	.4byte 0x49465400
+	.4byte 0x425F6B65
+	.4byte 0x795F4341
+	.4byte 0x50530000
+.endobj lbl_8165B668
+
+# .data:0x28F0 | 0x8165B680 | size: 0x6C
+.obj lbl_8165B680, global
+	.4byte 0x505F6B65
+	.4byte 0x795F4341
+	.4byte 0x50530000
+	.4byte 0x545F4A50
+	.4byte 0x5F43686E
+	.4byte 0x675F7369
+	.4byte 0x676E0000
+	.4byte 0x545F5553
+	.4byte 0x45555F43
+	.4byte 0x686E675F
+	.4byte 0x7369676E
+	.4byte 0x00000000
+	.4byte 0x545F6B65
+	.4byte 0x795F5350
+	.4byte 0x41434500
+	.4byte 0x545F476B
+	.4byte 0x65795F53
+	.4byte 0x50414345
+	.4byte 0x00000000
+	.4byte 0x505F6B65
+	.4byte 0x795F4845
+	.4byte 0x4E4B414E
+	.4byte 0x00000000
+	.4byte 0x505F476B
+	.4byte 0x65795F48
+	.4byte 0x454E4B41
+	.4byte 0x4E000000
+.endobj lbl_8165B680
+
+# .data:0x295C | 0x8165B6EC | size: 0xB
+.obj lbl_8165B6EC, global
+	.string "P_hiragana"
+.endobj lbl_8165B6EC
+	.byte 0x00
+
+# .data:0x2968 | 0x8165B6F8 | size: 0x94
+.obj lbl_8165B6F8, global
+	.4byte 0x505F6B61
+	.4byte 0x74616B61
+	.4byte 0x6E610000
+	.4byte 0x505F476B
+	.4byte 0x65795F64
+	.4byte 0x616B7574
+	.4byte 0x656E0000
+	.4byte 0x505F476B
+	.4byte 0x65795F68
+	.4byte 0x616E6461
+	.4byte 0x6B750000
+	.4byte 0x505F476B
+	.4byte 0x65795F6B
+	.4byte 0x6F6D6F6A
+	.4byte 0x69000000
+	.4byte 0x505F4D6F
+	.4byte 0x64655F72
+	.4byte 0x6F6D615F
+	.4byte 0x68697261
+	.4byte 0x00000000
+	.4byte 0x505F4D6F
+	.4byte 0x64655F72
+	.4byte 0x6F6D615F
+	.4byte 0x6B617461
+	.4byte 0x00000000
+	.4byte 0x505F4D6F
+	.4byte 0x64655F64
+	.4byte 0x69726563
+	.4byte 0x74000000
+	.4byte 0x505F4D6F
+	.4byte 0x64655F6B
+	.4byte 0x725F656E
+	.4byte 0x67000000
+	.4byte 0x505F4D6F
+	.4byte 0x64655F6B
+	.4byte 0x725F6861
+	.4byte 0x6E000000
+.endobj lbl_8165B6F8
+
+# .data:0x29FC | 0x8165B78C | size: 0x50
+.obj jumptable_8165B78C, local
+	.rel onKey__Q49textinput8keyboard6pctype12LayoutByNW4RFUlPv, .L_81413734
+	.rel onKey__Q49textinput8keyboard6pctype12LayoutByNW4RFUlPv, .L_81413A84
+	.rel onKey__Q49textinput8keyboard6pctype12LayoutByNW4RFUlPv, .L_81413A84
+	.rel onKey__Q49textinput8keyboard6pctype12LayoutByNW4RFUlPv, .L_814134D0
+	.rel onKey__Q49textinput8keyboard6pctype12LayoutByNW4RFUlPv, .L_81413614
+	.rel onKey__Q49textinput8keyboard6pctype12LayoutByNW4RFUlPv, .L_81413A84
+	.rel onKey__Q49textinput8keyboard6pctype12LayoutByNW4RFUlPv, .L_81413A84
+	.rel onKey__Q49textinput8keyboard6pctype12LayoutByNW4RFUlPv, .L_81413A84
+	.rel onKey__Q49textinput8keyboard6pctype12LayoutByNW4RFUlPv, .L_81413A84
+	.rel onKey__Q49textinput8keyboard6pctype12LayoutByNW4RFUlPv, .L_81413A84
+	.rel onKey__Q49textinput8keyboard6pctype12LayoutByNW4RFUlPv, .L_81413A84
+	.rel onKey__Q49textinput8keyboard6pctype12LayoutByNW4RFUlPv, .L_81413750
+	.rel onKey__Q49textinput8keyboard6pctype12LayoutByNW4RFUlPv, .L_814137B4
+	.rel onKey__Q49textinput8keyboard6pctype12LayoutByNW4RFUlPv, .L_81413A84
+	.rel onKey__Q49textinput8keyboard6pctype12LayoutByNW4RFUlPv, .L_81413A84
+	.rel onKey__Q49textinput8keyboard6pctype12LayoutByNW4RFUlPv, .L_814138C4
+	.rel onKey__Q49textinput8keyboard6pctype12LayoutByNW4RFUlPv, .L_8141396C
+	.rel onKey__Q49textinput8keyboard6pctype12LayoutByNW4RFUlPv, .L_81413A10
+	.rel onKey__Q49textinput8keyboard6pctype12LayoutByNW4RFUlPv, .L_81413818
+	.rel onKey__Q49textinput8keyboard6pctype12LayoutByNW4RFUlPv, .L_81413870
+.endobj jumptable_8165B78C
+
+# .data:0x2A4C | 0x8165B7DC | size: 0x30
+.obj jumptable_8165B7DC, local
+	.rel cancelStateFocusIn__Q49textinput8keyboard6pctype12LayoutByNW4RFv, .L_8141401C
+	.rel cancelStateFocusIn__Q49textinput8keyboard6pctype12LayoutByNW4RFv, .L_81413F28
+	.rel cancelStateFocusIn__Q49textinput8keyboard6pctype12LayoutByNW4RFv, .L_8141401C
+	.rel cancelStateFocusIn__Q49textinput8keyboard6pctype12LayoutByNW4RFv, .L_81413F28
+	.rel cancelStateFocusIn__Q49textinput8keyboard6pctype12LayoutByNW4RFv, .L_81413F44
+	.rel cancelStateFocusIn__Q49textinput8keyboard6pctype12LayoutByNW4RFv, .L_81413F44
+	.rel cancelStateFocusIn__Q49textinput8keyboard6pctype12LayoutByNW4RFv, .L_8141401C
+	.rel cancelStateFocusIn__Q49textinput8keyboard6pctype12LayoutByNW4RFv, .L_8141401C
+	.rel cancelStateFocusIn__Q49textinput8keyboard6pctype12LayoutByNW4RFv, .L_81413F44
+	.rel cancelStateFocusIn__Q49textinput8keyboard6pctype12LayoutByNW4RFv, .L_8141401C
+	.rel cancelStateFocusIn__Q49textinput8keyboard6pctype12LayoutByNW4RFv, .L_8141401C
+	.rel cancelStateFocusIn__Q49textinput8keyboard6pctype12LayoutByNW4RFv, .L_81413F28
+.endobj jumptable_8165B7DC
+	.4byte 0x505F7072
+	.4byte 0x64635F4F
+	.4byte 0x4E000000
+	.4byte 0x505F7072
+	.4byte 0x64635F4F
+	.4byte 0x46460000
+	.4byte 0x545F5553
+	.4byte 0x45555F70
+	.4byte 0x7264635F
+	.4byte 0x6C616E67
+	.4byte 0x00000000
+
+# .data:0x2AA8 | 0x8165B838 | size: 0x9
+.obj lbl_8165B838, global
+	.string "P_key_LF"
+.endobj lbl_8165B838
+	.byte 0x00, 0x00, 0x00
+
+# .data:0x2AB4 | 0x8165B844 | size: 0xA
+.obj lbl_8165B844, global
+	.string "P_Gkey_LF"
+.endobj lbl_8165B844
+	.2byte 0x0000
+
+# .data:0x2AC0 | 0x8165B850 | size: 0x11
+.obj lbl_8165B850, global
+	.string "W_USEU_prdc_lang"
+.endobj lbl_8165B850
+	.byte 0x00, 0x00, 0x00
+
+# .data:0x2AD4 | 0x8165B864 | size: 0x11
+.obj lbl_8165B864, global
+	.string "W_USEU_Chng_sign"
+.endobj lbl_8165B864
+	.byte 0x00, 0x00, 0x00
+
+# .data:0x2AE8 | 0x8165B878 | size: 0xCC
+.obj lbl_8165B878, global
+	.4byte 0x575F4A50
+	.4byte 0x5F43686E
+	.4byte 0x675F7369
+	.4byte 0x676E0000
+	.4byte 0x505F726F
+	.4byte 0x6D616A69
+	.4byte 0x426F7800
+	.4byte 0x505F6861
+	.4byte 0x6E67756C
+	.4byte 0x426F7800
+	.4byte 0x505F6B65
+	.4byte 0x795F3432
+	.4byte 0x00000000
+	.4byte 0x505F6B65
+	.4byte 0x795F3433
+	.4byte 0x00000000
+	.4byte 0x505F6B65
+	.4byte 0x795F4445
+	.4byte 0x4C455445
+	.4byte 0x00000000
+	.4byte 0x505F6B65
+	.4byte 0x795F5350
+	.4byte 0x41434500
+	.4byte 0x4E5F564B
+	.4byte 0x5F677269
+	.4byte 0x64000000
+	.4byte 0x4E5F564B
+	.4byte 0x5F677264
+	.4byte 0x5F426E64
+	.4byte 0x5F414C4C
+	.4byte 0x00000000
+	.4byte 0x4E5F564B
+	.4byte 0x5F617363
+	.4byte 0x69690000
+	.4byte 0x4E5F564B
+	.4byte 0x5F617363
+	.4byte 0x5F426E64
+	.4byte 0x5F414C4C
+	.4byte 0x00000000
+	.4byte 0x545F4A50
+	.4byte 0x5F43686E
+	.4byte 0x675F4B41
+	.4byte 0x4E410000
+	.4byte 0x505F476B
+	.4byte 0x65795F44
+	.4byte 0x454C4554
+	.4byte 0x45000000
+	.4byte 0x505F476B
+	.4byte 0x65795F53
+	.4byte 0x50414345
+	.4byte 0x00000000
+.endobj lbl_8165B878
+
+# .data:0x2BB4 | 0x8165B944 | size: 0x44
+.obj jumptable_8165B944, local
+	.rel onAnmEvent__Q49textinput8keyboard6pctype19NormalButtonAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent, .L_81415D10
+	.rel onAnmEvent__Q49textinput8keyboard6pctype19NormalButtonAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent, .L_81415D50
+	.rel onAnmEvent__Q49textinput8keyboard6pctype19NormalButtonAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent, .L_81415DF0
+	.rel onAnmEvent__Q49textinput8keyboard6pctype19NormalButtonAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent, .L_81415DB0
+	.rel onAnmEvent__Q49textinput8keyboard6pctype19NormalButtonAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent, .L_81415E50
+	.rel onAnmEvent__Q49textinput8keyboard6pctype19NormalButtonAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent, .L_81415F0C
+	.rel onAnmEvent__Q49textinput8keyboard6pctype19NormalButtonAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent, .L_81415F0C
+	.rel onAnmEvent__Q49textinput8keyboard6pctype19NormalButtonAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent, .L_81415F0C
+	.rel onAnmEvent__Q49textinput8keyboard6pctype19NormalButtonAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent, .L_81415F0C
+	.rel onAnmEvent__Q49textinput8keyboard6pctype19NormalButtonAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent, .L_81415F0C
+	.rel onAnmEvent__Q49textinput8keyboard6pctype19NormalButtonAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent, .L_81415F0C
+	.rel onAnmEvent__Q49textinput8keyboard6pctype19NormalButtonAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent, .L_81415F0C
+	.rel onAnmEvent__Q49textinput8keyboard6pctype19NormalButtonAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent, .L_81415F0C
+	.rel onAnmEvent__Q49textinput8keyboard6pctype19NormalButtonAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent, .L_81415F0C
+	.rel onAnmEvent__Q49textinput8keyboard6pctype19NormalButtonAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent, .L_81415F0C
+	.rel onAnmEvent__Q49textinput8keyboard6pctype19NormalButtonAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent, .L_81415F0C
+	.rel onAnmEvent__Q49textinput8keyboard6pctype19NormalButtonAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent, .L_81415EB0
+.endobj jumptable_8165B944
+
+# .data:0x2BF8 | 0x8165B988 | size: 0x2C
+.obj jumptable_8165B988, local
+	.rel isFocused__Q49textinput8keyboard6pctype16ShiftCapsAnmPaneCFv, .L_81415F48
+	.rel isFocused__Q49textinput8keyboard6pctype16ShiftCapsAnmPaneCFv, .L_81415F50
+	.rel isFocused__Q49textinput8keyboard6pctype16ShiftCapsAnmPaneCFv, .L_81415F48
+	.rel isFocused__Q49textinput8keyboard6pctype16ShiftCapsAnmPaneCFv, .L_81415F50
+	.rel isFocused__Q49textinput8keyboard6pctype16ShiftCapsAnmPaneCFv, .L_81415F50
+	.rel isFocused__Q49textinput8keyboard6pctype16ShiftCapsAnmPaneCFv, .L_81415F50
+	.rel isFocused__Q49textinput8keyboard6pctype16ShiftCapsAnmPaneCFv, .L_81415F48
+	.rel isFocused__Q49textinput8keyboard6pctype16ShiftCapsAnmPaneCFv, .L_81415F50
+	.rel isFocused__Q49textinput8keyboard6pctype16ShiftCapsAnmPaneCFv, .L_81415F50
+	.rel isFocused__Q49textinput8keyboard6pctype16ShiftCapsAnmPaneCFv, .L_81415F48
+	.rel isFocused__Q49textinput8keyboard6pctype16ShiftCapsAnmPaneCFv, .L_81415F48
+.endobj jumptable_8165B988
+
+# .data:0x2C24 | 0x8165B9B4 | size: 0x30
+.obj jumptable_8165B9B4, local
+	.rel onAnmEvent__Q49textinput8keyboard6pctype16ShiftCapsAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent, .L_81416290
+	.rel onAnmEvent__Q49textinput8keyboard6pctype16ShiftCapsAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent, .L_814163D0
+	.rel onAnmEvent__Q49textinput8keyboard6pctype16ShiftCapsAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent, .L_814163D0
+	.rel onAnmEvent__Q49textinput8keyboard6pctype16ShiftCapsAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent, .L_814163D0
+	.rel onAnmEvent__Q49textinput8keyboard6pctype16ShiftCapsAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent, .L_81416394
+	.rel onAnmEvent__Q49textinput8keyboard6pctype16ShiftCapsAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent, .L_81416334
+	.rel onAnmEvent__Q49textinput8keyboard6pctype16ShiftCapsAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent, .L_81416274
+	.rel onAnmEvent__Q49textinput8keyboard6pctype16ShiftCapsAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent, .L_814163D0
+	.rel onAnmEvent__Q49textinput8keyboard6pctype16ShiftCapsAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent, .L_814162F4
+	.rel onAnmEvent__Q49textinput8keyboard6pctype16ShiftCapsAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent, .L_81416354
+	.rel onAnmEvent__Q49textinput8keyboard6pctype16ShiftCapsAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent, .L_814162D4
+	.rel onAnmEvent__Q49textinput8keyboard6pctype16ShiftCapsAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent, .L_814163D0
+.endobj jumptable_8165B9B4
+
+# .data:0x2C54 | 0x8165B9E4 | size: 0x30
+.obj jumptable_8165B9E4, local
+	.rel onAnmEvent__Q49textinput8keyboard6pctype16ShiftCapsAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent, .L_8141614C
+	.rel onAnmEvent__Q49textinput8keyboard6pctype16ShiftCapsAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent, .L_81416170
+	.rel onAnmEvent__Q49textinput8keyboard6pctype16ShiftCapsAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent, .L_814161D0
+	.rel onAnmEvent__Q49textinput8keyboard6pctype16ShiftCapsAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent, .L_814161B0
+	.rel onAnmEvent__Q49textinput8keyboard6pctype16ShiftCapsAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent, .L_814163D0
+	.rel onAnmEvent__Q49textinput8keyboard6pctype16ShiftCapsAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent, .L_814163D0
+	.rel onAnmEvent__Q49textinput8keyboard6pctype16ShiftCapsAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent, .L_81416130
+	.rel onAnmEvent__Q49textinput8keyboard6pctype16ShiftCapsAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent, .L_814163D0
+	.rel onAnmEvent__Q49textinput8keyboard6pctype16ShiftCapsAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent, .L_814163D0
+	.rel onAnmEvent__Q49textinput8keyboard6pctype16ShiftCapsAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent, .L_81416110
+	.rel onAnmEvent__Q49textinput8keyboard6pctype16ShiftCapsAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent, .L_814163D0
+	.rel onAnmEvent__Q49textinput8keyboard6pctype16ShiftCapsAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent, .L_81416210
+.endobj jumptable_8165B9E4
+
+# .data:0x2C84 | 0x8165BA14 | size: 0x2C
+.obj jumptable_8165BA14, local
+	.rel onAnmEvent__Q49textinput8keyboard6pctype16ShiftCapsAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent, .L_81416028
+	.rel onAnmEvent__Q49textinput8keyboard6pctype16ShiftCapsAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent, .L_81416030
+	.rel onAnmEvent__Q49textinput8keyboard6pctype16ShiftCapsAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent, .L_81416028
+	.rel onAnmEvent__Q49textinput8keyboard6pctype16ShiftCapsAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent, .L_81416030
+	.rel onAnmEvent__Q49textinput8keyboard6pctype16ShiftCapsAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent, .L_81416030
+	.rel onAnmEvent__Q49textinput8keyboard6pctype16ShiftCapsAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent, .L_81416030
+	.rel onAnmEvent__Q49textinput8keyboard6pctype16ShiftCapsAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent, .L_81416028
+	.rel onAnmEvent__Q49textinput8keyboard6pctype16ShiftCapsAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent, .L_81416030
+	.rel onAnmEvent__Q49textinput8keyboard6pctype16ShiftCapsAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent, .L_81416030
+	.rel onAnmEvent__Q49textinput8keyboard6pctype16ShiftCapsAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent, .L_81416028
+	.rel onAnmEvent__Q49textinput8keyboard6pctype16ShiftCapsAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent, .L_81416028
+.endobj jumptable_8165BA14
+
+# .data:0x2CB0 | 0x8165BA40 | size: 0x2C
+.obj jumptable_8165BA40, local
+	.rel onAnmEvent__Q49textinput8keyboard6pctype16ShiftCapsAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent, .L_81415FA8
+	.rel onAnmEvent__Q49textinput8keyboard6pctype16ShiftCapsAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent, .L_81415FB0
+	.rel onAnmEvent__Q49textinput8keyboard6pctype16ShiftCapsAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent, .L_81415FA8
+	.rel onAnmEvent__Q49textinput8keyboard6pctype16ShiftCapsAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent, .L_81415FB0
+	.rel onAnmEvent__Q49textinput8keyboard6pctype16ShiftCapsAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent, .L_81415FB0
+	.rel onAnmEvent__Q49textinput8keyboard6pctype16ShiftCapsAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent, .L_81415FB0
+	.rel onAnmEvent__Q49textinput8keyboard6pctype16ShiftCapsAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent, .L_81415FA8
+	.rel onAnmEvent__Q49textinput8keyboard6pctype16ShiftCapsAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent, .L_81415FB0
+	.rel onAnmEvent__Q49textinput8keyboard6pctype16ShiftCapsAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent, .L_81415FB0
+	.rel onAnmEvent__Q49textinput8keyboard6pctype16ShiftCapsAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent, .L_81415FA8
+	.rel onAnmEvent__Q49textinput8keyboard6pctype16ShiftCapsAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent, .L_81415FA8
+.endobj jumptable_8165BA40
+
+# .data:0x2CDC | 0x8165BA6C | size: 0x1C
+.obj jumptable_8165BA6C, local
+	.rel onAnmEvent__Q49textinput8keyboard6pctype19ToggleButtonAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent, .L_81416458
+	.rel onAnmEvent__Q49textinput8keyboard6pctype19ToggleButtonAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent, .L_8141647C
+	.rel onAnmEvent__Q49textinput8keyboard6pctype19ToggleButtonAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent, .L_814164E4
+	.rel onAnmEvent__Q49textinput8keyboard6pctype19ToggleButtonAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent, .L_814164C0
+	.rel onAnmEvent__Q49textinput8keyboard6pctype19ToggleButtonAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent, .L_81416528
+	.rel onAnmEvent__Q49textinput8keyboard6pctype19ToggleButtonAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent, .L_8141656C
+	.rel onAnmEvent__Q49textinput8keyboard6pctype19ToggleButtonAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent, .L_8141654C
+.endobj jumptable_8165BA6C
+
+# .data:0x2CF8 | 0x8165BA88 | size: 0x3C
+.obj jumptable_8165BA88, local
+	.rel onAnmEvent__Q49textinput8keyboard6pctype18OnOffButtonAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent, .L_81416800
+	.rel onAnmEvent__Q49textinput8keyboard6pctype18OnOffButtonAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent, .L_81416714
+	.rel onAnmEvent__Q49textinput8keyboard6pctype18OnOffButtonAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent, .L_8141677C
+	.rel onAnmEvent__Q49textinput8keyboard6pctype18OnOffButtonAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent, .L_81416758
+	.rel onAnmEvent__Q49textinput8keyboard6pctype18OnOffButtonAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent, .L_814167C0
+	.rel onAnmEvent__Q49textinput8keyboard6pctype18OnOffButtonAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent, .L_81416800
+	.rel onAnmEvent__Q49textinput8keyboard6pctype18OnOffButtonAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent, .L_81416800
+	.rel onAnmEvent__Q49textinput8keyboard6pctype18OnOffButtonAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent, .L_81416800
+	.rel onAnmEvent__Q49textinput8keyboard6pctype18OnOffButtonAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent, .L_81416800
+	.rel onAnmEvent__Q49textinput8keyboard6pctype18OnOffButtonAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent, .L_81416800
+	.rel onAnmEvent__Q49textinput8keyboard6pctype18OnOffButtonAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent, .L_81416800
+	.rel onAnmEvent__Q49textinput8keyboard6pctype18OnOffButtonAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent, .L_81416800
+	.rel onAnmEvent__Q49textinput8keyboard6pctype18OnOffButtonAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent, .L_81416688
+	.rel onAnmEvent__Q49textinput8keyboard6pctype18OnOffButtonAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent, .L_814166CC
+	.rel onAnmEvent__Q49textinput8keyboard6pctype18OnOffButtonAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent, .L_814166F0
+.endobj jumptable_8165BA88
+
+# .data:0x2D34 | 0x8165BAC4 | size: 0xE
+.obj lbl_8165BAC4, global
+	.string "B_Mode_kr_eng"
+.endobj lbl_8165BAC4
+	.2byte 0x0000
+
+# .data:0x2D44 | 0x8165BAD4 | size: 0x68
+.obj lbl_8165BAD4, global
+	.4byte 0x425F4D6F
+	.4byte 0x64655F6B
+	.4byte 0x725F6861
+	.4byte 0x6E000000
+	.4byte 0x545F4D6F
+	.4byte 0x64655F6B
+	.4byte 0x725F656E
+	.4byte 0x67000000
+	.4byte 0x545F4D6F
+	.4byte 0x64655F6B
+	.4byte 0x725F6861
+	.4byte 0x6E000000
+	.4byte 0x00000000
+	.4byte 0x4E5F6D6F
+	.4byte 0x64655365
+	.4byte 0x6C656374
+	.4byte 0x5F6B7200
+	.4byte 0x545F4D6F
+	.4byte 0x64655F64
+	.4byte 0x69726563
+	.4byte 0x74000000
+	.4byte 0x545F4D6F
+	.4byte 0x64655F63
+	.4byte 0x6E5F7069
+	.4byte 0x6E79696E
+	.4byte 0x00000000
+.endobj lbl_8165BAD4
+
+# .data:0x2DAC | 0x8165BB3C | size: 0xC
+.obj lbl_8165BB3C, global
+	.4byte 0xC35B0000
+	.4byte 0xC3020000
+	.4byte 0x00000000
+.endobj lbl_8165BB3C
+
+# .data:0x2DB8 | 0x8165BB48 | size: 0xC
+.obj lbl_8165BB48, global
+	.4byte 0xC3510000
+	.4byte 0xC2B40000
+	.4byte 0x00000000
+.endobj lbl_8165BB48
+
+# .data:0x2DC4 | 0x8165BB54 | size: 0x2C
+# textinput::keyboard::pctype::OnOffButtonAnmPane::__vtable
+.obj __vt__Q49textinput8keyboard6pctype18OnOffButtonAnmPane, global
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte init__Q49textinput8keyboard6pctype7AnmPaneFv
+	.4byte calc__Q39textinput11nw4rmanager7AnmPaneFv
+	.4byte onAnmEvent__Q49textinput8keyboard6pctype18OnOffButtonAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent
+	.4byte changeAnimation__Q49textinput8keyboard6pctype7AnmPaneFUl
+	.4byte isInAnimation__Q39textinput11nw4rmanager7AnmPaneFv
+	.4byte searchAnimation__Q39textinput11nw4rmanager7AnmPaneFUl
+	.4byte __dt__Q49textinput8keyboard6pctype18OnOffButtonAnmPaneFv
+	.4byte getState__Q49textinput8keyboard6pctype7AnmPaneCFv
+	.4byte getKeyType__Q49textinput8keyboard6pctype7AnmPaneCFv
+.endobj __vt__Q49textinput8keyboard6pctype18OnOffButtonAnmPane
+
+# .data:0x2DF0 | 0x8165BB80 | size: 0x2C
+# textinput::keyboard::pctype::ToggleButtonAnmPane::__vtable
+.obj __vt__Q49textinput8keyboard6pctype19ToggleButtonAnmPane, global
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte init__Q49textinput8keyboard6pctype7AnmPaneFv
+	.4byte calc__Q39textinput11nw4rmanager7AnmPaneFv
+	.4byte onAnmEvent__Q49textinput8keyboard6pctype19ToggleButtonAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent
+	.4byte changeAnimation__Q49textinput8keyboard6pctype7AnmPaneFUl
+	.4byte isInAnimation__Q39textinput11nw4rmanager7AnmPaneFv
+	.4byte searchAnimation__Q39textinput11nw4rmanager7AnmPaneFUl
+	.4byte __dt__Q49textinput8keyboard6pctype19ToggleButtonAnmPaneFv
+	.4byte getState__Q49textinput8keyboard6pctype7AnmPaneCFv
+	.4byte getKeyType__Q49textinput8keyboard6pctype7AnmPaneCFv
+.endobj __vt__Q49textinput8keyboard6pctype19ToggleButtonAnmPane
+
+# .data:0x2E1C | 0x8165BBAC | size: 0x2C
+# textinput::keyboard::pctype::ShiftCapsAnmPane::__vtable
+.obj __vt__Q49textinput8keyboard6pctype16ShiftCapsAnmPane, global
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte init__Q49textinput8keyboard6pctype7AnmPaneFv
+	.4byte calc__Q39textinput11nw4rmanager7AnmPaneFv
+	.4byte onAnmEvent__Q49textinput8keyboard6pctype16ShiftCapsAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent
+	.4byte changeAnimation__Q49textinput8keyboard6pctype7AnmPaneFUl
+	.4byte isInAnimation__Q39textinput11nw4rmanager7AnmPaneFv
+	.4byte searchAnimation__Q39textinput11nw4rmanager7AnmPaneFUl
+	.4byte __dt__Q49textinput8keyboard6pctype16ShiftCapsAnmPaneFv
+	.4byte getState__Q49textinput8keyboard6pctype7AnmPaneCFv
+	.4byte getKeyType__Q49textinput8keyboard6pctype7AnmPaneCFv
+.endobj __vt__Q49textinput8keyboard6pctype16ShiftCapsAnmPane
+
+# .data:0x2E48 | 0x8165BBD8 | size: 0x2C
+# textinput::keyboard::pctype::NormalButtonAnmPane::__vtable
+.obj __vt__Q49textinput8keyboard6pctype19NormalButtonAnmPane, global
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte init__Q49textinput8keyboard6pctype7AnmPaneFv
+	.4byte calc__Q39textinput11nw4rmanager7AnmPaneFv
+	.4byte onAnmEvent__Q49textinput8keyboard6pctype19NormalButtonAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent
+	.4byte changeAnimation__Q49textinput8keyboard6pctype7AnmPaneFUl
+	.4byte isInAnimation__Q39textinput11nw4rmanager7AnmPaneFv
+	.4byte searchAnimation__Q39textinput11nw4rmanager7AnmPaneFUl
+	.4byte __dt__Q49textinput8keyboard6pctype19NormalButtonAnmPaneFv
+	.4byte getState__Q49textinput8keyboard6pctype7AnmPaneCFv
+	.4byte getKeyType__Q49textinput8keyboard6pctype7AnmPaneCFv
+.endobj __vt__Q49textinput8keyboard6pctype19NormalButtonAnmPane
+
+# .data:0x2E74 | 0x8165BC04 | size: 0x2C
+# textinput::keyboard::pctype::AnmPane::__vtable
+.obj __vt__Q49textinput8keyboard6pctype7AnmPane, global
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte init__Q49textinput8keyboard6pctype7AnmPaneFv
+	.4byte calc__Q39textinput11nw4rmanager7AnmPaneFv
+	.4byte onAnmEvent__Q39textinput11nw4rmanager7AnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent
+	.4byte changeAnimation__Q49textinput8keyboard6pctype7AnmPaneFUl
+	.4byte isInAnimation__Q39textinput11nw4rmanager7AnmPaneFv
+	.4byte searchAnimation__Q39textinput11nw4rmanager7AnmPaneFUl
+	.4byte __dt__Q49textinput8keyboard6pctype7AnmPaneFv
+	.4byte getState__Q49textinput8keyboard6pctype7AnmPaneCFv
+	.4byte getKeyType__Q49textinput8keyboard6pctype7AnmPaneCFv
+.endobj __vt__Q49textinput8keyboard6pctype7AnmPane
+
+# .data:0x2EA0 | 0x8165BC30 | size: 0x15C
+# textinput::keyboard::pctype::LayoutByNW4R::__vtable
+.obj __vt__Q49textinput8keyboard6pctype12LayoutByNW4R, global
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte __dt__Q49textinput8keyboard6pctype12LayoutByNW4RFv
+	.4byte create__Q49textinput8keyboard6pctype12LayoutByNW4RFP12MEMAllocator
+	.4byte init__Q49textinput8keyboard6pctype12LayoutByNW4RFv
+	.4byte setCommandReceiver__Q29textinput13CommandSenderFPQ29textinput15CommandReceiver
+	.4byte sendCommand__Q29textinput13CommandSenderFUlPv
+	.4byte updateFromReceiver__Q49textinput8keyboard6pctype12LayoutByNW4RFUlPv
+	.4byte onKey__Q49textinput8keyboard6pctype12LayoutByNW4RFUlPv
+	.4byte getType__Q49textinput8keyboard6pctype4BaseFv
+	.4byte setLanguage__Q49textinput8keyboard6pctype12LayoutByNW4RFQ29textinput8Language
+	.4byte getLanguage__Q39textinput8keyboard12KeyboardBaseCFv
+	.4byte update__Q39textinput8keyboard12KeyboardBaseFv
+	.4byte onActive__Q49textinput8keyboard6pctype12LayoutByNW4RFv
+	.4byte inputCharCode__Q49textinput8keyboard6pctype12LayoutByNW4RFw
+	.4byte getState__Q49textinput8keyboard6pctype4BaseFv
+	.4byte isShiftOn__Q49textinput8keyboard6pctype4BaseCFv
+	.4byte isCapsOn__Q49textinput8keyboard6pctype4BaseCFv
+	.4byte isABC__Q49textinput8keyboard6pctype4BaseFv
+	.4byte setABC__Q49textinput8keyboard6pctype12LayoutByNW4RFb
+	.4byte getABCInputMode__Q49textinput8keyboard6pctype4BaseCFv
+	.4byte getAIUInputMode__Q49textinput8keyboard6pctype4BaseCFv
+	.4byte getTranslateMode__Q49textinput8keyboard6pctype4BaseCFv
+	.4byte setTranslateMode__Q49textinput8keyboard6pctype12LayoutByNW4RFQ59textinput8keyboard6pctype4Base13TranslateMode
+	.4byte onlyQwerty__Q49textinput8keyboard6pctype12LayoutByNW4RFb
+	.4byte setLangKeyActive__Q49textinput8keyboard6pctype12LayoutByNW4RFb
+	.4byte setInputModeJP__Q49textinput8keyboard6pctype12LayoutByNW4RFbUlUl
+	.4byte setInputModeCK__Q49textinput8keyboard6pctype12LayoutByNW4RFUl
+	.4byte refreshState__Q49textinput8keyboard6pctype12LayoutByNW4RFv
+	.4byte changeABCInputMode__Q49textinput8keyboard6pctype4BaseFQ59textinput8keyboard6pctype4Base9InputMode
+	.4byte changeAIUInputMode__Q49textinput8keyboard6pctype4BaseFQ59textinput8keyboard6pctype4Base9InputMode
+	.4byte onClose__Q49textinput8keyboard6pctype12LayoutByNW4RFv
+	.4byte getWCCode__Q49textinput8keyboard6pctype4BaseFPc
+	.4byte getControlKey__Q49textinput8keyboard6pctype4BaseFPc
+	.4byte sendInputWChar__Q49textinput8keyboard6pctype12LayoutByNW4RFwb
+	.4byte goSignInputMode__Q49textinput8keyboard6pctype12LayoutByNW4RFv
+	.4byte changePredictLanguage__Q49textinput8keyboard6pctype12LayoutByNW4RFv
+	.4byte updateFixMode__Q49textinput8keyboard6pctype4BaseFv
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte "@68@__dt__Q49textinput8keyboard6pctype12LayoutByNW4RFv"
+	.4byte createWithEventHandler__Q39textinput11nw4rmanager6LayoutFP12MEMAllocatorPQ39textinput11nw4rmanager14TiEventHandler
+	.4byte "@68@init__Q49textinput8keyboard6pctype12LayoutByNW4RFv"
+	.4byte initPaneManager__Q39textinput11nw4rmanager6LayoutFv
+	.4byte "@68@draw__Q49textinput8keyboard6pctype12LayoutByNW4RFv"
+	.4byte "@68@calc__Q49textinput8keyboard6pctype12LayoutByNW4RFv"
+	.4byte "@68@updateInput__Q49textinput8keyboard6pctype12LayoutByNW4RFiffUlUlUlPv"
+	.4byte "@68@updateInput__Q49textinput8keyboard6pctype12LayoutByNW4RFRQ39textinput5input10HKBManager"
+	.4byte getLayout__Q39textinput11nw4rmanager6LayoutFv
+	.4byte getPane__Q39textinput11nw4rmanager6LayoutFPCc
+	.4byte getPane__Q39textinput11nw4rmanager6LayoutCFPCc
+	.4byte getFlightDuration__Q39textinput11nw4rmanager6LayoutFiPCc
+	.4byte setAnimOn__Q39textinput11nw4rmanager6LayoutFb
+	.4byte drawPane__Q39textinput11nw4rmanager6LayoutFPCc
+	.4byte setRootPaneScaleFor16x9__Q39textinput11nw4rmanager6LayoutFv
+	.4byte setRootPaneScaleFor4x3__Q39textinput11nw4rmanager6LayoutFv
+	.4byte setProjectionMtx__Q39textinput11nw4rmanager6LayoutFv
+	.4byte setPaneLastDrawReceived__Q39textinput11nw4rmanager6LayoutFPQ34nw4r3lyt4Pane
+	.4byte initPaneLastDrawReceived__Q39textinput11nw4rmanager6LayoutFv
+	.4byte setVisible__Q39textinput11nw4rmanager6LayoutFPCcb
+	.4byte isVisible__Q39textinput11nw4rmanager6LayoutCFPCcPb
+	.4byte setString__Q39textinput11nw4rmanager6LayoutFPCcPCw
+	.4byte searchAnmPane__Q39textinput11nw4rmanager6LayoutFPCc
+	.4byte searchAnmPane__Q39textinput11nw4rmanager6LayoutFw
+	.4byte getAnmPaneList__Q39textinput11nw4rmanager6LayoutFv
+	.4byte getPaneManager__Q39textinput11nw4rmanager6LayoutFv
+	.4byte AdjustPaneMtx__Q39textinput11nw4rmanager6LayoutFRA3_A4_fRCQ34nw4r3lyt8DrawInfoRCQ34nw4r4math5MTX34
+	.4byte createPaneManager__Q39textinput11nw4rmanager6LayoutFP12MEMAllocatorPQ39textinput11nw4rmanager14TiEventHandler
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte "@236@onEvent__Q49textinput8keyboard6pctype12LayoutByNW4RFPQ49textinput8keyboard6pctype5UIObjUlPv"
+	.4byte draw__Q49textinput8keyboard6pctype12LayoutByNW4RFv
+	.4byte calc__Q49textinput8keyboard6pctype12LayoutByNW4RFv
+	.4byte setPredictLanguageDialog__Q49textinput8keyboard6pctype12LayoutByNW4RFPQ39textinput11predictlang12LayoutByNW4R
+	.4byte setSignWindow__Q49textinput8keyboard6pctype12LayoutByNW4RFPQ49textinput8keyboard10signwindow12LayoutByNW4R
+	.4byte setLineFeedButton__Q49textinput8keyboard6pctype12LayoutByNW4RFb
+	.4byte setPredictLanguageButton__Q49textinput8keyboard6pctype12LayoutByNW4RFb
+	.4byte setSignWindowButton__Q49textinput8keyboard6pctype12LayoutByNW4RFb
+	.4byte updateInput__Q49textinput8keyboard6pctype12LayoutByNW4RFiffUlUlUlPv
+	.4byte updateInput__Q49textinput8keyboard6pctype12LayoutByNW4RFRQ39textinput5input10HKBManager
+	.4byte changeAnimationAllToNormal__Q49textinput8keyboard6pctype12LayoutByNW4RFv
+	.4byte throwReleaseForAll__Q49textinput8keyboard6pctype12LayoutByNW4RFv
+	.4byte cancelStateFocusIn__Q49textinput8keyboard6pctype12LayoutByNW4RFv
+	.4byte updatePredictLanguage__Q49textinput8keyboard6pctype12LayoutByNW4RFPQ39textinput15CommandReceiver17ChangePredictMode
+	.4byte updateDakuten__Q49textinput8keyboard6pctype12LayoutByNW4RFv
+	.4byte initLayout__Q49textinput8keyboard6pctype12LayoutByNW4RFv
+	.4byte onEvent__Q49textinput8keyboard6pctype12LayoutByNW4RFPQ49textinput8keyboard6pctype5UIObjUlPv
+.endobj __vt__Q49textinput8keyboard6pctype12LayoutByNW4R
+
+# .data:0x2FFC | 0x8165BD8C | size: 0x1C
+# textinput::keyboard::pctype::UIModePanel::__vtable
+.obj __vt__Q49textinput8keyboard6pctype11UIModePanel, global
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte __dt__Q49textinput8keyboard6pctype11UIModePanelFv
+	.4byte onEvent__Q49textinput8keyboard6pctype5UIObjFRQ39textinput3gui12GUIComponentUlPv
+	.4byte setLatestEventCtrlNo__Q39textinput3gui12EventHandlerFi
+	.4byte getLatestEventCtrlNo__Q39textinput3gui12EventHandlerFv
+	.4byte onGUIEvent__Q49textinput8keyboard6pctype11UIModePanelFRQ39textinput3gui13PaneComponentUlPQ49textinput11nw4rmanager14TiEventHandler5Input
+.endobj __vt__Q49textinput8keyboard6pctype11UIModePanel
+
+# .data:0x3018 | 0x8165BDA8 | size: 0x1C
+# textinput::keyboard::pctype::UIModifierButton::__vtable
+.obj __vt__Q49textinput8keyboard6pctype16UIModifierButton, global
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte __dt__Q49textinput8keyboard6pctype16UIModifierButtonFv
+	.4byte onEvent__Q49textinput8keyboard6pctype5UIObjFRQ39textinput3gui12GUIComponentUlPv
+	.4byte setLatestEventCtrlNo__Q39textinput3gui12EventHandlerFi
+	.4byte getLatestEventCtrlNo__Q39textinput3gui12EventHandlerFv
+	.4byte onGUIEvent__Q49textinput8keyboard6pctype16UIModifierButtonFRQ39textinput3gui13PaneComponentUlPQ49textinput11nw4rmanager14TiEventHandler5Input
+.endobj __vt__Q49textinput8keyboard6pctype16UIModifierButton
+
+# .data:0x3034 | 0x8165BDC4 | size: 0x1C
+# textinput::keyboard::pctype::UIObj::__vtable
+.obj __vt__Q49textinput8keyboard6pctype5UIObj, global
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte __dt__Q49textinput8keyboard6pctype5UIObjFv
+	.4byte onEvent__Q49textinput8keyboard6pctype5UIObjFRQ39textinput3gui12GUIComponentUlPv
+	.4byte setLatestEventCtrlNo__Q39textinput3gui12EventHandlerFi
+	.4byte getLatestEventCtrlNo__Q39textinput3gui12EventHandlerFv
+	.4byte onGUIEvent__Q49textinput8keyboard6pctype5UIObjFRQ39textinput3gui13PaneComponentUlPQ49textinput11nw4rmanager14TiEventHandler5Input
+.endobj __vt__Q49textinput8keyboard6pctype5UIObj
+
+# .data:0x3050 | 0x8165BDE0 | size: 0x20
+# textinput::keyboard::pctype::EventHandler::__vtable
+.obj __vt__Q49textinput8keyboard6pctype12EventHandler, global
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte __dt__Q49textinput8keyboard6pctype12EventHandlerFv
+	.4byte onEvent__Q39textinput11nw4rmanager14TiEventHandlerFRQ39textinput3gui12GUIComponentUlPv
+	.4byte setLatestEventCtrlNo__Q39textinput3gui12EventHandlerFi
+	.4byte getLatestEventCtrlNo__Q39textinput3gui12EventHandlerFv
+	.4byte onTiEvent__Q49textinput8keyboard6pctype12EventHandlerFPQ39textinput3gui13PaneComponentUlPQ49textinput11nw4rmanager14TiEventHandler5Input
+	.4byte setEventObserver__Q39textinput11nw4rmanager14TiEventHandlerFPQ29textinput13EventObserver
+.endobj __vt__Q49textinput8keyboard6pctype12EventHandler
+
+# .data:0x3070 | 0x8165BE00 | size: 0x98
+# textinput::keyboard::pctype::Base::__vtable
+.obj __vt__Q49textinput8keyboard6pctype4Base, global
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte __dt__Q49textinput8keyboard6pctype4BaseFv
+	.4byte create__Q49textinput8keyboard6pctype4BaseFP12MEMAllocator
+	.4byte init__Q49textinput8keyboard6pctype4BaseFv
+	.4byte setCommandReceiver__Q29textinput13CommandSenderFPQ29textinput15CommandReceiver
+	.4byte sendCommand__Q29textinput13CommandSenderFUlPv
+	.4byte updateFromReceiver__Q49textinput8keyboard6pctype4BaseFUlPv
+	.4byte onKey__Q49textinput8keyboard6pctype4BaseFUlPv
+	.4byte getType__Q49textinput8keyboard6pctype4BaseFv
+	.4byte setLanguage__Q49textinput8keyboard6pctype4BaseFQ29textinput8Language
+	.4byte getLanguage__Q39textinput8keyboard12KeyboardBaseCFv
+	.4byte update__Q39textinput8keyboard12KeyboardBaseFv
+	.4byte onActive__Q49textinput8keyboard6pctype4BaseFv
+	.4byte inputCharCode__Q49textinput8keyboard6pctype4BaseFw
+	.4byte getState__Q49textinput8keyboard6pctype4BaseFv
+	.4byte isShiftOn__Q49textinput8keyboard6pctype4BaseCFv
+	.4byte isCapsOn__Q49textinput8keyboard6pctype4BaseCFv
+	.4byte isABC__Q49textinput8keyboard6pctype4BaseFv
+	.4byte setABC__Q49textinput8keyboard6pctype4BaseFb
+	.4byte getABCInputMode__Q49textinput8keyboard6pctype4BaseCFv
+	.4byte getAIUInputMode__Q49textinput8keyboard6pctype4BaseCFv
+	.4byte getTranslateMode__Q49textinput8keyboard6pctype4BaseCFv
+	.4byte setTranslateMode__Q49textinput8keyboard6pctype4BaseFQ59textinput8keyboard6pctype4Base13TranslateMode
+	.4byte onlyQwerty__Q49textinput8keyboard6pctype4BaseFb
+	.4byte setLangKeyActive__Q49textinput8keyboard6pctype4BaseFb
+	.4byte setInputModeJP__Q49textinput8keyboard6pctype4BaseFbUlUl
+	.4byte setInputModeCK__Q49textinput8keyboard6pctype4BaseFUl
+	.4byte refreshState__Q49textinput8keyboard6pctype4BaseFv
+	.4byte changeABCInputMode__Q49textinput8keyboard6pctype4BaseFQ59textinput8keyboard6pctype4Base9InputMode
+	.4byte changeAIUInputMode__Q49textinput8keyboard6pctype4BaseFQ59textinput8keyboard6pctype4Base9InputMode
+	.4byte onClose__Q49textinput8keyboard6pctype4BaseFv
+	.4byte getWCCode__Q49textinput8keyboard6pctype4BaseFPc
+	.4byte getControlKey__Q49textinput8keyboard6pctype4BaseFPc
+	.4byte sendInputWChar__Q49textinput8keyboard6pctype4BaseFwb
+	.4byte goSignInputMode__Q49textinput8keyboard6pctype4BaseFv
+	.4byte changePredictLanguage__Q49textinput8keyboard6pctype4BaseFv
+	.4byte updateFixMode__Q49textinput8keyboard6pctype4BaseFv
+.endobj __vt__Q49textinput8keyboard6pctype4Base
+
+# .data:0x3108 | 0x8165BE98 | size: 0x18
+# textinput::gui::EventHandler::__vtable
+.obj __vt__Q39textinput3gui12EventHandler, global
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte __dt__Q39textinput3gui12EventHandlerFv
+	.4byte onEvent__Q39textinput3gui12EventHandlerFRQ39textinput3gui12GUIComponentUlPv
+	.4byte setLatestEventCtrlNo__Q39textinput3gui12EventHandlerFi
+	.4byte getLatestEventCtrlNo__Q39textinput3gui12EventHandlerFv
+.endobj __vt__Q39textinput3gui12EventHandler
+
+# 0x81694D18..0x81694D20 | size: 0x8
+.section .sdata2, "a"
+.balign 8
+
+# .sdata2:0x0 | 0x81694D18 | size: 0x4
+.obj lbl_81694D18, global
+	.4byte 0x00000001
+.endobj lbl_81694D18
+
+# .sdata2:0x4 | 0x81694D1C | size: 0x4
+.obj lbl_81694D1C, global
+	.4byte 0x00000002
+.endobj lbl_81694D1C
+
+# 0x816972A0..0x81697328 | size: 0x88
+.section .sdata, "wa"
+.balign 8
+
+# .sdata:0x0 | 0x816972A0 | size: 0x8
+.obj lbl_816972A0, global
+	.4byte 0x00000000
+	.4byte 0x00000000
+.endobj lbl_816972A0
+
+# .sdata:0x8 | 0x816972A8 | size: 0x8
+.obj lbl_816972A8, global
+	.string16 "Eng"
+.endobj lbl_816972A8
+
+# .sdata:0x10 | 0x816972B0 | size: 0x8
+.obj lbl_816972B0, global
+	.string16 "Fra"
+.endobj lbl_816972B0
+
+# .sdata:0x18 | 0x816972B8 | size: 0x8
+.obj lbl_816972B8, global
+	.string16 "Esp"
+.endobj lbl_816972B8
+
+# .sdata:0x20 | 0x816972C0 | size: 0x6
+.obj lbl_816972C0, global
+	.string16 "EN"
+.endobj lbl_816972C0
+	.2byte 0x0000
+
+# .sdata:0x28 | 0x816972C8 | size: 0x6
+.obj lbl_816972C8, global
+	.string16 "DE"
+.endobj lbl_816972C8
+	.2byte 0x0000
+
+# .sdata:0x30 | 0x816972D0 | size: 0x6
+.obj lbl_816972D0, global
+	.string16 "FR"
+.endobj lbl_816972D0
+	.2byte 0x0000
+
+# .sdata:0x38 | 0x816972D8 | size: 0x6
+.obj lbl_816972D8, global
+	.string16 "ES"
+.endobj lbl_816972D8
+	.2byte 0x0000
+
+# .sdata:0x40 | 0x816972E0 | size: 0x6
+.obj lbl_816972E0, global
+	.string16 "IT"
+.endobj lbl_816972E0
+	.2byte 0x0000
+
+# .sdata:0x48 | 0x816972E8 | size: 0x6
+.obj lbl_816972E8, global
+	.string16 "NL"
+.endobj lbl_816972E8
+	.2byte 0x0000
+
+# .sdata:0x50 | 0x816972F0 | size: 0x6
+.obj lbl_816972F0, global
+	.string16 "CN"
+.endobj lbl_816972F0
+	.2byte 0x0000
+
+# .sdata:0x58 | 0x816972F8 | size: 0x6
+.obj lbl_816972F8, global
+	.string16 "KR"
+.endobj lbl_816972F8
+	.2byte 0x0000
+
+# .sdata:0x60 | 0x81697300 | size: 0x4
+.obj lbl_81697300, global
+	.4byte lbl_81659034
+.endobj lbl_81697300
+
+# .sdata:0x64 | 0x81697304 | size: 0x4
+.obj lbl_81697304, global
+	.4byte 0x00000000
+.endobj lbl_81697304
+
+# .sdata:0x68 | 0x81697308 | size: 0x7
+.obj lbl_81697308, global
+	.string "0B0D0F"
+.endobj lbl_81697308
+	.byte 0x00
+
+# .sdata:0x70 | 0x81697310 | size: 0x8
+.obj lbl_81697310, global
+	.4byte 0x30A230A4
+	.4byte 0x30A60000
+.endobj lbl_81697310
+
+# .sdata:0x78 | 0x81697318 | size: 0x5
+.obj lbl_81697318, global
+	.string "Chng"
+.endobj lbl_81697318
+	.byte 0x00, 0x00, 0x00
+
+# .sdata:0x80 | 0x81697320 | size: 0x5
+.obj lbl_81697320, global
+	.string "prdc"
+.endobj lbl_81697320
+	.byte 0x00, 0x00, 0x00
+
+# 0x81698CF8..0x81698D00 | size: 0x8
+.section .sbss, "wa", @nobits
+.balign 8
+
+# .sbss:0x0 | 0x81698CF8 | size: 0x1
+# textinput::LayoutGather::Singleton::getInstance()::sGather guard
+.obj "@GUARD@getInstance__Q39textinput12LayoutGather9SingletonFv@sGather", global
+	.skip 0x1
+.endobj "@GUARD@getInstance__Q39textinput12LayoutGather9SingletonFv@sGather"
+	.skip 0x3
+
+# .sbss:0x4 | 0x81698CFC | size: 0x1
+# textinput::LayoutGather::Singleton::getInstance()::sGather
+.obj "@LOCAL@getInstance__Q39textinput12LayoutGather9SingletonFv@sGather", global
+	.skip 0x1
+.endobj "@LOCAL@getInstance__Q39textinput12LayoutGather9SingletonFv@sGather"
+	.skip 0x3
