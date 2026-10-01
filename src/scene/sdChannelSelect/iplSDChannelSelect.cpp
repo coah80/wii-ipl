@@ -1037,52 +1037,52 @@ namespace ipl {
             }
 
             switch (mWorkerCommand) {
-            case 0:
+            case 1:
                 processWorkerCommands();
                 break;
-            case 1:
+            case 0:
                 handleNandTitleUsageComplete();
                 break;
             case 2:
                 handleSDTitleList();
                 break;
-            case 3:
+            case 4:
                 handleSDMountComplete();
                 break;
-            case 4:
+            case 5:
                 handleSDTitleListResult();
                 break;
-            case 5:
+            case 3:
                 handleSDChannelUpdateComplete();
                 break;
-            case 6:
+            case 7:
                 handleCopyComplete();
                 break;
-            case 7:
+            case 8:
                 handleSDLocationUpdateComplete();
                 break;
-            case 8:
+            case 9:
                 handleSDLocationReadComplete();
                 break;
-            case 9:
+            case 10:
                 handleMoveComplete();
                 break;
-            case 10:
+            case 11:
                 handleBackupFitComplete();
                 break;
-            case 11:
+            case 12:
                 handleNandSDCleanupComplete();
                 break;
-            case 12:
+            case 13:
                 handleSDDeleteComplete();
                 break;
-            case 13:
+            case 6:
                 handleSDCardReady();
                 break;
-            case 14:
+            case 15:
                 handleCardCommand();
                 break;
-            case 15:
+            case 14:
                 break;
             }
 
@@ -1749,79 +1749,79 @@ namespace ipl {
             }
 
             switch (state) {
-            case 0:
+            case 1:
                 processNormalInput();
                 break;
-            case 1:
+            case 8:
+            case 9:
                 setPageActionFrame();
                 break;
-            case 2:
+            case 10:
+            case 11:
                 finishPageScroll();
                 break;
-            case 3:
+            case 5:
                 createChildScene(0x23, this, NULL, this);
                 mState = 6;
                 break;
-            case 4:
+            case 7:
                 advancePageAnimation();
                 break;
-            case 5:
+            case 12:
                 mState = 13;
                 break;
-            case 6:
+            case 14:
                 initializeNormalPage();
                 break;
-            case 7:
+            case 15:
                 updateDragState();
                 break;
-            case 8:
+            case 16:
                 updateDragPageTransition();
                 break;
-            case 9:
+            case 17:
                 finishDragWait();
                 break;
-            case 10:
+            case 18:
                 finishDragPageTransition();
                 break;
-            case 11:
+            case 19:
                 applyChannelMove();
                 break;
-            case 12:
+            case 20:
                 finishChannelMove();
                 break;
-            case 13:
+            case 21:
                 resetDragPreview();
                 break;
-            case 14:
-                finishDragPageChange();
-                break;
-            case 15:
-                handleFourPageDialog();
-                break;
-            case 16:
-                flushSaveDataAndMountSD();
-                break;
-            case 17:
-                handleThreePageDialog();
-                break;
-            case 18:
-                finishCardDialog();
-                break;
-            case 19:
-                finishDialogOperation();
-                break;
-            case 20:
-                finishDialogTransition();
-                break;
-            case 21:
             case 22:
             case 23:
+                finishDragPageChange();
+                break;
             case 24:
+                handleFourPageDialog();
+                break;
             case 25:
+                flushSaveDataAndMountSD();
+                break;
             case 26:
+                handleThreePageDialog();
+                break;
             case 27:
+                finishCardDialog();
+                break;
             case 28:
+                finishDialogOperation();
+                break;
             case 29:
+                finishDialogTransition();
+                break;
+            case 0:
+            case 2:
+            case 3:
+            case 4:
+            case 6:
+            case 13:
             default:
                 break;
             }
