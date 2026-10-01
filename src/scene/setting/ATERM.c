@@ -540,20 +540,20 @@ AtermProgressCallback gAtermProgressCallback;
 u32 gAtermResult;
 s32 gAtermState;
 
-void ATERM_8140684C(OSAlarm* alarm, OSContext* context);
-s32 ATERM_814038C8(void);
-void ATERM_81405ACC(AtermMd5Context* context, void* input, u32 length);
+void ATERMAlarmWakeQueue(OSAlarm* alarm, OSContext* context);
+s32 ATERMRunConfigProtocol(void);
+void ATERMMd5Update(AtermMd5Context* context, void* input, u32 length);
 extern u8 gAtermDigestFill[64];
 extern u8* gAtermRequestOptions;
-int ATERM_81404844(u16* destination, u16* source, u32 length, void* key, u32 keyLength);
-int ATERM_81404A18(u16* destination, u16* source, u32 length, void* key, u32 keyLength);
-int ATERM_81404BFC(u32* expandedKey, const void* key, u32 keyBits);
-int ATERM_8140502C(u32* expandedKey, const void* key, u32 keyBits);
-void ATERM_81405254(const u32* expandedKey, u32 rounds, const u8* input, u8* output);
-void ATERM_81405690(const u32* expandedKey, u32 rounds, const u8* input, u8* output);
-int ATERM_814033F0(u16* response);
+int ATERMAesKeyWrap(u16* destination, u16* source, u32 length, void* key, u32 keyLength);
+int ATERMAesKeyUnwrap(u16* destination, u16* source, u32 length, void* key, u32 keyLength);
+int ATERMAesExpandEncryptKey(u32* expandedKey, const void* key, u32 keyBits);
+int ATERMAesExpandDecryptKey(u32* expandedKey, const void* key, u32 keyBits);
+void ATERMAesEncryptBlock(const u32* expandedKey, u32 rounds, const u8* input, u8* output);
+void ATERMAesDecryptBlock(const u32* expandedKey, u32 rounds, const u8* input, u8* output);
+int ATERMParseAssociationResponse(u16* response);
 
-int ATERM_814021BC(void) {
+int ATERMStartNetworkStack(void) {
     int status;
     int waitCount = 0;
     u32 convertedHost;
@@ -605,7 +605,7 @@ int ATERM_814021BC(void) {
         OSCreateAlarm(&interfaceAlarm);
         OSSetAlarmTag(&interfaceAlarm, (u32)&interfaceQueue);
         timeoutTicks = (__mulhwu(0x10624DD3, *(u32*)0x800000F8 >> 2) >> 6) * 10;
-        OSSetAlarm(&interfaceAlarm, timeoutTicks, ATERM_8140684C);
+        OSSetAlarm(&interfaceAlarm, timeoutTicks, ATERMAlarmWakeQueue);
         OSReceiveMessage(&interfaceQueue, &interfaceMessage, 1);
     }
 
@@ -621,7 +621,7 @@ int ATERM_814021BC(void) {
             OSCreateAlarm(&hostAlarm);
             OSSetAlarmTag(&hostAlarm, (u32)&hostQueue);
             timeoutTicks = (__mulhwu(0x10624DD3, *(u32*)0x800000F8 >> 2) >> 6) * 10;
-            OSSetAlarm(&hostAlarm, timeoutTicks, ATERM_8140684C);
+            OSSetAlarm(&hostAlarm, timeoutTicks, ATERMAlarmWakeQueue);
             OSReceiveMessage(&hostQueue, &hostMessage, 1);
         }
     } else {
@@ -631,7 +631,7 @@ int ATERM_814021BC(void) {
     return waitCount;
 }
 
-int ATERM_81402424(u16* resultBuffer, u32 resultBufferLength) {
+int ATERMScanAccessPoints(u16* resultBuffer, u32 resultBufferLength) {
     int lockId;
     int result = -2;
     u16* scanBuffer = resultBuffer;
@@ -678,7 +678,7 @@ int ATERM_81402424(u16* resultBuffer, u32 resultBufferLength) {
         OSCreateAlarm(&startupAlarm);
         OSSetAlarmTag(&startupAlarm, (u32)&startupQueue);
         OSSetAlarm(&startupAlarm, (__mulhwu(0x10624DD3, *(u32*)0x800000F8 >> 2) >> 6) * 10,
-                   ATERM_8140684C);
+                   ATERMAlarmWakeQueue);
         OSReceiveMessage(&startupQueue, &startupMessage, 1);
     } while (1);
 
@@ -719,7 +719,7 @@ int ATERM_81402424(u16* resultBuffer, u32 resultBufferLength) {
         OSCreateAlarm(&scanAlarm);
         OSSetAlarmTag(&scanAlarm, (u32)&scanQueue);
         OSSetAlarm(&scanAlarm, (__mulhwu(0x10624DD3, *(u32*)0x800000F8 >> 2) >> 6) * 10,
-                   ATERM_8140684C);
+                   ATERMAlarmWakeQueue);
         OSReceiveMessage(&scanQueue, &scanMessage, 1);
     }
 
@@ -737,7 +737,7 @@ cleanup_driver:
         OSCreateAlarm(&cleanupAlarm);
         OSSetAlarmTag(&cleanupAlarm, (u32)&cleanupQueue);
         OSSetAlarm(&cleanupAlarm, (__mulhwu(0x10624DD3, *(u32*)0x800000F8 >> 2) >> 6) * 10,
-                   ATERM_8140684C);
+                   ATERMAlarmWakeQueue);
         OSReceiveMessage(&cleanupQueue, &cleanupMessage, 1);
     }
 
@@ -752,7 +752,7 @@ unlock_driver:
         OSCreateAlarm(&unlockAlarm);
         OSSetAlarmTag(&unlockAlarm, (u32)&unlockQueue);
         OSSetAlarm(&unlockAlarm, (__mulhwu(0x10624DD3, *(u32*)0x800000F8 >> 2) >> 6) * 10,
-                   ATERM_8140684C);
+                   ATERMAlarmWakeQueue);
         OSReceiveMessage(&unlockQueue, &unlockMessage, 1);
     }
     }
@@ -760,7 +760,7 @@ unlock_driver:
     return result;
 }
 
-int ATERM_8140276C(AtermApRecordSet* currentRecords, AtermApRecordSet* previousRecords,
+int ATERMFindChangedApRecord(AtermApRecordSet* currentRecords, AtermApRecordSet* previousRecords,
     u32* changedIndex) {
     u32 previousIndex;
     u32 currentIndex = 0;
@@ -869,7 +869,7 @@ int ATERM_8140276C(AtermApRecordSet* currentRecords, AtermApRecordSet* previousR
     return result;
 }
 
-int ATERM_81402A24(void) {
+int ATERMDiscoverAccessPoints(void) {
     s32 result = -1;
     u32 scanBufferBytes;
     u32 recordIndex;
@@ -912,7 +912,7 @@ int ATERM_81402A24(void) {
             break;
         }
 
-        result = ATERM_81402424((u16*)scanBuffer, scanBufferBytes);
+        result = ATERMScanAccessPoints((u16*)scanBuffer, scanBufferBytes);
         if (result < 0) {
             goto cleanup;
         }
@@ -954,7 +954,7 @@ int ATERM_81402A24(void) {
 
         currentRecords->count = result;
         if (gAtermState != 1 &&
-            ATERM_8140276C(currentRecords, previousRecords, (u32*)&progressInfo[0])) {
+            ATERMFindChangedApRecord(currentRecords, previousRecords, (u32*)&progressInfo[0])) {
             AtermApRecord* selectedRecord;
             gAtermSelectedRecordIndex = progressInfo[0];
             selectedRecord = &currentRecords->entries[progressInfo[0]];
@@ -1036,7 +1036,7 @@ cleanup:
     return result;
 }
 
-int ATERM_81402E40(u16* messageBuffer, u32 sequence, u16* payload, size_t payloadLength,
+int ATERMBuildEncryptedMessage(u16* messageBuffer, u32 sequence, u16* payload, size_t payloadLength,
                    void* encryptionKey) {
     u8* end;
     u8* cursor;
@@ -1045,7 +1045,7 @@ int ATERM_81402E40(u16* messageBuffer, u32 sequence, u16* payload, size_t payloa
     memset(payload, 0, 8);
     payload[0] = SOHtoNs((payloadLength - 8) & 0xFFFF);
     if (encryptionKey != NULL) {
-        ATERM_81404844(messageBuffer + 3, payload, payloadLength, encryptionKey, 0x10);
+        ATERMAesKeyWrap(messageBuffer + 3, payload, payloadLength, encryptionKey, 0x10);
         payloadLength += 8;
     } else {
         memcpy(messageBuffer + 3, payload, payloadLength);
@@ -1064,7 +1064,7 @@ int ATERM_81402E40(u16* messageBuffer, u32 sequence, u16* payload, size_t payloa
     return (int)(end + sizeof(u16) - (u8*)messageBuffer);
 }
 
-int ATERM_81402FC0(AtermPacket* packet, u32* setupType) {
+int ATERMParsePacket(AtermPacket* packet, u32* setupType) {
     u8* cursor;
     u8* end;
     u8* payload;
@@ -1142,7 +1142,7 @@ int ATERM_81402FC0(AtermPacket* packet, u32* setupType) {
     return 0;
 }
 
-int ATERM_814031DC(AtermAssociationRequest* request) {
+int ATERMBuildAssociationRequest(AtermAssociationRequest* request) {
     u8 scanAddress[8];
     u8 interfaceMacAddress[8];
     char interfaceMacText[32];
@@ -1227,7 +1227,7 @@ int ATERM_814031DC(AtermAssociationRequest* request) {
     return 1;
 }
 
-int ATERM_814033F0(u16* response) {
+int ATERMParseAssociationResponse(u16* response) {
     u16* optionCursor = response + 4;
     u8* optionValue;
     u16* responseEnd;
@@ -1317,7 +1317,7 @@ int ATERM_814033F0(u16* response) {
     return result;
 }
 
-int ATERM_81403614(u8* destination, const char* source, s32 length) {
+int ATERMParseHexBytes(u8* destination, const char* source, s32 length) {
     s32 value = 0;
     s32 characterIndex = 0;
 
@@ -1349,7 +1349,7 @@ int ATERM_81403614(u8* destination, const char* source, s32 length) {
     return 1;
 }
 
-int ATERM_814036D8(void) {
+int ATERMApplyScanSecuritySettings(void) {
     s32 result = 1;
     char* sourceKey;
     char* outputKey;
@@ -1389,7 +1389,7 @@ int ATERM_814036D8(void) {
                     break;
                 case 10:
                     gAtermConfigurationResult.setupMode = 1;
-                    ATERM_81403614((u8*)outputKey, keyString, 10);
+                    ATERMParseHexBytes((u8*)outputKey, keyString, 10);
                     break;
                 case 13:
                     gAtermConfigurationResult.setupMode = 2;
@@ -1397,7 +1397,7 @@ int ATERM_814036D8(void) {
                     break;
                 case 26:
                     gAtermConfigurationResult.setupMode = 2;
-                    ATERM_81403614((u8*)outputKey, keyString, 0x1A);
+                    ATERMParseHexBytes((u8*)outputKey, keyString, 0x1A);
                     break;
                 case 16:
                     gAtermConfigurationResult.setupMode = 3;
@@ -1405,7 +1405,7 @@ int ATERM_814036D8(void) {
                     break;
                 case 32:
                     gAtermConfigurationResult.setupMode = 3;
-                    ATERM_81403614((u8*)outputKey, keyString, 0x20);
+                    ATERMParseHexBytes((u8*)outputKey, keyString, 0x20);
                     break;
                 default:
                     result = -7;
@@ -1432,7 +1432,7 @@ int ATERM_814036D8(void) {
     return result;
 }
 
-s32 ATERM_814038C8(void) {
+s32 ATERMRunConfigProtocol(void) {
     OSMessageQueue waitQueue;
     OSMessage waitBuffer[1];
     OSMessage waitMessage;
@@ -1459,7 +1459,7 @@ s32 ATERM_814038C8(void) {
         OSSetAlarmTag(&waitAlarm, (u32)&waitQueue);
         OSSetAlarm(&waitAlarm,
             (__mulhwu(reciprocal, OS_BUS_CLOCK >> 2) >> 6) * 500,
-            ATERM_8140684C);
+            ATERMAlarmWakeQueue);
         OSReceiveMessage(&waitQueue, &waitMessage, 1);
         switch (gAtermProtocolState) {
         case 0:
@@ -1467,7 +1467,7 @@ s32 ATERM_814038C8(void) {
         case 1:
             {
                 AtermProgress progress;
-                result = ATERM_81402A24();
+                result = ATERMDiscoverAccessPoints();
                 if (result != 1) {
                     failed = 1;
                     break;
@@ -1485,7 +1485,7 @@ s32 ATERM_814038C8(void) {
                 break;
             }
         case 2:
-            result = ATERM_814021BC();
+            result = ATERMStartNetworkStack();
             if (result != 1) {
                 failed = 1;
                 break;
@@ -1525,11 +1525,11 @@ s32 ATERM_814038C8(void) {
                 break;
             }
             peerAddress.length = 8;
-            ATERM_814031DC((AtermAssociationRequest*)gAtermConfigurationResult.connectionPrefix);
+            ATERMBuildAssociationRequest((AtermAssociationRequest*)gAtermConfigurationResult.connectionPrefix);
             receivedLength = SORecvFrom(socket, gAtermConfigurationResult.packetBuffer,
                 sizeof(gAtermConfigurationResult.packetBuffer), 4, &peerAddress);
             if (receivedLength > 0 &&
-                ATERM_81402FC0((AtermPacket*)gAtermConfigurationResult.packetBuffer, &gAtermResponseMode)) {
+                ATERMParsePacket((AtermPacket*)gAtermConfigurationResult.packetBuffer, &gAtermResponseMode)) {
                 AtermProgress progress;
                 gAtermDeadline = (u32)(OSGetTime() / (__mulhwu(reciprocal, OS_BUS_CLOCK >> 2) >> 6)) + 30000;
                 gAtermProtocolState = 5;
@@ -1588,7 +1588,7 @@ s32 ATERM_814038C8(void) {
                     longOption++;
                 }
                 optionEnd = (u8*)longOption;
-                gAtermMessageLength = ATERM_81402E40((u16*)gAtermConfigurationResult.packetBuffer, 2,
+                gAtermMessageLength = ATERMBuildEncryptedMessage((u16*)gAtermConfigurationResult.packetBuffer, 2,
                     (u16*)response->data, optionEnd - gAtermRequestOptions + 8, NULL);
                 sendAddress.length = 8;
                 sendAddress.family = 2;
@@ -1628,7 +1628,7 @@ s32 ATERM_814038C8(void) {
                 } else if (sequence != 3) {
                     payloadLength = 0;
                 } else if (gAtermConfigurationResult.connectionPrefix != NULL) {
-                    ATERM_81404A18((u16*)response->authentication.payload, (u16*)payload,
+                    ATERMAesKeyUnwrap((u16*)response->authentication.payload, (u16*)payload,
                         payloadLength, gAtermConfigurationResult.connectionPrefix, 16);
                     payloadLength -= 8;
                 } else {
@@ -1660,7 +1660,7 @@ s32 ATERM_814038C8(void) {
                         digestContext.state[1] = 0xEFCDAB89;
                         digestContext.state[2] = 0x98BADCFE;
                         digestContext.state[3] = 0x10325476;
-                        ATERM_81405ACC(&digestContext, &authenticationTime, sizeof(authenticationTime));
+                        ATERMMd5Update(&digestContext, &authenticationTime, sizeof(authenticationTime));
                         digestLength[0] = digestContext.bitCountLow;
                         digestLength[1] = digestContext.bitCountLow >> 8;
                         digestLength[2] = digestContext.bitCountLow >> 16;
@@ -1670,9 +1670,9 @@ s32 ATERM_814038C8(void) {
                         digestLength[6] = digestContext.bitCountHigh >> 16;
                         digestLength[7] = digestContext.bitCountHigh >> 24;
                         digestBytes = (digestContext.bitCountLow >> 3) & 0x3F;
-                        ATERM_81405ACC(&digestContext, gAtermDigestFill,
+                        ATERMMd5Update(&digestContext, gAtermDigestFill,
                             digestBytes < 56 ? 56 - digestBytes : 120 - digestBytes);
-                        ATERM_81405ACC(&digestContext, digestLength, sizeof(digestLength));
+                        ATERMMd5Update(&digestContext, digestLength, sizeof(digestLength));
                         response->authentication.digest[0] = digestContext.state[0];
                         response->authentication.digest[1] = digestContext.state[0] >> 8;
                         response->authentication.digest[2] = digestContext.state[0] >> 16;
@@ -1724,7 +1724,7 @@ s32 ATERM_814038C8(void) {
                 memcpy(option->value, response->authentication.digest, 8);
                 gAtermReplyLength = (u8*)(option + 1) - response->data;
                 response->authentication.decoded.length = gAtermReplyLength - 8;
-                gAtermMessageLength = ATERM_81402E40((u16*)gAtermConfigurationResult.packetBuffer, 4,
+                gAtermMessageLength = ATERMBuildEncryptedMessage((u16*)gAtermConfigurationResult.packetBuffer, 4,
                     (u16*)response->data, gAtermReplyLength, gAtermConfigurationResult.connectionPrefix);
                 sendAddress.length = 8;
                 sendAddress.family = 2;
@@ -1758,14 +1758,14 @@ s32 ATERM_814038C8(void) {
                 } else if (sequence != 5) {
                     payloadLength = 0;
                 } else if (sessionKey != NULL) {
-                    ATERM_81404A18((u16*)response->authentication.payload, (u16*)payload,
+                    ATERMAesKeyUnwrap((u16*)response->authentication.payload, (u16*)payload,
                         payloadLength, sessionKey, 16);
                     payloadLength -= 8;
                 } else {
                     memcpy(response->authentication.payload, payload, payloadLength);
                 }
                 gAtermReplyLength = payloadLength;
-                if (payloadLength != 0 && ATERM_814033F0((u16*)response->data)) {
+                if (payloadLength != 0 && ATERMParseAssociationResponse((u16*)response->data)) {
                     gAtermProtocolState = 9;
                     retries = 0;
                     gAtermMode = gScanSettings.ssid[0] != 0;
@@ -1795,7 +1795,7 @@ s32 ATERM_814038C8(void) {
                 memcpy(option->value, &gAtermMode, 1);
                 gAtermReplyLength = (u8*)(option + 1) - response->data;
                 response->authentication.decoded.length = gAtermReplyLength - 8;
-                gAtermMessageLength = ATERM_81402E40((u16*)gAtermConfigurationResult.packetBuffer, 6,
+                gAtermMessageLength = ATERMBuildEncryptedMessage((u16*)gAtermConfigurationResult.packetBuffer, 6,
                     (u16*)response->data, gAtermReplyLength, sessionKey);
                 if (NCDGetLinkStatus() != 5) {
                     lastSendTime = (u32)(OSGetTime() / (__mulhwu(reciprocal, OS_BUS_CLOCK >> 2) >> 6)) + 1000;
@@ -1817,7 +1817,7 @@ s32 ATERM_814038C8(void) {
             if (now >= lastSendTime + 1000) {
                 if (++retries >= 10) {
                     failed = 1;
-                    result = ATERM_814036D8();
+                    result = ATERMApplyScanSecuritySettings();
                 } else {
                     gAtermProtocolState = 9;
                 }
@@ -1840,7 +1840,7 @@ s32 ATERM_814038C8(void) {
 u8 gAtermDigestFill[64] = { 0x80 };
 
 s32 ATERMi_AutoConfigThread(void) {
-    s32 result = ATERM_814038C8();
+    s32 result = ATERMRunConfigProtocol();
     AtermProgress progress;
     u32 equalityMask;
     s32 completedState;
@@ -1864,7 +1864,7 @@ s32 ATERMi_AutoConfigThread(void) {
     return 0;
 }
 
-int ATERM_81404844(u16* destination, u16* source, u32 length, void* key, u32 keyLength) {
+int ATERMAesKeyWrap(u16* destination, u16* source, u32 length, void* key, u32 keyLength) {
     u32 expandedKey[80];
     union { u32 words[4]; u8 bytes[16]; } block;
     union { u64 value; u8 bytes[8]; } counter;
@@ -1889,7 +1889,7 @@ int ATERM_81404844(u16* destination, u16* source, u32 length, void* key, u32 key
         return 0;
     }
 
-    rounds = ATERM_81404BFC(expandedKey, key, keyLength << 3);
+    rounds = ATERMAesExpandEncryptKey(expandedKey, key, keyLength << 3);
     destinationBytes = (u8*)destination;
     sourceBytes = (const u8*)source;
     memcpy(destinationBytes + 8, sourceBytes, length);
@@ -1901,7 +1901,7 @@ int ATERM_81404844(u16* destination, u16* source, u32 length, void* key, u32 key
 
             outputBlock = destinationBytes + blockOffset;
             memcpy(stateBytes + 8, outputBlock, 8);
-            ATERM_81405254(expandedKey, rounds, stateBytes, stateBytes);
+            ATERMAesEncryptBlock(expandedKey, rounds, stateBytes, stateBytes);
             counter.value = (u64)(s64)blockIndex + passBase;
             stateBytes[0] ^= counter.bytes[0];
             stateBytes[1] ^= counter.bytes[1];
@@ -1918,7 +1918,7 @@ int ATERM_81404844(u16* destination, u16* source, u32 length, void* key, u32 key
     return 1;
 }
 
-int ATERM_81404A18(u16* destination, u16* source, u32 length, void* key, u32 keyLength) {
+int ATERMAesKeyUnwrap(u16* destination, u16* source, u32 length, void* key, u32 keyLength) {
     u32 expandedKey[80];
     union { u32 words[4]; u8 bytes[16]; } block;
     union { u64 value; u8 bytes[8]; } counter;
@@ -1942,7 +1942,7 @@ int ATERM_81404A18(u16* destination, u16* source, u32 length, void* key, u32 key
         return 0;
     }
 
-    rounds = ATERM_8140502C(expandedKey, key, keyLength << 3);
+    rounds = ATERMAesExpandDecryptKey(expandedKey, key, keyLength << 3);
     destinationBytes = (u8*)destination;
     sourceBytes = (const u8*)source;
     memcpy(block.words, sourceBytes, 8);
@@ -1963,7 +1963,7 @@ int ATERM_81404A18(u16* destination, u16* source, u32 length, void* key, u32 key
             stateBytes[6] ^= counter.bytes[6];
             stateBytes[7] ^= counter.bytes[7];
             memcpy(stateBytes + 8, outputBlock, 8);
-            ATERM_81405690(expandedKey, rounds, stateBytes, stateBytes);
+            ATERMAesDecryptBlock(expandedKey, rounds, stateBytes, stateBytes);
             memcpy(outputBlock, stateBytes + 8, 8);
         }
     }
@@ -1986,7 +1986,7 @@ int ATERM_81404A18(u16* destination, u16* source, u32 length, void* key, u32 key
      ((u32)keyBytes[(index) * 4 + 2] << 8) ^ \
      keyBytes[(index) * 4 + 3])
 
-int ATERM_81404BFC(u32* expandedKey, const void* key, u32 keyBits) {
+int ATERMAesExpandEncryptKey(u32* expandedKey, const void* key, u32 keyBits) {
     const u8* keyBytes = (const u8*)key;
     u32* roundKey = expandedKey;
 
@@ -2096,8 +2096,8 @@ int ATERM_81404BFC(u32* expandedKey, const void* key, u32 keyBits) {
                             (inverseTable0[byte0] ^ inverseTable1[byte1]); \
     }
 
-int ATERM_8140502C(u32* expandedKey, const void* key, u32 keyBits) {
-    int rounds = ATERM_81404BFC(expandedKey, key, keyBits);
+int ATERMAesExpandDecryptKey(u32* expandedKey, const void* key, u32 keyBits) {
+    int rounds = ATERMAesExpandEncryptKey(expandedKey, key, keyBits);
     u32* roundKey;
     s32 roundCount;
     s32 firstIndex;
@@ -2145,7 +2145,7 @@ int ATERM_8140502C(u32* expandedKey, const void* key, u32 keyBits) {
 
 #undef ATERM_AES_TRANSFORM_KEY
 
-void ATERM_81405254(const u32* expandedKey, u32 rounds, const u8* input, u8* output) {
+void ATERMAesEncryptBlock(const u32* expandedKey, u32 rounds, const u8* input, u8* output) {
     u32 state0, state1, state2, state3;
     u32 next0, next1, next2, next3;
     s32 roundPairs;
@@ -2232,7 +2232,7 @@ void ATERM_81405254(const u32* expandedKey, u32 rounds, const u8* input, u8* out
     output[15] = state3;
 }
 
-void ATERM_81405690(const u32* expandedKey, u32 rounds, const u8* input, u8* output) {
+void ATERMAesDecryptBlock(const u32* expandedKey, u32 rounds, const u8* input, u8* output) {
     u32 state0, state1, state2, state3;
     u32 next0, next1, next2, next3;
     s32 roundPairs;
@@ -2319,9 +2319,9 @@ void ATERM_81405690(const u32* expandedKey, u32 rounds, const u8* input, u8* out
     output[15] = state3;
 }
 
-void ATERM_81405D0C(u32 state[4], const u8 block[64]);
+void ATERMMd5Transform(u32 state[4], const u8 block[64]);
 
-void ATERM_81405ACC(AtermMd5Context* context, void* input, u32 length) {
+void ATERMMd5Update(AtermMd5Context* context, void* input, u32 length) {
     u8* data = (u8*)input;
     u32 bufferIndex = (context->bitCountLow >> 3) & 0x3F;
     u32 bytesToFill;
@@ -2338,9 +2338,9 @@ void ATERM_81405ACC(AtermMd5Context* context, void* input, u32 length) {
         for (copiedBytes = 0; copiedBytes < bytesToFill; copiedBytes++) {
             context->buffer8[bufferIndex + copiedBytes] = data[copiedBytes];
         }
-        ATERM_81405D0C(context->state, context->buffer8);
+        ATERMMd5Transform(context->state, context->buffer8);
         for (copiedBytes = bytesToFill; copiedBytes + 63 < length; copiedBytes += 64) {
-            ATERM_81405D0C(context->state, data + copiedBytes);
+            ATERMMd5Transform(context->state, data + copiedBytes);
         }
         bufferIndex = 0;
     } else {
@@ -2358,7 +2358,7 @@ void ATERM_81405ACC(AtermMd5Context* context, void* input, u32 length) {
         (A) += (B); \
     } while (0)
 
-void ATERM_81405D0C(u32 state[4], const u8 block[64]) {
+void ATERMMd5Transform(u32 state[4], const u8 block[64]) {
     u32 byteIndex;
     u32 index;
     const u8* inputWord;
@@ -2452,7 +2452,7 @@ void ATERM_81405D0C(u32 state[4], const u8 block[64]) {
 }
 #undef ATERM_MD5_STEP
 
-void ATERM_8140684C(OSAlarm* alarm, OSContext* context) {
+void ATERMAlarmWakeQueue(OSAlarm* alarm, OSContext* context) {
     OSMessageQueue* queue = (OSMessageQueue*)alarm->tag;
     OSSendMessage(queue, NULL, 0);
 }
@@ -2525,7 +2525,7 @@ int ATERMi_ApConfigEnd(void) {
             OSSetAlarmTag(&cancelAlarm, (u32)&cancelQueue);
             OSSetAlarm(&cancelAlarm,
                        OSMillisecondsToTicks(100),
-                       ATERM_8140684C);
+                       ATERMAlarmWakeQueue);
             OSReceiveMessage(&cancelQueue, &cancelMessage, 1);
         }
 
@@ -2534,7 +2534,7 @@ int ATERMi_ApConfigEnd(void) {
         OSSetAlarmTag(&joinAlarm, (u32)&joinQueue);
         OSSetAlarm(&joinAlarm,
                    OSMillisecondsToTicks(500),
-                   ATERM_8140684C);
+                   ATERMAlarmWakeQueue);
         OSReceiveMessage(&joinQueue, &joinMessage, 1);
         while (OSIsThreadTerminated(&sAtermThread) == 0) {
             OSJoinThread(&sAtermThread, NULL);
