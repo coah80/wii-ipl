@@ -81,8 +81,8 @@ namespace textinput {
         }
 
         void HKBManager::AttachCB(KBDDevEvent* event) {
-            KBDListener* listener = &sInstance.mListener;
-            KBDListener* head = listener;
+            KBDListener* head = &sInstance.mListener;
+            KBDListener* listener = head;
             while (listener != NULL) {
                 listener->OnAttach(event);
                 listener = listener->mpNext;
@@ -93,8 +93,8 @@ namespace textinput {
         }
 
         void HKBManager::DetachCB(KBDDevEvent* event) {
-            KBDListener* listener = &sInstance.mListener;
-            KBDListener* head = listener;
+            KBDListener* head = &sInstance.mListener;
+            KBDListener* listener = head;
             while (listener != NULL) {
                 listener->OnDetach(event);
                 listener = listener->mpNext;
@@ -105,8 +105,8 @@ namespace textinput {
         }
 
         void HKBManager::KeyEventCB(KBDKeyEvent* event) {
-            KBDListener* listener = &sInstance.mListener;
-            KBDListener* head = listener;
+            KBDListener* head = &sInstance.mListener;
+            KBDListener* listener = head;
             while (listener != NULL) {
                 listener->OnKeyEvent(event);
                 listener = listener->mpNext;
