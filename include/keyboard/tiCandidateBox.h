@@ -187,7 +187,19 @@ namespace textinput {
             void SetFocusedText(s32 pane) { mnFocusedIdx = pane; }
             s32 GetFocusedText() { return mnFocusedIdx; }
             f32 GetWidthScale_() const { return 608.0f / mfScreenWidth; }
+#ifdef TI_CANDIDATEBOX_IMPLEMENTATION
+            f32 GetMargin_() const {
+                f32 margin;
+                if (mfScreenWidth > 700.0f) {
+                    margin = 10.0f;
+                } else {
+                    margin = 20.0f;
+                }
+                return margin;
+            }
+#else
             f32 GetMargin_() const { return mfScreenWidth > 700.0f ? 10.0f : 20.0f; }
+#endif
             s32 GetNextPageIdx_(s32 page) const;
             s32 GetPrevPageIdx_(s32 page) const;
             s32 GetDispNum() const;
