@@ -1175,10 +1175,10 @@ checkKeyLayout:
                           candidateBytes[elementIndex] = Zi8ConvertWC2UC(wordCursor[elementIndex - prefixCount],language,workData);
                         }
                         for (; (int)index < (int)(unsigned int)keyLayoutCount; index = index + 1) {
-                          for (elementIndex = 0;
-                              ((int)elementIndex < (int)(unsigned int)candidateCharacterCount &&
-                              (candidateBytes[elementIndex] == keyLayoutCursor[elementIndex]));
-                              elementIndex = elementIndex + 1) {
+                          elementIndex = 0;
+                          while (elementIndex < candidateCharacterCount) {
+                            if (candidateBytes[elementIndex] != keyLayoutCursor[elementIndex]) break;
+                            elementIndex++;
                           }
                           if (elementIndex == candidateCharacterCount) {
                             wordCursor[-prefixCount] = 0;
