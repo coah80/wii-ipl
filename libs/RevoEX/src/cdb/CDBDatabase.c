@@ -94,7 +94,7 @@ extern CDBErr CDBDatabasePrivateCreateRecordAtOnce();
 extern CDBErr CDBDatabaseCreateRecordAtOnce();
 extern CDBErr CDBDatabaseCreateRecordAtOnceEx();
 extern CDBErr CDBDatabasePrivateCreateRecordAtOnceEx();
-extern CDBErr CDBDatabasePrivateCreateRecordAtOnceEx_();
+extern CDBErr CDBDatabasePrivateCreateRecordAtOnceEx_(CDBDatabase* database, CDBRecord* record, const char* typeStr, const char* fileTypeStr, int year, int month, int day, int hour, int min, int sec, u8* recordData, u32 recordDataSize, char* makerCode, char* gameCode);
 extern CDBErr CDBDatabaseCreateRecordImAtOnce_(CDBDatabase* database, CDBRecord* record, const char* typeStr, const char* fileTypeStr, OSTime time, u32 gameCode, u16 makerCode, void* recordData, u32 recordDataSize);
 extern CDBErr CDBDatabaseFindByKey();
 typedef struct {
@@ -281,86 +281,38 @@ CDBErr CDBDatabasePrivateCreateRecordAtOnceEx(CDBDatabase* database, CDBRecord* 
     return result;
 }
 
-asm CDBErr CDBDatabasePrivateCreateRecordAtOnceEx_() {
-#ifdef __MWERKS__
-    nofralloc
-    stwu r1, -0x80(r1)
-    mflr r0
-    stw r0, 0x84(r1)
-    addi r11, r1, 0x80
-    bl _savegpr_18
-    lwz r24, 0x9c(r1)
-    mr r28, r3
-    lwz r27, 0x88(r1)
-    mr r29, r4
-    lwz r26, 0x8c(r1)
-    mr r30, r5
-    lwz r22, 0x90(r1)
-    mr r31, r6
-    lwz r23, 0x94(r1)
-    mr r18, r7
-    lwz r25, 0x98(r1)
-    mr r19, r8
-    mr r20, r9
-    mr r21, r10
-    mr r3, r24
-    bl CDBIsGameCodeStr
-    cmpwi r3, 0x0
-    bne L_81487844
-    li r3, 0x4
-    b L_814878EC
-    L_81487844:
-    mr r3, r25
-    bl CDBIsMakerCodeStr
-    cmpwi r3, 0x0
-    bne L_8148785C
-    li r3, 0x3
-    b L_814878EC
-    L_8148785C:
-    mr r3, r25
-    addi r4, r1, 0x10
-    bl CDBConvMCStrToMCValue
-    mr r3, r24
-    addi r4, r1, 0x14
-    bl CDBConvGCStrToGCValue
-    li r0, 0x0
-    stw r18, 0x2c(r1)
-    addi r3, r1, 0x18
-    stw r19, 0x28(r1)
-    stw r20, 0x24(r1)
-    stw r21, 0x20(r1)
-    stw r27, 0x1c(r1)
-    stw r26, 0x18(r1)
-    stw r0, 0x38(r1)
-    stw r0, 0x3c(r1)
-    bl OSCalendarTimeToTicks
-    lhz r26, 0x10(r1)
-    mr r24, r4
-    lwz r27, 0x14(r1)
-    mr r25, r3
-    bl CDBLock
-    stw r22, 0x8(r1)
-    mr r3, r28
-    mr r4, r29
-    mr r5, r30
-    stw r23, 0xc(r1)
-    mr r6, r31
-    mr r8, r24
-    mr r7, r25
-    mr r9, r27
-    mr r10, r26
-    bl CDBDatabaseCreateRecordImAtOnce_
-    mr r26, r3
-    bl CDBUnlock
-    mr r3, r26
-    L_814878EC:
-    addi r11, r1, 0x80
-    bl _restgpr_18
-    lwz r0, 0x84(r1)
-    mtlr r0
-    addi r1, r1, 0x80
-    blr
-#endif
+CDBErr CDBDatabasePrivateCreateRecordAtOnceEx_(CDBDatabase* database, CDBRecord* record, const char* typeStr, const char* fileTypeStr, int year, int month, int day, int hour, int min, int sec, u8* recordData, u32 recordDataSize, char* makerCode, char* gameCode) {
+    u32 gameCodeVal;
+    u32 gameValue;
+    u16 makerCodeVal;
+    u16 makerValue;
+    CDBErr result;
+    OSTime time;
+    OSCalendarTime cal;
+
+    if (!CDBIsGameCodeStr(gameCode)) {
+        return CDB_ERROR_4;
+    }
+    if (!CDBIsMakerCodeStr(makerCode)) {
+        return CDB_ERROR_3;
+    }
+    CDBConvMCStrToMCValue(makerCode, &makerValue);
+    CDBConvGCStrToGCValue(gameCode, &gameValue);
+    cal.year = year;
+    cal.mon = month;
+    cal.mday = day;
+    cal.hour = hour;
+    cal.min = min;
+    cal.sec = sec;
+    cal.msec = 0;
+    cal.usec = 0;
+    time = OSCalendarTimeToTicks(&cal);
+    makerCodeVal = makerValue;
+    gameCodeVal = gameValue;
+    CDBLock();
+    result = CDBDatabaseCreateRecordImAtOnce_(database, record, typeStr, fileTypeStr, time, gameCodeVal, makerCodeVal, recordData, recordDataSize);
+    CDBUnlock();
+    return result;
 }
 
 CDBErr CDBDatabaseCreateRecordImAtOnce_(CDBDatabase* database, CDBRecord* record, const char* typeStr, const char* fileTypeStr, OSTime time, u32 gameCode, u16 makerCode, void* recordData, u32 recordDataSize) {
