@@ -312,6 +312,10 @@ void Manager::SetFont(nw4r::lyt::FontRefLink* link) {
     if (mpInputForm) mpInputForm->nw4r::ut::CharWriter::SetFont(*font);
     if (mpCellPhoneKeyboard) static_cast<nw4rmanager::Layout&>(*mpCellPhoneKeyboard).SetFontForce(font);
 }
+void* Manager::getPredictLanguageSelectDialog() { return mpPredictLanguageDialog; }
+const void* Manager::getPredictLanguageSelectDialog() const { return mpPredictLanguageDialog; }
+void* Manager::getSignKeyboard() { return mpSignWindow; }
+const void* Manager::getSignKeyboard() const { return mpSignWindow; }
 void Manager::setDefaultPredictionJP(int count, const char** predictions) {
     static_cast<tistring::WithAtok*>(getInputForm()->getAtokString())->setDefaultPrediction(count, predictions);
 }
