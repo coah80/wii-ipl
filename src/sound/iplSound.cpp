@@ -13,7 +13,10 @@
 extern "C" void __ct__Q23EGG20SimpleAudioMgrWithFxFv();
 extern "C" void __dt__Q34nw4r3snd11SoundHandleFv();
 extern "C" void __dl__FPv();
-extern "C" void __destroy_arr();
+extern "C" {
+    void __destroy_arr();
+    void __dt__Q33ipl3snd10tagSSeInfoFv();
+}
 extern "C" void _seBlk__Q23ipl3snd();
 extern "C" nw4r::snd::SoundHandle* _mainBGMHandle__Q23ipl3snd;
 extern "C" const f32 lbl_816946A4;
@@ -21,7 +24,11 @@ extern "C" const f32 lbl_816946AC;
 extern "C" const f32 lbl_816946A8;
 extern "C" const f32 lbl_816946B0;
 extern "C" const f32 lbl_816946B4;
-extern "C" void _savegpr_29();
+extern "C" {
+    void _savegpr_29();
+    void pauseOffSE__Q33ipl3snd6SystemFv();
+    void pauseOnSE__Q33ipl3snd6SystemFv();
+}
 extern "C" void _restgpr_29();
 extern "C" void _savegpr_24();
 extern "C" void _restgpr_24();
@@ -40,31 +47,12 @@ namespace ipl {
     namespace snd {
         extern "C" void __vt__Q33ipl3snd6System();
 
-        extern "C" asm void __ct__Q33ipl3snd6SystemFv() {
-            nofralloc
-            stwu r1, -0x10(r1)
-            mflr r0
-            stw r0, 0x14(r1)
-            stw r31, 0xc(r1)
-            mr r31, r3
-            bl __ct__Q23EGG20SimpleAudioMgrWithFxFv
-            lis r5, __vt__Q33ipl3snd6System@ha
-            mr r3, r31
-            addi r5, r5, __vt__Q33ipl3snd6System@l
-            addi r4, r5, 0x10
-            stw r5, 0x0(r31)
-            addi r0, r5, 0x20
-            stw r4, 0x4(r31)
-            stw r0, 0x34(r31)
-            lwz r31, 0xc(r1)
-            lwz r0, 0x14(r1)
-            mtlr r0
-            addi r1, r1, 0x10
-            blr
+        System::System() {
         }
 
         struct tagSSeInfo {
             tagSSeInfo();
+            ~tagSSeInfo();
 
             nw4r::snd::SoundHandle handle;
             const char* name;
@@ -78,63 +66,16 @@ namespace ipl {
         struct tagSBgmInfo {
             nw4r::snd::SoundHandle handle;
             tagSBgmInfo();
+            ~tagSBgmInfo();
         };
 
         tagSBgmInfo::tagSBgmInfo() {
         }
 
-        extern "C" asm void __dt__Q33ipl3snd10tagSSeInfoFv() {
-            nofralloc
-            stwu r1, -0x10(r1)
-            mflr r0
-            cmpwi r3, 0
-            stw r0, 0x14(r1)
-            stw r31, 0xc(r1)
-            mr r31, r4
-            stw r30, 0x8(r1)
-            mr r30, r3
-            beq se_dtor_done
-            li r4, -1
-            bl __dt__Q34nw4r3snd11SoundHandleFv
-            cmpwi r31, 0
-            ble se_dtor_done
-            mr r3, r30
-            bl __dl__FPv
-        se_dtor_done:
-            mr r3, r30
-            lwz r31, 0xc(r1)
-            lwz r30, 0x8(r1)
-            lwz r0, 0x14(r1)
-            mtlr r0
-            addi r1, r1, 0x10
-            blr
+        tagSSeInfo::~tagSSeInfo() {
         }
 
-        extern "C" asm void __dt__Q33ipl3snd11tagSBgmInfoFv() {
-            nofralloc
-            stwu r1, -0x10(r1)
-            mflr r0
-            cmpwi r3, 0
-            stw r0, 0x14(r1)
-            stw r31, 0xc(r1)
-            mr r31, r4
-            stw r30, 0x8(r1)
-            mr r30, r3
-            beq bgm_dtor_done
-            li r4, -1
-            bl __dt__Q34nw4r3snd11SoundHandleFv
-            cmpwi r31, 0
-            ble bgm_dtor_done
-            mr r3, r30
-            bl __dl__FPv
-        bgm_dtor_done:
-            mr r3, r30
-            lwz r31, 0xc(r1)
-            lwz r30, 0x8(r1)
-            lwz r0, 0x14(r1)
-            mtlr r0
-            addi r1, r1, 0x10
-            blr
+        tagSBgmInfo::~tagSBgmInfo() {
         }
 
         extern nw4r::snd::SoundHandle _bgmBlk;
@@ -161,211 +102,56 @@ namespace ipl {
             1.0f,
         };
 
-        extern "C" asm void stopBGM__Q33ipl3snd6SystemFi() {
-            nofralloc
-            lwz r3, _mainBGMHandle__Q23ipl3snd
-            cmpwi r3, 0
-            beqlr
-            lwz r0, 0(r3)
-            cmpwi r0, 0
-            beqlr
-            beqlr
-            lwz r3, 0(r3)
-            lwz r12, 0(r3)
-            lwz r12, 0x18(r12)
-            mtctr r12
-            bctr
-            blr
+        void System::stopBGM(int frames) {
+            if (_mainBGMHandle && _mainBGMHandle->IsAttachedSound()) {
+                _mainBGMHandle->Stop(frames);
+            }
         }
 
-        extern "C" asm void muteOnBGM__Q33ipl3snd6SystemFi() {
-            nofralloc
-            lwz r3, _mainBGMHandle__Q23ipl3snd
-            cmpwi r3, 0
-            beqlr
-            lwz r3, 0(r3)
-            cmpwi r3, 0
-            beqlr
-            beqlr
-            lwz r12, 0(r3)
-            lfs f1, lbl_816946A4
-            lwz r12, 0x38(r12)
-            mtctr r12
-            bctr
-            blr
+        void System::muteOnBGM(int frames) {
+            nw4r::snd::SoundHandle* handle = _mainBGMHandle;
+            if (handle && handle->IsAttachedSound()) handle->SetVolume(0.0f, frames);
         }
 
-        extern "C" asm void muteOffBGM__Q33ipl3snd6SystemFi() {
-            nofralloc
-            lwz r3, _mainBGMHandle__Q23ipl3snd
-            cmpwi r3, 0
-            beqlr
-            lwz r3, 0(r3)
-            cmpwi r3, 0
-            beqlr
-            beqlr
-            lwz r12, 0(r3)
-            lfs f1, lbl_816946AC
-            lwz r12, 0x38(r12)
-            mtctr r12
-            bctr
-            blr
+        void System::muteOffBGM(int frames) {
+            nw4r::snd::SoundHandle* handle = _mainBGMHandle;
+            if (handle && handle->IsAttachedSound()) handle->SetVolume(1.0f, frames);
         }
 
-        extern "C" asm void pauseOnSE__Q33ipl3snd6SystemFv() {
-            nofralloc
-            stwu r1, -0x20(r1)
-            mflr r0
-            stw r0, 0x24(r1)
-            addi r11, r1, 0x20
-            bl _savegpr_29
-            lis r30, _seBlk__Q23ipl3snd@ha
-            li r29, 0
-            addi r30, r30, _seBlk__Q23ipl3snd@l
-            li r31, 0
-        pauseOnSE_loop:
-            lwzx r3, r30, r31
-            cmpwi r3, 0
-            beq pauseOnSE_next
-            beq pauseOnSE_next
-            lwz r12, 0(r3)
-            li r4, 1
-            li r5, 5
-            lwz r12, 0x1c(r12)
-            mtctr r12
-            bctrl
-        pauseOnSE_next:
-            addi r29, r29, 1
-            addi r31, r31, 0xc
-            cmpwi r29, 0x10
-            blt pauseOnSE_loop
-            addi r11, r1, 0x20
-            bl _restgpr_29
-            lwz r0, 0x24(r1)
-            mtlr r0
-            addi r1, r1, 0x20
-            blr
+        void System::pauseOnSE() {
+            for (int index = 0; index < 16; ++index) {
+                if (_seBlk[index].handle.IsAttachedSound()) {
+                    _seBlk[index].handle.Pause(true, 5);
+                }
+            }
         }
 
-        extern "C" asm void pauseOffSE__Q33ipl3snd6SystemFv() {
-            nofralloc
-            stwu r1, -0x20(r1)
-            mflr r0
-            stw r0, 0x24(r1)
-            addi r11, r1, 0x20
-            bl _savegpr_29
-            lis r30, _seBlk__Q23ipl3snd@ha
-            li r29, 0
-            addi r30, r30, _seBlk__Q23ipl3snd@l
-            li r31, 0
-        pauseOffSE_loop:
-            lwzx r3, r30, r31
-            cmpwi r3, 0
-            beq pauseOffSE_next
-            beq pauseOffSE_next
-            lwz r12, 0(r3)
-            li r4, 0
-            li r5, 5
-            lwz r12, 0x1c(r12)
-            mtctr r12
-            bctrl
-        pauseOffSE_next:
-            addi r29, r29, 1
-            addi r31, r31, 0xc
-            cmpwi r29, 0x10
-            blt pauseOffSE_loop
-            addi r11, r1, 0x20
-            bl _restgpr_29
-            lwz r0, 0x24(r1)
-            mtlr r0
-            addi r1, r1, 0x20
-            blr
+        void System::pauseOffSE() {
+            for (int index = 0; index < 16; ++index) {
+                if (_seBlk[index].handle.IsAttachedSound()) {
+                    _seBlk[index].handle.Pause(false, 5);
+                }
+            }
         }
 
-        extern "C" asm void pauseOnBGM__Q33ipl3snd6SystemFv() {
-            nofralloc
-            stwu r1, -0x10(r1)
-            mflr r0
-            stw r0, 0x14(r1)
-            stw r31, 0xc(r1)
-            mr r31, r3
-            lwz r4, _mainBGMHandle__Q23ipl3snd
-            cmpwi r4, 0
-            beq pauseOnBGM_done
-            lwz r0, 0(r4)
-            cmpwi r0, 0
-            beq pauseOnBGM_resume
-            beq pauseOnBGM_resume
-            lwz r3, 0(r4)
-            li r4, 1
-            li r5, 5
-            lwz r12, 0(r3)
-            lwz r12, 0x1c(r12)
-            mtctr r12
-            bctrl
-        pauseOnBGM_resume:
-            mr r3, r31
-            bl pauseOnSE__Q33ipl3snd6SystemFv
-            lis r3, sBannerSoundPlayer__Q23ipl3snd@ha
-            li r4, 1
-            addi r3, r3, sBannerSoundPlayer__Q23ipl3snd@l
-            bl pause__17BannerSoundPlayerFb
-            bl GetInstance__Q44nw4r3snd6detail9AxManagerFv
-            li r4, 0
-            li r5, 0xfa
-            bl ClearEffect__Q44nw4r3snd6detail9AxManagerFQ34nw4r3snd6AuxBusi
-            bl GetInstance__Q44nw4r3snd6detail9AxManagerFv
-            li r4, 1
-            li r5, 0xfa
-            bl ClearEffect__Q44nw4r3snd6detail9AxManagerFQ34nw4r3snd6AuxBusi
-            bl GetInstance__Q44nw4r3snd6detail9AxManagerFv
-            li r4, 2
-            li r5, 0xfa
-            bl ClearEffect__Q44nw4r3snd6detail9AxManagerFQ34nw4r3snd6AuxBusi
-        pauseOnBGM_done:
-            lwz r0, 0x14(r1)
-            lwz r31, 0xc(r1)
-            mtlr r0
-            addi r1, r1, 0x10
-            blr
+        void System::pauseOnBGM() {
+            if (_mainBGMHandle) {
+                if (_mainBGMHandle->IsAttachedSound()) _mainBGMHandle->Pause(true, 5);
+                pauseOnSE();
+                sBannerSoundPlayer.pause(true);
+                nw4r::snd::detail::AxManager::GetInstance().ClearEffect(nw4r::snd::AUX_A, 250);
+                nw4r::snd::detail::AxManager::GetInstance().ClearEffect(nw4r::snd::AUX_B, 250);
+                nw4r::snd::detail::AxManager::GetInstance().ClearEffect(nw4r::snd::AUX_C, 250);
+            }
         }
 
-        extern "C" asm void pauseOffBGM__Q33ipl3snd6SystemFv() {
-            nofralloc
-            stwu r1, -0x10(r1)
-            mflr r0
-            stw r0, 0x14(r1)
-            stw r31, 0xc(r1)
-            mr r31, r3
-            lwz r0, _mainBGMHandle__Q23ipl3snd
-            cmpwi r0, 0
-            beq pauseOffBGM_done
-            bl initFx__Q33ipl3snd6SystemFv
-            lwz r3, _mainBGMHandle__Q23ipl3snd
-            lwz r0, 0(r3)
-            cmpwi r0, 0
-            beq pauseOffBGM_resume
-            beq pauseOffBGM_resume
-            lwz r3, 0(r3)
-            li r4, 0
-            li r5, 5
-            lwz r12, 0(r3)
-            lwz r12, 0x1c(r12)
-            mtctr r12
-            bctrl
-        pauseOffBGM_resume:
-            mr r3, r31
-            bl pauseOffSE__Q33ipl3snd6SystemFv
-            lis r3, sBannerSoundPlayer__Q23ipl3snd@ha
-            li r4, 0
-            addi r3, r3, sBannerSoundPlayer__Q23ipl3snd@l
-            bl pause__17BannerSoundPlayerFb
-        pauseOffBGM_done:
-            lwz r0, 0x14(r1)
-            lwz r31, 0xc(r1)
-            mtlr r0
-            addi r1, r1, 0x10
-            blr
+        void System::pauseOffBGM() {
+            if (_mainBGMHandle) {
+                initFx();
+                if (_mainBGMHandle->IsAttachedSound()) _mainBGMHandle->Pause(false, 5);
+                pauseOffSE();
+                sBannerSoundPlayer.pause(false);
+            }
         }
 
         extern "C" asm void stopSE__Q33ipl3snd6SystemFPQ34nw4r3snd11SoundHandlei() {
@@ -545,12 +331,15 @@ namespace ipl {
 
 #pragma force_active on
 
-        extern "C" asm void __ct__Q34nw4r3snd11SoundHandleFv() {
-            nofralloc
-            li r0, 0
-            stw r0, 0(r3)
-            blr
-        }
+    }
+}
+namespace nw4r {
+namespace snd {
+SoundHandle::SoundHandle() : mSound(NULL) {}
+}
+}
+namespace ipl {
+namespace snd {
 
         void System::calc() {
             EGG::SimpleAudioMgr::calc();
