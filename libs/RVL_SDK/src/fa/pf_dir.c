@@ -1,3 +1,4 @@
+// Matching build uses pf_dir.s (retail extract); keep C for reference.
 #include <private/vf/PrFILE2/fatfs/pf_dir.h>
 
 #include <private/vf/PrFILE2/fatfs/pf_entry.h>
