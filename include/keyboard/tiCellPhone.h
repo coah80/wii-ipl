@@ -202,7 +202,7 @@ namespace textinput {
                 void resetHoldingButton();
 
             private:
-                u8      mbLineFeed;     // 0xE0
+                bool    mbLineFeed;     // 0xE0
                 u8      unk_0xE1[3];    // 0xE1
                 GXTexObj mSpaceTexObjJP;  // 0xE4
                 GXTexObj mSpaceTexObjCN;  // 0x104

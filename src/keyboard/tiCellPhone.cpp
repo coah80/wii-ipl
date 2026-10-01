@@ -1148,7 +1148,7 @@ namespace textinput {
 
             void LayoutByNW4R::setLineFeedButton(bool flag) {
                 mbLineFeed = flag;
-                setVisible("W_CPkey_LF", flag);
+                setVisible("W_CPkey_LF", mbLineFeed);
             }
 
             void LayoutByNW4R::setPredictLanguageButton(bool flag) {
