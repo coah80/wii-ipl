@@ -284,122 +284,12 @@ void Base::inputCharDefault_(wchar_t character, u32 modifiers) {
     meScrollFlag = SF_ScrollOn;
 }
 
-extern "C" asm void draw__Q39textinput9inputform12LayoutByNW4RFv() {
-    nofralloc
-    stwu r1, -0x50(r1)
-    mflr r0
-    stw r0, 0x54(r1)
-    stw r31, 0x4c(r1)
-    stw r30, 0x48(r1)
-    mr r30, r3
-    addi r3, r3, 0x218
-    bl draw__Q39textinput11nw4rmanager6LayoutFv
-    lwz r12, 0x218(r30)
-    addi r3, r30, 0x218
-    lwz r12, 0x28(r12)
-    mtctr r12
-    bctrl
-    lwz r4, 0x10(r3)
-    li r5, 1
-    lwz r3, 0x21c(r30)
-    lbz r0, 0xcd(r4)
-    lwz r4, 0x2c0(r30)
-    stb r0, 0x1c8(r30)
-    lwz r3, 0x10(r3)
-    lwz r12, 0(r3)
-    lwz r12, 0x3c(r12)
-    mtctr r12
-    bctrl
-    lwz r12, 0x218(r30)
-    mr r6, r3
-    addi r3, r30, 0x218
-    addi r4, r30, 0x130
-    lwz r12, 0x70(r12)
-    addi r5, r30, 0x230
-    addi r6, r6, 0x84
-    mtctr r12
-    bctrl
-    lwz r12, 0(r30)
-    mr r3, r30
-    lwz r12, 0x188(r12)
-    mtctr r12
-    bctrl
-    stw r3, 0x18(r1)
-    addi r3, r30, 0x10
-    lfs f2, 0x188(r30)
-    stw r4, 0x1c(r1)
-    lfs f1, 0x18(r1)
-    bl SetCursor__Q34nw4r2ut10CharWriterFff
-    lwz r12, 0(r30)
-    mr r3, r30
-    lwz r12, 0x188(r12)
-    mtctr r12
-    bctrl
-    lfs f0, lbl_81694D28(r0)
-    stw r3, 0x20(r1)
-    stfs f0, 0x30(r1)
-    stfs f0, 0x34(r1)
-    stfs f0, 0x38(r1)
-    stfs f0, 0x3c(r1)
-    lwz r12, 0(r30)
-    stw r3, 8(r1)
-    mr r3, r30
-    lwz r12, 0x184(r12)
-    stw r4, 0x24(r1)
-    stw r4, 0xc(r1)
-    mtctr r12
-    bctrl
-    stw r3, 0x10(r1)
-    lfs f1, 8(r1)
-    stw r4, 0x14(r1)
-    lfs f5, 0x10(r1)
-    lfs f4, 0x14(r1)
-    stfs f5, 0x30(r1)
-    lfs f0, 0xc(r1)
-    stfs f4, 0x3c(r1)
-    lfs f3, 0x128(r30)
-    lfs f2, 0x120(r30)
-    stw r3, 0x28(r1)
-    fsubs f2, f3, f2
-    stw r4, 0x2c(r1)
-    fmuls f1, f1, f2
-    fadds f1, f5, f1
-    stfs f1, 0x38(r1)
-    lfs f2, 0x124(r30)
-    lfs f1, 0x12c(r30)
-    fsubs f1, f2, f1
-    fmuls f0, f0, f1
-    fadds f0, f4, f0
-    stfs f0, 0x34(r1)
-    lwz r3, 0x164(r30)
-    lwz r12, 0(r3)
-    lwz r12, 0x7c(r12)
-    mtctr r12
-    bctrl
-    lwz r12, 0x5c(r30)
-    mr r31, r3
-    addi r3, r30, 0x10
-    addi r4, r1, 0x30
-    lwz r12, 0x20(r12)
-    mtctr r12
-    bctrl
-    lwz r12, 0(r30)
-    mr r3, r30
-    mr r4, r31
-    lwz r12, 0x174(r12)
-    mtctr r12
-    bctrl
-    lwz r12, 0x5c(r30)
-    addi r3, r30, 0x10
-    lwz r12, 0x24(r12)
-    mtctr r12
-    bctrl
-    lwz r0, 0x54(r1)
-    lwz r31, 0x4c(r1)
-    lwz r30, 0x48(r1)
-    mtlr r0
-    addi r1, r1, 0x50
-    blr
+void LayoutByNW4R::draw() {
+    nw4rmanager::Layout::draw();
+    muGlobalAlpha = getLayout()->GetRootPane()->GetAlpha();
+    nw4r::lyt::Pane* textBox = mpLayout->GetRootPane()->FindPaneByName(static_cast<const char*>(mpLayoutData), true);
+    AdjustPaneMtx(mMtx.m, mDrawInfo, textBox->GetGlobalMtx());
+    Base::draw();
 }
 void Base::calcCursorTimer() {
     muCursorTimer += 8;
@@ -1046,17 +936,17 @@ void Base::onCommand(INPUT_COMMAND command, void* data) {
             mbPredictOn = enabled;
             if (meLanguage == KR) mpManager->getPCKeyboard()->refreshState();
         }
-        tistring::Decolated::TranslateMode predictionFixedMode = mpString->getTranslateMode();
-        const tistring::Decolated::TranslateMode predictionUnfixMode = mpUnfixString->getTranslateMode();
+        s32 predictionFixedMode = mpString->getTranslateMode();
+        s32 predictionUnfixMode = mpUnfixString->getTranslateMode();
         mpString->initKanaConverter();
         mpUnfixString->initKanaConverter();
         if (meLanguage == KR) {
             if (predictionFixedMode != tistring::Decolated::TM_Direct) predictionFixedMode = tistring::Decolated::TM_Hangul;
         } else if (meLanguage == CN) predictionFixedMode = tistring::Decolated::TM_Direct;
         mpString->getCursorPos();
-        mpString->setTranslateMode(predictionFixedMode);
+        mpString->setTranslateMode(static_cast<tistring::Decolated::TranslateMode>(predictionFixedMode));
         mpString->getCursorPos();
-        mpUnfixString->setTranslateMode(predictionUnfixMode);
+        mpUnfixString->setTranslateMode(static_cast<tistring::Decolated::TranslateMode>(predictionUnfixMode));
         switch (mePredictMode) {
         case PM_Atok:
             if (!mbPredictOn) {
