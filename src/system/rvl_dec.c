@@ -152,81 +152,81 @@ Rvl_decode_szs_done:
 }
 #else
 int Rvl_decode_szs(u8* out, u8* in) {
-    register u8* pbVar1;
-    register u8 bVar2;
-    register u8 bVar3;
-    register u8* pbVar5;
-    register int iVar6;
-    register int iVar7;
-    register u32 uVar8;
-    register u32 uVar9;
-    register u32 uVar10;
-    register u32 param_5;
-    iVar6 = *(int*)(in + 4);
-    uVar8 = 0;
+    register u8* copySrc;
+    register u8 hdrByte;
+    register u8 extLenByte;
+    register u8* inPtr;
+    register int decodedSize;
+    register int remaining;
+    register u32 bitMask;
+    register u32 copyLen;
+    register u32 blockCount;
+    register u32 flags;
+    decodedSize = *(int*)(in + 4);
+    bitMask = 0;
     in += 0x10;
-    iVar7 = iVar6;
+    remaining = decodedSize;
     do {
 next:
         while (1) {
-            uVar8 >>= 1;
-            pbVar5 = in;
-            if (uVar8 == 0) {
-                param_5 = *in;
-                uVar8 = 0x80;
-                pbVar5 = in + 1;
+            bitMask >>= 1;
+            inPtr = in;
+            if (bitMask == 0) {
+                flags = *in;
+                bitMask = 0x80;
+                inPtr = in + 1;
             }
-            bVar2 = *pbVar5;
-            if ((uVar8 & param_5) == 0) {
+            hdrByte = *inPtr;
+            if ((bitMask & flags) == 0) {
                 break;
             }
-            in = pbVar5 + 1;
-            iVar7--;
-            *out = bVar2;
+            in = inPtr + 1;
+            remaining--;
+            *out = hdrByte;
             out++;
-            if (iVar7 != 0) {
+            if (remaining != 0) {
                 goto next;
             }
             goto done;
         }
-        uVar9 = bVar2 >> 4;
-        in = pbVar5 + 2;
-        if (uVar9 == 0) {
-            bVar3 = *in;
-            in = pbVar5 + 3;
-            uVar9 = bVar3 + 0x10;
+        copyLen = hdrByte >> 4;
+        in = inPtr + 2;
+        if (copyLen == 0) {
+            extLenByte = *in;
+            in = inPtr + 3;
+            copyLen = extLenByte + 0x10;
         }
-        pbVar5 = out - (((bVar2 & 0xf) << 8) | pbVar5[1]);
-        iVar7 = (iVar7 - uVar9) - 2;
-        *out = pbVar5[-1];
-        out[1] = *pbVar5;
-        pbVar5 += 2;
-        uVar10 = uVar9 >> 3;
+        inPtr = out - (((hdrByte & 0xf) << 8) | inPtr[1]);
+        remaining = (remaining - copyLen) - 2;
+        *out = inPtr[-1];
+        out[1] = *inPtr;
+        inPtr += 2;
+        blockCount = copyLen >> 3;
         out += 2;
-        if (uVar10 != 0) {
+        if (blockCount != 0) {
             do {
-                *out = pbVar5[-1];
-                out[1] = *pbVar5;
-                out[2] = pbVar5[1];
-                out[3] = pbVar5[2];
-                out[4] = pbVar5[3];
-                out[5] = pbVar5[4];
-                out[6] = pbVar5[5];
-                out[7] = pbVar5[6];
-                pbVar5 += 8;
+                *out = inPtr[-1];
+                out[1] = *inPtr;
+                out[2] = inPtr[1];
+                out[3] = inPtr[2];
+                out[4] = inPtr[3];
+                out[5] = inPtr[4];
+                out[6] = inPtr[5];
+                out[7] = inPtr[6];
+                inPtr += 8;
                 out += 8;
-                uVar10--;
-            } while (uVar10 != 0);
+                blockCount--;
+            } while (blockCount != 0);
         }
-        for (uVar9 &= 7; uVar9 != 0; uVar9--) {
-            pbVar1 = pbVar5 - 1;
-            pbVar5++;
-            *out = *pbVar1;
+        for (copyLen &= 7; copyLen != 0; copyLen--) {
+            copySrc = inPtr - 1;
+            inPtr++;
+            *out = *copySrc;
             out++;
         }
-    } while (0 < iVar7);
+    } while (0 < remaining);
 done:
-    return iVar6;
+    return decodedSize;
 }
 #endif
 #ifdef __MWERKS__
