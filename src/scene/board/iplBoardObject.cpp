@@ -621,28 +621,28 @@ namespace ipl {
         void BoardObject::set_thumb_text(const char* paneName, const wchar_t* thumbText) {
             nw4r::lyt::TextBox* textBox = nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(mpLayout->FindPaneByName(paneName));
 
-            wchar_t local_28[THUMB_TEXT_LENGTH + 3 /* "..." */ + 1 /* NULL */] = L"";
-            memset(local_28, 0, sizeof(local_28));
+            wchar_t truncatedThumb[THUMB_TEXT_LENGTH + 3 /* "..." */ + 1 /* NULL */] = L"";
+            memset(truncatedThumb, 0, sizeof(truncatedThumb));
 
             if (thumbText != NULL) {
                 for (int i = 0; i < THUMB_TEXT_LENGTH + 1 && thumbText[i] != (u16)'\n'; i++) {
-                    local_28[i] = thumbText[i];
+                    truncatedThumb[i] = thumbText[i];
                 }
             }
 
             if (System::getRegion() == SC_PRODUCT_AREA_JPN) {
-                if (local_28[THUMB_TEXT_LENGTH] != 0) {
-                    local_28[THUMB_TEXT_LENGTH + 0] = L'…';
+                if (truncatedThumb[THUMB_TEXT_LENGTH] != 0) {
+                    truncatedThumb[THUMB_TEXT_LENGTH + 0] = L'…';
                 }
             } else {
-                if (local_28[THUMB_TEXT_LENGTH] != 0) {
-                    local_28[THUMB_TEXT_LENGTH + 2] = '.';
-                    local_28[THUMB_TEXT_LENGTH + 1] = '.';
-                    local_28[THUMB_TEXT_LENGTH + 0] = '.';
+                if (truncatedThumb[THUMB_TEXT_LENGTH] != 0) {
+                    truncatedThumb[THUMB_TEXT_LENGTH + 2] = '.';
+                    truncatedThumb[THUMB_TEXT_LENGTH + 1] = '.';
+                    truncatedThumb[THUMB_TEXT_LENGTH + 0] = '.';
                 }
             }
 
-            textBox->SetString(local_28);
+            textBox->SetString(truncatedThumb);
         }
 
         void BoardObject::update(int chan) {
