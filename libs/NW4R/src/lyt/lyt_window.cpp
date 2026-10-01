@@ -1,19 +1,19 @@
 #include <nw4r/db/assert.h>
 
-extern "C" const u8 lbl_81695550 = 255;
-extern "C" const u8 lbl_81695551 = 255;
-extern "C" const u8 lbl_81695552 = 255;
-extern "C" const u8 lbl_81695553 = 0;
-extern "C" char lbl_816719DC[] = "Error#004\nAn error has occurred.\nThe system files are corrupted.";
+extern "C" const u8 scLytFatalColorR = 255;
+extern "C" const u8 scLytFatalColorG = 255;
+extern "C" const u8 scLytFatalColorB = 255;
+extern "C" const u8 scLytFatalColorA = 0;
+extern "C" char scLytFatalMsg[] = "Error#004\nAn error has occurred.\nThe system files are corrupted.";
 
 #undef NW4R_ASSERT
 #define NW4R_ASSERT(x)                                                                                                                               \
     {                                                                                                                                                \
         if (!(x)) {                                                                                                                                  \
-            GXColor front = {*((volatile const u8*)&::lbl_81695550), *((volatile const u8*)&::lbl_81695551),                                        \
-                             *((volatile const u8*)&::lbl_81695552), *((volatile const u8*)&::lbl_81695553)};                                        \
+            GXColor front = {*((volatile const u8*)&::scLytFatalColorR), *((volatile const u8*)&::scLytFatalColorG),                                        \
+                             *((volatile const u8*)&::scLytFatalColorB), *((volatile const u8*)&::scLytFatalColorA)};                                        \
             GXColor back = {0, 0, 0, 0};                                                                                                             \
-            OSFatal((GXColor)front, (GXColor)back, ::lbl_816719DC);                                                                                  \
+            OSFatal((GXColor)front, (GXColor)back, ::scLytFatalMsg);                                                                                  \
         }                                                                                                                                            \
     }
 
