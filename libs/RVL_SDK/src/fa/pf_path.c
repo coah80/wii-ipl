@@ -56,7 +56,7 @@ typedef struct PF_PATH_VOLUME_SET {
 } PF_PATH_VOLUME_SET;
 
 extern PF_PATH_VOLUME_SET pf_vol_set;
-extern const pf_u8 pf_valid_fn_char_8162E6B0[96];
+extern const pf_u8 pf_valid_fn_char[96];
 extern void PFSTR_SetCodeMode(PF_STR*, pf_u32);
 extern pf_u32 PFSTR_GetCodeMode(PF_STR*);
 extern pf_s8* PFSTR_GetStrPos(PF_STR*, pf_u32);
@@ -75,9 +75,9 @@ extern pf_u32 PFPATH_CheckExtShortNameSignature(PF_STR*);
 extern pf_u32 PFPATH_CheckExtShortName(PF_STR*, pf_u32, pf_bool);
 extern void PFCODE_Divide_Width(pf_s32, pf_s16*, pf_s16*);
 
-#define VALID_PATH_CHAR(x, b) ((pf_u8)(x) >= 0x80 || ((pf_u8)(x) >= ' ' && (pf_valid_fn_char_8162E6B0[(pf_u8)(x) - ' '] & b)))
+#define VALID_PATH_CHAR(x, b) ((pf_u8)(x) >= 0x80 || ((pf_u8)(x) >= ' ' && (pf_valid_fn_char[(pf_u8)(x) - ' '] & b)))
 #define VALID_PATH_WCHAR(x, b)                                                                                                                       \
-    ((x) >= 0x80 || (pf_u8)(x) >= ' ' && ((pf_u8)(x) & 0xFF00) == 0 && (pf_valid_fn_char_8162E6B0[(pf_u8)((x & 0x00FF) - ' ')] & b))
+    ((x) >= 0x80 || (pf_u8)(x) >= ' ' && ((pf_u8)(x) & 0xFF00) == 0 && (pf_valid_fn_char[(pf_u8)((x & 0x00FF) - ' ')] & b))
 
 pf_s32 PFPATH_DoSplitPath(PF_STR* p_path, PF_STR* p_dir_path, PF_STR* p_filename, pf_u32 wildcard) {
     pf_s8* p;
