@@ -79,13 +79,13 @@ typedef struct {
 } CDBSearchWork;
 
 extern CDBSearchWork* CDBDatabaseWorkBuf;
-extern char lbl_8166B528[];
-extern char lbl_8166B550[];
-extern char lbl_8166B57C[];
-extern char lbl_8166B5A8[];
-extern char lbl_8166B5B8[];
-extern char lbl_8166B5D0[];
-extern char lbl_8166B618[];
+extern char scCdbMsg_DatabaseClosed[];
+extern char scCdbMsg_CantCreateRecordClosed[];
+extern char scCdbMsg_CantCreateRecordReadonly[];
+extern char scCdbMsg_InvalidKey[];
+extern char scCdbMsg_FileNotFound[];
+extern char scCdbMsg_CantCleanupDirsClosed[];
+extern char scCdbMsg_CantCleanupDirsReadonly[];
 
 extern CDBErr CDBDatabaseInit();
 extern CDBErr CDBDatabaseOpen();
@@ -165,7 +165,7 @@ CDBErr CDBDatabaseClose(CDBDatabase* database) {
     CDBLock();
     instance = database->instance;
     if (instance == NULL || instance->flags == 0) {
-        CDBReportError(lbl_8166B528);
+        CDBReportError(scCdbMsg_DatabaseClosed);
         result = CDB_ERROR_27;
     } else {
         status = CDBDatabaseFree(database);
@@ -403,17 +403,17 @@ CDBErr CDBDatabaseCreateRecordImAtOnce_(CDBDatabase* database, CDBRecord* record
 
     instance = database->instance;
     if (instance == NULL) {
-        CDBReportError(lbl_8166B550);
+        CDBReportError(scCdbMsg_CantCreateRecordClosed);
         return CDB_ERROR_27;
     }
 
     flags = instance->flags;
     if ((flags & 2) == 0) {
         if (flags == 0) {
-            CDBReportError(lbl_8166B550);
+            CDBReportError(scCdbMsg_CantCreateRecordClosed);
             return CDB_ERROR_27;
         }
-        CDBReportError(lbl_8166B57C);
+        CDBReportError(scCdbMsg_CantCreateRecordReadonly);
         return CDB_ERROR_26;
     }
 
@@ -427,12 +427,12 @@ CDBErr CDBDatabaseFindByKey(CDBDatabase* database, CDBRecord* record, CDBRecordK
 
     CDBLock();
     if (!CDBRecordKeyIsValid(recordKey)) {
-        CDBReportError(lbl_8166B5A8);
+        CDBReportError(scCdbMsg_InvalidKey);
         result = CDB_ERROR_5;
     } else {
         CDBRecordInitDescriptor(record, database, recordKey);
         if (!CDBRecordIsExistFile(record)) {
-            CDBReportError(lbl_8166B5B8, recordKey->keyString);
+            CDBReportError(scCdbMsg_FileNotFound, recordKey->keyString);
             result = CDB_ERROR_CANNOT_OPEN_FILE;
         } else {
             result = CDB_ERROR_OK;
@@ -2608,11 +2608,11 @@ CDBErr CDBDatabaseCleanUpEmptyDirectories(CDBDatabase* database, CDBRecordLocati
     CDBUnlock();
 
     if (flags == 0) {
-        CDBReportError(lbl_8166B5D0);
+        CDBReportError(scCdbMsg_CantCleanupDirsClosed);
         return CDB_ERROR_27;
     }
     if (flags == 1) {
-        CDBReportError(lbl_8166B618);
+        CDBReportError(scCdbMsg_CantCleanupDirsReadonly);
         return CDB_ERROR_26;
     }
 
@@ -2663,16 +2663,16 @@ CDBErr CDBDatabaseCleanUpEmptyDirectories(CDBDatabase* database, CDBRecordLocati
 
 #pragma section data_type ".data"
 #pragma align 8
-extern char lbl_8166B528[] = "CDBDatabaseClose database is closed\n";
+extern char scCdbMsg_DatabaseClosed[] = "CDBDatabaseClose database is closed\n";
 #pragma align 8
-extern char lbl_8166B550[] = "can't create record; database is closed\n";
+extern char scCdbMsg_CantCreateRecordClosed[] = "can't create record; database is closed\n";
 #pragma align 8
-extern char lbl_8166B57C[] = "can't create record; database is readonly\n";
+extern char scCdbMsg_CantCreateRecordReadonly[] = "can't create record; database is readonly\n";
 #pragma align 8
-extern char lbl_8166B5A8[] = "invalid key\n";
+extern char scCdbMsg_InvalidKey[] = "invalid key\n";
 #pragma align 8
-extern char lbl_8166B5B8[] = "file not found : %s\n";
+extern char scCdbMsg_FileNotFound[] = "file not found : %s\n";
 #pragma align 8
-extern char lbl_8166B5D0[] = "can't execute CDBDatabaseCleanUpEmptyDirectories; database is closed\n";
+extern char scCdbMsg_CantCleanupDirsClosed[] = "can't execute CDBDatabaseCleanUpEmptyDirectories; database is closed\n";
 #pragma align 8
-extern char lbl_8166B618[] = "can't execute CDBDatabaseCleanUpEmptyDirectories; database is readonly\n";
+extern char scCdbMsg_CantCleanupDirsReadonly[] = "can't execute CDBDatabaseCleanUpEmptyDirectories; database is readonly\n";
