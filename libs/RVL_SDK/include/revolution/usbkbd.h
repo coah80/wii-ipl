@@ -20,8 +20,8 @@ typedef void (*USBKBDEventCallback)(void*, char*);
 typedef void (*USBKBDCmdLEDCallback)(BOOL success, void* cbarg);
 
 typedef struct USBKBDCmdLED {
-    vu32 unk_0x00;
-    vu8 unk_0x04;
+    vu32 device;  // 0x00
+    vu8 ledBits;  // 0x04
 } USBKBDCmdLED;
 
 typedef struct USBKBDCmdLEDAsync {

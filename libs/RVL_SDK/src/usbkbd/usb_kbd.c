@@ -101,8 +101,8 @@ USBKBDErr USBKBDSetLED(u32 device, u8 ledBits, USBKBDCmdLED* cmd) {
         return USB_KBD_ERR_NOT_INIT;
     }
 
-    cmd->unk_0x04 = ledBits;
-    cmd->unk_0x00 = device;
+    cmd->ledBits = ledBits;
+    cmd->device = device;
 
     return IOS_Write(usbKbdFd, cmd, sizeof(USBKBDCmdLED)) != IPC_RESULT_OK ? USB_KBD_ERR_FATAL : USB_KBD_ERR_OK;
 }
@@ -118,8 +118,8 @@ USBKBDErr USBKBDSetLEDAsync(u32 device, u8 ledBits, USBKBDCmdLEDAsync* cmd, USBK
     if (usbKbdFd < 0) {
         return USB_KBD_ERR_NOT_INIT;
     }
-    cmd->base.unk_0x00 = device;
-    cmd->base.unk_0x04 = ledBits;
+    cmd->base.device = device;
+    cmd->base.ledBits = ledBits;
     cmd->cb = cb;
     cmd->cbArg = cbArg;
 
