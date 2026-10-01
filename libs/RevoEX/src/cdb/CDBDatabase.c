@@ -8,10 +8,10 @@ extern u32 CDBGetInitialCode();
 extern void CDBLock();
 extern CDBErr CDBDatabaseAllocate(CDBDatabase* database, u32 flags);
 extern void CDBUnlock();
-extern void CDBDatabaseFree();
+extern CDBErr CDBDatabaseFree(CDBDatabase* database);
 extern void CDBRecordCreateAtOnce();
-extern void CDBRecordInitDescriptor();
-extern void CDBRecordIsExistFile();
+extern void CDBRecordInitDescriptor(CDBRecord* record, CDBDatabase* database, CDBRecordKey* key);
+extern BOOL CDBRecordIsExistFile(CDBRecord* record);
 extern void CDBRecordOpenReadOnly();
 extern void CDBRecordKeyArrayInit();
 extern void CDBRecordKeyArraySetReverse();
@@ -157,59 +157,27 @@ CDBErr CDBDatabaseOpen(CDBDatabase* database) {
     return result;
 }
 
-asm CDBErr CDBDatabaseClose(CDBDatabase* database) {
-#ifdef __MWERKS__
-    nofralloc
-    stwu r1, -0x10(r1)
-    mflr r0
-    stw r0, 0x14(r1)
-    stw r31, 0xc(r1)
-    stw r30, 0x8(r1)
-    mr r30, r3
-    bl CDBLock
-    lwz r31, 0x8(r30)
-    cmpwi r31, 0x0
-    beq L_8148746C
-    addis r3, r31, 0x1
-    lwz r0, -0x3ff0(r3)
-    cmpwi r0, 0x0
-    bne L_8148749C
-    L_8148746C:
-    li r3, 0x2
-    bl CDBIsPrintDebugMessage
-    cmpwi r3, 0x0
-    beq L_81487494
-    li r3, 0x2
-    bl CDBReport_
-    lis r3, lbl_8166B528@ha
-    addi r3, r3, lbl_8166B528@l
-    crclr 4*cr1+eq
-    bl OSReport
-    L_81487494:
-    li r31, 0x1b
-    b L_814874C4
-    L_8148749C:
-    mr r3, r30
-    bl CDBDatabaseFree
-    cmpwi r3, 0x0
-    beq L_814874B4
-    mr r31, r3
-    b L_814874C4
-    L_814874B4:
-    addis r3, r31, 0x1
-    li r0, 0x0
-    stw r0, -0x3ff0(r3)
-    li r31, 0x0
-    L_814874C4:
-    bl CDBUnlock
-    mr r3, r31
-    lwz r31, 0xc(r1)
-    lwz r30, 0x8(r1)
-    lwz r0, 0x14(r1)
-    mtlr r0
-    addi r1, r1, 0x10
-    blr
-#endif
+CDBErr CDBDatabaseClose(CDBDatabase* database) {
+    CDBErr result;
+    CDBErr status;
+    CDBDatabaseState* instance;
+
+    CDBLock();
+    instance = database->instance;
+    if (instance == NULL || instance->flags == 0) {
+        CDBReportError(lbl_8166B528);
+        result = CDB_ERROR_27;
+    } else {
+        status = CDBDatabaseFree(database);
+        if (status != CDB_ERROR_OK) {
+            result = status;
+        } else {
+            instance->flags = 0;
+            result = CDB_ERROR_OK;
+        }
+    }
+    CDBUnlock();
+    return result;
 }
 
 CDBErr CDBDatabasePrivateCreateRecordAtOnce(CDBDatabase* database, CDBRecord* record, const char* typeStr, const char* fileTypeStr, u8* recordData, u32 recordDataSize, char* makerCodeStr, char* gameCodeStr) {
@@ -525,72 +493,24 @@ asm CDBErr CDBDatabaseCreateRecordImAtOnce_() {
 #endif
 }
 
-asm CDBErr CDBDatabaseFindByKey() {
-#ifdef __MWERKS__
-    nofralloc
-    stwu r1, -0x20(r1)
-    mflr r0
-    stw r0, 0x24(r1)
-    stw r31, 0x1c(r1)
-    mr r31, r5
-    stw r30, 0x18(r1)
-    mr r30, r4
-    stw r29, 0x14(r1)
-    mr r29, r3
-    bl CDBLock
-    mr r3, r31
-    bl CDBRecordKeyIsValid
-    cmpwi r3, 0x0
-    bne L_81487ABC
-    li r3, 0x2
-    bl CDBIsPrintDebugMessage
-    cmpwi r3, 0x0
-    beq L_81487AB4
-    li r3, 0x2
-    bl CDBReport_
-    lis r3, lbl_8166B5A8@ha
-    addi r3, r3, lbl_8166B5A8@l
-    crclr 4*cr1+eq
-    bl OSReport
-    L_81487AB4:
-    li r31, 0x5
-    b L_81487B14
-    L_81487ABC:
-    mr r3, r30
-    mr r4, r29
-    mr r5, r31
-    bl CDBRecordInitDescriptor
-    mr r3, r30
-    bl CDBRecordIsExistFile
-    cmpwi r3, 0x0
-    bne L_81487B10
-    li r3, 0x2
-    bl CDBIsPrintDebugMessage
-    cmpwi r3, 0x0
-    beq L_81487B08
-    li r3, 0x2
-    bl CDBReport_
-    lis r3, lbl_8166B5B8@ha
-    mr r4, r31
-    addi r3, r3, lbl_8166B5B8@l
-    crclr 4*cr1+eq
-    bl OSReport
-    L_81487B08:
-    li r31, 0x23
-    b L_81487B14
-    L_81487B10:
-    li r31, 0x0
-    L_81487B14:
-    bl CDBUnlock
-    mr r3, r31
-    lwz r31, 0x1c(r1)
-    lwz r30, 0x18(r1)
-    lwz r29, 0x14(r1)
-    lwz r0, 0x24(r1)
-    mtlr r0
-    addi r1, r1, 0x20
-    blr
-#endif
+CDBErr CDBDatabaseFindByKey(CDBDatabase* database, CDBRecord* record, CDBRecordKey* recordKey) {
+    CDBErr result;
+
+    CDBLock();
+    if (!CDBRecordKeyIsValid(recordKey)) {
+        CDBReportError(lbl_8166B5A8);
+        result = CDB_ERROR_5;
+    } else {
+        CDBRecordInitDescriptor(record, database, recordKey);
+        if (!CDBRecordIsExistFile(record)) {
+            CDBReportError(lbl_8166B5B8, recordKey->keyString);
+            result = CDB_ERROR_CANNOT_OPEN_FILE;
+        } else {
+            result = CDB_ERROR_OK;
+        }
+    }
+    CDBUnlock();
+    return result;
 }
 
 CDBErr CDBDatabaseSearchConditionsIsMatch(CDBSearchConditions* conditions, char* key) {
