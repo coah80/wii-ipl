@@ -762,8 +762,7 @@ unlock_driver:
 
 int ATERM_8140276C(AtermApRecordSet* currentRecords, AtermApRecordSet* previousRecords,
     u32* changedIndex) {
-    AtermApRecord* currentRecord = currentRecords->entries;
-    AtermApRecord* previousRecord = previousRecords->entries;
+    u32 previousIndex;
     u32 currentIndex = 0;
     int found = 0;
     int result = 0;
@@ -771,7 +770,8 @@ int ATERM_8140276C(AtermApRecordSet* currentRecords, AtermApRecordSet* previousR
     size_t compareLength;
     size_t aossLength;
     size_t formattedSsidLength;
-    u32 previousIndex;
+    AtermApRecord* currentRecord = currentRecords->entries;
+    AtermApRecord* previousRecord = previousRecords->entries;
 
 
     for (; currentIndex < currentRecords->count; currentIndex++) {
@@ -813,9 +813,11 @@ int ATERM_8140276C(AtermApRecordSet* currentRecords, AtermApRecordSet* previousR
 
     if (!found) {
         AtermSsidBuffer aossSsidName;
-        int currentHasAoss = 0;
-        int previousHasAoss = 0;
+        int currentHasAoss;
+        int previousHasAoss;
 
+        previousHasAoss = 0;
+        currentHasAoss = 0;
         aossSsidName.clear.word0 = 0;
         aossSsidName.clear.word1 = 0;
         aossSsidName.clear.word2 = 0;
