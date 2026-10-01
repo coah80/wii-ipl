@@ -20,3 +20,20 @@
 - iMBoxCheck oldestId store-forward: `*(volatile u32*)&mailbox.oldestId` at the DeleteMsg call site STILL forwards (provable-local stack slot) — confirmed wall, not a lever.
 - IsMsgObjReadable: 5-diff pure scheduling (entry->type load position vs prologue stores); volatile version adds +1 + cascade. Parked.
 - ReadMsgAttached residual: r27<->r28 (index home) + base keeps scaled index (idx*4 in r27) and recomputes `add r3,r29,r27` per attachedSize access while mine keeps the pointer (+1 insn). Ptr-vs-scaled-index liveness tie.
+
+## net2 wave 2 — volatile compound-assign forces reload-on-store (2026-10-01)
+
+`*(volatile u16*)year += 1;` on pointer params forces `lhz;addi;sth` reload
+per iteration — MWCC otherwise forwards the stored value in a register across
+loop back-edges (ConvertDaysToDate: *year, *month, *day stores). This is the
+same family as volatile-guard reads: volatile kills store-forwarding.
+
+`*month == 2 && IsLeapYear(*year)` &&-form shares the `else { days -= DIM }`
+block between the month!=2 and !leap paths (one add+lbz+subf block, matching
+base) — writing the subtract in two nested else-branches duplicates it.
+
+ConvertDaysToDate residual (+1 insn): MWCC emits `bge` with the day+= block
+inline; base emits `blt` to a forward day+= block next to the epilogue.
+break/goto-tail/post-loop forms all re-sink the block inline — parked as
+block-placement tie-break. iDateToOSCalendarTime: r0<->r5 rename (year vs
+isLeapYear flag pin) — parked.
