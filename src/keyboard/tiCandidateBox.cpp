@@ -21,22 +21,22 @@ namespace textinput {
 
         #pragma push
         #pragma section const_type ".data"
-        extern "C" const char lbl_8165D2D0[15] = "T_prdc_Text_00";
-        extern "C" const char lbl_8165D2E0[17] = "P_prdc_scrl_Left";
+        extern "C" const char scT_prdc_Text_00[15] = "T_prdc_Text_00";
+        extern "C" const char scP_prdc_scrl_Left[17] = "P_prdc_scrl_Left";
         #pragma pop
 
         #pragma push
         #pragma section sconst_type ".sdata"
-        extern "C" const char* lbl_816973C0 = lbl_8165D2D0;
-        extern "C" const char* lbl_816973C4 = lbl_8165D2E0;
-        extern "C" const wchar_t lbl_816973C8[4] = {0, 0, 0, 1};
-        extern "C" const char lbl_816973D0[8] = "P_OnBtn";
-        extern "C" const char lbl_816973D8[8] = "B_OnBtn";
+        extern "C" const char* scCommonTextAnimName = scT_prdc_Text_00;
+        extern "C" const char* scCommonScrollAnimName = scP_prdc_scrl_Left;
+        extern "C" const wchar_t scEmptyWChars[4] = {0, 0, 0, 1};
+        extern "C" const char scP_OnBtn[8] = "P_OnBtn";
+        extern "C" const char scB_OnBtn[8] = "B_OnBtn";
         #pragma pop
 
 
-        #define COMMON_TEXT_ANIM lbl_816973C0
-        #define COMMON_SCROLL_ANIM lbl_816973C4
+        #define COMMON_TEXT_ANIM scCommonTextAnimName
+        #define COMMON_SCROLL_ANIM scCommonScrollAnimName
 
         // name made up, no dwarf (?)
         struct AnimationFile {
@@ -77,7 +77,7 @@ namespace textinput {
             char tail[12];
         };
 
-        extern "C" const CandidatePaneData lbl_8165D2F8 __attribute__((aligned(8))) = {{
+        extern "C" const CandidatePaneData scCandidatePaneData __attribute__((aligned(8))) = {{
             {KT_CandidateText, "N_predictInput", 1, NULL, {&csAninationFile[0]}},
             {KT_ScrollButton,
              "P_prdc_scrl_Left",
@@ -212,7 +212,7 @@ namespace textinput {
 
         #pragma push
         #pragma section const_type ".data"
-        extern "C" const char lbl_8165D984[132] =
+        extern "C" const char scPaneNameTable[132] =
             "B_OffBtn\0\0\0"
             "P_JPOffBtn\0"
             "P_CNOffBtn\0"
@@ -222,10 +222,10 @@ namespace textinput {
             "B_prdc_scrl_Rght\0\0\0"
             "P_prdc_scrl_Rght\0\0\0"
             "\0\0\0";
-        extern "C" char lbl_8165DA08[16] = "W_predictWindow";
-        extern "C" const char lbl_8165DA18[15] = "N_predictInput";
-        extern "C" const char lbl_8165DA28[13] = "W_OnOff_Area";
-        extern "C" const char lbl_8165DA38[13] = "N_prdc_Texts";
+        extern "C" char scW_predictWindow[16] = "W_predictWindow";
+        extern "C" const char scN_predictInput[15] = "N_predictInput";
+        extern "C" const char scW_OnOff_Area[13] = "W_OnOff_Area";
+        extern "C" const char scN_prdc_Texts[13] = "N_prdc_Texts";
         #pragma pop
 
         void CandidateBoxCaller::Candidates::addCandidate(const wchar_t* wcString) {
@@ -398,20 +398,20 @@ namespace textinput {
             mTextArea.Init();
             mOnOffButton.Create(this);
             mOnOffButton.Init();
-            const char* paneNames = lbl_8165D984;
+            const char* paneNames = scPaneNameTable;
             mLeftScroll.Create(this, paneNames + 68, paneNames + 48);
             mRightScroll.Create(this, paneNames + 108, paneNames + 88);
             mLeftScroll.Init();
             mRightScroll.Init();
-            mTextWindow.Create(this, lbl_8165DA08);
+            mTextWindow.Create(this, scW_predictWindow);
             init();
         }
 
         void LayoutByNW4R::createAnmPane_(MEMAllocator* allocator) {
             CandidateTextAnmPane* pane;
-            for (u16 i = 0; i < ARRAY_LENGTH(lbl_8165D2F8.panes); i++) {
+            for (u16 i = 0; i < ARRAY_LENGTH(scCandidatePaneData.panes); i++) {
                 pane = NULL;
-                const PaneToAnimation& p = lbl_8165D2F8.panes[i];
+                const PaneToAnimation& p = scCandidatePaneData.panes[i];
                 switch (p.type) {
                     case KT_ScrollButton: {
                         void* pBtnBuf = MEMAllocFromAllocator(allocator, sizeof(CandidateScrollAnmPane));
@@ -454,7 +454,7 @@ namespace textinput {
         }
 
         void LayoutByNW4R::init() {
-            searchAnmPane(lbl_8165DA18)->changeAnimation(ANM_Normal);
+            searchAnmPane(scN_predictInput)->changeAnimation(ANM_Normal);
             Base::setInvalid(false);
             setActive(true);
             setOnOff(false);
@@ -467,7 +467,7 @@ namespace textinput {
             mpLayout->CalculateMtx(mDrawInfo);
             if (meLanguage == KR) {
                 mTextWindow.SetVisible(false);
-                getPane(lbl_8165DA28)->SetVisible(false);
+                getPane(scW_OnOff_Area)->SetVisible(false);
             } else if (meLanguage == CN) {
                 setOnOff(true);
                 mTextWindow.SetVisible(true);
@@ -477,16 +477,16 @@ namespace textinput {
                 } else {
                     mTextWindow.ChangeAnimation(ANM_Normal);
                 }
-                getPane(lbl_8165DA28)->SetVisible(false);
+                getPane(scW_OnOff_Area)->SetVisible(false);
             } else {
-                getPane(lbl_8165DA28)->SetVisible(true);
+                getPane(scW_OnOff_Area)->SetVisible(true);
             }
         }
 
         void LayoutByNW4R::draw() {
-            getPane(lbl_8165DA38)->SetVisible(false);
+            getPane(scN_prdc_Texts)->SetVisible(false);
             nw4rmanager::Layout::draw();
-            getPane(lbl_8165DA38)->SetVisible(true);
+            getPane(scN_prdc_Texts)->SetVisible(true);
             if (!isInvalid()) {
                 mTextArea.Draw(mDrawInfo);
             }
@@ -496,8 +496,8 @@ namespace textinput {
             nw4rmanager::Layout::calc();
             mTextArea.Calc();
             if (mbAnimOn) {
-                getPane(lbl_8165DA38)->Animate(0);
-                getPane(lbl_8165DA38)->CalculateMtx(mDrawInfo);
+                getPane(scN_prdc_Texts)->Animate(0);
+                getPane(scN_prdc_Texts)->CalculateMtx(mDrawInfo);
             }
         }
 
@@ -505,7 +505,7 @@ namespace textinput {
             Base::setLanguage(language);
             init();
             // Maybe inlines, maybe not
-            nw4r::math::VEC3 pos = searchAnmPane(lbl_8165DA08)->getPane()->GetTranslate();
+            nw4r::math::VEC3 pos = searchAnmPane(scW_predictWindow)->getPane()->GetTranslate();
             if (meLanguage == CN || meLanguage == KR) {
                 Base::checkValidation();
                 // Potentially an inline
@@ -520,7 +520,7 @@ namespace textinput {
                 pos.x = 202.0f;
             }
 
-            searchAnmPane(lbl_8165DA08)->getPane()->SetTranslate(pos);
+            searchAnmPane(scW_predictWindow)->getPane()->SetTranslate(pos);
             if (meLanguage == CN) {
                 mTextArea.ApplyFontScale(1.2f);
             } else if (meLanguage == KR) {
@@ -531,10 +531,10 @@ namespace textinput {
         }
 
         void LayoutByNW4R::onOnOffButton(bool arg) {
-            const char* base = lbl_8165D2D0;
+            const char* base = scT_prdc_Text_00;
             mTextWindow.TurnOnOff(!isOn());
             if (isOn()) {
-                searchAnmPane(lbl_816973D0)->onAnmEvent(nw4rmanager::AnmPane::PE_0);
+                searchAnmPane(scP_OnBtn)->onAnmEvent(nw4rmanager::AnmPane::PE_0);
                 if (arg) {
                     mpEventObserver->onSE(sound::SE_PREDICT_OFF);
                 }
@@ -588,7 +588,7 @@ namespace textinput {
         }
 
         void LayoutByNW4R::startTurnOn(bool on) {
-            const char* base = lbl_8165D2D0;
+            const char* base = scT_prdc_Text_00;
             if (isInScroll()) {
                 return;
             }
@@ -596,7 +596,7 @@ namespace textinput {
                 mTextWindow.TurnOnOff(on);
 
                 if (!on) {
-                    searchAnmPane(lbl_816973D0)->onAnmEvent(nw4rmanager::AnmPane::PE_0);
+                    searchAnmPane(scP_OnBtn)->onAnmEvent(nw4rmanager::AnmPane::PE_0);
                     mpEventObserver->onSE(sound::SE_PREDICT_OFF);
                 } else {
                     searchAnmPane(base + 0x6a8)->onAnmEvent(nw4rmanager::AnmPane::PE_0);
@@ -637,7 +637,7 @@ namespace textinput {
                     current = reinterpret_cast<CandidateBoxCaller::Candidates*>(reinterpret_cast<u8*>(current) + sizeof(current->szwcPredicted[0]));
                 }
             }
-            gui::PaneComponent* p = mpPaneManager->searchPaneComponent(isOn() ? lbl_816973D8 : lbl_8165D984);
+            gui::PaneComponent* p = mpPaneManager->searchPaneComponent(isOn() ? scB_OnBtn : scPaneNameTable);
             if (p != NULL) {
                 p->lockInitialize(true);
             }
@@ -706,8 +706,8 @@ namespace textinput {
         }
 
         void LayoutByNW4R::cancelStateFocusIn() {
-            const PaneToAnimation* pane = lbl_8165D2F8.panes;
-            for (int i = 0; i < ARRAY_LENGTH(lbl_8165D2F8.panes); i++) {
+            const PaneToAnimation* pane = scCandidatePaneData.panes;
+            for (int i = 0; i < ARRAY_LENGTH(scCandidatePaneData.panes); i++) {
                 CandidateTextAnmPane* p = static_cast<CandidateTextAnmPane*>(searchAnmPane(pane->paneName));
                 if (p != NULL) {
                     switch (p->getKeyType()) {
@@ -765,7 +765,7 @@ namespace textinput {
         }
 
         void LayoutByNW4R::onEvent(UIObj* obj, u32 id, void* data) {
-            const char* base = lbl_8165D2D0;
+            const char* base = scT_prdc_Text_00;
             int tmp;
 
             switch (id) {
@@ -996,7 +996,7 @@ namespace textinput {
         void UITextArea::Create(nw4rmanager::Layout* layout) {
             // These could have been static...
             const char* textPanes[NUM_PANES] = {
-                lbl_8165D2D0, "T_prdc_Text_01", "T_prdc_Text_02", "T_prdc_Text_03", "T_prdc_Text_04", "T_prdc_Text_05", "T_prdc_Text_06",
+                scT_prdc_Text_00, "T_prdc_Text_01", "T_prdc_Text_02", "T_prdc_Text_03", "T_prdc_Text_04", "T_prdc_Text_05", "T_prdc_Text_06",
                 "T_prdc_Text_07", "T_prdc_Text_08", "T_prdc_Text_09", "T_prdc_Text_10", "T_prdc_Text_11", "T_prdc_Text_12", "T_prdc_Text_13",
                 "T_prdc_Text_14", "T_prdc_Text_15", "T_prdc_Text_16", "T_prdc_Text_17", "T_prdc_Text_18", "T_prdc_Text_19",
             };
@@ -1015,7 +1015,7 @@ namespace textinput {
                 mpBoundingPane[i]->setListener(this);
             }
             mpTextAreaPane = mgr->searchPaneComponent("N_prdcTextArea");
-            mpTextsPane = mgr->searchPaneComponent(lbl_8165DA38);
+            mpTextsPane = mgr->searchPaneComponent(scN_prdc_Texts);
             mSize = mpTextBoxPane[0]->getTextPane()->GetFontSize();
             mpTextAreaPane->setListener(this);
         }
@@ -1023,7 +1023,7 @@ namespace textinput {
 
         void UITextArea::Init() {
             for (u32 i = 0; i < NUM_PANES; i++) {
-                mpTextBoxPane[i]->getTextPane()->SetString(const_cast<const wchar_t*>(lbl_816973C8), 0);
+                mpTextBoxPane[i]->getTextPane()->SetString(const_cast<const wchar_t*>(scEmptyWChars), 0);
                 mpBoundingPane[i]->setTriggerTarget(true);
             }
             mfTextWidth = 0.0f;
@@ -1210,7 +1210,7 @@ namespace textinput {
 
         void UITextArea::Clear() {
             for (u32 i = 0; i < NUM_PANES; i++) {
-                mpTextBoxPane[i]->getTextPane()->SetString(const_cast<const wchar_t*>(lbl_816973C8), 0);
+                mpTextBoxPane[i]->getTextPane()->SetString(const_cast<const wchar_t*>(scEmptyWChars), 0);
             }
         }
 
@@ -1493,7 +1493,7 @@ namespace textinput {
             if (mgr()->isInScroll() && event != 1 && event != 0) {
                 return;
             }
-            if (!mgr()->searchAnmPane(lbl_8165DA08)->isInAnimation() || event == 1) {
+            if (!mgr()->searchAnmPane(scW_predictWindow)->isInAnimation() || event == 1) {
                 if (!mgr()->isInvalid()) {
                     switch (event) {
                         case 4:
@@ -1645,7 +1645,7 @@ namespace textinput {
             if (mgr()->isInScroll() && event != 1 && event != 0) {
                 return;
             }
-            if (!mgr()->searchAnmPane(lbl_8165DA08)->isInAnimation() || event == 1) {
+            if (!mgr()->searchAnmPane(scW_predictWindow)->isInAnimation() || event == 1) {
                 if (!mgr()->isInvalid()) {
                     switch (event) {
                         case 4:
@@ -1691,15 +1691,15 @@ namespace textinput {
             mpOnPictPane = mgr->searchPaneComponent("P_OnBtn");
             mpOnBoundPane = mgr->searchPaneComponent("B_OnBtn");
             mpOnAnmPane = static_cast<OnOffAnmPane*>(layout->searchAnmPane("P_OnBtn"));
-            mpOffPictPane = mgr->searchPaneComponent(lbl_8165D2F8.tail);
-            mpOffBoundPane = mgr->searchPaneComponent(lbl_8165D984);
-            mpOffAnmPane = static_cast<OnOffAnmPane*>(layout->searchAnmPane(lbl_8165D2F8.tail));
+            mpOffPictPane = mgr->searchPaneComponent(scCandidatePaneData.tail);
+            mpOffBoundPane = mgr->searchPaneComponent(scPaneNameTable);
+            mpOffAnmPane = static_cast<OnOffAnmPane*>(layout->searchAnmPane(scCandidatePaneData.tail));
 
-            layout->getLayout()->GetRootPane()->FindPaneByName(lbl_8165D2F8.tail)->GetMaterial()->GetTexture(&mOffTexDefault, 0);
-            layout->getLayout()->GetRootPane()->FindPaneByName(lbl_8165D984 + 12)->GetMaterial()->GetTexture(&mOffTexJP, 0);
-            layout->getLayout()->GetRootPane()->FindPaneByName(lbl_8165D984 + 24)->GetMaterial()->GetTexture(&mOffTexCN, 0);
-            layout->getLayout()->GetRootPane()->FindPaneByName(lbl_816973D0)->GetMaterial()->GetTexture(&mOnTexDefault, 0);
-            layout->getLayout()->GetRootPane()->FindPaneByName(lbl_8165D984 + 36)->GetMaterial()->GetTexture(&mOnTexCN, 0);
+            layout->getLayout()->GetRootPane()->FindPaneByName(scCandidatePaneData.tail)->GetMaterial()->GetTexture(&mOffTexDefault, 0);
+            layout->getLayout()->GetRootPane()->FindPaneByName(scPaneNameTable + 12)->GetMaterial()->GetTexture(&mOffTexJP, 0);
+            layout->getLayout()->GetRootPane()->FindPaneByName(scPaneNameTable + 24)->GetMaterial()->GetTexture(&mOffTexCN, 0);
+            layout->getLayout()->GetRootPane()->FindPaneByName(scP_OnBtn)->GetMaterial()->GetTexture(&mOnTexDefault, 0);
+            layout->getLayout()->GetRootPane()->FindPaneByName(scPaneNameTable + 36)->GetMaterial()->GetTexture(&mOnTexCN, 0);
 
             mpOffBoundPane->setListener(this);
             mpOnBoundPane->setListener(this);
@@ -1756,7 +1756,7 @@ namespace textinput {
             if (mgr()->isInScroll() && event != 1 && event != 0) {
                 return;
             }
-            if (!mgr()->searchAnmPane(lbl_8165DA08)->isInAnimation() || event == 1) {
+            if (!mgr()->searchAnmPane(scW_predictWindow)->isInAnimation() || event == 1) {
                 OnOffAnmPane* p;
                 if (&component == mpOnBoundPane) {
                     p = mpOnAnmPane;
