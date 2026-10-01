@@ -22,7 +22,7 @@ void bte_hcisu_send(HC_BT_HDR *p_msg, UINT16 event)
 		GKI_freebuf(p_msg);
 }
 
-void bte_hcisu_task(int param_1)
+void bte_hcisu_task(int unused)
 {
 	if (p_hcisu_if)
 	{
