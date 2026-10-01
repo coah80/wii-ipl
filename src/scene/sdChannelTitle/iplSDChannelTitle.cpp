@@ -849,7 +849,7 @@ extern "C" void iplSDChannelTitle_813E7074(SDChannelTitle* scene) {
 extern "C" void iplSDChannelTitle_813E71A4(SDChannelTitle* scene) {
     if (!scene->mpChannelSelect->getWorker()->is_working()) {
         SCSetTmpTitleID(0);
-        System::getChannelManager()->fn_8133A9F0();
+        System::getChannelManager()->clearTmpChannel();
         int result = scene->mpChannelSelect->getWorker()->get_async_result();
         if (!result) {
             if (scene->mbCopiedTitle) {
@@ -983,7 +983,7 @@ extern "C" void iplSDChannelTitle_813E7800(SDChannelTitle* scene) {
 
 extern "C" void iplSDChannelTitle_813E787C(SDChannelTitle* scene) {
     if (scene->mbTmdReady) {
-        if (!System::getChannelManager()->fn_8133A678(scene->mTitleId) && !utility::ESMisc::CheckTmdCountryCode(scene->mpTmd)) {
+        if (!System::getChannelManager()->isMissingTicket(scene->mTitleId) && !utility::ESMisc::CheckTmdCountryCode(scene->mpTmd)) {
             System::getErrorHandler()->set(ErrorHandler::DEFAULT, 3, NULL, 0, -1);
         }
         scene->mMakerCode = scene->mpTmd->head.groupId;
@@ -1043,8 +1043,8 @@ extern "C" void iplSDChannelTitle_813E7B30(SDChannelTitle* scene, ESTitleId titl
             delete scene->mpScriptFile;
             scene->mpScriptFile = NULL;
         }
-        if (System::getChannelManager()->fn_8133A57C(title)) {
-            scene->mpScriptFile = System::getChannelManager()->fn_8133A924(scene->mpRsoHeap, title);
+        if (System::getChannelManager()->getBannerCSIdx(title)) {
+            scene->mpScriptFile = System::getChannelManager()->readBannerCSAsync(scene->mpRsoHeap, title);
             scene->mbScriptFailed = false;
             scene->mScriptEnabled = 1;
             scene->mScriptState = 1;
@@ -1097,7 +1097,7 @@ extern "C" void iplSDChannelTitle_813E7D14(SDChannelTitle* scene) {
             scene->mScriptState = 1;
             scene->mScriptHeapIndex = nextHeap;
         }
-        if (System::getChannelManager()->fn_8133A634(scene->mTitleId) &&
+        if (System::getChannelManager()->usesAltSound(scene->mTitleId) &&
             scene->mScriptFrame == scene->mScriptDuration - 240) {
             snd::getSystem()->stopBannerSound(180);
         }
@@ -1155,7 +1155,7 @@ extern "C" void iplSDChannelTitle_813E8034(SDChannelTitle* scene) {
         scene->mpBannerAnimations[0]->play();
     }
     if (scene->mState != 6) {
-        if (!System::getChannelManager()->fn_8133A634(scene->mTitleId) || !scene->mScriptEnabled) {
+        if (!System::getChannelManager()->usesAltSound(scene->mTitleId) || !scene->mScriptEnabled) {
             iplSDChannelTitle_813E8160(scene);
         }
         if (!scene->mpBannerLayout) {
@@ -1169,7 +1169,7 @@ extern "C" void iplSDChannelTitle_813E8034(SDChannelTitle* scene) {
 extern "C" void iplSDChannelTitle_813E8160(SDChannelTitle* scene) {
     if (scene->mpSoundFiles[scene->mLoadedIndex] && scene->mpSoundFiles[scene->mLoadedIndex]->checkData() == 1) {
         void* sound = scene->mpSoundFiles[scene->mLoadedIndex]->getBuffer();
-        u32 size = System::getChannelManager()->fn_8133A5B8(scene->mTitleId);
+        u32 size = System::getChannelManager()->getSoundSize(scene->mTitleId);
         snd::getSystem()->startBannerSound(sound, size, false);
     }
 }
@@ -1230,7 +1230,7 @@ extern "C" void iplSDChannelTitle_813E8360(SDChannelTitle* scene) {
 }
 
 extern "C" BOOL iplSDChannelTitle_813E847C(SDChannelTitle*, ESTmdView*, ESTitleId titleId) {
-    if (!System::getChannelManager()->fn_8133A5F0(titleId) || ncd::NCDSetting::getConnectEnableFlag()) {
+    if (!System::getChannelManager()->needsNetSetting(titleId) || ncd::NCDSetting::getConnectEnableFlag()) {
         return TRUE;
     }
     return FALSE;
@@ -1429,8 +1429,8 @@ extern "C" void iplSDChannelTitle_813E8D14(SDChannelTitle*, nw4r::lyt::Pane* pan
 }
 
 extern "C" nand::LayoutFile* iplSDChannelTitle_813E8DCC(SDChannelTitle*, ESTitleId title, nand::File** sound) {
-    *sound = System::getChannelManager()->fn_8133A85C(System::getMem2App(), title);
-    nand::MetaFile* banner = System::getChannelManager()->fn_8133A7A4(System::getMem2App(), title);
+    *sound = System::getChannelManager()->readSoundMetaAsync(System::getMem2App(), title);
+    nand::MetaFile* banner = System::getChannelManager()->readBannerMetaAsync(System::getMem2App(), title);
     return new (System::getMem2App(), 4) nand::LayoutFile(banner, NULL);
 }
 
@@ -1453,15 +1453,15 @@ extern "C" BOOL iplSDChannelTitle_813E8F04(SDChannelTitle* scene, ESTmdView* tmd
         return TRUE;
     }
     if (parental.enable & SC_PARENTAL_FLAG_ENABLED) {
-        u32 restrictions = System::getChannelManager()->fn_8133A6B8(scene->mTitleId);
+        u32 restrictions = System::getChannelManager()->isNewsChannelV6Plus(scene->mTitleId);
         u32 networkRestrictions = SCGetNetContentRestrictions();
         if (networkRestrictions & restrictions) {
             return FALSE;
         }
-        if (SCGetWwwRestriction() && System::getChannelManager()->fn_8133A73C(scene->mTitleId)) {
+        if (SCGetWwwRestriction() && System::getChannelManager()->isOperaChannel(scene->mTitleId)) {
             return FALSE;
         }
-        if (System::getChannelManager()->fn_8133A73C(scene->mTitleId)) {
+        if (System::getChannelManager()->isOperaChannel(scene->mTitleId)) {
             return TRUE;
         } else {
             return utility::ESMisc::CheckTmdParentalControl(tmd);
