@@ -2539,11 +2539,14 @@ namespace textinput {
                                     u32 koreanCode = code;
                                     if (caps)
                                         koreanCode = util::reverseLetterCaseW(koreanCode);
+                                    u16 mapped;
                                     if (koreanCode >= L'a' && koreanCode <= L'z')
-                                        koreanCode = KOREAN_LOWER[static_cast<u16>(koreanCode) - L'a'];
+                                        mapped = KOREAN_LOWER[static_cast<u16>(koreanCode) - L'a'];
                                     else if (koreanCode >= L'A' && koreanCode <= L'Z')
-                                        koreanCode = KOREAN_UPPER[static_cast<u16>(koreanCode) - L'A'];
-                                    code = koreanCode;
+                                        mapped = KOREAN_UPPER[static_cast<u16>(koreanCode) - L'A'];
+                                    else
+                                        mapped = koreanCode;
+                                    code = mapped;
                                 }
                             }
                             animation = searchAnmPane(code);
