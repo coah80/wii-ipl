@@ -264,7 +264,6 @@ namespace ipl {
             command.arguments.values[0] = 0;
             command.arguments.values[1] = 0;
             command.titleId = 0;
-            command.arguments.values[2] = 0;
             mCommandQueue.push(command);
         }
 
@@ -274,7 +273,6 @@ namespace ipl {
             command.arguments.values[0] = 0;
             command.arguments.values[1] = 0;
             command.titleId = 0;
-            command.arguments.values[2] = 0;
             mCommandQueue.push(command);
             return true;
         }
@@ -289,7 +287,6 @@ namespace ipl {
             notice.arguments.values[0] = argument0;
             notice.arguments.values[1] = argument1;
             notice.titleId = titleId;
-            notice.arguments.values[2] = 0;
             if (mNoticeQueue.capacity != mNoticeQueue.count) {
                 mNoticeQueue.notices[mNoticeQueue.writeIndex].copyFrom(notice);
                 ++mNoticeQueue.writeIndex;
@@ -311,7 +308,6 @@ namespace ipl {
             command.arguments.values[0] = 0;
             command.arguments.values[1] = 0;
             command.titleId = 0;
-            command.arguments.values[2] = 0;
             mCommandQueue.push(command);
             return true;
         }
@@ -326,7 +322,6 @@ namespace ipl {
             command.arguments.values[0] = 0;
             command.arguments.values[1] = 0;
             command.titleId = 0;
-            command.arguments.values[2] = 0;
             mCommandQueue.push(command);
             return true;
         }
@@ -341,7 +336,6 @@ namespace ipl {
             command.arguments.values[0] = 0;
             command.arguments.values[1] = 0;
             command.titleId = result;
-            command.arguments.values[2] = 0;
             mCommandQueue.push(command);
             return true;
         }
@@ -356,7 +350,6 @@ namespace ipl {
             command.arguments.values[0] = value;
             command.arguments.values[1] = (u32)&mFirstTitleCount;
             command.titleId = ((u64)page << 32) | index;
-            command.arguments.values[2] = 0;
             mCommandQueue.push(command);
             return true;
         }
@@ -371,7 +364,6 @@ namespace ipl {
             command.arguments.values[0] = 0;
             command.arguments.values[1] = 0;
             command.titleId = ((u64)page << 32) | index;
-            command.arguments.values[2] = 0;
             mCommandQueue.push(command);
             return true;
         }
@@ -386,7 +378,6 @@ namespace ipl {
             command.arguments.values[0] = state;
             command.arguments.values[1] = 0;
             command.titleId = ((u64)page << 32) | index;
-            command.arguments.values[2] = 0;
             mCommandQueue.push(command);
             return true;
         }
@@ -401,7 +392,6 @@ namespace ipl {
             command.arguments.values[0] = page;
             command.arguments.values[1] = index;
             command.titleId = 0;
-            command.arguments.values[2] = 0;
             mCommandQueue.push(command);
             return true;
         }
@@ -1301,7 +1291,10 @@ namespace ipl {
                 blocks += mpNandTitleInfo[index].inode;
             }
 
-            return bytes >= usage[0] && blocks >= usage[1];
+            if (bytes >= usage[0] && blocks >= usage[1]) {
+                return true;
+            }
+            return false;
         }
 
         void SDChannelSelect::getCurrentTitleUsage(s32* bytes, s32* blocks) const {
@@ -1456,6 +1449,7 @@ namespace ipl {
             s32 bytes;
             s32 blocks;
             getCurrentTitleUsage(&bytes, &blocks);
+
             int hateUsageIndex = -1;
             int hatePage = -1;
             int hateChannelIndex = -1;
@@ -1464,45 +1458,48 @@ namespace ipl {
             int hadeChannelIndex = -1;
 
             for (u32 usageIndex = 0; usageIndex < mNandTitleCount; ++usageIndex) {
-                const ESTitleId titleId = mpNandTitleInfo[usageIndex].curTitleId;
+                ESTitleId titleId = mpNandTitleInfo[usageIndex].curTitleId;
                 if (titleId == ES_TITLE_ID(0x00010001, 0x48415445)) {
+                    int page;
+                    int channelIndex;
                     hateUsageIndex = usageIndex;
-                    int foundPage = -1;
-                    int foundIndex = -1;
                     System::getChannelManager()->hasChannel(
-                        ES_TITLE_ID(0x00010001, 0x48415445), &foundPage, &foundIndex);
-                    hatePage = foundPage;
-                    hateChannelIndex = foundIndex;
+                        ES_TITLE_ID(0x00010001, 0x48415445), &page, &channelIndex);
+                    hatePage = page;
+                    hateChannelIndex = channelIndex;
                 } else if (titleId == ES_TITLE_ID(0x00010001, 0x48414445)) {
+                    int page;
+                    int channelIndex;
                     hadeUsageIndex = usageIndex;
-                    int foundPage = -1;
-                    int foundIndex = -1;
                     System::getChannelManager()->hasChannel(
-                        ES_TITLE_ID(0x00010001, 0x48414445), &foundPage, &foundIndex);
-                    hadePage = foundPage;
-                    hadeChannelIndex = foundIndex;
+                        ES_TITLE_ID(0x00010001, 0x48414445), &page, &channelIndex);
+                    hadePage = page;
+                    hadeChannelIndex = channelIndex;
                 }
             }
 
             *titleCount = 0;
             for (int usageIndex = mNandTitleCount - 1; usageIndex >= 0; --usageIndex) {
-                const ESTitleId titleId = mpNandTitleInfo[usageIndex].curTitleId;
-                if (titleId == 0x48415A41 || titleId == ES_TITLE_ID(0x00010001, 0x48415445) || titleId == ES_TITLE_ID(0x00010001, 0x48414445)) {
+                if (mpNandTitleInfo[usageIndex].curTitleId == 0x48415A41 ||
+                    mpNandTitleInfo[usageIndex].curTitleId == ES_TITLE_ID(0x00010001, 0x48415445) ||
+                    mpNandTitleInfo[usageIndex].curTitleId == ES_TITLE_ID(0x00010001, 0x48414445)) {
                     continue;
                 }
 
                 int page;
                 int channelIndex;
-                if (System::getChannelManager()->hasChannel(titleId, &page, &channelIndex) == 0) {
+                if (System::getChannelManager()->hasChannel(
+                        mpNandTitleInfo[usageIndex].curTitleId, &page, &channelIndex) == 0) {
                     continue;
                 }
-                if (iplSavedata_813597A0(System::getSaveData(), titleId) != FALSE) {
+                if (iplSavedata_813597A0(System::getSaveData(),
+                        mpNandTitleInfo[usageIndex].curTitleId) != FALSE) {
                     continue;
                 }
 
                 bytes += mpNandTitleInfo[usageIndex].size;
                 blocks += mpNandTitleInfo[usageIndex].inode;
-                titleIds[*titleCount] = titleId;
+                titleIds[*titleCount] = mpNandTitleInfo[usageIndex].curTitleId;
                 wchar_t* titleName = System::getChannelManager()->getTitleName(
                     page, channelIndex, 0);
                 memcpy(titleNames + *titleCount * 0x2a, titleName, 0x2a);
@@ -1543,7 +1540,7 @@ namespace ipl {
             if (hadeUsageIndex >= 0) {
                 bytes += mpNandTitleInfo[hadeUsageIndex].size;
                 blocks += mpNandTitleInfo[hadeUsageIndex].inode;
-                titleIds[*titleCount] = ES_TITLE_ID(0x00010001, 0x48414445);
+                titleIds[*titleCount] = mpNandTitleInfo[hadeUsageIndex].curTitleId;
                 wchar_t* titleName =
                     System::getChannelManager()->getTitleName(
                         hadePage, hadeChannelIndex, 0);
@@ -1558,7 +1555,7 @@ namespace ipl {
             if (hateUsageIndex >= 0) {
                 bytes += mpNandTitleInfo[hateUsageIndex].size;
                 blocks += mpNandTitleInfo[hateUsageIndex].inode;
-                titleIds[*titleCount] = ES_TITLE_ID(0x00010001, 0x48415445);
+                titleIds[*titleCount] = mpNandTitleInfo[hateUsageIndex].curTitleId;
                 wchar_t* titleName =
                     System::getChannelManager()->getTitleName(
                         hatePage, hateChannelIndex, 0);
@@ -1570,7 +1567,10 @@ namespace ipl {
                 }
             }
 
-            return bytes >= firstUsage[0] && blocks >= firstUsage[1];
+            if (bytes >= firstUsage[0] && blocks >= firstUsage[1]) {
+                return true;
+            }
+            return false;
         }
 
         bool SDChannelSelect::collectTitlesForMode(
@@ -1696,7 +1696,7 @@ namespace ipl {
             if (mState == 2 && !mpLayout->isPlaying(0)) {
                 SDButton* button = static_cast<SDButton*>(System::getSceneManager()->getScene(0x24));
                 if (button != NULL) {
-                    button->setEventHandler(mpButtonEventHandler, NULL);
+                    button->setEventHandler(mpButtonEventHandler);
                     mState = 3;
                     if (mCurrentPage > 0) {
                         button->initArrowAppearance(1, true);
@@ -2244,7 +2244,7 @@ namespace ipl {
                     mbRightArrowVisible = false;
                 }
 
-                button->setEventHandler(mpButtonEventHandler, NULL);
+                button->setEventHandler(mpButtonEventHandler);
                 TVRCManager::getHandle()->setEnable(TRUE);
                 snd::getSystem()->startBGM("WIPL_BGM_MENU");
                 clearNoticeQueue();
@@ -3463,7 +3463,7 @@ namespace ipl {
 
                                 if (strcmp(paneName,
                                            SDButton::smButtonName[SDButton::BTN_WII_MENU]) == 0) {
-                                    button->setEventHandler(NULL, NULL);
+                                    button->setEventHandler(NULL);
                                     mpScene->mState = 4;
                                     snd::getSystem()->startSE("WIPL_SE_DECIDE");
                                     return;

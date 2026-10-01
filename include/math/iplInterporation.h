@@ -225,6 +225,46 @@ namespace ipl {
         };
 #endif
 
+#ifdef IPL_SD_CHANNEL_SELECT_CPP
+}  // namespace math
+}  // namespace ipl
+#include "math/iplMathTypes.h"
+namespace ipl {
+    namespace math {
+        template <>
+        class HermiteIntp<VEC3> : public utility::FrameController {
+        public:
+            HermiteIntp() {}
+            virtual ~HermiteIntp();
+            void init(const VEC3& start, const VEC3& end, f32 maxFrame, f32 param_5, f32 param_6, int playback = ANIM_TYPE_FORWARD, f32 speed = 1.0f);
+            VEC3 get() const {
+                f32 frame = mFrame;
+                f32 inverseDuration = 1.0f / mMaxFrame;
+                VEC3 result =
+                    (mStart * (1.0f + (inverseDuration * (inverseDuration *
+                        (inverseDuration * (frame * (2.0f * frame * frame)))) -
+                        inverseDuration * (inverseDuration * (3.0f * frame * frame))))) -
+                    (mEnd * (inverseDuration * (inverseDuration *
+                        (inverseDuration * (frame * (2.0f * frame * frame)))) -
+                        inverseDuration * (inverseDuration * (3.0f * frame * frame))));
+                f32 frameSquared = frame * frame;
+                f32 cubic = inverseDuration * (inverseDuration * (frame * frameSquared));
+                f32 tangent = unkVal0 * (frame + (cubic -
+                    inverseDuration * (2.0f * frame * frame))) +
+                    unkVal1 * (cubic - inverseDuration * frameSquared);
+                result.x += tangent;
+                result.y += tangent;
+                result.z += tangent;
+                return result;
+            }
+        protected:
+            VEC3 mStart;
+            VEC3 mEnd;
+            f32 unkVal0;
+            f32 unkVal1;
+        };
+#endif
+
     }  // namespace math
 }  // namespace ipl
 

@@ -156,10 +156,10 @@ void KPRInitRegionUS(void) {
 }
 
 void KPRInitQueue(KPRQueue* queue) {
-    static u8 once;
-    if (!once) {
+    static union { u64 align; u8 flag; } once;
+    if (!once.flag) {
         OSRegisterVersion(__KPRVersion);
-        once = TRUE;
+        once.flag = TRUE;
     }
     queue->mode = KPR_MODE_ALT_KEYPAD;
     queue->oCount = 0;
@@ -244,10 +244,9 @@ u8 KPRLookAhead(KPRQueue* queue, u16* destination, u32 capacity) {
 
 BOOL KPRProcessAltKeypad(KPRQueue* queue, u16 character) {
     if (queue->altVal != 0) {
-        u32 leadingZero = queue->altVal & 0x80000000;
-        u32 accumulator = queue->altVal;
+        u32 accumulator = queue->altVal & 0x7FFFFFFF;
         u32 value;
-        accumulator &= 0x7FFFFFFF;
+        u32 leadingZero = queue->altVal & 0x80000000;
         queue->altVal = accumulator;
         if (character >= 0xF130 && character <= 0xF139) {
             if (accumulator > 0x6666666) {
@@ -302,7 +301,7 @@ BOOL KPRProcessAltKeypad(KPRQueue* queue, u16 character) {
 void KPRProcessDeadKeys(KPRQueue* queue) {
     int index;
     int firstFallback;
-    int secondFallback;
+    u32 secondFallback;
     if (queue->iCount == 1) {
         for (index = 0; index < 107; ++index) {
             if (queue->text[queue->oCount] == kprDeadKeyMap[index].accent) {
@@ -313,17 +312,15 @@ void KPRProcessDeadKeys(KPRQueue* queue) {
         queue->iCount = 0;
         return;
     }
-    firstFallback = 0;
     secondFallback = 107;
     for (index = 0; index < 107; ++index) {
-        u16 first = queue->text[queue->oCount];
-        if (first == kprDeadKeyMap[index].accent && queue->text[queue->oCount + 1] == kprDeadKeyMap[index].base) {
+        if (queue->text[queue->oCount] == kprDeadKeyMap[index].accent && queue->text[queue->oCount + 1] == kprDeadKeyMap[index].base) {
             queue->text[queue->oCount] = kprDeadKeyMap[index].composed;
             queue->iCount = 0;
             ++queue->oCount;
             return;
         }
-        if (first == kprDeadKeyMap[index].accent && first == kprDeadKeyMap[index].base) {
+        if (queue->text[queue->oCount] == kprDeadKeyMap[index].accent && queue->text[queue->oCount] == kprDeadKeyMap[index].base) {
             firstFallback = index;
         }
         if (queue->text[queue->oCount + 1] == kprDeadKeyMap[index].accent && queue->text[queue->oCount + 1] == kprDeadKeyMap[index].base) {

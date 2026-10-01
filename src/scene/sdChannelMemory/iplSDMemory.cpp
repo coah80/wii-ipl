@@ -54,7 +54,7 @@ namespace ipl {
         void writeFourFlagBytes(u8* flags, u8 first, u8 second, u8 third, u8 fourth);
 
         void setTitleRowColors(nw4r::lyt::TextBox* textBox, const nw4r::ut::Color& first,
-                               const nw4r::ut::Color& second);
+                               const nw4r::ut::Color& second) NO_INLINE;
 
         static const char* sControlPaneNames[] = {
             "A", "B", "B_BtnA",
@@ -1141,13 +1141,15 @@ namespace ipl {
 
         void SDMemory::onDialogState21() {
             const wchar_t* message = System::getMessage(mMessageId);
-            const wchar_t* blockCountMarker = wcsstr(message, L"***\n");
+            const wchar_t* blockCountMarker = wcsstr(message, L"****");
             wchar_t* format = new (System::getMem2App(), -32) wchar_t[0x400];
             wchar_t* dialogMessage = new (System::getMem2App(), -32) wchar_t[0x400];
 
             if (blockCountMarker != NULL && message != NULL) {
                 format[0] = L'\0';
-                wcsncat(format, message, static_cast<u32>(blockCountMarker - message));
+                memset(format + 1, 1, 0);
+                wcsncat(format, message,
+                        (reinterpret_cast<u32>(blockCountMarker) - reinterpret_cast<u32>(message)) >> 1);
                 wcscat(format, L"%d");
                 wcscat(format, blockCountMarker + 4);
 
@@ -1251,7 +1253,10 @@ namespace ipl {
 
         void SDMemory::drawTransferTitles() {
             const nw4r::math::VEC3& translation = mpDialogLayout->FindPaneByName("N_Memo")->GetTranslate();
-            nw4r::math::VEC3 memoPosition(translation.x, translation.y, translation.z);
+            nw4r::math::VEC3 memoPosition;
+            memoPosition.x = translation.x;
+            memoPosition.y = translation.y;
+            memoPosition.z = translation.z;
             mpDialogLayout->FindPaneByName("header_header");
             nw4r::lyt::Pane* bodyPane = mpDialogLayout->FindPaneByName("header_body");
 
@@ -1284,7 +1289,8 @@ namespace ipl {
                     mpDialogLayout->FindPaneByName("T_Header_body"));
                 s32 totalLines = lineCount + 1;
                 s32 lineIndex = 0;
-                while (lineIndex < totalLines) {
+                if (lineIndex < totalLines) {
+                    do {
                     const wchar_t* lineEnd = wcsstr(messageLine, L"\n");
                     if (lineEnd == NULL) {
                         utility::layout::set_string(messageText, messageLine);
@@ -1305,6 +1311,7 @@ namespace ipl {
 
                     messageOffset -= bodyHeight;
                     ++lineIndex;
+                    } while (lineIndex < totalLines);
                 }
             }
 
@@ -1328,14 +1335,20 @@ namespace ipl {
             for (u32 titleIndex = 0; titleIndex < mTitleCount; ++titleIndex) {
                 utility::layout::set_string(titleText, mTitleNames[titleIndex]);
                 if (nandTitleIndex < mNandTitleCount && mTitleIds[titleIndex] == mNandTitleIds[nandTitleIndex]) {
-                    nw4r::ut::Color activeTitleColor;
-                    writeFourFlagBytes(&activeTitleColor.r, 0x34, 0xBE, 0xED, 0xFF);
+                    GXColor gxActive;
+                    writeFourFlagBytes(&gxActive.r, 0x34, 0xBE, 0xED, 0xFF);
                     ++nandTitleIndex;
-                    setTitleRowColors(titleText, activeTitleColor, activeTitleColor);
+                    nw4r::ut::Color active0 = *reinterpret_cast<const nw4r::ut::Color*>(&gxActive);
+                    setTitleRowColors(titleText,
+                                      nw4r::ut::Color(*reinterpret_cast<const nw4r::ut::Color*>(&gxActive)),
+                                      nw4r::ut::Color(*reinterpret_cast<const nw4r::ut::Color*>(&gxActive)));
                 } else {
-                    nw4r::ut::Color inactiveTitleColor;
-                    writeFourFlagBytes(&inactiveTitleColor.r, 0x64, 0x64, 0x64, 0xFF);
-                    setTitleRowColors(titleText, inactiveTitleColor, inactiveTitleColor);
+                    GXColor gxInactive;
+                    writeFourFlagBytes(&gxInactive.r, 0x64, 0x64, 0x64, 0xFF);
+                    nw4r::ut::Color inactive0 = *reinterpret_cast<const nw4r::ut::Color*>(&gxInactive);
+                    setTitleRowColors(titleText,
+                                      nw4r::ut::Color(*reinterpret_cast<const nw4r::ut::Color*>(&gxInactive)),
+                                      nw4r::ut::Color(*reinterpret_cast<const nw4r::ut::Color*>(&gxInactive)));
                 }
 
                 nw4r::ut::Rect textRect = mpDialogLayout->getTextDrawRect("T_Letter");
@@ -1343,7 +1356,7 @@ namespace ipl {
                 s32 visibleRows = static_cast<s32>(static_cast<f32>(ceil(-rowTop / titleSizePane->GetSize().height)));
                 for (s32 row = 0; row < visibleRows; ++row) {
                     f32 rowY = bodyY + backgroundOffset;
-                    if (rowY > -500.0f && rowY < 500.0f) {
+                    if (-500.0f < rowY && rowY < 500.0f) {
                         nw4r::math::VEC2 translation(0.0f, backgroundOffset);
                         titleSizePane->SetTranslate(translation);
                         titleSizePane->CalculateMtx(*mpDialogLayout->getDrawInfo());
@@ -1351,7 +1364,7 @@ namespace ipl {
                     }
                     backgroundOffset -= rowHeight;
                 }
-                if (bodyY + titleOffset > -500.0f && bodyY + titleOffset < 500.0f) {
+                if (-500.0f < bodyY + titleOffset && bodyY + titleOffset < 500.0f) {
                     nw4r::math::VEC2 translation(0.0f, titleOffset);
                     titleText->SetTranslate(translation);
                     titleText->CalculateMtx(*mpDialogLayout->getDrawInfo());
@@ -1368,7 +1381,7 @@ namespace ipl {
                 ++footerChild;
             }
 
-            if (bodyY + backgroundOffset > -500.0f) {
+            if (-500.0f < bodyY + backgroundOffset) {
                 nw4r::math::VEC2 translation(0.0f, backgroundOffset);
                 footerPane->SetTranslate(translation);
                 footerPane->CalculateMtx(*mpDialogLayout->getDrawInfo());
@@ -1388,7 +1401,7 @@ namespace ipl {
         }
 
         void setTitleRowColors(nw4r::lyt::TextBox* textBox, const nw4r::ut::Color& first,
-                               const nw4r::ut::Color& second) {
+                               const nw4r::ut::Color& second) NO_INLINE {
             textBox->SetTextColors(first, second);
         }
 
