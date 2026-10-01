@@ -48,10 +48,14 @@ namespace EGG {
         virtual bool prepareSound(nw4r::snd::SoundHandle* pHandle, u32 id) { return mSoundArchivePlayer.PrepareSound(pHandle, id); }           // 0x44
         virtual bool prepareSound(nw4r::snd::SoundHandle* pHandle, unsigned int id) { return mSoundArchivePlayer.PrepareSound(pHandle, id); }  // 0x44
         virtual bool prepareSound(nw4r::snd::SoundHandle* pHandle, const char* pName) {
+#ifdef IPL_SOUND_MATCHING
+            u32 id = changeNameToId(pName);
+#else
             u32 id = nw4r::snd::SoundArchive::INVALID_ID;
             if (mpArchive != NULL) {
                 id = changeNameToId(pName);
             }
+#endif
 
             return mSoundArchivePlayer.PrepareSound(pHandle, id);
         }  // 0x48
