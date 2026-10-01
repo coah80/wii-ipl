@@ -571,7 +571,7 @@ namespace ipl {
                     mWorkerCommand = 11;
                     break;
                 case 12:
-                    mpSDWorker->iplNandSD_81348EA8(
+                    mpSDWorker->check_sd_app_titles_async(
                         command.arguments.pointers[0], command.arguments.pointers[1],
                         command.arguments.pointers[2]);
                     mWorkerCommand = 12;
