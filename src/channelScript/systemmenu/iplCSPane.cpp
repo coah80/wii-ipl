@@ -1,19 +1,19 @@
 #include <revolution/gx/GXStruct.h>
 #include <revolution/os/OSError.h>
 
-extern "C" const char lbl_8166A6E3[];
-extern "C" const u8 lbl_81697844;
-extern "C" const u8 lbl_81697845;
-extern "C" const u8 lbl_81697846;
-extern "C" const u8 lbl_81697847;
+extern "C" const char scCsFatalMsg[];
+extern "C" const u8 scCsFatalColorR;
+extern "C" const u8 scCsFatalColorG;
+extern "C" const u8 scCsFatalColorB;
+extern "C" const u8 scCsFatalColorA;
 
 #define NW4R_DB_ASSERT_H
 #define NW4R_ASSERT(x) \
     { \
         if (!(x)) { \
-            GXColor front = {lbl_81697844, lbl_81697845, lbl_81697846, lbl_81697847}; \
+            GXColor front = {scCsFatalColorR, scCsFatalColorG, scCsFatalColorB, scCsFatalColorA}; \
             GXColor back = {0, 0, 0, 0}; \
-            OSFatal((GXColor)front, (GXColor)back, lbl_8166A6E3); \
+            OSFatal((GXColor)front, (GXColor)back, scCsFatalMsg); \
         } \
     }
 
@@ -29,7 +29,7 @@ extern "C" const u8 lbl_81697847;
 
 #include "math/iplMathTypes.h"
 
-extern "C" const f32 lbl_81694FC0 = 0.0f;
+extern "C" const f32 scCsZeroF = 0.0f;
 
 extern "C" nw4r::ut::Color GetTextColor__Q34nw4r3lyt7TextBoxCFUl(const nw4r::lyt::TextBox*, u32);
 
@@ -130,7 +130,7 @@ namespace ipl {
                         nw4r::math::VEC2 scale;
                         scale.x = pane->GetScale().x;
                         scale.y = pane->GetScale().y;
-                        result = vec3::_ctor(VmInst, VmReturnObj, scale.x, scale.y, lbl_81694FC0) == TRUE;
+                        result = vec3::_ctor(VmInst, VmReturnObj, scale.x, scale.y, scCsZeroF) == TRUE;
                     }
                 }
                 return result;
@@ -514,7 +514,7 @@ namespace ipl {
             nw4r::math::VEC3 get_vec_(CHANSVm* vm) {
                 u32 argc = CHANSVmGetArgc(vm);
                 CHANSVmObjHdr* arg = CHANSVmGetArg(vm, 0);
-                nw4r::math::VEC3 out(lbl_81694FC0, lbl_81694FC0, lbl_81694FC0);
+                nw4r::math::VEC3 out(scCsZeroF, scCsZeroF, scCsZeroF);
                 if (argc == 1 && util::is_valid_class(arg, "VEC3")) {
                     f32* src = static_cast<f32*>(*arg->value.ptr_v);
                     out.x = src[0];
@@ -540,7 +540,7 @@ namespace ipl {
             nw4r::lyt::Size get_size_(CHANSVm* vm) {
                 u32 argc = CHANSVmGetArgc(vm);
                 CHANSVmObjHdr* arg = CHANSVmGetArg(vm, 0);
-                nw4r::lyt::Size out(lbl_81694FC0, lbl_81694FC0);
+                nw4r::lyt::Size out(scCsZeroF, scCsZeroF);
                 if (argc == 1 && util::is_valid_class(arg, "Size")) {
                     f32* src = static_cast<f32*>(*arg->value.ptr_v);
                     out.width = src[0];
@@ -622,15 +622,15 @@ namespace ipl {
         namespace pane {
 #pragma push
 #pragma section const_type ".data"
-            extern "C" const char lbl_8166A6E3[] = "Error#004\nAn error has occurred.\nThe system files are corrupted.";
+            extern "C" const char scCsFatalMsg[] = "Error#004\nAn error has occurred.\nThe system files are corrupted.";
 #pragma pop
 
 #pragma push
 #pragma section data_type ".sdata"
-            extern "C" __declspec(section ".sdata") const u8 lbl_81697844 = 0xff;
-            extern "C" __declspec(section ".sdata") const u8 lbl_81697845 = 0xff;
-            extern "C" __declspec(section ".sdata") const u8 lbl_81697846 = 0xff;
-            extern "C" __declspec(section ".sdata") const u8 lbl_81697847 = 0;
+            extern "C" __declspec(section ".sdata") const u8 scCsFatalColorR = 0xff;
+            extern "C" __declspec(section ".sdata") const u8 scCsFatalColorG = 0xff;
+            extern "C" __declspec(section ".sdata") const u8 scCsFatalColorB = 0xff;
+            extern "C" __declspec(section ".sdata") const u8 scCsFatalColorA = 0;
 #pragma pop
         }
     }
