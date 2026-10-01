@@ -14,85 +14,138 @@ static void TMCJPEGDEC_converterYUV444toRGBA8edge(TMCCJPEGDecWork*, s32, s32);
 static void TMCJPEGDEC_converterYUV400toRGBA8(TMCCJPEGDecWork*, s32, s32);
 static void TMCJPEGDEC_converterYUV400toRGBA8edge(TMCCJPEGDecWork*, s32, s32);
 
-static inline s32 selectRGBA8Converter(TMCCJPEGDecWork* work, u8* ob, s32 cc, TMCCJPEGDecState* st) {
-    switch (cc) {
-        case 0: {
-            u8 mode = work->idctMode;
-            u8* ptr = ob + 4;
-            u8* p1 = ptr + mode;
-            u8* p2 = p1 + mode;
-            u8* p3 = p2 + mode;
+s32 TMCJPEGDEC_set_converterRGBA8(TMCCJPEGDecWork* work) {
+    u8* buffer;
+    s32 componentCount;
+    TMCCJPEGDecState* state;
 
-            work->pConvRowPtrs[0] = (void*)ptr;
-            work->pConvRowPtrs[1] = (void*)p1;
-            work->pConvRowPtrs[2] = (void*)p2;
-            work->pConvRowPtrs[3] = (void*)p3;
-            work->pConvRowPtrs[5] = (void*)(ob + 0x104);
-            work->pConvRowPtrs[6] = (void*)(ob + 0x144);
+    buffer = work->convBuf;
+    componentCount = work->componentCount;
+    state = work->pState;
+
+    switch (componentCount) {
+        case 0: {
+            u8 mode;
+            u8* firstRow;
+            u8* secondRow;
+            u8* thirdRow;
+            u8* fourthRow;
+            u8* cbBlock;
+            u8* crBlock;
+
+            mode = work->idctMode;
+            firstRow = buffer + 4;
             work->pConverterFunc = TMCJPEGDEC_converterYUV411toRGBA8;
             work->pConverterFuncEdge = TMCJPEGDEC_converterYUV411toRGBA8edge;
-            work->pitch = 0x20;
+            secondRow = firstRow + mode;
+            thirdRow = secondRow + mode;
+            fourthRow = thirdRow + mode;
+            cbBlock = buffer + 260;
+            crBlock = buffer + 324;
+            work->pConvRowPtrs[0] = firstRow;
+            work->pConvRowPtrs[1] = secondRow;
+            work->pConvRowPtrs[2] = thirdRow;
+            work->pConvRowPtrs[3] = fourthRow;
+            work->pConvRowPtrs[5] = cbBlock;
+            work->pConvRowPtrs[6] = crBlock;
+            work->pitch = 32;
             work->converterFlags = 0;
             break;
         }
         case 1: {
-            u8 mode = work->idctMode;
-            u8* ptr = ob + 4;
-            work->pConvRowPtrs[0] = (void*)ptr;
-            work->pConvRowPtrs[1] = (void*)(ptr + mode);
-            work->pConvRowPtrs[5] = (void*)(ob + 0x84);
-            work->pConvRowPtrs[6] = (void*)(ob + 0xC4);
+            u8 mode;
+            u8* firstRow;
+            u8* secondRow;
+            u8* cbBlock;
+            u8* crBlock;
+
+            mode = work->idctMode;
+            firstRow = buffer + 4;
             work->pConverterFunc = TMCJPEGDEC_converterYUV422toRGBA8;
             work->pConverterFuncEdge = TMCJPEGDEC_converterYUV422toRGBA8edge;
-            work->pitch = 0x10;
+            secondRow = firstRow + mode;
+            cbBlock = buffer + 132;
+            crBlock = buffer + 196;
+            work->pConvRowPtrs[0] = firstRow;
+            work->pConvRowPtrs[1] = secondRow;
+            work->pConvRowPtrs[5] = cbBlock;
+            work->pConvRowPtrs[6] = crBlock;
+            work->pitch = 16;
             work->converterFlags = 0;
             break;
         }
         case 2: {
-            u8 mode = work->idctMode;
-            u8* ptr = ob + 4;
-            u8* p1 = ptr + mode;
-            u8* p2 = ptr + mode * 16;
-            u8* p3 = p2 + mode;
-            work->pConvRowPtrs[0] = (void*)ptr;
-            work->pConvRowPtrs[1] = (void*)p1;
-            work->pConvRowPtrs[2] = (void*)p2;
-            work->pConvRowPtrs[3] = (void*)p3;
-            work->pConvRowPtrs[5] = (void*)(ob + 0x104);
-            work->pConvRowPtrs[6] = (void*)(ob + 0x144);
+            u8 mode;
+            u8* firstRow;
+            u8* secondRow;
+            u8* thirdRow;
+            u8* fourthRow;
+            u8* cbBlock;
+            u8* crBlock;
+
+            mode = work->idctMode;
+            firstRow = buffer + 4;
             work->pConverterFunc = TMCJPEGDEC_converterYUV420toRGBA8;
             work->pConverterFuncEdge = TMCJPEGDEC_converterYUV420toRGBA8edge;
-            work->pitch = 0x10;
+            secondRow = firstRow + mode;
+            thirdRow = firstRow + mode * 16;
+            fourthRow = thirdRow + mode;
+            cbBlock = buffer + 260;
+            crBlock = buffer + 324;
+            work->pConvRowPtrs[0] = firstRow;
+            work->pConvRowPtrs[1] = secondRow;
+            work->pConvRowPtrs[2] = thirdRow;
+            work->pConvRowPtrs[3] = fourthRow;
+            work->pConvRowPtrs[5] = cbBlock;
+            work->pConvRowPtrs[6] = crBlock;
+            work->pitch = 16;
             work->converterFlags = 0;
             break;
         }
         case 3: {
-            u8 mode = work->idctMode;
-            u8* ptr = ob + 4;
-            work->pConvRowPtrs[0] = (void*)ptr;
-            work->pConvRowPtrs[1] = (void*)(ptr + mode * 8);
-            work->pConvRowPtrs[5] = (void*)(ob + 0x84);
-            work->pConvRowPtrs[6] = (void*)(ob + 0xC4);
+            u8 mode;
+            u8* firstRow;
+            u8* secondRow;
+            u8* cbBlock;
+            u8* crBlock;
+
+            mode = work->idctMode;
+            firstRow = buffer + 4;
             work->pConverterFunc = TMCJPEGDEC_converterYUV211toRGBA8;
             work->pConverterFuncEdge = TMCJPEGDEC_converterYUV211toRGBA8edge;
-            work->pitch = 0x08;
+            secondRow = firstRow + mode * 8;
+            cbBlock = buffer + 132;
+            crBlock = buffer + 196;
+            work->pConvRowPtrs[0] = firstRow;
+            work->pConvRowPtrs[1] = secondRow;
+            work->pConvRowPtrs[5] = cbBlock;
+            work->pConvRowPtrs[6] = crBlock;
+            work->pitch = 8;
             work->converterFlags = 0;
             break;
         }
         case 4: {
-            work->pConvRowPtrs[0] = (void*)(ob + 4);
-            work->pConvRowPtrs[5] = (void*)(ob + 0x44);
-            work->pConvRowPtrs[6] = (void*)(ob + 0x84);
-            work->pConverterFunc = TMCJPEGDEC_converterYUV444toRGBA8;
-            work->pConverterFuncEdge = TMCJPEGDEC_converterYUV444toRGBA8edge;
+            TMCConverterFunc* converter;
+            TMCConverterFunc* edgeConverter;
+            converter = TMCJPEGDEC_converterYUV444toRGBA8;
+            edgeConverter = TMCJPEGDEC_converterYUV444toRGBA8edge;
+            work->pConvRowPtrs[0] = buffer + 4;
+            work->pConvRowPtrs[5] = buffer + 0x44;
+            work->pConvRowPtrs[6] = buffer + 0x84;
+            work->pConverterFunc = converter;
+            work->pConverterFuncEdge = edgeConverter;
             work->pitch = 0x08;
             work->converterFlags = 0;
             break;
         }
         case 5: {
-            work->pConvRowPtrs[0] = (void*)(ob + 4);
-            work->pConverterFunc = TMCJPEGDEC_converterYUV400toRGBA8;
-            work->pConverterFuncEdge = TMCJPEGDEC_converterYUV400toRGBA8edge;
+            TMCConverterFunc* converter;
+            TMCConverterFunc* edgeConverter;
+            converter = TMCJPEGDEC_converterYUV400toRGBA8;
+            edgeConverter = TMCJPEGDEC_converterYUV400toRGBA8edge;
+            work->pConvRowPtrs[0] = buffer + 4;
+            work->pConverterFunc = converter;
+            work->pConverterFuncEdge = edgeConverter;
             work->pitch = 0x08;
             work->converterFlags = 0;
             break;
@@ -103,16 +156,13 @@ static inline s32 selectRGBA8Converter(TMCCJPEGDecWork* work, u8* ob, s32 cc, TM
     }
 
     {
-        s32 width = st->jpegWidth;
-        s32 height = st->jpegHeight;
-        st->convWidth = ((u32)width / 4 + (width % 4 != 0)) * 4;
-        st->convHeight = ((u32)height / 4 + (height % 4 != 0)) * 4;
+        s32 width = state->jpegWidth;
+        s32 height = state->jpegHeight;
+        state->convWidth = ((u32)width / 4 + (width % 4 != 0)) * 4;
+        state->convHeight = ((u32)height / 4 + (height % 4 != 0)) * 4;
+
     }
     return 0;
-}
-
-s32 TMCJPEGDEC_set_converterRGBA8(TMCCJPEGDecWork* work) {
-    return selectRGBA8Converter(work, work->convBuf, work->componentCount, work->pState);
 }
 
 static void TMCJPEGDEC_converterYUV411toRGBA8(TMCCJPEGDecWork* work, s32 x, s32 y) {
@@ -179,10 +229,9 @@ static void TMCJPEGDEC_converterYUV411toRGBA8(TMCCJPEGDecWork* work, s32 x, s32 
                         green = green > 255 ? 255 : green < 0 ? 0 : green;
                         red = red > 255 ? 255 : red < 0 ? 0 : red;
                     }
-                    output[(column & 3) + (((((column) >> 2) << 1) + tileRow) << 4)] =
-                        (u8)red + 0x10000 - 0x100;
-                    output[(column & 3) + (((((column) >> 2) << 1) + tileRow + 1) << 4)] =
-                        ((green & 255) << 8) + (blue & 255);
+                    red = (u8)red + 0x10000 - 0x100;
+                    output[(column & 3) + (((((column) >> 2) << 1) + tileRow) << 4)] = red;
+                    output[(column & 3) + (((((column) >> 2) << 1) + tileRow + 1) << 4)] = ((green & 255) << 8) + (blue & 255);
                 }
                 {
                     value = *luminance++;
@@ -194,10 +243,9 @@ static void TMCJPEGDEC_converterYUV411toRGBA8(TMCCJPEGDecWork* work, s32 x, s32 
                         green = green > 255 ? 255 : green < 0 ? 0 : green;
                         red = red > 255 ? 255 : red < 0 ? 0 : red;
                     }
-                    output[(column + 1 & 3) + (((((column + 1) >> 2) << 1) + tileRow) << 4)] =
-                        (u8)red + 0x10000 - 0x100;
-                    output[(column + 1 & 3) + (((((column + 1) >> 2) << 1) + tileRow + 1) << 4)] =
-                        ((green & 255) << 8) + (blue & 255);
+                    red = (u8)red + 0x10000 - 0x100;
+                    output[(column + 1 & 3) + (((((column + 1) >> 2) << 1) + tileRow) << 4)] = red;
+                    output[(column + 1 & 3) + (((((column + 1) >> 2) << 1) + tileRow + 1) << 4)] = ((green & 255) << 8) + (blue & 255);
                 }
                 {
                     value = *luminance++;
@@ -209,10 +257,9 @@ static void TMCJPEGDEC_converterYUV411toRGBA8(TMCCJPEGDecWork* work, s32 x, s32 
                         green = green > 255 ? 255 : green < 0 ? 0 : green;
                         red = red > 255 ? 255 : red < 0 ? 0 : red;
                     }
-                    output[(column + 2 & 3) + (((((column + 2) >> 2) << 1) + tileRow) << 4)] =
-                        (u8)red + 0x10000 - 0x100;
-                    output[(column + 2 & 3) + (((((column + 2) >> 2) << 1) + tileRow + 1) << 4)] =
-                        ((green & 255) << 8) + (blue & 255);
+                    red = (u8)red + 0x10000 - 0x100;
+                    output[(column + 2 & 3) + (((((column + 2) >> 2) << 1) + tileRow) << 4)] = red;
+                    output[(column + 2 & 3) + (((((column + 2) >> 2) << 1) + tileRow + 1) << 4)] = ((green & 255) << 8) + (blue & 255);
                 }
                 {
                     value = *luminance++;
@@ -224,10 +271,9 @@ static void TMCJPEGDEC_converterYUV411toRGBA8(TMCCJPEGDecWork* work, s32 x, s32 
                         green = green > 255 ? 255 : green < 0 ? 0 : green;
                         red = red > 255 ? 255 : red < 0 ? 0 : red;
                     }
-                    output[(column + 3 & 3) + (((((column + 3) >> 2) << 1) + tileRow) << 4)] =
-                        (u8)red + 0x10000 - 0x100;
-                    output[(column + 3 & 3) + (((((column + 3) >> 2) << 1) + tileRow + 1) << 4)] =
-                        ((green & 255) << 8) + (blue & 255);
+                    red = (u8)red + 0x10000 - 0x100;
+                    output[(column + 3 & 3) + (((((column + 3) >> 2) << 1) + tileRow) << 4)] = red;
+                    output[(column + 3 & 3) + (((((column + 3) >> 2) << 1) + tileRow + 1) << 4)] = ((green & 255) << 8) + (blue & 255);
                 }
 
             }
@@ -357,8 +403,8 @@ static void TMCJPEGDEC_converterYUV422toRGBA8(TMCCJPEGDecWork* work, s32 x, s32 
     lumaSkip = 16 - width;
     chromaSkip = lumaSkip >> 1;
     for (; y < yEnd; y++) {
-        tileRow = (y >> 2) * tileWidth;
         output = (u16*)(texture + ((y & 3) << 3));
+        tileRow = (y >> 2) * tileWidth;
         for (column = x; column < xEnd; column += 2) {
             cbValue = (s8)*cb++;
             crValue = (s8)*cr++;
@@ -442,8 +488,8 @@ static void TMCJPEGDEC_converterYUV422toRGBA8edge(TMCCJPEGDecWork* work, s32 x, 
     chromaSkip = lumaSkip >> 1;
     ASSERTLINE((x & 1) == 0, __LINE__);
     for (; y < yEnd; y++) {
-        tileRow = (y >> 2) * tileWidth;
         output = (u16*)(texture + ((y & 3) << 3));
+        tileRow = (y >> 2) * tileWidth;
         for (column = x; column < xEnd; column += 1) {
             if ((column & 1) == 0) {
                 cbValue = (s8)*cb++;
@@ -511,8 +557,8 @@ static void TMCJPEGDEC_converterYUV420toRGBA8(TMCCJPEGDecWork* work, s32 x, s32 
         lumaSkip = 16 - width;
         chromaSkip = lumaSkip >> 1;
         for (; y < yEnd; y++) {
-            tileRow = (y >> 2) * tileWidth;
             output = (u16*)(texture + ((y & 3) << 3));
+            tileRow = (y >> 2) * tileWidth;
 
             for (column = x; column < xEnd; column += 2) {
 
@@ -812,23 +858,23 @@ static void TMCJPEGDEC_converterYUV444toRGBA8(TMCCJPEGDecWork* work, s32 x, s32 
     u16* output;
     s32 tileWidth;
     s32 tileRow;
-    s32 blue;
+    s32 xEnd;
     u8* luminance;
     u8* cb;
     u8* cr;
     TMCCJPEGDecState* state;
-    s32 column;
-    s32 row;
-    s32 width;
+    s8 crValue;
     s32 height;
+    s32 width;
+    s32 column;
     s32 rowSkip;
     s32 yEnd;
     u8* texture;
-    s32 cbValue;
-    s8 crValue;
+    s32 row;
     s32 red;
+    s32 cbValue;
     s32 green;
-    s32 xEnd;
+    s32 blue;
     s32 value;
 
     luminance = work->convBuf + 4;

@@ -205,8 +205,8 @@ static void TMCJPEG_814EFEAC(TMCCJPEGDecWork* work, s32 x, s32 y) {
     yEnd = y + height;
     rowSkip = 32 - width;
     for (; row < yEnd; row++) {
-        tileRow = (row >> 2) * tileWidth;
         output = lumaTexture + ((row & 3) << 3);
+        tileRow = (row >> 2) * tileWidth;
         for (column = x; column < xEnd; column += 4) {
             (output + (column & 7))[(s32)(((column >> 3) + tileRow) << 5)] = luminance[0];
             (output + ((column + 1) & 7))[(s32)((((column + 1) >> 3) + tileRow) << 5)] = luminance[1];
