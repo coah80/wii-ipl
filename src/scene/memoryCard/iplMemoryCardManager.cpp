@@ -145,15 +145,14 @@ bool MemoryCardManager::isDistSlot(u8 slot, long* state) {
 bool MemoryCardManager::isMoveEnable(u8 slot, u32 index, long* code) {
     CardDirectory* dirs = reinterpret_cast<CardDirectory*>(memorycard::getCardDirState());
     memorycard::CardState* states = memorycard::getCardSlotState();
-    bool enabled = false;
-    int file = mFile[slot][index].fileNo;
+    u32 file = mFile[slot][index].fileNo;
     memorycard::FileInfo* dir = NULL;
-    memorycard::CardState* destination = NULL;
-    long result = file;
+    long result;
+    bool enabled = false;
     if (isDistSlot(slot, NULL) &&
         ((dir = &dirs[slot][file])->canMove != 0) &&
-        states[slot].key == (destination = &states[slot ^ 1])->key &&
-        destination->freeBlocks >= dir->size && destination->unk_0x0E != 0 &&
+        states[slot].key == states[slot ^ 1].key &&
+        states[slot ^ 1].freeBlocks >= dir->size && states[slot ^ 1].unk_0x0E != 0 &&
         dir->unk_0x06 == 0) {
         result = -0x15;
         enabled = true;
@@ -169,9 +168,9 @@ bool MemoryCardManager::isMoveEnable(u8 slot, u32 index, long* code) {
             }
         } else if ((dir = &dirs[slot][file])->canMove == 0) {
             result = -0x1a;
-        } else if (states[slot].key != (destination = &states[slot ^ 1])->key) {
+        } else if (states[slot].key != states[slot ^ 1].key) {
             result = -0x1b;
-        } else if (destination->freeBlocks < dir->size || destination->unk_0x0E == 0) {
+        } else if (states[slot ^ 1].freeBlocks < dir->size || states[slot ^ 1].unk_0x0E == 0) {
             result = -0x19;
         } else if (dir->unk_0x06 != 0) {
             result = -0x18;
@@ -186,15 +185,14 @@ bool MemoryCardManager::isMoveEnable(u8 slot, u32 index, long* code) {
 bool MemoryCardManager::isCopyEnable(u8 slot, u32 index, long* code) {
     CardDirectory* dirs = reinterpret_cast<CardDirectory*>(memorycard::getCardDirState());
     memorycard::CardState* states = memorycard::getCardSlotState();
-    bool enabled = false;
-    int file = mFile[slot][index].fileNo;
+    u32 file = mFile[slot][index].fileNo;
     memorycard::FileInfo* dir = NULL;
-    memorycard::CardState* destination = NULL;
-    long result = file;
+    long result;
+    bool enabled = false;
     if (isDistSlot(slot, NULL) &&
         ((dir = &dirs[slot][file])->canCopy != 0) &&
-        states[slot].key == (destination = &states[slot ^ 1])->key &&
-        destination->freeBlocks >= dir->size && destination->unk_0x0E != 0 &&
+        states[slot].key == states[slot ^ 1].key &&
+        states[slot ^ 1].freeBlocks >= dir->size && states[slot ^ 1].unk_0x0E != 0 &&
         dir->unk_0x06 == 0) {
         result = -0x15;
         enabled = true;
@@ -210,9 +208,9 @@ bool MemoryCardManager::isCopyEnable(u8 slot, u32 index, long* code) {
             }
         } else if ((dir = &dirs[slot][file])->canCopy == 0) {
             result = -0x1a;
-        } else if (states[slot].key != (destination = &states[slot ^ 1])->key) {
+        } else if (states[slot].key != states[slot ^ 1].key) {
             result = -0x1b;
-        } else if (destination->freeBlocks < dir->size || destination->unk_0x0E == 0) {
+        } else if (states[slot ^ 1].freeBlocks < dir->size || states[slot ^ 1].unk_0x0E == 0) {
             result = -0x19;
         } else if (dir->unk_0x06 != 0) {
             result = -0x18;
@@ -344,7 +342,7 @@ void MemoryCardManager::update_change_cardstate(u8 slot) {
 GXTexObj* MemoryCardManager::create_icon(u8 slot, s16 index) {
     memorycard::IconState (*icons)[0x7f] = reinterpret_cast<memorycard::IconState(*)[0x7f]>(memorycard::getIconStateArray());
     int total = 0;
-    int file = mFile[slot][index].fileNo;
+    u32 file = mFile[slot][index].fileNo;
     s16 frame = 0;
     do {
         u32 shift = frame << 1;
@@ -359,7 +357,7 @@ GXTexObj* MemoryCardManager::create_icon(u8 slot, s16 index) {
 
 GXTexObj* MemoryCardManager::create_icon(u8 slot, s16 index, long start) {
     memorycard::getIconStateArray();
-    int file = mFile[slot][index].fileNo;
+    u32 file = mFile[slot][index].fileNo;
     return _create_icon(slot, file, 0);
 }
 
@@ -385,7 +383,7 @@ GXTexObj* MemoryCardManager::_create_icon(u8 slot, s16 file, long start) {
 }
 
 const wchar_t* MemoryCardManager::getComment(u8 slot, s16 index, int which) {
-    int file = mFile[slot][index].fileNo;
+    u32 file = mFile[slot][index].fileNo;
     wmemset(mFileCell[slot][file].comment[which], 0, 0x40);
     char comment[33] = {0};
     const char* comments = memorycard::getIconComment(slot, file);
@@ -427,7 +425,7 @@ const wchar_t* MemoryCardManager::getComment(u8 slot, s16 index, int which) {
 GXTexObj* MemoryCardManager::create_banner(u8 slot, s16 index) {
     CardDirectory* dirs = reinterpret_cast<CardDirectory*>(memorycard::getCardDirState());
     CardIcons* icons = reinterpret_cast<CardIcons*>(memorycard::getIconStateArray());
-    int file = mFile[slot][index].fileNo;
+    u32 file = mFile[slot][index].fileNo;
     if (dirs[slot][file].fileNo == 0 || !icons[slot][file].bannerEnable) {
         return NULL;
     }
