@@ -512,25 +512,25 @@ namespace ipl {
                 case 12:
                     onDialogState12();
                     break;
-                case 13:
+                case 19:
                     onDialogState13();
                     break;
-                case 14:
+                case 13:
                     onDialogState14();
                     break;
-                case 15:
+                case 14:
                     onDialogState15();
                     break;
-                case 16:
+                case 15:
                     onDialogState16();
                     break;
-                case 17:
+                case 16:
                     onDialogState17();
                     break;
-                case 18:
+                case 17:
                     onDialogState18();
                     break;
-                case 19:
+                case 18:
                     onDialogState19();
                     break;
                 case 20:
