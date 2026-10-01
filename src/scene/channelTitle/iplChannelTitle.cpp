@@ -2604,8 +2604,8 @@ namespace ipl {
 
             wcscpy(limitStr, System::getMessage(MESG_CHAN_SEL_TIME_LIMIT));
 
-            wchar_t local_38[16] = L"";
-            wchar_t local_58[16] = L"";
+            wchar_t hourStr[16] = L"";
+            wchar_t minuteStr[16] = L"";
 
             if (hour == 0 && minute == 0) {
                 swprintf(limitStr, 65, L"%ls %ls", limitStr, System::getMessage(MESG_CHAN_SEL_LIMIT_UNDER_60));
@@ -2616,42 +2616,42 @@ namespace ipl {
                     if (System::getLanguage() == SC_LANG_JAPANESE || System::getLanguage() == SC_LANG_KOREAN ||
                         System::getLanguage() == SC_LANG_GERMAN) {
                     if (hour == 1) {
-                        swprintf(local_38, 16, L"1%ls", System::getMessage(MESG_CHAN_SEL_SEPERATOR));
+                        swprintf(hourStr, 16, L"1%ls", System::getMessage(MESG_CHAN_SEL_SEPERATOR));
                     } else if (hour != 0) {
-                        swprintf(local_38, 16, L"%d%ls", hour, System::getMessage(MESG_CHAN_SEL_SEPERATOR_2));
+                        swprintf(hourStr, 16, L"%d%ls", hour, System::getMessage(MESG_CHAN_SEL_SEPERATOR_2));
                     }
 
                     if (minute == 1) {
-                        swprintf(local_58, 16, L"1%ls", System::getMessage(MESG_CHAN_SEL_NO_SEPERATOR));
+                        swprintf(minuteStr, 16, L"1%ls", System::getMessage(MESG_CHAN_SEL_NO_SEPERATOR));
                     } else if (minute != 0) {
-                        swprintf(local_58, 16, L"%d%ls", minute, System::getMessage(MESG_CHAN_SEL_NO_SEPERATOR_2));
+                        swprintf(minuteStr, 16, L"%d%ls", minute, System::getMessage(MESG_CHAN_SEL_NO_SEPERATOR_2));
                     }
                 } else if (System::getLanguage() == SC_LANG_FRENCH || System::getLanguage() == SC_LANG_ITALIAN) {
                     if (hour == 1) {
-                        swprintf(local_38, 16, L"01%ls", System::getMessage(MESG_CHAN_SEL_SEPERATOR));
+                        swprintf(hourStr, 16, L"01%ls", System::getMessage(MESG_CHAN_SEL_SEPERATOR));
                     } else if (hour != 0) {
-                        swprintf(local_38, 16, L"%02d%ls", hour, System::getMessage(MESG_CHAN_SEL_SEPERATOR_2));
+                        swprintf(hourStr, 16, L"%02d%ls", hour, System::getMessage(MESG_CHAN_SEL_SEPERATOR_2));
                     }
 
                     if (minute == 1) {
-                        swprintf(local_58, 16, L"01%ls", System::getMessage(MESG_CHAN_SEL_NO_SEPERATOR));
+                        swprintf(minuteStr, 16, L"01%ls", System::getMessage(MESG_CHAN_SEL_NO_SEPERATOR));
                     } else if (minute != 0) {
-                        swprintf(local_58, 16, L"%02d%ls", minute, System::getMessage(MESG_CHAN_SEL_NO_SEPERATOR_2));
+                        swprintf(minuteStr, 16, L"%02d%ls", minute, System::getMessage(MESG_CHAN_SEL_NO_SEPERATOR_2));
                     }
                 } else {
                     if (hour == 1) {
-                        swprintf(local_38, 16, L"1%ls", System::getMessage(MESG_CHAN_SEL_SEPERATOR));
+                        swprintf(hourStr, 16, L"1%ls", System::getMessage(MESG_CHAN_SEL_SEPERATOR));
                     } else if (hour != 0) {
-                        swprintf(local_38, 16, L"%d%ls", hour, System::getMessage(MESG_CHAN_SEL_SEPERATOR_2));
+                        swprintf(hourStr, 16, L"%d%ls", hour, System::getMessage(MESG_CHAN_SEL_SEPERATOR_2));
                     }
 
                     if (minute == 1) {
-                        swprintf(local_58, 16, L"01%ls", System::getMessage(MESG_CHAN_SEL_NO_SEPERATOR));
+                        swprintf(minuteStr, 16, L"01%ls", System::getMessage(MESG_CHAN_SEL_NO_SEPERATOR));
                     } else if (minute != 0) {
-                        swprintf(local_58, 16, L"%02d%ls", minute, System::getMessage(MESG_CHAN_SEL_NO_SEPERATOR_2));
+                        swprintf(minuteStr, 16, L"%02d%ls", minute, System::getMessage(MESG_CHAN_SEL_NO_SEPERATOR_2));
                     }
                     }
-                    swprintf(limitStr, 65, L"%ls %ls%ls", limitStr, local_38, local_58);
+                    swprintf(limitStr, 65, L"%ls %ls%ls", limitStr, hourStr, minuteStr);
                 }
                 }
         }
