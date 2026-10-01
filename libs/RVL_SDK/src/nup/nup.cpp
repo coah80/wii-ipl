@@ -1174,8 +1174,8 @@ static inline s32 __nupGetBoot2Version(u16* version) {
     s32 result = ES_GetBoot2Version(&bootVersion);
     if (result == 0) {
         u16 checkedVersion = bootVersion;
-        *version = checkedVersion;
         if (checkedVersion != bootVersion) { result = -0x1389; }
+        if (checkedVersion == bootVersion) { *version = checkedVersion; }
     }
     return result;
 }
@@ -1229,7 +1229,7 @@ extern "C" void* __nupOp(void* argument) {
     u32 needsAudit;
     char* auditData = 0;
     s32 result;
-    u16 serverBootVersion = 0;
+    u16 serverBootVersion;
     u16 bootTitleVersion;
     u16 systemMenuVersion;
     ESTitleId currentTitleId;
@@ -1350,12 +1350,11 @@ extern "C" void* __nupOp(void* argument) {
     OSUnlockMutex(&context->mutex);
     for (i = 0; i < context->titleCount; i++) {
         NUPTitleInfo* title = &context->titles[i];
-        ESTitleId titleId = title->titleId;
-        if (titleId == 0x0000000100000001ULL) {
+        if (context->titles[i].titleId == 0x0000000100000001ULL) {
             bootTitle = title;
-        } else if (titleId == 0x0000000100000002ULL) {
+        } else if (context->titles[i].titleId == 0x0000000100000002ULL) {
             menuTitle = title;
-        } else if (titleId == currentTitleId) {
+        } else if (context->titles[i].titleId == currentTitleId) {
             systemTitle = title;
         }
         if (bootTitle != 0 && menuTitle != 0 && systemTitle != 0) {
