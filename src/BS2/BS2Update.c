@@ -12,6 +12,7 @@
 typedef struct UpdateThreadData {
     OSThread thread;
     u8 stack[4096];
+    OSThreadQueue queue;
 } UpdateThreadData;
 
 static u32 Flags0[BS2_UPDATE_ENTRY_COUNT];
@@ -26,24 +27,24 @@ s32 WADCheckImport(u64 titleId, u16 titleVersion);
 s32 WADImportDVDForBS(const char* path, void* buffer, u32 length);
 s32 WADImportDVDExForBS(const char* path, void* buffer, u32 length);
 
-static BS2UpdateEntry* pEntries;
-static u32 EntriesCount;
-static u32* pFlags;
-static void* MemAllocator;
-int State;
-BS2UpdateEntry* CurrentEntry;
-static u32 RebootRequired;
-static BOOL ContainsSeatTitles;
-static u32 UpdateImportState;
-static u32 UpdateImportResult;
-u32 StartUpdate;
-u32 CancelUpdate;
+u32 ConsoleType;
+u32 VersionES;
+u32 VersionMEM2;
+u64 VersionIOS;
+s32 rc;
 static u32 UpdateProgress;
-static s32 rc;
-static u64 VersionIOS;
-static u32 VersionMEM2;
-static u32 VersionES;
-static u32 ConsoleType;
+u32 CancelUpdate;
+u32 StartUpdate;
+static u32 UpdateImportResult;
+static u32 UpdateImportState;
+static BOOL ContainsSeatTitles;
+static u32 RebootRequired;
+BS2UpdateEntry* CurrentEntry;
+int State;
+static void* MemAllocator;
+static u32* pFlags;
+static u32 EntriesCount;
+static BS2UpdateEntry* pEntries;
 static void* FatalFunc;
 
 #pragma force_active on
@@ -133,7 +134,7 @@ static void* UpdateThread(void* argument) {
             }
             goto invalid_product_region;
         case 1:
-            if (titleRegion == 'E' || titleRegion == 'D') {
+            if (!(titleRegion != 'E' && titleRegion != 'D')) {
                 regionValid = TRUE;
                 goto product_region_checked;
             }
@@ -174,7 +175,7 @@ product_region_checked:
         goto selection_done;
     }
     strcpy(scratch.updatePath, "__update.inf");
-    strcat(scratch.updatePath, "-");
+    strcat(scratch.updatePath, ".");
     strcat(scratch.updatePath, scratch.productArea);
     if (DVDConvertPathToEntrynum(scratch.updatePath) < 0) {
         switch (SCGetProductArea()) {
@@ -271,7 +272,7 @@ product_region_checked:
         }
     }
     strcpy(scratch.seatPath, "__seatholder.inf");
-    strcat(scratch.seatPath, "-");
+    strcat(scratch.seatPath, ".");
     strcat(scratch.seatPath, scratch.productArea);
     if (DVDConvertPathToEntrynum(scratch.seatPath) < 0) {
         switch (SCGetProductArea()) {
