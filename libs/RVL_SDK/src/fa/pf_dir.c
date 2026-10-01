@@ -214,21 +214,19 @@ pf_s32 PFDIR_CheckDirIsEmpty(PF_ENT_ITER* iter, pf_u32* is_empty) {
 PFDIR_SDD* PFDIR_GetSDD(PF_VOLUME* volume, PF_DIR_ENT* entry) {
     PFDIR_VOLUME_DIRS* volume_dirs = (PFDIR_VOLUME_DIRS*)volume;
     PFDIR_SDD* first_free_sdd = 0;
-    PFDIR_SDD* free_candidate = volume_dirs->sdds;
     pf_s32 i;
     pf_s32 remaining = 3;
 
     for (i = 0; remaining != 0; remaining--) {
         if ((volume_dirs->sdds[i].stat & 1) == 0 || ((volume_dirs->sdds[i].stat & 1) != 0 && (!volume_dirs->sdds[i].stat & 2) != 0)) {
             if (first_free_sdd == 0) {
-                first_free_sdd = free_candidate;
+                first_free_sdd = &volume_dirs->sdds[i];
             }
         } else if (entry->p_vol == volume_dirs->sdds[i].dir_entry.p_vol &&
                    entry->entry_sector == volume_dirs->sdds[i].dir_entry.entry_sector &&
                    entry->entry_offset == volume_dirs->sdds[i].dir_entry.entry_offset) {
             return &volume_dirs->sdds[i];
         }
-        free_candidate++;
         i++;
     }
     if (first_free_sdd == 0) {

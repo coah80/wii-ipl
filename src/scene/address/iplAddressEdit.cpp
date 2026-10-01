@@ -595,6 +595,7 @@ create_mode_done:
 }
 
 void ipl::scene::AddressEdit::stt_wait_decide_anm() {
+    nw4r::lyt::Pane* textPane;
     bool complete = true;
     ipl::scene::Button* button = static_cast<ipl::scene::Button*>(ipl::System::getScene(5));
     for (s32 i = 0; i < 5; ++i) {
@@ -645,7 +646,7 @@ void ipl::scene::AddressEdit::stt_wait_decide_anm() {
         animator = mpBackgroundLayout->getAnim(0);
         animator->initFrame();
         animator->restart();
-        nw4r::lyt::Pane* textPane = mpNameLayout->getNW4RLyt()->GetRootPane()->FindPaneByName(
+        textPane = mpNameLayout->getNW4RLyt()->GetRootPane()->FindPaneByName(
             "T_question_00", true);
         set_textbox(textPane, ipl::System::getMessage(0x32));
         textPane = mpNameLayout->getNW4RLyt()->GetRootPane()->FindPaneByName("T_name_00", true);
