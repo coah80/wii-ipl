@@ -729,11 +729,11 @@ pf_s32 PFENT_ITER_GetEntryOfIter(PFITER_ENT_ITER* p_iter, PF_DIR_ENT* p_ent) {
 pf_s32 PFENT_ITER_GetLFNEntryName(PFITER_ENT_ITER* p_iter, PF_DIR_ENT* p_ent) {
     pf_u32 i;
     pf_u32 index;
+    pf_u16* destination;
     pf_s32 err;
     if (p_ent->num_entry_LFNs != 0 && !(p_ent->small_letter_flag & 0x18)) {
         index = 0;
         for (i = 0; i < p_ent->num_entry_LFNs; ++i) {
-            pf_u16* destination;
             err = PFENT_ITER_Retreat(p_iter, 0);
             if (err != 0) return err;
             err = PFENT_ITER_LoadEntry(p_iter);

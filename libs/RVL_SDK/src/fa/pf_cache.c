@@ -609,7 +609,7 @@ pf_s32 PFCACHE_DoWriteNumSectorAndFreeIfNeeded(PF_VOLUME* p_vol, PF_CACHE_PAGE**
                 (p_page->sector + p_page->size) >= (sector + num_sector)) {
                 pf_memcpy(p_page->buffer, (pf_u8*)&p_buf[(p_page->sector - sector) << p_vol->bpb.log2_bytes_per_sector],
                     (sector + num_sector - p_page->sector) << p_vol->bpb.log2_bytes_per_sector);
-                num_overlap = p_page->size - ((p_page->sector + p_page->size) - (num_sector + sector));
+                num_overlap = sector + num_sector - p_page->sector;
                 last_sector = p_page->sector + num_overlap - 1;
                 *p_num_success += num_overlap;
                 num_rest_sector -= num_overlap;

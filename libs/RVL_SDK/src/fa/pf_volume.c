@@ -225,7 +225,8 @@ typedef struct PFVOL_SET {
 PFVOL_SET pf_vol_set;
 
 static s8 default_volume_label[12] = "NO NAME    ";
-const u8 deleted_entry_mark[8] = {0xE5};
+__declspec(section ".sdata2") u8 deleted_entry_mark[8] = {0xE5};
+char lbl_81698398[] = {0x2A, 0};
 
 extern s32 PFDRV_mount(PFVOL_VOLUME* volume);
 extern s32 PFDRV_unmount(PFVOL_VOLUME* volume, u32 mode);
@@ -502,7 +503,7 @@ s32 PFVOL_p_setvol(PFVOL_VOLUME* volume, const s8* label) {
         return error;
     } else {
         PFFAT_InitFFD(&ffd, &hint, volume, &root_entry.start_cluster);
-        PFSTR_InitStr(&path, "*", 1);
+        PFSTR_InitStr(&path, lbl_81698398, 1);
         PFSTR_SetLocalStr(&path, 0);
         error = PFENT_findEntryPos(&ffd, &entry, 0, &path, 8, 0, &logical_position, &entry_position);
         if (error != 0 && error != 3) {
@@ -555,8 +556,8 @@ s32 PFVOL_p_getvol(PFVOL_VOLUME* volume, PFVOL_VOLUME_INFO* volume_info) {
         return error;
     }
     PFFAT_InitFFD(&ffd, &hint, volume, &root_entry.start_cluster);
-    PFSTR_InitStr(&path, "*", 1);
-    PFSTR_SetLocalStr(&path, "*");
+    PFSTR_InitStr(&path, lbl_81698398, 1);
+    PFSTR_SetLocalStr(&path, lbl_81698398);
     error = PFENT_findEntryPos(&ffd, &entry, 0, &path, 8, 0, &logical_position, &entry_position);
     if (error != 0 && error != 3) {
         return error;
@@ -592,8 +593,8 @@ s32 PFVOL_p_rmvvol(PFVOL_VOLUME* volume) {
         return error;
     }
     PFFAT_InitFFD(&ffd, &hint, volume, &root_entry.start_cluster);
-    PFSTR_InitStr(&path, "*", 1);
-    PFSTR_SetLocalStr(&path, "*");
+    PFSTR_InitStr(&path, lbl_81698398, 1);
+    PFSTR_SetLocalStr(&path, lbl_81698398);
     error = PFENT_findEntryPos(&ffd, &entry, 0, &path, 8, 0, &logical_position, &entry_position);
     if (error != 0 && error != 3) {
         return error;

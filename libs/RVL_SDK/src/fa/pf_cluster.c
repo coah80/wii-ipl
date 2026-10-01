@@ -547,9 +547,9 @@ pf_s32 PFCLUSTER_InsertCluster(PFCLUSTER_ENT_ITER* p_iter, PF_DIR_ENT* p_ent,
     pf_u32 last_cluster;
     pf_u32 requested_size;
     pf_u32 file_clusters;
+    PF_VOLUME* p_vol;
     pf_u32 remainder;
     pf_u32 extra_size;
-    PF_VOLUME* p_vol;
 
     p_vol = p_ent->p_vol;
     cluster_size = p_vol->bpb.bytes_per_sector << p_vol->bpb.log2_sectors_per_cluster;
@@ -600,14 +600,14 @@ pf_s32 PFCLUSTER_InsertCluster(PFCLUSTER_ENT_ITER* p_iter, PF_DIR_ENT* p_ent,
 
 pf_s32 PFCLUSTER_DeleteCluster(PFCLUSTER_ENT_ITER* p_iter, PF_DIR_ENT* p_ent,
     pf_u32 cluster_index, pf_u32 num_clusters, pf_u32* p_deleted_clusters) {
+    PF_VOLUME* p_vol;
+    pf_u32 cluster_size;
+    pf_u32 byte_position;
     pf_s32 err;
     pf_u32 previous_cluster;
     pf_u32 next_cluster;
     pf_u32 first_deleted_cluster;
     pf_u32 last_deleted_cluster;
-    PF_VOLUME* p_vol;
-    pf_u32 cluster_size;
-    pf_u32 byte_position;
 
     p_vol = p_ent->p_vol;
     cluster_size = p_vol->bpb.bytes_per_sector << p_vol->bpb.log2_sectors_per_cluster;

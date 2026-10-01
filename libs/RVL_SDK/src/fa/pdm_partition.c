@@ -18,8 +18,8 @@ pf_s32 pdm_part_is_master_boot_sector(pf_u8* buf, pf_u32 total, pf_bool* p_is_mb
     p_count = count;
     for (index = 0; index < 4; index++) {
         *p_start = 0;
-        *p_start = (((pf_u32)buf[456] << 16) + buf[454]) + (((pf_u32)buf[457] << 24) + ((pf_u32)buf[455] << 8));
-        *p_count = (((pf_u32)buf[460] << 16) + buf[458]) + (((pf_u32)buf[461] << 24) + ((pf_u32)buf[459] << 8));
+        *p_start = (((pf_u32)buf[457] << 24) + (((pf_u32)buf[455] << 8) + (((pf_u32)buf[456] << 16) + buf[454])));
+        *p_count = (((pf_u32)buf[461] << 24) + (((pf_u32)buf[459] << 8) + (((pf_u32)buf[460] << 16) + buf[458])));
         if (*p_start != 0 && *p_count != 0) {
             if (index == 0) { *p_is_mbr = 1; }
         } else {

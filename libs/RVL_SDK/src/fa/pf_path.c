@@ -21,7 +21,7 @@ typedef struct PF_FILE_NAME_ITER {
 #undef PF_IS_PATH_SEPERATOR
 #undef PF_IS_PATH_NULL
 #undef PF_IS_PATH_NOT_NULL
-#define PF_IS_PATH_SEPERATOR(s, t, i) (PFSTR_StrNCmp(s, (const pf_s8*)"\\", t, i, 1) == 0 || PFSTR_StrNCmp(s, (const pf_s8*)"/", t, i, 1) == 0)
+#define PF_IS_PATH_SEPERATOR(s, t, i) (PFSTR_StrNCmp(s, (pf_s8*)"\\", t, i, 1) == 0 || PFSTR_StrNCmp(s, (pf_s8*)"/", t, i, 1) == 0)
 #define PF_IS_PATH_NULL(s, t, i) (PFSTR_StrNCmp(s, (const pf_s8*)"\0", t, i, 1) == 0)
 #define PF_IS_PATH_NOT_NULL(s, t, i) (PFSTR_StrNCmp(s, (const pf_s8*)"\0", t, i, 1) != 0)
 
@@ -465,11 +465,11 @@ pf_s32 PFPATH_cmpName(const pf_s8* short_name, PF_STR* pattern, pf_u32 short_sea
     work.matched_end = 0;
     pattern_text = PFSTR_GetStrPos(pattern, 3);
     pf_strcpy(name, short_name);
-    if ((pf_vol_set.setting & 2) == 2 && PFSTR_GetCodeMode(pattern) == 2 && pf_strcmp(name, (const pf_s8*)".") != 0 &&
-        pf_strcmp(name, (const pf_s8*)"..") != 0 && PFPATH_CheckExtShortName(pattern, 3, PF_TRUE) == 0 && short_search == 0) {
+    if ((pf_vol_set.setting & 2) == 2 && PFSTR_GetCodeMode(pattern) == 2 && pf_strcmp(name, (pf_s8*)".") != 0 &&
+        pf_strcmp(name, (pf_s8*)"..") != 0 && PFPATH_CheckExtShortName(pattern, 3, PF_TRUE) == 0 && short_search == 0) {
         return 1;
     }
-    if (pf_strcmp(pattern_text, (const pf_s8*)"*.") == 0) {
+    if (pf_strcmp(pattern_text, (pf_s8*)"*.") == 0) {
         name_end = name;
         while (*name_end != 0 && *name_end != '.') {
             name_end++;

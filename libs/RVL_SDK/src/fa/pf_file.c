@@ -649,22 +649,21 @@ void PFFILE_Cursor_MoveToClusterEnd(PFFILE_FILE* file, pf_u32 size) {
 
 PFFILE_SFD* PFFILE_GetSFD(PF_VOLUME* volume, PF_DIR_ENT* entry) {
     PFFILE_VOLUME_DIRS* volume_dirs = (PFFILE_VOLUME_DIRS*)volume;
-    PFFILE_SFD* first_free_sfd = PF_NULL;
-    PFFILE_SFD* sfd = volume_dirs->sfds;
     pf_u32 first_free_index = 0;
-    pf_u32 index = 0;
+    PFFILE_SFD* first_free_sfd = PF_NULL;
+    pf_s32 index;
 
-    for (; index < 5; index++, sfd++) {
+    for (index = 0; index < 5; index++) {
         if ((volume_dirs->sfds[index].stat & 1) == 0 ||
             ((volume_dirs->sfds[index].stat & 1) != 0 && (!volume_dirs->sfds[index].stat & 2) != 0)) {
             if (first_free_sfd == PF_NULL) {
-                first_free_sfd = sfd;
+                first_free_sfd = volume_dirs->sfds + index;
                 first_free_index = index;
             }
         } else if (entry->p_vol == volume_dirs->sfds[index].dir_entry.p_vol &&
                    entry->entry_sector == volume_dirs->sfds[index].dir_entry.entry_sector &&
                    entry->entry_offset == volume_dirs->sfds[index].dir_entry.entry_offset) {
-            return &volume_dirs->sfds[index];
+            return volume_dirs->sfds + index;
         }
     }
 
@@ -681,14 +680,14 @@ PFFILE_SFD* PFFILE_GetSFD(PF_VOLUME* volume, PF_DIR_ENT* entry) {
     first_free_sfd->lock.resource = 0;
     PFFAT_InitFFD(&first_free_sfd->ffd, PF_NULL, entry->p_vol,
                   &first_free_sfd->dir_entry.start_cluster);
-    if ((volume_dirs->cluster_link.flag & 1) != 0) {
-        pf_u32* link_buffer = volume_dirs->cluster_link.buffer +
-                              first_free_index * volume_dirs->cluster_link.link_max;
+    if ((((PFFILE_VOLUME_DIRS*)volume)->cluster_link.flag & 1) != 0) {
+        pf_u32* link_buffer = ((PFFILE_VOLUME_DIRS*)volume)->cluster_link.buffer +
+                              first_free_index * ((PFFILE_VOLUME_DIRS*)volume)->cluster_link.link_max;
 
         first_free_sfd->ffd.cluster_link.buffer = link_buffer;
-        pf_memset(link_buffer, 0, volume_dirs->cluster_link.link_max << 2);
-        first_free_sfd->ffd.cluster_link.max_count = volume_dirs->cluster_link.link_max;
-        first_free_sfd->ffd.cluster_link.interval = volume_dirs->cluster_link.interval;
+        pf_memset(link_buffer, 0, ((PFFILE_VOLUME_DIRS*)volume)->cluster_link.link_max << 2);
+        first_free_sfd->ffd.cluster_link.max_count = ((PFFILE_VOLUME_DIRS*)volume)->cluster_link.link_max;
+        first_free_sfd->ffd.cluster_link.interval = ((PFFILE_VOLUME_DIRS*)volume)->cluster_link.interval;
         first_free_sfd->ffd.cluster_link.interval_offset = 0;
         first_free_sfd->ffd.cluster_link.position = 0;
         first_free_sfd->ffd.cluster_link.save_index = 0;
@@ -1368,7 +1367,7 @@ complete:
 
 static PFFILE_FILE* PFFILE_GetFreeUFD(PF_VOLUME* volume) {
     PFFILE_VOLUME_DIRS* volume_dirs = (PFFILE_VOLUME_DIRS*)volume;
-    pf_u32 index;
+    pf_s32 index;
 
     for (index = 0; index < 5; index++) {
         if ((volume_dirs->ufds[index].stat & 1) == 0) {
@@ -1439,7 +1438,7 @@ pf_s32 PFFILE_FsexecOpenFile(PF_DIR_ENT* entry, PFFILE_ENT_ITER* iter,
 
 pf_bool PFFILE_IsOpened(PF_DIR_ENT* entry) {
     PFFILE_VOLUME_DIRS* volume_dirs = (PFFILE_VOLUME_DIRS*)entry->p_vol;
-    pf_u32 index;
+    pf_s32 index;
 
     for (index = 0; index < 5; index++) {
         PFFILE_SFD* sfd = &volume_dirs->sfds[index];
