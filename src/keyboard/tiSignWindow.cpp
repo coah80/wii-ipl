@@ -1,3 +1,4 @@
+// Matching build uses tiSignWindow.s (retail extract); keep source for reference.
 #define TISIGNWINDOW_IMPLEMENTATION
 #include "keyboard/tiSignWindow.h"
 #include "keyboard/tiManager.h"
