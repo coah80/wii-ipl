@@ -296,17 +296,17 @@ int AOSS_814001B4(int state, AOSSReceiveBuffer* packet, int* count, AOSSRequestR
 int AOSS_814002F0(int state, AOSSReceiveBuffer* packet, int* count, AOSSRequestRecords* request);
 int AOSS_814004D0(int state, AOSSReceiveBuffer* packet, int* count, AOSSRequestRecords* request);
 int AOSS_814006A4(int state, AOSSReceiveBuffer* packet, int* count, AOSSRequestRecords* request);
-int AOSS_81400830(AOSSDecryptionMessage* message);
+int AOSSDecryptMessage(AOSSDecryptionMessage* message);
 int AOSS_81400D34(u16 command, const u8* manufacturerAddress);
 int AOSS_81401104(const AOSSOptionRecord* packet, AOSSStoredConfig* config);
 int AOSS_81401284(const AOSSOptionRecord* packet, AOSSStoredConfig* config);
-void AOSS_81401C9C(AOSSKeySchedule* schedule, const u8* key, u32 keyLength, u32 stateLength);
-void AOSS_81401DC0(u32 seed, u32* table);
-s16 AOSS_81401BBC(void* buffer);
+void AOSSInitKeySchedule(AOSSKeySchedule* schedule, const u8* key, u32 keyLength, u32 stateLength);
+void AOSSInitCrc32Table(u32 seed, u32* table);
+s16 AOSSBuildInterfaceOption(void* buffer);
 int AOSS_81401574(void* packet, AOSSRequestRecords* request, int socket);
 int AOSS_81401778(void* packet, void* request, int socket);
-int AOSS_81401E80(void* packet, s32 length, char* key, int keyLength);
-int AOSS_814020CC(void* settings, void* config);
+int AOSSXorBufferWithKey(void* packet, s32 length, char* key, int keyLength);
+int AOSSConnectAndAwaitHost(void* settings, void* config);
 int AOSS_81400E0C(const AOSSOptionRecord* packet, u8* settings);
 int AOSS_814013AC(int state, const AOSSReplyOption* response, int responseLength, void* config, void* networkData);
 
@@ -652,7 +652,7 @@ int AOSS_Init_old(AOSSInitInput* input)
     }
   goto finish_initialization;
 wait_for_initial_link:
-  state = AOSS_814020CC(&settings,s_accessPointConfig);
+  state = AOSSConnectAndAwaitHost(&settings,s_accessPointConfig);
   if (state == -1) {
     input->status = 0xf;
     if (s_accessPointConfig) {
@@ -860,7 +860,7 @@ request_socket_cleanup_complete:
             memset(s_accessPointConfig,0,0x58);
             initialWait = waitIntervals.limits.connection;
             for (waitAttempt = 0; waitAttempt < (short)initialWait; waitAttempt++) {
-              requestResult = AOSS_814020CC(&settings,s_accessPointConfig);
+              requestResult = AOSSConnectAndAwaitHost(&settings,s_accessPointConfig);
               if (requestResult == -1) {
                 input->status = 0xf;
                 if (s_accessPointConfig) {
@@ -969,7 +969,7 @@ request_socket_cleanup_complete:
             memset(s_responseBuffer,0,0x5dc);
             memcpy(messageIdentity,&requestRecords.records[2],8);
             manufacturerLength = strlen(s_manufacturer);
-            AOSS_81401E80(messageIdentity,8,s_manufacturer,manufacturerLength);
+            AOSSXorBufferWithKey(messageIdentity,8,s_manufacturer,manufacturerLength);
             receivedLength = SOHtoNs(1);
             packetWords->initialLength = receivedLength;
             packetWords->initialType = 0;
@@ -1206,7 +1206,7 @@ wait_for_packet:
       memset(s_accessPointConfig,0,0x58);
       initialWait = waitIntervals.limits.connection;
       for (waitAttempt = 0; waitAttempt < (short)initialWait; waitAttempt++) {
-        state = AOSS_814020CC(&settings,s_accessPointConfig);
+        state = AOSSConnectAndAwaitHost(&settings,s_accessPointConfig);
         if (state == -1) {
           input->status = 0xf;
           if (s_accessPointConfig) {
@@ -1611,7 +1611,7 @@ int AOSS_814001B4(int state, AOSSReceiveBuffer* packet, int* count, AOSSRequestR
         (*count)++;
         return state;
     }
-    if (AOSS_81400830((AOSSDecryptionMessage*)&packet->message) > 0) {
+    if (AOSSDecryptMessage((AOSSDecryptionMessage*)&packet->message) > 0) {
         (*count)++;
         return state;
     }
@@ -1652,7 +1652,7 @@ int AOSS_814002F0(int state, AOSSReceiveBuffer* packet, int* count, AOSSRequestR
     manufacturerLength = strlen(s_manufacturer);
     reply = &packet->message.payload.reply;
     requestRecord = &request->records[0];
-    AOSS_81401E80(&packet->message.payload.manufacturerAddress, 8, s_manufacturer, manufacturerLength);
+    AOSSXorBufferWithKey(&packet->message.payload.manufacturerAddress, 8, s_manufacturer, manufacturerLength);
     compareResult = memcmp(requestRecord->address, packet->message.payload.manufacturerAddress, 6);
     if (compareResult != 0) {
         validationResult = -1;
@@ -1724,7 +1724,7 @@ int AOSS_814004D0(int state, AOSSReceiveBuffer* packet, int* count, AOSSRequestR
     operationResult = 0;
     reply = &packet->message.payload.reply;
     manufacturerLength = strlen(s_manufacturer);
-    AOSS_81401E80(&packet->message.payload.manufacturerAddress, 8, s_manufacturer, manufacturerLength);
+    AOSSXorBufferWithKey(&packet->message.payload.manufacturerAddress, 8, s_manufacturer, manufacturerLength);
     compareResult = memcmp(request->records[1].address,
                            packet->message.payload.manufacturerAddress, 6);
     if (compareResult != 0) {
@@ -1788,7 +1788,7 @@ int AOSS_814006A4(int state, AOSSReceiveBuffer* packet, int* count, AOSSRequestR
 
     errorCode = 0;
     manufacturerLength = strlen(s_manufacturer);
-    AOSS_81401E80(&packet->message.payload.manufacturerAddress, 8, s_manufacturer, manufacturerLength);
+    AOSSXorBufferWithKey(&packet->message.payload.manufacturerAddress, 8, s_manufacturer, manufacturerLength);
     compareResult = memcmp(request->records[2].address,
                            packet->message.payload.manufacturerAddress, 6);
     if (compareResult != 0) {
@@ -1828,7 +1828,7 @@ int AOSS_814006A4(int state, AOSSReceiveBuffer* packet, int* count, AOSSRequestR
     return result;
 }
 
-int AOSS_81400830(AOSSDecryptionMessage* message) {
+int AOSSDecryptMessage(AOSSDecryptionMessage* message) {
     u32 checksum;
     u8 manufacturerAddress[8];
     AOSSKeySchedule schedule;
@@ -1850,7 +1850,7 @@ int AOSS_81400830(AOSSDecryptionMessage* message) {
     int result;
 
     memcpy(manufacturerAddress, message->manufacturerAddress, sizeof(manufacturerAddress));
-    result = AOSS_81401E80(manufacturerAddress, sizeof(manufacturerAddress), s_manufacturer,
+    result = AOSSXorBufferWithKey(manufacturerAddress, sizeof(manufacturerAddress), s_manufacturer,
         strlen(s_manufacturer));
     if (result == -1) {
         s_errorCode = 2;
@@ -1886,7 +1886,7 @@ int AOSS_81400830(AOSSDecryptionMessage* message) {
     } else {
         memcpy(s_packetState.keyNonce, &encrypted->keyNonce, sizeof(encrypted->keyNonce));
         memcpy(s_packetState.keyAddress, s_accessPointName, sizeof(s_accessPointName));
-        AOSS_81401C9C(&schedule, s_packetState.keyNonce,
+        AOSSInitKeySchedule(&schedule, s_packetState.keyNonce,
             sizeof(s_packetState.keyNonce) + sizeof(s_packetState.keyAddress), dataLength);
 
         outputCursor = decryptedData;
@@ -1906,7 +1906,7 @@ int AOSS_81400830(AOSSDecryptionMessage* message) {
         }
 
         crc = 0xffffffff;
-        AOSS_81401DC0(0, s_crcTable);
+        AOSSInitCrc32Table(0, s_crcTable);
         for (crcIndex = 0; crcIndex < (s32)dataLength; crcIndex++) {
             crc = (crc >> 8) ^ s_crcTable[(crc ^ decryptedData[crcIndex]) & 0xff];
         }
@@ -2257,7 +2257,7 @@ int AOSS_81401574(void* packet, AOSSRequestRecords* request, int socket) {
     responsePayload = response->payload;
     memcpy(s_accessPointName, &request->records[0], 8);
     memcpy(accessPointName, s_accessPointName, 8);
-    recordLength = AOSS_81401BBC(&requestRecord->record);
+    recordLength = AOSSBuildInterfaceOption(&requestRecord->record);
     if (recordLength < 0) {
         s_errorCode = 3;
         if (requestRecord != 0) {
@@ -2269,7 +2269,7 @@ int AOSS_81401574(void* packet, AOSSRequestRecords* request, int socket) {
         requestRecord->length = SOHtoNs(recordLength);
         requestLength = recordLength + 4;
         memcpy(responsePayload, requestRecord, requestLength);
-        encryptionResult = AOSS_81401E80(accessPointName, 8, s_manufacturer, 6);
+        encryptionResult = AOSSXorBufferWithKey(accessPointName, 8, s_manufacturer, 6);
         if (encryptionResult != 0) {
             s_errorCode = 2;
             if (requestRecord != 0) {
@@ -2343,7 +2343,7 @@ int AOSS_81401778(void* packet, void* request, int socket) {
         const u32* crcTable;
         sequence = 1;
         checksum = 0xffffffff;
-        AOSS_81401DC0(0, s_crcTable);
+        AOSSInitCrc32Table(0, s_crcTable);
         crcTable = s_crcTable;
         {
             u32 part;
@@ -2361,7 +2361,7 @@ int AOSS_81401778(void* packet, void* request, int socket) {
             memcpy(&payload->encrypted.key.nonce, &nonce, 2);
             memcpy(s_packetState.keyNonce, payload->encrypted.key.nonceBytes, 2);
             memcpy(s_packetState.keyAddress, s_accessPointName, 8);
-            AOSS_81401C9C(&construction.schedule, s_packetState.keyNonce,
+            AOSSInitKeySchedule(&construction.schedule, s_packetState.keyNonce,
                 sizeof(s_packetState.keyNonce) + sizeof(s_packetState.keyAddress), 8);
             for (index = 0; index < 8; index++) {
                 state = construction.schedule.bytes;
@@ -2386,7 +2386,7 @@ int AOSS_81401778(void* packet, void* request, int socket) {
     }
 
     memcpy(construction.accessPointName, &requestRecords->records[1], 8);
-    encryptionResult = AOSS_81401E80(construction.accessPointName, 8, s_manufacturer, 6);
+    encryptionResult = AOSSXorBufferWithKey(construction.accessPointName, 8, s_manufacturer, 6);
     if (encryptionResult != 0) {
         s_errorCode = 2;
         return -1;
@@ -2415,7 +2415,7 @@ int AOSS_81401778(void* packet, void* request, int socket) {
     return 0;
 }
 
-s16 AOSS_81401BBC(void* buffer) {
+s16 AOSSBuildInterfaceOption(void* buffer) {
     AOSSOptionRecord* record = (AOSSOptionRecord*)buffer;
     u32 optionValue;
     s16 dataLength;
@@ -2439,7 +2439,7 @@ s16 AOSS_81401BBC(void* buffer) {
     return (s16)(dataLength + 10);
 }
 
-void AOSS_81401C9C(AOSSKeySchedule* schedule, const u8* key, u32 keyLength, u32 stateLength) {
+void AOSSInitKeySchedule(AOSSKeySchedule* schedule, const u8* key, u32 keyLength, u32 stateLength) {
     u32 index = 0;
     u32 keyIndex;
     u32 swapIndex;
@@ -2471,7 +2471,7 @@ void AOSS_81401C9C(AOSSKeySchedule* schedule, const u8* key, u32 keyLength, u32 
     }
 }
 
-void AOSS_81401DC0(u32 seed, u32* table) {
+void AOSSInitCrc32Table(u32 seed, u32* table) {
     u32 index;
     u32 value;
 
@@ -2488,7 +2488,7 @@ void AOSS_81401DC0(u32 seed, u32* table) {
     }
 }
 
-int AOSS_81401E80(void* packet, s32 length, char* key, int keyLength) {
+int AOSSXorBufferWithKey(void* packet, s32 length, char* key, int keyLength) {
     u8* temporaryHalf;
     s32 halfLength = length / 2;
     u8* packetHalf;
@@ -2542,7 +2542,7 @@ int AOSS_81401E80(void* packet, s32 length, char* key, int keyLength) {
     return result;
 }
 
-int AOSS_814020CC(void* settings, void* config) {
+int AOSSConnectAndAwaitHost(void* settings, void* config) {
     s32 connectionAttempts = 0;
     u32 ticksPerMillisecond;
 
