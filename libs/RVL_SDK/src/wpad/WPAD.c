@@ -28,8 +28,8 @@
 #define DPD_CONFIG2_SIZE 2
 #define SPK_CONFIG_SIZE 7
 
-char lbl_81687720[] = "<< RVL_SDK - WPAD \trelease build: Apr 20 2010 11:20:55 (0x4199_60831) >>";
-const char* __WPADVersion = lbl_81687720;
+char scWpadVersionStr[] = "<< RVL_SDK - WPAD \trelease build: Apr 20 2010 11:20:55 (0x4199_60831) >>";
+const char* __WPADVersion = scWpadVersionStr;
 
 WPADStorage _wpd;
 WPADCB* _wpdcb[WPAD_MAX_CONTROLLERS];
@@ -617,7 +617,7 @@ static void __reconnect(BOOL exec) {
     WUDShutdown(exec);
 }
 #ifdef __MWERKS__
-char lbl_81687810[0x58] = "Reconnect Start!!\n\0\0\0\0\0\0"
+char scWpadManageStrs[0x58] = "Reconnect Start!!\n\0\0\0\0\0\0"
                            "Check the update of WiFi using channel\n\0"
                            "WiFi uses channel = %d\n";
 extern void _savegpr_19();
@@ -629,8 +629,8 @@ static asm void WPADiManageHandler(OSAlarm* pAlarm, OSContext* pContext) {
     stw r0, 0x164(r1)
     addi r11, r1, 0x160
     bl _savegpr_19
-    lis r28, lbl_81687720@ha
-    addi r28, r28, lbl_81687720@l
+    lis r28, scWpadVersionStr@ha
+    addi r28, r28, scWpadVersionStr@l
     bl WUDGetStatus
     cmpwi r3, 0x3
     beq WPADiManageHandler_8AC8
