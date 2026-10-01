@@ -1,3 +1,4 @@
+// Matching build uses tiString.s (retail extract); keep source for reference.
 #define TISTRING_IMPLEMENTATION
 #include "keyboard/tiString.h"
 #include "keyboard/tiUtil.h"
