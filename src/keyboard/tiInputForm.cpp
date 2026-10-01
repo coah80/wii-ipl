@@ -139,18 +139,18 @@ extern "C" asm void draw__Q39textinput11nw4rmanager6LayoutFv();
 extern "C" asm void searchPaneComponent__Q39textinput3gui11PaneManagerFPCc();
 #pragma push
 #pragma section const_type ".data"
-extern "C" const char lbl_8165C820[];
-extern "C" const char lbl_8165C830[];
-extern "C" const char lbl_8165C8C0[];
-extern "C" const char lbl_8165C8CC[];
-extern "C" const char lbl_8165C8E0[];
-extern "C" const char lbl_8165C8F0[];
-extern "C" const char lbl_8165C900[];
-extern "C" const char lbl_8165C918[];
-extern "C" const char lbl_8165C928[];
-extern "C" const char lbl_8165C938[];
-extern "C" const char lbl_8165C950[];
-extern "C" const char lbl_8165C960[];
+extern "C" const char scP_txtScrll_UP[];
+extern "C" const char scP_txtScrll_DOWN[];
+extern "C" const char scN_JPNUSAEUR[];
+extern "C" const char scN_separateBarAll[];
+extern "C" const char scT_2l_TextBox[];
+extern "C" const char scT_title_textJPN[];
+extern "C" const char scN_separateBarKOR[];
+extern "C" const char scT_2l_TextBoxKOR[];
+extern "C" const char scT_title_textKOR[];
+extern "C" const char scN_separateBarCHN[];
+extern "C" const char scT_2l_TextBoxCHN[];
+extern "C" const char scT_title_textCHN[];
 extern "C" const char lbl_816973A4[];
 extern "C" const char lbl_816973AC[];
 #pragma pop
@@ -314,7 +314,7 @@ void Base::resetContextPredict_() {
 
 static GXColor kanaBackground = {128, 255, 128, 255};
 static GXColor candidateBackground = {255, 210, 12, 255};
-const char* csScrollButtonAnimationTarget = lbl_8165C820;
+const char* csScrollButtonAnimationTarget = scP_txtScrll_UP;
 
 struct InputFormAnimationFile {
     u32 id;
@@ -337,14 +337,14 @@ extern "C" const InputFormAnimationFile csAninationFile__Q29textinput9inputform[
 #pragma section data_type ".rodata"
 extern "C" const VisiblePanes csVisiblePaneUEJ__Q29textinput9inputform = {
     1, 2,
-    {lbl_8165C8C0, NULL, NULL, NULL},
+    {scN_JPNUSAEUR, NULL, NULL, NULL},
     {"N_KOR", "N_CHN", NULL, NULL},
 };
 
 extern "C" const VisiblePanes csVisiblePaneKOR__Q29textinput9inputform = {
     1, 2,
     {"N_KOR", NULL, NULL, NULL},
-    {"N_CHN", lbl_8165C8C0, NULL, NULL},
+    {"N_CHN", scN_JPNUSAEUR, NULL, NULL},
 };
 
 extern "C" const void* csVisiblePaneCHN__Q29textinput9inputform[10] = {
@@ -354,7 +354,7 @@ extern "C" const void* csVisiblePaneCHN__Q29textinput9inputform[10] = {
     0,
     0,
     "N_KOR",
-    lbl_8165C8C0,
+    scN_JPNUSAEUR,
     0,
     0,
     0,
@@ -362,23 +362,23 @@ extern "C" const void* csVisiblePaneCHN__Q29textinput9inputform[10] = {
 
 extern "C" const LanguagePaneData csLanguageDependencyDataUEJ__Q29textinput9inputform = {
     &csVisiblePaneUEJ__Q29textinput9inputform,
-    lbl_8165C8CC,
-    lbl_8165C8E0,
-    lbl_8165C8F0,
+    scN_separateBarAll,
+    scT_2l_TextBox,
+    scT_title_textJPN,
 };
 
 extern "C" const LanguagePaneData csLanguageDependencyDataKOR__Q29textinput9inputform = {
     &csVisiblePaneKOR__Q29textinput9inputform,
-    lbl_8165C900,
-    lbl_8165C918,
-    lbl_8165C928,
+    scN_separateBarKOR,
+    scT_2l_TextBoxKOR,
+    scT_title_textKOR,
 };
 
 extern "C" const LanguagePaneData csLanguageDependencyDataCHN__Q29textinput9inputform = {
     reinterpret_cast<const VisiblePanes*>(csVisiblePaneCHN__Q29textinput9inputform),
-    lbl_8165C938,
-    lbl_8165C950,
-    lbl_8165C960,
+    scN_separateBarCHN,
+    scT_2l_TextBoxCHN,
+    scT_title_textCHN,
 };
 #pragma section data_type ".data"
 
@@ -417,8 +417,8 @@ bool mbHyphen = true;
 
 #pragma push
 #pragma section const_type ".data"
-extern "C" const char lbl_8165C820[] = "P_txtScrll_UP";
-extern "C" const char lbl_8165C830[] = "P_txtScrll_DOWN";
+extern "C" const char scP_txtScrll_UP[] = "P_txtScrll_UP";
+extern "C" const char scP_txtScrll_DOWN[] = "P_txtScrll_DOWN";
 struct ButtonAnimations {
     KeyType type;
     const char* paneName;
@@ -428,27 +428,27 @@ struct ButtonAnimations {
 };
 
 const ButtonAnimations csButtonAnimations[] = {
-    {KT_NormalButton, lbl_8165C820, 8, NULL, {
+    {KT_NormalButton, scP_txtScrll_UP, 8, NULL, {
         &csAninationFile__Q29textinput9inputform[0], &csAninationFile__Q29textinput9inputform[1],
         &csAninationFile__Q29textinput9inputform[2], &csAninationFile__Q29textinput9inputform[3],
         &csAninationFile__Q29textinput9inputform[4], &csAninationFile__Q29textinput9inputform[5],
         &csAninationFile__Q29textinput9inputform[6], &csAninationFile__Q29textinput9inputform[7]}},
-    {KT_NormalButton, lbl_8165C830, 8, csScrollButtonAnimationTarget, {
+    {KT_NormalButton, scP_txtScrll_DOWN, 8, csScrollButtonAnimationTarget, {
         &csAninationFile__Q29textinput9inputform[0], &csAninationFile__Q29textinput9inputform[1],
         &csAninationFile__Q29textinput9inputform[2], &csAninationFile__Q29textinput9inputform[3],
         &csAninationFile__Q29textinput9inputform[4], &csAninationFile__Q29textinput9inputform[5],
         &csAninationFile__Q29textinput9inputform[6], &csAninationFile__Q29textinput9inputform[7]}}
 };
-extern "C" const char lbl_8165C8C0[] = "N_JPNUSAEUR";
-extern "C" const char lbl_8165C8CC[] = "N_separateBarAll";
-extern "C" const char lbl_8165C8E0[] = "T_2l_TextBox";
-extern "C" const char lbl_8165C8F0[] = "T_title_textJPN";
-extern "C" const char lbl_8165C900[] = "N_separateBarKOR";
-extern "C" const char lbl_8165C918[] = "T_2l_TextBoxKOR";
-extern "C" const char lbl_8165C928[] = "T_title_textKOR";
-extern "C" const char lbl_8165C938[] = "N_separateBarCHN";
-extern "C" const char lbl_8165C950[] = "T_2l_TextBoxCHN";
-extern "C" const char lbl_8165C960[] = "T_title_textCHN";
+extern "C" const char scN_JPNUSAEUR[] = "N_JPNUSAEUR";
+extern "C" const char scN_separateBarAll[] = "N_separateBarAll";
+extern "C" const char scT_2l_TextBox[] = "T_2l_TextBox";
+extern "C" const char scT_title_textJPN[] = "T_title_textJPN";
+extern "C" const char scN_separateBarKOR[] = "N_separateBarKOR";
+extern "C" const char scT_2l_TextBoxKOR[] = "T_2l_TextBoxKOR";
+extern "C" const char scT_title_textKOR[] = "T_title_textKOR";
+extern "C" const char scN_separateBarCHN[] = "N_separateBarCHN";
+extern "C" const char scT_2l_TextBoxCHN[] = "T_2l_TextBoxCHN";
+extern "C" const char scT_title_textCHN[] = "T_title_textCHN";
 bool DeadKeyStream::sbCompatibleFilterEnabled = true;
 
 inline bool DeadKeyStream::isCompatible(wchar_t character) {
