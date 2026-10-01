@@ -20,14 +20,14 @@ void VoiceCallback(void* _voice) {
 }
 
 inline u8* getCurrAddr(VoiceInfo* voice) {
-    AXPB* iVar4 = &voice->getAXVPB()->pb;
+    AXPB* pb = &voice->getAXVPB()->pb;
     nw4r::ut::AutoInterruptLock lock;
-    if (iVar4 == NULL) {
+    if (pb == NULL) {
         return 0;
     }
 
-    u16 addrHi = iVar4->addr.currentAddressHi;
-    u16 addrLo = iVar4->addr.currentAddressLo;
+    u16 addrHi = pb->addr.currentAddressHi;
+    u16 addrLo = pb->addr.currentAddressLo;
     return (u8*)((addrHi << 16) + addrLo);
 }
 
