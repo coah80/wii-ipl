@@ -6,8 +6,8 @@
 
 #include "iplSystem.h"
 
-__declspec(section ".sdata") extern char lbl_816966F9[];
-extern char lbl_816967B5[];
+__declspec(section ".sdata") extern char scPaneName_B_Stop[];
+extern char scPaneName_T_Stop[];
 extern "C" BOOL push_button_queue(void*, const void*);
 
 namespace ipl {
@@ -877,7 +877,7 @@ namespace ipl {
         }
 
         void OptOutButton::setText(u32 msgId) {
-            nw4r::lyt::TextBox* textBox = nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(mpLayout->FindPaneByName(lbl_816967B5));
+            nw4r::lyt::TextBox* textBox = nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(mpLayout->FindPaneByName(scPaneName_T_Stop));
             textBox->SetString(System::getMessage(msgId));
         }
 
@@ -890,7 +890,7 @@ namespace ipl {
         }
 
         void OptOutButton::start_point_event(const char* paneName, controller::Interface* con) {
-            if (strcmp(paneName, lbl_816966F9) == 0) {
+            if (strcmp(paneName, scPaneName_B_Stop) == 0) {
                 if (mbHovered == FALSE) {
                     // Play hover in animation
                     mpLayout->getAnim(ANIM_OPT_OUT_FOCUS_IN)->play();
@@ -906,7 +906,7 @@ namespace ipl {
         }
 
         void OptOutButton::start_left_event(const char* paneName) {
-            if (strcmp(paneName, lbl_816966F9) == 0) {
+            if (strcmp(paneName, scPaneName_B_Stop) == 0) {
                 if (mbHovered == TRUE) {
                     mpLayout->getAnim(ANIM_OPT_OUT_FOCUS_OUT)->play();
                 }
@@ -1005,4 +1005,4 @@ namespace ipl {
     }  // namespace scene
 }  // namespace ipl
 
-char lbl_816967B5[] = "T_Stop";
+char scPaneName_T_Stop[] = "T_Stop";
