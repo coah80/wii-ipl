@@ -7,8 +7,10 @@ BASE = 'build/43U/obj/src/utility/iplESMisc.o'
 
 def pool(path):
     e = ELFFile(open(path, 'rb'))
-    sec = {s.name: s for s in e.iter_sections()}
-    d = sec['.data'].data()
+    section = e.get_section_by_name('.data')
+    if section is None:
+        return []
+    d = section.data()
     out = []
     off = 0
     while off < len(d):
@@ -42,6 +44,7 @@ def main():
         for j in range(n, max(len(mine), len(base))):
             src = mine if j < len(mine) else base
             print(' extra %3d %r' % (j, src[j][1][:70]))
+        return 1
     return 0
 
 
