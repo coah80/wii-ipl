@@ -70,18 +70,18 @@ ziU32 Zi8MatchPUDdata_ZHS(ziWChar* pattern, ziU8 length, ziU8 language, ziWChar*
         return 0;
     }
     if (language == 1) {
-        length &= 0x7F;
         length *= 2;
     }
     if (continuation == 0) {
         table = (ziPudHeader*)ZI_WORK->pudTable[ZI_WORK->pudCount - 1];
         index = 0;
         section = table->sections;
-        while (index < table->languageCount && section->language != language) {
-            index++;
+        while (index < table->languageCount) {
+            if (section->language == language) break;
             section++;
+            index++;
         }
-        if (table->languageCount <= index) {
+        if (!(index < table->languageCount)) {
             Zi8LogError(0x4F6, __zi8_work_data);
             return 0;
         }
@@ -105,7 +105,9 @@ ziU32 Zi8MatchPUDdata_ZHS(ziWChar* pattern, ziU8 length, ziU8 language, ziWChar*
                 word = entry + 2;
                 wordSize = ZiGetZHWordSize((ziWChar*)word, entrySize);
             } else if (ZI_WORK->unk_0x31E != 0 && complete != 0 && wordSize > length && word[length] == 0x20) goto matchText;
-            if ((ziS32)length > (ziS32)wordSize || (complete != 0 && wordSize != length) || (complete == 0 && wordSize == length)) goto next;
+            if ((ziS32)length > (ziS32)wordSize) goto next;
+            if (complete != 0 && wordSize != length) goto next;
+            if (complete == 0 && wordSize == length) goto next;
             if (language == 1) {
                 for (index = 0; index < length; index++) {
                     if (word[index] != ((ziU8*)pattern)[index]) goto next;
@@ -132,8 +134,9 @@ matched:
                 index = 0;
                 for (copied = 0; index < (ziS32)wordSize && copied < capacity; copied++) {
                     ((ziU8*)output)[index] = word[index];
-                    ((ziU8*)output)[index + 1] = word[index + 1];
-                    index += 2;
+                    index++;
+                    ((ziU8*)output)[index] = word[index];
+                    index++;
                 }
                 Zi8CopyZHSpelling(word, spelling, spellingCapacity, entrySize, wordSize);
             } else {

@@ -23,7 +23,7 @@ ziU8 Zi8DetachOEMdata(ziU8 id ZI_NEED_WORK) {
 }
 ziU8 Zi8MatchOEMdata(ziWChar* pattern, ziU8 length, ziU8 language, ziWChar* word, ziU16 capacity, ziBool complete, ziBool continuation ZI_NEED_WORK) {
     ziWChar folded;
-    ziS32 index;
+    int index;
     ziU32 position;
     ziU32 fallback = 0;
     if (!continuation) ZI_WORK->oemIdx = 0;

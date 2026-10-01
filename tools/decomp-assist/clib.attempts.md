@@ -50,3 +50,25 @@
 Old leaf tip f2afe0e8 beat upstream on: zoemdata +34.2, ziswordw +10.5,
 zi8uwd +7.3, zidawg1 +1.7, zi8pud2 +0.7, zi81key/zmtkey marginal.
 Upstream won on: zi8alpha +4.5, zi8cgetc +16, zconvert +0.4, zkokeyp +0.1.
+
+## clib2 session (zidawg1 + zi8pud2 decodes)
+
+### zidawg1 (unit fuzzy 94.45 -> 95.27)
+- ZiDAWGGetGraphInfo 81.8 -> 99.63: shared-fail `||` guard (`if ((e0<<8)+e1 != 0 || (e2<<8)+e3 != 0) return 0;`) gives orig's two-branch-one-block layout; else-return-wrap (`if (!(range)) { while-loop } else { return 0; }`) produces orig's cold-block ordering where plain early-return doesn't; inner scan is a compound `while ((ziU32)entry < end && *keys != (ziS32)((entry[2]<<8)+entry[3]))` (orig enters mid-body via forward b); byte-packed result needs paren grouping `(graph + (entry[4]<<16)) + ((entry[5]<<8)+entry[6])`.
+- ZiDAWGgetCHARattribute 95.5 -> 98.33: `attribute |= ((ziU32)(ziU8)A << 8) + B` merged-assign form (single OR'd pair).
+- ZiDAWGGetChild 93.6 -> 93.9: explicit `(ziU16)` cast on table load reproduces orig's redundant clrlwi-into-home.
+- ZiDAWGGetSibling 86.9 -> 89.31: cursor-walker model — a separate `cursor` web walks the node bytes (orig r3 volatile), `offset` counts advances, `node` stays at base (orig r28 callee), result `node += offset` / `node = offset + (node + b2)`. Packed-add tree: write `offset = b0x + b1x; offset += 0x8000; node += b2; node = offset + node;` — MWCC reassociates a one-line expression folding +0x8000 onto the b1 term.
+- Residual (documented wall): volatile-vs-callee web choice — orig homes `node` in r28 and walks `cursor` in r3 (volatile); MWCC picks the opposite. This is the "local-before-param" family: no calls in fn, allocator assigns homes purely by internal weights.
+
+### zi8pud2 (unit fuzzy 81.7 -> 84.6, ZHS fn 72.6 -> 77.0)
+- `length &= 0x7F` before `length *= 2` is dead — `(x<<1)&0xff ≡ (x&0x7f)<<1`; MWCC doesn't fold the mask. Removing it reproduces orig's `slwi+clrlwi`.
+- Section-scan loop is `while (index < count) { if (lang==match) break; section++; index++; }` — break-on-match at top, count-check at bottom. A compound `A && B` while emits the wrong check order.
+- Three consecutive `if (cond) goto L` statements merge into || evaluation with `beq`-to-next polarity; orig's `bne`-past shape comes from the nested-if form `if (A) { if (B) goto L } else { if (C) goto L }`.
+- ZHS byte-copy loop advances `index` between the two stores (`[i]=w[i]; i++; [i]=w[i]; i++`) — `index+1` addressing emits recompute-adds instead.
+- Residual: fn-wide web permutation (orig homes `output` as a per-use stack spill `lwz r3,0x10(r1)`; mine keeps it callee) + the `next:` cold-block placement — allocator/scheduling family.
+
+### other units checked this session — all pure web-rotation ties (documented family)
+- zi8getc2: Zi8IsDupWChar (8 diffs, r27<->r28 param/local swap), Zi8GetDataSignature (9, 3-web cyclic)
+- zi8match: Zi8GetPyPhonetic (uniform r-shift), Zi8GetPyFinal (8, volatile operand-order)
+- zconvert: UC2WC (8, r25<->r27), UC2Key (18, r27<->r28)
+- zi8dawg: Zi8MatchROMdata1 (5, r26<->r27)
