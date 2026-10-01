@@ -230,34 +230,29 @@ namespace ipl {
             blr
         }
 
-        asm int Manager::getNumValidChannel() const {
-            nofralloc
-            li r9, 0
-            li r10, 0
-            li r4, 0
-            li r0, 0xc
-        getNumValidChannel_L1:
-            add r8, r3, r4
-            li r5, 0
-            mtctr r0
-        getNumValidChannel_L2:
-            add r7, r8, r5
-            lbz r6, 0x30(r7)
-            cmpwi r6, 0
-            beq getNumValidChannel_L3
-            lwz r6, 0x34(r7)
-            cmpwi r6, 0
-            beq getNumValidChannel_L3
-            addi r9, r9, 1
-        getNumValidChannel_L3:
-            addi r5, r5, 0x10
-            bdnz getNumValidChannel_L2
-            addi r10, r10, 1
-            addi r4, r4, 0xc0
-            cmpwi r10, 4
-            blt getNumValidChannel_L1
-            mr r3, r9
-            blr
+        int Manager::getNumValidChannel() const {
+            const ChannelSlot* q;
+            int dens = 12;
+            const ChannelPage* p;
+            int slot;
+            int count = 0;
+            int page;
+            u8 flag;
+            s32 val;
+            for (page = 0; page < 4; page++) {
+                p = (const ChannelPage*)((const u8*)this + page * 0xc0);
+                for (slot = 0; slot < dens; slot++) {
+                    q = &p->slots[slot];
+                    flag = q->valid;
+                    if (flag != 0) {
+                        val = q->titleId;
+                        if (val != 0) {
+                            count++;
+                        }
+                    }
+                }
+            }
+            return count;
         }
 
         BOOL Manager::isResetAcceptable() {
