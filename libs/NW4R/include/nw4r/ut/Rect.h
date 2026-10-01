@@ -20,7 +20,7 @@ namespace nw4r {
             Rect(f32 l, f32 t, f32 r, f32 b) : left(l), top(t), right(r), bottom(b) {}
 #endif
 
-#ifndef IPL_CONTROLLER_TRIVIAL_RECT_DTOR
+#if !defined(IPL_CONTROLLER_TRIVIAL_RECT_DTOR) && !defined(IPL_MEMORYCARD_BASE_CPP)
             ~Rect() {}
 #endif
 
