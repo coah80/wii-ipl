@@ -2,6 +2,15 @@
 #include <zi8clib/zitypes.h>
 #include <zi8clib/zierror.h>
 
+__declspec(section ".sdata2") ziU8 ziWordFormat0 = 1;
+__declspec(section ".sdata2") ziU8 ziWordFormat1 = 5;
+__declspec(section ".sdata2") ziU8 ziWordFormat2 = 0;
+__declspec(section ".sdata2") ziU8 ziWordFormat3 = 0;
+__declspec(section ".sdata2") ziU8 ziWordFormat4 = 0;
+__declspec(section ".sdata2") ziU8 ziWordFormat5 = 0;
+__declspec(section ".sdata2") ziU8 ziWordFormat6 = 0;
+__declspec(section ".sdata2") ziU8 ziWordFormat7 = 0;
+
 typedef struct ziSearchState {
     ziU32 flags;
     ziWChar* word;
@@ -26,11 +35,11 @@ ziPtr Zi8GetTableAddress(ziU8, ziU8 ZI_NEED_WORK);
 ziU16 Zi8Uni2Ord(ziWChar ZI_NEED_WORK);
 
 ziBool Zi8IsWordW(ziWChar* word, ziU8 language ZI_NEED_WORK) {
-    int count;
-    int offset;
-    ziU8 group;
-    ziU8 remaining;
-    ziU16 value;
+    int count = 0;
+    int offset = 0;
+    ziU8 group = 0;
+    ziU8 remaining = 0;
+    ziU16 value = 0;
     ziWChar* cursor;
     ziSearchState search;
     ziGetParam request;
@@ -39,9 +48,19 @@ ziBool Zi8IsWordW(ziWChar* word, ziU8 language ZI_NEED_WORK) {
     int unmatched;
     ziChineseEntry* entry;
     ziU8* data;
-    ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0};
-    ziU32 savedFormats = ZI_WORK->unk_0x1410;
-    ziU8 savedCount = ZI_WORK->unk_0x1418;
+    ziU8 formats[8];
+    ziU32 savedFormats;
+    ziU8 savedCount;
+    formats[0] = ziWordFormat0;
+    formats[1] = ziWordFormat1;
+    formats[2] = ziWordFormat2;
+    formats[3] = ziWordFormat3;
+    formats[4] = ziWordFormat4;
+    formats[5] = ziWordFormat5;
+    formats[6] = ziWordFormat6;
+    formats[7] = ziWordFormat7;
+    savedFormats = ZI_WORK->unk_0x1410;
+    savedCount = ZI_WORK->unk_0x1418;
     search.flags = 0;
     search.word = 0;
     search.length = 0;

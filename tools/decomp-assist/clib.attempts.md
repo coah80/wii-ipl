@@ -72,3 +72,15 @@ Upstream won on: zi8alpha +4.5, zi8cgetc +16, zconvert +0.4, zkokeyp +0.1.
 - zi8match: Zi8GetPyPhonetic (uniform r-shift), Zi8GetPyFinal (8, volatile operand-order)
 - zconvert: UC2WC (8, r25<->r27), UC2Key (18, r27<->r28)
 - zi8dawg: Zi8MatchROMdata1 (5, r26<->r27)
+
+## ziswordw IsWordW formats-init decode (w0930)
+- orig's 8-byte `formats` init reads 8 SEPARATE 1-byte GLOBAL objects in .sdata2 (lbl_81695018-1F),
+  not a pooled literal. Reproduce: `__declspec(section ".sdata2") ziU8 name = v;` (non-const!) file-scope
+  globals + per-element `formats[i] = name_i;` statements. Plain `const` folds to pooled literal @33 or
+  `li` immediates; `static const` pools too; array-indexed init-list also pools. declspec non-const is the
+  only form that emits per-symbol lbz/stb pairs (orig pairing: 2 loads then 2 stores).
+- orig zero-inits 5 locals (count/offset/group/remaining/value = stw+stw+stb+stb+sth at fn top) —
+  declare them `= 0`.
+- emission order: decl-init zeros -> formats copies -> saved ZI_WORK loads -> search.* = 0 -> Zi8LogError.
+- Residual: MWCC remats `li r0,0` per store (orig keeps r0=0 live across contiguous zero-stores — the
+  intervening formats loads clobber r0 in my scheduling); r26-vs-r27 web rotation. 83.3 -> 83.7.
