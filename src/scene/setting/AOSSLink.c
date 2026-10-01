@@ -12,8 +12,8 @@ static u8 secondaryDns[4];
 static void* (*allocateMemory)(u32, s32);
 static void (*releaseMemory)(u32, void*, s32);
 static void (*statusCallback)(void);
-static NCDIfConfig AOSS_810BD4A8;
-static NCDIpConfig AOSS_810BD608;
+static NCDIfConfig AOSSi_NcdIfConfig;
+static NCDIpConfig AOSSi_NcdIpConfig;
 
 struct AOSSRate {
     u16 mask;
@@ -60,11 +60,11 @@ void AOSSi_Cancel(void) {
     AOSSi_cancel_flag = 1;
 }
 
-void AOSS_813FD17C(OSAlarm* alarm, OSContext* context) {
+void AOSSi_SleepAlarmHandler(OSAlarm* alarm, OSContext* context) {
     OSSendMessage((OSMessageQueue*)alarm->tag, NULL, 0);
 }
 
-void AOSS_813FD18C(u32 milliseconds) {
+void AOSSi_SleepMs(u32 milliseconds) {
     OSMessage storage;
     OSMessage message;
     OSMessageQueue queue;
@@ -72,7 +72,7 @@ void AOSS_813FD18C(u32 milliseconds) {
     OSInitMessageQueue(&queue, &storage, 1);
     OSCreateAlarm(&alarm);
     OSSetAlarmTag(&alarm, (u32)&queue);
-    OSSetAlarm(&alarm, (u32)(milliseconds * (OS_TIMER_CLOCK / 1000)), AOSS_813FD17C);
+    OSSetAlarm(&alarm, (u32)(milliseconds * (OS_TIMER_CLOCK / 1000)), AOSSi_SleepAlarmHandler);
     OSReceiveMessage(&queue, &message, 1);
 }
 
@@ -89,7 +89,7 @@ void AOSSi_Free(void* block) {
     }
 }
 
-void AOSS_813FD25C(u8* destination, u32 address) {
+void AOSSi_StoreIpv4Octets(u8* destination, u32 address) {
     int index;
     for (index = 0; index < 4; ++index) {
         *destination++ = address >> ((3 - index) * 8);
@@ -97,11 +97,11 @@ void AOSS_813FD25C(u8* destination, u32 address) {
 }
 
 int AOSSi_SetNCDIPAddr(u32 address, u32 netmask, u32 gateway, u32 dns1, u32 dns2) {
-    AOSS_813FD25C(ipAddress, address);
-    AOSS_813FD25C(ipNetmask, netmask);
-    AOSS_813FD25C(ipGateway, gateway);
-    AOSS_813FD25C(primaryDns, dns1);
-    AOSS_813FD25C(secondaryDns, dns2);
+    AOSSi_StoreIpv4Octets(ipAddress, address);
+    AOSSi_StoreIpv4Octets(ipNetmask, netmask);
+    AOSSi_StoreIpv4Octets(ipGateway, gateway);
+    AOSSi_StoreIpv4Octets(primaryDns, dns1);
+    AOSSi_StoreIpv4Octets(secondaryDns, dns2);
     return 0;
 }
 
@@ -150,7 +150,7 @@ startup:
             goto unlock;
         }
         ++startupRetries;
-        AOSS_813FD18C(10);
+        AOSSi_SleepMs(10);
         goto startup;
     }
     if (WD_GetInfo(&info) == 0) {
@@ -231,7 +231,7 @@ startup:
                 *output = list;
                 break;
             }
-            AOSS_813FD18C(100);
+            AOSSi_SleepMs(100);
         }
         AOSSi_Free(buffer);
     }
@@ -242,7 +242,7 @@ cleanup:
             goto unlock;
         }
         ++cleanupRetries;
-        AOSS_813FD18C(10);
+        AOSSi_SleepMs(10);
         goto cleanup;
     }
 unlock:
@@ -252,7 +252,7 @@ unlock:
             return -1;
         }
         ++unlockRetries;
-        AOSS_813FD18C(10);
+        AOSSi_SleepMs(10);
         goto unlock;
     }
     return result;
@@ -262,7 +262,7 @@ int AOSSi_WLANConnect(struct AOSSConnection* connection, struct AOSSConnectionSt
     int retries = 0;
     int result = 0;
     WD_Info info ATTRIBUTE_ALIGN(32);
-    NCDIfConfig* interfaceConfig = &AOSS_810BD4A8;
+    NCDIfConfig* interfaceConfig = &AOSSi_NcdIfConfig;
     NCDIpConfig* ipConfig;
     memset(interfaceConfig, 0, sizeof(*interfaceConfig));
     interfaceConfig->selectedMedia = 1;
@@ -288,7 +288,7 @@ int AOSSi_WLANConnect(struct AOSSConnection* connection, struct AOSSConnectionSt
     }
     interfaceConfig->netif.wireless.config.manual.ssidLength = (u8)connection->ssidLength;
     memcpy(interfaceConfig->netif.wireless.config.manual.ssid, connection->ssid, connection->ssidLength);
-    ipConfig = &AOSS_810BD608;
+    ipConfig = &AOSSi_NcdIpConfig;
     memset(ipConfig, 0, sizeof(*ipConfig));
     ipConfig->adjust.maxTransferUnit = 1300;
     ipConfig->adjust.tcpRetransTimeout = 100;
@@ -303,7 +303,7 @@ int AOSSi_WLANConnect(struct AOSSConnection* connection, struct AOSSConnectionSt
     if (NCDSetIpConfig(ipConfig) != 0) {
         result = -1;
     }
-    if (result == 0 && NCDSetIfConfig(&AOSS_810BD4A8) != 0) {
+    if (result == 0 && NCDSetIfConfig(&AOSSi_NcdIfConfig) != 0) {
         result = -1;
     }
     if (result == 0) {
@@ -317,7 +317,7 @@ int AOSSi_WLANConnect(struct AOSSConnection* connection, struct AOSSConnectionSt
                 break;
             }
             ++retries;
-            AOSS_813FD18C(10);
+            AOSSi_SleepMs(10);
         }
     }
     if (result == 0) {
@@ -335,7 +335,7 @@ int AOSSi_WLANConnect(struct AOSSConnection* connection, struct AOSSConnectionSt
 }
 
 void AOSSi_Sleep(u32 milliseconds) {
-    AOSS_813FD18C(milliseconds);
+    AOSSi_SleepMs(milliseconds);
 }
 
 int AOSSi_Status(void) {
