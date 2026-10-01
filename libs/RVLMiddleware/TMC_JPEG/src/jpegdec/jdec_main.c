@@ -2,7 +2,7 @@
 
 extern void* memset(void* dest, s32 val, u32 count);
 
-extern const u32 lbl_8161E080[64] = {
+extern const u32 scJpegAanScale[64] = {
     0x00000100, 0x000000B9, 0x000000C4, 0x000000DA, 0x00000100, 0x00000146, 0x000001D9, 0x000003A0, 0x000000B9, 0x00000085, 0x0000008D,
     0x0000009D, 0x000000B9, 0x000000EB, 0x00000155, 0x0000029D, 0x000000C4, 0x0000008D, 0x00000096, 0x000000A7, 0x000000C4, 0x000000F9,
     0x0000016A, 0x000002C6, 0x000000DA, 0x0000009D, 0x000000A7, 0x000000B9, 0x000000DA, 0x00000115, 0x00000192, 0x00000315, 0x00000100,
@@ -1424,7 +1424,7 @@ static s32 TMCJPEGDEC_parse_dqt(TMCCJPEGDecWork* work) {
     s32 r;
 
     d = tblCopy;
-    *(CopyBlock64*)d = *(CopyBlock64*)lbl_8161E080;
+    *(CopyBlock64*)d = *(CopyBlock64*)scJpegAanScale;
 
     scaleInfo = (QuantizationTables*)&work->scaleFlag;
 
