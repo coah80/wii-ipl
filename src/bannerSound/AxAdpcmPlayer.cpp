@@ -1,3 +1,4 @@
+// Matching build uses AxAdpcmPlayer.s (retail extract); keep C++ for reference.
 #include "bannerSound/AxAdpcmPlayer.h"
 
 #include "bannerSound/AudioWavePlayer.h"

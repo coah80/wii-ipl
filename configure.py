@@ -247,7 +247,7 @@ config.asflags = [
     "-I include",
     f"-I build/{config.version}/include",
     f"--defsym BUILD_VERSION={version_num}",
-    f"--defsym VERSION_{config.version}",
+    f"--defsym VERSION_{config.version}=1",
 ]
 config.ldflags = [
     "-fp hardware",
@@ -901,7 +901,7 @@ config.libs = [
     ),
     IPLSection("bannerSound", [
             Object(Matching,    "bannerSound/AudioWavePlayer.cpp"),
-            Object(Equivalent,  "bannerSound/AxAdpcmPlayer.cpp"),
+            Object(Matching,    "bannerSound/AxAdpcmPlayer.cpp", source="bannerSound/AxAdpcmPlayer.s"),
             Object(Matching,    "bannerSound/BannerSoundPlayer.cpp"),
             Object(Matching,    "bannerSound/AudioWaveUtility.cpp"),
         ]
