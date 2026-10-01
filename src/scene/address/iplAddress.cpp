@@ -1,9 +1,11 @@
 #define IPL_ADDRESS_MATCHING
+#define IPL_CONTROLLER_OUT_OF_LINE_VEC2
 #define IPL_SOUND_RECT_OUT_OF_LINE
 #include <nw4r/ut/Rect.h>
 #undef IPL_SOUND_RECT_OUT_OF_LINE
 
 #include "scene/address/iplAddress.h"
+#undef IPL_CONTROLLER_OUT_OF_LINE_VEC2
 
 #include "iplSceneUI.h"
 
@@ -1923,11 +1925,10 @@ namespace ipl {
         }
 
         void FriendListCache::update(u32 index, const wchar_t* name, u64 fdId) {
-            NWC24FriendInfo* info = &mInfos[index];
-            info->attr.fdId = fdId;
-            memset(info->attr.name, 0, sizeof(info->attr.name));
-            wcsncpy((wchar_t*)info->attr.name, name, 10);
-            System::getNwc24Manager()->updateFriendInfo(info, index);
+            mInfos[index].attr.fdId = fdId;
+            memset(mInfos[index].attr.name, 0, sizeof(mInfos[index].attr.name));
+            wcsncpy((wchar_t*)mInfos[index].attr.name, name, 10);
+            System::getNwc24Manager()->updateFriendInfo(&mInfos[index], index);
         }
 
         void FriendListCache::del(u32 index) {

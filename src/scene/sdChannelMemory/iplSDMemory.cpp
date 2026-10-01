@@ -1,3 +1,4 @@
+#define IPL_SDMEMORY_CPP
 #define IPL_SDMEMORY_TITLE_CACHE_ACCESS
 #define IPL_SDMEMORY_SCROLLER_INIT_OUT_OF_LINE
 #define IPL_SDMEMORY_SET_TRANSLATE_OUT_OF_LINE
@@ -28,22 +29,7 @@
 #include "utility/iplLayout.h"
 #include <revolution/os/OSTime.h>
 
-extern "C" bool iplSDChannelSelect_813DDB74(ipl::scene::SDChannelSelect* channelSelect,
-                                             ipl::scene::SDMemory::TitleRange* nandTitles,
-                                             ipl::scene::SDMemory::TitleRange* sdTitles,
-                                             ESTitleId* titleIds, wchar_t* titleNames, u32* titleCount,
-                                             s32 state);
-extern "C" bool iplSDChannelSelect_813DB5EC(ipl::scene::SDChannelSelect* channelSelect,
-                                             ESTitleId titleId);
-extern "C" bool iplSDChannelSelect_813DB4D4(ipl::scene::SDChannelSelect* channelSelect,
-                                             ESTitleId titleId, u32 flags);
-extern "C" bool iplSDChannelSelect_813DB530(ipl::scene::SDChannelSelect* channelSelect,
-                                             ESTitleId** titleNames, ESTitleId** secondaryTitles);
-extern "C" bool iplSDChannelSelect_813DB478(ipl::scene::SDChannelSelect* channelSelect,
-                                             ESTitleId titleId);
-extern "C" bool iplSDChannelSelect_813DB58C(ipl::scene::SDChannelSelect* channelSelect,
-                                             ESTitleId** titles, ESTitleId** secondaryTitles,
-                                             ESTitleId** names);
+
 
 namespace ipl {
     namespace scene {
@@ -153,11 +139,11 @@ namespace ipl {
             }
             if (cachedTitleCount >= 5) {
                 mpTitleLayout->FindPaneByName("N_Btn_3")->SetVisible(false);
-                mpTitleLayout->FindPaneByName("N_Btn_4")->SetVisible(true);
+                mpTitleLayout->setVisible("N_Btn_4", true);
                 mDisplayMode = 4;
             } else {
-                mpTitleLayout->FindPaneByName("N_Btn_3")->SetVisible(true);
-                mpTitleLayout->FindPaneByName("N_Btn_4")->SetVisible(false);
+                mpTitleLayout->setVisible("N_Btn_3", true);
+                mpTitleLayout->setVisible("N_Btn_4", false);
                 mDisplayMode = 3;
             }
             textBox = static_cast<nw4r::lyt::TextBox*>(mpTitleLayout->FindPaneByName("T_BtnA"));
@@ -714,8 +700,9 @@ namespace ipl {
             if (!mpMainLayout->isPlaying(-1)) {
                 switch (mProcessState) {
                 case 0:
-                    if (iplSDChannelSelect_813DDB74(mpSDChannelSelect, &mNandTitleRange, &mSDTitleRange,
-                                                   mTitleIds, &mTitleNames[0][0], &mTitleCount, 2)) {
+                    if (mpSDChannelSelect->collectTitlesForMode(
+                            (const s32*)&mNandTitleRange, (const s32*)&mSDTitleRange, mTitleIds,
+                            (char*)&mTitleNames[0][0], &mTitleCount, 2)) {
                         mDialogState = 4;
                         mpTitleLayout->getAnim(0)->initAnmFrame();
                         mpTitleLayout->getAnim(0)->play();
@@ -913,8 +900,8 @@ namespace ipl {
                     return;
                 }
 
-                if (iplSDChannelSelect_813DB530(mpSDChannelSelect, &mTitleListState.mpNames,
-                                                &mTitleListState.mpSecondaryTitles)) {
+                if (mpSDChannelSelect->enqueueErrorNotice(
+                        (u32)&mTitleListState.mpNames, (u32)&mTitleListState.mpSecondaryTitles)) {
                     mDialogState = 19;
                     mCurrentTitleName[0] = L'\0';
                     mCurrentTitle = 0;
@@ -987,7 +974,8 @@ namespace ipl {
             if (iplSDMemory_813EE358(this, mTitleIds[mCurrentTitle], mSDTitleIds, mTitleNameCount) ||
                 iplSDMemory_813EE358(this, mTitleIds[mCurrentTitle], mNandTitleIds, mNandTitleCount)) {
                 ESTitleId titleId = mTitleIds[mCurrentTitle];
-                if (iplSDChannelSelect_813DB478(mpSDChannelSelect, titleId)) {
+                if (mpSDChannelSelect->enqueueMoveNotice(
+                        (u32)((ESTitleId*)this + mCurrentTitle), (u32)(titleId >> 32), (u32)titleId)) {
                     mDialogState = 14;
                 } else {
                     System::getDialog()->terminate();
@@ -1037,7 +1025,9 @@ namespace ipl {
 
         void SDMemory::onDialogState16() {
             if (mTitleCount > mCurrentTitle && System::isReceiveScheduleStopped()) {
-                if (iplSDChannelSelect_813DB4D4(mpSDChannelSelect, mTitleIds[mCurrentTitle], 0)) {
+                if (mpSDChannelSelect->enqueueStateNotice(
+                        (u32)((ESTitleId*)this + mCurrentTitle), (u32)(mTitleIds[mCurrentTitle] >> 32),
+                        (u32)mTitleIds[mCurrentTitle], 0)) {
                     mDialogState = 16;
                 } else {
                     System::getDialog()->terminate();
@@ -1092,7 +1082,8 @@ namespace ipl {
                 System::getDialog()->setTitleForSDMemory(mCurrentTitleName);
 
                 const ESTitleId titleId = mTitleIds[mCurrentTitle];
-                if (iplSDChannelSelect_813DB5EC(mpSDChannelSelect, titleId)) {
+                if (mpSDChannelSelect->enqueueDeleteNotice(
+                        (u32)((ESTitleId*)this + mCurrentTitle), (u32)(titleId >> 32), (u32)titleId)) {
                     mDialogState = 18;
                 } else {
                     System::getDialog()->terminate();
@@ -1279,18 +1270,18 @@ namespace ipl {
             if (mNandTitleCount != 0) {
                 const wchar_t* messageForCount = System::getMessage(0xCB);
                 const wchar_t* newline = wcsstr(messageForCount, L"\n");
-                while (newline != NULL) {
-                    ++lineCount;
-                    newline = wcsstr(newline + 1, L"\n");
+                if (newline != NULL) {
+                    do {
+                        ++lineCount;
+                        newline = wcsstr(newline + 1, L"\n");
+                    } while (newline != NULL);
                 }
 
                 const wchar_t* messageLine = System::getMessage(0xCB);
                 nw4r::lyt::TextBox* messageText = static_cast<nw4r::lyt::TextBox*>(
                     mpDialogLayout->FindPaneByName("T_Header_body"));
                 s32 totalLines = lineCount + 1;
-                s32 lineIndex = 0;
-                if (lineIndex < totalLines) {
-                    do {
+                for (s32 lineIndex = 0; lineIndex < totalLines; ++lineIndex) {
                     const wchar_t* lineEnd = wcsstr(messageLine, L"\n");
                     if (lineEnd == NULL) {
                         utility::layout::set_string(messageText, messageLine);
@@ -1310,8 +1301,6 @@ namespace ipl {
                     }
 
                     messageOffset -= bodyHeight;
-                    ++lineIndex;
-                    } while (lineIndex < totalLines);
                 }
             }
 
@@ -1338,17 +1327,23 @@ namespace ipl {
                     GXColor gxActive;
                     writeFourFlagBytes(&gxActive.r, 0x34, 0xBE, 0xED, 0xFF);
                     ++nandTitleIndex;
-                    nw4r::ut::Color active0 = *reinterpret_cast<const nw4r::ut::Color*>(&gxActive);
-                    setTitleRowColors(titleText,
-                                      nw4r::ut::Color(*reinterpret_cast<const nw4r::ut::Color*>(&gxActive)),
-                                      nw4r::ut::Color(*reinterpret_cast<const nw4r::ut::Color*>(&gxActive)));
+                    nw4r::ut::Color active0;
+                    nw4r::ut::Color active1;
+                    nw4r::ut::Color active2;
+                    active0.Set(gxActive.r, gxActive.g, gxActive.b, gxActive.a);
+                    active1.Set(gxActive.r, gxActive.g, gxActive.b, gxActive.a);
+                    active2.Set(gxActive.r, gxActive.g, gxActive.b, gxActive.a);
+                    setTitleRowColors(titleText, active1, active2);
                 } else {
                     GXColor gxInactive;
                     writeFourFlagBytes(&gxInactive.r, 0x64, 0x64, 0x64, 0xFF);
-                    nw4r::ut::Color inactive0 = *reinterpret_cast<const nw4r::ut::Color*>(&gxInactive);
-                    setTitleRowColors(titleText,
-                                      nw4r::ut::Color(*reinterpret_cast<const nw4r::ut::Color*>(&gxInactive)),
-                                      nw4r::ut::Color(*reinterpret_cast<const nw4r::ut::Color*>(&gxInactive)));
+                    nw4r::ut::Color inactive0;
+                    nw4r::ut::Color inactive1;
+                    nw4r::ut::Color inactive2;
+                    inactive0.Set(gxInactive.r, gxInactive.g, gxInactive.b, gxInactive.a);
+                    inactive1.Set(gxInactive.r, gxInactive.g, gxInactive.b, gxInactive.a);
+                    inactive2.Set(gxInactive.r, gxInactive.g, gxInactive.b, gxInactive.a);
+                    setTitleRowColors(titleText, inactive1, inactive2);
                 }
 
                 nw4r::ut::Rect textRect = mpDialogLayout->getTextDrawRect("T_Letter");
@@ -1370,7 +1365,7 @@ namespace ipl {
                     titleText->CalculateMtx(*mpDialogLayout->getDrawInfo());
                     mpDialogLayout->draw(titleText);
                 }
-                titleOffset -= rowHeight * static_cast<f32>(visibleRows);
+                titleOffset -= static_cast<f32>(visibleRows) * rowHeight;
             }
 
             backgroundOffset += rowHeight;
@@ -1628,23 +1623,27 @@ namespace ipl {
                 switch (paneIndex) {
                 case 0:
                     animator = mpTitleLayout->getAnim(7);
-                    iplSDChannelSelect_813DDB74(mpSDChannelSelect, &mNandTitleRange, &mSDTitleRange,
-                                                mTitleIds, &mTitleNames[0][0], &mTitleCount, 0);
+                    mpSDChannelSelect->collectTitlesForMode(
+                        (const s32*)&mNandTitleRange, (const s32*)&mSDTitleRange, mTitleIds,
+                        (char*)&mTitleNames[0][0], &mTitleCount, 0);
                     break;
                 case 1:
                     animator = mpTitleLayout->getAnim(10);
-                    iplSDChannelSelect_813DDB74(mpSDChannelSelect, &mNandTitleRange, &mSDTitleRange,
-                                                mTitleIds, &mTitleNames[0][0], &mTitleCount, 1);
+                    mpSDChannelSelect->collectTitlesForMode(
+                        (const s32*)&mNandTitleRange, (const s32*)&mSDTitleRange, mTitleIds,
+                        (char*)&mTitleNames[0][0], &mTitleCount, 1);
                     break;
                 case 2:
                     animator = mpTitleLayout->getAnim(13);
-                    iplSDChannelSelect_813DDB74(mpSDChannelSelect, &mNandTitleRange, &mSDTitleRange,
-                                                mTitleIds, &mTitleNames[0][0], &mTitleCount, 2);
+                    mpSDChannelSelect->collectTitlesForMode(
+                        (const s32*)&mNandTitleRange, (const s32*)&mSDTitleRange, mTitleIds,
+                        (char*)&mTitleNames[0][0], &mTitleCount, 2);
                     break;
                 case 3:
                     animator = mpTitleLayout->getAnim(16);
-                    iplSDChannelSelect_813DDB74(mpSDChannelSelect, &mNandTitleRange, &mSDTitleRange,
-                                                mTitleIds, &mTitleNames[0][0], &mTitleCount, 3);
+                    mpSDChannelSelect->collectTitlesForMode(
+                        (const s32*)&mNandTitleRange, (const s32*)&mSDTitleRange, mTitleIds,
+                        (char*)&mTitleNames[0][0], &mTitleCount, 3);
                     break;
                 case 4:
                     animator = mpTitleLayout->getAnim(4);
@@ -1670,10 +1669,9 @@ namespace ipl {
                         mTitleListState.mSecondaryCount = 0;
                         mTitleListState.mpNames = mSDTitleIds;
                         mTitleListState.mNameCount = 0;
-                        iplSDChannelSelect_813DB58C(mpSDChannelSelect,
-                                                    &mTitleListState.mpTitles,
-                                                    &mTitleListState.mpSecondaryTitles,
-                                                    &mTitleListState.mpNames);
+                        mpSDChannelSelect->enqueueCommandNotice(
+                            (u32)&mTitleListState.mpTitles, (u32)&mTitleListState.mpSecondaryTitles,
+                            (u32)&mTitleListState.mpNames);
                     }
 
                     if (paneIndex == 4) {

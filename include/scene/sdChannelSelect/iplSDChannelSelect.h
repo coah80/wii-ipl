@@ -188,7 +188,7 @@ namespace ipl {
             static const char* mscClockPaneNames[3];
             static const char* mscMaskPaneName;
 
-#if defined(IPL_SD_CHANNEL_TITLE_CPP) || defined(IPL_SD_CHANNEL_OBJ_CPP)
+#if defined(IPL_SD_CHANNEL_TITLE_CPP) || defined(IPL_SD_CHANNEL_OBJ_CPP) || defined(IPL_SDMEMORY_CPP)
         public:
 #else
         private:
