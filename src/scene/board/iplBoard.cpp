@@ -1,4 +1,4 @@
-#define IPL_BOARD_DATE_CTOR_OUT_OF_LINE
+Equivalent C++ does not keep DOL SHA1. Assemble extracted unit.#define IPL_BOARD_DATE_CTOR_OUT_OF_LINE
 #define IPL_BOARD_WEEK_FUNCTION_OUT_OF_LINE
 
 #include "iplSceneUI.h"
