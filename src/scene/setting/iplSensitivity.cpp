@@ -1,3 +1,7 @@
+#define IPL_CONTROLLER_TRIVIAL_RECT_DTOR
+#include <nw4r/ut/Rect.h>
+#undef IPL_CONTROLLER_TRIVIAL_RECT_DTOR
+
 #include "system/iplSystem.h"
 #include "system/iplNand.h"
 #include "utility/iplGraphics.h"
