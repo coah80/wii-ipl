@@ -32,181 +32,181 @@ namespace ipl {
         ChannelTitle::TicketViewStorage ChannelTitle::msTicketView ALIGN32;
         ESTicketView ChannelTitle::msUnlockTicket;
 
-        extern "C" char lbl_81696A10[];
-        extern "C" char lbl_81696A17[];
-        extern "C" char lbl_81696A28[];
-        extern "C" char lbl_81696A34[];
-        extern "C" char lbl_81696A3A[];
-        extern "C" char lbl_81696A44[];
-        extern "C" char lbl_81696A54[];
-        extern "C" char lbl_81696A5A[];
-        extern "C" char lbl_81696A60[];
-        extern "C" char lbl_81696A66[];
-        extern "C" char lbl_81696A6C[];
-        extern "C" char lbl_81696A72[];
-        extern "C" char lbl_81696A78[];
-        extern "C" char lbl_81696A7E[];
-        extern "C" char lbl_81696A84[];
-        extern "C" char lbl_81696A8A[];
-        extern "C" char lbl_81696A90[];
-        extern "C" char lbl_81696A96[];
-        extern "C" char lbl_81696A9C[];
-        extern "C" char lbl_81696AA3[];
+        extern "C" char scPaneName_B_BtnA[];
+        extern "C" char scPaneName_B_BtnB[];
+        extern "C" char scGroup_Change[];
+        extern "C" char scGroup_G_Wii[];
+        extern "C" char scGroup_G_GC[];
+        extern "C" char scGroup_G_Back[];
+        extern "C" char scPaneName_Fre_a[];
+        extern "C" char scPaneName_Fre_d[];
+        extern "C" char scPaneName_Fre_i[];
+        extern "C" char scPaneName_Fre_l[];
+        extern "C" char scPaneName_Fre_e[];
+        extern "C" char scPaneName_Fre_f[];
+        extern "C" char scPaneName_Fre_g[];
+        extern "C" char scPaneName_Fre_h[];
+        extern "C" char scPaneName_Fre_b[];
+        extern "C" char scPaneName_Fre_c[];
+        extern "C" char scPaneName_Fre_j[];
+        extern "C" char scPaneName_Fre_k[];
+        extern "C" char scPaneName_T_BtnA[];
+        extern "C" char scPaneName_T_BtnB[];
 
         // clang-format off
-        extern "C" char lbl_8164E768[] = "G_FocusBtnA";
-        extern "C" char lbl_8164E774[] = "G_FocusBtnB";
-        extern "C" char lbl_8164E780[] = "G_SelectBtnA";
-        extern "C" char lbl_8164E78D[] = "G_SelectBtnB";
-        extern "C" char lbl_8164E79A[] = "G_OnOffBtnA";
-        extern "C" char lbl_8164E7A6[] = "G_OnOffBtnB";
-        extern "C" char lbl_8164E7B2[] = "G_ChangeTextA";
-        extern "C" char lbl_8164E7C0[] = "G_ChangeTextB";
+        extern "C" char scGroup_G_FocusBtnA[] = "G_FocusBtnA";
+        extern "C" char scGroup_G_FocusBtnB[] = "G_FocusBtnB";
+        extern "C" char scGroup_G_SelectBtnA[] = "G_SelectBtnA";
+        extern "C" char scGroup_G_SelectBtnB[] = "G_SelectBtnB";
+        extern "C" char scGroup_G_OnOffBtnA[] = "G_OnOffBtnA";
+        extern "C" char scGroup_G_OnOffBtnB[] = "G_OnOffBtnB";
+        extern "C" char scGroup_G_ChangeTextA[] = "G_ChangeTextA";
+        extern "C" char scGroup_G_ChangeTextB[] = "G_ChangeTextB";
 
         const char* scAnimGroups[8+1] = {
-            lbl_8164E768,
-            lbl_8164E774,
-            lbl_8164E780,
-            lbl_8164E78D,
-            lbl_8164E79A,
-            lbl_8164E7A6,
-            lbl_8164E7B2,
-            lbl_8164E7C0,
+            scGroup_G_FocusBtnA,
+            scGroup_G_FocusBtnB,
+            scGroup_G_SelectBtnA,
+            scGroup_G_SelectBtnB,
+            scGroup_G_OnOffBtnA,
+            scGroup_G_OnOffBtnB,
+            scGroup_G_ChangeTextA,
+            scGroup_G_ChangeTextB,
             NULL
         };
 
-        extern "C" char lbl_8164E7F4[] = "my_ChTop_a_FocusBtnA_off.brlan";
-        extern "C" char lbl_8164E813[] = "my_ChTop_a_FocusBtn_on.brlan";
-        extern "C" char lbl_8164E830[] = "my_ChTop_a_SelectBtn_Ac.brlan";
-        extern "C" char lbl_8164E84E[] = "my_ChTop_a_OffBtn.brlan";
-        extern "C" char lbl_8164E866[] = "my_ChTop_a_OnBtn.brlan";
-        extern "C" char lbl_8164E87D[] = "my_ChTop_a_ChangeTextOut.brlan";
-        extern "C" char lbl_8164E89C[] = "my_ChTop_a_ChangeTextIn.brlan";
-        extern "C" char lbl_8164E8BA[] = "my_ChTop_a_ChangeIn.brlan";
-        extern "C" char lbl_8164E8D4[] = "my_ChTop_a_ChangeRoop.brlan";
-        extern "C" char lbl_8164E8F0[] = "my_ChTop_a_ChangeOut.brlan";
+        extern "C" char scBrlan_my_ChTop_a_FocusBtnA_off[] = "my_ChTop_a_FocusBtnA_off.brlan";
+        extern "C" char scBrlan_my_ChTop_a_FocusBtn_on[] = "my_ChTop_a_FocusBtn_on.brlan";
+        extern "C" char scBrlan_my_ChTop_a_SelectBtn_Ac[] = "my_ChTop_a_SelectBtn_Ac.brlan";
+        extern "C" char scBrlan_my_ChTop_a_OffBtn[] = "my_ChTop_a_OffBtn.brlan";
+        extern "C" char scBrlan_my_ChTop_a_OnBtn[] = "my_ChTop_a_OnBtn.brlan";
+        extern "C" char scBrlan_my_ChTop_a_ChangeTextOut[] = "my_ChTop_a_ChangeTextOut.brlan";
+        extern "C" char scBrlan_my_ChTop_a_ChangeTextIn[] = "my_ChTop_a_ChangeTextIn.brlan";
+        extern "C" char scBrlan_my_ChTop_a_ChangeIn[] = "my_ChTop_a_ChangeIn.brlan";
+        extern "C" char scBrlan_my_ChTop_a_ChangeRoop[] = "my_ChTop_a_ChangeRoop.brlan";
+        extern "C" char scBrlan_my_ChTop_a_ChangeOut[] = "my_ChTop_a_ChangeOut.brlan";
 
         const char* scAnimNames[10] = {
-            lbl_8164E7F4,
-            lbl_8164E813,
-            lbl_8164E830,
-            lbl_8164E84E,
-            lbl_8164E866,
-            lbl_8164E87D,
-            lbl_8164E89C,
-            lbl_8164E8BA,
-            lbl_8164E8D4,
-            lbl_8164E8F0
+            scBrlan_my_ChTop_a_FocusBtnA_off,
+            scBrlan_my_ChTop_a_FocusBtn_on,
+            scBrlan_my_ChTop_a_SelectBtn_Ac,
+            scBrlan_my_ChTop_a_OffBtn,
+            scBrlan_my_ChTop_a_OnBtn,
+            scBrlan_my_ChTop_a_ChangeTextOut,
+            scBrlan_my_ChTop_a_ChangeTextIn,
+            scBrlan_my_ChTop_a_ChangeIn,
+            scBrlan_my_ChTop_a_ChangeRoop,
+            scBrlan_my_ChTop_a_ChangeOut
         };
 
-        extern "C" char lbl_8164E934[] = "banner.brlan";
-        extern "C" char lbl_8164E941[] = "banner_Start.brlan";
-        extern "C" char lbl_8164E954[] = "banner_Loop.brlan";
+        extern "C" char scBrlan_banner[] = "banner.brlan";
+        extern "C" char scBrlan_banner_Start[] = "banner_Start.brlan";
+        extern "C" char scBrlan_banner_Loop[] = "banner_Loop.brlan";
 
         const char* scBannerAnims[3] = {
-            lbl_8164E934,
-            lbl_8164E941,
-            lbl_8164E954
+            scBrlan_banner,
+            scBrlan_banner_Start,
+            scBrlan_banner_Loop
         };
 
-        extern "C" char lbl_8164E974[] = "G_Comment0";
-        extern "C" char lbl_8164E97F[] = "G_DiskIn";
+        extern "C" char scGroup_G_Comment0[] = "G_Comment0";
+        extern "C" char scGroup_G_DiskIn[] = "G_DiskIn";
 
         const char* scDiskGroups[5] = {
-            lbl_8164E974,
-            lbl_81696A34,
-            lbl_81696A3A,
-            lbl_8164E97F,
+            scGroup_G_Comment0,
+            scGroup_G_Wii,
+            scGroup_G_GC,
+            scGroup_G_DiskIn,
             NULL
         };
 
-        extern "C" char lbl_8164E99C[] = "my_DiskCh_a_Start.brlan";
-        extern "C" char lbl_8164E9B4[] = "my_DiskCh_a_DiskStart.brlan";
-        extern "C" char lbl_8164E9D0[] = "my_DiskCh_a_DiskLoop.brlan";
-        extern "C" char lbl_8164E9EB[] = "my_DiskCh_a_DiskEnd.brlan";
-        extern "C" char lbl_8164EA05[] = "my_DiskCh_a_DiskLost.brlan";
-        extern "C" char lbl_8164EA20[] = "my_DiskCh_a_DiskIn.brlan";
-        extern "C" char lbl_8164EA39[] = "my_DiskCh_a_DiskEject.brlan";
-        extern "C" char lbl_8164EA55[] = "my_DiskCh_a_Unknown.brlan";
-        extern "C" char lbl_8164EA6F[] = "my_DiskCh_a_UnknownLoop.brlan";
-        extern "C" char lbl_8164EA8D[] = "my_DiskCh_a_UnknwnEject.brlan";
+        extern "C" char scBrlan_my_DiskCh_a_Start[] = "my_DiskCh_a_Start.brlan";
+        extern "C" char scBrlan_my_DiskCh_a_DiskStart[] = "my_DiskCh_a_DiskStart.brlan";
+        extern "C" char scBrlan_my_DiskCh_a_DiskLoop[] = "my_DiskCh_a_DiskLoop.brlan";
+        extern "C" char scBrlan_my_DiskCh_a_DiskEnd[] = "my_DiskCh_a_DiskEnd.brlan";
+        extern "C" char scBrlan_my_DiskCh_a_DiskLost[] = "my_DiskCh_a_DiskLost.brlan";
+        extern "C" char scBrlan_my_DiskCh_a_DiskIn[] = "my_DiskCh_a_DiskIn.brlan";
+        extern "C" char scBrlan_my_DiskCh_a_DiskEject[] = "my_DiskCh_a_DiskEject.brlan";
+        extern "C" char scBrlan_my_DiskCh_a_Unknown[] = "my_DiskCh_a_Unknown.brlan";
+        extern "C" char scBrlan_my_DiskCh_a_UnknownLoop[] = "my_DiskCh_a_UnknownLoop.brlan";
+        extern "C" char scBrlan_my_DiskCh_a_UnknwnEject[] = "my_DiskCh_a_UnknwnEject.brlan";
 
         const char* scDiskAnimNames[10] = {
-            lbl_8164E99C,
-            lbl_8164E9B4,
-            lbl_8164E9D0,
-            lbl_8164E9EB,
-            lbl_8164EA05,
-            lbl_8164EA20,
-            lbl_8164EA39,
-            lbl_8164EA55,
-            lbl_8164EA6F,
-            lbl_8164EA8D
+            scBrlan_my_DiskCh_a_Start,
+            scBrlan_my_DiskCh_a_DiskStart,
+            scBrlan_my_DiskCh_a_DiskLoop,
+            scBrlan_my_DiskCh_a_DiskEnd,
+            scBrlan_my_DiskCh_a_DiskLost,
+            scBrlan_my_DiskCh_a_DiskIn,
+            scBrlan_my_DiskCh_a_DiskEject,
+            scBrlan_my_DiskCh_a_Unknown,
+            scBrlan_my_DiskCh_a_UnknownLoop,
+            scBrlan_my_DiskCh_a_UnknwnEject
         };
 
-        extern "C" char lbl_8164EAD4[] = "my_DiskCh_a.brlyt";
-        extern "C" char lbl_8164EAE6[] = "my_GCTop_a_BackLoop.brlan";
+        extern "C" char scBrlyt_my_DiskCh_a[] = "my_DiskCh_a.brlyt";
+        extern "C" char scBrlan_my_GCTop_a_BackLoop[] = "my_GCTop_a_BackLoop.brlan";
 
         #pragma push
         #pragma section data_type ".sdata"
-        extern "C" char lbl_81696A10[] = "B_BtnA";
-        extern "C" char lbl_81696A17[] = "B_BtnB";
-        extern "C" const char* lbl_81696A20[2] = {
-            lbl_81696A10,
-            lbl_81696A17,
+        extern "C" char scPaneName_B_BtnA[] = "B_BtnA";
+        extern "C" char scPaneName_B_BtnB[] = "B_BtnB";
+        extern "C" const char* scPaneNames_B_Btn[2] = {
+            scPaneName_B_BtnA,
+            scPaneName_B_BtnB,
         };
-        extern "C" char lbl_81696A28[] = "Change";
-        extern "C" const char* lbl_81696A30[] = {
-            lbl_81696A28,
+        extern "C" char scGroup_Change[] = "Change";
+        extern "C" const char* scGroupNames_Change[] = {
+            scGroup_Change,
         };
-        extern "C" char lbl_81696A34[] = "G_Wii";
-        extern "C" char lbl_81696A3A[] = "G_GC";
+        extern "C" char scGroup_G_Wii[] = "G_Wii";
+        extern "C" char scGroup_G_GC[] = "G_GC";
         const char* scLayoutNames[] = {
-            lbl_8164EAD4,
+            scBrlyt_my_DiskCh_a,
         };
-        extern "C" char lbl_81696A44[] = "G_Back";
+        extern "C" char scGroup_G_Back[] = "G_Back";
         const char* scGCAnimGroups[] = {
-            lbl_81696A44,
+            scGroup_G_Back,
         };
         const char* scGCAnimNames[] = {
-            lbl_8164EAE6,
+            scBrlan_my_GCTop_a_BackLoop,
         };
-        extern "C" char lbl_81696A54[] = "Fre_a";
-        extern "C" char lbl_81696A5A[] = "Fre_d";
-        extern "C" char lbl_81696A60[] = "Fre_i";
-        extern "C" char lbl_81696A66[] = "Fre_l";
-        extern "C" char lbl_81696A6C[] = "Fre_e";
-        extern "C" char lbl_81696A72[] = "Fre_f";
-        extern "C" char lbl_81696A78[] = "Fre_g";
-        extern "C" char lbl_81696A7E[] = "Fre_h";
-        extern "C" char lbl_81696A84[] = "Fre_b";
-        extern "C" char lbl_81696A8A[] = "Fre_c";
-        extern "C" char lbl_81696A90[] = "Fre_j";
-        extern "C" char lbl_81696A96[] = "Fre_k";
-        extern "C" char lbl_81696A9C[] = "T_BtnA";
-        extern "C" char lbl_81696AA3[] = "T_BtnB";
-        const char* lbl_81696AAC[] = {
-            lbl_81696A9C,
-            lbl_81696AA3,
+        extern "C" char scPaneName_Fre_a[] = "Fre_a";
+        extern "C" char scPaneName_Fre_d[] = "Fre_d";
+        extern "C" char scPaneName_Fre_i[] = "Fre_i";
+        extern "C" char scPaneName_Fre_l[] = "Fre_l";
+        extern "C" char scPaneName_Fre_e[] = "Fre_e";
+        extern "C" char scPaneName_Fre_f[] = "Fre_f";
+        extern "C" char scPaneName_Fre_g[] = "Fre_g";
+        extern "C" char scPaneName_Fre_h[] = "Fre_h";
+        extern "C" char scPaneName_Fre_b[] = "Fre_b";
+        extern "C" char scPaneName_Fre_c[] = "Fre_c";
+        extern "C" char scPaneName_Fre_j[] = "Fre_j";
+        extern "C" char scPaneName_Fre_k[] = "Fre_k";
+        extern "C" char scPaneName_T_BtnA[] = "T_BtnA";
+        extern "C" char scPaneName_T_BtnB[] = "T_BtnB";
+        const char* scPaneNames_T_Btn[] = {
+            scPaneName_T_BtnA,
+            scPaneName_T_BtnB,
         };
         #pragma pop
 
         const char* scWidePanes[3][4] = {
             {
-                lbl_81696A54,
-                lbl_81696A5A,
-                lbl_81696A60,
-                lbl_81696A66,
+                scPaneName_Fre_a,
+                scPaneName_Fre_d,
+                scPaneName_Fre_i,
+                scPaneName_Fre_l,
             }, {
-                lbl_81696A6C,
-                lbl_81696A72,
-                lbl_81696A78,
-                lbl_81696A7E,
+                scPaneName_Fre_e,
+                scPaneName_Fre_f,
+                scPaneName_Fre_g,
+                scPaneName_Fre_h,
             }, {
-                lbl_81696A84,
-                lbl_81696A8A,
-                lbl_81696A90,
-                lbl_81696A96,
+                scPaneName_Fre_b,
+                scPaneName_Fre_c,
+                scPaneName_Fre_j,
+                scPaneName_Fre_k,
             }
         };
 
@@ -341,12 +341,12 @@ namespace ipl {
                 }
             }
 
-            setMessage(mpLayout->FindPaneByName(lbl_81696AAC[0]), MESG_CMN_WII_MENU);
+            setMessage(mpLayout->FindPaneByName(scPaneNames_T_Btn[0]), MESG_CMN_WII_MENU);
 
             if (System::getChannelManager()->checkNeedUpdate(mChanPage, mChanIndex)) {
-                setMessage(mpLayout->FindPaneByName(lbl_81696AAC[BTN_B]), MESG_CHAN_TTL_BTN_UPDATE);
+                setMessage(mpLayout->FindPaneByName(scPaneNames_T_Btn[BTN_B]), MESG_CHAN_TTL_BTN_UPDATE);
             } else {
-                setMessage(mpLayout->FindPaneByName(lbl_81696AAC[BTN_B]), MESG_CMN_START);
+                setMessage(mpLayout->FindPaneByName(scPaneNames_T_Btn[BTN_B]), MESG_CMN_START);
             }
 
             if (isEnableToExecute(mChanPage, mChanIndex)) {
@@ -390,7 +390,7 @@ namespace ipl {
             }
 
             for (int i = ANIM_CHANGE_IN; i <= ANIM_CHANGE_OUT; i++) {
-                mpChangeAnims[i] = mpLayout->bind(scAnimNames[i], lbl_81696A30[0], false, false);
+                mpChangeAnims[i] = mpLayout->bind(scAnimNames[i], scGroupNames_Change[0], false, false);
             }
 
             mpLayout->finishBinding();
@@ -400,8 +400,8 @@ namespace ipl {
             mpGui->createLayoutScene(*mpLayout->getNW4RLyt());
             mpGui->setAllComponentTriggerTarget(false);
 
-            mpGui->getPaneComponentByPane(mpLayout->FindPaneByName(lbl_81696A20[BTN_A]))->setTriggerTarget(true);
-            mpGui->getPaneComponentByPane(mpLayout->FindPaneByName(lbl_81696A20[BTN_B]))->setTriggerTarget(true);
+            mpGui->getPaneComponentByPane(mpLayout->FindPaneByName(scPaneNames_B_Btn[BTN_A]))->setTriggerTarget(true);
+            mpGui->getPaneComponentByPane(mpLayout->FindPaneByName(scPaneNames_B_Btn[BTN_B]))->setTriggerTarget(true);
 
             mpLimitRemainLyt = new layout::Object(getSceneHeap(), mpLayoutFile, "arc", "my_Timer_a.brlyt");
             mpLimitDoneLyt = new layout::Object(getSceneHeap(), mpLayoutFile, "arc", "my_Timer_b.brlyt");
@@ -1187,9 +1187,9 @@ namespace ipl {
                 if (mpGrpAnims[ANIM_GRP_CHANGE_BTN_B][ANIM_CHANGE_TEXT_IN]->getCurrentFrame() ==
                     mpGrpAnims[ANIM_GRP_CHANGE_BTN_B][ANIM_CHANGE_TEXT_IN]->getMaxFrame()) {
                     if (System::getChannelManager()->checkNeedUpdate(mChanPage, mChanIndex)) {
-                        setMessage(mpLayout->FindPaneByName(lbl_81696AAC[BTN_B]), MESG_CHAN_SEL_UPDATE_BTN, false);
+                        setMessage(mpLayout->FindPaneByName(scPaneNames_T_Btn[BTN_B]), MESG_CHAN_SEL_UPDATE_BTN, false);
                     } else {
-                        setMessage(mpLayout->FindPaneByName(lbl_81696AAC[BTN_B]), MESG_CHAN_SEL_START_BTN, false);
+                        setMessage(mpLayout->FindPaneByName(scPaneNames_T_Btn[BTN_B]), MESG_CHAN_SEL_START_BTN, false);
                     }
                     mpGrpAnims[ANIM_GRP_CHANGE_BTN_B][ANIM_CHANGE_TEXT_OUT]->play();
                     mpGrpAnims[ANIM_GRP_CHANGE_BTN_B][ANIM_CHANGE_TEXT_IN]->initAnmFrame();
@@ -2464,7 +2464,7 @@ namespace ipl {
                 if (unk_0x8C == 0) {
                     mpGrpAnims[ANIM_GRP_ONOFF_BTN_B][ANIM_OFF_BTN]->stop();
                     mpGrpAnims[ANIM_GRP_ONOFF_BTN_B][ANIM_ON_BTN]->play();
-                    mpGui->initPane(mpLayout->FindPaneByName(lbl_81696A20[BTN_B]));
+                    mpGui->initPane(mpLayout->FindPaneByName(scPaneNames_B_Btn[BTN_B]));
                     mbHovered[BTN_B] = FALSE;
                 }
                 unk_0x8C = 1;
@@ -2822,12 +2822,12 @@ namespace ipl {
                         break;
                     }
                     if (con->downTrg(controller::BTN_INTERACT)) {
-                        if (strcmp(paneName, lbl_81696A20[ChannelTitle::BTN_A]) == 0) {
+                        if (strcmp(paneName, scPaneNames_B_Btn[ChannelTitle::BTN_A]) == 0) {
                             mpInstance->mpGrpAnims[ChannelTitle::ANIM_GRP_SELECT_BTN_A][ChannelTitle::ANIM_SELECT_BTN]->play();
                             snd::getSystem()->startSE("WIPL_SE_BT_PUSH");
                             mpInstance->mState = ChannelTitle::STATE_START_ZOOM_OUT;
                             mpInstance->tryToGoBackward();
-                        } else if (strcmp(paneName, lbl_81696A20[ChannelTitle::BTN_B]) == 0) {
+                        } else if (strcmp(paneName, scPaneNames_B_Btn[ChannelTitle::BTN_B]) == 0) {
                             if (mpInstance->unk_0x8C != 2) {
                                 snd::getSystem()->startSE("WIPL_SE_GRAY_BUTTON");
                             } else {
@@ -2841,7 +2841,7 @@ namespace ipl {
                 }
                 case ::gui::EventHandler::ON_POINT: {
                     for (int i = 0; i < ChannelTitle::BTN_MAX; i++) {
-                        if (strcmp(paneName, lbl_81696A20[i]) == 0) {
+                        if (strcmp(paneName, scPaneNames_B_Btn[i]) == 0) {
                             if (i == 0 || mpInstance->unk_0x8C > 0) {
                                 mpInstance->mbHovered[i]++;
                                 if (mpInstance->mbHovered[i] <= TRUE) {
@@ -2857,7 +2857,7 @@ namespace ipl {
                 }
                 case ::gui::EventHandler::ON_LEFT: {
                     for (int i = 0; i < ChannelTitle::BTN_MAX; i++) {
-                        if (strcmp(paneName, lbl_81696A20[i]) == 0) {
+                        if (strcmp(paneName, scPaneNames_B_Btn[i]) == 0) {
                             if (i == 0 || mpInstance->unk_0x8C > 0) {
                                 mpInstance->mbHovered[i]--;
                                 if (mpInstance->mbHovered[i] <= FALSE) {
