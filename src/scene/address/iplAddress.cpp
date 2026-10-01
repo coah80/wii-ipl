@@ -1050,13 +1050,20 @@ namespace ipl {
             if (!mDrag.mbDragging || friendNo != mDrag.mButton + mDrag.mPage * BTN_MAX) {
                 set_textbox(paneName, name);
             } else {
-                set_textbox(paneName, L"");
+                set_textbox(paneName, L"\0");
                 miiObj.reset();
             }
         }
 
+        const wchar_t scDigits[11] = L"0123456789";
+
         void Address::set_page_text(const char* paneName, int page) {
-            const wchar_t digits[10] = {L'0', L'1', L'2', L'3', L'4', L'5', L'6', L'7', L'8', L'9'};
+            struct WChars10 {
+                wchar_t c[10];
+            };
+
+            wchar_t digits[10];
+            *(WChars10*)digits = *(const WChars10*)scDigits;
             wchar_t text[6] = {0};
 
             int i = 0;
@@ -2045,5 +2052,7 @@ namespace ipl {
         }
         void FaderSceneBase::calcCommon() {
         }
+
+
     }  // namespace scene
 }  // namespace ipl

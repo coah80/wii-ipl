@@ -42,13 +42,13 @@ namespace ipl {
         void setTitleRowColors(nw4r::lyt::TextBox* textBox, const nw4r::ut::Color& first,
                                const nw4r::ut::Color& second) NO_INLINE;
 
-        static const char* sControlPaneNames[] = {
+        const char* sControlPaneNames[] = {
             "A", "B", "B_BtnA",
         };
 
-        static const char* sTitlePaneNames[] = {"A", "B", "B_BtnA", "C", "D"};
-        static const char* sAdditionalTitlePaneNames[] = {"B_00", "C_00", "D_00", "B_BtnA"};
-        static const char* sDialogPaneNames[] = {"B_ArwR", "B_ArwL", "B_CalExit", "B_CalExit_00"};
+        const char* sTitlePaneNames[] = {"A", "B", "B_BtnA", "C", "D"};
+        const char* sAdditionalTitlePaneNames[] = {"B_00", "C_00", "D_00", "B_BtnA"};
+        const char* sDialogPaneNames[] = {"B_ArwR", "B_ArwL", "B_CalExit", "B_CalExit_00"};
 
         SDMemory::SDMemory() : mScroller() {}
 

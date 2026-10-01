@@ -173,6 +173,46 @@ namespace ipl {
             virtual FaderSceneCommand calcNormal();
             virtual FaderSceneCommand calcFadeout();
 
+#ifdef IPL_SD_CHANNEL_SELECT_CPP
+            virtual void tail0() = 0;
+            virtual void tail1() = 0;
+            virtual void tail2() = 0;
+            virtual void tail3() = 0;
+            virtual void tail4() = 0;
+            virtual void tail5() = 0;
+            virtual void tail6() = 0;
+            virtual void tail7() = 0;
+            virtual void tail8() = 0;
+            virtual void tail9() = 0;
+            virtual void tail10() = 0;
+            virtual void tail11() = 0;
+            virtual void tail12() = 0;
+            virtual void tail13() = 0;
+            virtual void tail14() = 0;
+            virtual void tail15() = 0;
+            virtual void tail16() = 0;
+            virtual void tail17() = 0;
+            virtual void tail18() = 0;
+            virtual void tail19() = 0;
+            virtual void tail20() = 0;
+            virtual void tail21() = 0;
+            virtual void tail22() = 0;
+            virtual void tail23() = 0;
+            virtual void tail24() = 0;
+            virtual void tail25() = 0;
+            virtual void tail26() = 0;
+            virtual void tail27() = 0;
+            virtual void tail28() = 0;
+            virtual void tail29() = 0;
+            virtual void tail30() = 0;
+            virtual void tail31() = 0;
+            virtual void tail32() = 0;
+            virtual void tail33() = 0;
+            virtual void tail34() = 0;
+            virtual void tail35() = 0;
+            virtual void tail36() = 0;
+#endif
+
             void onButtonEvent(const char* paneName, u32 event,
                                const controller::Interface* controller);
             BOOL onEventDerived(const char* paneName, u32 event,

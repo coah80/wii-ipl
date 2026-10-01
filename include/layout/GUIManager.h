@@ -34,14 +34,14 @@ namespace gui {
         virtual void draw(Mtx& mtx) {}  // 0x14 (0x05)
         virtual void draw() {}          // 0x18 (0x06)
 
-#if defined(IPL_ADDRESS_CPP) || defined(IPL_CHANNEL_TITLE_NOVTABLE) || defined(IPL_GC_SAVEDATA_NOVTABLE) || defined(IPL_MEMORY_CARD_NOVTABLE) || defined(IPL_SD_CHANNEL_TITLE_CPP)
+#if defined(IPL_ADDRESS_CPP) || defined(IPL_CHANNEL_TITLE_NOVTABLE) || defined(IPL_GC_SAVEDATA_NOVTABLE) || defined(IPL_MEMORY_CARD_NOVTABLE) || defined(IPL_SD_CHANNEL_TITLE_CPP) || defined(IPL_ADDRESS_EDIT_CPP) || defined(IPL_SD_CHANNEL_SELECT_CPP)
         virtual ~Interface();     // 0x1C (0x07)
 #else
         virtual ~Interface() {}   // 0x1C (0x07)
 #endif
     };
 
-#if defined(IPL_ADDRESS_CPP) || defined(IPL_CHANNEL_TITLE_NOVTABLE) || defined(IPL_GC_SAVEDATA_NOVTABLE) || defined(IPL_GC_WINDOW_NOVTABLE) || defined(IPL_MEMORY_CARD_NOVTABLE) || defined(IPL_SD_CHANNEL_TITLE_CPP)
+#if defined(IPL_ADDRESS_CPP) || defined(IPL_CHANNEL_TITLE_NOVTABLE) || defined(IPL_GC_SAVEDATA_NOVTABLE) || defined(IPL_GC_WINDOW_NOVTABLE) || defined(IPL_MEMORY_CARD_NOVTABLE) || defined(IPL_SD_CHANNEL_TITLE_CPP) || defined(IPL_ADDRESS_EDIT_CPP) || defined(IPL_SD_CHANNEL_SELECT_CPP)
     class __declspec(novtable) EventHandler {
 #else
     class EventHandler {
@@ -60,7 +60,7 @@ namespace gui {
 
         virtual void onEvent(u32 compId, u32 event, void* data) {}  // 0x08 (0x02)
 
-#if defined(IPL_SD_CHANNEL_TITLE_CPP) || defined(IPL_ADDRESS_CPP)
+#if defined(IPL_SD_CHANNEL_TITLE_CPP) || defined(IPL_ADDRESS_CPP) || defined(IPL_ADDRESS_EDIT_CPP) || defined(IPL_SD_CHANNEL_SELECT_CPP)
         virtual void setManager(Manager* manager);
         virtual void setLatestEventCtrlNo(int ctrlNo);
         virtual int getLatestEventCtrlNo();
@@ -266,7 +266,7 @@ namespace gui {
         virtual bool contain(f32 x, f32 y);  // 0x68 (0x1A)
 
         virtual void setPane(nw4r::lyt::Pane* pane) { mpPane = pane; }  // 0x6C (0x1B)
-#if defined(IPL_SD_CHANNEL_TITLE_CPP) || defined(IPL_ADDRESS_CPP)
+#if defined(IPL_SD_CHANNEL_TITLE_CPP) || defined(IPL_ADDRESS_CPP) || defined(IPL_ADDRESS_EDIT_CPP) || defined(IPL_SD_CHANNEL_SELECT_CPP)
         virtual nw4r::lyt::Pane* getPane();
 #else
         virtual nw4r::lyt::Pane* getPane() { return mpPane; }           // 0x70 (0x1C)
