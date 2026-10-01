@@ -38,3 +38,12 @@ Mechanisms verified this pass:
 - 32 extra weak fn defs in our .o vs base (thunks + inline virtuals) are not counted by objdiff; the unit's function/code metrics are unaffected.
 
 AnmPane's 48B extraction label vs 44B real extent: the trailing 4B "zero" is an unlabeled adjacent object merged into the extraction extent, not a vtable slot (subclass vts are 44B without it). Content already identical.
+
+## Session w0929-2: unit code 100% (84/84 fns)
+
+- BREAKTHROUGH: `mbAbleToUp`/`mbAbleToDown`/`mbSeparator` are BASE-class members of `inputform::LayoutByNW4R` at 0x2CC/0x2CD/0x2CE (inside former `unk_0x2C0[0x10]` tail), not derived-class fields. Moving them fixed `init`+`calc` (both -> diffs 0). Derived `MyTiInputForm` writes via inherited names.
+- Pane dtor linkage: in-class `virtual ~X() {}` -> WEAK; `virtual ~X();` + out-of-line `X::~X(){}` in same TU -> GLOBAL. Applied to WholePane/NigaoePane/SimpleAnmPane.
+- `AnimPaneGroup(group)` ctor must inline `List_Init(&mAnmPaneList, offsetof(AnmPane, mGroupLink))` (arg 0x24) — added to tiNw4rManager.h ctor. Fixed `create__ScrollButton` (was missing the call -> 4-insn hole).
+- `mExScrollAnm.startAnm(NULL, mfScroll, scroll, 15.0f, NULL)` (inline wrapper) vs direct virtual overload `startAnm(mfScroll, scroll, 15.0f, observer, arg)` — base uses the direct form (int-args emitted before floats). Fixed onArrowRTrig/onArrowLTrig.
+- `AnimationFile` = `{u32 id; char name[0x40]}` (0x44, embedded names) — base .rodata confirms.
+- Data: ALL sections byte-identical except .sdata tail — base 0x48 (8-aligned end), mine 0x43: last string "B_ArwL" padded to char[12]-equivalent in base (5 trailing zeros). No relocs into pad; likely section-end pad artifact or last-string emitted via char[12] member. Also base emits .sdata2 BEFORE .sdata in section order; mine reversed.

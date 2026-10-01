@@ -36,9 +36,9 @@ namespace textinput {
                     virtual void                    onPhotoPoint();
                     virtual void                    onPhotoLeft();
                     virtual bool                    isPhotoScaledUp();
-                    virtual void                    setPhotoDraw(bool photoDraw)   { mbPhotoDraw = photoDraw; }
+                    virtual void                    setPhotoDraw(bool photoDraw);
 
-                    virtual void                    setType(Type type)             { meType = type; }
+                    virtual void                    setType(Type type);
 
                     virtual void                    setSendOutMessage(const wchar_t* sendOutMessage);
 

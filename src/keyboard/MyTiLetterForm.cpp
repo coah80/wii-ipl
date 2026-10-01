@@ -1,5 +1,5 @@
-#define MYTILETTERFORM_IMPLEMENTATION
 #include "keyboard/MyTiLetterForm.h"
+#include "keyboard/tiHwKeyboard.h"
 #include "keyboard/tiUtil.h"
 #include <nw4r/lyt/textbox.h>
 #include <new>
@@ -69,8 +69,8 @@ static const char* paneNames[] = {
     "N_Header", "N_Body", "B_Body", "N_Footer", "Nigaoe",
     "T_Nigaoe", "B_Nigaoe", "T_Letter", "T_TouchLetter"
 };
-struct AnimationFile { u32 id; char fileName[64]; };
-static const AnimationFile animationFiles[] = {
+typedef keyboard::hwkey::HWKeyboard::AnimationFile AnimationFile;
+const AnimationFile keyboard::hwkey::HWKeyboard::csAninationFile[8] = {
     {0, "my_LetterL_PicFocusIn.brlan"},
     {1, "my_LetterL_SelectPic.brlan"},
     {2, "my_LetterL_ExitPic.brlan"},
@@ -86,12 +86,26 @@ struct PaneToAnimationGroup {
     u32 count;
     const AnimationFile* animations[12];
 };
-static const PaneToAnimationGroup animationGroups[] = {
-    {0, "N_MemoRoot", 4, {&animationFiles[4], &animationFiles[5], &animationFiles[6], &animationFiles[7]}},
-    {0, "SendPic", 4, {&animationFiles[4], &animationFiles[5], &animationFiles[6], &animationFiles[7]}},
-    {1, "N_Pic", 5, {&animationFiles[0], &animationFiles[1], &animationFiles[2], &animationFiles[3], &animationFiles[4]}},
-    {0, "N_SendMes", 1, {&animationFiles[5]}}
+static const PaneToAnimationGroup animationGroups[2] = {
+    {0, "N_MemoRoot", 4, {&keyboard::hwkey::HWKeyboard::csAninationFile[4], &keyboard::hwkey::HWKeyboard::csAninationFile[5], &keyboard::hwkey::HWKeyboard::csAninationFile[6], &keyboard::hwkey::HWKeyboard::csAninationFile[7]}},
+    {0, "SendPic", 4, {&keyboard::hwkey::HWKeyboard::csAninationFile[4], &keyboard::hwkey::HWKeyboard::csAninationFile[5], &keyboard::hwkey::HWKeyboard::csAninationFile[6], &keyboard::hwkey::HWKeyboard::csAninationFile[7]}}
 };
+struct PaneToAnimationGroup2 {
+    s32 type;
+    const char* paneName;
+    u32 count;
+    const AnimationFile* animations[11];
+};
+static const PaneToAnimationGroup2 groupN_Pic = {
+    1, "N_Pic", 5, {&keyboard::hwkey::HWKeyboard::csAninationFile[0], &keyboard::hwkey::HWKeyboard::csAninationFile[1], &keyboard::hwkey::HWKeyboard::csAninationFile[2], &keyboard::hwkey::HWKeyboard::csAninationFile[3], &keyboard::hwkey::HWKeyboard::csAninationFile[4]}
+};
+char scN_SendMes[0xC] = "N_SendMes";
+char scT_TouchLetter[0x10] = "T_TouchLetter";
+char scN_SendMes2[0xC] = "N_SendMes";
+char scN_txt_scrl[0xC] = "N_txt_scrl";
+char scN_MemoRoot[0xC] = "N_MemoRoot";
+char scT_SendMes[0xA] = "T_SendMes";
+static const wchar_t* scEmptyPane = L"\0\0";
 void InputForm::create(MEMAllocator* allocator, textinput::inputform::EditBuffer* editBuffer) {
     memo::InputForm::create(allocator, editBuffer);
     MEMFreeToAllocator(allocator, mpInputEventHandler);
@@ -99,6 +113,7 @@ void InputForm::create(MEMAllocator* allocator, textinput::inputform::EditBuffer
     mpInputEventHandler->setEventObserver(mpEventObserver);
     mpPaneManager->changeEventHandler(mpInputEventHandler);
 
+    (void)&groupN_Pic;
     for (u16 i = 0; i < 4; i++) {
         const PaneToAnimationGroup* group = &animationGroups[i];
         AnmPane* pane = NULL;
@@ -115,10 +130,10 @@ void InputForm::create(MEMAllocator* allocator, textinput::inputform::EditBuffer
         nw4r::ut::List_Append(&mAnmPanes, pane);
 
         for (u16 j = 0; j < group->count; j++) {
-            void* resource = mpMultiArcResourceAccessor->GetResource(0, group->animations[j]->fileName);
+            void* resource = mpMultiArcResourceAccessor->GetResource(0, group->animations[j]->mFileName);
             AnimTransformPane* transform = static_cast<AnimTransformPane*>(
                 getLayout()->CreateAnimTransform(resource, mpMultiArcResourceAccessor));
-            pane->addAnimation(allocator, group->animations[j]->id, transform, false, true);
+            pane->addAnimation(allocator, group->animations[j]->mAnimationNo, transform, false, true);
         }
     }
 
@@ -143,14 +158,14 @@ void InputForm::drawBody() {
     }
 
     if (!mbEdited) {
-        getPane("T_TouchLetter")->Draw(mDrawInfo);
+        getPane(scT_TouchLetter)->Draw(mDrawInfo);
     }
     getPane("SendPic")->Draw(mDrawInfo);
-    getPane("N_SendMes")->Draw(mDrawInfo);
+    getPane(scN_SendMes2)->Draw(mDrawInfo);
 
-    nw4r::lyt::Pane* scrollPane = getPane("N_txt_scrl");
+    nw4r::lyt::Pane* scrollPane = getPane(scN_txt_scrl);
     f32 x = scrollPane->GetTranslate().x;
-    getPane("N_txt_scrl")->SetTranslate(nw4r::math::VEC2(x, -6.0f));
+    getPane(scN_txt_scrl)->SetTranslate(nw4r::math::VEC2(x, -6.0f));
 }
 
 void InputForm::drawFooter() {
@@ -193,13 +208,13 @@ void InputForm::open() {
     memo::InputForm::open();
     switch (meType) {
     case T_MailAddressSel:
-        searchAnmPane("N_MemoRoot")->changeAnimation(6);
+        searchAnmPane(scN_MemoRoot)->changeAnimation(6);
         break;
     case T_Address:
     case T_Picture:
     case T_Reply:
     default:
-        searchAnmPane("N_MemoRoot")->changeAnimation(4);
+        searchAnmPane(scN_MemoRoot)->changeAnimation(4);
         break;
     }
 }
@@ -207,17 +222,17 @@ void InputForm::open() {
 void InputForm::close() {
     memo::InputForm::close();
     if (mbCloseWithSend) {
-        searchAnmPane("N_MemoRoot")->changeAnimation(5);
+        searchAnmPane(scN_MemoRoot)->changeAnimation(5);
         searchAnmPane("SendPic")->changeAnimation(5);
-        searchAnmPane("N_SendMes")->changeAnimation(5);
+        searchAnmPane(scN_SendMes2)->changeAnimation(5);
     } else {
-        searchAnmPane("N_MemoRoot")->changeAnimation(7);
+        searchAnmPane(scN_MemoRoot)->changeAnimation(7);
         searchAnmPane("SendPic")->changeAnimation(7);
     }
 }
 
 bool InputForm::isWholePaneInAnimation() {
-    return searchAnmPane("N_MemoRoot")->isInAnimation();
+    return searchAnmPane(scN_MemoRoot)->isInAnimation();
 }
 
 void InputForm::resizePhotoPane(f32 width, f32 height) {
@@ -249,7 +264,7 @@ void InputForm::resizePhotoPane(f32 width, f32 height) {
 
 void InputForm::setSendOutMessage(const wchar_t* sendOutMessage) {
     nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(
-        mpLayout->GetRootPane()->FindPaneByName("T_SendMes", true))->SetString(sendOutMessage);
+        mpLayout->GetRootPane()->FindPaneByName(scT_SendMes, true))->SetString(sendOutMessage);
 }
 
 void EventHandler::onTiEvent(gui::PaneComponent* paneComponent, u32 event, Input* input) {

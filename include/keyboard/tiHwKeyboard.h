@@ -10,6 +10,12 @@ namespace textinput {
         namespace hwkey {
             class HWKeyboard : public CommandSender {
                 public:
+                    struct AnimationFile {
+                        u32 mAnimationNo;
+                        char mFileName[0x40];
+                    };
+                    static const AnimationFile csAninationFile[8];
+
                     HWKeyboard(Manager *);
 
                     virtual void    init();

@@ -55,8 +55,9 @@ namespace textinput {
             if (event->chan >= 2) {
                 return;
             }
-            KeyState_* state = &mpManager->mKeyStates[event->chan];
-            mpManager->mAttached[event->chan] = 0;
+            u8 chan = event->chan;
+            KeyState_* state = &mpManager->mKeyStates[chan];
+            mpManager->mAttached[chan] = 0;
             state->mMaskWork = 0;
             state->mTrigMask = 0;
             state->mRelMask = 0;
@@ -316,26 +317,21 @@ namespace textinput {
 
         void HKBManager::KeyState_::Update() {
             u32 intr = OSDisableInterrupts();
-            u8 releasedKeys[8];
-            u8 prevKeys[8];
             mPrevMask = mCurMask;
             mCurMask = mInputMask;
             for (int i = 0; i < 8; i++) {
-                releasedKeys[i] = mPrevKeys[i];
-                prevKeys[i] = mCurKeys[i];
-            }
-            for (int i = 0; i < 8; i++) {
-                mReleasedKeys[i] = releasedKeys[i];
-                mPrevKeys[i] = prevKeys[i];
+                mReleasedKeys[i] = mPrevKeys[i];
+                mPrevKeys[i] = mCurKeys[i];
             }
             OSRestoreInterrupts(intr);
 
             UpdateModState_();
 
+            u32 bit;
             mMaskWork = mCurMask;
             mTrigMask = 0;
             for (int i = 0; i < 8; i++) {
-                u32 bit = 1 << i;
+                bit = 1 << i;
                 if ((mCurMask & bit) &&
                     (!(mPrevMask & bit) || mReleasedKeys[i] != mPrevKeys[i])) {
                     mTrigMask |= bit;
@@ -344,7 +340,7 @@ namespace textinput {
 
             mRelMask = 0;
             for (int i = 0; i < 8; i++) {
-                u32 bit = 1 << i;
+                bit = 1 << i;
                 if ((mPrevMask & bit) &&
                     (!(mCurMask & bit) || mReleasedKeys[i] != mPrevKeys[i])) {
                     mRelMask |= bit;
@@ -353,7 +349,7 @@ namespace textinput {
 
             mRepMask = 0;
             for (int i = 0; i < 8; i++) {
-                u32 bit = 1 << i;
+                bit = 1 << i;
                 if (mCurMask & bit) {
                     if (mTrigMask & bit) {
                         mRepeatCtr[i] = 30;
@@ -453,17 +449,18 @@ namespace textinput {
             if (vcode < 0x20) {
                 return 0;
             }
-            if (mpManager->mpKeyTable != NULL) {
-                if (mpManager->mKeyTableNum != 0) {
-                    for (u32 i = 0; i < mpManager->mKeyTableNum; i++) {
-                        if (mpManager->mpKeyTable[i] == vcode) {
-                            return vcode;
-                        }
-                    }
-                    return 0;
+            if (mpManager->mpKeyTable == NULL) {
+                return vcode;
+            }
+            if (mpManager->mKeyTableNum == 0) {
+                return vcode;
+            }
+            for (u32 i = 0; i < mpManager->mKeyTableNum; i++) {
+                if (mpManager->mpKeyTable[i] == vcode) {
+                    return vcode;
                 }
             }
-            return vcode;
+            return 0;
         }
 
         wchar_t HKBManager::KeySet::GetVCode() const {

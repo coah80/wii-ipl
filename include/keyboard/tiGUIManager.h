@@ -70,12 +70,12 @@ namespace textinput {
 
             EventHandler() : muLatestEventCtrlNo(0) {}
 
-            virtual ~EventHandler() {}  // 0x08
+            virtual ~EventHandler() {}                                                           // 0x08
 
-            virtual void onEvent(GUIComponent& comp, u32 event, void* data) {}  // 0x0C
+            virtual void onEvent(GUIComponent& comp, u32 event, void* data);                 // 0x0C
 
-            virtual void setLatestEventCtrlNo(int ctrlNo) { muLatestEventCtrlNo = ctrlNo; }  // 0x10
-            virtual int getLatestEventCtrlNo() { return muLatestEventCtrlNo; }               // 0x14
+            virtual void setLatestEventCtrlNo(int ctrlNo);                                 // 0x10
+            virtual int getLatestEventCtrlNo();                                            // 0x14
 
         protected:
             int muLatestEventCtrlNo;  // 0x04
@@ -212,11 +212,7 @@ namespace textinput {
             virtual void setEventHandler(EventHandler* eventHandler) {  // 0x3C
                 mpEventHandler = eventHandler;
             }
-            virtual EventHandler* changeEventHandler(EventHandler* eventHandler) {  // 0x40
-                EventHandler* prevHandler = mpEventHandler;
-                mpEventHandler = eventHandler;
-                return prevHandler;
-            }
+            virtual EventHandler* changeEventHandler(EventHandler* eventHandler);  // 0x40
 
             virtual void setDraggingButton(u32 dragBtn);  // 0x44
 
