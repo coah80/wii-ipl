@@ -78,8 +78,8 @@ namespace ipl {
             int finish(NCDAossConfig* config, int* result);
             void printInfo();
 
-            static void* AOSSThread_813FCC8C(u32 id, s32 size);
-            static void AOSSThread_813FCCE4(u32 id, void* ptr, s32 align);
+            static void* aossAlloc(u32 id, s32 size);
+            static void aossFree(u32 id, void* ptr, s32 align);
 
         private:
             s32 mState;                // 0x32C
@@ -122,8 +122,8 @@ namespace ipl {
                 return 0;
             }
 
-            config.alloc = AOSSThread_813FCC8C;
-            config.free = AOSSThread_813FCCE4;
+            config.alloc = aossAlloc;
+            config.free = aossFree;
 
             BOOL level = OSDisableInterrupts();
 
@@ -144,7 +144,7 @@ namespace ipl {
             return 1;
         }
 
-        void* AOSSThread::AOSSThread_813FCC8C(u32 id, s32 size) {
+        void* AOSSThread::aossAlloc(u32 id, s32 size) {
             void* buffer;
             BOOL level = OSDisableInterrupts();
             buffer = MEMAllocFromAllocator(&m_allocator, size);
@@ -152,7 +152,7 @@ namespace ipl {
             return buffer;
         }
 
-        void AOSSThread::AOSSThread_813FCCE4(u32 id, void* ptr, s32 align) {
+        void AOSSThread::aossFree(u32 id, void* ptr, s32 align) {
             BOOL level = OSDisableInterrupts();
             MEMFreeToAllocator(&m_allocator, ptr);
             OSRestoreInterrupts(level);
@@ -162,7 +162,7 @@ namespace ipl {
             mState = 0xF;
             AOSS_SetCallback(USBAPThread::callback);
 
-            if (AOSSi_InitLocal(AOSSThread_813FCC8C, AOSSThread_813FCCE4) == -1) {
+            if (AOSSi_InitLocal(aossAlloc, aossFree) == -1) {
                 return this;
             }
 
