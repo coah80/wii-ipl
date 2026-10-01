@@ -311,9 +311,9 @@ FaderSceneCommand SDChannelTitle::calcNormal() {
     case 18: if (SCCheckStatus() != 1) { mState = 21; } break;
     case 19: iplSDChannelTitle_startCopyProgress(this); break;
     case 20: iplSDChannelTitle_updateCopyPrepare(this); break;
+    case 23: iplSDChannelTitle_updateMemoryCalc(this); break;
     case 21: iplSDChannelTitle_updateEnqueueNotice(this); break;
     case 22: iplSDChannelTitle_updateCopyProgress(this); break;
-    case 23: iplSDChannelTitle_updateMemoryCalc(this); break;
     case 24: iplSDChannelTitle_loadTitleBanner(this); break;
     case 25: iplSDChannelTitle_updateBannerLoad(this); break;
     case 26: iplSDChannelTitle_showCopyError(this); break;
