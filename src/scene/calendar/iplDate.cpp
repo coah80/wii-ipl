@@ -7,40 +7,40 @@
 
 namespace ipl {
     namespace scene {
-        extern "C" char lbl_816967D8[];
-        extern "C" char lbl_816967DE[];
-        extern "C" char lbl_816967E4[];
-        extern "C" char lbl_816967EB[];
-        extern "C" char lbl_816967F2[];
+        extern "C" char scW_Cal[];
+        extern "C" char scT_Cal[];
+        extern "C" char scCal_Ac[];
+        extern "C" char scInfo_a[];
+        extern "C" char scB_Cal[];
 
         #pragma push
         #pragma section const_type ".data"
-        extern "C" const char lbl_8164C620[] = "N_CalDay_r";
+        extern "C" const char scN_CalDay_r[] = "N_CalDay_r";
         #pragma pop
 
         // clang-format off
-        extern "C" const char* lbl_8164C62C[Date::ANIM_PANE_MAX] = {
-            lbl_8164C620,
-            lbl_816967D8,
-            lbl_816967DE,
-            lbl_816967E4,
-            lbl_816967EB,
+        extern "C" const char* scDateAnimPaneNames[Date::ANIM_PANE_MAX] = {
+            scN_CalDay_r,
+            scW_Cal,
+            scT_Cal,
+            scCal_Ac,
+            scInfo_a,
         };
 
         #pragma push
         #pragma section const_type ".data"
-        extern "C" const char lbl_8164C640[] = "my_IplTop_f.brlan";
-        extern "C" const char lbl_8164C652[] = "N_CalDay_t";
-        extern "C" const char lbl_8164C65D[] = "WIPL_SE_DATE_FOCUS";
+        extern "C" const char scMyIplTopFBrlan[] = "my_IplTop_f.brlan";
+        extern "C" const char scN_CalDay_t[] = "N_CalDay_t";
+        extern "C" const char scSEDateFocus[] = "WIPL_SE_DATE_FOCUS";
         #pragma pop
 
         #pragma push
         #pragma section const_type ".sdata"
-        extern "C" char lbl_816967D8[] = "W_Cal";
-        extern "C" char lbl_816967DE[] = "T_Cal";
-        extern "C" char lbl_816967E4[] = "Cal_Ac";
-        extern "C" char lbl_816967EB[] = "Info_a";
-        extern "C" char lbl_816967F2[] = "B_Cal";
+        extern "C" char scW_Cal[] = "W_Cal";
+        extern "C" char scT_Cal[] = "T_Cal";
+        extern "C" char scCal_Ac[] = "Cal_Ac";
+        extern "C" char scInfo_a[] = "Info_a";
+        extern "C" char scB_Cal[] = "B_Cal";
         #pragma pop
 
         static const Date::AnmFrame scAnmFrame[] = {
@@ -73,7 +73,7 @@ namespace ipl {
 
             // Bind animations
             for (int i = 0; i < ANIM_PANE_MAX; i++) {
-                mpPaneAnims[i] = mpLayout->bind(lbl_8164C640, lbl_8164C62C[i], false);
+                mpPaneAnims[i] = mpLayout->bind(scMyIplTopFBrlan, scDateAnimPaneNames[i], false);
             }
             mpLayout->finishBinding();
 
@@ -81,7 +81,7 @@ namespace ipl {
             mpGui = new gui::PaneManager(this, mpLayout->getDrawInfo(), NULL, NULL);
             mpGui->setupScene(mpLayout);
             mpGui->setAllComponentTriggerTarget(false);
-            mpGui->setTriggerTarget(mpLayout->FindPaneByName(lbl_816967F2), true);
+            mpGui->setTriggerTarget(mpLayout->FindPaneByName(scB_Cal), true);
 
             // Init date
             mpDate = new utility::Date();
@@ -128,19 +128,19 @@ namespace ipl {
         }
 
         void Date::setRotate(const nw4r::math::VEC3& vec) {
-            mpLayout->FindPaneByName(lbl_8164C652)->SetRotate(vec);
+            mpLayout->FindPaneByName(scN_CalDay_t)->SetRotate(vec);
         }
 
         void Date::setTranslate(const nw4r::math::VEC3& vec) {
-            mpLayout->FindPaneByName(lbl_8164C652)->SetTranslate(vec);
+            mpLayout->FindPaneByName(scN_CalDay_t)->SetTranslate(vec);
         }
 
         void Date::setVisible(bool visible) {
-            mpLayout->FindPaneByName(lbl_8164C62C[0])->SetVisible(visible);
+            mpLayout->FindPaneByName(scDateAnimPaneNames[0])->SetVisible(visible);
         }
 
         bool Date::getVisible() {
-            return mpLayout->FindPaneByName(lbl_8164C62C[0])->IsVisible();
+            return mpLayout->FindPaneByName(scDateAnimPaneNames[0])->IsVisible();
         }
 
         void Date::setAttribute(int attr) {
@@ -209,13 +209,13 @@ namespace ipl {
         }
 
         void Date::start_point_event(const char* paneName, controller::Interface* con) {
-            if (strcmp(paneName, lbl_816967F2) == 0) {
+            if (strcmp(paneName, scB_Cal) == 0) {
                 if (unk_0x3C == 0) {
                     static_cast<Calendar*>(System::getScene(SCENE_CALENDAR))->onPointDate(this);
                     onCmdRecv(1);
 
                     if (getVisible()) {
-                        snd::getSystem()->startSE(lbl_8164C65D);
+                        snd::getSystem()->startSE(scSEDateFocus);
                         if (con != NULL) {
                             con->rumble(1);
                         }
@@ -226,7 +226,7 @@ namespace ipl {
         }
 
         void Date::start_left_event(const char* paneName) {
-            if (strcmp(paneName, lbl_816967F2) == 0) {
+            if (strcmp(paneName, scB_Cal) == 0) {
                 if (unk_0x3C == 1) {
                     onCmdRecv(2);
                 }
@@ -262,7 +262,7 @@ namespace ipl {
 
             numStr[index++] = 0;
 
-            nw4r::lyt::TextBox* pane = nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(mpLayout->FindPaneByName(lbl_8164C62C[2]));
+            nw4r::lyt::TextBox* pane = nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(mpLayout->FindPaneByName(scDateAnimPaneNames[2]));
             pane->SetString(numStr);
         }
 
