@@ -654,7 +654,7 @@ pf_s32 PFENT_MakeRootDir(PF_VOLUME* p_vol) {
         return 7;
     }
     {
-        static pf_u8 default_volume_label[16] = "NO NAME    ";
+        static pf_u8 default_volume_label[12] = "NO NAME    ";
         PFDRV_LoadVolumeLabelFromBuf(p_vol, default_volume_label);
     }
     return 0;
