@@ -64,6 +64,11 @@ namespace ipl {
         static s32 sAOSSState;
         static s32 sAOSSUnk;
 
+        struct AOSSStack {
+            u32 storage[4080];
+            u32 sentinel;
+        };
+
         class AOSSThread : public utility::ut_thread {
         public:
             AOSSThread(EGG::Heap* heap);
@@ -84,7 +89,7 @@ namespace ipl {
         private:
             s32 mState;                // 0x32C
             s32 mThreadPriority;       // 0x330
-            u8* mpStackBuffer;         // 0x334
+            AOSSStack* mpStack;         // 0x334
             u8* mpHeapBuffer;          // 0x338
             MEMHeapHandle mpExpHeap;   // 0x33C
             AOSSConfig mAoss;          // 0x340
@@ -94,7 +99,7 @@ namespace ipl {
             mpExpHeap = NULL;
             sAOSSState = 0;
             mpHeapBuffer = (u8*)heap->alloc(0x40000, 0x20);
-            mpStackBuffer = (u8*)heap->alloc(0x1000, 0x20);
+            mpStack = (AOSSStack*)heap->alloc(0x1000, 0x20);
         }
 
         void AOSSThread::destroy(int flag) {
@@ -137,8 +142,8 @@ namespace ipl {
             mThreadPriority = OSGetThreadPriority(OSGetCurrentThread()) - 2;
             sAOSSState = 1;
             SOInit(&config);
-            memset(mpStackBuffer, 0, 4);
-            Create(mpStackBuffer, 0x1000, mThreadPriority, TRUE);
+            memset(mpStack, 0, 4);
+            Create(mpStack, 0x1000, mThreadPriority, TRUE);
 
             OSRestoreInterrupts(level);
             return 1;
@@ -178,7 +183,7 @@ namespace ipl {
             mAoss.unk_0x04 = 4;
             NETGetWirelessMacAddress(mAoss.mac);
 
-            *(u32*)(mpStackBuffer + 0x3FC0) = 0x97654321;
+            mpStack->sentinel = 0x97654321;
 
             mState = AOSSi_Init(&mAoss);
             AOSSi_EndLocal();
