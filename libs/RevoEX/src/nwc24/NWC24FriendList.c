@@ -18,10 +18,8 @@ enum {
 #define FRIEND_LIST_MAGIC 'WcFl'
 #define FRIEND_LIST_VERSION 2
 
-const char lbl_8166E160[26] __attribute__((section(".data"), aligned(8))) = "/shared2/wc24/nwc24fl.bin";
-void* const lbl_8166E160_pad __attribute__((section(".data"))) = (void*)0;
-static const char* FLFilePath = lbl_8166E160;
-const u32 FLFilePath_pad __attribute__((section(".sdata"), aligned(1))) = 0;
+char scNwc24FlPath[] = "/shared2/wc24/nwc24fl.bin";
+static const char* FLFilePath = scNwc24FlPath;
 
 const char g_SpecialsChars[16] = { '(', ')', '<', '>', '[', ']', ':', ';', '\\', ',', '"' };
 
