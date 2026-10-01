@@ -282,16 +282,6 @@ void InputForm::create(MEMAllocator* allocator, inputform::EditBuffer* editBuffe
 }  // namespace memo
 }  // namespace extend
 
-namespace gui {
-
-gui::EventHandler* gui::GUIManager::changeEventHandler(gui::EventHandler* eventHandler) {
-    gui::EventHandler* prevHandler = mpEventHandler;
-    mpEventHandler = eventHandler;
-    return prevHandler;
-}
-
-}  // namespace gui
-
 namespace extend {
 namespace memo {
 
