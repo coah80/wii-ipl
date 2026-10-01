@@ -10,20 +10,20 @@
 
 #pragma push
 #pragma section sconst_type ".sdata2"
-const u8 lbl_81695060 = 0;
-const u8 lbl_81695061 = 0x0F;
-const u8 lbl_81695062 = 0xAC;
+const u8 scRsnOui0 = 0;
+const u8 scRsnOui1 = 0x0F;
+const u8 scRsnOui2 = 0xAC;
 const u8 lbl_81695063 = 0;
-const u8 lbl_81695064 = 0;
-const u8 lbl_81695065 = 0x50;
-const u8 lbl_81695066 = 0xF2;
+const u8 scWpaOui0 = 0;
+const u8 scWpaOui1 = 0x50;
+const u8 scWpaOui2 = 0xF2;
 const u8 lbl_81695067 = 0;
 #pragma pop
 #pragma push
 #pragma section sconst_type ".sdata"
-const u8 lbl_81697D70 = 0;
-const u8 lbl_81697D71 = 0x50;
-const u8 lbl_81697D72 = 0xF2;
+const u8 scWpaFindOui0 = 0;
+const u8 scWpaFindOui1 = 0x50;
+const u8 scWpaFindOui2 = 0xF2;
 const u8 lbl_81697D73 = 0;
 const u8 lbl_81697D74 = 0;
 const u8 lbl_81697D75 = 0;
@@ -31,15 +31,15 @@ const u8 lbl_81697D76 = 0;
 const u8 lbl_81697D77 = 0;
 #pragma pop
 
-#define lbl_81695060 (*((volatile const u8*)&lbl_81695060))
-#define lbl_81695061 (*((volatile const u8*)&lbl_81695061))
-#define lbl_81695062 (*((volatile const u8*)&lbl_81695062))
-#define lbl_81695064 (*((volatile const u8*)&lbl_81695064))
-#define lbl_81695065 (*((volatile const u8*)&lbl_81695065))
-#define lbl_81695066 (*((volatile const u8*)&lbl_81695066))
-#define lbl_81697D70 (*((volatile const u8*)&lbl_81697D70))
-#define lbl_81697D71 (*((volatile const u8*)&lbl_81697D71))
-#define lbl_81697D72 (*((volatile const u8*)&lbl_81697D72))
+#define scRsnOui0 (*((volatile const u8*)&scRsnOui0))
+#define scRsnOui1 (*((volatile const u8*)&scRsnOui1))
+#define scRsnOui2 (*((volatile const u8*)&scRsnOui2))
+#define scWpaOui0 (*((volatile const u8*)&scWpaOui0))
+#define scWpaOui1 (*((volatile const u8*)&scWpaOui1))
+#define scWpaOui2 (*((volatile const u8*)&scWpaOui2))
+#define scWpaFindOui0 (*((volatile const u8*)&scWpaFindOui0))
+#define scWpaFindOui1 (*((volatile const u8*)&scWpaFindOui1))
+#define scWpaFindOui2 (*((volatile const u8*)&scWpaFindOui2))
 extern void _savegpr_21();
 extern void _restgpr_21();
 
@@ -175,9 +175,9 @@ s32 WDGetPrivacyMode(WDBssDesc* bssDesc) {
     if (WDFindInformationElement((WDInfoElement**)&ieData, &ieLength, bssDesc, 0x30)) {
         u8 data[WD_VENDOR_LENGTH];
 
-        data[0] = lbl_81695060;
-        data[1] = lbl_81695061;
-        data[2] = lbl_81695062;
+        data[0] = scRsnOui0;
+        data[1] = scRsnOui1;
+        data[2] = scRsnOui2;
         memcpy(readIE, ieData, sizeof(WDVendorInfoElement) + 2);
         if (memcmp(&readIE[2], data, WD_VENDOR_LENGTH) == 0) {
             if ((s32)readIE[5] == 3) {
@@ -218,15 +218,15 @@ privacy_second: {
         u8 data[WD_VENDOR_LENGTH];
         u8 findData[WD_VENDOR_LENGTH];
 
-        findData[0] = lbl_81697D70;
-        findData[1] = lbl_81697D71;
-        findData[2] = lbl_81697D72;
+        findData[0] = scWpaFindOui0;
+        findData[1] = scWpaFindOui1;
+        findData[2] = scWpaFindOui2;
         if (!WDiFindVendorSpecificIE(&ieData, &ieLength, bssDesc, 0xDD, findData, 1)) {
             goto privacy_fallback;
         }
-        data[0] = lbl_81695064;
-        data[1] = lbl_81695065;
-        data[2] = lbl_81695066;
+        data[0] = scWpaOui0;
+        data[1] = scWpaOui1;
+        data[2] = scWpaOui2;
 
         {
             memcpy(readIE, ieData, sizeof(WDVendorInfoElement));
