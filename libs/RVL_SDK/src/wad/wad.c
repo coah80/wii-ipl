@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <private/es.h>
 #include <private/nand.h>
 #include <private/os.h>
@@ -167,7 +168,7 @@ typedef struct __attribute__((aligned(32))) WADImportWorkspace {
     WADFileHeader fileHeader;
     u8 wadHeader[0x80];
     WADUnpackInfo unpackInfo;
-    WADStream stream ALIGN32;
+    WADStream stream;
 } WADImportWorkspace;
 
 typedef struct WADImportTransfer {
@@ -541,11 +542,7 @@ static s32 WAD_815BFFA8(WADImportLoopArgs* args) {
     u32 size;
 
     for (; (remaining != 0) && (result == 0); bufferIndex ^= 1) {
-        size = remaining;
-
-        if (remaining > transfer->chunkSize) {
-            size = transfer->chunkSize;
-        }
+        size = remaining > transfer->chunkSize ? transfer->chunkSize : remaining;
         OSLockMutex(&transfer->mutex[bufferIndex]);
         while (transfer->ready[bufferIndex] == 0) {
             OSWaitCond(&transfer->signalCond[bufferIndex], &transfer->mutex[bufferIndex]);
@@ -560,16 +557,6 @@ static s32 WAD_815BFFA8(WADImportLoopArgs* args) {
         remaining -= size;
     }
     return result;
-}
-
-static inline void WADReportCancelledContent(void) {
-    const char* functionName = "WADImportEx";
-    OSReport("%s:%d Cancel importing the content.\n", functionName, 0x8DF);
-}
-
-static inline void WADReportCancelledTitle(void) {
-    const char* functionName = "WADImportEx";
-    OSReport("%s:%d Cancel importing the title.\n", functionName, 0x8E6);
 }
 
 s32 WADImportEx(char* path, MEMAllocator* allocator, WADLocation location, u32 offset, u32 flags,
@@ -658,8 +645,8 @@ s32 WADImportEx(char* path, MEMAllocator* allocator, WADLocation location, u32 o
     if (result != 0) {
         goto cleanup;
     }
-    titleMeta = unpackInfo.titleMeta;
     importedBytes = unpackInfo.contentOffset;
+    titleMeta = unpackInfo.titleMeta;
     if (((flags & 8) != 0) && (titleMeta != 0)) {
         ticketViewCount = 0;
         if (unpackInfo.headerInfo != 2) {
@@ -905,10 +892,9 @@ s32 WADImportEx(char* path, MEMAllocator* allocator, WADLocation location, u32 o
                             OSUnlockMutex(&transfer.mutex[bufferIndex]);
                             break;
                         }
-                        readSize = (chunkSize + 0x1F) & ~0x1F;
                         readBuffer = transfer.buffers[bufferIndex];
                         result = WADReadStream(&stream,
-                                               &readBuffer, readSize,
+                                               &readBuffer, (chunkSize + 0x1F) & ~0x1F,
                                                offset + importedBytes);
                         if ((u32)result != ((chunkSize + 0x1F) & ~0x1F)) {
                             OSLockMutex(&transfer.mutex[bufferIndex ^ 1]);
@@ -963,6 +949,7 @@ s32 WADImportEx(char* path, MEMAllocator* allocator, WADLocation location, u32 o
         (unpackInfo.fileCount == 0)) {
         goto cleanup;
     }
+    fileHeaderBuffer = &backupHeader;
     if (firstBuffer == 0) {
         firstBuffer = _WADMemAlloc(allocator, 0x10000);
         if (firstBuffer == 0) {
@@ -970,7 +957,6 @@ s32 WADImportEx(char* path, MEMAllocator* allocator, WADLocation location, u32 o
             goto cleanup;
         }
     }
-    fileHeaderBuffer = &backupHeader;
     if (secondBuffer == 0) {
         secondBuffer = _WADMemAlloc(allocator, 0x10000);
         if (secondBuffer == 0) {
@@ -1166,12 +1152,12 @@ cleanup:
     }
     if (contentImportStarted) {
         ES_ImportContentEnd(contentFd);
-        WADReportCancelledContent();
+        OSReport("%s:%d Cancel importing the content.\n", __func__, 0x8DF);
     }
     if (titleImportStarted) {
         ES_ImportTitleCancel();
         _WADCleanTmpDir(allocator);
-        WADReportCancelledTitle();
+        OSReport("%s:%d Cancel importing the title.\n", __func__, 0x8E6);
     }
     if (processCallback != 0) {
         if (importedBytes != 0) {
@@ -1578,7 +1564,6 @@ s32 WADBackupEx(u64 titleId, u32 flags, MEMAllocator* allocator, char* path, u32
                     result = -3006;
                     goto cleanup;
                 }
-                result = 0;
                 transfer.ready[bufferIndex] = 0;
                 OSUnlockMutex(&transfer.mutex[bufferIndex]);
                 OSSignalCond(&transfer.waitCond[bufferIndex]);
@@ -1733,7 +1718,6 @@ file_done:
     if (result != 0) {
         goto cleanup;
     }
-    result = 0;
     result = ES_GetDeviceCert((ESCertSignature*)ROUNDUP((u32)certificates->device, 64));
     if (result != 0) {
         goto cleanup;
@@ -1742,6 +1726,7 @@ file_done:
         result = -3006;
         goto cleanup;
     }
+    result = 0;
     if ((s32)WADWriteStream(&stream, signature, sizeof(signature)) != (s32)sizeof(signature)) {
         result = -3006;
         goto cleanup;
@@ -2943,11 +2928,7 @@ static s32 WAD_815C43E0(WADHashThreadArgs* args) {
     u32 size;
 
     for (; (remaining != 0) && (result == 0); bufferIndex ^= 1) {
-        size = remaining;
-
-        if (remaining > transfer->chunkSize) {
-            size = transfer->chunkSize;
-        }
+        size = remaining > transfer->chunkSize ? transfer->chunkSize : remaining;
         OSLockMutex(&transfer->mutex[bufferIndex]);
         while (transfer->ready[bufferIndex] == 0) {
             OSWaitCond(&transfer->signalCond[bufferIndex], &transfer->mutex[bufferIndex]);
@@ -2990,10 +2971,7 @@ static s32 _WADHash(WADStream* stream, u32 offset, u32 size, void* context, void
     result = 0;
     if (!(secondBuffer != 0 && threadStack != 0)) {
         while (size != 0) {
-            readSize = size;
-            if (size > chunkSize) {
-                readSize = chunkSize;
-            }
+            readSize = size > chunkSize ? chunkSize : size;
             readBuffer = buffer;
             result = WADReadStream(stream, &readBuffer, readSize, offset + completed);
             if ((u32)result != readSize) {
@@ -3028,10 +3006,7 @@ static s32 _WADHash(WADStream* stream, u32 offset, u32 size, void* context, void
         bufferIndex = 0;
         while (size != 0 && transfer.error == 0) {
             OSMutex* mutex;
-            readSize = size;
-            if (size > chunkSize) {
-                readSize = chunkSize;
-            }
+            readSize = size > chunkSize ? chunkSize : size;
             mutex = &transfer.mutex[bufferIndex];
             OSLockMutex(mutex);
             while (transfer.ready[bufferIndex] != 0 && transfer.error == 0) {
