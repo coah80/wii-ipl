@@ -215,19 +215,19 @@ namespace ipl {
             MESG_CALENDAR_DEC,
         };
 
-        static const char* lbl_8164C458[] = {
+        static const char* scPaneName_T_CalMonth[] = {
             "T_CalMonth_a",
             "T_CalMonth_b",
             "T_CalMonth_c",
         };
 
-        static const char* lbl_8164C480[] = {
+        static const char* scPaneName_N_Cal[] = {
             "N_Cal_a1",
             "N_Cal_b1",
             "N_Cal_c1",
         };
 
-        static const char* lbl_8164C4B0[] = {
+        static const char* scPaneName_N_CalPos[] = {
             "N_CalPos_a",
             "N_CalPos_b",
             "N_CalPos_c",
@@ -661,9 +661,9 @@ namespace ipl {
             utility::Calendar::getLastMonth(*mpBoardDate, &last);
             utility::Calendar::getNextMonth(*mpBoardDate, &next);
 
-            set_textbox_month(lbl_8164C458[0], last);
-            set_textbox_month(lbl_8164C458[1], *mpBoardDate);
-            set_textbox_month(lbl_8164C458[2], next);
+            set_textbox_month(scPaneName_T_CalMonth[0], last);
+            set_textbox_month(scPaneName_T_CalMonth[1], *mpBoardDate);
+            set_textbox_month(scPaneName_T_CalMonth[2], next);
         }
 
         void Calendar::set_textbox_month(const char* paneName, const utility::Date& date) {
@@ -714,31 +714,31 @@ namespace ipl {
 
             OSCalendarTime curTime = System::getCurrentTime();
 
-            utility::Date local_64(curTime.year, curTime.mon + 1, curTime.mday);
-            utility::Date local_70;
-            utility::Date local_7c;
+            utility::Date todayDate(curTime.year, curTime.mon + 1, curTime.mday);
+            utility::Date lastMonth;
+            utility::Date nextMonth;
 
-            utility::Calendar::getLastMonth(date, &local_70);
-            utility::Calendar::getNextMonth(date, &local_7c);
+            utility::Calendar::getLastMonth(date, &lastMonth);
+            utility::Calendar::getNextMonth(date, &nextMonth);
 
             int dateIndex;
-            int iVar10;
+            int weekOffset;
             if (mbAsian || mbUSA) {
-                iVar10 = 6 - utility::Calendar::getWeek(date.year, date.month, maxDays);
+                weekOffset = 6 - utility::Calendar::getWeek(date.year, date.month, maxDays);
             } else {
                 week--;
                 if (week < 0) {
                     week = 6;
                 }
-                iVar10 = 6 - (utility::Calendar::getWeek(date.year, date.month, maxDays) - 1);
-                if (iVar10 >= 7) {
-                    iVar10 = 0;
+                weekOffset = 6 - (utility::Calendar::getWeek(date.year, date.month, maxDays) - 1);
+                if (weekOffset >= 7) {
+                    weekOffset = 0;
                 }
             }
 
             dateIndex = unk == 1 ? 0 : DATE_COUNT;
 
-            utility::Date local_88;
+            utility::Date cellDate;
 
             u32 attr;
             int val2;
@@ -750,25 +750,25 @@ namespace ipl {
 
                 val = (maxDays + week);
                 attr = 0;
-                val2 = (iVar10 + val);
+                val2 = (weekOffset + val);
                 if ((week - i) > 0) {
-                    local_88.year = local_70.year;
-                    local_88.month = local_70.month;
-                    local_88.day = i + (local_70.day - week) + 1;
+                    cellDate.year = lastMonth.year;
+                    cellDate.month = lastMonth.month;
+                    cellDate.day = i + (lastMonth.day - week) + 1;
                     goto out;
                 }
 
                 if ((val - i) > 0) {
-                    local_88.year = date.year;
-                    local_88.month = date.month;
-                    local_88.day = (i - week) + 1;
+                    cellDate.year = date.year;
+                    cellDate.month = date.month;
+                    cellDate.day = (i - week) + 1;
                     attr |= 2;
 
-                    if (local_88 == local_64) {
+                    if (cellDate == todayDate) {
                         attr |= 1;
                     }
 
-                    switch (utility::Calendar::getWeek(local_88.year, local_88.month, local_88.day)) {
+                    switch (utility::Calendar::getWeek(cellDate.year, cellDate.month, cellDate.day)) {
                         case 6: {
                             attr |= 8;
                             break;
@@ -782,9 +782,9 @@ namespace ipl {
                 }
 
                 if ((val2 - i) > 0) {
-                    local_88.year = local_7c.year;
-                    local_88.month = local_7c.month;
-                    local_88.day = ((i - maxDays) - week) + 1;
+                    cellDate.year = nextMonth.year;
+                    cellDate.month = nextMonth.month;
+                    cellDate.day = ((i - maxDays) - week) + 1;
                     goto out;
                 } else {
                     dateScn->setVisible(false);
@@ -792,14 +792,14 @@ namespace ipl {
                 }
 
             out:
-                dateScn->setDate(local_88);
+                dateScn->setDate(cellDate);
                 dateScn->setAttribute(attr);
             }
         }
 
         void Calendar::set_date_pos(int unk) {
-            nw4r::lyt::Pane* pane1 = mpLayout->FindPaneByName(lbl_8164C480[unk]);
-            nw4r::lyt::Pane* pane2 = mpLayout->FindPaneByName(lbl_8164C4B0[unk]);
+            nw4r::lyt::Pane* pane1 = mpLayout->FindPaneByName(scPaneName_N_Cal[unk]);
+            nw4r::lyt::Pane* pane2 = mpLayout->FindPaneByName(scPaneName_N_CalPos[unk]);
 
             int dateIndex = unk == 1 ? 0 : DATE_COUNT;
 
@@ -807,14 +807,14 @@ namespace ipl {
                 Date* dateScn = ((Date*)nw4r::ut::List_GetNth(&mDateList, dateIndex));
                 dateIndex++;
 
-                nw4r::math::VEC3 local_68;
-                local_68.x = ((u16)i % 7) * 0x46;
-                local_68.y = ((u16)i / 7) * -0x30;
-                local_68.z = 0.0f;
+                nw4r::math::VEC3 cellPos;
+                cellPos.x = ((u16)i % 7) * 0x46;
+                cellPos.y = ((u16)i / 7) * -0x30;
+                cellPos.z = 0.0f;
 
-                MTXMultVec(pane2->GetGlobalMtx(), local_68, local_68);
+                MTXMultVec(pane2->GetGlobalMtx(), cellPos, cellPos);
 
-                dateScn->setTranslate(local_68);
+                dateScn->setTranslate(cellPos);
                 dateScn->setRotate(pane1->GetRotate());
             }
         }
