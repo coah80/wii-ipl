@@ -107,11 +107,6 @@ namespace ipl {
 
 
 
-        extern "C" bool iplSDChannelSelect_813DD240(
-            SDChannelSelect* scene, const s32* requiredBytes, const s32* requiredBlocks,
-            ESTitleId* titleIds, char* titleNames, u32* titleCount);
-
-
 
         extern "C" void iplSDChannelObj_813E3534(SDChannelObj* channel, int enabled);
 
