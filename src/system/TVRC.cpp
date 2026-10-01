@@ -10,10 +10,10 @@
 
 #pragma sym on
 
-extern "C" const f32 lbl_816945C8 = 1000.0f;
-extern "C" const f64 lbl_816945D0 = 1000000000.0;
-extern "C" const f64 lbl_816945D8 = 1.0;
-extern "C" const f64 lbl_816945E0 = 4503599627370496.0;
+extern "C" const f32 scTvrcMsPerSec = 1000.0f;
+extern "C" const f64 scTvrcNsecPerSec = 1000000000.0;
+extern "C" const f64 scTvrcOne = 1.0;
+extern "C" const f64 scTvrcFloatMagic = 4503599627370496.0;
 
 extern "C" BOOL _isInitialized__7LibTVRC;
 extern "C" BOOL _isActive__7LibTVRC;
@@ -53,11 +53,11 @@ extern "C" void __FTVRCLoop1Handler__7LibTVRCFP7OSAlarmP9OSContext();
 
 #pragma push
 #pragma section data_type ".sdata"
-extern "C" char lbl_81696230[5] = {'T', 'V', 'R', '0', '\0'};
+extern "C" char scTvrcFileHeader[5] = {'T', 'V', 'R', '0', '\0'};
 #pragma pop
 
 namespace LibTVRC {
-    const char* TVRC_FILE_HEADER = lbl_81696230;
+    const char* TVRC_FILE_HEADER = scTvrcFileHeader;
     u32 __tienHoseiNsec = 1100;
     u32 _limitMilli = 400;
 
@@ -267,7 +267,7 @@ TVRCSendStartAsync_valid:
     bne TVRCSendStartAsync_custom
     lwz r6, _tvrcFile__7LibTVRC
     lis r3, 2
-    lfs f1, lbl_816945C8
+    lfs f1, scTvrcMsPerSec
     lis r4, 0x8000
     lfs f0, 0xc(r6)
     subi r0, r3, 0x17b8
@@ -309,7 +309,7 @@ TVRCSendStartAsync_no_repeat:
 TVRCSendStartAsync_timing:
     lfs f1, _onTimeRatio__7LibTVRC
     lis r4, 0x8000
-    lfd f0, lbl_816945D0
+    lfd f0, scTvrcNsecPerSec
     lis r27, 0x4330
     lwz r0, 0xf8(r4)
     lis r3, 2
@@ -321,7 +321,7 @@ TVRCSendStartAsync_timing:
     divwu r26, r4, r0
     fdiv f2, f1, f0
     stw r27, 8(r1)
-    lfd f1, lbl_816945E0
+    lfd f1, scTvrcFloatMagic
     stw r25, 0xc(r1)
     lfd f0, 8(r1)
     fsub f0, f0, f1
@@ -339,13 +339,13 @@ TVRCSendStartAsync_timing:
     bl __div2i
     lfs f2, _onTimeRatio__7LibTVRC
     lis r28, _tickWait__7LibTVRC@ha
-    lfd f1, lbl_816945D8
+    lfd f1, scTvrcOne
     addi r29, r28, _tickWait__7LibTVRC@l
-    lfd f0, lbl_816945D0
+    lfd f0, scTvrcNsecPerSec
     fsub f3, f1, f2
     lfs f2, _Hz__7LibTVRC
     stw r25, 0x14(r1)
-    lfd f1, lbl_816945E0
+    lfd f1, scTvrcFloatMagic
     fmul f3, f0, f3
     stw r27, 0x10(r1)
     lfd f0, 0x10(r1)
