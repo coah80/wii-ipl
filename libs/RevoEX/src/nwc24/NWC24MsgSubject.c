@@ -75,20 +75,26 @@ NWC24Err NWC24ReadMsgSubjectPublic(const NWC24MsgObj* msg, u16* subject, u32* su
                         truncated = TRUE;
                     }
                     result = NWC24ReadMsgSubject(msg, (char*)work, subjectDataSize);
-                    if (result != NWC24_OK && result != NWC24_ERR_OVERFLOW) {
-                        goto done;
-                    }
-                    if (result == NWC24_ERR_OVERFLOW) {
-                        truncated = TRUE;
+                    switch (result) {
+                        case NWC24_OK:
+                            break;
+                        case NWC24_ERR_OVERFLOW:
+                            truncated = TRUE;
+                            break;
+                        default:
+                            goto done;
                     }
                     charsetBuffer = NWC24WorkP->stringWork;
                     result =
                         NWC24DecodeMIMEHeaderFieldBody((u8*)charsetBuffer, 0x40, decodedData, decodedCapacity, &decodedSize, work, subjectDataSize);
-                    if (result != NWC24_OK && result != NWC24_ERR_OVERFLOW) {
-                        goto done;
-                    }
-                    if (result == NWC24_ERR_OVERFLOW) {
-                        truncated = TRUE;
+                    switch (result) {
+                        case NWC24_OK:
+                            break;
+                        case NWC24_ERR_OVERFLOW:
+                            truncated = TRUE;
+                            break;
+                        default:
+                            goto done;
                     }
                     *subjectSize = originalSize;
                     result =
