@@ -92,7 +92,7 @@ namespace ipl {
         extern "C" void List_GetNth__Q24nw4r2utFPCQ34nw4r2ut4ListUs();
         extern "C" void getChannelBasePane__Q33ipl5scene13ChannelSelectFi();
         extern "C" void initPane__Q33ipl3gui11PaneManagerFPQ34nw4r3lyt4Pane();
-        extern "C" void* jumptable_8164DE80[];
+        extern "C" void* updateDiskState_jumptable[];
         extern "C" void getCurrentChannel__Q33ipl7channel7ManagerFPiPi();
         extern "C" void calcNormalRestart__Q33ipl5scene13ChannelSelectFv();
         extern "C" void _savegpr_28();
@@ -857,7 +857,7 @@ namespace ipl {
 
         extern "C" char scPaneName_N_GCIcon[] = "N_GCIcon";
         extern "C" char scPaneName_N_DiscUpdateIcon[] = "N_DiscUpdateIcon";
-        extern "C" void* jumptable_8164DE80[7] = {
+        extern "C" void* updateDiskState_jumptable[7] = {
             (void*)((const char*)updateDiskState__Q33ipl5scene13ChannelSelectFv + 0x4C),
             (void*)((const char*)updateDiskState__Q33ipl5scene13ChannelSelectFv + 0x21C),
             (void*)((const char*)updateDiskState__Q33ipl5scene13ChannelSelectFv + 0x284),
@@ -1346,18 +1346,18 @@ namespace ipl {
             lwz r4, 0xa8(r28)
             cmplwi r0, 0x6
             lwz r27, 0x4(r4)
-            bgt updateDiskState_813AD2C8
-            lis r4, jumptable_8164DE80@ha
+            bgt updateDiskState_done
+            lis r4, updateDiskState_jumptable@ha
             slwi r0, r0, 2
-            addi r4, r4, jumptable_8164DE80@l
+            addi r4, r4, updateDiskState_jumptable@l
             lwzx r4, r4, r0
             mtctr r4
             bctr
-        updateDiskState_813ACF94:
+        updateDiskState_case0:
             lwz r4, 0xa4(r3)
             lwz r0, 0x14(r4)
             cmpwi r0, 0x1
-            beq updateDiskState_813AD2C8
+            beq updateDiskState_done
             lwz r3, 0x94(r3)
             lis r29, scPaneName_N_GCIcon@ha
             addi r4, r29, scPaneName_N_GCIcon@l
@@ -1381,7 +1381,7 @@ namespace ipl {
             li r4, 0x0
             bl SetVisible__Q34nw4r3lyt4PaneFb
             cmpwi r27, 0x5
-            bne updateDiskState_813AD078
+            bne updateDiskState_case0_diskState3
             lwz r4, 0xc0(r31)
             lwz r3, 0x84(r28)
             subi r4, r4, 0xf
@@ -1391,32 +1391,32 @@ namespace ipl {
             lwz r0, 0xc0(r31)
             mr r27, r3
             cmpwi r0, 0xf
-            bne updateDiskState_813AD03C
+            bne updateDiskState_case0_afterThumb
             lwz r3, 0xa8(r28)
             addi r4, r31, 0xf8
             addi r5, r31, 0xfc
             bl getDiskInfo__Q33ipl3bs27ManagerFPPcPPc
-        updateDiskState_813AD03C:
+        updateDiskState_case0_afterThumb:
             cmpwi r27, 0x0
-            beq updateDiskState_813AD050
+            beq updateDiskState_case0_afterLayout
             lwz r3, 0x90(r31)
             mr r4, r27
             bl createDiskLayout__Q33ipl5scene10ChannelObjFPv
-        updateDiskState_813AD050:
+        updateDiskState_case0_afterLayout:
             lbz r0, 0xf4(r31)
             cmpwi r0, 0x0
-            bne updateDiskState_813AD064
+            bne updateDiskState_case0_afterDiskIn
             mr r3, r31
             bl startDiskInEvent__Q33ipl5scene13ChannelSelectFv
-        updateDiskState_813AD064:
+        updateDiskState_case0_afterDiskIn:
             li r3, 0x0
             li r0, 0x1
             stb r3, 0xf4(r31)
             stw r0, 0xf0(r31)
-            b updateDiskState_813AD2C8
-        updateDiskState_813AD078:
+            b updateDiskState_done
+        updateDiskState_case0_diskState3:
             cmpwi r27, 0x3
-            bne updateDiskState_813AD134
+            bne updateDiskState_case0_diskState6
             lwz r3, 0x84(r28)
             li r0, 0x0
             addi r4, r29, scPaneName_N_GCIcon@l
@@ -1444,7 +1444,7 @@ namespace ipl {
             bl setLangPane__Q33ipl5scene10ChannelObjFPCQ33ipl6layout6Object
             lwz r3, 0x98(r31)
             cmpwi r3, 0x0
-            beq updateDiskState_813AD10C
+            beq updateDiskState_case0_state3_afterAnim
             li r0, 0x2
             stw r0, 0x18(r3)
             lwz r28, 0x98(r31)
@@ -1452,45 +1452,45 @@ namespace ipl {
             bl initFrame__Q33ipl7utility15FrameControllerFv
             li r0, 0x1
             stw r0, 0x14(r28)
-        updateDiskState_813AD10C:
+        updateDiskState_case0_state3_afterAnim:
             lbz r0, 0xf4(r31)
             cmpwi r0, 0x0
-            bne updateDiskState_813AD120
+            bne updateDiskState_case0_state3_afterDiskIn
             mr r3, r31
             bl startDiskInEvent__Q33ipl5scene13ChannelSelectFv
-        updateDiskState_813AD120:
+        updateDiskState_case0_state3_afterDiskIn:
             li r3, 0x0
             li r0, 0x1
             stb r3, 0xf4(r31)
             stw r0, 0xf0(r31)
-            b updateDiskState_813AD2C8
-        updateDiskState_813AD134:
+            b updateDiskState_done
+        updateDiskState_case0_diskState6:
             cmpwi r27, 0x6
-            bne updateDiskState_813AD2C8
+            bne updateDiskState_done
             lbz r0, 0xf4(r31)
             cmpwi r0, 0x0
-            bne updateDiskState_813AD150
+            bne updateDiskState_case0_state6_afterDiskIn
             mr r3, r31
             bl startDiskInEvent__Q33ipl5scene13ChannelSelectFv
-        updateDiskState_813AD150:
+        updateDiskState_case0_state6_afterDiskIn:
             li r3, 0x0
             li r0, 0x4
             stb r3, 0xf4(r31)
             stw r0, 0xf0(r31)
-            b updateDiskState_813AD2C8
-        updateDiskState_813AD164:
+            b updateDiskState_done
+        updateDiskState_case1:
             lwz r4, 0x8c(r3)
             lwz r0, 0x14(r4)
             cmpwi r0, 0x1
-            beq updateDiskState_813AD2C8
+            beq updateDiskState_done
             lwz r3, 0x90(r3)
             bl resetDiskTitleName__Q33ipl5scene10ChannelObjFv
             cmpwi r27, 0x5
-            bne updateDiskState_813AD1C0
+            bne updateDiskState_case1_setState3
             lwz r3, 0x90(r31)
             lwz r3, 0x34(r3)
             cmpwi r3, 0x0
-            beq updateDiskState_813AD1B4
+            beq updateDiskState_case1_setState2
             li r0, 0x2
             stw r0, 0x18(r3)
             lwz r3, 0x90(r31)
@@ -1499,85 +1499,85 @@ namespace ipl {
             bl initFrame__Q33ipl7utility15FrameControllerFv
             li r0, 0x1
             stw r0, 0x14(r27)
-        updateDiskState_813AD1B4:
+        updateDiskState_case1_setState2:
             li r0, 0x2
             stw r0, 0xf0(r31)
-            b updateDiskState_813AD2C8
-        updateDiskState_813AD1C0:
+            b updateDiskState_done
+        updateDiskState_case1_setState3:
             li r0, 0x3
             stw r0, 0xf0(r31)
-            b updateDiskState_813AD2C8
-        updateDiskState_813AD1CC:
+            b updateDiskState_done
+        updateDiskState_case2:
             cmpwi r27, 0x5
-            bne updateDiskState_813AD1E4
+            bne updateDiskState_case2_doOut
             lwz r4, 0x84(r28)
             lbz r0, 0x1b81(r4)
             cmpwi r0, 0x0
-            beq updateDiskState_813AD2C8
-        updateDiskState_813AD1E4:
+            beq updateDiskState_done
+        updateDiskState_case2_doOut:
             lwz r3, 0xa0(r3)
             lwz r0, 0x14(r3)
             cmpwi r0, 0x1
-            beq updateDiskState_813AD2C8
+            beq updateDiskState_done
             mr r3, r31
             bl startDiskOutEvent__Q33ipl5scene13ChannelSelectFv
             lwz r3, 0x90(r31)
             bl changeDisk__Q33ipl5scene10ChannelObjFv
             li r0, 0x6
             stw r0, 0xf0(r31)
-            b updateDiskState_813AD2C8
-        updateDiskState_813AD210:
+            b updateDiskState_done
+        updateDiskState_case3:
             cmpwi r27, 0x3
-            bne updateDiskState_813AD228
+            bne updateDiskState_case3_doOut
             lwz r4, 0x84(r28)
             lbz r0, 0x1b81(r4)
             cmpwi r0, 0x0
-            beq updateDiskState_813AD2C8
-        updateDiskState_813AD228:
+            beq updateDiskState_done
+        updateDiskState_case3_doOut:
             lwz r3, 0xa0(r3)
             lwz r0, 0x14(r3)
             cmpwi r0, 0x1
-            beq updateDiskState_813AD2C8
+            beq updateDiskState_done
             mr r3, r31
             bl startDiskOutEvent__Q33ipl5scene13ChannelSelectFv
             lwz r3, 0x90(r31)
             bl changeDisk__Q33ipl5scene10ChannelObjFv
             li r0, 0x6
             stw r0, 0xf0(r31)
-            b updateDiskState_813AD2C8
-        updateDiskState_813AD254:
+            b updateDiskState_done
+        updateDiskState_case4:
             lwz r4, 0x8c(r3)
             lwz r0, 0x14(r4)
             cmpwi r0, 0x1
-            beq updateDiskState_813AD2C8
+            beq updateDiskState_done
             li r0, 0x5
             stw r0, 0xf0(r3)
-            b updateDiskState_813AD2C8
-        updateDiskState_813AD270:
+            b updateDiskState_done
+        updateDiskState_case5:
             cmpwi r27, 0x6
-            beq updateDiskState_813AD2C8
+            beq updateDiskState_done
             lwz r4, 0xa0(r3)
             lwz r0, 0x14(r4)
             cmpwi r0, 0x1
-            beq updateDiskState_813AD2C8
+            beq updateDiskState_done
             bl startDiskOutEvent__Q33ipl5scene13ChannelSelectFv
             lwz r3, 0x90(r31)
             bl changeDisk__Q33ipl5scene10ChannelObjFv
             li r0, 0x6
             stw r0, 0xf0(r31)
-            b updateDiskState_813AD2C8
-        updateDiskState_813AD2A0:
+            b updateDiskState_done
+        updateDiskState_case6:
             lwz r4, 0x8c(r3)
             lwz r0, 0x14(r4)
             cmpwi r0, 0x1
-            beq updateDiskState_813AD2C8
+            beq updateDiskState_done
             lwz r3, 0x90(r3)
             bl destroyDiskLayout__Q33ipl5scene10ChannelObjFv
             lwz r3, 0x90(r31)
             bl resetDiskTitleName__Q33ipl5scene10ChannelObjFv
             li r0, 0x0
             stw r0, 0xf0(r31)
-        updateDiskState_813AD2C8:
+        updateDiskState_done:
             addi r11, r1, 0x20
             bl _restgpr_27
             lwz r0, 0x24(r1)
