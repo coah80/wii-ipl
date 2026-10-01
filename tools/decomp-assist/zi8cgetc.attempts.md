@@ -123,3 +123,125 @@ Remaining accepted differences: candidate, spelling, input length, work, candida
 No exact functions were added in this round. The engine's frame and local offsets are correct, but the first exact divergence remains +0x000c. Its four individual saves differ from the target _savegpr_27 sequence, and later expression/control-flow differences remain. All rejected source variants were restored.
 
 Final clean full gate: PASS; pool identical, zero baseline regressions, zero forbidden-pattern additions and readability warnings. Full build passed with target DOL SHA1 26116613f624061ba99c8d1a299aaa6efa85670d. Unit 5/8 exact, code 4168/47816, data 24/536, fuzzy 79.9097%. Engine 76.78999% to 77.52538%, first divergence +0x000c to +0x000c; element count 99.347824% and spelling 98.80165% unchanged.
+
+## Block-map round, 2026-10-01
+
+Baseline engine: 10,598/10,676 instructions, deficit 78, fuzzy 78.05442%. Unit: 5/8 instruction-exact, code 4,168/47,816, data 72/536. Stack frame 0x4e0 and save sequence agree. Empty string pools agree. The target assembly was checked against the target object's full instruction count.
+
+Full block maps and re-alignment artifacts are in `/tmp/sol-med-zi8-blocks/`. Both direct instruction and call-anchored alignments are recorded. Reordered calls produce apparent insertions paired with deletions; these are moved regions, not missing code. Register names and branch distances are excluded from structural alignment; stack offsets, calls, and literal/constant references remain.
+- b01-mode-switch: R1 +1ae8: restore mode switch, pinyin before zhuyin, and explicit format >= 1 tests. Deficit 78 -> 77; engine fuzzy 78.05442% -> 78.32240%; kept.
+- b02-bitmap-division: R1 +1ad4: use signed division by eight for scratch bitmap length. Deficit 77 -> 76; engine fuzzy 78.32240% -> 78.38188%; kept.
+- b03-punctuation-postincrement: R2 +1eec/+1f00: emit punctuation with separate word/character postincrement paths. Deficit 76 -> 73; engine fuzzy 78.38188% -> 78.46590%; kept.
+- b04-oem-duplicate-branches: R3 +287c: check bitmap/character/word duplicates in their own branches. Deficit 73 -> 67; engine fuzzy 78.46590% -> 78.58823%; kept.
+- b05-oem-postincrement: R3 +2a6c/+2ae8: copy OEM word and character outputs with postincrements. Deficit 67 -> 72; engine fuzzy 78.58823% -> 78.76677%; rejected and restored.
+- b06-pud-tone-status: R4 +2ee0: restore successful tone spelling status before bypassing ordinal checks. Deficit 67 -> 68; engine fuzzy 78.58823% -> 78.64771%; rejected and restored.
+- b07-pud-duplicate-branches: R4 +367c: branch immediately after each PUD duplicate check. Deficit 67 -> 62; engine fuzzy 78.58823% -> 78.61596%; rejected and restored.
+- b08-pud-mode-switch: R4 +329c: emit PUD fixed/wildcard/component/phonetic match cases in target order. Deficit 67 -> 62; engine fuzzy 78.58823% -> 79.62711%; rejected and restored.
+- b09-pud-switch-punctuation-scan: R4/R2: combine target PUD switch with explicit punctuation duplicate loop. Deficit 67 -> 62; engine fuzzy 78.58823% -> 79.61090%; rejected and restored.
+- b10-oem-character-postincrement: R3 +2ae8: keep OEM word branch order and postincrement character output count. Deficit 67 -> 71; engine fuzzy 78.58823% -> 78.62570%; rejected and restored.
+- b11-oem-word-postincrement: R3 +2a6c: postincrement word-output index during OEM copy. Deficit 67 -> 67; engine fuzzy 78.58823% -> 78.49897%; rejected and restored.
+- b12-context-duplicates: R5 +4580: context phrase duplicate decisions. Deficit 67 -> 64; engine fuzzy 78.58823% -> 78.71441%; kept.
+- b13-dictionary-duplicates: R6 +518c: dictionary candidate duplicate decisions. Deficit 64 -> 66; engine fuzzy 78.71441% -> 78.61812%; rejected and restored.
+- b14-range-duplicates: R7 +5860: character range duplicate decisions. Deficit 64 -> 62; engine fuzzy 78.71441% -> 78.55236%; rejected and restored.
+- b15-ordinal-duplicates: R8 +5b60: component ordinal duplicate decisions. Deficit 64 -> 62; engine fuzzy 78.71441% -> 78.53213%; rejected and restored.
+- b16-phonetic-ordinal-duplicates: R8 +6058: phonetic ordinal duplicate decisions. Deficit 64 -> 62; engine fuzzy 78.71441% -> 78.57109%; rejected and restored.
+- b17-user-duplicates: R9 +6eb8: user character duplicate decisions. Deficit 64 -> 64; engine fuzzy 78.71441% -> 78.43996%; rejected and restored.
+- b18-global-duplicates: R10 +73c0: global character duplicate decisions. Deficit 64 -> 61; engine fuzzy 78.71441% -> 78.53035%; rejected and restored.
+- b19-phonetic-duplicates: R13 +84ec: phonetic phrase duplicate decisions. Deficit 64 -> 62; engine fuzzy 78.71441% -> 78.57680%; rejected and restored.
+- b20-prediction-postcount: R6 +49a0: restore postincrement character emission in prediction. Deficit 64 -> 62; engine fuzzy 78.71441% -> 78.59377%; rejected and restored.
+- b21-ordinal-postcount: R8 +5c30: restore postincrement character emission in ordinal. Deficit 64 -> 64; engine fuzzy 78.71441% -> 78.73923%; rejected and restored.
+- b22-phonetic-ordinal-postcount: R8 +60b0: restore postincrement character emission in phonetic-ordinal. Deficit 64 -> 64; engine fuzzy 78.71441% -> 78.72611%; rejected and restored.
+- b23-tone-postcount: R9 +6340: restore postincrement character emission in tone. Deficit 64 -> 64; engine fuzzy 78.71441% -> 78.72377%; rejected and restored.
+- b24-alternate-tone-postcount: R9 +653c: restore postincrement character emission in alternate-tone. Deficit 64 -> 70; engine fuzzy 78.71441% -> 78.59545%; rejected and restored.
+- b25-user-postcount: R9 +6f14: restore postincrement character emission in user. Deficit 64 -> 66; engine fuzzy 78.71441% -> 78.59414%; rejected and restored.
+- b26-global-postcount: R10 +741c: restore postincrement character emission in global. Deficit 64 -> 63; engine fuzzy 78.71441% -> 78.75525%; kept.
+- b27-frequency-character-postcount: R12 +81c4: restore postincrement character emission in frequency-character. Deficit 63 -> 61; engine fuzzy 78.75525% -> 78.45279%; rejected and restored.
+- b28-frequency-component-postcount: R12 +8260: restore postincrement character emission in frequency-component. Deficit 63 -> 63; engine fuzzy 78.75525% -> 78.60641%; rejected and restored.
+- b29-dictionary-postindex: R6/R7: restore both sequential postincrement word output writes in dictionary. Deficit 63 -> 65; engine fuzzy 78.75525% -> 78.71881%; rejected and restored.
+- b30-range-postindex: R6/R7: restore both sequential postincrement word output writes in range. Deficit 63 -> 62; engine fuzzy 78.75525% -> 78.72143%; rejected and restored.
+- b31-oem-inline-code: R3/R4/R5/R9: compare the phonetic helper result directly in oem. Deficit 63 -> 65; engine fuzzy 78.75525% -> 78.67928%; rejected and restored.
+- b32-pud-inline-code: R3/R4/R5/R9: compare the phonetic helper result directly in pud. Deficit 63 -> 65; engine fuzzy 78.75525% -> 78.71403%; rejected and restored.
+- b33-context-inline-code: R3/R4/R5/R9: compare the phonetic helper result directly in context. Deficit 63 -> 64; engine fuzzy 78.75525% -> 78.67731%; rejected and restored.
+- b34-user-inline-code: R3/R4/R5/R9: compare the phonetic helper result directly in user. Deficit 63 -> 64; engine fuzzy 78.75525% -> 78.73117%; rejected and restored.
+- b35-oem-segment-index: R3/R4/R5/R11: address segment subfields before applying row stride in oem. Deficit 63 -> 66; engine fuzzy 78.75525% -> 78.61858%; rejected and restored.
+- b36-pud-segment-index: R3/R4/R5/R11: address segment subfields before applying row stride in pud. Deficit 63 -> 71; engine fuzzy 78.75525% -> 78.53775%; rejected and restored.
+- b37-context-segment-index: R3/R4/R5/R11: address segment subfields before applying row stride in context. Deficit 63 -> 65; engine fuzzy 78.75525% -> 78.67535%; rejected and restored.
+- b38-component-segment-index: R3/R4/R5/R11: address segment subfields before applying row stride in component. Deficit 63 -> 71; engine fuzzy 78.75525% -> 78.51958%; rejected and restored.
+- b39-context-phrase-expression: R5/R6/R10: group phrase offset low bytes before OR with high nibble in context. Deficit 63 -> 63; engine fuzzy 78.75525% -> 78.70129%; rejected and restored.
+- b40-dictionary-phrase-expression: R5/R6/R10: group phrase offset low bytes before OR with high nibble in dictionary. Deficit 63 -> 63; engine fuzzy 78.75525% -> 78.72621%; rejected and restored.
+- b41-global-phrase-expression: R5/R6/R10: group phrase offset low bytes before OR with high nibble in global. Deficit 63 -> 63; engine fuzzy 78.75525% -> 78.73876%; rejected and restored.
+- b42-initial-mode-switch: R0: express initial mode normalization as a switch. Deficit 63 -> 69; engine fuzzy 78.75525% -> 78.24532%; rejected and restored.
+- b43-phrase-length-branches: R0: place nonzero match length branch after the zero-length fallback. Deficit 63 -> 63; engine fuzzy 78.75525% -> 78.72611%; rejected and restored.
+- b44-fuzzy-phonetic-while: R0: express fuzzy phonetic masking as an explicit index loop. Deficit 63 -> 63; engine fuzzy 78.75525% -> 78.75525%; rejected and restored.
+- b45-context-count-block: R1: separate context format/table-count setup from its conditional assignment. Deficit 63 -> 63; engine fuzzy 78.75525% -> 78.76546%; rejected and restored.
+- b46-punctuation-loop-break: R2: separate duplicate equality exit from the punctuation scan bound. Deficit 63 -> 63; engine fuzzy 78.75525% -> 78.68452%; rejected and restored.
+- b47-range-seen-loop: R7: separate output-character equality exit from the range scan bound. Deficit 63 -> 63; engine fuzzy 78.75525% -> 78.63507%; rejected and restored.
+- b48-component-phrase-offset: R11: group low phrase-offset bytes before combining the high nibble. Deficit 63 -> 63; engine fuzzy 78.75525% -> 78.73773%; rejected and restored.
+- b49-component-length-check: R11: separate insufficient phrase length from mismatching exact/prefix lengths. Deficit 63 -> 63; engine fuzzy 78.75525% -> 78.75525%; rejected and restored.
+- b50-frequency-duplicate-order: R12: emit bitmap duplicate branch before character-buffer branch. Deficit 63 -> 63; engine fuzzy 78.75525% -> 78.65053%; rejected and restored.
+- b51-pair-input-branch-order: R13: emit consonant phonetic input before vowel-special input. Deficit 63 -> 63; engine fuzzy 78.75525% -> 78.67244%; rejected and restored.
+- b52-pair-extracted-bytes: R13: use explicit byte conversions for masked phonetic code extraction. Deficit 63 -> 62; engine fuzzy 78.75525% -> 78.74438%; rejected and restored.
+- b53-pair-loop-strides: R13: advance phonetic pair cursor with the loop index. Deficit 63 -> 62; engine fuzzy 78.75525% -> 78.57971%; rejected and restored.
+- b54-phonetic-loop-call: R14: separate phonetic-match failure from outer candidate bounds. Deficit 63 -> 63; engine fuzzy 78.75525% -> 79.19295%; rejected and restored.
+- b55-phonetic-group-word-count: R14: increment word length before counting its appended character. Deficit 63 -> 62; engine fuzzy 78.75525% -> 78.76161%; kept.
+- b56-finish-capacity-selection: R15: select count-only or emitted-candidate retry capacity explicitly. Deficit 62 -> 49; engine fuzzy 78.76161% -> 78.36839%; rejected and restored.
+- b57-finish-terminator-index: R15: separate output terminator store from cursor increment. Deficit 62 -> 62; engine fuzzy 78.76161% -> 78.77238%; rejected and restored.
+- b58-finish-final-code-index: R15: address final phonetic code by subtracting one element before indexing. Deficit 62 -> 69; engine fuzzy 78.76161% -> 78.70223%; rejected and restored.
+- b59-filtered-duplicate-branches: R16: branch after each filtered character duplicate check. Deficit 62 -> 62; engine fuzzy 78.76161% -> 78.59835%; rejected and restored.
+- b60-filtered-ordinal-expression: R16: combine ordinal bytes before multiplying the dictionary record stride. Deficit 62 -> 58; engine fuzzy 78.76161% -> 78.75215%; rejected and restored.
+- b61-filtered-segment-addressing: R16: address segment subfields before row stride in filtered matching. Deficit 62 -> 59; engine fuzzy 78.76161% -> 78.26311%; rejected and restored.
+- s01 Zi8GetElementCount: initialize output count to input length for early returns. Objdiff 99.34782% -> 97.78261%; rejected and restored.
+- s02 Zi8GetElementCount: use a halfword output counter before returning its byte value. Objdiff 99.34782% -> 98.391304%; rejected and restored.
+- s03 Zi8GetElementCount: initialize scan indices and count in separate statements. Objdiff 99.34782% -> 98.347824%; rejected and restored.
+- s04 ZiMatchZHSpelling: keep character-count helper result unsigned. Objdiff 98.80165% -> 98.80165%; rejected and restored.
+- s05 ZiMatchZHSpelling: scope candidate length to the fallback spelling conversion. Objdiff 98.80165% -> build failed%; rejected and restored.
+- s06 ZiMatchZHSpelling: return success directly after a complete partial matching scan. Objdiff 98.80165% -> 97.06612%; rejected and restored.
+- s07 ZiMatchZHSpelling: initialize immutable candidate length after the success flag. Objdiff 98.80165% -> 97.19009%; rejected and restored.
+
+### Block coverage audit
+
+Address ranges group the complete target engine in object order; the basic-block map gives each individual instruction count, call and alignment. Every positive-length alignment difference belongs to exactly one range. Apparent gaps paired with displaced source blocks are not labeled missing behavior.
+
+| Region | Target offsets | Code paths | Compiled attempts |
+| --- | --- | --- | --- |
+| R0 | +0000-1928 | input, masks, fuzzy preflight | b42, b43, b44 |
+| R1 | +1928-1dd0 | table and mode setup | b01, b02, b45 |
+| R2 | +1dd0-1f78 | punctuation | b03, b09, b46 |
+| R3 | +1f78-2b5c | OEM | b04, b05, b10, b11, b31, b35 |
+| R4 | +2b5c-3b80 | PUD | b06, b07, b08, b09, b32, b36 |
+| R5 | +3b80-48bc | context phrases | b12, b33, b37, b39 |
+| R6 | +48bc-5290 | prediction and dictionary candidates | b13, b20, b29, b40 |
+| R7 | +5290-5a04 | character ranges | b14, b30, b47 |
+| R8 | +5a04-626c | component and phonetic ordinals | b15, b16, b21, b22 |
+| R9 | +626c-7110 | tones and user characters | b17, b23, b24, b25, b34 |
+| R10 | +7110-7538 | global characters | b18, b26, b41 |
+| R11 | +7538-7dbc | component phrases | b38, b48, b49 |
+| R12 | +7dbc-88b8 | frequency merge | b27, b28, b50 |
+| R13 | +88b8-94d0 | phonetic pairs and groups | b51, b52, b53 |
+| R14 | +94d0-9be4 | phonetic candidate loop | b19, b54, b55 |
+| R15 | +9be4-9fb0 | retry and finish | b56, b57, b58 |
+| R16 | +9fb0-a6d0 | filtered table | b59, b60, b61 |
+
+All 17 ranges have at least three distinct compiled source attempts. All 213 positive alignment differences are assigned in `/tmp/sol-med-zi8-blocks/deficit-regions.json`. Full block counts/calls/alignment are in `/tmp/sol-med-zi8-blocks/aligned-blocks.md`; call-anchored instruction differences are in `map.md`; the direct alignment is in `global.diff`. Reproducible generators and every trial source/build/measurement are in the same directory.
+
+The initial b01/b02 combination failed its clean gate because it saved four registers instead of five, dropping matched exception data from 72 to 24 bytes. b03 restored the target five-register save sequence before the combined state was committed. b07, b08 and b09 were also rejected for the same data regression despite their lower deficits or higher scores. All later accepted changes passed the full-build quick gate with zero regressions, 72 matched data bytes, and no forbidden/readability findings.
+
+Source cleanup removed redundant scopes and changed indentation only. The engine remains 10,614/10,676 instructions, fuzzy 78.76161%, with the target 0x4e0 frame and `_savegpr_27` sequence. The deficit improved 78 to 62; unit instruction-exact count remains 5/8, code 4,168/47,816, data 72/536. No exact function was added.
+
+Remaining smaller functions were rechecked: Zi8GetElementCount has three fresh measured source attempts, s01-s03; all were restored, retaining 115/115 instructions with thirteen register differences at 99.347824%. ZiMatchZHSpelling has three fresh successful-build measured alternatives s04, s06 and s07, plus the failed C declaration-placement attempt s05; all were restored, retaining 121/121 instructions with 29 register differences at 98.80165%. The s05 log describes its intended placement; its actual trial declared candidateLength after the first assignment, which the C compiler rejected.
+
+Instruction-only alignment excludes register names and branch spans. It does not prove semantic equivalence for approximate or displaced block pairs. Remaining structural differences include case/body ordering, scalar call-result moves, array-index expressions and long conditional branch expansion. The worker stopping condition is the exhausted region-attempt audit; the higher instruction-exact function-count completion condition is unmet.
+
+### Final clean gate
+
+```
+full build: ok
+main.dol sha1: 26116613f624061ba99c8d1a299aaa6efa85670d
+[libs/RVLMiddleware/eZiText/src/clib/zi8cgetc] pool: IDENTICAL
+[libs/RVLMiddleware/eZiText/src/clib/zi8cgetc] objdiff: code 4168/47816 data 72/536 functions 5/8 fuzzy 81.0138 linked code 0
+[libs/RVLMiddleware/eZiText/src/clib/zi8cgetc] instruction-exact functions: 5/8
+regressions vs baseline: 0
+forbidden patterns added (net, per file): 0
+readability warnings (net, per file; must be 0 in the final result): 0
+GATE PASS
+```
