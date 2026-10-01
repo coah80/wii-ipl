@@ -62,7 +62,7 @@ namespace ipl {
             virtual ~Base();
 
             /** @brief If the scene is ready */
-#ifdef IPL_SD_CHANNEL_TITLE_CPP
+#if defined(IPL_SD_CHANNEL_TITLE_CPP) || defined(IPL_ADDRESS_CPP)
             virtual BOOL isReady() const;
 #else
             virtual BOOL isReady() const { return FALSE; }
@@ -71,13 +71,19 @@ namespace ipl {
             /** @brief If the user can power off/reset the system */
 #ifdef IPL_SD_CHANNEL_TITLE_CPP
             virtual BOOL isResetAcceptable() { return TRUE; }
+#elif defined(IPL_ADDRESS_CPP)
+            virtual BOOL isResetAcceptable() const;
 #else
             virtual BOOL isResetAcceptable() const { return TRUE; }
 #endif
             /** @brief The scene running code when powering off/resetting the system */
+#ifdef IPL_ADDRESS_CPP
+            virtual void startResetting();
+#else
             virtual void startResetting() {}
+#endif
             /** @brief If the scene has finished its powering off/resetting task */
-#ifdef IPL_SD_CHANNEL_TITLE_CPP
+#if defined(IPL_SD_CHANNEL_TITLE_CPP) || defined(IPL_ADDRESS_CPP)
             virtual BOOL isResetProcessDone();
 #else
             virtual BOOL isResetProcessDone() { return TRUE; }
@@ -94,14 +100,20 @@ namespace ipl {
             /** @brief Destroy the scene and clear from memory */
             virtual void destroy() {}
 
-#ifdef IPL_SD_CHANNEL_TITLE_CPP
+#if defined(IPL_SD_CHANNEL_TITLE_CPP) || defined(IPL_ADDRESS_CPP)
             virtual Base* getParent();
+#else
+            virtual Base* getParent() { return (Base*)mpParent; }
+#endif
+#ifdef IPL_SD_CHANNEL_TITLE_CPP
             virtual Base* getChild();
+#else
+            virtual Base* getChild() { return (Base*)mpChild; }
+#endif
+#if defined(IPL_SD_CHANNEL_TITLE_CPP) || defined(IPL_ADDRESS_CPP)
             virtual Base* getNext();
             virtual Base* getPrev();
 #else
-            virtual Base* getParent() { return (Base*)mpParent; }
-            virtual Base* getChild() { return (Base*)mpChild; }
             virtual Base* getNext() { return (Base*)mpNext; }
             virtual Base* getPrev() { return (Base*)mpPrev; }
 #endif

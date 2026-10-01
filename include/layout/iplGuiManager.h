@@ -24,7 +24,7 @@ namespace ipl {
                 mbDisableCon(bDisableCon) {}
 #endif
 
-#if defined(IPL_CHANNEL_TITLE_NOVTABLE) || defined(IPL_GC_SAVEDATA_NOVTABLE) || defined(IPL_MEMORY_CARD_NOVTABLE) || defined(IPL_SD_CHANNEL_TITLE_CPP)
+#if defined(IPL_ADDRESS_CPP) || defined(IPL_CHANNEL_TITLE_NOVTABLE) || defined(IPL_GC_SAVEDATA_NOVTABLE) || defined(IPL_MEMORY_CARD_NOVTABLE) || defined(IPL_SD_CHANNEL_TITLE_CPP)
                 virtual ~PaneManager();
 #else
                 virtual ~PaneManager() {}

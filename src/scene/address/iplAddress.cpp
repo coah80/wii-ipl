@@ -1,6 +1,8 @@
 #define IPL_ADDRESS_MATCHING
+#define IPL_ADDRESS_CPP
 #define IPL_CONTROLLER_OUT_OF_LINE_VEC2
 #define IPL_SOUND_RECT_OUT_OF_LINE
+#define IPL_CONTROLLER_TRIVIAL_RECT_DTOR
 #include <nw4r/ut/Rect.h>
 #undef IPL_SOUND_RECT_OUT_OF_LINE
 
@@ -63,6 +65,9 @@ namespace ipl {
             memset(&mDrag, 0, sizeof(DragInfo));
             mDrag.mNextCount = -1;
             mDrag.mPrevCount = -1;
+        }
+
+        FaderSceneBase::~FaderSceneBase() {
         }
 
         Address::~Address() {
@@ -415,6 +420,10 @@ namespace ipl {
             }
         }
 
+
+        math::VEC2 math::VEC2::operator*(f32 val) const {
+            return VEC2(x * val, y * val);
+        }
         void Address::destroy() {
             mpFriendCache->fin();
         }
@@ -2013,6 +2022,28 @@ namespace ipl {
 
         s32 FriendListCache::getErrCode() const {
             return System::getNwc24Manager()->getErrCode();
+        }
+        Base* Base::getPrev() {
+            return (Base*)mpPrev;
+        }
+        Base* Base::getNext() {
+            return (Base*)mpNext;
+        }
+        Base* Base::getParent() {
+            return (Base*)mpParent;
+        }
+        BOOL Base::isResetProcessDone() {
+            return TRUE;
+        }
+        void Base::startResetting() {
+        }
+        BOOL Base::isResetAcceptable() const {
+            return TRUE;
+        }
+        BOOL Base::isReady() const {
+            return FALSE;
+        }
+        void FaderSceneBase::calcCommon() {
         }
     }  // namespace scene
 }  // namespace ipl

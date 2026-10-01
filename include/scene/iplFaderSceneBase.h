@@ -26,10 +26,15 @@ namespace ipl {
             };
 
             FaderSceneBase(EGG::Heap * heap);
-            virtual ~FaderSceneBase() {
-            }
-
             virtual void calc();
+
+            virtual ~FaderSceneBase()
+#ifdef IPL_ADDRESS_CPP
+                ;
+#else
+            {
+            }
+#endif
 
             virtual void initCalcNormal()
 #ifdef IPL_SD_CHANNEL_TITLE_CPP
@@ -42,8 +47,12 @@ namespace ipl {
             virtual void initCalcFadeout() {
             }  // 0x50
 
+#ifdef IPL_ADDRESS_CPP
+            virtual void calcCommon();
+#else
             virtual void calcCommon() {
             }  // 0x54
+#endif
 
             virtual FaderSceneCommand calcFadein() {
                 return FADER_SCN_NEXT;
@@ -71,6 +80,7 @@ namespace ipl {
         protected:
             int mScnFadeState;  // 0x54
         };
+
     }  // namespace scene
 }  // namespace ipl
 

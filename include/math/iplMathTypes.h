@@ -70,7 +70,11 @@ namespace ipl {
 
             void operator=(const VEC2& r);
 
+#ifdef IPL_ADDRESS_CPP
+            VEC2 operator*(f32 val) const;
+#else
             VEC2 operator*(f32 val) const { return VEC2(x * val, y * val); }
+#endif
 
 #ifdef IPL_CONTROLLER_OUT_OF_LINE_VEC2
             void set(f32 fx, f32 fy);
