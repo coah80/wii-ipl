@@ -272,12 +272,12 @@ namespace ipl {
     }
 
     void CdbBackup::stt_wait_backup() {
-        if (fn_8135B1C0() < 100) {
-            System::getDialog()->setProgBarLength(fn_8135B1C0());
+        if (getProgressPercent() < 100) {
+            System::getDialog()->setProgBarLength(getProgressPercent());
         }
 
         if (mbDoneProcess) {
-            if (fn_8135B1C0() >= 100) {
+            if (getProgressPercent() >= 100) {
                 System::getDialog()->setProgBarLength(100);
             } else {
                 System::getDialog()->terminate();
@@ -360,7 +360,7 @@ namespace ipl {
         }
     }
 
-    int CdbBackup::fn_8135B1C0() {
+    int CdbBackup::getProgressPercent() {
         return ((mTotalFreeSize - mPrevFreeSize) * 100) / ((0x1400000 - unknown) - mPrevFreeSize);
     }
 
