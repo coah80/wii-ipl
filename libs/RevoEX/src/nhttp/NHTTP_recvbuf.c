@@ -136,8 +136,10 @@ s32 NHTTPi_RecvBuf(void* mutex, NHTTPRequestInfo* request, s32 socket, u32 offse
 s32 NHTTPi_RecvBufN(void* mutex, NHTTPRequestInfo* request, s32 socket, u32 offset, s32 length, s32 flags) {
     NHTTPResponseInfo* response=request->response;
     s32 remaining;
+    char* buf;
     if(response->recvBufLen<=offset) return -1003;
-    remaining=response->recvBufLen-offset;
+    remaining=((volatile NHTTPResponseInfo*)response)->recvBufLen-offset;
+    buf=response->recvBuf_p+offset;
     if(length>remaining) length=remaining;
-    return NHTTPi_SocRecv(mutex,request,socket,response->recvBuf_p+offset,length,flags);
+    return NHTTPi_SocRecv(mutex,request,socket,buf,length,flags);
 }
