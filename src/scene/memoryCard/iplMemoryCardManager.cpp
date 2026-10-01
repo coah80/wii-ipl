@@ -11,7 +11,7 @@ struct MemoryCardSortEntry {
     s64 key;
 };
 
-extern "C" int iplMemoryCardManager_813CD034(const void* first, const void* second) {
+extern "C" int compareMemoryCardSortEntries(const void* first, const void* second) {
     const MemoryCardSortEntry* a = static_cast<const MemoryCardSortEntry*>(first);
     const MemoryCardSortEntry* b = static_cast<const MemoryCardSortEntry*>(second);
     s64 bKey = b->key;
@@ -92,7 +92,7 @@ void MemoryCardManager::sort_file_array(u8 slot) {
             mFile[slot][file].unk_0x08 = 0;
         }
     }
-    qsort(mFile[slot], 0x7f, sizeof(MCFile), iplMemoryCardManager_813CD034);
+    qsort(mFile[slot], 0x7f, sizeof(MCFile), compareMemoryCardSortEntries);
 }
 
 void MemoryCardManager::sendCardCmdMove(u8 slot, s16 index) {
