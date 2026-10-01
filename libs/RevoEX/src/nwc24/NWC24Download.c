@@ -347,6 +347,10 @@ NWC24Err NWC24SetDlPriority(NWC24DlTask* dlTask, u8 dlPriority) {
 
 
 
+static inline void ReadDlTaskIdentifier(const NWC24DlTask* dlTask, u16* identifier) {
+    *identifier = ((const DlTaskData*)dlTask)->id;
+}
+
 static inline NWC24Err SetDlTaskNextTime(NWC24DlTask* dlTask, OSTime time) {
     NWC24Work* work = NWC24WorkP;
     DlTaskListHeader* header = work != NULL ? (DlTaskListHeader*)work->dlHead : NULL;
@@ -358,7 +362,7 @@ static inline NWC24Err SetDlTaskNextTime(NWC24DlTask* dlTask, OSTime time) {
     else if (task->id != 0xffff && task->id >= header->maxTaskCount) { result = NWC24_ERR_INVALID_VALUE; }
     else { result = NWC24_OK; }
     if (result != NWC24_OK) { return result; }
-    taskId = task->id;
+    ReadDlTaskIdentifier(dlTask, &taskId);
     if (taskId == 0xffff) { return NWC24_ERR_FAILED; }
     time /= 60;
     header = work != NULL ? (DlTaskListHeader*)work->dlHead : NULL;
@@ -421,7 +425,7 @@ NWC24Err NWC24SetDlInterval(NWC24DlTask* dlTask, u16 dlInterval) {
                     }
                 }
                 if (result == NWC24_OK) {
-                    taskId = task->id;
+                    ReadDlTaskIdentifier(dlTask, &taskId);
                     if (taskId != 0xffff) {
                         nextTime /= 60;
                         if (work != NULL) {
@@ -784,17 +788,19 @@ NWC24Err NWC24AddDlTask(NWC24DlTask* dlTask) {
     result = CheckDlTaskListHeader(header);
     if (result < NWC24_OK) { return result; }
     result = AddTaskInternal(dlTask, GetCachedDlHeader()->taskCount, GetCachedDlHeader()->maxTaskCount);
-    if (result < NWC24_OK) { return result; }
-    universalTime = 0;
-    result = NWC24iGetUniversalTime(&universalTime);
-    if (result < NWC24_OK) { return result; }
-    {
-    s32 intervalSeconds;
-    s64 nextTime;
-    intervalSeconds = ((DlTaskData*)dlTask)->interval * 60;
-    nextTime = universalTime + intervalSeconds;
-    return SetDlTaskNextTime(dlTask, nextTime);
+    if (result >= NWC24_OK) {
+        universalTime = 0;
+        result = NWC24iGetUniversalTime(&universalTime);
+        if (result < NWC24_OK) { return result; }
+        {
+            s32 intervalSeconds;
+            s64 nextTime;
+            intervalSeconds = ((DlTaskData*)dlTask)->interval * 60;
+            nextTime = universalTime + intervalSeconds;
+            return SetDlTaskNextTime(dlTask, nextTime);
+        }
     }
+    return result;
 }
 
 
