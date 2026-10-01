@@ -749,7 +749,7 @@ void GCWindow::onMemEvent(long event, u8 cardState) {
                 break;
             }
             goto process_complete;
-        case 0x15:
+        default:
             return;
 
         process_complete:
@@ -757,6 +757,18 @@ void GCWindow::onMemEvent(long event, u8 cardState) {
             mWaiting = false;
             show_button_ok();
             mState = 0xe;
+            break;
+        case 0:
+        case 1:
+        case 3:
+        case 4:
+        case 5:
+        case 6:
+        case 7:
+        case 0xB:
+        case 0xD:
+        case 0x10:
+        case 0x15:
             break;
         }
     }
