@@ -2209,86 +2209,62 @@ done:
     return;
 }
 
-void ipl::scene::AddressEdit::start_left_event(
-    const char* paneName) {
+void ipl::scene::AddressEdit::start_left_event(const char* paneName) {
     int buttonNo = get_button_no(paneName);
     switch (mState) {
-    case 0x22:
-        goto state22;
     case 0:
         switch (buttonNo) {
+        case 0: {
+            if (mpFriendCache->getInfo(mSelectedFriend).attr.status != 2) {
+                break;
+            }
+            s32* count = &mPointCount[buttonNo];
+            if (*count == 1) {
+                layout::Animator* animator = mpCodeLayout->getAnim(buttonNo + 11);
+                animator->initFrame();
+                animator->restart();
+            }
+            if (*count > 0) {
+                --*count;
+            }
+            break;
+        }
         case 3:
-            goto state0Button3;
-        case 0:
-            goto state0Friend;
+            if (mPointCount[buttonNo] == 1) {
+                mpBalloon->fadeoutForce();
+            }
         case 1:
-        case 2:
-            goto state0Common;
+        case 2: {
+            s32* count = &mPointCount[buttonNo];
+            if (*count == 1) {
+                layout::Animator* animator = mpCodeLayout->getAnim(buttonNo + 11);
+                animator->initFrame();
+                animator->restart();
+            }
+            if (*count > 0) {
+                --*count;
+            }
+            break;
+        }
         default:
             break;
+        }
+        break;
+    case 0x22:
+        switch (buttonNo) {
+        case 3: {
+            s32* count = &mPointCount[buttonNo];
+            if (*count == 1) {
+                mpBalloon->fadeoutForce();
+            }
+            --*count;
+            break;
+        }
         }
         break;
     default:
         break;
     }
-    goto done;
-
-state0Friend: {
-        u32 friendIndex = mSelectedFriend;
-        u32 friendType = mpFriendCache->getInfo(friendIndex).attr.status;
-        if (friendType != 2) {
-            goto done;
-        }
-        s32* count = &mPointCount[buttonNo];
-        if (*count == 1) {
-            ipl::layout::Object* layout = mpCodeLayout;
-            ipl::layout::Animator* pane = layout->getAnim(buttonNo + 0xb);
-            pane->initFrame();
-            pane->restart();
-        }
-        if (*count > 0) {
-            --*count;
-        }
-        goto done;
-    }
-
-state0Button3: {
-        s32* count = &mPointCount[buttonNo];
-        if (*count == 1) {
-            (mpBalloon)->fadeoutForce();
-        }
-        --*count;
-        goto done;
-    }
-
-state0Common: {
-        s32* count = &mPointCount[buttonNo];
-        if (*count == 1) {
-            ipl::layout::Object* layout = mpCodeLayout;
-            ipl::layout::Animator* pane = layout->getAnim(buttonNo + 0xb);
-            pane->initFrame();
-            pane->restart();
-        }
-        if (*count > 0) {
-            --*count;
-        }
-        goto done;
-    }
-
-state22:
-    if (buttonNo != 3) {
-        goto done;
-    }
-    {
-        s32* count = &mPointCount[buttonNo];
-        if (*count == 1) {
-            (mpBalloon)->fadeoutForce();
-        }
-        --*count;
-    }
-
-done:
-    return;
 }
 
 void ipl::scene::AddressEdit::start_trig_event(
