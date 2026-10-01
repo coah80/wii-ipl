@@ -94,8 +94,12 @@ int SOGetAddrInfo(const char* nodeName, const char* servName, const SOAddrInfo* 
     char* node;
     char* service;
     SOAddrInfo* requestHints;
+    int nodeSize,servSize;
     if((result=SOiPrepare(NULL,&rm))==0) {
-        size=(((NameSize(nodeName)+31)&~31)+((servName ? strlen(nodeName)+32 : 31)&~31)+95)&~31;
+        servSize = servName==0 ? 0 : strlen(nodeName)+1;
+        nodeSize = nodeName==0 ? 0 : strlen(nodeName)+1;
+        size=((nodeSize+31)&~31)+((servSize+31)&~31)+95;
+        size&=~31;
         request=SOiAlloc(12,size);
         if(!request) result=-49;
         else {
@@ -103,14 +107,14 @@ int SOGetAddrInfo(const char* nodeName, const char* servName, const SOAddrInfo* 
             if(!reply) { SOiFree(12,request,size); result=-49; }
             else {
                 node=(char*)request->storage;
-                service=node+((NameSize(nodeName)+31)&~31);
-                requestHints=(SOAddrInfo*)(service+((servName ? strlen(nodeName)+32 : 31)&~31));
+                service=node+(((nodeName==0 ? 0 : strlen(nodeName)+1)+31)&~31);
+                requestHints=(SOAddrInfo*)(service+(((servName==0 ? 0 : strlen(nodeName)+1)+31)&~31));
                 if(nodeName) strcpy(node,nodeName);
                 request->vectors[0].base=nodeName ? (u8*)node : NULL;
-                request->vectors[0].length=nodeName ? strlen(nodeName) : 0;
+                request->vectors[0].length=nodeName==0 ? 0 : strlen(nodeName);
                 if(servName) strcpy(service,servName);
                 request->vectors[1].base=servName ? (u8*)service : NULL;
-                request->vectors[1].length=servName ? strlen(servName) : 0;
+                request->vectors[1].length=servName==0 ? 0 : strlen(servName);
                 if(hints) memcpy(requestHints,hints,32);
                 else memset(requestHints,0,32);
                 if(requestHints->family==0) requestHints->family=2;
@@ -121,7 +125,7 @@ int SOGetAddrInfo(const char* nodeName, const char* servName, const SOAddrInfo* 
                     request->vectors[3].base=(u8*)reply; request->vectors[3].length=0x834;
                     result=IOS_Ioctlv(rm,24,3,1,request->vectors);
                     if(result>=0) {
-                        SOAddrInfo* entry=reply->entries;
+                        SOAddrInfo* entry=(SOAddrInfo*)reply;
                         u8* address=reply->addresses;
                         *resultInfo=entry;
                         while(entry) {

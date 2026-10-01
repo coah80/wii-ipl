@@ -130,15 +130,13 @@ static int __nupNhttpOp(char* url, NHTTPReqMethod method, char* headers, u8* bod
         if (headerCopy == NULL) { result = -5000; goto cleanup; }
         memcpy(headerCopy, headers, size);
         char* field = headerCopy;
-        while (*field != 0) {
-            char* colon = strchr(field, ':');
-            if (colon == NULL) break;
-            char* end = strstr(colon, "\r\n");
-            if (end == NULL) break;
+        char* colon;
+        char* end;
+        while (*field != 0 && (colon = strchr(field, ':')) != NULL && (end = strstr(colon, "\r\n")) != NULL) {
             *colon = 0;
             *end = 0;
             while (*field && isspace(*field)) field++;
-            do { colon++; } while (*colon && isspace(*colon));
+            colon++; while (*colon && isspace(*colon)) colon++;
             if (NHTTPAddHeaderField(request, field, colon) != 0) { result = -7000 - NHTTPGetError(); goto cleanup; }
             field = end + 2;
         }
@@ -179,7 +177,7 @@ static int __nupNhttpOp(char* url, NHTTPReqMethod method, char* headers, u8* bod
             result = -5007;
             goto cleanup;
         }
-        if (OSGetTime() - state.lastActivity >= OSMillisecondsToTicks(90000)) break;
+        if (OSGetTime() - state.lastActivity >= OSMillisecondsToTicks((OSTime)90000)) break;
         NCDSleep(OSMillisecondsToTicks(100));
     }
     if (requestId >= 0) {

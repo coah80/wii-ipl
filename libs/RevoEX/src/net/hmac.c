@@ -23,7 +23,7 @@ void NETHMACInit(HMACContext* context, const DigestInterface* interface, const v
     u8 innerKey[64];
     u32 i;
     u32 keyLength;
-    void* work = context->digestContext;
+    u8* work = context->digestContext;
     const char* function = "NETHMACInit";
     context->interface = *interface;
     if (context->interface.contextSize > 96 || context->interface.blockSize > 64) {
@@ -57,7 +57,7 @@ void NETHMACGetDigest(HMACContext* context, void* digest) {
     u8 outerKey[64];
     u32 i;
     u32 keyLength;
-    void* work = context->digestContext;
+    u8* work = context->digestContext;
     context->interface.getDigest(work, innerDigest);
     keyLength = context->keyLength;
     for (i=0; i<keyLength; ++i) outerKey[i] = context->key[i] ^ 0x5c;

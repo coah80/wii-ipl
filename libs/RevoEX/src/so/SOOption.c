@@ -111,8 +111,8 @@ int SOGetInterfaceOpt(void* interface, int level, int option, void* value, int* 
             else {
                 command=&request->command;
                 command->level=level; command->option=option;
-                returnedLength=&request->length;
-                reply=request->value;
+                returnedLength=(int*)((u8*)command+0x20);
+                reply=(u8*)returnedLength+0x20;
                 *returnedLength=OptionLength(length);
                 request->vectors[0].base=(u8*)command;
                 request->vectors[0].length=8;
@@ -152,7 +152,7 @@ int SOSetInterfaceOpt(void* interface, int level, int option, const void* value,
             else {
                 command=&request->command;
                 command->level=level; command->option=option;
-                reply=request->value;
+                reply=(u8*)command+0x20;
                 if(value) memcpy(reply,value,length);
                 else memset(reply,0,length);
                 request->vectors[0].base=(u8*)command; request->vectors[0].length=8;

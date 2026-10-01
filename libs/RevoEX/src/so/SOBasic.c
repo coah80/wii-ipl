@@ -13,8 +13,8 @@ int SOiIsBufferAddrCheck(void);
 void* SOiAlloc(u32, s32);
 void SOiFree(u32, void*, s32);
 
-static int soSocketRegistered;
-const char* __SOCKETVersion="<< RVL_SDK - SOCKET \trelease build: Dec 12 2008 03:06:17 (0x4199_60831) >>";
+static int soSocketRegistered[2];
+const char* __SOCKETVersion ="<< RVL_SDK - SOCKET \trelease build: Dec 12 2008 03:06:17 (0x4199_60831) >>";
 
 typedef struct SocketRequest { int socket; int type; int protocol; } SocketRequest;
 typedef struct AddressRequest { int socket; int hasAddress; SOSockAddr address; } AddressRequest;
@@ -35,9 +35,12 @@ typedef struct RecvRequest {
     union { struct { int socket; int flags; } command; u8 commandBlock[32]; };
     SOSockAddr address;
 } RecvRequest;
+typedef struct SendCmd {
+    int socket; int flags; int hasAddress; SOSockAddr address;
+} SendCmd;
 typedef struct SendRequest {
     IOSIoVector vectors[4];
-    struct { int socket; int flags; int hasAddress; SOSockAddr address; } command;
+    SendCmd command;
 } SendRequest;
 
 static int RecvFrom(const char*, int, void*, int, int, SOSockAddr*);
@@ -47,7 +50,7 @@ int SOSocket(int family, int type, int protocol) {
     s32 rm;
     SocketRequest* request;
     int result;
-    if(!soSocketRegistered) { OSRegisterVersion(__SOCKETVersion); soSocketRegistered=1; }
+    if(!soSocketRegistered[0]) { OSRegisterVersion(__SOCKETVersion); soSocketRegistered[0]=1; }
     if((result=SOiPrepare(NULL,&rm))==0) {
         if(family==23) result=-5;
         else {
@@ -87,7 +90,7 @@ int SOBind(int socket, void* address) {
     int result;
     AddressRequest* request;
     if((result=SOiPrepare(NULL,&rm))==0) {
-        if(!addr || addr->len>8 || addr->len<8) result=-28;
+        if(!address || addr->len>8 || addr->len<8) result=-28;
         else {
             request=SOiAlloc(12,64);
             if(!request) result=-49;
@@ -109,7 +112,7 @@ int SOConnect(int socket, void* address) {
     int result;
     AddressRequest* request;
     if((result=SOiPrepare(NULL,&rm))==0) {
-        if(!addr || addr->len>8 || addr->len<8) result=-28;
+        if(!address || addr->len>8 || addr->len<8) result=-28;
         else {
             request=SOiAlloc(12,64);
             if(!request) result=-49;
@@ -125,26 +128,24 @@ int SOConnect(int socket, void* address) {
     return result;
 }
 
-int SOGetSockName(int socket, void* address) {
+int SOGetSockName(int socket, SOSockAddr* address) {
     int size;
     int result;
     s32 rm;
-    SOSockAddr* addr;
-    SOSockAddr* reply;
     NameRequest* request;
-    addr=address;
+    SOSockAddr* reply;
     if((result=SOiPrepare(NULL,&rm))==0) {
-        if(!addr || addr->len>8 || addr->len<8) result=-28;
+        if(!address || address->len>8 || address->len<8) result=-28;
         else {
-            size=(addr->len+63)&~31;
+            size=(address->len+63)&~31;
             request=SOiAlloc(12,size);
             if(!request) result=-49;
             else {
                 request->socket=socket;
                 reply=&request->address;
-                memcpy(reply,addr,addr->len);
-                result=IOS_Ioctl(rm,7,request,4,reply,addr->len);
-                if(result>=0) memcpy(addr,reply,reply->len);
+                memcpy(reply,address,address->len);
+                result=IOS_Ioctl(rm,7,request,4,reply,address->len);
+                if(result>=0) memcpy(address,reply,reply->len);
                 SOiFree(12,request,size);
             }
         }
@@ -199,7 +200,7 @@ int SOShutdown(int socket, int how) {
 
 int SOPoll(SOPollFD* fds, unsigned int count, s64 timeout) {
     s32 rm;
-    s32 result,bytes,size;
+    s32 size,bytes,result;
     PollRequest* request;
     SOPollFD* reply;
     if((result=SOiPrepare(NULL,&rm))==0) {
@@ -256,11 +257,11 @@ char* SOInetNtoA(SOInAddr address) {
 
 int SOInetPtoN(int family, const char* text, void* address) {
     s32 rm;
-    int temporary,result,size,bytes;
+    int size,temporary,result,bytes;
     InetRequest* request;
     if((result=SOiPrepareTempRm(NULL,&rm,&temporary))==0) {
         bytes=0;
-        if(family==2) bytes=4;
+        switch(family) { case 2: bytes=4; break; default: break; }
         if(!bytes) result=-5;
         else if(!text) result=-28;
         else {
@@ -305,10 +306,10 @@ static inline int DirectBuffer(const void* data, int length) {
 static int RecvFrom(const char* name, int socket, void* data, int length, int flags, SOSockAddr* address) {
     s32 rm;
     int result,size;
-    BOOL direct;
     RecvRequest* request;
     void* buffer;
     SOSockAddr* reply;
+    BOOL direct;
     if(length>32768) length=32768;
     if((result=SOiPrepare(name,&rm))==0) {
         if(address && (address->len>8 || address->len<8)) result=-28;
@@ -316,10 +317,10 @@ static int RecvFrom(const char* name, int socket, void* data, int length, int fl
         else {
             direct=TRUE;
             if(length && !DirectBuffer(data,length)) direct=FALSE;
-            size=((address ? address->len : 0)+95)&~31;
+            size=((address==0 ? 0 : address->len)+95)&~31;
             request=SOiAlloc(12,size);
-            if(!direct) buffer=SOiAlloc(13,(length+31)&~31);
-            else buffer=data;
+            if(direct) buffer=data;
+            else buffer=SOiAlloc(13,(length+31)&~31);
             if(!request || !buffer) result=-49;
             else {
                 request->command.socket=socket; request->command.flags=flags;
@@ -330,13 +331,12 @@ static int RecvFrom(const char* name, int socket, void* data, int length, int fl
                     request->vectors[2].base=NULL; request->vectors[2].length=0;
                     result=IOS_Ioctlv(rm,12,1,2,request->vectors);
                 } else {
-                    memcpy(reply,address,address->len);
+                    memcpy(reply,(SOSockAddr*)address,address->len);
                     request->vectors[2].base=(u8*)reply; request->vectors[2].length=address->len;
                     result=IOS_Ioctlv(rm,12,1,2,request->vectors);
                     if(result>=0) {
                         u32 bytes=address->len;
-                        if(bytes>reply->len) bytes=reply->len;
-                        memcpy(address,reply,bytes);
+                        memcpy(address,reply,bytes>reply->len?reply->len:bytes);
                     }
                 }
                 if(result>=0 && !direct) memcpy(data,buffer,length);
@@ -362,19 +362,19 @@ static int SendTo(const char* name, int socket, const void* data, int length, in
             direct=TRUE;
             if(length && !DirectBuffer(data,length)) direct=FALSE;
             request=SOiAlloc(12,96);
-            if(!direct) buffer=SOiAlloc(14,(length+31)&~31);
-            else buffer=(void*)data;
+            switch(direct) { default: buffer=SOiAlloc(14,(length+31)&~31); break; case 1: buffer=(void*)data; break; }
             if(!request || !buffer) result=-49;
             else {
-                request->command.socket=socket; request->command.flags=flags;
-                if(!address) request->command.hasAddress=0;
+                SendCmd* cmd=&request->command;
+                cmd->socket=socket; cmd->flags=flags;
+                if(!address) cmd->hasAddress=0;
                 else {
-                    request->command.hasAddress=1;
-                    memcpy(&request->command.address,address,address->len);
+                    cmd->hasAddress=1;
+                    memcpy(&cmd->address,address,address->len);
                 }
                 if(!direct) memcpy(buffer,data,length);
                 request->vectors[0].base=buffer; request->vectors[0].length=length;
-                request->vectors[1].base=(u8*)&request->command; request->vectors[1].length=40;
+                request->vectors[1].base=(u8*)cmd; request->vectors[1].length=40;
                 result=IOS_Ioctlv(rm,13,2,0,request->vectors);
             }
             if(!direct) SOiFree(14,buffer,(length+31)&~31);
