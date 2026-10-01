@@ -1375,6 +1375,8 @@ void BS2ReadDiskID(void *buffer, s32 length, u32 offset) {
 }
 
 BS2State BS2Tick() {
+    DVDCommandBlock* block = &Block;
+    DVDDiskID* bootDisc;
     u32 interruptsEnabled = OSDisableInterrupts();
     u32 titleCode;
     s32 titlePrefix;
@@ -1400,6 +1402,7 @@ BS2State BS2Tick() {
         BS2Report("Drive Reset      : %d\n", BS2DriveReset);
         BS2Report("Wait Spinup      : %d\n", BS2WaitSpinup);
         BS2Report("Boot From Cache  : %d\n", BS2BootFromCache);
+        bootDisc = (DVDDiskID *)0x80000000;
         DvdProgress = (u32 *)&(*(u32 *)0x800030d4);
         PartitionParams.numTmdBytes = 0;
         PartitionParams.numCertBytes = 0;
@@ -1447,14 +1450,14 @@ BS2State BS2Tick() {
             SpinupDeadline = __OSGetSystemTime() + OSSecondsToTicks(7);
         }
         __OSClearRTCFlags();
-        DVDResetAsync(&Block, BS2DVDCallback);
+        DVDResetAsync(block, BS2DVDCallback);
         CoverBlock.state = 0;
         DriveWasReset = 1;
         State = BS2_STT_3;
     case 3:
         currentTime = __OSGetSystemTime();
         if ((OSTime)currentTime < (OSTime)SpinupDeadline) {
-            status = CheckDVDCommandStatus(&Block);
+            status = CheckDVDCommandStatus(block);
             if (status != 0) {
                 currentTime = __OSGetSystemTime();
                 if ((OSTime)(currentTime - ResetTime) >= (OSTime)(((OS_BUS_CLOCK >> 2) / 1000) * 200)) {
@@ -1479,7 +1482,7 @@ BS2State BS2Tick() {
                     NandPending = 1;
                     BS2NANDDivideReadAsync(&BS2CacheFileInfo, &DriveInfo, 0x20, BS2NANDCallback, &BS2NandBlock);
                 } else {
-                    DVDInquiryAsync(&Block, &DriveInfo, BS2DVDCallback);
+                    DVDInquiryAsync(block, &DriveInfo, BS2DVDCallback);
                 }
                 State = BS2_STT_5;
             }
@@ -1488,19 +1491,19 @@ BS2State BS2Tick() {
     case 5:
         status = CheckBS2CommandStatus();
         if (status != 0) {
-            if (((*(u32 *)0x8000002c) & 0xf0000000) == 0)
-                (*(u16 *)0x800030e6) = 0x8002;
+            if (((*(u32 *)((u8 *)bootDisc + 0x2c)) & 0xf0000000) == 0)
+                (*(u16 *)((u8 *)bootDisc + 0x30e6)) = 0x8002;
             else
-                (*(u16 *)0x800030e6) = DriveInfo.deviceCode | 0x8000;
+                (*(u16 *)((u8 *)bootDisc + 0x30e6)) = DriveInfo.deviceCode | 0x8000;
             State = BS2_STT_8;
         }
         break;
     case 6:
-        DVDDownRotationAsync(&Block, BS2DVDCallback);
+        DVDDownRotationAsync(block, BS2DVDCallback);
         State = BS2_STT_7;
         break;
     case 7:
-        status = CheckDVDCommandStatus(&Block);
+        status = CheckDVDCommandStatus(block);
         if (status == 0)
             break;
         State = BS2_STT_8;
@@ -1510,18 +1513,16 @@ BS2State BS2Tick() {
             NandPending = 1;
             BS2NANDDivideReadAsync(&BS2CacheFileInfo, &DiskID, 0x20, BS2NANDCallback, &BS2NandBlock);
         } else {
-            DVDReadDiskID(&Block, &DiskID, BS2DVDCallback);
+            DVDReadDiskID(block, &DiskID, BS2DVDCallback);
         }
         State = BS2_STT_9;
         break;
     case 9:
     case 10: {
-        DVDDiskID *bootDisc;
         status = CheckBS2CommandStatus();
         if (status == 0)
             break;
-        memcpy((void *)0x80000000, &DiskID, sizeof(DVDDiskID));
-        bootDisc = (DVDDiskID *)0x80000000;
+        memcpy((void *)bootDisc, &DiskID, sizeof(DVDDiskID));
         if (bootDisc->rvlMagic == 0x5d1c9ea3) {
             status = strncmp((char *)bootDisc, "RAAE", 4);
             if (status == 0 || strncmp((char *)bootDisc, "408", 3) == 0 ||
@@ -1548,7 +1549,6 @@ BS2State BS2Tick() {
         State = BS2_STT_11;
     }
     case 0xb: {
-        DVDDiskID *bootDisc = (DVDDiskID *)0x80000000;
         u32 audioBufferSize;
         if (AudioBufferUnconfigured == 0) {
             State = BS2_STT_GC_GAME;
@@ -1558,22 +1558,22 @@ BS2State BS2Tick() {
         if (bootDisc->streaming != 0) {
             audioBufferSize = bootDisc->streamingBufSize;
             audioBufferSize = audioBufferSize != 0 ? audioBufferSize : 10;
-            __DVDAudioBufferConfig(&Block, 1, audioBufferSize, BS2DVDCallback);
+            __DVDAudioBufferConfig(block, 1, audioBufferSize, BS2DVDCallback);
         } else {
-            __DVDAudioBufferConfig(&Block, 0, 0, BS2DVDCallback);
+            __DVDAudioBufferConfig(block, 0, 0, BS2DVDCallback);
         }
         State = BS2_STT_12;
     }
     case 0xc:
-        status = CheckDVDCommandStatus(&Block);
+        status = CheckDVDCommandStatus(block);
         if (status == 0)
             break;
         State = BS2_STT_13;
     case 0xd:
-        DVDUnencryptedReadAbsAsyncForBS(&Block, &bi2, 0x2000, 0x110, BS2DVDCallback);
+        DVDUnencryptedReadAbsAsyncForBS(block, &bi2, 0x2000, 0x110, BS2DVDCallback);
         State = BS2_STT_14;
     case 0xe:
-        status = CheckDVDCommandStatus(&Block);
+        status = CheckDVDCommandStatus(block);
         if (status == 0)
             break;
         discRegion = bi2.countryCode;
@@ -1719,14 +1719,14 @@ invalidRvlRegion:
             break;
         }
     case 0x15:
-        DVDOpenPartitionAsync(&Block, &PartitionParams.tmd,
+        DVDOpenPartitionAsync(block, &PartitionParams.tmd,
                               (u32)((DVDPartitionInfo *)UpdatePartition)->partition,
                               BS2DVDCallback);
         PartitionOpen = 1;
         State = BS2_STT_22;
         break;
     case 0x16:
-        status = CheckDVDCommandStatus(&Block);
+        status = CheckDVDCommandStatus(block);
         if (status != 0) {
             CurrentTmd = (u32)&PartitionParams.tmd;
             BS2Report("TMD ver        ... 0x%02X\n", ((ESTitleMeta *)CurrentTmd)->head.version);
@@ -1740,11 +1740,11 @@ invalidRvlRegion:
         }
         break;
     case 0x17:
-        DVDReadAbsAsyncForBS(&Block, &UpdateDiskID, 0x20, 0, BS2DVDCallback);
+        DVDReadAbsAsyncForBS(block, &UpdateDiskID, 0x20, 0, BS2DVDCallback);
         State = BS2_STT_24;
         break;
     case 0x18:
-        status = CheckDVDCommandStatus(&Block);
+        status = CheckDVDCommandStatus(block);
         if (status == 0)
             break;
         if (UpdateDiskID.rvlMagic == 0x5d1c9ea3)
@@ -1754,22 +1754,22 @@ invalidRvlRegion:
             break;
         }
     case 0x19:
-        DVDReadAbsAsyncForBS(&Block, &AppLoaderHdr, 0x20, 0x910, BS2DVDCallback);
+        DVDReadAbsAsyncForBS(block, &AppLoaderHdr, 0x20, 0x910, BS2DVDCallback);
         State = BS2_STT_26;
         break;
     case 0x1a:
-        status = CheckDVDCommandStatus(&Block);
+        status = CheckDVDCommandStatus(block);
         if (status == 0)
             break;
         BS2Report("  appLoaderLength ...... 0x%x\n", AppLoaderHdr.length);
         BS2Report("  appLoaderFunc1  ...... 0x%x\n", AppLoaderHdr.entryPoint);
         State = BS2_STT_27;
     case 0x1b:
-        DVDReadAbsAsyncForBS(&Block, (void *)0x81200000, (AppLoaderHdr.length + 0x1fU & 0xffffffe0), 0x918, BS2DVDCallback);
+        DVDReadAbsAsyncForBS(block, (void *)0x81200000, (AppLoaderHdr.length + 0x1fU & 0xffffffe0), 0x918, BS2DVDCallback);
         State = BS2_STT_28;
         break;
     case 0x1c:
-        status = CheckDVDCommandStatus(&Block);
+        status = CheckDVDCommandStatus(block);
         if (status == 0)
             break;
         ICInvalidateRange((void *)0x81200000, (AppLoaderHdr.length + 0x1fU & 0xffffffe0));
@@ -1782,7 +1782,7 @@ invalidRvlRegion:
         if (status != 0) {
             BS2Report("Addr [0x%x] length [0x%x] offset [0x%x]\n", loaderRead.address, loaderRead.length, loaderRead.offset);
             readInterruptsEnabled = OSDisableInterrupts();
-            DVDReadAbsAsyncForBS(&Block, (void *)loaderRead.address, loaderRead.length, loaderRead.offset >> __DVDLayoutFormat, BS2DVDCallback);
+            DVDReadAbsAsyncForBS(block, (void *)loaderRead.address, loaderRead.length, loaderRead.offset >> __DVDLayoutFormat, BS2DVDCallback);
             if (*(s32 *)DvdProgress != 0) {
                 DvdReadPending = 1;
                 DvdTransferLength = loaderRead.length;
@@ -1793,7 +1793,7 @@ invalidRvlRegion:
             State = BS2_STT_31;
         break;
     case 0x1e:
-        status = CheckDVDCommandStatus(&Block);
+        status = CheckDVDCommandStatus(block);
         if (status != 0)
             State = BS2_STT_29;
         break;
@@ -1882,11 +1882,11 @@ invalidRvlRegion:
         }
         break;
     case 0x23:
-        DVDClosePartitionAsync(&Block, BS2DVDCallback);
+        DVDClosePartitionAsync(block, BS2DVDCallback);
         State = BS2_STT_36;
         break;
     case 0x24:
-        status = CheckDVDCommandStatus(&Block);
+        status = CheckDVDCommandStatus(block);
         if (status == 0)
             break;
         PartitionOpen = 0;
@@ -1906,7 +1906,7 @@ invalidRvlRegion:
             NandPending = 1;
             BS2NANDDivideReadAsync(&BS2CacheFileInfo, &PartitionParams.tmd, 0x4a00, BS2NANDCallback, &BS2NandBlock);
         } else
-            DVDOpenPartitionAsync(&Block, &PartitionParams.tmd, (u32)((DVDPartitionInfo *)GamePartition)->partition, BS2DVDCallback);
+            DVDOpenPartitionAsync(block, &PartitionParams.tmd, (u32)((DVDPartitionInfo *)GamePartition)->partition, BS2DVDCallback);
         PartitionOpen = 1;
         State = BS2_STT_38;
         break;
@@ -2135,7 +2135,7 @@ invalidRvlRegion:
         }
         break;
     case 0x2f:
-        DVDClosePartitionAsync(&Block, BS2DVDCallback);
+        DVDClosePartitionAsync(block, BS2DVDCallback);
         State = BS2_STT_48;
         break;
     case 0x30:
@@ -2212,7 +2212,7 @@ invalidRvlRegion:
         switch (Block.state) {
         case 4:
         case 5:
-            CheckDVDCommandStatus(&Block);
+            CheckDVDCommandStatus(block);
             break;
         default: {
             currentTime = __OSGetSystemTime();
@@ -2233,11 +2233,11 @@ invalidRvlRegion:
             BannerLength = 0;
         }
         LoadingTitle = 0;
-        DVDChangeDiskAsyncForBS(&Block, BS2DVDCallback);
+        DVDChangeDiskAsyncForBS(block, BS2DVDCallback);
         State = BS2_STT_55;
     case 0x37:
     case 0x38:
-        CheckDVDCommandStatus(&Block);
+        CheckDVDCommandStatus(block);
         break;
     case 0x39:
     case 0x3a:
@@ -2256,7 +2256,7 @@ invalidRvlRegion:
             State = BS2_STT_61;
         break;
     case 0x3d:
-        DVDClosePartitionAsync(&Block, BS2DVDCallback);
+        DVDClosePartitionAsync(block, BS2DVDCallback);
         State = BS2_STT_62;
         break;
     case 0x3e:
@@ -2268,7 +2268,7 @@ invalidRvlRegion:
         }
         break;
     case 0x46:
-        DVDGetPartitionParamsAsync(&Block, &PartitionParams, (u32)((DVDPartitionInfo *)GamePartition)->partition, BS2DVDCallback);
+        DVDGetPartitionParamsAsync(block, &PartitionParams, (u32)((DVDPartitionInfo *)GamePartition)->partition, BS2DVDCallback);
         State = BS2_STT_71;
         break;
     case 0x47: {
@@ -2283,7 +2283,7 @@ invalidRvlRegion:
             }
             memcpy(&PartitionParams.ticketView, (void *)TitleTicketView, sizeof(ESTicketView));
             DCStoreRange(&PartitionParams.ticketView, sizeof(ESTicketView));
-            DVDOpenPartitionWithParamsAsync(&Block, &PartitionParams, (u32)((DVDPartitionInfo *)GamePartition)->partition, BS2DVDCallback);
+            DVDOpenPartitionWithParamsAsync(block, &PartitionParams, (u32)((DVDPartitionInfo *)GamePartition)->partition, BS2DVDCallback);
             PartitionOpen = 1;
             State = BS2_STT_38;
         }
@@ -2306,7 +2306,7 @@ invalidRvlRegion:
         switch (Block.state) {
         case 4:
         case 5:
-            CheckDVDCommandStatus(&Block);
+            CheckDVDCommandStatus(block);
             break;
         default: {
             currentTime = __OSGetSystemTime();
@@ -2358,11 +2358,11 @@ invalidRvlRegion:
             break;
         currentTime = __OSGetSystemTime();
         CoverPollTime = currentTime;
-        __DVDGetCoverStatusAsync(&Block, BS2DVDCallback);
+        __DVDGetCoverStatusAsync(block, BS2DVDCallback);
         State = BS2_STT_67;
     case 0x43:
     case 0x44:
-        CheckDVDCommandStatus(&Block);
+        CheckDVDCommandStatus(block);
         break;
     default:
         OSPanic("BS2Mach.c", 0x14e3, "BS2 ERROR >>> UNKNOWN STATE");

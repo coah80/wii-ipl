@@ -30,12 +30,7 @@ namespace ipl {
             nw4r::snd::SoundHandle handle;
         };
 
-        struct UnkCls {
-            tagSSeInfo blk[16];
-            ~UnkCls() {}
-        };
-
-        UnkCls _seBlk;
+        tagSSeInfo _seBlk[16];
         tagSBgmInfo _bgmBlk;
         nw4r::snd::SoundHandle* _mainBGMHandle;
         BOOL m_isLocked;
@@ -81,8 +76,8 @@ namespace ipl {
             initFx();
             sBannerSoundPlayer.init(5);
             for (i = 0; i < 16; i++) {
-                _seBlk.blk[i].name = NULL;
-                _seBlk.blk[i].id = 0xffff;
+                _seBlk[i].name = NULL;
+                _seBlk[i].id = 0xffff;
             }
             sBannerSoundPlayer.setMasterVolume(0.9f);
         }
@@ -260,10 +255,10 @@ namespace ipl {
 
             if (handle != NULL && handle->IsAttachedSound()) {
                 for (i = 0; i < 16; i++) {
-                    if (handle == &_seBlk.blk[i].handle) {
-                        _seBlk.blk[i].handle.Stop(unk);
-                        _seBlk.blk[i].name = NULL;
-                        _seBlk.blk[i].id = 0xffff;
+                    if (handle == &_seBlk[i].handle) {
+                        _seBlk[i].handle.Stop(unk);
+                        _seBlk[i].name = NULL;
+                        _seBlk[i].id = 0xffff;
                     }
                 }
             }
@@ -275,7 +270,7 @@ namespace ipl {
             int i = 0;
 
             for (; i < 16; i++) {
-                block = &_seBlk.blk[i];
+                block = &_seBlk[i];
                 block->handle.Stop(unk);
                 block->name = NULL;
                 block->id = 0xffff;
@@ -296,9 +291,9 @@ namespace ipl {
             int i = 0;
 
             for (; i < 16; i++) {
-                _seBlk.blk[i].handle.Stop(0);
-                _seBlk.blk[i].name = NULL;
-                _seBlk.blk[i].id = 0xffff;
+                _seBlk[i].handle.Stop(0);
+                _seBlk[i].name = NULL;
+                _seBlk[i].id = 0xffff;
             }
 
             if (_mainBGMHandle != NULL && _mainBGMHandle->IsAttachedSound()) {
@@ -345,16 +340,16 @@ namespace ipl {
 
         void System::pauseOnSE() {
             for (int index = 0; index < 16; ++index) {
-                if (_seBlk.blk[index].handle.IsAttachedSound()) {
-                    _seBlk.blk[index].handle.Pause(true, 5);
+                if (_seBlk[index].handle.IsAttachedSound()) {
+                    _seBlk[index].handle.Pause(true, 5);
                 }
             }
         }
 
         void System::pauseOffSE() {
             for (int index = 0; index < 16; ++index) {
-                if (_seBlk.blk[index].handle.IsAttachedSound()) {
-                    _seBlk.blk[index].handle.Pause(false, 5);
+                if (_seBlk[index].handle.IsAttachedSound()) {
+                    _seBlk[index].handle.Pause(false, 5);
                 }
             }
         }
@@ -387,7 +382,7 @@ namespace ipl {
             int i;
 
             for (i = 0; i < 16; i++) {
-                tagSSeInfo* block = &_seBlk.blk[i];
+                tagSSeInfo* block = &_seBlk[i];
                 if (sndName == block->name && block->handle.IsAttachedSound()) {
                     return block;
                 }
@@ -400,7 +395,7 @@ namespace ipl {
             int i;
 
             for (i = 0; i < 16; i++) {
-                tagSSeInfo* block = &_seBlk.blk[i];
+                tagSSeInfo* block = &_seBlk[i];
                 if (id == block->id && block->handle.IsAttachedSound()) {
                     return block;
                 }
@@ -419,15 +414,15 @@ namespace ipl {
             int i = 0;
             for (; i < 16; i++) {
                 index = clipGELT_S32(unk_0x620[0] + i, 0, 16);
-                if (_seBlk.blk[index].handle.IsAttachedSound()) {
+                if (_seBlk[index].handle.IsAttachedSound()) {
                     continue;
                 }
                 unk_0x620[0] = index;
-                return &_seBlk.blk[unk_0x620[0]];
+                return &_seBlk[unk_0x620[0]];
             }
 
             if (force) {
-                return &_seBlk.blk[unk_0x620[0]];
+                return &_seBlk[unk_0x620[0]];
             }
 
             return NULL;
