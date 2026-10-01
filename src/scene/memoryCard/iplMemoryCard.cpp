@@ -744,3 +744,6 @@ namespace ipl {
     }
 }
 
+
+// Original .sdata2 ends with the PPC int-to-float conversion constant.
+extern "C" const f64 sMemoryCardIntToFloat = 4503601774854144.0;
