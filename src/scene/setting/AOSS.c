@@ -402,6 +402,8 @@ int AOSS_Init_old(AOSSInitInput* input)
   u32 resultCode;
   int state;
   u32 retryWait;
+  u16 retryDelay;
+  u16 delayStep;
   u32 packetLength;
   u16 receivedLength;
   int requestResult;
@@ -412,7 +414,7 @@ int AOSS_Init_old(AOSSInitInput* input)
   u64 timeoutTicks;
   int initializationResult = 0;
   short attemptCount;
-  int remainingWait;
+  u16 remainingWait;
   short waitAttempt;
   int receivedPackets;
   AOSSWaitSettings waitSettings;
@@ -441,9 +443,9 @@ int AOSS_Init_old(AOSSInitInput* input)
   if (waitIntervals.connection == -1) {
     waitIntervals.connection = 10;
   }
-  initialWait = input->options[2];
-  if (initialWait == -1) {
-    initialWait = 10;
+  waitSettings.halfwords.high = input->options[2];
+  if (waitSettings.halfwords.high == -1) {
+    waitSettings.halfwords.high = 10;
   }
   waitIntervals.response = input->options[1];
   if (waitIntervals.response == -1) {
@@ -453,7 +455,6 @@ int AOSS_Init_old(AOSSInitInput* input)
   if (waitSettings.halfwords.low == -1) {
     waitSettings.halfwords.low = 100;
   }
-  waitSettings.halfwords.high = initialWait;
   timeoutMilliseconds = (int)(short)input->options[4];
   if (input->options[4] == -1) {
     timeoutMilliseconds = 2000;
@@ -924,28 +925,23 @@ request_socket_cleanup_complete:
             }
           }
           requestResult = s_socket;
-          if (state == 1) {
+          switch (state) {
+          case 0:
+            if (s_operationState != 2) {
+              s_operationState = 2;
+              AOSSi_Status(2);
+            }
+            requestResult = AOSS_81401574(networkAddresses,&requestRecords,requestResult);
+            break;
+          case 1:
             if (s_operationState != 3) {
               s_operationState = 3;
               AOSSi_Status(3);
             }
             requestResult = AOSS_81401778(networkAddresses,&requestRecords,requestResult);
-          }
-          else if (state < 1) {
-            if (state < 0) {
-invalid_request_state:
-              requestResult = -1;
-            }
-            else {
-              if (s_operationState != 2) {
-                s_operationState = 2;
-                AOSSi_Status(2);
-              }
-              requestResult = AOSS_81401574(networkAddresses,&requestRecords,requestResult);
-            }
-          }
-          else {
-            if (2 < state) goto invalid_request_state;
+
+            break;
+          case 2:
             if (s_operationState != 5) {
               s_operationState = 5;
               AOSSi_Status(5);
@@ -976,6 +972,11 @@ invalid_request_state:
             replyAddress.length = 8;
             SOSendTo(requestResult,packetWords,0x18,0,&replyAddress);
             requestResult = 0;
+
+            break;
+          default:
+            requestResult = -1;
+            break;
           }
           if (requestResult == -1) {
             s_errorCode = state + 0x1000;
@@ -1005,7 +1006,7 @@ invalid_request_state:
           requestResult = SOPoll(pollArguments,1,((u32)((timeoutTicks + tickRemainder) >> 32)),(int)timeoutTicks + (int)tickRemainder);
           if (0 < requestResult) goto process_received_packet;
           receivedPackets = receivedPackets + 1;
-          retryWait = waitSettings.value;
+          retryDelay = waitSettings.halfwords.low;
           if (attemptCount < receivedPackets) {
             if (state == 0) {
               s_errorCode = 0xf;
@@ -1019,7 +1020,7 @@ invalid_request_state:
             timeoutMilliseconds = -1;
             goto close_protocol_socket;
           }
-          for (; retryWait = retryWait & 0xffff, retryWait != 0; retryWait = retryWait - responseSleep) {
+          for (; retryDelay != 0; retryDelay = retryDelay - delayStep) {
             if (AOSSi_cancel_flag == 1) {
               input->status = 0xf;
               if (s_accessPointConfig != (int *)0x0) {
@@ -1033,14 +1034,14 @@ invalid_request_state:
               resultCode = 0xffffffff;
               goto finish_initialization;
             }
-            responseSleep = retryWait;
-            if (100 < retryWait) {
-              responseSleep = 100;
+            delayStep = retryDelay;
+            if (100 < retryDelay) {
+              delayStep = 100;
             }
-            AOSSi_Sleep(responseSleep);
-            responseSleep = retryWait;
-            if (100 < retryWait) {
-              responseSleep = 100;
+            AOSSi_Sleep(delayStep);
+            delayStep = retryDelay;
+            if (100 < retryDelay) {
+              delayStep = 100;
             }
           }
           if (AOSSi_cancel_flag == 1) {
@@ -1280,9 +1281,9 @@ wait_for_packet:
       if (timeoutSeconds < 0) goto cancelled_configuration;
       goto perform_request;
     }
-    retryWait = waitSettings.value;
+    retryDelay = waitSettings.halfwords.low;
     if (receivedPackets <= waitSettings.halfwords.high) {
-      for (; retryWait = retryWait & 0xffff, retryWait != 0; retryWait = retryWait - responseSleep) {
+      for (; retryDelay != 0; retryDelay = retryDelay - delayStep) {
         if (AOSSi_cancel_flag == 1) {
           input->status = 0xf;
           if (s_accessPointConfig != (int *)0x0) {
@@ -1296,14 +1297,14 @@ wait_for_packet:
           resultCode = 0xffffffff;
           goto finish_initialization;
         }
-        responseSleep = retryWait;
-        if (100 < retryWait) {
-          responseSleep = 100;
+        delayStep = retryDelay;
+        if (100 < retryDelay) {
+          delayStep = 100;
         }
-        AOSSi_Sleep(responseSleep);
-        responseSleep = retryWait;
-        if (100 < retryWait) {
-          responseSleep = 100;
+        AOSSi_Sleep(delayStep);
+        delayStep = retryDelay;
+        if (100 < retryDelay) {
+          delayStep = 100;
         }
       }
       state = requestResult;
@@ -1380,31 +1381,14 @@ protocol_socket_cleanup_complete:
     }
     goto finish_initialization;
   }
-  if (s_errorCode == 0x11) {
-    errorStatus = 5;
-    goto report_protocol_error;
+  switch (s_errorCode) {
+  case 0xf: errorStatus = 3; break;
+  case 0x10: errorStatus = 4; break;
+  case 0x11: errorStatus = 5; break;
+  case 0x14: errorStatus = 7; break;
+  case 0x15: errorStatus = 8; break;
+  default: errorStatus = 0xf; break;
   }
-  if (s_errorCode < 0x11) {
-    if (s_errorCode == 0xf) {
-      errorStatus = 3;
-      goto report_protocol_error;
-    }
-    if (0xe < s_errorCode) {
-      errorStatus = 4;
-      goto report_protocol_error;
-    }
-  }
-  else {
-    if (s_errorCode == 0x15) {
-      errorStatus = 8;
-      goto report_protocol_error;
-    }
-    if ((s_errorCode < 0x15) && (0x13 < s_errorCode)) {
-      errorStatus = 7;
-      goto report_protocol_error;
-    }
-  }
-  errorStatus = 0xf;
 report_protocol_error:
   input->status = errorStatus;
   if (s_accessPointConfig != (int *)0x0) {
