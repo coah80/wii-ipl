@@ -3,12 +3,15 @@
 
 #include "tiManager.h"
 
-#include "MyTiBg.h"
 #include "MyTiInputForm.h"
 #include "MyTiLetterForm.h"
 
 namespace textinput {
     namespace extend {
+        namespace bg {
+            class LayoutByNW4R;
+        }
+
         namespace memo {
             class State;
 
@@ -84,18 +87,16 @@ namespace textinput {
 
                     virtual void                    memoDraw();
 
-                    virtual void setSaveData(savedata::MemoSetting memoSetting) {
-                        mMemoSetting = memoSetting;
-                    }
-                    virtual savedata::MemoSetting   getSaveData()   { return mMemoSetting; }
+                    virtual void                    setSaveData(savedata::MemoSetting memoSetting);
+                    virtual savedata::MemoSetting   getSaveData();
 
                     virtual void                    changeState(StateTimeLine stateTimeLine);
-                    virtual State*                  getState()      { return mpCurrentState; }
+                    virtual State*                  getState();
                     virtual void                    setState(StateType stateType);
 
-                    virtual ConfigType              getConfigType() { return meConfigType; }
+                    virtual ConfigType              getConfigType();
 
-                    virtual void                    setSaveData_();
+                    virtual void                    setSaveData();
                     virtual void                    reflectSaveData();
 
                     virtual void                    configDefault();
@@ -117,6 +118,17 @@ namespace textinput {
                     virtual letter::InputForm*      createLetterInputForm();
                     virtual textinput::InputForm*    createBigTextInputForm();
                     virtual bg::LayoutByNW4R*       createBG();
+
+                    virtual void                    pure_0() = 0;
+                    virtual void                    pure_1() = 0;
+                    virtual void                    pure_2() = 0;
+                    virtual void                    pure_3() = 0;
+                    virtual void                    pure_4() = 0;
+                    virtual void                    pure_5() = 0;
+                    virtual void                    pure_6() = 0;
+                    virtual void                    pure_7() = 0;
+                    virtual void                    pure_8() = 0;
+                    virtual void                    pure_9() = 0;
 
                     void                            reflectSaveDataRev1();
                     void                            reflectSaveDataDefault();
@@ -254,5 +266,7 @@ namespace textinput {
     }
     typedef extend::memo::Manager MemoManager;
 }
+
+#include "MyTiBg.h"
 
 #endif // TEXTINPUT_MY_MANAGER_H

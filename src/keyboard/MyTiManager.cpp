@@ -10,14 +10,17 @@
 namespace textinput {
     namespace extend {
         namespace memo {
-            static DispMemoState      sDispMemoState;
-            static EditMemoState      sEditMemoState;
-            static AppearMemoState    sAppearMemoState;
-            static DisappearMemoState sDisappearMemoState;
+            DispMemoState             sDispMemoState;
+            EditMemoState             sEditMemoState;
+            AppearMemoState           sAppearMemoState;
+            DisappearMemoState        sDisappearMemoState;
 
             static f32 scPosAnimParam[2] = {-200.0f, 0.0f};
             static f32 scAlphaAnimParam[2] = {0.0f, 255.0f};
             static f32 scMemoAnimParam[2] = {0.0f, 145.0f};
+
+            DisappearMemoState::~DisappearMemoState() {
+            }
 
             Manager::~Manager() {
                 if (mpDefaultPCKeyboard != NULL) {
@@ -501,8 +504,8 @@ namespace textinput {
 
             void Manager::configPredictBigText() {
                 configPredictWithoutLineFeed();
-                mpInputForm = mpBigTextInputForm;
                 meConfigType = CT_PredictBigText;
+                mpInputForm = mpBigTextInputForm;
                 textinput::Manager::init();
             }
 
@@ -518,7 +521,7 @@ namespace textinput {
                 }
             }
 
-            void Manager::setSaveData_() {
+            void Manager::setSaveData() {
                 savedata::MemoSetting* saveData = &mMemoSetting;
 
                 saveData->uRevisionAndType  = mpToolBar->isQwerty() | 0x10;
@@ -638,32 +641,44 @@ namespace textinput {
 
             bool DispMemoState::updateInput(int chan, f32 x, f32 y, u32 trig, u32 hold, u32 release) {
                 Manager::ConfigType configType = (Manager::ConfigType)mpManager->getConfigType();
-                if (configType < Manager::CT_Numeric && configType >= Manager::CT_Letter) {
+                switch (configType) {
+                case Manager::CT_Letter:
+                case Manager::CT_PhotoLetter:
                     InputForm();
                     gui::GUIPointer point(chan, x, y, hold, trig, release);
                     return InputForm()->updateInput(chan, x, y, trig, hold, release, &point);
+                default:
+                    break;
                 }
                 return false;
             }
 
             bool DispMemoState::updateInput(input::HKBManager& hkbManager) {
                 Manager::ConfigType configType = (Manager::ConfigType)mpManager->getConfigType();
-                if (configType < Manager::CT_Numeric && configType >= Manager::CT_Letter) {
+                switch (configType) {
+                case Manager::CT_Letter:
+                case Manager::CT_PhotoLetter:
                     InputForm();
                     return InputForm()->updateInput(hkbManager);
+                default:
+                    break;
                 }
                 return false;
             }
 
             void DispMemoState::start() {
                 Manager::ConfigType configType = (Manager::ConfigType)mpManager->getConfigType();
-                if (configType < Manager::CT_Numeric && configType >= Manager::CT_Letter) {
+                switch (configType) {
+                case Manager::CT_Letter:
+                case Manager::CT_PhotoLetter:
                     InputForm()->setEditMode(memo::InputForm::EM_Disp);
                     InputForm()->getLayout()->GetRootPane()->SetTranslate(nw4r::math::VEC2(0.0f, scMemoAnimParam[0]));
                     InputForm()->getLayout()->GetRootPane()->SetAlpha(0xff);
-                } else {
+                    break;
+                default:
                     InputForm()->getLayout()->GetRootPane()->SetTranslate(nw4r::math::VEC2(0.0f, scPosAnimParam[0]));
                     InputForm()->getLayout()->GetRootPane()->SetAlpha((u8)scAlphaAnimParam[0]);
+                    break;
                 }
                 PCKeyboard()->getLayout()->GetRootPane()->SetTranslate(nw4r::math::VEC2(0.0f, scPosAnimParam[0]));
                 CellPhoneKeyboard()->getLayout()->GetRootPane()->SetTranslate(nw4r::math::VEC2(0.0f, scPosAnimParam[0]));
@@ -741,15 +756,20 @@ namespace textinput {
                 BG()->getLayout()->GetRootPane()->SetAlpha(alpha);
 
                 Manager::ConfigType configType = (Manager::ConfigType)mpManager->getConfigType();
-                if (configType < Manager::CT_Numeric && configType >= Manager::CT_Letter) {
+                switch (configType) {
+                case Manager::CT_Letter:
+                case Manager::CT_PhotoLetter: {
                     f32 transY2 = util::hermiteInterporation(mfAnim, 0.0f, scMemoAnimParam[0], 0.0f, 30.0f, scMemoAnimParam[1], 0.0f);
                     InputForm()->getLayout()->GetRootPane()->SetTranslate(nw4r::math::VEC2(0.0f, transY2));
                     InputForm()->getLayout()->GetRootPane()->SetAlpha(0xff);
                     memo::InputForm* inputForm = InputForm();
                     inputForm->setScroll(util::hermiteInterporation(mfAnim, 0.0f, inputForm->getScrollFrom(), 0.0f, 30.0f, inputForm->getScrollTo(), 0.0f));
-                } else {
+                    break;
+                }
+                default:
                     InputForm()->getLayout()->GetRootPane()->SetTranslate(nw4r::math::VEC2(0.0f, transY));
                     InputForm()->getLayout()->GetRootPane()->SetAlpha(alpha);
+                    break;
                 }
 
                 mfAnim += 1.0f;
@@ -902,10 +922,10 @@ namespace textinput {
                 if (!candUpdate) {
                     formUpdate = InputForm()->updateInput(chan, x, y, trig, hold, release, &point);
                 } else {
-                    InputForm()->updateInput(chan, 1.0f / 0, 1.0f / 0, trig, hold, release, &point);
+                    InputForm()->updateInput(chan, 1.0f / 0.0f, 1.0f / 0.0f, trig, hold, release, &point);
                 }
 
-                bool ret = keyUpdate | candUpdate | formUpdate | toolUpdate;
+                bool ret = toolUpdate | candUpdate | formUpdate | keyUpdate;
 
                 if (qwerty != ToolBar()->isQwerty()) {
                     InputForm()->onCommand(CommandReceiver::IC_TRANSLATE_MODE, NULL);
@@ -1013,13 +1033,18 @@ namespace textinput {
                 BG()->getLayout()->GetRootPane()->SetAlpha(alpha);
 
                 Manager::ConfigType configType = (Manager::ConfigType)mpManager->getConfigType();
-                if (configType < Manager::CT_Numeric && configType >= Manager::CT_Letter) {
+                switch (configType) {
+                case Manager::CT_Letter:
+                case Manager::CT_PhotoLetter: {
                     f32 transY2 = util::hermiteInterporation(mfAnim, 0.0f, scMemoAnimParam[1], 0.0f, 30.0f, scMemoAnimParam[0], 0.0f);
                     InputForm()->getLayout()->GetRootPane()->SetTranslate(nw4r::math::VEC2(0.0f, transY2));
                     InputForm()->getLayout()->GetRootPane()->SetAlpha(0xff);
-                } else {
+                    break;
+                }
+                default:
                     InputForm()->getLayout()->GetRootPane()->SetTranslate(nw4r::math::VEC2(0.0f, transY));
                     InputForm()->getLayout()->GetRootPane()->SetAlpha(alpha);
+                    break;
                 }
 
                 mfAnim += 1.0f;
@@ -1028,11 +1053,15 @@ namespace textinput {
             void DisappearMemoState::start() {
                 mfAnim = 0.0f;
                 Manager::ConfigType configType = (Manager::ConfigType)mpManager->getConfigType();
-                if (configType < Manager::CT_Numeric && configType >= Manager::CT_Letter) {
+                switch (configType) {
+                case Manager::CT_Letter:
+                case Manager::CT_PhotoLetter:
                     InputForm()->setEditMode(memo::InputForm::EM_Disappear);
-                    mpManager->setSaveData_();
-                } else {
+                    mpManager->setSaveData();
+                    break;
+                default:
                     InputForm()->onClose();
+                    break;
                 }
             }
 
@@ -1067,20 +1096,23 @@ namespace textinput {
                 return Manager::ST_Hidden;
             }
 
+        }
+
+        namespace bg {
+            void Base::init() {
+            }
+
+            void Base::create(MEMAllocator* allocator) {
+            }
+        }
+
+        namespace memo {
             DispMemoState::~DispMemoState() {
             }
 
             EditMemoState::~EditMemoState() {
             }
 
-            DisappearMemoState::~DisappearMemoState() {
-            }
-
-            void bg::Base::init() {
-            }
-
-            void bg::Base::create(MEMAllocator* allocator) {
-            }
         }
     }
 
