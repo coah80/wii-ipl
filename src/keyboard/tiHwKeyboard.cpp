@@ -152,7 +152,7 @@ namespace textinput {
             extern "C" void GetNext__Q49textinput5input10HKBManager6KeySetCFv();
             extern "C" void GetModifierState__Q39textinput5input10HKBManagerCFv();
             bool HWKeyboard::updateRepeatKey_(input::HKBManager& hkbManager) {
-                u32 mods = hkbManager.GetModifierState();
+                s32 mods = hkbManager.GetModifierState();
                 input::HKBManager::KeySet keySet(NULL, 0);
                 keySet = hkbManager.GetRepeatedKeySet();
                 if (!keySet.IsValid()) {
