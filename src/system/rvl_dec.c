@@ -490,225 +490,225 @@ L_Rvl_decode_ash_return:
 }
 #else
 int Rvl_decode_ash(u8* out, u8* in) {
-    u8* puVar1;
-    u32* puVar2;
-    u32 uVar3;
-    u32 uVar4;
-    u32 uVar5;
-    u32 uVar6;
-    int iVar7;
-    u16 uVar8;
-    u16 uVar10;
-    u8* puVar9;
-    int iVar11;
-    u32 uVar12;
-    u32 uVar13;
-    u32 uVar14;
-    u32 uVar15;
-    int iVar16;
-    int iVar17;
-    u32 uVar18;
-    u32 uVar19;
-    u32 uVar20;
-    u16* puVar21;
+    u8* dst;
+    u32* inWordPtr;
+    u32 decodedSize;
+    u32 sym9;
+    u32 sym11;
+    u32 nodeVal;
+    int needBits;
+    u16 nodeCount;
+    u16 nextNode;
+    u8* litPtr;
+    int bitOff1;
+    u32 bitPos1;
+    u32 shifted;
+    u32 bitWord1;
+    u32 tmp15;
+    int stackDepth;
+    int bitOff2;
+    u32 bitPos2;
+    u32 bitWord2;
+    u32 tmp20;
+    u16* stackPtr;
 
-    uVar3 = *(u32*)(in + 4) & 0xffffff;
-    iVar11 = 0x10;
-    uVar12 = 0;
-    uVar18 = 0;
-    uVar19 = *(u32*)(*(int*)(in + 8) + in);
-    iVar17 = *(int*)(in + 8) + 4;
-    puVar21 = (u16*)&work[0x4ff8];
-    uVar8 = 0x200;
-    iVar16 = 0;
-    uVar14 = *(u32*)(in + 0xc);
-    uVar10 = 0x200;
+    decodedSize = *(u32*)(in + 4) & 0xffffff;
+    bitOff1 = 0x10;
+    bitPos1 = 0;
+    bitPos2 = 0;
+    bitWord2 = *(u32*)(*(int*)(in + 8) + in);
+    bitOff2 = *(int*)(in + 8) + 4;
+    stackPtr = (u16*)&work[0x4ff8];
+    nodeCount = 0x200;
+    stackDepth = 0;
+    bitWord1 = *(u32*)(in + 0xc);
+    nextNode = 0x200;
     do {
         while (1) {
-            if (uVar12 == 0x1f) {
-                uVar13 = *(u32*)(in + iVar11);
-                uVar12 = 0;
-                iVar11 = iVar11 + 4;
+            if (bitPos1 == 0x1f) {
+                shifted = *(u32*)(in + bitOff1);
+                bitPos1 = 0;
+                bitOff1 = bitOff1 + 4;
             } else {
-                uVar12 = uVar12 + 1;
-                uVar13 = uVar14 << 1;
+                bitPos1 = bitPos1 + 1;
+                shifted = bitWord1 << 1;
             }
-            if (-1 < (int)uVar14) {
+            if (-1 < (int)bitWord1) {
                 break;
             }
-            *puVar21 = uVar10 | 0x8000;
-            puVar21[1] = uVar10 | 0x4000;
-            puVar21 = puVar21 + 2;
-            iVar16 = iVar16 + 2;
-            uVar8 = uVar8 + 1;
-            uVar14 = uVar13;
-            uVar10 = uVar10 + 1;
+            *stackPtr = nextNode | 0x8000;
+            stackPtr[1] = nextNode | 0x4000;
+            stackPtr = stackPtr + 2;
+            stackDepth = stackDepth + 2;
+            nodeCount = nodeCount + 1;
+            bitWord1 = shifted;
+            nextNode = nextNode + 1;
         }
-        iVar7 = uVar12 + 9;
-        if (iVar7 < 0x21) {
-            uVar4 = uVar13 >> 0x17;
-            if (iVar7 == 0x20) {
-                uVar14 = *(u32*)(in + iVar11);
-                uVar12 = 0;
-                iVar11 = iVar11 + 4;
+        needBits = bitPos1 + 9;
+        if (needBits < 0x21) {
+            sym9 = shifted >> 0x17;
+            if (needBits == 0x20) {
+                bitWord1 = *(u32*)(in + bitOff1);
+                bitPos1 = 0;
+                bitOff1 = bitOff1 + 4;
             } else {
-                uVar14 = uVar13 << 9;
-                uVar12 = uVar12 + 9;
+                bitWord1 = shifted << 9;
+                bitPos1 = bitPos1 + 9;
             }
         } else {
-            puVar2 = (u32*)(in + iVar11);
-            iVar11 = iVar11 + 4;
-            uVar4 = uVar13 >> 0x17 | *puVar2 >> (0x40U - iVar7 & 0x3f);
-            uVar12 = uVar12 - 0x17;
-            uVar14 = *puVar2 << (uVar12 & 0x3f);
+            inWordPtr = (u32*)(in + bitOff1);
+            bitOff1 = bitOff1 + 4;
+            sym9 = shifted >> 0x17 | *inWordPtr >> (0x40U - needBits & 0x3f);
+            bitPos1 = bitPos1 - 0x17;
+            bitWord1 = *inWordPtr << (bitPos1 & 0x3f);
         }
         while (1) {
-            puVar21 = puVar21 - 1;
-            uVar10 = *puVar21;
-            iVar16 = iVar16 - 1;
-            iVar7 = (uVar10 & 0x3fff) * 2;
-            if ((uVar10 & 0x8000) == 0) {
+            stackPtr = stackPtr - 1;
+            nextNode = *stackPtr;
+            stackDepth = stackDepth - 1;
+            needBits = (nextNode & 0x3fff) * 2;
+            if ((nextNode & 0x8000) == 0) {
                 break;
             }
-            *(u16*)(&work[0x7fe] + iVar7) = (u16)uVar4;
-            uVar4 = uVar10 & 0x3fff;
-            if (iVar16 == 0) {
-                uVar8 = 0x800;
-                iVar16 = 0;
-                uVar10 = 0x800;
+            *(u16*)(&work[0x7fe] + needBits) = (u16)sym9;
+            sym9 = nextNode & 0x3fff;
+            if (stackDepth == 0) {
+                nodeCount = 0x800;
+                stackDepth = 0;
+                nextNode = 0x800;
                 do {
                     while (1) {
-                        if (uVar18 == 0x1f) {
-                            uVar13 = *(u32*)(in + iVar17);
-                            uVar18 = 0;
-                            iVar17 = iVar17 + 4;
+                        if (bitPos2 == 0x1f) {
+                            shifted = *(u32*)(in + bitOff2);
+                            bitPos2 = 0;
+                            bitOff2 = bitOff2 + 4;
                         } else {
-                            uVar18 = uVar18 + 1;
-                            uVar13 = uVar19 << 1;
+                            bitPos2 = bitPos2 + 1;
+                            shifted = bitWord2 << 1;
                         }
-                        if (-1 < (int)uVar19) {
+                        if (-1 < (int)bitWord2) {
                             break;
                         }
-                        *puVar21 = uVar10 | 0x8000;
-                        puVar21[1] = uVar10 | 0x4000;
-                        puVar21 = puVar21 + 2;
-                        iVar16 = iVar16 + 2;
-                        uVar8 = uVar8 + 1;
-                        uVar19 = uVar13;
-                        uVar10 = uVar10 + 1;
+                        *stackPtr = nextNode | 0x8000;
+                        stackPtr[1] = nextNode | 0x4000;
+                        stackPtr = stackPtr + 2;
+                        stackDepth = stackDepth + 2;
+                        nodeCount = nodeCount + 1;
+                        bitWord2 = shifted;
+                        nextNode = nextNode + 1;
                     }
-                    iVar7 = uVar18 + 0xb;
-                    if (iVar7 < 0x21) {
-                        uVar5 = uVar13 >> 0x15;
-                        if (iVar7 == 0x20) {
-                            uVar19 = *(u32*)(in + iVar17);
-                            uVar18 = 0;
-                            iVar17 = iVar17 + 4;
+                    needBits = bitPos2 + 0xb;
+                    if (needBits < 0x21) {
+                        sym11 = shifted >> 0x15;
+                        if (needBits == 0x20) {
+                            bitWord2 = *(u32*)(in + bitOff2);
+                            bitPos2 = 0;
+                            bitOff2 = bitOff2 + 4;
                         } else {
-                            uVar19 = uVar13 << 0xb;
-                            uVar18 = uVar18 + 0xb;
+                            bitWord2 = shifted << 0xb;
+                            bitPos2 = bitPos2 + 0xb;
                         }
                     } else {
-                        puVar2 = (u32*)(in + iVar17);
-                        iVar17 = iVar17 + 4;
-                        uVar5 = uVar13 >> 0x15 | *puVar2 >> (0x40U - iVar7 & 0x3f);
-                        uVar18 = uVar18 - 0x15;
-                        uVar19 = *puVar2 << (uVar18 & 0x3f);
+                        inWordPtr = (u32*)(in + bitOff2);
+                        bitOff2 = bitOff2 + 4;
+                        sym11 = shifted >> 0x15 | *inWordPtr >> (0x40U - needBits & 0x3f);
+                        bitPos2 = bitPos2 - 0x15;
+                        bitWord2 = *inWordPtr << (bitPos2 & 0x3f);
                     }
                     while (1) {
-                        puVar21 = puVar21 - 1;
-                        uVar10 = *puVar21;
-                        iVar16 = iVar16 - 1;
-                        iVar7 = (uVar10 & 0x3fff) * 2;
-                        if ((uVar10 & 0x8000) == 0) {
+                        stackPtr = stackPtr - 1;
+                        nextNode = *stackPtr;
+                        stackDepth = stackDepth - 1;
+                        needBits = (nextNode & 0x3fff) * 2;
+                        if ((nextNode & 0x8000) == 0) {
                             break;
                         }
-                        *(u16*)(&work[0x2ffa] + iVar7) = (u16)uVar5;
-                        uVar5 = uVar10 & 0x3fff;
-                        uVar6 = uVar4;
-                        uVar13 = uVar3;
-                        if (iVar16 == 0) {
+                        *(u16*)(&work[0x2ffa] + needBits) = (u16)sym11;
+                        sym11 = nextNode & 0x3fff;
+                        nodeVal = sym9;
+                        shifted = decodedSize;
+                        if (stackDepth == 0) {
                             do {
-                                while (0x1ff < uVar6) {
-                                    if (uVar12 == 0x1f) {
-                                        uVar15 = *(u32*)(in + iVar11);
-                                        iVar11 = iVar11 + 4;
-                                        uVar12 = 0;
+                                while (0x1ff < nodeVal) {
+                                    if (bitPos1 == 0x1f) {
+                                        tmp15 = *(u32*)(in + bitOff1);
+                                        bitOff1 = bitOff1 + 4;
+                                        bitPos1 = 0;
                                     } else {
-                                        uVar12 = uVar12 + 1;
-                                        uVar15 = uVar14 << 1;
+                                        bitPos1 = bitPos1 + 1;
+                                        tmp15 = bitWord1 << 1;
                                     }
-                                    if ((int)uVar14 < 0) {
-                                        uVar6 = *(u16*)(&work[0x7fe] + uVar6 * 2);
-                                        uVar14 = uVar15;
+                                    if ((int)bitWord1 < 0) {
+                                        nodeVal = *(u16*)(&work[0x7fe] + nodeVal * 2);
+                                        bitWord1 = tmp15;
                                     } else {
-                                        uVar6 = *(u16*)((u8*)work + uVar6 * 2);
-                                        uVar14 = uVar15;
+                                        nodeVal = *(u16*)((u8*)work + nodeVal * 2);
+                                        bitWord1 = tmp15;
                                     }
                                 }
-                                uVar15 = uVar5;
-                                if (uVar6 < 0x100) {
-                                    *out = (char)uVar6;
+                                tmp15 = sym11;
+                                if (nodeVal < 0x100) {
+                                    *out = (char)nodeVal;
                                     out = out + 1;
-                                    uVar13 = uVar13 - 1;
+                                    shifted = shifted - 1;
                                 } else {
-                                    while (0x7ff < uVar15) {
-                                        if (uVar18 == 0x1f) {
-                                            uVar20 = *(u32*)(in + iVar17);
-                                            iVar17 = iVar17 + 4;
-                                            uVar18 = 0;
+                                    while (0x7ff < tmp15) {
+                                        if (bitPos2 == 0x1f) {
+                                            tmp20 = *(u32*)(in + bitOff2);
+                                            bitOff2 = bitOff2 + 4;
+                                            bitPos2 = 0;
                                         } else {
-                                            uVar18 = uVar18 + 1;
-                                            uVar20 = uVar19 << 1;
+                                            bitPos2 = bitPos2 + 1;
+                                            tmp20 = bitWord2 << 1;
                                         }
-                                        if ((int)uVar19 < 0) {
-                                            uVar15 = *(u16*)(&work[0x2ffa] + uVar15 * 2);
-                                            uVar19 = uVar20;
+                                        if ((int)bitWord2 < 0) {
+                                            tmp15 = *(u16*)(&work[0x2ffa] + tmp15 * 2);
+                                            bitWord2 = tmp20;
                                         } else {
-                                            uVar15 = *(u16*)(&work[0xffc] + uVar15 * 2);
-                                            uVar19 = uVar20;
+                                            tmp15 = *(u16*)(&work[0xffc] + tmp15 * 2);
+                                            bitWord2 = tmp20;
                                         }
                                     }
-                                    uVar6 = uVar6 - 0xfd;
-                                    puVar9 = out - uVar15;
-                                    uVar13 = uVar13 - uVar6;
-                                    uVar15 = uVar6 >> 3;
-                                    if (uVar15 == 0) {
+                                    nodeVal = nodeVal - 0xfd;
+                                    litPtr = out - tmp15;
+                                    shifted = shifted - nodeVal;
+                                    tmp15 = nodeVal >> 3;
+                                    if (tmp15 == 0) {
                                         goto LAB_813325b8;
                                     }
                                     do {
-                                        *out = puVar9[-1];
-                                        out[1] = *puVar9;
-                                        out[2] = puVar9[1];
-                                        out[3] = puVar9[2];
-                                        out[4] = puVar9[3];
-                                        out[5] = puVar9[4];
-                                        out[6] = puVar9[5];
-                                        out[7] = puVar9[6];
-                                        puVar9 = puVar9 + 8;
+                                        *out = litPtr[-1];
+                                        out[1] = *litPtr;
+                                        out[2] = litPtr[1];
+                                        out[3] = litPtr[2];
+                                        out[4] = litPtr[3];
+                                        out[5] = litPtr[4];
+                                        out[6] = litPtr[5];
+                                        out[7] = litPtr[6];
+                                        litPtr = litPtr + 8;
                                         out = out + 8;
-                                        uVar15 = uVar15 - 1;
-                                    } while (uVar15 != 0);
-                                    for (uVar6 = uVar6 & 7; uVar6 != 0; uVar6 = uVar6 - 1) {
+                                        tmp15 = tmp15 - 1;
+                                    } while (tmp15 != 0);
+                                    for (nodeVal = nodeVal & 7; nodeVal != 0; nodeVal = nodeVal - 1) {
 LAB_813325b8:
-                                        puVar1 = puVar9 - 1;
-                                        puVar9 = puVar9 + 1;
-                                        *out = *puVar1;
+                                        dst = litPtr - 1;
+                                        litPtr = litPtr + 1;
+                                        *out = *dst;
                                         out = out + 1;
                                     }
                                 }
-                                uVar6 = uVar4;
-                            } while (uVar13 != 0);
-                            return uVar3;
+                                nodeVal = sym9;
+                            } while (shifted != 0);
+                            return decodedSize;
                         }
                     }
-                    *(u16*)(&work[0xffc] + iVar7) = (u16)uVar5;
-                    uVar10 = uVar8;
+                    *(u16*)(&work[0xffc] + needBits) = (u16)sym11;
+                    nextNode = nodeCount;
                 } while (1);
             }
         }
-        *(u16*)((u8*)work + iVar7) = (u16)uVar4;
-        uVar10 = uVar8;
+        *(u16*)((u8*)work + needBits) = (u16)sym9;
+        nextNode = nodeCount;
     } while (1);
 }
 #endif
