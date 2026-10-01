@@ -542,7 +542,7 @@ s32 gAtermState;
 
 void ATERM_8140684C(OSAlarm* alarm, OSContext* context);
 s32 ATERM_814038C8(void);
-void ATERM_81405ACC(AtermMd5Context* context, const void* input, u32 length);
+void ATERM_81405ACC(AtermMd5Context* context, void* input, u32 length);
 extern u8 gAtermDigestFill[64];
 extern u8* gAtermRequestOptions;
 int ATERM_81404844(u16* destination, u16* source, u32 length, void* key, u32 keyLength);
@@ -616,7 +616,7 @@ int ATERM_814021BC(void) {
         gAtermSocketReady = waitCount;
     }
     if (gAtermSocketReady != 0) {
-        while (SOHtoNl(0) == SOGetHostID()) {
+        while (SOGetHostID() == SOHtoNl(0)) {
             OSInitMessageQueue(&hostQueue, &hostQueueBuffer, 1);
             OSCreateAlarm(&hostAlarm);
             OSSetAlarmTag(&hostAlarm, (u32)&hostQueue);
@@ -875,7 +875,6 @@ int ATERM_81402A24(void) {
     u8* rawScanBuffer = NULL;
     u8* scanBuffer;
     u16* firstDescriptor;
-    AtermApRecord* recordCursor;
     u32 recordBytes = gAtermScanLimit * sizeof(AtermApRecord) + sizeof(AtermApRecord) + sizeof(u32);
     u32 scanBufferBytes;
     u32 scanCount;
@@ -901,7 +900,7 @@ int ATERM_81402A24(void) {
     }
     scanBufferBytes = gAtermScanLimit * 0x100;
     rawScanBuffer = (u8*)gAtermAllocate(scanBufferBytes + 0x40);
-    scanBuffer = (u8*)(((u32)rawScanBuffer + 0x1F) & ~0x1F);
+    scanBuffer = (u8*)(u32)(((u64)(u32)rawScanBuffer + 0x1F) & ~0x1FULL);
 
     firstDescriptor = (u16*)(scanBuffer + sizeof(u16));
     while (iteration < 300 && gAtermCancelRequested == 0) {
@@ -928,24 +927,25 @@ int ATERM_81402A24(void) {
             u16* descriptorWords = firstDescriptor;
             char* ssidCursor = (char*)currentRecords->entries[0].ssid;
             u8* bssidCursor = currentRecords->entries[0].bssid;
-            recordCursor = currentRecords->entries;
             recordIndex = 0;
             while ((s32)recordIndex < result) {
                 WDBssDesc* descriptor = (WDBssDesc*)descriptorWords;
 
-                memcpy(ssidCursor, descriptor->ssid, sizeof(recordCursor->ssid));
-                if (descriptor->ssidLength > sizeof(recordCursor->ssid)) {
-                    recordCursor->ssidLength = 0;
+                memcpy(ssidCursor, descriptor->ssid, 
+                    sizeof(currentRecords->entries[recordIndex].ssid));
+                if (descriptor->ssidLength > sizeof(currentRecords->entries[recordIndex].ssid)) {
+                    currentRecords->entries[recordIndex].ssidLength = 0;
                 } else {
-                    recordCursor->ssidLength = descriptor->ssidLength;
+                    currentRecords->entries[recordIndex].ssidLength = descriptor->ssidLength;
                 }
-                recordCursor->ssid[recordCursor->ssidLength] = '\0';
-                recordCursor->status = (descriptor->capabilities >> 4) & 1;
-                memcpy(bssidCursor, descriptor->bssid, sizeof(recordCursor->bssid));
+                currentRecords->entries[recordIndex].ssid[
+                    currentRecords->entries[recordIndex].ssidLength] = '\0';
+                currentRecords->entries[recordIndex].status = (descriptor->capabilities >> 4) & 1;
+                memcpy(bssidCursor, descriptor->bssid, 
+                    sizeof(currentRecords->entries[recordIndex].bssid));
                 descriptorWords += descriptor->length;
                 ssidCursor += sizeof(AtermApRecord);
                 bssidCursor += sizeof(AtermApRecord);
-                recordCursor++;
                 recordIndex++;
             }
         }
@@ -1646,26 +1646,23 @@ s32 ATERM_814038C8(void) {
                             (__mulhwu(reciprocal, OS_BUS_CLOCK >> 2) >> 6));
                         u32 index;
                         u32 digestBytes;
-                        u32 bitCount[2];
                         memcpy(response->authentication.challenge,
                             optionValue, 8);
+                        digestContext.bitCountHigh = 0;
+                        digestContext.bitCountLow = 0;
                         digestContext.state[0] = 0x67452301;
                         digestContext.state[1] = 0xEFCDAB89;
                         digestContext.state[2] = 0x98BADCFE;
                         digestContext.state[3] = 0x10325476;
-                        digestContext.bitCountLow = 0;
-                        digestContext.bitCountHigh = 0;
                         ATERM_81405ACC(&digestContext, &authenticationTime, sizeof(authenticationTime));
-                        bitCount[0] = digestContext.bitCountLow;
-                        bitCount[1] = digestContext.bitCountHigh;
-                        digestLength[0] = bitCount[0];
-                        digestLength[1] = bitCount[0] >> 8;
-                        digestLength[2] = bitCount[0] >> 16;
-                        digestLength[3] = bitCount[0] >> 24;
-                        digestLength[4] = bitCount[1];
-                        digestLength[5] = bitCount[1] >> 8;
-                        digestLength[6] = bitCount[1] >> 16;
-                        digestLength[7] = bitCount[1] >> 24;
+                        digestLength[0] = digestContext.bitCountLow;
+                        digestLength[1] = digestContext.bitCountLow >> 8;
+                        digestLength[2] = digestContext.bitCountLow >> 16;
+                        digestLength[3] = digestContext.bitCountLow >> 24;
+                        digestLength[4] = digestContext.bitCountHigh;
+                        digestLength[5] = digestContext.bitCountHigh >> 8;
+                        digestLength[6] = digestContext.bitCountHigh >> 16;
+                        digestLength[7] = digestContext.bitCountHigh >> 24;
                         digestBytes = (digestContext.bitCountLow >> 3) & 0x3F;
                         ATERM_81405ACC(&digestContext, gAtermDigestFill,
                             digestBytes < 56 ? 56 - digestBytes : 120 - digestBytes);
@@ -2095,39 +2092,26 @@ int ATERM_81404BFC(u32* expandedKey, const void* key, u32 keyBits) {
 
 int ATERM_8140502C(u32* expandedKey, const void* key, u32 keyBits) {
     int rounds = ATERM_81404BFC(expandedKey, key, keyBits);
-    u32* firstRound = expandedKey;
-    u32* lastRound = expandedKey + rounds * 4;
     u32* roundKey;
     s32 roundCount;
+    s32 firstIndex;
+    s32 lastIndex;
+    u32 word;
 
-    s32 lastIndex = rounds * 4;
-    s32 firstIndex = 0;
-
-    while (firstIndex < lastIndex) {
-        firstIndex += 4;
-        lastIndex -= 4;
-        {
-            u32 word = firstRound[0];
-            firstRound[0] = lastRound[0];
-            lastRound[0] = word;
-        }
-        {
-            u32 word = firstRound[1];
-            firstRound[1] = lastRound[1];
-            lastRound[1] = word;
-        }
-        {
-            u32 word = firstRound[2];
-            firstRound[2] = lastRound[2];
-            lastRound[2] = word;
-        }
-        {
-            u32 word = firstRound[3];
-            firstRound[3] = lastRound[3];
-            lastRound[3] = word;
-        }
-        firstRound += 4;
-        lastRound -= 4;
+    for (firstIndex = 0, lastIndex = rounds * 4;
+         firstIndex < lastIndex; firstIndex += 4, lastIndex -= 4) {
+        word = expandedKey[firstIndex];
+        expandedKey[firstIndex] = expandedKey[lastIndex];
+        expandedKey[lastIndex] = word;
+        word = expandedKey[firstIndex + 1];
+        expandedKey[firstIndex + 1] = expandedKey[lastIndex + 1];
+        expandedKey[lastIndex + 1] = word;
+        word = expandedKey[firstIndex + 2];
+        expandedKey[firstIndex + 2] = expandedKey[lastIndex + 2];
+        expandedKey[lastIndex + 2] = word;
+        word = expandedKey[firstIndex + 3];
+        expandedKey[firstIndex + 3] = expandedKey[lastIndex + 3];
+        expandedKey[lastIndex + 3] = word;
     }
 
     {
@@ -2156,151 +2140,183 @@ int ATERM_8140502C(u32* expandedKey, const void* key, u32 keyBits) {
 #undef ATERM_AES_TRANSFORM_KEY
 
 void ATERM_81405254(const u32* expandedKey, u32 rounds, const u8* input, u8* output) {
-    const u32* roundTable3 = gAtermAesEncryptTable3;
-    const u32* roundTable2 = gAtermAesEncryptTable2;
-    const u32* roundTable0 = gAtermAesEncryptTable0;
-    const u32* roundTable1 = gAtermAesEncryptTable1;
-    s32 roundPairs = (s32)rounds >> 1;
-    u32 state0 = (((u32)input[2] << 8) ^ input[3]) ^
-    (((u32)input[0] << 24) ^ ((u32)input[1] << 16)) ^ expandedKey[0];
-    u32 state1 = (((u32)input[6] << 8) ^ input[7]) ^
-    (((u32)input[4] << 24) ^ ((u32)input[5] << 16)) ^ expandedKey[1];
-    u32 state2 = (((u32)input[10] << 8) ^ input[11]) ^
-    (((u32)input[8] << 24) ^ ((u32)input[9] << 16)) ^ expandedKey[2];
-    u32 state3 = (((u32)input[14] << 8) ^ input[15]) ^
-    (((u32)input[12] << 24) ^ ((u32)input[13] << 16)) ^ expandedKey[3];
+    u32 state0, state1, state2, state3;
     u32 next0, next1, next2, next3;
+    s32 roundPairs;
 
+    state0 = ((u32)input[0] << 24) ^ ((u32)input[1] << 16) ^
+        ((u32)input[2] << 8) ^ (u32)input[3] ^ expandedKey[0];
+    state1 = ((u32)input[4] << 24) ^ ((u32)input[5] << 16) ^
+        ((u32)input[6] << 8) ^ (u32)input[7] ^ expandedKey[1];
+    state2 = ((u32)input[8] << 24) ^ ((u32)input[9] << 16) ^
+        ((u32)input[10] << 8) ^ (u32)input[11] ^ expandedKey[2];
+    state3 = ((u32)input[12] << 24) ^ ((u32)input[13] << 16) ^
+        ((u32)input[14] << 8) ^ (u32)input[15] ^ expandedKey[3];
+    roundPairs = (s32)rounds >> 1;
     for (;;) {
-        next0 = (roundTable3[state3 & 0xFF] ^ roundTable2[(state2 >> 8) & 0xFF]) ^
-        (roundTable0[state0 >> 24] ^ roundTable1[(state1 >> 16) & 0xFF]) ^ expandedKey[4];
-        next1 = (roundTable3[state0 & 0xFF] ^ roundTable2[(state3 >> 8) & 0xFF]) ^
-        (roundTable0[state1 >> 24] ^ roundTable1[(state2 >> 16) & 0xFF]) ^ expandedKey[5];
-        next2 = (roundTable3[state1 & 0xFF] ^ roundTable2[(state0 >> 8) & 0xFF]) ^
-        (roundTable0[state2 >> 24] ^ roundTable1[(state3 >> 16) & 0xFF]) ^ expandedKey[6];
-        next3 = (roundTable3[state2 & 0xFF] ^ roundTable2[(state1 >> 8) & 0xFF]) ^
-        (roundTable0[state3 >> 24] ^ roundTable1[(state0 >> 16) & 0xFF]) ^ expandedKey[7];
+        next0 = (gAtermAesEncryptTable3[state3 & 0xFF] ^
+            gAtermAesEncryptTable2[(state2 >> 8) & 0xFF]) ^
+            (gAtermAesEncryptTable0[state0 >> 24] ^
+            gAtermAesEncryptTable1[(state1 >> 16) & 0xFF]) ^ expandedKey[4];
+        next1 = (gAtermAesEncryptTable3[state0 & 0xFF] ^
+            gAtermAesEncryptTable2[(state3 >> 8) & 0xFF]) ^
+            (gAtermAesEncryptTable0[state1 >> 24] ^
+            gAtermAesEncryptTable1[(state2 >> 16) & 0xFF]) ^ expandedKey[5];
+        next2 = (gAtermAesEncryptTable3[state1 & 0xFF] ^
+            gAtermAesEncryptTable2[(state0 >> 8) & 0xFF]) ^
+            (gAtermAesEncryptTable0[state2 >> 24] ^
+            gAtermAesEncryptTable1[(state3 >> 16) & 0xFF]) ^ expandedKey[6];
+        next3 = (gAtermAesEncryptTable3[state2 & 0xFF] ^
+            gAtermAesEncryptTable2[(state1 >> 8) & 0xFF]) ^
+            (gAtermAesEncryptTable0[state3 >> 24] ^
+            gAtermAesEncryptTable1[(state0 >> 16) & 0xFF]) ^ expandedKey[7];
         expandedKey += 8;
         if (--roundPairs == 0) {
             break;
         }
-        state0 = (roundTable3[next3 & 0xFF] ^ roundTable2[(next2 >> 8) & 0xFF]) ^
-        (roundTable0[next0 >> 24] ^ roundTable1[(next1 >> 16) & 0xFF]) ^ expandedKey[0];
-        state1 = (roundTable3[next0 & 0xFF] ^ roundTable2[(next3 >> 8) & 0xFF]) ^
-        (roundTable0[next1 >> 24] ^ roundTable1[(next2 >> 16) & 0xFF]) ^ expandedKey[1];
-        state2 = (roundTable3[next1 & 0xFF] ^ roundTable2[(next0 >> 8) & 0xFF]) ^
-        (roundTable0[next2 >> 24] ^ roundTable1[(next3 >> 16) & 0xFF]) ^ expandedKey[2];
-        state3 = (roundTable3[next2 & 0xFF] ^ roundTable2[(next1 >> 8) & 0xFF]) ^
-        (roundTable0[next3 >> 24] ^ roundTable1[(next0 >> 16) & 0xFF]) ^ expandedKey[3];
+        state0 = (gAtermAesEncryptTable3[next3 & 0xFF] ^
+            gAtermAesEncryptTable2[(next2 >> 8) & 0xFF]) ^
+            (gAtermAesEncryptTable0[next0 >> 24] ^
+            gAtermAesEncryptTable1[(next1 >> 16) & 0xFF]) ^ expandedKey[0];
+        state1 = (gAtermAesEncryptTable3[next0 & 0xFF] ^
+            gAtermAesEncryptTable2[(next3 >> 8) & 0xFF]) ^
+            (gAtermAesEncryptTable0[next1 >> 24] ^
+            gAtermAesEncryptTable1[(next2 >> 16) & 0xFF]) ^ expandedKey[1];
+        state2 = (gAtermAesEncryptTable3[next1 & 0xFF] ^
+            gAtermAesEncryptTable2[(next0 >> 8) & 0xFF]) ^
+            (gAtermAesEncryptTable0[next2 >> 24] ^
+            gAtermAesEncryptTable1[(next3 >> 16) & 0xFF]) ^ expandedKey[2];
+        state3 = (gAtermAesEncryptTable3[next2 & 0xFF] ^
+            gAtermAesEncryptTable2[(next1 >> 8) & 0xFF]) ^
+            (gAtermAesEncryptTable0[next3 >> 24] ^
+            gAtermAesEncryptTable1[(next0 >> 16) & 0xFF]) ^ expandedKey[3];
     }
 
-    {
-        const u32* finalTable = gAtermAesSubstitutionTable;
-        u32 result0 = (((finalTable[next0 >> 24] & 0xFF000000) ^
-            (finalTable[(next1 >> 16) & 0xFF] & 0x00FF0000) ^
-            (finalTable[(next2 >> 8) & 0xFF] & 0x0000FF00) ^
-            (finalTable[next3 & 0xFF] & 0x000000FF)) ^ expandedKey[0]);
-        u32 result1 = (((finalTable[next1 >> 24] & 0xFF000000) ^
-            (finalTable[(next2 >> 16) & 0xFF] & 0x00FF0000) ^
-            (finalTable[(next3 >> 8) & 0xFF] & 0x0000FF00) ^
-            (finalTable[next0 & 0xFF] & 0x000000FF)) ^ expandedKey[1]);
-        u32 result2 = (((finalTable[next2 >> 24] & 0xFF000000) ^
-            (finalTable[(next3 >> 16) & 0xFF] & 0x00FF0000) ^
-            (finalTable[(next0 >> 8) & 0xFF] & 0x0000FF00) ^
-            (finalTable[next1 & 0xFF] & 0x000000FF)) ^ expandedKey[2]);
-        u32 result3 = (((finalTable[next3 >> 24] & 0xFF000000) ^
-            (finalTable[(next0 >> 16) & 0xFF] & 0x00FF0000) ^
-            (finalTable[(next1 >> 8) & 0xFF] & 0x0000FF00) ^
-            (finalTable[next2 & 0xFF] & 0x000000FF)) ^ expandedKey[3]);
-
-        output[0] = result0 >> 24;
-        output[1] = result0 >> 16;
-        output[2] = result0 >> 8;
-        output[3] = result0;
-        output[4] = result1 >> 24;
-        output[5] = result1 >> 16;
-        output[6] = result1 >> 8;
-        output[7] = result1;
-        output[8] = result2 >> 24;
-        output[9] = result2 >> 16;
-        output[10] = result2 >> 8;
-        output[11] = result2;
-        output[12] = result3 >> 24;
-        output[13] = result3 >> 16;
-        output[14] = result3 >> 8;
-        output[15] = result3;
-    }
+    state0 = (gAtermAesSubstitutionTable[next0 >> 24] & 0xFF000000) ^
+        (gAtermAesSubstitutionTable[(next1 >> 16) & 0xFF] & 0x00FF0000) ^
+        (gAtermAesSubstitutionTable[(next2 >> 8) & 0xFF] & 0x0000FF00) ^
+        (gAtermAesSubstitutionTable[next3 & 0xFF] & 0x000000FF) ^ expandedKey[0];
+    output[0] = state0 >> 24;
+    output[1] = state0 >> 16;
+    output[2] = state0 >> 8;
+    output[3] = state0;
+    state1 = (gAtermAesSubstitutionTable[next1 >> 24] & 0xFF000000) ^
+        (gAtermAesSubstitutionTable[(next2 >> 16) & 0xFF] & 0x00FF0000) ^
+        (gAtermAesSubstitutionTable[(next3 >> 8) & 0xFF] & 0x0000FF00) ^
+        (gAtermAesSubstitutionTable[next0 & 0xFF] & 0x000000FF) ^ expandedKey[1];
+    output[4] = state1 >> 24;
+    output[5] = state1 >> 16;
+    output[6] = state1 >> 8;
+    output[7] = state1;
+    state2 = (gAtermAesSubstitutionTable[next2 >> 24] & 0xFF000000) ^
+        (gAtermAesSubstitutionTable[(next3 >> 16) & 0xFF] & 0x00FF0000) ^
+        (gAtermAesSubstitutionTable[(next0 >> 8) & 0xFF] & 0x0000FF00) ^
+        (gAtermAesSubstitutionTable[next1 & 0xFF] & 0x000000FF) ^ expandedKey[2];
+    output[8] = state2 >> 24;
+    output[9] = state2 >> 16;
+    output[10] = state2 >> 8;
+    output[11] = state2;
+    state3 = (gAtermAesSubstitutionTable[next3 >> 24] & 0xFF000000) ^
+        (gAtermAesSubstitutionTable[(next0 >> 16) & 0xFF] & 0x00FF0000) ^
+        (gAtermAesSubstitutionTable[(next1 >> 8) & 0xFF] & 0x0000FF00) ^
+        (gAtermAesSubstitutionTable[next2 & 0xFF] & 0x000000FF) ^ expandedKey[3];
+    output[12] = state3 >> 24;
+    output[13] = state3 >> 16;
+    output[14] = state3 >> 8;
+    output[15] = state3;
 }
 
 void ATERM_81405690(const u32* expandedKey, u32 rounds, const u8* input, u8* output) {
-    s32 roundPairs = (s32)rounds >> 1;
-    u32 state0 = (((u32)input[0] << 24) ^ ((u32)input[1] << 16) ^ ((u32)input[2] << 8) ^ input[3]) ^ expandedKey[0];
-    u32 state1 = (((u32)input[4] << 24) ^ ((u32)input[5] << 16) ^ ((u32)input[6] << 8) ^ input[7]) ^ expandedKey[1];
-    u32 state2 = (((u32)input[8] << 24) ^ ((u32)input[9] << 16) ^ ((u32)input[10] << 8) ^ input[11]) ^ expandedKey[2];
-    u32 state3 = (((u32)input[12] << 24) ^ ((u32)input[13] << 16) ^ ((u32)input[14] << 8) ^ input[15]) ^ expandedKey[3];
+    u32 state0, state1, state2, state3;
     u32 next0, next1, next2, next3;
-    const u32* roundTable3 = gAtermAesDecryptTable3;
-    const u32* roundTable2 = gAtermAesDecryptTable2;
-    const u32* roundTable0 = gAtermAesDecryptTable0;
-    const u32* roundTable1 = gAtermAesDecryptTable1;
+    s32 roundPairs;
 
+    state0 = ((u32)input[0] << 24) ^ ((u32)input[1] << 16) ^
+        ((u32)input[2] << 8) ^ (u32)input[3] ^ expandedKey[0];
+    state1 = ((u32)input[4] << 24) ^ ((u32)input[5] << 16) ^
+        ((u32)input[6] << 8) ^ (u32)input[7] ^ expandedKey[1];
+    state2 = ((u32)input[8] << 24) ^ ((u32)input[9] << 16) ^
+        ((u32)input[10] << 8) ^ (u32)input[11] ^ expandedKey[2];
+    state3 = ((u32)input[12] << 24) ^ ((u32)input[13] << 16) ^
+        ((u32)input[14] << 8) ^ (u32)input[15] ^ expandedKey[3];
+    roundPairs = (s32)rounds >> 1;
     for (;;) {
-        next0 = roundTable3[state1 & 0xFF] ^ roundTable2[(state2 >> 8) & 0xFF] ^ roundTable0[state0 >> 24] ^ roundTable1[(state3 >> 16) & 0xFF] ^ expandedKey[4];
-        next1 = roundTable3[state2 & 0xFF] ^ roundTable2[(state3 >> 8) & 0xFF] ^ roundTable0[state1 >> 24] ^ roundTable1[(state0 >> 16) & 0xFF] ^ expandedKey[5];
-        next2 = roundTable3[state3 & 0xFF] ^ roundTable2[(state0 >> 8) & 0xFF] ^ roundTable0[state2 >> 24] ^ roundTable1[(state1 >> 16) & 0xFF] ^ expandedKey[6];
-        next3 = roundTable3[state0 & 0xFF] ^ roundTable2[(state1 >> 8) & 0xFF] ^ roundTable0[state3 >> 24] ^ roundTable1[(state2 >> 16) & 0xFF] ^ expandedKey[7];
+        next0 = (gAtermAesDecryptTable3[state1 & 0xFF] ^
+            gAtermAesDecryptTable2[(state2 >> 8) & 0xFF]) ^
+            (gAtermAesDecryptTable0[state0 >> 24] ^
+            gAtermAesDecryptTable1[(state3 >> 16) & 0xFF]) ^ expandedKey[4];
+        next1 = (gAtermAesDecryptTable3[state2 & 0xFF] ^
+            gAtermAesDecryptTable2[(state3 >> 8) & 0xFF]) ^
+            (gAtermAesDecryptTable0[state1 >> 24] ^
+            gAtermAesDecryptTable1[(state0 >> 16) & 0xFF]) ^ expandedKey[5];
+        next2 = (gAtermAesDecryptTable3[state3 & 0xFF] ^
+            gAtermAesDecryptTable2[(state0 >> 8) & 0xFF]) ^
+            (gAtermAesDecryptTable0[state2 >> 24] ^
+            gAtermAesDecryptTable1[(state1 >> 16) & 0xFF]) ^ expandedKey[6];
+        next3 = (gAtermAesDecryptTable3[state0 & 0xFF] ^
+            gAtermAesDecryptTable2[(state1 >> 8) & 0xFF]) ^
+            (gAtermAesDecryptTable0[state3 >> 24] ^
+            gAtermAesDecryptTable1[(state2 >> 16) & 0xFF]) ^ expandedKey[7];
         expandedKey += 8;
         if (--roundPairs == 0) {
             break;
         }
-        state0 = roundTable3[next1 & 0xFF] ^ roundTable2[(next2 >> 8) & 0xFF] ^ roundTable0[next0 >> 24] ^ roundTable1[(next3 >> 16) & 0xFF] ^ expandedKey[0];
-        state1 = roundTable3[next2 & 0xFF] ^ roundTable2[(next3 >> 8) & 0xFF] ^ roundTable0[next1 >> 24] ^ roundTable1[(next0 >> 16) & 0xFF] ^ expandedKey[1];
-        state2 = roundTable3[next3 & 0xFF] ^ roundTable2[(next0 >> 8) & 0xFF] ^ roundTable0[next2 >> 24] ^ roundTable1[(next1 >> 16) & 0xFF] ^ expandedKey[2];
-        state3 = roundTable3[next0 & 0xFF] ^ roundTable2[(next1 >> 8) & 0xFF] ^ roundTable0[next3 >> 24] ^ roundTable1[(next2 >> 16) & 0xFF] ^ expandedKey[3];
+        state0 = (gAtermAesDecryptTable3[next1 & 0xFF] ^
+            gAtermAesDecryptTable2[(next2 >> 8) & 0xFF]) ^
+            (gAtermAesDecryptTable0[next0 >> 24] ^
+            gAtermAesDecryptTable1[(next3 >> 16) & 0xFF]) ^ expandedKey[0];
+        state1 = (gAtermAesDecryptTable3[next2 & 0xFF] ^
+            gAtermAesDecryptTable2[(next3 >> 8) & 0xFF]) ^
+            (gAtermAesDecryptTable0[next1 >> 24] ^
+            gAtermAesDecryptTable1[(next0 >> 16) & 0xFF]) ^ expandedKey[1];
+        state2 = (gAtermAesDecryptTable3[next3 & 0xFF] ^
+            gAtermAesDecryptTable2[(next0 >> 8) & 0xFF]) ^
+            (gAtermAesDecryptTable0[next2 >> 24] ^
+            gAtermAesDecryptTable1[(next1 >> 16) & 0xFF]) ^ expandedKey[2];
+        state3 = (gAtermAesDecryptTable3[next0 & 0xFF] ^
+            gAtermAesDecryptTable2[(next1 >> 8) & 0xFF]) ^
+            (gAtermAesDecryptTable0[next3 >> 24] ^
+            gAtermAesDecryptTable1[(next2 >> 16) & 0xFF]) ^ expandedKey[3];
     }
 
-    {
-        const u32* finalTable = gAtermAesInverseSubstitutionTable;
-        u32 result0 = (((finalTable[next0 >> 24] & 0xFF000000) ^
-            (finalTable[(next3 >> 16) & 0xFF] & 0x00FF0000) ^
-            (finalTable[(next2 >> 8) & 0xFF] & 0x0000FF00) ^
-            (finalTable[next1 & 0xFF] & 0x000000FF)) ^ expandedKey[0]);
-        u32 result1 = (((finalTable[next1 >> 24] & 0xFF000000) ^
-            (finalTable[(next0 >> 16) & 0xFF] & 0x00FF0000) ^
-            (finalTable[(next3 >> 8) & 0xFF] & 0x0000FF00) ^
-            (finalTable[next2 & 0xFF] & 0x000000FF)) ^ expandedKey[1]);
-        u32 result2 = (((finalTable[next2 >> 24] & 0xFF000000) ^
-            (finalTable[(next1 >> 16) & 0xFF] & 0x00FF0000) ^
-            (finalTable[(next0 >> 8) & 0xFF] & 0x0000FF00) ^
-            (finalTable[next3 & 0xFF] & 0x000000FF)) ^ expandedKey[2]);
-        u32 result3 = (((finalTable[next3 >> 24] & 0xFF000000) ^
-            (finalTable[(next2 >> 16) & 0xFF] & 0x00FF0000) ^
-            (finalTable[(next1 >> 8) & 0xFF] & 0x0000FF00) ^
-            (finalTable[next0 & 0xFF] & 0x000000FF)) ^ expandedKey[3]);
-
-        output[0] = result0 >> 24;
-        output[1] = result0 >> 16;
-        output[2] = result0 >> 8;
-        output[3] = result0;
-        output[4] = result1 >> 24;
-        output[5] = result1 >> 16;
-        output[6] = result1 >> 8;
-        output[7] = result1;
-        output[8] = result2 >> 24;
-        output[9] = result2 >> 16;
-        output[10] = result2 >> 8;
-        output[11] = result2;
-        output[12] = result3 >> 24;
-        output[13] = result3 >> 16;
-        output[14] = result3 >> 8;
-        output[15] = result3;
-    }
+    state0 = (gAtermAesInverseSubstitutionTable[next0 >> 24] & 0xFF000000) ^
+        (gAtermAesInverseSubstitutionTable[(next3 >> 16) & 0xFF] & 0x00FF0000) ^
+        (gAtermAesInverseSubstitutionTable[(next2 >> 8) & 0xFF] & 0x0000FF00) ^
+        (gAtermAesInverseSubstitutionTable[next1 & 0xFF] & 0x000000FF) ^ expandedKey[0];
+    output[0] = state0 >> 24;
+    output[1] = state0 >> 16;
+    output[2] = state0 >> 8;
+    output[3] = state0;
+    state1 = (gAtermAesInverseSubstitutionTable[next1 >> 24] & 0xFF000000) ^
+        (gAtermAesInverseSubstitutionTable[(next0 >> 16) & 0xFF] & 0x00FF0000) ^
+        (gAtermAesInverseSubstitutionTable[(next3 >> 8) & 0xFF] & 0x0000FF00) ^
+        (gAtermAesInverseSubstitutionTable[next2 & 0xFF] & 0x000000FF) ^ expandedKey[1];
+    output[4] = state1 >> 24;
+    output[5] = state1 >> 16;
+    output[6] = state1 >> 8;
+    output[7] = state1;
+    state2 = (gAtermAesInverseSubstitutionTable[next2 >> 24] & 0xFF000000) ^
+        (gAtermAesInverseSubstitutionTable[(next1 >> 16) & 0xFF] & 0x00FF0000) ^
+        (gAtermAesInverseSubstitutionTable[(next0 >> 8) & 0xFF] & 0x0000FF00) ^
+        (gAtermAesInverseSubstitutionTable[next3 & 0xFF] & 0x000000FF) ^ expandedKey[2];
+    output[8] = state2 >> 24;
+    output[9] = state2 >> 16;
+    output[10] = state2 >> 8;
+    output[11] = state2;
+    state3 = (gAtermAesInverseSubstitutionTable[next3 >> 24] & 0xFF000000) ^
+        (gAtermAesInverseSubstitutionTable[(next2 >> 16) & 0xFF] & 0x00FF0000) ^
+        (gAtermAesInverseSubstitutionTable[(next1 >> 8) & 0xFF] & 0x0000FF00) ^
+        (gAtermAesInverseSubstitutionTable[next0 & 0xFF] & 0x000000FF) ^ expandedKey[3];
+    output[12] = state3 >> 24;
+    output[13] = state3 >> 16;
+    output[14] = state3 >> 8;
+    output[15] = state3;
 }
 
 void ATERM_81405D0C(u32 state[4], const u8 block[64]);
 
-void ATERM_81405ACC(AtermMd5Context* context, const void* input, u32 length) {
-    const u8* data = (const u8*)input;
+void ATERM_81405ACC(AtermMd5Context* context, void* input, u32 length) {
+    u8* data = (u8*)input;
     u32 bufferIndex = (context->bitCountLow >> 3) & 0x3F;
     u32 bytesToFill;
     u32 copiedBytes;
