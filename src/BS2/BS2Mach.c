@@ -63,7 +63,7 @@ BOOL AbortFlag = FALSE;
 volatile int lbl_81698A44 = 0;
 volatile int lbl_81698A48 = 0;
 volatile int lbl_81698A4C = 0;
-u32 lbl_81698A50 = 0;
+vu32 lbl_81698A50 = 0;
 u32 lbl_81698A54 = 0;
 u32 lbl_81698A58 = 0;
 u32 lbl_81698A5C = 0;
@@ -83,17 +83,17 @@ u32 lbl_81698A9C = 0;
 u64 lbl_81698AA0 = 0;
 u32 lbl_81698AA8 = 0;
 u32 lbl_81698AAC = 0;
-u32 lbl_81698AB0 = 0;
-u32 lbl_81698AB4 = 0;
+vu32 lbl_81698AB0 = 0;
+vu32 lbl_81698AB4 = 0;
 u8 *lbl_81698AB8 = NULL;
 NANDFileInfo *lbl_81698ABC = NULL;
-u32 lbl_81698AC0 = 0;
-NANDCallback lbl_81698AC4 = NULL;
+vu32 lbl_81698AC0 = 0;
+volatile NANDCallback lbl_81698AC4 = NULL;
 u32 lbl_81698AC8 = 0;
-u32 lbl_81698ACC = 0;
+vu32 lbl_81698ACC = 0;
 u32 lbl_81698AD0 = 0;
-u32 lbl_81698AD4 = 0;
-u32 lbl_81698AD8 = 0;
+vu32 lbl_81698AD4 = 0;
+vu32 lbl_81698AD8 = 0;
 vu32 lbl_81698ADC = 0;
 vu32 lbl_81698AE0 = 0;
 u32 *lbl_81698AE4 = 0;
@@ -1045,8 +1045,8 @@ void BS2NANDDivideCallback(s32 result, NANDCommandBlock *block) {
     } else if (result < 0) {
         NandCompletion(result, block);
     } else {
-        NandTransferred = NandTransferred + result;
-        NandBuffer = NandBuffer + result;
+        NandBuffer += result;
+        NandTransferred += result;
         if (NandLength - NandTransferred > 0x40000) {
             if (NandOperation == 1) {
                 BS2Report("NANDWriteAsync buf:0x%08X, length:0x%08X\n", NandBuffer, 0x40000);
@@ -1059,7 +1059,7 @@ void BS2NANDDivideCallback(s32 result, NANDCommandBlock *block) {
                 NandCompletion(ret, block);
             }
         } else {
-            if (NandLength != NandTransferred) {
+            if (NandLength - NandTransferred != 0) {
                 if (NandOperation == 1) {
                     BS2Report("NANDWriteAsync buf:0x%08X, length:0x%08X\n", NandBuffer, NandLength - NandTransferred);
                     ret = NANDWriteAsync(NandFile, (void *)NandBuffer, NandLength - NandTransferred, BS2NANDDivideCallback, block);
@@ -1084,17 +1084,12 @@ void BS2NANDDivideReadAsync(NANDFileInfo *info, void *buffer, u32 length, NANDCa
     NandTransferred = 0;
     NandFile = info;
     NandBuffer = (u8 *)buffer;
-    switch (NandLength > 0x40000) {
-    default: {
+    if (NandLength > 0x40000) {
         BS2Report("NANDReadAsync buf:0x%08X, length:0x%08X\n", NandBuffer, 0x40000);
         NANDReadAsync(NandFile, (void *)NandBuffer, 0x40000, BS2NANDDivideCallback, block);
-        break;
-    }
-    case 0: {
+    } else {
         BS2Report("NANDReadAsync buf:0x%08X, length:0x%08X\n", NandBuffer, NandLength);
         NANDReadAsync(NandFile, (void *)NandBuffer, NandLength, BS2NANDDivideCallback, block);
-        break;
-    }
     }
 }
 
@@ -1105,17 +1100,12 @@ void BS2NANDDivideWriteAsync(NANDFileInfo *info, const void *buffer, u32 length,
     NandTransferred = 0;
     NandFile = info;
     NandBuffer = (u8 *)buffer;
-    switch (NandLength > 0x40000) {
-    default: {
+    if (NandLength > 0x40000) {
         BS2Report("NANDWriteAsync buf:0x%08X, length:0x%08X\n", NandBuffer, 0x40000);
         NANDWriteAsync(NandFile, (void *)NandBuffer, 0x40000, BS2NANDDivideCallback, block);
-        break;
-    }
-    case 0: {
+    } else {
         BS2Report("NANDWriteAsync buf:0x%08X, length:0x%08X\n", NandBuffer, NandLength);
         NANDWriteAsync(NandFile, (void *)NandBuffer, NandLength, BS2NANDDivideCallback, block);
-        break;
-    }
     }
 }
 
@@ -1202,8 +1192,8 @@ BOOL CheckBS2CommandStatus() {
         if (BS2BootCaching != 0) {
             BS2Report("Write partition ifno\n");
             NandPending = 1;
-            CacheCommandComplete = 1;
             CacheLength += OSRoundUp32B(((DVDGameTOC *)DataToc)->partitionCount * sizeof(DVDPartitionInfo)) + 32;
+            CacheCommandComplete = 1;
             if ((unsigned int)CacheLength > 0xb00000) {
                 BS2NANDCallback(-1, NULL);
                 return 1;
