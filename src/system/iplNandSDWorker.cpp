@@ -389,7 +389,7 @@ namespace ipl {
         send_work(MESSAGE_CHECK_BACKUP_FITS);
     }
 
-    void NandSDWorker::iplNandSD_81348EA8(void* ptrA, void* ptrB, void* ptrC) {
+    void NandSDWorker::check_sd_app_titles_async(void* ptrA, void* ptrB, void* ptrC) {
         myWork->paramA = ptrA;
         myWork->paramB = ptrB;
         myWork->paramC = ptrC;
@@ -797,7 +797,7 @@ namespace ipl {
                     break;
                 }
                 case MESSAGE_UNK_49: {
-                    do_unk_8134C838();
+                    do_check_sd_app_titles();
                     break;
                 }
                 case MESSAGE_GET_NAND_SAVE_SIZE: {
@@ -2179,7 +2179,7 @@ namespace ipl {
         MEMFreeToExpHeap(myWork->mainHeap, titleIds);
     }
 
-    void NandSDWorker::do_unk_8134C838() {
+    void NandSDWorker::do_check_sd_app_titles() {
         SDAppBanner* sdAppBanner = (SDAppBanner*)MEMAllocFromAllocator(&myWork->unkAllocator, sizeof(SDAppBanner));
 
         /* i guess */

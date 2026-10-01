@@ -92,7 +92,7 @@ namespace ipl {
         void read_sd_app_location_async(ESTitleId32* titleIds);
         void check_for_sd_app_to_nand_async(ESTitleId titleId, AppBlocksInfo* usedBlocks, AppBlocksInfo* freeBlocks);
         void check_backup_fits_async(TitleIdList* newTitles, TitleIdList* replacingTitles);
-        void iplNandSD_81348EA8(void* ptrA, void* ptrB, void* ptrC);
+        void check_sd_app_titles_async(void* ptrA, void* ptrB, void* ptrC);
 
         void list_nand_apps_usage_async(void* ptrA, void* ptr);
 
@@ -514,7 +514,7 @@ namespace ipl {
         void do_check_for_sd_app_to_nand();
         void check_backup_fits();
         void do_list_nand_apps_usage();
-        void do_unk_8134C838();
+        void do_check_sd_app_titles();
 
         void do_move_nand_app_to_sd();
         void do_move_sd_app_to_nand();
