@@ -314,9 +314,9 @@ FaderSceneCommand SDChannelTitle::calcNormal() {
     case 18: if (SCCheckStatus() != 1) { mState = 21; } break;
     case 19: iplSDChannelTitle_813E6CCC(this); break;
     case 20: iplSDChannelTitle_813E6E24(this); break;
-    case 21: iplSDChannelTitle_813E724C(this); break;
-    case 22: iplSDChannelTitle_813E72B8(this); break;
-    case 23: iplSDChannelTitle_813E6FB4(this); break;
+    case 23: iplSDChannelTitle_813E724C(this); break;
+    case 21: iplSDChannelTitle_813E72B8(this); break;
+    case 22: iplSDChannelTitle_813E6FB4(this); break;
     case 24: iplSDChannelTitle_813E76C8(this); break;
     case 25: iplSDChannelTitle_813E7780(this); break;
     case 26: iplSDChannelTitle_813E7418(this); break;
@@ -518,7 +518,7 @@ void SDChannelTitle::destroy() {
     mpCaptureHeap->destroy();
 }
 
-BOOL SDChannelTitle::isResetAcceptable() {
+BOOL SDChannelTitle::isResetAcceptable() const {
     if (mMemory.mTransferFlags[0]) {
         return mbResetAcceptable;
     }

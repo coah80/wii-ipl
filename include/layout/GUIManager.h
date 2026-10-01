@@ -34,14 +34,14 @@ namespace gui {
         virtual void draw(Mtx& mtx) {}  // 0x14 (0x05)
         virtual void draw() {}          // 0x18 (0x06)
 
-#if defined(IPL_CHANNEL_TITLE_NOVTABLE) || defined(IPL_GC_SAVEDATA_NOVTABLE) || defined(IPL_MEMORY_CARD_NOVTABLE)
+#if defined(IPL_CHANNEL_TITLE_NOVTABLE) || defined(IPL_GC_SAVEDATA_NOVTABLE) || defined(IPL_MEMORY_CARD_NOVTABLE) || defined(IPL_SD_CHANNEL_TITLE_CPP)
         virtual ~Interface();     // 0x1C (0x07)
 #else
         virtual ~Interface() {}   // 0x1C (0x07)
 #endif
     };
 
-#if defined(IPL_CHANNEL_TITLE_NOVTABLE) || defined(IPL_GC_WINDOW_NOVTABLE) || defined(IPL_GC_SAVEDATA_NOVTABLE) || defined(IPL_MEMORY_CARD_NOVTABLE)
+#if defined(IPL_CHANNEL_TITLE_NOVTABLE) || defined(IPL_GC_SAVEDATA_NOVTABLE) || defined(IPL_GC_WINDOW_NOVTABLE) || defined(IPL_MEMORY_CARD_NOVTABLE) || defined(IPL_SD_CHANNEL_TITLE_CPP)
     class __declspec(novtable) EventHandler {
 #else
     class EventHandler {
