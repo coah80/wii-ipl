@@ -50,6 +50,13 @@ static const TextboxToMessageID scTextboxToMessageID[3] = {
 };
 
 static const char* scButtonName[3] = {"B_Move_00", "B_Copy_00", "B_Del_00"};
+
+struct DigitTable {
+    wchar_t w[10];
+};
+
+static const DigitTable scNumber = {{L'0', L'1', L'2', L'3', L'4', L'5', L'6', L'7', L'8', L'9'}};
+
 GCWindow::GCWindow(EGG::Heap* heap, nand::LayoutFile* layoutFile, const char* directory, const char* fileName)
     : MemoryBase(), MemCardEventHandler(), mState(0), mLinearInterp(), mCardState(0), mCardIndex(0), mOperation(0), mActive(false),
       mWaiting(false) {
@@ -102,15 +109,15 @@ void GCWindow::init(const math::VEC3& translate, MemoryCardManager* manager, u8 
         mpPaneManager->initPane(mpLayout->getNW4RLyt()->GetRootPane()->FindPaneByName(scButtonName[i], true));
     }
     int blocks = mpMemoryCardManager->getBlocks(cardState, cardIndex);
-    wchar_t digits[10] = {L'0', L'1', L'2', L'3', L'4', L'5', L'6', L'7', L'8', L'9'};
+    DigitTable digitTable = scNumber;
     int blockCount = static_cast<u16>(blocks);
     wchar_t decimal[5] = {0};
     int skipCount = 0;
     wchar_t blockText[5] = {0};
-    decimal[0] = digits[blockCount / 1000];
-    decimal[1] = digits[(blockCount / 100) % 10];
-    decimal[2] = digits[(blockCount / 10) % 10];
-    decimal[3] = digits[blockCount % 10];
+    decimal[0] = digitTable.w[blockCount / 1000];
+    decimal[1] = digitTable.w[(blockCount / 100) % 10];
+    decimal[2] = digitTable.w[(blockCount / 10) % 10];
+    decimal[3] = digitTable.w[blockCount % 10];
     for (i = 0; i < 3; i++) {
         if (decimal[i] != L'0') {
             break;
