@@ -39,7 +39,7 @@ namespace ipl {
         void stt_wait_fns_msg();
         void stt_wait_terminate();
 
-        int fn_8135B1C0();
+        int getProgressPercent();
 
         void error_handling();
 
