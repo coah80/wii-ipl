@@ -36,7 +36,7 @@ namespace ext_ead {
         class SurfaceManager {
         public:
             static void CreateManager(int rectW0, int rectH0, int rectW1, int rectH1, void* mem1Buf, u32 mem1BufSize, void* mem2Buf, u32 mem2BufSize,
-                                      void* libBuf, const char* param_10);
+                                      void* libBuf, const char* arcPath);
             static void DisposeManager();
 
             static void RegisterArcFile(void* fileBuf);
