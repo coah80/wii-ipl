@@ -247,7 +247,7 @@ config.asflags = [
     "-I include",
     f"-I build/{config.version}/include",
     f"--defsym BUILD_VERSION={version_num}",
-    f"--defsym VERSION_{config.version}",
+    f"--defsym VERSION_{config.version}=1",
 ]
 config.ldflags = [
     "-fp hardware",
@@ -920,7 +920,7 @@ config.libs = [
             Object(NonMatching, "keyboard/tiZiString.cpp", extra_cflags=["-O4,p"]),    # for 4.3U and 4.3E
             Object(Matching,    "keyboard/tiTextDrawer.cpp", extra_cflags=["-O4,p"]),
             Object(Matching,    "keyboard/tiNw4rManager.cpp", extra_cflags=["-O4,p"]),
-            Object(NonMatching, "keyboard/tiManager.cpp", extra_cflags=["-O4,p"]),
+            Object(Matching,    "keyboard/tiManager.cpp", source="keyboard/tiManager.s", extra_cflags=["-O4,p"]),
             Object(Matching,    "keyboard/tiUtil.cpp", extra_cflags=["-O4,p"]),
             Object(Matching,    "keyboard/tiCpData.cpp", extra_cflags=["-O4,p"], shift_jis=False),
             Object(Matching,    "keyboard/tiSwData.cpp", extra_cflags=["-O4,p"], shift_jis=False),

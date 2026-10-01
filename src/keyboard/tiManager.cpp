@@ -1,3 +1,4 @@
+// Matching build uses tiManager.s (near-100% C++ still breaks DOL SHA1).
 #define TIMANAGER_IMPLEMENTATION
 #include "keyboard/tiPcKeyboard.h"
 #include "keyboard/tiCellPhone.h"
