@@ -367,7 +367,8 @@ static s32 __nupGetServerInfo(char* serverAddress, char* messageId, unsigned lon
     } else {
         snprintf(endpoint, endpointSize, "https://%s/nus/services/NetUpdateSOAP", serverAddress);
         requestSize = strlen(messageId) + strlen(productArea);
-        requestSize += strlen(countryCode) + 0x449;
+        unsigned long countryLength = strlen(countryCode);
+        requestSize += countryLength + 0x449;
         if (auditData != 0) {
             requestSize += strlen(auditData);
         }

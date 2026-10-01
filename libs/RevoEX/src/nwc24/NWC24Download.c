@@ -600,14 +600,14 @@ NWC24Err NWC24IterateDlTask(NWC24DlId* dlIterateId, BOOL begin) {
 
 NWC24Err NWC24IterateDlTaskEx(NWC24DlIterateWork* dlIterateWork, NWC24DlId* dlIterateId) {
     DlTaskIterationState* state = (DlTaskIterationState*)dlIterateWork;
-    s32 (*getValue)(NWC24DlId);
     NWC24DlId taskId;
     s32 value;
     BOOL descending;
     BOOL passesSelected;
     BOOL bestCandidate;
-    NWC24Err result;
     BOOL found = FALSE;
+    s32 (*getValue)(NWC24DlId);
+    NWC24Err result;
 
     if (state->valid == 0) {
         return NWC24_ERR_INVALID_VALUE;
@@ -635,8 +635,8 @@ NWC24Err NWC24IterateDlTaskEx(NWC24DlIterateWork* dlIterateWork, NWC24DlId* dlIt
             if (value == state->comparisonValue && (s32)state->comparisonId < (s32)taskId) {
                 *dlIterateId = taskId;
                 state->comparisonValue = value;
-                state->selectedValue = value;
                 state->comparisonId = taskId;
+                state->selectedValue = value;
                 return NWC24_OK;
             }
             result = NWC24IterateDlTask(&taskId, FALSE);
