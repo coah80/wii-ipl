@@ -290,25 +290,25 @@ extern int SORecvFrom(int socket, void* buffer, int length, int flags, void* add
 extern int SOSendTo(int socket, const void* buffer, int length, int flags, const void* address);
 extern int SOBind(int socket, const void* address);
 
-int AOSS_813FFD68(AOSSInitInput* input);
+int AOSSValidateInitConfig(AOSSInitInput* input);
 int AOSS_CheckAP(AOSSAccessPointRecord* list);
-int AOSS_814001B4(int state, AOSSReceiveBuffer* packet, int* count, AOSSRequestRecords* request, int socket);
-int AOSS_814002F0(int state, AOSSReceiveBuffer* packet, int* count, AOSSRequestRecords* request);
-int AOSS_814004D0(int state, AOSSReceiveBuffer* packet, int* count, AOSSRequestRecords* request);
-int AOSS_814006A4(int state, AOSSReceiveBuffer* packet, int* count, AOSSRequestRecords* request);
+int AOSSDispatchReceiveState(int state, AOSSReceiveBuffer* packet, int* count, AOSSRequestRecords* request, int socket);
+int AOSSHandleDiscoverReply(int state, AOSSReceiveBuffer* packet, int* count, AOSSRequestRecords* request);
+int AOSSHandleAuthReply(int state, AOSSReceiveBuffer* packet, int* count, AOSSRequestRecords* request);
+int AOSSHandleFinalReply(int state, AOSSReceiveBuffer* packet, int* count, AOSSRequestRecords* request);
 int AOSSDecryptMessage(AOSSDecryptionMessage* message);
-int AOSS_81400D34(u16 command, const u8* manufacturerAddress);
-int AOSS_81401104(const AOSSOptionRecord* packet, AOSSStoredConfig* config);
-int AOSS_81401284(const AOSSOptionRecord* packet, AOSSStoredConfig* config);
+int AOSSCheckAccessPointName(u16 command, const u8* manufacturerAddress);
+int AOSSParseWepConfig(const AOSSOptionRecord* packet, AOSSStoredConfig* config);
+int AOSSParsePskConfig(const AOSSOptionRecord* packet, AOSSStoredConfig* config);
 void AOSSInitKeySchedule(AOSSKeySchedule* schedule, const u8* key, u32 keyLength, u32 stateLength);
 void AOSSInitCrc32Table(u32 seed, u32* table);
 s16 AOSSBuildInterfaceOption(void* buffer);
-int AOSS_81401574(void* packet, AOSSRequestRecords* request, int socket);
-int AOSS_81401778(void* packet, void* request, int socket);
+int AOSSSendDiscoveryRequest(void* packet, AOSSRequestRecords* request, int socket);
+int AOSSSendHelloRequest(void* packet, void* request, int socket);
 int AOSSXorBufferWithKey(void* packet, s32 length, char* key, int keyLength);
 int AOSSConnectAndAwaitHost(void* settings, void* config);
-int AOSS_81400E0C(const AOSSOptionRecord* packet, u8* settings);
-int AOSS_814013AC(int state, const AOSSReplyOption* response, int responseLength, void* config, void* networkData);
+int AOSSParseNetworkSettings(const AOSSOptionRecord* packet, u8* settings);
+int AOSSApplyAuthOptions(int state, const AOSSReplyOption* response, int responseLength, void* config, void* networkData);
 
 int AOSSi_Init(AOSSInitInput* input) {
     int result;
@@ -950,14 +950,14 @@ request_socket_cleanup_complete:
               s_operationState = 2;
               AOSSi_Status(2);
             }
-            requestResult = AOSS_81401574(networkAddresses,&requestRecords,requestResult);
+            requestResult = AOSSSendDiscoveryRequest(networkAddresses,&requestRecords,requestResult);
             break;
           case 1:
             if (s_operationState != 3) {
               s_operationState = 3;
               AOSSi_Status(3);
             }
-            requestResult = AOSS_81401778(networkAddresses,&requestRecords,requestResult);
+            requestResult = AOSSSendHelloRequest(networkAddresses,&requestRecords,requestResult);
 
             break;
           case 2:
@@ -1089,7 +1089,7 @@ process_received_packet:
   packetBuffer->socket = s_socket;
   retryWait = SONtoHs(receivedLength);
   packetBuffer->length = retryWait & 0xffff;
-  requestResult = AOSS_814001B4(protocolState,packetBuffer,&receivedPackets,&requestRecords,s_socket);
+  requestResult = AOSSDispatchReceiveState(protocolState,packetBuffer,&receivedPackets,&requestRecords,s_socket);
   if (requestResult == 100) {
     protocolResult = 0;
   }
@@ -1391,7 +1391,7 @@ protocol_socket_cleanup_complete:
     resultCode = 0xffffffff;
     goto finish_initialization;
   } else {
-    protocolResult = AOSS_813FFD68(input);
+    protocolResult = AOSSValidateInitConfig(input);
     if (protocolResult == 0) goto configuration_success;
     {
       input->status = 6;
@@ -1414,7 +1414,7 @@ finish_initialization:
   return (int)resultCode;
 }
 
-int AOSS_813FFD68(AOSSInitInput* input) {
+int AOSSValidateInitConfig(AOSSInitInput* input) {
     AOSSConfigRecord* config;
     u8* output;
     u8* cursor;
@@ -1599,7 +1599,7 @@ int AOSS_CheckAP(AOSSAccessPointRecord* list) {
     return result;
 }
 
-int AOSS_814001B4(int state, AOSSReceiveBuffer* packet, int* count, AOSSRequestRecords* request, int socket) {
+int AOSSDispatchReceiveState(int state, AOSSReceiveBuffer* packet, int* count, AOSSRequestRecords* request, int socket) {
     u16 messageLength = SONtoHs(packet->message.messageLength);
     u16 opcode;
 
@@ -1618,19 +1618,19 @@ int AOSS_814001B4(int state, AOSSReceiveBuffer* packet, int* count, AOSSRequestR
     opcode = SONtoHs(packet->message.opcode);
     switch (opcode) {
     case 0x1010:
-        state = AOSS_814002F0(state, packet, count, request);
+        state = AOSSHandleDiscoverReply(state, packet, count, request);
         break;
     case 0x2010:
-        state = AOSS_814004D0(state, packet, count, request);
+        state = AOSSHandleAuthReply(state, packet, count, request);
         break;
     case 0x3010:
-        state = AOSS_814006A4(state, packet, count, request);
+        state = AOSSHandleFinalReply(state, packet, count, request);
         break;
     }
     return state;
 }
 
-int AOSS_814002F0(int state, AOSSReceiveBuffer* packet, int* count, AOSSRequestRecords* request) {
+int AOSSHandleDiscoverReply(int state, AOSSReceiveBuffer* packet, int* count, AOSSRequestRecords* request) {
     AOSSReplyPayload* reply;
     AOSSRequestRecord* requestRecord;
     size_t manufacturerLength;
@@ -1686,7 +1686,7 @@ int AOSS_814002F0(int state, AOSSReceiveBuffer* packet, int* count, AOSSRequestR
         (*count)++;
         return state;
     }
-    parserResult = AOSS_81400E0C(&reply->data.optionRecord, s_networkBuffer);
+    parserResult = AOSSParseNetworkSettings(&reply->data.optionRecord, s_networkBuffer);
     if (parserResult < 0) {
         if (parserResult == -2) {
             s_errorCode = 0x16;
@@ -1705,7 +1705,7 @@ int AOSS_814002F0(int state, AOSSReceiveBuffer* packet, int* count, AOSSRequestR
     return 1;
 }
 
-int AOSS_814004D0(int state, AOSSReceiveBuffer* packet, int* count, AOSSRequestRecords* request) {
+int AOSSHandleAuthReply(int state, AOSSReceiveBuffer* packet, int* count, AOSSRequestRecords* request) {
     size_t manufacturerLength;
     int compareResult;
     u16 packetSequence;
@@ -1756,7 +1756,7 @@ int AOSS_814004D0(int state, AOSSReceiveBuffer* packet, int* count, AOSSRequestR
         } else {
             memset(&s_configData, 0, sizeof(s_configData));
             authType = SONtoHs(packet->message.authType);
-            operationResult = AOSS_814013AC(0, (const AOSSReplyOption*)reply, authType, &s_configData,
+            operationResult = AOSSApplyAuthOptions(0, (const AOSSReplyOption*)reply, authType, &s_configData,
                                             s_networkBuffer);
             if (operationResult < 0) {
                 *count = *count + 1;
@@ -1772,7 +1772,7 @@ int AOSS_814004D0(int state, AOSSReceiveBuffer* packet, int* count, AOSSRequestR
     return state;
 }
 
-int AOSS_814006A4(int state, AOSSReceiveBuffer* packet, int* count, AOSSRequestRecords* request) {
+int AOSSHandleFinalReply(int state, AOSSReceiveBuffer* packet, int* count, AOSSRequestRecords* request) {
     int result = state;
     size_t manufacturerLength;
     int compareResult;
@@ -1857,7 +1857,7 @@ int AOSSDecryptMessage(AOSSDecryptionMessage* message) {
         return -100;
     }
 
-    result = AOSS_81400D34(SONtoHs(message->command), manufacturerAddress);
+    result = AOSSCheckAccessPointName(SONtoHs(message->command), manufacturerAddress);
     if (result != 0) {
         return result;
     }
@@ -1931,7 +1931,7 @@ int AOSSDecryptMessage(AOSSDecryptionMessage* message) {
     return 0;
 }
 
-int AOSS_81400D34(u16 command, const u8* manufacturerAddress) {
+int AOSSCheckAccessPointName(u16 command, const u8* manufacturerAddress) {
     u8* storedAddress = s_accessPointName;
     int result = 0;
     int hasAddress = 0;
@@ -1961,7 +1961,7 @@ int AOSS_81400D34(u16 command, const u8* manufacturerAddress) {
     return result;
 }
 
-int AOSS_81400E0C(const AOSSOptionRecord* packet, u8* settings) {
+int AOSSParseNetworkSettings(const AOSSOptionRecord* packet, u8* settings) {
     const u8* packetBytes = (const u8*)packet;
     const AOSSOptionRecord* record;
     s32 length;
@@ -2027,7 +2027,7 @@ int AOSS_81400E0C(const AOSSOptionRecord* packet, u8* settings) {
     return 0;
 }
 
-int AOSS_81401104(const AOSSOptionRecord* packet, AOSSStoredConfig* config) {
+int AOSSParseWepConfig(const AOSSOptionRecord* packet, AOSSStoredConfig* config) {
     const u8* packetBytes = (const u8*)packet;
     const AOSSOptionRecord* record = (const AOSSOptionRecord*)(packetBytes + 6);
     u32 length;
@@ -2099,7 +2099,7 @@ int AOSS_81401104(const AOSSOptionRecord* packet, AOSSStoredConfig* config) {
     return 0;
 }
 
-int AOSS_81401284(const AOSSOptionRecord* packet, AOSSStoredConfig* config) {
+int AOSSParsePskConfig(const AOSSOptionRecord* packet, AOSSStoredConfig* config) {
     const u8* packetBytes = (const u8*)packet;
     const AOSSOptionRecord* record = (const AOSSOptionRecord*)(packetBytes + 6);
     u32 length;
@@ -2146,7 +2146,7 @@ int AOSS_81401284(const AOSSOptionRecord* packet, AOSSStoredConfig* config) {
     return 0;
 }
 
-int AOSS_814013AC(int state, const AOSSReplyOption* response, int responseLength, void* config, void* networkData) {
+int AOSSApplyAuthOptions(int state, const AOSSReplyOption* response, int responseLength, void* config, void* networkData) {
     u32 flags = 0;
     const AOSSReplyOption* responseRecord;
     AOSSConfigRecord* configRecord;
@@ -2190,19 +2190,19 @@ int AOSS_814013AC(int state, const AOSSReplyOption* response, int responseLength
     do {
         switch (option->fields.type) {
         case 3:
-            result = AOSS_81401104((const AOSSOptionRecord*)option, wep40Config);
+            result = AOSSParseWepConfig((const AOSSOptionRecord*)option, wep40Config);
             flags |= 1;
             break;
         case 4:
-            result = AOSS_81401104((const AOSSOptionRecord*)option, wep104Config);
+            result = AOSSParseWepConfig((const AOSSOptionRecord*)option, wep104Config);
             flags |= 2;
             break;
         case 5:
-            result = AOSS_81401284((const AOSSOptionRecord*)option, tkipConfig);
+            result = AOSSParsePskConfig((const AOSSOptionRecord*)option, tkipConfig);
             flags |= 4;
             break;
         case 6:
-            result = AOSS_81401284((const AOSSOptionRecord*)option, aesConfig);
+            result = AOSSParsePskConfig((const AOSSOptionRecord*)option, aesConfig);
             flags |= 8;
             break;
         case 10:
@@ -2234,7 +2234,7 @@ int AOSS_814013AC(int state, const AOSSReplyOption* response, int responseLength
     return 0;
 }
 
-int AOSS_81401574(void* packet, AOSSRequestRecords* request, int socket) {
+int AOSSSendDiscoveryRequest(void* packet, AOSSRequestRecords* request, int socket) {
     u8* responsePayload;
     u8 accessPointName[8];
     AOSSSocketAddress destination;
@@ -2302,7 +2302,7 @@ int AOSS_81401574(void* packet, AOSSRequestRecords* request, int socket) {
     return result;
 }
 
-int AOSS_81401778(void* packet, void* request, int socket) {
+int AOSSSendHelloRequest(void* packet, void* request, int socket) {
     AOSSHelloPacket* response = (AOSSHelloPacket*)s_responseBuffer;
     AOSSHelloPayload* payload;
     AOSSRequestRecords* requestRecords = (AOSSRequestRecords*)request;
