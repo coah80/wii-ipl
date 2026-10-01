@@ -1074,7 +1074,7 @@ filterVowelCandidate:
                             (((ZiAlphaWork*)workData)->dictionaries[language] == 0)))))) {
                 if (language != ((ZiAlphaWork*)workData)->language) break;
                 index = ((ZiAlphaWork*)workData)->dictionaryKinds[dictionaryIndex + 1];
-                if ((index == 0xc) || (((index < 0xc && (index < 9)) && (4 < index)))) {
+                if (index == 0xc || (index < 9 && index >= 5)) {
                   if (Zi8getKeyLayout(language,0xeff1,&punctuationBuffer[0],1,workData) == 0) {
                     punctuationBuffer[0] = 0;
                   }
@@ -1116,15 +1116,15 @@ filterVowelCandidate:
               {
 prepareCandidate:
                 if (((elementCount == 1) && (dictionaryKind != 10)) &&
-                   ((0xeff0 < *wordCursor && (*wordCursor < 0xf011)))) {
+                   ((*wordCursor >= 0xeff1 && *wordCursor <= 0xf010))) {
                   punctuationCandidate = ZI8_TRUE;
                   break;
                 }
                 wordCursor[wordLength] = 0;
-                if (((exactLengthOnly != 0) && (elementCount != 0)) && ((int)elementCount < (int)wordLength))
+                if (((exactLengthOnly != 0) && (elementCount != 0)) && ((int)wordLength > (int)elementCount))
                 {
                   wordLength = elementCount;
-                  wordCursor[elementCount] = 0;
+                  wordCursor[wordLength] = 0;
                 }
                 wordLength = (ziU16)Zi8DeTokenization(wordCursor,wordLength & 0xffff,wordCapacity & 0xffff,language);
                 if (((phoneticInput) && ((unsigned int)parameters->elementCount < (wordLength & 0xff))) &&
@@ -1151,7 +1151,7 @@ prepareCandidate:
                   else {
 
                     if ((((keyLayoutCount == 0) || (((ZiAlphaOptions*)optionData)->lookupMode != '\0')) ||
-                        ((int)(wordLength + prefixCount) < 2)) ||
+                        ((int)(wordLength + prefixCount) <= 1)) ||
                        (0x40 < (int)(wordLength + prefixCount))) goto emitCandidate;
                     switch (dictionaryKind) {
                     case 5:
