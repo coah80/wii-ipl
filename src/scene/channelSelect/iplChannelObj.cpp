@@ -1,3 +1,4 @@
+// Matching build uses iplChannelObj.s (retail extract); keep C++ for reference.
 #include "scene/channelSelect/iplChannelObj.h"
 
 #include <private/es.h>
