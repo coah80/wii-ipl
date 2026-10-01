@@ -69,7 +69,7 @@ namespace ipl {
             HermiteIntp() {}
             virtual ~HermiteIntp();
 
-            void init(const T& start, const T& end, f32 maxFrame, f32 param_5, f32 param_6, int playback = ANIM_TYPE_FORWARD, f32 speed = 1.0f);
+            void init(const T& start, const T& end, f32 maxFrame, f32 startTangent, f32 endTangent, int playback = ANIM_TYPE_FORWARD, f32 speed = 1.0f);
 
             T get() const {
                 f32 var_f27 = mFrame;
@@ -81,11 +81,11 @@ namespace ipl {
                     (mEnd * ((var_f28 * (var_f28 * (var_f28 * (var_f27 * (2.0f * var_f27 * var_f27))))) -
                               (var_f28 * (var_f28 * (3.0f * var_f27 * var_f27)))));
                 r +=
-                    (unkVal0 *
+                    (mStartTangent *
                      (var_f27 +
                       ((var_f28 * (var_f28 * (var_f27 * (var_f27 * var_f27)))) -
                        (var_f28 * (2.0f * var_f27 * var_f27))))) +
-                    (unkVal1 * ((var_f28 * (var_f28 * (var_f27 * (var_f27 * var_f27)))) -
+                    (mEndTangent * ((var_f28 * (var_f28 * (var_f27 * (var_f27 * var_f27)))) -
                                 (var_f28 * (var_f27 * var_f27))));
 
                 return r;
@@ -101,7 +101,7 @@ namespace ipl {
                 f32 temp_f4 = var_f27 * var_f27;
                 f32 temp_f7 = var_f28 * (var_f28 * (var_f27 * temp_f4));
                 f32 temp_f3 =
-                    (unkVal0 * (var_f27 + (temp_f7 - (var_f28 * (2.0f * var_f27 * var_f27))))) + (unkVal1 * (temp_f7 - (var_f28 * temp_f4)));
+                    (mStartTangent * (var_f27 + (temp_f7 - (var_f28 * (2.0f * var_f27 * var_f27))))) + (mEndTangent * (temp_f7 - (var_f28 * temp_f4)));
                 r = r + temp_f3;
                 return r;*/
             }
@@ -109,8 +109,8 @@ namespace ipl {
         protected:
             T mStart;
             T mEnd;
-            f32 unkVal0;
-            f32 unkVal1;
+            f32 mStartTangent;
+            f32 mEndTangent;
         };
 
         template <>
@@ -119,7 +119,7 @@ namespace ipl {
             HermiteIntp() {}
             virtual ~HermiteIntp();
 
-            void init(const f32& start, const f32& end, f32 maxFrame, f32 param_5, f32 param_6, int playback = ANIM_TYPE_FORWARD,
+            void init(const f32& start, const f32& end, f32 maxFrame, f32 startTangent, f32 endTangent, int playback = ANIM_TYPE_FORWARD,
                       f32 speed = 1.0f);
 
             f32 get() const {
@@ -132,10 +132,10 @@ namespace ipl {
                     (mEnd * ((var_f28 * (var_f28 * (var_f28 * (var_f27 * (2.0f * var_f27 * var_f27))))) -
                               (var_f28 * (var_f28 * (3.0f * var_f27 * var_f27)))));
                 r +=
-                    (unkVal0 *
+                    (mStartTangent *
                      (var_f27 + ((var_f28 * (var_f28 * (var_f27 * (var_f27 * var_f27)))) -
                                  (var_f28 * (2.0f * var_f27 * var_f27))))) +
-                    (unkVal1 * ((var_f28 * (var_f28 * (var_f27 * (var_f27 * var_f27)))) -
+                    (mEndTangent * ((var_f28 * (var_f28 * (var_f27 * (var_f27 * var_f27)))) -
                                 (var_f28 * (var_f27 * var_f27))));
 
                 return r;
@@ -144,8 +144,8 @@ namespace ipl {
         protected:
             f32 mStart;
             f32 mEnd;
-            f32 unkVal0;
-            f32 unkVal1;
+            f32 mStartTangent;
+            f32 mEndTangent;
         };
 
 #pragma dont_instantiate HermiteIntp<float>
@@ -155,12 +155,12 @@ namespace ipl {
         public:
             HermiteIntp() {}
 
-            void init(const T& start, const T& end, f32 maxFrame, f32 param_5, f32 param_6, int playback = ANIM_TYPE_FORWARD, f32 speed = 1.0f) {
+            void init(const T& start, const T& end, f32 maxFrame, f32 startTangent, f32 endTangent, int playback = ANIM_TYPE_FORWARD, f32 speed = 1.0f) {
                 mStart = start;
                 mEnd = end;
                 utility::FrameController::init(playback, maxFrame, 0.0f, speed);
-                unkVal0 = param_5;
-                unkVal1 = param_6;
+                mStartTangent = startTangent;
+                mEndTangent = endTangent;
             }
 
 #ifdef IPL_SD_CHANNEL_SELECT_CPP
@@ -176,9 +176,9 @@ namespace ipl {
                         inverseDuration * (inverseDuration * (3.0f * frame * frame))));
                 f32 frameSquared = frame * frame;
                 f32 cubic = inverseDuration * (inverseDuration * (frame * frameSquared));
-                f32 tangent = unkVal0 * (frame + (cubic -
+                f32 tangent = mStartTangent * (frame + (cubic -
                     inverseDuration * (2.0f * frame * frame))) +
-                    unkVal1 * (cubic - inverseDuration * frameSquared);
+                    mEndTangent * (cubic - inverseDuration * frameSquared);
                 result.x += tangent;
                 result.y += tangent;
                 result.z += tangent;
@@ -196,7 +196,7 @@ namespace ipl {
                 f32 temp_f4 = var_f27 * var_f27;
                 f32 temp_f7 = var_f28 * (var_f28 * (var_f27 * temp_f4));
                 f32 temp_f3 =
-                    (unkVal0 * (var_f27 + (temp_f7 - (var_f28 * (2.0f * var_f27 * var_f27))))) + (unkVal1 * (temp_f7 - (var_f28 * temp_f4)));
+                    (mStartTangent * (var_f27 + (temp_f7 - (var_f28 * (2.0f * var_f27 * var_f27))))) + (mEndTangent * (temp_f7 - (var_f28 * temp_f4)));
 
                 r = r + temp_f3;
 
@@ -213,15 +213,15 @@ namespace ipl {
                 f32 temp_f4 = var_f27 * var_f27;
                 f32 temp_f7 = var_f28 * (var_f28 * (var_f27 * temp_f4));
                 f32 temp_f3 =
-                    (unkVal0 * (var_f27 + (temp_f7 - (var_f28 * (2.0f * var_f27 * var_f27))))) + (unkVal1 * (temp_f7 - (var_f28 * temp_f4)));
+                    (mStartTangent * (var_f27 + (temp_f7 - (var_f28 * (2.0f * var_f27 * var_f27))))) + (mEndTangent * (temp_f7 - (var_f28 * temp_f4)));
                 r = r + temp_f3;
                 return r;*/
             }
 #endif
 
         protected:
-            f32 unkVal0;
-            f32 unkVal1;
+            f32 mStartTangent;
+            f32 mEndTangent;
         };
 #endif
 
@@ -236,7 +236,7 @@ namespace ipl {
         public:
             HermiteIntp() {}
             virtual ~HermiteIntp();
-            void init(const VEC3& start, const VEC3& end, f32 maxFrame, f32 param_5, f32 param_6, int playback = ANIM_TYPE_FORWARD, f32 speed = 1.0f);
+            void init(const VEC3& start, const VEC3& end, f32 maxFrame, f32 startTangent, f32 endTangent, int playback = ANIM_TYPE_FORWARD, f32 speed = 1.0f);
             VEC3 get() const {
                 f32 frame = mFrame;
                 f32 inverseDuration = 1.0f / mMaxFrame;
@@ -249,9 +249,9 @@ namespace ipl {
                         inverseDuration * (inverseDuration * (3.0f * frame * frame))));
                 f32 frameSquared = frame * frame;
                 f32 cubic = inverseDuration * (inverseDuration * (frame * frameSquared));
-                f32 tangent = unkVal0 * (frame + (cubic -
+                f32 tangent = mStartTangent * (frame + (cubic -
                     inverseDuration * (2.0f * frame * frame))) +
-                    unkVal1 * (cubic - inverseDuration * frameSquared);
+                    mEndTangent * (cubic - inverseDuration * frameSquared);
                 result.x += tangent;
                 result.y += tangent;
                 result.z += tangent;
@@ -260,8 +260,8 @@ namespace ipl {
         protected:
             VEC3 mStart;
             VEC3 mEnd;
-            f32 unkVal0;
-            f32 unkVal1;
+            f32 mStartTangent;
+            f32 mEndTangent;
         };
 #endif
 
