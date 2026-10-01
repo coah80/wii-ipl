@@ -1,17 +1,17 @@
 #include <private/fa/pdm.h>
 #include <revolution/types.h>
-#define MBR_WORD(buf, offset) (((pf_u32)(buf)[(offset) + 3] << 24) + ((pf_u32)(buf)[(offset) + 2] << 16) + ((pf_u32)(buf)[(offset) + 1] << 8) + (buf)[offset])
+#define MBR_WORD(buf, offset) ((pf_u32)(buf)[offset] + ((pf_u32)(buf)[(offset) + 1] << 8) + ((pf_u32)(buf)[(offset) + 2] << 16) + ((pf_u32)(buf)[(offset) + 3] << 24))
 static inline pf_u16 read_boot_u16(pf_u8* buf, pf_u32 offset) {
     if ((pf_u32)&buf[offset] & 1) { return (buf[offset + 1] << 8) | buf[offset]; }
     return PF_SWAP_16(*(pf_u16*)&buf[(offset + 1) & ~1]);
 }
 
 pf_s32 pdm_part_is_master_boot_sector(pf_u8* buf, pf_u32 total, pf_bool* p_is_mbr) {
-    pf_s16 index;
     pf_u32 start[4];
     pf_u32 count[4];
     pf_u32* p_start;
     pf_u32* p_count;
+    pf_s16 index;
     *p_is_mbr = 0;
     if (buf[510] != 0x55 || buf[511] != 0xAA) { return 2; }
     p_start = start;
