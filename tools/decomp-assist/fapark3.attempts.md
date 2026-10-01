@@ -208,3 +208,28 @@ Orig .o exports `STB_GLOBAL lbl_XXXX` data symbols = real file-scope objects
   reordered) cascade 60-228. Committed form stays optimal.
 - PFCLUSTER_CombineFiles: 7 diffs = {-1/div/+1 chain r3, sum chain r0} orig vs
   {-1 r0, quot r3/r0, sums r4} mine. temp/polarity/lim-decl: 7-8. Documented.
+
+## Session 6 (GetLFNEntryName match + s8-field decode + retests)
+
+### MATCHED: PFENT_ITER_GetLFNEntryName (43->0 diffs)
+- Derived byte-IV decode: orig uses an INDEX-IV (`add rD,rBase,rIV` dst
+  recompute + `addi rIV,rIV,N`) instead of MWCC's usual pointer-IV fold.
+  Reproduce by writing the byte index NON-AFFINE inside the loop:
+  `index = i * 13;` as its own statement + `destination = &long_name[index]`
+  (writing `long_name[i*13]` directly explodes into 4 webs, 63-72 diffs).
+- Terminator: `long_name[num_entry_LFNs * 26 >> 1] = 0` (recompute from the
+  bound field, element-stride arithmetic) kills the element-IV and reproduces
+  orig's `mulli 0x1a` + `clrrwi`.
+- DECL-FIRST pointer local flipped i<->dst callee homes r29<->r30 to match
+  orig (pointer local declared before the index locals). Combined: 0 diffs.
+
+### s8-field decode (types.h FADrvTbl.drive: char -> s8)
+- orig emits `lbz rX,off` + `extsb` when reading `table->drive` = signed-char
+  field read. MWCC `char` is unsigned on PPC -> field must be `s8`.
+- Verified: pf_stub.o byte-identical with and without the change (its
+  pfstub_entry was already matched on main), DOL hash unchanged, FAAttach
+  fuzzy 98.5->99.4 (still 10-diff reg-rotation tie). Safe to keep.
+- RETESTS this session: FAAttach cast-s8/drv-tmp/decl-order all still 10
+  (parked reg-rotation); GetSFD start_cluster_p local: still 3 (cyclic
+  marshal-order tie confirmed); FindCluster inline-`1<<x`/decl-order/fused
+  assign: all still 8 (paired r7<->r8 web swap, regalloc tie).
