@@ -12,7 +12,7 @@
 extern void SIRefreshSamplingRate(void);
 extern void VISetRGBModeImm(void);
 extern void __VISetRevolutionModeSimple(void);
-extern volatile u32 Vdac_Flag_Changed_816991E0;
+extern volatile u32 Vdac_Flag_Changed;
 extern void __VISetYUVSEL(u32 enable);
 extern void __VISetFilter4EURGB60(u32 enable);
 extern void __VISetCGMS(void);
@@ -324,8 +324,8 @@ position_interrupt:
     }
     old_tvtype = currentTvType;
     if (flushFlag3in1 != 0) {
-        while (Vdac_Flag_Changed_816991E0 != 0) {
-            changeBit = 1U << (31 - __cntlzw(Vdac_Flag_Changed_816991E0));
+        while (Vdac_Flag_Changed != 0) {
+            changeBit = 1U << (31 - __cntlzw(Vdac_Flag_Changed));
             switch (changeBit) {
             case 1:
                 __VISetCGMS();
@@ -352,7 +352,7 @@ position_interrupt:
                 __VISetRGBModeImm();
                 break;
             }
-            Vdac_Flag_Changed_816991E0 &= ~changeBit;
+            Vdac_Flag_Changed &= ~changeBit;
         }
         flushFlag3in1 = 0;
     }
