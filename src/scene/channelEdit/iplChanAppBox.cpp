@@ -4,27 +4,27 @@
 
 #pragma push
 #pragma section const_type ".data"
-extern "C" const char lbl_8164D108[] = "it_ObjChannelEdit_b_SaveDataIn.brlan";
-extern "C" const char lbl_8164D12D[] = "it_ObjChannelEdit_b_SaveDataOut.brlan";
-extern "C" const char lbl_8164D153[] = "it_ObjChannelEdit_b_SaveDataFoucusIn.brlan";
-extern "C" const char lbl_8164D17E[] = "it_ObjChannelEdit_b_SaveDataFoucusOut.brlan";
-extern "C" const char lbl_8164D1AA[] = "N_Data16x9";
-extern "C" const char lbl_8164D1B5[] = "N_Data4x3";
-extern "C" const char lbl_8164D1BF[] = "B_Data_01";
-extern "C" const char lbl_8164D1C9[] = "B_Data_00";
-extern "C" const char lbl_8164D1D3[] = "N_Atari16x9";
-extern "C" const char lbl_8164D1DF[] = "N_Data_01";
-extern "C" const char lbl_8164D1E9[] = "N_Atari4x3";
-extern "C" const char lbl_8164D1F4[] = "N_Data_00";
-extern "C" const char lbl_8164D1FE[] = "DataBaseCover_00";
-extern "C" const char lbl_8164D20F[] = "DataBaseCover_01";
+extern "C" const char scBrlan_SaveDataIn[] = "it_ObjChannelEdit_b_SaveDataIn.brlan";
+extern "C" const char scBrlan_SaveDataOut[] = "it_ObjChannelEdit_b_SaveDataOut.brlan";
+extern "C" const char scBrlan_SaveDataFocusIn[] = "it_ObjChannelEdit_b_SaveDataFoucusIn.brlan";
+extern "C" const char scBrlan_SaveDataFocusOut[] = "it_ObjChannelEdit_b_SaveDataFoucusOut.brlan";
+extern "C" const char scPaneName_N_Data16x9[] = "N_Data16x9";
+extern "C" const char scPaneName_N_Data4x3[] = "N_Data4x3";
+extern "C" const char scPaneName_B_Data_01[] = "B_Data_01";
+extern "C" const char scPaneName_B_Data_00[] = "B_Data_00";
+extern "C" const char scPaneName_N_Atari16x9[] = "N_Atari16x9";
+extern "C" const char scPaneName_N_Data_01[] = "N_Data_01";
+extern "C" const char scPaneName_N_Atari4x3[] = "N_Atari4x3";
+extern "C" const char scPaneName_N_Data_00[] = "N_Data_00";
+extern "C" const char scPaneName_DataBaseCover_00[] = "DataBaseCover_00";
+extern "C" const char scPaneName_DataBaseCover_01[] = "DataBaseCover_01";
 #pragma section const_type ".sdata"
-extern "C" __declspec(section ".sdata") const char lbl_81696848[] = "G_Data";
-extern "C" __declspec(section ".sdata") const wchar_t lbl_81696850[] = L"???";
+extern "C" __declspec(section ".sdata") const char scGroup_G_Data[] = "G_Data";
+extern "C" __declspec(section ".sdata") const wchar_t scUnknownWstr[] = L"???";
 #pragma section sconst_type ".sdata2"
-extern "C" __declspec(section ".sdata2") const f32 lbl_81694900 = 0.5f;
-extern "C" __declspec(section ".sdata2") const f32 lbl_81694904 = 2.0f;
-extern "C" __declspec(section ".sdata2") const f64 lbl_81694908 = 4503599627370496.0;
+extern "C" __declspec(section ".sdata2") const f32 scHalfF = 0.5f;
+extern "C" __declspec(section ".sdata2") const f32 scTwoF = 2.0f;
+extern "C" __declspec(section ".sdata2") const f64 scF2IBias = 4503599627370496.0;
 #pragma pop
 
 namespace ipl {
@@ -33,26 +33,26 @@ namespace ipl {
             : AnmController(heap), ::gui::EventHandler(), mState(STATE_HIDDEN), mpThumbnail(NULL), mpBalloon(NULL), mbInitBalloon(false) {
             mpLayout = new (heap) layout::Object(heap, layoutFile, layoutDir, layoutFileName);
 
-            add_animation(lbl_8164D108, lbl_81696848);
-            add_animation(lbl_8164D12D, lbl_81696848);
-            add_animation(lbl_8164D153, lbl_81696848);
-            add_animation(lbl_8164D17E, lbl_81696848);
+            add_animation(scBrlan_SaveDataIn, scGroup_G_Data);
+            add_animation(scBrlan_SaveDataOut, scGroup_G_Data);
+            add_animation(scBrlan_SaveDataFocusIn, scGroup_G_Data);
+            add_animation(scBrlan_SaveDataFocusOut, scGroup_G_Data);
 
             mpLayout->finishBinding();
 
-            set_visible(lbl_8164D1AA, false);
-            set_visible(lbl_8164D1B5, false);
+            set_visible(scPaneName_N_Data16x9, false);
+            set_visible(scPaneName_N_Data4x3, false);
 
             mpGui = new gui::PaneManager(this, mpLayout->getDrawInfo(), NULL, NULL, true);
             mpGui->createLayoutScene(*mpLayout->getNW4RLyt());
             mpGui->setAllComponentTriggerTarget(false);
 
             if (SCGetAspectRatio() == SC_ASPECT_RATIO_16x9) {
-                mpGui->setTriggerTarget(mpLayout->FindPaneByName(lbl_8164D1BF), true);
-                add_anmpane(lbl_8164D1BF, get_animation(ANIM_DATA_FOCUS_IN), get_animation(ANIM_DATA_FOCUS_OUT));
+                mpGui->setTriggerTarget(mpLayout->FindPaneByName(scPaneName_B_Data_01), true);
+                add_anmpane(scPaneName_B_Data_01, get_animation(ANIM_DATA_FOCUS_IN), get_animation(ANIM_DATA_FOCUS_OUT));
             } else {
-                mpGui->setTriggerTarget(mpLayout->FindPaneByName(lbl_8164D1C9), true);
-                add_anmpane(lbl_8164D1C9, get_animation(ANIM_DATA_FOCUS_IN), get_animation(ANIM_DATA_FOCUS_OUT));
+                mpGui->setTriggerTarget(mpLayout->FindPaneByName(scPaneName_B_Data_00), true);
+                add_anmpane(scPaneName_B_Data_00, get_animation(ANIM_DATA_FOCUS_IN), get_animation(ANIM_DATA_FOCUS_OUT));
             }
         }
 
@@ -92,11 +92,11 @@ namespace ipl {
 
                 nw4r::math::VEC2 scale = mpThumbnail->getLytObj()->GetRootPane()->GetScale();
                 if (SCGetAspectRatio() == SC_ASPECT_RATIO_16x9) {
-                    scale *= get_scale(lbl_8164D1D3).x;
-                    scale *= get_scale(lbl_8164D1DF).x;
+                    scale *= get_scale(scPaneName_N_Atari16x9).x;
+                    scale *= get_scale(scPaneName_N_Data_01).x;
                 } else {
-                    scale *= get_scale(lbl_8164D1E9).x;
-                    scale *= get_scale(lbl_8164D1F4).x;
+                    scale *= get_scale(scPaneName_N_Atari4x3).x;
+                    scale *= get_scale(scPaneName_N_Data_00).x;
                 }
                 mpThumbnail->getLytObj()->GetRootPane()->SetScale(scale);
             }
@@ -127,8 +127,8 @@ namespace ipl {
                 return;
             mpLayout->draw();
 
-            set_visible(lbl_8164D1FE, false);
-            set_visible(lbl_8164D20F, false);
+            set_visible(scPaneName_DataBaseCover_00, false);
+            set_visible(scPaneName_DataBaseCover_01, false);
 
             ChannelEdit* sceneChannelEdit = get_channel_edit();
             if (sceneChannelEdit->getState() == ChannelEdit::STATE_ON_SCROLL_R || sceneChannelEdit->getState() == ChannelEdit::STATE_ON_SCROLL_L)
@@ -138,7 +138,7 @@ namespace ipl {
             if (mState == STATE_FADE_OUT)
                 return;
 
-            if (!get_visible(lbl_8164D1B5) && !get_visible(lbl_8164D1AA))
+            if (!get_visible(scPaneName_N_Data4x3) && !get_visible(scPaneName_N_Data16x9))
                 return;
 
             if (mpThumbnail == NULL) {
@@ -171,11 +171,11 @@ namespace ipl {
             mpThumbnail->draw();
 
             if (SCGetAspectRatio() == SC_ASPECT_RATIO_16x9) {
-                set_visible(lbl_8164D20F, true);
-                mpLayout->draw(lbl_8164D20F);
+                set_visible(scPaneName_DataBaseCover_01, true);
+                mpLayout->draw(scPaneName_DataBaseCover_01);
             } else {
-                set_visible(lbl_8164D1FE, true);
-                mpLayout->draw(lbl_8164D1FE);
+                set_visible(scPaneName_DataBaseCover_00, true);
+                mpLayout->draw(scPaneName_DataBaseCover_00);
             }
 
             GXSetScissor(0, 0, System::getRenderModeObj()->fbWidth, System::getRenderModeObj()->efbHeight);
@@ -187,11 +187,11 @@ namespace ipl {
 
         void ChanAppBox::anmFadein() {
             if (SCGetAspectRatio() == SC_ASPECT_RATIO_16x9) {
-                set_visible(lbl_8164D1AA, true);
-                set_visible(lbl_8164D1B5, false);
+                set_visible(scPaneName_N_Data16x9, true);
+                set_visible(scPaneName_N_Data4x3, false);
             } else {
-                set_visible(lbl_8164D1AA, false);
-                set_visible(lbl_8164D1B5, true);
+                set_visible(scPaneName_N_Data16x9, false);
+                set_visible(scPaneName_N_Data4x3, true);
             }
             do_animation(ANIM_DATA_IN, ANIM_TYPE_FORWARD, true);
             mState = STATE_FADE_IN;
@@ -226,7 +226,7 @@ namespace ipl {
 
                     mbInitBalloon = true;
                     if (mpThumbnail->getIsCorrupt()) {
-                        mpBalloon->init(lbl_81696850);
+                        mpBalloon->init(scUnknownWstr);
                     } else {
                         if (mpThumbnail->getMatchesTmpTitle()) {
                             mpBalloon->init(System::getMessage(MESG_CHAN_EDIT_SD_CARD_MENU));
@@ -251,7 +251,7 @@ namespace ipl {
 
                     mbInitBalloon = true;
                     if (mpThumbnail->getIsCorrupt()) {
-                        mpBalloon->init(lbl_81696850);
+                        mpBalloon->init(scUnknownWstr);
                     } else {
                         if (mpThumbnail->getMatchesTmpTitle()) {
                             mpBalloon->init(System::getMessage(MESG_CHAN_EDIT_SD_CARD_MENU));
@@ -297,9 +297,9 @@ namespace ipl {
 
         void ChanAppBox::clearEvent() {
             if (SCGetAspectRatio() == SC_ASPECT_RATIO_16x9) {
-                clear_anmpane(lbl_8164D1BF);
+                clear_anmpane(scPaneName_B_Data_01);
             } else {
-                clear_anmpane(lbl_8164D1C9);
+                clear_anmpane(scPaneName_B_Data_00);
             }
 
             if (mpBalloon != NULL) {
@@ -314,8 +314,8 @@ namespace ipl {
 
         WAIT_FOR_ANIM_STATE(ChanAppBox::on_fadein, ANIM_DATA_IN, mState = STATE_IDLE);
         WAIT_FOR_ANIM_STATE(ChanAppBox::on_fadeout, ANIM_DATA_OUT, {
-            set_visible(lbl_8164D1AA, false);
-            set_visible(lbl_8164D1B5, false);
+            set_visible(scPaneName_N_Data16x9, false);
+            set_visible(scPaneName_N_Data4x3, false);
             mState = STATE_IDLE;
         });
 
