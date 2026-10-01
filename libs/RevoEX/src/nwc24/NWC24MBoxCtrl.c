@@ -222,22 +222,23 @@ NWC24Err NWC24GetMsgObj(NWC24MsgObj* msg, NWC24MBoxType type, u32 id) {
 }
 
 BOOL NWC24iIsMsgObjReadable(const MBCEntry* entry) {
-    if (!(entry->type & 0x200000))
+    const MBCEntry* e = *(const MBCEntry* volatile*)&entry;
+    if (!(e->type & 0x200000))
         return FALSE;
-    if (entry->type & 0xFE000000)
+    if (e->type & 0xFE000000)
         return FALSE;
-    if (entry->ledPattern & 0xFFF80000)
+    if (e->ledPattern & 0xFFF80000)
         return FALSE;
-    if (entry->type & 2) {
-        if (entry->appId == 0)
+    if (e->type & 2) {
+        if (e->appId == 0)
             return TRUE;
-        return (NWC24GetAppId() & 0xFFFFFF00) == (entry->appId & 0xFFFFFF00);
+        return (NWC24GetAppId() & 0xFFFFFF00) == (e->appId & 0xFFFFFF00);
     }
     if (NWC24GetAppId() == 0x48414541)
         return TRUE;
-    if (entry->type & 4)
+    if (e->type & 4)
         return TRUE;
-    return (NWC24GetAppId() & 0xFFFFFF00) == (entry->appId & 0xFFFFFF00);
+    return (NWC24GetAppId() & 0xFFFFFF00) == (e->appId & 0xFFFFFF00);
 }
 
 NWC24Err NWC24GetMsgIdList(NWC24MBoxType type, u32* ids, u32 maxLength) {
