@@ -26,11 +26,10 @@ FAFuncTbl st_uhs_msc_blk_func = {
 };
 
 static inline UHF_MSC_DEVICE* uhf_msc_blk_find_device(FADisk* disk) {
-    UHF_MSC_DEVICE* entry = uhg_msc_blk_device_tbl;
     UHF_MSC_DEVICE* device = NULL;
     u32 index;
-    for (index = 0; index < 8; entry++, index++) {
-        if (entry->disk == disk) {
+    for (index = 0; index < 8; index++) {
+        if (uhg_msc_blk_device_tbl[index].disk == disk) {
             device = &uhg_msc_blk_device_tbl[index];
             break;
         }
@@ -88,9 +87,8 @@ s32 uhf_msc_blk_mount(FADisk* disk) {
 }
 
 s32 uhf_msc_blk_pread(FADisk* disk, u8* buffer, u32 sector, u32 blocks, u32* completed) {
-    u16 transfer_blocks;
-    UHF_MSC_DEVICE* device;
     s32 error;
+    UHF_MSC_DEVICE* device;
     u32 block_size;
     u8* transfer_buffer;
     u32 transfer_limit;
@@ -129,7 +127,7 @@ s32 uhf_msc_blk_pread(FADisk* disk, u8* buffer, u32 sector, u32 blocks, u32* com
         transfer_buffer = buffer;
     }
     do {
-        transfer_blocks = transfer_limit;
+        u16 transfer_blocks = transfer_limit;
         if (blocks <= transfer_limit) {
             transfer_blocks = blocks;
         }

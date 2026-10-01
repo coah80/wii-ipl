@@ -1,4 +1,3 @@
-#define IPL_CHANNEL_TITLE_NOVTABLE
 #include "scene/memoryCard/iplGCSaveData.h"
 
 #include "scene/memoryCard/iplMemoryCard.h"
@@ -6,7 +5,6 @@
 
 #include "iplSound.h"
 #include "iplSystem.h"
-#undef IPL_CHANNEL_TITLE_NOVTABLE
 
 namespace ipl {
     namespace scene {
