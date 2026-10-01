@@ -138,7 +138,7 @@ static s32 Vdac_Flag_Region;
 static s32 __type;
 static s32 __gamma;
 static s32 __level;
-volatile u32 Vdac_Flag_Changed_816991E0;
+volatile u32 Vdac_Flag_Changed;
 
 static void __VISetCCSEL(u8 flag) {
     u8 data[2];
@@ -339,7 +339,7 @@ void VISetCGMS(u8 wd0, u8 wd1, u8 wd2) {
         __wd0 = wd0;
         __wd1 = wd1;
         __wd2 = wd2;
-        Vdac_Flag_Changed_816991E0 |= 1;
+        Vdac_Flag_Changed |= 1;
     }
 }
 
@@ -382,7 +382,7 @@ void VISetMacrovision(s32 type) {
     if ((__type != type) || (__tvType != tvFormat)) {
         __type = type;
         __tvType = tvFormat;
-        Vdac_Flag_Changed_816991E0 |= 8;
+        Vdac_Flag_Changed |= 8;
     }
 }
 
@@ -448,7 +448,7 @@ void VISetTrapFilter(BOOL filter) {
         return;
     }
     __filter = filter;
-    Vdac_Flag_Changed_816991E0 |= 0x20;
+    Vdac_Flag_Changed |= 0x20;
 }
 
 void __VISetRGBOverDrive(void) {
@@ -468,7 +468,7 @@ void __VISetRGBOverDrive(void) {
 }
 
 void VISetRGBModeImm(void) {
-    Vdac_Flag_Changed_816991E0 |= 0x80;
+    Vdac_Flag_Changed |= 0x80;
 }
 
 void __VISetRGBModeImm(void) {
@@ -520,34 +520,34 @@ void __VISetRevolutionMode(void) {
         __wd0 = 0;
         __wd1 = 0;
         __wd2 = 0;
-        Vdac_Flag_Changed_816991E0 |= 1;
+        Vdac_Flag_Changed |= 1;
     }
     if ((__gp1 != 0) || (__gp2 != 0) || (__gp3 != 0) || (__gp4 != 0)) {
         __gp1 = 0;
         __gp2 = 0;
         __gp3 = 0;
         __gp4 = 0;
-        Vdac_Flag_Changed_816991E0 |= 2;
+        Vdac_Flag_Changed |= 2;
     }
     if ((__cc1 != 0) || (__cc2 != 0) || (__cc3 != 0) || (__cc4 != 0)) {
         __cc1 = 0;
         __cc2 = 0;
         __cc3 = 0;
         __cc4 = 0;
-        Vdac_Flag_Changed_816991E0 |= 4;
+        Vdac_Flag_Changed |= 4;
     }
     VISetMacrovision(1);
     if (__filter != 0) {
         __filter = 0;
-        Vdac_Flag_Changed_816991E0 |= 0x20;
+        Vdac_Flag_Changed |= 0x20;
     }
     if (__level != 0) {
         __level = 0;
-        Vdac_Flag_Changed_816991E0 |= 0x40;
+        Vdac_Flag_Changed |= 0x40;
     }
     if (__gamma != 10) {
         __gamma = 10;
-        Vdac_Flag_Changed_816991E0 |= 0x10;
+        Vdac_Flag_Changed |= 0x10;
     }
     VIFlush();
     VIWaitForRetrace();
@@ -588,7 +588,7 @@ void VISetWSS(u8 gp1, u8 gp2, u8 gp3, u8 gp4) {
         __gp2 = gp2;
         __gp3 = gp3;
         __gp4 = gp4;
-        Vdac_Flag_Changed_816991E0 |= 2;
+        Vdac_Flag_Changed |= 2;
     }
 }
 
@@ -598,14 +598,14 @@ void VISetClosedCaption(u8 cc1, u8 cc2, u8 cc3, u8 cc4) {
         __cc2 = cc2;
         __cc3 = cc3;
         __cc4 = cc4;
-        Vdac_Flag_Changed_816991E0 |= 4;
+        Vdac_Flag_Changed |= 4;
     }
 }
 
 void VISetRGBOverDrive(s32 level) {
     if (__level != level) {
         __level = level;
-        Vdac_Flag_Changed_816991E0 |= 0x40;
+        Vdac_Flag_Changed |= 0x40;
     }
 }
 
