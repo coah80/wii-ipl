@@ -539,7 +539,6 @@ int AOSS_Init_old(AOSSInitInput* input)
         goto finish_initialization;
       }
       if (state != 0) {
-        remainingWait = waitIntervals.limits.response;
         if (attemptCount >= initialWait) {
           input->status = 1;
           if (s_accessPointConfig) {
@@ -553,6 +552,7 @@ int AOSS_Init_old(AOSSInitInput* input)
           resultCode = 0xffffffff;
           goto finish_initialization;
         }
+        remainingWait = waitIntervals.limits.response;
         for (; remainingWait != 0; remainingWait -= initialSleep) {
           if (AOSSi_cancel_flag == 1) {
             input->status = 0xf;
@@ -567,10 +567,9 @@ int AOSS_Init_old(AOSSInitInput* input)
             resultCode = 0xffffffff;
             goto finish_initialization;
           }
-          initialSleep = remainingWait <= 100 ? remainingWait : 100;
-          if (remainingWait > 100) AOSSi_Sleep(100);
-          else AOSSi_Sleep(remainingWait);
-          initialSleep = remainingWait <= 100 ? remainingWait : 100;
+          AOSSi_Sleep(remainingWait > 100 ? 100 : remainingWait);
+          if (remainingWait > 100) initialSleep = 100;
+          else initialSleep = remainingWait;
         }
         if (AOSSi_cancel_flag == 1) {
           input->status = 0xf;
@@ -663,9 +662,9 @@ wait_for_initial_link:
     resultCode = 0xffffffff;
     goto finish_initialization;
   }
-  initialSleep = (u16)waitIntervals.limits.response;
+  remainingWait = (u16)waitIntervals.limits.response;
   if ((state == 0) && (*s_accessPointConfig == 1)) goto handle_initial_link;
-  for (; initialSleep != 0; initialSleep = (u16)(initialSleep - nextSleep)) {
+  for (; remainingWait != 0; remainingWait = (u16)(remainingWait - nextSleep)) {
     if (AOSSi_cancel_flag == 1) {
       input->status = 0xf;
       if (s_accessPointConfig) {
@@ -679,9 +678,9 @@ wait_for_initial_link:
       resultCode = 0xffffffff;
       goto finish_initialization;
     }
-    AOSSi_Sleep(initialSleep > 100 ? 100 : initialSleep);
-    if (initialSleep > 100) nextSleep = 100;
-    else nextSleep = initialSleep;
+    AOSSi_Sleep(remainingWait > 100 ? 100 : remainingWait);
+    if (remainingWait > 100) nextSleep = 100;
+    else nextSleep = remainingWait;
   }
   if (AOSSi_cancel_flag == 1) {
     input->status = 0xf;
@@ -1827,13 +1826,13 @@ int AOSS_814006A4(int state, AOSSReceiveBuffer* packet, int* count, AOSSRequestR
 }
 
 int AOSS_81400830(AOSSDecryptionMessage* message) {
-    AOSSEncryptedPayload* encrypted = &message->payload.encrypted;
+    u32 checksum;
     u8 manufacturerAddress[8];
     AOSSKeySchedule schedule;
+    AOSSEncryptedPayload* encrypted = &message->payload.encrypted;
     u8* decryptedData;
-    u32 dataLength;
     u32 controlFlags;
-    u32 checksum;
+    u32 dataLength;
     u32 i;
     s32 crcIndex;
     u32 firstIndex;
@@ -1842,9 +1841,9 @@ int AOSS_81400830(AOSSDecryptionMessage* message) {
     u32 secondValue;
     u32 stateIndex;
     u32 crc;
-    u8* outputCursor;
-    u8* state;
     const u8* inputCursor;
+    u8* state;
+    u8* outputCursor;
     int result;
 
     memcpy(manufacturerAddress, message->manufacturerAddress, sizeof(manufacturerAddress));
