@@ -91,7 +91,7 @@ extern CDBErr CDBDatabaseInit();
 extern CDBErr CDBDatabaseOpen();
 extern CDBErr CDBDatabaseClose();
 extern CDBErr CDBDatabasePrivateCreateRecordAtOnce();
-extern CDBErr CDBDatabaseCreateRecordAtOnce();
+extern CDBErr CDBDatabaseCreateRecordAtOnce(CDBDatabase* database, CDBRecord* record, const char* typeStr, const char* fileTypeStr, u8* recordData, u32 recordDataSize);
 extern CDBErr CDBDatabaseCreateRecordAtOnceEx();
 extern CDBErr CDBDatabasePrivateCreateRecordAtOnceEx();
 extern CDBErr CDBDatabasePrivateCreateRecordAtOnceEx_(CDBDatabase* database, CDBRecord* record, const char* typeStr, const char* fileTypeStr, int year, int month, int day, int hour, int min, int sec, u8* recordData, u32 recordDataSize, char* makerCode, char* gameCode);
@@ -206,47 +206,19 @@ CDBErr CDBDatabasePrivateCreateRecordAtOnce(CDBDatabase* database, CDBRecord* re
     return result;
 }
 
-asm CDBErr CDBDatabaseCreateRecordAtOnce(CDBDatabase* database, CDBRecord* record, const char* typeStr, const char* fileTypeStr, u8* recordData, u32 recordDataSize) {
-#ifdef __MWERKS__
-    nofralloc
-    stwu r1, -0x40(r1)
-    mflr r0
-    stw r0, 0x44(r1)
-    addi r11, r1, 0x40
-    bl _savegpr_22
-    lhz r28, 0x0(r3)
-    mr r22, r3
-    lwz r29, 0x4(r3)
-    mr r23, r4
-    mr r24, r5
-    mr r25, r6
-    mr r26, r7
-    mr r27, r8
-    bl OSGetTime
-    mr r30, r4
-    mr r31, r3
-    bl CDBLock
-    stw r26, 0x8(r1)
-    mr r3, r22
-    mr r4, r23
-    mr r5, r24
-    stw r27, 0xc(r1)
-    mr r6, r25
-    mr r8, r30
-    mr r7, r31
-    mr r9, r29
-    mr r10, r28
-    bl CDBDatabaseCreateRecordImAtOnce_
-    mr r28, r3
-    bl CDBUnlock
-    addi r11, r1, 0x40
-    mr r3, r28
-    bl _restgpr_22
-    lwz r0, 0x44(r1)
-    mtlr r0
-    addi r1, r1, 0x40
-    blr
-#endif
+CDBErr CDBDatabaseCreateRecordAtOnce(CDBDatabase* database, CDBRecord* record, const char* typeStr, const char* fileTypeStr, u8* recordData, u32 recordDataSize) {
+    OSTime time;
+    u32 gameCode;
+    u16 makerCode;
+    CDBErr result;
+
+    makerCode = database->makerCode;
+    gameCode = database->gameCode;
+    time = OSGetTime();
+    CDBLock();
+    result = CDBDatabaseCreateRecordImAtOnce_(database, record, typeStr, fileTypeStr, time, gameCode, makerCode, recordData, recordDataSize);
+    CDBUnlock();
+    return result;
 }
 
 CDBErr CDBDatabaseCreateRecordAtOnceEx(CDBDatabase* database, CDBRecord* record, const char* typeStr, const char* fileTypeStr, u8* recordData, u32 recordDataSize, int year, int month, int day, int hour, int min, int sec) {
