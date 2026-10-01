@@ -14,8 +14,8 @@ namespace ipl {
                 WAIT_UNTIL_FADE_IN = 15
             };
 
-            TextBalloon(EGG::Heap* heap, nand::LayoutFile* layoutFile, const char* directory, const char* fileName, const ipl::math::VEC3& unk2,
-                        f32 unk3 = 120.0f, f32 unk4 = 30.0f);
+            TextBalloon(EGG::Heap* heap, nand::LayoutFile* layoutFile, const char* directory, const char* fileName, const ipl::math::VEC3& initialPos,
+                        f32 margin16x9 = 120.0f, f32 margin4x3 = 30.0f);
             ~TextBalloon();
 
             void calc();
@@ -31,7 +31,7 @@ namespace ipl {
             void fadeout();
             void fadeoutForce();
 
-            void setPos(const math::VEC3& pos, bool unk0, int unk1);
+            void setPos(const math::VEC3& pos, bool use16x9X, int hAlign);
             void updatePos(const math::VEC3& pos);
 
             void set_translate(const math::VEC3& trans);
@@ -50,7 +50,7 @@ namespace ipl {
 
             undefined4 unk_0x00;
             undefined4 unk_0x04;
-            BOOL unk_0x08;
+            BOOL mbWaitingFadeIn;  // 0x08
 
             layout::Object* mpLayout;  // 0x0C
 
@@ -60,10 +60,10 @@ namespace ipl {
 
             u32 mTextLen;            // 0x18
             math::VEC3 mBalloonPos;  // 0x1C
-            undefined4 unk_0x28;
-            undefined unk_0x2C;
-            f32 unk_0x30;
-            f32 unk_0x34;
+            undefined4 mHAlign;  // 0x28
+            undefined mbUse16x9X;  // 0x2C
+            f32 mMargin16x9;  // 0x30
+            f32 mMargin4x3;  // 0x34
 
             int mWaitUntilFadeIn;  // 0x38
 

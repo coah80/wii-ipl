@@ -10,9 +10,9 @@
 
 namespace ipl {
     namespace scene {
-        TextBalloon::TextBalloon(EGG::Heap* heap, nand::LayoutFile* layoutFile, const char* directory, const char* fileName, const math::VEC3& unk2,
-                                 f32 unk3, f32 unk4)
-            : unk_0x08(FALSE), mpText(NULL), mTextLen(0), mBalloonPos(unk2), unk_0x28(0), unk_0x2C(1), unk_0x30(unk3), unk_0x34(unk4),
+        TextBalloon::TextBalloon(EGG::Heap* heap, nand::LayoutFile* layoutFile, const char* directory, const char* fileName, const math::VEC3& initialPos,
+                                 f32 margin16x9, f32 margin4x3)
+            : mbWaitingFadeIn(FALSE), mpText(NULL), mTextLen(0), mBalloonPos(initialPos), mHAlign(0), mbUse16x9X(1), mMargin16x9(margin16x9), mMargin4x3(margin4x3),
               mWaitUntilFadeIn(0) {
             mpLayout = new (heap, 4) layout::Object(heap, layoutFile, directory, fileName);
             mpLayout->bind("my_IplTopBalloon_a_BalloonInOut.brlan");
@@ -31,7 +31,7 @@ namespace ipl {
         void TextBalloon::calc() {
             mpLayout->calc();
 
-            switch (unk_0x08) {
+            switch (mbWaitingFadeIn) {
                 case TRUE: {
                     break;
                 }
@@ -73,7 +73,7 @@ namespace ipl {
 
             balloonPane->SetVisible(false);
 
-            unk_0x08 = FALSE;
+            mbWaitingFadeIn = FALSE;
         }
 
         void TextBalloon::fadein() {
@@ -81,7 +81,7 @@ namespace ipl {
                 mpLayout->FindPaneByName("N_Balloon")->SetVisible(false);
 
                 mWaitUntilFadeIn = 0;
-                unk_0x08 = TRUE;
+                mbWaitingFadeIn = TRUE;
 
                 set_textbox(mpText);
                 set_translate(mBalloonPos);
@@ -91,17 +91,17 @@ namespace ipl {
         void TextBalloon::fadeinNoSetTextbox() {
             if (mpText != NULL) {
                 mWaitUntilFadeIn = 0;
-                unk_0x08 = TRUE;
+                mbWaitingFadeIn = TRUE;
 
                 set_translate(mBalloonPos);
             }
         }
 
-        void TextBalloon::setPos(const math::VEC3& pos, bool unk0, int unk1) {
+        void TextBalloon::setPos(const math::VEC3& pos, bool use16x9X, int hAlign) {
             mBalloonPos = pos;
 
-            unk_0x28 = unk1;
-            unk_0x2C = unk0;
+            mHAlign = hAlign;
+            mbUse16x9X = use16x9X;
 
             nw4r::ut::Rect proj16x9;
             nw4r::ut::Rect proj4x3;
@@ -109,7 +109,7 @@ namespace ipl {
             System::getProjectionRect(&proj16x9);
             System::getProjectionRect4x3(&proj4x3);
 
-            if (unk_0x2C == 0) {
+            if (mbUse16x9X == 0) {
                 mBalloonPos.x *= proj4x3.GetWidth() / proj16x9.GetWidth();
             }
         }
@@ -122,7 +122,7 @@ namespace ipl {
             System::getProjectionRect(&proj16x9);
             System::getProjectionRect4x3(&proj4x3);
 
-            if (unk_0x2C == 0) {
+            if (mbUse16x9X == 0) {
                 mBalloonPos.x *= proj4x3.GetWidth() / proj16x9.GetWidth();
             }
 
@@ -133,27 +133,27 @@ namespace ipl {
             if (mWaitUntilFadeIn++ > WAIT_UNTIL_FADE_IN) {
                 anm_fadein();
                 snd::getSystem()->startSE("WIPL_SE_BALLOON");
-                unk_0x08 = FALSE;
+                mbWaitingFadeIn = FALSE;
             }
         }
 
         void TextBalloon::fadeout() {
-            if (!unk_0x08) {
+            if (!mbWaitingFadeIn) {
                 mpLayout->setAnmType(ANIM_TYPE_BACKWARD);
                 mpLayout->start();
             }
-            unk_0x08 = FALSE;
+            mbWaitingFadeIn = FALSE;
         }
 
         void TextBalloon::fadeoutForce() {
-            if (!unk_0x08) {
+            if (!mbWaitingFadeIn) {
                 if (mpLayout->getAnim()->getAnmType() == ANIM_TYPE_FORWARD) {
                     mpLayout->getAnim()->setAnmType(ANIM_TYPE_BACKWARD);
                     mpLayout->getAnim()->restart();
                 }
-            } else if (unk_0x08 == TRUE) {
+            } else if (mbWaitingFadeIn == TRUE) {
                 mWaitUntilFadeIn = 0;
-                unk_0x08 = FALSE;
+                mbWaitingFadeIn = FALSE;
             }
         }
 
@@ -167,9 +167,9 @@ namespace ipl {
             f32 temp0;
 
             if (SCGetAspectRatio() == SC_ASPECT_RATIO_16x9) {
-                temp0 = unk_0x30;
+                temp0 = mMargin16x9;
             } else {
-                temp0 = unk_0x34;
+                temp0 = mMargin4x3;
             }
 
             nw4r::lyt::Pane* balloonPane = mpLayout->FindPaneByName("N_Balloon");
@@ -181,7 +181,7 @@ namespace ipl {
             System::getProjectionRect(&proj16x9);
             System::getProjectionRect4x3(&proj4x3);
 
-            switch (unk_0x28) {
+            switch (mHAlign) {
                 case 1: {
                     temp1 = get_size("W_Base")->width / 2;
                     break;
@@ -192,7 +192,7 @@ namespace ipl {
                 }
             }
 
-            if (unk_0x2C == 0) {
+            if (mbUse16x9X == 0) {
                 temp1 *= proj4x3.GetWidth() / proj16x9.GetWidth();
             }
 
