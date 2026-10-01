@@ -24,9 +24,9 @@ char NAND_Org_Path[64];
 NAND_DISK_INFO nanddisk_info[23];
 NAND_SEMAPHORE csem;
 NAND_SEMAPHORE osem;
-s32 Nanddisk_Internal_Info_Init;
-s32 NAND_Init;
-s32 fa_nanad_semid;
+s32 Nanddisk_Internal_Info_Init = 0;
+s32 NAND_Init = 0;
+s32 fa_nanad_semid = 0;
 
 static inline s32 find_disk(PDM_DISK* disk, NAND_DISK_INFO** result) {
     NAND_DISK_INFO* info;
