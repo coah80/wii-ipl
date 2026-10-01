@@ -1376,7 +1376,7 @@ static void bta_dm_link_quality_cback(tBTM_LINK_QUALITY_RESULTS *p_result)
 	}
 }
 
-BOOLEAN bta_sys_check_compress(int param_1, UINT8 app_id, BD_ADDR peer_addr)
+BOOLEAN bta_sys_check_compress(int id, UINT8 app_id, BD_ADDR peer_addr)
 {
 	BOOLEAN status = FALSE;
 	int i;
@@ -1399,8 +1399,8 @@ BOOLEAN bta_sys_check_compress(int param_1, UINT8 app_id, BD_ADDR peer_addr)
 }
 
 static BOOLEAN bta_dm_l2cap_server_compress_cback(
-	BD_ADDR peer_addr, int param_2, int param_3, int param_4,
-	int param_5, int param_6, int param_7, UINT8 **p_mem_pool,
+	BD_ADDR peer_addr, int pe_type, int mem_level, int wbits,
+	int direction, int config, int enable, UINT8 **p_mem_pool,
 	UINT32 *mem_pool_size)
 {
 	BOOLEAN status = FALSE;

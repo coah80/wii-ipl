@@ -457,7 +457,7 @@ void bta_dm_signal_strength(tBTA_DM_MSG *p_data);
 
 void bta_dm_acl_change(tBTA_DM_MSG *p_data);
 
-BOOLEAN bta_sys_check_compress(int, UINT8 app_id, BD_ADDR peer_addr);
+BOOLEAN bta_sys_check_compress(int id, UINT8 app_id, BD_ADDR peer_addr);
 
 void bta_dm_keep_acl(tBTA_DM_MSG *p_data);
 void bta_dm_immediate_disable(void);
