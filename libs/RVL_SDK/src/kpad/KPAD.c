@@ -267,6 +267,14 @@ void KPADSetPosParam(s32 chan, f32 x, f32 y) {
     kpad->posParamY = y;
 }
 
+extern const f32 sensorIntervalConversion;
+
+static inline f32 object_interval_distance(f32 interval) {
+    return interval / sensorIntervalConversion;
+}
+
+const f32 sensorIntervalConversion = 0.383864f;
+
 static void reset_kpad(KPADInside* kpad) {
     f32 upperY;
     f32 distanceValue;
@@ -1570,7 +1578,7 @@ void KPADInit(void) {
     objectInterval = kp_obj_interval;
     enabled = OSDisableInterrupts();
     kp_obj_interval = objectInterval;
-    distanceValue = objectInterval / 0.383864f;
+    distanceValue = object_interval_distance(objectInterval);
     kp_err_dist_min = distanceValue;
     kp_dist_vv1 = distanceValue;
     OSRestoreInterrupts(enabled);
