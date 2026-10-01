@@ -407,8 +407,9 @@ namespace textinput {
         }
 
         void LayoutByNW4R::createAnmPane_(MEMAllocator* allocator) {
+            CandidateTextAnmPane* pane;
             for (u16 i = 0; i < ARRAY_LENGTH(lbl_8165D2F8.panes); i++) {
-                CandidateTextAnmPane* pane = NULL;
+                pane = NULL;
                 const PaneToAnimation& p = lbl_8165D2F8.panes[i];
                 switch (p.type) {
                     case KT_ScrollButton: {
@@ -1052,9 +1053,11 @@ namespace textinput {
             f32 fontSizeWidth = pTextBox->GetFontSize().width;
             f32 charSpace = pTextBox->GetCharSpace();
             f32 acc = 0.0f;
-            for (int i = 0; text[i] != L'\0'; i++) {
+            const wchar_t* character = text;
+            while (*character != L'\0') {
                 acc += charSpace;
-                acc += f->GetCharWidth(text[i]);
+                acc += f->GetCharWidth(*character);
+                ++character;
             }
             return acc * (fontSizeWidth / f->GetWidth()) + 0.01f;
         }
@@ -1250,9 +1253,9 @@ namespace textinput {
             nw4r::ut::Rect r = mpTextAreaPane->getPane()->GetPaneRect(drawInfo);
             // TODO - These vectors are zero-initialized using GPRs first...
             Vec v1 = {0, 0, 0};
-            Vec v2 = {0, 0, 0};
             v1.x = r.left;
             v1.y = r.top;
+            Vec v2 = {0, 0, 0};
             v2.x = r.right;
             v2.y = r.bottom;
             MTXMultVec(mpTextAreaPane->getTextPane()->GetGlobalMtx(), &v1, &v1);
@@ -1427,7 +1430,7 @@ namespace textinput {
             f32 areaPaneWidth = mpTextAreaPane->getPane()->GetSize().width;
 
             nw4r::lyt::TextBox* textBox = mpTextBoxPane[0]->getTextPane();
-            f32 widthScale = GetWidthScale_();
+            f32 widthScale = 608.0f / mfScreenWidth;
             f32 margin = GetMargin_();
             f32 negMargin = -margin;
 

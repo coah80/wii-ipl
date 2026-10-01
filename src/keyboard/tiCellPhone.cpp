@@ -606,8 +606,9 @@ namespace textinput {
                     CellPhoneAnmPane* pane = new (MEMAllocFromAllocator(allocator, sizeof(CellPhoneAnmPane)))
                         CellPhoneAnmPane(getPane(csPaneNameNormalAnimationKey[i].name), NULL);
                     nw4r::ut::List_Append(&mAnmPanes, pane);
+                    const char* animationKey;
                     const PaneNameToAnimationKey& paneName = csPaneNameNormalAnimationKey[i];
-                    const char* animationKey = paneName.animationKey;
+                    animationKey = paneName.animationKey;
 
                     for (u16 j = 0; j < 5; ++j) {
                         void* resource = mpMultiArcResourceAccessor->GetResource(0, csAninationFileForControlKey[j].filename);
