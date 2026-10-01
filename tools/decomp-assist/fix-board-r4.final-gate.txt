@@ -1,0 +1,36 @@
+full build: ok
+main.dol sha1: 26116613f624061ba99c8d1a299aaa6efa85670d
+[src/scene/setting/AOSS] pool: IDENTICAL
+[src/scene/setting/AOSS] objdiff: code 6436/16192 data 3896/3928 functions 16/21 fuzzy 96.7779 linked code 0
+[src/scene/setting/AOSS] instruction-exact functions: 15/21
+[src/scene/setting/AOSS]   section .bss size 3496 match 100.0
+[src/scene/setting/AOSS]   section .data size 368 match 100.0
+[src/scene/setting/AOSS]   section .sbss size 32 match 42.857143
+[src/scene/setting/AOSS]   section .sdata size 24 match 100.0
+[src/scene/setting/AOSS]   section .sdata2 size 8 match 100.0
+[src/scene/setting/AOSS]   section .text size 16192 match 96.777916
+[src/scene/setting/AOSS]   below 100: AOSS_Init_old 93.78725
+[src/scene/setting/AOSS]   below 100: AOSS_81400830 97.74143
+[src/scene/setting/AOSS]   below 100: AOSS_814013AC 98.77193
+[src/scene/setting/AOSS]   below 100: AOSS_81401778 92.190475
+[src/scene/setting/AOSS]   below 100: AOSS_81401E80 98.605446
+[src/scene/setting/AOSS] baseline: code 6436/16192 data 3896 functions 16 fuzzy 96.5045
+[libs/RVLMiddleware/eZiText/src/clib/zi8alpha] pool: IDENTICAL
+[libs/RVLMiddleware/eZiText/src/clib/zi8alpha] objdiff: code 5704/21664 data 180/564 functions 10/12 fuzzy 94.1715 linked code 0
+[libs/RVLMiddleware/eZiText/src/clib/zi8alpha] instruction-exact functions: 10/12
+[libs/RVLMiddleware/eZiText/src/clib/zi8alpha]   section .data size 48 match None
+[libs/RVLMiddleware/eZiText/src/clib/zi8alpha]   section .rodata size 336 match 99.0991
+[libs/RVLMiddleware/eZiText/src/clib/zi8alpha]   section .text size 21664 match 94.17153
+[libs/RVLMiddleware/eZiText/src/clib/zi8alpha]   section extab size 72 match 100.0
+[libs/RVLMiddleware/eZiText/src/clib/zi8alpha]   section extabindex size 108 match 100.0
+[libs/RVLMiddleware/eZiText/src/clib/zi8alpha]   below 100: Zi8ChangeWordCase 99.09091
+[libs/RVLMiddleware/eZiText/src/clib/zi8alpha]   below 100: Zi8AlphaGetCandidates 92.01039
+[libs/RVLMiddleware/eZiText/src/clib/zi8alpha] baseline: code 5704/21664 data 72 functions 10 fuzzy 93.1492
+regressions vs baseline: 0
+global matched_code_percent: 86.68724 -> 86.68724
+global fuzzy_match_percent: 99.30809 -> 99.31698
+global complete_code_percent: 60.61288 -> 60.61288
+global matched_data_percent: 91.11031 -> 91.11620
+forbidden patterns added (net, per file): 0
+readability warnings (net, per file; must be 0 in the final result): 0
+GATE PASS

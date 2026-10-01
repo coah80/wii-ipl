@@ -1161,13 +1161,14 @@ checkKeyLayout:
                       keyLayoutCursor = keyLayout;
                       candidateCharacterCount = wordLength + prefixCount;
                       for (index = 0; (int)index < (int)(unsigned int)keyLayoutCount; index = index + 1) {
-                        if (*keyLayoutCursor >= candidateCharacterCount) {
+                        if (*keyLayoutCursor < candidateCharacterCount) {
+                          keyLayoutCursor = keyLayoutCursor + *keyLayoutCursor + 1;
+                        } else {
                           if (*keyLayoutCursor++ > candidateCharacterCount) {
                             index = (unsigned int)keyLayoutCount;
                           }
                           break;
                         }
-                        keyLayoutCursor = keyLayoutCursor + *keyLayoutCursor + 1;
                       }
                       if ((int)index < (int)(unsigned int)keyLayoutCount) {
                         for (elementIndex = 0; (int)elementIndex < (int)(unsigned int)candidateCharacterCount;
@@ -1196,7 +1197,7 @@ emitCandidate:
                     if (firstCandidate == 0) {
                       if (((ZiAlphaOptions*)optionData)->countOnly != '\0') {
                         if (((ZiAlphaOptions*)optionData)->suffixOnly != '\0') {
-                          if ((int)(wordLength + prefixCount) < (int)((ZiAlphaOptions*)optionData)->shortestWord) {
+                          if ((int)((ZiAlphaOptions*)optionData)->shortestWord > (int)(wordLength + prefixCount)) {
                             ((ZiAlphaOptions*)optionData)->shortestWord = wordLength + prefixCount;
                           }
                           if ((int)((ZiAlphaOptions*)optionData)->longestWord < (int)(wordLength + prefixCount)) {
@@ -1223,23 +1224,17 @@ emitCandidate:
                         } else {
                           if (((((ZiAlphaWork*)workData)->suffixMode == '\0') && (wordCursor[1] == 0)) &&
                              (candidateCount == 0)) {
-                            if ((*wordCursor < 0xeff1) || (0xf010 < *wordCursor)) {
-                              ((ZiAlphaWork*)workData)->singleCharacter = *wordCursor;
-                            }
-                            else {
+                            if (*wordCursor >= 0xeff1 && *wordCursor <= 0xf010) {
                               ((ZiAlphaWork*)workData)->singleCharacter = 0;
                             }
-                          }
-                          if (((dictionaryExact == 0) || (parameters->elementCount != ((ZiAlphaWork*)workData)->rememberedCount))
-                             || ((parameters->maxCandidates != 1 &&
-                                 ((candidateCount != 0 || (parameters->firstCandidate != 0)))))) {
-                            if (((dictionaryExact == 0) && (parameters->elementCount == ((ZiAlphaWork*)workData)->rememberedCount))
-                               && ((parameters->maxCandidates == 1 ||
-                                   ((candidateCount == 0 && (parameters->firstCandidate == 0)))))) {
-                              ((ZiAlphaWork*)workData)->rememberedWord[0] = 0;
+                            else {
+                              ((ZiAlphaWork*)workData)->singleCharacter = *wordCursor;
                             }
                           }
-                          else {
+                          if (dictionaryExact != 0 &&
+                              parameters->elementCount == ((ZiAlphaWork*)workData)->rememberedCount &&
+                              (parameters->maxCandidates == 1 ||
+                               (candidateCount == 0 && parameters->firstCandidate == 0))) {
                             for (index = 0; (int)index < (int)prefixCount; index = index + 1) {
                               ((ZiAlphaWork*)workData)->rememberedWord[index]
                                    = wordCursor[index - prefixCount];
@@ -1249,6 +1244,13 @@ emitCandidate:
                                    wordCursor[index];
                             }
                             ((ZiAlphaWork*)workData)->rememberedWord[index + prefixCount] = 0;
+                          }
+                          else {
+                            if (((dictionaryExact == 0) && (parameters->elementCount == ((ZiAlphaWork*)workData)->rememberedCount))
+                               && ((parameters->maxCandidates == 1 ||
+                                   ((candidateCount == 0 && (parameters->firstCandidate == 0)))))) {
+                              ((ZiAlphaWork*)workData)->rememberedWord[0] = 0;
+                            }
                           }
                           if ((((ZiAlphaWork*)workData)->suffixMode == '\0') &&
                              ((((((dictionaryKind == 1 && ((((ZiAlphaWork*)workData)->dictionaryFlags & 1) != 0)) ||

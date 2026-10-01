@@ -399,7 +399,9 @@ int AOSS_Init_old(AOSSInitInput* input)
   u32 initialSleep;
   u32 nextSleep;
   u32 resultCode;
+  u32 flags;
   int state;
+  int protocolState;
   u32 retryWait;
   u16 retryDelay;
   u32 delayStep;
@@ -442,6 +444,7 @@ int AOSS_Init_old(AOSSInitInput* input)
   waitIntervals.defaults.response = defaultResponse;
   waitSettings.value = 0;
   receivedPackets = 0;
+  protocolState = 0;
   memset(&requestRecords,0,0x18);
   waitIntervals.limits.connection = input->options[0];
   if (waitIntervals.limits.connection == -1) {
@@ -468,12 +471,13 @@ int AOSS_Init_old(AOSSInitInput* input)
   memset(&s_runtime,0,0x1c);
   s_runtime.config = input->ssid;
   s_runtime.configLength = (u32)input->ssidLength;
-  s_runtime.flags = input->flags & 0xf;
+  flags = input->flags;
+  s_runtime.flags = flags & 0xf;
   s_runtime.interfaceType = input->mode;
   s_runtime.state = 0;
   s_runtime.ipAddress = 0xc0a80b01;
   s_runtime.active = '\0';
-  if ((input->flags & 1) != 1) {
+  if ((flags & 1u) != 1u) {
     s_errorCode = 0x13;
     input->status = 0xf;
     if (s_accessPointConfig) {
@@ -628,7 +632,7 @@ int AOSS_Init_old(AOSSInitInput* input)
           } else {
             memset(s_accessPointConfig,0,0x58);
             initialWait = waitIntervals.limits.connection;
-            remainingWait = 0;
+            attemptCount = 0;
             goto test_initial_link;
           }
         }
@@ -662,8 +666,8 @@ wait_for_initial_link:
     resultCode = 0xffffffff;
     goto finish_initialization;
   }
+  if ((state == 0) && ((u32)*s_accessPointConfig == 1u)) goto handle_initial_link;
   remainingWait = (u16)waitIntervals.limits.response;
-  if ((state == 0) && (*s_accessPointConfig == 1)) goto handle_initial_link;
   for (; remainingWait != 0; remainingWait = (u16)(remainingWait - nextSleep)) {
     if (AOSSi_cancel_flag == 1) {
       input->status = 0xf;
@@ -695,11 +699,11 @@ wait_for_initial_link:
     resultCode = 0xffffffff;
     goto finish_initialization;
   }
-  remainingWait++;
+  attemptCount++;
 test_initial_link:
-  if ((short)remainingWait < initialWait) goto wait_for_initial_link;
+  if (attemptCount < initialWait) goto wait_for_initial_link;
 handle_initial_link:
-  if (remainingWait == waitIntervals.limits.connection) {
+  if (attemptCount == waitIntervals.limits.connection) {
     input->status = 0xf;
     if (s_accessPointConfig) {
       AOSSi_Free(s_accessPointConfig);
@@ -783,14 +787,13 @@ handle_initial_link:
         attemptCount = waitSettings.halfwords.high;
         settings.gatewayAddress = 0xc0a80b65;
         settings.ipAddress = 0xc0a80b01;
-        state = 0;
 perform_request:
         packetBuffer = s_responseBuffer;
         memset(networkAddresses,0,0x14);
         networkAddresses[4] = settings.gatewayAddress;
         networkAddresses[0] = settings.ipAddress;
         do {
-          if ((state == 1) && ((s8)s_runtime.active != 1)) {
+          if ((protocolState == 1) && ((s8)s_runtime.active != 1)) {
             if (s_socket != -1) {
               SOClose(s_socket);
             }
@@ -941,7 +944,7 @@ request_socket_cleanup_complete:
             }
           }
           requestResult = s_socket;
-          switch (state) {
+          switch (protocolState) {
           case 0:
             if (s_operationState != 2) {
               s_operationState = 2;
@@ -995,7 +998,7 @@ request_socket_cleanup_complete:
             break;
           }
           if (requestResult == -1) {
-            s_errorCode = state + 0x1000;
+            s_errorCode = protocolState + 0x1000;
             input->status = 0xf;
             if (s_accessPointConfig) {
               AOSSi_Free(s_accessPointConfig);
@@ -1025,7 +1028,7 @@ request_socket_cleanup_complete:
           if (0 < requestResult) goto process_received_packet;
           receivedPackets = receivedPackets + 1;
           if (receivedPackets > attemptCount) {
-            switch (state) {
+            switch (protocolState) {
             case 0: s_errorCode = 0xf; break;
             case 1: s_errorCode = 0x10; break;
             default: s_errorCode = 0x11; break;
@@ -1086,7 +1089,7 @@ process_received_packet:
   packetBuffer->socket = s_socket;
   retryWait = SONtoHs(receivedLength);
   packetBuffer->length = retryWait & 0xffff;
-  requestResult = AOSS_814001B4(state,packetBuffer,&receivedPackets,&requestRecords,s_socket);
+  requestResult = AOSS_814001B4(protocolState,packetBuffer,&receivedPackets,&requestRecords,s_socket);
   if (requestResult == 100) {
     protocolResult = 0;
   }
@@ -1094,8 +1097,8 @@ process_received_packet:
     protocolResult = -1;
   }
   else {
-    if (state != requestResult) {
-      state = requestResult;
+    if (protocolState != requestResult) {
+      protocolState = requestResult;
       if (requestResult != 2) goto perform_request;
       if (s_socket != -1) {
         SOClose(s_socket);
@@ -1291,10 +1294,10 @@ wait_for_packet:
         resultCode = 0xffffffff;
         goto finish_initialization;
       }
-      state = requestResult;
+      protocolState = requestResult;
       goto perform_request;
     }
-    state = requestResult;
+    protocolState = requestResult;
     if (receivedPackets > waitSettings.halfwords.high) {
       switch (requestResult) {
       case 0: s_errorCode = 0xf; break;
@@ -2303,10 +2306,12 @@ int AOSS_81401778(void* packet, void* request, int socket) {
     AOSSHelloPacket* response = (AOSSHelloPacket*)s_responseBuffer;
     AOSSHelloPayload* payload;
     AOSSRequestRecords* requestRecords = (AOSSRequestRecords*)request;
-    AOSSSocketAddress destination;
-    AOSSKeySchedule schedule;
-    AOSSHelloRecord hello;
-    u8 accessPointName[8];
+    struct {
+        AOSSSocketAddress destination;
+        AOSSHelloRecord hello;
+        u8 accessPointName[8];
+        AOSSKeySchedule schedule;
+    } construction;
     u32 checksum;
     u16 nonce;
     u32 stateLength;
@@ -2324,14 +2329,14 @@ int AOSS_81401778(void* packet, void* request, int socket) {
 
     checksum = 0;
     sequence = 0;
-    memset(&hello, 0, sizeof(hello));
+    memset(&construction.hello, 0, sizeof(construction.hello));
     memset(response, 0, 0x5dc);
     payload = &response->payload;
-    hello.data.fields.type = 2;
-    hello.data.fields.reserved01 = 0;
-    hello.data.fields.length = SOHtoNs(4);
-    hello.data.fields.supportedModes = s_runtime.flags;
-    hello.data.fields.supportedModes = SOHtoNl(hello.data.fields.supportedModes);
+    construction.hello.data.fields.type = 2;
+    construction.hello.data.fields.reserved01 = 0;
+    construction.hello.data.fields.length = SOHtoNs(4);
+    construction.hello.data.fields.supportedModes = s_runtime.flags;
+    construction.hello.data.fields.supportedModes = SOHtoNl(construction.hello.data.fields.supportedModes);
     responseLength = 8;
 
     if ((s32)s_connectionState == 1) {
@@ -2344,44 +2349,44 @@ int AOSS_81401778(void* packet, void* request, int socket) {
             u32 part;
             for (part = 0; part < 4; part++) {
                 for (index = 0; index < 2; index++) {
-                    checksum = (checksum >> 8) ^ crcTable[(checksum ^ hello.data.bytes[part * 2 + index]) & 0xff];
+                    checksum = (checksum >> 8) ^ crcTable[(checksum ^ construction.hello.data.bytes[part * 2 + index]) & 0xff];
                 }
             }
         }
         checksum = (checksum ^ 0xffffffff) & 0xff;
 
-        schedule.bytes = (u8*)AOSSi_Alloc(8);
-        if (schedule.bytes != 0) {
+        construction.schedule.bytes = (u8*)AOSSi_Alloc(8);
+        if (construction.schedule.bytes != 0) {
             nonce = (u16)rand();
             memcpy(&payload->encrypted.key.nonce, &nonce, 2);
             memcpy(s_packetState.keyNonce, payload->encrypted.key.nonceBytes, 2);
             memcpy(s_packetState.keyAddress, s_accessPointName, 8);
-            AOSS_81401C9C(&schedule, s_packetState.keyNonce,
+            AOSS_81401C9C(&construction.schedule, s_packetState.keyNonce,
                 sizeof(s_packetState.keyNonce) + sizeof(s_packetState.keyAddress), 8);
             for (index = 0; index < 8; index++) {
-                state = schedule.bytes;
-                firstIndex = (schedule.i + 1) % schedule.length & 0xff;
+                state = construction.schedule.bytes;
+                firstIndex = (construction.schedule.i + 1) % construction.schedule.length & 0xff;
                 firstByte = state[firstIndex];
-                secondIndex = (firstByte + schedule.j) % schedule.length & 0xff;
+                secondIndex = (firstByte + construction.schedule.j) % construction.schedule.length & 0xff;
                 swap = state[secondIndex];
                 stateLength = firstByte + swap;
-                schedule.i = firstIndex;
-                schedule.j = secondIndex;
+                construction.schedule.i = firstIndex;
+                construction.schedule.j = secondIndex;
                 state[secondIndex] = (u8)firstByte;
                 state[firstIndex] = swap;
-                value = state[stateLength % schedule.length] ^ hello.data.bytes[index];
+                value = state[stateLength % construction.schedule.length] ^ construction.hello.data.bytes[index];
                 payload->bytes[index + 4] = value;
             }
-            AOSSi_Free(schedule.bytes);
+            AOSSi_Free(construction.schedule.bytes);
         }
         payload->encrypted.length = SOHtoNs(8);
         responseLength = 0x0c;
     } else {
-        memcpy(payload->bytes, &hello, 8);
+        memcpy(payload->bytes, &construction.hello, 8);
     }
 
-    memcpy(accessPointName, &requestRecords->records[1], 8);
-    encryptionResult = AOSS_81401E80(accessPointName, 8, s_manufacturer, 6);
+    memcpy(construction.accessPointName, &requestRecords->records[1], 8);
+    encryptionResult = AOSS_81401E80(construction.accessPointName, 8, s_manufacturer, 6);
     if (encryptionResult != 0) {
         s_errorCode = 2;
         return -1;
@@ -2396,17 +2401,17 @@ int AOSS_81401778(void* packet, void* request, int socket) {
     response->header.finalSequence = SOHtoNs(sequence);
     response->header.reserved = checksum;
     response->header.messageType = 0x11;
-    memcpy(response->header.messageIdentity, accessPointName, 8);
+    memcpy(response->header.messageIdentity, construction.accessPointName, 8);
     sendLength = (s16)(responseLength + 0x18);
-    memset(&destination, 0, sizeof(destination));
-    destination.family = 2;
-    destination.port = SOHtoNs(0x5790);
-    destination.address = SOHtoNl(s_runtime.ipAddress);
+    memset(&construction.destination, 0, sizeof(construction.destination));
+    construction.destination.family = 2;
+    construction.destination.port = SOHtoNs(0x5790);
+    construction.destination.address = SOHtoNl(s_runtime.ipAddress);
     if ((s8)s_runtime.active == 0) {
-        destination.address = 0xffffffff;
+        construction.destination.address = 0xffffffff;
     }
-    destination.length = 8;
-    SOSendTo(socket, response, sendLength, 0, &destination);
+    construction.destination.length = 8;
+    SOSendTo(socket, response, sendLength, 0, &construction.destination);
     return 0;
 }
 
