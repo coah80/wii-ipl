@@ -8,7 +8,7 @@
 
 namespace ipl {
 namespace scene {
-class GCWindow : public MemoryBase, public MemCardEventHandler {
+class GCWindow : public MemoryBase, public MemCardEventListener {
 #ifdef IPL_MEMORY_CARD_CPP
     friend class MemoryCard;
 #endif
@@ -48,6 +48,25 @@ private:
     void set_texture(const char*, const GXTexObj&);
 public:
     virtual void onMemEvent(long, u8);
+#ifdef IPL_GC_WINDOW_CPP
+    virtual void on_wait_anim() = 0;
+    virtual void on_exit() = 0;
+    virtual void on_error() = 0;
+    virtual void on_format() = 0;
+    virtual void on_dialog_result() = 0;
+    virtual void on_select_in() = 0;
+    virtual void on_message_done() = 0;
+    virtual void on_button_trig() = 0;
+#else
+    virtual void on_wait_anim();
+    virtual void on_exit();
+    virtual void on_error();
+    virtual void on_format();
+    virtual void on_dialog_result();
+    virtual void on_select_in();
+    virtual void on_message_done();
+    virtual void on_button_trig();
+#endif
     bool isProcess();
     void stop_wait_anim();
 

@@ -1,3 +1,4 @@
+#define IPL_GC_SAVEDATA_NOVTABLE
 #include "scene/memoryCard/iplGCSaveData.h"
 
 #include "scene/memoryCard/iplMemoryCard.h"

@@ -1,4 +1,5 @@
 #define IPL_MEMORY_CARD_CPP
+#define IPL_MEMORY_CARD_NOVTABLE
 #include "scene/memoryCard/iplMemoryCard.h"
 
 #include "scene/memoryCard/iplGCWindow.h"
@@ -85,6 +86,47 @@ namespace ipl {
 
         static const DigitTable scNumber = {{L'0', L'1', L'2', L'3', L'4', L'5', L'6', L'7', L'8', L'9'}};
 
+        class __declspec(novtable) MemoryCardManagerImpl : public MemoryCardManager {
+        public:
+            virtual void onMount(u8) {}
+            virtual void onUnmount(u8) {}
+            virtual void onAttach(u8) {}
+            virtual void onDetach(u8) {}
+            virtual void onCheck(u8) {}
+            virtual void onFormat(u8) {}
+            virtual void onRepair(u8) {}
+            virtual void onRead(u8) {}
+            virtual void onWrite(u8) {}
+            virtual void onOpen(u8) {}
+            virtual void onClose(u8) {}
+            virtual void onCreate(u8) {}
+            virtual void onDelete(u8) {}
+            virtual void onCopy(u8) {}
+            virtual void onMove(u8) {}
+            virtual void onRename(u8) {}
+            virtual void onVerify(u8) {}
+            virtual void onCommit(u8) {}
+            virtual void onProbe(u8) {}
+            virtual void onMountAsync(u8) {}
+            virtual void onUnmountAsync(u8) {}
+            virtual void onCheckAsync(u8) {}
+            virtual void onFormatAsync(u8) {}
+            virtual void onReadAsync(u8) {}
+            virtual void onWriteAsync(u8) {}
+            virtual void onCreateAsync(u8) {}
+            virtual void onDeleteAsync(u8) {}
+            virtual void onCopyAsync(u8) {}
+            virtual void onMoveAsync(u8) {}
+            virtual void onRenameAsync(u8) {}
+            virtual void onVerifyAsync(u8) {}
+            virtual void onCommitAsync(u8) {}
+            virtual void onProbeAsync(u8) {}
+            virtual void onFreeBlocks(u8) {}
+            virtual void onGetLength(u8) {}
+            virtual void onSetAttrib(u8) {}
+            virtual void onGetAttrib(u8) {}
+        };
+
         MemoryCard::MemoryCard(EGG::Heap* heap)
             : Base(heap), MemoryBase(), mState(2), mPrevState(2), mSlot(0), mIconIndex(-15), mIconCount(0),
               mShowArwR(0), mShowArwL(0), mpEvent(NULL), mpFocusSaveData(NULL) {
@@ -148,7 +190,7 @@ namespace ipl {
             mpGCWindow = new GCWindow(getSceneHeap(), unk_0x08, "arc", "it_CubeDetail_a.brlyt");
             mpGCWindow->do_animation(0);
 
-            MemoryCardManager* manager = new MemoryCardManager();
+            MemoryCardManager* manager = new MemoryCardManagerImpl();
             mpManager = manager;
             mpManager->setEventHandler(mpGCWindow);
             mpGCWindow->mpMemoryCardManager = mpManager;
@@ -701,3 +743,5 @@ namespace ipl {
 
     }
 }
+
+extern const f64 lbl_81694A78 = 4503601774854144.0;
