@@ -23,17 +23,18 @@ static s8 ReadHeaderChar(const NHTTPResponseInfo* response, NHTTPi_HDRBUFLIST** 
 }
 
 static int LowerCase(int character) {
-    if((character>='A') & (character<='Z')) character+=32;
-    return character;
+    return (character>='A') & (character<='Z') ? character+32 : character;
 }
 
 s32 NHTTPi_findNextLineHdrRecvBuf(const NHTTPResponseInfo* response, s32 position, s32 limit, s32* colon, s32* newlineLength) {
     NHTTPi_HDRBUFLIST* block;
     s32 offset;
-    s32 next=-1;
-    BOOL carriage=FALSE;
+    s32 next;
+    BOOL carriage;
     if(colon) *colon=-1;
-    if(position>=limit) return -1;
+    if(position>=limit) goto done;
+    next=-1;
+    carriage=FALSE;
     FindHeaderBlock(response,position,&block,&offset);
     for(; position<limit; ++position) {
         s8 character=ReadHeaderChar(response,&block,&offset);
@@ -56,17 +57,19 @@ s32 NHTTPi_findNextLineHdrRecvBuf(const NHTTPResponseInfo* response, s32 positio
             return next;
         }
     }
+done:
     return -1;
 }
 
 s32 NHTTPi_skipSpaceHdrRecvBuf(const NHTTPResponseInfo* response, s32 position, s32 limit) {
     NHTTPi_HDRBUFLIST* block;
     s32 offset;
-    if(position>=limit) return -1;
-    FindHeaderBlock(response,position,&block,&offset);
-    for(; position<limit; ++position) {
-        s8 character=ReadHeaderChar(response,&block,&offset);
-        if(character!=' ') return position;
+    if(position<limit) {
+        FindHeaderBlock(response,position,&block,&offset);
+        for(; position<limit; ++position) {
+            s8 character=ReadHeaderChar(response,&block,&offset);
+            if(character!=' ') return position;
+        }
     }
     return -1;
 }
@@ -75,7 +78,7 @@ s32 NHTTPi_compareTokenN_HdrRecvBuf(const NHTTPResponseInfo* response, s32 posit
     NHTTPi_HDRBUFLIST* block;
     s32 offset;
     s8 character;
-    if(position>=limit) return -1;
+    if(position>=limit) goto done;
     FindHeaderBlock(response,position,&block,&offset);
     character=ReadHeaderChar(response,&block,&offset);
     while(LowerCase(character)==LowerCase(*token)) {
@@ -84,6 +87,7 @@ s32 NHTTPi_compareTokenN_HdrRecvBuf(const NHTTPResponseInfo* response, s32 posit
         ++position;
         ++token;
     }
+done:
     return -1;
 }
 
@@ -91,7 +95,7 @@ s32 NHTTPi_loadFromHdrRecvBuf(NHTTPResponseInfo* response, char* destination, s3
 
     s32 amount;
     NHTTPi_HDRBUFLIST* block;
-    if(position+length>response->headerLen) return FALSE;
+    if(position+length<=response->headerLen) {
     if(length) {
         if(position<1024) {
             amount=length;
@@ -110,13 +114,16 @@ s32 NHTTPi_loadFromHdrRecvBuf(NHTTPResponseInfo* response, char* destination, s3
                 amount=length;
                 if(length>512-position) amount=512-position;
                 NHTTPi_memcpy(destination,block->block+position,amount);
-                position=(position+amount)&511;
+                position+=amount;
+                position&=511;
                 block=block->next_p;
                 length-=amount; destination+=amount;
             }
         }
     }
-    return TRUE;
+        return TRUE;
+    }
+    return FALSE;
 }
 
 BOOL NHTTPi_isRecvBufFull(NHTTPResponseInfo* response, u32 length) { return length>=response->recvBufLen; }
@@ -128,9 +135,9 @@ s32 NHTTPi_RecvBuf(void* mutex, NHTTPRequestInfo* request, s32 socket, u32 offse
 
 s32 NHTTPi_RecvBufN(void* mutex, NHTTPRequestInfo* request, s32 socket, u32 offset, s32 length, s32 flags) {
     NHTTPResponseInfo* response=request->response;
-    s32 available;
+    s32 remaining;
     if(response->recvBufLen<=offset) return -1003;
-    available=response->recvBufLen-offset;
-    if(length>available) length=available;
+    remaining=response->recvBufLen-offset;
+    if(length>remaining) length=remaining;
     return NHTTPi_SocRecv(mutex,request,socket,response->recvBuf_p+offset,length,flags);
 }

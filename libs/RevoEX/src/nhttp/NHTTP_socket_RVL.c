@@ -148,7 +148,7 @@ s32 NHTTPi_SocSend_sub(s32 socket, const char* data, u32 length, s32 flags) {
                 sent+=result;
                 if((u32)result<head) return sent;
                 data+=result; length-=result;
-            } else { if(sent>0) return sent; return result; }
+            } else return sent>0 ? sent : result;
         }
     }
     if((s32)length>0) {
@@ -166,8 +166,7 @@ s32 NHTTPi_SocSend_sub(s32 socket, const char* data, u32 length, s32 flags) {
 
 s32 NHTTPi_SocSend(NHTTPRequestInfo* request, s32 socket, const char* data, s32 length, s32 flags) {
     s32 result;
-    SSLId ssl=request->sslId;
-    if(ssl>0) result=SSLWrite(ssl,data,length);
+    if(request->sslId>0) result=SSLWrite(request->sslId,data,length);
     else result=NHTTPi_SocSend_sub(socket,data,length,flags);
     if(result<0) {
         if(request->cancel) return -1002;

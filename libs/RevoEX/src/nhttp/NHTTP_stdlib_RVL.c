@@ -7,8 +7,7 @@ s32 NHTTPi_strcmp(const char* left, const char* right) { return strcmp(left,righ
 void* NHTTPi_memclr(void* destination, u32 size) { return memset(destination,0,size); }
 
 static int LowerCase(int character) {
-    if((character>='A') & (character<='Z')) character+=32;
-    return character;
+    return (character>='A') & (character<='Z') ? character+32 : character;
 }
 
 s32 NHTTPi_strnicmp(const char* left, const char* right, s32 length) {
@@ -155,10 +154,7 @@ s32 NHTTPi_intToStr(char* destination, u32 value) {
 }
 
 s32 NHTTPi_compareToken(const char* left, const char* right) {
-    for (;;) {
-        int rightCharacter=LowerCase(*right);
-        int leftCharacter=LowerCase(*left);
-        if(leftCharacter!=rightCharacter) break;
+    while(LowerCase(*right)==LowerCase(*left)) {
         if(*left==0 || *left==' ') return 0;
         ++left; ++right;
     }
@@ -166,12 +162,14 @@ s32 NHTTPi_compareToken(const char* left, const char* right) {
 }
 
 s32 NHTTPi_strtonum(const char* string, u32 length) {
-    int digits=0;
-    s32 value=0;
-    while(length--) {
-        int character=*string++;
-        if(character==' ') continue;
-        if((character>='0') & (character<='9')) {
+    int character;
+    s32 value;
+    int digits;
+    digits=0;
+    value=0;
+    for(; length--; ++string) {
+        if((character=*string)==' ') continue;
+        if((character>=(long long)'0') & (character<=(long long)'9')) {
             value=value*10+character-'0';
             ++digits;
             if(digits>9) return -1;

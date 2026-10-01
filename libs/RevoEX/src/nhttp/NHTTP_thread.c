@@ -371,9 +371,9 @@ static BOOL NHTTPi_RecvProxyConnectHeader(NHTTPThreadContext* context)
         response->httpStatus = NHTTPi_strToInt(header + 9, 3);
         if (NHTTPi_strnicmp(header, "HTTP/", 5) == 0 && header[8] == ' '
             && response->httpStatus == 200) accepted = TRUE;
-        ended = FALSE;
         cursor = header;
         index = 0;
+        ended = FALSE;
         while (index < used)
         {
             if (index > 1 && cursor[-1] == '\r' && *cursor == '\r') ended = TRUE;
@@ -954,7 +954,6 @@ static BOOL NHTTPi_ThreadParseHeaderProc(NHTTPThreadContext* context)
     NHTTPThreadInfo* thread = NHTTPi_GetThreadInfoP(system);
     s32 lineLength;
     s32 offset;
-    char* buffer = thread->commBuf;
     s32 length;
     if (!NHTTPi_loadFromHdrRecvBuf(response, context->statusLine, 0, 14)) { context->error = 7; return FALSE; }
     if (NHTTPi_strnicmp(context->statusLine, "HTTP/", 5) != 0) { context->error = 7; return FALSE; }
@@ -967,8 +966,8 @@ static BOOL NHTTPi_ThreadParseHeaderProc(NHTTPThreadContext* context)
     if (context->contentLength > 0x100) { context->error = 7; return FALSE; }
     if (context->contentLength > 0)
     {
-        if (!NHTTPi_loadFromHdrRecvBuf(response, buffer, offset, context->contentLength)) { context->error = 7; return FALSE; }
-        context->contentLength = NHTTPi_strToInt(buffer, context->contentLength);
+        if (!NHTTPi_loadFromHdrRecvBuf(response, thread->commBuf, offset, context->contentLength)) { context->error = 7; return FALSE; }
+        context->contentLength = NHTTPi_strToInt(thread->commBuf, context->contentLength);
         if (context->contentLength < 0) { context->error = 7; return FALSE; }
         response->contentLength = context->contentLength;
     }
