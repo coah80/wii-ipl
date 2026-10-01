@@ -502,12 +502,10 @@ static BOOL CopyWithoutLinearWhiteSpaces(char* output, int* outputSize, char* in
 
 static inline char* FindMarker(char* input, u32 size, const char* marker) {
     u32 markerLength = Mail_strlen(marker);
-    u32 offset;
-    char* scan = input;
+    s32 offset;
     for (offset = 0; offset <= size; offset++) {
-        if (Mail_strncmp(scan, marker, markerLength) == 0)
-            return scan;
-        scan++;
+        if (Mail_strncmp(input + offset, marker, markerLength) == 0)
+            return input + offset;
     }
     return NULL;
 }

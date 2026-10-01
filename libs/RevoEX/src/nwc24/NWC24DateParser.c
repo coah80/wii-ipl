@@ -205,9 +205,8 @@ void ConvertDaysToDate(u16* year, u8* month, u8* day, s32 days) {
     }
 
     for (;;) {
-        u16 currentYear = *year;
         s32 previousDays = days;
-        BOOL leapYear = (currentYear % 4 == 0 && currentYear % 100 != 0) || currentYear % 400 == 0;
+        BOOL leapYear = (*year % 4 == 0 && *year % 100 != 0) || *year % 400 == 0;
         days -= 365 + (leapYear != FALSE);
         if (days < 0) {
             days = previousDays;
