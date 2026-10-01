@@ -1,0 +1,2154 @@
+.include "macros.inc"
+.file "iplKeyboard.cpp"
+
+# 0x81354CD0..0x81356458 | size: 0x1788
+.text
+.balign 4
+
+# .text:0x0 | 0x81354CD0 | size: 0x50
+# ipl::keyboard::getFirstController()
+.fn getFirstController__Q23ipl8keyboardFv, global
+/* 81354CD0 000251F0  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 81354CD4 000251F4  7C 08 02 A6 */	mflr r0
+/* 81354CD8 000251F8  90 01 00 14 */	stw r0, 0x14(r1)
+/* 81354CDC 000251FC  93 E1 00 0C */	stw r31, 0xc(r1)
+/* 81354CE0 00025200  3B E0 00 00 */	li r31, 0x0
+.L_81354CE4:
+/* 81354CE4 00025204  7F E3 FB 78 */	mr r3, r31
+/* 81354CE8 00025208  4B FE 0C E1 */	bl getController__Q23ipl6SystemFi
+/* 81354CEC 0002520C  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81354CF0 00025210  41 82 00 0C */	beq .L_81354CFC
+/* 81354CF4 00025214  7F E3 FB 78 */	mr r3, r31
+/* 81354CF8 00025218  48 00 00 14 */	b .L_81354D0C
+.L_81354CFC:
+/* 81354CFC 0002521C  3B FF 00 01 */	addi r31, r31, 0x1
+/* 81354D00 00025220  2C 1F 00 04 */	cmpwi r31, 0x4
+/* 81354D04 00025224  41 80 FF E0 */	blt .L_81354CE4
+/* 81354D08 00025228  38 60 00 00 */	li r3, 0x0
+.L_81354D0C:
+/* 81354D0C 0002522C  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 81354D10 00025230  83 E1 00 0C */	lwz r31, 0xc(r1)
+/* 81354D14 00025234  7C 08 03 A6 */	mtlr r0
+/* 81354D18 00025238  38 21 00 10 */	addi r1, r1, 0x10
+/* 81354D1C 0002523C  4E 80 00 20 */	blr
+.endfn getFirstController__Q23ipl8keyboardFv
+
+# .text:0x50 | 0x81354D20 | size: 0x34
+# ipl::keyboard::EventObserver::onCommand(textinput::CommandReceiver::INPUT_COMMAND, void*)
+.fn onCommand__Q33ipl8keyboard13EventObserverFQ39textinput15CommandReceiver13INPUT_COMMANDPv, global
+/* 81354D20 00025240  2C 04 00 25 */	cmpwi r4, 0x25
+/* 81354D24 00025244  4C 82 00 20 */	bnelr
+/* 81354D28 00025248  80 05 00 00 */	lwz r0, 0x0(r5)
+/* 81354D2C 0002524C  2C 00 00 00 */	cmpwi r0, 0x0
+/* 81354D30 00025250  4C 82 00 20 */	bnelr
+/* 81354D34 00025254  80 63 00 04 */	lwz r3, 0x4(r3)
+/* 81354D38 00025258  80 85 00 04 */	lwz r4, 0x4(r5)
+/* 81354D3C 0002525C  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81354D40 00025260  80 84 00 00 */	lwz r4, 0x0(r4)
+/* 81354D44 00025264  81 8C 00 40 */	lwz r12, 0x40(r12)
+/* 81354D48 00025268  7D 89 03 A6 */	mtctr r12
+/* 81354D4C 0002526C  4E 80 04 20 */	bctr
+/* 81354D50 00025270  4E 80 00 20 */	blr
+.endfn onCommand__Q33ipl8keyboard13EventObserverFQ39textinput15CommandReceiver13INPUT_COMMANDPv
+
+# .text:0x84 | 0x81354D54 | size: 0x218
+# ipl::keyboard::EventObserver::onSE(textinput::sound::SE)
+.fn onSE__Q33ipl8keyboard13EventObserverFQ39textinput5sound2SE, global
+/* 81354D54 00025274  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 81354D58 00025278  7C 08 02 A6 */	mflr r0
+/* 81354D5C 0002527C  90 01 00 14 */	stw r0, 0x14(r1)
+/* 81354D60 00025280  38 04 FF FD */	subi r0, r4, 0x3
+/* 81354D64 00025284  28 00 00 17 */	cmplwi r0, 0x17
+/* 81354D68 00025288  93 E1 00 0C */	stw r31, 0xc(r1)
+/* 81354D6C 0002528C  3F E0 81 64 */	lis r31, sZiSysLangTable__Q23ipl8keyboard@ha
+/* 81354D70 00025290  3B FF 89 E8 */	addi r31, r31, sZiSysLangTable__Q23ipl8keyboard@l
+/* 81354D74 00025294  41 81 01 E4 */	bgt .L_81354F58
+/* 81354D78 00025298  3C 80 81 64 */	lis r4, jumptable_81638C40@ha
+/* 81354D7C 0002529C  54 00 10 3A */	slwi r0, r0, 2
+/* 81354D80 000252A0  38 84 8C 40 */	addi r4, r4, jumptable_81638C40@l
+/* 81354D84 000252A4  7C 84 00 2E */	lwzx r4, r4, r0
+/* 81354D88 000252A8  7C 89 03 A6 */	mtctr r4
+/* 81354D8C 000252AC  4E 80 04 20 */	bctr
+.L_81354D90:
+/* 81354D90 000252B0  3C 60 81 09 */	lis r3, sSystem__Q23ipl3snd@ha
+/* 81354D94 000252B4  38 9F 00 B0 */	addi r4, r31, 0xb0
+/* 81354D98 000252B8  38 63 99 2C */	addi r3, r3, sSystem__Q23ipl3snd@l
+/* 81354D9C 000252BC  48 01 66 D1 */	bl startSE__Q33ipl3snd6SystemFPCc
+/* 81354DA0 000252C0  48 00 01 B8 */	b .L_81354F58
+.L_81354DA4:
+/* 81354DA4 000252C4  80 63 00 04 */	lwz r3, 0x4(r3)
+/* 81354DA8 000252C8  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81354DAC 000252CC  81 8C 00 30 */	lwz r12, 0x30(r12)
+/* 81354DB0 000252D0  7D 89 03 A6 */	mtctr r12
+/* 81354DB4 000252D4  4E 80 04 21 */	bctrl
+/* 81354DB8 000252D8  3C 60 81 09 */	lis r3, sSystem__Q23ipl3snd@ha
+/* 81354DBC 000252DC  38 9F 00 C8 */	addi r4, r31, 0xc8
+/* 81354DC0 000252E0  38 63 99 2C */	addi r3, r3, sSystem__Q23ipl3snd@l
+/* 81354DC4 000252E4  48 01 66 A9 */	bl startSE__Q33ipl3snd6SystemFPCc
+/* 81354DC8 000252E8  48 00 01 90 */	b .L_81354F58
+.L_81354DCC:
+/* 81354DCC 000252EC  3C 60 81 09 */	lis r3, sSystem__Q23ipl3snd@ha
+/* 81354DD0 000252F0  38 9F 00 DB */	addi r4, r31, 0xdb
+/* 81354DD4 000252F4  38 63 99 2C */	addi r3, r3, sSystem__Q23ipl3snd@l
+/* 81354DD8 000252F8  48 01 66 95 */	bl startSE__Q33ipl3snd6SystemFPCc
+/* 81354DDC 000252FC  48 00 01 7C */	b .L_81354F58
+.L_81354DE0:
+/* 81354DE0 00025300  3C 60 81 09 */	lis r3, sSystem__Q23ipl3snd@ha
+/* 81354DE4 00025304  38 9F 00 EF */	addi r4, r31, 0xef
+/* 81354DE8 00025308  38 63 99 2C */	addi r3, r3, sSystem__Q23ipl3snd@l
+/* 81354DEC 0002530C  48 01 66 81 */	bl startSE__Q33ipl3snd6SystemFPCc
+/* 81354DF0 00025310  48 00 01 68 */	b .L_81354F58
+.L_81354DF4:
+/* 81354DF4 00025314  3C 60 81 09 */	lis r3, sSystem__Q23ipl3snd@ha
+/* 81354DF8 00025318  38 9F 01 09 */	addi r4, r31, 0x109
+/* 81354DFC 0002531C  38 63 99 2C */	addi r3, r3, sSystem__Q23ipl3snd@l
+/* 81354E00 00025320  48 01 66 6D */	bl startSE__Q33ipl3snd6SystemFPCc
+/* 81354E04 00025324  48 00 01 54 */	b .L_81354F58
+.L_81354E08:
+/* 81354E08 00025328  3C 60 81 09 */	lis r3, sSystem__Q23ipl3snd@ha
+/* 81354E0C 0002532C  38 9F 01 1D */	addi r4, r31, 0x11d
+/* 81354E10 00025330  38 63 99 2C */	addi r3, r3, sSystem__Q23ipl3snd@l
+/* 81354E14 00025334  48 01 66 59 */	bl startSE__Q33ipl3snd6SystemFPCc
+/* 81354E18 00025338  48 00 01 40 */	b .L_81354F58
+.L_81354E1C:
+/* 81354E1C 0002533C  3C 60 81 09 */	lis r3, sSystem__Q23ipl3snd@ha
+/* 81354E20 00025340  38 9F 01 30 */	addi r4, r31, 0x130
+/* 81354E24 00025344  38 63 99 2C */	addi r3, r3, sSystem__Q23ipl3snd@l
+/* 81354E28 00025348  48 01 66 45 */	bl startSE__Q33ipl3snd6SystemFPCc
+/* 81354E2C 0002534C  48 00 01 2C */	b .L_81354F58
+.L_81354E30:
+/* 81354E30 00025350  3C 60 81 09 */	lis r3, sSystem__Q23ipl3snd@ha
+/* 81354E34 00025354  38 9F 01 44 */	addi r4, r31, 0x144
+/* 81354E38 00025358  38 63 99 2C */	addi r3, r3, sSystem__Q23ipl3snd@l
+/* 81354E3C 0002535C  48 01 66 31 */	bl startSE__Q33ipl3snd6SystemFPCc
+/* 81354E40 00025360  48 00 01 18 */	b .L_81354F58
+.L_81354E44:
+/* 81354E44 00025364  3C 60 81 09 */	lis r3, sSystem__Q23ipl3snd@ha
+/* 81354E48 00025368  38 9F 01 58 */	addi r4, r31, 0x158
+/* 81354E4C 0002536C  38 63 99 2C */	addi r3, r3, sSystem__Q23ipl3snd@l
+/* 81354E50 00025370  48 01 66 1D */	bl startSE__Q33ipl3snd6SystemFPCc
+/* 81354E54 00025374  48 00 01 04 */	b .L_81354F58
+.L_81354E58:
+/* 81354E58 00025378  3C 60 81 09 */	lis r3, sSystem__Q23ipl3snd@ha
+/* 81354E5C 0002537C  38 9F 00 B0 */	addi r4, r31, 0xb0
+/* 81354E60 00025380  38 63 99 2C */	addi r3, r3, sSystem__Q23ipl3snd@l
+/* 81354E64 00025384  48 01 66 09 */	bl startSE__Q33ipl3snd6SystemFPCc
+/* 81354E68 00025388  48 00 00 F0 */	b .L_81354F58
+.L_81354E6C:
+/* 81354E6C 0002538C  3C 60 81 09 */	lis r3, sSystem__Q23ipl3snd@ha
+/* 81354E70 00025390  38 9F 01 70 */	addi r4, r31, 0x170
+/* 81354E74 00025394  38 63 99 2C */	addi r3, r3, sSystem__Q23ipl3snd@l
+/* 81354E78 00025398  48 01 65 F5 */	bl startSE__Q33ipl3snd6SystemFPCc
+/* 81354E7C 0002539C  48 00 00 DC */	b .L_81354F58
+.L_81354E80:
+/* 81354E80 000253A0  3C 60 81 09 */	lis r3, sSystem__Q23ipl3snd@ha
+/* 81354E84 000253A4  38 9F 01 89 */	addi r4, r31, 0x189
+/* 81354E88 000253A8  38 63 99 2C */	addi r3, r3, sSystem__Q23ipl3snd@l
+/* 81354E8C 000253AC  48 01 65 E1 */	bl startSE__Q33ipl3snd6SystemFPCc
+/* 81354E90 000253B0  48 00 00 C8 */	b .L_81354F58
+.L_81354E94:
+/* 81354E94 000253B4  3C 60 81 09 */	lis r3, sSystem__Q23ipl3snd@ha
+/* 81354E98 000253B8  38 9F 01 94 */	addi r4, r31, 0x194
+/* 81354E9C 000253BC  38 63 99 2C */	addi r3, r3, sSystem__Q23ipl3snd@l
+/* 81354EA0 000253C0  48 01 65 CD */	bl startSE__Q33ipl3snd6SystemFPCc
+/* 81354EA4 000253C4  48 00 00 B4 */	b .L_81354F58
+.L_81354EA8:
+/* 81354EA8 000253C8  3C 60 81 09 */	lis r3, sSystem__Q23ipl3snd@ha
+/* 81354EAC 000253CC  38 9F 01 AA */	addi r4, r31, 0x1aa
+/* 81354EB0 000253D0  38 63 99 2C */	addi r3, r3, sSystem__Q23ipl3snd@l
+/* 81354EB4 000253D4  48 01 65 B9 */	bl startSE__Q33ipl3snd6SystemFPCc
+/* 81354EB8 000253D8  48 00 00 A0 */	b .L_81354F58
+.L_81354EBC:
+/* 81354EBC 000253DC  3C 60 81 09 */	lis r3, sSystem__Q23ipl3snd@ha
+/* 81354EC0 000253E0  38 9F 01 C1 */	addi r4, r31, 0x1c1
+/* 81354EC4 000253E4  38 63 99 2C */	addi r3, r3, sSystem__Q23ipl3snd@l
+/* 81354EC8 000253E8  48 01 65 A5 */	bl startSE__Q33ipl3snd6SystemFPCc
+/* 81354ECC 000253EC  48 00 00 8C */	b .L_81354F58
+.L_81354ED0:
+/* 81354ED0 000253F0  3C 60 81 09 */	lis r3, sSystem__Q23ipl3snd@ha
+/* 81354ED4 000253F4  38 9F 01 D5 */	addi r4, r31, 0x1d5
+/* 81354ED8 000253F8  38 63 99 2C */	addi r3, r3, sSystem__Q23ipl3snd@l
+/* 81354EDC 000253FC  48 01 65 91 */	bl startSE__Q33ipl3snd6SystemFPCc
+/* 81354EE0 00025400  48 00 00 78 */	b .L_81354F58
+.L_81354EE4:
+/* 81354EE4 00025404  3C 60 81 09 */	lis r3, sSystem__Q23ipl3snd@ha
+/* 81354EE8 00025408  38 9F 01 E8 */	addi r4, r31, 0x1e8
+/* 81354EEC 0002540C  38 63 99 2C */	addi r3, r3, sSystem__Q23ipl3snd@l
+/* 81354EF0 00025410  48 01 65 7D */	bl startSE__Q33ipl3snd6SystemFPCc
+/* 81354EF4 00025414  48 00 00 64 */	b .L_81354F58
+.L_81354EF8:
+/* 81354EF8 00025418  3C 60 81 09 */	lis r3, sSystem__Q23ipl3snd@ha
+/* 81354EFC 0002541C  38 9F 02 00 */	addi r4, r31, 0x200
+/* 81354F00 00025420  38 63 99 2C */	addi r3, r3, sSystem__Q23ipl3snd@l
+/* 81354F04 00025424  48 01 65 69 */	bl startSE__Q33ipl3snd6SystemFPCc
+/* 81354F08 00025428  48 00 00 50 */	b .L_81354F58
+.L_81354F0C:
+/* 81354F0C 0002542C  80 63 00 04 */	lwz r3, 0x4(r3)
+/* 81354F10 00025430  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81354F14 00025434  81 8C 00 30 */	lwz r12, 0x30(r12)
+/* 81354F18 00025438  7D 89 03 A6 */	mtctr r12
+/* 81354F1C 0002543C  4E 80 04 21 */	bctrl
+/* 81354F20 00025440  3C 60 81 09 */	lis r3, sSystem__Q23ipl3snd@ha
+/* 81354F24 00025444  38 9F 02 1B */	addi r4, r31, 0x21b
+/* 81354F28 00025448  38 63 99 2C */	addi r3, r3, sSystem__Q23ipl3snd@l
+/* 81354F2C 0002544C  48 01 65 41 */	bl startSE__Q33ipl3snd6SystemFPCc
+/* 81354F30 00025450  48 00 00 28 */	b .L_81354F58
+.L_81354F34:
+/* 81354F34 00025454  3C 60 81 09 */	lis r3, sSystem__Q23ipl3snd@ha
+/* 81354F38 00025458  38 9F 02 31 */	addi r4, r31, 0x231
+/* 81354F3C 0002545C  38 63 99 2C */	addi r3, r3, sSystem__Q23ipl3snd@l
+/* 81354F40 00025460  48 01 65 2D */	bl startSE__Q33ipl3snd6SystemFPCc
+/* 81354F44 00025464  48 00 00 14 */	b .L_81354F58
+.L_81354F48:
+/* 81354F48 00025468  3C 60 81 09 */	lis r3, sSystem__Q23ipl3snd@ha
+/* 81354F4C 0002546C  38 9F 02 40 */	addi r4, r31, 0x240
+/* 81354F50 00025470  38 63 99 2C */	addi r3, r3, sSystem__Q23ipl3snd@l
+/* 81354F54 00025474  48 01 68 4D */	bl holdSE__Q33ipl3snd6SystemFPCc
+.L_81354F58:
+/* 81354F58 00025478  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 81354F5C 0002547C  83 E1 00 0C */	lwz r31, 0xc(r1)
+/* 81354F60 00025480  7C 08 03 A6 */	mtlr r0
+/* 81354F64 00025484  38 21 00 10 */	addi r1, r1, 0x10
+/* 81354F68 00025488  4E 80 00 20 */	blr
+.endfn onSE__Q33ipl8keyboard13EventObserverFQ39textinput5sound2SE
+
+# .text:0x29C | 0x81354F6C | size: 0x14
+# ipl::keyboard::EventObserver::onOK()
+.fn onOK__Q33ipl8keyboard13EventObserverFv, global
+/* 81354F6C 0002548C  80 63 00 04 */	lwz r3, 0x4(r3)
+/* 81354F70 00025490  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81354F74 00025494  81 8C 00 28 */	lwz r12, 0x28(r12)
+/* 81354F78 00025498  7D 89 03 A6 */	mtctr r12
+/* 81354F7C 0002549C  4E 80 04 20 */	bctr
+.endfn onOK__Q33ipl8keyboard13EventObserverFv
+
+# .text:0x2B0 | 0x81354F80 | size: 0x14
+# ipl::keyboard::EventObserver::onCancel()
+.fn onCancel__Q33ipl8keyboard13EventObserverFv, global
+/* 81354F80 000254A0  80 63 00 04 */	lwz r3, 0x4(r3)
+/* 81354F84 000254A4  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81354F88 000254A8  81 8C 00 2C */	lwz r12, 0x2c(r12)
+/* 81354F8C 000254AC  7D 89 03 A6 */	mtctr r12
+/* 81354F90 000254B0  4E 80 04 20 */	bctr
+.endfn onCancel__Q33ipl8keyboard13EventObserverFv
+
+# .text:0x2C4 | 0x81354F94 | size: 0x4F8
+# ipl::keyboard::Manager::create(ipl::nand::File*, EGG::Heap*)
+.fn create__Q33ipl8keyboard7ManagerFPQ33ipl4nand4FilePQ23EGG4Heap, global
+/* 81354F94 000254B4  94 21 FD 90 */	stwu r1, -0x270(r1)
+/* 81354F98 000254B8  7C 08 02 A6 */	mflr r0
+/* 81354F9C 000254BC  90 01 02 74 */	stw r0, 0x274(r1)
+/* 81354FA0 000254C0  39 61 02 70 */	addi r11, r1, 0x270
+/* 81354FA4 000254C4  48 2A 45 19 */	bl _savegpr_26
+/* 81354FA8 000254C8  7C BC 2B 78 */	mr r28, r5
+/* 81354FAC 000254CC  83 A4 00 A0 */	lwz r29, 0xa0(r4)
+/* 81354FB0 000254D0  3F E0 81 64 */	lis r31, sZiSysLangTable__Q23ipl8keyboard@ha
+/* 81354FB4 000254D4  7C 7B 1B 78 */	mr r27, r3
+/* 81354FB8 000254D8  7F 84 E3 78 */	mr r4, r28
+/* 81354FBC 000254DC  38 60 00 A4 */	li r3, 0xa4
+/* 81354FC0 000254E0  3B FF 89 E8 */	addi r31, r31, sZiSysLangTable__Q23ipl8keyboard@l
+/* 81354FC4 000254E4  38 A0 00 04 */	li r5, 0x4
+/* 81354FC8 000254E8  48 2A 30 E9 */	bl __nw__FUlPQ23EGG4Heapi
+/* 81354FCC 000254EC  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81354FD0 000254F0  41 82 00 10 */	beq .L_81354FE0
+/* 81354FD4 000254F4  38 00 00 00 */	li r0, 0x0
+/* 81354FD8 000254F8  90 03 00 00 */	stw r0, 0x0(r3)
+/* 81354FDC 000254FC  90 03 00 04 */	stw r0, 0x4(r3)
+.L_81354FE0:
+/* 81354FE0 00025500  7C 7A 1B 78 */	mr r26, r3
+/* 81354FE4 00025504  7F A4 EB 78 */	mr r4, r29
+/* 81354FE8 00025508  38 AD 81 B8 */	li r5, lbl_816961F8@sda21
+/* 81354FEC 0002550C  48 1D 53 9D */	bl Set__Q34nw4r3lyt15ArcResourceLinkFPvPCc
+/* 81354FF0 00025510  7F 84 E3 78 */	mr r4, r28
+/* 81354FF4 00025514  38 60 00 1C */	li r3, 0x1c
+/* 81354FF8 00025518  38 A0 00 04 */	li r5, 0x4
+/* 81354FFC 0002551C  48 2A 30 B5 */	bl __nw__FUlPQ23EGG4Heapi
+/* 81355000 00025520  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81355004 00025524  7C 7E 1B 78 */	mr r30, r3
+/* 81355008 00025528  41 82 00 0C */	beq .L_81355014
+/* 8135500C 0002552C  48 1D 53 E9 */	bl __ct__Q34nw4r3lyt24MultiArcResourceAccessorFv
+/* 81355010 00025530  7C 7E 1B 78 */	mr r30, r3
+.L_81355014:
+/* 81355014 00025534  7F C3 F3 78 */	mr r3, r30
+/* 81355018 00025538  7F 44 D3 78 */	mr r4, r26
+/* 8135501C 0002553C  48 1D 54 D9 */	bl Attach__Q34nw4r3lyt24MultiArcResourceAccessorFPQ34nw4r3lyt15ArcResourceLink
+/* 81355020 00025540  38 61 01 CC */	addi r3, r1, 0x1cc
+/* 81355024 00025544  48 1D 53 11 */	bl __ct__Q34nw4r3lyt11FontRefLinkFv
+/* 81355028 00025548  38 61 01 40 */	addi r3, r1, 0x140
+/* 8135502C 0002554C  48 1D 53 09 */	bl __ct__Q34nw4r3lyt11FontRefLinkFv
+/* 81355030 00025550  3F A0 81 09 */	lis r29, smArg__Q23ipl6System@ha
+/* 81355034 00025554  38 61 01 CC */	addi r3, r1, 0x1cc
+/* 81355038 00025558  3B BD 90 08 */	addi r29, r29, smArg__Q23ipl6System@l
+/* 8135503C 0002555C  38 9F 02 B8 */	addi r4, r31, 0x2b8
+/* 81355040 00025560  80 BD 00 DC */	lwz r5, 0xdc(r29)
+/* 81355044 00025564  48 1D 53 05 */	bl Set__Q34nw4r3lyt11FontRefLinkFPCcPQ34nw4r2ut4Font
+/* 81355048 00025568  7F C3 F3 78 */	mr r3, r30
+/* 8135504C 0002556C  38 81 01 CC */	addi r4, r1, 0x1cc
+/* 81355050 00025570  48 1D 55 51 */	bl RegistFont__Q34nw4r3lyt24MultiArcResourceAccessorFPQ34nw4r3lyt11FontRefLink
+/* 81355054 00025574  80 BD 00 DC */	lwz r5, 0xdc(r29)
+/* 81355058 00025578  38 61 01 40 */	addi r3, r1, 0x140
+/* 8135505C 0002557C  38 9F 02 D1 */	addi r4, r31, 0x2d1
+/* 81355060 00025580  48 1D 52 E9 */	bl Set__Q34nw4r3lyt11FontRefLinkFPCcPQ34nw4r2ut4Font
+/* 81355064 00025584  7F C3 F3 78 */	mr r3, r30
+/* 81355068 00025588  38 81 01 40 */	addi r4, r1, 0x140
+/* 8135506C 0002558C  48 1D 55 35 */	bl RegistFont__Q34nw4r3lyt24MultiArcResourceAccessorFPQ34nw4r3lyt11FontRefLink
+/* 81355070 00025590  38 61 00 B4 */	addi r3, r1, 0xb4
+/* 81355074 00025594  48 1D 52 C1 */	bl __ct__Q34nw4r3lyt11FontRefLinkFv
+/* 81355078 00025598  38 61 00 28 */	addi r3, r1, 0x28
+/* 8135507C 0002559C  48 1D 52 B9 */	bl __ct__Q34nw4r3lyt11FontRefLinkFv
+/* 81355080 000255A0  80 BD 00 E4 */	lwz r5, 0xe4(r29)
+/* 81355084 000255A4  38 61 00 B4 */	addi r3, r1, 0xb4
+/* 81355088 000255A8  38 9F 02 F5 */	addi r4, r31, 0x2f5
+/* 8135508C 000255AC  48 1D 52 BD */	bl Set__Q34nw4r3lyt11FontRefLinkFPCcPQ34nw4r2ut4Font
+/* 81355090 000255B0  7F C3 F3 78 */	mr r3, r30
+/* 81355094 000255B4  38 81 00 B4 */	addi r4, r1, 0xb4
+/* 81355098 000255B8  48 1D 55 09 */	bl RegistFont__Q34nw4r3lyt24MultiArcResourceAccessorFPQ34nw4r3lyt11FontRefLink
+/* 8135509C 000255BC  80 BD 00 E4 */	lwz r5, 0xe4(r29)
+/* 813550A0 000255C0  38 61 00 28 */	addi r3, r1, 0x28
+/* 813550A4 000255C4  38 9F 03 0E */	addi r4, r31, 0x30e
+/* 813550A8 000255C8  48 1D 52 A1 */	bl Set__Q34nw4r3lyt11FontRefLinkFPCcPQ34nw4r2ut4Font
+/* 813550AC 000255CC  7F C3 F3 78 */	mr r3, r30
+/* 813550B0 000255D0  38 81 00 28 */	addi r4, r1, 0x28
+/* 813550B4 000255D4  48 1D 54 ED */	bl RegistFont__Q34nw4r3lyt24MultiArcResourceAccessorFPQ34nw4r3lyt11FontRefLink
+/* 813550B8 000255D8  7F 84 E3 78 */	mr r4, r28
+/* 813550BC 000255DC  38 60 00 14 */	li r3, 0x14
+/* 813550C0 000255E0  38 A0 00 04 */	li r5, 0x4
+/* 813550C4 000255E4  48 2A 2F ED */	bl __nw__FUlPQ23EGG4Heapi
+/* 813550C8 000255E8  2C 03 00 00 */	cmpwi r3, 0x0
+/* 813550CC 000255EC  41 82 00 10 */	beq .L_813550DC
+/* 813550D0 000255F0  7F 84 E3 78 */	mr r4, r28
+/* 813550D4 000255F4  38 A0 00 04 */	li r5, 0x4
+/* 813550D8 000255F8  48 2A 09 A5 */	bl __ct__Q23EGG9AllocatorFPQ23EGG4Heapl
+.L_813550DC:
+/* 813550DC 000255FC  3C 80 81 09 */	lis r4, smArg__Q23ipl6System@ha
+/* 813550E0 00025600  38 00 00 0A */	li r0, 0xa
+/* 813550E4 00025604  7C 7D 1B 78 */	mr r29, r3
+/* 813550E8 00025608  90 6D AF 68 */	stw r3, mspAllocator__Q34nw4r3lyt6Layout@sda21(r0)
+/* 813550EC 0002560C  38 A4 90 08 */	addi r5, r4, smArg__Q23ipl6System@l
+/* 813550F0 00025610  39 40 00 00 */	li r10, 0x0
+/* 813550F4 00025614  39 60 00 00 */	li r11, 0x0
+/* 813550F8 00025618  38 C0 00 00 */	li r6, 0x0
+/* 813550FC 0002561C  38 60 00 00 */	li r3, 0x0
+/* 81355100 00025620  7C 09 03 A6 */	mtctr r0
+.L_81355104:
+/* 81355104 00025624  2C 0A 00 00 */	cmpwi r10, 0x0
+/* 81355108 00025628  40 82 00 18 */	bne .L_81355120
+/* 8135510C 0002562C  7C 85 1A 14 */	add r4, r5, r3
+/* 81355110 00025630  80 04 01 90 */	lwz r0, 0x190(r4)
+/* 81355114 00025634  2C 00 00 00 */	cmpwi r0, 0x0
+/* 81355118 00025638  41 82 00 08 */	beq .L_81355120
+/* 8135511C 0002563C  7C 0A 03 78 */	mr r10, r0
+.L_81355120:
+/* 81355120 00025640  2C 0B 00 00 */	cmpwi r11, 0x0
+/* 81355124 00025644  40 82 00 24 */	bne .L_81355148
+/* 81355128 00025648  7C 85 1A 14 */	add r4, r5, r3
+/* 8135512C 0002564C  80 04 01 90 */	lwz r0, 0x190(r4)
+/* 81355130 00025650  2C 00 00 00 */	cmpwi r0, 0x0
+/* 81355134 00025654  41 82 00 14 */	beq .L_81355148
+/* 81355138 00025658  38 06 00 0A */	addi r0, r6, 0xa
+/* 8135513C 0002565C  54 00 10 3A */	slwi r0, r0, 2
+/* 81355140 00025660  7C 85 02 14 */	add r4, r5, r0
+/* 81355144 00025664  81 64 01 90 */	lwz r11, 0x190(r4)
+.L_81355148:
+/* 81355148 00025668  38 C6 00 01 */	addi r6, r6, 0x1
+/* 8135514C 0002566C  38 63 00 04 */	addi r3, r3, 0x4
+/* 81355150 00025670  42 00 FF B4 */	bdnz .L_81355104
+/* 81355154 00025674  3D 20 81 09 */	lis r9, smArg__Q23ipl6System@ha
+/* 81355158 00025678  38 00 00 0A */	li r0, 0xa
+/* 8135515C 0002567C  39 29 90 08 */	addi r9, r9, smArg__Q23ipl6System@l
+/* 81355160 00025680  39 1F 00 00 */	addi r8, r31, 0x0
+/* 81355164 00025684  38 DF 00 58 */	addi r6, r31, 0x58
+/* 81355168 00025688  39 80 00 00 */	li r12, 0x0
+/* 8135516C 0002568C  38 60 00 00 */	li r3, 0x0
+/* 81355170 00025690  38 80 00 00 */	li r4, 0x0
+/* 81355174 00025694  7C 09 03 A6 */	mtctr r0
+.L_81355178:
+/* 81355178 00025698  7C A9 22 14 */	add r5, r9, r4
+/* 8135517C 0002569C  38 0C 00 0A */	addi r0, r12, 0xa
+/* 81355180 000256A0  83 45 01 90 */	lwz r26, 0x190(r5)
+/* 81355184 000256A4  54 00 10 3A */	slwi r0, r0, 2
+/* 81355188 000256A8  7C A9 02 14 */	add r5, r9, r0
+/* 8135518C 000256AC  2C 1A 00 00 */	cmpwi r26, 0x0
+/* 81355190 000256B0  80 05 01 90 */	lwz r0, 0x190(r5)
+/* 81355194 000256B4  40 82 00 08 */	bne .L_8135519C
+/* 81355198 000256B8  7D 5A 53 78 */	mr r26, r10
+.L_8135519C:
+/* 8135519C 000256BC  2C 00 00 00 */	cmpwi r0, 0x0
+/* 813551A0 000256C0  40 82 00 08 */	bne .L_813551A8
+/* 813551A4 000256C4  7D 60 5B 78 */	mr r0, r11
+.L_813551A8:
+/* 813551A8 000256C8  7C E8 1A 14 */	add r7, r8, r3
+/* 813551AC 000256CC  7C A6 1A 14 */	add r5, r6, r3
+/* 813551B0 000256D0  93 47 00 04 */	stw r26, 0x4(r7)
+/* 813551B4 000256D4  39 8C 00 01 */	addi r12, r12, 0x1
+/* 813551B8 000256D8  38 63 00 08 */	addi r3, r3, 0x8
+/* 813551BC 000256DC  38 84 00 04 */	addi r4, r4, 0x4
+/* 813551C0 000256E0  90 05 00 04 */	stw r0, 0x4(r5)
+/* 813551C4 000256E4  42 00 FF B4 */	bdnz .L_81355178
+/* 813551C8 000256E8  3C A0 81 09 */	lis r5, smArg__Q23ipl6System@ha
+/* 813551CC 000256EC  38 81 00 20 */	addi r4, r1, 0x20
+/* 813551D0 000256F0  38 A5 90 08 */	addi r5, r5, smArg__Q23ipl6System@l
+/* 813551D4 000256F4  38 7B 00 2E */	addi r3, r27, 0x2e
+/* 813551D8 000256F8  81 85 00 94 */	lwz r12, 0x94(r5)
+/* 813551DC 000256FC  89 6C 03 30 */	lbz r11, 0x330(r12)
+/* 813551E0 00025700  89 4C 03 31 */	lbz r10, 0x331(r12)
+/* 813551E4 00025704  89 2C 03 32 */	lbz r9, 0x332(r12)
+/* 813551E8 00025708  89 0C 03 33 */	lbz r8, 0x333(r12)
+/* 813551EC 0002570C  88 EC 03 34 */	lbz r7, 0x334(r12)
+/* 813551F0 00025710  88 CC 03 35 */	lbz r6, 0x335(r12)
+/* 813551F4 00025714  88 AC 03 36 */	lbz r5, 0x336(r12)
+/* 813551F8 00025718  88 0C 03 37 */	lbz r0, 0x337(r12)
+/* 813551FC 0002571C  99 61 00 10 */	stb r11, 0x10(r1)
+/* 81355200 00025720  99 41 00 11 */	stb r10, 0x11(r1)
+/* 81355204 00025724  99 21 00 12 */	stb r9, 0x12(r1)
+/* 81355208 00025728  99 01 00 13 */	stb r8, 0x13(r1)
+/* 8135520C 0002572C  98 E1 00 14 */	stb r7, 0x14(r1)
+/* 81355210 00025730  98 C1 00 15 */	stb r6, 0x15(r1)
+/* 81355214 00025734  98 A1 00 16 */	stb r5, 0x16(r1)
+/* 81355218 00025738  98 01 00 17 */	stb r0, 0x17(r1)
+/* 8135521C 0002573C  99 61 00 08 */	stb r11, 0x8(r1)
+/* 81355220 00025740  99 41 00 09 */	stb r10, 0x9(r1)
+/* 81355224 00025744  99 21 00 0A */	stb r9, 0xa(r1)
+/* 81355228 00025748  99 01 00 0B */	stb r8, 0xb(r1)
+/* 8135522C 0002574C  98 E1 00 0C */	stb r7, 0xc(r1)
+/* 81355230 00025750  98 C1 00 0D */	stb r6, 0xd(r1)
+/* 81355234 00025754  98 A1 00 0E */	stb r5, 0xe(r1)
+/* 81355238 00025758  98 01 00 0F */	stb r0, 0xf(r1)
+/* 8135523C 0002575C  99 61 00 20 */	stb r11, 0x20(r1)
+/* 81355240 00025760  99 41 00 21 */	stb r10, 0x21(r1)
+/* 81355244 00025764  99 21 00 22 */	stb r9, 0x22(r1)
+/* 81355248 00025768  99 01 00 23 */	stb r8, 0x23(r1)
+/* 8135524C 0002576C  98 E1 00 24 */	stb r7, 0x24(r1)
+/* 81355250 00025770  98 C1 00 25 */	stb r6, 0x25(r1)
+/* 81355254 00025774  98 A1 00 26 */	stb r5, 0x26(r1)
+/* 81355258 00025778  98 01 00 27 */	stb r0, 0x27(r1)
+/* 8135525C 0002577C  48 00 02 31 */	bl __as__Q49textinput6extend8savedata11MemoSettingFRCQ49textinput6extend8savedata11MemoSetting
+/* 81355260 00025780  7F 84 E3 78 */	mr r4, r28
+/* 81355264 00025784  38 60 00 7C */	li r3, 0x7c
+/* 81355268 00025788  38 A0 00 04 */	li r5, 0x4
+/* 8135526C 0002578C  48 2A 2E 45 */	bl __nw__FUlPQ23EGG4Heapi
+/* 81355270 00025790  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81355274 00025794  7C 7C 1B 78 */	mr r28, r3
+/* 81355278 00025798  41 82 00 5C */	beq .L_813552D4
+/* 8135527C 0002579C  7F A4 EB 78 */	mr r4, r29
+/* 81355280 000257A0  7F C5 F3 78 */	mr r5, r30
+/* 81355284 000257A4  38 DB 00 08 */	addi r6, r27, 0x8
+/* 81355288 000257A8  48 0E 22 D1 */	bl __ct__Q29textinput7ManagerFP12MEMAllocatorPQ34nw4r3lyt24MultiArcResourceAccessorPQ29textinput13EventObserver
+/* 8135528C 000257AC  3C 80 81 67 */	lis r4, __vt__Q49textinput6extend4memo7Manager@ha
+/* 81355290 000257B0  38 60 00 00 */	li r3, 0x0
+/* 81355294 000257B4  38 84 80 A8 */	addi r4, r4, __vt__Q49textinput6extend4memo7Manager@l
+/* 81355298 000257B8  38 00 00 01 */	li r0, 0x1
+/* 8135529C 000257BC  90 9C 00 00 */	stw r4, 0x0(r28)
+/* 813552A0 000257C0  90 7C 00 40 */	stw r3, 0x40(r28)
+/* 813552A4 000257C4  90 1C 00 44 */	stw r0, 0x44(r28)
+/* 813552A8 000257C8  90 7C 00 50 */	stw r3, 0x50(r28)
+/* 813552AC 000257CC  90 7C 00 54 */	stw r3, 0x54(r28)
+/* 813552B0 000257D0  90 7C 00 58 */	stw r3, 0x58(r28)
+/* 813552B4 000257D4  90 7C 00 5C */	stw r3, 0x5c(r28)
+/* 813552B8 000257D8  90 7C 00 60 */	stw r3, 0x60(r28)
+/* 813552BC 000257DC  90 7C 00 64 */	stw r3, 0x64(r28)
+/* 813552C0 000257E0  90 7C 00 68 */	stw r3, 0x68(r28)
+/* 813552C4 000257E4  90 7C 00 6C */	stw r3, 0x6c(r28)
+/* 813552C8 000257E8  90 7C 00 70 */	stw r3, 0x70(r28)
+/* 813552CC 000257EC  90 7C 00 74 */	stw r3, 0x74(r28)
+/* 813552D0 000257F0  90 7C 00 78 */	stw r3, 0x78(r28)
+.L_813552D4:
+/* 813552D4 000257F4  93 9B 00 04 */	stw r28, 0x4(r27)
+/* 813552D8 000257F8  38 81 00 18 */	addi r4, r1, 0x18
+/* 813552DC 000257FC  88 7B 00 2E */	lbz r3, 0x2e(r27)
+/* 813552E0 00025800  88 1B 00 2F */	lbz r0, 0x2f(r27)
+/* 813552E4 00025804  98 61 00 18 */	stb r3, 0x18(r1)
+/* 813552E8 00025808  98 01 00 19 */	stb r0, 0x19(r1)
+/* 813552EC 0002580C  88 7B 00 30 */	lbz r3, 0x30(r27)
+/* 813552F0 00025810  88 1B 00 31 */	lbz r0, 0x31(r27)
+/* 813552F4 00025814  98 61 00 1A */	stb r3, 0x1a(r1)
+/* 813552F8 00025818  98 01 00 1B */	stb r0, 0x1b(r1)
+/* 813552FC 0002581C  88 7B 00 32 */	lbz r3, 0x32(r27)
+/* 81355300 00025820  88 1B 00 33 */	lbz r0, 0x33(r27)
+/* 81355304 00025824  98 61 00 1C */	stb r3, 0x1c(r1)
+/* 81355308 00025828  98 01 00 1D */	stb r0, 0x1d(r1)
+/* 8135530C 0002582C  88 7B 00 34 */	lbz r3, 0x34(r27)
+/* 81355310 00025830  88 1B 00 35 */	lbz r0, 0x35(r27)
+/* 81355314 00025834  98 61 00 1E */	stb r3, 0x1e(r1)
+/* 81355318 00025838  98 01 00 1F */	stb r0, 0x1f(r1)
+/* 8135531C 0002583C  80 7B 00 04 */	lwz r3, 0x4(r27)
+/* 81355320 00025840  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81355324 00025844  81 8C 00 D4 */	lwz r12, 0xd4(r12)
+/* 81355328 00025848  7D 89 03 A6 */	mtctr r12
+/* 8135532C 0002584C  4E 80 04 21 */	bctrl
+/* 81355330 00025850  80 7B 00 04 */	lwz r3, 0x4(r27)
+/* 81355334 00025854  38 80 00 00 */	li r4, 0x0
+/* 81355338 00025858  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 8135533C 0002585C  81 8C 00 0C */	lwz r12, 0xc(r12)
+/* 81355340 00025860  7D 89 03 A6 */	mtctr r12
+/* 81355344 00025864  4E 80 04 21 */	bctrl
+/* 81355348 00025868  81 9B 00 08 */	lwz r12, 0x8(r27)
+/* 8135534C 0002586C  38 7B 00 08 */	addi r3, r27, 0x8
+/* 81355350 00025870  7F 64 DB 78 */	mr r4, r27
+/* 81355354 00025874  81 8C 00 24 */	lwz r12, 0x24(r12)
+/* 81355358 00025878  7D 89 03 A6 */	mtctr r12
+/* 8135535C 0002587C  4E 80 04 21 */	bctrl
+/* 81355360 00025880  4B FE 07 2D */	bl getRegion__Q23ipl6SystemFv
+/* 81355364 00025884  28 03 00 0B */	cmplwi r3, 0xb
+/* 81355368 00025888  41 81 00 A8 */	bgt .L_81355410
+/* 8135536C 0002588C  3C 80 81 64 */	lis r4, jumptable_81638D20@ha
+/* 81355370 00025890  54 60 10 3A */	slwi r0, r3, 2
+/* 81355374 00025894  38 84 8D 20 */	addi r4, r4, jumptable_81638D20@l
+/* 81355378 00025898  7C 84 00 2E */	lwzx r4, r4, r0
+/* 8135537C 0002589C  7C 89 03 A6 */	mtctr r4
+/* 81355380 000258A0  4E 80 04 20 */	bctr
+.L_81355384:
+/* 81355384 000258A4  80 7B 00 04 */	lwz r3, 0x4(r27)
+/* 81355388 000258A8  38 80 00 00 */	li r4, 0x0
+/* 8135538C 000258AC  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81355390 000258B0  81 8C 00 38 */	lwz r12, 0x38(r12)
+/* 81355394 000258B4  7D 89 03 A6 */	mtctr r12
+/* 81355398 000258B8  4E 80 04 21 */	bctrl
+/* 8135539C 000258BC  48 00 00 8C */	b .L_81355428
+.L_813553A0:
+/* 813553A0 000258C0  80 7B 00 04 */	lwz r3, 0x4(r27)
+/* 813553A4 000258C4  38 80 00 01 */	li r4, 0x1
+/* 813553A8 000258C8  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 813553AC 000258CC  81 8C 00 38 */	lwz r12, 0x38(r12)
+/* 813553B0 000258D0  7D 89 03 A6 */	mtctr r12
+/* 813553B4 000258D4  4E 80 04 21 */	bctrl
+/* 813553B8 000258D8  48 00 00 70 */	b .L_81355428
+.L_813553BC:
+/* 813553BC 000258DC  80 7B 00 04 */	lwz r3, 0x4(r27)
+/* 813553C0 000258E0  38 80 00 02 */	li r4, 0x2
+/* 813553C4 000258E4  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 813553C8 000258E8  81 8C 00 38 */	lwz r12, 0x38(r12)
+/* 813553CC 000258EC  7D 89 03 A6 */	mtctr r12
+/* 813553D0 000258F0  4E 80 04 21 */	bctrl
+/* 813553D4 000258F4  48 00 00 54 */	b .L_81355428
+.L_813553D8:
+/* 813553D8 000258F8  80 7B 00 04 */	lwz r3, 0x4(r27)
+/* 813553DC 000258FC  38 80 00 03 */	li r4, 0x3
+/* 813553E0 00025900  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 813553E4 00025904  81 8C 00 38 */	lwz r12, 0x38(r12)
+/* 813553E8 00025908  7D 89 03 A6 */	mtctr r12
+/* 813553EC 0002590C  4E 80 04 21 */	bctrl
+/* 813553F0 00025910  48 00 00 38 */	b .L_81355428
+.L_813553F4:
+/* 813553F4 00025914  80 7B 00 04 */	lwz r3, 0x4(r27)
+/* 813553F8 00025918  38 80 00 04 */	li r4, 0x4
+/* 813553FC 0002591C  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81355400 00025920  81 8C 00 38 */	lwz r12, 0x38(r12)
+/* 81355404 00025924  7D 89 03 A6 */	mtctr r12
+/* 81355408 00025928  4E 80 04 21 */	bctrl
+/* 8135540C 0002592C  48 00 00 1C */	b .L_81355428
+.L_81355410:
+/* 81355410 00025930  80 7B 00 04 */	lwz r3, 0x4(r27)
+/* 81355414 00025934  38 80 00 01 */	li r4, 0x1
+/* 81355418 00025938  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 8135541C 0002593C  81 8C 00 38 */	lwz r12, 0x38(r12)
+/* 81355420 00025940  7D 89 03 A6 */	mtctr r12
+/* 81355424 00025944  4E 80 04 21 */	bctrl
+.L_81355428:
+/* 81355428 00025948  4B FE 05 C5 */	bl getLanguage__Q23ipl6SystemFv
+/* 8135542C 0002594C  81 9B 00 00 */	lwz r12, 0x0(r27)
+/* 81355430 00025950  7C 64 1B 78 */	mr r4, r3
+/* 81355434 00025954  7F 63 DB 78 */	mr r3, r27
+/* 81355438 00025958  81 8C 00 3C */	lwz r12, 0x3c(r12)
+/* 8135543C 0002595C  7D 89 03 A6 */	mtctr r12
+/* 81355440 00025960  4E 80 04 21 */	bctrl
+/* 81355444 00025964  38 61 00 28 */	addi r3, r1, 0x28
+/* 81355448 00025968  38 80 FF FF */	li r4, -0x1
+/* 8135544C 0002596C  48 00 00 95 */	bl __dt__Q34nw4r3lyt11FontRefLinkFv
+/* 81355450 00025970  38 61 00 B4 */	addi r3, r1, 0xb4
+/* 81355454 00025974  38 80 FF FF */	li r4, -0x1
+/* 81355458 00025978  48 00 00 89 */	bl __dt__Q34nw4r3lyt11FontRefLinkFv
+/* 8135545C 0002597C  38 61 01 40 */	addi r3, r1, 0x140
+/* 81355460 00025980  38 80 FF FF */	li r4, -0x1
+/* 81355464 00025984  48 00 00 7D */	bl __dt__Q34nw4r3lyt11FontRefLinkFv
+/* 81355468 00025988  38 61 01 CC */	addi r3, r1, 0x1cc
+/* 8135546C 0002598C  38 80 FF FF */	li r4, -0x1
+/* 81355470 00025990  48 00 00 71 */	bl __dt__Q34nw4r3lyt11FontRefLinkFv
+/* 81355474 00025994  39 61 02 70 */	addi r11, r1, 0x270
+/* 81355478 00025998  48 2A 40 91 */	bl _restgpr_26
+/* 8135547C 0002599C  80 01 02 74 */	lwz r0, 0x274(r1)
+/* 81355480 000259A0  7C 08 03 A6 */	mtlr r0
+/* 81355484 000259A4  38 21 02 70 */	addi r1, r1, 0x270
+/* 81355488 000259A8  4E 80 00 20 */	blr
+.endfn create__Q33ipl8keyboard7ManagerFPQ33ipl4nand4FilePQ23EGG4Heap
+
+# .text:0x7BC | 0x8135548C | size: 0x44
+# textinput::extend::savedata::MemoSetting::operator=(const textinput::extend::savedata::MemoSetting&)
+.fn __as__Q49textinput6extend8savedata11MemoSettingFRCQ49textinput6extend8savedata11MemoSetting, global
+/* 8135548C 000259AC  89 64 00 00 */	lbz r11, 0x0(r4)
+/* 81355490 000259B0  89 44 00 01 */	lbz r10, 0x1(r4)
+/* 81355494 000259B4  89 24 00 02 */	lbz r9, 0x2(r4)
+/* 81355498 000259B8  89 04 00 03 */	lbz r8, 0x3(r4)
+/* 8135549C 000259BC  88 E4 00 04 */	lbz r7, 0x4(r4)
+/* 813554A0 000259C0  88 C4 00 05 */	lbz r6, 0x5(r4)
+/* 813554A4 000259C4  88 A4 00 06 */	lbz r5, 0x6(r4)
+/* 813554A8 000259C8  88 04 00 07 */	lbz r0, 0x7(r4)
+/* 813554AC 000259CC  99 63 00 00 */	stb r11, 0x0(r3)
+/* 813554B0 000259D0  99 43 00 01 */	stb r10, 0x1(r3)
+/* 813554B4 000259D4  99 23 00 02 */	stb r9, 0x2(r3)
+/* 813554B8 000259D8  99 03 00 03 */	stb r8, 0x3(r3)
+/* 813554BC 000259DC  98 E3 00 04 */	stb r7, 0x4(r3)
+/* 813554C0 000259E0  98 C3 00 05 */	stb r6, 0x5(r3)
+/* 813554C4 000259E4  98 A3 00 06 */	stb r5, 0x6(r3)
+/* 813554C8 000259E8  98 03 00 07 */	stb r0, 0x7(r3)
+/* 813554CC 000259EC  4E 80 00 20 */	blr
+.endfn __as__Q49textinput6extend8savedata11MemoSettingFRCQ49textinput6extend8savedata11MemoSetting
+
+# .text:0x800 | 0x813554D0 | size: 0x8
+# textinput::extend::memo::Manager::setSaveData(textinput::extend::savedata::MemoSetting)
+.fn setSaveData__Q49textinput6extend4memo7ManagerFQ49textinput6extend8savedata11MemoSetting, global
+/* 813554D0 000259F0  38 63 00 48 */	addi r3, r3, 0x48
+/* 813554D4 000259F4  4B FF FF B8 */	b __as__Q49textinput6extend8savedata11MemoSettingFRCQ49textinput6extend8savedata11MemoSetting
+.endfn setSaveData__Q49textinput6extend4memo7ManagerFQ49textinput6extend8savedata11MemoSetting
+
+# .text:0x808 | 0x813554D8 | size: 0x8
+# ipl::keyboard::EventObserver::setManager(ipl::keyboard::Manager*)
+.fn setManager__Q33ipl8keyboard13EventObserverFPQ33ipl8keyboard7Manager, global
+/* 813554D8 000259F8  90 83 00 04 */	stw r4, 0x4(r3)
+/* 813554DC 000259FC  4E 80 00 20 */	blr
+.endfn setManager__Q33ipl8keyboard13EventObserverFPQ33ipl8keyboard7Manager
+
+# .text:0x810 | 0x813554E0 | size: 0x40
+# nw4r::lyt::FontRefLink::~FontRefLink()
+.fn __dt__Q34nw4r3lyt11FontRefLinkFv, global
+/* 813554E0 00025A00  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 813554E4 00025A04  7C 08 02 A6 */	mflr r0
+/* 813554E8 00025A08  2C 03 00 00 */	cmpwi r3, 0x0
+/* 813554EC 00025A0C  90 01 00 14 */	stw r0, 0x14(r1)
+/* 813554F0 00025A10  93 E1 00 0C */	stw r31, 0xc(r1)
+/* 813554F4 00025A14  7C 7F 1B 78 */	mr r31, r3
+/* 813554F8 00025A18  41 82 00 10 */	beq .L_81355508
+/* 813554FC 00025A1C  2C 04 00 00 */	cmpwi r4, 0x0
+/* 81355500 00025A20  40 81 00 08 */	ble .L_81355508
+/* 81355504 00025A24  48 2A 2B E1 */	bl __dl__FPv
+.L_81355508:
+/* 81355508 00025A28  7F E3 FB 78 */	mr r3, r31
+/* 8135550C 00025A2C  83 E1 00 0C */	lwz r31, 0xc(r1)
+/* 81355510 00025A30  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 81355514 00025A34  7C 08 03 A6 */	mtlr r0
+/* 81355518 00025A38  38 21 00 10 */	addi r1, r1, 0x10
+/* 8135551C 00025A3C  4E 80 00 20 */	blr
+.endfn __dt__Q34nw4r3lyt11FontRefLinkFv
+
+# .text:0x850 | 0x81355520 | size: 0x6C
+# ipl::keyboard::Manager::init()
+.fn init__Q33ipl8keyboard7ManagerFv, global
+/* 81355520 00025A40  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 81355524 00025A44  7C 08 02 A6 */	mflr r0
+/* 81355528 00025A48  90 01 00 14 */	stw r0, 0x14(r1)
+/* 8135552C 00025A4C  93 E1 00 0C */	stw r31, 0xc(r1)
+/* 81355530 00025A50  7C 7F 1B 78 */	mr r31, r3
+/* 81355534 00025A54  80 63 00 04 */	lwz r3, 0x4(r3)
+/* 81355538 00025A58  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 8135553C 00025A5C  81 8C 00 10 */	lwz r12, 0x10(r12)
+/* 81355540 00025A60  7D 89 03 A6 */	mtctr r12
+/* 81355544 00025A64  4E 80 04 21 */	bctrl
+/* 81355548 00025A68  38 00 00 00 */	li r0, 0x0
+/* 8135554C 00025A6C  7F E3 FB 78 */	mr r3, r31
+/* 81355550 00025A70  90 1F 00 10 */	stw r0, 0x10(r31)
+/* 81355554 00025A74  90 1F 00 14 */	stw r0, 0x14(r31)
+/* 81355558 00025A78  90 1F 00 1C */	stw r0, 0x1c(r31)
+/* 8135555C 00025A7C  81 9F 00 00 */	lwz r12, 0x0(r31)
+/* 81355560 00025A80  81 8C 00 1C */	lwz r12, 0x1c(r12)
+/* 81355564 00025A84  7D 89 03 A6 */	mtctr r12
+/* 81355568 00025A88  4E 80 04 21 */	bctrl
+/* 8135556C 00025A8C  3C 60 81 0D */	lis r3, sInstance__Q39textinput5input10HKBManager@ha
+/* 81355570 00025A90  38 63 88 44 */	addi r3, r3, sInstance__Q39textinput5input10HKBManager@l
+/* 81355574 00025A94  48 0F 21 D1 */	bl Initialize__Q39textinput5input10HKBManagerFv
+/* 81355578 00025A98  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 8135557C 00025A9C  83 E1 00 0C */	lwz r31, 0xc(r1)
+/* 81355580 00025AA0  7C 08 03 A6 */	mtlr r0
+/* 81355584 00025AA4  38 21 00 10 */	addi r1, r1, 0x10
+/* 81355588 00025AA8  4E 80 00 20 */	blr
+.endfn init__Q33ipl8keyboard7ManagerFv
+
+# .text:0x8BC | 0x8135558C | size: 0xB0
+# ipl::keyboard::Manager::changeAspectRatio()
+.fn changeAspectRatio__Q33ipl8keyboard7ManagerFv, global
+/* 8135558C 00025AAC  94 21 FF E0 */	stwu r1, -0x20(r1)
+/* 81355590 00025AB0  7C 08 02 A6 */	mflr r0
+/* 81355594 00025AB4  90 01 00 24 */	stw r0, 0x24(r1)
+/* 81355598 00025AB8  93 E1 00 1C */	stw r31, 0x1c(r1)
+/* 8135559C 00025ABC  7C 7F 1B 78 */	mr r31, r3
+/* 813555A0 00025AC0  38 61 00 08 */	addi r3, r1, 0x8
+/* 813555A4 00025AC4  4B FE 0E 85 */	bl __ct__Q34nw4r2ut4RectFv
+/* 813555A8 00025AC8  48 21 4A 0D */	bl SCGetAspectRatio
+/* 813555AC 00025ACC  54 60 06 3E */	clrlwi r0, r3, 24
+/* 813555B0 00025AD0  28 00 00 01 */	cmplwi r0, 0x1
+/* 813555B4 00025AD4  40 82 00 28 */	bne .L_813555DC
+/* 813555B8 00025AD8  38 61 00 08 */	addi r3, r1, 0x8
+/* 813555BC 00025ADC  4B FE 03 B5 */	bl getProjectionRect16x9__Q23ipl6SystemFPQ34nw4r2ut4Rect
+/* 813555C0 00025AE0  80 7F 00 04 */	lwz r3, 0x4(r31)
+/* 813555C4 00025AE4  38 80 00 00 */	li r4, 0x0
+/* 813555C8 00025AE8  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 813555CC 00025AEC  81 8C 00 48 */	lwz r12, 0x48(r12)
+/* 813555D0 00025AF0  7D 89 03 A6 */	mtctr r12
+/* 813555D4 00025AF4  4E 80 04 21 */	bctrl
+/* 813555D8 00025AF8  48 00 00 24 */	b .L_813555FC
+.L_813555DC:
+/* 813555DC 00025AFC  38 61 00 08 */	addi r3, r1, 0x8
+/* 813555E0 00025B00  4B FE 03 6D */	bl getProjectionRect4x3__Q23ipl6SystemFPQ34nw4r2ut4Rect
+/* 813555E4 00025B04  80 7F 00 04 */	lwz r3, 0x4(r31)
+/* 813555E8 00025B08  38 80 00 01 */	li r4, 0x1
+/* 813555EC 00025B0C  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 813555F0 00025B10  81 8C 00 48 */	lwz r12, 0x48(r12)
+/* 813555F4 00025B14  7D 89 03 A6 */	mtctr r12
+/* 813555F8 00025B18  4E 80 04 21 */	bctrl
+.L_813555FC:
+/* 813555FC 00025B1C  C0 21 00 10 */	lfs f1, 0x10(r1)
+/* 81355600 00025B20  C0 01 00 08 */	lfs f0, 0x8(r1)
+/* 81355604 00025B24  C0 42 81 90 */	lfs f2, lbl_81694590@sda21(r0)
+/* 81355608 00025B28  EC 01 00 28 */	fsubs f0, f1, f0
+/* 8135560C 00025B2C  EC 00 00 B2 */	fmuls f0, f0, f2
+/* 81355610 00025B30  D0 1F 00 24 */	stfs f0, 0x24(r31)
+/* 81355614 00025B34  C0 21 00 14 */	lfs f1, 0x14(r1)
+/* 81355618 00025B38  C0 01 00 0C */	lfs f0, 0xc(r1)
+/* 8135561C 00025B3C  EC 01 00 28 */	fsubs f0, f1, f0
+/* 81355620 00025B40  EC 00 00 B2 */	fmuls f0, f0, f2
+/* 81355624 00025B44  D0 1F 00 28 */	stfs f0, 0x28(r31)
+/* 81355628 00025B48  83 E1 00 1C */	lwz r31, 0x1c(r1)
+/* 8135562C 00025B4C  80 01 00 24 */	lwz r0, 0x24(r1)
+/* 81355630 00025B50  7C 08 03 A6 */	mtlr r0
+/* 81355634 00025B54  38 21 00 20 */	addi r1, r1, 0x20
+/* 81355638 00025B58  4E 80 00 20 */	blr
+.endfn changeAspectRatio__Q33ipl8keyboard7ManagerFv
+
+# .text:0x96C | 0x8135563C | size: 0x524
+# ipl::keyboard::Manager::calc()
+.fn calc__Q33ipl8keyboard7ManagerFv, global
+/* 8135563C 00025B5C  94 21 FF C0 */	stwu r1, -0x40(r1)
+/* 81355640 00025B60  7C 08 02 A6 */	mflr r0
+/* 81355644 00025B64  90 01 00 44 */	stw r0, 0x44(r1)
+/* 81355648 00025B68  39 61 00 40 */	addi r11, r1, 0x40
+/* 8135564C 00025B6C  48 2A 3E 71 */	bl _savegpr_26
+/* 81355650 00025B70  80 83 00 38 */	lwz r4, 0x38(r3)
+/* 81355654 00025B74  7C 7B 1B 78 */	mr r27, r3
+/* 81355658 00025B78  2C 04 00 00 */	cmpwi r4, 0x0
+/* 8135565C 00025B7C  41 82 00 44 */	beq .L_813556A0
+/* 81355660 00025B80  3C 60 81 09 */	lis r3, smArg__Q23ipl6System@ha
+/* 81355664 00025B84  38 63 90 08 */	addi r3, r3, smArg__Q23ipl6System@l
+/* 81355668 00025B88  80 63 00 94 */	lwz r3, 0x94(r3)
+/* 8135566C 00025B8C  48 00 28 71 */	bl isFinished__Q33ipl8savedata7ManagerFPQ33ipl4nand4File
+/* 81355670 00025B90  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81355674 00025B94  41 82 00 2C */	beq .L_813556A0
+/* 81355678 00025B98  80 7B 00 38 */	lwz r3, 0x38(r27)
+/* 8135567C 00025B9C  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81355680 00025BA0  41 82 00 18 */	beq .L_81355698
+/* 81355684 00025BA4  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81355688 00025BA8  38 80 00 01 */	li r4, 0x1
+/* 8135568C 00025BAC  81 8C 00 08 */	lwz r12, 0x8(r12)
+/* 81355690 00025BB0  7D 89 03 A6 */	mtctr r12
+/* 81355694 00025BB4  4E 80 04 21 */	bctrl
+.L_81355698:
+/* 81355698 00025BB8  38 00 00 00 */	li r0, 0x0
+/* 8135569C 00025BBC  90 1B 00 38 */	stw r0, 0x38(r27)
+.L_813556A0:
+/* 813556A0 00025BC0  80 7B 00 04 */	lwz r3, 0x4(r27)
+/* 813556A4 00025BC4  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 813556A8 00025BC8  81 8C 00 14 */	lwz r12, 0x14(r12)
+/* 813556AC 00025BCC  7D 89 03 A6 */	mtctr r12
+/* 813556B0 00025BD0  4E 80 04 21 */	bctrl
+/* 813556B4 00025BD4  80 7B 00 04 */	lwz r3, 0x4(r27)
+/* 813556B8 00025BD8  83 9B 00 10 */	lwz r28, 0x10(r27)
+/* 813556BC 00025BDC  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 813556C0 00025BE0  81 8C 00 E0 */	lwz r12, 0xe0(r12)
+/* 813556C4 00025BE4  7D 89 03 A6 */	mtctr r12
+/* 813556C8 00025BE8  4E 80 04 21 */	bctrl
+/* 813556CC 00025BEC  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 813556D0 00025BF0  81 8C 00 0C */	lwz r12, 0xc(r12)
+/* 813556D4 00025BF4  7D 89 03 A6 */	mtctr r12
+/* 813556D8 00025BF8  4E 80 04 21 */	bctrl
+/* 813556DC 00025BFC  2C 1C 00 00 */	cmpwi r28, 0x0
+/* 813556E0 00025C00  90 7B 00 10 */	stw r3, 0x10(r27)
+/* 813556E4 00025C04  40 82 00 20 */	bne .L_81355704
+/* 813556E8 00025C08  2C 03 00 01 */	cmpwi r3, 0x1
+/* 813556EC 00025C0C  40 82 00 18 */	bne .L_81355704
+/* 813556F0 00025C10  38 60 00 01 */	li r3, 0x1
+/* 813556F4 00025C14  38 00 00 00 */	li r0, 0x0
+/* 813556F8 00025C18  90 7B 00 14 */	stw r3, 0x14(r27)
+/* 813556FC 00025C1C  98 1B 00 18 */	stb r0, 0x18(r27)
+/* 81355700 00025C20  48 00 00 74 */	b .L_81355774
+.L_81355704:
+/* 81355704 00025C24  2C 1C 00 01 */	cmpwi r28, 0x1
+/* 81355708 00025C28  40 82 00 24 */	bne .L_8135572C
+/* 8135570C 00025C2C  80 1B 00 10 */	lwz r0, 0x10(r27)
+/* 81355710 00025C30  2C 00 00 02 */	cmpwi r0, 0x2
+/* 81355714 00025C34  40 82 00 18 */	bne .L_8135572C
+/* 81355718 00025C38  38 60 00 02 */	li r3, 0x2
+/* 8135571C 00025C3C  38 00 00 00 */	li r0, 0x0
+/* 81355720 00025C40  90 7B 00 14 */	stw r3, 0x14(r27)
+/* 81355724 00025C44  98 1B 00 18 */	stb r0, 0x18(r27)
+/* 81355728 00025C48  48 00 00 4C */	b .L_81355774
+.L_8135572C:
+/* 8135572C 00025C4C  2C 1C 00 02 */	cmpwi r28, 0x2
+/* 81355730 00025C50  40 82 00 1C */	bne .L_8135574C
+/* 81355734 00025C54  80 1B 00 10 */	lwz r0, 0x10(r27)
+/* 81355738 00025C58  2C 00 00 03 */	cmpwi r0, 0x3
+/* 8135573C 00025C5C  40 82 00 10 */	bne .L_8135574C
+/* 81355740 00025C60  38 00 00 03 */	li r0, 0x3
+/* 81355744 00025C64  90 1B 00 14 */	stw r0, 0x14(r27)
+/* 81355748 00025C68  48 00 00 2C */	b .L_81355774
+.L_8135574C:
+/* 8135574C 00025C6C  2C 1C 00 03 */	cmpwi r28, 0x3
+/* 81355750 00025C70  40 82 00 1C */	bne .L_8135576C
+/* 81355754 00025C74  80 1B 00 10 */	lwz r0, 0x10(r27)
+/* 81355758 00025C78  2C 00 00 00 */	cmpwi r0, 0x0
+/* 8135575C 00025C7C  40 82 00 10 */	bne .L_8135576C
+/* 81355760 00025C80  38 00 00 04 */	li r0, 0x4
+/* 81355764 00025C84  90 1B 00 14 */	stw r0, 0x14(r27)
+/* 81355768 00025C88  48 00 00 0C */	b .L_81355774
+.L_8135576C:
+/* 8135576C 00025C8C  38 00 00 00 */	li r0, 0x0
+/* 81355770 00025C90  90 1B 00 14 */	stw r0, 0x14(r27)
+.L_81355774:
+/* 81355774 00025C94  80 7B 00 04 */	lwz r3, 0x4(r27)
+/* 81355778 00025C98  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 8135577C 00025C9C  81 8C 00 28 */	lwz r12, 0x28(r12)
+/* 81355780 00025CA0  7D 89 03 A6 */	mtctr r12
+/* 81355784 00025CA4  4E 80 04 21 */	bctrl
+/* 81355788 00025CA8  88 1B 00 2C */	lbz r0, 0x2c(r27)
+/* 8135578C 00025CAC  90 7B 00 1C */	stw r3, 0x1c(r27)
+/* 81355790 00025CB0  2C 00 00 00 */	cmpwi r0, 0x0
+/* 81355794 00025CB4  41 82 03 B4 */	beq .L_81355B48
+/* 81355798 00025CB8  3F 80 81 0D */	lis r28, sInstance__Q39textinput5input10HKBManager@ha
+/* 8135579C 00025CBC  38 7C 88 44 */	addi r3, r28, sInstance__Q39textinput5input10HKBManager@l
+/* 813557A0 00025CC0  48 0F 22 D9 */	bl Update__Q39textinput5input10HKBManagerFv
+/* 813557A4 00025CC4  80 7B 00 04 */	lwz r3, 0x4(r27)
+/* 813557A8 00025CC8  38 9C 88 44 */	addi r4, r28, sInstance__Q39textinput5input10HKBManager@l
+/* 813557AC 00025CCC  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 813557B0 00025CD0  81 8C 00 20 */	lwz r12, 0x20(r12)
+/* 813557B4 00025CD4  7D 89 03 A6 */	mtctr r12
+/* 813557B8 00025CD8  4E 80 04 21 */	bctrl
+/* 813557BC 00025CDC  4B FF F5 15 */	bl getFirstController__Q23ipl8keyboardFv
+/* 813557C0 00025CE0  90 7B 00 20 */	stw r3, 0x20(r27)
+/* 813557C4 00025CE4  4B FE 02 05 */	bl getController__Q23ipl6SystemFi
+/* 813557C8 00025CE8  2C 03 00 00 */	cmpwi r3, 0x0
+/* 813557CC 00025CEC  7C 7E 1B 78 */	mr r30, r3
+/* 813557D0 00025CF0  40 82 00 34 */	bne .L_81355804
+/* 813557D4 00025CF4  80 7B 00 04 */	lwz r3, 0x4(r27)
+/* 813557D8 00025CF8  38 80 00 00 */	li r4, 0x0
+/* 813557DC 00025CFC  C0 22 81 94 */	lfs f1, lbl_81694594@sda21(r0)
+/* 813557E0 00025D00  38 A0 00 00 */	li r5, 0x0
+/* 813557E4 00025D04  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 813557E8 00025D08  38 C0 00 00 */	li r6, 0x0
+/* 813557EC 00025D0C  FC 40 08 90 */	fmr f2, f1
+/* 813557F0 00025D10  38 E0 00 00 */	li r7, 0x0
+/* 813557F4 00025D14  81 8C 00 1C */	lwz r12, 0x1c(r12)
+/* 813557F8 00025D18  7D 89 03 A6 */	mtctr r12
+/* 813557FC 00025D1C  4E 80 04 21 */	bctrl
+/* 81355800 00025D20  48 00 03 48 */	b .L_81355B48
+.L_81355804:
+/* 81355804 00025D24  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81355808 00025D28  81 8C 00 64 */	lwz r12, 0x64(r12)
+/* 8135580C 00025D2C  7D 89 03 A6 */	mtctr r12
+/* 81355810 00025D30  4E 80 04 21 */	bctrl
+/* 81355814 00025D34  81 9E 00 00 */	lwz r12, 0x0(r30)
+/* 81355818 00025D38  7C 7F 1B 78 */	mr r31, r3
+/* 8135581C 00025D3C  7F C3 F3 78 */	mr r3, r30
+/* 81355820 00025D40  81 8C 00 58 */	lwz r12, 0x58(r12)
+/* 81355824 00025D44  7D 89 03 A6 */	mtctr r12
+/* 81355828 00025D48  4E 80 04 21 */	bctrl
+/* 8135582C 00025D4C  81 9E 00 00 */	lwz r12, 0x0(r30)
+/* 81355830 00025D50  90 61 00 08 */	stw r3, 0x8(r1)
+/* 81355834 00025D54  81 8C 00 4C */	lwz r12, 0x4c(r12)
+/* 81355838 00025D58  90 61 00 10 */	stw r3, 0x10(r1)
+/* 8135583C 00025D5C  7F C3 F3 78 */	mr r3, r30
+/* 81355840 00025D60  83 BF 00 04 */	lwz r29, 0x4(r31)
+/* 81355844 00025D64  90 81 00 0C */	stw r4, 0xc(r1)
+/* 81355848 00025D68  90 81 00 14 */	stw r4, 0x14(r1)
+/* 8135584C 00025D6C  7D 89 03 A6 */	mtctr r12
+/* 81355850 00025D70  4E 80 04 21 */	bctrl
+/* 81355854 00025D74  54 60 06 F7 */	rlwinm. r0, r3, 0, 27, 27
+/* 81355858 00025D78  41 82 00 08 */	beq .L_81355860
+/* 8135585C 00025D7C  63 BD 08 00 */	ori r29, r29, 0x800
+.L_81355860:
+/* 81355860 00025D80  81 9E 00 00 */	lwz r12, 0x0(r30)
+/* 81355864 00025D84  7F C3 F3 78 */	mr r3, r30
+/* 81355868 00025D88  81 8C 00 4C */	lwz r12, 0x4c(r12)
+/* 8135586C 00025D8C  7D 89 03 A6 */	mtctr r12
+/* 81355870 00025D90  4E 80 04 21 */	bctrl
+/* 81355874 00025D94  54 60 07 FF */	clrlwi. r0, r3, 31
+/* 81355878 00025D98  41 82 00 08 */	beq .L_81355880
+/* 8135587C 00025D9C  63 BD 00 08 */	ori r29, r29, 0x8
+.L_81355880:
+/* 81355880 00025DA0  81 9E 00 00 */	lwz r12, 0x0(r30)
+/* 81355884 00025DA4  7F C3 F3 78 */	mr r3, r30
+/* 81355888 00025DA8  81 8C 00 4C */	lwz r12, 0x4c(r12)
+/* 8135588C 00025DAC  7D 89 03 A6 */	mtctr r12
+/* 81355890 00025DB0  4E 80 04 21 */	bctrl
+/* 81355894 00025DB4  54 60 04 63 */	rlwinm. r0, r3, 0, 17, 17
+/* 81355898 00025DB8  41 82 00 08 */	beq .L_813558A0
+/* 8135589C 00025DBC  63 BD 00 04 */	ori r29, r29, 0x4
+.L_813558A0:
+/* 813558A0 00025DC0  81 9E 00 00 */	lwz r12, 0x0(r30)
+/* 813558A4 00025DC4  7F C3 F3 78 */	mr r3, r30
+/* 813558A8 00025DC8  81 8C 00 4C */	lwz r12, 0x4c(r12)
+/* 813558AC 00025DCC  7D 89 03 A6 */	mtctr r12
+/* 813558B0 00025DD0  4E 80 04 21 */	bctrl
+/* 813558B4 00025DD4  54 60 07 BD */	rlwinm. r0, r3, 0, 30, 30
+/* 813558B8 00025DD8  41 82 00 08 */	beq .L_813558C0
+/* 813558BC 00025DDC  63 BD 00 01 */	ori r29, r29, 0x1
+.L_813558C0:
+/* 813558C0 00025DE0  81 9E 00 00 */	lwz r12, 0x0(r30)
+/* 813558C4 00025DE4  7F C3 F3 78 */	mr r3, r30
+/* 813558C8 00025DE8  81 8C 00 4C */	lwz r12, 0x4c(r12)
+/* 813558CC 00025DEC  7D 89 03 A6 */	mtctr r12
+/* 813558D0 00025DF0  4E 80 04 21 */	bctrl
+/* 813558D4 00025DF4  54 60 04 21 */	rlwinm. r0, r3, 0, 16, 16
+/* 813558D8 00025DF8  41 82 00 08 */	beq .L_813558E0
+/* 813558DC 00025DFC  63 BD 00 02 */	ori r29, r29, 0x2
+.L_813558E0:
+/* 813558E0 00025E00  81 9E 00 00 */	lwz r12, 0x0(r30)
+/* 813558E4 00025E04  7F C3 F3 78 */	mr r3, r30
+/* 813558E8 00025E08  81 8C 00 4C */	lwz r12, 0x4c(r12)
+/* 813558EC 00025E0C  7D 89 03 A6 */	mtctr r12
+/* 813558F0 00025E10  4E 80 04 21 */	bctrl
+/* 813558F4 00025E14  54 60 04 E7 */	rlwinm. r0, r3, 0, 19, 19
+/* 813558F8 00025E18  41 82 00 08 */	beq .L_81355900
+/* 813558FC 00025E1C  63 BD 10 00 */	ori r29, r29, 0x1000
+.L_81355900:
+/* 81355900 00025E20  81 9E 00 00 */	lwz r12, 0x0(r30)
+/* 81355904 00025E24  7F C3 F3 78 */	mr r3, r30
+/* 81355908 00025E28  83 9F 00 00 */	lwz r28, 0x0(r31)
+/* 8135590C 00025E2C  81 8C 00 48 */	lwz r12, 0x48(r12)
+/* 81355910 00025E30  7D 89 03 A6 */	mtctr r12
+/* 81355914 00025E34  4E 80 04 21 */	bctrl
+/* 81355918 00025E38  54 60 06 F7 */	rlwinm. r0, r3, 0, 27, 27
+/* 8135591C 00025E3C  41 82 00 08 */	beq .L_81355924
+/* 81355920 00025E40  63 9C 08 00 */	ori r28, r28, 0x800
+.L_81355924:
+/* 81355924 00025E44  81 9E 00 00 */	lwz r12, 0x0(r30)
+/* 81355928 00025E48  7F C3 F3 78 */	mr r3, r30
+/* 8135592C 00025E4C  81 8C 00 48 */	lwz r12, 0x48(r12)
+/* 81355930 00025E50  7D 89 03 A6 */	mtctr r12
+/* 81355934 00025E54  4E 80 04 21 */	bctrl
+/* 81355938 00025E58  54 60 07 FF */	clrlwi. r0, r3, 31
+/* 8135593C 00025E5C  41 82 00 08 */	beq .L_81355944
+/* 81355940 00025E60  63 9C 00 08 */	ori r28, r28, 0x8
+.L_81355944:
+/* 81355944 00025E64  81 9E 00 00 */	lwz r12, 0x0(r30)
+/* 81355948 00025E68  7F C3 F3 78 */	mr r3, r30
+/* 8135594C 00025E6C  81 8C 00 48 */	lwz r12, 0x48(r12)
+/* 81355950 00025E70  7D 89 03 A6 */	mtctr r12
+/* 81355954 00025E74  4E 80 04 21 */	bctrl
+/* 81355958 00025E78  54 60 04 63 */	rlwinm. r0, r3, 0, 17, 17
+/* 8135595C 00025E7C  41 82 00 08 */	beq .L_81355964
+/* 81355960 00025E80  63 9C 00 04 */	ori r28, r28, 0x4
+.L_81355964:
+/* 81355964 00025E84  81 9E 00 00 */	lwz r12, 0x0(r30)
+/* 81355968 00025E88  7F C3 F3 78 */	mr r3, r30
+/* 8135596C 00025E8C  81 8C 00 48 */	lwz r12, 0x48(r12)
+/* 81355970 00025E90  7D 89 03 A6 */	mtctr r12
+/* 81355974 00025E94  4E 80 04 21 */	bctrl
+/* 81355978 00025E98  54 60 07 BD */	rlwinm. r0, r3, 0, 30, 30
+/* 8135597C 00025E9C  41 82 00 08 */	beq .L_81355984
+/* 81355980 00025EA0  63 9C 00 01 */	ori r28, r28, 0x1
+.L_81355984:
+/* 81355984 00025EA4  81 9E 00 00 */	lwz r12, 0x0(r30)
+/* 81355988 00025EA8  7F C3 F3 78 */	mr r3, r30
+/* 8135598C 00025EAC  81 8C 00 48 */	lwz r12, 0x48(r12)
+/* 81355990 00025EB0  7D 89 03 A6 */	mtctr r12
+/* 81355994 00025EB4  4E 80 04 21 */	bctrl
+/* 81355998 00025EB8  54 60 04 21 */	rlwinm. r0, r3, 0, 16, 16
+/* 8135599C 00025EBC  41 82 00 08 */	beq .L_813559A4
+/* 813559A0 00025EC0  63 9C 00 02 */	ori r28, r28, 0x2
+.L_813559A4:
+/* 813559A4 00025EC4  81 9E 00 00 */	lwz r12, 0x0(r30)
+/* 813559A8 00025EC8  7F C3 F3 78 */	mr r3, r30
+/* 813559AC 00025ECC  81 8C 00 48 */	lwz r12, 0x48(r12)
+/* 813559B0 00025ED0  7D 89 03 A6 */	mtctr r12
+/* 813559B4 00025ED4  4E 80 04 21 */	bctrl
+/* 813559B8 00025ED8  54 60 04 E7 */	rlwinm. r0, r3, 0, 19, 19
+/* 813559BC 00025EDC  41 82 00 08 */	beq .L_813559C4
+/* 813559C0 00025EE0  63 9C 10 00 */	ori r28, r28, 0x1000
+.L_813559C4:
+/* 813559C4 00025EE4  81 9E 00 00 */	lwz r12, 0x0(r30)
+/* 813559C8 00025EE8  7F C3 F3 78 */	mr r3, r30
+/* 813559CC 00025EEC  83 5F 00 08 */	lwz r26, 0x8(r31)
+/* 813559D0 00025EF0  81 8C 00 50 */	lwz r12, 0x50(r12)
+/* 813559D4 00025EF4  7D 89 03 A6 */	mtctr r12
+/* 813559D8 00025EF8  4E 80 04 21 */	bctrl
+/* 813559DC 00025EFC  54 60 06 F7 */	rlwinm. r0, r3, 0, 27, 27
+/* 813559E0 00025F00  41 82 00 08 */	beq .L_813559E8
+/* 813559E4 00025F04  63 5A 08 00 */	ori r26, r26, 0x800
+.L_813559E8:
+/* 813559E8 00025F08  81 9E 00 00 */	lwz r12, 0x0(r30)
+/* 813559EC 00025F0C  7F C3 F3 78 */	mr r3, r30
+/* 813559F0 00025F10  81 8C 00 50 */	lwz r12, 0x50(r12)
+/* 813559F4 00025F14  7D 89 03 A6 */	mtctr r12
+/* 813559F8 00025F18  4E 80 04 21 */	bctrl
+/* 813559FC 00025F1C  54 60 07 FF */	clrlwi. r0, r3, 31
+/* 81355A00 00025F20  41 82 00 08 */	beq .L_81355A08
+/* 81355A04 00025F24  63 5A 00 08 */	ori r26, r26, 0x8
+.L_81355A08:
+/* 81355A08 00025F28  81 9E 00 00 */	lwz r12, 0x0(r30)
+/* 81355A0C 00025F2C  7F C3 F3 78 */	mr r3, r30
+/* 81355A10 00025F30  81 8C 00 50 */	lwz r12, 0x50(r12)
+/* 81355A14 00025F34  7D 89 03 A6 */	mtctr r12
+/* 81355A18 00025F38  4E 80 04 21 */	bctrl
+/* 81355A1C 00025F3C  54 60 04 63 */	rlwinm. r0, r3, 0, 17, 17
+/* 81355A20 00025F40  41 82 00 08 */	beq .L_81355A28
+/* 81355A24 00025F44  63 5A 00 04 */	ori r26, r26, 0x4
+.L_81355A28:
+/* 81355A28 00025F48  81 9E 00 00 */	lwz r12, 0x0(r30)
+/* 81355A2C 00025F4C  7F C3 F3 78 */	mr r3, r30
+/* 81355A30 00025F50  81 8C 00 50 */	lwz r12, 0x50(r12)
+/* 81355A34 00025F54  7D 89 03 A6 */	mtctr r12
+/* 81355A38 00025F58  4E 80 04 21 */	bctrl
+/* 81355A3C 00025F5C  54 60 07 BD */	rlwinm. r0, r3, 0, 30, 30
+/* 81355A40 00025F60  41 82 00 08 */	beq .L_81355A48
+/* 81355A44 00025F64  63 5A 00 01 */	ori r26, r26, 0x1
+.L_81355A48:
+/* 81355A48 00025F68  81 9E 00 00 */	lwz r12, 0x0(r30)
+/* 81355A4C 00025F6C  7F C3 F3 78 */	mr r3, r30
+/* 81355A50 00025F70  81 8C 00 50 */	lwz r12, 0x50(r12)
+/* 81355A54 00025F74  7D 89 03 A6 */	mtctr r12
+/* 81355A58 00025F78  4E 80 04 21 */	bctrl
+/* 81355A5C 00025F7C  54 60 04 21 */	rlwinm. r0, r3, 0, 16, 16
+/* 81355A60 00025F80  41 82 00 08 */	beq .L_81355A68
+/* 81355A64 00025F84  63 5A 00 02 */	ori r26, r26, 0x2
+.L_81355A68:
+/* 81355A68 00025F88  81 9E 00 00 */	lwz r12, 0x0(r30)
+/* 81355A6C 00025F8C  7F C3 F3 78 */	mr r3, r30
+/* 81355A70 00025F90  81 8C 00 50 */	lwz r12, 0x50(r12)
+/* 81355A74 00025F94  7D 89 03 A6 */	mtctr r12
+/* 81355A78 00025F98  4E 80 04 21 */	bctrl
+/* 81355A7C 00025F9C  54 60 04 E7 */	rlwinm. r0, r3, 0, 19, 19
+/* 81355A80 00025FA0  41 82 00 08 */	beq .L_81355A88
+/* 81355A84 00025FA4  63 5A 10 00 */	ori r26, r26, 0x1000
+.L_81355A88:
+/* 81355A88 00025FA8  38 61 00 18 */	addi r3, r1, 0x18
+/* 81355A8C 00025FAC  4B FE 09 9D */	bl __ct__Q34nw4r2ut4RectFv
+/* 81355A90 00025FB0  38 61 00 18 */	addi r3, r1, 0x18
+/* 81355A94 00025FB4  4B FD FE 85 */	bl getProjectionRect__Q23ipl6SystemFPQ34nw4r2ut4Rect
+/* 81355A98 00025FB8  C0 01 00 18 */	lfs f0, 0x18(r1)
+/* 81355A9C 00025FBC  C0 21 00 10 */	lfs f1, 0x10(r1)
+/* 81355AA0 00025FC0  FC 00 08 40 */	fcmpo cr0, f0, f1
+/* 81355AA4 00025FC4  41 81 00 2C */	bgt .L_81355AD0
+/* 81355AA8 00025FC8  C0 01 00 20 */	lfs f0, 0x20(r1)
+/* 81355AAC 00025FCC  FC 01 00 40 */	fcmpo cr0, f1, f0
+/* 81355AB0 00025FD0  41 81 00 20 */	bgt .L_81355AD0
+/* 81355AB4 00025FD4  C0 01 00 1C */	lfs f0, 0x1c(r1)
+/* 81355AB8 00025FD8  C0 21 00 14 */	lfs f1, 0x14(r1)
+/* 81355ABC 00025FDC  FC 00 08 40 */	fcmpo cr0, f0, f1
+/* 81355AC0 00025FE0  40 81 00 1C */	ble .L_81355ADC
+/* 81355AC4 00025FE4  C0 01 00 24 */	lfs f0, 0x24(r1)
+/* 81355AC8 00025FE8  FC 01 00 40 */	fcmpo cr0, f1, f0
+/* 81355ACC 00025FEC  40 81 00 10 */	ble .L_81355ADC
+.L_81355AD0:
+/* 81355AD0 00025FF0  C0 02 81 94 */	lfs f0, lbl_81694594@sda21(r0)
+/* 81355AD4 00025FF4  D0 01 00 14 */	stfs f0, 0x14(r1)
+/* 81355AD8 00025FF8  D0 01 00 10 */	stfs f0, 0x10(r1)
+.L_81355ADC:
+/* 81355ADC 00025FFC  88 1F 00 5D */	lbz r0, 0x5d(r31)
+/* 81355AE0 00026000  7C 00 07 75 */	extsb. r0, r0
+/* 81355AE4 00026004  40 82 00 38 */	bne .L_81355B1C
+/* 81355AE8 00026008  80 7B 00 04 */	lwz r3, 0x4(r27)
+/* 81355AEC 0002600C  7F A5 EB 78 */	mr r5, r29
+/* 81355AF0 00026010  C0 01 00 14 */	lfs f0, 0x14(r1)
+/* 81355AF4 00026014  7F 86 E3 78 */	mr r6, r28
+/* 81355AF8 00026018  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81355AFC 0002601C  7F 47 D3 78 */	mr r7, r26
+/* 81355B00 00026020  FC 40 00 50 */	fneg f2, f0
+/* 81355B04 00026024  C0 21 00 10 */	lfs f1, 0x10(r1)
+/* 81355B08 00026028  81 8C 00 1C */	lwz r12, 0x1c(r12)
+/* 81355B0C 0002602C  38 80 00 00 */	li r4, 0x0
+/* 81355B10 00026030  7D 89 03 A6 */	mtctr r12
+/* 81355B14 00026034  4E 80 04 21 */	bctrl
+/* 81355B18 00026038  48 00 00 30 */	b .L_81355B48
+.L_81355B1C:
+/* 81355B1C 0002603C  80 7B 00 04 */	lwz r3, 0x4(r27)
+/* 81355B20 00026040  7F A5 EB 78 */	mr r5, r29
+/* 81355B24 00026044  C0 22 81 94 */	lfs f1, lbl_81694594@sda21(r0)
+/* 81355B28 00026048  7F 86 E3 78 */	mr r6, r28
+/* 81355B2C 0002604C  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81355B30 00026050  7F 47 D3 78 */	mr r7, r26
+/* 81355B34 00026054  FC 40 08 90 */	fmr f2, f1
+/* 81355B38 00026058  38 80 00 00 */	li r4, 0x0
+/* 81355B3C 0002605C  81 8C 00 1C */	lwz r12, 0x1c(r12)
+/* 81355B40 00026060  7D 89 03 A6 */	mtctr r12
+/* 81355B44 00026064  4E 80 04 21 */	bctrl
+.L_81355B48:
+/* 81355B48 00026068  39 61 00 40 */	addi r11, r1, 0x40
+/* 81355B4C 0002606C  48 2A 39 BD */	bl _restgpr_26
+/* 81355B50 00026070  80 01 00 44 */	lwz r0, 0x44(r1)
+/* 81355B54 00026074  7C 08 03 A6 */	mtlr r0
+/* 81355B58 00026078  38 21 00 40 */	addi r1, r1, 0x40
+/* 81355B5C 0002607C  4E 80 00 20 */	blr
+.endfn calc__Q33ipl8keyboard7ManagerFv
+
+# .text:0xE90 | 0x81355B60 | size: 0x8
+# textinput::extend::memo::Manager::getState()
+.fn getState__Q49textinput6extend4memo7ManagerFv, global
+/* 81355B60 00026080  80 63 00 40 */	lwz r3, 0x40(r3)
+/* 81355B64 00026084  4E 80 00 20 */	blr
+.endfn getState__Q49textinput6extend4memo7ManagerFv
+
+# .text:0xE98 | 0x81355B68 | size: 0x40
+# ipl::keyboard::Manager::draw()
+.fn draw__Q33ipl8keyboard7ManagerFv, global
+/* 81355B68 00026088  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 81355B6C 0002608C  7C 08 02 A6 */	mflr r0
+/* 81355B70 00026090  90 01 00 14 */	stw r0, 0x14(r1)
+/* 81355B74 00026094  80 63 00 04 */	lwz r3, 0x4(r3)
+/* 81355B78 00026098  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81355B7C 0002609C  81 8C 00 18 */	lwz r12, 0x18(r12)
+/* 81355B80 000260A0  7D 89 03 A6 */	mtctr r12
+/* 81355B84 000260A4  4E 80 04 21 */	bctrl
+/* 81355B88 000260A8  38 60 00 01 */	li r3, 0x1
+/* 81355B8C 000260AC  38 80 00 07 */	li r4, 0x7
+/* 81355B90 000260B0  38 A0 00 01 */	li r5, 0x1
+/* 81355B94 000260B4  48 1F 1C 7D */	bl GXSetZMode
+/* 81355B98 000260B8  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 81355B9C 000260BC  7C 08 03 A6 */	mtlr r0
+/* 81355BA0 000260C0  38 21 00 10 */	addi r1, r1, 0x10
+/* 81355BA4 000260C4  4E 80 00 20 */	blr
+.endfn draw__Q33ipl8keyboard7ManagerFv
+
+# .text:0xED8 | 0x81355BA8 | size: 0x14
+# ipl::keyboard::Manager::memoDraw()
+.fn memoDraw__Q33ipl8keyboard7ManagerFv, global
+/* 81355BA8 000260C8  80 63 00 04 */	lwz r3, 0x4(r3)
+/* 81355BAC 000260CC  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81355BB0 000260D0  81 8C 00 D0 */	lwz r12, 0xd0(r12)
+/* 81355BB4 000260D4  7D 89 03 A6 */	mtctr r12
+/* 81355BB8 000260D8  4E 80 04 20 */	bctr
+.endfn memoDraw__Q33ipl8keyboard7ManagerFv
+
+# .text:0xEEC | 0x81355BBC | size: 0x58
+# ipl::keyboard::Manager::setKeyboardType(int, ipl::keyboard::Manager::KeyboardType)
+.fn setKeyboardType__Q33ipl8keyboard7ManagerFiQ43ipl8keyboard7Manager12KeyboardType, global
+/* 81355BBC 000260DC  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 81355BC0 000260E0  7C 08 02 A6 */	mflr r0
+/* 81355BC4 000260E4  90 01 00 14 */	stw r0, 0x14(r1)
+/* 81355BC8 000260E8  93 E1 00 0C */	stw r31, 0xc(r1)
+/* 81355BCC 000260EC  7C BF 2B 78 */	mr r31, r5
+/* 81355BD0 000260F0  93 C1 00 08 */	stw r30, 0x8(r1)
+/* 81355BD4 000260F4  7C 7E 1B 78 */	mr r30, r3
+/* 81355BD8 000260F8  90 83 00 20 */	stw r4, 0x20(r3)
+/* 81355BDC 000260FC  4B FF F0 F5 */	bl getFirstController__Q23ipl8keyboardFv
+/* 81355BE0 00026100  90 7E 00 20 */	stw r3, 0x20(r30)
+/* 81355BE4 00026104  7F C3 F3 78 */	mr r3, r30
+/* 81355BE8 00026108  7F E4 FB 78 */	mr r4, r31
+/* 81355BEC 0002610C  81 9E 00 00 */	lwz r12, 0x0(r30)
+/* 81355BF0 00026110  81 8C 00 44 */	lwz r12, 0x44(r12)
+/* 81355BF4 00026114  7D 89 03 A6 */	mtctr r12
+/* 81355BF8 00026118  4E 80 04 21 */	bctrl
+/* 81355BFC 0002611C  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 81355C00 00026120  83 E1 00 0C */	lwz r31, 0xc(r1)
+/* 81355C04 00026124  83 C1 00 08 */	lwz r30, 0x8(r1)
+/* 81355C08 00026128  7C 08 03 A6 */	mtlr r0
+/* 81355C0C 0002612C  38 21 00 10 */	addi r1, r1, 0x10
+/* 81355C10 00026130  4E 80 00 20 */	blr
+.endfn setKeyboardType__Q33ipl8keyboard7ManagerFiQ43ipl8keyboard7Manager12KeyboardType
+
+# .text:0xF44 | 0x81355C14 | size: 0x100
+# ipl::keyboard::Manager::start(int, const ipl::keyboard::Manager::KeyboardSetting&)
+.fn start__Q33ipl8keyboard7ManagerFiRCQ43ipl8keyboard7Manager15KeyboardSetting, global
+/* 81355C14 00026134  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 81355C18 00026138  7C 08 02 A6 */	mflr r0
+/* 81355C1C 0002613C  90 01 00 14 */	stw r0, 0x14(r1)
+/* 81355C20 00026140  93 E1 00 0C */	stw r31, 0xc(r1)
+/* 81355C24 00026144  7C BF 2B 78 */	mr r31, r5
+/* 81355C28 00026148  80 A5 00 00 */	lwz r5, 0x0(r5)
+/* 81355C2C 0002614C  93 C1 00 08 */	stw r30, 0x8(r1)
+/* 81355C30 00026150  7C 7E 1B 78 */	mr r30, r3
+/* 81355C34 00026154  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81355C38 00026158  81 8C 00 20 */	lwz r12, 0x20(r12)
+/* 81355C3C 0002615C  7D 89 03 A6 */	mtctr r12
+/* 81355C40 00026160  4E 80 04 21 */	bctrl
+/* 81355C44 00026164  80 9F 00 04 */	lwz r4, 0x4(r31)
+/* 81355C48 00026168  2C 04 00 00 */	cmpwi r4, 0x0
+/* 81355C4C 0002616C  40 82 00 20 */	bne .L_81355C6C
+/* 81355C50 00026170  80 7E 00 04 */	lwz r3, 0x4(r30)
+/* 81355C54 00026174  38 8D 81 BC */	li r4, lbl_816961FC@sda21
+/* 81355C58 00026178  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81355C5C 0002617C  81 8C 00 2C */	lwz r12, 0x2c(r12)
+/* 81355C60 00026180  7D 89 03 A6 */	mtctr r12
+/* 81355C64 00026184  4E 80 04 21 */	bctrl
+/* 81355C68 00026188  48 00 00 18 */	b .L_81355C80
+.L_81355C6C:
+/* 81355C6C 0002618C  80 7E 00 04 */	lwz r3, 0x4(r30)
+/* 81355C70 00026190  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81355C74 00026194  81 8C 00 2C */	lwz r12, 0x2c(r12)
+/* 81355C78 00026198  7D 89 03 A6 */	mtctr r12
+/* 81355C7C 0002619C  4E 80 04 21 */	bctrl
+.L_81355C80:
+/* 81355C80 000261A0  80 7E 00 04 */	lwz r3, 0x4(r30)
+/* 81355C84 000261A4  80 9F 00 08 */	lwz r4, 0x8(r31)
+/* 81355C88 000261A8  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81355C8C 000261AC  81 8C 00 3C */	lwz r12, 0x3c(r12)
+/* 81355C90 000261B0  7D 89 03 A6 */	mtctr r12
+/* 81355C94 000261B4  4E 80 04 21 */	bctrl
+/* 81355C98 000261B8  80 7E 00 04 */	lwz r3, 0x4(r30)
+/* 81355C9C 000261BC  80 9F 00 0C */	lwz r4, 0xc(r31)
+/* 81355CA0 000261C0  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81355CA4 000261C4  81 8C 00 40 */	lwz r12, 0x40(r12)
+/* 81355CA8 000261C8  7D 89 03 A6 */	mtctr r12
+/* 81355CAC 000261CC  4E 80 04 21 */	bctrl
+/* 81355CB0 000261D0  80 7E 00 04 */	lwz r3, 0x4(r30)
+/* 81355CB4 000261D4  38 8D 81 BC */	li r4, lbl_816961FC@sda21
+/* 81355CB8 000261D8  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81355CBC 000261DC  81 8C 00 58 */	lwz r12, 0x58(r12)
+/* 81355CC0 000261E0  7D 89 03 A6 */	mtctr r12
+/* 81355CC4 000261E4  4E 80 04 21 */	bctrl
+/* 81355CC8 000261E8  80 7E 00 04 */	lwz r3, 0x4(r30)
+/* 81355CCC 000261EC  38 80 00 01 */	li r4, 0x1
+/* 81355CD0 000261F0  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81355CD4 000261F4  81 8C 00 DC */	lwz r12, 0xdc(r12)
+/* 81355CD8 000261F8  7D 89 03 A6 */	mtctr r12
+/* 81355CDC 000261FC  4E 80 04 21 */	bctrl
+/* 81355CE0 00026200  3C 60 81 09 */	lis r3, sSystem__Q23ipl3snd@ha
+/* 81355CE4 00026204  3C 80 81 64 */	lis r4, lbl_81638D50@ha
+/* 81355CE8 00026208  38 63 99 2C */	addi r3, r3, sSystem__Q23ipl3snd@l
+/* 81355CEC 0002620C  38 84 8D 50 */	addi r4, r4, lbl_81638D50@l
+/* 81355CF0 00026210  48 01 57 7D */	bl startSE__Q33ipl3snd6SystemFPCc
+/* 81355CF4 00026214  38 00 00 01 */	li r0, 0x1
+/* 81355CF8 00026218  98 1E 00 2C */	stb r0, 0x2c(r30)
+/* 81355CFC 0002621C  83 E1 00 0C */	lwz r31, 0xc(r1)
+/* 81355D00 00026220  83 C1 00 08 */	lwz r30, 0x8(r1)
+/* 81355D04 00026224  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 81355D08 00026228  7C 08 03 A6 */	mtlr r0
+/* 81355D0C 0002622C  38 21 00 10 */	addi r1, r1, 0x10
+/* 81355D10 00026230  4E 80 00 20 */	blr
+.endfn start__Q33ipl8keyboard7ManagerFiRCQ43ipl8keyboard7Manager15KeyboardSetting
+
+# .text:0x1044 | 0x81355D14 | size: 0xA8
+# ipl::keyboard::Manager::ok()
+.fn ok__Q33ipl8keyboard7ManagerFv, global
+/* 81355D14 00026234  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 81355D18 00026238  7C 08 02 A6 */	mflr r0
+/* 81355D1C 0002623C  38 80 00 01 */	li r4, 0x1
+/* 81355D20 00026240  90 01 00 14 */	stw r0, 0x14(r1)
+/* 81355D24 00026244  38 00 00 01 */	li r0, 0x1
+/* 81355D28 00026248  93 E1 00 0C */	stw r31, 0xc(r1)
+/* 81355D2C 0002624C  7C 7F 1B 78 */	mr r31, r3
+/* 81355D30 00026250  98 03 00 18 */	stb r0, 0x18(r3)
+/* 81355D34 00026254  80 63 00 04 */	lwz r3, 0x4(r3)
+/* 81355D38 00026258  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81355D3C 0002625C  81 8C 00 DC */	lwz r12, 0xdc(r12)
+/* 81355D40 00026260  7D 89 03 A6 */	mtctr r12
+/* 81355D44 00026264  4E 80 04 21 */	bctrl
+/* 81355D48 00026268  3C 60 81 09 */	lis r3, sSystem__Q23ipl3snd@ha
+/* 81355D4C 0002626C  3C 80 81 64 */	lis r4, lbl_81638D60@ha
+/* 81355D50 00026270  38 63 99 2C */	addi r3, r3, sSystem__Q23ipl3snd@l
+/* 81355D54 00026274  38 84 8D 60 */	addi r4, r4, lbl_81638D60@l
+/* 81355D58 00026278  48 01 57 15 */	bl startSE__Q33ipl3snd6SystemFPCc
+/* 81355D5C 0002627C  80 7F 00 04 */	lwz r3, 0x4(r31)
+/* 81355D60 00026280  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81355D64 00026284  81 8C 00 E8 */	lwz r12, 0xe8(r12)
+/* 81355D68 00026288  7D 89 03 A6 */	mtctr r12
+/* 81355D6C 0002628C  4E 80 04 21 */	bctrl
+/* 81355D70 00026290  2C 03 00 01 */	cmpwi r3, 0x1
+/* 81355D74 00026294  41 82 00 20 */	beq .L_81355D94
+/* 81355D78 00026298  80 7F 00 04 */	lwz r3, 0x4(r31)
+/* 81355D7C 0002629C  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81355D80 000262A0  81 8C 00 E8 */	lwz r12, 0xe8(r12)
+/* 81355D84 000262A4  7D 89 03 A6 */	mtctr r12
+/* 81355D88 000262A8  4E 80 04 21 */	bctrl
+/* 81355D8C 000262AC  2C 03 00 02 */	cmpwi r3, 0x2
+/* 81355D90 000262B0  40 82 00 18 */	bne .L_81355DA8
+.L_81355D94:
+/* 81355D94 000262B4  81 9F 00 00 */	lwz r12, 0x0(r31)
+/* 81355D98 000262B8  7F E3 FB 78 */	mr r3, r31
+/* 81355D9C 000262BC  81 8C 00 48 */	lwz r12, 0x48(r12)
+/* 81355DA0 000262C0  7D 89 03 A6 */	mtctr r12
+/* 81355DA4 000262C4  4E 80 04 21 */	bctrl
+.L_81355DA8:
+/* 81355DA8 000262C8  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 81355DAC 000262CC  83 E1 00 0C */	lwz r31, 0xc(r1)
+/* 81355DB0 000262D0  7C 08 03 A6 */	mtlr r0
+/* 81355DB4 000262D4  38 21 00 10 */	addi r1, r1, 0x10
+/* 81355DB8 000262D8  4E 80 00 20 */	blr
+.endfn ok__Q33ipl8keyboard7ManagerFv
+
+# .text:0x10EC | 0x81355DBC | size: 0x8
+# textinput::extend::memo::Manager::getConfigType()
+.fn getConfigType__Q49textinput6extend4memo7ManagerFv, global
+/* 81355DBC 000262DC  80 63 00 44 */	lwz r3, 0x44(r3)
+/* 81355DC0 000262E0  4E 80 00 20 */	blr
+.endfn getConfigType__Q49textinput6extend4memo7ManagerFv
+
+# .text:0x10F4 | 0x81355DC4 | size: 0xA8
+# ipl::keyboard::Manager::cancel()
+.fn cancel__Q33ipl8keyboard7ManagerFv, global
+/* 81355DC4 000262E4  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 81355DC8 000262E8  7C 08 02 A6 */	mflr r0
+/* 81355DCC 000262EC  38 80 00 01 */	li r4, 0x1
+/* 81355DD0 000262F0  90 01 00 14 */	stw r0, 0x14(r1)
+/* 81355DD4 000262F4  38 00 00 00 */	li r0, 0x0
+/* 81355DD8 000262F8  93 E1 00 0C */	stw r31, 0xc(r1)
+/* 81355DDC 000262FC  7C 7F 1B 78 */	mr r31, r3
+/* 81355DE0 00026300  98 03 00 18 */	stb r0, 0x18(r3)
+/* 81355DE4 00026304  80 63 00 04 */	lwz r3, 0x4(r3)
+/* 81355DE8 00026308  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81355DEC 0002630C  81 8C 00 DC */	lwz r12, 0xdc(r12)
+/* 81355DF0 00026310  7D 89 03 A6 */	mtctr r12
+/* 81355DF4 00026314  4E 80 04 21 */	bctrl
+/* 81355DF8 00026318  3C 60 81 09 */	lis r3, sSystem__Q23ipl3snd@ha
+/* 81355DFC 0002631C  3C 80 81 64 */	lis r4, lbl_81638D78@ha
+/* 81355E00 00026320  38 63 99 2C */	addi r3, r3, sSystem__Q23ipl3snd@l
+/* 81355E04 00026324  38 84 8D 78 */	addi r4, r4, lbl_81638D78@l
+/* 81355E08 00026328  48 01 56 65 */	bl startSE__Q33ipl3snd6SystemFPCc
+/* 81355E0C 0002632C  80 7F 00 04 */	lwz r3, 0x4(r31)
+/* 81355E10 00026330  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81355E14 00026334  81 8C 00 E8 */	lwz r12, 0xe8(r12)
+/* 81355E18 00026338  7D 89 03 A6 */	mtctr r12
+/* 81355E1C 0002633C  4E 80 04 21 */	bctrl
+/* 81355E20 00026340  2C 03 00 01 */	cmpwi r3, 0x1
+/* 81355E24 00026344  41 82 00 20 */	beq .L_81355E44
+/* 81355E28 00026348  80 7F 00 04 */	lwz r3, 0x4(r31)
+/* 81355E2C 0002634C  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81355E30 00026350  81 8C 00 E8 */	lwz r12, 0xe8(r12)
+/* 81355E34 00026354  7D 89 03 A6 */	mtctr r12
+/* 81355E38 00026358  4E 80 04 21 */	bctrl
+/* 81355E3C 0002635C  2C 03 00 02 */	cmpwi r3, 0x2
+/* 81355E40 00026360  40 82 00 18 */	bne .L_81355E58
+.L_81355E44:
+/* 81355E44 00026364  81 9F 00 00 */	lwz r12, 0x0(r31)
+/* 81355E48 00026368  7F E3 FB 78 */	mr r3, r31
+/* 81355E4C 0002636C  81 8C 00 48 */	lwz r12, 0x48(r12)
+/* 81355E50 00026370  7D 89 03 A6 */	mtctr r12
+/* 81355E54 00026374  4E 80 04 21 */	bctrl
+.L_81355E58:
+/* 81355E58 00026378  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 81355E5C 0002637C  83 E1 00 0C */	lwz r31, 0xc(r1)
+/* 81355E60 00026380  7C 08 03 A6 */	mtlr r0
+/* 81355E64 00026384  38 21 00 10 */	addi r1, r1, 0x10
+/* 81355E68 00026388  4E 80 00 20 */	blr
+.endfn cancel__Q33ipl8keyboard7ManagerFv
+
+# .text:0x119C | 0x81355E6C | size: 0x40
+# ipl::keyboard::Manager::doRumble()
+.fn doRumble__Q33ipl8keyboard7ManagerFv, global
+/* 81355E6C 0002638C  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 81355E70 00026390  7C 08 02 A6 */	mflr r0
+/* 81355E74 00026394  90 01 00 14 */	stw r0, 0x14(r1)
+/* 81355E78 00026398  80 63 00 20 */	lwz r3, 0x20(r3)
+/* 81355E7C 0002639C  4B FD FB 4D */	bl getController__Q23ipl6SystemFi
+/* 81355E80 000263A0  2C 03 00 00 */	cmpwi r3, 0x0
+/* 81355E84 000263A4  41 82 00 18 */	beq .L_81355E9C
+/* 81355E88 000263A8  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81355E8C 000263AC  38 80 00 01 */	li r4, 0x1
+/* 81355E90 000263B0  81 8C 00 34 */	lwz r12, 0x34(r12)
+/* 81355E94 000263B4  7D 89 03 A6 */	mtctr r12
+/* 81355E98 000263B8  4E 80 04 21 */	bctrl
+.L_81355E9C:
+/* 81355E9C 000263BC  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 81355EA0 000263C0  7C 08 03 A6 */	mtlr r0
+/* 81355EA4 000263C4  38 21 00 10 */	addi r1, r1, 0x10
+/* 81355EA8 000263C8  4E 80 00 20 */	blr
+.endfn doRumble__Q33ipl8keyboard7ManagerFv
+
+# .text:0x11DC | 0x81355EAC | size: 0x20
+# ipl::keyboard::Manager::setWCString(const wchar_t*)
+.fn setWCString__Q33ipl8keyboard7ManagerFPCw, global
+/* 81355EAC 000263CC  2C 04 00 00 */	cmpwi r4, 0x0
+/* 81355EB0 000263D0  4D 82 00 20 */	beqlr
+/* 81355EB4 000263D4  80 63 00 04 */	lwz r3, 0x4(r3)
+/* 81355EB8 000263D8  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81355EBC 000263DC  81 8C 00 2C */	lwz r12, 0x2c(r12)
+/* 81355EC0 000263E0  7D 89 03 A6 */	mtctr r12
+/* 81355EC4 000263E4  4E 80 04 20 */	bctr
+/* 81355EC8 000263E8  4E 80 00 20 */	blr
+.endfn setWCString__Q33ipl8keyboard7ManagerFPCw
+
+# .text:0x11FC | 0x81355ECC | size: 0x184
+# ipl::keyboard::Manager::setLanguage(unsigned long)
+.fn setLanguage__Q33ipl8keyboard7ManagerFUl, global
+/* 81355ECC 000263EC  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 81355ED0 000263F0  7C 08 02 A6 */	mflr r0
+/* 81355ED4 000263F4  28 04 00 09 */	cmplwi r4, 0x9
+/* 81355ED8 000263F8  90 01 00 14 */	stw r0, 0x14(r1)
+/* 81355EDC 000263FC  93 E1 00 0C */	stw r31, 0xc(r1)
+/* 81355EE0 00026400  7C 7F 1B 78 */	mr r31, r3
+/* 81355EE4 00026404  41 81 01 40 */	bgt .L_81356024
+/* 81355EE8 00026408  3C A0 81 64 */	lis r5, jumptable_81638D90@ha
+/* 81355EEC 0002640C  54 80 10 3A */	slwi r0, r4, 2
+/* 81355EF0 00026410  38 A5 8D 90 */	addi r5, r5, jumptable_81638D90@l
+/* 81355EF4 00026414  7C A5 00 2E */	lwzx r5, r5, r0
+/* 81355EF8 00026418  7C A9 03 A6 */	mtctr r5
+/* 81355EFC 0002641C  4E 80 04 20 */	bctr
+.L_81355F00:
+/* 81355F00 00026420  80 63 00 04 */	lwz r3, 0x4(r3)
+/* 81355F04 00026424  38 80 00 00 */	li r4, 0x0
+/* 81355F08 00026428  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81355F0C 0002642C  81 8C 00 30 */	lwz r12, 0x30(r12)
+/* 81355F10 00026430  7D 89 03 A6 */	mtctr r12
+/* 81355F14 00026434  4E 80 04 21 */	bctrl
+/* 81355F18 00026438  48 00 01 24 */	b .L_8135603C
+.L_81355F1C:
+/* 81355F1C 0002643C  80 63 00 04 */	lwz r3, 0x4(r3)
+/* 81355F20 00026440  38 80 00 04 */	li r4, 0x4
+/* 81355F24 00026444  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81355F28 00026448  81 8C 00 30 */	lwz r12, 0x30(r12)
+/* 81355F2C 0002644C  7D 89 03 A6 */	mtctr r12
+/* 81355F30 00026450  4E 80 04 21 */	bctrl
+/* 81355F34 00026454  48 00 01 08 */	b .L_8135603C
+.L_81355F38:
+/* 81355F38 00026458  80 63 00 04 */	lwz r3, 0x4(r3)
+/* 81355F3C 0002645C  38 80 00 03 */	li r4, 0x3
+/* 81355F40 00026460  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81355F44 00026464  81 8C 00 30 */	lwz r12, 0x30(r12)
+/* 81355F48 00026468  7D 89 03 A6 */	mtctr r12
+/* 81355F4C 0002646C  4E 80 04 21 */	bctrl
+/* 81355F50 00026470  48 00 00 EC */	b .L_8135603C
+.L_81355F54:
+/* 81355F54 00026474  80 63 00 04 */	lwz r3, 0x4(r3)
+/* 81355F58 00026478  38 80 00 06 */	li r4, 0x6
+/* 81355F5C 0002647C  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81355F60 00026480  81 8C 00 30 */	lwz r12, 0x30(r12)
+/* 81355F64 00026484  7D 89 03 A6 */	mtctr r12
+/* 81355F68 00026488  4E 80 04 21 */	bctrl
+/* 81355F6C 0002648C  48 00 00 D0 */	b .L_8135603C
+.L_81355F70:
+/* 81355F70 00026490  80 63 00 04 */	lwz r3, 0x4(r3)
+/* 81355F74 00026494  38 80 00 05 */	li r4, 0x5
+/* 81355F78 00026498  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81355F7C 0002649C  81 8C 00 30 */	lwz r12, 0x30(r12)
+/* 81355F80 000264A0  7D 89 03 A6 */	mtctr r12
+/* 81355F84 000264A4  4E 80 04 21 */	bctrl
+/* 81355F88 000264A8  48 00 00 B4 */	b .L_8135603C
+.L_81355F8C:
+/* 81355F8C 000264AC  80 63 00 04 */	lwz r3, 0x4(r3)
+/* 81355F90 000264B0  38 80 00 07 */	li r4, 0x7
+/* 81355F94 000264B4  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81355F98 000264B8  81 8C 00 30 */	lwz r12, 0x30(r12)
+/* 81355F9C 000264BC  7D 89 03 A6 */	mtctr r12
+/* 81355FA0 000264C0  4E 80 04 21 */	bctrl
+/* 81355FA4 000264C4  48 00 00 98 */	b .L_8135603C
+.L_81355FA8:
+/* 81355FA8 000264C8  80 63 00 04 */	lwz r3, 0x4(r3)
+/* 81355FAC 000264CC  38 80 00 08 */	li r4, 0x8
+/* 81355FB0 000264D0  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81355FB4 000264D4  81 8C 00 30 */	lwz r12, 0x30(r12)
+/* 81355FB8 000264D8  7D 89 03 A6 */	mtctr r12
+/* 81355FBC 000264DC  4E 80 04 21 */	bctrl
+/* 81355FC0 000264E0  48 00 00 7C */	b .L_8135603C
+.L_81355FC4:
+/* 81355FC4 000264E4  80 63 00 04 */	lwz r3, 0x4(r3)
+/* 81355FC8 000264E8  38 80 00 09 */	li r4, 0x9
+/* 81355FCC 000264EC  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81355FD0 000264F0  81 8C 00 30 */	lwz r12, 0x30(r12)
+/* 81355FD4 000264F4  7D 89 03 A6 */	mtctr r12
+/* 81355FD8 000264F8  4E 80 04 21 */	bctrl
+/* 81355FDC 000264FC  48 00 00 60 */	b .L_8135603C
+.L_81355FE0:
+/* 81355FE0 00026500  4B FD FA AD */	bl getRegion__Q23ipl6SystemFv
+/* 81355FE4 00026504  28 03 00 02 */	cmplwi r3, 0x2
+/* 81355FE8 00026508  40 82 00 20 */	bne .L_81356008
+/* 81355FEC 0002650C  80 7F 00 04 */	lwz r3, 0x4(r31)
+/* 81355FF0 00026510  38 80 00 02 */	li r4, 0x2
+/* 81355FF4 00026514  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81355FF8 00026518  81 8C 00 30 */	lwz r12, 0x30(r12)
+/* 81355FFC 0002651C  7D 89 03 A6 */	mtctr r12
+/* 81356000 00026520  4E 80 04 21 */	bctrl
+/* 81356004 00026524  48 00 00 38 */	b .L_8135603C
+.L_81356008:
+/* 81356008 00026528  80 7F 00 04 */	lwz r3, 0x4(r31)
+/* 8135600C 0002652C  38 80 00 01 */	li r4, 0x1
+/* 81356010 00026530  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81356014 00026534  81 8C 00 30 */	lwz r12, 0x30(r12)
+/* 81356018 00026538  7D 89 03 A6 */	mtctr r12
+/* 8135601C 0002653C  4E 80 04 21 */	bctrl
+/* 81356020 00026540  48 00 00 1C */	b .L_8135603C
+.L_81356024:
+/* 81356024 00026544  80 63 00 04 */	lwz r3, 0x4(r3)
+/* 81356028 00026548  38 80 00 01 */	li r4, 0x1
+/* 8135602C 0002654C  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81356030 00026550  81 8C 00 30 */	lwz r12, 0x30(r12)
+/* 81356034 00026554  7D 89 03 A6 */	mtctr r12
+/* 81356038 00026558  4E 80 04 21 */	bctrl
+.L_8135603C:
+/* 8135603C 0002655C  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 81356040 00026560  83 E1 00 0C */	lwz r31, 0xc(r1)
+/* 81356044 00026564  7C 08 03 A6 */	mtlr r0
+/* 81356048 00026568  38 21 00 10 */	addi r1, r1, 0x10
+/* 8135604C 0002656C  4E 80 00 20 */	blr
+.endfn setLanguage__Q33ipl8keyboard7ManagerFUl
+
+# .text:0x1380 | 0x81356050 | size: 0x1C4
+# ipl::keyboard::Manager::setConfigure(ipl::keyboard::Manager::KeyboardType)
+.fn setConfigure__Q33ipl8keyboard7ManagerFQ43ipl8keyboard7Manager12KeyboardType, global
+/* 81356050 00026570  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 81356054 00026574  7C 08 02 A6 */	mflr r0
+/* 81356058 00026578  90 01 00 14 */	stw r0, 0x14(r1)
+/* 8135605C 0002657C  93 E1 00 0C */	stw r31, 0xc(r1)
+/* 81356060 00026580  7C 9F 23 78 */	mr r31, r4
+/* 81356064 00026584  38 80 00 01 */	li r4, 0x1
+/* 81356068 00026588  93 C1 00 08 */	stw r30, 0x8(r1)
+/* 8135606C 0002658C  7C 7E 1B 78 */	mr r30, r3
+/* 81356070 00026590  80 63 00 04 */	lwz r3, 0x4(r3)
+/* 81356074 00026594  48 0E 30 2D */	bl enableCompatibleFilter__Q29textinput7ManagerFb
+/* 81356078 00026598  28 1F 00 0D */	cmplwi r31, 0xd
+/* 8135607C 0002659C  41 81 01 6C */	bgt .L_813561E8
+/* 81356080 000265A0  3C 60 81 64 */	lis r3, jumptable_81638DB8@ha
+/* 81356084 000265A4  57 E0 10 3A */	slwi r0, r31, 2
+/* 81356088 000265A8  38 63 8D B8 */	addi r3, r3, jumptable_81638DB8@l
+/* 8135608C 000265AC  7C 63 00 2E */	lwzx r3, r3, r0
+/* 81356090 000265B0  7C 69 03 A6 */	mtctr r3
+/* 81356094 000265B4  4E 80 04 20 */	bctr
+.L_81356098:
+/* 81356098 000265B8  80 7E 00 04 */	lwz r3, 0x4(r30)
+/* 8135609C 000265BC  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 813560A0 000265C0  81 8C 00 F4 */	lwz r12, 0xf4(r12)
+/* 813560A4 000265C4  7D 89 03 A6 */	mtctr r12
+/* 813560A8 000265C8  4E 80 04 21 */	bctrl
+/* 813560AC 000265CC  48 00 01 50 */	b .L_813561FC
+.L_813560B0:
+/* 813560B0 000265D0  80 7E 00 04 */	lwz r3, 0x4(r30)
+/* 813560B4 000265D4  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 813560B8 000265D8  81 8C 00 F8 */	lwz r12, 0xf8(r12)
+/* 813560BC 000265DC  7D 89 03 A6 */	mtctr r12
+/* 813560C0 000265E0  4E 80 04 21 */	bctrl
+/* 813560C4 000265E4  48 00 01 38 */	b .L_813561FC
+.L_813560C8:
+/* 813560C8 000265E8  80 7E 00 04 */	lwz r3, 0x4(r30)
+/* 813560CC 000265EC  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 813560D0 000265F0  81 8C 00 FC */	lwz r12, 0xfc(r12)
+/* 813560D4 000265F4  7D 89 03 A6 */	mtctr r12
+/* 813560D8 000265F8  4E 80 04 21 */	bctrl
+/* 813560DC 000265FC  48 00 01 20 */	b .L_813561FC
+.L_813560E0:
+/* 813560E0 00026600  80 7E 00 04 */	lwz r3, 0x4(r30)
+/* 813560E4 00026604  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 813560E8 00026608  81 8C 01 00 */	lwz r12, 0x100(r12)
+/* 813560EC 0002660C  7D 89 03 A6 */	mtctr r12
+/* 813560F0 00026610  4E 80 04 21 */	bctrl
+/* 813560F4 00026614  48 00 01 08 */	b .L_813561FC
+.L_813560F8:
+/* 813560F8 00026618  80 7E 00 04 */	lwz r3, 0x4(r30)
+/* 813560FC 0002661C  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81356100 00026620  81 8C 01 04 */	lwz r12, 0x104(r12)
+/* 81356104 00026624  7D 89 03 A6 */	mtctr r12
+/* 81356108 00026628  4E 80 04 21 */	bctrl
+/* 8135610C 0002662C  48 00 00 F0 */	b .L_813561FC
+.L_81356110:
+/* 81356110 00026630  80 7E 00 04 */	lwz r3, 0x4(r30)
+/* 81356114 00026634  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81356118 00026638  81 8C 01 24 */	lwz r12, 0x124(r12)
+/* 8135611C 0002663C  7D 89 03 A6 */	mtctr r12
+/* 81356120 00026640  4E 80 04 21 */	bctrl
+/* 81356124 00026644  48 00 00 D8 */	b .L_813561FC
+.L_81356128:
+/* 81356128 00026648  80 7E 00 04 */	lwz r3, 0x4(r30)
+/* 8135612C 0002664C  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81356130 00026650  81 8C 01 08 */	lwz r12, 0x108(r12)
+/* 81356134 00026654  7D 89 03 A6 */	mtctr r12
+/* 81356138 00026658  4E 80 04 21 */	bctrl
+/* 8135613C 0002665C  48 00 00 C0 */	b .L_813561FC
+.L_81356140:
+/* 81356140 00026660  80 7E 00 04 */	lwz r3, 0x4(r30)
+/* 81356144 00026664  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81356148 00026668  81 8C 01 0C */	lwz r12, 0x10c(r12)
+/* 8135614C 0002666C  7D 89 03 A6 */	mtctr r12
+/* 81356150 00026670  4E 80 04 21 */	bctrl
+/* 81356154 00026674  48 00 00 A8 */	b .L_813561FC
+.L_81356158:
+/* 81356158 00026678  80 7E 00 04 */	lwz r3, 0x4(r30)
+/* 8135615C 0002667C  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81356160 00026680  81 8C 01 10 */	lwz r12, 0x110(r12)
+/* 81356164 00026684  7D 89 03 A6 */	mtctr r12
+/* 81356168 00026688  4E 80 04 21 */	bctrl
+/* 8135616C 0002668C  48 00 00 90 */	b .L_813561FC
+.L_81356170:
+/* 81356170 00026690  80 7E 00 04 */	lwz r3, 0x4(r30)
+/* 81356174 00026694  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81356178 00026698  81 8C 01 14 */	lwz r12, 0x114(r12)
+/* 8135617C 0002669C  7D 89 03 A6 */	mtctr r12
+/* 81356180 000266A0  4E 80 04 21 */	bctrl
+/* 81356184 000266A4  48 00 00 78 */	b .L_813561FC
+.L_81356188:
+/* 81356188 000266A8  80 7E 00 04 */	lwz r3, 0x4(r30)
+/* 8135618C 000266AC  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81356190 000266B0  81 8C 01 18 */	lwz r12, 0x118(r12)
+/* 81356194 000266B4  7D 89 03 A6 */	mtctr r12
+/* 81356198 000266B8  4E 80 04 21 */	bctrl
+/* 8135619C 000266BC  48 00 00 60 */	b .L_813561FC
+.L_813561A0:
+/* 813561A0 000266C0  80 7E 00 04 */	lwz r3, 0x4(r30)
+/* 813561A4 000266C4  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 813561A8 000266C8  81 8C 01 1C */	lwz r12, 0x11c(r12)
+/* 813561AC 000266CC  7D 89 03 A6 */	mtctr r12
+/* 813561B0 000266D0  4E 80 04 21 */	bctrl
+/* 813561B4 000266D4  48 00 00 48 */	b .L_813561FC
+.L_813561B8:
+/* 813561B8 000266D8  80 7E 00 04 */	lwz r3, 0x4(r30)
+/* 813561BC 000266DC  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 813561C0 000266E0  81 8C 01 20 */	lwz r12, 0x120(r12)
+/* 813561C4 000266E4  7D 89 03 A6 */	mtctr r12
+/* 813561C8 000266E8  4E 80 04 21 */	bctrl
+/* 813561CC 000266EC  48 00 00 30 */	b .L_813561FC
+.L_813561D0:
+/* 813561D0 000266F0  80 7E 00 04 */	lwz r3, 0x4(r30)
+/* 813561D4 000266F4  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 813561D8 000266F8  81 8C 01 28 */	lwz r12, 0x128(r12)
+/* 813561DC 000266FC  7D 89 03 A6 */	mtctr r12
+/* 813561E0 00026700  4E 80 04 21 */	bctrl
+/* 813561E4 00026704  48 00 00 18 */	b .L_813561FC
+.L_813561E8:
+/* 813561E8 00026708  80 7E 00 04 */	lwz r3, 0x4(r30)
+/* 813561EC 0002670C  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 813561F0 00026710  81 8C 00 F4 */	lwz r12, 0xf4(r12)
+/* 813561F4 00026714  7D 89 03 A6 */	mtctr r12
+/* 813561F8 00026718  4E 80 04 21 */	bctrl
+.L_813561FC:
+/* 813561FC 0002671C  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 81356200 00026720  83 E1 00 0C */	lwz r31, 0xc(r1)
+/* 81356204 00026724  83 C1 00 08 */	lwz r30, 0x8(r1)
+/* 81356208 00026728  7C 08 03 A6 */	mtlr r0
+/* 8135620C 0002672C  38 21 00 10 */	addi r1, r1, 0x10
+/* 81356210 00026730  4E 80 00 20 */	blr
+.endfn setConfigure__Q33ipl8keyboard7ManagerFQ43ipl8keyboard7Manager12KeyboardType
+
+# .text:0x1544 | 0x81356214 | size: 0x154
+# ipl::keyboard::Manager::doSave()
+.fn doSave__Q33ipl8keyboard7ManagerFv, global
+/* 81356214 00026734  94 21 FF D0 */	stwu r1, -0x30(r1)
+/* 81356218 00026738  7C 08 02 A6 */	mflr r0
+/* 8135621C 0002673C  90 01 00 34 */	stw r0, 0x34(r1)
+/* 81356220 00026740  93 E1 00 2C */	stw r31, 0x2c(r1)
+/* 81356224 00026744  7C 7F 1B 78 */	mr r31, r3
+/* 81356228 00026748  93 C1 00 28 */	stw r30, 0x28(r1)
+/* 8135622C 0002674C  80 63 00 04 */	lwz r3, 0x4(r3)
+/* 81356230 00026750  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81356234 00026754  81 8C 00 D8 */	lwz r12, 0xd8(r12)
+/* 81356238 00026758  7D 89 03 A6 */	mtctr r12
+/* 8135623C 0002675C  4E 80 04 21 */	bctrl
+/* 81356240 00026760  54 8A 46 3E */	srwi r10, r4, 24
+/* 81356244 00026764  54 69 46 3E */	srwi r9, r3, 24
+/* 81356248 00026768  99 41 00 1C */	stb r10, 0x1c(r1)
+/* 8135624C 0002676C  54 8A 86 3E */	extrwi r10, r4, 8, 8
+/* 81356250 00026770  38 A0 00 08 */	li r5, 0x8
+/* 81356254 00026774  99 21 00 18 */	stb r9, 0x18(r1)
+/* 81356258 00026778  54 69 86 3E */	extrwi r9, r3, 8, 8
+/* 8135625C 0002677C  88 C1 00 1C */	lbz r6, 0x1c(r1)
+/* 81356260 00026780  99 41 00 1D */	stb r10, 0x1d(r1)
+/* 81356264 00026784  54 8A C6 3E */	extrwi r10, r4, 8, 16
+/* 81356268 00026788  89 01 00 18 */	lbz r8, 0x18(r1)
+/* 8135626C 0002678C  99 21 00 19 */	stb r9, 0x19(r1)
+/* 81356270 00026790  54 69 C6 3E */	extrwi r9, r3, 8, 16
+/* 81356274 00026794  88 01 00 1D */	lbz r0, 0x1d(r1)
+/* 81356278 00026798  88 E1 00 19 */	lbz r7, 0x19(r1)
+/* 8135627C 0002679C  99 41 00 1E */	stb r10, 0x1e(r1)
+/* 81356280 000267A0  98 81 00 1F */	stb r4, 0x1f(r1)
+/* 81356284 000267A4  98 81 00 0F */	stb r4, 0xf(r1)
+/* 81356288 000267A8  38 81 00 08 */	addi r4, r1, 0x8
+/* 8135628C 000267AC  99 21 00 1A */	stb r9, 0x1a(r1)
+/* 81356290 000267B0  98 61 00 1B */	stb r3, 0x1b(r1)
+/* 81356294 000267B4  98 61 00 0B */	stb r3, 0xb(r1)
+/* 81356298 000267B8  38 61 00 10 */	addi r3, r1, 0x10
+/* 8135629C 000267BC  99 01 00 08 */	stb r8, 0x8(r1)
+/* 813562A0 000267C0  98 E1 00 09 */	stb r7, 0x9(r1)
+/* 813562A4 000267C4  99 21 00 0A */	stb r9, 0xa(r1)
+/* 813562A8 000267C8  98 C1 00 0C */	stb r6, 0xc(r1)
+/* 813562AC 000267CC  98 01 00 0D */	stb r0, 0xd(r1)
+/* 813562B0 000267D0  99 41 00 0E */	stb r10, 0xe(r1)
+/* 813562B4 000267D4  88 DF 00 2E */	lbz r6, 0x2e(r31)
+/* 813562B8 000267D8  88 1F 00 2F */	lbz r0, 0x2f(r31)
+/* 813562BC 000267DC  98 C1 00 10 */	stb r6, 0x10(r1)
+/* 813562C0 000267E0  98 01 00 11 */	stb r0, 0x11(r1)
+/* 813562C4 000267E4  88 DF 00 30 */	lbz r6, 0x30(r31)
+/* 813562C8 000267E8  88 1F 00 31 */	lbz r0, 0x31(r31)
+/* 813562CC 000267EC  98 C1 00 12 */	stb r6, 0x12(r1)
+/* 813562D0 000267F0  98 01 00 13 */	stb r0, 0x13(r1)
+/* 813562D4 000267F4  88 DF 00 32 */	lbz r6, 0x32(r31)
+/* 813562D8 000267F8  88 1F 00 33 */	lbz r0, 0x33(r31)
+/* 813562DC 000267FC  98 C1 00 14 */	stb r6, 0x14(r1)
+/* 813562E0 00026800  98 01 00 15 */	stb r0, 0x15(r1)
+/* 813562E4 00026804  88 DF 00 34 */	lbz r6, 0x34(r31)
+/* 813562E8 00026808  88 1F 00 35 */	lbz r0, 0x35(r31)
+/* 813562EC 0002680C  98 C1 00 16 */	stb r6, 0x16(r1)
+/* 813562F0 00026810  98 01 00 17 */	stb r0, 0x17(r1)
+/* 813562F4 00026814  48 2A 7E E1 */	bl memcmp
+/* 813562F8 00026818  7C 60 00 34 */	cntlzw r0, r3
+/* 813562FC 0002681C  38 60 00 00 */	li r3, 0x0
+/* 81356300 00026820  54 00 D9 7F */	srwi. r0, r0, 5
+/* 81356304 00026824  40 82 00 14 */	bne .L_81356318
+/* 81356308 00026828  80 1F 00 38 */	lwz r0, 0x38(r31)
+/* 8135630C 0002682C  2C 00 00 00 */	cmpwi r0, 0x0
+/* 81356310 00026830  40 82 00 08 */	bne .L_81356318
+/* 81356314 00026834  38 60 00 01 */	li r3, 0x1
+.L_81356318:
+/* 81356318 00026838  2C 03 00 00 */	cmpwi r3, 0x0
+/* 8135631C 0002683C  41 82 00 34 */	beq .L_81356350
+/* 81356320 00026840  38 7F 00 2E */	addi r3, r31, 0x2e
+/* 81356324 00026844  38 81 00 18 */	addi r4, r1, 0x18
+/* 81356328 00026848  4B FF F1 65 */	bl __as__Q49textinput6extend8savedata11MemoSettingFRCQ49textinput6extend8savedata11MemoSetting
+/* 8135632C 0002684C  3F C0 81 09 */	lis r30, smArg__Q23ipl6System@ha
+/* 81356330 00026850  38 9F 00 2E */	addi r4, r31, 0x2e
+/* 81356334 00026854  3B DE 90 08 */	addi r30, r30, smArg__Q23ipl6System@l
+/* 81356338 00026858  80 7E 00 94 */	lwz r3, 0x94(r30)
+/* 8135633C 0002685C  48 00 1A B5 */	bl setMemoSetting__Q33ipl8savedata7ManagerFRCQ49textinput6extend8savedata11MemoSetting
+/* 81356340 00026860  80 7E 00 94 */	lwz r3, 0x94(r30)
+/* 81356344 00026864  80 9E 00 28 */	lwz r4, 0x28(r30)
+/* 81356348 00026868  48 00 1A ED */	bl flushAsync__Q33ipl8savedata7ManagerFPQ23EGG4Heap
+/* 8135634C 0002686C  90 7F 00 38 */	stw r3, 0x38(r31)
+.L_81356350:
+/* 81356350 00026870  80 01 00 34 */	lwz r0, 0x34(r1)
+/* 81356354 00026874  83 E1 00 2C */	lwz r31, 0x2c(r1)
+/* 81356358 00026878  83 C1 00 28 */	lwz r30, 0x28(r1)
+/* 8135635C 0002687C  7C 08 03 A6 */	mtlr r0
+/* 81356360 00026880  38 21 00 30 */	addi r1, r1, 0x30
+/* 81356364 00026884  4E 80 00 20 */	blr
+.endfn doSave__Q33ipl8keyboard7ManagerFv
+
+# .text:0x1698 | 0x81356368 | size: 0x48
+# textinput::extend::memo::Manager::getSaveData()
+.fn getSaveData__Q49textinput6extend4memo7ManagerFv, global
+/* 81356368 00026888  88 03 00 4C */	lbz r0, 0x4c(r3)
+/* 8135636C 0002688C  7C 66 1B 78 */	mr r6, r3
+/* 81356370 00026890  88 A3 00 48 */	lbz r5, 0x48(r3)
+/* 81356374 00026894  54 04 C0 0E */	slwi r4, r0, 24
+/* 81356378 00026898  88 06 00 4D */	lbz r0, 0x4d(r6)
+/* 8135637C 0002689C  54 A3 C0 0E */	slwi r3, r5, 24
+/* 81356380 000268A0  88 A6 00 49 */	lbz r5, 0x49(r6)
+/* 81356384 000268A4  50 04 82 1E */	rlwimi r4, r0, 16, 8, 15
+/* 81356388 000268A8  88 06 00 4E */	lbz r0, 0x4e(r6)
+/* 8135638C 000268AC  50 A3 82 1E */	rlwimi r3, r5, 16, 8, 15
+/* 81356390 000268B0  88 A6 00 4A */	lbz r5, 0x4a(r6)
+/* 81356394 000268B4  50 04 44 2E */	rlwimi r4, r0, 8, 16, 23
+/* 81356398 000268B8  88 06 00 4F */	lbz r0, 0x4f(r6)
+/* 8135639C 000268BC  50 A3 44 2E */	rlwimi r3, r5, 8, 16, 23
+/* 813563A0 000268C0  88 A6 00 4B */	lbz r5, 0x4b(r6)
+/* 813563A4 000268C4  50 04 06 3E */	rlwimi r4, r0, 0, 24, 31
+/* 813563A8 000268C8  50 A3 06 3E */	rlwimi r3, r5, 0, 24, 31
+/* 813563AC 000268CC  4E 80 00 20 */	blr
+.endfn getSaveData__Q49textinput6extend4memo7ManagerFv
+
+# .text:0x16E0 | 0x813563B0 | size: 0x5C
+# ipl::keyboard::Manager::touchFormInDisp(int)
+.fn touchFormInDisp__Q33ipl8keyboard7ManagerFi, global
+/* 813563B0 000268D0  94 21 FF F0 */	stwu r1, -0x10(r1)
+/* 813563B4 000268D4  7C 08 02 A6 */	mflr r0
+/* 813563B8 000268D8  38 80 00 01 */	li r4, 0x1
+/* 813563BC 000268DC  90 01 00 14 */	stw r0, 0x14(r1)
+/* 813563C0 000268E0  93 E1 00 0C */	stw r31, 0xc(r1)
+/* 813563C4 000268E4  7C 7F 1B 78 */	mr r31, r3
+/* 813563C8 000268E8  80 63 00 04 */	lwz r3, 0x4(r3)
+/* 813563CC 000268EC  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 813563D0 000268F0  81 8C 00 DC */	lwz r12, 0xdc(r12)
+/* 813563D4 000268F4  7D 89 03 A6 */	mtctr r12
+/* 813563D8 000268F8  4E 80 04 21 */	bctrl
+/* 813563DC 000268FC  3C 60 81 09 */	lis r3, sSystem__Q23ipl3snd@ha
+/* 813563E0 00026900  3C 80 81 64 */	lis r4, lbl_81638D50@ha
+/* 813563E4 00026904  38 63 99 2C */	addi r3, r3, sSystem__Q23ipl3snd@l
+/* 813563E8 00026908  38 84 8D 50 */	addi r4, r4, lbl_81638D50@l
+/* 813563EC 0002690C  48 01 50 81 */	bl startSE__Q33ipl3snd6SystemFPCc
+/* 813563F0 00026910  38 00 00 01 */	li r0, 0x1
+/* 813563F4 00026914  98 1F 00 2C */	stb r0, 0x2c(r31)
+/* 813563F8 00026918  83 E1 00 0C */	lwz r31, 0xc(r1)
+/* 813563FC 0002691C  80 01 00 14 */	lwz r0, 0x14(r1)
+/* 81356400 00026920  7C 08 03 A6 */	mtlr r0
+/* 81356404 00026924  38 21 00 10 */	addi r1, r1, 0x10
+/* 81356408 00026928  4E 80 00 20 */	blr
+.endfn touchFormInDisp__Q33ipl8keyboard7ManagerFi
+
+# .text:0x173C | 0x8135640C | size: 0x2C
+# ipl::keyboard::Manager::sendRelease()
+.fn sendRelease__Q33ipl8keyboard7ManagerFv, global
+/* 8135640C 0002692C  80 63 00 04 */	lwz r3, 0x4(r3)
+/* 81356410 00026930  38 80 00 00 */	li r4, 0x0
+/* 81356414 00026934  C0 22 81 94 */	lfs f1, lbl_81694594@sda21(r0)
+/* 81356418 00026938  38 A0 00 00 */	li r5, 0x0
+/* 8135641C 0002693C  81 83 00 00 */	lwz r12, 0x0(r3)
+/* 81356420 00026940  38 C0 00 00 */	li r6, 0x0
+/* 81356424 00026944  FC 40 08 90 */	fmr f2, f1
+/* 81356428 00026948  38 E0 00 00 */	li r7, 0x0
+/* 8135642C 0002694C  81 8C 00 1C */	lwz r12, 0x1c(r12)
+/* 81356430 00026950  7D 89 03 A6 */	mtctr r12
+/* 81356434 00026954  4E 80 04 20 */	bctr
+.endfn sendRelease__Q33ipl8keyboard7ManagerFv
+
+# .text:0x1768 | 0x81356438 | size: 0xC
+# ipl::keyboard::Manager::getZiSystemDic()
+.fn getZiSystemDic__Q33ipl8keyboard7ManagerFv, global
+/* 81356438 00026958  3C 60 81 64 */	lis r3, sZiSysLangTable__Q23ipl8keyboard@ha
+/* 8135643C 0002695C  38 63 89 E8 */	addi r3, r3, sZiSysLangTable__Q23ipl8keyboard@l
+/* 81356440 00026960  4E 80 00 20 */	blr
+.endfn getZiSystemDic__Q33ipl8keyboard7ManagerFv
+
+# .text:0x1774 | 0x81356444 | size: 0xC
+# ipl::keyboard::Manager::getZiOemDic()
+.fn getZiOemDic__Q33ipl8keyboard7ManagerFv, global
+/* 81356444 00026964  3C 60 81 64 */	lis r3, sZiOemLangTable__Q23ipl8keyboard@ha
+/* 81356448 00026968  38 63 8A 40 */	addi r3, r3, sZiOemLangTable__Q23ipl8keyboard@l
+/* 8135644C 0002696C  4E 80 00 20 */	blr
+.endfn getZiOemDic__Q33ipl8keyboard7ManagerFv
+
+# .text:0x1780 | 0x81356450 | size: 0x8
+# ipl::keyboard::Manager::getState()
+.fn getState__Q33ipl8keyboard7ManagerFv, global
+/* 81356450 00026970  38 63 00 10 */	addi r3, r3, 0x10
+/* 81356454 00026974  4E 80 00 20 */	blr
+.endfn getState__Q33ipl8keyboard7ManagerFv
+
+# 0x816389E8..0x81638E78 | size: 0x490
+.data
+.balign 8
+
+# .data:0x0 | 0x816389E8 | size: 0x58
+# ipl::keyboard::sZiSysLangTable
+.obj sZiSysLangTable__Q23ipl8keyboard, local
+	.4byte 0x3B000000
+	.4byte 0x00000000
+	.4byte 0x3A000000
+	.4byte 0x00000000
+	.4byte 0x3F000000
+	.4byte 0x00000000
+	.4byte 0x05000000
+	.4byte 0x00000000
+	.4byte 0x2F000000
+	.4byte 0x00000000
+	.4byte 0x42000000
+	.4byte 0x00000000
+	.4byte 0x41000000
+	.4byte 0x00000000
+	.4byte 0x40000000
+	.4byte 0x00000000
+	.4byte 0x0D000000
+	.4byte 0x00000000
+	.4byte 0x01000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+.endobj sZiSysLangTable__Q23ipl8keyboard
+
+# .data:0x58 | 0x81638A40 | size: 0x58
+# ipl::keyboard::sZiOemLangTable
+.obj sZiOemLangTable__Q23ipl8keyboard, local
+	.4byte 0x3B000000
+	.4byte 0x00000000
+	.4byte 0x3A000000
+	.4byte 0x00000000
+	.4byte 0x3F000000
+	.4byte 0x00000000
+	.4byte 0x05000000
+	.4byte 0x00000000
+	.4byte 0x2F000000
+	.4byte 0x00000000
+	.4byte 0x42000000
+	.4byte 0x00000000
+	.4byte 0x41000000
+	.4byte 0x00000000
+	.4byte 0x40000000
+	.4byte 0x00000000
+	.4byte 0x0D000000
+	.4byte 0x00000000
+	.4byte 0x01000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte 0x00000000
+.endobj sZiOemLangTable__Q23ipl8keyboard
+
+# .data:0xB0 | 0x81638A98 | size: 0x1A8
+.obj lbl_81638A98, global
+	.4byte 0x5749504C
+	.4byte 0x5F53455F
+	.4byte 0x534B5F53
+	.4byte 0x57495443
+	.4byte 0x48494E47
+	.4byte 0x5F303200
+	.4byte 0x5749504C
+	.4byte 0x5F53455F
+	.4byte 0x43484152
+	.4byte 0x5F464F43
+	.4byte 0x55530057
+	.4byte 0x49504C5F
+	.4byte 0x53455F43
+	.4byte 0x4841525F
+	.4byte 0x44454C45
+	.4byte 0x54450057
+	.4byte 0x49504C5F
+	.4byte 0x53455F43
+	.4byte 0x4841525F
+	.4byte 0x44454C45
+	.4byte 0x54455F45
+	.4byte 0x52524F52
+	.4byte 0x00574950
+	.4byte 0x4C5F5345
+	.4byte 0x5F434841
+	.4byte 0x525F4445
+	.4byte 0x43494445
+	.4byte 0x00574950
+	.4byte 0x4C5F5345
+	.4byte 0x5F434841
+	.4byte 0x525F494E
+	.4byte 0x50555400
+	.4byte 0x5749504C
+	.4byte 0x5F53455F
+	.4byte 0x4C494E45
+	.4byte 0x5F534352
+	.4byte 0x4F4C4C00
+	.4byte 0x5749504C
+	.4byte 0x5F53455F
+	.4byte 0x43484152
+	.4byte 0x5F435552
+	.4byte 0x534F5200
+	.4byte 0x5749504C
+	.4byte 0x5F53455F
+	.4byte 0x43484152
+	.4byte 0x5F435552
+	.4byte 0x534F525F
+	.4byte 0x46495800
+	.4byte 0x5749504C
+	.4byte 0x5F53455F
+	.4byte 0x53594D42
+	.4byte 0x4F4C5F50
+	.4byte 0x4147455F
+	.4byte 0x4F50454E
+	.4byte 0x00575344
+	.4byte 0x5F53454C
+	.4byte 0x45435400
+	.4byte 0x5749504C
+	.4byte 0x5F53455F
+	.4byte 0x534B5F50
+	.4byte 0x52454449
+	.4byte 0x43545F4F
+	.4byte 0x4E005749
+	.4byte 0x504C5F53
+	.4byte 0x455F534B
+	.4byte 0x5F505245
+	.4byte 0x44494354
+	.4byte 0x5F4F4646
+	.4byte 0x00574950
+	.4byte 0x4C5F5345
+	.4byte 0x5F434841
+	.4byte 0x525F4C41
+	.4byte 0x52474552
+	.4byte 0x00574950
+	.4byte 0x4C5F5345
+	.4byte 0x5F434841
+	.4byte 0x525F4C4F
+	.4byte 0x57455200
+	.4byte 0x5749504C
+	.4byte 0x5F53455F
+	.4byte 0x534B5F53
+	.4byte 0x57495443
+	.4byte 0x48494E47
+	.4byte 0x5F303100
+	.4byte 0x5749504C
+	.4byte 0x5F53455F
+	.4byte 0x534B5F53
+	.4byte 0x57495443
+	.4byte 0x485F544F
+	.4byte 0x5F4B4554
+	.4byte 0x41490057
+	.4byte 0x49504C5F
+	.4byte 0x53455F42
+	.4byte 0x545F5441
+	.4byte 0x52474554
+	.4byte 0x54494E47
+	.4byte 0x00574950
+	.4byte 0x4C5F5345
+	.4byte 0x5F444543
+	.4byte 0x49444500
+	.4byte 0x5749504C
+	.4byte 0x5F53455F
+	.4byte 0x4D455353
+	.4byte 0x4147455F
+	.4byte 0x5343524F
+	.4byte 0x4C4C0000
+.endobj lbl_81638A98
+
+# .data:0x258 | 0x81638C40 | size: 0x60
+.obj jumptable_81638C40, local
+	.rel onSE__Q33ipl8keyboard13EventObserverFQ39textinput5sound2SE, .L_81354D90
+	.rel onSE__Q33ipl8keyboard13EventObserverFQ39textinput5sound2SE, .L_81354DA4
+	.rel onSE__Q33ipl8keyboard13EventObserverFQ39textinput5sound2SE, .L_81354E30
+	.rel onSE__Q33ipl8keyboard13EventObserverFQ39textinput5sound2SE, .L_81354E44
+	.rel onSE__Q33ipl8keyboard13EventObserverFQ39textinput5sound2SE, .L_81354DCC
+	.rel onSE__Q33ipl8keyboard13EventObserverFQ39textinput5sound2SE, .L_81354DE0
+	.rel onSE__Q33ipl8keyboard13EventObserverFQ39textinput5sound2SE, .L_81354DF4
+	.rel onSE__Q33ipl8keyboard13EventObserverFQ39textinput5sound2SE, .L_81354E08
+	.rel onSE__Q33ipl8keyboard13EventObserverFQ39textinput5sound2SE, .L_81354E1C
+	.rel onSE__Q33ipl8keyboard13EventObserverFQ39textinput5sound2SE, .L_81354F58
+	.rel onSE__Q33ipl8keyboard13EventObserverFQ39textinput5sound2SE, .L_81354E58
+	.rel onSE__Q33ipl8keyboard13EventObserverFQ39textinput5sound2SE, .L_81354E6C
+	.rel onSE__Q33ipl8keyboard13EventObserverFQ39textinput5sound2SE, .L_81354E80
+	.rel onSE__Q33ipl8keyboard13EventObserverFQ39textinput5sound2SE, .L_81354E94
+	.rel onSE__Q33ipl8keyboard13EventObserverFQ39textinput5sound2SE, .L_81354EA8
+	.rel onSE__Q33ipl8keyboard13EventObserverFQ39textinput5sound2SE, .L_81354F58
+	.rel onSE__Q33ipl8keyboard13EventObserverFQ39textinput5sound2SE, .L_81354E6C
+	.rel onSE__Q33ipl8keyboard13EventObserverFQ39textinput5sound2SE, .L_81354EBC
+	.rel onSE__Q33ipl8keyboard13EventObserverFQ39textinput5sound2SE, .L_81354ED0
+	.rel onSE__Q33ipl8keyboard13EventObserverFQ39textinput5sound2SE, .L_81354EE4
+	.rel onSE__Q33ipl8keyboard13EventObserverFQ39textinput5sound2SE, .L_81354EF8
+	.rel onSE__Q33ipl8keyboard13EventObserverFQ39textinput5sound2SE, .L_81354F0C
+	.rel onSE__Q33ipl8keyboard13EventObserverFQ39textinput5sound2SE, .L_81354F34
+	.rel onSE__Q33ipl8keyboard13EventObserverFQ39textinput5sound2SE, .L_81354F48
+.endobj jumptable_81638C40
+
+# .data:0x2B8 | 0x81638CA0 | size: 0x80
+.obj lbl_81638CA0, local
+	.4byte 0x57696942
+	.4byte 0x69746D61
+	.4byte 0x70466F6E
+	.4byte 0x74547970
+	.4byte 0x65312E62
+	.4byte 0x72666E74
+	.4byte 0x00526576
+	.4byte 0x6F49706C
+	.4byte 0x5F526F64
+	.4byte 0x696E4E54
+	.4byte 0x4C475072
+	.4byte 0x6F5F4442
+	.4byte 0x5F33325F
+	.4byte 0x49342E62
+	.4byte 0x72666E74
+	.4byte 0x00576969
+	.4byte 0x4269746D
+	.4byte 0x6170466F
+	.4byte 0x6E745479
+	.4byte 0x7065322E
+	.4byte 0x6272666E
+	.4byte 0x74005265
+	.4byte 0x766F4970
+	.4byte 0x6C5F5574
+	.4byte 0x72696C6C
+	.4byte 0x6F50726F
+	.4byte 0x47726563
+	.4byte 0x6F537464
+	.4byte 0x5F4D5F33
+	.4byte 0x325F4934
+	.4byte 0x2E627266
+	.4byte 0x6E740000
+.endobj lbl_81638CA0
+
+# .data:0x338 | 0x81638D20 | size: 0x30
+.obj jumptable_81638D20, local
+	.rel create__Q33ipl8keyboard7ManagerFPQ33ipl4nand4FilePQ23EGG4Heap, .L_81355384
+	.rel create__Q33ipl8keyboard7ManagerFPQ33ipl4nand4FilePQ23EGG4Heap, .L_813553A0
+	.rel create__Q33ipl8keyboard7ManagerFPQ33ipl4nand4FilePQ23EGG4Heap, .L_813553BC
+	.rel create__Q33ipl8keyboard7ManagerFPQ33ipl4nand4FilePQ23EGG4Heap, .L_81355410
+	.rel create__Q33ipl8keyboard7ManagerFPQ33ipl4nand4FilePQ23EGG4Heap, .L_81355410
+	.rel create__Q33ipl8keyboard7ManagerFPQ33ipl4nand4FilePQ23EGG4Heap, .L_81355410
+	.rel create__Q33ipl8keyboard7ManagerFPQ33ipl4nand4FilePQ23EGG4Heap, .L_813553F4
+	.rel create__Q33ipl8keyboard7ManagerFPQ33ipl4nand4FilePQ23EGG4Heap, .L_81355410
+	.rel create__Q33ipl8keyboard7ManagerFPQ33ipl4nand4FilePQ23EGG4Heap, .L_81355410
+	.rel create__Q33ipl8keyboard7ManagerFPQ33ipl4nand4FilePQ23EGG4Heap, .L_81355410
+	.rel create__Q33ipl8keyboard7ManagerFPQ33ipl4nand4FilePQ23EGG4Heap, .L_81355410
+	.rel create__Q33ipl8keyboard7ManagerFPQ33ipl4nand4FilePQ23EGG4Heap, .L_813553D8
+.endobj jumptable_81638D20
+
+# .data:0x368 | 0x81638D50 | size: 0x10
+.obj lbl_81638D50, global
+	.string "WIPL_SE_SK_OPEN"
+.endobj lbl_81638D50
+
+# .data:0x378 | 0x81638D60 | size: 0x18
+.obj lbl_81638D60, global
+	.string "WIPL_SE_SK_DECIDE_CLOSE"
+.endobj lbl_81638D60
+
+# .data:0x390 | 0x81638D78 | size: 0x18
+.obj lbl_81638D78, global
+	.string "WIPL_SE_SK_CANCEL_CLOSE"
+.endobj lbl_81638D78
+
+# .data:0x3A8 | 0x81638D90 | size: 0x28
+.obj jumptable_81638D90, local
+	.rel setLanguage__Q33ipl8keyboard7ManagerFUl, .L_81355F00
+	.rel setLanguage__Q33ipl8keyboard7ManagerFUl, .L_81355FE0
+	.rel setLanguage__Q33ipl8keyboard7ManagerFUl, .L_81355F1C
+	.rel setLanguage__Q33ipl8keyboard7ManagerFUl, .L_81355F38
+	.rel setLanguage__Q33ipl8keyboard7ManagerFUl, .L_81355F54
+	.rel setLanguage__Q33ipl8keyboard7ManagerFUl, .L_81355F70
+	.rel setLanguage__Q33ipl8keyboard7ManagerFUl, .L_81355F8C
+	.rel setLanguage__Q33ipl8keyboard7ManagerFUl, .L_81355FA8
+	.rel setLanguage__Q33ipl8keyboard7ManagerFUl, .L_81356024
+	.rel setLanguage__Q33ipl8keyboard7ManagerFUl, .L_81355FC4
+.endobj jumptable_81638D90
+
+# .data:0x3D0 | 0x81638DB8 | size: 0x38
+.obj jumptable_81638DB8, local
+	.rel setConfigure__Q33ipl8keyboard7ManagerFQ43ipl8keyboard7Manager12KeyboardType, .L_81356098
+	.rel setConfigure__Q33ipl8keyboard7ManagerFQ43ipl8keyboard7Manager12KeyboardType, .L_813560B0
+	.rel setConfigure__Q33ipl8keyboard7ManagerFQ43ipl8keyboard7Manager12KeyboardType, .L_813560C8
+	.rel setConfigure__Q33ipl8keyboard7ManagerFQ43ipl8keyboard7Manager12KeyboardType, .L_813560E0
+	.rel setConfigure__Q33ipl8keyboard7ManagerFQ43ipl8keyboard7Manager12KeyboardType, .L_813560F8
+	.rel setConfigure__Q33ipl8keyboard7ManagerFQ43ipl8keyboard7Manager12KeyboardType, .L_81356110
+	.rel setConfigure__Q33ipl8keyboard7ManagerFQ43ipl8keyboard7Manager12KeyboardType, .L_81356128
+	.rel setConfigure__Q33ipl8keyboard7ManagerFQ43ipl8keyboard7Manager12KeyboardType, .L_81356140
+	.rel setConfigure__Q33ipl8keyboard7ManagerFQ43ipl8keyboard7Manager12KeyboardType, .L_81356158
+	.rel setConfigure__Q33ipl8keyboard7ManagerFQ43ipl8keyboard7Manager12KeyboardType, .L_81356170
+	.rel setConfigure__Q33ipl8keyboard7ManagerFQ43ipl8keyboard7Manager12KeyboardType, .L_81356188
+	.rel setConfigure__Q33ipl8keyboard7ManagerFQ43ipl8keyboard7Manager12KeyboardType, .L_813561A0
+	.rel setConfigure__Q33ipl8keyboard7ManagerFQ43ipl8keyboard7Manager12KeyboardType, .L_813561B8
+	.rel setConfigure__Q33ipl8keyboard7ManagerFQ43ipl8keyboard7Manager12KeyboardType, .L_813561D0
+.endobj jumptable_81638DB8
+
+# .data:0x408 | 0x81638DF0 | size: 0x4C
+# ipl::keyboard::Manager::__vtable
+.obj __vt__Q33ipl8keyboard7Manager, global
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte create__Q33ipl8keyboard7ManagerFPQ33ipl4nand4FilePQ23EGG4Heap
+	.4byte init__Q33ipl8keyboard7ManagerFv
+	.4byte calc__Q33ipl8keyboard7ManagerFv
+	.4byte draw__Q33ipl8keyboard7ManagerFv
+	.4byte memoDraw__Q33ipl8keyboard7ManagerFv
+	.4byte changeAspectRatio__Q33ipl8keyboard7ManagerFv
+	.4byte setKeyboardType__Q33ipl8keyboard7ManagerFiQ43ipl8keyboard7Manager12KeyboardType
+	.4byte start__Q33ipl8keyboard7ManagerFiRCQ43ipl8keyboard7Manager15KeyboardSetting
+	.4byte ok__Q33ipl8keyboard7ManagerFv
+	.4byte cancel__Q33ipl8keyboard7ManagerFv
+	.4byte doRumble__Q33ipl8keyboard7ManagerFv
+	.4byte getState__Q33ipl8keyboard7ManagerFv
+	.4byte setWCString__Q33ipl8keyboard7ManagerFPCw
+	.4byte setLanguage__Q33ipl8keyboard7ManagerFUl
+	.4byte touchFormInDisp__Q33ipl8keyboard7ManagerFi
+	.4byte setConfigure__Q33ipl8keyboard7ManagerFQ43ipl8keyboard7Manager12KeyboardType
+	.4byte doSave__Q33ipl8keyboard7ManagerFv
+.endobj __vt__Q33ipl8keyboard7Manager
+
+# .data:0x454 | 0x81638E3C | size: 0x28
+# ipl::keyboard::EventObserver::__vtable
+.obj __vt__Q33ipl8keyboard13EventObserver, global
+	.4byte 0x00000000
+	.4byte 0x00000000
+	.4byte onInput__Q29textinput13EventObserverFQ39textinput15CommandReceiver13INPUT_COMMANDPv
+	.4byte onCommand__Q33ipl8keyboard13EventObserverFQ39textinput15CommandReceiver13INPUT_COMMANDPv
+	.4byte onEvent__Q29textinput13EventObserverFPQ34nw4r3lyt4PaneUl
+	.4byte onSE__Q33ipl8keyboard13EventObserverFQ39textinput5sound2SE
+	.4byte onOK__Q33ipl8keyboard13EventObserverFv
+	.4byte onCancel__Q33ipl8keyboard13EventObserverFv
+	.4byte onOutOfLength__Q29textinput13EventObserverFv
+	.4byte setManager__Q33ipl8keyboard13EventObserverFPQ33ipl8keyboard7Manager
+.endobj __vt__Q33ipl8keyboard13EventObserver
+
+# .data:0x47C | 0x81638E64 | size: 0xD
+# textinput::EventObserver::@STRING_2@onOutOfLength()
+.obj "@STRING_2@onOutOfLength__Q29textinput13EventObserverFv", global
+	.string "OutOfLength\n"
+.endobj "@STRING_2@onOutOfLength__Q29textinput13EventObserverFv"
+	.4byte 0x00000000
+	.byte 0x00, 0x00, 0x00
+
+# 0x81694590..0x81694598 | size: 0x8
+.section .sdata2, "a"
+.balign 8
+
+# .sdata2:0x0 | 0x81694590 | size: 0x4
+.obj lbl_81694590, global
+	.float 0.5
+.endobj lbl_81694590
+
+# .sdata2:0x4 | 0x81694594 | size: 0x4
+.obj lbl_81694594, global
+	.float inf
+.endobj lbl_81694594
+
+# 0x816961F8..0x81696200 | size: 0x8
+.section .sdata, "wa"
+.balign 8
+
+# .sdata:0x0 | 0x816961F8 | size: 0x4
+.obj lbl_816961F8, global
+	.string "arc"
+.endobj lbl_816961F8
+
+# .sdata:0x4 | 0x816961FC | size: 0x4
+.obj lbl_816961FC, global
+	.4byte 0x00000000
+.endobj lbl_816961FC

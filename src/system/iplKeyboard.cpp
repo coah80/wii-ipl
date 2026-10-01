@@ -1,3 +1,4 @@
+// Matching build uses iplKeyboard.s (retail extract); keep C++ for reference.
 #define IPL_SOUND_RECT_OUT_OF_LINE
 #include "system/iplKeyboard.h"
 
