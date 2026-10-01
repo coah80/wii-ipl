@@ -1070,7 +1070,7 @@ pf_s32 PFDIR_p_move(PF_VOLUME* volume, PF_STR* old_path, PF_STR* new_path) {
 
     error = PFENT_ITER_GetEntryOfPath(&source_iter, &source_entry, volume, (PFDIR_STR*)old_path, 0);
     if (error != 0) { return error; }
-    if (PFPATH_GetVolumeFromPath(new_path) != volume) { return 0x1F; }
+    if (volume != PFPATH_GetVolumeFromPath(new_path)) { return 0x1F; }
     error = PFPATH_SplitPath((PFDIR_STR*)new_path, &directory, &destination_name);
     if (error != 0) { return error; }
     if (PFSTR_GetCodeMode(&destination_name) == 2) {
