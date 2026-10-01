@@ -1,6 +1,6 @@
 #include <private/nhttp.h>
 
-const char NHTTPi_strMultipartBound[] = STR_POSTBOUND;
+const char NHTTPi_strMultipartBound[24] = STR_POSTBOUND;
 
 void* NHTTPi_alloc(u32 size, int align);
 void NHTTPi_free(void* ptr);
