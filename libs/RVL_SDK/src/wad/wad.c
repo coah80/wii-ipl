@@ -3484,7 +3484,7 @@ s32 WADImportDVDExForBS(const char* path, void* buffer, u32 bufferSize) {
         return -3004;
     }
     fileOpened = TRUE;
-    if (buffer == 0) {
+    if (buffer == NULL) {
         result = -3003;
         goto cleanup;
     }
@@ -3525,8 +3525,8 @@ s32 WADImportDVDExForBS(const char* path, void* buffer, u32 bufferSize) {
         parts.titleMeta = readBuffer + sectionOffset;
         sectionOffset += (header.tmdSize + 0x3F) & ~0x3F;
     }
-    remainingBufferSize = bufferSize - sectionOffset;
     contentBuffer = readBuffer + sectionOffset;
+    remainingBufferSize = bufferSize - sectionOffset;
     if ((u32)sectionOffset > bufferSize) {
         result = -3003;
         goto cleanup;
