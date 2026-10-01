@@ -3559,6 +3559,10 @@ namespace ipl {
             }
         }
 
+        static inline bool HasUSBAPResult(const u8* result) {
+            return *result != 0;
+        }
+
         void Setting::setUSBAP() {
             switch (unk_0x84) {
             case 1:
@@ -3579,7 +3583,7 @@ namespace ipl {
                 }
                 break;
             case 2:
-                if (unk_0x91C[1] != 0) {
+                if (HasUSBAPResult(&unk_0x91C[1])) {
                     www::wiisetting::setFuncResult(unk_0x91C[1]);
                     unk_0x84 = 1;
                     unk_0x91C[1] = 0;
