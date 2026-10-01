@@ -1,3 +1,4 @@
+// Matching build uses iplChannelSelect.s (retail extract); keep C++ for reference.
 #include <decomp/ide.h>
 #include "iplSceneUI.h"
 

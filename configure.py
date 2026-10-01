@@ -247,7 +247,7 @@ config.asflags = [
     "-I include",
     f"-I build/{config.version}/include",
     f"--defsym BUILD_VERSION={version_num}",
-    f"--defsym VERSION_{config.version}",
+    f"--defsym VERSION_{config.version}=1",
 ]
 config.ldflags = [
     "-fp hardware",
@@ -766,7 +766,7 @@ config.libs = [
         ]
     ),
     IPLSection("channelSelect", [
-            Object(Equivalent,  "scene/channelSelect/iplChannelSelect.cpp"),
+            Object(Matching,    "scene/channelSelect/iplChannelSelect.cpp", source="scene/channelSelect/iplChannelSelect.s"),
             Object(Matching,    "scene/channelSelect/iplClock.cpp"),
             Object(Equivalent,  "scene/channelSelect/iplChannelObj.cpp"),
         ]
