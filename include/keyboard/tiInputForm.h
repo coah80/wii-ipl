@@ -259,6 +259,7 @@ namespace textinput {
 
                 virtual void                init();
                 virtual void                onCommand(INPUT_COMMAND command, void* data);
+                virtual void                onSE(sound::SE seId);
 
                 virtual void                create(MEMAllocator* allocator, EditBuffer* editBuffer);
 
@@ -282,7 +283,11 @@ namespace textinput {
                 virtual void                visibleSeparator(bool flag);
 
             protected:
-                u8  unk_0x2C0[0x10];
+                u8  unk_0x2C0[0x0C];
+                bool    mbAbleToUp;     // 0x2CC
+                bool    mbAbleToDown;   // 0x2CD
+                bool    mbSeparator;    // 0x2CE
+                u8      unk_0x2CF;
                 nw4rmanager::TiEventHandler* mpInputEventHandler; // 0x2D0
                 u8  unk_0x2D4[0x34];
         };

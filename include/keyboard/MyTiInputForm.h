@@ -48,9 +48,9 @@ namespace textinput {
                     virtual void                    setScroll(f32 scroll);
                     virtual void                    setAddScroll(f32 scroll, bool up, bool down);
 
-                    virtual f32                     getScroll()     { return mfScroll; }
+                    virtual f32                     getScroll() { return mfScroll; }
                     virtual f32                     getScrollFrom() { return mfScrollFrom; }
-                    virtual f32                     getScrollTo()   { return mfScrollTo; }
+                    virtual f32                     getScrollTo() { return mfScrollTo; }
 
                     virtual void                    open();
                     virtual void                    close();
@@ -94,6 +94,15 @@ namespace textinput {
                     virtual void                    onCommandOnEditMode(INPUT_COMMAND command, void* arg);
 
                     virtual void                    doAutoScroll();
+
+#ifdef MYTIINPUTFORM_IMPLEMENTATION
+                    virtual void                    pure_0() = 0;
+                    virtual void                    pure_1() = 0;
+                    virtual void                    pure_2() = 0;
+                    virtual void                    pure_3() = 0;
+                    virtual void                    pure_4() = 0;
+                    virtual void                    pure_5() = 0;
+#endif
 
                     virtual void                    create(MEMAllocator* allocator, inputform::EditBuffer* editBuffer);
                     virtual void                    moveCursorUp();
@@ -162,8 +171,7 @@ namespace textinput {
                     ScrollButton*           mpScrollButton;     // 0x3F4
                     bool                    mbScrollUp;         // 0x3F8
                     bool                    mbScrollDown;       // 0x3F9
-                    bool                    mbUpVisible;        // 0x3FA
-                    bool                    mbDownVisible;      // 0x3FB
+                    u8                      padding2[2];        // 0x3FA
                     EditMode                meEditMode;         // 0x3FC
             };
         }

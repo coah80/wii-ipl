@@ -23,7 +23,7 @@ namespace memo {
 class EventHandler : public inputform::EventHandler {
 public:
     EventHandler(InputForm* form) : inputform::EventHandler(form), mpMemoForm(form) {}
-    virtual ~EventHandler() {}
+    virtual ~EventHandler();
     virtual void onTiEvent(gui::PaneComponent*, u32, Input*);
 private:
     InputForm* mpMemoForm;
@@ -47,14 +47,14 @@ protected:
 class WholePane : public AnmPane {
 public:
     WholePane(nw4r::lyt::Pane* pane, nw4rmanager::AnmObserver* observer) : AnmPane(pane, observer) { meKeyType = 0; }
-    virtual ~WholePane() {}
+    virtual ~WholePane();
     virtual void onAnmEvent(AnmPaneEvent event);
 };
 
 class NigaoePane : public AnmPane {
 public:
     NigaoePane(nw4r::lyt::Pane* pane, nw4rmanager::AnmObserver* observer) : AnmPane(pane, observer) { meKeyType = 1; }
-    virtual ~NigaoePane() {}
+    virtual ~NigaoePane();
     virtual void onAnmEvent(AnmPaneEvent event);
 };
 
@@ -78,7 +78,7 @@ private:
 class SimpleAnmPane : public nw4rmanager::AnmPane {
 public:
     SimpleAnmPane(nw4r::lyt::Pane* pane, nw4rmanager::AnmObserver* observer) : nw4rmanager::AnmPane(pane, observer) {}
-    virtual ~SimpleAnmPane() {}
+    virtual ~SimpleAnmPane();
     virtual void init();
     virtual void changeAnimation(u32 id);
 };
@@ -279,6 +279,22 @@ void InputForm::create(MEMAllocator* allocator, inputform::EditBuffer* editBuffe
     mpScrollButton->create(allocator, mpMultiArcResourceAccessor);
 }
 
+}  // namespace memo
+}  // namespace extend
+
+namespace gui {
+
+gui::EventHandler* gui::GUIManager::changeEventHandler(gui::EventHandler* eventHandler) {
+    gui::EventHandler* prevHandler = mpEventHandler;
+    mpEventHandler = eventHandler;
+    return prevHandler;
+}
+
+}  // namespace gui
+
+namespace extend {
+namespace memo {
+
 void InputForm::createAnimation(MEMAllocator* allocator) {
     for (u16 i = 0; i < 2; i++) {
         const PaneAnimations& entry = csPaneToAnimation[i];
@@ -305,6 +321,9 @@ void InputForm::createAnimation(MEMAllocator* allocator) {
 }
 
 AnmPane::~AnmPane() {}
+WholePane::~WholePane() {}
+NigaoePane::~NigaoePane() {}
+SimpleAnmPane::~SimpleAnmPane() {}
 
 static const char* csGroupName[] = {
     "G_ArwRoop", "G_ArwR_Focus", "G_ArwL_Focus", "G_ArwR_Ac", "G_ArwL_Ac",
@@ -399,7 +418,7 @@ void InputForm::onArrowRTrig() {
         mpScrollButton->changeAnimation(false, 6);
         f32 scroll = mfScroll - 3.0f * getLineHeight();
         if (scroll <= getScrollMin()) scroll = getScrollMin();
-        mExScrollAnm.startAnm(NULL, mfScroll, scroll, 15.0f, NULL);
+        mExScrollAnm.startAnm(mfScroll, scroll, 15.0f, (util::AnimObserver*)NULL, NULL);
         onSE(sound::SE_LINE_SCROLL);
     }
 }
@@ -408,7 +427,7 @@ void InputForm::onArrowLTrig() {
         mpScrollButton->changeAnimation(true, 6);
         f32 scroll = mfScroll + 3.0f * getLineHeight();
         if (scroll >= getScrollMax()) scroll = getScrollMax();
-        mExScrollAnm.startAnm(NULL, mfScroll, scroll, 15.0f, NULL);
+        mExScrollAnm.startAnm(mfScroll, scroll, 15.0f, (util::AnimObserver*)NULL, NULL);
         onSE(sound::SE_LINE_SCROLL);
     }
 }
@@ -446,8 +465,8 @@ bool InputForm::updateInput(input::HKBManager& hkbManager) {
 
 void InputForm::init() {
     if (mpBoundPane != NULL) mCharColor.Set(20, 20, 20, 255);
-    mbUpVisible = false;
-    mbDownVisible = false;
+    mbAbleToUp = false;
+    mbAbleToDown = false;
     searchAnmPane("P_txtScrll_UP")->changeAnimation(7);
     searchAnmPane("P_txtScrll_DOWN")->changeAnimation(7);
     mbGoodBye = false;
@@ -538,14 +557,14 @@ void InputForm::calc() {
             f32 halfLine = getLineHeight();
             halfLine *= 0.5f;
             if (mfScroll - halfLine > 0.0f) {
-                if (!mbUpVisible) {
+                if (!mbAbleToUp) {
                     searchAnmPane("P_txtScrll_UP")->changeAnimation(5);
                     mpPaneManager->getPaneComponentByPane(getPane("B_txtScrll_UP"))->init();
                 }
-                mbUpVisible = true;
+                mbAbleToUp = true;
             } else {
-                if (mbUpVisible) searchAnmPane("P_txtScrll_UP")->changeAnimation(6);
-                mbUpVisible = false;
+                if (mbAbleToUp) searchAnmPane("P_txtScrll_UP")->changeAnimation(6);
+                mbAbleToUp = false;
             }
             f32 textHeight = getLine() * getLineHeight();
             f32 lowerHalfLine = getLineHeight();
@@ -553,19 +572,19 @@ void InputForm::calc() {
             f32 lowerEdge = mfScroll + height;
             lowerEdge += lowerHalfLine;
             if (lowerEdge < textHeight) {
-                if (!mbDownVisible) {
+                if (!mbAbleToDown) {
                     searchAnmPane("P_txtScrll_DOWN")->changeAnimation(5);
                     mpPaneManager->getPaneComponentByPane(getPane("B_txtScrll_DOWN"))->init();
                 }
-                mbDownVisible = true;
+                mbAbleToDown = true;
             } else {
-                if (mbDownVisible) searchAnmPane("P_txtScrll_DOWN")->changeAnimation(6);
-                mbDownVisible = false;
+                if (mbAbleToDown) searchAnmPane("P_txtScrll_DOWN")->changeAnimation(6);
+                mbAbleToDown = false;
             }
         }
     } else {
-        mbUpVisible = false;
-    mbDownVisible = false;
+        mbAbleToUp = false;
+    mbAbleToDown = false;
         searchAnmPane("P_txtScrll_UP")->changeAnimation(7);
         searchAnmPane("P_txtScrll_DOWN")->changeAnimation(7);
         getPane("N_txt_scrl")->Animate(0);
@@ -759,6 +778,7 @@ void InputForm::finishDraw(u32) {
 }
 void WholePane::onAnmEvent(AnmPaneEvent) {}
 
+EventHandler::~EventHandler() {}
 void EventHandler::onTiEvent(gui::PaneComponent* component, u32 event, Input* input) {
     inputform::EventHandler::onTiEvent(component, event, input);
     const char* name = component->getPane()->GetName();

@@ -134,7 +134,9 @@ namespace textinput {
         class AnimPaneGroup {
             public:
                 AnimPaneGroup() {}
-                AnimPaneGroup(nw4r::lyt::Group* group) : mpGroup(group) {}
+                AnimPaneGroup(nw4r::lyt::Group* group) : mpGroup(group) {
+                    nw4r::ut::List_Init(&mAnmPaneList, offsetof(AnmPane, mGroupLink));
+                }
 
                 virtual void    create()   {}                   // 0x08
                 virtual void    init()     {}                   // 0x0C

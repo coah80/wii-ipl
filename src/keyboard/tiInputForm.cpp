@@ -5561,7 +5561,7 @@ bool LayoutByNW4R::updateInput(textinput::input::HKBManager& hkbManager) {
 }
 
 void LayoutByNW4R::visibleSeparator(bool flag) {
-    unk_0x2C0[0x0E] = flag;
+    mbSeparator = flag;
 }
 
 void LayoutByNW4R::setRootPaneScaleFor16x9() {
