@@ -12,11 +12,11 @@ namespace ext_ead {
     }
 }
 
-extern "C" char lbl_816962F8[] = "ERROR?\n";
-extern "C" char lbl_81643B40[] = " TextureBuffer_ %d:%d ptr:%p\n";
-extern "C" char lbl_81643B5E[] = "INFO: cannot create browser window\n";
+extern "C" char scWwwErrorQ[] = "ERROR?\n";
+extern "C" char scWwwTexBufFmt[] = " TextureBuffer_ %d:%d ptr:%p\n";
+extern "C" char scWwwNoBrowserWin[] = "INFO: cannot create browser window\n";
 
-#define OSReport(...) OSReport(lbl_816962F8)
+#define OSReport(...) OSReport(scWwwErrorQ)
 #include "iplwww/www_window.h"
 #undef OSReport
 
@@ -76,12 +76,12 @@ namespace ext_ead {
                     memset(mTexBufArr[i][j], 0, texBufSize);
                     DCStoreRange(mTexBufArr[i][j], texBufSize);
 
-                    print::IPLWWWReport(print::WWW_DEBUG, lbl_81643B40, j, i, mTexBufArr[i][j]);
+                    print::IPLWWWReport(print::WWW_DEBUG, scWwwTexBufFmt, j, i, mTexBufArr[i][j]);
                 }
             }
 
             if (WWWCreateBrowserWindow(mpBrowserThread->GetHandle(), &mpWwwWindow, 0)) {
-                print::IPLWWWReport(print::WWW_WARNING, lbl_81643B5E);
+                print::IPLWWWReport(print::WWW_WARNING, scWwwNoBrowserWin);
                 return NULL;
             } else {
                 WWWRect rect = {0, 0, 0, 0};
