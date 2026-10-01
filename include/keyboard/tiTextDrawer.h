@@ -29,7 +29,7 @@ namespace textinput {
                 typedef struct DrawInfo {
                     nw4r::ut::Rect rect;      // 0x00
                     wchar_t character;        // 0x10
-                    u8  unk_0x12[14];         // 0x12
+                    u8  unk_0x12[6];          // 0x12
                 } DrawInfo;
 
                 virtual void                create(MEMAllocator* allocator);
