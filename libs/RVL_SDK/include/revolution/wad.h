@@ -80,11 +80,11 @@ typedef struct {
 typedef void (*WADProcessCallback)(u32 completed, u32 total, BOOL done);
 
 s32 WADGetTitleVersionEx(char* path, ESTitleId* titleId, u16* titleVersion, WADLocation location, u32 offset);
-s32 WADBackupEx(u64 titleId, u32 param_2, MEMAllocator* allocator, char* path, u32* sizeOut, WADLocation location, u32 param_7,
-                WADProcessCallback processCB);
+s32 WADBackupEx(u64 titleId, u32 flags, MEMAllocator* allocator, char* path, u32* sizeOut, WADLocation location, u32 offset,
+                WADProcessCallback processCallback);
 
-s32 WADImportGetBlocks(char* path, MEMAllocator* allocator, WADLocation location, u32 offset, u32 param_5, WADBlocks* blocks, u32* param_7);
-s32 WADImportEx(char* path, MEMAllocator* allocator, WADLocation location, u32 param_4, u32 param_5, WADProcessCallback processCB);
+s32 WADImportGetBlocks(char* path, MEMAllocator* allocator, WADLocation location, u32 offset, u32 flags, WADBlocks* blocks, u32* fileListOut);
+s32 WADImportEx(char* path, MEMAllocator* allocator, WADLocation location, u32 offset, u32 flags, WADProcessCallback processCallback);
 
 s32 WADGetInstalledVersion(ESTitleId titleID, u16* version);
 
