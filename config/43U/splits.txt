@@ -804,14 +804,14 @@ src/scene/sdChannelSelect/iplSDChannelObj.cpp:
 	.rodata     start:0x81610608 end:0x81610918
 	.data       start:0x81654B38 end:0x81654F98
 	.sdata2     start:0x81694B18 end:0x81694B60
-	.sdata      start:0x81696DD0 end:0x81696E40
+	.sdata      start:0x81696DD0 end:0x81696E30
 
 src/scene/sdChannelTitle/iplSDChannelTitle.cpp:
 	.text       start:0x813E4BBC end:0x813E947C
 	.rodata     start:0x81610918 end:0x81610948
 	.data       start:0x81654F98 end:0x81655638
 	.sdata2     start:0x81694B60 end:0x81694B88
-	.sdata      start:0x81696E40 end:0x81696EF0
+	.sdata      start:0x81696E30 end:0x81696EF0
 
 src/scene/sdButton/iplSDButton.cpp:
 	.text       start:0x813E947C end:0x813EA88C
