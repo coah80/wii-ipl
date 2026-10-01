@@ -1,11 +1,12 @@
 #include <private/cdb.h>
 #include <revolution/cdb.h>
 #include <stdlib.h>
+#include <revolution/os.h>
 
-extern void CDBGetMakerCode();
-extern void CDBGetInitialCode();
+extern u16 CDBGetMakerCode();
+extern u32 CDBGetInitialCode();
 extern void CDBLock();
-extern void CDBDatabaseAllocate();
+extern CDBErr CDBDatabaseAllocate(CDBDatabase* database, u32 flags);
 extern void CDBUnlock();
 extern void CDBDatabaseFree();
 extern void CDBRecordCreateAtOnce();
@@ -22,12 +23,12 @@ extern void CDBRecordKeyArrayEnd();
 extern void CDBRecordKeyArrayDicFind();
 extern void CDBRecordKeyArrayDicInsert();
 extern void CDBFSFindFirstRoot();
-extern void CDBFSDeleteDir();
+extern CDBErr CDBFSDeleteDir();
 extern void CDBFSFindNext();
 extern void CDBFSFindClose();
-extern void CDBFindDataIsDirectory();
-extern void CDBFindDataGetName();
-extern void CDBFindDataIsEnd();
+extern BOOL CDBFindDataIsDirectory();
+extern char* CDBFindDataGetName();
+extern BOOL CDBFindDataIsEnd();
 extern void CDBIntArrayInit();
 extern void CDBIntArraySetReverse();
 extern void CDBIntArrayFull();
@@ -62,7 +63,22 @@ extern void _restgpr_25();
 extern void _restgpr_26();
 extern int atoi();
 #pragma section sdata_type ".sdata"
-extern u32 CDBDatabaseWorkBuf;
+typedef struct {
+    char path[256];
+    CDBFindData find;
+} CDBDirectoryWork;
+typedef struct {
+    CDBDirectoryWork record;
+    CDBDirectoryWork code;
+    CDBDirectoryWork type;
+    CDBDirectoryWork minute;
+    CDBDirectoryWork hour;
+    CDBDirectoryWork day;
+    CDBDirectoryWork month;
+    CDBFindData year;
+} CDBSearchWork;
+
+extern CDBSearchWork* CDBDatabaseWorkBuf;
 extern char lbl_8166B528[];
 extern char lbl_8166B550[];
 extern char lbl_8166B57C[];
@@ -81,6 +97,19 @@ extern CDBErr CDBDatabasePrivateCreateRecordAtOnceEx();
 extern CDBErr CDBDatabasePrivateCreateRecordAtOnceEx_();
 extern CDBErr CDBDatabaseCreateRecordImAtOnce_();
 extern CDBErr CDBDatabaseFindByKey();
+typedef struct {
+    CDBDate beginDate;
+    CDBDate endDate;
+    u16 makerCode;
+    u32 gameCode;
+    char* type;
+    CDBSearchDirection direction;
+    CDBSearchRecordCB* callback;
+    void* callbackArg;
+    BOOL keepSearching;
+    BOOL openRecord;
+    u64 wiiId;
+} CDBSearchConditions;
 extern CDBErr CDBDatabaseSearchConditionsIsMatch();
 extern CDBErr CDBDatabaseSearchCallCallback();
 extern CDBErr CDBDatabaseSearchRecordLayer();
@@ -91,7 +120,13 @@ extern CDBErr CDBDatabaseSearchMonthLayer();
 extern CDBErr CDBDatabaseSearchYearLayer();
 extern CDBErr CDBDatabaseSearch();
 extern CDBErr CDBDatabaseSearch_();
-extern CDBErr CDBDatabaseInstanceInit();
+typedef struct {
+    u32 used;
+    u8 state[0xC00C];
+    u32 flags;
+    CDBDatabase* database;
+} CDBDatabaseState;
+extern void CDBDatabaseInstanceInit(CDBDatabaseState* instance, u32 flags, CDBDatabase* database);
 extern BOOL CDBDatabaseInstanceIsUsed();
 extern BOOL CDBIsSDAvailable();
 extern CDBErr CDBMountSD();
@@ -105,54 +140,21 @@ extern CDBErr CDBDatabaseCleanUpEmptyDirectoriesDay();
 extern CDBErr CDBDatabaseCleanUpEmptyDirectoriesMonth();
 extern CDBErr CDBDatabaseCleanUpEmptyDirectories();
 
-asm CDBErr CDBDatabaseInit(CDBDatabase* database) {
-#ifdef __MWERKS__
-    nofralloc
-    stwu r1, -0x10(r1)
-    mflr r0
-    stw r0, 0x14(r1)
-    stw r31, 0xc(r1)
-    mr r31, r3
-    bl CDBGetMakerCode
-    sth r3, 0x0(r31)
-    bl CDBGetInitialCode
-    li r0, 0x0
-    stw r3, 0x4(r31)
-    li r3, 0x0
-    stw r0, 0x8(r31)
-    lwz r31, 0xc(r1)
-    lwz r0, 0x14(r1)
-    mtlr r0
-    addi r1, r1, 0x10
-    blr
-#endif
+CDBErr CDBDatabaseInit(CDBDatabase* database) {
+    database->makerCode = CDBGetMakerCode();
+    database->gameCode = CDBGetInitialCode();
+    database->instance = NULL;
+    return CDB_ERROR_OK;
 }
 
-asm CDBErr CDBDatabaseOpen(CDBDatabase* database) {
-#ifdef __MWERKS__
-    nofralloc
-    stwu r1, -0x10(r1)
-    mflr r0
-    stw r0, 0x14(r1)
-    stw r31, 0xc(r1)
-    mr r31, r3
-    bl CDBLock
-    mr r3, r31
-    li r4, 0x3
-    bl CDBDatabaseAllocate
-    cmpwi r3, 0x0
-    li r31, 0x0
-    beq L_81487418
-    mr r31, r3
-    L_81487418:
-    bl CDBUnlock
-    mr r3, r31
-    lwz r31, 0xc(r1)
-    lwz r0, 0x14(r1)
-    mtlr r0
-    addi r1, r1, 0x10
-    blr
-#endif
+CDBErr CDBDatabaseOpen(CDBDatabase* database) {
+    CDBErr result, status;
+    CDBLock();
+    status = CDBDatabaseAllocate(database, 3);
+    result = CDB_ERROR_OK;
+    if (status != CDB_ERROR_OK) result = status;
+    CDBUnlock();
+    return result;
 }
 
 asm CDBErr CDBDatabaseClose(CDBDatabase* database) {
@@ -210,72 +212,30 @@ asm CDBErr CDBDatabaseClose(CDBDatabase* database) {
 #endif
 }
 
-asm CDBErr CDBDatabasePrivateCreateRecordAtOnce(CDBDatabase* database, CDBRecord* record, const char* typeStr, const char* fileTypeStr, u8* recordData, u32 recordDataSize, char* makerCodeStr, char* gameCodeStr) {
-#ifdef __MWERKS__
-    nofralloc
-    stwu r1, -0x40(r1)
-    mflr r0
-    stw r0, 0x44(r1)
-    addi r11, r1, 0x40
-    bl _savegpr_22
-    mr r22, r3
-    mr r23, r4
-    mr r24, r5
-    mr r25, r6
-    mr r26, r7
-    mr r27, r8
-    mr r29, r9
-    mr r28, r10
-    bl CDBLock
-    mr r3, r28
-    bl CDBIsGameCodeStr
-    cmpwi r3, 0x0
-    bne L_81487534
-    li r31, 0x4
-    b L_814875B0
-    L_81487534:
-    mr r3, r29
-    bl CDBIsMakerCodeStr
-    cmpwi r3, 0x0
-    bne L_8148754C
-    li r31, 0x3
-    b L_814875B0
-    L_8148754C:
-    mr r3, r29
-    addi r4, r1, 0x10
-    bl CDBConvMCStrToMCValue
-    mr r3, r28
-    addi r4, r1, 0x14
-    bl CDBConvGCStrToGCValue
-    lhz r31, 0x10(r1)
-    lwz r30, 0x14(r1)
-    bl OSGetTime
-    mr r28, r4
-    mr r29, r3
-    bl CDBLock
-    stw r26, 0x8(r1)
-    mr r3, r22
-    mr r4, r23
-    mr r5, r24
-    stw r27, 0xc(r1)
-    mr r6, r25
-    mr r8, r28
-    mr r7, r29
-    mr r9, r30
-    mr r10, r31
-    bl CDBDatabaseCreateRecordImAtOnce_
-    mr r31, r3
-    bl CDBUnlock
-    L_814875B0:
-    bl CDBUnlock
-    addi r11, r1, 0x40
-    mr r3, r31
-    bl _restgpr_22
-    lwz r0, 0x44(r1)
-    mtlr r0
-    addi r1, r1, 0x40
-    blr
-#endif
+CDBErr CDBDatabasePrivateCreateRecordAtOnce(CDBDatabase* database, CDBRecord* record, const char* typeStr, const char* fileTypeStr, u8* recordData, u32 recordDataSize, char* makerCodeStr, char* gameCodeStr) {
+    CDBErr result;
+    u16 makerCode;
+    u32 gameCode;
+    CDBLock();
+    if (!CDBIsGameCodeStr(gameCodeStr)) {
+        result = CDB_ERROR_4;
+    } else if (!CDBIsMakerCodeStr(makerCodeStr)) {
+        result = CDB_ERROR_3;
+    } else {
+        u16 makerValue;
+        u32 gameValue;
+        OSTime time;
+        CDBConvMCStrToMCValue(makerCodeStr, &makerValue);
+        CDBConvGCStrToGCValue(gameCodeStr, &gameValue);
+        makerCode = makerValue;
+        gameCode = gameValue;
+        time = OSGetTime();
+        CDBLock();
+        result = CDBDatabaseCreateRecordImAtOnce_(database, record, typeStr, fileTypeStr, time, gameCode, makerCode, recordData, recordDataSize);
+        CDBUnlock();
+    }
+    CDBUnlock();
+    return result;
 }
 
 asm CDBErr CDBDatabaseCreateRecordAtOnce(CDBDatabase* database, CDBRecord* record, const char* typeStr, const char* fileTypeStr, u8* recordData, u32 recordDataSize) {
@@ -378,54 +338,12 @@ asm CDBErr CDBDatabaseCreateRecordAtOnceEx(CDBDatabase* database, CDBRecord* rec
 #endif
 }
 
-asm CDBErr CDBDatabasePrivateCreateRecordAtOnceEx(CDBDatabase* database, CDBRecord* record, const char* typeStr, const char* fileTypeStr, int year, int month, int day, int hour, int min, int sec, u8* recordData, u32 recordDataSize, char* makerCode, char* gameCode) {
-#ifdef __MWERKS__
-    nofralloc
-    stwu r1, -0x60(r1)
-    mflr r0
-    stw r0, 0x64(r1)
-    addi r11, r1, 0x60
-    bl _savegpr_18
-    lwz r26, 0x68(r1)
-    mr r18, r3
-    lwz r27, 0x6c(r1)
-    mr r19, r4
-    lwz r28, 0x70(r1)
-    mr r20, r5
-    lwz r29, 0x74(r1)
-    mr r21, r6
-    lwz r30, 0x78(r1)
-    mr r22, r7
-    lwz r31, 0x7c(r1)
-    mr r23, r8
-    mr r24, r9
-    mr r25, r10
-    bl CDBLock
-    stw r26, 0x8(r1)
-    mr r3, r18
-    mr r4, r19
-    mr r5, r20
-    stw r27, 0xc(r1)
-    mr r6, r21
-    mr r7, r22
-    mr r8, r23
-    stw r28, 0x10(r1)
-    mr r9, r24
-    mr r10, r25
-    stw r29, 0x14(r1)
-    stw r30, 0x18(r1)
-    stw r31, 0x1c(r1)
-    bl CDBDatabasePrivateCreateRecordAtOnceEx_
-    mr r31, r3
-    bl CDBUnlock
-    addi r11, r1, 0x60
-    mr r3, r31
-    bl _restgpr_18
-    lwz r0, 0x64(r1)
-    mtlr r0
-    addi r1, r1, 0x60
-    blr
-#endif
+CDBErr CDBDatabasePrivateCreateRecordAtOnceEx(CDBDatabase* database, CDBRecord* record, const char* typeStr, const char* fileTypeStr, int year, int month, int day, int hour, int min, int sec, u8* recordData, u32 recordDataSize, char* makerCode, char* gameCode) {
+    CDBErr result;
+    CDBLock();
+    result = CDBDatabasePrivateCreateRecordAtOnceEx_(database, record, typeStr, fileTypeStr, year, month, day, hour, min, sec, recordData, recordDataSize, makerCode, gameCode);
+    CDBUnlock();
+    return result;
 }
 
 asm CDBErr CDBDatabasePrivateCreateRecordAtOnceEx_() {
@@ -675,80 +593,28 @@ asm CDBErr CDBDatabaseFindByKey() {
 #endif
 }
 
-asm CDBErr CDBDatabaseSearchConditionsIsMatch() {
-#ifdef __MWERKS__
-    nofralloc
-    stwu r1, -0x30(r1)
-    mflr r0
-    stw r0, 0x34(r1)
-    stw r31, 0x2c(r1)
-    mr r31, r4
-    addi r4, r1, 0x10
-    stw r30, 0x28(r1)
-    mr r30, r3
-    mr r3, r31
-    bl CDBConvKeyStrToEpochValue
-    lwz r3, 0x10(r1)
-    lwz r0, 0x0(r30)
-    cmplw r0, r3
-    bgt L_81487B7C
-    lwz r0, 0x4(r30)
-    cmplw r3, r0
-    ble L_81487B84
-    L_81487B7C:
-    li r3, 0x0
-    b L_81487C20
-    L_81487B84:
-    lhz r0, 0x8(r30)
-    cmplwi r0, 0xffff
-    beq L_81487BB4
-    mr r3, r31
-    addi r4, r1, 0x8
-    bl CDBConvKeyStrToMakerCode
-    lhz r3, 0x8(r30)
-    lhz r0, 0x8(r1)
-    cmplw r3, r0
-    beq L_81487BB4
-    li r3, 0x0
-    b L_81487C20
-    L_81487BB4:
-    lwz r3, 0xc(r30)
-    addis r0, r3, 0x1
-    cmplwi r0, 0xffff
-    beq L_81487BE8
-    mr r3, r31
-    addi r4, r1, 0xc
-    bl CDBConvKeyStrToGameCode
-    lwz r3, 0xc(r30)
-    lwz r0, 0xc(r1)
-    cmplw r3, r0
-    beq L_81487BE8
-    li r3, 0x0
-    b L_81487C20
-    L_81487BE8:
-    lwz r0, 0x10(r30)
-    cmpwi r0, 0x0
-    beq L_81487C1C
-    mr r3, r31
-    addi r4, r1, 0x14
-    bl CDBConvKeyStrToType
-    lwz r3, 0x10(r30)
-    addi r4, r1, 0x14
-    bl CDBCompareTypeStr
-    cmpwi r3, 0x0
-    beq L_81487C1C
-    li r3, 0x0
-    b L_81487C20
-    L_81487C1C:
-    li r3, 0x1
-    L_81487C20:
-    lwz r0, 0x34(r1)
-    lwz r31, 0x2c(r1)
-    lwz r30, 0x28(r1)
-    mtlr r0
-    addi r1, r1, 0x30
-    blr
-#endif
+CDBErr CDBDatabaseSearchConditionsIsMatch(CDBSearchConditions* conditions, char* key) {
+    struct {
+        u16 makerCode;
+        u32 gameCode;
+        CDBDate date;
+        char type[8];
+    } decoded;
+    CDBConvKeyStrToEpochValue(key, &decoded.date);
+    if (conditions->beginDate > decoded.date || decoded.date > conditions->endDate) return CDB_ERROR_OK;
+    if (conditions->makerCode != 0xFFFF) {
+        CDBConvKeyStrToMakerCode(key, (u32*)&decoded.makerCode);
+        if (conditions->makerCode != decoded.makerCode) return CDB_ERROR_OK;
+    }
+    if (conditions->gameCode != 0xFFFFFFFF) {
+        CDBConvKeyStrToGameCode(key, &decoded.gameCode);
+        if (conditions->gameCode != decoded.gameCode) return CDB_ERROR_OK;
+    }
+    if (conditions->type != NULL) {
+        CDBConvKeyStrToType(key, decoded.type);
+        if (CDBCompareTypeStr(conditions->type, decoded.type)) return CDB_ERROR_OK;
+    }
+    return CDB_ERROR_1;
 }
 
 asm CDBErr CDBDatabaseSearchCallCallback() {
@@ -2643,50 +2509,12 @@ asm CDBErr CDBDatabaseSearchYearLayer() {
 #endif
 }
 
-asm CDBErr CDBDatabaseSearch(CDBDatabase* database, CDBDate beginDate, CDBDate endDate, CDBSearchDirection searchDirection, char* makerCode, char* gameCode, int unk7, CDBRecordLocation recordLocation, int unk9, CDBSearchRecordCB searchRecordCB, void* searchRecordArg) {
-#ifdef __MWERKS__
-    nofralloc
-    stwu r1, -0x50(r1)
-    mflr r0
-    stw r0, 0x54(r1)
-    addi r11, r1, 0x50
-    bl _savegpr_21
-    lwz r29, 0x58(r1)
-    mr r21, r3
-    lwz r30, 0x5c(r1)
-    mr r22, r4
-    lwz r31, 0x60(r1)
-    mr r23, r5
-    mr r24, r6
-    mr r25, r7
-    mr r26, r8
-    mr r27, r9
-    mr r28, r10
-    bl CDBLock
-    stw r29, 0x8(r1)
-    li r0, 0x0
-    mr r3, r21
-    mr r4, r22
-    stw r30, 0xc(r1)
-    mr r5, r23
-    mr r6, r24
-    mr r7, r25
-    stw r31, 0x10(r1)
-    mr r8, r26
-    mr r9, r27
-    mr r10, r28
-    stw r0, 0x14(r1)
-    bl CDBDatabaseSearch_
-    mr r31, r3
-    bl CDBUnlock
-    addi r11, r1, 0x50
-    mr r3, r31
-    bl _restgpr_21
-    lwz r0, 0x54(r1)
-    mtlr r0
-    addi r1, r1, 0x50
-    blr
-#endif
+CDBErr CDBDatabaseSearch(CDBDatabase* database, CDBDate beginDate, CDBDate endDate, CDBSearchDirection searchDirection, char* makerCode, char* gameCode, int unk7, CDBRecordLocation recordLocation, int unk9, CDBSearchRecordCB searchRecordCB, void* searchRecordArg) {
+    CDBErr result;
+    CDBLock();
+    result = CDBDatabaseSearch_(database, beginDate, endDate, searchDirection, makerCode, gameCode, unk7, recordLocation, unk9, searchRecordCB, searchRecordArg, NULL);
+    CDBUnlock();
+    return result;
 }
 
 asm CDBErr CDBDatabaseSearch_() {
@@ -2752,700 +2580,195 @@ asm CDBErr CDBDatabaseSearch_() {
 #endif
 }
 
-asm CDBErr CDBDatabaseInstanceInit() {
-#ifdef __MWERKS__
-    nofralloc
-    addis r6, r3, 0x1
-    li r0, 0x1
-    stw r0, 0x0(r3)
-    stw r4, -0x3ff0(r6)
-    stw r5, -0x3fec(r6)
-    blr
-#endif
+void CDBDatabaseInstanceInit(CDBDatabaseState* instance, u32 flags, CDBDatabase* database) {
+    instance->used = 1;
+    instance->flags = flags;
+    instance->database = database;
 }
 
-asm BOOL CDBDatabaseInstanceIsUsed() {
-#ifdef __MWERKS__
-    nofralloc
-    lwz r3, 0x0(r3)
-    blr
-#endif
+BOOL CDBDatabaseInstanceIsUsed(CDBDatabaseState* instance) {
+    return instance->used;
 }
 
-asm BOOL CDBIsSDAvailable() {
-#ifdef __MWERKS__
-    nofralloc
-    stwu r1, -0x10(r1)
-    mflr r0
-    stw r0, 0x14(r1)
-    stw r31, 0xc(r1)
-    li r31, 0x0
-    bl CDBFSSDIsMounted
-    cmpwi r3, 0x0
-    beq L_81489840
-    bl CDBFSSDIsEjected
-    cmpwi r3, 0x0
-    bne L_81489840
-    li r31, 0x1
-    L_81489840:
-    mr r3, r31
-    lwz r31, 0xc(r1)
-    lwz r0, 0x14(r1)
-    mtlr r0
-    addi r1, r1, 0x10
-    blr
-#endif
+BOOL CDBIsSDAvailable() {
+    BOOL available = FALSE;
+    if (CDBFSSDIsMounted() && !CDBFSSDIsEjected()) available = TRUE;
+    return available;
 }
 
-asm CDBErr CDBMountSD() {
-#ifdef __MWERKS__
-    nofralloc
-    b CDBFSSDMount
-#endif
+CDBErr CDBMountSD() {
+    return CDBFSSDMount();
 }
 
-asm CDBErr CDBUnmountSDForce() {
-#ifdef __MWERKS__
-    nofralloc
-    stwu r1, -0x10(r1)
-    mflr r0
-    stw r0, 0x14(r1)
-    bl CDBFSSDUnmount
-    cmpwi r3, 0x0
-    li r0, 0x0
-    beq L_8148987C
-    mr r0, r3
-    L_8148987C:
-    mr r3, r0
-    lwz r0, 0x14(r1)
-    mtlr r0
-    addi r1, r1, 0x10
-    blr
-#endif
+CDBErr CDBUnmountSDForce() {
+    CDBErr status = CDBFSSDUnmount();
+    CDBErr result = CDB_ERROR_OK;
+    if (status != CDB_ERROR_OK) result = status;
+    return result;
 }
 
-asm CDBErr CDBDatabaseCleanUpEmptyDirectoriesRecord() {
-#ifdef __MWERKS__
-    nofralloc
-    stwu r1, -0x130(r1)
-    mflr r0
-    stw r0, 0x134(r1)
-    addi r11, r1, 0x130
-    bl _savegpr_25
-    lwz r11, CDBDatabaseWorkBuf(r0)
-    mr r25, r4
-    lwz r29, 0x138(r1)
-    mr r26, r5
-    lwz r0, 0x13c(r1)
-    mr r27, r6
-    stw r29, 0x8(r1)
-    mr r31, r7
-    mr r30, r8
-    mr r12, r9
-    mr r28, r10
-    mr r4, r3
-    mr r8, r31
-    mr r9, r30
-    stw r0, 0xc(r1)
-    mr r5, r25
-    mr r6, r26
-    mr r7, r27
-    mr r10, r12
-    addi r30, r11, 0x100
-    addi r3, r1, 0x10
-    li r31, 0x0
-    bl CDBConvTypeStrToFullPath
-    mr r3, r30
-    mr r5, r29
-    addi r4, r1, 0x10
-    bl CDBFSFindFirst
-    b L_8148993C
-    L_81489914:
-    mr r3, r30
-    addi r31, r31, 0x1
-    bl CDBFindDataIsDirectory
-    cmpwi r3, 0x0
-    beq L_81489934
-    mr r3, r30
-    bl CDBFindDataGetName
-    bl CDBFSIsMinuteDirName
-    L_81489934:
-    mr r3, r30
-    bl CDBFSFindNext
-    L_8148993C:
-    mr r3, r30
-    bl CDBFindDataIsEnd
-    cmpwi r3, 0x0
-    beq L_81489914
-    mr r3, r30
-    bl CDBFSFindClose
-    cmpwi r31, 0x2
-    bne L_81489980
-    mr r4, r29
-    addi r3, r1, 0x10
-    bl CDBFSDeleteDir
-    cmpwi r3, 0x0
-    beq L_81489974
-    b L_81489984
-    L_81489974:
-    lwz r3, 0x0(r28)
-    subi r0, r3, 0x1
-    stw r0, 0x0(r28)
-    L_81489980:
-    li r3, 0x0
-    L_81489984:
-    addi r11, r1, 0x130
-    bl _restgpr_25
-    lwz r0, 0x134(r1)
-    mtlr r0
-    addi r1, r1, 0x130
-    blr
-#endif
+CDBErr CDBDatabaseCleanUpEmptyDirectoriesRecord(char* year, char* month, char* day, char* hour, char* minute, char* code, char* type, int* parentCount, CDBLocation location, u64* wiiId) {
+    int count = 0;
+    char path[256];
+    CDBFindData* find = &CDBDatabaseWorkBuf->record.find;
+    CDBErr result;
+    CDBConvTypeStrToFullPath(path, year, month, day, hour, minute, code, type, location, wiiId);
+    CDBFSFindFirst(find, path, location);
+    while (!CDBFindDataIsEnd(find)) {
+        count++;
+        if (CDBFindDataIsDirectory(find)) CDBFSIsMinuteDirName(CDBFindDataGetName(find));
+        CDBFSFindNext(find);
+    }
+    CDBFSFindClose(find);
+    if (count == 2) {
+        result = CDBFSDeleteDir(path, location);
+        if (result != CDB_ERROR_OK) return result;
+        --*parentCount;
+    }
+    return CDB_ERROR_OK;
 }
 
-asm CDBErr CDBDatabaseCleanUpEmptyDirectoriesType() {
-#ifdef __MWERKS__
-    nofralloc
-    stwu r1, -0x140(r1)
-    mflr r0
-    stw r0, 0x144(r1)
-    addi r11, r1, 0x140
-    bl _savegpr_22
-    li r0, 0x0
-    lwz r11, CDBDatabaseWorkBuf(r0)
-    stw r0, 0x10(r1)
-    mr r22, r3
-    lwz r30, 0x148(r1)
-    mr r23, r4
-    mr r24, r5
-    mr r25, r6
-    mr r26, r7
-    mr r27, r8
-    mr r28, r9
-    stw r30, 0x8(r1)
-    mr r29, r10
-    mr r4, r22
-    mr r5, r23
-    mr r6, r24
-    mr r7, r25
-    mr r8, r26
-    mr r9, r27
-    addi r31, r11, 0x1428
-    addi r3, r1, 0x18
-    bl CDBConvCodeStrToFullPath
-    mr r3, r31
-    mr r5, r29
-    addi r4, r1, 0x18
-    bl CDBFSFindFirst
-    b L_81489A94
-    L_81489A1C:
-    lwz r4, 0x10(r1)
-    mr r3, r31
-    addi r0, r4, 0x1
-    stw r0, 0x10(r1)
-    bl CDBFindDataIsDirectory
-    cmpwi r3, 0x0
-    beq L_81489A8C
-    mr r3, r31
-    bl CDBFindDataGetName
-    bl CDBFSIsTypeDirName
-    cmpwi r3, 0x0
-    beq L_81489A8C
-    mr r3, r31
-    bl CDBFindDataGetName
-    stw r29, 0x8(r1)
-    mr r9, r3
-    mr r3, r22
-    mr r4, r23
-    stw r30, 0xc(r1)
-    mr r5, r24
-    mr r6, r25
-    mr r7, r26
-    mr r8, r27
-    addi r10, r1, 0x10
-    bl CDBDatabaseCleanUpEmptyDirectoriesRecord
-    cmpwi r3, 0x0
-    beq L_81489A8C
-    b L_81489AE0
-    L_81489A8C:
-    mr r3, r31
-    bl CDBFSFindNext
-    L_81489A94:
-    mr r3, r31
-    bl CDBFindDataIsEnd
-    cmpwi r3, 0x0
-    beq L_81489A1C
-    mr r3, r31
-    bl CDBFSFindClose
-    lwz r0, 0x10(r1)
-    cmpwi r0, 0x2
-    bne L_81489ADC
-    mr r4, r29
-    addi r3, r1, 0x18
-    bl CDBFSDeleteDir
-    cmpwi r3, 0x0
-    beq L_81489AD0
-    b L_81489AE0
-    L_81489AD0:
-    lwz r3, 0x0(r28)
-    subi r0, r3, 0x1
-    stw r0, 0x0(r28)
-    L_81489ADC:
-    li r3, 0x0
-    L_81489AE0:
-    addi r11, r1, 0x140
-    bl _restgpr_22
-    lwz r0, 0x144(r1)
-    mtlr r0
-    addi r1, r1, 0x140
-    blr
-#endif
+CDBErr CDBDatabaseCleanUpEmptyDirectoriesType(char* year, char* month, char* day, char* hour, char* minute, char* code, int* parentCount, CDBLocation location, u64* wiiId) {
+    int count = 0;
+    char path[256];
+    CDBFindData* find = &CDBDatabaseWorkBuf->type.find;
+    CDBErr result;
+    CDBConvCodeStrToFullPath(path, year, month, day, hour, minute, code, location, wiiId);
+    CDBFSFindFirst(find, path, location);
+    while (!CDBFindDataIsEnd(find)) {
+        count++;
+        if (CDBFindDataIsDirectory(find) && CDBFSIsTypeDirName(CDBFindDataGetName(find))) {
+            result = CDBDatabaseCleanUpEmptyDirectoriesRecord(year, month, day, hour, minute, code, CDBFindDataGetName(find), &count, location, wiiId);
+            if (result != CDB_ERROR_OK) return result;
+        }
+        CDBFSFindNext(find);
+    }
+    CDBFSFindClose(find);
+    if (count == 2) {
+        result = CDBFSDeleteDir(path, location);
+        if (result != CDB_ERROR_OK) return result;
+        --*parentCount;
+    }
+    return CDB_ERROR_OK;
 }
 
-asm CDBErr CDBDatabaseCleanUpEmptyDirectoriesCode() {
-#ifdef __MWERKS__
-    nofralloc
-    stwu r1, -0x140(r1)
-    mflr r0
-    stw r0, 0x144(r1)
-    addi r11, r1, 0x140
-    bl _savegpr_23
-    lwz r11, CDBDatabaseWorkBuf(r0)
-    li r0, 0x0
-    mr r23, r3
-    mr r24, r4
-    mr r25, r5
-    mr r26, r6
-    mr r27, r7
-    mr r28, r8
-    stw r0, 0x10(r1)
-    mr r29, r9
-    mr r30, r10
-    mr r4, r23
-    mr r5, r24
-    mr r6, r25
-    mr r7, r26
-    mr r8, r27
-    addi r31, r11, 0xa94
-    addi r3, r1, 0x18
-    bl CDBConvMinuteStrToFullPath
-    mr r3, r31
-    mr r5, r29
-    addi r4, r1, 0x18
-    bl CDBFSFindFirst
-    b L_81489BE0
-    L_81489B6C:
-    lwz r4, 0x10(r1)
-    mr r3, r31
-    addi r0, r4, 0x1
-    stw r0, 0x10(r1)
-    bl CDBFindDataIsDirectory
-    cmpwi r3, 0x0
-    beq L_81489BD8
-    mr r3, r31
-    bl CDBFindDataGetName
-    bl CDBFSIsCodeDirName
-    cmpwi r3, 0x0
-    beq L_81489BD8
-    mr r3, r31
-    bl CDBFindDataGetName
-    stw r30, 0x8(r1)
-    mr r8, r3
-    mr r3, r23
-    mr r4, r24
-    mr r5, r25
-    mr r6, r26
-    mr r7, r27
-    mr r10, r29
-    addi r9, r1, 0x10
-    bl CDBDatabaseCleanUpEmptyDirectoriesType
-    cmpwi r3, 0x0
-    beq L_81489BD8
-    b L_81489C2C
-    L_81489BD8:
-    mr r3, r31
-    bl CDBFSFindNext
-    L_81489BE0:
-    mr r3, r31
-    bl CDBFindDataIsEnd
-    cmpwi r3, 0x0
-    beq L_81489B6C
-    mr r3, r31
-    bl CDBFSFindClose
-    lwz r0, 0x10(r1)
-    cmpwi r0, 0x2
-    bne L_81489C28
-    mr r4, r29
-    addi r3, r1, 0x18
-    bl CDBFSDeleteDir
-    cmpwi r3, 0x0
-    beq L_81489C1C
-    b L_81489C2C
-    L_81489C1C:
-    lwz r3, 0x0(r28)
-    subi r0, r3, 0x1
-    stw r0, 0x0(r28)
-    L_81489C28:
-    li r3, 0x0
-    L_81489C2C:
-    addi r11, r1, 0x140
-    bl _restgpr_23
-    lwz r0, 0x144(r1)
-    mtlr r0
-    addi r1, r1, 0x140
-    blr
-#endif
+CDBErr CDBDatabaseCleanUpEmptyDirectoriesCode(char* year, char* month, char* day, char* hour, char* minute, int* parentCount, CDBLocation location, u64* wiiId) {
+    int count = 0;
+    char path[256];
+    CDBFindData* find = &CDBDatabaseWorkBuf->code.find;
+    CDBErr result;
+    CDBConvMinuteStrToFullPath(path, year, month, day, hour, minute, location, wiiId);
+    CDBFSFindFirst(find, path, location);
+    while (!CDBFindDataIsEnd(find)) {
+        count++;
+        if (CDBFindDataIsDirectory(find) && CDBFSIsCodeDirName(CDBFindDataGetName(find))) {
+            result = CDBDatabaseCleanUpEmptyDirectoriesType(year, month, day, hour, minute, CDBFindDataGetName(find), &count, location, wiiId);
+            if (result != CDB_ERROR_OK) return result;
+        }
+        CDBFSFindNext(find);
+    }
+    CDBFSFindClose(find);
+    if (count == 2) {
+        result = CDBFSDeleteDir(path, location);
+        if (result != CDB_ERROR_OK) return result;
+        --*parentCount;
+    }
+    return CDB_ERROR_OK;
 }
 
-asm CDBErr CDBDatabaseCleanUpEmptyDirectoriesMinute() {
-#ifdef __MWERKS__
-    nofralloc
-    stwu r1, -0x130(r1)
-    mflr r0
-    stw r0, 0x134(r1)
-    addi r11, r1, 0x130
-    bl _savegpr_24
-    lwz r10, CDBDatabaseWorkBuf(r0)
-    li r0, 0x0
-    mr r24, r3
-    mr r25, r4
-    mr r26, r5
-    mr r27, r6
-    mr r28, r7
-    stw r0, 0x8(r1)
-    mr r29, r8
-    mr r30, r9
-    mr r4, r24
-    mr r5, r25
-    mr r6, r26
-    mr r7, r27
-    addi r31, r10, 0x1dbc
-    addi r3, r1, 0x10
-    bl CDBConvHourStrToFullPath
-    mr r3, r31
-    mr r5, r29
-    addi r4, r1, 0x10
-    bl CDBFSFindFirst
-    b L_81489D20
-    L_81489CB0:
-    lwz r4, 0x8(r1)
-    mr r3, r31
-    addi r0, r4, 0x1
-    stw r0, 0x8(r1)
-    bl CDBFindDataIsDirectory
-    cmpwi r3, 0x0
-    beq L_81489D18
-    mr r3, r31
-    bl CDBFindDataGetName
-    bl CDBFSIsMinuteDirName
-    cmpwi r3, 0x0
-    beq L_81489D18
-    mr r3, r31
-    bl CDBFindDataGetName
-    mr r7, r3
-    mr r3, r24
-    mr r4, r25
-    mr r5, r26
-    mr r6, r27
-    mr r9, r29
-    mr r10, r30
-    addi r8, r1, 0x8
-    bl CDBDatabaseCleanUpEmptyDirectoriesCode
-    cmpwi r3, 0x0
-    beq L_81489D18
-    b L_81489D6C
-    L_81489D18:
-    mr r3, r31
-    bl CDBFSFindNext
-    L_81489D20:
-    mr r3, r31
-    bl CDBFindDataIsEnd
-    cmpwi r3, 0x0
-    beq L_81489CB0
-    mr r3, r31
-    bl CDBFSFindClose
-    lwz r0, 0x8(r1)
-    cmpwi r0, 0x2
-    bne L_81489D68
-    mr r4, r29
-    addi r3, r1, 0x10
-    bl CDBFSDeleteDir
-    cmpwi r3, 0x0
-    beq L_81489D5C
-    b L_81489D6C
-    L_81489D5C:
-    lwz r3, 0x0(r28)
-    subi r0, r3, 0x1
-    stw r0, 0x0(r28)
-    L_81489D68:
-    li r3, 0x0
-    L_81489D6C:
-    addi r11, r1, 0x130
-    bl _restgpr_24
-    lwz r0, 0x134(r1)
-    mtlr r0
-    addi r1, r1, 0x130
-    blr
-#endif
+CDBErr CDBDatabaseCleanUpEmptyDirectoriesMinute(char* year, char* month, char* day, char* hour, int* parentCount, CDBLocation location, u64* wiiId) {
+    int count = 0;
+    char path[256];
+    CDBFindData* find = &CDBDatabaseWorkBuf->minute.find;
+    CDBErr result;
+    CDBConvHourStrToFullPath(path, year, month, day, hour, location, wiiId);
+    CDBFSFindFirst(find, path, location);
+    while (!CDBFindDataIsEnd(find)) {
+        count++;
+        if (CDBFindDataIsDirectory(find) && CDBFSIsMinuteDirName(CDBFindDataGetName(find))) {
+            result = CDBDatabaseCleanUpEmptyDirectoriesCode(year, month, day, hour, CDBFindDataGetName(find), &count, location, wiiId);
+            if (result != CDB_ERROR_OK) return result;
+        }
+        CDBFSFindNext(find);
+    }
+    CDBFSFindClose(find);
+    if (count == 2) {
+        result = CDBFSDeleteDir(path, location);
+        if (result != CDB_ERROR_OK) return result;
+        --*parentCount;
+    }
+    return CDB_ERROR_OK;
 }
 
-asm CDBErr CDBDatabaseCleanUpEmptyDirectoriesHour() {
-#ifdef __MWERKS__
-    nofralloc
-    stwu r1, -0x130(r1)
-    mflr r0
-    stw r0, 0x134(r1)
-    addi r11, r1, 0x130
-    bl _savegpr_25
-    lwz r9, CDBDatabaseWorkBuf(r0)
-    li r0, 0x0
-    mr r25, r3
-    mr r26, r4
-    mr r27, r5
-    mr r28, r6
-    stw r0, 0x8(r1)
-    mr r29, r7
-    mr r30, r8
-    mr r4, r25
-    mr r5, r26
-    mr r6, r27
-    addi r31, r9, 0x2750
-    addi r3, r1, 0x10
-    bl CDBConvDayStrToFullPath
-    mr r3, r31
-    mr r5, r29
-    addi r4, r1, 0x10
-    bl CDBFSFindFirst
-    b L_81489E54
-    L_81489DE8:
-    lwz r4, 0x8(r1)
-    mr r3, r31
-    addi r0, r4, 0x1
-    stw r0, 0x8(r1)
-    bl CDBFindDataIsDirectory
-    cmpwi r3, 0x0
-    beq L_81489E4C
-    mr r3, r31
-    bl CDBFindDataGetName
-    bl CDBFSIsHourDirName
-    cmpwi r3, 0x0
-    beq L_81489E4C
-    mr r3, r31
-    bl CDBFindDataGetName
-    mr r6, r3
-    mr r3, r25
-    mr r4, r26
-    mr r5, r27
-    mr r8, r29
-    mr r9, r30
-    addi r7, r1, 0x8
-    bl CDBDatabaseCleanUpEmptyDirectoriesMinute
-    cmpwi r3, 0x0
-    beq L_81489E4C
-    b L_81489EA0
-    L_81489E4C:
-    mr r3, r31
-    bl CDBFSFindNext
-    L_81489E54:
-    mr r3, r31
-    bl CDBFindDataIsEnd
-    cmpwi r3, 0x0
-    beq L_81489DE8
-    mr r3, r31
-    bl CDBFSFindClose
-    lwz r0, 0x8(r1)
-    cmpwi r0, 0x2
-    bne L_81489E9C
-    mr r4, r29
-    addi r3, r1, 0x10
-    bl CDBFSDeleteDir
-    cmpwi r3, 0x0
-    beq L_81489E90
-    b L_81489EA0
-    L_81489E90:
-    lwz r3, 0x0(r28)
-    subi r0, r3, 0x1
-    stw r0, 0x0(r28)
-    L_81489E9C:
-    li r3, 0x0
-    L_81489EA0:
-    addi r11, r1, 0x130
-    bl _restgpr_25
-    lwz r0, 0x134(r1)
-    mtlr r0
-    addi r1, r1, 0x130
-    blr
-#endif
+CDBErr CDBDatabaseCleanUpEmptyDirectoriesHour(char* year, char* month, char* day, int* parentCount, CDBLocation location, u64* wiiId) {
+    int count = 0;
+    char path[256];
+    CDBFindData* find = &CDBDatabaseWorkBuf->hour.find;
+    CDBErr result;
+    CDBConvDayStrToFullPath(path, year, month, day, location, wiiId);
+    CDBFSFindFirst(find, path, location);
+    while (!CDBFindDataIsEnd(find)) {
+        count++;
+        if (CDBFindDataIsDirectory(find) && CDBFSIsHourDirName(CDBFindDataGetName(find))) {
+            result = CDBDatabaseCleanUpEmptyDirectoriesMinute(year, month, day, CDBFindDataGetName(find), &count, location, wiiId);
+            if (result != CDB_ERROR_OK) return result;
+        }
+        CDBFSFindNext(find);
+    }
+    CDBFSFindClose(find);
+    if (count == 2) {
+        result = CDBFSDeleteDir(path, location);
+        if (result != CDB_ERROR_OK) return result;
+        --*parentCount;
+    }
+    return CDB_ERROR_OK;
 }
 
-asm CDBErr CDBDatabaseCleanUpEmptyDirectoriesDay() {
-#ifdef __MWERKS__
-    nofralloc
-    stwu r1, -0x130(r1)
-    mflr r0
-    stw r0, 0x134(r1)
-    addi r11, r1, 0x130
-    bl _savegpr_26
-    lwz r8, CDBDatabaseWorkBuf(r0)
-    li r0, 0x0
-    mr r26, r3
-    mr r27, r4
-    mr r28, r5
-    stw r0, 0x8(r1)
-    mr r29, r6
-    mr r30, r7
-    mr r4, r26
-    mr r5, r27
-    addi r31, r8, 0x30e4
-    addi r3, r1, 0x10
-    bl CDBConvMonthStrToFullPath
-    mr r3, r31
-    mr r5, r29
-    addi r4, r1, 0x10
-    bl CDBFSFindFirst
-    b L_81489F7C
-    L_81489F14:
-    lwz r4, 0x8(r1)
-    mr r3, r31
-    addi r0, r4, 0x1
-    stw r0, 0x8(r1)
-    bl CDBFindDataIsDirectory
-    cmpwi r3, 0x0
-    beq L_81489F74
-    mr r3, r31
-    bl CDBFindDataGetName
-    bl CDBFSIsDayDirName
-    cmpwi r3, 0x0
-    beq L_81489F74
-    mr r3, r31
-    bl CDBFindDataGetName
-    mr r5, r3
-    mr r3, r26
-    mr r4, r27
-    mr r7, r29
-    mr r8, r30
-    addi r6, r1, 0x8
-    bl CDBDatabaseCleanUpEmptyDirectoriesHour
-    cmpwi r3, 0x0
-    beq L_81489F74
-    b L_81489FC8
-    L_81489F74:
-    mr r3, r31
-    bl CDBFSFindNext
-    L_81489F7C:
-    mr r3, r31
-    bl CDBFindDataIsEnd
-    cmpwi r3, 0x0
-    beq L_81489F14
-    mr r3, r31
-    bl CDBFSFindClose
-    lwz r0, 0x8(r1)
-    cmpwi r0, 0x2
-    bne L_81489FC4
-    mr r4, r29
-    addi r3, r1, 0x10
-    bl CDBFSDeleteDir
-    cmpwi r3, 0x0
-    beq L_81489FB8
-    b L_81489FC8
-    L_81489FB8:
-    lwz r3, 0x0(r28)
-    subi r0, r3, 0x1
-    stw r0, 0x0(r28)
-    L_81489FC4:
-    li r3, 0x0
-    L_81489FC8:
-    addi r11, r1, 0x130
-    bl _restgpr_26
-    lwz r0, 0x134(r1)
-    mtlr r0
-    addi r1, r1, 0x130
-    blr
-#endif
+CDBErr CDBDatabaseCleanUpEmptyDirectoriesDay(char* year, char* month, int* parentCount, CDBLocation location, u64* wiiId) {
+    int count = 0;
+    char path[256];
+    CDBFindData* find = &CDBDatabaseWorkBuf->day.find;
+    CDBErr result;
+    CDBConvMonthStrToFullPath(path, year, month, location, wiiId);
+    CDBFSFindFirst(find, path, location);
+    while (!CDBFindDataIsEnd(find)) {
+        count++;
+        if (CDBFindDataIsDirectory(find) && CDBFSIsDayDirName(CDBFindDataGetName(find))) {
+            result = CDBDatabaseCleanUpEmptyDirectoriesHour(year, month, CDBFindDataGetName(find), &count, location, wiiId);
+            if (result != CDB_ERROR_OK) return result;
+        }
+        CDBFSFindNext(find);
+    }
+    CDBFSFindClose(find);
+    if (count == 2) {
+        result = CDBFSDeleteDir(path, location);
+        if (result != CDB_ERROR_OK) return result;
+        --*parentCount;
+    }
+    return CDB_ERROR_OK;
 }
 
-asm CDBErr CDBDatabaseCleanUpEmptyDirectoriesMonth() {
-#ifdef __MWERKS__
-    nofralloc
-    stwu r1, -0x120(r1)
-    mflr r0
-    stw r0, 0x124(r1)
-    li r0, 0x0
-    stw r31, 0x11c(r1)
-    stw r30, 0x118(r1)
-    mr r30, r5
-    mr r6, r30
-    stw r29, 0x114(r1)
-    mr r29, r4
-    mr r5, r29
-    stw r28, 0x110(r1)
-    mr r28, r3
-    mr r4, r28
-    addi r3, r1, 0x10
-    lwz r7, CDBDatabaseWorkBuf(r0)
-    stw r0, 0x8(r1)
-    addi r31, r7, 0x3a78
-    bl CDBConvYearStrToFullPath
-    mr r3, r31
-    mr r5, r29
-    addi r4, r1, 0x10
-    bl CDBFSFindFirst
-    b L_8148A0A4
-    L_8148A040:
-    lwz r4, 0x8(r1)
-    mr r3, r31
-    addi r0, r4, 0x1
-    stw r0, 0x8(r1)
-    bl CDBFindDataIsDirectory
-    cmpwi r3, 0x0
-    beq L_8148A09C
-    mr r3, r31
-    bl CDBFindDataGetName
-    bl CDBFSIsMonthDirName
-    cmpwi r3, 0x0
-    beq L_8148A09C
-    mr r3, r31
-    bl CDBFindDataGetName
-    mr r4, r3
-    mr r3, r28
-    mr r6, r29
-    mr r7, r30
-    addi r5, r1, 0x8
-    bl CDBDatabaseCleanUpEmptyDirectoriesDay
-    cmpwi r3, 0x0
-    beq L_8148A09C
-    b L_8148A0E4
-    L_8148A09C:
-    mr r3, r31
-    bl CDBFSFindNext
-    L_8148A0A4:
-    mr r3, r31
-    bl CDBFindDataIsEnd
-    cmpwi r3, 0x0
-    beq L_8148A040
-    mr r3, r31
-    bl CDBFSFindClose
-    lwz r0, 0x8(r1)
-    cmpwi r0, 0x2
-    bne L_8148A0E0
-    mr r4, r29
-    addi r3, r1, 0x10
-    bl CDBFSDeleteDir
-    cmpwi r3, 0x0
-    beq L_8148A0E0
-    b L_8148A0E4
-    L_8148A0E0:
-    li r3, 0x0
-    L_8148A0E4:
-    lwz r0, 0x124(r1)
-    lwz r31, 0x11c(r1)
-    lwz r30, 0x118(r1)
-    lwz r29, 0x114(r1)
-    lwz r28, 0x110(r1)
-    mtlr r0
-    addi r1, r1, 0x120
-    blr
-#endif
+CDBErr CDBDatabaseCleanUpEmptyDirectoriesMonth(char* year, CDBLocation location, u64* wiiId) {
+    int count = 0;
+    char path[256];
+    CDBFindData* find = &CDBDatabaseWorkBuf->month.find;
+    CDBErr result;
+    CDBConvYearStrToFullPath(path, year, location, wiiId);
+    CDBFSFindFirst(find, path, location);
+    while (!CDBFindDataIsEnd(find)) {
+        count++;
+        if (CDBFindDataIsDirectory(find) && CDBFSIsMonthDirName(CDBFindDataGetName(find))) {
+            result = CDBDatabaseCleanUpEmptyDirectoriesDay(year, CDBFindDataGetName(find), &count, location, wiiId);
+            if (result != CDB_ERROR_OK) return result;
+        }
+        CDBFSFindNext(find);
+    }
+    CDBFSFindClose(find);
+    if (count == 2) {
+        result = CDBFSDeleteDir(path, location);
+        if (result != CDB_ERROR_OK) return result;
+    }
+    return CDB_ERROR_OK;
 }
 
 asm CDBErr CDBDatabaseCleanUpEmptyDirectories(CDBDatabase* database, CDBRecordLocation recordLocation) {

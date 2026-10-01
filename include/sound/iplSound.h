@@ -38,21 +38,49 @@ namespace ipl {
             int holdSE(const char* sndName);
             int holdSEwithPosDis(const char* sndName, f32 x, f32 y);
 
+#ifdef IPL_SOUND_MATCHING
+            void stopBGM(int unk = 0);
+#else
             int stopBGM(int unk = 0);
+#endif
             int stopBGM(nw4r::snd::SoundHandle* handle, int unk = 0);
             int stopSE(nw4r::snd::SoundHandle* handle, int unk = 0);
             void stopAllSound(int unk = 0);
 
             int resetAllSound();
 
+#ifdef IPL_SOUND_MATCHING
+            void muteOffBGM(int);
+#else
             int muteOffBGM(int);
+#endif
+#ifdef IPL_SOUND_MATCHING
+            void muteOnBGM(int);
+#else
             int muteOnBGM(int);
+#endif
 
+#ifdef IPL_SOUND_MATCHING
+            void pauseOnBGM();
+#else
             int pauseOnBGM();
+#endif
+#ifdef IPL_SOUND_MATCHING
+            void pauseOffBGM();
+#else
             int pauseOffBGM();
+#endif
 
+#ifdef IPL_SOUND_MATCHING
+            void pauseOnSE();
+#else
             int pauseOnSE();
+#endif
+#ifdef IPL_SOUND_MATCHING
+            void pauseOffSE();
+#else
             int pauseOffSE();
+#endif
 
             void setOutputMode(EAudioOutputMode mode);
 
