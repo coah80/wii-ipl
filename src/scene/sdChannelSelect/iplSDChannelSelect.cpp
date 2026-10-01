@@ -2076,13 +2076,11 @@ namespace ipl {
         }
 
         void SDChannelSelect::drawChannelTransitionObjects() {
-            int index;
-            int page;
             SDChannelObj* channel = NULL;
             while (channel = static_cast<SDChannelObj*>(nw4r::ut::List_GetNext(&mChannelObjects, channel)),
                    channel != NULL) {
-                page = channel->getPage();
-                index = channel->getIndex();
+                int page = channel->mPage;
+                int index = channel->mIndex;
                 if (!hasChannelObject(page, index) || !isChannelReady(channel)) {
                     continue;
                 }
@@ -2091,12 +2089,23 @@ namespace ipl {
                 iplSDChannelObj_813E32C8(channel);
 
                 if (iplSDChannelObj_813E3330(channel)) {
-                    if (mState < 24 && mState >= 15 &&
-                        (page != mSourcePage || index != mSourceIndex)) {
-                        nw4r::math::VEC3 position(channel->getTranslate());
-                        mpPageLayouts[0]->GetRootPane()->SetTranslate(position);
-                        mpPageLayouts[0]->calcMtx();
-                        mpPageLayouts[0]->draw();
+                    switch (mState) {
+                    case 15:
+                    case 16:
+                    case 17:
+                    case 18:
+                    case 19:
+                    case 20:
+                    case 21:
+                    case 22:
+                    case 23:
+                        if (page != mSourcePage || index != mSourceIndex) {
+                            nw4r::math::VEC3 position(channel->getTranslate());
+                            mpPageLayouts[0]->GetRootPane()->SetTranslate(position);
+                            mpPageLayouts[0]->calcMtx();
+                            mpPageLayouts[0]->draw();
+                        }
+                        break;
                     }
                 } else if (channel->mStateFlags == 2) {
                     nw4r::math::VEC3 position(channel->getTranslate());
@@ -2110,7 +2119,6 @@ namespace ipl {
                 case 16:
                 case 19:
                 case 20:
-                case 21:
                 case 22:
                 case 23:
                     if (page == mSourcePage && index == mSourceIndex) {
@@ -2122,10 +2130,15 @@ namespace ipl {
                     break;
                 }
 
-                if (mState < 22 && mState >= 19 &&
-                    page == mDestinationPage && index == mDestinationIndex) {
-                    mpPageLayouts[2]->draw();
-                    mpPointerLayout->draw();
+                switch (mState) {
+                case 19:
+                case 20:
+                case 21:
+                    if (page == mDestinationPage && index == mDestinationIndex) {
+                        mpPageLayouts[2]->draw();
+                        mpPointerLayout->draw();
+                    }
+                    break;
                 }
             }
         }
