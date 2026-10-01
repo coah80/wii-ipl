@@ -1003,39 +1003,21 @@ namespace ipl {
             return count - 1;
         }
 
-        asm int Manager::getAvailableInList(register const ESTitleId* titleIds, register u32 titleCount) {
-            nofralloc
-            li r8, 0
-            li r6, 0
-            li r7, 0xc
-            mtctr r5
-            cmplwi r5, 0
-            ble getAvailableInList_L3
-        getAvailableInList_L1:
-            add r5, r4, r6
-            lwzx r0, r4, r6
-            lwz r5, 4(r5)
-            or. r0, r5, r0
-            bne getAvailableInList_L2
-            divw r5, r8, r7
-            mullw r0, r5, r7
-            mulli r5, r5, 0xc0
-            subf r0, r0, r8
-            add r5, r3, r5
-            slwi r0, r0, 4
-            add r5, r5, r0
-            lbz r0, 0x30(r5)
-            cmplwi r0, 1
-            beq getAvailableInList_L2
-            mr r3, r8
-            blr
-        getAvailableInList_L2:
-            addi r8, r8, 1
-            addi r6, r6, 8
-            bdnz getAvailableInList_L1
-        getAvailableInList_L3:
-            li r3, -1
-            blr
+        int Manager::getAvailableInList(const ESTitleId* titleIds, u32 titleCount) {
+            int dens = 12;
+            u32 i;
+            for (i = 0; i < titleCount; i++) {
+                if (titleIds[i] == 0) {
+                    int page = (int)i / dens;
+                    int slot = (int)i % dens;
+                    u8* p = (u8*)this + page * 0xc0;
+                    p += slot * 16;
+                    if (*(p + 0x30) != 1) {
+                        return (int)i;
+                    }
+                }
+            }
+            return -1;
         }
 
         asm int Manager::isEqualChannel(register ESTitleId titleId0, register ESTitleId titleId1) {
