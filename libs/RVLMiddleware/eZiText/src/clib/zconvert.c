@@ -67,12 +67,11 @@ ziWChar Zi8ConvertUC2WC(ziChar character, ziU8 language ZI_NEED_WORK) {
     return mapped[character - defaults->first];
 }
 ziChar Zi8ConvertWC2UC(ziWChar character, ziU8 language ZI_NEED_WORK) {
-    ziU16 index, count, first, last, value;
+    ziU16 index, count, value, first, last;
+    ziU8* cursor;
     ziConversionTable* table;
-    const ziConversionRangeTable* defaults;
     ziConversionRange* ranges;
     ziConversionEntry* entry;
-    ziU8* cursor;
     if (character == 0) {
         Zi8LogError(0x133, __zi8_work_data);
         return 0;
@@ -83,94 +82,109 @@ ziChar Zi8ConvertWC2UC(ziWChar character, ziU8 language ZI_NEED_WORK) {
             Zi8LogError(0x6AE, __zi8_work_data);
             return 0;
         }
-        entry = table->entries;
-        count = (ziU16)table->count[0] << 8 | table->count[1];
+        entry = (ziConversionEntry*)table;
+        count = (ziU16)entry->first[0] << 8 | entry->first[1];
+        entry++;
         for (index = 0; index < count; index++) {
-            first = ((ziU16)entry->first[0] << 8 | entry->first[1]);
+            first = (ziU16)entry->first[0] << 8 | entry->first[1];
             last = (ziU16)entry->last[0] << 8 | entry->last[1];
-            if (first <= character && character <= last) {
-                value = ((ziU16)entry->value[0] << 8 | entry->value[1]);
-                if (first == last) {
-                    Zi8LogError(100, __zi8_work_data);
-                    return value & 0xFF;
-                }
-                Zi8LogError(100, __zi8_work_data);
-                return ((ziU8*)table->entries)[character + value - first];
+            if (character < first || character > last) {
+                entry++;
+                continue;
             }
-            entry++;
+            value = (ziU16)entry->value[0] << 8 | entry->value[1];
+            if (first == last) {
+                Zi8LogError(100, __zi8_work_data);
+                return value & 0xFF;
+            }
+            entry = (ziConversionEntry*)((ziU8*)table + value + character - first + 8);
+            Zi8LogError(100, __zi8_work_data);
+            return *(ziU8*)entry;
         }
+        Zi8LogError(0x6C2, __zi8_work_data);
+        return 0;
     } else {
-        defaults = &Zi8CvrtTables.reverse;
-        if (defaults == 0) {
+        ranges = Zi8CvrtTables.reverse.entries;
+        if (ranges == 0) {
             Zi8LogError(0x6AE, __zi8_work_data);
             return 0;
         }
-        ranges = defaults->entries;
-        for (index = 0; index < defaults->count; index++) {
-            if (ranges[index].first <= character && character <= ranges[index].last) {
+        count = Zi8CvrtTables.reverse.count;
+        for (index = 0; index < count; index++) {
+            if (character >= ranges[index].first && character <= ranges[index].last) {
                 Zi8LogError(100, __zi8_work_data);
-                if (ranges[index].first == ranges[index].last) return ranges[index].result.character & 0xFF;
-                return ((ziU8*)ranges[index].result.table)[character - ranges[index].first];
+                if (ranges[index].first == ranges[index].last)
+                    return ranges[index].result.character & 0xFF;
+                cursor = ranges[index].result.table;
+                return cursor[character - ranges[index].first];
             }
         }
+        Zi8LogError(0x6C2, __zi8_work_data);
+        return 0;
     }
-    Zi8LogError(0x6C2, __zi8_work_data);
-    return 0;
 }
 ziWChar Zi8ConvertUC2Key(ziChar character, ziU8 language ZI_NEED_WORK) {
-    ziU16 count, index, first, last;
-    ziU32 key = 0;
+    ziU16 key = 0;
+    ziU16 index, count, first, last;
     ziConversionTable* table;
-    const ziConversionRangeTable* defaults;
+    ziWChar* mapped;
     ziConversionRange* ranges;
     ziConversionEntry* entry;
-    ziU8* cursor;
     if (character == 0) {
         Zi8LogError(0x133, __zi8_work_data);
         return 0;
     }
-    if (ZI_WORK->userKeys[language] != 0) return Zi8ConvertUC2UserKey(character, language, __zi8_work_data);
+    if (ZI_WORK->userKeys[language] != 0)
+        return Zi8ConvertUC2UserKey(character, language, __zi8_work_data);
     if (Zi8GetTableCount(language, 8, __zi8_work_data) != 0) {
         table = Zi8GetTableAddress(language, 8, __zi8_work_data);
         if (table == 0) {
             Zi8LogError(0x6B8, __zi8_work_data);
             return 0;
         }
-        entry = table->entries;
-        count = (ziU16)table->count[0] << 8 | table->count[1];
+        entry = (ziConversionEntry*)table;
+        count = (ziU16)entry->first[0] << 8 | entry->first[1];
+        entry++;
         for (index = 0; index < count; index++) {
-            first = ((ziU16)entry->first[0] << 8 | entry->first[1]);
+            first = (ziU16)entry->first[0] << 8 | entry->first[1];
             last = (ziU16)entry->last[0] << 8 | entry->last[1];
-            if (first <= character && character <= last) {
-                key = ((ziU16)entry->value[0] << 8 | entry->value[1]);
-                if (first != last) {
-                    cursor = (ziU8*)table->entries + key + (character - first) * 2;
-                    key = (ziU16)cursor[0] << 8 | cursor[1];
-                }
-                break;
+            if (character < first || character > last) {
+                entry++;
+                continue;
             }
-            entry++;
+            key = (ziU16)entry->value[0] << 8 | entry->value[1];
+            if (first == last) break;
+            entry = (ziConversionEntry*)((ziU8*)table + key + (character - first) * 2);
+            entry = (ziConversionEntry*)((ziU8*)entry + 8);
+            key = (ziU16)entry->first[0] << 8 | entry->first[1];
+            break;
         }
     } else {
-        defaults = &Zi8CvrtTables.keys;
-        if (defaults == 0) {
+        ranges = Zi8CvrtTables.keys.entries;
+        if (ranges == 0) {
             Zi8LogError(0x6B8, __zi8_work_data);
             return 0;
         }
-        ranges = defaults->entries;
-        for (index = 0; index < defaults->count; index++) {
-            if (ranges[index].first <= character && character <= ranges[index].last) {
-                if (ranges[index].first == ranges[index].last) key = ranges[index].result.character & 0xFF;
-                else key = ((ziWChar*)ranges[index].result.table)[character - ranges[index].first];
+        count = Zi8CvrtTables.keys.count;
+        for (index = 0; index < count; index++) {
+            if (character >= ranges[index].first && character <= ranges[index].last) {
+                if (ranges[index].first == ranges[index].last) {
+                    key = (ziU8)ranges[index].result.character;
+                    break;
+                }
+                mapped = ranges[index].result.table;
+                key = mapped[character - ranges[index].first];
                 break;
             }
         }
     }
     if (key == 0) {
         Zi8LogError(0x6C2, __zi8_work_data);
-        key = 0xEFF1;
-    } else Zi8LogError(100, __zi8_work_data);
-    return key;
+        return 0xEFF1;
+    } else {
+        Zi8LogError(100, __zi8_work_data);
+        return key;
+    }
 }
 ziWChar Zi8ConvertWC2Key(ziWChar character, ziU8 language ZI_NEED_WORK) {
     return Zi8ConvertUC2Key(Zi8ConvertWC2UC(character, language, __zi8_work_data), language, __zi8_work_data);
