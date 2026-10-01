@@ -1063,7 +1063,7 @@ config.libs = [
             Object(NonMatching, "nhttp/NHTTP_socket_RVL.c"),
             Object(NonMatching, "nhttp/NHTTP_stdlib_RVL.c"),
             Object(NonMatching, "nhttp/NHTTP_thread.c"),
-            Object(NonMatching, "nhttp/d_nhttp_private.c"),
+            Object(Matching,    "nhttp/d_nhttp_private.c"),
             Object(Matching,    "nhttp/d_nhttp.c"),
             Object(Matching,    "nhttp/d_nhttp_common.c"),
         ]
