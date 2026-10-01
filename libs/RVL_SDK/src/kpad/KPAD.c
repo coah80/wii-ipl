@@ -268,10 +268,10 @@ void KPADSetPosParam(s32 chan, f32 x, f32 y) {
 }
 
 static void reset_kpad(KPADInside* kpad) {
-    f32 sensorDistance;
+    f32 upperY;
     f32 distanceValue;
     f32 zero;
-    f32 upperY;
+    f32 sensorDistance;
     f32 lowerY;
     f32 one;
     f32 negativeOne;

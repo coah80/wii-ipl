@@ -562,9 +562,9 @@ static s32 WAD_815BFFA8(WADImportLoopArgs* args) {
 s32 WADImportEx(char* path, MEMAllocator* allocator, WADLocation location, u32 offset, u32 flags,
                 WADProcessCallback processCallback) {
     s32 result = 0;
-    ESTitleMeta* titleMeta;
-    void* firstBuffer = 0;
-    void* secondBuffer = 0;
+    ESHash* sharedContentHashes = 0;
+    ESContentId* installedContentIds = 0;
+    ESContentMeta* matchingContents = 0;
     u32 importedBytes = 0;
     u32 contentCount;
     u32 headerReadSize;
@@ -574,11 +574,11 @@ s32 WADImportEx(char* path, MEMAllocator* allocator, WADLocation location, u32 o
     WADThreadStack* threadStack = 0;
     s32 contentFd;
     s32 titleImportStarted = FALSE;
-    ESTitleMeta* installedTitleMeta = 0;
-    ESContentId* installedContentIds = 0;
+    ESTitleMeta* titleMeta;
+    void* firstBuffer = 0;
     s32 contentImportStarted = FALSE;
-    ESContentMeta* matchingContents = 0;
-    ESHash* sharedContentHashes = 0;
+    void* secondBuffer = 0;
+    ESTitleMeta* installedTitleMeta = 0;
     WADStream stream;
     WADUnpackInfo unpackInfo;
     WADSaveDataHeader wadHeader ALIGN32;
@@ -1177,8 +1177,8 @@ cleanup:
 
 static s32 WAD_815C1288(WADExportLoopArgs* args) {
     ESFd fd = args->fd;
-    u32 remaining = args->size;
     u32 size;
+    u32 remaining = args->size;
     u32 bufferIndex = 0;
     WADImportTransfer* transfer = args->transfer;
     s32 result = 0;
