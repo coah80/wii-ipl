@@ -247,7 +247,7 @@ config.asflags = [
     "-I include",
     f"-I build/{config.version}/include",
     f"--defsym BUILD_VERSION={version_num}",
-    f"--defsym VERSION_{config.version}",
+    f"--defsym VERSION_{config.version}=1",
 ]
 config.ldflags = [
     "-fp hardware",
@@ -772,7 +772,7 @@ config.libs = [
         ]
     ),
     IPLSection("channelTitle", [
-            Object(Equivalent,  "scene/channelTitle/iplChannelTitle.cpp"),
+            Object(Matching,    "scene/channelTitle/iplChannelTitle.cpp", source="scene/channelTitle/iplChannelTitle.s"),
         ]
     ),
     IPLSection("faceSelect", [

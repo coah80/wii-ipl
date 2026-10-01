@@ -1,3 +1,4 @@
+// Matching build uses iplChannelTitle.s (C++ Matching historically breaks DOL SHA1).
 #define IPL_CHANNEL_TITLE_NOVTABLE
 #include <revolution/types.h>
 #define vu8 u8
