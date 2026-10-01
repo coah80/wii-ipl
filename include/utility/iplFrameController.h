@@ -12,7 +12,11 @@ namespace ipl {
     };
 
     namespace utility {
+#ifdef IPL_GC_WINDOW_CPP
+        class __declspec(novtable) FrameController {
+#else
         class FrameController {
+#endif
         protected:
             enum {
                 ANIM_STATE_STOP = 0,

@@ -342,8 +342,8 @@ void MemoryCardManager::update_change_cardstate(u8 slot) {
 GXTexObj* MemoryCardManager::create_icon(u8 slot, s16 index) {
     memorycard::IconState (*icons)[0x7f] = reinterpret_cast<memorycard::IconState(*)[0x7f]>(memorycard::getIconStateArray());
     int total = 0;
-    u32 file = mFile[slot][index].fileNo;
     s16 frame = 0;
+    u32 file = mFile[slot][index].fileNo;
     do {
         u32 shift = frame << 1;
         frame++;

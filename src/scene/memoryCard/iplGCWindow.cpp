@@ -86,6 +86,7 @@ MemoryBase::MemoryBase() : mpLayout(NULL), unk_0x08(NULL) {
     nw4r::ut::List_Init(&mAnmButtonList, offsetof(AnmButton, mLink));
 }
 
+
 MemCardEventHandler::~MemCardEventHandler() {}
 
 MemoryBaseEvent::MemoryBaseEvent(MemoryBase* memoryBase) : mpBase(memoryBase) {}

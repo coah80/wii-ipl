@@ -60,10 +60,16 @@ namespace gui {
 
         virtual void onEvent(u32 compId, u32 event, void* data) {}  // 0x08 (0x02)
 
+#ifdef IPL_MEMORYCARD_BASE_CPP
+        virtual void setManager(Manager* manager);      // 0x0C (0x03)
+        virtual void setLatestEventCtrlNo(int ctrlNo);  // 0x10 (0x04)
+        virtual int getLatestEventCtrlNo();             // 0x14 (0x05)
+#else
         virtual void setManager(Manager* manager) { mpManager = manager; }  // 0x0C (0x03)
 
         virtual void setLatestEventCtrlNo(int ctrlNo) { mLatestCtrlNum = ctrlNo; }  // 0x10 (0x04)
         virtual int getLatestEventCtrlNo() { return mLatestCtrlNum; }               // 0x14 (0x05)
+#endif
 
     protected:
         Manager* mpManager;  // 0x04
@@ -256,7 +262,11 @@ namespace gui {
         virtual bool contain(f32 x, f32 y);  // 0x68 (0x1A)
 
         virtual void setPane(nw4r::lyt::Pane* pane) { mpPane = pane; }  // 0x6C (0x1B)
+#ifdef IPL_MEMORYCARD_BASE_CPP
+        virtual nw4r::lyt::Pane* getPane();                             // 0x70 (0x1C)
+#else
         virtual nw4r::lyt::Pane* getPane() { return mpPane; }           // 0x70 (0x1C)
+#endif
 
     private:
         nw4r::lyt::Pane* mpPane;  // 0x88

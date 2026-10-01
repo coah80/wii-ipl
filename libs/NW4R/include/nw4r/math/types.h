@@ -157,7 +157,7 @@ namespace nw4r {
                 y = pF[1];
                 z = pF[2];
             }
-#if defined(IPL_SD_CHANNEL_SELECT_CPP)
+#if defined(IPL_SD_CHANNEL_SELECT_CPP) || defined(IPL_MEMORY_CARD_CPP)
             VEC3(f32 fx, f32 fy, f32 fz);
 #else
             VEC3(f32 fx, f32 fy, f32 fz) {
@@ -170,6 +170,9 @@ namespace nw4r {
             operator Vec*() { return reinterpret_cast<Vec*>(this); }
             operator const Vec*() const { return reinterpret_cast<const Vec*>(this); }
 
+#ifdef IPL_GC_WINDOW_CPP
+            VEC3& operator=(const VEC3& rhs);
+#endif
             VEC3& operator+=(const VEC3& rhs) {
                 VEC3Add(this, this, &rhs);
                 return *this;

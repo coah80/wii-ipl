@@ -93,11 +93,15 @@ namespace ipl {
             operator nw4r::math::_VEC3*() { return reinterpret_cast<nw4r::math::_VEC3*>(this); }
             operator const nw4r::math::_VEC3*() const { return reinterpret_cast<const nw4r::math::_VEC3*>(this); }
 
+#ifdef IPL_MEMORY_CARD_CPP
+            VEC3(const nw4r::math::_VEC3& r);
+#else
             VEC3(const nw4r::math::_VEC3& r) {
                 x = r.x;
                 y = r.y;
                 z = r.z;
             }
+#endif
             VEC3(const nw4r::math::_VEC2& r) {
                 x = r.x;
                 y = r.y;
