@@ -162,3 +162,49 @@ Orig .o exports `STB_GLOBAL lbl_XXXX` data symbols = real file-scope objects
   pf_fat12 ReadFATEntryWithBuf (flag r29/err r28 web swap in the select
   `li flag,1; beq; clrlwi` — WriteFAT's identical construct matched, so
   it's context regalloc; uninit-err rotated everything wrong).
+
+## Session 5
+
+### pf_entry_iterator .sdata decode (STB_GLOBAL -> named file-scope objects)
+- orig exports 5 STB_GLOBAL .sdata objects ("..", ".", ":", "\\", "/") plus one 4B
+  all-zero object. Named file-scope `__declspec(section ".sdata") pf_s8 g_*[]`
+  reproduces them: relocs become addend-0 against named globals exactly like orig.
+- NEW WALL: MWCC emits ALL all-zero-init objects to .sbss — declspec/volatile/
+  const/{0}/"" all fail to reach .sdata. The 4B zero object is only reproducible
+  as the pooled literal "\0\0\0" (literal pool always emits to .sdata).
+- FindCluster residual: 8 word diffs = paired web-home swap — store-`1` web
+  (start_cluster/previous_cluster/chain_index stores) vs shift-`1` web
+  (1<<log2_entries_per_sector) swap r7/r8 between builds. Reorders cascade (218)
+  or no-op.
+
+### pf_fat12 ReadFATEntryWithBuf
+- `pf_s32 err;` uninit + `err = 0;` before `while (PF_TRUE)` homes err in the
+  LAST callee web like orig (35->34). Residual = pure callee-reg rotation
+  (orig offset->r31,sector->r30,flag->r29,err->r28; mine err->r31,...).
+  DECL ORDER DOES NOT CONTROL MWCC callee-web priority — proven invariant
+  across all orderings.
+
+### pdm_partition
+- MBR_WORD merge order: flat LOW-BYTE-FIRST `b0 + (b1<<8) + (b2<<16) + (b3<<24)`
+  is best (get_start_sector 146->45 word diffs, fuzzy 82.6->95.0). Orig's
+  residual tree is PAIRWISE `(b2<<16+b0) + (b3<<24+b1<<8)` — even/odd pairing.
+  MWCC reassociates flat `+` chains freely: no source-visible + or | tree
+  reproduces the pairing (all pairwise/| forms measure 82-275).
+- is_master_boot_sector: `pf_s16 index` declared LAST in the local block ->
+  pointer webs home r6/r7 correctly (35->25). Residual = same pairwise-merge
+  scheduling + store-reload model (orig store-reloads *p_count for the test;
+  volatile pf_u32* p_count alone is a no-op, volatile p_start regresses 68).
+- chg_ltop: 16 diffs, ndiff 0 — pure regname class.
+
+### FAAttach (10 diffs, invariant)
+- orig: index->r0 computed once before bgt, scaled copy->r6 (then arm) / r5
+  (else arm); bases->r5,r4. mine: index+scaled fused->r5, bases->r4,r3.
+  u32 index / u8 casts / index-in-arm / decl rotation: 10-57, all >= 10.
+- PFFILE_GetSFD: 3 word diffs = marshal-order swap of 3 independent setup insns
+  ({addi r7,r3,0x40},{mr r6,r28},{mr r29,r4}); operand flips 5-7. Documented.
+- PFCACHE_DoWriteNumSectorAndFreeIfNeeded: 9-diff cluster around
+  `last_sector`/`num_overlap`: orig computes last=sum-1 via addi on the shared
+  sector+num_sector web; all rewrites (`sum-1` first, `p_page->sector+overlap`,
+  reordered) cascade 60-228. Committed form stays optimal.
+- PFCLUSTER_CombineFiles: 7 diffs = {-1/div/+1 chain r3, sum chain r0} orig vs
+  {-1 r0, quot r3/r0, sums r4} mine. temp/polarity/lim-decl: 7-8. Documented.
