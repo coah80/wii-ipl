@@ -851,15 +851,15 @@ USBKBDErr KBDSetModState(u32 channel, u32 value) {
 }
 
 u16 KBDTranslateHidCode(u32 keyCode, u32 modifiers, s32 country) {
-    KBDKeyMap* map;
-    u16* table;
-    u32 keyIndex;
-    u16 entry;
     s32 mask;
+    u16* table;
+    u16 activeFlag;
+    u16 entry;
+    KBDKeyMap* map;
     s32 offset;
     s32 group;
     u32 shiftFlag;
-    u16 activeFlag;
+    u32 keyIndex;
 
     if (kbdInitialized == FALSE) {
         return 0xFFFF;
@@ -920,9 +920,9 @@ u16 KBDTranslateHidCode(u32 keyCode, u32 modifiers, s32 country) {
             shiftFlag <<= offset;
             activeFlag = shiftFlag;
 
-            if (mask == 0 && (activeFlag & entry) != 0) {
+            if (mask == 0 && (entry & activeFlag) != 0) {
                 offset = offset ^ ((modifiers >> 9) & 1);
-            } else if (mask == 0x8000 && (activeFlag & entry) != 0) {
+            } else if (mask == 0x8000 && (entry & activeFlag) != 0) {
                 u32 numLockShift = 0;
                 if ((s32)(modifiers & 0x100) == 0x100 && offset == 0) {
                     numLockShift = 1;

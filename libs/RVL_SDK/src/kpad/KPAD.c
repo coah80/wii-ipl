@@ -1607,8 +1607,8 @@ static void KPADiSamplingCallback(s32 chan) {
     u32 device;
     if (WPADProbe(chan, &device) != -1) {
         u8 index = kpad->ringIndex;
-        KPADSample* status;
         u32 tier;
+        KPADSample* status;
         u32 enabled;
         u32 tableIndex;
         if (index >= 16) {
