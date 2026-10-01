@@ -64,7 +64,7 @@ typedef struct CXUncompContextHuffman {
 
 void CXInitUncompContextRL(CXUncompContextRL* context, u8* data);
 void CXInitUncompContextLZ(CXUncompContextLZ* context, u8* data);
-void CXInitUncompContextHuffman(CXUncompContextHuffman* context, u8* param_2);
+void CXInitUncompContextHuffman(CXUncompContextHuffman* context, u8* data);
 
 CXStreamingResult CXReadUncompRL(CXUncompContextRL* context, const void* src, u32 size);
 CXStreamingResult CXReadUncompLZ(CXUncompContextLZ* context, const void* src, u32 size);
