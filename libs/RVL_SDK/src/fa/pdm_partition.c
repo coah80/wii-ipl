@@ -10,24 +10,34 @@ pf_s32 pdm_part_is_master_boot_sector(pf_u8* buf, pf_u32 total, pf_bool* p_is_mb
     pf_s16 index;
     pf_u32 start[4];
     pf_u32 count[4];
+    pf_u32* p_start;
+    pf_u32* p_count;
     *p_is_mbr = 0;
     if (buf[510] != 0x55 || buf[511] != 0xAA) { return 2; }
+    p_start = start;
+    p_count = count;
     for (index = 0; index < 4; index++) {
-        start[index] = 0;
-        start[index] = (((pf_u32)buf[456] << 16) + buf[454]) + (((pf_u32)buf[457] << 24) + ((pf_u32)buf[455] << 8));
-        count[index] = (((pf_u32)buf[460] << 16) + buf[458]) + (((pf_u32)buf[461] << 24) + ((pf_u32)buf[459] << 8));
-        if (start[index] != 0 && count[index] != 0) {
+        *p_start = 0;
+        *p_start = (((pf_u32)buf[456] << 16) + buf[454]) + (((pf_u32)buf[457] << 24) + ((pf_u32)buf[455] << 8));
+        *p_count = (((pf_u32)buf[460] << 16) + buf[458]) + (((pf_u32)buf[461] << 24) + ((pf_u32)buf[459] << 8));
+        if (*p_start != 0 && *p_count != 0) {
             if (index == 0) { *p_is_mbr = 1; }
         } else {
             if (index == 0) { return 2; }
         }
+        p_start++;
+        p_count++;
         buf += 16;
     }
+    p_start = start;
+    p_count = count;
     for (index = 0; index < 4; index++) {
-        if (start[index] + count[index] > total) {
+        if (*p_start + *p_count > total) {
             if (index == 0) { *p_is_mbr = 0; }
             return 2;
         }
+        p_start++;
+        p_count++;
     }
     return 0;
 }

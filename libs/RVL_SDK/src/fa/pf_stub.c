@@ -58,7 +58,7 @@ void* pfstub_entry(void* argument) {
         pf_vol_set.context_id = message->task_id;
         if (message->operation >= 0 && message->operation < 100) {
             pfstub_call_function_standard(message);
-        } else if (received->operation >= 100 && received->operation < 200) {
+        } else if (((s32*)received)[1] >= 100 && ((s32*)received)[1] < 200) {
             pfstub_call_function_unicode(message);
         } else {
             message->result.status = -1;

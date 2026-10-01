@@ -468,7 +468,7 @@ extern pf_s32 PFPATH_cmpName(const pf_s8* short_name, PFDIR_STR* pattern, pf_u32
 extern pf_s32 PFPATH_cmpNameUni(const pf_u16* name, PFDIR_STR* pattern);
 pf_s32 PFDIR_p_mkdir(PF_VOLUME* volume, PF_STR* path, pf_u32 option, PF_DTA* data) {
     PF_DIR_ENT parent_entry;
-    pf_u32 index;
+    PF_DIR_ENT entry;
     pf_s8 normalized_name[512];
     PF_ENT_ITER iter;
     PFDIR_FFD ffd;
@@ -488,8 +488,8 @@ pf_s32 PFDIR_p_mkdir(PF_VOLUME* volume, PF_STR* path, pf_u32 option, PF_DTA* dat
     pf_u16 filename_length;
     pf_u16 original_offset;
     pf_u8 checksum;
-    PF_DIR_ENT entry;
     pf_u32 cluster;
+    pf_u32 index;
     pf_u32 lfn_index;
     pf_u32* next_sector;
     pf_s32 error;
@@ -1070,7 +1070,7 @@ pf_s32 PFDIR_p_move(PF_VOLUME* volume, PF_STR* old_path, PF_STR* new_path) {
 
     error = PFENT_ITER_GetEntryOfPath(&source_iter, &source_entry, volume, (PFDIR_STR*)old_path, 0);
     if (error != 0) { return error; }
-    if (PFPATH_GetVolumeFromPath(new_path) != volume) { return 0x1F; }
+    if (volume != PFPATH_GetVolumeFromPath(new_path)) { return 0x1F; }
     error = PFPATH_SplitPath((PFDIR_STR*)new_path, &directory, &destination_name);
     if (error != 0) { return error; }
     if (PFSTR_GetCodeMode(&destination_name) == 2) {

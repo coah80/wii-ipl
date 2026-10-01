@@ -102,7 +102,7 @@ pf_s32 PFFAT16_WriteFATEntryWithBuf(PF_VOLUME* p_vol, pf_u32 cluster, pf_u32 val
         err = VFiPFSEC_ReadFAT(p_vol, p_page->p_buf, fat_sector, 0, p_vol->bpb.bytes_per_sector);
     }
     p_page->p_buf[offset_in_sector] = value;
-    (offset_in_sector + p_page->p_buf)[1] = value >> 8;
+    p_page->p_buf[offset_in_sector + 1] = value >> 8;
     if (err != 0) {
         result = err;
     }

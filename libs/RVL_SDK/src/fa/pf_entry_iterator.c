@@ -728,20 +728,23 @@ pf_s32 PFENT_ITER_GetEntryOfIter(PFITER_ENT_ITER* p_iter, PF_DIR_ENT* p_ent) {
 
 pf_s32 PFENT_ITER_GetLFNEntryName(PFITER_ENT_ITER* p_iter, PF_DIR_ENT* p_ent) {
     pf_u32 i;
+    pf_u32 index;
     pf_s32 err;
     if (p_ent->num_entry_LFNs != 0 && !(p_ent->small_letter_flag & 0x18)) {
+        index = 0;
         for (i = 0; i < p_ent->num_entry_LFNs; ++i) {
             pf_u16* destination;
             err = PFENT_ITER_Retreat(p_iter, 0);
             if (err != 0) return err;
             err = PFENT_ITER_LoadEntry(p_iter);
             if (err != 0) return err;
-            destination = &p_ent->long_name[(i * 26U) / 2U];
+            destination = &p_ent->long_name[index];
             pf_memcpy(destination, &p_iter->buf[1], 10);
             pf_memcpy(destination + 5, &p_iter->buf[14], 12);
             pf_memcpy(destination + 11, &p_iter->buf[28], 4);
+            index += 13;
         }
-        p_ent->long_name[(p_ent->num_entry_LFNs * 26U) / 2U] = 0;
+        p_ent->long_name[index] = 0;
     }
     return 0;
 }
