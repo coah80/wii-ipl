@@ -281,7 +281,7 @@ void MemoryCardManager::update_file_array(u8 slot) {
     memorycard::CardState* states = memorycard::getCardSlotState();
     states[slot].changed = 0;
     sort_file_array(slot);
-    long command = mLastCmd;
+    long command = *(volatile long*)&mLastCmd;
     if ((u32)(command - 1) <= 3) {
         if (mLastResult == -0x15) {
             mLastResult = memorycard::getCardLastCMDFCmdResult();
