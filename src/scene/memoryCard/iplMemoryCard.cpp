@@ -744,4 +744,3 @@ namespace ipl {
     }
 }
 
-extern const f64 lbl_81694A78 = 4503601774854144.0;
