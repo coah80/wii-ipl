@@ -38,7 +38,7 @@ static FAInsertCallback g_attach_func = 0;
 static FAEjectCallback g_detach_func = 0;
 u32 g_event __attribute__((aligned(32)));
 
-char lbl_81690D18[] =
+char sd_drv_error_strings[] =
     "ERR:Failed to regist intr handler. pfd_st_inter_callback()\n\0"
     "ERR:Failed to regist intr handler. pfd_st_removal_callback()\n\0"
     "\0"
@@ -67,19 +67,19 @@ char lbl_81690D18[] =
     "ERR Failed to read RCA reg. pfd_sddrv_mount()\n\0"
     "";
 
-char lbl_81690FBC[] =
+char sd_drv_format_sd[] =
     "FULL_FORMAT";
 
-char lbl_81690FC8[] =
+char sd_drv_msg_open_fail[] =
     "ERR Failed to full format. pfd_sddrv_full_format()\n";
 
-char lbl_81690FFC[] =
+char sd_drv_msg_read_fail[] =
     "WARNING Faild to UnregisterDeviceIntrHandler sd card [ret = %d]\n\0"
     "\0"
     "\0"
     "";
 
-char lbl_81691040[] =
+char sd_drv_msg_write_fail[] =
     "WARNING Faild to unmount sd card [ret = %d]\n\0"
     "\0"
     "\0"
@@ -115,11 +115,11 @@ char lbl_81691040[] =
     "INFO Failed to write SD card3 [ret = 0x%x] pfd_sddrv_physical_write()\n\0"
     "";
 
-char lbl_81691310[] =
+char sd_drv_msg_ioctl[] =
     "ERR Failed to get CSD Info. pfd_sddrv_get_total_sectors()\n\0"
     "";
 
-char lbl_8169134C[] =
+char sd_drv_msg_status[] =
     "ERR Failed to get values with total sectors. pfd_sddrv_get_value_with_total_sectors()\n\0"
     "\0"
     "        \0"
@@ -441,7 +441,7 @@ s32 pfd_st_inter_callback(s32 status, void* data) {
         g_event = 2;
         result = ISD_RegisterDeviceIntrHandler(g_pfd_sddrv_info.device, (SDDevIntrCallback)pfd_st_removal_callback, &g_event);
         if (result != 0) {
-            OSReport((const char*)lbl_81690D18);
+            OSReport((const char*)sd_drv_error_strings);
         }
     }
     if (pfd_sddrv_disk(&g_pfd_sddrv_info) != 0) {
@@ -463,12 +463,12 @@ s32 pfd_st_removal_callback(s32 status, void* data) {
     if ((status & 2) != 2) {
         return 0;
     }
-    ((volatile PFD_SDDRV_INFO*)&g_pfd_sddrv_info)->media_inserted = 0;
-    if (((volatile PFD_SDDRV_INFO*)&g_pfd_sddrv_info)->device != 0) {
+    g_pfd_sddrv_info.media_inserted = 0;
+    if (g_pfd_sddrv_info.device != 0) {
         g_event = 1;
         result = ISD_RegisterDeviceIntrHandler(g_pfd_sddrv_info.device, (SDDevIntrCallback)pfd_st_inter_callback, &g_event);
         if (result != 0) {
-            OSReport(&lbl_81690D18[0x3c]);
+            OSReport(&sd_drv_error_strings[0x3c]);
         }
     }
     if (pfd_sddrv_disk(&g_pfd_sddrv_info) != 0) {
@@ -483,7 +483,7 @@ s32 pfd_st_removal_callback(s32 status, void* data) {
 
 
 s32 pfd_sddrv_init(FADisk* disk) {
-    const char* str_base = lbl_81690D18;
+    const char* str_base = sd_drv_error_strings;
     s32 sd_result;
     SDDev* device;
     u32 status;
@@ -523,8 +523,8 @@ s32 pfd_sddrv_init(FADisk* disk) {
     if ((status & 1) != 0) {
         g_pfd_sddrv_info.media_inserted = 1;
     }
-    ((volatile PFD_SDDRV_INFO*)&g_pfd_sddrv_info)->device = device;
-    if (((volatile PFD_SDDRV_INFO*)&g_pfd_sddrv_info)->media_inserted != 0) {
+    g_pfd_sddrv_info.device = device;
+    if (g_pfd_sddrv_info.media_inserted != 0) {
         g_event = 2;
         sd_result = ISD_RegisterDeviceIntrHandler(device, (SDDevIntrCallback)pfd_st_removal_callback, &g_event);
         if (sd_result != 0) {
@@ -543,14 +543,14 @@ s32 pfd_sddrv_init(FADisk* disk) {
             return -42;
         }
     }
-    ((volatile PFD_SDDRV_INFO*)&g_pfd_sddrv_info)->disk = disk;
-    ((volatile PFD_SDDRV_INFO*)&g_pfd_sddrv_info)->flags |= 1;
+    g_pfd_sddrv_info.disk = disk;
+    g_pfd_sddrv_info.flags |= 1;
     return 0;
 }
 
 
 s32 pfd_sddrv_mount(FADisk* disk) {
-    const char* str_base = lbl_81690D18;
+    const char* str_base = sd_drv_error_strings;
     s32 result;
     u32 attempts;
     u32 ocr;
@@ -622,11 +622,11 @@ s32 pfd_sddrv_format(FADisk* disk, u8* format_name) {
         return -33;
     }
     if (format_name != 0) {
-        result = pf_strcmp((char*)format_name, lbl_81690FBC);
+        result = pf_strcmp((char*)format_name, sd_drv_format_sd);
         if (result == 0) {
             result = pfd_sddrv_full_format();
             if (result != 0) {
-                OSReport(lbl_81690FC8);
+                OSReport(sd_drv_msg_open_fail);
                 return result;
             }
         }
@@ -674,18 +674,18 @@ s32 pfd_sddrv_finalize(FADisk* disk) {
     if ((g_pfd_sddrv_info.flags & 1) != 0) {
         result = ISD_UnregisterDeviceIntrHandler(g_pfd_sddrv_info.device);
         if (result != 0) {
-            OSReport(lbl_81690FFC, result);
+            OSReport(sd_drv_msg_read_fail, result);
         }
         result = ISD_UnmountCard(g_pfd_sddrv_info.device);
         if (result != 0) {
-            OSReport(lbl_81691040, result);
+            OSReport(sd_drv_msg_write_fail, result);
         }
         g_pfd_sddrv_info.device = 0;
     }
-    ((volatile PFD_SDDRV_INFO*)&g_pfd_sddrv_info)->flags = g_pfd_sddrv_info.flags & 0xfffffffe;
-    ((volatile PFD_SDDRV_INFO*)&g_pfd_sddrv_info)->media_inserted = 0;
-    ((volatile PFD_SDDRV_INFO*)&g_pfd_sddrv_info)->disk = 0;
-    ((volatile PFD_SDDRV_INFO*)&g_pfd_sddrv_info)->drive = 0;
+    g_pfd_sddrv_info.flags = g_pfd_sddrv_info.flags & 0xfffffffe;
+    g_pfd_sddrv_info.media_inserted = 0;
+    g_pfd_sddrv_info.disk = 0;
+    g_pfd_sddrv_info.drive = 0;
     return 0;
 }
 
@@ -696,7 +696,7 @@ s32 pfd_sddrv_get_total_sectors(u32* sectors, u16* bytes_per_sector);
 s32 pfd_sddrv_get_disk_info(FADisk* disk, FADiskInfo* disk_info) {
     s32 result;
     u32 status;
-    const char* str_base = lbl_81690D18;
+    const char* str_base = sd_drv_error_strings;
 
     if (disk == 0 || disk_info == 0) {
         return -30;
@@ -780,7 +780,7 @@ s32 pfd_sddrv_is_media_insert(void) {
 
 
 static s32 pfd_sddrv_physical_read(u32 blocks, u8* buffer, u32 sector, u32 bytes_per_sector, u32* blocks_read) {
-    const char* str_base = lbl_81690D18;
+    const char* str_base = sd_drv_error_strings;
     s32 result;
     s32 current_sector;
     u32 completed;
@@ -847,7 +847,7 @@ static s32 pfd_sddrv_physical_read(u32 blocks, u8* buffer, u32 sector, u32 bytes
 
 
 s32 pfd_sddrv_physical_write(u32 blocks, u8* buffer, u32 sector, u32 bytes_per_sector, u32* blocks_written) {
-    const char* str_base = lbl_81690D18;
+    const char* str_base = sd_drv_error_strings;
     s32 result;
     s32 current_sector;
     u32 completed;
@@ -931,7 +931,7 @@ s32 pfd_sddrv_get_total_sectors(u32* sectors, u16* bytes_per_sector) {
     pf_memset(csd, 0, 0x10);
     result = ISD_ReadCardRegister(g_pfd_sddrv_info.device, 9, csd, 0x10);
     if (result != 0) {
-        OSReport(lbl_81691310);
+        OSReport(sd_drv_msg_ioctl);
         return -43;
     }
     if ((csd[3] & 0x400000) == 0) {
@@ -998,7 +998,7 @@ s32 pfd_sddrv_calc_mbr_bpb(PFD_SDDRV_FORMAT_DATA* format_data) {
     }
     result = entry_index == 14 ? -30 : 0;
     if (result != 0) {
-        OSReport(lbl_8169134C);
+        OSReport(sd_drv_msg_status);
         return result;
     }
     format_data->sectors_per_cluster = settings.sectors_per_cluster;
@@ -1080,7 +1080,7 @@ s32 pfd_sddrv_calc_mbr_bpb(PFD_SDDRV_FORMAT_DATA* format_data) {
 
 
 s32 pfd_sddrv_store_bpb_buf(PFD_SDDRV_FORMAT_DATA* format_data, u8* sector_buffer) {
-    const char* str_base = lbl_81690D18;
+    const char* str_base = sd_drv_error_strings;
     PFD_SDDRV_SIZE_SETTINGS settings;
     PFD_SDDRV_BPB* boot_sector;
     u32 entry_index;
@@ -1185,7 +1185,7 @@ s32 pfd_sddrv_store_mbr_buf(PFD_SDDRV_FORMAT_DATA* format_data, u8* sector_buffe
     }
     result = entry_index == 14 ? -30 : 0;
     if (result != 0) {
-        OSReport(lbl_8169134C);
+        OSReport(sd_drv_msg_status);
         return result;
     }
     start_cylinder = format_data->partition_start_sector / (settings.fat_copies * settings.root_entries);
@@ -1224,7 +1224,7 @@ s32 pfd_sddrv_store_mbr_buf(PFD_SDDRV_FORMAT_DATA* format_data, u8* sector_buffe
 
 
 s32 pfd_sddrv_build_mbr_bpb(u32 total_sectors) {
-    const char* str_base = lbl_81690D18;
+    const char* str_base = sd_drv_error_strings;
     PFD_SDDRV_FORMAT_DATA format_data;
     s32 result;
     u32 partition_start_sector;
@@ -1314,7 +1314,7 @@ s32 pfd_sddrv_calc_fat32_mbr_bpb(PFD_SDDRV_FORMAT_DATA* format_data) {
     }
     result = entry_index == 14 ? -30 : 0;
     if (result != 0) {
-        OSReport(lbl_8169134C);
+        OSReport(sd_drv_msg_status);
         return result;
     }
     sectors_per_cluster = settings.sectors_per_cluster;
@@ -1408,7 +1408,7 @@ s32 pfd_sddrv_store_fat32_mbr_buf(PFD_SDDRV_FORMAT_DATA* format_data, u8* sector
     }
     result = entry_index == 14 ? -30 : 0;
     if (result != 0) {
-        OSReport(lbl_8169134C);
+        OSReport(sd_drv_msg_status);
         return result;
     }
     if (format_data->partition_start_sector > 0xfb0400) {
@@ -1501,7 +1501,7 @@ s32 pfd_sddrv_store_fat32_fsi_buf(u8* sector_buffer) NO_INLINE {
 
 
 s32 pfd_sddrv_store_fat32_bpb_buf(PFD_SDDRV_FORMAT_DATA* format_data, u8* sector_buffer) {
-    const char* str_base = lbl_81690D18;
+    const char* str_base = sd_drv_error_strings;
     PFD_SDDRV_SIZE_SETTINGS settings;
     PFD_SDDRV_FAT32_BPB* boot_sector;
     u32 entry_index;
@@ -1580,7 +1580,7 @@ static s32 pfd_sddrv_store_fat32_reserved_buf(u8* sector_buffer) {
 
 
 s32 pfd_sddrv_build_fat32_mbr_bpb(u32 total_sectors) {
-    const char* str_base = lbl_81690D18;
+    const char* str_base = sd_drv_error_strings;
     PFD_SDDRV_FORMAT_DATA format_data;
     s32 result;
     pf_memset(&format_data, 0, 0x20);
@@ -1616,10 +1616,10 @@ s32 pfd_sddrv_build_fat32_mbr_bpb(u32 total_sectors) {
         OSReport((str_base + 0x898));
         return result;
     }
-    if (((volatile PFD_SDDRV_INFO*)&g_pfd_sddrv_info)->media_inserted == 0) {
+    if (g_pfd_sddrv_info.media_inserted == 0) {
         return -33;
     }
-    if (((volatile PFD_SDDRV_INFO*)&g_pfd_sddrv_info)->media_ejected != 0) {
+    if (g_pfd_sddrv_info.media_ejected != 0) {
         return -33;
     }
     result = ISD_WriteBlock(g_pfd_sddrv_info.device, format_data.partition_start_sector + 1, g_pfd_sddrv_buf, 1);
@@ -1675,7 +1675,7 @@ s32 pfd_sddrv_build_fat32_mbr_bpb(u32 total_sectors) {
 
 
 s32 pfd_sddrv_full_format(void) {
-    const char* str_base = lbl_81690D18;
+    const char* str_base = sd_drv_error_strings;
     FADiskInfo geometry;
     u32 status;
     u32 retry_count;

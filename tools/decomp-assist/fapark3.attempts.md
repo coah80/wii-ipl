@@ -257,3 +257,12 @@ Applied the three targeted levers; no flips.
   DID move it 34->23 (first decl-order win on this unit); residual is a
   second callee rotation (one web homes r31 mine vs r28/r29 orig).
   u16 sector/offset, init'd-err-decl, else-if, mul3 form all worse.
+
+## owner-rule audit (w1001): lbl_ names + volatile casts banned
+- Banned: lbl_XXXXXXXX identifiers, volatile use-site casts for memop pinning, score-lifting objects.
+- sd_drv: 7 string-pool arrays renamed semantically (sd_drv_error_strings, sd_drv_format_sd,
+  sd_drv_msg_*), 6 volatile-cast sites removed. Cost: init +5, finalize +4, removal_callback +12
+  memop-order diffs (store/load reorder pairs MWCC now schedules freely). Declaring the whole struct
+  volatile would need banned-adjacent cast-aways at &obj call sites -> left partial, honest.
+- pf_path: lbl_8169599x sig bytes -> path_sig_byte0-3. pf_volume: lbl_81698398 -> vol_wildcard_path.
+- Renames are byte-neutral: all data sections still 100% after audit.
