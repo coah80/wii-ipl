@@ -565,7 +565,7 @@ void UUSB_Open(tUUSB *uusb, tUUSB_CBACK *cback)
 	(void)uusb;
 }
 
-UINT16 UUSB_Read(UINT8 param_1, void *param_2, UINT16 param_3)
+UINT16 UUSB_Read(UINT8 pipe, void *buf, UINT16 len)
 {
 	return 0;
 }
@@ -580,7 +580,7 @@ int UUSB_WriteBuf(/* ... */)
 	return 0;
 }
 
-UINT16 UUSB_Write(UINT8 param_1, void *p_data, UINT16 len, void *param_4)
+UINT16 UUSB_Write(UINT8 pipe, void *p_data, UINT16 len, void *unused)
 {
 	short sp18 = 0;
 	IOSError ret = 0;
@@ -591,7 +591,7 @@ UINT16 UUSB_Write(UINT8 param_1, void *p_data, UINT16 len, void *param_4)
 	if (usb.state != 2)
 		return 0;
 
-	switch (param_1)
+	switch (pipe)
 	{
 	case 0:
 		p_buf = GKI_getpoolbuf(usb.cmd_buffer_pool);
@@ -656,7 +656,7 @@ UINT16 UUSB_Write(UINT8 param_1, void *p_data, UINT16 len, void *param_4)
 		memcpy(p_buffer, p_data, len);
 
 		if (len > 190)
-			UUSBDBG(" woah ! thats pretty Big ! :%d", param_3);
+			UUSBDBG(" woah ! thats pretty Big ! :%d", len);
 
 		if (usb.at_0x38 < 5 && usb.bulk_buffer_q.count == 0)
 		{
@@ -696,7 +696,7 @@ UINT16 UUSB_Write(UINT8 param_1, void *p_data, UINT16 len, void *param_4)
 		break;
 	}
 
-	(void)param_4;
+	(void)unused;
 
 	return ret;
 }
