@@ -39,12 +39,12 @@
 extern "C" ipl::System::Arg smArg__Q23ipl6System;
 extern "C" ipl::snd::System sSystem__Q23ipl3snd;
 extern "C" void initOnMemory__Q33ipl3snd6SystemFPCvPQ23EGG4HeapUl();
-extern "C" const f32 lbl_81694424;
-extern "C" const f32 lbl_81694428;
-extern "C" const f32 lbl_8169442C;
-extern "C" const f32 lbl_81694430;
-extern "C" const f32 lbl_81694434;
-extern "C" const f32 lbl_81694438;
+extern "C" const f32 scOrthoLeft;
+extern "C" const f32 scOrthoRight;
+extern "C" const f32 scOrthoBottom;
+extern "C" const f32 scOrthoTop;
+extern "C" const f32 scWideOrthoLeft;
+extern "C" const f32 scWideOrthoRight;
 extern "C" void* m_handle__Q23ipl11TVRCManager;
 extern "C" void _savegpr_27();
 extern "C" void _restgpr_27();
@@ -1139,7 +1139,7 @@ namespace ipl {
         bl VISetBlack
         lwz r3, 0xb0(r28)
         li r0, 1
-        lfd f31, lbl_81694424-0xc
+        lfd f31, scOrthoLeft-0xc
         lis r30, 0x4330
         lbz r29, 0x3d(r3)
         lis r31, sSystem__Q23ipl3snd@ha
@@ -1162,7 +1162,7 @@ namespace ipl {
         bl makeRawData__Q33ipl7utility11JpegDecoderFv
     warning_run_no_jpeg:
         lwz r3, 0x74(r28)
-        lfs f1, lbl_81694424-0x14
+        lfs f1, scOrthoLeft-0x14
         lwz r27, 0(r3)
         stw r30, 8(r1)
         fmr f2, f1
@@ -1170,7 +1170,7 @@ namespace ipl {
         fmr f5, f1
         lhz r0, 6(r27)
         stw r3, 0xc(r1)
-        lfs f6, lbl_81694424-0x4
+        lfs f6, scOrthoLeft-0x4
         lfd f0, 8(r1)
         stw r0, 0x14(r1)
         fsubs f3, f0, f31
@@ -1362,17 +1362,17 @@ namespace ipl {
     }
 
     void System::getProjectionRect4x3(nw4r::ut::Rect* rect) {
-        rect->left = *((volatile const f32*)&lbl_81694424);
-        rect->right = *((volatile const f32*)&lbl_81694428);
-        rect->bottom = *((volatile const f32*)&lbl_8169442C);
-        rect->top = *((volatile const f32*)&lbl_81694430);
+        rect->left = *((volatile const f32*)&scOrthoLeft);
+        rect->right = *((volatile const f32*)&scOrthoRight);
+        rect->bottom = *((volatile const f32*)&scOrthoBottom);
+        rect->top = *((volatile const f32*)&scOrthoTop);
     }
 
     void System::getProjectionRect16x9(nw4r::ut::Rect* rect) {
-        rect->left = *((volatile const f32*)&lbl_81694434);
-        rect->right = *((volatile const f32*)&lbl_81694438);
-        rect->bottom = *((volatile const f32*)&lbl_8169442C);
-        rect->top = *((volatile const f32*)&lbl_81694430);
+        rect->left = *((volatile const f32*)&scWideOrthoLeft);
+        rect->right = *((volatile const f32*)&scWideOrthoRight);
+        rect->bottom = *((volatile const f32*)&scOrthoBottom);
+        rect->top = *((volatile const f32*)&scOrthoTop);
     }
 
     GXRenderModeObj* System::getRenderModeObj() {
@@ -1516,11 +1516,11 @@ namespace ipl {
 
 #ifdef __MWERKS__
 #pragma force_active on
-extern "C" const f32 lbl_81694424 = -304.0f;
-extern "C" const f32 lbl_81694428 = 304.0f;
-extern "C" const f32 lbl_8169442C = 228.0f;
-extern "C" const f32 lbl_81694430 = -228.0f;
-extern "C" const f32 lbl_81694434 = -416.0f;
-extern "C" const f32 lbl_81694438 = 416.0f;
+extern "C" const f32 scOrthoLeft = -304.0f;
+extern "C" const f32 scOrthoRight = 304.0f;
+extern "C" const f32 scOrthoBottom = 228.0f;
+extern "C" const f32 scOrthoTop = -228.0f;
+extern "C" const f32 scWideOrthoLeft = -416.0f;
+extern "C" const f32 scWideOrthoRight = 416.0f;
 #pragma force_active off
 #endif
