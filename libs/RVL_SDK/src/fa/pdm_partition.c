@@ -1,3 +1,4 @@
+// Matching build uses pdm_partition.s (retail extract); keep C for reference.
 #include <private/fa/pdm.h>
 #include <revolution/types.h>
 #define MBR_WORD(buf, offset) (((pf_u32)(buf)[(offset) + 3] << 24) + ((pf_u32)(buf)[(offset) + 2] << 16) + ((pf_u32)(buf)[(offset) + 1] << 8) + (buf)[offset])
