@@ -178,8 +178,8 @@ pf_s32 PFFAT12_ReadFATEntryWithBuf(PF_VOLUME* p_vol , pf_u16 cluster , pf_u32* p
     pf_s32 result;
     pf_u32 offset;
     pf_u32 sector;
+    pf_s32 err;
     pf_u32 current_fat;
-    pf_s32 err = 0;
 
 #define LOAD_FAT_SECTOR(next_sector) \
     if (p_page->sector != sector + (next_sector)) { \
@@ -200,6 +200,7 @@ pf_s32 PFFAT12_ReadFATEntryWithBuf(PF_VOLUME* p_vol , pf_u16 cluster , pf_u32* p
     } else {
         current_fat = 1;
     }
+    err = 0;
     while (PF_TRUE) {
         if (err == 0x1000 && p_vol->p_callback != PF_NULL) {
             result = ((PF_VOLUME_CB)p_vol->p_callback)(p_vol->last_driver_error);

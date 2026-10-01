@@ -29,6 +29,12 @@ typedef struct PFITER_ENT_ITER {
     pf_u8 log2_entries_per_sector;
 } PFITER_ENT_ITER;
 
+__declspec(section ".sdata") pf_s8 g_pfent_iter_parent_dir[] = "..";
+__declspec(section ".sdata") pf_s8 g_pfent_iter_current_dir[] = ".";
+__declspec(section ".sdata") pf_s8 g_pfent_iter_colon[] = ":";
+__declspec(section ".sdata") pf_s8 g_pfent_iter_backslash[] = "\\";
+__declspec(section ".sdata") pf_s8 g_pfent_iter_slash[] = "/";
+
 typedef struct PFITER_BPB {
     pf_u16 bytes_per_sector;
     pf_u16 num_reserved_sectors;
@@ -234,8 +240,8 @@ pf_s32 PFENT_ITER_DoFindEntry(PFITER_ENT_ITER* p_iter, PF_DIR_ENT* p_ent, PF_STR
     pf_u32 index_search_from;
     pf_u32 is_extsfn = 0;
     *p_is_found = 0;
-    if (PFSTR_StrCmp(p_pattern, (pf_s8*)"..") == 0 && (p_ent->attr & 0x10) && p_ent->start_cluster == 1) return 2;
-    if (PFSTR_StrCmp(p_pattern, (pf_s8*)".") == 0) {
+    if (PFSTR_StrCmp(p_pattern, g_pfent_iter_parent_dir) == 0 && (p_ent->attr & 0x10) && p_ent->start_cluster == 1) return 2;
+    if (PFSTR_StrCmp(p_pattern, g_pfent_iter_current_dir) == 0) {
         *p_is_found = 1;
         return 0;
     }
@@ -339,10 +345,10 @@ pf_s32 PFENT_ITER_DoGetEntry(PFITER_ENT_ITER* p_iter, PF_DIR_ENT* p_ent, PF_VOLU
     pf_s32 err;
     pf_u32 code_mode;
 
-    if (PFSTR_StrNCmp(p_path, (pf_s8*)":", 1, 1, 1) == 0) {
+    if (PFSTR_StrNCmp(p_path, g_pfent_iter_colon, 1, 1, 1) == 0) {
         PFSTR_MoveStrPos(p_path, 2);
     }
-    if ((PFSTR_StrNCmp(p_path, (pf_s8*)"\\", 1, 0, 1) == 0 || PFSTR_StrNCmp(p_path, (pf_s8*)"/", 1, 0, 1) == 0)) {
+    if ((PFSTR_StrNCmp(p_path, g_pfent_iter_backslash, 1, 0, 1) == 0 || PFSTR_StrNCmp(p_path, g_pfent_iter_slash, 1, 0, 1) == 0)) {
         err = PFENT_GetRootDir(p_vol, p_ent);
         if (err != 0) {
             return err;
@@ -528,7 +534,7 @@ pf_s32 PFENT_ITER_FindCluster(PF_DIR_ENT* p_ent, pf_u32 cluster, pf_bool* p_is_f
     while (iter.index != 0) {
         err = PFENT_ITER_LoadEntry(&iter);
         if (err != 0) return err;
-        if (pf_strncmp((pf_s8*)iter.buf, (pf_s8*)"..", 2) == 0) break;
+        if (pf_strncmp((pf_s8*)iter.buf, g_pfent_iter_parent_dir, 2) == 0) break;
         err = PFENT_ITER_Retreat(&iter, 0);
         if (err != 0) return err;
         if (current_cluster == cluster) {
@@ -552,7 +558,7 @@ pf_s32 PFENT_ITER_FindCluster(PF_DIR_ENT* p_ent, pf_u32 cluster, pf_bool* p_is_f
     while (current_cluster > 2) {
         err = PFENT_ITER_LoadEntry(&iter);
         if (err != 0) return err;
-        if (pf_strncmp((pf_s8*)iter.buf, (pf_s8*)"..", 2) == 0) {
+        if (pf_strncmp((pf_s8*)iter.buf, g_pfent_iter_parent_dir, 2) == 0) {
             if (current_cluster == cluster) {
                 *p_is_found = 1;
                 return 0;
@@ -685,8 +691,8 @@ pf_s32 PFENT_ITER_FindEntry(PFITER_ENT_ITER* p_iter, PF_DIR_ENT* p_ent, PF_STR* 
     pf_s32 err;
     *p_is_found = 0;
     if (attr_required & attr_forbidden) return 10;
-    if (PFSTR_StrNCmp(p_pattern, (pf_s8*)":", 1, 1, 1) == 0) PFSTR_MoveStrPos(p_pattern, 2);
-    if (PFSTR_StrNCmp(p_pattern, (pf_s8*)"\\", 1, 0, 1) == 0 || PFSTR_StrNCmp(p_pattern, (pf_s8*)"/", 1, 0, 1) == 0) {
+    if (PFSTR_StrNCmp(p_pattern, g_pfent_iter_colon, 1, 1, 1) == 0) PFSTR_MoveStrPos(p_pattern, 2);
+    if (PFSTR_StrNCmp(p_pattern, g_pfent_iter_backslash, 1, 0, 1) == 0 || PFSTR_StrNCmp(p_pattern, g_pfent_iter_slash, 1, 0, 1) == 0) {
         err = PFENT_GetRootDir(p_iter->p_vol, p_ent);
         if (err != 0) return err;
         if (PFSTR_StrNumChar(p_pattern, 1) == 1 && PFSTR_StrNCmp(p_pattern, (pf_s8*)"\0\0\0", 2, 0, 1) == 0) return 0;
