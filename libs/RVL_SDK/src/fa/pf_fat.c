@@ -1180,20 +1180,24 @@ s32 PFFAT_GetClusterSpecified(PFFAT_FFD* file, u32 chainIndex,
 s32 PFFAT_GetClusterAllocated(PFFAT_FFD* file, u32 chainIndex,
                               u32 numClusters, u32* cluster)
 {
+    u32* start;
+    PF_VOLUME* vol;
     PFFAT_HINT* hint;
     u32 fatType;
     u32 locateStart;
     u32 locateEnd;
     s32 error;
 
-    fatType = file->p_vol->bpb.fat_type;
+    start = file->p_start_cluster;
+    vol = file->p_vol;
+    fatType = vol->bpb.fat_type;
     hint = file->p_hint;
-    if (*file->p_start_cluster == 1) {
+    if (*start == 1) {
         if (fatType <= FAT_16) {
             *cluster = -1;
             return 0;
         }
-        *file->p_start_cluster = file->p_vol->bpb.root_dir_cluster;
+        *start = vol->bpb.root_dir_cluster;
     }
     *cluster = -1;
     error = find_cluster_in_chain(file, chainIndex, 2, numClusters, 1, cluster);
