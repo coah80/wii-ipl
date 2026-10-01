@@ -301,9 +301,9 @@ namespace nw4r {
             }
 
             if (error == OS_EXCEPTION_FLOATING_POINT_EXCEPTION) {
-                u32 uVar1 = sException.FPCSR_COPY;
-                uVar1 &= (((uVar1 & 0xf8) << 0x16) | 0x01f80700);
-                if ((uVar1 & 0x20000000) != 0) {
+                u32 fpcsr = sException.FPCSR_COPY;
+                fpcsr &= (((fpcsr & 0xf8) << 0x16) | 0x01f80700);
+                if ((fpcsr & 0x20000000) != 0) {
                     Exception_Printf_(" FPE: Invalid operation\n");
                     if ((sException.FPCSR_COPY & 0x1000000) != 0) {
                         Exception_Printf_(" SNaN\n");
@@ -333,16 +333,16 @@ namespace nw4r {
                         Exception_Printf_(" Invalid integer convert\n");
                     }
                 }
-                if ((uVar1 & 0x10000000) != 0) {
+                if ((fpcsr & 0x10000000) != 0) {
                     Exception_Printf_(" FPE: Overflow\n");
                 }
-                if ((uVar1 & 0x8000000) != 0) {
+                if ((fpcsr & 0x8000000) != 0) {
                     Exception_Printf_(" FPE: Underflow\n");
                 }
-                if ((uVar1 & 0x4000000) != 0) {
+                if ((fpcsr & 0x4000000) != 0) {
                     Exception_Printf_(" FPE: Zero division\n");
                 }
-                if ((uVar1 & 0x2000000) != 0) {
+                if ((fpcsr & 0x2000000) != 0) {
                     Exception_Printf_(" FPE: Inexact result\n");
                 }
             }
