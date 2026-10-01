@@ -884,23 +884,31 @@ namespace ipl {
             return ret;
         }
 
+        static char FUNC_VERIFY_SAVEDATA_ZD[] = "verifySavedataZD";
+        static char FUNC_DELETE_TICKETS_FORCE[] = "DeleteTicketsForce";
+        static char FUNC_INIT_SAVEDATA[] = "InitSavedata";
+
         void ESMisc::DeleteUnauthorizedData(EGG::Heap* heap) {
             u32 titleCount = 0;
             ESTitleId* titleIds = NULL;
             char path[88];
-            NANDFileInfo fileInfo ALIGN32;
             u8 ticketViews[0xe0] ALIGN32;
+            NANDFileInfo fileInfo ALIGN32;
             u32 ticketViewCount;
             ESTicketView* ticketViewList;
             s32 ret = ES_ListTitlesOnCard(NULL, &titleCount);
 
-            if (ret == ES_ERR_OK) {
+            if (ret != ES_ERR_OK) {
+                OSReport("%s::%s: Failed to ES_ListTitlesOnCard1: %d\n", __FILE__, FUNC_INIT_SAVEDATA, ret);
+            } else {
                 titleIds = (ESTitleId*)heap->alloc(OSRoundUp32B(titleCount * sizeof(ESTitleId)), -DEFAULT_ALIGN);
             if (titleIds == NULL) {
-                OSReport("%s::%s: Unable to allocate\n", __FILE__, "InitSavedata");
+                OSReport("%s::%s: Unable to allocate\n", __FILE__, FUNC_INIT_SAVEDATA);
             } else {
                 ret = ES_ListTitlesOnCard(titleIds, &titleCount);
-                if (ret == ES_ERR_OK) {
+                if (ret != ES_ERR_OK) {
+                    OSReport("%s::%s: Failed to ES_ListTitlesOnCard2: %d\n", __FILE__, FUNC_INIT_SAVEDATA, ret);
+                } else {
 
             u32 titleIdOffset = 0;
             for (u32 i = 0; i < titleCount; i++) {
@@ -912,28 +920,28 @@ namespace ipl {
                     BOOL fileOpen = FALSE;
                     BOOL deleteSaveData = FALSE;
 
-                    sprintf(path - 8, "/title/%08x/%08x/data/%s", titleIdHi & 0xffffff, titleIdLo, "zeldaTp.dat");
+                    sprintf(path, "/title/%08x/%08x/data/%s", titleIdHi & 0xffffff, titleIdLo, "zeldaTp.dat");
                     if (!ChangeUid(((ESTitleId)titleIdHi << 32) | titleIdLo)) {
-                        OSReport("%s::%s: ChangeUid failed\n", __FILE__, "verifySavedataZD");
+                        OSReport("%s::%s: ChangeUid failed\n", __FILE__, FUNC_VERIFY_SAVEDATA_ZD);
                         DeleteTitle(heap, ((ESTitleId)titleIdHi << 32) | titleIdLo);
                     } else {
-                        ret = NANDPrivateOpen(path - 8, (NANDFileInfo*)((u8*)&fileInfo - 0x20), NAND_ACCESS_READ);
+                        ret = NANDPrivateOpen(path, &fileInfo, NAND_ACCESS_READ);
                         if (ret == NAND_RESULT_NOEXISTS) {
-                            OSReport("%s::%s: Does not exist %s: %d\n", __FILE__, "verifySavedataZD", path - 8, ret);
+                            OSReport("%s::%s: Does not exist %s: %d\n", __FILE__, FUNC_VERIFY_SAVEDATA_ZD, path, ret);
                         } else if (ret != NAND_RESULT_OK) {
-                            OSReport("%s::%s: Open save data file failed: %d\n", __FILE__, "verifySavedataZD", ret);
+                            OSReport("%s::%s: Open save data file failed: %d\n", __FILE__, FUNC_VERIFY_SAVEDATA_ZD, ret);
                         } else {
                             fileOpen = TRUE;
                             saveData = (u8*)heap->alloc(0x4000, -DEFAULT_ALIGN);
                             if (saveData == NULL) {
-                                OSReport("%s::%s: Alloc failed: %d\n", __FILE__, "verifySavedataZD", -2);
+                                OSReport("%s::%s: Alloc failed: %d\n", __FILE__, FUNC_VERIFY_SAVEDATA_ZD, -2);
                             } else {
                                 memset(saveData, 0, 0x4000);
-                                ret = NANDRead((NANDFileInfo*)((u8*)&fileInfo - 0x20), saveData, 0x4000);
+                                ret = NANDRead(&fileInfo, saveData, 0x4000);
                                 if (ret < 0) {
-                                    OSReport("%s::%s: Read file failed: %d\n", __FILE__, "verifySavedataZD", ret);
+                                    OSReport("%s::%s: Read file failed: %d\n", __FILE__, FUNC_VERIFY_SAVEDATA_ZD, ret);
                                 } else if (ret != 0x4000) {
-                                    OSReport("%s::%s: File size is not correct: %d\n", __FILE__, "verifySavedataZD", ret);
+                                    OSReport("%s::%s: File size is not correct: %d\n", __FILE__, FUNC_VERIFY_SAVEDATA_ZD, ret);
                                     deleteSaveData = TRUE;
                                 } else {
                                     u32 offset = 8;
@@ -973,13 +981,13 @@ namespace ipl {
                                 verify_failed:
 
                                     if (!valid) {
-                                        OSReport("%s::%s: Verify failed for %016llx\n", __FILE__, "verifySavedataZD",
+                                        OSReport("%s::%s: Verify failed for %016llx\n", __FILE__, FUNC_VERIFY_SAVEDATA_ZD,
                                                  ((ESTitleId)titleIdHi << 32) | titleIdLo);
                                         deleteSaveData = TRUE;
                                     }
                                 }
 
-                                NANDClose((NANDFileInfo*)((u8*)&fileInfo - 0x20));
+                                NANDClose(&fileInfo);
                                 fileOpen = FALSE;
                                 if (deleteSaveData) {
                                     DeleteSavedata(((ESTitleId)titleIdHi << 32) | titleIdLo, heap);
@@ -992,7 +1000,7 @@ namespace ipl {
                         heap->free(saveData);
                     }
                     if (fileOpen) {
-                        NANDClose((NANDFileInfo*)((u8*)&fileInfo - 0x20));
+                        NANDClose(&fileInfo);
                     }
                     ChangeUid(SYSMENU_TITLE_ID);
                     continue;
@@ -1013,18 +1021,18 @@ namespace ipl {
                     memset(ticketViews, 0, sizeof(ticketViews));
                     ret = ES_GetTicketViews(titleId, NULL, &ticketViewCount);
                     if (ret != ES_ERR_OK) {
-                        OSReport("%s::%s: ES_GetTicketViews failed: %d for %016llx\n", __FILE__, "DeleteTicketsForce", ret, titleId);
+                        OSReport("%s::%s: ES_GetTicketViews failed: %d for %016llx\n", __FILE__, FUNC_DELETE_TICKETS_FORCE, ret, titleId);
                     } else if (ticketViewCount != 0) {
                         ticketViewList = (ESTicketView*)heap->alloc(ticketViewCount * 0xe0, -DEFAULT_ALIGN);
                         ret = ES_GetTicketViews(titleId, ticketViewList, &ticketViewCount);
                         if (ret != ES_ERR_OK) {
-                            OSReport("%s::%s: ES_GetTicketViews failed: %d for %016llx\n", __FILE__, "DeleteTicketsForce", ret, titleId);
+                            OSReport("%s::%s: ES_GetTicketViews failed: %d for %016llx\n", __FILE__, FUNC_DELETE_TICKETS_FORCE, ret, titleId);
                         } else {
                             for (u32 j = 0; j < ticketViewCount; j++) {
                                 memcpy(ticketViews, (u8*)ticketViewList + j * sizeof(ESTicketView), 0xd8);
                                 ret = ES_DeleteTicket((ESTicketView*)ticketViews);
                                 if (ret != ES_ERR_OK) {
-                                    OSReport("%s::%s: ES_DeleteTicket failed: %d for %016llx\n", __FILE__, "DeleteTicketsForce", ret,
+                                    OSReport("%s::%s: ES_DeleteTicket failed: %d for %016llx\n", __FILE__, FUNC_DELETE_TICKETS_FORCE, ret,
                                              ((ESTicketView*)ticketViews)->ticketId);
                                 }
                             }
@@ -1038,12 +1046,8 @@ namespace ipl {
                 titleIdOffset += 8;
             }
 
-                } else {
-                    OSReport("%s::%s: Failed to ES_ListTitlesOnCard2: %d\n", __FILE__, "InitSavedata", ret);
                 }
             }
-            } else {
-                OSReport("%s::%s: Failed to ES_ListTitlesOnCard1: %d\n", __FILE__, "InitSavedata", ret);
             }
 
             if (titleIds != NULL) {

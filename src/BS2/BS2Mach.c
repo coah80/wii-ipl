@@ -64,7 +64,7 @@ volatile int lbl_81698A44 = 0;
 volatile int lbl_81698A48 = 0;
 volatile int lbl_81698A4C = 0;
 vu32 lbl_81698A50 = 0;
-u32 lbl_81698A54 = 0;
+vu32 lbl_81698A54 = 0;
 u32 lbl_81698A58 = 0;
 u32 lbl_81698A5C = 0;
 u64 lbl_81698A60 = 0;
@@ -293,14 +293,58 @@ BOOL BS2IsDiagDisc() { return (u8)(*(u8 *)OSPhysicalToCached(OS_ADDR_BOOT_INFO) 
 extern vu32 BS2VideoMode;
 extern vu32 __DVDLayoutFormat;
 
-void Run(u32 entryPoint, void *start, u32 blockCount, u32 argument) {
-    u8 *block = start;
-    for (; blockCount != 0; --blockCount) {
-        __dcbz(block, 0);
-        __dcbf(block, 0);
-        block += 32;
-    }
-    ((void (*)(u32))entryPoint)(argument);
+extern int __pformatter();
+
+asm void Run(u32 entryPoint, void *start, u32 blockCount, u32 argument) {
+    // clang-format off
+    nofralloc
+    mtctr r5
+    mtlr r3
+    li r0, 0
+    li r2, 0
+    li r3, 0
+    li r5, 0
+    li r7, 0
+    li r8, 0
+    li r9, 0
+    li r10, 0
+    li r11, 0
+    li r12, 0
+    li r13, 0
+    li r14, 0
+    li r15, 0
+    li r16, 0
+    li r17, 0
+    li r18, 0
+    li r19, 0
+    li r20, 0
+    li r21, 0
+    li r22, 0
+    li r23, 0
+    li r24, 0
+    li r25, 0
+    li r26, 0
+    li r27, 0
+    li r28, 0
+    li r29, 0
+    li r30, 0
+    li r31, 0
+    lis r1, (__pformatter + 0x280)@h
+    ori r1, r1, (__pformatter + 0x280)@l
+    li r6, 0
+    b _Run_enter
+_Run_loop:
+    dcbz r4, r0
+    dcbf r4, r0
+    addi r4, r4, 0x20
+    bdnz _Run_loop
+    b _Run_done
+_Run_done:
+    li r4, 0
+    blr
+_Run_enter:
+    b _Run_loop
+    // clang-format on
 }
 
 BOOL BS2GetLockedTitles(ESTitleId *pTitleIds, u32 *count) {
@@ -629,7 +673,7 @@ void BS2StartGame() {
     u32 (*entry)(void);
 
     StartingGame = TRUE;
-    while (DVDGetCommandBlockStatus(&CoverBlock) != DVD_STATE_IDLE) {
+    while (CoverBlock.state != DVD_STATE_IDLE) {
     }
 
     BS2Report("BS2StartGame(1)\n");
@@ -729,8 +773,7 @@ void BS2StartGame() {
     LowReadResult = 0;
     DVDLowReadDiskID(&DiskID, (DVDLowCallback)callback);
     while (LowReadResult == 0) {
-        BOOL enabled = OSDisableInterrupts();
-        OSRestoreInterrupts(enabled);
+        ;
     }
 
     status = LowReadResult;
@@ -745,8 +788,7 @@ void BS2StartGame() {
         LowReadResult = 0;
         DVDLowRequestError((DVDLowCallback)callback);
         while (LowReadResult == 0) {
-            BOOL enabled = OSDisableInterrupts();
-            OSRestoreInterrupts(enabled);
+            ;
         }
         driveError = DVDLowGetImmBufferReg() & 0xFF000000;
         if (driveError == 0x01000000 || (driveError = DVDLowGetImmBufferReg() & 0xFF000000) == 0x03000000) {
@@ -781,8 +823,7 @@ disk_done:
                             (DVDLowCallback)callback);
     }
     while (LowReadResult == 0) {
-        BOOL enabled = OSDisableInterrupts();
-        OSRestoreInterrupts(enabled);
+        ;
     }
 
     status = LowReadResult;
@@ -800,8 +841,7 @@ disk_done:
         LowReadResult = 0;
         DVDLowRequestError((DVDLowCallback)callback);
         while (LowReadResult == 0) {
-            BOOL enabled = OSDisableInterrupts();
-            OSRestoreInterrupts(enabled);
+            ;
         }
         driveError = DVDLowGetImmBufferReg() & 0xFF000000;
         if (driveError == 0x01000000 || (driveError = DVDLowGetImmBufferReg() & 0xFF000000) == 0x03000000) {
@@ -862,7 +902,7 @@ void BS2StartGCGame() {
     OSTime time;
 
     StartingGame = TRUE;
-    while (DVDGetCommandBlockStatus(&CoverBlock) != DVD_STATE_IDLE) {
+    while (CoverBlock.state != DVD_STATE_IDLE) {
     }
 
     soundMode = SCGetSoundMode();
@@ -893,8 +933,8 @@ void BS2StartGCGame() {
 
     __OSGetRTC(&rtc);
     counterBias = SCGetCounterBias();
-    seconds = rtc + counterBias;
     timerFrequency = OS_BUS_CLOCK >> 2;
+    seconds = rtc + counterBias;
     time = (OSTime)seconds * timerFrequency;
     __OSSetTime(time);
 
