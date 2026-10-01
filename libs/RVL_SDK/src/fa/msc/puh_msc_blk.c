@@ -287,13 +287,13 @@ s32 _uhf_msc_blk_send_message(UHF_MSC_PARAMETERS* parameters, u32 command) {
     s32 semaphore;
     UHF_MSC_MESSAGE* message;
     s32 mailbox = uhf_msc_get_message_id();
-    message = uhf_ker_get_memory_block(uhg_msc_memid_8169971C, sizeof(UHF_MSC_MESSAGE), 4);
+    message = uhf_ker_get_memory_block(uhg_msc_memid, sizeof(UHF_MSC_MESSAGE), 4);
     if (message == NULL) {
         return -1;
     }
     semaphore = uhf_ker_create_sem(0, 0);
     if (semaphore <= 0) {
-        uhf_ker_release_memory_block(uhg_msc_memid_8169971C, message);
+        uhf_ker_release_memory_block(uhg_msc_memid, message);
         return -1;
     }
     message->command = command;
@@ -301,7 +301,7 @@ s32 _uhf_msc_blk_send_message(UHF_MSC_PARAMETERS* parameters, u32 command) {
     message->result = &result;
     message->parameters = *parameters;
     if (uhf_ker_send_message(mailbox, message, 0) != 0) {
-        uhf_ker_release_memory_block(uhg_msc_memid_8169971C, message);
+        uhf_ker_release_memory_block(uhg_msc_memid, message);
         uhf_ker_delete_sem(semaphore);
         return -1;
     }
