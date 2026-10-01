@@ -11,7 +11,7 @@ namespace ipl {
         OSMutex NetSetup::sAllocLock;
         NetSetup::StaticSOStartupInfo NetSetup::sSOStartupInfo;
 
-        void* NetSetup::iSOStartupEXThread(void* param_1) {
+        void* NetSetup::iSOStartupEXThread(void* connType) {
             s32 cfgSetResult;
             int soStartupRes;
             SOInAddr soAddr;
@@ -61,7 +61,7 @@ namespace ipl {
             soStartupRes = SOStartupEx(45000);
             if (soStartupRes < 0) {
                 OSReport("[FAIL] SOStartup() failed.(%d)\n", soStartupRes);
-                soStartupRes = NETGetStartupErrorCodeEx(soStartupRes, (int)param_1);
+                soStartupRes = NETGetStartupErrorCodeEx(soStartupRes, (int)connType);
                 OSReport("<Error Code: %d>\n", -soStartupRes);
                 sSOStartupInfo.state = NET_SETUP_ERROR;
                 sSOStartupInfo.lastErr = -soStartupRes;
