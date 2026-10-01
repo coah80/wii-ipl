@@ -9,3 +9,14 @@
 - NWC24CommitMsgInternal/WriteMIMEAttachHeader: ndiff-0, residual fuzzy from one r23<->r24 home swap at ~0x770 (cascade from earlier live range).
 - NWC24MsgSubject fns: reg-name/arg-staging diffs only; ReadMsgSubjectPublic missing `mr r8,r26` staging; iSetMsgSubjectBase64 +12 same-stream.
 - ConvertDaysToDate: 57 regname diffs + one extra tail block (`*month++` + b) vs orig's fall-through return.
+
+## net2 wave — volatile-guard isolation SOLVED the SelectMBox reload family (2026-10-01)
+- LEVER: `((volatile NWC24MsgObjPrivate*)privateMsg)->type` on the *guard* `& 0x200`/`& 2` reads (NOT inside SelectMBox). A volatile first-read can't CSE into the inlined SelectMBox's `->type` reads, so it loads into r0 (dead after rlwinm.) and SelectMBox's own load gets pinned r3 and reused for its second flag test — exactly the base layout. Fixed NWC24ReadMsgField, NWC24ReadMsgSubject, NWC24ReadMsgFromAddr (insn-equal), ReadMsgTextInternal (177->178/178), ReadMsgAttached (insn-equal). Apply per-site: volatile where the load must NOT be the pinned one. Volatile *inside* SelectMBox poisons all inline sites (forces a 3rd load) — removed; the standalone double-load comes from the `*type` store alias barrier anyway.
+- `switch(result){case OK: ...}` with empty default on the ReadBase64Data result: base fuses default-skip to `bne`; writing it as plain `if (result == NWC24_OK)` matches.
+- ReadMsgTextInternal `if (len==0) len=text.size`: base emits `beq->then; b->join` (sunk then-block + stray b). Ternary, else-if empty-if, and explicit `if()goto;goto;` labels ALL fold to fused `bne` — unfused-beq/b wall.
+- iSetMsgSubjectBase64 `beq;beq;b` 3-insn two-branch OR (==OK||==OVERFLOW ok else done): every source form folds (`||`+else, two positive gotos, else-if chain -> beq;bne); `switch` emits double-beq but adds a sign-split `bge` (+1); `(u32)`-cast switch keeps the bge. Splitting the OR across a second variable name folds too (copy-prop). Wall = unfused-branch family.
+- iSetMsgSubjectQP: pure whole-fn r30<->r31 rotation (secondSize vs lineLength); decl-order moves had no effect or made it worse.
+- DecodeMIMEHeaderFieldBody: r29<->r31 park-order tie (decodedSize vs input); init-stmt reorder cascades into r28<->r30. Parked.
+- iMBoxCheck oldestId store-forward: `*(volatile u32*)&mailbox.oldestId` at the DeleteMsg call site STILL forwards (provable-local stack slot) — confirmed wall, not a lever.
+- IsMsgObjReadable: 5-diff pure scheduling (entry->type load position vs prologue stores); volatile version adds +1 + cascade. Parked.
+- ReadMsgAttached residual: r27<->r28 (index home) + base keeps scaled index (idx*4 in r27) and recomputes `add r3,r29,r27` per attachedSize access while mine keeps the pointer (+1 insn). Ptr-vs-scaled-index liveness tie.

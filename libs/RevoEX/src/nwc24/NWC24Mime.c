@@ -596,9 +596,9 @@ static NWC24Err DecodeWord(char* charsetData, u32 charsetCapacity, char* decoded
 NWC24Err NWC24DecodeMIMEHeaderFieldBody(u8* charsetData, u32 charsetDataSize, u8* decoded, u32 decodedCapacity, u32* decodedSize, u8* encoded,
                                         u32 encodedSize) {
     int result = 0;
-    char* input;
-    s32 inputSize;
     u8* output;
+    s32 inputSize;
+    char* input;
     s32 remainingCapacity;
 
     if (decodedSize == NULL) {
