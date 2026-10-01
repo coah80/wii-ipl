@@ -239,10 +239,12 @@ static inline NWC24Err ReadDlTaskInline(NWC24DlTask* dlTask, NWC24DlId dlId) {
 
 static inline NWC24Err RemoveDlTask(NWC24DlTask* dlTask) {
     NWC24Err result = ValidateDlTask(dlTask, FALSE);
-    if (result != NWC24_OK) { return result; }
-    result = DeleteDlTask(dlTask);
-    if (result < NWC24_OK) { return result; }
-    ((DlTaskData*)dlTask)->id = 0xffff;
+    if (result == NWC24_OK) {
+        result = DeleteDlTask(dlTask);
+        if (result >= NWC24_OK) {
+            ((DlTaskData*)dlTask)->id = 0xffff;
+        }
+    }
     return result;
 }
 
@@ -898,6 +900,8 @@ NWC24Err NWC24PurgeOldestDlTask() {
     result = InitDlIteration(&state, 0);
     if (result < NWC24_OK) { return NWC24_OK; }
 
+    result = NWC24_OK;
+    if (result < NWC24_OK) { return result; }
     while ((result = NWC24IterateDlTaskEx((NWC24DlIterateWork*)&state, &taskId)) == NWC24_OK) {
         header = GetCachedDlHeader();
         if (taskId >= header->taskCount) { break; }
@@ -907,12 +911,9 @@ NWC24Err NWC24PurgeOldestDlTask() {
         taskPointer = &task;
         selectedId = taskId;
         result = ReadDlTaskInline(taskPointer, selectedId);
-        if (result < NWC24_OK) { return result; }
-        taskPointer = &task;
-        result = RemoveDlTask(taskPointer);
-        if (result < NWC24_OK) { return result; }
-    } else if (result == NWC24_ERR_DONE) {
-        result = NWC24_ERR_FAILED;
+        if (result >= NWC24_OK) { result = RemoveDlTask(taskPointer); }
+    } else {
+        if (result == NWC24_ERR_DONE) { result = NWC24_ERR_FAILED; }
     }
     return result;
 }
