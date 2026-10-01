@@ -543,12 +543,12 @@ NWC24Err NWC24DumpDlTask(NWC24DlTask* dlTask) {
 }
 
 NWC24Err NWC24IterateDlTask(NWC24DlId* dlIterateId, BOOL begin) {
-    NWC24Err result;
+    DlTaskListHeader* entriesHeader;
     NWC24Work* work;
     u16 taskId;
     u16 maxTaskCount;
     DlTaskListHeader* header;
-    DlTaskListHeader* entriesHeader;
+    NWC24Err result;
 
     if (NWC24WorkP != NULL) {
         header = (DlTaskListHeader*)NWC24WorkP->dlHead;
@@ -580,7 +580,7 @@ NWC24Err NWC24IterateDlTask(NWC24DlId* dlIterateId, BOOL begin) {
     }
 
     entriesHeader = (DlTaskListHeader*)work->dlHead;
-    do {
+    while (taskId < (work == NULL ? (DlTaskListHeader*)NULL : entriesHeader)->maxTaskCount) {
         header = work != NULL ? entriesHeader : NULL;
         if (taskId >= header->maxTaskCount || taskId == 0xffff) {
             result = NWC24_ERR_INVALID_VALUE;
@@ -594,7 +594,7 @@ NWC24Err NWC24IterateDlTask(NWC24DlId* dlIterateId, BOOL begin) {
             return NWC24_OK;
         }
         taskId++;
-    } while (taskId < (work != NULL ? entriesHeader : (DlTaskListHeader*)NULL)->maxTaskCount);
+    }
     return NWC24_ERR_DONE;
 }
 
@@ -714,6 +714,16 @@ static inline NWC24Err CheckDlTaskRetry(NWC24DlTask* dlTask, u8 retryCount) {
     if ((retryMask & (1 << retryCount)) == 0) { return NWC24_ERR_DISABLED; }
     return NWC24_OK;
 }
+static inline NWC24Err UpdateDlTaskAccessTime(NWC24DlTask* dlTask) {
+    OSTime universalTime;
+    NWC24Err result = NWC24iGetUniversalTime(&universalTime);
+    if (result >= NWC24_OK) {
+        result = SetDlTaskAccessTime(dlTask, universalTime);
+        if (result < NWC24_OK) { return result; }
+    }
+    return result;
+}
+
 NWC24Err NWC24UpdateDlTask(NWC24DlTask* dlTask) {
     DlTaskData* task = (DlTaskData*)dlTask;
     DlTaskListHeader* header;
@@ -725,11 +735,7 @@ NWC24Err NWC24UpdateDlTask(NWC24DlTask* dlTask) {
     if (result != NWC24_OK) { return result; }
     taskId = task->id;
     if (taskId == 0xffff || taskId >= GetCachedDlHeader()->maxTaskCount) { return NWC24_ERR_INVALID_VALUE; }
-    result = NWC24iGetUniversalTime(&universalTime);
-    if (result >= NWC24_OK) {
-        result = SetDlTaskAccessTime(dlTask, universalTime);
-        if (result < NWC24_OK) { return result; }
-    }
+    result = UpdateDlTaskAccessTime(dlTask);
     if (result < NWC24_OK) { return result; }
     result = ValidateDlTask(dlTask, TRUE);
     if (result == NWC24_OK) {
@@ -795,6 +801,7 @@ NWC24Err NWC24AddDlTask(NWC24DlTask* dlTask) {
 NWC24Err NWC24GetDlTask(NWC24DlTask* dlTask, NWC24DlId dlId) {
     DlTaskListHeader* header;
     NWC24File file;
+    DlTaskData* task = (DlTaskData*)dlTask;
     NWC24Err result;
     NWC24Err operationResult;
 
@@ -847,7 +854,7 @@ NWC24Err NWC24GetDlTask(NWC24DlTask* dlTask, NWC24DlId dlId) {
     if (operationResult < NWC24_OK) {
         result = operationResult;
     } else {
-        operationResult = NWC24FRead(dlTask, 0x200, &file);
+        operationResult = NWC24FRead(task, 0x200, &file);
         result = NWC24_OK;
         if (operationResult < NWC24_OK) {
             result = operationResult;
@@ -879,17 +886,13 @@ NWC24Err NWC24PurgeOldestDlTask() {
     state.initialized = 1;
     state.valid = 1;
 
-    result = NWC24IterateDlTaskEx((NWC24DlIterateWork*)&state, &taskId);
-    while (result == NWC24_OK) {
+    while ((result = NWC24IterateDlTaskEx((NWC24DlIterateWork*)&state, &taskId)) == NWC24_OK) {
         header = GetCachedDlHeader();
         if (taskId >= header->taskCount) { break; }
-        result = NWC24IterateDlTaskEx((NWC24DlIterateWork*)&state, &taskId);
     }
 
-    if (result == NWC24_ERR_DONE) {
-        return NWC24_ERR_FAILED;
-    }
     if (result < NWC24_OK) {
+        if (result == NWC24_ERR_DONE) { result = NWC24_ERR_FAILED; }
         return result;
     }
 
@@ -1014,9 +1017,7 @@ NWC24Err NWC24ExtendDlTaskList(u32 num) {
     result = WriteDlHeader(&file);
 closeList:
     closeResult = NWC24FClose(&file);
-    if (result != NWC24_OK) {
-        closeResult = result;
-    }
+    closeResult = result != NWC24_OK ? result : closeResult;
     result = NWC24iLoadDlHeader();
     if (closeResult != NWC24_OK) {
         result = closeResult;
@@ -1215,13 +1216,16 @@ static inline NWC24Err ValidateDlTaskUrl(NWC24DlTask* dlTask) {
     DlTaskListHeader* header = GetCachedDlHeader();
     NWC24Err result;
     if (task->id >= header->maxTaskCount && task->id != 0xffff) { return NWC24_ERR_INVALID_VALUE; }
-    result = NWC24iCheckStringLength(task->url, 7, 0x100);
-    if (result >= NWC24_OK) {
-        if (strncmp(task->url, "http://", 7) != 0 && strncmp(task->url, "https://", 8) != 0) { result = NWC24_ERR_FORMAT; }
-        else { result = NWC24_OK; }
+    {
+        const char* url = task->url;
+        result = NWC24iCheckStringLength(url, 7, 0x100);
+        if (result >= NWC24_OK) {
+            if (strncmp(url, "http://", 7) != 0 && strncmp(url, "https://", 8) != 0) { result = NWC24_ERR_FORMAT; }
+            else { result = NWC24_OK; }
+        }
+        if (result < NWC24_OK) { return result; }
+        return NWC24_OK;
     }
-    if (result < NWC24_OK) { return result; }
-    return NWC24_OK;
 }
 
 static inline NWC24Err FindFreeDlTask(NWC24DlTask* dlTask, u16 taskCount, u16 maxTaskCount) {
@@ -1251,11 +1255,7 @@ static inline NWC24Err UpdateDlTaskInline(NWC24DlTask* dlTask) {
     if (result != NWC24_OK) { return result; }
     taskId = task->id;
     if (taskId == 0xffff || taskId >= GetCachedDlHeader()->maxTaskCount) { return NWC24_ERR_INVALID_VALUE; }
-    result = NWC24iGetUniversalTime(&universalTime);
-    if (result >= NWC24_OK) {
-        result = SetDlTaskAccessTime(dlTask, universalTime);
-        if (result < NWC24_OK) { return result; }
-    }
+    result = UpdateDlTaskAccessTime(dlTask);
     if (result < NWC24_OK) { return result; }
     result = ValidateDlTask(dlTask, TRUE);
     if (result == NWC24_OK) {
@@ -1263,9 +1263,7 @@ static inline NWC24Err UpdateDlTaskInline(NWC24DlTask* dlTask) {
         task->unknown_0x1a = 0;
     }
     if (task->retryEnabled == 1) {
-        for (;;) {
-            result = CheckDlTaskRetry(dlTask, task->retryCount);
-            if (result != NWC24_ERR_DISABLED) { break; }
+        while ((result = CheckDlTaskRetry(dlTask, task->retryCount)) == NWC24_ERR_DISABLED) {
             task->retryCount = (task->retryCount + 1) & 0x1f;
         }
         if (result < NWC24_OK) { return result; }

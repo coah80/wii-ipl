@@ -1419,8 +1419,8 @@ namespace ipl {
                 mpChangeLayout->FindPaneByName("N_Tra0")->SetVisible(true);
             }
 
-            WWWRect* wideRect = NULL;
-            WWWRect* standardRect = NULL;
+            WWWRect* standardRect;
+            WWWRect* wideRect;
             void* wideBuffer = browser->GetTextureBuffer(1, &wideRect);
             void* standardBuffer = browser->GetTextureBuffer(0, &standardRect);
             nw4r::ut::Rect projection4x3;
@@ -1434,8 +1434,8 @@ namespace ipl {
             screenRect.bottom = -screenHeight / 2;
 
             if (wideBuffer != NULL && standardBuffer != NULL) {
-                GXTexObj wideTexture;
                 GXTexObj standardTexture;
+                GXTexObj wideTexture;
                 GXInitTexObj(&wideTexture, wideBuffer, wideRect->w, wideRect->h, GX_TF_RGB565, GX_CLAMP, GX_CLAMP, GX_FALSE);
                 GXInitTexObj(&standardTexture, standardBuffer, standardRect->w, standardRect->h, GX_TF_RGB565, GX_CLAMP, GX_CLAMP, GX_FALSE);
                 GXInitTexObjLOD(&wideTexture, GX_LINEAR, GX_LINEAR, 0.0f, 0.0f, 0.0f, GX_FALSE, GX_FALSE, GX_ANISO_1);
@@ -1715,9 +1715,8 @@ namespace ipl {
                 memset(unk_0x938, 0, sizeof(unk_0x938));
             }
 
-            keyboard::Manager* keyboardManager = System::getKeyboard();
             if (productArea == 11) {
-                keyboardManager->memoFrm()->setZiDictionary(keyboardManager->getZiOemDic(), keyboardManager->getZiSystemDic());
+                System::getKeyboard()->memoFrm()->setZiDictionary(System::getKeyboard()->getZiOemDic(), System::getKeyboard()->getZiSystemDic());
             }
 
             keyboard::Manager::KeyboardSetting setting;
@@ -1725,12 +1724,12 @@ namespace ipl {
             setting.wcString = reinterpret_cast<const wchar_t*>(unk_0x938);
             setting.stringLimit = stringLimit;
             setting.rowLimit = rowLimit;
-            keyboardManager->start(0, setting);
+            System::getKeyboard()->start(0, setting);
 
             if (invalidInput != 0) {
                 setDefaultBackString();
             } else {
-                keyboardManager->baseMgr()->setTitleText(L"");
+                System::getKeyboard()->baseMgr()->setTitleText(L"");
             }
             if (mpWiiSettingData->data[0x11] == 17) {
                 System::getKeyboard()->baseMgr()->setSecretInputMode(true);
@@ -1811,9 +1810,9 @@ namespace ipl {
                         ext_ead::www::SurfaceManager::GetInstance()->GetBrowserThread()->CommitIme(mpBrowserData, formText);
                         memset(mpStringBuffer->asterisks, 0, sizeof(mpStringBuffer->asterisks));
                     } else if (mpWiiSettingData->data[0x11] == 2 || mpWiiSettingData->data[0x11] == 22) {
+                        s32 index = 0;
                         memcpy(mpStringBuffer->asterisks, mpStringBuffer->securityKey, sizeof(mpStringBuffer->securityKey));
                         mpStringBuffer->asterisks[0x41] = 0;
-                        s32 index = 0;
                         while (mpStringBuffer->asterisks[index] != 0) {
                             mpStringBuffer->asterisks[index++] = '*';
                         }
@@ -1905,12 +1904,16 @@ namespace ipl {
             case keyboard::Manager::STATE_HIDDEN:
             case keyboard::Manager::STATE_APPEARING: {
                 u8 formId = mpWiiSettingData->data[0x11];
-                if (formId >= 1 && formId <= 22 && formId != 9 && formId != 21) {
-                    if (!System::getKeyboard()->memoMgr()->isVacancy()) {
-                        System::getKeyboard()->baseMgr()->setTitleText(L"");
-                    } else {
+                switch (formId) {
+                case 1: case 2: case 3: case 4: case 5: case 6: case 7: case 8:
+                case 10: case 11: case 12: case 13: case 14: case 15: case 16:
+                case 17: case 18: case 19: case 20: case 22:
+                    if (System::getKeyboard()->memoMgr()->isVacancy()) {
                         setDefaultBackString();
+                    } else {
+                        System::getKeyboard()->baseMgr()->setTitleText(L"");
                     }
+                    break;
                 }
 
                 break;
@@ -2448,11 +2451,12 @@ namespace ipl {
         void Setting::convertRevIP(u8* destination, const char* address) {
             char ascii[20];
             int count = 0;
+            int index;
             memset(ascii, 0, sizeof(ascii));
             utility::CharacterCode::UTF8ToANSI(reinterpret_cast<u8*>(ascii), address);
             int componentStart = 0;
             u8* output = destination;
-            for (int index = 0; index < 0x10; ++index) {
+            for (index = 0; index < 0x10; ++index) {
                 u8 character = static_cast<u8>(ascii[index]);
                 if (character == '.' || character == 0) {
                     if (character == 0) {
@@ -2714,9 +2718,10 @@ namespace ipl {
                 case 5:
                     mpPaneManager->update();
                     break;
-                case 6:
+                case 6: {
+                    int animationIndex = unk_0x918;
                     unk_0xB9C = 1;
-                    if (!mpMainLayout->getAnim(unk_0x918)->isPlaying()) {
+                    if (!mpMainLayout->getAnim(animationIndex)->isPlaying()) {
                         unk_0x78 = 5;
                         setAPDraw();
                         if (unk_0x91C[0] != 0) {
@@ -2738,6 +2743,7 @@ namespace ipl {
                         mpMainLayout->FindPaneByName("N_AP7")->SetVisible(true);
                     }
                     break;
+                }
                 case 7:
                     unk_0xB9C = 1;
                     if (!mpMainLayout->getAnim(unk_0x918)->isPlaying()) {

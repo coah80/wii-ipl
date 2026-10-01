@@ -1175,7 +1175,7 @@ static inline s32 __nupGetBoot2Version(u16* version) {
     if (result == 0) {
         u16 checkedVersion = bootVersion;
         *version = checkedVersion;
-        result = checkedVersion == bootVersion ? result : -0x1389;
+        if (checkedVersion != bootVersion) { result = -0x1389; }
     }
     return result;
 }
@@ -1225,9 +1225,9 @@ static inline void __nupSetStatus(NUPContextInfo* context, s32 status) {
 extern "C" void* __nupOp(void* argument) {
     u8* response = 0;
     ESTmdView* tmdView = 0;
-    char* auditData = 0;
-    u32 needsAudit;
     u32 currentDeviceId;
+    u32 needsAudit;
+    char* auditData = 0;
     s32 result;
     u16 serverBootVersion = 0;
     u16 bootTitleVersion;
