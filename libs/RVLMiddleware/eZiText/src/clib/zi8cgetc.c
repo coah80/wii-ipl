@@ -652,10 +652,10 @@ static int zi8InternalGetZH(ziGetParam* request, ZiChineseOptions* options, ziPt
                 case 0x10: case 0x80: case 0x100:
                     if (((ziFuzzyPYPairs*)&((struct __zi8_work_data_s*)work)->unk_0x1B28.word)->anANDang) ordinalIndex = 0xFFF7;
                     break;
-                case 0x60:
+                case 0x180:
                     if (((ziFuzzyPYPairs*)&((struct __zi8_work_data_s*)work)->unk_0x1B28.word)->enANDeng) ordinalIndex = 0xFFF7;
                     break;
-                case 0x180:
+                case 0x60:
                     if (((ziFuzzyPYPairs*)&((struct __zi8_work_data_s*)work)->unk_0x1B28.word)->inANDing) ordinalIndex = 0xFFF7;
                     break;
                 }
@@ -2125,9 +2125,9 @@ frequency_record_next:
                     ++emittedCount;
                     output[outputIndex++] = alternateCharacter;
                     output[outputIndex++] = ' ';
-                    if (outputIndex > outputLimit) goto engine_finish;
+                    if (outputIndex > outputLimit) goto frequency_candidates_done;
                 } else output[emittedCount++] = alternateCharacter;
-                if (emittedCount >= request->maxCandidates) goto engine_finish;
+                if (emittedCount >= request->maxCandidates) goto frequency_candidates_done;
             } else --skipCount;
             alternateCharacter = 0;
             firstPhoneticPass = 1;
@@ -2163,6 +2163,7 @@ frequency_record_next:
             exactPhrase = 1;
         }
     }
+frequency_candidates_done:
     if (phoneticRetry) {
         if (!emitWords && emittedCount < request->maxCandidates && getMode != 5) {
             for (duplicateIndex = 0; duplicateIndex < emittedCount; ++duplicateIndex) {
