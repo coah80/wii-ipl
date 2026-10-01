@@ -1,3 +1,4 @@
+// Matching build uses pf_volume.s (retail extract); keep C for reference.
 #include <revolution/types.h>
 
 typedef struct PFVOL_VOLUME PFVOL_VOLUME;
