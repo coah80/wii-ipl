@@ -1599,7 +1599,7 @@ namespace ipl {
                     math::VEC2 offset;
                     offset.y = sPageOffset.y * PAGE_MAX;
                     offset.x = sPageOffset.x * PAGE_MAX;
-                    add_translate(mpLayout->FindPaneByName("N_note_base"), offset);
+                    add_translate(mpLayout->FindPaneByName("N_note_base"), math::VEC2(offset));
                     mpLayout->getAnim(4)->setAnmType(0);
                     mpLayout->getAnim(4)->play();
                     set_page_text("T_nmbr_b", mPage + 1);
@@ -1778,10 +1778,11 @@ namespace ipl {
             nw4r::math::VEC3 baseTrans = mpLayout->FindPaneByName("N_base_move")->GetTranslate();
             math::VEC2 pos = System::getControllerManager()->getController(mDrag.mChan)->getDpdProjectionPos();
             nw4r::lyt::TextBox* textBox = static_cast<nw4r::lyt::TextBox*>(mpLayout->FindPaneByName("T_name_move"));
-            const u16* name = mpFriendCache->getInfo(mDrag.mButton + mDrag.mPage * BTN_MAX).attr.name;
+            const NWC24FriendInfo& info = mpFriendCache->getInfo(mDrag.mButton + mDrag.mPage * BTN_MAX);
+            const u16* name;
 
             f32 width = 0.0f;
-            if (textBox != NULL && name != NULL) {
+            if (textBox != NULL && (name = info.attr.name) != NULL) {
                 textBox->GetFont()->GetWidth();
                 for (; *name != 0; name++) {
                     width += textBox->GetFont()->GetCharWidth(*name);

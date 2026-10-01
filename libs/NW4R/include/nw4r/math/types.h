@@ -119,7 +119,12 @@ namespace nw4r {
             }
 
 #ifdef IPL_ADDRESS_MATCHING
-            VEC2 operator-() const { return VEC2(-x, -y); }
+            VEC2 operator-() const {
+                VEC2 result;
+                result.y = -y;
+                result.x = -x;
+                return result;
+            }
 #endif
 
             VEC2 operator+(const VEC2& rhs) const { return VEC2(x + rhs.x, y + rhs.y); }
