@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-char lbl_81693350[0xd0] = {
+char scCntCacheStrs[0xd0] = {
     0x3c, 0x3c, 0x20, 0x52, 0x56, 0x4c, 0x5f, 0x53, 0x44, 0x4b, 0x20, 0x2d, 0x20, 0x43, 0x4e, 0x54,
     0x43, 0x41, 0x43, 0x48, 0x45, 0x20, 0x09, 0x72, 0x65, 0x6c, 0x65, 0x61, 0x73, 0x65, 0x20, 0x62,
     0x75, 0x69, 0x6c, 0x64, 0x3a, 0x20, 0x41, 0x70, 0x72, 0x20, 0x32, 0x30, 0x20, 0x32, 0x30, 0x31,
@@ -22,12 +22,12 @@ char lbl_81693350[0xd0] = {
     0x74, 0x20, 0x00, 0x00, 0x44, 0x65, 0x6c, 0x65, 0x74, 0x65, 0x54, 0x69, 0x74, 0x6c, 0x65, 0x00,
     0x44, 0x65, 0x6c, 0x65, 0x74, 0x65, 0x43, 0x6f, 0x6e, 0x74, 0x65, 0x6e, 0x74, 0x00, 0x00, 0x00
 };
-char lbl_81693420[0x16] = {
+char scCntCacheTitleDataFmt[0x16] = {
     0x2f, 0x74, 0x69, 0x74, 0x6c, 0x65, 0x2f, 0x25, 0x30, 0x38, 0x78, 0x2f, 0x25, 0x30, 0x38, 0x78,
     0x2f, 0x64, 0x61, 0x74, 0x61, 0x00,
 };
-const char* __CNTCACHEVersion = lbl_81693350;
-char lbl_816985DC[3] = {0x20, 0x0a, 0x00};
+const char* __CNTCACHEVersion = scCntCacheStrs;
+char scCntCacheSpaceNl[3] = {0x20, 0x0a, 0x00};
 
 extern void _savegpr_23();
 extern void _restgpr_23();
@@ -72,9 +72,9 @@ asm void CNTCACHEClear() {
     mr r11, r12
     stw r0, 4(r12)
     bl _savegpr_23
-    lis r30, lbl_81693350@ha
+    lis r30, scCntCacheStrs@ha
     lis r3, _CNTCACHEMutex@ha
-    addi r30, r30, lbl_81693350@l
+    addi r30, r30, scCntCacheStrs@l
     li r29, 0
     addi r3, r3, _CNTCACHEMutex@l
     bl OSLockMutex
@@ -146,7 +146,7 @@ L_184:
     stb r31, 0(r4)
     subf r23, r24, r4
     mr r3, r24
-    la r4, lbl_816985DC
+    la r4, scCntCacheSpaceNl
     bl strtok
     cmpwi r3, 0
     mr r29, r3
@@ -246,7 +246,7 @@ asm void _CNTCACHEDeleteTitle() {
     stwu r1, -0x20(r1)
     mflr r0
     li r3, 0
-    la r4, lbl_816985DC
+    la r4, scCntCacheSpaceNl
     stw r0, 0x24(r1)
     stw r31, 0x1c(r1)
     stw r30, 0x18(r1)
@@ -284,7 +284,7 @@ L_350:
     bl ES_DeleteTitleContent
 L_364:
     li r3, 0
-    la r4, lbl_816985DC
+    la r4, scCntCacheSpaceNl
     bl strtok
 L_370:
     cmpwi r3, 0
@@ -305,10 +305,10 @@ asm int _CNTCACHEIsTitleRemovable(ESTitleId titleId) {
     subfic r11, r11, -0x2100
     stwux r1, r1, r11
     mflr r0
-    lis r5, lbl_81693420@ha
+    lis r5, scCntCacheTitleDataFmt@ha
     stw r0, 4(r12)
     li r0, 1
-    addi r5, r5, lbl_81693420@l
+    addi r5, r5, scCntCacheTitleDataFmt@l
     stw r31, -4(r12)
     stw r30, -8(r12)
     mr r30, r3
@@ -403,7 +403,7 @@ asm void _CNTCACHEDeleteContent() {
     stw r0, 4(r12)
     bl _savegpr_26
     li r3, 0
-    la r4, lbl_816985DC
+    la r4, scCntCacheSpaceNl
     bl strtok
     li r31, 0
     li r4, 0
@@ -441,10 +441,10 @@ asm void _CNTCACHEDeleteContent() {
     rlwinm. r0, r3, 0, 0x1b, 0x1b
     beq L_6f0
     li r3, 0
-    la r4, lbl_816985DC
+    la r4, scCntCacheSpaceNl
     bl strtok
     li r26, 1
-    lis r27, lbl_81693420@ha
+    lis r27, scCntCacheTitleDataFmt@ha
     b L_6e8
 L_5b0:
     stw r31, errno(r0)
@@ -488,7 +488,7 @@ L_5e8:
     li r0, -1
     stw r26, 0x20(r1)
     addi r3, r1, 0x40
-    addi r5, r27, lbl_81693420@l
+    addi r5, r27, scCntCacheTitleDataFmt@l
     stw r26, 0x24(r1)
     and r6, r30, r0
     and r7, r29, r0
@@ -529,7 +529,7 @@ L_6d4:
     bdnz L_5e8
 L_6dc:
     li r3, 0
-    la r4, lbl_816985DC
+    la r4, scCntCacheSpaceNl
     bl strtok
 L_6e8:
     cmpwi r3, 0
