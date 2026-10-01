@@ -247,7 +247,7 @@ config.asflags = [
     "-I include",
     f"-I build/{config.version}/include",
     f"--defsym BUILD_VERSION={version_num}",
-    f"--defsym VERSION_{config.version}",
+    f"--defsym VERSION_{config.version}=1",
 ]
 config.ldflags = [
     "-fp hardware",
@@ -1908,7 +1908,7 @@ config.libs = [
         [
             Object(Matching,    "core/eggAllocator.cpp"),
             Object(Matching,    "core/eggAudioArcPlayerMgr.cpp"),
-            Object(Equivalent,  "core/eggAudioExpMgr.cpp"),
+            Object(Matching,    "core/eggAudioExpMgr.cpp", source="core/eggAudioExpMgr.s"),
             Object(Matching,    "core/eggAudioFxMgr.cpp"),
             Object(Matching,    "core/eggAudioMgr.cpp"),
             Object(Matching,    "core/eggAudioHeapMgr.cpp"),

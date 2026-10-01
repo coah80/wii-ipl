@@ -1,3 +1,4 @@
+// Matching build uses core/eggAudioExpMgr.s (C++ emits extra weak inlines that break DOL layout).
 #include <egg/core.h>
 
 namespace EGG {
