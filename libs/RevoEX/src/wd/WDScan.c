@@ -13,22 +13,22 @@
 const u8 scRsnOui0 = 0;
 const u8 scRsnOui1 = 0x0F;
 const u8 scRsnOui2 = 0xAC;
-const u8 lbl_81695063 = 0;
+const u8 scRsnOuiPad = 0;
 const u8 scWpaOui0 = 0;
 const u8 scWpaOui1 = 0x50;
 const u8 scWpaOui2 = 0xF2;
-const u8 lbl_81695067 = 0;
+const u8 scWpaOuiPad = 0;
 #pragma pop
 #pragma push
 #pragma section sconst_type ".sdata"
 const u8 scWpaFindOui0 = 0;
 const u8 scWpaFindOui1 = 0x50;
 const u8 scWpaFindOui2 = 0xF2;
-const u8 lbl_81697D73 = 0;
-const u8 lbl_81697D74 = 0;
-const u8 lbl_81697D75 = 0;
-const u8 lbl_81697D76 = 0;
-const u8 lbl_81697D77 = 0;
+const u8 scWpaFindOuiPad0 = 0;
+const u8 scWpaFindOuiPad1 = 0;
+const u8 scWpaFindOuiPad2 = 0;
+const u8 scWpaFindOuiPad3 = 0;
+const u8 scWpaFindOuiPad4 = 0;
 #pragma pop
 
 #define scRsnOui0 (*((volatile const u8*)&scRsnOui0))
