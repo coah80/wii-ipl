@@ -62,8 +62,8 @@ typedef struct CXUncompContextHuffman {
     CXHuffmanDecodeTableEntry decodeTableData[0x200];  // 0x20
 } CXUncompContextHuffman;
 
-void CXInitUncompContextRL(CXUncompContextRL* context, u8* param_2);
-void CXInitUncompContextLZ(CXUncompContextLZ* context, u8* param_2);
+void CXInitUncompContextRL(CXUncompContextRL* context, u8* data);
+void CXInitUncompContextLZ(CXUncompContextLZ* context, u8* data);
 void CXInitUncompContextHuffman(CXUncompContextHuffman* context, u8* param_2);
 
 CXStreamingResult CXReadUncompRL(CXUncompContextRL* context, const void* src, u32 size);

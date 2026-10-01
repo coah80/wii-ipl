@@ -4,8 +4,8 @@
 static inline int CXiReadHeader(u8*, int*, const u8*, int, int);
 static inline CXHuffmanDecodeTableEntry* GetNextNode(CXHuffmanDecodeTableEntry*, int);
 
-void CXInitUncompContextRL(CXUncompContextRL* context, u8* param_2) {
-    context->unk_0x00 = param_2;
+void CXInitUncompContextRL(CXUncompContextRL* context, u8* data) {
+    context->unk_0x00 = data;
     context->unk_0x04 = 0;
     context->unk_0x0e = 0;
     context->unk_0x0C = 0;
@@ -13,8 +13,8 @@ void CXInitUncompContextRL(CXUncompContextRL* context, u8* param_2) {
     context->size = 0;
 }
 
-void CXInitUncompContextLZ(CXUncompContextLZ* context, u8* param_2) {
-    context->unk_0x00 = param_2;
+void CXInitUncompContextLZ(CXUncompContextLZ* context, u8* data) {
+    context->unk_0x00 = data;
     context->unk_0x04 = 0;
     context->unk_0x11 = 0;
     context->unk_0x12 = 0;
@@ -125,7 +125,7 @@ CXStreamingResult CXReadUncompRL(CXUncompContextRL* context, const void* src, u3
     return CX_STREAMING_ERR_OK;
 }
 
-static int CXiReadHeader(u8* pHdrLen, int* pOutLen, const u8* pSrc, int srcSize, int param_5) {
+static int CXiReadHeader(u8* pHdrLen, int* pOutLen, const u8* pSrc, int srcSize, int maxOutLen) {
     int bytesParsed = 0;
 
     while (*pHdrLen) {
@@ -150,8 +150,8 @@ static int CXiReadHeader(u8* pHdrLen, int* pOutLen, const u8* pSrc, int srcSize,
         }
     }
 
-    if (param_5 > 0 && param_5 < *pOutLen) {
-        *pOutLen = param_5;
+    if (maxOutLen > 0 && maxOutLen < *pOutLen) {
+        *pOutLen = maxOutLen;
     }
 
     return bytesParsed;
