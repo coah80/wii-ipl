@@ -1180,7 +1180,11 @@ static u32 getCurrentHalfLine(void)
             break;
         }
     }
-    return ((horizontalCount - 1) / CurrTiming->hlw) + ((verticalCount - 1) * 2);
+    {
+        u32 vm1 = verticalCount - 1;
+        u32 hm1 = horizontalCount - 1;
+        return hm1 / CurrTiming->hlw + vm1 * 2;
+    }
 }
 
 static u32 getCurrentFieldEvenOdd(void)
