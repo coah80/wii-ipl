@@ -5,13 +5,6 @@
 
 #include <new>
 
-extern "C" const f32 lbl_81694D90;
-extern "C" const f32 lbl_81694DA8;
-extern "C" const f32 lbl_81694DAC;
-extern "C" const f32 lbl_81694DB0;
-extern "C" const f32 lbl_81694DB4;
-extern "C" const f32 lbl_81694DBC;
-extern "C" const double lbl_81694DC8;
 extern "C" void _savegpr_24();
 extern "C" void _restgpr_24();
 extern "C" void GetFont__Q34nw4r3lyt8TextBoxCFv();
