@@ -1136,30 +1136,33 @@ prepareCandidate:
                    ((Zi8ZHCheckSpelling(wordCursor,parameters->elements,parameters->elementCount,
                                              workData)) != '\0')) {
                   if ((((ZiAlphaWork*)workData)->caseMode != '\0') && ((!phoneticInput && (!phoneticSeparator)))) {
-                    Zi8ChangeWordCase(wordCursor + -prefixCount,language,workData);
+                    Zi8ChangeWordCase(wordCursor - prefixCount,language,workData);
                   }
                   if ((((ZiAlphaOptions*)optionData)->suffixOnly != '\0') &&
-                     ((int)(unsigned int)(ziU8)((ZiAlphaOptions*)optionData)->maxWordLength < (int)(wordLength + prefixCount))) {
-                    wordLength = (ziU8)((ZiAlphaOptions*)optionData)->maxWordLength - prefixCount;
+                     ((int)((ZiAlphaOptions*)optionData)->maxWordLength < (int)(wordLength + prefixCount))) {
+                    wordLength = ((ZiAlphaOptions*)optionData)->maxWordLength - prefixCount;
                     wordCursor[wordLength] = 0;
                   }
-                  if (((int)(unsigned int)(ziU8)((ZiAlphaOptions*)optionData)->maxWordLength < (int)(wordLength + prefixCount)) ||
-                     ((Zi8IsDupWordW(wordCursor + -prefixCount,wordLength + prefixCount & 0xff,
+                  if (((int)((ZiAlphaOptions*)optionData)->maxWordLength < (int)(wordLength + prefixCount)) ||
+                     ((Zi8IsDupWordW(wordCursor - prefixCount,wordLength + prefixCount & 0xff,
                                                workData)) != '\0')) {
-                    if ((prefixCount != 0) && ((ziU8)((ZiAlphaOptions*)optionData)->maxWordLength <= prefixCount)) break;
+                    if ((prefixCount != 0) && (((ZiAlphaOptions*)optionData)->maxWordLength <= prefixCount)) break;
                   }
                   else {
 
                     if ((((keyLayoutCount == 0) || (((ZiAlphaOptions*)optionData)->lookupMode != '\0')) ||
                         ((int)(wordLength + prefixCount) < 2)) ||
                        (0x40 < (int)(wordLength + prefixCount))) goto emitCandidate;
-                    if (dictionaryKind == 5) {
+                    switch (dictionaryKind) {
+                    case 5:
+                    case 1:
+                    case 9:
 checkKeyLayout:
                       keyLayoutCursor = keyLayout;
                       candidateCharacterCount = wordLength + prefixCount;
                       for (index = 0; (int)index < (int)(unsigned int)keyLayoutCount; index = index + 1) {
-                        if (candidateCharacterCount <= *keyLayoutCursor) {
-                          if (candidateCharacterCount < *keyLayoutCursor++) {
+                        if (*keyLayoutCursor >= candidateCharacterCount) {
+                          if (*keyLayoutCursor++ > candidateCharacterCount) {
                             index = (unsigned int)keyLayoutCount;
                           }
                           break;
@@ -1182,22 +1185,21 @@ checkKeyLayout:
                             goto retryDictionary;
                           }
                           keyLayoutCursor += candidateCharacterCount;
-                          if (candidateCharacterCount < *keyLayoutCursor++) break;
+                          if (*keyLayoutCursor++ > candidateCharacterCount) break;
                         }
                       }
+                      break;
+                    default:
+                      break;
                     }
-                    else if (dictionaryKind < 5) {
-                      if (dictionaryKind == 1) goto checkKeyLayout;
-                    }
-                    else if (dictionaryKind == 9) goto checkKeyLayout;
 emitCandidate:
                     if (firstCandidate == 0) {
                       if (((ZiAlphaOptions*)optionData)->countOnly != '\0') {
                         if (((ZiAlphaOptions*)optionData)->suffixOnly != '\0') {
-                          if ((int)(wordLength + prefixCount) < (int)(unsigned int)(ziU8)((ZiAlphaOptions*)optionData)->shortestWord) {
+                          if ((int)(wordLength + prefixCount) < (int)((ZiAlphaOptions*)optionData)->shortestWord) {
                             ((ZiAlphaOptions*)optionData)->shortestWord = wordLength + prefixCount;
                           }
-                          if ((int)(unsigned int)(ziU8)((ZiAlphaOptions*)optionData)->longestWord < (int)(wordLength + prefixCount)) {
+                          if ((int)((ZiAlphaOptions*)optionData)->longestWord < (int)(wordLength + prefixCount)) {
                             ((ZiAlphaOptions*)optionData)->longestWord = wordLength + prefixCount;
                           }
                         }
@@ -1310,7 +1312,7 @@ emitCandidate:
                           }
                           else {
                             if (((ZiAlphaOptions*)optionData)->suffixOnly != '\0') {
-                              wordCursor = wordCursor + -prefixCount;
+                              wordCursor = wordCursor - prefixCount;
                               wordCapacity = wordCapacity + prefixCount;
                               wordLength += prefixCount;
                               for (index = 0; parameters->elementCount + index < wordLength; index++) {
@@ -1451,8 +1453,8 @@ finishDictionaryPass:;
         ((ZiAlphaWork*)workData)->suffixLocked = 1;
         ((ZiAlphaWork*)workData)->suffixElementCount = parameters->elementCount - 1;
         if (prefixCount != 0) {
-          wordCursor = wordCursor + -prefixCount;
-          elements = elements + -prefixCount;
+          wordCursor -= prefixCount;
+          elements -= prefixCount;
           elementCount = elementCount + prefixCount;
           wordCapacity = wordCapacity + prefixCount;
           prefixCount = 0;
@@ -1477,8 +1479,8 @@ checkPrefixPunctuation:
         ((((Zi8GetTableCount(language,0x1f,workData)) & 8) == 0 &&
          (parameters->elements[parameters->elementCount - 1] != 0xEFF1)))))) {
       if (prefixPrepared) {
-        wordCursor = wordCursor + -prefixCount;
-        elements = elements + -prefixCount;
+        wordCursor -= prefixCount;
+        elements -= prefixCount;
         elementCount = elementCount + prefixCount;
         wordCapacity = wordCapacity + prefixCount;
         prefixCount = 0;
@@ -1528,8 +1530,8 @@ tryAlternatePrefix:
         ((ZiAlphaWork*)workData)->alternatePrefixCount = 0;
       }
       if (((ZiAlphaWork*)workData)->alternatePrefixCount != '\0') {
-        wordCursor = wordCursor + -prefixCount;
-        elements = elements + -prefixCount;
+        wordCursor -= prefixCount;
+        elements -= prefixCount;
         elementCount = elementCount + prefixCount;
         wordCapacity = wordCapacity + prefixCount;
         prefixCount = 0;
@@ -1631,8 +1633,7 @@ finishCandidates:
                   countIndex = ((ZiAlphaWork*)workData)->dictionaryCount - 1;
                 }
                 for (; countIndex >= 1; countIndex = countIndex - 1) {
-                  ((ZiAlphaWork*)workData)->dictionaryCounts[countIndex] =
-                       ((ZiAlphaWork*)workData)->dictionaryCounts[countIndex] -
+                  ((ZiAlphaWork*)workData)->dictionaryCounts[countIndex] -=
                        ((ZiAlphaWork*)workData)->dictionaryCounts[countIndex - 1];
                 }
               }
