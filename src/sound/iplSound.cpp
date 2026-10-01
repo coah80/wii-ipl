@@ -19,7 +19,7 @@ extern "C" {
 }
 extern "C" void _seBlk__Q23ipl3snd();
 extern "C" nw4r::snd::SoundHandle* _mainBGMHandle__Q23ipl3snd;
-extern "C" const f32 lbl_816946A4;
+extern "C" const f32 scSoundZeroF;
 extern "C" const f32 lbl_816946AC;
 extern "C" const f32 lbl_816946A8;
 extern "C" const f32 lbl_816946B0;
@@ -265,10 +265,10 @@ namespace ipl {
             li r5, 0
             bl ClearEffect__Q44nw4r3snd6detail9AxManagerFQ34nw4r3snd6AuxBusi
             bl GetInstance__Q44nw4r3snd6detail9AxManagerFv
-            lfs f1, lbl_816946A4
+            lfs f1, scSoundZeroF
             li r4, 0
             bl SetMasterVolume__Q44nw4r3snd6detail9AxManagerFfi
-            lfs f1, lbl_816946A4
+            lfs f1, scSoundZeroF
             addi r3, r31, sBannerSoundPlayer__Q23ipl3snd@l
             bl setMasterVolume__17BannerSoundPlayerFf
             addi r11, r1, 0x20
@@ -315,7 +315,7 @@ namespace ipl {
             sBannerSoundPlayer.setMasterVolume(0.9f);
         }
 
-        extern "C" const f32 lbl_816946A4 = 0.0f;
+        extern "C" const f32 scSoundZeroF = 0.0f;
 
         void System::stopBannerSound(int unk) {
             sBannerSoundPlayer.stop(unk);
