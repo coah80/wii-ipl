@@ -185,7 +185,7 @@ namespace ipl {
                     break;
                 }
                 case STATE_16: {
-                    fn_81409864();
+                    calc_exit_sequence();
                     break;
                 }
             }
@@ -688,28 +688,28 @@ namespace ipl {
             }
         }
 
-        void SettingSelect::fn_81409864() {
+        void SettingSelect::calc_exit_sequence() {
             switch (unk_0x94) {
                 case 0: {
-                    fn_814098F4();
+                    prepare_exit_abort();
                     break;
                 }
                 case 1: {
-                    fn_unk_inline();
+                    wait_decide_se();
                     break;
                 }
                 case 2: {
-                    fn_81409988();
+                    start_exit_fade();
                     break;
                 }
                 case 3: {
-                    fn_814099EC();
+                    finish_exit_reboot();
                     break;
                 }
             }
         }
 
-        void SettingSelect::fn_814098F4() {
+        void SettingSelect::prepare_exit_abort() {
             if (System::getChannelManager()->isReady()) {
                 for (int i = 0; i < WPAD_MAX_CONTROLLERS; i++) {
                     controller::Interface* con = System::getController(i);
@@ -724,20 +724,20 @@ namespace ipl {
             }
         }
 
-        void SettingSelect::fn_unk_inline() {
+        void SettingSelect::wait_decide_se() {
             if (!snd::getSystem()->isSEActive("WIPL_SE_DECIDE")) {
                 unk_0x94 = 2;
             }
         }
 
-        void SettingSelect::fn_81409988() {
+        void SettingSelect::start_exit_fade() {
             __WPADReconnect(TRUE);
             snd::getSystem()->stopAllSound(20);
             System::getFader()->fadeOut();
             unk_0x94 = 3;
         }
 
-        void SettingSelect::fn_814099EC() {
+        void SettingSelect::finish_exit_reboot() {
             if (System::getFader()->getStatus() == EGG::Fader::PREPARE_IN) {
                 while (WPADGetStatus() != 0 || System::getBS2Manager()->getIPLState() != bs2::IPL_STATE_8) {
                     snd::getSystem()->calc();
