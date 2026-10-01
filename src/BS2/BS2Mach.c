@@ -30,8 +30,8 @@ typedef struct AppLoaderHeader {
 } AppLoaderHeader;
 
 u8 TicketViewsBuf[OSRoundUp32B(sizeof(ESTicketView) * 64)] ALIGN32;
-ESTicketView *lbl_81696578 = (ESTicketView *)TicketViewsBuf;
-DVDDiskID lbl_810ADF60 ALIGN32;
+ESTicketView *TicketViews = (ESTicketView *)TicketViewsBuf;
+DVDDiskID UpdateDiskID ALIGN32;
 OSBootInfo2 bi2 ALIGN32;
 AppLoaderHeader AppLoaderHdr ALIGN32;
 OSBootInfo3 bi3 ALIGN32;
@@ -41,118 +41,66 @@ DVDDiskID DiskID ALIGN32;
 DVDPartitionParams PartitionParams ALIGN32;
 NANDCommandBlock BS2NandBlock;
 NANDFileInfo BS2CacheFileInfo;
-DVDCommandBlock lbl_8108BF60;
+DVDCommandBlock CoverBlock;
 u8 PartitionInfoBuf[OSRoundUp32B(sizeof(DVDPartitionInfo) * 256)] ALIGN32;
 DVDCommandBlock Block;
 
 BS2State State = BS2_STT_BEGIN;
-vu32 lbl_81698A0C = 0;
-u32 lbl_81698A10 = 0;
-u32 lbl_81698A14 = 0;
-u32 lbl_81698A18 = 0;
-u32 lbl_81698A1C = 0;
+vu32 DvdReadPending = 0;
+u32 BannerAllocation = 0;
+u32 BannerBuffer = 0;
+u32 BannerAvailable = 0;
+u32 Allocator = 0;
 BOOL StartingGame = FALSE;
-u32 lbl_81698A24 = 0;
-u32 lbl_81698A28 = 0;
-u32 lbl_81698A2C = 0;
-u32 lbl_81698A30 = 0;
+u32 RestartRequested = 0;
+u32 PartitionOpen = 0;
+u32 CacheSeekComplete = 0;
+u32 LoadingTitle = 0;
 BOOL FatalErrorFlag = FALSE;
 BOOL RetryErrorFlag = FALSE;
 BOOL UpdateErrorFlag = FALSE;
 BOOL AbortFlag = FALSE;
-volatile int lbl_81698A44 = 0;
-volatile int lbl_81698A48 = 0;
-volatile int lbl_81698A4C = 0;
-vu32 lbl_81698A50 = 0;
-u32 lbl_81698A54 = 0;
-u32 lbl_81698A58 = 0;
-u32 lbl_81698A5C = 0;
-u64 lbl_81698A60 = 0;
-u64 lbl_81698A68 = 0;
-u64 lbl_81698A70 = 0;
-u32 lbl_81698A78 = 0;
-u32 lbl_81698A7C = 0;
-u32 lbl_81698A80 = 0;
-u32 lbl_81698A84 = 0;
-u32 lbl_81698A88 = 0;
-u32 lbl_81698A8C = 0;
-u32 lbl_81698A90 = 0;
-u32 lbl_81698A94 = 0;
-u32 lbl_81698A98 = 0;
-u32 lbl_81698A9C = 0;
-u64 lbl_81698AA0 = 0;
-u32 lbl_81698AA8 = 0;
-u32 lbl_81698AAC = 0;
-vu32 lbl_81698AB0 = 0;
-vu32 lbl_81698AB4 = 0;
-u8 *lbl_81698AB8 = NULL;
-NANDFileInfo *lbl_81698ABC = NULL;
-vu32 lbl_81698AC0 = 0;
-volatile NANDCallback lbl_81698AC4 = NULL;
-u32 lbl_81698AC8 = 0;
-vu32 lbl_81698ACC = 0;
-u32 lbl_81698AD0 = 0;
-vu32 lbl_81698AD4 = 0;
-vu32 lbl_81698AD8 = 0;
-vu32 lbl_81698ADC = 0;
-vu32 lbl_81698AE0 = 0;
-u32 *lbl_81698AE4 = 0;
-u32 lbl_81698AE8 = 0;
-u32 lbl_81698AEC = 0;
-u32 lbl_81698AF0 = 0;
+volatile int CacheFailed = 0;
+volatile int RegionValid = 0;
+volatile int NandPending = 0;
+vu32 CancelNand = 0;
+u32 LowReadResult = 0;
+u32 CacheCommandComplete = 0;
+u32 AudioBufferUnconfigured = 0;
+u64 ResetTime = 0;
+u64 SpinupDeadline = 0;
+u64 CoverPollTime = 0;
+u32 DriveWasReset = 0;
+u32 TitleTicketView = 0;
+u32 CurrentTmd = 0;
+u32 TitleCode = 0;
+u32 RequiredIosHigh = 0;
+u32 RequiredIosLow = 0;
+u32 GamePartition = 0;
+u32 UpdatePartition = 0;
+u32 PartitionCursor = 0;
+u32 DataToc = 0;
+u64 GameToc = 0;
+u32 CoverOpenTimeHigh = 0;
+u32 CoverOpenTimeLow = 0;
+vu32 NandTransferred = 0;
+vu32 NandLength = 0;
+u8 *NandBuffer = NULL;
+NANDFileInfo *NandFile = NULL;
+vu32 NandOperation = 0;
+volatile NANDCallback NandCompletion = NULL;
+u32 LoaderOffset = 0;
+vu32 LoaderLength = 0;
+u32 LoaderAddress = 0;
+vu32 CacheLength = 0;
+vu32 BannerLength = 0;
+vu32 DvdTransferLength = 0;
+vu32 DvdTransferred = 0;
+u32 *DvdProgress = 0;
+u32 LoaderClose = 0;
+u32 LoaderMain = 0;
+u32 LoaderInit = 0;
 
-#define DvdReadPending lbl_81698A0C
-#define BannerAllocation lbl_81698A10
-#define BannerBuffer lbl_81698A14
-#define BannerAvailable lbl_81698A18
-#define Allocator lbl_81698A1C
-#define RestartRequested lbl_81698A24
-#define PartitionOpen lbl_81698A28
-#define CacheSeekComplete lbl_81698A2C
-#define LoadingTitle lbl_81698A30
-#define CacheFailed lbl_81698A44
-#define RegionValid lbl_81698A48
-#define NandPending lbl_81698A4C
-#define CancelNand lbl_81698A50
-#define LowReadResult lbl_81698A54
-#define CacheCommandComplete lbl_81698A58
-#define AudioBufferUnconfigured lbl_81698A5C
-#define ResetTime lbl_81698A60
-#define SpinupDeadline lbl_81698A68
-#define CoverPollTime lbl_81698A70
-#define DriveWasReset lbl_81698A78
-#define TitleTicketView lbl_81698A7C
-#define CurrentTmd lbl_81698A80
-#define TitleCode lbl_81698A84
-#define RequiredIosHigh lbl_81698A88
-#define RequiredIosLow lbl_81698A8C
-#define GamePartition lbl_81698A90
-#define UpdatePartition lbl_81698A94
-#define PartitionCursor lbl_81698A98
-#define DataToc lbl_81698A9C
-#define GameToc lbl_81698AA0
-#define CoverOpenTimeHigh lbl_81698AA8
-#define CoverOpenTimeLow lbl_81698AAC
-#define NandTransferred lbl_81698AB0
-#define NandLength lbl_81698AB4
-#define NandBuffer lbl_81698AB8
-#define NandFile lbl_81698ABC
-#define NandOperation lbl_81698AC0
-#define NandCompletion lbl_81698AC4
-#define LoaderOffset lbl_81698AC8
-#define LoaderLength lbl_81698ACC
-#define LoaderAddress lbl_81698AD0
-#define CacheLength lbl_81698AD4
-#define BannerLength lbl_81698AD8
-#define DvdTransferLength lbl_81698ADC
-#define DvdTransferred lbl_81698AE0
-#define DvdProgress lbl_81698AE4
-#define LoaderClose lbl_81698AE8
-#define LoaderMain lbl_81698AEC
-#define LoaderInit lbl_81698AF0
-#define CoverBlock lbl_8108BF60
-#define UpdateDiskID lbl_810ADF60
-#define TicketViews lbl_81696578
 
 void BS2Report(const char *msg, ...) {
 #ifdef ENABLE_BS2_REPORT
