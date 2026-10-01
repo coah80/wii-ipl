@@ -1,7 +1,7 @@
 #include <tmc_jpeg_internal.h>
 
-static s32 TMCJPEG_814EAF50(TMCCJPEGDecWork* work);
-static s32 TMCJPEG_814EB108(TMCCJPEGDecWork* work);
+static s32 refillJpegBufferAfterFF(TMCCJPEGDecWork* work);
+static s32 refillJpegBuffer(TMCCJPEGDecWork* work);
 
 s32 TMCJPEGDEC_init_ptr_buff(TMCCJPEGDecWork* work, void* param) {
     u32 readSize;
@@ -52,7 +52,7 @@ s32 TMCJPEGDEC_get_byte(u8* dst, TMCCJPEGDecWork* work) {
 
     if (work->pBufCur >= work->pBufEnd) {
         if (work->remaining != 0) {
-            s32 r = TMCJPEG_814EB108(work);
+            s32 r = refillJpegBuffer(work);
             if (r < 0) {
                 return r;
             }
@@ -69,7 +69,7 @@ s32 TMCJPEGDEC_get_byte(u8* dst, TMCCJPEGDecWork* work) {
 
     if (cur >= work->pBufEnd) {
         if (work->remaining != 0) {
-            s32 r = TMCJPEG_814EB108(work);
+            s32 r = refillJpegBuffer(work);
             if (r < 0) {
                 return r;
             }
@@ -92,7 +92,7 @@ s32 TMCJPEGDEC_get_wbyte(u16* dst, TMCCJPEGDecWork* work) {
 
     if (work->pBufCur >= work->pBufEnd) {
         if (work->remaining != 0) {
-            r = TMCJPEG_814EB108(work);
+            r = refillJpegBuffer(work);
             if (r < 0) {
                 goto br;
             } else {
@@ -119,7 +119,7 @@ s32 TMCJPEGDEC_get_wbyte(u16* dst, TMCCJPEGDecWork* work) {
     }
 
     if (work->remaining != 0) {
-        r = TMCJPEG_814EB108(work);
+        r = refillJpegBuffer(work);
         if (r >= 0) {
             goto o1;
         }
@@ -144,7 +144,7 @@ p2:
         goto r2;
     }
     if (work->remaining != 0) {
-        r = TMCJPEG_814EB108(work);
+        r = refillJpegBuffer(work);
         if (r < 0)
             goto ez;
         else {
@@ -166,7 +166,7 @@ r2:
     }
 
     if (work->remaining != 0) {
-        r = TMCJPEG_814EB108(work);
+        r = refillJpegBuffer(work);
         if (r < 0)
             goto ez;
         else {
@@ -193,7 +193,7 @@ s32 TMCJPEGDEC_get_sbyte(u8* dst, u32 count, TMCCJPEGDecWork* work) {
     for (i = 0; i < count; i++) {
         if (work->pBufCur >= work->pBufEnd) {
             if (work->remaining != 0) {
-                r = TMCJPEG_814EB108(work);
+                r = refillJpegBuffer(work);
                 if (r < 0) {
                     goto copy_byte;
                 } else {
@@ -214,7 +214,7 @@ s32 TMCJPEGDEC_get_sbyte(u8* dst, u32 count, TMCCJPEGDecWork* work) {
             goto r0;
         }
         if (work->remaining != 0) {
-            r = TMCJPEG_814EB108(work);
+            r = refillJpegBuffer(work);
             if (r >= 0) {
                 goto r0;
             }
@@ -251,7 +251,7 @@ lp:
     if (work->remaining == 0) {
         goto er1;
     }
-    r = TMCJPEG_814EB108(work);
+    r = refillJpegBuffer(work);
     if (r >= 0) {
         goto lc;
     }
@@ -271,7 +271,7 @@ lc:
     if (work->remaining == 0) {
         goto er2;
     }
-    r = TMCJPEG_814EB108(work);
+    r = refillJpegBuffer(work);
     if (r >= 0) {
         goto ret0;
     }
@@ -320,7 +320,7 @@ s32 TMCJPEGDEC_load_buff(TMCCJPEGDecWork* work) {
             if (work->remaining == 0) {
                 break;
             }
-            r = TMCJPEG_814EAF50(work);
+            r = refillJpegBufferAfterFF(work);
             if (r < 0) {
                 return r;
             }
@@ -345,7 +345,7 @@ s32 TMCJPEGDEC_load_buff(TMCCJPEGDecWork* work) {
             if (work->remaining == 0) {
                 break;
             }
-            r = TMCJPEG_814EAF50(work);
+            r = refillJpegBufferAfterFF(work);
             if (r < 0) {
                 return r;
             }
@@ -364,7 +364,7 @@ s32 TMCJPEGDEC_chk_possible_size(TMCCJPEGDecWork* work) {
     return work->pBufEnd - work->pBufCur;
 }
 
-static s32 TMCJPEG_814EAF50(TMCCJPEGDecWork* work) {
+static s32 refillJpegBufferAfterFF(TMCCJPEGDecWork* work) {
     u8 marker;
     u32 readSize;
     u8* dest;
@@ -410,7 +410,7 @@ static s32 TMCJPEG_814EAF50(TMCCJPEGDecWork* work) {
     return 0;
 }
 
-static s32 TMCJPEG_814EB108(TMCCJPEGDecWork* work) {
+static s32 refillJpegBuffer(TMCCJPEGDecWork* work) {
     u8* end;
     u32 i, j;
     s32 readSize;
