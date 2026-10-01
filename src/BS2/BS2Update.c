@@ -60,6 +60,7 @@ char* getSuffix(const char* path) {
 static void* UpdateThread(void* argument);
 
 void BS2UpdateInit(void* allocator) {
+    u32* flags = Flags0;
     BS2Report("initialize BS2Update\n");
     ConsoleType = OSGetConsoleType();
     VersionES = __OSGetHollywoodRev();
@@ -75,7 +76,7 @@ void BS2UpdateInit(void* allocator) {
     EntriesCount = 0;
     memset(UPDATE_DISC_ENTRIES, 0, 0x40000);
     memset(EntriesToImport, 0, 0x40000);
-    memset(Flags1, 0, sizeof(Flags1));
+    memset(&flags[BS2_UPDATE_ENTRY_COUNT], 0, sizeof(Flags1));
     BS2Report("Create update thread\n");
     OSCreateThread(&Thread.thread, UpdateThread, NULL, Thread.stack + sizeof(Thread.stack),
                    sizeof(Thread.stack), 31, 1);

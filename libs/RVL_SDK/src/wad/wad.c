@@ -1236,6 +1236,7 @@ s32 WADBackupEx(u64 titleId, u32 flags, MEMAllocator* allocator, char* path, u32
     u32 totalSize;
     WADBackupTitleMetaBuffer* titleMetaBuffer;
     ESTmdView* titleMeta;
+    WADBackupHeader* backupHeader = &headerBlock.header;
     struct WADExportCertificates {
         ESCertSignature signer;
         u8 device[0x180];
@@ -1423,12 +1424,12 @@ s32 WADBackupEx(u64 titleId, u32 flags, MEMAllocator* allocator, char* path, u32
     headerBlock.header.fileSize = fileDataSize;
     headerBlock.header.numFiles = fileCount;
     headerBlock.header.backupAreaLen = totalSize + 0x340;
-    result = ES_GetDeviceId(&headerBlock.header.deviceId);
+    result = ES_GetDeviceId(&backupHeader->deviceId);
     if (result != 0) {
         goto cleanup;
     }
     if ((flags & 1) != 0) {
-        memcpy(&headerBlock.header.cidx, &existingContentMask, sizeof(existingContentMask));
+        memcpy(&backupHeader->cidx, &existingContentMask, sizeof(existingContentMask));
     }
     if ((flags & 2) != 0) {
         u32 currentTitleLow;
@@ -1451,7 +1452,7 @@ s32 WADBackupEx(u64 titleId, u32 flags, MEMAllocator* allocator, char* path, u32
             headerBlock.header.titleId = ((u64)currentTitleHigh << 32) | currentTitleLow;
         }
         if (_WADGetTransferId(transferMac) != 0) {
-            memcpy(headerBlock.header.deviceMac, transferMac, sizeof(headerBlock.header.deviceMac));
+            memcpy(backupHeader->deviceMac, transferMac, sizeof(backupHeader->deviceMac));
         }
     }
     SHA1Reset(hashContext);
