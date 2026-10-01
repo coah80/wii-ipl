@@ -1,3 +1,4 @@
+// Matching build uses pf_fat.s (retail extract); keep C for reference.
 #include <private/vf/PrFILE2/fatfs/pf_cache.h>
 #include <private/vf/PrFILE2/pf_types.h>
 #include <revolution/types.h>
