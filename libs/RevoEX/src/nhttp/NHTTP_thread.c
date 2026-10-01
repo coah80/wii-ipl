@@ -371,9 +371,9 @@ static BOOL NHTTPi_RecvProxyConnectHeader(NHTTPThreadContext* context)
         response->httpStatus = NHTTPi_strToInt(header + 9, 3);
         if (NHTTPi_strnicmp(header, "HTTP/", 5) == 0 && header[8] == ' '
             && response->httpStatus == 200) accepted = TRUE;
-        ended = FALSE;
         cursor = header;
         index = 0;
+        ended = FALSE;
         while (index < used)
         {
             if (index > 1 && cursor[-1] == '\r' && *cursor == '\r') ended = TRUE;
