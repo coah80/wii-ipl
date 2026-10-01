@@ -1496,7 +1496,7 @@ namespace ipl {
                         mpNandTitleInfo[usageIndex].curTitleId, &page, &channelIndex) == 0) {
                     continue;
                 }
-                if (iplSavedata_813597A0(System::getSaveData(),
+                if (isTitleCached(System::getSaveData(),
                         mpNandTitleInfo[usageIndex].curTitleId) != FALSE) {
                     continue;
                 }

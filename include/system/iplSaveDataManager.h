@@ -24,7 +24,7 @@ namespace ipl {
         class Manager;
     }
     namespace savedata {
-        extern "C" BOOL iplSavedata_813597A0(void* manager, ESTitleId titleId);
+        extern "C" BOOL isTitleCached(void* manager, ESTitleId titleId);
 
         class Manager {
         public:
@@ -87,7 +87,7 @@ namespace ipl {
             channel::SInfo& getChanInfo(int page, int index) { return mData.chanInfo[page][index]; }
             textinput::extend::savedata::MemoSetting getMemoSetting() { return mData.memoSetting; }
 
-            void iplSavedata_813596B8(ESTitleId titleId);
+            void pushTitleCache(ESTitleId titleId);
 
         private:
 #ifdef IPL_SD_CHANNEL_SELECT_ACCESS
@@ -184,7 +184,7 @@ namespace ipl {
             u8 unused_0x504[28];
 
             friend class channel::Manager;
-            friend BOOL iplSavedata_813597A0(void* manager, ESTitleId titleId);
+            friend BOOL isTitleCached(void* manager, ESTitleId titleId);
         };
     }  // namespace savedata
 }  // namespace ipl

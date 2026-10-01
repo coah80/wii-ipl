@@ -1358,7 +1358,7 @@ extern "C" void iplSDChannelTitle_813E8A20(SDChannelTitle* scene, int nextScene)
     int page;
     int index;
     if (System::getChannelManager()->hasChannel(scene->mTitleId, &page, &index)) {
-        System::getSaveData()->iplSavedata_813596B8(scene->mTitleId);
+        System::getSaveData()->pushTitleCache(scene->mTitleId);
     }
     System::getSaveData()->getSDPrevPage() = scene->mPage;
     EGG::Heap* saveHeap = System::getMem2App();

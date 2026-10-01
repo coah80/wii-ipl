@@ -2390,7 +2390,7 @@ namespace ipl {
 
             if (sceneID == SCENE_UNLOCKED_TITLE || sceneID == SCENE_LOCKED_TITLE) {
                 System::getSaveData()->setPrevPage(mChanPage);
-                System::getSaveData()->iplSavedata_813596B8(System::getChannelManager()->getTitleID(mChanPage, mChanIndex));
+                System::getSaveData()->pushTitleCache(System::getChannelManager()->getTitleID(mChanPage, mChanIndex));
                 mpSaveDataFile = System::getSaveData()->flushAsync(System::getMem2App());
             }
         }

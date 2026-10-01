@@ -1132,7 +1132,7 @@ namespace ipl {
         }
 
 #ifdef __MWERKS__
-        asm void Manager::iplSavedata_813596B8(register ESTitleId titleId) {
+        asm void Manager::pushTitleCache(register ESTitleId titleId) {
             nofralloc
             lis r7, 0x4841
             lis r4, 1
@@ -1146,44 +1146,44 @@ namespace ipl {
             xor r0, r5, r8
             xor r4, r6, r4
             or. r0, r4, r0
-            bne iplSavedata_813596B8_L1
+            bne pushTitleCache_L1
             blr
-        iplSavedata_813596B8_L1:
+        pushTitleCache_L1:
             addis r0, r5, -1
             cmplwi r0, 1
-            beq iplSavedata_813596B8_L2
+            beq pushTitleCache_L2
             cmplwi r0, 3
-            beq iplSavedata_813596B8_L2
+            beq pushTitleCache_L2
             cmplwi r0, 4
-            beq iplSavedata_813596B8_L2
+            beq pushTitleCache_L2
             cmplwi r0, 6
             bnelr
-        iplSavedata_813596B8_L2:
+        pushTitleCache_L2:
             li r0, 0x30
             li r9, 0
             li r4, 0
             mtctr r0
-        iplSavedata_813596B8_L3:
+        pushTitleCache_L3:
             add r7, r3, r4
             lwz r0, 0x340(r7)
             lwz r7, 0x344(r7)
             xor r0, r5, r0
             xor r7, r6, r7
             or. r0, r7, r0
-            beq iplSavedata_813596B8_L4
+            beq pushTitleCache_L4
             addi r9, r9, 1
             addi r4, r4, 8
-            bdnz iplSavedata_813596B8_L3
-        iplSavedata_813596B8_L4:
+            bdnz pushTitleCache_L3
+        pushTitleCache_L4:
             cmpwi r9, 0x30
-            bne iplSavedata_813596B8_L5
+            bne pushTitleCache_L5
             li r9, 0x2f
-        iplSavedata_813596B8_L5:
+        pushTitleCache_L5:
             slwi r4, r9, 3
             mtctr r9
             cmpwi r9, 0
-            ble iplSavedata_813596B8_L6
-        iplSavedata_813596B8_L7:
+            ble pushTitleCache_L6
+        pushTitleCache_L7:
             addi r0, r9, -1
             add r7, r3, r4
             slwi r0, r0, 3
@@ -1194,14 +1194,14 @@ namespace ipl {
             lwz r8, 0x344(r8)
             stw r8, 0x344(r7)
             stw r0, 0x340(r7)
-            bdnz iplSavedata_813596B8_L7
-        iplSavedata_813596B8_L6:
+            bdnz pushTitleCache_L7
+        pushTitleCache_L6:
             stw r6, 0x344(r3)
             stw r5, 0x340(r3)
             blr
         }
 
-        extern "C" BOOL iplSavedata_813597A0(void* manager, ESTitleId titleId) {
+        extern "C" BOOL isTitleCached(void* manager, ESTitleId titleId) {
             Manager* savedataManager = static_cast<Manager*>(manager);
             for (int index = 0; index < MAX_CHANNEL_TOTAL; index++) {
                 if (savedataManager->mData.titleCache[0][index] == titleId) {
