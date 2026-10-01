@@ -327,15 +327,20 @@ namespace ipl {
             mpDialogLayout->calc();
         }
 
+        static inline math::VEC2 scaledPageOffset(f32 scale) {
+            math::VEC2 result;
+            result.y = sPageOffset.y * scale;
+            result.x = sPageOffset.x * scale;
+            return result;
+        }
+
         void Address::draw() {
             if (System::getSceneManager()->onDrawLayer(DRAW_LAYER_2)) {
                 utility::Graphics::setOrtho(0);
 
                 nw4r::lyt::Pane* pane = mpLayout->FindPaneByName("N_note_a");
                 for (int i = mNextPageNum; i >= 1; i--) {
-                    math::VEC2 trans;
-                    trans.y = sPageOffset.y * i;
-                    trans.x = sPageOffset.x * i;
+                    math::VEC2 trans = scaledPageOffset(i);
                     pane->SetTranslate(trans);
                     pane->CalculateMtx(*mpLayout->getDrawInfo());
                     mpLayout->draw(pane);
@@ -587,10 +592,20 @@ namespace ipl {
             }
         }
 
+        static inline nw4r::math::_VEC2 previousPageOffset() {
+            f32 negativeY = -sPageOffset.y;
+            f32 negativeX = -sPageOffset.x;
+            nw4r::math::_VEC2 result;
+            result.y = negativeY;
+            result.x = negativeX;
+            return result;
+        }
+
         void Address::stt_backward() {
             if (!mpLayout->getAnim(5)->isPlaying()) {
                 mNextPageNum++;
-                add_translate(mpLayout->FindPaneByName("N_note_base"), -sPageOffset);
+                math::VEC2 offset = previousPageOffset();
+                add_translate(mpLayout->FindPaneByName("N_note_base"), offset);
                 set_page_text("T_nmbr_b", mPage + 1);
 
                 for (u32 i = 0; i < BTN_MAX; i++) {
