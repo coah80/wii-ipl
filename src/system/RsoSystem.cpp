@@ -1,19 +1,19 @@
 #include <revolution/gx/GXStruct.h>
 #include <revolution/os/OSError.h>
 
-extern "C" const unsigned char lbl_8169622C;
-extern "C" const unsigned char lbl_8169622D;
-extern "C" const unsigned char lbl_8169622E;
-extern "C" const unsigned char lbl_8169622F;
-extern "C" const char lbl_81639230[65];
+extern "C" const unsigned char scRsoFatalColorR;
+extern "C" const unsigned char scRsoFatalColorG;
+extern "C" const unsigned char scRsoFatalColorB;
+extern "C" const unsigned char scRsoFatalColorA;
+extern "C" const char scRsoFatalMsg[65];
 
 #define NW4R_DB_ASSERT_H
 #define NW4R_ASSERT(x)                                                                                                                               \
     {                                                                                                                                                \
         if (!(x)) {                                                                                                                                  \
-            GXColor front = {*((volatile const unsigned char*)&lbl_8169622C), *((volatile const unsigned char*)&lbl_8169622D), *((volatile const unsigned char*)&lbl_8169622E), *((volatile const unsigned char*)&lbl_8169622F)}; \
+            GXColor front = {*((volatile const unsigned char*)&scRsoFatalColorR), *((volatile const unsigned char*)&scRsoFatalColorG), *((volatile const unsigned char*)&scRsoFatalColorB), *((volatile const unsigned char*)&scRsoFatalColorA)}; \
             GXColor back = {0, 0, 0, 0};                                                                                                             \
-            OSFatal((GXColor)front, (GXColor)back, lbl_81639230);                                                                                  \
+            OSFatal((GXColor)front, (GXColor)back, scRsoFatalMsg);                                                                                  \
         }                                                                                                                                            \
     }
 
@@ -326,15 +326,15 @@ __declspec(export) void IplRso_symbolMaker() {
     wideTextWriter->CalcStringRect(&rect, L"");
 }
 
-extern "C" __declspec(section ".sdata") const unsigned char lbl_8169622C = 255;
-extern "C" __declspec(section ".sdata") const unsigned char lbl_8169622D = 255;
-extern "C" __declspec(section ".sdata") const unsigned char lbl_8169622E = 255;
-extern "C" __declspec(section ".sdata") const unsigned char lbl_8169622F = 0;
+extern "C" __declspec(section ".sdata") const unsigned char scRsoFatalColorR = 255;
+extern "C" __declspec(section ".sdata") const unsigned char scRsoFatalColorG = 255;
+extern "C" __declspec(section ".sdata") const unsigned char scRsoFatalColorB = 255;
+extern "C" __declspec(section ".sdata") const unsigned char scRsoFatalColorA = 0;
 
-extern "C" __declspec(section ".data") const char lbl_81639230[65] = "Error#004\nAn error has occurred.\nThe system files are corrupted.";
+extern "C" __declspec(section ".data") const char scRsoFatalMsg[65] = "Error#004\nAn error has occurred.\nThe system files are corrupted.";
 
 extern "C" __declspec(section ".data") __declspec(align(1)) const f32 rso_data_pad_f32 = 0.0f;
 extern "C" __declspec(section ".data") __declspec(align(1)) const u16 rso_data_pad_u16 = 0;
 extern "C" __declspec(section ".data") __declspec(align(1)) const u8 rso_data_pad_u8 = 0;
 
-extern "C" __declspec(section ".sdata2") const f32 lbl_81694598 = 0.0f;
+extern "C" __declspec(section ".sdata2") const f32 scRsoZeroF = 0.0f;
