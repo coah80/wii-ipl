@@ -20,10 +20,10 @@ extern "C" {
 extern "C" void _seBlk__Q23ipl3snd();
 extern "C" nw4r::snd::SoundHandle* _mainBGMHandle__Q23ipl3snd;
 extern "C" const f32 scSoundZeroF;
-extern "C" const f32 lbl_816946AC;
-extern "C" const f32 lbl_816946A8;
-extern "C" const f32 lbl_816946B0;
-extern "C" const f32 lbl_816946B4;
+extern "C" const f32 scSoundOneF;
+extern "C" const f32 scSoundTwoF;
+extern "C" const f32 scSoundThirtyF;
+extern "C" const f32 scSoundSixtyF;
 extern "C" {
     void _savegpr_29();
     void pauseOffSE__Q33ipl3snd6SystemFv();
@@ -500,21 +500,21 @@ namespace snd {
             if (block->handle.detail_GetAttachedSound() != NULL) {
                 block->handle.detail_GetAttachedSound()->SetPan(pan);
             }
-            f32 pitch = lbl_816946A8 * y / rect.right;
-            if (lbl_816946AC < pitch) {
-                pitch = lbl_816946AC;
+            f32 pitch = scSoundTwoF * y / rect.right;
+            if (scSoundOneF < pitch) {
+                pitch = scSoundOneF;
             }
             if (block->handle.detail_GetAttachedSound() != NULL) {
                 block->handle.detail_GetAttachedSound()->SetVolume(pitch, 0);
             }
-            if (lbl_816946B0 < y) {
-                f32 pitch2 = y / lbl_816946B0;
+            if (scSoundThirtyF < y) {
+                f32 pitch2 = y / scSoundThirtyF;
                 if (block->handle.detail_GetAttachedSound() != NULL) {
                     block->handle.detail_GetAttachedSound()->SetPitch(pitch2);
                 }
-            } else if (lbl_816946B4 < y) {
+            } else if (scSoundSixtyF < y) {
                 if (block->handle.detail_GetAttachedSound() != NULL) {
-                    block->handle.detail_GetAttachedSound()->SetPitch(lbl_816946A8);
+                    block->handle.detail_GetAttachedSound()->SetPitch(scSoundTwoF);
                 }
             }
             return (int)block;
