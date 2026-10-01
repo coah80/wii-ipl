@@ -152,11 +152,11 @@ void BTA_CleanUp(tBTA_APP_INFO_CBACK *p_cb)
 	GKI_shutdown();
 }
 
-void bta_usb_close_evt(INT8 param_1)
+void bta_usb_close_evt(INT8 status)
 {
 	if (_bte_app_info)
 	{
-		if (param_1 >= 0)
+		if (status >= 0)
 			(*_bte_app_info)(0);
 		else
 			(*_bte_app_info)(1);
