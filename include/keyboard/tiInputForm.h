@@ -133,7 +133,11 @@ namespace textinput {
                     friend class Base;
                 public:
                     RowInfoManager(u16 maxLength) : mpInfo(NULL), mMaxLength(maxLength), mpAllocator(NULL) {}
+#ifdef TIINPUTFORM_IMPLEMENTATION
+                    void init() __attribute__((never_inline));
+#else
                     void init();
+#endif
                     ~RowInfoManager();
 #endif
                 private:
