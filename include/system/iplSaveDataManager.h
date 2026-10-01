@@ -26,6 +26,18 @@ namespace ipl {
     namespace savedata {
         extern "C" BOOL isTitleCached(void* manager, ESTitleId titleId);
 
+        struct ChannelSlot {
+            u8 valid;     // 0x00 (primaryType)
+            u8 pad[3];    // 0x01
+            s32 titleId;  // 0x04 (sceneID)
+            u8 rest[8];   // 0x08
+        };
+
+        struct ChannelPage {
+            u8 pad[0x30];
+            ChannelSlot slots[MAX_CHANNEL_INDEX];  // 0x30
+        };
+
         class Manager {
         public:
             Manager(EGG::Heap* heap);
