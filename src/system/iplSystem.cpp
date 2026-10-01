@@ -1514,6 +1514,16 @@ namespace ipl {
     }
 }  // namespace ipl
 
+namespace textinput {
+    void EventObserver::onOutOfLength() { printf("OutOfLength\n"); }
+    void EventObserver::onCancel() { printf("Cancel!\n"); }
+    void EventObserver::onOK() { printf("OK!\n"); }
+    void EventObserver::onSE(sound::SE seId) {}
+    void EventObserver::onEvent(nw4r::lyt::Pane* pane, u32 event) {}
+    void EventObserver::onCommand(CommandReceiver::INPUT_COMMAND command, void* data) {}
+    void EventObserver::onInput(CommandReceiver::INPUT_COMMAND command, void* data) {}
+}  // namespace textinput
+
 #ifdef __MWERKS__
 #pragma force_active on
 extern "C" const f32 lbl_81694424 = -304.0f;

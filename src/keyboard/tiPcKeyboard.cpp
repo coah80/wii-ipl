@@ -2875,6 +2875,13 @@ static const PaneToAnimation csPaneToAnimation[129] = {
             void Base::setInputModeJP(bool, u32, u32) {
             }
 
+            void gui::EventHandler::onEvent(gui::GUIComponent& comp, u32 event, void* data) {}
+            void gui::EventHandler::setLatestEventCtrlNo(int ctrlNo) { muLatestEventCtrlNo = ctrlNo; }
+            int gui::EventHandler::getLatestEventCtrlNo() { return muLatestEventCtrlNo; }
+
+            bool gui::GUIComponent::isDragging(int point) { return mbDragging[point]; }
+            void gui::GUIComponent::setTriggerTarget(bool bEnable) { mbTriggerTarget = bEnable; }
+
         }  // namespace pctype
     }  // namespace keyboard
 }  // namespace textinput

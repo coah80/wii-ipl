@@ -16,7 +16,7 @@ namespace ipl {
             virtual void onSE(textinput::sound::SE seId);
             virtual void onOK();
             virtual void onCancel();
-            virtual void setManager(Manager* manager) { mpKeyboardMgr = manager; }
+            virtual void setManager(Manager* manager);
 
         private:
             Manager* mpKeyboardMgr;  // 0x04

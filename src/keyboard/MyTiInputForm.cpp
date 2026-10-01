@@ -492,7 +492,7 @@ void InputForm::setScroll(f32 scroll) {
     mfDrawScrollY = meEditMode == EM_Edit ? -mfScroll : 0.0f;
 }
 
-extern "C" __declspec(section ".sdata") const f32 lbl_81697508 = 0.0f;
+extern "C" __declspec(section ".sdata") const f32 csfDrawScrollZero = 0.0f;
 
 static nw4r::math::VEC2 transformedOrigin(const nw4r::ut::Rect& rect, const Mtx& matrix) {
     nw4r::math::VEC3 position;
@@ -530,7 +530,7 @@ void InputForm::calc() {
     if (meEditMode == EM_Edit) {
         height = 2.0f * getLineHeight();
         boundY = (mDefaultBoundTrans.y - (height - mDefaultBoundSize.height) / 2.0f) - mfScroll;
-    } else mfDrawScrollY = lbl_81697508;
+    } else mfDrawScrollY = csfDrawScrollZero;
     mpBoundPane->SetSize(nw4r::lyt::Size(mpBoundPane->GetSize().width, height));
     mpBoundPane->SetTranslate(nw4r::math::VEC2(mDefaultBoundTrans.x, boundY));
     mpBoundPane->CalculateMtx(mDrawInfo);
@@ -802,6 +802,12 @@ u32 AnmPane::getKeyType() const { return meKeyType; }
 void AnmPane::init() { meState = 0; }
 void NigaoePane::onAnmEvent(AnmPaneEvent) {}
 bool InputForm::isInScroll() { return mExScrollAnm.isActive(); }
+
+gui::EventHandler* gui::GUIManager::changeEventHandler(gui::EventHandler* eventHandler) {
+    gui::EventHandler* prevHandler = mpEventHandler;
+    mpEventHandler = eventHandler;
+    return prevHandler;
+}
 
 }
 }

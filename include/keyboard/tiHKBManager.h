@@ -119,9 +119,9 @@ namespace textinput {
             public:
                 KBDListener() : unk_0x04(0), mpNext(NULL) {}
                 virtual ~KBDListener() {}
-                virtual void OnAttach(KBDDevEvent* event) {}
-                virtual void OnDetach(KBDDevEvent* event) {}
-                virtual void OnKeyEvent(KBDKeyEvent* event) {}
+                virtual void OnAttach(KBDDevEvent* event);
+                virtual void OnDetach(KBDDevEvent* event);
+                virtual void OnKeyEvent(KBDKeyEvent* event);
 
                 u32          unk_0x04;
                 KBDListener* mpNext;

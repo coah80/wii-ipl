@@ -4,8 +4,8 @@
 #include "keyboard/tiHKBManager.h"
 #include "keyboard/tiLayoutGather.h"
 
-extern "C" const u8 lbl_816688DC[];
-extern "C" const u8 csAninationFile__Q49textinput8keyboard5hwkey10HWKeyboard_816168B8[];
+extern "C" const u8 scHwScrlKeyMap[];
+extern "C" const u8 csAninationFile[];
 struct HWKeyboardScrlData {
     u32 field_0x00;
     u32 field_0x04;
@@ -14,12 +14,12 @@ struct HWKeyboardScrlData {
     const u8* field_0x10;
     u32 field_0x14[11];
 };
-extern const HWKeyboardScrlData lbl_81616B88 = {
-    0, 0, lbl_816688DC, 1, csAninationFile__Q49textinput8keyboard5hwkey10HWKeyboard_816168B8 + 0x154, {0},
+extern const HWKeyboardScrlData scHwScrlData = {
+    0, 0, scHwScrlKeyMap, 1, csAninationFile + 0x154, {0},
 };
-extern const u32 lbl_81616BC8[4] = {0, 0, 0x01000000, 0};
-extern const u8 lbl_81616BD8[] = {0x0f, 0x21, 0x20, 0x08, 0x09, 0x0e, 0x19, 0x00, 0x21, 0x21, 0x00, 0x00};
-extern const u8 lbl_81616BE4[] = {0x0f, 0x21, 0x20, 0x04, 0x09, 0x0e, 0x11, 0x00, 0x21, 0x21, 0x00, 0x00};
+extern const u32 scHwSendPacket[4] = {0, 0, 0x01000000, 0};
+extern const u8 scHwInitSeq0[] = {0x0f, 0x21, 0x20, 0x08, 0x09, 0x0e, 0x19, 0x00, 0x21, 0x21, 0x00, 0x00};
+extern const u8 scHwInitSeq1[] = {0x0f, 0x21, 0x20, 0x04, 0x09, 0x0e, 0x11, 0x00, 0x21, 0x21, 0x00, 0x00};
 const u8 scKeyMap[136] = {
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x09, 0x01, 0x0a, 0x03, 0x08, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x04, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26,
@@ -54,7 +54,7 @@ extern "C" void updateFromReceiver__Q29textinput13CommandSenderFUlPv();
 #pragma push
 #pragma section const_type ".data"
 typedef void (*KeyboardDataFunction)();
-extern "C" KeyboardDataFunction const jumptable_81668EF8[0x3f] = {
+extern "C" KeyboardDataFunction const scHwKeyFuncTable[0x3f] = {
     reinterpret_cast<KeyboardDataFunction>(reinterpret_cast<u32>(convertWCCode__Q49textinput8keyboard5hwkey10HWKeyboardCFw) + 0x00000158),
     reinterpret_cast<KeyboardDataFunction>(reinterpret_cast<u32>(convertWCCode__Q49textinput8keyboard5hwkey10HWKeyboardCFw) + 0x000001d8),
     reinterpret_cast<KeyboardDataFunction>(reinterpret_cast<u32>(convertWCCode__Q49textinput8keyboard5hwkey10HWKeyboardCFw) + 0x000001f0),
@@ -214,6 +214,7 @@ send_arrow: {
                 while (keySet.IsValid()) {
                     wchar_t wc = keySet.GetWChar();
                     u8 key = keySet.GetKey();
+                    const u8* keyMap = scKeyMap;
                     if (wc == 0x20) {
                         if (!(mods & 0x8)) {
                             goto check_caps;
@@ -249,21 +250,21 @@ bad_wc:
 ok_wc:;
                         }
                         if (send) {
-                            u32 abc = 0;
+                            mods = 0;
                             if (hkbManager.GetModifierState() & 0x2) {
-                                abc |= 1;
+                                mods |= 1;
                             }
                             if (hkbManager.GetModifierState() & 0x200) {
-                                abc |= 2;
+                                mods |= 2;
                             }
-                            if (!(abc & 1)) {
+                            if (!(mods & 1)) {
                                 pctype::LayoutByNW4R* pcKbd = mgr()->getPCKeyboard();
                                 pcKbd->mKeyState.setABCFlag(pcKbd->mKeyState.mFlags & ~0x8F);
                             }
                             wc = convertWCCode(wc);
-                            Packet packet = *(const Packet*)lbl_81616BC8;
+                            Packet packet = *(const Packet*)scHwSendPacket;
                             packet.code = wc;
-                            packet.flags = abc;
+                            packet.flags = mods;
                             sendCommand(0, &packet);
                             if (mgr()->getLanguage() == 8) {
                                 u32 shifted = wc + 0x10000;
@@ -283,13 +284,13 @@ ok_wc:;
                             code = 0;
                         }
                         else if (key < 0x98) {
-                            code = scKeyMap[key - 0x20];
+                            code = keyMap[key - 0x20];
                         }
                         else if (key < 0xE0) {
                             code = 0;
                         }
                         else if (key < 0xF0) {
-                            code = scKeyMap[key - 0x68];
+                            code = keyMap[key - 0x68];
                         }
                         else {
                             code = 0;
@@ -562,16 +563,16 @@ check_caps:
                 nofralloc
                 cmpwi r4, 2
                 bne setLanguage_L1
-                lis r4, lbl_81616BD8@ha
+                lis r4, scHwInitSeq0@ha
                 lis r3, sInstance__Q39textinput5input10HKBManager@ha
-                addi r4, r4, lbl_81616BD8@l
+                addi r4, r4, scHwInitSeq0@l
                 lbzx r4, r4, r5
                 addi r3, r3, sInstance__Q39textinput5input10HKBManager@l
                 b SetCountry__Q39textinput5input10HKBManagerFUc
             setLanguage_L1:
-                lis r4, lbl_81616BE4@ha
+                lis r4, scHwInitSeq1@ha
                 lis r3, sInstance__Q39textinput5input10HKBManager@ha
-                addi r4, r4, lbl_81616BE4@l
+                addi r4, r4, scHwInitSeq1@l
                 lbzx r4, r4, r5
                 addi r3, r3, sInstance__Q39textinput5input10HKBManager@l
                 b SetCountry__Q39textinput5input10HKBManagerFUc
@@ -658,9 +659,9 @@ check_caps:
                 addi r0, r31, -0x21
                 cmplwi r0, 0x3e
                 bgt convertWCCode_HWKeyboard_L1
-                lis r3, jumptable_81668EF8@ha
+                lis r3, scHwKeyFuncTable@ha
                 slwi r0, r0, 2
-                addi r3, r3, jumptable_81668EF8@l
+                addi r3, r3, scHwKeyFuncTable@l
                 lwzx r3, r3, r0
                 mtctr r3
                 bctr

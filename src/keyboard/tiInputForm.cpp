@@ -14,35 +14,35 @@ namespace tistring {
 extern "C" asm void __dt__Q39textinput8tistring10StringBaseFv();
 }
 namespace util {
-extern "C" const f32 lbl_81694D28;
+extern "C" const f32 csfZero;
 }
 namespace inputform {
 
-extern "C" const f32 lbl_81694D28;
-extern "C" const f32 lbl_81694D2C;
-extern "C" const f64 lbl_81694D30;
-extern "C" const f32 lbl_81694D38;
-extern "C" const f32 lbl_81694D3C;
-extern "C" const f32 lbl_81694D40;
-extern "C" const f32 lbl_81694D44;
-extern "C" const f32 lbl_81694D48;
-extern "C" const f32 lbl_81694D4C;
-extern "C" const f32 lbl_81694D50;
-extern "C" const f32 lbl_81694D54;
-extern "C" const f32 lbl_81694D58;
-extern "C" const f32 lbl_81694D5C;
-extern "C" const f32 lbl_81694D60;
-extern "C" const f32 lbl_81694D64;
-extern "C" const f32 lbl_81694D68;
-extern "C" const u8 lbl_81694D6C;
-extern "C" const u8 lbl_81694D6D;
-extern "C" const u8 lbl_81694D6E;
-extern "C" const u8 lbl_81694D6F;
-extern "C" const f32 lbl_81694D70;
-extern "C" const f32 lbl_81694D74;
-extern "C" const f32 lbl_81694D78;
-extern "C" const f64 lbl_81694D80;
-extern "C" const f32 lbl_81694D88;
+extern "C" const f32 csfZero;
+extern "C" const f32 csfScreenWidth;
+extern "C" const f64 csdMagic0;
+extern "C" const f32 csfOne;
+extern "C" const f32 csfHalf;
+extern "C" const f32 csfAspect;
+extern "C" const f32 csf150;
+extern "C" const f32 csf30;
+extern "C" const f32 csf50;
+extern "C" const f32 csf10;
+extern "C" const f32 csf52;
+extern "C" const f32 csf2;
+extern "C" const f32 csf140;
+extern "C" const f32 csf90;
+extern "C" const f32 csf253;
+extern "C" const f32 csf20;
+extern "C" const u8 csbAlpha;
+extern "C" const u8 csb50a;
+extern "C" const u8 csb50b;
+extern "C" const u8 csbZero;
+extern "C" const f32 csf255;
+extern "C" const f32 csf127;
+extern "C" const f32 csfU16Max;
+extern "C" const f64 csdMagic1;
+extern "C" const f32 csf15;
 extern "C" asm void GetCursorY__Q34nw4r2ut10CharWriterCFv();
 extern "C" asm void GetCursorX__Q34nw4r2ut10CharWriterCFv();
 extern "C" asm void SetCursor__Q34nw4r2ut10CharWriterFff();
@@ -103,22 +103,22 @@ extern "C" asm void draw__Q39textinput11nw4rmanager6LayoutFv();
 extern "C" asm void searchPaneComponent__Q39textinput3gui11PaneManagerFPCc();
 #pragma push
 #pragma section const_type ".data"
-extern "C" const char lbl_8165C820[];
-extern "C" const char lbl_8165C830[];
-extern "C" const char lbl_8165C8C0[];
-extern "C" const char lbl_8165C8CC[];
-extern "C" const char lbl_8165C8E0[];
-extern "C" const char lbl_8165C8F0[];
-extern "C" const char lbl_8165C900[];
-extern "C" const char lbl_8165C918[];
-extern "C" const char lbl_8165C928[];
-extern "C" const char lbl_8165C938[];
-extern "C" const char lbl_8165C950[];
-extern "C" const char lbl_8165C960[];
-extern "C" char lbl_816973A4[];
-extern "C" char lbl_816973AC[];
+extern "C" const char csScrllUpName[];
+extern "C" const char csScrllDownName[];
+extern "C" const char csJpnUsaEurName[];
+extern "C" const char csSepBarAllName[];
+extern "C" const char csTextBox2lName[];
+extern "C" const char csTitleTextJpn[];
+extern "C" const char csSepBarKorName[];
+extern "C" const char csTextBox2lKorName[];
+extern "C" const char csTitleTextKor[];
+extern "C" const char csSepBarChnName[];
+extern "C" const char csTextBox2lChnName[];
+extern "C" const char csTitleTextChn[];
+extern "C" char scKorLayoutName[];
+extern "C" char scChnLayoutName[];
 #pragma pop
-extern "C" const f32 lbl_81694D28;
+extern "C" const f32 csfZero;
 extern "C" void _savegpr_20();
 extern "C" void _restgpr_20();
 extern "C" void _savegpr_27();
@@ -194,13 +194,13 @@ extern "C" asm void __dt__Q29textinput12LayoutGatherFv();
 extern "C" asm void __ct__Q29textinput12LayoutGatherFv();
 #pragma push
 #pragma section const_type ".data"
-extern "C" const u8 jumptable_8165CA58[];
-extern "C" const u8 jumptable_8165CA8C[];
-extern "C" const u8 jumptable_8165CB4C[];
-extern "C" const u8 jumptable_8165CC5C[];
-extern "C" const char lbl_8165CC14[];
-extern "C" const char lbl_8165CC28[];
-extern "C" const char lbl_8165CC4C[];
+extern "C" const u8 scSepBarJump0[];
+extern "C" const u8 scSepBarJump1[];
+extern "C" const u8 scSepBarJump2[];
+extern "C" const u8 scSepBarJump3[];
+extern "C" const char csMiscName0[];
+extern "C" const char csMiscName1[];
+extern "C" const char csMiscName2[];
 #pragma pop
 extern "C" u8 csUnInputedWCharColor__Q29textinput9inputform[4];
 extern "C" u8 csCharColor__Q29textinput9inputform[4];
@@ -809,8 +809,8 @@ extern "C" asm void calc__Q39textinput9inputform12LayoutByNW4RFv() {
     mflr r0
     stw r0, 0x24(r1)
     stw r31, 0x1c(r1)
-    lis r31, lbl_8165C820@ha
-    addi r31, r31, lbl_8165C820@l
+    lis r31, csScrllUpName@ha
+    addi r31, r31, csScrllUpName@l
     stw r30, 0x18(r1)
     stw r29, 0x14(r1)
     stw r28, 0x10(r1)
@@ -854,7 +854,7 @@ calcLayout_L_animation:
     bctrl
     cmpwi r3, 0
     bne calcLayout_L_done
-    lfs f1, lbl_81694D28(r0)
+    lfs f1, csfZero(r0)
     lfs f0, 0x188(r28)
     fcmpo cr0, f1, f0
     ble calcLayout_L_scroll_x
@@ -1002,7 +1002,7 @@ extern "C" asm void draw__Q39textinput9inputform12LayoutByNW4RFv() {
     lwz r12, 0x188(r12)
     mtctr r12
     bctrl
-    lfs f0, lbl_81694D28(r0)
+    lfs f0, csfZero(r0)
     stw r3, 0x20(r1)
     stfs f0, 0x30(r1)
     stfs f0, 0x34(r1)
@@ -1182,36 +1182,36 @@ extern "C" const InputFormAnimationFile csAninationFile__Q29textinput9inputform[
 #pragma section data_type ".rodata"
 extern "C" const void* csVisiblePaneUEJ__Q29textinput9inputform[9] = {
     (const void*)0x00010002,
-    lbl_8165C8C0,
+    csJpnUsaEurName,
     0,
     0,
     0,
-    lbl_816973A4,
-    lbl_816973AC,
+    scKorLayoutName,
+    scChnLayoutName,
     0,
     0,
 };
 
 extern "C" const void* csVisiblePaneKOR__Q29textinput9inputform[9] = {
     (const void*)0x00010002,
-    lbl_816973A4,
+    scKorLayoutName,
     0,
     0,
     0,
-    lbl_816973AC,
-    lbl_8165C8C0,
+    scChnLayoutName,
+    csJpnUsaEurName,
     0,
     0,
 };
 
 extern "C" const void* csVisiblePaneCHN__Q29textinput9inputform[10] = {
     (const void*)0x00010002,
-    lbl_816973AC,
+    scChnLayoutName,
     0,
     0,
     0,
-    lbl_816973A4,
-    lbl_8165C8C0,
+    scKorLayoutName,
+    csJpnUsaEurName,
     0,
     0,
     0,
@@ -1219,23 +1219,23 @@ extern "C" const void* csVisiblePaneCHN__Q29textinput9inputform[10] = {
 
 extern "C" const void* csLanguageDependencyDataUEJ__Q29textinput9inputform[4] = {
     csVisiblePaneUEJ__Q29textinput9inputform,
-    lbl_8165C8CC,
-    lbl_8165C8E0,
-    lbl_8165C8F0,
+    csSepBarAllName,
+    csTextBox2lName,
+    csTitleTextJpn,
 };
 
 extern "C" const void* csLanguageDependencyDataKOR__Q29textinput9inputform[4] = {
     csVisiblePaneKOR__Q29textinput9inputform,
-    lbl_8165C900,
-    lbl_8165C918,
-    lbl_8165C928,
+    csSepBarKorName,
+    csTextBox2lKorName,
+    csTitleTextKor,
 };
 
 extern "C" const void* csLanguageDependencyDataCHN__Q29textinput9inputform[4] = {
     csVisiblePaneCHN__Q29textinput9inputform,
-    lbl_8165C938,
-    lbl_8165C950,
-    lbl_8165C960,
+    csSepBarChnName,
+    csTextBox2lChnName,
+    csTitleTextChn,
 };
 #pragma section data_type ".data"
 
@@ -1244,28 +1244,28 @@ extern "C" const u32 pppURLCheck[10] = {
     0x00680074, 0x00740070, 0x0073003A, 0x002F002F, 0x00000000
 };
 
-extern "C" const u32 lbl_816152D0[4] = {0x00200000, 0, 0, 0};
+extern "C" const u32 csReplyPacket[4] = {0x00200000, 0, 0, 0};
 #pragma pop
 
-extern "C" f32 lbl_81698D1C;
+extern "C" f32 sfDrawY;
 
 #pragma push
 #pragma section data_type ".sdata"
 #pragma explicit_zero_data on
-extern "C" u32 lbl_81697398 = 0x80ff80ff;
-extern "C" u32 lbl_8169739C = 0xffd20cff;
-extern "C" const char* lbl_816973A0 = lbl_8165C820;
-extern "C" char lbl_816973A4[] = "N_KOR";
-extern "C" char lbl_816973AC[] = "N_CHN";
+extern "C" u32 scColor0 = 0x80ff80ff;
+extern "C" u32 scColor1 = 0xffd20cff;
+extern "C" const char* csScrllUpPtr = csScrllUpName;
+extern "C" char scKorLayoutName[] = "N_KOR";
+extern "C" char scChnLayoutName[] = "N_CHN";
 bool DeadKeyStream::sbCompatibleFilterEnabled = true;
 bool mbHyphen = true;
-extern "C" char lbl_816973B4[4] = {0, 0, 0, 0};
-extern "C" char lbl_816973B8[8] = "N_2line";
+extern "C" char scEmptyLayoutName[4] = {0, 0, 0, 0};
+extern "C" char sc2lineLayoutName[8] = "N_2line";
 #pragma explicit_zero_data off
 #pragma pop
 
 extern "C" {
-u8 lbl_810C6590[0xc];
+u8 sInputFormWork[0xc];
 }
 
 nw4r::ut::Color csUnInputedWCharColor(0xc8, 0x32, 0x32, 0xff);
@@ -1278,11 +1278,11 @@ nw4r::ut::Color csUnInputedWCharColorSpace(0xff, 0x14, 0x14, 0xff);
 
 #pragma push
 #pragma section const_type ".data"
-extern "C" const char lbl_8165C820[] = "P_txtScrll_UP";
-extern "C" const char lbl_8165C830[] = "P_txtScrll_DOWN";
-extern "C" const void* lbl_8165C840[32] = {
+extern "C" const char csScrllUpName[] = "P_txtScrll_UP";
+extern "C" const char csScrllDownName[] = "P_txtScrll_DOWN";
+extern "C" const void* csPaneAnimTable[32] = {
     0,
-    lbl_8165C820,
+    csScrllUpName,
     (const void*)0x00000008,
     0,
     csAninationFile__Q29textinput9inputform,
@@ -1298,9 +1298,9 @@ extern "C" const void* lbl_8165C840[32] = {
     0,
     0,
     0,
-    lbl_8165C830,
+    csScrllDownName,
     (const void*)0x00000008,
-    lbl_816973A0,
+    csScrllUpPtr,
     csAninationFile__Q29textinput9inputform,
     csAninationFile__Q29textinput9inputform + 1,
     csAninationFile__Q29textinput9inputform + 2,
@@ -1314,17 +1314,17 @@ extern "C" const void* lbl_8165C840[32] = {
     0,
     0,
 };
-extern "C" const char lbl_8165C8C0[] = "N_JPNUSAEUR";
-extern "C" const char lbl_8165C8CC[] = "N_separateBarAll";
-extern "C" const char lbl_8165C8E0[] = "T_2l_TextBox";
-extern "C" const char lbl_8165C8F0[] = "T_title_textJPN";
-extern "C" const char lbl_8165C900[] = "N_separateBarKOR";
-extern "C" const char lbl_8165C918[] = "T_2l_TextBoxKOR";
-extern "C" const char lbl_8165C928[] = "T_title_textKOR";
-extern "C" const char lbl_8165C938[] = "N_separateBarCHN";
-extern "C" const char lbl_8165C950[] = "T_2l_TextBoxCHN";
-extern "C" const char lbl_8165C960[] = "T_title_textCHN";
-extern "C" const u16 lbl_8165C970[16] = {
+extern "C" const char csJpnUsaEurName[] = "N_JPNUSAEUR";
+extern "C" const char csSepBarAllName[] = "N_separateBarAll";
+extern "C" const char csTextBox2lName[] = "T_2l_TextBox";
+extern "C" const char csTitleTextJpn[] = "T_title_textJPN";
+extern "C" const char csSepBarKorName[] = "N_separateBarKOR";
+extern "C" const char csTextBox2lKorName[] = "T_2l_TextBoxKOR";
+extern "C" const char csTitleTextKor[] = "T_title_textKOR";
+extern "C" const char csSepBarChnName[] = "N_separateBarCHN";
+extern "C" const char csTextBox2lChnName[] = "T_2l_TextBoxCHN";
+extern "C" const char csTitleTextChn[] = "T_title_textCHN";
+extern "C" const u16 csSepBarOffset[16] = {
     0x00a4, 0x00ac, 0x00af, 0x00b2, 0x00b3, 0x00b6, 0x00b8, 0x00b9,
     0x00bc, 0x00bd, 0x00be, 0x00d0, 0x00de, 0x00f0, 0x00fe, 0x0000,
 };
@@ -1403,21 +1403,21 @@ void Base::setLanguage(Language language) {
 
 #pragma push
 #pragma explicit_zero_data on
-extern "C" const u8 jumptable_8165CA58[0x34] = {};
-extern "C" const u8 jumptable_8165CA8C[0x5c] = {};
-extern "C" const u8 lbl_8165CAC8[0x64] = {};
-extern "C" const u8 jumptable_8165CB4C[0x94] = {};
+extern "C" const u8 scSepBarJump0[0x34] = {};
+extern "C" const u8 scSepBarJump1[0x5c] = {};
+extern "C" const u8 scSepBarAnimMap[0x64] = {};
+extern "C" const u8 scSepBarJump2[0x94] = {};
 #pragma explicit_zero_data off
 #pragma pop
 void textinput::Base::create(MEMAllocator*) {}
 
-extern "C" const char lbl_8165CBE0[] = "T_2l_TextBox\0\0\0\0" "RevoIpl_RodinNTLGProM_32_I4.brfnt\0\0";
-extern "C" const char lbl_8165CC14[] = "P_txtScrll_UP";
-extern "C" const char ATTRIBUTE_ALIGN(8) lbl_8165CC28[0x24] = "P_txtScrll_DOWN\0N_separateBarAll";
-extern "C" const char lbl_8165CC4C[] = "T_title_text";
+extern "C" const char csTextBoxFontName[] = "T_2l_TextBox\0\0\0\0" "RevoIpl_RodinNTLGProM_32_I4.brfnt\0\0";
+extern "C" const char csMiscName0[] = "P_txtScrll_UP";
+extern "C" const char ATTRIBUTE_ALIGN(8) csMiscName1[0x24] = "P_txtScrll_DOWN\0N_separateBarAll";
+extern "C" const char csMiscName2[] = "T_title_text";
 #pragma push
 #pragma explicit_zero_data on
-extern "C" const u8 jumptable_8165CC5C[0x1c] = {};
+extern "C" const u8 scSepBarJump3[0x1c] = {};
 #pragma explicit_zero_data off
 #pragma pop
 
@@ -1620,10 +1620,10 @@ extern "C" asm void autoScroll__Q39textinput9inputform4BaseFv() {
     lwz r12, 0x28(r12)
     mtctr r12
     bctrl
-    lfs f0, lbl_81694D3C(r0)
+    lfs f0, csfHalf(r0)
     lfs f2, 0x180(r30)
     fmuls f1, f1, f0
-    lfs f0, lbl_81694D28(r0)
+    lfs f0, csfZero(r0)
     fadds f31, f2, f1
     fcmpo cr0, f31, f0
     bge autoScroll_L2
@@ -1633,7 +1633,7 @@ extern "C" asm void autoScroll__Q39textinput9inputform4BaseFv() {
     mtctr r12
     bctrl
     fdivs f1, f31, f1
-    lfs f0, lbl_81694D38(r0)
+    lfs f0, csfOne(r0)
     lwz r12, 0x5c(r30)
     addi r3, r30, 0x10
     lwz r12, 0x28(r12)
@@ -1651,12 +1651,12 @@ extern "C" asm void autoScroll__Q39textinput9inputform4BaseFv() {
     li r4, 0
     stw r0, 0x20(r1)
     li r5, 0
-    lfd f3, lbl_81694D30(r0)
+    lfd f3, csdMagic0(r0)
     lfd f2, 0x20(r1)
     lfs f0, 0x188(r30)
     fsubs f2, f2, f3
     lwz r12, 8(r12)
-    lfs f3, lbl_81694D88(r0)
+    lfs f3, csf15(r0)
     fmuls f2, f2, f1
     fmr f1, f0
     fsubs f2, f0, f2
@@ -1720,12 +1720,12 @@ autoScroll_L2:
     li r4, 0
     stw r0, 0x18(r1)
     li r5, 0
-    lfd f3, lbl_81694D30(r0)
+    lfd f3, csdMagic0(r0)
     lfd f2, 0x18(r1)
     lfs f0, 0x188(r30)
     fsubs f2, f2, f3
     lwz r12, 8(r12)
-    lfs f3, lbl_81694D88(r0)
+    lfs f3, csf15(r0)
     fmuls f2, f2, f1
     fmr f1, f0
     fsubs f2, f0, f2
@@ -1753,7 +1753,7 @@ autoScroll_Lend:
 
 asm void util::Animation::startAnm(f32, f32, f32, util::AnimObserver*, void*) {
     nofralloc
-    lfs f0, lbl_81694D28(r0)
+    lfs f0, csfZero(r0)
     li r6, 1
     li r0, 0
     cmpwi r4, 0
@@ -1823,7 +1823,7 @@ extern "C" asm void init__Q39textinput9inputform4BaseFv() {
     nofralloc
     stwu r1, -0x20(r1)
     mflr r0
-    lfs f0, lbl_81694D28(r0)
+    lfs f0, csfZero(r0)
     stw r0, 0x24(r1)
     li r0, 0xff
     stw r31, 0x1c(r1)
@@ -1853,7 +1853,7 @@ extern "C" asm void init__Q39textinput9inputform4BaseFv() {
     lis r0, 0x4330
     stw r3, 0xc(r1)
     addi r3, r30, 0x10
-    lfd f1, lbl_81694D30(r0)
+    lfd f1, csdMagic0(r0)
     stw r0, 8(r1)
     lfd f0, 8(r1)
     fsubs f1, f0, f1
@@ -2475,7 +2475,7 @@ extern "C" asm void moveCursorUp__Q39textinput9inputform4BaseFv() {
     stw r0, 0x34(r1)
     stfd f31, 0x20(r1)
     psq_st f31, 0x28(r1), 0, 0
-    lfs f0, lbl_81694D28(r0)
+    lfs f0, csfZero(r0)
     stw r31, 0x1c(r1)
     mr r31, r3
     lfs f31, 0x180(r3)
@@ -2535,7 +2535,7 @@ moveCursorUp_L6:
     bctrl
     fsubs f2, f31, f1
     lwz r12, 0(r31)
-    lfs f0, lbl_81694D38(r0)
+    lfs f0, csfOne(r0)
     mr r3, r31
     lwz r12, 0x180(r12)
     fadds f2, f0, f2
@@ -2642,7 +2642,7 @@ moveCursorDown_L1:
     mr r3, r31
     lwz r12, 0(r31)
     fadds f2, f0, f1
-    lfs f0, lbl_81694D38(r0)
+    lfs f0, csfOne(r0)
     lwz r12, 0x180(r12)
     lfs f1, 0x17c(r31)
     fadds f2, f0, f2
@@ -2976,8 +2976,8 @@ onPressRight_L1:
     lbz r0, 0x17a(r30)
     cmpwi r0, 0
     beq onPressRight_L8
-    lis r9, lbl_816152D0@ha
-    lwzu r8, lbl_816152D0@l(r9)
+    lis r9, csReplyPacket@ha
+    lwzu r8, csReplyPacket@l(r9)
     mr r3, r30
     addi r5, r1, 8
     lwz r7, 4(r9)
@@ -3087,7 +3087,7 @@ calc_L2:
     bctrl
     cmpwi r3, 0
     bne calc_L3
-    lfs f1, lbl_81694D38(r0)
+    lfs f1, csfOne(r0)
     lfs f0, 0x1ac(r30)
     fadds f0, f1, f0
     stfs f0, 0x1ac(r30)
@@ -3097,16 +3097,16 @@ calc_L3:
     lwz r12, 0xc(r12)
     mtctr r12
     bctrl
-    lfs f1, lbl_81698D1C(r0)
-    lfs f0, lbl_81694D40(r0)
+    lfs f1, sfDrawY(r0)
+    lfs f0, csfAspect(r0)
     fmuls f1, f0, f1
     bl SinFIdx__Q24nw4r4mathFf
-    lfs f0, lbl_81694D48(r0)
+    lfs f0, csf30(r0)
     li r0, 0x5a
     li r3, 2
     li r31, 0xfd
     fmuls f2, f0, f1
-    lfs f0, lbl_81694D44(r0)
+    lfs f0, csf150(r0)
     stb r3, 0x1c0(r30)
     fmr f31, f1
     lwz r3, 0x164(r30)
@@ -3123,10 +3123,10 @@ calc_L3:
     bctrl
     cmpwi r3, 0
     beq calc_L4
-    lfs f1, lbl_81694D50(r0)
+    lfs f1, csf10(r0)
     li r0, 0x8c
     li r3, 0x34
-    lfs f0, lbl_81694D4C(r0)
+    lfs f0, csf50(r0)
     fmuls f1, f1, f31
     stb r0, 0x1c1(r30)
     stb r3, 0x1c0(r30)
@@ -3139,58 +3139,58 @@ calc_L3:
     b calc_L7
 calc_L4:
     lfs f1, 0x1ac(r30)
-    lfs f5, lbl_81694D4C(r0)
+    lfs f5, csf50(r0)
     fcmpo cr0, f1, f5
     cror eq, lt, eq
     bne calc_L7
-    lfs f2, lbl_81694D28(r0)
-    lfs f3, lbl_81694D54(r0)
+    lfs f2, csfZero(r0)
+    lfs f3, csf52(r0)
     fmr f4, f2
-    lfs f6, lbl_81694D58(r0)
+    lfs f6, csf2(r0)
     fmr f7, f2
     bl hermiteInterporation__Q29textinput4utilFfffffff
     fctiwz f0, f1
-    lfs f2, lbl_81694D28(r0)
+    lfs f2, csfZero(r0)
     lfs f1, 0x1ac(r30)
     fmr f4, f2
-    lfs f3, lbl_81694D5C(r0)
+    lfs f3, csf140(r0)
     stfd f0, 8(r1)
     fmr f7, f2
-    lfs f5, lbl_81694D4C(r0)
+    lfs f5, csf50(r0)
     lwz r0, 0xc(r1)
-    lfs f6, lbl_81694D60(r0)
+    lfs f6, csf90(r0)
     stb r0, 0x1c0(r30)
     bl hermiteInterporation__Q29textinput4utilFfffffff
     fctiwz f0, f1
-    lfs f2, lbl_81694D28(r0)
-    lfs f3, lbl_81694D64(r0)
+    lfs f2, csfZero(r0)
+    lfs f3, csf253(r0)
     fmr f4, f2
     lfs f1, 0x1ac(r30)
     stfd f0, 0x10(r1)
     fmr f6, f3
-    lfs f5, lbl_81694D4C(r0)
+    lfs f5, csf50(r0)
     lwz r0, 0x14(r1)
     fmr f7, f2
     stb r0, 0x1c1(r30)
     bl hermiteInterporation__Q29textinput4utilFfffffff
     fctiwz f1, f1
-    lfs f2, lbl_81698D1C(r0)
-    lfs f0, lbl_81694D40(r0)
+    lfs f2, sfDrawY(r0)
+    lfs f0, csfAspect(r0)
     stfd f1, 0x18(r1)
     fmuls f1, f0, f2
     lwz r0, 0x1c(r1)
     stb r0, 0x1c2(r30)
     bl SinFIdx__Q24nw4r4mathFf
-    lfs f2, lbl_81694D28(r0)
+    lfs f2, csfZero(r0)
     fmr f31, f1
-    lfs f3, lbl_81694D4C(r0)
+    lfs f3, csf50(r0)
     fmr f4, f2
     lfs f1, 0x1ac(r30)
     fmr f5, f3
-    lfs f6, lbl_81694D44(r0)
+    lfs f6, csf150(r0)
     fmr f7, f2
     bl hermiteInterporation__Q29textinput4utilFfffffff
-    lfs f0, lbl_81694D68(r0)
+    lfs f0, csf20(r0)
     fmuls f0, f0, f31
     fadds f0, f1, f0
     fctiwz f0, f0
@@ -3199,12 +3199,12 @@ calc_L4:
     stb r0, 0x1c3(r30)
 calc_L7:
     lwz r3, 0x214(r30)
-    lfs f1, lbl_81698D1C(r0)
-    lfs f0, lbl_81694D58(r0)
+    lfs f1, sfDrawY(r0)
+    lfs f0, csf2(r0)
     addi r0, r3, 8
     stw r0, 0x214(r30)
     fadds f0, f1, f0
-    stfs f0, lbl_81698D1C(r0)
+    stfs f0, sfDrawY(r0)
     psq_l f31, 0x38(r1), 0, 0
     lfd f31, 0x30(r1)
     lwz r31, 0x2c(r1)
@@ -3269,10 +3269,10 @@ extern "C" asm void __ct__Q39textinput9inputform4BaseFPQ29textinput7Manager() {
     addi r28, r31, 0x10
     mr r3, r28
     bl __ct__Q34nw4r2ut10CharWriterFv
-    lfs f1, lbl_81694D28(r0)
+    lfs f1, csfZero(r0)
     lis r4, __vt__Q39textinput10textdrawer4Base@ha
     li r29, 0
-    lfs f0, lbl_81694D2C(r0)
+    lfs f0, csfScreenWidth(r0)
     lis r3, 1
     addi r4, r4, __vt__Q39textinput10textdrawer4Base@l
     subi r0, r3, 1
@@ -3314,7 +3314,7 @@ extern "C" asm void __ct__Q39textinput9inputform4BaseFPQ29textinput7Manager() {
     stb r30, 0x105(r28)
     bl memset
     lis r10, __vt__Q39textinput9inputform4Base@ha
-    lfs f0, lbl_81694D28(r0)
+    lfs f0, csfZero(r0)
     addi r10, r10, __vt__Q39textinput9inputform4Base@l
     lis r6, __vt__Q39textinput4util9Animation@ha
     addi r9, r10, 0x20
@@ -3700,7 +3700,7 @@ extern "C" asm void setSEFlag__Q39textinput4util9AnimationFb() {
 }
 extern "C" asm void getValue__Q39textinput4util9AnimationFv() {
     nofralloc
-    lfs f2, lbl_81694D28(r0)
+    lfs f2, csfZero(r0)
     lfs f1, 0xc(r3)
     fmr f4, f2
     lfs f3, 0x4(r3)
@@ -3851,7 +3851,7 @@ extern "C" asm void calc__Q39textinput4util9AnimationFv() {
     lfs f0, 0x10(r3)
     fcmpo cr0, f1, f0
     bge calc_Animation_L1
-    lfs f0, lbl_81694D38(r0)
+    lfs f0, csfOne(r0)
     fadds f0, f0, f1
     stfs f0, 0xc(r3)
     b calc_Animation_L4
@@ -4093,13 +4093,13 @@ extern "C" asm void __ct__Q39textinput9inputform12LayoutByNW4RFPQ29textinput7Man
     lis r6, __vt__Q39textinput9inputform12LayoutByNW4R@ha
     li r0, 0
     addi r6, r6, __vt__Q39textinput9inputform12LayoutByNW4R@l
-    lis r5, lbl_8165CBE0@ha
+    lis r5, csTextBoxFontName@ha
     lis r4, csLanguageDependencyDataUEJ__Q29textinput9inputform@ha
     stw r6, 0(r27)
     addi r3, r6, 0x20
     addi r7, r6, 0xb8
     addi r6, r6, 0x1a8
-    addi r5, r5, lbl_8165CBE0@l
+    addi r5, r5, csTextBoxFontName@l
     addi r4, r4, csLanguageDependencyDataUEJ__Q29textinput9inputform@l
     stw r3, 0x5c(r27)
     addi r3, r27, 0x2d4
@@ -4531,7 +4531,7 @@ extern "C" asm void init__Q39textinput3gui12GUIComponentFv() {
     lbz r0, 4(r3)
     cmpwi r0, 0
     bnelr
-    lfs f0, lbl_81694D28(r0)
+    lfs f0, csfZero(r0)
     li r0, 0
     stb r0, 5(r3)
     stfs f0, 0x18(r3)
@@ -4772,7 +4772,7 @@ nw4r::math::VEC2 Base::getGlobalLeftTopPos() const {
     nw4r::math::VEC3 position;
     position.x = mRect.left;
     position.y = mRect.bottom;
-    position.z = *(&lbl_81694D28);
+    position.z = *(&csfZero);
     PSMTXMultVec(mMtx, position, position);
     return nw4r::math::VEC2(position.x, -position.y);
 }
@@ -4815,7 +4815,7 @@ bool Base::doWordWrap(const wchar_t* string, u32 pos, f32 width) {
         }
     }
 
-    f32 stringWidth = *(&lbl_81694D28);
+    f32 stringWidth = *(&csfZero);
     f32 zero = stringWidth;
     u32 index;
     u32 hyphenPos;
@@ -4830,10 +4830,10 @@ bool Base::doWordWrap(const wchar_t* string, u32 pos, f32 width) {
             break;
         }
         WordWrapDrawInfo drawInfo;
-        drawInfo.left = lbl_81694D28;
-        drawInfo.top = lbl_81694D28;
-        drawInfo.right = lbl_81694D28;
-        drawInfo.bottom = lbl_81694D28;
+        drawInfo.left = csfZero;
+        drawInfo.top = csfZero;
+        drawInfo.right = csfZero;
+        drawInfo.bottom = csfZero;
         drawInfo.character = *stringPtr;
         calcRect(reinterpret_cast<DrawInfo&>(drawInfo));
         characterWrap = false;
@@ -4992,7 +4992,7 @@ asm void Base::drawFixString(u32) {
     nofralloc
     stwu r1, -0x20(r1)
     mflr r0
-    lfs f0, lbl_81694D28(r0)
+    lfs f0, csfZero(r0)
     stw r0, 0x24(r1)
     stw r31, 0x1c(r1)
     stw r30, 0x18(r1)
@@ -5070,7 +5070,7 @@ asm void Base::draw() {
     lwz r12, 0x188(r12)
     mtctr r12
     bctrl
-    lfs f0, lbl_81694D28(r0)
+    lfs f0, csfZero(r0)
     stw r3, 0x10(r1)
     stfs f0, 0x30(r1)
     stfs f0, 0x34(r1)
@@ -5145,23 +5145,23 @@ asm void Base::drawCursor(f32, f32) {
     stfd f31, 0x40(r1)
     psq_st f31, 0x48(r1), 0, 0
     lis r7, 0x4330
-    lfd f4, lbl_81694D80(r0)
+    lfd f4, csdMagic1(r0)
     stw r31, 0x3c(r1)
     mr r31, r3
-    lfs f3, lbl_81694D70(r0)
+    lfs f3, csf255(r0)
     lbz r0, 0x1c8(r3)
     stw r7, 0x10(r1)
     stw r0, 0x14(r1)
     lfd f0, 0x10(r1)
     stfs f1, 0x17c(r3)
     fsubs f1, f0, f4
-    lfs f0, lbl_81694D40(r0)
+    lfs f0, csfAspect(r0)
     stfs f2, 0x180(r3)
-    lbz r6, lbl_81694D6C(r0)
+    lbz r6, csbAlpha(r0)
     fdivs f31, f1, f3
-    lbz r5, lbl_81694D6D(r0)
-    lbz r4, lbl_81694D6E(r0)
-    lbz r0, lbl_81694D6F(r0)
+    lbz r5, csb50a(r0)
+    lbz r4, csb50b(r0)
+    lbz r0, csbZero(r0)
     stb r6, 8(r1)
     stb r5, 9(r1)
     stb r4, 0xa(r1)
@@ -5173,7 +5173,7 @@ asm void Base::drawCursor(f32, f32) {
     fsubs f1, f1, f4
     fmuls f1, f0, f1
     bl SinFIdx__Q24nw4r4mathFf
-    lfs f2, lbl_81694D74(r0)
+    lfs f2, csf127(r0)
     addi r3, r31, 0x10
     fmuls f0, f2, f1
     fadds f0, f2, f0
@@ -5186,12 +5186,12 @@ asm void Base::drawCursor(f32, f32) {
     lfs f0, 0x98(r31)
     fsubs f31, f1, f0
     bl GetFontHeight__Q34nw4r2ut10CharWriterCFv
-    lfs f0, lbl_81694D78(r0)
+    lfs f0, csfU16Max(r0)
     addi r4, r1, 8
     lfs f6, 0x180(r31)
     fdivs f0, f0, f31
-    lfs f2, lbl_81694D58(r0)
-    lfs f5, lbl_81694D28(r0)
+    lfs f2, csf2(r0)
+    lfs f5, csfZero(r0)
     fctiwz f0, f0
     fadds f4, f6, f1
     lfs f1, 0x17c(r31)
@@ -5244,7 +5244,7 @@ doScroll_L2:
     lfs f1, 0x188(r30)
     li r5, 0
     fadds f0, f2, f0
-    lfs f3, lbl_81694D88(r0)
+    lfs f3, csf15(r0)
     stfs f0, 0x184(r30)
     lwz r12, 0x18c(r30)
     lfs f0, 8(r31)
@@ -5367,9 +5367,9 @@ doBeforeDrawProcess_L2:
     lfs f0, 0xc(r31)
     fmr f2, f30
     fmr f3, f29
-    lfs f5, lbl_81694D28(r0)
+    lfs f5, csfZero(r0)
     fadds f4, f0, f1
-    lfs f6, lbl_81694D38(r0)
+    lfs f6, csfOne(r0)
     fmr f1, f31
     addi r3, r28, 0x1c0
     bl drawBox___Q29textinput5debugFffffffR8_GXColor
@@ -5514,35 +5514,35 @@ void Base::setPredictMode(PredictMode predictMode) {
 }
 
 nw4r::math::VEC2 Base::getScale() const {
-    return nw4r::math::VEC2(*(&lbl_81694D38), *(&lbl_81694D38));
+    return nw4r::math::VEC2(*(&csfOne), *(&csfOne));
 }
 
-extern "C" const f32 lbl_81694D28 = 0.0f;
-extern "C" const f32 lbl_81694D2C = 640.0f;
-extern "C" const f64 lbl_81694D30 = 4503601774854144.0;
-extern "C" const f32 lbl_81694D38 = 1.0f;
-extern "C" const f32 lbl_81694D3C = 0.5f;
-extern "C" const f32 lbl_81694D40 = 0.7111111f;
-extern "C" const f32 lbl_81694D44 = 150.0f;
-extern "C" const f32 lbl_81694D48 = 30.0f;
-extern "C" const f32 lbl_81694D4C = 50.0f;
-extern "C" const f32 lbl_81694D50 = 10.0f;
-extern "C" const f32 lbl_81694D54 = 52.0f;
-extern "C" const f32 lbl_81694D58 = 2.0f;
-extern "C" const f32 lbl_81694D5C = 140.0f;
-extern "C" const f32 lbl_81694D60 = 90.0f;
-extern "C" const f32 lbl_81694D64 = 253.0f;
-extern "C" const f32 lbl_81694D68 = 20.0f;
-extern "C" const u8 lbl_81694D6C = 0xff;
-extern "C" const u8 lbl_81694D6D = 0x32;
-extern "C" const u8 lbl_81694D6E = 0x32;
-extern "C" const u8 lbl_81694D6F = 0;
-extern "C" const f32 lbl_81694D70 = 255.0f;
-extern "C" const f32 lbl_81694D74 = 127.0f;
-extern "C" const f32 lbl_81694D78 = 14592.0f;
-extern "C" const f64 lbl_81694D80 = 4503599627370496.0;
-extern "C" const f32 lbl_81694D88 = 15.0f;
-extern "C" const f32 lbl_81694D8C = 0.0f;
+extern "C" const f32 csfZero = 0.0f;
+extern "C" const f32 csfScreenWidth = 640.0f;
+extern "C" const f64 csdMagic0 = 4503601774854144.0;
+extern "C" const f32 csfOne = 1.0f;
+extern "C" const f32 csfHalf = 0.5f;
+extern "C" const f32 csfAspect = 0.7111111f;
+extern "C" const f32 csf150 = 150.0f;
+extern "C" const f32 csf30 = 30.0f;
+extern "C" const f32 csf50 = 50.0f;
+extern "C" const f32 csf10 = 10.0f;
+extern "C" const f32 csf52 = 52.0f;
+extern "C" const f32 csf2 = 2.0f;
+extern "C" const f32 csf140 = 140.0f;
+extern "C" const f32 csf90 = 90.0f;
+extern "C" const f32 csf253 = 253.0f;
+extern "C" const f32 csf20 = 20.0f;
+extern "C" const u8 csbAlpha = 0xff;
+extern "C" const u8 csb50a = 0x32;
+extern "C" const u8 csb50b = 0x32;
+extern "C" const u8 csbZero = 0;
+extern "C" const f32 csf255 = 255.0f;
+extern "C" const f32 csf127 = 127.0f;
+extern "C" const f32 csfU16Max = 14592.0f;
+extern "C" const f64 csdMagic1 = 4503599627370496.0;
+extern "C" const f32 csf15 = 15.0f;
+extern "C" const f32 csfZero2 = 0.0f;
 
 asm bool LayoutByNW4R::isAbleToUp() {
     nofralloc
@@ -6502,10 +6502,10 @@ extern "C" asm void init__Q39textinput9inputform12LayoutByNW4RFv() {
 L_a220:
     bl init__Q39textinput9inputform4BaseFv
     lwz r12, 0x218(r31)
-    lis r4, lbl_8165CC14@l
+    lis r4, csMiscName0@l
     addi r3, r31, 0x218
     lwz r12, 0x60(r12)
-    addi r4, r4, lbl_8165CC14@ha
+    addi r4, r4, csMiscName0@ha
     mtctr r12
     bctrl 
     lwz r12, 0(r3)
@@ -6514,10 +6514,10 @@ L_a220:
     mtctr r12
     bctrl 
     lwz r12, 0x218(r31)
-    lis r4, lbl_8165CC28@l
+    lis r4, csMiscName1@l
     addi r3, r31, 0x218
     lwz r12, 0x60(r12)
-    addi r4, r4, lbl_8165CC28@ha
+    addi r4, r4, csMiscName1@ha
     mtctr r12
     bctrl 
     lwz r12, 0(r3)
@@ -6558,7 +6558,7 @@ L_a220:
     bctrl 
     lwz r12, 0(r3)
     mr r30, r3
-    la r4, lbl_816973B4(r0)
+    la r4, scEmptyLayoutName(r0)
     li r5, 0
     lwz r12, 0x6c(r12)
     mtctr r12
@@ -6762,7 +6762,7 @@ L_ae78:
     lfs f0, 0x12c(r25)
     stw r4, 0x1c(r1)
     fsubs f2, f1, f0
-    lfs f1, lbl_81694D3C(r0)
+    lfs f1, csfHalf(r0)
     lfs f0, 0x1c(r1)
     stw r3, 0x18(r1)
     fmuls f1, f2, f1
@@ -6775,7 +6775,7 @@ L_ae78:
     mtctr r12
     bctrl 
     stw r4, 0x14(r1)
-    lfs f0, lbl_81694D38(r0)
+    lfs f0, csfOne(r0)
     lfs f1, 0x14(r1)
     stw r3, 0x10(r1)
     fsubs f0, f1, f0
@@ -6791,7 +6791,7 @@ L_af20:
     lfs f0, 0x12c(r25)
     stw r4, 0xc(r1)
     fsubs f2, f1, f0
-    lfs f0, lbl_81694D38(r0)
+    lfs f0, csfOne(r0)
     lfs f1, 0xc(r1)
     stw r3, 8(r1)
     fadds f1, f2, f1
@@ -6844,9 +6844,9 @@ L_e90:
     cntlzw r0, r0
     srwi r6, r0, 5
     bgt L_2e4c
-    lis r4, jumptable_8165CA8C@l
+    lis r4, scSepBarJump1@l
     slwi r0, r19, 2
-    addi r4, r4, jumptable_8165CA8C@ha
+    addi r4, r4, scSepBarJump1@ha
     lwzx r4, r4, r0
     mtctr r4
     bctr 
@@ -6860,10 +6860,10 @@ L_e90:
 L_ee4:
     bl __ct__Q29textinput12LayoutGatherFv
     lis r4, __dt__Q29textinput12LayoutGatherFv@l
-    lis r5, lbl_810C6590@l
+    lis r5, sInputFormWork@l
     addi r4, r4, __dt__Q29textinput12LayoutGatherFv@ha
     la r3, sGather_local__Q39textinput12LayoutGather(r0)
-    addi r5, r5, lbl_810C6590@ha
+    addi r5, r5, sInputFormWork@ha
 L_efc:
     bl __register_global_object
     li r0, 1
@@ -6939,9 +6939,9 @@ L_fd0:
     mtctr r12
     bctrl 
 L_ff0:
-    lis r31, lbl_8165C970@l
+    lis r31, csSepBarOffset@l
     li r25, 3
-    addi r31, r31, lbl_8165C970@ha
+    addi r31, r31, csSepBarOffset@ha
 L_ffc:
     addi r3, r26, 0x1d8
 L_1000:
@@ -7254,9 +7254,9 @@ L_1414:
     mtctr r12
     bctrl 
 L_1434:
-    lis r31, lbl_8165C970@l
+    lis r31, csSepBarOffset@l
     li r25, 3
-    addi r31, r31, lbl_8165C970@ha
+    addi r31, r31, csSepBarOffset@ha
 L_1440:
     addi r3, r26, 0x1d8
 L_1444:
@@ -8689,9 +8689,9 @@ L_28c0:
     lwz r0, 0x174(r26)
     cmplwi r0, 0xc
     bgt L_2b50
-    lis r3, jumptable_8165CA58@l
+    lis r3, scSepBarJump0@l
     slwi r0, r0, 2
-    addi r3, r3, jumptable_8165CA58@ha
+    addi r3, r3, scSepBarJump0@ha
     lwzx r3, r3, r0
     mtctr r3
     bctr 
@@ -9159,7 +9159,7 @@ L_42ac:
     stw r0, 0x2c(r1)
 L_42c8:
     bl SetTextColor__Q34nw4r2ut10CharWriterFQ34nw4r2ut5Color
-    lfs f30, lbl_81694D28(r0)
+    lfs f30, csfZero(r0)
     b L_4454
 L_42d4:
     lbz r3, 0x1f5(r25)
@@ -9281,7 +9281,7 @@ L_4460:
     bne L_4654
     clrlwi. r0, r31, 0x10
     beq L_4654
-    lfs f0, lbl_81694D28(r0)
+    lfs f0, csfZero(r0)
     addi r3, r25, 0x10
     sth r31, 0x94(r1)
     addi r4, r1, 0x84
@@ -9317,14 +9317,14 @@ L_44e4:
     bl GetFontHeight__Q34nw4r2ut10CharWriterCFv
     lbz r0, 0x1c8(r25)
     fadds f4, f1, f30
-    la r3, lbl_8169739C(r0)
+    la r3, scColor1(r0)
     fmr f1, f29
     stb r0, 3(r3)
     fmr f2, f31
     fmr f3, f28
-    lfs f5, lbl_81694D28(r0)
-    la r3, lbl_8169739C(r0)
-    lfs f6, lbl_81694D38(r0)
+    lfs f5, csfZero(r0)
+    la r3, scColor1(r0)
+    lfs f6, csfOne(r0)
 L_4510:
     bl drawBox___Q29textinput5debugFffffffR8_GXColor
     addi r3, r25, 0x10
@@ -9350,7 +9350,7 @@ L_4544:
     beq L_4564
     b L_463c
 L_4564:
-    lfs f0, lbl_81694D28(r0)
+    lfs f0, csfZero(r0)
     lis r26, 1
     addi r0, r26, -0x1fa9
     sth r31, 0x80(r1)
@@ -9388,7 +9388,7 @@ L_4564:
     bctrl 
     fsubs f2, f30, f29
     stw r3, 0x40(r1)
-    lfs f1, lbl_81694D3C(r0)
+    lfs f1, csfHalf(r0)
     addi r3, r25, 0x10
     lfs f0, 0x40(r1)
     fmuls f1, f2, f1
@@ -9456,8 +9456,8 @@ L_46c4:
 L_46d0:
     bl MoveCursorX__Q34nw4r2ut10CharWriterFf
 L_46d4:
-    lfs f30, lbl_81694D28(r0)
-    la r26, lbl_81697398(r0)
+    lfs f30, csfZero(r0)
+    la r26, scColor0(r0)
     b L_48a4
 L_46e0:
     lbz r0, 0x178(r25)
@@ -9507,12 +9507,12 @@ L_4770:
     lbz r0, 0x1c8(r25)
     fadds f4, f1, f31
     fmr f1, f28
-    lfs f5, lbl_81694D28(r0)
+    lfs f5, csfZero(r0)
     fmr f2, f29
     stb r0, 3(r26)
     fmr f3, f27
-    lfs f6, lbl_81694D38(r0)
-    la r3, lbl_81697398(r0)
+    lfs f6, csfOne(r0)
+    la r3, scColor0(r0)
 L_4798:
     bl drawBox___Q29textinput5debugFffffffR8_GXColor
     addi r3, r25, 0x10
@@ -9670,7 +9670,7 @@ L_4b44:
     mtctr r12
     bctrl 
     lwz r12, 0(r29)
-    lfs f27, lbl_81694D28(r0)
+    lfs f27, csfZero(r0)
     stw r3, 0x28(r1)
     mr r3, r29
     lwz r12, 0x188(r12)
@@ -9681,7 +9681,7 @@ L_4b44:
     bctrl 
     li r30, 0
     stw r3, 0x30(r1)
-    lfs f29, lbl_81694D28(r0)
+    lfs f29, csfZero(r0)
     stw r4, 0x34(r1)
     lfs f30, 0x30(r1)
     stw r30, 0x1b4(r29)
@@ -9886,7 +9886,7 @@ L_4e6c:
     fcmpo cr0, f25, f26
     bge L_4ebc
     fsubs f1, f23, f28
-    lfs f0, lbl_81694D3C(r0)
+    lfs f0, csfHalf(r0)
     fmuls f0, f1, f0
     fadds f0, f28, f0
     fcmpo cr0, f0, f24
@@ -9921,13 +9921,13 @@ L_4f04:
     cmpwi r0, 0
     bne L_4bac
     fsubs f1, f26, f27
-    lfs f0, lbl_81694D3C(r0)
+    lfs f0, csfHalf(r0)
     fmuls f0, f1, f0
     fadds f0, f27, f0
     fcmpo cr0, f0, f25
     cror eq, lt, eq
     bne L_4f4c
-    lfs f2, lbl_81694D38(r0)
+    lfs f2, csfOne(r0)
     fmr f1, f24
     lfs f0, 0x188(r29)
     mr r3, r29
@@ -9938,7 +9938,7 @@ L_4f44:
     b L_4f5c
 L_4f4c:
     fmr f1, f24
-    lfs f2, lbl_81694D38(r0)
+    lfs f2, csfOne(r0)
     mr r3, r29
 L_4f58:
     bl calcCursorPos__Q39textinput9inputform4BaseFff
@@ -10372,9 +10372,9 @@ L_65a4:
     bl getCurrentString__Q39textinput9inputform4BaseFb
     cmplwi r29, 0x24
     bgt L_6b3c
-    lis r4, jumptable_8165CB4C@l
+    lis r4, scSepBarJump2@l
     slwi r0, r29, 2
-    addi r4, r4, jumptable_8165CB4C@ha
+    addi r4, r4, scSepBarJump2@ha
     lwzx r4, r4, r0
     mtctr r4
     bctr 
@@ -12111,9 +12111,9 @@ L_964c:
 L_9650:
     cmpwi r0, 0
     beq L_97c0
-    lis r31, lbl_8165C970@l
+    lis r31, csSepBarOffset@l
     li r28, 3
-    addi r31, r31, lbl_8165C970@ha
+    addi r31, r31, csSepBarOffset@ha
 L_9664:
     addi r3, r29, 0x1d8
 L_9668:
@@ -12218,9 +12218,9 @@ L_97b8:
     bl inputCharZi___Q39textinput9inputform4BaseFwUl
     b L_9664
 L_97c0:
-    lis r31, lbl_8165C970@l
+    lis r31, csSepBarOffset@l
     li r28, 3
-    addi r31, r31, lbl_8165C970@ha
+    addi r31, r31, csSepBarOffset@ha
 L_97cc:
     addi r3, r29, 0x1d8
 L_97d0:
@@ -12348,12 +12348,12 @@ extern "C" asm void create__Q39textinput9inputform12LayoutByNW4RFP12MEMAllocator
     addi r11, r1, 0x60
 L_9c2c:
     bl _savegpr_18
-    lis r30, lbl_8165C820@l
+    lis r30, csScrllUpName@l
     stw r4, 0x1d0(r3)
     mr r23, r3
     mr r24, r4
     mr r18, r5
-    addi r30, r30, lbl_8165C820@ha
+    addi r30, r30, csScrllUpName@ha
     addi r3, r3, 0x10
 L_9c4c:
     bl create__Q39textinput10textdrawer4BaseFP12MEMAllocator
@@ -12498,7 +12498,7 @@ L_9e38:
     bctrl 
     lwz r12, 0(r3)
     mr r20, r3
-    la r4, lbl_816973B4(r0)
+    la r4, scEmptyLayoutName(r0)
     li r5, 0
     lwz r12, 0x6c(r12)
     mtctr r12
@@ -12545,7 +12545,7 @@ L_9ef0:
     li r5, 1
     lbz r0, 0xb(r1)
     stb r4, csCharColor__Q29textinput9inputform(r0)
-    la r4, lbl_816973B8(r0)
+    la r4, sc2lineLayoutName(r0)
     stb r8, 1(r7)
     stb r6, 2(r7)
     stb r0, 3(r7)
@@ -12771,19 +12771,19 @@ L_a988:
     lwz r3, 8(r3)
     b L_a9c0
 L_a9b8:
-    lis r3, lbl_8165CBE0@l
-    addi r3, r3, lbl_8165CBE0@ha
+    lis r3, csTextBoxFontName@l
+    addi r3, r3, csTextBoxFontName@ha
 L_a9c0:
-    lis r30, lbl_8165CBE0@l
+    lis r30, csTextBoxFontName@l
     stw r3, 0x2c0(r31)
-    addi r4, r30, lbl_8165CBE0@ha
+    addi r4, r30, csTextBoxFontName@ha
 L_a9cc:
     bl strcmp
     cmpwi r3, 0
     beq L_a9f4
     lwz r12, 0x218(r31)
     addi r3, r31, 0x218
-    addi r4, r30, lbl_8165CBE0@ha
+    addi r4, r30, csTextBoxFontName@ha
     li r5, 0
     lwz r12, 0x54(r12)
     mtctr r12
@@ -12802,8 +12802,8 @@ L_a9f4:
     lwz r4, 8(r3)
     b L_aa2c
 L_aa24:
-    lis r4, lbl_8165CBE0@l
-    addi r4, r4, lbl_8165CBE0@ha
+    lis r4, csTextBoxFontName@l
+    addi r4, r4, csTextBoxFontName@ha
 L_aa2c:
     lwz r3, 0x21c(r31)
     li r5, 1
@@ -12813,7 +12813,7 @@ L_aa2c:
     mtctr r12
     bctrl 
     lwz r12, 0(r3)
-    la r4, lbl_816973B4(r0)
+    la r4, scEmptyLayoutName(r0)
     li r5, 0
     lwz r12, 0x6c(r12)
     mtctr r12
@@ -12869,8 +12869,8 @@ L_aad8:
     lwz r4, 8(r3)
     b L_ab20
 L_ab18:
-    lis r4, lbl_8165CBE0@l
-    addi r4, r4, lbl_8165CBE0@ha
+    lis r4, csTextBoxFontName@l
+    addi r4, r4, csTextBoxFontName@ha
 L_ab20:
     lwz r3, 0x21c(r31)
     li r5, 1
@@ -12891,17 +12891,17 @@ L_ab20:
     mtctr r12
     bctrl 
     lwz r12, 0x218(r31)
-    lis r30, lbl_8165CC4C@l
+    lis r30, csMiscName2@l
     addi r3, r31, 0x218
     lwz r12, 0x2c(r12)
-    addi r4, r30, lbl_8165CC4C@ha
+    addi r4, r30, csMiscName2@ha
     mtctr r12
     bctrl 
     cmpwi r3, 0
     beq L_acc4
     lwz r12, 0x218(r31)
     addi r3, r31, 0x218
-    addi r4, r30, lbl_8165CC4C@ha
+    addi r4, r30, csMiscName2@ha
     lwz r12, 0x2c(r12)
     mtctr r12
     bctrl 
@@ -13323,7 +13323,7 @@ L_b554:
     mtctr r12
     bctrl 
     lfs f30, 0x40(r1)
-    lfs f29, lbl_81694D28(r0)
+    lfs f29, csfZero(r0)
 L_b5cc:
     stfs f29, 0x48(r1)
     li r27, 0
@@ -13538,7 +13538,7 @@ extern "C" asm void onTiEvent__Q39textinput9inputform12EventHandlerFPQ39textinpu
 L_b950:
     bl _savegpr_26
     lwz r7, 0x9c(r4)
-    lis r31, lbl_8165C820@l
+    lis r31, csScrllUpName@l
     lfs f0, 4(r6)
     mr r26, r3
     addi r30, r7, 0xb4
@@ -13546,7 +13546,7 @@ L_b950:
     stfs f0, 8(r1)
     mr r28, r5
     mr r29, r6
-    addi r31, r31, lbl_8165C820@ha
+    addi r31, r31, csScrllUpName@ha
     lfs f0, 8(r6)
     fneg f0, f0
     stfs f0, 0xc(r1)
@@ -14021,9 +14021,9 @@ L_c08c:
     lwz r0, 0x2c(r30)
     cmplwi r0, 6
     bgt L_c228
-    lis r3, jumptable_8165CC5C@l
+    lis r3, scSepBarJump3@l
     slwi r0, r0, 2
-    addi r3, r3, jumptable_8165CC5C@ha
+    addi r3, r3, scSepBarJump3@ha
     lwzx r3, r3, r0
     mtctr r3
     bctr 
@@ -14134,13 +14134,6 @@ L_c228:
     blr 
 }
 
-// Pooled-literal call sites: the original C++ callers of these inline bodies
-// (EventObserver::onOutOfLength's printf, TextBox::GetTextColor's NW4R_ASSERT)
-// are transcribed as asm above, so the strings would otherwise never emit.
-void emitPooledLiterals(EventObserver* observer, nw4r::lyt::TextBox* textBox) {
-    observer->onOutOfLength();
-    textBox->GetTextColor(0);
 }
 }
-}
-extern "C" f32 lbl_81698D1C = 0.0f;
+extern "C" f32 sfDrawY = 0.0f;

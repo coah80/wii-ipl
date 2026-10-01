@@ -72,10 +72,10 @@ namespace textinput {
 
             virtual ~EventHandler() {}  // 0x08
 
-            virtual void onEvent(GUIComponent& comp, u32 event, void* data) {}  // 0x0C
+            virtual void onEvent(GUIComponent& comp, u32 event, void* data);  // 0x0C
 
-            virtual void setLatestEventCtrlNo(int ctrlNo) { muLatestEventCtrlNo = ctrlNo; }  // 0x10
-            virtual int getLatestEventCtrlNo() { return muLatestEventCtrlNo; }               // 0x14
+            virtual void setLatestEventCtrlNo(int ctrlNo);  // 0x10
+            virtual int getLatestEventCtrlNo();             // 0x14
 
         protected:
             int muLatestEventCtrlNo;  // 0x04
@@ -107,12 +107,12 @@ namespace textinput {
             }
             virtual ~GUIComponent();  // 0x08
 
-            virtual u32 getID() { return mID; }  // 0x20
+            virtual u32 getID();  // 0x20
 
-            virtual bool isPointed(int point) { return mbPointed[point]; }    // 0x24
-            virtual bool isDragging(int point) { return mbDragging[point]; }  // 0x28
+            virtual bool isPointed(int point);    // 0x24
+            virtual bool isDragging(int point);  // 0x28
 
-            virtual void setPointed(int point, bool bEnable) { mbPointed[point] = bEnable; }  // 0x2C
+            virtual void setPointed(int point, bool bEnable);  // 0x2C
 
             void onEvent(u32 event, void* data) {
                 if (mpListener) {
@@ -120,34 +120,25 @@ namespace textinput {
                 }
             }
 
-            virtual void onPointIn(int point) { mFlightDuration[point] = 0; }   // 0x30
-            virtual void onPointOut(int point) { mFlightDuration[point] = 0; }  // 0x34
+            virtual void onPointIn(int point);   // 0x30
+            virtual void onPointOut(int point);  // 0x34
 
-            virtual void onDrag(f32 x, f32 y) {}
-            virtual void onMove(int point, f32 x, f32 y) { mFlightDuration[point]++; }  // 0x38
-            virtual void onTrig(int point, u32 trig, Vec& dragPos) {
-                if (trig & mDraggingButton) {
-                    mDraggingPos[point] = dragPos;
-                    mbDragging[point] = true;
-                    mFlightDuration[point] = 0;
-                }
-            }
+            virtual void onDrag(f32 x, f32 y);
+            virtual void onMove(int point, f32 x, f32 y);                        // 0x38
+            virtual void onTrig(int point, u32 trig, Vec& dragPos);
 
-            virtual void setDraggingButton(u32 dragBtn) { mDraggingButton = dragBtn; }  // 0x3C
+            virtual void setDraggingButton(u32 dragBtn);  // 0x3C
 
-            virtual u32 updatePointer(const GUIPointer& pointer) { return updatePointerImpl(pointer); }  // 0x48
-            virtual u32 updatePointer(int point, f32 x, f32 y, u32 trig, u32 hold, u32 release) {        // 0x4C
-                GUIPointer pointer(point, x, y, hold, trig, release);
-                return updatePointerImpl(pointer);
-            }
+            virtual u32 updatePointer(const GUIPointer& pointer);  // 0x48
+            virtual u32 updatePointer(int point, f32 x, f32 y, u32 trig, u32 hold, u32 release);  // 0x4C
 
-            virtual bool isTriggerTarget() { return mbTriggerTarget; }                  // 0x50
-            virtual void setTriggerTarget(bool bEnable) { mbTriggerTarget = bEnable; }  // 0x54
+            virtual bool isTriggerTarget();                   // 0x50
+            virtual void setTriggerTarget(bool bEnable);  // 0x54
 
             void setParentManager(GUIManager* manager) { mpManager = manager; }
             GUIManager* getParentManager() { return mpManager; }
 
-            virtual bool isVisible() { return true; }  // 0x58
+            virtual bool isVisible();  // 0x58
 
             virtual u16 getFlightDuration(int point);                                                             // 0x5C
             virtual void setFlightDuration(int point, u16 flightDir);  // 0x60
@@ -196,27 +187,15 @@ namespace textinput {
             virtual GUIComponent* getComponent(u32 id);          // 0x24
             virtual GUIComponent* getComponent(u32 id) const;    // 0x28
 
-            virtual bool update(int point, const KPADStatus* kpad, f32, f32, void* data) { return false; }  // 0x2C
+            virtual bool update(int point, const KPADStatus* kpad, f32, f32, void* data);  // 0x2C
             virtual bool update(int point, f32 x, f32 y, u32 trig, u32 hold, u32 release, void* data);      // 0x30
 
-            virtual void onEvent(GUIComponent& comp, u32 event, int point, void* data) {  // 0x34
-                if (mpEventHandler) {
-                    mpEventHandler->setLatestEventCtrlNo(point);
-                    mpEventHandler->onEvent(comp, event, data);
-                }
-                comp.onEvent(event, data);
-            }
+            virtual void onEvent(GUIComponent& comp, u32 event, int point, void* data);  // 0x34
 
             virtual void setAllComponentTriggerTarget(bool bEnable);  // 0x38
 
-            virtual void setEventHandler(EventHandler* eventHandler) {  // 0x3C
-                mpEventHandler = eventHandler;
-            }
-            virtual EventHandler* changeEventHandler(EventHandler* eventHandler) {  // 0x40
-                EventHandler* prevHandler = mpEventHandler;
-                mpEventHandler = eventHandler;
-                return prevHandler;
-            }
+            virtual void setEventHandler(EventHandler* eventHandler);       // 0x3C
+            virtual EventHandler* changeEventHandler(EventHandler* eventHandler);  // 0x40
 
             virtual void setDraggingButton(u32 dragBtn);  // 0x44
 
@@ -255,7 +234,7 @@ namespace textinput {
 
             virtual PaneComponent* getPaneComponentByPane(nw4r::lyt::Pane* pane);  // 0x4C
 
-            virtual const nw4r::lyt::DrawInfo* getDrawInfo() { return mpDrawInfo; }                   // 0x50
+            virtual const nw4r::lyt::DrawInfo* getDrawInfo();                                    // 0x50
             virtual void setDrawInfo(const nw4r::lyt::DrawInfo* drawInfo) { mpDrawInfo = drawInfo; }  // 0x54
 
             virtual void setAllBoundingBoxComponentTriggerTarget(bool bEnable);  // 0x58
@@ -298,7 +277,7 @@ namespace textinput {
 
             virtual bool contain(f32 x, f32 y);  // 0x64
 
-            virtual void setPane(nw4r::lyt::Pane* pane) { mpPane = pane; }  // 0x68
+            virtual void setPane(nw4r::lyt::Pane* pane);  // 0x68
             nw4r::lyt::Pane* getPane() { return mpPane; }
 
             nw4r::lyt::TextBox* getTextPane() { return static_cast<nw4r::lyt::TextBox*>(mpPane); }

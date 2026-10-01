@@ -13,7 +13,9 @@
 #undef IPL_SOUND_RECT_OUT_OF_LINE
 
 extern "C" ipl::System::Arg smArg__Q23ipl6System;
-extern "C" void __as__Q49textinput6extend8savedata11MemoSettingFRCQ49textinput6extend8savedata11MemoSetting();
+extern "C" void __as__Q49textinput6extend8savedata11MemoSettingFRCQ49textinput6extend8savedata11MemoSetting(
+    textinput::extend::savedata::MemoSetting* dst,
+    const textinput::extend::savedata::MemoSetting* src);
 extern "C" void setMemoSetting__Q33ipl8savedata7ManagerFRCQ49textinput6extend8savedata11MemoSetting();
 extern "C" void flushAsync__Q33ipl8savedata7ManagerFPQ23EGG4Heap();
 
@@ -235,7 +237,7 @@ namespace ipl {
             textinput::extend::savedata::MemoSetting memoSetting;
             memoSetting = System::getSaveData()->getMemoSetting();
             memoSettingCopy = memoSetting;
-            mSaveData = memoSettingCopy;
+            __as__Q49textinput6extend8savedata11MemoSettingFRCQ49textinput6extend8savedata11MemoSetting(&mSaveData, &memoSettingCopy);
 
             // Memo manager
             mpManager = new (heap, 4) textinput::MemoManager(allocator, multiArc, &mEvent);
@@ -280,7 +282,48 @@ namespace ipl {
             mpManager->setLanguage(textinput::JP);
 #endif  // JAPANESE_BUILD
         }
+    }  // namespace keyboard
+}  // namespace ipl
 
+extern "C" void __as__Q49textinput6extend8savedata11MemoSettingFRCQ49textinput6extend8savedata11MemoSetting(
+    textinput::extend::savedata::MemoSetting* dst,
+    const textinput::extend::savedata::MemoSetting* src) {
+    dst->uRevisionAndType = src->uRevisionAndType;
+    dst->uRawData.val[0]  = src->uRawData.val[0];
+    dst->uRawData.val[1]  = src->uRawData.val[1];
+    dst->uRawData.val[2]  = src->uRawData.val[2];
+    dst->uRawData.val[3]  = src->uRawData.val[3];
+    dst->uRawData.val[4]  = src->uRawData.val[4];
+    dst->uRawData.val[5]  = src->uRawData.val[5];
+    dst->uRawData.val[6]  = src->uRawData.val[6];
+}
+
+namespace textinput {
+    namespace extend {
+        namespace memo {
+            void Manager::setSaveData(savedata::MemoSetting memoSetting) {
+                __as__Q49textinput6extend8savedata11MemoSettingFRCQ49textinput6extend8savedata11MemoSetting(&mMemoSetting, &memoSetting);
+            }
+        }
+    }
+}
+
+namespace ipl {
+    namespace keyboard {
+        void EventObserver::setManager(Manager* manager) {
+            mpKeyboardMgr = manager;
+        }
+    }
+}
+
+namespace nw4r {
+    namespace lyt {
+        FontRefLink::~FontRefLink() {}
+    }
+}
+
+namespace ipl {
+    namespace keyboard {
         void Manager::init() {
             mpManager->init();
 
@@ -438,7 +481,21 @@ namespace ipl {
                 }
             }
         }
+    }  // namespace keyboard
+}  // namespace ipl
 
+namespace textinput {
+    namespace extend {
+        namespace memo {
+            State* Manager::getState() {
+                return mpCurrentState;
+            }
+        }
+    }
+}
+
+namespace ipl {
+    namespace keyboard {
         void Manager::draw() {
             mpManager->draw();
             GXSetZMode(GX_TRUE, GX_ALWAYS, GX_TRUE);
@@ -482,7 +539,21 @@ namespace ipl {
                 doSave();
             }
         }
+    }  // namespace keyboard
+}  // namespace ipl
 
+namespace textinput {
+    namespace extend {
+        namespace memo {
+            Manager::ConfigType Manager::getConfigType() {
+                return meConfigType;
+            }
+        }
+    }
+}
+
+namespace ipl {
+    namespace keyboard {
         void Manager::cancel() {
             mState.pressOK = false;
             mpManager->changeState(textinput::extend::memo::Manager::STL_Transition);
@@ -721,7 +792,21 @@ namespace ipl {
             addi r1, r1, 0x30
             blr
         }
+    }  // namespace keyboard
+}  // namespace ipl
 
+namespace textinput {
+    namespace extend {
+        namespace memo {
+            savedata::MemoSetting Manager::getSaveData() {
+                return mMemoSetting;
+            }
+        }
+    }
+}
+
+namespace ipl {
+    namespace keyboard {
         void Manager::touchFormInDisp(int unused) {
             mpManager->changeState(textinput::extend::memo::Manager::STL_Transition);
             snd::getSystem()->startSE("WIPL_SE_SK_OPEN");
