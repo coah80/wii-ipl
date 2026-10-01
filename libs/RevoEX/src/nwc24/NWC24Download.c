@@ -873,40 +873,48 @@ NWC24Err NWC24GetDlTask(NWC24DlTask* dlTask, NWC24DlId dlId) {
     return operationResult;
 }
 
+static inline NWC24Err InitDlIteration(DlTaskIterationState* state, u32 sortMode) {
+    memset(state, 0, sizeof(*state));
+    state->comparisonValue = 0x7fffffff;
+    state->selectedValue = (s32)0x80000001;
+    state->sortMode = sortMode;
+    state->comparisonId = 0xffffffff;
+    state->initialized = 1;
+    state->valid = 1;
+    return NWC24_OK;
+}
+
 NWC24Err NWC24PurgeOldestDlTask() {
     DlTaskIterationState state;
     NWC24File file;
     NWC24DlTask task;
     DlTaskListHeader* header;
     NWC24DlId taskId;
-    NWC24DlTask* taskPointer;
     NWC24DlId selectedId;
+    NWC24DlTask* taskPointer;
     NWC24Err result;
     NWC24Err closeResult;
 
-    memset(&state, 0, sizeof(state));
-    state.sortMode = 0;
-    state.comparisonValue = 0x7fffffff;
-    state.selectedValue = (s32)0x80000001;
-    state.comparisonId = 0xffffffff;
-    state.initialized = 1;
-    state.valid = 1;
+    result = InitDlIteration(&state, 0);
+    if (result < NWC24_OK) { return NWC24_OK; }
 
     while ((result = NWC24IterateDlTaskEx((NWC24DlIterateWork*)&state, &taskId)) == NWC24_OK) {
         header = GetCachedDlHeader();
         if (taskId >= header->taskCount) { break; }
     }
 
-    if (result < NWC24_OK) {
-        if (result == NWC24_ERR_DONE) { result = NWC24_ERR_FAILED; }
-        return result;
+    if (result >= NWC24_OK) {
+        taskPointer = &task;
+        selectedId = taskId;
+        result = ReadDlTaskInline(taskPointer, selectedId);
+        if (result < NWC24_OK) { return result; }
+        taskPointer = &task;
+        result = RemoveDlTask(taskPointer);
+        if (result < NWC24_OK) { return result; }
+    } else if (result == NWC24_ERR_DONE) {
+        result = NWC24_ERR_FAILED;
     }
-
-    taskPointer = &task;
-    selectedId = taskId;
-    result = ReadDlTaskInline(taskPointer, selectedId);
-    if (result < NWC24_OK) { return result; }
-    return RemoveDlTask(taskPointer);
+    return result;
 }
 NWC24Err NWC24ManageDlTaskListForMenu() {
     NWC24DlTask task;
@@ -921,7 +929,9 @@ NWC24Err NWC24ManageDlTaskListForMenu() {
     result = ReadDlTaskInline(taskPointer, 2);
     if (result == NWC24_ERR_NOT_FOUND) { return NWC24_OK; }
     if (result < NWC24_OK) { return result; }
-    return RemoveDlTask(&task);
+    taskPointer = &task;
+    result = RemoveDlTask(taskPointer);
+    return result;
 }
 
 NWC24Err NWC24GetDlOptOutFlags(NWC24DlTask* dlTask, u8* dlOptOutFlags) {
