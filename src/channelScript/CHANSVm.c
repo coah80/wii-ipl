@@ -604,7 +604,7 @@ vmBoolInt VmIsNan(vmFloat value) {
     return isnan(value) || value == VM_NAN;
 }
 
-double CHANSVm_8144B1D8(double value) {
+double CHANSVmFloatSign(double value) {
     // Clamp to -1.0~1.0
     return value < 0.0 ? -1.0 : value > 0.0 ? 1.0 : value;
 }
@@ -650,14 +650,14 @@ static s32 CHANSVmParseInt(CHANSVmObjHdr* obj, s32 base, u64* out) {
     return 0;
 }
 
-CHANSVmObjHdr* CHANSVm_8144B30C(CHANSVm* vm, CHANSVmObjType type, CHANSVmObjHdr* object) {
+CHANSVmObjHdr* CHANSVmConvertToIntFromFloat(CHANSVm* vm, CHANSVmObjType type, CHANSVmObjHdr* object) {
     // Convert to int from float
     CHANSVmObjHdr* newObj = CHANSVmNewObject(vm, vmFalse, vmNull, CHANS_VM_OBJ_TYPE_INTEGER, 0);
     if (newObj != vmNull) {
         if (VmIsNan(object->value.float_v)) {
             newObj->value.int_v = 0;
         } else {
-            newObj->value.int_v = (u64)(CHANSVm_8144B1D8(object->value.float_v) * floor(fabs(object->value.float_v)));
+            newObj->value.int_v = (u64)(CHANSVmFloatSign(object->value.float_v) * floor(fabs(object->value.float_v)));
         }
     }
     return newObj;
@@ -675,7 +675,7 @@ CHANSVmObjHdr* CHANSVmConvertToIntFromArray(CHANSVm* vm, CHANSVmObjType type, CH
     return vmNull;
 }
 
-CHANSVmObjHdr* CHANSVm_8144B430(CHANSVm* vm, CHANSVmObjType type, CHANSVmObjHdr* object) {
+CHANSVmObjHdr* CHANSVmConvertToFloatFromUndefined(CHANSVm* vm, CHANSVmObjType type, CHANSVmObjHdr* object) {
     CHANSVmObjHdr* result = CHANSVmNewObject(vm, vmFalse, vmNull, CHANS_VM_OBJ_TYPE_FLOAT, 0);
     if (result != vmNull) {
         result->value.float_v = VM_NAN;
@@ -683,7 +683,7 @@ CHANSVmObjHdr* CHANSVm_8144B430(CHANSVm* vm, CHANSVmObjType type, CHANSVmObjHdr*
     return result;
 }
 
-CHANSVmObjHdr* CHANSVm_8144B470(CHANSVm* vm, CHANSVmObjType type, CHANSVmObjHdr* intObj) {
+CHANSVmObjHdr* CHANSVmConvertToFloatFromInt(CHANSVm* vm, CHANSVmObjType type, CHANSVmObjHdr* intObj) {
     CHANSVmObjHdr* result = CHANSVmNewObject(vm, vmFalse, vmNull, CHANS_VM_OBJ_TYPE_FLOAT, 0);
     if (result != vmNull) {
         result->value.float_v = VmIntToFloat(intObj->value.int_v);
@@ -771,7 +771,7 @@ static inline s32 CHANSVmParseFloat(CHANSVmObjHdr* obj, f64* out) {
     return 0;
 }
 
-CHANSVmObjHdr* CHANSVm_8144B4D4(CHANSVm* vm, CHANSVmObjType type, CHANSVmObjHdr* object) {
+CHANSVmObjHdr* CHANSVmConvertToFloatFromStr(CHANSVm* vm, CHANSVmObjType type, CHANSVmObjHdr* object) {
     // Convert string keyword into float value
     CHANSVmObjHdr* newObj = CHANSVmNewObject(vm, vmFalse, vmNull, CHANS_VM_OBJ_TYPE_FLOAT, 0);
 
@@ -785,7 +785,7 @@ CHANSVmObjHdr* CHANSVmConvertToStrFromUndefined(CHANSVm* vm, CHANSVmObjType type
     return (CHANSVmObjHdr*)CHANSVmConstStringObjectUndefined_;
 }
 
-s32 CHANSVm_8144B62C(vmWString buf, u32 len, vmFloat val) NO_INLINE {
+s32 CHANSVmFloatToWString(vmWString buf, u32 len, vmFloat val) NO_INLINE {
     s32 result = snprintf((char*)buf, len / 2, scFloatPrintfFmt, val);
     CHANSVmStrCpyToU16FromU8(buf, (vmString)buf, result);
     return VM_STR_LENGTH(result);
@@ -815,7 +815,7 @@ error:
     return vmNull;
 }
 
-CHANSVmObjHdr* CHANSVm_8144B734(CHANSVm* vm, CHANSVmObjType type, CHANSVmObjHdr* value) {
+CHANSVmObjHdr* CHANSVmConvertToStrFromFloat(CHANSVm* vm, CHANSVmObjType type, CHANSVmObjHdr* value) {
     const CHANSVmObjHdr* base;
     CHANSVmObjHdr* newObj;
     s32 result;
@@ -835,7 +835,7 @@ CHANSVmObjHdr* CHANSVm_8144B734(CHANSVm* vm, CHANSVmObjType type, CHANSVmObjHdr*
 
     newObj = CHANSVmNewObject(vm, vmFalse, vmNull, CHANS_VM_OBJ_TYPE_STRING, VM_STRING_SIZE);
     if (newObj != vmNull) {
-        result = CHANSVm_8144B62C(newObj->value.wstring_v->spData, VM_STRING_SIZE, value->value.float_v);
+        result = CHANSVmFloatToWString(newObj->value.wstring_v->spData, VM_STRING_SIZE, value->value.float_v);
         newObj->value.wstring_v->len = result;
         if (newObj->value.wstring_v->len == 0) {
             goto error;
@@ -904,9 +904,9 @@ char scVmGetResultType[] = "VmGetResultType";
 // clang-format off
 const VmConvertEntry VmTypeConvertFuncTbl[] = {
     {vmNull, CHANSVmConvertObjectTypeError, CHANSVmConvertObjectTypeError, CHANSVmConvertObjectTypeError, CHANSVmConvertObjectTypeError, CHANSVmConvertObjectTypeError},
-    {CHANSVmConvertObjectTypeError, vmNull, CHANSVm_8144B30C, CHANSVmConvertToIntFromStr, CHANSVmConvertToIntFromArray, CHANSVmConvertObjectTypeError},
-    {CHANSVm_8144B430, CHANSVm_8144B470, vmNull, CHANSVm_8144B4D4, CHANSVmConvertObjectTypeError, CHANSVmConvertObjectTypeError},
-    {CHANSVmConvertToStrFromUndefined, CHANSVmConvertToStrFromInt, CHANSVm_8144B734, vmNull, CHANSVmConvertToStrFromArray, CHANSVmConvertObjectTypeError},
+    {CHANSVmConvertObjectTypeError, vmNull, CHANSVmConvertToIntFromFloat, CHANSVmConvertToIntFromStr, CHANSVmConvertToIntFromArray, CHANSVmConvertObjectTypeError},
+    {CHANSVmConvertToFloatFromUndefined, CHANSVmConvertToFloatFromInt, vmNull, CHANSVmConvertToFloatFromStr, CHANSVmConvertObjectTypeError, CHANSVmConvertObjectTypeError},
+    {CHANSVmConvertToStrFromUndefined, CHANSVmConvertToStrFromInt, CHANSVmConvertToStrFromFloat, vmNull, CHANSVmConvertToStrFromArray, CHANSVmConvertObjectTypeError},
     {CHANSVmConvertObjectTypeError, CHANSVmConvertObjectTypeError, CHANSVmConvertObjectTypeError, CHANSVmConvertObjectTypeError, vmNull, CHANSVmConvertObjectTypeError},
     {CHANSVmConvertObjectTypeError, CHANSVmConvertObjectTypeError, CHANSVmConvertObjectTypeError, CHANSVmConvertObjectTypeError, CHANSVmConvertObjectTypeError, vmNull},
 };
@@ -2183,7 +2183,7 @@ static u32 VmArrayJoinSub(CHANSVmObjHdr* obj, CHANSVmObjHdr* array, wchar_t* sep
                     if (offset + 0x80 > bufSize) {
                         goto error;
                     }
-                    elemLen = CHANSVm_8144B62C((vmWString)((u8*)(*obj->value.ptr_v) + offset), 0x80, chunk->elements[countInChunk].value.float_v);
+                    elemLen = CHANSVmFloatToWString((vmWString)((u8*)(*obj->value.ptr_v) + offset), 0x80, chunk->elements[countInChunk].value.float_v);
                     break;
                 }
                 case CHANS_VM_TYPE_ARRAY: {
@@ -7602,7 +7602,7 @@ CHANSVmErr CHANSVmStep(CHANSVm* vm, int stepCount) {
                             break;
                         }
                         case CHANS_VM_OBJ_TYPE_FLOAT: {
-                            invertedVal = (s64)(CHANSVm_8144B1D8(pAcc->value.float_v) * floor(fabs(pAcc->value.float_v)));
+                            invertedVal = (s64)(CHANSVmFloatSign(pAcc->value.float_v) * floor(fabs(pAcc->value.float_v)));
                             break;
                         }
                         case CHANS_VM_OBJ_TYPE_STRING: {
