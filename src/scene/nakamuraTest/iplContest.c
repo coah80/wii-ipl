@@ -48,7 +48,7 @@ void IPLContestGSFree(void* block);
 void* IPLContestGSRealloc(void* oldBlock, u32 newSize);
 void* IPLContestGSMemalign(u32 align, u32 size);
 
-void iplContest_813D54F8(BOOL success, NAT nat);
+void onNatDetectionDone(BOOL success, NAT nat);
 
 void* IPLContestAlloc(int size);
 void IPLContestFree(void* block, u32 _unused);
@@ -227,7 +227,7 @@ int IPLContestProcess() {
                         break;
                     }
                     case 2: {
-                        NNStartNatDetection(iplContest_813D54F8);
+                        NNStartNatDetection(onNatDetectionDone);
                         g_session.unk_0x030 = 3;
                         OSReport("Port mapping detectioning test has been started.\n");
                         g_session.detectStartTime = OSGetTime();
@@ -461,7 +461,7 @@ void sNHTTPCleanupCallback() {
     g_session.state = 3;
 }
 
-void iplContest_813D54F8(gsi_bool success, NAT nat) {
+void onNatDetectionDone(gsi_bool success, NAT nat) {
     if (success) {
         g_session.nat = nat;
         g_session.unk_0x03c = 0;
