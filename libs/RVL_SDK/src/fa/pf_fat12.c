@@ -126,6 +126,7 @@ pf_s32 PFFAT12_WriteFATEntryWithBuf(PF_VOLUME* p_vol, pf_s16 cluster, pf_u16 val
     pf_s32 fat_offset;
     pf_u32 fat_sector;
     pf_s32 result;
+    pf_u32 next_sector;
     fat_offset = (pf_u16)(cluster + (cluster >> 1));
     fat_sector = (pf_u16)(p_vol->bpb.active_FAT_sector + (fat_offset >> p_vol->bpb.log2_bytes_per_sector));
     offset_in_sector = fat_offset & (p_vol->bpb.bytes_per_sector - 1);
@@ -146,10 +147,10 @@ pf_s32 PFFAT12_WriteFATEntryWithBuf(PF_VOLUME* p_vol, pf_s16 cluster, pf_u16 val
         p_page->p_buf[(pf_u16)offset_in_sector] = (p_page->p_buf[(pf_u16)offset_in_sector] & 0xF) | ((value << 4) & 0xF0);
         if ((pf_u16)offset_in_sector == (pf_u32)(p_vol->bpb.bytes_per_sector - 1)) {
             FLUSH_FAT_BUFFER();
-            offset_in_sector = fat_sector + 1;
-            err = VFiPFSEC_ReadFAT(p_vol, p_page->p_buf, offset_in_sector, 0, p_vol->bpb.bytes_per_sector);
+            next_sector = fat_sector + 1;
+            err = VFiPFSEC_ReadFAT(p_vol, p_page->p_buf, next_sector, 0, p_vol->bpb.bytes_per_sector);
             if (err != 0) { return err; }
-            p_page->sector = offset_in_sector;
+            p_page->sector = next_sector;
             p_page->p_buf[0] = value >> 4;
         } else {
             ((pf_u16)offset_in_sector + p_page->p_buf)[1] = value >> 4;
@@ -158,10 +159,10 @@ pf_s32 PFFAT12_WriteFATEntryWithBuf(PF_VOLUME* p_vol, pf_s16 cluster, pf_u16 val
         p_page->p_buf[(pf_u16)offset_in_sector] = value;
         if ((pf_u16)offset_in_sector == (pf_u32)(p_vol->bpb.bytes_per_sector - 1)) {
             FLUSH_FAT_BUFFER();
-            offset_in_sector = fat_sector + 1;
-            err = VFiPFSEC_ReadFAT(p_vol, p_page->p_buf, offset_in_sector, 0, p_vol->bpb.bytes_per_sector);
+            next_sector = fat_sector + 1;
+            err = VFiPFSEC_ReadFAT(p_vol, p_page->p_buf, next_sector, 0, p_vol->bpb.bytes_per_sector);
             if (err != 0) { return err; }
-            p_page->sector = offset_in_sector;
+            p_page->sector = next_sector;
             p_page->p_buf[0] = (p_page->p_buf[0] & 0xF0) | ((pf_u8)(value >> 8));
         } else {
             ((pf_u16)offset_in_sector + p_page->p_buf)[1] = (((pf_u16)offset_in_sector + p_page->p_buf)[1] & 0xF0) | ((pf_u8)(value >> 8));

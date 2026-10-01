@@ -554,7 +554,7 @@ s32 pfd_sddrv_get_disk_info(FADisk* disk, FADiskInfo* disk_info) {
     disk_info->heads = 0;
     disk_info->sectorsPerTrack = 0;
     disk_info->formatParam = 0;
-    return 0;
+    return result;
 }
 
 s32 pfd_sddrv_init_drv_tbl(FADiskTbl* disk_table, u32 extended) {
