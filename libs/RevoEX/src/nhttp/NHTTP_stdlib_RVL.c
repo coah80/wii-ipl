@@ -154,7 +154,7 @@ s32 NHTTPi_intToStr(char* destination, u32 value) {
 }
 
 s32 NHTTPi_compareToken(const char* left, const char* right) {
-    while(LowerCase(*right)==LowerCase(*left)) {
+    while(LowerCase(*left)==LowerCase(*right)) {
         if(*left==0 || *left==' ') return 0;
         ++left; ++right;
     }
@@ -162,7 +162,7 @@ s32 NHTTPi_compareToken(const char* left, const char* right) {
 }
 
 s32 NHTTPi_strtonum(const char* string, u32 length) {
-    int character;
+    s8 character;
     s32 value;
     int digits;
     digits=0;
