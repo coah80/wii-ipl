@@ -253,12 +253,12 @@ void MemoryCardManager::update_icon_anm() {
         for (int remaining = 0x7f; remaining > 0; remaining--, index++) {
             u32 file = mFile[slot][index].fileNo;
             if (file < 0x7f && dirs[slot][file].fileNo != 0) {
-                memorycard::IconState* icon = &icons[slot][file];
+                memorycard::IconState* icon = icons[slot] + file;
                 s32 frame = mFileCell[slot][file].iconAnmCounter + icon->anmDelta;
                 mFileCell[slot][file].iconAnmCounter = frame;
-                if ((s16)frame >= icon->anmMax) {
+                if ((s16)frame >= icons[slot][file].anmMax) {
                     if (icon->anmType == 4) {
-                        mFileCell[slot][file].iconAnmCounter = icons[slot][file].anmMax - icon->unk_0x07 - 1;
+                        mFileCell[slot][file].iconAnmCounter = icon->anmMax - icon->unk_0x07 - 1;
                         icon->anmDelta = -1;
                     } else {
                         mFileCell[slot][file].iconAnmCounter = 0;
@@ -342,18 +342,18 @@ void MemoryCardManager::update_change_cardstate(u8 slot) {
 }
 
 GXTexObj* MemoryCardManager::create_icon(u8 slot, s16 index) {
-    CardIcons* icons = reinterpret_cast<CardIcons*>(memorycard::getIconStateArray());
+    memorycard::IconState (*icons)[0x7f] = reinterpret_cast<memorycard::IconState(*)[0x7f]>(memorycard::getIconStateArray());
     int total = 0;
     int file = mFile[slot][index].fileNo;
     s16 frame = 0;
     do {
-        u32 shift = frame;
+        u32 shift = frame << 1;
         frame++;
-        total += ((icons[slot][file].anmFrameBits >> ((shift & 0x1f) << 1)) & 3) * 4;
+        total += ((icons[slot][file].anmFrameBits >> shift) & 3) * 4;
         if (mFileCell[slot][file].iconAnmCounter <= total) {
             break;
         }
-    } while (frame < 9);
+    } while (frame <= 8);
     return _create_icon(slot, file, frame - 1);
 }
 
