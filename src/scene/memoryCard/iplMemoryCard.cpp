@@ -1,8 +1,5 @@
 #define IPL_MEMORY_CARD_CPP
-#define IPL_MEMORYCARD_BASE_OUT_OF_LINE
-#define IPL_CHANNEL_TITLE_NOVTABLE
 #include "scene/memoryCard/iplMemoryCard.h"
-#undef IPL_CHANNEL_TITLE_NOVTABLE
 
 #include "scene/memoryCard/iplGCWindow.h"
 #include "scene/memoryCard/iplGCSaveData.h"
@@ -82,6 +79,12 @@ namespace ipl {
             "B_ArwR", "B_ArwL", "B_SelectWii_00", "B_SelectSd_00",
         };
 
+        struct DigitTable {
+            wchar_t w[10];
+        };
+
+        static const DigitTable scNumber = {{L'0', L'1', L'2', L'3', L'4', L'5', L'6', L'7', L'8', L'9'}};
+
         MemoryCard::MemoryCard(EGG::Heap* heap)
             : Base(heap), MemoryBase(), mState(2), mPrevState(2), mSlot(0), mIconIndex(-15), mIconCount(0),
               mShowArwR(0), mShowArwL(0), mpEvent(NULL), mpFocusSaveData(NULL) {
@@ -90,7 +93,6 @@ namespace ipl {
             nw4r::ut::List_Init(&mBalloonList, 0);
         }
 
-        MemoryBase::~MemoryBase() {}
 
         void MemoryCard::prepare() {
             System::getBS2Manager()->abort();
@@ -495,19 +497,14 @@ namespace ipl {
                 return;
             }
             u32 freeBlocks = mpManager->getFreeBlocks(slot);
-            wchar_t digits[5];
-            wchar_t digitTable[10] = {L'0', L'1', L'2', L'3', L'4', L'5', L'6', L'7', L'8', L'9'};
-            digits[0] = L'\0';
-            digits[1] = L'\0';
-            digits[2] = L'\0';
-            digits[3] = L'\0';
-            digits[4] = L'\0';
+            DigitTable digitTable = scNumber;
+            wchar_t digits[5] = {0};
             wchar_t text[0x40] = L"";
             int blocks = static_cast<u16>(freeBlocks);
-            digits[0] = digitTable[blocks / 1000];
-            digits[1] = digitTable[blocks / 100 % 10];
-            digits[2] = digitTable[blocks / 10 % 10];
-            digits[3] = digitTable[blocks % 10];
+            digits[0] = digitTable.w[blocks / 1000];
+            digits[1] = digitTable.w[blocks / 100 % 10];
+            digits[2] = digitTable.w[blocks / 10 % 10];
+            digits[3] = digitTable.w[blocks % 10];
 
             int zeroOffset;
             for (zeroOffset = 0; zeroOffset < 3; zeroOffset++) {

@@ -1,9 +1,9 @@
 #include <private/fa/puh_msc.h>
 
-static s32 st_uhs_msc_status;
-static s32 st_uhs_msc_msgid;
-static s32 st_uhs_msc_tskid;
 s32 uhg_msc_memid_8169971C;
+static s32 st_uhs_msc_tskid;
+static s32 st_uhs_msc_msgid;
+static s32 st_uhs_msc_status;
 static s32 _uhf_msc_api_send_message(UHF_MSC_PARAMETERS* parameters, u32 command);
 
 s32 usbh_msc_read10(UHF_MSC_DEVICE* device, u32 sector, u16 count, void* buffer, void* sense) {
