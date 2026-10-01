@@ -372,40 +372,40 @@ asm CDBErr CDBDatabaseSearchCallCallback() {
     bl CDBLock
     lwz r3, 0x8(r31)
     cmpwi r3, 0x0
-    beq L_81487C78
+    beq CDBDatabaseSearchCallCallback_L_81487C78
     addis r3, r3, 0x1
     lwz r31, -0x3ff0(r3)
-    b L_81487C7C
-    L_81487C78:
+    b CDBDatabaseSearchCallCallback_L_81487C7C
+    CDBDatabaseSearchCallCallback_L_81487C78:
     li r31, 0x0
-    L_81487C7C:
+    CDBDatabaseSearchCallCallback_L_81487C7C:
     bl CDBUnlock
     mr r3, r29
     addi r4, r30, 0x8
     bl CDBDatabaseSearchConditionsIsMatch
     cmpwi r3, 0x0
-    beq L_81487D0C
+    beq CDBDatabaseSearchCallCallback_L_81487D0C
     lwz r0, 0x24(r29)
     cmpwi r0, 0x0
-    beq L_81487CCC
+    beq CDBDatabaseSearchCallCallback_L_81487CCC
     rlwinm. r0, r31, 0, 30, 30
-    beq L_81487CB4
+    beq CDBDatabaseSearchCallCallback_L_81487CB4
     mr r3, r30
     bl CDBRecordOpen
-    b L_81487CBC
-    L_81487CB4:
+    b CDBDatabaseSearchCallCallback_L_81487CBC
+    CDBDatabaseSearchCallCallback_L_81487CB4:
     mr r3, r30
     bl CDBRecordOpenReadOnly
-    L_81487CBC:
+    CDBDatabaseSearchCallCallback_L_81487CBC:
     cmpwi r3, 0x20
-    bne L_81487CD0
+    bne CDBDatabaseSearchCallCallback_L_81487CD0
     li r3, 0x0
-    b L_81487D10
-    L_81487CCC:
+    b CDBDatabaseSearchCallCallback_L_81487D10
+    CDBDatabaseSearchCallCallback_L_81487CCC:
     li r3, 0x0
-    L_81487CD0:
+    CDBDatabaseSearchCallCallback_L_81487CD0:
     cmpwi r3, 0x0
-    bne L_81487D10
+    bne CDBDatabaseSearchCallCallback_L_81487D10
     lwz r12, 0x18(r29)
     mr r4, r30
     lwz r3, 0x1c(r29)
@@ -414,14 +414,14 @@ asm CDBErr CDBDatabaseSearchCallCallback() {
     stw r3, 0x20(r29)
     lwz r0, 0x38(r30)
     cmpwi r0, 0x0
-    beq L_81487D0C
+    beq CDBDatabaseSearchCallCallback_L_81487D0C
     mr r3, r30
     bl CDBRecordClose
-    b L_81487D0C
-    b L_81487D10
-    L_81487D0C:
+    b CDBDatabaseSearchCallCallback_L_81487D0C
+    b CDBDatabaseSearchCallCallback_L_81487D10
+    CDBDatabaseSearchCallCallback_L_81487D0C:
     li r3, 0x0
-    L_81487D10:
+    CDBDatabaseSearchCallCallback_L_81487D10:
     lwz r0, 0x24(r1)
     lwz r31, 0x1c(r1)
     lwz r30, 0x18(r1)
@@ -468,10 +468,10 @@ asm CDBErr CDBDatabaseSearchRecordLayer() {
     stw r0, 0xcc(r1)
     addi r0, r25, 0x1328
     stw r0, 0xc8(r1)
-    bne L_81487DBC
+    bne CDBDatabaseSearchRecordLayer_L_81487DBC
     li r3, 0x1
-    b L_81488410
-    L_81487DBC:
+    b CDBDatabaseSearchRecordLayer_L_81488410
+    CDBDatabaseSearchRecordLayer_L_81487DBC:
     addi r3, r1, 0x68
     li r4, 0x0
     bl CDBRecordKeyInitByOnlyDate
@@ -481,30 +481,30 @@ asm CDBErr CDBDatabaseSearchRecordLayer() {
     bl CDBRecordKeyArrayInit
     lwz r0, 0x14(r19)
     cmpwi r0, 0x0
-    bne L_81487DF8
+    bne CDBDatabaseSearchRecordLayer_L_81487DF8
     addi r3, r1, 0x18
     bl CDBRecordKeyArraySetReverse
     addi r3, r1, 0x68
     li r4, -0x1
     bl CDBRecordKeyInitByOnlyDate
-    L_81487DF8:
+    CDBDatabaseSearchRecordLayer_L_81487DF8:
     bl CDBLock
     lwz r3, 0x10(r1)
     lwz r3, 0x8(r3)
     cmpwi r3, 0x0
-    beq L_81487E18
+    beq CDBDatabaseSearchRecordLayer_L_81487E18
     addis r3, r3, 0x1
     lwz r14, -0x3ff0(r3)
-    b L_81487E1C
-    L_81487E18:
+    b CDBDatabaseSearchRecordLayer_L_81487E1C
+    CDBDatabaseSearchRecordLayer_L_81487E18:
     li r14, 0x0
-    L_81487E1C:
+    CDBDatabaseSearchRecordLayer_L_81487E1C:
     bl CDBUnlock
     cmpwi r14, 0x0
-    bne L_81487E30
+    bne CDBDatabaseSearchRecordLayer_L_81487E30
     li r3, 0x1b
-    b L_81488410
-    L_81487E30:
+    b CDBDatabaseSearchRecordLayer_L_81488410
+    CDBDatabaseSearchRecordLayer_L_81487E30:
     clrlwi r0, r15, 31
     li r27, 0x0
     stw r0, 0xd4(r1)
@@ -513,13 +513,13 @@ asm CDBErr CDBDatabaseSearchRecordLayer() {
     li r15, 0x1
     stw r0, 0xd0(r1)
     li r14, 0x0
-    b L_81488404
-    L_81487E54:
+    b CDBDatabaseSearchRecordLayer_L_81488404
+    CDBDatabaseSearchRecordLayer_L_81487E54:
     lwz r0, 0xd4(r1)
     li r27, 0x1
     stw r14, 0x20(r1)
     cmpwi r0, 0x0
-    beq L_81488094
+    beq CDBDatabaseSearchRecordLayer_L_81488094
     lwz r3, 0xcc(r1)
     mr r4, r20
     mr r5, r21
@@ -533,17 +533,17 @@ asm CDBErr CDBDatabaseSearchRecordLayer() {
     mr r3, r29
     li r5, 0x1
     bl CDBFSFindFirst
-    b L_8148807C
-    L_81487EA0:
+    b CDBDatabaseSearchRecordLayer_L_8148807C
+    CDBDatabaseSearchRecordLayer_L_81487EA0:
     mr r3, r29
     bl CDBFindDataIsDirectory
     cmpwi r3, 0x0
-    beq L_81488074
+    beq CDBDatabaseSearchRecordLayer_L_81488074
     mr r3, r29
     bl CDBFindDataGetName
     bl CDBFSIsMCGCDirNameOnSD
     cmpwi r3, 0x0
-    beq L_81488074
+    beq CDBDatabaseSearchRecordLayer_L_81488074
     mr r3, r29
     bl CDBFindDataGetName
     mr r9, r3
@@ -560,17 +560,17 @@ asm CDBErr CDBDatabaseSearchRecordLayer() {
     mr r3, r28
     li r5, 0x1
     bl CDBFSFindFirst
-    b L_8148805C
-    L_81487F08:
+    b CDBDatabaseSearchRecordLayer_L_8148805C
+    CDBDatabaseSearchRecordLayer_L_81487F08:
     mr r3, r28
     bl CDBFindDataIsDirectory
     cmpwi r3, 0x0
-    beq L_81488054
+    beq CDBDatabaseSearchRecordLayer_L_81488054
     mr r3, r28
     bl CDBFindDataGetName
     bl CDBFSIsTypeDirNameOnSD
     cmpwi r3, 0x0
-    beq L_81488054
+    beq CDBDatabaseSearchRecordLayer_L_81488054
     mr r3, r28
     bl CDBFindDataGetName
     mr r16, r3
@@ -591,17 +591,17 @@ asm CDBErr CDBDatabaseSearchRecordLayer() {
     mr r4, r25
     li r5, 0x1
     bl CDBFSFindFirst
-    b L_8148803C
-    L_81487F80:
+    b CDBDatabaseSearchRecordLayer_L_8148803C
+    CDBDatabaseSearchRecordLayer_L_81487F80:
     mr r3, r30
     bl CDBFindDataIsDirectory
     cmpwi r3, 0x0
-    bne L_81488034
+    bne CDBDatabaseSearchRecordLayer_L_81488034
     mr r3, r30
     bl CDBFindDataGetName
     bl CDBFSIsCDBFileOnSD
     cmpwi r3, 0x0
-    beq L_81488034
+    beq CDBDatabaseSearchRecordLayer_L_81488034
     mr r3, r28
     bl CDBFindDataGetName
     mr r17, r3
@@ -620,7 +620,7 @@ asm CDBErr CDBDatabaseSearchRecordLayer() {
     bl CDBRecordKeyCompare
     lwz r0, 0x24(r1)
     mullw. r0, r0, r3
-    ble L_81488034
+    ble CDBDatabaseSearchRecordLayer_L_81488034
     addi r3, r1, 0x18
     addi r4, r1, 0x98
     bl CDBRecordKeyArrayDicFind
@@ -628,51 +628,51 @@ asm CDBErr CDBDatabaseSearchRecordLayer() {
     addi r3, r1, 0x18
     bl CDBRecordKeyArrayEnd
     cmplw r16, r3
-    bne L_81488034
+    bne CDBDatabaseSearchRecordLayer_L_81488034
     addi r3, r1, 0x18
     bl CDBRecordKeyArrayFull
     cmpwi r3, 0x0
-    beq L_81488024
+    beq CDBDatabaseSearchRecordLayer_L_81488024
     li r27, 0x0
-    L_81488024:
+    CDBDatabaseSearchRecordLayer_L_81488024:
     stw r15, 0xc0(r1)
     addi r3, r1, 0x18
     addi r4, r1, 0x98
     bl CDBRecordKeyArrayDicInsert
-    L_81488034:
+    CDBDatabaseSearchRecordLayer_L_81488034:
     mr r3, r30
     bl CDBFSFindNext
-    L_8148803C:
+    CDBDatabaseSearchRecordLayer_L_8148803C:
     mr r3, r30
     bl CDBFindDataIsEnd
     cmpwi r3, 0x0
-    beq L_81487F80
+    beq CDBDatabaseSearchRecordLayer_L_81487F80
     mr r3, r30
     bl CDBFSFindClose
-    L_81488054:
+    CDBDatabaseSearchRecordLayer_L_81488054:
     mr r3, r28
     bl CDBFSFindNext
-    L_8148805C:
+    CDBDatabaseSearchRecordLayer_L_8148805C:
     mr r3, r28
     bl CDBFindDataIsEnd
     cmpwi r3, 0x0
-    beq L_81487F08
+    beq CDBDatabaseSearchRecordLayer_L_81487F08
     mr r3, r28
     bl CDBFSFindClose
-    L_81488074:
+    CDBDatabaseSearchRecordLayer_L_81488074:
     mr r3, r29
     bl CDBFSFindNext
-    L_8148807C:
+    CDBDatabaseSearchRecordLayer_L_8148807C:
     mr r3, r29
     bl CDBFindDataIsEnd
     cmpwi r3, 0x0
-    beq L_81487EA0
+    beq CDBDatabaseSearchRecordLayer_L_81487EA0
     mr r3, r29
     bl CDBFSFindClose
-    L_81488094:
+    CDBDatabaseSearchRecordLayer_L_81488094:
     lwz r0, 0xd0(r1)
     cmpwi r0, 0x0
-    beq L_814882F4
+    beq CDBDatabaseSearchRecordLayer_L_814882F4
     lwz r3, 0xcc(r1)
     mr r4, r20
     mr r5, r21
@@ -686,17 +686,17 @@ asm CDBErr CDBDatabaseSearchRecordLayer() {
     mr r3, r29
     li r5, 0x2
     bl CDBFSFindFirst
-    b L_814882DC
-    L_814880D8:
+    b CDBDatabaseSearchRecordLayer_L_814882DC
+    CDBDatabaseSearchRecordLayer_L_814880D8:
     mr r3, r29
     bl CDBFindDataIsDirectory
     cmpwi r3, 0x0
-    beq L_814882D4
+    beq CDBDatabaseSearchRecordLayer_L_814882D4
     mr r3, r29
     bl CDBFindDataGetName
     bl CDBFSIsMCGCDirNameOnSD
     cmpwi r3, 0x0
-    beq L_814882D4
+    beq CDBDatabaseSearchRecordLayer_L_814882D4
     mr r3, r29
     bl CDBFindDataGetName
     addi r0, r19, 0x28
@@ -714,17 +714,17 @@ asm CDBErr CDBDatabaseSearchRecordLayer() {
     mr r3, r28
     li r5, 0x2
     bl CDBFSFindFirst
-    b L_814882BC
-    L_81488144:
+    b CDBDatabaseSearchRecordLayer_L_814882BC
+    CDBDatabaseSearchRecordLayer_L_81488144:
     mr r3, r28
     bl CDBFindDataIsDirectory
     cmpwi r3, 0x0
-    beq L_814882B4
+    beq CDBDatabaseSearchRecordLayer_L_814882B4
     mr r3, r28
     bl CDBFindDataGetName
     bl CDBFSIsTypeDirNameOnSD
     cmpwi r3, 0x0
-    beq L_814882B4
+    beq CDBDatabaseSearchRecordLayer_L_814882B4
     mr r3, r28
     bl CDBFindDataGetName
     mr r16, r3
@@ -746,17 +746,17 @@ asm CDBErr CDBDatabaseSearchRecordLayer() {
     mr r4, r25
     li r5, 0x2
     bl CDBFSFindFirst
-    b L_8148829C
-    L_814881C0:
+    b CDBDatabaseSearchRecordLayer_L_8148829C
+    CDBDatabaseSearchRecordLayer_L_814881C0:
     mr r3, r30
     bl CDBFindDataIsDirectory
     cmpwi r3, 0x0
-    bne L_81488294
+    bne CDBDatabaseSearchRecordLayer_L_81488294
     mr r3, r30
     bl CDBFindDataGetName
     bl CDBFSIsCDBFileOnSD
     cmpwi r3, 0x0
-    beq L_81488294
+    beq CDBDatabaseSearchRecordLayer_L_81488294
     mr r3, r28
     bl CDBFindDataGetName
     mr r16, r3
@@ -775,15 +775,15 @@ asm CDBErr CDBDatabaseSearchRecordLayer() {
     bl CDBConvKeyStrToEpochValue
     lwz r0, 0x14(r1)
     cmplw r31, r0
-    bgt L_81488294
+    bgt CDBDatabaseSearchRecordLayer_L_81488294
     cmplw r0, r26
-    bgt L_81488294
+    bgt CDBDatabaseSearchRecordLayer_L_81488294
     addi r3, r1, 0x98
     addi r4, r1, 0x68
     bl CDBRecordKeyCompare
     lwz r0, 0x24(r1)
     mullw. r0, r0, r3
-    ble L_81488294
+    ble CDBDatabaseSearchRecordLayer_L_81488294
     addi r3, r1, 0x18
     addi r4, r1, 0x98
     bl CDBRecordKeyArrayDicFind
@@ -791,58 +791,58 @@ asm CDBErr CDBDatabaseSearchRecordLayer() {
     addi r3, r1, 0x18
     bl CDBRecordKeyArrayEnd
     cmplw r16, r3
-    bne L_81488294
+    bne CDBDatabaseSearchRecordLayer_L_81488294
     addi r3, r1, 0x18
     bl CDBRecordKeyArrayFull
     cmpwi r3, 0x0
-    beq L_81488284
+    beq CDBDatabaseSearchRecordLayer_L_81488284
     li r27, 0x0
-    L_81488284:
+    CDBDatabaseSearchRecordLayer_L_81488284:
     stw r18, 0xc0(r1)
     addi r3, r1, 0x18
     addi r4, r1, 0x98
     bl CDBRecordKeyArrayDicInsert
-    L_81488294:
+    CDBDatabaseSearchRecordLayer_L_81488294:
     mr r3, r30
     bl CDBFSFindNext
-    L_8148829C:
+    CDBDatabaseSearchRecordLayer_L_8148829C:
     mr r3, r30
     bl CDBFindDataIsEnd
     cmpwi r3, 0x0
-    beq L_814881C0
+    beq CDBDatabaseSearchRecordLayer_L_814881C0
     mr r3, r30
     bl CDBFSFindClose
-    L_814882B4:
+    CDBDatabaseSearchRecordLayer_L_814882B4:
     mr r3, r28
     bl CDBFSFindNext
-    L_814882BC:
+    CDBDatabaseSearchRecordLayer_L_814882BC:
     mr r3, r28
     bl CDBFindDataIsEnd
     cmpwi r3, 0x0
-    beq L_81488144
+    beq CDBDatabaseSearchRecordLayer_L_81488144
     mr r3, r28
     bl CDBFSFindClose
-    L_814882D4:
+    CDBDatabaseSearchRecordLayer_L_814882D4:
     mr r3, r29
     bl CDBFSFindNext
-    L_814882DC:
+    CDBDatabaseSearchRecordLayer_L_814882DC:
     mr r3, r29
     bl CDBFindDataIsEnd
     cmpwi r3, 0x0
-    beq L_814880D8
+    beq CDBDatabaseSearchRecordLayer_L_814880D8
     mr r3, r29
     bl CDBFSFindClose
-    L_814882F4:
+    CDBDatabaseSearchRecordLayer_L_814882F4:
     addi r3, r1, 0x18
     bl CDBRecordKeyArrayEmpty
     cmpwi r3, 0x0
-    bne L_8148840C
+    bne CDBDatabaseSearchRecordLayer_L_8148840C
     lwz r0, 0x14(r19)
     cmpwi r0, 0x1
-    bne L_8148838C
+    bne CDBDatabaseSearchRecordLayer_L_8148838C
     li r16, 0x0
-    b L_81488378
-    L_81488318:
+    b CDBDatabaseSearchRecordLayer_L_81488378
+    CDBDatabaseSearchRecordLayer_L_81488318:
     mr r4, r16
     addi r3, r1, 0x18
     bl CDBRecordKeyArrayAt
@@ -856,31 +856,31 @@ asm CDBErr CDBDatabaseSearchRecordLayer() {
     addi r5, r1, 0x28
     bl CDBDatabaseSearchCallCallback
     cmpwi r3, 0x0
-    beq L_81488354
-    b L_81488410
-    L_81488354:
+    beq CDBDatabaseSearchRecordLayer_L_81488354
+    b CDBDatabaseSearchRecordLayer_L_81488410
+    CDBDatabaseSearchRecordLayer_L_81488354:
     mr r4, r17
     addi r3, r1, 0x68
     bl CDBRecordKeyCopy
     lwz r0, 0x20(r19)
     cmpwi r0, 0x0
-    bne L_81488374
+    bne CDBDatabaseSearchRecordLayer_L_81488374
     li r3, 0x0
-    b L_81488410
-    L_81488374:
+    b CDBDatabaseSearchRecordLayer_L_81488410
+    CDBDatabaseSearchRecordLayer_L_81488374:
     addi r16, r16, 0x1
-    L_81488378:
+    CDBDatabaseSearchRecordLayer_L_81488378:
     addi r3, r1, 0x18
     bl CDBRecordKeyArraySize
     cmpw r16, r3
-    blt L_81488318
-    b L_81488404
-    L_8148838C:
+    blt CDBDatabaseSearchRecordLayer_L_81488318
+    b CDBDatabaseSearchRecordLayer_L_81488404
+    CDBDatabaseSearchRecordLayer_L_8148838C:
     addi r3, r1, 0x18
     bl CDBRecordKeyArraySize
     subi r16, r3, 0x1
-    b L_814883FC
-    L_8148839C:
+    b CDBDatabaseSearchRecordLayer_L_814883FC
+    CDBDatabaseSearchRecordLayer_L_8148839C:
     mr r4, r16
     addi r3, r1, 0x18
     bl CDBRecordKeyArrayAt
@@ -894,28 +894,28 @@ asm CDBErr CDBDatabaseSearchRecordLayer() {
     addi r5, r1, 0x28
     bl CDBDatabaseSearchCallCallback
     cmpwi r3, 0x0
-    beq L_814883D8
-    b L_81488410
-    L_814883D8:
+    beq CDBDatabaseSearchRecordLayer_L_814883D8
+    b CDBDatabaseSearchRecordLayer_L_81488410
+    CDBDatabaseSearchRecordLayer_L_814883D8:
     mr r4, r17
     addi r3, r1, 0x68
     bl CDBRecordKeyCopy
     lwz r0, 0x20(r19)
     cmpwi r0, 0x0
-    bne L_814883F8
+    bne CDBDatabaseSearchRecordLayer_L_814883F8
     li r3, 0x0
-    b L_81488410
-    L_814883F8:
+    b CDBDatabaseSearchRecordLayer_L_81488410
+    CDBDatabaseSearchRecordLayer_L_814883F8:
     subi r16, r16, 0x1
-    L_814883FC:
+    CDBDatabaseSearchRecordLayer_L_814883FC:
     cmpwi r16, 0x0
-    bge L_8148839C
-    L_81488404:
+    bge CDBDatabaseSearchRecordLayer_L_8148839C
+    CDBDatabaseSearchRecordLayer_L_81488404:
     cmpwi r27, 0x0
-    beq L_81487E54
-    L_8148840C:
+    beq CDBDatabaseSearchRecordLayer_L_81487E54
+    CDBDatabaseSearchRecordLayer_L_8148840C:
     li r3, 0x0
-    L_81488410:
+    CDBDatabaseSearchRecordLayer_L_81488410:
     addi r11, r1, 0x120
     bl _restgpr_14
     lwz r0, 0x124(r1)
@@ -955,22 +955,22 @@ asm CDBErr CDBDatabaseSearchMinuteLayer() {
     bl CDBIntArrayInit
     lwz r0, 0x14(r20)
     cmpwi r0, 0x0
-    bne L_814884A8
+    bne CDBDatabaseSearchMinuteLayer_L_814884A8
     addi r3, r1, 0x10
     bl CDBIntArraySetReverse
     li r0, 0x3c
     stw r0, 0x8(r1)
-    L_814884A8:
+    CDBDatabaseSearchMinuteLayer_L_814884A8:
     clrlwi r30, r25, 31
     rlwinm r29, r25, 0, 30, 30
     li r26, 0x0
     li r31, 0x0
-    b L_814887A4
-    L_814884BC:
+    b CDBDatabaseSearchMinuteLayer_L_814887A4
+    CDBDatabaseSearchMinuteLayer_L_814884BC:
     cmpwi r30, 0x0
     stw r31, 0x18(r1)
     li r26, 0x1
-    beq L_8148858C
+    beq CDBDatabaseSearchMinuteLayer_L_8148858C
     mr r3, r27
     mr r4, r21
     mr r5, r22
@@ -983,17 +983,17 @@ asm CDBErr CDBDatabaseSearchMinuteLayer() {
     mr r4, r27
     li r5, 0x1
     bl CDBFSFindFirst
-    b L_81488574
-    L_81488500:
+    b CDBDatabaseSearchMinuteLayer_L_81488574
+    CDBDatabaseSearchMinuteLayer_L_81488500:
     mr r3, r28
     bl CDBFindDataIsDirectory
     cmpwi r3, 0x0
-    beq L_8148856C
+    beq CDBDatabaseSearchMinuteLayer_L_8148856C
     mr r3, r28
     bl CDBFindDataGetName
     bl CDBFSIsMinuteDirName
     cmpwi r3, 0x0
-    beq L_8148856C
+    beq CDBDatabaseSearchMinuteLayer_L_8148856C
     mr r3, r28
     bl CDBFindDataGetName
     bl atoi
@@ -1003,29 +1003,29 @@ asm CDBErr CDBDatabaseSearchMinuteLayer() {
     bl CDBIntCompare
     lwz r0, 0x1c(r1)
     mullw. r0, r0, r3
-    ble L_8148856C
+    ble CDBDatabaseSearchMinuteLayer_L_8148856C
     addi r3, r1, 0x10
     bl CDBIntArrayFull
     cmpwi r3, 0x0
-    beq L_81488560
+    beq CDBDatabaseSearchMinuteLayer_L_81488560
     li r26, 0x0
-    L_81488560:
+    CDBDatabaseSearchMinuteLayer_L_81488560:
     addi r3, r1, 0x10
     addi r4, r1, 0xc
     bl CDBIntArrayDicInsert
-    L_8148856C:
+    CDBDatabaseSearchMinuteLayer_L_8148856C:
     mr r3, r28
     bl CDBFSFindNext
-    L_81488574:
+    CDBDatabaseSearchMinuteLayer_L_81488574:
     mr r3, r28
     bl CDBFindDataIsEnd
     cmpwi r3, 0x0
-    beq L_81488500
+    beq CDBDatabaseSearchMinuteLayer_L_81488500
     mr r3, r28
     bl CDBFSFindClose
-    L_8148858C:
+    CDBDatabaseSearchMinuteLayer_L_8148858C:
     cmpwi r29, 0x0
-    beq L_81488674
+    beq CDBDatabaseSearchMinuteLayer_L_81488674
     mr r3, r27
     mr r4, r21
     mr r5, r22
@@ -1038,17 +1038,17 @@ asm CDBErr CDBDatabaseSearchMinuteLayer() {
     mr r4, r27
     li r5, 0x2
     bl CDBFSFindFirst
-    b L_8148865C
-    L_814885C8:
+    b CDBDatabaseSearchMinuteLayer_L_8148865C
+    CDBDatabaseSearchMinuteLayer_L_814885C8:
     mr r3, r28
     bl CDBFindDataIsDirectory
     cmpwi r3, 0x0
-    beq L_81488654
+    beq CDBDatabaseSearchMinuteLayer_L_81488654
     mr r3, r28
     bl CDBFindDataGetName
     bl CDBFSIsMinuteDirName
     cmpwi r3, 0x0
-    beq L_81488654
+    beq CDBDatabaseSearchMinuteLayer_L_81488654
     mr r3, r28
     bl CDBFindDataGetName
     bl atoi
@@ -1058,7 +1058,7 @@ asm CDBErr CDBDatabaseSearchMinuteLayer() {
     bl CDBIntCompare
     lwz r0, 0x1c(r1)
     mullw. r0, r0, r3
-    ble L_81488654
+    ble CDBDatabaseSearchMinuteLayer_L_81488654
     addi r3, r1, 0x10
     addi r4, r1, 0xc
     bl CDBIntArrayDicFind
@@ -1066,37 +1066,37 @@ asm CDBErr CDBDatabaseSearchMinuteLayer() {
     addi r3, r1, 0x10
     bl CDBIntArrayEnd
     cmplw r18, r3
-    bne L_81488654
+    bne CDBDatabaseSearchMinuteLayer_L_81488654
     addi r3, r1, 0x10
     bl CDBIntArrayFull
     cmpwi r3, 0x0
-    beq L_81488648
+    beq CDBDatabaseSearchMinuteLayer_L_81488648
     li r26, 0x0
-    L_81488648:
+    CDBDatabaseSearchMinuteLayer_L_81488648:
     addi r3, r1, 0x10
     addi r4, r1, 0xc
     bl CDBIntArrayDicInsert
-    L_81488654:
+    CDBDatabaseSearchMinuteLayer_L_81488654:
     mr r3, r28
     bl CDBFSFindNext
-    L_8148865C:
+    CDBDatabaseSearchMinuteLayer_L_8148865C:
     mr r3, r28
     bl CDBFindDataIsEnd
     cmpwi r3, 0x0
-    beq L_814885C8
+    beq CDBDatabaseSearchMinuteLayer_L_814885C8
     mr r3, r28
     bl CDBFSFindClose
-    L_81488674:
+    CDBDatabaseSearchMinuteLayer_L_81488674:
     addi r3, r1, 0x10
     bl CDBIntArrayEmpty
     cmpwi r3, 0x0
-    bne L_814887AC
+    bne CDBDatabaseSearchMinuteLayer_L_814887AC
     lwz r0, 0x14(r20)
     cmpwi r0, 0x1
-    bne L_8148871C
+    bne CDBDatabaseSearchMinuteLayer_L_8148871C
     li r17, 0x0
-    b L_81488708
-    L_81488698:
+    b CDBDatabaseSearchMinuteLayer_L_81488708
+    CDBDatabaseSearchMinuteLayer_L_81488698:
     mr r4, r17
     addi r3, r1, 0x10
     bl CDBIntArrayAt
@@ -1114,31 +1114,31 @@ asm CDBErr CDBDatabaseSearchMinuteLayer() {
     addi r9, r1, 0x20
     bl CDBDatabaseSearchRecordLayer
     cmpwi r3, 0x0
-    beq L_814886E4
-    b L_814887B0
-    L_814886E4:
+    beq CDBDatabaseSearchMinuteLayer_L_814886E4
+    b CDBDatabaseSearchMinuteLayer_L_814887B0
+    CDBDatabaseSearchMinuteLayer_L_814886E4:
     lwz r0, 0x20(r20)
     cmpwi r0, 0x0
-    bne L_814886F8
+    bne CDBDatabaseSearchMinuteLayer_L_814886F8
     li r3, 0x0
-    b L_814887B0
-    L_814886F8:
+    b CDBDatabaseSearchMinuteLayer_L_814887B0
+    CDBDatabaseSearchMinuteLayer_L_814886F8:
     mr r4, r18
     addi r3, r1, 0x8
     bl CDBIntCopy
     addi r17, r17, 0x1
-    L_81488708:
+    CDBDatabaseSearchMinuteLayer_L_81488708:
     addi r3, r1, 0x10
     bl CDBIntArraySize
     cmpw r17, r3
-    blt L_81488698
-    b L_814887A4
-    L_8148871C:
+    blt CDBDatabaseSearchMinuteLayer_L_81488698
+    b CDBDatabaseSearchMinuteLayer_L_814887A4
+    CDBDatabaseSearchMinuteLayer_L_8148871C:
     addi r3, r1, 0x10
     bl CDBIntArraySize
     subi r18, r3, 0x1
-    b L_8148879C
-    L_8148872C:
+    b CDBDatabaseSearchMinuteLayer_L_8148879C
+    CDBDatabaseSearchMinuteLayer_L_8148872C:
     mr r4, r18
     addi r3, r1, 0x10
     bl CDBIntArrayAt
@@ -1156,28 +1156,28 @@ asm CDBErr CDBDatabaseSearchMinuteLayer() {
     addi r9, r1, 0x20
     bl CDBDatabaseSearchRecordLayer
     cmpwi r3, 0x0
-    beq L_81488778
-    b L_814887B0
-    L_81488778:
+    beq CDBDatabaseSearchMinuteLayer_L_81488778
+    b CDBDatabaseSearchMinuteLayer_L_814887B0
+    CDBDatabaseSearchMinuteLayer_L_81488778:
     lwz r0, 0x20(r20)
     cmpwi r0, 0x0
-    bne L_8148878C
+    bne CDBDatabaseSearchMinuteLayer_L_8148878C
     li r3, 0x0
-    b L_814887B0
-    L_8148878C:
+    b CDBDatabaseSearchMinuteLayer_L_814887B0
+    CDBDatabaseSearchMinuteLayer_L_8148878C:
     mr r4, r17
     addi r3, r1, 0x8
     bl CDBIntCopy
     subi r18, r18, 0x1
-    L_8148879C:
+    CDBDatabaseSearchMinuteLayer_L_8148879C:
     cmpwi r18, 0x0
-    bge L_8148872C
-    L_814887A4:
+    bge CDBDatabaseSearchMinuteLayer_L_8148872C
+    CDBDatabaseSearchMinuteLayer_L_814887A4:
     cmpwi r26, 0x0
-    beq L_814884BC
-    L_814887AC:
+    beq CDBDatabaseSearchMinuteLayer_L_814884BC
+    CDBDatabaseSearchMinuteLayer_L_814887AC:
     li r3, 0x0
-    L_814887B0:
+    CDBDatabaseSearchMinuteLayer_L_814887B0:
     addi r11, r1, 0x170
     bl _restgpr_17
     lwz r0, 0x174(r1)
@@ -1216,22 +1216,22 @@ asm CDBErr CDBDatabaseSearchHourLayer() {
     bl CDBIntArrayInit
     lwz r0, 0x14(r21)
     cmpwi r0, 0x0
-    bne L_81488844
+    bne CDBDatabaseSearchHourLayer_L_81488844
     addi r3, r1, 0x10
     bl CDBIntArraySetReverse
     li r0, 0x18
     stw r0, 0x8(r1)
-    L_81488844:
+    CDBDatabaseSearchHourLayer_L_81488844:
     clrlwi r30, r25, 31
     rlwinm r29, r25, 0, 30, 30
     li r26, 0x0
     li r31, 0x0
-    b L_81488B30
-    L_81488858:
+    b CDBDatabaseSearchHourLayer_L_81488B30
+    CDBDatabaseSearchHourLayer_L_81488858:
     cmpwi r30, 0x0
     stw r31, 0x18(r1)
     li r26, 0x1
-    beq L_81488924
+    beq CDBDatabaseSearchHourLayer_L_81488924
     mr r3, r27
     mr r4, r22
     mr r5, r23
@@ -1243,17 +1243,17 @@ asm CDBErr CDBDatabaseSearchHourLayer() {
     mr r4, r27
     li r5, 0x1
     bl CDBFSFindFirst
-    b L_8148890C
-    L_81488898:
+    b CDBDatabaseSearchHourLayer_L_8148890C
+    CDBDatabaseSearchHourLayer_L_81488898:
     mr r3, r28
     bl CDBFindDataIsDirectory
     cmpwi r3, 0x0
-    beq L_81488904
+    beq CDBDatabaseSearchHourLayer_L_81488904
     mr r3, r28
     bl CDBFindDataGetName
     bl CDBFSIsHourDirName
     cmpwi r3, 0x0
-    beq L_81488904
+    beq CDBDatabaseSearchHourLayer_L_81488904
     mr r3, r28
     bl CDBFindDataGetName
     bl atoi
@@ -1263,29 +1263,29 @@ asm CDBErr CDBDatabaseSearchHourLayer() {
     bl CDBIntCompare
     lwz r0, 0x1c(r1)
     mullw. r0, r0, r3
-    ble L_81488904
+    ble CDBDatabaseSearchHourLayer_L_81488904
     addi r3, r1, 0x10
     bl CDBIntArrayFull
     cmpwi r3, 0x0
-    beq L_814888F8
+    beq CDBDatabaseSearchHourLayer_L_814888F8
     li r26, 0x0
-    L_814888F8:
+    CDBDatabaseSearchHourLayer_L_814888F8:
     addi r3, r1, 0x10
     addi r4, r1, 0xc
     bl CDBIntArrayDicInsert
-    L_81488904:
+    CDBDatabaseSearchHourLayer_L_81488904:
     mr r3, r28
     bl CDBFSFindNext
-    L_8148890C:
+    CDBDatabaseSearchHourLayer_L_8148890C:
     mr r3, r28
     bl CDBFindDataIsEnd
     cmpwi r3, 0x0
-    beq L_81488898
+    beq CDBDatabaseSearchHourLayer_L_81488898
     mr r3, r28
     bl CDBFSFindClose
-    L_81488924:
+    CDBDatabaseSearchHourLayer_L_81488924:
     cmpwi r29, 0x0
-    beq L_81488A08
+    beq CDBDatabaseSearchHourLayer_L_81488A08
     mr r3, r27
     mr r4, r22
     mr r5, r23
@@ -1297,17 +1297,17 @@ asm CDBErr CDBDatabaseSearchHourLayer() {
     mr r4, r27
     li r5, 0x2
     bl CDBFSFindFirst
-    b L_814889F0
-    L_8148895C:
+    b CDBDatabaseSearchHourLayer_L_814889F0
+    CDBDatabaseSearchHourLayer_L_8148895C:
     mr r3, r28
     bl CDBFindDataIsDirectory
     cmpwi r3, 0x0
-    beq L_814889E8
+    beq CDBDatabaseSearchHourLayer_L_814889E8
     mr r3, r28
     bl CDBFindDataGetName
     bl CDBFSIsHourDirName
     cmpwi r3, 0x0
-    beq L_814889E8
+    beq CDBDatabaseSearchHourLayer_L_814889E8
     mr r3, r28
     bl CDBFindDataGetName
     bl atoi
@@ -1317,7 +1317,7 @@ asm CDBErr CDBDatabaseSearchHourLayer() {
     bl CDBIntCompare
     lwz r0, 0x1c(r1)
     mullw. r0, r0, r3
-    ble L_814889E8
+    ble CDBDatabaseSearchHourLayer_L_814889E8
     addi r3, r1, 0x10
     addi r4, r1, 0xc
     bl CDBIntArrayDicFind
@@ -1325,37 +1325,37 @@ asm CDBErr CDBDatabaseSearchHourLayer() {
     addi r3, r1, 0x10
     bl CDBIntArrayEnd
     cmplw r19, r3
-    bne L_814889E8
+    bne CDBDatabaseSearchHourLayer_L_814889E8
     addi r3, r1, 0x10
     bl CDBIntArrayFull
     cmpwi r3, 0x0
-    beq L_814889DC
+    beq CDBDatabaseSearchHourLayer_L_814889DC
     li r26, 0x0
-    L_814889DC:
+    CDBDatabaseSearchHourLayer_L_814889DC:
     addi r3, r1, 0x10
     addi r4, r1, 0xc
     bl CDBIntArrayDicInsert
-    L_814889E8:
+    CDBDatabaseSearchHourLayer_L_814889E8:
     mr r3, r28
     bl CDBFSFindNext
-    L_814889F0:
+    CDBDatabaseSearchHourLayer_L_814889F0:
     mr r3, r28
     bl CDBFindDataIsEnd
     cmpwi r3, 0x0
-    beq L_8148895C
+    beq CDBDatabaseSearchHourLayer_L_8148895C
     mr r3, r28
     bl CDBFSFindClose
-    L_81488A08:
+    CDBDatabaseSearchHourLayer_L_81488A08:
     addi r3, r1, 0x10
     bl CDBIntArrayEmpty
     cmpwi r3, 0x0
-    bne L_81488B38
+    bne CDBDatabaseSearchHourLayer_L_81488B38
     lwz r0, 0x14(r21)
     cmpwi r0, 0x1
-    bne L_81488AAC
+    bne CDBDatabaseSearchHourLayer_L_81488AAC
     li r18, 0x0
-    b L_81488A98
-    L_81488A2C:
+    b CDBDatabaseSearchHourLayer_L_81488A98
+    CDBDatabaseSearchHourLayer_L_81488A2C:
     mr r4, r18
     addi r3, r1, 0x10
     bl CDBIntArrayAt
@@ -1372,31 +1372,31 @@ asm CDBErr CDBDatabaseSearchHourLayer() {
     addi r8, r1, 0x20
     bl CDBDatabaseSearchMinuteLayer
     cmpwi r3, 0x0
-    beq L_81488A74
-    b L_81488B3C
-    L_81488A74:
+    beq CDBDatabaseSearchHourLayer_L_81488A74
+    b CDBDatabaseSearchHourLayer_L_81488B3C
+    CDBDatabaseSearchHourLayer_L_81488A74:
     lwz r0, 0x20(r21)
     cmpwi r0, 0x0
-    bne L_81488A88
+    bne CDBDatabaseSearchHourLayer_L_81488A88
     li r3, 0x0
-    b L_81488B3C
-    L_81488A88:
+    b CDBDatabaseSearchHourLayer_L_81488B3C
+    CDBDatabaseSearchHourLayer_L_81488A88:
     mr r4, r19
     addi r3, r1, 0x8
     bl CDBIntCopy
     addi r18, r18, 0x1
-    L_81488A98:
+    CDBDatabaseSearchHourLayer_L_81488A98:
     addi r3, r1, 0x10
     bl CDBIntArraySize
     cmpw r18, r3
-    blt L_81488A2C
-    b L_81488B30
-    L_81488AAC:
+    blt CDBDatabaseSearchHourLayer_L_81488A2C
+    b CDBDatabaseSearchHourLayer_L_81488B30
+    CDBDatabaseSearchHourLayer_L_81488AAC:
     addi r3, r1, 0x10
     bl CDBIntArraySize
     subi r19, r3, 0x1
-    b L_81488B28
-    L_81488ABC:
+    b CDBDatabaseSearchHourLayer_L_81488B28
+    CDBDatabaseSearchHourLayer_L_81488ABC:
     mr r4, r19
     addi r3, r1, 0x10
     bl CDBIntArrayAt
@@ -1413,28 +1413,28 @@ asm CDBErr CDBDatabaseSearchHourLayer() {
     addi r8, r1, 0x20
     bl CDBDatabaseSearchMinuteLayer
     cmpwi r3, 0x0
-    beq L_81488B04
-    b L_81488B3C
-    L_81488B04:
+    beq CDBDatabaseSearchHourLayer_L_81488B04
+    b CDBDatabaseSearchHourLayer_L_81488B3C
+    CDBDatabaseSearchHourLayer_L_81488B04:
     lwz r0, 0x20(r21)
     cmpwi r0, 0x0
-    bne L_81488B18
+    bne CDBDatabaseSearchHourLayer_L_81488B18
     li r3, 0x0
-    b L_81488B3C
-    L_81488B18:
+    b CDBDatabaseSearchHourLayer_L_81488B3C
+    CDBDatabaseSearchHourLayer_L_81488B18:
     mr r4, r18
     addi r3, r1, 0x8
     bl CDBIntCopy
     subi r19, r19, 0x1
-    L_81488B28:
+    CDBDatabaseSearchHourLayer_L_81488B28:
     cmpwi r19, 0x0
-    bge L_81488ABC
-    L_81488B30:
+    bge CDBDatabaseSearchHourLayer_L_81488ABC
+    CDBDatabaseSearchHourLayer_L_81488B30:
     cmpwi r26, 0x0
-    beq L_81488858
-    L_81488B38:
+    beq CDBDatabaseSearchHourLayer_L_81488858
+    CDBDatabaseSearchHourLayer_L_81488B38:
     li r3, 0x0
-    L_81488B3C:
+    CDBDatabaseSearchHourLayer_L_81488B3C:
     addi r11, r1, 0xb0
     bl _restgpr_18
     lwz r0, 0xb4(r1)
@@ -1474,22 +1474,22 @@ asm CDBErr CDBDatabaseSearchDayLayer() {
     bl CDBIntArrayInit
     lwz r0, 0x14(r18)
     cmpwi r0, 0x0
-    bne L_81488BD4
+    bne CDBDatabaseSearchDayLayer_L_81488BD4
     addi r3, r1, 0x10
     bl CDBIntArraySetReverse
     li r0, 0x20
     stw r0, 0x8(r1)
-    L_81488BD4:
+    CDBDatabaseSearchDayLayer_L_81488BD4:
     clrlwi r30, r21, 31
     rlwinm r29, r21, 0, 30, 30
     li r24, 0x0
     li r31, 0x0
-    b L_81488F20
-    L_81488BE8:
+    b CDBDatabaseSearchDayLayer_L_81488F20
+    CDBDatabaseSearchDayLayer_L_81488BE8:
     cmpwi r30, 0x0
     stw r31, 0x18(r1)
     li r24, 0x1
-    beq L_81488CB0
+    beq CDBDatabaseSearchDayLayer_L_81488CB0
     mr r3, r25
     mr r4, r19
     mr r5, r20
@@ -1500,17 +1500,17 @@ asm CDBErr CDBDatabaseSearchDayLayer() {
     mr r4, r25
     li r5, 0x1
     bl CDBFSFindFirst
-    b L_81488C98
-    L_81488C24:
+    b CDBDatabaseSearchDayLayer_L_81488C98
+    CDBDatabaseSearchDayLayer_L_81488C24:
     mr r3, r26
     bl CDBFindDataIsDirectory
     cmpwi r3, 0x0
-    beq L_81488C90
+    beq CDBDatabaseSearchDayLayer_L_81488C90
     mr r3, r26
     bl CDBFindDataGetName
     bl CDBFSIsDayDirName
     cmpwi r3, 0x0
-    beq L_81488C90
+    beq CDBDatabaseSearchDayLayer_L_81488C90
     mr r3, r26
     bl CDBFindDataGetName
     bl atoi
@@ -1520,29 +1520,29 @@ asm CDBErr CDBDatabaseSearchDayLayer() {
     bl CDBIntCompare
     lwz r0, 0x1c(r1)
     mullw. r0, r0, r3
-    ble L_81488C90
+    ble CDBDatabaseSearchDayLayer_L_81488C90
     addi r3, r1, 0x10
     bl CDBIntArrayFull
     cmpwi r3, 0x0
-    beq L_81488C84
+    beq CDBDatabaseSearchDayLayer_L_81488C84
     li r24, 0x0
-    L_81488C84:
+    CDBDatabaseSearchDayLayer_L_81488C84:
     addi r3, r1, 0x10
     addi r4, r1, 0xc
     bl CDBIntArrayDicInsert
-    L_81488C90:
+    CDBDatabaseSearchDayLayer_L_81488C90:
     mr r3, r26
     bl CDBFSFindNext
-    L_81488C98:
+    CDBDatabaseSearchDayLayer_L_81488C98:
     mr r3, r26
     bl CDBFindDataIsEnd
     cmpwi r3, 0x0
-    beq L_81488C24
+    beq CDBDatabaseSearchDayLayer_L_81488C24
     mr r3, r26
     bl CDBFSFindClose
-    L_81488CB0:
+    CDBDatabaseSearchDayLayer_L_81488CB0:
     cmpwi r29, 0x0
-    beq L_81488D90
+    beq CDBDatabaseSearchDayLayer_L_81488D90
     mr r3, r25
     mr r4, r19
     mr r5, r20
@@ -1553,17 +1553,17 @@ asm CDBErr CDBDatabaseSearchDayLayer() {
     mr r4, r25
     li r5, 0x2
     bl CDBFSFindFirst
-    b L_81488D78
-    L_81488CE4:
+    b CDBDatabaseSearchDayLayer_L_81488D78
+    CDBDatabaseSearchDayLayer_L_81488CE4:
     mr r3, r26
     bl CDBFindDataIsDirectory
     cmpwi r3, 0x0
-    beq L_81488D70
+    beq CDBDatabaseSearchDayLayer_L_81488D70
     mr r3, r26
     bl CDBFindDataGetName
     bl CDBFSIsDayDirName
     cmpwi r3, 0x0
-    beq L_81488D70
+    beq CDBDatabaseSearchDayLayer_L_81488D70
     mr r3, r26
     bl CDBFindDataGetName
     bl atoi
@@ -1573,7 +1573,7 @@ asm CDBErr CDBDatabaseSearchDayLayer() {
     bl CDBIntCompare
     lwz r0, 0x1c(r1)
     mullw. r0, r0, r3
-    ble L_81488D70
+    ble CDBDatabaseSearchDayLayer_L_81488D70
     addi r3, r1, 0x10
     addi r4, r1, 0xc
     bl CDBIntArrayDicFind
@@ -1581,37 +1581,37 @@ asm CDBErr CDBDatabaseSearchDayLayer() {
     addi r3, r1, 0x10
     bl CDBIntArrayEnd
     cmplw r27, r3
-    bne L_81488D70
+    bne CDBDatabaseSearchDayLayer_L_81488D70
     addi r3, r1, 0x10
     bl CDBIntArrayFull
     cmpwi r3, 0x0
-    beq L_81488D64
+    beq CDBDatabaseSearchDayLayer_L_81488D64
     li r24, 0x0
-    L_81488D64:
+    CDBDatabaseSearchDayLayer_L_81488D64:
     addi r3, r1, 0x10
     addi r4, r1, 0xc
     bl CDBIntArrayDicInsert
-    L_81488D70:
+    CDBDatabaseSearchDayLayer_L_81488D70:
     mr r3, r26
     bl CDBFSFindNext
-    L_81488D78:
+    CDBDatabaseSearchDayLayer_L_81488D78:
     mr r3, r26
     bl CDBFindDataIsEnd
     cmpwi r3, 0x0
-    beq L_81488CE4
+    beq CDBDatabaseSearchDayLayer_L_81488CE4
     mr r3, r26
     bl CDBFSFindClose
-    L_81488D90:
+    CDBDatabaseSearchDayLayer_L_81488D90:
     addi r3, r1, 0x10
     bl CDBIntArrayEmpty
     cmpwi r3, 0x0
-    bne L_81488F28
+    bne CDBDatabaseSearchDayLayer_L_81488F28
     lwz r0, 0x14(r18)
     cmpwi r0, 0x1
-    bne L_81488E68
+    bne CDBDatabaseSearchDayLayer_L_81488E68
     li r27, 0x0
-    b L_81488E54
-    L_81488DB4:
+    b CDBDatabaseSearchDayLayer_L_81488E54
+    CDBDatabaseSearchDayLayer_L_81488DB4:
     mr r4, r27
     addi r3, r1, 0x10
     bl CDBIntArrayAt
@@ -1622,14 +1622,14 @@ asm CDBErr CDBDatabaseSearchDayLayer() {
     bl CDBMakeCDBDateDayEnd
     lwz r0, 0x0(r18)
     cmplw r3, r0
-    blt L_81488E44
+    blt CDBDatabaseSearchDayLayer_L_81488E44
     lwz r5, 0x0(r28)
     mr r3, r23
     mr r4, r22
     bl CDBMakeCDBDateDayBegin
     lwz r0, 0x4(r18)
     cmplw r0, r3
-    blt L_81488E44
+    blt CDBDatabaseSearchDayLayer_L_81488E44
     lwz r4, 0x0(r28)
     addi r3, r1, 0x20
     bl CDBConvDayValueToDayStr
@@ -1641,31 +1641,31 @@ asm CDBErr CDBDatabaseSearchDayLayer() {
     addi r7, r1, 0x20
     bl CDBDatabaseSearchHourLayer
     cmpwi r3, 0x0
-    beq L_81488E30
-    b L_81488F2C
-    L_81488E30:
+    beq CDBDatabaseSearchDayLayer_L_81488E30
+    b CDBDatabaseSearchDayLayer_L_81488F2C
+    CDBDatabaseSearchDayLayer_L_81488E30:
     lwz r0, 0x20(r18)
     cmpwi r0, 0x0
-    bne L_81488E44
+    bne CDBDatabaseSearchDayLayer_L_81488E44
     li r3, 0x0
-    b L_81488F2C
-    L_81488E44:
+    b CDBDatabaseSearchDayLayer_L_81488F2C
+    CDBDatabaseSearchDayLayer_L_81488E44:
     mr r4, r28
     addi r3, r1, 0x8
     bl CDBIntCopy
     addi r27, r27, 0x1
-    L_81488E54:
+    CDBDatabaseSearchDayLayer_L_81488E54:
     addi r3, r1, 0x10
     bl CDBIntArraySize
     cmpw r27, r3
-    blt L_81488DB4
-    b L_81488F20
-    L_81488E68:
+    blt CDBDatabaseSearchDayLayer_L_81488DB4
+    b CDBDatabaseSearchDayLayer_L_81488F20
+    CDBDatabaseSearchDayLayer_L_81488E68:
     addi r3, r1, 0x10
     bl CDBIntArraySize
     subi r28, r3, 0x1
-    b L_81488F18
-    L_81488E78:
+    b CDBDatabaseSearchDayLayer_L_81488F18
+    CDBDatabaseSearchDayLayer_L_81488E78:
     mr r4, r28
     addi r3, r1, 0x10
     bl CDBIntArrayAt
@@ -1676,14 +1676,14 @@ asm CDBErr CDBDatabaseSearchDayLayer() {
     bl CDBMakeCDBDateDayEnd
     lwz r0, 0x0(r18)
     cmplw r3, r0
-    blt L_81488F08
+    blt CDBDatabaseSearchDayLayer_L_81488F08
     lwz r5, 0x0(r27)
     mr r3, r23
     mr r4, r22
     bl CDBMakeCDBDateDayBegin
     lwz r0, 0x4(r18)
     cmplw r0, r3
-    blt L_81488F08
+    blt CDBDatabaseSearchDayLayer_L_81488F08
     lwz r4, 0x0(r27)
     addi r3, r1, 0x20
     bl CDBConvDayValueToDayStr
@@ -1695,28 +1695,28 @@ asm CDBErr CDBDatabaseSearchDayLayer() {
     addi r7, r1, 0x20
     bl CDBDatabaseSearchHourLayer
     cmpwi r3, 0x0
-    beq L_81488EF4
-    b L_81488F2C
-    L_81488EF4:
+    beq CDBDatabaseSearchDayLayer_L_81488EF4
+    b CDBDatabaseSearchDayLayer_L_81488F2C
+    CDBDatabaseSearchDayLayer_L_81488EF4:
     lwz r0, 0x20(r18)
     cmpwi r0, 0x0
-    bne L_81488F08
+    bne CDBDatabaseSearchDayLayer_L_81488F08
     li r3, 0x0
-    b L_81488F2C
-    L_81488F08:
+    b CDBDatabaseSearchDayLayer_L_81488F2C
+    CDBDatabaseSearchDayLayer_L_81488F08:
     mr r4, r27
     addi r3, r1, 0x8
     bl CDBIntCopy
     subi r28, r28, 0x1
-    L_81488F18:
+    CDBDatabaseSearchDayLayer_L_81488F18:
     cmpwi r28, 0x0
-    bge L_81488E78
-    L_81488F20:
+    bge CDBDatabaseSearchDayLayer_L_81488E78
+    CDBDatabaseSearchDayLayer_L_81488F20:
     cmpwi r24, 0x0
-    beq L_81488BE8
-    L_81488F28:
+    beq CDBDatabaseSearchDayLayer_L_81488BE8
+    CDBDatabaseSearchDayLayer_L_81488F28:
     li r3, 0x0
-    L_81488F2C:
+    CDBDatabaseSearchDayLayer_L_81488F2C:
     addi r11, r1, 0x100
     bl _restgpr_17
     lwz r0, 0x104(r1)
@@ -1752,22 +1752,22 @@ asm CDBErr CDBDatabaseSearchMonthLayer() {
     bl CDBIntArrayInit
     lwz r0, 0x14(r22)
     cmpwi r0, 0x0
-    bne L_81488FB4
+    bne CDBDatabaseSearchMonthLayer_L_81488FB4
     addi r3, r1, 0x10
     bl CDBIntArraySetReverse
     li r0, 0xc
     stw r0, 0x8(r1)
-    L_81488FB4:
+    CDBDatabaseSearchMonthLayer_L_81488FB4:
     clrlwi r30, r24, 31
     rlwinm r29, r24, 0, 30, 30
     li r26, 0x0
     li r31, 0x0
-    b L_814892E0
-    L_81488FC8:
+    b CDBDatabaseSearchMonthLayer_L_814892E0
+    CDBDatabaseSearchMonthLayer_L_81488FC8:
     cmpwi r30, 0x0
     stw r31, 0x18(r1)
     li r26, 0x1
-    beq L_8148908C
+    beq CDBDatabaseSearchMonthLayer_L_8148908C
     mr r3, r27
     mr r4, r23
     li r5, 0x1
@@ -1777,17 +1777,17 @@ asm CDBErr CDBDatabaseSearchMonthLayer() {
     mr r4, r27
     li r5, 0x1
     bl CDBFSFindFirst
-    b L_81489074
-    L_81489000:
+    b CDBDatabaseSearchMonthLayer_L_81489074
+    CDBDatabaseSearchMonthLayer_L_81489000:
     mr r3, r28
     bl CDBFindDataIsDirectory
     cmpwi r3, 0x0
-    beq L_8148906C
+    beq CDBDatabaseSearchMonthLayer_L_8148906C
     mr r3, r28
     bl CDBFindDataGetName
     bl CDBFSIsMonthDirName
     cmpwi r3, 0x0
-    beq L_8148906C
+    beq CDBDatabaseSearchMonthLayer_L_8148906C
     mr r3, r28
     bl CDBFindDataGetName
     bl atoi
@@ -1797,29 +1797,29 @@ asm CDBErr CDBDatabaseSearchMonthLayer() {
     bl CDBIntCompare
     lwz r0, 0x1c(r1)
     mullw. r0, r0, r3
-    ble L_8148906C
+    ble CDBDatabaseSearchMonthLayer_L_8148906C
     addi r3, r1, 0x10
     bl CDBIntArrayFull
     cmpwi r3, 0x0
-    beq L_81489060
+    beq CDBDatabaseSearchMonthLayer_L_81489060
     li r26, 0x0
-    L_81489060:
+    CDBDatabaseSearchMonthLayer_L_81489060:
     addi r3, r1, 0x10
     addi r4, r1, 0xc
     bl CDBIntArrayDicInsert
-    L_8148906C:
+    CDBDatabaseSearchMonthLayer_L_8148906C:
     mr r3, r28
     bl CDBFSFindNext
-    L_81489074:
+    CDBDatabaseSearchMonthLayer_L_81489074:
     mr r3, r28
     bl CDBFindDataIsEnd
     cmpwi r3, 0x0
-    beq L_81489000
+    beq CDBDatabaseSearchMonthLayer_L_81489000
     mr r3, r28
     bl CDBFSFindClose
-    L_8148908C:
+    CDBDatabaseSearchMonthLayer_L_8148908C:
     cmpwi r29, 0x0
-    beq L_81489168
+    beq CDBDatabaseSearchMonthLayer_L_81489168
     mr r3, r27
     mr r4, r23
     addi r6, r22, 0x28
@@ -1829,17 +1829,17 @@ asm CDBErr CDBDatabaseSearchMonthLayer() {
     mr r4, r27
     li r5, 0x2
     bl CDBFSFindFirst
-    b L_81489150
-    L_814890BC:
+    b CDBDatabaseSearchMonthLayer_L_81489150
+    CDBDatabaseSearchMonthLayer_L_814890BC:
     mr r3, r28
     bl CDBFindDataIsDirectory
     cmpwi r3, 0x0
-    beq L_81489148
+    beq CDBDatabaseSearchMonthLayer_L_81489148
     mr r3, r28
     bl CDBFindDataGetName
     bl CDBFSIsMonthDirName
     cmpwi r3, 0x0
-    beq L_81489148
+    beq CDBDatabaseSearchMonthLayer_L_81489148
     mr r3, r28
     bl CDBFindDataGetName
     bl atoi
@@ -1849,7 +1849,7 @@ asm CDBErr CDBDatabaseSearchMonthLayer() {
     bl CDBIntCompare
     lwz r0, 0x1c(r1)
     mullw. r0, r0, r3
-    ble L_81489148
+    ble CDBDatabaseSearchMonthLayer_L_81489148
     addi r3, r1, 0x10
     addi r4, r1, 0xc
     bl CDBIntArrayDicFind
@@ -1857,37 +1857,37 @@ asm CDBErr CDBDatabaseSearchMonthLayer() {
     addi r3, r1, 0x10
     bl CDBIntArrayEnd
     cmplw r20, r3
-    bne L_81489148
+    bne CDBDatabaseSearchMonthLayer_L_81489148
     addi r3, r1, 0x10
     bl CDBIntArrayFull
     cmpwi r3, 0x0
-    beq L_8148913C
+    beq CDBDatabaseSearchMonthLayer_L_8148913C
     li r26, 0x0
-    L_8148913C:
+    CDBDatabaseSearchMonthLayer_L_8148913C:
     addi r3, r1, 0x10
     addi r4, r1, 0xc
     bl CDBIntArrayDicInsert
-    L_81489148:
+    CDBDatabaseSearchMonthLayer_L_81489148:
     mr r3, r28
     bl CDBFSFindNext
-    L_81489150:
+    CDBDatabaseSearchMonthLayer_L_81489150:
     mr r3, r28
     bl CDBFindDataIsEnd
     cmpwi r3, 0x0
-    beq L_814890BC
+    beq CDBDatabaseSearchMonthLayer_L_814890BC
     mr r3, r28
     bl CDBFSFindClose
-    L_81489168:
+    CDBDatabaseSearchMonthLayer_L_81489168:
     addi r3, r1, 0x10
     bl CDBIntArrayEmpty
     cmpwi r3, 0x0
-    bne L_814892E8
+    bne CDBDatabaseSearchMonthLayer_L_814892E8
     lwz r0, 0x14(r22)
     cmpwi r0, 0x1
-    bne L_81489234
+    bne CDBDatabaseSearchMonthLayer_L_81489234
     li r19, 0x0
-    b L_81489220
-    L_8148918C:
+    b CDBDatabaseSearchMonthLayer_L_81489220
+    CDBDatabaseSearchMonthLayer_L_8148918C:
     mr r4, r19
     addi r3, r1, 0x10
     bl CDBIntArrayAt
@@ -1897,13 +1897,13 @@ asm CDBErr CDBDatabaseSearchMonthLayer() {
     bl CDBMakeCDBDateMonthEnd
     lwz r0, 0x0(r22)
     cmplw r3, r0
-    blt L_81489210
+    blt CDBDatabaseSearchMonthLayer_L_81489210
     lwz r4, 0x0(r20)
     mr r3, r25
     bl CDBMakeCDBDateMonthBegin
     lwz r0, 0x4(r22)
     cmplw r0, r3
-    blt L_81489210
+    blt CDBDatabaseSearchMonthLayer_L_81489210
     lwz r4, 0x0(r20)
     addi r3, r1, 0x20
     bl CDBConvMonthValueToMonthStr
@@ -1914,31 +1914,31 @@ asm CDBErr CDBDatabaseSearchMonthLayer() {
     addi r6, r1, 0x20
     bl CDBDatabaseSearchDayLayer
     cmpwi r3, 0x0
-    beq L_814891FC
-    b L_814892EC
-    L_814891FC:
+    beq CDBDatabaseSearchMonthLayer_L_814891FC
+    b CDBDatabaseSearchMonthLayer_L_814892EC
+    CDBDatabaseSearchMonthLayer_L_814891FC:
     lwz r0, 0x20(r22)
     cmpwi r0, 0x0
-    bne L_81489210
+    bne CDBDatabaseSearchMonthLayer_L_81489210
     li r3, 0x0
-    b L_814892EC
-    L_81489210:
+    b CDBDatabaseSearchMonthLayer_L_814892EC
+    CDBDatabaseSearchMonthLayer_L_81489210:
     mr r4, r20
     addi r3, r1, 0x8
     bl CDBIntCopy
     addi r19, r19, 0x1
-    L_81489220:
+    CDBDatabaseSearchMonthLayer_L_81489220:
     addi r3, r1, 0x10
     bl CDBIntArraySize
     cmpw r19, r3
-    blt L_8148918C
-    b L_814892E0
-    L_81489234:
+    blt CDBDatabaseSearchMonthLayer_L_8148918C
+    b CDBDatabaseSearchMonthLayer_L_814892E0
+    CDBDatabaseSearchMonthLayer_L_81489234:
     addi r3, r1, 0x10
     bl CDBIntArraySize
     subi r20, r3, 0x1
-    b L_814892D8
-    L_81489244:
+    b CDBDatabaseSearchMonthLayer_L_814892D8
+    CDBDatabaseSearchMonthLayer_L_81489244:
     mr r4, r20
     addi r3, r1, 0x10
     bl CDBIntArrayAt
@@ -1948,13 +1948,13 @@ asm CDBErr CDBDatabaseSearchMonthLayer() {
     bl CDBMakeCDBDateMonthEnd
     lwz r0, 0x0(r22)
     cmplw r3, r0
-    blt L_814892C8
+    blt CDBDatabaseSearchMonthLayer_L_814892C8
     lwz r4, 0x0(r19)
     mr r3, r25
     bl CDBMakeCDBDateMonthBegin
     lwz r0, 0x4(r22)
     cmplw r0, r3
-    blt L_814892C8
+    blt CDBDatabaseSearchMonthLayer_L_814892C8
     lwz r4, 0x0(r19)
     addi r3, r1, 0x20
     bl CDBConvMonthValueToMonthStr
@@ -1965,28 +1965,28 @@ asm CDBErr CDBDatabaseSearchMonthLayer() {
     addi r6, r1, 0x20
     bl CDBDatabaseSearchDayLayer
     cmpwi r3, 0x0
-    beq L_814892B4
-    b L_814892EC
-    L_814892B4:
+    beq CDBDatabaseSearchMonthLayer_L_814892B4
+    b CDBDatabaseSearchMonthLayer_L_814892EC
+    CDBDatabaseSearchMonthLayer_L_814892B4:
     lwz r0, 0x20(r22)
     cmpwi r0, 0x0
-    bne L_814892C8
+    bne CDBDatabaseSearchMonthLayer_L_814892C8
     li r3, 0x0
-    b L_814892EC
-    L_814892C8:
+    b CDBDatabaseSearchMonthLayer_L_814892EC
+    CDBDatabaseSearchMonthLayer_L_814892C8:
     mr r4, r19
     addi r3, r1, 0x8
     bl CDBIntCopy
     subi r20, r20, 0x1
-    L_814892D8:
+    CDBDatabaseSearchMonthLayer_L_814892D8:
     cmpwi r20, 0x0
-    bge L_81489244
-    L_814892E0:
+    bge CDBDatabaseSearchMonthLayer_L_81489244
+    CDBDatabaseSearchMonthLayer_L_814892E0:
     cmpwi r26, 0x0
-    beq L_81488FC8
-    L_814892E8:
+    beq CDBDatabaseSearchMonthLayer_L_81488FC8
+    CDBDatabaseSearchMonthLayer_L_814892E8:
     li r3, 0x0
-    L_814892EC:
+    CDBDatabaseSearchMonthLayer_L_814892EC:
     addi r11, r1, 0xb0
     bl _restgpr_19
     lwz r0, 0xb4(r1)
@@ -2010,10 +2010,10 @@ asm CDBErr CDBDatabaseSearchYearLayer(CDBDatabase* database, CDBSearchConditions
     mr r25, r4
     mr r26, r5
     addi r28, r6, 0x430c
-    bne L_8148933C
+    bne CDBDatabaseSearchYearLayer_L_8148933C
     li r3, 0x1
-    b L_81489664
-    L_8148933C:
+    b CDBDatabaseSearchYearLayer_L_81489664
+    CDBDatabaseSearchYearLayer_L_8148933C:
     li r0, 0x0
     addi r3, r1, 0x10
     stw r0, 0x8(r1)
@@ -2022,36 +2022,36 @@ asm CDBErr CDBDatabaseSearchYearLayer(CDBDatabase* database, CDBSearchConditions
     bl CDBIntArrayInit
     lwz r0, 0x14(r25)
     cmpwi r0, 0x0
-    bne L_81489370
+    bne CDBDatabaseSearchYearLayer_L_81489370
     addi r3, r1, 0x10
     bl CDBIntArraySetReverse
     li r0, 0x270f
     stw r0, 0x8(r1)
-    L_81489370:
+    CDBDatabaseSearchYearLayer_L_81489370:
     clrlwi r30, r26, 31
     rlwinm r29, r26, 0, 30, 30
     li r27, 0x0
     li r31, 0x0
-    b L_81489658
-    L_81489384:
+    b CDBDatabaseSearchYearLayer_L_81489658
+    CDBDatabaseSearchYearLayer_L_81489384:
     cmpwi r30, 0x0
     stw r31, 0x18(r1)
     li r27, 0x1
-    beq L_81489430
+    beq CDBDatabaseSearchYearLayer_L_81489430
     mr r3, r28
     li r4, 0x1
     bl CDBFSFindFirstRoot
-    b L_81489418
-    L_814893A4:
+    b CDBDatabaseSearchYearLayer_L_81489418
+    CDBDatabaseSearchYearLayer_L_814893A4:
     mr r3, r28
     bl CDBFindDataIsDirectory
     cmpwi r3, 0x0
-    beq L_81489410
+    beq CDBDatabaseSearchYearLayer_L_81489410
     mr r3, r28
     bl CDBFindDataGetName
     bl CDBFSIsYearDirName
     cmpwi r3, 0x0
-    beq L_81489410
+    beq CDBDatabaseSearchYearLayer_L_81489410
     mr r3, r28
     bl CDBFindDataGetName
     bl atoi
@@ -2061,44 +2061,44 @@ asm CDBErr CDBDatabaseSearchYearLayer(CDBDatabase* database, CDBSearchConditions
     bl CDBIntCompare
     lwz r0, 0x1c(r1)
     mullw. r0, r0, r3
-    ble L_81489410
+    ble CDBDatabaseSearchYearLayer_L_81489410
     addi r3, r1, 0x10
     bl CDBIntArrayFull
     cmpwi r3, 0x0
-    beq L_81489404
+    beq CDBDatabaseSearchYearLayer_L_81489404
     li r27, 0x0
-    L_81489404:
+    CDBDatabaseSearchYearLayer_L_81489404:
     addi r3, r1, 0x10
     addi r4, r1, 0xc
     bl CDBIntArrayDicInsert
-    L_81489410:
+    CDBDatabaseSearchYearLayer_L_81489410:
     mr r3, r28
     bl CDBFSFindNext
-    L_81489418:
+    CDBDatabaseSearchYearLayer_L_81489418:
     mr r3, r28
     bl CDBFindDataIsEnd
     cmpwi r3, 0x0
-    beq L_814893A4
+    beq CDBDatabaseSearchYearLayer_L_814893A4
     mr r3, r28
     bl CDBFSFindClose
-    L_81489430:
+    CDBDatabaseSearchYearLayer_L_81489430:
     cmpwi r29, 0x0
-    beq L_814894F8
+    beq CDBDatabaseSearchYearLayer_L_814894F8
     mr r3, r28
     addi r5, r25, 0x28
     li r4, 0x2
     bl CDBFSFindFirstRootEx
-    b L_814894E0
-    L_8148944C:
+    b CDBDatabaseSearchYearLayer_L_814894E0
+    CDBDatabaseSearchYearLayer_L_8148944C:
     mr r3, r28
     bl CDBFindDataIsDirectory
     cmpwi r3, 0x0
-    beq L_814894D8
+    beq CDBDatabaseSearchYearLayer_L_814894D8
     mr r3, r28
     bl CDBFindDataGetName
     bl CDBFSIsYearDirName
     cmpwi r3, 0x0
-    beq L_814894D8
+    beq CDBDatabaseSearchYearLayer_L_814894D8
     mr r3, r28
     bl CDBFindDataGetName
     bl atoi
@@ -2108,7 +2108,7 @@ asm CDBErr CDBDatabaseSearchYearLayer(CDBDatabase* database, CDBSearchConditions
     bl CDBIntCompare
     lwz r0, 0x1c(r1)
     mullw. r0, r0, r3
-    ble L_814894D8
+    ble CDBDatabaseSearchYearLayer_L_814894D8
     addi r3, r1, 0x10
     addi r4, r1, 0xc
     bl CDBIntArrayDicFind
@@ -2116,37 +2116,37 @@ asm CDBErr CDBDatabaseSearchYearLayer(CDBDatabase* database, CDBSearchConditions
     addi r3, r1, 0x10
     bl CDBIntArrayEnd
     cmplw r23, r3
-    bne L_814894D8
+    bne CDBDatabaseSearchYearLayer_L_814894D8
     addi r3, r1, 0x10
     bl CDBIntArrayFull
     cmpwi r3, 0x0
-    beq L_814894CC
+    beq CDBDatabaseSearchYearLayer_L_814894CC
     li r27, 0x0
-    L_814894CC:
+    CDBDatabaseSearchYearLayer_L_814894CC:
     addi r3, r1, 0x10
     addi r4, r1, 0xc
     bl CDBIntArrayDicInsert
-    L_814894D8:
+    CDBDatabaseSearchYearLayer_L_814894D8:
     mr r3, r28
     bl CDBFSFindNext
-    L_814894E0:
+    CDBDatabaseSearchYearLayer_L_814894E0:
     mr r3, r28
     bl CDBFindDataIsEnd
     cmpwi r3, 0x0
-    beq L_8148944C
+    beq CDBDatabaseSearchYearLayer_L_8148944C
     mr r3, r28
     bl CDBFSFindClose
-    L_814894F8:
+    CDBDatabaseSearchYearLayer_L_814894F8:
     addi r3, r1, 0x10
     bl CDBIntArrayEmpty
     cmpwi r3, 0x0
-    bne L_81489660
+    bne CDBDatabaseSearchYearLayer_L_81489660
     lwz r0, 0x14(r25)
     cmpwi r0, 0x1
-    bne L_814895B8
+    bne CDBDatabaseSearchYearLayer_L_814895B8
     li r22, 0x0
-    b L_814895A4
-    L_8148951C:
+    b CDBDatabaseSearchYearLayer_L_814895A4
+    CDBDatabaseSearchYearLayer_L_8148951C:
     mr r4, r22
     addi r3, r1, 0x10
     bl CDBIntArrayAt
@@ -2155,12 +2155,12 @@ asm CDBErr CDBDatabaseSearchYearLayer(CDBDatabase* database, CDBSearchConditions
     bl CDBMakeCDBDateYearEnd
     lwz r0, 0x0(r25)
     cmplw r3, r0
-    blt L_81489594
+    blt CDBDatabaseSearchYearLayer_L_81489594
     lwz r3, 0x0(r23)
     bl CDBMakeCDBDateYearBegin
     lwz r0, 0x4(r25)
     cmplw r0, r3
-    blt L_81489594
+    blt CDBDatabaseSearchYearLayer_L_81489594
     lwz r4, 0x0(r23)
     addi r3, r1, 0x40
     bl CDBConvYearValueToYearStr
@@ -2170,31 +2170,31 @@ asm CDBErr CDBDatabaseSearchYearLayer(CDBDatabase* database, CDBSearchConditions
     addi r5, r1, 0x40
     bl CDBDatabaseSearchMonthLayer
     cmpwi r3, 0x0
-    beq L_81489580
-    b L_81489664
-    L_81489580:
+    beq CDBDatabaseSearchYearLayer_L_81489580
+    b CDBDatabaseSearchYearLayer_L_81489664
+    CDBDatabaseSearchYearLayer_L_81489580:
     lwz r0, 0x20(r25)
     cmpwi r0, 0x0
-    bne L_81489594
+    bne CDBDatabaseSearchYearLayer_L_81489594
     li r3, 0x0
-    b L_81489664
-    L_81489594:
+    b CDBDatabaseSearchYearLayer_L_81489664
+    CDBDatabaseSearchYearLayer_L_81489594:
     mr r4, r23
     addi r3, r1, 0x8
     bl CDBIntCopy
     addi r22, r22, 0x1
-    L_814895A4:
+    CDBDatabaseSearchYearLayer_L_814895A4:
     addi r3, r1, 0x10
     bl CDBIntArraySize
     cmpw r22, r3
-    blt L_8148951C
-    b L_81489658
-    L_814895B8:
+    blt CDBDatabaseSearchYearLayer_L_8148951C
+    b CDBDatabaseSearchYearLayer_L_81489658
+    CDBDatabaseSearchYearLayer_L_814895B8:
     addi r3, r1, 0x10
     bl CDBIntArraySize
     subi r23, r3, 0x1
-    b L_81489650
-    L_814895C8:
+    b CDBDatabaseSearchYearLayer_L_81489650
+    CDBDatabaseSearchYearLayer_L_814895C8:
     mr r4, r23
     addi r3, r1, 0x10
     bl CDBIntArrayAt
@@ -2203,12 +2203,12 @@ asm CDBErr CDBDatabaseSearchYearLayer(CDBDatabase* database, CDBSearchConditions
     bl CDBMakeCDBDateYearEnd
     lwz r0, 0x0(r25)
     cmplw r3, r0
-    blt L_81489640
+    blt CDBDatabaseSearchYearLayer_L_81489640
     lwz r3, 0x0(r22)
     bl CDBMakeCDBDateYearBegin
     lwz r0, 0x4(r25)
     cmplw r0, r3
-    blt L_81489640
+    blt CDBDatabaseSearchYearLayer_L_81489640
     lwz r4, 0x0(r22)
     addi r3, r1, 0x40
     bl CDBConvYearValueToYearStr
@@ -2218,28 +2218,28 @@ asm CDBErr CDBDatabaseSearchYearLayer(CDBDatabase* database, CDBSearchConditions
     addi r5, r1, 0x40
     bl CDBDatabaseSearchMonthLayer
     cmpwi r3, 0x0
-    beq L_8148962C
-    b L_81489664
-    L_8148962C:
+    beq CDBDatabaseSearchYearLayer_L_8148962C
+    b CDBDatabaseSearchYearLayer_L_81489664
+    CDBDatabaseSearchYearLayer_L_8148962C:
     lwz r0, 0x20(r25)
     cmpwi r0, 0x0
-    bne L_81489640
+    bne CDBDatabaseSearchYearLayer_L_81489640
     li r3, 0x0
-    b L_81489664
-    L_81489640:
+    b CDBDatabaseSearchYearLayer_L_81489664
+    CDBDatabaseSearchYearLayer_L_81489640:
     mr r4, r22
     addi r3, r1, 0x8
     bl CDBIntCopy
     subi r23, r23, 0x1
-    L_81489650:
+    CDBDatabaseSearchYearLayer_L_81489650:
     cmpwi r23, 0x0
-    bge L_814895C8
-    L_81489658:
+    bge CDBDatabaseSearchYearLayer_L_814895C8
+    CDBDatabaseSearchYearLayer_L_81489658:
     cmpwi r27, 0x0
-    beq L_81489384
-    L_81489660:
+    beq CDBDatabaseSearchYearLayer_L_81489384
+    CDBDatabaseSearchYearLayer_L_81489660:
     li r3, 0x0
-    L_81489664:
+    CDBDatabaseSearchYearLayer_L_81489664:
     addi r11, r1, 0x90
     bl _restgpr_22
     lwz r0, 0x94(r1)
