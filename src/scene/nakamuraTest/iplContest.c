@@ -53,16 +53,10 @@ void iplContest_813D54F8(BOOL success, NAT nat);
 void* IPLContestAlloc(int size);
 void IPLContestFree(void* block, u32 _unused);
 
-void sNHTTPReqCallback(int param_1, NHTTPResponse* httpRes);
+void sNHTTPReqCallback(int error, NHTTPResponse* httpRes);
 void sNHTTPCleanupCallback();
 
 void IPLContestInitialize(void* heapBuf, NCDProxyProfile* proxy) {
-    char* pcVar1;
-    char cVar2;
-    char* pcVar3;
-    char* pcVar4;
-    int iVar5;
-
     g_session.heapBuf = heapBuf;
     g_session.heap = MEMCreateExpHeapEx(heapBuf, 0x10000, 0);
     OSInitMutex(&g_session.mutex);
@@ -416,9 +410,9 @@ void IPLContestFree(void* block, u32 _unused) {
     OSUnlockMutex(&g_session.mutex);
 }
 
-void sNHTTPReqCallback(int param_1, NHTTPResponse* httpRes) {
+void sNHTTPReqCallback(int error, NHTTPResponse* httpRes) {
     g_session.httpResponse = httpRes;
-    if (param_1 == 0) {
+    if (error == 0) {
         switch (NHTTPGetResultCode(httpRes)) {
             case 200: {
                 g_session.httpTestState = HTTP_TEST_RESPONSE_RECEIVED;
@@ -440,7 +434,7 @@ void sNHTTPReqCallback(int param_1, NHTTPResponse* httpRes) {
     }
 
     g_session.httpTestState = HTTP_TEST_RESPONSE_ERRORED;
-    switch (param_1) {
+    switch (error) {
         case 0x4: {
             g_session.errCode = g_session.errCode != 0 ? g_session.errCode : -52100;
             break;
