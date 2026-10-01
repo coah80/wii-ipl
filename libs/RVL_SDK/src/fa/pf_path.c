@@ -1,3 +1,4 @@
+// Matching build uses pf_path.s (retail extract); keep C for reference.
 #include <private/vf/PrFILE2/pf_types.h>
 #include <private/vf/PrFILE2/common/pf_clib.h>
 #include <private/vf/PrFILE2/common/pf_w_clib.h>
