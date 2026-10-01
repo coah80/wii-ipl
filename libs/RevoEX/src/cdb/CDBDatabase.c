@@ -2691,160 +2691,81 @@ CDBErr CDBDatabaseCleanUpEmptyDirectoriesMonth(char* year, CDBLocation location,
     return CDB_ERROR_OK;
 }
 
-asm CDBErr CDBDatabaseCleanUpEmptyDirectories(CDBDatabase* database, CDBRecordLocation recordLocation) {
-#ifdef __MWERKS__
-    nofralloc
-    stwu r1, -0x20(r1)
-    mflr r0
-    cmpwi r3, 0x0
-    stw r0, 0x24(r1)
-    stw r31, 0x1c(r1)
-    mr r31, r3
-    stw r30, 0x18(r1)
-    stw r29, 0x14(r1)
-    mr r29, r4
-    lwz r5, CDBDatabaseWorkBuf(r0)
-    addi r30, r5, 0x430c
-    bne L_8148A13C
-    li r3, 0x1
-    b L_8148A2FC
-    L_8148A13C:
-    bl CDBLock
-    lwz r3, 0x8(r31)
-    cmpwi r3, 0x0
-    beq L_8148A158
-    addis r3, r3, 0x1
-    lwz r31, -0x3ff0(r3)
-    b L_8148A15C
-    L_8148A158:
-    li r31, 0x0
-    L_8148A15C:
-    bl CDBUnlock
-    cmpwi r31, 0x0
-    bne L_8148A198
-    li r3, 0x2
-    bl CDBIsPrintDebugMessage
-    cmpwi r3, 0x0
-    beq L_8148A190
-    li r3, 0x2
-    bl CDBReport_
-    lis r3, lbl_8166B5D0@ha
-    addi r3, r3, lbl_8166B5D0@l
-    crclr 4*cr1+eq
-    bl OSReport
-    L_8148A190:
-    li r3, 0x1b
-    b L_8148A2FC
-    L_8148A198:
-    cmpwi r31, 0x1
-    bne L_8148A1D0
-    li r3, 0x2
-    bl CDBIsPrintDebugMessage
-    cmpwi r3, 0x0
-    beq L_8148A1C8
-    li r3, 0x2
-    bl CDBReport_
-    lis r3, lbl_8166B618@ha
-    addi r3, r3, lbl_8166B618@l
-    crclr 4*cr1+eq
-    bl OSReport
-    L_8148A1C8:
-    li r3, 0x1a
-    b L_8148A2FC
-    L_8148A1D0:
-    clrlwi. r0, r29, 31
-    beq L_8148A24C
-    mr r3, r30
-    li r4, 0x1
-    bl CDBFSFindFirstRoot
-    b L_8148A234
-    L_8148A1E8:
-    mr r3, r30
-    bl CDBFindDataIsDirectory
-    cmpwi r3, 0x0
-    beq L_8148A22C
-    mr r3, r30
-    bl CDBFindDataGetName
-    bl CDBFSIsYearDirName
-    cmpwi r3, 0x0
-    beq L_8148A22C
-    mr r3, r30
-    bl CDBFindDataGetName
-    li r4, 0x1
-    li r5, 0x0
-    bl CDBDatabaseCleanUpEmptyDirectoriesMonth
-    cmpwi r3, 0x0
-    beq L_8148A22C
-    b L_8148A2FC
-    L_8148A22C:
-    mr r3, r30
-    bl CDBFSFindNext
-    L_8148A234:
-    mr r3, r30
-    bl CDBFindDataIsEnd
-    cmpwi r3, 0x0
-    beq L_8148A1E8
-    mr r3, r30
-    bl CDBFSFindClose
-    L_8148A24C:
-    bl CDBVFSync
-    li r31, 0x0
-    bl CDBFSSDIsMounted
-    cmpwi r3, 0x0
-    beq L_8148A270
-    bl CDBFSSDIsEjected
-    cmpwi r3, 0x0
-    bne L_8148A270
-    li r31, 0x1
-    L_8148A270:
-    cmpwi r31, 0x0
-    beq L_8148A2F4
-    rlwinm. r0, r29, 0, 30, 30
-    beq L_8148A2F4
-    mr r3, r30
-    li r4, 0x2
-    bl CDBFSFindFirstRoot
-    b L_8148A2DC
-    L_8148A290:
-    mr r3, r30
-    bl CDBFindDataIsDirectory
-    cmpwi r3, 0x0
-    beq L_8148A2D4
-    mr r3, r30
-    bl CDBFindDataGetName
-    bl CDBFSIsYearDirName
-    cmpwi r3, 0x0
-    beq L_8148A2D4
-    mr r3, r30
-    bl CDBFindDataGetName
-    li r4, 0x2
-    li r5, 0x0
-    bl CDBDatabaseCleanUpEmptyDirectoriesMonth
-    cmpwi r3, 0x0
-    beq L_8148A2D4
-    b L_8148A2FC
-    L_8148A2D4:
-    mr r3, r30
-    bl CDBFSFindNext
-    L_8148A2DC:
-    mr r3, r30
-    bl CDBFindDataIsEnd
-    cmpwi r3, 0x0
-    beq L_8148A290
-    mr r3, r30
-    bl CDBFSFindClose
-    L_8148A2F4:
-    bl CDBVFSync
-    li r3, 0x0
-    L_8148A2FC:
-    lwz r0, 0x24(r1)
-    lwz r31, 0x1c(r1)
-    lwz r30, 0x18(r1)
-    lwz r29, 0x14(r1)
-    mtlr r0
-    addi r1, r1, 0x20
-    blr
-#endif
+CDBErr CDBDatabaseCleanUpEmptyDirectories(CDBDatabase* database, CDBRecordLocation recordLocation) {
+    CDBDatabase* db;
+    CDBFindData* find;
+    int flags;
+    CDBDatabaseState* instance;
+    CDBErr result;
+    BOOL sdAvailable;
+
+    db = database;
+    find = &CDBDatabaseWorkBuf->year;
+    if (db == NULL) {
+        return CDB_ERROR_1;
+    }
+
+    CDBLock();
+    instance = db->instance;
+    if (instance != NULL) {
+        flags = instance->flags;
+    } else {
+        flags = 0;
+    }
+    CDBUnlock();
+
+    if (flags == 0) {
+        CDBReportError(lbl_8166B5D0);
+        return CDB_ERROR_27;
+    }
+    if (flags == 1) {
+        CDBReportError(lbl_8166B618);
+        return CDB_ERROR_26;
+    }
+
+    if ((recordLocation & 1) != 0) {
+        CDBFSFindFirstRoot(find, 1);
+        while (CDBFindDataIsEnd(find) == 0) {
+            if (CDBFindDataIsDirectory(find) != 0) {
+                if (CDBFSIsYearDirName(CDBFindDataGetName(find)) != 0) {
+                    result = CDBDatabaseCleanUpEmptyDirectoriesMonth(CDBFindDataGetName(find), 1, NULL);
+                    if (result != CDB_ERROR_OK) {
+                        return result;
+                    }
+                }
+            }
+            CDBFSFindNext(find);
+        }
+        CDBFSFindClose(find);
+    }
+
+    CDBVFSync();
+    sdAvailable = 0;
+    if (CDBFSSDIsMounted() != 0) {
+        if (CDBFSSDIsEjected() == 0) {
+            sdAvailable = 1;
+        }
+    }
+    if (sdAvailable != 0) {
+        if ((recordLocation & 2) != 0) {
+            CDBFSFindFirstRoot(find, 2);
+            while (CDBFindDataIsEnd(find) == 0) {
+                if (CDBFindDataIsDirectory(find) != 0) {
+                    if (CDBFSIsYearDirName(CDBFindDataGetName(find)) != 0) {
+                        result = CDBDatabaseCleanUpEmptyDirectoriesMonth(CDBFindDataGetName(find), 2, NULL);
+                        if (result != CDB_ERROR_OK) {
+                            return result;
+                        }
+                    }
+                }
+                CDBFSFindNext(find);
+            }
+            CDBFSFindClose(find);
+        }
+    }
+
+    CDBVFSync();
+    return CDB_ERROR_OK;
 }
 
 #pragma section data_type ".data"
