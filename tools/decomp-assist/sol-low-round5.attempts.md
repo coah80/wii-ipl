@@ -1,0 +1,158 @@
+# Partial-source matching attempts, round 5
+
+43U only. Measurements use objdiff and decoded target instructions. Failed experiments are restored.
+
+- flushSaveDataAndMountSD__Q33ipl5scene15SDChannelSelectFv | load heap before save manager | 99.65714% insns 35/35 diffs 2; POOL IDENTICAL up to 101 (mine=101 base=101); retained candidate.
+- flushSaveDataAndMountSD__Q33ipl5scene15SDChannelSelectFv | declare manager after heap | compile failed; reverted.
+- flushSaveDataAndMountSD__Q33ipl5scene15SDChannelSelectFv | declare manager before heap and assign heap first | compile failed; reverted.
+- handleSDTitleListResult__Q33ipl5scene15SDChannelSelectFv | materialize elapsed-time predicate | 99.15205% insns 170/171 diffs None; POOL IDENTICAL up to 101 (mine=101 base=101); reverted.
+- handleSDTitleListResult__Q33ipl5scene15SDChannelSelectFv | positive elapsed-time predicate | 97.98245% insns 172/171 diffs None; POOL IDENTICAL up to 101 (mine=101 base=101); reverted.
+- handleSDTitleListResult__Q33ipl5scene15SDChannelSelectFv | loop count scoped with title identifier first | 97.807014% insns 172/171 diffs None; POOL IDENTICAL up to 101 (mine=101 base=101); reverted.
+- flushSaveDataAndMountSD__Q33ipl5scene15SDChannelSelectFv | heap then typed save-data manager | 99.65714% insns 35/35 diffs 2; POOL IDENTICAL up to 101 (mine=101 base=101); reverted.
+- flushSaveDataAndMountSD__Q33ipl5scene15SDChannelSelectFv | manager declaration before heap assignment | 99.65714% insns 35/35 diffs 2; POOL IDENTICAL up to 101 (mine=101 base=101); reverted.
+- calcCommon__Q33ipl5scene15SDChannelSelectFv | split page-limit guard into named bound | 98.888885% insns 109/108 diffs None; POOL IDENTICAL up to 101 (mine=101 base=101); reverted.
+- calcCommon__Q33ipl5scene15SDChannelSelectFv | event-handler pointer local before call | 99.07407% insns 109/108 diffs None; POOL IDENTICAL up to 101 (mine=101 base=101); reverted.
+- calcCommon__Q33ipl5scene15SDChannelSelectFv | left arrow positive comparison reversed | 99.07407% insns 109/108 diffs None; POOL IDENTICAL up to 101 (mine=101 base=101); reverted.
+- initializeNormalPage__Q33ipl5scene15SDChannelSelectFv | split page-limit guard into named bound | 98.723404% insns 95/94 diffs None; POOL IDENTICAL up to 101 (mine=101 base=101); reverted.
+- initializeNormalPage__Q33ipl5scene15SDChannelSelectFv | event-handler pointer local before call | 98.93617% insns 95/94 diffs None; POOL IDENTICAL up to 101 (mine=101 base=101); reverted.
+- initializeNormalPage__Q33ipl5scene15SDChannelSelectFv | left arrow positive comparison reversed | 98.93617% insns 95/94 diffs None; POOL IDENTICAL up to 101 (mine=101 base=101); reverted.
+- onEventDerived__Q43ipl5scene32@unnamed@iplSDChannelSelect_cpp@33SDChannelSelectButtonEventHandlerFUlUlPCQ33ipl10controller9Interface | early non-trigger return before dispatch | 98.541664% insns 144/144 diffs 57; POOL IDENTICAL up to 101 (mine=101 base=101); reverted.
+- onEventDerived__Q43ipl5scene32@unnamed@iplSDChannelSelect_cpp@33SDChannelSelectButtonEventHandlerFUlUlPCQ33ipl10controller9Interface | Boolean trigger gate | 98.541664% insns 144/144 diffs 57; POOL IDENTICAL up to 101 (mine=101 base=101); reverted.
+- onEventDerived__Q43ipl5scene32@unnamed@iplSDChannelSelect_cpp@33SDChannelSelectButtonEventHandlerFUlUlPCQ33ipl10controller9Interface | scope scene-state snapshot in switch | 98.541664% insns 144/144 diffs 57; POOL IDENTICAL up to 101 (mine=101 base=101); reverted.
+- selectChannel__Q33ipl5scene15SDChannelSelectFii | explicit position lifetime | 93.72881% insns 60/59 diffs None; POOL IDENTICAL up to 101 (mine=101 base=101); reverted.
+- selectChannel__Q33ipl5scene15SDChannelSelectFii | component-wise translation | 85.932205% insns 62/59 diffs None; POOL IDENTICAL up to 101 (mine=101 base=101); reverted.
+- selectChannel__Q33ipl5scene15SDChannelSelectFii | nested arrow state branches | 98.305084% insns 60/59 diffs None; POOL IDENTICAL up to 101 (mine=101 base=101); reverted.
+- collectTitlesFromNandUsage__Q33ipl5scene15SDChannelSelectFPClPClPUxPcPUl | capture updated count after copy in inner scope | 97.833336% insns 102/102 diffs 4; POOL IDENTICAL up to 101 (mine=101 base=101); reverted.
+- collectTitlesFromNandUsage__Q33ipl5scene15SDChannelSelectFPClPClPUxPcPUl | separate required-byte local after count store | 97.833336% insns 102/102 diffs 4; POOL IDENTICAL up to 101 (mine=101 base=101); reverted.
+- collectTitlesFromNandUsage__Q33ipl5scene15SDChannelSelectFPClPClPUxPcPUl | declare blocks before bytes | 97.745094% insns 102/102 diffs 13; POOL IDENTICAL up to 101 (mine=101 base=101); reverted.
+- collectTitlesByUsage__Q33ipl5scene15SDChannelSelectFPClPClPUxPcPUl | capture updated count after copy in inner scope | 97.81188% insns 101/101 diffs 4; POOL IDENTICAL up to 101 (mine=101 base=101); reverted.
+- collectTitlesByUsage__Q33ipl5scene15SDChannelSelectFPClPClPUxPcPUl | separate required-byte local after count store | 97.81188% insns 101/101 diffs 4; POOL IDENTICAL up to 101 (mine=101 base=101); reverted.
+- collectTitlesByUsage__Q33ipl5scene15SDChannelSelectFPClPClPUxPcPUl | declare blocks before bytes | 97.72277% insns 101/101 diffs 13; POOL IDENTICAL up to 101 (mine=101 base=101); reverted.
+- collectTitlesByChannelOrder__Q33ipl5scene15SDChannelSelectFPClPClPUxPcPUl | capture updated count after copy in inner scope | 97.29365% insns 126/126 diffs 22; POOL IDENTICAL up to 101 (mine=101 base=101); reverted.
+- collectTitlesByChannelOrder__Q33ipl5scene15SDChannelSelectFPClPClPUxPcPUl | separate required-byte local after count store | 97.29365% insns 126/126 diffs 22; POOL IDENTICAL up to 101 (mine=101 base=101); reverted.
+- collectTitlesByChannelOrder__Q33ipl5scene15SDChannelSelectFPClPClPUxPcPUl | declare blocks before bytes | 97.22222% insns 126/126 diffs 31; POOL IDENTICAL up to 101 (mine=101 base=101); reverted.
+- drawChannelTransitionObjects__Q33ipl5scene15SDChannelSelectFv | correct state-flags field and address-order locals | 95.35849% insns 153/159 diffs None; POOL IDENTICAL up to 101 (mine=101 base=101); reverted.
+- drawChannelTransitionObjects__Q33ipl5scene15SDChannelSelectFv | state range expressed by nested positive guards | 91.83648% insns 161/159 diffs None; POOL IDENTICAL up to 101 (mine=101 base=101); reverted.
+- drawChannelTransitionObjects__Q33ipl5scene15SDChannelSelectFv | branch-to-next-block retranslation of state ranges | 95.35849% insns 153/159 diffs None; POOL IDENTICAL up to 101 (mine=101 base=101); reverted.
+- isCurrentTitleUsageEnough__Q33ipl5scene15SDChannelSelectCFPCl | target load order and explicit return branches | 98.92157% insns 51/51 diffs 9; POOL IDENTICAL up to 101 (mine=101 base=101); reverted.
+- isCurrentTitleUsageEnough__Q33ipl5scene15SDChannelSelectCFPCl | usage pointer declared before block count | 98.92157% insns 51/51 diffs 9; POOL IDENTICAL up to 101 (mine=101 base=101); reverted.
+- isCurrentTitleUsageEnough__Q33ipl5scene15SDChannelSelectCFPCl | word Boolean sufficiency result | 91.960785% insns 55/51 diffs None; POOL IDENTICAL up to 101 (mine=101 base=101); reverted.
+- getCurrentTitleUsage__Q33ipl5scene15SDChannelSelectCFPlPl | reload title entry in separate scopes | 86.82353% insns 49/51 diffs None; POOL IDENTICAL up to 101 (mine=101 base=101); reverted.
+- getCurrentTitleUsage__Q33ipl5scene15SDChannelSelectCFPlPl | explicit output additions with reversed operands | 86.82353% insns 49/51 diffs None; POOL IDENTICAL up to 101 (mine=101 base=101); reverted.
+- getCurrentTitleUsage__Q33ipl5scene15SDChannelSelectCFPlPl | title lookup count initialized before current title | 86.82353% insns 49/51 diffs None; POOL IDENTICAL up to 101 (mine=101 base=101); reverted.
+- findAdjacentChannel__Q33ipl5scene15SDChannelSelectCFiPiPi | step initialized before current-page snapshot | 80.95556% insns 45/45 diffs 14; POOL IDENTICAL up to 101 (mine=101 base=101); reverted.
+- findAdjacentChannel__Q33ipl5scene15SDChannelSelectCFiPiPi | declare slot count before page and return flag first | 82.22222% insns 45/45 diffs 5; POOL IDENTICAL up to 101 (mine=101 base=101); reverted.
+- findAdjacentChannel__Q33ipl5scene15SDChannelSelectCFiPiPi | explicit signed direction dispatch | 81.77778% insns 45/45 diffs 9; POOL IDENTICAL up to 101 (mine=101 base=101); reverted.
+- enqueueNotice__Q33ipl5scene15SDChannelSelectFUlUlUl | initialize third argument before active fields | 96.844444% insns 46/45 diffs None; POOL IDENTICAL up to 101 (mine=101 base=101); reverted.
+- enqueueNotice__Q33ipl5scene15SDChannelSelectFUlUlUl | initialize argument pair with common zero value | 97.51111% insns 46/45 diffs None; POOL IDENTICAL up to 101 (mine=101 base=101); reverted.
+- enqueueNotice__Q33ipl5scene15SDChannelSelectFUlUlUl | initialize complete argument union separately | 90.0% insns 49/45 diffs None; POOL IDENTICAL up to 101 (mine=101 base=101); reverted.
+- enqueueLoadNotice__Q33ipl5scene15SDChannelSelectFv | initialize third argument before active fields | 94.13043% insns 24/23 diffs None; POOL IDENTICAL up to 101 (mine=101 base=101); reverted.
+- enqueueLoadNotice__Q33ipl5scene15SDChannelSelectFv | initialize argument pair with common zero value | 95.652176% insns 24/23 diffs None; POOL IDENTICAL up to 101 (mine=101 base=101); reverted.
+- enqueueLoadNotice__Q33ipl5scene15SDChannelSelectFv | initialize complete argument union separately | 80.695656% insns 27/23 diffs None; POOL IDENTICAL up to 101 (mine=101 base=101); reverted.
+- enqueuePageNotice__Q33ipl5scene15SDChannelSelectFv | initialize third argument before active fields | 94.13043% insns 24/23 diffs None; POOL IDENTICAL up to 101 (mine=101 base=101); reverted.
+- enqueuePageNotice__Q33ipl5scene15SDChannelSelectFv | initialize argument pair with common zero value | 95.652176% insns 24/23 diffs None; POOL IDENTICAL up to 101 (mine=101 base=101); reverted.
+- enqueuePageNotice__Q33ipl5scene15SDChannelSelectFv | initialize complete argument union separately | 80.695656% insns 27/23 diffs None; POOL IDENTICAL up to 101 (mine=101 base=101); reverted.
+- enqueueResultNotice__Q33ipl5scene15SDChannelSelectFUl | initialize third argument before active fields | 94.608696% insns 24/23 diffs None; POOL IDENTICAL up to 101 (mine=101 base=101); reverted.
+- enqueueResultNotice__Q33ipl5scene15SDChannelSelectFUl | initialize argument pair with common zero value | 95.652176% insns 24/23 diffs None; POOL IDENTICAL up to 101 (mine=101 base=101); reverted.
+- enqueueResultNotice__Q33ipl5scene15SDChannelSelectFUl | initialize complete argument union separately | 81.13043% insns 27/23 diffs None; POOL IDENTICAL up to 101 (mine=101 base=101); reverted.
+- enqueueMoveNotice__Q33ipl5scene15SDChannelSelectFUlUlUl | initialize third argument before active fields | 94.13043% insns 24/23 diffs None; POOL IDENTICAL up to 101 (mine=101 base=101); reverted.
+- enqueueMoveNotice__Q33ipl5scene15SDChannelSelectFUlUlUl | initialize argument pair with common zero value | 95.652176% insns 24/23 diffs None; POOL IDENTICAL up to 101 (mine=101 base=101); reverted.
+- enqueueMoveNotice__Q33ipl5scene15SDChannelSelectFUlUlUl | initialize complete argument union separately | 80.695656% insns 27/23 diffs None; POOL IDENTICAL up to 101 (mine=101 base=101); reverted.
+- enqueueErrorNotice__Q33ipl5scene15SDChannelSelectFUlUl | initialize third argument before active fields | 94.391304% insns 24/23 diffs None; POOL IDENTICAL up to 101 (mine=101 base=101); reverted.
+- enqueueErrorNotice__Q33ipl5scene15SDChannelSelectFUlUl | initialize argument pair with common zero value | 95.652176% insns 24/23 diffs None; POOL IDENTICAL up to 101 (mine=101 base=101); reverted.
+- enqueueErrorNotice__Q33ipl5scene15SDChannelSelectFUlUl | initialize complete argument union separately | 81.13043% insns 27/23 diffs None; POOL IDENTICAL up to 101 (mine=101 base=101); reverted.
+- enqueueStateNotice__Q33ipl5scene15SDChannelSelectFUlUlUlUl | initialize third argument before active fields | 94.04348% insns 24/23 diffs None; POOL IDENTICAL up to 101 (mine=101 base=101); reverted.
+- enqueueStateNotice__Q33ipl5scene15SDChannelSelectFUlUlUlUl | initialize argument pair with common zero value | 95.13043% insns 24/23 diffs None; POOL IDENTICAL up to 101 (mine=101 base=101); reverted.
+- enqueueStateNotice__Q33ipl5scene15SDChannelSelectFUlUlUlUl | initialize complete argument union separately | 80.82609% insns 27/23 diffs None; POOL IDENTICAL up to 101 (mine=101 base=101); reverted.
+- enqueueFinishNotice__Q33ipl5scene15SDChannelSelectFv | initialize third argument before active fields | 81.55556% insns 19/18 diffs None; POOL IDENTICAL up to 101 (mine=101 base=101); reverted.
+- enqueueFinishNotice__Q33ipl5scene15SDChannelSelectFv | initialize argument pair with common zero value | 94.44444% insns 19/18 diffs None; POOL IDENTICAL up to 101 (mine=101 base=101); reverted.
+- enqueueFinishNotice__Q33ipl5scene15SDChannelSelectFv | initialize complete argument union separately | 64.666664% insns 22/18 diffs None; POOL IDENTICAL up to 101 (mine=101 base=101); reverted.
+- enqueueStartNotice__Q33ipl5scene15SDChannelSelectFv | initialize third argument before active fields | 80.47059% insns 18/17 diffs None; POOL IDENTICAL up to 101 (mine=101 base=101); reverted.
+- enqueueStartNotice__Q33ipl5scene15SDChannelSelectFv | initialize argument pair with common zero value | 94.117645% insns 18/17 diffs None; POOL IDENTICAL up to 101 (mine=101 base=101); reverted.
+- enqueueStartNotice__Q33ipl5scene15SDChannelSelectFv | initialize complete argument union separately | 62.588234% insns 21/17 diffs None; POOL IDENTICAL up to 101 (mine=101 base=101); reverted.
+- enqueueChannelNotice__Q33ipl5scene15SDChannelSelectFUlUlUlUl | initialize third argument before active fields | 90.17391% insns 25/23 diffs None; POOL IDENTICAL up to 101 (mine=101 base=101); reverted.
+- enqueueChannelNotice__Q33ipl5scene15SDChannelSelectFUlUlUlUl | initialize argument pair with common zero value | 90.86957% insns 25/23 diffs None; POOL IDENTICAL up to 101 (mine=101 base=101); reverted.
+- enqueueChannelNotice__Q33ipl5scene15SDChannelSelectFUlUlUlUl | initialize complete argument union separately | 71.565216% insns 28/23 diffs None; POOL IDENTICAL up to 101 (mine=101 base=101); reverted.
+- create__Q33ipl5scene15SDChannelSelectFv | calculate thumbnail arena size before reading heap | 97.73972% insns 145/146 diffs None; POOL IDENTICAL up to 101 (mine=101 base=101); reverted.
+- create__Q33ipl5scene15SDChannelSelectFv | size first and cache BS2 manager inside loop | compile failed; reverted.
+- create__Q33ipl5scene15SDChannelSelectFv | size first and start tick after loop declarations | 97.73972% insns 145/146 diffs None; POOL IDENTICAL up to 101 (mine=101 base=101); reverted.
+- setChannelScissor__Q33ipl5scene15SDChannelSelectCFPCQ33ipl5scene12SDChannelObj | top and bottom projection scales in target load order | 93.4721% insns 233/233 diffs 68; POOL IDENTICAL up to 101 (mine=101 base=101); reverted.
+- setChannelScissor__Q33ipl5scene15SDChannelSelectCFPCQ33ipl5scene12SDChannelObj | scissor x before width declaration | 92.69099% insns 233/233 diffs 75; POOL IDENTICAL up to 101 (mine=101 base=101); reverted.
+- setChannelScissor__Q33ipl5scene15SDChannelSelectCFPCQ33ipl5scene12SDChannelObj | height conversion before width scale arithmetic | 89.06009% insns 230/233 diffs None; POOL IDENTICAL up to 101 (mine=101 base=101); reverted.
+- destroy__Q33ipl5scene15SDChannelSelectFv | first list fetch outside removal loop | 92.756096% insns 207/205 diffs None; POOL IDENTICAL up to 101 (mine=101 base=101); reverted.
+- destroy__Q33ipl5scene15SDChannelSelectFv | scope file reset before worker cleanup | 95.097565% insns 203/205 diffs None; POOL IDENTICAL up to 101 (mine=101 base=101); reverted.
+- destroy__Q33ipl5scene15SDChannelSelectFv | sleep interval declared in each wait scope | 95.097565% insns 203/205 diffs None; POOL IDENTICAL up to 101 (mine=101 base=101); reverted.
+- collectTitlesBySpecialChannels__Q33ipl5scene15SDChannelSelectFPClPClPUxPcPUl | initialize special-channel bookkeeping after usage query | 79.1108% insns 350/361 diffs None; POOL IDENTICAL up to 101 (mine=101 base=101); reverted.
+- collectTitlesBySpecialChannels__Q33ipl5scene15SDChannelSelectFPClPClPUxPcPUl | reload title identifier after channel-manager calls | 81.60388% insns 353/361 diffs None; POOL IDENTICAL up to 101 (mine=101 base=101); reverted.
+- collectTitlesBySpecialChannels__Q33ipl5scene15SDChannelSelectFPClPClPUxPcPUl | independent special-channel equality blocks | 81.35734% insns 353/361 diffs None; POOL IDENTICAL up to 101 (mine=101 base=101); reverted.
+- create__Q33ipl5scene15SDChannelSelectFv | size calculation first and scoped BS2 pointer | 97.73972% insns 145/146 diffs None; POOL IDENTICAL up to 101 (mine=101 base=101); reverted.
+- NWC24SetDlInterval | separate final entry identifier lifetime | 99.89796% insns 147/147 diffs 3; POOL IDENTICAL up to 3 (mine=3 base=3); retained candidate.
+- NWC24SetDlInterval | use next-time inline helper boundary | 99.72789% insns 147/147 diffs 8; POOL IDENTICAL up to 3 (mine=3 base=3); reverted.
+- NWC24SetDlInterval | unsigned final identifier promoted only at array index | 99.52381% insns 147/147 diffs 3; POOL IDENTICAL up to 3 (mine=3 base=3); reverted.
+- NWC24ExtendDlTaskList | close status declared at the close call | compile failed; reverted.
+- NWC24ExtendDlTaskList | new load-result lifetime after close | compile failed; reverted.
+- NWC24ExtendDlTaskList | header declaration after loop identifier | 99.85401% insns 137/137 diffs 4; POOL IDENTICAL up to 3 (mine=3 base=3); reverted.
+- NWC24GetDlTask | destination alias declared before file | 99.728264% insns 92/92 diffs 5; POOL IDENTICAL up to 3 (mine=3 base=3); reverted.
+- NWC24GetDlTask | operation result declared after file open | compile failed; reverted.
+- NWC24GetDlTask | use existing read-task inline helper | 99.728264% insns 92/92 diffs 5; POOL IDENTICAL up to 3 (mine=3 base=3); reverted.
+- NWC24iCreateDlTaskList | declare header before task counter | 99.62406% insns 133/133 diffs 10; POOL IDENTICAL up to 3 (mine=3 base=3); reverted.
+- NWC24iCreateDlTaskList | task counter declared in initialization loop scope | 99.62406% insns 133/133 diffs 10; POOL IDENTICAL up to 3 (mine=3 base=3); reverted.
+- NWC24iCreateDlTaskList | initialize header pointer through cache helper | 100.0% insns 133/133 diffs 0; POOL IDENTICAL up to 3 (mine=3 base=3); reverted.
+- NWC24iCreateDlTaskList | retain cache-helper header initialization | 100.0% insns 133/133 diffs 0; POOL IDENTICAL up to 3 (mine=3 base=3); retained candidate.
+- NWC24ExtendDlTaskList | close-result lifetime scoped after loop | 99.85401% insns 137/137 diffs 4; POOL IDENTICAL up to 3 (mine=3 base=3); reverted.
+- NWC24ExtendDlTaskList | load-result lifetime scoped after close | 99.85401% insns 137/137 diffs 4; POOL IDENTICAL up to 3 (mine=3 base=3); reverted.
+- NWC24GetDlTask | file-operation status scope after open | 99.728264% insns 92/92 diffs 5; POOL IDENTICAL up to 3 (mine=3 base=3); reverted.
+- NWC24InitDlTask | header declared before parsed identifier halves | 98.923615% insns 144/144 diffs 31; POOL IDENTICAL up to 3 (mine=3 base=3); reverted.
+- NWC24InitDlTask | reverse high and low identifier declarations | 98.923615% insns 144/144 diffs 31; POOL IDENTICAL up to 3 (mine=3 base=3); reverted.
+- NWC24InitDlTask | scope initialization validation result | 98.923615% insns 144/144 diffs 31; POOL IDENTICAL up to 3 (mine=3 base=3); reverted.
+- NWC24iCheckDlHeaderConsistency | task pointer initialized in for setup | 98.77358% insns 212/212 diffs 3; POOL IDENTICAL up to 3 (mine=3 base=3); reverted.
+- NWC24iCheckDlHeaderConsistency | header and repair snapshots before task pointer | 98.77358% insns 212/212 diffs 3; POOL IDENTICAL up to 3 (mine=3 base=3); reverted.
+- NWC24iCheckDlHeaderConsistency | direct stack task address at read boundaries | 96.95283% insns 212/212 diffs 6; POOL IDENTICAL up to 3 (mine=3 base=3); reverted.
+- NWC24IterateDlTaskEx | found flag before sort direction and callback | 98.034485% insns 145/145 diffs 17; POOL IDENTICAL up to 3 (mine=3 base=3); reverted.
+- NWC24IterateDlTaskEx | direction declared before callback and found last | 98.13793% insns 145/145 diffs 14; POOL IDENTICAL up to 3 (mine=3 base=3); reverted.
+- NWC24IterateDlTaskEx | capture candidate identifier before state assignments | 98.68965% insns 144/145 diffs None; POOL IDENTICAL up to 3 (mine=3 base=3); reverted.
+- NWC24IterateDlTask | target loop-entry branch with while validation | 93.544304% insns 79/79 diffs 20; POOL IDENTICAL up to 3 (mine=3 base=3); reverted.
+- NWC24IterateDlTask | for-loop identifier update at bottom | 93.544304% insns 79/79 diffs 20; POOL IDENTICAL up to 3 (mine=3 base=3); reverted.
+- NWC24IterateDlTask | entries pointer before work and identifier declarations | 94.11392% insns 79/79 diffs 12; POOL IDENTICAL up to 3 (mine=3 base=3); reverted.
+- NWC24UpdateDlTask | separate access-time result from universal-time status | 93.87747% insns 249/253 diffs None; POOL IDENTICAL up to 3 (mine=3 base=3); reverted.
+- NWC24UpdateDlTask | retry loop boundary mirrors inline update helper | 90.992096% insns 247/253 diffs None; POOL IDENTICAL up to 3 (mine=3 base=3); reverted.
+- NWC24UpdateDlTask | access-time result scope plus retry loop translation | 90.695656% insns 249/253 diffs None; POOL IDENTICAL up to 3 (mine=3 base=3); reverted.
+- NWC24AddDlTask | header lifetime ends before next-time helper | 97.552444% insns 146/143 diffs None; POOL IDENTICAL up to 3 (mine=3 base=3); reverted.
+- NWC24AddDlTask | positive add-result branch around scheduling | 98.32168% insns 145/143 diffs None; POOL IDENTICAL up to 3 (mine=3 base=3); reverted.
+- NWC24AddDlTask | next-time result captured before return | compile failed; reverted.
+- NWC24ManageDlTaskListForMenu | remove through same stack-task pointer as read | 94.73684% insns 151/152 diffs None; POOL IDENTICAL up to 3 (mine=3 base=3); reverted.
+- NWC24ManageDlTaskListForMenu | capture removal result in caller | 94.73684% insns 151/152 diffs None; POOL IDENTICAL up to 3 (mine=3 base=3); reverted.
+- NWC24ManageDlTaskListForMenu | separate removal-result scope after reading task | 94.73684% insns 151/152 diffs None; POOL IDENTICAL up to 3 (mine=3 base=3); reverted.
+- AddTaskInternal | existing task update exits outside retry loop | 71.75312% insns 398/401 diffs None; POOL IDENTICAL up to 3 (mine=3 base=3); reverted.
+- AddTaskInternal | positive free-slot result before purge | 92.44389% insns 398/401 diffs None; POOL IDENTICAL up to 3 (mine=3 base=3); reverted.
+- AddTaskInternal | existing update result scoped before returning | 93.57855% insns 397/401 diffs None; POOL IDENTICAL up to 3 (mine=3 base=3); reverted.
+- NWC24PurgeOldestDlTask | iterator call in loop condition in address order | 86.568184% insns 168/176 diffs None; POOL IDENTICAL up to 3 (mine=3 base=3); reverted.
+- NWC24PurgeOldestDlTask | error classification after successful selection branch | 87.11364% insns 167/176 diffs None; POOL IDENTICAL up to 3 (mine=3 base=3); reverted.
+- NWC24PurgeOldestDlTask | explicit removal status with preserved task address | 86.568184% insns 168/176 diffs None; POOL IDENTICAL up to 3 (mine=3 base=3); reverted.
+- NWC24AddDlTask | next-time result scope after computed timestamp | 97.552444% insns 146/143 diffs None; POOL IDENTICAL up to 3 (mine=3 base=3); reverted.
+- createBrowser__Q33ipl5scene7SettingFv | direct page seven shares known first-page cases | 99.166115% insns 300/301 diffs None; POOL IDENTICAL up to 108 (mine=108 base=108); reverted.
+- createBrowser__Q33ipl5scene7SettingFv | page-path pointer declared before page-search index | 99.166115% insns 300/301 diffs None; POOL IDENTICAL up to 108 (mine=108 base=108); reverted.
+- createBrowser__Q33ipl5scene7SettingFv | page-path pointer at function scope with complete switch cases | 99.166115% insns 300/301 diffs None; POOL IDENTICAL up to 108 (mine=108 base=108); reverted.
+- convertRevIP__Q33ipl5scene7SettingFPUcPCc | output pointer declared before component counter | 95.479454% insns 73/73 diffs 27; POOL IDENTICAL up to 108 (mine=108 base=108); reverted.
+- convertRevIP__Q33ipl5scene7SettingFPUcPCc | index declared before output and count | 98.15069% insns 73/73 diffs 21; POOL IDENTICAL up to 108 (mine=108 base=108); reverted.
+- convertRevIP__Q33ipl5scene7SettingFPUcPCc | while-loop parser with explicit bottom increment | 98.15069% insns 73/73 diffs 21; POOL IDENTICAL up to 108 (mine=108 base=108); reverted.
+- setUSBAP__Q33ipl5scene7SettingFv | status switch reloads field in successful case | 98.070175% insns 56/57 diffs None; POOL IDENTICAL up to 108 (mine=108 base=108); reverted.
+- setUSBAP__Q33ipl5scene7SettingFv | status passed through byte local after positive branch | 98.070175% insns 56/57 diffs None; POOL IDENTICAL up to 108 (mine=108 base=108); reverted.
+- setUSBAP__Q33ipl5scene7SettingFv | status tested as zero-first branch | 98.070175% insns 56/57 diffs None; POOL IDENTICAL up to 108 (mine=108 base=108); reverted.
+- validateEULA___Q33ipl5scene7SettingFv | use treasure heap for TMD view allocation and release | 94.680855% insns 94/94 diffs 47; POOL IDENTICAL up to 108 (mine=108 base=108); reverted.
+- validateEULA___Q33ipl5scene7SettingFv | treasure heap and BOOL success flag | 93.03191% insns 95/94 diffs None; POOL IDENTICAL up to 108 (mine=108 base=108); reverted.
+- validateEULA___Q33ipl5scene7SettingFv | treasure heap and success declaration before view | 100.0% insns 94/94 diffs 0; POOL IDENTICAL up to 108 (mine=108 base=108); reverted.
+- validateEULA___Q33ipl5scene7SettingFv | retain exact treasure heap and success declaration before view | 100.0% insns 94/94 diffs 0; POOL IDENTICAL up to 108 (mine=108 base=108); retained candidate.
+- scanAP__Q33ipl5scene7SettingFv | capture animation index before busy flag and materialize BOOL predicate | 96.224266% insns 266/272 diffs None; POOL IDENTICAL up to 108 (mine=108 base=108); reverted.
+- scanAP__Q33ipl5scene7SettingFv | capture animation index and test predicate low bit | 96.224266% insns 266/272 diffs None; POOL IDENTICAL up to 108 (mine=108 base=108); reverted.
+- scanAP__Q33ipl5scene7SettingFv | capture animation index and invert predicate with xor | 96.88603% insns 278/272 diffs None; POOL IDENTICAL up to 108 (mine=108 base=108); reverted.
+- initKeyboard__Q33ipl5scene7SettingFPCc | reload keyboard global at each target call | 98.38498% insns 215/213 diffs None; POOL IDENTICAL up to 108 (mine=108 base=108); reverted.
+- initKeyboard__Q33ipl5scene7SettingFPCc | reload keyboard global and declare row count before keyboard type | 97.92019% insns 215/213 diffs None; POOL IDENTICAL up to 108 (mine=108 base=108); reverted.
+- initKeyboard__Q33ipl5scene7SettingFPCc | reload keyboard global and initialize settings in field order | 98.441315% insns 215/213 diffs None; POOL IDENTICAL up to 108 (mine=108 base=108); reverted.
+- calcKeyboard__Q33ipl5scene7SettingFv | cancel branch owns its text pointer | 92.42069% insns 289/290 diffs None; POOL IDENTICAL up to 108 (mine=108 base=108); reverted.
+- calcKeyboard__Q33ipl5scene7SettingFv | mask index initialized before confirmation text switch | 88.772415% insns 289/290 diffs None; POOL IDENTICAL up to 108 (mine=108 base=108); reverted.
+- calcKeyboard__Q33ipl5scene7SettingFv | explicit hidden-state form switch in target block order | 91.22069% insns 292/290 diffs None; POOL IDENTICAL up to 108 (mine=108 base=108); reverted.
+- draw__Q33ipl5scene7SettingFv | render mode copied by named fields in target address order | 90.53006% insns 635/632 diffs None; POOL IDENTICAL up to 108 (mine=108 base=108); reverted.
+- draw__Q33ipl5scene7SettingFv | render-mode fields plus scroll store in each branch | 91.5269% insns 636/632 diffs None; POOL IDENTICAL up to 108 (mine=108 base=108); reverted.
+- draw__Q33ipl5scene7SettingFv | render-mode fields and standard texture before wide texture | 91.525314% insns 636/632 diffs None; POOL IDENTICAL up to 108 (mine=108 base=108); reverted.
+- calcKeyboard__Q33ipl5scene7SettingFv | mask index initialized before memcpy and increment after store | 94.086205% insns 288/290 diffs None; POOL IDENTICAL up to 108 (mine=108 base=108); reverted.
