@@ -95,3 +95,19 @@ Upstream won on: zi8alpha +4.5, zi8cgetc +16, zconvert +0.4, zkokeyp +0.1.
   (removal reassociates the whole tree, -27 fuzzy).
 - OWNER RULES (w1001): no lbl_ names, no volatile use-site casts, no score-lifting objects. declspec
   .sdata2 byte objects (ziWordFormatN) are semantically named — allowed.
+
+## w1002 lever-stack pass on near-100 units (new owner rules)
+Verified instruction-identical (fuzzy residual = symbol/name artifacts, no source lever):
+- zconvert Zi8UC2WC (ndiff 0), zmtkey Zi8MTGetKeyLayout (ndiff 0, 24 relocs match).
+Rotation family confirmed again (later-defined web -> lower callee reg in orig; MWCC assigns
+creation-order upward here): IsDupWChar duplicate/character swap (8), GetDataSignature
+signature/destination/language 3-web cycle (9), MatchROMdata1 groupIndex/result swap (5),
+GetPyPhonetic ~50 regname diffs, GetPyFinal 8-diff scratch swap (orig evaluates table base
+BEFORE row*8 in IR: base->r6, scale->r7; sum reuses base's reg; mine scales first).
+Levers tried and refuted this pass: decl-order swap, decl-init fusion, moved-init,
+local-copy of param (regressed 5->119), flat-pointer subscript (8->26), stmt-order swap
+(8->12), u32 cast on index, comma-expr (build error), int-vs-ziBool width (8).
+zkokeyp: 4 fns 6-9 regname diffs (same family); Zi8_814834AC (328) + Zi8GetKOcandidates
+(642) are fn-wide web rotations — identical stack-slot layout (0x8..0x20) and near-equal
+insn counts, no structural decode gap found in 814834AC (verified elementCount/2 signed-div,
+9-stride entry calc, shift-loop per-iter bound recompute all match orig).
