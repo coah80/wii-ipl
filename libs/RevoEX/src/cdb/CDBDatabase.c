@@ -9,7 +9,7 @@ extern void CDBLock();
 extern CDBErr CDBDatabaseAllocate(CDBDatabase* database, u32 flags);
 extern void CDBUnlock();
 extern CDBErr CDBDatabaseFree(CDBDatabase* database);
-extern void CDBRecordCreateAtOnce();
+extern CDBErr CDBRecordCreateAtOnce(CDBRecord* record, CDBDatabase* database, const char* desc, char* fileType, CDBDate epoch, int gameCode, u16 makerCode, void* buffer, u32 size);
 extern void CDBRecordInitDescriptor(CDBRecord* record, CDBDatabase* database, CDBRecordKey* key);
 extern BOOL CDBRecordIsExistFile(CDBRecord* record);
 extern void CDBRecordOpenReadOnly();
@@ -95,7 +95,7 @@ extern CDBErr CDBDatabaseCreateRecordAtOnce();
 extern CDBErr CDBDatabaseCreateRecordAtOnceEx();
 extern CDBErr CDBDatabasePrivateCreateRecordAtOnceEx();
 extern CDBErr CDBDatabasePrivateCreateRecordAtOnceEx_();
-extern CDBErr CDBDatabaseCreateRecordImAtOnce_();
+extern CDBErr CDBDatabaseCreateRecordImAtOnce_(CDBDatabase* database, CDBRecord* record, const char* typeStr, const char* fileTypeStr, OSTime time, u32 gameCode, u16 makerCode, void* recordData, u32 recordDataSize);
 extern CDBErr CDBDatabaseFindByKey();
 typedef struct {
     CDBDate beginDate;
@@ -396,101 +396,30 @@ asm CDBErr CDBDatabasePrivateCreateRecordAtOnceEx_() {
 #endif
 }
 
-asm CDBErr CDBDatabaseCreateRecordImAtOnce_() {
-#ifdef __MWERKS__
-    nofralloc
-    stwu r1, -0x40(r1)
-    mflr r0
-    stw r0, 0x44(r1)
-    addi r11, r1, 0x40
-    bl _savegpr_24
-    lwz r11, 0x8(r3)
-    mr r24, r3
-    lwz r30, 0x48(r1)
-    mr r25, r4
-    cmpwi r11, 0x0
-    lwz r31, 0x4c(r1)
-    mr r26, r5
-    mr r27, r6
-    mr r28, r9
-    mr r29, r10
-    bne L_81487974
-    li r3, 0x2
-    bl CDBIsPrintDebugMessage
-    cmpwi r3, 0x0
-    beq L_8148796C
-    li r3, 0x2
-    bl CDBReport_
-    lis r3, lbl_8166B550@ha
-    addi r3, r3, lbl_8166B550@l
-    crclr 4*cr1+eq
-    bl OSReport
-    L_8148796C:
-    li r3, 0x1b
-    b L_81487A3C
-    L_81487974:
-    addis r3, r11, 0x1
-    lwz r3, -0x3ff0(r3)
-    rlwinm. r0, r3, 0, 30, 30
-    bne L_814879EC
-    cmpwi r3, 0x0
-    bne L_814879BC
-    li r3, 0x2
-    bl CDBIsPrintDebugMessage
-    cmpwi r3, 0x0
-    beq L_814879B4
-    li r3, 0x2
-    bl CDBReport_
-    lis r3, lbl_8166B550@ha
-    addi r3, r3, lbl_8166B550@l
-    crclr 4*cr1+eq
-    bl OSReport
-    L_814879B4:
-    li r3, 0x1b
-    b L_81487A3C
-    L_814879BC:
-    li r3, 0x2
-    bl CDBIsPrintDebugMessage
-    cmpwi r3, 0x0
-    beq L_814879E4
-    li r3, 0x2
-    bl CDBReport_
-    lis r3, lbl_8166B57C@ha
-    addi r3, r3, lbl_8166B57C@l
-    crclr 4*cr1+eq
-    bl OSReport
-    L_814879E4:
-    li r3, 0x1a
-    b L_81487A3C
-    L_814879EC:
-    lis r4, 0x8000
-    mr r3, r7
-    lwz r0, 0xf8(r4)
-    mr r4, r8
-    li r5, 0x0
-    srwi r6, r0, 2
-    bl __div2i
-    stw r4, 0x10(r1)
-    addi r3, r1, 0x10
-    bl CDBClampCDBDate
-    stw r31, 0x8(r1)
-    mr r3, r25
-    mr r4, r24
-    mr r5, r26
-    lwz r7, 0x10(r1)
-    mr r6, r27
-    mr r8, r28
-    mr r9, r29
-    mr r10, r30
-    bl CDBRecordCreateAtOnce
-    L_81487A3C:
-    addi r11, r1, 0x40
-    bl _restgpr_24
-    lwz r0, 0x44(r1)
-    mtlr r0
-    addi r1, r1, 0x40
-    blr
-#endif
+CDBErr CDBDatabaseCreateRecordImAtOnce_(CDBDatabase* database, CDBRecord* record, const char* typeStr, const char* fileTypeStr, OSTime time, u32 gameCode, u16 makerCode, void* recordData, u32 recordDataSize) {
+    CDBDatabaseState* instance;
+    int flags;
+    CDBDate date;
+
+    instance = database->instance;
+    if (instance == NULL) {
+        CDBReportError(lbl_8166B550);
+        return CDB_ERROR_27;
+    }
+
+    flags = instance->flags;
+    if ((flags & 2) == 0) {
+        if (flags == 0) {
+            CDBReportError(lbl_8166B550);
+            return CDB_ERROR_27;
+        }
+        CDBReportError(lbl_8166B57C);
+        return CDB_ERROR_26;
+    }
+
+    date = time / (OS_BUS_CLOCK / 4);
+    CDBClampCDBDate(&date);
+    return CDBRecordCreateAtOnce(record, database, typeStr, (char*)fileTypeStr, date, gameCode, makerCode, recordData, recordDataSize);
 }
 
 CDBErr CDBDatabaseFindByKey(CDBDatabase* database, CDBRecord* record, CDBRecordKey* recordKey) {
