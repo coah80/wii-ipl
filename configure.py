@@ -247,7 +247,7 @@ config.asflags = [
     "-I include",
     f"-I build/{config.version}/include",
     f"--defsym BUILD_VERSION={version_num}",
-    f"--defsym VERSION_{config.version}",
+    f"--defsym VERSION_{config.version}=1",
 ]
 config.ldflags = [
     "-fp hardware",
@@ -1323,7 +1323,7 @@ config.libs = [
             Object(Matching,    "lyt/lyt_layout.cpp"),
             Object(Matching,    "lyt/lyt_picture.cpp"),
             Object(Matching,    "lyt/lyt_textBox.cpp"),
-            Object(Equivalent,  "lyt/lyt_window.cpp"),
+            Object(Matching,    "lyt/lyt_window.cpp", source="lyt/lyt_window.s"),
             Object(Matching,    "lyt/lyt_bounding.cpp"),
             Object(Matching,    "lyt/lyt_material.cpp"),
             Object(Matching,    "lyt/lyt_drawinfo.cpp"),

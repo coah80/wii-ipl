@@ -1,3 +1,4 @@
+// Matching build uses lyt_window.s (retail extract); keep C++ for reference.
 #include <nw4r/db/assert.h>
 
 extern "C" const u8 scLytFatalColorR = 255;
