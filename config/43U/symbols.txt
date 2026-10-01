@@ -5829,7 +5829,7 @@ doAfterDrawProcess__Q39textinput9inputform4BaseFPCwUlRCQ49textinput10textdrawer4
 finishDraw__Q39textinput9inputform4BaseFUl = .text:0x81427DC0; // type:function size:0x4
 addSender__Q29textinput15CommandReceiverFPQ29textinput13CommandSender = .text:0x81427DC4; // type:function size:0x8
 getDrawModifyStartLine__Q39textinput10textdrawer4BaseCFv = .text:0x81427DCC; // type:function size:0x8
-isEnableCursorCache__Q39textinput10textdrawer4BaseCFvgetStartPos__Q39textinput10textdrawer4BaseCFv = .text:0x81427DD4; // type:function size:0x8
+isEnableCursorCache__Q39textinput10textdrawer4BaseCFv = .text:0x81427DD4; // type:function size:0x8
 getStartPos__Q39textinput10textdrawer4BaseCFv = .text:0x81427DDC; // type:function size:0x8
 setVIWidth__Q39textinput10textdrawer4BaseFf = .text:0x81427DE4; // type:function size:0x8
 setCandidateBox__Q39textinput12candidatebox18CandidateBoxCallerFPQ39textinput12candidatebox4Base = .text:0x81427DEC; // type:function size:0x8
