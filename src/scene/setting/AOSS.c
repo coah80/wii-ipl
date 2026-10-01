@@ -396,8 +396,8 @@ int AOSS_Init_old(AOSSInitInput* input)
   u64 tickRemainder;
   AOSSReceiveBuffer* packetBuffer;
   AOSSPacketHeader* packetWords;
-  u16 initialSleep;
-  u16 nextSleep;
+  u32 initialSleep;
+  u32 nextSleep;
   u32 resultCode;
   int state;
   u32 retryWait;
@@ -411,29 +411,35 @@ int AOSS_Init_old(AOSSInitInput* input)
   int timeoutMilliseconds;
   int protocolResult;
   u32 responseSleep;
+  u32 subnetMask;
   u64 timeoutTicks;
-  int initializationResult = 0;
+  int initializationResult;
   short attemptCount;
   u16 remainingWait;
   short waitAttempt;
-  int receivedPackets;
-  AOSSWaitSettings waitSettings;
-  AOSSNetworkSettings settings;
-  AOSSRequestRecords requestRecords;
+  u16 defaultConnection;
+  u16 defaultResponse;
   union {
     struct { s16 connection; s16 response; } limits;
     struct { u16 connection; u16 response; } defaults;
   } waitIntervals;
+  AOSSWaitSettings waitSettings;
+  int receivedPackets;
+  u8 failureStatus;
+  AOSSNetworkSettings settings;
+  AOSSRequestRecords requestRecords;
   AOSSSocketAddress replyAddress;
   u8 messageIdentity[8];
   __declspec(align(32)) AOSSSocketAddress socketAddress;
   struct { int seconds; int microseconds; } pollTime;
   AOSSSocketAddress receivedAddress;
-  AOSSPollDescriptor pollArguments[2];
   u32 networkAddresses[5];
+  AOSSPollDescriptor pollArguments[2];
 
-  waitIntervals.defaults.response = s_defaultOptions[1];
-  waitIntervals.defaults.connection = s_defaultOptions[0];
+  defaultConnection = s_defaultOptions[0];
+  defaultResponse = s_defaultOptions[1];
+  waitIntervals.defaults.connection = defaultConnection;
+  waitIntervals.defaults.response = defaultResponse;
   waitSettings.value = 0;
   receivedPackets = 0;
   memset(&requestRecords,0,0x18);
@@ -481,12 +487,11 @@ int AOSS_Init_old(AOSSInitInput* input)
     resultCode = 0xffffffff;
   } else {
     attemptCount = 0;
-    initialWait = waitIntervals.limits.connection;
     if (s_operationState != 0) {
       s_operationState = 0;
       AOSSi_Status(0);
-      initialWait = waitIntervals.limits.connection;
     }
+    initialWait = waitIntervals.limits.connection;
     while (1) {
       if (s_accessPointList) {
         AOSSi_Free(s_accessPointList);
@@ -535,7 +540,7 @@ int AOSS_Init_old(AOSSInitInput* input)
       }
       if (state != 0) {
         remainingWait = waitIntervals.limits.response;
-        if ((short)initialWait <= attemptCount) {
+        if (attemptCount >= initialWait) {
           input->status = 1;
           if (s_accessPointConfig) {
             AOSSi_Free(s_accessPointConfig);
@@ -563,7 +568,8 @@ int AOSS_Init_old(AOSSInitInput* input)
             goto finish_initialization;
           }
           initialSleep = remainingWait <= 100 ? remainingWait : 100;
-          AOSSi_Sleep(remainingWait > 100 ? 100 : remainingWait);
+          if (remainingWait > 100) AOSSi_Sleep(100);
+          else AOSSi_Sleep(remainingWait);
           initialSleep = remainingWait <= 100 ? remainingWait : 100;
         }
         if (AOSSi_cancel_flag == 1) {
@@ -593,7 +599,8 @@ int AOSS_Init_old(AOSSInitInput* input)
         if (settings.manufacturerLength <= 0xd) {
           memcpy(settings.manufacturer,s_manufacturer,settings.manufacturerLength);
         }
-        state = AOSSi_SetNCDIPAddr(0xc0a80b65,0xffffff00,0xc0a80b01,0,0);
+        initializationResult = AOSSi_SetNCDIPAddr(0xc0a80b65,0xffffff00,0xc0a80b01,0,0);
+        state = initializationResult;
         if (state != 0) {
           s_errorCode = 0xc;
           input->status = 0xf;
@@ -623,7 +630,7 @@ int AOSS_Init_old(AOSSInitInput* input)
             memset(s_accessPointConfig,0,0x58);
             initialWait = waitIntervals.limits.connection;
             remainingWait = 0;
-            goto wait_for_initial_link;
+            goto test_initial_link;
           }
         }
         goto finish_initialization;
@@ -642,7 +649,6 @@ int AOSS_Init_old(AOSSInitInput* input)
     }
   goto finish_initialization;
 wait_for_initial_link:
-  if ((short)initialWait <= (short)remainingWait) goto handle_initial_link;
   state = AOSS_814020CC(&settings,s_accessPointConfig);
   if (state == -1) {
     input->status = 0xf;
@@ -657,9 +663,9 @@ wait_for_initial_link:
     resultCode = 0xffffffff;
     goto finish_initialization;
   }
-  initialSleep = waitIntervals.limits.response;
+  initialSleep = (u16)waitIntervals.limits.response;
   if ((state == 0) && (*s_accessPointConfig == 1)) goto handle_initial_link;
-  for (; initialSleep != 0; initialSleep -= nextSleep) {
+  for (; initialSleep != 0; initialSleep = (u16)(initialSleep - nextSleep)) {
     if (AOSSi_cancel_flag == 1) {
       input->status = 0xf;
       if (s_accessPointConfig) {
@@ -673,9 +679,9 @@ wait_for_initial_link:
       resultCode = 0xffffffff;
       goto finish_initialization;
     }
-    nextSleep = initialSleep <= 100 ? initialSleep : 100;
     AOSSi_Sleep(initialSleep > 100 ? 100 : initialSleep);
-    nextSleep = initialSleep <= 100 ? initialSleep : 100;
+    if (initialSleep > 100) nextSleep = 100;
+    else nextSleep = initialSleep;
   }
   if (AOSSi_cancel_flag == 1) {
     input->status = 0xf;
@@ -691,7 +697,8 @@ wait_for_initial_link:
     goto finish_initialization;
   }
   remainingWait++;
-  goto wait_for_initial_link;
+test_initial_link:
+  if ((short)remainingWait < initialWait) goto wait_for_initial_link;
 handle_initial_link:
   if (remainingWait == waitIntervals.limits.connection) {
     input->status = 0xf;
@@ -724,8 +731,8 @@ handle_initial_link:
       currentRecord->transactionId = transactionId;
       receivedLength = SOHtoNs(transactionId);
       currentRecord->transactionId = receivedLength;
-      requestResult = requestResult + 1;
-      state = state + 8;
+      requestResult++;
+      state += sizeof(AOSSRequestRecord);
     } while (requestResult < 3);
     s_socket = SOSocket(2,2,0);
     if (s_socket < 0) {
@@ -812,9 +819,10 @@ request_socket_cleanup_complete:
               resultCode = 0xffffffff;
               goto finish_initialization;
             }
-            responseSleep = s_runtime.ipAddress & s_runtime.subnetMask;
-            retryWait = responseSleep | (s_runtime.ipAddress & ~s_runtime.subnetMask) + 1;
-            if ((responseSleep | ~s_runtime.subnetMask) <= retryWait) {
+            subnetMask = s_runtime.subnetMask;
+            responseSleep = s_runtime.ipAddress & subnetMask;
+            retryWait = responseSleep | (s_runtime.ipAddress & ~subnetMask) + 1;
+            if (retryWait >= (responseSleep | ~subnetMask)) {
               retryWait = responseSleep | 1;
             }
             requestResult = AOSSi_SetNCDIPAddr(retryWait,s_runtime.subnetMask,s_runtime.ipAddress,0,0);
@@ -864,8 +872,8 @@ request_socket_cleanup_complete:
                 resultCode = 0xffffffff;
                 goto finish_initialization;
               }
-              remainingWait = waitIntervals.limits.response;
               if ((requestResult == 0) && (*s_accessPointConfig == 1)) break;
+              remainingWait = waitIntervals.limits.response;
               for (; remainingWait != 0; remainingWait -= initialSleep) {
                 if (AOSSi_cancel_flag == 1) {
                   input->status = 0xf;
@@ -882,7 +890,8 @@ request_socket_cleanup_complete:
                 }
                 initialSleep = remainingWait <= 100 ? remainingWait : 100;
                 AOSSi_Sleep(remainingWait > 100 ? 100 : remainingWait);
-                initialSleep = remainingWait <= 100 ? remainingWait : 100;
+                if (remainingWait > 100) initialSleep = 100;
+                else initialSleep = remainingWait;
               }
               if (AOSSi_cancel_flag == 1) {
                 input->status = 0xf;
@@ -1016,8 +1025,7 @@ request_socket_cleanup_complete:
           requestResult = SOPoll(pollArguments,1,(u32)(timeoutTicks >> 32),(int)timeoutTicks);
           if (0 < requestResult) goto process_received_packet;
           receivedPackets = receivedPackets + 1;
-          retryDelay = waitSettings.halfwords.low;
-          if (attemptCount < receivedPackets) {
+          if (receivedPackets > attemptCount) {
             switch (state) {
             case 0: s_errorCode = 0xf; break;
             case 1: s_errorCode = 0x10; break;
@@ -1026,6 +1034,7 @@ request_socket_cleanup_complete:
             protocolResult = -1;
             goto close_protocol_socket;
           }
+          retryDelay = waitSettings.halfwords.low;
           for (; retryDelay != 0; retryDelay -= delayStep) {
             if (AOSSi_cancel_flag == 1) {
               input->status = 0xf;
@@ -1040,9 +1049,9 @@ request_socket_cleanup_complete:
               resultCode = 0xffffffff;
               goto finish_initialization;
             }
-            delayStep = retryDelay <= 100 ? retryDelay : 100;
             AOSSi_Sleep(retryDelay > 100 ? 100 : retryDelay);
-            delayStep = retryDelay <= 100 ? retryDelay : 100;
+            if (retryDelay > 100) delayStep = 100;
+            else delayStep = retryDelay;
           }
           if (AOSSi_cancel_flag == 1) {
             input->status = 0xf;
@@ -1209,8 +1218,8 @@ wait_for_packet:
           resultCode = 0xffffffff;
           goto finish_initialization;
         }
-        remainingWait = waitIntervals.limits.response;
         if ((state == 0) && (*s_accessPointConfig == 1)) break;
+        remainingWait = waitIntervals.limits.response;
         for (; remainingWait != 0; remainingWait -= initialSleep) {
           if (AOSSi_cancel_flag == 1) {
             input->status = 0xf;
@@ -1225,7 +1234,6 @@ wait_for_packet:
             resultCode = 0xffffffff;
             goto finish_initialization;
           }
-          initialSleep = remainingWait <= 100 ? remainingWait : 100;
           AOSSi_Sleep(remainingWait > 100 ? 100 : remainingWait);
           initialSleep = remainingWait <= 100 ? remainingWait : 100;
         }
@@ -1312,9 +1320,10 @@ wait_for_packet:
         resultCode = 0xffffffff;
         goto finish_initialization;
       }
-      delayStep = retryDelay <= 100 ? retryDelay : 100;
-      AOSSi_Sleep(retryDelay > 100 ? 100 : retryDelay);
-      delayStep = retryDelay <= 100 ? retryDelay : 100;
+      if (retryDelay > 100) AOSSi_Sleep(100);
+      else AOSSi_Sleep(retryDelay);
+      if (retryDelay > 100) delayStep = 100;
+      else delayStep = retryDelay;
     }
     if (AOSSi_cancel_flag == 1) {
       input->status = 0xf;
@@ -1361,13 +1370,14 @@ protocol_socket_cleanup_complete:
   }
   if (protocolResult != 0) {
     switch (s_errorCode) {
-    case 0xf: input->status = 3; break;
-    case 0x10: input->status = 4; break;
-    case 0x11: input->status = 5; break;
-    case 0x14: input->status = 7; break;
-    case 0x15: input->status = 8; break;
-    default: input->status = 0xf; break;
+    case 0xf: failureStatus = 3; break;
+    case 0x10: failureStatus = 4; break;
+    case 0x11: failureStatus = 5; break;
+    case 0x14: failureStatus = 7; break;
+    case 0x15: failureStatus = 8; break;
+    default: failureStatus = 0xf; break;
     }
+    input->status = failureStatus;
     if (s_accessPointConfig) {
       AOSSi_Free(s_accessPointConfig);
       s_accessPointConfig = (int *)0x0;
@@ -1380,10 +1390,8 @@ protocol_socket_cleanup_complete:
     goto finish_initialization;
   } else {
     protocolResult = AOSS_813FFD68(input);
-    if (protocolResult == 0) {
-      resultCode = 0;
-    }
-    else {
+    if (protocolResult == 0) goto configuration_success;
+    {
       input->status = 6;
       if (s_accessPointConfig) {
         AOSSi_Free(s_accessPointConfig);
@@ -1395,6 +1403,9 @@ protocol_socket_cleanup_complete:
       }
       resultCode = 0xffffffff;
     }
+    goto finish_initialization;
+configuration_success:
+    resultCode = 0;
     goto finish_initialization;
   }
 finish_initialization:
@@ -2325,15 +2336,16 @@ int AOSS_81401778(void* packet, void* request, int socket) {
     responseLength = 8;
 
     if ((s32)s_connectionState == 1) {
-        const u32* crcTable = s_crcTable;
+        const u32* crcTable;
         sequence = 1;
         checksum = 0xffffffff;
         AOSS_81401DC0(0, s_crcTable);
+        crcTable = s_crcTable;
         {
             u32 part;
-            for (part = 0; part < 2; part++) {
-                for (index = 0; index < 4; index++) {
-                    checksum = (checksum >> 8) ^ crcTable[(checksum ^ hello.data.bytes[part * 4 + index]) & 0xff];
+            for (part = 0; part < 4; part++) {
+                for (index = 0; index < 2; index++) {
+                    checksum = (checksum >> 8) ^ crcTable[(checksum ^ hello.data.bytes[part * 2 + index]) & 0xff];
                 }
             }
         }
