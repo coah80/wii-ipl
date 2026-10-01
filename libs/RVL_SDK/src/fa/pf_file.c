@@ -1,3 +1,4 @@
+// Matching build uses pf_file.s (retail extract); keep C for reference.
 #define PF_FA_STR_LAYOUT
 #include <decomp/utils.h>
 #include <private/vf/PrFILE2/fatfs/pf_volume.h>
