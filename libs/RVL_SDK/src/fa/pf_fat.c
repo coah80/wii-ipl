@@ -1282,11 +1282,13 @@ s32 PFFAT_GetSectorSpecified(PFFAT_FFD* file, u32 fileSectorIndex,
 
     error = PFFAT_GetSector(file, fileSectorIndex, clusterIndex != 0, 0,
                             sector);
-    if (error != 0) {
-        goto done;
+    switch (error) {
+    case 0:
+        error = 0;
+        break;
+    default:
+        break;
     }
-    error = 0;
-done:
     return error;
 }
 
