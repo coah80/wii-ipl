@@ -55,17 +55,17 @@ enum {
 
 static IOSFd sduOpenFD(u32 slot);
 
-static IOSError sduCommandv(s32 fd, u32 cmd, u32 cmdType, u32 respType, u32 arg, u32 buffer, u32 blockCount, u32 sectorSize, u32 param_9, u32* resp,
+static IOSError sduCommandv(s32 fd, u32 cmd, u32 cmdType, u32 respType, u32 arg, u32 buffer, u32 blockCount, u32 sectorSize, u32 dma, u32* resp,
                             void* cb, void* cbArg);
-static ISD_Error sduCommand(s32 fd, u32 cmd, u32 cmdType, u32 respType, u32 arg, u32 buffer, u32 blockCount, u32 sectorSize, u32 param_9, u32* resp,
+static ISD_Error sduCommand(s32 fd, u32 cmd, u32 cmdType, u32 respType, u32 arg, u32 buffer, u32 blockCount, u32 sectorSize, u32 dma, u32* resp,
                             void* cb, void* cbArg);
 
 static ISD_Error sduDatabuswidth(SDDev* dev, u32 buswidth);
 static ISD_Error sduGetSCR(SDDev* dev, u32* data) NO_INLINE;
 static ISD_Error sduGetOCR(SDDev* dev, u32* data);
-extern ISD_Error ISD_ReadMultiBlockAsync(SDDev* dev, u32 offset, u8* cmdResp, u32 cmdRespSize, u32 param_5, u32 param_6);
-extern ISD_Error ISD_WriteMultiBlockAsync(SDDev* dev, u32 offset, u8* cmdResp, u32 cmdRespSize, u32 param_5, u32 param_6);
-ISD_Error ISD_GetCardSize(SDDev* dev, u32* param_2, u32* param_3, u32* param_4);
+extern ISD_Error ISD_ReadMultiBlockAsync(SDDev* dev, u32 offset, u8* cmdResp, u32 cmdRespSize, u32 callback, u32 callbackArg);
+extern ISD_Error ISD_WriteMultiBlockAsync(SDDev* dev, u32 offset, u8* cmdResp, u32 cmdRespSize, u32 callback, u32 callbackArg);
+ISD_Error ISD_GetCardSize(SDDev* dev, u32* outSize, u32* outSize2, u32* outSectorSize);
 
 IOSError __sdCb(s32 result, void* arg) {
     __sdCbArg* data = (__sdCbArg*)arg;
@@ -106,33 +106,33 @@ IOSError __sdCb(s32 result, void* arg) {
     return result;
 }
 
-ISD_Error ISD_GetHCRegister(SDDev* dev, u32 param_2, u32* param_3, u32 param_4) {
+ISD_Error ISD_GetHCRegister(SDDev* dev, u32 reg, u32* outValue, u32 size) {
     IOSError ret;
 
     if (__sdHeapId[0] < 0) {
         return SD_ERROR_FATAL;
     }
 
-    __sdReg[0] = param_2;
-    __sdReg[3] = param_4;
+    __sdReg[0] = reg;
+    __sdReg[3] = size;
     __sdReg[4] = 0;
 
-    if (param_3 != NULL) {
+    if (outValue != NULL) {
         ret = IOS_Ioctl(dev->SDDevFd, SD_IOCTL_2, __sdReg, 0x18, __sdCmdBuffer, 4);
         if (ret != IPC_RESULT_OK) {
             return SD_ERROR_FATAL;
         }
-        *param_3 = *__sdCmdBuffer;
+        *outValue = *__sdCmdBuffer;
         return ret;
     }
 
     return SD_ERROR_FATAL;
 }
 
-ISD_Error ISD_GetDeviceStatus(SDDev* dev, u32* param_2) {
+ISD_Error ISD_GetDeviceStatus(SDDev* dev, u32* status) {
     IOSError ret = SD_ERROR_FATAL;
 
-    if (__sdHeapId[0] >= 0 && param_2 != NULL) {
+    if (__sdHeapId[0] >= 0 && status != NULL) {
         OSLockMutex(&__reqMutex);
 
         if (__sdReq != 0) {
@@ -145,7 +145,7 @@ ISD_Error ISD_GetDeviceStatus(SDDev* dev, u32* param_2) {
             if (ret != IPC_RESULT_OK) {
                 __sdReq = 0;
             } else {
-                *param_2 = *__sdCmdBuffer;
+                *status = *__sdCmdBuffer;
                 __sdReq = 0;
             }
         }
@@ -154,13 +154,13 @@ ISD_Error ISD_GetDeviceStatus(SDDev* dev, u32* param_2) {
     return ret;
 }
 
-static IOSError sduCommandv(s32 fd, u32 cmd, u32 cmdType, u32 respType, u32 arg, u32 buffer, u32 blockCount, u32 sectorSize, u32 param_9, u32* resp,
+static IOSError sduCommandv(s32 fd, u32 cmd, u32 cmdType, u32 respType, u32 arg, u32 buffer, u32 blockCount, u32 sectorSize, u32 dma, u32* resp,
                             void* cb, void* cbArg) {
     IOSError ret;
     u32 readCount, writeCount;
     u32* sdCmd;
 
-    if (param_9 != 0) {
+    if (dma != 0) {
         readCount = 2;
         writeCount = 1;
     } else {
@@ -216,7 +216,7 @@ static IOSError sduCommandv(s32 fd, u32 cmd, u32 cmdType, u32 respType, u32 arg,
     return ret;
 }
 
-static ISD_Error sduCommand(s32 fd, u32 cmd, u32 cmdType, u32 respType, u32 arg, u32 buffer, u32 blockCount, u32 sectorSize, u32 param_9, u32* resp,
+static ISD_Error sduCommand(s32 fd, u32 cmd, u32 cmdType, u32 respType, u32 arg, u32 buffer, u32 blockCount, u32 sectorSize, u32 dma, u32* resp,
                             void* cb, void* cbArg) {
     ISD_Error ret;
     u32* sdCmd;
@@ -232,7 +232,7 @@ static ISD_Error sduCommand(s32 fd, u32 cmd, u32 cmdType, u32 respType, u32 arg,
         sdCmd[6] = buffer;
         sdCmd[4] = blockCount;
         sdCmd[5] = sectorSize;
-        sdCmd[7] = param_9;
+        sdCmd[7] = dma;
 
         if (resp != NULL) {
             if (cb != NULL) {
@@ -365,7 +365,7 @@ ISD_Error ISD_WriteMultiBlock(SDDev* dev, u32 offset, u8* cmdResp, u32 cmdRespSi
     return ISD_WriteMultiBlockAsync(dev, offset, cmdResp, cmdRespSize, 0, 0);
 }
 
-ISD_Error ISD_ReadMultiBlockAsync(SDDev* dev, u32 offset, u8* cmdResp, u32 cmdRespSize, u32 param_5, u32 param_6) {
+ISD_Error ISD_ReadMultiBlockAsync(SDDev* dev, u32 offset, u8* cmdResp, u32 cmdRespSize, u32 callback, u32 callbackArg) {
     ISD_Error ret;
     u32 status;
 
@@ -435,12 +435,12 @@ ISD_Error ISD_ReadMultiBlockAsync(SDDev* dev, u32 offset, u8* cmdResp, u32 cmdRe
 
         DCInvalidateRange(cmdResp, cmdRespSize << 9);
 
-        ret = sduCommandv(dev->SDDevFd, 0x12, 3, 1, offset, (u32)cmdResp, cmdRespSize, 0x200, 1, __sdResp2, (void*)param_5, (void*)param_6);
+        ret = sduCommandv(dev->SDDevFd, 0x12, 3, 1, offset, (u32)cmdResp, cmdRespSize, 0x200, 1, __sdResp2, (void*)callback, (void*)callbackArg);
         if (ret != IPC_RESULT_OK) {
             __sdReq = 0;
         }
 
-        if (param_5 == 0) {
+        if (callback == 0) {
             __sdReq = 0;
         }
     }
@@ -449,7 +449,7 @@ out:
     return ret;
 }
 
-ISD_Error ISD_WriteMultiBlockAsync(SDDev* dev, u32 offset, u8* cmdResp, u32 cmdRespSize, u32 param_5, u32 param_6) {
+ISD_Error ISD_WriteMultiBlockAsync(SDDev* dev, u32 offset, u8* cmdResp, u32 cmdRespSize, u32 callback, u32 callbackArg) {
     ISD_Error ret;
     u32 status;
 
@@ -519,12 +519,12 @@ ISD_Error ISD_WriteMultiBlockAsync(SDDev* dev, u32 offset, u8* cmdResp, u32 cmdR
 
         DCFlushRange(cmdResp, cmdRespSize << 9);
 
-        ret = sduCommand(dev->SDDevFd, 0x19, 3, 1, offset, (u32)cmdResp, cmdRespSize, 0x200, 1, __sdResp2, (void*)param_5, (void*)param_6);
+        ret = sduCommand(dev->SDDevFd, 0x19, 3, 1, offset, (u32)cmdResp, cmdRespSize, 0x200, 1, __sdResp2, (void*)callback, (void*)callbackArg);
         if (ret != IPC_RESULT_OK) {
             __sdReq = 0;
         }
 
-        if (param_5 == 0) {
+        if (callback == 0) {
             __sdReq = 0;
         }
     }
@@ -782,7 +782,7 @@ static ISD_Error sduGetOCR(SDDev* dev, u32* data) {
 }
 
 #ifdef __MWERKS__
-asm ISD_Error ISD_GetCardSize(register SDDev* dev, register u32* param_2, register u32* param_3, register u32* param_4) {
+asm ISD_Error ISD_GetCardSize(register SDDev* dev, register u32* outSize, register u32* outSize2, register u32* outSectorSize) {
     nofralloc
 
     stwu r1, -0x30(r1)
@@ -859,13 +859,13 @@ ISD_GetCardSize_store:
     stw r5, 0x18(r28)
     stw r0, 0x1c(r28)
     stw r3, 0x20(r28)
-    beq ISD_GetCardSize_no_param2
+    beq ISD_GetCardSize_no_outSize
     stw r3, 0(r29)
-ISD_GetCardSize_no_param2:
+ISD_GetCardSize_no_outSize:
     cmpwi r30, 0
-    beq ISD_GetCardSize_no_param3
+    beq ISD_GetCardSize_no_outSize2
     stw r3, 0(r30)
-ISD_GetCardSize_no_param3:
+ISD_GetCardSize_no_outSize2:
     cmpwi r31, 0
     beq ISD_GetCardSize_success_return
     li r0, 0x200
@@ -884,7 +884,7 @@ ISD_GetCardSize_return:
     blr
 }
 #else
-ISD_Error ISD_GetCardSize(SDDev* dev, u32* param_2, u32* param_3, u32* param_4) {
+ISD_Error ISD_GetCardSize(SDDev* dev, u32* outSize, u32* outSize2, u32* outSectorSize) {
     ISD_Error ret;
     u32 out0;
     u32 out1;
@@ -915,14 +915,14 @@ ISD_Error ISD_GetCardSize(SDDev* dev, u32* param_2, u32* param_3, u32* param_4) 
     dev->SDSectorNum = out1;
     dev->SDDevSize = out2;
 
-    if (param_2 != NULL) {
-        *param_2 = out2;
+    if (outSize != NULL) {
+        *outSize = out2;
     }
-    if (param_3 != NULL) {
-        *param_3 = out2;
+    if (outSize2 != NULL) {
+        *outSize2 = out2;
     }
-    if (param_4 != NULL) {
-        *param_4 = 512;
+    if (outSectorSize != NULL) {
+        *outSectorSize = 512;
     }
 
     return SD_ERROR_SUCCESS;

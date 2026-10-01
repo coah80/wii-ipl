@@ -40,7 +40,7 @@ ISD_Error ISD_ProbeCard(u32 slot);
 ISD_Error ISD_MountCard(u32 slot, SDDev** dev);
 ISD_Error ISD_UnmountCard(SDDev* dev);
 
-ISD_Error ISD_GetHCRegister(SDDev* dev, u32 param_2, u32* param_3, u32 param_4) NO_INLINE;
+ISD_Error ISD_GetHCRegister(SDDev* dev, u32 reg, u32* outValue, u32 size) NO_INLINE;
 
 ISD_Error ISD_ReadBlock(SDDev* dev, u32 offset, u8* cmdResp, u32 cmdRespSize);
 ISD_Error ISD_WriteBlock(SDDev* dev, u32 offset, u8* cmdResp, u32 cmdRespSize);
