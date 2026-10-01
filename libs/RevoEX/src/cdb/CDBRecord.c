@@ -821,9 +821,9 @@ CDBErr CDBRecordDecrypt(CDBRecord* record, void* buffer, u32 size, u32* dataSize
     u32 fileDataSize;
     u32 fileSize;
     u8 iv[16];
-    CDBRecordKey comparisonKey;
-    u8 digest[20] ATTRIBUTE_ALIGN(64);
     u8 wiiIdKey[64] ATTRIBUTE_ALIGN(16);
+    u8 digest[20] ATTRIBUTE_ALIGN(64);
+    CDBRecordKey comparisonKey;
     NETHMACContext hmac;
     CDBAttrSignature signature;
 
