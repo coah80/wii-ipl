@@ -46,7 +46,7 @@ namespace ipl {
             "A", "B", "B_BtnA",
         };
 
-        const char* sTitlePaneNames[] = {"A", "B", "B_BtnA", "C", "D"};
+        const char* sTitlePaneNames[] = {"A", "B", "C", "D", "B_BtnA"};
         const char* sAdditionalTitlePaneNames[] = {"B_00", "C_00", "D_00", "B_BtnA"};
         const char* sDialogPaneNames[] = {"B_ArwR", "B_ArwL", "B_CalExit", "B_CalExit_00"};
 
@@ -196,7 +196,24 @@ namespace ipl {
             mpDialogLayout->finishBinding();
             mpProgressLayout->getAnim(0)->initAnmFrame();
 
-            ControlPaneEventHandler* controlEvent = new ControlPaneEventHandler(this);
+            class __declspec(novtable) ControlPaneEventHandlerImpl : public ControlPaneEventHandler {
+            public:
+                ControlPaneEventHandlerImpl(SDMemory* instance) : ControlPaneEventHandler(instance) {}
+                virtual void tail0() {} virtual void tail1() {} virtual void tail2() {}
+                virtual void tail3() {} virtual void tail4() {} virtual void tail5() {}
+                virtual void tail6() {} virtual void tail7() {} virtual void tail8() {}
+                virtual void tail9() {} virtual void tail10() {} virtual void tail11() {}
+                virtual void tail12() {} virtual void tail13() {} virtual void tail14() {}
+                virtual void tail15() {} virtual void tail16() {} virtual void tail17() {}
+                virtual void tail18() {} virtual void tail19() {} virtual void tail20() {}
+                virtual void tail21() {} virtual void tail22() {} virtual void tail23() {}
+                virtual void tail24() {} virtual void tail25() {} virtual void tail26() {}
+                virtual void tail27() {} virtual void tail28() {} virtual void tail29() {}
+                virtual void tail30() {} virtual void tail31() {} virtual void tail32() {}
+                virtual void tail33() {} virtual void tail34() {} virtual void tail35() {}
+                virtual void tail36() {}
+            };
+            ControlPaneEventHandler* controlEvent = new ControlPaneEventHandlerImpl(this);
             mpPaneManagers[0] = new gui::PaneManager(controlEvent, mpMainLayout->getDrawInfo(), NULL, NULL);
             mpPaneManagers[0]->setupScene(mpMainLayout);
             mpPaneManagers[0]->setAllComponentTriggerTarget(false);
