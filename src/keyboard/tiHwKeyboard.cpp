@@ -19,7 +19,7 @@ extern "C" void updateFromReceiver__Q29textinput13CommandSenderFUlPv();
 #pragma push
 #pragma section const_type ".data"
 typedef void (*KeyboardDataFunction)();
-extern "C" KeyboardDataFunction const jumptable_81668EF8[0x3f] = {
+extern "C" KeyboardDataFunction const scHwKeyboardConvertWCCodeJumpTable[0x3f] = {
     reinterpret_cast<KeyboardDataFunction>(reinterpret_cast<u32>(convertWCCode__Q49textinput8keyboard5hwkey10HWKeyboardCFw) + 0x00000158),
     reinterpret_cast<KeyboardDataFunction>(reinterpret_cast<u32>(convertWCCode__Q49textinput8keyboard5hwkey10HWKeyboardCFw) + 0x000001d8),
     reinterpret_cast<KeyboardDataFunction>(reinterpret_cast<u32>(convertWCCode__Q49textinput8keyboard5hwkey10HWKeyboardCFw) + 0x000001f0),
@@ -737,9 +737,9 @@ const u8 controlKeys[] = {
                 addi r0, r31, -0x21
                 cmplwi r0, 0x3e
                 bgt convertWCCode_HWKeyboard_L1
-                lis r3, jumptable_81668EF8@ha
+                lis r3, scHwKeyboardConvertWCCodeJumpTable@ha
                 slwi r0, r0, 2
-                addi r3, r3, jumptable_81668EF8@l
+                addi r3, r3, scHwKeyboardConvertWCCodeJumpTable@l
                 lwzx r3, r3, r0
                 mtctr r3
                 bctr
