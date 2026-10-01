@@ -35,8 +35,8 @@ namespace ipl {
                         (var_f28 * (var_f28 * (3.0f * var_f27 * var_f27))))));
             f32 temp_f4 = var_f27 * var_f27;
             f32 temp_f7 = var_f28 * (var_f28 * (var_f27 * temp_f4));
-            f32 temp_f3 = (unkVal0 * (var_f27 + (temp_f7 - (var_f28 * (2.0f * var_f27 * var_f27))))) +
-                          (unkVal1 * (temp_f7 - (var_f28 * temp_f4)));
+            f32 temp_f3 = (mStartTangent * (var_f27 + (temp_f7 - (var_f28 * (2.0f * var_f27 * var_f27))))) +
+                          (mEndTangent * (temp_f7 - (var_f28 * temp_f4)));
             r.x += temp_f3;
             r.y += temp_f3;
             r.z += temp_f3;
@@ -51,8 +51,8 @@ namespace ipl {
                                        (var_f28 * (var_f28 * (3.0f * var_f27 * var_f27)))))) -
                     (mEnd * ((var_f28 * (var_f28 * (var_f28 * (var_f27 * (2.0f * var_f27 * var_f27))))) -
                              (var_f28 * (var_f28 * (3.0f * var_f27 * var_f27)))));
-            r += (unkVal0 * (var_f27 + ((var_f28 * (var_f28 * (var_f27 * (var_f27 * var_f27)))) - (var_f28 * (2.0f * var_f27 * var_f27))))) +
-                 (unkVal1 * ((var_f28 * (var_f28 * (var_f27 * (var_f27 * var_f27)))) - (var_f28 * (var_f27 * var_f27))));
+            r += (mStartTangent * (var_f27 + ((var_f28 * (var_f28 * (var_f27 * (var_f27 * var_f27)))) - (var_f28 * (2.0f * var_f27 * var_f27))))) +
+                 (mEndTangent * ((var_f28 * (var_f28 * (var_f27 * (var_f27 * var_f27)))) - (var_f28 * (var_f27 * var_f27))));
             return r;
         }
     }  // namespace math

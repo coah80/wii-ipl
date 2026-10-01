@@ -46,12 +46,12 @@ namespace ipl {
         public:
             HermiteIntp() {}
 
-            void init(const T& start, const T& end, f32 maxFrame, f32 param_5, f32 param_6, int playback = ANIM_TYPE_FORWARD, f32 speed = 1.0f) {
+            void init(const T& start, const T& end, f32 maxFrame, f32 startTangent, f32 endTangent, int playback = ANIM_TYPE_FORWARD, f32 speed = 1.0f) {
                 mStart = start;
                 mEnd = end;
                 utility::FrameController::init(playback, maxFrame, 0.0f, speed);
-                unkVal0 = param_5;
-                unkVal1 = param_6;
+                mStartTangent = startTangent;
+                mEndTangent = endTangent;
             }
 
             T get() const {
@@ -64,11 +64,11 @@ namespace ipl {
                     (mEnd * ((var_f28 * (var_f28 * (var_f28 * (var_f27 * (2.0f * var_f27 * var_f27))))) -
                               (var_f28 * (var_f28 * (3.0f * var_f27 * var_f27)))));
                 r +=
-                    (unkVal0 *
+                    (mStartTangent *
                      (var_f27 +
                       ((var_f28 * (var_f28 * (var_f27 * (var_f27 * var_f27)))) -
                        (var_f28 * (2.0f * var_f27 * var_f27))))) +
-                    (unkVal1 * ((var_f28 * (var_f28 * (var_f27 * (var_f27 * var_f27)))) -
+                    (mEndTangent * ((var_f28 * (var_f28 * (var_f27 * (var_f27 * var_f27)))) -
                                 (var_f28 * (var_f27 * var_f27))));
 
                 return r;
@@ -77,8 +77,8 @@ namespace ipl {
         protected:
             T mStart;
             T mEnd;
-            f32 unkVal0;
-            f32 unkVal1;
+            f32 mStartTangent;
+            f32 mEndTangent;
         };
     }
 }
