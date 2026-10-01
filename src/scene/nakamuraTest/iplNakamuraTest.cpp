@@ -234,10 +234,10 @@ namespace ipl {
                         OSReport("NUP region code : %s\n", productAreaString);
                         const char* isoCountryCode = SCUTILGetISOCountryCodeA2();
                         OSReport("NUP country code : %s\n", isoCountryCode);
-                        int iVar8 = NUP_Start(mpNUPInstance, nus, isoCountryCode, productAreaString, 0);
+                        int nupResult = NUP_Start(mpNUPInstance, nus, isoCountryCode, productAreaString, 0);
                         OSReport("NUP_Start()\n");
-                        if (iVar8 < 0) {
-                            switch (iVar8) {
+                        if (nupResult < 0) {
+                            switch (nupResult) {
                                 case -5000: {
                                     OSReport("FAIL ALLOC\n");
                                 }
@@ -426,8 +426,8 @@ namespace ipl {
                     int val;
                     int len = 4;
                     if (SOGetInterfaceOpt(NULL, SO_SOL_CONFIG, SO_CONFIG_ERROR, &val, &len) == 0 && val == -111) {
-                        int iVar7 = NETGetStartupErrorCode(-111);
-                        mNetSetupLastErr = (-iVar7 / 100) * 100;
+                        int startupErr = NETGetStartupErrorCode(-111);
+                        mNetSetupLastErr = (-startupErr / 100) * 100;
                         mNetSetupLastErr = mNetSetup.getconntype();
                     }
                     Setting* settingScene = (Setting*)System::getScene(SCENE_SETTING);
@@ -451,8 +451,6 @@ namespace ipl {
         }
 
         void* NakamuraTest::conntestthread(void*) {
-            int iVar1;
-
             IPLContestStart();
             while (true) {
                 switch (IPLContestProcess()) {
