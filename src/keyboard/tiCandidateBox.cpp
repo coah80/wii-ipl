@@ -1237,7 +1237,7 @@ namespace textinput {
         }
 
         void UITextArea::Draw(const nw4r::lyt::DrawInfo& drawInfo) {
-            // NONMATCHING
+            textdrawer::Base::ViewPort viewport;
             s32 selected = GetSelectedPaneIdx();
             if (!IsScrolling()) {
                 for (u32 i = 0; i < NUM_PANES; i++) {
@@ -1247,10 +1247,6 @@ namespace textinput {
                 }
             }
 
-            struct {
-                f32 left;
-                f32 width;
-            } scissor;
             nw4r::ut::Rect r = mpTextAreaPane->getPane()->GetPaneRect(drawInfo);
             // TODO - These vectors are zero-initialized using GPRs first...
             Vec v1 = {0, 0, 0};
@@ -1263,15 +1259,14 @@ namespace textinput {
             MTXMultVec(mpTextAreaPane->getTextPane()->GetGlobalMtx(), &v2, &v2);
             u32 left, top, wd, ht;
             GXGetScissor(&left, &top, &wd, &ht);
-            // TODO - These floats need to be stored to the stack
             f32 scale = 640.0f / mfScreenWidth;
-            scissor.left = v1.x + mfScreenWidth / 2.0f;
-            scissor.left += scissor.left * (scale - 1.0f);
-            scissor.width = scale * (v2.x - v1.x);
-            GXSetScissor(scissor.left, top, scissor.width, ht);
+            viewport.xOrig = v1.x + mfScreenWidth / 2.0f;
+            viewport.xOrig += viewport.xOrig * (scale - 1.0f);
+            viewport.wd = scale * (v2.x - v1.x);
+            GXSetScissor(viewport.xOrig, top, viewport.wd, ht);
             mpTextsPane->getPane()->Draw(drawInfo);
             if (!IsScrolling()) {
-                GXSetScissor(left, top, (scissor.width + scissor.left) - left, ht);
+                GXSetScissor(left, top, (viewport.wd + viewport.xOrig) - left, ht);
                 for (u32 i = 0; i < NUM_PANES; i++) {
                     if (i == selected || mpTextAnmPane[i]->getState() == ANM_FocusOut) {
                         mpTextBoxPane[i]->getPane()->SetVisible(true);

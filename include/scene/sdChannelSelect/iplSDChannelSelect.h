@@ -395,9 +395,9 @@ namespace ipl {
             NandSDWorker* mpSDWorker;
             ESTitleId32* mpSDTitleIds;
             SDChannelSelectTitleInfo* mpSDTitleInfo;
-            NandSDWorker::TitleUsage* mpNandTitleInfo;
-            s32 mFirstTitleCount;
-            s32 mSecondTitleCount;
+            mutable NandSDWorker::TitleUsage* mpNandTitleInfo;
+            mutable s32 mFirstTitleCount;
+            mutable s32 mSecondTitleCount;
             SDChannelObj* mpCurrentLoadedChannel;
             u32 mSDTitleCount;
             u32 mNandTitleCount;

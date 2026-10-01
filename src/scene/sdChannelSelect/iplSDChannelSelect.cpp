@@ -1275,12 +1275,17 @@ namespace ipl {
         }
 
         bool SDChannelSelect::isCurrentTitleUsageEnough(const s32* usage) const {
-            s32 blocks = mSecondTitleCount;
-            s32 bytes = mFirstTitleCount;
-            ESTitleId currentTitleId = SCGetTmpTitleID();
-
-            u32 titleCount = mNandTitleCount;
+            s32 bytes;
+            u32 titleCount;
+            s32 blocks;
+            ESTitleId currentTitleId;
             u32 index;
+
+            bytes = mFirstTitleCount;
+            blocks = mSecondTitleCount;
+            currentTitleId = SCGetTmpTitleID();
+
+            titleCount = mNandTitleCount;
             for (index = 0; index < titleCount; ++index) {
                 if (mpNandTitleInfo[index].curTitleId == currentTitleId) {
                     break;
@@ -1296,7 +1301,6 @@ namespace ipl {
             }
             return false;
         }
-
         void SDChannelSelect::getCurrentTitleUsage(s32* bytes, s32* blocks) const {
             *bytes = mFirstTitleCount;
             *blocks = mSecondTitleCount;
