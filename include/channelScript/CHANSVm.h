@@ -96,7 +96,7 @@ CHANSVmNativeClass* CHANSVmAddNativeClass(CHANSVm* vm, const char* clsName, CHAN
 /***    CHANS Image   ***/
 /************************/
 
-typedef vmBoolInt (*CHANSVmImageCtorCallback)(CHANSVm* vm);
+typedef vmBoolInt (*CHANSVmImageCtorCallback)(CHANSVm* vm, vmPtr data);
 typedef vmPtr (*CHANSVmImageAllocatorCallback)(CHANSVm* vm, u32 size);
 
 void CHANSVmImageRegisterAllocator(CHANSVmImageAllocatorCallback allocCb, CHANSVmImageCtorCallback ctorCb);
