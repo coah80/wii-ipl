@@ -318,10 +318,11 @@ s32 pfd_sddrv_init(FADisk* disk) {
     }
     if ((pfd_sddrv_flags(&g_pfd_sddrv_info) & 1) != 0) {
         OSReport("INFO SD Card driver is already initialize. pfd_sddrv_init()\n");
+        sd_result = -44;
         if (disk == g_pfd_sddrv_info.disk) {
-            return 0;
+            sd_result = 0;
         }
-        return -44;
+        return sd_result;
     }
     if ((g_pfd_sddrv_info.flags & 4) == 0) {
         g_pfd_sddrv_info.bytes_per_sector = 0x200;
@@ -554,7 +555,7 @@ s32 pfd_sddrv_get_disk_info(FADisk* disk, FADiskInfo* disk_info) {
     disk_info->heads = 0;
     disk_info->sectorsPerTrack = 0;
     disk_info->formatParam = 0;
-    return result;
+    return 0;
 }
 
 s32 pfd_sddrv_init_drv_tbl(FADiskTbl* disk_table, u32 extended) {
@@ -1361,9 +1362,6 @@ s32 pfd_sddrv_store_fat32_bpb_buf(PFD_SDDRV_FORMAT_DATA* format_data, u8* sector
 static s32 pfd_sddrv_store_fat32_reserved_buf(u8* sector_buffer) {
     PFD_SDDRV_RESERVED_BOOT_SECTOR* reserved_boot_sector;
 
-    if (sector_buffer == 0) {
-        return -30;
-    }
     pf_memset(sector_buffer, 0, 0x200);
     reserved_boot_sector = (PFD_SDDRV_RESERVED_BOOT_SECTOR*)sector_buffer;
     if (((u32)reserved_boot_sector->signature.bytes & 1) != 0) {
