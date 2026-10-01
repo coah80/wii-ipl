@@ -31,8 +31,14 @@ namespace ipl {
 
             virtual void calc();
 
-            virtual void initCalcNormal() {
-            }  // 0x4C
+            virtual void initCalcNormal()
+#ifdef IPL_SD_CHANNEL_TITLE_CPP
+            ;
+#else
+            {
+            }
+#endif
+            // 0x4C
             virtual void initCalcFadeout() {
             }  // 0x50
 
@@ -49,8 +55,14 @@ namespace ipl {
                 return FADER_SCN_NEXT;
             }  // 0x60
 
-            virtual void calcCommonAfter() {
-            }  // 0x64
+            virtual void calcCommonAfter()
+#ifdef IPL_SD_CHANNEL_TITLE_CPP
+            ;
+#else
+            {
+            }
+#endif
+            // 0x64
 
             int getSceneFadeState() {
                 return mScnFadeState;

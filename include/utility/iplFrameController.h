@@ -22,7 +22,11 @@ namespace ipl {
 
         public:
             FrameController() {}
+#ifdef IPL_SD_CHANNEL_TITLE_CPP
+            virtual ~FrameController();
+#else
             virtual ~FrameController() {}  // 0x08
+#endif
 
             void init(int type, f32 maxFrame, f32 minFrame, f32 speed = 1.0f);
             void initFrame();

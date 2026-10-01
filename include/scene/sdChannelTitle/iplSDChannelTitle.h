@@ -31,7 +31,7 @@ namespace ipl {
             virtual FaderSceneCommand calcFadeout();
             virtual void draw();
             virtual void destroy();
-            virtual BOOL isResetAcceptable() const;
+            virtual BOOL isResetAcceptable();
             virtual void startResetting();
 
             virtual void unkv_0x68() = 0;

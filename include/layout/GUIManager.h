@@ -60,10 +60,16 @@ namespace gui {
 
         virtual void onEvent(u32 compId, u32 event, void* data) {}  // 0x08 (0x02)
 
+#ifdef IPL_SD_CHANNEL_TITLE_CPP
+        virtual void setManager(Manager* manager);
+        virtual void setLatestEventCtrlNo(int ctrlNo);
+        virtual int getLatestEventCtrlNo();
+#else
         virtual void setManager(Manager* manager) { mpManager = manager; }  // 0x0C (0x03)
 
         virtual void setLatestEventCtrlNo(int ctrlNo) { mLatestCtrlNum = ctrlNo; }  // 0x10 (0x04)
         virtual int getLatestEventCtrlNo() { return mLatestCtrlNum; }               // 0x14 (0x05)
+#endif
 
     protected:
         Manager* mpManager;  // 0x04
@@ -110,7 +116,11 @@ namespace gui {
         virtual bool update(int point, f32 x, f32 y, u32 trig, u32 hold, u32 release, void* data);      // 0x4C (0x13)
 
         virtual bool isTriggerTarger() { return mbTriggerTarget; }                  // 0x50 (0x14) "targer"
+#ifdef IPL_SD_CHANNEL_TITLE_CPP
+        virtual void setTriggerTarget(bool bEnable);
+#else
         virtual void setTriggerTarget(bool bEnable) { mbTriggerTarget = bEnable; }  // 0x54 (0x15)
+#endif
 
         virtual void setManager(Manager* manager) { mpManager = manager; }  // 0x58 (0x16)
 
@@ -256,7 +266,11 @@ namespace gui {
         virtual bool contain(f32 x, f32 y);  // 0x68 (0x1A)
 
         virtual void setPane(nw4r::lyt::Pane* pane) { mpPane = pane; }  // 0x6C (0x1B)
+#ifdef IPL_SD_CHANNEL_TITLE_CPP
+        virtual nw4r::lyt::Pane* getPane();
+#else
         virtual nw4r::lyt::Pane* getPane() { return mpPane; }           // 0x70 (0x1C)
+#endif
 
     private:
         nw4r::lyt::Pane* mpPane;  // 0x88

@@ -62,14 +62,26 @@ namespace ipl {
             virtual ~Base();
 
             /** @brief If the scene is ready */
+#ifdef IPL_SD_CHANNEL_TITLE_CPP
+            virtual BOOL isReady() const;
+#else
             virtual BOOL isReady() const { return FALSE; }
+#endif
 
             /** @brief If the user can power off/reset the system */
+#ifdef IPL_SD_CHANNEL_TITLE_CPP
+            virtual BOOL isResetAcceptable() { return TRUE; }
+#else
             virtual BOOL isResetAcceptable() const { return TRUE; }
+#endif
             /** @brief The scene running code when powering off/resetting the system */
             virtual void startResetting() {}
             /** @brief If the scene has finished its powering off/resetting task */
+#ifdef IPL_SD_CHANNEL_TITLE_CPP
+            virtual BOOL isResetProcessDone();
+#else
             virtual BOOL isResetProcessDone() { return TRUE; }
+#endif
 
             /** @brief Prepare to create scene */
             virtual void prepare() {}
@@ -82,10 +94,17 @@ namespace ipl {
             /** @brief Destroy the scene and clear from memory */
             virtual void destroy() {}
 
+#ifdef IPL_SD_CHANNEL_TITLE_CPP
+            virtual Base* getParent();
+            virtual Base* getChild();
+            virtual Base* getNext();
+            virtual Base* getPrev();
+#else
             virtual Base* getParent() { return (Base*)mpParent; }
             virtual Base* getChild() { return (Base*)mpChild; }
             virtual Base* getNext() { return (Base*)mpNext; }
             virtual Base* getPrev() { return (Base*)mpPrev; }
+#endif
 
             /** @brief Check if scene has been created.*/
             bool isSceneCreated() const { return (mScnState & SCN_STATE_CREATED); }

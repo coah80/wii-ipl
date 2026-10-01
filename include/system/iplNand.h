@@ -65,8 +65,13 @@ namespace ipl {
             /** @brief Writes the file contents. */
             virtual void write();  // 0x10
 
+#ifdef IPL_SD_CHANNEL_TITLE_CPP
+            virtual bool isFinished();
+            virtual int checkData();
+#else
             virtual bool isFinished() { return mbDoneTask; }  // 0x14
             virtual int checkData() { return mResult; }       // 0x18
+#endif
             virtual bool isFatalError();                      // 0x1C
 
             u8* getBuffer() const { return mpBuffer; }

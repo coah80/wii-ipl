@@ -1,4 +1,5 @@
 #define IPL_SD_CHANNEL_TITLE_CPP
+#define IPL_CONTROLLER_TRIVIAL_RECT_DTOR
 #define IPL_SD_CHANNEL_SELECT_ACCESS
 #define IPL_SDMEMORY_DIALOG_STATE_ACCESSOR
 #define IPL_SDMEMORY_COMPLETION_PCT_ACCESSOR
@@ -286,7 +287,8 @@ FaderSceneCommand SDChannelTitle::calcFadein() {
     if (!mpFade->isPlaying()) {
         iplSDChannelTitle_813E8034(this);
         SDButton* button = static_cast<SDButton*>(System::getScene(0x24));
-        button->setEventHandler(mpButtonEventHandler, NULL);
+        ::gui::EventHandler* optOut;
+        button->setEventHandler(mpButtonEventHandler, optOut);
         button->animation(13);
         button->animation(14);
         mState = 1;
@@ -339,6 +341,7 @@ FaderSceneCommand SDChannelTitle::calcNormal() {
 }
 
 void SDChannelTitle::initCalcFadeout() {
+    ::gui::EventHandler* optOut;
     SDButton* button = static_cast<SDButton*>(System::getScene(0x24));
     if (mState == 5 || mState == 7 || mState == 31) {
         System::getFader()->fadeOut();
@@ -348,7 +351,7 @@ void SDChannelTitle::initCalcFadeout() {
         button->animation(15);
         button->animation(16);
     }
-    button->setEventHandler(NULL, NULL);
+    button->setEventHandler(NULL, optOut);
 }
 
 FaderSceneCommand SDChannelTitle::calcFadeout() {
@@ -518,7 +521,7 @@ void SDChannelTitle::destroy() {
     mpCaptureHeap->destroy();
 }
 
-BOOL SDChannelTitle::isResetAcceptable() const {
+BOOL SDChannelTitle::isResetAcceptable() {
     if (mMemory.mTransferFlags[0]) {
         return mbResetAcceptable;
     }
@@ -723,6 +726,7 @@ extern "C" void iplSDChannelTitle_813E6B88(SDChannelTitle* scene) {
 }
 
 extern "C" void iplSDChannelTitle_813E6CCC(SDChannelTitle* scene) {
+    u32 noticeArg;
     if (scene->mpChannelSelect->getWorker()->is_working() || scene->mpProgressLayout->isPlaying(0) ||
         scene->mpButtonAnimations[3][2]->isPlaying()) {
         return;
@@ -740,7 +744,7 @@ extern "C" void iplSDChannelTitle_813E6CCC(SDChannelTitle* scene) {
         if (channel->mStateFlags == 3) {
             scene->mState = 26;
             scene->mErrorMessage = 0xaf;
-        } else if (scene->mpChannelSelect->enqueueChannelNotice(0, static_cast<u32>(scene->mTitleId >> 32),
+        } else if (scene->mpChannelSelect->enqueueChannelNotice(noticeArg, static_cast<u32>(scene->mTitleId >> 32),
                                                               static_cast<u32>(scene->mTitleId), reinterpret_cast<u32>(&scene->mTitleRange))) {
             scene->mState = 20;
         } else {
@@ -828,9 +832,10 @@ extern "C" void iplSDChannelTitle_813E7074(SDChannelTitle* scene) {
             scene->mpCopySound = snd::getSystem()->startSE("WIPL_SE_COPYING");
         }
         ESTitleId temporaryTitle = SCGetTmpTitleID();
+        int noticeArg;
         if (temporaryTitle && scene->mTitleId != temporaryTitle) {
             if (System::isReceiveScheduleStopped()) {
-                if (scene->mpChannelSelect->enqueueStateNotice(0, static_cast<u32>(temporaryTitle >> 32),
+                if (scene->mpChannelSelect->enqueueStateNotice(noticeArg, static_cast<u32>(temporaryTitle >> 32),
                                                               static_cast<u32>(temporaryTitle), 1)) {
                     scene->mState = 16;
                 } else {
@@ -1361,8 +1366,7 @@ extern "C" void iplSDChannelTitle_813E8A20(SDChannelTitle* scene, int nextScene)
         System::getSaveData()->iplSavedata_813596B8(scene->mTitleId);
     }
     System::getSaveData()->getSDPrevPage() = scene->mPage;
-    EGG::Heap* saveHeap = System::getMem2App();
-    scene->mpSaveFile = System::getSaveData()->flushAsync(saveHeap);
+    scene->mpSaveFile = System::getSaveData()->flushAsync(System::getMem2App());
     __WPADReconnect(TRUE);
 }
 
@@ -1470,24 +1474,24 @@ extern "C" BOOL iplSDChannelTitle_813E8F04(SDChannelTitle* scene, ESTmdView* tmd
     return TRUE;
 }
 
-extern "C" void iplSDChannelTitle_813E9004(SDTitlePaneEventHandler* handler, u32 component,
-                                         u32 event, const controller::Interface* controller) {
-    const char* paneName = handler->getPane(component)->GetName();
+void SDTitlePaneEventHandler::onEvent(u32 component, u32 event, void* data) {
+    const controller::Interface* controller = static_cast<const controller::Interface*>(data);
+    const char* paneName = getPane(component)->GetName();
     switch (event) {
     case ::gui::EventHandler::ON_TRIG: {
-        if (handler->mpScene->mState == 1 && controller->downTrg(0x100800)) {
+        if (this->mpScene->mState == 1 && controller->downTrg(0x100800)) {
             if (strcmp(paneName, sButtonNames[0]) == 0) {
-                handler->mpScene->mpButtonAnimations[2][2]->play();
+                this->mpScene->mpButtonAnimations[2][2]->play();
                 snd::getSystem()->startSE("WIPL_SE_BT_PUSH");
-                handler->mpScene->mState = 10;
-                iplSDChannelTitle_813E7A18(handler->mpScene);
+                this->mpScene->mState = 10;
+                iplSDChannelTitle_813E7A18(this->mpScene);
             } else if (strcmp(paneName, sButtonNames[1]) == 0) {
-                if (handler->mpScene->mStartButtonState != 2) {
+                if (this->mpScene->mStartButtonState != 2) {
                     snd::getSystem()->startSE("WIPL_SE_GRAY_BUTTON");
                 } else {
-                    iplSDChannelTitle_813E86D8(handler->mpScene);
-                    handler->mpScene->mpButtonAnimations[3][2]->play();
-                    snd::getSystem()->stopSE(handler->mpScene->mpSoundHandle, 30);
+                    iplSDChannelTitle_813E86D8(this->mpScene);
+                    this->mpScene->mpButtonAnimations[3][2]->play();
+                    snd::getSystem()->stopSE(this->mpScene->mpSoundHandle, 30);
                     snd::getSystem()->startSE("WIPL_SE_DECIDE");
                 }
             }
@@ -1497,10 +1501,10 @@ extern "C" void iplSDChannelTitle_813E9004(SDTitlePaneEventHandler* handler, u32
     case ::gui::EventHandler::ON_POINT: {
         for (int button = 0; button < 2; ++button) {
             if (strcmp(paneName, sButtonNames[button]) == 0 &&
-                (button == 0 || handler->mpScene->mStartButtonState > 0)) {
-                ++handler->mpScene->mHoverCounts[button];
-                if (handler->mpScene->mHoverCounts[button] <= 1) {
-                    handler->mpScene->mpButtonAnimations[button][1]->play();
+                (button == 0 || this->mpScene->mStartButtonState > 0)) {
+                ++this->mpScene->mHoverCounts[button];
+                if (this->mpScene->mHoverCounts[button] <= 1) {
+                    this->mpScene->mpButtonAnimations[button][1]->play();
                     snd::getSystem()->startSE("WIPL_SE_BT_TARGETTING");
                     const_cast<controller::Interface*>(controller)->rumble(0);
                     break;
@@ -1512,14 +1516,14 @@ extern "C" void iplSDChannelTitle_813E9004(SDTitlePaneEventHandler* handler, u32
     case ::gui::EventHandler::ON_LEFT: {
         for (int button = 0; button < 2; ++button) {
             if (strcmp(paneName, sButtonNames[button]) == 0 &&
-                (button == 0 || handler->mpScene->mStartButtonState > 0)) {
-                s32& count = handler->mpScene->mHoverCounts[button];
+                (button == 0 || this->mpScene->mStartButtonState > 0)) {
+                s32& count = this->mpScene->mHoverCounts[button];
                 if (count <= 0) {
                     break;
                 }
                 --count;
-                if (handler->mpScene->mHoverCounts[button] <= 0) {
-                    handler->mpScene->mpButtonAnimations[button][0]->play();
+                if (this->mpScene->mHoverCounts[button] <= 0) {
+                    this->mpScene->mpButtonAnimations[button][0]->play();
                     break;
                 }
             }
@@ -1529,26 +1533,25 @@ extern "C" void iplSDChannelTitle_813E9004(SDTitlePaneEventHandler* handler, u32
     }
 }
 
-extern "C" void iplSDChannelTitle_813E92EC(SDTitleButtonEventHandler* handler, u32 component,
-                                         u32 event, const controller::Interface* controller) {
-    const char* name = handler->getPane(component)->GetName();
+void SDTitleButtonEventHandler::onEventDerived(u32 component, u32 event, const controller::Interface* controller) {
+    const char* name = getPane(component)->GetName();
     switch (event) {
     case 0:
-        if (handler->mpScene->mState == 1 && controller->downTrg(0x100800)) {
+        if (this->mpScene->mState == 1 && controller->downTrg(0x100800)) {
             SDButton* button = static_cast<SDButton*>(System::getScene(0x24));
             if (strcmp(name, SDButton::getButtonName(SDButton::BTN_ARROW_LEFT)) == 0) {
                 int page;
                 int index;
-                handler->mpScene->mpChannelSelect->findAdjacentChannel(1, &page, &index);
+                this->mpScene->mpChannelSelect->findAdjacentChannel(1, &page, &index);
                 button->animation(7);
-                iplSDChannelTitle_813E85C0(handler->mpScene, page, index);
+                iplSDChannelTitle_813E85C0(this->mpScene, page, index);
                 snd::getSystem()->startSE("WSD_SELECT");
             } else if (strcmp(name, SDButton::getButtonName(SDButton::BTN_ARROW_RIGHT)) == 0) {
                 int page;
                 int index;
-                handler->mpScene->mpChannelSelect->findAdjacentChannel(0, &page, &index);
+                this->mpScene->mpChannelSelect->findAdjacentChannel(0, &page, &index);
                 button->animation(8);
-                iplSDChannelTitle_813E85C0(handler->mpScene, page, index);
+                iplSDChannelTitle_813E85C0(this->mpScene, page, index);
                 snd::getSystem()->startSE("WSD_SELECT");
             }
         }
@@ -1558,14 +1561,6 @@ extern "C" void iplSDChannelTitle_813E92EC(SDTitleButtonEventHandler* handler, u
 
 void SDChannelTitle::startResetting() {
     snd::getSystem()->resetAllSound();
-}
-
-void SDTitleButtonEventHandler::onEventDerived(u32 component, u32 event, const controller::Interface* controller) {
-    iplSDChannelTitle_813E92EC(this, component, event, controller);
-}
-
-void SDTitlePaneEventHandler::onEvent(u32 component, u32 event, void* data) {
-    iplSDChannelTitle_813E9004(this, component, event, static_cast<const controller::Interface*>(data));
 }
 
 }
