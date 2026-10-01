@@ -640,23 +640,23 @@ namespace ipl {
             const char* langGroup = scLangGroups[lang];
             char local_50[40] = "";
 
-            bool bVar4 = false;
+            bool foundLangGroup = false;
 
             for (nw4r::lyt::GroupList::Iterator it = layout->GetGroupList().GetBeginIter(); it != layout->GetGroupList().GetEndIter(); it++) {
                 if (strcmp(it->GetName(), langGroup) == 0) {
-                    bVar4 = true;
+                    foundLangGroup = true;
                 } else {
-                    bool bVar3 = true;
+                    bool isNonRsoGroup = true;
                     for (int i = 0; i < channel::MAX_ANIMS; i++) {
                         char name[6];
                         sprintf(name, "Rso%d", i);
                         if (strncmp(it->GetName(), name, 5) == 0) {
-                            bVar3 = false;
+                            isNonRsoGroup = false;
                             break;
                         }
                     }
 
-                    if (bVar3) {
+                    if (isNonRsoGroup) {
                         for (nw4r::lyt::PaneLinkList::Iterator it2 = it->GetPaneList().GetBeginIter(); it2 != it->GetPaneList().GetEndIter(); it2++) {
                             it2->mTarget->SetVisible(false);
                         }
@@ -672,7 +672,7 @@ namespace ipl {
                 }
             }
 
-            if (bVar4) {
+            if (foundLangGroup) {
                 nw4r::lyt::Group* group = layout->FindGroupByName(langGroup);
                 for (nw4r::lyt::PaneLinkList::Iterator it = group->GetPaneList().GetBeginIter(); it != group->GetPaneList().GetEndIter(); it++) {
                     it->mTarget->SetVisible(true);
@@ -730,7 +730,7 @@ namespace ipl {
         }
 
         void ChannelObj::createThumbnail() {
-            bool bVar1 = false;
+            bool shouldAdjustHeap = false;
 
             if (mpBalloonLayout == NULL && System::getChannelManager()->isLoaded(mChanPage, mChanIndex)) {
                 initBalloon();
@@ -746,12 +746,12 @@ namespace ipl {
                         frame = createWadThumbnail();
                     } else {
                         frame = createWrongThumbnail();
-                        bVar1 = true;
+                        shouldAdjustHeap = true;
                     }
                 }
             } else {
                 frame = createEmptyThumbnail();
-                bVar1 = true;
+                shouldAdjustHeap = true;
             }
 
             calcNormal();
@@ -764,7 +764,7 @@ namespace ipl {
                 mpThumbAnim->setCurrentFrame(frame);
             }
 
-            if (bVar1) {
+            if (shouldAdjustHeap) {
                 mpThumbLayout->adjustHeap();
             }
         }
