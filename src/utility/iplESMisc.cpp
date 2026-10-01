@@ -915,7 +915,8 @@ namespace ipl {
                 u32 titleIdHi = *(u32*)((u8*)titleIds + titleIdOffset);
                 u32 titleIdLo = *(u32*)((u8*)titleIds + titleIdOffset + 4);
 
-                if ((titleIdLo & 0xffffff00) == 0x525a4400 && titleIdHi == 0x10000) {
+                if (((((ESTitleId)titleIdHi << 32) | titleIdLo) & 0xFFFFFFFFFFFFFF00ULL) ==
+                    0x00010000525a4400ULL) {
                     u8* saveData = NULL;
                     BOOL fileOpen = FALSE;
                     BOOL deleteSaveData = FALSE;
@@ -1005,15 +1006,24 @@ namespace ipl {
                     ChangeUid(SYSMENU_TITLE_ID);
                     continue;
                 }
-                if ((((ESTitleId)titleIdHi << 32) | titleIdLo) == 0x0001000844495343ULL ||
-                           ((((ESTitleId)titleIdHi << 32) | titleIdLo) < 0x0001000844495343ULL &&
-                            ((((ESTitleId)titleIdHi << 32) | titleIdLo) == 0x000100014a4f4449ULL ||
-                             ((((ESTitleId)titleIdHi << 32) | titleIdLo) > 0x000100014a4f4449ULL &&
-                              (((ESTitleId)titleIdHi << 32) | titleIdLo) == 0x0001000148415858ULL))) ||
-                           ((((ESTitleId)titleIdHi << 32) | titleIdLo) > 0x0001000844495343ULL &&
-                            ((((ESTitleId)titleIdHi << 32) | titleIdLo) == 0x0001000844564458ULL ||
-                             ((((ESTitleId)titleIdHi << 32) | titleIdLo) > 0x0001000844564458ULL &&
-                              (((ESTitleId)titleIdHi << 32) | titleIdLo) == 0x000100084449534bULL)))) {
+                {
+                    ESTitleId selTitleId = ((ESTitleId)titleIdHi << 32) | titleIdLo;
+                    if (selTitleId == 0x0001000844495343ULL) {
+                        goto deleteTitle;
+                    } else if (selTitleId < 0x0001000844495343ULL) {
+                        if (selTitleId == 0x000100014a4f4449ULL ||
+                            (selTitleId > 0x000100014a4f4449ULL && selTitleId == 0x0001000148415858ULL)) {
+                            goto deleteTitle;
+                        }
+                    } else {
+                        if (selTitleId == 0x0001000844564458ULL ||
+                            (selTitleId > 0x0001000844564458ULL && selTitleId == 0x000100084449534bULL)) {
+                            goto deleteTitle;
+                        }
+                    }
+                }
+                goto keepTitle;
+            deleteTitle: {
                     ESTitleId titleId = *(ESTitleId*)((u8*)titleIds + titleIdOffset);
                     ES_DeleteTitle(titleId);
 
@@ -1042,7 +1052,8 @@ namespace ipl {
                     if (ticketViewList != NULL) {
                         heap->free(ticketViewList);
                     }
-                }
+            }
+            keepTitle:
                 titleIdOffset += 8;
             }
 
