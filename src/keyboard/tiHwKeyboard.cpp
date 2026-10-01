@@ -1,3 +1,4 @@
+// Matching build uses tiHwKeyboard.s (C++ Matching breaks DOL SHA1).
 #define TIHWKEYBOARD_IMPLEMENTATION
 #include "keyboard/tiHwKeyboard.h"
 

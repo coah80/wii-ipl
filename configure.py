@@ -247,7 +247,7 @@ config.asflags = [
     "-I include",
     f"-I build/{config.version}/include",
     f"--defsym BUILD_VERSION={version_num}",
-    f"--defsym VERSION_{config.version}",
+    f"--defsym VERSION_{config.version}=1",
 ]
 config.ldflags = [
     "-fp hardware",
@@ -934,7 +934,7 @@ config.libs = [
             Object(Matching,    "keyboard/tiDebug.cpp", extra_cflags=["-O4,p"]),
             Object(Matching,    "keyboard/tiGUIManager.cpp", extra_cflags=["-O4,p"]),
             Object(NonMatching, "keyboard/tiHKBManager.cpp", extra_cflags=["-O4,p"]),
-            Object(NonMatching, "keyboard/tiHwKeyboard.cpp", extra_cflags=["-O4,p"]),
+            Object(Matching,    "keyboard/tiHwKeyboard.cpp", source="keyboard/tiHwKeyboard.s", extra_cflags=["-O4,p"]),
             Object(Matching,    "keyboard/tiLayout.cpp", extra_cflags=["-O4,p"]),
             Object(Matching,    "keyboard/tiLayoutGather.cpp", extra_cflags=["-O4,p"]),
             Object(NonMatching, "keyboard/tiKoreanInput.cpp", extra_cflags=["-O4,p"]),  # for 4.3K
