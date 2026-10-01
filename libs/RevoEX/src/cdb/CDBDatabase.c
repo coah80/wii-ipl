@@ -117,9 +117,9 @@ extern CDBErr CDBDatabaseSearchMinuteLayer();
 extern CDBErr CDBDatabaseSearchHourLayer();
 extern CDBErr CDBDatabaseSearchDayLayer();
 extern CDBErr CDBDatabaseSearchMonthLayer();
-extern CDBErr CDBDatabaseSearchYearLayer();
+extern CDBErr CDBDatabaseSearchYearLayer(CDBDatabase* database, CDBSearchConditions* conditions, CDBRecordLocation recordLocation);
 extern CDBErr CDBDatabaseSearch();
-extern CDBErr CDBDatabaseSearch_();
+extern CDBErr CDBDatabaseSearch_(CDBDatabase* database, CDBDate beginDate, CDBDate endDate, CDBSearchDirection searchDirection, char* makerCodeStr, char* gameCodeStr, char* type, CDBRecordLocation recordLocation, BOOL openRecord, CDBSearchRecordCB searchRecordCB, void* searchRecordArg, u64* wiiId);
 typedef struct {
     u32 used;
     u8 state[0xC00C];
@@ -2176,7 +2176,7 @@ asm CDBErr CDBDatabaseSearchMonthLayer() {
 #endif
 }
 
-asm CDBErr CDBDatabaseSearchYearLayer() {
+asm CDBErr CDBDatabaseSearchYearLayer(CDBDatabase* database, CDBSearchConditions* conditions, CDBRecordLocation recordLocation) {
 #ifdef __MWERKS__
     nofralloc
     stwu r1, -0x90(r1)
@@ -2432,73 +2432,37 @@ asm CDBErr CDBDatabaseSearchYearLayer() {
 CDBErr CDBDatabaseSearch(CDBDatabase* database, CDBDate beginDate, CDBDate endDate, CDBSearchDirection searchDirection, char* makerCode, char* gameCode, int unk7, CDBRecordLocation recordLocation, int unk9, CDBSearchRecordCB searchRecordCB, void* searchRecordArg) {
     CDBErr result;
     CDBLock();
-    result = CDBDatabaseSearch_(database, beginDate, endDate, searchDirection, makerCode, gameCode, unk7, recordLocation, unk9, searchRecordCB, searchRecordArg, NULL);
+    result = CDBDatabaseSearch_(database, beginDate, endDate, searchDirection, makerCode, gameCode, (char*)unk7, recordLocation, unk9, searchRecordCB, searchRecordArg, NULL);
     CDBUnlock();
     return result;
 }
 
-asm CDBErr CDBDatabaseSearch_() {
-#ifdef __MWERKS__
-    nofralloc
-    stwu r1, -0x60(r1)
-    mflr r0
-    stw r0, 0x64(r1)
-    addi r11, r1, 0x60
-    bl _savegpr_24
-    cmplw r4, r5
-    lwz r28, 0x68(r1)
-    lwz r29, 0x6c(r1)
-    mr r24, r3
-    lwz r30, 0x70(r1)
-    mr r25, r8
-    lwz r31, 0x74(r1)
-    mr r26, r9
-    mr r27, r10
-    bge L_81489764
-    stw r4, 0x8(r1)
-    stw r5, 0xc(r1)
-    b L_8148976C
-    L_81489764:
-    stw r5, 0x8(r1)
-    stw r4, 0xc(r1)
-    L_8148976C:
-    stw r6, 0x1c(r1)
-    mr r3, r7
-    addi r4, r1, 0x10
-    bl CDBConvMCStrToMCValue
-    mr r3, r25
-    addi r4, r1, 0x14
-    bl CDBConvGCStrToGCValue
-    li r0, 0x1
-    cmpwi r31, 0x0
-    stw r26, 0x18(r1)
-    stw r29, 0x20(r1)
-    stw r30, 0x24(r1)
-    stw r0, 0x28(r1)
-    stw r28, 0x2c(r1)
-    bne L_814897B8
-    li r0, 0x0
-    stw r0, 0x34(r1)
-    stw r0, 0x30(r1)
-    b L_814897C8
-    L_814897B8:
-    lwz r0, 0x0(r31)
-    lwz r3, 0x4(r31)
-    stw r3, 0x34(r1)
-    stw r0, 0x30(r1)
-    L_814897C8:
-    mr r3, r24
-    mr r5, r27
-    addi r4, r1, 0x8
-    bl CDBDatabaseSearchYearLayer
-    addi r11, r1, 0x60
-    bl _restgpr_24
-    lwz r0, 0x64(r1)
-    mtlr r0
-    addi r1, r1, 0x60
-    blr
-#endif
+CDBErr CDBDatabaseSearch_(CDBDatabase* database, CDBDate beginDate, CDBDate endDate, CDBSearchDirection searchDirection, char* makerCodeStr, char* gameCodeStr, char* type, CDBRecordLocation recordLocation, BOOL openRecord, CDBSearchRecordCB searchRecordCB, void* searchRecordArg, u64* wiiId) {
+    CDBSearchConditions conditions;
+
+    if (beginDate < endDate) {
+        conditions.beginDate = beginDate;
+        conditions.endDate = endDate;
+    } else {
+        conditions.beginDate = endDate;
+        conditions.endDate = beginDate;
+    }
+    conditions.direction = searchDirection;
+    CDBConvMCStrToMCValue(makerCodeStr, &conditions.makerCode);
+    CDBConvGCStrToGCValue(gameCodeStr, &conditions.gameCode);
+    conditions.type = type;
+    conditions.callback = searchRecordCB;
+    conditions.callbackArg = searchRecordArg;
+    conditions.keepSearching = TRUE;
+    conditions.openRecord = openRecord;
+    if (wiiId == NULL) {
+        conditions.wiiId = 0;
+    } else {
+        conditions.wiiId = *wiiId;
+    }
+    return CDBDatabaseSearchYearLayer(database, &conditions, recordLocation);
 }
+
 
 void CDBDatabaseInstanceInit(CDBDatabaseState* instance, u32 flags, CDBDatabase* database) {
     instance->used = 1;
