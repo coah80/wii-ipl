@@ -622,9 +622,17 @@ namespace ipl {
             }
         }
 
+        static inline nw4r::math::VEC2 loopPageOffset() {
+            nw4r::math::VEC2 result;
+            result.y = -sPageOffset.y;
+            result.x = -sPageOffset.x;
+            return result;
+        }
+
         void Address::stt_loop_forward() {
             if (!mpLayout->getAnim(4)->isPlaying()) {
-                add_translate(mpLayout->FindPaneByName("N_note_base"), -sPageOffset * PAGE_MAX);
+                math::VEC2 offset = loopPageOffset() * PAGE_MAX;
+                add_translate(mpLayout->FindPaneByName("N_note_base"), offset);
                 set_page_text("T_nmbr_b", mPage + 1);
                 reset_gui(false);
 
