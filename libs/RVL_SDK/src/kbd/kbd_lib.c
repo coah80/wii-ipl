@@ -69,17 +69,17 @@ typedef struct {
 } KBDChannel;
 
 typedef struct {
-    u32 callbackAddress;
+    USBKBDCmdLEDCallback callbackAddress;
     void* callbackArg;
 } KBDLEDCallbackData;
 
 const char* __KBDVersion =
     "<< RVL_SDK - KBD \trelease build: Apr 20 2010 11:21:43 (0x4199_60831) >>";
 
-static BOOL kbdInitialized;
-static USBKBDAttachCallback kbdDevAttachCallback;
-static USBKBDDetachCallback kbdDevDetachCallback;
 static void (*kbdKeyCallback)(KBDKeyEventData* event);
+static USBKBDDetachCallback kbdDevDetachCallback;
+static USBKBDAttachCallback kbdDevAttachCallback;
+static BOOL kbdInitialized;
 
 KBDKeyMapTable kbdKeyMaps = {0};
 typedef struct {
@@ -346,7 +346,6 @@ static void kbdProcKey(u32 key, u32 pressed, u32 channel) {
 
     event.channel = channel;
     event.state = pressed;
-    event.modifiers = 0;
     kbdGetModState(channel, &event.modifiers);
     map = &kbdKeyMaps.maps[data->country];
     keyCount = map->keypadCount;
@@ -401,132 +400,132 @@ static void kbdProcKey(u32 key, u32 pressed, u32 channel) {
 }
 
 static void kbdProcMod(u32 key, u32 pressed, u32 channel) {
-    KBDChannel* data;
+    u32 stateBuf[1];
+    KBDModifierState* state;
     s32 delta;
     u8 flags;
-    u32 modifiers;
-    KBDModifierState* state = (KBDModifierState*)&modifiers;
+
     u32 finalState;
     s8 value;
-    data = &kbdData[channel];
     delta = (pressed & 1) != 0 ? 1 : -1;
-    flags = kbdKeyMaps.maps[data->country].flags;
-    if (kbdGetModState(channel, &modifiers) != 0) {
-        modifiers = data->modState;
-    }
+    state = (KBDModifierState*)stateBuf;
+    state->value = kbdData[channel].modState;
+    flags = kbdKeyMaps.maps[kbdData[channel].country].flags;
+
+    kbdGetModState(channel, &state->value);
     switch (key) {
     case 0xF001:
-        if (data->lockState != 0) {
+        if (kbdData[channel].lockState != 0) {
             if ((pressed & 1) != 0) {
-                modifiers ^= 2;
+                state->value ^= 2;
             }
         } else {
-            value = data->lockCount[1] + delta;
-            data->lockCount[1] = value;
+            value = kbdData[channel].lockCount[1] + delta;
+            kbdData[channel].lockCount[1] = value;
             state->keys.rightControl = (u8)value != 0;
         }
         break;
     case 0xF005:
-        if (data->lockState != 0) {
+        if (kbdData[channel].lockState != 0) {
             if ((pressed & 1) != 0) {
-                modifiers ^= 0x20;
+                state->value ^= 0x20;
             }
         } else {
-            value = data->lockCount[4] + delta;
-            data->lockCount[4] = value;
-            modifiers = (modifiers & ~0x20) | (((u8)value != 0) << 5);
+            value = kbdData[channel].lockCount[4] + delta;
+            kbdData[channel].lockCount[4] = value;
+            state->keys.rightAlt = (u8)value != 0;
         }
         break;
     case 0xF000:
-        if (data->lockState != 0) {
+        if (kbdData[channel].lockState != 0) {
             if ((pressed & 1) != 0) {
-                modifiers ^= 1;
+                state->value ^= 1;
             }
         } else {
-            value = data->lockCount[0] + delta;
-            data->lockCount[0] = value;
+            value = kbdData[channel].lockCount[0] + delta;
+            kbdData[channel].lockCount[0] = value;
             state->keys.leftControl = (u8)value != 0;
         }
         break;
     case 0xF008:
-        if (((pressed & 1) != 0) && (data->lockProcessing != 0)) {
-            modifiers ^= 0x200;
+        if (((pressed & 1) != 0) && (kbdData[channel].lockProcessing != 0)) {
+            state->value ^= 0x200;
         }
         break;
     case 0xF007:
-        if (((pressed & 1) != 0) && (data->lockProcessing != 0)) {
-            modifiers ^= 0x100;
+        if (((pressed & 1) != 0) && (kbdData[channel].lockProcessing != 0)) {
+            state->value ^= 0x100;
         }
         break;
     case 0xF006:
-        if (((pressed & 1) != 0) && (data->lockProcessing != 0)) {
+        if (((pressed & 1) != 0) && (kbdData[channel].lockProcessing != 0)) {
             u32 oldState;
             u32 lockState;
-            oldState = modifiers;
+            oldState = state->value;
             lockState = oldState & 0xC0;
             switch (lockState) {
             case 0:
                 if ((flags & 1) == 1) {
-                    modifiers = oldState | 0x40;
+                    state->value = oldState | 0x40;
                 }
                 break;
             case 0x40:
                 {
-                    modifiers = oldState & 0xFFFFFFBF;
+                    state->value = oldState & 0xFFFFFFBF;
                     if ((flags & 4) == 4) {
-                        modifiers = oldState & 0xFFFFFFBF | 0x80;
+                        state->value = oldState & 0xFFFFFFBF | 0x80;
                     }
                 }
                 break;
             case 0x80:
-                modifiers = oldState & 0xFFFFFF7F;
+                state->value = oldState & 0xFFFFFF7F;
                 break;
             case 0xC0:
-                modifiers = oldState & 0xFFFFFF3F;
+                state->value = oldState & 0xFFFFFF3F;
                 break;
             }
         }
         break;
     case 0xF002:
-        if (data->lockState != 0) {
+        if (kbdData[channel].lockState != 0) {
             if ((pressed & 1) != 0) {
-                modifiers ^= 4;
+                state->value ^= 4;
             }
         } else {
-            value = data->lockCount[2] + delta;
-            data->lockCount[2] = value;
-            modifiers = (modifiers & ~4) | (((u8)value != 0) << 2);
+            value = kbdData[channel].lockCount[2] + delta;
+            kbdData[channel].lockCount[2] = value;
+            state->keys.leftShift = (u8)value != 0;
         }
         break;
     case 0xF003:
-        if (data->lockState != 0) {
+        if (kbdData[channel].lockState != 0) {
             if ((pressed & 1) != 0) {
-                modifiers ^= 8;
+                state->value ^= 8;
             }
         } else {
-            value = data->lockCount[3] + delta;
-            data->lockCount[3] = value;
+            value = kbdData[channel].lockCount[3] + delta;
+            kbdData[channel].lockCount[3] = value;
             state->keys.rightShift = (u8)value != 0;
         }
         break;
     case 0xF004:
-        if (data->lockState != 0) {
+        if (kbdData[channel].lockState != 0) {
             if ((pressed & 1) != 0) {
-                modifiers ^= 0x10;
+                state->value ^= 0x10;
             }
         } else {
-            value = data->lockCount[5] + delta;
-            data->lockCount[5] = value;
+            value = kbdData[channel].lockCount[5] + delta;
+            kbdData[channel].lockCount[5] = value;
             state->keys.leftAlt = (u8)value != 0;
         }
         break;
     case 0xF021:
-        if (((pressed & 1) != 0) && (data->lockProcessing != 0)) {
-            modifiers ^= 0x400;
+        if (((pressed & 1) != 0) && (kbdData[channel].lockProcessing != 0)) {
+            state->value ^= 0x400;
         }
         break;
     }
-    finalState = modifiers | 0x1000;
+    finalState = state->value | 0x1000;
     KBDSetModState(channel, finalState);
 }
 
@@ -565,28 +564,26 @@ static inline u32 kbdChannelFlags(u32 channel) {
 
 static void kbd_led_handler(BOOL success, void* callbackArg) {
     u32 index;
-    u32 result;
-    u32 callbackAddress;
+    u32 err;
     index = (u32)callbackArg;
-    callbackAddress = kbdLCBuf[index].callbackAddress;
-
     kbdCmdBuf[index].device = 0;
-    if (callbackAddress == 0) {
+    if (kbdLCBuf[index].callbackAddress == (USBKBDCmdLEDCallback)(u32)kbdCmdBuf[index].device) {
         return;
     }
     switch (success) {
-    case TRUE:
-        result = 0;
-        break;
     default:
-        result = 7;
+        err = 7;
+        break;
+    case TRUE:
+        err = 0;
         break;
     }
-    ((USBKBDCmdLEDCallback)kbdLCBuf[index].callbackAddress)(result, kbdLCBuf[index].callbackArg);
+    kbdLCBuf[index].callbackAddress(err, kbdLCBuf[index].callbackArg);
 }
 
 USBKBDErr KBDSetLedsAsync(u32 channel, u32 leds, USBKBDCmdLEDCallback callback, void* callbackArg) {
-    u32 index;
+    s32 index;
+    u32 ofs;
     u8 ledBits;
     BOOL interrupts;
     USBKBDErr result;
@@ -596,14 +593,14 @@ USBKBDErr KBDSetLedsAsync(u32 channel, u32 leds, USBKBDCmdLEDCallback callback, 
     if (channel >= 4) {
         return 4;
     }
-    if ((s32)kbdData[(u8)channel].flags == 1 || (s32)kbdData[(u8)channel].flags == 4) {
+    if ((s32)kbdChannelFlags(channel) == 1 || (s32)kbdChannelFlags(channel) == 4) {
         return 5;
     }
     ledBits = leds;
     interrupts = OSDisableInterrupts();
-    for (index = 0; index < 12; index++) {
-        if (kbdCmdBuf[index].device == 0) {
-            kbdCmdBuf[index].device = (u32)kbdData[channel].device;
+    for (index = 0, ofs = 0; index < 12; index++, ofs += sizeof(KBDLEDCommand)) {
+        if (*(u32*)&((u8*)kbdCmdBuf)[ofs] == 0) {
+            *(u32*)&((u8*)kbdCmdBuf)[ofs] = (u32)kbdData[channel].device;
             break;
         }
     }
@@ -611,21 +608,22 @@ USBKBDErr KBDSetLedsAsync(u32 channel, u32 leds, USBKBDCmdLEDCallback callback, 
     if (index == 12) {
         return 7;
     }
-    kbdLCBuf[index].callbackAddress = (u32)callback;
+    kbdLCBuf[index].callbackAddress = callback;
     kbdLCBuf[index].callbackArg = callbackArg;
     result = USBKBDSetLEDAsync((u32)kbdData[channel].device, ledBits,
                                (USBKBDCmdLEDAsync*)&kbdCmdBuf[index],
                                kbd_led_handler, (void*)index);
     switch (result) {
-    case 0:
-        return 0;
     default:
         return 7;
+    case 0:
+        return 0;
     }
 }
 
 USBKBDErr KBDSetLeds(u32 channel, u32 leds) {
     u32 index;
+    u32 ofs;
     BOOL interrupts;
     USBKBDErr result;
     u8 ledBits;
@@ -638,15 +636,17 @@ USBKBDErr KBDSetLeds(u32 channel, u32 leds) {
     if ((s32)kbdChannelFlags(channel) == 1 || (s32)kbdChannelFlags(channel) == 4) {
         return 5;
     }
-    ledBits = leds;
+    ledBits = leds & 0xff;
     interrupts = OSDisableInterrupts();
     index = 0;
+    ofs = 0;
     while (index < 12) {
-        if ((kbdCmdBuf + index)->device == 0) {
-            kbdCmdBuf[index].device = (u32)kbdData[channel].device;
+        if (*(u32*)&((u8*)kbdCmdBuf)[ofs] == 0) {
+            *(u32*)&((u8*)kbdCmdBuf)[ofs] = (u32)kbdData[channel].device;
             break;
         }
         index++;
+        ofs += sizeof(KBDLEDCommand);
     }
     OSRestoreInterrupts(interrupts);
     if (index == 12) {
@@ -845,7 +845,7 @@ USBKBDErr KBDSetModState(u32 channel, u32 value) {
         interrupts = OSDisableInterrupts();
         state = (KBDModifierState*)&kbdData[channel].modState;
         newState.value = value & 0xfc0;
-        oldState.value = kbdData[channel].modState;
+        oldState = *state;
         newState.bits.physical = oldState.bits.physical;
         *state = newState;
         OSRestoreInterrupts(interrupts);

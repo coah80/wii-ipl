@@ -207,3 +207,23 @@ Target blocks were re-derived from kbd_lib.s: LED checks precede interrupt exclu
 kbdProcKey retains initialization of the getter destination. kbdProcMod retains initialization from channel state. The original getter may skip its output on invalid input; matching its missing initialization would introduce uninitialized reads and was rejected. Modifier counter cases were re-derived as separate counter, whole-word mask, and lock-toggle blocks.
 Data: .bss, .sbss and .sdata remain exact; the real map, command, channel, and callback workspaces retain original order. The first 0x490 data bytes, including the SDK version literal and both maps, match raw target bytes. The remaining .data differences are the compiler-generated switch table; the version text has an anonymous source symbol and a target lbl symbol, which is not recreated. No packed pool, manual jump table, address pins or section directives were introduced.
 KBDResetChannel remains objdiff 100% with identical raw instruction bytes. Its gate count discrepancy remains the documented CR1 branch-disassembly normalization issue; no tooling was modified.
+
+## Wave 7 (continuation)
+- kbdProcMod: reached 256/256 count-equal via `KBDModifierState* state` over
+  `u32 stateBuf[1]` + `kbdData[channel].modState` idiom. Residual: MWCC
+  promotes state.value to a register; orig reloads from 8(r1) per case arm
+  and splits rlwinm-shift/rlwimi-insert. No source lever found.
+- KBDSetLeds/Async: dual `index`+`ofs` induction in the cmdBuf scan loop is
+  the right shape (orig keeps index for post-loop LCBuf access AND a byte
+  offset for lwzx). KBDSetLeds 79/79 count-equal; Async 80/81 (missing
+  channel->r26 callee save; orig remats `mulli channel,0x268` per kbdData
+  access). `u8* cmdBytes` named-base variant regressed (78/79).
+- kbd_led_handler: if/else+shared call (22/25, folded), dup-call arms
+  (24/25, fuzzy 40), `default:7;case TRUE:0` switch+shared call = best fuzzy
+  61.12 at 23/25 insns — switch is MWCC's only non-fold err-select; orig's
+  `bne->err7 / li 0 first` arm order is unreachable (MWCC dispatches
+  beq->case, never bne->default). goto explicitly folds.
+- .sdata: orig has +4B zero entry after __KBDVersion — unnamed, unreferenced,
+  no relocs, no .text reads. Blind `=0` static is banned filler. Leftover.
+- kbdEventHandler/KBDSetModState/KBDTranslateHidCode: insn-count-equal
+  residual regname/sched swaps; probed variants regressed.
