@@ -34,13 +34,13 @@ static void uhf_ker_sem_inline_1() {
     }
 }
 
-s32 uhf_ker_create_sem(u32 param_1, int param_2) {
+s32 uhf_ker_create_sem(u32 initCount, int flags) {
     int i, k;
 
-    if (param_1 != 0 && param_1 != 1) {
+    if (initCount != 0 && initCount != 1) {
         return -5;
     }
-    if (param_2 != 0) {
+    if (flags != 0) {
         return -5;
     }
 
@@ -60,13 +60,13 @@ s32 uhf_ker_create_sem(u32 param_1, int param_2) {
             OSInitSemaphore(&st_uhf_ker_sem[i], 1);
             sem = &st_uhf_ker_sem[i];
 
-            for (k = (int)(1 - param_1); k > 0; k--) {
+            for (k = (int)(1 - initCount); k > 0; k--) {
                 OSWaitSemaphore((OSSemaphore*)sem);
             }
 
             st_uhs_ker_sem_mng.entries[i].sem = sem;
-            st_uhs_ker_sem_mng.entries[i].unk_0x04 = param_1;
-            st_uhs_ker_sem_mng.entries[i].unk_0x08 = param_2;
+            st_uhs_ker_sem_mng.entries[i].unk_0x04 = initCount;
+            st_uhs_ker_sem_mng.entries[i].unk_0x08 = flags;
             st_uhs_ker_sem_mng.unk_0x90++;
 
             uhf_ker_sem_inline_1();
