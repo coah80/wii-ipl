@@ -21,7 +21,7 @@
 namespace ipl {
     TVRCManager* TVRCManager::m_handle;
 
-    int lbl_8169877C = 0;
+    int sTvrcStartDelay = 0;
 
     TVRCManager::TVRCManager(EGG::Heap* heap) : mbInitialized(FALSE), mpDBFile(NULL), mbResetting(FALSE), mbPrepTVRC(FALSE), mState(STATE_0) {
         /* TV model for testing at EAD? */
@@ -280,17 +280,17 @@ namespace ipl {
             case STATE_3: {
                 if (!snd::getSystem()->isSEActive(HOMESE_GOTO_MENU)) {
                     snd::getSystem()->pauseOnBGM();
-                    lbl_8169877C = 5;
+                    sTvrcStartDelay = 5;
                     mState = STATE_4;
                 }
                 break;
             }
             case STATE_4: {
                 if (mbResetting) {
-                    lbl_8169877C = 0;
+                    sTvrcStartDelay = 0;
                 }
 
-                if (--lbl_8169877C <= 0 && !snd::getSystem()->isSEActive(HOMESE_GOTO_MENU)) {
+                if (--sTvrcStartDelay <= 0 && !snd::getSystem()->isSEActive(HOMESE_GOTO_MENU)) {
                     snd_shutup(TRUE);
                     if (IS_ENABLED && !TVRCIsActive()) {
                         TVRCSendStartAsync(trans_cmd(mCurrentCommand));
