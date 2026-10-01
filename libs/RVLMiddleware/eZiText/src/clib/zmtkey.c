@@ -8,7 +8,7 @@ ziU16 Zi8GetTableCount(ziU8 language, ziU8 tableIndex, ziPtr __zi8_work_data);
 ziU32 Zi8GetTableAddress(ziU8 language, ziU8 tableIndex, ziPtr __zi8_work_data);
 ziU8 Zi8getKeyLayout(ziU8 language, ziWChar key, ziWChar* chars, ziU8 mode, ziPtr __zi8_work_data);
 
-ziBool Zi8_81484484(ziWChar character, ziWChar* output, ziPtr __zi8_work_data) {
+ziBool Zi8MapKeyCode(ziWChar character, ziWChar* output, ziPtr __zi8_work_data) {
     if (character == 0xeffa) {
         *output = 0;
     } else if ((character >= 0xeff1) && (character <= 0xeff9)) {
@@ -58,7 +58,7 @@ ziBool Zi8getKeyLayout(ziU8 language, ziWChar key, ziWChar* chars, ziU8 mode, zi
     *chars = 0;
     if (ZI_WORK->userKeys[language] != 0) {
         customTable = ZI_WORK->userKeys[language];
-        if (!Zi8_81484484(key, &key, __zi8_work_data)) {
+        if (!Zi8MapKeyCode(key, &key, __zi8_work_data)) {
             return 0;
         }
         keyChars = customTable->lower[key];
@@ -87,7 +87,7 @@ tables_ready:
             Zi8ReplaceLastError(0x962, __zi8_work_data);
             return 0;
         }
-        if (!Zi8_81484484(key, &key, __zi8_work_data) || (key >= numKeys)) {
+        if (!Zi8MapKeyCode(key, &key, __zi8_work_data) || (key >= numKeys)) {
             Zi8ReplaceLastError(300, __zi8_work_data);
             return 0;
         }
