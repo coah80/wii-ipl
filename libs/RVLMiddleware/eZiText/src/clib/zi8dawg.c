@@ -306,7 +306,7 @@ ziU32 Zi8MatchROMdata(ziWChar* elements, ziU8 count, ziU8 language,
     } else {
         if (status == 0) {
             ZI_WORK->unk_0x17EC = 0;
-            ZI_WORK->unk_0x17F0 = NextDawgGroup(0, language, ZI_WORK);
+            ZI_WORK->dawgGroup = NextDawgGroup(0, language, ZI_WORK);
         } else if (ZI_WORK->unk_0x17EC != 0) {
             Zi8LogError(100, ZI_WORK);
             goto finish_match;
@@ -316,30 +316,30 @@ ziU32 Zi8MatchROMdata(ziWChar* elements, ziU8 count, ziU8 language,
             result = Zi8MatchROMdata2(elements, count, language, output, capacity,
                                      mode, status, reservedMode, 0, acceptPrefix, ZI_WORK);
         } else {
-            while (ZI_WORK->unk_0x17F0 != 0) {
+            while (ZI_WORK->dawgGroup != 0) {
                 result = Zi8MatchROMdata2(elements, count, language, output, capacity,
-                                         mode, status, reservedMode, ZI_WORK->unk_0x17F0,
+                                         mode, status, reservedMode, ZI_WORK->dawgGroup,
                                          acceptPrefix, ZI_WORK);
                 if ((ziU8)result != 0) break;
                 status = 0;
                 if (count <= 1 && language == 0x36) break;
-                ZI_WORK->unk_0x17F0 = NextDawgGroup(ZI_WORK->unk_0x17F0, language, ZI_WORK);
+                ZI_WORK->dawgGroup = NextDawgGroup(ZI_WORK->dawgGroup, language, ZI_WORK);
             }
         }
         if ((ziU8)result == 0 && status == 0 && mode == 1 && count == 1 && capacity >= 1) {
             mode = 0;
             ZI_WORK->unk_0x17EC = 1;
             if (tableSize != 0) {
-                ZI_WORK->unk_0x17F0 = NextDawgGroup(0, language, ZI_WORK);
-                while (ZI_WORK->unk_0x17F0 != 0) {
+                ZI_WORK->dawgGroup = NextDawgGroup(0, language, ZI_WORK);
+                while (ZI_WORK->dawgGroup != 0) {
                     if ((ziU8)Zi8MatchROMdata2(elements, count, language, output, capacity,
-                                              mode, status, reservedMode, ZI_WORK->unk_0x17F0,
+                                              mode, status, reservedMode, ZI_WORK->dawgGroup,
                                               acceptPrefix, ZI_WORK) != 0) {
                         *output = *elements;
                         result = 1;
                         break;
                     }
-                    ZI_WORK->unk_0x17F0 = NextDawgGroup(ZI_WORK->unk_0x17F0, language, ZI_WORK);
+                    ZI_WORK->dawgGroup = NextDawgGroup(ZI_WORK->dawgGroup, language, ZI_WORK);
                 }
             } else {
                 if ((ziU8)Zi8MatchROMdata2(elements, count, language, output, capacity,

@@ -283,7 +283,7 @@ struct __zi8_work_data_s {
     ziU16 unk_0x17EA;
     ziU8 unk_0x17EC;
     ziU8 unk_0x17ED[3];
-    ziU8* unk_0x17F0;
+    ziU8* dawgGroup;  // 0x17F0
     ziWChar unk_0x17F4[0x40];  // 0x17F4..0x1874
     ziU16 unk_0x1874;
     ziU8 unk_0x1876;
