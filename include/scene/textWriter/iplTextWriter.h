@@ -42,7 +42,7 @@ namespace ipl {
             };
 
             virtual BOOL isResetAcceptable() const {
-                return unk_0x7D;
+                return mbResetAcceptable;
             }
 
             virtual void prepare();
@@ -108,7 +108,7 @@ namespace ipl {
             static const int mToFace_Duration = 20;
 
             bool mbClosing;  // 0x7C
-            bool unk_0x7D;
+            bool mbResetAcceptable;
 
             wchar_t* mWCString;  // 0x80
 
