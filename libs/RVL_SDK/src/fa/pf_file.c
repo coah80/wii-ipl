@@ -647,18 +647,16 @@ void PFFILE_Cursor_MoveToClusterEnd(PFFILE_FILE* file, pf_u32 size) {
     }
 }
 
-PFFILE_SFD* PFFILE_GetSFD(PF_VOLUME* volume, PF_DIR_ENT* entry) {
-    PFFILE_VOLUME_DIRS* volume_dirs = (PFFILE_VOLUME_DIRS*)volume;
-    PFFILE_SFD* first_free_sfd = PF_NULL;
-    PFFILE_SFD* sfd = volume_dirs->sfds;
+PFFILE_SFD* PFFILE_GetSFD(PFFILE_VOLUME_DIRS* volume_dirs, PF_DIR_ENT* entry) {
     pf_u32 first_free_index = 0;
-    pf_u32 index = 0;
+    PFFILE_SFD* first_free_sfd = PF_NULL;
+    pf_u32 index;
 
-    for (; index < 5; index++, sfd++) {
+    for (index = 0; index < 5; index++) {
         if ((volume_dirs->sfds[index].stat & 1) == 0 ||
             ((volume_dirs->sfds[index].stat & 1) != 0 && (!volume_dirs->sfds[index].stat & 2) != 0)) {
             if (first_free_sfd == PF_NULL) {
-                first_free_sfd = sfd;
+                first_free_sfd = &volume_dirs->sfds[index];
                 first_free_index = index;
             }
         } else if (entry->p_vol == volume_dirs->sfds[index].dir_entry.p_vol &&
@@ -922,7 +920,7 @@ pf_s32 PFFILE_p_fopen(PF_VOLUME* volume, PF_STR* path, pf_u32 open_mode,
         }
     }
     volume = entry.p_vol;
-    sfd = PFFILE_GetSFD(volume, &entry);
+    sfd = PFFILE_GetSFD((PFFILE_VOLUME_DIRS*)volume, &entry);
     if (sfd == PF_NULL) {
         return 0x15;
     }
@@ -1409,7 +1407,7 @@ pf_s32 PFFILE_FsexecOpenFile(PF_DIR_ENT* entry, PFFILE_ENT_ITER* iter,
     } else {
         PFENT_getcurrentDateTimeForEnt(&entry->access_date, &access_time);
     }
-    sfd = PFFILE_GetSFD(volume, entry);
+    sfd = PFFILE_GetSFD((PFFILE_VOLUME_DIRS*)volume, entry);
     if (sfd == PF_NULL) {
         return 0x15;
     }

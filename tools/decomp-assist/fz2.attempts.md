@@ -228,3 +228,158 @@ Before -> after instruction-exact functions / matched code bytes / matched data 
 - kpr_lib: 8->9 / 1152->1536 / 1104->1104.
 - zconvert: 2->3 / 884->1380 / 112->112.
 Source commits: 57bab7c8, 36278f38. No uncertainty about the reported measurements; remaining source levers unknown.
+
+# Round 2 after landing
+Baseline cbf6363d0f5e07b6dceadc43693694c14d58a229
+- Zi8getKeyLayout / r2 inline layout helper with existing argument order: 18/182 instructions; structural 187, positional differences 180
+- Zi8getKeyLayout / r2 inline layout helper with work pointer first: 18/182 instructions; structural 187, positional differences 180
+- Zi8getKeyLayout / r2 inline layout helper with wide scalars: BUILD FAIL tkey.c -o build/43U/src/libs/RVLMiddleware/eZiText/src/clib && "/usr/bin/python3" tools/transform_dep.py build/43U/src/libs/RVLMiddleware/eZiText/src/clib/zmtkey.d build/43U/src/libs/RVLMiddleware/eZiText/src/clib/zmtkey.d ### mwcceppc.exe Compiler: #    File: libs\RVLMiddleware\eZiText\src\clib\zmtkey.c # ----------------------------------------------------- #      61:         if (!Zi8MapKeyCode(key, &key, __zi8_work_data)) {  #   Error:                                                      ^ #   (10209) illegal implicit conversion from 'unsigned long *' to #   'unsigned short *' #   Too many errors printed, aborting program  User break, cancelled... ninja: build stopped: subcommand failed. 
+
+Round 2 live diagnosis, all pools identical before source experiments.
+- Zi8getKeyLayout: same 0x40 frame, 182/182 instructions, branches, operands and inline boundaries equal after register normalization. Language/tableCount r26/r27 coloring remains.
+- PFFILE_GetSFD: same 0x20 frame, 113/113 instructions; indexed traversal generates three induction updates in different order; volume/entry/free-index saved registers differ.
+- Zi8ConvertUC2Key: same 0x40 frame, 207/207 instructions, branches/temporaries/operands/helper boundaries equal after register normalization. Work/key r27/r28 coloring remains.
+All three owned sources identical to newly fetched origin/main before their initial function investigations.
+- Zi8getKeyLayout / r2 split primary table lookup assignment from condition: 182/182 instructions; structural 0, positional differences 16
+- Zi8getKeyLayout / r2 split both table lookup assignments from conditions: 182/182 instructions; structural 0, positional differences 22
+- Zi8getKeyLayout / r2 signed 16 bit count with unsigned reads: 182/182 instructions; structural 3, positional differences 16
+- Zi8getKeyLayout / r2 direct count addition instead of compound assignment: 183/182 instructions; structural 7, positional differences 72
+- Zi8getKeyLayout / r2 unsigned sum widened only at increment: 184/182 instructions; structural 8, positional differences 75
+- Zi8getKeyLayout / r2 index initialized with count in common assignment: 182/182 instructions; structural 0, positional differences 16
+- Zi8getKeyLayout / r2 key count helper ziU16 locals and ziU16 result: 175/182 instructions; structural 13, positional differences 68
+- Zi8getKeyLayout / r2 key count helper ziU16 locals and ziU32 result: 175/182 instructions; structural 13, positional differences 68
+- Zi8getKeyLayout / r2 key count helper ziU32 locals and ziU16 result: 175/182 instructions; structural 13, positional differences 68
+- Zi8getKeyLayout / r2 key count helper ziU32 locals and ziU32 result: 175/182 instructions; structural 13, positional differences 68
+- PFFILE_GetSFD / r2 pointer advance in body before index loop update: 113/113 instructions; structural 0, positional differences 18
+- PFFILE_GetSFD / r2 index advance in body before pointer loop update: 113/113 instructions; structural 2, positional differences 18
+- PFFILE_GetSFD / r2 while loop with separate induction updates: 113/113 instructions; structural 0, positional differences 18
+- PFFILE_GetSFD / r2 prefix index and pointer updates: 113/113 instructions; structural 2, positional differences 18
+- PFFILE_GetSFD / r2 initialize saved slot index before free slot pointer: 113/113 instructions; structural 2, positional differences 19
+- PFFILE_GetSFD / r2 free descriptor predicate helper: 121/113 instructions; structural 13, positional differences 113
+- PFFILE_GetSFD / r2 matching directory entry comparison helper: 117/113 instructions; structural 12, positional differences 102
+- Zi8ConvertUC2Key / r2 signed key with unsigned bit-pattern reads: 208/207 instructions; structural 17, positional differences 53
+- Zi8ConvertUC2Key / r2 constant character and language parameters: 207/207 instructions; structural 0, positional differences 18
+- Zi8ConvertUC2Key / r2 explicit constant work pointer parameter: 207/207 instructions; structural 0, positional differences 18
+- Zi8ConvertUC2Key / r2 common result block entered by goto after table lookup: 207/207 instructions; structural 0, positional differences 18
+- Zi8ConvertUC2Key / r2 inverse entry exclusion condition nested body: 206/207 instructions; structural 13, positional differences 137
+- PFFILE_GetSFD / r2 use existing correct SDK volume layout in internal function signature: 113/113 instructions; structural 2, positional differences 28
+- PFFILE_GetSFD / r2 correct volume signature and pointer-first loop latch: 113/113 instructions; structural 0, positional differences 28
+- PFFILE_GetSFD / r2 correct volume signature and first free index declaration first: 113/113 instructions; structural 2, positional differences 2
+- PFFILE_GetSFD / r2 signed traversal index: 113/113 instructions; structural 2, positional differences 18
+- PFFILE_GetSFD / r2 signed saved slot index: 113/113 instructions; structural 2, positional differences 18
+- PFFILE_GetSFD / r2 signed traversal and saved slot indices: 113/113 instructions; structural 2, positional differences 18
+- PFFILE_GetSFD / r2 unsigned int traversal and saved slot indices: 113/113 instructions; structural 2, positional differences 18
+- PFFILE_GetSFD / r2 constant volume alias and entry pointers: 113/113 instructions; structural 2, positional differences 18
+- PFFILE_GetSFD / r2 typed volume saved index first pointer-first latch: 113/113 instructions; structural 0, positional differences 2
+- PFFILE_GetSFD / r2 typed volume saved index first body pointer update: 113/113 instructions; structural 0, positional differences 2
+- PFFILE_GetSFD / r2 typed volume saved index first separate while updates: 113/113 instructions; structural 0, positional differences 2
+- PFFILE_GetSFD / r2 typed volume saved index first explicit pointer assignment: 113/113 instructions; structural 0, positional differences 2
+- PFFILE_GetSFD / r2 typed volume saved index first explicit index assignment: 113/113 instructions; structural 0, positional differences 2
+- PFFILE_GetSFD / r2 typed volume saved index first both compound additions: 113/113 instructions; structural 0, positional differences 2
+- PFFILE_GetSFD / r2 typed volume saved index first next index temporary: 113/113 instructions; structural 0, positional differences 2
+- PFFILE_GetSFD / r2 typed volume saved index first next descriptor temporary: 113/113 instructions; structural 2, positional differences 2
+- PFFILE_GetSFD / r2 original formal volume retained after traversal: 113/113 instructions; structural 4, positional differences 5
+- PFFILE_GetSFD / r2 original formal volume retained pointer-first latch: 113/113 instructions; structural 2, positional differences 5
+- PFFILE_GetSFD / r2 volume traversal alias declared after saved indices: 113/113 instructions; structural 4, positional differences 5
+- Zi8ConvertUC2Key / r2 ziPtr work context local declared first: 213/207 instructions; structural 44, positional differences 206
+- Zi8ConvertUC2Key / r2 ziPtr work context local declared last: 213/207 instructions; structural 44, positional differences 206
+- Zi8ConvertUC2Key / r2 struct __zi8_work_data_s* work context local declared first: 213/207 instructions; structural 44, positional differences 206
+- Zi8ConvertUC2Key / r2 struct __zi8_work_data_s* work context local declared last: 213/207 instructions; structural 44, positional differences 206
+- Zi8getKeyLayout / r2 noncompound accumulator expression same operand order: 183/182 instructions; structural 7, positional differences 72
+- Zi8getKeyLayout / r2 zero test using logical not for lookup result: 182/182 instructions; structural 0, positional differences 16
+- Zi8getKeyLayout / r2 chained initialization from index to total: 182/182 instructions; structural 0, positional differences 16
+- Zi8getKeyLayout / r2 prefix key index increments in all traversal loops: 182/182 instructions; structural 0, positional differences 16
+- Zi8getKeyLayout / r2 builtin character count assignment separated from zero test: 182/182 instructions; structural 1, positional differences 17
+- PFFILE_GetSFD / r2 typed volume derive free slot directly from indexed array: 113/113 instructions; structural 0, positional differences 0; EXACT candidate retained
+- PFFILE_GetSFD / r2 typed volume indexed free slot with for loop: 113/113 instructions; structural 0, positional differences 0; EXACT candidate retained
+- PFFILE_GetSFD / r2 typed volume indexed free slot and declaration-only loop index: 113/113 instructions; structural 0, positional differences 0; EXACT candidate retained
+- Zi8ConvertUC2Key / r2 separate every short declaration: 207/207 instructions; structural 0, positional differences 18
+- Zi8ConvertUC2Key / r2 key grouped with count index and bounds: 207/207 instructions; structural 0, positional differences 18
+- Zi8ConvertUC2Key / r2 lookup index kept wide with narrow reads: 207/207 instructions; structural 0, positional differences 18
+- Zi8ConvertUC2Key / r2 default mapping pointer const qualification: 208/207 instructions; structural 13, positional differences 53
+
+Round 2 PFFILE_GetSFD structural resolution: the existing PFFILE_VOLUME_DIRS type is the SDK layout used for all accessed fields, with sfds at 0x40, sizeof(SFD)=0x29c and cluster-link at 0x1f94. Use that type directly in the internal function signature, cast the two callers without changing their generated code. Saved slot index initialization precedes free slot pointer. Derive the free slot from the indexed array instead of maintaining a redundant pointer. The compiler now creates its two induction pointers in target order. 113/113 instructions, diffs 0. Full gate 45/45 exact, code 17820/17820, no data symbols; correct DOL; zero regressions/forbidden/style.
+
+```text
+full build: ok
+main.dol sha1: 26116613f624061ba99c8d1a299aaa6efa85670d
+[libs/RVL_SDK/src/fa/pf_file] pool: IDENTICAL
+[libs/RVL_SDK/src/fa/pf_file] objdiff: code 17820/17820 data None/None functions 45/45 fuzzy 100.0000 linked code 0
+[libs/RVL_SDK/src/fa/pf_file] instruction-exact functions: 45/45
+[libs/RVL_SDK/src/fa/pf_file]   section .text size 17820 match 100.0
+[libs/RVL_SDK/src/fa/pf_file] baseline: code 17368/17820 data None functions 44 fuzzy 99.9771
+regressions vs baseline: 0
+global matched_code_percent: 88.60345 -> 88.61855
+global fuzzy_match_percent: 99.45553 -> 99.45567
+global complete_code_percent: 63.16065 -> 63.16065
+global matched_data_percent: 98.50994 -> 98.50994
+forbidden patterns added (net, per file): 0
+readability warnings (net, per file; must be 0 in the final result): 0
+GATE PASS
+```
+- Zi8getKeyLayout / r2 readonly pointer qualifiers dataAddress: 182/182 instructions; structural 0, positional differences 16
+- Zi8getKeyLayout / r2 readonly pointer qualifiers customTable: 182/182 instructions; structural 0, positional differences 16
+- Zi8getKeyLayout / r2 readonly pointer qualifiers dataAddress,customTable: 182/182 instructions; structural 0, positional differences 16
+- Zi8getKeyLayout / r2 readonly pointer qualifiers keyChars: 183/182 instructions; structural 5, positional differences 140
+- Zi8getKeyLayout / r2 readonly pointer qualifiers dataAddress,keyChars: 183/182 instructions; structural 5, positional differences 140
+- Zi8getKeyLayout / r2 readonly pointer qualifiers customTable,keyChars: 183/182 instructions; structural 5, positional differences 140
+- Zi8getKeyLayout / r2 readonly pointer qualifiers dataAddress,customTable,keyChars: 183/182 instructions; structural 5, positional differences 140
+- Zi8ConvertUC2Key / r2 readonly pointer qualifiers table: 207/207 instructions; structural 0, positional differences 18
+- Zi8ConvertUC2Key / r2 readonly pointer qualifiers ranges: 207/207 instructions; structural 0, positional differences 18
+- Zi8ConvertUC2Key / r2 readonly pointer qualifiers table,ranges: 207/207 instructions; structural 0, positional differences 18
+- Zi8ConvertUC2Key / r2 readonly pointer qualifiers entry: 207/207 instructions; structural 0, positional differences 18
+- Zi8ConvertUC2Key / r2 readonly pointer qualifiers table,entry: 207/207 instructions; structural 0, positional differences 18
+- Zi8ConvertUC2Key / r2 readonly pointer qualifiers ranges,entry: 207/207 instructions; structural 0, positional differences 18
+- Zi8ConvertUC2Key / r2 readonly pointer qualifiers table,ranges,entry: 207/207 instructions; structural 0, positional differences 18
+
+Round 2 compiler diagnosis: eZiText units compile with -inline off -opt off, explaining why new helper calls shortened callers without matching target instruction streams. SDK pf_file uses -O4,p -inline auto -ipa file; structural source changes were effective there. No compiler flags changed. zmtkey declaration search tried 52 orders, no improvement, source restored.
+
+Round 2 Zi8ConvertUC2Key expanded declaration search: split the four grouped short declarations, explored 93 orders across all nine declarations, best remained structural 0 / 18 differences. Restored original source, including grouped declarations.
+
+## Round 2 remaining-function audit
+- Zi8getKeyLayout: 25 distinct logged source experiments this round; at least three complete, no exact candidate.
+- Zi8ConvertUC2Key: 20 distinct logged source experiments this round; at least three complete, no exact candidate.
+- PFFILE_GetSFD: exact 113/113, zero instruction differences; all 45 target functions exact after full gate.
+- No nonexact source changes retained. Data unchanged and fully paired. Only pf_file source and this attempts log changed.
+
+## Round 2 final full gate over all owned units
+```text
+full build: ok
+main.dol sha1: 26116613f624061ba99c8d1a299aaa6efa85670d
+[libs/RVLMiddleware/eZiText/src/clib/zmtkey] pool: IDENTICAL
+[libs/RVLMiddleware/eZiText/src/clib/zmtkey] objdiff: code 1488/2216 data 60/60 functions 3/4 fuzzy 99.8466 linked code 0
+[libs/RVLMiddleware/eZiText/src/clib/zmtkey] instruction-exact functions: 3/4
+[libs/RVLMiddleware/eZiText/src/clib/zmtkey]   section .text size 2216 match 99.84657
+[libs/RVLMiddleware/eZiText/src/clib/zmtkey]   section extab size 24 match 100.0
+[libs/RVLMiddleware/eZiText/src/clib/zmtkey]   section extabindex size 36 match 100.0
+[libs/RVLMiddleware/eZiText/src/clib/zmtkey]   below 100: Zi8getKeyLayout 99.53297
+[libs/RVLMiddleware/eZiText/src/clib/zmtkey] baseline: code 1488/2216 data 60 functions 3 fuzzy 99.8466
+[libs/RVL_SDK/src/fa/pf_file] pool: IDENTICAL
+[libs/RVL_SDK/src/fa/pf_file] objdiff: code 17820/17820 data None/None functions 45/45 fuzzy 100.0000 linked code 0
+[libs/RVL_SDK/src/fa/pf_file] instruction-exact functions: 45/45
+[libs/RVL_SDK/src/fa/pf_file]   section .text size 17820 match 100.0
+[libs/RVL_SDK/src/fa/pf_file] baseline: code 17368/17820 data None functions 44 fuzzy 99.9771
+[libs/RVLMiddleware/eZiText/src/clib/zconvert] pool: IDENTICAL
+[libs/RVLMiddleware/eZiText/src/clib/zconvert] objdiff: code 1380/2208 data 112/112 functions 3/4 fuzzy 99.8370 linked code 0
+[libs/RVLMiddleware/eZiText/src/clib/zconvert] instruction-exact functions: 3/4
+[libs/RVLMiddleware/eZiText/src/clib/zconvert]   section .rodata size 32 match 100.0
+[libs/RVLMiddleware/eZiText/src/clib/zconvert]   section .text size 2208 match 99.83696
+[libs/RVLMiddleware/eZiText/src/clib/zconvert]   section extab size 32 match 100.0
+[libs/RVLMiddleware/eZiText/src/clib/zconvert]   section extabindex size 48 match 100.0
+[libs/RVLMiddleware/eZiText/src/clib/zconvert]   below 100: Zi8ConvertUC2Key 99.565216
+[libs/RVLMiddleware/eZiText/src/clib/zconvert] baseline: code 1380/2208 data 112 functions 3 fuzzy 99.8370
+regressions vs baseline: 0
+global matched_code_percent: 88.60345 -> 88.61855
+global fuzzy_match_percent: 99.45553 -> 99.45567
+global complete_code_percent: 63.16065 -> 63.16065
+global matched_data_percent: 98.50994 -> 98.50994
+forbidden patterns added (net, per file): 0
+readability warnings (net, per file; must be 0 in the final result): 0
+GATE PASS
+```
+
+Instruction-exact functions / matched code bytes / matched data bytes, before -> after:
+- zmtkey: 3->3 / 1488->1488 / 60->60.
+- pf_file: 44->45 / 17368->17820 / no data symbols.
+- zconvert: 3->3 / 1380->1380 / 112->112.
+Commit ac0541dd contains the exact source improvement. Remaining eZiText compiler coloring fixes are unknown.
