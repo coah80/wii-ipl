@@ -1453,7 +1453,7 @@ config.libs = [
             Object(Matching,    "axfx/AXFXReverbStd.c"),
             Object(Matching,    "axfx/AXFXReverbStdExp.c"),
             Object(Matching,    "axfx/AXFXChorus.c"),
-            Object(NonMatching, "axfx/AXFXChorusExp.c"),
+            Object(Matching, "axfx/AXFXChorusExp.c"),
             Object(Matching,    "axfx/AXFXLfoTable.c"),
             Object(Matching,    "axfx/AXFXSrcCoef.c"),
             Object(Matching,    "axfx/AXFXHooks.c"),
