@@ -26,7 +26,7 @@ typedef struct USBKBDCmdLED {
 
 typedef struct USBKBDCmdLEDAsync {
     USBKBDCmdLED base;  // 0x00
-    u8 unk_0x08[0x10];
+    u8 pad_0x08[0x10];  // 0x08
     USBKBDCmdLEDCallback cb;  // 0x18
     void* cbArg;              // 0x1C
 } USBKBDCmdLEDAsync;
