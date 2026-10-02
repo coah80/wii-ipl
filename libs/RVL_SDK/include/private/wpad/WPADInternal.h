@@ -133,11 +133,11 @@ typedef struct WPADExtConfig {
     union {
         struct WPADFSConfig {
             s16 stickXCenter;  // 0x00
-            s16 unk_0x02;      // 0x02
-            s16 unk_0x04;      // 0x04
+            s16 stickXMin;     // 0x02
+            s16 stickXMax;     // 0x04
             s16 stickYCenter;  // 0x06
-            s16 unk_0x08;      // 0x08
-            s16 unk_0x0A;      // 0x0A
+            s16 stickYMin;     // 0x08
+            s16 stickYMax;     // 0x0A
 
             s16 accX0g;  // 0x0C
             s16 accY0g;  // 0x0E
@@ -150,18 +150,18 @@ typedef struct WPADExtConfig {
 
         struct WPADCLConfig {
             s16 lStickXCenter;  // 0x00
-            s16 unk_0x02;       // 0x02
-            s16 unk_0x04;       // 0x04
+            s16 lStickXMin;     // 0x02
+            s16 lStickXMax;     // 0x04
             s16 lStickYCenter;  // 0x06
-            s16 unk_0x08;       // 0x08
-            s16 unk_0x0A;       // 0x0A
+            s16 lStickYMin;     // 0x08
+            s16 lStickYMax;     // 0x0A
 
             s16 rStickXCenter;  // 0x0C
-            s16 unk_0x0E;       // 0x0E
-            s16 unk_0x10;       // 0x10
+            s16 rStickXMin;     // 0x0E
+            s16 rStickXMax;     // 0x10
             s16 rStickYCenter;  // 0x12
-            s16 unk_0x14;       // 0x14
-            s16 unk_0x16;       // 0x16
+            s16 rStickYMin;     // 0x14
+            s16 rStickYMax;     // 0x16
 
             u8 triggerLZero;  // 0x18
             u8 triggerRZero;  // 0x19

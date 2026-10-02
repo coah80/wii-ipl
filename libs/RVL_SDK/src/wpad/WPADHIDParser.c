@@ -393,48 +393,48 @@ static void getExtConfig(s32 chan, s32 result) {
                 p_wpd->extConfig.u.fs.accX1g = (s16)((u16)(((u16)(p_buf[index + 4]) << 2) & 0xFFFC) | (u16)(((u16)(p_buf[index + 7]) >> 4) & 3));
                 p_wpd->extConfig.u.fs.accY1g = (s16)((u16)(((u16)(p_buf[index + 5]) << 2) & 0xFFFC) | (u16)(((u16)(p_buf[index + 7]) >> 2) & 3));
                 p_wpd->extConfig.u.fs.accZ1g = (s16)((u16)(((u16)(p_buf[index + 6]) << 2) & 0xFFFC) | (u16)(((u16)(p_buf[index + 7])) & 3));
-                p_wpd->extConfig.u.fs.unk_0x04 = (s8)p_buf[index + 8];
-                p_wpd->extConfig.u.fs.unk_0x02 = (s8)p_buf[index + 9];
+                p_wpd->extConfig.u.fs.stickXMax = (s8)p_buf[index + 8];
+                p_wpd->extConfig.u.fs.stickXMin = (s8)p_buf[index + 9];
                 p_wpd->extConfig.u.fs.stickXCenter = (s8)p_buf[index + 10];
-                p_wpd->extConfig.u.fs.unk_0x0A = (s8)p_buf[index + 11];
-                p_wpd->extConfig.u.fs.unk_0x08 = (s8)p_buf[index + 12];
+                p_wpd->extConfig.u.fs.stickYMax = (s8)p_buf[index + 11];
+                p_wpd->extConfig.u.fs.stickYMin = (s8)p_buf[index + 12];
                 p_wpd->extConfig.u.fs.stickYCenter = (s8)p_buf[index + 13];
 
                 DEBUGPrint("0G:  fsaccX = %d,  fsaccY = %d,  fsaccZ = %d\n", p_wpd->extConfig.u.fs.accX0g, p_wpd->extConfig.u.fs.accY0g,
                            p_wpd->extConfig.u.fs.accZ0g);
                 DEBUGPrint("1G:  fsaccX = %d,  fsaccY = %d,  fsaccZ = %d\n", p_wpd->extConfig.u.fs.accX1g, p_wpd->extConfig.u.fs.accY1g,
                            p_wpd->extConfig.u.fs.accZ1g);
-                DEBUGPrint("FS:  X = %d,  X max = %d,  X min = %d\n", p_wpd->extConfig.u.fs.stickXCenter, p_wpd->extConfig.u.fs.unk_0x04,
-                           p_wpd->extConfig.u.fs.unk_0x02);
-                DEBUGPrint("FS:  Y = %d,  Y max = %d,  Y min = %d\n", p_wpd->extConfig.u.fs.stickYCenter, p_wpd->extConfig.u.fs.unk_0x0A,
-                           p_wpd->extConfig.u.fs.unk_0x08);
+                DEBUGPrint("FS:  X = %d,  X max = %d,  X min = %d\n", p_wpd->extConfig.u.fs.stickXCenter, p_wpd->extConfig.u.fs.stickXMax,
+                           p_wpd->extConfig.u.fs.stickXMin);
+                DEBUGPrint("FS:  Y = %d,  Y max = %d,  Y min = %d\n", p_wpd->extConfig.u.fs.stickYCenter, p_wpd->extConfig.u.fs.stickYMax,
+                           p_wpd->extConfig.u.fs.stickYMin);
             }
             break;
 
         case WPAD_DEV_CLASSIC:
-            p_wpd->extConfig.u.cl.unk_0x04 = (s8)p_buf[index + 0];
-            p_wpd->extConfig.u.cl.unk_0x02 = (s8)p_buf[index + 1];
+            p_wpd->extConfig.u.cl.lStickXMax = (s8)p_buf[index + 0];
+            p_wpd->extConfig.u.cl.lStickXMin = (s8)p_buf[index + 1];
             p_wpd->extConfig.u.cl.lStickXCenter = (s8)p_buf[index + 2];
-            p_wpd->extConfig.u.cl.unk_0x0A = (s8)p_buf[index + 3];
-            p_wpd->extConfig.u.cl.unk_0x08 = (s8)p_buf[index + 4];
+            p_wpd->extConfig.u.cl.lStickYMax = (s8)p_buf[index + 3];
+            p_wpd->extConfig.u.cl.lStickYMin = (s8)p_buf[index + 4];
             p_wpd->extConfig.u.cl.lStickYCenter = (s8)p_buf[index + 5];
-            p_wpd->extConfig.u.cl.unk_0x10 = (s8)p_buf[index + 6];
-            p_wpd->extConfig.u.cl.unk_0x0E = (s8)p_buf[index + 7];
+            p_wpd->extConfig.u.cl.rStickXMax = (s8)p_buf[index + 6];
+            p_wpd->extConfig.u.cl.rStickXMin = (s8)p_buf[index + 7];
             p_wpd->extConfig.u.cl.rStickXCenter = (s8)p_buf[index + 8];
-            p_wpd->extConfig.u.cl.unk_0x16 = (s8)p_buf[index + 9];
-            p_wpd->extConfig.u.cl.unk_0x14 = (s8)p_buf[index + 10];
+            p_wpd->extConfig.u.cl.rStickYMax = (s8)p_buf[index + 9];
+            p_wpd->extConfig.u.cl.rStickYMin = (s8)p_buf[index + 10];
             p_wpd->extConfig.u.cl.rStickYCenter = (s8)p_buf[index + 11];
             p_wpd->extConfig.u.cl.triggerLZero = p_buf[index + 12];
             p_wpd->extConfig.u.cl.triggerRZero = p_buf[index + 13];
 
-            DEBUGPrint("CL:  X = %d,  X max = %d,  X min = %d\n", p_wpd->extConfig.u.cl.lStickXCenter, p_wpd->extConfig.u.cl.unk_0x04,
-                       p_wpd->extConfig.u.cl.unk_0x02);
-            DEBUGPrint("CL:  Y = %d,  Y max = %d,  Y min = %d\n", p_wpd->extConfig.u.cl.lStickYCenter, p_wpd->extConfig.u.cl.unk_0x0A,
-                       p_wpd->extConfig.u.cl.unk_0x08);
-            DEBUGPrint("CR:  X = %d,  X max = %d,  X min = %d\n", p_wpd->extConfig.u.cl.rStickXCenter, p_wpd->extConfig.u.cl.unk_0x10,
-                       p_wpd->extConfig.u.cl.unk_0x0E);
-            DEBUGPrint("CR:  Y = %d,  Y max = %d,  Y min = %d\n", p_wpd->extConfig.u.cl.rStickYCenter, p_wpd->extConfig.u.cl.unk_0x16,
-                       p_wpd->extConfig.u.cl.unk_0x14);
+            DEBUGPrint("CL:  X = %d,  X max = %d,  X min = %d\n", p_wpd->extConfig.u.cl.lStickXCenter, p_wpd->extConfig.u.cl.lStickXMax,
+                       p_wpd->extConfig.u.cl.lStickXMin);
+            DEBUGPrint("CL:  Y = %d,  Y max = %d,  Y min = %d\n", p_wpd->extConfig.u.cl.lStickYCenter, p_wpd->extConfig.u.cl.lStickYMax,
+                       p_wpd->extConfig.u.cl.lStickYMin);
+            DEBUGPrint("CR:  X = %d,  X max = %d,  X min = %d\n", p_wpd->extConfig.u.cl.rStickXCenter, p_wpd->extConfig.u.cl.rStickXMax,
+                       p_wpd->extConfig.u.cl.rStickXMin);
+            DEBUGPrint("CR:  Y = %d,  Y max = %d,  Y min = %d\n", p_wpd->extConfig.u.cl.rStickYCenter, p_wpd->extConfig.u.cl.rStickYMax,
+                       p_wpd->extConfig.u.cl.rStickYMin);
             DEBUGPrint("LR:  L = %d,  R = %d\n", p_wpd->extConfig.u.cl.triggerLZero, p_wpd->extConfig.u.cl.triggerRZero);
             break;
         }
