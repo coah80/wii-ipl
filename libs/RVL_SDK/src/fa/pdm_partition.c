@@ -1,25 +1,25 @@
 #include <private/fa/pdm.h>
 #include <revolution/types.h>
-#define MBR_WORD(buf, offset) (((pf_u32)(buf)[(offset) + 3] << 24) + ((pf_u32)(buf)[(offset) + 2] << 16) + ((pf_u32)(buf)[(offset) + 1] << 8) + (buf)[offset])
+#define MBR_WORD(buf, offset) ((pf_u32)(buf)[offset] + ((pf_u32)(buf)[(offset) + 1] << 8) + ((pf_u32)(buf)[(offset) + 2] << 16) + ((pf_u32)(buf)[(offset) + 3] << 24))
 static inline pf_u16 read_boot_u16(pf_u8* buf, pf_u32 offset) {
     if ((pf_u32)&buf[offset] & 1) { return (buf[offset + 1] << 8) | buf[offset]; }
     return PF_SWAP_16(*(pf_u16*)&buf[(offset + 1) & ~1]);
 }
 
 pf_s32 pdm_part_is_master_boot_sector(pf_u8* buf, pf_u32 total, pf_bool* p_is_mbr) {
-    pf_s16 index;
     pf_u32 start[4];
     pf_u32 count[4];
     pf_u32* p_start;
     pf_u32* p_count;
+    pf_s16 index;
     *p_is_mbr = 0;
     if (buf[510] != 0x55 || buf[511] != 0xAA) { return 2; }
     p_start = start;
     p_count = count;
     for (index = 0; index < 4; index++) {
         *p_start = 0;
-        *p_start = (((pf_u32)buf[456] << 16) + buf[454]) + (((pf_u32)buf[457] << 24) + ((pf_u32)buf[455] << 8));
-        *p_count = (((pf_u32)buf[460] << 16) + buf[458]) + (((pf_u32)buf[461] << 24) + ((pf_u32)buf[459] << 8));
+        *p_start = (((pf_u32)buf[457] << 24) + (((pf_u32)buf[455] << 8) + (((pf_u32)buf[456] << 16) + buf[454])));
+        *p_count = (((pf_u32)buf[461] << 24) + (((pf_u32)buf[459] << 8) + (((pf_u32)buf[460] << 16) + buf[458])));
         if (*p_start != 0 && *p_count != 0) {
             if (index == 0) { *p_is_mbr = 1; }
         } else {
@@ -141,7 +141,7 @@ pf_s32 pdm_part_get_start_sector(PDM_PARTITION* p_part) {
     }
     return 0;
 }
-static inline pf_u32 partition_physical_sector(PDM_PARTITION* p_part, pf_u32 sector, pf_u32 bps) {
+pf_u32 pdm_part_chg_ltop(PDM_PARTITION* p_part, pf_u32 sector, pf_u32 bps) {
     pf_u16 media_bps;
     pf_u32 ratio;
     pf_u32 start;
@@ -157,9 +157,6 @@ static inline pf_u32 partition_physical_sector(PDM_PARTITION* p_part, pf_u32 sec
     else if (ratio == 4) { start >>= 2; }
     else if (ratio == 8) { start >>= 3; }
     return sector + start;
-}
-pf_u32 pdm_part_chg_ltop(PDM_PARTITION* p_part, pf_u32 sector, pf_u32 bps) NO_INLINE {
-    return partition_physical_sector(p_part, sector, bps);
 }
 pf_s32 pdm_part_get_partition(PDM_DISK* p_disk, pf_u32 id, PDM_PARTITION** pp_part) {
     pf_s32 err;
