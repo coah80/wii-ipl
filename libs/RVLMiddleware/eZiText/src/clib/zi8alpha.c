@@ -920,8 +920,7 @@ selectDictionary:
               if ((((wordLength == 0) && (*punctuationCursor != 0)) && (dictionaryExact != 0)) &&
                  ((((ZiAlphaWork*)workData)->singleCharacter != 0 && (parameters->elementCount == 2)))) {
                 *wordCursor = ((ZiAlphaWork*)workData)->singleCharacter;
-                wordCursor[1] = *punctuationCursor;
-                punctuationCursor = punctuationCursor + 1;
+                wordCursor[1] = *punctuationCursor++;
                 wordCursor[2] = 0;
                 wordLength = 2;
               }
@@ -1208,10 +1207,8 @@ emitCandidate:
                         if (((ZiAlphaOptions*)optionData)->maxResults <= candidateCount) goto finishCandidates;
                       } else {
                         if (((ZiAlphaOptions*)optionData)->lookupMode != '\0') {
-                          for (index = 0;
-                              (index <= (int)wordLength &&
-                              (wordCursor[index] == ((ZiAlphaOptions*)optionData)->dictionary[index]));
-                              index = index + 1) {
+                          for (index = 0; index <= wordLength; index++) {
+                            if (wordCursor[index] != ((ZiAlphaOptions*)optionData)->dictionary[index]) break;
                           }
                           if ((((((ZiAlphaWork*)workData)->operation != '\0') || ((int)wordLength <= index))
                               && ((((ZiAlphaWork*)workData)->operation == '\0' ||
@@ -1382,21 +1379,17 @@ finishDictionaryPass:;
   }
   if (((candidateCount == 0) && (punctuationCandidate)) && (firstCandidate == 0)) {
     candidateCount = 1;
-    if ((((ZiAlphaOptions*)optionData)->countOnly == '\0') && ((parameters->getOptions & 0xfd) != 0x81)) {
-      *encodedOutput = 0x3e;
-      encodedOutput[2] = 0;
-      encodedOutput[1] = 0;
-    }
-    else {
+    if (((ZiAlphaOptions*)optionData)->countOnly != 0 || (parameters->getOptions & 0xFD) == 0x81) {
       if (parameters->getMode == 1) {
         *wordCursor = *elements;
+      } else {
+        *wordCursor = 0x3E;
       }
-      else {
-        *wordCursor = 0x3e;
-      }
-      wordCursor[2] = 0;
-      wordCursor[1] = 0;
-      wordCursor = wordCursor + 2;
+      wordCursor[1] = wordCursor[2] = 0;
+      wordCursor += 2;
+    } else {
+      *encodedOutput = 0x3E;
+      encodedOutput[1] = encodedOutput[2] = 0;
     }
     if (((ZiAlphaOptions*)optionData)->lookupMode == '\0') {
       ((ZiAlphaWork*)workData)->singleCharacter = 0;
