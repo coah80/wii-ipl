@@ -162,14 +162,14 @@ namespace ipl {
             class {
             public:
                 void init() {
-                    unk_0x0C = -1;
+                    mAngleIdx = -1;
                     pos.x = 0.0f;
                     pos.y = 0.0f;
                 }
 
                 math::VEC2 pos;  // pos
-                int unk_0x08;
-                int unk_0x0C;
+                int mStep;
+                int mAngleIdx;
             } mStandData;  // 0xE4
 
             picture mPicture;             // 0xF4
