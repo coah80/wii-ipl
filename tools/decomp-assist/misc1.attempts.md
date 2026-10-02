@@ -247,3 +247,22 @@ reg-rotation, not localized. Reverted.
   UpdateThread rebinds to Flags1 (line 418). Plausible init, honest C —
   but orig's Init has no pFlags store, so this is the "early-def"
   substitute for orig's internal fold trigger.
+
+## w1018 — odh: setQuantizationTable flip + symbol-name pairing
+
+- **cdj_c_setQuantizationTable → 100%** (99.57): `temp = 0x4000000 / temp;`
+  `master->quantizationTables[...] = temp;` — the result-through-temp web
+  split puts the division result back through `temp`'s web, matching
+  orig's reg layout (0x400 const → r10, byte load → r11). Plain
+  `0x4000000 / temp` inline in the store kept a 3-reg split.
+- **symbols.txt literal pairing for odh .sdata2**: renamed orig's
+  lbl_816945A0..C0 float/double literals to the emitted @NNNN names —
+  the renames propagate into orig .o on resplit and pair with my
+  emitted symbols (LineConv11's 10 symbol-name diffs eliminated).
+- **Residuals**: LineConv11 98.08 (pixel/pixelSource web homes — pixel
+  callee-pinned r25 in orig, volatile r8 in mine; lbzux ptr-update
+  fused into byte0 load both sides, only reg homes differ);
+  huffmanCoder 98.77 (same EmitBit arg web family — orig reuses the
+  `code` load reg destructively for srawi, mine keeps it in a 3rd reg);
+  colorConv 98.63, decompressLoop 99.67, huffmanDecoder 95.57 — all
+  the same documented web-rotation family.
