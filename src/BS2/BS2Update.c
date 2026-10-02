@@ -9,14 +9,10 @@
 
 #include <string.h>
 
-typedef struct UpdateThreadData {
-    OSThread thread;
-    u8 stack[4096];
-} UpdateThreadData;
-
 static u32 Flags0[BS2_UPDATE_ENTRY_COUNT] = {0};
 static u32 Flags1[BS2_UPDATE_ENTRY_COUNT] = {0};
-static UpdateThreadData Thread = {0};
+static OSThread Thread = {0};
+static u8 ThreadStack[4096] = {0};
 static BS2UpdateHeader UpdateHeader0 ALIGN32 = {0};
 static BS2UpdateHeader UpdateHeader1 ALIGN32 = {0};
 
@@ -39,7 +35,7 @@ static u32 UpdateImportResult = 0;
 u32 StartUpdate = 0;
 u32 CancelUpdate = 0;
 static u32 UpdateProgress = 0;
-static s32 rc = 0;
+static volatile s32 rc = 0;
 static u64 VersionIOS = 0;
 static u32 VersionMEM2 = 0;
 static u32 VersionES = 0;
@@ -76,9 +72,9 @@ void BS2UpdateInit(void* allocator) {
     memset(EntriesToImport, 0, 0x40000);
     memset(Flags1, 0, sizeof(Flags1));
     BS2Report("Create update thread\n");
-    OSCreateThread(&Thread.thread, UpdateThread, NULL, Thread.stack + sizeof(Thread.stack),
-                   sizeof(Thread.stack), 31, 1);
-    OSResumeThread(&Thread.thread);
+    OSCreateThread(&Thread, UpdateThread, NULL, ThreadStack + sizeof(ThreadStack),
+                   sizeof(ThreadStack), 31, 1);
+    OSResumeThread(&Thread);
 }
 
 static void* UpdateThread(void* argument) {
