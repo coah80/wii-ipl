@@ -24,7 +24,11 @@ namespace nw4r {
 
             // Constructor
 
+#ifdef IPL_SDMEMORY_TRIVIAL_COLOR_CTOR
+            Color() {}
+#else
             Color() { *this = WHITE; }
+#endif
             Color(u32 color) { *this = color; }
             Color(const GXColor& color) { *this = color; }
             Color(int red, int green, int blue, int alpha) { Set(red, green, blue, alpha); }

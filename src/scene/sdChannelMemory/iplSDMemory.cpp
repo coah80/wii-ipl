@@ -9,6 +9,7 @@
 #define IPL_SDMEMORY_COMPLETION_PCT_ACCESSOR
 #define IPL_SDMEMORY_DIALOG_PROGRESS_FRAME_ACCESSOR
 #define IPL_SDMEMORY_SET_TEXT_COLORS
+#define IPL_SDMEMORY_TRIVIAL_COLOR_CTOR
 #define IPL_SDMEMORY_SCROLLER_STATE_ACCESSOR
 #include "system/iplDialogWindow.h"
 #undef IPL_SDMEMORY_DIALOG_PROGRESS_FRAME_ACCESSOR
@@ -54,8 +55,8 @@ namespace ipl {
 
         void writeFourFlagBytes(u8* flags, u8 first, u8 second, u8 third, u8 fourth);
 
-        void setTitleRowColors(nw4r::lyt::TextBox* textBox, GXColor first,
-                               GXColor second) NO_INLINE;
+        void setTitleRowColors(nw4r::lyt::TextBox* textBox, const nw4r::ut::Color& first,
+                               const nw4r::ut::Color& second) NO_INLINE;
 
         static const char* sControlPaneNames[] = {
             "A", "B", "B_BtnA",
@@ -1354,16 +1355,18 @@ namespace ipl {
             for (u32 titleIndex = 0; titleIndex < mTitleCount; ++titleIndex) {
                 utility::layout::set_string(titleText, mTitleNames[titleIndex]);
                 if (nandTitleIndex < mNandTitleCount && mTitleIds[titleIndex] == mNandTitleIds[nandTitleIndex]) {
-                    GXColor gxActive;
-                    writeFourFlagBytes(&gxActive.r, 0x34, 0xBE, 0xED, 0xFF);
+                    nw4r::ut::Color activeColor;
+                    writeFourFlagBytes(&activeColor.r, 0x34, 0xBE, 0xED, 0xFF);
                     ++nandTitleIndex;
-                    GXColor activeColor = gxActive;
-                    setTitleRowColors(titleText, activeColor, activeColor);
+                    nw4r::ut::Color firstActive = activeColor;
+                    nw4r::ut::Color secondActive = activeColor;
+                    setTitleRowColors(titleText, firstActive, secondActive);
                 } else {
-                    GXColor gxInactive;
-                    writeFourFlagBytes(&gxInactive.r, 0x64, 0x64, 0x64, 0xFF);
-                    GXColor inactiveColor = gxInactive;
-                    setTitleRowColors(titleText, inactiveColor, inactiveColor);
+                    nw4r::ut::Color inactiveColor;
+                    writeFourFlagBytes(&inactiveColor.r, 0x64, 0x64, 0x64, 0xFF);
+                    nw4r::ut::Color firstInactive = inactiveColor;
+                    nw4r::ut::Color secondInactive = inactiveColor;
+                    setTitleRowColors(titleText, firstInactive, secondInactive);
                 }
 
                 nw4r::ut::Rect textRect = mpDialogLayout->getTextDrawRect("T_Letter");
@@ -1415,8 +1418,8 @@ namespace ipl {
             flags[3] = fourth;
         }
 
-        void setTitleRowColors(nw4r::lyt::TextBox* textBox, GXColor first,
-                               GXColor second) NO_INLINE {
+        void setTitleRowColors(nw4r::lyt::TextBox* textBox, const nw4r::ut::Color& first,
+                               const nw4r::ut::Color& second) NO_INLINE {
             textBox->SetTextColors(first, second);
         }
 
