@@ -27,11 +27,11 @@ ziPtr Zi8GetTableAddress(ziU8, ziU8 ZI_NEED_WORK);
 ziWChar Zi8ConvertUC2UserKey(ziChar, ziU8 ZI_NEED_WORK);
 
 ziWChar Zi8ConvertUC2WC(ziChar character, ziU8 language ZI_NEED_WORK) {
-    ziU8* table;
+    const ziConversionTables* defaults;
     ziWChar* mapped;
     ziU8* cursor;
     ziU16 first, last;
-    const ziConversionTables* defaults;
+    ziU8* table;
     if (character == 0) {
         Zi8LogError(0x133, __zi8_work_data);
         return 0;

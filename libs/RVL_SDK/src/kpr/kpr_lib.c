@@ -242,6 +242,25 @@ u8 KPRLookAhead(KPRQueue* queue, u16* destination, u32 capacity) {
     return queue->iCount + queue->oCount;
 }
 
+static inline u32 KPRConvertAltValue(u32 value, u32 leadingZero) {
+    if (value >= 128 && value <= 255) {
+        if (leadingZero) {
+            if (value < 160) {
+                value = kprLookupTable1252[value - 128];
+            }
+        } else {
+            value = kprLookupTable437[value - 128];
+        }
+    } else if (value > 255) {
+        u32 converted = 32;
+        if (value <= 0x6666666) {
+            converted = (u8)value;
+        }
+        value = converted;
+    }
+    return value;
+}
+
 BOOL KPRProcessAltKeypad(KPRQueue* queue, u16 character) {
     if (queue->altVal != 0) {
         u32 accumulator = queue->altVal & 0x7FFFFFFF;
@@ -256,21 +275,7 @@ BOOL KPRProcessAltKeypad(KPRQueue* queue, u16 character) {
             return TRUE;
         }
         value = queue->altVal;
-        if (value >= 128 && value <= 255) {
-            if (leadingZero) {
-                if (value < 160) {
-                    value = kprLookupTable1252[value - 128];
-                }
-            } else {
-                value = kprLookupTable437[value - 128];
-            }
-        } else if (value > 255) {
-            u32 converted = 32;
-            if (value <= 0x6666666) {
-                converted = (u8)value;
-            }
-            value = converted;
-        }
+        value = KPRConvertAltValue(value, leadingZero);
         {
             u16* destination;
             int index = queue->oCount + queue->iCount;
