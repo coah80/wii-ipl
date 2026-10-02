@@ -1692,9 +1692,11 @@ s32 WADBackupEx(u64 titleId, u32 flags, MEMAllocator* allocator, char* path, u32
                     }
                 }
             }
+            if (fileHeaderBuffer->flags[2] == 1) {
 file_done:
-            if (fileOpened) {
-                NANDClose(&savedFile);
+                if (fileOpened) {
+                    NANDClose(&savedFile);
+                }
             }
             if (result != 0) {
                 readSize = (fileHeaderBuffer->fileSize + 0x3F) & ~0x3F;
