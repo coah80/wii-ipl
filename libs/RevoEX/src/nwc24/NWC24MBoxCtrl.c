@@ -555,14 +555,14 @@ NWC24Err NWC24iMBoxFlushHeader(NWC24MBoxType type) {
     return result != NWC24_OK ? result : closeResult;
 }
 
-static inline void GetOldestMsgId(const MBCHeader* header, u32* id) {
+static inline void GetOldestMsgId(const MBCHeader* header, volatile u32* id) {
     *id = header->oldestId;
 }
 
 NWC24Err NWC24iMBoxCheck(NWC24MBoxType type, u32 size) {
     u32 required;
     struct {
-        u32 oldestId;
+        volatile u32 oldestId;
         MBCHeader* header;
     } mailbox;
     NWC24Err err;
