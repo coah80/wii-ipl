@@ -68,7 +68,7 @@ ziU8 Zi8ZHaddSpace(ziWChar* src, ziU8 count, ziWChar* dst,
         }
         if (pdst[k - 1] != 0xF360 &&
             (pdst[k - 1] < 0xF331 || pdst[k - 1] > 0xF335)) {
-            pdst[k++] = ZI_WORK->unk_0x1A;
+            pdst[k++] = ZI_WORK->separator;
         }
         psrc += i;
         n -= i;

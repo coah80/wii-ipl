@@ -219,7 +219,7 @@ struct __zi8_work_data_s {
     ziU8 unk_0x17;
     ziU8 subLanguage;  // 0x18
     ziU8 unk_0x19;
-    ziU16 unk_0x1A;
+    ziU16 separator;  // 0x1A
     ziU8 unk_0x1C[3];
     ziU8 unk_0x1F;
     ziU16 unk_0x20[0x40];

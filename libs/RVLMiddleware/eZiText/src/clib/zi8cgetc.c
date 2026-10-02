@@ -18,7 +18,7 @@ static Zi8UInt Zi8SetFindCand(ziU8* foundCandidates, Zi8UInt ordinal, ziPtr work
 }
 
 ziWChar* ZiGetNextPhonetic(ziWChar* spelling, ziWChar* end ZI_NEED_WORK) {
-    while (*spelling && *spelling != ZI_WORK->unk_0x1A && *spelling != 0xF360 && spelling < end) {
+    while (*spelling && *spelling != ZI_WORK->separator && *spelling != 0xF360 && spelling < end) {
         ++spelling;
     }
     if (!*spelling || spelling == end) {
@@ -37,8 +37,8 @@ int ZiPartialMatch(ziWChar* spelling, ziWChar* spellingEnd,
     if (spelling == spellingEnd || candidate == candidateEnd || !*spelling || !*candidate) {
         return 1;
     }
-    while (*spelling != ZI_WORK->unk_0x1A && *spelling != 0xF360) {
-        if (*candidate == ZI_WORK->unk_0x1A || *candidate == 0xF360) {
+    while (*spelling != ZI_WORK->separator && *spelling != 0xF360) {
+        if (*candidate == ZI_WORK->separator || *candidate == 0xF360) {
             break;
         }
         if (*spelling != *candidate) {
@@ -2868,7 +2868,7 @@ ziU8 Zi8GetElementCount(ziWChar* elements, ziU8 elementCount, ziU8 charCount ZI_
     ziU8 count;
     ziWChar spacedElements[256];
     struct { ziWChar separator; } savedState;
-    savedState.separator = ZI_WORK->unk_0x1A;
+    savedState.separator = ZI_WORK->separator;
     if (elementCount <= 1 || !charCount) {
         return elementCount;
     }
@@ -2881,9 +2881,9 @@ ziU8 Zi8GetElementCount(ziWChar* elements, ziU8 elementCount, ziU8 charCount ZI_
     if (spacedIndex == elementCount) {
         return elementCount;
     }
-    ZI_WORK->unk_0x1A = 0xF360;
+    ZI_WORK->separator = 0xF360;
     Zi8ZHaddSpace(elements, elementCount, spacedElements, 256, __zi8_work_data);
-    ZI_WORK->unk_0x1A = savedState.separator;
+    ZI_WORK->separator = savedState.separator;
     spacedIndex = elementIndex = count = 0;
     while (charCount && elementIndex < elementCount) {
         if (spacedElements[spacedIndex] == 0xF360) {
