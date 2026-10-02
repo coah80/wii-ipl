@@ -112,7 +112,7 @@ s32 TMCJPEGDEC_decode_iquant(s32* block, u8* conv_row_ptr, u32* dc_predict_row_p
     u32* huff_tbl;
     s32 bit_pos;
     u32 bit_data;
-    const TMCHuffmanEntry* dc_fast;
+    u32 tmp;
     s32 r;
     s32 blk0;
     TMCHuffmanEntry acEntry;
@@ -120,7 +120,7 @@ s32 TMCJPEGDEC_decode_iquant(s32* block, u8* conv_row_ptr, u32* dc_predict_row_p
     s32 t;
     s32 zz;
     s32 q;
-    u32 tmp;
+    const TMCHuffmanEntry* dc_fast;
     const u8* zztbl;
 
     bit_pos = work->bitCount;
@@ -142,8 +142,7 @@ s32 TMCJPEGDEC_decode_iquant(s32* block, u8* conv_row_ptr, u32* dc_predict_row_p
     }
 
     if (r != 0) {
-        bit_pos -= r;
-        work->bitCount = bit_pos;
+        work->bitCount = bit_pos - r;
         r = extra;
     } else {
         huff_sym = work->pDCHuffSym;
