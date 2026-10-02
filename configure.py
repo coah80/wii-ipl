@@ -1212,7 +1212,7 @@ config.libs = [
             Object(NonMatching, "exif/exif_parse.c"),
 
             Object(Matching,    "reschange/iqdec_resolution_change_a3.c"),
-            Object(NonMatching, "reschange/idct_resolution_change_var.c"),
+            Object(Matching,    "reschange/idct_resolution_change_var.c"),
 
             Object(NonMatching, "texturecvtr/Texture_MCUtoY8U8V8.c"),
             Object(NonMatching, "texturecvtr/Texture_MCUtoRGB565.c"),
