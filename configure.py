@@ -1970,7 +1970,7 @@ config.libs = [
             Object(Matching,    "MSL_Common/time.c", extra_cflags=["-Cpp_exceptions on"]),
             Object(Matching,    "MSL_Common/wctype.c"),
             Object(Matching,    "MSL_Common/wmem.c"),
-            Object(NonMatching, "MSL_Common/wprintf.c", extra_cflags=["-Cpp_exceptions on"]),
+            Object(Matching, "MSL_Common/wprintf.c", extra_cflags=["-Cpp_exceptions on"]),
             Object(Matching,    "MSL_Common/wstring.c"),
             Object(Matching,    "MSL_Common/wchar_io.c"),
             Object(Matching,    "PPC_EABI/time.dolphin.c"),
