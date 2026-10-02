@@ -521,7 +521,8 @@ void ipl::scene::AddressEdit::create() {
         set_textbox(textPane, friendText);
         textPane = (mpCodeLayout)
             ->getNW4RLyt()->GetRootPane()->FindPaneByName("T_frnd_crd_00", true);
-        set_textbox(textPane, mString.mDisplayText);
+        friendText = mString.mDisplayText;
+        set_textbox(textPane, friendText);
         mState = 0;
             break;
     }
@@ -2118,6 +2119,8 @@ void ipl::scene::AddressEdit::start_point_event(
 
 state0:
     switch (buttonNo) {
+        case 4:
+            goto done;
         case 0:
             goto state0Button0;
         case 1:
@@ -2164,6 +2167,10 @@ state0Button3: {
         xOffset = 15.0f;
         height = 50.0f;
         scale = 0.5f;
+||||||| parent of be519f34 (iplAddressEdit: dead-arm fossil decode (start_left_event exact), case-4 arm in start_point_event, friendText reuse in create)
+        f32 xOffset = 15.0f;
+        f32 height = 50.0f;
+        f32 scale = 0.5f;
         position.x = position.x + xOffset;
         position.y = position.y + height * scale;
         (mpBalloon)
@@ -2208,6 +2215,10 @@ state22Button3:
             xOffset = 15.0f;
             height = 50.0f;
             scale = 0.5f;
+||||||| parent of be519f34 (iplAddressEdit: dead-arm fossil decode (start_left_event exact), case-4 arm in start_point_event, friendText reuse in create)
+            f32 xOffset = 15.0f;
+            f32 height = 50.0f;
+            f32 scale = 0.5f;
             position.x = position.x + xOffset;
             position.y = position.y + height * scale;
             (mpBalloon)
@@ -2226,6 +2237,8 @@ void ipl::scene::AddressEdit::start_left_event(const char* paneName) {
     switch (mState) {
     case 0:
         switch (buttonNo) {
+        case 4:
+            break;
         case 0: {
             if (mpFriendCache->getInfo(mSelectedFriend).attr.status != 2) {
                 break;
