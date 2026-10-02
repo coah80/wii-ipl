@@ -66,16 +66,16 @@
 
 typedef struct
 {
-	HC_BT_HDR	*at_0x00[3];	// 0x00
-	UINT16		at_0x0c[3];		// 0x0c
-	UINT16		at_0x12;		// 0x12
-	UINT8		at_0x14[3];		// 0x14
-	UINT8		at_0x17[3];		// 0x17
-	UINT8		at_0x1a[3];		// 0x1a
+	HC_BT_HDR	*p_rx_msg[3];	// 0x00
+	UINT16		bytes_left[3];	// 0x0c
+	UINT16		buf_size;		// 0x12
+	UINT8		pkt_type[3];		// 0x14
+	UINT8		len_hi[3];		// 0x17
+	UINT8		rx_state[3];		// 0x1a
 	char		pad4_[1];		// 0x1d
-	UINT8		at_0x1e;		// 0x1e
-	UINT8		at_0x1f;		// 0x1f
-	UINT8		at_0x20;		// 0x20
+	UINT8		open_state;		// 0x1e
+	UINT8		task_id;		// 0x1f
+	UINT8		mbox;			// 0x20
 	char		pad5_[2];		// 0x21
 	/* 1 byte padding */
 } tHCISU_H2_CB; // size 0x24
@@ -135,7 +135,7 @@ UINT16 hcisu_h2_receive_msg(UINT16 pipe, tHCISU_H2_CB *p_cb)
 	UINT8 msg_received;
 	UINT16 r27;
 
-	if (p_cb->at_0x1e != 2)
+	if (p_cb->open_state != 2)
 		return 0;
 
 	r27 = pipe + 1;
@@ -148,36 +148,36 @@ UINT16 hcisu_h2_receive_msg(UINT16 pipe, tHCISU_H2_CB *p_cb)
 		++bytes_read;
 		msg_received = FALSE;
 
-		switch (p_cb->at_0x1a[pipe])
+		switch (p_cb->rx_state[pipe])
 		{
 		case 0:
 			if (r27 == 1)
 			{
-				p_cb->at_0x00[pipe] = GKI_getpoolbuf(GKI_POOL_ID_2);
-				p_cb->at_0x14[pipe] = 4;
+				p_cb->p_rx_msg[pipe] = GKI_getpoolbuf(GKI_POOL_ID_2);
+				p_cb->pkt_type[pipe] = 4;
 			}
 			else if (r27 == 2)
 			{
-				p_cb->at_0x00[pipe] = GKI_getpoolbuf(GKI_POOL_ID_3);
-				p_cb->at_0x14[pipe] = 2;
+				p_cb->p_rx_msg[pipe] = GKI_getpoolbuf(GKI_POOL_ID_3);
+				p_cb->pkt_type[pipe] = 2;
 			}
 			else if (r27 == 3)
 			{
-				p_cb->at_0x00[pipe] = GKI_getpoolbuf(GKI_POOL_ID_1);
-				p_cb->at_0x14[pipe] = 3;
+				p_cb->p_rx_msg[pipe] = GKI_getpoolbuf(GKI_POOL_ID_1);
+				p_cb->pkt_type[pipe] = 3;
 			}
 			else
 			{
 				break;
 			}
 
-			if (p_cb->at_0x00[pipe])
+			if (p_cb->p_rx_msg[pipe])
 			{
-				p_cb->at_0x00[pipe]->len = 0;
-				p_cb->at_0x00[pipe]->event =
-					hcisu_msg_evt_table[p_cb->at_0x14[pipe] - 1];
-				p_cb->at_0x00[pipe]->offset = 0;
-				p_cb->at_0x1a[pipe] = 1;
+				p_cb->p_rx_msg[pipe]->len = 0;
+				p_cb->p_rx_msg[pipe]->event =
+					hcisu_msg_evt_table[p_cb->pkt_type[pipe] - 1];
+				p_cb->p_rx_msg[pipe]->offset = 0;
+				p_cb->rx_state[pipe] = 1;
 			}
 			else
 			{
@@ -185,54 +185,54 @@ UINT16 hcisu_h2_receive_msg(UINT16 pipe, tHCISU_H2_CB *p_cb)
 				         "HCIS: Unable to allocate buffer for incoming HCI "
 				         "message.");
 
-				p_cb->at_0x1a[pipe] = 2;
+				p_cb->rx_state[pipe] = 2;
 			}
 
-			p_cb->at_0x0c[pipe] =
-				hcisu_preamble_table[p_cb->at_0x14[pipe] - 1];
+			p_cb->bytes_left[pipe] =
+				hcisu_preamble_table[p_cb->pkt_type[pipe] - 1];
 
 			/* fallthrough */
 
 		case 1:
-			*((UINT8 *)(p_cb->at_0x00[pipe] + 1)
-			  + p_cb->at_0x00[pipe]->len++) = byte;
+			*((UINT8 *)(p_cb->p_rx_msg[pipe] + 1)
+			  + p_cb->p_rx_msg[pipe]->len++) = byte;
 
-			--p_cb->at_0x0c[pipe];
+			--p_cb->bytes_left[pipe];
 
-			if (p_cb->at_0x0c[pipe] == 0)
+			if (p_cb->bytes_left[pipe] == 0)
 			{
 				msg_len = byte;
 
-				if (p_cb->at_0x14[pipe] == 2)
+				if (p_cb->pkt_type[pipe] == 2)
 				{
-					msg_len = (msg_len << 8) + p_cb->at_0x17[pipe];
+					msg_len = (msg_len << 8) + p_cb->len_hi[pipe];
 
-					if ((p_cb->at_0x00[pipe] =
+					if ((p_cb->p_rx_msg[pipe] =
 					         (HC_BT_HDR *)l2cap_link_chk_pkt_start(
-								 (BT_HDR *)p_cb->at_0x00[pipe]))
+								 (BT_HDR *)p_cb->p_rx_msg[pipe]))
 					    == 0)
 					{
-						p_cb->at_0x0c[pipe] = msg_len;
+						p_cb->bytes_left[pipe] = msg_len;
 
 						if (msg_len == 0)
-							p_cb->at_0x1a[pipe] = 0;
+							p_cb->rx_state[pipe] = 0;
 						else
-							p_cb->at_0x1a[pipe] = 4;
+							p_cb->rx_state[pipe] = 4;
 
 						break;
 					}
 				}
 
-				p_cb->at_0x0c[pipe] = msg_len;
+				p_cb->bytes_left[pipe] = msg_len;
 
 				if (sizeof(HC_BT_HDR)
-				        + hcisu_preamble_table[p_cb->at_0x14[pipe] - 1]
+				        + hcisu_preamble_table[p_cb->pkt_type[pipe] - 1]
 				        + msg_len
-				    > GKI_get_buf_size(p_cb->at_0x00[pipe]))
+				    > GKI_get_buf_size(p_cb->p_rx_msg[pipe]))
 				{
-					GKI_freebuf(p_cb->at_0x00[pipe]);
-					p_cb->at_0x00[pipe] = NULL;
-					p_cb->at_0x1a[pipe] = 4;
+					GKI_freebuf(p_cb->p_rx_msg[pipe]);
+					p_cb->p_rx_msg[pipe] = NULL;
+					p_cb->rx_state[pipe] = 4;
 
 					BT_TRACE(HCI, ERROR,
 					         "HCIS: Invalid length for incoming HCI message.");
@@ -242,85 +242,85 @@ UINT16 hcisu_h2_receive_msg(UINT16 pipe, tHCISU_H2_CB *p_cb)
 
 				if (msg_len != 0)
 				{
-					p_cb->at_0x1a[pipe] = 3;
+					p_cb->rx_state[pipe] = 3;
 				}
 				else
 				{
 					msg_received = TRUE;
-					p_cb->at_0x1a[pipe] = 0;
+					p_cb->rx_state[pipe] = 0;
 				}
 			}
 			else
 			{
-				p_cb->at_0x17[pipe] = byte;
+				p_cb->len_hi[pipe] = byte;
 			}
 
 			break;
 
 		case 2:
-			--p_cb->at_0x0c[pipe];
+			--p_cb->bytes_left[pipe];
 
-			if (p_cb->at_0x0c[pipe] == 0)
+			if (p_cb->bytes_left[pipe] == 0)
 			{
 				msg_len = byte;
 
-				if (p_cb->at_0x14[pipe] == 2)
-					msg_len = (msg_len << 8) + p_cb->at_0x17[pipe];
+				if (p_cb->pkt_type[pipe] == 2)
+					msg_len = (msg_len << 8) + p_cb->len_hi[pipe];
 
-				p_cb->at_0x0c[pipe] = msg_len;
-				p_cb->at_0x1a[pipe] = 4;
+				p_cb->bytes_left[pipe] = msg_len;
+				p_cb->rx_state[pipe] = 4;
 			}
 			else
 			{
-				p_cb->at_0x17[pipe] = byte;
+				p_cb->len_hi[pipe] = byte;
 			}
 
 			break;
 
 		case 3:
-			*((UINT8 *)(p_cb->at_0x00[pipe] + 1)
-			  + p_cb->at_0x00[pipe]->len++) = byte;
+			*((UINT8 *)(p_cb->p_rx_msg[pipe] + 1)
+			  + p_cb->p_rx_msg[pipe]->len++) = byte;
 
-			--p_cb->at_0x0c[pipe];
+			--p_cb->bytes_left[pipe];
 
 			len = UUSB_Read(pipe + 1,
-			                (UINT8 *)(p_cb->at_0x00[pipe] + 1)
-			                    + p_cb->at_0x00[pipe]->len,
-			                p_cb->at_0x0c[pipe]);
+			                (UINT8 *)(p_cb->p_rx_msg[pipe] + 1)
+			                    + p_cb->p_rx_msg[pipe]->len,
+			                p_cb->bytes_left[pipe]);
 
-			p_cb->at_0x00[pipe]->len += len;
-			p_cb->at_0x0c[pipe] -= len;
+			p_cb->p_rx_msg[pipe]->len += len;
+			p_cb->bytes_left[pipe] -= len;
 			bytes_read += len;
 
-			if (p_cb->at_0x0c[pipe] == 0)
+			if (p_cb->bytes_left[pipe] == 0)
 			{
-				if (p_cb->at_0x14[pipe] == 2
+				if (p_cb->pkt_type[pipe] == 2
 				    && l2cap_link_chk_pkt_end() == 0)
 				{
-					p_cb->at_0x1a[pipe] = 0;
+					p_cb->rx_state[pipe] = 0;
 				}
 				else
 				{
 					msg_received = TRUE;
-					p_cb->at_0x1a[pipe] = 0;
+					p_cb->rx_state[pipe] = 0;
 				}
 			}
 
 			break;
 
 		case 4:
-			--p_cb->at_0x0c[pipe];
+			--p_cb->bytes_left[pipe];
 
-			if (p_cb->at_0x0c[pipe] == 0)
-				p_cb->at_0x1a[pipe] = 0;
+			if (p_cb->bytes_left[pipe] == 0)
+				p_cb->rx_state[pipe] = 0;
 
 			break;
 		}
 
 		if (msg_received)
 		{
-			GKI_send_msg(hcisu_h2_cb.at_0x1f, 0, p_cb->at_0x00[pipe]);
-			p_cb->at_0x00[pipe] = NULL;
+			GKI_send_msg(hcisu_h2_cb.task_id, 0, p_cb->p_rx_msg[pipe]);
+			p_cb->p_rx_msg[pipe] = NULL;
 		}
 	}
 
@@ -382,7 +382,7 @@ void hcisu_h2_send_msg_now(tHCISU_H2_CB *cb, HC_BT_HDR *p_msg)
 				{
 					p_msg->event = MSG_HC_TO_STACK_L2C_SEG_XMIT;
 
-					GKI_send_msg(hcisu_h2_cb.at_0x1f, 0, p_msg);
+					GKI_send_msg(hcisu_h2_cb.task_id, 0, p_msg);
 
 					return;
 				}
@@ -405,15 +405,15 @@ void hcisu_h2_send_msg(tHCISU_H2_CB *p_cb, HC_BT_HDR *p_msg)
 
 void hcisu_h2_init(UINT8 taskId, UINT8 mbox, UINT16 bufSize)
 {
-	hcisu_h2_cb.at_0x1e = 0;
+	hcisu_h2_cb.open_state = 0;
 
-	hcisu_h2_cb.at_0x1a[0] = 0;
-	hcisu_h2_cb.at_0x1a[1] = 0;
-	hcisu_h2_cb.at_0x1a[2] = 0;
+	hcisu_h2_cb.rx_state[0] = 0;
+	hcisu_h2_cb.rx_state[1] = 0;
+	hcisu_h2_cb.rx_state[2] = 0;
 
-	hcisu_h2_cb.at_0x1f = taskId;
-	hcisu_h2_cb.at_0x20 = mbox;
-	hcisu_h2_cb.at_0x12 = bufSize;
+	hcisu_h2_cb.task_id = taskId;
+	hcisu_h2_cb.mbox = mbox;
+	hcisu_h2_cb.buf_size = bufSize;
 }
 
 BOOLEAN hcisu_h2_open(tHCI_CFG *_p_cfg)
@@ -424,9 +424,9 @@ BOOLEAN hcisu_h2_open(tHCI_CFG *_p_cfg)
 	uusb.at_0x0b = 0;
 	uusb.at_0x04 = p_cfg->at_0x00;
 	uusb.at_0x06 = p_cfg->at_0x02;
-	uusb.at_0x08 = hcisu_h2_cb.at_0x1f;
+	uusb.at_0x08 = hcisu_h2_cb.task_id;
 
-	hcisu_h2_cb.at_0x1e = 2;
+	hcisu_h2_cb.open_state = 2;
 
 	UUSB_Register(&uusb);
 	UUSB_Open(&uusb, &hcisu_h2_usb_cback);
@@ -436,7 +436,7 @@ BOOLEAN hcisu_h2_open(tHCI_CFG *_p_cfg)
 
 void hcisu_h2_close(void)
 {
-	hcisu_h2_cb.at_0x1e = 0;
+	hcisu_h2_cb.open_state = 0;
 
 	UUSB_Close();
 	UUSB_Unregister();
@@ -454,7 +454,7 @@ int hcisu_h2_handle_event(UINT16 len)
 	UINT16 bytes_read;
 
 	bytes_read = hcisu_h2_receive_msg(
-		len - sizeof(HC_BT_HDR) - hcisu_h2_cb.at_0x12, &hcisu_h2_cb);
+		len - sizeof(HC_BT_HDR) - hcisu_h2_cb.buf_size, &hcisu_h2_cb);
 
 	return 0;
 }
