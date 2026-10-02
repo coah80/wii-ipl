@@ -1585,9 +1585,9 @@ s32 PFFAT_FreeChain(PFFAT_FFD* file, u32 startCluster, u32 chainIndex,
     }
     {
         s32 firstFlushError;
-        u32 fatSector;
-        u16 fatIndex;
         PF_CACHE_PAGE* flushPage;
+        u16 fatIndex;
+        u32 fatSector;
 
         firstFlushError = 0;
         flushPage = page;
