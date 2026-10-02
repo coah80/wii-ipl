@@ -20,7 +20,7 @@ ziU8 Zi8InitializeDynamic(ziLanguageEntry* langEntries ZI_NEED_WORK) {
     ZI_WORK->unk_0x09 = 1;
     ZI_WORK->maxWordLength = 0xFF;
     ZI_WORK->unk_0x10 = 0x64;
-    *(ziU16*)&ZI_WORK->unk_0x0C = 0xFFFF;
+    *(ziU16*)&ZI_WORK->targetCount = 0xFFFF;
     ZI_WORK->separator = 0x20;
     ZI_WORK->unk_0x1C[2] = 0;
     ZI_WORK->koAltTables = 0;
