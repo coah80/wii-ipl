@@ -103,7 +103,7 @@ namespace ipl {
             long clipGELT_S32(long value, long lo, long hi);
 
         private:
-            u32 unk_0x620[3];
+            u32 unk_0x620[7];
         };
 
         // use getSystem() and getBannerPlayer() instead
