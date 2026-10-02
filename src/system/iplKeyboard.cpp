@@ -219,9 +219,7 @@ namespace ipl {
                 u8* usedSystemDict = System::getZiDicData(i);
                 u8* usedOemDict = System::getZiDicData(oemIndex);
 
-                if (usedSystemDict == NULL) {
-                    usedSystemDict = systemDict;
-                }
+                usedSystemDict = usedSystemDict != NULL ? usedSystemDict : systemDict;
                 if (usedOemDict == NULL) {
                     usedOemDict = oemDict;
                 }
