@@ -21,6 +21,15 @@ class WorkflowGuardTests(unittest.TestCase):
         self.assertTrue(any("total_units" in failure for failure in failures))
         self.assertTrue(any("missing categories" in failure for failure in failures))
 
+    def test_obsolete_overlapping_code_total_is_rejected(self):
+        failures = check_report({
+            "version": 2,
+            "measures": {"total_code": 2995188},
+            "units": [],
+            "categories": [],
+        })
+        self.assertIn("overall total_code: 2995188 != 2995176", failures)
+
     def test_malformed_report_values_fail_without_crashing(self):
         failures = check_report(
             {
