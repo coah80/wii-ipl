@@ -1167,9 +1167,9 @@ u32 VIGetRetraceCount(void)
 
 static u32 getCurrentHalfLine(void)
 {
-    u32 horizontalCount;
-    u32 previousVerticalCount;
     u32 verticalCount;
+    u32 previousVerticalCount;
+    u32 horizontalCount;
 
     verticalCount = __VIRegs[22] & 0x7FF;
     for (;;) {
@@ -1180,7 +1180,7 @@ static u32 getCurrentHalfLine(void)
             break;
         }
     }
-    return ((horizontalCount - 1) / CurrTiming->hlw) + ((verticalCount - 1) * 2);
+    return ((verticalCount - 1) * 2) + ((horizontalCount - 1) / CurrTiming->hlw);
 }
 
 static u32 getCurrentFieldEvenOdd(void)
