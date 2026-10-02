@@ -67,7 +67,7 @@ namespace ipl {
         DECOMP_FORCE_ACTIVE(iplDate_cpp, padding);
 
         Date::Date(EGG::Heap* heap, nand::LayoutFile* file, const char* layoutFolder, const char* layoutFileName)
-            : ::gui::EventHandler(), mbAppearMsg(0), unk_0x10(0), unk_0x14(0), mpLayout(NULL), mpCurrentPaneAnim(0), unk_0x3C(0) {
+            : ::gui::EventHandler(), mbAppearMsg(0), mFocusState(0), mPendingFocusCmd(0), mpLayout(NULL), mpCurrentPaneAnim(0), mPointCount(0) {
             // Layout
             mpLayout = new layout::Object(heap, file, layoutFolder, layoutFileName);
 
@@ -103,16 +103,16 @@ namespace ipl {
                 onCmdRecv(3);
             }
 
-            onCmdRecv(unk_0x14);
+            onCmdRecv(mPendingFocusCmd);
         }
 
         void Date::draw(bool unk) {
             if (unk) {
-                if (unk_0x3C != 0) {
+                if (mPointCount != 0) {
                     mpLayout->draw();
                 }
             } else {
-                if (unk_0x3C == 0) {
+                if (mPointCount == 0) {
                     mpLayout->draw();
                 }
             }
@@ -210,7 +210,7 @@ namespace ipl {
 
         void Date::start_point_event(const char* paneName, controller::Interface* con) {
             if (strcmp(paneName, scB_Cal) == 0) {
-                if (unk_0x3C == 0) {
+                if (mPointCount == 0) {
                     static_cast<Calendar*>(System::getScene(SCENE_CALENDAR))->onPointDate(this);
                     onCmdRecv(1);
 
@@ -221,16 +221,16 @@ namespace ipl {
                         }
                     }
                 }
-                unk_0x3C++;
+                mPointCount++;
             }
         }
 
         void Date::start_left_event(const char* paneName) {
             if (strcmp(paneName, scB_Cal) == 0) {
-                if (unk_0x3C == 1) {
+                if (mPointCount == 1) {
                     onCmdRecv(2);
                 }
-                unk_0x3C--;
+                mPointCount--;
             }
         }
 
@@ -268,35 +268,35 @@ namespace ipl {
 
         void Date::onCmdRecv(int cmd) {
             if (cmd == 1 || cmd == 2) {
-                unk_0x14 = cmd;
+                mPendingFocusCmd = cmd;
             }
 
-            switch (unk_0x10) {
+            switch (mFocusState) {
                 case 0: {
                     if (cmd == 1) {
                         mpCurrentPaneAnim = doAnim(IDANIM_FOCUS_IN);
-                        unk_0x10 = 1;
+                        mFocusState = 1;
                     } else if (cmd == 2) {
                         mpCurrentPaneAnim = doAnim(IDANIM_FOCUS_OUT);
-                        unk_0x10 = 2;
+                        mFocusState = 2;
                     }
                     break;
                 }
                 case 1: {
                     if (cmd == 3) {
-                        if (unk_0x14 == 1) {
-                            unk_0x14 = 0;
+                        if (mPendingFocusCmd == 1) {
+                            mPendingFocusCmd = 0;
                         }
-                        unk_0x10 = 0;
+                        mFocusState = 0;
                     }
                     break;
                 }
                 case 2: {
                     if (cmd == 3) {
-                        if (unk_0x14 == 2) {
-                            unk_0x14 = 0;
+                        if (mPendingFocusCmd == 2) {
+                            mPendingFocusCmd = 0;
                         }
-                        unk_0x10 = 0;
+                        mFocusState = 0;
                     }
                     break;
                 }
@@ -306,7 +306,7 @@ namespace ipl {
         void Date::initEvent() {
             mpGui->init();
             mpPaneAnims[ANIM_PANE_BTN_HOVER]->initAnmFrame(0.0f);
-            unk_0x3C = 0;
+            mPointCount = 0;
             onCmdRecv(3);
         }
 
