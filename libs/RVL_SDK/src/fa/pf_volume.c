@@ -226,7 +226,6 @@ PFVOL_SET pf_vol_set;
 
 static s8 default_volume_label[12] = "NO NAME    ";
 static const u8 deleted_entry_mark[8] = {0xE5};
-
 extern s32 PFDRV_mount(PFVOL_VOLUME* volume);
 extern s32 PFDRV_unmount(PFVOL_VOLUME* volume, u32 mode);
 extern s32 PFDRV_format(PFVOL_VOLUME* volume, const u8* format_options);
@@ -372,8 +371,13 @@ static inline s32 finalize_volume(PFVOL_VOLUME* volume) {
     if (error != 0) { return error; }
     return 0;
 }
-static inline s32 copy_codeset(const PFVOL_CHARCODE* code_set) {
-    pf_vol_set.codeset = *code_set;
+static inline s32 copy_codeset(PFVOL_CHARCODE* code_set) {
+    pf_vol_set.codeset.oem2unicode = code_set->oem2unicode;
+    pf_vol_set.codeset.unicode2oem = code_set->unicode2oem;
+    pf_vol_set.codeset.oem_char_width = code_set->oem_char_width;
+    pf_vol_set.codeset.is_oem_mb_char = code_set->is_oem_mb_char;
+    pf_vol_set.codeset.unicode_char_width = code_set->unicode_char_width;
+    pf_vol_set.codeset.is_unicode_mb_char = code_set->is_unicode_mb_char;
     return 0;
 }
 s32 PFVOL_DoMountVolume(PFVOL_VOLUME* volume) {
@@ -1458,7 +1462,7 @@ s32 PFVOL_getvolcfg(s8 drive, u32* config) {
     return 0;
 }
 
-s32 PFVOL_setcode(const PFVOL_CHARCODE* code_set) {
+s32 PFVOL_setcode(PFVOL_CHARCODE* code_set) {
     if (pf_vol_set.num_mounted_volumes > 0) {
         pf_vol_set.last_error = 36;
         return 36;
