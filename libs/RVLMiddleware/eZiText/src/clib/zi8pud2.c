@@ -57,6 +57,8 @@ ziU8 ZADP_Zi8SetPDremoveOpt(ziU8 option, struct __zi8_work_data_s* __zi8_work_da
     return previous;
 }
 ziU32 Zi8MatchPUDdata_ZHS(ziWChar* pattern, ziU8 length, ziU8 language, ziWChar* output, ziU16 capacity, ziWChar* spelling, ziU16 spellingCapacity, ziU8 complete, ziU8 continuation ZI_NEED_WORK) {
+    int fallback = 0;
+    ziU8* bytePattern;
     ziWChar folded;
     ziPudSection* section;
     int wordSize;
@@ -65,7 +67,7 @@ ziU32 Zi8MatchPUDdata_ZHS(ziWChar* pattern, ziU8 length, ziU8 language, ziWChar*
     int index;
     ziU32 entrySize;
     ziPudHeader* table;
-    int fallback = 0;
+    ziU8* byteOutput;
     if (!(ZI_WORK->pudCount <= 16 && ZI_WORK->pudCount != 0 && ZI_WORK->pudTable[ZI_WORK->pudCount - 1] != 0)) {
         Zi8LogError(0x4B0, __zi8_work_data);
         return 0;
@@ -79,8 +81,8 @@ ziU32 Zi8MatchPUDdata_ZHS(ziWChar* pattern, ziU8 length, ziU8 language, ziWChar*
         index = 0;
         while (index < table->languageCount) {
             if (section->language == language) break;
-            index++;
             section++;
+            index++;
         }
         if (index >= table->languageCount) {
             Zi8LogError(0x4F6, __zi8_work_data);
@@ -101,18 +103,20 @@ ziU32 Zi8MatchPUDdata_ZHS(ziWChar* pattern, ziU8 length, ziU8 language, ziWChar*
             entrySize = wordSize;
             if (language == 1) {
                 if (ZI_WORK->unk_0x17 > *word) goto next;
-                entrySize = wordSize - 1;
+                wordSize--;
+                entrySize--;
                 word++;
                 wordSize = ZiGetZHWordSize((ziWChar*)word, entrySize);
-            } else if (ZI_WORK->unk_0x31E != 0 && complete != 0 && wordSize > length && word[length] == 0x20) goto matchText;
+            } else if (ZI_WORK->unk_0x31E != 0 && complete != 0 && length < wordSize && word[length] == 0x20) goto matchText;
             if ((ziS32)length > (ziS32)wordSize || (complete != 0 && wordSize != length) || (complete == 0 && wordSize == length)) {
 next:
                 ZI_WORK->unk_0x318++;
                 word += entrySize;
             } else {
                 if (language == 1) {
+                    bytePattern = (ziU8*)pattern;
                     for (index = 0; index < length; index++) {
-                        if (word[index] != ((ziU8*)pattern)[index]) goto next;
+                        if (word[index] != bytePattern[index]) goto next;
                     }
                     goto matched;
                 }
@@ -135,11 +139,13 @@ matched:
                     return 1;
                 }
                 if (language == 1) {
+                    byteOutput = (ziU8*)output;
                     index = 0;
                     for (copied = 0; index < (ziS32)wordSize && copied < capacity; copied++) {
-                        ((ziU8*)output)[index] = word[index];
-                        ((ziU8*)output)[index + 1] = word[index + 1];
-                        index += 2;
+                        byteOutput[index] = word[index];
+                        index++;
+                        byteOutput[index] = word[index];
+                        index++;
                     }
                     Zi8CopyZHSpelling(word, spelling, spellingCapacity, entrySize, wordSize);
                 } else {

@@ -4541,3 +4541,1122 @@ forbidden patterns added (net, per file): 0
 readability warnings (net, per file; must be 0 in the final result): 0
 GATE PASS
 ```
+
+## HIGH round e, fresh origin/main 711ee737 (2026-10-02)
+Starting quick gate passes. Own PUD 6/7 objdiff target functions (task denominator 8), DAWG 2/6, WordW 1/2, UWD 2/4. Remaining data gaps are unwind saved-register descriptors and function lengths; DAWG non-text already 100%. No metadata edits justified.
+
+Live origin baseline d34e09d5dcb0dd67dd34a4a3b41c6238fe499689 built in this worker tree, then owned source restored and rebuilt. Current round starting quick gate passed; full gate remains required. Function-by-function comparison:
+```
+zi8pud2 ZiIsPhoneticChar: 100.0 -> 100.0
+zi8pud2 ZiGetZHWordSize: 100.0 -> 100.0
+zi8pud2 Zi8CopyZHSpelling: 100.0 -> 100.0
+zi8pud2 ZADP_Zi8SetPDremoveOpt: 100.0 -> 100.0
+zi8pud2 Zi8MatchPUDdata_ZHS: 95.3531 -> 95.3531
+zi8pud2 Zi8MatchPUDdata: 100.0 -> 100.0
+zi8pud2 Zi8_8147FD7C: 100.0 -> 100.0
+zi8uwd Zi8_81480224: 99.22414 -> 99.22414
+zi8uwd Zi8_814803F4: 100.0 -> 100.0
+zi8uwd Zi8_8148047C: 100.0 -> 100.0
+zi8uwd Zi8MatchUWDdata: 86.71573 -> 86.71573
+zidawg1 ZiDAWGGetChild: 93.89706 -> 93.89706
+zidawg1 ZiDAWGGetSibling: 96.78626 -> 96.78626
+zidawg1 ZiDAWGgetEOWattribute: 100.0 -> 100.0
+zidawg1 ZiDAWGgetCHARattribute: 99.0 -> 99.0
+zidawg1 ZiDAWGGetGraph: 100.0 -> 100.0
+zidawg1 ZiDAWGGetGraphInfo: 99.55224 -> 99.55224
+ziswordw Zi8IsWordW: 85.65625 -> 85.65625
+ziswordw Zi8ConvertUC2UserKey: 100.0 -> 100.0
+FUZZY REGRESSIONS: 0
+```
+
+### Zi8MatchPUDdata_ZHS structural diagnosis
+Fetched origin: function remains 95.3531%. Pool identical (no literals). Target/source 354/343 instructions; both save r19-r31 and frame 0x60. Target separately decrements payload length and record advance, keeps byte views for Chinese input/output, increments each byte-copy index, and advances section before search counter. Fix real cursor/length operations before register order. No artificial unused work-pointer spill or byte masks permitted.
+- Resume Zi8MatchPUDdata_ZHS, HIGH-e typed work parameter and direct state members: objdiff 95.3531 -> 95.3531; data 48 -> 48; instruction-exact 6 -> 6; target/source sizes (1416, 1372); source unwind 180800000000000010080000000000001008000000000000680800000000000018080000000000000008000000000000; fuzzy regressions []; reverted.
+- Resume Zi8MatchPUDdata_ZHS, HIGH-e decrement both record and Chinese payload lengths: objdiff 95.3531 -> 95.932205; data 48 -> 48; instruction-exact 6 -> 6; target/source sizes (1416, 1380); source unwind 180800000000000010080000000000001008000000000000680800000000000018080000000000000008000000000000; fuzzy regressions []; SELECTED.
+- Resume Zi8MatchPUDdata_ZHS, HIGH-e section cursor advance precedes section counter: objdiff 95.932205 -> 95.99435; data 48 -> 48; instruction-exact 6 -> 6; target/source sizes (1416, 1380); source unwind 180800000000000010080000000000001008000000000000680800000000000018080000000000000008000000000000; fuzzy regressions []; SELECTED.
+- Resume Zi8MatchPUDdata_ZHS, HIGH-e compare requested prefix length first: objdiff 95.99435 -> 96.03672; data 48 -> 48; instruction-exact 6 -> 6; target/source sizes (1416, 1380); source unwind 180800000000000010080000000000001008000000000000680800000000000018080000000000000008000000000000; fuzzy regressions []; SELECTED.
+- Resume Zi8MatchPUDdata_ZHS, HIGH-e increment Chinese output index after each byte: objdiff 96.03672 -> 96.420906; data 48 -> 48; instruction-exact 6 -> 6; target/source sizes (1416, 1376); source unwind 180800000000000010080000000000001008000000000000680800000000000018080000000000000008000000000000; fuzzy regressions []; SELECTED.
+- Resume Zi8MatchPUDdata_ZHS, HIGH-e typed byte views for Chinese UTF16 buffers: objdiff 96.420906 -> 98.11582; data 48 -> 48; instruction-exact 6 -> 6; target/source sizes (1416, 1396); source unwind 180800000000000010080000000000001008000000000000680800000000000018080000000000000008000000000000; fuzzy regressions []; SELECTED.
+- Resume Zi8MatchPUDdata_ZHS, HIGH-e byte views with one increment per copied byte: build failed and reverted, leware/eZiText/src/clib/zi8pud2.d ### mwcceppc.exe Compiler: #    File: libs\RVLMiddleware\eZiText\src\clib\zi8pud2.c # ------------------------------------------------------ #      62:     ziU8* bytePattern;  #   Error:                      ^ #   (10333) object 'bytePattern' redefined #   Too many errors printed, aborting program  User break, cancelled... ninja: build stopped: subcommand failed.
+- Resume Zi8MatchPUDdata_ZHS, HIGH-e postincrement byte output indices: build failed and reverted, leware/eZiText/src/clib/zi8pud2.d ### mwcceppc.exe Compiler: #    File: libs\RVLMiddleware\eZiText\src\clib\zi8pud2.c # ------------------------------------------------------ #      62:     ziU8* bytePattern;  #   Error:                      ^ #   (10333) object 'bytePattern' redefined #   Too many errors printed, aborting program  User break, cancelled... ninja: build stopped: subcommand failed.
+- Resume Zi8MatchPUDdata_ZHS, HIGH-e initialize both Chinese copy indices from copied count: objdiff 98.11582 -> 93.567795; data 48 -> 0; instruction-exact 6 -> 6; target/source sizes (1416, 1436); source unwind 180800000000000010080000000000001008000000000000600800000000000018080000000000000008000000000000; fuzzy regressions [('Zi8MatchPUDdata_ZHS', 95.3531, 93.567795)]; reverted.
+- Resume Zi8MatchPUDdata_ZHS, HIGH-e typed state alias used for every state access and callee: objdiff 98.11582 -> 88.56215; data 48 -> 0; instruction-exact 6 -> 6; target/source sizes (1416, 1528); source unwind 180800000000000010080000000000001008000000000000500800000000000018080000000000000008000000000000; fuzzy regressions [('Zi8MatchPUDdata_ZHS', 95.3531, 88.56215)]; reverted.
+- Resume Zi8MatchPUDdata_ZHS, HIGH-e decode big-endian fields with shifted high octet: objdiff 98.11582 -> 98.0; data 48 -> 48; instruction-exact 6 -> 6; target/source sizes (1416, 1396); source unwind 180800000000000010080000000000001008000000000000680800000000000018080000000000000008000000000000; fuzzy regressions []; reverted.
+
+### ZiDAWGGetChild structural diagnosis
+Fetched origin; open 93.89706%. Pool identical, target/source 68 instructions. Seven mismatches: long offset adds 0x8000 before high/middle combination in ours, and low-byte operand order reversed; short offset is assigned before low-byte load, extending offset register lifetime. Try natural complete endian offset expressions.
+- Resume ZiDAWGGetChild, HIGH-e combine long endian bytes before biased offset assignment: objdiff 93.89706 -> 96.67647; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (272, 272); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions []; SELECTED.
+- Resume ZiDAWGGetChild, HIGH-e complete short offset expression assigns after both loads: objdiff 96.67647 -> 93.72059; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (272, 272); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions [('ZiDAWGGetChild', 93.89706, 93.72059)]; reverted.
+- Resume ZiDAWGGetChild, HIGH-e long low byte plus high/middle offset with bias: objdiff 96.67647 -> 93.588234; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (272, 272); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions [('ZiDAWGGetChild', 93.89706, 93.588234)]; reverted.
+- Resume ZiDAWGGetChild, HIGH-e short low byte added to separately decoded high byte: objdiff 96.67647 -> 96.60294; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (272, 272); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions []; reverted.
+- Resume ZiDAWGGetChild, HIGH-e unsigned byte offset carries: objdiff 96.67647 -> 96.67647; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (272, 272); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions []; reverted.
+
+### ZiDAWGGetSibling structural diagnosis
+Fetched origin; still 96.78626%. 131/131 instructions, matching saved registers and complete unwind data. Long relative offset loads low octet first in source; target high/middle/low order and node-plus-low grouping. Target also narrows middle octet, which cannot justify a new no-op cast. Arithmetic grouping trials preserve original node base.
+- Resume ZiDAWGGetSibling, HIGH-e group high/middle bias before node plus low octet: objdiff 96.78626 -> 96.08397; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (524, 524); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions [('ZiDAWGGetSibling', 96.78626, 96.08397)]; reverted.
+- Resume ZiDAWGGetSibling, HIGH-e node plus low octet precedes high/middle bias: objdiff 96.78626 -> 96.08397; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (524, 524); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions [('ZiDAWGGetSibling', 96.78626, 96.08397)]; reverted.
+- Resume ZiDAWGGetSibling, HIGH-e assign decoded long offset before node advance: objdiff 96.78626 -> 96.55725; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (524, 524); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions [('ZiDAWGGetSibling', 96.78626, 96.55725)]; reverted.
+- Resume ZiDAWGGetSibling, HIGH-e add low octet after biased node advance: objdiff 96.78626 -> 94.31298; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (524, 524); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions [('ZiDAWGGetSibling', 96.78626, 94.31298)]; reverted.
+- Resume ZiDAWGGetSibling, HIGH-e unsigned traversal byte count: objdiff 96.78626 -> 96.78626; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (524, 524); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions []; reverted.
+
+### Zi8_81480224 structural diagnosis
+Fetched origin; still 99.22414%. Pool identical, 116/116 instructions, same r24-r31 saved set. Fifteen register/operand differences: word/length homes swapped, index/base operands swapped, and insertion count unnecessarily reuses length; target directly uses postincrement count in node address. Test direct node indexing before declaration search.
+- Resume Zi8_81480224, HIGH-e typed work parameter and direct state members: objdiff 99.22414 -> 99.22414; data 0 -> 0; instruction-exact 2 -> 2; target/source sizes (464, 464); source unwind 4008000000000000100800000000000008080000000000006008000000000000; fuzzy regressions []; reverted.
+- Resume Zi8_81480224, HIGH-e index new list node directly by postincrement count: objdiff 99.22414 -> 99.18104; data 0 -> 0; instruction-exact 2 -> 2; target/source sizes (464, 464); source unwind 4008000000000000100800000000000008080000000000006008000000000000; fuzzy regressions [('Zi8_81480224', 99.22414, 99.18104)]; reverted.
+- Resume Zi8_81480224, HIGH-e use traversal index for new node instead of record length: objdiff 99.22414 -> 98.793106; data 0 -> 0; instruction-exact 2 -> 2; target/source sizes (464, 464); source unwind 4008000000000000100800000000000008080000000000006008000000000000; fuzzy regressions [('Zi8_81480224', 99.22414, 98.793106)]; reverted.
+- Resume Zi8_81480224, HIGH-e compare byte cursors via dereference: objdiff 99.22414 -> 99.22414; data 0 -> 0; instruction-exact 2 -> 2; target/source sizes (464, 464); source unwind 4008000000000000100800000000000008080000000000006008000000000000; fuzzy regressions []; reverted.
+- Resume Zi8_81480224, HIGH-e index-first pointer arithmetic for compared record payloads: objdiff 99.22414 -> 99.22414; data 0 -> 0; instruction-exact 2 -> 2; target/source sizes (464, 464); source unwind 4008000000000000100800000000000008080000000000006008000000000000; fuzzy regressions []; reverted.
+
+### ZiDAWGgetCHARattribute structural diagnosis
+Fetched origin; still 99.0%. 60/60 instructions with 12 register-only differences, context r30/key r31 versus target context r31/key r30. No frame, branch, operand-order or unwind gaps. Try accurate const/node parameter types and declaration order last.
+- Resume ZiDAWGgetCHARattribute, HIGH-e read-only context parameter: objdiff 99.0 -> 99.0; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (240, 240); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions []; reverted.
+- Resume ZiDAWGgetCHARattribute, HIGH-e typed read-only node pointer instead of integer address: objdiff 99.0 -> 99.0; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (240, 240); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions []; reverted.
+- Resume ZiDAWGgetCHARattribute, HIGH-e direct typed context member indexing: objdiff 99.0 -> 99.0; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (240, 240); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions []; reverted.
+- Resume ZiDAWGgetCHARattribute, HIGH-e declare completed attribute before key: objdiff 99.0 -> 99.0; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (240, 240); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions []; reverted.
+
+### ZiDAWGGetGraphInfo structural diagnosis
+Fetched origin; still 99.55224%. 134/134 instructions, target r25-r31 and frame0x30 exactly match. Twelve register-only differences cycle context, graph base and result homes; depth/end/cursor/key homes match. Try accurate unsigned offset type and parameter qualification, then declaration search.
+- Resume ZiDAWGGetGraphInfo, HIGH-e unsigned graph-relative return offset: objdiff 99.55224 -> 99.55224; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (536, 536); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions []; reverted.
+- Resume ZiDAWGGetGraphInfo, HIGH-e read-only graph entry and key values: objdiff 99.55224 -> 99.55224; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (536, 536); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions []; reverted.
+- Resume ZiDAWGGetGraphInfo, HIGH-e initialize graph base at declaration before result assignment: objdiff 99.55224 -> 99.55224; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (536, 536); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions []; reverted.
+- Resume ZiDAWGGetGraphInfo, HIGH-e direct typed mutation of graph traversal context: objdiff 99.55224 -> 99.55224; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (536, 536); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions []; reverted.
+
+### Zi8IsWordW structural diagnosis
+Fetched origin; 85.65625%, identical empty pools. Both416 instructions/frame0x110; target saves r26-r31, ours r27-r31. Target has five scalar initializers, one six-word search zero aggregate, ordinal-count postfix decrement, and error-first language branch. Selector offset targetr27 versus source stack slot. Fix these real object/control-flow differences together before register order. Data missing16 is unwind saved-register range.
+- Resume Zi8IsWordW, HIGH-e typed work parameter and direct state members: objdiff 85.65625 -> 85.65625; data 32 -> 32; instruction-exact 1 -> 1; target/source sizes (1664, 1664); source unwind 28080000000000001808000000000000; fuzzy regressions []; reverted.
+- Resume Zi8IsWordW, HIGH-e postdecrement ordinal count in single-character test: objdiff 85.65625 -> 86.1875; data 32 -> 32; instruction-exact 1 -> 1; target/source sizes (1664, 1664); source unwind 28080000000000001808000000000000; fuzzy regressions []; SELECTED.
+- Resume Zi8IsWordW, HIGH-e reject unsupported language before Chinese search: objdiff 86.1875 -> 89.10817; data 32 -> 32; instruction-exact 1 -> 1; target/source sizes (1664, 1664); source unwind 28080000000000001808000000000000; fuzzy regressions []; SELECTED.
+- Resume Zi8IsWordW, HIGH-e initialize actual search state aggregate once: objdiff 89.10817 -> 89.71394; data 32 -> 8; instruction-exact 1 -> 1; target/source sizes (1664, 1644); source unwind 28080000000000001808000000000000; fuzzy regressions []; reverted.
+- Resume Zi8IsWordW, HIGH-e initialize Chinese parser scalars and search aggregate: objdiff 89.10817 -> 87.66586; data 32 -> 8; instruction-exact 1 -> 1; target/source sizes (1664, 1680); source unwind 28080000000000001808000000000000; fuzzy regressions []; reverted.
+- Resume Zi8IsWordW, HIGH-e all target scalar/search initializers with postfix count and error-first branch: objdiff 89.10817 -> 87.66586; data 32 -> 8; instruction-exact 1 -> 1; target/source sizes (1664, 1680); source unwind 28080000000000001808000000000000; fuzzy regressions []; reverted.
+- Resume Zi8IsWordW, HIGH-e initialize parser scalars without aggregate restructuring: objdiff 89.10817 -> 89.82933; data 32 -> 8; instruction-exact 1 -> 1; target/source sizes (1664, 1700); source unwind 28080000000000001808000000000000; fuzzy regressions []; reverted.
+
+### Zi8MatchUWDdata structural diagnosis
+Fetched origin; 86.71573%. 514/496 instructions, frame0x80 both, source saves r20-r31 versus target r19-r31. Prefix length spills instead of targetr28; ternary scan bound materializes bool unlike two branch tests; target compares visited postincrement directly; target fallback tests length==1 then complete!=0; target final empty-pop returns0 directly; record fields are consumed by one byte cursor. These structural differences precede register order.
+- Resume Zi8MatchUWDdata, HIGH-e typed work parameter and direct state members: objdiff 86.71573 -> 86.71573; data 0 -> 0; instruction-exact 2 -> 2; target/source sizes (1984, 2056); source unwind 4008000000000000100800000000000008080000000000006008000000000000; fuzzy regressions []; reverted.
+- Resume Zi8MatchUWDdata, HIGH-e single-character nonzero-complete fallback in target condition order: objdiff 86.71573 -> 86.70564; data 0 -> 0; instruction-exact 2 -> 2; target/source sizes (1984, 2056); source unwind 4008000000000000100800000000000008080000000000006008000000000000; fuzzy regressions [('Zi8MatchUWDdata', 86.71573, 86.70564)]; reverted.
+- Resume Zi8MatchUWDdata, HIGH-e compare scan position using direct visited postincrement: objdiff 86.71573 -> 86.75605; data 0 -> 0; instruction-exact 2 -> 2; target/source sizes (1984, 2056); source unwind 4008000000000000100800000000000008080000000000006008000000000000; fuzzy regressions []; SELECTED.
+- Resume Zi8MatchUWDdata, HIGH-e explicit first/wrapped segment bounds instead of ternary: objdiff 86.75605 -> 89.479836; data 0 -> 0; instruction-exact 2 -> 2; target/source sizes (1984, 2028); source unwind 4008000000000000100800000000000008080000000000006008000000000000; fuzzy regressions []; SELECTED.
+- Resume Zi8MatchUWDdata, HIGH-e cache prefix bound and reuse exhausted prefix counter as offset: objdiff 89.479836 -> 93.229836; data 0 -> 32; instruction-exact 2 -> 2; target/source sizes (1984, 1980); source unwind 4008000000000000100800000000000008080000000000006808000000000000; fuzzy regressions []; SELECTED.
+- Resume Zi8MatchUWDdata, HIGH-e return extracted length within final successful pop and zero on empty list: objdiff 93.229836 -> 94.32863; data 32 -> 32; instruction-exact 2 -> 2; target/source sizes (1984, 1980); source unwind 4008000000000000100800000000000008080000000000006808000000000000; fuzzy regressions []; SELECTED.
+
+### Owned data audit HIGH-e
+
+zi8pud2 target/source allocated non-text sections and defined objects:
+obj: [('extab', 48, '180800000000000010080000000000001008000000000000680800000000000018080000000000000008000000000000'), ('extabindex', 72, '')]
+[('@etb_813306C0', 'extab', 0, 8), ('@etb_813306C8', 'extab', 8, 8), ('@etb_813306D0', 'extab', 16, 8), ('@etb_813306D8', 'extab', 24, 8), ('@etb_813306E0', 'extab', 32, 8), ('@etb_813306E8', 'extab', 40, 8), ('@eti_813313B0', 'extabindex', 0, 12), ('@eti_813313BC', 'extabindex', 12, 12), ('@eti_813313C8', 'extabindex', 24, 12), ('@eti_813313D4', 'extabindex', 36, 12), ('@eti_813313E0', 'extabindex', 48, 12), ('@eti_813313EC', 'extabindex', 60, 12)]
+src: [('extab', 48, '180800000000000010080000000000001008000000000000680800000000000018080000000000000008000000000000'), ('extabindex', 72, '')]
+[('@52', 'extab', 0, 8), ('@53', 'extabindex', 0, 12), ('@76', 'extab', 8, 8), ('@77', 'extabindex', 12, 12), ('@86', 'extab', 16, 8), ('@87', 'extabindex', 24, 12), ('@219', 'extab', 24, 8), ('@220', 'extabindex', 36, 12), ('@245', 'extab', 32, 8), ('@246', 'extabindex', 48, 12), ('@259', 'extab', 40, 8), ('@260', 'extabindex', 60, 12)]
+
+zidawg1 target/source allocated non-text sections and defined objects:
+obj: [('extab', 32, '1808000000000000200800000000000028080000000000003808000000000000'), ('extabindex', 48, '')]
+[('@etb_81330728', 'extab', 0, 8), ('@etb_81330730', 'extab', 8, 8), ('@etb_81330738', 'extab', 16, 8), ('@etb_81330740', 'extab', 24, 8), ('@eti_8133144C', 'extabindex', 0, 12), ('@eti_81331458', 'extabindex', 12, 12), ('@eti_81331464', 'extabindex', 24, 12), ('@eti_81331470', 'extabindex', 36, 12)]
+src: [('extab', 32, '1808000000000000200800000000000028080000000000003808000000000000'), ('extabindex', 48, '')]
+[('@34', 'extab', 0, 8), ('@35', 'extabindex', 0, 12), ('@85', 'extab', 8, 8), ('@86', 'extabindex', 12, 12), ('@108', 'extab', 16, 8), ('@109', 'extabindex', 24, 12), ('@159', 'extab', 24, 8), ('@160', 'extabindex', 36, 12)]
+
+ziswordw target/source allocated non-text sections and defined objects:
+obj: [('extab', 16, '30080000000000001808000000000000'), ('extabindex', 24, ''), ('.sdata2', 8, '')]
+[('@etb_81330760', 'extab', 0, 8), ('@etb_81330768', 'extab', 8, 8), ('@eti_813314A0', 'extabindex', 0, 12), ('@eti_813314AC', 'extabindex', 12, 12), ('lbl_81695018', '.sdata2', 0, 1), ('lbl_81695019', '.sdata2', 1, 1), ('lbl_8169501A', '.sdata2', 2, 1), ('lbl_8169501B', '.sdata2', 3, 1), ('lbl_8169501C', '.sdata2', 4, 1), ('lbl_8169501D', '.sdata2', 5, 1), ('lbl_8169501E', '.sdata2', 6, 1), ('lbl_8169501F', '.sdata2', 7, 1)]
+src: [('extab', 16, '28080000000000001808000000000000'), ('extabindex', 24, ''), ('.sdata2', 8, '')]
+[('@33', '.sdata2', 0, 8), ('@126', 'extab', 0, 8), ('@127', 'extabindex', 0, 12), ('@173', 'extab', 8, 8), ('@174', 'extabindex', 12, 12)]
+
+zi8uwd target/source allocated non-text sections and defined objects:
+obj: [('extab', 32, '4008000000000000100800000000000008080000000000006808000000000000'), ('extabindex', 48, '')]
+[('@etb_81330700', 'extab', 0, 8), ('@etb_81330708', 'extab', 8, 8), ('@etb_81330710', 'extab', 16, 8), ('@etb_81330718', 'extab', 24, 8), ('@eti_81331410', 'extabindex', 0, 12), ('@eti_8133141C', 'extabindex', 12, 12), ('@eti_81331428', 'extabindex', 24, 12), ('@eti_81331434', 'extabindex', 36, 12)]
+src: [('extab', 32, '4008000000000000100800000000000008080000000000006808000000000000'), ('extabindex', 48, '')]
+[('@69', 'extab', 0, 8), ('@70', 'extabindex', 0, 12), ('@80', 'extab', 8, 8), ('@81', 'extabindex', 12, 12), ('@88', 'extab', 16, 8), ('@89', 'extabindex', 24, 12), ('@248', 'extab', 24, 8), ('@249', 'extabindex', 36, 12)]
+Classification: every unmatched owned non-text object is compiler extab/extabindex tied to real saved-register range or function extent. No independent user data name/size mismatch. No renames or extent corrections. PUD byte views and UWD cursor fixes are code work, not extraction metadata work.
+- Resume Zi8MatchUWDdata, HIGH-e retarget fallback condition after prologue and scan fixes: objdiff 94.32863 -> 94.34879; data 32 -> 32; instruction-exact 2 -> 2; target/source sizes (1984, 1980); source unwind 4008000000000000100800000000000008080000000000006808000000000000; fuzzy regressions []; SELECTED.
+- Resume Zi8MatchUWDdata, HIGH-e decrement prefix position before incrementing prefix length: objdiff 94.34879 -> 94.34879; data 32 -> 32; instruction-exact 2 -> 2; target/source sizes (1984, 1980); source unwind 4008000000000000100800000000000008080000000000006808000000000000; fuzzy regressions []; reverted.
+- Resume Zi8MatchUWDdata, HIGH-e one assignment value for record header and footer size: objdiff 94.34879 -> 94.207664; data 32 -> 32; instruction-exact 2 -> 2; target/source sizes (1984, 1972); source unwind 4008000000000000100800000000000008080000000000006808000000000000; fuzzy regressions []; reverted.
+- Resume Zi8MatchUWDdata, HIGH-e increment prefix source cursor without retaining unused postincrement result: objdiff 94.34879 -> 94.270164; data 32 -> 32; instruction-exact 2 -> 2; target/source sizes (1984, 1976); source unwind 4008000000000000100800000000000008080000000000006808000000000000; fuzzy regressions []; reverted.
+- Resume Zi8MatchUWDdata, HIGH-e one assignment value for starting scan pointers: objdiff 94.34879 -> 94.270164; data 32 -> 32; instruction-exact 2 -> 2; target/source sizes (1984, 1976); source unwind 4008000000000000100800000000000008080000000000006808000000000000; fuzzy regressions []; reverted.
+- Resume Zi8MatchUWDdata, HIGH-e requested length compared to record length in target operand order: objdiff 94.34879 -> 94.770164; data 32 -> 32; instruction-exact 2 -> 2; target/source sizes (1984, 1980); source unwind 4008000000000000100800000000000008080000000000006808000000000000; fuzzy regressions []; SELECTED.
+- Resume Zi8MatchUWDdata, HIGH-e reuse wrapped scan displacement as next record size: objdiff 94.770164 -> 95.54436; data 32 -> 32; instruction-exact 2 -> 2; target/source sizes (1984, 1992); source unwind 4008000000000000100800000000000008080000000000006808000000000000; fuzzy regressions []; SELECTED.
+- Resume ZiDAWGGetChild, HIGH-e typed byte node API and original base pointer: objdiff 96.67647 -> 96.67647; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (272, 272); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions []; reverted.
+- Resume ZiDAWGGetChild, HIGH-e group long high/middle/bias before low byte: objdiff 96.67647 -> 93.588234; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (272, 272); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions [('ZiDAWGGetChild', 93.89706, 93.588234)]; reverted.
+- Resume ZiDAWGGetChild, HIGH-e group high/middle together and low/bias together: objdiff 96.67647 -> 92.55882; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (272, 272); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions [('ZiDAWGGetChild', 93.89706, 92.55882)]; reverted.
+- Resume ZiDAWGgetCHARattribute, HIGH-e scope decoded key and table reads before success logging: objdiff 99.0 -> 89.9; data 80 -> 0; instruction-exact 2 -> 2; target/source sizes (240, 252); source unwind 1808000000000000200800000000000030180000000000003808000000000000; fuzzy regressions [('ZiDAWGgetCHARattribute', 99.0, 89.9)]; reverted.
+- Resume ZiDAWGgetCHARattribute, HIGH-e unsigned attribute native type: objdiff 99.0 -> 99.0; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (240, 240); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions []; reverted.
+- Resume ZiDAWGGetGraphInfo, HIGH-e scope traversal depth and bounds after root validation: objdiff 99.55224 -> 93.910446; data 80 -> 0; instruction-exact 2 -> 2; target/source sizes (536, 548); source unwind 1808000000000000200800000000000028080000000000004018000000000000; fuzzy regressions [('ZiDAWGGetGraphInfo', 99.55224, 93.910446)]; reverted.
+- Resume ZiDAWGGetGraphInfo, HIGH-e scope traversal result after root validation: objdiff 99.55224 -> 91.5597; data 80 -> 0; instruction-exact 2 -> 2; target/source sizes (536, 552); source unwind 1808000000000000200800000000000028080000000000004018000000000000; fuzzy regressions [('ZiDAWGGetGraphInfo', 99.55224, 91.5597)]; reverted.
+- Resume ZiDAWGGetGraphInfo, HIGH-e common traversal block with lexical local scope: objdiff 99.55224 -> 93.05224; data 80 -> 0; instruction-exact 2 -> 2; target/source sizes (536, 552); source unwind 1808000000000000200800000000000028080000000000004018000000000000; fuzzy regressions [('ZiDAWGGetGraphInfo', 99.55224, 93.05224)]; reverted.
+
+## Fuzzy lane declaration search: Zi8MatchPUDdata_ZHS
+Structural diagnosis before register search:
+```
+src 0x574 base 0x588 insns 349/354
+--- insert mine 15:15 base 15:16
+  B   15 stw r31, 0x24(r1)
+--- replace mine 16:17 base 17:18
+  M   16 stw r0, 0x10(r1)
+  B   17 stw r0, 0x20(r1)
+--- replace mine 35:36 base 36:37
+  M   35 b 1232
+  B   36 b 1248
+--- replace mine 43:44 base 44:45
+  M   43 bne 184
+  B   44 bne 200
+--- replace mine 74:76 base 75:76
+  M   74 b 1076
+  M   75 lbz r3, 5(r26)
+  B   75 b 1092
+--- replace mine 77:78 base 77:81
+  M   77 slwi r0, r0, 8
+  B   77 clrlwi r0, r0, 0x10
+  B   78 slwi r3, r0, 8
+  B   79 lbz r0, 5(r26)
+  B   80 clrlwi r0, r0, 0x10
+--- replace mine 80:82 base 83:84
+  M   80 lbz r5, 3(r26)
+  M   81 lwz r4, 0x14(r1)
+  B   83 lwz r5, 0x14(r1)
+--- replace mine 83:84 base 85:89
+  M   83 slwi r3, r0, 8
+  B   85 clrlwi r0, r0, 0x10
+  B   86 slwi r4, r0, 8
+  B   87 lbz r0, 3(r26)
+  B   88 clrlwi r3, r0, 0x10
+--- replace mine 157:158 base 162:163
+  M  157 stw r28, 0x20(r1)
+  B  162 stw r28, 0x1c(r1)
+--- replace mine 162:163 base 167:168
+  M  162 lwz r3, 0x20(r1)
+  B  167 lwz r3, 0x1c(r1)
+--- replace mine 224:225 base 229:230
+  M  224 lwz r0, 0x10(r1)
+  B  229 lwz r0, 0x20(r1)
+--- replace mine 249:251 base 254:255
+  M  249 stw r22, 0x1c(r1)
+  M  250 li r30, 0
+  B  254 stw r22, 0x10(r1)
+--- insert mine 252:252 base 256:257
+  B  256 mr r30, r27
+--- replace mine 254:255 base 259:260
+  M  254 lwz r3, 0x1c(r1)
+  B  259 lwz r3, 0x10(r1)
+--- replace mine 258:259 base 263:264
+  M  258 lwz r3, 0x1c(r1)
+  B  263 lwz r3, 0x10(r1)
+--- replace mine 332:333 base 337:338
+  M  332 stw r0, 0x10(r1)
+  B  337 stw r0, 0x20(r1)
+```
+- Zi8MatchPUDdata_ZHS declaration attempt 1: ziU8* bytePattern; | ziU8* byteOutput; | ziWChar folded; | ziPudSection* section; | int wordSize; | int copied; | ziU8* word; | int index; | ziU32 entrySize; | ziPudHeader* table; | int fallback = 0;; structural/exact diffs (22, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 2: ziU8* byteOutput; | ziU8* bytePattern; | ziWChar folded; | ziPudSection* section; | int wordSize; | int copied; | ziU8* word; | int index; | ziU32 entrySize; | ziPudHeader* table; | int fallback = 0;; structural/exact diffs (20, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 3: ziWChar folded; | ziU8* bytePattern; | ziU8* byteOutput; | ziPudSection* section; | int wordSize; | int copied; | ziU8* word; | int index; | ziU32 entrySize; | ziPudHeader* table; | int fallback = 0;; structural/exact diffs (22, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 4: ziPudSection* section; | ziU8* bytePattern; | ziWChar folded; | ziU8* byteOutput; | int wordSize; | int copied; | ziU8* word; | int index; | ziU32 entrySize; | ziPudHeader* table; | int fallback = 0;; structural/exact diffs (22, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 5: int wordSize; | ziU8* bytePattern; | ziWChar folded; | ziPudSection* section; | ziU8* byteOutput; | int copied; | ziU8* word; | int index; | ziU32 entrySize; | ziPudHeader* table; | int fallback = 0;; structural/exact diffs (22, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 6: int copied; | ziU8* bytePattern; | ziWChar folded; | ziPudSection* section; | int wordSize; | ziU8* byteOutput; | ziU8* word; | int index; | ziU32 entrySize; | ziPudHeader* table; | int fallback = 0;; structural/exact diffs (22, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 7: ziU8* word; | ziU8* bytePattern; | ziWChar folded; | ziPudSection* section; | int wordSize; | int copied; | ziU8* byteOutput; | int index; | ziU32 entrySize; | ziPudHeader* table; | int fallback = 0;; structural/exact diffs (22, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 8: int index; | ziU8* bytePattern; | ziWChar folded; | ziPudSection* section; | int wordSize; | int copied; | ziU8* word; | ziU8* byteOutput; | ziU32 entrySize; | ziPudHeader* table; | int fallback = 0;; structural/exact diffs (22, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 9: ziU32 entrySize; | ziU8* bytePattern; | ziWChar folded; | ziPudSection* section; | int wordSize; | int copied; | ziU8* word; | int index; | ziU8* byteOutput; | ziPudHeader* table; | int fallback = 0;; structural/exact diffs (27, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 10: ziPudHeader* table; | ziU8* bytePattern; | ziWChar folded; | ziPudSection* section; | int wordSize; | int copied; | ziU8* word; | int index; | ziU32 entrySize; | ziU8* byteOutput; | int fallback = 0;; structural/exact diffs (27, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 11: int fallback = 0; | ziU8* bytePattern; | ziWChar folded; | ziPudSection* section; | int wordSize; | int copied; | ziU8* word; | int index; | ziU32 entrySize; | ziPudHeader* table; | ziU8* byteOutput;; structural/exact diffs (14, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 12: ziU8* bytePattern; | int fallback = 0; | ziWChar folded; | ziPudSection* section; | int wordSize; | int copied; | ziU8* word; | int index; | ziU32 entrySize; | ziPudHeader* table; | ziU8* byteOutput;; structural/exact diffs (19, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 13: ziWChar folded; | ziU8* bytePattern; | int fallback = 0; | ziPudSection* section; | int wordSize; | int copied; | ziU8* word; | int index; | ziU32 entrySize; | ziPudHeader* table; | ziU8* byteOutput;; structural/exact diffs (19, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 14: ziPudSection* section; | ziU8* bytePattern; | ziWChar folded; | int fallback = 0; | int wordSize; | int copied; | ziU8* word; | int index; | ziU32 entrySize; | ziPudHeader* table; | ziU8* byteOutput;; structural/exact diffs (19, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 15: int wordSize; | ziU8* bytePattern; | ziWChar folded; | ziPudSection* section; | int fallback = 0; | int copied; | ziU8* word; | int index; | ziU32 entrySize; | ziPudHeader* table; | ziU8* byteOutput;; structural/exact diffs (19, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 16: int copied; | ziU8* bytePattern; | ziWChar folded; | ziPudSection* section; | int wordSize; | int fallback = 0; | ziU8* word; | int index; | ziU32 entrySize; | ziPudHeader* table; | ziU8* byteOutput;; structural/exact diffs (19, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 17: ziU8* word; | ziU8* bytePattern; | ziWChar folded; | ziPudSection* section; | int wordSize; | int copied; | int fallback = 0; | int index; | ziU32 entrySize; | ziPudHeader* table; | ziU8* byteOutput;; structural/exact diffs (19, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 18: int index; | ziU8* bytePattern; | ziWChar folded; | ziPudSection* section; | int wordSize; | int copied; | ziU8* word; | int fallback = 0; | ziU32 entrySize; | ziPudHeader* table; | ziU8* byteOutput;; structural/exact diffs (19, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 19: ziU32 entrySize; | ziU8* bytePattern; | ziWChar folded; | ziPudSection* section; | int wordSize; | int copied; | ziU8* word; | int index; | int fallback = 0; | ziPudHeader* table; | ziU8* byteOutput;; structural/exact diffs (24, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 20: ziPudHeader* table; | ziU8* bytePattern; | ziWChar folded; | ziPudSection* section; | int wordSize; | int copied; | ziU8* word; | int index; | ziU32 entrySize; | int fallback = 0; | ziU8* byteOutput;; structural/exact diffs (24, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 21: int fallback = 0; | ziWChar folded; | ziU8* bytePattern; | ziPudSection* section; | int wordSize; | int copied; | ziU8* word; | int index; | ziU32 entrySize; | ziPudHeader* table; | ziU8* byteOutput;; structural/exact diffs (14, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 22: int fallback = 0; | ziPudSection* section; | ziWChar folded; | ziU8* bytePattern; | int wordSize; | int copied; | ziU8* word; | int index; | ziU32 entrySize; | ziPudHeader* table; | ziU8* byteOutput;; structural/exact diffs (14, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 23: int fallback = 0; | int wordSize; | ziWChar folded; | ziPudSection* section; | ziU8* bytePattern; | int copied; | ziU8* word; | int index; | ziU32 entrySize; | ziPudHeader* table; | ziU8* byteOutput;; structural/exact diffs (14, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 24: int fallback = 0; | int copied; | ziWChar folded; | ziPudSection* section; | int wordSize; | ziU8* bytePattern; | ziU8* word; | int index; | ziU32 entrySize; | ziPudHeader* table; | ziU8* byteOutput;; structural/exact diffs (14, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 25: int fallback = 0; | ziU8* word; | ziWChar folded; | ziPudSection* section; | int wordSize; | int copied; | ziU8* bytePattern; | int index; | ziU32 entrySize; | ziPudHeader* table; | ziU8* byteOutput;; structural/exact diffs (14, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 26: int fallback = 0; | int index; | ziWChar folded; | ziPudSection* section; | int wordSize; | int copied; | ziU8* word; | ziU8* bytePattern; | ziU32 entrySize; | ziPudHeader* table; | ziU8* byteOutput;; structural/exact diffs (14, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 27: int fallback = 0; | ziU32 entrySize; | ziWChar folded; | ziPudSection* section; | int wordSize; | int copied; | ziU8* word; | int index; | ziU8* bytePattern; | ziPudHeader* table; | ziU8* byteOutput;; structural/exact diffs (23, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 28: int fallback = 0; | ziPudHeader* table; | ziWChar folded; | ziPudSection* section; | int wordSize; | int copied; | ziU8* word; | int index; | ziU32 entrySize; | ziU8* bytePattern; | ziU8* byteOutput;; structural/exact diffs (23, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 29: int fallback = 0; | ziU8* byteOutput; | ziWChar folded; | ziPudSection* section; | int wordSize; | int copied; | ziU8* word; | int index; | ziU32 entrySize; | ziPudHeader* table; | ziU8* bytePattern;; structural/exact diffs (19, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 30: int fallback = 0; | ziU8* bytePattern; | ziPudSection* section; | ziWChar folded; | int wordSize; | int copied; | ziU8* word; | int index; | ziU32 entrySize; | ziPudHeader* table; | ziU8* byteOutput;; structural/exact diffs (14, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 31: int fallback = 0; | ziU8* bytePattern; | int wordSize; | ziPudSection* section; | ziWChar folded; | int copied; | ziU8* word; | int index; | ziU32 entrySize; | ziPudHeader* table; | ziU8* byteOutput;; structural/exact diffs (14, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 32: int fallback = 0; | ziU8* bytePattern; | int copied; | ziPudSection* section; | int wordSize; | ziWChar folded; | ziU8* word; | int index; | ziU32 entrySize; | ziPudHeader* table; | ziU8* byteOutput;; structural/exact diffs (14, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 33: int fallback = 0; | ziU8* bytePattern; | ziU8* word; | ziPudSection* section; | int wordSize; | int copied; | ziWChar folded; | int index; | ziU32 entrySize; | ziPudHeader* table; | ziU8* byteOutput;; structural/exact diffs (14, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 34: int fallback = 0; | ziU8* bytePattern; | int index; | ziPudSection* section; | int wordSize; | int copied; | ziU8* word; | ziWChar folded; | ziU32 entrySize; | ziPudHeader* table; | ziU8* byteOutput;; structural/exact diffs (14, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 35: int fallback = 0; | ziU8* bytePattern; | ziU32 entrySize; | ziPudSection* section; | int wordSize; | int copied; | ziU8* word; | int index; | ziWChar folded; | ziPudHeader* table; | ziU8* byteOutput;; structural/exact diffs (14, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 36: int fallback = 0; | ziU8* bytePattern; | ziPudHeader* table; | ziPudSection* section; | int wordSize; | int copied; | ziU8* word; | int index; | ziU32 entrySize; | ziWChar folded; | ziU8* byteOutput;; structural/exact diffs (28, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 37: int fallback = 0; | ziU8* bytePattern; | ziU8* byteOutput; | ziPudSection* section; | int wordSize; | int copied; | ziU8* word; | int index; | ziU32 entrySize; | ziPudHeader* table; | ziWChar folded;; structural/exact diffs (31, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 38: int fallback = 0; | ziU8* bytePattern; | ziWChar folded; | int wordSize; | ziPudSection* section; | int copied; | ziU8* word; | int index; | ziU32 entrySize; | ziPudHeader* table; | ziU8* byteOutput;; structural/exact diffs (14, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 39: int fallback = 0; | ziU8* bytePattern; | ziWChar folded; | int copied; | int wordSize; | ziPudSection* section; | ziU8* word; | int index; | ziU32 entrySize; | ziPudHeader* table; | ziU8* byteOutput;; structural/exact diffs (14, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 40: int fallback = 0; | ziU8* bytePattern; | ziWChar folded; | ziU8* word; | int wordSize; | int copied; | ziPudSection* section; | int index; | ziU32 entrySize; | ziPudHeader* table; | ziU8* byteOutput;; structural/exact diffs (14, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 41: int fallback = 0; | ziU8* bytePattern; | ziWChar folded; | int index; | int wordSize; | int copied; | ziU8* word; | ziPudSection* section; | ziU32 entrySize; | ziPudHeader* table; | ziU8* byteOutput;; structural/exact diffs (14, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 42: int fallback = 0; | ziU8* bytePattern; | ziWChar folded; | ziU32 entrySize; | int wordSize; | int copied; | ziU8* word; | int index; | ziPudSection* section; | ziPudHeader* table; | ziU8* byteOutput;; structural/exact diffs (14, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 43: int fallback = 0; | ziU8* bytePattern; | ziWChar folded; | ziPudHeader* table; | int wordSize; | int copied; | ziU8* word; | int index; | ziU32 entrySize; | ziPudSection* section; | ziU8* byteOutput;; structural/exact diffs (28, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 44: int fallback = 0; | ziU8* bytePattern; | ziWChar folded; | ziU8* byteOutput; | int wordSize; | int copied; | ziU8* word; | int index; | ziU32 entrySize; | ziPudHeader* table; | ziPudSection* section;; structural/exact diffs (31, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 45: int fallback = 0; | ziU8* bytePattern; | ziWChar folded; | ziPudSection* section; | int copied; | int wordSize; | ziU8* word; | int index; | ziU32 entrySize; | ziPudHeader* table; | ziU8* byteOutput;; structural/exact diffs (14, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 46: int fallback = 0; | ziU8* bytePattern; | ziWChar folded; | ziPudSection* section; | ziU8* word; | int copied; | int wordSize; | int index; | ziU32 entrySize; | ziPudHeader* table; | ziU8* byteOutput;; structural/exact diffs (14, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 47: int fallback = 0; | ziU8* bytePattern; | ziWChar folded; | ziPudSection* section; | int index; | int copied; | ziU8* word; | int wordSize; | ziU32 entrySize; | ziPudHeader* table; | ziU8* byteOutput;; structural/exact diffs (14, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 48: int fallback = 0; | ziU8* bytePattern; | ziWChar folded; | ziPudSection* section; | ziU32 entrySize; | int copied; | ziU8* word; | int index; | int wordSize; | ziPudHeader* table; | ziU8* byteOutput;; structural/exact diffs (14, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 49: int fallback = 0; | ziU8* bytePattern; | ziWChar folded; | ziPudSection* section; | ziPudHeader* table; | int copied; | ziU8* word; | int index; | ziU32 entrySize; | int wordSize; | ziU8* byteOutput;; structural/exact diffs (28, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 50: int fallback = 0; | ziU8* bytePattern; | ziWChar folded; | ziPudSection* section; | ziU8* byteOutput; | int copied; | ziU8* word; | int index; | ziU32 entrySize; | ziPudHeader* table; | int wordSize;; structural/exact diffs (31, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 51: int fallback = 0; | ziU8* bytePattern; | ziWChar folded; | ziPudSection* section; | int wordSize; | ziU8* word; | int copied; | int index; | ziU32 entrySize; | ziPudHeader* table; | ziU8* byteOutput;; structural/exact diffs (14, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 52: int fallback = 0; | ziU8* bytePattern; | ziWChar folded; | ziPudSection* section; | int wordSize; | int index; | ziU8* word; | int copied; | ziU32 entrySize; | ziPudHeader* table; | ziU8* byteOutput;; structural/exact diffs (14, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 53: int fallback = 0; | ziU8* bytePattern; | ziWChar folded; | ziPudSection* section; | int wordSize; | ziU32 entrySize; | ziU8* word; | int index; | int copied; | ziPudHeader* table; | ziU8* byteOutput;; structural/exact diffs (14, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 54: int fallback = 0; | ziU8* bytePattern; | ziWChar folded; | ziPudSection* section; | int wordSize; | ziPudHeader* table; | ziU8* word; | int index; | ziU32 entrySize; | int copied; | ziU8* byteOutput;; structural/exact diffs (28, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 55: int fallback = 0; | ziU8* bytePattern; | ziWChar folded; | ziPudSection* section; | int wordSize; | ziU8* byteOutput; | ziU8* word; | int index; | ziU32 entrySize; | ziPudHeader* table; | int copied;; structural/exact diffs (31, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 56: int fallback = 0; | ziU8* bytePattern; | ziWChar folded; | ziPudSection* section; | int wordSize; | int copied; | int index; | ziU8* word; | ziU32 entrySize; | ziPudHeader* table; | ziU8* byteOutput;; structural/exact diffs (14, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 57: int fallback = 0; | ziU8* bytePattern; | ziWChar folded; | ziPudSection* section; | int wordSize; | int copied; | ziU32 entrySize; | int index; | ziU8* word; | ziPudHeader* table; | ziU8* byteOutput;; structural/exact diffs (14, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 58: int fallback = 0; | ziU8* bytePattern; | ziWChar folded; | ziPudSection* section; | int wordSize; | int copied; | ziPudHeader* table; | int index; | ziU32 entrySize; | ziU8* word; | ziU8* byteOutput;; structural/exact diffs (28, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 59: int fallback = 0; | ziU8* bytePattern; | ziWChar folded; | ziPudSection* section; | int wordSize; | int copied; | ziU8* byteOutput; | int index; | ziU32 entrySize; | ziPudHeader* table; | ziU8* word;; structural/exact diffs (31, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 60: int fallback = 0; | ziU8* bytePattern; | ziWChar folded; | ziPudSection* section; | int wordSize; | int copied; | ziU8* word; | ziU32 entrySize; | int index; | ziPudHeader* table; | ziU8* byteOutput;; structural/exact diffs (14, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 61: int fallback = 0; | ziU8* bytePattern; | ziWChar folded; | ziPudSection* section; | int wordSize; | int copied; | ziU8* word; | ziPudHeader* table; | ziU32 entrySize; | int index; | ziU8* byteOutput;; structural/exact diffs (28, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 62: int fallback = 0; | ziU8* bytePattern; | ziWChar folded; | ziPudSection* section; | int wordSize; | int copied; | ziU8* word; | ziU8* byteOutput; | ziU32 entrySize; | ziPudHeader* table; | int index;; structural/exact diffs (31, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 63: int fallback = 0; | ziU8* bytePattern; | ziWChar folded; | ziPudSection* section; | int wordSize; | int copied; | ziU8* word; | int index; | ziPudHeader* table; | ziU32 entrySize; | ziU8* byteOutput;; structural/exact diffs (28, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 64: int fallback = 0; | ziU8* bytePattern; | ziWChar folded; | ziPudSection* section; | int wordSize; | int copied; | ziU8* word; | int index; | ziU8* byteOutput; | ziPudHeader* table; | ziU32 entrySize;; structural/exact diffs (24, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 65: int fallback = 0; | ziU8* bytePattern; | ziWChar folded; | ziPudSection* section; | int wordSize; | int copied; | ziU8* word; | int index; | ziU32 entrySize; | ziU8* byteOutput; | ziPudHeader* table;; structural/exact diffs (24, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 66: ziU8* bytePattern; | ziWChar folded; | int fallback = 0; | ziPudSection* section; | int wordSize; | int copied; | ziU8* word; | int index; | ziU32 entrySize; | ziPudHeader* table; | ziU8* byteOutput;; structural/exact diffs (19, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 67: ziU8* bytePattern; | ziWChar folded; | ziPudSection* section; | int fallback = 0; | int wordSize; | int copied; | ziU8* word; | int index; | ziU32 entrySize; | ziPudHeader* table; | ziU8* byteOutput;; structural/exact diffs (19, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 68: ziU8* bytePattern; | ziWChar folded; | ziPudSection* section; | int wordSize; | int fallback = 0; | int copied; | ziU8* word; | int index; | ziU32 entrySize; | ziPudHeader* table; | ziU8* byteOutput;; structural/exact diffs (19, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 69: ziU8* bytePattern; | ziWChar folded; | ziPudSection* section; | int wordSize; | int copied; | int fallback = 0; | ziU8* word; | int index; | ziU32 entrySize; | ziPudHeader* table; | ziU8* byteOutput;; structural/exact diffs (19, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 70: ziU8* bytePattern; | ziWChar folded; | ziPudSection* section; | int wordSize; | int copied; | ziU8* word; | int fallback = 0; | int index; | ziU32 entrySize; | ziPudHeader* table; | ziU8* byteOutput;; structural/exact diffs (19, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 71: ziU8* bytePattern; | ziWChar folded; | ziPudSection* section; | int wordSize; | int copied; | ziU8* word; | int index; | int fallback = 0; | ziU32 entrySize; | ziPudHeader* table; | ziU8* byteOutput;; structural/exact diffs (19, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 72: ziU8* bytePattern; | ziWChar folded; | ziPudSection* section; | int wordSize; | int copied; | ziU8* word; | int index; | ziU32 entrySize; | int fallback = 0; | ziPudHeader* table; | ziU8* byteOutput;; structural/exact diffs (26, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 73: ziU8* bytePattern; | ziWChar folded; | ziPudSection* section; | int wordSize; | int copied; | ziU8* word; | int index; | ziU32 entrySize; | ziPudHeader* table; | int fallback = 0; | ziU8* byteOutput;; structural/exact diffs (33, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 74: ziU8* bytePattern; | ziWChar folded; | ziPudSection* section; | int wordSize; | int copied; | ziU8* word; | int index; | ziU32 entrySize; | ziPudHeader* table; | ziU8* byteOutput; | int fallback = 0;; structural/exact diffs (36, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 75: int fallback = 0; | ziWChar folded; | ziPudSection* section; | ziU8* bytePattern; | int wordSize; | int copied; | ziU8* word; | int index; | ziU32 entrySize; | ziPudHeader* table; | ziU8* byteOutput;; structural/exact diffs (14, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 76: int fallback = 0; | ziWChar folded; | ziPudSection* section; | int wordSize; | ziU8* bytePattern; | int copied; | ziU8* word; | int index; | ziU32 entrySize; | ziPudHeader* table; | ziU8* byteOutput;; structural/exact diffs (14, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 77: int fallback = 0; | ziWChar folded; | ziPudSection* section; | int wordSize; | int copied; | ziU8* bytePattern; | ziU8* word; | int index; | ziU32 entrySize; | ziPudHeader* table; | ziU8* byteOutput;; structural/exact diffs (14, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 78: int fallback = 0; | ziWChar folded; | ziPudSection* section; | int wordSize; | int copied; | ziU8* word; | ziU8* bytePattern; | int index; | ziU32 entrySize; | ziPudHeader* table; | ziU8* byteOutput;; structural/exact diffs (14, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 79: int fallback = 0; | ziWChar folded; | ziPudSection* section; | int wordSize; | int copied; | ziU8* word; | int index; | ziU8* bytePattern; | ziU32 entrySize; | ziPudHeader* table; | ziU8* byteOutput;; structural/exact diffs (14, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 80: int fallback = 0; | ziWChar folded; | ziPudSection* section; | int wordSize; | int copied; | ziU8* word; | int index; | ziU32 entrySize; | ziU8* bytePattern; | ziPudHeader* table; | ziU8* byteOutput;; structural/exact diffs (23, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 81: int fallback = 0; | ziWChar folded; | ziPudSection* section; | int wordSize; | int copied; | ziU8* word; | int index; | ziU32 entrySize; | ziPudHeader* table; | ziU8* bytePattern; | ziU8* byteOutput;; structural/exact diffs (30, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 82: int fallback = 0; | ziWChar folded; | ziPudSection* section; | int wordSize; | int copied; | ziU8* word; | int index; | ziU32 entrySize; | ziPudHeader* table; | ziU8* byteOutput; | ziU8* bytePattern;; structural/exact diffs (33, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 83: ziWChar folded; | int fallback = 0; | ziU8* bytePattern; | ziPudSection* section; | int wordSize; | int copied; | ziU8* word; | int index; | ziU32 entrySize; | ziPudHeader* table; | ziU8* byteOutput;; structural/exact diffs (14, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 84: int fallback = 0; | ziU8* bytePattern; | ziPudSection* section; | int wordSize; | ziWChar folded; | int copied; | ziU8* word; | int index; | ziU32 entrySize; | ziPudHeader* table; | ziU8* byteOutput;; structural/exact diffs (14, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 85: int fallback = 0; | ziU8* bytePattern; | ziPudSection* section; | int wordSize; | int copied; | ziWChar folded; | ziU8* word; | int index; | ziU32 entrySize; | ziPudHeader* table; | ziU8* byteOutput;; structural/exact diffs (14, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 86: int fallback = 0; | ziU8* bytePattern; | ziPudSection* section; | int wordSize; | int copied; | ziU8* word; | ziWChar folded; | int index; | ziU32 entrySize; | ziPudHeader* table; | ziU8* byteOutput;; structural/exact diffs (14, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 87: int fallback = 0; | ziU8* bytePattern; | ziPudSection* section; | int wordSize; | int copied; | ziU8* word; | int index; | ziWChar folded; | ziU32 entrySize; | ziPudHeader* table; | ziU8* byteOutput;; structural/exact diffs (14, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 88: int fallback = 0; | ziU8* bytePattern; | ziPudSection* section; | int wordSize; | int copied; | ziU8* word; | int index; | ziU32 entrySize; | ziWChar folded; | ziPudHeader* table; | ziU8* byteOutput;; structural/exact diffs (14, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 89: int fallback = 0; | ziU8* bytePattern; | ziPudSection* section; | int wordSize; | int copied; | ziU8* word; | int index; | ziU32 entrySize; | ziPudHeader* table; | ziWChar folded; | ziU8* byteOutput;; structural/exact diffs (14, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 90: int fallback = 0; | ziU8* bytePattern; | ziPudSection* section; | int wordSize; | int copied; | ziU8* word; | int index; | ziU32 entrySize; | ziPudHeader* table; | ziU8* byteOutput; | ziWChar folded;; structural/exact diffs (14, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 91: ziPudSection* section; | int fallback = 0; | ziU8* bytePattern; | ziWChar folded; | int wordSize; | int copied; | ziU8* word; | int index; | ziU32 entrySize; | ziPudHeader* table; | ziU8* byteOutput;; structural/exact diffs (14, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 92: int fallback = 0; | ziPudSection* section; | ziU8* bytePattern; | ziWChar folded; | int wordSize; | int copied; | ziU8* word; | int index; | ziU32 entrySize; | ziPudHeader* table; | ziU8* byteOutput;; structural/exact diffs (14, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 93: int fallback = 0; | ziU8* bytePattern; | ziWChar folded; | int wordSize; | int copied; | ziPudSection* section; | ziU8* word; | int index; | ziU32 entrySize; | ziPudHeader* table; | ziU8* byteOutput;; structural/exact diffs (14, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 94: int fallback = 0; | ziU8* bytePattern; | ziWChar folded; | int wordSize; | int copied; | ziU8* word; | ziPudSection* section; | int index; | ziU32 entrySize; | ziPudHeader* table; | ziU8* byteOutput;; structural/exact diffs (14, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 95: int fallback = 0; | ziU8* bytePattern; | ziWChar folded; | int wordSize; | int copied; | ziU8* word; | int index; | ziPudSection* section; | ziU32 entrySize; | ziPudHeader* table; | ziU8* byteOutput;; structural/exact diffs (14, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 96: int fallback = 0; | ziU8* bytePattern; | ziWChar folded; | int wordSize; | int copied; | ziU8* word; | int index; | ziU32 entrySize; | ziPudSection* section; | ziPudHeader* table; | ziU8* byteOutput;; structural/exact diffs (14, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 97: int fallback = 0; | ziU8* bytePattern; | ziWChar folded; | int wordSize; | int copied; | ziU8* word; | int index; | ziU32 entrySize; | ziPudHeader* table; | ziPudSection* section; | ziU8* byteOutput;; structural/exact diffs (14, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 98: int fallback = 0; | ziU8* bytePattern; | ziWChar folded; | int wordSize; | int copied; | ziU8* word; | int index; | ziU32 entrySize; | ziPudHeader* table; | ziU8* byteOutput; | ziPudSection* section;; structural/exact diffs (14, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 99: int wordSize; | int fallback = 0; | ziU8* bytePattern; | ziWChar folded; | ziPudSection* section; | int copied; | ziU8* word; | int index; | ziU32 entrySize; | ziPudHeader* table; | ziU8* byteOutput;; structural/exact diffs (14, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 100: int fallback = 0; | int wordSize; | ziU8* bytePattern; | ziWChar folded; | ziPudSection* section; | int copied; | ziU8* word; | int index; | ziU32 entrySize; | ziPudHeader* table; | ziU8* byteOutput;; structural/exact diffs (14, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 101: int fallback = 0; | ziU8* bytePattern; | int wordSize; | ziWChar folded; | ziPudSection* section; | int copied; | ziU8* word; | int index; | ziU32 entrySize; | ziPudHeader* table; | ziU8* byteOutput;; structural/exact diffs (14, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 102: int fallback = 0; | ziU8* bytePattern; | ziWChar folded; | ziPudSection* section; | int copied; | ziU8* word; | int wordSize; | int index; | ziU32 entrySize; | ziPudHeader* table; | ziU8* byteOutput;; structural/exact diffs (14, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 103: int fallback = 0; | ziU8* bytePattern; | ziWChar folded; | ziPudSection* section; | int copied; | ziU8* word; | int index; | int wordSize; | ziU32 entrySize; | ziPudHeader* table; | ziU8* byteOutput;; structural/exact diffs (14, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 104: int fallback = 0; | ziU8* bytePattern; | ziWChar folded; | ziPudSection* section; | int copied; | ziU8* word; | int index; | ziU32 entrySize; | int wordSize; | ziPudHeader* table; | ziU8* byteOutput;; structural/exact diffs (14, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 105: int fallback = 0; | ziU8* bytePattern; | ziWChar folded; | ziPudSection* section; | int copied; | ziU8* word; | int index; | ziU32 entrySize; | ziPudHeader* table; | int wordSize; | ziU8* byteOutput;; structural/exact diffs (14, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 106: int fallback = 0; | ziU8* bytePattern; | ziWChar folded; | ziPudSection* section; | int copied; | ziU8* word; | int index; | ziU32 entrySize; | ziPudHeader* table; | ziU8* byteOutput; | int wordSize;; structural/exact diffs (14, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 107: int copied; | int fallback = 0; | ziU8* bytePattern; | ziWChar folded; | ziPudSection* section; | int wordSize; | ziU8* word; | int index; | ziU32 entrySize; | ziPudHeader* table; | ziU8* byteOutput;; structural/exact diffs (14, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 108: int fallback = 0; | int copied; | ziU8* bytePattern; | ziWChar folded; | ziPudSection* section; | int wordSize; | ziU8* word; | int index; | ziU32 entrySize; | ziPudHeader* table; | ziU8* byteOutput;; structural/exact diffs (14, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 109: int fallback = 0; | ziU8* bytePattern; | int copied; | ziWChar folded; | ziPudSection* section; | int wordSize; | ziU8* word; | int index; | ziU32 entrySize; | ziPudHeader* table; | ziU8* byteOutput;; structural/exact diffs (14, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 110: int fallback = 0; | ziU8* bytePattern; | ziWChar folded; | int copied; | ziPudSection* section; | int wordSize; | ziU8* word; | int index; | ziU32 entrySize; | ziPudHeader* table; | ziU8* byteOutput;; structural/exact diffs (14, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 111: int fallback = 0; | ziU8* bytePattern; | ziWChar folded; | ziPudSection* section; | int wordSize; | ziU8* word; | int index; | int copied; | ziU32 entrySize; | ziPudHeader* table; | ziU8* byteOutput;; structural/exact diffs (14, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 112: int fallback = 0; | ziU8* bytePattern; | ziWChar folded; | ziPudSection* section; | int wordSize; | ziU8* word; | int index; | ziU32 entrySize; | int copied; | ziPudHeader* table; | ziU8* byteOutput;; structural/exact diffs (14, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 113: int fallback = 0; | ziU8* bytePattern; | ziWChar folded; | ziPudSection* section; | int wordSize; | ziU8* word; | int index; | ziU32 entrySize; | ziPudHeader* table; | int copied; | ziU8* byteOutput;; structural/exact diffs (14, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 114: int fallback = 0; | ziU8* bytePattern; | ziWChar folded; | ziPudSection* section; | int wordSize; | ziU8* word; | int index; | ziU32 entrySize; | ziPudHeader* table; | ziU8* byteOutput; | int copied;; structural/exact diffs (14, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 115: ziU8* word; | int fallback = 0; | ziU8* bytePattern; | ziWChar folded; | ziPudSection* section; | int wordSize; | int copied; | int index; | ziU32 entrySize; | ziPudHeader* table; | ziU8* byteOutput;; structural/exact diffs (14, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 116: int fallback = 0; | ziU8* word; | ziU8* bytePattern; | ziWChar folded; | ziPudSection* section; | int wordSize; | int copied; | int index; | ziU32 entrySize; | ziPudHeader* table; | ziU8* byteOutput;; structural/exact diffs (14, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 117: int fallback = 0; | ziU8* bytePattern; | ziU8* word; | ziWChar folded; | ziPudSection* section; | int wordSize; | int copied; | int index; | ziU32 entrySize; | ziPudHeader* table; | ziU8* byteOutput;; structural/exact diffs (14, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 118: int fallback = 0; | ziU8* bytePattern; | ziWChar folded; | ziU8* word; | ziPudSection* section; | int wordSize; | int copied; | int index; | ziU32 entrySize; | ziPudHeader* table; | ziU8* byteOutput;; structural/exact diffs (14, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 119: int fallback = 0; | ziU8* bytePattern; | ziWChar folded; | ziPudSection* section; | ziU8* word; | int wordSize; | int copied; | int index; | ziU32 entrySize; | ziPudHeader* table; | ziU8* byteOutput;; structural/exact diffs (14, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 120: int fallback = 0; | ziU8* bytePattern; | ziWChar folded; | ziPudSection* section; | int wordSize; | int copied; | int index; | ziU32 entrySize; | ziU8* word; | ziPudHeader* table; | ziU8* byteOutput;; structural/exact diffs (14, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 121: int fallback = 0; | ziU8* bytePattern; | ziWChar folded; | ziPudSection* section; | int wordSize; | int copied; | int index; | ziU32 entrySize; | ziPudHeader* table; | ziU8* word; | ziU8* byteOutput;; structural/exact diffs (14, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 122: int fallback = 0; | ziU8* bytePattern; | ziWChar folded; | ziPudSection* section; | int wordSize; | int copied; | int index; | ziU32 entrySize; | ziPudHeader* table; | ziU8* byteOutput; | ziU8* word;; structural/exact diffs (14, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 123: int index; | int fallback = 0; | ziU8* bytePattern; | ziWChar folded; | ziPudSection* section; | int wordSize; | int copied; | ziU8* word; | ziU32 entrySize; | ziPudHeader* table; | ziU8* byteOutput;; structural/exact diffs (14, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 124: int fallback = 0; | int index; | ziU8* bytePattern; | ziWChar folded; | ziPudSection* section; | int wordSize; | int copied; | ziU8* word; | ziU32 entrySize; | ziPudHeader* table; | ziU8* byteOutput;; structural/exact diffs (14, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 125: int fallback = 0; | ziU8* bytePattern; | int index; | ziWChar folded; | ziPudSection* section; | int wordSize; | int copied; | ziU8* word; | ziU32 entrySize; | ziPudHeader* table; | ziU8* byteOutput;; structural/exact diffs (14, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 126: int fallback = 0; | ziU8* bytePattern; | ziWChar folded; | int index; | ziPudSection* section; | int wordSize; | int copied; | ziU8* word; | ziU32 entrySize; | ziPudHeader* table; | ziU8* byteOutput;; structural/exact diffs (14, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 127: int fallback = 0; | ziU8* bytePattern; | ziWChar folded; | ziPudSection* section; | int index; | int wordSize; | int copied; | ziU8* word; | ziU32 entrySize; | ziPudHeader* table; | ziU8* byteOutput;; structural/exact diffs (14, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 128: int fallback = 0; | ziU8* bytePattern; | ziWChar folded; | ziPudSection* section; | int wordSize; | int index; | int copied; | ziU8* word; | ziU32 entrySize; | ziPudHeader* table; | ziU8* byteOutput;; structural/exact diffs (14, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 129: int fallback = 0; | ziU8* bytePattern; | ziWChar folded; | ziPudSection* section; | int wordSize; | int copied; | ziU8* word; | ziU32 entrySize; | ziPudHeader* table; | int index; | ziU8* byteOutput;; structural/exact diffs (14, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 130: int fallback = 0; | ziU8* bytePattern; | ziWChar folded; | ziPudSection* section; | int wordSize; | int copied; | ziU8* word; | ziU32 entrySize; | ziPudHeader* table; | ziU8* byteOutput; | int index;; structural/exact diffs (14, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 131: ziU32 entrySize; | int fallback = 0; | ziU8* bytePattern; | ziWChar folded; | ziPudSection* section; | int wordSize; | int copied; | ziU8* word; | int index; | ziPudHeader* table; | ziU8* byteOutput;; structural/exact diffs (26, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 132: int fallback = 0; | ziU32 entrySize; | ziU8* bytePattern; | ziWChar folded; | ziPudSection* section; | int wordSize; | int copied; | ziU8* word; | int index; | ziPudHeader* table; | ziU8* byteOutput;; structural/exact diffs (23, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 133: int fallback = 0; | ziU8* bytePattern; | ziU32 entrySize; | ziWChar folded; | ziPudSection* section; | int wordSize; | int copied; | ziU8* word; | int index; | ziPudHeader* table; | ziU8* byteOutput;; structural/exact diffs (14, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 134: int fallback = 0; | ziU8* bytePattern; | ziWChar folded; | ziU32 entrySize; | ziPudSection* section; | int wordSize; | int copied; | ziU8* word; | int index; | ziPudHeader* table; | ziU8* byteOutput;; structural/exact diffs (14, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 135: int fallback = 0; | ziU8* bytePattern; | ziWChar folded; | ziPudSection* section; | ziU32 entrySize; | int wordSize; | int copied; | ziU8* word; | int index; | ziPudHeader* table; | ziU8* byteOutput;; structural/exact diffs (14, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 136: int fallback = 0; | ziU8* bytePattern; | ziWChar folded; | ziPudSection* section; | int wordSize; | ziU32 entrySize; | int copied; | ziU8* word; | int index; | ziPudHeader* table; | ziU8* byteOutput;; structural/exact diffs (14, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 137: int fallback = 0; | ziU8* bytePattern; | ziWChar folded; | ziPudSection* section; | int wordSize; | int copied; | ziU32 entrySize; | ziU8* word; | int index; | ziPudHeader* table; | ziU8* byteOutput;; structural/exact diffs (14, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 138: int fallback = 0; | ziU8* bytePattern; | ziWChar folded; | ziPudSection* section; | int wordSize; | int copied; | ziU8* word; | int index; | ziPudHeader* table; | ziU8* byteOutput; | ziU32 entrySize;; structural/exact diffs (31, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 139: ziPudHeader* table; | int fallback = 0; | ziU8* bytePattern; | ziWChar folded; | ziPudSection* section; | int wordSize; | int copied; | ziU8* word; | int index; | ziU32 entrySize; | ziU8* byteOutput;; structural/exact diffs (33, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 140: int fallback = 0; | ziPudHeader* table; | ziU8* bytePattern; | ziWChar folded; | ziPudSection* section; | int wordSize; | int copied; | ziU8* word; | int index; | ziU32 entrySize; | ziU8* byteOutput;; structural/exact diffs (30, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 141: int fallback = 0; | ziU8* bytePattern; | ziPudHeader* table; | ziWChar folded; | ziPudSection* section; | int wordSize; | int copied; | ziU8* word; | int index; | ziU32 entrySize; | ziU8* byteOutput;; structural/exact diffs (28, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 142: int fallback = 0; | ziU8* bytePattern; | ziWChar folded; | ziPudHeader* table; | ziPudSection* section; | int wordSize; | int copied; | ziU8* word; | int index; | ziU32 entrySize; | ziU8* byteOutput;; structural/exact diffs (28, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 143: int fallback = 0; | ziU8* bytePattern; | ziWChar folded; | ziPudSection* section; | ziPudHeader* table; | int wordSize; | int copied; | ziU8* word; | int index; | ziU32 entrySize; | ziU8* byteOutput;; structural/exact diffs (28, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 144: int fallback = 0; | ziU8* bytePattern; | ziWChar folded; | ziPudSection* section; | int wordSize; | ziPudHeader* table; | int copied; | ziU8* word; | int index; | ziU32 entrySize; | ziU8* byteOutput;; structural/exact diffs (28, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 145: int fallback = 0; | ziU8* bytePattern; | ziWChar folded; | ziPudSection* section; | int wordSize; | int copied; | ziPudHeader* table; | ziU8* word; | int index; | ziU32 entrySize; | ziU8* byteOutput;; structural/exact diffs (28, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 146: int fallback = 0; | ziU8* bytePattern; | ziWChar folded; | ziPudSection* section; | int wordSize; | int copied; | ziU8* word; | ziPudHeader* table; | int index; | ziU32 entrySize; | ziU8* byteOutput;; structural/exact diffs (28, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 147: ziU8* byteOutput; | int fallback = 0; | ziU8* bytePattern; | ziWChar folded; | ziPudSection* section; | int wordSize; | int copied; | ziU8* word; | int index; | ziU32 entrySize; | ziPudHeader* table;; structural/exact diffs (36, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 148: int fallback = 0; | ziU8* byteOutput; | ziU8* bytePattern; | ziWChar folded; | ziPudSection* section; | int wordSize; | int copied; | ziU8* word; | int index; | ziU32 entrySize; | ziPudHeader* table;; structural/exact diffs (33, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 149: int fallback = 0; | ziU8* bytePattern; | ziU8* byteOutput; | ziWChar folded; | ziPudSection* section; | int wordSize; | int copied; | ziU8* word; | int index; | ziU32 entrySize; | ziPudHeader* table;; structural/exact diffs (31, 336).
+- Zi8MatchPUDdata_ZHS declaration attempt 150: int fallback = 0; | ziU8* bytePattern; | ziWChar folded; | ziU8* byteOutput; | ziPudSection* section; | int wordSize; | int copied; | ziU8* word; | int index; | ziU32 entrySize; | ziPudHeader* table;; structural/exact diffs (31, 336).
+Search final: 98.11582 -> 98.13842, exact 6 -> 6, regressions []; selected.
+- Resume Zi8MatchUWDdata, HIGH-e read record fields directly from scan cursor instead of pointer alias: objdiff 95.54436 -> 95.96976; data 32 -> 80; instruction-exact 2 -> 2; target/source sizes (1984, 1984); source unwind 4008000000000000100800000000000008080000000000006808000000000000; fuzzy regressions []; SELECTED.
+- Resume Zi8MatchUWDdata, HIGH-e consume language and length octets with typed byte cursor: objdiff 95.96976 -> 97.125; data 80 -> 32; instruction-exact 2 -> 2; target/source sizes (1984, 1996); source unwind 4008000000000000100800000000000008080000000000006808000000000000; fuzzy regressions []; reverted.
+- Resume Zi8MatchUWDdata, HIGH-e start byte cursor after record size then consume two fields: objdiff 95.96976 -> 97.125; data 80 -> 32; instruction-exact 2 -> 2; target/source sizes (1984, 1996); source unwind 4008000000000000100800000000000008080000000000006808000000000000; fuzzy regressions []; reverted.
+- Resume Zi8MatchUWDdata, HIGH-e typed record scan pointer for initial length and flags: objdiff 95.96976 -> 95.96976; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (1984, 1984); source unwind 4008000000000000100800000000000008080000000000006808000000000000; fuzzy regressions []; reverted.
+- Resume Zi8MatchUWDdata, HIGH-e compare previous record using its typed text member: objdiff 95.96976 -> 95.304436; data 80 -> 32; instruction-exact 2 -> 2; target/source sizes (1984, 1992); source unwind 4008000000000000100800000000000008080000000000006808000000000000; fuzzy regressions []; reverted.
+- Resume Zi8_81480224, HIGH-e scope validation and duplicate comparison before node allocation: objdiff 99.22414 -> 93.48276; data 80 -> 0; instruction-exact 2 -> 2; target/source sizes (464, 476); source unwind 4818000000000000100800000000000008080000000000006808000000000000; fuzzy regressions [('Zi8_81480224', 99.22414, 93.48276)]; reverted.
+- Resume Zi8_81480224, HIGH-e separate local scopes for duplicate scan and insertion: objdiff 99.22414 -> 92.405174; data 80 -> 0; instruction-exact 2 -> 2; target/source sizes (464, 480); source unwind 4818000000000000100800000000000008080000000000006808000000000000; fuzzy regressions [('Zi8_81480224', 99.22414, 92.405174)]; reverted.
+- Resume Zi8_81480224, HIGH-e scope comparison cursor and candidate to list traversal: objdiff 99.22414 -> 93.05173; data 80 -> 0; instruction-exact 2 -> 2; target/source sizes (464, 476); source unwind 4818000000000000100800000000000008080000000000006808000000000000; fuzzy regressions [('Zi8_81480224', 99.22414, 93.05173)]; reverted.
+- Resume Zi8_81480224, HIGH-e direct count indexing with typed work parameter and direct access: objdiff 99.22414 -> 99.18104; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (464, 464); source unwind 4008000000000000100800000000000008080000000000006808000000000000; fuzzy regressions [('Zi8_81480224', 99.22414, 99.18104)]; reverted.
+- Resume Zi8IsWordW, HIGH-e target initializer order, separate data base and search zero aggregate after saved formats: objdiff 89.10817 -> 93.47356; data 32 -> 8; instruction-exact 1 -> 1; target/source sizes (1664, 1696); source unwind 28080000000000001808000000000000; fuzzy regressions []; reverted.
+- Resume Zi8IsWordW, HIGH-e initializer foundation with shared header-count and remaining-character counter: objdiff 89.10817 -> 96.11539; data 32 -> 24; instruction-exact 1 -> 1; target/source sizes (1664, 1660); source unwind 30080000000000001808000000000000; fuzzy regressions []; reverted.
+- Resume Zi8IsWordW, HIGH-e shared header-count and remaining-character counter without initialization changes: objdiff 89.10817 -> 91.50481; data 32 -> 24; instruction-exact 1 -> 1; target/source sizes (1664, 1628); source unwind 30080000000000001808000000000000; fuzzy regressions []; reverted.
+- Resume Zi8IsWordW, HIGH-e prefix data skip uses arithmetic operand order from target: objdiff 89.10817 -> 89.08414; data 32 -> 32; instruction-exact 1 -> 1; target/source sizes (1664, 1664); source unwind 28080000000000001808000000000000; fuzzy regressions []; reverted.
+- Resume Zi8IsWordW, HIGH-e Chinese value high byte before low byte: objdiff 89.10817 -> 89.24039; data 32 -> 32; instruction-exact 1 -> 1; target/source sizes (1664, 1664); source unwind 28080000000000001808000000000000; fuzzy regressions []; SELECTED.
+- Resume Zi8IsWordW, HIGH-e advance ordinal cursor in its comparison expression: objdiff 89.24039 -> 90.48077; data 32 -> 8; instruction-exact 1 -> 1; target/source sizes (1664, 1660); source unwind 28080000000000001808000000000000; fuzzy regressions []; reverted.
+
+First HIGH-e full clean gate passed. UWD real scan/prefix/cursor control-flow changes improved Zi8MatchUWDdata 86.71573 ->95.96976 while source size2056 ->1984, saved range r20-r31 ->r19-r31. Consequently extab32 and extabindex48 both reach100%, matched_data0 ->80. No metadata edits and no fuzzy decreases. Full build and DOL hash pass.
+
+Precommit quick gate passes all four units with zero regressions/forbidden/readability warnings. UWD non-text data80/80 and DAWG80/80; instruction-exact counts all unchanged. PUD98.13842, Child96.67647, Word89.24039, MatchUWD95.96976.
+- Resume Zi8MatchUWDdata, HIGH-e bound prefix cursor before character read with explicit separator break: objdiff 95.96976 -> 96.504036; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (1984, 1984); source unwind 4008000000000000100800000000000008080000000000006808000000000000; fuzzy regressions []; SELECTED.
+- Resume Zi8MatchUWDdata, HIGH-e prefix record size stores share one byte assignment and byte parsing consumes language/length: objdiff 96.504036 -> 98.34476; data 80 -> 32; instruction-exact 2 -> 2; target/source sizes (1984, 1988); source unwind 4008000000000000100800000000000008080000000000006808000000000000; fuzzy regressions []; reverted.
+- Resume Zi8MatchUWDdata, HIGH-e cache record byte cursor before language and length reads: objdiff 96.504036 -> 96.78629; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (1984, 1984); source unwind 4008000000000000100800000000000008080000000000006808000000000000; fuzzy regressions []; SELECTED.
+- Resume Zi8MatchUWDdata, HIGH-e typed previous record language-length equality tests before size equality: objdiff 96.78629 -> 96.77419; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (1984, 1984); source unwind 4008000000000000100800000000000008080000000000006808000000000000; fuzzy regressions []; reverted.
+- Resume Zi8MatchUWDdata, HIGH-e header/footer shared size, byte parser and chained initial scan cursor: objdiff 96.78629 -> 98.54637; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (1984, 1984); source unwind 4008000000000000100800000000000008080000000000006808000000000000; fuzzy regressions []; SELECTED.
+- Resume Zi8MatchUWDdata, HIGH-e header/footer shared size, byte parser and prefix cursor preincrement: objdiff 98.54637 -> 98.747986; data 80 -> 32; instruction-exact 2 -> 2; target/source sizes (1984, 1980); source unwind 4008000000000000100800000000000008080000000000006808000000000000; fuzzy regressions []; reverted.
+- Resume Zi8_81480224, HIGH-e byte record input ziPtr with typed header accesses: objdiff 99.22414 -> 99.05173; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (464, 464); source unwind 4008000000000000100800000000000008080000000000006808000000000000; fuzzy regressions [('Zi8_81480224', 99.22414, 99.05173)]; reverted.
+- Resume Zi8_81480224, HIGH-e byte record input ziU8* with typed header accesses: build failed and reverted, -------------------------------------- #     204:                Zi8_81480224((ziUserWord*)cursor, __zi8_work_data);  #   Error:                                                                 ^ #   (10209) illegal implicit conversion from 'struct ziUserWord *' to #   'unsigned char *' #   Too many errors printed, aborting program  User break, cancelled... ninja: build stopped: subcommand failed.
+- Resume Zi8_81480224, HIGH-e generic record input with direct node count indexing: objdiff 99.22414 -> 98.75; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (464, 464); source unwind 4008000000000000100800000000000008080000000000006808000000000000; fuzzy regressions [('Zi8_81480224', 99.22414, 98.75)]; reverted.
+- Resume Zi8IsWordW, HIGH-e initialized parser with direct low-byte consumption and high-byte advance: objdiff 89.24039 -> 95.80289; data 32 -> 24; instruction-exact 1 -> 1; target/source sizes (1664, 1668); source unwind 30080000000000001808000000000000; fuzzy regressions []; reverted.
+- Resume Zi8IsWordW, HIGH-e initialized parser consumes little-endian octets successively: objdiff 89.24039 -> 95.39664; data 32 -> 24; instruction-exact 1 -> 1; target/source sizes (1664, 1680); source unwind 30080000000000001808000000000000; fuzzy regressions []; reverted.
+- Resume Zi8IsWordW, HIGH-e initialized parser uses one typed state pointer throughout: objdiff 89.24039 -> 93.16106; data 32 -> 8; instruction-exact 1 -> 1; target/source sizes (1664, 1700); source unwind 28080000000000001808000000000000; fuzzy regressions []; reverted.
+- Resume Zi8IsWordW, HIGH-e initialized parser with indexed record byte consumption and folded skip expression: objdiff 89.24039 -> 95.77885; data 32 -> 24; instruction-exact 1 -> 1; target/source sizes (1664, 1668); source unwind 30080000000000001808000000000000; fuzzy regressions []; reverted.
+- Resume Zi8IsWordW, HIGH-e initialized byte parser and prefix-incremented ordinal comparison cursor: objdiff 89.24039 -> 97.04327; data 32 -> 48; instruction-exact 1 -> 1; target/source sizes (1664, 1664); source unwind 30080000000000001808000000000000; fuzzy regressions []; SELECTED.
+- Resume Zi8IsWordW, HIGH-e initialized byte parser with byte offset low octet first: objdiff 97.04327 -> 97.54086; data 48 -> 48; instruction-exact 1 -> 1; target/source sizes (1664, 1664); source unwind 30080000000000001808000000000000; fuzzy regressions []; SELECTED.
+- Resume Zi8_81480224, HIGH-e distinct bounded node index declared after ziU8 length;: objdiff 99.22414 -> 97.80173; data 80 -> 32; instruction-exact 2 -> 2; target/source sizes (464, 468); source unwind 4008000000000000100800000000000008080000000000006808000000000000; fuzzy regressions [('Zi8_81480224', 99.22414, 97.80173)]; reverted.
+- Resume Zi8_81480224, HIGH-e distinct bounded node index declared after ziU8 position;: objdiff 99.22414 -> 97.80173; data 80 -> 32; instruction-exact 2 -> 2; target/source sizes (464, 468); source unwind 4008000000000000100800000000000008080000000000006808000000000000; fuzzy regressions [('Zi8_81480224', 99.22414, 97.80173)]; reverted.
+- Resume Zi8_81480224, HIGH-e distinct bounded node index declared after ziUwdNode* added;: objdiff 99.22414 -> 97.80173; data 80 -> 32; instruction-exact 2 -> 2; target/source sizes (464, 468); source unwind 4008000000000000100800000000000008080000000000006808000000000000; fuzzy regressions [('Zi8_81480224', 99.22414, 97.80173)]; reverted.
+- Resume Zi8_81480224, HIGH-e distinct bounded node index declared after ziUserWord* candidate;: objdiff 99.22414 -> 97.80173; data 80 -> 32; instruction-exact 2 -> 2; target/source sizes (464, 468); source unwind 4008000000000000100800000000000008080000000000006808000000000000; fuzzy regressions [('Zi8_81480224', 99.22414, 97.80173)]; reverted.
+- Resume Zi8_81480224, HIGH-e new node index is separate assignment inside ordinary index expression: objdiff 99.22414 -> 99.18104; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (464, 464); source unwind 4008000000000000100800000000000008080000000000006808000000000000; fuzzy regressions [('Zi8_81480224', 99.22414, 99.18104)]; reverted.
+- Resume Zi8IsWordW, HIGH-e search word pointer precedes capacity assignment: objdiff 97.54086 -> 98.02164; data 48 -> 48; instruction-exact 1 -> 1; target/source sizes (1664, 1664); source unwind 30080000000000001808000000000000; fuzzy regressions []; SELECTED.
+- Resume Zi8IsWordW, HIGH-e format-count nonzero branch precedes zero case: objdiff 98.02164 -> 98.03846; data 48 -> 48; instruction-exact 1 -> 1; target/source sizes (1664, 1664); source unwind 30080000000000001808000000000000; fuzzy regressions []; SELECTED.
+- Resume Zi8IsWordW, HIGH-e positive dictionary-entry flag before missing-entry return: objdiff 98.03846 -> 99.0; data 48 -> 48; instruction-exact 1 -> 1; target/source sizes (1664, 1664); source unwind 30080000000000001808000000000000; fuzzy regressions []; SELECTED.
+- Resume Zi8IsWordW, HIGH-e test ordinal source terminator before first conversion: objdiff 99.0 -> 99.24039; data 48 -> 24; instruction-exact 1 -> 1; target/source sizes (1664, 1668); source unwind 30080000000000001808000000000000; fuzzy regressions []; reverted.
+- Resume Zi8IsWordW, HIGH-e ordinal while loop with indexed two-byte decoder: objdiff 99.0 -> 99.72356; data 48 -> 24; instruction-exact 1 -> 1; target/source sizes (1664, 1660); source unwind 30080000000000001808000000000000; fuzzy regressions []; reverted.
+- Resume Zi8IsWordW, HIGH-e typed byte cursor dereferences in two-byte decoder: objdiff 99.0 -> 99.0; data 48 -> 48; instruction-exact 1 -> 1; target/source sizes (1664, 1664); source unwind 30080000000000001808000000000000; fuzzy regressions []; reverted.
+
+## Fuzzy lane declaration search: ZiDAWGGetGraphInfo
+Structural diagnosis before register search:
+```
+src 0x218 base 0x218 insns 134/134
+diffs 12: [5, 8, 10, 11, 85, 87, 94, 97, 98, 99, 102, 127]
+     5 M mr r25, r3
+       B mr r29, r3
+     8 M mr r3, r25
+       B mr r3, r29
+    10 M mr r29, r3
+       B mr r26, r3
+    11 M li r26, 0
+       B li r25, 0
+    85 M add r3, r29, r3
+       B add r3, r26, r3
+    87 M add r26, r3, r0
+       B add r25, r3, r0
+    94 M add r3, r29, r3
+       B add r3, r26, r3
+    97 M stw r0, 0x338(r25)
+       B stw r0, 0x338(r29)
+    98 M lwz r0, 0x338(r25)
+       B lwz r0, 0x338(r29)
+    99 M cmplw r0, r29
+       B cmplw r0, r26
+   102 M stw r0, 0x338(r25)
+       B stw r0, 0x338(r29)
+   127 M mr r3, r26
+       B mr r3, r25
+```
+- ZiDAWGGetGraphInfo declaration attempt 1: ziU32 graph; | ziU8 depth; | ziU32 end; | ziS32 result;; structural/exact diffs (0, 12).
+- ZiDAWGGetGraphInfo declaration attempt 2: ziU8 depth; | ziU32 graph; | ziU32 end; | ziS32 result;; structural/exact diffs (0, 15).
+- ZiDAWGGetGraphInfo declaration attempt 3: ziU32 end; | ziU8 depth; | ziU32 graph; | ziS32 result;; structural/exact diffs (0, 16).
+- ZiDAWGGetGraphInfo declaration attempt 4: ziS32 result; | ziU8 depth; | ziU32 end; | ziU32 graph;; structural/exact diffs (0, 19).
+- ZiDAWGGetGraphInfo declaration attempt 5: ziU32 graph; | ziU32 end; | ziU8 depth; | ziS32 result;; structural/exact diffs (0, 19).
+- ZiDAWGGetGraphInfo declaration attempt 6: ziU32 graph; | ziS32 result; | ziU32 end; | ziU8 depth;; structural/exact diffs (0, 19).
+- ZiDAWGGetGraphInfo declaration attempt 7: ziU32 graph; | ziU8 depth; | ziS32 result; | ziU32 end;; structural/exact diffs (0, 12).
+- ZiDAWGGetGraphInfo declaration attempt 8: ziU8 depth; | ziU32 end; | ziU32 graph; | ziS32 result;; structural/exact diffs (0, 19).
+- ZiDAWGGetGraphInfo declaration attempt 9: ziU8 depth; | ziU32 end; | ziS32 result; | ziU32 graph;; structural/exact diffs (0, 19).
+- ZiDAWGGetGraphInfo declaration attempt 10: ziU32 graph; | ziU32 end; | ziS32 result; | ziU8 depth;; structural/exact diffs (0, 19).
+- ZiDAWGGetGraphInfo declaration attempt 11: ziU32 end; | ziU32 graph; | ziU8 depth; | ziS32 result;; structural/exact diffs (0, 19).
+- ZiDAWGGetGraphInfo declaration attempt 12: ziS32 result; | ziU32 graph; | ziU8 depth; | ziU32 end;; structural/exact diffs (0, 12).
+- ZiDAWGGetGraphInfo declaration attempt 13: ziU32 graph; | ziS32 result; | ziU8 depth; | ziU32 end;; structural/exact diffs (0, 12).
+Search final: 99.55224 -> 99.55224, exact 2 -> 2, regressions []; restored.
+
+## Fuzzy lane declaration search: ZiDAWGgetCHARattribute
+Structural diagnosis before register search:
+```
+src 0xf0 base 0xf0 insns 60/60
+diffs 12: [5, 14, 18, 19, 20, 29, 31, 32, 36, 37, 42, 43]
+     5 M mr r30, r3
+       B mr r31, r3
+    14 M clrlwi r31, r0, 0x18
+       B clrlwi r30, r0, 0x18
+    18 M clrlwi r31, r0, 0x18
+       B clrlwi r30, r0, 0x18
+    19 M clrlwi r3, r31, 0x18
+       B clrlwi r3, r30, 0x18
+    20 M lhz r0, 4(r30)
+       B lhz r0, 4(r31)
+    29 M clrlwi r0, r31, 0x18
+       B clrlwi r0, r30, 0x18
+    31 M lwz r3, 0xc(r30)
+       B lwz r3, 0xc(r31)
+    32 M clrlwi r0, r31, 0x18
+       B clrlwi r0, r30, 0x18
+    36 M lwz r3, 8(r30)
+       B lwz r3, 8(r31)
+    37 M clrlwi r0, r31, 0x18
+       B clrlwi r0, r30, 0x18
+    42 M lwz r3, 8(r30)
+       B lwz r3, 8(r31)
+    43 M clrlwi r0, r31, 0x18
+       B clrlwi r0, r30, 0x18
+```
+- ZiDAWGgetCHARattribute declaration attempt 1: ziU8 key; | ziU32 attribute;; structural/exact diffs (0, 12).
+- ZiDAWGgetCHARattribute declaration attempt 2: ziU32 attribute; | ziU8 key;; structural/exact diffs (0, 12).
+Search final: 99.0 -> 99.0, exact 2 -> 2, regressions []; restored.
+
+## Fuzzy lane declaration search: Zi8_81480224
+Structural diagnosis before register search:
+```
+src 0x1d0 base 0x1d0 insns 116/116
+diffs 15: [5, 16, 24, 25, 34, 50, 57, 63, 67, 73, 77, 90, 91, 93, 104]
+     5 M mr r25, r3
+       B mr r28, r3
+    16 M cmpwi r25, 0
+       B cmpwi r28, 0
+    24 M lbz r28, 2(r25)
+       B lbz r25, 2(r28)
+    25 M clrlwi r0, r28, 0x18
+       B clrlwi r0, r25, 0x18
+    34 M clrlwi r0, r28, 0x18
+       B clrlwi r0, r25, 0x18
+    50 M lbz r0, 3(r25)
+       B lbz r0, 3(r28)
+    57 M clrlwi r0, r28, 0x18
+       B clrlwi r0, r25, 0x18
+    63 M add r3, r26, r0
+       B add r3, r0, r26
+    67 M add r3, r25, r0
+       B add r3, r0, r28
+    73 M clrlwi r0, r28, 0x18
+       B clrlwi r0, r25, 0x18
+    77 M clrlwi r0, r28, 0x18
+       B clrlwi r0, r25, 0x18
+    90 M lbz r28, 0x1c7(r31)
+       B lbz r3, 0x1c7(r31)
+    91 M addi r0, r28, 1
+       B addi r0, r3, 1
+    93 M clrlwi r0, r28, 0x18
+       B clrlwi r0, r3, 0x18
+   104 M stw r25, 4(r29)
+       B stw r28, 4(r29)
+```
+- Zi8_81480224 declaration attempt 1: ziU8 length; | ziU8 position; | ziUwdNode* previous; | ziUwdNode* current; | ziUwdNode* added; | ziUserWord* candidate;; structural/exact diffs (0, 15).
+- Zi8_81480224 declaration attempt 2: ziU8 position; | ziU8 length; | ziUwdNode* previous; | ziUwdNode* current; | ziUwdNode* added; | ziUserWord* candidate;; structural/exact diffs (0, 15).
+- Zi8_81480224 declaration attempt 3: ziUwdNode* previous; | ziU8 position; | ziU8 length; | ziUwdNode* current; | ziUwdNode* added; | ziUserWord* candidate;; structural/exact diffs (0, 15).
+- Zi8_81480224 declaration attempt 4: ziUwdNode* current; | ziU8 position; | ziUwdNode* previous; | ziU8 length; | ziUwdNode* added; | ziUserWord* candidate;; structural/exact diffs (0, 15).
+- Zi8_81480224 declaration attempt 5: ziUwdNode* added; | ziU8 position; | ziUwdNode* previous; | ziUwdNode* current; | ziU8 length; | ziUserWord* candidate;; structural/exact diffs (0, 15).
+- Zi8_81480224 declaration attempt 6: ziUserWord* candidate; | ziU8 position; | ziUwdNode* previous; | ziUwdNode* current; | ziUwdNode* added; | ziU8 length;; structural/exact diffs (0, 24).
+- Zi8_81480224 declaration attempt 7: ziU8 length; | ziUwdNode* previous; | ziU8 position; | ziUwdNode* current; | ziUwdNode* added; | ziUserWord* candidate;; structural/exact diffs (0, 15).
+- Zi8_81480224 declaration attempt 8: ziU8 length; | ziUwdNode* current; | ziUwdNode* previous; | ziU8 position; | ziUwdNode* added; | ziUserWord* candidate;; structural/exact diffs (0, 15).
+- Zi8_81480224 declaration attempt 9: ziU8 length; | ziUwdNode* added; | ziUwdNode* previous; | ziUwdNode* current; | ziU8 position; | ziUserWord* candidate;; structural/exact diffs (0, 15).
+- Zi8_81480224 declaration attempt 10: ziU8 length; | ziUserWord* candidate; | ziUwdNode* previous; | ziUwdNode* current; | ziUwdNode* added; | ziU8 position;; structural/exact diffs (0, 24).
+- Zi8_81480224 declaration attempt 11: ziU8 length; | ziU8 position; | ziUwdNode* current; | ziUwdNode* previous; | ziUwdNode* added; | ziUserWord* candidate;; structural/exact diffs (0, 15).
+- Zi8_81480224 declaration attempt 12: ziU8 length; | ziU8 position; | ziUwdNode* added; | ziUwdNode* current; | ziUwdNode* previous; | ziUserWord* candidate;; structural/exact diffs (0, 15).
+- Zi8_81480224 declaration attempt 13: ziU8 length; | ziU8 position; | ziUserWord* candidate; | ziUwdNode* current; | ziUwdNode* added; | ziUwdNode* previous;; structural/exact diffs (0, 15).
+- Zi8_81480224 declaration attempt 14: ziU8 length; | ziU8 position; | ziUwdNode* previous; | ziUwdNode* added; | ziUwdNode* current; | ziUserWord* candidate;; structural/exact diffs (0, 15).
+- Zi8_81480224 declaration attempt 15: ziU8 length; | ziU8 position; | ziUwdNode* previous; | ziUserWord* candidate; | ziUwdNode* added; | ziUwdNode* current;; structural/exact diffs (0, 15).
+- Zi8_81480224 declaration attempt 16: ziU8 length; | ziU8 position; | ziUwdNode* previous; | ziUwdNode* current; | ziUserWord* candidate; | ziUwdNode* added;; structural/exact diffs (0, 15).
+- Zi8_81480224 declaration attempt 17: ziU8 position; | ziUwdNode* previous; | ziU8 length; | ziUwdNode* current; | ziUwdNode* added; | ziUserWord* candidate;; structural/exact diffs (0, 15).
+- Zi8_81480224 declaration attempt 18: ziU8 position; | ziUwdNode* previous; | ziUwdNode* current; | ziU8 length; | ziUwdNode* added; | ziUserWord* candidate;; structural/exact diffs (0, 15).
+- Zi8_81480224 declaration attempt 19: ziU8 position; | ziUwdNode* previous; | ziUwdNode* current; | ziUwdNode* added; | ziU8 length; | ziUserWord* candidate;; structural/exact diffs (0, 15).
+- Zi8_81480224 declaration attempt 20: ziU8 position; | ziUwdNode* previous; | ziUwdNode* current; | ziUwdNode* added; | ziUserWord* candidate; | ziU8 length;; structural/exact diffs (0, 15).
+- Zi8_81480224 declaration attempt 21: ziU8 length; | ziUwdNode* previous; | ziUwdNode* current; | ziU8 position; | ziUwdNode* added; | ziUserWord* candidate;; structural/exact diffs (0, 15).
+- Zi8_81480224 declaration attempt 22: ziU8 length; | ziUwdNode* previous; | ziUwdNode* current; | ziUwdNode* added; | ziU8 position; | ziUserWord* candidate;; structural/exact diffs (0, 15).
+- Zi8_81480224 declaration attempt 23: ziU8 length; | ziUwdNode* previous; | ziUwdNode* current; | ziUwdNode* added; | ziUserWord* candidate; | ziU8 position;; structural/exact diffs (0, 24).
+- Zi8_81480224 declaration attempt 24: ziUwdNode* previous; | ziU8 length; | ziU8 position; | ziUwdNode* current; | ziUwdNode* added; | ziUserWord* candidate;; structural/exact diffs (0, 15).
+- Zi8_81480224 declaration attempt 25: ziU8 length; | ziU8 position; | ziUwdNode* current; | ziUwdNode* added; | ziUwdNode* previous; | ziUserWord* candidate;; structural/exact diffs (0, 15).
+- Zi8_81480224 declaration attempt 26: ziU8 length; | ziU8 position; | ziUwdNode* current; | ziUwdNode* added; | ziUserWord* candidate; | ziUwdNode* previous;; structural/exact diffs (0, 15).
+- Zi8_81480224 declaration attempt 27: ziUwdNode* current; | ziU8 length; | ziU8 position; | ziUwdNode* previous; | ziUwdNode* added; | ziUserWord* candidate;; structural/exact diffs (0, 15).
+- Zi8_81480224 declaration attempt 28: ziU8 length; | ziUwdNode* current; | ziU8 position; | ziUwdNode* previous; | ziUwdNode* added; | ziUserWord* candidate;; structural/exact diffs (0, 15).
+- Zi8_81480224 declaration attempt 29: ziU8 length; | ziU8 position; | ziUwdNode* previous; | ziUwdNode* added; | ziUserWord* candidate; | ziUwdNode* current;; structural/exact diffs (0, 15).
+- Zi8_81480224 declaration attempt 30: ziUwdNode* added; | ziU8 length; | ziU8 position; | ziUwdNode* previous; | ziUwdNode* current; | ziUserWord* candidate;; structural/exact diffs (0, 15).
+- Zi8_81480224 declaration attempt 31: ziU8 length; | ziUwdNode* added; | ziU8 position; | ziUwdNode* previous; | ziUwdNode* current; | ziUserWord* candidate;; structural/exact diffs (0, 15).
+- Zi8_81480224 declaration attempt 32: ziU8 length; | ziU8 position; | ziUwdNode* added; | ziUwdNode* previous; | ziUwdNode* current; | ziUserWord* candidate;; structural/exact diffs (0, 15).
+- Zi8_81480224 declaration attempt 33: ziUserWord* candidate; | ziU8 length; | ziU8 position; | ziUwdNode* previous; | ziUwdNode* current; | ziUwdNode* added;; structural/exact diffs (0, 24).
+- Zi8_81480224 declaration attempt 34: ziU8 length; | ziUserWord* candidate; | ziU8 position; | ziUwdNode* previous; | ziUwdNode* current; | ziUwdNode* added;; structural/exact diffs (0, 24).
+- Zi8_81480224 declaration attempt 35: ziU8 length; | ziU8 position; | ziUserWord* candidate; | ziUwdNode* previous; | ziUwdNode* current; | ziUwdNode* added;; structural/exact diffs (0, 15).
+- Zi8_81480224 declaration attempt 36: ziU8 length; | ziU8 position; | ziUwdNode* previous; | ziUserWord* candidate; | ziUwdNode* current; | ziUwdNode* added;; structural/exact diffs (0, 15).
+Search final: 99.22414 -> 99.22414, exact 2 -> 2, regressions []; restored.
+- Resume Zi8MatchUWDdata, HIGH-e local spill declaration order follows target dictionary-to-decoded-header layout: objdiff 98.54637 -> 98.64314; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (1984, 1984); source unwind 4008000000000000100800000000000008080000000000006808000000000000; fuzzy regressions []; SELECTED.
+- Resume Zi8MatchUWDdata, HIGH-e register-resident cursors declared before target spill layout: objdiff 98.64314 -> 98.64314; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (1984, 1984); source unwind 4008000000000000100800000000000008080000000000006808000000000000; fuzzy regressions []; reverted.
+- Resume Zi8MatchUWDdata, HIGH-e scan count then fallback initialized before other target spill declarations: objdiff 98.64314 -> 98.54637; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (1984, 1984); source unwind 4008000000000000100800000000000008080000000000006808000000000000; fuzzy regressions []; reverted.
+- Resume Zi8MatchUWDdata, HIGH-e scan pointer compared to end in target operand order: objdiff 98.64314 -> 98.65121; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (1984, 1984); source unwind 4008000000000000100800000000000008080000000000006808000000000000; fuzzy regressions []; SELECTED.
+- Resume Zi8MatchUWDdata, HIGH-e wrapped previous-record pointer uses target addition operand order: objdiff 98.65121 -> 98.65121; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (1984, 1984); source unwind 4008000000000000100800000000000008080000000000006808000000000000; fuzzy regressions []; reverted.
+- Resume Zi8IsWordW, HIGH-e sequence byte reads before two-byte advance and use explicit ordinal cursor update: objdiff 99.0 -> 98.52164; data 48 -> 48; instruction-exact 1 -> 1; target/source sizes (1664, 1664); source unwind 30080000000000001808000000000000; fuzzy regressions []; reverted.
+
+Final source review rejected the tentative WordW streaming expression: data[1] and *data++ in one expression read/modify the same cursor without sequencing. It was never committed. Replaced with indexed byte reads, one subsequent two-byte advance, target-tested ordinal while loop, and separate ordinal cursor update. Valid result98.52164 (up from committed89.24039 and origin85.65625), data48/48, exact1 preserved. The transient99.0 candidate is invalid and is not a claimed result. Shared parse counter renamed countLeft; no masks or dummy objects added.
+
+## Fuzzy lane declaration search: Zi8MatchUWDdata
+Structural diagnosis before register search:
+```
+src 0x7c0 base 0x7c0 insns 496/496
+diffs 146: [16, 18, 55, 60, 61, 79, 82, 102, 122, 134, 135, 143, 147, 172, 175, 177, 184, 186, 187, 188]
+    16 M stw r0, 0x14(r1)
+       B stw r0, 0x10(r1)
+    18 M stw r0, 0x10(r1)
+       B stw r0, 0xc(r1)
+    55 M stw r0, 0x1c(r1)
+       B stw r0, 0x18(r1)
+    60 M stw r0, 0x1c(r1)
+       B stw r0, 0x18(r1)
+    61 M lwz r3, 0x1c(r1)
+       B lwz r3, 0x18(r1)
+    79 M lwz r0, 0x1c(r1)
+       B lwz r0, 0x18(r1)
+    82 M lwz r0, 0x1c(r1)
+       B lwz r0, 0x18(r1)
+   102 M b 356
+       B b 348
+   122 M b 276
+       B b 268
+   134 M stw r0, 0x18(r1)
+       B stw r0, 0x14(r1)
+   135 M b 216
+       B b 208
+   143 M lwz r0, 0x18(r1)
+       B lwz r0, 0x14(r1)
+   147 M lwz r0, 0x18(r1)
+       B lwz r0, 0x14(r1)
+   172 M lwz r0, 0x18(r1)
+       B lwz r0, 0x14(r1)
+   175 M lwz r3, 0x18(r1)
+       B lwz r3, 0x14(r1)
+   177 M stw r0, 0x18(r1)
+       B stw r0, 0x14(r1)
+   184 M b 28
+       B b 20
+   186 M mr r0, r30
+       B addi r30, r30, 1
+   187 M addi r30, r30, 1
+       B cmpwi r28, 0
+   188 M stw r0, 0xc(r1)
+       B bgt -208
+   189 M cmpwi r28, 0
+       B lbz r0, 0x140(r31)
+   190 M bgt -216
+       B cmpwi r0, 0
+   191 M lbz r0, 0x140(r31)
+       B bne 24
+   192 M cmpwi r0, 0
+       B clrlwi r0, r24, 0x18
+   193 M bne 24
+       B cmpwi r0, 0
+   194 M clrlwi r0, r24, 0x18
+       B bne 12
+   195 M cmpwi r0, 0
+       B li r3, 0
+   196 M bne 12
+       B b 1176
+   197 M li r3, 0
+       B lwz r4, 0x40(r1)
+   198 M b 1168
+       B lwz r3, 0x40(r1)
+   199 M lwz r4, 0x40(r1)
+       B lhz r0, 4(r3)
+   200 M lwz r3, 0x40(r1)
+       B add r3, r4, r0
+   201 M lhz r0, 4(r3)
+       B addi r0, r3, 8
+   202 M add r3, r4, r0
+       B stw r0, 0x38(r1)
+   203 M addi r0, r3, 8
+       B stw r0, 0x3c(r1)
+   204 M stw r0, 0x3c(r1)
+       B lwz r4, 0x40(r1)
+   205 M stw r0, 0x38(r1)
+       B lwz r3, 0x40(r1)
+   206 M lwz r4, 0x40(r1)
+       B lhz r0, 6(r3)
+   207 M lwz r3, 0x40(r1)
+       B add r3, r4, r0
+   208 M lhz r0, 6(r3)
+       B addi r0, r3, 7
+   209 M add r3, r4, r0
+       B stw r0, 0x34(r1)
+   210 M addi r0, r3, 7
+       B lwz r4, 0x40(r1)
+   211 M stw r0, 0x34(r1)
+       B lwz r3, 0x40(r1)
+   212 M lwz r4, 0x40(r1)
+       B lhz r0, 2(r3)
+   213 M lwz r3, 0x40(r1)
+       B add r3, r4, r0
+   214 M lhz r0, 2(r3)
+       B addi r0, r3, 7
+   215 M add r3, r4, r0
+       B stw r0, 0x30(r1)
+   216 M addi r0, r3, 7
+       B lwz r3, 0x38(r1)
+   217 M stw r0, 0x30(r1)
+       B lwz r0, 0x34(r1)
+   218 M lwz r3, 0x38(r1)
+       B cmplw r3, r0
+   219 M lwz r0, 0x34(r1)
+       B bge 16
+   220 M cmplw r3, r0
+       B li r0, 1
+   221 M bge 16
+       B stw r0, 0x28(r1)
+   222 M li r0, 1
+       B b 780
+   223 M stw r0, 0x28(r1)
+       B li r0, 0
+   224 M b 772
+       B stw r0, 0x28(r1)
+   225 M li r0, 0
+       B b 768
+   226 M stw r0, 0x28(r1)
+       B lwz r3, 0x3c(r1)
+   227 M b 760
+       B lbz r0, 0(r3)
+   228 M lwz r3, 0x3c(r1)
+       B stw r0, 0x24(r1)
+   229 M lbz r0, 0(r3)
+       B lwz r4, 0x13c(r31)
+   230 M stw r0, 0x24(r1)
+       B lwz r3, 0x10(r1)
+   231 M lwz r4, 0x13c(r31)
+       B addi r0, r3, 1
+   232 M lwz r3, 0x14(r1)
+       B stw r0, 0x10(r1)
+   233 M addi r0, r3, 1
+       B cmpw r4, r3
+   234 M stw r0, 0x14(r1)
+       B bgt 24
+   235 M cmpw r4, r3
+       B lwz r3, 0x3c(r1)
+   236 M bgt 24
+       B lbz r0, 0(r3)
+   237 M lwz r3, 0x3c(r1)
+       B rlwinm r0, r0, 0, 0x18, 0x19
+   238 M lbz r0, 0(r3)
+       B cmpwi r0, 0
+   239 M rlwinm r0, r0, 0, 0x18, 0x19
+       B beq 96
+   240 M cmpwi r0, 0
+       B lwz r3, 0x3c(r1)
+   241 M beq 100
+       B lwz r0, 0x24(r1)
+   242 M lwz r3, 0x3c(r1)
+       B add r3, r3, r0
+   243 M lwz r0, 0x24(r1)
+       B stw r3, 0x3c(r1)
+   244 M add r0, r3, r0
+       B lwz r0, 0x30(r1)
+   245 M stw r0, 0x3c(r1)
+       B cmplw r3, r0
+   246 M lwz r3, 0x3c(r1)
+       B ble 684
+   247 M lwz r0, 0x30(r1)
+       B lwz r0, 0x28(r1)
+   248 M cmplw r3, r0
+       B cmpwi r0, 0
+   249 M ble 672
+       B bne 728
+   250 M lwz r0, 0x28(r1)
+       B li r0, 1
+   251 M cmpwi r0, 0
+       B stw r0, 0x28(r1)
+   252 M bne 716
+       B lwz r3, 0x30(r1)
+   253 M li r0, 1
+       B lwz r0, 0x3c(r1)
+   254 M stw r0, 0x28(r1)
+       B subf r3, r3, r0
+   255 M lwz r3, 0x30(r1)
+       B addi r0, r3, -1
+   256 M lwz r0, 0x3c(r1)
+       B stw r0, 0x24(r1)
+   257 M subf r3, r3, r0
+       B lwz r3, 0x40(r1)
+   258 M addi r0, r3, -1
+       B lwz r0, 0x24(r1)
+   259 M stw r0, 0x24(r1)
+       B add r3, r3, r0
+   260 M lwz r3, 0x40(r1)
+       B addi r0, r3, 8
+   261 M lwz r0, 0x24(r1)
+       B stw r0, 0x3c(r1)
+   262 M add r3, r3, r0
+       B b 620
+   263 M addi r0, r3, 8
+       B lwz r3, 0x3c(r1)
+   264 M stw r0, 0x3c(r1)
+       B lwz r0, 0x24(r1)
+   265 M b 608
+       B add r0, r3, r0
+   266 M lwz r3, 0x3c(r1)
+       B stw r0, 0x2c(r1)
+   267 M lwz r0, 0x24(r1)
+       B lwz r3, 0x2c(r1)
+   268 M add r0, r3, r0
+       B lwz r0, 0x30(r1)
+   269 M stw r0, 0x2c(r1)
+       B cmplw r3, r0
+   270 M lwz r3, 0x2c(r1)
+       B ble 32
+   271 M lwz r0, 0x30(r1)
+       B lwz r4, 0x40(r1)
+   272 M cmplw r3, r0
+       B lwz r3, 0x30(r1)
+   273 M ble 32
+       B lwz r0, 0x3c(r1)
+   274 M lwz r4, 0x3c(r1)
+       B subf r0, r3, r0
+   275 M lwz r3, 0x30(r1)
+       B add r3, r0, r4
+   276 M lwz r0, 0x40(r1)
+       B addi r0, r3, 7
+   277 M subf r0, r3, r0
+       B stw r0, 0x2c(r1)
+   278 M add r3, r4, r0
+       B lwz r29, 0x3c(r1)
+   279 M addi r0, r3, 7
+       B lbz r0, 0(r29)
+   280 M stw r0, 0x2c(r1)
+       B addi r29, r29, 1
+   281 M lwz r3, 0x3c(r1)
+       B clrlwi r0, r0, 0x18
+   282 M addi r29, r3, 1
+       B stw r0, 0x20(r1)
+   286 M stw r0, 0x20(r1)
+       B stw r0, 0x1c(r1)
+   290 M stw r0, 0x1c(r1)
+       B stw r0, 0x18(r1)
+   292 M lwz r3, 0x20(r1)
+       B lwz r3, 0x1c(r1)
+   295 M bne -212
+       B bne -220
+   296 M lwz r3, 0x1c(r1)
+       B lwz r3, 0x18(r1)
+   299 M blt -228
+       B blt -236
+   300 M lwz r3, 0x1c(r1)
+       B lwz r3, 0x18(r1)
+   303 M bge -244
+       B bge -252
+   307 M lwz r3, 0x1c(r1)
+       B lwz r3, 0x18(r1)
+   310 M bne -272
+       B bne -280
+   314 M lwz r3, 0x1c(r1)
+       B lwz r3, 0x18(r1)
+   317 M beq -300
+       B beq -308
+   336 M bne -376
+       B bne -384
+   351 M beq -436
+       B beq -444
+   360 M beq -472
+       B beq -480
+   366 M bne -496
+       B bne -504
+   379 M bne -548
+       B bne -556
+   385 M bne -572
+       B bne -580
+   391 M bne -596
+       B bne -604
+   409 M bne -668
+       B bne -676
+   416 M b -696
+       B b -704
+   423 M bne -780
+       B bne -788
+   430 M beq -808
+       B beq -816
+   440 M stw r0, 0x14(r1)
+       B stw r0, 0x10(r1)
+   441 M b -968
+       B b -976
+   453 M stw r0, 0x10(r1)
+       B stw r0, 0xc(r1)
+   455 M stw r0, 0x14(r1)
+       B stw r0, 0x10(r1)
+   456 M b -1028
+       B b -1036
+   464 M stw r0, 0x1c(r1)
+       B stw r0, 0x18(r1)
+   465 M lwz r3, 0x1c(r1)
+       B lwz r3, 0x18(r1)
+   483 M lwz r0, 0x1c(r1)
+       B lwz r0, 0x18(r1)
+   486 M lwz r0, 0x1c(r1)
+       B lwz r0, 0x18(r1)
+```
+- Zi8MatchUWDdata declaration attempt 1: ziUserDictionary* dictionary; | ziU8* cursor; | ziU8* begin; | ziU8* boundary; | ziU8* end; | ziUserWord* previous; | int firstSegment; | ziU32 size; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | int fallback = 0; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (74, 146).
+- Zi8MatchUWDdata declaration attempt 2: ziU8* cursor; | ziUserDictionary* dictionary; | ziU8* begin; | ziU8* boundary; | ziU8* end; | ziUserWord* previous; | int firstSegment; | ziU32 size; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | int fallback = 0; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (117, 150).
+- Zi8MatchUWDdata declaration attempt 3: ziU8* begin; | ziU8* cursor; | ziUserDictionary* dictionary; | ziU8* boundary; | ziU8* end; | ziUserWord* previous; | int firstSegment; | ziU32 size; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | int fallback = 0; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (83, 147).
+- Zi8MatchUWDdata declaration attempt 4: ziU8* boundary; | ziU8* cursor; | ziU8* begin; | ziUserDictionary* dictionary; | ziU8* end; | ziUserWord* previous; | int firstSegment; | ziU32 size; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | int fallback = 0; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (85, 148).
+- Zi8MatchUWDdata declaration attempt 5: ziU8* end; | ziU8* cursor; | ziU8* begin; | ziU8* boundary; | ziUserDictionary* dictionary; | ziUserWord* previous; | int firstSegment; | ziU32 size; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | int fallback = 0; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (85, 148).
+- Zi8MatchUWDdata declaration attempt 6: ziUserWord* previous; | ziU8* cursor; | ziU8* begin; | ziU8* boundary; | ziU8* end; | ziUserDictionary* dictionary; | int firstSegment; | ziU32 size; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | int fallback = 0; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (90, 152).
+- Zi8MatchUWDdata declaration attempt 7: int firstSegment; | ziU8* cursor; | ziU8* begin; | ziU8* boundary; | ziU8* end; | ziUserWord* previous; | ziUserDictionary* dictionary; | ziU32 size; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | int fallback = 0; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (88, 149).
+- Zi8MatchUWDdata declaration attempt 8: ziU32 size; | ziU8* cursor; | ziU8* begin; | ziU8* boundary; | ziU8* end; | ziUserWord* previous; | int firstSegment; | ziUserDictionary* dictionary; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | int fallback = 0; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (87, 147).
+- Zi8MatchUWDdata declaration attempt 9: int entryLanguage; | ziU8* cursor; | ziU8* begin; | ziU8* boundary; | ziU8* end; | ziUserWord* previous; | int firstSegment; | ziU32 size; | ziUserDictionary* dictionary; | int entryLength; | int previousOffset; | int visited = 0; | int fallback = 0; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (83, 147).
+- Zi8MatchUWDdata declaration attempt 10: int entryLength; | ziU8* cursor; | ziU8* begin; | ziU8* boundary; | ziU8* end; | ziUserWord* previous; | int firstSegment; | ziU32 size; | int entryLanguage; | ziUserDictionary* dictionary; | int previousOffset; | int visited = 0; | int fallback = 0; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (82, 147).
+- Zi8MatchUWDdata declaration attempt 11: int previousOffset; | ziU8* cursor; | ziU8* begin; | ziU8* boundary; | ziU8* end; | ziUserWord* previous; | int firstSegment; | ziU32 size; | int entryLanguage; | int entryLength; | ziUserDictionary* dictionary; | int visited = 0; | int fallback = 0; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (82, 147).
+- Zi8MatchUWDdata declaration attempt 12: int visited = 0; | ziU8* cursor; | ziU8* begin; | ziU8* boundary; | ziU8* end; | ziUserWord* previous; | int firstSegment; | ziU32 size; | int entryLanguage; | int entryLength; | int previousOffset; | ziUserDictionary* dictionary; | int fallback = 0; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (82, 147).
+- Zi8MatchUWDdata declaration attempt 13: int fallback = 0; | ziU8* cursor; | ziU8* begin; | ziU8* boundary; | ziU8* end; | ziUserWord* previous; | int firstSegment; | ziU32 size; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | ziUserDictionary* dictionary; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (80, 147).
+- Zi8MatchUWDdata declaration attempt 14: ziWChar folded; | ziU8* cursor; | ziU8* begin; | ziU8* boundary; | ziU8* end; | ziUserWord* previous; | int firstSegment; | ziU32 size; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | int fallback = 0; | ziUserDictionary* dictionary; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (139, 159).
+- Zi8MatchUWDdata declaration attempt 15: ziU8* text; | ziU8* cursor; | ziU8* begin; | ziU8* boundary; | ziU8* end; | ziUserWord* previous; | int firstSegment; | ziU32 size; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | int fallback = 0; | ziWChar folded; | ziUserDictionary* dictionary; | int position; | int prefixLength;; structural/exact diffs (139, 159).
+- Zi8MatchUWDdata declaration attempt 16: int position; | ziU8* cursor; | ziU8* begin; | ziU8* boundary; | ziU8* end; | ziUserWord* previous; | int firstSegment; | ziU32 size; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | int fallback = 0; | ziWChar folded; | ziU8* text; | ziUserDictionary* dictionary; | int prefixLength;; structural/exact diffs (139, 159).
+- Zi8MatchUWDdata declaration attempt 17: int prefixLength; | ziU8* cursor; | ziU8* begin; | ziU8* boundary; | ziU8* end; | ziUserWord* previous; | int firstSegment; | ziU32 size; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | int fallback = 0; | ziWChar folded; | ziU8* text; | int position; | ziUserDictionary* dictionary;; structural/exact diffs (139, 159).
+- Zi8MatchUWDdata declaration attempt 18: ziUserDictionary* dictionary; | ziU8* begin; | ziU8* cursor; | ziU8* boundary; | ziU8* end; | ziUserWord* previous; | int firstSegment; | ziU32 size; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | int fallback = 0; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (82, 149).
+- Zi8MatchUWDdata declaration attempt 19: ziUserDictionary* dictionary; | ziU8* boundary; | ziU8* begin; | ziU8* cursor; | ziU8* end; | ziUserWord* previous; | int firstSegment; | ziU32 size; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | int fallback = 0; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (86, 150).
+- Zi8MatchUWDdata declaration attempt 20: ziUserDictionary* dictionary; | ziU8* end; | ziU8* begin; | ziU8* boundary; | ziU8* cursor; | ziUserWord* previous; | int firstSegment; | ziU32 size; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | int fallback = 0; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (99, 150).
+- Zi8MatchUWDdata declaration attempt 21: ziUserDictionary* dictionary; | ziUserWord* previous; | ziU8* begin; | ziU8* boundary; | ziU8* end; | ziU8* cursor; | int firstSegment; | ziU32 size; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | int fallback = 0; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (91, 154).
+- Zi8MatchUWDdata declaration attempt 22: ziUserDictionary* dictionary; | int firstSegment; | ziU8* begin; | ziU8* boundary; | ziU8* end; | ziUserWord* previous; | ziU8* cursor; | ziU32 size; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | int fallback = 0; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (100, 151).
+- Zi8MatchUWDdata declaration attempt 23: ziUserDictionary* dictionary; | ziU32 size; | ziU8* begin; | ziU8* boundary; | ziU8* end; | ziUserWord* previous; | int firstSegment; | ziU8* cursor; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | int fallback = 0; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (88, 149).
+- Zi8MatchUWDdata declaration attempt 24: ziUserDictionary* dictionary; | int entryLanguage; | ziU8* begin; | ziU8* boundary; | ziU8* end; | ziUserWord* previous; | int firstSegment; | ziU32 size; | ziU8* cursor; | int entryLength; | int previousOffset; | int visited = 0; | int fallback = 0; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (84, 149).
+- Zi8MatchUWDdata declaration attempt 25: ziUserDictionary* dictionary; | int entryLength; | ziU8* begin; | ziU8* boundary; | ziU8* end; | ziUserWord* previous; | int firstSegment; | ziU32 size; | int entryLanguage; | ziU8* cursor; | int previousOffset; | int visited = 0; | int fallback = 0; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (83, 149).
+- Zi8MatchUWDdata declaration attempt 26: ziUserDictionary* dictionary; | int previousOffset; | ziU8* begin; | ziU8* boundary; | ziU8* end; | ziUserWord* previous; | int firstSegment; | ziU32 size; | int entryLanguage; | int entryLength; | ziU8* cursor; | int visited = 0; | int fallback = 0; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (83, 149).
+- Zi8MatchUWDdata declaration attempt 27: ziUserDictionary* dictionary; | int visited = 0; | ziU8* begin; | ziU8* boundary; | ziU8* end; | ziUserWord* previous; | int firstSegment; | ziU32 size; | int entryLanguage; | int entryLength; | int previousOffset; | ziU8* cursor; | int fallback = 0; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (83, 149).
+- Zi8MatchUWDdata declaration attempt 28: ziUserDictionary* dictionary; | int fallback = 0; | ziU8* begin; | ziU8* boundary; | ziU8* end; | ziUserWord* previous; | int firstSegment; | ziU32 size; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | ziU8* cursor; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (81, 149).
+- Zi8MatchUWDdata declaration attempt 29: ziUserDictionary* dictionary; | ziWChar folded; | ziU8* begin; | ziU8* boundary; | ziU8* end; | ziUserWord* previous; | int firstSegment; | ziU32 size; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | int fallback = 0; | ziU8* cursor; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (138, 158).
+- Zi8MatchUWDdata declaration attempt 30: ziUserDictionary* dictionary; | ziU8* text; | ziU8* begin; | ziU8* boundary; | ziU8* end; | ziUserWord* previous; | int firstSegment; | ziU32 size; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | int fallback = 0; | ziWChar folded; | ziU8* cursor; | int position; | int prefixLength;; structural/exact diffs (138, 158).
+- Zi8MatchUWDdata declaration attempt 31: ziUserDictionary* dictionary; | int position; | ziU8* begin; | ziU8* boundary; | ziU8* end; | ziUserWord* previous; | int firstSegment; | ziU32 size; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | int fallback = 0; | ziWChar folded; | ziU8* text; | ziU8* cursor; | int prefixLength;; structural/exact diffs (138, 158).
+- Zi8MatchUWDdata declaration attempt 32: ziUserDictionary* dictionary; | int prefixLength; | ziU8* begin; | ziU8* boundary; | ziU8* end; | ziUserWord* previous; | int firstSegment; | ziU32 size; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | int fallback = 0; | ziWChar folded; | ziU8* text; | int position; | ziU8* cursor;; structural/exact diffs (138, 158).
+- Zi8MatchUWDdata declaration attempt 33: ziUserDictionary* dictionary; | ziU8* cursor; | ziU8* boundary; | ziU8* begin; | ziU8* end; | ziUserWord* previous; | int firstSegment; | ziU32 size; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | int fallback = 0; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (78, 147).
+- Zi8MatchUWDdata declaration attempt 34: ziUserDictionary* dictionary; | ziU8* cursor; | ziU8* end; | ziU8* boundary; | ziU8* begin; | ziUserWord* previous; | int firstSegment; | ziU32 size; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | int fallback = 0; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (80, 147).
+- Zi8MatchUWDdata declaration attempt 35: ziUserDictionary* dictionary; | ziU8* cursor; | ziUserWord* previous; | ziU8* boundary; | ziU8* end; | ziU8* begin; | int firstSegment; | ziU32 size; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | int fallback = 0; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (83, 151).
+- Zi8MatchUWDdata declaration attempt 36: ziUserDictionary* dictionary; | ziU8* cursor; | int firstSegment; | ziU8* boundary; | ziU8* end; | ziUserWord* previous; | ziU8* begin; | ziU32 size; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | int fallback = 0; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (81, 148).
+- Zi8MatchUWDdata declaration attempt 37: ziUserDictionary* dictionary; | ziU8* cursor; | ziU32 size; | ziU8* boundary; | ziU8* end; | ziUserWord* previous; | int firstSegment; | ziU8* begin; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | int fallback = 0; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (80, 146).
+- Zi8MatchUWDdata declaration attempt 38: ziUserDictionary* dictionary; | ziU8* cursor; | int entryLanguage; | ziU8* boundary; | ziU8* end; | ziUserWord* previous; | int firstSegment; | ziU32 size; | ziU8* begin; | int entryLength; | int previousOffset; | int visited = 0; | int fallback = 0; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (76, 146).
+- Zi8MatchUWDdata declaration attempt 39: ziUserDictionary* dictionary; | ziU8* cursor; | int entryLength; | ziU8* boundary; | ziU8* end; | ziUserWord* previous; | int firstSegment; | ziU32 size; | int entryLanguage; | ziU8* begin; | int previousOffset; | int visited = 0; | int fallback = 0; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (75, 146).
+- Zi8MatchUWDdata declaration attempt 40: ziUserDictionary* dictionary; | ziU8* cursor; | int previousOffset; | ziU8* boundary; | ziU8* end; | ziUserWord* previous; | int firstSegment; | ziU32 size; | int entryLanguage; | int entryLength; | ziU8* begin; | int visited = 0; | int fallback = 0; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (75, 146).
+- Zi8MatchUWDdata declaration attempt 41: ziUserDictionary* dictionary; | ziU8* cursor; | int visited = 0; | ziU8* boundary; | ziU8* end; | ziUserWord* previous; | int firstSegment; | ziU32 size; | int entryLanguage; | int entryLength; | int previousOffset; | ziU8* begin; | int fallback = 0; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (75, 146).
+- Zi8MatchUWDdata declaration attempt 42: ziUserDictionary* dictionary; | ziU8* cursor; | int fallback = 0; | ziU8* boundary; | ziU8* end; | ziUserWord* previous; | int firstSegment; | ziU32 size; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | ziU8* begin; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (73, 146).
+- Zi8MatchUWDdata declaration attempt 43: ziU8* cursor; | ziUserDictionary* dictionary; | int fallback = 0; | ziU8* boundary; | ziU8* end; | ziUserWord* previous; | int firstSegment; | ziU32 size; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | ziU8* begin; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (116, 150).
+- Zi8MatchUWDdata declaration attempt 44: int fallback = 0; | ziU8* cursor; | ziUserDictionary* dictionary; | ziU8* boundary; | ziU8* end; | ziUserWord* previous; | int firstSegment; | ziU32 size; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | ziU8* begin; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (81, 147).
+- Zi8MatchUWDdata declaration attempt 45: ziU8* boundary; | ziU8* cursor; | int fallback = 0; | ziUserDictionary* dictionary; | ziU8* end; | ziUserWord* previous; | int firstSegment; | ziU32 size; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | ziU8* begin; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (84, 148).
+- Zi8MatchUWDdata declaration attempt 46: ziU8* end; | ziU8* cursor; | int fallback = 0; | ziU8* boundary; | ziUserDictionary* dictionary; | ziUserWord* previous; | int firstSegment; | ziU32 size; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | ziU8* begin; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (84, 148).
+- Zi8MatchUWDdata declaration attempt 47: ziUserWord* previous; | ziU8* cursor; | int fallback = 0; | ziU8* boundary; | ziU8* end; | ziUserDictionary* dictionary; | int firstSegment; | ziU32 size; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | ziU8* begin; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (89, 152).
+- Zi8MatchUWDdata declaration attempt 48: int firstSegment; | ziU8* cursor; | int fallback = 0; | ziU8* boundary; | ziU8* end; | ziUserWord* previous; | ziUserDictionary* dictionary; | ziU32 size; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | ziU8* begin; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (87, 149).
+- Zi8MatchUWDdata declaration attempt 49: ziU32 size; | ziU8* cursor; | int fallback = 0; | ziU8* boundary; | ziU8* end; | ziUserWord* previous; | int firstSegment; | ziUserDictionary* dictionary; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | ziU8* begin; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (86, 147).
+- Zi8MatchUWDdata declaration attempt 50: int entryLanguage; | ziU8* cursor; | int fallback = 0; | ziU8* boundary; | ziU8* end; | ziUserWord* previous; | int firstSegment; | ziU32 size; | ziUserDictionary* dictionary; | int entryLength; | int previousOffset; | int visited = 0; | ziU8* begin; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (82, 147).
+- Zi8MatchUWDdata declaration attempt 51: int entryLength; | ziU8* cursor; | int fallback = 0; | ziU8* boundary; | ziU8* end; | ziUserWord* previous; | int firstSegment; | ziU32 size; | int entryLanguage; | ziUserDictionary* dictionary; | int previousOffset; | int visited = 0; | ziU8* begin; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (81, 147).
+- Zi8MatchUWDdata declaration attempt 52: int previousOffset; | ziU8* cursor; | int fallback = 0; | ziU8* boundary; | ziU8* end; | ziUserWord* previous; | int firstSegment; | ziU32 size; | int entryLanguage; | int entryLength; | ziUserDictionary* dictionary; | int visited = 0; | ziU8* begin; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (81, 147).
+- Zi8MatchUWDdata declaration attempt 53: int visited = 0; | ziU8* cursor; | int fallback = 0; | ziU8* boundary; | ziU8* end; | ziUserWord* previous; | int firstSegment; | ziU32 size; | int entryLanguage; | int entryLength; | int previousOffset; | ziUserDictionary* dictionary; | ziU8* begin; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (81, 147).
+- Zi8MatchUWDdata declaration attempt 54: ziU8* begin; | ziU8* cursor; | int fallback = 0; | ziU8* boundary; | ziU8* end; | ziUserWord* previous; | int firstSegment; | ziU32 size; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | ziUserDictionary* dictionary; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (81, 147).
+- Zi8MatchUWDdata declaration attempt 55: ziWChar folded; | ziU8* cursor; | int fallback = 0; | ziU8* boundary; | ziU8* end; | ziUserWord* previous; | int firstSegment; | ziU32 size; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | ziU8* begin; | ziUserDictionary* dictionary; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (140, 159).
+- Zi8MatchUWDdata declaration attempt 56: ziU8* text; | ziU8* cursor; | int fallback = 0; | ziU8* boundary; | ziU8* end; | ziUserWord* previous; | int firstSegment; | ziU32 size; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | ziU8* begin; | ziWChar folded; | ziUserDictionary* dictionary; | int position; | int prefixLength;; structural/exact diffs (140, 159).
+- Zi8MatchUWDdata declaration attempt 57: int position; | ziU8* cursor; | int fallback = 0; | ziU8* boundary; | ziU8* end; | ziUserWord* previous; | int firstSegment; | ziU32 size; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | ziU8* begin; | ziWChar folded; | ziU8* text; | ziUserDictionary* dictionary; | int prefixLength;; structural/exact diffs (140, 159).
+- Zi8MatchUWDdata declaration attempt 58: int prefixLength; | ziU8* cursor; | int fallback = 0; | ziU8* boundary; | ziU8* end; | ziUserWord* previous; | int firstSegment; | ziU32 size; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | ziU8* begin; | ziWChar folded; | ziU8* text; | int position; | ziUserDictionary* dictionary;; structural/exact diffs (140, 159).
+- Zi8MatchUWDdata declaration attempt 59: ziUserDictionary* dictionary; | int fallback = 0; | ziU8* cursor; | ziU8* boundary; | ziU8* end; | ziUserWord* previous; | int firstSegment; | ziU32 size; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | ziU8* begin; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (81, 149).
+- Zi8MatchUWDdata declaration attempt 60: ziUserDictionary* dictionary; | ziU8* boundary; | int fallback = 0; | ziU8* cursor; | ziU8* end; | ziUserWord* previous; | int firstSegment; | ziU32 size; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | ziU8* begin; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (85, 150).
+- Zi8MatchUWDdata declaration attempt 61: ziUserDictionary* dictionary; | ziU8* end; | int fallback = 0; | ziU8* boundary; | ziU8* cursor; | ziUserWord* previous; | int firstSegment; | ziU32 size; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | ziU8* begin; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (98, 150).
+- Zi8MatchUWDdata declaration attempt 62: ziUserDictionary* dictionary; | ziUserWord* previous; | int fallback = 0; | ziU8* boundary; | ziU8* end; | ziU8* cursor; | int firstSegment; | ziU32 size; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | ziU8* begin; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (90, 154).
+- Zi8MatchUWDdata declaration attempt 63: ziUserDictionary* dictionary; | int firstSegment; | int fallback = 0; | ziU8* boundary; | ziU8* end; | ziUserWord* previous; | ziU8* cursor; | ziU32 size; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | ziU8* begin; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (99, 151).
+- Zi8MatchUWDdata declaration attempt 64: ziUserDictionary* dictionary; | ziU32 size; | int fallback = 0; | ziU8* boundary; | ziU8* end; | ziUserWord* previous; | int firstSegment; | ziU8* cursor; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | ziU8* begin; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (87, 149).
+- Zi8MatchUWDdata declaration attempt 65: ziUserDictionary* dictionary; | int entryLanguage; | int fallback = 0; | ziU8* boundary; | ziU8* end; | ziUserWord* previous; | int firstSegment; | ziU32 size; | ziU8* cursor; | int entryLength; | int previousOffset; | int visited = 0; | ziU8* begin; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (83, 149).
+- Zi8MatchUWDdata declaration attempt 66: ziUserDictionary* dictionary; | int entryLength; | int fallback = 0; | ziU8* boundary; | ziU8* end; | ziUserWord* previous; | int firstSegment; | ziU32 size; | int entryLanguage; | ziU8* cursor; | int previousOffset; | int visited = 0; | ziU8* begin; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (82, 149).
+- Zi8MatchUWDdata declaration attempt 67: ziUserDictionary* dictionary; | int previousOffset; | int fallback = 0; | ziU8* boundary; | ziU8* end; | ziUserWord* previous; | int firstSegment; | ziU32 size; | int entryLanguage; | int entryLength; | ziU8* cursor; | int visited = 0; | ziU8* begin; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (82, 149).
+- Zi8MatchUWDdata declaration attempt 68: ziUserDictionary* dictionary; | int visited = 0; | int fallback = 0; | ziU8* boundary; | ziU8* end; | ziUserWord* previous; | int firstSegment; | ziU32 size; | int entryLanguage; | int entryLength; | int previousOffset; | ziU8* cursor; | ziU8* begin; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (82, 149).
+- Zi8MatchUWDdata declaration attempt 69: ziUserDictionary* dictionary; | ziU8* begin; | int fallback = 0; | ziU8* boundary; | ziU8* end; | ziUserWord* previous; | int firstSegment; | ziU32 size; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | ziU8* cursor; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (81, 149).
+- Zi8MatchUWDdata declaration attempt 70: ziUserDictionary* dictionary; | ziWChar folded; | int fallback = 0; | ziU8* boundary; | ziU8* end; | ziUserWord* previous; | int firstSegment; | ziU32 size; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | ziU8* begin; | ziU8* cursor; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (139, 158).
+- Zi8MatchUWDdata declaration attempt 71: ziUserDictionary* dictionary; | ziU8* text; | int fallback = 0; | ziU8* boundary; | ziU8* end; | ziUserWord* previous; | int firstSegment; | ziU32 size; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | ziU8* begin; | ziWChar folded; | ziU8* cursor; | int position; | int prefixLength;; structural/exact diffs (139, 158).
+- Zi8MatchUWDdata declaration attempt 72: ziUserDictionary* dictionary; | int position; | int fallback = 0; | ziU8* boundary; | ziU8* end; | ziUserWord* previous; | int firstSegment; | ziU32 size; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | ziU8* begin; | ziWChar folded; | ziU8* text; | ziU8* cursor; | int prefixLength;; structural/exact diffs (139, 158).
+- Zi8MatchUWDdata declaration attempt 73: ziUserDictionary* dictionary; | int prefixLength; | int fallback = 0; | ziU8* boundary; | ziU8* end; | ziUserWord* previous; | int firstSegment; | ziU32 size; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | ziU8* begin; | ziWChar folded; | ziU8* text; | int position; | ziU8* cursor;; structural/exact diffs (139, 158).
+- Zi8MatchUWDdata declaration attempt 74: ziUserDictionary* dictionary; | ziU8* cursor; | ziU8* boundary; | int fallback = 0; | ziU8* end; | ziUserWord* previous; | int firstSegment; | ziU32 size; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | ziU8* begin; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (76, 147).
+- Zi8MatchUWDdata declaration attempt 75: ziUserDictionary* dictionary; | ziU8* cursor; | ziU8* end; | ziU8* boundary; | int fallback = 0; | ziUserWord* previous; | int firstSegment; | ziU32 size; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | ziU8* begin; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (78, 147).
+- Zi8MatchUWDdata declaration attempt 76: ziUserDictionary* dictionary; | ziU8* cursor; | ziUserWord* previous; | ziU8* boundary; | ziU8* end; | int fallback = 0; | int firstSegment; | ziU32 size; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | ziU8* begin; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (81, 151).
+- Zi8MatchUWDdata declaration attempt 77: ziUserDictionary* dictionary; | ziU8* cursor; | int firstSegment; | ziU8* boundary; | ziU8* end; | ziUserWord* previous; | int fallback = 0; | ziU32 size; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | ziU8* begin; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (79, 148).
+- Zi8MatchUWDdata declaration attempt 78: ziUserDictionary* dictionary; | ziU8* cursor; | ziU32 size; | ziU8* boundary; | ziU8* end; | ziUserWord* previous; | int firstSegment; | int fallback = 0; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | ziU8* begin; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (78, 146).
+- Zi8MatchUWDdata declaration attempt 79: ziUserDictionary* dictionary; | ziU8* cursor; | int entryLanguage; | ziU8* boundary; | ziU8* end; | ziUserWord* previous; | int firstSegment; | ziU32 size; | int fallback = 0; | int entryLength; | int previousOffset; | int visited = 0; | ziU8* begin; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (74, 146).
+- Zi8MatchUWDdata declaration attempt 80: ziUserDictionary* dictionary; | ziU8* cursor; | int entryLength; | ziU8* boundary; | ziU8* end; | ziUserWord* previous; | int firstSegment; | ziU32 size; | int entryLanguage; | int fallback = 0; | int previousOffset; | int visited = 0; | ziU8* begin; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (73, 146).
+- Zi8MatchUWDdata declaration attempt 81: ziUserDictionary* dictionary; | ziU8* cursor; | int previousOffset; | ziU8* boundary; | ziU8* end; | ziUserWord* previous; | int firstSegment; | ziU32 size; | int entryLanguage; | int entryLength; | int fallback = 0; | int visited = 0; | ziU8* begin; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (73, 146).
+- Zi8MatchUWDdata declaration attempt 82: ziUserDictionary* dictionary; | ziU8* cursor; | int visited = 0; | ziU8* boundary; | ziU8* end; | ziUserWord* previous; | int firstSegment; | ziU32 size; | int entryLanguage; | int entryLength; | int previousOffset; | int fallback = 0; | ziU8* begin; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (73, 146).
+- Zi8MatchUWDdata declaration attempt 83: ziUserDictionary* dictionary; | ziU8* cursor; | ziWChar folded; | ziU8* boundary; | ziU8* end; | ziUserWord* previous; | int firstSegment; | ziU32 size; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | ziU8* begin; | int fallback = 0; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (119, 155).
+- Zi8MatchUWDdata declaration attempt 84: ziUserDictionary* dictionary; | ziU8* cursor; | ziU8* text; | ziU8* boundary; | ziU8* end; | ziUserWord* previous; | int firstSegment; | ziU32 size; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | ziU8* begin; | ziWChar folded; | int fallback = 0; | int position; | int prefixLength;; structural/exact diffs (119, 155).
+- Zi8MatchUWDdata declaration attempt 85: ziUserDictionary* dictionary; | ziU8* cursor; | int position; | ziU8* boundary; | ziU8* end; | ziUserWord* previous; | int firstSegment; | ziU32 size; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | ziU8* begin; | ziWChar folded; | ziU8* text; | int fallback = 0; | int prefixLength;; structural/exact diffs (119, 155).
+- Zi8MatchUWDdata declaration attempt 86: ziUserDictionary* dictionary; | ziU8* cursor; | int prefixLength; | ziU8* boundary; | ziU8* end; | ziUserWord* previous; | int firstSegment; | ziU32 size; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | ziU8* begin; | ziWChar folded; | ziU8* text; | int position; | int fallback = 0;; structural/exact diffs (119, 155).
+- Zi8MatchUWDdata declaration attempt 87: ziUserDictionary* dictionary; | ziU8* cursor; | int fallback = 0; | ziU8* end; | ziU8* boundary; | ziUserWord* previous; | int firstSegment; | ziU32 size; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | ziU8* begin; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (92, 148).
+- Zi8MatchUWDdata declaration attempt 88: ziUserDictionary* dictionary; | ziU8* cursor; | int fallback = 0; | ziUserWord* previous; | ziU8* end; | ziU8* boundary; | int firstSegment; | ziU32 size; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | ziU8* begin; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (84, 152).
+- Zi8MatchUWDdata declaration attempt 89: ziUserDictionary* dictionary; | ziU8* cursor; | int fallback = 0; | int firstSegment; | ziU8* end; | ziUserWord* previous; | ziU8* boundary; | ziU32 size; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | ziU8* begin; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (82, 149).
+- Zi8MatchUWDdata declaration attempt 90: ziUserDictionary* dictionary; | ziU8* cursor; | int fallback = 0; | ziU32 size; | ziU8* end; | ziUserWord* previous; | int firstSegment; | ziU8* boundary; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | ziU8* begin; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (81, 147).
+- Zi8MatchUWDdata declaration attempt 91: ziUserDictionary* dictionary; | ziU8* cursor; | int fallback = 0; | int entryLanguage; | ziU8* end; | ziUserWord* previous; | int firstSegment; | ziU32 size; | ziU8* boundary; | int entryLength; | int previousOffset; | int visited = 0; | ziU8* begin; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (77, 147).
+- Zi8MatchUWDdata declaration attempt 92: ziUserDictionary* dictionary; | ziU8* cursor; | int fallback = 0; | int entryLength; | ziU8* end; | ziUserWord* previous; | int firstSegment; | ziU32 size; | int entryLanguage; | ziU8* boundary; | int previousOffset; | int visited = 0; | ziU8* begin; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (76, 147).
+- Zi8MatchUWDdata declaration attempt 93: ziUserDictionary* dictionary; | ziU8* cursor; | int fallback = 0; | int previousOffset; | ziU8* end; | ziUserWord* previous; | int firstSegment; | ziU32 size; | int entryLanguage; | int entryLength; | ziU8* boundary; | int visited = 0; | ziU8* begin; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (76, 147).
+- Zi8MatchUWDdata declaration attempt 94: ziUserDictionary* dictionary; | ziU8* cursor; | int fallback = 0; | int visited = 0; | ziU8* end; | ziUserWord* previous; | int firstSegment; | ziU32 size; | int entryLanguage; | int entryLength; | int previousOffset; | ziU8* boundary; | ziU8* begin; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (76, 147).
+- Zi8MatchUWDdata declaration attempt 95: ziUserDictionary* dictionary; | ziU8* cursor; | int fallback = 0; | ziU8* begin; | ziU8* end; | ziUserWord* previous; | int firstSegment; | ziU32 size; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | ziU8* boundary; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (76, 147).
+- Zi8MatchUWDdata declaration attempt 96: ziUserDictionary* dictionary; | ziU8* cursor; | int fallback = 0; | ziWChar folded; | ziU8* end; | ziUserWord* previous; | int firstSegment; | ziU32 size; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | ziU8* begin; | ziU8* boundary; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (117, 155).
+- Zi8MatchUWDdata declaration attempt 97: ziUserDictionary* dictionary; | ziU8* cursor; | int fallback = 0; | ziU8* text; | ziU8* end; | ziUserWord* previous; | int firstSegment; | ziU32 size; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | ziU8* begin; | ziWChar folded; | ziU8* boundary; | int position; | int prefixLength;; structural/exact diffs (117, 155).
+- Zi8MatchUWDdata declaration attempt 98: ziUserDictionary* dictionary; | ziU8* cursor; | int fallback = 0; | int position; | ziU8* end; | ziUserWord* previous; | int firstSegment; | ziU32 size; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | ziU8* begin; | ziWChar folded; | ziU8* text; | ziU8* boundary; | int prefixLength;; structural/exact diffs (117, 155).
+- Zi8MatchUWDdata declaration attempt 99: ziUserDictionary* dictionary; | ziU8* cursor; | int fallback = 0; | int prefixLength; | ziU8* end; | ziUserWord* previous; | int firstSegment; | ziU32 size; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | ziU8* begin; | ziWChar folded; | ziU8* text; | int position; | ziU8* boundary;; structural/exact diffs (117, 155).
+- Zi8MatchUWDdata declaration attempt 100: ziUserDictionary* dictionary; | ziU8* cursor; | int fallback = 0; | ziU8* boundary; | ziUserWord* previous; | ziU8* end; | int firstSegment; | ziU32 size; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | ziU8* begin; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (86, 152).
+- Zi8MatchUWDdata declaration attempt 101: ziUserDictionary* dictionary; | ziU8* cursor; | int fallback = 0; | ziU8* boundary; | int firstSegment; | ziUserWord* previous; | ziU8* end; | ziU32 size; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | ziU8* begin; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (94, 148).
+- Zi8MatchUWDdata declaration attempt 102: ziUserDictionary* dictionary; | ziU8* cursor; | int fallback = 0; | ziU8* boundary; | ziU32 size; | ziUserWord* previous; | int firstSegment; | ziU8* end; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | ziU8* begin; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (83, 147).
+- Zi8MatchUWDdata declaration attempt 103: ziUserDictionary* dictionary; | ziU8* cursor; | int fallback = 0; | ziU8* boundary; | int entryLanguage; | ziUserWord* previous; | int firstSegment; | ziU32 size; | ziU8* end; | int entryLength; | int previousOffset; | int visited = 0; | ziU8* begin; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (79, 147).
+- Zi8MatchUWDdata declaration attempt 104: ziUserDictionary* dictionary; | ziU8* cursor; | int fallback = 0; | ziU8* boundary; | int entryLength; | ziUserWord* previous; | int firstSegment; | ziU32 size; | int entryLanguage; | ziU8* end; | int previousOffset; | int visited = 0; | ziU8* begin; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (78, 147).
+- Zi8MatchUWDdata declaration attempt 105: ziUserDictionary* dictionary; | ziU8* cursor; | int fallback = 0; | ziU8* boundary; | int previousOffset; | ziUserWord* previous; | int firstSegment; | ziU32 size; | int entryLanguage; | int entryLength; | ziU8* end; | int visited = 0; | ziU8* begin; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (78, 147).
+- Zi8MatchUWDdata declaration attempt 106: ziUserDictionary* dictionary; | ziU8* cursor; | int fallback = 0; | ziU8* boundary; | int visited = 0; | ziUserWord* previous; | int firstSegment; | ziU32 size; | int entryLanguage; | int entryLength; | int previousOffset; | ziU8* end; | ziU8* begin; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (78, 147).
+- Zi8MatchUWDdata declaration attempt 107: ziUserDictionary* dictionary; | ziU8* cursor; | int fallback = 0; | ziU8* boundary; | ziU8* begin; | ziUserWord* previous; | int firstSegment; | ziU32 size; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | ziU8* end; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (78, 147).
+- Zi8MatchUWDdata declaration attempt 108: ziUserDictionary* dictionary; | ziU8* cursor; | int fallback = 0; | ziU8* boundary; | ziWChar folded; | ziUserWord* previous; | int firstSegment; | ziU32 size; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | ziU8* begin; | ziU8* end; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (104, 154).
+- Zi8MatchUWDdata declaration attempt 109: ziUserDictionary* dictionary; | ziU8* cursor; | int fallback = 0; | ziU8* boundary; | ziU8* text; | ziUserWord* previous; | int firstSegment; | ziU32 size; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | ziU8* begin; | ziWChar folded; | ziU8* end; | int position; | int prefixLength;; structural/exact diffs (104, 154).
+- Zi8MatchUWDdata declaration attempt 110: ziUserDictionary* dictionary; | ziU8* cursor; | int fallback = 0; | ziU8* boundary; | int position; | ziUserWord* previous; | int firstSegment; | ziU32 size; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | ziU8* begin; | ziWChar folded; | ziU8* text; | ziU8* end; | int prefixLength;; structural/exact diffs (104, 154).
+- Zi8MatchUWDdata declaration attempt 111: ziUserDictionary* dictionary; | ziU8* cursor; | int fallback = 0; | ziU8* boundary; | int prefixLength; | ziUserWord* previous; | int firstSegment; | ziU32 size; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | ziU8* begin; | ziWChar folded; | ziU8* text; | int position; | ziU8* end;; structural/exact diffs (104, 154).
+- Zi8MatchUWDdata declaration attempt 112: ziUserDictionary* dictionary; | ziU8* cursor; | int fallback = 0; | ziU8* boundary; | ziU8* end; | int firstSegment; | ziUserWord* previous; | ziU32 size; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | ziU8* begin; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (87, 153).
+- Zi8MatchUWDdata declaration attempt 113: ziUserDictionary* dictionary; | ziU8* cursor; | int fallback = 0; | ziU8* boundary; | ziU8* end; | ziU32 size; | int firstSegment; | ziUserWord* previous; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | ziU8* begin; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (89, 151).
+- Zi8MatchUWDdata declaration attempt 114: ziUserDictionary* dictionary; | ziU8* cursor; | int fallback = 0; | ziU8* boundary; | ziU8* end; | int entryLanguage; | int firstSegment; | ziU32 size; | ziUserWord* previous; | int entryLength; | int previousOffset; | int visited = 0; | ziU8* begin; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (82, 151).
+- Zi8MatchUWDdata declaration attempt 115: ziUserDictionary* dictionary; | ziU8* cursor; | int fallback = 0; | ziU8* boundary; | ziU8* end; | int entryLength; | int firstSegment; | ziU32 size; | int entryLanguage; | ziUserWord* previous; | int previousOffset; | int visited = 0; | ziU8* begin; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (81, 151).
+- Zi8MatchUWDdata declaration attempt 116: ziUserDictionary* dictionary; | ziU8* cursor; | int fallback = 0; | ziU8* boundary; | ziU8* end; | int previousOffset; | int firstSegment; | ziU32 size; | int entryLanguage; | int entryLength; | ziUserWord* previous; | int visited = 0; | ziU8* begin; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (81, 151).
+- Zi8MatchUWDdata declaration attempt 117: ziUserDictionary* dictionary; | ziU8* cursor; | int fallback = 0; | ziU8* boundary; | ziU8* end; | int visited = 0; | int firstSegment; | ziU32 size; | int entryLanguage; | int entryLength; | int previousOffset; | ziUserWord* previous; | ziU8* begin; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (81, 151).
+- Zi8MatchUWDdata declaration attempt 118: ziUserDictionary* dictionary; | ziU8* cursor; | int fallback = 0; | ziU8* boundary; | ziU8* end; | ziU8* begin; | int firstSegment; | ziU32 size; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | ziUserWord* previous; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (81, 151).
+- Zi8MatchUWDdata declaration attempt 119: ziUserDictionary* dictionary; | ziU8* cursor; | int fallback = 0; | ziU8* boundary; | ziU8* end; | ziWChar folded; | int firstSegment; | ziU32 size; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | ziU8* begin; | ziUserWord* previous; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (99, 153).
+- Zi8MatchUWDdata declaration attempt 120: ziUserDictionary* dictionary; | ziU8* cursor; | int fallback = 0; | ziU8* boundary; | ziU8* end; | ziU8* text; | int firstSegment; | ziU32 size; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | ziU8* begin; | ziWChar folded; | ziUserWord* previous; | int position; | int prefixLength;; structural/exact diffs (99, 153).
+- Zi8MatchUWDdata declaration attempt 121: ziUserDictionary* dictionary; | ziU8* cursor; | int fallback = 0; | ziU8* boundary; | ziU8* end; | int position; | int firstSegment; | ziU32 size; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | ziU8* begin; | ziWChar folded; | ziU8* text; | ziUserWord* previous; | int prefixLength;; structural/exact diffs (99, 153).
+- Zi8MatchUWDdata declaration attempt 122: ziUserDictionary* dictionary; | ziU8* cursor; | int fallback = 0; | ziU8* boundary; | ziU8* end; | int prefixLength; | int firstSegment; | ziU32 size; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | ziU8* begin; | ziWChar folded; | ziU8* text; | int position; | ziUserWord* previous;; structural/exact diffs (99, 153).
+- Zi8MatchUWDdata declaration attempt 123: ziUserDictionary* dictionary; | ziU8* cursor; | int fallback = 0; | ziU8* boundary; | ziU8* end; | ziUserWord* previous; | ziU32 size; | int firstSegment; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | ziU8* begin; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (84, 148).
+- Zi8MatchUWDdata declaration attempt 124: ziUserDictionary* dictionary; | ziU8* cursor; | int fallback = 0; | ziU8* boundary; | ziU8* end; | ziUserWord* previous; | int entryLanguage; | ziU32 size; | int firstSegment; | int entryLength; | int previousOffset; | int visited = 0; | ziU8* begin; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (80, 148).
+- Zi8MatchUWDdata declaration attempt 125: ziUserDictionary* dictionary; | ziU8* cursor; | int fallback = 0; | ziU8* boundary; | ziU8* end; | ziUserWord* previous; | int entryLength; | ziU32 size; | int entryLanguage; | int firstSegment; | int previousOffset; | int visited = 0; | ziU8* begin; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (79, 148).
+- Zi8MatchUWDdata declaration attempt 126: ziUserDictionary* dictionary; | ziU8* cursor; | int fallback = 0; | ziU8* boundary; | ziU8* end; | ziUserWord* previous; | int previousOffset; | ziU32 size; | int entryLanguage; | int entryLength; | int firstSegment; | int visited = 0; | ziU8* begin; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (79, 148).
+- Zi8MatchUWDdata declaration attempt 127: ziUserDictionary* dictionary; | ziU8* cursor; | int fallback = 0; | ziU8* boundary; | ziU8* end; | ziUserWord* previous; | int visited = 0; | ziU32 size; | int entryLanguage; | int entryLength; | int previousOffset; | int firstSegment; | ziU8* begin; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (79, 148).
+- Zi8MatchUWDdata declaration attempt 128: ziUserDictionary* dictionary; | ziU8* cursor; | int fallback = 0; | ziU8* boundary; | ziU8* end; | ziUserWord* previous; | ziU8* begin; | ziU32 size; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | int firstSegment; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (79, 148).
+- Zi8MatchUWDdata declaration attempt 129: ziUserDictionary* dictionary; | ziU8* cursor; | int fallback = 0; | ziU8* boundary; | ziU8* end; | ziUserWord* previous; | ziWChar folded; | ziU32 size; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | ziU8* begin; | int firstSegment; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (91, 148).
+- Zi8MatchUWDdata declaration attempt 130: ziUserDictionary* dictionary; | ziU8* cursor; | int fallback = 0; | ziU8* boundary; | ziU8* end; | ziUserWord* previous; | ziU8* text; | ziU32 size; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | ziU8* begin; | ziWChar folded; | int firstSegment; | int position; | int prefixLength;; structural/exact diffs (91, 148).
+- Zi8MatchUWDdata declaration attempt 131: ziUserDictionary* dictionary; | ziU8* cursor; | int fallback = 0; | ziU8* boundary; | ziU8* end; | ziUserWord* previous; | int position; | ziU32 size; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | ziU8* begin; | ziWChar folded; | ziU8* text; | int firstSegment; | int prefixLength;; structural/exact diffs (91, 148).
+- Zi8MatchUWDdata declaration attempt 132: ziUserDictionary* dictionary; | ziU8* cursor; | int fallback = 0; | ziU8* boundary; | ziU8* end; | ziUserWord* previous; | int prefixLength; | ziU32 size; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | ziU8* begin; | ziWChar folded; | ziU8* text; | int position; | int firstSegment;; structural/exact diffs (91, 148).
+- Zi8MatchUWDdata declaration attempt 133: ziUserDictionary* dictionary; | ziU8* cursor; | int fallback = 0; | ziU8* boundary; | ziU8* end; | ziUserWord* previous; | int firstSegment; | int entryLanguage; | ziU32 size; | int entryLength; | int previousOffset; | int visited = 0; | ziU8* begin; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (79, 146).
+- Zi8MatchUWDdata declaration attempt 134: ziUserDictionary* dictionary; | ziU8* cursor; | int fallback = 0; | ziU8* boundary; | ziU8* end; | ziUserWord* previous; | int firstSegment; | int entryLength; | int entryLanguage; | ziU32 size; | int previousOffset; | int visited = 0; | ziU8* begin; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (78, 146).
+- Zi8MatchUWDdata declaration attempt 135: ziUserDictionary* dictionary; | ziU8* cursor; | int fallback = 0; | ziU8* boundary; | ziU8* end; | ziUserWord* previous; | int firstSegment; | int previousOffset; | int entryLanguage; | int entryLength; | ziU32 size; | int visited = 0; | ziU8* begin; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (78, 146).
+- Zi8MatchUWDdata declaration attempt 136: ziUserDictionary* dictionary; | ziU8* cursor; | int fallback = 0; | ziU8* boundary; | ziU8* end; | ziUserWord* previous; | int firstSegment; | int visited = 0; | int entryLanguage; | int entryLength; | int previousOffset; | ziU32 size; | ziU8* begin; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (78, 146).
+- Zi8MatchUWDdata declaration attempt 137: ziUserDictionary* dictionary; | ziU8* cursor; | int fallback = 0; | ziU8* boundary; | ziU8* end; | ziUserWord* previous; | int firstSegment; | ziU8* begin; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | ziU32 size; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (83, 146).
+- Zi8MatchUWDdata declaration attempt 138: ziUserDictionary* dictionary; | ziU8* cursor; | int fallback = 0; | ziU8* boundary; | ziU8* end; | ziUserWord* previous; | int firstSegment; | ziWChar folded; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | ziU8* begin; | ziU32 size; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (90, 146).
+- Zi8MatchUWDdata declaration attempt 139: ziUserDictionary* dictionary; | ziU8* cursor; | int fallback = 0; | ziU8* boundary; | ziU8* end; | ziUserWord* previous; | int firstSegment; | ziU8* text; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | ziU8* begin; | ziWChar folded; | ziU32 size; | int position; | int prefixLength;; structural/exact diffs (90, 146).
+- Zi8MatchUWDdata declaration attempt 140: ziUserDictionary* dictionary; | ziU8* cursor; | int fallback = 0; | ziU8* boundary; | ziU8* end; | ziUserWord* previous; | int firstSegment; | int position; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | ziU8* begin; | ziWChar folded; | ziU8* text; | ziU32 size; | int prefixLength;; structural/exact diffs (90, 146).
+- Zi8MatchUWDdata declaration attempt 141: ziUserDictionary* dictionary; | ziU8* cursor; | int fallback = 0; | ziU8* boundary; | ziU8* end; | ziUserWord* previous; | int firstSegment; | int prefixLength; | int entryLanguage; | int entryLength; | int previousOffset; | int visited = 0; | ziU8* begin; | ziWChar folded; | ziU8* text; | int position; | ziU32 size;; structural/exact diffs (90, 146).
+- Zi8MatchUWDdata declaration attempt 142: ziUserDictionary* dictionary; | ziU8* cursor; | int fallback = 0; | ziU8* boundary; | ziU8* end; | ziUserWord* previous; | int firstSegment; | ziU32 size; | int entryLength; | int entryLanguage; | int previousOffset; | int visited = 0; | ziU8* begin; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (70, 144).
+- Zi8MatchUWDdata declaration attempt 143: ziU8* cursor; | ziUserDictionary* dictionary; | int fallback = 0; | ziU8* boundary; | ziU8* end; | ziUserWord* previous; | int firstSegment; | ziU32 size; | int entryLength; | int entryLanguage; | int previousOffset; | int visited = 0; | ziU8* begin; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (113, 148).
+- Zi8MatchUWDdata declaration attempt 144: int fallback = 0; | ziU8* cursor; | ziUserDictionary* dictionary; | ziU8* boundary; | ziU8* end; | ziUserWord* previous; | int firstSegment; | ziU32 size; | int entryLength; | int entryLanguage; | int previousOffset; | int visited = 0; | ziU8* begin; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (78, 145).
+- Zi8MatchUWDdata declaration attempt 145: ziU8* boundary; | ziU8* cursor; | int fallback = 0; | ziUserDictionary* dictionary; | ziU8* end; | ziUserWord* previous; | int firstSegment; | ziU32 size; | int entryLength; | int entryLanguage; | int previousOffset; | int visited = 0; | ziU8* begin; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (81, 146).
+- Zi8MatchUWDdata declaration attempt 146: ziU8* end; | ziU8* cursor; | int fallback = 0; | ziU8* boundary; | ziUserDictionary* dictionary; | ziUserWord* previous; | int firstSegment; | ziU32 size; | int entryLength; | int entryLanguage; | int previousOffset; | int visited = 0; | ziU8* begin; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (81, 146).
+- Zi8MatchUWDdata declaration attempt 147: ziUserWord* previous; | ziU8* cursor; | int fallback = 0; | ziU8* boundary; | ziU8* end; | ziUserDictionary* dictionary; | int firstSegment; | ziU32 size; | int entryLength; | int entryLanguage; | int previousOffset; | int visited = 0; | ziU8* begin; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (86, 150).
+- Zi8MatchUWDdata declaration attempt 148: int firstSegment; | ziU8* cursor; | int fallback = 0; | ziU8* boundary; | ziU8* end; | ziUserWord* previous; | ziUserDictionary* dictionary; | ziU32 size; | int entryLength; | int entryLanguage; | int previousOffset; | int visited = 0; | ziU8* begin; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (84, 147).
+- Zi8MatchUWDdata declaration attempt 149: ziU32 size; | ziU8* cursor; | int fallback = 0; | ziU8* boundary; | ziU8* end; | ziUserWord* previous; | int firstSegment; | ziUserDictionary* dictionary; | int entryLength; | int entryLanguage; | int previousOffset; | int visited = 0; | ziU8* begin; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (83, 145).
+- Zi8MatchUWDdata declaration attempt 150: int entryLength; | ziU8* cursor; | int fallback = 0; | ziU8* boundary; | ziU8* end; | ziUserWord* previous; | int firstSegment; | ziU32 size; | ziUserDictionary* dictionary; | int entryLanguage; | int previousOffset; | int visited = 0; | ziU8* begin; | ziWChar folded; | ziU8* text; | int position; | int prefixLength;; structural/exact diffs (78, 145).
+Search final: 98.65121 -> 98.65323, exact 2 -> 2, regressions []; selected.
+- Resume Zi8IsWordW, HIGH-e typed ziU16 high octet and preincremented ordinal comparison: objdiff 98.52164 -> 99.60336; data 48 -> 24; instruction-exact 1 -> 1; target/source sizes (1664, 1668); source unwind 30080000000000001808000000000000; fuzzy regressions []; reverted.
+- Resume Zi8IsWordW, HIGH-e typed ziU16 high word bits and preincremented ordinal comparison: objdiff 98.52164 -> 99.44711; data 48 -> 24; instruction-exact 1 -> 1; target/source sizes (1664, 1672); source unwind 30080000000000001808000000000000; fuzzy regressions []; reverted.
+- Resume Zi8IsWordW, HIGH-e typed ziU32 high word bits and preincremented ordinal comparison: objdiff 98.52164 -> 99.57211; data 48 -> 24; instruction-exact 1 -> 1; target/source sizes (1664, 1668); source unwind 30080000000000001808000000000000; fuzzy regressions []; reverted.
+- Resume Zi8IsWordW, HIGH-e typed ziU8 high octet and preincremented ordinal comparison: objdiff 98.52164 -> 99.59135; data 48 -> 24; instruction-exact 1 -> 1; target/source sizes (1664, 1668); source unwind 30080000000000001808000000000000; fuzzy regressions []; reverted.
+- Resume Zi8IsWordW, HIGH-e loop-local const ziU16 high octet with sequenced cursor operations: objdiff 98.52164 -> 95.88942; data 48 -> 8; instruction-exact 1 -> 1; target/source sizes (1664, 1680); source unwind 38180000000000001808000000000000; fuzzy regressions []; reverted.
+- Resume Zi8IsWordW, HIGH-e loop-local ziU16 high octet with sequenced cursor operations: objdiff 98.52164 -> 95.88942; data 48 -> 8; instruction-exact 1 -> 1; target/source sizes (1664, 1680); source unwind 38180000000000001808000000000000; fuzzy regressions []; reverted.
+- Resume Zi8IsWordW, HIGH-e loop-local const ziU8 high octet with sequenced cursor operations: objdiff 98.52164 -> 95.76442; data 48 -> 8; instruction-exact 1 -> 1; target/source sizes (1664, 1684); source unwind 38180000000000001808000000000000; fuzzy regressions []; reverted.
+- Resume Zi8IsWordW, HIGH-e loop-local ziU8 high octet with sequenced cursor operations: objdiff 98.52164 -> 95.8726; data 48 -> 8; instruction-exact 1 -> 1; target/source sizes (1664, 1680); source unwind 38180000000000001808000000000000; fuzzy regressions []; reverted.
+
+### Final open-function audit before full clean gate
+Every open function has at least three distinct current-round source attempts; no function decreased from fetched origin/main.
+Zi8MatchPUDdata_ZHS: 95.3531 -> 98.13842; 11 distinct logged HIGH-e source trials plus declaration searches.
+Zi8_81480224: 99.22414 -> 99.22414; 17 distinct logged HIGH-e source trials plus declaration searches.
+Zi8MatchUWDdata: 86.71573 -> 98.65323; 29 distinct logged HIGH-e source trials plus declaration searches.
+ZiDAWGGetChild: 93.89706 -> 96.67647; 8 distinct logged HIGH-e source trials plus declaration searches.
+ZiDAWGGetSibling: 96.78626 -> 96.78626; 5 distinct logged HIGH-e source trials plus declaration searches.
+ZiDAWGgetCHARattribute: 99.0 -> 99.0; 6 distinct logged HIGH-e source trials plus declaration searches.
+ZiDAWGGetGraphInfo: 99.55224 -> 99.55224; 7 distinct logged HIGH-e source trials plus declaration searches.
+Zi8IsWordW: 85.65625 -> 98.52164; 34 distinct logged HIGH-e source trials plus declaration searches.
+FUZZY REGRESSIONS: 0
+WordW final byte reads precede pointer updates in separate statements; no unsequenced streaming expression remains. No extraction name/extent changes, shared-header edits, no-op casts, or dummy objects added.
+
+### Remaining causes at HIGH handoff
+ZiDAWGGetGraphInfo99.55224:134/134 instructions,12 register-home differences for context/base/result; all13 declaration candidates preserve those homes.
+ZiDAWGgetCHARattribute99.0:60/60 instructions,12 context/key home differences; both declaration orders equivalent.
+Zi8_81480224 99.22414:116/116 instructions,word/length homes plus node-count temporary and address operand order;36 declaration candidates no gain.
+ZiDAWGGetChild96.67647:68/68 instructions,long-offset load scheduling and short-offset assignment register still differ.
+ZiDAWGGetSibling96.78626:131/131 instructions,long-offset octet load order/promotion and return cursor copy differ. No artificial byte mask added.
+Zi8MatchPUDdata_ZHS98.13842:349/354 instructions; target has one extra work-pointer spill and four narrow-octet promotion instructions plus local spill/copy scheduling differences. No unused pointer spill or no-op casts added.
+Zi8IsWordW98.52164:416/416 instructions,only12 positional differences in halfword decoding and ordinal cursor comparison. Prologue,frame,all other body instructions and all48 data bytes match. Sequenced indexed decoder retained.
+Zi8MatchUWDdata98.65323:496/496 instructions; decoded-header ordering/unused target size-field store and remaining spill/cursor scheduling differ; frame0x80 and r19-r31 save set match, all80 data bytes match. No dummy header field introduced.
+
+### Final full clean verification
+Command: python3 /mnt/drive2/projects/wii-ipl-workers/_restore0928-tools/gate.py <all four owned units>, without --quick.
+```
+full build: ok
+main.dol sha1: 26116613f624061ba99c8d1a299aaa6efa85670d
+[libs/RVLMiddleware/eZiText/src/clib/zi8pud2] pool: IDENTICAL
+[libs/RVLMiddleware/eZiText/src/clib/zi8pud2] objdiff: code 720/2136 data 48/120 functions 6/7 fuzzy 98.7659 linked code 0
+[libs/RVLMiddleware/eZiText/src/clib/zi8pud2] instruction-exact functions: 6/7
+[libs/RVLMiddleware/eZiText/src/clib/zi8pud2]   section .text size 2136 match 98.765915
+[libs/RVLMiddleware/eZiText/src/clib/zi8pud2]   section extab size 48 match 100.0
+[libs/RVLMiddleware/eZiText/src/clib/zi8pud2]   section extabindex size 72 match 98.61111
+[libs/RVLMiddleware/eZiText/src/clib/zi8pud2]   below 100: Zi8MatchPUDdata_ZHS 98.13842
+[libs/RVLMiddleware/eZiText/src/clib/zi8pud2] baseline: code 720/2136 data 48 functions 6 fuzzy 96.9195
+[libs/RVLMiddleware/eZiText/src/clib/zidawg1] pool: IDENTICAL
+[libs/RVLMiddleware/eZiText/src/clib/zidawg1] objdiff: code 92/1664 data 80/80 functions 2/6 fuzzy 98.1562 linked code 0
+[libs/RVLMiddleware/eZiText/src/clib/zidawg1] instruction-exact functions: 2/6
+[libs/RVLMiddleware/eZiText/src/clib/zidawg1]   section .text size 1664 match 98.15625
+[libs/RVLMiddleware/eZiText/src/clib/zidawg1]   section extab size 32 match 100.0
+[libs/RVLMiddleware/eZiText/src/clib/zidawg1]   section extabindex size 48 match 100.0
+[libs/RVLMiddleware/eZiText/src/clib/zidawg1]   below 100: ZiDAWGGetChild 96.67647
+[libs/RVLMiddleware/eZiText/src/clib/zidawg1]   below 100: ZiDAWGGetSibling 96.78626
+[libs/RVLMiddleware/eZiText/src/clib/zidawg1]   below 100: ZiDAWGgetCHARattribute 99.0
+[libs/RVLMiddleware/eZiText/src/clib/zidawg1]   below 100: ZiDAWGGetGraphInfo 99.55224
+[libs/RVLMiddleware/eZiText/src/clib/zidawg1] baseline: code 92/1664 data 80 functions 2 fuzzy 97.7019
+[libs/RVLMiddleware/eZiText/src/clib/ziswordw] pool: IDENTICAL
+[libs/RVLMiddleware/eZiText/src/clib/ziswordw] objdiff: code 364/2028 data 48/48 functions 1/2 fuzzy 98.7870 linked code 0
+[libs/RVLMiddleware/eZiText/src/clib/ziswordw] instruction-exact functions: 1/2
+[libs/RVLMiddleware/eZiText/src/clib/ziswordw]   section .sdata2 size 8 match 100.0
+[libs/RVLMiddleware/eZiText/src/clib/ziswordw]   section .text size 2028 match 98.78698
+[libs/RVLMiddleware/eZiText/src/clib/ziswordw]   section extab size 16 match 100.0
+[libs/RVLMiddleware/eZiText/src/clib/ziswordw]   section extabindex size 24 match 100.0
+[libs/RVLMiddleware/eZiText/src/clib/ziswordw]   below 100: Zi8IsWordW 98.52164
+[libs/RVLMiddleware/eZiText/src/clib/ziswordw] baseline: code 364/2028 data 32 functions 1 fuzzy 88.2308
+[libs/RVLMiddleware/eZiText/src/clib/zi8uwd] pool: IDENTICAL
+[libs/RVLMiddleware/eZiText/src/clib/zi8uwd] objdiff: code 208/2656 data 80/80 functions 2/4 fuzzy 98.8584 linked code 0
+[libs/RVLMiddleware/eZiText/src/clib/zi8uwd] instruction-exact functions: 2/4
+[libs/RVLMiddleware/eZiText/src/clib/zi8uwd]   section .text size 2656 match 98.85844
+[libs/RVLMiddleware/eZiText/src/clib/zi8uwd]   section extab size 32 match 100.0
+[libs/RVLMiddleware/eZiText/src/clib/zi8uwd]   section extabindex size 48 match 100.0
+[libs/RVLMiddleware/eZiText/src/clib/zi8uwd]   below 100: Zi8_81480224 99.22414
+[libs/RVLMiddleware/eZiText/src/clib/zi8uwd]   below 100: Zi8MatchUWDdata 98.65323
+[libs/RVLMiddleware/eZiText/src/clib/zi8uwd] baseline: code 208/2656 data None functions 2 fuzzy 89.9413
+regressions vs baseline: 0
+global matched_code_percent: 88.93407 -> 88.93407
+global fuzzy_match_percent: 99.50078 -> 99.51740
+global complete_code_percent: 65.19670 -> 65.19670
+global matched_data_percent: 99.07044 -> 99.07568
+forbidden patterns added (net, per file): 0
+readability warnings (net, per file; must be 0 in the final result): 0
+GATE PASS
+```
+Fresh post-clean objdiff report comparison against fetched origin sources compiled in this tree:
+```
+zi8pud2 ZiIsPhoneticChar: 100.0 -> 100.0
+zi8pud2 ZiGetZHWordSize: 100.0 -> 100.0
+zi8pud2 Zi8CopyZHSpelling: 100.0 -> 100.0
+zi8pud2 ZADP_Zi8SetPDremoveOpt: 100.0 -> 100.0
+zi8pud2 Zi8MatchPUDdata_ZHS: 95.3531 -> 98.13842
+zi8pud2 Zi8MatchPUDdata: 100.0 -> 100.0
+zi8pud2 Zi8_8147FD7C: 100.0 -> 100.0
+zi8uwd Zi8_81480224: 99.22414 -> 99.22414
+zi8uwd Zi8_814803F4: 100.0 -> 100.0
+zi8uwd Zi8_8148047C: 100.0 -> 100.0
+zi8uwd Zi8MatchUWDdata: 86.71573 -> 98.65323
+zidawg1 ZiDAWGGetChild: 93.89706 -> 96.67647
+zidawg1 ZiDAWGGetSibling: 96.78626 -> 96.78626
+zidawg1 ZiDAWGgetEOWattribute: 100.0 -> 100.0
+zidawg1 ZiDAWGgetCHARattribute: 99.0 -> 99.0
+zidawg1 ZiDAWGGetGraph: 100.0 -> 100.0
+zidawg1 ZiDAWGGetGraphInfo: 99.55224 -> 99.55224
+ziswordw Zi8IsWordW: 85.65625 -> 98.52164
+ziswordw Zi8ConvertUC2UserKey: 100.0 -> 100.0
+FUZZY REGRESSIONS: 0
+zi8pud2: exact 6 -> 6; matched_code 720 -> 720; matched_data 48 -> 48 / 120
+zi8uwd: exact 2 -> 2; matched_code 208 -> 208; matched_data 0 -> 80 / 80
+zidawg1: exact 2 -> 2; matched_code 92 -> 92; matched_data 80 -> 80 / 80
+ziswordw: exact 1 -> 1; matched_code 364 -> 364; matched_data 32 -> 48 / 48
+```
+All exact counts/code bytes preserved; matched data gains96 bytes. DAWG, WordW and UWD non-text sections100%; PUD extent gap remains code work. Eight remaining functions audited above, each with at least3 current-round distinct source attempts. No full unit code match claimed.
