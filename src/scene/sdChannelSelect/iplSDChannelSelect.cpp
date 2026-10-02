@@ -3458,7 +3458,11 @@ namespace ipl {
                 break;
             }
 
-            if (event == 0) {
+            switch (event) {
+            default: return;
+            case 0: break;
+            }
+            {
                 if (mpScene->mState == 1) {
                     if (System::getFader()->getStatus() == EGG::Fader::PREPARE_OUT) {
                         if (con != NULL) {
@@ -3504,8 +3508,6 @@ namespace ipl {
                         }
                     }
                 }
-            } else {
-                return;
             }
         }
 
