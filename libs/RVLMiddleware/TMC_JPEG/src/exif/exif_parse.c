@@ -340,17 +340,15 @@ static s32 TMCJPEGDEC_exif_parse(const u8* data, u32 size, TMCCJPEGDecExifData* 
 
 static void TMCJPEGDEC_IFD0_tag_parse(TMCCJPEGDecExifData* pInfo, u16 byteOrder, const u8* entry) {
     s32 tag;
-    u16 type;
+    u32 type;
 
     tag = readU16(entry, byteOrder);
     type = readU16(entry + 2, byteOrder);
 
     switch (tag) {
         case 0x0103:
-        case 0x0111:
-        case 0x0201:
-        case 0x0202: {
-            break;
+        case 0x0111: {
+            return;
         }
         case 0x0112: {
             pInfo->orientation = readU16(entry + 8, byteOrder);
@@ -486,6 +484,11 @@ static void TMCJPEGDEC_IFD0_tag_parse(TMCCJPEGDecExifData* pInfo, u16 byteOrder,
             }
             return;
         }
+        case 0x0201:
+        case 0x0202:
+        default: {
+            break;
+        }
     }
 }
 
@@ -493,16 +496,11 @@ static void TMCJPEGDEC_IFD1_tag_parse(TMCCJPEGDecExifData* pInfo, u16 byteOrder,
     s32 tag = readU16(entry, byteOrder);
 
     switch (tag) {
-        case 0x0132:
-        case 0x0111:
-        case 0x0112:
-        case 0x012D:
-        case 0x0213:
-        case 0x8769:
-        case 0x9000:
-        case 0x9101:
-        case 0xA003: {
+        case 0x0102: {
             break;
+        }
+        case 0x0111: {
+            return;
         }
         case 0x011A: {
             u32 offset;
@@ -548,9 +546,18 @@ static void TMCJPEGDEC_IFD1_tag_parse(TMCCJPEGDecExifData* pInfo, u16 byteOrder,
             pInfo->yResDenIfd1 = readU32(p, byteOrder);
             return;
         }
+        case 0x0112: {
+            break;
+        }
         case 0x0128: {
             pInfo->resUnitIfd1 = readU16(entry + 8, byteOrder);
             return;
+        }
+        case 0x012D: {
+            break;
+        }
+        case 0x0132: {
+            break;
         }
         case 0x0103: {
             pInfo->compressionIfd1 = readU16(entry + 8, byteOrder);
@@ -563,6 +570,24 @@ static void TMCJPEGDEC_IFD1_tag_parse(TMCCJPEGDecExifData* pInfo, u16 byteOrder,
         case 0x0202: {
             pInfo->thumbnailLength = readU32(entry + 8, byteOrder);
             return;
+        }
+        case 0x0213: {
+            break;
+        }
+        case 0x8769: {
+            break;
+        }
+        case 0x9000: {
+            break;
+        }
+        case 0x9101: {
+            break;
+        }
+        case 0xA003: {
+            break;
+        }
+        default: {
+            break;
         }
     }
 }

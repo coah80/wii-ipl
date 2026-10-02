@@ -702,3 +702,47 @@ Orig tree: root cmpwi 0x132; left {11a};{111};{103};{128};{11c-edge};{12d}; righ
   `<` collapses unrolling entirely (99->260). Orig emits `bge` though; counts equal.
 - set_converter: orig keeps ONE callee reg (ob) for the whole fn; deferring `st`
   load / dropping `cc` made no difference — residual +5 is frame-size regalloc.
+
+## exif_parse switch-emission decodes (wave-2 session)
+
+MWCC switch-tree emission model, verified end-to-end on TMCJPEGDEC_IFD0/IFD1_tag_parse:
+- Balanced BST over sorted case values; pivot = element[floor(n/2)] per subtree.
+- `break`-bodies at subtree edges FOLD into the parent compare's bound (bgelr/bltlr);
+  a `break` NOT adjacent to same-target cases counts as a node and emits its own compare.
+- `return`-bodies are distinct nodes emitting `cmpwi X;beqlr`.
+- KEY: `case 0x0111:return` + `case 0x0112:break` emits `cmpwi 0x111;beqlr;bgelr` exactly
+  (break-child folds into parent's gt-bound).
+- `default:` presence changes tree balance/pivots.
+- Case-body emission order = SOURCE case order, not sorted order. Orig's IFD1 source has
+  `case 0x0103` written AFTER `case 0x0132` (its body lands late at ~0x1270). Reordering
+  source to match cut IFD1 normalized diffs to ~3 lines.
+- Merged `case A: case B:` group shares one body AND still emits one compare per value.
+
+Landings this session (all verified, no shims):
+- IFD0: `s32 tag; u32 type;` + `tag/type = readU16()` — the u32 type makes MWCC hoist the
+  u16 mask (`clrlwi`) to right after the root `cmpwi 0x201`, matching orig's phi-join
+  placement, while keeping `cmplwi` unsigned compares (s32 flips them to cmpwi - wrong).
+- IFD0: `case 0x0103:`+`case 0x0111:` merged return-group kills one dead blr body.
+- IFD0: `case 0x0201/0x0202` grouped adjacent with `default:` at switch end keeps root
+  pivot 0x201 AND folds their shared body - insn count now 482 = orig 482.
+- IFD0: `case 0x0102` REMOVED (default covers it) - with it present, {0x102} became a
+  lt-edge child emitting `bgelr`; without it MWCC emits plain `blr`. Orig has `bltlr`.
+- IFD1: body-order decode (0x0103 after 0x0132) + `case 0x0111:return`/`0x0112:break`
+  fold + `case 0x0103` real body + noop cases 0x012D/0x0132/0x0213/0x8769/0x9000/0x9101/
+  0xA003 as breaks + `default:` -> only 2 normalized diff lines remain.
+
+Remaining verified ties (documented walls, all source variants failed):
+- bltlr-vs-bgelr/bound-side at folded lt-edge children (~15 forms: break/return/group/
+  default-placement/removal - MWCC picks a fixed emission side).
+- Leaf bound-form vs equality: orig `cmpw 0xA004;bgelr` for {0xA003}-leaf (bound at
+  max+1); every source form emits `cmpw 0xA003;beqlr` + dead blr (IFD1, 2 lines).
+- stb-interleave: orig serializes lbz;stb per byte through ONE reg in the 4-byte
+  version-string copies (exifVer/flashVer/flashPixVer); mine batches lbz x4;stb x4.
+  u8*/s8* pointer locals, `*q++` walking pointer, for-loop, memcpy all fail to
+  serialize (MWCC hoists). Scheduling artifact of differing webs.
+- 1 dead `blr` body remains in IFD0 after the merged-group fix (unfolded noop body);
+  regname webs (tag r7-vs-r8, offset r6-vs-r8) are allocator-internal.
+
+Scores after: IFD0 94.25->higher (482=482 insns), IFD1 98.76, exif_parse 99.43.
+Texture converter fns re-verified as pure regname webs (instruction multiset identical
+in converterYUV411toRGBA8 - 243=243 insns, all diffs are reg homes).
