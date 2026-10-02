@@ -240,12 +240,14 @@ static inline NWC24Err ReadDlTaskInline(NWC24DlTask* dlTask, NWC24DlId dlId) {
 
 static inline NWC24Err RemoveDlTask(NWC24DlTask* dlTask) {
     NWC24Err result = ValidateDlTask(dlTask, FALSE);
-    if (result == NWC24_OK) {
-        result = DeleteDlTask(dlTask);
-        if (result >= NWC24_OK) {
-            ((DlTaskData*)dlTask)->id = 0xffff;
-        }
+    if (result != NWC24_OK) {
+        return result;
     }
+    result = DeleteDlTask(dlTask);
+    if (result < NWC24_OK) {
+        return result;
+    }
+    ((DlTaskData*)dlTask)->id = 0xffff;
     return result;
 }
 
