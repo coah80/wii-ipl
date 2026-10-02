@@ -32,9 +32,9 @@ ziU32 Zi8GetCandidatesOrCount(ziGetParam* parameters, ZiCandidateOptions* option
 
 ziBool Zi8ZHsetPYfuzzyPairs(ziFuzzyPYPairs pairs ZI_NEED_WORK) {
     if (pairs.ziDefault) {
-        ZI_WORK->unk_0x1B28.word = *(const ziU32*)&Zi8PYdefaultFuzzyPairs;
+        ZI_WORK->pyFuzzy.word = *(const ziU32*)&Zi8PYdefaultFuzzyPairs;
     } else {
-        ZI_WORK->unk_0x1B28.word = *(ziU32*)&pairs;
+        ZI_WORK->pyFuzzy.word = *(ziU32*)&pairs;
     }
     return 1;
 }

@@ -577,27 +577,27 @@ static int zi8InternalGetZH(ziGetParam* request, ZiChineseOptions* options, ziPt
             if (getMode == 1) {
                 switch ((int)match.phon2[index] >> 9) {
                 case 24: case 25:
-                    if (((ziFuzzyPYPairs*)&((struct __zi8_work_data_s*)work)->unk_0x1B28.word)->cANDch) ordinalIndex = 0xFDFF;
+                    if (((ziFuzzyPYPairs*)&((struct __zi8_work_data_s*)work)->pyFuzzy.word)->cANDch) ordinalIndex = 0xFDFF;
                     break;
                 case 26: case 27:
-                    if (((ziFuzzyPYPairs*)&((struct __zi8_work_data_s*)work)->unk_0x1B28.word)->sANDsh) ordinalIndex = 0xFDFF;
+                    if (((ziFuzzyPYPairs*)&((struct __zi8_work_data_s*)work)->pyFuzzy.word)->sANDsh) ordinalIndex = 0xFDFF;
                     break;
                 case 28: case 29:
-                    if (((ziFuzzyPYPairs*)&((struct __zi8_work_data_s*)work)->unk_0x1B28.word)->zANDzh) ordinalIndex = 0xFDFF;
+                    if (((ziFuzzyPYPairs*)&((struct __zi8_work_data_s*)work)->pyFuzzy.word)->zANDzh) ordinalIndex = 0xFDFF;
                     break;
                 case 56: case 59:
-                    if (((ziFuzzyPYPairs*)&((struct __zi8_work_data_s*)work)->unk_0x1B28.word)->fANDh) ordinalIndex = 0xF9FF;
+                    if (((ziFuzzyPYPairs*)&((struct __zi8_work_data_s*)work)->pyFuzzy.word)->fANDh) ordinalIndex = 0xF9FF;
                     break;
                 case 38:
-                    if (((ziFuzzyPYPairs*)&((struct __zi8_work_data_s*)work)->unk_0x1B28.word)->nANDl) ordinalIndex = 0xE5FF;
+                    if (((ziFuzzyPYPairs*)&((struct __zi8_work_data_s*)work)->pyFuzzy.word)->nANDl) ordinalIndex = 0xE5FF;
                     break;
                 case 43:
-                    if (((ziFuzzyPYPairs*)&((struct __zi8_work_data_s*)work)->unk_0x1B28.word)->nANDl && ((ziFuzzyPYPairs*)&((struct __zi8_work_data_s*)work)->unk_0x1B28.word)->lANDr) ordinalIndex = 0xE1FF;
-                    else if (((ziFuzzyPYPairs*)&((struct __zi8_work_data_s*)work)->unk_0x1B28.word)->lANDr) ordinalIndex = 0xF1FF;
-                    else if (((ziFuzzyPYPairs*)&((struct __zi8_work_data_s*)work)->unk_0x1B28.word)->nANDl) ordinalIndex = 0xE5FF;
+                    if (((ziFuzzyPYPairs*)&((struct __zi8_work_data_s*)work)->pyFuzzy.word)->nANDl && ((ziFuzzyPYPairs*)&((struct __zi8_work_data_s*)work)->pyFuzzy.word)->lANDr) ordinalIndex = 0xE1FF;
+                    else if (((ziFuzzyPYPairs*)&((struct __zi8_work_data_s*)work)->pyFuzzy.word)->lANDr) ordinalIndex = 0xF1FF;
+                    else if (((ziFuzzyPYPairs*)&((struct __zi8_work_data_s*)work)->pyFuzzy.word)->nANDl) ordinalIndex = 0xE5FF;
                     break;
                 case 44:
-                    if (((ziFuzzyPYPairs*)&((struct __zi8_work_data_s*)work)->unk_0x1B28.word)->lANDr) ordinalIndex = 0xF1FF;
+                    if (((ziFuzzyPYPairs*)&((struct __zi8_work_data_s*)work)->pyFuzzy.word)->lANDr) ordinalIndex = 0xF1FF;
                     break;
                 }
             } else {
@@ -650,13 +650,13 @@ static int zi8InternalGetZH(ziGetParam* request, ZiChineseOptions* options, ziPt
             if (getMode == 1) {
                 switch (match.phon2[index] & 0x1F0) {
                 case 0x10: case 0x80: case 0x100:
-                    if (((ziFuzzyPYPairs*)&((struct __zi8_work_data_s*)work)->unk_0x1B28.word)->anANDang) ordinalIndex = 0xFFF7;
+                    if (((ziFuzzyPYPairs*)&((struct __zi8_work_data_s*)work)->pyFuzzy.word)->anANDang) ordinalIndex = 0xFFF7;
                     break;
                 case 0x180:
-                    if (((ziFuzzyPYPairs*)&((struct __zi8_work_data_s*)work)->unk_0x1B28.word)->enANDeng) ordinalIndex = 0xFFF7;
+                    if (((ziFuzzyPYPairs*)&((struct __zi8_work_data_s*)work)->pyFuzzy.word)->enANDeng) ordinalIndex = 0xFFF7;
                     break;
                 case 0x60:
-                    if (((ziFuzzyPYPairs*)&((struct __zi8_work_data_s*)work)->unk_0x1B28.word)->inANDing) ordinalIndex = 0xFFF7;
+                    if (((ziFuzzyPYPairs*)&((struct __zi8_work_data_s*)work)->pyFuzzy.word)->inANDing) ordinalIndex = 0xFFF7;
                     break;
                 }
             } else {
