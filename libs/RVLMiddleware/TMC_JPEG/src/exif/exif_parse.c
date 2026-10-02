@@ -3,7 +3,7 @@
 #include <tmc_jpeg_internal.h>
 
 static s32 TMCJPEGDEC_exif_parse(const u8* data, u32 size, TMCCJPEGDecExifData* pInfo);
-static void TMCJPEGDEC_IFD0_tag_parse(TMCCJPEGDecExifData* pInfo, u16 byteOrder, const u8* entry);
+static void TMCJPEGDEC_IFD0_tag_parse(TMCCJPEGDecExifData* pInfo, u16 byteOrder, u8* entry);
 static void TMCJPEGDEC_IFD1_tag_parse(TMCCJPEGDecExifData* pInfo, u16 byteOrder, const u8* entry);
 static s32 TMCJPEGDEC_ThumbnailCheck(TMCCJPEGDecInitParam* param, TMCCJPEGDecExifInfo* info, u32 totalSize);
 
@@ -280,7 +280,7 @@ static s32 TMCJPEGDEC_exif_parse(const u8* data, u32 size, TMCCJPEGDecExifData* 
             return -161;
         }
         for (index = 0; index < count; index++) {
-            TMCJPEGDEC_IFD0_tag_parse(pInfo, byteOrder, entries);
+            TMCJPEGDEC_IFD0_tag_parse(pInfo, byteOrder, (u8*)entries);
             entries += 12;
         }
         remaining -= entriesSize;
@@ -331,19 +331,19 @@ static s32 TMCJPEGDEC_exif_parse(const u8* data, u32 size, TMCCJPEGDecExifData* 
             return -161;
         }
         for (index = 0; index < count; index++) {
-            TMCJPEGDEC_IFD0_tag_parse(pInfo, byteOrder, entries);
+            TMCJPEGDEC_IFD0_tag_parse(pInfo, byteOrder, (u8*)entries);
             entries += 12;
         }
     }
     return 0;
 }
 
-static void TMCJPEGDEC_IFD0_tag_parse(TMCCJPEGDecExifData* pInfo, u16 byteOrder, const u8* entry) {
+static void TMCJPEGDEC_IFD0_tag_parse(TMCCJPEGDecExifData* pInfo, u16 byteOrder, u8* entry) {
     s32 tag;
-    u16 type;
+    u32 type;
 
-    tag = readU16(entry, byteOrder);
-    type = readU16(entry + 2, byteOrder);
+    tag = readExifU16(entry, byteOrder);
+    type = readExifU16(entry + 2, byteOrder);
 
     switch (tag) {
         case 0x0103:
@@ -501,6 +501,10 @@ static void TMCJPEGDEC_IFD1_tag_parse(TMCCJPEGDecExifData* pInfo, u16 byteOrder,
         case 0x8769:
         case 0x9000:
         case 0x9101:
+        case 0x011C:
+        case 0xA000:
+        case 0xA001:
+        case 0xA002:
         case 0xA003: {
             break;
         }
@@ -516,7 +520,7 @@ static void TMCJPEGDEC_IFD1_tag_parse(TMCCJPEGDecExifData* pInfo, u16 byteOrder,
                 return;
             }
             pInfo->xResNumIfd1 = readU32(p, byteOrder);
-            p = (const u8*)(pInfo->thumbnailData + offset + 4);
+            p = pInfo->thumbnailData + (offset + 4);
             if (pInfo->thumbnailData > p) {
                 return;
             }
@@ -538,7 +542,7 @@ static void TMCJPEGDEC_IFD1_tag_parse(TMCCJPEGDecExifData* pInfo, u16 byteOrder,
                 return;
             }
             pInfo->planarConfigIfd1 = readU32(p, byteOrder);
-            p = (const u8*)(pInfo->thumbnailData + offset + 4);
+            p = pInfo->thumbnailData + (offset + 4);
             if (pInfo->thumbnailData > p) {
                 return;
             }
