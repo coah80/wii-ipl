@@ -145,7 +145,7 @@ namespace ipl {
                 ANIM_MAX,
             };
 
-            int unk_0x54;
+            int mAnimWait;
 
             layout::Object* mpLayout;        // 0x58
             nand::LayoutFile* mpLayoutFile;  // 0x5C
