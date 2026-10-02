@@ -3,15 +3,15 @@
 #include <private/wd.h>
 #include <string.h>
 
-s32 AOSSi_cancel_flag;
-static u8 ipAddress[4];
-static u8 ipNetmask[4];
-static u8 ipGateway[4];
-static u8 primaryDns[4];
-static u8 secondaryDns[4];
-static void* (*allocateMemory)(u32, s32);
-static void (*releaseMemory)(u32, void*, s32);
-static void (*statusCallback)(void);
+s32 AOSSi_cancel_flag = 0;
+static u8 ipAddress[4] = {0};
+static u8 ipNetmask[4] = {0};
+static u8 ipGateway[4] = {0};
+static u8 primaryDns[4] = {0};
+static u8 secondaryDns[4] = {0};
+static void* (*allocateMemory)(u32, s32) = NULL;
+static void (*releaseMemory)(u32, void*, s32) = NULL;
+static void (*statusCallback)(void) = NULL;
 static NCDIfConfig AOSSi_NcdIfConfig;
 static NCDIpConfig AOSSi_NcdIpConfig;
 
