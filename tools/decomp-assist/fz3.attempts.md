@@ -2549,3 +2549,1345 @@ libs/RevoEX/src/cdb/CDBRecord | functions 27/29 -> 27/29 | code 5464/7076 -> 546
 libs/RVLMiddleware/TMC_JPEG/src/b65/iqdec_b65_frv32 | functions 0/1 -> 0/1 | code 0/1104 -> None/1104 | data 0/0 -> None/None
 libs/RevoEX/src/so/SOBasic | functions 21/22 -> 21/22 | code 3836/4088 -> 3836/4088 | data 136/144 -> 144/144
 R10 final scope: changed only config/43U/symbols.txt, libs/RevoEX/src/so/SOBasic.c, libs/RVLMiddleware/TMC_JPEG/src/b65/iqdec_b65_frv32.c and this attempts log; commit64e181a4 carries verified data/structural improvements. No new exact code function; no linked flags changed. Seven remaining functions all logged with >=3 compiled attempts and first-difference diagnoses; all rejects restored. CDBRecord pool provenance remains uncertain. Full gate PASS is a regression/build/hash result, not full unit completion.
+
+## R11 max round
+Initial HEAD 9077ef8c7a1ab5bf7605f439ed621214b97999e3; origin 9077ef8c7a1ab5bf7605f439ed621214b97999e3; clean worktree. Nine owned units; no workers/delegation/remote writes. AGENTS and unslop read. Fresh source snapshots in /tmp/fz3-r11-*.original.
+R11 unit initial pool libs/RevoEX/src/so/SOOption
+POOL IDENTICAL up to 0 (mine=0 base=0)
+R11 unit initial pool src/keyboard/tiString
+POOL IDENTICAL up to 0 (mine=0 base=0)
+R11 unit initial pool src/keyboard/tiSignWindow
+POOL IDENTICAL up to 30 (mine=30 base=30)
+R11 unit initial pool libs/RevoEX/src/cdb/CDBRecord
+FIRST DIVERGENCE at index 10
+    8 mine=0x1b0    base=0x1b0
+      M "can't get file size of the record ; the record is closed\n"
+      B "can't get file size of the record ; the record is closed\n"
+    9 mine=0x1ec    base=0x1ec
+      M "can't get data size of the record ; the record is closed\n"
+      B "can't get data size of the record ; the record is closed\n"
+*  10 mine=0x228    base=0x228
+      M "can't remove the record ; the record is opened\n"
+      B "can't reduce file size of the record ; the record is closed\n"
+*  11 mine=0x258    base=0x268
+      M "can't remove the record ; permission denied\n"
+      B "can't reduce file size of the record ; the record is opened as READONL"
+*  12 mine=0x288    base=0x2b8
+      M "can't get CDBId of the record ; the record is closed\n"
+      B "can't reduce file size of the record ; file size must be over %d bytes"
+*  13 mine=0x2c0    base=0x300
+      M "can't get maker code of the record ; the record is closed\n"
+      B "can't reduce data size of the record ; the record is closed\n"
+*  14 mine=0x2fc    base=0x340
+      M "can't set modified time of the record; the database is opened as READO"
+      B "can't reduce data size of the record ; the record is opened as READONL"
+
+mine has 19 strings, base has 47
+R11 unit initial pool libs/RVLMiddleware/TMC_JPEG/src/b65/iqdec_b65_frv32
+POOL IDENTICAL up to 0 (mine=0 base=0)
+R11 unit initial pool libs/RevoEX/src/so/SOBasic
+POOL IDENTICAL up to 1 (mine=1 base=1)
+R11 unit initial pool libs/RVLMiddleware/eZiText/src/clib/zoemdata
+POOL IDENTICAL up to 0 (mine=0 base=0)
+R11 unit initial pool src/scene/sdChannelTitle/iplSDChannelTitle
+POOL IDENTICAL up to 55 (mine=55 base=55)
+R11 unit initial pool libs/MSL/src/MSL_Common/wprintf
+POOL IDENTICAL up to 0 (mine=0 base=0)
+R11 retry remote freshness: SDChannelTitle already68/69, four of the five functions in stale task counts64/69 already exact on fresh HEAD; skip those four. All other supplied counts confirmed. Ten functions remain open in nine units. Baseline data: SO/no data; tiString288/288; tiSign3468/3468; CDB144/2640(pool missing28literals); JPEG/no data; SOBasic144/144(proven extent landed); zoemdata60/60; SD1976/1976; wprintf836/836. No remaining proven data-name mismatch or extent gap besides CDB actual literal pool.
+SOGetInterfaceOpt | R11 fetched origin 2050ad76; source equal fresh original=True; live baseline 99.78992% remains open. Before starts pool below; all target function extents checked separately, no hidden rename/resize.
+SOGetInterfaceOpt | R11 pool first
+POOL IDENTICAL up to 0 (mine=0 base=0)
+SOGetInterfaceOpt | R11 initial ctxdiff
+src 0x1dc base 0x1dc insns 119/119
+diffs 5: [5, 6, 15, 42, 47]
+     5 M mr r25, r4
+       B mr r26, r4
+     6 M mr r28, r5
+       B mr r25, r5
+    15 M addi r0, r28, -0x1001
+       B addi r0, r25, -0x1001
+    42 M stw r25, 0x20(r3)
+       B stw r26, 0x20(r3)
+    47 M stw r28, 0x24(r3)
+       B stw r25, 0x24(r3)
+SOGetInterfaceOpt | R11 initial structural/exact (0, 5)
+SOGetInterfaceOpt | R11 classify first #5 mrlevel25 vs26, thenoption28vs25; five operands only119/119/frame30. All conditional branches/OptionLength alias/temporaries/helpers and memory operand offsets identical. No back-to-back local reload evidence and no extent overlap. Prior scalar local/const selector tests exhausted; new query object lifetime and real helper boundary before last declaration search.
+SOGetInterfaceOpt | R11 selector query object initialized at input boundary level-first | BUILD FAIL RVL_SDK/include -i libs/RevoEX/include -i libs/NW4R/include -i libs/RVLMiddleware/eZiText/include -i libs/RVLMiddleware/TMC_JPEG/include -i libs/RVLFaceLib/include -i libs/EGG/include -i libs/OperaWWW/include -ir libs/RVL_SDK/include/private/bte -i build/43U/include -DBUILD_VERSION=0 -DVERSION_43U -i libs/RVL_SDK/include/private/bte -DNDEBUG=1 -DTARGET_RVL -ipa file -fp_contract off -lang=c -MMD -c libs/RevoEX/src/so/SOOption.c -o build/43U/src/libs/RevoEX/src/so && "/usr/bin/python3" tools/transform_dep.py build/43U/src/libs/RevoEX/src/so/SOOption.d build/43U/src/libs/RevoEX/src/so/SOOption.d ### mwcceppc.exe Compiler: # File: libs\RevoEX\src\so\SOOption.c # -------------------------------------- # 101: const InterfaceSelectors selectors = {level,option}; # Error: ^ # (10124) illegal constant expression # Too many errors printed, aborting program User break, cancelled... ninja: build stopped: subcommand failed.
+SOGetInterfaceOpt | R11 selector query object initialized at input boundary option-first | BUILD FAIL RVL_SDK/include -i libs/RevoEX/include -i libs/NW4R/include -i libs/RVLMiddleware/eZiText/include -i libs/RVLMiddleware/TMC_JPEG/include -i libs/RVLFaceLib/include -i libs/EGG/include -i libs/OperaWWW/include -ir libs/RVL_SDK/include/private/bte -i build/43U/include -DBUILD_VERSION=0 -DVERSION_43U -i libs/RVL_SDK/include/private/bte -DNDEBUG=1 -DTARGET_RVL -ipa file -fp_contract off -lang=c -MMD -c libs/RevoEX/src/so/SOOption.c -o build/43U/src/libs/RevoEX/src/so && "/usr/bin/python3" tools/transform_dep.py build/43U/src/libs/RevoEX/src/so/SOOption.d build/43U/src/libs/RevoEX/src/so/SOOption.d ### mwcceppc.exe Compiler: # File: libs\RevoEX\src\so\SOOption.c # -------------------------------------- # 101: const InterfaceSelectors selectors = {option,level}; # Error: ^ # (10124) illegal constant expression # Too many errors printed, aborting program User break, cancelled... ninja: build stopped: subcommand failed.
+SOGetInterfaceOpt | R11 readonly selector object passed through command encoder helper | BUILD FAIL RVL_SDK/include -i libs/RevoEX/include -i libs/NW4R/include -i libs/RVLMiddleware/eZiText/include -i libs/RVLMiddleware/TMC_JPEG/include -i libs/RVLFaceLib/include -i libs/EGG/include -i libs/OperaWWW/include -ir libs/RVL_SDK/include/private/bte -i build/43U/include -DBUILD_VERSION=0 -DVERSION_43U -i libs/RVL_SDK/include/private/bte -DNDEBUG=1 -DTARGET_RVL -ipa file -fp_contract off -lang=c -MMD -c libs/RevoEX/src/so/SOOption.c -o build/43U/src/libs/RevoEX/src/so && "/usr/bin/python3" tools/transform_dep.py build/43U/src/libs/RevoEX/src/so/SOOption.d build/43U/src/libs/RevoEX/src/so/SOOption.d ### mwcceppc.exe Compiler: # File: libs\RevoEX\src\so\SOOption.c # -------------------------------------- # 105: const InterfaceSelectors selectors = {level,option}; # Error: ^ # (10124) illegal constant expression # Too many errors printed, aborting program User break, cancelled... ninja: build stopped: subcommand failed.
+iplSDChannelTitle_flushSaveBeforeExit | R11 fetched origin 2050ad76; source equal fresh original=True; live baseline 98.5946% remains open. Before starts pool below; all target function extents checked separately, no hidden rename/resize.
+iplSDChannelTitle_flushSaveBeforeExit | R11 pool first
+POOL IDENTICAL up to 55 (mine=55 base=55)
+iplSDChannelTitle_flushSaveBeforeExit | R11 initial ctxdiff
+src 0x94 base 0x94 insns 37/37
+diffs 6: [20, 22, 23, 24, 25, 26]
+    20 M lis r4, 0
+       B lis r3, 0
+    22 M addi r4, r4, 0
+       B addi r3, r3, 0
+    23 M lwz r3, 0x94(r4)
+       B lwz r4, 0x94(r3)
+    24 M stw r0, 0x4c0(r3)
+       B stw r0, 0x4c0(r4)
+    25 M lwz r3, 0x94(r4)
+       B lwz r4, 0x28(r3)
+    26 M lwz r4, 0x28(r4)
+       B lwz r3, 0x94(r3)
+iplSDChannelTitle_flushSaveBeforeExit | R11 initial structural/exact (2, 6)
+Zi8MatchOEMdata | R11 fetched origin 2050ad76; source equal fresh original=True; live baseline 97.83854% remains open. Before starts pool below; all target function extents checked separately, no hidden rename/resize.
+Zi8MatchOEMdata | R11 pool first
+POOL IDENTICAL up to 0 (mine=0 base=0)
+Zi8MatchOEMdata | R11 initial ctxdiff
+src 0x300 base 0x300 insns 192/192
+diffs 40: [5, 6, 12, 18, 19, 20, 21, 23, 26, 27, 41, 46, 54, 62, 69, 73, 79, 83, 91, 94]
+     5 M mr r27, r3
+       B mr r28, r3
+     6 M mr r26, r4
+       B mr r27, r4
+    12 M mr r28, r10
+       B mr r29, r10
+    18 M stw r0, 0x328(r28)
+       B stw r0, 0x328(r29)
+    19 M lwz r29, 0x328(r28)
+       B lwz r26, 0x328(r29)
+    20 M lhz r0, 0x324(r28)
+       B lhz r0, 0x324(r29)
+    21 M cmpw r29, r0
+       B cmpw r26, r0
+    23 M lwz r0, 0x320(r28)
+       B lwz r0, 0x320(r29)
+    26 M addi r24, r24, -1
+       B clrlwi r3, r27, 0x18
+    27 M clrlwi r3, r26, 0x18
+       B addi r24, r24, -1
+    41 M clrlwi r0, r26, 0x18
+       B clrlwi r0, r27, 0x18
+    46 M clrlwi r0, r26, 0x18
+       B clrlwi r0, r27, 0x18
+    54 M clrlwi r0, r26, 0x18
+       B clrlwi r0, r27, 0x18
+    62 M clrlwi r0, r26, 0x18
+       B clrlwi r0, r27, 0x18
+    69 M lhzx r0, r27, r0
+       B lhzx r0, r28, r0
+    73 M lhzx r0, r27, r0
+       B lhzx r0, r28, r0
+    79 M mr r5, r28
+       B mr r5, r29
+    83 M lhzx r0, r27, r0
+       B lhzx r0, r28, r0
+    91 M lhzx r0, r27, r0
+       B lhzx r0, r28, r0
+    94 M lbz r0, 0x1f(r28)
+       B lbz r0, 0x1f(r29)
+   101 M lhzx r0, r27, r0
+       B lhzx r0, r28, r0
+   107 M mr r6, r28
+       B mr r6, r29
+   119 M clrlwi r0, r26, 0x18
+       B clrlwi r0, r27, 0x18
+   122 M clrlwi r0, r26, 0x18
+       B clrlwi r0, r27, 0x18
+   129 M clrlwi r0, r26, 0x18
+       B clrlwi r0, r27, 0x18
+   134 M clrlwi r0, r26, 0x18
+       B clrlwi r0, r27, 0x18
+   137 M addi r29, r29, 1
+       B addi r26, r26, 1
+   138 M lhz r0, 0x324(r28)
+       B lhz r0, 0x324(r29)
+   139 M cmpw r29, r0
+       B cmpw r26, r0
+   144 M li r29, 0
+       B li r26, 0
+   145 M lhz r0, 0(r27)
+       B lhz r0, 0(r28)
+   149 M addi r29, r29, 1
+       B addi r26, r26, 1
+   150 M stw r29, 0x328(r28)
+       B stw r26, 0x328(r29)
+   159 M lhz r0, 0x324(r28)
+       B lhz r0, 0x324(r29)
+   160 M cmpw r29, r0
+       B cmpw r26, r0
+   162 M clrlwi r3, r29, 0x10
+       B clrlwi r3, r26, 0x10
+   165 M lwz r6, 0x32c(r28)
+       B lwz r6, 0x32c(r29)
+   166 M lwz r12, 0x320(r28)
+       B lwz r12, 0x320(r29)
+   172 M clrlwi r0, r26, 0x18
+       B clrlwi r0, r27, 0x18
+   183 M li r29, 0
+       B li r26, 0
+Zi8MatchOEMdata | R11 initial structural/exact (2, 40)
+__wpformatter | R11 fetched origin 2050ad76; source equal fresh original=True; live baseline 99.13997% remains open. Before starts pool below; all target function extents checked separately, no hidden rename/resize.
+__wpformatter | R11 pool first
+POOL IDENTICAL up to 0 (mine=0 base=0)
+__wpformatter | R11 initial ctxdiff
+src 0x944 base 0x944 insns 593/593
+diffs 98: [4, 5, 6, 7, 9, 10, 11, 13, 14, 15, 16, 30, 31, 45, 46, 55, 114, 121, 129, 137]
+     4 M li r21, 0x20
+       B li r20, 0x20
+     5 M lis r17, 0
+       B lis r16, 0
+     6 M mr r22, r3
+       B mr r21, r3
+     7 M mr r23, r4
+       B mr r22, r4
+     9 M mr r24, r6
+       B mr r23, r6
+    10 M addi r17, r17, 0
+       B addi r16, r16, 0
+    11 M addi r16, r1, 0x47e
+       B addi r15, r1, 0x47e
+    13 M lis r18, 0
+       B lis r17, 0
+    14 M li r20, 0x25
+       B li r19, 0x25
+    15 M lis r19, 0
+       B lis r18, 0
+    16 M sth r21, 0xc(r1)
+       B sth r20, 0xc(r1)
+    30 M mr r12, r22
+       B mr r12, r21
+    31 M mr r3, r23
+       B mr r3, r22
+    45 M mr r12, r22
+       B mr r12, r21
+    46 M mr r3, r23
+       B mr r3, r22
+    55 M mr r4, r24
+       B mr r4, r23
+   114 M mr r3, r24
+       B mr r3, r23
+   121 M mr r3, r24
+       B mr r3, r23
+   129 M mr r3, r24
+       B mr r3, r23
+   137 M mr r3, r24
+       B mr r3, r23
+   144 M mr r3, r24
+       B mr r3, r23
+   149 M mr r3, r24
+       B mr r3, r23
+   193 M subf r3, r25, r16
+       B subf r3, r25, r15
+   196 M srawi r15, r0, 1
+       B srawi r24, r0, 1
+   201 M mr r3, r24
+       B mr r3, r23
+   208 M mr r3, r24
+       B mr r3, r23
+   216 M mr r3, r24
+       B mr r3, r23
+   224 M mr r3, r24
+       B mr r3, r23
+   231 M mr r3, r24
+       B mr r3, r23
+   236 M mr r3, r24
+       B mr r3, r23
+   280 M subf r3, r25, r16
+       B subf r3, r25, r15
+   283 M srawi r15, r0, 1
+       B srawi r24, r0, 1
+   288 M mr r3, r24
+       B mr r3, r23
+   293 M mr r3, r24
+       B mr r3, r23
+   311 M subf r3, r3, r16
+       B subf r3, r3, r15
+   314 M srawi r15, r0, 1
+       B srawi r24, r0, 1
+   319 M mr r3, r24
+       B mr r3, r23
+   324 M mr r3, r24
+       B mr r3, r23
+   342 M subf r3, r3, r16
+       B subf r3, r3, r15
+   345 M srawi r15, r0, 1
+       B srawi r24, r0, 1
+   350 M mr r3, r24
+       B mr r3, r23
+   356 M addi r25, r17, 0x54
+       B addi r25, r16, 0x54
+   364 M clrlwi r15, r3, 0x18
+       B clrlwi r24, r3, 0x18
+   367 M cmpw r15, r0
+       B cmpw r24, r0
+   369 M mr r15, r0
+       B mr r24, r0
+   374 M lwz r15, 0x7c(r1)
+       B lwz r24, 0x7c(r1)
+   377 M mr r5, r15
+       B mr r5, r24
+   384 M srawi r15, r0, 1
+       B srawi r24, r0, 1
+   388 M mr r15, r3
+       B mr r24, r3
+   390 M mr r3, r24
+       B mr r3, r23
+   393 M lwz r25, 0(r3)
+       B lwz r24, 0(r3)
+   394 M cmpwi r25, 0
+       B cmpwi r24, 0
+   396 M addi r25, r18, 0
+       B addi r24, r17, 0
+   403 M clrlwi r15, r3, 0x18
+       B clrlwi r25, r3, 0x18
+   406 M cmpw r15, r0
+       B cmpw r25, r0
+   408 M mr r15, r0
+       B mr r25, r0
+   413 M lwz r15, 0x7c(r1)
+       B lwz r25, 0x7c(r1)
+   414 M mr r3, r25
+       B mr r3, r24
+   416 M mr r5, r15
+       B mr r5, r25
+   420 M subf r15, r25, r3
+       B subf r25, r24, r3
+   422 M mr r3, r25
+       B mr r3, r24
+   424 M mr r15, r3
+       B mr r25, r3
+   425 M mr r4, r25
+       B mr r4, r24
+   426 M mr r5, r15
+       B mr r5, r25
+   430 M mr r15, r3
+       B mr r24, r3
+   434 M mr r3, r24
+       B mr r3, r23
+   438 M lwz r4, 0(r3)
+       B lwz r25, 0(r3)
+   441 M addi r3, r19, 0
+       B addi r3, r18, 0
+   446 M stw r31, 0(r4)
+       B stw r31, 0(r25)
+   448 M sth r31, 0(r4)
+       B sth r31, 0(r25)
+   450 M stw r31, 0(r4)
+       B stw r31, 0(r25)
+   452 M stw r31, 4(r4)
+       B stw r31, 4(r25)
+   454 M stw r0, 0(r4)
+       B stw r0, 0(r25)
+   456 M stw r31, 0(r4)
+       B stw r31, 0(r25)
+   458 M stw r31, 0(r4)
+       B stw r31, 0(r25)
+   460 M stw r31, 4(r4)
+       B stw r31, 4(r25)
+   462 M stw r0, 0(r4)
+       B stw r0, 0(r25)
+   468 M mr r3, r24
+       B mr r3, r23
+   472 M li r15, 1
+       B li r24, 1
+   475 M mr r3, r24
+       B mr r3, r23
+   484 M mr r15, r3
+       B mr r24, r3
+   486 M sth r20, 0x80(r1)
+       B sth r19, 0x80(r1)
+   488 M li r15, 1
+       B li r24, 1
+   496 M mr r12, r22
+       B mr r12, r21
+   497 M mr r3, r23
+       B mr r3, r22
+   508 M mr r29, r15
+       B mr r29, r24
+   525 M mr r12, r22
+       B mr r12, r21
+   526 M mr r3, r23
+       B mr r3, r22
+   536 M addi r15, r15, -1
+       B addi r24, r24, -1
+   538 M mr r12, r22
+       B mr r12, r21
+   539 M mr r3, r23
+       B mr r3, r22
+   552 M cmpwi r15, 0
+       B cmpwi r24, 0
+   554 M mr r12, r22
+       B mr r12, r21
+   555 M mr r3, r23
+       B mr r3, r22
+   557 M mr r5, r15
+       B mr r5, r24
+   568 M mr r12, r22
+       B mr r12, r21
+   569 M mr r3, r23
+       B mr r3, r22
+   570 M sth r21, 0xa(r1)
+       B sth r20, 0xa(r1)
+__wpformatter | R11 initial structural/exact (0, 98)
+SOGetInterfaceOpt | R11 fetched origin 2050ad76; source equal fresh original=True; live baseline 99.78992% remains open. Before starts pool below; all target function extents checked separately, no hidden rename/resize.
+SOGetInterfaceOpt | R11 pool first
+POOL IDENTICAL up to 0 (mine=0 base=0)
+SOGetInterfaceOpt | R11 initial ctxdiff
+src 0x1dc base 0x1dc insns 119/119
+diffs 5: [5, 6, 15, 42, 47]
+     5 M mr r25, r4
+       B mr r26, r4
+     6 M mr r28, r5
+       B mr r25, r5
+    15 M addi r0, r28, -0x1001
+       B addi r0, r25, -0x1001
+    42 M stw r25, 0x20(r3)
+       B stw r26, 0x20(r3)
+    47 M stw r28, 0x24(r3)
+       B stw r25, 0x24(r3)
+SOGetInterfaceOpt | R11 initial structural/exact (0, 5)
+SOGetInterfaceOpt | R11 classify first #5 mrlevel25 vs26, thenoption28vs25; five operands only119/119/frame30. All conditional branches/OptionLength alias/temporaries/helpers and memory operand offsets identical. No back-to-back local reload evidence and no extent overlap. Prior scalar local/const selector tests exhausted; new query object lifetime and real helper boundary before last declaration search.
+SOGetInterfaceOpt | R11 selector query object assigned at input boundary C90 level-first | objdiff 99.78992; 119/119 instructions; structural/exact (0, 5); first (5, ('mr', 'r25, r4'), ('mr', 'r26, r4'))
+SOGetInterfaceOpt | R11 selector query object assigned at input boundary C90 option-first | objdiff 99.78992; 119/119 instructions; structural/exact (0, 5); first (5, ('mr', 'r25, r4'), ('mr', 'r26, r4'))
+SOGetInterfaceOpt | R11 readonly selector object passed through command encoder helper C90 | objdiff 99.78992; 119/119 instructions; structural/exact (0, 5); first (5, ('mr', 'r25, r4'), ('mr', 'r26, r4'))
+iplSDChannelTitle_flushSaveBeforeExit | R11 fetched origin 2050ad76; source equal fresh original=True; live baseline 98.5946% remains open. Before starts pool below; all target function extents checked separately, no hidden rename/resize.
+iplSDChannelTitle_flushSaveBeforeExit | R11 classify first #20 lis global base4 versus3; #25/#26 load manager then heap source, heap then manager target. Frame20/local pagec/index8 identical; no branches differ; volatile manager field prevSDPage store target does not show immediate scalar reload. Source saveHeap temp extends globalbase4 through call; use actual direct call argument or typed readonly heap view before any register search. Four other supplied opens already exact; this is only remaining SD function.
+iplSDChannelTitle_flushSaveBeforeExit | R11 heap getter used directly as flush argument instead of extra local | objdiff 98.5946; 37/37 instructions; structural/exact (2, 6); first (20, ('lis', 'r4, 0'), ('lis', 'r3, 0'))
+iplSDChannelTitle_flushSaveBeforeExit | R11 manager cached after page store before heap argument evaluation | objdiff 98.5946; 37/37 instructions; structural/exact (2, 6); first (20, ('lis', 'r4, 0'), ('lis', 'r3, 0'))
+iplSDChannelTitle_flushSaveBeforeExit | R11 immutable heap pointer local at final call input boundary | objdiff 98.5946; 37/37 instructions; structural/exact (2, 6); first (20, ('lis', 'r4, 0'), ('lis', 'r3, 0'))
+__wpformatter | R11 fetched origin 2050ad76; source equal fresh original=True; live baseline 99.13997% remains open. Before starts pool below; all target function extents checked separately, no hidden rename/resize.
+__wpformatter | R11 first #4 space fill constant21 vs20;98operands,593/593/frame4d0/smw15 identical. All branches, loads/stores, field offsets and calls exact; num_chars15vs24 rotates bufferEnd/data bases/constant/argument registers by one. Character string branch uses targetpointer24,length25 versus sourcepointer25,length15, so investigate counter declaration lifetime and inline branch-specific pointer before final declaration search. Pool wide-literals836/836, no extent overlap, no added volatile needed.
+__wpformatter | R11 character span counter local to actual format traversal loop | objdiff 99.13997; 593/593 instructions; structural/exact (0, 98); first (4, ('li', 'r21, 0x20'), ('li', 'r20, 0x20'))
+__wpformatter | R11 counter declared after buffer and fill character inputs | objdiff 99.13997; 593/593 instructions; structural/exact (0, 98); first (4, ('li', 'r21, 0x20'), ('li', 'r20, 0x20'))
+__wpformatter | R11 three format counters split with span length declared last | objdiff 99.13997; 593/593 instructions; structural/exact (0, 98); first (4, ('li', 'r21, 0x20'), ('li', 'r20, 0x20'))
+Zi8MatchOEMdata | R11 fetched origin 2050ad76; source equal fresh original=True; live baseline 97.83854% remains open. Before starts pool below; all target function extents checked separately, no hidden rename/resize.
+Zi8MatchOEMdata | R11 first structural difference #26 capacity decrement precedes length promotion; target promotes length first. Frame40/192 instructions, no extent overlap, case fold at stack8 correct; pattern/work/index/length form four-color rotation. Move decrement to comparison operand, then readonly pattern/context, no use-site volatile.
+Zi8MatchOEMdata | R11 predecrement capacity in comparison right operand | objdiff 98.645836; 192/192 instructions; structural/exact (0, 47); first (5, ('mr', 'r27, r3'), ('mr', 'r28, r3'))
+Zi8MatchOEMdata | R11 readonly pattern input and predecrement comparison | objdiff 97.604164; 194/192 instructions; structural/exact (19, 129); first (5, ('mr', 'r27, r3'), ('mr', 'r28, r3'))
+Zi8MatchOEMdata | R11 typed mutable work context and comparison decrement | BUILD FAIL xt/include -i libs/RVLMiddleware/TMC_JPEG/include -i libs/RVLFaceLib/include -i libs/EGG/include -i libs/OperaWWW/include -ir libs/RVL_SDK/include/private/bte -i build/43U/include -DBUILD_VERSION=0 -DVERSION_43U -i libs/RVL_SDK/include/private/bte -DNDEBUG=1 -DTARGET_RVL -inline off -opt off -str readonly -sdata 0 -fp_contract off -Cpp_exceptions on -lang=c -MMD -c libs/RVLMiddleware/eZiText/src/clib/zoemdata.c -o build/43U/src/libs/RVLMiddleware/eZiText/src/clib && "/usr/bin/python3" tools/transform_dep.py build/43U/src/libs/RVLMiddleware/eZiText/src/clib/zoemdata.d build/43U/src/libs/RVLMiddleware/eZiText/src/clib/zoemdata.d ### mwcceppc.exe Compiler: # File: libs\RVLMiddleware\eZiText\src\clib\zoemdata.c # ------------------------------------------------------- # 8: context->oemMatch = match; # Error: ^^^^^^^ # (10140) undefined identifier 'context' # Too many errors printed, aborting program User break, cancelled... ninja: build stopped: subcommand failed.
+Zi8MatchOEMdata | R11 fetched origin 2050ad76; source equal fresh original=True; live baseline 97.83854% remains open. Before starts pool below; all target function extents checked separately, no hidden rename/resize.
+Zi8MatchOEMdata | R11 typed context local confined to matcher body | objdiff 96.27604; 196/192 instructions; structural/exact (16, 184); first (5, ('mr', 'r27, r3'), ('mr', 'r28, r3'))
+Zi8MatchOEMdata | R11 unsigned saved OEM index with signed comparisons retained | objdiff 98.645836; 192/192 instructions; structural/exact (0, 47); first (5, ('mr', 'r27, r3'), ('mr', 'r28, r3'))
+Zi8MatchOEMdata | R11 comparison ordering candidate before last declaration search | objdiff 98.645836; 192/192 instructions; structural/exact (0, 47); first (5, ('mr', 'r27, r3'), ('mr', 'r28, r3'))
+Zi8MatchOEMdata | R11 register-only last declsearch on four real locals;
+declaration block:
+      ziWChar folded;
+      ziS32 index;
+      ziU32 position;
+      ziU32 fallback = 0;
+start (0, 47)
+best (0, 47) after 13 builds; source restored; best order was:
+    ziWChar folded;
+    ziS32 index;
+    ziU32 position;
+    ziU32 fallback = 0;
+Zi8MatchOEMdata | R11 best real declaration order after structurally exact decrement | objdiff 98.645836; 192/192 instructions; structural/exact (0, 47); first (5, ('mr', 'r27, r3'), ('mr', 'r28, r3'))
+iplSDChannelTitle_flushSaveBeforeExit | R11 fetched origin 2050ad76; source equal fresh original=True; live baseline 98.5946% remains open. Before starts pool below; all target function extents checked separately, no hidden rename/resize.
+iplSDChannelTitle_flushSaveBeforeExit | R11 readonly save manager getter guarded to this source | objdiff 98.5946; 37/37 instructions; structural/exact (2, 6); first (20, ('lis', 'r4, 0'), ('lis', 'r3, 0'))
+iplSDChannelTitle_flushSaveBeforeExit | R11 readonly heap getter guarded to this source | objdiff 98.5946; 37/37 instructions; structural/exact (2, 6); first (20, ('lis', 'r4, 0'), ('lis', 'r3, 0'))
+iplSDChannelTitle_flushSaveBeforeExit | R11 both readonly global argument getters guarded to this source | objdiff 98.5946; 37/37 instructions; structural/exact (2, 6); first (20, ('lis', 'r4, 0'), ('lis', 'r3, 0'))
+CDBCryptBuffer | R11 fetched origin 2050ad76; source equal fresh original=True; live baseline 99.97479% remains open. Before starts pool below; all target function extents checked separately, no hidden rename/resize.
+CDBCryptBuffer | R11 pool first
+FIRST DIVERGENCE at index 10
+    8 mine=0x1b0    base=0x1b0
+      M "can't get file size of the record ; the record is closed\n"
+      B "can't get file size of the record ; the record is closed\n"
+    9 mine=0x1ec    base=0x1ec
+      M "can't get data size of the record ; the record is closed\n"
+      B "can't get data size of the record ; the record is closed\n"
+*  10 mine=0x228    base=0x228
+      M "can't remove the record ; the record is opened\n"
+      B "can't reduce file size of the record ; the record is closed\n"
+*  11 mine=0x258    base=0x268
+      M "can't remove the record ; permission denied\n"
+      B "can't reduce file size of the record ; the record is opened as READONL"
+*  12 mine=0x288    base=0x2b8
+      M "can't get CDBId of the record ; the record is closed\n"
+      B "can't reduce file size of the record ; file size must be over %d bytes"
+*  13 mine=0x2c0    base=0x300
+      M "can't get maker code of the record ; the record is closed\n"
+      B "can't reduce data size of the record ; the record is closed\n"
+*  14 mine=0x2fc    base=0x340
+      M "can't set modified time of the record; the database is opened as READO"
+      B "can't reduce data size of the record ; the record is opened as READONL"
+
+mine has 19 strings, base has 47
+CDBCryptBuffer | R11 initial ctxdiff
+src 0x1dc base 0x1dc insns 119/119
+diffs 3: [32, 75, 95]
+    32 M addi r3, r29, 0x388
+       B addi r3, r29, 0x90c
+    75 M addi r3, r29, 0x398
+       B addi r3, r29, 0x91c
+    95 M addi r3, r29, 0x3a8
+       B addi r3, r29, 0x92c
+CDBCryptBuffer | R11 initial structural/exact (3, 3)
+CDBCryptBuffer | R11 first #36 OSReport string addi388 vs90c; all119 instructions, aligned frame200 and local order/AES helper boundaries/branches exact. Three differences exclusively literal pool after index10, 28 real API error literals lack source/call provenance; no legitimate rename or extent correction. Try typed buffer view/ordinary block-size expression and loop form without artificial literals.
+CDBCryptBuffer | R11 byte buffer local gives read and write spans a shared ordinary typed view | objdiff 99.97479; 119/119 instructions; structural/exact (3, 3); first (32, ('addi', 'r3, r29, 0x388'), ('addi', 'r3, r29, 0x90c'))
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R11 fetched origin 2050ad76; source equal fresh original=True; live baseline 99.86425% remains open. Before starts pool below; all target function extents checked separately, no hidden rename/resize.
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R11 pool first
+POOL IDENTICAL up to 30 (mine=30 base=30)
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R11 initial ctxdiff
+src 0x374 base 0x374 insns 221/221
+diffs 6: [159, 163, 167, 187, 196, 205]
+   159 M lwz r22, 0x18(r20)
+       B lwz r31, 0x18(r20)
+   163 M add r31, r20, r0
+       B add r22, r20, r0
+   167 M lwz r5, 0x20(r31)
+       B lwz r5, 0x20(r22)
+   187 M lwz r5, 0x20(r31)
+       B lwz r5, 0x20(r22)
+   196 M lwz r5, 0x20(r31)
+       B lwz r5, 0x20(r22)
+   205 M cmplw r0, r22
+       B cmplw r0, r31
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R11 initial structural/exact (0, 6)
+create | R11 first #159 lwz animationCount22 vs31;221/frame50/6 register operands. Loop branches, field offsets, operand/load order and other locals exact; animation-slot22vs31 lifetime intersects invariant count. Try counter for-loop, postincrement and slot value/readonly record boundary before declaration search; no stack reload volatile evidence.
+CDBCryptBuffer | R11 block traversal expressed as normal bounded for loop | objdiff 99.97479; 119/119 instructions; structural/exact (3, 3); first (32, ('addi', 'r3, r29, 0x388'), ('addi', 'r3, r29, 0x90c'))
+CDBCryptBuffer | R11 block size derived from actual cipher block array type | BUILD FAIL evoEX/include -i libs/NW4R/include -i libs/RVLMiddleware/eZiText/include -i libs/RVLMiddleware/TMC_JPEG/include -i libs/RVLFaceLib/include -i libs/EGG/include -i libs/OperaWWW/include -ir libs/RVL_SDK/include/private/bte -i build/43U/include -DBUILD_VERSION=0 -DVERSION_43U -i libs/RVL_SDK/include/private/bte -DNDEBUG=1 -DTARGET_RVL -ipa file -fp_contract off -lang=c -MMD -c libs/RevoEX/src/cdb/CDBRecord.c -o build/43U/src/libs/RevoEX/src/cdb && "/usr/bin/python3" tools/transform_dep.py build/43U/src/libs/RevoEX/src/cdb/CDBRecord.d build/43U/src/libs/RevoEX/src/cdb/CDBRecord.d ### mwcceppc.exe Compiler: # File: libs\RevoEX\src\cdb\CDBRecord.c # ---------------------------------------- # 626: NETAESContext context __attribute__((aligned(blockSize))); # Error: ^ # (10140) undefined identifier 'blockSize' # Too many errors printed, aborting program User break, cancelled... ninja: build stopped: subcommand failed.
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R11 inner animation traversal as real for loop | objdiff 99.86425; 221/221 instructions; structural/exact (0, 6); first (159, ('lwz', 'r22, 0x18(r20)'), ('lwz', 'r31, 0x18(r20)'))
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R11 animation index advanced while obtaining current metadata slot | objdiff 98.959274; 221/221 instructions; structural/exact (2, 37); first (159, ('lwz', 'r22, 0x18(r20)'), ('lwz', 'r31, 0x18(r20)'))
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R11 metadata slot loaded as readonly animation value rather than slot reference | objdiff 97.004524; 219/221 instructions; structural/exact (9, 91); first (48, ('lis', 'r26, 0'), ('lis', 'r25, 0'))
+SOGetSockName | R11 fetched origin 2050ad76; source equal fresh original=True; live baseline 96.666664% remains open. Before starts pool below; all target function extents checked separately, no hidden rename/resize.
+SOGetSockName | R11 pool first
+POOL IDENTICAL up to 1 (mine=1 base=1)
+SOGetSockName | R11 initial ctxdiff
+src 0xfc base 0xfc insns 63/63
+diffs 3: [32, 33, 34]
+    32 M mr r3, r28
+       B mr r4, r27
+    33 M mr r4, r27
+       B lbz r5, 0(r27)
+    34 M lbz r5, 0(r27)
+       B mr r3, r28
+SOGetSockName | R11 initial structural/exact (2, 3)
+SOGetSockName | R11 first #32 copy destination move precedes source+length; target source+length first, destination last.63/frame30; all fields, validations, calls and branches exact, data144/144 fixed already; no symbol extent problem or store/reload volatile evidence. Try lifetime of reply reference and mutable destination separate from read-only input address view.
+SOGetSockName | R11 reply pointer lifetime confined to successful request branch | objdiff 95.79365; 63/63 instructions; structural/exact (2, 14); first (5, ('mr', 'r27, r3'), ('mr', 'r28, r3'))
+SOGetSockName | R11 copy reads through const address while response uses mutable output view | objdiff 96.349205; 63/63 instructions; structural/exact (2, 5); first (5, ('mr', 'r27, r4'), ('mr', 'r28, r3'))
+SOGetSockName | R11 read-only request view forms response address at copy boundary | objdiff 96.666664; 63/63 instructions; structural/exact (2, 3); first (32, ('mr', 'r3, r28'), ('mr', 'r4, r27'))
+inputChar__Q39textinput8tistring9DecolatedFw | R11 fetched origin 2050ad76; source equal fresh original=True; live baseline 90.132355% remains open. Before starts pool below; all target function extents checked separately, no hidden rename/resize.
+inputChar__Q39textinput8tistring9DecolatedFw | R11 pool first
+POOL IDENTICAL up to 0 (mine=0 base=0)
+inputChar__Q39textinput8tistring9DecolatedFw | R11 initial ctxdiff
+src 0x1f4 base 0x220 insns 125/136
+--- replace mine 10:11 base 10:11
+  M   10 beq 428
+  B   10 beq 472
+--- replace mine 63:64 base 63:64
+  M   63 b 44
+  B   63 b 80
+--- replace mine 65:69 base 65:78
+  M   65 bne 24
+  M   66 sth r4, 0x10(r1)
+  M   67 li r29, 1
+  M   68 sth r5, 0x12(r1)
+  B   65 bne 60
+  B   66 li r6, 0
+  B   67 sth r6, 0x10(r1)
+  B   68 cmplwi r4, 0xa
+  B   69 slwi r0, r6, 1
+  B   70 addi r5, r1, 0x10
+  B   71 sthx r4, r5, r0
+  B   72 addi r6, r6, 1
+  B   73 mr r4, r5
+  B   74 li r5, 0
+  B   75 slwi r0, r6, 1
+  B   76 clrlwi r29, r6, 0x10
+  B   77 sthx r5, r4, r0
+--- replace mine 90:91 base 99:100
+  M   90 bne 52
+  B   99 bne 56
+--- replace mine 99:101 base 108:111
+  M   99 lwz r0, 0x18(r31)
+  M  100 add r0, r0, r29
+  B  108 lwz r3, 0x18(r31)
+  B  109 clrlwi r0, r29, 0x10
+  B  110 add r0, r3, r0
+--- replace mine 102:103 base 112:113
+  M  102 b 52
+  B  112 b 56
+--- replace mine 112:114 base 122:125
+  M  112 lwz r0, 0xc(r1)
+  M  113 add r0, r0, r29
+  B  122 lwz r3, 0xc(r1)
+  B  123 clrlwi r0, r29, 0x10
+  B  124 add r0, r3, r0
+inputChar__Q39textinput8tistring9DecolatedFw | R11 initial structural/exact (18, 73)
+inputChar__Q39textinput8tistring9DecolatedFw | R11 fetched origin c1183780; source equal fresh original=True; live baseline 90.132355% remains open. Before starts pool below; all target function extents checked separately, no hidden rename/resize.
+inputChar | R11 first structural branch10 reflects missing11-mode3 instructions; target #66 starts indexed literal converter count6 then deadnewline compare #68; no immediate stack reload or extent overlap. Target count masked again atcursoradd. New literal converter helper clears real preview state on newline versus result completion, actual typed buffer construction/field order; no empty helper, fabricated state or volatile.
+inputChar__Q39textinput8tistring9DecolatedFw | R11 literal buffer constructor and newline preview clear u32 cursor | objdiff 90.80147; 131/136 instructions; structural/exact (22, 73); first (10, ('beq', '452'), ('beq', '472'))
+inputChar__Q39textinput8tistring9DecolatedFw | R11 literal buffer constructor and newline preview clear u16 cursor | objdiff 90.80147; 131/136 instructions; structural/exact (22, 73); first (10, ('beq', '452'), ('beq', '472'))
+CDBCryptBuffer | R11 fetched origin c1183780; source equal fresh original=True; live baseline 99.97479% remains open. Before starts pool below; all target function extents checked separately, no hidden rename/resize.
+CDBCryptBuffer | R11 correction: first differing index32 (not36); target aligned prologue confirmed independently; constant scalar prior trial replaced ATTRIBUTE_ALIGN and failed, excluded from compiled attempt count.
+inputChar__Q39textinput8tistring9DecolatedFw | R11 literal buffer constructor and newline preview clear s32 cursor | objdiff 90.80147; 131/136 instructions; structural/exact (22, 73); first (10, ('beq', '452'), ('beq', '472'))
+CDBCryptBuffer | R11 cipher block array sizeof as real enumeration constant, alignment unchanged | objdiff 99.97479; 119/119 instructions; structural/exact (3, 3); first (32, ('addi', 'r3, r29, 0x388'), ('addi', 'r3, r29, 0x90c'))
+TMCJPEGDEC_decode_iquant | R11 fetched origin c1183780; source equal fresh original=True; live baseline 99.31159% remains open. Before starts pool below; all target function extents checked separately, no hidden rename/resize.
+TMCJPEGDEC_decode_iquant | R11 pool first
+POOL IDENTICAL up to 0 (mine=0 base=0)
+TMCJPEGDEC_decode_iquant | R11 initial ctxdiff
+src 0x450 base 0x450 insns 276/276
+diffs 30: [42, 51, 64, 65, 66, 73, 92, 93, 95, 96, 115, 116, 128, 130, 157, 166, 179, 180, 181, 188]
+    42 M addi r4, r25, 0x24
+       B addi r7, r25, 0x24
+    51 M addi r4, r4, 4
+       B addi r7, r7, 4
+    64 M lhz r7, 0(r4)
+       B lhz r4, 0(r7)
+    65 M lhz r3, 2(r4)
+       B lhz r3, 2(r7)
+    66 M sth r7, 0x14(r1)
+       B sth r4, 0x14(r1)
+    73 M subf r0, r7, r6
+       B subf r0, r4, r6
+    92 M lwz r4, 4(r23)
+       B lwz r0, 4(r23)
+    93 M li r0, 1
+       B li r4, 1
+    95 M slw r6, r0, r25
+       B slw r6, r4, r25
+    96 M subf r4, r25, r4
+       B subf r4, r25, r0
+   115 M lwz r29, 0x4ac(r23)
+       B lwz r25, 0x4ac(r23)
+   116 M lwz r30, 0x4b0(r23)
+       B lwz r24, 0x4b0(r23)
+   128 M lis r24, 0
+       B lis r29, 0
+   130 M addi r24, r24, 0
+       B addi r29, r29, 0
+   157 M addi r4, r29, 0x24
+       B addi r7, r25, 0x24
+   166 M addi r4, r4, 4
+       B addi r7, r7, 4
+   179 M lhz r7, 0(r4)
+       B lhz r4, 0(r7)
+   180 M lhz r3, 2(r4)
+       B lhz r3, 2(r7)
+   181 M sth r7, 0xc(r1)
+       B sth r4, 0xc(r1)
+   188 M subf r0, r7, r6
+       B subf r0, r4, r6
+   191 M lbzx r3, r30, r0
+       B lbzx r3, r24, r0
+   205 M lbzx r25, r24, r27
+       B lbzx r30, r29, r27
+   213 M lwz r4, 4(r23)
+       B lwz r0, 4(r23)
+   216 M addi r7, r3, -1
+       B addi r6, r3, -1
+   217 M subf r4, r26, r4
+       B subf r4, r26, r0
+   224 M rlwinm r6, r25, 2, 0x16, 0x1d
+       B rlwinm r7, r30, 2, 0x16, 0x1d
+   226 M and r5, r7, r5
+       B and r5, r6, r5
+   231 M lwzx r3, r22, r6
+       B lwzx r3, r22, r7
+   234 M subf r5, r7, r5
+       B subf r5, r6, r5
+   237 M stwx r0, r21, r6
+       B stwx r0, r21, r7
+TMCJPEGDEC_decode_iquant | R11 initial structural/exact (0, 30)
+TMCJPEGDEC_decode_iquant | R11 first #42 addi tablecursor4 vs7;276/frame50 and all six aggregate frame slots nowexact. Only30 GPR differences, long-entry threshold4vs7; DCremaining count0vs4 and ACtables/zigzag threecycle. No extent/pool gaps. Try meaningful cursor reuse, entry comparison temporary boundary and DC remaining bit local before final declaration search.
+TMCJPEGDEC_decode_iquant | R11 DC long code advances actual input table cursor without redundant alias | objdiff 98.333336; 276/276 instructions; structural/exact (4, 54); first (33, ('lwz', 'r30, 0x4a0(r23)'), ('lwz', 'r29, 0x4a0(r23)'))
+TMCJPEGDEC_decode_iquant | R11 decoded threshold named explicitly after real aggregate copy in both helpers | objdiff 99.31159; 276/276 instructions; structural/exact (0, 30); first (42, ('addi', 'r4, r25, 0x24'), ('addi', 'r7, r25, 0x24'))
+TMCJPEGDEC_decode_iquant | R11 DC signed coefficient consumes scoped remaining bit count | objdiff 99.11232; 276/276 instructions; structural/exact (0, 38); first (42, ('addi', 'r4, r25, 0x24'), ('addi', 'r7, r25, 0x24'))
+CDBRecordEncrypt | R11 fetched origin c1183780; source equal fresh original=True; live baseline 99.19014% remains open. Before starts pool below; all target function extents checked separately, no hidden rename/resize.
+CDBRecordEncrypt | R11 pool first
+FIRST DIVERGENCE at index 10
+    8 mine=0x1b0    base=0x1b0
+      M "can't get file size of the record ; the record is closed\n"
+      B "can't get file size of the record ; the record is closed\n"
+    9 mine=0x1ec    base=0x1ec
+      M "can't get data size of the record ; the record is closed\n"
+      B "can't get data size of the record ; the record is closed\n"
+*  10 mine=0x228    base=0x228
+      M "can't remove the record ; the record is opened\n"
+      B "can't reduce file size of the record ; the record is closed\n"
+*  11 mine=0x258    base=0x268
+      M "can't remove the record ; permission denied\n"
+      B "can't reduce file size of the record ; the record is opened as READONL"
+*  12 mine=0x288    base=0x2b8
+      M "can't get CDBId of the record ; the record is closed\n"
+      B "can't reduce file size of the record ; file size must be over %d bytes"
+*  13 mine=0x2c0    base=0x300
+      M "can't get maker code of the record ; the record is closed\n"
+      B "can't reduce data size of the record ; the record is closed\n"
+*  14 mine=0x2fc    base=0x340
+      M "can't set modified time of the record; the database is opened as READO"
+      B "can't reduce data size of the record ; the record is opened as READONL"
+
+mine has 19 strings, base has 47
+CDBRecordEncrypt | R11 initial ctxdiff
+src 0x470 base 0x470 insns 284/284
+diffs 44: [8, 10, 11, 12, 13, 14, 15, 24, 25, 37, 41, 42, 46, 54, 61, 78, 88, 97, 106, 111]
+     8 M lis r31, 0
+       B lis r25, 0
+    10 M mr r25, r3
+       B mr r26, r3
+    11 M mr r26, r4
+       B mr r27, r4
+    12 M mr r29, r5
+       B mr r24, r5
+    13 M mr r27, r6
+       B mr r28, r6
+    14 M mr r28, r7
+       B mr r29, r7
+    15 M addi r31, r31, 0
+       B addi r25, r25, 0
+    24 M mr r3, r26
+       B mr r3, r27
+    25 M mr r5, r27
+       B mr r5, r28
+    37 M cmpwi r26, 0
+       B cmpwi r27, 0
+    41 M lwz r24, 0x38(r25)
+       B lwz r31, 0x38(r26)
+    42 M cmpwi r24, 0
+       B cmpwi r31, 0
+    46 M lwz r0, 0x1c(r24)
+       B lwz r0, 0x1c(r31)
+    54 M addi r3, r24, 0x20
+       B addi r3, r31, 0x20
+    61 M lwz r3, 0x38(r25)
+       B lwz r3, 0x38(r26)
+    78 M lwz r3, 0x38(r25)
+       B lwz r3, 0x38(r26)
+    88 M mr r4, r29
+       B mr r4, r24
+    97 M lwz r0, 0x38(r25)
+       B lwz r0, 0x38(r26)
+   106 M addi r3, r31, 0x1b0
+       B addi r3, r25, 0x1b0
+   111 M mr r3, r25
+       B mr r3, r26
+   124 M lwz r0, 0x38(r25)
+       B lwz r0, 0x38(r26)
+   133 M addi r3, r31, 0x1ec
+       B addi r3, r25, 0x1ec
+   138 M mr r3, r25
+       B mr r3, r26
+   149 M cmplw r27, r0
+       B cmplw r28, r0
+   153 M mr r3, r26
+       B mr r3, r27
+   158 M lwz r0, 0x38(r25)
+       B lwz r0, 0x38(r26)
+   163 M mr r3, r25
+       B mr r3, r26
+   169 M mr r29, r3
+       B mr r31, r3
+   177 M lwz r0, 0x38(r25)
+       B lwz r0, 0x38(r26)
+   182 M mr r3, r25
+       B mr r3, r26
+   193 M lwz r0, 0x38(r25)
+       B lwz r0, 0x38(r26)
+   202 M addi r3, r31, 0x178
+       B addi r3, r25, 0x178
+   207 M mr r3, r25
+       B mr r3, r26
+   208 M addi r4, r26, 0x400
+       B addi r4, r27, 0x400
+   209 M addi r5, r27, -0x400
+       B addi r5, r28, -0x400
+   219 M lwz r0, 0x38(r25)
+       B lwz r0, 0x38(r26)
+   224 M mr r3, r25
+       B mr r3, r26
+   225 M mr r4, r29
+       B mr r4, r31
+   238 M addi r3, r26, 0x400
+       B addi r3, r27, 0x400
+   250 M mr r3, r26
+       B mr r3, r27
+   260 M mr r4, r26
+       B mr r4, r27
+   267 M addi r3, r26, 0xb0
+       B addi r3, r27, 0xb0
+   271 M cmpwi r28, 0
+       B cmpwi r29, 0
+   275 M stw r0, 0(r28)
+       B stw r0, 0(r29)
+CDBRecordEncrypt | R11 initial structural/exact (0, 44)
+CDBRecordEncrypt | R11 first #8 literal base31 vs25;284/frame400/44 GPR operands, pool shifts are genuine missing earlier literals. All data/branch/offset/call orders and auth temporaries exact. Test readonly descriptor owner, field snapshot boundary and real WiiId helper lifetime instead of artificial pool data; no store/reload volatility evidence or extent overlap.
+CDBRecordEncrypt | R11 descriptor ownership fields read through immutable descriptor view | objdiff 99.19014; 284/284 instructions; structural/exact (0, 44); first (8, ('lis', 'r31, 0'), ('lis', 'r25, 0'))
+CDBRecordEncrypt | R11 first metadata setter file snapshot has constant pointer identity | objdiff 99.19014; 284/284 instructions; structural/exact (0, 44); first (8, ('lis', 'r31, 0'), ('lis', 'r25, 0'))
+CDBRecordEncrypt | R11 WiiId metadata validation helper accepts read-only record owner | objdiff 99.22535; 284/284 instructions; structural/exact (0, 42); first (8, ('lis', 'r31, 0'), ('lis', 'r25, 0'))
+__wpformatter | R11 fetched origin c1183780; source equal fresh original=True; live baseline 99.13997% remains open. Before starts pool below; all target function extents checked separately, no hidden rename/resize.
+__wpformatter | R11 narrow argument fetched using actual char pointer type | objdiff 99.13997; 593/593 instructions; structural/exact (0, 98); first (4, ('li', 'r21, 0x20'), ('li', 'r20, 0x20'))
+__wpformatter | R11 narrow string end uses char pointer and pointer difference | objdiff 99.13997; 593/593 instructions; structural/exact (0, 98); first (4, ('li', 'r21, 0x20'), ('li', 'r20, 0x20'))
+__wpformatter | R11 narrow character input declared mutable as original va_arg type | objdiff 99.13997; 593/593 instructions; structural/exact (0, 98); first (4, ('li', 'r21, 0x20'), ('li', 'r20, 0x20'))
+__wpformatter | R11 wide string source readonly until output callback view | objdiff 99.13997; 593/593 instructions; structural/exact (0, 98); first (4, ('li', 'r21, 0x20'), ('li', 'r20, 0x20'))
+__wpformatter | R11 signed long character counter retaining signed comparisons | objdiff 99.13997; 593/593 instructions; structural/exact (0, 98); first (4, ('li', 'r21, 0x20'), ('li', 'r20, 0x20'))
+__wpformatter | R11 size_t character count with signed formatter comparisons | objdiff 99.13997; 593/593 instructions; structural/exact (0, 98); first (4, ('li', 'r21, 0x20'), ('li', 'r20, 0x20'))
+__wpformatter | R11 real buffer limit declared once for conversion helpers | objdiff 98.09444; 597/593 instructions; structural/exact (50, 439); first (10, ('addi', 'r25, r1, 0x480'), ('addi', 'r16, r16, 0'))
+__wpformatter | R11 format object read through const pointer | objdiff 99.13997; 593/593 instructions; structural/exact (0, 98); first (4, ('li', 'r21, 0x20'), ('li', 'r20, 0x20'))
+__wpformatter | R11 fetched origin c1183780; source equal fresh original=True; live baseline 99.13997% remains open. Before starts pool below; all target function extents checked separately, no hidden rename/resize.
+__wpformatter | R11 second diagnosis: implicit buff+511 common constant occupies16 vs target15; fieldnum15 vs24 cycle unchanged by all pointer/int qualifiers. Name actual last buffer element at natural declaration scope, or normal pointer-difference expression before final declsearch; no dummy local or alignment changes.
+__wpformatter | R11 actual last buffer element declared alongside buffer | objdiff 99.37605; 593/593 instructions; structural/exact (2, 66); first (10, ('addi', 'r25, r1, 0x47e'), ('addi', 'r16, r16, 0'))
+__wpformatter | R11 last buffer element declaration after other conversion state | objdiff 99.37605; 593/593 instructions; structural/exact (2, 66); first (10, ('addi', 'r25, r1, 0x47e'), ('addi', 'r16, r16, 0'))
+__wpformatter | R11 buffer end as subscript address in all result lengths | objdiff 99.13997; 593/593 instructions; structural/exact (0, 98); first (4, ('li', 'r21, 0x20'), ('li', 'r20, 0x20'))
+__wpformatter | R11 buffer count uses direct last element plus offset | objdiff 99.13997; 593/593 instructions; structural/exact (0, 98); first (4, ('li', 'r21, 0x20'), ('li', 'r20, 0x20'))
+__wpformatter | R11 buffer length difference computed before subtracting terminator | objdiff 98.463745; 597/593 instructions; structural/exact (43, 453); first (4, ('li', 'r21, 0x20'), ('li', 'r20, 0x20'))
+__wpformatter | R11 span count assigned in switch completion after buffer creation | objdiff 99.13997; 593/593 instructions; structural/exact (0, 98); first (4, ('li', 'r21, 0x20'), ('li', 'r20, 0x20'))
+Zi8MatchOEMdata | R11 fetched origin c1183780; source equal fresh original=True; live baseline 97.83854% remains open. Before starts pool below; all target function extents checked separately, no hidden rename/resize.
+Zi8MatchOEMdata | R11 promoted length captured before capacity decrement in real validation | objdiff 97.8125; 194/192 instructions; structural/exact (4, 177); first (5, ('mr', 'r27, r3'), ('mr', 'r28, r3'))
+Zi8MatchOEMdata | R11 capacity assignment in right comparison operand | objdiff 98.59375; 192/192 instructions; structural/exact (0, 48); first (5, ('mr', 'r27, r3'), ('mr', 'r28, r3'))
+Zi8MatchOEMdata | R11 fallback state expressed as actual boolean | objdiff 98.125; 193/192 instructions; structural/exact (7, 89); first (5, ('mr', 'r27, r3'), ('mr', 'r28, r3'))
+Zi8MatchOEMdata | R11 readonly pattern length snapshot for comparison and sentinels | objdiff 94.4375; 197/192 instructions; structural/exact (23, 186); first (5, ('mr', 'r26, r3'), ('mr', 'r28, r3'))
+create | R11 continue same already-fetched open function: count/slot lifetime boundary allstructural exact. Distinct natural bound types, induction form and allocation input qualification before final manual declaration search.
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R11 animation count signed source type with unsigned comparison view | objdiff 99.86425; 221/221 instructions; structural/exact (0, 6); first (159, ('lwz', 'r22, 0x18(r20)'), ('lwz', 'r31, 0x18(r20)'))
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R11 animation count unsigned int instead of SDK unsigned long | objdiff 99.86425; 221/221 instructions; structural/exact (0, 6); first (159, ('lwz', 'r22, 0x18(r20)'), ('lwz', 'r31, 0x18(r20)'))
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R11 count immutable within each pane iteration | objdiff 98.8914; 221/221 instructions; structural/exact (0, 46); first (58, ('li', 'r22, 0'), ('li', 'r21, 0'))
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R11 count inner iteration initialized after induction variable | objdiff 98.77828; 221/221 instructions; structural/exact (0, 50); first (58, ('li', 'r22, 0'), ('li', 'r21, 0'))
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R11 animation slot pointer refers to const table entry explicitly | objdiff 99.86425; 221/221 instructions; structural/exact (0, 6); first (159, ('lwz', 'r22, 0x18(r20)'), ('lwz', 'r31, 0x18(r20)'))
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R11 animation index postfix increment after actual metadata use | objdiff 99.86425; 221/221 instructions; structural/exact (0, 6); first (159, ('lwz', 'r22, 0x18(r20)'), ('lwz', 'r31, 0x18(r20)'))
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R11 allocation input pointer has fixed function-local identity | objdiff 99.86425; 221/221 instructions; structural/exact (0, 6); first (159, ('lwz', 'r22, 0x18(r20)'), ('lwz', 'r31, 0x18(r20)'))
+SOGetInterfaceOpt | R11 command address readonly with fields written through request object | objdiff 100.0; 119/119 instructions; structural/exact (0, 0); first None
+SOGetInterfaceOpt | R11 accepted const command input view with selectors stored through owning request; no shared header changes, C ABI and all other functions unchanged. Compiler alias/read-only lever resolves all five selector colors,119/119/diffs0. Authority gate follows before local commit.
+
+R11 SOOption gate-passing exact improvement
+full build: ok
+main.dol sha1: 26116613f624061ba99c8d1a299aaa6efa85670d
+[libs/RevoEX/src/so/SOOption] pool: IDENTICAL
+[libs/RevoEX/src/so/SOOption] objdiff: code 1292/1292 data None/None functions 4/4 fuzzy 100.0000 linked code 0
+[libs/RevoEX/src/so/SOOption] instruction-exact functions: 4/4
+[libs/RevoEX/src/so/SOOption]   section .text size 1292 match 100.0
+[libs/RevoEX/src/so/SOOption] baseline: code 816/1292 data None functions 3 fuzzy 99.9226
+regressions vs baseline: 0
+global matched_code_percent: 90.43582 -> 90.45171
+global fuzzy_match_percent: 99.56501 -> 99.56503
+global complete_code_percent: 70.30611 -> 70.30611
+global matched_data_percent: 99.36639 -> 99.36639
+forbidden patterns added (net, per file): 0
+readability warnings (net, per file; must be 0 in the final result): 0
+GATE PASS
+SOGetInterfaceOpt | R11119/119/diffs0; poolidentical; clean C ABI, only readonly command input pointer and real owner field writes changed. This is the proven const-input alias lever.
+__wpformatter | R11 fetched origin c1183780; source equal fresh original=True; live baseline 99.13997% remains open. Before starts pool below; all target function extents checked separately, no hidden rename/resize.
+iplSDChannelTitle_flushSaveBeforeExit | R11 fetched origin c1183780; source equal fresh original=True; live baseline 98.5946% remains open. Before starts pool below; all target function extents checked separately, no hidden rename/resize.
+__wpformatter | R11 literal callback lengths separated from conversion result length | objdiff 99.13997; 593/593 instructions; structural/exact (0, 98); first (4, ('li', 'r21, 0x20'), ('li', 'r20, 0x20'))
+__wpformatter | R11 narrow conversion has its own byte length and exports character count | objdiff 98.01855; 593/593 instructions; structural/exact (2, 170); first (4, ('li', 'r24, 0x20'), ('li', 'r20, 0x20'))
+__wpformatter | R11 wide input scan has separate case-local output count | objdiff 99.40135; 593/593 instructions; structural/exact (0, 67); first (175, ('mr', 'r24, r3'), ('mr', 'r25, r3'))
+iplSDChannelTitle_flushSaveBeforeExit | R11 page stored through named manager page reference | objdiff 98.5946; 37/37 instructions; structural/exact (2, 6); first (20, ('lis', 'r4, 0'), ('lis', 'r3, 0'))
+__wpformatter | R11 all literal output paths use separate prefix count | objdiff 99.13997; 593/593 instructions; structural/exact (0, 98); first (4, ('li', 'r21, 0x20'), ('li', 'r20, 0x20'))
+iplSDChannelTitle_flushSaveBeforeExit | R11 current page readonly value captured before manager getter | objdiff 98.5946; 37/37 instructions; structural/exact (2, 6); first (20, ('lis', 'r4, 0'), ('lis', 'r3, 0'))
+R11 WP/SD continued same functions after their completed pre-start origin2050ad76 fetch, pool and ctxdiff diagnosis. Canceled only our redundant queued fetch requests after >4 minutes waiting behind external lock holder; resumed source experiments from verified originals without restarting any function. No other processes or refs changed.
+__wpformatter | R11 literal callback lengths separated from conversion result length | objdiff 99.13997; 593/593 instructions; structural/exact (0, 98); first (4, ('li', 'r21, 0x20'), ('li', 'r20, 0x20'))
+__wpformatter | R11 narrow conversion has its own byte length and exports character count | objdiff 98.01855; 593/593 instructions; structural/exact (2, 170); first (4, ('li', 'r24, 0x20'), ('li', 'r20, 0x20'))
+__wpformatter | R11 wide input scan has separate case-local output count | objdiff 99.40135; 593/593 instructions; structural/exact (0, 67); first (175, ('mr', 'r24, r3'), ('mr', 'r25, r3'))
+__wpformatter | R11 all literal output paths use separate prefix count | objdiff 99.13997; 593/593 instructions; structural/exact (0, 98); first (4, ('li', 'r21, 0x20'), ('li', 'r20, 0x20'))
+iplSDChannelTitle_flushSaveBeforeExit | R11 page stored through named manager page reference | objdiff 98.5946; 37/37 instructions; structural/exact (2, 6); first (20, ('lis', 'r4, 0'), ('lis', 'r3, 0'))
+iplSDChannelTitle_flushSaveBeforeExit | R11 current page readonly value captured before manager getter | objdiff 98.5946; 37/37 instructions; structural/exact (2, 6); first (20, ('lis', 'r4, 0'), ('lis', 'r3, 0'))
+iplSDChannelTitle_flushSaveBeforeExit | R11 page setter helper with int input | BUILD FAIL om: # Z:\mnt\drive2\projects\wii-ipl-workers\data- # d2\include\scene\iplSceneBase.h:6 # Z:\mnt\drive2\projects\wii-ipl-workers\data- # d2\include\scene\iplFaderSceneBase.h:4 # Z:\mnt\drive2\projects\wii-ipl-workers\data- # d2\include\iplSceneHeader.h:5 # Z:\mnt\drive2\projects\wii-ipl-workers\data- # d2\include\scene\sdChannelTitle\iplSDChannelTitle.h:4 # Z:\mnt\drive2\projects\wii-ipl-workers\data- # d2\src\scene\sdChannelTitle\iplSDChannelTitle.cpp:6) ### mwcceppc.exe Compiler: # File: src\scene\sdChannelTitle\iplSDChannelTitle.cpp # ------------------------------------------------------- # 1354: ic inline void saveSDPage(savedata::Manager* manager, int page) { # Error: ^ # (10333) object 'ipl::scene::saveSDPage(ipl::savedata::Manager *, int)' # redefined # Too many errors printed, aborting program User break, cancelled... ninja: build stopped: subcommand failed.
+iplSDChannelTitle_flushSaveBeforeExit | R11 page setter helper with const SDChannelTitle* input | BUILD FAIL cts\wii-ipl-workers\data- # d2\include\scene\iplSceneBase.h:6 # Z:\mnt\drive2\projects\wii-ipl-workers\data- # d2\include\scene\iplFaderSceneBase.h:4 # Z:\mnt\drive2\projects\wii-ipl-workers\data- # d2\include\iplSceneHeader.h:5 # Z:\mnt\drive2\projects\wii-ipl-workers\data- # d2\include\scene\sdChannelTitle\iplSDChannelTitle.h:4 # Z:\mnt\drive2\projects\wii-ipl-workers\data- # d2\src\scene\sdChannelTitle\iplSDChannelTitle.cpp:6) ### mwcceppc.exe Compiler: # File: src\scene\sdChannelTitle\iplSDChannelTitle.cpp # ------------------------------------------------------- # 1354: SDPage(savedata::Manager* manager, const SDChannelTitle* title) { # Error: ^ # (10333) object 'ipl::scene::saveSDPage(ipl::savedata::Manager *, const # ipl::scene::SDChannelTitle *)' redefined # Too many errors printed, aborting program User break, cancelled... ninja: build stopped: subcommand failed.
+iplSDChannelTitle_flushSaveBeforeExit | R11 heap first input of real flush helper | BUILD FAIL nt\drive2\projects\wii-ipl-workers\data- # d2\include\scene\iplSceneBase.h:6 # Z:\mnt\drive2\projects\wii-ipl-workers\data- # d2\include\scene\iplFaderSceneBase.h:4 # Z:\mnt\drive2\projects\wii-ipl-workers\data- # d2\include\iplSceneHeader.h:5 # Z:\mnt\drive2\projects\wii-ipl-workers\data- # d2\include\scene\sdChannelTitle\iplSDChannelTitle.h:4 # Z:\mnt\drive2\projects\wii-ipl-workers\data- # d2\src\scene\sdChannelTitle\iplSDChannelTitle.cpp:6) ### mwcceppc.exe Compiler: # File: src\scene\sdChannelTitle\iplSDChannelTitle.cpp # ------------------------------------------------------- # 1354: saveSDChannelState(EGG::Heap* heap, savedata::Manager* manager) { # Error: ^ # (10333) object 'ipl::scene::saveSDChannelState(EGG::Heap *, # ipl::savedata::Manager *)' redefined # Too many errors printed, aborting program User break, cancelled... ninja: build stopped: subcommand failed.
+__wpformatter | R11 wide case count lifetime splits same buffer/count interference graph; prologue15..23 constants/arguments now exact,67 remaining mostly num_chars25 and buffer pointer24 versus target24/25. This structural source-scope lever is real and compiles593/593/zero structural differences. Try assignment and readonly output boundaries next, declaration search last.
+__wpformatter | R11 wide scan count separate, preserved as candidate | objdiff 99.40135; 593/593 instructions; structural/exact (0, 67); first (175, ('mr', 'r24, r3'), ('mr', 'r25, r3'))
+__wpformatter | R11 wide scan output pointer assigned before character count | objdiff 99.40135; 593/593 instructions; structural/exact (0, 67); first (175, ('mr', 'r24, r3'), ('mr', 'r25, r3'))
+__wpformatter | R11 wide count uses standard size type with signed comparisons | objdiff 99.40135; 593/593 instructions; structural/exact (0, 67); first (175, ('mr', 'r24, r3'), ('mr', 'r25, r3'))
+__wpformatter | R11 formatted output read through readonly buffer view | objdiff 99.40135; 593/593 instructions; structural/exact (0, 67); first (175, ('mr', 'r24, r3'), ('mr', 'r25, r3'))
+TMCJPEGDEC_decode_iquant | R11 declsearch #1: u8* huff_sym; / const TMCHuffmanEntry* ac_fast; / s32 idx; / u32* huff_tbl; / s32 bit_pos; / u32 bit_data; / u32 tmp; / s32 r; / s32 blk0; | 276/276 instructions; structural/exact (0, 30); first (42, ('addi', 'r4, r25, 0x24'), ('addi', 'r7, r25, 0x24'))
+TMCJPEGDEC_decode_iquant | R11 declsearch #2: const TMCHuffmanEntry* ac_fast; / u8* huff_sym; / s32 idx; / u32* huff_tbl; / s32 bit_pos; / u32 bit_data; / u32 tmp; / s32 r; / s32 blk0; | 276/276 instructions; structural/exact (0, 32); first (33, ('lwz', 'r28, 0x4a0(r23)'), ('lwz', 'r29, 0x4a0(r23)'))
+TMCJPEGDEC_decode_iquant | R11 declsearch #3: s32 idx; / const TMCHuffmanEntry* ac_fast; / u8* huff_sym; / u32* huff_tbl; / s32 bit_pos; / u32 bit_data; / u32 tmp; / s32 r; / s32 blk0; | 276/276 instructions; structural/exact (0, 47); first (33, ('lwz', 'r27, 0x4a0(r23)'), ('lwz', 'r29, 0x4a0(r23)'))
+__wpformatter | R11 scan end pointer confined to actual string conversion cases | objdiff 99.40135; 593/593 instructions; structural/exact (0, 67); first (175, ('mr', 'r24, r3'), ('mr', 'r25, r3'))
+TMCJPEGDEC_decode_iquant | R11 declsearch #4: u32* huff_tbl; / const TMCHuffmanEntry* ac_fast; / s32 idx; / u8* huff_sym; / s32 bit_pos; / u32 bit_data; / u32 tmp; / s32 r; / s32 blk0; | 276/276 instructions; structural/exact (0, 32); first (33, ('lwz', 'r27, 0x4a0(r23)'), ('lwz', 'r29, 0x4a0(r23)'))
+TMCJPEGDEC_decode_iquant | R11 declsearch #5: s32 bit_pos; / const TMCHuffmanEntry* ac_fast; / s32 idx; / u32* huff_tbl; / u8* huff_sym; / u32 bit_data; / u32 tmp; / s32 r; / s32 blk0; | 276/276 instructions; structural/exact (0, 32); first (33, ('lwz', 'r27, 0x4a0(r23)'), ('lwz', 'r29, 0x4a0(r23)'))
+TMCJPEGDEC_decode_iquant | R11 declsearch #6: u32 bit_data; / const TMCHuffmanEntry* ac_fast; / s32 idx; / u32* huff_tbl; / s32 bit_pos; / u8* huff_sym; / u32 tmp; / s32 r; / s32 blk0; | 276/276 instructions; structural/exact (0, 32); first (33, ('lwz', 'r27, 0x4a0(r23)'), ('lwz', 'r29, 0x4a0(r23)'))
+TMCJPEGDEC_decode_iquant | R11 declsearch #7: u32 tmp; / const TMCHuffmanEntry* ac_fast; / s32 idx; / u32* huff_tbl; / s32 bit_pos; / u32 bit_data; / u8* huff_sym; / s32 r; / s32 blk0; | 276/276 instructions; structural/exact (0, 36); first (33, ('lwz', 'r27, 0x4a0(r23)'), ('lwz', 'r29, 0x4a0(r23)'))
+TMCJPEGDEC_decode_iquant | R11 declsearch #8: s32 r; / const TMCHuffmanEntry* ac_fast; / s32 idx; / u32* huff_tbl; / s32 bit_pos; / u32 bit_data; / u32 tmp; / u8* huff_sym; / s32 blk0; | 276/276 instructions; structural/exact (0, 32); first (33, ('lwz', 'r27, 0x4a0(r23)'), ('lwz', 'r29, 0x4a0(r23)'))
+__wpformatter | R11 field length and formatted pointer declared together after buffer | objdiff 99.40135; 593/593 instructions; structural/exact (0, 67); first (175, ('mr', 'r24, r3'), ('mr', 'r25, r3'))
+TMCJPEGDEC_decode_iquant | R11 declsearch #9: s32 blk0; / const TMCHuffmanEntry* ac_fast; / s32 idx; / u32* huff_tbl; / s32 bit_pos; / u32 bit_data; / u32 tmp; / s32 r; / u8* huff_sym; | 276/276 instructions; structural/exact (0, 34); first (33, ('lwz', 'r27, 0x4a0(r23)'), ('lwz', 'r29, 0x4a0(r23)'))
+TMCJPEGDEC_decode_iquant | R11 declsearch #10: u8* huff_sym; / s32 idx; / const TMCHuffmanEntry* ac_fast; / u32* huff_tbl; / s32 bit_pos; / u32 bit_data; / u32 tmp; / s32 r; / s32 blk0; | 276/276 instructions; structural/exact (0, 45); first (42, ('addi', 'r4, r25, 0x24'), ('addi', 'r7, r25, 0x24'))
+iplSDChannelTitle_flushSaveBeforeExit | R11 page stored through named manager page reference | objdiff 98.5946; 37/37 instructions; structural/exact (2, 6); first (20, ('lis', 'r4, 0'), ('lis', 'r3, 0'))
+TMCJPEGDEC_decode_iquant | R11 declsearch #11: u8* huff_sym; / u32* huff_tbl; / s32 idx; / const TMCHuffmanEntry* ac_fast; / s32 bit_pos; / u32 bit_data; / u32 tmp; / s32 r; / s32 blk0; | 276/276 instructions; structural/exact (0, 45); first (42, ('addi', 'r4, r25, 0x24'), ('addi', 'r7, r25, 0x24'))
+TMCJPEGDEC_decode_iquant | R11 declsearch #12: u8* huff_sym; / s32 bit_pos; / s32 idx; / u32* huff_tbl; / const TMCHuffmanEntry* ac_fast; / u32 bit_data; / u32 tmp; / s32 r; / s32 blk0; | 276/276 instructions; structural/exact (0, 45); first (42, ('addi', 'r4, r25, 0x24'), ('addi', 'r7, r25, 0x24'))
+__wpformatter | R11 field length declaration directly follows formatted pointer | objdiff 99.40135; 593/593 instructions; structural/exact (0, 67); first (175, ('mr', 'r24, r3'), ('mr', 'r25, r3'))
+TMCJPEGDEC_decode_iquant | R11 declsearch #13: u8* huff_sym; / u32 bit_data; / s32 idx; / u32* huff_tbl; / s32 bit_pos; / const TMCHuffmanEntry* ac_fast; / u32 tmp; / s32 r; / s32 blk0; | 276/276 instructions; structural/exact (0, 45); first (42, ('addi', 'r4, r25, 0x24'), ('addi', 'r7, r25, 0x24'))
+TMCJPEGDEC_decode_iquant | R11 declsearch #14: u8* huff_sym; / u32 tmp; / s32 idx; / u32* huff_tbl; / s32 bit_pos; / u32 bit_data; / const TMCHuffmanEntry* ac_fast; / s32 r; / s32 blk0; | 276/276 instructions; structural/exact (0, 49); first (42, ('addi', 'r4, r25, 0x24'), ('addi', 'r7, r25, 0x24'))
+TMCJPEGDEC_decode_iquant | R11 declsearch #15: u8* huff_sym; / s32 r; / s32 idx; / u32* huff_tbl; / s32 bit_pos; / u32 bit_data; / u32 tmp; / const TMCHuffmanEntry* ac_fast; / s32 blk0; | 276/276 instructions; structural/exact (0, 45); first (42, ('addi', 'r4, r25, 0x24'), ('addi', 'r7, r25, 0x24'))
+TMCJPEGDEC_decode_iquant | R11 declsearch #16: u8* huff_sym; / s32 blk0; / s32 idx; / u32* huff_tbl; / s32 bit_pos; / u32 bit_data; / u32 tmp; / s32 r; / const TMCHuffmanEntry* ac_fast; | 276/276 instructions; structural/exact (0, 47); first (42, ('addi', 'r4, r25, 0x24'), ('addi', 'r7, r25, 0x24'))
+TMCJPEGDEC_decode_iquant | R11 declsearch #17: u8* huff_sym; / const TMCHuffmanEntry* ac_fast; / u32* huff_tbl; / s32 idx; / s32 bit_pos; / u32 bit_data; / u32 tmp; / s32 r; / s32 blk0; | 276/276 instructions; structural/exact (0, 30); first (42, ('addi', 'r4, r25, 0x24'), ('addi', 'r7, r25, 0x24'))
+TMCJPEGDEC_decode_iquant | R11 declsearch #18: u8* huff_sym; / const TMCHuffmanEntry* ac_fast; / s32 bit_pos; / u32* huff_tbl; / s32 idx; / u32 bit_data; / u32 tmp; / s32 r; / s32 blk0; | 276/276 instructions; structural/exact (0, 30); first (42, ('addi', 'r4, r25, 0x24'), ('addi', 'r7, r25, 0x24'))
+TMCJPEGDEC_decode_iquant | R11 declsearch #19: u8* huff_sym; / const TMCHuffmanEntry* ac_fast; / u32 bit_data; / u32* huff_tbl; / s32 bit_pos; / s32 idx; / u32 tmp; / s32 r; / s32 blk0; | 276/276 instructions; structural/exact (0, 30); first (42, ('addi', 'r4, r25, 0x24'), ('addi', 'r7, r25, 0x24'))
+TMCJPEGDEC_decode_iquant | R11 declsearch #20: u8* huff_sym; / const TMCHuffmanEntry* ac_fast; / u32 tmp; / u32* huff_tbl; / s32 bit_pos; / u32 bit_data; / s32 idx; / s32 r; / s32 blk0; | 276/276 instructions; structural/exact (0, 34); first (42, ('addi', 'r4, r25, 0x24'), ('addi', 'r7, r25, 0x24'))
+TMCJPEGDEC_decode_iquant | R11 declsearch #21: u8* huff_sym; / const TMCHuffmanEntry* ac_fast; / s32 r; / u32* huff_tbl; / s32 bit_pos; / u32 bit_data; / u32 tmp; / s32 idx; / s32 blk0; | 276/276 instructions; structural/exact (0, 30); first (42, ('addi', 'r4, r25, 0x24'), ('addi', 'r7, r25, 0x24'))
+TMCJPEGDEC_decode_iquant | R11 declsearch #22: u8* huff_sym; / const TMCHuffmanEntry* ac_fast; / s32 blk0; / u32* huff_tbl; / s32 bit_pos; / u32 bit_data; / u32 tmp; / s32 r; / s32 idx; | 276/276 instructions; structural/exact (0, 32); first (42, ('addi', 'r4, r25, 0x24'), ('addi', 'r7, r25, 0x24'))
+TMCJPEGDEC_decode_iquant | R11 declsearch #23: u8* huff_sym; / const TMCHuffmanEntry* ac_fast; / s32 idx; / s32 bit_pos; / u32* huff_tbl; / u32 bit_data; / u32 tmp; / s32 r; / s32 blk0; | 276/276 instructions; structural/exact (0, 30); first (42, ('addi', 'r4, r25, 0x24'), ('addi', 'r7, r25, 0x24'))
+TMCJPEGDEC_decode_iquant | R11 declsearch #24: u8* huff_sym; / const TMCHuffmanEntry* ac_fast; / s32 idx; / u32 bit_data; / s32 bit_pos; / u32* huff_tbl; / u32 tmp; / s32 r; / s32 blk0; | 276/276 instructions; structural/exact (0, 30); first (42, ('addi', 'r4, r25, 0x24'), ('addi', 'r7, r25, 0x24'))
+TMCJPEGDEC_decode_iquant | R11 declsearch #25: u8* huff_sym; / const TMCHuffmanEntry* ac_fast; / s32 idx; / u32 tmp; / s32 bit_pos; / u32 bit_data; / u32* huff_tbl; / s32 r; / s32 blk0; | 276/276 instructions; structural/exact (0, 34); first (42, ('addi', 'r4, r25, 0x24'), ('addi', 'r7, r25, 0x24'))
+TMCJPEGDEC_decode_iquant | R11 declsearch #26: u8* huff_sym; / const TMCHuffmanEntry* ac_fast; / s32 idx; / s32 r; / s32 bit_pos; / u32 bit_data; / u32 tmp; / u32* huff_tbl; / s32 blk0; | 276/276 instructions; structural/exact (0, 30); first (42, ('addi', 'r4, r25, 0x24'), ('addi', 'r7, r25, 0x24'))
+iplSDChannelTitle_flushSaveBeforeExit | R11 current page readonly value captured before manager getter | objdiff 98.5946; 37/37 instructions; structural/exact (2, 6); first (20, ('lis', 'r4, 0'), ('lis', 'r3, 0'))
+TMCJPEGDEC_decode_iquant | R11 declsearch #27: u8* huff_sym; / const TMCHuffmanEntry* ac_fast; / s32 idx; / s32 blk0; / s32 bit_pos; / u32 bit_data; / u32 tmp; / s32 r; / u32* huff_tbl; | 276/276 instructions; structural/exact (0, 32); first (42, ('addi', 'r4, r25, 0x24'), ('addi', 'r7, r25, 0x24'))
+TMCJPEGDEC_decode_iquant | R11 declsearch #28: u8* huff_sym; / const TMCHuffmanEntry* ac_fast; / s32 idx; / u32* huff_tbl; / u32 bit_data; / s32 bit_pos; / u32 tmp; / s32 r; / s32 blk0; | 276/276 instructions; structural/exact (0, 30); first (42, ('addi', 'r4, r25, 0x24'), ('addi', 'r7, r25, 0x24'))
+TMCJPEGDEC_decode_iquant | R11 declsearch #29: u8* huff_sym; / const TMCHuffmanEntry* ac_fast; / s32 idx; / u32* huff_tbl; / u32 tmp; / u32 bit_data; / s32 bit_pos; / s32 r; / s32 blk0; | 276/276 instructions; structural/exact (0, 34); first (42, ('addi', 'r4, r25, 0x24'), ('addi', 'r7, r25, 0x24'))
+TMCJPEGDEC_decode_iquant | R11 declsearch #30: u8* huff_sym; / const TMCHuffmanEntry* ac_fast; / s32 idx; / u32* huff_tbl; / s32 r; / u32 bit_data; / u32 tmp; / s32 bit_pos; / s32 blk0; | 276/276 instructions; structural/exact (0, 30); first (42, ('addi', 'r4, r25, 0x24'), ('addi', 'r7, r25, 0x24'))
+TMCJPEGDEC_decode_iquant | R11 declsearch #31: u8* huff_sym; / const TMCHuffmanEntry* ac_fast; / s32 idx; / u32* huff_tbl; / s32 blk0; / u32 bit_data; / u32 tmp; / s32 r; / s32 bit_pos; | 276/276 instructions; structural/exact (0, 32); first (42, ('addi', 'r4, r25, 0x24'), ('addi', 'r7, r25, 0x24'))
+TMCJPEGDEC_decode_iquant | R11 declsearch #32: u8* huff_sym; / const TMCHuffmanEntry* ac_fast; / s32 idx; / u32* huff_tbl; / s32 bit_pos; / u32 tmp; / u32 bit_data; / s32 r; / s32 blk0; | 276/276 instructions; structural/exact (0, 34); first (42, ('addi', 'r4, r25, 0x24'), ('addi', 'r7, r25, 0x24'))
+TMCJPEGDEC_decode_iquant | R11 declsearch #33: u8* huff_sym; / const TMCHuffmanEntry* ac_fast; / s32 idx; / u32* huff_tbl; / s32 bit_pos; / s32 r; / u32 tmp; / u32 bit_data; / s32 blk0; | 276/276 instructions; structural/exact (0, 34); first (42, ('addi', 'r4, r25, 0x24'), ('addi', 'r7, r25, 0x24'))
+TMCJPEGDEC_decode_iquant | R11 declsearch #34: u8* huff_sym; / const TMCHuffmanEntry* ac_fast; / s32 idx; / u32* huff_tbl; / s32 bit_pos; / s32 blk0; / u32 tmp; / s32 r; / u32 bit_data; | 276/276 instructions; structural/exact (0, 36); first (42, ('addi', 'r4, r25, 0x24'), ('addi', 'r7, r25, 0x24'))
+TMCJPEGDEC_decode_iquant | R11 declsearch #35: u8* huff_sym; / const TMCHuffmanEntry* ac_fast; / s32 idx; / u32* huff_tbl; / s32 bit_pos; / u32 bit_data; / s32 r; / u32 tmp; / s32 blk0; | 276/276 instructions; structural/exact (0, 30); first (42, ('addi', 'r4, r25, 0x24'), ('addi', 'r7, r25, 0x24'))
+TMCJPEGDEC_decode_iquant | R11 declsearch #36: u8* huff_sym; / const TMCHuffmanEntry* ac_fast; / s32 idx; / u32* huff_tbl; / s32 bit_pos; / u32 bit_data; / s32 blk0; / s32 r; / u32 tmp; | 276/276 instructions; structural/exact (0, 32); first (42, ('addi', 'r4, r25, 0x24'), ('addi', 'r7, r25, 0x24'))
+TMCJPEGDEC_decode_iquant | R11 declsearch #37: u8* huff_sym; / const TMCHuffmanEntry* ac_fast; / s32 idx; / u32* huff_tbl; / s32 bit_pos; / u32 bit_data; / u32 tmp; / s32 blk0; / s32 r; | 276/276 instructions; structural/exact (0, 30); first (42, ('addi', 'r4, r25, 0x24'), ('addi', 'r7, r25, 0x24'))
+TMCJPEGDEC_decode_iquant | R11 declsearch #38: const TMCHuffmanEntry* ac_fast; / s32 idx; / u8* huff_sym; / u32* huff_tbl; / s32 bit_pos; / u32 bit_data; / u32 tmp; / s32 r; / s32 blk0; | 276/276 instructions; structural/exact (0, 32); first (33, ('lwz', 'r27, 0x4a0(r23)'), ('lwz', 'r29, 0x4a0(r23)'))
+TMCJPEGDEC_decode_iquant | R11 declsearch #39: const TMCHuffmanEntry* ac_fast; / s32 idx; / u32* huff_tbl; / u8* huff_sym; / s32 bit_pos; / u32 bit_data; / u32 tmp; / s32 r; / s32 blk0; | 276/276 instructions; structural/exact (0, 32); first (33, ('lwz', 'r27, 0x4a0(r23)'), ('lwz', 'r29, 0x4a0(r23)'))
+TMCJPEGDEC_decode_iquant | R11 declsearch #40: const TMCHuffmanEntry* ac_fast; / s32 idx; / u32* huff_tbl; / s32 bit_pos; / u8* huff_sym; / u32 bit_data; / u32 tmp; / s32 r; / s32 blk0; | 276/276 instructions; structural/exact (0, 32); first (33, ('lwz', 'r27, 0x4a0(r23)'), ('lwz', 'r29, 0x4a0(r23)'))
+TMCJPEGDEC_decode_iquant | R11 declsearch #41: const TMCHuffmanEntry* ac_fast; / s32 idx; / u32* huff_tbl; / s32 bit_pos; / u32 bit_data; / u8* huff_sym; / u32 tmp; / s32 r; / s32 blk0; | 276/276 instructions; structural/exact (0, 32); first (33, ('lwz', 'r27, 0x4a0(r23)'), ('lwz', 'r29, 0x4a0(r23)'))
+TMCJPEGDEC_decode_iquant | R11 declsearch #42: const TMCHuffmanEntry* ac_fast; / s32 idx; / u32* huff_tbl; / s32 bit_pos; / u32 bit_data; / u32 tmp; / u8* huff_sym; / s32 r; / s32 blk0; | 276/276 instructions; structural/exact (0, 32); first (33, ('lwz', 'r27, 0x4a0(r23)'), ('lwz', 'r29, 0x4a0(r23)'))
+iplSDChannelTitle_flushSaveBeforeExit | R11 page setter helper with int input | objdiff 98.5946; 37/37 instructions; structural/exact (2, 6); first (20, ('lis', 'r4, 0'), ('lis', 'r3, 0'))
+TMCJPEGDEC_decode_iquant | R11 declsearch #43: const TMCHuffmanEntry* ac_fast; / s32 idx; / u32* huff_tbl; / s32 bit_pos; / u32 bit_data; / u32 tmp; / s32 r; / u8* huff_sym; / s32 blk0; | 276/276 instructions; structural/exact (0, 32); first (33, ('lwz', 'r27, 0x4a0(r23)'), ('lwz', 'r29, 0x4a0(r23)'))
+TMCJPEGDEC_decode_iquant | R11 declsearch #44: const TMCHuffmanEntry* ac_fast; / s32 idx; / u32* huff_tbl; / s32 bit_pos; / u32 bit_data; / u32 tmp; / s32 r; / s32 blk0; / u8* huff_sym; | 276/276 instructions; structural/exact (0, 32); first (33, ('lwz', 'r27, 0x4a0(r23)'), ('lwz', 'r29, 0x4a0(r23)'))
+TMCJPEGDEC_decode_iquant | R11 declsearch #45: u8* huff_sym; / s32 idx; / u32* huff_tbl; / const TMCHuffmanEntry* ac_fast; / s32 bit_pos; / u32 bit_data; / u32 tmp; / s32 r; / s32 blk0; | 276/276 instructions; structural/exact (0, 45); first (42, ('addi', 'r4, r25, 0x24'), ('addi', 'r7, r25, 0x24'))
+TMCJPEGDEC_decode_iquant | R11 declsearch #46: u8* huff_sym; / s32 idx; / u32* huff_tbl; / s32 bit_pos; / const TMCHuffmanEntry* ac_fast; / u32 bit_data; / u32 tmp; / s32 r; / s32 blk0; | 276/276 instructions; structural/exact (0, 45); first (42, ('addi', 'r4, r25, 0x24'), ('addi', 'r7, r25, 0x24'))
+TMCJPEGDEC_decode_iquant | R11 declsearch #47: u8* huff_sym; / s32 idx; / u32* huff_tbl; / s32 bit_pos; / u32 bit_data; / const TMCHuffmanEntry* ac_fast; / u32 tmp; / s32 r; / s32 blk0; | 276/276 instructions; structural/exact (0, 45); first (42, ('addi', 'r4, r25, 0x24'), ('addi', 'r7, r25, 0x24'))
+TMCJPEGDEC_decode_iquant | R11 declsearch #48: u8* huff_sym; / s32 idx; / u32* huff_tbl; / s32 bit_pos; / u32 bit_data; / u32 tmp; / const TMCHuffmanEntry* ac_fast; / s32 r; / s32 blk0; | 276/276 instructions; structural/exact (0, 45); first (42, ('addi', 'r4, r25, 0x24'), ('addi', 'r7, r25, 0x24'))
+TMCJPEGDEC_decode_iquant | R11 declsearch #49: u8* huff_sym; / s32 idx; / u32* huff_tbl; / s32 bit_pos; / u32 bit_data; / u32 tmp; / s32 r; / const TMCHuffmanEntry* ac_fast; / s32 blk0; | 276/276 instructions; structural/exact (0, 45); first (42, ('addi', 'r4, r25, 0x24'), ('addi', 'r7, r25, 0x24'))
+TMCJPEGDEC_decode_iquant | R11 declsearch #50: u8* huff_sym; / s32 idx; / u32* huff_tbl; / s32 bit_pos; / u32 bit_data; / u32 tmp; / s32 r; / s32 blk0; / const TMCHuffmanEntry* ac_fast; | 276/276 instructions; structural/exact (0, 47); first (42, ('addi', 'r4, r25, 0x24'), ('addi', 'r7, r25, 0x24'))
+TMCJPEGDEC_decode_iquant | R11 declsearch #51: s32 idx; / u8* huff_sym; / const TMCHuffmanEntry* ac_fast; / u32* huff_tbl; / s32 bit_pos; / u32 bit_data; / u32 tmp; / s32 r; / s32 blk0; | 276/276 instructions; structural/exact (0, 47); first (33, ('lwz', 'r28, 0x4a0(r23)'), ('lwz', 'r29, 0x4a0(r23)'))
+TMCJPEGDEC_decode_iquant | R11 declsearch #52: u8* huff_sym; / const TMCHuffmanEntry* ac_fast; / u32* huff_tbl; / s32 bit_pos; / s32 idx; / u32 bit_data; / u32 tmp; / s32 r; / s32 blk0; | 276/276 instructions; structural/exact (0, 30); first (42, ('addi', 'r4, r25, 0x24'), ('addi', 'r7, r25, 0x24'))
+TMCJPEGDEC_decode_iquant | R11 declsearch #53: u8* huff_sym; / const TMCHuffmanEntry* ac_fast; / u32* huff_tbl; / s32 bit_pos; / u32 bit_data; / s32 idx; / u32 tmp; / s32 r; / s32 blk0; | 276/276 instructions; structural/exact (0, 30); first (42, ('addi', 'r4, r25, 0x24'), ('addi', 'r7, r25, 0x24'))
+TMCJPEGDEC_decode_iquant | R11 declsearch #54: u8* huff_sym; / const TMCHuffmanEntry* ac_fast; / u32* huff_tbl; / s32 bit_pos; / u32 bit_data; / u32 tmp; / s32 idx; / s32 r; / s32 blk0; | 276/276 instructions; structural/exact (0, 30); first (42, ('addi', 'r4, r25, 0x24'), ('addi', 'r7, r25, 0x24'))
+TMCJPEGDEC_decode_iquant | R11 declsearch #55: u8* huff_sym; / const TMCHuffmanEntry* ac_fast; / u32* huff_tbl; / s32 bit_pos; / u32 bit_data; / u32 tmp; / s32 r; / s32 idx; / s32 blk0; | 276/276 instructions; structural/exact (0, 30); first (42, ('addi', 'r4, r25, 0x24'), ('addi', 'r7, r25, 0x24'))
+TMCJPEGDEC_decode_iquant | R11 declsearch complete 55 evaluated real permutations; source unchanged.
+iplSDChannelTitle_flushSaveBeforeExit | R11 page setter helper with const SDChannelTitle* input | objdiff 98.5946; 37/37 instructions; structural/exact (2, 6); first (20, ('lis', 'r4, 0'), ('lis', 'r3, 0'))
+iplSDChannelTitle_flushSaveBeforeExit | R11 heap first input of real flush helper | objdiff 98.5946; 37/37 instructions; structural/exact (2, 6); first (20, ('lis', 'r4, 0'), ('lis', 'r3, 0'))
+SOGetSockName | R11 apply newly proved SOOption lever: readonly view of response record, every response write through actual mutable request owner. Test reply and input read boundaries without const-changing public ABI. First remaining copy order #32..34 and all63instructions exact except ordering.
+SOGetSockName | R11 response readonly view with all writes through owning request field | objdiff 96.666664; 63/63 instructions; structural/exact (2, 3); first (32, ('mr', 'r3, r28'), ('mr', 'r4, r27'))
+SOGetSockName | R11 input address readonly view, output copy through public address owner | objdiff 96.349205; 63/63 instructions; structural/exact (2, 5); first (5, ('mr', 'r27, r4'), ('mr', 'r28, r3'))
+SOGetSockName | R11 both request and address read views readonly, writes through mutable owners | objdiff 96.349205; 63/63 instructions; structural/exact (2, 5); first (5, ('mr', 'r27, r4'), ('mr', 'r28, r3'))
+iplSDChannelTitle_flushSaveBeforeExit | R11 readonly System::Arg through actual getter helper formal boundary, default const reference/pointer; functions guarded to only this source and used only at final flush, no unrelated translation unit output can change. Local readonly Arg view before failed to affect IR alias boundaries.
+iplSDChannelTitle_flushSaveBeforeExit | R11 reference readonly args formal for manager getter | objdiff 98.5946; 37/37 instructions; structural/exact (2, 6); first (20, ('lis', 'r4, 0'), ('lis', 'r3, 0'))
+iplSDChannelTitle_flushSaveBeforeExit | R11 reference readonly args formal for heap getter | objdiff 98.5946; 37/37 instructions; structural/exact (2, 6); first (20, ('lis', 'r4, 0'), ('lis', 'r3, 0'))
+iplSDChannelTitle_flushSaveBeforeExit | R11 reference readonly args formal for both getter | objdiff 98.5946; 37/37 instructions; structural/exact (2, 6); first (20, ('lis', 'r4, 0'), ('lis', 'r3, 0'))
+iplSDChannelTitle_flushSaveBeforeExit | R11 pointer readonly args formal for manager getter | objdiff 98.5946; 37/37 instructions; structural/exact (2, 6); first (20, ('lis', 'r4, 0'), ('lis', 'r3, 0'))
+iplSDChannelTitle_flushSaveBeforeExit | R11 pointer readonly args formal for heap getter | objdiff 98.5946; 37/37 instructions; structural/exact (2, 6); first (20, ('lis', 'r4, 0'), ('lis', 'r3, 0'))
+iplSDChannelTitle_flushSaveBeforeExit | R11 pointer readonly args formal for both getter | objdiff 98.5946; 37/37 instructions; structural/exact (2, 6); first (20, ('lis', 'r4, 0'), ('lis', 'r3, 0'))
+__wpformatter | R11 real wide-scan candidate leading locals normalized for final declaration search | objdiff 99.40135; 593/593 instructions; structural/exact (0, 67); first (175, ('mr', 'r24, r3'), ('mr', 'r25, r3'))
+__wpformatter | R11 declsearch #1: int num_chars; / int chars_written; / int field_width; / const wchar_t* format_ptr; / const wchar_t* curr_format; / print_format format; / print_format* fmt_ptr; / signed long long_num; | 593/593 instructions; structural/exact (0, 67); first (175, ('mr', 'r24, r3'), ('mr', 'r25, r3'))
+__wpformatter | R11 declsearch #2: int chars_written; / int num_chars; / int field_width; / const wchar_t* format_ptr; / const wchar_t* curr_format; / print_format format; / print_format* fmt_ptr; / signed long long_num; | 593/593 instructions; structural/exact (0, 67); first (175, ('mr', 'r24, r3'), ('mr', 'r25, r3'))
+__wpformatter | R11 declsearch #3: int field_width; / int chars_written; / int num_chars; / const wchar_t* format_ptr; / const wchar_t* curr_format; / print_format format; / print_format* fmt_ptr; / signed long long_num; | 593/593 instructions; structural/exact (0, 67); first (175, ('mr', 'r24, r3'), ('mr', 'r25, r3'))
+__wpformatter | R11 declsearch #4: const wchar_t* format_ptr; / int chars_written; / int field_width; / int num_chars; / const wchar_t* curr_format; / print_format format; / print_format* fmt_ptr; / signed long long_num; | 593/593 instructions; structural/exact (0, 84); first (8, ('mr', 'r31, r5'), ('mr', 'r30, r5'))
+__wpformatter | R11 declsearch #5: const wchar_t* curr_format; / int chars_written; / int field_width; / const wchar_t* format_ptr; / int num_chars; / print_format format; / print_format* fmt_ptr; / signed long long_num; | 593/593 instructions; structural/exact (0, 92); first (8, ('mr', 'r29, r5'), ('mr', 'r30, r5'))
+__wpformatter | R11 declsearch #6: print_format format; / int chars_written; / int field_width; / const wchar_t* format_ptr; / const wchar_t* curr_format; / int num_chars; / print_format* fmt_ptr; / signed long long_num; | 593/593 instructions; structural/exact (0, 67); first (175, ('mr', 'r24, r3'), ('mr', 'r25, r3'))
+__wpformatter | R11 declsearch #7: print_format* fmt_ptr; / int chars_written; / int field_width; / const wchar_t* format_ptr; / const wchar_t* curr_format; / print_format format; / int num_chars; / signed long long_num; | 593/593 instructions; structural/exact (0, 67); first (175, ('mr', 'r24, r3'), ('mr', 'r25, r3'))
+__wpformatter | R11 declsearch #8: signed long long_num; / int chars_written; / int field_width; / const wchar_t* format_ptr; / const wchar_t* curr_format; / print_format format; / print_format* fmt_ptr; / int num_chars; | 593/593 instructions; structural/exact (0, 104); first (8, ('mr', 'r29, r5'), ('mr', 'r30, r5'))
+__wpformatter | R11 declsearch #9: int num_chars; / int field_width; / int chars_written; / const wchar_t* format_ptr; / const wchar_t* curr_format; / print_format format; / print_format* fmt_ptr; / signed long long_num; | 593/593 instructions; structural/exact (0, 67); first (175, ('mr', 'r24, r3'), ('mr', 'r25, r3'))
+__wpformatter | R11 declsearch #10: int num_chars; / const wchar_t* format_ptr; / int field_width; / int chars_written; / const wchar_t* curr_format; / print_format format; / print_format* fmt_ptr; / signed long long_num; | 593/593 instructions; structural/exact (0, 84); first (8, ('mr', 'r31, r5'), ('mr', 'r30, r5'))
+__wpformatter | R11 declsearch #11: int num_chars; / const wchar_t* curr_format; / int field_width; / const wchar_t* format_ptr; / int chars_written; / print_format format; / print_format* fmt_ptr; / signed long long_num; | 593/593 instructions; structural/exact (0, 84); first (12, ('li', 'r29, 0'), ('li', 'r31, 0'))
+__wpformatter | R11 declsearch #12: int num_chars; / print_format format; / int field_width; / const wchar_t* format_ptr; / const wchar_t* curr_format; / int chars_written; / print_format* fmt_ptr; / signed long long_num; | 593/593 instructions; structural/exact (0, 92); first (8, ('mr', 'r31, r5'), ('mr', 'r30, r5'))
+__wpformatter | R11 declsearch #13: int num_chars; / print_format* fmt_ptr; / int field_width; / const wchar_t* format_ptr; / const wchar_t* curr_format; / print_format format; / int chars_written; / signed long long_num; | 593/593 instructions; structural/exact (0, 92); first (8, ('mr', 'r31, r5'), ('mr', 'r30, r5'))
+__wpformatter | R11 declsearch #14: int num_chars; / signed long long_num; / int field_width; / const wchar_t* format_ptr; / const wchar_t* curr_format; / print_format format; / print_format* fmt_ptr; / int chars_written; | 593/593 instructions; structural/exact (0, 88); first (12, ('li', 'r28, 0'), ('li', 'r31, 0'))
+__wpformatter | R11 declsearch #15: int num_chars; / int chars_written; / const wchar_t* format_ptr; / int field_width; / const wchar_t* curr_format; / print_format format; / print_format* fmt_ptr; / signed long long_num; | 593/593 instructions; structural/exact (0, 67); first (175, ('mr', 'r24, r3'), ('mr', 'r25, r3'))
+__wpformatter | R11 declsearch #16: int num_chars; / int chars_written; / const wchar_t* curr_format; / const wchar_t* format_ptr; / int field_width; / print_format format; / print_format* fmt_ptr; / signed long long_num; | 593/593 instructions; structural/exact (0, 84); first (8, ('mr', 'r29, r5'), ('mr', 'r30, r5'))
+__wpformatter | R11 declsearch #17: int num_chars; / int chars_written; / print_format format; / const wchar_t* format_ptr; / const wchar_t* curr_format; / int field_width; / print_format* fmt_ptr; / signed long long_num; | 593/593 instructions; structural/exact (0, 67); first (175, ('mr', 'r24, r3'), ('mr', 'r25, r3'))
+__wpformatter | R11 declsearch #18: int num_chars; / int chars_written; / print_format* fmt_ptr; / const wchar_t* format_ptr; / const wchar_t* curr_format; / print_format format; / int field_width; / signed long long_num; | 593/593 instructions; structural/exact (0, 67); first (175, ('mr', 'r24, r3'), ('mr', 'r25, r3'))
+__wpformatter | R11 declsearch #19: int num_chars; / int chars_written; / signed long long_num; / const wchar_t* format_ptr; / const wchar_t* curr_format; / print_format format; / print_format* fmt_ptr; / int field_width; | 593/593 instructions; structural/exact (0, 96); first (8, ('mr', 'r29, r5'), ('mr', 'r30, r5'))
+__wpformatter | R11 declsearch #20: int num_chars; / int chars_written; / int field_width; / const wchar_t* curr_format; / const wchar_t* format_ptr; / print_format format; / print_format* fmt_ptr; / signed long long_num; | 593/593 instructions; structural/exact (0, 84); first (8, ('mr', 'r29, r5'), ('mr', 'r30, r5'))
+__wpformatter | R11 declsearch #21: int num_chars; / int chars_written; / int field_width; / print_format format; / const wchar_t* curr_format; / const wchar_t* format_ptr; / print_format* fmt_ptr; / signed long long_num; | 593/593 instructions; structural/exact (0, 84); first (8, ('mr', 'r29, r5'), ('mr', 'r30, r5'))
+__wpformatter | R11 declsearch #22: int num_chars; / int chars_written; / int field_width; / print_format* fmt_ptr; / const wchar_t* curr_format; / print_format format; / const wchar_t* format_ptr; / signed long long_num; | 593/593 instructions; structural/exact (0, 84); first (8, ('mr', 'r29, r5'), ('mr', 'r30, r5'))
+__wpformatter | R11 declsearch #23: int num_chars; / int chars_written; / int field_width; / signed long long_num; / const wchar_t* curr_format; / print_format format; / print_format* fmt_ptr; / const wchar_t* format_ptr; | 593/593 instructions; structural/exact (0, 87); first (8, ('mr', 'r28, r5'), ('mr', 'r30, r5'))
+__wpformatter | R11 declsearch #24: int num_chars; / int chars_written; / int field_width; / const wchar_t* format_ptr; / print_format format; / const wchar_t* curr_format; / print_format* fmt_ptr; / signed long long_num; | 593/593 instructions; structural/exact (0, 67); first (175, ('mr', 'r24, r3'), ('mr', 'r25, r3'))
+__wpformatter | R11 declsearch #25: int num_chars; / int chars_written; / int field_width; / const wchar_t* format_ptr; / print_format* fmt_ptr; / print_format format; / const wchar_t* curr_format; / signed long long_num; | 593/593 instructions; structural/exact (0, 67); first (175, ('mr', 'r24, r3'), ('mr', 'r25, r3'))
+__wpformatter | R11 declsearch #26: int num_chars; / int chars_written; / int field_width; / const wchar_t* format_ptr; / signed long long_num; / print_format format; / print_format* fmt_ptr; / const wchar_t* curr_format; | 593/593 instructions; structural/exact (0, 88); first (22, ('mr', 'r28, r3'), ('mr', 'r29, r3'))
+__wpformatter | R11 declsearch #27: int num_chars; / int chars_written; / int field_width; / const wchar_t* format_ptr; / const wchar_t* curr_format; / print_format* fmt_ptr; / print_format format; / signed long long_num; | 593/593 instructions; structural/exact (0, 67); first (175, ('mr', 'r24, r3'), ('mr', 'r25, r3'))
+__wpformatter | R11 declsearch #28: int num_chars; / int chars_written; / int field_width; / const wchar_t* format_ptr; / const wchar_t* curr_format; / signed long long_num; / print_format* fmt_ptr; / print_format format; | 593/593 instructions; structural/exact (0, 67); first (175, ('mr', 'r24, r3'), ('mr', 'r25, r3'))
+__wpformatter | R11 declsearch #29: int num_chars; / int chars_written; / int field_width; / const wchar_t* format_ptr; / const wchar_t* curr_format; / print_format format; / signed long long_num; / print_format* fmt_ptr; | 593/593 instructions; structural/exact (0, 67); first (175, ('mr', 'r24, r3'), ('mr', 'r25, r3'))
+__wpformatter | R11 declsearch #30: int chars_written; / int field_width; / int num_chars; / const wchar_t* format_ptr; / const wchar_t* curr_format; / print_format format; / print_format* fmt_ptr; / signed long long_num; | 593/593 instructions; structural/exact (0, 67); first (175, ('mr', 'r24, r3'), ('mr', 'r25, r3'))
+__wpformatter | R11 declsearch #31: int chars_written; / int field_width; / const wchar_t* format_ptr; / int num_chars; / const wchar_t* curr_format; / print_format format; / print_format* fmt_ptr; / signed long long_num; | 593/593 instructions; structural/exact (0, 67); first (175, ('mr', 'r24, r3'), ('mr', 'r25, r3'))
+__wpformatter | R11 declsearch #32: int chars_written; / int field_width; / const wchar_t* format_ptr; / const wchar_t* curr_format; / int num_chars; / print_format format; / print_format* fmt_ptr; / signed long long_num; | 593/593 instructions; structural/exact (0, 67); first (175, ('mr', 'r24, r3'), ('mr', 'r25, r3'))
+__wpformatter | R11 declsearch #33: int chars_written; / int field_width; / const wchar_t* format_ptr; / const wchar_t* curr_format; / print_format format; / int num_chars; / print_format* fmt_ptr; / signed long long_num; | 593/593 instructions; structural/exact (0, 67); first (175, ('mr', 'r24, r3'), ('mr', 'r25, r3'))
+__wpformatter | R11 declsearch #34: int chars_written; / int field_width; / const wchar_t* format_ptr; / const wchar_t* curr_format; / print_format format; / print_format* fmt_ptr; / int num_chars; / signed long long_num; | 593/593 instructions; structural/exact (0, 67); first (175, ('mr', 'r24, r3'), ('mr', 'r25, r3'))
+__wpformatter | R11 declsearch #35: int chars_written; / int field_width; / const wchar_t* format_ptr; / const wchar_t* curr_format; / print_format format; / print_format* fmt_ptr; / signed long long_num; / int num_chars; | 593/593 instructions; structural/exact (0, 67); first (175, ('mr', 'r24, r3'), ('mr', 'r25, r3'))
+__wpformatter | R11 declsearch #36: int num_chars; / int field_width; / const wchar_t* format_ptr; / int chars_written; / const wchar_t* curr_format; / print_format format; / print_format* fmt_ptr; / signed long long_num; | 593/593 instructions; structural/exact (0, 84); first (8, ('mr', 'r31, r5'), ('mr', 'r30, r5'))
+__wpformatter | R11 declsearch #37: int num_chars; / int field_width; / const wchar_t* format_ptr; / const wchar_t* curr_format; / int chars_written; / print_format format; / print_format* fmt_ptr; / signed long long_num; | 593/593 instructions; structural/exact (0, 92); first (8, ('mr', 'r31, r5'), ('mr', 'r30, r5'))
+__wpformatter | R11 declsearch #38: int num_chars; / int field_width; / const wchar_t* format_ptr; / const wchar_t* curr_format; / print_format format; / int chars_written; / print_format* fmt_ptr; / signed long long_num; | 593/593 instructions; structural/exact (0, 92); first (8, ('mr', 'r31, r5'), ('mr', 'r30, r5'))
+__wpformatter | R11 declsearch #39: int num_chars; / int field_width; / const wchar_t* format_ptr; / const wchar_t* curr_format; / print_format format; / print_format* fmt_ptr; / int chars_written; / signed long long_num; | 593/593 instructions; structural/exact (0, 92); first (8, ('mr', 'r31, r5'), ('mr', 'r30, r5'))
+__wpformatter | R11 declsearch #40: int num_chars; / int field_width; / const wchar_t* format_ptr; / const wchar_t* curr_format; / print_format format; / print_format* fmt_ptr; / signed long long_num; / int chars_written; | 593/593 instructions; structural/exact (0, 104); first (8, ('mr', 'r31, r5'), ('mr', 'r30, r5'))
+__wpformatter | R11 declsearch #41: int field_width; / int num_chars; / int chars_written; / const wchar_t* format_ptr; / const wchar_t* curr_format; / print_format format; / print_format* fmt_ptr; / signed long long_num; | 593/593 instructions; structural/exact (0, 67); first (175, ('mr', 'r24, r3'), ('mr', 'r25, r3'))
+__wpformatter | R11 declsearch #42: int num_chars; / int chars_written; / const wchar_t* format_ptr; / const wchar_t* curr_format; / int field_width; / print_format format; / print_format* fmt_ptr; / signed long long_num; | 593/593 instructions; structural/exact (0, 67); first (175, ('mr', 'r24, r3'), ('mr', 'r25, r3'))
+__wpformatter | R11 declsearch #43: int num_chars; / int chars_written; / const wchar_t* format_ptr; / const wchar_t* curr_format; / print_format format; / int field_width; / print_format* fmt_ptr; / signed long long_num; | 593/593 instructions; structural/exact (0, 67); first (175, ('mr', 'r24, r3'), ('mr', 'r25, r3'))
+__wpformatter | R11 declsearch #44: int num_chars; / int chars_written; / const wchar_t* format_ptr; / const wchar_t* curr_format; / print_format format; / print_format* fmt_ptr; / int field_width; / signed long long_num; | 593/593 instructions; structural/exact (0, 67); first (175, ('mr', 'r24, r3'), ('mr', 'r25, r3'))
+__wpformatter | R11 declsearch #45: int num_chars; / int chars_written; / const wchar_t* format_ptr; / const wchar_t* curr_format; / print_format format; / print_format* fmt_ptr; / signed long long_num; / int field_width; | 593/593 instructions; structural/exact (0, 67); first (175, ('mr', 'r24, r3'), ('mr', 'r25, r3'))
+__wpformatter | R11 declsearch #46: const wchar_t* format_ptr; / int num_chars; / int chars_written; / int field_width; / const wchar_t* curr_format; / print_format format; / print_format* fmt_ptr; / signed long long_num; | 593/593 instructions; structural/exact (0, 84); first (8, ('mr', 'r31, r5'), ('mr', 'r30, r5'))
+__wpformatter | R11 declsearch #47: int num_chars; / const wchar_t* format_ptr; / int chars_written; / int field_width; / const wchar_t* curr_format; / print_format format; / print_format* fmt_ptr; / signed long long_num; | 593/593 instructions; structural/exact (0, 84); first (8, ('mr', 'r31, r5'), ('mr', 'r30, r5'))
+__wpformatter | R11 declsearch #48: int num_chars; / int chars_written; / int field_width; / const wchar_t* curr_format; / print_format format; / const wchar_t* format_ptr; / print_format* fmt_ptr; / signed long long_num; | 593/593 instructions; structural/exact (0, 84); first (8, ('mr', 'r29, r5'), ('mr', 'r30, r5'))
+__wpformatter | R11 declsearch #49: int num_chars; / int chars_written; / int field_width; / const wchar_t* curr_format; / print_format format; / print_format* fmt_ptr; / const wchar_t* format_ptr; / signed long long_num; | 593/593 instructions; structural/exact (0, 84); first (8, ('mr', 'r29, r5'), ('mr', 'r30, r5'))
+__wpformatter | R11 declsearch #50: int num_chars; / int chars_written; / int field_width; / const wchar_t* curr_format; / print_format format; / print_format* fmt_ptr; / signed long long_num; / const wchar_t* format_ptr; | 593/593 instructions; structural/exact (0, 96); first (8, ('mr', 'r28, r5'), ('mr', 'r30, r5'))
+__wpformatter | R11 declsearch #51: const wchar_t* curr_format; / int num_chars; / int chars_written; / int field_width; / const wchar_t* format_ptr; / print_format format; / print_format* fmt_ptr; / signed long long_num; | 593/593 instructions; structural/exact (0, 92); first (8, ('mr', 'r29, r5'), ('mr', 'r30, r5'))
+__wpformatter | R11 declsearch #52: int num_chars; / const wchar_t* curr_format; / int chars_written; / int field_width; / const wchar_t* format_ptr; / print_format format; / print_format* fmt_ptr; / signed long long_num; | 593/593 instructions; structural/exact (0, 92); first (8, ('mr', 'r29, r5'), ('mr', 'r30, r5'))
+__wpformatter | R11 declsearch #53: int num_chars; / int chars_written; / const wchar_t* curr_format; / int field_width; / const wchar_t* format_ptr; / print_format format; / print_format* fmt_ptr; / signed long long_num; | 593/593 instructions; structural/exact (0, 84); first (8, ('mr', 'r29, r5'), ('mr', 'r30, r5'))
+__wpformatter | R11 declsearch #54: int num_chars; / int chars_written; / int field_width; / const wchar_t* format_ptr; / print_format format; / print_format* fmt_ptr; / const wchar_t* curr_format; / signed long long_num; | 593/593 instructions; structural/exact (0, 67); first (175, ('mr', 'r24, r3'), ('mr', 'r25, r3'))
+__wpformatter | R11 declsearch #55: int num_chars; / int chars_written; / int field_width; / const wchar_t* format_ptr; / print_format format; / print_format* fmt_ptr; / signed long long_num; / const wchar_t* curr_format; | 593/593 instructions; structural/exact (0, 88); first (22, ('mr', 'r28, r3'), ('mr', 'r29, r3'))
+__wpformatter | R11 declsearch #56: print_format format; / int num_chars; / int chars_written; / int field_width; / const wchar_t* format_ptr; / const wchar_t* curr_format; / print_format* fmt_ptr; / signed long long_num; | 593/593 instructions; structural/exact (0, 67); first (175, ('mr', 'r24, r3'), ('mr', 'r25, r3'))
+__wpformatter | R11 declsearch #57: int num_chars; / print_format format; / int chars_written; / int field_width; / const wchar_t* format_ptr; / const wchar_t* curr_format; / print_format* fmt_ptr; / signed long long_num; | 593/593 instructions; structural/exact (0, 67); first (175, ('mr', 'r24, r3'), ('mr', 'r25, r3'))
+__wpformatter | R11 declsearch #58: int num_chars; / int chars_written; / print_format format; / int field_width; / const wchar_t* format_ptr; / const wchar_t* curr_format; / print_format* fmt_ptr; / signed long long_num; | 593/593 instructions; structural/exact (0, 67); first (175, ('mr', 'r24, r3'), ('mr', 'r25, r3'))
+__wpformatter | R11 declsearch #59: int num_chars; / int chars_written; / int field_width; / print_format format; / const wchar_t* format_ptr; / const wchar_t* curr_format; / print_format* fmt_ptr; / signed long long_num; | 593/593 instructions; structural/exact (0, 67); first (175, ('mr', 'r24, r3'), ('mr', 'r25, r3'))
+__wpformatter | R11 declsearch #60: int num_chars; / int chars_written; / int field_width; / const wchar_t* format_ptr; / const wchar_t* curr_format; / print_format* fmt_ptr; / signed long long_num; / print_format format; | 593/593 instructions; structural/exact (0, 67); first (175, ('mr', 'r24, r3'), ('mr', 'r25, r3'))
+__wpformatter | R11 declsearch #61: print_format* fmt_ptr; / int num_chars; / int chars_written; / int field_width; / const wchar_t* format_ptr; / const wchar_t* curr_format; / print_format format; / signed long long_num; | 593/593 instructions; structural/exact (0, 67); first (175, ('mr', 'r24, r3'), ('mr', 'r25, r3'))
+__wpformatter | R11 declsearch #62: int num_chars; / print_format* fmt_ptr; / int chars_written; / int field_width; / const wchar_t* format_ptr; / const wchar_t* curr_format; / print_format format; / signed long long_num; | 593/593 instructions; structural/exact (0, 67); first (175, ('mr', 'r24, r3'), ('mr', 'r25, r3'))
+__wpformatter | R11 declsearch #63: int num_chars; / int chars_written; / print_format* fmt_ptr; / int field_width; / const wchar_t* format_ptr; / const wchar_t* curr_format; / print_format format; / signed long long_num; | 593/593 instructions; structural/exact (0, 67); first (175, ('mr', 'r24, r3'), ('mr', 'r25, r3'))
+__wpformatter | R11 declsearch #64: int num_chars; / int chars_written; / int field_width; / print_format* fmt_ptr; / const wchar_t* format_ptr; / const wchar_t* curr_format; / print_format format; / signed long long_num; | 593/593 instructions; structural/exact (0, 67); first (175, ('mr', 'r24, r3'), ('mr', 'r25, r3'))
+__wpformatter | R11 declsearch #65: int num_chars; / int chars_written; / int field_width; / const wchar_t* format_ptr; / print_format* fmt_ptr; / const wchar_t* curr_format; / print_format format; / signed long long_num; | 593/593 instructions; structural/exact (0, 67); first (175, ('mr', 'r24, r3'), ('mr', 'r25, r3'))
+__wpformatter | R11 declsearch #66: signed long long_num; / int num_chars; / int chars_written; / int field_width; / const wchar_t* format_ptr; / const wchar_t* curr_format; / print_format format; / print_format* fmt_ptr; | 593/593 instructions; structural/exact (0, 104); first (8, ('mr', 'r29, r5'), ('mr', 'r30, r5'))
+__wpformatter | R11 declsearch #67: int num_chars; / signed long long_num; / int chars_written; / int field_width; / const wchar_t* format_ptr; / const wchar_t* curr_format; / print_format format; / print_format* fmt_ptr; | 593/593 instructions; structural/exact (0, 104); first (8, ('mr', 'r29, r5'), ('mr', 'r30, r5'))
+__wpformatter | R11 declsearch #68: int num_chars; / int chars_written; / signed long long_num; / int field_width; / const wchar_t* format_ptr; / const wchar_t* curr_format; / print_format format; / print_format* fmt_ptr; | 593/593 instructions; structural/exact (0, 96); first (8, ('mr', 'r29, r5'), ('mr', 'r30, r5'))
+__wpformatter | R11 declsearch #69: int num_chars; / int chars_written; / int field_width; / signed long long_num; / const wchar_t* format_ptr; / const wchar_t* curr_format; / print_format format; / print_format* fmt_ptr; | 593/593 instructions; structural/exact (0, 96); first (8, ('mr', 'r29, r5'), ('mr', 'r30, r5'))
+__wpformatter | R11 declsearch #70: int num_chars; / int chars_written; / int field_width; / const wchar_t* format_ptr; / signed long long_num; / const wchar_t* curr_format; / print_format format; / print_format* fmt_ptr; | 593/593 instructions; structural/exact (0, 88); first (22, ('mr', 'r28, r3'), ('mr', 'r29, r3'))
+__wpformatter | R11 declsearch #71: int num_chars; / int chars_written; / int field_width; / const wchar_t* format_ptr; / const wchar_t* curr_format; / signed long long_num; / print_format format; / print_format* fmt_ptr; | 593/593 instructions; structural/exact (0, 67); first (175, ('mr', 'r24, r3'), ('mr', 'r25, r3'))
+__wpformatter | R11 declsearch complete 71 evaluated real permutations; source unchanged.
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R11 animation bound direct readonly table-field reference without scalar copy | objdiff 96.53846; 221/221 instructions; structural/exact (3, 126); first (5, ('li', 'r16, 0'), ('li', 'r14, 0'))
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R11 animation bounds and slots share readonly table owner view | objdiff 96.53846; 221/221 instructions; structural/exact (3, 126); first (5, ('li', 'r16, 0'), ('li', 'r14, 0'))
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R11 const animation resource input alongside actual per-pane bound | objdiff 98.8914; 221/221 instructions; structural/exact (0, 46); first (58, ('li', 'r22, 0'), ('li', 'r21, 0'))
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R11 readonly resource pointer passed to layout animation constructor | objdiff 99.86425; 221/221 instructions; structural/exact (0, 6); first (159, ('lwz', 'r22, 0x18(r20)'), ('lwz', 'r31, 0x18(r20)'))
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R11 readonly pointer to actual animation-count field across traversal | objdiff 96.53846; 221/221 instructions; structural/exact (3, 126); first (5, ('li', 'r16, 0'), ('li', 'r14, 0'))
+iplSDChannelTitle_flushSaveBeforeExit | R11 remaining first globalbase3/4 and final manager/heap load ordering: test true member this input boundary instead of free-function scene parameter, guarded only to this file. Existing object fields/vtable unchanged; new ordinary inline saving helper, original C symbol retained.
+__wpformatter | R11 wide scan uses actual output cursor directly instead of alias | objdiff 98.97977; 593/593 instructions; structural/exact (0, 113); first (4, ('li', 'r21, 0x20'), ('li', 'r20, 0x20'))
+__wpformatter | R11 wide input cursor exported through its own output pointer view | objdiff 99.40135; 593/593 instructions; structural/exact (0, 67); first (175, ('mr', 'r24, r3'), ('mr', 'r25, r3'))
+iplSDChannelTitle_flushSaveBeforeExit | R11 member save helper inline with same source behavior | objdiff 98.54054; 37/37 instructions; structural/exact (4, 8); first (3, ('addi', 'r7, r1, 8'), ('addi', 'r7, r1, 0xc'))
+__wpformatter | R11 wide count signed long with conversion counter unchanged | objdiff 99.40135; 593/593 instructions; structural/exact (0, 67); first (175, ('mr', 'r24, r3'), ('mr', 'r25, r3'))
+__wpformatter | R11 wide input length unsigned int promoted at signed precision comparison | objdiff 99.40135; 593/593 instructions; structural/exact (0, 67); first (175, ('mr', 'r24, r3'), ('mr', 'r25, r3'))
+iplSDChannelTitle_flushSaveBeforeExit | R11 reference owner helper save helper inline with same source behavior | objdiff 98.54054; 37/37 instructions; structural/exact (4, 8); first (3, ('addi', 'r7, r1, 8'), ('addi', 'r7, r1, 0xc'))
+__wpformatter | R11 pascal wide string first character consumed in explicit pointer increment | objdiff 99.40135; 593/593 instructions; structural/exact (0, 67); first (175, ('mr', 'r24, r3'), ('mr', 'r25, r3'))
+__wpformatter | R11 wide count export after pointer snapshot with explicit return type | objdiff 99.40135; 593/593 instructions; structural/exact (0, 67); first (175, ('mr', 'r24, r3'), ('mr', 'r25, r3'))
+__wpformatter | R11 wide character pointer declaration precedes scan counter at real case boundary | objdiff 99.78921; 593/593 instructions; structural/exact (0, 24); first (393, ('lwz', 'r25, 0(r3)'), ('lwz', 'r24, 0(r3)'))
+__wpformatter | R11 declaration search last on actual integer/double/buffer/output/fill variables; literals/data preserved and no statements permuted.
+__wpformatter | R11 declsearch #1: signed long long_num; / signed long long long_long_num; / long double long_double_num; / wchar_t buff[512]; / wchar_t* buff_ptr; / const wchar_t* string_end; / wchar_t fill_char = ' '; | 593/593 instructions; structural/exact (0, 67); first (175, ('mr', 'r24, r3'), ('mr', 'r25, r3'))
+__wpformatter | R11 declsearch #2: signed long long long_long_num; / signed long long_num; / long double long_double_num; / wchar_t buff[512]; / wchar_t* buff_ptr; / const wchar_t* string_end; / wchar_t fill_char = ' '; | 593/593 instructions; structural/exact (0, 91); first (117, ('lwz', 'r26, 0(r3)'), ('lwz', 'r28, 0(r3)'))
+__wpformatter | R11 declsearch #3: long double long_double_num; / signed long long long_long_num; / signed long long_num; / wchar_t buff[512]; / wchar_t* buff_ptr; / const wchar_t* string_end; / wchar_t fill_char = ' '; | 593/593 instructions; structural/exact (0, 91); first (117, ('lwz', 'r26, 0(r3)'), ('lwz', 'r28, 0(r3)'))
+__wpformatter | R11 declsearch #4: wchar_t buff[512]; / signed long long long_long_num; / long double long_double_num; / signed long long_num; / wchar_t* buff_ptr; / const wchar_t* string_end; / wchar_t fill_char = ' '; | 593/593 instructions; structural/exact (0, 91); first (117, ('lwz', 'r26, 0(r3)'), ('lwz', 'r28, 0(r3)'))
+__wpformatter | R11 declsearch #5: wchar_t* buff_ptr; / signed long long long_long_num; / long double long_double_num; / wchar_t buff[512]; / signed long long_num; / const wchar_t* string_end; / wchar_t fill_char = ' '; | 593/593 instructions; structural/exact (0, 91); first (117, ('lwz', 'r26, 0(r3)'), ('lwz', 'r28, 0(r3)'))
+__wpformatter | R11 declsearch #6: const wchar_t* string_end; / signed long long long_long_num; / long double long_double_num; / wchar_t buff[512]; / wchar_t* buff_ptr; / signed long long_num; / wchar_t fill_char = ' '; | 593/593 instructions; structural/exact (0, 91); first (117, ('lwz', 'r26, 0(r3)'), ('lwz', 'r28, 0(r3)'))
+__wpformatter | R11 declsearch #7: wchar_t fill_char = ' '; / signed long long long_long_num; / long double long_double_num; / wchar_t buff[512]; / wchar_t* buff_ptr; / const wchar_t* string_end; / signed long long_num; | 593/593 instructions; structural/exact (0, 91); first (117, ('lwz', 'r26, 0(r3)'), ('lwz', 'r28, 0(r3)'))
+__wpformatter | R11 declsearch #8: signed long long_num; / long double long_double_num; / signed long long long_long_num; / wchar_t buff[512]; / wchar_t* buff_ptr; / const wchar_t* string_end; / wchar_t fill_char = ' '; | 593/593 instructions; structural/exact (0, 67); first (175, ('mr', 'r24, r3'), ('mr', 'r25, r3'))
+__wpformatter | R11 declsearch #9: signed long long_num; / wchar_t buff[512]; / long double long_double_num; / signed long long long_long_num; / wchar_t* buff_ptr; / const wchar_t* string_end; / wchar_t fill_char = ' '; | 593/593 instructions; structural/exact (0, 67); first (175, ('mr', 'r24, r3'), ('mr', 'r25, r3'))
+__wpformatter | R11 declsearch #10: signed long long_num; / wchar_t* buff_ptr; / long double long_double_num; / wchar_t buff[512]; / signed long long long_long_num; / const wchar_t* string_end; / wchar_t fill_char = ' '; | 593/593 instructions; structural/exact (0, 67); first (175, ('mr', 'r24, r3'), ('mr', 'r25, r3'))
+__wpformatter | R11 declsearch #11: signed long long_num; / const wchar_t* string_end; / long double long_double_num; / wchar_t buff[512]; / wchar_t* buff_ptr; / signed long long long_long_num; / wchar_t fill_char = ' '; | 593/593 instructions; structural/exact (0, 67); first (175, ('mr', 'r24, r3'), ('mr', 'r25, r3'))
+__wpformatter | R11 declsearch #12: signed long long_num; / wchar_t fill_char = ' '; / long double long_double_num; / wchar_t buff[512]; / wchar_t* buff_ptr; / const wchar_t* string_end; / signed long long long_long_num; | 593/593 instructions; structural/exact (0, 67); first (175, ('mr', 'r24, r3'), ('mr', 'r25, r3'))
+__wpformatter | R11 declsearch #13: signed long long_num; / signed long long long_long_num; / wchar_t buff[512]; / long double long_double_num; / wchar_t* buff_ptr; / const wchar_t* string_end; / wchar_t fill_char = ' '; | 593/593 instructions; structural/exact (0, 67); first (175, ('mr', 'r24, r3'), ('mr', 'r25, r3'))
+__wpformatter | R11 declsearch #14: signed long long_num; / signed long long long_long_num; / wchar_t* buff_ptr; / wchar_t buff[512]; / long double long_double_num; / const wchar_t* string_end; / wchar_t fill_char = ' '; | 593/593 instructions; structural/exact (0, 67); first (175, ('mr', 'r24, r3'), ('mr', 'r25, r3'))
+__wpformatter | R11 declsearch #15: signed long long_num; / signed long long long_long_num; / const wchar_t* string_end; / wchar_t buff[512]; / wchar_t* buff_ptr; / long double long_double_num; / wchar_t fill_char = ' '; | 593/593 instructions; structural/exact (0, 67); first (175, ('mr', 'r24, r3'), ('mr', 'r25, r3'))
+__wpformatter | R11 declsearch #16: signed long long_num; / signed long long long_long_num; / wchar_t fill_char = ' '; / wchar_t buff[512]; / wchar_t* buff_ptr; / const wchar_t* string_end; / long double long_double_num; | 593/593 instructions; structural/exact (0, 67); first (175, ('mr', 'r24, r3'), ('mr', 'r25, r3'))
+__wpformatter | R11 declsearch #17: signed long long_num; / signed long long long_long_num; / long double long_double_num; / wchar_t* buff_ptr; / wchar_t buff[512]; / const wchar_t* string_end; / wchar_t fill_char = ' '; | 593/593 instructions; structural/exact (0, 67); first (175, ('mr', 'r24, r3'), ('mr', 'r25, r3'))
+__wpformatter | R11 declsearch #18: signed long long_num; / signed long long long_long_num; / long double long_double_num; / const wchar_t* string_end; / wchar_t* buff_ptr; / wchar_t buff[512]; / wchar_t fill_char = ' '; | 593/593 instructions; structural/exact (0, 67); first (175, ('mr', 'r24, r3'), ('mr', 'r25, r3'))
+__wpformatter | R11 declsearch #19: signed long long_num; / signed long long long_long_num; / long double long_double_num; / wchar_t fill_char = ' '; / wchar_t* buff_ptr; / const wchar_t* string_end; / wchar_t buff[512]; | 593/593 instructions; structural/exact (0, 67); first (175, ('mr', 'r24, r3'), ('mr', 'r25, r3'))
+__wpformatter | R11 declsearch #20: signed long long_num; / signed long long long_long_num; / long double long_double_num; / wchar_t buff[512]; / const wchar_t* string_end; / wchar_t* buff_ptr; / wchar_t fill_char = ' '; | 593/593 instructions; structural/exact (0, 67); first (175, ('mr', 'r24, r3'), ('mr', 'r25, r3'))
+__wpformatter | R11 declsearch #21: signed long long_num; / signed long long long_long_num; / long double long_double_num; / wchar_t buff[512]; / wchar_t fill_char = ' '; / const wchar_t* string_end; / wchar_t* buff_ptr; | 593/593 instructions; structural/exact (0, 67); first (175, ('mr', 'r24, r3'), ('mr', 'r25, r3'))
+__wpformatter | R11 declsearch #22: signed long long_num; / signed long long long_long_num; / long double long_double_num; / wchar_t buff[512]; / wchar_t* buff_ptr; / wchar_t fill_char = ' '; / const wchar_t* string_end; | 593/593 instructions; structural/exact (0, 67); first (175, ('mr', 'r24, r3'), ('mr', 'r25, r3'))
+__wpformatter | R11 declsearch #23: signed long long long_long_num; / long double long_double_num; / signed long long_num; / wchar_t buff[512]; / wchar_t* buff_ptr; / const wchar_t* string_end; / wchar_t fill_char = ' '; | 593/593 instructions; structural/exact (0, 91); first (117, ('lwz', 'r26, 0(r3)'), ('lwz', 'r28, 0(r3)'))
+__wpformatter | R11 declsearch #24: signed long long long_long_num; / long double long_double_num; / wchar_t buff[512]; / signed long long_num; / wchar_t* buff_ptr; / const wchar_t* string_end; / wchar_t fill_char = ' '; | 593/593 instructions; structural/exact (0, 91); first (117, ('lwz', 'r26, 0(r3)'), ('lwz', 'r28, 0(r3)'))
+__wpformatter | R11 declsearch #25: signed long long long_long_num; / long double long_double_num; / wchar_t buff[512]; / wchar_t* buff_ptr; / signed long long_num; / const wchar_t* string_end; / wchar_t fill_char = ' '; | 593/593 instructions; structural/exact (0, 91); first (117, ('lwz', 'r26, 0(r3)'), ('lwz', 'r28, 0(r3)'))
+__wpformatter | R11 declsearch #26: signed long long long_long_num; / long double long_double_num; / wchar_t buff[512]; / wchar_t* buff_ptr; / const wchar_t* string_end; / signed long long_num; / wchar_t fill_char = ' '; | 593/593 instructions; structural/exact (0, 91); first (117, ('lwz', 'r26, 0(r3)'), ('lwz', 'r28, 0(r3)'))
+__wpformatter | R11 declsearch #27: signed long long long_long_num; / long double long_double_num; / wchar_t buff[512]; / wchar_t* buff_ptr; / const wchar_t* string_end; / wchar_t fill_char = ' '; / signed long long_num; | 593/593 instructions; structural/exact (0, 91); first (117, ('lwz', 'r26, 0(r3)'), ('lwz', 'r28, 0(r3)'))
+__wpformatter | R11 declsearch #28: signed long long_num; / long double long_double_num; / wchar_t buff[512]; / signed long long long_long_num; / wchar_t* buff_ptr; / const wchar_t* string_end; / wchar_t fill_char = ' '; | 593/593 instructions; structural/exact (0, 67); first (175, ('mr', 'r24, r3'), ('mr', 'r25, r3'))
+__wpformatter | R11 declsearch #29: signed long long_num; / long double long_double_num; / wchar_t buff[512]; / wchar_t* buff_ptr; / signed long long long_long_num; / const wchar_t* string_end; / wchar_t fill_char = ' '; | 593/593 instructions; structural/exact (0, 67); first (175, ('mr', 'r24, r3'), ('mr', 'r25, r3'))
+__wpformatter | R11 declsearch #30: signed long long_num; / long double long_double_num; / wchar_t buff[512]; / wchar_t* buff_ptr; / const wchar_t* string_end; / signed long long long_long_num; / wchar_t fill_char = ' '; | 593/593 instructions; structural/exact (0, 67); first (175, ('mr', 'r24, r3'), ('mr', 'r25, r3'))
+__wpformatter | R11 declsearch #31: signed long long_num; / long double long_double_num; / wchar_t buff[512]; / wchar_t* buff_ptr; / const wchar_t* string_end; / wchar_t fill_char = ' '; / signed long long long_long_num; | 593/593 instructions; structural/exact (0, 67); first (175, ('mr', 'r24, r3'), ('mr', 'r25, r3'))
+__wpformatter | R11 declsearch #32: long double long_double_num; / signed long long_num; / signed long long long_long_num; / wchar_t buff[512]; / wchar_t* buff_ptr; / const wchar_t* string_end; / wchar_t fill_char = ' '; | 593/593 instructions; structural/exact (0, 67); first (175, ('mr', 'r24, r3'), ('mr', 'r25, r3'))
+__wpformatter | R11 declsearch #33: signed long long_num; / signed long long long_long_num; / wchar_t buff[512]; / wchar_t* buff_ptr; / long double long_double_num; / const wchar_t* string_end; / wchar_t fill_char = ' '; | 593/593 instructions; structural/exact (0, 67); first (175, ('mr', 'r24, r3'), ('mr', 'r25, r3'))
+__wpformatter | R11 declsearch #34: signed long long_num; / signed long long long_long_num; / wchar_t buff[512]; / wchar_t* buff_ptr; / const wchar_t* string_end; / long double long_double_num; / wchar_t fill_char = ' '; | 593/593 instructions; structural/exact (0, 67); first (175, ('mr', 'r24, r3'), ('mr', 'r25, r3'))
+__wpformatter | R11 declsearch #35: signed long long_num; / signed long long long_long_num; / wchar_t buff[512]; / wchar_t* buff_ptr; / const wchar_t* string_end; / wchar_t fill_char = ' '; / long double long_double_num; | 593/593 instructions; structural/exact (0, 67); first (175, ('mr', 'r24, r3'), ('mr', 'r25, r3'))
+__wpformatter | R11 declsearch #36: wchar_t buff[512]; / signed long long_num; / signed long long long_long_num; / long double long_double_num; / wchar_t* buff_ptr; / const wchar_t* string_end; / wchar_t fill_char = ' '; | 593/593 instructions; structural/exact (0, 67); first (175, ('mr', 'r24, r3'), ('mr', 'r25, r3'))
+__wpformatter | R11 declsearch #37: signed long long_num; / wchar_t buff[512]; / signed long long long_long_num; / long double long_double_num; / wchar_t* buff_ptr; / const wchar_t* string_end; / wchar_t fill_char = ' '; | 593/593 instructions; structural/exact (0, 67); first (175, ('mr', 'r24, r3'), ('mr', 'r25, r3'))
+__wpformatter | R11 declsearch #38: signed long long_num; / signed long long long_long_num; / long double long_double_num; / wchar_t* buff_ptr; / const wchar_t* string_end; / wchar_t buff[512]; / wchar_t fill_char = ' '; | 593/593 instructions; structural/exact (0, 67); first (175, ('mr', 'r24, r3'), ('mr', 'r25, r3'))
+__wpformatter | R11 declsearch #39: signed long long_num; / signed long long long_long_num; / long double long_double_num; / wchar_t* buff_ptr; / const wchar_t* string_end; / wchar_t fill_char = ' '; / wchar_t buff[512]; | 593/593 instructions; structural/exact (0, 67); first (175, ('mr', 'r24, r3'), ('mr', 'r25, r3'))
+__wpformatter | R11 declsearch #40: wchar_t* buff_ptr; / signed long long_num; / signed long long long_long_num; / long double long_double_num; / wchar_t buff[512]; / const wchar_t* string_end; / wchar_t fill_char = ' '; | 593/593 instructions; structural/exact (0, 67); first (175, ('mr', 'r24, r3'), ('mr', 'r25, r3'))
+__wpformatter | R11 declsearch #41: signed long long_num; / wchar_t* buff_ptr; / signed long long long_long_num; / long double long_double_num; / wchar_t buff[512]; / const wchar_t* string_end; / wchar_t fill_char = ' '; | 593/593 instructions; structural/exact (0, 67); first (175, ('mr', 'r24, r3'), ('mr', 'r25, r3'))
+__wpformatter | R11 declsearch #42: signed long long_num; / signed long long long_long_num; / wchar_t* buff_ptr; / long double long_double_num; / wchar_t buff[512]; / const wchar_t* string_end; / wchar_t fill_char = ' '; | 593/593 instructions; structural/exact (0, 67); first (175, ('mr', 'r24, r3'), ('mr', 'r25, r3'))
+__wpformatter | R11 declsearch #43: signed long long_num; / signed long long long_long_num; / long double long_double_num; / wchar_t buff[512]; / const wchar_t* string_end; / wchar_t fill_char = ' '; / wchar_t* buff_ptr; | 593/593 instructions; structural/exact (0, 67); first (175, ('mr', 'r24, r3'), ('mr', 'r25, r3'))
+__wpformatter | R11 declsearch #44: const wchar_t* string_end; / signed long long_num; / signed long long long_long_num; / long double long_double_num; / wchar_t buff[512]; / wchar_t* buff_ptr; / wchar_t fill_char = ' '; | 593/593 instructions; structural/exact (0, 67); first (175, ('mr', 'r24, r3'), ('mr', 'r25, r3'))
+__wpformatter | R11 declsearch #45: signed long long_num; / const wchar_t* string_end; / signed long long long_long_num; / long double long_double_num; / wchar_t buff[512]; / wchar_t* buff_ptr; / wchar_t fill_char = ' '; | 593/593 instructions; structural/exact (0, 67); first (175, ('mr', 'r24, r3'), ('mr', 'r25, r3'))
+__wpformatter | R11 declsearch #46: signed long long_num; / signed long long long_long_num; / const wchar_t* string_end; / long double long_double_num; / wchar_t buff[512]; / wchar_t* buff_ptr; / wchar_t fill_char = ' '; | 593/593 instructions; structural/exact (0, 67); first (175, ('mr', 'r24, r3'), ('mr', 'r25, r3'))
+__wpformatter | R11 declsearch #47: signed long long_num; / signed long long long_long_num; / long double long_double_num; / const wchar_t* string_end; / wchar_t buff[512]; / wchar_t* buff_ptr; / wchar_t fill_char = ' '; | 593/593 instructions; structural/exact (0, 67); first (175, ('mr', 'r24, r3'), ('mr', 'r25, r3'))
+__wpformatter | R11 declsearch #48: wchar_t fill_char = ' '; / signed long long_num; / signed long long long_long_num; / long double long_double_num; / wchar_t buff[512]; / wchar_t* buff_ptr; / const wchar_t* string_end; | 593/593 instructions; structural/exact (0, 67); first (175, ('mr', 'r24, r3'), ('mr', 'r25, r3'))
+__wpformatter | R11 declsearch #49: signed long long_num; / wchar_t fill_char = ' '; / signed long long long_long_num; / long double long_double_num; / wchar_t buff[512]; / wchar_t* buff_ptr; / const wchar_t* string_end; | 593/593 instructions; structural/exact (0, 67); first (175, ('mr', 'r24, r3'), ('mr', 'r25, r3'))
+__wpformatter | R11 declsearch #50: signed long long_num; / signed long long long_long_num; / wchar_t fill_char = ' '; / long double long_double_num; / wchar_t buff[512]; / wchar_t* buff_ptr; / const wchar_t* string_end; | 593/593 instructions; structural/exact (0, 67); first (175, ('mr', 'r24, r3'), ('mr', 'r25, r3'))
+__wpformatter | R11 declsearch #51: signed long long_num; / signed long long long_long_num; / long double long_double_num; / wchar_t fill_char = ' '; / wchar_t buff[512]; / wchar_t* buff_ptr; / const wchar_t* string_end; | 593/593 instructions; structural/exact (0, 67); first (175, ('mr', 'r24, r3'), ('mr', 'r25, r3'))
+__wpformatter | R11 declsearch #52: signed long long_num; / signed long long long_long_num; / long double long_double_num; / wchar_t buff[512]; / wchar_t fill_char = ' '; / wchar_t* buff_ptr; / const wchar_t* string_end; | 593/593 instructions; structural/exact (0, 67); first (175, ('mr', 'r24, r3'), ('mr', 'r25, r3'))
+__wpformatter | R11 declsearch complete 52 evaluated real permutations; source unchanged.
+__wpformatter | R11 confirmed best conversion/output declarations | objdiff 99.40135; 593/593 instructions; structural/exact (0, 67); first (175, ('mr', 'r24, r3'), ('mr', 'r25, r3'))
+Zi8MatchOEMdata | R11 continuation mirrors SOOption exact readonly input-view lever without cached-context extra instructions: read work fields through actual const typed view; state index writes through mutable owner. No raw offsets, fake casts or target metadata changes.
+Zi8MatchOEMdata | R11 readonly work owner at field reads, mutable original index writes | objdiff 98.645836; 192/192 instructions; structural/exact (0, 47); first (5, ('mr', 'r27, r3'), ('mr', 'r28, r3'))
+Zi8MatchOEMdata | R11 fallback indicator signed integer state matching index arithmetic | objdiff 98.645836; 192/192 instructions; structural/exact (0, 47); first (5, ('mr', 'r27, r3'), ('mr', 'r28, r3'))
+Zi8MatchOEMdata | R11 comparison position signed index with existing signed length conditions | objdiff 98.645836; 192/192 instructions; structural/exact (0, 47); first (5, ('mr', 'r27, r3'), ('mr', 'r28, r3'))
+Zi8MatchOEMdata | R11 saved OEM search index advanced using prefix updates | objdiff 98.645836; 192/192 instructions; structural/exact (0, 47); first (5, ('mr', 'r27, r3'), ('mr', 'r28, r3'))
+Zi8MatchOEMdata | R11 search index lifetime starts only after work state reset | objdiff 94.00521; 196/192 instructions; structural/exact (10, 191); first (5, ('mr', 'r31, r1'), ('mr', 'r28, r3'))
+__wpformatter | R11 retain case pointer-before-wide-count source order,24 register-only differences | objdiff 99.78921; 593/593 instructions; structural/exact (0, 24); first (393, ('lwz', 'r25, 0(r3)'), ('lwz', 'r24, 0(r3)'))
+__wpformatter | R11 first remaining #393 narrow string pointer25 vs24; all other branches/scopes now exact593/593/frame4d0. Target narrow byte length25 and returned common charcount24 overlap opposite source local pointer25 and commoncount24. Split actual byte scan length from resulting character count; field semantics identical and no extra instruction required.
+__wpformatter | R11 narrow byte scan count separate from resulting wide count pointer-first | objdiff 98.35582; 593/593 instructions; structural/exact (0, 169); first (4, ('li', 'r23, 0x20'), ('li', 'r20, 0x20'))
+__wpformatter | R11 narrow byte scan size_t pointer-first | objdiff 98.35582; 593/593 instructions; structural/exact (0, 169); first (4, ('li', 'r23, 0x20'), ('li', 'r20, 0x20'))
+__wpformatter | R11 narrow byte scan long pointer-first | objdiff 98.35582; 593/593 instructions; structural/exact (0, 169); first (4, ('li', 'r23, 0x20'), ('li', 'r20, 0x20'))
+__wpformatter | R11 narrow byte scan count separate from resulting wide count length-first | objdiff 98.35582; 593/593 instructions; structural/exact (0, 169); first (4, ('li', 'r23, 0x20'), ('li', 'r20, 0x20'))
+__wpformatter | R11 narrow byte scan size_t length-first | objdiff 98.35582; 593/593 instructions; structural/exact (0, 169); first (4, ('li', 'r23, 0x20'), ('li', 'r20, 0x20'))
+__wpformatter | R11 narrow byte scan long length-first | objdiff 98.35582; 593/593 instructions; structural/exact (0, 169); first (4, ('li', 'r23, 0x20'), ('li', 'r20, 0x20'))
+__wpformatter | R11 multibyte input uses distinct mbs_ptr name from wide input cursor | objdiff 99.78921; 593/593 instructions; structural/exact (0, 24); first (393, ('lwz', 'r25, 0(r3)'), ('lwz', 'r24, 0(r3)'))
+__wpformatter | R11 multibyte input actual char argument type and distinct pointer declaration | objdiff 99.78921; 593/593 instructions; structural/exact (0, 24); first (393, ('lwz', 'r25, 0(r3)'), ('lwz', 'r24, 0(r3)'))
+__wpformatter | R11 wide scan local count named independently from common field count | objdiff 99.78921; 593/593 instructions; structural/exact (0, 24); first (393, ('lwz', 'r25, 0(r3)'), ('lwz', 'r24, 0(r3)'))
+__wpformatter | R11 va_arg wide pointer representation retained at multibyte call views | objdiff 99.78921; 593/593 instructions; structural/exact (0, 24); first (393, ('lwz', 'r25, 0(r3)'), ('lwz', 'r24, 0(r3)'))
+__wpformatter | R11 string scan count scoped to complete wide or multibyte conversion case | objdiff 99.40135; 593/593 instructions; structural/exact (0, 67); first (175, ('mr', 'r24, r3'), ('mr', 'r25, r3'))
+__wpformatter | R11 multibyte conversion character-count assignment separate from error predicate | objdiff 98.35582; 593/593 instructions; structural/exact (0, 169); first (4, ('li', 'r23, 0x20'), ('li', 'r20, 0x20'))
+__wpformatter | R11 multibyte byte cursor and converted count share case-local variable before export | objdiff 98.01855; 593/593 instructions; structural/exact (2, 170); first (4, ('li', 'r28, 0x20'), ('li', 'r20, 0x20'))
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R11 declsearch #1: const char* forceName; / u32 animationCount; / u32 paneIndex = 0; | 221/221 instructions; structural/exact (0, 6); first (159, ('lwz', 'r22, 0x18(r20)'), ('lwz', 'r31, 0x18(r20)'))
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R11 declsearch #2: u32 animationCount; / const char* forceName; / u32 paneIndex = 0; | 221/221 instructions; structural/exact (0, 9); first (157, ('lwz', 'r22, 0x1c(r20)'), ('lwz', 'r23, 0x1c(r20)'))
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R11 declsearch #3: u32 paneIndex = 0; / u32 animationCount; / const char* forceName; | 221/221 instructions; structural/exact (0, 13); first (58, ('li', 'r23, 0'), ('li', 'r21, 0'))
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R11 declsearch #4: const char* forceName; / u32 paneIndex = 0; / u32 animationCount; | 221/221 instructions; structural/exact (0, 10); first (58, ('li', 'r22, 0'), ('li', 'r21, 0'))
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R11 declsearch #5: u32 animationCount; / u32 paneIndex = 0; / const char* forceName; | 221/221 instructions; structural/exact (0, 13); first (58, ('li', 'r22, 0'), ('li', 'r21, 0'))
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R11 declsearch #6: u32 paneIndex = 0; / const char* forceName; / u32 animationCount; | 221/221 instructions; structural/exact (0, 13); first (58, ('li', 'r23, 0'), ('li', 'r21, 0'))
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R11 declsearch complete 6 evaluated real permutations; source unchanged.
+R11 retain additional readable structural improvements: WP separate wide scan length at actual case-local pointer declaration,24 pure register differences instead98; OEM validation predecrement in right comparison operand,structural0 instead2 and47 GPR operands. No exact-count claim for these two candidates, data/pool unchanged. Full quick authority gate over all nine before commit. CDBCryptBuffer frame correction: actual target aligned subfic -0x1c0 (earlier logged200 was incorrect); first offset difference32, current119/119 otherwise.
+__wpformatter | R11 minimal final diff keeps original leading grouped counters | objdiff 99.78921; 593/593 instructions; structural/exact (0, 24); first (393, ('lwz', 'r25, 0(r3)'), ('lwz', 'r24, 0(r3)'))
+
+R11 WP/OEM minimal candidate gate before commit
+full build: ok
+main.dol sha1: 26116613f624061ba99c8d1a299aaa6efa85670d
+[libs/MSL/src/MSL_Common/wprintf] pool: IDENTICAL
+[libs/MSL/src/MSL_Common/wprintf] objdiff: code 6264/8636 data 836/836 functions 8/9 fuzzy 99.9421 linked code 0
+[libs/MSL/src/MSL_Common/wprintf] instruction-exact functions: 8/9
+[libs/MSL/src/MSL_Common/wprintf]   section .data size 680 match 100.0
+[libs/MSL/src/MSL_Common/wprintf]   section .rodata size 8 match 100.0
+[libs/MSL/src/MSL_Common/wprintf]   section .sdata2 size 8 match 100.0
+[libs/MSL/src/MSL_Common/wprintf]   section .text size 8636 match 99.9421
+[libs/MSL/src/MSL_Common/wprintf]   section extab size 56 match 100.0
+[libs/MSL/src/MSL_Common/wprintf]   section extabindex size 84 match 100.0
+[libs/MSL/src/MSL_Common/wprintf]   below 100: __wpformatter 99.78921
+[libs/MSL/src/MSL_Common/wprintf] baseline: code 6264/8636 data 836 functions 8 fuzzy 99.7638
+[libs/RVLMiddleware/eZiText/src/clib/zoemdata] pool: IDENTICAL
+[libs/RVLMiddleware/eZiText/src/clib/zoemdata] objdiff: code 208/976 data 60/60 functions 2/3 fuzzy 98.9344 linked code 0
+[libs/RVLMiddleware/eZiText/src/clib/zoemdata] instruction-exact functions: 2/3
+[libs/RVLMiddleware/eZiText/src/clib/zoemdata]   section .text size 976 match 98.934425
+[libs/RVLMiddleware/eZiText/src/clib/zoemdata]   section extab size 24 match 100.0
+[libs/RVLMiddleware/eZiText/src/clib/zoemdata]   section extabindex size 36 match 100.0
+[libs/RVLMiddleware/eZiText/src/clib/zoemdata]   below 100: Zi8MatchOEMdata 98.645836
+[libs/RVLMiddleware/eZiText/src/clib/zoemdata] baseline: code 208/976 data 60 functions 2 fuzzy 98.2992
+regressions vs baseline: 0
+global matched_code_percent: 90.43582 -> 90.45171
+global fuzzy_match_percent: 99.56501 -> 99.56576
+global complete_code_percent: 70.30611 -> 70.30611
+global matched_data_percent: 99.36639 -> 99.36639
+forbidden patterns added (net, per file): 0
+readability warnings (net, per file; must be 0 in the final result): 0
+GATE PASS
+R11 source review: WP original leading declarations retained; only meaningful wide string scan count localized after pointer acquisition,98->24 pure GPR differences. OEM predecrement right operand restores target length-before-capacity instruction order,2->0 structural differences, remaining47 GPR colors; 97.83854->98.645836%. Neither is a new exact function. Both preserve all previous exact functions, pool/data sizes and bytes; no artificial declarations or header changes retained.
+
+## R11 final completeness and ownership audit
+libs/RevoEX/src/so/SOOption | before -> after instruction-exact 3/4 -> 4/4; objdiff code 816/1292 -> 1292/1292; data 0/0 -> 0/0.
+EXACT SOGetInterfaceOpt | 100.0% | 4 compiled R11 source labels; target/source119 instructions and zero ctxdiff for SOOption.
+Extent SOGetInterfaceOpt: 0x814B476C+0x1DC=0x814B4948, next SOSetInterfaceOpt at0x814B4948; no overlap and no size/address change.
+src/keyboard/tiString | before -> after instruction-exact 41/42 -> 41/42; objdiff code 4632/5176 -> 4632/5176; data 288/288 -> 288/288.
+OPEN inputChar__Q39textinput8tistring9DecolatedFw | 90.132355% | 3 distinct compiled R11 source labels (build failures excluded), 0 logged successful declaration evaluations | 125/136/frame30; mode3 original Hangul/literal converter counter helper and dead newline comparison remain unknown; no verified volatile reload.
+Extent inputChar__Q39textinput8tistring9DecolatedFw: 0x81432CE4+0x220=0x81432F04, next confirmKana__Q39textinput8tistring9DecolatedFv at0x81432F04; no overlap and no size/address change.
+src/keyboard/tiSignWindow | before -> after instruction-exact 55/56 -> 55/56; objdiff code 6300/7184 -> 6300/7184; data 3468/3468 -> 3468/3468.
+OPEN create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | 99.86425% | 15 distinct compiled R11 source labels (build failures excluded), 6 logged successful declaration evaluations | 221/221/frame50; six bound/slot register operands22/31, first159, all local offsets, fields, branches, call and operand ordering exact.
+Extent create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator: 0x81430E50+0x374=0x814311C4, next __dt__Q49textinput8keyboard10signwindow7AnmPaneFv at0x814311C4; no overlap and no size/address change.
+libs/RevoEX/src/cdb/CDBRecord | before -> after instruction-exact 27/29 -> 27/29; objdiff code 5464/7076 -> 5464/7076; data 144/2640 -> 144/2640.
+OPEN CDBCryptBuffer | 99.97479% | 3 distinct compiled R11 source labels (build failures excluded), 0 logged successful declaration evaluations | 119/119/aligned frame1c0; only three OSReport literal offsets32,75,95; original pool47 versus source19, first missing literal10; retained/unimplemented SDK API provenance uncertain, no speculative pool filler.
+Extent CDBCryptBuffer: 0x8148D14C+0x1DC=0x8148D328, next CDBRecordEncrypt at0x8148D328; no overlap and no size/address change.
+OPEN CDBRecordEncrypt | 99.19014% | 3 distinct compiled R11 source labels (build failures excluded), 0 logged successful declaration evaluations | 284/284/aligned frame400;44 descriptor/input/key/temporary/pool-base register operands, first8; all other structure exact.
+Extent CDBRecordEncrypt: 0x8148D328+0x470=0x8148D798, next CDBRecordDecrypt at0x8148D798; no overlap and no size/address change.
+libs/RVLMiddleware/TMC_JPEG/src/b65/iqdec_b65_frv32 | before -> after instruction-exact 0/1 -> 0/1; objdiff code 0/1104 -> 0/1104; data 0/0 -> 0/0.
+OPEN TMCJPEGDEC_decode_iquant | 99.31159% | 3 distinct compiled R11 source labels (build failures excluded), 55 logged successful declaration evaluations | 276/276/frame50;30 cursor/threshold/bitcount and AC table/zigzag register operands, first42; all six aggregate local slots and branch/call/operand orders exact.
+Extent TMCJPEGDEC_decode_iquant: 0x814F6BD4+0x450=0x814F7024, next __ct__Q44nw4r3snd6detail9AxManagerFv at0x814F7024; no overlap and no size/address change.
+libs/RevoEX/src/so/SOBasic | before -> after instruction-exact 21/22 -> 21/22; objdiff code 3836/4088 -> 3836/4088; data 144/144 -> 144/144.
+OPEN SOGetSockName | 96.666664% | 6 distinct compiled R11 source labels (build failures excluded), 0 logged successful declaration evaluations | 63/63/frame30; three memcpy input/destination load order differences32..34; no observed volatile reload.
+Extent SOGetSockName: 0x814B33D0+0xFC=0x814B34CC, next SORecvFrom at0x814B34CC; no overlap and no size/address change.
+libs/RVLMiddleware/eZiText/src/clib/zoemdata | before -> after instruction-exact 2/3 -> 2/3; objdiff code 208/976 -> 208/976; data 60/60 -> 60/60.
+OPEN Zi8MatchOEMdata | 98.645836% | 15 distinct compiled R11 source labels (build failures excluded), 0 logged successful declaration evaluations | 192/192/frame40;47 parameter/index/fallback register operands; validation instruction order and all other structure exact.
+Extent Zi8MatchOEMdata: 0x81484DFC+0x300=0x814850FC, next Zi8PrepareMatch at0x814850FC; no overlap and no size/address change.
+src/scene/sdChannelTitle/iplSDChannelTitle | before -> after instruction-exact 68/69 -> 68/69; objdiff code 18476/18624 -> 18476/18624; data 1976/1976 -> 1976/1976.
+OPEN iplSDChannelTitle_flushSaveBeforeExit | 98.5946% | 19 distinct compiled R11 source labels (build failures excluded), 0 logged successful declaration evaluations | 37/37/frame20; global argument base4 vs3 and heap/manager load order25..26,6 total differences; page/index offsets exact, const formal/getter/member experiments rejected.
+Extent iplSDChannelTitle_flushSaveBeforeExit: 0x813E8A20+0x94=0x813E8AB4, next iplSDChannelTitle_rebootSystem at0x813E8AB4; no overlap and no size/address change.
+libs/MSL/src/MSL_Common/wprintf | before -> after instruction-exact 8/9 -> 8/9; objdiff code 6264/8636 -> 6264/8636; data 836/836 -> 836/836.
+OPEN __wpformatter | 99.78921% | 52 distinct compiled R11 source labels (build failures excluded), 123 logged successful declaration evaluations | 593/593/frame4d0;24 narrow input pointer/byte length register operands24/25, first393; all prior prologue/constants/args/buffer and wide scan homes nowexact.
+Extent __wpformatter: 0x81607C20+0x944=0x81608564, next __wStringWrite at0x81608564; no overlap and no size/address change.
+R11 123 compiled source-variation labels and 184 logged successful declaration-order evaluations; same-source confirmation labels are not counted toward the distinct >=3 audit. Every nine remaining open functions exceeds three actual source constructs; SOGetInterfaceOpt complete.
+Four stale task SD functions were already exact on fresh origin/main before work; baseline is68/69, not64/69. No out-of-scope source edits, data symbol renames/extents, shared headers, inline asm, volatile, register keyword, forced sections/activity, artificial strings, padding or uninitialized values retained. All nine unit data metrics unchanged; CDB literal provenance remains the sole actual data gap. SOOption no owned data; target weak/linker-deduplicated data never suppressed.
+Accepted source paths: libs/RevoEX/src/so/SOOption.c; libs/MSL/src/MSL_Common/wprintf.c; libs/RVLMiddleware/eZiText/src/clib/zoemdata.c. Source commits8f7f0036 andccd10864 both preceded by GATE PASS/correct DOL/0regressions/forbidden/readability. Whole-unit exact gains SOOption3/4->4/4 and476newmatchedcodebytes; WP/OEM remain fuzzy-only and are not counted as exact gains.
+Final non-quick gate all nine follows; unit lines, SHA1 and GATE will be copied below.
+
+R11 final register-only coverage check: CDBRecordEncrypt original seven leading scalar declarations have no initializers or stack aggregate dependencies; all284instructions and frame400 are structurally exact. Run declared-only search last after three const/lifetime/helper trials; OEM four real declarations rerun with per-permutation logger because earlier13-evaluation tool output logged only aggregate. No new source constructs or metadata will be invented.
+CDBRecordEncrypt | R11 declsearch #1: CDBRecordFile* recordFile; / CDBErr err; / u32 dataSize; / u32 fileSize; / u32 cryptSize; / u32 authenticatedSize; / int fileOffset; | 284/284 instructions; structural/exact (0, 44); first (8, ('lis', 'r31, 0'), ('lis', 'r25, 0'))
+CDBRecordEncrypt | R11 declsearch #2: CDBErr err; / CDBRecordFile* recordFile; / u32 dataSize; / u32 fileSize; / u32 cryptSize; / u32 authenticatedSize; / int fileOffset; | 284/284 instructions; structural/exact (0, 44); first (8, ('lis', 'r31, 0'), ('lis', 'r25, 0'))
+CDBRecordEncrypt | R11 declsearch #3: u32 dataSize; / CDBErr err; / CDBRecordFile* recordFile; / u32 fileSize; / u32 cryptSize; / u32 authenticatedSize; / int fileOffset; | 284/284 instructions; structural/exact (0, 44); first (8, ('lis', 'r31, 0'), ('lis', 'r25, 0'))
+Zi8MatchOEMdata | R11 declsearch #1: ziWChar folded; / ziS32 index; / ziU32 position; / ziU32 fallback = 0; | 192/192 instructions; structural/exact (0, 47); first (5, ('mr', 'r27, r3'), ('mr', 'r28, r3'))
+Zi8MatchOEMdata | R11 declsearch #2: ziS32 index; / ziWChar folded; / ziU32 position; / ziU32 fallback = 0; | 192/192 instructions; structural/exact (0, 47); first (5, ('mr', 'r27, r3'), ('mr', 'r28, r3'))
+CDBRecordEncrypt | R11 declsearch #4: u32 fileSize; / CDBErr err; / u32 dataSize; / CDBRecordFile* recordFile; / u32 cryptSize; / u32 authenticatedSize; / int fileOffset; | 284/284 instructions; structural/exact (6, 50); first (8, ('lis', 'r31, 0'), ('lis', 'r25, 0'))
+Zi8MatchOEMdata | R11 declsearch #3: ziU32 position; / ziS32 index; / ziWChar folded; / ziU32 fallback = 0; | 192/192 instructions; structural/exact (0, 47); first (5, ('mr', 'r27, r3'), ('mr', 'r28, r3'))
+CDBRecordEncrypt | R11 declsearch #5: u32 cryptSize; / CDBErr err; / u32 dataSize; / u32 fileSize; / CDBRecordFile* recordFile; / u32 authenticatedSize; / int fileOffset; | 284/284 instructions; structural/exact (9, 53); first (8, ('lis', 'r31, 0'), ('lis', 'r25, 0'))
+Zi8MatchOEMdata | R11 declsearch #4: ziU32 fallback = 0; / ziS32 index; / ziU32 position; / ziWChar folded; | 192/192 instructions; structural/exact (0, 47); first (5, ('mr', 'r27, r3'), ('mr', 'r28, r3'))
+Zi8MatchOEMdata | R11 declsearch #5: ziWChar folded; / ziU32 position; / ziS32 index; / ziU32 fallback = 0; | 192/192 instructions; structural/exact (0, 47); first (5, ('mr', 'r27, r3'), ('mr', 'r28, r3'))
+CDBRecordEncrypt | R11 declsearch #6: u32 authenticatedSize; / CDBErr err; / u32 dataSize; / u32 fileSize; / u32 cryptSize; / CDBRecordFile* recordFile; / int fileOffset; | 284/284 instructions; structural/exact (0, 44); first (8, ('lis', 'r31, 0'), ('lis', 'r25, 0'))
+Zi8MatchOEMdata | R11 declsearch #6: ziWChar folded; / ziU32 fallback = 0; / ziU32 position; / ziS32 index; | 192/192 instructions; structural/exact (0, 47); first (5, ('mr', 'r27, r3'), ('mr', 'r28, r3'))
+Zi8MatchOEMdata | R11 declsearch #7: ziWChar folded; / ziS32 index; / ziU32 fallback = 0; / ziU32 position; | 192/192 instructions; structural/exact (0, 47); first (5, ('mr', 'r27, r3'), ('mr', 'r28, r3'))
+CDBRecordEncrypt | R11 declsearch #7: int fileOffset; / CDBErr err; / u32 dataSize; / u32 fileSize; / u32 cryptSize; / u32 authenticatedSize; / CDBRecordFile* recordFile; | 284/284 instructions; structural/exact (0, 50); first (8, ('lis', 'r31, 0'), ('lis', 'r25, 0'))
+Zi8MatchOEMdata | R11 declsearch #8: ziS32 index; / ziU32 position; / ziWChar folded; / ziU32 fallback = 0; | 192/192 instructions; structural/exact (0, 47); first (5, ('mr', 'r27, r3'), ('mr', 'r28, r3'))
+Zi8MatchOEMdata | R11 declsearch #9: ziS32 index; / ziU32 position; / ziU32 fallback = 0; / ziWChar folded; | 192/192 instructions; structural/exact (0, 47); first (5, ('mr', 'r27, r3'), ('mr', 'r28, r3'))
+CDBRecordEncrypt | R11 declsearch #8: CDBRecordFile* recordFile; / u32 dataSize; / CDBErr err; / u32 fileSize; / u32 cryptSize; / u32 authenticatedSize; / int fileOffset; | 284/284 instructions; structural/exact (0, 44); first (8, ('lis', 'r31, 0'), ('lis', 'r25, 0'))
+Zi8MatchOEMdata | R11 declsearch #10: ziWChar folded; / ziU32 position; / ziU32 fallback = 0; / ziS32 index; | 192/192 instructions; structural/exact (0, 47); first (5, ('mr', 'r27, r3'), ('mr', 'r28, r3'))
+Zi8MatchOEMdata | R11 declsearch #11: ziU32 position; / ziWChar folded; / ziS32 index; / ziU32 fallback = 0; | 192/192 instructions; structural/exact (0, 47); first (5, ('mr', 'r27, r3'), ('mr', 'r28, r3'))
+CDBRecordEncrypt | R11 declsearch #9: CDBRecordFile* recordFile; / u32 fileSize; / u32 dataSize; / CDBErr err; / u32 cryptSize; / u32 authenticatedSize; / int fileOffset; | 284/284 instructions; structural/exact (6, 50); first (8, ('lis', 'r31, 0'), ('lis', 'r25, 0'))
+Zi8MatchOEMdata | R11 declsearch #12: ziU32 fallback = 0; / ziWChar folded; / ziS32 index; / ziU32 position; | 192/192 instructions; structural/exact (0, 47); first (5, ('mr', 'r27, r3'), ('mr', 'r28, r3'))
+CDBRecordEncrypt | R11 declsearch #10: CDBRecordFile* recordFile; / u32 cryptSize; / u32 dataSize; / u32 fileSize; / CDBErr err; / u32 authenticatedSize; / int fileOffset; | 284/284 instructions; structural/exact (9, 53); first (8, ('lis', 'r31, 0'), ('lis', 'r25, 0'))
+Zi8MatchOEMdata | R11 declsearch #13: ziWChar folded; / ziU32 fallback = 0; / ziS32 index; / ziU32 position; | 192/192 instructions; structural/exact (0, 47); first (5, ('mr', 'r27, r3'), ('mr', 'r28, r3'))
+Zi8MatchOEMdata | R11 declsearch complete 13 evaluated real permutations; source unchanged.
+CDBRecordEncrypt | R11 declsearch #11: CDBRecordFile* recordFile; / u32 authenticatedSize; / u32 dataSize; / u32 fileSize; / u32 cryptSize; / CDBErr err; / int fileOffset; | 284/284 instructions; structural/exact (0, 44); first (8, ('lis', 'r31, 0'), ('lis', 'r25, 0'))
+CDBRecordEncrypt | R11 declsearch #12: CDBRecordFile* recordFile; / int fileOffset; / u32 dataSize; / u32 fileSize; / u32 cryptSize; / u32 authenticatedSize; / CDBErr err; | 284/284 instructions; structural/exact (0, 44); first (8, ('lis', 'r31, 0'), ('lis', 'r25, 0'))
+CDBRecordEncrypt | R11 declsearch #13: CDBRecordFile* recordFile; / CDBErr err; / u32 fileSize; / u32 dataSize; / u32 cryptSize; / u32 authenticatedSize; / int fileOffset; | 284/284 instructions; structural/exact (6, 50); first (8, ('lis', 'r31, 0'), ('lis', 'r25, 0'))
+CDBRecordEncrypt | R11 declsearch #14: CDBRecordFile* recordFile; / CDBErr err; / u32 cryptSize; / u32 fileSize; / u32 dataSize; / u32 authenticatedSize; / int fileOffset; | 284/284 instructions; structural/exact (7, 51); first (8, ('lis', 'r31, 0'), ('lis', 'r25, 0'))
+CDBRecordEncrypt | R11 declsearch #15: CDBRecordFile* recordFile; / CDBErr err; / u32 authenticatedSize; / u32 fileSize; / u32 cryptSize; / u32 dataSize; / int fileOffset; | 284/284 instructions; structural/exact (9, 53); first (8, ('lis', 'r31, 0'), ('lis', 'r25, 0'))
+CDBRecordEncrypt | R11 declsearch #16: CDBRecordFile* recordFile; / CDBErr err; / int fileOffset; / u32 fileSize; / u32 cryptSize; / u32 authenticatedSize; / u32 dataSize; | 284/284 instructions; structural/exact (9, 53); first (8, ('lis', 'r31, 0'), ('lis', 'r25, 0'))
+CDBRecordEncrypt | R11 declsearch #17: CDBRecordFile* recordFile; / CDBErr err; / u32 dataSize; / u32 cryptSize; / u32 fileSize; / u32 authenticatedSize; / int fileOffset; | 284/284 instructions; structural/exact (5, 49); first (8, ('lis', 'r31, 0'), ('lis', 'r25, 0'))
+CDBRecordEncrypt | R11 declsearch #18: CDBRecordFile* recordFile; / CDBErr err; / u32 dataSize; / u32 authenticatedSize; / u32 cryptSize; / u32 fileSize; / int fileOffset; | 284/284 instructions; structural/exact (5, 49); first (8, ('lis', 'r31, 0'), ('lis', 'r25, 0'))
+CDBRecordEncrypt | R11 declsearch #19: CDBRecordFile* recordFile; / CDBErr err; / u32 dataSize; / int fileOffset; / u32 cryptSize; / u32 authenticatedSize; / u32 fileSize; | 284/284 instructions; structural/exact (5, 49); first (8, ('lis', 'r31, 0'), ('lis', 'r25, 0'))
+CDBRecordEncrypt | R11 declsearch #20: CDBRecordFile* recordFile; / CDBErr err; / u32 dataSize; / u32 fileSize; / u32 authenticatedSize; / u32 cryptSize; / int fileOffset; | 284/284 instructions; structural/exact (0, 44); first (8, ('lis', 'r31, 0'), ('lis', 'r25, 0'))
+CDBRecordEncrypt | R11 declsearch #21: CDBRecordFile* recordFile; / CDBErr err; / u32 dataSize; / u32 fileSize; / int fileOffset; / u32 authenticatedSize; / u32 cryptSize; | 284/284 instructions; structural/exact (0, 44); first (8, ('lis', 'r31, 0'), ('lis', 'r25, 0'))
+CDBRecordEncrypt | R11 declsearch #22: CDBRecordFile* recordFile; / CDBErr err; / u32 dataSize; / u32 fileSize; / u32 cryptSize; / int fileOffset; / u32 authenticatedSize; | 284/284 instructions; structural/exact (0, 44); first (8, ('lis', 'r31, 0'), ('lis', 'r25, 0'))
+CDBRecordEncrypt | R11 declsearch #23: CDBErr err; / u32 dataSize; / CDBRecordFile* recordFile; / u32 fileSize; / u32 cryptSize; / u32 authenticatedSize; / int fileOffset; | 284/284 instructions; structural/exact (0, 44); first (8, ('lis', 'r31, 0'), ('lis', 'r25, 0'))
+CDBRecordEncrypt | R11 declsearch #24: CDBErr err; / u32 dataSize; / u32 fileSize; / CDBRecordFile* recordFile; / u32 cryptSize; / u32 authenticatedSize; / int fileOffset; | 284/284 instructions; structural/exact (0, 44); first (8, ('lis', 'r31, 0'), ('lis', 'r25, 0'))
+CDBRecordEncrypt | R11 declsearch #25: CDBErr err; / u32 dataSize; / u32 fileSize; / u32 cryptSize; / CDBRecordFile* recordFile; / u32 authenticatedSize; / int fileOffset; | 284/284 instructions; structural/exact (0, 44); first (8, ('lis', 'r31, 0'), ('lis', 'r25, 0'))
+CDBRecordEncrypt | R11 declsearch #26: CDBErr err; / u32 dataSize; / u32 fileSize; / u32 cryptSize; / u32 authenticatedSize; / CDBRecordFile* recordFile; / int fileOffset; | 284/284 instructions; structural/exact (0, 44); first (8, ('lis', 'r31, 0'), ('lis', 'r25, 0'))
+CDBRecordEncrypt | R11 declsearch #27: CDBErr err; / u32 dataSize; / u32 fileSize; / u32 cryptSize; / u32 authenticatedSize; / int fileOffset; / CDBRecordFile* recordFile; | 284/284 instructions; structural/exact (0, 50); first (8, ('lis', 'r31, 0'), ('lis', 'r25, 0'))
+CDBRecordEncrypt | R11 declsearch #28: CDBRecordFile* recordFile; / u32 dataSize; / u32 fileSize; / CDBErr err; / u32 cryptSize; / u32 authenticatedSize; / int fileOffset; | 284/284 instructions; structural/exact (0, 44); first (8, ('lis', 'r31, 0'), ('lis', 'r25, 0'))
+CDBRecordEncrypt | R11 declsearch #29: CDBRecordFile* recordFile; / u32 dataSize; / u32 fileSize; / u32 cryptSize; / CDBErr err; / u32 authenticatedSize; / int fileOffset; | 284/284 instructions; structural/exact (0, 44); first (8, ('lis', 'r31, 0'), ('lis', 'r25, 0'))
+CDBRecordEncrypt | R11 declsearch #30: CDBRecordFile* recordFile; / u32 dataSize; / u32 fileSize; / u32 cryptSize; / u32 authenticatedSize; / CDBErr err; / int fileOffset; | 284/284 instructions; structural/exact (0, 44); first (8, ('lis', 'r31, 0'), ('lis', 'r25, 0'))
+CDBRecordEncrypt | R11 declsearch #31: CDBRecordFile* recordFile; / u32 dataSize; / u32 fileSize; / u32 cryptSize; / u32 authenticatedSize; / int fileOffset; / CDBErr err; | 284/284 instructions; structural/exact (0, 44); first (8, ('lis', 'r31, 0'), ('lis', 'r25, 0'))
+CDBRecordEncrypt | R11 declsearch #32: u32 dataSize; / CDBRecordFile* recordFile; / CDBErr err; / u32 fileSize; / u32 cryptSize; / u32 authenticatedSize; / int fileOffset; | 284/284 instructions; structural/exact (0, 44); first (8, ('lis', 'r31, 0'), ('lis', 'r25, 0'))
+CDBRecordEncrypt | R11 declsearch #33: CDBRecordFile* recordFile; / CDBErr err; / u32 fileSize; / u32 cryptSize; / u32 dataSize; / u32 authenticatedSize; / int fileOffset; | 284/284 instructions; structural/exact (9, 53); first (8, ('lis', 'r31, 0'), ('lis', 'r25, 0'))
+CDBRecordEncrypt | R11 declsearch #34: CDBRecordFile* recordFile; / CDBErr err; / u32 fileSize; / u32 cryptSize; / u32 authenticatedSize; / u32 dataSize; / int fileOffset; | 284/284 instructions; structural/exact (9, 53); first (8, ('lis', 'r31, 0'), ('lis', 'r25, 0'))
+CDBRecordEncrypt | R11 declsearch #35: CDBRecordFile* recordFile; / CDBErr err; / u32 fileSize; / u32 cryptSize; / u32 authenticatedSize; / int fileOffset; / u32 dataSize; | 284/284 instructions; structural/exact (9, 53); first (8, ('lis', 'r31, 0'), ('lis', 'r25, 0'))
+CDBRecordEncrypt | R11 declsearch #36: u32 fileSize; / CDBRecordFile* recordFile; / CDBErr err; / u32 dataSize; / u32 cryptSize; / u32 authenticatedSize; / int fileOffset; | 284/284 instructions; structural/exact (6, 50); first (8, ('lis', 'r31, 0'), ('lis', 'r25, 0'))
+CDBRecordEncrypt | R11 declsearch #37: CDBRecordFile* recordFile; / u32 fileSize; / CDBErr err; / u32 dataSize; / u32 cryptSize; / u32 authenticatedSize; / int fileOffset; | 284/284 instructions; structural/exact (6, 50); first (8, ('lis', 'r31, 0'), ('lis', 'r25, 0'))
+CDBRecordEncrypt | R11 declsearch #38: CDBRecordFile* recordFile; / CDBErr err; / u32 dataSize; / u32 cryptSize; / u32 authenticatedSize; / u32 fileSize; / int fileOffset; | 284/284 instructions; structural/exact (5, 49); first (8, ('lis', 'r31, 0'), ('lis', 'r25, 0'))
+CDBRecordEncrypt | R11 declsearch #39: CDBRecordFile* recordFile; / CDBErr err; / u32 dataSize; / u32 cryptSize; / u32 authenticatedSize; / int fileOffset; / u32 fileSize; | 284/284 instructions; structural/exact (5, 49); first (8, ('lis', 'r31, 0'), ('lis', 'r25, 0'))
+CDBRecordEncrypt | R11 declsearch #40: u32 cryptSize; / CDBRecordFile* recordFile; / CDBErr err; / u32 dataSize; / u32 fileSize; / u32 authenticatedSize; / int fileOffset; | 284/284 instructions; structural/exact (9, 53); first (8, ('lis', 'r31, 0'), ('lis', 'r25, 0'))
+CDBRecordEncrypt | R11 declsearch #41: CDBRecordFile* recordFile; / u32 cryptSize; / CDBErr err; / u32 dataSize; / u32 fileSize; / u32 authenticatedSize; / int fileOffset; | 284/284 instructions; structural/exact (9, 53); first (8, ('lis', 'r31, 0'), ('lis', 'r25, 0'))
+CDBRecordEncrypt | R11 declsearch #42: CDBRecordFile* recordFile; / CDBErr err; / u32 cryptSize; / u32 dataSize; / u32 fileSize; / u32 authenticatedSize; / int fileOffset; | 284/284 instructions; structural/exact (9, 53); first (8, ('lis', 'r31, 0'), ('lis', 'r25, 0'))
+CDBRecordEncrypt | R11 declsearch #43: CDBRecordFile* recordFile; / CDBErr err; / u32 dataSize; / u32 fileSize; / u32 authenticatedSize; / int fileOffset; / u32 cryptSize; | 284/284 instructions; structural/exact (0, 44); first (8, ('lis', 'r31, 0'), ('lis', 'r25, 0'))
+CDBRecordEncrypt | R11 declsearch #44: u32 authenticatedSize; / CDBRecordFile* recordFile; / CDBErr err; / u32 dataSize; / u32 fileSize; / u32 cryptSize; / int fileOffset; | 284/284 instructions; structural/exact (0, 44); first (8, ('lis', 'r31, 0'), ('lis', 'r25, 0'))
+CDBRecordEncrypt | R11 declsearch #45: CDBRecordFile* recordFile; / u32 authenticatedSize; / CDBErr err; / u32 dataSize; / u32 fileSize; / u32 cryptSize; / int fileOffset; | 284/284 instructions; structural/exact (0, 44); first (8, ('lis', 'r31, 0'), ('lis', 'r25, 0'))
+CDBRecordEncrypt | R11 declsearch #46: CDBRecordFile* recordFile; / CDBErr err; / u32 authenticatedSize; / u32 dataSize; / u32 fileSize; / u32 cryptSize; / int fileOffset; | 284/284 instructions; structural/exact (0, 44); first (8, ('lis', 'r31, 0'), ('lis', 'r25, 0'))
+CDBRecordEncrypt | R11 declsearch #47: CDBRecordFile* recordFile; / CDBErr err; / u32 dataSize; / u32 authenticatedSize; / u32 fileSize; / u32 cryptSize; / int fileOffset; | 284/284 instructions; structural/exact (0, 44); first (8, ('lis', 'r31, 0'), ('lis', 'r25, 0'))
+CDBRecordEncrypt | R11 declsearch #48: int fileOffset; / CDBRecordFile* recordFile; / CDBErr err; / u32 dataSize; / u32 fileSize; / u32 cryptSize; / u32 authenticatedSize; | 284/284 instructions; structural/exact (0, 50); first (8, ('lis', 'r31, 0'), ('lis', 'r25, 0'))
+CDBRecordEncrypt | R11 declsearch #49: CDBRecordFile* recordFile; / int fileOffset; / CDBErr err; / u32 dataSize; / u32 fileSize; / u32 cryptSize; / u32 authenticatedSize; | 284/284 instructions; structural/exact (0, 44); first (8, ('lis', 'r31, 0'), ('lis', 'r25, 0'))
+CDBRecordEncrypt | R11 declsearch #50: CDBRecordFile* recordFile; / CDBErr err; / int fileOffset; / u32 dataSize; / u32 fileSize; / u32 cryptSize; / u32 authenticatedSize; | 284/284 instructions; structural/exact (0, 44); first (8, ('lis', 'r31, 0'), ('lis', 'r25, 0'))
+CDBRecordEncrypt | R11 declsearch complete 50 evaluated real permutations; source unchanged.
+
+## R11 final completeness and ownership audit
+libs/RevoEX/src/so/SOOption | before -> after instruction-exact 3/4 -> 4/4; objdiff code 816/1292 -> 1292/1292; data 0/0 -> 0/0.
+EXACT SOGetInterfaceOpt | 100.0% | 4 compiled R11 source labels; target/source119 instructions and zero ctxdiff for SOOption.
+Extent SOGetInterfaceOpt: 0x814B476C+0x1DC=0x814B4948, next SOSetInterfaceOpt at0x814B4948; no overlap and no size/address change.
+src/keyboard/tiString | before -> after instruction-exact 41/42 -> 41/42; objdiff code 4632/5176 -> 4632/5176; data 288/288 -> 288/288.
+OPEN inputChar__Q39textinput8tistring9DecolatedFw | 90.132355% | 3 distinct compiled R11 source labels (build failures excluded), 0 logged successful declaration evaluations | 125/136/frame30; mode3 original Hangul/literal converter counter helper and dead newline comparison remain unknown; no verified volatile reload.
+Extent inputChar__Q39textinput8tistring9DecolatedFw: 0x81432CE4+0x220=0x81432F04, next confirmKana__Q39textinput8tistring9DecolatedFv at0x81432F04; no overlap and no size/address change.
+src/keyboard/tiSignWindow | before -> after instruction-exact 55/56 -> 55/56; objdiff code 6300/7184 -> 6300/7184; data 3468/3468 -> 3468/3468.
+OPEN create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | 99.86425% | 15 distinct compiled R11 source labels (build failures excluded), 6 logged successful declaration evaluations | 221/221/frame50; six bound/slot register operands22/31, first159, all local offsets, fields, branches, call and operand ordering exact.
+Extent create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator: 0x81430E50+0x374=0x814311C4, next __dt__Q49textinput8keyboard10signwindow7AnmPaneFv at0x814311C4; no overlap and no size/address change.
+libs/RevoEX/src/cdb/CDBRecord | before -> after instruction-exact 27/29 -> 27/29; objdiff code 5464/7076 -> 5464/7076; data 144/2640 -> 144/2640.
+OPEN CDBCryptBuffer | 99.97479% | 3 distinct compiled R11 source labels (build failures excluded), 0 logged successful declaration evaluations | 119/119/aligned frame1c0; only three OSReport literal offsets32,75,95; original pool47 versus source19, first missing literal10; retained/unimplemented SDK API provenance uncertain, no speculative pool filler.
+Extent CDBCryptBuffer: 0x8148D14C+0x1DC=0x8148D328, next CDBRecordEncrypt at0x8148D328; no overlap and no size/address change.
+OPEN CDBRecordEncrypt | 99.19014% | 3 distinct compiled R11 source labels (build failures excluded), 50 logged successful declaration evaluations | 284/284/aligned frame400;44 descriptor/input/key/temporary/pool-base register operands, first8; all other structure exact.
+Extent CDBRecordEncrypt: 0x8148D328+0x470=0x8148D798, next CDBRecordDecrypt at0x8148D798; no overlap and no size/address change.
+libs/RVLMiddleware/TMC_JPEG/src/b65/iqdec_b65_frv32 | before -> after instruction-exact 0/1 -> 0/1; objdiff code 0/1104 -> 0/1104; data 0/0 -> 0/0.
+OPEN TMCJPEGDEC_decode_iquant | 99.31159% | 3 distinct compiled R11 source labels (build failures excluded), 55 logged successful declaration evaluations | 276/276/frame50;30 cursor/threshold/bitcount and AC table/zigzag register operands, first42; all six aggregate local slots and branch/call/operand orders exact.
+Extent TMCJPEGDEC_decode_iquant: 0x814F6BD4+0x450=0x814F7024, next __ct__Q44nw4r3snd6detail9AxManagerFv at0x814F7024; no overlap and no size/address change.
+libs/RevoEX/src/so/SOBasic | before -> after instruction-exact 21/22 -> 21/22; objdiff code 3836/4088 -> 3836/4088; data 144/144 -> 144/144.
+OPEN SOGetSockName | 96.666664% | 6 distinct compiled R11 source labels (build failures excluded), 0 logged successful declaration evaluations | 63/63/frame30; three memcpy input/destination load order differences32..34; no observed volatile reload.
+Extent SOGetSockName: 0x814B33D0+0xFC=0x814B34CC, next SORecvFrom at0x814B34CC; no overlap and no size/address change.
+libs/RVLMiddleware/eZiText/src/clib/zoemdata | before -> after instruction-exact 2/3 -> 2/3; objdiff code 208/976 -> 208/976; data 60/60 -> 60/60.
+OPEN Zi8MatchOEMdata | 98.645836% | 15 distinct compiled R11 source labels (build failures excluded), 13 logged successful declaration evaluations | 192/192/frame40;47 parameter/index/fallback register operands; validation instruction order and all other structure exact.
+Extent Zi8MatchOEMdata: 0x81484DFC+0x300=0x814850FC, next Zi8PrepareMatch at0x814850FC; no overlap and no size/address change.
+src/scene/sdChannelTitle/iplSDChannelTitle | before -> after instruction-exact 68/69 -> 68/69; objdiff code 18476/18624 -> 18476/18624; data 1976/1976 -> 1976/1976.
+OPEN iplSDChannelTitle_flushSaveBeforeExit | 98.5946% | 19 distinct compiled R11 source labels (build failures excluded), 0 logged successful declaration evaluations | 37/37/frame20; global argument base4 vs3 and heap/manager load order25..26,6 total differences; page/index offsets exact, const formal/getter/member experiments rejected.
+Extent iplSDChannelTitle_flushSaveBeforeExit: 0x813E8A20+0x94=0x813E8AB4, next iplSDChannelTitle_rebootSystem at0x813E8AB4; no overlap and no size/address change.
+libs/MSL/src/MSL_Common/wprintf | before -> after instruction-exact 8/9 -> 8/9; objdiff code 6264/8636 -> 6264/8636; data 836/836 -> 836/836.
+OPEN __wpformatter | 99.78921% | 52 distinct compiled R11 source labels (build failures excluded), 123 logged successful declaration evaluations | 593/593/frame4d0;24 narrow input pointer/byte length register operands24/25, first393; all prior prologue/constants/args/buffer and wide scan homes nowexact.
+Extent __wpformatter: 0x81607C20+0x944=0x81608564, next __wStringWrite at0x81608564; no overlap and no size/address change.
+R11 123 compiled source-variation labels and 247 logged successful declaration-order evaluations; same-source confirmation labels are not counted toward the distinct >=3 audit. Every nine remaining open functions exceeds three actual source constructs; SOGetInterfaceOpt complete.
+Four stale task SD functions were already exact on fresh origin/main before work; baseline is68/69, not64/69. No out-of-scope source edits, data symbol renames/extents, shared headers, inline asm, volatile, register keyword, forced sections/activity, artificial strings, padding or uninitialized values retained. All nine unit data metrics unchanged; CDB literal provenance remains the sole actual data gap. SOOption no owned data; target weak/linker-deduplicated data never suppressed.
+Accepted source paths: libs/RevoEX/src/so/SOOption.c; libs/MSL/src/MSL_Common/wprintf.c; libs/RVLMiddleware/eZiText/src/clib/zoemdata.c. Source commits8f7f0036 andccd10864 both preceded by GATE PASS/correct DOL/0regressions/forbidden/readability. Whole-unit exact gains SOOption3/4->4/4 and476newmatchedcodebytes; WP/OEM remain fuzzy-only and are not counted as exact gains.
+Final non-quick gate all nine follows; unit lines, SHA1 and GATE will be copied below.
+
+## R11 final full clean non-quick gate over all nine units
+full build: ok
+main.dol sha1: 26116613f624061ba99c8d1a299aaa6efa85670d
+[libs/RevoEX/src/so/SOOption] pool: IDENTICAL
+[libs/RevoEX/src/so/SOOption] objdiff: code 1292/1292 data None/None functions 4/4 fuzzy 100.0000 linked code 0
+[libs/RevoEX/src/so/SOOption] instruction-exact functions: 4/4
+[libs/RevoEX/src/so/SOOption]   section .text size 1292 match 100.0
+[libs/RevoEX/src/so/SOOption] baseline: code 816/1292 data None functions 3 fuzzy 99.9226
+[src/keyboard/tiString] pool: IDENTICAL
+[src/keyboard/tiString] objdiff: code 4632/5176 data 288/288 functions 41/42 fuzzy 98.9629 linked code 0
+[src/keyboard/tiString] instruction-exact functions: 41/42
+[src/keyboard/tiString]   section .data size 288 match 100.0
+[src/keyboard/tiString]   section .text size 5176 match 98.962906
+[src/keyboard/tiString]   below 100: inputChar__Q39textinput8tistring9DecolatedFw 90.132355
+[src/keyboard/tiString] baseline: code 4632/5176 data 288 functions 41 fuzzy 98.9629
+[src/keyboard/tiSignWindow] pool: IDENTICAL
+[src/keyboard/tiSignWindow] objdiff: code 6300/7184 data 3468/3468 functions 55/56 fuzzy 99.9833 linked code 0
+[src/keyboard/tiSignWindow] instruction-exact functions: 55/56
+[src/keyboard/tiSignWindow]   section .ctors size 4 match 100.0
+[src/keyboard/tiSignWindow]   section .data size 2672 match 100.0
+[src/keyboard/tiSignWindow]   section .rodata size 784 match 100.0
+[src/keyboard/tiSignWindow]   section .sdata size 8 match 100.0
+[src/keyboard/tiSignWindow]   section .text size 7184 match 99.9833
+[src/keyboard/tiSignWindow]   below 100: create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator 99.86425
+[src/keyboard/tiSignWindow] baseline: code 6300/7184 data 3468 functions 55 fuzzy 99.9833
+[libs/RevoEX/src/cdb/CDBRecord] pool: DIVERGES at string 10 (mine=19 orig=47)
+[libs/RevoEX/src/cdb/CDBRecord] objdiff: code 5464/7076 data 144/2640 functions 27/29 fuzzy 99.8683 linked code 0
+[libs/RevoEX/src/cdb/CDBRecord] instruction-exact functions: 27/29
+[libs/RevoEX/src/cdb/CDBRecord]   section .bss size 128 match 100.0
+[libs/RevoEX/src/cdb/CDBRecord]   section .data size 2496 match 52.795387
+[libs/RevoEX/src/cdb/CDBRecord]   section .rodata size 16 match 100.0
+[libs/RevoEX/src/cdb/CDBRecord]   section .text size 7076 match 99.868286
+[libs/RevoEX/src/cdb/CDBRecord]   below 100: CDBCryptBuffer 99.97479
+[libs/RevoEX/src/cdb/CDBRecord]   below 100: CDBRecordEncrypt 99.19014
+[libs/RevoEX/src/cdb/CDBRecord] baseline: code 5464/7076 data 144 functions 27 fuzzy 99.8683
+[libs/RVLMiddleware/TMC_JPEG/src/b65/iqdec_b65_frv32] pool: IDENTICAL
+[libs/RVLMiddleware/TMC_JPEG/src/b65/iqdec_b65_frv32] objdiff: code None/1104 data None/None functions 0/1 fuzzy 99.3116 linked code 0
+[libs/RVLMiddleware/TMC_JPEG/src/b65/iqdec_b65_frv32] instruction-exact functions: 0/1
+[libs/RVLMiddleware/TMC_JPEG/src/b65/iqdec_b65_frv32]   section .text size 1104 match 99.31159
+[libs/RVLMiddleware/TMC_JPEG/src/b65/iqdec_b65_frv32]   below 100: TMCJPEGDEC_decode_iquant 99.31159
+[libs/RVLMiddleware/TMC_JPEG/src/b65/iqdec_b65_frv32] baseline: code None/1104 data None functions 0 fuzzy 99.3116
+[libs/RevoEX/src/so/SOBasic] pool: IDENTICAL
+[libs/RevoEX/src/so/SOBasic] objdiff: code 3836/4088 data 144/144 functions 21/22 fuzzy 99.7945 linked code 0
+[libs/RevoEX/src/so/SOBasic] instruction-exact functions: 21/22
+[libs/RevoEX/src/so/SOBasic]   section .bss size 40 match 100.0
+[libs/RevoEX/src/so/SOBasic]   section .data size 88 match 100.0
+[libs/RevoEX/src/so/SOBasic]   section .sbss size 8 match 100.0
+[libs/RevoEX/src/so/SOBasic]   section .sdata size 8 match 100.0
+[libs/RevoEX/src/so/SOBasic]   section .text size 4088 match 99.79452
+[libs/RevoEX/src/so/SOBasic]   below 100: SOGetSockName 96.666664
+[libs/RevoEX/src/so/SOBasic] baseline: code 3836/4088 data 144 functions 21 fuzzy 99.7945
+[libs/RVLMiddleware/eZiText/src/clib/zoemdata] pool: IDENTICAL
+[libs/RVLMiddleware/eZiText/src/clib/zoemdata] objdiff: code 208/976 data 60/60 functions 2/3 fuzzy 98.9344 linked code 0
+[libs/RVLMiddleware/eZiText/src/clib/zoemdata] instruction-exact functions: 2/3
+[libs/RVLMiddleware/eZiText/src/clib/zoemdata]   section .text size 976 match 98.934425
+[libs/RVLMiddleware/eZiText/src/clib/zoemdata]   section extab size 24 match 100.0
+[libs/RVLMiddleware/eZiText/src/clib/zoemdata]   section extabindex size 36 match 100.0
+[libs/RVLMiddleware/eZiText/src/clib/zoemdata]   below 100: Zi8MatchOEMdata 98.645836
+[libs/RVLMiddleware/eZiText/src/clib/zoemdata] baseline: code 208/976 data 60 functions 2 fuzzy 98.2992
+[src/scene/sdChannelTitle/iplSDChannelTitle] pool: IDENTICAL
+[src/scene/sdChannelTitle/iplSDChannelTitle] objdiff: code 18476/18624 data 1976/1976 functions 68/69 fuzzy 99.9888 linked code 0
+[src/scene/sdChannelTitle/iplSDChannelTitle] instruction-exact functions: 68/69
+[src/scene/sdChannelTitle/iplSDChannelTitle]   section .data size 1696 match 100.0
+[src/scene/sdChannelTitle/iplSDChannelTitle]   section .rodata size 48 match 100.0
+[src/scene/sdChannelTitle/iplSDChannelTitle]   section .sdata size 192 match 100.0
+[src/scene/sdChannelTitle/iplSDChannelTitle]   section .sdata2 size 40 match 100.0
+[src/scene/sdChannelTitle/iplSDChannelTitle]   section .text size 18624 match 99.98883
+[src/scene/sdChannelTitle/iplSDChannelTitle]   below 100: iplSDChannelTitle_flushSaveBeforeExit 98.5946
+[src/scene/sdChannelTitle/iplSDChannelTitle] baseline: code 18476/18624 data 1976 functions 68 fuzzy 99.9888
+[libs/MSL/src/MSL_Common/wprintf] pool: IDENTICAL
+[libs/MSL/src/MSL_Common/wprintf] objdiff: code 6264/8636 data 836/836 functions 8/9 fuzzy 99.9421 linked code 0
+[libs/MSL/src/MSL_Common/wprintf] instruction-exact functions: 8/9
+[libs/MSL/src/MSL_Common/wprintf]   section .data size 680 match 100.0
+[libs/MSL/src/MSL_Common/wprintf]   section .rodata size 8 match 100.0
+[libs/MSL/src/MSL_Common/wprintf]   section .sdata2 size 8 match 100.0
+[libs/MSL/src/MSL_Common/wprintf]   section .text size 8636 match 99.9421
+[libs/MSL/src/MSL_Common/wprintf]   section extab size 56 match 100.0
+[libs/MSL/src/MSL_Common/wprintf]   section extabindex size 84 match 100.0
+[libs/MSL/src/MSL_Common/wprintf]   below 100: __wpformatter 99.78921
+[libs/MSL/src/MSL_Common/wprintf] baseline: code 6264/8636 data 836 functions 8 fuzzy 99.7638
+regressions vs baseline: 0
+global matched_code_percent: 90.43582 -> 90.45171
+global fuzzy_match_percent: 99.56501 -> 99.56576
+global complete_code_percent: 70.30611 -> 70.30611
+global matched_data_percent: 99.36639 -> 99.36639
+forbidden patterns added (net, per file): 0
+readability warnings (net, per file; must be 0 in the final result): 0
+GATE PASS
+Final closeout declaration searches restored byte-for-byte committed sources: CDBEncrypt0/44 after50evals, OEM0/47 after13evals; no source changes after clean gate. Refreshed exact-name object report and whole-unit instruction count audit confirm identical final metrics. Clean gate remains the final full authority; no shared header/config edits retained, no code/data regressions, no forbidden/readability additions.
+R11 final sources/commits: SOOption.c8f7f0036; wprintf.c+zoemdata.cccd10864; fz3.attempts.md bookkeeping commit follows. All9remaining functions have >=3 compiled source attempts and explicit first-difference/extent evidence above. CDBmissing28literal provenance and original tiString converter helper remain uncertain; no false completion or data-filler claims.

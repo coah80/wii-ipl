@@ -101,7 +101,7 @@ int SOGetInterfaceOpt(void* interface, int level, int option, void* value, int* 
     int size;
     int result;
     InterfaceOption* request;
-    InterfaceCommand* command;
+    const InterfaceCommand* command;
     int* returnedLength;
     u8* reply;
     if ((result=SOiPrepareTempRm(NULL,&rm,&temporary))==0) {
@@ -112,7 +112,7 @@ int SOGetInterfaceOpt(void* interface, int level, int option, void* value, int* 
             if(!request) result=-49;
             else {
                 command=&request->command;
-                command->level=level; command->option=option;
+                request->command.level=level; request->command.option=option;
                 returnedLength=&((InterfaceLength*)(command + 1))->length;
                 reply=(u8*)((InterfaceLength*)returnedLength + 1);
                 *returnedLength=OptionLength(length);
