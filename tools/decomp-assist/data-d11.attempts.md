@@ -8105,3 +8105,1980 @@ GATE PASS
 ```
 
 Changed source files: zi8pud2.c(copy counter initialization), zi8uwd.c(candidate slot expression and declaration order), zidawg1.c(real serialized child/sibling displacement shifts); ziswordw.c unchanged. No new no-op cast/mask, assembly, volatile, forced section, dummy object, metadata extent or public symbol change. No full unit completion claimed.
+
+Live origin baseline f8da383802088f9c3dd1e48b922a7327a758efdb built in this worker tree, then owned source restored and rebuilt. Current round starting quick gate passed; full gate remains required. Function-by-function comparison:
+```
+zi8pud2 ZiIsPhoneticChar: 100.0 -> 100.0
+zi8pud2 ZiGetZHWordSize: 100.0 -> 100.0
+zi8pud2 Zi8CopyZHSpelling: 100.0 -> 100.0
+zi8pud2 ZADP_Zi8SetPDremoveOpt: 100.0 -> 100.0
+zi8pud2 Zi8MatchPUDdata_ZHS: 98.32204 -> 98.32204
+zi8pud2 Zi8MatchPUDdata: 100.0 -> 100.0
+zi8pud2 Zi8_8147FD7C: 100.0 -> 100.0
+zi8uwd Zi8_81480224: 99.48276 -> 99.48276
+zi8uwd Zi8_814803F4: 100.0 -> 100.0
+zi8uwd Zi8_8148047C: 100.0 -> 100.0
+zi8uwd Zi8MatchUWDdata: 98.65323 -> 98.65323
+zidawg1 ZiDAWGGetChild: 100.0 -> 100.0
+zidawg1 ZiDAWGGetSibling: 98.32061 -> 98.32061
+zidawg1 ZiDAWGgetEOWattribute: 100.0 -> 100.0
+zidawg1 ZiDAWGgetCHARattribute: 99.0 -> 99.0
+zidawg1 ZiDAWGGetGraph: 100.0 -> 100.0
+zidawg1 ZiDAWGGetGraphInfo: 99.55224 -> 99.55224
+ziswordw Zi8IsWordW: 98.52164 -> 98.52164
+ziswordw Zi8ConvertUC2UserKey: 100.0 -> 100.0
+FUZZY REGRESSIONS: 0
+```
+
+### HIGH-g Zi8MatchUWDdata
+Fetched origin cbed5f6d77bc32f83d3ca0df1c6092877b2ea6c2; function still 98.65323%. Pool first:
+```
+POOL IDENTICAL up to 0 (mine=0 base=0)
+```
+Structural diagnosis:
+```
+src 0x7c0 base 0x7c0 insns 496/496
+diffs 144: [16, 18, 55, 60, 61, 79, 82, 102, 122, 134, 135, 143, 147, 172, 175, 177, 184, 186, 187, 188]
+    16 M stw r0, 0x38(r1)
+       B stw r0, 0x10(r1)
+    18 M stw r0, 0x14(r1)
+       B stw r0, 0xc(r1)
+    55 M stw r0, 0x20(r1)
+       B stw r0, 0x18(r1)
+    60 M stw r0, 0x20(r1)
+       B stw r0, 0x18(r1)
+    61 M lwz r3, 0x20(r1)
+       B lwz r3, 0x18(r1)
+    79 M lwz r0, 0x20(r1)
+       B lwz r0, 0x18(r1)
+    82 M lwz r0, 0x20(r1)
+       B lwz r0, 0x18(r1)
+   102 M b 356
+       B b 348
+   122 M b 276
+       B b 268
+   134 M stw r0, 0x18(r1)
+       B stw r0, 0x14(r1)
+   135 M b 216
+       B b 208
+   143 M lwz r0, 0x18(r1)
+       B lwz r0, 0x14(r1)
+   147 M lwz r0, 0x18(r1)
+       B lwz r0, 0x14(r1)
+   172 M lwz r0, 0x18(r1)
+       B lwz r0, 0x14(r1)
+   175 M lwz r3, 0x18(r1)
+       B lwz r3, 0x14(r1)
+   177 M stw r0, 0x18(r1)
+       B stw r0, 0x14(r1)
+   184 M b 28
+       B b 20
+   186 M mr r0, r30
+       B addi r30, r30, 1
+   187 M addi r30, r30, 1
+       B cmpwi r28, 0
+   188 M stw r0, 0xc(r1)
+       B bgt -208
+   189 M cmpwi r28, 0
+       B lbz r0, 0x140(r31)
+   190 M bgt -216
+       B cmpwi r0, 0
+   191 M lbz r0, 0x140(r31)
+       B bne 24
+   192 M cmpwi r0, 0
+       B clrlwi r0, r24, 0x18
+   193 M bne 24
+       B cmpwi r0, 0
+   194 M clrlwi r0, r24, 0x18
+       B bne 12
+   195 M cmpwi r0, 0
+       B li r3, 0
+   196 M bne 12
+       B b 1176
+   197 M li r3, 0
+       B lwz r4, 0x40(r1)
+   198 M b 1168
+       B lwz r3, 0x40(r1)
+   199 M lwz r4, 0x40(r1)
+       B lhz r0, 4(r3)
+   200 M lwz r3, 0x40(r1)
+       B add r3, r4, r0
+   201 M lhz r0, 4(r3)
+       B addi r0, r3, 8
+   202 M add r3, r4, r0
+       B stw r0, 0x38(r1)
+   203 M addi r0, r3, 8
+       B stw r0, 0x3c(r1)
+   204 M stw r0, 0x3c(r1)
+       B lwz r4, 0x40(r1)
+   205 M stw r0, 0x10(r1)
+       B lwz r3, 0x40(r1)
+   206 M lwz r4, 0x40(r1)
+       B lhz r0, 6(r3)
+   207 M lwz r3, 0x40(r1)
+       B add r3, r4, r0
+   208 M lhz r0, 6(r3)
+       B addi r0, r3, 7
+   209 M add r3, r4, r0
+       B stw r0, 0x34(r1)
+   210 M addi r0, r3, 7
+       B lwz r4, 0x40(r1)
+   211 M stw r0, 0x34(r1)
+       B lwz r3, 0x40(r1)
+   212 M lwz r4, 0x40(r1)
+       B lhz r0, 2(r3)
+   213 M lwz r3, 0x40(r1)
+       B add r3, r4, r0
+   214 M lhz r0, 2(r3)
+       B addi r0, r3, 7
+   215 M add r3, r4, r0
+       B stw r0, 0x30(r1)
+   216 M addi r0, r3, 7
+       B lwz r3, 0x38(r1)
+   217 M stw r0, 0x30(r1)
+       B lwz r0, 0x34(r1)
+   218 M lwz r3, 0x10(r1)
+       B cmplw r3, r0
+   219 M lwz r0, 0x34(r1)
+       B bge 16
+   220 M cmplw r3, r0
+       B li r0, 1
+   221 M bge 16
+       B stw r0, 0x28(r1)
+   222 M li r0, 1
+       B b 780
+   223 M stw r0, 0x28(r1)
+       B li r0, 0
+   224 M b 772
+       B stw r0, 0x28(r1)
+   225 M li r0, 0
+       B b 768
+   226 M stw r0, 0x28(r1)
+       B lwz r3, 0x3c(r1)
+   227 M b 760
+       B lbz r0, 0(r3)
+   228 M lwz r3, 0x3c(r1)
+       B stw r0, 0x24(r1)
+   229 M lbz r0, 0(r3)
+       B lwz r4, 0x13c(r31)
+   230 M stw r0, 0x24(r1)
+       B lwz r3, 0x10(r1)
+   231 M lwz r4, 0x13c(r31)
+       B addi r0, r3, 1
+   232 M lwz r3, 0x14(r1)
+       B stw r0, 0x10(r1)
+   233 M addi r0, r3, 1
+       B cmpw r4, r3
+   234 M stw r0, 0x14(r1)
+       B bgt 24
+   235 M cmpw r4, r3
+       B lwz r3, 0x3c(r1)
+   236 M bgt 24
+       B lbz r0, 0(r3)
+   237 M lwz r3, 0x3c(r1)
+       B rlwinm r0, r0, 0, 0x18, 0x19
+   238 M lbz r0, 0(r3)
+       B cmpwi r0, 0
+   239 M rlwinm r0, r0, 0, 0x18, 0x19
+       B beq 96
+   240 M cmpwi r0, 0
+       B lwz r3, 0x3c(r1)
+   241 M beq 100
+       B lwz r0, 0x24(r1)
+   242 M lwz r3, 0x3c(r1)
+       B add r3, r3, r0
+   243 M lwz r0, 0x24(r1)
+       B stw r3, 0x3c(r1)
+   244 M add r0, r3, r0
+       B lwz r0, 0x30(r1)
+   245 M stw r0, 0x3c(r1)
+       B cmplw r3, r0
+   246 M lwz r3, 0x3c(r1)
+       B ble 684
+   247 M lwz r0, 0x30(r1)
+       B lwz r0, 0x28(r1)
+   248 M cmplw r3, r0
+       B cmpwi r0, 0
+   249 M ble 672
+       B bne 728
+   250 M lwz r0, 0x28(r1)
+       B li r0, 1
+   251 M cmpwi r0, 0
+       B stw r0, 0x28(r1)
+   252 M bne 716
+       B lwz r3, 0x30(r1)
+   253 M li r0, 1
+       B lwz r0, 0x3c(r1)
+   254 M stw r0, 0x28(r1)
+       B subf r3, r3, r0
+   255 M lwz r3, 0x30(r1)
+       B addi r0, r3, -1
+   256 M lwz r0, 0x3c(r1)
+       B stw r0, 0x24(r1)
+   257 M subf r3, r3, r0
+       B lwz r3, 0x40(r1)
+   258 M addi r0, r3, -1
+       B lwz r0, 0x24(r1)
+   259 M stw r0, 0x24(r1)
+       B add r3, r3, r0
+   260 M lwz r3, 0x40(r1)
+       B addi r0, r3, 8
+   261 M lwz r0, 0x24(r1)
+       B stw r0, 0x3c(r1)
+   262 M add r3, r3, r0
+       B b 620
+   263 M addi r0, r3, 8
+       B lwz r3, 0x3c(r1)
+   264 M stw r0, 0x3c(r1)
+       B lwz r0, 0x24(r1)
+   265 M b 608
+       B add r0, r3, r0
+   266 M lwz r3, 0x3c(r1)
+       B stw r0, 0x2c(r1)
+   267 M lwz r0, 0x24(r1)
+       B lwz r3, 0x2c(r1)
+   268 M add r0, r3, r0
+       B lwz r0, 0x30(r1)
+   269 M stw r0, 0x2c(r1)
+       B cmplw r3, r0
+   270 M lwz r3, 0x2c(r1)
+       B ble 32
+   271 M lwz r0, 0x30(r1)
+       B lwz r4, 0x40(r1)
+   272 M cmplw r3, r0
+       B lwz r3, 0x30(r1)
+   273 M ble 32
+       B lwz r0, 0x3c(r1)
+   274 M lwz r4, 0x3c(r1)
+       B subf r0, r3, r0
+   275 M lwz r3, 0x30(r1)
+       B add r3, r0, r4
+   276 M lwz r0, 0x40(r1)
+       B addi r0, r3, 7
+   277 M subf r0, r3, r0
+       B stw r0, 0x2c(r1)
+   278 M add r3, r4, r0
+       B lwz r29, 0x3c(r1)
+   279 M addi r0, r3, 7
+       B lbz r0, 0(r29)
+   280 M stw r0, 0x2c(r1)
+       B addi r29, r29, 1
+   281 M lwz r3, 0x3c(r1)
+       B clrlwi r0, r0, 0x18
+   282 M addi r29, r3, 1
+       B stw r0, 0x20(r1)
+   290 M stw r0, 0x20(r1)
+       B stw r0, 0x18(r1)
+   295 M bne -212
+       B bne -220
+   296 M lwz r3, 0x20(r1)
+       B lwz r3, 0x18(r1)
+   299 M blt -228
+       B blt -236
+   300 M lwz r3, 0x20(r1)
+       B lwz r3, 0x18(r1)
+   303 M bge -244
+       B bge -252
+   307 M lwz r3, 0x20(r1)
+       B lwz r3, 0x18(r1)
+   310 M bne -272
+       B bne -280
+   314 M lwz r3, 0x20(r1)
+       B lwz r3, 0x18(r1)
+   317 M beq -300
+       B beq -308
+   336 M bne -376
+       B bne -384
+   351 M beq -436
+       B beq -444
+   360 M beq -472
+       B beq -480
+   366 M bne -496
+       B bne -504
+   379 M bne -548
+       B bne -556
+   385 M bne -572
+       B bne -580
+   391 M bne -596
+       B bne -604
+   409 M bne -668
+       B bne -676
+   416 M b -696
+       B b -704
+   423 M bne -780
+       B bne -788
+   430 M beq -808
+       B beq -816
+   440 M stw r0, 0x14(r1)
+       B stw r0, 0x10(r1)
+   441 M b -968
+       B b -976
+   453 M stw r0, 0x38(r1)
+       B stw r0, 0xc(r1)
+   455 M stw r0, 0x14(r1)
+       B stw r0, 0x10(r1)
+   456 M b -1028
+       B b -1036
+   464 M stw r0, 0x20(r1)
+       B stw r0, 0x18(r1)
+   465 M lwz r3, 0x20(r1)
+       B lwz r3, 0x18(r1)
+   483 M lwz r0, 0x20(r1)
+       B lwz r0, 0x18(r1)
+   486 M lwz r0, 0x20(r1)
+       B lwz r0, 0x18(r1)
+```
+Orchestrator hint tested at the local definition only. Type/relocation proof: target0x390 stw r0,0x18(r1),0x394 lwz r3,0x18(r1), and0x9e0 stw/0x9e4 lwz with nothing between prove the output length stack home; ziUserWord.length byte offset2 feeds both stores. Definition-level volatile entryLength is authorized; no use-site cast. Source currently has equivalent immediate store/reload at0x20, so distinguish qualifier effect from stack-layout mismatch experimentally.
+- Resume Zi8MatchUWDdata, HIGH-g volatile entry length definition proven by target immediate store-reload: objdiff 98.65323 -> 98.65323; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (1984, 1984); source unwind 4008000000000000100800000000000008080000000000006808000000000000; fuzzy regressions []; reverted.
+- Resume Zi8MatchUWDdata, HIGH-g volatile entry length and prefix loop preincrement remove unused postincrement value: objdiff 98.65323 -> 98.854836; data 80 -> 32; instruction-exact 2 -> 2; target/source sizes (1984, 1980); source unwind 4008000000000000100800000000000008080000000000006808000000000000; fuzzy regressions []; reverted.
+- Resume Zi8MatchUWDdata, HIGH-g volatile entry length declared adjacent to dictionary and cursor: objdiff 98.65323 -> 98.59879; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (1984, 1984); source unwind 4008000000000000100800000000000008080000000000006808000000000000; fuzzy regressions [('Zi8MatchUWDdata', 98.65323, 98.59879)]; reverted.
+- Resume Zi8MatchUWDdata, HIGH-g volatile output length and direct parsed header fields: objdiff 98.65323 -> 97.495964; data 80 -> 32; instruction-exact 2 -> 2; target/source sizes (1984, 1972); source unwind 4008000000000000100800000000000008080000000000006808000000000000; fuzzy regressions [('Zi8MatchUWDdata', 98.65323, 97.495964)]; reverted.
+
+### HIGH-g Zi8MatchUWDdata
+Fetched origin 4bfa1b6c4c89124b98f9f2a0018d23fd64ef6fff; function still 98.65323%. Pool first:
+```
+POOL IDENTICAL up to 0 (mine=0 base=0)
+```
+Structural diagnosis:
+```
+src 0x7c0 base 0x7c0 insns 496/496
+diffs 144: [16, 18, 55, 60, 61, 79, 82, 102, 122, 134, 135, 143, 147, 172, 175, 177, 184, 186, 187, 188]
+    16 M stw r0, 0x38(r1)
+       B stw r0, 0x10(r1)
+    18 M stw r0, 0x14(r1)
+       B stw r0, 0xc(r1)
+    55 M stw r0, 0x20(r1)
+       B stw r0, 0x18(r1)
+    60 M stw r0, 0x20(r1)
+       B stw r0, 0x18(r1)
+    61 M lwz r3, 0x20(r1)
+       B lwz r3, 0x18(r1)
+    79 M lwz r0, 0x20(r1)
+       B lwz r0, 0x18(r1)
+    82 M lwz r0, 0x20(r1)
+       B lwz r0, 0x18(r1)
+   102 M b 356
+       B b 348
+   122 M b 276
+       B b 268
+   134 M stw r0, 0x18(r1)
+       B stw r0, 0x14(r1)
+   135 M b 216
+       B b 208
+   143 M lwz r0, 0x18(r1)
+       B lwz r0, 0x14(r1)
+   147 M lwz r0, 0x18(r1)
+       B lwz r0, 0x14(r1)
+   172 M lwz r0, 0x18(r1)
+       B lwz r0, 0x14(r1)
+   175 M lwz r3, 0x18(r1)
+       B lwz r3, 0x14(r1)
+   177 M stw r0, 0x18(r1)
+       B stw r0, 0x14(r1)
+   184 M b 28
+       B b 20
+   186 M mr r0, r30
+       B addi r30, r30, 1
+   187 M addi r30, r30, 1
+       B cmpwi r28, 0
+   188 M stw r0, 0xc(r1)
+       B bgt -208
+   189 M cmpwi r28, 0
+       B lbz r0, 0x140(r31)
+   190 M bgt -216
+       B cmpwi r0, 0
+   191 M lbz r0, 0x140(r31)
+       B bne 24
+   192 M cmpwi r0, 0
+       B clrlwi r0, r24, 0x18
+   193 M bne 24
+       B cmpwi r0, 0
+   194 M clrlwi r0, r24, 0x18
+       B bne 12
+   195 M cmpwi r0, 0
+       B li r3, 0
+   196 M bne 12
+       B b 1176
+   197 M li r3, 0
+       B lwz r4, 0x40(r1)
+   198 M b 1168
+       B lwz r3, 0x40(r1)
+   199 M lwz r4, 0x40(r1)
+       B lhz r0, 4(r3)
+   200 M lwz r3, 0x40(r1)
+       B add r3, r4, r0
+   201 M lhz r0, 4(r3)
+       B addi r0, r3, 8
+   202 M add r3, r4, r0
+       B stw r0, 0x38(r1)
+   203 M addi r0, r3, 8
+       B stw r0, 0x3c(r1)
+   204 M stw r0, 0x3c(r1)
+       B lwz r4, 0x40(r1)
+   205 M stw r0, 0x10(r1)
+       B lwz r3, 0x40(r1)
+   206 M lwz r4, 0x40(r1)
+       B lhz r0, 6(r3)
+   207 M lwz r3, 0x40(r1)
+       B add r3, r4, r0
+   208 M lhz r0, 6(r3)
+       B addi r0, r3, 7
+   209 M add r3, r4, r0
+       B stw r0, 0x34(r1)
+   210 M addi r0, r3, 7
+       B lwz r4, 0x40(r1)
+   211 M stw r0, 0x34(r1)
+       B lwz r3, 0x40(r1)
+   212 M lwz r4, 0x40(r1)
+       B lhz r0, 2(r3)
+   213 M lwz r3, 0x40(r1)
+       B add r3, r4, r0
+   214 M lhz r0, 2(r3)
+       B addi r0, r3, 7
+   215 M add r3, r4, r0
+       B stw r0, 0x30(r1)
+   216 M addi r0, r3, 7
+       B lwz r3, 0x38(r1)
+   217 M stw r0, 0x30(r1)
+       B lwz r0, 0x34(r1)
+   218 M lwz r3, 0x10(r1)
+       B cmplw r3, r0
+   219 M lwz r0, 0x34(r1)
+       B bge 16
+   220 M cmplw r3, r0
+       B li r0, 1
+   221 M bge 16
+       B stw r0, 0x28(r1)
+   222 M li r0, 1
+       B b 780
+   223 M stw r0, 0x28(r1)
+       B li r0, 0
+   224 M b 772
+       B stw r0, 0x28(r1)
+   225 M li r0, 0
+       B b 768
+   226 M stw r0, 0x28(r1)
+       B lwz r3, 0x3c(r1)
+   227 M b 760
+       B lbz r0, 0(r3)
+   228 M lwz r3, 0x3c(r1)
+       B stw r0, 0x24(r1)
+   229 M lbz r0, 0(r3)
+       B lwz r4, 0x13c(r31)
+   230 M stw r0, 0x24(r1)
+       B lwz r3, 0x10(r1)
+   231 M lwz r4, 0x13c(r31)
+       B addi r0, r3, 1
+   232 M lwz r3, 0x14(r1)
+       B stw r0, 0x10(r1)
+   233 M addi r0, r3, 1
+       B cmpw r4, r3
+   234 M stw r0, 0x14(r1)
+       B bgt 24
+   235 M cmpw r4, r3
+       B lwz r3, 0x3c(r1)
+   236 M bgt 24
+       B lbz r0, 0(r3)
+   237 M lwz r3, 0x3c(r1)
+       B rlwinm r0, r0, 0, 0x18, 0x19
+   238 M lbz r0, 0(r3)
+       B cmpwi r0, 0
+   239 M rlwinm r0, r0, 0, 0x18, 0x19
+       B beq 96
+   240 M cmpwi r0, 0
+       B lwz r3, 0x3c(r1)
+   241 M beq 100
+       B lwz r0, 0x24(r1)
+   242 M lwz r3, 0x3c(r1)
+       B add r3, r3, r0
+   243 M lwz r0, 0x24(r1)
+       B stw r3, 0x3c(r1)
+   244 M add r0, r3, r0
+       B lwz r0, 0x30(r1)
+   245 M stw r0, 0x3c(r1)
+       B cmplw r3, r0
+   246 M lwz r3, 0x3c(r1)
+       B ble 684
+   247 M lwz r0, 0x30(r1)
+       B lwz r0, 0x28(r1)
+   248 M cmplw r3, r0
+       B cmpwi r0, 0
+   249 M ble 672
+       B bne 728
+   250 M lwz r0, 0x28(r1)
+       B li r0, 1
+   251 M cmpwi r0, 0
+       B stw r0, 0x28(r1)
+   252 M bne 716
+       B lwz r3, 0x30(r1)
+   253 M li r0, 1
+       B lwz r0, 0x3c(r1)
+   254 M stw r0, 0x28(r1)
+       B subf r3, r3, r0
+   255 M lwz r3, 0x30(r1)
+       B addi r0, r3, -1
+   256 M lwz r0, 0x3c(r1)
+       B stw r0, 0x24(r1)
+   257 M subf r3, r3, r0
+       B lwz r3, 0x40(r1)
+   258 M addi r0, r3, -1
+       B lwz r0, 0x24(r1)
+   259 M stw r0, 0x24(r1)
+       B add r3, r3, r0
+   260 M lwz r3, 0x40(r1)
+       B addi r0, r3, 8
+   261 M lwz r0, 0x24(r1)
+       B stw r0, 0x3c(r1)
+   262 M add r3, r3, r0
+       B b 620
+   263 M addi r0, r3, 8
+       B lwz r3, 0x3c(r1)
+   264 M stw r0, 0x3c(r1)
+       B lwz r0, 0x24(r1)
+   265 M b 608
+       B add r0, r3, r0
+   266 M lwz r3, 0x3c(r1)
+       B stw r0, 0x2c(r1)
+   267 M lwz r0, 0x24(r1)
+       B lwz r3, 0x2c(r1)
+   268 M add r0, r3, r0
+       B lwz r0, 0x30(r1)
+   269 M stw r0, 0x2c(r1)
+       B cmplw r3, r0
+   270 M lwz r3, 0x2c(r1)
+       B ble 32
+   271 M lwz r0, 0x30(r1)
+       B lwz r4, 0x40(r1)
+   272 M cmplw r3, r0
+       B lwz r3, 0x30(r1)
+   273 M ble 32
+       B lwz r0, 0x3c(r1)
+   274 M lwz r4, 0x3c(r1)
+       B subf r0, r3, r0
+   275 M lwz r3, 0x30(r1)
+       B add r3, r0, r4
+   276 M lwz r0, 0x40(r1)
+       B addi r0, r3, 7
+   277 M subf r0, r3, r0
+       B stw r0, 0x2c(r1)
+   278 M add r3, r4, r0
+       B lwz r29, 0x3c(r1)
+   279 M addi r0, r3, 7
+       B lbz r0, 0(r29)
+   280 M stw r0, 0x2c(r1)
+       B addi r29, r29, 1
+   281 M lwz r3, 0x3c(r1)
+       B clrlwi r0, r0, 0x18
+   282 M addi r29, r3, 1
+       B stw r0, 0x20(r1)
+   290 M stw r0, 0x20(r1)
+       B stw r0, 0x18(r1)
+   295 M bne -212
+       B bne -220
+   296 M lwz r3, 0x20(r1)
+       B lwz r3, 0x18(r1)
+   299 M blt -228
+       B blt -236
+   300 M lwz r3, 0x20(r1)
+       B lwz r3, 0x18(r1)
+   303 M bge -244
+       B bge -252
+   307 M lwz r3, 0x20(r1)
+       B lwz r3, 0x18(r1)
+   310 M bne -272
+       B bne -280
+   314 M lwz r3, 0x20(r1)
+       B lwz r3, 0x18(r1)
+   317 M beq -300
+       B beq -308
+   336 M bne -376
+       B bne -384
+   351 M beq -436
+       B beq -444
+   360 M beq -472
+       B beq -480
+   366 M bne -496
+       B bne -504
+   379 M bne -548
+       B bne -556
+   385 M bne -572
+       B bne -580
+   391 M bne -596
+       B bne -604
+   409 M bne -668
+       B bne -676
+   416 M b -696
+       B b -704
+   423 M bne -780
+       B bne -788
+   430 M beq -808
+       B beq -816
+   440 M stw r0, 0x14(r1)
+       B stw r0, 0x10(r1)
+   441 M b -968
+       B b -976
+   453 M stw r0, 0x38(r1)
+       B stw r0, 0xc(r1)
+   455 M stw r0, 0x14(r1)
+       B stw r0, 0x10(r1)
+   456 M b -1028
+       B b -1036
+   464 M stw r0, 0x20(r1)
+       B stw r0, 0x18(r1)
+   465 M lwz r3, 0x20(r1)
+       B lwz r3, 0x18(r1)
+   483 M lwz r0, 0x20(r1)
+       B lwz r0, 0x18(r1)
+   486 M lwz r0, 0x20(r1)
+       B lwz r0, 0x18(r1)
+```
+Expanded header tuple hypothesis: target0x6f8 loads the byte cursor;0x6fc/0x708 decode/store record.size at stack20,0x70c/0x718 record.language at1c,0x71c/0x728 record.length at18; the parser skips priority at0x72c. A real parsed header object contains these actual metadata values, with length and language used by matching. No padding or synthetic data.
+- Resume Zi8MatchUWDdata, HIGH-g real decoded header tuple and prefix preincrement, placement old-length: objdiff 98.65323 -> 99.38105; data 80 -> 32; instruction-exact 2 -> 2; target/source sizes (1984, 1992); source unwind 4008000000000000100800000000000008080000000000006808000000000000; fuzzy regressions []; reverted.
+- Resume Zi8MatchUWDdata, HIGH-g real decoded header tuple and prefix preincrement, placement first: objdiff 98.65323 -> 99.38105; data 80 -> 32; instruction-exact 2 -> 2; target/source sizes (1984, 1992); source unwind 4008000000000000100800000000000008080000000000006808000000000000; fuzzy regressions []; reverted.
+- Resume Zi8MatchUWDdata, HIGH-g real decoded header tuple and prefix preincrement, placement last: objdiff 98.65323 -> 99.38105; data 80 -> 32; instruction-exact 2 -> 2; target/source sizes (1984, 1992); source unwind 4008000000000000100800000000000008080000000000006808000000000000; fuzzy regressions []; reverted.
+- Resume Zi8MatchUWDdata, HIGH-g expanded record header with source-level prefix copy while-post: objdiff 98.65323 -> 99.604836; data 80 -> 32; instruction-exact 2 -> 2; target/source sizes (1984, 1988); source unwind 4008000000000000100800000000000008080000000000006808000000000000; fuzzy regressions []; reverted.
+- Resume Zi8MatchUWDdata, HIGH-g expanded record header with source-level prefix copy for-separate: objdiff 98.65323 -> 99.54436; data 80 -> 32; instruction-exact 2 -> 2; target/source sizes (1984, 1988); source unwind 4008000000000000100800000000000008080000000000006808000000000000; fuzzy regressions []; reverted.
+- Resume Zi8MatchUWDdata, HIGH-g expanded record header with source-level prefix copy while-pre: objdiff 98.65323 -> 99.604836; data 80 -> 32; instruction-exact 2 -> 2; target/source sizes (1984, 1988); source unwind 4008000000000000100800000000000008080000000000006808000000000000; fuzzy regressions []; reverted.
+Parsed-header structural experiment:
+```
+src 0x7c4 base 0x7c0 insns 497/496
+--- replace mine 16:17 base 16:17
+  M   16 stw r0, 0x2c(r1)
+  B   16 stw r0, 0x10(r1)
+--- replace mine 18:19 base 18:19
+  M   18 stw r0, 0x10(r1)
+  B   18 stw r0, 0xc(r1)
+--- replace mine 41:42 base 41:42
+  M   41 b 1800
+  B   41 b 1796
+--- replace mine 47:48 base 47:48
+  M   47 stw r0, 0x34(r1)
+  B   47 stw r0, 0x40(r1)
+--- replace mine 55:56 base 55:56
+  M   55 stw r0, 0x38(r1)
+  B   55 stw r0, 0x18(r1)
+--- replace mine 60:62 base 60:62
+  M   60 stw r0, 0x38(r1)
+  M   61 lwz r3, 0x38(r1)
+  B   60 stw r0, 0x18(r1)
+  B   61 lwz r3, 0x18(r1)
+--- replace mine 68:69 base 68:69
+  M   68 b 1692
+  B   68 b 1688
+--- replace mine 79:80 base 79:80
+  M   79 lwz r0, 0x38(r1)
+  B   79 lwz r0, 0x18(r1)
+--- replace mine 82:83 base 82:83
+  M   82 lwz r0, 0x38(r1)
+  B   82 lwz r0, 0x18(r1)
+--- replace mine 84:85 base 84:85
+  M   84 b 1628
+  B   84 b 1624
+--- replace mine 196:199 base 196:199
+  M  196 b 1180
+  M  197 lwz r4, 0x34(r1)
+  M  198 lwz r3, 0x34(r1)
+  B  196 b 1176
+  B  197 lwz r4, 0x40(r1)
+  B  198 lwz r3, 0x40(r1)
+--- replace mine 202:206 base 202:206
+  M  202 stw r0, 0x30(r1)
+  M  203 stw r0, 0xc(r1)
+  M  204 lwz r4, 0x34(r1)
+  M  205 lwz r3, 0x34(r1)
+  B  202 stw r0, 0x38(r1)
+  B  203 stw r0, 0x3c(r1)
+  B  204 lwz r4, 0x40(r1)
+  B  205 lwz r3, 0x40(r1)
+--- replace mine 209:212 base 209:212
+  M  209 stw r0, 0x28(r1)
+  M  210 lwz r4, 0x34(r1)
+  M  211 lwz r3, 0x34(r1)
+  B  209 stw r0, 0x34(r1)
+  B  210 lwz r4, 0x40(r1)
+  B  211 lwz r3, 0x40(r1)
+--- replace mine 215:218 base 215:218
+  M  215 stw r0, 0x24(r1)
+  M  216 lwz r3, 0xc(r1)
+  M  217 lwz r0, 0x28(r1)
+  B  215 stw r0, 0x30(r1)
+  B  216 lwz r3, 0x38(r1)
+  B  217 lwz r0, 0x34(r1)
+--- replace mine 221:223 base 221:223
+  M  221 stw r0, 0x1c(r1)
+  M  222 b 784
+  B  221 stw r0, 0x28(r1)
+  B  222 b 780
+--- replace mine 224:227 base 224:227
+  M  224 stw r0, 0x1c(r1)
+  M  225 b 772
+  M  226 lwz r3, 0x30(r1)
+  B  224 stw r0, 0x28(r1)
+  B  225 b 768
+  B  226 lwz r3, 0x3c(r1)
+--- replace mine 228:229 base 228:229
+  M  228 stw r0, 0x18(r1)
+  B  228 stw r0, 0x24(r1)
+--- replace mine 235:236 base 235:236
+  M  235 lwz r3, 0x30(r1)
+  B  235 lwz r3, 0x3c(r1)
+--- replace mine 239:245 base 239:241
+  M  239 beq 100
+  M  240 lwz r3, 0x30(r1)
+  M  241 lwz r0, 0x18(r1)
+  M  242 add r0, r3, r0
+  M  243 stw r0, 0x30(r1)
+  M  244 lwz r3, 0x30(r1)
+  B  239 beq 96
+  B  240 lwz r3, 0x3c(r1)
+--- insert mine 246:246 base 242:245
+  B  242 add r3, r3, r0
+  B  243 stw r3, 0x3c(r1)
+  B  244 lwz r0, 0x30(r1)
+--- replace mine 248:249 base 247:248
+  M  248 lwz r0, 0x1c(r1)
+  B  247 lwz r0, 0x28(r1)
+--- replace mine 252:255 base 251:254
+  M  252 stw r0, 0x1c(r1)
+  M  253 lwz r3, 0x24(r1)
+  M  254 lwz r0, 0x30(r1)
+  B  251 stw r0, 0x28(r1)
+  B  252 lwz r3, 0x30(r1)
+  B  253 lwz r0, 0x3c(r1)
+--- replace mine 257:260 base 256:259
+  M  257 stw r0, 0x18(r1)
+  M  258 lwz r3, 0x34(r1)
+  M  259 lwz r0, 0x18(r1)
+  B  256 stw r0, 0x24(r1)
+  B  257 lwz r3, 0x40(r1)
+  B  258 lwz r0, 0x24(r1)
+--- replace mine 262:263 base 261:262
+  M  262 stw r0, 0x30(r1)
+  B  261 stw r0, 0x3c(r1)
+--- replace mine 264:266 base 263:265
+  M  264 lwz r3, 0x30(r1)
+  M  265 lwz r0, 0x18(r1)
+  B  263 lwz r3, 0x3c(r1)
+  B  264 lwz r0, 0x24(r1)
+--- replace mine 267:270 base 266:269
+  M  267 stw r0, 0x20(r1)
+  M  268 lwz r3, 0x20(r1)
+  M  269 lwz r0, 0x24(r1)
+  B  266 stw r0, 0x2c(r1)
+  B  267 lwz r3, 0x2c(r1)
+  B  268 lwz r0, 0x30(r1)
+--- replace mine 272:275 base 271:274
+  M  272 lwz r4, 0x30(r1)
+  M  273 lwz r3, 0x24(r1)
+  M  274 lwz r0, 0x34(r1)
+  B  271 lwz r4, 0x40(r1)
+  B  272 lwz r3, 0x30(r1)
+  B  273 lwz r0, 0x3c(r1)
+--- replace mine 276:277 base 275:276
+  M  276 add r3, r4, r0
+  B  275 add r3, r0, r4
+--- replace mine 278:280 base 277:279
+  M  278 stw r0, 0x20(r1)
+  M  279 lwz r29, 0x30(r1)
+  B  277 stw r0, 0x2c(r1)
+  B  278 lwz r29, 0x3c(r1)
+--- replace mine 283:284 base 282:283
+  M  283 stw r0, 0x40(r1)
+  B  282 stw r0, 0x20(r1)
+--- replace mine 287:288 base 286:287
+  M  287 stw r0, 0x3c(r1)
+  B  286 stw r0, 0x1c(r1)
+--- replace mine 291:292 base 290:291
+  M  291 stw r0, 0x38(r1)
+  B  290 stw r0, 0x18(r1)
+--- replace mine 293:294 base 292:293
+  M  293 lwz r3, 0x3c(r1)
+  B  292 lwz r3, 0x1c(r1)
+--- replace mine 296:298 base 295:297
+  M  296 bne -224
+  M  297 lwz r3, 0x38(r1)
+  B  295 bne -220
+  B  296 lwz r3, 0x18(r1)
+--- replace mine 300:302 base 299:301
+  M  300 blt -240
+  M  301 lwz r3, 0x38(r1)
+  B  299 blt -236
+  B  300 lwz r3, 0x18(r1)
+--- replace mine 304:305 base 303:304
+  M  304 bge -256
+  B  303 bge -252
+--- replace mine 308:309 base 307:308
+  M  308 lwz r3, 0x38(r1)
+  B  307 lwz r3, 0x18(r1)
+--- replace mine 311:312 base 310:311
+  M  311 bne -284
+  B  310 bne -280
+--- replace mine 315:316 base 314:315
+  M  315 lwz r3, 0x38(r1)
+  B  314 lwz r3, 0x18(r1)
+--- replace mine 318:319 base 317:318
+  M  318 beq -312
+  B  317 beq -308
+--- replace mine 337:338 base 336:337
+  M  337 bne -388
+  B  336 bne -384
+--- replace mine 352:353 base 351:352
+  M  352 beq -448
+  B  351 beq -444
+--- replace mine 361:362 base 360:361
+  M  361 beq -484
+  B  360 beq -480
+--- replace mine 367:368 base 366:367
+  M  367 bne -508
+  B  366 bne -504
+--- replace mine 377:378 base 376:377
+  M  377 lwz r3, 0x20(r1)
+  B  376 lwz r3, 0x2c(r1)
+--- replace mine 380:381 base 379:380
+  M  380 bne -560
+  B  379 bne -556
+--- replace mine 383:384 base 382:383
+  M  383 lwz r3, 0x20(r1)
+  B  382 lwz r3, 0x2c(r1)
+--- replace mine 386:387 base 385:386
+  M  386 bne -584
+  B  385 bne -580
+--- replace mine 389:390 base 388:389
+  M  389 lwz r3, 0x20(r1)
+  B  388 lwz r3, 0x2c(r1)
+--- replace mine 392:393 base 391:392
+  M  392 bne -608
+  B  391 bne -604
+--- replace mine 400:401 base 399:400
+  M  400 lwz r3, 0x20(r1)
+  B  399 lwz r3, 0x2c(r1)
+--- replace mine 407:408 base 406:407
+  M  407 lwz r3, 0x20(r1)
+  B  406 lwz r3, 0x2c(r1)
+--- replace mine 410:411 base 409:410
+  M  410 bne -680
+  B  409 bne -676
+--- replace mine 414:415 base 413:414
+  M  414 lwz r3, 0x30(r1)
+  B  413 lwz r3, 0x3c(r1)
+--- replace mine 417:420 base 416:419
+  M  417 b -708
+  M  418 lwz r3, 0x30(r1)
+  M  419 lwz r0, 0x28(r1)
+  B  416 b -704
+  B  417 lwz r3, 0x3c(r1)
+  B  418 lwz r0, 0x34(r1)
+--- replace mine 422:423 base 421:422
+  M  422 lwz r0, 0x1c(r1)
+  B  421 lwz r0, 0x28(r1)
+--- replace mine 424:427 base 423:426
+  M  424 bne -792
+  M  425 lwz r3, 0x30(r1)
+  M  426 lwz r0, 0x24(r1)
+  B  423 bne -788
+  B  424 lwz r3, 0x3c(r1)
+  B  425 lwz r0, 0x30(r1)
+--- replace mine 429:430 base 428:429
+  M  429 lwz r0, 0x1c(r1)
+  B  428 lwz r0, 0x28(r1)
+--- replace mine 431:432 base 430:431
+  M  431 beq -820
+  B  430 beq -816
+--- replace mine 442:443 base 441:442
+  M  442 b -980
+  B  441 b -976
+--- replace mine 454:455 base 453:454
+  M  454 stw r0, 0x2c(r1)
+  B  453 stw r0, 0xc(r1)
+--- replace mine 457:458 base 456:457
+  M  457 b -1040
+  B  456 b -1036
+--- replace mine 465:467 base 464:466
+  M  465 stw r0, 0x38(r1)
+  M  466 lwz r3, 0x38(r1)
+  B  464 stw r0, 0x18(r1)
+  B  465 lwz r3, 0x18(r1)
+--- replace mine 484:485 base 483:484
+  M  484 lwz r0, 0x38(r1)
+  B  483 lwz r0, 0x18(r1)
+--- replace mine 487:488 base 486:487
+  M  487 lwz r0, 0x38(r1)
+  B  486 lwz r0, 0x18(r1)
+```
+- Resume Zi8MatchUWDdata, HIGH-g real header parsed in a while loop, with byte stores diagnosed: objdiff 98.65323 -> 99.604836; data 80 -> 32; instruction-exact 2 -> 2; target/source sizes (1984, 1988); source unwind 4008000000000000100800000000000008080000000000006808000000000000; fuzzy regressions []; reverted.
+- Resume Zi8MatchUWDdata, HIGH-g real header and beginning cursor initialize in target store order: objdiff 98.65323 -> 99.604836; data 80 -> 32; instruction-exact 2 -> 2; target/source sizes (1984, 1988); source unwind 4008000000000000100800000000000008080000000000006808000000000000; fuzzy regressions []; reverted.
+- Resume Zi8MatchUWDdata, HIGH-g real header byte advance separated from size assignment: objdiff 98.65323 -> 99.002014; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (1984, 1984); source unwind 4008000000000000100800000000000008080000000000006808000000000000; fuzzy regressions []; SELECTED.
+- Resume Zi8MatchUWDdata, HIGH-g real header wrap base receives pointer displacement before dictionary address: build failed and reverted, ompiler: #    File: libs\RVLMiddleware\eZiText\src\clib\zi8uwd.c # ----------------------------------------------------- #      19: typedef struct ziParsedUserHeader {  #   Error:                                   ^ #   (10132) struct/union/enum/class tag 'ziParsedUserHeader' redefined #   Too many errors printed, aborting program  User break, cancelled... ninja: build stopped: subcommand failed.
+
+### HIGH-g Zi8MatchPUDdata_ZHS
+Fetched origin 9c6416820d4e4939295e1b940fd82f7f751ed5cc; function still 98.32204%. Pool first:
+```
+POOL IDENTICAL up to 0 (mine=0 base=0)
+```
+Structural diagnosis:
+```
+src 0x574 base 0x588 insns 349/354
+--- insert mine 15:15 base 15:16
+  B   15 stw r31, 0x24(r1)
+--- replace mine 35:36 base 36:37
+  M   35 b 1232
+  B   36 b 1248
+--- replace mine 43:44 base 44:45
+  M   43 bne 184
+  B   44 bne 200
+--- replace mine 74:76 base 75:76
+  M   74 b 1076
+  M   75 lbz r3, 5(r26)
+  B   75 b 1092
+--- replace mine 77:78 base 77:81
+  M   77 slwi r0, r0, 8
+  B   77 clrlwi r0, r0, 0x10
+  B   78 slwi r3, r0, 8
+  B   79 lbz r0, 5(r26)
+  B   80 clrlwi r0, r0, 0x10
+--- replace mine 80:82 base 83:84
+  M   80 lbz r5, 3(r26)
+  M   81 lwz r4, 0x14(r1)
+  B   83 lwz r5, 0x14(r1)
+--- replace mine 83:84 base 85:89
+  M   83 slwi r3, r0, 8
+  B   85 clrlwi r0, r0, 0x10
+  B   86 slwi r4, r0, 8
+  B   87 lbz r0, 3(r26)
+  B   88 clrlwi r3, r0, 0x10
+```
+- Resume Zi8MatchPUDdata_ZHS, HIGH-g read dictionary section metadata through const typed views: objdiff 98.32204 -> 98.32204; data 48 -> 48; instruction-exact 6 -> 6; target/source sizes (1416, 1396); source unwind 180800000000000010080000000000001008000000000000680800000000000018080000000000000008000000000000; fuzzy regressions []; reverted.
+- Resume Zi8MatchPUDdata_ZHS, HIGH-g decrement the raw word length before copying its payload extent: objdiff 98.32204 -> 97.71469; data 48 -> 48; instruction-exact 6 -> 6; target/source sizes (1416, 1388); source unwind 180800000000000010080000000000001008000000000000680800000000000018080000000000000008000000000000; fuzzy regressions [('Zi8MatchPUDdata_ZHS', 98.32204, 97.71469)]; reverted.
+- Resume Zi8MatchPUDdata_ZHS, HIGH-g copy payload counters advance in prefix form in both output loops: objdiff 98.32204 -> 98.32204; data 48 -> 48; instruction-exact 6 -> 6; target/source sizes (1416, 1396); source unwind 180800000000000010080000000000001008000000000000680800000000000018080000000000000008000000000000; fuzzy regressions []; reverted.
+- Resume Zi8MatchPUDdata_ZHS, HIGH-g read raw record size before assigning the decoded word-size accumulator: objdiff 98.32204 -> 93.94633; data 48 -> 0; instruction-exact 6 -> 6; target/source sizes (1416, 1436); source unwind 180800000000000010080000000000001008000000000000600800000000000018080000000000000008000000000000; fuzzy regressions [('Zi8MatchPUDdata_ZHS', 98.32204, 93.94633)]; reverted.
+
+### HIGH-g ZiDAWGgetCHARattribute
+Fetched origin 9c6416820d4e4939295e1b940fd82f7f751ed5cc; function still 99.0%. Pool first:
+```
+POOL IDENTICAL up to 0 (mine=0 base=0)
+```
+Structural diagnosis:
+```
+src 0xf0 base 0xf0 insns 60/60
+diffs 12: [5, 14, 18, 19, 20, 29, 31, 32, 36, 37, 42, 43]
+     5 M mr r30, r3
+       B mr r31, r3
+    14 M clrlwi r31, r0, 0x18
+       B clrlwi r30, r0, 0x18
+    18 M clrlwi r31, r0, 0x18
+       B clrlwi r30, r0, 0x18
+    19 M clrlwi r3, r31, 0x18
+       B clrlwi r3, r30, 0x18
+    20 M lhz r0, 4(r30)
+       B lhz r0, 4(r31)
+    29 M clrlwi r0, r31, 0x18
+       B clrlwi r0, r30, 0x18
+    31 M lwz r3, 0xc(r30)
+       B lwz r3, 0xc(r31)
+    32 M clrlwi r0, r31, 0x18
+       B clrlwi r0, r30, 0x18
+    36 M lwz r3, 8(r30)
+       B lwz r3, 8(r31)
+    37 M clrlwi r0, r31, 0x18
+       B clrlwi r0, r30, 0x18
+    42 M lwz r3, 8(r30)
+       B lwz r3, 8(r31)
+    43 M clrlwi r0, r31, 0x18
+       B clrlwi r0, r30, 0x18
+```
+- Resume ZiDAWGgetCHARattribute, HIGH-g combine character key and class into the initial attribute word: objdiff 99.0 -> 98.833336; data 80 -> 80; instruction-exact 3 -> 3; target/source sizes (240, 240); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions [('ZiDAWGgetCHARattribute', 99.0, 98.833336)]; reverted.
+- Resume ZiDAWGgetCHARattribute, HIGH-g node byte-pointer interface consistent with the dictionary traversal caller: objdiff 99.0 -> 99.0; data 80 -> 80; instruction-exact 3 -> 3; target/source sizes (240, 240); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions []; reverted.
+- Resume ZiDAWGgetCHARattribute, HIGH-g native unsigned integer type stores the packed attribute word: objdiff 99.0 -> 99.0; data 80 -> 80; instruction-exact 3 -> 3; target/source sizes (240, 240); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions []; reverted.
+
+### HIGH-g ZiDAWGGetGraphInfo
+Fetched origin 4f77bbd2ae0302bedc1626453d460d2b4d9beb63; function still 99.55224%. Pool first:
+```
+POOL IDENTICAL up to 0 (mine=0 base=0)
+```
+Structural diagnosis:
+```
+src 0x218 base 0x218 insns 134/134
+diffs 12: [5, 8, 10, 11, 85, 87, 94, 97, 98, 99, 102, 127]
+     5 M mr r25, r3
+       B mr r29, r3
+     8 M mr r3, r25
+       B mr r3, r29
+    10 M mr r29, r3
+       B mr r26, r3
+    11 M li r26, 0
+       B li r25, 0
+    85 M add r3, r29, r3
+       B add r3, r26, r3
+    87 M add r26, r3, r0
+       B add r25, r3, r0
+    94 M add r3, r29, r3
+       B add r3, r26, r3
+    97 M stw r0, 0x338(r25)
+       B stw r0, 0x338(r29)
+    98 M lwz r0, 0x338(r25)
+       B lwz r0, 0x338(r29)
+    99 M cmplw r0, r29
+       B cmplw r0, r26
+   102 M stw r0, 0x338(r25)
+       B stw r0, 0x338(r29)
+   127 M mr r3, r26
+       B mr r3, r25
+```
+- Resume ZiDAWGGetGraphInfo, HIGH-g graph base and bounds use native unsigned address words: objdiff 99.55224 -> 99.55224; data 80 -> 80; instruction-exact 3 -> 3; target/source sizes (536, 536); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions []; reverted.
+- Resume ZiDAWGGetGraphInfo, HIGH-g initialize a const graph base and zero result before traversal: objdiff 99.55224 -> 99.55224; data 80 -> 80; instruction-exact 3 -> 3; target/source sizes (536, 536); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions []; reverted.
+- Resume ZiDAWGGetGraphInfo, HIGH-g scope key lookup inside an explicit bounds-tested for loop: objdiff 99.55224 -> 99.55224; data 80 -> 80; instruction-exact 3 -> 3; target/source sizes (536, 536); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions []; reverted.
+
+### HIGH-g ZiDAWGGetSibling
+Fetched origin 4f77bbd2ae0302bedc1626453d460d2b4d9beb63; function still 98.32061%. Pool first:
+```
+POOL IDENTICAL up to 0 (mine=0 base=0)
+```
+Structural diagnosis:
+```
+src 0x20c base 0x20c insns 131/131
+diffs 19: [23, 45, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66]
+    23 M beq 172
+       B beq 176
+    45 M beq 52
+       B beq 56
+    50 M slwi r4, r0, 8
+       B clrlwi r0, r0, 0x10
+    51 M lbz r0, 2(r3)
+       B slwi r4, r0, 8
+    52 M add r4, r5, r4
+       B lbz r0, 2(r3)
+    53 M addis r4, r4, 1
+       B add r4, r5, r4
+    54 M addi r4, r4, -0x8000
+       B addis r4, r4, 1
+    55 M add r0, r28, r0
+       B addi r4, r4, -0x8000
+    56 M add r28, r4, r0
+       B add r0, r28, r0
+    57 M b 28
+       B add r28, r4, r0
+    58 M lbz r0, 0(r3)
+       B b 28
+    59 M clrlwi r0, r0, 0x10
+       B lbz r0, 0(r3)
+    60 M slwi r0, r0, 8
+       B clrlwi r0, r0, 0x10
+    61 M lbz r4, 1(r3)
+       B slwi r0, r0, 8
+    62 M add r0, r28, r0
+       B lbz r4, 1(r3)
+    63 M add r28, r4, r0
+       B add r0, r28, r0
+    64 M mr r3, r28
+       B add r28, r4, r0
+    65 M b 240
+       B mr r3, r28
+    66 M mr r3, r28
+       B b 236
+```
+- Resume ZiDAWGGetSibling, HIGH-g direct sibling short offset uses a high-byte shift: objdiff 98.32061 -> 98.32061; data 80 -> 80; instruction-exact 3 -> 3; target/source sizes (524, 524); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions []; reverted.
+- Resume ZiDAWGGetSibling, HIGH-g direct sibling lower octets form a low-first arithmetic sum: objdiff 98.32061 -> 97.89313; data 80 -> 80; instruction-exact 3 -> 3; target/source sizes (524, 524); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions [('ZiDAWGGetSibling', 98.32061, 97.89313)]; reverted.
+- Resume ZiDAWGGetSibling, HIGH-g depth-first sibling traversal is a for loop with a positive-depth exit: objdiff 98.32061 -> 98.32061; data 80 -> 80; instruction-exact 3 -> 3; target/source sizes (524, 524); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions []; reverted.
+
+### HIGH-g Zi8IsWordW
+Fetched origin 4f77bbd2ae0302bedc1626453d460d2b4d9beb63; function still 98.52164%. Pool first:
+```
+POOL IDENTICAL up to 0 (mine=0 base=0)
+```
+Structural diagnosis:
+```
+src 0x680 base 0x680 insns 416/416
+diffs 12: [357, 358, 359, 360, 361, 362, 363, 364, 365, 366, 367, 368]
+   357 M slwi r3, r0, 8
+       B clrlwi r0, r0, 0x10
+   358 M lbz r0, 0(r30)
+       B slwi r3, r0, 8
+   359 M or r0, r3, r0
+       B lbz r0, 0(r30)
+   360 M clrlwi r0, r0, 0x10
+       B or r0, r3, r0
+   361 M sth r0, 0xc(r1)
+       B clrlwi r0, r0, 0x10
+   362 M addi r30, r30, 2
+       B sth r0, 0xc(r1)
+   363 M lwz r3, 0x14(r1)
+       B addi r30, r30, 2
+   364 M addi r0, r3, 2
+       B lhz r0, 0xc(r1)
+   365 M stw r0, 0x14(r1)
+       B clrlwi r4, r0, 0x10
+   366 M lhz r0, 0xc(r1)
+       B lwz r3, 0x14(r1)
+   367 M clrlwi r4, r0, 0x10
+       B addi r3, r3, 2
+   368 M lwz r3, 0x14(r1)
+       B stw r3, 0x14(r1)
+```
+- Resume Zi8IsWordW, HIGH-g little-endian ordinal value decoded by byte-weight addition: objdiff 98.52164 -> 98.3774; data 48 -> 48; instruction-exact 1 -> 1; target/source sizes (1664, 1664); source unwind 30080000000000001808000000000000; fuzzy regressions [('Zi8IsWordW', 98.52164, 98.3774)]; reverted.
+- Resume Zi8IsWordW, HIGH-g low-byte-first arithmetic expression for the little-endian ordinal: objdiff 98.52164 -> 97.51683; data 48 -> 48; instruction-exact 1 -> 1; target/source sizes (1664, 1664); source unwind 30080000000000001808000000000000; fuzzy regressions [('Zi8IsWordW', 98.52164, 97.51683)]; reverted.
+- Resume Zi8IsWordW, HIGH-g sequenced ordinal advance uses pointer addition assignment: objdiff 98.52164 -> 98.52164; data 48 -> 48; instruction-exact 1 -> 1; target/source sizes (1664, 1664); source unwind 30080000000000001808000000000000; fuzzy regressions []; reverted.
+
+### HIGH-g Zi8_81480224
+Fetched origin 4f77bbd2ae0302bedc1626453d460d2b4d9beb63; function still 99.48276%. Pool first:
+```
+POOL IDENTICAL up to 0 (mine=0 base=0)
+```
+Structural diagnosis:
+```
+src 0x1d0 base 0x1d0 insns 116/116
+diffs 10: [5, 16, 24, 46, 50, 52, 55, 63, 67, 104]
+     5 M mr r26, r3
+       B mr r28, r3
+    16 M cmpwi r26, 0
+       B cmpwi r28, 0
+    24 M lbz r25, 2(r26)
+       B lbz r25, 2(r28)
+    46 M lwz r28, 4(r30)
+       B lwz r26, 4(r30)
+    50 M lbz r0, 3(r26)
+       B lbz r0, 3(r28)
+    52 M lbz r0, 3(r28)
+       B lbz r0, 3(r26)
+    55 M lbz r0, 2(r28)
+       B lbz r0, 2(r26)
+    63 M add r3, r28, r0
+       B add r3, r0, r26
+    67 M add r3, r26, r0
+       B add r3, r0, r28
+   104 M stw r26, 4(r29)
+       B stw r28, 4(r29)
+```
+- Resume Zi8_81480224, HIGH-g priority and duplicate candidate are read through a const record view: objdiff 99.48276 -> 99.48276; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (464, 464); source unwind 4008000000000000100800000000000008080000000000006808000000000000; fuzzy regressions []; reverted.
+- Resume Zi8_81480224, HIGH-g duplicate byte comparison scans through a for loop: objdiff 99.48276 -> 99.48276; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (464, 464); source unwind 4008000000000000100800000000000008080000000000006808000000000000; fuzzy regressions []; reverted.
+- Resume Zi8_81480224, HIGH-g candidate index forms the added-node address using pointer addition: objdiff 99.48276 -> 99.48276; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (464, 464); source unwind 4008000000000000100800000000000008080000000000006808000000000000; fuzzy regressions []; reverted.
+
+### HIGH-g Zi8MatchUWDdata
+Fetched origin 4f77bbd2ae0302bedc1626453d460d2b4d9beb63; function still 98.65323%. Pool first:
+```
+POOL IDENTICAL up to 0 (mine=0 base=0)
+```
+Structural diagnosis:
+```
+src 0x7c0 base 0x7c0 insns 496/496
+diffs 93: [16, 18, 47, 55, 60, 61, 79, 82, 197, 198, 202, 203, 204, 205, 209, 210, 211, 215, 216, 217]
+    16 M stw r0, 0x2c(r1)
+       B stw r0, 0x10(r1)
+    18 M stw r0, 0x10(r1)
+       B stw r0, 0xc(r1)
+    47 M stw r0, 0x34(r1)
+       B stw r0, 0x40(r1)
+    55 M stw r0, 0x38(r1)
+       B stw r0, 0x18(r1)
+    60 M stw r0, 0x38(r1)
+       B stw r0, 0x18(r1)
+    61 M lwz r3, 0x38(r1)
+       B lwz r3, 0x18(r1)
+    79 M lwz r0, 0x38(r1)
+       B lwz r0, 0x18(r1)
+    82 M lwz r0, 0x38(r1)
+       B lwz r0, 0x18(r1)
+   197 M lwz r4, 0x34(r1)
+       B lwz r4, 0x40(r1)
+   198 M lwz r3, 0x34(r1)
+       B lwz r3, 0x40(r1)
+   202 M stw r0, 0x30(r1)
+       B stw r0, 0x38(r1)
+   203 M stw r0, 0xc(r1)
+       B stw r0, 0x3c(r1)
+   204 M lwz r4, 0x34(r1)
+       B lwz r4, 0x40(r1)
+   205 M lwz r3, 0x34(r1)
+       B lwz r3, 0x40(r1)
+   209 M stw r0, 0x28(r1)
+       B stw r0, 0x34(r1)
+   210 M lwz r4, 0x34(r1)
+       B lwz r4, 0x40(r1)
+   211 M lwz r3, 0x34(r1)
+       B lwz r3, 0x40(r1)
+   215 M stw r0, 0x24(r1)
+       B stw r0, 0x30(r1)
+   216 M lwz r3, 0xc(r1)
+       B lwz r3, 0x38(r1)
+   217 M lwz r0, 0x28(r1)
+       B lwz r0, 0x34(r1)
+   221 M stw r0, 0x1c(r1)
+       B stw r0, 0x28(r1)
+   224 M stw r0, 0x1c(r1)
+       B stw r0, 0x28(r1)
+   226 M lwz r3, 0x30(r1)
+       B lwz r3, 0x3c(r1)
+   228 M stw r0, 0x18(r1)
+       B stw r0, 0x24(r1)
+   235 M lwz r3, 0x30(r1)
+       B lwz r3, 0x3c(r1)
+   239 M beq 100
+       B beq 96
+   240 M lwz r3, 0x30(r1)
+       B lwz r3, 0x3c(r1)
+   241 M lwz r0, 0x18(r1)
+       B lwz r0, 0x24(r1)
+   242 M add r0, r3, r0
+       B add r3, r3, r0
+   243 M stw r0, 0x30(r1)
+       B stw r3, 0x3c(r1)
+   244 M lwz r3, 0x30(r1)
+       B lwz r0, 0x30(r1)
+   245 M lwz r0, 0x24(r1)
+       B cmplw r3, r0
+   246 M cmplw r3, r0
+       B ble 684
+   247 M ble 680
+       B lwz r0, 0x28(r1)
+   248 M lwz r0, 0x1c(r1)
+       B cmpwi r0, 0
+   249 M cmpwi r0, 0
+       B bne 728
+   250 M bne 724
+       B li r0, 1
+   251 M li r0, 1
+       B stw r0, 0x28(r1)
+   252 M stw r0, 0x1c(r1)
+       B lwz r3, 0x30(r1)
+   253 M lwz r3, 0x24(r1)
+       B lwz r0, 0x3c(r1)
+   254 M lwz r0, 0x30(r1)
+       B subf r3, r3, r0
+   255 M subf r3, r3, r0
+       B addi r0, r3, -1
+   256 M addi r0, r3, -1
+       B stw r0, 0x24(r1)
+   257 M stw r0, 0x18(r1)
+       B lwz r3, 0x40(r1)
+   258 M lwz r3, 0x34(r1)
+       B lwz r0, 0x24(r1)
+   259 M lwz r0, 0x18(r1)
+       B add r3, r3, r0
+   260 M add r3, r3, r0
+       B addi r0, r3, 8
+   261 M addi r0, r3, 8
+       B stw r0, 0x3c(r1)
+   262 M stw r0, 0x30(r1)
+       B b 620
+   263 M b 616
+       B lwz r3, 0x3c(r1)
+   264 M lwz r3, 0x30(r1)
+       B lwz r0, 0x24(r1)
+   265 M lwz r0, 0x18(r1)
+       B add r0, r3, r0
+   266 M add r0, r3, r0
+       B stw r0, 0x2c(r1)
+   267 M stw r0, 0x20(r1)
+       B lwz r3, 0x2c(r1)
+   268 M lwz r3, 0x20(r1)
+       B lwz r0, 0x30(r1)
+   269 M lwz r0, 0x24(r1)
+       B cmplw r3, r0
+   270 M cmplw r3, r0
+       B ble 32
+   271 M ble 32
+       B lwz r4, 0x40(r1)
+   272 M lwz r4, 0x30(r1)
+       B lwz r3, 0x30(r1)
+   273 M lwz r3, 0x24(r1)
+       B lwz r0, 0x3c(r1)
+   274 M lwz r0, 0x34(r1)
+       B subf r0, r3, r0
+   275 M subf r0, r3, r0
+       B add r3, r0, r4
+   276 M add r3, r4, r0
+       B addi r0, r3, 7
+   277 M addi r0, r3, 7
+       B stw r0, 0x2c(r1)
+   278 M stw r0, 0x20(r1)
+       B lwz r29, 0x3c(r1)
+   279 M lwz r29, 0x30(r1)
+       B lbz r0, 0(r29)
+   280 M lbz r0, 0(r29)
+       B addi r29, r29, 1
+   281 M stw r0, 0x40(r1)
+       B clrlwi r0, r0, 0x18
+   282 M addi r29, r29, 1
+       B stw r0, 0x20(r1)
+   286 M stw r0, 0x3c(r1)
+       B stw r0, 0x1c(r1)
+   290 M stw r0, 0x38(r1)
+       B stw r0, 0x18(r1)
+   292 M lwz r3, 0x3c(r1)
+       B lwz r3, 0x1c(r1)
+   296 M lwz r3, 0x38(r1)
+       B lwz r3, 0x18(r1)
+   300 M lwz r3, 0x38(r1)
+       B lwz r3, 0x18(r1)
+   307 M lwz r3, 0x38(r1)
+       B lwz r3, 0x18(r1)
+   314 M lwz r3, 0x38(r1)
+       B lwz r3, 0x18(r1)
+   376 M lwz r3, 0x20(r1)
+       B lwz r3, 0x2c(r1)
+   382 M lwz r3, 0x20(r1)
+       B lwz r3, 0x2c(r1)
+   388 M lwz r3, 0x20(r1)
+       B lwz r3, 0x2c(r1)
+   399 M lwz r3, 0x20(r1)
+       B lwz r3, 0x2c(r1)
+   406 M lwz r3, 0x20(r1)
+       B lwz r3, 0x2c(r1)
+   413 M lwz r3, 0x30(r1)
+       B lwz r3, 0x3c(r1)
+   417 M lwz r3, 0x30(r1)
+       B lwz r3, 0x3c(r1)
+   418 M lwz r0, 0x28(r1)
+       B lwz r0, 0x34(r1)
+   421 M lwz r0, 0x1c(r1)
+       B lwz r0, 0x28(r1)
+   424 M lwz r3, 0x30(r1)
+       B lwz r3, 0x3c(r1)
+   425 M lwz r0, 0x24(r1)
+       B lwz r0, 0x30(r1)
+   428 M lwz r0, 0x1c(r1)
+       B lwz r0, 0x28(r1)
+   453 M stw r0, 0x2c(r1)
+       B stw r0, 0xc(r1)
+   464 M stw r0, 0x38(r1)
+       B stw r0, 0x18(r1)
+   465 M lwz r3, 0x38(r1)
+       B lwz r3, 0x18(r1)
+   483 M lwz r0, 0x38(r1)
+       B lwz r0, 0x18(r1)
+   486 M lwz r0, 0x38(r1)
+       B lwz r0, 0x18(r1)
+```
+- Resume Zi8MatchUWDdata, HIGH-g scalar parsed header retains target-dead record-size decode and volatile length: objdiff 99.002014 -> 99.125; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (1984, 1984); source unwind 4008000000000000100800000000000008080000000000006808000000000000; fuzzy regressions []; SELECTED.
+- Resume Zi8MatchUWDdata, HIGH-g scalar parsed fields follow target stack layout and visited initializes before fallback: objdiff 99.125 -> 99.133064; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (1984, 1984); source unwind 4008000000000000100800000000000008080000000000006808000000000000; fuzzy regressions []; SELECTED.
+- Resume Zi8MatchUWDdata, HIGH-g full scalar header decoding uses the target postincrement size read: objdiff 99.133064 -> 99.7379; data 80 -> 32; instruction-exact 2 -> 2; target/source sizes (1984, 1988); source unwind 4008000000000000100800000000000008080000000000006808000000000000; fuzzy regressions []; reverted.
+
+### HIGH-g Zi8MatchUWDdata
+Fetched origin 4f77bbd2ae0302bedc1626453d460d2b4d9beb63; function still 98.65323%. Pool first:
+```
+POOL IDENTICAL up to 0 (mine=0 base=0)
+```
+Structural diagnosis:
+```
+src 0x7c0 base 0x7c0 insns 496/496
+diffs 44: [202, 203, 239, 242, 243, 244, 245, 246, 247, 248, 249, 250, 251, 252, 253, 254, 255, 256, 257, 258]
+   202 M stw r0, 0x3c(r1)
+       B stw r0, 0x38(r1)
+   203 M stw r0, 0x38(r1)
+       B stw r0, 0x3c(r1)
+   239 M beq 100
+       B beq 96
+   242 M add r0, r3, r0
+       B add r3, r3, r0
+   243 M stw r0, 0x3c(r1)
+       B stw r3, 0x3c(r1)
+   244 M lwz r3, 0x3c(r1)
+       B lwz r0, 0x30(r1)
+   245 M lwz r0, 0x30(r1)
+       B cmplw r3, r0
+   246 M cmplw r3, r0
+       B ble 684
+   247 M ble 680
+       B lwz r0, 0x28(r1)
+   248 M lwz r0, 0x28(r1)
+       B cmpwi r0, 0
+   249 M cmpwi r0, 0
+       B bne 728
+   250 M bne 724
+       B li r0, 1
+   251 M li r0, 1
+       B stw r0, 0x28(r1)
+   252 M stw r0, 0x28(r1)
+       B lwz r3, 0x30(r1)
+   253 M lwz r3, 0x30(r1)
+       B lwz r0, 0x3c(r1)
+   254 M lwz r0, 0x3c(r1)
+       B subf r3, r3, r0
+   255 M subf r3, r3, r0
+       B addi r0, r3, -1
+   256 M addi r0, r3, -1
+       B stw r0, 0x24(r1)
+   257 M stw r0, 0x24(r1)
+       B lwz r3, 0x40(r1)
+   258 M lwz r3, 0x40(r1)
+       B lwz r0, 0x24(r1)
+   259 M lwz r0, 0x24(r1)
+       B add r3, r3, r0
+   260 M add r3, r3, r0
+       B addi r0, r3, 8
+   261 M addi r0, r3, 8
+       B stw r0, 0x3c(r1)
+   262 M stw r0, 0x3c(r1)
+       B b 620
+   263 M b 616
+       B lwz r3, 0x3c(r1)
+   264 M lwz r3, 0x3c(r1)
+       B lwz r0, 0x24(r1)
+   265 M lwz r0, 0x24(r1)
+       B add r0, r3, r0
+   266 M add r0, r3, r0
+       B stw r0, 0x2c(r1)
+   267 M stw r0, 0x2c(r1)
+       B lwz r3, 0x2c(r1)
+   268 M lwz r3, 0x2c(r1)
+       B lwz r0, 0x30(r1)
+   269 M lwz r0, 0x30(r1)
+       B cmplw r3, r0
+   270 M cmplw r3, r0
+       B ble 32
+   271 M ble 32
+       B lwz r4, 0x40(r1)
+   272 M lwz r4, 0x3c(r1)
+       B lwz r3, 0x30(r1)
+   273 M lwz r3, 0x30(r1)
+       B lwz r0, 0x3c(r1)
+   274 M lwz r0, 0x40(r1)
+       B subf r0, r3, r0
+   275 M subf r0, r3, r0
+       B add r3, r0, r4
+   276 M add r3, r4, r0
+       B addi r0, r3, 7
+   277 M addi r0, r3, 7
+       B stw r0, 0x2c(r1)
+   278 M stw r0, 0x2c(r1)
+       B lwz r29, 0x3c(r1)
+   279 M lwz r29, 0x3c(r1)
+       B lbz r0, 0(r29)
+   280 M lbz r0, 0(r29)
+       B addi r29, r29, 1
+   281 M stw r0, 0x20(r1)
+       B clrlwi r0, r0, 0x18
+   282 M addi r29, r29, 1
+       B stw r0, 0x20(r1)
+```
+- Resume Zi8MatchUWDdata, HIGH-g initialize the scan origin before the moving cursor: objdiff 99.133064 -> 99.1371; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (1984, 1984); source unwind 4008000000000000100800000000000008080000000000006808000000000000; fuzzy regressions []; SELECTED.
+- Resume Zi8MatchUWDdata, HIGH-g combine the cursor advance with its ring-boundary comparison and decode all three header fields: objdiff 99.1371 -> 99.97581; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (1984, 1984); source unwind 4008000000000000100800000000000008080000000000006808000000000000; fuzzy regressions []; SELECTED.
+- Resume Zi8MatchUWDdata, HIGH-g wrapped previous record uses the dictionary base plus cursor overflow: objdiff 99.97581 -> 99.979836; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (1984, 1984); source unwind 4008000000000000100800000000000008080000000000006808000000000000; fuzzy regressions []; SELECTED.
+
+### HIGH-g Zi8MatchUWDdata
+Fetched origin 4f77bbd2ae0302bedc1626453d460d2b4d9beb63; function still 98.65323%. Pool first:
+```
+POOL IDENTICAL up to 0 (mine=0 base=0)
+```
+Structural diagnosis:
+```
+src 0x7c0 base 0x7c0 insns 496/496
+diffs 1: [275]
+   275 M add r3, r4, r0
+       B add r3, r0, r4
+```
+- Resume Zi8MatchUWDdata, HIGH-g overflow displacement precedes the dictionary base in wrapped record addressing: objdiff 99.979836 -> 99.979836; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (1984, 1984); source unwind 4008000000000000100800000000000008080000000000006808000000000000; fuzzy regressions []; reverted.
+
+### HIGH-g Zi8MatchUWDdata
+Fetched origin 9432f36a578fceb50eab7c48e0e98303d5269335; function still 98.65323%. Pool first:
+```
+POOL IDENTICAL up to 0 (mine=0 base=0)
+```
+Structural diagnosis:
+```
+src 0x7c0 base 0x7c0 insns 496/496
+diffs 1: [275]
+   275 M add r3, r4, r0
+       B add r3, r0, r4
+```
+- Resume Zi8MatchUWDdata, HIGH-g wrap a byte displacement around the 32-bit dictionary address: objdiff 99.979836 -> 99.979836; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (1984, 1984); source unwind 4008000000000000100800000000000008080000000000006808000000000000; fuzzy regressions []; reverted.
+- Resume Zi8MatchUWDdata, HIGH-g wrapped record uses unsigned address subtraction before dictionary address addition: objdiff 99.979836 -> 99.979836; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (1984, 1984); source unwind 4008000000000000100800000000000008080000000000006808000000000000; fuzzy regressions []; reverted.
+- Resume Zi8MatchUWDdata, HIGH-g dictionary-relative byte displacement uses a signed machine-word offset: objdiff 99.979836 -> 99.979836; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (1984, 1984); source unwind 4008000000000000100800000000000008080000000000006808000000000000; fuzzy regressions []; reverted.
+
+### HIGH-g Zi8MatchUWDdata
+Fetched origin 9432f36a578fceb50eab7c48e0e98303d5269335; function still 98.65323%. Pool first:
+```
+POOL IDENTICAL up to 0 (mine=0 base=0)
+```
+Structural diagnosis:
+```
+src 0x7c0 base 0x7c0 insns 496/496
+diffs 1: [275]
+   275 M add r3, r4, r0
+       B add r3, r0, r4
+```
+- Resume Zi8MatchUWDdata, HIGH-g signed byte displacement is added before the unsigned dictionary address: objdiff 99.979836 -> 99.979836; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (1984, 1984); source unwind 4008000000000000100800000000000008080000000000006808000000000000; fuzzy regressions []; reverted.
+- Resume Zi8MatchUWDdata, HIGH-g wrapped record subtracts remaining bytes from the dictionary address: objdiff 99.979836 -> 99.5625; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (1984, 1984); source unwind 4008000000000000100800000000000008080000000000006808000000000000; fuzzy regressions []; reverted.
+- Resume Zi8MatchUWDdata, HIGH-g wrapped record address subtraction uses signed dictionary address arithmetic: objdiff 99.979836 -> 99.979836; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (1984, 1984); source unwind 4008000000000000100800000000000008080000000000006808000000000000; fuzzy regressions []; reverted.
+
+### HIGH-g Zi8MatchUWDdata
+Fetched origin 2daa6aedf69ed53f692092870c89b93d36b42f84; function still 98.65323%. Pool first:
+```
+POOL IDENTICAL up to 0 (mine=0 base=0)
+```
+Structural diagnosis:
+```
+src 0x7c0 base 0x7c0 insns 496/496
+diffs 1: [275]
+   275 M add r3, r4, r0
+       B add r3, r0, r4
+```
+- Resume Zi8MatchUWDdata, HIGH-g the wrapped previous record remains a byte cursor until its header is accessed: objdiff 99.979836 -> 99.979836; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (1984, 1984); source unwind 4008000000000000100800000000000008080000000000006808000000000000; fuzzy regressions []; reverted.
+- Resume Zi8MatchUWDdata, HIGH-g previous record is a const typed view of immutable dictionary bytes: objdiff 99.979836 -> 99.979836; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (1984, 1984); source unwind 4008000000000000100800000000000008080000000000006808000000000000; fuzzy regressions []; reverted.
+- Resume Zi8MatchUWDdata, HIGH-g dictionary storage uses byte addresses with typed header views: objdiff 99.979836 -> 99.979836; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (1984, 1984); source unwind 4008000000000000100800000000000008080000000000006808000000000000; fuzzy regressions []; reverted.
+
+### HIGH-g Zi8MatchUWDdata
+Fetched origin 2daa6aedf69ed53f692092870c89b93d36b42f84; function still 98.65323%. Pool first:
+```
+POOL IDENTICAL up to 0 (mine=0 base=0)
+```
+Structural diagnosis:
+```
+src 0x7c0 base 0x7c0 insns 496/496
+diffs 1: [275]
+   275 M add r3, r4, r0
+       B add r3, r0, r4
+```
+- Resume Zi8MatchUWDdata, HIGH-g wrapped record indexes dictionary storage with the overflow displacement: objdiff 99.979836 -> 99.979836; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (1984, 1984); source unwind 4008000000000000100800000000000008080000000000006808000000000000; fuzzy regressions []; reverted.
+- Resume Zi8MatchUWDdata, HIGH-g wrapped record indexes the overflow displacement before adding the header bytes: objdiff 99.979836 -> 99.979836; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (1984, 1984); source unwind 4008000000000000100800000000000008080000000000006808000000000000; fuzzy regressions []; reverted.
+- Resume Zi8MatchUWDdata, HIGH-g ring wrap adds the negated remaining extent to its dictionary base: objdiff 99.979836 -> 99.77419; data 80 -> 32; instruction-exact 2 -> 2; target/source sizes (1984, 1988); source unwind 4008000000000000100800000000000008080000000000006808000000000000; fuzzy regressions []; reverted.
+
+### HIGH-g Zi8MatchUWDdata
+Fetched origin 2daa6aedf69ed53f692092870c89b93d36b42f84; function still 98.65323%. Pool first:
+```
+POOL IDENTICAL up to 0 (mine=0 base=0)
+```
+Structural diagnosis:
+```
+src 0x7c0 base 0x7c0 insns 496/496
+diffs 1: [275]
+   275 M add r3, r4, r0
+       B add r3, r0, r4
+```
+- Resume Zi8MatchUWDdata, HIGH-g wrapped record is addressed relative to the dictionary entry area: objdiff 99.979836 -> 99.979836; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (1984, 1984); source unwind 4008000000000000100800000000000008080000000000006808000000000000; fuzzy regressions []; reverted.
+- Resume Zi8MatchUWDdata, HIGH-g wrapped entry offset accounts for the one-byte ring sentinel: objdiff 99.979836 -> 100.0; data 80 -> 80; instruction-exact 2 -> 3; target/source sizes (1984, 1984); source unwind 4008000000000000100800000000000008080000000000006808000000000000; fuzzy regressions []; SELECTED.
+
+### HIGH-g Zi8MatchUWDdata exact source review
+- Volatile proof: target 0x390 stw length,0x18(r1) immediately followed by 0x394 lwz length,0x18(r1), with the same store/reload at 0x9e0/0x9e4; entryLength is volatile at its definition, without a use-site cast.
+- Parsed headerSize proof: target 0x6fc lbz size,0(r29), 0x700 cursor++, 0x704 byte normalization, 0x708 stw size,0x20(r1), followed by language into 0x1c and length into 0x18. The unoptimized target captures this real header field even though it is not subsequently consumed; this local reproduces that decoding, with no padding, forced section or pinned address.
+- Control-flow proof: target 0x664/0x668/0x66c advances cursor and stores it, then compares that same register against end without reloading cursor; the assignment inside the boundary condition expresses this. Prefix-loop increments now follow the conversion-failure break, matching the target.
+- Wrapped record proof: dictionary->entries begins eight bytes after the header; cursor-end-1 is the overflow displacement past the ring sentinel. Target 0x6e8/0x6ec subtracts end from cursor, adds dictionary base and seven, exactly compiling dictionary->entries + (cursor-end-1).
+- Exact verification: Zi8MatchUWDdata objdiff 100.0; target/source 1984 bytes, 496/496 instructions, ctxdiff diffs 0. No other function or data count drops.
+
+HIGH-g all-four quick gate: full build and expected DOL hash pass; zero regressions, forbidden additions and readability warnings; GATE PASS.
+
+### HIGH-g Zi8MatchPUDdata_ZHS
+Fetched origin d195c16c86f407d4a2b7636ed3b210bb91083ce4; function still 98.32204%. Pool first:
+```
+POOL IDENTICAL up to 0 (mine=0 base=0)
+```
+Structural diagnosis:
+```
+src 0x574 base 0x588 insns 349/354
+--- insert mine 15:15 base 15:16
+  B   15 stw r31, 0x24(r1)
+--- replace mine 35:36 base 36:37
+  M   35 b 1232
+  B   36 b 1248
+--- replace mine 43:44 base 44:45
+  M   43 bne 184
+  B   44 bne 200
+--- replace mine 74:76 base 75:76
+  M   74 b 1076
+  M   75 lbz r3, 5(r26)
+  B   75 b 1092
+--- replace mine 77:78 base 77:81
+  M   77 slwi r0, r0, 8
+  B   77 clrlwi r0, r0, 0x10
+  B   78 slwi r3, r0, 8
+  B   79 lbz r0, 5(r26)
+  B   80 clrlwi r0, r0, 0x10
+--- replace mine 80:82 base 83:84
+  M   80 lbz r5, 3(r26)
+  M   81 lwz r4, 0x14(r1)
+  B   83 lwz r5, 0x14(r1)
+--- replace mine 83:84 base 85:89
+  M   83 slwi r3, r0, 8
+  B   85 clrlwi r0, r0, 0x10
+  B   86 slwi r4, r0, 8
+  B   87 lbz r0, 3(r26)
+  B   88 clrlwi r3, r0, 0x10
+```
+- Resume Zi8MatchPUDdata_ZHS, HIGH-g serialized halfword high and low octets are named ziU16 bitfields: objdiff 98.32204 -> 94.644066; data 48 -> 0; instruction-exact 6 -> 6; target/source sizes (1416, 1444); source unwind 180800000000000010080000000000001008000000000000600800000000000018080000000000000008000000000000; fuzzy regressions [('Zi8MatchPUDdata_ZHS', 98.32204, 94.644066)]; reverted.
+- Resume Zi8MatchPUDdata_ZHS, HIGH-g serialized halfword high and low octets are named unsigned short bitfields: objdiff 98.32204 -> 94.644066; data 48 -> 0; instruction-exact 6 -> 6; target/source sizes (1416, 1444); source unwind 180800000000000010080000000000001008000000000000600800000000000018080000000000000008000000000000; fuzzy regressions [('Zi8MatchPUDdata_ZHS', 98.32204, 94.644066)]; reverted.
+- Resume Zi8MatchPUDdata_ZHS, HIGH-g serialized halfword high and low octets are named ziU8 bitfields: objdiff 98.32204 -> 95.64972; data 48 -> 0; instruction-exact 6 -> 6; target/source sizes (1416, 1444); source unwind 180800000000000010080000000000001008000000000000600800000000000018080000000000000008000000000000; fuzzy regressions [('Zi8MatchPUDdata_ZHS', 98.32204, 95.64972)]; reverted.
+
+## HIGH-g final declaration search: ZiDAWGgetCHARattribute
+Structural diagnosis before register search:
+```
+src 0xf0 base 0xf0 insns 60/60
+diffs 12: [5, 14, 18, 19, 20, 29, 31, 32, 36, 37, 42, 43]
+     5 M mr r30, r3
+       B mr r31, r3
+    14 M clrlwi r31, r0, 0x18
+       B clrlwi r30, r0, 0x18
+    18 M clrlwi r31, r0, 0x18
+       B clrlwi r30, r0, 0x18
+    19 M clrlwi r3, r31, 0x18
+       B clrlwi r3, r30, 0x18
+    20 M lhz r0, 4(r30)
+       B lhz r0, 4(r31)
+    29 M clrlwi r0, r31, 0x18
+       B clrlwi r0, r30, 0x18
+    31 M lwz r3, 0xc(r30)
+       B lwz r3, 0xc(r31)
+    32 M clrlwi r0, r31, 0x18
+       B clrlwi r0, r30, 0x18
+    36 M lwz r3, 8(r30)
+       B lwz r3, 8(r31)
+    37 M clrlwi r0, r31, 0x18
+       B clrlwi r0, r30, 0x18
+    42 M lwz r3, 8(r30)
+       B lwz r3, 8(r31)
+    43 M clrlwi r0, r31, 0x18
+       B clrlwi r0, r30, 0x18
+```
+- ZiDAWGgetCHARattribute HIGH-g declaration attempt 1: ziU8 key; | ziU32 attribute;; structural/exact diffs (0, 12).
+- ZiDAWGgetCHARattribute HIGH-g declaration attempt 2: ziU32 attribute; | ziU8 key;; structural/exact diffs (0, 12).
+Search final: 99.0 -> 99.0, exact 3 -> 3, regressions []; restored.
+
+## HIGH-g final declaration search: ZiDAWGGetGraphInfo
+Structural diagnosis before register search:
+```
+src 0x218 base 0x218 insns 134/134
+diffs 12: [5, 8, 10, 11, 85, 87, 94, 97, 98, 99, 102, 127]
+     5 M mr r25, r3
+       B mr r29, r3
+     8 M mr r3, r25
+       B mr r3, r29
+    10 M mr r29, r3
+       B mr r26, r3
+    11 M li r26, 0
+       B li r25, 0
+    85 M add r3, r29, r3
+       B add r3, r26, r3
+    87 M add r26, r3, r0
+       B add r25, r3, r0
+    94 M add r3, r29, r3
+       B add r3, r26, r3
+    97 M stw r0, 0x338(r25)
+       B stw r0, 0x338(r29)
+    98 M lwz r0, 0x338(r25)
+       B lwz r0, 0x338(r29)
+    99 M cmplw r0, r29
+       B cmplw r0, r26
+   102 M stw r0, 0x338(r25)
+       B stw r0, 0x338(r29)
+   127 M mr r3, r26
+       B mr r3, r25
+```
+- ZiDAWGGetGraphInfo HIGH-g declaration attempt 1: ziU32 graph; | ziU8 depth; | ziU32 end; | ziS32 result;; structural/exact diffs (0, 12).
+- ZiDAWGGetGraphInfo HIGH-g declaration attempt 2: ziU8 depth; | ziU32 graph; | ziU32 end; | ziS32 result;; structural/exact diffs (0, 15).
+- ZiDAWGGetGraphInfo HIGH-g declaration attempt 3: ziU32 end; | ziU8 depth; | ziU32 graph; | ziS32 result;; structural/exact diffs (0, 16).
+- ZiDAWGGetGraphInfo HIGH-g declaration attempt 4: ziS32 result; | ziU8 depth; | ziU32 end; | ziU32 graph;; structural/exact diffs (0, 19).
+- ZiDAWGGetGraphInfo HIGH-g declaration attempt 5: ziU32 graph; | ziU32 end; | ziU8 depth; | ziS32 result;; structural/exact diffs (0, 19).
+- ZiDAWGGetGraphInfo HIGH-g declaration attempt 6: ziU32 graph; | ziS32 result; | ziU32 end; | ziU8 depth;; structural/exact diffs (0, 19).
+- ZiDAWGGetGraphInfo HIGH-g declaration attempt 7: ziU32 graph; | ziU8 depth; | ziS32 result; | ziU32 end;; structural/exact diffs (0, 12).
+- ZiDAWGGetGraphInfo HIGH-g declaration attempt 8: ziU8 depth; | ziU32 end; | ziU32 graph; | ziS32 result;; structural/exact diffs (0, 19).
+- ZiDAWGGetGraphInfo HIGH-g declaration attempt 9: ziU8 depth; | ziU32 end; | ziS32 result; | ziU32 graph;; structural/exact diffs (0, 19).
+- ZiDAWGGetGraphInfo HIGH-g declaration attempt 10: ziU32 graph; | ziU32 end; | ziS32 result; | ziU8 depth;; structural/exact diffs (0, 19).
+- ZiDAWGGetGraphInfo HIGH-g declaration attempt 11: ziU32 end; | ziU32 graph; | ziU8 depth; | ziS32 result;; structural/exact diffs (0, 19).
+- ZiDAWGGetGraphInfo HIGH-g declaration attempt 12: ziS32 result; | ziU32 graph; | ziU8 depth; | ziU32 end;; structural/exact diffs (0, 12).
+- ZiDAWGGetGraphInfo HIGH-g declaration attempt 13: ziU32 graph; | ziS32 result; | ziU8 depth; | ziU32 end;; structural/exact diffs (0, 12).
+Search final: 99.55224 -> 99.55224, exact 3 -> 3, regressions []; restored.
+
+## HIGH-g final declaration search: Zi8_81480224
+Structural diagnosis before register search:
+```
+src 0x1d0 base 0x1d0 insns 116/116
+diffs 10: [5, 16, 24, 46, 50, 52, 55, 63, 67, 104]
+     5 M mr r26, r3
+       B mr r28, r3
+    16 M cmpwi r26, 0
+       B cmpwi r28, 0
+    24 M lbz r25, 2(r26)
+       B lbz r25, 2(r28)
+    46 M lwz r28, 4(r30)
+       B lwz r26, 4(r30)
+    50 M lbz r0, 3(r26)
+       B lbz r0, 3(r28)
+    52 M lbz r0, 3(r28)
+       B lbz r0, 3(r26)
+    55 M lbz r0, 2(r28)
+       B lbz r0, 2(r26)
+    63 M add r3, r28, r0
+       B add r3, r0, r26
+    67 M add r3, r26, r0
+       B add r3, r0, r28
+   104 M stw r26, 4(r29)
+       B stw r28, 4(r29)
+```
+- Zi8_81480224 HIGH-g declaration attempt 1: ziU8 length; | ziUwdNode* previous; | ziUwdNode* current; | ziUwdNode* added; | ziUserWord* candidate; | ziU8 position;; structural/exact diffs (0, 10).
+- Zi8_81480224 HIGH-g declaration attempt 2: ziUwdNode* previous; | ziU8 length; | ziUwdNode* current; | ziUwdNode* added; | ziUserWord* candidate; | ziU8 position;; structural/exact diffs (0, 10).
+- Zi8_81480224 HIGH-g declaration attempt 3: ziUwdNode* current; | ziUwdNode* previous; | ziU8 length; | ziUwdNode* added; | ziUserWord* candidate; | ziU8 position;; structural/exact diffs (0, 10).
+- Zi8_81480224 HIGH-g declaration attempt 4: ziUwdNode* added; | ziUwdNode* previous; | ziUwdNode* current; | ziU8 length; | ziUserWord* candidate; | ziU8 position;; structural/exact diffs (0, 10).
+- Zi8_81480224 HIGH-g declaration attempt 5: ziUserWord* candidate; | ziUwdNode* previous; | ziUwdNode* current; | ziUwdNode* added; | ziU8 length; | ziU8 position;; structural/exact diffs (0, 10).
+- Zi8_81480224 HIGH-g declaration attempt 6: ziU8 position; | ziUwdNode* previous; | ziUwdNode* current; | ziUwdNode* added; | ziUserWord* candidate; | ziU8 length;; structural/exact diffs (0, 16).
+- Zi8_81480224 HIGH-g declaration attempt 7: ziU8 length; | ziUwdNode* current; | ziUwdNode* previous; | ziUwdNode* added; | ziUserWord* candidate; | ziU8 position;; structural/exact diffs (0, 10).
+- Zi8_81480224 HIGH-g declaration attempt 8: ziU8 length; | ziUwdNode* added; | ziUwdNode* current; | ziUwdNode* previous; | ziUserWord* candidate; | ziU8 position;; structural/exact diffs (0, 10).
+- Zi8_81480224 HIGH-g declaration attempt 9: ziU8 length; | ziUserWord* candidate; | ziUwdNode* current; | ziUwdNode* added; | ziUwdNode* previous; | ziU8 position;; structural/exact diffs (0, 10).
+- Zi8_81480224 HIGH-g declaration attempt 10: ziU8 length; | ziU8 position; | ziUwdNode* current; | ziUwdNode* added; | ziUserWord* candidate; | ziUwdNode* previous;; structural/exact diffs (0, 16).
+- Zi8_81480224 HIGH-g declaration attempt 11: ziU8 length; | ziUwdNode* previous; | ziUwdNode* added; | ziUwdNode* current; | ziUserWord* candidate; | ziU8 position;; structural/exact diffs (0, 10).
+- Zi8_81480224 HIGH-g declaration attempt 12: ziU8 length; | ziUwdNode* previous; | ziUserWord* candidate; | ziUwdNode* added; | ziUwdNode* current; | ziU8 position;; structural/exact diffs (0, 10).
+- Zi8_81480224 HIGH-g declaration attempt 13: ziU8 length; | ziUwdNode* previous; | ziU8 position; | ziUwdNode* added; | ziUserWord* candidate; | ziUwdNode* current;; structural/exact diffs (0, 16).
+- Zi8_81480224 HIGH-g declaration attempt 14: ziU8 length; | ziUwdNode* previous; | ziUwdNode* current; | ziUserWord* candidate; | ziUwdNode* added; | ziU8 position;; structural/exact diffs (0, 10).
+- Zi8_81480224 HIGH-g declaration attempt 15: ziU8 length; | ziUwdNode* previous; | ziUwdNode* current; | ziU8 position; | ziUserWord* candidate; | ziUwdNode* added;; structural/exact diffs (0, 16).
+- Zi8_81480224 HIGH-g declaration attempt 16: ziU8 length; | ziUwdNode* previous; | ziUwdNode* current; | ziUwdNode* added; | ziU8 position; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- Zi8_81480224 HIGH-g declaration attempt 17: ziUwdNode* previous; | ziUwdNode* current; | ziU8 length; | ziUwdNode* added; | ziUserWord* candidate; | ziU8 position;; structural/exact diffs (0, 10).
+- Zi8_81480224 HIGH-g declaration attempt 18: ziUwdNode* previous; | ziUwdNode* current; | ziUwdNode* added; | ziU8 length; | ziUserWord* candidate; | ziU8 position;; structural/exact diffs (0, 10).
+- Zi8_81480224 HIGH-g declaration attempt 19: ziUwdNode* previous; | ziUwdNode* current; | ziUwdNode* added; | ziUserWord* candidate; | ziU8 length; | ziU8 position;; structural/exact diffs (0, 10).
+- Zi8_81480224 HIGH-g declaration attempt 20: ziUwdNode* previous; | ziUwdNode* current; | ziUwdNode* added; | ziUserWord* candidate; | ziU8 position; | ziU8 length;; structural/exact diffs (0, 10).
+- Zi8_81480224 HIGH-g declaration attempt 21: ziU8 length; | ziUwdNode* current; | ziUwdNode* added; | ziUwdNode* previous; | ziUserWord* candidate; | ziU8 position;; structural/exact diffs (0, 10).
+- Zi8_81480224 HIGH-g declaration attempt 22: ziU8 length; | ziUwdNode* current; | ziUwdNode* added; | ziUserWord* candidate; | ziUwdNode* previous; | ziU8 position;; structural/exact diffs (0, 10).
+- Zi8_81480224 HIGH-g declaration attempt 23: ziU8 length; | ziUwdNode* current; | ziUwdNode* added; | ziUserWord* candidate; | ziU8 position; | ziUwdNode* previous;; structural/exact diffs (0, 10).
+- Zi8_81480224 HIGH-g declaration attempt 24: ziUwdNode* current; | ziU8 length; | ziUwdNode* previous; | ziUwdNode* added; | ziUserWord* candidate; | ziU8 position;; structural/exact diffs (0, 10).
+- Zi8_81480224 HIGH-g declaration attempt 25: ziU8 length; | ziUwdNode* previous; | ziUwdNode* added; | ziUserWord* candidate; | ziUwdNode* current; | ziU8 position;; structural/exact diffs (0, 10).
+- Zi8_81480224 HIGH-g declaration attempt 26: ziU8 length; | ziUwdNode* previous; | ziUwdNode* added; | ziUserWord* candidate; | ziU8 position; | ziUwdNode* current;; structural/exact diffs (0, 10).
+- Zi8_81480224 HIGH-g declaration attempt 27: ziUwdNode* added; | ziU8 length; | ziUwdNode* previous; | ziUwdNode* current; | ziUserWord* candidate; | ziU8 position;; structural/exact diffs (0, 10).
+- Zi8_81480224 HIGH-g declaration attempt 28: ziU8 length; | ziUwdNode* added; | ziUwdNode* previous; | ziUwdNode* current; | ziUserWord* candidate; | ziU8 position;; structural/exact diffs (0, 10).
+- Zi8_81480224 HIGH-g declaration attempt 29: ziU8 length; | ziUwdNode* previous; | ziUwdNode* current; | ziUserWord* candidate; | ziU8 position; | ziUwdNode* added;; structural/exact diffs (0, 10).
+- Zi8_81480224 HIGH-g declaration attempt 30: ziUserWord* candidate; | ziU8 length; | ziUwdNode* previous; | ziUwdNode* current; | ziUwdNode* added; | ziU8 position;; structural/exact diffs (0, 10).
+- Zi8_81480224 HIGH-g declaration attempt 31: ziU8 length; | ziUserWord* candidate; | ziUwdNode* previous; | ziUwdNode* current; | ziUwdNode* added; | ziU8 position;; structural/exact diffs (0, 10).
+- Zi8_81480224 HIGH-g declaration attempt 32: ziU8 length; | ziUwdNode* previous; | ziUserWord* candidate; | ziUwdNode* current; | ziUwdNode* added; | ziU8 position;; structural/exact diffs (0, 10).
+- Zi8_81480224 HIGH-g declaration attempt 33: ziU8 position; | ziU8 length; | ziUwdNode* previous; | ziUwdNode* current; | ziUwdNode* added; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- Zi8_81480224 HIGH-g declaration attempt 34: ziU8 length; | ziU8 position; | ziUwdNode* previous; | ziUwdNode* current; | ziUwdNode* added; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- Zi8_81480224 HIGH-g declaration attempt 35: ziU8 length; | ziUwdNode* previous; | ziU8 position; | ziUwdNode* current; | ziUwdNode* added; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- Zi8_81480224 HIGH-g declaration attempt 36: ziU8 length; | ziUwdNode* previous; | ziUwdNode* current; | ziU8 position; | ziUwdNode* added; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+Search final: 99.48276 -> 99.48276, exact 3 -> 3, regressions []; restored.
+
+## HIGH-g final declaration search: Zi8IsWordW
+Structural diagnosis before register search:
+```
+src 0x680 base 0x680 insns 416/416
+diffs 12: [357, 358, 359, 360, 361, 362, 363, 364, 365, 366, 367, 368]
+   357 M slwi r3, r0, 8
+       B clrlwi r0, r0, 0x10
+   358 M lbz r0, 0(r30)
+       B slwi r3, r0, 8
+   359 M or r0, r3, r0
+       B lbz r0, 0(r30)
+   360 M clrlwi r0, r0, 0x10
+       B or r0, r3, r0
+   361 M sth r0, 0xc(r1)
+       B clrlwi r0, r0, 0x10
+   362 M addi r30, r30, 2
+       B sth r0, 0xc(r1)
+   363 M lwz r3, 0x14(r1)
+       B addi r30, r30, 2
+   364 M addi r0, r3, 2
+       B lhz r0, 0xc(r1)
+   365 M stw r0, 0x14(r1)
+       B clrlwi r4, r0, 0x10
+   366 M lhz r0, 0xc(r1)
+       B lwz r3, 0x14(r1)
+   367 M clrlwi r4, r0, 0x10
+       B addi r3, r3, 2
+   368 M lwz r3, 0x14(r1)
+       B stw r3, 0x14(r1)
+```
+- Zi8IsWordW HIGH-g declaration attempt 1: ziChineseEntry* table = 0; | ziU8* baseData = 0; | ziU8 group = 0; | ziU8 remaining = 0; | ziU16 value = 0; | ziGetParam request; | ziWChar ordinals[65]; | int count; | int countLeft; | ziChineseEntry* entry; | ziWChar* cursor; | ziU8* data; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziSearchState search = {0};; structural/exact diffs (6, 12).
+- Zi8IsWordW HIGH-g declaration attempt 2: ziU8* baseData = 0; | ziChineseEntry* table = 0; | ziU8 group = 0; | ziU8 remaining = 0; | ziU16 value = 0; | ziGetParam request; | ziWChar ordinals[65]; | int count; | int countLeft; | ziChineseEntry* entry; | ziWChar* cursor; | ziU8* data; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziSearchState search = {0};; structural/exact diffs (12, 18).
+- Zi8IsWordW HIGH-g declaration attempt 3: ziU8 group = 0; | ziU8* baseData = 0; | ziChineseEntry* table = 0; | ziU8 remaining = 0; | ziU16 value = 0; | ziGetParam request; | ziWChar ordinals[65]; | int count; | int countLeft; | ziChineseEntry* entry; | ziWChar* cursor; | ziU8* data; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziSearchState search = {0};; structural/exact diffs (16, 21).
+- Zi8IsWordW HIGH-g declaration attempt 4: ziU8 remaining = 0; | ziU8* baseData = 0; | ziU8 group = 0; | ziChineseEntry* table = 0; | ziU16 value = 0; | ziGetParam request; | ziWChar ordinals[65]; | int count; | int countLeft; | ziChineseEntry* entry; | ziWChar* cursor; | ziU8* data; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziSearchState search = {0};; structural/exact diffs (28, 30).
+- Zi8IsWordW HIGH-g declaration attempt 5: ziU16 value = 0; | ziU8* baseData = 0; | ziU8 group = 0; | ziU8 remaining = 0; | ziChineseEntry* table = 0; | ziGetParam request; | ziWChar ordinals[65]; | int count; | int countLeft; | ziChineseEntry* entry; | ziWChar* cursor; | ziU8* data; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziSearchState search = {0};; structural/exact diffs (15, 21).
+- Zi8IsWordW HIGH-g declaration attempt 6: ziGetParam request; | ziU8* baseData = 0; | ziU8 group = 0; | ziU8 remaining = 0; | ziU16 value = 0; | ziChineseEntry* table = 0; | ziWChar ordinals[65]; | int count; | int countLeft; | ziChineseEntry* entry; | ziWChar* cursor; | ziU8* data; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziSearchState search = {0};; structural/exact diffs (16, 22).
+- Zi8IsWordW HIGH-g declaration attempt 7: ziWChar ordinals[65]; | ziU8* baseData = 0; | ziU8 group = 0; | ziU8 remaining = 0; | ziU16 value = 0; | ziGetParam request; | ziChineseEntry* table = 0; | int count; | int countLeft; | ziChineseEntry* entry; | ziWChar* cursor; | ziU8* data; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziSearchState search = {0};; structural/exact diffs (16, 22).
+- Zi8IsWordW HIGH-g declaration attempt 8: int count; | ziU8* baseData = 0; | ziU8 group = 0; | ziU8 remaining = 0; | ziU16 value = 0; | ziGetParam request; | ziWChar ordinals[65]; | ziChineseEntry* table = 0; | int countLeft; | ziChineseEntry* entry; | ziWChar* cursor; | ziU8* data; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziSearchState search = {0};; structural/exact diffs (16, 22).
+- Zi8IsWordW HIGH-g declaration attempt 9: int countLeft; | ziU8* baseData = 0; | ziU8 group = 0; | ziU8 remaining = 0; | ziU16 value = 0; | ziGetParam request; | ziWChar ordinals[65]; | int count; | ziChineseEntry* table = 0; | ziChineseEntry* entry; | ziWChar* cursor; | ziU8* data; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziSearchState search = {0};; structural/exact diffs (16, 22).
+- Zi8IsWordW HIGH-g declaration attempt 10: ziChineseEntry* entry; | ziU8* baseData = 0; | ziU8 group = 0; | ziU8 remaining = 0; | ziU16 value = 0; | ziGetParam request; | ziWChar ordinals[65]; | int count; | int countLeft; | ziChineseEntry* table = 0; | ziWChar* cursor; | ziU8* data; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziSearchState search = {0};; structural/exact diffs (16, 23).
+- Zi8IsWordW HIGH-g declaration attempt 11: ziWChar* cursor; | ziU8* baseData = 0; | ziU8 group = 0; | ziU8 remaining = 0; | ziU16 value = 0; | ziGetParam request; | ziWChar ordinals[65]; | int count; | int countLeft; | ziChineseEntry* entry; | ziChineseEntry* table = 0; | ziU8* data; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziSearchState search = {0};; structural/exact diffs (14, 20).
+- Zi8IsWordW HIGH-g declaration attempt 12: ziU8* data; | ziU8* baseData = 0; | ziU8 group = 0; | ziU8 remaining = 0; | ziU16 value = 0; | ziGetParam request; | ziWChar ordinals[65]; | int count; | int countLeft; | ziChineseEntry* entry; | ziWChar* cursor; | ziChineseEntry* table = 0; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziSearchState search = {0};; structural/exact diffs (22, 27).
+- Zi8IsWordW HIGH-g declaration attempt 13: ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU8* baseData = 0; | ziU8 group = 0; | ziU8 remaining = 0; | ziU16 value = 0; | ziGetParam request; | ziWChar ordinals[65]; | int count; | int countLeft; | ziChineseEntry* entry; | ziWChar* cursor; | ziU8* data; | ziChineseEntry* table = 0; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziSearchState search = {0};; structural/exact diffs (38, 49).
+- Zi8IsWordW HIGH-g declaration attempt 14: ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8* baseData = 0; | ziU8 group = 0; | ziU8 remaining = 0; | ziU16 value = 0; | ziGetParam request; | ziWChar ordinals[65]; | int count; | int countLeft; | ziChineseEntry* entry; | ziWChar* cursor; | ziU8* data; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziChineseEntry* table = 0; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziSearchState search = {0};; structural/exact diffs (11, 17).
+- Zi8IsWordW HIGH-g declaration attempt 15: ziU8 savedCount = ZI_WORK->unk_0x1418; | ziU8* baseData = 0; | ziU8 group = 0; | ziU8 remaining = 0; | ziU16 value = 0; | ziGetParam request; | ziWChar ordinals[65]; | int count; | int countLeft; | ziChineseEntry* entry; | ziWChar* cursor; | ziU8* data; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziChineseEntry* table = 0; | ziSearchState search = {0};; structural/exact diffs (40, 41).
+- Zi8IsWordW HIGH-g declaration attempt 16: ziSearchState search = {0}; | ziU8* baseData = 0; | ziU8 group = 0; | ziU8 remaining = 0; | ziU16 value = 0; | ziGetParam request; | ziWChar ordinals[65]; | int count; | int countLeft; | ziChineseEntry* entry; | ziWChar* cursor; | ziU8* data; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziChineseEntry* table = 0;; structural/exact diffs (33, 60).
+- Zi8IsWordW HIGH-g declaration attempt 17: ziChineseEntry* table = 0; | ziU8 group = 0; | ziU8* baseData = 0; | ziU8 remaining = 0; | ziU16 value = 0; | ziGetParam request; | ziWChar ordinals[65]; | int count; | int countLeft; | ziChineseEntry* entry; | ziWChar* cursor; | ziU8* data; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziSearchState search = {0};; structural/exact diffs (10, 14).
+- Zi8IsWordW HIGH-g declaration attempt 18: ziChineseEntry* table = 0; | ziU8 remaining = 0; | ziU8 group = 0; | ziU8* baseData = 0; | ziU16 value = 0; | ziGetParam request; | ziWChar ordinals[65]; | int count; | int countLeft; | ziChineseEntry* entry; | ziWChar* cursor; | ziU8* data; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziSearchState search = {0};; structural/exact diffs (18, 23).
+- Zi8IsWordW HIGH-g declaration attempt 19: ziChineseEntry* table = 0; | ziU16 value = 0; | ziU8 group = 0; | ziU8 remaining = 0; | ziU8* baseData = 0; | ziGetParam request; | ziWChar ordinals[65]; | int count; | int countLeft; | ziChineseEntry* entry; | ziWChar* cursor; | ziU8* data; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziSearchState search = {0};; structural/exact diffs (8, 14).
+- Zi8IsWordW HIGH-g declaration attempt 20: ziChineseEntry* table = 0; | ziGetParam request; | ziU8 group = 0; | ziU8 remaining = 0; | ziU16 value = 0; | ziU8* baseData = 0; | ziWChar ordinals[65]; | int count; | int countLeft; | ziChineseEntry* entry; | ziWChar* cursor; | ziU8* data; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziSearchState search = {0};; structural/exact diffs (10, 16).
+- Zi8IsWordW HIGH-g declaration attempt 21: ziChineseEntry* table = 0; | ziWChar ordinals[65]; | ziU8 group = 0; | ziU8 remaining = 0; | ziU16 value = 0; | ziGetParam request; | ziU8* baseData = 0; | int count; | int countLeft; | ziChineseEntry* entry; | ziWChar* cursor; | ziU8* data; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziSearchState search = {0};; structural/exact diffs (10, 16).
+- Zi8IsWordW HIGH-g declaration attempt 22: ziChineseEntry* table = 0; | int count; | ziU8 group = 0; | ziU8 remaining = 0; | ziU16 value = 0; | ziGetParam request; | ziWChar ordinals[65]; | ziU8* baseData = 0; | int countLeft; | ziChineseEntry* entry; | ziWChar* cursor; | ziU8* data; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziSearchState search = {0};; structural/exact diffs (10, 16).
+- Zi8IsWordW HIGH-g declaration attempt 23: ziChineseEntry* table = 0; | int countLeft; | ziU8 group = 0; | ziU8 remaining = 0; | ziU16 value = 0; | ziGetParam request; | ziWChar ordinals[65]; | int count; | ziU8* baseData = 0; | ziChineseEntry* entry; | ziWChar* cursor; | ziU8* data; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziSearchState search = {0};; structural/exact diffs (10, 16).
+- Zi8IsWordW HIGH-g declaration attempt 24: ziChineseEntry* table = 0; | ziChineseEntry* entry; | ziU8 group = 0; | ziU8 remaining = 0; | ziU16 value = 0; | ziGetParam request; | ziWChar ordinals[65]; | int count; | int countLeft; | ziU8* baseData = 0; | ziWChar* cursor; | ziU8* data; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziSearchState search = {0};; structural/exact diffs (18, 24).
+- Zi8IsWordW HIGH-g declaration attempt 25: ziChineseEntry* table = 0; | ziWChar* cursor; | ziU8 group = 0; | ziU8 remaining = 0; | ziU16 value = 0; | ziGetParam request; | ziWChar ordinals[65]; | int count; | int countLeft; | ziChineseEntry* entry; | ziU8* baseData = 0; | ziU8* data; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziSearchState search = {0};; structural/exact diffs (16, 21).
+- Zi8IsWordW HIGH-g declaration attempt 26: ziChineseEntry* table = 0; | ziU8* data; | ziU8 group = 0; | ziU8 remaining = 0; | ziU16 value = 0; | ziGetParam request; | ziWChar ordinals[65]; | int count; | int countLeft; | ziChineseEntry* entry; | ziWChar* cursor; | ziU8* baseData = 0; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziSearchState search = {0};; structural/exact diffs (20, 25).
+- Zi8IsWordW HIGH-g declaration attempt 27: ziChineseEntry* table = 0; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU8 group = 0; | ziU8 remaining = 0; | ziU16 value = 0; | ziGetParam request; | ziWChar ordinals[65]; | int count; | int countLeft; | ziChineseEntry* entry; | ziWChar* cursor; | ziU8* data; | ziU8* baseData = 0; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziSearchState search = {0};; structural/exact diffs (32, 41).
+- Zi8IsWordW HIGH-g declaration attempt 28: ziChineseEntry* table = 0; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 group = 0; | ziU8 remaining = 0; | ziU16 value = 0; | ziGetParam request; | ziWChar ordinals[65]; | int count; | int countLeft; | ziChineseEntry* entry; | ziWChar* cursor; | ziU8* data; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU8* baseData = 0; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziSearchState search = {0};; structural/exact diffs (13, 19).
+- Zi8IsWordW HIGH-g declaration attempt 29: ziChineseEntry* table = 0; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziU8 group = 0; | ziU8 remaining = 0; | ziU16 value = 0; | ziGetParam request; | ziWChar ordinals[65]; | int count; | int countLeft; | ziChineseEntry* entry; | ziWChar* cursor; | ziU8* data; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8* baseData = 0; | ziSearchState search = {0};; structural/exact diffs (35, 38).
+- Zi8IsWordW HIGH-g declaration attempt 30: ziChineseEntry* table = 0; | ziSearchState search = {0}; | ziU8 group = 0; | ziU8 remaining = 0; | ziU16 value = 0; | ziGetParam request; | ziWChar ordinals[65]; | int count; | int countLeft; | ziChineseEntry* entry; | ziWChar* cursor; | ziU8* data; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziU8* baseData = 0;; structural/exact diffs (30, 56).
+- Zi8IsWordW HIGH-g declaration attempt 31: ziChineseEntry* table = 0; | ziU8* baseData = 0; | ziU8 remaining = 0; | ziU8 group = 0; | ziU16 value = 0; | ziGetParam request; | ziWChar ordinals[65]; | int count; | int countLeft; | ziChineseEntry* entry; | ziWChar* cursor; | ziU8* data; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziSearchState search = {0};; structural/exact diffs (14, 20).
+- Zi8IsWordW HIGH-g declaration attempt 32: ziChineseEntry* table = 0; | ziU8* baseData = 0; | ziU16 value = 0; | ziU8 remaining = 0; | ziU8 group = 0; | ziGetParam request; | ziWChar ordinals[65]; | int count; | int countLeft; | ziChineseEntry* entry; | ziWChar* cursor; | ziU8* data; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziSearchState search = {0};; structural/exact diffs (18, 23).
+- Zi8IsWordW HIGH-g declaration attempt 33: ziChineseEntry* table = 0; | ziU8* baseData = 0; | ziGetParam request; | ziU8 remaining = 0; | ziU16 value = 0; | ziU8 group = 0; | ziWChar ordinals[65]; | int count; | int countLeft; | ziChineseEntry* entry; | ziWChar* cursor; | ziU8* data; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziSearchState search = {0};; structural/exact diffs (18, 22).
+- Zi8IsWordW HIGH-g declaration attempt 34: ziChineseEntry* table = 0; | ziU8* baseData = 0; | ziWChar ordinals[65]; | ziU8 remaining = 0; | ziU16 value = 0; | ziGetParam request; | ziU8 group = 0; | int count; | int countLeft; | ziChineseEntry* entry; | ziWChar* cursor; | ziU8* data; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziSearchState search = {0};; structural/exact diffs (18, 22).
+- Zi8IsWordW HIGH-g declaration attempt 35: ziChineseEntry* table = 0; | ziU8* baseData = 0; | int count; | ziU8 remaining = 0; | ziU16 value = 0; | ziGetParam request; | ziWChar ordinals[65]; | ziU8 group = 0; | int countLeft; | ziChineseEntry* entry; | ziWChar* cursor; | ziU8* data; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziSearchState search = {0};; structural/exact diffs (18, 22).
+- Zi8IsWordW HIGH-g declaration attempt 36: ziChineseEntry* table = 0; | ziU8* baseData = 0; | int countLeft; | ziU8 remaining = 0; | ziU16 value = 0; | ziGetParam request; | ziWChar ordinals[65]; | int count; | ziU8 group = 0; | ziChineseEntry* entry; | ziWChar* cursor; | ziU8* data; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziSearchState search = {0};; structural/exact diffs (18, 22).
+- Zi8IsWordW HIGH-g declaration attempt 37: ziChineseEntry* table = 0; | ziU8* baseData = 0; | ziChineseEntry* entry; | ziU8 remaining = 0; | ziU16 value = 0; | ziGetParam request; | ziWChar ordinals[65]; | int count; | int countLeft; | ziU8 group = 0; | ziWChar* cursor; | ziU8* data; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziSearchState search = {0};; structural/exact diffs (18, 22).
+- Zi8IsWordW HIGH-g declaration attempt 38: ziChineseEntry* table = 0; | ziU8* baseData = 0; | ziWChar* cursor; | ziU8 remaining = 0; | ziU16 value = 0; | ziGetParam request; | ziWChar ordinals[65]; | int count; | int countLeft; | ziChineseEntry* entry; | ziU8 group = 0; | ziU8* data; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziSearchState search = {0};; structural/exact diffs (24, 27).
+- Zi8IsWordW HIGH-g declaration attempt 39: ziChineseEntry* table = 0; | ziU8* baseData = 0; | ziU8* data; | ziU8 remaining = 0; | ziU16 value = 0; | ziGetParam request; | ziWChar ordinals[65]; | int count; | int countLeft; | ziChineseEntry* entry; | ziWChar* cursor; | ziU8 group = 0; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziSearchState search = {0};; structural/exact diffs (18, 22).
+- Zi8IsWordW HIGH-g declaration attempt 40: ziChineseEntry* table = 0; | ziU8* baseData = 0; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU8 remaining = 0; | ziU16 value = 0; | ziGetParam request; | ziWChar ordinals[65]; | int count; | int countLeft; | ziChineseEntry* entry; | ziWChar* cursor; | ziU8* data; | ziU8 group = 0; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziSearchState search = {0};; structural/exact diffs (26, 42).
+- Zi8IsWordW HIGH-g declaration attempt 41: ziChineseEntry* table = 0; | ziU8* baseData = 0; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 remaining = 0; | ziU16 value = 0; | ziGetParam request; | ziWChar ordinals[65]; | int count; | int countLeft; | ziChineseEntry* entry; | ziWChar* cursor; | ziU8* data; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU8 group = 0; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziSearchState search = {0};; structural/exact diffs (27, 31).
+- Zi8IsWordW HIGH-g declaration attempt 42: ziChineseEntry* table = 0; | ziU8* baseData = 0; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziU8 remaining = 0; | ziU16 value = 0; | ziGetParam request; | ziWChar ordinals[65]; | int count; | int countLeft; | ziChineseEntry* entry; | ziWChar* cursor; | ziU8* data; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 group = 0; | ziSearchState search = {0};; structural/exact diffs (13, 19).
+- Zi8IsWordW HIGH-g declaration attempt 43: ziChineseEntry* table = 0; | ziU8* baseData = 0; | ziSearchState search = {0}; | ziU8 remaining = 0; | ziU16 value = 0; | ziGetParam request; | ziWChar ordinals[65]; | int count; | int countLeft; | ziChineseEntry* entry; | ziWChar* cursor; | ziU8* data; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziU8 group = 0;; structural/exact diffs (29, 53).
+- Zi8IsWordW HIGH-g declaration attempt 44: ziChineseEntry* table = 0; | ziU8* baseData = 0; | ziU8 group = 0; | ziU16 value = 0; | ziU8 remaining = 0; | ziGetParam request; | ziWChar ordinals[65]; | int count; | int countLeft; | ziChineseEntry* entry; | ziWChar* cursor; | ziU8* data; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziSearchState search = {0};; structural/exact diffs (10, 14).
+- Zi8IsWordW HIGH-g declaration attempt 45: ziChineseEntry* table = 0; | ziU8* baseData = 0; | ziU8 group = 0; | ziGetParam request; | ziU16 value = 0; | ziU8 remaining = 0; | ziWChar ordinals[65]; | int count; | int countLeft; | ziChineseEntry* entry; | ziWChar* cursor; | ziU8* data; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziSearchState search = {0};; structural/exact diffs (10, 14).
+- Zi8IsWordW HIGH-g declaration attempt 46: ziChineseEntry* table = 0; | ziU8* baseData = 0; | ziU8 group = 0; | ziWChar ordinals[65]; | ziU16 value = 0; | ziGetParam request; | ziU8 remaining = 0; | int count; | int countLeft; | ziChineseEntry* entry; | ziWChar* cursor; | ziU8* data; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziSearchState search = {0};; structural/exact diffs (10, 14).
+- Zi8IsWordW HIGH-g declaration attempt 47: ziChineseEntry* table = 0; | ziU8* baseData = 0; | ziU8 group = 0; | int count; | ziU16 value = 0; | ziGetParam request; | ziWChar ordinals[65]; | ziU8 remaining = 0; | int countLeft; | ziChineseEntry* entry; | ziWChar* cursor; | ziU8* data; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziSearchState search = {0};; structural/exact diffs (10, 14).
+- Zi8IsWordW HIGH-g declaration attempt 48: ziChineseEntry* table = 0; | ziU8* baseData = 0; | ziU8 group = 0; | int countLeft; | ziU16 value = 0; | ziGetParam request; | ziWChar ordinals[65]; | int count; | ziU8 remaining = 0; | ziChineseEntry* entry; | ziWChar* cursor; | ziU8* data; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziSearchState search = {0};; structural/exact diffs (10, 14).
+- Zi8IsWordW HIGH-g declaration attempt 49: ziChineseEntry* table = 0; | ziU8* baseData = 0; | ziU8 group = 0; | ziChineseEntry* entry; | ziU16 value = 0; | ziGetParam request; | ziWChar ordinals[65]; | int count; | int countLeft; | ziU8 remaining = 0; | ziWChar* cursor; | ziU8* data; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziSearchState search = {0};; structural/exact diffs (10, 14).
+- Zi8IsWordW HIGH-g declaration attempt 50: ziChineseEntry* table = 0; | ziU8* baseData = 0; | ziU8 group = 0; | ziWChar* cursor; | ziU16 value = 0; | ziGetParam request; | ziWChar ordinals[65]; | int count; | int countLeft; | ziChineseEntry* entry; | ziU8 remaining = 0; | ziU8* data; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziSearchState search = {0};; structural/exact diffs (16, 19).
+- Zi8IsWordW HIGH-g declaration attempt 51: ziChineseEntry* table = 0; | ziU8* baseData = 0; | ziU8 group = 0; | ziU8* data; | ziU16 value = 0; | ziGetParam request; | ziWChar ordinals[65]; | int count; | int countLeft; | ziChineseEntry* entry; | ziWChar* cursor; | ziU8 remaining = 0; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziSearchState search = {0};; structural/exact diffs (10, 14).
+- Zi8IsWordW HIGH-g declaration attempt 52: ziChineseEntry* table = 0; | ziU8* baseData = 0; | ziU8 group = 0; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU16 value = 0; | ziGetParam request; | ziWChar ordinals[65]; | int count; | int countLeft; | ziChineseEntry* entry; | ziWChar* cursor; | ziU8* data; | ziU8 remaining = 0; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziSearchState search = {0};; structural/exact diffs (14, 26).
+- Zi8IsWordW HIGH-g declaration attempt 53: ziChineseEntry* table = 0; | ziU8* baseData = 0; | ziU8 group = 0; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU16 value = 0; | ziGetParam request; | ziWChar ordinals[65]; | int count; | int countLeft; | ziChineseEntry* entry; | ziWChar* cursor; | ziU8* data; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU8 remaining = 0; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziSearchState search = {0};; structural/exact diffs (17, 22).
+- Zi8IsWordW HIGH-g declaration attempt 54: ziChineseEntry* table = 0; | ziU8* baseData = 0; | ziU8 group = 0; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziU16 value = 0; | ziGetParam request; | ziWChar ordinals[65]; | int count; | int countLeft; | ziChineseEntry* entry; | ziWChar* cursor; | ziU8* data; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 remaining = 0; | ziSearchState search = {0};; structural/exact diffs (13, 19).
+- Zi8IsWordW HIGH-g declaration attempt 55: ziChineseEntry* table = 0; | ziU8* baseData = 0; | ziU8 group = 0; | ziSearchState search = {0}; | ziU16 value = 0; | ziGetParam request; | ziWChar ordinals[65]; | int count; | int countLeft; | ziChineseEntry* entry; | ziWChar* cursor; | ziU8* data; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziU8 remaining = 0;; structural/exact diffs (24, 47).
+- Zi8IsWordW HIGH-g declaration attempt 56: ziChineseEntry* table = 0; | ziU8* baseData = 0; | ziU8 group = 0; | ziU8 remaining = 0; | ziGetParam request; | ziU16 value = 0; | ziWChar ordinals[65]; | int count; | int countLeft; | ziChineseEntry* entry; | ziWChar* cursor; | ziU8* data; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziSearchState search = {0};; structural/exact diffs (6, 12).
+- Zi8IsWordW HIGH-g declaration attempt 57: ziChineseEntry* table = 0; | ziU8* baseData = 0; | ziU8 group = 0; | ziU8 remaining = 0; | ziWChar ordinals[65]; | ziGetParam request; | ziU16 value = 0; | int count; | int countLeft; | ziChineseEntry* entry; | ziWChar* cursor; | ziU8* data; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziSearchState search = {0};; structural/exact diffs (6, 12).
+- Zi8IsWordW HIGH-g declaration attempt 58: ziChineseEntry* table = 0; | ziU8* baseData = 0; | ziU8 group = 0; | ziU8 remaining = 0; | int count; | ziGetParam request; | ziWChar ordinals[65]; | ziU16 value = 0; | int countLeft; | ziChineseEntry* entry; | ziWChar* cursor; | ziU8* data; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziSearchState search = {0};; structural/exact diffs (6, 12).
+- Zi8IsWordW HIGH-g declaration attempt 59: ziChineseEntry* table = 0; | ziU8* baseData = 0; | ziU8 group = 0; | ziU8 remaining = 0; | int countLeft; | ziGetParam request; | ziWChar ordinals[65]; | int count; | ziU16 value = 0; | ziChineseEntry* entry; | ziWChar* cursor; | ziU8* data; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziSearchState search = {0};; structural/exact diffs (6, 12).
+- Zi8IsWordW HIGH-g declaration attempt 60: ziChineseEntry* table = 0; | ziU8* baseData = 0; | ziU8 group = 0; | ziU8 remaining = 0; | ziChineseEntry* entry; | ziGetParam request; | ziWChar ordinals[65]; | int count; | int countLeft; | ziU16 value = 0; | ziWChar* cursor; | ziU8* data; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziSearchState search = {0};; structural/exact diffs (6, 12).
+- Zi8IsWordW HIGH-g declaration attempt 61: ziChineseEntry* table = 0; | ziU8* baseData = 0; | ziU8 group = 0; | ziU8 remaining = 0; | ziWChar* cursor; | ziGetParam request; | ziWChar ordinals[65]; | int count; | int countLeft; | ziChineseEntry* entry; | ziU16 value = 0; | ziU8* data; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziSearchState search = {0};; structural/exact diffs (12, 17).
+- Zi8IsWordW HIGH-g declaration attempt 62: ziChineseEntry* table = 0; | ziU8* baseData = 0; | ziU8 group = 0; | ziU8 remaining = 0; | ziU8* data; | ziGetParam request; | ziWChar ordinals[65]; | int count; | int countLeft; | ziChineseEntry* entry; | ziWChar* cursor; | ziU16 value = 0; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziSearchState search = {0};; structural/exact diffs (6, 12).
+- Zi8IsWordW HIGH-g declaration attempt 63: ziChineseEntry* table = 0; | ziU8* baseData = 0; | ziU8 group = 0; | ziU8 remaining = 0; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziGetParam request; | ziWChar ordinals[65]; | int count; | int countLeft; | ziChineseEntry* entry; | ziWChar* cursor; | ziU8* data; | ziU16 value = 0; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziSearchState search = {0};; structural/exact diffs (10, 30).
+- Zi8IsWordW HIGH-g declaration attempt 64: ziChineseEntry* table = 0; | ziU8* baseData = 0; | ziU8 group = 0; | ziU8 remaining = 0; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziGetParam request; | ziWChar ordinals[65]; | int count; | int countLeft; | ziChineseEntry* entry; | ziWChar* cursor; | ziU8* data; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU16 value = 0; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziSearchState search = {0};; structural/exact diffs (17, 22).
+- Zi8IsWordW HIGH-g declaration attempt 65: ziChineseEntry* table = 0; | ziU8* baseData = 0; | ziU8 group = 0; | ziU8 remaining = 0; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziGetParam request; | ziWChar ordinals[65]; | int count; | int countLeft; | ziChineseEntry* entry; | ziWChar* cursor; | ziU8* data; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU16 value = 0; | ziSearchState search = {0};; structural/exact diffs (10, 16).
+- Zi8IsWordW HIGH-g declaration attempt 66: ziChineseEntry* table = 0; | ziU8* baseData = 0; | ziU8 group = 0; | ziU8 remaining = 0; | ziSearchState search = {0}; | ziGetParam request; | ziWChar ordinals[65]; | int count; | int countLeft; | ziChineseEntry* entry; | ziWChar* cursor; | ziU8* data; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziU16 value = 0;; structural/exact diffs (18, 40).
+- Zi8IsWordW HIGH-g declaration attempt 67: ziChineseEntry* table = 0; | ziU8* baseData = 0; | ziU8 group = 0; | ziU8 remaining = 0; | ziU16 value = 0; | ziWChar ordinals[65]; | ziGetParam request; | int count; | int countLeft; | ziChineseEntry* entry; | ziWChar* cursor; | ziU8* data; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziSearchState search = {0};; structural/exact diffs (6, 12).
+- Zi8IsWordW HIGH-g declaration attempt 68: ziChineseEntry* table = 0; | ziU8* baseData = 0; | ziU8 group = 0; | ziU8 remaining = 0; | ziU16 value = 0; | int count; | ziWChar ordinals[65]; | ziGetParam request; | int countLeft; | ziChineseEntry* entry; | ziWChar* cursor; | ziU8* data; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziSearchState search = {0};; structural/exact diffs (6, 12).
+- Zi8IsWordW HIGH-g declaration attempt 69: ziChineseEntry* table = 0; | ziU8* baseData = 0; | ziU8 group = 0; | ziU8 remaining = 0; | ziU16 value = 0; | int countLeft; | ziWChar ordinals[65]; | int count; | ziGetParam request; | ziChineseEntry* entry; | ziWChar* cursor; | ziU8* data; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziSearchState search = {0};; structural/exact diffs (6, 12).
+- Zi8IsWordW HIGH-g declaration attempt 70: ziChineseEntry* table = 0; | ziU8* baseData = 0; | ziU8 group = 0; | ziU8 remaining = 0; | ziU16 value = 0; | ziChineseEntry* entry; | ziWChar ordinals[65]; | int count; | int countLeft; | ziGetParam request; | ziWChar* cursor; | ziU8* data; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziSearchState search = {0};; structural/exact diffs (6, 12).
+- Zi8IsWordW HIGH-g declaration attempt 71: ziChineseEntry* table = 0; | ziU8* baseData = 0; | ziU8 group = 0; | ziU8 remaining = 0; | ziU16 value = 0; | ziWChar* cursor; | ziWChar ordinals[65]; | int count; | int countLeft; | ziChineseEntry* entry; | ziGetParam request; | ziU8* data; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziSearchState search = {0};; structural/exact diffs (12, 17).
+- Zi8IsWordW HIGH-g declaration attempt 72: ziChineseEntry* table = 0; | ziU8* baseData = 0; | ziU8 group = 0; | ziU8 remaining = 0; | ziU16 value = 0; | ziU8* data; | ziWChar ordinals[65]; | int count; | int countLeft; | ziChineseEntry* entry; | ziWChar* cursor; | ziGetParam request; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziSearchState search = {0};; structural/exact diffs (6, 12).
+- Zi8IsWordW HIGH-g declaration attempt 73: ziChineseEntry* table = 0; | ziU8* baseData = 0; | ziU8 group = 0; | ziU8 remaining = 0; | ziU16 value = 0; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziWChar ordinals[65]; | int count; | int countLeft; | ziChineseEntry* entry; | ziWChar* cursor; | ziU8* data; | ziGetParam request; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziSearchState search = {0};; structural/exact diffs (6, 12).
+- Zi8IsWordW HIGH-g declaration attempt 74: ziChineseEntry* table = 0; | ziU8* baseData = 0; | ziU8 group = 0; | ziU8 remaining = 0; | ziU16 value = 0; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziWChar ordinals[65]; | int count; | int countLeft; | ziChineseEntry* entry; | ziWChar* cursor; | ziU8* data; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziGetParam request; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziSearchState search = {0};; structural/exact diffs (17, 36).
+- Zi8IsWordW HIGH-g declaration attempt 75: ziChineseEntry* table = 0; | ziU8* baseData = 0; | ziU8 group = 0; | ziU8 remaining = 0; | ziU16 value = 0; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziWChar ordinals[65]; | int count; | int countLeft; | ziChineseEntry* entry; | ziWChar* cursor; | ziU8* data; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziGetParam request; | ziSearchState search = {0};; structural/exact diffs (10, 32).
+- Zi8IsWordW HIGH-g declaration attempt 76: ziChineseEntry* table = 0; | ziU8* baseData = 0; | ziU8 group = 0; | ziU8 remaining = 0; | ziU16 value = 0; | ziSearchState search = {0}; | ziWChar ordinals[65]; | int count; | int countLeft; | ziChineseEntry* entry; | ziWChar* cursor; | ziU8* data; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziGetParam request;; structural/exact diffs (20, 39).
+- Zi8IsWordW HIGH-g declaration attempt 77: ziChineseEntry* table = 0; | ziU8* baseData = 0; | ziU8 group = 0; | ziU8 remaining = 0; | ziU16 value = 0; | ziGetParam request; | int count; | ziWChar ordinals[65]; | int countLeft; | ziChineseEntry* entry; | ziWChar* cursor; | ziU8* data; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziSearchState search = {0};; structural/exact diffs (6, 12).
+- Zi8IsWordW HIGH-g declaration attempt 78: ziChineseEntry* table = 0; | ziU8* baseData = 0; | ziU8 group = 0; | ziU8 remaining = 0; | ziU16 value = 0; | ziGetParam request; | int countLeft; | int count; | ziWChar ordinals[65]; | ziChineseEntry* entry; | ziWChar* cursor; | ziU8* data; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziSearchState search = {0};; structural/exact diffs (6, 12).
+- Zi8IsWordW HIGH-g declaration attempt 79: ziChineseEntry* table = 0; | ziU8* baseData = 0; | ziU8 group = 0; | ziU8 remaining = 0; | ziU16 value = 0; | ziGetParam request; | ziChineseEntry* entry; | int count; | int countLeft; | ziWChar ordinals[65]; | ziWChar* cursor; | ziU8* data; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziSearchState search = {0};; structural/exact diffs (6, 12).
+- Zi8IsWordW HIGH-g declaration attempt 80: ziChineseEntry* table = 0; | ziU8* baseData = 0; | ziU8 group = 0; | ziU8 remaining = 0; | ziU16 value = 0; | ziGetParam request; | ziWChar* cursor; | int count; | int countLeft; | ziChineseEntry* entry; | ziWChar ordinals[65]; | ziU8* data; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziSearchState search = {0};; structural/exact diffs (12, 17).
+- Zi8IsWordW HIGH-g declaration attempt 81: ziChineseEntry* table = 0; | ziU8* baseData = 0; | ziU8 group = 0; | ziU8 remaining = 0; | ziU16 value = 0; | ziGetParam request; | ziU8* data; | int count; | int countLeft; | ziChineseEntry* entry; | ziWChar* cursor; | ziWChar ordinals[65]; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziSearchState search = {0};; structural/exact diffs (6, 12).
+- Zi8IsWordW HIGH-g declaration attempt 82: ziChineseEntry* table = 0; | ziU8* baseData = 0; | ziU8 group = 0; | ziU8 remaining = 0; | ziU16 value = 0; | ziGetParam request; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | int count; | int countLeft; | ziChineseEntry* entry; | ziWChar* cursor; | ziU8* data; | ziWChar ordinals[65]; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziSearchState search = {0};; structural/exact diffs (6, 12).
+- Zi8IsWordW HIGH-g declaration attempt 83: ziChineseEntry* table = 0; | ziU8* baseData = 0; | ziU8 group = 0; | ziU8 remaining = 0; | ziU16 value = 0; | ziGetParam request; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | int count; | int countLeft; | ziChineseEntry* entry; | ziWChar* cursor; | ziU8* data; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziWChar ordinals[65]; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziSearchState search = {0};; structural/exact diffs (17, 36).
+- Zi8IsWordW HIGH-g declaration attempt 84: ziChineseEntry* table = 0; | ziU8* baseData = 0; | ziU8 group = 0; | ziU8 remaining = 0; | ziU16 value = 0; | ziGetParam request; | ziU8 savedCount = ZI_WORK->unk_0x1418; | int count; | int countLeft; | ziChineseEntry* entry; | ziWChar* cursor; | ziU8* data; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziWChar ordinals[65]; | ziSearchState search = {0};; structural/exact diffs (10, 32).
+- Zi8IsWordW HIGH-g declaration attempt 85: ziChineseEntry* table = 0; | ziU8* baseData = 0; | ziU8 group = 0; | ziU8 remaining = 0; | ziU16 value = 0; | ziGetParam request; | ziSearchState search = {0}; | int count; | int countLeft; | ziChineseEntry* entry; | ziWChar* cursor; | ziU8* data; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziWChar ordinals[65];; structural/exact diffs (20, 39).
+- Zi8IsWordW HIGH-g declaration attempt 86: ziChineseEntry* table = 0; | ziU8* baseData = 0; | ziU8 group = 0; | ziU8 remaining = 0; | ziU16 value = 0; | ziGetParam request; | ziWChar ordinals[65]; | int countLeft; | int count; | ziChineseEntry* entry; | ziWChar* cursor; | ziU8* data; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziSearchState search = {0};; structural/exact diffs (6, 12).
+- Zi8IsWordW HIGH-g declaration attempt 87: ziChineseEntry* table = 0; | ziU8* baseData = 0; | ziU8 group = 0; | ziU8 remaining = 0; | ziU16 value = 0; | ziGetParam request; | ziWChar ordinals[65]; | ziChineseEntry* entry; | int countLeft; | int count; | ziWChar* cursor; | ziU8* data; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziSearchState search = {0};; structural/exact diffs (6, 12).
+- Zi8IsWordW HIGH-g declaration attempt 88: ziChineseEntry* table = 0; | ziU8* baseData = 0; | ziU8 group = 0; | ziU8 remaining = 0; | ziU16 value = 0; | ziGetParam request; | ziWChar ordinals[65]; | ziWChar* cursor; | int countLeft; | ziChineseEntry* entry; | int count; | ziU8* data; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziSearchState search = {0};; structural/exact diffs (12, 17).
+- Zi8IsWordW HIGH-g declaration attempt 89: ziChineseEntry* table = 0; | ziU8* baseData = 0; | ziU8 group = 0; | ziU8 remaining = 0; | ziU16 value = 0; | ziGetParam request; | ziWChar ordinals[65]; | ziU8* data; | int countLeft; | ziChineseEntry* entry; | ziWChar* cursor; | int count; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziSearchState search = {0};; structural/exact diffs (6, 12).
+- Zi8IsWordW HIGH-g declaration attempt 90: ziChineseEntry* table = 0; | ziU8* baseData = 0; | ziU8 group = 0; | ziU8 remaining = 0; | ziU16 value = 0; | ziGetParam request; | ziWChar ordinals[65]; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | int countLeft; | ziChineseEntry* entry; | ziWChar* cursor; | ziU8* data; | int count; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziSearchState search = {0};; structural/exact diffs (6, 12).
+- Zi8IsWordW HIGH-g declaration attempt 91: ziChineseEntry* table = 0; | ziU8* baseData = 0; | ziU8 group = 0; | ziU8 remaining = 0; | ziU16 value = 0; | ziGetParam request; | ziWChar ordinals[65]; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | int countLeft; | ziChineseEntry* entry; | ziWChar* cursor; | ziU8* data; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | int count; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziSearchState search = {0};; structural/exact diffs (17, 36).
+- Zi8IsWordW HIGH-g declaration attempt 92: ziChineseEntry* table = 0; | ziU8* baseData = 0; | ziU8 group = 0; | ziU8 remaining = 0; | ziU16 value = 0; | ziGetParam request; | ziWChar ordinals[65]; | ziU8 savedCount = ZI_WORK->unk_0x1418; | int countLeft; | ziChineseEntry* entry; | ziWChar* cursor; | ziU8* data; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | int count; | ziSearchState search = {0};; structural/exact diffs (10, 32).
+- Zi8IsWordW HIGH-g declaration attempt 93: ziChineseEntry* table = 0; | ziU8* baseData = 0; | ziU8 group = 0; | ziU8 remaining = 0; | ziU16 value = 0; | ziGetParam request; | ziWChar ordinals[65]; | ziSearchState search = {0}; | int countLeft; | ziChineseEntry* entry; | ziWChar* cursor; | ziU8* data; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 savedCount = ZI_WORK->unk_0x1418; | int count;; structural/exact diffs (20, 39).
+- Zi8IsWordW HIGH-g declaration attempt 94: ziChineseEntry* table = 0; | ziU8* baseData = 0; | ziU8 group = 0; | ziU8 remaining = 0; | ziU16 value = 0; | ziGetParam request; | ziWChar ordinals[65]; | int count; | ziChineseEntry* entry; | int countLeft; | ziWChar* cursor; | ziU8* data; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziSearchState search = {0};; structural/exact diffs (6, 12).
+- Zi8IsWordW HIGH-g declaration attempt 95: ziChineseEntry* table = 0; | ziU8* baseData = 0; | ziU8 group = 0; | ziU8 remaining = 0; | ziU16 value = 0; | ziGetParam request; | ziWChar ordinals[65]; | int count; | ziWChar* cursor; | ziChineseEntry* entry; | int countLeft; | ziU8* data; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziSearchState search = {0};; structural/exact diffs (12, 17).
+- Zi8IsWordW HIGH-g declaration attempt 96: ziChineseEntry* table = 0; | ziU8* baseData = 0; | ziU8 group = 0; | ziU8 remaining = 0; | ziU16 value = 0; | ziGetParam request; | ziWChar ordinals[65]; | int count; | ziU8* data; | ziChineseEntry* entry; | ziWChar* cursor; | int countLeft; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziSearchState search = {0};; structural/exact diffs (6, 12).
+- Zi8IsWordW HIGH-g declaration attempt 97: ziChineseEntry* table = 0; | ziU8* baseData = 0; | ziU8 group = 0; | ziU8 remaining = 0; | ziU16 value = 0; | ziGetParam request; | ziWChar ordinals[65]; | int count; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziChineseEntry* entry; | ziWChar* cursor; | ziU8* data; | int countLeft; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziSearchState search = {0};; structural/exact diffs (6, 12).
+- Zi8IsWordW HIGH-g declaration attempt 98: ziChineseEntry* table = 0; | ziU8* baseData = 0; | ziU8 group = 0; | ziU8 remaining = 0; | ziU16 value = 0; | ziGetParam request; | ziWChar ordinals[65]; | int count; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziChineseEntry* entry; | ziWChar* cursor; | ziU8* data; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | int countLeft; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziSearchState search = {0};; structural/exact diffs (17, 36).
+- Zi8IsWordW HIGH-g declaration attempt 99: ziChineseEntry* table = 0; | ziU8* baseData = 0; | ziU8 group = 0; | ziU8 remaining = 0; | ziU16 value = 0; | ziGetParam request; | ziWChar ordinals[65]; | int count; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziChineseEntry* entry; | ziWChar* cursor; | ziU8* data; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | int countLeft; | ziSearchState search = {0};; structural/exact diffs (10, 32).
+- Zi8IsWordW HIGH-g declaration attempt 100: ziChineseEntry* table = 0; | ziU8* baseData = 0; | ziU8 group = 0; | ziU8 remaining = 0; | ziU16 value = 0; | ziGetParam request; | ziWChar ordinals[65]; | int count; | ziSearchState search = {0}; | ziChineseEntry* entry; | ziWChar* cursor; | ziU8* data; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 savedCount = ZI_WORK->unk_0x1418; | int countLeft;; structural/exact diffs (20, 39).
+- Zi8IsWordW HIGH-g declaration attempt 101: ziChineseEntry* table = 0; | ziU8* baseData = 0; | ziU8 group = 0; | ziU8 remaining = 0; | ziU16 value = 0; | ziGetParam request; | ziWChar ordinals[65]; | int count; | int countLeft; | ziWChar* cursor; | ziChineseEntry* entry; | ziU8* data; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziSearchState search = {0};; structural/exact diffs (12, 17).
+- Zi8IsWordW HIGH-g declaration attempt 102: ziChineseEntry* table = 0; | ziU8* baseData = 0; | ziU8 group = 0; | ziU8 remaining = 0; | ziU16 value = 0; | ziGetParam request; | ziWChar ordinals[65]; | int count; | int countLeft; | ziU8* data; | ziWChar* cursor; | ziChineseEntry* entry; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziSearchState search = {0};; structural/exact diffs (12, 17).
+- Zi8IsWordW HIGH-g declaration attempt 103: ziChineseEntry* table = 0; | ziU8* baseData = 0; | ziU8 group = 0; | ziU8 remaining = 0; | ziU16 value = 0; | ziGetParam request; | ziWChar ordinals[65]; | int count; | int countLeft; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziWChar* cursor; | ziU8* data; | ziChineseEntry* entry; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziSearchState search = {0};; structural/exact diffs (12, 17).
+- Zi8IsWordW HIGH-g declaration attempt 104: ziChineseEntry* table = 0; | ziU8* baseData = 0; | ziU8 group = 0; | ziU8 remaining = 0; | ziU16 value = 0; | ziGetParam request; | ziWChar ordinals[65]; | int count; | int countLeft; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziWChar* cursor; | ziU8* data; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziChineseEntry* entry; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziSearchState search = {0};; structural/exact diffs (15, 35).
+- Zi8IsWordW HIGH-g declaration attempt 105: ziChineseEntry* table = 0; | ziU8* baseData = 0; | ziU8 group = 0; | ziU8 remaining = 0; | ziU16 value = 0; | ziGetParam request; | ziWChar ordinals[65]; | int count; | int countLeft; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziWChar* cursor; | ziU8* data; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziChineseEntry* entry; | ziSearchState search = {0};; structural/exact diffs (18, 38).
+- Zi8IsWordW HIGH-g declaration attempt 106: ziChineseEntry* table = 0; | ziU8* baseData = 0; | ziU8 group = 0; | ziU8 remaining = 0; | ziU16 value = 0; | ziGetParam request; | ziWChar ordinals[65]; | int count; | int countLeft; | ziSearchState search = {0}; | ziWChar* cursor; | ziU8* data; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziChineseEntry* entry;; structural/exact diffs (28, 45).
+- Zi8IsWordW HIGH-g declaration attempt 107: ziChineseEntry* table = 0; | ziU8* baseData = 0; | ziU8 group = 0; | ziU8 remaining = 0; | ziU16 value = 0; | ziGetParam request; | ziWChar ordinals[65]; | int count; | int countLeft; | ziChineseEntry* entry; | ziU8* data; | ziWChar* cursor; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziSearchState search = {0};; structural/exact diffs (6, 12).
+- Zi8IsWordW HIGH-g declaration attempt 108: ziChineseEntry* table = 0; | ziU8* baseData = 0; | ziU8 group = 0; | ziU8 remaining = 0; | ziU16 value = 0; | ziGetParam request; | ziWChar ordinals[65]; | int count; | int countLeft; | ziChineseEntry* entry; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU8* data; | ziWChar* cursor; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziSearchState search = {0};; structural/exact diffs (6, 12).
+- Zi8IsWordW HIGH-g declaration attempt 109: ziChineseEntry* table = 0; | ziU8* baseData = 0; | ziU8 group = 0; | ziU8 remaining = 0; | ziU16 value = 0; | ziGetParam request; | ziWChar ordinals[65]; | int count; | int countLeft; | ziChineseEntry* entry; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8* data; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziWChar* cursor; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziSearchState search = {0};; structural/exact diffs (13, 32).
+- Zi8IsWordW HIGH-g declaration attempt 110: ziChineseEntry* table = 0; | ziU8* baseData = 0; | ziU8 group = 0; | ziU8 remaining = 0; | ziU16 value = 0; | ziGetParam request; | ziWChar ordinals[65]; | int count; | int countLeft; | ziChineseEntry* entry; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziU8* data; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziWChar* cursor; | ziSearchState search = {0};; structural/exact diffs (14, 34).
+- Zi8IsWordW HIGH-g declaration attempt 111: ziChineseEntry* table = 0; | ziU8* baseData = 0; | ziU8 group = 0; | ziU8 remaining = 0; | ziU16 value = 0; | ziGetParam request; | ziWChar ordinals[65]; | int count; | int countLeft; | ziChineseEntry* entry; | ziSearchState search = {0}; | ziU8* data; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziWChar* cursor;; structural/exact diffs (24, 41).
+- Zi8IsWordW HIGH-g declaration attempt 112: ziChineseEntry* table = 0; | ziU8* baseData = 0; | ziU8 group = 0; | ziU8 remaining = 0; | ziU16 value = 0; | ziGetParam request; | ziWChar ordinals[65]; | int count; | int countLeft; | ziChineseEntry* entry; | ziWChar* cursor; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU8* data; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziSearchState search = {0};; structural/exact diffs (6, 12).
+- Zi8IsWordW HIGH-g declaration attempt 113: ziChineseEntry* table = 0; | ziU8* baseData = 0; | ziU8 group = 0; | ziU8 remaining = 0; | ziU16 value = 0; | ziGetParam request; | ziWChar ordinals[65]; | int count; | int countLeft; | ziChineseEntry* entry; | ziWChar* cursor; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU8* data; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziSearchState search = {0};; structural/exact diffs (10, 30).
+- Zi8IsWordW HIGH-g declaration attempt 114: ziChineseEntry* table = 0; | ziU8* baseData = 0; | ziU8 group = 0; | ziU8 remaining = 0; | ziU16 value = 0; | ziGetParam request; | ziWChar ordinals[65]; | int count; | int countLeft; | ziChineseEntry* entry; | ziWChar* cursor; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8* data; | ziSearchState search = {0};; structural/exact diffs (10, 32).
+- Zi8IsWordW HIGH-g declaration attempt 115: ziChineseEntry* table = 0; | ziU8* baseData = 0; | ziU8 group = 0; | ziU8 remaining = 0; | ziU16 value = 0; | ziGetParam request; | ziWChar ordinals[65]; | int count; | int countLeft; | ziChineseEntry* entry; | ziWChar* cursor; | ziSearchState search = {0}; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziU8* data;; structural/exact diffs (20, 39).
+- Zi8IsWordW HIGH-g declaration attempt 116: ziChineseEntry* table = 0; | ziU8* baseData = 0; | ziU8 group = 0; | ziU8 remaining = 0; | ziU16 value = 0; | ziGetParam request; | ziWChar ordinals[65]; | int count; | int countLeft; | ziChineseEntry* entry; | ziWChar* cursor; | ziU8* data; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziSearchState search = {0};; structural/exact diffs (10, 30).
+- Zi8IsWordW HIGH-g declaration attempt 117: ziChineseEntry* table = 0; | ziU8* baseData = 0; | ziU8 group = 0; | ziU8 remaining = 0; | ziU16 value = 0; | ziGetParam request; | ziWChar ordinals[65]; | int count; | int countLeft; | ziChineseEntry* entry; | ziWChar* cursor; | ziU8* data; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziSearchState search = {0};; structural/exact diffs (14, 26).
+- Zi8IsWordW HIGH-g declaration attempt 118: ziChineseEntry* table = 0; | ziU8* baseData = 0; | ziU8 group = 0; | ziU8 remaining = 0; | ziU16 value = 0; | ziGetParam request; | ziWChar ordinals[65]; | int count; | int countLeft; | ziChineseEntry* entry; | ziWChar* cursor; | ziU8* data; | ziSearchState search = {0}; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0};; structural/exact diffs (28, 39).
+- Zi8IsWordW HIGH-g declaration attempt 119: ziChineseEntry* table = 0; | ziU8* baseData = 0; | ziU8 group = 0; | ziU8 remaining = 0; | ziU16 value = 0; | ziGetParam request; | ziWChar ordinals[65]; | int count; | int countLeft; | ziChineseEntry* entry; | ziWChar* cursor; | ziU8* data; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziU32 savedFormats = ZI_WORK->unk_0x1410; | ziSearchState search = {0};; structural/exact diffs (10, 16).
+- Zi8IsWordW HIGH-g declaration attempt 120: ziChineseEntry* table = 0; | ziU8* baseData = 0; | ziU8 group = 0; | ziU8 remaining = 0; | ziU16 value = 0; | ziGetParam request; | ziWChar ordinals[65]; | int count; | int countLeft; | ziChineseEntry* entry; | ziWChar* cursor; | ziU8* data; | ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0}; | ziSearchState search = {0}; | ziU8 savedCount = ZI_WORK->unk_0x1418; | ziU32 savedFormats = ZI_WORK->unk_0x1410;; structural/exact diffs (14, 23).
+Search final: 98.52164 -> 98.52164, exact 1 -> 1, regressions []; restored.
+
+### HIGH-g final non-text symbol and relocation audit
+- zi8pud2 extab: target/source 48/48 bytes; bytes and named relocations identical.
+- zi8pud2 extabindex: target/source 72/72 bytes; bytes and named relocations differ; classification below.
+  Target symbols: [('@eti_813313B0', 0, 12), ('@eti_813313BC', 12, 12), ('@eti_813313C8', 24, 12), ('@eti_813313D4', 36, 12), ('@eti_813313E0', 48, 12), ('@eti_813313EC', 60, 12)]; source symbols: [('@53', 0, 12), ('@77', 12, 12), ('@87', 24, 12), ('@220', 36, 12), ('@246', 48, 12), ('@260', 60, 12)].
+  Target relocations: [(0, 'ZiGetZHWordSize', 0), (8, '@etb_813306C0', 0), (12, 'Zi8CopyZHSpelling', 0), (20, '@etb_813306C8', 0), (24, 'ZADP_Zi8SetPDremoveOpt', 0), (32, '@etb_813306D0', 0), (36, 'Zi8MatchPUDdata_ZHS', 0), (44, '@etb_813306D8', 0), (48, 'Zi8MatchPUDdata', 0), (56, '@etb_813306E0', 0), (60, 'Zi8_8147FD7C', 0), (68, '@etb_813306E8', 0)]; source relocations: [(0, 'ZiGetZHWordSize', 0), (8, '@52', 0), (12, 'Zi8CopyZHSpelling', 0), (20, '@76', 0), (24, 'ZADP_Zi8SetPDremoveOpt', 0), (32, '@86', 0), (36, 'Zi8MatchPUDdata_ZHS', 0), (44, '@219', 0), (48, 'Zi8MatchPUDdata', 0), (56, '@245', 0), (60, 'Zi8_8147FD7C', 0), (68, '@259', 0)].
+  Differing bytes: [(43, 136, 116)].
+- zidawg1 extab: target/source 32/32 bytes; bytes and named relocations identical.
+- zidawg1 extabindex: target/source 48/48 bytes; bytes and named relocations differ; classification below.
+  Target symbols: [('@eti_8133144C', 0, 12), ('@eti_81331458', 12, 12), ('@eti_81331464', 24, 12), ('@eti_81331470', 36, 12)]; source symbols: [('@35', 0, 12), ('@86', 12, 12), ('@109', 24, 12), ('@160', 36, 12)].
+  Target relocations: [(0, 'ZiDAWGGetChild', 0), (8, '@etb_81330728', 0), (12, 'ZiDAWGGetSibling', 0), (20, '@etb_81330730', 0), (24, 'ZiDAWGgetCHARattribute', 0), (32, '@etb_81330738', 0), (36, 'ZiDAWGGetGraphInfo', 0), (44, '@etb_81330740', 0)]; source relocations: [(0, 'ZiDAWGGetChild', 0), (8, '@34', 0), (12, 'ZiDAWGGetSibling', 0), (20, '@85', 0), (24, 'ZiDAWGgetCHARattribute', 0), (32, '@108', 0), (36, 'ZiDAWGGetGraphInfo', 0), (44, '@159', 0)].
+  Differing bytes: [].
+- ziswordw extab: target/source 16/16 bytes; bytes and named relocations identical.
+- ziswordw extabindex: target/source 24/24 bytes; bytes and named relocations differ; classification below.
+  Target symbols: [('@eti_813314A0', 0, 12), ('@eti_813314AC', 12, 12)]; source symbols: [('@130', 0, 12), ('@177', 12, 12)].
+  Target relocations: [(0, 'Zi8IsWordW', 0), (8, '@etb_81330760', 0), (12, 'Zi8ConvertUC2UserKey', 0), (20, '@etb_81330768', 0)]; source relocations: [(0, 'Zi8IsWordW', 0), (8, '@129', 0), (12, 'Zi8ConvertUC2UserKey', 0), (20, '@176', 0)].
+  Differing bytes: [].
+- ziswordw .sdata2: target/source 8/8 bytes; bytes and named relocations identical.
+- zi8uwd extab: target/source 32/32 bytes; bytes and named relocations identical.
+- zi8uwd extabindex: target/source 48/48 bytes; bytes and named relocations differ; classification below.
+  Target symbols: [('@eti_81331410', 0, 12), ('@eti_8133141C', 12, 12), ('@eti_81331428', 24, 12), ('@eti_81331434', 36, 12)]; source symbols: [('@70', 0, 12), ('@81', 12, 12), ('@89', 24, 12), ('@248', 36, 12)].
+  Target relocations: [(0, 'Zi8_81480224', 0), (8, '@etb_81330700', 0), (12, 'Zi8_814803F4', 0), (20, '@etb_81330708', 0), (24, 'Zi8_8148047C', 0), (32, '@etb_81330710', 0), (36, 'Zi8MatchUWDdata', 0), (44, '@etb_81330718', 0)]; source relocations: [(0, 'Zi8_81480224', 0), (8, '@69', 0), (12, 'Zi8_814803F4', 0), (20, '@80', 0), (24, 'Zi8_8148047C', 0), (32, '@88', 0), (36, 'Zi8MatchUWDdata', 0), (44, '@247', 0)].
+  Differing bytes: [].
+- No name or extent corrections are justified: compiler-generated unwind-local names differ, but their function relocations, section offsets and object extents correspond; objdiff already pairs these tables. PUD index byte 43 is the real Zi8MatchPUDdata_ZHS code extent 0x588 versus 0x574. All other non-text bytes are identical. No symbol renames, address changes or section-total changes made.
+
+### HIGH-g remaining-function attempt audit
+- Zi8MatchPUDdata_ZHS: 98.32204%; 7 distinct compiled HIGH-g source trials, plus logged declaration candidates where applicable. 349/354 instructions: target retains a work-pointer prologue spill and four byte-to-halfword promotions; bitfield and real decode/copy variations did not preserve fuzzy/data scores.
+- ZiDAWGGetSibling: 98.32061%; 3 distinct compiled HIGH-g source trials, plus logged declaration candidates where applicable. 131/131: direct long-offset byte promotion and the traversal cursor copy differ; alternate arithmetic and traversal forms did not improve without a drop.
+- ZiDAWGgetCHARattribute: 99.0%; 3 distinct compiled HIGH-g source trials, plus logged declaration candidates where applicable. 60/60: twelve context/key register-home differences only; both declaration orders exhausted.
+- ZiDAWGGetGraphInfo: 99.55224%; 3 distinct compiled HIGH-g source trials, plus logged declaration candidates where applicable. 134/134: twelve context/graph/result register-home differences only; declaration search found no gain.
+- Zi8IsWordW: 98.52164%; 3 distinct compiled HIGH-g source trials, plus logged declaration candidates where applicable. 416/416: ordinal-byte promotion and cursor advancement scheduling; alternate arithmetic, increment forms and 120 declaration candidates gave no accepted gain.
+- Zi8_81480224: 99.48276%; 3 distinct compiled HIGH-g source trials, plus logged declaration candidates where applicable. 116/116: ten input/candidate pointer register-home and byte-index address operand differences; alternate record views, loop form and 120 declaration candidates gave no gain.
+- Zi8MatchUWDdata is now exact (100.0%, 496/496, ctxdiff diffs 0); its length store/reload, header decode, stack layout and ring-wrap calculation are proven above.
+- Every remaining function has at least three distinct compiled HIGH-g source attempts; rejected fuzzy/data/exact regressions were restored. No open function is untried.
+
+### HIGH-g final full gate and explicit per-function objdiff comparison
+- zi8pud2: exact functions 6 -> 6; code bytes 720 -> 720; data bytes 48 -> 48; all 7 function scores nondecreasing.
+- zidawg1: exact functions 3 -> 3; code bytes 364 -> 364; data bytes 80 -> 80; all 6 function scores nondecreasing.
+- ziswordw: exact functions 1 -> 1; code bytes 364 -> 364; data bytes 48 -> 48; all 2 function scores nondecreasing.
+- zi8uwd: exact functions 2 -> 3; code bytes 208 -> 2192; data bytes 80 -> 80; all 4 function scores nondecreasing.
+- Fresh final objdiff report /tmp/data-d11g-final-report.json versus independently compiled origin report /tmp/data-d11-live-origin.json: zero function fuzzy regressions across all four units; owned origin source blobs verified unchanged after the latest fetch.
+- Final non-quick all-four gate: clean 43U build, expected DOL hash, identical pools, zero regressions, zero forbidden additions, zero readability warnings; GATE PASS.
+- Changed source: only libs/RVLMiddleware/eZiText/src/clib/zi8uwd.c; exact Zi8MatchUWDdata is committed as 1e263c58. Remaining source trials were restored.
+```
+full build: ok
+main.dol sha1: 26116613f624061ba99c8d1a299aaa6efa85670d
+[libs/RVLMiddleware/eZiText/src/clib/zi8pud2] pool: IDENTICAL
+[libs/RVLMiddleware/eZiText/src/clib/zi8pud2] objdiff: code 720/2136 data 48/120 functions 6/7 fuzzy 98.8876 linked code 0
+[libs/RVLMiddleware/eZiText/src/clib/zi8pud2] instruction-exact functions: 6/7
+[libs/RVLMiddleware/eZiText/src/clib/zi8pud2]   section .text size 2136 match 98.88764
+[libs/RVLMiddleware/eZiText/src/clib/zi8pud2]   section extab size 48 match 100.0
+[libs/RVLMiddleware/eZiText/src/clib/zi8pud2]   section extabindex size 72 match 98.61111
+[libs/RVLMiddleware/eZiText/src/clib/zi8pud2]   below 100: Zi8MatchPUDdata_ZHS 98.32204
+[libs/RVLMiddleware/eZiText/src/clib/zi8pud2] baseline: code 720/2136 data 48 functions 6 fuzzy 98.8876
+[libs/RVLMiddleware/eZiText/src/clib/zidawg1] pool: IDENTICAL
+[libs/RVLMiddleware/eZiText/src/clib/zidawg1] objdiff: code 364/1664 data 80/80 functions 3/6 fuzzy 99.1827 linked code 0
+[libs/RVLMiddleware/eZiText/src/clib/zidawg1] instruction-exact functions: 3/6
+[libs/RVLMiddleware/eZiText/src/clib/zidawg1]   section .text size 1664 match 99.18269
+[libs/RVLMiddleware/eZiText/src/clib/zidawg1]   section extab size 32 match 100.0
+[libs/RVLMiddleware/eZiText/src/clib/zidawg1]   section extabindex size 48 match 100.0
+[libs/RVLMiddleware/eZiText/src/clib/zidawg1]   below 100: ZiDAWGGetSibling 98.32061
+[libs/RVLMiddleware/eZiText/src/clib/zidawg1]   below 100: ZiDAWGgetCHARattribute 99.0
+[libs/RVLMiddleware/eZiText/src/clib/zidawg1]   below 100: ZiDAWGGetGraphInfo 99.55224
+[libs/RVLMiddleware/eZiText/src/clib/zidawg1] baseline: code 364/1664 data 80 functions 3 fuzzy 99.1827
+[libs/RVLMiddleware/eZiText/src/clib/ziswordw] pool: IDENTICAL
+[libs/RVLMiddleware/eZiText/src/clib/ziswordw] objdiff: code 364/2028 data 48/48 functions 1/2 fuzzy 98.7870 linked code 0
+[libs/RVLMiddleware/eZiText/src/clib/ziswordw] instruction-exact functions: 1/2
+[libs/RVLMiddleware/eZiText/src/clib/ziswordw]   section .sdata2 size 8 match 100.0
+[libs/RVLMiddleware/eZiText/src/clib/ziswordw]   section .text size 2028 match 98.78698
+[libs/RVLMiddleware/eZiText/src/clib/ziswordw]   section extab size 16 match 100.0
+[libs/RVLMiddleware/eZiText/src/clib/ziswordw]   section extabindex size 24 match 100.0
+[libs/RVLMiddleware/eZiText/src/clib/ziswordw]   below 100: Zi8IsWordW 98.52164
+[libs/RVLMiddleware/eZiText/src/clib/ziswordw] baseline: code 364/2028 data 48 functions 1 fuzzy 98.7870
+[libs/RVLMiddleware/eZiText/src/clib/zi8uwd] pool: IDENTICAL
+[libs/RVLMiddleware/eZiText/src/clib/zi8uwd] objdiff: code 2192/2656 data 80/80 functions 3/4 fuzzy 99.9096 linked code 0
+[libs/RVLMiddleware/eZiText/src/clib/zi8uwd] instruction-exact functions: 3/4
+[libs/RVLMiddleware/eZiText/src/clib/zi8uwd]   section .text size 2656 match 99.90964
+[libs/RVLMiddleware/eZiText/src/clib/zi8uwd]   section extab size 32 match 100.0
+[libs/RVLMiddleware/eZiText/src/clib/zi8uwd]   section extabindex size 48 match 100.0
+[libs/RVLMiddleware/eZiText/src/clib/zi8uwd]   below 100: Zi8_81480224 99.48276
+[libs/RVLMiddleware/eZiText/src/clib/zi8uwd] baseline: code 208/2656 data 80 functions 2 fuzzy 98.9036
+regressions vs baseline: 0
+global matched_code_percent: 89.23148 -> 89.29772
+global fuzzy_match_percent: 99.52505 -> 99.52595
+global complete_code_percent: 67.00815 -> 67.00815
+global matched_data_percent: 99.36508 -> 99.36508
+forbidden patterns added (net, per file): 0
+readability warnings (net, per file; must be 0 in the final result): 0
+review note: libs/RVLMiddleware/eZiText/src/clib/zi8uwd.c: volatile object declaration (orchestrator checks the target really re-reads it) (+1 net), e.g. volatile int entryLength;
+GATE PASS
+```

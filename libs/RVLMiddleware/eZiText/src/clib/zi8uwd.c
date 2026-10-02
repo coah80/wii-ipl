@@ -88,17 +88,18 @@ void Zi8_8148047C(ziPtr __zi8_work_data) {
 ziU8 Zi8MatchUWDdata(ziWChar* pattern, ziU8 length, ziWChar* currentWord, ziU16 currentLength, ziU8 language, ziWChar* output, ziU16 capacity, ziU8 complete, ziU8 continuation ZI_NEED_WORK) {
     ziUserDictionary* dictionary;
     ziU8* cursor;
-    int fallback = 0;
+    ziU8* begin;
     ziU8* boundary;
     ziU8* end;
     ziUserWord* previous;
     int firstSegment;
     ziU32 size;
-    int entryLength;
+    int headerSize;
     int entryLanguage;
+    volatile int entryLength;
     int previousOffset;
     int visited = 0;
-    ziU8* begin;
+    int fallback = 0;
     ziWChar folded;
     ziU8* text;
     int position;
@@ -143,7 +144,7 @@ ziU8 Zi8MatchUWDdata(ziWChar* pattern, ziU8 length, ziWChar* currentWord, ziU16 
                 ZI_WORK->unk_0x141[1] = language;
                 ZI_WORK->unk_0x141[2] = prefixLength;
                 previousOffset = 4;
-                for (; prefixLength > 0; prefixLength--, position++) {
+                while (prefixLength > 0) {
                     folded = currentWord[position];
                     ZI_WORK->unk_0x141[previousOffset] = Zi8ConvertWC2UC(folded, language, __zi8_work_data);
                     ZI_WORK->unk_0x184[previousOffset] = 0;
@@ -155,12 +156,14 @@ ziU8 Zi8MatchUWDdata(ziWChar* pattern, ziU8 length, ziWChar* currentWord, ziU16 
                         ZI_WORK->unk_0x140 = 0;
                         break;
                     }
+                    prefixLength--;
+                    position++;
                 }
             }
         }
         if (ZI_WORK->unk_0x140 == 0 && length == 0) return 0;
 rescan:
-        begin = cursor = dictionary->entries + dictionary->current;
+        cursor = begin = dictionary->entries + dictionary->current;
         boundary = (ziU8*)dictionary + dictionary->boundary + 7;
         end = (ziU8*)dictionary + dictionary->end + 7;
         if (begin < boundary) firstSegment = 1;
@@ -169,8 +172,7 @@ rescan:
             size = *cursor;
             if ((ziS32)ZI_WORK->unk_0x13C > visited++ || (((ziUserWord*)cursor)->size & 0xC0) != 0) {
 next:
-                cursor += size;
-                if (cursor > end) {
+                if ((cursor += size) > end) {
                     if (firstSegment) break;
                     firstSegment = 1;
                     size = cursor - end - 1;
@@ -178,8 +180,9 @@ next:
                 }
             } else {
                 previous = (ziUserWord*)(cursor + size);
-                if ((ziU8*)previous > end) previous = (ziUserWord*)(cursor + ((ziU8*)dictionary - end) + 7);
-                text = &((ziUserWord*)cursor)->language;
+                if ((ziU8*)previous > end) previous = (ziUserWord*)(dictionary->entries + (cursor - end - 1));
+                text = cursor;
+                headerSize = *text++;
                 entryLanguage = *text++;
                 entryLength = *text++;
                 text++;
