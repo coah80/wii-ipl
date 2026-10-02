@@ -43,7 +43,7 @@ namespace ipl {
                 CDBDate getCDBDate() { return CDBMakeCDBDate(year, month, day, hour, min, sec); }
             } SearchRecord;
 
-            Board(EGG::Heap * heap, int);
+            Board(EGG::Heap * heap, int forceNewMailAnm);
 
             virtual void prepare();
             virtual void create();
@@ -369,8 +369,8 @@ namespace ipl {
             BoardSD mBoardSD;  // 0xFAC
 
             bool mbExitRequest;  // 0xFB4
-            int unk_0xFB8;
-            u8 unk_0xFBC[4];
+            int mForceNewMailAnm;
+            u8 unused_0xFBC[4];
         };
     }  // namespace scene
 }  // namespace ipl
