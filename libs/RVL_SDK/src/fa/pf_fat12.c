@@ -175,9 +175,9 @@ pf_s32 PFFAT12_WriteFATEntryWithBuf(PF_VOLUME* p_vol, pf_s16 cluster, pf_u16 val
 
 pf_s32 PFFAT12_ReadFATEntryWithBuf(PF_VOLUME* p_vol , pf_u16 cluster , pf_u32* p_value ,
                                    PF_CACHE_PAGE* p_page ) {
-    pf_s32 err;
-    pf_u32 current_fat;
     pf_u32 sector;
+    pf_u32 current_fat;
+    pf_s32 err;
     pf_u32 offset;
     pf_s32 result;
 

@@ -106,16 +106,16 @@ static inline s32 decodeACHuffman(s32 bitCount, const TMCHuffmanEntry* entry, co
 
 s32 TMCJPEGDEC_decode_iquant(s32* block, u8* conv_row_ptr, u32* dc_predict_row_ptr, TMCCJPEGDecWork* work) {
     TMCHuffmanEntry dcEntry;
-    TMCHuffmanEntry acEntry;
-    const TMCHuffmanEntry* ac_fast;
     u8* huff_sym;
+    const TMCHuffmanEntry* ac_fast;
+    s32 idx;
     u32* huff_tbl;
     s32 bit_pos;
     u32 bit_data;
     const TMCHuffmanEntry* dc_fast;
     s32 r;
     s32 blk0;
-    s32 idx;
+    TMCHuffmanEntry acEntry;
     s32 extra;
     s32 t;
     s32 zz;
@@ -135,10 +135,8 @@ s32 TMCJPEGDEC_decode_iquant(s32* block, u8* conv_row_ptr, u32* dc_predict_row_p
 
     bit_pos = work->bitCount;
     bit_data = work->bitBuf;
-    tmp = bit_pos - 8;
-    tmp = ((bit_data >> tmp) & 0xFF) << 2;
     {
-        dcEntry = readHuffmanEntry(dc_fast, tmp >> 2);
+        dcEntry = readHuffmanEntry(dc_fast, (bit_data >> (bit_pos - 8)) & 0xFF);
         r = dcEntry.bitLength;
         extra = dcEntry.symbol;
     }
