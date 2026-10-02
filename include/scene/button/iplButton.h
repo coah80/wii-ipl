@@ -309,8 +309,8 @@ namespace ipl {
                 return mbArrowVisible[i];
             }
 
-            void setUnk_0x105(bool flag) {
-                unk_0x105 = flag;
+            void setSuppressNewMailAnm(bool flag) {
+                mbSuppressNewMailAnm = flag;
             }
 
         protected:
@@ -354,7 +354,7 @@ namespace ipl {
                 ANIM_MAX,
             };
 
-            int unk_0x54;
+            int mAnimWait;
 
             layout::Object* mpLayout;        // 0x58
             nand::LayoutFile* mpLayoutFile;  // 0x5C
@@ -373,8 +373,8 @@ namespace ipl {
 
             BOOL mbHovered[BTN_MAX];  // 0xD8
 
-            bool unk_0x104;
-            bool unk_0x105;
+            bool mbNewMailAnm;
+            bool mbSuppressNewMailAnm;
 
             utility::timer mTimer;  // 0x108
             bool mbEnabled;         // 0x110
