@@ -329,8 +329,8 @@ namespace ipl {
 
             setSceneParentFlags(SCN_PARENTFLAG_DRAW | SCN_PARENTFLAG_CALC);
 
-            unk_0xD8 = math::VEC3(0.0f, 0.0f, 0.0f);
-            unk_0xE4 = math::VEC2(1.0f, 1.0f);
+            mOrthoTrans = math::VEC3(0.0f, 0.0f, 0.0f);
+            mOrthoScale = math::VEC2(1.0f, 1.0f);
 
             nw4r::ut::Rect proj4x3;
             System::getProjectionRect4x3(&proj4x3);
@@ -647,7 +647,7 @@ namespace ipl {
         void ChannelSelect::draw() {
             if (mState != STATE_INACTIVE && System::getSceneManager()->onDrawLayer(scene::DRAW_LAYER_DEFAULT)) {
                 if (mState == STATE_NORMAL_FADE_ZOOM || mState == STATE_NORMAL_DONE_FADE_ZOOM || mState == STATE_NORMAL_RESTART) {
-                    utility::Graphics::setOrthoTransAndScale(unk_0xD8, unk_0xE4);
+                    utility::Graphics::setOrthoTransAndScale(mOrthoTrans, mOrthoScale);
                 }
                 utility::Graphics::setOrtho();
 
@@ -1909,10 +1909,10 @@ namespace ipl {
             u16 efbHeight;
             if (mState == STATE_NORMAL_FADE_ZOOM || mState == STATE_NORMAL_DONE_FADE_ZOOM || mState == STATE_NORMAL_RESTART) {
                 nw4r::math::MTX44 mtx;
-                f32 right = unk_0xD8.x + projRect.right / unk_0xE4.x;
-                f32 left = unk_0xD8.x + projRect.left / unk_0xE4.x;
-                f32 bottom = unk_0xD8.y - projRect.bottom / unk_0xE4.y;
-                f32 top = unk_0xD8.y - projRect.top / unk_0xE4.y;
+                f32 right = mOrthoTrans.x + projRect.right / mOrthoScale.x;
+                f32 left = mOrthoTrans.x + projRect.left / mOrthoScale.x;
+                f32 bottom = mOrthoTrans.y - projRect.bottom / mOrthoScale.y;
+                f32 top = mOrthoTrans.y - projRect.top / mOrthoScale.y;
                 MTXOrtho(mtx, top, bottom, left, right, -100.0f, 100.0f);
                 nw4r::math::VEC4 vec4_in(vec.x, vec.y, 0.0f, 1.0f);
                 nw4r::math::VEC4 vec4;
@@ -1920,10 +1920,10 @@ namespace ipl {
                 fbWidth = rMode->fbWidth;
                 efbHeight = rMode->efbHeight;
                 f32 projectionWidth = projRect.GetWidth();
-                scissorX = ((1.0f + vec4.x) * fbWidth / 2) - ((mChanThumbOff_X * unk_0xE4.x) * (fbWidth / projectionWidth));
-                scissorY = (efbHeight - ((1.0f + vec4.y) * efbHeight / 2)) - (mChanThumbOff_Y * unk_0xE4.y);
-                scissorWidth = 2.0f * (mChanThumbOff_X * unk_0xE4.x) * (fbWidth / projectionWidth);
-                scissorHeight = 2.0f * (mChanThumbOff_Y * unk_0xE4.y);
+                scissorX = ((1.0f + vec4.x) * fbWidth / 2) - ((mChanThumbOff_X * mOrthoScale.x) * (fbWidth / projectionWidth));
+                scissorY = (efbHeight - ((1.0f + vec4.y) * efbHeight / 2)) - (mChanThumbOff_Y * mOrthoScale.y);
+                scissorWidth = 2.0f * (mChanThumbOff_X * mOrthoScale.x) * (fbWidth / projectionWidth);
+                scissorHeight = 2.0f * (mChanThumbOff_Y * mOrthoScale.y);
             } else {
                 fbWidth = rMode->fbWidth;
                 efbHeight = rMode->efbHeight;
@@ -2002,8 +2002,8 @@ namespace ipl {
             nw4r::ut::Rect projRect;
             System::getProjectionRect(&projRect);
 
-            unk_0xD8 = math::VEC3((frames[0].x + frames[1].x) / 2, (frames[0].y + frames[2].y) / 2, 0.0f);
-            unk_0xE4 = math::VEC2(projRect.GetWidth() / (frames[1].x - frames[0].x), projRect.GetHeight() / (frames[0].y - frames[2].y));
+            mOrthoTrans = math::VEC3((frames[0].x + frames[1].x) / 2, (frames[0].y + frames[2].y) / 2, 0.0f);
+            mOrthoScale = math::VEC2(projRect.GetWidth() / (frames[1].x - frames[0].x), projRect.GetHeight() / (frames[0].y - frames[2].y));
         }
 
         int ChannelSelect::isInChannelPaneNames(const char* name) const {
