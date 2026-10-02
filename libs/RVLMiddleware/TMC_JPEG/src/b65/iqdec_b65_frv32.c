@@ -10,14 +10,12 @@ static TMCHuffmanEntry readHuffmanEntry(const TMCHuffmanEntry* entries, u32 inde
     return entries[index];
 }
 
-static TMCHuffmanEntry readHuffmanLimit(const TMCHuffmanEntry* entries) {
-    TMCHuffmanEntry limit;
-    limit.bitLength = entries->bitLength;
-    limit.symbol = entries->symbol;
-    return limit;
+static void readHuffmanLimit(const TMCHuffmanEntry* entries, TMCHuffmanEntry* limit) {
+    limit->bitLength = entries->bitLength;
+    limit->symbol = entries->symbol;
 }
 
-static inline s32 decodeLongHuffman(s32 bitCount, const TMCHuffmanEntry* table, const u8* symbols, TMCCJPEGDecWork* work) {
+static inline s32 decodeLongHuffman(s32 bitCount, const TMCHuffmanEntry* table, const u8* symbols, TMCCJPEGDecWork* work, TMCHuffmanEntry* limit, TMCHuffmanEntry* decoded) {
     u32 bitData;
     u32 code;
     u32 length;
@@ -51,17 +49,21 @@ static inline s32 decodeLongHuffman(s32 bitCount, const TMCHuffmanEntry* table, 
         code |= (bitData >> bitCount) & 1;
     read_entry:
         {
-            TMCHuffmanEntry decoded = readHuffmanLimit(entry);
-            if (code > (u32)decoded.bitLength) {
+            readHuffmanLimit(entry, limit);
+            *decoded = *limit;
+            if (code > (u32)decoded->bitLength) {
                 continue;
             }
-            code = code - entry->bitLength + entry->symbol;
-            return symbols[code & 0xFF];
+            {
+                u32 relativeCode = code - entry->bitLength;
+                u32 symbolIndex = relativeCode + entry->symbol;
+                return symbols[symbolIndex & 0xFF];
+            }
         }
     }
 }
 
-static inline s32 decodeACHuffman(s32 bitCount, const TMCHuffmanEntry* entry, const u8* symbols, TMCCJPEGDecWork* work) {
+static inline s32 decodeACHuffman(s32 bitCount, const TMCHuffmanEntry* entry, const u8* symbols, TMCCJPEGDecWork* work, TMCHuffmanEntry* limit, TMCHuffmanEntry* decoded) {
     u32 bitData;
     u32 code;
     u32 length;
@@ -94,18 +96,26 @@ static inline s32 decodeACHuffman(s32 bitCount, const TMCHuffmanEntry* entry, co
         code |= (bitData >> bitCount) & 1;
     read_entry:
         {
-            TMCHuffmanEntry decoded = readHuffmanLimit(entry);
-            if (code > (u32)decoded.bitLength) {
+            readHuffmanLimit(entry, limit);
+            *decoded = *limit;
+            if (code > (u32)decoded->bitLength) {
                 continue;
             }
-            code = code - entry->bitLength + entry->symbol;
-            return symbols[code & 0xFF];
+            {
+                u32 relativeCode = code - entry->bitLength;
+                u32 symbolIndex = relativeCode + entry->symbol;
+                return symbols[symbolIndex & 0xFF];
+            }
         }
     }
 }
 
 s32 TMCJPEGDEC_decode_iquant(s32* block, u8* conv_row_ptr, u32* dc_predict_row_ptr, TMCCJPEGDecWork* work) {
     TMCHuffmanEntry dcEntry;
+    TMCHuffmanEntry dcDecoded;
+    TMCHuffmanEntry dcLimit;
+    TMCHuffmanEntry acDecoded;
+    TMCHuffmanEntry acLimit;
     u8* huff_sym;
     const TMCHuffmanEntry* ac_fast;
     s32 idx;
@@ -147,7 +157,7 @@ s32 TMCJPEGDEC_decode_iquant(s32* block, u8* conv_row_ptr, u32* dc_predict_row_p
     } else {
         huff_sym = work->pDCHuffSym;
         huff_tbl = work->pDCHuffTbl;
-        r = decodeLongHuffman(bit_pos, (const TMCHuffmanEntry*)huff_tbl, huff_sym, work);
+        r = decodeLongHuffman(bit_pos, (const TMCHuffmanEntry*)huff_tbl, huff_sym, work, &dcLimit, &dcDecoded);
         if (r < 0) {
             return r;
         }
@@ -207,7 +217,7 @@ s32 TMCJPEGDEC_decode_iquant(s32* block, u8* conv_row_ptr, u32* dc_predict_row_p
                 r = acEntry.symbol;
             } else {
                 bit_pos = work->bitCount;
-                r = decodeACHuffman(bit_pos, (const TMCHuffmanEntry*)huff_tbl, huff_sym, work);
+                r = decodeACHuffman(bit_pos, (const TMCHuffmanEntry*)huff_tbl, huff_sym, work, &acLimit, &acDecoded);
                 if (r < 0) {
                     return r;
                 }

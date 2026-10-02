@@ -138,9 +138,9 @@ int SOGetSockName(int socket, void* address) {
     int size;
     int result;
     s32 rm;
-    SOSockAddr* addr;
-    SOSockAddr* reply;
     NameRequest* request;
+    SOSockAddr* reply;
+    SOSockAddr* addr;
     addr=address;
     if((result=SOiPrepare(NULL,&rm))==0) {
         if(!addr || addr->len>8 || addr->len<8) result=-28;
