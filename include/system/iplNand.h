@@ -145,6 +145,13 @@ namespace ipl {
                 mpCommonFile = commonFile;
                 mpLangFile = langFile;
             }
+#ifdef IPL_CHANNEL_TITLE_NOVTABLE
+            virtual ~LangFile() {}
+            virtual void read() {}
+            virtual bool isFinished() { return false; }
+            virtual int checkData() { return 0; }
+            virtual bool isFatalError() { return false; }
+#else
             virtual ~LangFile();  // 0x08
 
             virtual void read();  // 0x0C
@@ -152,6 +159,7 @@ namespace ipl {
             virtual bool isFinished();    // 0x14
             virtual int checkData();      // 0x18
             virtual bool isFatalError();  // 0x1C
+#endif
 
             File* getCmnFile() const { return mpCommonFile; }
             File* getLangFile() const { return mpLangFile; }
@@ -165,7 +173,11 @@ namespace ipl {
         public:
             LayoutFile(EGG::Heap* heap, const char* dirName, const char* fileName, ARCHandle* arc, bool bIsNandFile);
             LayoutFile(File* commonFile, File* langFile = NULL) : LangFile(commonFile, langFile) {}
+#ifdef IPL_CHANNEL_TITLE_NOVTABLE
+            virtual ~LayoutFile() {}  // 0x08
+#else
             virtual ~LayoutFile();  // 0x08
+#endif
         };
     }  // namespace nand
 }  // namespace ipl
