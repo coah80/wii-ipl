@@ -35,7 +35,7 @@ typedef struct NWC24SecretFLHeader {
     u32 magic;      // 0x00
     u32 version;    // 0x04
     u32 infoCount;  // 0x08
-    u32 unk_0x0C;
+    u32 pad_0x0C;  // 0x0C
     u8 unk_0x10[0x7F0];
 } NWC24SecretFLHeader;
 

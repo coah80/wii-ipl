@@ -55,7 +55,7 @@ NWC24Err NWC24iCreateSecretFriendList() {
     header->magic = SECRET_FRIEND_LIST_MAGIC;
     header->version = SECRET_FRIEND_LIST_VERSION;
     header->infoCount = 336;
-    header->unk_0x0C = 0;
+    header->pad_0x0C = 0;
 
     result = NWC24FOpen(&file, FLFilePath, NWC24_OPEN_WRITE);
     if (result != NWC24_OK) {
