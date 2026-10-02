@@ -688,13 +688,13 @@ src/scene/memoryCard/iplMemoryCard.cpp:
 	.text       start:0x813C9DCC end:0x813CC1FC
 	.rodata     start:0x81610368 end:0x81610480
 	.data       start:0x81651D30 end:0x81652640
-	.sdata2     start:0x81694A68 end:0x81694A80
+	.sdata2     start:0x81694A68 end:0x81694A78
 	.sdata      start:0x81696C78 end:0x81696CA0
 
 src/scene/memoryCard/iplMemoryCardBase.cpp:
 	.text       start:0x813CC1FC end:0x813CD034
 	.data       start:0x81652640 end:0x816526D0
-	.sdata2     start:0x81694A80 end:0x81694A88
+	.sdata2     start:0x81694A78 end:0x81694A88
 
 src/scene/memoryCard/iplMemoryCardManager.cpp:
 	.text       start:0x813CD034 end:0x813CE548
