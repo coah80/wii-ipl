@@ -185,3 +185,31 @@ Walls verified (allocator/scheduler tie family throughout):
 - iplMemoryCardManager: fuzzy 97.88, code 2572/5396, data 100%. 8 sub-100 fns, all tie-class.
 - iplCardSequence: fuzzy 97.22, code 4168/9852, data 1496/1496 (100%). 3 sub-100 fns.
 - DOL sha1 `26116613f624061ba99c8d1a299aaa6efa85670d` verified. No shims; all stay NonMatching.
+
+## mcard2 round 2 — normalized-diff verification
+
+Verified every sub-100 fn via stripped-normalized diff (regs/addrs/immediates removed):
+
+- update_file_array, isMoveEnable, isCopyEnable, getComment: norm-diff 0 —
+  instruction-identical modulo register names. Pure allocator homes.
+- getBlocks (92.0), isBannerEnable (92.3): identical insns except ONE `addi r11,r1,0x20`
+  (_restgpr_29 frame base) hoisted into the index chain in orig vs emitted right
+  before the call in mine. Scheduler placement, no source lever.
+- _create_icon (87.55): rotation + `(base + fieldconst) + var` vs `(base + var) +
+  fieldconst` addressing regroup on mFileCell chains — same wall as loadCardFileIcons.
+  `MCFileCell* cell = mFileCell[slot]` row-ptr variant regressed (MWCC split
+  0xfe8+0x124), reverted.
+- create_banner (90.43): same regroup — orig CSEs `mFileCell[slot] + 0x110c`
+  (row+field) then adds file*0x15c per use; mine CSEs full element addr. `cell`
+  row-ptr local regressed.
+- runCardMoveOrCopy (97.80): 8 norm-diffs = 3x `extsh r4,r30` vs `mr r4,r25` on the
+  s16 `destinationFileNo` PHI web (identical def set both sides: li -1, extsh x2,
+  li -0x80 — MWCC extension-proof boundary differs) + 1 `li` hoist position.
+- cardThreadMain (97.94): 2 norm-diffs = `mr r4,r19; rlwimi` vs `rlwimi in-place` —
+  orig CSEs `slot<<16` message-base across inlined sendCardSlotState sites (copy then
+  insert), mine rematerializes per site (in-place legal since web dead-after).
+- loadCardFileIcons (90.45): ~45 norm-diffs. Orig splits member-access as
+  `elem_base + (i*scale + fieldconst)` with indexed lwzx/stwx (iconOffset[iconCount+1]
+  = addi+slwi+stwx); mine folds index into base + offset loads. Tried named index
+  local (lwzux, +0 diffs), u32* array-ptr local (regressed 438) — MWCC
+  addressing-canonicalization picks its own regroup.
