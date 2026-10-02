@@ -144,7 +144,7 @@ static inline pf_u32 current_directory_is_open(PF_VOLUME* volume, pf_u32 cluster
     pf_u32 index;
     for (index = 0; index < 4; index++) {
         if (pf_vol_set.volume_state.volumes[index].p_vol == volume) {
-            PFDIR_VOLUME_DIRS* state = (PFDIR_VOLUME_DIRS*)volume;
+            PFDIR_VOLUME_DIRS* state = (PFDIR_VOLUME_DIRS*)pf_vol_set.volume_state.volumes[index].p_vol;
             PF_CUR_DIR* directory = state->current_dirs;
             pf_u32 slot;
             for (slot = 0; slot < 4; slot++, directory++) {
@@ -381,7 +381,7 @@ pf_s32 PFDIR_p_readdir(PFDIR_DIR* dir, PFDIR_READ_RESULT* result) {
     return 0;
 }
 
-extern pf_s32 PFENT_findEntry(PFDIR_FFD*, PF_DIR_ENT*, pf_u32, PFDIR_STR*, pf_u8, pf_u32*, pf_u32*);
+extern pf_s32 PFENT_findEntry(PFDIR_FFD*, PF_DIR_ENT*, pf_u32, PFDIR_STR*, pf_u32, pf_u32);
 extern pf_s32 PFFAT_GetSectorSpecified(PFDIR_FFD*, pf_u32, pf_u32, pf_u32*);
 extern pf_s32 PFPATH_transformInUnicode(pf_u16*, const pf_s8*);
 extern void PFPATH_SetSearchPattern(pf_s8*, pf_u16*, PFDIR_STR*);
@@ -453,7 +453,7 @@ extern pf_s32 PFENT_ITER_GetEntryOfPattern(PF_ENT_ITER* iter, PF_DIR_ENT* entry,
 extern pf_s32 PFENT_ITER_FindEntry(PF_ENT_ITER* iter, PF_DIR_ENT* entry, PFDIR_STR* pattern,
                                    pf_u8 attributes, pf_u32 start, pf_u32* found);
 extern pf_s32 PFENT_findEntry(PFDIR_FFD* ffd, PF_DIR_ENT* entry, pf_u32 start, PFDIR_STR* pattern,
-                              pf_u8 attributes, pf_u32* logical_position, pf_u32* entry_position);
+                              pf_u32 attr_required, pf_u32 attr_forbidden);
 extern pf_u32 PFSTR_GetCodeMode(PFDIR_STR* path);
 extern const pf_s8* PFSTR_GetStrPos(PFDIR_STR* path, pf_u32 target);
 extern pf_s32 PFPATH_SplitPathPattern(PF_STR* path, PFDIR_STR* directory, PFDIR_STR* pattern);
@@ -869,7 +869,8 @@ pf_s32 PFDIR_p_rename(PF_VOLUME* volume, PF_STR* old_path, PF_STR* new_path) {
     pf_u32 position;
     pf_u32 found;
     pf_u16 time;
-    pf_u8 deleted_marker[1] = {0xE5};
+    pf_u8 deleted_marker_init[4] = {0xE5};
+    pf_u8 deleted_marker[1];
     pf_u16 saved_initial_char = 0;
     pf_u32 sector;
     pf_u32* next_sector;
@@ -880,6 +881,7 @@ pf_s32 PFDIR_p_rename(PF_VOLUME* volume, PF_STR* old_path, PF_STR* new_path) {
     pf_u32 index;
     PF_DIR_ENT* update_entry;
 
+    deleted_marker[0] = deleted_marker_init[0];
     error = PFPATH_SplitPath((PFDIR_STR*)old_path, &directory, &source_name);
     if (error != 0) { return error; }
     if (PFSTR_GetCodeMode(&source_name) == 2) {
@@ -925,7 +927,7 @@ pf_s32 PFDIR_p_rename(PF_VOLUME* volume, PF_STR* old_path, PF_STR* new_path) {
     }
     destination_entry.start_cluster = source_parent.start_cluster;
     PFFAT_InitFFD(&destination_iter.ffd, &destination_hint, volume, &destination_entry.start_cluster);
-    error = PFENT_findEntry(&destination_iter.ffd, &destination_entry, 0, &destination_name, 0x7F, 0, 0);
+    error = PFENT_findEntry(&destination_iter.ffd, &destination_entry, 0, &destination_name, 0x7F, 0);
     if (error == 0) { return 8; }
     if (error != 0 && error != 3) { return error; }
     if ((source_entry.attr & 0x10) == 0) {
@@ -961,6 +963,7 @@ pf_s32 PFDIR_p_rename(PF_VOLUME* volume, PF_STR* old_path, PF_STR* new_path) {
         destination_entry.num_entry_LFNs = 0;
         PFENT_getcurrentDateTimeForEnt(&destination_entry.access_date, &time);
         error = PFENT_updateEntry(&destination_entry, 1);
+        if (error != 0) { return error; }
         goto finish_rename;
     }
     if (source_entry.num_entry_LFNs != 0 && (source_entry.small_letter_flag & 0x18) == 0) {
@@ -969,13 +972,13 @@ pf_s32 PFDIR_p_rename(PF_VOLUME* volume, PF_STR* old_path, PF_STR* new_path) {
         for (index = 1; index <= source_entry.num_entry_LFNs; index++) {
             error = PFENT_ITER_Retreat(&source_iter, 0);
             if (error != 0) { return error; }
-            error = PFSEC_WriteData(volume, deleted_marker, source_iter.sector,
+            error = PFSEC_WriteData(volume, (pf_u8*)&deleted_marker, source_iter.sector,
                 source_iter.offset, 1, &written, 0);
             if (error != 0) { return error; }
             if (written != 1) { return 0x11; }
         }
     }
-    error = PFSEC_WriteData(volume, deleted_marker, source_entry.entry_sector,
+    error = PFSEC_WriteData(volume, (pf_u8*)&deleted_marker, source_entry.entry_sector,
         source_entry.entry_offset, 1, &written, 0);
     if (error != 0) { return error; }
     if (written != 1) { return 0x11; }
@@ -1056,7 +1059,8 @@ pf_s32 PFDIR_p_move(PF_VOLUME* volume, PF_STR* old_path, PF_STR* new_path) {
     pf_u32 position;
     pf_u32 found;
     pf_u16 time;
-    pf_u8 deleted_marker[4] = {0xE5};
+    pf_u8 deleted_marker_init[4] = {0xE5};
+    pf_u8 deleted_marker[1];
     pf_u16 saved_initial_char = 0;
     pf_u32 sector;
     pf_u32* next_sector;
@@ -1068,6 +1072,7 @@ pf_s32 PFDIR_p_move(PF_VOLUME* volume, PF_STR* old_path, PF_STR* new_path) {
     pf_u32 lfn_index;
     PF_DIR_ENT* update_entry;
 
+    deleted_marker[0] = deleted_marker_init[0];
     error = PFENT_ITER_GetEntryOfPath(&source_iter, &source_entry, volume, (PFDIR_STR*)old_path, 0);
     if (error != 0) { return error; }
     if (volume != PFPATH_GetVolumeFromPath(new_path)) { return 0x1F; }
@@ -1083,7 +1088,7 @@ pf_s32 PFDIR_p_move(PF_VOLUME* volume, PF_STR* old_path, PF_STR* new_path) {
     if (error != 0) { return error; }
     destination_entry.start_cluster = destination_parent.start_cluster;
     PFFAT_InitFFD(&destination_iter.ffd, &destination_hint, volume, &destination_entry.start_cluster);
-    error = PFENT_findEntry(&destination_iter.ffd, &destination_entry, 0, &destination_name, 0x7F, 0, 0);
+    error = PFENT_findEntry(&destination_iter.ffd, &destination_entry, 0, &destination_name, 0x7F, 0);
     if (error == 0) {
         if (destination_entry.entry_sector == source_entry.entry_sector &&
             destination_entry.entry_offset == source_entry.entry_offset) { return 0; }
@@ -1120,7 +1125,7 @@ pf_s32 PFDIR_p_move(PF_VOLUME* volume, PF_STR* old_path, PF_STR* new_path) {
             PFFAT_InitFFD(&destination_iter.ffd, &destination_hint, volume, &destination_entry.start_cluster);
             PFSTR_InitStr(&parent_name, (const pf_s8*)"..", 1);
             PFSTR_SetLocalStr(&parent_name, 0);
-            error = PFENT_findEntry(&destination_iter.ffd, &destination_entry, 0, &parent_name, 0x7F, 0, 0);
+            error = PFENT_findEntry(&destination_iter.ffd, &destination_entry, 0, &parent_name, 0x7F, 0);
             if (error != 0) { return error; }
             parent_cluster = destination_entry.start_cluster;
             if (parent_cluster == 1 || parent_cluster == 0) { break; }
@@ -1145,13 +1150,13 @@ pf_s32 PFDIR_p_move(PF_VOLUME* volume, PF_STR* old_path, PF_STR* new_path) {
         for (index = 1; index <= source_entry.num_entry_LFNs; index++) {
             error = PFENT_ITER_Retreat(&source_iter, 0);
             if (error != 0) { return error; }
-            error = PFSEC_WriteData(volume, deleted_marker, source_iter.sector,
+            error = PFSEC_WriteData(volume, (pf_u8*)&deleted_marker, source_iter.sector,
                 source_iter.offset, 1, &written, 0);
             if (error != 0) { return error; }
             if (written != 1) { return 0x11; }
         }
     }
-    error = PFSEC_WriteData(volume, deleted_marker, source_entry.entry_sector,
+    error = PFSEC_WriteData(volume, (pf_u8*)&deleted_marker, source_entry.entry_sector,
         source_entry.entry_offset, 1, &written, 0);
     if (error != 0) { return error; }
     if (written != 1) { return 0x11; }
@@ -1192,7 +1197,7 @@ pf_s32 PFDIR_p_move(PF_VOLUME* volume, PF_STR* old_path, PF_STR* new_path) {
             PFFAT_InitFFD(&source_iter.ffd, &source_hint, volume, &source_entry.start_cluster);
             PFSTR_InitStr(&parent_name, (const pf_s8*)"..", 1);
             PFSTR_SetLocalStr(&parent_name, 0);
-            error = PFENT_findEntry(&source_iter.ffd, &source_entry, 0, &parent_name, 0x7F, 0, 0);
+            error = PFENT_findEntry(&source_iter.ffd, &source_entry, 0, &parent_name, 0x7F, 0);
             if (error != 0) { return error; }
             if (destination_parent.start_cluster == 1 || destination_parent.start_cluster == 0 ||
                 (destination_parent.start_cluster == 2 && volume->bpb.fat_type == FAT_32)) {
