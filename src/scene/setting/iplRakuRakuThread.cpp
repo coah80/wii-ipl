@@ -30,12 +30,10 @@ namespace ipl {
 namespace scene {
 extern "C" MEMAllocator sRakuAllocator;
 MEMAllocator sRakuAllocator;
-struct RakuStatus {
-    RakuProgress progress;
-    RakuConfiguration configuration;
-};
-extern "C" RakuStatus sRakuStatus;
-RakuStatus sRakuStatus;
+extern "C" RakuProgress sRakuStatus;
+RakuProgress sRakuStatus;
+extern "C" RakuConfiguration sRakuConfiguration;
+RakuConfiguration sRakuConfiguration;
 extern "C" OSMessageQueue sRakuMsgQueue;
 OSMessageQueue sRakuMsgQueue;
 static u32 startTimeHigh = 0;
@@ -81,7 +79,7 @@ private:
 
 void RakuRakuThread::syncRakuProgress() {
     BOOL interrupts = OSDisableInterrupts();
-    sRakuStatus.progress = *(RakuProgress*)this;
+    sRakuStatus = *(RakuProgress*)this;
     OSTime time = OSGetTime();
     startTimeHigh = time >> 32;
     startTimeLow = time;
@@ -148,8 +146,8 @@ int RakuRakuThread::start() {
     mPriority = OSGetThreadPriority(OSGetCurrentThread()) - 1;
     active = true;
     mFinished = 0;
-    memset(&sRakuStatus.configuration, 0, sizeof(RakuConfiguration));
-    memset(&sRakuStatus.progress, 0, sizeof(RakuProgress));
+    memset(&sRakuConfiguration, 0, sizeof(RakuConfiguration));
+    memset(&sRakuStatus, 0, sizeof(RakuProgress));
     SOLibraryConfig socketConfig;
     socketConfig.alloc = RakuSocketAlloc;
     socketConfig.free = RakuSocketFree;
@@ -207,7 +205,7 @@ int RakuRakuThread::getState() {
         return 0;
     }
     BOOL interrupts = OSDisableInterrupts();
-    switch (sRakuStatus.progress.state) {
+    switch (sRakuStatus.state) {
     case 1: displayState = 1; break;
     case 2: displayState = 2; break;
     case 3: displayState = 2; break;
@@ -229,6 +227,30 @@ int RakuRakuThread::cancel() {
     return OSSendMessage(&sRakuMsgQueue, (OSMessage)1, 0);
 }
 
+inline void copyRakuPrivacy(NCDApConfig* config, const RakuConfiguration* settings) {
+    if (settings->security == 1) {
+        config->privacy.mode = 1;
+        config->privacy.wep40.keyId = settings->keyId;
+        for (int index = 0; index < 4; ++index) {
+            memcpy(config->privacy.wep40.key[index], settings->wepKeys[index], 5);
+        }
+    } else if (settings->security == 2) {
+        config->privacy.mode = 2;
+        config->privacy.wep104.keyId = settings->keyId;
+        for (int index = 0; index < 4; ++index) {
+            memcpy(config->privacy.wep104.key[index], settings->wepKeys[index], 13);
+        }
+    } else if (settings->security == 4) {
+        config->privacy.mode = 4;
+        memcpy(config->privacy.tkip.key, settings->passphrase, 64);
+        config->privacy.tkip.keyLen = strlen(settings->passphrase);
+    } else if (settings->security == 5) {
+        config->privacy.mode = 6;
+        memcpy(config->privacy.aes.key, settings->passphrase, 64);
+        config->privacy.aes.keyLen = strlen(settings->passphrase);
+    }
+}
+
 int RakuRakuThread::finish(NCDApConfig* config, int* result) {
     if (!active) {
         if (result != NULL) {
@@ -236,49 +258,29 @@ int RakuRakuThread::finish(NCDApConfig* config, int* result) {
         }
         return 1;
     }
-    s32 state = sRakuStatus.progress.state;
-    if ((u32)(state - 6) > 1) {
-        return 0;
-    }
-    if (!mFinished) {
-        if (state == 6) {
-            ATERMi_ApConfigGetResult(&sRakuStatus.configuration);
-            printInfo();
+    s32 state = sRakuStatus.state;
+    if ((u32)(state - 6) <= 1) {
+        if (!mFinished) {
+            if (state == 6) {
+                ATERMi_ApConfigGetResult(&sRakuConfiguration);
+                printInfo();
+            }
+            OSSendMessage(&sRakuMsgQueue, (OSMessage)1, 0);
+            return 0;
         }
-        OSSendMessage(&sRakuMsgQueue, (OSMessage)1, 0);
+        SOFinish();
+        active = false;
+        destroy();
+    } else {
         return 0;
     }
-    SOFinish();
-    active = false;
-    destroy();
     if (config != NULL) {
-        RakuConfiguration* settings = &sRakuStatus.configuration;
-        memcpy(config->ssid, settings->ssid, 32);
-        config->ssidLength = strlen(settings->ssid);
-        if (settings->security == 1) {
-            config->privacy.mode = 1;
-            config->privacy.wep40.keyId = settings->keyId;
-            for (int index = 0; index < 4; ++index) {
-                memcpy(config->privacy.wep40.key[index], settings->wepKeys[index], 5);
-            }
-        } else if (settings->security == 2) {
-            config->privacy.mode = 2;
-            config->privacy.wep104.keyId = settings->keyId;
-            for (int index = 0; index < 4; ++index) {
-                memcpy(config->privacy.wep104.key[index], settings->wepKeys[index], 13);
-            }
-        } else if (settings->security == 4) {
-            config->privacy.mode = 4;
-            memcpy(config->privacy.tkip.key, settings->passphrase, 64);
-            config->privacy.tkip.keyLen = strlen(settings->passphrase);
-        } else if (settings->security == 5) {
-            config->privacy.mode = 6;
-            memcpy(config->privacy.aes.key, settings->passphrase, 64);
-            config->privacy.aes.keyLen = strlen(settings->passphrase);
-        }
+        memcpy(config->ssid, sRakuConfiguration.ssid, 32);
+        config->ssidLength = strlen(sRakuConfiguration.ssid);
+        copyRakuPrivacy(config, &sRakuConfiguration);
     }
     if (result != NULL) {
-        *result = sRakuStatus.progress.result;
+        *result = sRakuStatus.result;
     }
     return 1;
 }
