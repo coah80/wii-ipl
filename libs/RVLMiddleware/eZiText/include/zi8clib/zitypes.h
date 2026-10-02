@@ -204,7 +204,7 @@ typedef struct _ziUwdNode {
 } ziUwdNode;
 
 struct __zi8_work_data_s {
-    ziU8 unk_0x00;
+    ziU8 getcPhase;  // 0x00
     ziU8 countOnly;  // 0x01
     ziU8 unk_0x02[2];
     ziLanguageEntry* langEntries;  // 0x04

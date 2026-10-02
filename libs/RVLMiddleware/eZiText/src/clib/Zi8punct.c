@@ -21,7 +21,7 @@ ziS32 Zi8Punctuation(ziGetParam* param ZI_NEED_WORK) {
         }
         if (fc == 0) {
             count++;
-            if (ZI_WORK->unk_0x00 == 0) {
+            if (ZI_WORK->getcPhase == 0) {
                 param->candidates[i++] = Zi8PunctTable[j];
                 if ((param->context & 0x10) != 0) {
                     param->candidates[i++] = 0x20;
@@ -42,7 +42,7 @@ ziS32 Zi8Punctuation(ziGetParam* param ZI_NEED_WORK) {
         }
         j++;
     }
-    if (ZI_WORK->unk_0x00 == 0) {
+    if (ZI_WORK->getcPhase == 0) {
         param->letters = count;
     }
     return count;

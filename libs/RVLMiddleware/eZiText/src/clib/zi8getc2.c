@@ -324,7 +324,7 @@ ziU32 Zi8GetCandidatesOrCount(ziGetParam* parameters, ZiCandidateOptions* option
   saved.savedCandidates = 0;
   saved.restoreCandidates = 0;
   if (options->lookupMode == '\0') {
-    if (((ZI_WORK->unk_0x00 == '\t') && (parameters->elementCount != 0)) &&
+    if (((ZI_WORK->getcPhase == '\t') && (parameters->elementCount != 0)) &&
        (((parameters->elements[parameters->elementCount - 1] == 0xEFF8 &&
          ((ziU8)Zi8AlphaSignature(parameters,options->countOnly,ZI_WORK) != 0)) ||
         ((parameters->elements[parameters->elementCount - 1] == 0xEF04 &&
@@ -339,22 +339,22 @@ ziU32 Zi8GetCandidatesOrCount(ziGetParam* parameters, ZiCandidateOptions* option
     if ((parameters->elementCount == 1) && (parameters->firstCandidate == 0)) {
       switch (parameters->language) {
       case 1:
-          if ((ZI_WORK->unk_0x00 == '\0') || (ZI_WORK->countOnly == options->countOnly)) {
-            switch(ZI_WORK->unk_0x00) {
+          if ((ZI_WORK->getcPhase == '\0') || (ZI_WORK->countOnly == options->countOnly)) {
+            switch(ZI_WORK->getcPhase) {
             case '\0':
               if (parameters->elements[0] == 0xEF04) {
                 ZI_WORK->countOnly = options->countOnly;
-                ZI_WORK->unk_0x00 = '\x01';
+                ZI_WORK->getcPhase = '\x01';
               }
               break;
             case '\x02':
             case '\x04':
             case '\x06':
               if (parameters->elements[0] == 0xEF04) {
-                ++ZI_WORK->unk_0x00;
+                ++ZI_WORK->getcPhase;
               }
               else {
-                ZI_WORK->unk_0x00 = '\0';
+                ZI_WORK->getcPhase = '\0';
               }
               break;
             case '\x01':
@@ -362,17 +362,17 @@ ziU32 Zi8GetCandidatesOrCount(ziGetParam* parameters, ZiCandidateOptions* option
             case '\x05':
             case '\a':
               if (parameters->elements[0] == 0xEF01) {
-                ++ZI_WORK->unk_0x00;
+                ++ZI_WORK->getcPhase;
               }
               else {
-                ZI_WORK->unk_0x00 = '\0';
+                ZI_WORK->getcPhase = '\0';
               }
               break;
             case '\b':
             case '\t':
               if ((parameters->elements[0] == 0xEF04) &&
                  ((ziU8)Zi8ZhSignature(parameters,options->countOnly,ZI_WORK) != 0)) {
-                ZI_WORK->unk_0x00 = '\t';
+                ZI_WORK->getcPhase = '\t';
                 candidateCount = (unsigned int)parameters->letters;
                 if (options->countOnly != '\0') {
                   parameters->letters = 0;
@@ -381,10 +381,10 @@ ziU32 Zi8GetCandidatesOrCount(ziGetParam* parameters, ZiCandidateOptions* option
                 return candidateCount;
               }
             default:
-              ZI_WORK->unk_0x00 = '\0';
+              ZI_WORK->getcPhase = '\0';
             }
-            if ((ZI_WORK->unk_0x00 == '\0') && (parameters->elements[0] == 0xEF04)) {
-              ZI_WORK->unk_0x00 = '\x01';
+            if ((ZI_WORK->getcPhase == '\0') && (parameters->elements[0] == 0xEF04)) {
+              ZI_WORK->getcPhase = '\x01';
             }
           }
         break;
@@ -400,75 +400,75 @@ ziU32 Zi8GetCandidatesOrCount(ziGetParam* parameters, ZiCandidateOptions* option
         break;
       case 0x11:
       default:
-          if ((ZI_WORK->unk_0x00 == '\0') || (ZI_WORK->countOnly == options->countOnly)) {
-            switch(ZI_WORK->unk_0x00) {
+          if ((ZI_WORK->getcPhase == '\0') || (ZI_WORK->countOnly == options->countOnly)) {
+            switch(ZI_WORK->getcPhase) {
             case '\0':
               if (parameters->elements[0] == 0xEFF2) {
                 ZI_WORK->countOnly = options->countOnly;
-                ZI_WORK->unk_0x00 = '\x01';
+                ZI_WORK->getcPhase = '\x01';
               }
               break;
             case '\x01':
               if (parameters->elements[0] == 0xEFF3) {
-                ZI_WORK->unk_0x00 = '\x02';
+                ZI_WORK->getcPhase = '\x02';
               }
               else {
-                ZI_WORK->unk_0x00 = '\0';
+                ZI_WORK->getcPhase = '\0';
               }
               break;
             case '\x02':
               if (parameters->elements[0] == 0xEFF5) {
-                ZI_WORK->unk_0x00 = '\x03';
+                ZI_WORK->getcPhase = '\x03';
               }
               else {
-                ZI_WORK->unk_0x00 = '\0';
+                ZI_WORK->getcPhase = '\0';
               }
               break;
             case '\x03':
               if (parameters->elements[0] == 0xEFF7) {
-                ZI_WORK->unk_0x00 = '\x04';
+                ZI_WORK->getcPhase = '\x04';
               }
               else {
-                ZI_WORK->unk_0x00 = '\0';
+                ZI_WORK->getcPhase = '\0';
               }
               break;
             case '\x04':
               if (parameters->elements[0] == 0xEFF8) {
-                ZI_WORK->unk_0x00 = '\x05';
+                ZI_WORK->getcPhase = '\x05';
               }
               else {
-                ZI_WORK->unk_0x00 = '\0';
+                ZI_WORK->getcPhase = '\0';
               }
               break;
             case '\x05':
               if (parameters->elements[0] == 0xEFF9) {
-                ZI_WORK->unk_0x00 = '\x06';
+                ZI_WORK->getcPhase = '\x06';
               }
               else {
-                ZI_WORK->unk_0x00 = '\0';
+                ZI_WORK->getcPhase = '\0';
               }
               break;
             case '\x06':
               if (parameters->elements[0] == 0xEFF2) {
-                ZI_WORK->unk_0x00 = '\a';
+                ZI_WORK->getcPhase = '\a';
               }
               else {
-                ZI_WORK->unk_0x00 = '\0';
+                ZI_WORK->getcPhase = '\0';
               }
               break;
             case '\a':
               if (parameters->elements[0] == 0xEFF5) {
-                ZI_WORK->unk_0x00 = '\b';
+                ZI_WORK->getcPhase = '\b';
               }
               else {
-                ZI_WORK->unk_0x00 = '\0';
+                ZI_WORK->getcPhase = '\0';
               }
               break;
             case '\b':
             case '\t':
               if ((parameters->elements[0] == 0xEFF8) &&
                  ((ziU8)Zi8AlphaSignature(parameters,options->countOnly,ZI_WORK) != 0)) {
-                ZI_WORK->unk_0x00 = '\t';
+                ZI_WORK->getcPhase = '\t';
                 candidateCount = (unsigned int)parameters->letters;
                 if (options->countOnly != '\0') {
                   parameters->letters = 0;
@@ -477,17 +477,17 @@ ziU32 Zi8GetCandidatesOrCount(ziGetParam* parameters, ZiCandidateOptions* option
                 return candidateCount;
               }
             default:
-              ZI_WORK->unk_0x00 = '\0';
+              ZI_WORK->getcPhase = '\0';
             }
-            if ((ZI_WORK->unk_0x00 == '\0') && (parameters->elements[0] == 0xEFF2)) {
-              ZI_WORK->unk_0x00 = '\x01';
+            if ((ZI_WORK->getcPhase == '\0') && (parameters->elements[0] == 0xEFF2)) {
+              ZI_WORK->getcPhase = '\x01';
             }
           }
         break;
       }
     }
     else if (1 < parameters->elementCount) {
-      ZI_WORK->unk_0x00 = '\0';
+      ZI_WORK->getcPhase = '\0';
     }
   }
   ZI_WORK->subLanguage = parameters->subLanguage;
