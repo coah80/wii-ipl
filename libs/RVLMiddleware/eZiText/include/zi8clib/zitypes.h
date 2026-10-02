@@ -270,8 +270,8 @@ struct __zi8_work_data_s {
     ziU8 formatCount;
     ziU8 unk_0x1419;
     ziU16 capacity;  // 0x141A
-    ziU8 unk_0x141C;
-    ziU8 unk_0x141D;
+    ziU8 forceAltGraph;  // 0x141C  (lang FI + group 0xC -> graphTableId 0x10)
+    ziU8 advanceGroup;  // 0x141D  (nonzero: skip first dawg group)
     ziU8 graphTableId;  // 0x141E
     ziU8 maxCnt;  // 0x141F
     ziU8 unk_0x1420[4];
