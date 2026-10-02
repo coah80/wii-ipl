@@ -1015,7 +1015,7 @@ namespace ipl {
             return -1;
         }
 
-        int Manager::isEqualChannel(register ESTitleId titleId0, register ESTitleId titleId1) {
+        int Manager::isEqualChannel(ESTitleId titleId0, ESTitleId titleId1) {
             if (titleId0 == titleId1) {
                 return -2;
             }
