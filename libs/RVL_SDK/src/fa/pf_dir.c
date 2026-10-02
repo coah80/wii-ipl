@@ -902,8 +902,9 @@ pf_s32 PFDIR_p_rename(PF_VOLUME* volume, PF_STR* old_path, PF_STR* new_path) {
     if (found == 0) { return 3; }
     if ((source_entry.attr & 8) != 0) { return 3; }
     if ((source_entry.attr & 1) != 0) { return 0x18; }
-    if (PFSTR_StrNCmp((PFDIR_STR*)new_path, (const pf_s8*)":", 1, 1, 1) == 0 &&
-        volume != PFPATH_GetVolumeFromPath(new_path)) { return 0x1F; }
+    if (PFSTR_StrNCmp((PFDIR_STR*)new_path, (const pf_s8*)":", 1, 1, 1) == 0) {
+        if (volume != PFPATH_GetVolumeFromPath(new_path)) { return 0x1F; }
+    }
     error = PFPATH_SplitPath((PFDIR_STR*)new_path, &directory, &destination_name);
     if (error != 0) { return error; }
     if (PFSTR_GetCodeMode(&destination_name) == 2) {
