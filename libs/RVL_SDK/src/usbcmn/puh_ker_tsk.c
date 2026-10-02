@@ -9,10 +9,10 @@ static struct {
         OSThread* thread;  // 0x00
         u8 stack[0x33C];  // 0x04
     } entries[MAX_PUH_TSK];  // 0x00
-    u32 unk_0x680;
-    u32 unk_0x684;
-    u32 unk_0x688;
-    u32 unk_0x68C;
+    u32 pad_0x680;
+    u32 pad_0x684;
+    u32 pad_0x688;
+    u32 pad_0x68C;
 } st_uhs_ker_tsk_mng;
 
 s32 uhf_ker_set_priority(int tsk, int priority) {
