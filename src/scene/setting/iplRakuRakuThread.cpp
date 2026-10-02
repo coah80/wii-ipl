@@ -59,8 +59,7 @@ public:
     virtual ~RakuRakuThread();
     virtual void* Run();
     virtual void unk_0x2C() = 0;
-    void syncRakuProgress();
-    static void progressCallback(RakuProgress* progress);
+    static void syncRakuProgress(RakuProgress* progress);
     void destroy();
     int start();
     int getState();
@@ -77,17 +76,13 @@ private:
     MEMHeapHandle mHeap;
 };
 
-void RakuRakuThread::syncRakuProgress() {
+void RakuRakuThread::syncRakuProgress(RakuProgress* progress) {
     BOOL interrupts = OSDisableInterrupts();
-    sRakuStatus = *(RakuProgress*)this;
+    sRakuStatus = *progress;
     OSTime time = OSGetTime();
     startTimeHigh = time >> 32;
     startTimeLow = time;
     OSRestoreInterrupts(interrupts);
-}
-
-void RakuRakuThread::progressCallback(RakuProgress* progress) {
-    ((RakuRakuThread*)progress)->syncRakuProgress();
 }
 
 RakuRakuThread::RakuRakuThread(EGG::Heap* heap) : utility::ut_thread() {
@@ -153,7 +148,7 @@ int RakuRakuThread::start() {
     socketConfig.free = RakuSocketFree;
     SOInit(&socketConfig);
     ATERMi_ApConfigStart(mPriority, 200,
-        progressCallback,
+        syncRakuProgress,
         RakuAtermAlloc, RakuAtermFree, 4096);
     if (!mRunning) {
         mRunning = 1;
