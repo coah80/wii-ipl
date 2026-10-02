@@ -541,12 +541,37 @@ AtermAllocateCallback gAtermAllocate;
 AtermProgressCallback gAtermProgressCallback;
 
 typedef struct {
+    u8 challenge[8];
+    u8 digest[16];
+} AtermAuthenticationData;
+
+typedef struct {
+    union {
+        u8 payload[0x800];
+        AtermDecodedPayload decoded;
+    };
+    union {
+        AtermAuthenticationData data;
+        u8 keyMaterial[24];
+    };
+} AtermAuthentication;
+
+typedef struct {
+    char ssid[32];
+    u32 setupMode;
+    u32 securityMode;
+    u8 reserved028[0x80];
+    u8 keyMaterial[0x40];
+    u8 connectionPrefix[0x10];
+    u8 packetBuffer[0x800];
+    AtermAuthentication authentication;
+} AtermGlobalsConfiguration;
+
+typedef struct {
     AtermNetworkSettings networkSettings;
     char accessPointName[0x24];
     AtermScanSettings scanSettings;
-    AtermConfigurationResult configuration;
-    AtermThreadBuffer response;
-    OSThread thread;
+    AtermGlobalsConfiguration configuration;
 } AtermGlobals;
 u32 gAtermResult;
 s32 gAtermState;
@@ -1451,7 +1476,8 @@ s32 ATERMRunConfigProtocol(void) {
     AtermSocketAddress socketBindAddress;
     AtermSocketAddress peerAddress;
     AtermGlobals* globals = (AtermGlobals*)&gNetworkSettings;
-    void* sessionKey = globals->response.session.keyMaterial;
+    void* sessionKey = globals->configuration.authentication.keyMaterial;
+    AtermAuthenticationData* authData = &globals->configuration.authentication.data;
     u32 messageLength;
     AtermMd5Context digestContext;
     u8 digestLength[8];
@@ -1600,7 +1626,7 @@ s32 ATERMRunConfigProtocol(void) {
                 }
                 optionEnd = (u8*)longOption;
                 messageLength = ATERMBuildEncryptedMessage((u16*)globals->configuration.packetBuffer, 2,
-                    (u16*)globals->response.data, optionEnd - gAtermRequestOptions + 8, NULL);
+                    (u16*)globals->configuration.authentication.decoded.options, optionEnd - gAtermRequestOptions + 8, NULL);
                 sendAddress.length = 8;
                 sendAddress.family = 2;
                 sendAddress.address = 0xFFFFFFFF;
@@ -1640,15 +1666,15 @@ s32 ATERMRunConfigProtocol(void) {
                 } else if (sequence != 3) {
                     payloadLength = 0;
                 } else if (globals->configuration.connectionPrefix != NULL) {
-                    ATERMAesKeyUnwrap((u16*)globals->response.authentication.payload, (u16*)payload,
+                    ATERMAesKeyUnwrap((u16*)globals->configuration.authentication.payload, (u16*)payload,
                         payloadLength, globals->configuration.connectionPrefix, 16);
                     payloadLength -= 8;
                 } else {
-                    memcpy(globals->response.authentication.payload, payload, payloadLength);
+                    memcpy(globals->configuration.authentication.payload, payload, payloadLength);
                 }
                 if (payloadLength != 0) {
-                    AtermPacketOption* option = (AtermPacketOption*)globals->response.authentication.decoded.options;
-                    u8* optionEnd = (u8*)option + SONtoHs(globals->response.authentication.decoded.length);
+                    AtermPacketOption* option = (AtermPacketOption*)globals->configuration.authentication.decoded.options;
+                    u8* optionEnd = (u8*)option + SONtoHs(globals->configuration.authentication.decoded.length);
                     s32 optionType;
                     u8* optionValue;
                     if ((u8*)option >= optionEnd) {
@@ -1664,7 +1690,7 @@ s32 ATERMRunConfigProtocol(void) {
                             (__mulhwu(reciprocal, OS_BUS_CLOCK >> 2) >> 6));
                         u32 index;
                         u32 digestBytes;
-                        memcpy(globals->response.authentication.challenge,
+                        memcpy(authData->challenge,
                             optionValue, 8);
                         digestContext.bitCountHigh = 0;
                         digestContext.bitCountLow = 0;
@@ -1686,7 +1712,7 @@ s32 ATERMRunConfigProtocol(void) {
                             digestBytes < 56 ? 56 - digestBytes : 120 - digestBytes);
                         ATERMMd5Update(&digestContext, digestLength, sizeof(digestLength));
                         {
-                            u8* digest = globals->response.authentication.digest;
+                            u8* digest = authData->digest;
                             u32 state = digestContext.state[0];
                             digest[0] = state;
                             digest[1] = state >> 8;
@@ -1733,18 +1759,18 @@ s32 ATERMRunConfigProtocol(void) {
             break;
         case 7:
             {
-                AtermRequestOption16* option = (AtermRequestOption16*)globals->response.authentication.decoded.options;
+                AtermRequestOption16* option = (AtermRequestOption16*)globals->configuration.authentication.decoded.options;
                 AtermSocketAddress sendAddress;
-                memset(globals->response.data, 0, 8);
+                memset(&globals->configuration.authentication, 0, 8);
                 memset(option, 0, 4);
                 option->type = SOHtoNs(0x102);
                 option->length = SOHtoNs(8);
                 memset(option->value, 0, sizeof(option->value));
-                memcpy(option->value, globals->response.authentication.digest, 8);
-                gAtermReplyLength = (u8*)(option + 1) - globals->response.data;
-                globals->response.authentication.decoded.length = gAtermReplyLength - 8;
+                memcpy(option->value, authData->digest, 8);
+                gAtermReplyLength = (u8*)(option + 1) - globals->configuration.authentication.decoded.options;
+                globals->configuration.authentication.decoded.length = gAtermReplyLength - 8;
                 messageLength = ATERMBuildEncryptedMessage((u16*)globals->configuration.packetBuffer, 4,
-                    (u16*)globals->response.data, gAtermReplyLength, globals->configuration.connectionPrefix);
+                    (u16*)globals->configuration.authentication.decoded.options, gAtermReplyLength, globals->configuration.connectionPrefix);
                 sendAddress.length = 8;
                 sendAddress.family = 2;
                 sendAddress.address = 0xFFFFFFFF;
@@ -1778,14 +1804,14 @@ s32 ATERMRunConfigProtocol(void) {
                 } else if (sequence != 5) {
                     payloadLength = 0;
                 } else if (sessionKey != NULL) {
-                    ATERMAesKeyUnwrap((u16*)globals->response.authentication.payload, (u16*)payload,
+                    ATERMAesKeyUnwrap((u16*)globals->configuration.authentication.payload, (u16*)payload,
                         payloadLength, sessionKey, 16);
                     payloadLength -= 8;
                 } else {
-                    memcpy(globals->response.authentication.payload, payload, payloadLength);
+                    memcpy(globals->configuration.authentication.payload, payload, payloadLength);
                 }
                 gAtermReplyLength = payloadLength;
-                if (payloadLength != 0 && ATERMParseAssociationResponse((u16*)globals->response.data)) {
+                if (payloadLength != 0 && ATERMParseAssociationResponse((u16*)globals->configuration.authentication.decoded.options)) {
                     gAtermProtocolState = 9;
                     retries = 0;
                     gAtermMode = globals->scanSettings.ssid[0] != 0;
@@ -1805,18 +1831,18 @@ s32 ATERMRunConfigProtocol(void) {
             break;
         case 9:
             {
-                AtermRequestOption8* option = (AtermRequestOption8*)globals->response.authentication.decoded.options;
+                AtermRequestOption8* option = (AtermRequestOption8*)globals->configuration.authentication.decoded.options;
                 AtermSocketAddress sendAddress;
-                memset(globals->response.data, 0, 8);
+                memset(&globals->configuration.authentication, 0, 8);
                 memset(option, 0, 4);
                 option->type = SOHtoNs(0x301);
                 option->length = SOHtoNs(1);
                 memset(option->value, 0, sizeof(option->value));
                 memcpy(option->value, &gAtermMode, 1);
-                gAtermReplyLength = (u8*)(option + 1) - globals->response.data;
-                globals->response.authentication.decoded.length = gAtermReplyLength - 8;
+                gAtermReplyLength = (u8*)(option + 1) - globals->configuration.authentication.decoded.options;
+                globals->configuration.authentication.decoded.length = gAtermReplyLength - 8;
                 messageLength = ATERMBuildEncryptedMessage((u16*)globals->configuration.packetBuffer, 6,
-                    (u16*)globals->response.data, gAtermReplyLength, sessionKey);
+                    (u16*)globals->configuration.authentication.decoded.options, gAtermReplyLength, sessionKey);
                 if (NCDGetLinkStatus() != 5) {
                     lastSendTime = (u32)(OSGetTime() / (__mulhwu(reciprocal, OS_BUS_CLOCK >> 2) >> 6)) + 1000;
                     retries = 10;
