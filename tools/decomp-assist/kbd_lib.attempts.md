@@ -263,3 +263,24 @@ local (keeps PTR — worse), byte-view u32 access (normalizes & CSEs
 identically), decl reorder — all keep-product. The remat choice is
 MWCC's x*K-address rematerialization heuristic; the product web spans
 two calls so cost is identical — allocator tie. UNSOLVED, ~2 insns.
+
+## Session w1009-b: kbd_led_handler select + IV walls, zprepare flag decode
+
+- kbd_led_handler (25-insn fn): decoded to 24v25. Base = `kbdCmdBuf[index].device = 0` unconditional
+  store + `kbdLCBuf[index].callbackAddress == 0` early-ret + `cmpwi r3,1; bne -> li7-far; li0-inline`
+  err select + `bctr` tail-call. The `if (success==TRUE) err=0 else err=7` if/else + ternary + goto
+  + switch forms all give either branchless select (subfic/nor/srawi/andc) or `beq -> li0` (wrong
+  polarity). Two-calls form gives the right `bne -> else` layout but MWCC won't tail-merge the calls
+  (emits 2 bctr). Base also remats `index*8` + reloads callbackAddress after the select (vs cached).
+  UNSOLVED: MWCC select-vs-branch heuristic — same family as the beq+b wall.
+- kbdCmdBuf scan loops (KBDSetLeds + KBDSetLedsAsync): base uses byte-IV `li r4,0`/`addi r4,0x20` +
+  `lwzx r0,r6,r4`/`stwx` where r6 = invariant &kbdCmdBuf. ~14 source forms tried incl. micro-tests:
+  ptr-walk always wins for the read side (`lwz 0(r4)` + separate ofs IV for the stwx write). MWCC
+  strength-reduction always introduces a secondary walked pointer for the load. UNSOLVED.
+- Zi8PrepareMatch: DECODED a write-only flag byte at r1+0xf — init `componentFlag = 0` after
+  Zi8Memset, set `componentFlag = 1` inside the `if (Zi8IsComponent(element))` block after
+  elementIndex++. MWCC lays u8 stack slots in REVERSE declaration order — declaring it before
+  elementCount lands it at 0xf exactly. Both stores byte-match; fn 939->943 vs base 940 (+3 sched).
+- Reg-rotation wall (whole clib pool): single-web-pair swap r27/r28, r30/r31 etc. Tried: decl order,
+  decl-init, register keyword (no-op), type width (u8/u32/u16), first-use reorder. MWCC web
+  numbering order is internal — not reachable from source. ~10 fns gated on this.
