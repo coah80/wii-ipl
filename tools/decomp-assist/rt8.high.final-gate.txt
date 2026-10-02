@@ -1,0 +1,46 @@
+full build: ok
+main.dol sha1: 26116613f624061ba99c8d1a299aaa6efa85670d
+[src/scene/memoryCard/iplMemoryCardManager] pool: IDENTICAL
+[src/scene/memoryCard/iplMemoryCardManager] objdiff: code 2572/5396 data None/None functions 18/26 fuzzy 97.8836 linked code 0
+[src/scene/memoryCard/iplMemoryCardManager] instruction-exact functions: 18/26
+[src/scene/memoryCard/iplMemoryCardManager]   section .text size 5396 match 97.88362
+[src/scene/memoryCard/iplMemoryCardManager]   below 100: isMoveEnable__Q33ipl5scene17MemoryCardManagerFUcUlPl 99.830505
+[src/scene/memoryCard/iplMemoryCardManager]   below 100: isCopyEnable__Q33ipl5scene17MemoryCardManagerFUcUlPl 99.830505
+[src/scene/memoryCard/iplMemoryCardManager]   below 100: isBannerEnable__Q33ipl5scene17MemoryCardManagerFUcs 92.30769
+[src/scene/memoryCard/iplMemoryCardManager]   below 100: update_file_array__Q33ipl5scene17MemoryCardManagerFUc 99.72222
+[src/scene/memoryCard/iplMemoryCardManager]   below 100: _create_icon__Q33ipl5scene17MemoryCardManagerFUcsl 87.55
+[src/scene/memoryCard/iplMemoryCardManager]   below 100: getComment__Q33ipl5scene17MemoryCardManagerFUcsi 98.94309
+[src/scene/memoryCard/iplMemoryCardManager]   below 100: create_banner__Q33ipl5scene17MemoryCardManagerFUcs 90.42453
+[src/scene/memoryCard/iplMemoryCardManager]   below 100: getBlocks__Q33ipl5scene17MemoryCardManagerFUcs 92.0
+[src/scene/memoryCard/iplMemoryCardManager] baseline: code 2572/5396 data None functions 18 fuzzy 97.8836
+[src/scene/setting/iplRakuRakuThread] pool: IDENTICAL
+[src/scene/setting/iplRakuRakuThread] objdiff: code 2168/2168 data 456/456 functions 14/14 fuzzy 100.0000 linked code 0
+[src/scene/setting/iplRakuRakuThread] instruction-exact functions: 14/14
+[src/scene/setting/iplRakuRakuThread]   section .bss size 296 match 100.0
+[src/scene/setting/iplRakuRakuThread]   section .data size 136 match 100.0
+[src/scene/setting/iplRakuRakuThread]   section .sbss size 16 match 100.0
+[src/scene/setting/iplRakuRakuThread]   section .sdata size 8 match 100.0
+[src/scene/setting/iplRakuRakuThread]   section .text size 2168 match 100.0
+[src/scene/setting/iplRakuRakuThread] baseline: code 1252/2168 data 456 functions 12 fuzzy 94.6900
+[src/keyboard/tiCandidateBox] pool: IDENTICAL
+[src/keyboard/tiCandidateBox] objdiff: code 19988/24000 data 4652/4652 functions 109/112 fuzzy 99.4395 linked code 0
+[src/keyboard/tiCandidateBox] instruction-exact functions: 108/112
+[src/keyboard/tiCandidateBox]   section .ctors size 4 match 100.0
+[src/keyboard/tiCandidateBox]   section .data size 3488 match 100.0
+[src/keyboard/tiCandidateBox]   section .rodata size 1048 match 100.0
+[src/keyboard/tiCandidateBox]   section .sdata size 32 match 100.0
+[src/keyboard/tiCandidateBox]   section .sdata2 size 80 match 100.0
+[src/keyboard/tiCandidateBox]   section .text size 24000 match 99.4395
+[src/keyboard/tiCandidateBox]   below 100: create__Q39textinput12candidatebox12LayoutByNW4RFP12MEMAllocator 92.71023
+[src/keyboard/tiCandidateBox]   below 100: createAnmPane___Q39textinput12candidatebox12LayoutByNW4RFP12MEMAllocator 96.56481
+[src/keyboard/tiCandidateBox]   below 100: CalcPaneLocate___Q39textinput12candidatebox10UITextAreaFv 99.873566
+[src/keyboard/tiCandidateBox] baseline: code 19988/24000 data 4652 functions 109 fuzzy 99.4395
+regressions vs baseline: 0
+global matched_code_percent: 90.71801 -> 90.74859
+global fuzzy_match_percent: 99.57510 -> 99.57892
+global complete_code_percent: 71.01273 -> 71.01273
+global matched_data_percent: 99.36639 -> 99.36639
+forbidden patterns added (net, per file): 0
+readability warnings (net, per file; must be 0 in the final result): 0
+note: config touched: config/43U/symbols.txt (orchestrator reviews every config/symbols change)
+GATE PASS
