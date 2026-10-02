@@ -29,15 +29,11 @@ pf_s32 pdm_part_is_master_boot_sector(pf_u8* buf, pf_u32 total, pf_bool* p_is_mb
         p_count++;
         buf += 16;
     }
-    p_start = start;
-    p_count = count;
     for (index = 0; index < 4; index++) {
-        if (*p_start + *p_count > total) {
+        if (start[index] + count[index] > total) {
             if (index == 0) { *p_is_mbr = 0; }
             return 2;
         }
-        p_start++;
-        p_count++;
     }
     return 0;
 }
