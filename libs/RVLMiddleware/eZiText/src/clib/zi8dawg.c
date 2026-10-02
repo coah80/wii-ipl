@@ -305,9 +305,9 @@ ziU32 Zi8MatchROMdata(ziWChar* elements, ziU8 count, ziU8 language,
         Zi8LogError(100, ZI_WORK);
     } else {
         if (status == 0) {
-            ZI_WORK->unk_0x17EC = 0;
+            ZI_WORK->matchRetry = 0;
             ZI_WORK->dawgGroup = NextDawgGroup(0, language, ZI_WORK);
-        } else if (ZI_WORK->unk_0x17EC != 0) {
+        } else if (ZI_WORK->matchRetry != 0) {
             Zi8LogError(100, ZI_WORK);
             goto finish_match;
         }
@@ -328,7 +328,7 @@ ziU32 Zi8MatchROMdata(ziWChar* elements, ziU8 count, ziU8 language,
         }
         if ((ziU8)result == 0 && status == 0 && mode == 1 && count == 1 && capacity >= 1) {
             mode = 0;
-            ZI_WORK->unk_0x17EC = 1;
+            ZI_WORK->matchRetry = 1;
             if (tableSize != 0) {
                 ZI_WORK->dawgGroup = NextDawgGroup(0, language, ZI_WORK);
                 while (ZI_WORK->dawgGroup != 0) {
