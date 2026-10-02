@@ -242,8 +242,8 @@ typedef struct WPADCB {
     WPADCallback getInfoCB;  // 0x988
     u8 getInfoBusy;          // 0x98C
 
-    u8 unk_0x98D;  // 0x98D
-    u8 unk_0x98E;  // 0x98E
+    u8 encStatus;  // 0x98D
+    u8 continuous;  // 0x98E
     u8 unk_0x98F[0x9A0 - 0x990];
 } WPADCB;
 
@@ -261,7 +261,7 @@ void WPADiExcludeButton(s32 chan);
 void WPADiCopyOut(s32 chan);
 
 BOOL WPADiSendSetPort(WPADCommandQueue* pQueue, u8 port, WPADCallback pCallback);
-BOOL WPADiSendSetReportType(WPADCommandQueue* pQueue, s32 format, BOOL unk, WPADCallback pCallback);
+BOOL WPADiSendSetReportType(WPADCommandQueue* pQueue, s32 format, BOOL continuous, WPADCallback pCallback);
 BOOL WPADiSendEnableDPD(WPADCommandQueue* pQueue, BOOL enable, WPADCallback pCallback);
 BOOL WPADiSendEnableSpeaker(WPADCommandQueue* pQueue, BOOL enable, WPADCallback pCallback);
 BOOL WPADiSendGetContStat(WPADCommandQueue* pQueue, WPADInfo* pInfo, WPADCallback pCallback);
