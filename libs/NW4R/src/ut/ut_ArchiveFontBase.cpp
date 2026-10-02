@@ -252,14 +252,17 @@ namespace nw4r {
             }
 
             inline void updateSheetFlags(const void* glgrHdr, u32 groupIdx, u16* sheetOffsets, u32 flagsStep, const u32* sheetFlags) {
-                const GlyphGroups* glgr = (GlyphGroups*)((u8*)glgrHdr + sizeof(BinaryBlockHeader));
-                for (int sheetI = 0; sheetI < glgr->sheetCount; sheetI++) {
-                    u32 groupBitIdx = sheetI + groupIdx * flagsStep * 8;
-
+                const GlyphGroups* glgr = (const GlyphGroups*)((const u8*)glgrHdr + sizeof(BinaryBlockHeader));
+                int sheetIndex;
+                u32 groupBitOffset;
+                u16* sheetOffset = sheetOffsets;
+                groupBitOffset = groupIdx * flagsStep * 8;
+                for (sheetIndex = 0; sheetIndex < glgr->sheetCount; sheetOffset++, sheetIndex++) {
+                    u32 groupBitIdx = sheetIndex + groupBitOffset;
                     const u32* bitBlockPtr = sheetFlags + (groupBitIdx & ~0x1F) / 32;
-                    u32 bitBlock = *(u32*)bitBlockPtr;
+                    u32 bitBlock = *bitBlockPtr;
                     if (((bitBlock << (groupBitIdx & 0x1F)) & 0x80000000) != 0) {
-                        sheetOffsets[sheetI] = 1;
+                        *sheetOffset = 1;
                     }
                 }
             }
@@ -268,14 +271,16 @@ namespace nw4r {
                                                const u32* bitBlocksPtr, u32 sheetFlagsSize) {
                 HeaderedGlyphGroups* pGlgr = (HeaderedGlyphGroups*)glgrHdr;
 
-                for (int i = 0; i < pGlgr->inner.sheetCount; i++) {
-                    sheetOffsets[i] = 0;
+                int i;
+                u16* sheetOffset;
+                for (i = 0, sheetOffset = sheetOffsets; i < pGlgr->inner.sheetCount; sheetOffset++, i++) {
+                    *sheetOffset = 0;
                 }
 
                 for (int i = 0; i < pGlgr->inner.nameCount; i++) {
                     const char* includedGroups = ctx->pIncludedGroups;
                     u16 offset = pGlgr->inner.nameOffsets[i];
-                    char* name = (char*)((u8*)hdr + offset);
+                    char* name = (char*)(offset + (u32)hdr);
                     if (*includedGroups != 0) {
                         if (!ArchiveFontBase::IncludeName(includedGroups, name)) {
                             continue;
@@ -288,21 +293,23 @@ namespace nw4r {
 
             inline void convertSheetOffsetBooleansToOffsets(const void* glgrHdr, u16* sheetOffsets) {
                 HeaderedGlyphGroups* pGlgr = (HeaderedGlyphGroups*)glgrHdr;
+                int i;
                 u16 glyphIdxOffset = 0;
-                for (int i = 0; i < pGlgr->inner.sheetCount; i++) {
-                    if (sheetOffsets[i] == 1) {
-                        sheetOffsets[i] = glyphIdxOffset;
+                u16* sheetOffset;
+                for (i = 0, sheetOffset = sheetOffsets; i < pGlgr->inner.sheetCount; sheetOffset++, i++) {
+                    if (*sheetOffset == 1) {
+                        *sheetOffset = glyphIdxOffset;
                     } else {
-                        sheetOffsets[i] = -1;
+                        *sheetOffset = -1;
                         glyphIdxOffset += pGlgr->inner.sheetGlyphCount;
                     }
                 }
             }
 
-            inline void copyFlagOffsets(ArchiveFontBase::ConstructContext* ctx, u16* sheetOffsetsScratch, u32 workSize, u32 scratchSize) {
+            inline void copyFlagOffsets(ArchiveFontBase::ConstructContext* ctx, u16* sheetOffsetsScratch, u32 workSize, const u16* sheetOffsetsScratchEnd) {
                 u8* sheetOffsets = ctx->pWorkCurr;
                 ctx->pWorkCurr = sheetOffsets + workSize;
-                memmove(sheetOffsets, sheetOffsetsScratch, scratchSize);
+                memmove(sheetOffsets, sheetOffsetsScratch, (sheetOffsetsScratchEnd - sheetOffsetsScratch) * sizeof(u16));
                 ctx->pSheetOffsets = (u16*)sheetOffsets;
             }
 
@@ -311,31 +318,64 @@ namespace nw4r {
             //     *sheetOffsetsScratch = (u16*)ROUNDDOWN((u32)((u8*)fontData + remWorkSpace) - sheetOffsetsSize, 2);
             //     return sheetOffsetsSize;
             // }
-            ArchiveFontBase::ConstructState ArchiveFontBase::ConstructOpAnalyzeGLGR(ConstructContext* ctx, CachedStreamReader* reader) {
-                u32 glgrInnerLen;
-                HeaderedGlyphGroups* pGlgr;
-                const ArchiveFontBinaryLayout* font;
-                u8* glgrEnd;
+            class FontGlyphGroupsAcs {
+            public:
+                explicit FontGlyphGroupsAcs(const ArchiveFontBinaryLayout* font)
+                    : mFont(font), mGroups(&font->glgr) {}
+                const GlyphGroups& GetGroups() const { return mGroups->inner; }
+                void SetSheetFlags(u32 flagsStep, const u32* sheetFlags) {
+                    mFlagsStep = flagsStep;
+                    mSheetFlags = sheetFlags;
+                }
 
+                u16 GetNumSheet() const { return mGroups->inner.sheetCount; }
+                int GetGlyphsPerSheet() const { return mGroups->inner.sheetGlyphCount; }
+                u16 GetNumSet() const { return mGroups->inner.nameCount; }
+                const char* GetSetName(int groupIndex) const {
+                    const u16 nameOffset = mGroups->inner.nameOffsets[groupIndex];
+                    return (const char*)(nameOffset + (u32)mFont);
+                }
+                bool IsUseSheet(int groupIndex, int sheetIndex) const {
+                    const u32 groupBitIndex = sheetIndex + groupIndex * mFlagsStep * 8;
+                    const u32* bitBlock = mSheetFlags + (groupBitIndex & ~0x1F) / 32;
+                    return ((*bitBlock << (groupBitIndex & 0x1F)) & 0x80000000) != 0;
+                }
+
+            private:
+                const ArchiveFontBinaryLayout* mFont;
+                const HeaderedGlyphGroups* mGroups;
+                u32 mFlagsStep;
+                const u32* mSheetFlags;
+            };
+
+            ArchiveFontBase::ConstructState ArchiveFontBase::ConstructOpAnalyzeGLGR(ConstructContext* ctx, CachedStreamReader* reader) {
+                const u32* flagsSheets;
+                u32 sheetOffsetsSize;
+                u32 flagsSheetsOff;
+                u32 glgrInnerLen;
+                const ArchiveFontBinaryLayout* font;
+                u16 sheetGlyphCount;
+                u32 countSheet;
+                HeaderedGlyphGroups* pGlgr;
+                u8* glgrEnd;
                 u32 expectedMaxSize;
+                u32 dataBlockCount;
+                u16* sheetOffsetsScratch;
+                int groupIndex;
 
                 font = (ArchiveFontBinaryLayout*)ctx->pWorkCurr;
 
                 glgrInnerLen = ctx->mNextBlockHdr.size - sizeof(BinaryBlockHeader);
 
-                // Check for RFNA
                 if (font->hdr.signature != SIGNATURE_FONT_ARCHIVE) {
                     return CONSTRUCT_STATE_FATAL_ERR;
                 }
 
-                // Check that there's enough data available, and the space to
-                // put that data
                 ENSURE_READER_HAS_SIZE(ctx, reader, glgrInnerLen);
                 ENSURE_WORK_HAS_SIZE(ctx, glgrInnerLen);
 
                 expectedMaxSize = ctx->mNextBlockHdr.size + sizeof(BinaryFileHeader);
 
-                // Copy the glgr to work
                 {
                     pGlgr = (HeaderedGlyphGroups*)&font->glgr;
                     glgrEnd = (u8*)pGlgr + (u32)ctx->mNextBlockHdr.size;
@@ -348,80 +388,45 @@ namespace nw4r {
                     return CONSTRUCT_STATE_FATAL_ERR;
                 }
 
-                // Before here is fine (other than regswaps)
-                // u16 sheetGlyphCount = FORCE_REACCESS_2(font->glgr.inner.sheetGlyphCount, u16);  // 0x1C
-                // u16 dataBlockCount = FORCE_REACCESS_2(font->hdr.dataBlocks, u16);               // 0x0E
-                // FORCE_REACCESS_2(font->glgr.inner.sheetCount, u16);
-                // return ConstructOpAnalyzeGLGRInner(ctx, font, pGlgr, glgrEnd);
+                FontGlyphGroupsAcs gg(font);
+                sheetGlyphCount = gg.GetGlyphsPerSheet();
+                dataBlockCount = font->hdr.dataBlocks;
+                countSheet = gg.GetNumSheet();
+                const u32 stepSheetFlags = detail::CalcSizeFlagSet(countSheet);
+                flagsSheetsOff = detail::CalcOffsetSheetFlags(gg.GetGroups().nameCount, countSheet, gg.GetGroups().smthCount_0x0a,
+                                                              gg.GetGroups().smthCount_0x0c);
+                flagsSheets = (const u32*)((flagsSheetsOff & ~3) + (u32)font);
+                gg.SetSheetFlags(stepSheetFlags, flagsSheets);
 
-                // u32 fontSizeToEndOfGlgr;
-
-                u16 countSheet;
-                u16 sheetGlyphCount, dataBlockCount;
-
-                u32 stepSheetFlags;
-                u32 flagsSheetsOff;
-                const u32* flagsSheets;
-
-                u32 sheetOffsetsSize;
-                u16* sheetOffsetsScratch;
-
-                u32 sheetOffsetsScratchSize;
-
-                sheetGlyphCount = font->glgr.inner.sheetGlyphCount;  // 0x1C
-                dataBlockCount = font->hdr.dataBlocks;               // 0x0E
-                // countName = font->glgr.inner.nameCount;
-                countSheet = font->glgr.inner.sheetCount;
-                // count0A = font->glgr.inner.smthCount_0x0a;
-                // count0C = font->glgr.inner.smthCount_0x0c;
-                stepSheetFlags = detail::CalcSizeFlagSet(countSheet);
-                flagsSheetsOff = detail::CalcOffsetSheetFlags(font->glgr.inner.nameCount, countSheet, font->glgr.inner.smthCount_0x0a,
-                                                              font->glgr.inner.smthCount_0x0c);
-                flagsSheets = (const u32*)font + (flagsSheetsOff >> 2);
-
-                sheetOffsetsSize = ROUNDUP(countSheet * sizeof(u16), 4);
+                sheetOffsetsSize = (RoundUp)(countSheet * sizeof(u16), 4);
                 sheetOffsetsScratch = (u16*)ROUNDDOWN((u32)((u8*)font + ctx->remWorkSpace()) - sheetOffsetsSize, 2);
 
                 pGlgr = (HeaderedGlyphGroups*)&font->glgr;
                 ENSURE_WORK_HAS_SIZE(ctx, glgrEnd - (u8*)font + sheetOffsetsSize);
-                // if (ctx->pWorkEnd - workCurr < fontSizeToEndOfGlgr + sheetOffsetsSize) {
-                //     return CONSTRUCT_STATE_FATAL_ERR;
-                // }
 
-                // Clear sheet offsets scratch
-                // for (s32 i = 0; i < pGlgr->inner.sheetCount; i++) {
-                //     sheetOffsetsScratch[i] = 0;
-                // }
+                {
+                    u16* sheetOffset;
+                    int sheetIndex;
+                    for (sheetIndex = 0, sheetOffset = sheetOffsetsScratch; sheetIndex < gg.GetNumSheet(); sheetOffset++, sheetIndex++) {
+                        *sheetOffset = 0;
+                    }
+                    for (groupIndex = 0; groupIndex < gg.GetNumSet(); groupIndex++) {
+                        const char* includedGroups = ctx->pIncludedGroups;
+                        const char* name = gg.GetSetName(groupIndex);
+                        if (*includedGroups && !ArchiveFontBase::IncludeName(includedGroups, name)) {
+                            continue;
+                        }
+                        for (int sheetIndex = 0; sheetIndex < gg.GetNumSheet(); sheetIndex++) {
+                            if (gg.IsUseSheet(groupIndex, sheetIndex)) {
+                                sheetOffsetsScratch[sheetIndex] = 1;
+                            }
+                        }
+                    }
+                }
 
-                // for (s32 i = 0; i < pGlgr->inner.nameCount; i++) {
-                //     // const char* includedGroups = ctx->pIncludedGroups;
-                //     u16 offset = pGlgr->inner.nameOffsets[i];
-                //     const char* name = (char*)((u8*)font + offset);
-                //     if (*ctx->pIncludedGroups != 0) {
-                //         if (!ArchiveFontBase::IncludeName(ctx->pIncludedGroups, name)) {
-                //             continue;
-                //         }
-                //     }
-
-                //     updateSheetFlags(pGlgr, i, sheetOffsetsScratch, stepSheetFlags, flagsSheets);
-                // }
-                setSheetOffsetBooleans(ctx, pGlgr, font, sheetOffsetsScratch, flagsSheets, stepSheetFlags);
-
-                // u16 glyphIdxOffset = 0;
-                // for (s32 i = 0; i < pGlgr->inner.sheetCount; i++) {
-                //     if (sheetOffsetsScratch[i] == 1) {
-                //         sheetOffsetsScratch[i] = glyphIdxOffset;
-                //     } else {
-                //         sheetOffsetsScratch[i] = -1;
-                //         glyphIdxOffset += pGlgr->inner.sheetGlyphCount;
-                //     }
-                // }
                 convertSheetOffsetBooleansToOffsets(pGlgr, sheetOffsetsScratch);
 
-                sheetOffsetsScratchSize = (u32)countSheet << 1;
-                sheetOffsetsScratchSize += (sheetOffsetsScratchSize >> 31);
-                sheetOffsetsScratchSize &= ~1;
-                copyFlagOffsets(ctx, sheetOffsetsScratch, sheetOffsetsSize, sheetOffsetsScratchSize);
+                copyFlagOffsets(ctx, sheetOffsetsScratch, sheetOffsetsSize, sheetOffsetsScratch + (u16)countSheet);
 
                 ctx->mSheetCount = countSheet;
                 ctx->mGlyphsPerSheet = sheetGlyphCount;
