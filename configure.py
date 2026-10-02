@@ -738,7 +738,7 @@ config.libs = [
         ]
     ),
     IPLSection("board", [
-            Object(Equivalent,  "scene/board/iplBoard.cpp"),
+            Object(Matching, "scene/board/iplBoard.cpp"),
             Object(Matching,    "scene/board/iplBoardObject.cpp"),
             Object(Matching,    "scene/board/iplBoardSD.cpp"),
             Object(Matching,    "scene/board/iplUrlProcessor.cpp"),
