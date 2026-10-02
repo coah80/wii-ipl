@@ -319,8 +319,8 @@ static int RecvFrom(const char* name, int socket, void* data, int length, int fl
             if(length && !DirectBuffer(data,length)) direct=FALSE;
             size=((address==0 ? 0 : address->len)+95)&~31;
             request=SOiAlloc(12,size);
-            if(direct) buffer=data;
-            else buffer=SOiAlloc(13,(length+31)&~31);
+            if(!direct) buffer=SOiAlloc(13,(length+31)&~31);
+            else buffer=data;
             if(!request || !buffer) result=-49;
             else {
                 request->command.socket=socket; request->command.flags=flags;
@@ -362,7 +362,8 @@ static int SendTo(const char* name, int socket, const void* data, int length, in
             direct=TRUE;
             if(length && !DirectBuffer(data,length)) direct=FALSE;
             request=SOiAlloc(12,96);
-            switch(direct) { default: buffer=SOiAlloc(14,(length+31)&~31); break; case 1: buffer=(void*)data; break; }
+            if(direct==0) buffer=SOiAlloc(14,(length+31)&~31);
+            else buffer=(void*)data;
             if(!request || !buffer) result=-49;
             else {
                 SendCmd* cmd=&request->command;

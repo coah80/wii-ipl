@@ -44,8 +44,8 @@ void NETHMACInit(HMACContext* context, const DigestInterface* interface, const v
     keyLength = context->keyLength;
     for (i=0; i<keyLength; ++i) innerKey[i] = context->key[i] ^ 0x36;
     memset(innerKey + keyLength, 0x36, context->interface.blockSize - keyLength);
-    context->interface.init(context->digestContext);
-    context->interface.update(context->digestContext, innerKey, context->interface.blockSize);
+    context->interface.init(work);
+    context->interface.update(work, innerKey, context->interface.blockSize);
 }
 
 void NETHMACUpdate(HMACContext* context, const void* data, u32 length) {
@@ -58,12 +58,12 @@ void NETHMACGetDigest(HMACContext* context, void* digest) {
     u32 i;
     u32 keyLength;
     u8* work = context->digestContext;
-    context->interface.getDigest(work, innerDigest);
+    context->interface.getDigest(context->digestContext, innerDigest);
     keyLength = context->keyLength;
     for (i=0; i<keyLength; ++i) outerKey[i] = context->key[i] ^ 0x5c;
     memset(outerKey + keyLength, 0x5c, context->interface.blockSize - keyLength);
-    context->interface.init(context->digestContext);
-    context->interface.update(context->digestContext, outerKey, context->interface.blockSize);
+    context->interface.init(work);
+    context->interface.update(work, outerKey, context->interface.blockSize);
     context->interface.update(work, innerDigest, context->interface.digestSize);
     context->interface.getDigest(work, digest);
 }

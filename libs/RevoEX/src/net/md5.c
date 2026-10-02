@@ -71,9 +71,10 @@ void NETMD5GetDigest(NETMD5Context* context, void* digest) {
 #define ROTATE(x, n) (((x) << (n)) | ((x) >> (32 - (n))))
 #define STEP(a, b, c, d, f, word, n) \
     do { \
+        u32 _xw = __lwbrx((word), 0); \
         u32 _wc = __lwbrx((word), 0) + *constant; \
         (a) += (f); \
-        (a) = (b) + ((__lwbrx((word), 0) + (*constant + (a))) >> (32 - (n)) | ((a) + _wc) << (n)); \
+        (a) = (b) + (((a) + _wc) << (n) | (_xw + (*constant + (a))) >> (32 - (n))); \
     } while (0)
 
 static void ProcessBlock(NETMD5Context* context) {

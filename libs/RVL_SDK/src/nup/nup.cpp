@@ -1169,7 +1169,9 @@ static inline s32 __nupGetBoot2Version(u16* version) {
         if (checkedVersion != bootVersion) {
             result = -0x1389;
         }
-        *version = checkedVersion;
+        if (checkedVersion != bootVersion) {
+            *version = checkedVersion;
+        }
     }
     return result;
 }
