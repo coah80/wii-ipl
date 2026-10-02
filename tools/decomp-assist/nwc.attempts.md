@@ -99,3 +99,23 @@
   (addr pinned), `index *= 4` split-if (breaks single shared -5 tail block).
 - TextInternal -1 confirmed = SelectMBox type-reload CSE wall + beq/bne polarity;
   Attached -1 same wall. All other remaining diffs insn-equal renames.
+
+## wave 12 findings (arg-reg pinning model, PurgeOldestDlTask 170->175)
+
+- **Scoped-pointer arg-pin (proven)**: when an inline helper's pointer param is
+  shared across phases, declaring a scoped local per phase makes MWCC
+  re-materialize `&obj` into the arg reg per phase instead of pinning one callee
+  reg — this cascades the result var into the NEXT arg reg (r5), matching base.
+  `readTask = &task` scoped to read phase + `&task` fresh at the remove call:
+  dlTask->r3, dlHead->r4, err->r5 = base's exact arg-register carrier model.
+- **Separate-ifs double-assign (proven)**: `if (result < 0) { err = result; }
+  if (result >= 0) { err = result; write }` keeps BOTH `mr` emits; the if/else
+  form folds them (GVN). Two separate ifs share the compare but keep per-edge
+  assigns.
+- **`else { return x }` unfuses the branch**: `if (c) { X } else { return x }`
+  emits `b exit` on the else path where bare `if (c) {X}` fused `blt` — matches
+  base's bge+ b layout piece.
+- ManageDlTaskListForMenu reached insn-equal 152/152 via `&task` at both calls
+  (no pointer var at all) — MWCC's phase model gives arg-reg materialization.
+- Remaining PurgeOldest -1: base's dead `cmpwi err,0; mr r3,err; bge;b` tail —
+  a folded `if(err>=0) return; return` that MWCC won't re-emit from source.

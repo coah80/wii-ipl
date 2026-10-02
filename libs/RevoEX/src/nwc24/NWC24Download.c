@@ -239,16 +239,19 @@ static inline NWC24Err ReadDlTaskInline(NWC24DlTask* dlTask, NWC24DlId dlId) {
 }
 
 static inline NWC24Err RemoveDlTask(NWC24DlTask* dlTask) {
-    NWC24Err result = ValidateDlTask(dlTask, FALSE);
-    if (result != NWC24_OK) {
-        return result;
+    NWC24Err result;
+    NWC24Err err = ValidateDlTask(dlTask, FALSE);
+    if (err == NWC24_OK) {
+        result = DeleteDlTask(dlTask);
+        if (result < NWC24_OK) {
+            err = result;
+        }
+        if (result >= NWC24_OK) {
+            err = result;
+            ((DlTaskData*)dlTask)->id = 0xffff;
+        }
     }
-    result = DeleteDlTask(dlTask);
-    if (result < NWC24_OK) {
-        return result;
-    }
-    ((DlTaskData*)dlTask)->id = 0xffff;
-    return result;
+    return err;
 }
 
 static inline NWC24Err GetMaxDlTaskCount(u16* count) {
@@ -909,9 +912,13 @@ NWC24Err NWC24PurgeOldestDlTask() {
     }
 
     if (result >= NWC24_OK) {
-        taskPointer = &task;
-        result = ReadDlTaskInline(taskPointer, taskId);
-        if (result >= NWC24_OK) { result = RemoveDlTask(taskPointer); }
+        NWC24DlTask* readTask = &task;
+        result = ReadDlTaskInline(readTask, taskId);
+        if (result >= NWC24_OK) {
+            result = RemoveDlTask(&task);
+        } else {
+            return result;
+        }
     } else {
         if (result == NWC24_ERR_DONE) { result = NWC24_ERR_FAILED; }
     }
@@ -919,18 +926,16 @@ NWC24Err NWC24PurgeOldestDlTask() {
 }
 NWC24Err NWC24ManageDlTaskListForMenu() {
     NWC24DlTask task;
-    NWC24DlTask* taskPointer;
     u16 maxTaskCount;
     NWC24Err result = GetMaxDlTaskCount(&maxTaskCount);
     if (result < NWC24_OK) { return result; }
     if (maxTaskCount >= NWC24_DL_TASK_MAX) { return NWC24_OK; }
     result = NWC24ExtendDlTaskList(NWC24_DL_TASK_MAX);
     if (result < NWC24_OK) { return result; }
-    taskPointer = &task;
-    result = ReadDlTaskInline(taskPointer, 2);
+    result = ReadDlTaskInline(&task, 2);
     if (result == NWC24_ERR_NOT_FOUND) { return NWC24_OK; }
     if (result < NWC24_OK) { return result; }
-    return RemoveDlTask(taskPointer);
+    return RemoveDlTask(&task);
 }
 
 NWC24Err NWC24GetDlOptOutFlags(NWC24DlTask* dlTask, u8* dlOptOutFlags) {
