@@ -16,8 +16,8 @@ typedef s32 CXStreamingResult;
 #define CX_STREAMING_ERR_BAD_FILE_TABLE -5
 
 typedef struct CXUncompContextRL {
-    u8* unk_0x00;  // 0x00
-    int unk_0x04;  // 0x04
+    u8* outData;   // 0x00
+    int outDataLen;  // 0x04
     u32 size;      // 0x08
     u16 unk_0x0C;  // 0x0C
     u8 unk_0x0e;   // 0x0E
@@ -25,8 +25,8 @@ typedef struct CXUncompContextRL {
 } CXUncompContextRL;
 
 typedef struct CXUncompContextLZ {
-    u8* unk_0x00;  // 0x00
-    int unk_0x04;  // 0x04
+    u8* outData;   // 0x00
+    int outDataLen;  // 0x04
     u32 size;      // 0x08
     int unk_0x0C;  // 0x0C
     u8 unk_0x10;   // 0x10
