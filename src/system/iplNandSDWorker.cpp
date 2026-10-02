@@ -150,7 +150,7 @@ namespace ipl {
         myWork->sdWriteProtected = FALSE;
         myWork->prevAsyncResult = RESULT_WORKING;
 
-        unk_0x04 = false;
+        mbCancel = false;
 
         OSResumeThread(&myWork->thread);
     }
@@ -1235,7 +1235,7 @@ namespace ipl {
         int result;
         OSReport("NandSDWorker: cleaning partial nand app...\n");
         for (int i = 0; i < titleIdCount; i++) {
-            if (unk_0x04 != false) {
+            if (mbCancel != false) {
                 return RESULT_UNK_18;
             }
 
@@ -4877,7 +4877,7 @@ namespace ipl {
         strncat(fmtStr, fileName, NAND_MAX_PATH);
 
         while (faErr == FA_ERR_SUCCESS) {
-            if (unk_0x04 != false) {
+            if (mbCancel != false) {
                 return RESULT_UNK_18;
             }
 
