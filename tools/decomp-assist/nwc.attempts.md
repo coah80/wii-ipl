@@ -256,3 +256,10 @@ Verdict: remaining nwc24 diffs are all allocator/scheduler-internal homes; sourc
 - InitDlTask: `= ""` vs `= {0}` (same 31), byte-fill loop (166/144 count-gap — inline unroll is right).
 - IterateDlTask: `work = NWC24WorkP,` in-loop re-fetch (same 10 — hoists anyway).
 - Net: all remaining diffs confirmed as web-creation-order/home ties; no new lever landed this wave.
+
+## wave 24 — decl-order + early-stmt-init levers (BIG WINS)
+- QDecode 25→0 (EXACT): `u8 value; u32 decodedOffset; u32 encodedOffset;` decl order (uninit) + early stmts `decodedOffset=0; value=0; result=NWC24_OK;` before checks + `for (encodedOffset = 0;` loop-IV. Mechanism: MWCC emits decl-inits eagerly in entry; uninit-decl + early-stmt gives base's exact emit order (dec@11, value@12, result@13, ptrs@33-34, enc@35) AND coloring (value-first decl rotated the home band).
+- FindMarker decl swap `s32 offset;` BEFORE `u32 markerLength` → ExtractEncodedText 13→0 (EXACT), ExtractCharset 35→27 (pinned-walk now matches), DecodeWord 140→142 (+2, acceptable trade).
+- SetMsgSubjectAndTextPublic 65d: base colors `stringWork` (lwz 0(0) = NWC24WorkP->stringWork offset-0 member) FIRST at r22 — decl perms/early-fetch all regress or no-op. Allocator ordering unshiftable.
+- InitDlTask 31d: zero-web r28↔r29 — base colors nwc24IdHigh first; decl-order inert (4 perms identical).
+- ExtractCharset `char* start2` block-scope → 82/84 count-gap (over-shares the walk web); reverted.
