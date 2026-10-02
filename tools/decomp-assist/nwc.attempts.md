@@ -216,3 +216,10 @@ Blocking fns per unit (diff counts, all count-matched): MsgSubject — NWC24SetM
 - iDateToOSCalendarTime (13): year-web r0↔r5 vs coalesced "0"-web (isLeapYear/msec/usec share one li 0 web). 3 init-position variants tried — coloring tie.
 - ConvertDateToDays (16): magic-div const-materialization + interleave order at tail — scheduling tie.
 Verdict: remaining nwc24 diffs are all allocator/scheduler-internal homes; source levers (assoc, decl order, stmt order, init position, accumulation direction) have been exhausted across ~15 forms this wave.
+
+## wave 19 — alias-decl lever transfer attempts (all failed, reverted)
+- CheckDlHeaderConsistency fix (wave prior): `DlTaskData* taskData = (DlTaskData*)&task` first decl -> diffs 0. Committed 2cf9bb4f.
+- IterateDlTask r6/r7: `NWC24Work* work = NWC24WorkP` top-init -> same 10; `entriesHeader = header` -> -1 insn (drops addi); early `entriesHeader = header` before work reload -> -1 + r0->r8 shift. Reverted.
+- iSetMsgSubjectBase64 arg-pin r8-first: stmt reorder `second` before `workHalf` -> same 10; initialized-first-decl `u8* second = work + (workSize>>1)` -> same 10. MWCC emits arg copies by internal order. Reverted.
+- InitDlTask 3-web rotation (zero->r28/r29, strtoul1, strtoul2): stmt swap strtoul order -> 32 (worse). Reverted.
+- DecodeWord 140 (whole-fn permutation): base _savegpr_18 (14 callee) vs mine _savegpr_19 (13) — base has ONE MORE pinned web. Its `?` delimiter loop: `li r22,0` IV + `add r31,r18,r22` (encoded + IV, index-form; no walking `current` pointer). Tried: `encoded+offset` from consumedSize (178/180 -2), `encoded+consumedSize+offset` (142, _savegpr_20), `scanStart` alias ptr (181/180 +1), decl-order swap (same), `encodedWordPosition+offset` consumedSize-init loop (178/180 -2). All reverted. Open question: how orig emits encoded+offset with consumedSize absorbed — IV web may be `consumedSize+offset` merged where init `li 0` contradicts; or the scan genuinely starts at encoded[0] (semantically suspect vs `=?` prefix at index 1).
