@@ -15,11 +15,9 @@ static void TMCJPEGDEC_converterYUV400toRGB565(TMCCJPEGDecWork*, s32, s32);
 static void TMCJPEGDEC_converterYUV400toRGB565edge(TMCCJPEGDecWork*, s32, s32);
 
 s32 TMCJPEGDEC_set_converterRGB565(TMCCJPEGDecWork* work) {
-    u8* buffer;
     s32 componentCount;
     TMCCJPEGDecState* state;
 
-    buffer = work->convBuf;
     componentCount = work->componentCount;
     state = work->pState;
 
@@ -34,14 +32,14 @@ s32 TMCJPEGDEC_set_converterRGB565(TMCCJPEGDecWork* work) {
             u8* crBlock;
 
             mode = work->idctMode;
-            firstRow = buffer + 4;
+            firstRow = work->convBuf + 4;
             work->pConverterFunc = TMCJPEGDEC_converterYUV411toRGB565;
             work->pConverterFuncEdge = TMCJPEGDEC_converterYUV411toRGB565edge;
             secondRow = firstRow + mode;
             thirdRow = secondRow + mode;
             fourthRow = thirdRow + mode;
-            cbBlock = buffer + 260;
-            crBlock = buffer + 324;
+            cbBlock = work->convBuf + 260;
+            crBlock = work->convBuf + 324;
             work->pConvRowPtrs[0] = firstRow;
             work->pConvRowPtrs[1] = secondRow;
             work->pConvRowPtrs[2] = thirdRow;
@@ -60,12 +58,12 @@ s32 TMCJPEGDEC_set_converterRGB565(TMCCJPEGDecWork* work) {
             u8* crBlock;
 
             mode = work->idctMode;
-            firstRow = buffer + 4;
+            firstRow = work->convBuf + 4;
             work->pConverterFunc = TMCJPEGDEC_converterYUV422toRGB565;
             work->pConverterFuncEdge = TMCJPEGDEC_converterYUV422toRGB565edge;
             secondRow = firstRow + mode;
-            cbBlock = buffer + 132;
-            crBlock = buffer + 196;
+            cbBlock = work->convBuf + 132;
+            crBlock = work->convBuf + 196;
             work->pConvRowPtrs[0] = firstRow;
             work->pConvRowPtrs[1] = secondRow;
             work->pConvRowPtrs[5] = cbBlock;
@@ -84,14 +82,14 @@ s32 TMCJPEGDEC_set_converterRGB565(TMCCJPEGDecWork* work) {
             u8* crBlock;
 
             mode = work->idctMode;
-            firstRow = buffer + 4;
+            firstRow = work->convBuf + 4;
             work->pConverterFunc = TMCJPEGDEC_converterYUV420toRGB565;
             work->pConverterFuncEdge = TMCJPEGDEC_converterYUV420toRGB565edge;
             secondRow = firstRow + mode;
             thirdRow = firstRow + mode * 16;
             fourthRow = thirdRow + mode;
-            cbBlock = buffer + 260;
-            crBlock = buffer + 324;
+            cbBlock = work->convBuf + 260;
+            crBlock = work->convBuf + 324;
             work->pConvRowPtrs[0] = firstRow;
             work->pConvRowPtrs[1] = secondRow;
             work->pConvRowPtrs[2] = thirdRow;
@@ -110,12 +108,12 @@ s32 TMCJPEGDEC_set_converterRGB565(TMCCJPEGDecWork* work) {
             u8* crBlock;
 
             mode = work->idctMode;
-            firstRow = buffer + 4;
+            firstRow = work->convBuf + 4;
             work->pConverterFunc = TMCJPEGDEC_converterYUV211toRGB565;
             work->pConverterFuncEdge = TMCJPEGDEC_converterYUV211toRGB565edge;
             secondRow = firstRow + mode * 8;
-            cbBlock = buffer + 132;
-            crBlock = buffer + 196;
+            cbBlock = work->convBuf + 132;
+            crBlock = work->convBuf + 196;
             work->pConvRowPtrs[0] = firstRow;
             work->pConvRowPtrs[1] = secondRow;
             work->pConvRowPtrs[5] = cbBlock;
@@ -129,11 +127,11 @@ s32 TMCJPEGDEC_set_converterRGB565(TMCCJPEGDecWork* work) {
             TMCConverterFunc* edgeConverter;
             converter = TMCJPEGDEC_converterYUV444toRGB565;
             edgeConverter = TMCJPEGDEC_converterYUV444toRGB565edge;
-            work->pConvRowPtrs[0] = buffer + 4;
-            work->pConvRowPtrs[5] = buffer + 0x44;
-            work->pConvRowPtrs[6] = buffer + 0x84;
             work->pConverterFunc = converter;
             work->pConverterFuncEdge = edgeConverter;
+            work->pConvRowPtrs[0] = work->convBuf + 4;
+            work->pConvRowPtrs[5] = work->convBuf + 0x44;
+            work->pConvRowPtrs[6] = work->convBuf + 0x84;
             work->pitch = 0x08;
             work->converterFlags = 0;
             break;
@@ -143,9 +141,9 @@ s32 TMCJPEGDEC_set_converterRGB565(TMCCJPEGDecWork* work) {
             TMCConverterFunc* edgeConverter;
             converter = TMCJPEGDEC_converterYUV400toRGB565;
             edgeConverter = TMCJPEGDEC_converterYUV400toRGB565edge;
-            work->pConvRowPtrs[0] = buffer + 4;
             work->pConverterFunc = converter;
             work->pConverterFuncEdge = edgeConverter;
+            work->pConvRowPtrs[0] = work->convBuf + 4;
             work->pitch = 0x08;
             work->converterFlags = 0;
             break;

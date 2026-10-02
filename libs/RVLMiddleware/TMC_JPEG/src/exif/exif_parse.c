@@ -3,8 +3,8 @@
 #include <tmc_jpeg_internal.h>
 
 static s32 TMCJPEGDEC_exif_parse(const u8* data, u32 size, TMCCJPEGDecExifData* pInfo);
-static void TMCJPEGDEC_IFD0_tag_parse(TMCCJPEGDecExifData* pInfo, u16 byteOrder, const u8* entry);
-static void TMCJPEGDEC_IFD1_tag_parse(TMCCJPEGDecExifData* pInfo, u16 byteOrder, const u8* entry);
+static void TMCJPEGDEC_IFD0_tag_parse(TMCCJPEGDecExifData* pInfo, u16 byteOrder, u8* entry);
+static void TMCJPEGDEC_IFD1_tag_parse(TMCCJPEGDecExifData* pInfo, u16 byteOrder, u8* entry);
 static s32 TMCJPEGDEC_ThumbnailCheck(TMCCJPEGDecInitParam* param, TMCCJPEGDecExifInfo* info, u32 totalSize);
 
 static u16 readU16(const u8* p, u16 byteOrder) {
@@ -16,7 +16,7 @@ static u16 readU16(const u8* p, u16 byteOrder) {
 }
 
 static u16 readExifU16(const u8* data, u16 byteOrder) {
-    u16 value = data[0] | data[1] << 8;
+    u32 value = data[0] | data[1] << 8;
     if (byteOrder == 0x4949) {
         return (u16)value;
     }
@@ -246,9 +246,9 @@ static s32 TMCJPEGDEC_exif_parse(const u8* data, u32 size, TMCCJPEGDecExifData* 
     u32 ifdOffset;
     const u8* entries;
     u16 remaining;
-    u16 index;
-    s32 entriesSize;
     u16 count;
+    s32 entriesSize;
+    u16 index;
     pInfo->thumbnailData = (u8*)data;
     pInfo->dataEnd = (u8*)data + size;
     pInfo->nextIfdOffset = 0;
@@ -280,7 +280,7 @@ static s32 TMCJPEGDEC_exif_parse(const u8* data, u32 size, TMCCJPEGDecExifData* 
             return -161;
         }
         for (index = 0; index < count; index++) {
-            TMCJPEGDEC_IFD0_tag_parse(pInfo, byteOrder, entries);
+            TMCJPEGDEC_IFD0_tag_parse(pInfo, byteOrder, (u8*)entries);
             entries += 12;
         }
         remaining -= entriesSize;
@@ -309,7 +309,7 @@ static s32 TMCJPEGDEC_exif_parse(const u8* data, u32 size, TMCCJPEGDecExifData* 
             return -161;
         }
         for (index = 0; index < count; index++) {
-            TMCJPEGDEC_IFD1_tag_parse(pInfo, byteOrder, entries);
+            TMCJPEGDEC_IFD1_tag_parse(pInfo, byteOrder, (u8*)entries);
             entries += 12;
         }
     }
@@ -331,25 +331,26 @@ static s32 TMCJPEGDEC_exif_parse(const u8* data, u32 size, TMCCJPEGDecExifData* 
             return -161;
         }
         for (index = 0; index < count; index++) {
-            TMCJPEGDEC_IFD0_tag_parse(pInfo, byteOrder, entries);
+            TMCJPEGDEC_IFD0_tag_parse(pInfo, byteOrder, (u8*)entries);
             entries += 12;
         }
     }
     return 0;
 }
 
-static void TMCJPEGDEC_IFD0_tag_parse(TMCCJPEGDecExifData* pInfo, u16 byteOrder, const u8* entry) {
-    s32 tag;
+static void TMCJPEGDEC_IFD0_tag_parse(TMCCJPEGDecExifData* pInfo, u16 byteOrder, u8* entry) {
+    u16 tag;
     u16 type;
 
     tag = readU16(entry, byteOrder);
-    type = readU16(entry + 2, byteOrder);
+    type = (u16)readU16(entry + 2, byteOrder);
 
     switch (tag) {
-        case 0x0103:
         case 0x0111:
         case 0x0201:
-        case 0x0202: {
+        case 0x0202:
+        case 0x0113 ... 0x0119:
+        case 0x0103: {
             break;
         }
         case 0x0112: {
@@ -489,19 +490,21 @@ static void TMCJPEGDEC_IFD0_tag_parse(TMCCJPEGDecExifData* pInfo, u16 byteOrder,
     }
 }
 
-static void TMCJPEGDEC_IFD1_tag_parse(TMCCJPEGDecExifData* pInfo, u16 byteOrder, const u8* entry) {
+static void TMCJPEGDEC_IFD1_tag_parse(TMCCJPEGDecExifData* pInfo, u16 byteOrder, u8* entry) {
     s32 tag = readU16(entry, byteOrder);
 
     switch (tag) {
         case 0x0132:
         case 0x0111:
-        case 0x0112:
+        case 0x0117 ... 0x0119:
+        case 0x0102:
+        case 0x011C ... 0x0127:
         case 0x012D:
         case 0x0213:
         case 0x8769:
         case 0x9000:
         case 0x9101:
-        case 0xA003: {
+        case 0xA002 ... 0xA003: {
             break;
         }
         case 0x011A: {
