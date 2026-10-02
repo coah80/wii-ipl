@@ -90,6 +90,12 @@ MemCardEventHandler::~MemCardEventHandler() {}
 
 MemoryBaseEvent::MemoryBaseEvent(MemoryBase* memoryBase) : mpBase(memoryBase) {}
 
+} // namespace scene
+namespace math {
+inline LinearIntp<VEC3>::LinearIntp() {}
+}
+namespace scene {
+
 void GCWindow::init(const math::VEC3& translate, MemoryCardManager* manager, u8 cardState, short cardIndex) {
     mActive = true;
     mFlags1[cardState] = 0;
