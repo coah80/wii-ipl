@@ -89,10 +89,10 @@ namespace ipl {
 
             int mIPLState;             // 0x04
             volatile BS2State mState;  // 0x08
-            bool unk_0x0C;
-            bool unk_0x0D;
-            bool unk_0x0E;
-            bool unk_0x0F;
+            bool mbTickEnabled;       // 0x0C
+            bool mbUpdateRequested;   // 0x0D
+            bool mbAbortRequested;    // 0x0E
+            bool mbRestartRequested;  // 0x0F
             bool mbIsDiagDisc;          // 0x10
             bool mbIncludesSeatTitles;  // 0x11
             u8* mpBannerBuffer;         // 0x14
