@@ -1523,7 +1523,7 @@ s32 pfd_sddrv_full_format(void) {
         return -31;
     }
     if (result != 0) {
-        OSReport("ERR Failed to build up and write MBR and BPB fields.\n");
+        OSReport("ERR Failed to build up and write MBR and BPB fields.\n\0\0");
         return result;
     }
     return 0;
