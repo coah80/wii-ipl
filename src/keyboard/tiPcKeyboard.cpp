@@ -1499,12 +1499,16 @@ namespace textinput {
                 return mKeyState.getWCCode(paneName);
             }
 
-            u32 Base::getControlKey(char* paneName) {
+            inline u32 FindControlKey(const Base::KeyState& state, char* paneName) {
                 for (u16 i = 0; i < 23; i++) {
-                    if (util::strcmp(mKeyState.data->controls[i].paneName, paneName))
-                        return mKeyState.data->controls[i].key;
+                    if (util::strcmp(state.data->controls[i].paneName, paneName))
+                        return state.data->controls[i].key;
                 }
                 return 27;
+            }
+
+            u32 Base::getControlKey(char* paneName) {
+                return FindControlKey(mKeyState, paneName);
             }
 
             void Base::changeABCInputMode(InputMode mode) {
