@@ -769,19 +769,14 @@ static NWC24Err WriteMIMEAttachHeader(NWC24MsgObjPrivate* msg, u32 index) {
     char* buffer;
     const char* mime;
     const char* suffix;
-    s32 typeLength, encodingLength, dispositionLength, mimeLength;
+    int mimeLength;
     s32 first, second, third, total;
     NWC24Err err;
     Mail_memset(NWC24WorkP->stringWork, 0, 1024);
     buffer = NWC24WorkP->stringWork;
     mime = NWC24GetMIMETypeStr(msg->attachedType[index]);
     suffix = NWC24iGetMIMETypeSuffix(msg->attachedType[index]);
-    encodingLength = Mail_strlen(ContentTxEncA);
-    typeLength = Mail_strlen(ContentTypeA);
-    dispositionLength = Mail_strlen(ContentDispA);
-    typeLength += encodingLength;
-    mimeLength = Mail_strlen(mime);
-    mimeLength = (dispositionLength + typeLength) + mimeLength + 4;
+    mimeLength = (Mail_strlen(ContentTypeA) + Mail_strlen(ContentTxEncA)) + Mail_strlen(ContentDispA) + Mail_strlen(mime) + 4;
     if (mimeLength >= 1024)
         return NWC24_ERR_NOMEM;
     first = Mail_sprintf(buffer, (char*)ContentTypeA, mime, (char)('a' + index), msg->msgId, suffix);
