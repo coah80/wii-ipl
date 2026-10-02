@@ -50,3 +50,31 @@ scheduling swaps — pure web-rotation / marshal-order ties, no source lever fou
 158=158 / structurally complete — remaining diff is the interleave ORDER of the
 16 table-index `rlwinm` extracts vs `lwzx` loads across the 4 ENCRYPT terms
 (pure list-scheduler shape); ENCRYPT operand-assoc/order variants don't move it.
+
+## Pass 4 (orchestrator resume — decode walls)
+
+### MD5 base-materialization + increment placement (70.8 -> 79.2)
+Orig materializes `&indices` at the round-2 boundary (`lis/addi` mid-function), not in
+the prologue — `u32* index` declared at top but `index = indices` assigned BETWEEN
+loop 1 and loop 2. Orig also schedules `++constant` inside the step body (each step's
+end), not as a separate statement after STEP — `++constant` moved inside the STEP
+macro tail. Combined: 70.8 -> 79.2, 307=307 insns. `*++constant`/`*constant++` forms
+score higher (75.7) but read constants[1..64] — semantically wrong (OOB on last step),
+rejected. Residual: software-pipelining — orig prefetches next-step `lwz 4(rc)` /
+`lwz idx` / `lwbrx` into the current step's tail; MWCC won't pipeline with this web
+set. Tried: block-scoped round webs (C89 — no for-init decls; block-wrap BUILDFAIL
+fixup attempt regressed), `*index++`/`word++` in expr/macro (74.1), block/wptr
+elimination via context->buffer32 (70.0), const-1 init (73.1).
+
+### AES extract/load interleave — all forms regress (60.35 stays)
+nextA-D temps confirmed (fused per-statement key-xor -> 44). Tried: key+=4 early
+(57.4), xor order rev (56.0), next-decl rev (58.7), xor operand swap key^next (56.4),
+for(rounds>1) (53.8), *key++ (57.4), reversed xor chain (52.8), right-assoc (56.0).
+Orig's interleave mixes extract/lwzx/rotlwi/xor across all 4 terms — MWCC list-
+scheduler shape, no source lever found. Documented wall.
+
+### ParseServerInfo — instruction-identical, pure reg rotation (98.11)
+Normalized diff = 5 symbol-name artifacts only; raw diff = whole-fn callee-web
+rotation (orig binds &locals to r25/r22/r23 webs, mine r24/r25/r27 + one web escapes
+to r18). Decl-order rotation inert (all 4 orders = 98.11); per-block start/valueLength
+locals regressed (94.09) — shared decls confirmed. Documented wall.
