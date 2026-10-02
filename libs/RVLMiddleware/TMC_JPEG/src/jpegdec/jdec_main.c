@@ -562,8 +562,8 @@ s32 TMCJPEGDEC_scan_varinit(TMCCJPEGDecWork* work) {
     remX = p->frameWidth % p->mcuXCount;
     remY = p->frameHeight % p->mcuXRem;
 
-    p->unk_0x18 = remX;
-    p->unk_0x19 = remY;
+    p->remX = remX;
+    p->remY = remY;
 
     p->mcuYCount = p->mcuYCount + ((u8)remX != 0 ? 1 : 0);
     p->mcuXCount2 = p->mcuXCount2 + ((u8)remY != 0 ? 1 : 0);
@@ -1919,8 +1919,8 @@ static s32 TMCJPEGDEC_parse_sof(TMCCJPEGDecWork* work) {
         remX = fw - mcuCountX * mcuX;
         remY = fh - mcuCountY * mcuY;
 
-        work->unk_0x1808 = remX;
-        work->unk_0x1809 = remY;
+        work->remX = remX;
+        work->remY = remY;
 
         {
             u16 xr = (remX != 0) ? 1 : 0;
