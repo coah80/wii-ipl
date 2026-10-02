@@ -1,18 +1,18 @@
 #define TMC_JPEG_PLANAR_OUTPUT
 #include <tmc_jpeg_internal.h>
 
-static void TMCJPEG_814EFEAC(TMCCJPEGDecWork*, s32, s32);
-static void TMCJPEG_814F043C(TMCCJPEGDecWork*, s32, s32);
-static void TMCJPEG_814F0A58(TMCCJPEGDecWork*, s32, s32);
-static void TMCJPEG_814F11C4(TMCCJPEGDecWork*, s32, s32);
-static void TMCJPEG_814F17E0(TMCCJPEGDecWork*, s32, s32);
-static void TMCJPEG_814F1F48(TMCCJPEGDecWork*, s32, s32);
-static void TMCJPEG_814F2570(TMCCJPEGDecWork*, s32, s32);
-static void TMCJPEG_814F2B50(TMCCJPEGDecWork*, s32, s32);
-static void TMCJPEG_814F3158(TMCCJPEGDecWork*, s32, s32);
-static void TMCJPEG_814F32E4(TMCCJPEGDecWork*, s32, s32);
-static void TMCJPEG_814F34A4(TMCCJPEGDecWork*, s32, s32);
-static void TMCJPEG_814F372C(TMCCJPEGDecWork*, s32, s32);
+static void TMCJPEGDEC_converterYUV411toY8U8V8(TMCCJPEGDecWork*, s32, s32);
+static void TMCJPEGDEC_converterYUV411toY8U8V8edge(TMCCJPEGDecWork*, s32, s32);
+static void TMCJPEGDEC_converterYUV422toY8U8V8(TMCCJPEGDecWork*, s32, s32);
+static void TMCJPEGDEC_converterYUV422toY8U8V8edge(TMCCJPEGDecWork*, s32, s32);
+static void TMCJPEGDEC_converterYUV420toY8U8V8(TMCCJPEGDecWork*, s32, s32);
+static void TMCJPEGDEC_converterYUV420toY8U8V8edge(TMCCJPEGDecWork*, s32, s32);
+static void TMCJPEGDEC_converterYUV211toY8U8V8(TMCCJPEGDecWork*, s32, s32);
+static void TMCJPEGDEC_converterYUV211toY8U8V8edge(TMCCJPEGDecWork*, s32, s32);
+static void TMCJPEGDEC_converterYUV444toY8U8V8(TMCCJPEGDecWork*, s32, s32);
+static void TMCJPEGDEC_converterYUV444toY8U8V8edge(TMCCJPEGDecWork*, s32, s32);
+static void TMCJPEGDEC_converterYUV400toY8U8V8(TMCCJPEGDecWork*, s32, s32);
+static void TMCJPEGDEC_converterYUV400toY8U8V8edge(TMCCJPEGDecWork*, s32, s32);
 
 s32 TMCJPEGDEC_set_converterY8U8V8(TMCCJPEGDecWork* work) {
     u8* buffer;
@@ -35,8 +35,8 @@ s32 TMCJPEGDEC_set_converterY8U8V8(TMCCJPEGDecWork* work) {
 
             mode = work->idctMode;
             firstRow = buffer + 4;
-            work->pConverterFunc = TMCJPEG_814EFEAC;
-            work->pConverterFuncEdge = TMCJPEG_814F043C;
+            work->pConverterFunc = TMCJPEGDEC_converterYUV411toY8U8V8;
+            work->pConverterFuncEdge = TMCJPEGDEC_converterYUV411toY8U8V8edge;
             secondRow = firstRow + mode;
             thirdRow = secondRow + mode;
             fourthRow = thirdRow + mode;
@@ -61,8 +61,8 @@ s32 TMCJPEGDEC_set_converterY8U8V8(TMCCJPEGDecWork* work) {
 
             mode = work->idctMode;
             firstRow = buffer + 4;
-            work->pConverterFunc = TMCJPEG_814F0A58;
-            work->pConverterFuncEdge = TMCJPEG_814F11C4;
+            work->pConverterFunc = TMCJPEGDEC_converterYUV422toY8U8V8;
+            work->pConverterFuncEdge = TMCJPEGDEC_converterYUV422toY8U8V8edge;
             secondRow = firstRow + mode;
             cbBlock = buffer + 132;
             crBlock = buffer + 196;
@@ -85,8 +85,8 @@ s32 TMCJPEGDEC_set_converterY8U8V8(TMCCJPEGDecWork* work) {
 
             mode = work->idctMode;
             firstRow = buffer + 4;
-            work->pConverterFunc = TMCJPEG_814F17E0;
-            work->pConverterFuncEdge = TMCJPEG_814F1F48;
+            work->pConverterFunc = TMCJPEGDEC_converterYUV420toY8U8V8;
+            work->pConverterFuncEdge = TMCJPEGDEC_converterYUV420toY8U8V8edge;
             secondRow = firstRow + mode;
             thirdRow = firstRow + mode * 16;
             fourthRow = thirdRow + mode;
@@ -111,8 +111,8 @@ s32 TMCJPEGDEC_set_converterY8U8V8(TMCCJPEGDecWork* work) {
 
             mode = work->idctMode;
             firstRow = buffer + 4;
-            work->pConverterFunc = TMCJPEG_814F2570;
-            work->pConverterFuncEdge = TMCJPEG_814F2B50;
+            work->pConverterFunc = TMCJPEGDEC_converterYUV211toY8U8V8;
+            work->pConverterFuncEdge = TMCJPEGDEC_converterYUV211toY8U8V8edge;
             secondRow = firstRow + mode * 8;
             cbBlock = buffer + 132;
             crBlock = buffer + 196;
@@ -127,8 +127,8 @@ s32 TMCJPEGDEC_set_converterY8U8V8(TMCCJPEGDecWork* work) {
         case 4: {
             TMCConverterFunc* converter;
             TMCConverterFunc* edgeConverter;
-            converter = TMCJPEG_814F3158;
-            edgeConverter = TMCJPEG_814F32E4;
+            converter = TMCJPEGDEC_converterYUV444toY8U8V8;
+            edgeConverter = TMCJPEGDEC_converterYUV444toY8U8V8edge;
             work->pConvRowPtrs[0] = buffer + 4;
             work->pConvRowPtrs[5] = buffer + 0x44;
             work->pConvRowPtrs[6] = buffer + 0x84;
@@ -141,8 +141,8 @@ s32 TMCJPEGDEC_set_converterY8U8V8(TMCCJPEGDecWork* work) {
         case 5: {
             TMCConverterFunc* converter;
             TMCConverterFunc* edgeConverter;
-            converter = TMCJPEG_814F34A4;
-            edgeConverter = TMCJPEG_814F372C;
+            converter = TMCJPEGDEC_converterYUV400toY8U8V8;
+            edgeConverter = TMCJPEGDEC_converterYUV400toY8U8V8edge;
             work->pConvRowPtrs[0] = buffer + 4;
             work->pConverterFunc = converter;
             work->pConverterFuncEdge = edgeConverter;
@@ -168,7 +168,7 @@ s32 TMCJPEGDEC_set_converterY8U8V8(TMCCJPEGDecWork* work) {
     return 0;
 }
 
-static void TMCJPEG_814EFEAC(TMCCJPEGDecWork* work, s32 x, s32 y) {
+static void TMCJPEGDEC_converterYUV411toY8U8V8(TMCCJPEGDecWork* work, s32 x, s32 y) {
     s32 rowSkip;
     u8* output;
     u32 tileRow;
@@ -232,7 +232,7 @@ static void TMCJPEG_814EFEAC(TMCCJPEGDecWork* work, s32 x, s32 y) {
     }
 }
 
-static void TMCJPEG_814F043C(TMCCJPEGDecWork* work, s32 x, s32 y) {
+static void TMCJPEGDEC_converterYUV411toY8U8V8edge(TMCCJPEGDecWork* work, s32 x, s32 y) {
     TMCCJPEGDecState* state;
     u8* lumaTexture;
     u8* luminance;
@@ -298,7 +298,7 @@ static void TMCJPEG_814F043C(TMCCJPEGDecWork* work, s32 x, s32 y) {
     }
 }
 
-static void TMCJPEG_814F0A58(TMCCJPEGDecWork* work, s32 x, s32 y) {
+static void TMCJPEGDEC_converterYUV422toY8U8V8(TMCCJPEGDecWork* work, s32 x, s32 y) {
     s32 chromaYEnd;
     u8* lumaTexture;
     u8* luminance;
@@ -357,7 +357,7 @@ static void TMCJPEG_814F0A58(TMCCJPEGDecWork* work, s32 x, s32 y) {
     }
 }
 
-static void TMCJPEG_814F11C4(TMCCJPEGDecWork* work, s32 x, s32 y) {
+static void TMCJPEGDEC_converterYUV422toY8U8V8edge(TMCCJPEGDecWork* work, s32 x, s32 y) {
     TMCCJPEGDecState* state;
     u8* lumaTexture;
     u8* luminance;
@@ -423,7 +423,7 @@ static void TMCJPEG_814F11C4(TMCCJPEGDecWork* work, s32 x, s32 y) {
     }
 }
 
-static void TMCJPEG_814F17E0(TMCCJPEGDecWork* work, s32 x, s32 y) {
+static void TMCJPEGDEC_converterYUV420toY8U8V8(TMCCJPEGDecWork* work, s32 x, s32 y) {
     s32 chromaYEnd;
     u8* lumaTexture;
     s32 height;
@@ -479,7 +479,7 @@ static void TMCJPEG_814F17E0(TMCCJPEGDecWork* work, s32 x, s32 y) {
     }
 }
 
-static void TMCJPEG_814F1F48(TMCCJPEGDecWork* work, s32 x, s32 y) {
+static void TMCJPEGDEC_converterYUV420toY8U8V8edge(TMCCJPEGDecWork* work, s32 x, s32 y) {
     TMCCJPEGDecState* state;
     u8* lumaTexture;
     u8* luminance;
@@ -546,7 +546,7 @@ static void TMCJPEG_814F1F48(TMCCJPEGDecWork* work, s32 x, s32 y) {
     }
 }
 
-static void TMCJPEG_814F2570(TMCCJPEGDecWork* work, s32 x, s32 y) {
+static void TMCJPEGDEC_converterYUV211toY8U8V8(TMCCJPEGDecWork* work, s32 x, s32 y) {
     u8* lumaTexture;
     TMCCJPEGDecState* state;
     u8* luminance;
@@ -602,7 +602,7 @@ static void TMCJPEG_814F2570(TMCCJPEGDecWork* work, s32 x, s32 y) {
     }
 }
 
-static void TMCJPEG_814F2B50(TMCCJPEGDecWork* work, s32 x, s32 y) {
+static void TMCJPEGDEC_converterYUV211toY8U8V8edge(TMCCJPEGDecWork* work, s32 x, s32 y) {
     u32 chromaTileWidth;
     TMCCJPEGDecState* state;
     u8* lumaTexture;
@@ -667,7 +667,7 @@ static void TMCJPEG_814F2B50(TMCCJPEGDecWork* work, s32 x, s32 y) {
     }
 }
 
-static void TMCJPEG_814F3158(TMCCJPEGDecWork* work, s32 x, s32 y) {
+static void TMCJPEGDEC_converterYUV444toY8U8V8(TMCCJPEGDecWork* work, s32 x, s32 y) {
     s32 rowSkip;
     u8* output;
     s32 height;
@@ -722,7 +722,7 @@ static void TMCJPEG_814F3158(TMCCJPEGDecWork* work, s32 x, s32 y) {
     }
 }
 
-static void TMCJPEG_814F32E4(TMCCJPEGDecWork* work, s32 x, s32 y) {
+static void TMCJPEGDEC_converterYUV444toY8U8V8edge(TMCCJPEGDecWork* work, s32 x, s32 y) {
     s32 rowSkip;
     u8* output;
     s32 height;
@@ -785,7 +785,7 @@ static void TMCJPEG_814F32E4(TMCCJPEGDecWork* work, s32 x, s32 y) {
     }
 }
 
-static void TMCJPEG_814F34A4(TMCCJPEGDecWork* work, s32 x, s32 y) {
+static void TMCJPEGDEC_converterYUV400toY8U8V8(TMCCJPEGDecWork* work, s32 x, s32 y) {
     s32 height;
     u8* lumaTexture;
     u8* luminance;
@@ -821,7 +821,7 @@ static void TMCJPEG_814F34A4(TMCCJPEGDecWork* work, s32 x, s32 y) {
     }
 }
 
-static void TMCJPEG_814F372C(TMCCJPEGDecWork* work, s32 x, s32 y) {
+static void TMCJPEGDEC_converterYUV400toY8U8V8edge(TMCCJPEGDecWork* work, s32 x, s32 y) {
     s32 height;
     u8* lumaTexture;
     u8* luminance;
