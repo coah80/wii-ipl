@@ -63,7 +63,7 @@ static NWC24Err SetUnkFlag2(int flag) {
         return result;
     }
 
-    header->unk_0x3C |= flag;
+    header->listFlags |= flag;
     return NWC24_OK;
 }
 
