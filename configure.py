@@ -927,7 +927,7 @@ config.libs = [
             Object(Matching,    "keyboard/tiPkData.cpp", extra_cflags=["-O4,p"], shift_jis=False),
             Object(Matching,    "keyboard/tiLanguageIndependentData.cpp", extra_cflags=["-O4,p"], shift_jis=False),
             Object(Matching,    "keyboard/tiTextInputBase.cpp", extra_cflags=["-O4,p"]),
-            Object(NonMatching, "keyboard/MyTiManager.cpp", extra_cflags=["-O4,p"]),
+            Object(Matching,    "keyboard/MyTiManager.cpp", extra_cflags=["-O4,p"]),
             Object(Matching, "keyboard/MyTiInputForm.cpp", extra_cflags=["-O4,p"]),
             Object(Matching, "keyboard/MyTiLetterForm.cpp", extra_cflags=["-O4,p"]),
             Object(Matching,    "keyboard/MyTiBg.cpp", extra_cflags=["-O4,p"]),

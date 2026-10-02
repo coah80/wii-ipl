@@ -64,6 +64,7 @@ public:
 class AppearMemoState : public State {
 public:
     AppearMemoState() : mTime(0.0f) {}
+    virtual ~AppearMemoState();
     Manager::StateType getStateType();
     void create();
     void init();
@@ -1229,6 +1230,8 @@ Manager::StateType EditMemoState::getStateType() {
 
 inline State::~State() {}
 
+AppearMemoState::~AppearMemoState() {}
+
 Manager::StateType AppearMemoState::getStateType() {
     return Manager::ST_Appearing;
 }
@@ -1241,4 +1244,49 @@ Manager::StateType DispMemoState::getStateType() {
 
 }
 }
+}
+
+inline void textinput::util::Animation::startAnm(f32 start, f32 end, f32 duration, AnimObserver* observer, void* data) {
+    mfStartPoint = start;
+    mfEndPoint = end;
+    mfAnimationTime = duration;
+    mfCurrentFrame = 0.0f;
+    mbInAnimation = true;
+    mpAnimObserver = observer;
+    mpData = data;
+    mbSE = false;
+    if (observer) observer->onAnmEvent(AnimObserver::AE_0, data);
+}
+
+inline void textinput::util::Animation::calc() {
+    if (mbInAnimation) {
+        if (mfCurrentFrame < mfAnimationTime) {
+            mfCurrentFrame = 1.0f + mfCurrentFrame;
+        } else {
+            if (mbInAnimation && mpAnimObserver) {
+                mpAnimObserver->onAnmEvent(AnimObserver::AE_1, mpData);
+            }
+            mbInAnimation = false;
+        }
+    }
+}
+
+inline f32 textinput::util::Animation::getValue() {
+    return hermiteInterporation(mfCurrentFrame, 0.0f, mfStartPoint, 0.0f, mfAnimationTime, mfEndPoint, 0.0f);
+}
+
+inline bool textinput::util::Animation::isActive() {
+    return mbInAnimation;
+}
+
+inline void textinput::util::Animation::setSEFlag(bool flag) {
+    mbSE = flag;
+}
+
+inline bool textinput::util::Animation::isSEFlag() {
+    return mbSE;
+}
+
+inline void textinput::util::Animation::stop() {
+    mbInAnimation = false;
 }
